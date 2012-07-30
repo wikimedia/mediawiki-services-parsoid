@@ -35,7 +35,7 @@ var express = require('express'),
 	cluster = require('cluster');
 
 // local includes
-var mp = '../modules/parser/',
+var mp = '../lib/',
 	lsp = __dirname + '/localsettings.js';
 
 var instanceName = cluster.isWorker ? 'worker(' + process.pid + ')' : 'master';
