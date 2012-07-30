@@ -1,12 +1,9 @@
-VisualEditor and Parsoid work together to provide a visual editor for wiki pages.
+Parsoid implements a bidirectional wikitext parser and interpreter. It
+converts and interprets wikitext into an annotated HTML DOM, which can then be
+edited with HTML editor tools such as the Visual Editor (see
+http://www.mediawiki.org/wiki/VisualEditor). It also provides the conversion
+of a (possibly modified) HTML DOM back to wikitext.
 
-Parsoid is used to convert wikitext documents to annotated HTML which the VisualEditor is able to
-load, modify and emit back to Parsoid at which point it is converted back into wikitext.
+For more information about this project, check out the wiki:
 
-Both projects are written in JavaScript. Parsoid runs on Node.js while VisualEditor runs in a web
-browser.
-
-For more information about these projects, check out the wiki:
-
-	* http://www.mediawiki.org/wiki/VisualEditor
 	* http://www.mediawiki.org/wiki/Parsoid
