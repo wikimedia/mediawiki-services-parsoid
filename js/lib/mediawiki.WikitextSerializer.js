@@ -3,6 +3,14 @@ var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer;
 var WikitextConstants = require('./mediawiki.wikitext.constants.js').WikitextConstants;
 var Util = require('./mediawiki.Util.js').Util;
 
+var tagWhiteListHash;
+function getTagWhiteList() {
+	if (!tagWhiteListHash) {
+		tagWhiteListHash = Util.arrayToHash(WikitextConstants.Sanitizer.TagWhiteList);
+	}
+	return tagWhiteListHash;
+}
+
 /**
  * Serializes a chunk of tokens or an HTML DOM to MediaWiki's wikitext flavor.
  *
@@ -71,8 +79,8 @@ WSP.escapeWikiText = function ( state, text ) {
 	});
 	// this is synchronous for now, will still need sync version later, or
 	// alternatively make text processing in the serializer async
-	var prefixedText = text;
-	var inNewlineContext = state.onNewLine;
+	var prefixedText = text,
+	    inNewlineContext = state.onNewLine;
 	if ( ! inNewlineContext ) {
 		// Prefix '_' so that no start-of-line wiki syntax matches. Strip it from
 		// the result.
@@ -109,10 +117,11 @@ WSP.escapeWikiText = function ( state, text ) {
 			var missingRangeEnd = false;
 			// TODO: make sure the source positions are always set!
 			// The start range
-			var startRange = nonTextTokenAccum[0].dataAttribs.tsr,
+			var startToken = nonTextTokenAccum[0];
+			var startRange = startToken.dataAttribs.tsr,
 				rangeStart, rangeEnd;
 			if ( ! startRange ) {
-				console.warn( 'No tsr on ' + nonTextTokenAccum[0] );
+				console.warn( 'No tsr on ' + startToken );
 				rangeStart = cursor;
 			} else {
 				rangeStart = startRange[0];
@@ -153,6 +162,8 @@ WSP.escapeWikiText = function ( state, text ) {
 		}
 	}
 
+	var tagWhiteList = getTagWhiteList(),
+		tsr;
 	try {
 		for ( var i = 0, l = tokens.length; i < l; i++ ) {
 			var token = tokens[i];
@@ -201,8 +212,27 @@ WSP.escapeWikiText = function ( state, text ) {
 										break;
 									}
 						}
-					} else {
+					} else if (!token.isHTMLTag() ||
+						token.name === undefined ||
+						tagWhiteList[token.name])
+					{
 						nonTextTokenAccum.push(token);
+					} else {
+						wrapNonTextTokens();
+						tsr = token.dataAttribs.tsr;
+						outTexts.push(text.substr(tsr[0]-1, tsr[1] - tsr[0]));
+					}
+					break;
+				case EndTagTk:
+					if (!token.isHTMLTag() ||
+						token.name === undefined ||
+						tagWhiteList[token.name.toLowerCase()])
+					{
+						nonTextTokenAccum.push(token);
+					} else {
+						wrapNonTextTokens();
+						tsr = token.dataAttribs.tsr;
+						outTexts.push(text.substr(tsr[0]-1, tsr[1] - tsr[0]));
 					}
 					break;
 				default:
@@ -214,7 +244,7 @@ WSP.escapeWikiText = function ( state, text ) {
 	} catch ( e ) {
 		console.warn( e );
 	}
-	//console.warn( 'escaped wikiText: ' + outTexts.join('') );
+	// console.warn( 'escaped wikiText: ' + outTexts.join('') );
 	var res = outTexts.join('');
 	if ( state.inIndentPre ) {
 		return res.replace(/\n_/g, '\n');
@@ -233,8 +263,6 @@ var installCollector = function ( collectorConstructor, cb, handler, state, toke
 	state.tokenCollector = new collectorConstructor( token, cb, handler );
 	return '';
 };
-
-
 
 var endTagMatchTokenCollector = function ( tk, cb ) {
 	var tokens = [tk];
@@ -1091,7 +1119,7 @@ WSP._getTokenHandler = function(state, token) {
 				state.tokenCollector = null;
 				return { handle: id('') };
 			}
-	} else if (token.dataAttribs.stx === 'html') {
+	} else if (token.isHTMLTag()) {
 		handler = this.defaultHTMLTagHandler;
 	} else {
 		var tname = token.name;
@@ -1135,8 +1163,6 @@ WSP._serializeToken = function ( state, token ) {
 	}
 
 	if ( collectorResult === false ) {
-
-
 		state.prevToken = state.curToken;
 		state.curToken  = token;
 

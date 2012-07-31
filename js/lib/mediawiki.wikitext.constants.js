@@ -49,6 +49,36 @@ var WikitextConstants = {
 			'thumbnail': 'format',
 			'thumb'    : 'format'
 		}
+	},
+
+	Sanitizer: {
+		// List of whitelisted tags that can be used as raw HTML in wikitext.
+		// All other html/html-like tags will be spit out as text.
+		TagWhiteList: [
+			// In case you were wondering, explicit <a .. > HTML is NOT allowed in wikitext.
+			// That is why the <a> tag is missing from the white-list.
+			'abbr',
+			// 'body', // SSS FIXME: Required? -- not present in php sanitizer
+			'b', 'bdi', 'big', 'blockquote', 'br',
+			'caption', 'center', 'cite', 'code',
+			'dd', 'del', 'dfn', 'div', 'dl', 'dt',
+			'em',
+			'font',
+			'gallery', // SSS FIXME: comes from an extension? -- not present in php sanitizer
+			// 'head', 'html', // SSS FIXME: Required? -- not present in php sanitizer
+			'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr',
+			'i', 'ins',
+			'kbd',
+			'li',
+			// 'meta', // SSS FIXME:Required? -- not present in php sanitizer
+			'ol',
+			'p', 'pre',
+			'rb', 'rp', 'rt', 'ruby',
+			's', 'samp', 'small', 'span', 'strike', 'strong', 'sub', 'sup',
+			'tag', // SSS FIXME: comes from an extension? -- not present in php sanitizer
+			'table', 'td', 'th', 'tr', 'tt',
+			'u', 'ul'
+		]
 	}
 };
 

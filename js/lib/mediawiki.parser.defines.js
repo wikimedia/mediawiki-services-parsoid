@@ -6,6 +6,10 @@
 var async = require('async');
 var Util = require('./mediawiki.Util.js').Util;
 
+// To support isHTMLTag querying
+String.prototype.isHTMLTag = function() {
+	return false;
+}
 
 /* -------------------- KV -------------------- */
 // A key-value pair
@@ -136,6 +140,10 @@ var genericTokenMethods = {
 			out.push( new KV( name, value ) );
 		}
 		this.attribs = out;
+	},
+
+	isHTMLTag: function() {
+		return this.dataAttribs.stx === 'html';
 	}
 };
 
@@ -167,7 +175,7 @@ TagTk.prototype.tagToStringFns = {
 };
 
 TagTk.prototype.toString = function(compact) {
-	if (this.dataAttribs.stx && this.dataAttribs.stx === "html") {
+	if (isHTMLTag()) {
 		if (compact) {
 			return "<HTML:" + this.name + ">";
 		} else {
@@ -183,6 +191,7 @@ TagTk.prototype.toString = function(compact) {
 		return f ? f.bind(this)() : this.defaultToString();
 	}
 };
+
 // add in generic token methods
 $.extend( TagTk.prototype, genericTokenMethods );
 
@@ -202,7 +211,7 @@ EndTagTk.prototype.toJSON = function () {
 };
 
 EndTagTk.prototype.toString = function() {
-	if (this.dataAttribs.stx && this.dataAttribs.stx === "html") {
+	if (isHTMLTag()) {
 		return "</HTML:" + this.name + ">";
 	} else {
 		return "</" + this.name + ">";
@@ -326,7 +335,7 @@ SelfclosingTagTk.prototype.tagToStringFns = {
 };
 
 SelfclosingTagTk.prototype.toString = function(compact, indent) {
-	if (this.dataAttribs.stx && this.dataAttribs.stx === "html") {
+	if (isHTMLTag()) {
 		return "<HTML:" + this.name + " />";
 	} else {
 		var f = this.tagToStringFns[this.name];
@@ -348,6 +357,10 @@ NlTk.prototype = {
 
 	toString: function() {
 		return "\\n";
+	},
+
+	isHTMLTag: function() {
+		return false;
 	}
 };
 
@@ -369,6 +382,10 @@ CommentTk.prototype = {
 
 	toString: function() {
 		return "<!--" + this.value + "-->";
+	},
+
+	isHTMLTag: function() {
+		return false;
 	}
 };
 
@@ -383,6 +400,10 @@ EOFTk.prototype = {
 
 	toString: function() {
 		return "";
+	},
+
+	isHTMLTag: function() {
+		return false;
 	}
 };
 
