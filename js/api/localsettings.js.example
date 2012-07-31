@@ -1,13 +1,13 @@
 /*
  * This is a sample configuration file.
  *
- * Copy this file to localsettings.js.
- * Edit that file and change the URL below to your needs.
+ * If any of the default settings below don't fit your needs, then please copy
+ * this file to localsettings.js and edit that file to fit your needs.
  *
- * See also the file ParserService.js for more information.
+ * Also see the file ParserService.js for more information.
  */
 
 exports.setup = function( config, env ) {
-	config.defaultInterwiki = 'localhost';
-	env.setInterwiki( 'localhost', 'http://localhost/mediawiki' );
+	// config.defaultInterwiki = 'localhost';
+	env.setInterwiki( 'localhost', 'http://localhost/wiki' );
 };
