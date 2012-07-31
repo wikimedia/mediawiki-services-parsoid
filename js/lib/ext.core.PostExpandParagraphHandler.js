@@ -1,5 +1,5 @@
 /*
- * Insert paragraphs for comment-only lines after template expansion
+ * Insert paragraphs for >= 2 newlines followed by inline content
  *
  * @author Gabriel Wicke <gwicke@wikimedia.org>
  */
@@ -85,6 +85,7 @@ PostExpandParagraphHandler.prototype.onAny = function ( token, frame, cb ) {
 		//console.warn( 'PostExpandParagraphHandler.onAny: ' + JSON.stringify( this.tokens, null , 2 ) );
 		if ( this.newLines >= 2 && ! u.isBlockToken( token ) ) {
 			this.tokens.push( token );
+			// move newline tokens out of the paragraph
 			var nlTks = [];
 			while ( this.tokens[0].constructor === NlTk ) {
 				nlTks.push( this.tokens.shift() );

@@ -23,11 +23,15 @@ function minimize_inline_tags(root, rewriteable_nodes) {
 	}
 
 	function remove_all_children(node) {
-		while (node.hasChildNodes()) node.removeChild(node.firstChild);
+		while (node.hasChildNodes()) {
+			node.removeChild(node.firstChild);
+		}
 	}
 
 	function add_children(node, children) {
-		for (var i = 0, n = children.length; i < n; i++) node.appendChild(children[i]);
+		for (var i = 0, n = children.length; i < n; i++) {
+			node.appendChild(children[i]);
+		}
 	}
 
 	function init() {
@@ -38,7 +42,7 @@ function minimize_inline_tags(root, rewriteable_nodes) {
 	}
 
 	function is_rewriteable_node(node_name) {
-		return rewriteable_node_map[node_name]; 
+		return rewriteable_node_map[node_name];
 	}
 
 	// Main routine
@@ -50,7 +54,9 @@ function minimize_inline_tags(root, rewriteable_nodes) {
 		// Descend ...
 		if (n === 1) {
 			var sole_node = children[0];
-			if (sole_node.nodeType === Node.ELEMENT_NODE) rewrite(sole_node);
+			if (sole_node.nodeType === Node.ELEMENT_NODE) {
+				rewrite(sole_node);
+			}
 			return;
 		}
 
@@ -92,15 +98,19 @@ function minimize_inline_tags(root, rewriteable_nodes) {
 		}
 
 		// Rewrite paths in 'P'
-		if (P.length > 0) rewrite_paths(node, P);
+		if (P.length > 0) {
+			rewrite_paths(node, P);
+		}
 	}
 
 	function longest_linear_path(node) {
 		var children, path = [];
-		while (node.nodeType == Node.ELEMENT_NODE) {
+		while (node.nodeType === Node.ELEMENT_NODE) {
 			path.push(node);
 			children = node.childNodes;
-			if ((children.length === 0) || (children.length > 1)) return path;
+			if ((children.length === 0) || (children.length > 1)) {
+				return path;
+			}
 			node = children[0];
 		}
 
@@ -109,7 +119,7 @@ function minimize_inline_tags(root, rewriteable_nodes) {
 
 	function rewrite_paths(parent_node, P) {
 		// 1. Split P into maximal sublists where each sublist has a non-null path intersection.
-		// 2. Process each sublist separately and accumulate the result. 
+		// 2. Process each sublist separately and accumulate the result.
 		//
 		// lcs = longest common sublist
 
@@ -169,14 +179,18 @@ function minimize_inline_tags(root, rewriteable_nodes) {
 		var hash = {};
 		for (var i = 0, n = new_path.length; i < n; i++) {
 			var e = new_path[i].nodeName.toLowerCase();
-			if (is_rewriteable_node(e)) hash[e] = new_path[i];
+			if (is_rewriteable_node(e)) {
+				hash[e] = new_path[i];
+			}
 		}
 
 		var cp = [];
 		for (i = 0, n = old.length; i < n; i++) {
 			var hit = hash[old[i].nodeName.toLowerCase()];
 			// Add old path element always.  This effectively picks elements from the leftmost path.
-			if (hit) cp.push(old[i]);
+			if (hit) {
+				cp.push(old[i]);
+			}
 		}
 
 		// console.log("CP: " + old + "||" + new_path + "=" + cp);
@@ -190,7 +204,9 @@ function minimize_inline_tags(root, rewriteable_nodes) {
 		// Fix this to be more robust 
 
 		var i, lcs_map = {};
-		for (i = 0, n = lcs.length; i < n; i++) lcs_map[lcs[i]] = true;
+		for (i = 0, n = lcs.length; i < n; i++) {
+			lcs_map[lcs[i]] = true;
+		}
 
 		for (i = 0, n = paths.length; i < n; i++) {
 			var p = paths[i].path;
@@ -401,9 +417,11 @@ var normalize_document = function(document) {
 	minimize_inline_tags(document.body, ['b','u','i','s']);
 };
 
-// Wrap all top-level inline elements in paragraphs. This should also be
-// applied inside block-level elements, but in that case the first paragraph
-// usually remains plain inline.
+/**
+* Wrap all top-level inline elements in paragraphs. 
+* TODO: This should also be applied inside block-level elements, but in that
+* case the first paragraph usually remains plain inline.
+*/
 var process_inlines_in_p = function ( document ) {
 	var body = document.body,
 		newP = document.createElement('p'),
@@ -414,20 +432,37 @@ var process_inlines_in_p = function ( document ) {
 	for(var i = 0, length = cnodes.length; i < length; i++) {
 		var child = cnodes[i - deleted],
 			ctype = child.nodeType;
-		//console.warn(child + ctype);
-		if ((ctype === 3 && (inParagraph || !isElementContentWhitespace( child ))) || 
+		if ((ctype === Node.TEXT_NODE && 
+					(inParagraph || !isElementContentWhitespace( child ))) || 
 			(ctype === Node.COMMENT_NODE && inParagraph ) ||
 			(ctype !== Node.TEXT_NODE && 
 				ctype !== Node.COMMENT_NODE &&
 				!Util.isBlockTag(child.nodeName.toLowerCase()))
 			) 
 		{
+
+			if ( ctype === Node.TEXT_NODE && !inParagraph ) {
+				var leadingNewLines = child.data.match(/^[\r\n]+/);
+				if ( leadingNewLines ) {
+					// don't include newlines in the paragraph
+					child.parentNode.insertBefore( 
+							document.createTextNode( leadingNewLines[0] ), 
+							child 
+							);
+					deleted--;
+					child.data = child.data.substr( leadingNewLines[0].length );
+				}
+			}
+
 			// wrap in paragraph
 			newP.appendChild(child);
+
 			inParagraph = true;
 			deleted++;
 		} else if (inParagraph) {
 			body.insertBefore(newP, child);
+
+
 			deleted--;
 			newP = document.createElement('p');
 			inParagraph = false;
@@ -439,8 +474,51 @@ var process_inlines_in_p = function ( document ) {
 	}
 };
 
+/**
+ * Remove trailing newlines from paragraph content (and move them to
+ * inter-element whitespace)
+ */
+var remove_trailing_newlines_from_paragraphs = function ( document ) {
+	var cnodes = document.body.childNodes;
+	for( var i = 0, l = cnodes.length; i < l; i++ ) {
+		var cnode = cnodes[i];
+		if ( cnode.nodeType === Node.ELEMENT_NODE &&
+				cnode.nodeName.toLowerCase() === 'p' ) 
+		{
+			//var firstChild = cnode.firstChild,
+			//	leadingNewLines = firstChild.data.match(/[\r\n]+/);
+			//if ( leadingNewLines ) {
+			//	// don't include newlines in the paragraph
+			//	cnode.insertBefore( 
+			//			document.createTextNode( leadingNewLines[0] ), 
+			//			firstChild 
+			//			);
+			//	firstChild.data = firstChild.data.substr( leadingNewLines[0].length );
+			//}
+			var lastChild = cnode.lastChild;
+			if ( lastChild.nodeType === Node.TEXT_NODE ) {
+				var trailingNewlines = lastChild.data.match(/[\r\n]+$/);
+				if ( trailingNewlines ) {
+					lastChild.data = lastChild.data.substr( 0, 
+							lastChild.data.length - trailingNewlines[0].length );
+					var newText = document.createTextNode( trailingNewlines[0] );
+					if ( cnode.nextSibling ) {
+						cnode.parentNode.insertBefore( newText, cnode.nextSibling );
+					} else {
+						cnode.parentNode.appendChild( newText );
+					}
+				}
+			}
+		}
+	}
+};
+
 function DOMPostProcessor () {
-	this.processors = [process_inlines_in_p, normalize_document];
+	this.processors = [
+		process_inlines_in_p, 
+		remove_trailing_newlines_from_paragraphs,
+		normalize_document
+	];
 }
 
 // Inherit from EventEmitter
@@ -449,7 +527,11 @@ DOMPostProcessor.prototype.constructor = DOMPostProcessor;
 
 DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 	for(var i = 0; i < this.processors.length; i++) {
-		this.processors[i](document);
+		try {
+			this.processors[i](document);
+		} catch ( e ) {
+			console.warn( e );
+		}
 	}
 	this.emit( 'document', document );
 };
