@@ -6,7 +6,7 @@ function Parsoid() {}
 function initParsoid() {
 	var path = require('path');
 	var fileDependencies = [];
-	var basePath = path.join(path.dirname(path.dirname(process.cwd())), 'modules');
+	var basePath = path.join(path.dirname(path.dirname(process.cwd())), 'js');
 
 	function _require(filename) {
 		var fullpath = path.join( basePath, filename );
@@ -21,9 +21,9 @@ function initParsoid() {
 		});
 	}
 
-	_import(path.join('parser', 'mediawiki.parser.environment.js'), ['MWParserEnvironment']);
-	_import(path.join('parser', 'mediawiki.parser.js'), ['ParserPipelineFactory']);
-	_import(path.join('parser', 'mediawiki.WikitextSerializer.js'), ['WikitextSerializer']);
+	_import(path.join('lib', 'mediawiki.parser.environment.js'), ['MWParserEnvironment']);
+	_import(path.join('lib', 'mediawiki.parser.js'), ['ParserPipelineFactory']);
+	_import(path.join('lib', 'mediawiki.WikitextSerializer.js'), ['WikitextSerializer']);
 
 	var mwEnv = new MWParserEnvironment({ 
 		fetchTemplates: false,
