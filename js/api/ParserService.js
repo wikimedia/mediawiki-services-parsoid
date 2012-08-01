@@ -315,7 +315,8 @@ var parse = function ( req, res, cb, src ) {
 /**
  * Round-trip article testing
  */
-app.get( new RegExp('/_rt/(?:(?:(?:' + env.interwikiRegexp + '):+)?(' + env.interwikiRegexp + '):)?(.*)') , function(req, res){
+app.get( new RegExp('/_rt/(?:(?:(?:' + env.interwikiRegexp + ')(?::|%3[aA])+)?' +
+				'(' + env.interwikiRegexp + ')(?::|%3[aA]))?(.*)'), function(req, res) {
 	env.pageName = req.params[1];
 	if ( req.params[0] ) {
 		env.wgScriptPath = '/_rt/' + req.params[0] + ':';
@@ -341,7 +342,8 @@ app.get( new RegExp('/_rt/(?:(?:(?:' + env.interwikiRegexp + '):+)?(' + env.inte
  * Round-trip article testing with newline stripping for editor-created HTML
  * simulation
  */
-app.get( new RegExp('/_rtve/(?:(?:(?:' + env.interwikiRegexp + '):+)?(' + env.interwikiRegexp + '):)?(.*)') , function(req, res){
+app.get( new RegExp('/_rtve/(?:(?:(?:' + env.interwikiRegexp + ')(?::|%3[aA])+)?' +
+				'(' + env.interwikiRegexp + ')(?::|%3[aA]))?(.*)') , function(req, res) {
 	env.pageName = req.params[1];
 	if ( req.params[0] ) {
 		env.wgScriptPath = '/_rtve/' + req.params[0] + ':';
@@ -394,7 +396,8 @@ app.post(/\/_rtform\/(.*)/, function ( req, res ) {
 /**
  * Regular article parsing
  */
-app.get(new RegExp( '/(?:(?:(?:' + env.interwikiRegexp + '):+)?(' + env.interwikiRegexp + '):)?(.*)' ), function(req, res){
+app.get(new RegExp( '/(?:(?:(?:' + env.interwikiRegexp + ')(?::|%3[aA])+)?' +
+				'(' + env.interwikiRegexp + ')(?::|%3[aA]))?(.*)' ), function(req, res) {
 	env.pageName = req.params[1];
 	if ( req.params[0] ) {
 		env.wgScriptPath = '/' + req.params[0] + ':';
