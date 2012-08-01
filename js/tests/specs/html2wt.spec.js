@@ -15,7 +15,7 @@ function wikitext(dom) {
 	return out.join('');
 }
 
-// Specs
+// Heading specs
 describe("Headings", function() {
 	// Regular non-empty specs
 	it("should be serialized properly when non-empty", function() {
@@ -35,5 +35,19 @@ describe("Headings", function() {
 		wikitext(dom("<h4></h4>")).should.equal("====<nowiki></nowiki>====");
 		wikitext(dom("<h5></h5>")).should.equal("=====<nowiki></nowiki>=====");
 		wikitext(dom("<h6></h6>")).should.equal("======<nowiki></nowiki>======");
+	});
+
+	// Escape specs
+	it("should escape wikitext properly", function() {
+		wikitext(dom("<h1>=foo=</h1>")).should.equal("=<nowiki>=</nowiki>foo<nowiki>=</nowiki>=");
+		wikitext(dom("<h3>=foo=</h3>")).should.equal("===<nowiki>=</nowiki>foo<nowiki>=</nowiki>===");
+	});
+});
+
+// List specs
+describe("Lists", function() {
+	// Escape specs
+	it("should escape wikitext properly", function() {
+		wikitext(dom("<ul><li>*foo</li></ul>")).should.equal("*<nowiki>*</nowiki>foo");
 	});
 });
