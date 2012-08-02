@@ -175,7 +175,7 @@ TagTk.prototype.tagToStringFns = {
 };
 
 TagTk.prototype.toString = function(compact) {
-	if (isHTMLTag()) {
+	if (this.isHTMLTag()) {
 		if (compact) {
 			return "<HTML:" + this.name + ">";
 		} else {
@@ -211,7 +211,7 @@ EndTagTk.prototype.toJSON = function () {
 };
 
 EndTagTk.prototype.toString = function() {
-	if (isHTMLTag()) {
+	if (this.isHTMLTag()) {
 		return "</HTML:" + this.name + ">";
 	} else {
 		return "</" + this.name + ">";
@@ -335,7 +335,7 @@ SelfclosingTagTk.prototype.tagToStringFns = {
 };
 
 SelfclosingTagTk.prototype.toString = function(compact, indent) {
-	if (isHTMLTag()) {
+	if (this.isHTMLTag()) {
 		return "<HTML:" + this.name + " />";
 	} else {
 		var f = this.tagToStringFns[this.name];

@@ -63,6 +63,7 @@ WSP.initialState = {
 	onStartOfLine : true,
 	availableNewlineCount: 0,
 	singleLineMode: 0,
+	inHeadingContext: false,
 	tokens: []
 };
 
@@ -79,11 +80,18 @@ WSP.escapeWikiText = function ( state, text ) {
 	});
 	// this is synchronous for now, will still need sync version later, or
 	// alternatively make text processing in the serializer async
-	var prefixedText = text,
-	    inNewlineContext = state.onNewLine;
-	if ( ! inNewlineContext ) {
-		// Prefix '_' so that no start-of-line wiki syntax matches. Strip it from
-		// the result.
+
+	var preventSOLMatch = !state.onNewline && 
+		!(state.inHeadingContext && text[0] === '=') &&
+		!((state.listStack.length > 0) && text[0].match(/[*#:;]/));
+
+	var prefixedText = text;
+	if (preventSOLMatch) {
+		// Prefix '_' so that no start-of-line wiki syntax matches.
+		// Later, strip it from the result.
+		// Ex: Consider the DOM:  <ul><li> foo</li></ul>
+		// We don't want ' foo' to be converted to a <pre>foo</pre>
+		// because of the leading space.
 		prefixedText = '_' + text;
 	}
 
@@ -94,7 +102,7 @@ WSP.escapeWikiText = function ( state, text ) {
 	// FIXME: parse using
 	p.process( prefixedText );
 
-	if ( ! inNewlineContext ) {
+	if (preventSOLMatch) {
 		// now strip the leading underscore.
 		if ( tokens[0] === '_' ) {
 			tokens.shift();
@@ -125,10 +133,6 @@ WSP.escapeWikiText = function ( state, text ) {
 				rangeStart = cursor;
 			} else {
 				rangeStart = startRange[0];
-				if ( ! inNewlineContext ) {
-					// compensate for underscore.
-					rangeStart--;
-				}
 				cursor = rangeStart;
 			}
 
@@ -140,16 +144,12 @@ WSP.escapeWikiText = function ( state, text ) {
 				// Alternatives: only extend it to the next token with range
 				// info on it.
 				missingRangeEnd = true;
-				rangeEnd = text.length;
+				rangeEnd = prefixedText.length;
 			} else {
 				rangeEnd = endRange[1];
-				if ( ! inNewlineContext ) {
-					// compensate for underscore.
-					rangeEnd--;
-				}
 			}
 
-			var escapedSource = text.substr( rangeStart, rangeEnd - rangeStart )
+			var escapedSource = prefixedText.substr(rangeStart, rangeEnd - rangeStart)
 									.replace( /<(\/?nowiki)>/g, '&lt;$1&gt;' );
 			outTexts.push( '<nowiki>' );
 			outTexts.push( escapedSource );
@@ -220,7 +220,7 @@ WSP.escapeWikiText = function ( state, text ) {
 					} else {
 						wrapNonTextTokens();
 						tsr = token.dataAttribs.tsr;
-						outTexts.push(text.substr(tsr[0]-1, tsr[1] - tsr[0]));
+						outTexts.push(prefixedText.substr(tsr[0], tsr[1] - tsr[0]));
 					}
 					break;
 				case EndTagTk:
@@ -232,11 +232,10 @@ WSP.escapeWikiText = function ( state, text ) {
 					} else {
 						wrapNonTextTokens();
 						tsr = token.dataAttribs.tsr;
-						outTexts.push(text.substr(tsr[0]-1, tsr[1] - tsr[0]));
+						outTexts.push(prefixedText.substr(tsr[0], tsr[1] - tsr[0]));
 					}
 					break;
 				default:
-					//console.warn('pushing ' + token);
 					nonTextTokenAccum.push(token);
 					break;
 			}
@@ -290,8 +289,17 @@ var endTagMatchTokenCollector = function ( tk, cb ) {
 	};
 };
 
+var openHeading = function(v) {
+	return function( state ) {
+		state.inHeadingContext = true; 
+		return v;
+	};
+}
+
 var closeHeading = function(v) {
 	return function(state, token) {
+		state.inHeadingContext = false; 
+
 		var prevToken = state.prevToken;
 		// Deal with empty headings. Ex: <h1></h1>
 		if (prevToken.constructor === TagTk && prevToken.name === token.name) {
@@ -1007,27 +1015,27 @@ WSP.tagHandlers = {
 		}
 	},
 	h1: {
-		start: { startsNewline: true, handle: id("="), defaultStartNewlineCount: 2 },
+		start: { startsNewline: true, handle: openHeading("="), defaultStartNewlineCount: 2 },
 		end: { endsLine: true, handle: closeHeading("=") }
 	},
 	h2: {
-		start: { startsNewline: true, handle: id("=="), defaultStartNewlineCount: 2 },
+		start: { startsNewline: true, handle: openHeading("=="), defaultStartNewlineCount: 2 },
 		end: { endsLine: true, handle: closeHeading("==") }
 	},
 	h3: {
-		start: { startsNewline: true, handle: id("==="), defaultStartNewlineCount: 2 },
+		start: { startsNewline: true, handle: openHeading("==="), defaultStartNewlineCount: 2 },
 		end: { endsLine: true, handle: closeHeading("===") }
 	},
 	h4: {
-		start: { startsNewline: true, handle: id("===="), defaultStartNewlineCount: 2 },
+		start: { startsNewline: true, handle: openHeading("===="), defaultStartNewlineCount: 2 },
 		end: { endsLine: true, handle: closeHeading("====") }
 	},
 	h5: {
-		start: { startsNewline: true, handle: id("====="), defaultStartNewlineCount: 2 },
+		start: { startsNewline: true, handle: openHeading("====="), defaultStartNewlineCount: 2 },
 		end: { endsLine: true, handle: closeHeading("=====") }
 	},
 	h6: {
-		start: { startsNewline: true, handle: id("======"), defaultStartNewlineCount: 2 },
+		start: { startsNewline: true, handle: openHeading("======"), defaultStartNewlineCount: 2 },
 		end: { endsLine: true, handle: closeHeading("======") }
 	},
 	br: {

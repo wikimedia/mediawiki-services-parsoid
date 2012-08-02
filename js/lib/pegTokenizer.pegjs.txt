@@ -1621,6 +1621,7 @@ table_heading_tags
     th:table_heading_tag
     ths:( "!!" tht:table_heading_tag  { tht[0].dataAttribs.stx_v = 'row'; return tht } )* {
         //console.warn( 'thts: ' + pp([th, ths]));
+        th[0].dataAttribs.tsr[0]--;
         return th.concat(ths);
     }
 
