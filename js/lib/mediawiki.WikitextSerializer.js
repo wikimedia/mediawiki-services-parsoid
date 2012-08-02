@@ -82,8 +82,8 @@ WSP.escapeWikiText = function ( state, text ) {
 	// alternatively make text processing in the serializer async
 
 	var preventSOLMatch = !state.onNewline && 
-		!(state.inHeadingContext && text[0] === '=') &&
-		!((state.listStack.length > 0) && text[0].match(/[*#:;]/));
+		!(state.inHeadingContext && text.match(/^=/)) &&
+		!((state.listStack.length > 0) && text.match(/^[*#:;]/));
 
 	var prefixedText = text;
 	if (preventSOLMatch) {
