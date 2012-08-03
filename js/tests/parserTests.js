@@ -2,10 +2,7 @@
  * Initial parser tests runner for experimental JS parser
  *
  * This pulls all the parserTests.txt items and runs them through the JS
- * parser and JS HTML renderer. Currently no comparison is done on output,
- * as a direct string comparison won't be very encouraging. :)
- *
- * Needs smarter compare, as well as search-y helpers.
+ * parser and JS HTML renderer.
  *
  * @author Brion Vibber <brion@pobox.com>
  * @author Gabriel Wicke <gwicke@wikimedia.org>
@@ -13,8 +10,6 @@
  */
 
 (function() {
-
-
 
 console.log( "Starting up JS parser tests" );
 
@@ -49,7 +44,6 @@ function _import(filename, symbols) {
 	});
 }
 
-
 // For now most modules only need this for $.extend and $.each :)
 global.$ = require('jquery');
 
@@ -71,8 +65,10 @@ _import( 'mediawiki.WikitextSerializer.js', ['WikitextSerializer']);
 //_require(pj('es', 'serializers', 'es.WikitextSerializer.js'));
 //_require(pj('es', 'serializers', 'es.JsonSerializer.js'));
 
-
 function ParserTests () {
+
+	// Name of file used to cache the parser tests cases
+	this.cache_file = "parserTests.cache";
 
 	this.argv = optimist.usage( 'Usage: $0', {
 		'quick': {
@@ -142,14 +138,11 @@ function ParserTests () {
 			description: 'Maximum number of tests to run',
 			'boolean': false
 		}
-	}
-	).check( function(argv) {
+	}).check( function(argv) {
 		if( argv.filter === true ) {
 			throw "--filter need an argument";
 		}
-	}
-	).argv; // keep that
-
+	}).argv; // keep that
 
 	if( this.argv.help ) {
 		optimist.showHelp();
@@ -170,10 +163,6 @@ function ParserTests () {
 		colors.mode = 'none';
 	}
 
-	// Name of file used to cache the parser tests cases
-	this.cache_file = "parserTests.cache";
-
-
 	this.testFileName = __dirname+'/parserTests.txt';
 
 	if (this.argv._[0]) {
@@ -187,7 +176,7 @@ function ParserTests () {
 		console.log(e2);
 	}
 
-	this.cases = this.getTests() || []; 
+	this.cases = this.getTests() || [];
 
 	if ( this.argv.maxtests ) {
 		var n = Number(this.argv.maxtests);
@@ -209,14 +198,13 @@ function ParserTests () {
 	this.failOutputTests = 0;
 
 	// Create a new parser environment
-	this.env = new MWParserEnvironment({ 
+	this.env = new MWParserEnvironment({
 		fetchTemplates: false,
 		debug: this.argv.debug,
 		trace: this.argv.trace,
 		wgUploadPath: 'http://example.com/images'
 	});
 }
-
 
 /**
  * Get an object holding our tests cases. Eventually from a cache file
@@ -232,7 +220,7 @@ ParserTests.prototype.getTests = function () {
 		console.log( e );
 	}
 	if( !this.argv.cache ) {
-		// Cache not wanted, parse file and return object 
+		// Cache not wanted, parse file and return object
 		return this.parseTestCase( testFile );
 	}
 
@@ -245,7 +233,7 @@ ParserTests.prototype.getTests = function () {
 	var sha1 = require('crypto').createHash('sha1')
 		.update( mtimes ).digest( 'hex' );
 
-	// Look for a cache_file 
+	// Look for a cache_file
 	var cache_content;
 	var cache_file_digest;
 	try {
@@ -274,7 +262,7 @@ ParserTests.prototype.getTests = function () {
 			);
 		}
 		// We can now return the parsed object
-		return parse; 
+		return parse;
 	}
 };
 
@@ -298,7 +286,6 @@ ParserTests.prototype.processArticle = function( index, item ) {
 	this.articles[norm] = item.text;
 	process.nextTick( this.processCase.bind( this, index + 1 ) );
 };
-
 
 /* Normalize the expected parser output by parsing it using a HTML5 parser and
  * re-serializing it to HTML. Ideally, the parser would normalize inter-tag
@@ -325,7 +312,7 @@ ParserTests.prototype.normalizeHTML = function (source) {
 			.replace(/<a +href/g, '<a href')
 			.replace(/" +>/g, '">');
 	} catch(e) {
-        console.log("normalizeHTML failed on" + 
+        console.log("normalizeHTML failed on" +
 				source + " with the following error: " + e);
 		console.trace();
 		return source;
@@ -338,8 +325,7 @@ ParserTests.prototype.normalizeHTML = function (source) {
 ParserTests.prototype.normalizeOut = function ( out ) {
 	// TODO: Do not strip newlines in pre and nowiki blocks!
 	return out
-		.replace(/<span typeof="mw:(?:(?:Placeholder|Nowiki))"[^>]*>((?:[^<]+|(?!<\/span).)*)<\/span>/g,
-						'$1')
+		.replace(/<span typeof="mw:(?:(?:Placeholder|Nowiki))"[^>]*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1')
 		.replace(/[\r\n]| (data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content)="[^">]*"/g, '')
 		.replace(/<!--.*?-->\n?/gm, '')
 		.replace(/<\/?meta[^>]*>/g, '');
@@ -348,11 +334,8 @@ ParserTests.prototype.normalizeOut = function ( out ) {
 ParserTests.prototype.formatHTML = function ( source ) {
 	// Quick hack to insert newlines before some block level start tags
 	return source.replace(
-			/(?!^)<((div|dd|dt|li|p|table|tr|td|tbody|dl|ol|ul|h1|h2|h3|h4|h5|h6)[^>]*)>/g,
-											'\n<$1>');
+		/(?!^)<((div|dd|dt|li|p|table|tr|td|tbody|dl|ol|ul|h1|h2|h3|h4|h5|h6)[^>]*)>/g, '\n<$1>');
 };
-
-
 
 ParserTests.prototype.printTitle = function( item, failure_only ) {
 	if( failure_only ) {
@@ -370,8 +353,6 @@ ParserTests.prototype.printTitle = function( item, failure_only ) {
 	console.log(item.input + "\n");
 };
 
-
-
 ParserTests.prototype.processTest = function ( index, item ) {
 
 	if (!('title' in item)) {
@@ -387,8 +368,8 @@ ParserTests.prototype.processTest = function ( index, item ) {
 		throw new Error('Missing input from test case ' + item.title);
 	}
 
-	this.parserPipeline.once( 'document', 
-				this.processResult.bind( this, index, item ) 
+	this.parserPipeline.once( 'document',
+				this.processResult.bind( this, index, item )
 			);
 
 	// Start the pipeline by feeding it the input
@@ -401,7 +382,7 @@ ParserTests.prototype.processResult = function ( index, item, doc ) {
 	if (doc.err) {
 		this.printTitle(item);
 		this.failParseTests++;
-		console.log('PARSE FAIL', res.err);
+		console.log('PARSE FAIL', doc.err);
 	} else {
 		if (this.argv.roundtrip) {
 			var rt_wikiText = new WikitextSerializer({env: this.env}).serializeDOM(doc.body);
@@ -494,8 +475,8 @@ ParserTests.prototype.checkResult = function ( item, out ) {
 
 			if(this.argv.printwhitelist) {
 				console.log("WHITELIST ENTRY:".cyan);
-				console.log("testWhiteList[" + 
-						JSON.stringify(item.title) + "] = " + 
+				console.log("testWhiteList[" +
+						JSON.stringify(item.title) + "] = " +
 						JSON.stringify(out) +
 						";\n");
 			}
@@ -539,7 +520,6 @@ ParserTests.prototype.checkRoundTripResult = function ( item, out ) {
 	}
 };
 
-
 /**
  * Print out a WikiDom conversion of the HTML DOM
  */
@@ -547,7 +527,6 @@ ParserTests.prototype.printWikiDom = function ( body ) {
 	console.log('WikiDom'.cyan + ':');
 	console.log( body );
 };
-
 
 /**
  * Colorize given number if <> 0
@@ -560,7 +539,7 @@ ParserTests.prototype.ColorizeCount = function ( count, color ) {
 		return count;
 	}
 
-	// We need a string to use colors methods 
+	// We need a string to use colors methods
 	count = count.toString();
 	// FIXME there must be a wait to call a method by its name
 	switch( color ) {
@@ -580,29 +559,29 @@ ParserTests.prototype.reportSummary = function () {
 	console.log( "SUMMARY: ");
 
 	if( failTotalTests !== 0 ) {
-		console.log( this.ColorizeCount( this.passedTests    , 'green' ) + 
+		console.log( this.ColorizeCount( this.passedTests    , 'green' ) +
 				" passed");
-		console.log( this.ColorizeCount( this.passedTestsManual , 'green' ) + 
+		console.log( this.ColorizeCount( this.passedTestsManual , 'green' ) +
 				" passed from whitelist");
-		console.log( this.ColorizeCount( this.failParseTests , 'red'   ) + 
+		console.log( this.ColorizeCount( this.failParseTests , 'red'   ) +
 				" parse failures");
-		console.log( this.ColorizeCount( this.failTreeTests  , 'red'   ) + 
+		console.log( this.ColorizeCount( this.failTreeTests  , 'red'   ) +
 				" tree build failures");
-		console.log( this.ColorizeCount( this.failOutputTests, 'red'   ) + 
+		console.log( this.ColorizeCount( this.failOutputTests, 'red'   ) +
 				" output differences");
 		console.log( "\n" );
-		console.log( this.ColorizeCount( this.passedTests + this.passedTestsManual , 'green'   ) + 
+		console.log( this.ColorizeCount( this.passedTests + this.passedTestsManual , 'green'   ) +
 				' total passed tests, ' +
 				this.ColorizeCount( failTotalTests , 'red'   ) + " total failures");
 
 	} else {
 		if( this.test_filter !== null ) {
-			console.log( "Passed " + ( this.passedTests + this.passedTestsManual ) + 
-					" of " + this.passedTests + " tests matching " + this.test_filter + 
+			console.log( "Passed " + ( this.passedTests + this.passedTestsManual ) +
+					" of " + this.passedTests + " tests matching " + this.test_filter +
 					"... " + "ALL TESTS PASSED!".green );
 		} else {
 			// Should not happen if it does: Champagne!
-			console.log( "Passed " + this.passedTests + " of " + this.passedTests + 
+			console.log( "Passed " + this.passedTests + " of " + this.passedTests +
 					" tests... " + "ALL TESTS PASSED!".green );
 		}
 	}
@@ -632,14 +611,14 @@ ParserTests.prototype.processCase = function ( i ) {
 	if ( i < this.cases.length ) {
 		var item = this.cases[i];
 		//console.log( 'processCase ' + i + JSON.stringify( item )  );
-		if ( typeof item == 'object' ) {
+		if ( typeof item === 'object' ) {
 			switch(item.type) {
 				case 'article':
 					this.comments = [];
 					this.processArticle( i, item );
 					break;
 				case 'test':
-					if( this.test_filter && 
+					if( this.test_filter &&
 						-1 === item.title.search( this.test_filter ) ) {
 						// Skip test whose title does not match --filter
 						process.nextTick( this.processCase.bind( this, i + 1 ) );
@@ -676,6 +655,5 @@ ParserTests.prototype.processCase = function ( i ) {
 
 // Construct the ParserTests object and run the parser tests
 new ParserTests().main();
-
 
 })();
