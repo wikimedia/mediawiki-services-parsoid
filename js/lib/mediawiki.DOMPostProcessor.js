@@ -480,7 +480,7 @@ var process_inlines_in_p = function ( document ) {
  */
 var remove_trailing_newlines_from_paragraphs = function ( document ) {
 	var cnodes = document.body.childNodes;
-	for( var i = 0, l = cnodes.length; i < l; i++ ) {
+	for( var i = 0; i < cnodes.length; i++ ) {
 		var cnode = cnodes[i];
 		if ( cnode.nodeType === Node.ELEMENT_NODE &&
 				cnode.nodeName.toLowerCase() === 'p' ) 
