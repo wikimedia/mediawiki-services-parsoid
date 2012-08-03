@@ -1,8 +1,6 @@
 #### --------------- Headings ---------------
 ####
 #### 1. Empty headings <h1></h1>
-#### 2. Escape wikitext (nested inside html) <h1>=foo=</h1>
-#### 3. Escape wikitext (outside heading nest on a single line) <h1>foo</h1>*bar
 ####
 #### ----------------------------------------
 !! test
@@ -23,8 +21,18 @@ Headings: 1. Empty headings
 ======<nowiki></nowiki>======
 !!end
 
+
+# Wikitext escaping tests (move to a different file?) 
+
+#### --------------- Headings ---------------
+####
+#### 1. Nested inside html <h1>=foo=</h1>
+#### 2. Outside heading nest on a single line <h1>foo</h1>*bar
+#### 3. Nested inside html with wikitext split by html tags
+####
+#### ----------------------------------------
 !! test
-Headings: 2. Escape wikitext (nested in headings)
+Headings: 1. Nested inside html 
 !! input
 =foo=
 <h1>=foo=</h1>
@@ -44,7 +52,7 @@ Headings: 2. Escape wikitext (nested in headings)
 !!end
 
 !! test
-Headings: 3. Escape wikitext (outside heading nest on a single-line)
+Headings: 2. Outside heading nest on a single line <h1>foo</h1>*bar
 !! input
 <h1>foo</h1>*bar
 <h1>foo</h1>=bar
@@ -58,14 +66,24 @@ Headings: 3. Escape wikitext (outside heading nest on a single-line)
 <nowiki>=</nowiki>bar<nowiki>=</nowiki>
 !!end
 
+!! test
+Headings: 3. Nested inside html with wikitext split by html tags 
+!! input
+<h1>=<b></b>foo=</h1>
+<h1>=<b>bold</b> foo=</h1>
+!! result
+=<nowiki>=</nowiki>'''''' foo<nowiki>=</nowiki>=
+=<nowiki>=</nowiki>'''bold''' foo<nowiki>=</nowiki>=
+!!end
+
 #### --------------- Lists ---------------
 ####
-#### 1. Escape wikitext (nested inside html) <ul><li>*foo</li></ul>
-####
+#### 1. Nested inside html <ul><li>*foo</li></ul>
+#### 2. Inside definition lists
 #### ----------------------------------------
 
 !! test
-Lists: 1. Escape wikitext (nested inside html)
+Lists: 1. Nested inside html
 !! input
 *foo
 <ul><li>*foo</li></ul>
@@ -90,14 +108,29 @@ Lists: 1. Escape wikitext (nested inside html)
 #<nowiki>;</nowiki>foo
 !!end
 
+!! test
+Lists: 2. Inside definition lists
+!! input
+<dl><dt>;foo</dt></dl>
+<dl><dt>:foo</dt></dl>
+<dl><dt>:foo</dt><dd>bar</dd></dl>
+<dl><dd>:foo</dd></dl>
+!! result
+;<nowiki>;</nowiki>foo
+;<nowiki>:</nowiki>foo
+;<nowiki>:</nowiki>foo
+:bar
+:<nowiki>:</nowiki>foo
+!!end
+
 #### --------------- HRs ---------------
 ####
-#### 1. Escape wikitext (single line)
+#### 1. Single line
 ####
-#### ----------------------------------------
+#### -----------------------------------
 
 !! test
-Lists: 1. Escape wikitext (nested inside html)
+HRs: 1. Single line 
 !! input
 <hr/>----
 <hr/>=foo=
@@ -110,3 +143,121 @@ Lists: 1. Escape wikitext (nested inside html)
 ----
 <nowiki>*</nowiki>foo
 !! end
+
+#### --------------- Tables ---------------
+####
+#### 1. Simple example
+####
+#### 2a. Nested in td (<td>foo||bar</td>)
+#### 2b. Nested in td -- no escaping needed(<td>foo!!bar</td>)
+####
+#### 3a. Nested in th (<th>foo!!bar</th>)
+#### 3b. Nested in th -- no escaping needed(<th>foo||bar</th>)
+#### --------------------------------------
+
+!! test
+Tables: 1. Simple example
+!! input
+{|
+|}
+!! result
+<nowiki>{|</nowiki>
+<nowiki>|}</nowiki>
+!! end
+
+!! test
+Tables: 2a. Nested in td
+!! input
+<table><tbody>
+<tr><td>foo||bar</td></tr>
+</tbody></table>
+!! result
+{|
+|-
+|foo<nowiki>||</nowiki>bar
+|}
+!! end
+
+!! test
+Tables: 2b. Nested in td -- no escaping needed
+!! input
+<table><tbody>
+<tr><td>foo!!bar</td></tr>
+</tbody></table>
+!! result
+{|
+|-
+|foo!!bar
+|}
+!! end
+
+!! test
+Tables: 3a. Nested in th
+!! input
+<table><tbody>
+<th>foo!!bar</th>
+</tbody></table>
+!! result
+{|
+|-
+!foo<nowiki>!!</nowiki>bar
+|}
+!! end
+
+!! test
+Tables: 3b. Nested in th -- no escaping needed
+!! input
+<table><tbody>
+<th>foo||bar</th>
+</tbody></table>
+!! result
+{|
+|-
+!foo||bar
+|}
+!! end
+
+#### --------------- Links ---------------
+####
+#### 1. Simple example
+#### 2. Quote marks in link text
+####
+#### --------------------------------------
+!! test
+Links 1. Simple example
+!! input
+[[<i></i>hello]]
+!!result
+<nowiki>[[</nowiki>''''hello<nowiki>]]</nowiki>
+!! end
+
+!! test
+Links 2. Quote marks in link text
+!! input
+<a rel="mw:WikiLink" href="/wiki/Foo" data-parsoid="{&quot;tsr&quot;:[0,7],&quot;contentPos&quot;:[5,5],&quot;src&quot;:&quot;[[Foo]]&quot;,&quot;bsp&quot;:[0,7],&quot;stx&quot;:&quot;simple&quot;}">Foo''boo''</a>
+!!result
+[[Foo|Foo<nowiki>''</nowiki>boo<nowiki>''</nowiki>]]
+!! end
+
+#### --------------- Quotes ---------------
+####
+#### 1. Quotes inside <b> and <i>
+####
+#### --------------------------------------
+!!test
+1. Quotes inside <b> and <i>
+!!input
+<i>'foo'</i>
+<i>''foo''</i>
+<i>'''foo'''</i>
+<b>'foo'</b>
+<b>''foo''</b>
+<b>'''foo'''</b>
+!!result
+''<nowiki>'</nowiki>foo<nowiki>'</nowiki>''
+''<nowiki>''</nowiki>foo<nowiki>''</nowiki>''
+''<nowiki>'''</nowiki>foo<nowiki>'''</nowiki>''
+'''<nowiki>'</nowiki>foo<nowiki>'</nowiki>'''
+'''<nowiki>''</nowiki>foo<nowiki>''</nowiki>'''
+'''<nowiki>'''</nowiki>foo<nowiki>'''</nowiki>'''
+!!end
