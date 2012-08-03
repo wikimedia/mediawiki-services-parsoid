@@ -69,50 +69,12 @@ function ParserTests () {
 
 	// Name of file used to cache the parser tests cases
 	this.cache_file = "parserTests.cache";
+	this.parser_tests_file = "parserTests.txt";
 
-	this.argv = optimist.usage( 'Usage: $0', {
-		'quick': {
-			description: 'Suppress diff output of failed tests',
-			'boolean': true,
-			'default': false
-		},
-		'quiet': {
-			description: 'Suppress notification of passed tests (shows only failed tests)',
-			'boolean': true,
-			'default': false
-		},
-		'color': {
-			description: 'Enable color output Ex: --no-color',
-			'boolean': true,
-			'default': true
-		},
-		'cache': {
-			description: 'Get tests cases from cache file ' + this.cache_file,
-			'boolean': true,
-			'default': false
-		},
-		'filter': {
-			description: 'Only run tests whose descriptions which match given regex',
-			alias: 'regex'
-		},
-		'whitelist': {
-			description: 'Alternatively compare against manually verified parser output from whitelist',
-			'default': true,
-			'boolean': true
-		},
+	this.argv = optimist.usage( 'Usage: $0 [options] [tests-file]\n\nDefault tests-file: ' + this.parser_tests_file, {
 		'help': {
 			description: 'Show this help message',
 			alias: 'h'
-		},
-		'disabled': {
-			description: 'Run disabled tests (option not implemented)',
-			'default': false,
-			'boolean': true
-		},
-		'printwhitelist': {
-			description: 'Print out a whitelist entry for failing tests. Default false.',
-			'default': false,
-			'boolean': true
 		},
 		'wikidom': {
 			description: 'Print out a WikiDom conversion of the HTML DOM',
@@ -124,6 +86,49 @@ function ParserTests () {
 			'default': false,
 			'boolean': true
 		},
+		'cache': {
+			description: 'Get tests cases from cache file ' + this.cache_file,
+			'boolean': true,
+			'default': false
+		},
+		'filter': {
+			description: 'Only run tests whose descriptions which match given regex',
+			alias: 'regex'
+		},
+		'disabled': {
+			description: 'Run disabled tests (option not implemented)',
+			'default': false,
+			'boolean': true
+		},
+		'maxtests': {
+			description: 'Maximum number of tests to run',
+			'boolean': false
+		},
+		'quick': {
+			description: 'Suppress diff output of failed tests',
+			'boolean': true,
+			'default': false
+		},
+		'quiet': {
+			description: 'Suppress notification of passed tests (shows only failed tests)',
+			'boolean': true,
+			'default': false
+		},
+		'whitelist': {
+			description: 'Compare against manually verified parser output from whitelist',
+			'default': true,
+			'boolean': true
+		},
+		'printwhitelist': {
+			description: 'Print out a whitelist entry for failing tests. Default false.',
+			'default': false,
+			'boolean': true
+		},
+		'color': {
+			description: 'Enable color output Ex: --no-color',
+			'boolean': true,
+			'default': true
+		},
 		'debug': {
 			description: 'Print debugging information',
 			'default': false,
@@ -133,10 +138,6 @@ function ParserTests () {
 			description: 'Print trace information (light debugging)',
 			'default': false,
 			'boolean': true
-		},
-		'maxtests': {
-			description: 'Maximum number of tests to run',
-			'boolean': false
 		}
 	}).check( function(argv) {
 		if( argv.filter === true ) {
@@ -163,10 +164,8 @@ function ParserTests () {
 		colors.mode = 'none';
 	}
 
-	this.testFileName = __dirname+'/parserTests.txt';
-
+	this.testFileName = __dirname+'/' + this.parser_tests_file;
 	if (this.argv._[0]) {
-		// hack :D
 		this.testFileName = this.argv._[0] ;
 	}
 
