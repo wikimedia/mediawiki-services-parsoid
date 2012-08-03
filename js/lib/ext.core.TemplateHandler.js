@@ -10,8 +10,7 @@
  * @author Gabriel Wicke <gwicke@wikimedia.org>
  * @author Brion Vibber <brion@wikimedia.org>
  */
-var $ = require('jquery'),
-	events = require('events'),
+var events = require('events'),
 	ParserFunctions = require('./ext.core.ParserFunctions.js').ParserFunctions,
 	AttributeTransformManager = require('./mediawiki.TokenTransformManager.js')
 									.AttributeTransformManager,
@@ -20,6 +19,8 @@ var $ = require('jquery'),
 	Util = require('./mediawiki.Util.js').Util;
 
 function TemplateHandler ( manager ) {
+	this.uid = null;
+	this.emittedFirstChunk = false;
 	this.register( manager );
 	this.parserFunctions = new ParserFunctions( manager );
 }
@@ -40,7 +41,7 @@ TemplateHandler.prototype.register = function ( manager ) {
 };
 
 
-/** 
+/**
  * Main template token handler
  *
  * Expands target and arguments (both keys and values) and either directly
@@ -48,13 +49,18 @@ TemplateHandler.prototype.register = function ( manager ) {
  * processes the template.
  */
 TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
-	//console.warn('onTemplate! ' + JSON.stringify( token, null, 2 ) + 
+	//console.warn('onTemplate! ' + JSON.stringify( token, null, 2 ) +
 	//		' args: ' + JSON.stringify( this.manager.args ));
 
 	// expand argument keys, with callback set to next processing step
 	// XXX: would likely be faster to do this in a tight loop here
-	var atm = new AttributeTransformManager( 
-				this.manager, 
+	if ( frame.depth === 0 ) {
+		this.uid = 'mwt' + this.manager.env.generateUID();
+	} else {
+		this.uid = null;
+	}
+	var atm = new AttributeTransformManager(
+				this.manager,
 				this._expandTemplate.bind( this, token, frame, cb )
 			);
 	cb( { async: true } );
@@ -89,7 +95,7 @@ TemplateHandler.prototype._expandTemplate = function ( token, frame, cb, attribs
 	//		JSON.stringify( tplExpandData, null, 2 ) );
 	var target = attribs[0].k;
 
-	
+
 	if ( ! target ) {
 		this.manager.env.ap( 'No target! ', attribs );
 		console.trace();
@@ -132,12 +138,12 @@ TemplateHandler.prototype._expandTemplate = function ( token, frame, cb, attribs
 	// now normalize the target before template processing
 	target = this.manager.env.normalizeTitle( target );
 
-	
+
 
 	// Resolve a possibly relative link
-	var templateName = this.manager.env.resolveTitle( 
+	var templateName = this.manager.env.resolveTitle(
 			target,
-			'Template' 
+			'Template'
 		);
 
 	var checkRes = this.manager.frame.loopAndDepthCheck( templateName, this.manager.env.maxDepth );
@@ -161,8 +167,8 @@ TemplateHandler.prototype._expandTemplate = function ( token, frame, cb, attribs
 
 	// For now, just fetch the template and pass the callback for further
 	// processing along.
-	this._fetchTemplateAndTitle( 
-			templateName, 
+	this._fetchTemplateAndTitle(
+			templateName,
 			cb,
 			this._processTemplateAndTitle.bind( this, token, frame, cb, templateName, attribs )
 		);
@@ -175,8 +181,8 @@ TemplateHandler.prototype._expandTemplate = function ( token, frame, cb, attribs
 TemplateHandler.prototype._processTemplateAndTitle = function( token, frame, cb, name, attribs, src, type ) {
 	// Get a nested transformation pipeline for the input type. The input
 	// pipeline includes the tokenizer, synchronous stage-1 transforms for
-	// 'text/wiki' input and asynchronous stage-2 transforms). 
-	var pipeline = this.manager.pipeFactory.getPipeline( 
+	// 'text/wiki' input and asynchronous stage-2 transforms).
+	var pipeline = this.manager.pipeFactory.getPipeline(
 				type || 'text/x-mediawiki', true
 			);
 
@@ -190,12 +196,84 @@ TemplateHandler.prototype._processTemplateAndTitle = function( token, frame, cb,
 	pipeline.process ( src, name );
 };
 
+TemplateHandler.prototype.addAboutToTableElements = function ( tokens ) {
+	for ( var i = 0, l = tokens.length; i < l; i++ ) {
+		var token = tokens[i];
+		if ( token.constructor === TagTk && token.name === 'table' ) {
+			token.addAttribute( 'about', '#' + this.uid );
+			token.addSpaceSeparatedAttribute( 'typeof', 'mw:Object/Template/Content' );
+		}
+	}
+	return tokens;
+};
+
+
+TemplateHandler.prototype.addEncapsulationInfo = function ( chunk ) {
+	// TODO
+	// * only add this information for top-level includes, but track parameter
+	// expansion in lower-level templates
+	// * use global UID per transclusion -> get from env
+	// * wrap leading text in span
+	// * add uid as id and about to first element
+	//	id == about marks first element
+	// * ref all tables to this (just add about)
+	// * ref end token to this, add property="mw:Object/Template/End"
+	if ( ! this.emittedFirstChunk ) {
+		if ( chunk.length ) {
+			var firstToken = chunk[0];
+			if ( firstToken.constructor === String ) {
+				// Also include following string tokens
+				var stringTokens = [ chunk.shift() ];
+				while ( chunk.length && chunk[0].constructor === String ) {
+					stringTokens.push( chunk.shift() );
+				}
+				// Wrap in span with info
+				return [ new TagTk( 'span',
+							[
+								new KV('typeof', 'mw:Template'),
+								new KV('about', '#' + this.uid),
+								new KV('id', this.uid)
+							]
+						) ]
+					.concat( stringTokens, [ new EndTagTk( 'span' ) ], chunk );
+			} else if ( firstToken.constructor === TagTk ) {
+				// Add the info on the existing token
+				// XXX: handle id/about conflicts
+				firstToken.addSpaceSeparatedAttribute( 'typeof', 'mw:Template' );
+				firstToken.setAttribute( 'about', '#' + this.uid );
+				firstToken.setAttribute( 'id', this.uid );
+
+				// add about ref to all tables
+				return this.addAboutToTableElements( chunk );
+			}
+		} else {
+			// add about ref to all tables
+			return [ new SelfclosingTagTk( 'meta', 
+					[ 
+					new KV( 'about', '#' + this.uid ),
+					new KV( 'typeof', 'mw:Object/Template' )
+					] ) 
+				];
+		}
+	} else {
+		return this.addAboutToTableElements( chunk );
+		//return chunk;
+	}
+};
+
 /**
  * Handle chunk emitted from the input pipeline after feeding it a template
  */
 TemplateHandler.prototype._onChunk = function( cb, chunk ) {
-	// We encapsulate the output by default, so collect tokens here.
 	chunk = Util.stripEOFTkfromTokens( chunk );
+	if ( this.uid !== null ) {
+		if ( ! this.emittedFirstChunk ) {
+			chunk = this.addEncapsulationInfo( chunk );
+			this.emittedFirstChunk = true;
+		} else {
+			chunk = this.addAboutToTableElements( chunk );
+		}
+	}
 	this.manager.env.dp( 'TemplateHandler._onChunk', chunk );
 	cb( { tokens: chunk, async: true } );
 };
@@ -206,7 +284,20 @@ TemplateHandler.prototype._onChunk = function( cb, chunk ) {
  */
 TemplateHandler.prototype._onEnd = function( cb ) {
 	this.manager.env.dp( 'TemplateHandler._onEnd' );
-	cb( { tokens: [] } );
+	if ( this.uid !== null ) {
+		var res = { tokens: [ 
+			new SelfclosingTagTk( 'meta',
+				[
+					new KV( 'typeof', 'mw:Object/Template/End' ),
+					new KV( 'about', '#' + this.uid )
+				] )
+			] };
+		this.uid = null;
+		this.emittedFirstChunk = false;
+		cb( res );
+	} else {
+		cb( { tokens: [] } );
+	}
 };
 
 
@@ -220,10 +311,10 @@ TemplateHandler.prototype._fetchTemplateAndTitle = function ( title, parentCB, c
 		// XXX: store type too (and cache tokens/x-mediawiki)
 		cb( self.manager.env.pageCache[title] /* , type */ );
 	} else if ( ! this.manager.env.fetchTemplates ) {
-		parentCB(  { tokens: [ 'Warning: Page/template fetching disabled, and no cache for ' + 
+		parentCB(  { tokens: [ 'Warning: Page/template fetching disabled, and no cache for ' +
 				title ] } );
 	} else {
-		
+
 		// We are about to start an async request for a template
 		this.manager.env.dp( 'Note: trying to fetch ', title );
 
@@ -255,9 +346,9 @@ TemplateHandler.prototype._fetchTemplateAndTitle = function ( title, parentCB, c
  * Expand template arguments with tokens from the containing frame.
  */
 TemplateHandler.prototype.onTemplateArg = function ( token, frame, cb ) {
-	new AttributeTransformManager ( 
-				this.manager, 
-				this._returnArgAttributes.bind( this, token, cb, frame ) 
+	new AttributeTransformManager (
+				this.manager,
+				this._returnArgAttributes.bind( this, token, cb, frame )
 			).process( token.attribs.slice() );
 };
 
@@ -269,8 +360,8 @@ TemplateHandler.prototype._returnArgAttributes = function ( token, cb, frame, at
 	this.manager.env.dp( 'args', argName /*, dict*/ );
 	if ( argName in dict ) {
 		// return tokens for argument
-		//console.warn( 'templateArg found: ' + argName + 
-		//		' vs. ' + JSON.stringify( this.manager.args ) ); 
+		//console.warn( 'templateArg found: ' + argName +
+		//		' vs. ' + JSON.stringify( this.manager.args ) );
 		res = dict[argName];
 		this.manager.env.dp( 'arg res:', res );
 		if ( res.constructor === String ) {

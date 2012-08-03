@@ -71,7 +71,9 @@ PostExpandParagraphHandler.prototype.onEnd = function (  token, frame, cb ) {
 
 PostExpandParagraphHandler.prototype.onAny = function ( token, frame, cb ) {
 	//console.warn( 'PostExpandParagraphHandler.onAny' );
-	if ( token.constructor === CommentTk || 
+	if ( token.constructor === CommentTk ||
+			// TODO: narrow this down a bit more to take typeof into account
+			( token.constructor === SelfclosingTagTk && token.name === 'meta' ) ||
 			( token.constructor === String && token.match( /^[\t ]*$/ ) ) 
 	)
 	{
@@ -79,8 +81,6 @@ PostExpandParagraphHandler.prototype.onAny = function ( token, frame, cb ) {
 		this.tokens.last().push( token );
 		return {};
 	} else {
-		// XXX: Only open paragraph if inline token follows!
-
 		// None of the tokens we are interested in, so abort processing..
 		//console.warn( 'PostExpandParagraphHandler.onAny: ' + JSON.stringify( this.tokens, null , 2 ) );
 		if ( this.newLines >= 2 && ! u.isBlockToken( token ) ) {

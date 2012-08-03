@@ -44,6 +44,8 @@ ListHandler.prototype.onAny = function ( token, frame, prevToken ) {
 			this.newline = true;
 		}
 		return { tokens: tokens };
+	} else if ( token.constructor === SelfclosingTagTk && token.name === "meta" ) {
+		return { token: token };
 	} else if ( this.newline ) {
 		tokens = this.end().concat( [token] );
 		this.newline = false;

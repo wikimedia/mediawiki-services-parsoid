@@ -9,7 +9,7 @@ var Util = require('./mediawiki.Util.js').Util;
 // To support isHTMLTag querying
 String.prototype.isHTMLTag = function() {
 	return false;
-}
+};
 
 /* -------------------- KV -------------------- */
 // A key-value pair
@@ -73,6 +73,22 @@ var genericTokenMethods = {
 	},
 
 	/**
+	 * Set an unshadowed attribute.
+	 */
+	setAttribute: function ( name, value ) {
+		// First look for the attribute and change the last match if found.
+		for ( var i = this.attribs.length; i > 0; i++ ) {
+			var k = this.attribs[i].k;
+			if ( k.toLowerCase() === name ) {
+				this.attribs[i] = new KV( k, value );
+				return;
+			}
+		}
+		// Nothing found, just add the attribute
+		this.addAttribute( name, value );
+	},
+
+	/**
 	 * Attribute info accessor for the wikitext serializer. Performs change
 	 * detection and uses unnormalized attribute values if set. Expects the
 	 * context to be set to a token.
@@ -80,18 +96,18 @@ var genericTokenMethods = {
 	getAttributeShadowInfo: function ( name ) {
 		var curVal = Util.lookup( this.attribs, name );
 		if ( ! this.dataAttribs.a ) {
-			return { 
+			return {
 				value: curVal,
 				modified: false
 			};
 		} else if ( this.dataAttribs.a[name] !== curVal ||
 				this.dataAttribs.sa[name] === undefined ) {
-			return { 
+			return {
 				value: curVal,
 				modified: true
 			};
 		} else {
-			return { 
+			return {
 				value: this.dataAttribs.sa[name],
 				modified: false
 			};
@@ -119,8 +135,8 @@ var genericTokenMethods = {
 	setShadowedAttribute: function ( name, value ) {
 		var out = [],
 			found = false;
-		for ( var i = attribs.length; i >= 0; i-- ) {
-			var kv = attribs[i];
+		for ( var i = this.attribs.length; i >= 0; i-- ) {
+			var kv = this.attribs[i];
 			if ( kv.k.toLowerCase() !== name ) {
 				out.push( kv );
 			} else if ( ! found ) {
@@ -140,6 +156,29 @@ var genericTokenMethods = {
 			out.push( new KV( name, value ) );
 		}
 		this.attribs = out;
+	},
+
+	/**
+	 * Add a space-separated property value
+	 */
+	addSpaceSeparatedAttribute: function ( name, value ) {
+		var curVal = Util.lookupKV( this.attribs, name ),
+			vals;
+		if ( curVal !== null ) {
+			vals = curVal.v.split(/\s+/);
+			for ( var i = 0, l = vals.length; i < l; i++ ) {
+				if ( vals[i] === value ) {
+					// value is already included, nothing to do.
+					return;
+				}
+			}
+			// Value was not yet included in the existing attribute, just add
+			// it separated with a space
+			this.setAttribute( curVal.k, curVal.v + ' ' + value );
+		} else {
+			// the attribute did not exist at all, just add it
+			this.addAttribute( name, value );
+		}
 	},
 
 	isHTMLTag: function() {
@@ -288,7 +327,7 @@ SelfclosingTagTk.prototype.defaultToString = function(compact, indent) {
 	}
 };
 
-SelfclosingTagTk.prototype.tagToStringFns = { 
+SelfclosingTagTk.prototype.tagToStringFns = {
 	"extlink": function(compact, indent) {
 		var href    = Util.kvTokensToString(Util.lookupKV(this.attribs, 'href').v);
 		if (compact) {
@@ -302,9 +341,9 @@ SelfclosingTagTk.prototype.tagToStringFns = {
 			indent = indent + indentIncrement;
 			var content = Util.lookupKV(this.attribs, 'content').v;
 			content = this.multiTokenArgToString("v", content, indent, indentIncrement).str;
-			return ["<extlink>(\n", indent, 
-					"href=", href, "\n", indent, 
-					"content=", content, "\n", origIndent, 
+			return ["<extlink>(\n", indent,
+					"href=", href, "\n", indent,
+					"content=", content, "\n", origIndent,
 					")"].join('');
 		}
 	},
@@ -472,7 +511,7 @@ Params.prototype.getSlice = function ( options, start, end ) {
 	var args = this.slice( start, end ),
 		cb = options.cb;
 	//console.warn( JSON.stringify( args ) );
-	async.map( 
+	async.map(
 			args,
 			function( kv, cb2 ) {
 				if ( kv.v.constructor === String ) {
@@ -510,13 +549,13 @@ Params.prototype.getSlice = function ( options, start, end ) {
  */
 function ParserValue ( source, frame ) {
 	if ( source.constructor === ParserValue ) {
-		Object.defineProperty( this, 'source', 
+		Object.defineProperty( this, 'source',
 				{ value: source.source, enumerable: false } );
 	} else {
-		Object.defineProperty( this, 'source', 
+		Object.defineProperty( this, 'source',
 				{ value: source, enumerable: false } );
 	}
-	Object.defineProperty( this, 'frame', 
+	Object.defineProperty( this, 'frame',
 			{ value: frame, enumerable: false } );
 }
 
