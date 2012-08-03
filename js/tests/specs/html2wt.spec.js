@@ -3,13 +3,13 @@ var should  = require('should'),
 
 // Helpers
 function dom(snippet) {
-	return parsoid.html5.parse( '<html><body>' + snippet + '</body></html>');
+	parsoid.html5.parse( '<html><body>' + snippet + '</body></html>');
+	return parsoid.html5.tree.document.childNodes[0].childNodes[1];
 }
 
 function wikitext(dom) {
 	var out = [];
-	var content = parsoid.html5.tree.document.childNodes[0].childNodes[1];
-    parsoid.serializer.serializeDOM(content, function(c) {
+    parsoid.serializer.serializeDOM(dom, function(c) {
 		out.push(c);
 	});
 	return out.join('');
@@ -64,9 +64,9 @@ describe("Headings", function() {
 		}
 	});
 
-	// Are we supporting this HTML at this time?
 	it ("should escape wikitext after the closing tag if on the same line", function() {
 		wikitext(dom("<h1>foo</h1>*bar")).should.equal("=foo=\n<nowiki>*</nowiki>bar");
+		wikitext(dom("<h1>foo</h1>=bar")).should.equal("=foo=\n=bar");
 		wikitext(dom("<h1>foo</h1>=bar=")).should.equal("=foo=\n<nowiki>=</nowiki>bar<nowiki>=</nowiki>");
 	});
 });
@@ -94,14 +94,6 @@ describe("Lists", function() {
 
 // HR specs
 describe("<hr>", function() {
-	// Escape specs
-	it("should escape wikitext properly", function() {
-		wikitext(dom("<hr/>\n----")).should.equal("----\n<nowiki>----</nowiki>");
-		wikitext(dom("<hr/>\n=foo=")).should.equal("----\n<nowiki>=</nowiki>foo<nowiki>=</nowiki>");
-		wikitext(dom("<hr/>\n*foo")).should.equal("----\n<nowiki>*</nowiki>foo");
-	});
-
-	// Are we supporting this HTML at this time?
 	it ("should escape wikitext after the closing tag if on the same line", function() {
 		wikitext(dom("<hr/>----")).should.equal("----\n<nowiki>----</nowiki>");
 		wikitext(dom("<hr/>=foo=")).should.equal("----\n<nowiki>=</nowiki>foo<nowiki>=</nowiki>");
