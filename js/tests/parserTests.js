@@ -69,6 +69,7 @@ function ParserTests () {
 
 	// Name of file used to cache the parser tests cases
 	this.cache_file = "parserTests.cache";
+	this.parsoid_tests_file = "parsoid_html2wt_tests.txt";
 	this.parser_tests_file = "parserTests.txt";
 
 	this.argv = optimist.usage( 'Usage: $0 [options] [tests-file]\n\nDefault tests-file: ' + this.parser_tests_file, {
@@ -83,6 +84,11 @@ function ParserTests () {
 		},
 		'roundtrip': {
 			description: 'Roundtrip testing: Wikitext -> DOM -> wikitext',
+			'default': false,
+			'boolean': true
+		},
+		'html2wt': {
+			description: 'HTML(DOM) -> wikitext test (default:' + this.parsoid_tests_file + ')',
 			'default': false,
 			'boolean': true
 		},
@@ -164,9 +170,13 @@ function ParserTests () {
 		colors.mode = 'none';
 	}
 
-	this.testFileName = __dirname+'/' + this.parser_tests_file;
+	// Identify tests file
 	if (this.argv._[0]) {
 		this.testFileName = this.argv._[0] ;
+	} else if (this.argv.html2wt) {
+		this.testFileName = __dirname+'/' + this.parsoid_tests_file;
+	} else {
+		this.testFileName = __dirname+'/' + this.parser_tests_file;
 	}
 
 	try {
@@ -187,8 +197,6 @@ function ParserTests () {
 
 	this.articles = {};
 
-	this.htmlparser = new HTML5.Parser();
-
 	// Test statistics
 	this.passedTests = 0;
 	this.passedTestsManual = 0;
@@ -203,6 +211,16 @@ function ParserTests () {
 		trace: this.argv.trace,
 		wgUploadPath: 'http://example.com/images'
 	});
+
+	// Create parsers, serializers, .. 
+	this.htmlparser = new HTML5.Parser();
+	if (!this.argv.html2wt) {
+		var parserPipelineFactory = new ParserPipelineFactory( this.env );
+		this.parserPipeline = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
+	}
+	if (this.argv.roundtrip || this.argv.html2wt) {
+		this.serializer = new WikitextSerializer({env: this.env});
+	}
 }
 
 /**
@@ -367,13 +385,26 @@ ParserTests.prototype.processTest = function ( index, item ) {
 		throw new Error('Missing input from test case ' + item.title);
 	}
 
-	this.parserPipeline.once( 'document',
-				this.processResult.bind( this, index, item )
-			);
+	if (!this.argv.html2wt) {
+		this.parserPipeline.once( 'document',
+					this.processResult.bind( this, index, item ));
 
-	// Start the pipeline by feeding it the input
-	this.parserPipeline.process( item.input );
-
+		// Start the pipeline by feeding it the input
+		this.parserPipeline.process( item.input );
+	} else {
+		this.htmlparser.parse( '<html><body>' + item.input + '</body></html>');
+		var content = this.htmlparser.tree.document.childNodes[0].childNodes[1];
+		var out = [];
+		var err = '';
+		try {
+			this.serializer.serializeDOM(content, function(c) {
+				out.push(c);
+			});
+			this.processResult(index, item, { res: out.join('') });
+		} catch (e) {
+			this.processResult(index, item, { err: e });
+		}
+	}
 };
 
 ParserTests.prototype.processResult = function ( index, item, doc ) {
@@ -384,20 +415,22 @@ ParserTests.prototype.processResult = function ( index, item, doc ) {
 		console.log('PARSE FAIL', doc.err);
 	} else {
 		if (this.argv.roundtrip) {
-			var rt_wikiText = new WikitextSerializer({env: this.env}).serializeDOM(doc.body);
-			this.checkRoundTripResult(item, rt_wikiText);
+			var rt_wikiText = this.serializer.serializeDOM(doc.body);
+			this.checkWikitext(item, rt_wikiText, true);
+		} else if (this.argv.html2wt) {
+			this.checkWikitext(item, doc.res, false);
 		} else {
 			// Check the result vs. the expected result.
 			this.checkResult( item, doc.body.innerHTML );
 
 			if ( this.argv.wikidom ) {
 				// Test HTML DOM -> WikiDOM conversion
-				this.printWikiDom( parserPipeline.getWikiDom() );
+				this.printWikiDom( this.parserPipeline.getWikiDom() );
 			}
 		}
-
 	}
-	// Now call schedule the next test, if any
+
+	// Now schedule the next test, if any
 	process.nextTick( this.processCase.bind( this, index + 1 ) );
 };
 
@@ -488,9 +521,13 @@ ParserTests.prototype.checkResult = function ( item, out ) {
 	}
 };
 
-ParserTests.prototype.checkRoundTripResult = function ( item, out ) {
-	var normalizedOut      = out;        // FIXME: normalization not in place yet
-	var normalizedExpected = item.input; // FIXME: normalization not in place yet
+ParserTests.prototype.checkWikitext = function ( item, out, isRoundTrip) {
+	// FIXME: normalization not in place yet
+	var normalizedOut = out;
+
+	// FIXME: normalization not in place yet
+	var normalizedExpected = isRoundTrip ? item.input : item.result; 
+
 	if ( normalizedOut !== normalizedExpected ) {
 		this.printTitle( item, this.argv.quick );
 		this.failOutputTests++;
@@ -590,19 +627,8 @@ ParserTests.prototype.reportSummary = function () {
 
 ParserTests.prototype.main = function () {
 	console.log( "Initialisation complete. Now launching tests." );
-	//var parserEnv = new MWParserEnvironment({
-	//	tagHooks: {
-	//		'ref': MWRefTagHook,
-	//		'references': MWReferencesTagHook
-	//	}
-	//});
-
 	this.env.pageCache = this.articles;
-	var parserPipelineFactory = new ParserPipelineFactory( this.env );
-	this.parserPipeline = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
-
 	this.comments = [];
-
 	this.processCase( 0 );
 };
 
