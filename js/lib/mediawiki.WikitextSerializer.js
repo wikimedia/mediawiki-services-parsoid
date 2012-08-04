@@ -81,7 +81,7 @@ WSP.escapeWikiText = function ( state, text ) {
 	// this is synchronous for now, will still need sync version later, or
 	// alternatively make text processing in the serializer async
 
-	var preventSOLMatch = !state.onNewline && 
+	var preventSOLMatch = !state.onNewline &&
 		!(state.inHeadingContext && text.match(/^=/)) &&
 		!((state.listStack.length > 0) && text.match(/^[*#:;]/));
 
@@ -291,14 +291,14 @@ var endTagMatchTokenCollector = function ( tk, cb ) {
 
 var openHeading = function(v) {
 	return function( state ) {
-		state.inHeadingContext = true; 
+		state.inHeadingContext = true;
 		return v;
 	};
-}
+};
 
 var closeHeading = function(v) {
 	return function(state, token) {
-		state.inHeadingContext = false; 
+		state.inHeadingContext = false;
 
 		var prevToken = state.prevToken;
 		// Deal with empty headings. Ex: <h1></h1>
@@ -874,9 +874,9 @@ WSP.tagHandlers = {
 			//
 			// SSS FIXME: This will *NOT* work if the list item has nested paragraph tags!
 			var prevToken = state.prevToken;
-			if (	token.attribs.length === 0 && 
-					(	(state.listStack.length > 0 && isListItem(prevToken)) || 
-						(prevToken.constructor === TagTk && prevToken.name === 'td') || 
+			if (	token.attribs.length === 0 &&
+					(	(state.listStack.length > 0 && isListItem(prevToken)) ||
+						(prevToken.constructor === TagTk && prevToken.name === 'td') ||
 						(state.ignorePTag && token.constructor === EndTagTk)))
 			{
 				state.ignorePTag = !state.ignorePTag;
@@ -1153,6 +1153,7 @@ WSP._getTokenHandler = function(state, token) {
 WSP._serializeToken = function ( state, token ) {
 	var res = '',
 		collectorResult = false,
+		onlyWhiteSpace = false,
 		handler = {},
 		dropContent = state.dropContent;
 
@@ -1205,6 +1206,7 @@ WSP._serializeToken = function ( state, token ) {
 				res = ( state.inNoWiki || state.inHTMLPre ) ? token
 					: this.escapeWikiText( state, token );
 				res = state.textHandler ? state.textHandler( res ) : res;
+				onlyWhiteSpace = res.match(/^\s*$/);
 				break;
 			case CommentTk:
 				res = '<!--' + token.value + '-->';
@@ -1286,7 +1288,7 @@ WSP._serializeToken = function ( state, token ) {
 			if (!handler.isNewlineEquivalent &&
 					!state.singleLineMode &&
 					!state.availableNewlineCount &&
-					((!res.match(/^\s*$/) && state.emitNewlineOnNextToken) ||
+					((!onlyWhiteSpace && state.emitNewlineOnNextToken) ||
 					(!state.onStartOfLine && handler.startsNewline)))
 			{
 				state.availableNewlineCount = handler.defaultStartNewlineCount || 1;
