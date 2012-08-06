@@ -66,8 +66,27 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 			}
 			content = out;
 		} else {
+			var morecontent = Util.decodeURI(href);
 			obj.dataAttribs.stx = 'simple';
-			content = [ Util.decodeURI(href) ];
+			if ( obj.dataAttribs.pipetrick ) {
+				// TODO: get this from somewhere else, hard-coding is fun but ultimately bad
+				// Valid title characters
+				var tc = '[%!\"$&\'\\(\\)*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+]';
+				// Valid namespace characters
+				var nc = '[ _0-9A-Za-z\x80-\xff-]';
+
+				// [[ns:page (context)|]] -> page
+				var p1 = new RegExp( '(:?' + nc + '+:|:|)(' + tc + '+?)( ?\\(' + tc + '+\\))' );
+				// [[ns:page（context）|]] -> page (different form of parenthesis)
+				var p2 = new RegExp( '(:?' + nc + '+:|:|)(' + tc + '+?)( ?（' + tc + '+）)' );
+				// page, context -> page
+				var p3 = new RegExp( '(, |，)' + tc + '+' );
+
+				morecontent = morecontent.replace( p1, '$2' );
+				morecontent = morecontent.replace( p2, '$2' );
+				morecontent = morecontent.replace( p3, '' );
+			}
+			content = [ morecontent ];
 		}
 
 		var tail = Util.lookupKV( token.attribs, 'tail' ).v;
