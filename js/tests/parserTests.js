@@ -65,11 +65,6 @@ function ParserTests () {
 			description: 'Show this help message',
 			alias: 'h'
 		},
-		'wikidom': {
-			description: 'Print out a WikiDom conversion of the HTML DOM',
-			'default': false,
-			'boolean': true
-		},
 		'roundtrip': {
 			description: 'Roundtrip testing: Wikitext -> DOM -> wikitext',
 			'default': false,
@@ -410,11 +405,6 @@ ParserTests.prototype.processResult = function ( index, item, doc ) {
 		} else {
 			// Check the result vs. the expected result.
 			this.checkResult( item, doc.body.innerHTML );
-
-			if ( this.argv.wikidom ) {
-				// Test HTML DOM -> WikiDOM conversion
-				this.printWikiDom( this.parserPipeline.getWikiDom() );
-			}
 		}
 	}
 
