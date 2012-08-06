@@ -54,24 +54,32 @@ var testWhiteList = require(__dirname + '/parserTests-whitelist.js').testWhiteLi
 //_require(pj('es', 'serializers', 'es.JsonSerializer.js'));
 
 function ParserTests () {
-
-	// Name of file used to cache the parser tests cases
-	this.cache_file = "parserTests.cache";
-	this.parsoid_tests_file = "parsoid_html2wt_tests.txt";
+	this.cache_file = "parserTests.cache"; // Name of file used to cache the parser tests cases
 	this.parser_tests_file = "parserTests.txt";
-
-	this.argv = optimist.usage( 'Usage: $0 [options] [tests-file]\n\nDefault tests-file: ' + this.parser_tests_file, {
+	var default_args = ["Default tests-file: " + this.parser_tests_file,
+	                    "Default options   : --wt2html --whitelist --color"];
+	this.argv = optimist.usage( 'Usage: $0 [options] [tests-file]\n\n' + default_args.join("\n"), {
 		'help': {
 			description: 'Show this help message',
 			alias: 'h'
 		},
-		'roundtrip': {
-			description: 'Roundtrip testing: Wikitext -> DOM -> wikitext',
+		'wt2html': {
+			description: 'Wikitext -> HTML(DOM)',
 			'default': false,
 			'boolean': true
 		},
 		'html2wt': {
-			description: 'HTML(DOM) -> wikitext test (default:' + this.parsoid_tests_file + ')',
+			description: 'HTML(DOM) -> wikitext',
+			'default': false,
+			'boolean': true
+		},
+		'wt2wt': {
+			description: 'Roundtrip testing: Wikitext -> DOM(HTML) -> Wikitext',
+			'default': false,
+			'boolean': true
+		},
+		'html2html': {
+			description: 'Roundtrip testing: HTML(DOM) -> Wikitext -> HTML(DOM)',
 			'default': false,
 			'boolean': true
 		},
@@ -134,14 +142,21 @@ function ParserTests () {
 		}
 	}).argv; // keep that
 
-	if( this.argv.help ) {
+	var argv = this.argv;
+	if( argv.help ) {
 		optimist.showHelp();
 		process.exit( 0 );
 	}
+
+	// Default
+	if (!argv.html2wt && !argv.html2html && !argv.wt2wt) {
+		argv.wt2html = true;
+	}
+
 	this.test_filter = null;
-	if( this.argv.filter ) { // null is the 'default' by definition
+	if( argv.filter ) { // null is the 'default' by definition
 		try {
-			this.test_filter = new RegExp( this.argv.filter );
+			this.test_filter = new RegExp( argv.filter );
 		} catch(e) {
 			console.error( "\nERROR> --filter was given an invalid regular expression.");
 			console.error( "ERROR> See below for JS engine error:\n" + e + "\n" );
@@ -149,15 +164,13 @@ function ParserTests () {
 		}
 		console.log( "Filtering title test using Regexp " + this.test_filter );
 	}
-	if( !this.argv.color ) {
+	if( !argv.color ) {
 		colors.mode = 'none';
 	}
 
 	// Identify tests file
-	if (this.argv._[0]) {
-		this.testFileName = this.argv._[0] ;
-	} else if (this.argv.html2wt) {
-		this.testFileName = __dirname+'/' + this.parsoid_tests_file;
+	if (argv._[0]) {
+		this.testFileName = argv._[0] ;
 	} else {
 		this.testFileName = __dirname+'/' + this.parser_tests_file;
 	}
@@ -170,8 +183,8 @@ function ParserTests () {
 
 	this.cases = this.getTests() || [];
 
-	if ( this.argv.maxtests ) {
-		var n = Number(this.argv.maxtests);
+	if ( argv.maxtests ) {
+		var n = Number(argv.maxtests);
 		console.warn('maxtests:' + n );
 		if(n > 0) {
 			this.cases.length = n;
@@ -190,18 +203,18 @@ function ParserTests () {
 	// Create a new parser environment
 	this.env = new MWParserEnvironment({
 		fetchTemplates: false,
-		debug: this.argv.debug,
-		trace: this.argv.trace,
+		debug: argv.debug,
+		trace: argv.trace,
 		wgUploadPath: 'http://example.com/images'
 	});
 
-	// Create parsers, serializers, .. 
+	// Create parsers, serializers, ..
 	this.htmlparser = new HTML5.Parser();
-	if (!this.argv.html2wt) {
+	if (!argv.html2wt) {
 		var parserPipelineFactory = new ParserPipelineFactory( this.env );
 		this.parserPipeline = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
 	}
-	if (this.argv.roundtrip || this.argv.html2wt) {
+	if (!argv.wt2html) {
 		this.serializer = new WikitextSerializer({env: this.env});
 	}
 }
@@ -353,8 +366,25 @@ ParserTests.prototype.printTitle = function( item, failure_only ) {
 	console.log(item.input + "\n");
 };
 
-ParserTests.prototype.processTest = function ( index, item ) {
+ParserTests.prototype.convertHtml2Wt = function(index, item, processWikitextCB, doc) {
+	var content = this.argv.wt2wt ? doc.body : doc;
+	try {
+		processWikitextCB(this.serializer.serializeDOM(content));
+	} catch (e) {
+		processWikitextCB(null, e);
+	}
+};
 
+ParserTests.prototype.convertWt2Html = function(index, item, processHtmlCB, wikitext, error) {
+	if (error) {
+		console.error("ERROR: " + error);
+		return;
+	}
+	this.parserPipeline.once('document', processHtmlCB);
+	this.parserPipeline.process(wikitext);
+};
+
+ParserTests.prototype.processTest = function ( index, item ) {
 	if (!('title' in item)) {
 		console.log(item);
 		throw new Error('Missing title from test case.');
@@ -368,44 +398,55 @@ ParserTests.prototype.processTest = function ( index, item ) {
 		throw new Error('Missing input from test case ' + item.title);
 	}
 
-	if (!this.argv.html2wt) {
-		this.parserPipeline.once( 'document',
-					this.processResult.bind( this, index, item ));
-
-		// Start the pipeline by feeding it the input
-		this.parserPipeline.process( item.input );
-	} else {
-		this.htmlparser.parse( '<html><body>' + item.input + '</body></html>');
-		var content = this.htmlparser.tree.document.childNodes[0].childNodes[1];
-		var out = [];
-		var err = '';
-		try {
-			this.serializer.serializeDOM(content, function(c) {
-				out.push(c);
-			});
-			this.processResult(index, item, { res: out.join('') });
-		} catch (e) {
-			this.processResult(index, item, { err: e });
+	var cb, cb2;
+	if (this.argv.wt2html || this.argv.wt2wt) {
+		if (this.argv.wt2wt) {
+			// insert an additional step in the callback chain
+			// if we are roundtripping
+			cb2 = this.processSerializedWT.bind(this, index, item);
+			cb = this.convertHtml2Wt.bind(this, index, item, cb2);
+		} else {
+			cb = this.processParsedHTML.bind(this, index, item);
 		}
+
+		this.convertWt2Html(index, item, cb, item.input);
+	} else {
+		if (this.argv.html2html) {
+			// insert an additional step in the callback chain
+			// if we are roundtripping
+			cb2 = this.processParsedHTML.bind(this, index, item);
+			cb = this.convertWt2Html.bind(this, index, item, cb2);
+		} else {
+			cb = this.processSerializedWT.bind(this, index, item);
+		}
+
+		this.htmlparser.parse( '<html><body>' + item.result + '</body></html>');
+		this.convertHtml2Wt(index, item, cb, this.htmlparser.tree.document.childNodes[0].childNodes[1]);
 	}
 };
 
-ParserTests.prototype.processResult = function ( index, item, doc ) {
-	// Check for errors
+ParserTests.prototype.processParsedHTML = function(index, item, doc) {
 	if (doc.err) {
 		this.printTitle(item);
 		this.failParseTests++;
 		console.log('PARSE FAIL', doc.err);
 	} else {
-		if (this.argv.roundtrip) {
-			var rt_wikiText = this.serializer.serializeDOM(doc.body);
-			this.checkWikitext(item, rt_wikiText, true);
-		} else if (this.argv.html2wt) {
-			this.checkWikitext(item, doc.res, false);
-		} else {
-			// Check the result vs. the expected result.
-			this.checkResult( item, doc.body.innerHTML );
-		}
+		// Check the result vs. the expected result.
+		this.checkHTML( item, doc.body.innerHTML );
+	}
+
+	// Now schedule the next test, if any
+	process.nextTick( this.processCase.bind( this, index + 1 ) );
+};
+
+ParserTests.prototype.processSerializedWT = function(index, item, wikitext, error) {
+	if (error) {
+		this.printTitle(item);
+		this.failParseTests++;
+		console.log('SERIALIZE FAIL', error);
+	} else {
+		// Check the result vs. the expected result.
+		this.checkWikitext(item, wikitext);
 	}
 
 	// Now schedule the next test, if any
@@ -445,7 +486,7 @@ ParserTests.prototype.diff = function ( a, b ) {
 	}
 };
 
-ParserTests.prototype.checkResult = function ( item, out ) {
+ParserTests.prototype.checkHTML = function ( item, out ) {
 	var normalizedOut = this.normalizeOut(out);
 	var normalizedExpected = this.normalizeHTML(item.result);
 	if ( normalizedOut !== normalizedExpected ) {
@@ -499,12 +540,12 @@ ParserTests.prototype.checkResult = function ( item, out ) {
 	}
 };
 
-ParserTests.prototype.checkWikitext = function ( item, out, isRoundTrip) {
+ParserTests.prototype.checkWikitext = function ( item, out) {
 	// FIXME: normalization not in place yet
 	var normalizedOut = out;
 
 	// FIXME: normalization not in place yet
-	var normalizedExpected = isRoundTrip ? item.input : item.result; 
+	var normalizedExpected = item.input;
 
 	if ( normalizedOut !== normalizedExpected ) {
 		this.printTitle( item, this.argv.quick );

@@ -6,19 +6,19 @@
 !! test
 Headings: 1. Empty headings
 !! input
-<h1></h1>
-<h2></h2>
-<h3></h3>
-<h4></h4>
-<h5></h5>
-<h6></h6>
-!! result
 =<nowiki></nowiki>=
 ==<nowiki></nowiki>==
 ===<nowiki></nowiki>===
 ====<nowiki></nowiki>====
 =====<nowiki></nowiki>=====
 ======<nowiki></nowiki>======
+!! result
+<h1></h1>
+<h2></h2>
+<h3></h3>
+<h4></h4>
+<h5></h5>
+<h6></h6>
 !!end
 
 
@@ -34,14 +34,6 @@ Headings: 1. Empty headings
 !! test
 Headings: 1. Nested inside html 
 !! input
-=foo=
-<h1>=foo=</h1>
-<h2>=foo=</h2>
-<h3>=foo=</h3>
-<h4>=foo=</h4>
-<h5>=foo=</h5>
-<h6>=foo=</h6>
-!! result
 <nowiki>=</nowiki>foo<nowiki>=</nowiki>
 =<nowiki>=</nowiki>foo<nowiki>=</nowiki>=
 ==<nowiki>=</nowiki>foo<nowiki>=</nowiki>==
@@ -49,31 +41,39 @@ Headings: 1. Nested inside html
 ====<nowiki>=</nowiki>foo<nowiki>=</nowiki>====
 =====<nowiki>=</nowiki>foo<nowiki>=</nowiki>=====
 ======<nowiki>=</nowiki>foo<nowiki>=</nowiki>======
+!! result
+=foo=
+<h1>=foo=</h1>
+<h2>=foo=</h2>
+<h3>=foo=</h3>
+<h4>=foo=</h4>
+<h5>=foo=</h5>
+<h6>=foo=</h6>
 !!end
 
 !! test
 Headings: 2. Outside heading nest on a single line <h1>foo</h1>*bar
 !! input
-<h1>foo</h1>*bar
-<h1>foo</h1>=bar
-<h1>foo</h1>=bar=
-!! result
 =foo=
 <nowiki>*</nowiki>bar
 =foo=
 =bar
 =foo=
 <nowiki>=</nowiki>bar<nowiki>=</nowiki>
+!! result
+<h1>foo</h1>*bar
+<h1>foo</h1>=bar
+<h1>foo</h1>=bar=
 !!end
 
 !! test
 Headings: 3. Nested inside html with wikitext split by html tags 
 !! input
-<h1>=<b></b>foo=</h1>
-<h1>=<b>bold</b> foo=</h1>
-!! result
 =<nowiki>=</nowiki>'''''' foo<nowiki>=</nowiki>=
 =<nowiki>=</nowiki>'''bold''' foo<nowiki>=</nowiki>=
+!! result
+<h1>=<b></b>foo=</h1>
+<h1>=<b>bold</b> foo=</h1>
 !!end
 
 #### --------------- Lists ---------------
@@ -85,17 +85,6 @@ Headings: 3. Nested inside html with wikitext split by html tags
 !! test
 Lists: 1. Nested inside html
 !! input
-*foo
-<ul><li>*foo</li></ul>
-<ul><li>#foo</li></ul>
-<ul><li>:foo</li></ul>
-<ul><li>;foo</li></ul>
-#foo
-<ol><li>*foo</li></ol>
-<ol><li>#foo</li></ol>
-<ol><li>:foo</li></ol>
-<ol><li>;foo</li></ol>
-!! result
 <nowiki>*</nowiki>foo
 *<nowiki>*</nowiki>foo
 *<nowiki>#</nowiki>foo
@@ -106,21 +95,32 @@ Lists: 1. Nested inside html
 #<nowiki>#</nowiki>foo
 #<nowiki>:</nowiki>foo
 #<nowiki>;</nowiki>foo
+!! result
+*foo
+<ul><li>*foo</li></ul>
+<ul><li>#foo</li></ul>
+<ul><li>:foo</li></ul>
+<ul><li>;foo</li></ul>
+#foo
+<ol><li>*foo</li></ol>
+<ol><li>#foo</li></ol>
+<ol><li>:foo</li></ol>
+<ol><li>;foo</li></ol>
 !!end
 
 !! test
 Lists: 2. Inside definition lists
 !! input
-<dl><dt>;foo</dt></dl>
-<dl><dt>:foo</dt></dl>
-<dl><dt>:foo</dt><dd>bar</dd></dl>
-<dl><dd>:foo</dd></dl>
-!! result
 ;<nowiki>;</nowiki>foo
 ;<nowiki>:</nowiki>foo
 ;<nowiki>:</nowiki>foo
 :bar
 :<nowiki>:</nowiki>foo
+!! result
+<dl><dt>;foo</dt></dl>
+<dl><dt>:foo</dt></dl>
+<dl><dt>:foo</dt><dd>bar</dd></dl>
+<dl><dd>:foo</dd></dl>
 !!end
 
 #### --------------- HRs ---------------
@@ -132,16 +132,16 @@ Lists: 2. Inside definition lists
 !! test
 HRs: 1. Single line 
 !! input
-<hr/>----
-<hr/>=foo=
-<hr/>*foo
-!! result
 ----
 <nowiki>----</nowiki>
 ----
 <nowiki>=</nowiki>foo<nowiki>=</nowiki>
 ----
 <nowiki>*</nowiki>foo
+!! result
+<hr/>----
+<hr/>=foo=
+<hr/>*foo
 !! end
 
 #### --------------- Tables ---------------
@@ -158,63 +158,63 @@ HRs: 1. Single line
 !! test
 Tables: 1. Simple example
 !! input
-{|
-|}
-!! result
 <nowiki>{|</nowiki>
 <nowiki>|}</nowiki>
+!! result
+{|
+|}
 !! end
 
 !! test
 Tables: 2a. Nested in td
 !! input
-<table><tbody>
-<tr><td>foo||bar</td></tr>
-</tbody></table>
-!! result
 {|
 |-
 |foo<nowiki>||</nowiki>bar
 |}
+!! result
+<table><tbody>
+<tr><td>foo||bar</td></tr>
+</tbody></table>
 !! end
 
 !! test
 Tables: 2b. Nested in td -- no escaping needed
 !! input
-<table><tbody>
-<tr><td>foo!!bar</td></tr>
-</tbody></table>
-!! result
 {|
 |-
 |foo!!bar
 |}
+!! result
+<table><tbody>
+<tr><td>foo!!bar</td></tr>
+</tbody></table>
 !! end
 
 !! test
 Tables: 3a. Nested in th
 !! input
-<table><tbody>
-<th>foo!!bar</th>
-</tbody></table>
-!! result
 {|
 |-
 !foo<nowiki>!!</nowiki>bar
 |}
+!! result
+<table><tbody>
+<th>foo!!bar</th>
+</tbody></table>
 !! end
 
 !! test
 Tables: 3b. Nested in th -- no escaping needed
 !! input
-<table><tbody>
-<th>foo||bar</th>
-</tbody></table>
-!! result
 {|
 |-
 !foo||bar
 |}
+!! result
+<table><tbody>
+<th>foo||bar</th>
+</tbody></table>
 !! end
 
 #### --------------- Links ---------------
@@ -226,17 +226,17 @@ Tables: 3b. Nested in th -- no escaping needed
 !! test
 Links 1. Simple example
 !! input
-[[<i></i>hello]]
-!!result
 <nowiki>[[</nowiki>''''hello<nowiki>]]</nowiki>
+!! result
+[[<i></i>hello]]
 !! end
 
 !! test
 Links 2. Quote marks in link text
 !! input
-<a rel="mw:WikiLink" href="/wiki/Foo" data-parsoid="{&quot;tsr&quot;:[0,7],&quot;contentPos&quot;:[5,5],&quot;src&quot;:&quot;[[Foo]]&quot;,&quot;bsp&quot;:[0,7],&quot;stx&quot;:&quot;simple&quot;}">Foo''boo''</a>
-!!result
 [[Foo|Foo<nowiki>''</nowiki>boo<nowiki>''</nowiki>]]
+!! result
+<a rel="mw:WikiLink" href="/wiki/Foo" data-parsoid="{&quot;tsr&quot;:[0,7],&quot;contentPos&quot;:[5,5],&quot;src&quot;:&quot;[[Foo]]&quot;,&quot;bsp&quot;:[0,7],&quot;stx&quot;:&quot;simple&quot;}">Foo''boo''</a>
 !! end
 
 #### --------------- Quotes ---------------
@@ -244,20 +244,20 @@ Links 2. Quote marks in link text
 #### 1. Quotes inside <b> and <i>
 ####
 #### --------------------------------------
-!!test
+!! test
 1. Quotes inside <b> and <i>
-!!input
-<i>'foo'</i>
-<i>''foo''</i>
-<i>'''foo'''</i>
-<b>'foo'</b>
-<b>''foo''</b>
-<b>'''foo'''</b>
-!!result
+!! input
 ''<nowiki>'</nowiki>foo<nowiki>'</nowiki>''
 ''<nowiki>''</nowiki>foo<nowiki>''</nowiki>''
 ''<nowiki>'''</nowiki>foo<nowiki>'''</nowiki>''
 '''<nowiki>'</nowiki>foo<nowiki>'</nowiki>'''
 '''<nowiki>''</nowiki>foo<nowiki>''</nowiki>'''
 '''<nowiki>'''</nowiki>foo<nowiki>'''</nowiki>'''
+!! result
+<i>'foo'</i>
+<i>''foo''</i>
+<i>'''foo'''</i>
+<b>'foo'</b>
+<b>''foo''</b>
+<b>'''foo'''</b>
 !!end
