@@ -4,22 +4,27 @@ var request = require('request'),
 
 /***************** Template fetch request helper class ********/
 
-function TemplateRequest ( env, title ) {
+function TemplateRequest ( env, title, oldid ) {
 	// Increase the number of maximum listeners a bit..
 	this.setMaxListeners( 50000 );
 	this.retries = 5;
 	this.env = env;
 	this.title = title;
+	var apiargs = {
+		format: 'json',
+		action: 'query',
+		prop: 'revisions',
+		rvprop: 'content',
+		titles: title
+	};
+	if ( oldid ) {
+		apiargs.revids = oldid;
+		delete apiargs.titles;
+	}
 	var url = env.wgScript + '/api' + 
 		env.wgScriptExtension +
 		'?' + 
-		qs.stringify( {
-			format: 'json',
-			action: 'query',
-			prop: 'revisions',
-			rvprop: 'content',
-			titles: title
-		} );
+		qs.stringify( apiargs );
 		//'?format=json&action=query&prop=revisions&rvprop=content&titles=' + title;
 
 	this.requestOptions = {

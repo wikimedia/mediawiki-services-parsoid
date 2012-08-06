@@ -334,7 +334,11 @@ app.get( new RegExp('/_rt/(?:(?:(?:' + env.interwikiRegexp + ')(?::|%3[aA])+)?' 
 	var target = env.resolveTitle( env.normalizeTitle( env.pageName ), '' );
 	
 	console.log('starting parsing of ' + target);
-	var tpr = new TemplateRequest( env, target );
+	var oldid = null;
+	if ( req.query.oldid ) {
+		oldid = req.query.oldid;
+	}
+	var tpr = new TemplateRequest( env, target, oldid );
 	tpr.once('src', parse.bind( null, req, res, roundTripDiff ));
 });
 
@@ -361,7 +365,11 @@ app.get( new RegExp('/_rtve/(?:(?:(?:' + env.interwikiRegexp + ')(?::|%3[aA])+)?
 	var target = env.resolveTitle( env.normalizeTitle( env.pageName ), '' );
 	
 	console.log('starting parsing of ' + target);
-	var tpr = new TemplateRequest( env, target ),
+	var oldid = null;
+	if ( req.query.oldid ) {
+		oldid = req.query.oldid;
+	}
+	var tpr = new TemplateRequest( env, target, oldid ),
 		cb = function ( req, res, src, document ) {
 			// strip newlines from the html
 			var html = document.innerHTML.replace(/[\r\n]/g, ''),
@@ -414,7 +422,11 @@ app.get(new RegExp( '/(?:(?:(?:' + env.interwikiRegexp + ')(?::|%3[aA])+)?' +
 
 	var st = new Date();
 	console.log('starting parsing of ' + target);
-	var tpr = new TemplateRequest( env, target );
+	var oldid = null;
+	if ( req.query.oldid ) {
+		oldid = req.query.oldid;
+	}
+	var tpr = new TemplateRequest( env, target, oldid );
 	tpr.once('src', parse.bind( null, req, res, function ( req, res, src, document ) {
 		res.end(document.body.innerHTML);
 		var et = new Date();
