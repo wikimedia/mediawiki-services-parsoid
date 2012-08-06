@@ -956,11 +956,17 @@ template_param_text
 
 
 wikilink_content
-  = lcs:( pipe lt:link_text { return new KV( '', lt ); } )+ { 
-        return { pos: [pos0, pos], content: lcs };
-    }
-  / { 
-        return { pos: [pos0, pos], content: [] };
+  = lcs:( pipe lt:link_text? {
+    if ( lt === '' ) {
+        return '';
+    } else {
+        return new KV( '', lt );
+    } } ) + {
+        if ( lcs.length === 1 && lcs[0] === '' ) {
+            return { pos: [pos0, pos], content: [], pipetrick: true };
+        } else {
+            return { pos: [pos0, pos], content: lcs };
+        }
     }
 
 // TODO: handle link prefixes as in al[[Razi]]
@@ -970,20 +976,24 @@ wikilink
     //target:link_target 
     // XXX: disallow pipe!
     target:wikilink_preprocessor_text
-    lcontent:wikilink_content
+    lcontent:wikilink_content?
     "]]" 
     // XXX In real MediaWiki, this is a language-dependent positive character
     // class. Can we work out a static negative class instead?
     // XXX: Exclude uppercase chars from non-latin languages too!
     tail:( ![A-Z \t(),.:\n\r-] tc:text_char { return tc } )* 
   {
+      if ( lcontent === '' ) {
+          lcontent = { pos: [pos0, pos], content: [] };
+      }
       var obj = new SelfclosingTagTk( 'wikilink' ),
           textTokens = [];
       obj.attribs.push( new KV('href', target) );
       obj.dataAttribs = { 
           tsr: [pos0, pos],
           contentPos: lcontent.pos,
-          src: input.substr(pos0, pos - pos0)
+          src: input.substr(pos0, pos - pos0),
+          pipetrick: lcontent.pipetrick
       };
       // XXX: Point to object with path, revision and input information
       //obj.source = input;

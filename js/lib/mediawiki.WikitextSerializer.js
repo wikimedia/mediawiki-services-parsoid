@@ -610,7 +610,7 @@ WSP._linkHandler =  function( state, tokens ) {
 			} else {
 				var content = state.serializer.serializeTokens( tokens ).join('');
 				content = Util.stripSuffix( content, tail );
-				return '[[' + target + '|' + content + ']]' + tail;
+				return '[[' + target + '|' + ( tokenData.pipetrick ? '' : content ) + ']]' + tail;
 			}
 		} else if ( attribDict.rel === 'mw:ExtLink' ) {
 			return '[' + attribDict.href + ' ' +
