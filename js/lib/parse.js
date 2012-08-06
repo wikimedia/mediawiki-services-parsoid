@@ -9,7 +9,6 @@
 var ParserPipelineFactory = require('./mediawiki.parser.js').ParserPipelineFactory,
 	ParserEnv = require('./mediawiki.parser.environment.js').MWParserEnvironment,
 	ConvertDOMToLM = require('./mediawiki.LinearModelConverter.js').ConvertDOMToLM,
-	DOMConverter = require('./mediawiki.DOMConverter.js').DOMConverter,
 	WikitextSerializer = require('./mediawiki.WikitextSerializer.js').WikitextSerializer,
 	optimist = require('optimist'),
 	html5 = require('html5');
@@ -23,11 +22,6 @@ var ParserPipelineFactory = require('./mediawiki.parser.js').ParserPipelineFacto
 		},
 		'linearmodel': {
 			description: 'Output linear model data instead of HTML',
-			'boolean': true,
-			'default': false
-		},
-		'wikidom': {
-			description: 'Output WikiDOM instead of HTML',
 			'boolean': true,
 			'default': false
 		},
@@ -132,13 +126,6 @@ var ParserPipelineFactory = require('./mediawiki.parser.js').ParserPipelineFacto
 				if ( argv.linearmodel ) {
 					process.stdout.write(
 						JSON.stringify( ConvertDOMToLM( document.body ), null, 2 ) );
-				} else if ( argv.wikidom ) {
-					process.stdout.write(
-						JSON.stringify(
-							new DOMConverter().HTMLtoWiki( document.body ),
-							null,
-							2
-						));
 				} else if ( argv.wikitext ) {
 					new WikitextSerializer({env: env}).serializeDOM( document.body,
 						process.stdout.write.bind( process.stdout ) );
