@@ -29,20 +29,11 @@ var fileDependencies = [];
 
 // Fetch up some of our wacky parser bits...
 
-var basePath = path.join( path.dirname(process.cwd()), 'lib' );
-
-function _require(filename) {
-	var fullpath = path.join( basePath, filename );
-	fileDependencies.push( fullpath );
-	return require( fullpath );
-}
-
-function _import(filename, symbols) {
-	var module = _require(filename);
-	symbols.forEach(function(symbol) {
-		global[symbol] = module[symbol];
-	});
-}
+var mp = '../lib/',
+	ParserPipelineFactory = require(mp + 'mediawiki.parser.js').ParserPipelineFactory,
+	MWParserEnvironment = require(mp + 'mediawiki.parser.environment.js').MWParserEnvironment,
+	WikitextSerializer = require(mp + 'mediawiki.WikitextSerializer.js').WikitextSerializer,
+	TemplateRequest = require(mp + 'mediawiki.ApiRequest.js').TemplateRequest;
 
 // For now most modules only need this for $.extend and $.each :)
 global.$ = require('jquery');
@@ -53,11 +44,8 @@ var pj = path.join;
 
 var testWhiteList = require(__dirname + '/parserTests-whitelist.js').testWhiteList;
 
-_import( 'mediawiki.parser.environment.js', ['MWParserEnvironment']);
-_import( 'mediawiki.parser.js', ['ParserPipelineFactory']);
-_import( 'mediawiki.WikitextSerializer.js', ['WikitextSerializer']);
-
 // WikiDom and serializers
+// NOTE: Uncommenting won't work, _require has been removed.
 //_require(pj('es', 'es.js'));
 //_require(pj('es', 'es.Html.js'));
 //_require(pj('es', 'serializers', 'es.AnnotationSerializer.js'));
