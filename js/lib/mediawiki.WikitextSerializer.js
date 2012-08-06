@@ -604,7 +604,9 @@ WSP._linkHandler =  function( state, tokens ) {
 			if ( linkText.constructor === String &&
 					env.normalizeTitle( Util.stripSuffix( linkText, tail ) ) ===
 						env.normalizeTitle( unencodedTarget ) &&
-					( hrefInfo.modified || token.dataAttribs.stx === 'simple' ) )
+					( Object.keys( token.dataAttribs ).length === 0 ||
+						hrefInfo.modified ||
+						token.dataAttribs.stx === 'simple' ) )
 			{
 				return '[[' + target + ']]' + tail;
 			} else {
