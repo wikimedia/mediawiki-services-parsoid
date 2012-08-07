@@ -151,9 +151,13 @@ WSP.escapeWikiText = function ( state, text ) {
 
 			var escapedSource = prefixedText.substr(rangeStart, rangeEnd - rangeStart)
 									.replace( /<(\/?nowiki)>/g, '&lt;$1&gt;' );
-			outTexts.push( '<nowiki>' );
-			outTexts.push( escapedSource );
-			outTexts.push( '</nowiki>' );
+			if ( escapedSource.match( /^\s*$|\s*&lt;\/?nowiki&gt;\s*/ ) ) {
+				outTexts.push( escapedSource );
+			} else {
+				outTexts.push( '<nowiki>' );
+				outTexts.push( escapedSource );
+				outTexts.push( '</nowiki>' );
+			}
 			cursor += 17 + escapedSource.length;
 			if ( missingRangeEnd ) {
 				throw 'No tsr on end token: ' + nonTextTokenAccum.last();
@@ -178,6 +182,9 @@ WSP.escapeWikiText = function ( state, text ) {
 						// are entity-escaped by the HTML5 DOM serializer when
 						// outputting the HTML DOM.
 						//.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+						// non-paired nowiki is not escaped though
+						.replace( /<(\/?nowiki)>/g, '&lt;$1&gt;' )
 					);
 					cursor += token.length;
 					break;
@@ -203,7 +210,8 @@ WSP.escapeWikiText = function ( state, text ) {
 						// modified for now.
 						outTexts.push( token.dataAttribs.src
 								// escape ampersands in entity text
-								.replace(/&(#?[0-9a-zA-Z]{2,20};)/, '&amp;$1') );
+								.replace(/&(#?[0-9a-zA-Z]{2,20};)/, '&amp;$1')
+								.replace( /<(\/?nowiki)>/g, '&lt;$1&gt;' ) );
 						// skip generated tokens
 						for ( ; i < l; i ++) {
 							var tk = tokens[i];
