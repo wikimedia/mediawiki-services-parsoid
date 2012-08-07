@@ -1,3 +1,30 @@
+/* ----------------------------------------------------------------------
+ * This serializer is designed to eventually 
+ * * accept arbitrary HTML and
+ * * serialize that to wikitext in a way that round-trips back to the same
+ *   HTML DOM as far as possible within the limitations of wikitext.
+ *
+ * Not much effort has been invested so far on supporting
+ * non-Parsoid/VE-generated HTML. Some of this involves adaptively switching
+ * between wikitext and HTML representations based on the values of attributes
+ * and DOM context. A few special cases are already handled adaptively
+ * (multi-paragraph list item contents are serialized as HTML tags for
+ * example, generic a elements are serialized to HTML a tags), but in general
+ * support for this is mostly missing.
+ *
+ * Example issue:
+ * <h1><p>foo</p></h1> will serialize to =\nfoo\n= whereas the
+ *        correct serialized output would be: =<p>foo</p>=
+ * 
+ * What to do about this?
+ * * add a generic 'can this HTML node be serialized to wikitext in this
+ *   context' detection method and use that to adaptively switch between
+ *   wikitext and HTML serialization
+ * 
+ * @author Subramanya Sastry <ssastry@wikimedia.org>
+ * @author Gabriel Wicke <gwicke@wikimedia.org>
+ * ---------------------------------------------------------------------- */
+
 require('./core-upgrade.js');
 var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer;
 var WikitextConstants = require('./mediawiki.wikitext.constants.js').WikitextConstants;
@@ -1217,6 +1244,11 @@ WSP._serializeToken = function ( state, token ) {
 					: this.escapeWikiText( state, token );
 				res = state.textHandler ? state.textHandler( res ) : res;
 				onlyWhiteSpace = res.match(/^\s*$/);
+				if (!onlyWhiteSpace) {
+					// Clear prev tag token
+					state.prevTagToken = null;
+					state.currTagToken = null;
+				}
 				break;
 			case CommentTk:
 				res = '<!--' + token.value + '-->';
