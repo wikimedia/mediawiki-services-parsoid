@@ -1,31 +1,5 @@
 #### --------------- Headings ---------------
 ####
-#### 1. Empty headings <h1></h1>
-####
-#### ----------------------------------------
-!! test
-Headings: 1. Empty headings
-!! input
-=<nowiki></nowiki>=
-==<nowiki></nowiki>==
-===<nowiki></nowiki>===
-====<nowiki></nowiki>====
-=====<nowiki></nowiki>=====
-======<nowiki></nowiki>======
-!! result
-<h1></h1>
-<h2></h2>
-<h3></h3>
-<h4></h4>
-<h5></h5>
-<h6></h6>
-!!end
-
-
-# Wikitext escaping tests (move to a different file?) 
-
-#### --------------- Headings ---------------
-####
 #### 1. Nested inside html <h1>=foo=</h1>
 #### 2. Outside heading nest on a single line <h1>foo</h1>*bar
 #### 3. Nested inside html with wikitext split by html tags
@@ -219,20 +193,11 @@ Tables: 3b. Nested in th -- no escaping needed
 
 #### --------------- Links ---------------
 ####
-#### 1. Simple example
-#### 2. Quote marks in link text
+#### 1. Quote marks in link text
 ####
 #### --------------------------------------
 !! test
-Links 1. Simple example
-!! input
-<nowiki>[[</nowiki>''''hello<nowiki>]]</nowiki>
-!! result
-[[<i></i>hello]]
-!! end
-
-!! test
-Links 2. Quote marks in link text
+Links 1. Quote marks in link text
 !! input
 [[Foo|Foo<nowiki>''</nowiki>boo<nowiki>''</nowiki>]]
 !! result
@@ -242,7 +207,8 @@ Links 2. Quote marks in link text
 #### --------------- Quotes ---------------
 ####
 #### 1. Quotes inside <b> and <i>
-####
+#### 2. Link fragments separated by <i> and <b> tags
+#### 3. Link fragments inside <i> and <b>
 #### --------------------------------------
 !! test
 1. Quotes inside <b> and <i>
@@ -260,4 +226,38 @@ Links 2. Quote marks in link text
 <b>'foo'</b>
 <b>''foo''</b>
 <b>'''foo'''</b>
-!!end
+!! end
+
+!! test
+2. Link fragments separated by <i> and <b> tags
+!! input
+<nowiki>[[</nowiki>''''hello<nowiki>]]</nowiki>
+<nowiki>[[</nowiki>''foo''hello<nowiki>]]</nowiki>
+<nowiki>[[</nowiki>'''foo'''hello<nowiki>]]</nowiki>
+!! result
+[[<i></i>hello]]
+[[<i>foo</i>hello]]
+[[<b>foo</b>hello]]
+!! end
+
+!! test
+2. Link fragments inside <i> and <b>
+(FIXME: Escaping one or both of [[ and ]] is also acceptable -- 
+ this is one of the shortcomings of this format)
+!! input
+''<nowiki>[[</nowiki>foo'']]
+'''<nowiki>[[</nowiki>foo''']]
+!! result
+<i>[[foo</i>]]
+<b>[[foo</b>]]
+!! end
+
+
+#### --------------- Others ---------------
+!! test
+Escaping nowikis
+!! input
+&lt;nowiki&gt;foo&lt;/nowiki&gt;
+!! result
+&lt;nowiki&gt;foo&lt;/nowiki&gt;
+!! end
