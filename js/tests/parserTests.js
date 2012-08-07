@@ -44,15 +44,6 @@ var pj = path.join;
 
 var testWhiteList = require(__dirname + '/parserTests-whitelist.js').testWhiteList;
 
-// WikiDom and serializers
-// NOTE: Uncommenting won't work, _require has been removed.
-//_require(pj('es', 'es.js'));
-//_require(pj('es', 'es.Html.js'));
-//_require(pj('es', 'serializers', 'es.AnnotationSerializer.js'));
-//_require(pj('es', 'serializers', 'es.HtmlSerializer.js'));
-//_require(pj('es', 'serializers', 'es.WikitextSerializer.js'));
-//_require(pj('es', 'serializers', 'es.JsonSerializer.js'));
-
 function ParserTests () {
 	this.cache_file = "parserTests.cache"; // Name of file used to cache the parser tests cases
 	this.parser_tests_file = "parserTests.txt";
@@ -69,7 +60,7 @@ function ParserTests () {
 			'boolean': true
 		},
 		'html2wt': {
-			description: 'HTML(DOM) -> wikitext',
+			description: 'HTML(DOM) -> Wikitext',
 			'default': false,
 			'boolean': true
 		},
@@ -363,7 +354,7 @@ ParserTests.prototype.printTitle = function( item, failure_only ) {
 		console.log(item.options + '\n');
 	}
 	console.log("INPUT".cyan + ":");
-	console.log(item.input + "\n");
+	console.log((this.argv.html2wt || this.argv.html2html) ? item.result : item.input + "\n");
 };
 
 ParserTests.prototype.convertHtml2Wt = function(index, item, processWikitextCB, doc) {
