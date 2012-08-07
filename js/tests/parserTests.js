@@ -542,10 +542,10 @@ ParserTests.prototype.checkHTML = function ( item, out ) {
 
 ParserTests.prototype.checkWikitext = function ( item, out) {
 	// FIXME: normalization not in place yet
-	var normalizedOut = out;
+	var normalizedOut = this.argv.html2wt ? out.replace(/\n+$/, '') : out;
 
 	// FIXME: normalization not in place yet
-	var normalizedExpected = item.input;
+	var normalizedExpected = this.argv.html2wt ? item.input.replace(/\n+$/, '') : item.input;
 
 	if ( normalizedOut !== normalizedExpected ) {
 		this.printTitle( item, this.argv.quick );
