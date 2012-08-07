@@ -14,24 +14,35 @@ var ParserPipelineFactory = require('./mediawiki.parser.js').ParserPipelineFacto
 	html5 = require('html5');
 
 ( function() {
-	var opts = optimist.usage( 'Usage: echo wikitext | $0', {
+	var default_mode_str = "Default conversion mode : --wt2html";
+	var opts = optimist.usage( 'Usage: echo wikitext | $0 [options]\n\n' + default_mode_str, {
 		'help': {
 			description: 'Show this message',
 			'boolean': true,
 			'default': false
 		},
-		'linearmodel': {
-			description: 'Output linear model data instead of HTML',
+		'wt2html': {
+			description: 'Wikitext -> HTML',
 			'boolean': true,
 			'default': false
 		},
 		'html2wt': {
-			description: 'Convert input HTML to Wikitext',
+			description: 'HTML -> Wikitext',
 			'boolean': true,
 			'default': false
 		},
-		'wikitext': {
-			description: 'Output WikiText instead of HTML',
+		'wt2wt': {
+			description: 'Wikitext -> HTML -> Wikitext',
+			'boolean': true,
+			'default': false
+		},
+		'html2html': {
+			description: 'HTML -> Wikitext -> HTML',
+			'boolean': true,
+			'default': false
+		},
+		'linearmodel': {
+			description: 'Output linear model data instead of HTML',
 			'boolean': true,
 			'default': false
 		},
@@ -76,69 +87,95 @@ var ParserPipelineFactory = require('./mediawiki.parser.js').ParserPipelineFacto
 			'default': 'Main page'
 		}
 	});
+
 	var argv = opts.argv;
-	
+
 	if ( argv.help ) {
 		optimist.showHelp();
 		return;
 	}
 
-	var env = new ParserEnv( {
-						// fetch templates from enwiki by default..
-						wgScript: argv.wgScript,
-						wgScriptPath: argv.wgScriptPath,
-						wgScriptExtension: argv.wgScriptExtension,
-						// XXX: add options for this!
-						wgUploadPath: 'http://upload.wikimedia.org/wikipedia/commons',
-						fetchTemplates: argv.fetchTemplates,
-						// enable/disable debug output using this switch
-						debug: argv.debug,
-						trace: argv.trace,
-						maxDepth: argv.maxdepth,
-						pageName: argv.pagename
-					} );
+	// Default conversion mode
+	if (!argv.html2wt && !argv.wt2wt && !argv.html2html) {
+		argv.wt2html = true;
+	}
 
-	process.stdin.resume();
-	process.stdin.setEncoding('utf8');
+	var env = new ParserEnv({
+		// fetch templates from enwiki by default.
+		wgScript: argv.wgScript,
+		wgScriptPath: argv.wgScriptPath,
+		wgScriptExtension: argv.wgScriptExtension,
+		// XXX: add options for this!
+		wgUploadPath: 'http://upload.wikimedia.org/wikipedia/commons',
+		fetchTemplates: argv.fetchTemplates,
+		debug: argv.debug,
+		trace: argv.trace,
+		maxDepth: argv.maxdepth,
+		pageName: argv.pagename
+	});
 
-	var inputChunks = [];
-	process.stdin.on( 'data', function( chunk ) {
+	// Init parsers, serializers, etc.
+	var parserPipeline,
+	    serializer,
+		htmlparser = new html5.Parser();
+	if (!argv.html2wt) {
+		var parserPipelineFactory = new ParserPipelineFactory(env);
+		parserPipeline = parserPipelineFactory.makePipeline('text/x-mediawiki/full');
+	}
+	if (!argv.wt2html) {
+		serializer = new WikitextSerializer({env: env});
+	}
+
+	var stdin = process.stdin,
+	    stdout = process.stdout,
+	    inputChunks = [];
+
+	// collect input
+	stdin.resume();
+	stdin.setEncoding('utf8');
+	stdin.on( 'data', function( chunk ) {
 		inputChunks.push( chunk );
 	} );
 
-	process.stdin.on( 'end', function() {
+	// process input
+	stdin.on( 'end', function() {
 		var input = inputChunks.join('');
-		if (argv.html2wt) {
-			var p = new html5.Parser();
-			p.parse('<html><body>' + input.replace(/\r/g, '') + '</body></html>');
-			var content = p.tree.document.childNodes[0].childNodes[1];
-			var stdout  = process.stdout;
-			new WikitextSerializer({env: env}).serializeDOM(content, stdout.write.bind(stdout));
+		if (argv.html2wt || argv.html2html) {
+			htmlparser.parse('<html><body>' + input.replace(/\r/g, '') + '</body></html>');
+			var content = htmlparser.tree.document.childNodes[0].childNodes[1];
+			var wt = serializer.serializeDOM(content);
 
-			// add a trailing newline for shell user's benefit
-			stdout.write( "\n" );
+			if (argv.html2wt) {
+				// add a trailing newline for shell user's benefit
+				stdout.write(wt);
+				stdout.write("\n");
+			} else {
+				parserPipeline.on('document', function(document) {
+					stdout.write( document.body.innerHTML );
+				});
+				parserPipeline.process(wt);
+			}
+
 			process.exit(0);
 		} else {
-			var parserPipelineFactory = new ParserPipelineFactory( env );
-			var parser = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
-			parser.on('document', function ( document ) {
-				// Print out the html
-				if ( argv.linearmodel ) {
-					process.stdout.write(
-						JSON.stringify( ConvertDOMToLM( document.body ), null, 2 ) );
-				} else if ( argv.wikitext ) {
-					new WikitextSerializer({env: env}).serializeDOM( document.body,
-						process.stdout.write.bind( process.stdout ) );
-				} else {
-					process.stdout.write( document.body.innerHTML );
+			parserPipeline.on('document', function ( document ) {
+				var res;
+				if (argv.wt2html) {
+					res = document.body.innerHTML;
+				} else if (argv.wt2wt) {
+					res = serializer.serializeDOM(document.body);
+				} else { // linear model
+					res = JSON.stringify( ConvertDOMToLM( document.body ), null, 2 );
 				}
 
 				// add a trailing newline for shell user's benefit
-				process.stdout.write( "\n" );
+				stdout.write(res);
+				stdout.write("\n");
 				process.exit(0);
 			});
+
 			// Kick off the pipeline by feeding the input into the parser pipeline
-			parser.process( input );
+			parserPipeline.process( input );
 		}
 	} );
 
