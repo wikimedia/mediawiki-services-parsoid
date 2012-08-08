@@ -571,7 +571,7 @@ h = & "=" // guard, to make sure '='+ will match.
             var extras = e.substr(0, e.length - level),
                 lastElem = c[c.length - 1];
             if(lastElem.constructor === String) {
-                lastElem += extras;
+                c[c.length-1] += extras;
             } else {
                 c.push( extras );
             }
