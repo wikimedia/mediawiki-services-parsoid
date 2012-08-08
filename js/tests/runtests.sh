@@ -19,7 +19,7 @@ else
 fi
 
 if [ "$1" = "-r" ];then
-    time node parserTests.js --cache --roundtrip \
+    time node parserTests.js --cache --wt2wt \
         > results/roundtrip.txt 2>&1 || exit 1
 
 else
