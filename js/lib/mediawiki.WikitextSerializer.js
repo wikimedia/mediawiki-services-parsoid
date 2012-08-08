@@ -546,9 +546,10 @@ WSP._figureHandler = function ( state, figTokens ) {
 	return "[[" + outBits.join('|') + "]]";
 };
 
-WSP._serializeTableTag = function ( symbol, optionEndSymbol, state, token ) {
-	if ( token.attribs.length ) {
-		return symbol + ' ' + WSP._serializeAttributes( token.attribs ) + optionEndSymbol;
+WSP._serializeTableTag = function ( symbol, optionalEndSymbol, state, token ) {
+	var sAttribs = WSP._serializeAttributes(token);
+	if (sAttribs.length > 0) {
+		return symbol + ' ' + sAttribs + optionalEndSymbol;
 	} else {
 		return symbol;
 	}
@@ -567,9 +568,9 @@ WSP._serializeHTMLTag = function ( state, token ) {
 		state.inHTMLPre = true;
 	}
 
-	if ( token.attribs.length ) {
-		return '<' + token.name + ' ' +
-			WSP._serializeAttributes( token.attribs ) + close + '>';
+	var sAttribs = WSP._serializeAttributes(token);
+	if (sAttribs.length > 0) {
+		return '<' + token.name + ' ' + sAttribs + close + '>';
 	} else {
 		return '<' + token.name + close + '>';
 	}
@@ -1101,23 +1102,48 @@ WSP.tagHandlers = {
 	}
 };
 
-
-WSP._serializeAttributes = function ( attribs ) {
+WSP._serializeAttributes = function (token) {
+	var attribs = token.attribs;
 	var out = [];
 	for ( var i = 0, l = attribs.length; i < l; i++ ) {
 		var kv = attribs[i];
-		if (kv.k.length) {
-			if ( kv.v.length ) {
-				out.push( kv.k + '=' +
-						'"' + kv.v.replace( '"', '&quot;' ) + '"');
+		var k = kv.k;
+		if (k.length) {
+			var v = token.getAttributeShadowInfo(k).value;
+			if (v.length ) {
+				out.push(k + '=' + '"' + v.replace( '"', '&quot;' ) + '"');
 			} else {
-				out.push( kv.k );
+				out.push(k);
 			}
 		} else if ( kv.v.length ) {
 			// not very likely..
 			out.push( kv.v );
 		}
 	}
+
+	// SSS FIXME: It can be reasonably argued that we can permanently delete
+	// dangerous and unacceptable attributes in the interest of safety/security
+	// and the resultant dirty diffs should be acceptable.  But, this is
+	// something to do in the future once we have passed the initial tests
+	// of parsoid acceptance.
+	//
+	// 'a' data attribs -- look for attributes that were removed
+	// as part of sanitization and add them back
+	var dataAttribs = token.dataAttribs;
+	if (dataAttribs.a && dataAttribs.sa) {
+		var aKeys = Object.keys(dataAttribs.a);
+		for (i = 0, l = aKeys.length; i < l; i++) {
+			var k = aKeys[i];
+			// Attrib not present -- sanitized away!
+			if (!Util.lookupKV(attribs, k)) {
+				v = dataAttribs.sa[k];
+				if (v) {
+					out.push(k + '=' + '"' + v.replace( '"', '&quot;' ) + '"');
+				}
+			}
+		}
+	}
+
 	// XXX: round-trip optional whitespace / line breaks etc
 	return out.join(' ');
 };

@@ -4,6 +4,8 @@
  * expansion stage. Tokens from extensions which should not be sanitized
  * can bypass sanitation by setting their rank to 3.
  *
+ * A large part of this code is a straight port from the PHP version.
+ *
  * @author Gabriel Wicke <gwicke@wikimedia.org>
  */
 
@@ -611,6 +613,8 @@ Sanitizer.prototype.onAny = function ( token ) {
 	// XXX: validate token type according to whitelist and convert non-ok ones
 	// back to text.
 
+	var i,l,k,v,kv;
+	var attribs = token.attribs;
 	var tagWLHash = this.constants.tagWhiteListHash;
 	if (token.isHTMLTag() && !tagWLHash[token.name.toLowerCase()]) { // unknown tag -- convert to plain text
 		if (token.constructor !== EndTagTk) {
@@ -618,9 +622,8 @@ Sanitizer.prototype.onAny = function ( token ) {
 			// differences will creep up since attr text is being normalized).  We need
 			// to record original text in 'src' and 'srcContent'.
 			var buf = ["<", token.name];
-			var attribs = token.attribs;
-			for ( var i = 0, l = attribs.length; i < l; i++ ) {
-				var kv = attribs[i];
+			for (i = 0, l = attribs.length; i < l; i++ ) {
+				kv = attribs[i];
 				buf.push(" ", kv.k, "='", kv.v, "'");
 			}
 			if (token.constructor === SelfclosingTagTk) {
@@ -635,14 +638,14 @@ Sanitizer.prototype.onAny = function ( token ) {
 		// Convert attributes to string, if necessary.
 		// XXX: Likely better done in AttributeTransformManager when processing is
 		// complete
-		if ( token.attribs && token.attribs.length ) {
-			var attribs = token.attribs.slice();
+		if (attribs && attribs.length > 0) {
+			attribs = attribs.slice(); // clone
 			var newToken = $.extend( {}, token );
 			var env = this.manager.env;
-			for ( var i = 0, l = attribs.length; i < l; i++ ) {
-				var kv = attribs[i],
-					k = kv.k,
-					v = kv.v;
+			for (i = 0, l = attribs.length; i < l; i++ ) {
+				kv = attribs[i];
+				k = kv.k,
+				v = kv.v;
 
 				if ( k.constructor === Array ) {
 					k = env.tokensToString ( k );
@@ -650,15 +653,12 @@ Sanitizer.prototype.onAny = function ( token ) {
 				if ( v.constructor === Array ) {
 					v = env.tokensToString ( v );
 				}
-				if ( k === 'style' ) {
-					v = this.checkCss(v);
-				}
 				attribs[i] = new KV( k, v );
 			}
 
 			// Sanitize attribues
 			if (token.constructor === TagTk) {
-				newToken.attribs = this.sanitizeTagAttrs(token.name, attribs);
+				this.sanitizeTagAttrs(newToken, attribs);
 			}
 
 			token = newToken;
@@ -673,7 +673,7 @@ Sanitizer.prototype.onAny = function ( token ) {
  * return the UTF-8 encoding of that character. Otherwise, returns
  * pseudo-entity source (eg "&foo;")
  */
-Sanitizer.prototype.decodeEntity = function(name ) {
+Sanitizer.prototype.decodeEntity = function(name) {
 	if (this.constants.htmlEntityAliases(name)) {
 		name = this.constants.htmlEntityAliases(name);
 	}
@@ -753,6 +753,11 @@ Sanitizer.prototype.checkCss = function (text) {
 		text = text.substring(0, commentPos);
 	}
 
+	// SSS FIXME: Looks like the HTML5 library normalizes attributes
+	// and gets rid of these attribute values -- something that needs
+	// investigation and fixing.
+	//
+	// So, style="/* insecure input */" comes out as style=""
 	if (/[\000-\010\016-\037\177]/.test(text)) {
 		return '/* invalid control char */';
 	}
@@ -767,7 +772,8 @@ Sanitizer.prototype.escapeId = function(id, options) {
 	return id;
 };
 
-Sanitizer.prototype.sanitizeTagAttrs = function(tag, attrs) {
+Sanitizer.prototype.sanitizeTagAttrs = function(newToken, attrs) {
+	var tag       = newToken.name;
 	var allowRdfa = this.constants.globalConfig.allowRdfaAttrs;
 	var allowMda  = this.constants.globalConfig.allowMicrodataAttrs;
 	var html5Mode = this.constants.globalConfig.html5Mode;
@@ -783,19 +789,23 @@ Sanitizer.prototype.sanitizeTagAttrs = function(tag, attrs) {
 		var a = attrs[i];
 		var k = a.k;
 		var v = a.v;
+		var origV = v;
 
 		//console.warn('k = ' + k + '; v = ' + v);
 
 		// allow XML namespace declaration if RDFa is enabled
 		if (allowRdfa && k.match(xmlnsRE)) {
 			if (!v.match(evilUriRE)) {
-				newAttrs[k] = v;
+				newAttrs[k] = [v, origV];
+			} else {
+				newAttrs[k] = [null, origV];
 			}
 			continue;
 		}
 
 		// Allow any attribute beginning with "data-", if in HTML5 mode
 		if (!(html5Mode && k.match(/^data-/i)) && !wlist[k]) {
+			newAttrs[k] = [null, origV];
 			continue;
 		}
 
@@ -818,6 +828,7 @@ Sanitizer.prototype.sanitizeTagAttrs = function(tag, attrs) {
 
 			//Paranoia. Allow "simple" values but suppress javascript
 			if (v.match(evilUriRE)) {
+				newAttrs[k] = [null, origV];
 				continue;
 			}
 		}
@@ -826,18 +837,21 @@ Sanitizer.prototype.sanitizeTagAttrs = function(tag, attrs) {
 		//       validation code that can be used by tag hook handlers, etc
 		if ( k === 'href' || k === 'src' ) {
 			if (!v.match(hrefRE)) {
+				newAttrs[k] = [null, origV];
 				continue; //drop any href or src attributes not using an allowed protocol.
 						  //NOTE: this also drops all relative URLs
 			}
 		}
 
+		// SSS FIXME: This logic is not RT-friendly.
 		// If this attribute was previously set, override it.
 		// Output should only have one attribute of each name.
-		newAttrs[k] = v;
+		newAttrs[k] = [v, origV];
 
 		if (!allowMda) {
 			// itemtype, itemid, itemref don't make sense without itemscope
 			if (newAttrs.itemscope === undefined) {
+				// SSS FIXME: This logic is not RT-friendly.
 				newAttrs.itemtype = undefined;
 				newAttrs.itemid = undefined;
 				newAttrs.itemref = undefined;
@@ -846,12 +860,26 @@ Sanitizer.prototype.sanitizeTagAttrs = function(tag, attrs) {
 		}
 	}
 
-	var kvAttrs = [];
+	// SSS FIXME: We are right now adding shadow information for all sanitized
+	// attributes.  This is being doing for minimizing dirty diffs for the first
+	// cut.  It can be reasonably argued that we can permanently delete dangerous
+	// and unacceptable attributes in the interest of safety/security and the
+	// resultant dirty diffs should be acceptable.  But, this is something to do
+	// in the future once we have passed the initial tests of parsoid acceptance.
+	//
+	// Reset newToken attribs and rebuild
+	newToken.attribs = [];
 	Object.keys(newAttrs).forEach(function(k) {
-		kvAttrs.push(new KV(k, newAttrs[k]));
+		var vs = newAttrs[k];
+		var newV  = vs[0];
+		var origV = vs[1];
+		// explicit check against null to prevent discarding empty strings
+		if (newV != null) {
+			newToken.addNormalizedAttribute(k, newV, origV);
+		} else {
+			newToken.setShadowInfo(k, newV, origV);
+		}
 	});
-
-	return kvAttrs;
 };
 
 if (typeof module === "object") {
