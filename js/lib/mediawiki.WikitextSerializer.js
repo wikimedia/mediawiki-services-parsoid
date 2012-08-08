@@ -654,9 +654,11 @@ WSP._linkHandler =  function( state, tokens ) {
 			return '[' + attribDict.href + ' ' +
 				state.serializer.serializeTokens( tokens ).join('') +
 				']';
-		} else if ( attribDict.rel === 'mw:UrlLink' ) {
+		} else if ( attribDict.rel === 'mw:ExtLink/ISBN' ) {
+			return tokens.join('');
+		} else if ( attribDict.rel === 'mw:ExtLink/URL' ) {
 			return attribDict.href;
-		} else if ( attribDict.rel === 'mw:NumberedExtLink' ) {
+		} else if ( attribDict.rel === 'mw:ExtLink/Numbered' ) {
 			return '[' + attribDict.href + ']';
 		} else if ( attribDict.rel === 'mw:Image' ) {
 			// simple source-based round-tripping for now..

@@ -388,7 +388,7 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 				new TagTk( 'a', 
 					[ 
 						new KV( 'href', href ),
-						new KV('rel', 'mw:UrlLink')
+						new KV('rel', 'mw:ExtLink/URL')
 					] ),
 				href,
 				new EndTagTk( 'a' )
@@ -407,13 +407,21 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 	//console.warn('extlink href: ' + href );
 	//console.warn( 'content: ' + JSON.stringify( content, null, 2 ) );
 	// validate the href
-	if ( this.imageParser.tokenizeURL( href ) ) {
+	if (token.getAttribute('typeof') === 'mw:ExtLink/ISBN') {
+		var title = env.makeTitleFromPrefixedText(env.normalizeTitle(href));
+		var aStart = new TagTk ('a', [
+						new KV('href', title.makeLink()),
+						new KV('rel', 'mw:ExtLink/ISBN')
+					], token.dataAttribs);
+		cb( {
+			tokens: [aStart].concat(content, [new EndTagTk('a')])
+		} );
+	} else if ( this.imageParser.tokenizeURL( href )) {
 		if ( ! content.length ) {
 			content = ['[' + this.linkCount + ']'];
 			this.linkCount++;
-			rdfaType = 'mw:NumberedExtLink';
-		}
-		if ( content.length === 1 && 
+			rdfaType = 'mw:ExtLink/Numbered';
+		} else if ( content.length === 1 && 
 				content[0].constructor === String &&
 				this.imageParser.tokenizeURL( content[0] ) &&
 				this._isImageLink( content[0] ) )
@@ -428,18 +436,12 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 				];
 		}
 
-		cb( { 
-			tokens:
-				[
-					
-					new TagTk ( 'a', 
-							[ 
-								new KV('href', href),
-								new KV('rel', rdfaType)
-							], 
-							token.dataAttribs
-					)
-				].concat( content, [ new EndTagTk( 'a' )])
+		var aStart = new TagTk ( 'a', [
+						new KV('href', href),
+						new KV('rel', rdfaType)
+					], token.dataAttribs)
+		cb( {
+			tokens: [aStart].concat(content, [new EndTagTk('a')])
 		} );
 	} else {
 		var tokens = ['[', href ];

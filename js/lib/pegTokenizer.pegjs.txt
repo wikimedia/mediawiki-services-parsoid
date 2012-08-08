@@ -714,10 +714,10 @@ isbn
     }
 
     return [
-        new SelfclosingTagTk( 'wikilink', [
+        new SelfclosingTagTk( 'extlink', [
            new KV('href', 'Special:BookSources/' + isbn.replace(/[^\d]/g, '')),
-           new KV('tail', ''),
            new KV('content', 'ISBN ' + isbn),
+           new KV('typeof', 'mw:ExtLink/ISBN')
         ],
         {tsr: [pos0, pos]})
     ];
