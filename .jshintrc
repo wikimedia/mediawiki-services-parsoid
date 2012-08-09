@@ -26,6 +26,6 @@
 	"node": true,
 	"jquery": true,
 
-	"nomen": true,
-	"onevar": true
+	"nomen": true
+	//"onevar": true
 }

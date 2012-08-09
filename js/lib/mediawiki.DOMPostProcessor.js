@@ -135,7 +135,7 @@ function minimize_inline_tags(root, rewriteable_nodes) {
 				// Connect up LCS
 				// console.log("LCS: " + lcs);
 				var prev = lcs[0];
-				for (k = 1, lcs_len = lcs.length; k < lcs_len; k++) {
+				for (var k = 1, lcs_len = lcs.length; k < lcs_len; k++) {
 					var curr = lcs[k];
 					// SSS FIXME: this add/remove can be optimized
 					// console.log("adding " + curr.nodeName + " to " + prev.nodeName);
@@ -155,7 +155,7 @@ function minimize_inline_tags(root, rewriteable_nodes) {
 				// Nothing more to do!  Stitch things up
 				// two possible scenarios:
 				// (a) we have an empty path    ==> attach the children to parent_node
-				// (b) we have a non-empty path ==> attach the children to the end of the path 
+				// (b) we have a non-empty path ==> attach the children to the end of the path
 				var p        = paths[0].path;
 				var children = paths[0].children;
 				if (p.length > 0) {
@@ -200,11 +200,11 @@ function minimize_inline_tags(root, rewriteable_nodes) {
 	// For each 'p' in 'paths', eliminate 'lcs' from 'p'
 	function strip_lcs(paths, lcs) {
 		// SSS FIXME: Implicit assumption: there are no duplicate elements in lcs or path!
-		// Ex: <b><i><b>BIB</b></i></b> will 
-		// Fix this to be more robust 
+		// Ex: <b><i><b>BIB</b></i></b> will
+		// Fix this to be more robust
 
-		var i, lcs_map = {};
-		for (i = 0, n = lcs.length; i < n; i++) {
+		var lcs_map = {};
+		for (var i = 0, n = lcs.length; i < n; i++) {
 			lcs_map[lcs[i]] = true;
 		}
 
@@ -223,13 +223,13 @@ function minimize_inline_tags(root, rewriteable_nodes) {
 		return paths;
 	}
 
-	// Split 'P' into sublists where each sublist has the property that 
+	// Split 'P' into sublists where each sublist has the property that
 	// the elements of the sublist have an intersection that is non-zero
 	// Ex: [BIUS, SB, BUS, IU, I, U, US, B, I] will get split into 5 sublists
-	// - (lcs: BS, paths: [BIUS, SB, BUS]) 
-	// - (lcs: I,  paths: [IU, I]) 
+	// - (lcs: BS, paths: [BIUS, SB, BUS])
+	// - (lcs: I,  paths: [IU, I])
 	// - (lcs: U,  paths: [U, US])
-	// - (lcs: B,  paths: [B]) 
+	// - (lcs: B,  paths: [B])
 	// - (lcs: I,  paths: [I])
 	function split_into_disjoint_sublists(P) {
 		var p    = P.shift();
@@ -238,7 +238,7 @@ function minimize_inline_tags(root, rewriteable_nodes) {
 
 		for (var i = 0, n = P.length; i < n; i++) {
 			p = P.shift();
-			new_lcs = common_path(lcs, p.path);
+			var new_lcs = common_path(lcs, p.path);
 			if (new_lcs.length === 0) {
 				P.unshift(p);
 				return [{lcs: lcs, paths: curr}].concat(split_into_disjoint_sublists(P));
@@ -267,7 +267,7 @@ var normalize_document = function(document) {
 };
 
 /**
-* Wrap all top-level inline elements in paragraphs. 
+* Wrap all top-level inline elements in paragraphs.
 * TODO: This should also be applied inside block-level elements, but in that
 * case the first paragraph usually remains plain inline.
 */
@@ -281,22 +281,22 @@ var process_inlines_in_p = function ( document ) {
 	for(var i = 0, length = cnodes.length; i < length; i++) {
 		var child = cnodes[i - deleted],
 			ctype = child.nodeType;
-		if ((ctype === Node.TEXT_NODE && 
-					(inParagraph || !isElementContentWhitespace( child ))) || 
+		if ((ctype === Node.TEXT_NODE &&
+					(inParagraph || !isElementContentWhitespace( child ))) ||
 			(ctype === Node.COMMENT_NODE && inParagraph ) ||
-			(ctype !== Node.TEXT_NODE && 
-				ctype !== Node.COMMENT_NODE &&
-				!Util.isBlockTag(child.nodeName.toLowerCase()))
-			) 
+			(ctype === Node.ELEMENT_NODE &&
+			 ( child.nodeName.toLowerCase() !== 'meta' && // don't wrap meta tags for now..
+				!Util.isBlockTag(child.nodeName.toLowerCase())))
+			)
 		{
 
 			if ( ctype === Node.TEXT_NODE && !inParagraph ) {
 				var leadingNewLines = child.data.match(/^[\r\n]+/);
 				if ( leadingNewLines ) {
 					// don't include newlines in the paragraph
-					child.parentNode.insertBefore( 
-							document.createTextNode( leadingNewLines[0] ), 
-							child 
+					child.parentNode.insertBefore(
+							document.createTextNode( leadingNewLines[0] ),
+							child
 							);
 					deleted--;
 					child.data = child.data.substr( leadingNewLines[0].length );
@@ -310,8 +310,6 @@ var process_inlines_in_p = function ( document ) {
 			deleted++;
 		} else if (inParagraph) {
 			body.insertBefore(newP, child);
-
-
 			deleted--;
 			newP = document.createElement('p');
 			inParagraph = false;
@@ -323,6 +321,7 @@ var process_inlines_in_p = function ( document ) {
 	}
 };
 
+
 /**
  * Remove trailing newlines from paragraph content (and move them to
  * inter-element whitespace)
@@ -332,15 +331,15 @@ var remove_trailing_newlines_from_paragraphs = function ( document ) {
 	for( var i = 0; i < cnodes.length; i++ ) {
 		var cnode = cnodes[i];
 		if ( cnode.nodeType === Node.ELEMENT_NODE &&
-				cnode.nodeName.toLowerCase() === 'p' ) 
+				cnode.nodeName.toLowerCase() === 'p' )
 		{
 			//var firstChild = cnode.firstChild,
 			//	leadingNewLines = firstChild.data.match(/[\r\n]+/);
 			//if ( leadingNewLines ) {
 			//	// don't include newlines in the paragraph
-			//	cnode.insertBefore( 
-			//			document.createTextNode( leadingNewLines[0] ), 
-			//			firstChild 
+			//	cnode.insertBefore(
+			//			document.createTextNode( leadingNewLines[0] ),
+			//			firstChild
 			//			);
 			//	firstChild.data = firstChild.data.substr( leadingNewLines[0].length );
 			//}
@@ -348,7 +347,7 @@ var remove_trailing_newlines_from_paragraphs = function ( document ) {
 			if ( lastChild.nodeType === Node.TEXT_NODE ) {
 				var trailingNewlines = lastChild.data.match(/[\r\n]+$/);
 				if ( trailingNewlines ) {
-					lastChild.data = lastChild.data.substr( 0, 
+					lastChild.data = lastChild.data.substr( 0,
 							lastChild.data.length - trailingNewlines[0].length );
 					var newText = document.createTextNode( trailingNewlines[0] );
 					if ( cnode.nextSibling ) {
@@ -362,11 +361,196 @@ var remove_trailing_newlines_from_paragraphs = function ( document ) {
 	}
 };
 
+/**
+ * Find the common DOM ancestor of two DOM nodes
+ */
+var getDOMRange = function ( startElem, endElem ) {
+	var startAncestors = [],
+		elem = startElem;
+	// build ancestor list -- path to root
+	while (elem) {
+		startAncestors.push( elem );
+		elem = elem.parentNode;
+	}
+
+	// now find common ancestor
+	elem = endElem;
+	var parentNode = endElem.parentNode,
+	    firstSibling, lastSibling;
+	while ( true ) {
+		var i = startAncestors.indexOf( parentNode );
+		if ( i > -1 ) {
+			if ( i > 0 ) {
+				return {
+					'root': parentNode,
+					start: startAncestors[i - 1],
+					end: elem
+				};
+			} else {
+				return {
+					'root': startElem,
+					// widen the scope to include the full subtree
+					start: startElem.firstChild,
+					end: startElem.lastChild
+				};
+			}
+		}
+		elem = parentNode;
+		parentNode = elem.parentNode;
+		if ( ! parentNode || parentNode.nodeType === parentNode.DOCUMENT_NODE ) {
+			return null;
+		}
+	}
+};
+
+/**
+ * TODO: split in common ancestor algo, sibling splicing and -annotation /
+ * wrapping
+ */
+var encapsulateTrees = function ( startElem, endElem, doc ) {
+	var range = getDOMRange( startElem, endElem );
+
+	if ( range ) {
+		//console.log ( 'HTML of template-affected subtrees: ' );
+		var n = range.start,
+			about = startElem.getAttribute('about');
+		while (n) {
+			var str;
+			if ( n.nodeType === Node.TEXT_NODE ) {
+				// TODO: wrap into span
+				var span = doc.createElement( 'span' );
+				span.setAttribute( 'about', about );
+				// attach the new span to the DOM
+				n.parentNode.insertBefore( span, n );
+				// move the text node into the span
+				span.appendChild( n );
+				str = span.outerHTML;
+			} else {
+				// TODO: add about to all elements
+				n.setAttribute( 'about', about );
+				str = n.outerHTML.replace(/\n$/, '');
+			}
+
+			//console.log ( str.replace(/(^|\n)/g, "$1 " ) );
+			if ( n === range.end ) {
+				return;
+			}
+
+			n = n.nextSibling;
+		}
+	}
+};
+
+
+var findTableSibling = function ( elem, about ) {
+	var sibling = elem.nextSibling,
+		tableNode = null;
+	while ( sibling ) {
+		if ( sibling.nodeType === Node.ELEMENT_NODE &&
+				sibling.nodeName.toLowerCase() === 'table' &&
+				sibling.getAttribute('about') === about ) {
+					//console.log( 'tableNode found' + sibling.outerHTML );
+					return sibling;
+				} else {
+					sibling = sibling.nextSibling;
+				}
+	}
+};
+	
+
+/**
+ * Recursive worker
+ */
+var doEncapsulateTemplateOutput = function ( root, tpls, doc ) {
+	var cnodes = root.childNodes;
+	for( var i = 0, l = cnodes.length; i < l; i++ ) {
+		var elem = cnodes[i];
+		if ( elem.nodeType === Node.ELEMENT_NODE ) {
+			var type = elem.getAttribute( 'typeof' ),
+				match = type ? type.match( /(?:^|\s)(mw:Object(?:\/[^\s]+)?)/ ) : null;
+			if ( match ) {
+				var tm = match[1],
+					about = elem.getAttribute('about'),
+						  aboutRef = null;
+				if ( tpls[about] ) {
+					// content or end marker existed already
+					//console.log( elem.outerHTML );
+					aboutRef = tpls[about];
+				}
+				//console.log( tm );
+				if ( tm === 'mw:Object/Template' ) {
+					if ( aboutRef ) {
+						aboutRef.start = elem;
+						// content or end marker existed already
+						if ( aboutRef.end ) {
+							// End marker was foster-parented. Found actual
+							// start tag.
+							console.warn( 'end marker was foster-parented' );
+							encapsulateTrees( elem, aboutRef.end, doc );
+						} else {
+							// should not happen!
+							console.warn( 'start found after content' );
+						}
+					} else {
+						tpls[about] = { start: elem };
+					}
+				} else if ( tm === 'mw:Object/Template/End' ) {
+					// check if followed by table node
+					var tableNode = findTableSibling( elem, about );
+
+					if ( tableNode ) {
+						// found following table content, the end marker
+						// was foster-parented. Extend the DOM range to
+						// include the table.
+						// TODO: implement
+						console.warn( 'foster-parented content following!' );
+						if ( aboutRef && aboutRef.start ) {
+							encapsulateTrees( aboutRef.start, tableNode, doc );
+						} else {
+							console.warn( 'found foster-parented end marker followed ' +
+									'by table, but no start marker!');
+						}
+					} else if ( aboutRef ) {
+						// no foster-parenting involved, plain start/end
+						// pair.
+						// Walk up the DOM to find common parent with
+						// start tag.
+						aboutRef.end = elem;
+
+						encapsulateTrees( aboutRef.start, aboutRef.end, doc );
+					} else {
+						tpls[about] = { end: elem };
+					}
+				} else {
+					// recurse down the tree
+					doEncapsulateTemplateOutput( elem, tpls, doc );
+				}
+			} else {
+				// recurse down the tree
+				doEncapsulateTemplateOutput( elem, tpls, doc );
+			}
+		}
+	}
+};
+
+/**
+ * Encapsulate template-affected DOM structures by wrapping text nodes into
+ * spans and adding RDFa attributes to all subtree roots according to
+ * http://www.mediawiki.org/wiki/Parsoid/RDFa_vocabulary#Template_content
+ */
+var encapsulateTemplateOutput = function ( document ) {
+	// walk through document and look for tags with typeof="mw:_*"
+	var tpls = {};
+	doEncapsulateTemplateOutput( document.body, tpls, document );
+};
+
+
 function DOMPostProcessor () {
 	this.processors = [
-		process_inlines_in_p, 
+		process_inlines_in_p,
 		remove_trailing_newlines_from_paragraphs,
-		normalize_document
+		normalize_document,
+		encapsulateTemplateOutput
 	];
 }
 
@@ -394,6 +578,6 @@ DOMPostProcessor.prototype.addListenersOn = function ( emitter ) {
 	emitter.addListener( 'document', this.doPostProcess.bind( this ) );
 };
 
-if (typeof module == "object") {
+if (typeof module === "object") {
 	module.exports.DOMPostProcessor = DOMPostProcessor;
 }

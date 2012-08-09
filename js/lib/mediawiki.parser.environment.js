@@ -55,7 +55,8 @@ var MWParserEnvironment = function(opts) {
 		maxDepth: 40,
 		pageName: 'Main page',
 		interwikiMap: interwikiMap,
-		interwikiRegexp: Object.keys(interwikiMap).join('|')
+		interwikiRegexp: Object.keys(interwikiMap).join('|'),
+		uid: 1
 	};
 	// XXX: this should be namespaced
 	$.extend(options, opts);
@@ -298,6 +299,13 @@ MWParserEnvironment.prototype.tp = function ( ) {
 			console.warn( arguments[0] );
 		}
 	}
+};
+
+/**
+ * Generate a UID
+ */
+MWParserEnvironment.prototype.generateUID = function () {
+	return this.uid++;
 };
 
 
