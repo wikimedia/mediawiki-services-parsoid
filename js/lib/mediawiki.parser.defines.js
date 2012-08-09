@@ -95,7 +95,7 @@ var genericTokenMethods = {
 	 */
 	getAttributeShadowInfo: function ( name ) {
 		var curVal = Util.lookup( this.attribs, name );
-		if ( ! this.dataAttribs.a ) {
+		if ( this.dataAttribs.a === undefined ) {
 			return {
 				value: curVal,
 				modified: false

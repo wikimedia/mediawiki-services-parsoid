@@ -314,6 +314,7 @@ ParserTests.prototype.normalizeHTML = function (source) {
 			.replace(/\/index.php\?title=([^']+?)&amp;action=edit&amp;redlink=1/g, '/wiki/$1')
 			// the expected html has some extra space in tags, strip it
 			.replace(/<a +href/g, '<a href')
+			.replace(/href="\/wiki\//g, 'href="')
 			.replace(/" +>/g, '">');
 	} catch(e) {
         console.log("normalizeHTML failed on" +
@@ -332,7 +333,9 @@ ParserTests.prototype.normalizeOut = function ( out ) {
 		.replace(/<span typeof="mw:(?:(?:Placeholder|Nowiki))"[^>]*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1')
 		.replace(/[\r\n]| (data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content)="[^">]*"/g, '')
 		.replace(/<!--.*?-->\n?/gm, '')
-		.replace(/<\/?meta[^>]*>/g, '');
+		.replace(/<\/?meta[^>]*>/g, '')
+		.replace(/<span[^>]+about="[^]+>/g, '')
+		.replace(/href="(?:\.\.\/)+/g, 'href="');
 };
 
 ParserTests.prototype.formatHTML = function ( source ) {

@@ -7,7 +7,6 @@
  *
  * @example
  *    exports.setup = function( config, env ) {
- *        config.defaultInterwiki = 'localhost';
  *        env.setInterwiki( 'localhost', 'http://localhost/mediawiki' );
  *    };
  */
@@ -18,10 +17,7 @@
  * Could move this to a separate file later.
  */
 
-var config = {
-	// MediaWiki.org
-	'defaultInterwiki': 'mw'
-};
+var config = {};
 
 /**
  * End config section
@@ -82,17 +78,19 @@ app.get('/', function(req, res){
 	res.write('<body><h3>Welcome to the alpha test web service for the ' +
 		'<a href="http://www.mediawiki.org/wiki/Parsoid">Parsoid project<a>.</h3>');
 	res.write( '<p>Usage: <ul><li>GET /title for the DOM. ' +
-		'Example: <strong><a href="/en:Main_Page">Main Page</a></strong>');
+		'Example: <strong><a href="/en/Main_Page">Main Page</a></strong>');
 	res.write('<li>POST a DOM as parameter "content" to /title for the wikitext</ul>');
 	res.write('<p>There are also some tools for experiments:<ul>');
 	res.write('<li>Round-trip test pages from the English Wikipedia: ' +
-		'<strong><a href="/_rt/en:Help:Magic">/_rt/Help:Magic</a></strong></li>');
+		'<strong><a href="/_rt/en/Help:Magic">/_rt/Help:Magic</a></strong></li>');
 	res.write('<li><strong><a href="/_rtform/">WikiText -&gt; HTML DOM -&gt; WikiText round-trip form</a></strong></li>');
 	res.write('<li><strong><a href="/_wikitext/">WikiText -&gt; HTML DOM form</a></strong></li>' +
 			'<li><strong><a href="/_html/">HTML DOM -&gt; WikiText form</a></strong></li>');
 	res.write('</ul>');
 	res.end('<p>We are currently focusing on round-tripping of basic formatting like inline/bold, headings, lists, tables and links. Templates, citations and thumbnails are not expected to round-trip properly yet. <strong>Please report issues you see at <a href="http://www.mediawiki.org/w/index.php?title=Talk:Parsoid/Todo&action=edit&section=new">:mw:Talk:Parsoid/Todo</a>. Thanks!</strong></p>');
 });
+
+
 
 var htmlSpecialChars = function ( s ) {
 	return s.replace(/&/g,'&amp;')
@@ -116,19 +114,32 @@ app.get(/^\/robots.txt$/, function ( req, res ) {
 	res.end( "User-agent: *\nDisallow: /\n" );
 });
 
+/**
+ * Redirects for old-style URL compatibility
+ */
+app.get( new RegExp( '^/((?:_rt|_rtve)/)?(' + env.interwikiRegexp +
+				'):(.*)$' ), function ( req, res ) {
+	if ( req.params[0] ) {
+		res.redirect(  '/' + req.params[0] + req.params[1] + '/' + req.params[2]);
+	} else {
+		res.redirect( '/' + req.params[1] + '/' + req.params[2]);
+	}
+	res.end( );
+});
+
 
 /**
  * Form-based HTML DOM -> wikitext interface for manual testing
  */
 app.get(/\/_html\/(.*)/, function ( req, res ) {
-	env.pageName = req.params[0];
+	env.setPageName( req.params[0] );
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 	res.write( "Your HTML DOM:" );
 	textarea( res );
 	res.end('');
 });
 app.post(/\/_html\/(.*)/, function ( req, res ) {
-	env.pageName = req.params[0];
+	env.setPageName( req.params[0] );
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 	var p = new html5.Parser();
 	p.parse( '<html><body>' + req.body.content.replace(/\r/g, '') + '</body></html>' );
@@ -148,14 +159,14 @@ app.post(/\/_html\/(.*)/, function ( req, res ) {
  * Form-based wikitext -> HTML DOM interface for manual testing
  */
 app.get(/\/_wikitext\/(.*)/, function ( req, res ) {
-	env.pageName = req.params[0];
+	env.setPageName( req.params[0] );
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 	res.write( "Your wikitext:" );
 	textarea( res );
 	res.end('');
 });
 app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
-	env.pageName = req.params[0];
+	env.setPageName( req.params[0] );
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 	var parser = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
 	parser.on('document', function ( document ) {
@@ -315,16 +326,10 @@ var parse = function ( req, res, cb, src ) {
 /**
  * Round-trip article testing
  */
-app.get( new RegExp('/_rt/(?:(?:(?:' + env.interwikiRegexp + ')(?::|%3[aA])+)?' +
-				'(' + env.interwikiRegexp + ')(?::|%3[aA]))?(.*)'), function(req, res) {
-	env.pageName = req.params[1];
-	if ( req.params[0] ) {
-		env.wgScriptPath = '/_rt/' + req.params[0] + ':';
-		env.wgScript = env.interwikiMap[req.params[0]];
-	} else {
-		env.wgScriptPath = '/_rt/';
-		env.wgScript = env.interwikiMap[config.defaultInterwiki];
-	}
+app.get( new RegExp('/_rt/(' + env.interwikiRegexp + ')/(.*)'), function(req, res) {
+	env.setPageName( req.params[1] );
+	env.wgScriptPath = '/_rt/' + req.params[0] + '/';
+	env.wgScript = env.interwikiMap[req.params[0]];
 
 	if ( env.pageName === 'favicon.ico' ) {
 		res.end( 'no favicon yet..' );
@@ -346,16 +351,10 @@ app.get( new RegExp('/_rt/(?:(?:(?:' + env.interwikiRegexp + ')(?::|%3[aA])+)?' 
  * Round-trip article testing with newline stripping for editor-created HTML
  * simulation
  */
-app.get( new RegExp('/_rtve/(?:(?:(?:' + env.interwikiRegexp + ')(?::|%3[aA])+)?' +
-				'(' + env.interwikiRegexp + ')(?::|%3[aA]))?(.*)') , function(req, res) {
-	env.pageName = req.params[1];
-	if ( req.params[0] ) {
-		env.wgScriptPath = '/_rtve/' + req.params[0] + ':';
-		env.wgScript = env.interwikiMap[req.params[0]];
-	} else {
-		env.wgScriptPath = '/_rtve/';
-		env.wgScript = env.interwikiMap[config.defaultInterwiki];
-	}
+app.get( new RegExp('/_rtve/(' + env.interwikiRegexp + ')/(.*)') , function(req, res) {
+	env.setPageName( req.params[1] );
+	env.wgScriptPath = '/_rtve/' + req.params[0] + '/';
+	env.wgScript = env.interwikiMap[req.params[0]];
 
 	if ( env.pageName === 'favicon.ico' ) {
 		res.end( 'no favicon yet..' );
@@ -388,14 +387,14 @@ app.get( new RegExp('/_rtve/(?:(?:(?:' + env.interwikiRegexp + ')(?::|%3[aA])+)?
  * Form-based round-tripping for manual testing
  */
 app.get(/\/_rtform\/(.*)/, function ( req, res ) {
-	env.pageName = req.params[0];
+	env.setPageName( req.params[0] );
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 	res.write( "Your wikitext:" );
 	textarea( res );
 	res.end('');
 });
 app.post(/\/_rtform\/(.*)/, function ( req, res ) {
-	env.pageName = req.params[0];
+	env.setPageName ( req.params[0] );
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 	// we don't care about \r, and normalize everything to \n
 	parse( req, res, roundTripDiff, req.body.content.replace(/\r/g, ''));
@@ -404,16 +403,10 @@ app.post(/\/_rtform\/(.*)/, function ( req, res ) {
 /**
  * Regular article parsing
  */
-app.get(new RegExp( '/(?:(?:(?:' + env.interwikiRegexp + ')(?::|%3[aA])+)?' +
-				'(' + env.interwikiRegexp + ')(?::|%3[aA]))?(.*)' ), function(req, res) {
-	env.pageName = req.params[1];
-	if ( req.params[0] ) {
-		env.wgScriptPath = '/' + req.params[0] + ':';
-		env.wgScript = env.interwikiMap[req.params[0]];
-	} else {
-		env.wgScriptPath = '/';
-		env.wgScript = env.interwikiMap[config.defaultInterwiki];
-	}
+app.get(new RegExp( '/(' + env.interwikiRegexp + ')/(.*)' ), function(req, res) {
+	env.setPageName( req.params[1] );
+	env.wgScriptPath = '/' + req.params[0] + '/';
+	env.wgScript = env.interwikiMap[req.params[0]];
 	if ( env.pageName === 'favicon.ico' ) {
 		res.end( 'no favicon yet..');
 		return;
@@ -438,7 +431,7 @@ app.get(new RegExp( '/(?:(?:(?:' + env.interwikiRegexp + ')(?::|%3[aA])+)?' +
  * Regular article serialization using POST
  */
 app.post(/\/(.*)/, function ( req, res ) {
-	env.pageName = req.params[0];
+	env.setPageName( req.params[0] );
 	env.wgScriptPath = '/';
 	res.setHeader('Content-Type', 'text/x-mediawiki; charset=UTF-8');
 	var p = new html5.Parser();

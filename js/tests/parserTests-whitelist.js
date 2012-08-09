@@ -10,7 +10,7 @@ testWhiteList = {};
 testWhiteList["Bug 2702: Mismatched <i>, <b> and <a> tags are invalid"] = "<p><i><a href=\"http://example.com\">text</a></i><a href=\"http://example.com\"><b>text</b></a><i>Something <a href=\"http://example.com\">in italic</a></i><i>Something <a href=\"http://example.com\">mixed</a></i><a href=\"http://example.com\"><b>, even bold</b></a><i><b>Now <a href=\"http://example.com\">both</a></b></i></p>";
 
 // The expected result for this test is really broken html.
-testWhiteList["Link containing double-single-quotes '' in text embedded in italics (bug 4598 sanity check)"] = "<p><i>Some <a href=\"/wiki/Link\">pretty </a></i><a href=\"/wiki/Link\">italics<i> and stuff</i></a><i>!</i></p>";
+testWhiteList["Link containing double-single-quotes '' in text embedded in italics (bug 4598 sanity check)"] = "<p><i>Some <a rel=\"mw:WikiLink\" href=\"Link\" data-parsoid=\"{&quot;tsr&quot;:[7,44],&quot;contentPos&quot;:[13,42],&quot;src&quot;:&quot;[[Link|pretty ''italics'' and stuff]]&quot;}\">pretty </a></i><a rel=\"mw:WikiLink\" href=\"Link\" data-parsoid=\"{&quot;tsr&quot;:[7,44],&quot;contentPos&quot;:[13,42],&quot;src&quot;:&quot;[[Link|pretty ''italics'' and stuff]]&quot;}\">italics<i> and stuff</i></a><i>!</i></p>";
 
 testWhiteList["External link containing double-single-quotes in text embedded in italics (bug 4598 sanity check)"] = "<p><i>Some <a href=\"http://example.com/\">pretty </a></i><a href=\"http://example.com/\">italics<i> and stuff</i></a><i>!</i></p>";
 
@@ -43,7 +43,7 @@ testWhiteList["Fuzz testing: Parser22"] = "<p><a href=\"http://===r:::https://b\
 
 // Single quotes are legal in HTML5 URIs. See 
 // http://www.whatwg.org/specs/web-apps/current-work/multipage/urls.html#url-manipulation-and-creation
-testWhiteList["Link containing double-single-quotes '' (bug 4598)"] = "<p><a href=\"/wiki/Lista_d''e_paise_d''o_munno\">Lista d''e paise d''o munno</a></p>";
+testWhiteList["Link containing double-single-quotes '' (bug 4598)"] = "<p><a rel=\"mw:WikiLink\" href=\"Lista_d''e_paise_d''o_munno\" data-parsoid=\"{&quot;tsr&quot;:[0,31],&quot;contentPos&quot;:[0,31],&quot;src&quot;:&quot;[[Lista d''e paise d''o munno]]&quot;,&quot;bsp&quot;:[0,31],&quot;a&quot;:{&quot;href&quot;:&quot;Lista_d''e_paise_d''o_munno&quot;},&quot;sa&quot;:{&quot;href&quot;:&quot;Lista d''e paise d''o munno&quot;},&quot;stx&quot;:&quot;simple&quot;}\">Lista d''e paise d''o munno</a></p>";
 
 
 // Sanitizer
@@ -53,12 +53,12 @@ testWhiteList["Link containing double-single-quotes '' (bug 4598)"] = "<p><a hre
 // Sanitizer, but UTF8 in link is ok in HTML5
 testWhiteList["External link containing double-single-quotes with no space separating the url from text in italics"] = "<p><a href=\"http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm\" data-rt=\"{&quot;sourcePos&quot;:[0,146]}\"><i>La muerte de Casagemas</i> (1901) en el sitio de </a><a href=\"/wiki/Museo_Picasso_(París)\">Museo Picasso</a>.</p>";
 
-testWhiteList["External links: wiki links within external link (Bug 3695)"] = "<p><a href=\"http://example.com\"></a><a href=\"/wiki/Wikilink\">wikilink</a> embedded in ext link</p>";
+testWhiteList["External links: wiki links within external link (Bug 3695)"] = "<p><a href=\"http://example.com\" rel=\"mw:ExtLink\" data-parsoid=\"{&quot;tsr&quot;:[0,54],&quot;bsp&quot;:[0,54]}\"></a><a rel=\"mw:WikiLink\" href=\"Wikilink\" data-parsoid=\"{&quot;tsr&quot;:[20,32],&quot;contentPos&quot;:[20,32],&quot;src&quot;:&quot;[[wikilink]]&quot;,&quot;a&quot;:{&quot;href&quot;:&quot;Wikilink&quot;},&quot;sa&quot;:{&quot;href&quot;:&quot;wikilink&quot;},&quot;stx&quot;:&quot;simple&quot;}\">wikilink</a> embedded in ext link</p>";
 
 
 // This is valid, just confusing for humans. The reason for disallowing this
 // might be history by now. XXX: Check this!
-testWhiteList["Link containing % as a double hex sequence interpreted to hex sequence"] = "<p><a href=\"/wiki/7%2525_Solution\">7%25 Solution</a></p>";
+testWhiteList["Link containing % as a double hex sequence interpreted to hex sequence"] = "<p><a rel=\"mw:WikiLink\" href=\"7%2525_Solution\" data-parsoid=\"{&quot;tsr&quot;:[0,19],&quot;contentPos&quot;:[0,19],&quot;src&quot;:&quot;[[7%2525 Solution]]&quot;,&quot;bsp&quot;:[0,19],&quot;a&quot;:{&quot;href&quot;:&quot;7%2525_Solution&quot;},&quot;sa&quot;:{&quot;href&quot;:&quot;7%2525 Solution&quot;},&quot;stx&quot;:&quot;simple&quot;}\">7%25 Solution</a></p>";
 
 if (typeof module == "object") {
 	module.exports.testWhiteList = testWhiteList;

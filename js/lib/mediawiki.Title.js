@@ -1,7 +1,7 @@
 var Util = require('./mediawiki.Util.js').Util;
 
 function Title ( key, ns, nskey, env ) {
-	this.key = key;
+	this.key = env.resolveTitle( key );
 	// Namespace index
 	this.ns = new Namespace( ns );
 	// the original ns string
@@ -12,10 +12,10 @@ function Title ( key, ns, nskey, env ) {
 Title.prototype.makeLink = function () {
 	// XXX: links always point to the canonical namespace name.
 	if ( false && this.nskey ) {
-		return Util.sanitizeURI( this.env.wgScriptPath +
+		return Util.sanitizeURI( this.env.relativeLinkPrefix +
 				this.nskey + ':' + this.key );
 	} else {
-		var l = this.env.wgScriptPath,
+		var l = this.env.relativeLinkPrefix,
 			ns = this.ns.getDefaultName();
 
 		if ( ns ) {
