@@ -26,11 +26,10 @@
  * ---------------------------------------------------------------------- */
 
 require('./core-upgrade.js');
-var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer;
-var WikitextConstants = require('./mediawiki.wikitext.constants.js').WikitextConstants;
-var Util = require('./mediawiki.Util.js').Util;
-
-var tagWhiteListHash;
+var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
+	WikitextConstants = require('./mediawiki.wikitext.constants.js').WikitextConstants,
+	Util = require('./mediawiki.Util.js').Util,
+	tagWhiteListHash;
 function getTagWhiteList() {
 	if (!tagWhiteListHash) {
 		tagWhiteListHash = Util.arrayToHash(WikitextConstants.Sanitizer.TagWhiteList);
@@ -555,11 +554,9 @@ WSP._serializeTableTag = function ( symbol, optionalEndSymbol, state, token ) {
 	}
 };
 
-WSP._emptyTags = { br: true, meta: true };
-
 WSP._serializeHTMLTag = function ( state, token ) {
 	var close = '';
-	if ( WSP._emptyTags[ token.name ] ) {
+	if ( Util.isEmptyTag( token.name ) && !token.dataAttribs.noclose ) {
 		close = '/';
 	}
 
@@ -580,7 +577,7 @@ WSP._serializeHTMLEndTag = function ( state, token ) {
 	if ( token.name === 'pre' ) {
 		state.inHTMLPre = false;
 	}
-	if ( ! WSP._emptyTags[ token.name ] ) {
+	if ( ! Util.isEmptyTag( token.name ) ) {
 		return '</' + token.name + '>';
 	} else {
 		return '';

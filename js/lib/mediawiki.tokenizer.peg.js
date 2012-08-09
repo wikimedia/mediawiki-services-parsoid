@@ -14,10 +14,12 @@ var PEG = require('pegjs'),
 	$ = require('jquery'),
 	events = require('events'),
 	//colors = require('colors'),
+	Util = require('./mediawiki.Util.js'),
 	defines = require('./mediawiki.parser.defines.js');
 
 function PegTokenizer( env, canCache ) {
 	this.env = env;
+	this.Util = Util.Util;
 	this.canCache = canCache;
 	if ( this.canCache ) {
 		this.cacheAccum = { chunks: [] };

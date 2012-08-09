@@ -55,6 +55,19 @@ var Util = {
 		}
 	},
 
+	/*
+	 * Determine if the tag is an empty HTML tag
+	 */
+	isEmptyTag: function ( name ) {
+		switch ( name ) {
+			case 'br':
+			case 'meta':
+				return true;
+			default:
+				return false;
+		}
+	},
+
 	/**
 	 * Determine if a token is block-level or not
 	 *
