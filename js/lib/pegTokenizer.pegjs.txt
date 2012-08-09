@@ -709,9 +709,10 @@ isbn
 {
     var isbn = [head, digits, tail].join('').replace(/,/g, '');
 
-    if (!isValidISBN(isbn)) {
-        return null;
-    }
+    // Don't validate in the tokenizer, since the PHP parser does not either.
+    //if (!isValidISBN(isbn)) {
+    //    return null;
+    //}
 
     return [
         new SelfclosingTagTk( 'wikilink', [
