@@ -1,9 +1,8 @@
 #### --------------- Headings ---------------
-####
 #### 1. Nested inside html <h1>=foo=</h1>
 #### 2. Outside heading nest on a single line <h1>foo</h1>*bar
 #### 3. Nested inside html with wikitext split by html tags
-####
+#### 4. No escape needed
 #### ----------------------------------------
 !! test
 Headings: 1. Nested inside html 
@@ -50,8 +49,21 @@ Headings: 3. Nested inside html with wikitext split by html tags
 <h1>=<b>bold</b> foo=</h1>
 !!end
 
+!! test
+Headings: 4. No escaping needed (testing just h1 and h2)
+!! input
+==foo=
+=foo==
+===foo==
+==foo===
+!! result
+<h1>=foo</h1>
+<h1>foo=</h1>
+<h2>=foo</h2>
+<h2>foo=</h2>
+!!end
+
 #### --------------- Lists ---------------
-####
 #### 1. Nested inside html <ul><li>*foo</li></ul>
 #### 2. Inside definition lists
 #### ----------------------------------------
@@ -98,9 +110,7 @@ Lists: 2. Inside definition lists
 !!end
 
 #### --------------- HRs ---------------
-####
 #### 1. Single line
-####
 #### -----------------------------------
 
 !! test
@@ -119,18 +129,25 @@ HRs: 1. Single line
 !! end
 
 #### --------------- Tables ---------------
+#### 1a. Simple example
+#### 1b. No escaping needed (!foo)
+#### 1c. No escaping needed (|foo)
+#### 1d. No escaping needed (|}foo)
 ####
-#### 1. Simple example
+#### 2a. Nested in td (<td>foo|bar</td>)
+#### 2b. Nested in td (<td>foo||bar</td>)
+#### 2c. Nested in td -- no escaping needed(<td>foo!!bar</td>)
 ####
-#### 2a. Nested in td (<td>foo||bar</td>)
-#### 2b. Nested in td -- no escaping needed(<td>foo!!bar</td>)
+#### 3a. Nested in th (<th>foo!bar</th>)
+#### 3b. Nested in th (<th>foo!!bar</th>)
+#### 3c. Nested in th -- no escaping needed(<th>foo||bar</th>)
 ####
-#### 3a. Nested in th (<th>foo!!bar</th>)
-#### 3b. Nested in th -- no escaping needed(<th>foo||bar</th>)
+#### 4a. Escape -
+#### 4b. Escape +
 #### --------------------------------------
 
 !! test
-Tables: 1. Simple example
+Tables: 1a. Simple example
 !! input
 <nowiki>{|</nowiki>
 <nowiki>|}</nowiki>
@@ -140,7 +157,44 @@ Tables: 1. Simple example
 !! end
 
 !! test
+Tables: 1b. No escaping needed
+!! input
+!foo
+!! result
+!foo
+!! end
+
+!! test
+Tables: 1c. No escaping needed
+!! input
+|foo
+!! result
+|foo
+!! end
+
+!! test
+Tables: 1d. No escaping needed
+!! input
+|}foo
+!! result
+|}foo
+!! end
+
+!! test
 Tables: 2a. Nested in td
+!! input
+{|
+|-
+|foo<nowiki>|</nowiki>bar
+|}
+!! result
+<table><tbody>
+<tr><td>foo|bar</td></tr>
+</tbody></table>
+!! end
+
+!! test
+Tables: 2b. Nested in td
 !! input
 {|
 |-
@@ -153,7 +207,7 @@ Tables: 2a. Nested in td
 !! end
 
 !! test
-Tables: 2b. Nested in td -- no escaping needed
+Tables: 2c. Nested in td -- no escaping needed
 !! input
 {|
 |-
@@ -167,6 +221,19 @@ Tables: 2b. Nested in td -- no escaping needed
 
 !! test
 Tables: 3a. Nested in th
+!! input
+{|
+|-
+!foo!bar
+|}
+!! result
+<table><tbody>
+<th>foo!bar</th>
+</tbody></table>
+!! end
+
+!! test
+Tables: 3b. Nested in th
 !! input
 {|
 |-
@@ -191,10 +258,34 @@ Tables: 3b. Nested in th -- no escaping needed
 </tbody></table>
 !! end
 
+!! test
+Tables: 4a. Escape -
+!! input
+{|
+|-
+|<nowiki>-</nowiki>bar
+|}
+!! result
+<table><tbody>
+<tr><td>-bar</td></tr>
+</tbody></table>
+!! end
+
+!! test
+Tables: 4b. Escape +
+!! input
+{|
+|-
+|<nowiki>+</nowiki>bar
+|}
+!! result
+<table><tbody>
+<tr><td>+bar</td></tr>
+</tbody></table>
+!! end
+
 #### --------------- Links ---------------
-####
 #### 1. Quote marks in link text
-####
 #### --------------------------------------
 !! test
 Links 1. Quote marks in link text
@@ -205,7 +296,6 @@ Links 1. Quote marks in link text
 !! end
 
 #### --------------- Quotes ---------------
-####
 #### 1. Quotes inside <b> and <i>
 #### 2. Link fragments separated by <i> and <b> tags
 #### 3. Link fragments inside <i> and <b>
@@ -252,6 +342,27 @@ Links 1. Quote marks in link text
 <b>[[foo</b>]]
 !! end
 
+#### --------------- HTML tags ---------------
+#### 1. a tags
+#### 2. other tags
+#### --------------------------------------
+!! test
+1. a tags
+!! input
+<a href="http://google.com">google</a>
+!! result
+&lt;a href=&quot;http://google.com&quot;&gt;google&lt;/a&gt;
+!! end
+
+!! test
+2. other tags
+!! input
+<nowiki><div></nowiki>foo<nowiki></div></nowiki>
+<nowiki><div style="color:red"></nowiki>foo<nowiki></div></nowiki>
+!! result
+&lt;div&gt;foo&lt;/div&gt;
+&lt;div style=&quot;color:red&quot;&gt;foo&lt;/div&gt;
+!! end
 
 #### --------------- Others ---------------
 !! test
