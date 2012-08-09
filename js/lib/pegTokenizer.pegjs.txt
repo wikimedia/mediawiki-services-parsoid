@@ -704,10 +704,17 @@ autoref
 isbn
   = 'ISBN' (newline / space)+
     head:[0-9]
-    digits:([- ]? [0-9])+
+    digits:(d:( [- ] ![0-9] / [0-9] ) { return d } )+
     tail:'X'?
 {
-    var isbn = [head, digits, tail].join('').replace(/,/g, '');
+    // TODO: round-trip non-decimals too!
+    var isbn = [head, digits.join(''), tail].join(''),
+        isbncode = isbn.replace(/[^\d]/g, '');
+
+    // ISBNs can only be 10 or 13 chars long
+    if ([10, 13].indexOf(isbncode.length) === -1) {
+        return null;
+    }
 
     // Don't validate in the tokenizer, since the PHP parser does not either.
     //if (!isValidISBN(isbn)) {
@@ -716,7 +723,7 @@ isbn
 
     return [
         new SelfclosingTagTk( 'extlink', [
-           new KV('href', 'Special:BookSources/' + isbn.replace(/[^\d]/g, '')),
+           new KV('href', 'Special:BookSources/' + isbncode),
            new KV('content', 'ISBN ' + isbn),
            new KV('typeof', 'mw:ExtLink/ISBN')
         ],
