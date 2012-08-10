@@ -1,0 +1,7 @@
+INSTALL
+=======
+git submodule update --init
+sudo apt-get install libboost-dev php5-dev
+make
+
+
