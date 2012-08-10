@@ -184,7 +184,7 @@ app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
 		parser.process( req.body.content.replace(/\r/g, '') );
 	} catch (e) {
 		console.log( e );
-		res.write( e );
+		res.send( e.toString(), 500 );
 	}
 });
 
@@ -291,6 +291,8 @@ var roundTripDiff = function ( req, res, src, document ) {
 	out = new WikitextSerializer({env: env}).serializeDOM( document.body );
 	if ( out === undefined ) {
 		out = "An error occured in the WikitextSerializer, please check the log for information";
+		res.send( out, 500 );
+		return;
 	}
 	res.write('<pre>' + htmlSpecialChars( out ) + '</pre><hr>\n');
 	res.write( '<h2>Diff between original Wikitext (green) and round-tripped wikitext (red)</h2><hr>\n' );
@@ -332,7 +334,7 @@ app.get( new RegExp('/_rt/(' + env.interwikiRegexp + ')/(.*)'), function(req, re
 	env.wgScript = env.interwikiMap[req.params[0]];
 
 	if ( env.pageName === 'favicon.ico' ) {
-		res.end( 'no favicon yet..' );
+		res.send( 'no favicon yet..', 404 );
 		return;
 	}
 
@@ -357,7 +359,7 @@ app.get( new RegExp('/_rtve/(' + env.interwikiRegexp + ')/(.*)') , function(req,
 	env.wgScript = env.interwikiMap[req.params[0]];
 
 	if ( env.pageName === 'favicon.ico' ) {
-		res.end( 'no favicon yet..' );
+		res.send( 'no favicon yet..', 404 );
 		return;
 	}
 
@@ -408,7 +410,7 @@ app.get(new RegExp( '/(' + env.interwikiRegexp + ')/(.*)' ), function(req, res) 
 	env.wgScriptPath = '/' + req.params[0] + '/';
 	env.wgScript = env.interwikiMap[req.params[0]];
 	if ( env.pageName === 'favicon.ico' ) {
-		res.end( 'no favicon yet..');
+		res.send( 'no favicon yet..', 404 );
 		return;
 	}
 	var target = env.resolveTitle( env.normalizeTitle( env.pageName ), '' );

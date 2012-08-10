@@ -591,7 +591,6 @@ WSP._linkHandler =  function( state, tokens ) {
 	// Also convert unannotated html links without advanced attributes to
 	// external wiki links for html import. Might want to consider converting
 	// relative links without path component and file extension to wiki links.
-	
 	var env = state.env,
 		token = tokens.shift(),
 		endToken = tokens.pop(),
