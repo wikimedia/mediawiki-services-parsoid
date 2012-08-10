@@ -62,6 +62,8 @@ var MWParserEnvironment = function(opts) {
 	$.extend(options, opts);
 	$.extend(this, options);
 
+	this.setPageName( this.pageName );
+
 	// Tracing object
 	this.tracer = new Tracer(this);
 };
@@ -79,6 +81,18 @@ MWParserEnvironment.prototype.removeInterwiki = function (prefix) {
 // Class-static
 MWParserEnvironment.prototype.requestQueue = {};
 
+MWParserEnvironment.prototype.setPageName = function ( pageName ) {
+	this.pageName = pageName;
+	// Construct a relative link prefix depending on the number of slashes in
+	// pageName
+	this.relativeLinkPrefix = '';
+	var slashMatches = this.pageName.match(/\//g),
+		numSlashes = slashMatches ? slashMatches.length : 0;
+	while ( numSlashes ) {
+		this.relativeLinkPrefix += '../';
+		numSlashes--;
+	}
+};
 
 /**
  * Convert an array of key-value pairs into a hash of keys to values. For
@@ -209,6 +223,18 @@ MWParserEnvironment.prototype.normalizeTitle = function( name ) {
  */
 MWParserEnvironment.prototype.resolveTitle = function( name, namespace ) {
 	// Resolve subpages
+	var relUp = name.match(/^(\.\.\/)+/);
+	if ( relUp ) {
+		var levels = relUp[0].length / 3,
+			titleBits = this.pageName.split(/\//);
+			newBits = titleBits.slice(0, titleBits.length - levels);
+		if ( name !== relUp[0] ) {
+			newBits.push( name.substr(levels * 3) );
+		}
+		name = newBits.join('/');
+		//console.log( relUp, name );
+	}
+
 	if ( name.length && name[0] === '/' ) {
 		name = this.normalizeTitle( this.pageName ) + name;
 	}
@@ -221,6 +247,7 @@ MWParserEnvironment.prototype.resolveTitle = function( name, namespace ) {
 	if (name[0] === ':') {
 		name = name.substr( 1 );
 	}
+
 	return name;
 };
 

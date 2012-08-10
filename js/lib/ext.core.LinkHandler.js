@@ -42,8 +42,8 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 				]
 		});
 	} else {
-		// Check if page exists
-		//
+
+
 		//console.warn( 'title: ' + JSON.stringify( title ) );
 		var normalizedHref = title.makeLink(),
 			obj = new TagTk( 'a',
@@ -52,7 +52,7 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 					], token.dataAttribs
 				),
 			content = token.attribs.slice(2);
-		obj.addNormalizedAttribute( 'href', normalizedHref, env.wgScriptPath + href );
+		obj.addNormalizedAttribute( 'href', normalizedHref, env.relativeLinkPrefix + href );
 		//console.warn('content: ' + JSON.stringify( content, null, 2 ) );
 
 		// XXX: handle trail

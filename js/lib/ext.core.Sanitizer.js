@@ -534,7 +534,8 @@ var SanitizerConstants = {
 		}
 
 		this.tagWhiteListHash = Util.arrayToHash(WikitextConstants.Sanitizer.TagWhiteList);
-		this.validProtocolsRE = new RegExp("^(" + this.validUrlProtocols.join('|') + "|/?[^/])[^\\s]+$");
+		this.validProtocolsRE = new RegExp("^(" + this.validUrlProtocols.join('|') + ")$" );
+		//|/?[^/])[^\\s]+$");
 		this.cssDecodeRE = computeCSSDecodeRegexp();
 		this.attrWhiteList = computeAttrWhiteList(this.globalConfig);
 		this.attrWhiteListCache = {};
@@ -574,6 +575,27 @@ Sanitizer.prototype._stripIDNs = function ( host ) {
 	return host.replace( this.constants.IDN_RE, '' );
 };
 
+Sanitizer.prototype.sanitizeHref = function ( href ) {
+		var bits = href.match( /(.*?\/\/)([^\/]+)(\/?.*)/ );
+		if ( bits ) {
+			proto = bits[1];
+			host = bits[2];
+			path = bits[3];
+			if ( ! proto.match(this.hrefRE)) {
+				// invalid proto, disallow URL
+				return null;
+			}
+		} else {
+			proto = '';
+			host = '';
+			path = href;
+		}
+		host = this._stripIDNs( host );
+
+		return proto + host + path;
+
+};
+
 Sanitizer.prototype.onAnchor = function ( token ) {
 	// perform something similar to Sanitizer::cleanUrl
 	if ( token.constructor === EndTagTk ) {
@@ -584,21 +606,16 @@ Sanitizer.prototype.onAnchor = function ( token ) {
 	// of the AttributeTransformManager processing? This certainly is not the
 	// right place!
 	if ( hrefKV !== null ) {
-		hrefKV.v = this.manager.env.tokensToString( hrefKV.v );
-		var proto, host, path;
-		var bits = hrefKV.v.match( /(.*?\/\/)([^\/]+)(\/?.*)/ );
-		if ( bits ) {
-			proto = bits[1];
-			host = bits[2];
-			path = bits[3];
+		var origHref = this.manager.env.tokensToString( hrefKV.v ),
+			newHref = this.sanitizeHref( origHref );
+		if ( newHref !== null ) {
+			hrefKV.v = newHref;
 		} else {
-			proto = '';
-			host = '';
-			path = hrefKV.v;
+			token.removeAttribute( 'href' );
+			token.setShadowInfo('href', newHref, origHref);
 		}
-		host = this._stripIDNs( host );
-		hrefKV.v = proto + host + path;
 	}
+
 	return { token: token };
 };
 	
@@ -644,23 +661,25 @@ Sanitizer.prototype.onAny = function ( token ) {
 			var env = this.manager.env;
 			for (i = 0, l = attribs.length; i < l; i++ ) {
 				kv = attribs[i];
-				k = kv.k,
-				v = kv.v;
+				if ( kv.k.constructor !== String || kv.v.constructor !== String ) {
+					k = kv.k,
+					v = kv.v;
 
-				if ( k.constructor === Array ) {
-					k = env.tokensToString ( k );
+					if ( k.constructor === Array ) {
+						k = env.tokensToString ( k );
+					}
+					if ( v.constructor === Array ) {
+						v = env.tokensToString ( v );
+					}
+					attribs[i] = new KV( k, v );
 				}
-				if ( v.constructor === Array ) {
-					v = env.tokensToString ( v );
-				}
-				attribs[i] = new KV( k, v );
 			}
 
 			// Sanitize attribues
 			if (token.constructor === TagTk) {
 				this.sanitizeTagAttrs(newToken, attribs);
 			}
-
+			
 			token = newToken;
 		}
 	}
@@ -836,10 +855,10 @@ Sanitizer.prototype.sanitizeTagAttrs = function(newToken, attrs) {
 		// NOTE: even though elements using href/src are not allowed directly, supply
 		//       validation code that can be used by tag hook handlers, etc
 		if ( k === 'href' || k === 'src' ) {
-			if (!v.match(hrefRE)) {
-				newAttrs[k] = [null, origV];
-				continue; //drop any href or src attributes not using an allowed protocol.
-						  //NOTE: this also drops all relative URLs
+			var newHref = this.sanitizeHref( v );
+			if ( newHref !== v ) {
+				newAttrs[k] = [newHref, origV];
+				continue;
 			}
 		}
 
@@ -854,7 +873,6 @@ Sanitizer.prototype.sanitizeTagAttrs = function(newToken, attrs) {
 				// SSS FIXME: This logic is not RT-friendly.
 				newAttrs.itemtype = undefined;
 				newAttrs.itemid = undefined;
-				newAttrs.itemref = undefined;
 			}
 			// TODO: Strip itemprop if we aren't descendants of an itemscope.
 		}

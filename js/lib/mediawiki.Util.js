@@ -135,7 +135,7 @@ var Util = {
 
 	lookup: function ( kvs, key ) {
 		var kv = this.lookupKV(kvs, key);
-		return kv == null ? null : kv.v;
+		return kv === null ? null : kv.v;
 	},
 
 	lookupValue: function ( kvs, key ) {

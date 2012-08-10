@@ -602,18 +602,13 @@ WSP._linkHandler =  function( state, tokens ) {
 		// we have a rel starting with mw: prefix and href
 		var tokenData = token.dataAttribs;
 		if ( attribDict.rel === 'mw:WikiLink' ) {
-			var base = env.wgScriptPath,
-				hrefInfo = token.getAttributeShadowInfo( 'href' ),
-				target = hrefInfo.value,
-				tail = '',
-				prefix = target.substr(0, base.length);
-			if ( prefix === base) {
-				target = target.substr(base.length);
-			}
+			var hrefInfo = token.getAttributeShadowInfo( 'href' ),
+				target = hrefInfo.value, //.replace(/^(\.\.\/)+/, ''),
+				tail = '';
 
 			if ( hrefInfo.modified ) {
 				// there was no rt info or the href was modified: normalize it
-				target = target.replace( /_/g, ' ' );
+				target = target.replace( /_/g, ' ' ).replace(/^(\.\.\/)+/, '');
 				tail = '';
 			} else {
 				tail = tokenData.tail || '';
