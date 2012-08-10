@@ -1340,9 +1340,9 @@ generic_tag
         var res;
         if ( end != '' ) {
             res = new EndTagTk( name, attribs );
-        } else if ( selfclose !== '' || __parseArgs[3].Util.isEmptyTag( name ) ) {
+        } else if ( selfclose !== '' || __parseArgs[3].Util.isVoidElement( name ) ) {
             res = new SelfclosingTagTk( name, attribs );
-            if (  __parseArgs[3].Util.isEmptyTag( name ) && selfclose === '' ) {
+            if (  __parseArgs[3].Util.isVoidElement( name ) && selfclose === '' ) {
                 res.dataAttribs.noclose = true;
             }
         } else {
