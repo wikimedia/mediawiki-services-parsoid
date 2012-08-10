@@ -52,7 +52,7 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 					], token.dataAttribs
 				),
 			content = token.attribs.slice(2);
-		obj.addNormalizedAttribute( 'href', normalizedHref, env.relativeLinkPrefix + href );
+		obj.addNormalizedAttribute( 'href', normalizedHref, href );
 		//console.warn('content: ' + JSON.stringify( content, null, 2 ) );
 
 		// XXX: handle trail
