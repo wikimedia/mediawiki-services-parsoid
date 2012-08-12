@@ -47,7 +47,10 @@ clean:
 	cd php && phpize --clean
 
 compile:
-	$(MAKE) -C src all install
+	$(MAKE) -C src install
 	$(MAKE) -C php
 
 all: configure contrib compile php
+
+test:
+	$(MAKE) -C test $@
