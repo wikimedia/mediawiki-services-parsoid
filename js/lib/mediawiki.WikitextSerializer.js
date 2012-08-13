@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------
- * This serializer is designed to eventually 
+ * This serializer is designed to eventually
  * * accept arbitrary HTML and
  * * serialize that to wikitext in a way that round-trips back to the same
  *   HTML DOM as far as possible within the limitations of wikitext.
@@ -15,12 +15,12 @@
  * Example issue:
  * <h1><p>foo</p></h1> will serialize to =\nfoo\n= whereas the
  *        correct serialized output would be: =<p>foo</p>=
- * 
+ *
  * What to do about this?
  * * add a generic 'can this HTML node be serialized to wikitext in this
  *   context' detection method and use that to adaptively switch between
  *   wikitext and HTML serialization
- * 
+ *
  * @author Subramanya Sastry <ssastry@wikimedia.org>
  * @author Gabriel Wicke <gwicke@wikimedia.org>
  * ---------------------------------------------------------------------- */
@@ -30,12 +30,115 @@ var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	WikitextConstants = require('./mediawiki.wikitext.constants.js').WikitextConstants,
 	Util = require('./mediawiki.Util.js').Util,
 	tagWhiteListHash;
+
+// SSS FIXME: Can be set up as part of an init routine
 function getTagWhiteList() {
 	if (!tagWhiteListHash) {
 		tagWhiteListHash = Util.arrayToHash(WikitextConstants.Sanitizer.TagWhiteList);
 	}
 	return tagWhiteListHash;
 }
+
+function isHtmlBlockTag(name) {
+	return name === 'body' || Util.isBlockTag(name);
+}
+
+WikitextEscapeHandlers = function() { };
+
+var WEHP = WikitextEscapeHandlers.prototype;
+
+WEHP.headingHandler = function(state, text) {
+	// replace heading-handler with the default handler
+	// only "=" at the extremities trigger escaping
+	state.wteHandlerStack.pop();
+	state.wteHandlerStack.push(null);
+
+	var line = state.currLine.text;
+	var len  = line ? line.length : 0;
+	return (line && len > 2 && (line[0] === '=') && (line[len-1] === '='));
+};
+
+WEHP.liHandler = function(state, text) {
+	// replace li-handler with the default handler
+	// only bullets at the beginning of the list trigger escaping
+	state.wteHandlerStack.pop();
+	state.wteHandlerStack.push(null);
+
+	return text.match(/^[#\*:;]/);
+};
+
+WEHP.linkHandler = function(state, text) {
+	return text.match(/\]|\[.*?\]/);
+};
+
+WEHP.quoteHandler = function(state, text) {
+	// SSS FIXME: Can be refined
+	return text.match(/^'|'$/);
+};
+
+WEHP.hrHandler = function(state, text) {
+	return text.match(/^----/);
+};
+
+WEHP.thHandler = function(state, text) {
+	return text.match(/!!/);
+};
+
+WEHP.tdHandler = function(state, text) {
+	return text.match(/^[-+]|\|/);
+};
+
+WEHP.hasWikitextTokens = function ( state, onNewline, text ) {
+	// tokenize the text
+	var p = new PegTokenizer( state.env ),
+		tokens = [];
+	p.on('chunk', function ( chunk ) { tokens.push.apply( tokens, chunk ); });
+	p.on('end', function(){ });
+
+	// this is synchronous for now, will still need sync version later, or
+	// alternatively make text processing in the serializer async
+
+	var prefixedText = text;
+	if (!onNewline) {
+		// Prefix '_' so that no start-of-line wiki syntax matches.
+		// Later, strip it from the result.
+		// Ex: Consider the DOM:  <ul><li> foo</li></ul>
+		// We don't want ' foo' to be converted to a <pre>foo</pre>
+		// because of the leading space.
+		prefixedText = '_' + text;
+	}
+
+	if ( state.inIndentPre ) {
+		prefixedText = prefixedText.replace(/(\r?\n)/g, '$1_');
+	}
+
+	p.process( prefixedText );
+
+	// If the token stream has a TagTk, SelfclosingTagTk, EndTagTk or CommentTk
+	// then this text needs escaping!
+	var tagWhiteList = getTagWhiteList();
+	for (var i = 0, n = tokens.length; i < n; i++) {
+		var t = tokens[i];
+		// Ignore non-whitelisted html tags
+		if (t.isHTMLTag() && !tagWhiteList[t.name.toLowerCase()]) {
+			continue;
+		}
+		if ([TagTk, SelfclosingTagTk, EndTagTk].indexOf(t.constructor) !== -1) {
+			// Ignore nowiki tokens and url links
+			if (t.name !== 'urllink' &&
+				((t.name.toLowerCase() !== "span") ||
+				Util.lookup(t.attribs, 'typeof' !== 'mw:NoWiki')))
+			{
+				return true;
+			}
+		}
+		if (t.constructor === CommentTk) {
+			return true;
+		}
+	}
+
+	return false;
+};
 
 /**
  * Serializes a chunk of tokens or an HTML DOM to MediaWiki's wikitext flavor.
@@ -51,6 +154,8 @@ WikitextSerializer = function( options ) {
 };
 
 var WSP = WikitextSerializer.prototype;
+
+WSP.wteHandlers = new WikitextEscapeHandlers();
 
 /* *********************************************************************
  * Here is what the state attributes mean:
@@ -81,6 +186,19 @@ var WSP = WikitextSerializer.prototype;
  *    Newlines are buffered till they need to be output.  This lets us
  *    swallow newlines in contexts where they shouldn't be emitted for
  *    ensuring equivalent wikitext output. (ex dom: ..</li>\n\n</li>..)
+ *
+ * wteHandlerStack
+ *    stack of wikitext escaping handlers -- these handlers are responsible
+ *    for smart escaping when the surrounding wikitext context is known.
+ *
+ * currLine
+ *    This object is used by the wikitext escaping algorithm -- represents
+ *    a "single line" of output wikitext as represented by a block node in
+ *    the DOM.
+ *
+ *    text: accumulated text from all text nodes on the current output line
+ *    processed: have we analyzed the text so far?
+ *    hasLinkTokenPair: does the text have a link token pair?
  * ********************************************************************* */
 
 WSP.initialState = {
@@ -89,200 +207,11 @@ WSP.initialState = {
 	onStartOfLine : true,
 	availableNewlineCount: 0,
 	singleLineMode: 0,
-	inHeadingContext: false,
-	tokens: []
-};
-
-WSP.escapeWikiText = function ( state, text ) {
-	// tokenize the text
-	var p = new PegTokenizer( state.env ),
-		tokens = [];
-	p.on('chunk', function ( chunk ) {
-		//console.warn( JSON.stringify(chunk));
-		tokens.push.apply( tokens, chunk );
-	});
-	p.on('end', function(){
-		//console.warn( JSON.stringify('end'));
-	});
-	// this is synchronous for now, will still need sync version later, or
-	// alternatively make text processing in the serializer async
-
-	var preventSOLMatch = !state.onNewline &&
-		!(state.inHeadingContext && text.match(/^=/)) &&
-		!((state.listStack.length > 0) && text.match(/^[*#:;]/));
-
-	var prefixedText = text;
-	if (preventSOLMatch) {
-		// Prefix '_' so that no start-of-line wiki syntax matches.
-		// Later, strip it from the result.
-		// Ex: Consider the DOM:  <ul><li> foo</li></ul>
-		// We don't want ' foo' to be converted to a <pre>foo</pre>
-		// because of the leading space.
-		prefixedText = '_' + text;
-	}
-
-	if ( state.inIndentPre ) {
-		prefixedText = prefixedText.replace(/(\r?\n)/g, '$1_');
-	}
-
-	// FIXME: parse using
-	p.process( prefixedText );
-
-	if (preventSOLMatch) {
-		// now strip the leading underscore.
-		if ( tokens[0] === '_' ) {
-			tokens.shift();
-		} else {
-			tokens[0] = tokens[0].substr(1);
-		}
-	}
-
-	// state.inIndentPre is handled on the complete output
-
-	//
-	// wrap any run of non-text tokens into <nowiki> tags using the source
-	// offsets of top-level productions
-	// return the updated text
-	var outTexts = [],
-		nonTextTokenAccum = [],
-		cursor = 0;
-	function wrapNonTextTokens () {
-		if ( nonTextTokenAccum.length ) {
-			var missingRangeEnd = false;
-			// TODO: make sure the source positions are always set!
-			// The start range
-			var startToken = nonTextTokenAccum[0];
-			var startRange = startToken.dataAttribs.tsr,
-				rangeStart, rangeEnd;
-			if ( ! startRange ) {
-				console.warn( 'No tsr on ' + startToken );
-				rangeStart = cursor;
-			} else {
-				rangeStart = startRange[0];
-				cursor = rangeStart;
-			}
-
-			var endRange = nonTextTokenAccum.last().dataAttribs.tsr;
-			if ( ! endRange ) {
-				// FIXME: improve this!
-				//rangeEnd = state.env.tokensToString( tokens ).length;
-				// Be conservative and extend the range to the end for now.
-				// Alternatives: only extend it to the next token with range
-				// info on it.
-				missingRangeEnd = true;
-				rangeEnd = prefixedText.length;
-			} else {
-				rangeEnd = endRange[1];
-			}
-
-			var escapedSource = prefixedText.substr(rangeStart, rangeEnd - rangeStart)
-									.replace( /<(\/?nowiki)>/g, '&lt;$1&gt;' );
-			if ( escapedSource.match( /^\s*$|\s*&lt;\/?nowiki&gt;\s*/ ) ) {
-				outTexts.push( escapedSource );
-			} else {
-				outTexts.push( '<nowiki>' );
-				outTexts.push( escapedSource );
-				outTexts.push( '</nowiki>' );
-			}
-			cursor += 17 + escapedSource.length;
-			if ( missingRangeEnd ) {
-				throw 'No tsr on end token: ' + nonTextTokenAccum.last();
-			}
-			nonTextTokenAccum = [];
-		}
-	}
-
-	var tagWhiteList = getTagWhiteList(),
-		tsr;
-	try {
-		for ( var i = 0, l = tokens.length; i < l; i++ ) {
-			var token = tokens[i];
-			switch ( token.constructor ) {
-				case String:
-					wrapNonTextTokens();
-					outTexts.push(
-						token
-						// Angle brackets forming HTML tags are picked up as
-						// tags and escaped with nowiki. Remaining angle
-						// brackets can remain unescaped in the wikitext. They
-						// are entity-escaped by the HTML5 DOM serializer when
-						// outputting the HTML DOM.
-						//.replace(/</g, '&lt;').replace(/>/g, '&gt;')
-
-						// non-paired nowiki is not escaped though
-						.replace( /<(\/?nowiki)>/g, '&lt;$1&gt;' )
-					);
-					cursor += token.length;
-					break;
-				case NlTk:
-					wrapNonTextTokens();
-					outTexts.push( '\n' );
-					cursor++;
-					break;
-				case EOFTk:
-					wrapNonTextTokens();
-					break;
-				case TagTk:
-				case SelfclosingTagTk:
-					var argDict = state.env.KVtoHash( token.attribs );
-					if ( argDict['typeof'] === 'mw:Placeholder' &&
-							// XXX: move the decision whether to escape or not
-							// into individual handlers!
-							token.dataAttribs.src )
-					{
-						wrapNonTextTokens();
-						// push out the original source
-						// XXX: This assumes the content was not
-						// modified for now.
-						outTexts.push( token.dataAttribs.src
-								// escape ampersands in entity text
-								.replace(/&(#?[0-9a-zA-Z]{2,20};)/, '&amp;$1')
-								.replace( /<(\/?nowiki)>/g, '&lt;$1&gt;' ) );
-						// skip generated tokens
-						for ( ; i < l; i ++) {
-							var tk = tokens[i];
-							if ( tk.constructor === EndTagTk &&
-									tk.name === token.name ) {
-										break;
-									}
-						}
-					} else if (!token.isHTMLTag() ||
-						token.name === undefined ||
-						tagWhiteList[token.name])
-					{
-						nonTextTokenAccum.push(token);
-					} else {
-						wrapNonTextTokens();
-						tsr = token.dataAttribs.tsr;
-						outTexts.push(prefixedText.substr(tsr[0], tsr[1] - tsr[0]));
-					}
-					break;
-				case EndTagTk:
-					if (!token.isHTMLTag() ||
-						token.name === undefined ||
-						tagWhiteList[token.name.toLowerCase()])
-					{
-						nonTextTokenAccum.push(token);
-					} else {
-						wrapNonTextTokens();
-						tsr = token.dataAttribs.tsr;
-						outTexts.push(prefixedText.substr(tsr[0], tsr[1] - tsr[0]));
-					}
-					break;
-				default:
-					nonTextTokenAccum.push(token);
-					break;
-			}
-		}
-	} catch ( e ) {
-		console.warn( e );
-	}
-	// console.warn( 'escaped wikiText: ' + outTexts.join('') );
-	var res = outTexts.join('');
-	if ( state.inIndentPre ) {
-		return res.replace(/\n_/g, '\n');
-	} else {
-		return res;
+	wteHandlerStack: [],
+	currLine: {
+		text: null,
+		processed: false,
+		hasLinkTokenPair: false
 	}
 };
 
@@ -309,7 +238,9 @@ var endTagMatchTokenCollector = function ( tk, cb ) {
 				// finish collection
 				if ( this.cb ) {
 					// abort further token processing since the cb handled it
-					return this.cb( state, tokens );
+					var res = this.cb( state, tokens );
+					state.wteHandlerStack.pop();
+					return res;
 				} else {
 					// let a handler deal with token processing
 					return false;
@@ -325,15 +256,12 @@ var endTagMatchTokenCollector = function ( tk, cb ) {
 
 var openHeading = function(v) {
 	return function( state ) {
-		state.inHeadingContext = true;
 		return v;
 	};
 };
 
 var closeHeading = function(v) {
 	return function(state, token) {
-		state.inHeadingContext = false;
-
 		var prevToken = state.prevToken;
 		// Deal with empty headings. Ex: <h1></h1>
 		if (prevToken.constructor === TagTk && prevToken.name === token.name) {
@@ -352,6 +280,107 @@ function isListItem(token) {
 	var tokenName = token.name;
 	return (tokenName === 'li' || tokenName === 'dt' || tokenName === 'dd');
 }
+
+function escapedText(text) {
+/**
+ * SSS FIXME: This will escape multiple lines in one shot.
+ * Is that what we want instead?
+ *
+	var match = text.match(/^((?:.*?|[\r\n]+[^\r\n])*?)((?:\r?\n)*)$/);
+	return ["<nowiki>", match[1], "</nowiki>", match[2]].join('');
+**/
+	var lines = text.split(/((?:\r?\n)+)/);
+	var buf = [];
+	for (var i = 0, n = lines.length; i < n; i++) {
+		var l = lines[i];
+		if (i % 2 === 0) {
+			if (l) {
+				buf.push("<nowiki>", l, "</nowiki>");
+			}
+		} else {
+			buf.push(l);
+		}
+	}
+	return buf.join('');
+}
+
+WSP.escapeWikiText = function ( state, text ) {
+    // console.warn("t: " + text);
+	/* -----------------------------------------------------------------
+	 * General strategy: If a substring requires escaping, we can escape
+	 * the entire string without further analysis of the rest of the string.
+	 * ----------------------------------------------------------------- */
+
+	// Quick check for the common case (FIXME: useful or premature opt?)
+	if (!text.match(/^[ \t][^\s]+|[<\[\]>\-\+\|'!=#\*:;{}]/)) {
+		return text;
+	}
+
+	// Context-specific escape handler
+	var wteHandler = state.wteHandlerStack.last();
+	if (wteHandler && wteHandler(state,text)) {
+		return escapedText(text);
+	}
+
+	// Template and template-arg markers are escaped unconditionally!
+	if (text.match(/{{{|{{|}}}|}}/)) {
+		return escapedText(text);
+	}
+
+	// pre isn't covered yet by the context-specific escape handlers
+	// '', [], <> can show up anywhere -- so need further analysis then
+	if (!state.onNewline && !text.match(/^[ \t]|''|[<>]|\[.*\]|\]/)) {
+		return text;
+	}
+
+	// Quick checks when on a newline:
+	// lists (#*:;), tables ({|), hrs (----) -- always escape
+	if (state.onNewline && text.match(/^([#\*:;]|\{\|)|(\-\-\-\-)/)) {
+		return escapedText(text);
+	}
+
+	// escape existing nowiki tags
+	text = text.replace(/<(\/?nowiki)>/g, '&lt;$1&gt;');
+
+	// use the tokenizer to see if we have any wikitext tokens
+	if (this.wteHandlers.hasWikitextTokens(state, state.onNewline, text)) {
+		return escapedText(text);
+	} else {
+		// Last resort -- process current line text ignoring all embedded tags
+		// If it has wikitext tokens, we escape conservatively
+		var cl = state.currLine;
+		if (!cl.processed) {
+			/* --------------------------------------------------
+			 * SSS: Not using this anymore
+			 *
+			// Treat this as non-newline text to eliminate spurious pre matches
+			// pre-indent case is already covered earlier
+			cl.hasWikitextTokens = this.wteHandlers.hasWikitextTokens(state, false, cl.text);
+			 *
+			 * -------------------------------------------------- */
+
+			// Links are the only single-line paired-token wikitext-construct
+			// that can be split by html tags and occur anywhere on a line.
+			//
+			//    Ex 1: .. [[ .. <i>..... ]] .. </i> ..
+			//    Ex 2: .. [[ .. <i>..... </i> .. ]] ..
+			//
+			// Headings are the other single-line paired-token wikitext-construct
+			// that can be split by html tags but that are constrained to be
+			// on the extremities.
+			//
+			// So no need to tokenize -- just check for this pattern
+			cl.hasLinkTokenPair = cl.text.match(/(^|[^\[])(\[\[?)([^\[].*[^\]])(\]\]?)([^\]]|$)/);
+			cl.processed = true;
+		}
+
+		if (cl.hasLinkTokenPair) {
+			return escapedText(text);
+		} else {
+			return text;
+		}
+	}
+};
 
 WSP._listHandler = function( handler, bullet, state, token ) {
 	if ( state.singleLineMode ) {
@@ -488,7 +517,7 @@ WSP._figureHandler = function ( state, figTokens ) {
 	}
 
 	// Call the serializer to build the caption
-	var caption = state.serializer.serializeTokens(figTokens.slice(fcStartIndex+1, fcEndIndex)).join('');
+	var caption = state.serializer.serializeTokens(state.currLine, figTokens.slice(fcStartIndex+1, fcEndIndex)).join('');
 
 	// Get the image resource name
 	// FIXME: file name has been capitalized -- need some fix in the parser
@@ -638,13 +667,13 @@ WSP._linkHandler =  function( state, tokens ) {
 			{
 				return '[[' + target + ']]' + tail;
 			} else {
-				var content = state.serializer.serializeTokens( tokens ).join('');
+				var content = state.serializer.serializeTokens(state.currLine,  tokens ).join('');
 				content = Util.stripSuffix( content, tail );
 				return '[[' + target + '|' + ( tokenData.pipetrick ? '' : content ) + ']]' + tail;
 			}
 		} else if ( attribDict.rel === 'mw:ExtLink' ) {
 			return '[' + attribDict.href + ' ' +
-				state.serializer.serializeTokens( tokens ).join('') +
+				state.serializer.serializeTokens(state.currLine,  tokens ).join('') +
 				']';
 		} else if ( attribDict.rel === 'mw:ExtLink/ISBN' ) {
 			return tokens.join('');
@@ -678,7 +707,7 @@ WSP._linkHandler =  function( state, tokens ) {
 		if ( true || isComplexLink ( attribDict ) ) {
 			// Complex attributes we can't support in wiki syntax
 			return WSP._serializeHTMLTag( state, token ) +
-				state.serializer.serializeTokens( tokens ) +
+				state.serializer.serializeTokens(state.currLine,  tokens ) +
 				WSP._serializeHTMLEndTag( state, endToken );
 		} else {
 			// TODO: serialize as external wikilink
@@ -706,7 +735,7 @@ WSP.compareSourceHandler = function ( state, tokens ) {
 		lastToken = tokens.pop(),
 		content = state.env.tokensToString( tokens, true );
 	if ( content.constructor !== String ) {
-		return state.serializer.serializeTokens( tokens ).join('');
+		return state.serializer.serializeTokens(state.currLine,  tokens ).join('');
 	} else if ( content === token.dataAttribs.srcContent ) {
 		return token.dataAttribs.src;
 	} else {
@@ -714,7 +743,13 @@ WSP.compareSourceHandler = function ( state, tokens ) {
 	}
 };
 
-
+function buildHeadingHandler(headingWT) {
+	return {
+		start: { startsNewline: true, handle: openHeading(headingWT), defaultStartNewlineCount: 2 },
+		end: { endsLine: true, handle: closeHeading(headingWT) },
+		wtEscapeHandler: WSP.wteHandlers.headingHandler
+	};
+}
 
 /* *********************************************************************
  * startsNewline
@@ -804,7 +839,8 @@ WSP.tagHandlers = {
 		},
 		end: {
 			singleLine: -1
-		}
+		},
+		wtEscapeHandler: WSP.wteHandlers.liHandler
 	},
 	// XXX: handle single-line vs. multi-line dls etc
 	dt: {
@@ -818,7 +854,8 @@ WSP.tagHandlers = {
 		},
 		end: {
 			singleLine: -1
-		}
+		},
+		wtEscapeHandler: WSP.wteHandlers.liHandler
 	},
 	dd: {
 		start: {
@@ -832,7 +869,8 @@ WSP.tagHandlers = {
 		end: {
 			endsLine: true,
 			singleLine: -1
-		}
+		},
+		wtEscapeHandler: WSP.wteHandlers.liHandler
 	},
 	// XXX: handle options
 	table: {
@@ -862,7 +900,8 @@ WSP.tagHandlers = {
 					return WSP._serializeTableTag( "!", ' |', state, token);
 				}
 			}
-		}
+		},
+		wtEscapeHandler: WSP.wteHandlers.thHandler
 	},
 	tr: {
 		start: {
@@ -890,7 +929,8 @@ WSP.tagHandlers = {
 					return WSP._serializeTableTag("|", ' |', state, token);
 				}
 			}
-		}
+		},
+		wtEscapeHandler: WSP.wteHandlers.tdHandler
 	},
 	caption: {
 		start: {
@@ -1025,7 +1065,8 @@ WSP.tagHandlers = {
 				state.tokenCollector.handler = this;
 				return '';
 			}
-		}
+		},
+		wtEscapeHandler: WSP.wteHandlers.linkHandler
 	},
 	hr: {
 		start: {
@@ -1044,32 +1085,15 @@ WSP.tagHandlers = {
 					return "----";
 				}
 			}
-		}
+		},
+		wtEscapeHandler: WSP.wteHandlers.hrHandler
 	},
-	h1: {
-		start: { startsNewline: true, handle: openHeading("="), defaultStartNewlineCount: 2 },
-		end: { endsLine: true, handle: closeHeading("=") }
-	},
-	h2: {
-		start: { startsNewline: true, handle: openHeading("=="), defaultStartNewlineCount: 2 },
-		end: { endsLine: true, handle: closeHeading("==") }
-	},
-	h3: {
-		start: { startsNewline: true, handle: openHeading("==="), defaultStartNewlineCount: 2 },
-		end: { endsLine: true, handle: closeHeading("===") }
-	},
-	h4: {
-		start: { startsNewline: true, handle: openHeading("===="), defaultStartNewlineCount: 2 },
-		end: { endsLine: true, handle: closeHeading("====") }
-	},
-	h5: {
-		start: { startsNewline: true, handle: openHeading("====="), defaultStartNewlineCount: 2 },
-		end: { endsLine: true, handle: closeHeading("=====") }
-	},
-	h6: {
-		start: { startsNewline: true, handle: openHeading("======"), defaultStartNewlineCount: 2 },
-		end: { endsLine: true, handle: closeHeading("======") }
-	},
+	h1: buildHeadingHandler("="),
+	h2: buildHeadingHandler("=="),
+	h3: buildHeadingHandler("==="),
+	h4: buildHeadingHandler("===="),
+	h5: buildHeadingHandler("====="),
+	h6: buildHeadingHandler("======"),
 	br: {
 		start: {
 			startsNewline: true,
@@ -1079,11 +1103,13 @@ WSP.tagHandlers = {
 	},
 	b:  {
 		start: { handle: id("'''") },
-		end: { handle: id("'''") }
+		end: { handle: id("'''") },
+		wtEscapeHandler: WSP.wteHandlers.quoteHandler
 	},
 	i:  {
 		start: { handle: id("''") },
-		end: { handle: id("''") }
+		end: { handle: id("''") },
+		wtEscapeHandler: WSP.wteHandlers.quoteHandler
 	},
 	a:  {
 		start: {
@@ -1092,7 +1118,8 @@ WSP.tagHandlers = {
 						WSP._linkHandler,
 						this
 					)
-		}
+		},
+		wtEscapeHandler: WSP.wteHandlers.linkHandler
 	}
 };
 
@@ -1145,9 +1172,10 @@ WSP._serializeAttributes = function (token) {
 /**
  * Serialize a chunk of tokens
  */
-WSP.serializeTokens = function( tokens, chunkCB ) {
+WSP.serializeTokens = function(currLine, tokens, chunkCB ) {
 	var state = $.extend({}, this.initialState, this.options),
 		i, l;
+	state.currLine = currLine;
 	state.serializer = this;
 	if ( chunkCB === undefined ) {
 		var out = [];
@@ -1198,6 +1226,7 @@ WSP._getTokenHandler = function(state, token) {
 		handler = this.defaultHTMLTagHandler;
 	}
 	if ( token.constructor === TagTk || token.constructor === SelfclosingTagTk ) {
+		state.wteHandlerStack.push(handler.wtEscapeHandler || null);
 		return handler.start || {};
 	} else {
 		return handler.end || {};
@@ -1247,9 +1276,16 @@ WSP._serializeToken = function ( state, token ) {
 					state.currTagToken = token;
 					res = handler.handle ? handler.handle( state, token ) : '';
 				}
+
+				// SSS FIXME: There are no SelfclosingTagTk types constructed
+				// right now and can be removed to simplify the code and logic.
+				if (token.constructor === SelfclosingTagTk) {
+					state.wteHandlerStack.pop();
+				}
 				break;
 			case EndTagTk:
 				handler = WSP._getTokenHandler( state, token );
+				state.wteHandlerStack.pop();
 				if ( ! handler.ignore ) {
 					state.prevTagToken = state.currTagToken;
 					state.currTagToken = token;
@@ -1423,6 +1459,46 @@ WSP.serializeDOM = function( node, chunkCB ) {
 	}
 };
 
+function firstBlockNodeAncestor(node) {
+	while (!isHtmlBlockTag(node.nodeName.toLowerCase())) {
+		node = node.parentNode;
+	}
+	return node;
+}
+
+function gatherInlineText(buf, node) {
+	switch (node.nodeType) {
+		case Node.ELEMENT_NODE:
+			var name = node.nodeName.toLowerCase();
+			if (isHtmlBlockTag(name)) {
+				return;
+			}
+
+		/* -----------------------------------------------------------------
+		 * SSS: check not needed if we are not doing a full tokenization
+		 * on the gathered text
+		 *
+			// Ignore text for extlink/numbered
+			if (name === 'a' && node.attributes["rel"].value === 'mw:ExtLink/Numbered') {
+				return;
+			}
+		 * -----------------------------------------------------------------*/
+
+			var children = node.childNodes;
+			for (var i = 0, n = children.length; i < n; i++) {
+				gatherInlineText(buf, children[i]);
+			}
+
+			return;
+		case Node.COMMENT_NODE:
+		case Node.TEXT_NODE:
+			buf.push(node.data);
+			return;
+		default:
+			return;
+	}
+}
+
 /**
  * Internal worker. Recursively serialize a DOM subtree by creating tokens and
  * calling _serializeToken on each of these.
@@ -1431,17 +1507,24 @@ WSP._serializeDOM = function( node, state ) {
 	// serialize this node
 	switch( node.nodeType ) {
 		case Node.ELEMENT_NODE:
-			//console.warn( node.nodeName.toLowerCase() );
 			var children = node.childNodes,
 				name = node.nodeName.toLowerCase(),
 				tkAttribs = this._getDOMAttribs(node.attributes),
 				tkRTInfo = this._getDOMRTInfo(node.attributes);
+			
+			if (isHtmlBlockTag(name)) {
+				state.currLine = {
+					text: null,
+					processed: false,
+					hasWikitextTokens: false
+				}
+			}
 
 			// Serialize the start token
 			this._serializeToken(state, new TagTk(name, tkAttribs, tkRTInfo));
 
 			// then children
-			for ( var i = 0, l = children.length; i < l; i++ ) {
+			for (var i = 0, n = children.length; i < n; i++) {
 				this._serializeDOM( children[i], state );
 			}
 
@@ -1450,6 +1533,15 @@ WSP._serializeDOM = function( node, state ) {
 
 			break;
 		case Node.TEXT_NODE:
+			if (state.currLine.text === null) {
+				var buf = [];
+				var bn = firstBlockNodeAncestor(node);
+				var children = bn.childNodes;
+				for (var i = 0, n = children.length; i < n; i++) {
+					gatherInlineText(buf, children[i]);
+				}
+				state.currLine.text = buf.join('');
+			}
 			this._serializeToken( state, node.data );
 			break;
 		case Node.COMMENT_NODE:
