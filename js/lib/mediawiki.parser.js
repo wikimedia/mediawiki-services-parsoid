@@ -283,7 +283,7 @@ function ParserPipeline ( first, last, returnToCacheCB ) {
  * Feed input tokens to the first pipeline stage
  */
 ParserPipeline.prototype.process = function(input, key) { 
-	return this.first.process(input, key); 
+	return this.first.process(input, key);
 };
 
 /**

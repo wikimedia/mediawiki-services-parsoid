@@ -2,6 +2,20 @@ var request = require('request'),
 	qs = require('querystring'),
 	events = require('events');
 
+function DoesNotExistError( message ) {
+    this.name = "DoesNotExistError";
+    this.message = message || "Something doesn't exist";
+    this.code = 404;
+}
+DoesNotExistError.prototype = Error.prototype;
+
+function ParserError( message ) {
+    this.name = "ParserError";
+    this.message = message || "Generic parser error";
+    this.code = 500;
+}
+ParserError.prototype = Error.prototype;
+
 /***************** Template fetch request helper class ********/
 
 function TemplateRequest ( env, title, oldid ) {
@@ -48,6 +62,7 @@ TemplateRequest.prototype.constructor = TemplateRequest;
 TemplateRequest.prototype._handler = function (error, response, body) {
 	//console.warn( 'response for ' + title + ' :' + body + ':' );
 	var self = this;
+
 	if(error) {
 		this.env.dp(error);	
 		if ( this.retries ) {
@@ -56,8 +71,8 @@ TemplateRequest.prototype._handler = function (error, response, body) {
 			// retry
 			request( this.requestOptions, this._handler.bind(this) ); 
 		} else {
-			this.emit('src', 'Page/template fetch failure for title ' + this.title, 
-					'text/x-mediawiki');
+			var dnee = new DoesNotExistError( 'Page/template fetch failure for title ' + this.title );
+			this.emit('src', dnee, dnee.toString(), 'text/x-mediawiki');
 		}
 	} else if(response.statusCode ===  200) {
 		var src = '',
@@ -67,11 +82,7 @@ TemplateRequest.prototype._handler = function (error, response, body) {
 			//console.warn( 'body: ' + body );
 			data = JSON.parse( body );
 		} catch(e) {
-			console.warn( "Error: while parsing result. Error was: " );
-			console.warn( e );
-			console.warn( "Response that didn't parse was:");
-			console.warn( "------------------------------------------\n" + body );
-			console.warn( "------------------------------------------" );
+			error = new ParserError( 'Failed to parse the JSON response for the template ' + self.title );
 		}
 		try {
 			$.each( data.query.pages, function(i, page) {
@@ -81,16 +92,20 @@ TemplateRequest.prototype._handler = function (error, response, body) {
 				} else {
 					var normalName = self.env.normalizeTitle( 
 						self.env.pageName );
-					console.warn( 'Did not find page revisions for ' + self.title );
+					throw new DoesNotExistError( 'Did not find page revisions for ' + self.title );
 					if ( this.title === normalName ) {
 						src = 'No revisions for ' + self.title;
 					}
 				}
 			});
 		} catch ( e2 ) {
-			console.warn( 'Did not find page revisions in the returned body:' + body + e2 );
+			if ( e2 instanceof DoesNotExistError ) {
+				error = e2;
+			} else {
+				error = DoesNotExistError( 'Did not find page revisions in the returned body:' + body + e2 );
+			}
 		}
-		
+
 		// check for #REDIRECT
 		var redirMatch = src.match( /[\r\n\s]*#\s*redirect\s*\[\[([^\]]+)\]\]/i );
 		if ( redirMatch ) {
@@ -129,7 +144,7 @@ TemplateRequest.prototype._handler = function (error, response, body) {
 			for ( var it = 0; it < maxIters; it++ ) {
 				var nextListener = listeners.shift();
 				// We only retrieve text/x-mediawiki source currently.
-				nextListener( src, 'text/x-mediawiki' );
+				nextListener( error || null, src, 'text/x-mediawiki' );
 			}
 			if ( listeners.length ) {
 				process.nextTick( processSome );
@@ -193,4 +208,6 @@ TemplateRequest.prototype._handler = function (error, response, body) {
 
 if (typeof module == "object") {
 	module.exports.TemplateRequest = TemplateRequest;
+	module.exports.DoesNotExistError = DoesNotExistError;
+	module.exports.ParserError = ParserError;
 }
