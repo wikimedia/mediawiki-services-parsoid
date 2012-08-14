@@ -4,15 +4,17 @@
 #### 2. Outside heading nest on a single line <h1>foo</h1>*bar
 #### 3. Nested inside html with wikitext split by html tags
 #### 4. No escape needed
+#### 5. Empty headings <h1></h1>
 #### ----------------------------------------
 !! test
 Headings: 0. Unnested
 !! input
 <nowiki>=foo=</nowiki>
+
 <nowiki>=foo</nowiki>''''=
 !! result
-=foo=
-=foo<i></i>=
+<p>=foo=</p>
+<p>=foo<i></i>=</p>
 !!end
 
 !! test
@@ -76,33 +78,59 @@ Headings: 4. No escaping needed (testing just h1 and h2)
 <h1>=</h1>
 !!end
 
+!! test
+Headings: 5. Empty headings
+!! input
+=<nowiki></nowiki>=
+==<nowiki></nowiki>==
+===<nowiki></nowiki>===
+====<nowiki></nowiki>====
+=====<nowiki></nowiki>=====
+======<nowiki></nowiki>======
+!! result
+<h1></h1>
+<h2></h2>
+<h3></h3>
+<h4></h4>
+<h5></h5>
+<h6></h6>
+!!end
+
 #### --------------- Lists ---------------
 #### 0. Outside nests (*foo, etc.)
 #### 1. Nested inside html <ul><li>*foo</li></ul>
 #### 2. Inside definition lists
 #### 3. Only bullets at start should be escaped
+#### 4. No escapes needed
 #### ----------------------------------------
 
 !! test
 Lists: 0. Outside nests 
 !! input
 <nowiki>*foo</nowiki>
+
 <nowiki>#foo</nowiki>
 !! result
-*foo
-#foo
+<p>*foo</p>
+<p>#foo</p>
 !!end
 
 !! test
 Lists: 1. Nested inside html
 !! input
 *<nowiki>*foo</nowiki>
+
 *<nowiki>#foo</nowiki>
+
 *<nowiki>:foo</nowiki>
+
 *<nowiki>;foo</nowiki>
 #<nowiki>*foo</nowiki>
+
 #<nowiki>#foo</nowiki>
+
 #<nowiki>:foo</nowiki>
+
 #<nowiki>;foo</nowiki>
 !! result
 <ul><li>*foo</li></ul>
@@ -119,9 +147,12 @@ Lists: 1. Nested inside html
 Lists: 2. Inside definition lists
 !! input
 ;<nowiki>;foo</nowiki>
+
 ;<nowiki>:foo</nowiki>
+
 ;<nowiki>:foo</nowiki>
 :bar
+
 :<nowiki>:foo</nowiki>
 !! result
 <dl><dt>;foo</dt></dl>
@@ -134,10 +165,25 @@ Lists: 2. Inside definition lists
 Lists: 3. Only bullets at start of text should be escaped
 !! input
 *<nowiki>*foo*bar</nowiki>
+
 *<nowiki>*foo</nowiki>''it''*bar
 !! result
 <ul><li>*foo*bar</li></ul>
 <ul><li>*foo<i>it</i>*bar</li></ul>
+!!end
+
+!! test
+Lists: 4. No escapes needed
+!! input
+*foo*bar
+
+*''foo''*bar
+
+*[[Foo]]: bar
+!! result
+<ul><li>foo*bar</li></ul>
+<ul><li><i>foo</i>*bar</li></ul>
+<ul><li><a href="Foo" rel="mw:WikiLink">Foo</a>: bar</li></ul>
 !!end
 
 #### --------------- HRs ---------------
@@ -175,13 +221,14 @@ HRs: 1. Single line
 ####
 #### 4a. Escape -
 #### 4b. Escape +
+#### 4c. No escaping needed
 #### --------------------------------------
 
 !! test
 Tables: 1a. Simple example
 !! input
-<nowiki>{|</nowiki>
-<nowiki>|}</nowiki>
+<nowiki>{|
+|}</nowiki>
 !! result
 {|
 |}
@@ -230,10 +277,11 @@ Tables: 2b. Nested in td
 {|
 |-
 |<nowiki>foo||bar</nowiki>
+|''it''<nowiki>foo||bar</nowiki>
 |}
 !! result
 <table><tbody>
-<tr><td>foo||bar</td></tr>
+<tr><td>foo||bar</td><td><i>it</i>foo||bar</td></tr>
 </tbody></table>
 !! end
 
@@ -318,6 +366,24 @@ Tables: 4b. Escape +
 <table><tbody>
 <tr><th>+bar</th></tr>
 <tr><td>+bar</td></tr>
+</tbody></table>
+!! end
+
+!! test
+Tables: 4c. No escaping needed
+!! input
+{|
+|-
+|foo-bar
+|foo+bar
+|-
+|''foo''-bar
+|''foo''+bar
+|}
+!! result
+<table><tbody>
+<tr><td>foo-bar</td><td>foo+bar</td></tr>
+<tr><td><i>foo</i>-bar</td><td><i>foo</i>+bar</td></tr>
 </tbody></table>
 !! end
 
@@ -413,12 +479,14 @@ Links 5. ExtLinks: No escapes needed
 2. Link fragments separated by <i> and <b> tags
 !! input
 <nowiki>[[</nowiki>''''<nowiki>hello]]</nowiki>
+
 <nowiki>[[</nowiki>''foo''<nowiki>hello]]</nowiki>
+
 <nowiki>[[</nowiki>'''foo'''<nowiki>hello]]</nowiki>
 !! result
-[[<i></i>hello]]
-[[<i>foo</i>hello]]
-[[<b>foo</b>hello]]
+<p>[[<i></i>hello]]</p>
+<p>[[<i>foo</i>hello]]</p>
+<p>[[<b>foo</b>hello]]</p>
 !! end
 
 !! test
@@ -427,10 +495,11 @@ Links 5. ExtLinks: No escapes needed
  this is one of the shortcomings of this format)
 !! input
 ''[[foo''<nowiki>]]</nowiki>
+
 '''[[foo'''<nowiki>]]</nowiki>
 !! result
-<i>[[foo</i>]]
-<b>[[foo</b>]]
+<p><i>[[foo</i>]]</p>
+<p><b>[[foo</b>]]</p>
 !! end
 
 #### --------------- HTML tags ---------------
@@ -449,8 +518,8 @@ Links 5. ExtLinks: No escapes needed
 !! test
 2. other tags
 !! input
-<nowiki><div>foo</div></nowiki>
-<nowiki><div style="color:red">foo</div></nowiki>
+<nowiki><div>foo</div>
+<div style="color:red">foo</div></nowiki>
 !! result
 &lt;div&gt;foo&lt;/div&gt;
 &lt;div style=&quot;color:red&quot;&gt;foo&lt;/div&gt;
@@ -459,9 +528,9 @@ Links 5. ExtLinks: No escapes needed
 !! test
 3. multi-line html tag
 !! input
-<nowiki><div</nowiki>
-<nowiki>>foo</div</nowiki>
-<nowiki>></nowiki>
+<nowiki><div
+>foo</div
+></nowiki>
 !! result
 &lt;div
 &gt;foo&lt;/div

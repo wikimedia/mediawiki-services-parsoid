@@ -64,7 +64,7 @@ WEHP.liHandler = function(state, text) {
 	state.wteHandlerStack.pop();
 	state.wteHandlerStack.push(null);
 
-	return text.match(/^[#\*:;]/);
+	return isListItem(state.currTagToken) && text.match(/^[#\*:;]/);
 };
 
 WEHP.linkHandler = function(state, text) {
@@ -76,16 +76,12 @@ WEHP.quoteHandler = function(state, text) {
 	return text.match(/^'|'$/);
 };
 
-WEHP.hrHandler = function(state, text) {
-	return text.match(/^----/);
-};
-
 WEHP.thHandler = function(state, text) {
 	return text.match(/!!/);
 };
 
 WEHP.tdHandler = function(state, text) {
-	return text.match(/^[-+]|\|/);
+	return text.match(/\|/) || (isTd(state.currTagToken) && text.match(/^[-+]/));
 };
 
 WEHP.hasWikitextTokens = function ( state, onNewline, text ) {
@@ -196,9 +192,9 @@ WSP.wteHandlers = new WikitextEscapeHandlers();
  *    a "single line" of output wikitext as represented by a block node in
  *    the DOM.
  *
- *    text: accumulated text from all text nodes on the current output line
- *    processed: have we analyzed the text so far?
- *    hasLinkTokenPair: does the text have a link token pair?
+ *    - text        : accumulated text from all text nodes on the current line
+ *    - processed   : have we analyzed the text so far?
+ *    - hasTokenPair: does the line have wikitext token pairs?
  * ********************************************************************* */
 
 WSP.initialState = {
@@ -211,7 +207,7 @@ WSP.initialState = {
 	currLine: {
 		text: null,
 		processed: false,
-		hasLinkTokenPair: false
+		hasTokenPair: false
 	}
 };
 
@@ -233,6 +229,11 @@ var endTagMatchTokenCollector = function ( tk, cb ) {
 		cb: cb,
 		collect: function ( state, token ) {
 			tokens.push( token );
+			if ([TagTk, SelfclosingTagTk, EndTagTk].indexOf(token.constructor) === -1) {
+				state.prevTagToken = state.currTagToken;
+				state.currTagToken = token;
+			}
+
 			if ( token.constructor === EndTagTk &&
 					token.name === tk.name ) {
 				// finish collection
@@ -272,36 +273,18 @@ var closeHeading = function(v) {
 	};
 };
 
-function isListItem(token) {
-	if (token.constructor !== TagTk) {
-		return false;
-	}
+function isTd(token) {
+	return token && token.constructor === TagTk && token.name === 'td';
+}
 
-	var tokenName = token.name;
-	return (tokenName === 'li' || tokenName === 'dt' || tokenName === 'dd');
+function isListItem(token) {
+	return token && token.constructor === TagTk && 
+		['li', 'dt', 'dd'].indexOf(token.name) !== -1;
 }
 
 function escapedText(text) {
-/**
- * SSS FIXME: This will escape multiple lines in one shot.
- * Is that what we want instead?
- *
 	var match = text.match(/^((?:.*?|[\r\n]+[^\r\n])*?)((?:\r?\n)*)$/);
 	return ["<nowiki>", match[1], "</nowiki>", match[2]].join('');
-**/
-	var lines = text.split(/((?:\r?\n)+)/);
-	var buf = [];
-	for (var i = 0, n = lines.length; i < n; i++) {
-		var l = lines[i];
-		if (i % 2 === 0) {
-			if (l) {
-				buf.push("<nowiki>", l, "</nowiki>");
-			}
-		} else {
-			buf.push(l);
-		}
-	}
-	return buf.join('');
 }
 
 WSP.escapeWikiText = function ( state, text ) {
@@ -312,6 +295,8 @@ WSP.escapeWikiText = function ( state, text ) {
 	 * ----------------------------------------------------------------- */
 
 	// Quick check for the common case (FIXME: useful or premature opt?)
+	//
+	// Pure white-space or text without wt-special chars need not be analyzed
 	if (!text.match(/^[ \t][^\s]+|[<\[\]>\-\+\|'!=#\*:;{}]/)) {
 		return text;
 	}
@@ -350,35 +335,29 @@ WSP.escapeWikiText = function ( state, text ) {
 		// If it has wikitext tokens, we escape conservatively
 		var cl = state.currLine;
 		if (!cl.processed) {
-			/* --------------------------------------------------
-			 * SSS: Not using this anymore
+			/* --------------------------------------------------------
+			 * Links and headings are the only single-line paired-token 
+			 * wikitext-constructs  that can be split by html tags 
 			 *
-			// Treat this as non-newline text to eliminate spurious pre matches
-			// pre-indent case is already covered earlier
-			cl.hasWikitextTokens = this.wteHandlers.hasWikitextTokens(state, false, cl.text);
+			 * Links occur anywhere on a line.
 			 *
-			 * -------------------------------------------------- */
-
-			// Links are the only single-line paired-token wikitext-construct
-			// that can be split by html tags and occur anywhere on a line.
-			//
-			//    Ex 1: .. [[ .. <i>..... ]] .. </i> ..
-			//    Ex 2: .. [[ .. <i>..... </i> .. ]] ..
-			//
-			// Headings are the other single-line paired-token wikitext-construct
-			// that can be split by html tags but that are constrained to be
-			// on the extremities.
-			//
-			// So no need to tokenize -- just check for this pattern
-			cl.hasLinkTokenPair = cl.text.match(/(^|[^\[])(\[\[?)([^\[].*[^\]])(\]\]?)([^\]]|$)/);
+			 *    Ex 1: .. [[ .. <i>..... ]] .. </i> ..
+			 *    Ex 2: .. [[ .. <i>..... </i> .. ]] ..
+			 *
+			 * Headings are constrained to be on the extremities
+			 *
+			 *    Ex: = ... <i> ... </i> .. =
+			 *
+			 * So no need to tokenize -- just check for these patterns
+			 *
+			 * NOTE: [[[ ... ]]] does not need escaping, it appears.
+			 * So, the regexp checks for 1 or 2 of those.
+			 * -------------------------------------------------------- */
+			cl.hasTokenPair = cl.text.match(/^=.*=\n*$|(^|[^\[])(\[\[?)([^\[].*[^\]])(\]\]?)([^\]]|$)/);
 			cl.processed = true;
 		}
 
-		if (cl.hasLinkTokenPair) {
-			return escapedText(text);
-		} else {
-			return text;
-		}
+		return cl.hasTokenPair ? escapedText(text) : text;
 	}
 };
 
@@ -1084,8 +1063,7 @@ WSP.tagHandlers = {
 					return "----";
 				}
 			}
-		},
-		wtEscapeHandler: WSP.wteHandlers.hrHandler
+		}
 	},
 	h1: buildHeadingHandler("="),
 	h2: buildHeadingHandler("=="),
@@ -1515,7 +1493,7 @@ WSP._serializeDOM = function( node, state ) {
 				state.currLine = {
 					text: null,
 					processed: false,
-					hasWikitextTokens: false
+					hasTokenPair: false
 				}
 			}
 
