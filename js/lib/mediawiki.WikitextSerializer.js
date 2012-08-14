@@ -585,7 +585,7 @@ WSP._serializeTableTag = function ( symbol, optionalEndSymbol, state, token ) {
 
 WSP._serializeHTMLTag = function ( state, token ) {
 	var close = '';
-	if ( Util.isEmptyTag( token.name ) && !token.dataAttribs.noclose ) {
+	if ( Util.isVoidElement( token.name ) && !token.dataAttribs.noclose ) {
 		close = '/';
 	}
 
@@ -606,7 +606,7 @@ WSP._serializeHTMLEndTag = function ( state, token ) {
 	if ( token.name === 'pre' ) {
 		state.inHTMLPre = false;
 	}
-	if ( ! Util.isEmptyTag( token.name ) ) {
+	if ( ! Util.isVoidElement( token.name ) ) {
 		return '</' + token.name + '>';
 	} else {
 		return '';
