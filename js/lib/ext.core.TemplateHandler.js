@@ -178,7 +178,7 @@ TemplateHandler.prototype._expandTemplate = function ( token, frame, cb, attribs
 /**
  * Process a fetched template source
  */
-TemplateHandler.prototype._processTemplateAndTitle = function( token, frame, cb, name, attribs, src, type ) {
+TemplateHandler.prototype._processTemplateAndTitle = function( token, frame, cb, name, attribs, err, src, type ) {
 	// Get a nested transformation pipeline for the input type. The input
 	// pipeline includes the tokenizer, synchronous stage-1 transforms for
 	// 'text/wiki' input and asynchronous stage-2 transforms).
@@ -309,7 +309,7 @@ TemplateHandler.prototype._fetchTemplateAndTitle = function ( title, parentCB, c
 	var self = this;
 	if ( title in this.manager.env.pageCache ) {
 		// XXX: store type too (and cache tokens/x-mediawiki)
-		cb( self.manager.env.pageCache[title] /* , type */ );
+		cb( null, self.manager.env.pageCache[title] /* , type */ );
 	} else if ( ! this.manager.env.fetchTemplates ) {
 		parentCB(  { tokens: [ 'Warning: Page/template fetching disabled, and no cache for ' +
 				title ] } );

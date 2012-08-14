@@ -41,7 +41,10 @@ console.log( ' - ' + instanceName + ' loading...' );
 var ParserPipelineFactory = require(mp + 'mediawiki.parser.js').ParserPipelineFactory,
 	ParserEnv = require(mp + 'mediawiki.parser.environment.js').MWParserEnvironment,
 	WikitextSerializer = require(mp + 'mediawiki.WikitextSerializer.js').WikitextSerializer,
-	TemplateRequest = require(mp + 'mediawiki.ApiRequest.js').TemplateRequest;
+	libtr = require(mp + 'mediawiki.ApiRequest.js'),
+	DoesNotExistError = libtr.DoesNotExistError,
+	ParserError = libtr.ParserError,
+	TemplateRequest = libtr.TemplateRequest;
 
 var env = new ParserEnv( {
 	// stay within the 'proxied' content, so that we can click around
@@ -313,15 +316,22 @@ var roundTripDiff = function ( req, res, src, document ) {
 			'[[:mw:Talk:Parsoid/Todo]]</a></h2><hr>');
 };
 
-var parse = function ( req, res, cb, src ) {
-	var parser = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
-	parser.on('document', cb.bind( null, req, res, src ) );
-	try {
-		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-		parser.process( src );
-	} catch (e) {
-		console.log( e );
-		res.end( e );
+var parse = function ( req, res, cb, err, src ) {
+	if ( err !== null ) {
+		if ( !err.code ) {
+			err.code = 500;
+		}
+		res.send( err.toString(), err.code );
+	} else {
+		var parser = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
+		parser.on('document', cb.bind( null, req, res, src ) );
+		try {
+			res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+			parser.process( src );
+		} catch (e) {
+			console.log( e );
+			res.end( e );
+		}
 	}
 };
 
