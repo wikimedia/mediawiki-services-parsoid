@@ -136,7 +136,6 @@ QuoteTransformer.prototype.onNewLine = function (  token, frame, prevToken ) {
 		return { token: token };
 	}
 
-
 	//token.rank = this.quoteAndNewlineRank;
 
 	//console.warn('chunks: ' + JSON.stringify( this.chunks, null, 2 ) );
@@ -146,7 +145,8 @@ QuoteTransformer.prototype.onNewLine = function (  token, frame, prevToken ) {
 	if (this.italics.length % 2 && this.bolds.length % 2) {
 		var firstsingleletterword = -1,
 			firstmultiletterword = -1,
-			firstspace = -1;
+			firstspace = -1,
+			lastbold = -1;
 		for (var j = 0; j < this.bolds.length; j++) {
 			var ctx = this.bolds[j][0];
 			var ctxPrevToken = ctx.prevToken;
@@ -188,6 +188,13 @@ QuoteTransformer.prototype.onNewLine = function (  token, frame, prevToken ) {
 			this.convertBold(firstmultiletterword);
 		} else if (firstspace > -1) {
 			this.convertBold(firstspace);
+		} else if ( !this.bolds[0][0].prevToken ) {
+			// In this block, there is no previous token for the first bold,
+			// because the bold token is the first thing in the stream.
+			// In that case, we need to treat that as being the first space,
+			// basically, because the start of the string is basically a
+			// start-of-word.
+			this.convertBold( 0 );
 		}
 	}
 

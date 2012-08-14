@@ -4,6 +4,24 @@
 
 testWhiteList = {};
 
+// Valid, but the PHP parser strips the empty tags out for giggles.
+testWhiteList["Italics and bold: 2-quote opening sequence: (2,5)"] = "<p><i>foo</i><b></b></p>"
+testWhiteList["Italics and bold: 3-quote opening sequence: (3,5)"] = "<p><b>foo<i></i></b></p>";
+testWhiteList["Italics and bold: 4-quote opening sequence: (4,5)"] = "<p>'<b>foo<i></i></b></p>";
+testWhiteList["Italics and bold: multiple quote sequences: (3,4,2)"] = "<p><b>foo'</b>bar<i></i></p>";
+testWhiteList["Italics and bold: multiple quote sequences: (3,4,3)"] = "<p><b>foo'</b>bar<b></b></p>";
+
+// Valid, but the PHP parser reverses the order.
+testWhiteList["Italics and bold: 5-quote opening sequence: (5,2)"] = "<p><i><b>foo</b></i></p>";
+
+// The PHP parser screwed up.
+// It only checks for convert-to-bold-on-single-character-word when the word
+// matches with a bold tag ("'''") that is *odd* in the list of quote tokens.
+// This means that the bold token in position 2 (0-indexed) gets converted by
+// parsoid, but doesn't get changed by the PHP parser.
+// XXX TODO BBQ fix either Parsoid or the PHP parser to not be stupid
+testWhiteList["Italics and bold: other quote tests: (3,2,3,3)"] = "<p><b>this is about <i>foo'</i>s family</b></p>";
+
 // Italic/link nesting is changed in this test, but the rendered result is the
 // same. Currently the result is actually an improvement over the MediaWiki
 // output.
