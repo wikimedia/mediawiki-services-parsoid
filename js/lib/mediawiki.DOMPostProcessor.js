@@ -8,7 +8,8 @@ var events = require('events'),
 var Node = {
 	ELEMENT_NODE: 1,
 	TEXT_NODE: 3,
-	COMMENT_NODE: 8
+	COMMENT_NODE: 8,
+    DOCUMENT_NODE: 9
 };
 
 var isElementContentWhitespace = function ( e ) {
@@ -285,8 +286,8 @@ var process_inlines_in_p = function ( document ) {
 					(inParagraph || !isElementContentWhitespace( child ))) ||
 			(ctype === Node.COMMENT_NODE && inParagraph ) ||
 			(ctype === Node.ELEMENT_NODE &&
-			 ( child.nodeName.toLowerCase() !== 'meta' && // don't wrap meta tags for now..
-				!Util.isBlockTag(child.nodeName.toLowerCase())))
+			  child.nodeName.toLowerCase() !== 'meta' && // don't wrap meta tags for now..
+				!Util.isBlockTag(child.nodeName.toLowerCase()))
 			)
 		{
 
@@ -330,9 +331,7 @@ var remove_trailing_newlines_from_paragraphs = function ( document ) {
 	var cnodes = document.body.childNodes;
 	for( var i = 0; i < cnodes.length; i++ ) {
 		var cnode = cnodes[i];
-		if ( cnode.nodeType === Node.ELEMENT_NODE &&
-				cnode.nodeName.toLowerCase() === 'p' )
-		{
+		if (cnode.nodeName.toLowerCase() === 'p') {
 			//var firstChild = cnode.firstChild,
 			//	leadingNewLines = firstChild.data.match(/[\r\n]+/);
 			//if ( leadingNewLines ) {
@@ -377,30 +376,27 @@ var getDOMRange = function ( startElem, endElem ) {
 	elem = endElem;
 	var parentNode = endElem.parentNode,
 	    firstSibling, lastSibling;
-	while ( true ) {
+	while (parentNode && parentNode.nodeType !== Node.DOCUMENT_NODE) {
 		var i = startAncestors.indexOf( parentNode );
-		if ( i > -1 ) {
-			if ( i > 0 ) {
-				return {
-					'root': parentNode,
-					start: startAncestors[i - 1],
-					end: elem
-				};
-			} else {
-				return {
-					'root': startElem,
-					// widen the scope to include the full subtree
-					start: startElem.firstChild,
-					end: startElem.lastChild
-				};
-			}
+		if (i === 0) {
+			return {
+				'root': startElem,
+				// widen the scope to include the full subtree
+				start: startElem.firstChild,
+				end: startElem.lastChild
+			};
+		} else if ( i > 0) {
+			return {
+				'root': parentNode,
+				start: startAncestors[i - 1],
+				end: elem
+			};
 		}
 		elem = parentNode;
 		parentNode = elem.parentNode;
-		if ( ! parentNode || parentNode.nodeType === parentNode.DOCUMENT_NODE ) {
-			return null;
-		}
 	}
+
+	return null;
 };
 
 /**
@@ -441,22 +437,19 @@ var encapsulateTrees = function ( startElem, endElem, doc ) {
 	}
 };
 
-
 var findTableSibling = function ( elem, about ) {
-	var sibling = elem.nextSibling,
-		tableNode = null;
-	while ( sibling ) {
-		if ( sibling.nodeType === Node.ELEMENT_NODE &&
-				sibling.nodeName.toLowerCase() === 'table' &&
-				sibling.getAttribute('about') === about ) {
-					//console.log( 'tableNode found' + sibling.outerHTML );
-					return sibling;
-				} else {
-					sibling = sibling.nextSibling;
-				}
+	var tableNode = null;
+	elem = elem.nextSibling;
+	while (elem &&
+			(elem.nodeName.toLowerCase() !== 'table' ||
+			 elem.getAttribute('about') !== about))
+	{
+		elem = elem.nextSibling;
 	}
+
+	//if (elem) console.log( 'tableNode found' + elem.outerHTML );
+	return elem;
 };
-	
 
 /**
  * Recursive worker
@@ -471,12 +464,7 @@ var doEncapsulateTemplateOutput = function ( root, tpls, doc ) {
 			if ( match ) {
 				var tm = match[1],
 					about = elem.getAttribute('about'),
-						  aboutRef = null;
-				if ( tpls[about] ) {
-					// content or end marker existed already
-					//console.log( elem.outerHTML );
 					aboutRef = tpls[about];
-				}
 				//console.log( tm );
 				if ( tm === 'mw:Object/Template' ) {
 					if ( aboutRef ) {
@@ -504,6 +492,7 @@ var doEncapsulateTemplateOutput = function ( root, tpls, doc ) {
 						// include the table.
 						// TODO: implement
 						console.warn( 'foster-parented content following!' );
+						aboutRef.end = tableNode;
 						if ( aboutRef && aboutRef.start ) {
 							encapsulateTrees( aboutRef.start, tableNode, doc );
 						} else {
@@ -511,10 +500,8 @@ var doEncapsulateTemplateOutput = function ( root, tpls, doc ) {
 									'by table, but no start marker!');
 						}
 					} else if ( aboutRef ) {
-						// no foster-parenting involved, plain start/end
-						// pair.
-						// Walk up the DOM to find common parent with
-						// start tag.
+						// no foster-parenting involved, plain start/end pair.
+						// Walk up the DOM to find common parent with start tag.
 						aboutRef.end = elem;
 
 						encapsulateTrees( aboutRef.start, aboutRef.end, doc );
@@ -539,7 +526,7 @@ var doEncapsulateTemplateOutput = function ( root, tpls, doc ) {
  * http://www.mediawiki.org/wiki/Parsoid/RDFa_vocabulary#Template_content
  */
 var encapsulateTemplateOutput = function ( document ) {
-	// walk through document and look for tags with typeof="mw:_*"
+	// walk through document and look for tags with typeof="mw:Object*"
 	var tpls = {};
 	doEncapsulateTemplateOutput( document.body, tpls, document );
 };

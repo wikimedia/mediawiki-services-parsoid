@@ -26,7 +26,7 @@ Tracer.prototype = {
 		}
 	},
 
-	processToken: function(token, compact) {
+	traceToken: function(token, compact) {
 		if (compact === undefined) compact = true;
 		if (this.env.trace) {
 			console.warn("T: " + token.toString(compact));

@@ -262,7 +262,7 @@ AsyncTokenTransformManager.prototype.emitChunk = function( ret ) {
 
 	if ( ! ret.async ) {
 		this.emit('end');
-		// NOTE: This is a dummy return.  We are entering async mode and
+		// NOTE: This is a dummy return.  We are exiting async mode and
 		// there is no caller waiting to consume this return value.
 		// This is present here for parity with the return on the other branch
 		// and not confuse anyone wondering if there is a missing return here.
@@ -434,7 +434,7 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 			}
 		}
 
-		this.env.tracer.processToken(token);
+		this.env.tracer.traceToken(token);
 
 		var ts = this._getTransforms( token, minRank );
 
@@ -459,25 +459,24 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 				// maybeSyncReturn callback
 				if ( resTokens && resTokens.length ) {
 					if ( resTokens.length === 1 ) {
-						if ( resTokens[0] === undefined ) {
+						var soleToken = resTokens[0];
+						if ( soleToken === undefined ) {
 							console.warn('transformer ' + transformer.rank +
 									' returned undefined token!');
 							resTokens.shift();
 							break;
 						}
-						if ( token === resTokens[0] && ! resTokens.rank ) {
-							// token not modified, continue with
-							// transforms.
-							token = resTokens[0];
+						if ( token === soleToken && ! resTokens.rank ) {
+							// token not modified, continue with transforms.
 							continue;
 						} else if (
 							resTokens.rank === this.phaseEndRank ||
-							( resTokens[0].constructor === String &&
+							( soleToken.constructor === String &&
 								! this.tokenTransformers.text ) )
 						{
 							// Fast path for text token, and nothing to do for it
 							// Abort processing, but treat token as done.
-							token = resTokens[0];
+							token = soleToken;
 							break;
 						}
 					}
@@ -687,20 +686,17 @@ SyncTokenTransformManager.prototype.process = function ( tokens ) {
 SyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 	this.env.tracer.startPass("onChunk (Sync:" + this.attributeType + ")");
 	this.env.dp( 'SyncTokenTransformManager.onChunk, input: ', tokens );
-	var res,
-		localAccum = [],
-		localAccumLength = 0,
+
+	var localAccum = [],
 		workStack = [], // stack of stacks of tokens returned from transforms
 						// to process before consuming the next input token
-		token,
-		// Top-level frame only in phase 3, as everything is already expanded.
-		ts, transformer,
-		aborted, minRank;
+		i = 0,
+		l = tokens.length;
 
-	for ( var i = 0, l = tokens.length; i < l || workStack.length; i++ ) {
-		aborted = false;
+	while (i < l || workStack.length > 0) {
+		var token, minRank;
+
 		if ( workStack.length ) {
-			i--;
 			var curChunk = workStack[workStack.length - 1];
 			minRank = curChunk.rank || tokens.rank || this.phaseEndRank - 1;
 			token = curChunk.pop();
@@ -711,33 +707,34 @@ SyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 		} else {
 			token = tokens[i];
 			minRank = tokens.rank || this.phaseEndRank - 1;
+			i++;
 		}
 
-		this.env.tracer.processToken(token);
+		this.env.tracer.traceToken(token);
 
-		res = { token: token };
+		var transformer,
+			ts = this._getTransforms( token, minRank ),
+			res = { token: token };
 
-		ts = this._getTransforms( token, minRank );
 		//this.env.dp( 'sync tok:', minRank, token.rank, token, ts );
-		for (var j = 0, lts = ts.length; j < lts; j++ ) {
+
+		// Push the token through the transformations till it morphs
+		var j = 0, numTransforms = ts.length;
+		while (j < numTransforms && (token === res.token)) {
 			transformer = ts[j];
 			// Transform the token.
 			res = transformer.transform( token, this, this.prevToken );
 			//this.env.dp( 'sync res0:', res );
-			if ( res.token !== token ) {
-				aborted = true;
-				if ( res.token ) {
-					res.tokens = [res.token];
-					delete res.token;
-				}
-				break;
-			}
-			token = res.token;
+			j++;
+		}
+
+		if ( res.token && res.token !== token ) {
+			res = { tokens: [res.token] };
 		}
 
 		//this.env.dp( 'sync res:', res );
 
-		if( res.tokens && res.tokens.length ) {
+		if ( res.tokens && res.tokens.length ) {
 			// Splice in the returned tokens (while replacing the original
 			// token), and process them next.
 			var revTokens = res.tokens.slice();
@@ -751,6 +748,7 @@ SyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 			this.prevToken = token;
 		}
 	}
+
 	localAccum.rank = this.phaseEndRank;
 	localAccum.cache = tokens.cache;
 	this.env.dp( 'SyncTokenTransformManager.onChunk: emitting ', localAccum );
@@ -1072,7 +1070,7 @@ TokenAccumulator.prototype._returnTokens = function ( reference, ret ) {
 		//this.manager.env.dp( 'TokenAccumulator._returnTokens child: ',
 		//		tokens, ' outstanding: ', this.outstanding );
 		ret.tokens.rank = this.manager.phaseEndRank;
-		ret.async = this.outstanding;
+		ret.async = this.outstanding > 0;
 
 		this._callParentCB( ret );
 
