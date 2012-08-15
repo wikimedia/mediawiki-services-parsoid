@@ -768,6 +768,7 @@ SyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 SyncTokenTransformManager.prototype.onEndEvent = function () {
 	// This phase is fully synchronous, so just pass the end along and prepare
 	// for the next round.
+	this.prevToken = null;
 	this.emit('end');
 };
 
