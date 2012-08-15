@@ -88,9 +88,16 @@ MWParserEnvironment.prototype.setPageName = function ( pageName ) {
 	this.relativeLinkPrefix = '';
 	var slashMatches = this.pageName.match(/\//g),
 		numSlashes = slashMatches ? slashMatches.length : 0;
-	while ( numSlashes ) {
-		this.relativeLinkPrefix += '../';
-		numSlashes--;
+	if ( numSlashes ) {
+		while ( numSlashes ) {
+			this.relativeLinkPrefix += '../';
+			numSlashes--;
+		}
+	} else {
+		// Always prefix a ./ so that we don't have to escape colons. Those
+		// would otherwise fool browsers into treating namespaces as
+		// protocols.
+		this.relativeLinkPrefix = './';
 	}
 };
 

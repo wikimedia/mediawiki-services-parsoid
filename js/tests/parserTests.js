@@ -335,7 +335,7 @@ ParserTests.prototype.normalizeOut = function ( out ) {
 		.replace(/<!--.*?-->\n?/gm, '')
 		.replace(/<\/?meta[^>]*>/g, '')
 		.replace(/<span[^>]+about="[^]+>/g, '')
-		.replace(/href="(?:\.\.\/)+/g, 'href="');
+		.replace(/href="(?:\.?\.\/)+/g, 'href="');
 };
 
 ParserTests.prototype.formatHTML = function ( source ) {
