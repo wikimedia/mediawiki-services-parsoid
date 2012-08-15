@@ -11,15 +11,9 @@ CXXFLAGS += \
 	-g \
 	-I$(PREFIX)/include
 
-LIBS = \
-    -lstdc++ \
-    -L$(PREFIX)/lib \
-    -Wl,-Bstatic \
-    -lhubbub \
-    -ljson \
-    -Wl,-Bdynamic \
-
 LIB_STATIC = libparsoid.a
+
+.DEFAULT_GOAL = all
 
 .PHONY: \
 	all \
@@ -34,10 +28,9 @@ $(LIB_STATIC): $(OBJS)
 	$(AR) $(ARFLAGS) $@ $^
 
 install: all
-	cp $(LIB_STATIC) $(PREFIX)/lib
+	install $(LIB_STATIC) $(PREFIX)/lib
+	mkdir -p $(PREFIX)/include/libparsoid
+	install *.h $(PREFIX)/include/libparsoid
 
 clean:
-	rm -f $(LIB_STATIC) $(OBJS) test test.o
-
-test: install test.o all
-	$(CXX) -o $@ $(LIBS) -lparsoid $(OBJS) test.o
+	rm -f $(LIB_STATIC) $(OBJS)
