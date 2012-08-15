@@ -87,6 +87,23 @@ TemplateHandler.prototype._nameArgs = function ( attribs ) {
 };
 
 /**
+ * Parser functions also need template wrapping
+ */
+TemplateHandler.prototype._parserFunctionsWrapper = function(cb, ret) {
+	if (!ret) {
+		cb();
+	} else {
+		if (ret.tokens) {
+			this._onChunk(cb, ret.tokens);
+		}
+		if (!ret.async) {
+			// Now, ready to finish up 
+			this._onEnd(cb);
+		}
+	}
+};
+
+/**
  * Fetch, tokenize and token-transform a template after all arguments and the
  * target were expanded.
  */
@@ -129,8 +146,8 @@ TemplateHandler.prototype._expandTemplate = function ( token, frame, cb, attribs
 		//		'funcArg:', funcArg
 		//		);
 		env.dp( 'entering prefix', target, token  );
-		this.parserFunctions[ 'pf_' + prefix ]
-			( token, this.manager.frame, cb, pfAttribs );
+		var newCB = this._parserFunctionsWrapper.bind(this, cb);
+		this.parserFunctions['pf_' + prefix](token, this.manager.frame, newCB, pfAttribs);
 		return;
 	}
 	env.tp( 'template target: ' + target );
@@ -225,7 +242,7 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( chunk ) {
 				// Wrap in span with info
 				return [ new TagTk( 'span',
 							[
-								new KV('typeof', 'mw:Template'),
+								new KV('typeof', 'mw:Object/Template'),
 								new KV('about', '#' + this.uid),
 								new KV('id', this.uid)
 							]
@@ -234,7 +251,7 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( chunk ) {
 			} else if ( firstToken.constructor === TagTk ) {
 				// Add the info on the existing token
 				// XXX: handle id/about conflicts
-				firstToken.addSpaceSeparatedAttribute( 'typeof', 'mw:Template' );
+				firstToken.addSpaceSeparatedAttribute( 'typeof', 'mw:Object/Template' );
 				firstToken.setAttribute( 'about', '#' + this.uid );
 				firstToken.setAttribute( 'id', this.uid );
 

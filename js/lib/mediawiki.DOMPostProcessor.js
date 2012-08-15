@@ -279,18 +279,27 @@ var process_inlines_in_p = function ( document ) {
 		inParagraph = false,
 		deleted = 0;
 
-	for(var i = 0, length = cnodes.length; i < length; i++) {
+	for (var i = 0, length = cnodes.length; i < length; i++) {
 		var child = cnodes[i - deleted],
 			ctype = child.nodeType;
-		if ((ctype === Node.TEXT_NODE &&
-					(inParagraph || !isElementContentWhitespace( child ))) ||
-			(ctype === Node.COMMENT_NODE && inParagraph ) ||
-			(ctype === Node.ELEMENT_NODE &&
-			  child.nodeName.toLowerCase() !== 'meta' && // don't wrap meta tags for now..
-				!Util.isBlockTag(child.nodeName.toLowerCase()))
-			)
-		{
 
+		// If we have a P-node from our immediate sibling, continue accumulating
+		//   - if we have a text node, comment node, or an inline tag
+		//   - if not, stop!
+		// If we dont have a P-node from our sibling, create one if we have
+		//   - non-white space text
+		//   - an inline tag that is not a meta
+		//   For the text node, strip leading newlines and add it as
+		//   a new text node outside the paragraph.
+
+		if ((ctype === Node.TEXT_NODE &&
+				(inParagraph || !isElementContentWhitespace( child ))) ||
+			(ctype === Node.ELEMENT_NODE &&
+				!Util.isBlockTag(child.nodeName.toLowerCase()) &&
+				(inParagraph || child.nodeName.toLowerCase() !== 'meta')) ||
+			(ctype === Node.COMMENT_NODE &&
+				inParagraph ))
+		{
 			if ( ctype === Node.TEXT_NODE && !inParagraph ) {
 				var leadingNewLines = child.data.match(/^[\r\n]+/);
 				if ( leadingNewLines ) {
