@@ -110,6 +110,19 @@ var textarea = function ( res, content ) {
 	res.write('</textarea><br><input type="submit"></form>');
 };
 
+
+/**
+ * Set up environment defaults for the default wiki
+ */
+function setDefaultWiki ( config, env ) {
+	var interwiki = 'en';
+	if ( config && config.defaultInterwiki ) {
+		interwiki = config.defaultInterwiki;
+	}
+	env.wgScript = env.interwikiMap[interwiki];
+}
+
+
 /**
  * robots.txt: no indexing.
  */
@@ -143,6 +156,7 @@ app.get(/\/_html\/(.*)/, function ( req, res ) {
 });
 app.post(/\/_html\/(.*)/, function ( req, res ) {
 	env.setPageName( req.params[0] );
+	setDefaultWiki( config, env );
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 	var p = new html5.Parser();
 	p.parse( '<html><body>' + req.body.content.replace(/\r/g, '') + '</body></html>' );
@@ -170,6 +184,7 @@ app.get(/\/_wikitext\/(.*)/, function ( req, res ) {
 });
 app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
 	env.setPageName( req.params[0] );
+	setDefaultWiki( config, env );
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 	var parser = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
 	parser.on('document', function ( document ) {
