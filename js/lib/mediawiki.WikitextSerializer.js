@@ -1432,7 +1432,7 @@ WSP.serializeDOM = function( node, chunkCB ) {
 			this._serializeToken( state, new EOFTk() );
 		}
 	} catch (e) {
-		console.warn(e.stack);
+		console.log(e.stack);
 	}
 };
 

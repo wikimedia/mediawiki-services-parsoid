@@ -258,7 +258,6 @@ function minimize_inline_tags(root, rewriteable_nodes) {
 	try {
 		rewrite(root);
 	} catch (e) {
-		console.log("------- error errrror errrrrror! ----------");
 		console.log(e.stack);
 	}
 }
@@ -559,7 +558,7 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 		try {
 			this.processors[i](document);
 		} catch ( e ) {
-			console.warn( e );
+			console.log(e.stack);
 		}
 	}
 	this.emit( 'document', document );
