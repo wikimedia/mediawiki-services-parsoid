@@ -1257,7 +1257,7 @@ Frame.prototype.expand = function ( chunk, options ) {
 		}
 		var pipeline = this.manager.pipeFactory.getPipeline(
 				// XXX: use input type
-				this.manager.attributeType || 'tokens/x-mediawiki', true
+				this.manager.attributeType || 'tokens/x-mediawiki', this.depth > 0
 				);
 		pipeline.setFrame( this, null );
 		// In the name of interface simplicity, we accumulate all emitted
