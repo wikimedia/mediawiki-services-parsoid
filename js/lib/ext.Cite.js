@@ -7,7 +7,7 @@ var TokenCollector = require( './ext.util.TokenCollector.js' ).TokenCollector;
  * @class
  * @constructor
  */
-function Cite ( manager, isInclude ) {
+function Cite ( manager, options ) {
 	this.manager = manager;
 	this.refGroups = {};
 	// Set up the collector for ref sections

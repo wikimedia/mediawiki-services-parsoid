@@ -18,11 +18,13 @@ var events = require('events'),
 	TemplateRequest = require('./mediawiki.ApiRequest.js').TemplateRequest,
 	Util = require('./mediawiki.Util.js').Util;
 
-function TemplateHandler ( manager ) {
+function TemplateHandler ( manager, options ) {
 	this.uid = null;
 	this.emittedFirstChunk = false;
 	this.register( manager );
 	this.parserFunctions = new ParserFunctions( manager );
+	this.wrapTemplates = options.wrapTemplates;
+	this.recordTemplateSource = options.recordTemplateSource;
 }
 
 // constants
@@ -40,7 +42,6 @@ TemplateHandler.prototype.register = function ( manager ) {
 
 };
 
-
 /**
  * Main template token handler
  *
@@ -52,13 +53,10 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 	//console.warn('onTemplate! ' + JSON.stringify( token, null, 2 ) +
 	//		' args: ' + JSON.stringify( this.manager.args ));
 
+	this.uid = this.wrapTemplates ? 'mwt' + this.manager.env.generateUID() : null;
+
 	// expand argument keys, with callback set to next processing step
 	// XXX: would likely be faster to do this in a tight loop here
-	if ( frame.depth === 0 ) {
-		this.uid = 'mwt' + this.manager.env.generateUID();
-	} else {
-		this.uid = null;
-	}
 	var atm = new AttributeTransformManager(
 				this.manager,
 				this._expandTemplate.bind( this, token, frame, cb )
@@ -186,7 +184,6 @@ TemplateHandler.prototype._expandTemplate = function ( token, frame, cb, attribs
 		);
 };
 
-
 /**
  * Process a fetched template source
  */
@@ -194,8 +191,16 @@ TemplateHandler.prototype._processTemplateAndTitle = function( token, frame, cb,
 	// Get a nested transformation pipeline for the input type. The input
 	// pipeline includes the tokenizer, synchronous stage-1 transforms for
 	// 'text/wiki' input and asynchronous stage-2 transforms).
+	//
+	// NOTE: No template wrapping required for nested templates.
+	// Neither is it necessary to track template sources for nested template uses.
+	var pipelineOpts = {
+		isInclude: true,
+		recordTemplateSource: false,
+		wrapTemplates: false
+	}
 	var pipeline = this.manager.pipeFactory.getPipeline(
-				type || 'text/x-mediawiki', true
+				type || 'text/x-mediawiki', pipelineOpts
 			);
 
 	pipeline.setFrame( this.manager.frame, name, attribs );
@@ -218,7 +223,6 @@ TemplateHandler.prototype.addAboutToTableElements = function ( tokens ) {
 	}
 	return tokens;
 };
-
 
 TemplateHandler.prototype.addEncapsulationInfo = function ( chunk ) {
 	// TODO
@@ -278,7 +282,7 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( chunk ) {
  */
 TemplateHandler.prototype._onChunk = function( cb, chunk ) {
 	chunk = Util.stripEOFTkfromTokens( chunk );
-	if ( this.uid !== null ) {
+	if (this.wrapTemplates) {
 		if ( ! this.emittedFirstChunk ) {
 			chunk = this.addEncapsulationInfo( chunk );
 			this.emittedFirstChunk = true;
@@ -296,7 +300,7 @@ TemplateHandler.prototype._onChunk = function( cb, chunk ) {
  */
 TemplateHandler.prototype._onEnd = function( cb ) {
 	this.manager.env.dp( 'TemplateHandler._onEnd' );
-	if ( this.uid !== null ) {
+	if (this.wrapTemplates) {
 		var res = { tokens: [
 			new SelfclosingTagTk( 'meta',
 				[
@@ -337,7 +341,7 @@ TemplateHandler.prototype._fetchTemplateAndTitle = function ( title, parentCB, c
 		}
 		// Append a listener to the request at the toplevel, but prepend at
 		// lower levels to enforce depth-first processing
-		if ( false && this.manager.isInclude ) {
+		if ( false && this.manager.options.isInclude ) {
 			// prepend request: deal with requests from includes first
 			env.requestQueue[title].listeners( 'src' ).unshift( cb );
 		} else {

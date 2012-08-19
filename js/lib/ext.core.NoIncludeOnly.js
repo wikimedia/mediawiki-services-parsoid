@@ -13,9 +13,9 @@ var TokenCollector = require( './ext.util.TokenCollector.js' ).TokenCollector;
  * This can fortunately be worked around by caching the tokens after
  * onlyinclude processing (which is a good idea anyway).
  */
-function OnlyInclude( manager, isInclude ) {
+function OnlyInclude( manager, options ) {
 	this.manager = manager;
-	if ( isInclude ) {
+	if ( options.isInclude ) {
 		this.accum = [];
 		this.inOnlyInclude = false;
 		this.foundOnlyInclude = false;
@@ -84,11 +84,11 @@ OnlyInclude.prototype.onAnyInclude = function ( token, manager ) {
 };
 
 
-function NoInclude( manager, isInclude ) {
+function NoInclude( manager, options ) {
 	new TokenCollector( 
 			manager,
 			function ( tokens ) { 
-				if ( isInclude ) {
+				if ( options.isInclude ) {
 					//manager.env.tp( 'noinclude stripping' );
 					return {};
 				} else {
@@ -109,11 +109,11 @@ function NoInclude( manager, isInclude ) {
 
 // XXX: Preserve includeonly content in meta tag (data attribute) for
 // round-tripping!
-function IncludeOnly( manager, isInclude ) {
+function IncludeOnly( manager, options ) {
 	new TokenCollector( 
 			manager,
 			function ( tokens ) { 
-				if ( isInclude ) {
+				if ( options.isInclude ) {
 					tokens.shift();
 					if ( tokens.length &&
 						tokens[tokens.length - 1].constructor !== EOFTk ) {

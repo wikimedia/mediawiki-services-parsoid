@@ -29,7 +29,7 @@ var events = require('events'),
  * @param {Function} callback, a callback function accepting a token list as
  * its only argument.
  */
-function TokenTransformManager( env, isInclude, pipeFactory, phaseEndRank, attributeType ) {
+function TokenTransformManager( env, options, pipeFactory, phaseEndRank, attributeType ) {
 	// Separate the constructor, so that we can call it from subclasses.
 	this._construct();
 }
@@ -212,9 +212,9 @@ TokenTransformManager.prototype._getTransforms = function ( token, minRank ) {
  * @class
  * @constructor
  */
-function AsyncTokenTransformManager ( env, isInclude, pipeFactory, phaseEndRank, attributeType ) {
+function AsyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, attributeType ) {
 	this.env = env;
-	this.isInclude = isInclude;
+	this.options = options.isInclude;
 	this.pipeFactory = pipeFactory;
 	this.phaseEndRank = phaseEndRank;
 	this.attributeType = attributeType;
@@ -653,9 +653,9 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
  * @constructor
  * @param {Object} environment.
  */
-function SyncTokenTransformManager ( env, isInclude, pipeFactory, phaseEndRank, attributeType ) {
+function SyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, attributeType ) {
 	this.env = env;
-	this.isInclude = isInclude;
+	this.options = options.isInclude;
 	this.pipeFactory = pipeFactory;
 	this.phaseEndRank = phaseEndRank;
 	this.attributeType = attributeType;
@@ -812,13 +812,11 @@ AttributeTransformManager.prototype.process = function ( attributes ) {
 	for ( var i = 0, l = attributes.length; i < l; i++ ) {
 		var cur = attributes[i];
 
-
 		// fast path for string-only attributes
 		if ( cur.k.constructor === String && cur.v.constructor === String ) {
 			this.kvs.push( cur );
 			continue;
 		}
-
 
 		var kv = new KV( [], [] );
 		this.kvs.push( kv );
@@ -830,6 +828,7 @@ AttributeTransformManager.prototype.process = function ( attributes ) {
 			// transform the value
 			this.frame.expand( cur.v,
 					{
+						maybeHTMLAttr: cur.k, // truthy value
 						type: this._toType,
 						cb: this._returnAttributeValue.bind( this, i )
 					} );
@@ -844,6 +843,7 @@ AttributeTransformManager.prototype.process = function ( attributes ) {
 			// transform the key
 			this.frame.expand( cur.k,
 					{
+						maybeHTMLAttr: true,
 						type: this._toType,
 						cb: this._returnAttributeKey.bind( this, i )
 					} );
@@ -897,6 +897,7 @@ AttributeTransformManager.prototype.processKeys = function ( attributes ) {
 			// transform the key
 			this.frame.expand( cur.k,
 					{
+						maybeHTMLAttr: true,
 						type: this._toType,
 						cb: this._returnAttributeKey.bind( this, i )
 					} );
@@ -940,6 +941,7 @@ AttributeTransformManager.prototype.processValues = function ( attributes ) {
 			// transform the value
 			this.frame.expand( cur.v,
 					{
+						maybeHTMLAttr: cur.k, // truthy value
 						type: this._toType,
 						cb: this._returnAttributeValue.bind( this, i )
 					} );
@@ -959,8 +961,7 @@ AttributeTransformManager.prototype.processValues = function ( attributes ) {
  */
 AttributeTransformManager.prototype._returnAttributeValue = function ( ref, tokens ) {
 	this.manager.env.dp( 'check _returnAttributeValue: ', ref,  tokens );
-	this.kvs[ref].v = tokens;
-	this.kvs[ref].v = Util.stripEOFTkfromTokens( this.kvs[ref].v );
+	this.kvs[ref].v = Util.stripEOFTkfromTokens( tokens );
 	this.outstanding--;
 	if ( this.outstanding === 0 ) {
 		this.callback( this.kvs );
@@ -1255,9 +1256,19 @@ Frame.prototype.expand = function ( chunk, options ) {
 			// Signal (potentially) asynchronous expansion to parent.
 			options.asyncCB( );
 		}
+
+		// Dont wrap templates we encounter downstream because we are expanding an attribute
+		// But, if we are at the top level (depth 0), record the template source so we
+		// can set up appropriate meta tags.
+		var pipelineOpts = {
+			isInclude: this.depth > 0,
+			wrapTemplates: this.depth === 0 && !options.maybeHTMLAttr,
+			recordTemplateSource: this.depth === 0
+		}
+
 		var pipeline = this.manager.pipeFactory.getPipeline(
 				// XXX: use input type
-				this.manager.attributeType || 'tokens/x-mediawiki', this.depth > 0
+				this.manager.attributeType || 'tokens/x-mediawiki', pipelineOpts
 				);
 		pipeline.setFrame( this, null );
 		// In the name of interface simplicity, we accumulate all emitted

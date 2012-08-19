@@ -171,10 +171,39 @@ ParserPipelineFactory.prototype.recipes = {
 	]
 };
 
+// SSS FIXME: maybe there is some built-in method for this already?
+// Default options processing
+ParserPipelineFactory.prototype.defaultOptions = function(options) {
+	if (!options) {
+		options = {};
+	}
+
+	// default: not an include context
+	if (options.isInclude === undefined) {
+		options.isInclude = false;
+	}
+
+	// default: wrap templates
+	if (options.wrapTemplates === undefined) {
+		options.wrapTemplates = true;
+	}
+
+	// default: no need to record template source
+	// at the top level since we are wrapping
+	if (options.recordTemplateSource === undefined) {
+		options.recordTemplateSource = false;
+	}
+
+	return options;
+};
+
 /**
  * Generic pipeline creation from the above recipes
  */
-ParserPipelineFactory.prototype.makePipeline = function( type, isInclude, cacheType ) {
+ParserPipelineFactory.prototype.makePipeline = function( type, options ) {
+	// SSS FIXME: maybe there is some built-in method for this already?
+	options = this.defaultOptions(options);
+
 	var recipe = this.recipes[type];
 	if ( ! recipe ) {
 		console.trace();
@@ -188,16 +217,19 @@ ParserPipelineFactory.prototype.makePipeline = function( type, isInclude, cacheT
 		
 		if ( stageData.constructor === String ) {
 			// Points to another subpipeline, get it recursively
-			stage = this.makePipeline( stageData, isInclude );
+			// Clone options object and clear cache type 
+			var newOpts = $.extend({}, options);
+			newOpts.cacheType = null;
+			stage = this.makePipeline( stageData, newOpts);
 		} else {
 			stage = Object.create( stageData[0].prototype );
 			// call the constructor
-			stageData[0].apply( stage, [ this.env, isInclude, this ].concat( stageData[1] ) );
+			stageData[0].apply( stage, [ this.env, options, this ].concat( stageData[1] ) );
 			if ( stageData.length >= 3 ) {
 				// Create (and implicitly register) transforms
 				var transforms = stageData[2];
 				for ( var t = 0; t < transforms.length; t++ ) {
-					new transforms[t](stage , isInclude);
+					new transforms[t](stage , options);
 				}
 			}
 		}
@@ -212,26 +244,41 @@ ParserPipelineFactory.prototype.makePipeline = function( type, isInclude, cacheT
 	return new ParserPipeline( 
 			stages[0],
 			stages[stages.length - 1],
-			cacheType ? this.returnPipeline.bind( this, cacheType )
+			options.cacheType ? this.returnPipeline.bind( this, options.cacheType )
 						: null
 			);
 };
+
+function getCacheKey(cacheType, options) {
+	if ( ! options.isInclude ) {
+		cacheType += '::noInclude';
+	}
+	if ( ! options.wrapTemplates ) {
+		cacheType += '::noWrap';
+	}
+	if ( ! options.recordTemplateSource ) {
+		cacheType += '::noRTS';
+	}
+	return cacheType;
+}
 
 /**
  * Get a subpipeline (not the top-level one) of a given type.
  *
  * Subpipelines are cached as they are frequently created.
  */
-ParserPipelineFactory.prototype.getPipeline = function ( type, isInclude ) {
-	// default to include
-	if ( isInclude === undefined ) {
-		isInclude = true;
+ParserPipelineFactory.prototype.getPipeline = function ( type, options ) {
+	if (!options) {
+		options = {};
 	}
+
+	if ( options.isInclude === undefined ) {
+		// default to include
+		options.isInclude = true;
+	}
+
 	var pipe, 
-		cacheType = type;
-	if ( ! isInclude ) {
-		cacheType += '::noInclude';
-	}
+		cacheType = getCacheKey(type, options);
 	if ( ! this.pipelineCache[cacheType] ) {
 		this.pipelineCache[cacheType] = [];
 	}
@@ -239,7 +286,8 @@ ParserPipelineFactory.prototype.getPipeline = function ( type, isInclude ) {
 		//console.warn( JSON.stringify( this.pipelineCache[cacheType] ));
 		return this.pipelineCache[cacheType].pop();
 	} else {
-		return this.makePipeline( type, isInclude, cacheType );
+		options.cacheType = cacheType;
+		return this.makePipeline( type, options );
 	}
 };
 

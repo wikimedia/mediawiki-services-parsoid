@@ -1,7 +1,7 @@
 /**
  */
 
-function BehaviorSwitchHandler( manager, isInclude ) {
+function BehaviorSwitchHandler( manager, options ) {
 	this.manager = manager;
 	this.manager.addTransform( this.onBehaviorSwitch.bind( this ), "BehaviorSwitchHandler:onBehaviorSwitch", this.rank, 'tag', 'behavior-switch' );
 }

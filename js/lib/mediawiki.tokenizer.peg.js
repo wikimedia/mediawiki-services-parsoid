@@ -74,7 +74,7 @@ PegTokenizer.prototype.process = function( text, cacheKey ) {
 		// Also, while we are at it, create a tokenizer cache.
 		PegTokenizer.prototype.cache = LRU(25);
 	}
-	if ( this.canCache ) {
+	if ( this.canCache && cacheKey ) {
 		var maybeCached = this.cache.get(cacheKey);
 		if ( maybeCached ) {
 			this.env.tp( 'tokenizer cache hit for ' + cacheKey );
@@ -97,7 +97,7 @@ PegTokenizer.prototype.process = function( text, cacheKey ) {
 	//}
 
 	var chunkCB;
-	if ( this.canCache ) {
+	if ( this.canCache && cacheKey ) {
 		chunkCB = this.onCacheChunk.bind( this );
 	} else {
 		chunkCB = this.emit.bind( this, 'chunk' );
@@ -138,7 +138,7 @@ PegTokenizer.prototype.onCacheChunk = function ( chunk ) {
 };
 
 PegTokenizer.prototype.onEnd = function ( ) {
-	if ( this.canCache ) {
+	if ( this.canCache && this.cacheAccum.key) {
 		this.cache.set(this.cacheAccum.key, this.cacheAccum.chunks);
 		// reset cacheAccum
 		this.cacheAccum = { chunks: [] };

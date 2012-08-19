@@ -12,7 +12,7 @@ var jshashes = require('jshashes'),
 	WikitextConstants = require('./mediawiki.wikitext.constants.js').WikitextConstants,
 	Util = require('./mediawiki.Util.js').Util;
 
-function WikiLinkHandler( manager, isInclude ) {
+function WikiLinkHandler( manager, options ) {
 	this.manager = manager;
 	this.manager.addTransform( this.onWikiLink.bind( this ), "WikiLinkHandler:onWikiLink", this.rank, 'tag', 'wikilink' );
 	// create a new peg parser for image options..
@@ -332,7 +332,7 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 };
 
 
-function ExternalLinkHandler( manager, isInclude ) {
+function ExternalLinkHandler( manager, options ) {
 	this.manager = manager;
 	this.manager.addTransform( this.onUrlLink.bind( this ), "ExternalLinkHandler:onUrlLink", this.rank, 'tag', 'urllink' );
 	this.manager.addTransform( this.onExtLink.bind( this ), "ExternalLinkHandler:onExtLink",  
