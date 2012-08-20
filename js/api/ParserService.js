@@ -424,7 +424,7 @@ app.post(/\/_rtform\/(.*)/, function ( req, res ) {
 	env.setPageName ( req.params[0] );
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 	// we don't care about \r, and normalize everything to \n
-	parse( req, res, roundTripDiff, req.body.content.replace(/\r/g, ''));
+	parse( req, res, roundTripDiff, null, req.body.content.replace(/\r/g, ''));
 });
 
 /**
