@@ -10,3 +10,6 @@
 [submodule "cpp/contrib/netsurf/libparserutils"]
 	path = cpp/contrib/netsurf/libparserutils
 	url = git://git.netsurf-browser.org/libparserutils.git
+[submodule "cpp/contrib/folly"]
+	path = cpp/contrib/folly
+	url = git://github.com/facebook/folly.git
