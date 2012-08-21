@@ -84,22 +84,6 @@ var Util = {
 		}
 	},
 
-	kvTokensToString: function(tokens) {
-		if (!$.isArray(tokens)) {
-			return tokens;
-		} else {
-			// Ignore everything but strings
-			var out = [];
-			for (var i = 0, l = tokens.length; i < l; i++ ) {
-				var token = tokens[i];
-				if (token && token.constructor === String) {
-					out.push(token);
-				}
-			}
-			return out.join('');
-		}
-	},
-
 	toStringTokens: function(tokens, indent) {
 		if (!indent) indent = "";
 		if (tokens.constructor !== Array) {
@@ -122,7 +106,7 @@ var Util = {
 		var kv;
 		for ( var i = 0, l = kvs.length; i < l; i++ ) {
 			kv = kvs[i];
-			if ( kv.k.trim() === key ) {
+			if ( kv.k.constructor === String && kv.k.trim() === key ) {
 				// found, return it.
 				return kv;
 			}

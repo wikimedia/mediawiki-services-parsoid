@@ -25,34 +25,82 @@ function WikiLinkHandler( manager, options ) {
 
 WikiLinkHandler.prototype.rank = 1.15; // after AttributeExpander
 
+/* ------------------------------------------------------------
+ * This (overloaded) function does three different things:
+ * - Extracts link text from attrs (when k === "").
+ *   As a performance micro-opt, only does if asked to (getLinkText)
+ * - Updates existing rdfa type with an additional rdf-type,
+ *   if one is provided (rdfaType)
+ * - Collates about, typeof, and linkAttrs into a new attr. array
+ * ------------------------------------------------------------ */
+function buildLinkAttrs(attrs, getLinkText, rdfaType, linkAttrs) {
+	var newAttrs = [];
+	var linkText = [];
+	var about;
+
+	// In one pass through the attribute array, 
+	// fetch about, typeof, and linkText
+	//
+	// about && typeof are usually at the end of the array
+	// if at all present
+	for ( var i = 0, l = attrs.length; i < l; i++ ) {
+		var kv = attrs[i];
+		var k  = kv.k;
+		var v  = kv.v;
+
+		// link-text attrs have empty keys
+		if (getLinkText && k === "") {
+			linkText.push(kv);
+		} else if (k.constructor === String && k) {
+			if (k.trim() === "typeof") {
+				rdfaType = rdfaType ? rdfaType + " " + v : v;
+			} else if (k.trim() === "about") {
+				about = v;
+			}
+		}
+	}
+
+	if (rdfaType) {
+		newAttrs.push(new KV( 'typeof', rdfaType ));
+	}
+
+	if (about) {
+		newAttrs.push(new KV('about', about));
+	}
+
+	if (linkAttrs) {
+		[].push.apply(newAttrs, linkAttrs);
+	}
+
+	return {
+		attribs: newAttrs,
+		content: linkText,
+		hasRdfaType: rdfaType !== null
+	};
+}
+
+// SSS FIXME: the attr called content should probably be called link-text?
+
 WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
+
 	var env = this.manager.env,
-		href = env.tokensToString( 
-					Util.lookup( token.attribs, 'href' ) ),
+		attribs = token.attribs,
+		href = env.tokensToString( Util.lookup( attribs, 'href' ) ),
 		title = env.makeTitleFromPrefixedText(env.normalizeTitle(href));
 
 	if ( title.ns.isFile() ) {
-		cb( this.renderFile( token, frame, cb, href, title ) );
+		cb( this.renderFile( token, frame, cb, href, title) );
 	} else if ( title.ns.isCategory() ) {
 		// Simply round-trip category links for now
-		cb( { tokens: [
-				new SelfclosingTagTk( 'meta',
-					[new KV( 'typeof', 'mw:Placeholder' )],
-					token.dataAttribs )
-				]
-		});
+		var newAttrs = buildLinkAttrs(attribs, false, "mw:Placeholder", null);
+		cb( {tokens: [new SelfclosingTagTk('meta', newAttrs.attribs, token.dataAttribs)]} );
 	} else {
-
-
 		//console.warn( 'title: ' + JSON.stringify( title ) );
-		var normalizedHref = title.makeLink(),
-			obj = new TagTk( 'a',
-					[
-						new KV('rel', 'mw:WikiLink')
-					], token.dataAttribs
-				),
-			content = token.attribs.slice(2);
-		obj.addNormalizedAttribute( 'href', normalizedHref, href );
+		var newAttrs = buildLinkAttrs(attribs, true, null, [new KV('rel', 'mw:WikiLink')]);
+		var content = newAttrs.content;
+		var obj = new TagTk( 'a', newAttrs.attribs, token.dataAttribs);
+
+		obj.addNormalizedAttribute( 'href', title.makeLink(), href );
 		//console.warn('content: ' + JSON.stringify( content, null, 2 ) );
 
 		// XXX: handle trail
@@ -89,13 +137,13 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 			content = [ morecontent ];
 		}
 
-		var tail = Util.lookupKV( token.attribs, 'tail' ).v;
+		var tail = Util.lookup( attribs, 'tail' );
 		if ( tail ) {
 			obj.dataAttribs.tail = tail;
 			content.push( tail );
 		}
 		
-		cb ( { 
+		cb ( {
 			tokens: [obj].concat( content, [ new EndTagTk( 'a' ) ] )
 		} );
 	}
@@ -106,15 +154,14 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 	// distinguish media types
 	// if image: parse options
 	
-	var content = token.attribs.slice(2);
+	var rdfaAttrs = buildLinkAttrs(token.attribs, true, null, null);
+	var content = rdfaAttrs.content;
 
 	var MD5 = new jshashes.MD5(),
 		hash = MD5.hex( title.key ),
 		// TODO: Hackhack.. Move to proper test harness setup!
 		path = [ this.manager.env.wgUploadPath, hash[0],
 					hash.substr(0, 2), title.key ].join('/');
-	
-	
 
 	// extract options
 	var options = [],
@@ -182,13 +229,15 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 	// XXX: render according to mode (inline, thumb, framed etc)
 	
 	if ( oHash.format && ( oHash.format === 'thumb' || oHash.format === 'thumbnail') ) {
-		return this.renderThumb( token, this.manager, cb, title, fileName, path, caption, oHash, options );
+		return this.renderThumb( token, this.manager, cb, title, fileName, path, caption, oHash, options, rdfaAttrs);
 	} else {
 		// TODO: get /wiki from config!
-		var a = new TagTk( 'a', [ 
-					new KV( 'href', title.makeLink() ),
-					new KV( 'rel', 'mw:Image' )
-				] );
+		var newAttribs = [
+			new KV('href', title.makeLink()),
+			new KV('rel', 'mw:Image')
+		].concat(rdfaAttrs.attribs);
+
+		var a = new TagTk('a', newAttribs);
 		a.dataAttribs = token.dataAttribs;
 
 		var width, height;
@@ -199,8 +248,8 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 			height = oHash.height;
 		}
 
-		var img = new SelfclosingTagTk( 'img', 
-				[ 
+		var img = new SelfclosingTagTk( 'img',
+				[
 					// FIXME!
 					new KV( 'height', height || '' ),
 					new KV( 'width', width || '' ),
@@ -212,14 +261,14 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 	}
 };
 
-WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fileName, path, caption, oHash, options ) {
+WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fileName, path, caption, oHash, options, rdfaAttrs ) {
 	// TODO: get /wiki from config!
-	var a = new TagTk( 'a', [ new KV( 'href', title.makeLink() ) ] );
-	a.dataAttribs = token.dataAttribs;
-	a.dataAttribs.optionHash = oHash;
-	a.dataAttribs.optionList = options;
+	var dataAttribs = token.dataAttribs;
+	dataAttribs = token.dataAttribs;
+	dataAttribs.optionHash = oHash;
+	dataAttribs.optionList = options;
 	// clear src string since we can serialize this
-	a.dataAttribs.src = undefined;
+	dataAttribs.src = undefined;
 
 	var width = 165;
 
@@ -255,26 +304,27 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 	// XXX: support other formats (border, frameless, frame)
 	// XXX: support prefixes
 
-	var thumb = 
-	[
-		new TagTk( 
-				'figure', 
-				[
-					new KV('typeof', 'mw:Thumb'),
-					new KV('class', figureclass),
-					new KV('style', figurestyle)
-				] 
-			),
-		new TagTk( 
-				'a', 
-				[
+	var rdfaType = 'mw:Thumb';
+	var figAttrs = [
+		new KV('class', figureclass),
+		new KV('style', figurestyle)
+	];
+
+	if (rdfaAttrs.hasRdfaType) {
+		// Update once more since we are updating typeof here
+		// and we could be carrying a typeof from earlier in the stream.
+		figAttrs = buildLinkAttrs(rdfaAttrs.attribs, false, rdfaType, figAttrs).attribs;
+	} else {
+		figAttrs.push(new KV('typeof', rdfaType));
+	}
+
+	var thumb = [
+		new TagTk('figure', figAttrs),
+		new TagTk( 'a', [
 					new KV('href', title.makeLink()),
 					new KV('class', 'image')
-				]
-			),
-		new SelfclosingTagTk( 
-				'img',
-				[
+				]),
+		new SelfclosingTagTk( 'img', [
 					new KV('src', path),
 					new KV('width', width + 'px'),
 					//new KV('height', '160px'),
@@ -283,34 +333,26 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 					// Add resource as CURIE- needs global default prefix
 					// definition.
 					new KV('resource', '[:' + fileName + ']')
-				]
-			),
+				]),
 		new EndTagTk( 'a' ),
-		new SelfclosingTagTk ( 
-				'a',
-				[
+		new SelfclosingTagTk ( 'a', [
 					new KV('href', title.makeLink()),
 					new KV('class', 'internal sprite details magnify'),
 					new KV('title', 'View photo details')
-				]
-			),
-		new TagTk( 'figcaption', 
-				[ 
+				]),
+		new TagTk( 'figcaption', [
 					new KV('class', 'thumbcaption'),
 					new KV('property', 'mw:thumbcaption')
 				] )
-	].concat( 
-			caption, 
-			[
+	].concat( caption, [
 				new EndTagTk( 'figcaption' ),
 				new EndTagTk( 'figure' )
-			]
-		);
+			]);
 	
 	// set round-trip information on the wrapping figure token
-	thumb[0].dataAttribs = token.dataAttribs;
+	thumb[0].dataAttribs = dataAttribs;
 
-/*		
+/*
  * Wikia DOM:
 <figure class="thumb tright thumbinner" style="width:270px;">
     <a href="Delorean.jpg" class="image" data-image-name="DeLorean.jpg" id="DeLorean-jpg">
@@ -331,13 +373,12 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 	return { tokens: thumb };
 };
 
-
 function ExternalLinkHandler( manager, options ) {
 	this.manager = manager;
 	this.manager.addTransform( this.onUrlLink.bind( this ), "ExternalLinkHandler:onUrlLink", this.rank, 'tag', 'urllink' );
-	this.manager.addTransform( this.onExtLink.bind( this ), "ExternalLinkHandler:onExtLink",  
+	this.manager.addTransform( this.onExtLink.bind( this ), "ExternalLinkHandler:onExtLink",
 			this.rank - 0.001, 'tag', 'extlink' );
-	this.manager.addTransform( this.onEnd.bind( this ), "ExternalLinkHandler:onEnd",  
+	this.manager.addTransform( this.onEnd.bind( this ), "ExternalLinkHandler:onEnd",
 			this.rank, 'end' );
 	// create a new peg parser for image options..
 	if ( !this.imageParser ) {
@@ -369,66 +410,86 @@ ExternalLinkHandler.prototype._isImageLink = function ( href ) {
 
 ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 	var env = this.manager.env,
-		href = Util.sanitizeURI( 
+		href = Util.sanitizeURI(
 				env.tokensToString( Util.lookupKV( token.attribs, 'href' ).v ));
+	var tagAttrs;
 	if ( this._isImageLink( href ) ) {
-		cb( { tokens: [ new SelfclosingTagTk( 'img', 
-					[ 
-					new KV( 'src', href ),
-					new KV( 'alt', href.split('/').last() ),
-					new KV('rel', 'mw:externalImage')
-					],
-					{ stx: 'urllink' }
-					) 
+		tagAttrs = [
+			new KV( 'src', href ),
+			new KV( 'alt', href.split('/').last() ),
+			new KV('rel', 'mw:externalImage')
+		];
+
+		// combine with existing rdfa attrs
+		tagAttrs = buildLinkAttrs(token.attribs, false, null, tagAttrs).attribs;
+		cb( { tokens: [ new SelfclosingTagTk( 'img',
+					tagAttrs,
+					{ stx: 'urllink' })
 				]
 		} );
 	} else {
-		cb( { 
+		tagAttrs = [
+			new KV( 'href', href ),
+			new KV('rel', 'mw:ExtLink/URL')
+		];
+
+		// combine with existing rdfa attrs
+		tagAttrs = buildLinkAttrs(token.attribs, false, null, tagAttrs).attribs;
+		cb( {
 			tokens: [
-				new TagTk( 'a', 
-					[ 
-						new KV( 'href', href ),
-						new KV('rel', 'mw:ExtLink/URL')
-					] ),
+				new TagTk( 'a', tagAttrs),
 				href,
 				new EndTagTk( 'a' )
-			] 
+			]
 		} );
 	}
 };
-
 
 // Bracketed external link
 ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 	var env = this.manager.env,
 		href = Util.sanitizeURI(env.tokensToString( Util.lookupKV( token.attribs, 'href' ).v )),
-		content= Util.lookupKV( token.attribs, 'content' ).v,
-		rdfaType = 'mw:ExtLink';
+		content = Util.lookupKV( token.attribs, 'content' ).v,
+		newAttrs, aStart;
+
 	//console.warn('extlink href: ' + href );
 	//console.warn( 'content: ' + JSON.stringify( content, null, 2 ) );
-	// validate the href
-	if (token.getAttribute('typeof') === 'mw:ExtLink/ISBN') {
+
+	var rdfaType = token.getAttribute('typeof');
+	if (rdfaType && rdfaType.match(/\bmw:ExtLink\/ISBN\b/)) {
 		var title = env.makeTitleFromPrefixedText(env.normalizeTitle(href));
-		var aStart = new TagTk ('a', [
-						new KV('href', title.makeLink()),
-						new KV('rel', 'mw:ExtLink/ISBN')
-					], token.dataAttribs);
+		newAttrs = [
+			new KV('href', title.makeLink()),
+			new KV('rel', 'mw:ExtLink/ISBN')
+		];
+
+		// SSS FIXME: Right now, Parsoid does not support templating
+		// of ISBN attributes.  So, "ISBN {{echo|1234567890}}" will not
+		// parse as you might expect it to.  As a result, this code below 
+		// that attempts to combine rdf attrs from earlier is unnecessary
+		// right now.  But, it will become necessary if Parsoid starts
+		// supporting templating of ISBN attributes.
+		//
+		// combine with existing rdfa attrs
+		newAttrs = buildLinkAttrs(token.attribs, false, null, newAttrs).attribs;
+		aStart = new TagTk ('a', newAttrs, token.dataAttribs);
 		cb( {
 			tokens: [aStart].concat(content, [new EndTagTk('a')])
 		} );
 	} else if ( this.imageParser.tokenizeURL( href )) {
+		rdfaType = 'mw:ExtLink';
 		if ( ! content.length ) {
 			content = ['[' + this.linkCount + ']'];
 			this.linkCount++;
 			rdfaType = 'mw:ExtLink/Numbered';
-		} else if ( content.length === 1 && 
+		} else if ( content.length === 1 &&
 				content[0].constructor === String &&
 				this.imageParser.tokenizeURL( content[0] ) &&
 				this._isImageLink( content[0] ) )
 		{
 			var src = content[0];
-			content = [ new SelfclosingTagTk( 'img', 
-					[ 
+			content = [ new SelfclosingTagTk( 'img',
+					[
 					new KV( 'src', src ),
 					new KV( 'alt', src.split('/').last() )
 					],
@@ -436,14 +497,18 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 				];
 		}
 
-		var aStart = new TagTk ( 'a', [
-						new KV('href', href),
-						new KV('rel', rdfaType)
-					], token.dataAttribs)
+		newAttrs = [
+			new KV('href', href),
+			new KV('rel', rdfaType)
+		];
+		// combine with existing rdfa attrs
+		newAttrs = buildLinkAttrs(token.attribs, false, null, newAttrs).attribs;
+		aStart = new TagTk ( 'a', newAttrs, token.dataAttribs );
 		cb( {
 			tokens: [aStart].concat(content, [new EndTagTk('a')])
 		} );
 	} else {
+		// not a link
 		var tokens = ['[', href ];
 		if ( content.length ) {
 			tokens = tokens.concat( [' '], content );
@@ -462,7 +527,7 @@ ExternalLinkHandler.prototype.onEnd = function ( token, manager, cb ) {
 };
 
 
-if (typeof module == "object") {
+if (typeof module === "object") {
 	module.exports.WikiLinkHandler = WikiLinkHandler;
 	module.exports.ExternalLinkHandler = ExternalLinkHandler;
 }
