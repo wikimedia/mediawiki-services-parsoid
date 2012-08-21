@@ -9,4 +9,4 @@ test: all
 
 clean:
 	rm -f *.o
-	rm tokentest
+	rm -f tokentest
