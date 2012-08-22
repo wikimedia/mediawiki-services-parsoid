@@ -39,7 +39,7 @@ namespace parsoid
 
             Token();
             // General token source range accessors
-            Token& setSourceRange( unsigned int rangeStart, unsigned int rangeEnd );
+            void setSourceRange( unsigned int rangeStart, unsigned int rangeEnd );
             unsigned int getSourceRangeStart( );
             unsigned int getSourceRangeEnd( );
 
@@ -65,16 +65,16 @@ namespace parsoid
         public:
             TagToken() {};
             // Attributes and tag name: only available for tags
-            TagToken& setName ( const std::string& name );
+            void setName ( const std::string& name );
             const std::string& getName( );
 
-            TagToken& setAttribute ( const std::string& name, const std::string&value );
+            void setAttribute ( const std::string& name, const std::string&value );
             const std::string* getAttribute( const std::string& name );
-            TagToken& appendAttribute( const std::string& name, const std::string& value );
-            TagToken& prependAttribute( const std::string& name, const std::string& value );
-            TagToken& insertAttributeAfter( const std::string& otherName, 
+            void appendAttribute( const std::string& name, const std::string& value );
+            void prependAttribute( const std::string& name, const std::string& value );
+            void insertAttributeAfter( const std::string& otherName, 
                     const std::string& name, const std::string& value );
-            TagToken& insertAttributeBefore( const std::string& otherName,
+            void insertAttributeBefore( const std::string& otherName,
                     const std::string& name, const std::string& value );
 
             virtual ~TagToken ();
@@ -105,7 +105,7 @@ namespace parsoid
     {
         public:
             // Value accessors: only available for text and comment tokens
-            ContentToken& setText ( const std::string& text );
+            void setText ( const std::string& text );
             const std::string& getText ( );
             virtual ~ContentToken ();
             virtual Token::typeID type() { 
