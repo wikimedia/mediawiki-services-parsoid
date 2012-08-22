@@ -6,6 +6,8 @@
 
 namespace parsoid
 {
+    using std::string;
+    using std::vector;
     /**
      * Base class for all Parsoid tokens
      *
@@ -14,6 +16,16 @@ namespace parsoid
      *
      * Experimental work in progress, very early stages.
      */
+
+    enum class TokenType {
+        Abstract,
+        StartTag,
+        EndTag,
+        Text,
+        Comment,
+        Nl,
+        Eof,
+    };
 
     /**
      * TODO:
@@ -27,15 +39,6 @@ namespace parsoid
             // Consecutive number so that a jump table can be used
             // Alternative: bit-per-type, so that we can use bitmasks for
             // selection
-            enum typeID {
-                AbstractToken = 0,
-                StartTagTk = 1,
-                EndTagTk = 2,
-                TextTk = 3,
-                CommentTk = 4,
-                NlTk = 5,
-                EOFTk = 6
-            };
 
             Token();
             // General token source range accessors
@@ -47,7 +50,7 @@ namespace parsoid
             // Alternative solution: Use typeid RTTI info. Disadvantage:
             // cannot use switch, have to compare each to typeid(type) in
             // if..else if.. structure
-            virtual typeID type() { return typeID::AbstractToken; };
+            virtual TokenType type() const { return TokenType::Abstract; };
             
             virtual ~Token ();
 
@@ -88,16 +91,16 @@ namespace parsoid
     class StartTagTk: public TagToken {
         public:
             StartTagTk() = default;
-            virtual Token::typeID type() { 
-                return Token::typeID::StartTagTk; 
+            virtual TokenType type() const {
+                return TokenType::StartTag; 
             };
     };
 
     class EndTagTk: public TagToken {
         public:
             EndTagTk() = default;
-            virtual Token::typeID type() { 
-                return Token::typeID::EndTagTk; 
+            virtual TokenType type() const {
+                return TokenType::EndTag; 
             };
     };
 
@@ -108,8 +111,8 @@ namespace parsoid
             ContentToken& setText ( const std::string& text );
             const std::string& getText ( );
             virtual ~ContentToken ();
-            virtual Token::typeID type() { 
-                return Token::typeID::AbstractToken; 
+            virtual TokenType type() const {
+                return TokenType::Abstract; 
             };
         private:
             // no direct instances, abstract
@@ -120,15 +123,15 @@ namespace parsoid
     class NlTk: public Token { 
         public:
             NlTk() = default;
-            virtual Token::typeID type() { 
-                return Token::typeID::NlTk; 
+            virtual TokenType type() const {
+                return TokenType::Nl; 
             };
     };
-    class EOFTk: public Token {
+    class EofTk: public Token {
         public:
-            EOFTk() = default;
-            virtual Token::typeID type() { 
-                return Token::typeID::EOFTk; 
+            EofTk() = default;
+            virtual TokenType type() const {
+                return TokenType::Eof; 
             };
     };
 }
