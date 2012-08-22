@@ -13,10 +13,9 @@ namespace parsoid
     Token::~Token() {};
 
     // General token source range accessors
-    Token& Token::setSourceRange( unsigned int rangeStart, unsigned int rangeEnd ) {
+    void Token::setSourceRange( unsigned int rangeStart, unsigned int rangeEnd ) {
         srStart = rangeStart;
         srEnd = rangeEnd;
-        return *this;
     }
 
     unsigned int Token::getSourceRangeStart() {
@@ -29,9 +28,8 @@ namespace parsoid
 
     // TagToken methods
     TagToken::~TagToken() {};
-    TagToken& TagToken::setName ( const string& name ) {
+    void TagToken::setName ( const string& name ) {
         text = name;
-        return *this;
     }
     const string& TagToken::getName () {
         return text;
@@ -52,7 +50,7 @@ namespace parsoid
     }
 
 
-    TagToken& 
+    void 
     TagToken::setAttribute ( const string& name, const string& value )
     {
         // MediaWiki unfortunately uses the *last* duplicate value for a given
@@ -70,28 +68,24 @@ namespace parsoid
             if ( (boost::to_upper_copy(name)) == p->first ) {
                 cout << p->second << endl;
                 p->second = value;
-                return *this;
             }
         }
         // nothing found, append the attribute
         appendAttribute( name, value );
-        return *this;
     }
 
-    TagToken&
+    void
     TagToken::appendAttribute ( const string& name, const string& value )
     {
         pair<const string, const string> p( name, value );
         _attribs.push_back( p );
-        return *this;
     }
 
-    TagToken&
+    void
     TagToken::prependAttribute ( const string& name, const string& value )
     {
         pair<const string&, const string&> p( name, value );
         _attribs.insert( _attribs.begin(), p );
-        return *this;
     }
 
     //// XXX: actually implement
@@ -105,9 +99,8 @@ namespace parsoid
     //}
 
     // text and comment token interface
-    ContentToken& ContentToken::setText ( const string& text ) {
+    void ContentToken::setText ( const string& text ) {
         this->text = text;
-        return *this;
     }
 
     /**
