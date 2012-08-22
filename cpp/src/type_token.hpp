@@ -1,7 +1,7 @@
 #include <string>
 #include <stdint.h>
 #include <boost/intrusive_ptr.hpp>
-#include "intrusive_ptr_base.hpp"
+#include "type_intrusive_ptr_base.hpp"
 #include <vector>
 
 namespace parsoid

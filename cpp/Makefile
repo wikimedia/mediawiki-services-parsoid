@@ -7,6 +7,7 @@ CONTRIB_SUB = \
 	contrib/netsurf/libparserutils \
 	contrib/netsurf/libhubbub \
 	contrib/peg-0.1.9
+	#contrib/folly/folly
 
 AUTOGEN_SUB = \
 	contrib/netsurf/json-c/json-c
@@ -26,7 +27,8 @@ AUTOGEN_TARGETS = $(foreach dir, $(AUTOGEN_SUB), $(dir)/Makefile)
 configure: $(AUTOGEN_TARGETS) php/Makefile
 
 $(AUTOGEN_TARGETS):
-	cd $(dir $@) && sh autogen.sh && ./configure --prefix=$(PREFIX)
+	cd $(dir $@) && \
+	( sh autogen.sh || autoconf ) && ./configure --prefix=$(PREFIX)
 
 php/Makefile: php/config.m4
 	cd php && phpize && ./configure --prefix=$(PREFIX)
@@ -54,3 +56,4 @@ all: configure contrib compile php
 
 test:
 	$(MAKE) -C test $@
+	test/test

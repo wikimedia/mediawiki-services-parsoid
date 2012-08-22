@@ -1,5 +1,16 @@
-#include "libparsoid/html_parser.h"
+#include "libparsoid/parsoid_internal.hpp"
 
+using namespace parsoid;
+using namespace std;
 int main()
 {
+    boost::intrusive_ptr<TagToken> t (new TagToken( ));
+    t->appendAttribute( "foo", "bar" );
+    cout << "  Attrib foo: " << *(t->getAttribute("foo")) << endl;
+    t->setAttribute( "foo", "blub" );
+    cout << "  Attrib foo: " << *(t->getAttribute("foo")) << endl;
+    cout << "  Default constructor " << t->refcount() << endl;
+    boost::intrusive_ptr<TagToken> t2( t );
+    cout << "  t2: " << &t2 << endl;
+    return 0;
 }

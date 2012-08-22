@@ -3,6 +3,7 @@ OBJS = test.o
 PREFIX ?= $(CURDIR)/../build
 
 CXXFLAGS += \
+	-std=c++11 \
 	-g \
 	-I$(PREFIX)/include
 
@@ -18,7 +19,7 @@ LIBS = \
     -Wl,-Bdynamic
 
 test: $(OBJS)
-	$(CXX) -o $@ $(LIBS) -lparsoid $(OBJS)
+	$(CXX) -o $@  $(OBJS) $(LIBS) -lparsoid
 
 clean:
 	rm -f test $(OBJS)
