@@ -188,12 +188,6 @@ ParserPipelineFactory.prototype.defaultOptions = function(options) {
 		options.wrapTemplates = true;
 	}
 
-	// default: no need to record template source
-	// at the top level since we are wrapping
-	if (options.recordTemplateSource === undefined) {
-		options.recordTemplateSource = false;
-	}
-
 	return options;
 };
 
@@ -255,9 +249,6 @@ function getCacheKey(cacheType, options) {
 	}
 	if ( ! options.wrapTemplates ) {
 		cacheType += '::noWrap';
-	}
-	if ( ! options.recordTemplateSource ) {
-		cacheType += '::noRTS';
 	}
 	return cacheType;
 }

@@ -329,7 +329,8 @@ SelfclosingTagTk.prototype.defaultToString = function(compact, indent) {
 
 SelfclosingTagTk.prototype.tagToStringFns = {
 	"extlink": function(compact, indent) {
-		var href    = Util.kvTokensToString(Util.lookupKV(this.attribs, 'href').v);
+		var indentIncrement = "  ";
+		var href = Util.toStringTokens(Util.lookupKV(this.attribs, 'href').v, indent + indentIncrement);
 		if (compact) {
 			return ["<extlink:", href, ">"].join('');
 		} else {
@@ -337,7 +338,6 @@ SelfclosingTagTk.prototype.tagToStringFns = {
 				indent = "";
 			}
 			var origIndent = indent;
-			var indentIncrement = "  ";
 			indent = indent + indentIncrement;
 			var content = Util.lookupKV(this.attribs, 'content').v;
 			content = this.multiTokenArgToString("v", content, indent, indentIncrement).str;
@@ -352,7 +352,8 @@ SelfclosingTagTk.prototype.tagToStringFns = {
 		if (!indent) {
 			indent = "";
 		}
-		var href = Util.kvTokensToString(Util.lookupKV(this.attribs, 'href').v);
+		var indentIncrement = "  ";
+		var href = Util.toStringTokens(Util.lookupKV(this.attribs, 'href').v, indent + indentIncrement);
 		if (compact) {
 			return ["<wikilink:", href, ">"].join('');
 		} else {
@@ -360,7 +361,6 @@ SelfclosingTagTk.prototype.tagToStringFns = {
 				indent = "";
 			}
 			var origIndent = indent;
-			var indentIncrement = "  ";
 			indent = indent + indentIncrement;
 			var tail = Util.lookupKV(this.attribs, 'tail').v;
 			var content = this.attrsToString(indent, indentIncrement, 2);
@@ -547,7 +547,7 @@ Params.prototype.getSlice = function ( options, start, end ) {
  * lazy and shared transformations. Do not use directly- use
  * frame.newParserValue instead!
  */
-function ParserValue ( source, frame ) {
+function ParserValue ( source, options ) {
 	if ( source.constructor === ParserValue ) {
 		Object.defineProperty( this, 'source',
 				{ value: source.source, enumerable: false } );
@@ -556,7 +556,9 @@ function ParserValue ( source, frame ) {
 				{ value: source, enumerable: false } );
 	}
 	Object.defineProperty( this, 'frame',
-			{ value: frame, enumerable: false } );
+			{ value: options.frame, enumerable: false } );
+	Object.defineProperty( this, 'wrapTemplates',
+			{ value: options.wrapTemplates, enumerable: false } );
 }
 
 ParserValue.prototype = {};
@@ -603,6 +605,7 @@ ParserValue.prototype.get = function( options, cb ) {
 				JSON.stringify( this, null, 2 );
 		}
 		options.cb = cb;
+		options.wrapTemplates = this.wrapTemplates;
 		this.frame.expand( source, options );
 	}
 };

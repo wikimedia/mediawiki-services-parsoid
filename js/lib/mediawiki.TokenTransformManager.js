@@ -214,7 +214,7 @@ TokenTransformManager.prototype._getTransforms = function ( token, minRank ) {
  */
 function AsyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, attributeType ) {
 	this.env = env;
-	this.options = options.isInclude;
+	this.options = options;
 	this.pipeFactory = pipeFactory;
 	this.phaseEndRank = phaseEndRank;
 	this.attributeType = attributeType;
@@ -655,7 +655,7 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
  */
 function SyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, attributeType ) {
 	this.env = env;
-	this.options = options.isInclude;
+	this.options = options;
 	this.pipeFactory = pipeFactory;
 	this.phaseEndRank = phaseEndRank;
 	this.attributeType = attributeType;
@@ -786,8 +786,9 @@ SyncTokenTransformManager.prototype.onEndEvent = function () {
  * @param {Object} Containing AsyncTokenTransformManager
  * @param {Function} Callback function, called with expanded attribute array.
  */
-function AttributeTransformManager ( manager, callback ) {
+function AttributeTransformManager ( manager, options, callback ) {
 	this.manager = manager;
+	this.options = options;
 	this.frame = this.manager.frame;
 	this.callback = callback;
 	this.outstanding = 1;
@@ -803,10 +804,10 @@ AttributeTransformManager.prototype._toType = 'tokens/x-mediawiki/expanded';
  * (non-template) tokens in the AttributeExpander handler, which runs after
  * templates are already expanded.
  */
-AttributeTransformManager.prototype.process = function ( attributes ) {
+AttributeTransformManager.prototype.process = function (attributes) {
 	var pipe,
 		ref;
-	//console.warn( 'AttributeTransformManager.process: ' + JSON.stringify( attributes ) );
+	// console.warn( 'AttributeTransformManager.process: ' + JSON.stringify( attributes ) );
 
 	// transform each argument (key and value), and handle asynchronous returns
 	for ( var i = 0, l = attributes.length; i < l; i++ ) {
@@ -828,7 +829,8 @@ AttributeTransformManager.prototype.process = function ( attributes ) {
 			// transform the value
 			this.frame.expand( cur.v,
 					{
-						maybeHTMLAttr: cur.k, // truthy value
+						wrapTemplates: this.options.wrapTemplates,
+						// if k is empty, we consider it wrappable
 						type: this._toType,
 						cb: this._returnAttributeValue.bind( this, i )
 					} );
@@ -843,7 +845,7 @@ AttributeTransformManager.prototype.process = function ( attributes ) {
 			// transform the key
 			this.frame.expand( cur.k,
 					{
-						maybeHTMLAttr: true,
+						wrapTemplates: this.options.wrapTemplates,
 						type: this._toType,
 						cb: this._returnAttributeKey.bind( this, i )
 					} );
@@ -865,28 +867,29 @@ AttributeTransformManager.prototype.process = function ( attributes ) {
  * parameters to avoid expanding unused values, which is very important for
  * constructs like switches.
  */
-AttributeTransformManager.prototype.processKeys = function ( attributes ) {
+AttributeTransformManager.prototype.processKeys = function (attributes) {
 	var pipe,
 		ref;
-	//console.warn( 'AttributeTransformManager.process: ' + JSON.stringify( attributes ) );
+	// console.warn( 'AttributeTransformManager.processKeys: ' + JSON.stringify(attributes) );
 
 	// TODO: wrap in chunk and call
 	// .get( { type: 'text/x-mediawiki/expanded' } ) on it
 
 	// transform the key for each attribute pair
 	var kv;
+	var pvOpts = { wrapTemplates: this.options.wrapTemplates };
 	for ( var i = 0, l = attributes.length; i < l; i++ ) {
 		var cur = attributes[i];
 
 		// fast path for string-only attributes
 		if ( cur.k.constructor === String && cur.v.constructor === String ) {
-			kv = new KV( cur.k, this.frame.newParserValue( cur.v ) );
+			kv = new KV( cur.k, this.frame.newParserValue( cur.v, pvOpts ) );
 			this.kvs.push( kv );
 			continue;
 		}
 
 		// Wrap the value in a ParserValue for lazy expansion
-		kv = new KV( [], this.frame.newParserValue( cur.v ) );
+		kv = new KV( [], this.frame.newParserValue( cur.v, pvOpts ) );
 		this.kvs.push( kv );
 
 		// And expand the key, if needed
@@ -897,56 +900,12 @@ AttributeTransformManager.prototype.processKeys = function ( attributes ) {
 			// transform the key
 			this.frame.expand( cur.k,
 					{
-						maybeHTMLAttr: true,
+						wrapTemplates: this.options.wrapTemplates,
 						type: this._toType,
 						cb: this._returnAttributeKey.bind( this, i )
 					} );
 		} else {
 			kv.k = cur.k;
-		}
-	}
-	this.outstanding--;
-	if ( this.outstanding === 0 ) {
-		// synchronously done
-		this.callback( this.kvs );
-	}
-};
-
-/**
- * Only expand values of attribute key/value pairs.
- */
-AttributeTransformManager.prototype.processValues = function ( attributes ) {
-	// Potentially need to use multiple pipelines to support concurrent async expansion
-	//this.pipe.process(
-	var pipe,
-		ref;
-	//console.warn( 'AttributeTransformManager.process: ' + JSON.stringify( attributes ) );
-
-	// transform each value
-	for ( var i = 0, l = attributes.length; i < l; i++ ) {
-		var cur = attributes[i];
-		var kv = new KV( cur.k, [] );
-		this.kvs.push( kv );
-
-		if ( ! cur ) {
-			console.warn( JSON.stringify( attributes ) );
-			console.trace();
-			continue;
-		}
-
-		if ( cur.v.constructor === Array && cur.v.length ) {
-			// Assume that the return is async, will be decremented in callback
-			this.outstanding++;
-
-			// transform the value
-			this.frame.expand( cur.v,
-					{
-						maybeHTMLAttr: cur.k, // truthy value
-						type: this._toType,
-						cb: this._returnAttributeValue.bind( this, i )
-					} );
-		} else {
-			kv.value = cur.v;
 		}
 	}
 	this.outstanding--;
@@ -1257,13 +1216,15 @@ Frame.prototype.expand = function ( chunk, options ) {
 			options.asyncCB( );
 		}
 
-		// Dont wrap templates we encounter downstream because we are expanding an attribute
-		// But, if we are at the top level (depth 0), record the template source so we
-		// can set up appropriate meta tags.
+		// Downstream template uses should be tracked and wrapped only if:
+		// - not in a nested template        Ex: {{Templ:Foo}} and we are processing Foo
+		// - not in a template use context   Ex: {{ .. | {{ here }} | .. }}
+		// - the attribute use is wrappable  Ex: [[ ... | {{ .. link text }} ]]
+		var wrap = this.depth === 0 && options.wrapTemplates;
+
 		var pipelineOpts = {
 			isInclude: this.depth > 0,
-			wrapTemplates: this.depth === 0 && !options.maybeHTMLAttr,
-			recordTemplateSource: this.depth === 0
+			wrapTemplates: wrap
 		}
 
 		var pipeline = this.manager.pipeFactory.getPipeline(
@@ -1356,10 +1317,14 @@ Frame.prototype.newParserValue = function ( source, options ) {
 		source = new String( source );
 		source.get = this._getID;
 		return source;
-	} else if ( options && options.frame ) {
-		return new ParserValue( source, options.frame );
 	} else {
-		return new ParserValue( source, this );
+		if (!options) {
+			options = { frame: this, wrapTemplates: false }
+		} else if (!options.frame) {
+			options.frame = this;
+		}
+
+		return new ParserValue( source, options);
 	}
 };
 
