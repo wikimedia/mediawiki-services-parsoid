@@ -936,7 +936,7 @@ AttributeTransformManager.prototype._returnAttributeKey = function ( ref, tokens
 	this.kvs[ref].k = Util.stripEOFTkfromTokens( this.kvs[ref].k );
 	if ( this.kvs[ref].v === '' ) {
 		// FIXME: use tokenizer production to properly parse this
-		var m = this.manager.env.tokensToString( this.kvs[ref].k )
+		var m = Util.tokensToString( this.kvs[ref].k )
 			.match( /([^=]+)=['"]?([^'"]*)['"]?$/ );
 		if ( m ) {
 			this.kvs[ref].k = m[1];
@@ -1201,7 +1201,7 @@ Frame.prototype.expand = function ( chunk, options ) {
 		var self = this,
 			origCB = cb;
 		cb = function( resChunk ) {
-			var res = self.manager.env.tokensToString( resChunk );
+			var res = Util.tokensToString( resChunk );
 			// cache the result
 			chunk.cache.set( self, options, res );
 			origCB( res );

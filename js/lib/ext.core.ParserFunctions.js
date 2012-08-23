@@ -414,7 +414,7 @@ ParserFunctions.prototype._pf_time = function ( target, args ) {
 	var res,
 		tpl = target.trim();
 	//try {
-	//	var date = new Date( this.env.tokensToString( args[1].v ) );
+	//	var date = new Date( Util.tokensToString( args[1].v ) );
 	//	res = [ date.format( target ) ];
 	//} catch ( e ) {
 	//	this.env.dp( 'ERROR: #time ' + e );

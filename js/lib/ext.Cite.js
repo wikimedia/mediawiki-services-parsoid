@@ -1,5 +1,5 @@
 var TokenCollector = require( './ext.util.TokenCollector.js' ).TokenCollector;
-// var Util = require( './mediawiki.Util.js' ).Util;
+var Util = require( './mediawiki.Util.js' ).Util;
 
 /**
  * Simple token transform version of the Cite extension.
@@ -41,7 +41,7 @@ Cite.prototype.handleRef = function ( tokens ) {
 	var options = $.extend({
 		name: null,
 		group: null
-	}, this.manager.env.KVtoHash(startTag.attribs));
+	}, Util.KVtoHash(startTag.attribs));
 
 	var group = this.getRefGroup(options.group);
 	var ref = group.add(tokens, options);
@@ -138,7 +138,7 @@ Cite.prototype.onReferences = function ( token, manager ) {
 	var options = $.extend({
 		name: null,
 		group: null
-	}, this.manager.env.KVtoHash(token.attribs));
+	}, Util.KVtoHash(token.attribs));
 
 	if (options.group in refGroups) {
 		var group = refGroups[options.group];

@@ -85,7 +85,7 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 
 	var env = this.manager.env,
 		attribs = token.attribs,
-		href = env.tokensToString( Util.lookup( attribs, 'href' ) ),
+		href = Util.tokensToString( Util.lookup( attribs, 'href' ) ),
 		title = env.makeTitleFromPrefixedText(env.normalizeTitle(href));
 
 	if ( title.ns.isFile() ) {
@@ -169,7 +169,7 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 		caption = [];
 	for( var i = 0, l = content.length; i<l; i++ ) {
 		var oContent = content[i],
-			oText = this.manager.env.tokensToString( oContent.v, true );
+			oText = Util.tokensToString( oContent.v, true );
 		//console.log( JSON.stringify( oText, null, 2 ) );
 		if ( oText.constructor === String ) {
 			var origOText = oText;
@@ -409,9 +409,7 @@ ExternalLinkHandler.prototype._isImageLink = function ( href ) {
 };
 
 ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
-	var env = this.manager.env,
-		href = Util.sanitizeURI(
-				env.tokensToString( Util.lookupKV( token.attribs, 'href' ).v ));
+	var href = Util.sanitizeURI(Util.tokensToString(Util.lookup(token.attribs, 'href')));
 	var tagAttrs;
 	if ( this._isImageLink( href ) ) {
 		tagAttrs = [
@@ -448,8 +446,8 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 // Bracketed external link
 ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 	var env = this.manager.env,
-		href = Util.sanitizeURI(env.tokensToString( Util.lookupKV( token.attribs, 'href' ).v )),
-		content = Util.lookupKV( token.attribs, 'content' ).v,
+		href = Util.sanitizeURI(Util.tokensToString(Util.lookup(token.attribs, 'href'))),
+		content = Util.lookup( token.attribs, 'content'),
 		newAttrs, aStart;
 
 	//console.warn('extlink href: ' + href );

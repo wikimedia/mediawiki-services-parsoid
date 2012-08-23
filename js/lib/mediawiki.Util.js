@@ -99,6 +99,29 @@ var Util = {
 		}
 	},
 
+	tokensToString: function ( tokens, strict ) {
+		var out = [];
+		// XXX: quick hack, track down non-array sources later!
+		if ( ! $.isArray( tokens ) ) {
+			tokens = [ tokens ];
+		}
+		for ( var i = 0, l = tokens.length; i < l; i++ ) {
+			var token = tokens[i];
+			if ( token === undefined ) {
+				console.warn( 'Util.tokensToString, invalid token: ' + 
+								token, ' tokens:', tokens);
+			} else if ( token.constructor === String ) {
+				out.push( token );
+			} else if ( token.constructor === CommentTk || token.constructor === NlTk ) {
+				// strip comments and newlines
+			} else if ( strict ) {
+				// If strict, return accumulated string on encountering first non-text token
+				return [out.join(''), tokens.slice( i )];
+			}
+		}
+		return out.join('');
+	},
+
 	lookupKV: function ( kvs, key ) {
 		if ( ! kvs ) {
 			return null;
@@ -134,6 +157,27 @@ var Util = {
 		}
 		// nothing found!
 		return null;
+	},
+
+	/**
+	 * Convert an array of key-value pairs into a hash of keys to values. For
+	 * duplicate keys, the last entry wins.
+	 */
+	KVtoHash: function ( kvs ) {
+		if ( ! kvs ) {
+			console.warn( "Invalid kvs!: " + JSON.stringify( kvs, null, 2 ) );
+			return {};
+		}
+		var res = {};
+		for ( var i = 0, l = kvs.length; i < l; i++ ) {
+			var kv = kvs[i],
+				key = this.tokensToString( kv.k ).trim();
+			//if( res[key] === undefined ) {
+			res[key.toLowerCase()] = this.tokenTrim( kv.v );
+			//}
+		}
+		//console.warn( 'KVtoHash: ' + JSON.stringify( res ));
+		return res;
 	},
 
 	/**

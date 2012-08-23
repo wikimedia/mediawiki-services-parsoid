@@ -606,7 +606,7 @@ Sanitizer.prototype.onAnchor = function ( token ) {
 	// of the AttributeTransformManager processing? This certainly is not the
 	// right place!
 	if ( hrefKV !== null ) {
-		var origHref = this.manager.env.tokensToString( hrefKV.v ),
+		var origHref = Util.tokensToString( hrefKV.v ),
 			newHref = this.sanitizeHref( origHref );
 		if ( newHref !== null ) {
 			hrefKV.v = newHref;
@@ -658,7 +658,6 @@ Sanitizer.prototype.onAny = function ( token ) {
 		if (attribs && attribs.length > 0) {
 			var newToken = token.clone();
 			attribs = newToken.attribs;
-			var env = this.manager.env;
 			for (i = 0, l = attribs.length; i < l; i++ ) {
 				kv = attribs[i];
 				if ( kv.k.constructor !== String || kv.v.constructor !== String ) {
@@ -666,10 +665,10 @@ Sanitizer.prototype.onAny = function ( token ) {
 					v = kv.v;
 
 					if ( k.constructor === Array ) {
-						k = env.tokensToString ( k );
+						k = Util.tokensToString ( k );
 					}
 					if ( v.constructor === Array ) {
-						v = env.tokensToString ( v );
+						v = Util.tokensToString ( v );
 					}
 					attribs[i] = new KV( k, v );
 				}

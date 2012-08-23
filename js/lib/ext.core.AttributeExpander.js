@@ -7,6 +7,7 @@ var $ = require('jquery'),
 	request = require('request'),
 	events = require('events'),
 	qs = require('querystring'),
+	Util = require('./mediawiki.Util.js').Util,
 	ParserFunctions = require('./ext.core.ParserFunctions.js').ParserFunctions,
 	AttributeTransformManager = require('./mediawiki.TokenTransformManager.js')
 									.AttributeTransformManager,
@@ -135,7 +136,7 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 				if (metaObjType) {
 					if (newK.constructor !== String) {
 						// SSS FIXME: Can this happen at all? Looks like not
-						newK = this.manager.env.tokensToString(newK);
+						newK = Util.tokensToString(newK);
 					}
 					// <meta about="#mwt1" property="mw:objectAttr#href" data-parsoid="...">
 					// about will be filled out in the end

@@ -500,7 +500,7 @@ WSP._figureHandler = function ( state, figTokens ) {
 
 	// Get the image resource name
 	// FIXME: file name has been capitalized -- need some fix in the parser
-	var argDict = state.env.KVtoHash( img.attribs );
+	var argDict = Util.KVtoHash( img.attribs );
 	var imgR = argDict.resource.replace(/(^\[:)|(\]$)/g, '');
 
 	// Now, build the complete wikitext for the figure
@@ -602,7 +602,7 @@ WSP._linkHandler =  function( state, tokens ) {
 	var env = state.env,
 		token = tokens.shift(),
 		endToken = tokens.pop(),
-		attribDict = env.KVtoHash( token.attribs );
+		attribDict = Util.KVtoHash( token.attribs );
 	if ( attribDict.rel && attribDict.rel.match( /\bmw:/ ) &&
 			attribDict.href !== undefined )
 	{
@@ -632,7 +632,7 @@ WSP._linkHandler =  function( state, tokens ) {
 			// piped link, serialize to a simple link.
 			// TODO: implement
 			
-			var linkText = state.env.tokensToString( tokens, true );
+			var linkText = Util.tokensToString( tokens, true );
 
 
 			//env.ap( linkText, target );
@@ -711,7 +711,7 @@ WSP.genContentSpanTypes = { 'mw:Nowiki':1, 'mw:Entity': 1 };
 WSP.compareSourceHandler = function ( state, tokens ) {
 	var token = tokens.shift(),
 		lastToken = tokens.pop(),
-		content = state.env.tokensToString( tokens, true );
+		content = Util.tokensToString( tokens, true );
 	if ( content.constructor !== String ) {
 		return state.serializer.serializeTokens(state.currLine,  tokens ).join('');
 	} else if ( content === token.dataAttribs.srcContent ) {
@@ -968,7 +968,7 @@ WSP.tagHandlers = {
 	meta: {
 		start: {
 			handle: function ( state, token ) {
-				var argDict = state.env.KVtoHash( token.attribs );
+				var argDict = Util.KVtoHash( token.attribs );
 				if ( argDict['typeof'] === 'mw:tag' ) {
 					// we use this currently for nowiki and noinclude & co
 					this.newlineTransparent = true;
@@ -997,7 +997,7 @@ WSP.tagHandlers = {
 	span: {
 		start: {
 			handle: function( state, token ) {
-				var argDict = state.env.KVtoHash( token.attribs );
+				var argDict = Util.KVtoHash( token.attribs );
 				if ( argDict['typeof'] in WSP.genContentSpanTypes ) {
 					if ( argDict['typeof'] === 'mw:Nowiki' ) {
 						state.inNoWiki = true;
@@ -1020,7 +1020,7 @@ WSP.tagHandlers = {
 		},
 		end: {
 			handle: function ( state, token ) {
-				var argDict = state.env.KVtoHash( token.attribs );
+				var argDict = Util.KVtoHash( token.attribs );
 				if ( argDict['typeof'] in WSP.genContentSpanTypes ) {
 					if ( argDict['typeof'] === 'mw:Nowiki' ) {
 						state.inNoWiki = false;

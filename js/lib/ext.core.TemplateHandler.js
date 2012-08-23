@@ -122,9 +122,9 @@ TemplateHandler.prototype._expandTemplate = function ( token, templateId, frame,
 
 	// First, check the target for loops
 	// console.warn("TGT ----- " + JSON.stringify(target));
-	target = env.tokensToString( target ).trim();
+	target = Util.tokensToString( target ).trim();
 
-	//var args = env.KVtoHash( tplExpandData.expandedArgs );
+	//var args = Util.KVtoHash( tplExpandData.expandedArgs );
 
 	// strip subst for now.
 	target = target.replace( /^(safe)?subst:/, '' );
@@ -387,7 +387,7 @@ TemplateHandler.prototype.onTemplateArg = function ( token, frame, cb ) {
 TemplateHandler.prototype._returnArgAttributes = function ( token, cb, frame, attributes ) {
 	var env = this.manager.env;
 	//console.warn( '_returnArgAttributes: ' + JSON.stringify( attributes ));
-	var argName = env.tokensToString( attributes[0].k ).trim(),
+	var argName = Util.tokensToString( attributes[0].k ).trim(),
 		dict = this.manager.frame.args.named(),
 		res;
 	env.dp( 'args', argName /*, dict*/ );

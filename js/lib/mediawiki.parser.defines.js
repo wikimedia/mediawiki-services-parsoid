@@ -342,7 +342,7 @@ SelfclosingTagTk.prototype.defaultToString = function(compact, indent) {
 SelfclosingTagTk.prototype.tagToStringFns = {
 	"extlink": function(compact, indent) {
 		var indentIncrement = "  ";
-		var href = Util.toStringTokens(Util.lookupKV(this.attribs, 'href').v, indent + indentIncrement);
+		var href = Util.toStringTokens(Util.lookup(this.attribs, 'href'), indent + indentIncrement);
 		if (compact) {
 			return ["<extlink:", href, ">"].join('');
 		} else {
@@ -351,7 +351,7 @@ SelfclosingTagTk.prototype.tagToStringFns = {
 			}
 			var origIndent = indent;
 			indent = indent + indentIncrement;
-			var content = Util.lookupKV(this.attribs, 'content').v;
+			var content = Util.lookup(this.attribs, 'content');
 			content = this.multiTokenArgToString("v", content, indent, indentIncrement).str;
 			return ["<extlink>(\n", indent,
 					"href=", href, "\n", indent,
@@ -365,7 +365,7 @@ SelfclosingTagTk.prototype.tagToStringFns = {
 			indent = "";
 		}
 		var indentIncrement = "  ";
-		var href = Util.toStringTokens(Util.lookupKV(this.attribs, 'href').v, indent + indentIncrement);
+		var href = Util.toStringTokens(Util.lookup(this.attribs, 'href'), indent + indentIncrement);
 		if (compact) {
 			return ["<wikilink:", href, ">"].join('');
 		} else {
@@ -374,7 +374,7 @@ SelfclosingTagTk.prototype.tagToStringFns = {
 			}
 			var origIndent = indent;
 			indent = indent + indentIncrement;
-			var tail = Util.lookupKV(this.attribs, 'tail').v;
+			var tail = Util.lookup(this.attribs, 'tail');
 			var content = this.attrsToString(indent, indentIncrement, 2);
 			return ["<wikilink>(\n", indent,
 					"href=", href, "\n", indent,
@@ -488,10 +488,9 @@ Params.prototype.dict = function () {
 	var res = {};
 	for ( var i = 0, l = this.length; i < l; i++ ) {
 		var kv = this[i],
-			key = this.env.tokensToString( kv.k ).trim();
+			key = Util.tokensToString( kv.k ).trim();
 		res[key] = kv.v;
 	}
-	//console.warn( 'KVtoHash: ' + JSON.stringify( res ));
 	return res;
 };
 
@@ -510,7 +509,7 @@ Params.prototype.named = function () {
 		} else if ( k.constructor === String ) {
 			out[k] = this[i].v;
 		} else {
-			out[this.env.tokensToString( k ).trim()] = this[i].v;
+			out[Util.tokensToString( k ).trim()] = this[i].v;
 		}
 	}
 	return out;
