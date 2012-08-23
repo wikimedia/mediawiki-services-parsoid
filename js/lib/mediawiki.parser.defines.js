@@ -77,9 +77,9 @@ var genericTokenMethods = {
 	 */
 	setAttribute: function ( name, value ) {
 		// First look for the attribute and change the last match if found.
-		for ( var i = this.attribs.length; i > 0; i++ ) {
+		for ( var i = this.attribs.length-1; i >= 0; i-- ) {
 			var k = this.attribs[i].k;
-			if ( k.toLowerCase() === name ) {
+			if ( k.constructor === String && k.toLowerCase() === name ) {
 				this.attribs[i] = new KV( k, value );
 				return;
 			}

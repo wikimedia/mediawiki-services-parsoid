@@ -350,8 +350,10 @@ var remove_trailing_newlines_from_paragraphs = function ( document ) {
 			//			);
 			//	firstChild.data = firstChild.data.substr( leadingNewLines[0].length );
 			//}
+
 			var lastChild = cnode.lastChild;
-			if ( lastChild.nodeType === Node.TEXT_NODE ) {
+			// Verify lastChild is not null since we can have empty p-nodes
+			if ( lastChild && lastChild.nodeType === Node.TEXT_NODE ) {
 				var trailingNewlines = lastChild.data.match(/[\r\n]+$/);
 				if ( trailingNewlines ) {
 					lastChild.data = lastChild.data.substr( 0,
@@ -429,7 +431,7 @@ var encapsulateTrees = function ( startElem, endElem, doc ) {
 				// move the text node into the span
 				span.appendChild( n );
 				str = span.outerHTML;
-			} else {
+			} else if (n.nodeType === Node.ELEMENT_NODE) {
 				// TODO: add about to all elements
 				n.setAttribute( 'about', about );
 				str = n.outerHTML.replace(/\n$/, '');

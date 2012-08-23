@@ -399,7 +399,6 @@ TemplateHandler.prototype._returnArgAttributes = function ( token, cb, frame, at
 				asyncCB: cb
 			});
 		}
-		return;
 	} else {
 		env.dp( 'templateArg not found: ', argName /*' vs. ', dict */ );
 		if ( attributes.length > 1 ) {
@@ -408,8 +407,8 @@ TemplateHandler.prototype._returnArgAttributes = function ( token, cb, frame, at
 			//console.warn('no default for ' + argName + JSON.stringify( attributes ));
 			res = [ '{{{' + argName + '}}}' ];
 		}
+		cb( { tokens: res } );
 	}
-	cb( { tokens: res } );
 };
 
 if (typeof module === "object") {
