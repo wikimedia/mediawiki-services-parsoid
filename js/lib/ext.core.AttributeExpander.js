@@ -38,8 +38,7 @@ AttributeExpander.prototype.onToken = function ( token, frame, cb ) {
 				token.attribs &&
 				token.attribs.length ) {
 		// clone the token
-		token = $.extend( {}, token );
-		token.attribs = token.attribs.slice();
+		token = token.clone();
 		var atm = new AttributeTransformManager(
 					this.manager,
 					{ wrapTemplates: this.options.wrapTemplates },

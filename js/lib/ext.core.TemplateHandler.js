@@ -219,8 +219,11 @@ TemplateHandler.prototype.addAboutToTableElements = function ( templateToken, te
 	for ( var i = 0, l = tokens.length; i < l; i++ ) {
 		var token = tokens[i];
 		if ( token.constructor === TagTk && token.name === 'table' ) {
+			// clone before update attributes
+			token = token.clone();
 			token.addAttribute( 'about', '#' + templateId );
 			token.addSpaceSeparatedAttribute( 'typeof', 'mw:Object/Template/Content' );
+			tokens[i] = token;
 		}
 	}
 	return tokens;
@@ -256,11 +259,15 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( templateToken, templ
 						) ]
 					.concat( stringTokens, [ new EndTagTk( 'span' ) ], chunk );
 			} else if ( firstToken.constructor === TagTk || firstToken.constructor === SelfclosingTagTk) {
-				// Add the info on the existing token
 				// XXX: handle id/about conflicts
+
+				// clone token and update attributes
+				chunk.shift();
+				firstToken = firstToken.clone();
 				firstToken.addSpaceSeparatedAttribute( 'typeof', 'mw:Object/Template' );
 				firstToken.setAttribute( 'about', '#' + templateId );
 				firstToken.setAttribute( 'id', templateId );
+				chunk.unshift(firstToken);
 
 				// add about ref to all tables
 				return this.addAboutToTableElements( templateToken, templateId, chunk );

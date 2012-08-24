@@ -210,7 +210,7 @@ var Util = {
 			if ( token.constructor === String ) {
 				out.push( token );
 			} else {
-				tmpToken = $.extend( {}, token );
+				tmpToken = token.clone(false); // dont clone attribs
 				tmpToken.rank = 0;
 				out.push(tmpToken);
 			}

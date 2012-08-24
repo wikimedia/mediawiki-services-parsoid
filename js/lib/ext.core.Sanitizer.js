@@ -656,8 +656,8 @@ Sanitizer.prototype.onAny = function ( token ) {
 		// XXX: Likely better done in AttributeTransformManager when processing is
 		// complete
 		if (attribs && attribs.length > 0) {
-			attribs = attribs.slice(); // clone
-			var newToken = $.extend( {}, token );
+			var newToken = token.clone();
+			attribs = newToken.attribs;
 			var env = this.manager.env;
 			for (i = 0, l = attribs.length; i < l; i++ ) {
 				kv = attribs[i];

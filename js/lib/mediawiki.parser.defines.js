@@ -183,6 +183,18 @@ var genericTokenMethods = {
 
 	isHTMLTag: function() {
 		return this.dataAttribs.stx === 'html';
+	},
+
+	clone: function(cloneAttribs) {
+		if (cloneAttribs === undefined) {
+			cloneAttribs = true;
+		}
+
+		var myClone = $.extend({}, this);
+		if (cloneAttribs) {
+			myClone.attribs = this.attribs.slice();
+		}
+		return myClone;
 	}
 };
 
