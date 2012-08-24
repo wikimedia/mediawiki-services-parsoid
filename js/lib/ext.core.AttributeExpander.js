@@ -103,7 +103,6 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 
 	var tokens      = [];
 	var metaTokens  = [];
-	var dataAttribs = token.dataAttribs;
 	var oldAttrs    = token.attribs;
 	var i, l, metaObjType;
 
@@ -124,7 +123,7 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 					// about will be filled out in the end
 					metaTokens.push(new SelfclosingTagTk('meta',
 						[new KV("property", "mw:objectAttrKey#" + newK)],
-						updatedK.metaTag.dataAttribs)
+						Util.clone(updatedK.metaTag.dataAttribs))
 					);
 				}
 			}
@@ -142,7 +141,7 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 					// about will be filled out in the end
 					metaTokens.push(new SelfclosingTagTk('meta', 
 						[new KV("property", "mw:objectAttrVal#" + newK)],
-						updatedV.metaTag.dataAttribs)
+						Util.clone(updatedV.metaTag.dataAttribs))
 					);
 				}
 			}

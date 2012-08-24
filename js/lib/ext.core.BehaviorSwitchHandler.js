@@ -1,6 +1,8 @@
 /**
  */
 
+var Util = require('./mediawiki.Util.js').Util;
+
 function BehaviorSwitchHandler( manager, options ) {
 	this.manager = manager;
 	this.manager.addTransform( this.onBehaviorSwitch.bind( this ), "BehaviorSwitchHandler:onBehaviorSwitch", this.rank, 'tag', 'behavior-switch' );
@@ -18,7 +20,7 @@ BehaviorSwitchHandler.prototype.onBehaviorSwitch = function ( token, manager, cb
 		[
 			new SelfclosingTagTk( 'meta', 
 					[ new KV( 'typeof', 'mw:Placeholder' ) ],
-					token.dataAttribs )
+					Util.clone(token.dataAttribs) )
 		]
 	};
 };

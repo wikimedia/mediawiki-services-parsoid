@@ -130,7 +130,7 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 		this.endtags.push(new EndTagTk( itemToken.name ));
 		res = [
 			itemToken,
-			new TagTk( itemToken.name, [], token.dataAttribs )
+			new TagTk( itemToken.name, [], Util.clone(token.dataAttribs) )
 		];
 	} else {
 		var tokens = [];
@@ -145,7 +145,7 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 			this.endtags.push(new EndTagTk( newName ));
 			// TODO: review dataAttribs forwarding here and below in
 			// doListItem, in particular re accuracy of tsr!
-			var newTag = new TagTk(newName, [], token.dataAttribs);
+			var newTag = new TagTk(newName, [], Util.clone(token.dataAttribs));
 			tokens = tokens.concat([ endTag, newTag ]);
 			prefixLen++;
 		} else {
@@ -153,7 +153,7 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 			if (prefixLen > 0 && bn.length == prefixLen ) {
 				itemToken = this.endtags.pop();
 				tokens.push(itemToken);
-				tokens.push(new TagTk(itemToken.name, [], token.dataAttribs));
+				tokens.push(new TagTk(itemToken.name, [], Util.clone(token.dataAttribs)));
 				this.endtags.push(new EndTagTk( itemToken.name ));
 			}
 		}

@@ -93,12 +93,12 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 	} else if ( title.ns.isCategory() ) {
 		// Simply round-trip category links for now
 		var newAttrs = buildLinkAttrs(attribs, false, "mw:Placeholder", null);
-		cb( {tokens: [new SelfclosingTagTk('meta', newAttrs.attribs, token.dataAttribs)]} );
+		cb( {tokens: [new SelfclosingTagTk('meta', newAttrs.attribs, Util.clone(token.dataAttribs))]} );
 	} else {
 		//console.warn( 'title: ' + JSON.stringify( title ) );
 		var newAttrs = buildLinkAttrs(attribs, true, null, [new KV('rel', 'mw:WikiLink')]);
 		var content = newAttrs.content;
-		var obj = new TagTk( 'a', newAttrs.attribs, token.dataAttribs);
+		var obj = new TagTk( 'a', newAttrs.attribs, Util.clone(token.dataAttribs));
 
 		obj.addNormalizedAttribute( 'href', title.makeLink(), href );
 		//console.warn('content: ' + JSON.stringify( content, null, 2 ) );
@@ -237,9 +237,7 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 			new KV('rel', 'mw:Image')
 		].concat(rdfaAttrs.attribs);
 
-		var a = new TagTk('a', newAttribs);
-		a.dataAttribs = token.dataAttribs;
-
+		var a = new TagTk('a', newAttribs, Util.clone(token.dataAttribs));
 		var width, height;
 		if ( ! oHash.height && ! oHash.width ) {
 			width = '200px';
@@ -263,12 +261,10 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 
 WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fileName, path, caption, oHash, options, rdfaAttrs ) {
 	// TODO: get /wiki from config!
-	var dataAttribs = token.dataAttribs;
-	dataAttribs = token.dataAttribs;
+	var dataAttribs = Util.clone(token.dataAttribs);
 	dataAttribs.optionHash = oHash;
 	dataAttribs.optionList = options;
-	// clear src string since we can serialize this
-	dataAttribs.src = undefined;
+	dataAttribs.src = undefined; // clear src string since we can serialize this
 
 	var width = 165;
 
@@ -470,7 +466,7 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 		//
 		// combine with existing rdfa attrs
 		newAttrs = buildLinkAttrs(token.attribs, false, null, newAttrs).attribs;
-		aStart = new TagTk ('a', newAttrs, token.dataAttribs);
+		aStart = new TagTk ('a', newAttrs, Util.clone(token.dataAttribs));
 		cb( {
 			tokens: [aStart].concat(content, [new EndTagTk('a')])
 		} );
@@ -501,7 +497,7 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 		];
 		// combine with existing rdfa attrs
 		newAttrs = buildLinkAttrs(token.attribs, false, null, newAttrs).attribs;
-		aStart = new TagTk ( 'a', newAttrs, token.dataAttribs );
+		aStart = new TagTk ( 'a', newAttrs, Util.clone(token.dataAttribs) );
 		cb( {
 			tokens: [aStart].concat(content, [new EndTagTk('a')])
 		} );

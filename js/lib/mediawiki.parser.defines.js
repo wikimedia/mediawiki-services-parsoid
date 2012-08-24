@@ -193,6 +193,7 @@ var genericTokenMethods = {
 		var myClone = $.extend({}, this);
 		if (cloneAttribs) {
 			myClone.attribs = this.attribs.slice();
+			myClone.dataAttribs = Util.clone(this.dataAttribs);
 		}
 		return myClone;
 	}

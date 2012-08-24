@@ -257,7 +257,7 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 								new KV('about', '#' + state.templateId),
 								new KV('id', state.templateId)
 							],
-							{ tsr: state.token.dataAttribs.tsr }
+							{ tsr: Util.clone(state.token.dataAttribs.tsr) }
 						) ]
 					.concat( stringTokens, [ new EndTagTk( 'span' ) ], chunk );
 			} else if ( firstToken.constructor === TagTk || firstToken.constructor === SelfclosingTagTk) {
@@ -280,7 +280,7 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 						new KV( 'about', '#' + state.templateId ),
 						new KV( 'typeof', 'mw:Object/Template' )
 					], {
-						tsr: state.token.dataAttribs.tsr
+						tsr: Util.clone(state.token.dataAttribs.tsr)
 					})
 			];
 		}

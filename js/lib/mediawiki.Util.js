@@ -122,6 +122,14 @@ var Util = {
 		return out.join('');
 	},
 
+	// deep clones by default.
+	clone: function(obj, deepClone) {
+		if (deepClone === undefined) {
+			deepClone = true;
+		}
+		return $.extend(deepClone, {}, obj);
+	},
+
 	lookupKV: function ( kvs, key ) {
 		if ( ! kvs ) {
 			return null;
