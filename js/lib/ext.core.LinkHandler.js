@@ -10,7 +10,11 @@
 var jshashes = require('jshashes'),
 	PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	WikitextConstants = require('./mediawiki.wikitext.constants.js').WikitextConstants,
-	Util = require('./mediawiki.Util.js').Util;
+	Util = require('./mediawiki.Util.js').Util,
+	// Why mess around? We already have a URL sanitizer.
+	sanitizerLib = require( './ext.core.Sanitizer.js' ),
+	Sanitizer = sanitizerLib.Sanitizer,
+	SanitizerConstants = sanitizerLib.SanitizerConstants;
 
 function WikiLinkHandler( manager, options ) {
 	this.manager = manager;
@@ -417,8 +421,21 @@ ExternalLinkHandler.prototype._isImageLink = function ( href ) {
 };
 
 ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
-	var href = Util.sanitizeURI(Util.tokensToString(Util.lookup(token.attribs, 'href')));
-	var tagAttrs;
+	var env = this.manager.env,
+		tagAttrs,
+		builtTag,
+		href = Util.sanitizeURI( Util.tokensToString( Util.lookupKV( token.attribs, 'href' ).v ) ),
+		modTxt = false,
+		txt = href;
+
+	if ( SanitizerConstants.IDN_RE.test( txt ) ) {
+		// Make sure there are no IDN-ignored characters in the text so the
+		// user doesn't accidentally copy any.
+		txt = Sanitizer._stripIDNs( txt );
+		// Notify the rest of the code that we've monkeyed with the text.
+		modTxt = true;
+	}
+
 	if ( this._isImageLink( href ) ) {
 		tagAttrs = [
 			new KV( 'src', href ),
@@ -435,16 +452,21 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 		} );
 	} else {
 		tagAttrs = [
-			new KV( 'href', href ),
-			new KV('rel', 'mw:ExtLink/URL')
+			new KV( 'rel', 'mw:ExtLink/URL' )
 		];
 
 		// combine with existing rdfa attrs
 		tagAttrs = buildLinkAttrs(token.attribs, false, null, tagAttrs).attribs;
+		builtTag = new TagTk( 'a', tagAttrs);
+
+		// Since we messed with the text of the link, we need
+		// to preserve the original in the RT data. Or else.
+		builtTag.addNormalizedAttribute( 'href', txt, href );
+
 		cb( {
 			tokens: [
-				new TagTk( 'a', tagAttrs),
-				href,
+				builtTag,
+				txt,
 				new EndTagTk( 'a' )
 			]
 		} );
@@ -454,9 +476,10 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 // Bracketed external link
 ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 	var env = this.manager.env,
-		href = Util.sanitizeURI(Util.tokensToString(Util.lookup(token.attribs, 'href'))),
+		orighref = Util.lookup( token.attribs, 'href' ),
+		href = Util.sanitizeURI( Util.tokensToString( orighref ) ),
 		content = Util.lookup( token.attribs, 'mw:content'),
-		newAttrs, aStart;
+		newAttrs, aStart, hrefKv;
 
 	//console.warn('extlink href: ' + href );
 	//console.warn( 'mw:content: ' + JSON.stringify( content, null, 2 ) );
@@ -504,12 +527,19 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 		}
 
 		newAttrs = [
-			new KV('href', href),
 			new KV('rel', rdfaType)
 		];
 		// combine with existing rdfa attrs
 		newAttrs = buildLinkAttrs(token.attribs, false, null, newAttrs).attribs;
-		aStart = new TagTk ( 'a', newAttrs, Util.clone(token.dataAttribs) );
+		aStart = new TagTk ( 'a', newAttrs, token.dataAttribs );
+
+		if ( SanitizerConstants.IDN_RE.test( href ) ) {
+			// Make sure there are no IDN-ignored characters in the text so the
+			// user doesn't accidentally copy any.
+			href = Sanitizer._stripIDNs( href );
+		}
+
+		aStart.addNormalizedAttribute( 'href', href, orighref );
 		cb( {
 			tokens: [aStart].concat(content, [new EndTagTk('a')])
 		} );

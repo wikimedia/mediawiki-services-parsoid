@@ -10,6 +10,10 @@ testWhiteList["Italics and bold: 3-quote opening sequence: (3,5)"] = "<p><b>foo<
 testWhiteList["Italics and bold: 4-quote opening sequence: (4,5)"] = "<p>'<b>foo<i></i></b></p>";
 testWhiteList["Italics and bold: multiple quote sequences: (3,4,2)"] = "<p><b>foo'</b>bar<i></i></p>";
 testWhiteList["Italics and bold: multiple quote sequences: (3,4,3)"] = "<p><b>foo'</b>bar<b></b></p>";
+// We insert an empty bold tag pair at the end of the line, that the PHP
+// parser strips. The wikitext contains just the first half of the bold
+// quote pair.
+testWhiteList["Unclosed and unmatched quotes"] = "<p><i><b>Bold italic text </b>with bold deactivated<b> in between.</b></i></p>\n\n<p><b><i>Bold italic text </i>with italic deactivated<i> in between.</i></b></p>\n\n<p><b>Bold text..</b></p>\n\n<p>..spanning two paragraphs (should not work).<b></b></p>\n\n<p><b>Bold tag left open</b></p>\n\n<p><i>Italic tag left open</i></p>\n\n<p>Normal text.\n\n<!-- Unmatching number of opening, closing tags: --></p><p>\n<b>This year'</b>s election <i>should</i> beat <b>last year'</b>s.</p>\n\n<p><i>Tom<b>s car is bigger than </b></i><b>Susan</b>s.</p>\n\n<p>Plain <i>italic'</i>s plain</p>";
 
 // Valid, but the PHP parser reverses the order.
 testWhiteList["Italics and bold: 5-quote opening sequence: (5,2)"] = "<p><i><b>foo</b></i></p>";
@@ -21,6 +25,18 @@ testWhiteList["Italics and bold: 5-quote opening sequence: (5,2)"] = "<p><i><b>f
 // parsoid, but doesn't get changed by the PHP parser.
 // XXX TODO BBQ fix either Parsoid or the PHP parser to not be stupid
 testWhiteList["Italics and bold: other quote tests: (3,2,3,3)"] = "<p><b>this is about <i>foo'</i>s family</b></p>";
+
+// This test fails for two reasons:
+//  * The test is wrong, there are two colons where there should be :;
+//  * The PHP parser is wrong to close the <dl> after the <dt> containing the <ul>.
+testWhiteList["Definition Lists: Mixed Lists: Test 1"] = "<dl><dd><dl><dt><ul><li> foo\n</li></ul></dt><dd data-parsoid=\"{&quot;tsr&quot;:[8,11]}\"><ul><li> bar\n</li></ul></dd><dt data-parsoid=\"{&quot;tsr&quot;:[16,18]}\"> baz</dt></dl></dd></dl>";
+
+// These tests fail because the PHP parser has seemingly-random rules regarding dd/dt.
+// We are egotistical and assume we got it right, because we are more consistent.
+// Also, the nesting is repeated in funny ways, and we recognize the shared nesting and
+// keep the still-open tags around until the nesting is complete. PHP doesn't.
+testWhiteList["Definition Lists: Mixed Lists: Test 11"] = "<ul><li><ol><li><ul><li><ol><li><dl><dt><ul><li><dl><dt><dl><dt>foo<span typeof=\"mw:Placeholder\" data-parsoid=\"{&quot;src&quot;:&quot; &quot;}\">&nbsp;</span></dt><dd data-parsoid=\"{&quot;tsr&quot;:[13,14],&quot;stx&quot;:&quot;row&quot;}\">bar\n</dd></dl></dt></dl></li></ul></dt><dt data-parsoid=\"{&quot;tsr&quot;:[17,21]}\">boo<span typeof=\"mw:Placeholder\" data-parsoid=\"{&quot;src&quot;:&quot; &quot;}\">&nbsp;</span></dt><dd data-parsoid=\"{&quot;tsr&quot;:[27,28],&quot;stx&quot;:&quot;row&quot;}\">baz</dd></dl></li></ol></li></ul></li></ol></li></ul>";
+testWhiteList["Definition Lists: Weird Ones: Test 1"] = "<ul><li><ol><li><dl><dt><ul><li><dl><dd><dl><dd><dl><dt><dl><dt> foo<span typeof=\"mw:Placeholder\" data-parsoid=\"{&quot;src&quot;:&quot; &quot;}\">&nbsp;</span></dt><dd data-parsoid=\"{&quot;tsr&quot;:[14,15],&quot;stx&quot;:&quot;row&quot;}\"> bar (who uses this?)</dd></dl></dt></dl></dd></dl></dd></dl></li></ul></dt></dl></li></ol></li></ul>";
 
 // Italic/link nesting is changed in this test, but the rendered result is the
 // same. Currently the result is actually an improvement over the MediaWiki
@@ -42,6 +58,17 @@ testWhiteList["Bug 6200: Preformatted in <blockquote>"] = "<blockquote><pre>\nBl
 // empty table tags / with only a caption are legal in HTML5.
 testWhiteList["A table with no data."] = "<table></table>";
 testWhiteList["A table with nothing but a caption"] = "<table><caption> caption</caption></table>";
+
+// We preserve the trailing whitespace in a table cell, while the PHP parser
+// strips it. It renders the same, and round-trips with the space.
+testWhiteList["Table rowspan"] = "<table border=\"1\" data-parsoid=\"{&quot;tsr&quot;:[0,11],&quot;bsp&quot;:[0,121]}\">\n<tbody><tr><td data-parsoid=\"{&quot;tsr&quot;:[12,13]}\"> Cell 1, row 1 \n</td><td rowspan=\"2\" data-parsoid=\"{&quot;tsr&quot;:[29,40]}\"> Cell 2, row 1 (and 2) \n</td><td data-parsoid=\"{&quot;tsr&quot;:[64,65]}\"> Cell 3, row 1 \n</td></tr><tr data-parsoid=\"{&quot;tsr&quot;:[81,84]}\">\n<td data-parsoid=\"{&quot;tsr&quot;:[85,86]}\"> Cell 1, row 2 \n</td><td data-parsoid=\"{&quot;tsr&quot;:[102,103]}\"> Cell 3, row 2 \n</td></tr></tbody></table>";
+
+// The PHP parser strips the hash fragment for non-existent pages, but Parsoid does not.
+// TODO: implement link target detection in a DOM postprocessor or on the client
+// side.
+testWhiteList["Broken link with fragment"] = "<p><a rel=\"mw:WikiLink\" href=\"Zigzagzogzagzig#zug\" data-parsoid=\"{&quot;tsr&quot;:[0,23],&quot;src&quot;:&quot;[[Zigzagzogzagzig#zug]]&quot;,&quot;bsp&quot;:[0,23],&quot;stx&quot;:&quot;simple&quot;}\">Zigzagzogzagzig#zug</a></p>";
+testWhiteList["Nonexistent special page link with fragment"] = "<p><a rel=\"mw:WikiLink\" href=\"Special:ThisNameWillHopefullyNeverBeUsed#anchor\" data-parsoid=\"{&quot;tsr&quot;:[0,51],&quot;src&quot;:&quot;[[Special:ThisNameWillHopefullyNeverBeUsed#anchor]]&quot;,&quot;bsp&quot;:[0,51],&quot;stx&quot;:&quot;simple&quot;}\">Special:ThisNameWillHopefullyNeverBeUsed#anchor</a></p>";
+
 testWhiteList["Fuzz testing: Parser22"] = "<p><a href=\"http://===r:::https://b\">http://===r:::https://b</a></p><table></table>";
 
 /** 
@@ -68,8 +95,8 @@ testWhiteList["Link containing double-single-quotes '' (bug 4598)"] = "<p><a rel
 // testWhiteList["Invalid attributes in table cell (bug 1830)"] = "<table><tbody><tr><td Cell:=\"\">broken</td></tr></tbody></table>";
 // testWhiteList["Table security: embedded pipes (http://lists.wikimedia.org/mailman/htdig/wikitech-l/2006-April/022293.html)"] = "<table><tbody><tr><td> |<a href=\"ftp://|x||\">[1]</a>\" onmouseover=\"alert(document.cookie)\"&gt;test</td></tr></tbody></table>";
 
-// Sanitizer, but UTF8 in link is ok in HTML5
-testWhiteList["External link containing double-single-quotes with no space separating the url from text in italics"] = "<p><a href=\"http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm\" data-rt=\"{&quot;sourcePos&quot;:[0,146]}\"><i>La muerte de Casagemas</i> (1901) en el sitio de </a><a href=\"/wiki/Museo_Picasso_(París)\">Museo Picasso</a>.</p>";
+// We standardize on UTF8, so don't need to urlencode these chars any more.
+testWhiteList["External link containing double-single-quotes with no space separating the url from text in italics"] = "<p><a href=\"http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm\" rel=\"mw:ExtLink\" data-parsoid=\"{&quot;tsr&quot;:[0,146],&quot;bsp&quot;:[0,146]}\"><i>La muerte de Casagemas</i> (1901) en el sitio de </a><a rel=\"mw:WikiLink\" href=\"Museo_Picasso_(París)\" data-parsoid=\"{&quot;tsr&quot;:[105,144],&quot;src&quot;:&quot;[[Museo Picasso (París)|Museo Picasso]]&quot;,&quot;a&quot;:{&quot;href&quot;:&quot;Museo_Picasso_(París)&quot;},&quot;sa&quot;:{&quot;href&quot;:&quot;Museo Picasso (París)&quot;}}\">Museo Picasso</a>.</p>";
 
 testWhiteList["External links: wiki links within external link (Bug 3695)"] = "<p><a href=\"http://example.com\" rel=\"mw:ExtLink\" data-parsoid=\"{&quot;tsr&quot;:[0,54],&quot;bsp&quot;:[0,54]}\"></a><a rel=\"mw:WikiLink\" href=\"Wikilink\" data-parsoid=\"{&quot;tsr&quot;:[20,32],&quot;contentPos&quot;:[20,32],&quot;src&quot;:&quot;[[wikilink]]&quot;,&quot;a&quot;:{&quot;href&quot;:&quot;Wikilink&quot;},&quot;sa&quot;:{&quot;href&quot;:&quot;wikilink&quot;},&quot;stx&quot;:&quot;simple&quot;}\">wikilink</a> embedded in ext link</p>";
 
