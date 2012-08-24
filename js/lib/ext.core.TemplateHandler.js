@@ -19,7 +19,6 @@ var events = require('events'),
 	Util = require('./mediawiki.Util.js').Util;
 
 function TemplateHandler ( manager, options ) {
-	this.emittedFirstChunk = false;
 	this.register( manager );
 	this.parserFunctions = new ParserFunctions( manager );
 	this.options = options;
@@ -50,14 +49,18 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 	//console.warn('onTemplate! ' + JSON.stringify( token, null, 2 ) +
 	//		' args: ' + JSON.stringify( this.manager.args ));
 
-	var templateId = this.options.wrapTemplates ? 'mwt' + this.manager.env.generateUID() : null;
+	var state = { token: token };
+	if (this.options.wrapTemplates) {
+		state.templateId = 'mwt' + this.manager.env.generateUID();
+		state.emittedFirstChunk = false;
+	}
 
 	// expand argument keys, with callback set to next processing step
 	// XXX: would likely be faster to do this in a tight loop here
 	var atm = new AttributeTransformManager(
 				this.manager,
 				{ wrapTemplates: false },
-				this._expandTemplate.bind( this, token, templateId, frame, cb )
+				this._expandTemplate.bind( this, state, frame, cb )
 			);
 	cb( { async: true } );
 	atm.processKeys(token.attribs);
@@ -85,16 +88,16 @@ TemplateHandler.prototype._nameArgs = function ( attribs ) {
 /**
  * Parser functions also need template wrapping
  */
-TemplateHandler.prototype._parserFunctionsWrapper = function(token, templateId, cb, ret) {
+TemplateHandler.prototype._parserFunctionsWrapper = function(state, cb, ret) {
 	if (!ret) {
 		cb();
 	} else {
 		if (ret.tokens) {
-			this._onChunk(token, templateId, cb, ret.tokens);
+			this._onChunk(state, cb, ret.tokens);
 		}
 		if (!ret.async) {
 			// Now, ready to finish up
-			this._onEnd(token, templateId, cb);
+			this._onEnd(state, cb);
 		}
 	}
 };
@@ -103,7 +106,7 @@ TemplateHandler.prototype._parserFunctionsWrapper = function(token, templateId, 
  * Fetch, tokenize and token-transform a template after all arguments and the
  * target were expanded.
  */
-TemplateHandler.prototype._expandTemplate = function ( token, templateId, frame, cb, attribs ) {
+TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs ) {
 	//console.warn('TemplateHandler.expandTemplate: ' +
 	//		JSON.stringify( tplExpandData, null, 2 ) );
 	var env = this.manager.env;
@@ -121,7 +124,6 @@ TemplateHandler.prototype._expandTemplate = function ( token, templateId, frame,
 	// check for parser functions
 
 	// First, check the target for loops
-	// console.warn("TGT ----- " + JSON.stringify(target));
 	target = Util.tokensToString( target ).trim();
 
 	//var args = Util.KVtoHash( tplExpandData.expandedArgs );
@@ -142,14 +144,14 @@ TemplateHandler.prototype._expandTemplate = function ( token, templateId, frame,
 		//		'unnamedArgs', tplExpandData.origToken.attribs,
 		//		'funcArg:', funcArg
 		//		);
-		env.dp( 'entering prefix', target, token  );
+		env.dp( 'entering prefix', target, state.token  );
 		var newCB;
 		if (this.options.wrapTemplates) {
-			newCB = this._parserFunctionsWrapper.bind(this, token, templateId, cb);
+			newCB = this._parserFunctionsWrapper.bind(this, state, cb);
 		} else {
 			newCB = cb;
 		}
-		this.parserFunctions['pf_' + prefix](token, this.manager.frame, newCB, pfAttribs);
+		this.parserFunctions['pf_' + prefix](state.token, this.manager.frame, newCB, pfAttribs);
 		return;
 	}
 	env.tp( 'template target: ' + target );
@@ -184,14 +186,14 @@ TemplateHandler.prototype._expandTemplate = function ( token, templateId, frame,
 	this._fetchTemplateAndTitle(
 			templateName,
 			cb,
-			this._processTemplateAndTitle.bind( this, token, templateId, frame, cb, templateName, attribs )
+			this._processTemplateAndTitle.bind( this, state, frame, cb, templateName, attribs )
 		);
 };
 
 /**
  * Process a fetched template source
  */
-TemplateHandler.prototype._processTemplateAndTitle = function( token, templateId, frame, cb, name, attribs, err, src, type ) {
+TemplateHandler.prototype._processTemplateAndTitle = function( state, frame, cb, name, attribs, err, src, type ) {
 	// Get a nested transformation pipeline for the input type. The input
 	// pipeline includes the tokenizer, synchronous stage-1 transforms for
 	// 'text/wiki' input and asynchronous stage-2 transforms).
@@ -208,20 +210,20 @@ TemplateHandler.prototype._processTemplateAndTitle = function( token, templateId
 	pipeline.setFrame( this.manager.frame, name, attribs );
 
 	// Hook up the inputPipeline output events to our handlers
-	pipeline.addListener( 'chunk', this._onChunk.bind ( this, token, templateId, cb ) );
-	pipeline.addListener( 'end', this._onEnd.bind ( this, token, templateId, cb ) );
+	pipeline.addListener( 'chunk', this._onChunk.bind ( this, state, cb ) );
+	pipeline.addListener( 'end', this._onEnd.bind ( this, state, cb ) );
 	// Feed the pipeline. XXX: Support different formats.
 	this.manager.env.dp( 'TemplateHandler._processTemplateAndTitle', name, attribs );
 	pipeline.process ( src, name );
 };
 
-TemplateHandler.prototype.addAboutToTableElements = function ( templateToken, templateId, tokens ) {
+TemplateHandler.prototype.addAboutToTableElements = function ( state, tokens ) {
 	for ( var i = 0, l = tokens.length; i < l; i++ ) {
 		var token = tokens[i];
 		if ( token.constructor === TagTk && token.name === 'table' ) {
 			// clone before update attributes
 			token = token.clone();
-			token.addAttribute( 'about', '#' + templateId );
+			token.addAttribute( 'about', '#' + state.templateId );
 			token.addSpaceSeparatedAttribute( 'typeof', 'mw:Object/Template/Content' );
 			tokens[i] = token;
 		}
@@ -229,7 +231,7 @@ TemplateHandler.prototype.addAboutToTableElements = function ( templateToken, te
 	return tokens;
 };
 
-TemplateHandler.prototype.addEncapsulationInfo = function ( templateToken, templateId, chunk ) {
+TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 	// TODO
 	// * only add this information for top-level includes, but track parameter
 	// expansion in lower-level templates
@@ -239,7 +241,7 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( templateToken, templ
 	//	id == about marks first element
 	// * ref all tables to this (just add about)
 	// * ref end token to this, add property="mw:Object/Template/End"
-	if ( ! this.emittedFirstChunk ) {
+	if ( ! state.emittedFirstChunk ) {
 		if ( chunk.length ) {
 			var firstToken = chunk[0];
 			if ( firstToken.constructor === String ) {
@@ -252,10 +254,10 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( templateToken, templ
 				return [ new TagTk( 'span',
 							[
 								new KV('typeof', 'mw:Object/Template'),
-								new KV('about', '#' + templateId),
-								new KV('id', templateId)
+								new KV('about', '#' + state.templateId),
+								new KV('id', state.templateId)
 							],
-							{ tsr: templateToken.dataAttribs.tsr }
+							{ tsr: state.token.dataAttribs.tsr }
 						) ]
 					.concat( stringTokens, [ new EndTagTk( 'span' ) ], chunk );
 			} else if ( firstToken.constructor === TagTk || firstToken.constructor === SelfclosingTagTk) {
@@ -265,25 +267,25 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( templateToken, templ
 				chunk.shift();
 				firstToken = firstToken.clone();
 				firstToken.addSpaceSeparatedAttribute( 'typeof', 'mw:Object/Template' );
-				firstToken.setAttribute( 'about', '#' + templateId );
-				firstToken.setAttribute( 'id', templateId );
+				firstToken.setAttribute( 'about', '#' + state.templateId );
+				firstToken.setAttribute( 'id', state.templateId );
 				chunk.unshift(firstToken);
 
 				// add about ref to all tables
-				return this.addAboutToTableElements( templateToken, templateId, chunk );
+				return this.addAboutToTableElements( state, chunk );
 			}
 		} else {
 			// add about ref to all tables
 			return [ new SelfclosingTagTk( 'meta', [
-						new KV( 'about', '#' + templateId ),
+						new KV( 'about', '#' + state.templateId ),
 						new KV( 'typeof', 'mw:Object/Template' )
 					], {
-						tsr: templateToken.dataAttribs.tsr
+						tsr: state.token.dataAttribs.tsr
 					})
 			];
 		}
 	} else {
-		return this.addAboutToTableElements( templateToken, templateId, chunk );
+		return this.addAboutToTableElements( state, chunk );
 		//return chunk;
 	}
 };
@@ -291,25 +293,25 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( templateToken, templ
 /**
  * Handle chunk emitted from the input pipeline after feeding it a template
  */
-TemplateHandler.prototype._onChunk = function( templateToken, templateId, cb, chunk ) {
+TemplateHandler.prototype._onChunk = function( state, cb, chunk ) {
 	var env = this.manager.env;
 	if (env.trace) {
-		env.tracer.startPass("TemplateHandler:onChunk (" + templateToken.toString(true) + ")");
+		env.tracer.startPass("TemplateHandler:onChunk (" + state.token.toString(true) + ")");
 	}
 	chunk = Util.stripEOFTkfromTokens( chunk );
 	if (this.options.wrapTemplates) {
-		if ( ! this.emittedFirstChunk ) {
-			chunk = this.addEncapsulationInfo(templateToken, templateId, chunk );
-			this.emittedFirstChunk = true;
+		if ( ! state.emittedFirstChunk ) {
+			chunk = this.addEncapsulationInfo(state, chunk );
+			state.emittedFirstChunk = true;
 		} else {
-			chunk = this.addAboutToTableElements( templateToken, templateId, chunk );
+			chunk = this.addAboutToTableElements( state, chunk );
 		}
 	}
 
 	env.dp( 'TemplateHandler._onChunk', chunk );
 	cb( { tokens: chunk, async: true } );
 	if (env.trace) {
-		env.tracer.endPass("TemplateHandler:onChunk (" + templateToken.toString(true) + ")");
+		env.tracer.endPass("TemplateHandler:onChunk (" + state.token.toString(true) + ")");
 	}
 };
 
@@ -317,17 +319,17 @@ TemplateHandler.prototype._onChunk = function( templateToken, templateId, cb, ch
  * Handle the end event emitted by the parser pipeline after fully processing
  * the template source.
  */
-TemplateHandler.prototype._onEnd = function( templateToken, templateId, cb ) {
+TemplateHandler.prototype._onEnd = function( state, cb ) {
 	this.manager.env.dp( 'TemplateHandler._onEnd' );
 	if (this.options.wrapTemplates) {
 		var res = { tokens: [
 			new SelfclosingTagTk( 'meta',
 				[
 					new KV( 'typeof', 'mw:Object/Template/End' ),
-					new KV( 'about', '#' + templateId )
+					new KV( 'about', '#' + state.templateId )
 				] )
 			] };
-		this.emittedFirstChunk = false;
+		state.emittedFirstChunk = false;
 		cb( res );
 	} else {
 		cb( { tokens: [] } );
