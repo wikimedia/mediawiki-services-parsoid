@@ -1,4 +1,4 @@
-#include <ostream>
+#include <iostream>
 #include <boost/checked_delete.hpp>
 #include <boost/detail/atomic_count.hpp>
 

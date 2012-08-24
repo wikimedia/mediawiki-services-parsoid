@@ -11,6 +11,7 @@ PREFIX ?= $(CURDIR)/../build
 CXXFLAGS += \
 	-std=c++11 \
 	-g \
+	-Wall \
 	-I$(PREFIX)/include
 
 LIB_STATIC = libparsoid.a
