@@ -46,70 +46,46 @@ var ParserPipelineFactory = require(mp + 'mediawiki.parser.js').ParserPipelineFa
 	ParserError = libtr.ParserError,
 	TemplateRequest = libtr.TemplateRequest;
 
-var env = new ParserEnv( {
-	// stay within the 'proxied' content, so that we can click around
-	wgScriptPath: '/', //http://en.wikipedia.org/wiki',
-	wgScriptExtension: '.php',
-	// XXX: add options for this!
-	wgUploadPath: 'http://upload.wikimedia.org/wikipedia/commons',
-	fetchTemplates: true,
-	// enable/disable debug output using this switch
-	debug: false,
-	trace: false,
-	maxDepth: 40
-} );
+function getParserEnv() {
+	var env = new ParserEnv( {
+		// stay within the 'proxied' content, so that we can click around
+		wgScriptPath: '/', //http://en.wikipedia.org/wiki',
+		wgScriptExtension: '.php',
+		// XXX: add options for this!
+		wgUploadPath: 'http://upload.wikimedia.org/wikipedia/commons',
+		fetchTemplates: true,
+		// enable/disable debug output using this switch
+		debug: false,
+		trace: false,
+		maxDepth: 40
+	} );
 
-// add mediawiki.org
-env.setInterwiki( 'mw', 'http://www.mediawiki.org/w' );
+	// add mediawiki.org
+	env.setInterwiki( 'mw', 'http://www.mediawiki.org/w' );
 
-// add localhost default
-env.setInterwiki( 'localhost', 'http://localhost/w' );
+	// add localhost default
+	env.setInterwiki( 'localhost', 'http://localhost/w' );
 
-// Apply local settings
-if (path.existsSync(lsp)) {
-	require('./localsettings').setup( config, env );
+	// Apply local settings
+	if (path.existsSync(lsp)) {
+		require('./localsettings').setup( config, env );
+	}
+
+	return env;
 }
 
-var parserPipelineFactory = new ParserPipelineFactory( env );
-//var parser = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
+function getParser(env, type) {
+	return (new ParserPipelineFactory(env)).makePipeline(type);
+}
 
-
-var app = express.createServer();
-app.use(express.bodyParser());
-
-app.get('/', function(req, res){
-	res.write('<body><h3>Welcome to the alpha test web service for the ' +
-		'<a href="http://www.mediawiki.org/wiki/Parsoid">Parsoid project<a>.</h3>');
-	res.write( '<p>Usage: <ul><li>GET /title for the DOM. ' +
-		'Example: <strong><a href="/en/Main_Page">Main Page</a></strong>');
-	res.write('<li>POST a DOM as parameter "content" to /title for the wikitext</ul>');
-	res.write('<p>There are also some tools for experiments:<ul>');
-	res.write('<li>Round-trip test pages from the English Wikipedia: ' +
-		'<strong><a href="/_rt/en/Help:Magic">/_rt/Help:Magic</a></strong></li>');
-	res.write('<li><strong><a href="/_rtform/">WikiText -&gt; HTML DOM -&gt; WikiText round-trip form</a></strong></li>');
-	res.write('<li><strong><a href="/_wikitext/">WikiText -&gt; HTML DOM form</a></strong></li>' +
-			'<li><strong><a href="/_html/">HTML DOM -&gt; WikiText form</a></strong></li>');
-	res.write('</ul>');
-	res.end('<p>We are currently focusing on round-tripping of basic formatting like inline/bold, headings, lists, tables and links. Templates, citations and thumbnails are not expected to round-trip properly yet. <strong>Please report issues you see at <a href="http://www.mediawiki.org/w/index.php?title=Talk:Parsoid/Todo&action=edit&section=new">:mw:Talk:Parsoid/Todo</a>. Thanks!</strong></p>');
-});
-
-
-
-var htmlSpecialChars = function ( s ) {
-	return s.replace(/&/g,'&amp;')
-		.replace(/</g,'&lt;')
-		.replace(/"/g,'&quot;')
-		.replace(/'/g,'&#039;');
-};
-
-var textarea = function ( res, content ) {
-	res.write('<form method=POST><textarea name="content" cols=90 rows=9>');
-	res.write( ( content &&
-					htmlSpecialChars( content) ) ||
-			'');
-	res.write('</textarea><br><input type="submit"></form>');
-};
-
+var interwikiRE;
+function getInterwikiRE() {
+	// this RE won't change -- so, cache it
+	if (!interwikiRE) {
+		interwikiRE = getParserEnv().interwikiRegexp;
+	}
+	return interwikiRE;
+}
 
 /**
  * Set up environment defaults for the default wiki
@@ -121,90 +97,6 @@ function setDefaultWiki ( config, env ) {
 	}
 	env.wgScript = env.interwikiMap[interwiki];
 }
-
-
-/**
- * robots.txt: no indexing.
- */
-app.get(/^\/robots.txt$/, function ( req, res ) {
-	res.end( "User-agent: *\nDisallow: /\n" );
-});
-
-/**
- * Redirects for old-style URL compatibility
- */
-app.get( new RegExp( '^/((?:_rt|_rtve)/)?(' + env.interwikiRegexp +
-				'):(.*)$' ), function ( req, res ) {
-	if ( req.params[0] ) {
-		res.redirect(  '/' + req.params[0] + req.params[1] + '/' + req.params[2]);
-	} else {
-		res.redirect( '/' + req.params[1] + '/' + req.params[2]);
-	}
-	res.end( );
-});
-
-
-/**
- * Form-based HTML DOM -> wikitext interface for manual testing
- */
-app.get(/\/_html\/(.*)/, function ( req, res ) {
-	env.setPageName( req.params[0] );
-	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-	res.write( "Your HTML DOM:" );
-	textarea( res );
-	res.end('');
-});
-app.post(/\/_html\/(.*)/, function ( req, res ) {
-	env.setPageName( req.params[0] );
-	setDefaultWiki( config, env );
-	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-	var p = new html5.Parser();
-	p.parse( '<html><body>' + req.body.content.replace(/\r/g, '') + '</body></html>' );
-	res.write('<pre style="background-color: #efefef">');
-	new WikitextSerializer({env: env}).serializeDOM(
-		p.tree.document.childNodes[0].childNodes[1],
-		function( c ) {
-			res.write( htmlSpecialChars( c ) );
-		});
-	res.write('</pre>');
-	res.write( "<hr>Your HTML DOM:" );
-	textarea( res, req.body.content.replace(/\r/g, '') );
-	res.end('');
-});
-
-/**
- * Form-based wikitext -> HTML DOM interface for manual testing
- */
-app.get(/\/_wikitext\/(.*)/, function ( req, res ) {
-	env.setPageName( req.params[0] );
-	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-	res.write( "Your wikitext:" );
-	textarea( res );
-	res.end('');
-});
-app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
-	env.setPageName( req.params[0] );
-	setDefaultWiki( config, env );
-	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-	var parser = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
-	parser.on('document', function ( document ) {
-		res.write(document.body.innerHTML);
-		//res.write('<form method=POST><input name="content"></form>');
-		//res.end("hello world\n" + req.method + ' ' + req.params.title);
-		res.write( "<hr>Your wikitext:" );
-		textarea( res, req.body.content.replace(/\r/g, '') );
-		res.end('');
-	});
-	try {
-		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-		console.log('starting parsing of ' + req.params[0]);
-		// FIXME: This does not handle includes or templates correctly
-		parser.process( req.body.content.replace(/\r/g, '') );
-	} catch (e) {
-		console.log( e );
-		res.send( e.toString(), 500 );
-	}
-});
 
 /**
  * Perform word-based diff on a line-based diff. The word-based algorithm is
@@ -301,6 +193,7 @@ var refineDiff = function ( diff ) {
 };
 
 var roundTripDiff = function ( req, res, src, document ) {
+	var env = getParserEnv();
 	var out, patch;
 	res.write('<html><head><style>ins { background: #ff9191; text-decoration: none; } del { background: #99ff7e; text-decoration: none }; </style></head><body>');
 	res.write( '<h2>Wikitext parsed to HTML DOM</h2><hr>' );
@@ -331,14 +224,14 @@ var roundTripDiff = function ( req, res, src, document ) {
 			'[[:mw:Talk:Parsoid/Todo]]</a></h2><hr>');
 };
 
-var parse = function ( req, res, cb, err, src ) {
+var parse = function ( env, req, res, cb, err, src ) {
 	if ( err !== null ) {
 		if ( !err.code ) {
 			err.code = 500;
 		}
 		res.send( err.toString(), err.code );
 	} else {
-		var parser = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
+		var parser = getParser(env, 'text/x-mediawiki/full');
 		parser.on('document', cb.bind( null, req, res, src ) );
 		try {
 			res.setHeader('Content-Type', 'text/html; charset=UTF-8');
@@ -350,10 +243,135 @@ var parse = function ( req, res, cb, err, src ) {
 	}
 };
 
+var htmlSpecialChars = function ( s ) {
+	return s.replace(/&/g,'&amp;')
+		.replace(/</g,'&lt;')
+		.replace(/"/g,'&quot;')
+		.replace(/'/g,'&#039;');
+};
+
+var textarea = function ( res, content ) {
+	res.write('<form method=POST><textarea name="content" cols=90 rows=9>');
+	res.write( ( content &&
+					htmlSpecialChars( content) ) ||
+			'');
+	res.write('</textarea><br><input type="submit"></form>');
+};
+
+/* -------------------- web app access points below --------------------- */
+
+var app = express.createServer();
+app.use(express.bodyParser());
+
+app.get('/', function(req, res){
+	res.write('<body><h3>Welcome to the alpha test web service for the ' +
+		'<a href="http://www.mediawiki.org/wiki/Parsoid">Parsoid project<a>.</h3>');
+	res.write( '<p>Usage: <ul><li>GET /title for the DOM. ' +
+		'Example: <strong><a href="/en/Main_Page">Main Page</a></strong>');
+	res.write('<li>POST a DOM as parameter "content" to /title for the wikitext</ul>');
+	res.write('<p>There are also some tools for experiments:<ul>');
+	res.write('<li>Round-trip test pages from the English Wikipedia: ' +
+		'<strong><a href="/_rt/en/Help:Magic">/_rt/Help:Magic</a></strong></li>');
+	res.write('<li><strong><a href="/_rtform/">WikiText -&gt; HTML DOM -&gt; WikiText round-trip form</a></strong></li>');
+	res.write('<li><strong><a href="/_wikitext/">WikiText -&gt; HTML DOM form</a></strong></li>' +
+			'<li><strong><a href="/_html/">HTML DOM -&gt; WikiText form</a></strong></li>');
+	res.write('</ul>');
+	res.end('<p>We are currently focusing on round-tripping of basic formatting like inline/bold, headings, lists, tables and links. Templates, citations and thumbnails are not expected to round-trip properly yet. <strong>Please report issues you see at <a href="http://www.mediawiki.org/w/index.php?title=Talk:Parsoid/Todo&action=edit&section=new">:mw:Talk:Parsoid/Todo</a>. Thanks!</strong></p>');
+});
+
+/**
+ * robots.txt: no indexing.
+ */
+app.get(/^\/robots.txt$/, function ( req, res ) {
+	res.end( "User-agent: *\nDisallow: /\n" );
+});
+
+/**
+ * Redirects for old-style URL compatibility
+ */
+app.get( new RegExp( '^/((?:_rt|_rtve)/)?(' + getInterwikiRE() +
+				'):(.*)$' ), function ( req, res ) {
+	if ( req.params[0] ) {
+		res.redirect(  '/' + req.params[0] + req.params[1] + '/' + req.params[2]);
+	} else {
+		res.redirect( '/' + req.params[1] + '/' + req.params[2]);
+	}
+	res.end( );
+});
+
+
+/**
+ * Form-based HTML DOM -> wikitext interface for manual testing
+ */
+app.get(/\/_html\/(.*)/, function ( req, res ) {
+	var env = getParserEnv();
+	env.setPageName( req.params[0] );
+	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+	res.write( "Your HTML DOM:" );
+	textarea( res );
+	res.end('');
+});
+
+app.post(/\/_html\/(.*)/, function ( req, res ) {
+	var env = getParserEnv();
+	env.setPageName( req.params[0] );
+	setDefaultWiki( config, env );
+	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+	var p = new html5.Parser();
+	p.parse( '<html><body>' + req.body.content.replace(/\r/g, '') + '</body></html>' );
+	res.write('<pre style="background-color: #efefef">');
+	new WikitextSerializer({env: env}).serializeDOM(
+		p.tree.document.childNodes[0].childNodes[1],
+		function( c ) {
+			res.write( htmlSpecialChars( c ) );
+		});
+	res.write('</pre>');
+	res.write( "<hr>Your HTML DOM:" );
+	textarea( res, req.body.content.replace(/\r/g, '') );
+	res.end('');
+});
+
+/**
+ * Form-based wikitext -> HTML DOM interface for manual testing
+ */
+app.get(/\/_wikitext\/(.*)/, function ( req, res ) {
+	var env = getParserEnv();
+	env.setPageName( req.params[0] );
+	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+	res.write( "Your wikitext:" );
+	textarea( res );
+	res.end('');
+});
+app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
+	var env = getParserEnv();
+	env.setPageName( req.params[0] );
+	setDefaultWiki( config, env );
+	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+	var parser = getParser(env, 'text/x-mediawiki/full');
+	parser.on('document', function ( document ) {
+		res.write(document.body.innerHTML);
+		//res.write('<form method=POST><input name="content"></form>');
+		//res.end("hello world\n" + req.method + ' ' + req.params.title);
+		res.write( "<hr>Your wikitext:" );
+		textarea( res, req.body.content.replace(/\r/g, '') );
+		res.end('');
+	});
+	try {
+		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+		console.log('starting parsing of ' + req.params[0]);
+		// FIXME: This does not handle includes or templates correctly
+		parser.process( req.body.content.replace(/\r/g, '') );
+	} catch (e) {
+		console.log( e );
+		res.send( e.toString(), 500 );
+	}
+});
+
 /**
  * Round-trip article testing
  */
-app.get( new RegExp('/_rt/(' + env.interwikiRegexp + ')/(.*)'), function(req, res) {
+app.get( new RegExp('/_rt/(' + getInterwikiRE() + ')/(.*)'), function(req, res) {
+	var env = getParserEnv();
 	env.setPageName( req.params[1] );
 	env.wgScriptPath = '/_rt/' + req.params[0] + '/';
 	env.wgScript = env.interwikiMap[req.params[0]];
@@ -371,14 +389,15 @@ app.get( new RegExp('/_rt/(' + env.interwikiRegexp + ')/(.*)'), function(req, re
 		oldid = req.query.oldid;
 	}
 	var tpr = new TemplateRequest( env, target, oldid );
-	tpr.once('src', parse.bind( null, req, res, roundTripDiff ));
+	tpr.once('src', parse.bind( null, env, req, res, roundTripDiff ));
 });
 
 /**
  * Round-trip article testing with newline stripping for editor-created HTML
  * simulation
  */
-app.get( new RegExp('/_rtve/(' + env.interwikiRegexp + ')/(.*)') , function(req, res) {
+app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)') , function(req, res) {
+	var env = getParserEnv();
 	env.setPageName( req.params[1] );
 	env.wgScriptPath = '/_rtve/' + req.params[0] + '/';
 	env.wgScript = env.interwikiMap[req.params[0]];
@@ -407,30 +426,34 @@ app.get( new RegExp('/_rtve/(' + env.interwikiRegexp + ')/(.*)') , function(req,
 			roundTripDiff( req, res, src, newDocument );
 		};
 
-	tpr.once('src', parse.bind( null, req, res, cb ));
+	tpr.once('src', parse.bind( null, env, req, res, cb ));
 });
 
 /**
  * Form-based round-tripping for manual testing
  */
 app.get(/\/_rtform\/(.*)/, function ( req, res ) {
+	var env = getParserEnv();
 	env.setPageName( req.params[0] );
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 	res.write( "Your wikitext:" );
 	textarea( res );
 	res.end('');
 });
+
 app.post(/\/_rtform\/(.*)/, function ( req, res ) {
+	var env = getParserEnv();
 	env.setPageName ( req.params[0] );
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 	// we don't care about \r, and normalize everything to \n
-	parse( req, res, roundTripDiff, null, req.body.content.replace(/\r/g, ''));
+	parse( env, req, res, roundTripDiff, null, req.body.content.replace(/\r/g, ''));
 });
 
 /**
  * Regular article parsing
  */
-app.get(new RegExp( '/(' + env.interwikiRegexp + ')/(.*)' ), function(req, res) {
+app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
+	var env = getParserEnv();
 	env.setPageName( req.params[1] );
 	env.wgScriptPath = '/' + req.params[0] + '/';
 	env.wgScript = env.interwikiMap[req.params[0]];
@@ -447,7 +470,7 @@ app.get(new RegExp( '/(' + env.interwikiRegexp + ')/(.*)' ), function(req, res) 
 		oldid = req.query.oldid;
 	}
 	var tpr = new TemplateRequest( env, target, oldid );
-	tpr.once('src', parse.bind( null, req, res, function ( req, res, src, document ) {
+	tpr.once('src', parse.bind( null, env, req, res, function ( req, res, src, document ) {
 		res.end(document.body.innerHTML);
 		var et = new Date();
 		console.warn("completed parsing of " + target + " in " + (et - st) + " ms");
@@ -458,13 +481,14 @@ app.get(new RegExp( '/(' + env.interwikiRegexp + ')/(.*)' ), function(req, res) 
  * Regular article serialization using POST
  */
 app.post(/\/(.*)/, function ( req, res ) {
+	var env = getParserEnv();
 	env.setPageName( req.params[0] );
 	env.wgScriptPath = '/';
 	res.setHeader('Content-Type', 'text/x-mediawiki; charset=UTF-8');
 	var p = new html5.Parser();
 	p.parse( req.body.content );
-	new WikitextSerializer({env: env}).serializeDOM( 
-		p.tree.document.childNodes[0].childNodes[1], 
+	new WikitextSerializer({env: env}).serializeDOM(
+		p.tree.document.childNodes[0].childNodes[1],
 		res.write.bind( res ) );
 	res.end('');
 });
