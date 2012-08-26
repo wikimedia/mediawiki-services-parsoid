@@ -7,7 +7,7 @@
  *
  * @example
  *    exports.setup = function( config, env ) {
- *        env.setInterwiki( 'localhost', 'http://localhost/mediawiki' );
+ *        env.setInterwiki( 'localhost', 'http://localhost/wiki' );
  *    };
  */
 
