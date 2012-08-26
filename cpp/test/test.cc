@@ -1,5 +1,4 @@
-#include "libparsoid/parsoid_internal.hpp"
-#include <vector>
+#include "parsoid_internal.hpp"
 
 using namespace parsoid;
 using namespace std;
