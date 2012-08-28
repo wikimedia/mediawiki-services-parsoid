@@ -421,7 +421,6 @@ var encapsulateTrees = function ( startElem, endElem, doc ) {
 		var n = range.start,
 			about = startElem.getAttribute('about');
 		while (n) {
-			var str;
 			if ( n.nodeType === Node.TEXT_NODE ) {
 				// TODO: wrap into span
 				var span = doc.createElement( 'span' );
@@ -430,20 +429,51 @@ var encapsulateTrees = function ( startElem, endElem, doc ) {
 				n.parentNode.insertBefore( span, n );
 				// move the text node into the span
 				span.appendChild( n );
-				str = span.outerHTML;
+				n = span;
 			} else if (n.nodeType === Node.ELEMENT_NODE) {
-				// TODO: add about to all elements
 				n.setAttribute( 'about', about );
-				str = n.outerHTML.replace(/\n$/, '');
 			}
 
 			//console.log ( str.replace(/(^|\n)/g, "$1 " ) );
 			if ( n === range.end ) {
-				return;
+				break;
 			}
 
 			n = n.nextSibling;
 		}
+
+		// SSS FIXME: This code below (start/end elt. deletion and fixup)
+		// won't always work. Where deletion of the tags will bring
+		// non-template content under templated-affected nodes, we will
+		// have to preserve the tags and let the VE and serializer be
+		// smart about handling them -- alternatively, in certain scenarios,
+		// we maybe able to introduce additional span/div nodes to cleanly
+		// separate non-template content from template-content.
+		//
+		// To be continued ...
+		if (startElem.nodeName.toLowerCase() === "meta")  {
+			// Transfer start info to the first node that can receive it
+			// (only if our current start element is a meta!)
+			n = startElem;
+			while (n.nextSibling === null) {
+				n = n.parentNode;
+			}
+			n = n.nextSibling;
+
+			// SSS FIXME: Deal with comment nodes properly.
+			while (n.nodeType === Node.COMMENT_NODE) {
+				n = n.nextSibling;
+			}
+
+			var t1 = n.getAttribute("typeof"),
+				t2 = startElem.getAttribute("typeof");
+			n.setAttribute("typeof", t1 ? t1 + " " + t2 : t2);
+			n.setAttribute("data-parsoid", startElem.getAttribute("data-parsoid"));
+
+			startElem.parentNode.removeChild(startElem);
+		}
+
+		endElem.parentNode.removeChild(endElem);
 	}
 };
 
@@ -465,9 +495,12 @@ var findTableSibling = function ( elem, about ) {
  * Recursive worker
  */
 var doEncapsulateTemplateOutput = function ( root, tpls, doc ) {
-	var cnodes = root.childNodes;
-	for( var i = 0, l = cnodes.length; i < l; i++ ) {
-		var elem = cnodes[i];
+	var elem = root.firstChild;
+	while (elem) {
+		// get the next sibling before doing anything since
+		// we may delete elem as part of encapsulation
+		var nextSibling = elem.nextSibling;
+
 		if ( elem.nodeType === Node.ELEMENT_NODE ) {
 			var type = elem.getAttribute( 'typeof' ),
 				match = type ? type.match( /(?:^|\s)(mw:Object(?:\/[^\s]+)?)/ ) : null;
@@ -527,6 +560,8 @@ var doEncapsulateTemplateOutput = function ( root, tpls, doc ) {
 				doEncapsulateTemplateOutput( elem, tpls, doc );
 			}
 		}
+
+		elem = nextSibling;
 	}
 };
 

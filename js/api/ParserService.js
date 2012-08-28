@@ -235,6 +235,7 @@ var parse = function ( env, req, res, cb, err, src ) {
 		parser.on('document', cb.bind( null, req, res, src ) );
 		try {
 			res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+			env.text = src;
 			parser.process( src );
 		} catch (e) {
 			console.log( e );
@@ -360,6 +361,7 @@ app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 		console.log('starting parsing of ' + req.params[0]);
 		// FIXME: This does not handle includes or templates correctly
+		env.text = src;
 		parser.process( req.body.content.replace(/\r/g, '') );
 	} catch (e) {
 		console.log( e );

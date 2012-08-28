@@ -335,6 +335,7 @@ ParserTests.prototype.normalizeOut = function ( out ) {
 		.replace(/<!--.*?-->\n?/gm, '')
 		.replace(/<\/?meta[^>]*>/g, '')
 		.replace(/<span[^>]+about="[^]+>/g, '')
+		.replace(/<span><\/span>/g, '')
 		.replace(/href="(?:\.?\.\/)+/g, 'href="');
 };
 
@@ -375,6 +376,7 @@ ParserTests.prototype.convertWt2Html = function(index, item, processHtmlCB, wiki
 		return;
 	}
 	this.parserPipeline.once('document', processHtmlCB);
+	this.env.text = wikitext;
 	this.parserPipeline.process(wikitext);
 };
 

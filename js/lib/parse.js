@@ -145,6 +145,7 @@ var ParserPipelineFactory = require('./mediawiki.parser.js').ParserPipelineFacto
 			var content = htmlparser.tree.document.childNodes[0].childNodes[1];
 			var wt = serializer.serializeDOM(content);
 
+			env.text = wt;
 			if (argv.html2wt) {
 				// add a trailing newline for shell user's benefit
 				stdout.write(wt);
@@ -175,6 +176,7 @@ var ParserPipelineFactory = require('./mediawiki.parser.js').ParserPipelineFacto
 			});
 
 			// Kick off the pipeline by feeding the input into the parser pipeline
+			env.text = input;
 			parserPipeline.process( input );
 		}
 	} );
