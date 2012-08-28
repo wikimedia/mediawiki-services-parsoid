@@ -4,14 +4,10 @@
 .*.swp
 .DS_Store
 
-api/npm-debug.log
-modules/parser/node_modules/
 
-CMakeFiles
-CMakeCache.txt
-cmake_install.cmake
+cpp/build
 
 js/api/localsettings.js
 js/api/nohup.out
+js/api/npm-debug.log
 js/node_modules/
-

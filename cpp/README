@@ -1,8 +1,6 @@
 INSTALL
 =======
 git submodule update --init
-sudo apt-get install libboost-all-dev php5-dev scons
-mkdir cpp/build
-cd cpp/build
-cmake ..
+sudo apt-get install libboost-all-dev php5-dev scons cmake
+cd cpp
 make
