@@ -234,8 +234,7 @@ var endTagMatchTokenCollector = function ( tk, cb ) {
 				state.currTagToken = token;
 			}
 
-			if ( token.constructor === EndTagTk &&
-					token.name === tk.name ) {
+			if ( token.constructor === EndTagTk && token.name === tk.name ) {
 				// finish collection
 				if ( this.cb ) {
 					// abort further token processing since the cb handled it
@@ -278,7 +277,7 @@ function isTd(token) {
 }
 
 function isListItem(token) {
-	return token && token.constructor === TagTk && 
+	return token && token.constructor === TagTk &&
 		['li', 'dt', 'dd'].indexOf(token.name) !== -1;
 }
 
@@ -1010,6 +1009,8 @@ WSP.tagHandlers = {
 									this,
 									state, token
 								);
+					} else {
+						return '';
 					}
 				} else {
 					// Fall back to plain HTML serialization for spans created
@@ -1025,6 +1026,8 @@ WSP.tagHandlers = {
 					if ( argDict['typeof'] === 'mw:Nowiki' ) {
 						state.inNoWiki = false;
 						return '</nowiki>';
+					} else {
+						return '';
 					}
 				} else {
 					// Fall back to plain HTML serialization for spans created
@@ -1482,6 +1485,31 @@ function gatherInlineText(buf, node) {
  */
 WSP._serializeDOM = function( node, state ) {
 	// serialize this node
+	if (node.nodeType === Node.ELEMENT_NODE) {
+		if (state.activeTemplateId === node.getAttribute("about")) {
+			// skip -- template content
+			return;
+		} else {
+			state.activeTemplateId = null;
+		}
+
+		if (!state.activeTemplateId) {
+			// check if this node marks the start of template output
+			var typeofVal = node.getAttribute("typeof");
+			if (typeofVal && typeofVal.match(/\bmw:Object\/Template\b/)) {
+				state.activeTemplateId = node.getAttribute("about");
+				var dummyToken = new SelfclosingTagTk("meta",
+					[ new KV("typeof", "mw:Placeholder") ],
+					{ src: this._getDOMRTInfo(node.attributes).src }
+				);
+				this._serializeToken(state, dummyToken);
+				return;
+			}
+		}
+	} else if (node.nodeType !== Node.COMMENT_NODE) {
+		state.activeTemplateId = null;
+	}
+
 	switch( node.nodeType ) {
 		case Node.ELEMENT_NODE:
 			var children = node.childNodes,

@@ -242,6 +242,8 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 	// * ref all tables to this (just add about)
 	// * ref end token to this, add property="mw:Object/Template/End"
 	if ( ! state.emittedFirstChunk ) {
+		var tsr = state.token.dataAttribs.tsr;
+		var src = this.manager.env.text.substring(tsr[0], tsr[1]);
 		if ( chunk.length ) {
 			var firstToken = chunk[0];
 			if ( firstToken.constructor === String ) {
@@ -257,7 +259,10 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 								new KV('about', '#' + state.templateId),
 								new KV('id', state.templateId)
 							],
-							{ tsr: Util.clone(state.token.dataAttribs.tsr) }
+							{ 
+								tsr: Util.clone(tsr),
+								src: src,
+							}
 						) ]
 					.concat( stringTokens, [ new EndTagTk( 'span' ) ], chunk );
 			} else if ( firstToken.constructor === TagTk || firstToken.constructor === SelfclosingTagTk) {
@@ -269,6 +274,7 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 				firstToken.addSpaceSeparatedAttribute( 'typeof', 'mw:Object/Template' );
 				firstToken.setAttribute( 'about', '#' + state.templateId );
 				firstToken.setAttribute( 'id', state.templateId );
+				firstToken.dataAttribs.src = src;
 				chunk.unshift(firstToken);
 
 				// add about ref to all tables
@@ -280,7 +286,8 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 						new KV( 'about', '#' + state.templateId ),
 						new KV( 'typeof', 'mw:Object/Template' )
 					], {
-						tsr: Util.clone(state.token.dataAttribs.tsr)
+						tsr: Util.clone(tsr),
+						src: src
 					})
 			];
 		}
