@@ -437,6 +437,7 @@ app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)') , function(req, re
 app.get(/\/_rtform\/(.*)/, function ( req, res ) {
 	var env = getParserEnv();
 	env.setPageName( req.params[0] );
+	setDefaultWiki( config, env );
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 	res.write( "Your wikitext:" );
 	textarea( res );
@@ -446,6 +447,7 @@ app.get(/\/_rtform\/(.*)/, function ( req, res ) {
 app.post(/\/_rtform\/(.*)/, function ( req, res ) {
 	var env = getParserEnv();
 	env.setPageName ( req.params[0] );
+	setDefaultWiki( config, env );
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 	// we don't care about \r, and normalize everything to \n
 	parse( env, req, res, roundTripDiff, null, req.body.content.replace(/\r/g, ''));
@@ -486,6 +488,7 @@ app.post(/\/(.*)/, function ( req, res ) {
 	var env = getParserEnv();
 	env.setPageName( req.params[0] );
 	env.wgScriptPath = '/';
+	setDefaultWiki( config, env );
 	res.setHeader('Content-Type', 'text/x-mediawiki; charset=UTF-8');
 	var p = new html5.Parser();
 	p.parse( req.body.content );
