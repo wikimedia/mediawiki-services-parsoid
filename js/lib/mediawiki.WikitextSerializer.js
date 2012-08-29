@@ -192,9 +192,10 @@ WSP.wteHandlers = new WikitextEscapeHandlers();
  *    a "single line" of output wikitext as represented by a block node in
  *    the DOM.
  *
- *    - text        : accumulated text from all text nodes on the current line
- *    - processed   : have we analyzed the text so far?
- *    - hasTokenPair: does the line have wikitext token pairs?
+ *    - text           : accumulated text from all text nodes on the current line
+ *    - processed      : have we analyzed the text so far?
+ *    - hasBracketPair : does the line have bracket wikitext token pairs?
+ *    - hasHeadingPair : does the line have heading wikitext token pairs?
  * ********************************************************************* */
 
 WSP.initialState = {
@@ -207,7 +208,8 @@ WSP.initialState = {
 	currLine: {
 		text: null,
 		processed: false,
-		hasTokenPair: false
+		hasBracketPair: false,
+		hasHeadingPair: false
 	}
 };
 
@@ -312,7 +314,10 @@ WSP.escapeWikiText = function ( state, text ) {
 	}
 
 	// pre isn't covered yet by the context-specific escape handlers
-	// '', [], <> can show up anywhere -- so need further analysis then
+	// '', [], <> can show up anywhere -- so need for further analysis then.
+	// NOTE: I am only testing for a closing bracket (]) since it is sufficient
+	// to escape just the closing bracket and leave the opening bracket
+	// unescaped.
 	if (!state.onNewline && !text.match(/^[ \t]|''|[<>]|\[.*\]|\]/)) {
 		return text;
 	}
@@ -352,11 +357,21 @@ WSP.escapeWikiText = function ( state, text ) {
 			 * NOTE: [[[ ... ]]] does not need escaping, it appears.
 			 * So, the regexp checks for 1 or 2 of those.
 			 * -------------------------------------------------------- */
-			cl.hasTokenPair = cl.text.match(/^=.*=\n*$|(^|[^\[])(\[\[?)([^\[].*[^\]])(\]\]?)([^\]]|$)/);
+			cl.hasHeadingPair = cl.text.match(/^=.*=\n*$/);
+			cl.hasBracketPair = cl.text.match(/(^|[^\[])(\[\[?)([^\[].*[^\]])(\]\]?)([^\]]|$)/);
 			cl.processed = true;
 		}
 
-		return cl.hasTokenPair ? escapedText(text) : text;
+		// If the current line has a wikitext token pair, and the current
+		// piece of text has one of the pairs ^=,],]], assume the worst and escape it.
+		// NOTE: It is sufficient to escape just one of the pairs.
+		if ((cl.hasHeadingPair && text.match(/^=/)) ||
+			(cl.hasBracketPair && text.match(/(\]\]?)([^\]]|$)/)))
+		{
+			return escapedText(text);
+		} else {
+			return text;
+		}
 	}
 };
 
@@ -1521,7 +1536,8 @@ WSP._serializeDOM = function( node, state ) {
 				state.currLine = {
 					text: null,
 					processed: false,
-					hasTokenPair: false
+					hasBracketPair: false,
+					hasHeadingPair: false
 				}
 			}
 

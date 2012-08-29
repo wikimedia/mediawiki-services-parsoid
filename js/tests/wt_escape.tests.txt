@@ -186,6 +186,26 @@ Lists: 4. No escapes needed
 <ul><li><a href="Foo" rel="mw:WikiLink">Foo</a>: bar</li></ul>
 !!end
 
+!! test
+Lists: 5. No unnecessary escapes
+!! input
+* bar <span><nowiki>[[foo]]</nowiki></span>
+
+*=bar <span><nowiki>[[foo]]</nowiki></span>
+
+*[[bar <span><nowiki>[[foo]]</nowiki></span>
+
+*<nowiki>]]bar </nowiki><span><nowiki>[[foo]]</nowiki></span>
+
+*=bar <span>foo]]</span>=
+!! result
+<ul><li> bar <span>[[foo]]</span></li></ul>
+<ul><li>=bar <span>[[foo]]</span></li></ul>
+<ul><li>[[bar <span>[[foo]]</span></li></ul>
+<ul><li>]]bar <span>[[foo]]</span></li></ul>
+<ul><li>=bar <span>foo]]</span>=</li></ul>
+!!end
+
 #### --------------- HRs ---------------
 #### 1. Single line
 #### -----------------------------------
@@ -478,11 +498,11 @@ Links 5. ExtLinks: No escapes needed
 !! test
 2. Link fragments separated by <i> and <b> tags
 !! input
-<nowiki>[[</nowiki>''''<nowiki>hello]]</nowiki>
+[[''''<nowiki>hello]]</nowiki>
 
-<nowiki>[[</nowiki>''foo''<nowiki>hello]]</nowiki>
+[[''foo''<nowiki>hello]]</nowiki>
 
-<nowiki>[[</nowiki>'''foo'''<nowiki>hello]]</nowiki>
+[['''foo'''<nowiki>hello]]</nowiki>
 !! result
 <p>[[<i></i>hello]]</p>
 <p>[[<i>foo</i>hello]]</p>
@@ -501,6 +521,31 @@ Links 5. ExtLinks: No escapes needed
 <p><i>[[foo</i>]]</p>
 <p><b>[[foo</b>]]</p>
 !! end
+
+#### --------------- Paragraphs ---------------
+#### 1. No unnecessary escapes
+#### --------------------------------------
+
+!! test
+1. No unnecessary escapes
+!! input
+bar <span><nowiki>[[foo]]</nowiki></span>
+
+=bar <span><nowiki>[[foo]]</nowiki></span>
+
+[[bar <span><nowiki>[[foo]]</nowiki></span>
+
+<nowiki>]]bar </nowiki><span><nowiki>[[foo]]</nowiki></span>
+
+<nowiki>=bar </nowiki><span>foo]]</span>=
+!! result
+<p>bar <span>[[foo]]</span></p>
+<p>=bar <span>[[foo]]</span></p>
+<p>[[bar <span>[[foo]]</span></p>
+<p>]]bar <span>[[foo]]</span></p>
+<p>=bar <span>foo]]</span>=</p>
+!!end
+
 
 #### --------------- HTML tags ---------------
 #### 1. a tags
