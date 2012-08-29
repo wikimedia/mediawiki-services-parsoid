@@ -352,7 +352,7 @@ SelfclosingTagTk.prototype.tagToStringFns = {
 			}
 			var origIndent = indent;
 			indent = indent + indentIncrement;
-			var content = Util.lookup(this.attribs, 'content');
+			var content = Util.lookup(this.attribs, 'mw:content');
 			content = this.multiTokenArgToString("v", content, indent, indentIncrement).str;
 			return ["<extlink>(\n", indent,
 					"href=", href, "\n", indent,

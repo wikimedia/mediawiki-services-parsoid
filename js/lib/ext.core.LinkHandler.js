@@ -443,11 +443,11 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 	var env = this.manager.env,
 		href = Util.sanitizeURI(Util.tokensToString(Util.lookup(token.attribs, 'href'))),
-		content = Util.lookup( token.attribs, 'content'),
+		content = Util.lookup( token.attribs, 'mw:content'),
 		newAttrs, aStart;
 
 	//console.warn('extlink href: ' + href );
-	//console.warn( 'content: ' + JSON.stringify( content, null, 2 ) );
+	//console.warn( 'mw:content: ' + JSON.stringify( content, null, 2 ) );
 
 	var rdfaType = token.getAttribute('typeof');
 	if (rdfaType && rdfaType.match(/\bmw:ExtLink\/ISBN\b/)) {

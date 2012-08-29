@@ -55,7 +55,7 @@ AttributeExpander.prototype.onToken = function ( token, frame, cb ) {
 /* ----------------------------------------------------------
  * This method does two different things:
  *
- * 1. Strips all meta tags 
+ * 1. Strips all meta tags
  *    (FIXME: should I be selective and only strip mw:Object/* tags?)
  * 2. In wrap-template mode, it identifies the meta-object type
  *    and returns it.
@@ -104,7 +104,7 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 	var tokens      = [];
 	var metaTokens  = [];
 	var oldAttrs    = token.attribs;
-	var i, l, metaObjType;
+	var i, l, metaObjType, producerObjType;
 
 	// Identify attributes that were generated in full or in part using templates
 	// and add appropriate meta tags for them.
@@ -113,12 +113,15 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 		var newK = newAttrs[i].k;
 
 		if (newK) {
+			// SSS FIXME: Do we need to figure out that this is a valid html attribute name
+			// before stripping??  What a pain!  Or, am I over-engineering this?
 			if (a.k.constructor === Array) {
 				var updatedK = stripMetaTags(newK, this.options.wrapTemplates);
 				newK = updatedK.value;
 				newAttrs[i].k = newK;
 				metaObjType = updatedK.metaObjType;
 				if (metaObjType) {
+					producerObjType = metaObjType;
 					// <meta about="#mwt1" property="mw:objectAttr#href" data-parsoid="...">
 					// about will be filled out in the end
 					metaTokens.push(new SelfclosingTagTk('meta',
@@ -128,18 +131,20 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 				}
 			}
 
-			if (a.v.constructor === Array) {
+			var isHtmlAttrKey = newK.constructor === String && !newK.match(/^mw:/);
+			if (isHtmlAttrKey && a.v.constructor === Array) {
 				var updatedV = stripMetaTags(newAttrs[i].v, this.options.wrapTemplates);
 				newAttrs[i].v = updatedV.value;
 				metaObjType = updatedV.metaObjType;
 				if (metaObjType) {
+					producerObjType = metaObjType;
 					if (newK.constructor !== String) {
 						// SSS FIXME: Can this happen at all? Looks like not
 						newK = Util.tokensToString(newK);
 					}
 					// <meta about="#mwt1" property="mw:objectAttr#href" data-parsoid="...">
 					// about will be filled out in the end
-					metaTokens.push(new SelfclosingTagTk('meta', 
+					metaTokens.push(new SelfclosingTagTk('meta',
 						[new KV("property", "mw:objectAttrVal#" + newK)],
 						Util.clone(updatedV.metaTag.dataAttribs))
 					);
@@ -156,7 +161,7 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 	if (l > 0) {
 		var tokenId = '#mwt' + this.manager.env.generateUID();
 		token.addAttribute("about", tokenId);
-		token.addSpaceSeparatedAttribute("typeof", metaObjType + "/Attributes");
+		token.addSpaceSeparatedAttribute("typeof", producerObjType + "/Attributes");
 		for (i = 0; i < l; i++) {
 			metaTokens[i].addAttribute("about", tokenId);
 		}

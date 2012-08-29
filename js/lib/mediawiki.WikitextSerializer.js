@@ -205,6 +205,7 @@ WSP.initialState = {
 	availableNewlineCount: 0,
 	singleLineMode: 0,
 	wteHandlerStack: [],
+	tplAttrs: {},
 	currLine: {
 		text: null,
 		processed: false,
@@ -340,8 +341,8 @@ WSP.escapeWikiText = function ( state, text ) {
 		var cl = state.currLine;
 		if (!cl.processed) {
 			/* --------------------------------------------------------
-			 * Links and headings are the only single-line paired-token 
-			 * wikitext-constructs  that can be split by html tags 
+			 * Links and headings are the only single-line paired-token
+			 * wikitext-constructs  that can be split by html tags
 			 *
 			 * Links occur anywhere on a line.
 			 *
@@ -568,7 +569,7 @@ WSP._figureHandler = function ( state, figTokens ) {
 };
 
 WSP._serializeTableTag = function ( symbol, optionalEndSymbol, state, token ) {
-	var sAttribs = WSP._serializeAttributes(token);
+	var sAttribs = WSP._serializeAttributes(state, token);
 	if (sAttribs.length > 0) {
 		return symbol + ' ' + sAttribs + optionalEndSymbol;
 	} else {
@@ -587,7 +588,7 @@ WSP._serializeHTMLTag = function ( state, token ) {
 		state.inHTMLPre = true;
 	}
 
-	var sAttribs = WSP._serializeAttributes(token);
+	var sAttribs = WSP._serializeAttributes(state, token);
 	if (sAttribs.length > 0) {
 		return '<' + token.name + ' ' + sAttribs + close + '>';
 	} else {
@@ -616,63 +617,95 @@ WSP._linkHandler =  function( state, tokens ) {
 	var env = state.env,
 		token = tokens.shift(),
 		endToken = tokens.pop(),
-		attribDict = Util.KVtoHash( token.attribs );
+		attribDict = Util.KVtoHash( token.attribs ),
+		tplAttrState = { ks: {}, vs: {} },
+		href;
+
+	// Check if this link has templated attributes
+	if (isTplAttrType(attribDict.typeof)) {
+		tplAttrState = state.tplAttrs[attribDict.about];
+	}
+
 	if ( attribDict.rel && attribDict.rel.match( /\bmw:/ ) &&
 			attribDict.href !== undefined )
 	{
 		// we have a rel starting with mw: prefix and href
 		var tokenData = token.dataAttribs;
 		if ( attribDict.rel === 'mw:WikiLink' ) {
-			var hrefInfo = token.getAttributeShadowInfo( 'href' ),
-				target = hrefInfo.value, //.replace(/^(\.\.\/)+/, ''),
-				tail = '';
+			var target = tplAttrState.vs.href,
+				hrefFromTpl = true,
+				unencodedTarget = target,
+				hrefInfo = {},
+				tail = '',
+				linkText = Util.tokensToString( tokens, true );
 
-			if ( hrefInfo.modified ) {
-				// there was no rt info or the href was modified: normalize it
-				target = target.replace( /_/g, ' ' ).replace(/^(\.\.\/)+/, '');
-				tail = '';
-			} else {
-				tail = tokenData.tail || '';
+			// If the link target came from a template, target will be non-null
+			if (!target) {
+				hrefFromTpl = false;
+				hrefInfo = token.getAttributeShadowInfo( 'href' );
+				target = hrefInfo.value; //.replace(/^(\.\.\/)+/, ''),
+
+				if ( hrefInfo.modified ) {
+					// there was no rt info or the href was modified: normalize it
+					target = target.replace( /_/g, ' ' ).replace(/^(\.\.\/)+/, '');
+					tail = '';
+				} else {
+					tail = tokenData.tail || '';
+				}
+
+				unencodedTarget = target;
+
+				// Escape anything that looks like percent encoding, since we
+				// decode the wikitext
+				target = target.replace( /%(?=[a-f\d]{2})/g, '%25' );
 			}
-
-			var unencodedTarget = target;
-
-			// Escape anything that looks like percent encoding, since we
-			// decode the wikitext
-			target = target.replace( /%(?=[a-f\d]{2})/g, '%25' );
 
 			// If the normalized link text is the same as the normalized
 			// target and the link was either modified or not originally a
 			// piped link, serialize to a simple link.
 			// TODO: implement
-			
-			var linkText = Util.tokensToString( tokens, true );
-
-
-			//env.ap( linkText, target );
-			if ( linkText.constructor === String &&
+			var dataAttribs = token.dataAttribs;
+			if (( hrefFromTpl && dataAttribs.stx === 'simple') ||
+				( linkText.constructor === String &&
 					env.normalizeTitle( Util.stripSuffix( linkText, tail ) ) ===
 						env.normalizeTitle( unencodedTarget ) &&
-					( Object.keys( token.dataAttribs ).length === 0 ||
+					( Object.keys( dataAttribs ).length === 0 ||
 						hrefInfo.modified ||
-						token.dataAttribs.stx === 'simple' ) )
+						dataAttribs.stx === 'simple' ) )
+				)
 			{
 				return '[[' + target + ']]' + tail;
 			} else {
-				var content = state.serializer.serializeTokens(state.currLine,  tokens ).join('');
-				content = Util.stripSuffix( content, tail );
-				return '[[' + target + '|' + ( tokenData.pipetrick ? '' : content ) + ']]' + tail;
+				if (tokenData.pipetrick) {
+					linkText = '';
+				} else {
+					linkText = state.serializer.serializeTokens(state.currLine, tokens).join('');
+					linkText = Util.stripSuffix( linkText, tail );
+				}
+				return '[[' + target + '|' + linkText + ']]' + tail;
 			}
 		} else if ( attribDict.rel === 'mw:ExtLink' ) {
-			return '[' + attribDict.href + ' ' +
-				state.serializer.serializeTokens(state.currLine,  tokens ).join('') +
+			href = tplAttrState.vs.href;
+			if (!href) {
+				href = attribDict.href;
+			}
+			return '[' + href + ' ' +
+				state.serializer.serializeTokens(state.currLine, tokens ).join('') +
 				']';
 		} else if ( attribDict.rel === 'mw:ExtLink/ISBN' ) {
 			return tokens.join('');
 		} else if ( attribDict.rel === 'mw:ExtLink/URL' ) {
-			return attribDict.href;
+			href = tplAttrState.vs.href;
+			if (!href) {
+				href = attribDict.href;
+			}
+			return href;
 		} else if ( attribDict.rel === 'mw:ExtLink/Numbered' ) {
-			return '[' + attribDict.href + ']';
+			href = tplAttrState.vs.href;
+			if (!href) {
+				href = attribDict.href;
+			}
+			return '[' + href + ']';
 		} else if ( attribDict.rel === 'mw:Image' ) {
 			// simple source-based round-tripping for now..
 			// TODO: properly implement!
@@ -1118,14 +1151,43 @@ WSP.tagHandlers = {
 	}
 };
 
-WSP._serializeAttributes = function (token) {
-	var attribs = token.attribs;
+function isTplAttrType(tokType) {
+	return tokType && tokType.match(/\bmw:Object\/Template\/Attributes\b/);
+}
+
+WSP._serializeAttributes = function (state, token) {
+	var tplAttrState = { ks: {}, vs: {} },
+	    tokType = token.getAttribute("typeof"),
+		attribs = token.attribs;
+
+	// Check if this token has templated attributes
+	if (isTplAttrType(tokType)) {
+		tplAttrState = state.tplAttrs[token.getAttribute("about")];
+	}
+
 	var out = [];
 	for ( var i = 0, l = attribs.length; i < l; i++ ) {
 		var kv = attribs[i];
 		var k = kv.k;
+
+		// Ignore about and typeof if they are template-related
+		if (tokType && (k === "about" || k === "typeof")) {
+			continue;
+		}
+
 		if (k.length) {
-			var v = token.getAttributeShadowInfo(k).value;
+			var tplK = tplAttrState.ks[k],
+				tplV = tplAttrState.vs[k],
+				v = token.getAttributeShadowInfo(k).value;
+
+			// Deal with k/v's that were template-generated
+			if (tplK) {
+				k = tplK;
+			}
+			if (tplV){
+				v = tplV;
+			}
+
 			if (v.length ) {
 				out.push(k + '=' + '"' + v.replace( '"', '&quot;' ) + '"');
 			} else {
@@ -1154,6 +1216,18 @@ WSP._serializeAttributes = function (token) {
 			if (!Util.lookupKV(attribs, k)) {
 				v = dataAttribs.sa[k];
 				if (v) {
+					// Deal with k/v's that were template-generated
+					// and then sanitized away!
+					var tplK = tplAttrState.ks[k],
+						tplV = tplAttrState.vs[k];
+
+					if (tplK) {
+						k = tplK;
+					}
+					if (tplV){
+						v = tplV;
+					}
+
 					out.push(k + '=' + '"' + v.replace( '"', '&quot;' ) + '"');
 				}
 			}
@@ -1430,6 +1504,51 @@ WSP._serializeToken = function ( state, token ) {
 	}
 };
 
+// SSS FIXME: Unnecessary tree-walking for the occasional 
+// templating of attributes.  Wonder if there is another solution
+// to this problem.
+//
+// Update state with the set of templated attribute 
+WSP._collectAttrMetaTags = function(node, state) {
+	if (node.nodeName.toLowerCase() === "meta") {
+		var prop = node.getAttribute("property");
+		if (prop.match(/mw:objectAttr/)) {
+			var templateId = node.getAttribute("about");
+			var src  = this._getDOMRTInfo(node.attributes).src;
+			if (!state.tplAttrs[templateId]) {
+				state.tplAttrs[templateId] = { ks: {}, vs: {} };
+			}
+
+			// prop is of the form: "mw:objectAttrKey#foo" or "mw:objectAttrVal#foo
+			// where either the foo itself or the value of foo has been templated.
+			var pieces = prop.split("#");
+			var attr   = pieces[1];
+			if (pieces[0] === "mw:objectAttrKey") {
+				state.tplAttrs[templateId].ks[attr] = src;
+			} else {
+				state.tplAttrs[templateId].vs[attr] = src;
+			}
+
+			// Remove it from the DOM 
+			node.parentNode.removeChild(node);
+		}
+	} else {
+		// Skip dom subtrees that have an about tag set to /mwt/
+		// -- these are nodes with template generated content which
+		// wont have the meta tags we are looking for.
+		var about = node.nodeType === Node.ELEMENT_NODE ? node.getAttribute("about") : "";
+		if (!about.match(/mwt/)) {
+			var child = node.firstChild;
+			while (child) {
+				// get the next sibling first thing becase we may delete this child
+				var nextSibling = child.nextSibling;
+				this._collectAttrMetaTags(child, state);
+				child = nextSibling;
+			}
+		}
+	}
+};
+
 /**
  * Serialize an HTML DOM document.
  */
@@ -1437,6 +1556,7 @@ WSP.serializeDOM = function( node, chunkCB ) {
 	try {
 		var state = $.extend({}, this.initialState, this.options);
 		state.serializer = this;
+		this._collectAttrMetaTags(node, state);
 		//console.warn( node.innerHTML );
 		if ( ! chunkCB ) {
 			var out = [];
@@ -1511,7 +1631,7 @@ WSP._serializeDOM = function( node, state ) {
 		if (!state.activeTemplateId) {
 			// check if this node marks the start of template output
 			var typeofVal = node.getAttribute("typeof");
-			if (typeofVal && typeofVal.match(/\bmw:Object\/Template\b/)) {
+			if (typeofVal && typeofVal.match(/\bmw:Object\/Template(\s|$)/)) {
 				state.activeTemplateId = node.getAttribute("about");
 				var dummyToken = new SelfclosingTagTk("meta",
 					[ new KV("typeof", "mw:Placeholder") ],

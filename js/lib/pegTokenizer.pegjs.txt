@@ -673,7 +673,7 @@ extlink
             return [
                 new SelfclosingTagTk( 'extlink', [
                     new KV('href', target),
-                    new KV('content', text)
+                    new KV('mw:content', text)
                 ],
                 dataAttribs)
             ];
@@ -695,7 +695,7 @@ autoref
     return [
         new SelfclosingTagTk( 'extlink', [
            new KV('href', sprintf(base_urls[ref], identifier)),
-           new KV('content', [ref, identifier].join(' '))
+           new KV('mw:content', [ref, identifier].join(' '))
         ],
         {tsr: [pos0, pos]})
     ];
@@ -725,7 +725,7 @@ isbn
     return [
         new SelfclosingTagTk( 'extlink', [
            new KV('href', 'Special:BookSources/' + isbncode),
-           new KV('content', 'ISBN ' + isbn),
+           new KV('mw:content', 'ISBN ' + isbn),
            new KV('typeof', 'mw:ExtLink/ISBN')
         ],
         {tsr: [pos0, pos]})
