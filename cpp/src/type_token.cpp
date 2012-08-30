@@ -82,6 +82,10 @@ namespace parsoid
     Tk mkNl ( ) { return Tk( new NlTk() ); }
     Tk mkEof ( ) { return Tk( new EofTk() ); }
 
+    TokenChunkPtr mkTokenChunk() {
+        return TokenChunkPtr( new TokenChunk() );
+    }
+
     /**
      * Token methods
      */

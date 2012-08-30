@@ -1,0 +1,77 @@
+%{
+#include <vector>
+#include <iostream>
+#include "parsoid_internal.hpp"
+using namespace std;
+using namespace parsoid;
+
+// Actions are supposed to return this type as semantic value
+#define YYSTYPE vector<Tk>
+
+// local tokenizer context
+#define YY_CTX_LOCAL
+
+#define YY_INPUT(buf, result, max)  \
+    { \
+        result = 0; \
+    }
+
+// Token accumulator stack
+vector<TokenChunkPtr> accumStack{ TokenChunkPtr( new TokenChunk() ) };
+
+TokenChunkPtr popAccum() {
+    // resets current accum to upper accum
+    TokenChunkPtr tk = accumStack.back();
+    accumStack.pop_back();
+    return tk;
+}
+
+void startAccum() {
+    accumStack.push_back( mkTokenChunk() ); // starts a new nested accum
+}
+
+void pushTk( Tk tk ) {
+    // push a new token to the current accum
+    accumStack.back()->push_back( tk );
+}
+
+
+%}
+
+
+#/*********************************************************
+# * The top-level production
+# *********************************************************/
+start = e:toplevelblock+ newline* { $$ = e; }
+
+#
+# A document (start production) is a sequence of toplevelblocks. Tokens are
+# emitted in chunks per toplevelblock to avoid buffering the full document.
+#
+toplevelblock = block
+
+# TODO: implement!
+block = 
+    newline? l:line
+    { cout << "block: " << accumStack.back()->back().toString() << endl; }
+
+#list = "*" text { 
+#        vector<Token>* v = new vector<Token> { new StartTagTk('listitem') }; 
+#        v.push_back( 
+#    }
+
+line = < [^\n] > { pushTk( mkText(yytext) ); }
+
+#eof = & { false }
+
+newline = '\n' | '\r\n'
+
+#eolf = newline | eof
+
+# TODO: use a stack of accumulators
+# Need stack to support nesting (inline link content within link token for
+# example), nested_block, nested_inlineline, nested_inline..
+#
+# * Start a new current accumulator, push old one on stack
+# * In main action: pop & concat
+StartChunk = &. { startAccum(); }

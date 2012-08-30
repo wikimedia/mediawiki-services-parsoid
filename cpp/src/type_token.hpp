@@ -96,6 +96,8 @@ namespace parsoid
     // shared_ptr for now
     typedef std::shared_ptr<TokenChunk> TokenChunkPtr;
 
+    TokenChunkPtr mkTokenChunk();
+
     typedef vector< pair< vector<Tk>, vector<Tk> > > AttribMap;
 
     /**
@@ -269,11 +271,11 @@ namespace parsoid
     {
         public:
             TextTk() = default;
-            virtual string toString() const {
-                return string("TextTk(" + getText() + ")");
-            }
             TextTk( const string& txt ) {
                 text = txt;
+            }
+            virtual string toString() const {
+                return string("TextTk(" + getText() + ")");
             }
             virtual TokenType type() const {
                 return TokenType::Text;

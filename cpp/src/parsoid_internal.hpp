@@ -5,5 +5,12 @@
 
 #include "type_token.hpp"
 #include "html_parser.h"
+#include "tokenizer.hpp"
+
+// forward declaration
+namespace parsoid {
+    int tokenize();
+}
+
 
 #endif
