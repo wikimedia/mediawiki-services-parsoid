@@ -417,6 +417,12 @@ var encapsulateTrees = function ( startElem, endElem, doc ) {
 	var range = getDOMRange( startElem, endElem );
 
 	if ( range ) {
+		// Detect empty content
+		if (range.start.nextSibling === range.end) {
+			var emptySpan = doc.createElement('span');
+			range.start.parentNode.insertBefore(emptySpan, range.end);
+		}
+
 		//console.log ( 'HTML of template-affected subtrees: ' );
 		var n = range.start,
 			about = startElem.getAttribute('about');
