@@ -579,7 +579,7 @@ WSP._serializeTableTag = function ( symbol, optionalEndSymbol, state, token ) {
 
 WSP._serializeHTMLTag = function ( state, token ) {
 	var close = '';
-	if ( Util.isVoidElement( token.name ) && !token.dataAttribs.noclose ) {
+	if ( (Util.isVoidElement( token.name ) && !token.dataAttribs.noClose) || token.dataAttribs.selfClose ) {
 		close = '/';
 	}
 
@@ -600,7 +600,7 @@ WSP._serializeHTMLEndTag = function ( state, token ) {
 	if ( token.name === 'pre' ) {
 		state.inHTMLPre = false;
 	}
-	if ( ! Util.isVoidElement( token.name ) ) {
+	if ( ! Util.isVoidElement( token.name ) && !token.dataAttribs.selfClose  ) {
 		return '</' + token.name + '>';
 	} else {
 		return '';
@@ -621,8 +621,9 @@ WSP._linkHandler =  function( state, tokens ) {
 		tplAttrState = { ks: {}, vs: {} },
 		href;
 
-	// Check if this link has templated attributes
-	if (isTplAttrType(attribDict.typeof)) {
+	// Check if this token has attributes that have been
+	// expanded from templates or extensions
+	if (hasExpandedAttrs(attribDict.typeof)) {
 		tplAttrState = state.tplAttrs[attribDict.about];
 	}
 
@@ -1151,8 +1152,8 @@ WSP.tagHandlers = {
 	}
 };
 
-function isTplAttrType(tokType) {
-	return tokType && tokType.match(/\bmw:Object\/Template\/Attributes\b/);
+function hasExpandedAttrs(tokType) {
+	return tokType && tokType.match(/\bmw:ExpandedAttrs\/[^\s]+/);
 }
 
 WSP._serializeAttributes = function (state, token) {
@@ -1160,8 +1161,9 @@ WSP._serializeAttributes = function (state, token) {
 	    tokType = token.getAttribute("typeof"),
 		attribs = token.attribs;
 
-	// Check if this token has templated attributes
-	if (isTplAttrType(tokType)) {
+	// Check if this token has attributes that have been
+	// expanded from templates or extensions
+	if (hasExpandedAttrs(tokType)) {
 		tplAttrState = state.tplAttrs[token.getAttribute("about")];
 	}
 
@@ -1629,9 +1631,11 @@ WSP._serializeDOM = function( node, state ) {
 		}
 
 		if (!state.activeTemplateId) {
-			// check if this node marks the start of template output
+			// Check if this node marks the start of template output
+			// NOTE: Since we are deleting all mw:Object/**/End markers,
+			// we need not verify if it is an End marker
 			var typeofVal = node.getAttribute("typeof");
-			if (typeofVal && typeofVal.match(/\bmw:Object\/Template(\s|$)/)) {
+			if (typeofVal && typeofVal.match(/\bmw:Object(\/[^\s]+|\b)/)) {
 				state.activeTemplateId = node.getAttribute("about");
 				var dummyToken = new SelfclosingTagTk("meta",
 					[ new KV("typeof", "mw:Placeholder") ],

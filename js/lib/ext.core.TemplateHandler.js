@@ -224,7 +224,6 @@ TemplateHandler.prototype.addAboutToTableElements = function ( state, tokens ) {
 			// clone before update attributes
 			token = token.clone();
 			token.addAttribute( 'about', '#' + state.templateId );
-			token.addSpaceSeparatedAttribute( 'typeof', 'mw:Object/Template/Content' );
 			tokens[i] = token;
 		}
 	}
