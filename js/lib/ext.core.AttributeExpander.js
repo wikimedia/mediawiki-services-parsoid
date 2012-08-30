@@ -68,13 +68,13 @@ function stripMetaTags(tokens, wrapTemplates) {
 
 	for (var i = 0, l = tokens.length; i < l; i++) {
 		var token = tokens[i];
-		if (token.constructor === SelfclosingTagTk && token.name === 'meta') {
+		if ([TagTk, SelfclosingTagTk].indexOf(token.constructor) !== -1) {
 			// Strip all meta tags.
  			// SSS FIXME: should I be selective and only strip mw:Object/* tags?
 			if (wrapTemplates) {
 				// If we are in wrap-template mode, extract info from the meta-tag
 				var t = token.getAttribute("typeof");
-				var typeMatch = t.match(/(mw:Object(?:\/.*)?$)/);
+				var typeMatch = t && t.match(/(mw:Object(?:\/.*)?$)/);
 				if (typeMatch) {
 					inTemplate = !(typeMatch[1].match(/\/End$/));
 					if (inTemplate) {
@@ -84,6 +84,11 @@ function stripMetaTags(tokens, wrapTemplates) {
 				} else {
 					buf.push(token);
 				}
+			}
+			
+			// Dont strip token if it is not a meta-tag
+			if (token.name !== "meta") {
+				buf.push(token);
 			}
 		} else {
 			// Assumes that non-template tokens are always text.
