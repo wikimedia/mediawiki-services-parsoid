@@ -3,6 +3,7 @@
 #include <boost/intrusive_ptr.hpp>
 #include <vector>
 #include <deque>
+#include <map>
 #include <memory> // for std::shared_ptr
 #include <stdexcept>
 #include "type_intrusive_ptr_base.hpp"
@@ -182,6 +183,7 @@ namespace parsoid
             virtual string toString() const {
                 return string("TagToken()");
             }
+            virtual ~TagToken();
             // Attributes and tag name: only available for tags
             // Inherited form Token
             virtual void setName ( const std::string& name );
@@ -199,7 +201,9 @@ namespace parsoid
 
             bool operator==( const TagToken& t ) const;
             virtual bool equals ( const Token& t ) const;
-            virtual ~TagToken();
+
+            // data-parsoid rt info
+            std::map<string, string> rtInfo;
 
         protected:
             // data members

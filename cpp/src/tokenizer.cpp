@@ -33,6 +33,9 @@ namespace parsoid {
         // Semantic result type stack
         ctx->valslen= 32;
         ctx->vals= (YYSTYPE *) new YYSTYPE[ctx->valslen];
+
+        // Update the ref to this
+        ctx->tokenizer = this;
     }
 
     int WikiTokenizer::tokenize() {
