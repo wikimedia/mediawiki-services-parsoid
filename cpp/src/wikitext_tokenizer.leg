@@ -16,26 +16,22 @@ using namespace parsoid;
         result = 0; \
     }
 
-// Token accumulator stack
-vector<TokenChunkPtr> accumStack{ TokenChunkPtr( new TokenChunk() ) };
+// Add a reference to the driving WikiTokenizer object as an additional state
+// member
+#define YY_CTX_MEMBERS WikiTokenizer* tokenizer;
 
-TokenChunkPtr popAccum() {
-    // resets current accum to upper accum
-    TokenChunkPtr tk = accumStack.back();
-    accumStack.pop_back();
-    return tk;
-}
+// Define a few convenience macros to make things more readable
+#define emit ctx->tokenizer->emit
+#define pushScope ctx->tokenizer->pushScope
+#define popScope ctx->tokenizer->popScope
+#define getAccum ctx->tokenizer->getAccum
 
-void startAccum() {
-    accumStack.push_back( mkTokenChunk() ); // starts a new nested accum
-}
-
-void pushTk( Tk tk ) {
-    // push a new token to the current accum
-    accumStack.back()->push_back( tk );
-}
-
-
+#define incFlag ctx->tokenizer->syntaxFlags->inc
+#define decFlag ctx->tokenizer->syntaxFlags->dec
+#define pushFlag ctx->tokenizer->syntaxFlags->push
+#define popFlag ctx->tokenizer->syntaxFlags->pop
+#define getFlag ctx->tokenizer->syntaxFlags->get
+             
 %}
 
 
@@ -53,14 +49,14 @@ toplevelblock = block
 # TODO: implement!
 block = 
     newline? l:line
-    { cout << "block: " << accumStack.back()->back().toString() << endl; }
+    { cout << "last block token: " << getAccum()->back().toString() << endl; }
 
 #list = "*" text { 
 #        vector<Token>* v = new vector<Token> { new StartTagTk('listitem') }; 
 #        v.push_back( 
 #    }
 
-line = < [^\n] > { pushTk( mkText(yytext) ); }
+line = < [^\n] > { emit( mkText(yytext) ); }
 
 #eof = & { false }
 
@@ -74,4 +70,4 @@ newline = '\n' | '\r\n'
 #
 # * Start a new current accumulator, push old one on stack
 # * In main action: pop & concat
-StartChunk = &. { startAccum(); }
+StartChunk = &. { pushScope(); }

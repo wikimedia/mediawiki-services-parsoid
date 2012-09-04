@@ -599,7 +599,7 @@ comment_chars
 
 
 
-// Behavior switches
+// Behavior switches. See https://www.mediawiki.org/wiki/Help:Magic_words#Behavior_switches
 behavior_switch
   = '__' 
     behavior:(
