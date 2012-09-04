@@ -2,7 +2,6 @@
 
 using namespace parsoid;
 using namespace std;
-using boost::intrusive_ptr;
 
 /**
  * Try the token interface
@@ -33,5 +32,11 @@ void test_tokens() {
 int main()
 {
     test_tokens();
+
+    WikiTokenizer t("some input text\n");
+
+    while (t.tokenize()) {
+        cout << "tokenize: " << endl;
+    }
     return 0;
 }

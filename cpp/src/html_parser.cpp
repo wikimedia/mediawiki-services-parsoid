@@ -18,6 +18,11 @@ long parse_html(const char* input)
     return 1;
 }
 
+long foo () {
+    cout << "foo" << endl;
+    return 0;
+}
+
 extern "C" {
     void unmangled_parsoid_nothing() {};
 }
