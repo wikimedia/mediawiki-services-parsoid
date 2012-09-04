@@ -673,7 +673,7 @@ WSP._linkHandler =  function( state, tokens ) {
 			attribDict.href !== undefined )
 	{
 		// we have a rel starting with mw: prefix and href
-		if ( attribDict.rel === 'mw:WikiLink' ) {
+		if ( attribDict.rel.match( /\bmw:WikiLink/ ) ) {
 			// We'll need to check for round-trip data
 			populateRoundTripData();
 
@@ -688,13 +688,26 @@ WSP._linkHandler =  function( state, tokens ) {
 			{
 				return '[[' + target + ']]' + tail;
 			} else {
+				isCat = attribDict.rel.match( /\bmw:WikiLink\/Category/ );
 				if (tokenData.pipetrick) {
 					linkText = '';
+				} else if ( isCat ) {
+					targetParts = target.match( /^([^#]*)#(.*)/ );
+					target = targetParts[1].replace( /^.\//, '' );
+					linkText = Util.decodeURI( targetParts[2] ).replace( /%23/g, '#' ).replace( /%20/g, ' ' );
 				} else {
 					linkText = state.serializer.serializeTokens(state.currLine, tokens).join('');
 					linkText = Util.stripSuffix( linkText, tail );
 				}
-				return '[[' + target + '|' + linkText + ']]' + tail;
+
+				needToChangeCategory = token.name === 'link' && linkText !== '' && linkText !== target && isCat;
+				hasOtherLinkText = !isCat && linkText !== '';
+
+				if ( needToChangeCategory || hasOtherLinkText || tokenData.pipetrick ) {
+					return '[[' + target + '|' + linkText + ']]' + tail;
+				} else {
+					return '[[' + target + ']]' + tail;
+				}
 			}
 		} else if ( attribDict.rel === 'mw:ExtLink' ) {
 			populateRoundTripData();
@@ -1144,6 +1157,16 @@ WSP.tagHandlers = {
 		wtEscapeHandler: WSP.wteHandlers.quoteHandler
 	},
 	a:  {
+		start: {
+			handle: installCollector.bind(null,
+						endTagMatchTokenCollector,
+						WSP._linkHandler,
+						this
+					)
+		},
+		wtEscapeHandler: WSP.wteHandlers.linkHandler
+	},
+	link:  {
 		start: {
 			handle: installCollector.bind(null,
 						endTagMatchTokenCollector,
