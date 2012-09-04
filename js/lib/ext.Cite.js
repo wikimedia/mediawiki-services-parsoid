@@ -33,9 +33,12 @@ Cite.prototype.referencesRank = 2.6; // after PostExpandParagraphHandler
  */
 Cite.prototype.handleRef = function ( tokens ) {
 	// remove the first ref tag
+	var startTsr, endTsr;
 	var startTag = tokens.shift();
+	startTsr = startTag.dataAttribs.tsr;
 	if ( tokens[tokens.length - 1].name === 'ref' ) {
-		tokens.pop();
+		var endTag = tokens.pop();
+		endTsr = endTag.dataAttribs.tsr;
 	}
 
 	var options = $.extend({
@@ -56,13 +59,23 @@ Cite.prototype.handleRef = function ( tokens ) {
 	//bits.push(Util.formatNum( ref.groupIndex + 1 ));
 	bits.push(ref.groupIndex + 1);
 
+	var refId = "#mwt" + this.manager.env.generateUID(),
+	    text  = this.manager.env.text,
+		start = startTsr[0],
+		end   = endTsr ? endTsr[1] : text.length;
 	var res = [
 		new TagTk('span', [
 				new KV('id', linkback),
 				new KV('class', 'reference'),
+				new KV('about', refId),
+				new KV('typeof', 'mw:Object/Ext/Cite'),
 				// ignore element when serializing back to wikitext
 				new KV('data-nosource', '')
-			]
+			],
+			{
+				tsr: [start, end],
+				src: endTsr ? text.substring(start, end) : text.substring(start)
+			}
 		),
 		new TagTk( 'a', [
 				new KV('data-type', 'hashlink'),
@@ -72,7 +85,12 @@ Cite.prototype.handleRef = function ( tokens ) {
 		),
 		'[' + bits.join(' ')  + ']',
 		new EndTagTk( 'a' ),
-		new EndTagTk( 'span' )
+		new EndTagTk( 'span' ),
+		new SelfclosingTagTk( 'meta',
+			[
+				new KV( 'typeof', 'mw:Object/Ext/Cite/End' ),
+				new KV( 'about', refId)
+			] )
 	];
 	//console.warn( 'ref res: ' + JSON.stringify( res, null, 2 ) );
 	return { tokens: res };

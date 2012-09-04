@@ -1342,8 +1342,10 @@ generic_tag
             res = new EndTagTk( name, attribs );
         } else if ( selfclose !== '' || __parseArgs[3].Util.isVoidElement( name ) ) {
             res = new SelfclosingTagTk( name, attribs );
-            if (  __parseArgs[3].Util.isVoidElement( name ) && selfclose === '' ) {
-                res.dataAttribs.noclose = true;
+            if ( __parseArgs[3].Util.isVoidElement( name ) && selfclose === '' ) {
+                res.dataAttribs.noClose = true;
+            } else if (!__parseArgs[3].Util.isVoidElement( name ) && selfclose !== '') {
+                res.dataAttribs.selfClose = true;
             }
         } else {
             res = new TagTk( name, attribs );

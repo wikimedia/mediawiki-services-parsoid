@@ -427,7 +427,7 @@ var encapsulateTrees = function ( startElem, endElem, doc ) {
 		var n = range.start,
 			about = startElem.getAttribute('about');
 		while (n) {
-			if ( n.nodeType === Node.TEXT_NODE ) {
+			if ( n.nodeType === Node.TEXT_NODE || n.nodeType === Node.COMMENT_NODE ) {
 				// TODO: wrap into span
 				var span = doc.createElement( 'span' );
 				span.setAttribute( 'about', about );
@@ -466,8 +466,8 @@ var encapsulateTrees = function ( startElem, endElem, doc ) {
 			}
 			n = n.nextSibling;
 
-			// SSS FIXME: Deal with comment nodes properly.
-			while (n.nodeType === Node.COMMENT_NODE) {
+			// SSS FIXME: Deal with comment and text nodes properly.
+			while (n.nodeType !== Node.ELEMENT_NODE) {
 				n = n.nextSibling;
 			}
 
@@ -509,13 +509,13 @@ var doEncapsulateTemplateOutput = function ( root, tpls, doc ) {
 
 		if ( elem.nodeType === Node.ELEMENT_NODE ) {
 			var type = elem.getAttribute( 'typeof' ),
-				match = type ? type.match( /(?:^|\s)(mw:Object(?:\/[^\s]+)?)/ ) : null;
+				match = type ? type.match( /\b(mw:Object?(?:\/[^\s]+|\b))/ ) : null;
 			if ( match ) {
 				var tm = match[1],
 					about = elem.getAttribute('about'),
 					aboutRef = tpls[about];
-				//console.log( tm );
-				if ( tm === 'mw:Object/Template' ) {
+				// Is this a start marker?
+				if (!tm.match(/\/End\b/)) {
 					if ( aboutRef ) {
 						aboutRef.start = elem;
 						// content or end marker existed already
@@ -531,7 +531,7 @@ var doEncapsulateTemplateOutput = function ( root, tpls, doc ) {
 					} else {
 						tpls[about] = { start: elem };
 					}
-				} else if ( tm === 'mw:Object/Template/End' ) {
+				} else {
 					// check if followed by table node
 					var tableNode = findTableSibling( elem, about );
 
@@ -557,9 +557,6 @@ var doEncapsulateTemplateOutput = function ( root, tpls, doc ) {
 					} else {
 						tpls[about] = { end: elem };
 					}
-				} else {
-					// recurse down the tree
-					doEncapsulateTemplateOutput( elem, tpls, doc );
 				}
 			} else {
 				// recurse down the tree

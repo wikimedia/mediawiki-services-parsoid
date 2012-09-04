@@ -73,6 +73,7 @@ var WikitextConstants = {
 			// 'meta', // SSS FIXME:Required? -- not present in php sanitizer
 			'ol',
 			'p', 'pre',
+			'ref', // SSS FIXME: comes from an extension? -- not present in php sanitizer
 			'rb', 'rp', 'rt', 'ruby',
 			's', 'samp', 'small', 'span', 'strike', 'strong', 'sub', 'sup',
 			'tag', // SSS FIXME: comes from an extension? -- not present in php sanitizer
