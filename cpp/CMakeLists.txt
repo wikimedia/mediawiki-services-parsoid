@@ -5,7 +5,23 @@ include( ExternalProject )
 project( parsoid CXX )
 # option( WITH_PHP "Build php bindings" ON )
 
-set( CMAKE_CXX_FLAGS "-Wall -std=c++11" )
+# Figure out the right CXX_FLAGS for c++11 support
+if(CMAKE_COMPILER_IS_GNUCXX)
+    execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion
+        OUTPUT_VARIABLE GCC_VERSION)
+    if (GCC_VERSION VERSION_EQUAL 4.6)
+        set( CMAKE_CXX_FLAGS "-Wall -std=c++0x" )
+    else(GCC_VERSION VERSION_GREATER 4.7 or GCC_VERSION VERSION_EQUAL 4.7)
+        set( CMAKE_CXX_FLAGS "-Wall -std=c++11" )
+    else()
+        message( FATAL_ERROR "GCC version < 4.6 detected, please upgrade!" )
+    endif()
+else()
+    # Just assume c++11 support. TODO: test with other compilers
+    message( STATUS "Non-GCC compiler detected, using default flags" )
+    set( CMAKE_CXX_FLAGS "-Wall -std=c++11" )
+endif()
+
 set(
 	PARSOID_LIBS
 	parsoid
