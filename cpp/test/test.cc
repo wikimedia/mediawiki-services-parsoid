@@ -31,12 +31,28 @@ void test_tokens() {
 
 int main()
 {
-    test_tokens();
+    //    test_tokens();
 
-    WikiTokenizer t("some input text\n");
+    string testtext = "";
+    char tmpChr;
 
-    while (t.tokenize()) {
-        cout << "tokenize: " << endl;
+    while ( !cin.eof() ) {
+        cin.get( tmpChr );
+	testtext += tmpChr;
     }
+
+    WikiTokenizer t( testtext );
+
+    TokenChunkPtr tcp;
+
+    do {
+        tcp = t.tokenize();
+	cout << tcp->toString();
+    } while ( tcp->size() != 0 && tcp->back().type() != TokenType::Eof );
+
+    if ( tcp->size() != 0 ) {
+        cout << "Input was not totally matched.";
+    }
+
     return 0;
 }

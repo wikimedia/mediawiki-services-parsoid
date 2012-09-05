@@ -19,6 +19,7 @@ using namespace parsoid;
 // Add a reference to the driving WikiTokenizer object as an additional state
 // member
 #define YY_CTX_MEMBERS WikiTokenizer* tokenizer;
+#define YY_DEBUG
 
 // Define a few convenience macros to make things more readable
 #define emit ctx->tokenizer->emit
@@ -26,43 +27,126 @@ using namespace parsoid;
 #define popScope ctx->tokenizer->popScope
 #define getAccum ctx->tokenizer->getAccum
 
-#define incFlag ctx->tokenizer->syntaxFlags->inc
-#define decFlag ctx->tokenizer->syntaxFlags->dec
-#define pushFlag ctx->tokenizer->syntaxFlags->push
-#define popFlag ctx->tokenizer->syntaxFlags->pop
-#define getFlag ctx->tokenizer->syntaxFlags->get
-             
+#define incFlag ctx->tokenizer->syntaxFlags.inc
+#define decFlag ctx->tokenizer->syntaxFlags.dec
+#define pushFlag ctx->tokenizer->syntaxFlags.push
+#define popFlag ctx->tokenizer->syntaxFlags.pop
+#define getFlag ctx->tokenizer->syntaxFlags.get
+
 %}
 
 
 #/*********************************************************
 # * The top-level production
 # *********************************************************/
-start = e:toplevelblock+ newline* { $$ = e; }
+start = block
 
 #
 # A document (start production) is a sequence of toplevelblocks. Tokens are
 # emitted in chunks per toplevelblock to avoid buffering the full document.
 #
-toplevelblock = block
+#toplevelblock = block
 
 # TODO: implement!
-block = 
-    newline? l:line
-    { cout << "last block token: " << getAccum()->back().toString() << endl; }
+block = block_lines
+#      | & '<' ( pre
+#              | comment
+#              | nowiki
+#              | bt:block_tag { $$ = bt; } )
+#      | paragraph
+      | inlineline
+      | sol
+      | eof
+
+## Old version of block rule
+#    newline? l:line
+#    { cout << "last block token: " << getAccum()->back().toString() << endl; }
+
+block_lines = sol ( optionalSpaceToken sol )? block_line
+
+block_line = h
+#           | lists
+           | optionalSpaceToken
+#             ( & [{}|!] table_lines
+#              ( ( block_tag optionalSpaceToken )+ & eolf )
 
 #list = "*" text { 
 #        vector<Token>* v = new vector<Token> { new StartTagTk('listitem') }; 
 #        v.push_back( 
 #    }
 
-line = < [^\n] > { emit( mkText(yytext) ); }
 
-#eof = & { false }
+### Headings
+
+h = & "=" # guard, to make sure '='+ will match.
+    ( # XXX: Also check to end to avoid inline parsing?
+        s:equals # moved in here to make s accessible to inner action
+        & { incFlag( WikiTokenizer::SyntaxFlags::Flag::Equal ) }
+        c:inlineline
+        e:equals
+        ( space+ | comment )*
+        & eolf
+        {
+            int sl = s.size();
+            int el = e.size();
+
+            int rsl = sl > 6 ? 6 : sl;
+            int rel = el > 6 ? 6 : el;
+
+            string tname;
+
+            if ( el > rsl ) {
+                tname = "h" + rsl;
+
+                c.insert( c.begin(), mkText( string( el - rsl, '=' ) ) );
+            }
+
+            if ( sl >= rel ) {
+                tname = "h" + rsl;
+
+                c.push_back( mkText( string( sl - rel, '=' ) ) );
+            }
+
+            Tk headStart = mkStartTag( tname );
+            Tk headEnd = mkStartTag( tname );
+
+            headStart.setSourceRange( yypos, yypos + rsl );
+            headEnd.setSourceRange( yypos + rsl + c.size(), yypos + rsl + c.size() + rel );
+
+            emit( headStart );
+            emit( c );
+            emit( headEnd );
+            decFlag( WikiTokenizer::SyntaxFlags::Flag::Equal );
+        }
+    ) | & { decFlag( WikiTokenizer::SyntaxFlags::Flag::Equal ) }
+
+paragraph = sol sol inlineline
+
+equals = < "="+ > { $$ = vector<Tk>( 1, mkText( yytext ) ); }
+
+inlineline = < ( & { !ctx->tokenizer->syntaxBreak() } [^\r\n] )+ > { emit( mkText( yytext ) ); }
+
+# Start of line
+sol = innersol comment* newline?
+
+innersol = & { ctx->pos == 0 }
+#         | newlineToken
+
+optionalSpaceToken = space+
+
+line = [^\n]
+
+space = [ \t]
+
+eolf = newline | eof
+
+comment = "<!--" comment_chars* ( "-->" | eof )
+
+comment_chars = !"-->"
+
+eof = !. { emit( mkEof() ); }
 
 newline = '\n' | '\r\n'
-
-#eolf = newline | eof
 
 # TODO: use a stack of accumulators
 # Need stack to support nesting (inline link content within link token for

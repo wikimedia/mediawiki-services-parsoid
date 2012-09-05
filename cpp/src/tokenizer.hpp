@@ -11,7 +11,7 @@ namespace parsoid {
     class WikiTokenizer {
         public:
             WikiTokenizer( const string& input );
-            int tokenize();
+            TokenChunkPtr tokenize();
 
             // Accumulator interface
             void emit(Tk tk) {
@@ -32,6 +32,8 @@ namespace parsoid {
             TokenChunkPtr getAccum() {
                 return accumStack.get();
             }
+
+            bool syntaxBreak();
 
             /** 
              * Token accumulator stack
@@ -64,6 +66,9 @@ namespace parsoid {
                     TokenChunkPtr popScope() {
                         TokenChunkPtr tk = accumStack.back();
                         accumStack.pop_back();
+			if ( accumStack.size() == 0 ) {
+			    pushScope();
+			}
                         curAccum = accumStack.back();
                         return tk;
                     }
@@ -84,7 +89,7 @@ namespace parsoid {
              */
             class SyntaxFlags {
                 public:
-                    SyntaxFlags(): flags(vector<vector<int>>(12)) {};
+                    SyntaxFlags(): flags(vector<vector<int>>(12, vector<int>(1, 0))) {};
                     enum class Flag {
                         Equal = 0,
                         Table,
@@ -112,11 +117,12 @@ namespace parsoid {
                         return flags[int(name)].back();
                     }
                     int inc ( Flag name ) {
-
-                        return ++flags[int(name)].back();
+                        ++flags[int(name)].back();
+                        return true;
                     }
                     int dec ( Flag name ) {
-                        return --flags[int(name)].back();
+		        --flags[int(name)].back();
+		        return false;
                     }
                 private:
                     // XXX: Can we automatically size this?
@@ -125,6 +131,7 @@ namespace parsoid {
 
             // Make these public for now..
             SyntaxFlags syntaxFlags;
+            const string& input;
 
             ~WikiTokenizer();
         private:
