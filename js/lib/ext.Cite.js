@@ -9,6 +9,7 @@ var Util = require( './mediawiki.Util.js' ).Util;
  */
 function Cite ( manager, options ) {
 	this.manager = manager;
+	this.options = options;
 	this.refGroups = {};
 	// Set up the collector for ref sections
 	new TokenCollector(
@@ -76,8 +77,6 @@ Cite.prototype.handleRef = function ( tokens ) {
 			}
 		),
 		new TagTk( 'a', [
-				// SSS FIXME: Needed any more?
-				// new KV('data-type', 'hashlink'),
 				new KV('href', '#' + ref.target)
 			]
 		),
@@ -160,9 +159,9 @@ Cite.prototype.onReferences = function ( token, manager ) {
 		var group = refGroups[options.group];
 		var listItems = $.map(group.refs, renderLine);
 		var dataAttribs = Util.clone(token.dataAttribs);
-		// SSS FIXME: Quick hack!
-		// We should really get the src from the parser
-		dataAttribs.src = "<references />";
+		if (this.options.wrapTemplates) {
+			dataAttribs.src = this.manager.env.text.substring(token.dataAttribs.tsr[0], token.dataAttribs.tsr[1]);
+		}
 		res = [
 			new TagTk( 'ol', [
 						new KV('class', 'references'),
