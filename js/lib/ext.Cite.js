@@ -68,9 +68,7 @@ Cite.prototype.handleRef = function ( tokens ) {
 				new KV('id', linkback),
 				new KV('class', 'reference'),
 				new KV('about', refId),
-				new KV('typeof', 'mw:Object/Ext/Cite'),
-				// ignore element when serializing back to wikitext
-				new KV('data-nosource', '')
+				new KV('typeof', 'mw:Object/Ext/Cite')
 			],
 			{
 				tsr: [start, end],
@@ -78,9 +76,9 @@ Cite.prototype.handleRef = function ( tokens ) {
 			}
 		),
 		new TagTk( 'a', [
-				new KV('data-type', 'hashlink'),
+				// SSS FIXME: Needed any more?
+				// new KV('data-type', 'hashlink'),
 				new KV('href', '#' + ref.target)
-				// XXX: Add round-trip info here?
 			]
 		),
 		'[' + bits.join(' ')  + ']',
@@ -161,12 +159,15 @@ Cite.prototype.onReferences = function ( token, manager ) {
 	if (options.group in refGroups) {
 		var group = refGroups[options.group];
 		var listItems = $.map(group.refs, renderLine);
+		var dataAttribs = Util.clone(token.dataAttribs);
+		// SSS FIXME: Quick hack!
+		// We should really get the src from the parser
+		dataAttribs.src = "<references />";
 		res = [
 			new TagTk( 'ol', [
 						new KV('class', 'references'),
-						new KV('data-object', 'references') // Object type
-					]
-				)
+						new KV('typeof', 'mw:Object/References')
+					], dataAttribs)
 		].concat( listItems, [ new EndTagTk( 'ol' ) ] );
 	} else {
 		res = [ new SelfclosingTagTk( 'meta', [ new KV('fixme', 'add-rdfa-rt-info') ] ) ];
