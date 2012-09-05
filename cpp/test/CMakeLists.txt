@@ -4,6 +4,6 @@ include_directories( ${libparsoid_SOURCE_DIR} )
 add_executable( test
 	test.cc
 )
-target_link_libraries( test ${PARSOID_LIBS} )
+target_link_libraries( test ${PARSOID_LIBS} boost_system )
 
 #add_test( test test )

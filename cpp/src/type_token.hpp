@@ -6,6 +6,7 @@
 #include <map>
 #include <memory> // for std::shared_ptr
 #include <stdexcept>
+#include <boost/function.hpp>
 #include "type_intrusive_ptr_base.hpp"
 
 namespace parsoid
@@ -89,15 +90,6 @@ namespace parsoid
      * Provide simple typedefs for a token chunk and -vector 
      * (for now, to get started)
      */
-
-    // constant-time modification on both ends
-    typedef deque<Tk> TokenChunk;
-
-    // No intrusive refcounting of refs to TokenChunk, but we can use
-    // shared_ptr for now
-    typedef std::shared_ptr<TokenChunk> TokenChunkPtr;
-
-    TokenChunkPtr mkTokenChunk();
 
     typedef vector< pair< vector<Tk>, vector<Tk> > > AttribMap;
 
@@ -326,8 +318,163 @@ namespace parsoid
             };
     };
 
+    // constant-time modification on both ends
+    //typedef deque<Tk> TokenChunk;
+
+    class TokenChunk:  public intrusive_ptr_base< TokenChunk > 
+    {
+        public:
+            TokenChunk() {};
+            TokenChunk(deque<Tk>& chunk): chunk(chunk), rank(0) {};
+            TokenChunk(deque<Tk>& chunk, float rank): 
+                chunk(chunk), rank(rank) {};
+
+            // Rank interface
+            void setRank ( float rank ) {
+                this->rank = rank;
+            }
+            float getRank( ) {
+                return rank;
+            }
+
+            // Overload append to handle both refcounted and stack-allocated
+            // chunks.
+            void append( const boost::intrusive_ptr<TokenChunk> chunkPtr ) {
+                chunk.insert(chunk.end(), chunkPtr->chunk.begin(), chunkPtr->chunk.end());
+            }
+            void append( const vector<Tk>& newChunk ) {
+                chunk.insert(chunk.end(), newChunk.begin(), newChunk.end());
+            }
+
+            // The only two vector-like interfaces we need so far ;)
+            void push_back( Tk tk ) {
+                chunk.push_back( tk );
+            }
+            Tk back() {
+                return chunk.back();
+            }
+
+            // Expose the (const) embedded chunk for now, so that token
+            // transform managers can get at it
+            const deque<Tk>& getChunk() {
+                return chunk;
+            }
+
+        private:
+            deque<Tk> chunk;
+            float rank;
+    };
+
+    // No intrusive refcounting of refs to TokenChunk, but we can use
+    // shared_ptr for now
+    typedef boost::intrusive_ptr<TokenChunk> TokenChunkPtr;
+
+    /**
+     * A chunk of TokenChunkPtrs ;) Cheap concatenation of immutable and
+     * refcounted chunks.
+     */
+    // TODO: use concurrent_vector from TBB later, or protect
+    // TokenAccumulator / QueueDispatcher with Mutex!
+    typedef std::deque<TokenChunkPtr> TokenChunkChunk;
 
 
+    TokenChunkPtr mkTokenChunk();
+
+    // fwd declaration
+    class TokenAccumulator;
+
+    /**
+     * A (potentially) asynchronous return value wrapper around a token chunk
+     * chunk.
+     */
+    class AsyncReturn {
+        public:
+            AsyncReturn() {};
+
+            // TODO: make sure this uses move semantics, especially for the
+            // chunk
+            AsyncReturn( const TokenChunkChunk& chunks ): 
+                chunks(chunks),
+                accumTailPtr(nullptr) 
+            {}
+
+            AsyncReturn( 
+                    const TokenChunkChunk& chunks, 
+                    TokenAccumulator* accumPtr ): 
+                chunks(chunks),
+                accumTailPtr(accumPtr)
+            {}
+
+            // Constructor with async boolean
+            AsyncReturn( 
+                    const TokenChunkChunk& chunks, 
+                    bool isAsync ): 
+                chunks(chunks),
+                accumTailPtr(nullptr)
+            {
+                if (isAsync) {
+                    accumTailPtr = (TokenAccumulator*)1;
+                } else {
+                    accumTailPtr = nullptr;
+                }
+
+            }
+
+            bool isAsync() {
+                return accumTailPtr != nullptr;
+            }
+
+            bool hasAccum() {
+                return accumTailPtr != nullptr && accumTailPtr != (TokenAccumulator*)1;
+            }
+
+            const TokenChunkChunk& getChunks () {
+                return chunks;
+            }
+
+        private:
+            TokenChunkChunk chunks;
+            // The pointee is supposed to be alive just after a return, but
+            // cannot be used at any other time. The only application is to
+            // call siblingDone() at the end of a pipeline.
+            TokenAccumulator* accumTailPtr;
+    };
+
+
+    /**
+     * General callback handler type
+     */
+    typedef boost::function<void(AsyncReturn)> AsyncReturnHandler;
+
+    /**
+     * The nullHandler, which is returned if no handler is set
+     */
+    static const AsyncReturnHandler nullAsyncReturnHandler;
+    
+    /**
+     * Order-preserving but minimal buffering between asynchronous expansion
+     * points. The accumulator collects all fully-processed tokens which are
+     * waiting for an async expansion (the child) to complete. Once the child
+     * is done, the accumulated chunks are forwarded to the callback.
+     *
+     * TODO: Support parallel callbacks.
+     * - Protect entire accumulator with mutex
+     * - (Possibly) Schedule callback with ASIO event loop rather than calling
+     *   it directly
+     */
+    class TokenAccumulator {
+        public:
+            TokenAccumulator( AsyncReturnHandler cb ):
+                cb(cb) {};
+            AsyncReturnHandler siblingDone();
+            AsyncReturnHandler returnSibling( AsyncReturn ret );
+            void returnChild( AsyncReturn ret );
+        private:
+            AsyncReturnHandler cb;
+            TokenChunkChunk chunks;
+            bool isSiblingDone;
+            bool isChildDone;
+    };
 }
 
 /**

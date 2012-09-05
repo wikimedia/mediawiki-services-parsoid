@@ -203,6 +203,55 @@ namespace parsoid
     
     ContentToken::~ContentToken() {};
 
+    /**
+     * TokenAccumulator
+     */
+    AsyncReturnHandler
+    TokenAccumulator::siblingDone() {
+        isSiblingDone = true;
+        if ( isChildDone ) {
+            return cb;
+        } else {
+            return nullAsyncReturnHandler;
+        }
+    }
+
+    AsyncReturnHandler
+    TokenAccumulator::returnSibling( AsyncReturn ret ) {
+        // append the returned chunks
+        const TokenChunkChunk& retChunks = ret.getChunks();
+        // Collect the chunks
+        chunks.insert(chunks.end(), retChunks.begin(), retChunks.end());
+        isSiblingDone = ret.isAsync();
+        if ( isChildDone ) {
+            // forward to parent
+            // XXX: use move semantics?
+            cb( AsyncReturn( chunks, ret.isAsync() ) );
+            chunks.clear();
+            return cb;
+        } else { 
+            return nullAsyncReturnHandler;
+        }
+    }
+
+    void
+    TokenAccumulator::returnChild( AsyncReturn ret ) {
+        if ( ! ret.isAsync() ) {
+            isChildDone = true;
+            // Prepend the returned chunks to queue and return both
+            const TokenChunkChunk& retChunks = ret.getChunks();
+            chunks.insert( chunks.begin(), retChunks.begin(), retChunks.end() );
+            // return the combined chunks
+            cb ( AsyncReturn( chunks, isSiblingDone ) );
+            // And clear the queue
+            chunks.clear();
+        } else {
+            // just forward the ret
+            cb( ret );
+        }
+    }
+    
+
 }
 
 std::ostream& operator<<(std::ostream &strm, const parsoid::Tk& tk) {

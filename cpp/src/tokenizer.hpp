@@ -17,6 +17,12 @@ namespace parsoid {
             void emit(Tk tk) {
                 return accumStack.push(tk);
             }
+            void emit(TokenChunkPtr chunkPtr) {
+                return accumStack.push(chunkPtr);
+            }
+            void emit(vector<Tk> vec) {
+                return accumStack.push(vec);
+            }
             TokenChunkPtr pushScope() {
                 return accumStack.pushScope();
             }
@@ -41,6 +47,12 @@ namespace parsoid {
 
                     void push( Tk tk ) {
                         return curAccum->push_back( tk );
+                    }
+                    void push( const TokenChunkPtr chunk ) {
+                        return curAccum->append(chunk);
+                    }
+                    void push( const vector<Tk>& vec ) {
+                        return curAccum->append(vec);
                     }
 
                     TokenChunkPtr pushScope( ) {

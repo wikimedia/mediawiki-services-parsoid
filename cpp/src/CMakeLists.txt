@@ -4,6 +4,7 @@ set(
 	LIBPARSOID_SRCS
 	html_parser.cpp
 	type_token.cpp
+        type_QueueDispatcher.cpp
         tokenizer.cpp
         wikitext_tokenizer.cpp
 )

@@ -6,6 +6,7 @@
 #include "type_token.hpp"
 #include "html_parser.h"
 #include "tokenizer.hpp"
+#include "type_QueueDispatcher.hpp"
 
 // forward declaration
 namespace parsoid {
