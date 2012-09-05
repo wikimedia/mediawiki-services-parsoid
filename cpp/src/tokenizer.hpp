@@ -72,6 +72,7 @@ namespace parsoid {
              */
             class SyntaxFlags {
                 public:
+                    SyntaxFlags(): flags(vector<vector<int>>(12)) {};
                     enum class Flag {
                         Equal = 0,
                         Table,
@@ -107,7 +108,7 @@ namespace parsoid {
                     }
                 private:
                     // XXX: Can we automatically size this?
-                    vector<vector<int>> flags = vector<vector<int>>(12);
+                    vector<vector<int>> flags;
             };
 
             // Make these public for now..
