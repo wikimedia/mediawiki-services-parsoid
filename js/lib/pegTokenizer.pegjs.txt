@@ -36,41 +36,13 @@
     //    return es;
     //};
 
-/**
-    var old_flatten = function ( e ) {
-        // Fast single-level flatten:
-        //return [].concat.apply([], e);
-        
-        var es = [];
-        // flatten sub-arrays
-        var chunkStart = null,
-            modified = false;
-        for(var i = 0, l = e.length; i < l; i++) {
-            if ( e[i].constructor === Array ) {
-                if ( chunkStart !== null ) {
-                    es = es.concat( e.slice( chunkStart, i ), flatten( e[i] ) );
-                    chunkStart = null;
-                } else {
-                    es = es.concat(flatten(e[i]));
-                }
-                modified = true;
-            } else if ( chunkStart === null ) {
-                chunkStart = i;
-            }
-        };
-        if ( modified ) {
-            if ( chunkStart !== null ) {
-                es = es.concat( e.slice( chunkStart, e.length ) );
-            }
-            return es;
-        } else {
-            return e;
-        }
-    };
-**/
-
     var flatten = function(e) {
         function internal_flatten(e, res) {
+            // flatten should *always* return an array
+            if (e.constructor !== Array) {
+                return [e];
+            }
+
             for (var i = 0, l = e.length; i < l; i++) {
                 var v = e[i];
                 if (v.constructor === Array ) {
