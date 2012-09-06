@@ -1657,7 +1657,13 @@ table_cell_args
 /* All chars that cannot start syntactic structures in the middle of a line
  * XXX: ] and other end delimiters should probably only be activated inside
  * structures to avoid unnecessarily leaving the text production on plain
- * content. */
+ * content. 
+ *
+ * TODO: Much of this is should really be context-dependent (syntactic
+ * flags). The wikilink_preprocessor_text production is an example where
+ * text_char is not quite right and had to be augmented. Try to minimize /
+ * clarify this carefully!
+ */
 
 text_char = [^'<~[{\n\r:\]}|!=]
 
@@ -1880,7 +1886,7 @@ preprocessor_text
 
 wikilink_preprocessor_text 
   = r:( t:[^<~[{\n\r\t|!\]}{ &=]+ { return t.join(''); }
-        / !inline_breaks ( directive / !"]]" text_char ) 
+        / !inline_breaks ( directive / !"]]" ( text_char / [!] ) ) 
     )+ {
       return flatten_stringlist ( r );
   }
