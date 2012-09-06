@@ -36,11 +36,11 @@
     //    return es;
     //};
 
-    var flatten = function(e) {
+    var flattenIfArray = function(e) {
         function internal_flatten(e, res) {
-            // flatten should *always* return an array
+            // Don't bother flattening if we dont have an array
             if (e.constructor !== Array) {
-                return [e];
+                return e;
             }
 
             for (var i = 0, l = e.length; i < l; i++) {
@@ -73,7 +73,8 @@
     var flatten_stringlist = function ( c ) {
         var out = [],
             text = '';
-        c = flatten(c);
+        // c will always be an array
+        c = flattenIfArray(c);
         for (var i = 0, l = c.length; i < l; i++) {
             var ci = c[i];
             if (ci.constructor === String) {
@@ -316,10 +317,6 @@
     var emitChunk = function (tokens) {
         __parseArgs[2](tokens);
     };
-
-
-
-        
 }
 
 /*********************************************************
@@ -330,7 +327,7 @@ start
   = e:toplevelblock* newline* { 
       // end is passed inline as a token, as well as a separate event for now.
       emitChunk( [ new EOFTk( ) ] );
-      return []; //flatten(e);
+      return []; //flattenIfArray(e);
   }
 
 
@@ -347,11 +344,11 @@ toplevelblock
     // [[:en:Barack Obama]], the difference is about 360M vs. 110M.
     cache = {};
 
-    b = flatten(b);
-
     // Add source offsets for round-tripping. XXX: Add these not just for
     // toplevelblocks!
-    if ( b.length ) {
+    var tokens;
+    if (b.constructor === Array && b.length ) {
+        b = flattenIfArray(b);
         var bs = b[0];
         if ( bs.constructor === String && bs.attribs === undefined ) {
             b[0] = new String( bs );
@@ -361,20 +358,26 @@ toplevelblock
             bs.dataAttribs = {};
         }
         bs.dataAttribs.bsp = [pos0, pos];
+        tokens = b;
+    } else if (b.constructor === String && b.attribs === undefined) {
+        b = new String( b );
+        if (b.dataAttribs === undefined) {
+            b.dataAttribs = {};
+        }
+        b.dataAttribs.bsp = [pos0, pos];
+        tokens = [b];
     }
 
     if (__parseArgs[3].env.trace) {
         console.warn("---- <chunk:tokenized> ----");
-        for (var i = 0, n = b.length; i < n; i++) {
-            console.warn(b[i].toString());
+        for (var i = 0, n = tokens.length; i < n; i++) {
+            console.warn(tokens[i].toString());
         }
         console.warn("---- </chunk:tokenized> ----");
     }
     
-    // Emit tokens for this toplevelblock. This feeds a chunk to the parser
-    // pipeline.
-    emitChunk( flatten( b ) );
-
+    // Emit tokens for this toplevelblock. This feeds a chunk to the parser pipeline.
+    emitChunk( tokens );
 
     // We don't return any tokens to the start production to save memory. We
     // just emitted them already to our consumers.
@@ -770,13 +773,15 @@ url
 ipv4_address 
   = a:([0-9]* '.' [0-9]* '.' [0-9]* '.' [0-9]*)
 {
-    return flatten( a ).join('');
+    // a will always be an array
+    return flattenIfArray( a ).join('');
 }
 
 ipv6_address 
   = a:('[' [0-9]* ':' [0-9]* ':' [0-9]* ':' [0-9]* ':' [0-9]* ':' [0-9]* ':' [0-9]* ']')
 {
-    return flatten( a ).join('');
+    // a will always be an array
+    return flattenIfArray( a ).join('');
 }
 
 
@@ -813,7 +818,7 @@ template
       // Insert target as first positional attribute, so that it can be
       // generically expanded. The TemplateHandler then needs to shift it out
       // again.
-      params.unshift( { k: flatten( target ), v: [] } );
+      params.unshift( { k: flattenIfArray( target ), v: [] } );
       var obj = new SelfclosingTagTk( 'template', params, {tsr: [pos0, pos]} );
       //console.warn( 'tokenizer template ' + pos + );
       //console.warn('template @' + pos + '::' + input.substr(pos, 40) );
@@ -836,7 +841,7 @@ tplarg
            )* 
     nl_comment_space* 
     "}}}" {
-      name = flatten( name );
+      name = flattenIfArray( name );
       params.unshift( new KV( name, '' ) );
       var obj = new SelfclosingTagTk( 'templatearg', params, {tsr: [pos0, pos]} );
       //console.warn( 'tokenizer tplarg ' + JSON.stringify( obj, null, 2 ));
@@ -861,12 +866,12 @@ template_param
       //console.warn( 'named template_param matched' + pp([name, value ]) );
       if ( val !== '' ) {
           if ( val.value !== '' ) {
-            return new KV( name, flatten( val.value ) );
+            return new KV( name, flattenIfArray( val.value ) );
           } else {
-            return new KV(flatten( name ), []);
+            return new KV(flattenIfArray( name ), []);
           }
       } else {
-        return new KV([], flatten(name));
+        return new KV([], flattenIfArray(name));
       }
     } 
   // empty parameter
@@ -912,7 +917,9 @@ template_param_text
         stops.pop('extlink');
         stops.dec('template');
         //console.warn( 'tpt match: ' + pp (il) + " stops: " + pp(stops));
-        var r = flatten( il ),
+        // il is guaranteed to be an array -- so, flattenIfArray will
+        // always return an array
+        var r = flattenIfArray( il ),
             firstToken = r[0];
 
         // Strip leading newlines and space-only text tokens. 
@@ -1052,7 +1059,8 @@ img_options =
   os:img_option* {
     stops.dec( 'pipe' );
 	var options = {};
-    os = flatten( os );
+    // os will always be an array
+    os = flattenIfArray( os );
 	for ( var i = 0, l = os.length; i < l; i++ ) {
 		var o = os[i];
 		options[o.k] = o.v;
@@ -1158,8 +1166,9 @@ pre_indent_in_tags
     "</pre>"
   {   
     stops.dec('pre');
-    return [ new TagTk( 'pre', attribs, { tsr: [pos0, pos0] } ) ]
-        .concat( l, flatten( ls ), [ new EndTagTk( 'pre' ) ] );
+    var ret = [ new TagTk( 'pre', attribs, { tsr: [pos0, pos0] } ) ];
+    // ls will always be an array
+    return ret.concat( l, flattenIfArray( ls ), [ new EndTagTk( 'pre' ) ] );
   }
   / & { return stops.dec('pre'); }
 
@@ -1881,7 +1890,8 @@ preprocessor_text
       directive
     / text_char )
   )+ {
-      return flatten ( r );
+      // r will always be an array
+      return flattenIfArray ( r );
   }
 
 wikilink_preprocessor_text 

@@ -278,9 +278,6 @@ AsyncTokenTransformManager.prototype.emitChunk = function( ret ) {
  * Simple wrapper that processes all tokens passed in
  */
 AsyncTokenTransformManager.prototype.process = function ( tokens ) {
-	if ( ! $.isArray ( tokens ) ) {
-		tokens = [tokens];
-	}
 	this.onChunk( tokens );
 	this.onEndEvent();
 };
@@ -671,9 +668,6 @@ SyncTokenTransformManager.prototype.constructor = SyncTokenTransformManager;
 
 
 SyncTokenTransformManager.prototype.process = function ( tokens ) {
-	if ( ! $.isArray ( tokens ) ) {
-		tokens = [tokens];
-	}
 	this.onChunk( tokens );
 	this.onEndEvent();
 };
@@ -814,10 +808,12 @@ AttributeTransformManager.prototype.process = function (attributes) {
 
 	// transform each argument (key and value), and handle asynchronous returns
 	for ( var i = 0, l = attributes.length; i < l; i++ ) {
-		var cur = attributes[i];
+		var cur = attributes[i],
+		    k   = cur.k,
+			v   = cur.v;
 
 		// fast path for string-only attributes
-		if ( cur.k.constructor === String && cur.v.constructor === String ) {
+		if ( k.constructor === String && v.constructor === String ) {
 			this.kvs.push( cur );
 			continue;
 		}
@@ -825,37 +821,46 @@ AttributeTransformManager.prototype.process = function (attributes) {
 		var kv = new KV( [], [] );
 		this.kvs.push( kv );
 
-		if ( cur.v.constructor === Array && cur.v.length ) {
-			// Assume that the return is async, will be decremented in callback
-			this.outstanding++;
+		if (v.constructor === Array) {
+			var n = v.length;
+			if (n === 0 || (n === 1 && v[0].constructor === String)) {
+				kv.v = v;
+			} else {
+				// Assume that the return is async, will be decremented in callback
+				this.outstanding++;
 
-			// transform the value
-			this.frame.expand( cur.v,
-					{
-						wrapTemplates: this.options.wrapTemplates,
-						// if k is empty, we consider it wrappable
-						type: this._toType,
-						cb: this._returnAttributeValue.bind( this, i )
-					} );
+				// transform the value
+				this.frame.expand( v,
+						{
+							wrapTemplates: this.options.wrapTemplates,
+							// if k is empty, we consider it wrappable
+							type: this._toType,
+							cb: this._returnAttributeValue.bind( this, i )
+						} );
+			}
 		} else {
-			kv.v = cur.v;
+			kv.v = v;
 		}
 
-		if ( cur.k.constructor === Array && cur.k.length ) {
-			// Assume that the return is async, will be decremented in callback
-			this.outstanding++;
+		if ( k.constructor === Array) {
+			var n = k.length;
+			if (n === 0 || (n === 1 && k[0].constructor === String)) {
+				kv.k = k;
+			} else {
+				// Assume that the return is async, will be decremented in callback
+				this.outstanding++;
 
-			// transform the key
-			this.frame.expand( cur.k,
-					{
-						wrapTemplates: this.options.wrapTemplates,
-						type: this._toType,
-						cb: this._returnAttributeKey.bind( this, i )
-					} );
+				// transform the key
+				this.frame.expand( k,
+						{
+							wrapTemplates: this.options.wrapTemplates,
+							type: this._toType,
+							cb: this._returnAttributeKey.bind( this, i )
+						} );
+			}
 		} else {
-			kv.k = cur.k;
+			kv.k = k;
 		}
-
 	}
 	this.outstanding--;
 	if ( this.outstanding === 0 ) {
