@@ -159,7 +159,8 @@ Cite.prototype.onReferences = function ( token, manager ) {
 		var group = refGroups[options.group];
 		var listItems = $.map(group.refs, renderLine);
 		var dataAttribs = Util.clone(token.dataAttribs);
-		if (this.options.wrapTemplates) {
+		// tsr might be absent for nested templates
+		if (token.dataAttribs.tsr) {
 			dataAttribs.src = this.manager.env.text.substring(token.dataAttribs.tsr[0], token.dataAttribs.tsr[1]);
 		}
 		res = [
