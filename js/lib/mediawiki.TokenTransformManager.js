@@ -554,13 +554,16 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
  * the provided asyncCB (TokenAccumulator._returnTokens normally).
  */
 AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) {
-	if ( s.transforming ) {
-		if ( ! ret ) {
-			// support empty callbacks, for simple async signalling
+	if (ret.switchToAsync) {
+		// simple async signalling
+		// SSS FIXME: Is this check required at all?
+		if (s.transforming) {
 			s.res.async = true;
-			return;
 		}
+		return;
+	}
 
+	if ( s.transforming ) {
 		// transformTokens is still ongoing, handle as sync return by
 		// collecting the results in s.res
 		this.env.dp( 'maybeSyncReturn transforming', s.c, ret );
@@ -586,7 +589,7 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
 		}
 		s.res.async = ret.async;
 		//console.trace();
-	} else if ( ret !== undefined ) {
+	} else {
 		// Since the original transformTokens call is already done, we have to
 		// re-start application of any remaining transforms here.
 		this.env.dp( 'maybeSyncReturn async', s.c, ret );
@@ -1213,7 +1216,7 @@ Frame.prototype.expand = function ( chunk, options ) {
 	if ( outType === 'tokens/x-mediawiki/expanded' ) {
 		if ( options.asyncCB ) {
 			// Signal (potentially) asynchronous expansion to parent.
-			options.asyncCB( );
+			options.asyncCB({ switchToAsync: true });
 		}
 
 		// Downstream template uses should be tracked and wrapped only if:

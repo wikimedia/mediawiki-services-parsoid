@@ -18,6 +18,7 @@
  */
 
 var async = require('async');
+var Util = require('./mediawiki.Util.js').Util;
 
 function ParserFunctions ( manager ) {
 	this.manager = manager;
@@ -80,7 +81,13 @@ ParserFunctions.prototype._switchLookupFallback = function ( frame, kvs, key, di
 	this.manager.env.tp('swl');
 	//console.trace();
 	this.manager.env.dp('_switchLookupFallback', kvs.length, key, v );
-	var _cb = function( res ) { cb ( { tokens: res } ); };
+	var _cb = function( res ) { 
+		if (res.switchToAsync) {
+			cb(res);
+		} else {
+			cb( { tokens: res } ); 
+		}
+	};
 	if ( v && v.constructor !== String ) {
 		v = '';
 		console.warn(JSON.stringify(v));
@@ -555,8 +562,10 @@ ParserFunctions.prototype.pf_localurl = function ( token, frame, cb, args ) {
 	args = args.slice(1);
 	async.map(
 			args,
-			function ( item, cb ) { 
-				self.expandKV( item, function ( res ) { cb( null, res.tokens ); }, '', 'text/x-mediawiki/expanded' );
+			function ( item, cb ) {
+				// SSS FIXME: By binding null to cb's first arg, we are swallowing all errors!
+				var resCB = Util.buildAsyncOutputBufferCB(cb.bind(this,null));
+				self.expandKV(item, resCB, '', 'text/x-mediawiki/expanded');
 			}, 
 			function ( err, expandedArgs ) {
 				if ( err ) {

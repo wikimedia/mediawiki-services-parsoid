@@ -89,8 +89,8 @@ TemplateHandler.prototype._nameArgs = function ( attribs ) {
  * Parser functions also need template wrapping
  */
 TemplateHandler.prototype._parserFunctionsWrapper = function(state, cb, ret) {
-	if (!ret) {
-		cb();
+	if (ret.switchToAsync) {
+		cb(ret);
 	} else {
 		if (ret.tokens) {
 			this._onChunk(state, cb, ret.tokens);
