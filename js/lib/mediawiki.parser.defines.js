@@ -536,10 +536,12 @@ Params.prototype.getSlice = function ( options, start, end ) {
 				} else {
 					// Expand the value
 					var o2 = $.extend( {}, options );
-					// add in the key
-					o2.cb = function ( v ) {
-						cb2( null, new KV( kv.k, v ) );
-					};
+					// Since cb2 can only be called once after we have all results,
+					// and kv.v.get can generate a stream of async calls, we have
+					// to accumulate the results of the async calls and call cb2 in the end.
+					o2.cb = Util.buildAsyncOutputBufferCB(function (toks) {
+						cb2(null, new KV(kv.k, Util.tokensToString(toks)));
+					});
 					kv.v.get( o2 );
 				}
 			},

@@ -130,6 +130,62 @@ var Util = {
 		return $.extend(deepClone, {}, obj);
 	},
 
+	// 'cb' can only be called once after "everything" is done.
+	// But, we need something that can be used in async context where it is
+	// called repeatedly till we are done.
+	//
+	// Primarily needed in the context of async.map calls that requires a 1-shot callback.
+	//
+	// Use with caution!  If the async stream that we are accumulating into the buffer
+	// is a firehose of tokens, the buffer will become huge.
+	buildAsyncOutputBufferCB: function(cb) {
+		function AsyncOutputBufferCB(cb) {
+			this.accum = [];
+			this.targetCB = cb;
+		}
+
+		AsyncOutputBufferCB.prototype.processAsyncOutput = function(res) {
+			// * Ignore switch-to-async mode calls since
+			//   we are actually collapsing async calls.
+			// * Accumulate async call results in an array
+			//   till we get the signal that we are all done
+			// * Once we are done, pass everything to the target cb.
+			if (!res.switchToAsync) {
+				// There are 3 kinds of callbacks:
+				// 1. cb({tokens: .. })
+				// 2. cb({}) ==> toks can be undefined
+				// 3. cb(foo) -- which means in some cases foo can
+				//    be one of the two cases above, or it can also be a simple string.
+				//
+				// Version 1. is the general case.
+				// Versions 2. and 3. are optimized scenarios to eliminate
+				// additional processing of tokens.
+				//
+				// In the C++ version, this is handled more cleanly.
+				var toks = res.tokens;
+				if (!toks && res.constructor === String) {
+					toks = res;
+				}
+
+				if (toks) {
+					if (toks.constructor === Array) {
+						[].push.apply(this.accum, toks);
+					} else {
+						this.accum.push(toks);
+					}
+				}
+
+				if (!res.async) {
+					// we are done!
+					this.targetCB(this.accum);
+				}
+			}
+		};
+
+		var r = new AsyncOutputBufferCB(cb);
+		return r.processAsyncOutput.bind(r);
+	},
+
 	lookupKV: function ( kvs, key ) {
 		if ( ! kvs ) {
 			return null;
