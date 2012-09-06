@@ -196,6 +196,11 @@ var genericTokenMethods = {
 			myClone.dataAttribs = Util.clone(this.dataAttribs);
 		}
 		return myClone;
+	},
+
+	getWTSource: function(env) {
+		var tsr = this.dataAttribs.tsr;
+		return tsr ? env.text.substring(tsr[0], tsr[1]) : null
 	}
 };
 

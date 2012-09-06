@@ -242,7 +242,7 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 	// * ref end token to this, add property="mw:Object/Template/End"
 	if ( ! state.emittedFirstChunk ) {
 		var tsr = state.token.dataAttribs.tsr;
-		var src = this.manager.env.text.substring(tsr[0], tsr[1]);
+		var src = state.token.getWTSource(this.manager.env);
 		if ( chunk.length ) {
 			var firstToken = chunk[0];
 			if ( firstToken.constructor === String ) {
