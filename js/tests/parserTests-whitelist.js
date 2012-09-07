@@ -71,9 +71,9 @@ testWhiteList["Nonexistent special page link with fragment"] = "<p><a rel=\"mw:W
 
 testWhiteList["Fuzz testing: Parser22"] = "<p><a href=\"http://===r:::https://b\">http://===r:::https://b</a></p><table></table>";
 
-/** 
+/**
  * Small whitespace differences that we now start to care about for
- * round-tripping 
+ * round-tripping
  */
 
 // Very minor whitespace difference at end of cell (MediaWiki inserts a
@@ -86,7 +86,7 @@ testWhiteList["Fuzz testing: Parser22"] = "<p><a href=\"http://===r:::https://b\
 
 /* Misc sanitizer / HTML5 differences */
 
-// Single quotes are legal in HTML5 URIs. See 
+// Single quotes are legal in HTML5 URIs. See
 // http://www.whatwg.org/specs/web-apps/current-work/multipage/urls.html#url-manipulation-and-creation
 testWhiteList["Link containing double-single-quotes '' (bug 4598)"] = "<p><a rel=\"mw:WikiLink\" href=\"Lista_d''e_paise_d''o_munno\" data-parsoid=\"{&quot;tsr&quot;:[0,31],&quot;contentPos&quot;:[0,31],&quot;src&quot;:&quot;[[Lista d''e paise d''o munno]]&quot;,&quot;bsp&quot;:[0,31],&quot;a&quot;:{&quot;href&quot;:&quot;Lista_d''e_paise_d''o_munno&quot;},&quot;sa&quot;:{&quot;href&quot;:&quot;Lista d''e paise d''o munno&quot;},&quot;stx&quot;:&quot;simple&quot;}\">Lista d''e paise d''o munno</a></p>";
 

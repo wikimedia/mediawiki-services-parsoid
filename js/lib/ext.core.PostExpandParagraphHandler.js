@@ -74,7 +74,7 @@ PostExpandParagraphHandler.prototype.onAny = function ( token, frame, cb ) {
 	if ( token.constructor === CommentTk ||
 			// TODO: narrow this down a bit more to take typeof into account
 			( token.constructor === SelfclosingTagTk && token.name === 'meta' ) ||
-			( token.constructor === String && token.match( /^[\t ]*$/ ) ) 
+			( token.constructor === String && token.match( /^[\t ]*$/ ) )
 	)
 	{
 		// Continue with collection..
@@ -89,10 +89,10 @@ PostExpandParagraphHandler.prototype.onAny = function ( token, frame, cb ) {
 				newLines = this.newLines;
 			while ( newLines >= 4 ) {
 				// insert <p><br></p> sections
-				pTks = pTks.concat( 
+				pTks = pTks.concat(
 						this.tokens.shift(),
-						this.tokens.shift(), 
-						[ 
+						this.tokens.shift(),
+						[
 							// mark this as a placeholder for now until the
 							// editor handles this properly
 							new TagTk( 'p', [new KV('typeof', 'mw:Placeholder')] )

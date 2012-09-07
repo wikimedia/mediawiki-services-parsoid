@@ -16,9 +16,9 @@ BehaviorSwitchHandler.prototype.onBehaviorSwitch = function ( token, manager, cb
 
 	env.setVariable(magic_word, true);
 
-	return { tokens: 
+	return { tokens:
 		[
-			new SelfclosingTagTk( 'meta', 
+			new SelfclosingTagTk( 'meta',
 					[ new KV( 'typeof', 'mw:Placeholder' ) ],
 					Util.clone(token.dataAttribs) )
 		]

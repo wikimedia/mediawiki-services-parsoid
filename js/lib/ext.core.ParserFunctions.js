@@ -52,11 +52,11 @@ ParserFunctions.prototype.expandKV = function ( kv, cb, defaultValue, type ) {
 	} else {
 		var self = this,
 			getCB = function ( v ) {
-				cb ( { tokens: 
+				cb ( { tokens:
 					self._rejoinKV( kv.k, v ) } );
 			};
-		kv.v.get({ 
-			type: type, 
+		kv.v.get({
+			type: type,
 			cb: getCB,
 			asyncCB: cb
 		});
@@ -81,11 +81,11 @@ ParserFunctions.prototype._switchLookupFallback = function ( frame, kvs, key, di
 	this.manager.env.tp('swl');
 	//console.trace();
 	this.manager.env.dp('_switchLookupFallback', kvs.length, key, v );
-	var _cb = function( res ) { 
+	var _cb = function( res ) {
 		if (res.switchToAsync) {
 			cb(res);
 		} else {
-			cb( { tokens: res } ); 
+			cb( { tokens: res } );
 		}
 	};
 	if ( v && v.constructor !== String ) {
@@ -99,8 +99,8 @@ ParserFunctions.prototype._switchLookupFallback = function ( frame, kvs, key, di
 			kv = kvs[j];
 			// XXX: make sure the key is always one of these!
 			if ( kv.k.length ) {
-				return kv.v.get({ 
-					type: 'tokens/x-mediawiki/expanded', 
+				return kv.v.get({
+					type: 'tokens/x-mediawiki/expanded',
 					cb: _cb,
 					asyncCB: _cb
 				});
@@ -127,11 +127,11 @@ ParserFunctions.prototype._switchLookupFallback = function ( frame, kvs, key, di
 				var self = this;
 				//cb({ async: true });
 				//console.warn( 'swtch value: ' + kv.v );
-				return kv.v.get({ 
+				return kv.v.get({
 					cb: function( val ) {
-						process.nextTick( 
-							self._switchLookupFallback.bind( self, frame, 
-								kvs.slice(i+1), key, dict, cb, val ) 
+						process.nextTick(
+							self._switchLookupFallback.bind( self, frame,
+								kvs.slice(i+1), key, dict, cb, val )
 						);
 					},
 					asyncCB: cb
@@ -141,11 +141,11 @@ ParserFunctions.prototype._switchLookupFallback = function ( frame, kvs, key, di
 		// value not found!
 		if ( '#default' in dict ) {
 			return dict['#default'].get({
-				type: 'tokens/x-mediawiki/expanded', 
+				type: 'tokens/x-mediawiki/expanded',
 				cb: _cb,
 				asyncCB: cb
 			});
-		} else if ( kvs.length ) { 
+		} else if ( kvs.length ) {
 			var lastKV = kvs[kvs.length - 1];
 			if ( lastKV && ! lastKV.k.length ) {
 				return lastKV.v.get( {
@@ -167,7 +167,7 @@ ParserFunctions.prototype._switchLookupFallback = function ( frame, kvs, key, di
 	}
 };
 
-// TODO: Implement 
+// TODO: Implement
 // http://www.mediawiki.org/wiki/Help:Extension:ParserFunctions#Grouping_results
 ParserFunctions.prototype['pf_#switch'] = function ( token, frame, cb, args ) {
 	target = args[0].k.trim();
@@ -178,7 +178,7 @@ ParserFunctions.prototype['pf_#switch'] = function ( token, frame, cb, args ) {
 	if ( target && dict[target] !== undefined ) {
 		this.env.dp( 'switch found: ', target, dict, ' res=', dict[target] );
 		dict[target].get({
-			type: 'tokens/x-mediawiki/expanded', 
+			type: 'tokens/x-mediawiki/expanded',
 			cb: function( res ) { cb ( { tokens: res } ); },
 			asyncCB: cb
 		});
@@ -217,7 +217,7 @@ ParserFunctions.prototype['pf_#expr'] = function ( token, frame, cb, args ) {
 		} catch ( e ) {
 			return cb( { tokens: [ 'class="error" in expression ' + target ] } );
 		}
-	} else { 
+	} else {
 		res = '';
 	}
 	cb( { tokens: [ res.toString() ] } );
@@ -286,7 +286,7 @@ ParserFunctions.prototype.pf_padleft = function ( token, frame, cb, params ) {
 		return cb( {} );
 	}
 	// expand parameters 1 and 2
-	params.getSlice( { 
+	params.getSlice( {
 		type: 'text/x-mediawiki/expanded',
 		cb: function ( args ) {
 				if ( args[0].v > 0) {
@@ -319,7 +319,7 @@ ParserFunctions.prototype.pf_padright = function ( token, frame, cb, params ) {
 		return cb( {} );
 	}
 	// expand parameters 1 and 2
-	params.getSlice( { 
+	params.getSlice( {
 		type: 'text/x-mediawiki/expanded',
 		cb: function ( args ) {
 				if ( args[0].v > 0) {
@@ -358,10 +358,10 @@ ParserFunctions.prototype['pf_#tag'] = function ( token, frame, cb, args ) {
 };
 
 ParserFunctions.prototype.tag_worker = function( target, cb, content ) {
-	cb({ 
-		tokens: [ new TagTk( target ) ] 
-			.concat( content, 
-				[ new EndTagTk( target ) ] ) 
+	cb({
+		tokens: [ new TagTk( target ) ]
+			.concat( content,
+				[ new EndTagTk( target ) ] )
 	});
 };
 
@@ -440,8 +440,8 @@ ParserFunctions.prototype._pf_time = function ( target, args ) {
 Date.prototype.format = function(format) {
     var returnStr = '';
     var replace = Date.replaceChars;
-    for (var i = 0; i < format.length; i++) {       
-		var curChar = format.charAt(i);         
+    for (var i = 0; i < format.length; i++) {
+		var curChar = format.charAt(i);
 		if (i - 1 >= 0 && format.charAt(i - 1) == "\\") {
             returnStr += curChar;
         }
@@ -458,7 +458,7 @@ Date.prototype.format = function(format) {
 Date.replaceChars = {
     shortMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
 					'Sep', 'Oct', 'Nov', 'Dec'],
-    longMonths: ['January', 'February', 'March', 'April', 'May', 'June', 
+    longMonths: ['January', 'February', 'March', 'April', 'May', 'June',
 				'July', 'August', 'September', 'October', 'November', 'December'],
     shortDays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     longDays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
@@ -470,39 +470,39 @@ Date.replaceChars = {
     j: function() { return this.getDate(); },
     l: function() { return Date.replaceChars.longDays[this.getDay()]; },
     N: function() { return this.getDay() + 1; },
-    S: function() { 
-		return (this.getDate() % 10 == 1 && 
-			this.getDate() != 11 ? 'st' : (this.getDate() % 10 == 2 && 
-				this.getDate() != 12 ? 'nd' : (this.getDate() % 10 == 3 && 
-					this.getDate() != 13 ? 'rd' : 'th'))); 
+    S: function() {
+		return (this.getDate() % 10 == 1 &&
+			this.getDate() != 11 ? 'st' : (this.getDate() % 10 == 2 &&
+				this.getDate() != 12 ? 'nd' : (this.getDate() % 10 == 3 &&
+					this.getDate() != 13 ? 'rd' : 'th')));
 	},
     w: function() { return this.getDay(); },
-    z: function() { 
-		var d = new Date(this.getFullYear(),0,1); 
-		return Math.ceil((this - d) / 86400000); 
+    z: function() {
+		var d = new Date(this.getFullYear(),0,1);
+		return Math.ceil((this - d) / 86400000);
 	},
     // Week
-    W: function() { 
-		var d = new Date(this.getFullYear(), 0, 1); 
-		return Math.ceil((((this - d) / 86400000) + d.getDay() + 1) / 7); 
+    W: function() {
+		var d = new Date(this.getFullYear(), 0, 1);
+		return Math.ceil((((this - d) / 86400000) + d.getDay() + 1) / 7);
 	},
     // Month
     F: function() { return Date.replaceChars.longMonths[this.getMonth()]; },
     m: function() { return (this.getMonth() < 9 ? '0' : '') + (this.getMonth() + 1); },
     M: function() { return Date.replaceChars.shortMonths[this.getMonth()]; },
     n: function() { return this.getMonth() + 1; },
-    t: function() { 
-		var d = new Date(); 
-		return new Date(d.getFullYear(), d.getMonth(), 0).getDate(); 
+    t: function() {
+		var d = new Date();
+		return new Date(d.getFullYear(), d.getMonth(), 0).getDate();
 	},
     // Year
-    L: function() { 
-		var year = this.getFullYear(); 
-		return (year % 400 === 0 || (year % 100 !== 0 && year % 4 === 0)); 
+    L: function() {
+		var year = this.getFullYear();
+		return (year % 400 === 0 || (year % 100 !== 0 && year % 4 === 0));
 	},
-    o: function() { 
-		var d  = new Date(this.valueOf());  
-		d.setDate(d.getDate() - ((this.getDay() + 6) % 7) + 3); 
+    o: function() {
+		var d  = new Date(this.valueOf());
+		d.setDate(d.getDate() - ((this.getDay() + 6) % 7) + 3);
 		return d.getFullYear();
 	},
     Y: function() { return this.getFullYear(); },
@@ -510,42 +510,42 @@ Date.replaceChars = {
     // Time
     a: function() { return this.getHours() < 12 ? 'am' : 'pm'; },
     A: function() { return this.getHours() < 12 ? 'AM' : 'PM'; },
-    B: function() { 
-		return Math.floor((((this.getUTCHours() + 1) % 24) + 
-					this.getUTCMinutes() / 60 + 
-					this.getUTCSeconds() / 3600) * 1000 / 24); 
+    B: function() {
+		return Math.floor((((this.getUTCHours() + 1) % 24) +
+					this.getUTCMinutes() / 60 +
+					this.getUTCSeconds() / 3600) * 1000 / 24);
 	},
     g: function() { return this.getHours() % 12 || 12; },
     G: function() { return this.getHours(); },
-    h: function() { 
-		return ((this.getHours() % 12 || 12) < 10 ? '0' : '') + 
-			(this.getHours() % 12 || 12); 
+    h: function() {
+		return ((this.getHours() % 12 || 12) < 10 ? '0' : '') +
+			(this.getHours() % 12 || 12);
 	},
     H: function() { return (this.getHours() < 10 ? '0' : '') + this.getHours(); },
     i: function() { return (this.getMinutes() < 10 ? '0' : '') + this.getMinutes(); },
     s: function() { return (this.getSeconds() < 10 ? '0' : '') + this.getSeconds(); },
-    u: function() { 
-		var m = this.getMilliseconds(); 
-		return (m < 10 ? '00' : (m < 100 ? '0' : '')) + m; 
+    u: function() {
+		var m = this.getMilliseconds();
+		return (m < 10 ? '00' : (m < 100 ? '0' : '')) + m;
 	},
     // Timezone
     e: function() { return "Not Yet Supported"; },
     I: function() { return "Not Yet Supported"; },
-    O: function() { 
-		return (-this.getTimezoneOffset() < 0 ? '-' : '+') + 
-			(Math.abs(this.getTimezoneOffset() / 60) < 10 ? '0' : '') + 
-			(Math.abs(this.getTimezoneOffset() / 60)) + '00'; 
+    O: function() {
+		return (-this.getTimezoneOffset() < 0 ? '-' : '+') +
+			(Math.abs(this.getTimezoneOffset() / 60) < 10 ? '0' : '') +
+			(Math.abs(this.getTimezoneOffset() / 60)) + '00';
 	},
-    P: function() { 
-		return (-this.getTimezoneOffset() < 0 ? '-' : '+') + 
-			(Math.abs(this.getTimezoneOffset() / 60) < 10 ? '0' : '') + 
-			(Math.abs(this.getTimezoneOffset() / 60)) + ':00'; 
+    P: function() {
+		return (-this.getTimezoneOffset() < 0 ? '-' : '+') +
+			(Math.abs(this.getTimezoneOffset() / 60) < 10 ? '0' : '') +
+			(Math.abs(this.getTimezoneOffset() / 60)) + ':00';
 	},
-    T: function() { 
-		var m = this.getMonth(); 
-		this.setMonth(0); 
-		var result = this.toTimeString().replace(/^.+ \(?([^\)]+)\)?$/, '$1'); 
-		this.setMonth(m); 
+    T: function() {
+		var m = this.getMonth();
+		this.setMonth(0);
+		var result = this.toTimeString().replace(/^.+ \(?([^\)]+)\)?$/, '$1');
+		this.setMonth(m);
 		return result;
 	},
     Z: function() { return -this.getTimezoneOffset() * 60; },
@@ -566,7 +566,7 @@ ParserFunctions.prototype.pf_localurl = function ( token, frame, cb, args ) {
 				// SSS FIXME: By binding null to cb's first arg, we are swallowing all errors!
 				var resCB = Util.buildAsyncOutputBufferCB(cb.bind(this,null));
 				self.expandKV(item, resCB, '', 'text/x-mediawiki/expanded');
-			}, 
+			},
 			function ( err, expandedArgs ) {
 				if ( err ) {
 					console.trace();
@@ -574,7 +574,7 @@ ParserFunctions.prototype.pf_localurl = function ( token, frame, cb, args ) {
 				}
 				cb({ tokens: [ '/' +
 					// FIXME! Figure out correct prefix to use
-					//this.env.wgScriptPath + 
+					//this.env.wgScriptPath +
 					'index' +
 					env.wgScriptExtension + '?title=' +
 					env.normalizeTitle( target ) + '&' +

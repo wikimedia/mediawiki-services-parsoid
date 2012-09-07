@@ -1,6 +1,6 @@
 var HTML5 = require('html5').HTML5;
 
-// No instance properties 
+// No instance properties
 function Parsoid() {}
 
 function initParsoid() {
@@ -25,7 +25,7 @@ function initParsoid() {
 	_import(path.join('lib', 'mediawiki.parser.js'), ['ParserPipelineFactory']);
 	_import(path.join('lib', 'mediawiki.WikitextSerializer.js'), ['WikitextSerializer']);
 
-	var mwEnv = new MWParserEnvironment({ 
+	var mwEnv = new MWParserEnvironment({
 		fetchTemplates: false,
 		debug: false,
 		trace: false,

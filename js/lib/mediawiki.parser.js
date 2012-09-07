@@ -4,7 +4,7 @@
  * default pipeline which converts WikiText to HTML DOM, it also provides
  * sub-pipelines for the processing of template transclusions.
  *
- * See http://www.mediawiki.org/wiki/Parsoid and 
+ * See http://www.mediawiki.org/wiki/Parsoid and
  * http://www.mediawiki.org/wiki/Parsoid/Token_stream_transformations
  * for illustrations of the pipeline architecture.
  *
@@ -51,7 +51,7 @@ function ParserPipelineFactory ( env ) {
 	this.env = env;
 }
 
-/** 
+/**
  * Recipe for parser pipelines and -subpipelines, depending on input types.
  *
  * Token stream transformations to register by type and per phase. The
@@ -83,11 +83,11 @@ ParserPipelineFactory.prototype.recipes = {
 	'tokens/x-mediawiki': [
 		// Synchronous in-order per input
 		[
-			SyncTokenTransformManager, 
+			SyncTokenTransformManager,
 			[ 1, 'tokens/x-mediawiki' ],
-			[ 
+			[
 				OnlyInclude,
-				IncludeOnly, 
+				IncludeOnly,
 				NoInclude
 				// Insert TokenCollectors for extensions here (don't expand
 				// templates in extension contents); wrap collected tokens in
@@ -96,7 +96,7 @@ ParserPipelineFactory.prototype.recipes = {
 				/* Extension2, */
 			]
 		],
-		/* 
+		/*
 		* Asynchronous out-of-order per input. Each async transform can only
 		* operate on a single input token, but can emit multiple output
 		* tokens. If multiple tokens need to be collected per-input, then a
@@ -107,7 +107,7 @@ ParserPipelineFactory.prototype.recipes = {
 		[
 			AsyncTokenTransformManager,
 			[ 2, 'tokens/x-mediawiki' ],
-			[ 
+			[
 				TemplateHandler,
 				/* ExtensionHandler1, */ // using SFH_OBJECT_ARGS in PHP
 
@@ -137,9 +137,9 @@ ParserPipelineFactory.prototype.recipes = {
 		[
 			SyncTokenTransformManager,
 			[ 3, 'tokens/x-mediawiki/expanded' ],
-			[ 
+			[
 				// text/wiki-specific tokens
-				QuoteTransformer, 
+				QuoteTransformer,
 				ListHandler,
 
 				// before transforms that depend on behavior switches
@@ -154,7 +154,7 @@ ParserPipelineFactory.prototype.recipes = {
 
 				// Paragraph wrapping
 				PostExpandParagraphHandler,
-				Sanitizer 
+				Sanitizer
 				// SkipperUnpacker
 			]
 		],
@@ -215,7 +215,7 @@ ParserPipelineFactory.prototype.makePipeline = function( type, options ) {
 		
 		if ( stageData.constructor === String ) {
 			// Points to another subpipeline, get it recursively
-			// Clone options object and clear cache type 
+			// Clone options object and clear cache type
 			var newOpts = $.extend({}, options);
 			newOpts.cacheType = null;
 			stage = this.makePipeline( stageData, newOpts);
@@ -239,7 +239,7 @@ ParserPipelineFactory.prototype.makePipeline = function( type, options ) {
 		stages.push( stage );
 	}
 	//console.warn( 'stages' + stages + JSON.stringify( stages ) );
-	return new ParserPipeline( 
+	return new ParserPipeline(
 			stages[0],
 			stages[stages.length - 1],
 			options.cacheType ? this.returnPipeline.bind( this, options.cacheType )
@@ -272,7 +272,7 @@ ParserPipelineFactory.prototype.getPipeline = function ( type, options ) {
 		options.isInclude = true;
 	}
 
-	var pipe, 
+	var pipe,
 		cacheType = getCacheKey(type, options);
 	if ( ! this.pipelineCache[cacheType] ) {
 		this.pipelineCache[cacheType] = [];
@@ -325,7 +325,7 @@ function ParserPipeline ( first, last, returnToCacheCB ) {
 /**
  * Feed input tokens to the first pipeline stage
  */
-ParserPipeline.prototype.process = function(input, key) { 
+ParserPipeline.prototype.process = function(input, key) {
 	return this.first.process(input, key);
 };
 
@@ -333,35 +333,35 @@ ParserPipeline.prototype.process = function(input, key) {
  * Set the frame on the last pipeline stage (normally the
  * AsyncTokenTransformManager).
  */
-ParserPipeline.prototype.setFrame = function(frame, title, args) { 
-	return this.last.setFrame(frame, title, args); 
+ParserPipeline.prototype.setFrame = function(frame, title, args) {
+	return this.last.setFrame(frame, title, args);
 };
 
 /**
  * Register the first pipeline stage with the last stage from a separate pipeline
  */
-ParserPipeline.prototype.addListenersOn = function(stage) { 
+ParserPipeline.prototype.addListenersOn = function(stage) {
 	return this.first.addListenersOn(stage);
 };
 
 // Forward the EventEmitter API to this.last
-ParserPipeline.prototype.on = function (ev, cb) { 
-	return this.last.on(ev, cb); 
+ParserPipeline.prototype.on = function (ev, cb) {
+	return this.last.on(ev, cb);
 };
-ParserPipeline.prototype.once = function (ev, cb) { 
-	return this.last.once(ev, cb); 
+ParserPipeline.prototype.once = function (ev, cb) {
+	return this.last.once(ev, cb);
 };
-ParserPipeline.prototype.addListener = function(ev, cb) { 
+ParserPipeline.prototype.addListener = function(ev, cb) {
 	return this.last.addListener(ev, cb);
 };
-ParserPipeline.prototype.removeListener = function(ev, cb) { 
+ParserPipeline.prototype.removeListener = function(ev, cb) {
 	return this.last.removeListener(ev, cb);
 };
-ParserPipeline.prototype.setMaxListeners = function(n) { 
+ParserPipeline.prototype.setMaxListeners = function(n) {
 	return this.last.setMaxListeners(n);
 };
-ParserPipeline.prototype.listeners = function(ev) { 
-	return this.last.listeners(ev); 
+ParserPipeline.prototype.listeners = function(ev) {
+	return this.last.listeners(ev);
 };
 ParserPipeline.prototype.removeAllListeners = function ( event ) {
 	if ( event === 'end' ) {

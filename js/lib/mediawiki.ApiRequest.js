@@ -35,9 +35,9 @@ function TemplateRequest ( env, title, oldid ) {
 		apiargs.revids = oldid;
 		delete apiargs.titles;
 	}
-	var url = env.wgScript + '/api' + 
+	var url = env.wgScript + '/api' +
 		env.wgScriptExtension +
-		'?' + 
+		'?' +
 		qs.stringify( apiargs );
 		//'?format=json&action=query&prop=revisions&rvprop=content&titles=' + title;
 
@@ -45,14 +45,14 @@ function TemplateRequest ( env, title, oldid ) {
 		method: 'GET',
 		followRedirect: true,
 		url: url,
-		headers: { 
+		headers: {
 			'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:9.0.1) ' +
-							'Gecko/20100101 Firefox/9.0.1 Iceweasel/9.0.1' 
-		} 
+							'Gecko/20100101 Firefox/9.0.1 Iceweasel/9.0.1'
+		}
 	};
 
 	// Start the request
-	request( this.requestOptions, this._handler.bind(this) ); 
+	request( this.requestOptions, this._handler.bind(this) );
 }
 
 // Inherit from EventEmitter
@@ -69,7 +69,7 @@ TemplateRequest.prototype._handler = function (error, response, body) {
 			this.retries--;
 			this.env.tp( 'Retrying template request for ' + this.title );
 			// retry
-			request( this.requestOptions, this._handler.bind(this) ); 
+			request( this.requestOptions, this._handler.bind(this) );
 		} else {
 			var dnee = new DoesNotExistError( 'Page/template fetch failure for title ' + this.title );
 			this.emit('src', dnee, dnee.toString(), 'text/x-mediawiki');
@@ -90,7 +90,7 @@ TemplateRequest.prototype._handler = function (error, response, body) {
 					src = page.revisions[0]['*'];
 					normalizeTitle = page.title;
 				} else {
-					var normalName = self.env.normalizeTitle( 
+					var normalName = self.env.normalizeTitle(
 						self.env.pageName );
 					throw new DoesNotExistError( 'Did not find page revisions for ' + self.title );
 					if ( this.title === normalName ) {
@@ -110,9 +110,9 @@ TemplateRequest.prototype._handler = function (error, response, body) {
 		var redirMatch = src.match( /[\r\n\s]*#\s*redirect\s*\[\[([^\]]+)\]\]/i );
 		if ( redirMatch ) {
 			var title = redirMatch[1];
-			var url = this.env.wgScript + '/api' + 
+			var url = this.env.wgScript + '/api' +
 				this.env.wgScriptExtension +
-				'?' + 
+				'?' +
 				qs.stringify( {
 					format: 'json',
 				action: 'query',
@@ -122,7 +122,7 @@ TemplateRequest.prototype._handler = function (error, response, body) {
 				} );
 			//'?format=json&action=query&prop=revisions&rvprop=content&titles=' + title;
 			this.requestOptions.url = url;
-			request( this.requestOptions, this._handler.bind(this) ); 
+			request( this.requestOptions, this._handler.bind(this) );
 			return;
 		}
 
@@ -134,8 +134,8 @@ TemplateRequest.prototype._handler = function (error, response, body) {
 
 		// Process only a few callbacks in each event loop iteration to
 		// reduce memory usage.
-		// 
-		// 
+		//
+		//
 		var listeners = this.listeners( 'src' );
 		var processSome = function () {
 			// XXX: experiment a bit with the number of callbacks per
@@ -196,7 +196,7 @@ TemplateRequest.prototype._handler = function (error, response, body) {
 				}
 			},
 			error: function(xhr, msg, err) {
-				console.warn( 'Page/template fetch failure for title ' + 
+				console.warn( 'Page/template fetch failure for title ' +
 						title + ', url=' + url + JSON.stringify(xhr) + ', err=' + err );
 				callback('Page/template fetch failure for title ' + title);
 			},

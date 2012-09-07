@@ -1532,11 +1532,11 @@ WSP._serializeToken = function ( state, token ) {
 	}
 };
 
-// SSS FIXME: Unnecessary tree-walking for the occasional 
+// SSS FIXME: Unnecessary tree-walking for the occasional
 // templating of attributes.  Wonder if there is another solution
 // to this problem.
 //
-// Update state with the set of templated attribute 
+// Update state with the set of templated attribute
 WSP._collectAttrMetaTags = function(node, state) {
 	if (node.nodeName.toLowerCase() === "meta") {
 		var prop = node.getAttribute("property");
@@ -1557,7 +1557,7 @@ WSP._collectAttrMetaTags = function(node, state) {
 				state.tplAttrs[templateId].vs[attr] = src;
 			}
 
-			// Remove it from the DOM 
+			// Remove it from the DOM
 			node.parentNode.removeChild(node);
 		}
 	} else {

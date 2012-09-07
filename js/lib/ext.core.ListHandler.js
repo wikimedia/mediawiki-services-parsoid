@@ -7,7 +7,7 @@ var Util = require('./mediawiki.Util.js').Util;
 function ListHandler ( manager ) {
 	this.manager = manager;
 	this.reset();
-	this.manager.addTransform(this.onListItem.bind(this), 
+	this.manager.addTransform(this.onListItem.bind(this),
 							"ListHandler:onListItem",
 							this.listRank, 'tag', 'listItem' );
 	this.manager.addTransform( this.onEnd.bind(this),
@@ -134,8 +134,8 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 		];
 	} else {
 		var tokens = [];
-		if ( bs.length > prefixLen && 
-			 bn.length > prefixLen && 
+		if ( bs.length > prefixLen &&
+			 bn.length > prefixLen &&
 			this.isDtDd( bs[prefixLen], bn[prefixLen] ) )
 		{
 			tokens = this.popTags(bs.length - prefixLen - 1);
