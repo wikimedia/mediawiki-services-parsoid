@@ -207,6 +207,12 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 						options.push( new KV( key, bits[1] ) );
 						//console.warn('handle prefix ' + bits );
 					} else {
+						if (caption.length === 0) {
+							// Record the key in the options list so we can
+							// re-serialize the caption at the right place.
+							// But, only the first time we encounter caption text
+							options.push(new KV("caption", []));
+						}
 						// neither simple nor prefix option, add original
 						// tokens to caption.
 						caption = caption.concat( oContent.v );
@@ -214,6 +220,12 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 				}
 			}
 		} else {
+			if (caption.length === 0) {
+				// Record the key in the options list so we can
+				// re-serialize the caption at the right place.
+				// But, only the first time we encounter caption text
+				options.push(new KV("caption", []));
+			}
 			caption = caption.concat( oContent.v );
 		}
 	}

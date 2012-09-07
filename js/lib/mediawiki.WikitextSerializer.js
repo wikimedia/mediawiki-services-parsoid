@@ -549,6 +549,11 @@ WSP._figureHandler = function ( state, figTokens ) {
 				} else {
 					outBits.push("upright");
 				}
+			} else if (k === "caption") {
+				if (caption) {
+					// SSS FIXME: Check required?
+					outBits.push(caption);
+				}
 			} else if (simpleImgOptions[v.trim()] === k) {
 				// The values and keys in the parser attributes are a flip
 				// of how they are in the wikitext constants image hash
@@ -560,9 +565,6 @@ WSP._figureHandler = function ( state, figTokens ) {
 				console.warn("Unknown image option encountered: " + JSON.stringify(a));
 			}
 		}
-	}
-	if (caption) {
-		outBits.push(caption);
 	}
 
 	return "[[" + outBits.join('|') + "]]";

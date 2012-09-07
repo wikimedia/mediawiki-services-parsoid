@@ -173,9 +173,6 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 					// not that prevents this.  In any case, not sure we do require all
 					// expandable types to be tracked.
 					producerObjType = metaObjType;
-					if (newK.constructor !== String) {
-						newK = Util.tokensToString(newK);
-					}
 					// <meta about="#mwt1" property="mw:objectAttr#href" data-parsoid="...">
 					// about will be filled out in the end
 					metaTokens.push(new SelfclosingTagTk('meta',
