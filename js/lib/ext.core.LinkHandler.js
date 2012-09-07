@@ -94,6 +94,10 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 
 	if ( title.ns.isFile() ) {
 		cb( this.renderFile( token, frame, cb, href, title) );
+	} else if ( title.ns.isCategory() ) {
+		// Simply round-trip category links for now
+		var newAttrs = buildLinkAttrs(attribs, false, "mw:Placeholder", null);
+		cb( {tokens: [new SelfclosingTagTk('meta', newAttrs.attribs, Util.clone(token.dataAttribs))]} );
 	} else {
 		//console.warn( 'title: ' + JSON.stringify( title ) );
 		var newAttrs = buildLinkAttrs(attribs, true, null, [new KV('rel', 'mw:WikiLink')]);
@@ -143,29 +147,9 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 			content.push( tail );
 		}
 		
-		if ( title.ns.isCategory() ) {
-			// We let this get handled earlier as a normal wikilink, but we need
-			// to add in a few extras.
-			obj.name = 'link';
-
-			// Change the rel to be mw:WikiLink/Category
-			obj.attribs[0].v += '/Category';
-
-			// Change the href to include the sort key, if any
-			if ( content && content !== '' && content !== href ) {
-				obj.attribs[1].v += '#';
-				// FIXME this won't handle sort keys that include, e.g., comments.
-				// Need to roundtrip this somehow.
-				obj.attribs[1].v += Util.sanitizeURI( Util.tokensToString( content ) ).replace( /#/, '%23' );
-			}
-			cb( {
-				tokens: [ obj ]
-			} );
-		} else {
-			cb ( {
-				tokens: [obj].concat( content, [ new EndTagTk( 'a' ) ] )
-			} );
-		}
+		cb ( {
+			tokens: [obj].concat( content, [ new EndTagTk( 'a' ) ] )
+		} );
 	}
 };
 

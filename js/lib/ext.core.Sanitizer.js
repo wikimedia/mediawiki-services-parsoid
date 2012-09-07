@@ -491,9 +491,6 @@ var SanitizerConstants = {
 				// 12.2 # NOTE: <a> is not allowed directly, but the attrib whitelist is used from the Parser object
 				'a'          : common.concat([ 'href', 'rel', 'rev' ]), // rel/rev esp. for RDFa
 
-				// Add in link tags so we can pass in categories, etc.
-				'link'       : common.concat([ 'href', 'rel' ]), // rel/rev esp. for RDFa
-
 				// 13.2
 				// Not usually allowed, but may be used for extension-style hooks
 				// such as <math> when it is rasterized, or if wgAllowImageTag is
