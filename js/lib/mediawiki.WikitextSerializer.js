@@ -616,22 +616,25 @@ WSP._linkHandler =  function( state, tokens ) {
 	// Also convert unannotated html links without advanced attributes to
 	// external wiki links for html import. Might want to consider converting
 	// relative links without path component and file extension to wiki links.
-	var target, linkText, unencodedTarget, tail, hrefInfo, href,
-		env = state.env,
+	var env = state.env,
 		token = tokens.shift(),
 		endToken = tokens.pop(),
 		attribDict = Util.KVtoHash( token.attribs ),
 		tplAttrState = { ks: {}, vs: {} },
+		tail = '',
+		hrefFromTpl = true,
+		tokenData = token.dataAttribs,
+		target, linkText, unencodedTarget, hrefInfo, href;
 
 		// Helper function for getting RT data from the tokens
-		populateRoundTrip = function () {
-			href = tplAttrState.vs.href || attribDict.href;
-
-			hrefInfo = token.getAttributeShadowInfo( 'href' );
-			target = hrefInfo.value;
+		function populateRoundTripData() {
+			target = tplAttrState.vs.href;
 
 			// If the link target came from a template, target will be non-null
-			if (!target) {
+			if (target) {
+				href = target;
+			} else {
+				href = attribDict.href;
 				hrefFromTpl = false;
 				hrefInfo = token.getAttributeShadowInfo( 'href' );
 				target = hrefInfo.value; //.replace(/^(\.\.\/)+/, ''),
@@ -658,7 +661,7 @@ WSP._linkHandler =  function( state, tokens ) {
 			// piped link, serialize to a simple link.
 			// TODO: implement
 			linkText = Util.tokensToString( tokens, true );
-		};
+		}
 
 	// Check if this token has attributes that have been
 	// expanded from templates or extensions
@@ -670,17 +673,18 @@ WSP._linkHandler =  function( state, tokens ) {
 			attribDict.href !== undefined )
 	{
 		// we have a rel starting with mw: prefix and href
-		var tokenData = token.dataAttribs;
 		if ( attribDict.rel === 'mw:WikiLink' ) {
 			// We'll need to check for round-trip data
-			populateRoundTrip();
+			populateRoundTripData();
 
-			if ( linkText.constructor === String &&
+			if ((hrefFromTpl && tokenData.stx === 'simple') ||
+				(linkText.constructor === String &&
 				 env.normalizeTitle( Util.stripSuffix( linkText, tail ) ) ===
 				 env.normalizeTitle( unencodedTarget ) &&
-				 ( Object.keys( dataAttribs ).length === 0 ||
-				   hrefInfo.modified ||
-				   dataAttribs.stx === 'simple' ) )
+				 (  Object.keys( tokenData ).length === 0 ||
+					hrefInfo.modified ||
+					tokenData.stx === 'simple' )
+				))
 			{
 				return '[[' + target + ']]' + tail;
 			} else {
@@ -693,7 +697,7 @@ WSP._linkHandler =  function( state, tokens ) {
 				return '[[' + target + '|' + linkText + ']]' + tail;
 			}
 		} else if ( attribDict.rel === 'mw:ExtLink' ) {
-			populateRoundTrip();
+			populateRoundTripData();
 
 			return '[' + href + ' ' +
 				state.serializer.serializeTokens(state.currLine, tokens ).join('') +
@@ -701,16 +705,16 @@ WSP._linkHandler =  function( state, tokens ) {
 		} else if ( attribDict.rel === 'mw:ExtLink/ISBN' ) {
 			return tokens.join('');
 		} else if ( attribDict.rel === 'mw:ExtLink/URL' ) {
-			populateRoundTrip();
+			populateRoundTripData();
 			return href;
 		} else if ( attribDict.rel === 'mw:ExtLink/Numbered' ) {
-			populateRoundTrip();
+			populateRoundTripData();
 			return '[' + href + ']';
 		} else if ( attribDict.rel === 'mw:Image' ) {
 			// simple source-based round-tripping for now..
 			// TODO: properly implement!
-			if ( token.dataAttribs.src ) {
-				return token.dataAttribs.src;
+			if ( tokenData.src ) {
+				return tokenData.src;
 			}
 		} else {
 			// Unknown rel was set
