@@ -571,8 +571,8 @@ Sanitizer.prototype.register = function ( manager ) {
 	manager.addTransform( this.onAny.bind(this), "Sanitizer:onAny", this.anyRank, 'any' );
 };
 
-Sanitizer.prototype._stripIDNs = function ( host ) {
-	return host.replace( this.constants.IDN_RE, '' );
+Sanitizer._stripIDNs = function ( host ) {
+	return host.replace( SanitizerConstants.IDN_RE, '' );
 };
 
 Sanitizer.prototype.sanitizeHref = function ( href ) {
@@ -590,7 +590,7 @@ Sanitizer.prototype.sanitizeHref = function ( href ) {
 			host = '';
 			path = href;
 		}
-		host = this._stripIDNs( host );
+		host = Sanitizer._stripIDNs( host );
 
 		return proto + host + path;
 
@@ -901,4 +901,5 @@ Sanitizer.prototype.sanitizeTagAttrs = function(newToken, attrs) {
 
 if (typeof module === "object") {
 	module.exports.Sanitizer = Sanitizer;
+	module.exports.SanitizerConstants = SanitizerConstants;
 }

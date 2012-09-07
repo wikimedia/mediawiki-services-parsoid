@@ -1708,7 +1708,13 @@ urltext = ( t:[^'<~[{\n\rIPRfghimnstw_|!:\]} &=]+ { return t.join(''); }
           / htmlentity 
           // Convert trailing space into &nbsp;
           // XXX: This should be moved to a serializer
-          /// ' ' & ':' { return "\u00a0"; }
+          / ' ' & ':' {
+              return [
+                  new TagTk( 'span', [ new KV( 'typeof', 'mw:Placeholder' ) ], { src: ' ' } ),
+                  "\u00a0",
+                  new EndTagTk( 'span' )
+              ];
+          }
           / t:text_char )+
 
 /*

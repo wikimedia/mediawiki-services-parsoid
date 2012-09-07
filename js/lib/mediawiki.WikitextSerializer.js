@@ -616,31 +616,19 @@ WSP._linkHandler =  function( state, tokens ) {
 	// Also convert unannotated html links without advanced attributes to
 	// external wiki links for html import. Might want to consider converting
 	// relative links without path component and file extension to wiki links.
-	var env = state.env,
+	var target, linkText, unencodedTarget, tail, hrefInfo, href,
+		env = state.env,
 		token = tokens.shift(),
 		endToken = tokens.pop(),
 		attribDict = Util.KVtoHash( token.attribs ),
 		tplAttrState = { ks: {}, vs: {} },
-		href;
 
-	// Check if this token has attributes that have been
-	// expanded from templates or extensions
-	if (hasExpandedAttrs(attribDict.typeof)) {
-		tplAttrState = state.tplAttrs[attribDict.about];
-	}
+		// Helper function for getting RT data from the tokens
+		populateRoundTrip = function () {
+			href = tplAttrState.vs.href || attribDict.href;
 
-	if ( attribDict.rel && attribDict.rel.match( /\bmw:/ ) &&
-			attribDict.href !== undefined )
-	{
-		// we have a rel starting with mw: prefix and href
-		var tokenData = token.dataAttribs;
-		if ( attribDict.rel === 'mw:WikiLink' ) {
-			var target = tplAttrState.vs.href,
-				hrefFromTpl = true,
-				unencodedTarget = target,
-				hrefInfo = {},
-				tail = '',
-				linkText = Util.tokensToString( tokens, true );
+			hrefInfo = token.getAttributeShadowInfo( 'href' );
+			target = hrefInfo.value;
 
 			// If the link target came from a template, target will be non-null
 			if (!target) {
@@ -655,11 +643,13 @@ WSP._linkHandler =  function( state, tokens ) {
 				} else {
 					tail = tokenData.tail || '';
 				}
+			}
 
-				unencodedTarget = target;
+			unencodedTarget = target;
 
-				// Escape anything that looks like percent encoding, since we
-				// decode the wikitext
+			// Escape anything that looks like percent encoding, since we
+			// decode the wikitext
+			if ( typeof target === 'string' ) {
 				target = target.replace( /%(?=[a-f\d]{2})/g, '%25' );
 			}
 
@@ -667,15 +657,30 @@ WSP._linkHandler =  function( state, tokens ) {
 			// target and the link was either modified or not originally a
 			// piped link, serialize to a simple link.
 			// TODO: implement
-			var dataAttribs = token.dataAttribs;
-			if (( hrefFromTpl && dataAttribs.stx === 'simple') ||
-				( linkText.constructor === String &&
-					env.normalizeTitle( Util.stripSuffix( linkText, tail ) ) ===
-						env.normalizeTitle( unencodedTarget ) &&
-					( Object.keys( dataAttribs ).length === 0 ||
-						hrefInfo.modified ||
-						dataAttribs.stx === 'simple' ) )
-				)
+			linkText = Util.tokensToString( tokens, true );
+		};
+
+	// Check if this token has attributes that have been
+	// expanded from templates or extensions
+	if (hasExpandedAttrs(attribDict.typeof)) {
+		tplAttrState = state.tplAttrs[attribDict.about];
+	}
+
+	if ( attribDict.rel && attribDict.rel.match( /\bmw:/ ) &&
+			attribDict.href !== undefined )
+	{
+		// we have a rel starting with mw: prefix and href
+		var tokenData = token.dataAttribs;
+		if ( attribDict.rel === 'mw:WikiLink' ) {
+			// We'll need to check for round-trip data
+			populateRoundTrip();
+
+			if ( linkText.constructor === String &&
+				 env.normalizeTitle( Util.stripSuffix( linkText, tail ) ) ===
+				 env.normalizeTitle( unencodedTarget ) &&
+				 ( Object.keys( dataAttribs ).length === 0 ||
+				   hrefInfo.modified ||
+				   dataAttribs.stx === 'simple' ) )
 			{
 				return '[[' + target + ']]' + tail;
 			} else {
@@ -688,26 +693,18 @@ WSP._linkHandler =  function( state, tokens ) {
 				return '[[' + target + '|' + linkText + ']]' + tail;
 			}
 		} else if ( attribDict.rel === 'mw:ExtLink' ) {
-			href = tplAttrState.vs.href;
-			if (!href) {
-				href = attribDict.href;
-			}
+			populateRoundTrip();
+
 			return '[' + href + ' ' +
 				state.serializer.serializeTokens(state.currLine, tokens ).join('') +
 				']';
 		} else if ( attribDict.rel === 'mw:ExtLink/ISBN' ) {
 			return tokens.join('');
 		} else if ( attribDict.rel === 'mw:ExtLink/URL' ) {
-			href = tplAttrState.vs.href;
-			if (!href) {
-				href = attribDict.href;
-			}
+			populateRoundTrip();
 			return href;
 		} else if ( attribDict.rel === 'mw:ExtLink/Numbered' ) {
-			href = tplAttrState.vs.href;
-			if (!href) {
-				href = attribDict.href;
-			}
+			populateRoundTrip();
 			return '[' + href + ']';
 		} else if ( attribDict.rel === 'mw:Image' ) {
 			// simple source-based round-tripping for now..
