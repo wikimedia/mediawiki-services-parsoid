@@ -29,6 +29,7 @@ var fs = require('fs'),
 	NoInclude = NoIncludeOnly.NoInclude,
 	OnlyInclude	= NoIncludeOnly.OnlyInclude,
 	QuoteTransformer = require('./ext.core.QuoteTransformer.js').QuoteTransformer,
+	PreHandler = require('./ext.core.PreHandler.js').PreHandler,
 	PostExpandParagraphHandler = require('./ext.core.PostExpandParagraphHandler.js')
 																.PostExpandParagraphHandler,
 	Sanitizer = require('./ext.core.Sanitizer.js').Sanitizer,
@@ -147,6 +148,9 @@ ParserPipelineFactory.prototype.recipes = {
 
 				// Synchronous extensions
 				Cite, // both before and after paragraph handler
+
+				// Eliminate spurious <pre> wrapping
+				PreHandler,
 
 				// Paragraph wrapping
 				PostExpandParagraphHandler,
