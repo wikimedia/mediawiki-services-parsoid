@@ -755,9 +755,8 @@ WSP._linkHandler =  function( state, tokens ) {
 			// TODO: serialize as external wikilink
 			return '';
 		}
-
 	}
-					
+
 	//if ( rtinfo.type === 'wikilink' ) {
 	//	return '[[' + rtinfo.target + ']]';
 	//} else {
@@ -1143,7 +1142,7 @@ WSP.tagHandlers = {
 		start: {
 			startsNewline: true,
 			endsLine: true,
-			handle: id("")
+			handle: id("\n")
 		}
 	},
 	b:  {
@@ -1318,7 +1317,7 @@ WSP._getTokenHandler = function(state, token) {
 			handler = handler.make(state, token);
 		}
 	}
-	
+
 	if ( ! handler ) {
 		handler = this.defaultHTMLTagHandler;
 	}
@@ -1681,7 +1680,7 @@ WSP._serializeDOM = function( node, state ) {
 				name = node.nodeName.toLowerCase(),
 				tkAttribs = this._getDOMAttribs(node.attributes),
 				tkRTInfo = this._getDOMRTInfo(node.attributes);
-			
+
 			if (isHtmlBlockTag(name)) {
 				state.currLine = {
 					text: null,
