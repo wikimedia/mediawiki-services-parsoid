@@ -2,12 +2,12 @@
 
 namespace parsoid {
     template <class ChunkType>
-    void QueueDispatcher<ChunkType>::setHandler( AsyncReturnHandler handler ) {
+    void QueueDispatcher<ChunkType>::setHandler( TokenMessageReceiver handler ) {
         this->handler = handler;
     }
-        
+
     template <class ChunkType>
-    void QueueDispatcher<ChunkType>::operator() ( AsyncReturn ret ) {
+    void QueueDispatcher<ChunkType>::operator() ( TokenMessage ret ) {
         queue.push_front( ret.getChunks() );
         if ( ! ret.isAsync() ) {
             haveEndOfInput = true;

@@ -17,23 +17,25 @@ namespace parsoid {
         /**
          * Constructor and handler setup
          */
-        QueueDispatcher( io_service& io, AsyncReturnHandler handler ) :
-            io( io ), isActive(false) { };
+        QueueDispatcher( io_service& io, TokenMessageReceiver handler )
+            : io( io )
+            , isActive(false)
+        { };
 
         /**
          * Set the per-item handler
          */
-        void setHandler(AsyncReturnHandler handler);
+        void setHandler(TokenMessageReceiver handler);
 
         // The handler callback
-        void operator()( AsyncReturn ret );
+        void operator()( TokenMessage ret );
 
         // The main loop: Dequeues items and passes them to the handler
         void handlerLoop();
     private:
         bool isActive;
         bool haveEndOfInput;
-        AsyncReturnHandler handler;
+        TokenMessageReceiver handler;
         io_service& io;
         // TODO: use concurrent_queue from TBB later!
         std::deque<ChunkType> queue;

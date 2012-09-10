@@ -47,11 +47,18 @@ namespace parsoid
         public:
             // Provide the full interface for all tokens, and check types
             // dynamically (or perhaps later only when debugging)
-            Tk(): mToken(boost::intrusive_ptr<Token>(NULL)) {};
-            Tk( Token* tokenPtr ):
-                mToken( boost::intrusive_ptr<Token>(tokenPtr) ) { };
-            Tk( Token& token ):
-                mToken( boost::intrusive_ptr<Token>(&token) ) { };
+
+            Tk()
+                : mToken(boost::intrusive_ptr<Token>(NULL))
+            {};
+
+            Tk( Token* tokenPtr )
+                : mToken( boost::intrusive_ptr<Token>(tokenPtr) )
+            {};
+
+            Tk( Token& token )
+                : mToken( boost::intrusive_ptr<Token>(&token) )
+            {};
 
             // General token source range accessors
             void setSourceRange( unsigned int rangeStart, unsigned int rangeEnd );
@@ -65,7 +72,7 @@ namespace parsoid
             const TokenType type() const;
 
             // The TagToken interface: StartTagTk and EndTagTk
-            void setName ( const std::string& name ); 
+            void setName ( const std::string& name );
             const std::string& getName( ) const;
             void setAttribute ( const vector<Tk>& name, const vector<Tk>&value );
             const vector<Tk> getAttribute( const vector<Tk>& name ) const;
@@ -87,7 +94,7 @@ namespace parsoid
 
 
     /**
-     * Provide simple typedefs for a token chunk and -vector 
+     * Provide simple typedefs for a token chunk and -vector
      * (for now, to get started)
      */
 
@@ -106,7 +113,7 @@ namespace parsoid
     /**
      * Base class for all token implementations
      */
-    class Token: public intrusive_ptr_base< Token > 
+    class Token: public intrusive_ptr_base< Token >
     {
         public:
             // Consecutive number so that a jump table can be used
@@ -114,7 +121,7 @@ namespace parsoid
             // selection
 
             Token();
-            
+
             virtual string toString() const {
                 return "Token()";
             }
@@ -156,7 +163,7 @@ namespace parsoid
                 throw ( "getText only supported by text and comment tokens" );
             }
             virtual bool equals ( const Token& t ) const;
-            
+
             virtual ~Token ();
 
         protected:
@@ -186,7 +193,7 @@ namespace parsoid
 
             void appendAttribute( const vector<Tk>& name, const vector<Tk>& value );
             void prependAttribute( const vector<Tk>& name, const vector<Tk>& value );
-            void insertAttributeAfter( const vector<Tk>& otherName, 
+            void insertAttributeAfter( const vector<Tk>& otherName,
                     const vector<Tk>& name, const vector<Tk>& value );
             void insertAttributeBefore( const vector<Tk>& otherName,
                     const vector<Tk>& name, const vector<Tk>& value );
@@ -217,7 +224,7 @@ namespace parsoid
                 }
             }
             virtual TokenType type() const {
-                return TokenType::StartTag; 
+                return TokenType::StartTag;
             };
             virtual ~StartTagTk() {
                 std::cout << "~StartTagTk" << std::endl;
@@ -238,7 +245,7 @@ namespace parsoid
                 }
             }
             virtual TokenType type() const {
-                return TokenType::EndTag; 
+                return TokenType::EndTag;
             };
     };
 
@@ -258,7 +265,7 @@ namespace parsoid
             virtual const std::string& getText ( ) const;
             virtual ~ContentToken ();
             virtual TokenType type() const {
-                return TokenType::Abstract; 
+                return TokenType::Abstract;
             };
     };
 
@@ -295,14 +302,14 @@ namespace parsoid
     };
 
     // The newline token
-    class NlTk: public Token { 
+    class NlTk: public Token {
         public:
             NlTk() = default;
             virtual string toString() const {
                 return string("NlTk()");
             }
             virtual TokenType type() const {
-                return TokenType::Nl; 
+                return TokenType::Nl;
             };
     };
 
@@ -314,20 +321,27 @@ namespace parsoid
                 return string("EofTk()");
             }
             virtual TokenType type() const {
-                return TokenType::Eof; 
+                return TokenType::Eof;
             };
     };
 
     // constant-time modification on both ends
     //typedef deque<Tk> TokenChunk;
 
-    class TokenChunk:  public intrusive_ptr_base< TokenChunk > 
+    class TokenChunk:  public intrusive_ptr_base< TokenChunk >
     {
         public:
             TokenChunk() {};
-            TokenChunk(deque<Tk>& chunk): chunk(chunk), rank(0) {};
-            TokenChunk(deque<Tk>& chunk, float rank): 
-                chunk(chunk), rank(rank) {};
+
+            TokenChunk(deque<Tk>& chunk)
+                : chunk(chunk)
+                , rank(0)
+            {};
+
+            TokenChunk(deque<Tk>& chunk, float rank)
+                : chunk(chunk)
+                , rank(rank)
+            {};
 
             // Rank interface
             void setRank ( float rank ) {
@@ -386,31 +400,36 @@ namespace parsoid
     /**
      * A (potentially) asynchronous return value wrapper around a token chunk
      * chunk.
+     *
+     * TODO:
+     * - Add support for error reporting
+     * - convert into general Message template
      */
-    class AsyncReturn {
+    class TokenMessage {
         public:
-            AsyncReturn() {};
+            TokenMessage() {};
 
             // TODO: make sure this uses move semantics, especially for the
             // chunk
-            AsyncReturn( const TokenChunkChunk& chunks ): 
-                chunks(chunks),
-                accumTailPtr(nullptr) 
-            {}
+            TokenMessage( const TokenChunkChunk& chunks )
+                : chunks(chunks)
+                , accumTailPtr((TokenAccumulator*)1)
+            {};
 
-            AsyncReturn( 
-                    const TokenChunkChunk& chunks, 
-                    TokenAccumulator* accumPtr ): 
-                chunks(chunks),
-                accumTailPtr(accumPtr)
-            {}
+            TokenMessage(
+                    const TokenChunkChunk& chunks,
+                    TokenAccumulator* accumPtr )
+                : chunks(chunks)
+                // default to 'async' mode
+                , accumTailPtr(accumPtr)
+            {};
 
             // Constructor with async boolean
-            AsyncReturn( 
-                    const TokenChunkChunk& chunks, 
-                    bool isAsync ): 
-                chunks(chunks),
-                accumTailPtr(nullptr)
+            TokenMessage(
+                    const TokenChunkChunk& chunks,
+                    bool isAsync
+                )
+                : chunks(chunks)
             {
                 if (isAsync) {
                     accumTailPtr = (TokenAccumulator*)1;
@@ -444,13 +463,13 @@ namespace parsoid
     /**
      * General callback handler type
      */
-    typedef boost::function<void(AsyncReturn)> AsyncReturnHandler;
+    typedef boost::function<void(TokenMessage)> TokenMessageReceiver;
 
     /**
      * The nullHandler, which is returned if no handler is set
      */
-    static const AsyncReturnHandler nullAsyncReturnHandler;
-    
+    static const TokenMessageReceiver nullTokenMessageReceiver;
+
     /**
      * Order-preserving but minimal buffering between asynchronous expansion
      * points. The accumulator collects all fully-processed tokens which are
@@ -464,13 +483,14 @@ namespace parsoid
      */
     class TokenAccumulator {
         public:
-            TokenAccumulator( AsyncReturnHandler cb ):
-                cb(cb) {};
-            AsyncReturnHandler siblingDone();
-            AsyncReturnHandler returnSibling( AsyncReturn ret );
-            void returnChild( AsyncReturn ret );
+            TokenAccumulator( TokenMessageReceiver cb )
+                : cb(cb)
+            {};
+            TokenMessageReceiver siblingDone();
+            TokenMessageReceiver returnSibling( TokenMessage ret );
+            void returnChild( TokenMessage ret );
         private:
-            AsyncReturnHandler cb;
+            TokenMessageReceiver cb;
             TokenChunkChunk chunks;
             bool isSiblingDone;
             bool isChildDone;
@@ -508,11 +528,11 @@ union {
     } c_buffer_ptr;
 };
 // flags:
-//      tokenType: 
+//      tokenType:
 //          3 bits: startTag | endTag | comment | text | newline | eof
-//      mem layout: 
+//      mem layout:
 //          2 bits: name: ptr | interned | inline
-//          1 bit: attribute/value: inline | pointer 
+//          1 bit: attribute/value: inline | pointer
 //
 // XXX: Consider using fbstring instead!
 */

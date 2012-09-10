@@ -23,11 +23,11 @@ namespace parsoid
         return const_cast<Token*>(mToken.get())
                 ->setSourceRange( rangeStart, rangeEnd );
     }
-    
+
     const string Tk::toString() const {
         return mToken->toString();
     }
-    
+
     /**
      * The TagToken interface
      */
@@ -111,8 +111,8 @@ namespace parsoid
     bool Token::equals( const Token& t ) const {
         return true;
     }
-            
-            
+
+
 
 
     // TagToken methods
@@ -148,7 +148,7 @@ namespace parsoid
     }
 
 
-    void 
+    void
     TagToken::setAttribute ( const vector<Tk>& name, const vector<Tk>& value )
     {
         // MediaWiki unfortunately uses the *last* duplicate value for a given
@@ -156,7 +156,7 @@ namespace parsoid
         // instead, so we'll have to remove all but the last duplicate before
         // feeding the DOM. The duplicates should still round-trip though..
         //
-        // TODO: 
+        // TODO:
         // * always store lowercase version and intern standard attribute names
         // * remember non-canonical attribute cases in rt data
         vector< pair<vector<Tk>, vector<Tk>> >::reverse_iterator p;
@@ -183,7 +183,7 @@ namespace parsoid
         pair<vector<Tk>, vector<Tk>> p( name, value );
         mAttribs.insert( mAttribs.begin(), p );
     }
-    
+
 
     /**
      * ContentToken methods
@@ -199,25 +199,25 @@ namespace parsoid
     bool ContentToken::equals ( const Token& t ) const {
         return getText() == t.getText();
     }
-        
-    
+
+
     ContentToken::~ContentToken() {};
 
     /**
      * TokenAccumulator
      */
-    AsyncReturnHandler
+    TokenMessageReceiver
     TokenAccumulator::siblingDone() {
         isSiblingDone = true;
         if ( isChildDone ) {
             return cb;
         } else {
-            return nullAsyncReturnHandler;
+            return nullTokenMessageReceiver;
         }
     }
 
-    AsyncReturnHandler
-    TokenAccumulator::returnSibling( AsyncReturn ret ) {
+    TokenMessageReceiver
+    TokenAccumulator::returnSibling( TokenMessage ret ) {
         // append the returned chunks
         const TokenChunkChunk& retChunks = ret.getChunks();
         // Collect the chunks
@@ -226,23 +226,23 @@ namespace parsoid
         if ( isChildDone ) {
             // forward to parent
             // XXX: use move semantics?
-            cb( AsyncReturn( chunks, ret.isAsync() ) );
+            cb( TokenMessage( chunks, ret.isAsync() ) );
             chunks.clear();
             return cb;
-        } else { 
-            return nullAsyncReturnHandler;
+        } else {
+            return nullTokenMessageReceiver;
         }
     }
 
     void
-    TokenAccumulator::returnChild( AsyncReturn ret ) {
+    TokenAccumulator::returnChild( TokenMessage ret ) {
         if ( ! ret.isAsync() ) {
             isChildDone = true;
             // Prepend the returned chunks to queue and return both
             const TokenChunkChunk& retChunks = ret.getChunks();
             chunks.insert( chunks.begin(), retChunks.begin(), retChunks.end() );
             // return the combined chunks
-            cb ( AsyncReturn( chunks, isSiblingDone ) );
+            cb ( TokenMessage( chunks, isSiblingDone ) );
             // And clear the queue
             chunks.clear();
         } else {
@@ -250,7 +250,7 @@ namespace parsoid
             cb( ret );
         }
     }
-    
+
 
 }
 
