@@ -719,10 +719,10 @@ WSP._linkHandler =  function( state, tokens ) {
 			return tokens.join('');
 		} else if ( attribDict.rel === 'mw:ExtLink/URL' ) {
 			populateRoundTripData();
-			return href;
+			return Util.decodeURI( Util.tokensToString( target ) );
 		} else if ( attribDict.rel === 'mw:ExtLink/Numbered' ) {
 			populateRoundTripData();
-			return '[' + href + ']';
+			return '[' + Util.decodeURI( Util.tokensToString( target ) ) + ']';
 		} else if ( attribDict.rel === 'mw:Image' ) {
 			// simple source-based round-tripping for now..
 			// TODO: properly implement!
