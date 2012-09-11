@@ -2,8 +2,8 @@
 
 namespace parsoid {
     template <class ChunkType>
-    void QueueDispatcher<ChunkType>::setHandler( TokenMessageReceiver handler ) {
-        this->handler = handler;
+    void QueueDispatcher<ChunkType>::setReceiver( TokenMessageReceiver receiver ) {
+        this->receiver = receiver;
     }
 
     template <class ChunkType>
@@ -14,16 +14,16 @@ namespace parsoid {
         }
         if ( !isActive ) {
             // schedule self with IO service
-            io.post(bind(&QueueDispatcher::handlerLoop, this));
+            io.post(bind(&QueueDispatcher::senderLoop, this));
         }
     }
 
     template <class ChunkType>
-    void QueueDispatcher<ChunkType>::handlerLoop() {
+    void QueueDispatcher<ChunkType>::senderLoop() {
         isActive = true;
         // Keep handling items from the queue
         while ( ! queue.empty() ) {
-            handler( queue.back() );
+            receiver( queue.back() );
             queue.pop_back();
         }
         isActive = false;

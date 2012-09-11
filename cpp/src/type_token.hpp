@@ -461,12 +461,12 @@ namespace parsoid
 
 
     /**
-     * General callback handler type
+     * General receiver type
      */
     typedef boost::function<void(TokenMessage)> TokenMessageReceiver;
 
     /**
-     * The nullHandler, which is returned if no handler is set
+     * The nullReceiver, which is returned if no receiver is set
      */
     static const TokenMessageReceiver nullTokenMessageReceiver;
 
