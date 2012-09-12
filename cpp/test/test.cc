@@ -45,13 +45,17 @@ int main()
 
     TokenChunkPtr tcp;
 
+    cout << "TOKENIZER START!\n\n";
+
     do {
         tcp = t.tokenize();
-	cout << tcp->toString();
+	cout << tcp->toString() << endl;
     } while ( tcp->size() != 0 && tcp->back().type() != TokenType::Eof );
 
     if ( tcp->size() != 0 ) {
         cout << "Input was not totally matched.";
+    } else {
+        cout << "TOKENIZER FINISH!\n\n";
     }
 
     return 0;

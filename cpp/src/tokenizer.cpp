@@ -61,7 +61,6 @@ namespace parsoid {
                 ret = false;
                 break;
         }
-        cout << "Return for syntaxBreak: " << ret << endl;
         return ret;
     }
 

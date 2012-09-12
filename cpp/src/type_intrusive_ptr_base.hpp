@@ -7,25 +7,33 @@ struct intrusive_ptr_base
 {
     intrusive_ptr_base(): ref_count(0) 
     {
+        #ifdef IP_DEBUG
         std::cout << "  Default constructor " << std::endl;
+        #endif
     }
     //only construct an intrusive_ptr from another intrusive_ptr. That is it.
     intrusive_ptr_base(intrusive_ptr_base<T> const&)
         : ref_count(0) 
     {
+        #ifdef IP_DEBUG
         std::cout << "  Copy constructor..." << std::endl;
+        #endif
     }
 
     ///does nto support assignment
     intrusive_ptr_base& operator=(intrusive_ptr_base const& rhs)
     { 
+        #ifdef IP_DEBUG
         std::cout << "  Assignment operator..." << std::endl;
+        #endif
         return *this; 
     }
 
     friend void intrusive_ptr_add_ref(intrusive_ptr_base<T> const* s)
     {
+        #ifdef IP_DEBUG
         std::cout << "  intrusive_ptr_add_ref..." << std::endl;
+        #endif
         assert(s->ref_count >= 0);
         assert(s != 0);
         ++s->ref_count;
@@ -33,7 +41,9 @@ struct intrusive_ptr_base
 
     friend void intrusive_ptr_release(intrusive_ptr_base<T> const* s)
     {
+        #ifdef IP_DEBUG
         std::cout << "  intrusive_ptr_release..." << std::endl;
+        #endif
         assert(s->ref_count > 0);
         assert(s != 0);
         if (--s->ref_count == 0)

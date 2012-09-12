@@ -22,7 +22,9 @@ using namespace parsoid;
 // Add a reference to the driving WikiTokenizer object as an additional state
 // member
 #define YY_CTX_MEMBERS WikiTokenizer* tokenizer;
-#define YY_DEBUG
+
+// If you want to see _ALL THE TEXT_, uncomment this.
+//#define YY_DEBUG
 
 // Define a few convenience macros to make things more readable
 #define emit ctx->tokenizer->emit
@@ -90,29 +92,28 @@ h = & "=" # guard, to make sure '='+ will match.
         ( space+ | comment )*
         & eolf
         {
-            int sl = s[0].getText().size();
-            int el = e[0].getText().size();
+            string start = s[0].getText();
+            string end = e[0].getText();
 
-            int rsl = min( sl, 6 );
-            int rel = min( el, 6 );
-            int level = min( rsl, rel );
+            int level = min( start.size(), end.size() );
+            level = min( level, 6 );
 
             stringstream out;
             out << "h" << level;
 
-            if ( el > rsl ) {
-                c.insert( c.begin(), mkText( string( el - rsl, '=' ) ) );
+            if ( start.size() > level ) {
+                c.insert( c.begin(), mkText( string( start.size() - level, '=' ) ) );
             }
 
-            if ( sl > rel ) {
-                c.push_back( mkText( string( sl - rel, '=' ) ) );
+            if ( end.size() > level ) {
+                c.push_back( mkText( string( end.size() - level, '=' ) ) );
             }
 
             Tk headStart = mkStartTag( out.str() );
             Tk headEnd = mkEndTag( out.str() );
 
-            headStart.setSourceRange( yypos, yypos + rsl );
-            headEnd.setSourceRange( yypos + rsl + c.size(), yypos + rsl + c.size() + rel );
+/*            headStart.setSourceRange( yypos, yypos + start.size() );
+            headEnd.setSourceRange( yypos - end.size(), yypos );*/
 
             emit( headStart );
             emit( c );

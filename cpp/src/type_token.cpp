@@ -92,7 +92,9 @@ namespace parsoid
     Token::Token( ) :
     srStart(0), srEnd(0) {};
     Token::~Token() {
+        #ifdef TOKEN_DEBUG
         std::cout << "~Token" << std::endl;
+        #endif
     };
 
     // General token source range accessors
@@ -117,11 +119,15 @@ namespace parsoid
 
     // TagToken methods
     TagToken::~TagToken() {
+        #ifdef TOKEN_DEBUG
         std::cout << "~TagToken" << std::endl;
+        #endif
     };
 
     bool TagToken::equals( const Token& t ) const {
+        #ifdef TOKEN_DEBUG
         std::cout << "TagToken==" << std::endl;
+        #endif
         const TagToken& t2 = dynamic_cast<const TagToken&>(t);
         return getName() == t2.getName()
             && mAttribs.size() == t2.mAttribs.size();

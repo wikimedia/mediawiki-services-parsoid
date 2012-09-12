@@ -227,7 +227,9 @@ namespace parsoid
                 return TokenType::StartTag;
             };
             virtual ~StartTagTk() {
+                #ifdef TOKEN_DEBUG
                 std::cout << "~StartTagTk" << std::endl;
+                #endif
             }
     };
 
@@ -382,7 +384,7 @@ namespace parsoid
             string toString() {
                 string out;
                 for (Tk c: chunk) {
-                    out += c.toString();
+                    out += c.toString() + '\n';
                 }
                 return out;
             }
