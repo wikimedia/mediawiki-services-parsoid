@@ -134,7 +134,7 @@ Cite.prototype.onReferences = function ( token, manager ) {
 						),
 						// XXX: make formatNum available!
 						//{
-						//	type: 'TEXT', 
+						//	type: 'TEXT',
 						//	value: Util.formatNum( ref.groupIndex + '.' + i)
 						//},
 						ref.groupIndex + '.' + i,

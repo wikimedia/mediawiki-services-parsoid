@@ -1,7 +1,7 @@
 /* -------------------------------------------------------------------
- * The WikitextConstant structure holds "global constants" that 
+ * The WikitextConstant structure holds "global constants" that
  * capture properties about wikitext markup.
- * 
+ *
  * Ex: Valid options for wikitext image markup
  *
  * This structure, over time, can come to serve as useful documentation

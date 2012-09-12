@@ -258,7 +258,7 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 								new KV('about', '#' + state.templateId),
 								new KV('id', state.templateId)
 							],
-							{ 
+							{
 								tsr: Util.clone(tsr),
 								src: src,
 							}

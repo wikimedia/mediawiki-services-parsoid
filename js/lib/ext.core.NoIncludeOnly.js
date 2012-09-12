@@ -23,7 +23,7 @@ function OnlyInclude( manager, options ) {
 		this.manager.addTransform( this.onAnyInclude.bind( this ), "OnlyInclude:onAnyInclude", this.rank, 'any' );
 	} else {
 		// just convert onlyinclude tokens into meta tags with rt info
-		this.manager.addTransform( this.onOnlyInclude.bind( this ), "OnlyInclude:onOnlyInclude", this.rank, 
+		this.manager.addTransform( this.onOnlyInclude.bind( this ), "OnlyInclude:onOnlyInclude", this.rank,
 				'tag', 'onlyinclude' );
 	}
 }
@@ -85,9 +85,9 @@ OnlyInclude.prototype.onAnyInclude = function ( token, manager ) {
 
 
 function NoInclude( manager, options ) {
-	new TokenCollector( 
+	new TokenCollector(
 			manager,
-			function ( tokens ) { 
+			function ( tokens ) {
 				if ( options.isInclude ) {
 					//manager.env.tp( 'noinclude stripping' );
 					return {};
@@ -110,9 +110,9 @@ function NoInclude( manager, options ) {
 // XXX: Preserve includeonly content in meta tag (data attribute) for
 // round-tripping!
 function IncludeOnly( manager, options ) {
-	new TokenCollector( 
+	new TokenCollector(
 			manager,
-			function ( tokens ) { 
+			function ( tokens ) {
 				if ( options.isInclude ) {
 					tokens.shift();
 					if ( tokens.length &&

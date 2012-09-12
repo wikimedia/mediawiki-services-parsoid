@@ -52,13 +52,13 @@ QuoteTransformer.prototype._startNewChunk = function ( ) {
 QuoteTransformer.prototype.onQuote = function ( token, frame, prevToken ) {
 	var qlen = token.value.length,
 		tokens = [], // output tokens
-		ctx = { 
-			token: token, 
-			frame: frame, 
+		ctx = {
+			token: token,
+			frame: frame,
 			prevToken: prevToken
 		},
-		ctx2 = { 
-			frame: frame, 
+		ctx2 = {
+			frame: frame,
 			prevToken: prevToken
 		};
 	
@@ -77,15 +77,15 @@ QuoteTransformer.prototype.onQuote = function ( token, frame, prevToken ) {
 	this._startNewChunk();
 
 	switch (qlen) {
-		case 2: 
+		case 2:
 			this.currentChunk.push(ctx);
 			this.italics.push(this.currentChunk);
 			break;
-		case 3: 
+		case 3:
 			this.currentChunk.push(ctx);
 			this.bolds.push(this.currentChunk);
 			break;
-		case 4: 
+		case 4:
 			this.currentChunk.push( "'" );
 			this._startNewChunk();
 			this.currentChunk.push(ctx);
@@ -98,22 +98,22 @@ QuoteTransformer.prototype.onQuote = function ( token, frame, prevToken ) {
 			// prettiest result, but at least it is always correct and very
 			// convenient.
 			this.currentChunk.push(ctx);
-			this.italics.push(this.currentChunk); 
+			this.italics.push(this.currentChunk);
 			this._startNewChunk();
 			ctx2.token = { attribs: token.attribs };
 			this.currentChunk.push(ctx2);
-			this.bolds.push(this.currentChunk); 
+			this.bolds.push(this.currentChunk);
 			break;
 		default: // longer than 5, only use the last 5 ticks
 			var newvalue = token.value.substr(0, qlen - 5 );
 			this.currentChunk.push ( newvalue );
 			this._startNewChunk();
 			this.currentChunk.push(ctx);
-			this.italics.push(this.currentChunk); 
+			this.italics.push(this.currentChunk);
 			this._startNewChunk();
 			ctx2.token = { attribs: ctx.token.attribs };
 			this.currentChunk.push(ctx2);
-			this.bolds.push(this.currentChunk); 
+			this.bolds.push(this.currentChunk);
 			break;
 	}
 	
@@ -158,8 +158,8 @@ QuoteTransformer.prototype.onNewLine = function (  token, frame, prevToken ) {
 					if (lastchar === ' ' && firstspace === -1) {
 						firstspace = j;
 					} else if (lastchar !== ' ') {
-						if ( secondtolastchar === ' ' && 
-								firstsingleletterword === -1) 
+						if ( secondtolastchar === ' ' &&
+								firstsingleletterword === -1)
 						{
 							firstsingleletterword = j;
 						} else if ( firstmultiletterword == -1) {

@@ -45,7 +45,7 @@ PegTokenizer.prototype.process = function( text, cacheKey ) {
 		// Construct a singleton static tokenizer.
 		var pegSrcPath = path.join( __dirname, 'pegTokenizer.pegjs.txt' );
 		this.src = fs.readFileSync( pegSrcPath, 'utf8' );
-		var tokenizerSource = PEG.buildParser(this.src, 
+		var tokenizerSource = PEG.buildParser(this.src,
 				{ cache: true, trackLineAndColumn: false }).toSource();
 
 		/* We patch the generated source to assign the arguments array for the
@@ -64,7 +64,7 @@ PegTokenizer.prototype.process = function( text, cacheKey ) {
 		tokenizerSource = tokenizerSource.replace( 'parse: function(input, startRule) {',
 					'parse: function(input, startRule) { var __parseArgs = arguments;' )
 						// Include the stops key in the cache key
-						.replace(/var cacheKey = "[^@"]+@" \+ pos/g, 
+						.replace(/var cacheKey = "[^@"]+@" \+ pos/g,
 								function(m){ return m +' + stops.key'; });
 		//console.warn( tokenizerSource );
 		PegTokenizer.prototype.tokenizer = eval( tokenizerSource );
@@ -106,7 +106,7 @@ PegTokenizer.prototype.process = function( text, cacheKey ) {
 	// reasonable traces.
 	if ( ! this.env.debug ) {
 		try {
-			this.tokenizer.tokenize(text, 'start', 
+			this.tokenizer.tokenize(text, 'start',
 					// callback
 					chunkCB,
 					// inline break test
@@ -120,7 +120,7 @@ PegTokenizer.prototype.process = function( text, cacheKey ) {
 			this.onEnd();
 		}
 	} else {
-		this.tokenizer.tokenize(text, 'start', 
+		this.tokenizer.tokenize(text, 'start',
 				// callback
 				chunkCB,
 				// inline break test
@@ -176,7 +176,7 @@ PegTokenizer.prototype.inline_breaks = function (input, pos, stops ) {
 				( counters.h &&
 					( pos === input.length - 1 ||
 					  input.substr( pos + 1, 200)
-						.match(/[ \t]*(?:[\r\n]|$)/) !== null ) 
+						.match(/[ \t]*(?:[\r\n]|$)/) !== null )
 				) || null;
 		case '|':
 			return counters.pipe ||
@@ -186,14 +186,14 @@ PegTokenizer.prototype.inline_breaks = function (input, pos, stops ) {
 					( ( pos < input.length - 1 &&
 					  input[pos + 1].match(/[|}]/) !== null ) ||
 						counters.tableCellArg
-					) 
+					)
 				) || null;
 		case '{':
 			// {{!}} pipe templates..
 			return (
 						counters.pipe ||
 						( stops.onStack( 'table' ) &&
-							( 
+							(
 								input.substr(pos, 10) === '{{!}}{{!}}' ||
 								counters.tableCellArg
 							)
@@ -239,7 +239,7 @@ PegTokenizer.prototype.inline_breaks = function (input, pos, stops ) {
 // Alternate version of the above. The hash is likely faster, but the nested
 // function calls seem to cancel that out.
 PegTokenizer.prototype.breakMap = {
-	'=': function(input, pos, syntaxFlags) { 
+	'=': function(input, pos, syntaxFlags) {
 		return syntaxFlags.equal ||
 			( syntaxFlags.h &&
 				input.substr( pos + 1, 200)
@@ -249,10 +249,10 @@ PegTokenizer.prototype.breakMap = {
 		return syntaxFlags.template ||
 			syntaxFlags.linkdesc ||
 			( syntaxFlags.table &&
-				( 
+				(
 					input[pos + 1].match(/[|}]/) !== null ||
 					syntaxFlags.tableCellArg
-				) 
+				)
 			) || null;
 	},
 	"!": function ( input, pos, syntaxFlags ) {

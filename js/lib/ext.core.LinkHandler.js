@@ -42,7 +42,7 @@ function buildLinkAttrs(attrs, getLinkText, rdfaType, linkAttrs) {
 	var linkText = [];
 	var about;
 
-	// In one pass through the attribute array, 
+	// In one pass through the attribute array,
 	// fetch about, typeof, and linkText
 	//
 	// about && typeof are usually at the end of the array
@@ -510,7 +510,7 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 
 		// SSS FIXME: Right now, Parsoid does not support templating
 		// of ISBN attributes.  So, "ISBN {{echo|1234567890}}" will not
-		// parse as you might expect it to.  As a result, this code below 
+		// parse as you might expect it to.  As a result, this code below
 		// that attempts to combine rdf attrs from earlier is unnecessary
 		// right now.  But, it will become necessary if Parsoid starts
 		// supporting templating of ISBN attributes.

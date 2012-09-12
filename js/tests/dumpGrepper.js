@@ -77,14 +77,14 @@ if (module === require.main) {
 			var m = matches[i];
 			//console.warn( JSON.stringify( m.index, null, 2 ) );
 			if ( argv.color ) {
-				console.log( 
-					revision.text.substr( m.index - 40, 40 ) + 
-					m[0].green + 
+				console.log(
+					revision.text.substr( m.index - 40, 40 ) +
+					m[0].green +
 					revision.text.substr( m.index + m[0].length, 40 ) );
 			} else {
-				console.log( 
-					revision.text.substr( m.index, -40 ) + 
-					m[0] + 
+				console.log(
+					revision.text.substr( m.index, -40 ) +
+					m[0] +
 					revision.text.substr( m.index + m[0].length, 40 ) );
 			}
 		}

@@ -17,7 +17,7 @@
  * @constructor
  * @param {Object} SyncTokenTransformManager to register with
  * @param {Function} Transform function, called like this:
- *   transform( tokens, cb, manager ) with 
+ *   transform( tokens, cb, manager ) with
  *      tokens: chunk of tokens
  *      cb: function, returnTokens ( tokens, notYetDone ) with notYetDone
  *      indicating the last chunk of an async return.
@@ -58,7 +58,7 @@ TokenCollector.prototype._onDelimiterToken = function ( token, frame, cb ) {
 		this.manager.env.dp( 'skipping collection on ', token );
 		// just ignore it
 		return { tokens: [ token ] }; //this.transformation( [token, token] );
-	} else if ( this.isActive && 
+	} else if ( this.isActive &&
 			( token.constructor === EndTagTk || token.constructor === EOFTk ) ) {
 		this.manager.env.dp( 'finishing collection on ', token );
 		var res;
@@ -88,9 +88,9 @@ TokenCollector.prototype._onDelimiterToken = function ( token, frame, cb ) {
 		} else {
 			// start collection
 			this.manager.env.dp( 'starting collection on ', token );
-			this.manager.addTransform( this._onAnyToken.bind ( this ),"TokenCollector:_onAnyToken",  
+			this.manager.addTransform( this._onAnyToken.bind ( this ),"TokenCollector:_onAnyToken",
 					this.rank + this._anyDelta, 'any' );
-			this.manager.addTransform( this._onDelimiterToken.bind( this ),"TokenCollector:_onDelimiterToken:end",  
+			this.manager.addTransform( this._onDelimiterToken.bind( this ),"TokenCollector:_onDelimiterToken:end",
 					this.rank, 'end' );
 			this.isActive = true;
 		}

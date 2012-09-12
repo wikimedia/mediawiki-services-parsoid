@@ -108,7 +108,7 @@ var Util = {
 		for ( var i = 0, l = tokens.length; i < l; i++ ) {
 			var token = tokens[i];
 			if ( token === undefined ) {
-				console.warn( 'Util.tokensToString, invalid token: ' + 
+				console.warn( 'Util.tokensToString, invalid token: ' +
 								token, ' tokens:', tokens);
 			} else if ( token.constructor === String ) {
 				out.push( token );

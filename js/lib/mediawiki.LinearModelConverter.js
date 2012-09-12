@@ -38,12 +38,12 @@ var Node = {
 
 /**
  * Object mapping HTML DOM node names to linear model element names.
- * 
+ *
  * leafNode: If true, the linear model element is a leaf node (can have children but no content)
  *           if false, it is a branch node (can contain content but no children),
  * type:       Element type
  * attributes: Additional attributes to set for this element (optional)
- * 
+ *
  */
 var elementTypes = {
 	'p': { leafNode: true, type: 'paragraph' },
@@ -112,13 +112,13 @@ var attributeWhitelist = [ 'title' ]; //XXX: add href?
 
 /**
  * Convert the attributes of an HTML DOM node to linear model attributes.
- * 
+ *
  * - Attributes prefixed with data-json- will have the prefix removed and their
  *   value JSON-decoded.
  * - Attributes prefixed with data- will have the prefix removed.
  * - Attributes in attributeWhitelist are passed through unchanged
  * - All other attribuetes are prefixed with html/
- * 
+ *
  * @param {Object} node HTML DOM node
  * @returns {Object} Converted attribute map
  */
@@ -151,9 +151,9 @@ function convertAttributes( node ) {
 /**
  * Check if an HTML DOM node represents an annotation, and if so, build an
  * annotation object for it.
- * 
+ *
  * The annotation object looks like {type: 'type', data: {'attrKey': 'attrValue', ...}}
- * 
+ *
  * @param {node} HTML DOM node
  * @returns {Object|false} Annotation object, or false if this node is not an annotation
  */
@@ -175,7 +175,7 @@ function getAnnotation( node ) {
 
 /**
  * Convert a string to (possibly annotated) linear model data
- * 
+ *
  * @param {String} content String to convert
  * @param {Array} annotations Array of annotation objects to apply
  * @returns {Array} Linear model data, one element per character
@@ -195,7 +195,7 @@ function generateAnnotatedContent( content, annotations ) {
 /**
  * Recursively convert an HTML DOM node to a linear model array. This is the
  * main function.
- * 
+ *
  * @param {Object} node HTML DOM node
  * @param {Array} [annotations] Annotations to apply. Only used for recursion.
  * @param {Object} [typeData] Information about the linear model element type corresponding to this node.
