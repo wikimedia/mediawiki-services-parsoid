@@ -367,6 +367,9 @@ namespace parsoid
             Tk back() {
                 return chunk.back();
             }
+            int size() const {
+                return chunk.size();
+            }
 
             // Expose the (const) embedded chunk for now, so that token
             // transform managers can get at it
