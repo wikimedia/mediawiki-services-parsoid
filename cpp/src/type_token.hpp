@@ -351,6 +351,11 @@ namespace parsoid
                 return rank;
             }
 
+            // Does the chunk end on EofTk?
+            bool isEof() {
+                return chunk.size() && chunk.back().type() == TokenType::Eof;
+            }
+
             // Overload append to handle both refcounted and stack-allocated
             // chunks.
             void append( const boost::intrusive_ptr<TokenChunk> chunkPtr ) {
@@ -363,6 +368,9 @@ namespace parsoid
             // The only two vector-like interfaces we need so far ;)
             void push_back( Tk tk ) {
                 chunk.push_back( tk );
+            }
+            void push_front( Tk tk ) {
+                chunk.push_front( tk );
             }
             Tk back() {
                 return chunk.back();
