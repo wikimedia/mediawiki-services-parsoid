@@ -1,8 +1,11 @@
 %{
 #include <vector>
 #include <iostream>
+#include <sstream>
+#include <algorithm>
 #include "parsoid_internal.hpp"
 using namespace std;
+using namespace boost;
 using namespace parsoid;
 
 // Actions are supposed to return this type as semantic value
@@ -87,28 +90,26 @@ h = & "=" # guard, to make sure '='+ will match.
         ( space+ | comment )*
         & eolf
         {
-            int sl = s.size();
-            int el = e.size();
+            int sl = s[0].getText().size();
+            int el = e[0].getText().size();
 
-            int rsl = sl > 6 ? 6 : sl;
-            int rel = el > 6 ? 6 : el;
+            int rsl = min( sl, 6 );
+            int rel = min( el, 6 );
+            int level = min( rsl, rel );
 
-            string tname;
+            stringstream out;
+            out << "h" << level;
 
             if ( el > rsl ) {
-                tname = "h" + rsl;
-
                 c.insert( c.begin(), mkText( string( el - rsl, '=' ) ) );
             }
 
-            if ( sl >= rel ) {
-                tname = "h" + rsl;
-
+            if ( sl > rel ) {
                 c.push_back( mkText( string( sl - rel, '=' ) ) );
             }
 
-            Tk headStart = mkStartTag( tname );
-            Tk headEnd = mkStartTag( tname );
+            Tk headStart = mkStartTag( out.str() );
+            Tk headEnd = mkEndTag( out.str() );
 
             headStart.setSourceRange( yypos, yypos + rsl );
             headEnd.setSourceRange( yypos + rsl + c.size(), yypos + rsl + c.size() + rel );
@@ -124,7 +125,7 @@ paragraph = sol sol inlineline
 
 equals = < "="+ > { $$ = vector<Tk>( 1, mkText( yytext ) ); }
 
-inlineline = < ( & { !ctx->tokenizer->syntaxBreak() } [^\r\n] )+ > { emit( mkText( yytext ) ); }
+inlineline = < ( & { !ctx->tokenizer->syntaxBreak() } [^\r\n] )+ > { $$ = vector<Tk>( 1, mkText( yytext ) ); }
 
 # Start of line
 sol = innersol comment* newline?
