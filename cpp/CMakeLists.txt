@@ -25,7 +25,7 @@ endif()
 set(
 	PARSOID_LIBS
 	parsoid
-	#boost_
+	pthread
 )
 set( envs PREFIX=${CMAKE_BINARY_DIR} )
 add_subdirectory( src )
