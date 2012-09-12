@@ -371,6 +371,14 @@ namespace parsoid
                 return chunk.size();
             }
 
+            string toString() {
+                string out;
+                for (Tk c: chunk) {
+                    out += c.toString();
+                }
+                return out;
+            }
+
             // Expose the (const) embedded chunk for now, so that token
             // transform managers can get at it
             const deque<Tk>& getChunk() {
