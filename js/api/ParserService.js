@@ -361,7 +361,7 @@ app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 		console.log('starting parsing of ' + req.params[0]);
 		// FIXME: This does not handle includes or templates correctly
-		env.text = src;
+		env.text = req.body.content;
 		parser.process( req.body.content.replace(/\r/g, '') );
 	} catch (e) {
 		console.log( e );
@@ -384,7 +384,7 @@ app.get( new RegExp('/_rt/(' + getInterwikiRE() + ')/(.*)'), function(req, res) 
 	}
 
 	var target = env.resolveTitle( env.normalizeTitle( env.pageName ), '' );
-	
+
 	console.log('starting parsing of ' + target);
 	var oldid = null;
 	if ( req.query.oldid ) {
@@ -410,7 +410,7 @@ app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)') , function(req, re
 	}
 
 	var target = env.resolveTitle( env.normalizeTitle( env.pageName ), '' );
-	
+
 	console.log('starting parsing of ' + target);
 	var oldid = null;
 	if ( req.query.oldid ) {
