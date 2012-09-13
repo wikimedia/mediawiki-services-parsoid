@@ -118,13 +118,16 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			}
 			break;
 		case EndTagTk:
-			this.emit('token', {type: 'EndTag',
-				name: token.name,
-				data: this._att(attribs)});
+			// not used since HTML5 tree builder strips this anyway
+			this.emit('token', {type: 'EndTag', name: token.name});
+			if (token.dataAttribs && token.dataAttribs.tsr) {
+				var attrs = this._att(attribs);
+				attrs.push({nodeName: "typeof", nodeValue: "mw:EndTag"});
+				this.emit('token', {type: 'StartTag', name: 'meta', data: attrs});
+			}
 			break;
 		case CommentTk:
-			this.emit('token', {type: 'Comment',
-				data: token.value});
+			this.emit('token', {type: 'Comment', data: token.value});
 			break;
 		case EOFTk:
 			this.emit('end');

@@ -461,15 +461,20 @@ var encapsulateTrees = function ( startElem, endElem, doc ) {
 			// Transfer start info to the first node that can receive it
 			// (only if our current start element is a meta!)
 			n = startElem;
-			while (n.nextSibling === null) {
-				n = n.parentNode;
-			}
-			n = n.nextSibling;
+			var next = n.nextSibling;
 
 			// SSS FIXME: Deal with comment and text nodes properly.
-			while (n.nodeType !== Node.ELEMENT_NODE) {
-				n = n.nextSibling;
+			while (next === null || next.nodeType !== Node.ELEMENT_NODE) {
+				while (next === null) {
+					n = n.parentNode;
+					next = n.nextSibling;
+				}
+				if (next.nodeType !== Node.ELEMENT_NODE) {
+					n = next;
+					next = n.nextSibling;
+				}
 			}
+			n = next;
 
 			var t1 = n.getAttribute("typeof"),
 				t2 = startElem.getAttribute("typeof");
@@ -568,6 +573,142 @@ var doEncapsulateTemplateOutput = function ( root, tpls, doc ) {
 	}
 };
 
+function update_tsr_info(env, root) {
+
+	// node  -- node to process
+	// [s,e) -- if defined, start/end position of wikitext source that generated
+	//          node's subtree
+	function process_node(node, s, e) {
+		var children = node.childNodes;
+		// cs, ce -- current child node's start / end source wt range
+		var cs = null, ce = e;
+		for (var n = children.length, i = n-1; i >= 0; i--) {
+			// ce for current child = cs of previous child
+			ce = cs;
+
+			var child = children[i];
+			var cType = child.nodeType;
+			// console.warn("---- Processing; " + child.nodeName + " with [" + cs + "," + ce + "]");
+			if (cType === Node.TEXT_NODE || cType === Node.COMMENT_NODE) {
+				if (ce) {
+					cs = ce - child.data.length;
+				}
+			} else if (cType === Node.ELEMENT_NODE) {
+
+				var cTypeOf = null,
+					dpStr = child.getAttribute("data-parsoid"),
+					dpObj = dpStr ? JSON.parse(dpStr) : {},
+					oldCE = dpObj.tsr ? dpObj.tsr[1] : null;
+
+				if (child.nodeName.toLowerCase() === "meta") {
+					// Unless they have been foster-parented meta tags
+					// of type mw:EndTag and mw:Object/* have valid tsr info.
+					cTypeOf = child.getAttribute("typeof");
+					if (cTypeOf === "mw:EndTag") {
+						cs = dpObj.tsr[1];
+						ce = dpObj.tsr[1];
+						node.removeChild(child);
+
+						// Nothing more to do!
+						continue;
+					} else if (cTypeOf.match(/\bmw:Object\//) && dpObj.tsr) {
+						// If this is a opening meta-marker tags (for templates, extensions),
+						// we have a new valid 'cs'.  This marker also effectively resets tsr
+						// back to the top-level wikitext source range from nested template
+						// source range.
+						cs = dpObj.tsr[0];
+						ce = dpObj.tsr[1];
+					}
+				} else {
+					// Non-meta tags
+					if (dpObj.tsr) {
+						cs = dpObj.tsr[0];
+						if (!ce || dpObj.tsr[1] > ce) {
+							ce = dpObj.tsr[1];
+						}
+					} else if (s && child.prevSibling === null) {
+						cs = s;
+					}
+
+					// Process DOM subtree rooted at child.
+					// We dont know the start/end ranges for the child node
+					// SSS FIXME: We can later infer this in many cases based
+					// on the child's node name.  For ex:
+					// * <p> tags in Wikitext are 0-wide
+					// * <a> tags in Wikitext are 2-wide
+					// * <pre> tags in Wikitext are 1-wide
+					// * <h4> tags in Wikitext are 4-wide
+					var new_tsr = process_node(child);
+
+					// Max(child-dom-tree tsr[1], current tsr[1])
+					if (new_tsr[1] && (!ce || new_tsr[1] > ce)) {
+						ce = new_tsr[1];
+					}
+
+					// NOTE: Careful! cs can be zero.  So, cannot use "!cs" to check
+					if (cs === undefined || cs === null || !ce) {
+						if (cs === undefined || cs === null) {
+							cs = new_tsr[0];
+						}
+						if (!ce) {
+							ce = new_tsr[1];
+						}
+					}
+				}
+
+				// NOTE: Careful! cs can be zero.  So, check for "cs" is insufficient
+				if (cs || cs === 0 || ce) {
+					// console.warn("---- UPDATING; " + child.nodeName + " with [" + cs + "," + ce + "]; typeof: " + cTypeOf);
+					dpObj.dsr = [cs, ce];
+				}
+
+				// Propagate any required changes to the right
+				if (ce && oldCE !== ce) {
+					var n = child.nextSibling;
+					var newCE = newCE;
+					while (n & newCE) {
+						var nType = n.nodeType;
+						if (nType === Node.COMMENT_NODE || nType === Node.TEXT_NODE) {
+							newCE = newCE + n.data.length;
+						} else if (nType === Node.ELEMENT_NODE) {
+							var str = n.getAttribute("data-parsoid");
+							var ndpObj = str ? JSON.parse(str) : {};
+							if (ndpObj.dsr && ndpObj.dsr[0] === newCE) {
+								break;
+							}
+
+							// Update and move right
+							if (!ndpObj.dsr) {
+								ndpObj.dsr = [];
+							}
+							// console.warn("CHANGING ce.start of " + n.nodeName + " from " + ndpObj.dsr[0] + " to " + newCE);
+							ndpObj.dsr[0] = newCE;
+							n.setAttribute("data-parsoid", JSON.stringify(ndpObj));
+							newCE = ndpObj.dsr[1];
+						} else {
+							break;
+						}
+						n = n.nextSibling;
+					}
+				}
+
+				if (Object.keys(dpObj).length > 0) {
+					child.setAttribute("data-parsoid", JSON.stringify(dpObj));
+				}
+			}
+		}
+
+		// Detect errors
+		if (s && cs && cs !== s) {
+			console.error("--- done with " + node.nodeName + " s: " + s + "; cs: " + cs);
+		}
+
+		return [cs || s, ce];
+	}
+
+	process_node(root, 0, env.text.length);
+};
+
 /**
  * Encapsulate template-affected DOM structures by wrapping text nodes into
  * spans and adding RDFa attributes to all subtree roots according to
@@ -580,8 +721,10 @@ var encapsulateTemplateOutput = function ( document ) {
 };
 
 
-function DOMPostProcessor () {
+function DOMPostProcessor(env, options) {
+	this.env = env;
 	this.processors = [
+		update_tsr_info.bind(null, env),
 		process_inlines_in_p,
 		remove_trailing_newlines_from_paragraphs,
 		normalize_document,

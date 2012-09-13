@@ -305,6 +305,15 @@ TemplateHandler.prototype._onChunk = function( state, cb, chunk ) {
 		env.tracer.startPass("TemplateHandler:onChunk (" + state.token.toString(true) + ")");
 	}
 	chunk = Util.stripEOFTkfromTokens( chunk );
+
+/**
+	for (var i = 0, n = chunk.length; i < n; i++) {
+		if (chunk[i].dataAttribs) {
+			chunk[i].dataAttribs.tsr = null;
+		}
+	}
+**/
+
 	if (this.options.wrapTemplates) {
 		if ( ! state.emittedFirstChunk ) {
 			chunk = this.addEncapsulationInfo(state, chunk );

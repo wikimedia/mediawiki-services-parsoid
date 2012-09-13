@@ -99,7 +99,7 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 		var newAttrs = buildLinkAttrs(attribs, true, null, [new KV('rel', 'mw:WikiLink')]);
 		var content = newAttrs.content;
 		var obj = new TagTk( 'a', newAttrs.attribs, Util.clone(token.dataAttribs));
-
+		obj.dataAttribs.src = undefined; // clear src string since we can serialize this
 		obj.addNormalizedAttribute( 'href', title.makeLink(), href );
 		//console.warn('content: ' + JSON.stringify( content, null, 2 ) );
 

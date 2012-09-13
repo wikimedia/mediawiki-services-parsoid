@@ -4,6 +4,8 @@
  * @author Gabriel Wicke <gwicke@wikimedia.org>
  */
 
+Util = require('./mediawiki.Util.js').Util;
+
 function QuoteTransformer ( dispatcher ) {
 	this.reset();
 	this.register( dispatcher );
@@ -254,9 +256,12 @@ QuoteTransformer.prototype.quotesToTags = function ( chunks, name ) {
 		//console.warn( 'quotesToTags t: ' + JSON.stringify( t, null, 2));
 
 		if(toggle) {
-			chunks[j][0] = new TagTk( name, t.attribs );
+			chunks[j][0] = new TagTk( name, t.attribs, {} );
 		} else {
-			chunks[j][0] = new EndTagTk( name, t.attribs );
+			chunks[j][0] = new EndTagTk( name, t.attribs, {} );
+		}
+		if (t.dataAttribs && t.dataAttribs.tsr) {
+			chunks[j][0].dataAttribs.tsr = Util.clone(t.dataAttribs.tsr);
 		}
 		toggle = !toggle;
 	}
