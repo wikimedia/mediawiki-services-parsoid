@@ -1188,17 +1188,27 @@ pre_indent_line = space l:inlineline {
 pre
   = "<pre" 
     attribs:generic_attribute* 
-    ">"
+    endpos:(">" { return pos})
     // MediaWiki <pre> is special in that it converts all pre content to plain
     // text.
     ts:(t1:[^<]+ { return t1.join('') } 
                 / nowiki 
                 / !"</pre>" t2:. { return t2 })+ 
     ("</pre>" / eof) {
+        var firstTok = ts[0];
+        if (firstTok.constructor === String && firstTok.match(/\n/)) {
+            // Strip leading newline from the token
+            ts.shift();
+            if (firstTok.length > 1) {
+                ts.unshift(firstTok.substr(1));
+            }
+            // Re-add it with protection
+            ts.unshift(new EndTagTk( 'span' ));
+            ts.unshift("\n");
+            ts.unshift(new TagTk( 'span', [ new KV( 'typeof', 'mw:Placeholder' ) ], { src: '\n' } ));
+        }
         // return nowiki tags as well?
-        //console.warn('inpre');
-        // FIXME: end pos of start tag
-        return [ new TagTk( 'pre', attribs, { stx: 'html', tsr: [pos0, pos0 + 5] } ) ] 
+        return [ new TagTk( 'pre', attribs, { stx: 'html', tsr: [pos0, endpos] } ) ] 
                     .concat(ts, [ new EndTagTk( 'pre', [], { tsr: [pos - 6, pos] } ) ]);
     }
   / "</pre>" { return "</pre>"; }
