@@ -105,6 +105,10 @@ testWhiteList["External links: wiki links within external link (Bug 3695)"] = "<
 // might be history by now. XXX: Check this!
 testWhiteList["Link containing % as a double hex sequence interpreted to hex sequence"] = "<p><a rel=\"mw:WikiLink\" href=\"7%2525_Solution\" data-parsoid=\"{&quot;tsr&quot;:[0,19],&quot;contentPos&quot;:[0,19],&quot;src&quot;:&quot;[[7%2525 Solution]]&quot;,&quot;bsp&quot;:[0,19],&quot;a&quot;:{&quot;href&quot;:&quot;7%2525_Solution&quot;},&quot;sa&quot;:{&quot;href&quot;:&quot;7%2525 Solution&quot;},&quot;stx&quot;:&quot;simple&quot;}\">7%25 Solution</a></p>";
 
+// This is a test for stripping IDN ignored characters out of a link. The expected result (apparently) is that the IDN character
+// should not be present in the text of the link. But Gabriel and Mark decided that that made very little sense. Hence, whitelist.
+testWhiteList["External links: IDN ignored character reference in hostname; strip it right off"] = "<p><a rel=\"mw:ExtLink/URL\" href=\"http://example.com/\">http://e‌xample.com/</a></p>";
+
 if (typeof module == "object") {
 	module.exports.testWhiteList = testWhiteList;
 }

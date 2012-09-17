@@ -29,7 +29,8 @@ function TagTk( name, attribs, dataAttribs ) {
  * Private helper for genericTokenMethods
  */
 var setShadowInfo = function ( name, value, origValue ) {
-	if ( value !== origValue ) {
+	// Don't shadow if value is the same or the orig is null
+	if ( value !== origValue && origValue !== null ) {
 		if ( ! this.dataAttribs.a ) {
 			this.dataAttribs.a = {};
 		}

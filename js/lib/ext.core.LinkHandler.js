@@ -440,16 +440,15 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 	var env = this.manager.env,
 		tagAttrs,
 		builtTag,
-		href = Util.sanitizeURI( Util.tokensToString( Util.lookupKV( token.attribs, 'href' ).v ) ),
+		href = Util.sanitizeURI( Util.tokensToString( Util.lookup( token.attribs, 'href' ) ) ),
 		modTxt = false,
+		origTxt = token.getWTSource( env ),
 		txt = href;
 
 	if ( SanitizerConstants.IDN_RE.test( txt ) ) {
 		// Make sure there are no IDN-ignored characters in the text so the
 		// user doesn't accidentally copy any.
 		txt = Sanitizer._stripIDNs( txt );
-		// Notify the rest of the code that we've monkeyed with the text.
-		modTxt = true;
 	}
 
 	if ( this._isImageLink( href ) ) {
@@ -477,7 +476,7 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 
 		// Since we messed with the text of the link, we need
 		// to preserve the original in the RT data. Or else.
-		builtTag.addNormalizedAttribute( 'href', txt, href );
+		builtTag.addNormalizedAttribute( 'href', txt, origTxt );
 
 		cb( {
 			tokens: [
