@@ -1188,7 +1188,7 @@ pre_indent_line = space l:inlineline {
 pre
   = "<pre" 
     attribs:generic_attribute* 
-    endpos:(">" { return pos})
+    endpos:(">" { return pos })
     // MediaWiki <pre> is special in that it converts all pre content to plain
     // text.
     ts:(t1:[^<]+ { return t1.join('') } 
@@ -1507,9 +1507,9 @@ dtdd
                     tsr: [pos0, pos0 + bullets.length]
                 }   );
         li.bullets = bullets + ";";
-        var li2 = new TagTk( 'listItem', [],  
+        var li2 = new TagTk( 'listItem', [],
                 { 
-                    tsr: [cpos, cpos+1], 
+                    tsr: [cpos-1, cpos],
                     stx: 'row'
                 }   );
         li2.bullets = bullets + ":";
@@ -1627,8 +1627,9 @@ table_data_tag
             a = [];
         }
         //console.warn("table data result: " + pp(td) + ", attribs: " + pp(a));
-        return [ new TagTk( 'td', a, {tsr: [pos0, tagEndPos]} )]
-                    .concat( td );
+        var tokens = [new TagTk( 'td', a, {tsr: [pos0, tagEndPos]} )].concat( td );
+        tokens.push(new EndTagTk('td', [], {tsr: [pos, pos]}));
+        return tokens;
     }
 
 table_heading_tags

@@ -63,7 +63,7 @@ QuoteTransformer.prototype.onQuote = function ( token, frame, prevToken ) {
 			frame: frame,
 			prevToken: prevToken
 		};
-	
+
 
 	if ( ! this.isActive ) {
 		this.dispatcher.addTransform( this.onNewLine.bind(this), "QuoteTransformer:onNewLine",
@@ -118,7 +118,7 @@ QuoteTransformer.prototype.onQuote = function ( token, frame, prevToken ) {
 			this.bolds.push(this.currentChunk);
 			break;
 	}
-	
+
 	return {};
 };
 
@@ -261,7 +261,13 @@ QuoteTransformer.prototype.quotesToTags = function ( chunks, name ) {
 			chunks[j][0] = new EndTagTk( name, t.attribs, {} );
 		}
 		if (t.dataAttribs && t.dataAttribs.tsr) {
-			chunks[j][0].dataAttribs.tsr = Util.clone(t.dataAttribs.tsr);
+			// Verify if we the tsr value is accurate
+			// SSS FIXME: We could potentially adjust tsr based on length
+			// but dont know yet whether to fix tsr[0] or tsr[1]
+			var tsr = t.dataAttribs.tsr;
+			if (tsr[1] - tsr[0] === name.length) {
+					chunks[j][0].dataAttribs.tsr = Util.clone(tsr);
+			}
 		}
 		toggle = !toggle;
 	}
