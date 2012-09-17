@@ -1,6 +1,6 @@
 /*
  * FIXME: As per Gabriel's suggestion, a better solution would be
- * to replace the pre_indent production in the tokenizer and 
+ * to replace the pre_indent production in the tokenizer and
  * handle it completely in the token stream transformer when more
  * complete info is available.  This gets rid of incorrect handling
  * in the tokenizer and fixup later on.
@@ -27,7 +27,7 @@ PreHandler.prototype.onPre = function ( token, manager, cb ) {
 			this.collecting = true;
 			this.manager.addTransform(this.onAny.bind( this ), "PreHandler:onAny", this.anyRank, 'any');
 			return { tokens: null };
-		} else { 
+		} else {
 			return { tokens: [token] };
 		}
 	} else if (this.collecting) {
@@ -53,6 +53,9 @@ PreHandler.prototype.onPre = function ( token, manager, cb ) {
 					strip = false;
 					break;
 				}
+			} else if (t.isHTMLTag() && Util.isBlockTag(t.name)) {
+				// Done -- a block tag starts a new line
+				break;
 			} else if (tc !== CommentTk && (tc !== SelfclosingTagTk || t.name !== 'meta')) {
 				// Non-meta tag.  No stripping
 				strip = false;
@@ -62,6 +65,19 @@ PreHandler.prototype.onPre = function ( token, manager, cb ) {
 
 		if (strip) {
 			this.tokens.shift();
+			// SSS FIXME: This white space should be discarded in certain
+			// contexts like tables (right now, these get fostered out of the
+			// table and become significant ws instead of non-significant ws.)
+			//
+			// <table>
+			//   <tr>
+			//     <td> foo </td>
+			//   </td>
+			// </table>
+			//
+			// This is probably the reason for ton of white-space in the
+			// beginning of parsed output of pages like :en:Barack_Obama
+			//
 			// Insert a placeholder span with a single space
 			// so we dont lose the leading space in RT-ing
 			this.tokens.unshift(new EndTagTk('span'));
