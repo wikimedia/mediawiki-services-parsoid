@@ -2,11 +2,17 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
-#include <algorithm>
 #include "parsoid_internal.hpp"
-using namespace std;
-using namespace boost;
 using namespace parsoid;
+using std::stringstream;
+using std::string;
+using std::vector;
+using std::min;
+using std::max;
+
+// Wrap the tokenizer in its own sub-namespace
+namespace parsoid{
+namespace WTTokenizer {
 
 // Actions are supposed to return this type as semantic value
 #define YYSTYPE vector<Tk>
@@ -157,3 +163,8 @@ newline = '\n' | '\r\n'
 # * Start a new current accumulator, push old one on stack
 # * In main action: pop & concat
 StartChunk = &. { pushScope(); }
+
+%%
+
+} // namespace WTTokenizer
+} // namespace parsoid
