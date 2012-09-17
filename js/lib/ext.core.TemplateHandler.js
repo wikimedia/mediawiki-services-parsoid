@@ -268,13 +268,12 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 				// XXX: handle id/about conflicts
 
 				// clone token and update attributes
-				chunk.shift();
 				firstToken = firstToken.clone();
 				firstToken.addSpaceSeparatedAttribute( 'typeof', 'mw:Object/Template' );
 				firstToken.setAttribute( 'about', '#' + state.templateId );
 				firstToken.setAttribute( 'id', state.templateId );
 				firstToken.dataAttribs.src = src;
-				chunk.unshift(firstToken);
+				chunk[0] = firstToken;
 
 				// add about ref to all tables
 				return this.addAboutToTableElements( state, chunk );
@@ -306,12 +305,12 @@ TemplateHandler.prototype._onChunk = function( state, cb, chunk ) {
 	}
 	chunk = Util.stripEOFTkfromTokens( chunk );
 
-/**
 	for (var i = 0, n = chunk.length; i < n; i++) {
 		if (chunk[i].dataAttribs) {
-			chunk[i].dataAttribs.tsr = null;
+			chunk[i].dataAttribs.tsr = undefined;
 		}
 	}
+/**
 **/
 
 	if (this.options.wrapTemplates) {
@@ -321,6 +320,15 @@ TemplateHandler.prototype._onChunk = function( state, cb, chunk ) {
 		} else {
 			chunk = this.addAboutToTableElements( state, chunk );
 		}
+	} else {
+		// Ignore comments in template transclusion mode
+		var newChunk = [];
+		for (var i = 0, n = chunk.length; i < n; i++) {
+			if (chunk[i].constructor !== CommentTk) {
+				newChunk.push(chunk[i]);
+			}
+		}
+		chunk = newChunk;
 	}
 
 	env.dp( 'TemplateHandler._onChunk', chunk );

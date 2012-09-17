@@ -87,6 +87,7 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 		}
 	}
 
+	// console.warn("T: " + JSON.stringify(token));
 	switch( token.constructor ) {
 		case String:
 			if ( token.match(/^[ \t\r\n\f]+$/) ) {

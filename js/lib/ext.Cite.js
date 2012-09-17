@@ -62,20 +62,24 @@ Cite.prototype.handleRef = function ( tokens ) {
 
 	var refId = "#mwt" + this.manager.env.generateUID(),
 	    text  = this.manager.env.text,
-		start = startTsr[0],
-		end   = endTsr ? endTsr[1] : text.length;
-	var res = [
-		new TagTk('span', [
+		span  = new TagTk('span', [
 				new KV('id', linkback),
 				new KV('class', 'reference'),
 				new KV('about', refId),
 				new KV('typeof', 'mw:Object/Ext/Cite')
-			],
-			{
-				tsr: [start, end],
-				src: endTsr ? text.substring(start, end) : text.substring(start)
-			}
-		),
+			]);
+
+	if (startTsr) {
+		var start = startTsr[0],
+			end   = endTsr ? endTsr[1] : text.length;
+		span.dataAttribs = {
+			tsr: [start, end],
+			src: endTsr ? text.substring(start, end) : text.substring(start)
+		};
+	}
+
+	var res = [
+		span,
 		new TagTk( 'a', [
 				new KV('href', '#' + ref.target)
 			]
@@ -104,15 +108,15 @@ Cite.prototype.onReferences = function ( token, manager ) {
 	if ( token.constructor === EndTagTk ) {
 		return {};
 	}
-	
+
 	//console.warn( 'references refGroups:' + JSON.stringify( this.refGroups, null, 2 ) );
 
 	var refGroups = this.refGroups;
-	
+
 	var arrow = '↑';
 	var renderLine = function( ref ) {
 		var out = [ new TagTk('li', [new KV('id', ref.target)] ) ];
-		if (ref.linkbacks.length == 1) {
+		if (ref.linkbacks.length === 1) {
 			out = out.concat([
 					new TagTk( 'a', [
 								new KV('href', '#' + ref.linkbacks[0])
@@ -147,7 +151,7 @@ Cite.prototype.onReferences = function ( token, manager ) {
 		//console.warn( 'renderLine res: ' + JSON.stringify( out, null, 2 ));
 		return out;
 	};
-	
+
 	var res;
 
 	var options = $.extend({
@@ -217,6 +221,6 @@ Cite.prototype.getRefGroup = function(group) {
 	return refGroups[group];
 };
 
-if (typeof module == "object") {
+if (typeof module === "object") {
 	module.exports.Cite = Cite;
 }

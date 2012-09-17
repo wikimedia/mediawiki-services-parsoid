@@ -64,7 +64,6 @@ QuoteTransformer.prototype.onQuote = function ( token, frame, prevToken ) {
 			prevToken: prevToken
 		};
 
-
 	if ( ! this.isActive ) {
 		this.dispatcher.addTransform( this.onNewLine.bind(this), "QuoteTransformer:onNewLine",
 				this.quoteAndNewlineRank, 'newline' );
@@ -265,9 +264,7 @@ QuoteTransformer.prototype.quotesToTags = function ( chunks, name ) {
 			// SSS FIXME: We could potentially adjust tsr based on length
 			// but dont know yet whether to fix tsr[0] or tsr[1]
 			var tsr = t.dataAttribs.tsr;
-			if (tsr[1] - tsr[0] === name.length) {
-					chunks[j][0].dataAttribs.tsr = Util.clone(tsr);
-			}
+			chunks[j][0].dataAttribs.tsr = Util.clone(tsr);
 		}
 		toggle = !toggle;
 	}

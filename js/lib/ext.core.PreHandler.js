@@ -65,9 +65,10 @@ PreHandler.prototype.onPre = function ( token, manager, cb ) {
 
 		if (strip) {
 			this.tokens.shift();
-			// SSS FIXME: This white space should be discarded in certain
-			// contexts like tables (right now, these get fostered out of the
-			// table and become significant ws instead of non-significant ws.)
+			// SSS FIXME: Worth creating a white-space token so that
+			// the token can be discarded from certain contexts like
+			// tables (right now, these get fostered out of the table
+			// and become significant ws instead of non-significant ws.)
 			//
 			// <table>
 			//   <tr>
