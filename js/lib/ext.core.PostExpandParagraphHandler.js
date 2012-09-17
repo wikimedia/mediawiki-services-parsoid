@@ -10,7 +10,7 @@ var u = require('./mediawiki.Util.js').Util;
 
 function PostExpandParagraphHandler ( dispatcher ) {
 	this.tokens = [];
-	this.newLines = 0;
+	this.newLineCount = 0;
 	this.register( dispatcher );
 }
 
@@ -32,8 +32,8 @@ PostExpandParagraphHandler.prototype.register = function ( dispatcher ) {
 
 PostExpandParagraphHandler.prototype.reset = function ( token, frame, cb ) {
 	//console.warn( 'PostExpandParagraphHandler.reset ' + JSON.stringify( this.tokens ) );
-	if ( this.newLines ) {
-		this.tokens.push( [token] );
+	if ( this.newLineCount ) {
+		this.tokens.push( token );
 		return this._finish();
 	} else {
 		return [token];
@@ -45,7 +45,7 @@ PostExpandParagraphHandler.prototype._finish = function ( ) {
 	this.tokens = [];
 	// remove 'any' registration
 	this.dispatcher.removeTransform( this.anyRank, 'any' );
-	this.newLines = 0;
+	this.newLineCount = 0;
 	return tokens;
 };
 
@@ -54,14 +54,14 @@ PostExpandParagraphHandler.prototype._finish = function ( ) {
 PostExpandParagraphHandler.prototype.onNewLine = function (  token, frame, cb ) {
 	//console.warn( 'PostExpandParagraphHandler.onNewLine: ' + JSON.stringify( token, null , 2 ) );
 	var res;
-	this.tokens.push( [ token ] );
+	this.tokens.push(token);
 
-	if( ! this.newLines ) {
+	if (! this.newLineCount ) {
 		this.dispatcher.addTransform( this.onAny.bind(this), "PostExpandParagraphHandler:onAny",
 				this.anyRank, 'any' );
 	}
 
-	this.newLines++;
+	this.newLineCount++;
 	return {};
 };
 
@@ -78,40 +78,53 @@ PostExpandParagraphHandler.prototype.onAny = function ( token, frame, cb ) {
 	)
 	{
 		// Continue with collection..
-		this.tokens.last().push( token );
+		this.tokens.push( token );
 		return {};
 	} else {
+		function popStashedTokens(tokens, pTks) {
+			var t = tokens.shift();
+			// Ignore newline and whitespace line tokens
+			while (t.constructor !== NlTk) {
+				if (t.constructor === SelfclosingTagTk) {
+					pTks.push(t);
+				}
+				t = tokens.shift();
+			}
+		}
+
 		// None of the tokens we are interested in, so abort processing..
 		//console.warn( 'PostExpandParagraphHandler.onAny: ' + JSON.stringify( this.tokens, null , 2 ) );
-		if ( this.newLines >= 2 && ! u.isBlockToken( token ) ) {
+		if ( this.newLineCount >= 2 && ! u.isBlockToken( token ) ) {
 			// move newline tokens out of the paragraph
 			var pTks = [],
-				newLines = this.newLines;
-			while ( newLines >= 4 ) {
-				// insert <p><br></p> sections
-				pTks = pTks.concat(
-						this.tokens.shift(),
-						this.tokens.shift(),
-						[
-							// mark this as a placeholder for now until the
-							// editor handles this properly
-							new TagTk( 'p', [new KV('typeof', 'mw:Placeholder')] )
-						],
-						this.tokens.shift(),
-						[
-							new SelfclosingTagTk('br'),
-							new EndTagTk( 'p' )
-						]
-						);
-				newLines -= 3;
+				newLineCount = this.newLineCount;
+			while ( newLineCount >= 4 ) {
+				// Insert <p><br></p> sections
+				popStashedTokens(this.tokens, pTks);
+				popStashedTokens(this.tokens, pTks);
+				// mark this as a placeholder for now until the
+				// editor handles this properly
+				pTks.push(new TagTk( 'p', [new KV('typeof', 'mw:Placeholder')] ));
+				popStashedTokens(this.tokens, pTks);
+				pTks.push(new SelfclosingTagTk('br'));
+				pTks.push(new EndTagTk('p'));
+				newLineCount -= 3;
 			}
 
-			pTks = Array.prototype.concat.apply( pTks, this.tokens.splice(0,2) );
-			pTks.push( new TagTk( 'p' ) );
-			if ( newLines === 3 ) {
-				pTks = pTks.concat( this.tokens.shift() );
-				pTks.push( new SelfclosingTagTk( 'br' ) );
+			// SSS FIXME: Ideally, all significant newlines should be
+			// be <br/>s.  But that breaks compatibility with the php parser.
+			popStashedTokens(this.tokens, pTks);
+			pTks.push(new NlTk());
+			if (newLineCount >= 2) {
+				popStashedTokens(this.tokens, pTks);
+				pTks.push(new NlTk());
+				pTks.push(new TagTk('p'));
+				if (newLineCount === 3) {
+					popStashedTokens(this.tokens, pTks);
+					pTks.push( new SelfclosingTagTk( 'br' ) );
+				}
 			}
+
 			var res = { tokens: pTks.concat( this._finish(), [token] ) };
 			//console.warn( 'insert p:' + JSON.stringify( res, null, 2 ) );
 			return res;
