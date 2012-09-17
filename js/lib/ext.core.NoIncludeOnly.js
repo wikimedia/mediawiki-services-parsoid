@@ -8,6 +8,29 @@
 var TokenCollector = require( './ext.util.TokenCollector.js' ).TokenCollector;
 
 /**
+ * This helper function will build a meta token in the right way for these
+ * tags.
+ */
+var buildMetaToken = function ( manager, tokenName, isEnd, tsr ) {
+	var metaToken, tokenAttribs;
+
+	if ( isEnd ) {
+		tokenName += '/End';
+	}
+
+	tokenAttribs = [ new KV( 'typeof', tokenName ) ];
+	metaToken = new SelfclosingTagTk( 'meta', tokenAttribs );
+
+	if ( tsr ) {
+		metaToken.dataAttribs.tsr = tsr;
+		metaToken.dataAttribs.src = metaToken.getWTSource( manager.env );
+	}
+
+	return metaToken;
+};
+
+
+/**
  * OnlyInclude sadly forces synchronous template processing, as it needs to
  * hold onto all tokens in case an onlyinclude block is encountered later.
  * This can fortunately be worked around by caching the tokens after
@@ -31,13 +54,17 @@ function OnlyInclude( manager, options ) {
 OnlyInclude.prototype.rank = 0.01; // Before any further processing
 
 OnlyInclude.prototype.onOnlyInclude = function ( token, manager ) {
-	var meta = new TagTk( 'meta' );
-	meta.dataAttribs = { strippedTokens: [token] };
+	var attribs = [
+			new KV( 'typeof', 'mw:OnlyInclude' + ( token instanceof EndTagTk ? '/End' : '' ) )
+		],
+		meta = new SelfclosingTagTk( 'meta', attribs );
 	return { token: meta };
 };
 
 OnlyInclude.prototype.onAnyInclude = function ( token, manager ) {
 	//this.manager.env.dp( 'onAnyInclude', token, this );
+	var isTag, tagName, buiMeTo, meta;
+
 	if ( token.constructor === EOFTk ) {
 		this.inOnlyInclude = false;
 		if ( this.accum.length && ! this.foundOnlyInclude ) {
@@ -51,24 +78,37 @@ OnlyInclude.prototype.onAnyInclude = function ( token, manager ) {
 			this.accum = [];
 			return { token: token };
 		}
-	} else if ( ( token.constructor === TagTk ||
-				token.constructor === EndTagTk ||
-				token.constructor === SelfclosingTagTk ) &&
-			token.name === 'onlyinclude' ) {
-		var meta;
+	}
+
+	isTag = token.constructor === TagTk ||
+			token.constructor === EndTagTk ||
+			token.constructor === SelfclosingTagTk;
+
+	if ( isTag ) {
+		switch ( token.name ) {
+			case 'onlyinclude':
+				tagName = 'mw:OnlyInclude';
+				break;
+			case 'includeonly':
+				tagName = 'mw:IncludeOnly';
+				break;
+			case 'noinclude':
+				tagName = 'mw:NoInclude';
+		}
+	}
+
+	buiMeTo = buildMetaToken.bind( null, manager, tagName );
+
+	if ( isTag && token.name === 'onlyinclude' ) {
 		if ( ! this.inOnlyInclude ) {
 			this.foundOnlyInclude = true;
 			this.inOnlyInclude = true;
 			// wrap collected tokens into meta tag for round-tripping
-			meta = new TagTk( 'meta' );
-			this.accum.push( token );
-			meta.dataAttribs = { strippedTokens: this.accum };
-			this.accum = [];
+			meta = buiMeTo( token.constructor === EndTagTk );
 			return meta;
 		} else {
 			this.inOnlyInclude = false;
-			meta = new TagTk( 'meta' );
-			meta.dataAttribs = { strippedTokens: [token] };
+			meta = buiMeTo( token.constructor === EndTagTk );
 		}
 		//meta.rank = this.rank;
 		return { token: meta };
@@ -88,16 +128,16 @@ function NoInclude( manager, options ) {
 	new TokenCollector(
 			manager,
 			function ( tokens ) {
+				var buiMeTo = buildMetaToken.bind( null, manager, 'mw:NoInclude' );
 				if ( options.isInclude ) {
 					//manager.env.tp( 'noinclude stripping' );
 					return {};
 				} else {
-					tokens.shift();
-					if ( tokens.length &&
-						tokens[tokens.length - 1].constructor !== EOFTk ) {
-						tokens.pop();
-					}
-					return { tokens: tokens };
+					return { tokens: [
+						buiMeTo( false ),
+						( tokens.length > 1 && ! ( tokens[1] instanceof EOFTk) ) ? tokens[1] : '',
+						buiMeTo( true )
+					] };
 				}
 			}, // just strip it all..
 			true, // match the end-of-input if </noinclude> is missing
@@ -113,6 +153,7 @@ function IncludeOnly( manager, options ) {
 	new TokenCollector(
 			manager,
 			function ( tokens ) {
+				var buiMeTo = buildMetaToken.bind( null, manager, 'mw:IncludeOnly', false ), ioText = '';
 				if ( options.isInclude ) {
 					tokens.shift();
 					if ( tokens.length &&
@@ -122,7 +163,9 @@ function IncludeOnly( manager, options ) {
 					return { tokens: tokens };
 				} else {
 					manager.env.tp( 'includeonly stripping' );
-					return {};
+					return { tokens: [
+						buiMeTo( [tokens[0].dataAttribs.tsr[0], tokens[tokens.length-1].dataAttribs.tsr[1]] )
+					] };
 				}
 			},
 			true, // match the end-of-input if </noinclude> is missing
