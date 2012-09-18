@@ -195,7 +195,7 @@ var refineDiff = function ( diff ) {
 var roundTripDiff = function ( req, res, src, document ) {
 	var env = getParserEnv();
 	var out, patch;
-	res.write('<html><head><style>ins { background: #ff9191; text-decoration: none; } del { background: #99ff7e; text-decoration: none }; </style></head><body>');
+	res.write('<html><head><script type="text/javascript" src="/jquery.js"></script><script type="text/javascript" src="/scrolling.js"></script><style>ins { background: #ff9191; text-decoration: none; } del { background: #99ff7e; text-decoration: none }; </style></head><body>');
 	res.write( '<h2>Wikitext parsed to HTML DOM</h2><hr>' );
 	res.write(document.body.innerHTML + '<hr>');
 	res.write( '<h2>HTML DOM converted back to Wikitext</h2><hr>' );
@@ -206,7 +206,7 @@ var roundTripDiff = function ( req, res, src, document ) {
 		return;
 	}
 	res.write('<pre>' + htmlSpecialChars( out ) + '</pre><hr>\n');
-	res.write( '<h2>Diff between original Wikitext (green) and round-tripped wikitext (red)</h2><hr>\n' );
+	res.write( '<h2>Diff between original Wikitext (green) and round-tripped wikitext (red)</h2><p>(use shift+alt+n and shift+alt+p to navigate forward and backward)<hr>\n' );
 	src = src.replace(/\n(?=\n)/g, '\n ');
 	out = out.replace(/\n(?=\n)/g, '\n ');
 	//console.log(JSON.stringify( jsDiff.diffLines( out, src ) ));
@@ -497,6 +497,8 @@ app.post(/\/(.*)/, function ( req, res ) {
 		res.write.bind( res ) );
 	res.end('');
 });
+
+app.use( express.static( __dirname + '/scripts' ) );
 
 console.log( ' - ' + instanceName + ' ready' );
 
