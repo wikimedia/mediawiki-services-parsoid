@@ -1,12 +1,17 @@
 ( function ( $ ) {
 	$( document ).ready( function () {
-		var curDiff, $nxtbtn = $( '<button>' )
+		var curDiff, getDiffs = function () {
+				return $( 'ins, del' ).filter( function () {
+					var $this = $( this );
+					return ( $this.is( 'ins' ) || !$this.prev().is( 'ins' ) );
+				} );
+			}, $nxtbtn = $( '<button>' )
 			.addClass( 'parsoid-nextdiff' )
 			.css( 'display', 'none' )
 			.attr( 'accesskey', 'n' )
 			.click( function () {
 				var foundCur = curDiff === undefined;
-				$( 'ins' ).each( function ( i ) {
+				getDiffs().each( function ( i ) {
 					if ( foundCur ) {
 						$( 'html, body' ).animate( {
 							scrollTop: $( this ).offset().top
@@ -22,7 +27,7 @@
 			.attr( 'accesskey', 'p' )
 			.click( function () {
 				var foundCur = curDiff === undefined;
-				var revlist = $( 'ins' ).get().reverse();
+				var revlist = getDiffs().get().reverse();
 				$( revlist ).each( function ( i ) {
 					i = revlist.length - 1 - i;
 					if ( foundCur ) {
