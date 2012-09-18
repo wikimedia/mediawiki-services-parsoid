@@ -319,10 +319,6 @@ var process_inlines_in_p = function ( document ) {
 			deleted++;
 		} else if (inParagraph) {
 			body.insertBefore(newP, child);
-/*
-			var dsr = computeNodeDSR(newP);
-			newP.setAttribute("data-parsoid", JSON.stringify({dsr: dsr}));
-*/
 			deleted--;
 			newP = document.createElement('p');
 			inParagraph = false;
@@ -333,7 +329,6 @@ var process_inlines_in_p = function ( document ) {
 		body.appendChild(newP);
 	}
 };
-
 
 /**
  * Remove trailing newlines from paragraph content (and move them to
@@ -414,7 +409,7 @@ var getDOMRange = function ( doc, startElem, endElem ) {
 	}
 
 	var updateDP = false;
-	var tcStart = res.start, tcEnd = res.end;
+	var tcStart = res.start;
 
 	// Skip meta-tags
 	if (tcStart === startElem && startElem.nodeName.toLowerCase() === "meta") {
@@ -434,28 +429,6 @@ var getDOMRange = function ( doc, startElem, endElem ) {
 		res.start = tcStart;
 		updateDP = true;
 	}
-
-/**
- * I added this to work around other bugs y'day.
- * Not needed anymore -- it introduces unnecessary errors.
- * Keeping around if this becomes necessary in the future.
- *
-	// Skip meta-tags
-	if (tcEnd === endElem && endElem.nodeName.toLowerCase() === "meta") {
-		tcEnd = tcEnd.previousSibling;
-		res.end = tcEnd;
-		updateDP = true;
-	}
-
-	// Ensure range.end is an element node
-	if (tcEnd.nodeType === Node.COMMENT_NODE || tcEnd.nodeType === Node.TEXT_NODE) {
-		// wrap tcEnd in a span.
-		span = doc.createElement('span');
-		tcEnd.parentNode.insertBefore(span, tcEnd);
-		span.appendChild(tcEnd);
-		res.end = span;
-	}
-**/
 
 	if (updateDP) {
 		tcStart.setAttribute("data-parsoid", startElem.getAttribute("data-parsoid"));
@@ -519,10 +492,6 @@ var encapsulateTrees = function ( env, startElem, endElem, doc ) {
 */
 
 		// Update dsr and compute src based on dsr.  Not possible always.
-		//   Ex: a{{echo|x<p>y</p>z}}b
-		// In the above example, output is <p>ax</p><p>y</p><p>zb</p>
-		// so, <p>ax</p> and <p>zb</p> cannot have valid dsrs because of
-		// mixed non-template and template content.
 		var dp1 = tcStart.getAttribute("data-parsoid");
 		var dp2 = tcEnd.getAttribute("data-parsoid");
 		var done = false;
@@ -546,7 +515,15 @@ var encapsulateTrees = function ( env, startElem, endElem, doc ) {
 			}
 		}
 
-/***
+/*
+		if (!done) {
+			console.warn("Do not have necessary info. for comput DSR for node");
+			console.warn("------ START: ------");
+			console.warn(tcStart.outerHTML);
+			console.warn("------ END: ------");
+			console.warn(tcEnd.outerHTML);
+		}
+
 		// Compute 'src' value by ascending up the tree
 		// * from startElem -> tcStart
 		// * from endElem --> tcEnd
@@ -755,7 +732,7 @@ function computeNodeDSR(node, s, e) {
 				if (dpObj.stx === "html") {
 					if (dpObj.tsr) {
 						// For HTML tags, tsr info covers the length of the tag
-						ccs = cs + dpObj.tsr[1];
+						ccs = dpObj.tsr[1];
 						cce = ce !== null && savedEndTagWidth !== null ? ce - savedEndTagWidth : null;
 					}
 				} else {

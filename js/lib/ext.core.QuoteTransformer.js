@@ -260,11 +260,14 @@ QuoteTransformer.prototype.quotesToTags = function ( chunks, name ) {
 			chunks[j][0] = new EndTagTk( name, t.attribs, {} );
 		}
 		if (t.dataAttribs && t.dataAttribs.tsr) {
+			var tsr = t.dataAttribs.tsr;
+			var len = tsr[1] - tsr[0];
 			// Verify if we the tsr value is accurate
 			// SSS FIXME: We could potentially adjust tsr based on length
 			// but dont know yet whether to fix tsr[0] or tsr[1]
-			var tsr = t.dataAttribs.tsr;
-			chunks[j][0].dataAttribs.tsr = Util.clone(tsr);
+			if ((len === 3 && name === 'b') || (len === 2 && name === 'i')) {
+				chunks[j][0].dataAttribs.tsr = Util.clone(tsr);
+			}
 		}
 		toggle = !toggle;
 	}
