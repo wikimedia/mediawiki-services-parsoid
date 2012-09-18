@@ -530,7 +530,8 @@ h = & "=" // guard, to make sure '='+ will match.
      &eolf 
      {
         stops.dec('h');
-        var level = Math.min(s.length, e.length);
+        var level = Math.min( s.length, e.length );
+	level = Math.min( 6, level );
         // convert surplus equals into text
         if(s.length > level) {
             s = s.join('');
