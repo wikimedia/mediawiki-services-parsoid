@@ -1,12 +1,12 @@
-Principal Authors (major contributors, alphabetically)
+Principal Authors (major contributors, by number of commits)
 
 Gabriel Wicke <gwicke@wikimedia.org>
-Mark Holmquist <mtraceur@member.fsf.org>
 Subramanya Sastry <ssastry@wikimedia.org>
+Mark Holmquist <mtraceur@member.fsf.org>
+Adam Wight <awight@wikimedia.org>
 
 Patch Contributors (minor contributors, alphabetically)
 
-Adam Wight <spam@ludd.net>
 Antoine Musso <hashar@free.fr>
 Audrey Tang <audreyt@audreyt.org>
 Brion Vibber <brion@wikimedia.org>
