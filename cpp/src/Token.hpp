@@ -1,3 +1,6 @@
+#ifndef HAVE_TOKEN_HPP
+#define HAVE_TOKEN_HPP
+
 #include <string>
 #include <stdint.h>
 #include <boost/intrusive_ptr.hpp>
@@ -7,7 +10,7 @@
 #include <memory> // for std::shared_ptr
 #include <stdexcept>
 #include <boost/function.hpp>
-#include "type_intrusive_ptr_base.hpp"
+#include "IntrusivePtrBase.hpp"
 
 namespace parsoid
 {
@@ -487,6 +490,11 @@ namespace parsoid
     typedef boost::function<void(TokenMessage)> TokenMessageReceiver;
 
     /**
+     * Synchronous receiver type returning a TokenMessage
+     */
+    typedef boost::function<TokenMessage(TokenMessage)> TokenMessageTransformer;
+
+    /**
      * The nullReceiver, which is returned if no receiver is set
      */
     static const TokenMessageReceiver nullTokenMessageReceiver;
@@ -557,3 +565,4 @@ union {
 //
 // XXX: Consider using fbstring instead!
 */
+#endif // HAVE_TOKEN_HPP

@@ -3,10 +3,12 @@ project( libparsoid )
 set(
 	LIBPARSOID_SRCS
 	html_parser.cpp
-	type_token.cpp
-        type_QueueDispatcher.cpp
-        tokenizer.cpp
+	Token.cpp
+        QueueDispatcher.cpp
+        # The generated wikitext tokenizer
         wikitext_tokenizer.cpp
+        WikiTokenizer.cpp
+        Parsoid.cpp
 )
 
 include_directories( 
@@ -29,7 +31,14 @@ set(
 	public_headers
 	parsoid_internal.hpp
         html_parser.h
-        tokenizer.hpp
+        WikiTokenizer.hpp
+        ParsoidEnvironment.hpp
+        TokenTransformManagerBase.hpp
+        SyncTokenTransformManager.hpp
+        AsyncTokenTransformManager.hpp
+        InputExpansionPipeline.hpp
+        OutputPipeline.hpp
+        Parsoid.hpp
 )
 
 install(

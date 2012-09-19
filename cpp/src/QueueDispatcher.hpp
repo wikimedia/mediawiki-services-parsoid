@@ -5,14 +5,15 @@
 
 #include "parsoid_internal.hpp"
 
-namespace parsoid {
-    using namespace boost;
-    using namespace boost::asio;
-    /**
-     * An async / concurrent queue and ASIO-integrated schedule helper class
-     */
-    template < class ChunkType >
-    class QueueDispatcher {
+namespace parsoid
+{
+using namespace boost;
+using namespace boost::asio;
+/**
+ * An async / concurrent queue and ASIO-integrated schedule helper class
+ */
+template < class ChunkType >
+class QueueDispatcher {
     public:
         /**
          * Constructor and receiver setup
@@ -20,7 +21,7 @@ namespace parsoid {
         QueueDispatcher( io_service& io, TokenMessageReceiver receiver )
             : io( io )
             , isActive(false)
-        { };
+            { };
 
         /**
          * Set the per-item receiver
@@ -39,6 +40,6 @@ namespace parsoid {
         io_service& io;
         // TODO: use concurrent_queue from TBB later!
         std::deque<ChunkType> queue;
-    };
+};
 
 } // namespace parsoid
