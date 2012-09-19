@@ -70,6 +70,12 @@
         }
     };
 
+    var protocol_regexp = /^(?:\/\/|(?:ftp|git|gopher|https?|ircs?|mms|nntp|svn|telnet|worldwind)\:\/\/|(?:mailto|news)\:)/i; // mailto and news are special
+
+    var match_protocol = function ( string ) {
+        return string.match( protocol_regexp );
+    }
+
     var flatten_stringlist = function ( c ) {
         var out = [],
             text = '';
@@ -712,24 +718,7 @@ isbn
 /* Default URL protocols in MediaWiki (see DefaultSettings). Normally
  * these can be configured dynamically. */
 
-url_chars = [/fghimnstwIPR]
-
-url_protocol
-  = '//' // for protocol-relative URLs
-  / 'ftp://'
-  / 'git://'
-  / 'gopher://'
-  / 'http://'
-  / 'https://'
-  / 'irc://'
-  / 'ircs://'  // @bug 28503
-  / 'mailto:'
-  / 'mms://'
-  / 'news:'
-  / 'nntp://' // @bug 3808 RFC 1738
-  / 'svn://'
-  / 'telnet://' // Well if we're going to support the above.. -ævar
-  / 'worldwind://'
+url_protocol = & { return match_protocol( input.substr( pos ) ); } h:[a-zA-Z\/]+ c:':'? s:'//'? { return h.join( '' ) + c + s; }
 
 // javascript does not support unicode features..
 unicode_separator_space = [ \u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]
@@ -1714,8 +1703,8 @@ text_char = [^'<~[{\n\r:\]}|!=]
  * }    end of parser func/transclusion/template arg
  */
 
-urltext = ( t:[^'<~[{\n\rIPRfghimnstw_|!:\]} &=]+ { return t.join(''); }
-          / & url_chars autolink
+urltext = ( t:[^'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:\]} &=]+ { return t.join(''); }
+          / & [/fFgGhHiImMnNsStTwWIPR] autolink
           / & ('__') behavior_switch
           / htmlentity 
           // Convert trailing space into &nbsp;
