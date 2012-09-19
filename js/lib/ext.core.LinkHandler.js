@@ -433,7 +433,7 @@ ExternalLinkHandler.prototype._isImageLink = function ( href ) {
 	var bits = href.split( '.' );
 	return bits.length > 1 &&
 		this._imageExtensions[ bits[bits.length - 1] ] &&
-		href.match( /^https?:\/\// );
+		href.match( /^https?:\/\//i );
 };
 
 ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
