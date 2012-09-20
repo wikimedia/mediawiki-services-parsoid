@@ -13,6 +13,8 @@ namespace parsoid {
  */
 typedef boost::function<void(string)> DocumentReceiver;
 
+
+// Forward declarations
 class XMLNodeIterator;
 class XMLAttributeIterator;
 class XMLAttribute;
@@ -20,38 +22,41 @@ class XMLTreeWalker;
 class XMLNode;
 class XMLText;
 
-// libhubbub interface:
-// create_comment,
-// create_doctype,
-// create_element,
-// create_text,
-// ref_node,
-// unref_node,
-// append_child,
-// insert_before,
-// remove_child,
-// clone_node,
-// reparent_children,
-// get_parent,
-// has_children,
-// form_associate,
-// add_attributes,
-// set_quirks_mode,
-// change_encoding,
+// At the very minimum, we have to support the equivalent to the following
+// libhubbub -> DOM callbacks:
+// libhubbub cb     // DOMBase equivalent
+// ---------------------------------------
+// create_comment,  // XMLDocument()
+// create_doctype,  // node.appendChild( XMLNodeType::Doctype )
+// create_element,  // node.appendChild( XMLNodeType::Element )
+// create_text,     // node.appendChild( XMLNodeType::Text )
+// ref_node,        // ? probably not needed
+// unref_node,      // ?
+// append_child,    // node.appendChild
+// insert_before,   // insertChildBefore
+// remove_child,    // removeChild
+// clone_node,      // copy constructor
+// reparent_children, // wrapper around appendChild and iterator
+// get_parent,      // parent()
+// has_children,    // empty()
+// form_associate,  // do nothing really (not needed)
+// add_attributes,  // iterate with addAttribute()
+// set_quirks_mode, // n/a and not needed
+// change_encoding, // not needed, always utf8
 
 
 // Tree node types
 enum class XMLNodeType
 {
-    node_null,			// Empty (null) node handle
-    node_document,		// A document tree's absolute root
-    node_element,		// Element tag, i.e. '<node/>'
-    node_pcdata,		// Plain character data, i.e. 'text'
-    node_cdata,			// Character data, i.e. '<![CDATA[text]]>'
-    node_comment,		// Comment tag, i.e. '<!-- text -->'
-    node_pi,			// Processing instruction, i.e. '<?name?>'
-    node_declaration,	// Document declaration, i.e. '<?xml version="1.0"?>'
-    node_doctype		// Document type declaration, i.e. '<!DOCTYPE doc>'
+    Null,		// Empty (null) node handle
+    Document,		// A document tree's absolute root
+    Element,		// Element tag, i.e. '<node/>'
+    Pcdata,		// Plain character data, i.e. 'text'
+    Cdata,		// Character data, i.e. '<![CDATA[text]]>'
+    Comment,		// Comment tag, i.e. '<!-- text -->'
+    Pi,			// Processing instruction, i.e. '<?name?>'
+    Declaration,	// Document declaration, i.e. '<?xml version="1.0"?>'
+    Doctype		// Document type declaration, i.e. '<!DOCTYPE doc>'
 };
 
 
@@ -222,8 +227,8 @@ class XMLNode
         XMLAttribute insertCopyBefore(const XMLAttribute& proto, const XMLAttribute& attr);
 
         // Add child node with specified type. Returns added node, or empty node on errors.
-        XMLNode appendChild(XMLNodeType type = XMLNodeType::node_element);
-        XMLNode prependChild(XMLNodeType type = XMLNodeType::node_element);
+        XMLNode appendChild(XMLNodeType type = XMLNodeType::Element);
+        XMLNode prependChild(XMLNodeType type = XMLNodeType::Element);
         XMLNode insertChildAfter(XMLNodeType type, const XMLNode& node);
         XMLNode insertChildBefore(XMLNodeType type, const XMLNode& node);
 
@@ -232,6 +237,13 @@ class XMLNode
         XMLNode prependChild(const string& name);
         XMLNode insertChildAfter(const string& name, const XMLNode& node);
         XMLNode insertChildBefore(const string& name, const XMLNode& node);
+
+        // Move the specified node as a child. Returns the added node, or an
+        // empty node on errors.
+        XMLNode appendChild(const XMLNode& node);
+        XMLNode prependChild(const XMLNode& node);
+        XMLNode insertChildAfter(const XMLNode& node, const XMLNode& afterNode);
+        XMLNode insertChildBefore(const XMLNode& node, const XMLNode& beforeNode);
 
         // Add a copy of the specified node as a child. Returns added node, or empty node on errors.
         XMLNode appendCopy(const XMLNode& proto);
@@ -271,6 +283,33 @@ class XMLNode
 
         // Get hash value (unique for handles to the same object)
         size_t hash_value() const;
+};
+
+// Document class (DOM tree root)
+class XMLDocument: public XMLNode
+{
+    private:
+        // Non-copyable semantics
+        XMLDocument(const XMLDocument&);
+        const XMLDocument& operator=(const XMLDocument&);
+
+    public:
+        // Default constructor, makes empty document
+        XMLDocument();
+
+        // Destructor, invalidates all node/attribute handles to this document
+        ~XMLDocument();
+
+        // Removes all nodes, leaving the empty document
+        void reset();
+
+        // Removes all nodes, then copies the entire contents of the specified document
+        void reset(const XMLDocument& proto);
+
+        // Get document element
+        XMLNode documentElement() const;
+
+        // loading/saving left out for now
 };
 
 } // namespace parsoid
