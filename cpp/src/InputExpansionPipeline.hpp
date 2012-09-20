@@ -4,6 +4,8 @@
 
 namespace parsoid {
 using std::string;
+using boost::bind;
+using boost::function;
 
 class InputExpansionPipeline {
 
@@ -14,14 +16,14 @@ class InputExpansionPipeline {
             , asyncTransformManager( AsyncTokenTransformManager( isAtToplevel ) )
         {
             // Hook up to tokenizer
-            //tokenizer.setReceiver(
-            //        boost::bind( &SyncTokenTransformManager::receive, syncTransformManager )
-            //);
+            tokenizer.setReceiver(
+                bind( &SyncTokenTransformManager::receive, &syncTransformManager, _1 )
+            );
 
-            //// Hook up to SyncTokenTransformManager
-            //syncTransformManager.setReceiver(
-            //        boost::bind( &AsyncTokenTransformManager::receive, asyncTransformManager )
-            //);
+            // Hook up to SyncTokenTransformManager
+            syncTransformManager.setReceiver(
+                bind( &AsyncTokenTransformManager::receive, &asyncTransformManager, _1 )
+            );
 
         }
 
@@ -32,7 +34,7 @@ class InputExpansionPipeline {
         }
 
         void setReceiver( TokenMessageReceiver receiver ) {
-            receiver = receiver;
+            this->receiver = receiver;
         }
 
     private:

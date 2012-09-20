@@ -11,18 +11,14 @@ Parsoid::Parsoid ()
 {
     // Create a new environment per request
 
-
-
-    // Create the main input pipeline
-    // TODO: pass in environment
-    //mainInputExpansionPipeline = InputExpansionPipeline( true );
-
     // Create the output pipeline
     // TODO: pass in environment
     syncOutputPipeline = OutputPipeline();
 
     // Hook up the output pipeline to the input pipeline
-    //mainInputExpansionPipeline.setReceiver( syncOutputPipeline );
+    mainInputExpansionPipeline.setReceiver(
+        bind( &OutputPipeline::receive, &syncOutputPipeline, _1 )
+    );
 }
 
 void assign( string& target, const string& value ) { target.assign( value ); }

@@ -33,7 +33,12 @@ class OutputPipeline {
         }
 
         void setReceiver ( DocumentReceiver receiver ) {
-            receiver = receiver;
+            this->receiver = receiver;
+        }
+
+        void receive ( TokenMessage message ) {
+            // Feed the SyncTokenTransformManager
+            syncTransformManager.receive( message );
         }
 
     private:

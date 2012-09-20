@@ -17,7 +17,9 @@ class TokenTransformManagerBase {
         TokenTransformManagerBase();
         TokenTransformManagerBase( bool isAtToplevel );
 
-        void setReceiver( HandlerType receiver );
+        void setReceiver( TokenMessageReceiver receiver ) {
+            this->receiver = receiver;
+        }
 
         /**
          * Register a token transformer
@@ -49,7 +51,7 @@ class TokenTransformManagerBase {
 
         typename vector<TokenHandler>::const_iterator
         getTransforms(float minRank, TokenType type, string name);
-    private:
+
         // Handler registrations
         vector<TokenHandler> anyHandlers; // TokenType Abstract
         map<string, vector<TokenHandler>> startTagHandlers;
@@ -59,7 +61,7 @@ class TokenTransformManagerBase {
         vector<TokenHandler> nlHandlers;
         vector<TokenHandler> eofHandlers;
 
-        HandlerType receiver;
+        TokenMessageReceiver receiver;
 
 };
 

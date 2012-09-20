@@ -19,7 +19,7 @@ class WikiTokenizer {
         void setInput ( const string& input );
 
         void setReceiver ( TokenMessageReceiver receiver ) {
-            receiver = receiver;
+            this->receiver = receiver;
         }
 
         // Accumulator interface

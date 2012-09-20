@@ -8,7 +8,10 @@ class AsyncTokenTransformManager
     public:
         AsyncTokenTransformManager(bool isAtToplevel)
             : TokenTransformManagerBase<TokenMessageReceiver>(isAtToplevel) {}
-        void receive ( TokenMessage message ) {}
+        void receive ( TokenMessage message ) {
+            // We are not doing anything useful currently..
+            receiver( message );
+        }
 };
 
 } // namespace parsoid

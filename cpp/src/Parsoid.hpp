@@ -16,7 +16,7 @@ class Parsoid {
         string parse( string input );
 
         void setReceiver( DocumentReceiver receiver ) {
-            receiver = receiver;
+            this->receiver = receiver;
         }
     private:
         /**

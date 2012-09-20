@@ -9,7 +9,10 @@ class SyncTokenTransformManager
         SyncTokenTransformManager(bool isAtToplevel)
             : TokenTransformManagerBase<TokenMessageTransformer>( isAtToplevel ) {}
 
-        void receive( TokenMessage message ) {}
+        void receive( TokenMessage message ) {
+            // We are not doing anything useful currently..
+            receiver( message );
+        }
 };
 
 } // namespace parsoid
