@@ -7,8 +7,6 @@
 
 namespace parsoid
 {
-    using std::vector;
-    using std::string;
 
     /**
      * Tk methods

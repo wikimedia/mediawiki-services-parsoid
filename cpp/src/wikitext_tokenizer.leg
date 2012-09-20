@@ -5,8 +5,6 @@
 #include "parsoid_internal.hpp"
 using namespace parsoid;
 using std::stringstream;
-using std::string;
-using std::vector;
 using std::min;
 using std::max;
 

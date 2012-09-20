@@ -72,6 +72,71 @@ template <typename It> class XMLObjectRange
         It _begin, _end;
 };
 
+
+
+// A light-weight handle for manipulating attributes in DOM tree
+class XMLAttribute
+{
+
+    public:
+        // Default constructor. Constructs an empty attribute.
+        XMLAttribute();
+
+        // Safe C++11 bool conversion operator
+        explicit operator bool() const;
+
+        // Comparison operators (compares wrapped attribute pointers)
+        bool operator==(const XMLAttribute& r) const;
+        bool operator!=(const XMLAttribute& r) const;
+        bool operator<(const XMLAttribute& r) const;
+        bool operator>(const XMLAttribute& r) const;
+        bool operator<=(const XMLAttribute& r) const;
+        bool operator>=(const XMLAttribute& r) const;
+
+        // Check if attribute is empty
+        bool empty() const;
+
+        // Get attribute name/value, or "" if attribute is empty
+        const string& name() const;
+        const string& value() const;
+
+        // Get attribute value, or the empty string if attribute is empty
+        explicit operator string() const;
+
+        // Get attribute value as a number, or the default value if conversion did not succeed or attribute is empty
+        int asInt(int def = 0) const;
+        unsigned int asUint(unsigned int def = 0) const;
+        double asDouble(double def = 0) const;
+        float asFloat(float def = 0) const;
+
+        // Get attribute value as bool (returns true if first character is in '1tTyY' set), or the default value if attribute is empty
+        bool asBool(bool def = false) const;
+
+        // Set attribute name/value (returns false if attribute is empty or there is not enough memory)
+        bool setName(const string& rhs);
+        bool setValue(const string& rhs);
+
+        // Set attribute value with type conversion (numbers are converted to strings, boolean is converted to "true"/"false")
+        bool setValue(int rhs);
+        bool setValue(unsigned int rhs);
+        bool setValue(double rhs);
+        bool setValue(bool rhs);
+
+        // Set attribute value (equivalent to set_value without error checking)
+        XMLAttribute& operator=(const string& rhs);
+        XMLAttribute& operator=(int rhs);
+        XMLAttribute& operator=(unsigned int rhs);
+        XMLAttribute& operator=(double rhs);
+        XMLAttribute& operator=(bool rhs);
+
+        // Get next/previous attribute in the attribute list of the parent node
+        XMLAttribute nextAttribute() const;
+        XMLAttribute previousAttribute() const;
+
+        // Get hash value (unique for handles to the same object)
+        size_t hash_value() const;
+};
+
 class XMLNode
 {
         friend class XMLAttributeIterator;
@@ -79,19 +144,18 @@ class XMLNode
         friend class xml_named_nodeIterator;
 
     protected:
+        // The root of the document tree
         XMLNode& _root;
-
-        typedef void (*unspecified_bool_type)(XMLNode***);
 
     public:
         // Default constructor. Constructs an empty node.
         XMLNode();
 
-        // Safe bool conversion operator
-        operator unspecified_bool_type() const;
+        // Safe C++11 bool conversion operator
+        explicit operator bool() const;
 
-        // Borland C++ workaround
-        bool operator!() const;
+        // String conversion
+        explicit operator string() const;
 
         // Comparison operators (compares wrapped node pointers)
         bool operator==(const XMLNode& r) const;
@@ -109,16 +173,16 @@ class XMLNode
         const string& value() const;
 
         // Get attribute list
-        XMLAttribute first_attribute() const;
-        XMLAttribute last_attribute() const;
+        XMLAttribute firstAttribute() const;
+        XMLAttribute lastAttribute() const;
 
         // Get children list
-        XMLNode first_child() const;
-        XMLNode last_child() const;
+        XMLNode firstChild() const;
+        XMLNode lastChild() const;
 
         // Get next/previous sibling in the children list of the parent node
-        XMLNode next_sibling() const;
-        XMLNode previous_sibling() const;
+        XMLNode nextSibling() const;
+        XMLNode previousSibling() const;
 
         // Get parent node
         XMLNode parent() const;
@@ -132,56 +196,56 @@ class XMLNode
         // Get child, attribute or next/previous sibling with the specified name
         XMLNode child(const string& name) const;
         XMLAttribute attribute(const string& name) const;
-        XMLNode next_sibling(const string& name) const;
-        XMLNode previous_sibling(const string& name) const;
+        XMLNode nextSibling(const string& name) const;
+        XMLNode previousSibling(const string& name) const;
 
         // Get child value of current node; that is, value of the first child node of type PCDATA/CDATA
-        const string& child_value() const;
+        const string& childValue() const;
 
         // Get child value of child with specified name. Equivalent to child(name).child_value().
-        const string& child_value(const string& name) const;
+        const string& childValue(const string& name) const;
 
         // Set node name/value (returns false if node is empty, there is not enough memory, or node can not have name/value)
-        bool set_name(const string& rhs);
-        bool set_value(const string& rhs);
+        bool setName(const string& rhs);
+        bool setValue(const string& rhs);
 
         // Add attribute with specified name. Returns added attribute, or empty attribute on errors.
-        XMLAttribute append_attribute(const string& name);
-        XMLAttribute prepend_attribute(const string& name);
-        XMLAttribute insert_attribute_after(const string& name, const XMLAttribute& attr);
-        XMLAttribute insert_attribute_before(const string& name, const XMLAttribute& attr);
+        XMLAttribute appendAttribute(const string& name);
+        XMLAttribute prependAttribute(const string& name);
+        XMLAttribute insertAttribute_after(const string& name, const XMLAttribute& attr);
+        XMLAttribute insertAttribute_before(const string& name, const XMLAttribute& attr);
 
         // Add a copy of the specified attribute. Returns added attribute, or empty attribute on errors.
-        XMLAttribute append_copy(const XMLAttribute& proto);
-        XMLAttribute prepend_copy(const XMLAttribute& proto);
-        XMLAttribute insert_copy_after(const XMLAttribute& proto, const XMLAttribute& attr);
-        XMLAttribute insert_copy_before(const XMLAttribute& proto, const XMLAttribute& attr);
+        XMLAttribute appendCopy(const XMLAttribute& proto);
+        XMLAttribute prependCopy(const XMLAttribute& proto);
+        XMLAttribute insertCopyAfter(const XMLAttribute& proto, const XMLAttribute& attr);
+        XMLAttribute insertCopyBefore(const XMLAttribute& proto, const XMLAttribute& attr);
 
         // Add child node with specified type. Returns added node, or empty node on errors.
-        XMLNode append_child(XMLNodeType type = XMLNodeType::node_element);
-        XMLNode prepend_child(XMLNodeType type = XMLNodeType::node_element);
-        XMLNode insert_child_after(XMLNodeType type, const XMLNode& node);
-        XMLNode insert_child_before(XMLNodeType type, const XMLNode& node);
+        XMLNode appendChild(XMLNodeType type = XMLNodeType::node_element);
+        XMLNode prependChild(XMLNodeType type = XMLNodeType::node_element);
+        XMLNode insertChildAfter(XMLNodeType type, const XMLNode& node);
+        XMLNode insertChildBefore(XMLNodeType type, const XMLNode& node);
 
         // Add child element with specified name. Returns added node, or empty node on errors.
-        XMLNode append_child(const string& name);
-        XMLNode prepend_child(const string& name);
-        XMLNode insert_child_after(const string& name, const XMLNode& node);
-        XMLNode insert_child_before(const string& name, const XMLNode& node);
+        XMLNode appendChild(const string& name);
+        XMLNode prependChild(const string& name);
+        XMLNode insertChildAfter(const string& name, const XMLNode& node);
+        XMLNode insertChildBefore(const string& name, const XMLNode& node);
 
         // Add a copy of the specified node as a child. Returns added node, or empty node on errors.
-        XMLNode append_copy(const XMLNode& proto);
-        XMLNode prepend_copy(const XMLNode& proto);
-        XMLNode insert_copy_after(const XMLNode& proto, const XMLNode& node);
-        XMLNode insert_copy_before(const XMLNode& proto, const XMLNode& node);
+        XMLNode appendCopy(const XMLNode& proto);
+        XMLNode prependCopy(const XMLNode& proto);
+        XMLNode insertCopyAfter(const XMLNode& proto, const XMLNode& node);
+        XMLNode insertCopyBefore(const XMLNode& proto, const XMLNode& node);
 
         // Remove specified attribute
-        bool remove_attribute(const XMLAttribute& a);
-        bool remove_attribute(const string& name);
+        bool removeAttribute(const XMLAttribute& a);
+        bool removeAttribute(const string& name);
 
         // Remove specified child
-        bool remove_child(const XMLNode& n);
-        bool remove_child(const string& name);
+        bool removeChild(const XMLNode& n);
+        bool removeChild(const string& name);
 
 
         // Search for a node by path consisting of node names and . or .. elements.
@@ -197,8 +261,8 @@ class XMLNode
         // Attribute iterators
         typedef XMLAttributeIterator attributeIterator;
 
-        attributeIterator attributes_begin() const;
-        attributeIterator attributes_end() const;
+        attributeIterator attributesBegin() const;
+        attributeIterator attributesEnd() const;
 
         // Range-based for support
         //XMLObjectRange<XMLNodeIterator> children() const;

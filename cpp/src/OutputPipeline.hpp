@@ -2,7 +2,6 @@
 
 
 namespace parsoid {
-using std::string;
 
 // FIXME
 typedef boost::function<void(string)> DocumentReceiver;

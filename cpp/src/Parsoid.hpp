@@ -3,8 +3,6 @@
 
 namespace parsoid {
 
-using std::string;
-
 /**
  * The main Parsoid setup class
  */

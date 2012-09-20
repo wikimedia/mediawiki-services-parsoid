@@ -1,23 +1,15 @@
 #ifndef HAVE_TOKEN_HPP
 #define HAVE_TOKEN_HPP
 
-#include <string>
 #include <stdint.h>
 #include <boost/intrusive_ptr.hpp>
-#include <vector>
-#include <deque>
-#include <map>
 #include <memory> // for std::shared_ptr
 #include <stdexcept>
-#include <boost/function.hpp>
 #include "IntrusivePtrBase.hpp"
+#include "LibIncludes.hpp"
 
 namespace parsoid
 {
-    using std::string;
-    using std::vector;
-    using std::deque;
-    using std::pair;
     /**
      * Reference counted Parsoid tokens
      *

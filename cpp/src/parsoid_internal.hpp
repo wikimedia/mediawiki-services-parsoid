@@ -3,6 +3,8 @@
 #ifndef __HAVE_PARSOID_INTERNAL__
 #define __HAVE_PARSOID_INTERNAL__
 
+#include "LibIncludes.hpp"
+
 #include "Token.hpp"
 #include "WikiTokenizer.hpp"
 #include "QueueDispatcher.hpp"
