@@ -47,7 +47,9 @@ function TemplateRequest ( env, title, oldid ) {
 		url: url,
 		headers: {
 			'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:9.0.1) ' +
-							'Gecko/20100101 Firefox/9.0.1 Iceweasel/9.0.1'
+							'Gecko/20100101 Firefox/9.0.1 Iceweasel/9.0.1',
+			'Connection': 'close'
+
 		}
 	};
 
@@ -64,7 +66,7 @@ TemplateRequest.prototype._handler = function (error, response, body) {
 	var self = this;
 
 	if(error) {
-		this.env.dp(error);	
+		this.env.dp(error);
 		if ( this.retries ) {
 			this.retries--;
 			this.env.tp( 'Retrying template request for ' + this.title );
