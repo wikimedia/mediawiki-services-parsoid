@@ -85,7 +85,7 @@ function stripMetaTags(tokens, wrapTemplates) {
 					buf.push(token);
 				}
 			}
-			
+
 			// Dont strip token if it is not a meta-tag
 			if (token.name !== "meta") {
 				buf.push(token);

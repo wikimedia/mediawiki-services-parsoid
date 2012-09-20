@@ -310,8 +310,6 @@ TemplateHandler.prototype._onChunk = function( state, cb, chunk ) {
 			chunk[i].dataAttribs.tsr = undefined;
 		}
 	}
-/**
-**/
 
 	if (this.options.wrapTemplates) {
 		if ( ! state.emittedFirstChunk ) {
