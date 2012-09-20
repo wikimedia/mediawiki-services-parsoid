@@ -30,6 +30,7 @@ target_link_libraries( parsoid ${PARSOID_LIBS} )
 set(
 	public_headers
 	parsoid_internal.hpp
+        # FIXME: divide into internal and external headers
         html_parser.h
         WikiTokenizer.hpp
         ParsoidEnvironment.hpp

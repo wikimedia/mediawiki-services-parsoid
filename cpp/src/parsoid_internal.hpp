@@ -10,6 +10,8 @@
 #include "TokenTransformManagerBase.hpp"
 #include "AsyncTokenTransformManager.hpp"
 #include "SyncTokenTransformManager.hpp"
+#include "DOMBase.hpp"
+#include "TreeBuilder.hpp"
 #include "InputExpansionPipeline.hpp"
 #include "OutputPipeline.hpp"
 #include "Parsoid.hpp"

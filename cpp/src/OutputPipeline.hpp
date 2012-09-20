@@ -6,7 +6,6 @@ using std::string;
 
 // FIXME
 typedef boost::function<void(string)> DocumentReceiver;
-class TreeBuilder {};
 class DOMPostProcessor {};
 
 class OutputPipeline {
