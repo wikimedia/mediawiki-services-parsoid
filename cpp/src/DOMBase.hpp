@@ -6,12 +6,6 @@
 
 namespace parsoid {
 
-/**
- * Callback receiving a DOMBase message
- *
- * FIXME: actually use a DOM type
- */
-typedef boost::function<void(string)> DocumentReceiver;
 
 
 // Forward declarations
@@ -21,6 +15,14 @@ class XMLAttribute;
 class XMLTreeWalker;
 class XMLNode;
 class XMLText;
+class XMLDocument;
+
+/**
+ * Callback receiving a DOMBase message
+ *
+ * FIXME: actually use a DOM type
+ */
+typedef boost::function<void(XMLDocument*)> DocumentReceiver;
 
 // At the very minimum, we have to support the equivalent to the following
 // libhubbub -> DOM callbacks:
