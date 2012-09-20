@@ -715,7 +715,7 @@ WSP._linkHandler =  function( state, tokens ) {
 			return '[' + href + ' ' +
 				state.serializer.serializeTokens(state.currLine, tokens ).join('') +
 				']';
-		} else if ( attribDict.rel === 'mw:ExtLink/ISBN' ) {
+		} else if ( attribDict.rel.match( /mw:ExtLink\/(?:ISBN|RFC|PMID)/ ) ) {
 			return tokens.join('');
 		} else if ( attribDict.rel === 'mw:ExtLink/URL' ) {
 			populateRoundTripData();

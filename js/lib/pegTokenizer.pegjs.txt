@@ -677,7 +677,8 @@ autoref
     return [
         new SelfclosingTagTk( 'extlink', [
            new KV('href', sprintf(base_urls[ref], identifier)),
-           new KV('mw:content', [ref, identifier].join(' '))
+           new KV('mw:content', [ref, identifier].join(' ')),
+           new KV( 'typeof', 'mw:ExtLink/' + ref )
         ],
         {tsr: [pos0, pos]})
     ];
