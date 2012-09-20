@@ -494,18 +494,25 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 		orighref = Util.lookup( token.attribs, 'href' ),
 		href = Util.sanitizeURI( Util.tokensToString( orighref ) ),
 		content = Util.lookup( token.attribs, 'mw:content'),
-		newAttrs, aStart, hrefKv;
+		newAttrs, aStart, hrefKv, title;
 
 	//console.warn('extlink href: ' + href );
 	//console.warn( 'mw:content: ' + JSON.stringify( content, null, 2 ) );
 
-	var rdfaType = token.getAttribute('typeof');
-	if (rdfaType && rdfaType.match(/\bmw:ExtLink\/ISBN\b/)) {
-		var title = env.makeTitleFromPrefixedText(env.normalizeTitle(href));
-		newAttrs = [
-			new KV('href', title.makeLink()),
-			new KV('rel', 'mw:ExtLink/ISBN')
-		];
+	var rdfaType = token.getAttribute('typeof'), magLinkRe = /\bmw:ExtLink\/(?:ISBN|RFC|PMID)\b/;
+	if ( rdfaType && rdfaType.match( magLinkRe ) ) {
+		if ( rdfaType.match( /\bmw:ExtLink\/ISBN/ ) ) {
+			title = env.makeTitleFromPrefixedText(env.normalizeTitle(href));
+			newAttrs = [
+				new KV('href', title.makeLink()),
+				new KV('rel', rdfaType.match( magLinkRe )[0] )
+			];
+		} else {
+			newAttrs = [
+				new KV('href', href),
+				new KV('rel', rdfaType.match( magLinkRe )[0] )
+			];
+		}
 
 		// SSS FIXME: Right now, Parsoid does not support templating
 		// of ISBN attributes.  So, "ISBN {{echo|1234567890}}" will not
