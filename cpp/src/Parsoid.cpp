@@ -17,10 +17,10 @@ Parsoid::Parsoid ()
     );
 }
 
-void assign( XMLDocument** target, XMLDocument* value ) { *target = value; }
+void assign( DOM::XMLDocument** target, DOM::XMLDocument* value ) { *target = value; }
 
-XMLDocument* Parsoid::parse( string input ) {
-    XMLDocument* doc;
+DOM::XMLDocument* Parsoid::parse( string input ) {
+    DOM::XMLDocument* doc;
     // define a callback that appends to string
     // TODO: actually handle TokenMessage in callback!
     auto cb = bind( assign, &doc, _1 );
@@ -28,7 +28,7 @@ XMLDocument* Parsoid::parse( string input ) {
     return doc;
 }
 
-void Parsoid::parse( string input, DocumentReceiver receiver ) {
+void Parsoid::parse( string input, DOM::DocumentReceiver receiver ) {
     // Set the syncOutputPipeline receiver
     syncOutputPipeline.setReceiver( receiver );
 

@@ -12,7 +12,9 @@
 #include "TokenTransformManagerBase.hpp"
 #include "AsyncTokenTransformManager.hpp"
 #include "SyncTokenTransformManager.hpp"
-#include "DOMBase.hpp"
+//#include "XMLDOM.hpp"
+// TODO: Only include implementation defining the DOM type
+#include "XMLDOM_Pugi.hpp"
 #include "TreeBuilder.hpp"
 #include "InputExpansionPipeline.hpp"
 #include "OutputPipeline.hpp"

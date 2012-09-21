@@ -108,7 +108,7 @@ namespace parsoid
     /**
      * Base class for all token implementations
      */
-    class Token: public intrusive_ptr_base< Token >
+    class Token: public IntrusivePtrBase< Token >
     {
         public:
             // Consecutive number so that a jump table can be used
@@ -325,7 +325,7 @@ namespace parsoid
     // constant-time modification on both ends
     //typedef deque<Tk> TokenChunk;
 
-    class TokenChunk:  public intrusive_ptr_base< TokenChunk >
+    class TokenChunk:  public IntrusivePtrBase< TokenChunk >
     {
         public:
             TokenChunk() {};
