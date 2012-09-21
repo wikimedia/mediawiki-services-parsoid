@@ -939,7 +939,7 @@ wikilink_content
     if ( lt === '' ) {
         return '';
     } else {
-        return new KV( '', lt );
+        return new KV( 'mw:maybeContent', lt );
     } } ) + {
         if ( lcs.length === 1 && lcs[0] === '' ) {
             return { pos: [pos0, pos], content: [], pipetrick: true };

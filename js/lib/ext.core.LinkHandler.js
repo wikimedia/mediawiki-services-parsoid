@@ -52,8 +52,8 @@ function buildLinkAttrs(attrs, getLinkText, rdfaType, linkAttrs) {
 			k  = kv.k,
 			v  = kv.v;
 
-		// link-text attrs have empty keys
-		if (getLinkText && k === "") {
+		// link-text attrs have the key "maybeContent"
+		if (getLinkText && k === "mw:maybeContent") {
 			linkText.push(kv);
 		} else if (k.constructor === String && k) {
 			if (k.trim() === "typeof") {
@@ -87,7 +87,8 @@ function buildLinkAttrs(attrs, getLinkText, rdfaType, linkAttrs) {
 
 WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 
-	var env = this.manager.env,
+	var j, maybeContent, about, possibleTags, property,
+		hrefkv, saniContent, env = this.manager.env,
 		attribs = token.attribs,
 		href = Util.tokensToString( Util.lookup( attribs, 'href' ) ),
 		title = env.makeTitleFromPrefixedText(env.normalizeTitle(href));
@@ -144,24 +145,65 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 		}
 
 		if ( title.ns.isCategory() ) {
+			tokens = [];
+
 			// We let this get handled earlier as a normal wikilink, but we need
 			// to add in a few extras.
 			obj.name = 'link';
 
 			// Change the rel to be mw:WikiLink/Category
-			obj.attribs[0].v += '/Category';
+			Util.lookupKV( obj.attribs, 'rel' ).v += '/Category';
+
+			maybeContent = Util.lookupKV( token.attribs, 'mw:valAffected' );
+			if ( maybeContent !== null ) {
+				content = maybeContent.v;
+			}
+			saniContent = Util.sanitizeURI( Util.tokensToString( content ) ).replace( /#/, '%23' );
 
 			// Change the href to include the sort key, if any
-			if ( content && content !== '' && content !== href ) {
-				obj.attribs[1].v += '#';
-				// FIXME this won't handle sort keys that include, e.g., comments.
-				// Need to roundtrip this somehow.
-				obj.attribs[1].v += Util.sanitizeURI( Util.tokensToString( content ) ).replace( /#/, '%23' );
+			if ( saniContent && saniContent !== '' && saniContent !== href ) {
+				hrefkv = Util.lookupKV( obj.attribs, 'href' );
+				hrefkv.v += '#';
+				hrefkv.v += saniContent;
 			}
+
+			if ( maybeContent && maybeContent.v ) {
+				for ( j = 0; j < maybeContent.v.length; j++ ) {
+					property = Util.lookupKV( maybeContent.v[j].attribs, 'property' );
+					if ( Util.tokensToString( maybeContent.v[j] ) === saniContent ) {
+						// continue
+					} else if ( property && property.v.match( /mw\:maybeContent/ ) ) {
+						newType = Util.lookupKV( obj.attribs, 'typeof' );
+						if ( !newType.v.match( /mw\:ExpandedAttrs/ ) ) {
+							if ( newType ) {
+								newType.v = '/' + newType.v;
+							} else {
+								newType.v = '';
+							}
+							newType.v = 'mw:ExpandedAttrs' + newType.v;
+						}
+					}
+				}
+			}
+
+			about = Util.lookup( token.attribs, 'about' );
+
+			tokens.push( obj );
+
 			cb( {
-				tokens: [ obj ]
+				tokens: tokens
 			} );
 		} else {
+			for ( j = 0; j < content.length; j++ ) {
+				if ( content[j].constructor !== String ) {
+					property = Util.lookup( content[j].attribs, 'property' );
+					if ( property && property.constructor === String
+						&& property.match( /mw\:objectAttr(Val|Key)\#mw\:maybeContent/ ) ) {
+						content.splice( j, 1 );
+					}
+				}
+			}
+
 			cb ( {
 				tokens: [obj].concat( content, [ new EndTagTk( 'a' ) ] )
 			} );
