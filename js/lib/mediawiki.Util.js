@@ -14,20 +14,23 @@ var Util = {
 	isBlockTag: function ( name ) {
 		switch ( name ) {
 			case 'div':
-			case 'table':
-			case 'td':
-			case 'tr':
-			case 'tbody':
 			case 'p':
+			// tables
+			case 'table':
+			case 'tbody':
+			case 'thead':
+			case 'tfoot':
+			case 'caption':
+			case 'th':
+			case 'tr':
+			case 'td':
+			// lists
 			case 'ul':
 			case 'ol':
 			case 'li':
 			case 'dl':
 			case 'dt':
 			case 'dd':
-			//case 'img': // hmm!
-			case 'pre':
-			case 'center':
 			// HTML5 heading content
 			case 'h1':
 			case 'h2':
@@ -39,6 +42,7 @@ var Util = {
 			// HTML5 sectioning content
 			case 'article':
 			case 'aside':
+			case 'body':
 			case 'nav':
 			case 'section':
 			case 'header':
@@ -49,6 +53,21 @@ var Util = {
 			case 'fieldset':
 			case 'details':
 			case 'blockquote':
+			// other
+			case 'br':
+			case 'hr':
+			case 'button':
+			case 'canvas':
+			case 'center':
+			case 'col':
+			case 'colgroup':
+			case 'embed':
+			//case 'img': // hmm!
+			case 'map':
+			case 'object':
+			case 'pre':
+			case 'progress':
+			case 'video':
 				return true;
 			default:
 				return false;

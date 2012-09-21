@@ -267,70 +267,6 @@ var normalize_document = function(document) {
 };
 
 /**
-* Wrap all top-level inline elements in paragraphs.
-* TODO: This should also be applied inside block-level elements, but in that
-* case the first paragraph usually remains plain inline.
-*/
-var process_inlines_in_p = function ( document ) {
-	var body = document.body,
-		newP = document.createElement('p'),
-		cnodes = body.childNodes,
-		inParagraph = false,
-		deleted = 0;
-
-	for (var i = 0, length = cnodes.length; i < length; i++) {
-		var child = cnodes[i - deleted],
-			ctype = child.nodeType;
-
-		// If we have a P-node from our immediate sibling, continue accumulating
-		//   - if we have a text node, comment node, or an inline tag
-		//   - if not, stop!
-		// If we dont have a P-node from our sibling, create one if we have
-		//   - non-white space text
-		//   - an inline tag that is not a meta
-		//   For the text node, strip leading newlines and add it as
-		//   a new text node outside the paragraph.
-
-		if ((ctype === Node.TEXT_NODE &&
-				(inParagraph || !isElementContentWhitespace( child ))) ||
-			(ctype === Node.ELEMENT_NODE &&
-				!Util.isBlockTag(child.nodeName.toLowerCase()) &&
-				(inParagraph || child.nodeName.toLowerCase() !== 'meta')) ||
-			(ctype === Node.COMMENT_NODE &&
-				inParagraph ))
-		{
-			if ( ctype === Node.TEXT_NODE && !inParagraph ) {
-				var leadingNewLines = child.data.match(/^[\r\n]+/);
-				if ( leadingNewLines ) {
-					// don't include newlines in the paragraph
-					child.parentNode.insertBefore(
-							document.createTextNode( leadingNewLines[0] ),
-							child
-							);
-					deleted--;
-					child.data = child.data.substr( leadingNewLines[0].length );
-				}
-			}
-
-			// wrap in paragraph
-			newP.appendChild(child);
-
-			inParagraph = true;
-			deleted++;
-		} else if (inParagraph) {
-			body.insertBefore(newP, child);
-			deleted--;
-			newP = document.createElement('p');
-			inParagraph = false;
-		}
-	}
-
-	if (inParagraph) {
-		body.appendChild(newP);
-	}
-};
-
-/**
  * Remove trailing newlines from paragraph content (and move them to
  * inter-element whitespace)
  */
@@ -421,11 +357,31 @@ var getDOMRange = function ( doc, startElem, endElem ) {
 	// Ensure range.start is an element node since we want to
 	// add/update the data-parsoid attribute to it.
 	if (tcStart.nodeType === Node.COMMENT_NODE || tcStart.nodeType === Node.TEXT_NODE) {
-		// wrap tcStart in a span.
-		span = doc.createElement('span');
-		tcStart.parentNode.insertBefore(span, tcStart);
-		span.appendChild(tcStart);
-		tcStart = span;
+		// See if we can go up one level
+		//
+		// Eliminates useless spanning of wikitext of the form: {{echo|foo}}
+		// where the the entire template content is contained in a paragraph
+		var skipSpan = false;
+		var tcStartPar = tcStart.parentNode;
+		if (tcStartPar.firstChild === startElem &&
+			tcStartPar.lastChild === endElem &&
+			res.end.parentNode === tcStartPar)
+		{
+			var dcpObj = tcStartPar.getAttribute("data-parsoid");
+			if (!dcpObj || JSON.parse(dcpObj).stx !== "html") {
+				tcStart = tcStartPar;
+				res.end = tcStartPar;
+				skipSpan = true;
+			}
+		}
+
+		if (!skipSpan) {
+			// wrap tcStart in a span.
+			span = doc.createElement('span');
+			tcStart.parentNode.insertBefore(span, tcStart);
+			span.appendChild(tcStart);
+			tcStart = span;
+		}
 		res.start = tcStart;
 		updateDP = true;
 	}
@@ -851,11 +807,9 @@ var encapsulateTemplateOutput = function ( env, document ) {
 	doEncapsulateTemplateOutput( env, document.body, tpls, document );
 };
 
-
 function DOMPostProcessor(env, options) {
 	this.env = env;
 	this.processors = [
-		process_inlines_in_p,
 		remove_trailing_newlines_from_paragraphs,
 		normalize_document,
 		computeDocDSR.bind(null, env),

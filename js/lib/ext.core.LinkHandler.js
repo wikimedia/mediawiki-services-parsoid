@@ -142,7 +142,7 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 			obj.dataAttribs.tail = tail;
 			content.push( tail );
 		}
-		
+
 		if ( title.ns.isCategory() ) {
 			// We let this get handled earlier as a normal wikilink, but we need
 			// to add in a few extras.
@@ -173,7 +173,7 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 	var env = this.manager.env;
 	// distinguish media types
 	// if image: parse options
-	
+
 	var rdfaAttrs = buildLinkAttrs(token.attribs, true, null, null);
 	var content = rdfaAttrs.content;
 
@@ -259,7 +259,7 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 	//console.log( JSON.stringify( options, null, 2 ) );
 	// XXX: check if the file exists, generate thumbnail, get size
 	// XXX: render according to mode (inline, thumb, framed etc)
-	
+
 	if ( oHash.format && ( oHash.format === 'thumb' || oHash.format === 'thumbnail') ) {
 		return this.renderThumb( token, this.manager, cb, title, fileName, path, caption, oHash, options, rdfaAttrs);
 	} else {
@@ -311,7 +311,7 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 
 	var figurestyle = "width: " + (width + 5) + "px;",
 		figureclass = "thumb tright thumbinner";
-	
+
 	// set horizontal alignment
 	if ( oHash.halign ) {
 		if ( oHash.halign === 'left' ) {
@@ -376,7 +376,7 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 				new EndTagTk( 'figcaption' ),
 				new EndTagTk( 'figure' )
 			]);
-	
+
 	// set round-trip information on the wrapping figure token
 	thumb[0].dataAttribs = dataAttribs;
 

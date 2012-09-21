@@ -1783,7 +1783,7 @@ sol
   = nl:(newlineToken / & { return pos === 0; } { return [] }) 
     // Eat multi-line comment, so that syntax after still matches as if it
     // was actually preceded by a newline
-    cn:( c:comment n:newline? { 
+    cn:( c:comment n:newlineToken? { 
               if ( n !== '' ) {
                   return [c, n];
               } else {
