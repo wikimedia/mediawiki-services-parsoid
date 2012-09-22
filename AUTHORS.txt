@@ -11,5 +11,6 @@ Antoine Musso <hashar@free.fr>
 Audrey Tang <audreyt@audreyt.org>
 Brion Vibber <brion@wikimedia.org>
 Neil Kandalgaonkar <neilk@brevity.org>
+Ori Livneh <ori@wikimedia.org>
 Roan Kattouw <roan@wikimedia.org>
 Trevor Parscal <trevor@wikimedia.org>
