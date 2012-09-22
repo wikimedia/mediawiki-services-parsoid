@@ -387,7 +387,26 @@ var getDOMRange = function ( doc, startElem, endElem ) {
 	}
 
 	if (updateDP) {
-		tcStart.setAttribute("data-parsoid", startElem.getAttribute("data-parsoid"));
+		var done = false;
+		var tcDP = tcStart.getAttribute("data-parsoid");
+		var seDP = startElem.getAttribute("data-parsoid");
+		if (tcDP && seDP) {
+			var tcDPObj = JSON.parse(tcDP);
+			var seDPObj = JSON.parse(seDP);
+			// Since TSRs on template content tokens are cleared by the
+			// template handler, all computed dsr values for template content
+			// is always inferred from top-level content values and is safe.
+			// So, do not overwrite a bigger end-dsr value.
+			if (tcDPObj.dsr && seDPObj.dsr && tcDPObj.dsr[1] > seDPObj.dsr[1]) {
+				tcDPObj.dsr[0] = seDPObj.dsr[0];
+				tcStart.setAttribute("data-parsoid", JSON.stringify(tcDPObj));
+				done = true;
+			}
+		}
+
+		if (!done) {
+			tcStart.setAttribute("data-parsoid", startElem.getAttribute("data-parsoid"));
+		}
 	}
 
 	return res;
