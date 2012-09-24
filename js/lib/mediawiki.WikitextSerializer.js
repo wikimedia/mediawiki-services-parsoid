@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------
  * This serializer is designed to eventually
- * * accept arbitrary HTML and
- * * serialize that to wikitext in a way that round-trips back to the same
+ * - accept arbitrary HTML and
+ * - serialize that to wikitext in a way that round-trips back to the same
  *   HTML DOM as far as possible within the limitations of wikitext.
  *
  * Not much effort has been invested so far on supporting
@@ -85,6 +85,8 @@ WEHP.tdHandler = function(state, text) {
 };
 
 WEHP.hasWikitextTokens = function ( state, onNewline, text ) {
+	// console.warn("---EWT:DBG0---");
+	// console.warn("---HWT---:onl:" + onNewline + ":" + text);
 	// tokenize the text
 	var p = new PegTokenizer( state.env ),
 		tokens = [];
@@ -167,6 +169,10 @@ WSP.wteHandlers = new WikitextEscapeHandlers();
  * onNewline
  *    true on start of file or after a new line has been emitted.
  *
+ * emitNewlineOnNextToken
+ *    true if there is a pending newline waiting to be emitted on
+ *    next token -- this let us handle cases where t
+ *
  * onStartOfLine
  *    true when onNewline is true, and also in other start-of-line contexts
  *    Ex: after a comment has been emitted, or after include/noinclude tokens.
@@ -201,6 +207,7 @@ WSP.wteHandlers = new WikitextEscapeHandlers();
 WSP.initialState = {
 	listStack: [],
 	onNewline: true,
+	emitNewlineOnNextToken: false,
 	onStartOfLine : true,
 	availableNewlineCount: 0,
 	singleLineMode: 0,
@@ -290,52 +297,63 @@ function escapedText(text) {
 }
 
 WSP.escapeWikiText = function ( state, text ) {
+	// console.warn("---EWT:ALL1---");
     // console.warn("t: " + text);
 	/* -----------------------------------------------------------------
 	 * General strategy: If a substring requires escaping, we can escape
 	 * the entire string without further analysis of the rest of the string.
 	 * ----------------------------------------------------------------- */
 
-	// Quick check for the common case (FIXME: useful or premature opt?)
+	// Quick check for the common case (useful to kill a majority of requests)
 	//
 	// Pure white-space or text without wt-special chars need not be analyzed
-	if (!text.match(/^[ \t][^\s]+|[<\[\]>\-\+\|'!=#\*:;{}]/)) {
+	if (!text.match(/^[ \t][^\s]+|[<>\[\]\-\+\|'!=#\*:;{}]/)) {
+		// console.warn("---EWT:F1---");
 		return text;
 	}
 
 	// Context-specific escape handler
 	var wteHandler = state.wteHandlerStack.last();
 	if (wteHandler && wteHandler(state,text)) {
+		// console.warn("---EWT:F2---");
 		return escapedText(text);
 	}
 
 	// Template and template-arg markers are escaped unconditionally!
 	if (text.match(/{{{|{{|}}}|}}/)) {
+		// console.warn("---EWT:F3---");
 		return escapedText(text);
 	}
 
-	// pre isn't covered yet by the context-specific escape handlers
-	// '', [], <> can show up anywhere -- so need for further analysis then.
-	// NOTE: I am only testing for a closing bracket (]) since it is sufficient
-	// to escape just the closing bracket and leave the opening bracket
-	// unescaped.
-	if (!state.onNewline && !text.match(/^[ \t]|''|[<>]|\[.*\]|\]/)) {
-		return text;
-	}
+	var sol = state.onNewline || state.emitNewlineOnNextToken;
+	var hasNewlines = text.match(/\n./);
+	if (!hasNewlines) {
+		// {|, |}, ||, |-, |+,  , *#:;, ----, =*= can only occur in SOL context.
+		// '', [], <> can show up anywhere.  {{, {{{, }}}, }} are handled above.
+		if (!sol && !text.match(/''|[<>]|\[.*\]|\]/)) {
+			// It is not necessary to test for an unmatched opening bracket ([)
+			// as long as we always escape an unamtched closing bracket (]).
+			// console.warn("---EWT:F4---");
+			return text;
+		}
 
-	// Quick checks when on a newline:
-	// lists (#*:;), tables ({|), hrs (----) -- always escape
-	if (state.onNewline && text.match(/^([#\*:;]|\{\|)|(\-\-\-\-)/)) {
-		return escapedText(text);
+		// Quick checks when on a newline
+		// + can only occur as "|+" and - can only occur as "|-" or ----
+		if (sol && !text.match(/^[ \t#*:;=]|[<\[\]>\|'!]|\-\-\-\-/)) {
+			// console.warn("---EWT:F5---");
+			return text;
+		}
 	}
 
 	// escape existing nowiki tags
 	text = text.replace(/<(\/?nowiki)>/g, '&lt;$1&gt;');
 
 	// use the tokenizer to see if we have any wikitext tokens
-	if (this.wteHandlers.hasWikitextTokens(state, state.onNewline, text)) {
+	if (this.wteHandlers.hasWikitextTokens(state, sol, text)) {
+		// console.warn("---EWT:DBG1---");
 		return escapedText(text);
-	} else {
+	} else if (state.currLine.numPieces > 1) {
+		// console.warn("---EWT:DBG2---");
 		// Last resort -- process current line text ignoring all embedded tags
 		// If it has wikitext tokens, we escape conservatively
 		var cl = state.currLine;
@@ -373,6 +391,9 @@ WSP.escapeWikiText = function ( state, text ) {
 		} else {
 			return text;
 		}
+	} else {
+		// console.warn("---EWT:DBG3---");
+		return text;
 	}
 };
 
@@ -1580,6 +1601,7 @@ WSP._collectAttrMetaTags = function(node, state) {
  * Serialize an HTML DOM document.
  */
 WSP.serializeDOM = function( node, chunkCB ) {
+	// console.warn("DOM: " + node.outerHTML);
 	try {
 		var state = $.extend({}, this.initialState, this.options);
 		state.serializer = this;
@@ -1633,6 +1655,8 @@ function gatherInlineText(buf, node) {
 
 			return;
 		case Node.COMMENT_NODE:
+			buf.push("<--" + node.data + "-->");
+			return;
 		case Node.TEXT_NODE:
 			buf.push(node.data);
 			return;
@@ -1684,6 +1708,7 @@ WSP._serializeDOM = function( node, state ) {
 			if (isHtmlBlockTag(name)) {
 				state.currLine = {
 					text: null,
+					numPieces: 0,
 					processed: false,
 					hasBracketPair: false,
 					hasHeadingPair: false
@@ -1710,16 +1735,19 @@ WSP._serializeDOM = function( node, state ) {
 				for (var i = 0, n = children.length; i < n; i++) {
 					gatherInlineText(buf, children[i]);
 				}
+				state.currLine.numPieces = n;
 				state.currLine.text = buf.join('');
 			}
 			this._serializeToken( state, node.data );
 			break;
 		case Node.COMMENT_NODE:
 			// delay the newline creation until after the comment
+			var onNewline = state.onNewline;
 			var savedEmitNewlineOnNextToken = state.emitNewlineOnNextToken;
 			state.emitNewlineOnNextToken = false;
 			this._serializeToken( state, new CommentTk( node.data ) );
 			state.emitNewlineOnNextToken = savedEmitNewlineOnNextToken;
+			state.onNewline = onNewline;
 			break;
 		default:
 			console.warn( "Unhandled node type: " +
