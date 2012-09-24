@@ -15,7 +15,7 @@ namespace parsoid
  */
 class TreeBuilder {
     public:
-        void setReceiver ( DocumentReceiver receiver ) {
+        void setReceiver ( DOM::DocumentReceiver receiver ) {
             this->receiver = receiver;
         }
 
@@ -26,7 +26,7 @@ class TreeBuilder {
             // If EofTk is found, call receiver( DOM );
         }
     private:
-        DocumentReceiver receiver;
+        DOM::DocumentReceiver receiver;
 };
 
 } // namespace parsoid

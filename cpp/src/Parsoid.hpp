@@ -9,11 +9,11 @@ namespace parsoid {
 class Parsoid {
     public:
         Parsoid();
-        void parse( string input, DocumentReceiver receiver );
+        void parse( string input, DOM::DocumentReceiver receiver );
         // Overloaded sync version
-        XMLDocument* parse( string input );
+        DOM::XMLDocument* parse( string input );
 
-        void setReceiver( DocumentReceiver receiver ) {
+        void setReceiver( DOM::DocumentReceiver receiver ) {
             this->receiver = receiver;
         }
     private:
@@ -28,7 +28,7 @@ class Parsoid {
         OutputPipeline syncOutputPipeline;
 
         // The document receiver
-        DocumentReceiver receiver;
+        DOM::DocumentReceiver receiver;
 };
 
 

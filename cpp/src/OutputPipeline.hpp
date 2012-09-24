@@ -29,7 +29,7 @@ class OutputPipeline {
             //treeBuilder.setReceiver( postProcessor );
         }
 
-        void setReceiver ( DocumentReceiver receiver ) {
+        void setReceiver ( DOM::DocumentReceiver receiver ) {
             this->receiver = receiver;
         }
 
@@ -43,7 +43,7 @@ class OutputPipeline {
         TreeBuilder treeBuilder;
         DOMPostProcessor postProcessor;
         // The output receiver
-        DocumentReceiver receiver;
+        DOM::DocumentReceiver receiver;
 };
 
 } // namespace parsoid
