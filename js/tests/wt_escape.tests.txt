@@ -5,6 +5,7 @@
 #### 3. Nested inside html with wikitext split by html tags
 #### 4. No escape needed
 #### 5. Empty headings <h1></h1>
+#### 6. Heading chars in SOL context
 #### ----------------------------------------
 !! test
 Headings: 0. Unnested
@@ -96,12 +97,23 @@ Headings: 5. Empty headings
 <h6></h6>
 !!end
 
+!! test
+Headings: 6. Heading chars in SOL context
+!! input
+<!--cmt--><nowiki>=h1=</nowiki>
+!! result
+<!--cmt-->=h1=
+!!end
+
 #### --------------- Lists ---------------
 #### 0. Outside nests (*foo, etc.)
 #### 1. Nested inside html <ul><li>*foo</li></ul>
 #### 2. Inside definition lists
 #### 3. Only bullets at start should be escaped
 #### 4. No escapes needed
+#### 5. No unnecessary escapes
+#### 6. Escape bullets in SOL position
+#### 7. Escape bullets in a multi-line context
 #### ----------------------------------------
 
 !! test
@@ -204,6 +216,24 @@ Lists: 5. No unnecessary escapes
 <ul><li>[[bar <span>[[foo]]</span></li></ul>
 <ul><li>]]bar <span>[[foo]]</span></li></ul>
 <ul><li>=bar <span>foo]]</span>=</li></ul>
+!!end
+
+!! test
+Lists: 6. Escape bullets in SOL position
+!! input
+<!--cmt--><nowiki>*foo</nowiki>
+!! result
+<!--cmt-->*foo
+!!end
+
+!! test
+Lists: 7. Escape bullets in a multi-line context 
+!! input
+<nowiki>a
+*b</nowiki>
+!! result
+a
+*b
 !!end
 
 #### --------------- HRs ---------------
@@ -546,6 +576,18 @@ bar <span><nowiki>[[foo]]</nowiki></span>
 <p>=bar <span>foo]]</span>=</p>
 !!end
 
+#### --------------- PRE ------------------
+#### 1. Leading space in SOL context should be escaped
+#### --------------------------------------
+!! test
+1. Leading space in SOL context should be escaped
+!! input
+<nowiki> foo</nowiki>
+<!--cmt--><nowiki> foo</nowiki>
+!! result
+ foo
+<!--cmt--> foo
+!! end
 
 #### --------------- HTML tags ---------------
 #### 1. a tags
