@@ -1,11 +1,7 @@
 #include "parsoid_internal.hpp"
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
 
 namespace parsoid {
-using boost::function;
-using boost::bind;
-using std::string;
+
 Parsoid::Parsoid ()
     : mainInputExpansionPipeline( InputExpansionPipeline( true ) )
 {

@@ -1,12 +1,6 @@
 #include "parsoid_internal.hpp"
-#include <vector>
-#include <map>
 
 namespace parsoid {
-
-using std::string;
-using std::vector;
-using std::map;
 
 
 template <typename HandlerType>

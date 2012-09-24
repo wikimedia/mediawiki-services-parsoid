@@ -1,13 +1,10 @@
 #ifndef __HAVE_PARSOID_TOKENIZER_H__
 #define __HAVE_PARSOID_TOKENIZER_H__
 
-#include <vector>
 #include "Token.hpp"
 
 namespace parsoid
 {
-using std::string;
-using std::vector;
 
 class WikiTokenizer {
     public:
