@@ -1,5 +1,13 @@
 /**
  * Abstract Document Object Model wrapper
+ *
+ * The idea is to provide stack-allocated pointer wrapper classes with a
+ * uniform interface. Memory management of the actual DOM implementation is
+ * expected to be tied to DOM membership: A DOM node is deallocated whenever
+ * it is removed from the DOM.
+ *
+ * The top-level XMLDocument class is refcounted with an intrusive_ptr, and
+ * will deallocate the entire DOM when its refcount drops to zero.
  */
 
 #include <boost/function.hpp>
@@ -88,8 +96,8 @@ class XMLAttributeBase
 {
     protected:
         // protect the constructor- we are an abstract base class
-        XMLAttributeBase();
-        ~XMLAttributeBase();
+        XMLAttributeBase() = default;
+        ~XMLAttributeBase() = default;
         // no copying either
         XMLAttributeBase( const XMLAttributeBase& );
         const XMLAttributeBase& operator=(const XMLAttributeBase&);
@@ -162,8 +170,8 @@ class XMLNodeBase
     protected:
         // Protected, as we are an abstract base class
         // Default constructor. Constructs an empty node.
-        XMLNodeBase();
-        ~XMLNodeBase();
+        XMLNodeBase() = default;
+        ~XMLNodeBase() = default;
         // no copying either
         XMLNodeBase( const XMLNodeBase& );
         const XMLNodeBase& operator=(const XMLNodeBase&);
@@ -311,6 +319,8 @@ class XMLNodeBase
 template <class XMLDOM_T>
 class XMLDocumentBase
     : public XMLDOM_T::XMLNode
+    // The XMLDocumentBase is refcounted
+    , public IntrusivePtrBase<XMLDocumentBase<XMLDOM_T>>
 {
     private:
         // Non-copyable semantics
@@ -319,10 +329,10 @@ class XMLDocumentBase
 
     protected:
         // Default constructor, makes empty document
-        XMLDocumentBase();
+        XMLDocumentBase() = default;
 
         // Destructor, invalidates all node/attribute handles to this document
-        ~XMLDocumentBase();
+        ~XMLDocumentBase() = default;
 
 
     public:
@@ -339,6 +349,7 @@ class XMLDocumentBase
         // loading/saving left out for now
 };
 
+
 /**
  * Type wrapper class
  */
@@ -349,12 +360,15 @@ class XMLDOM
         typedef XMLDocumentT XMLDocument;
         typedef XMLNodeT XMLNode;
         typedef XMLAttributeT XMLAttribute;
+
+        typedef intrusive_ptr<XMLDocument> XMLDocumentPtr;
+
         /**
          * Callback receiving a XMLDocument message
          *
          * FIXME: actually use a DOM type
          */
-        typedef boost::function<void(XMLDocument*)> DocumentReceiver;
+        typedef boost::function<void(XMLDocumentPtr)> DocumentReceiver;
 
         // Iterator helpers
         class XMLAttributeIterator;
