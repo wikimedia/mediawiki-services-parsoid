@@ -11,7 +11,7 @@ class Parsoid {
         Parsoid();
         void parse( string input, DocumentReceiver receiver );
         // Overloaded sync version
-        string parse( string input );
+        XMLDocument* parse( string input );
 
         void setReceiver( DocumentReceiver receiver ) {
             this->receiver = receiver;

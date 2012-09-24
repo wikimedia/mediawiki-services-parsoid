@@ -4,7 +4,6 @@
 namespace parsoid {
 
 // FIXME
-typedef boost::function<void(string)> DocumentReceiver;
 class DOMPostProcessor {};
 
 class OutputPipeline {

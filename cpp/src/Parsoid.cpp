@@ -17,15 +17,15 @@ Parsoid::Parsoid ()
     );
 }
 
-void assign( string& target, const string& value ) { target.assign( value ); }
+void assign( XMLDocument** target, XMLDocument* value ) { *target = value; }
 
-string Parsoid::parse( string input ) {
-    string out;
+XMLDocument* Parsoid::parse( string input ) {
+    XMLDocument* doc;
     // define a callback that appends to string
     // TODO: actually handle TokenMessage in callback!
-    auto cb = bind( assign, boost::ref(out), _1 );
+    auto cb = bind( assign, &doc, _1 );
     parse( input, cb );
-    return out;
+    return doc;
 }
 
 void Parsoid::parse( string input, DocumentReceiver receiver ) {
