@@ -240,59 +240,50 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 	//	id == about marks first element
 	// * ref all tables to this (just add about)
 	// * ref end token to this, add property="mw:Object/Template/End"
-	if ( ! state.emittedFirstChunk ) {
-		var tsr = state.token.dataAttribs.tsr;
-		var src = state.token.getWTSource(this.manager.env);
-		if ( chunk.length ) {
-			var firstToken = chunk[0];
-			if ( firstToken.constructor === String ) {
-				// Also include following string tokens
-				var stringTokens = [ chunk.shift() ];
-				while ( chunk.length && chunk[0].constructor === String ) {
-					stringTokens.push( chunk.shift() );
-				}
-				// Wrap in span with info
-				return [ new TagTk( 'span',
-							[
-								new KV('typeof', 'mw:Object/Template'),
-								new KV('about', '#' + state.templateId),
-								new KV('id', state.templateId)
-							],
-							{
-								tsr: Util.clone(tsr),
-								src: src,
-							}
-						) ]
-					.concat( stringTokens, [ new EndTagTk( 'span' ) ], chunk );
-			} else if ( firstToken.constructor === TagTk || firstToken.constructor === SelfclosingTagTk) {
-				// XXX: handle id/about conflicts
 
-				// clone token and update attributes
-				firstToken = firstToken.clone();
-				firstToken.addSpaceSeparatedAttribute( 'typeof', 'mw:Object/Template' );
-				firstToken.setAttribute( 'about', '#' + state.templateId );
-				firstToken.setAttribute( 'id', state.templateId );
-				firstToken.dataAttribs.src = src;
-				chunk[0] = firstToken;
-
-				// add about ref to all tables
-				return this.addAboutToTableElements( state, chunk );
+	var tsr = state.token.dataAttribs.tsr;
+	var src = state.token.getWTSource(this.manager.env);
+	var done = false;
+	if ( chunk.length ) {
+		var firstToken = chunk[0];
+		if ( firstToken.constructor === String ) {
+			// Also include following string tokens
+			var stringTokens = [ chunk.shift() ];
+			while ( chunk.length && chunk[0].constructor === String ) {
+				stringTokens.push( chunk.shift() );
 			}
-		} else {
-			// add about ref to all tables
-			return [ new SelfclosingTagTk( 'meta', [
-						new KV( 'about', '#' + state.templateId ),
-						new KV( 'typeof', 'mw:Object/Template' )
-					], {
-						tsr: Util.clone(tsr),
-						src: src
-					})
-			];
+			// Wrap in span with info
+			var span = new TagTk( 'span',
+						[
+							new KV('typeof', 'mw:Object/Template'),
+							new KV('about', '#' + state.templateId),
+							new KV('id', state.templateId)
+						],
+						{
+							tsr: Util.clone(tsr),
+							src: src
+						}
+					);
+			chunk = [span].concat(stringTokens, [ new EndTagTk( 'span' ) ], chunk);
+			done = true;
 		}
-	} else {
-		return this.addAboutToTableElements( state, chunk );
-		//return chunk;
 	}
+
+	if (!done) {
+		// add meta tag
+		var mtag = new SelfclosingTagTk( 'meta', [
+					new KV( 'about', '#' + state.templateId ),
+					new KV( 'typeof', 'mw:Object/Template' ),
+					new KV('id', state.templateId)
+				], {
+					tsr: Util.clone(tsr),
+					src: src
+				});
+		chunk = [mtag].concat(chunk);
+	}
+
+	// add about ref to all tables
+	return this.addAboutToTableElements( state, chunk );
 };
 
 /**
@@ -305,7 +296,8 @@ TemplateHandler.prototype._onChunk = function( state, cb, chunk ) {
 	}
 	chunk = Util.stripEOFTkfromTokens( chunk );
 
-	for (var i = 0, n = chunk.length; i < n; i++) {
+	var i, n;
+	for (i = 0, n = chunk.length; i < n; i++) {
 		if (chunk[i].dataAttribs) {
 			chunk[i].dataAttribs.tsr = undefined;
 		}
@@ -321,7 +313,7 @@ TemplateHandler.prototype._onChunk = function( state, cb, chunk ) {
 	} else {
 		// Ignore comments in template transclusion mode
 		var newChunk = [];
-		for (var i = 0, n = chunk.length; i < n; i++) {
+		for (i = 0, n = chunk.length; i < n; i++) {
 			if (chunk[i].constructor !== CommentTk) {
 				newChunk.push(chunk[i]);
 			}

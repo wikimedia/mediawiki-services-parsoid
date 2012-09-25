@@ -328,11 +328,11 @@ WSP.escapeWikiText = function ( state, text ) {
 	var sol = state.onNewline || state.emitNewlineOnNextToken;
 	var hasNewlines = text.match(/\n./);
 	if (!hasNewlines) {
-		// {|, |}, ||, |-, |+,  , *#:;, ----, =*= can only occur in SOL context.
-		// '', [], <> can show up anywhere.  {{, {{{, }}}, }} are handled above.
+		// {|, |}, ||, |-, |+,  , *#:;, ----, =*= only need to escaped in SOL context.
+		// '', [], <> might need escaping anywhere.  {{, {{{, }}}, }} are handled above.
 		if (!sol && !text.match(/''|[<>]|\[.*\]|\]/)) {
 			// It is not necessary to test for an unmatched opening bracket ([)
-			// as long as we always escape an unamtched closing bracket (]).
+			// as long as we always escape an unmatched closing bracket (]).
 			// console.warn("---EWT:F4---");
 			return text;
 		}
