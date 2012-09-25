@@ -4,7 +4,7 @@ var fs = require('fs'),
 
 var url = {
 	host: 'gerrit.wikimedia.org',
-	path: '/r/gitweb?p=mediawiki/core.git;a=blob_plain;hb=HEAD;f=tests/parser/parserTests.txt',
+	path: '/r/gitweb?p=mediawiki/core.git;a=blob_plain;hb=HEAD;f=tests/parser/parserTests.txt'
 };
 var target_name = __dirname+"/parserTests.txt";
 

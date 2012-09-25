@@ -2,7 +2,7 @@ var path = require('path');
 
 // Fake a worker-like interface so we can test it in-process
 // workers in node's webworker module don't seem to report errors very well.
-if (typeof module == "object") {
+if (typeof module === "object") {
 	module.exports = {
 		postMessage: function(data) {
 			var msg = {data: JSON.parse(JSON.stringify(data))};
@@ -49,5 +49,5 @@ var myWorker = {
 
 onmessage = function(msg) {
 	return myWorker.onmessage(msg);
-}
+};
 

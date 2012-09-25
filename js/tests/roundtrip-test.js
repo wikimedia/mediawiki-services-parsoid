@@ -14,7 +14,7 @@ module.exports.init = function(worker) {
 		var module = _require(filename);
 		symbols.forEach(function(symbol) {
 			global[symbol] = module[symbol];
-		})
+		});
 	}
 
 	// For now most modules only need this for $.extend and $.each :)
@@ -47,9 +47,9 @@ module.exports.init = function(worker) {
 			serializer.treeToSource(tree, function(newText, err) {
 				if (err) throw new Error(err);
 				sendResult(text, newText, msg);
-			})
-		})
-	}
+			});
+		});
+	};
 
 	worker.onmessage = function(msg) {
 		var data = msg.data;
@@ -58,5 +58,5 @@ module.exports.init = function(worker) {
 		} else {
 			throw new Error('unknown action ' + data.action);
 		}
-	}
+	};
 };

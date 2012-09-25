@@ -2,7 +2,7 @@ var pageDatabase = {
 	'Boring': 'Just some text and [[a link]].',
 	'Template:Parens': '({{{1}}})',
 	'ParenCaller': '{{Parens|bizbax}}'
-}
+};
 var domDatabase = {
 	'Boring': {
 		type: 'root',
@@ -83,5 +83,5 @@ $(function() {
 		} else {
 			console.log(node);
 		}
-	});
-})
+	} );
+} );

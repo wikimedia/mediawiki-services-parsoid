@@ -1233,7 +1233,7 @@ Frame.prototype.expand = function ( chunk, options ) {
 		var pipelineOpts = {
 			isInclude: this.depth > 0,
 			wrapTemplates: wrap
-		}
+		};
 
 		var pipeline = this.manager.pipeFactory.getPipeline(
 				// XXX: use input type

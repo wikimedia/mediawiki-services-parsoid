@@ -68,7 +68,7 @@ MWRefTagHook = function( env ) {
 		var ref = group.add(node, options);
 		var linkback = ref.linkbacks[ref.linkbacks.length - 1];
 
-		var bits = []
+		var bits = [];
 		if (options.group) {
 			bits.push(options.group);
 		}
@@ -161,7 +161,7 @@ MWReferencesTagHook = function( env ) {
 			}
 		}
 	}
-}
+};
 
 if (typeof module == "object") {
 	module.exports.MWRefTagHook = MWRefTagHook;

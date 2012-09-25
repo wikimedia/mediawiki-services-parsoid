@@ -5,7 +5,7 @@
 testWhiteList = {};
 
 // Valid, but the PHP parser strips the empty tags out for giggles.
-testWhiteList["Italics and bold: 2-quote opening sequence: (2,5)"] = "<p><i>foo</i><b></b></p>"
+testWhiteList["Italics and bold: 2-quote opening sequence: (2,5)"] = "<p><i>foo</i><b></b></p>";
 testWhiteList["Italics and bold: 3-quote opening sequence: (3,5)"] = "<p><b>foo<i></i></b></p>";
 testWhiteList["Italics and bold: 4-quote opening sequence: (4,5)"] = "<p>'<b>foo<i></i></b></p>";
 testWhiteList["Italics and bold: multiple quote sequences: (3,4,2)"] = "<p><b>foo'</b>bar<i></i></p>";

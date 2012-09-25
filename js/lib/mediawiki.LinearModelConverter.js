@@ -13,7 +13,7 @@ function ConvertDOMToLM( node ) {
 	return convertHTMLNode( node );
 }
 
-if ( typeof module == 'object' ) {
+if ( typeof module === 'object' ) {
 	module.exports.ConvertDOMToLM = ConvertDOMToLM;
 }
 
