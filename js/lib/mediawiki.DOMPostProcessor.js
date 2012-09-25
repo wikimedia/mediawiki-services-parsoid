@@ -368,7 +368,8 @@ var getDOMRange = function ( doc, startElem, endElem ) {
 			res.end.parentNode === tcStartPar)
 		{
 			var dcpObj = tcStartPar.getAttribute("data-parsoid");
-			if (!dcpObj || JSON.parse(dcpObj).stx !== "html") {
+			if ((tcStartPar.nodeName.toLowerCase() === 'p') &&
+				(!dcpObj || JSON.parse(dcpObj).stx !== "html")) {
 				tcStart = tcStartPar;
 				res.end = tcStartPar;
 				skipSpan = true;
