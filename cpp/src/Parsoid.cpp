@@ -17,14 +17,12 @@ Parsoid::Parsoid ()
     );
 }
 
-void assign( DOM::XMLDocumentPtr* target, DOM::XMLDocumentPtr value ) { *target = value; }
-
 DOM::XMLDocumentPtr Parsoid::parse( string input ) {
     DOM::XMLDocumentPtr doc;
     // define a callback that appends to string
     // TODO: actually handle TokenMessage in callback!
-    auto cb = bind( assign, &doc, _1 );
-    parse( input, cb );
+    auto setDoc = [&] ( DOM::XMLDocumentPtr value ) { doc = value; };
+    parse( input, setDoc );
     return doc;
 }
 

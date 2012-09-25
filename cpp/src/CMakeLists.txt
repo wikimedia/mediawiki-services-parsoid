@@ -30,7 +30,7 @@ add_library(
 	${LIBPARSOID_SRCS}
 )
 
-add_dependencies( parsoid pugixml )
+add_dependencies( parsoid pugixml netsurf-libhubbub )
 
 target_link_libraries( parsoid ${PARSOID_LIBS} )
 

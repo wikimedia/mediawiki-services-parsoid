@@ -4,6 +4,9 @@
 #include <iostream>
 #include <boost/checked_delete.hpp>
 #include <boost/detail/atomic_count.hpp>
+#include <boost/intrusive_ptr.hpp>
+
+using std::string;
 
 template<class T>
 struct IntrusivePtrBase
@@ -23,7 +26,7 @@ struct IntrusivePtrBase
         #endif
     }
 
-    ///does nto support assignment
+    ///does not support assignment
     IntrusivePtrBase& operator=(IntrusivePtrBase const& rhs)
     {
         #ifdef IP_DEBUG

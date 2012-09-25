@@ -12,6 +12,7 @@
 
 #include <boost/function.hpp>
 #include "IntrusivePtrBase.hpp"
+#include "LibIncludes.hpp"
 
 namespace parsoid {
 
@@ -28,7 +29,7 @@ class XMLAttribute;
 // A string-like object.
 // XXX: Subclass form std::string to enrich with overloaded assign and
 // .as{Int,Double,..} methods?
-class XMLText;
+//class XMLText;
 
 
 // At the very minimum, we have to support the equivalent to the following
@@ -120,8 +121,8 @@ class XMLAttributeBase
         bool empty() const;
 
         // Get attribute name/value, or "" if attribute is empty
-        const string& name() const;
-        const string& value() const;
+        const string name() const;
+        const string value() const;
 
         // Get attribute value, or the empty string if attribute is empty
         explicit operator string() const;
@@ -136,14 +137,14 @@ class XMLAttributeBase
         bool asBool(bool def = false) const;
 
         // Set attribute name/value (returns false if attribute is empty or there is not enough memory)
-        bool setName(const string& rhs);
-        bool setValue(const string& rhs);
+        XMLAttributeBase setName(const string& rhs);
+        XMLAttributeBase setValue(const string& rhs);
 
         // Set attribute value with type conversion (numbers are converted to strings, boolean is converted to "true"/"false")
-        bool setValue(int rhs);
-        bool setValue(unsigned int rhs);
-        bool setValue(double rhs);
-        bool setValue(bool rhs);
+        XMLAttributeBase setValue(int rhs);
+        XMLAttributeBase setValue(unsigned int rhs);
+        XMLAttributeBase setValue(double rhs);
+        XMLAttributeBase setValue(bool rhs);
 
         // Set attribute value (equivalent to set_value without error checking)
         XMLAttributeBase operator=(const string& rhs);
@@ -196,10 +197,10 @@ class XMLNodeBase
         bool empty() const;
 
         // Get node name/value, or "" if node is empty or it has no name/value
-        const string& name() const;
-        const string& value() const;
+        const string name() const;
+        const string value() const;
 
-        // Get attribute list
+        // Get first/last attribute
         typename XMLDOM_T::XMLAttribute firstAttribute() const;
         typename XMLDOM_T::XMLAttribute lastAttribute() const;
 
@@ -218,7 +219,7 @@ class XMLNodeBase
         typename XMLDOM_T::XMLNode root() const;
 
         // Get text object for the current node
-        XMLText& text() const;
+        const string text() const;
 
         // Get child, attribute or next/previous sibling with the specified name
         typename XMLDOM_T::XMLNode child(const string& name) const;
@@ -227,14 +228,14 @@ class XMLNodeBase
         typename XMLDOM_T::XMLNode previousSibling(const string& name) const;
 
         // Get child value of current node; that is, value of the first child node of type PCDATA/CDATA
-        const string& childValue() const;
+        const string childValue() const;
 
         // Get child value of child with specified name. Equivalent to child(name).child_value().
-        const string& childValue(const string& name) const;
+        const string childValue(const string& name) const;
 
-        // Set node name/value (returns false if node is empty, there is not enough memory, or node can not have name/value)
-        bool setName(const string& rhs);
-        bool setValue(const string& rhs);
+        // Set node name/value
+        typename XMLDOM_T::XMLNode setName(const string& rhs);
+        typename XMLDOM_T::XMLNode setValue(const string& rhs);
 
         // Add attribute with specified name. Returns added attribute, or empty attribute on errors.
         typename XMLDOM_T::XMLAttribute appendAttribute(const string& name);
@@ -322,19 +323,6 @@ class XMLDocumentBase
     // The XMLDocumentBase is refcounted
     , public IntrusivePtrBase<XMLDocumentBase<XMLDOM_T>>
 {
-    private:
-        // Non-copyable semantics
-        XMLDocumentBase(const typename XMLDOM_T::XMLDocument&);
-        const XMLDocumentBase& operator=(const typename XMLDOM_T::XMLDocument&);
-
-    protected:
-        // Default constructor, makes empty document
-        XMLDocumentBase() = default;
-
-        // Destructor, invalidates all node/attribute handles to this document
-        ~XMLDocumentBase() = default;
-
-
     public:
 
         // Removes all nodes, leaving the empty document
@@ -347,6 +335,19 @@ class XMLDocumentBase
         typename XMLDOM_T::XMLNode documentElement() const;
 
         // loading/saving left out for now
+
+        // Destructor, invalidates all node/attribute handles to this document
+        ~XMLDocumentBase() {};
+
+    protected:
+        // Default constructor, makes empty document
+        XMLDocumentBase() {};
+
+    private:
+        // Non-copyable semantics
+        XMLDocumentBase(const typename XMLDOM_T::XMLDocument&);
+        const XMLDocumentBase& operator=(const typename XMLDOM_T::XMLDocument&);
+
 };
 
 
