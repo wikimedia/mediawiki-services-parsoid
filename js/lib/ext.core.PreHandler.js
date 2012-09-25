@@ -103,6 +103,6 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 	}
 };
 
-if (typeof module == "object") {
+if (typeof module === "object") {
 	module.exports.PreHandler = PreHandler;
 }

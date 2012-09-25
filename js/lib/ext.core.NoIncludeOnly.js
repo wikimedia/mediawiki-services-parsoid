@@ -133,7 +133,7 @@ function IncludeOnly( manager, options ) {
 }
 
 
-if (typeof module == "object") {
+if (typeof module === "object") {
 	module.exports.NoInclude = NoInclude;
 	module.exports.IncludeOnly = IncludeOnly;
 	module.exports.OnlyInclude = OnlyInclude;

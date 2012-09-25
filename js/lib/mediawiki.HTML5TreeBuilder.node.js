@@ -149,6 +149,6 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 
 
 
-if (typeof module == "object") {
+if (typeof module === "object") {
 	module.exports.FauxHTML5 = FauxHTML5;
 }

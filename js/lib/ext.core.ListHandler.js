@@ -80,7 +80,7 @@ ListHandler.prototype.onListItem = function ( token, frame, prevToken ) {
 ListHandler.prototype.commonPrefixLength = function (x, y) {
 	var minLength = Math.min(x.length, y.length);
 	for(var i = 0; i < minLength; i++) {
-		if (x[i] != y[i]) break;
+		if (x[i] !== y[i]) break;
 	}
 	return i;
 };
@@ -150,7 +150,7 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 			prefixLen++;
 		} else {
 			tokens = tokens.concat( this.popTags(bs.length - prefixLen) );
-			if (prefixLen > 0 && bn.length == prefixLen ) {
+			if (prefixLen > 0 && bn.length === prefixLen ) {
 				itemToken = this.endtags.pop();
 				tokens.push(itemToken);
 				tokens.push(new TagTk(itemToken.name, [], Util.clone(token.dataAttribs)));
@@ -174,6 +174,6 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 	return res;
 };
 
-if (typeof module == "object") {
+if (typeof module === "object") {
 	module.exports.ListHandler = ListHandler;
 }

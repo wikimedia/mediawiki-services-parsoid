@@ -630,7 +630,7 @@ function computeNodeDSR(node, s, e) {
 		"h4"    : [4,4],
 		"h5"    : [5,5],
 		"h6"    : [6,6],
-		"hr"    : [4,0],
+		"hr"    : [4,0]
 		// span, figure, caption, figcaption, br, table, th, td, tr, a, i, b
 	};
 
@@ -810,7 +810,7 @@ function computeDocDSR(env, root) {
 	console.log("NEW DOC: " + root.outerHTML);
 	console.log("------------------------");
 **/
-};
+}
 
 /**
  * Encapsulate template-affected DOM structures by wrapping text nodes into

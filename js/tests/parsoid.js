@@ -39,6 +39,6 @@ function initParsoid() {
 
 initParsoid();
 
-if (typeof module == "object") {
+if (typeof module === "object") {
 	module.exports.Parsoid = Parsoid;
 }

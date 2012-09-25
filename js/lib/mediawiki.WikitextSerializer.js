@@ -1795,6 +1795,6 @@ var Node = {
 };
 
 
-if (typeof module == "object") {
+if (typeof module === "object") {
 	module.exports.WikitextSerializer = WikitextSerializer;
 }

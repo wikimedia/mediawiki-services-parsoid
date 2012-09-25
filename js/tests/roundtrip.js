@@ -24,7 +24,7 @@ function runTests() {
 	function checkState() {
 		var remaining = state.revsIn - state.revsOut;
 		console.log(remaining + ' in queue... ' + (state.revsOut + '/' + state.revsIn));
-		if (remaining == 0) {
+		if (remaining === 0) {
 			console.log('are we done?', state.doneReading);
 		}
 		if (state.doneReading) {
@@ -39,10 +39,10 @@ function runTests() {
 		}
 	}
 
-	var nWorkers = 8;
-	var queueLength = nWorkers * 2;
-	var workerDir = __dirname;
-	var workers = [];
+	var nWorkers = 8,
+		queueLength = nWorkers * 2,
+		workerDir = __dirname,
+		workers = [];
 	workerJs = require('path').join(workerDir, 'worker.js');
 	for (var i = 0; i < nWorkers; i++) {
 		var worker = new Worker(workerJs);
@@ -99,7 +99,7 @@ function runTests() {
 		process.exit(1);
 	});
 	reader.on('revision', function(revision) {
-		roundTripTest(revision.text, 'revision id ' + revision.id)
+		roundTripTest(revision.text, 'revision id ' + revision.id);
 	});
 	console.log('Reading!');
 	process.stdin.setEncoding('utf8');

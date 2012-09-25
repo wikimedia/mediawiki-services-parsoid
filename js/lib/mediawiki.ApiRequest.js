@@ -111,8 +111,8 @@ TemplateRequest.prototype._handler = function (error, response, body) {
 		// check for #REDIRECT
 		var redirMatch = src.match( /[\r\n\s]*#\s*redirect\s*\[\[([^\]]+)\]\]/i );
 		if ( redirMatch ) {
-			var title = redirMatch[1];
-			var url = this.env.wgScript + '/api' +
+			var title = redirMatch[1],
+				url = this.env.wgScript + '/api' +
 				this.env.wgScriptExtension +
 				'?' +
 				qs.stringify( {
@@ -139,6 +139,7 @@ TemplateRequest.prototype._handler = function (error, response, body) {
 		//
 		//
 		var listeners = this.listeners( 'src' );
+
 		var processSome = function () {
 			// XXX: experiment a bit with the number of callbacks per
 			// iteration!
@@ -208,7 +209,7 @@ TemplateRequest.prototype._handler = function (error, response, body) {
 		});
 		*/
 
-if (typeof module == "object") {
+if (typeof module === "object") {
 	module.exports.TemplateRequest = TemplateRequest;
 	module.exports.DoesNotExistError = DoesNotExistError;
 	module.exports.ParserError = ParserError;

@@ -34,8 +34,8 @@ Cite.prototype.referencesRank = 2.6; // after PostExpandParagraphHandler
  */
 Cite.prototype.handleRef = function ( tokens ) {
 	// remove the first ref tag
-	var startTsr, endTsr;
-	var startTag = tokens.shift();
+	var startTsr, endTsr,
+		startTag = tokens.shift();
 	startTsr = startTag.dataAttribs.tsr;
 	if ( tokens[tokens.length - 1].name === 'ref' ) {
 		var endTag = tokens.pop();
@@ -47,10 +47,10 @@ Cite.prototype.handleRef = function ( tokens ) {
 		group: null
 	}, Util.KVtoHash(startTag.attribs));
 
-	var group = this.getRefGroup(options.group);
-	var ref = group.add(tokens, options);
-	//console.warn( 'added tokens: ' + JSON.stringify( this.refGroups, null, 2 ));
-	var linkback = ref.linkbacks[ref.linkbacks.length - 1];
+	var group = this.getRefGroup(options.group ),
+		ref = group.add(tokens, options ),
+		//console.warn( 'added tokens: ' + JSON.stringify( this.refGroups, null, 2 ));
+		linkback = ref.linkbacks[ref.linkbacks.length - 1];
 
 
 	var bits = [];
@@ -61,7 +61,7 @@ Cite.prototype.handleRef = function ( tokens ) {
 	bits.push(ref.groupIndex + 1);
 
 	var refId = "#mwt" + this.manager.env.generateUID(),
-	    text  = this.manager.env.text,
+		text  = this.manager.env.text,
 		span  = new TagTk('span', [
 				new KV('id', linkback),
 				new KV('class', 'reference'),
@@ -152,17 +152,16 @@ Cite.prototype.onReferences = function ( token, manager ) {
 		return out;
 	};
 
-	var res;
-
-	var options = $.extend({
+	var res,
+		options = $.extend({
 		name: null,
 		group: null
 	}, Util.KVtoHash(token.attribs));
 
 	if (options.group in refGroups) {
-		var group = refGroups[options.group];
-		var listItems = $.map(group.refs, renderLine);
-		var dataAttribs = Util.clone(token.dataAttribs);
+		var group = refGroups[options.group],
+			listItems = $.map(group.refs, renderLine ),
+			dataAttribs = Util.clone(token.dataAttribs);
 		dataAttribs.src = token.getWTSource(this.manager.env);
 		res = [
 			new TagTk( 'ol', [
@@ -191,8 +190,8 @@ Cite.prototype.getRefGroup = function(group) {
 				if (options.name && options.name in byName) {
 					ref = byName[options.name];
 				} else {
-					var n = refs.length;
-					var key = n + '';
+					var n = refs.length,
+						key = n + '';
 					if (options.name) {
 						key = options.name + '-' + key;
 					}

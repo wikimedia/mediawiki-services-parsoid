@@ -664,7 +664,7 @@ Sanitizer.prototype.onAny = function ( token ) {
 			for (i = 0, l = attribs.length; i < l; i++ ) {
 				kv = attribs[i];
 				if ( kv.k.constructor !== String || kv.v.constructor !== String ) {
-					k = kv.k,
+					k = kv.k;
 					v = kv.v;
 
 					if ( k.constructor === Array ) {
@@ -894,7 +894,7 @@ Sanitizer.prototype.sanitizeTagAttrs = function(newToken, attrs) {
 		var newV  = vs[0];
 		var origV = vs[1];
 		// explicit check against null to prevent discarding empty strings
-		if (newV != null) {
+		if (newV !== null) {
 			newToken.addNormalizedAttribute(k, newV, origV);
 		} else {
 			newToken.setShadowInfo(k, newV, origV);

@@ -17,9 +17,9 @@ if (typeof module === "object") {
 		postMessage = function(data) {
 			var msg = {data: JSON.parse(JSON.stringify(data))};
 			setTimeout(function() {
-				module.exports.onmessage(msg)
+				module.exports.onmessage(msg);
 			}, 0);
-		}
+		};
 	}
 }
 
@@ -30,7 +30,7 @@ var myWorker = {
 	postMessage: postMessage,
 	onmessage: function(msg) {
 		var data = msg.data;
-		if (data.action == 'init') {
+		if (data.action === 'init') {
 			if (didInit) {
 				throw new Error('second init request');
 			}

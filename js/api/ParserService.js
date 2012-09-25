@@ -111,12 +111,12 @@ var refineDiff = function ( diff ) {
 	// to expand range of <b> and <i> tags, except there is no optimal
 	// solution except as determined by heuristics ("short text" = <= 2 chars).
 	function mergeConsecutiveSegments(wordDiffs) {
-		var n = wordDiffs.length;
-		var currIns = null, currDel = null;
-		var newDiffs = [];
+		var n = wordDiffs.length,
+			currIns = null, currDel = null,
+			newDiffs = [];
 		for (var i = 0; i < n; i++) {
-			var d = wordDiffs[i];
-			var dVal = d.value;
+			var d = wordDiffs[i],
+				dVal = d.value;
 			if (d.added) {
 				// Attempt to accumulate
 				if (currIns === null) {

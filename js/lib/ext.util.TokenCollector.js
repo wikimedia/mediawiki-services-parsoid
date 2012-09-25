@@ -119,6 +119,6 @@ TokenCollector.prototype._onAnyToken = function ( token, frame, cb ) {
 };
 
 
-if (typeof module == "object") {
+if (typeof module === "object") {
 	module.exports.TokenCollector = TokenCollector;
 }

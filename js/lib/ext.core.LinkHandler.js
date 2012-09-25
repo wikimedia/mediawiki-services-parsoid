@@ -38,9 +38,9 @@ WikiLinkHandler.prototype.rank = 1.15; // after AttributeExpander
  * - Collates about, typeof, and linkAttrs into a new attr. array
  * ------------------------------------------------------------ */
 function buildLinkAttrs(attrs, getLinkText, rdfaType, linkAttrs) {
-	var newAttrs = [];
-	var linkText = [];
-	var about;
+	var newAttrs = [],
+		linkText = [],
+		about;
 
 	// In one pass through the attribute array,
 	// fetch about, typeof, and linkText
@@ -48,9 +48,9 @@ function buildLinkAttrs(attrs, getLinkText, rdfaType, linkAttrs) {
 	// about && typeof are usually at the end of the array
 	// if at all present
 	for ( var i = 0, l = attrs.length; i < l; i++ ) {
-		var kv = attrs[i];
-		var k  = kv.k;
-		var v  = kv.v;
+		var kv = attrs[i],
+			k  = kv.k,
+			v  = kv.v;
 
 		// link-text attrs have empty keys
 		if (getLinkText && k === "") {
@@ -170,12 +170,11 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 };
 
 WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, title ) {
-	var env = this.manager.env;
-	// distinguish media types
-	// if image: parse options
-
-	var rdfaAttrs = buildLinkAttrs(token.attribs, true, null, null);
-	var content = rdfaAttrs.content;
+	var env = this.manager.env,
+		// distinguish media types
+		// if image: parse options
+		rdfaAttrs = buildLinkAttrs(token.attribs, true, null, null ),
+		content = rdfaAttrs.content;
 
 	var MD5 = new jshashes.MD5(),
 		hash = MD5.hex( title.key ),
@@ -214,9 +213,9 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 						oHash.height = y;
 					}
 				} else {
-					var bits = origOText.split( '=', 2 );
-					var normalizedBit0 = bits[0].trim().toLowerCase();
-					var key = WikitextConstants.Image.PrefixOptions[normalizedBit0];
+					var bits = origOText.split( '=', 2 ),
+						normalizedBit0 = bits[0].trim().toLowerCase(),
+						key = WikitextConstants.Image.PrefixOptions[normalizedBit0];
 					if ( bits[0] && key) {
 						oHash[key] = bits[1];
 						// Preserve white space
@@ -332,11 +331,11 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 	// XXX: support other formats (border, frameless, frame)
 	// XXX: support prefixes
 
-	var rdfaType = 'mw:Thumb';
-	var figAttrs = [
-		new KV('class', figureclass),
-		new KV('style', figurestyle)
-	];
+	var rdfaType = 'mw:Thumb',
+		figAttrs = [
+			new KV('class', figureclass),
+			new KV('style', figurestyle)
+		];
 
 	if (rdfaAttrs.hasRdfaType) {
 		// Update once more since we are updating typeof here

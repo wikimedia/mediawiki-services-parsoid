@@ -26,6 +26,6 @@ BehaviorSwitchHandler.prototype.onBehaviorSwitch = function ( token, manager, cb
 };
 
 
-if (typeof module == "object") {
+if (typeof module === "object") {
 	module.exports.BehaviorSwitchHandler = BehaviorSwitchHandler;
 }

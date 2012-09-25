@@ -1,11 +1,9 @@
 module.exports.init = function(worker) {
 	var fs = require('fs'),
-		path = require('path');
-
-	// Fetch up some of our wacky parser bits...
-
-	//var basePath = '../modules/';
-	var basePath = path.join(path.dirname(process.cwd()), 'modules');
+		path = require('path' ),
+		// Fetch up some of our wacky parser bits...
+		//basePath = '../modules/',
+		basePath = path.join(path.dirname(process.cwd()), 'modules');
 	function _require(filename) {
 		return require(path.join(basePath, filename));
 	}
@@ -43,9 +41,13 @@ module.exports.init = function(worker) {
 
 	roundTripTest = function(text, msg) {
 		parser.parseToTree(text, function(tree, err) {
-			if (err) throw new Error(err);
+			if (err) {
+				throw new Error(err);
+			}
 			serializer.treeToSource(tree, function(newText, err) {
-				if (err) throw new Error(err);
+				if (err) {
+					throw new Error(err);
+				}
 				sendResult(text, newText, msg);
 			});
 		});
@@ -53,7 +55,7 @@ module.exports.init = function(worker) {
 
 	worker.onmessage = function(msg) {
 		var data = msg.data;
-		if (data.action == 'roundTrip') {
+		if (data.action === 'roundTrip') {
 			roundTripTest(data.text, data.msg);
 		} else {
 			throw new Error('unknown action ' + data.action);

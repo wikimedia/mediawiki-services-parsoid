@@ -53,7 +53,7 @@ MWRefTagHook = function( env ) {
 					);
 					return ref;
 				}
-			}
+			};
 		}
 		return refGroups[group];
 	};
@@ -64,11 +64,10 @@ MWRefTagHook = function( env ) {
 			group: null
 		}, node.params);
 		
-		var group = getRefGroup(options.group);
-		var ref = group.add(node, options);
-		var linkback = ref.linkbacks[ref.linkbacks.length - 1];
-
-		var bits = [];
+		var group = getRefGroup(options.group ),
+			ref = group.add(node, options),
+			linkback = ref.linkbacks[ref.linkbacks.length - 1],
+			bits = [];
 		if (options.group) {
 			bits.push(options.group);
 		}
@@ -87,7 +86,7 @@ MWRefTagHook = function( env ) {
 					content: [
 						'[' + bits.join(' ')  + ']'
 					]
-				},
+				}
 			],
 			origNode: node
 		};
@@ -100,9 +99,9 @@ MWReferencesTagHook = function( env ) {
 			refGroups: {}
 		};
 	}
-	var refGroups = env.cite.refGroups;
-	
-	var arrow = '↑';
+	var refGroups = env.cite.refGroups,
+		arrow = '↑';
+
 	var renderLine = function( ref ) {
 		var out = {
 			type: 'li',
@@ -111,16 +110,16 @@ MWReferencesTagHook = function( env ) {
 			},
 			content: []
 		};
-		if (ref.linkbacks.length == 1) {
+		if (ref.linkbacks.length === 1) {
 			out.content.push({
 				type: 'hashlink',
 				target: '#' + ref.linkbacks[0],
 				content: [
 					arrow
 				]
-			})
+			});
 		} else {
-			out.content.push(arrow)
+			out.content.push(arrow);
 			$.each(ref.linkbacks, function(i, linkback) {
 				out.content.push({
 					type: 'hashlink',
@@ -129,7 +128,7 @@ MWReferencesTagHook = function( env ) {
 						Util.formatNum( ref.groupIndex + '.' + i)
 					]
 				});
-			})
+			});
 		}
 		out.content.push(' ');
 		out.content.push({
@@ -144,8 +143,8 @@ MWReferencesTagHook = function( env ) {
 			group: null
 		}, node.params);
 		if (options.group in refGroups) {
-			var group = refGroups[options.group];
-			var listItems = $.map(group.refs, renderLine);
+			var group = refGroups[options.group],
+				listItems = $.map(group.refs, renderLine);
 			return {
 				type: 'ol',
 				attrs: {
@@ -153,16 +152,16 @@ MWReferencesTagHook = function( env ) {
 				},
 				content: listItems,
 				origNode: node
-			}
+			};
 		} else {
 			return {
 				type: 'placeholder',
 				origNode: node
-			}
+			};
 		}
-	}
+	};
 };
 
-if (typeof module == "object") {
+if (typeof module === "object") {
 	module.exports.MWRefTagHook = MWRefTagHook;
 }

@@ -14,10 +14,9 @@ util.inherits(DumpReader, events.EventEmitter);
  */
 DumpReader.prototype.makeParser = function() {
 
-	var self = this;
-	var complete = false;
-
-	var stack = [{}],
+	var self = this,
+		complete = false,
+		stack = [{}],
 		workspace = {},
 		buffer = '';
 
@@ -30,19 +29,18 @@ DumpReader.prototype.makeParser = function() {
 	}
 	var textNodes = flip(['id', 'text', 'title', 'minor', 'comment', 'username', 'timestamp']),
 		boolNodes = flip(['minor', 'redirect']),
-		ignoreNodes = flip(['mediawiki', 'siteinfo', 'upload', 'thread']);
-
-	var parser = new libxml.SaxPushParser();
+		ignoreNodes = flip(['mediawiki', 'siteinfo', 'upload', 'thread'] ),
+		parser = new libxml.SaxPushParser();
 	this.parser = parser;
 	parser.on('startElementNS', function(elem, attrs, prefix, uri, namespaces) {
 		//console.warn( 'elem: ' + elem );
 		if (elem in ignoreNodes) {
 			// ...
-		} else if (elem == 'page') {
+		} else if (elem === 'page') {
 			//console.warn( 'starting page' );
 			stack = [];
 			workspace = {};
-		} else if (elem == 'revision') {
+		} else if (elem === 'revision') {
 			stack.push(workspace);
 			workspace = {
 				page: workspace
@@ -57,14 +55,14 @@ DumpReader.prototype.makeParser = function() {
 
 	parser.on( 'endElementNS', function(elem, prefix, uri) {
 		// ping something!
-		if (elem == 'mediawiki') {
+		if (elem === 'mediawiki') {
 			self.complete = true;
 			//stream.pause();
 			self.emit('end', {});
-		} else if (elem == 'page') {
+		} else if (elem === 'page') {
 			self.emit('page', workspace);
 			workspace = stack.pop();
-		} else if (elem == 'revision') {
+		} else if (elem === 'revision') {
 			self.emit('revision', workspace);
 			workspace = stack.pop();
 		} else if (elem in textNodes) {

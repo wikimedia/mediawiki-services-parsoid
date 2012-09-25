@@ -52,14 +52,13 @@ AttributeExpander.prototype.onToken = function ( token, frame, cb ) {
 	}
 };
 
-/* ----------------------------------------------------------
- * This method does two different things:
- *
- * 1. Strips all meta tags
- *    (FIXME: should I be selective and only strip mw:Object/* tags?)
- * 2. In wrap-template mode, it identifies the meta-object type
- *    and returns it.
- * ---------------------------------------------------------- */
+// This method does two different things:
+//
+// 1. Strips all meta tags
+//    (FIXME: should I be selective and only strip mw:Object/* tags?)
+// 2. In wrap-template mode, it identifies the meta-object type
+//    and returns it.
+//
 function stripMetaTags(tokens, wrapTemplates) {
 	var buf = [],
 		wikitext = [],

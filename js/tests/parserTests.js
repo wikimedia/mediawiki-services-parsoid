@@ -234,12 +234,12 @@ ParserTests.prototype.getTests = function () {
 	fileDependencies.sort().forEach( function (file) {
 		mtimes += fs.statSync( file ).mtime;
 	});
-	var sha1 = require('crypto').createHash('sha1')
-		.update( mtimes ).digest( 'hex' );
 
-	// Look for a cache_file
-	var cache_content;
-	var cache_file_digest;
+	var sha1 = require('crypto').createHash('sha1')
+		.update( mtimes ).digest( 'hex' ),
+		// Look for a cache_file
+		cache_content,
+		cache_file_digest;
 	try {
 		console.log( "Looking for cache file " + this.cache_file );
 		cache_content = fs.readFileSync( this.cache_file, 'utf8' );
@@ -538,10 +538,9 @@ ParserTests.prototype.checkHTML = function ( item, out ) {
 
 ParserTests.prototype.checkWikitext = function ( item, out) {
 	// FIXME: normalization not in place yet
-	var normalizedOut = this.argv.html2wt ? out.replace(/\n+$/, '') : out;
-
-	// FIXME: normalization not in place yet
-	var normalizedExpected = this.argv.html2wt ? item.input.replace(/\n+$/, '') : item.input;
+	var normalizedOut = this.argv.html2wt ? out.replace(/\n+$/, '') : out,
+		// FIXME: normalization not in place yet
+		normalizedExpected = this.argv.html2wt ? item.input.replace(/\n+$/, '') : item.input;
 
 	if ( normalizedOut !== normalizedExpected ) {
 		this.printTitle( item, this.argv.quick );

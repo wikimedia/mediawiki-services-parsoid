@@ -67,7 +67,7 @@ Namespace.prototype.isCategory = function ( ) {
 };
 
 Namespace.prototype.getDefaultName = function ( ) {
-	if ( this.id == this._defaultNamespaceIDs.main ) {
+	if ( this.id === this._defaultNamespaceIDs.main ) {
 		return '';
 	} else {
 		return this._defaultNamespaceNames[this.id.toString()];
@@ -75,7 +75,7 @@ Namespace.prototype.getDefaultName = function ( ) {
 };
 
 
-if (typeof module == "object") {
+if (typeof module === "object") {
 	module.exports.Title = Title;
 	module.exports.Namespace = Namespace;
 }

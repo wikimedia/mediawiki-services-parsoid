@@ -17,7 +17,9 @@ function wikitext(dom) {
 
 function char_sequence(c, n) {
 	var buf = [];
-	for (var i = 0; i < n; i++) buf.push(c);
+	for (var i = 0; i < n; i++) {
+		buf.push(c);
+	}
 	return buf.join('');
 }
 

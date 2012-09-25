@@ -131,13 +131,13 @@ function convertAttributes( node ) {
 	for ( i = 0; i < attribs.length; i++ ) {
 		attrib = attribs.item( i );
 		name = attrib.name;
-		if ( name.substr( 0, 10 ) == 'data-json-' ) {
+		if ( name.substr( 0, 10 ) === 'data-json-' ) {
 			// Strip data-json- prefix and decode
 			retval[name.substr( 10 )] = JSON.parse( attrib.value );
-		} else if ( name.substr( 0, 5 ) == 'data-' ) {
+		} else if ( name.substr( 0, 5 ) === 'data-' ) {
 			// Strip data- prefix
 			retval[name.substr( 5 )] = attrib.value;
-		} else if ( attributeWhitelist.indexOf( name ) != -1 ) {
+		} else if ( attributeWhitelist.indexOf( name ) !== -1 ) {
 			// Pass through a few whitelisted keys
 			retval[name] = attrib.value;
 		} else {
@@ -165,7 +165,7 @@ function getAnnotation( node ) {
 		// Not an annotation
 		return false;
 	}
-	if ( typeof type == 'function' ) {
+	if ( typeof type === 'function' ) {
 		type = type( node );
 	}
 	annotation.type = type;
@@ -183,7 +183,7 @@ function getAnnotation( node ) {
 function generateAnnotatedContent( content, annotations ) {
 	var	i, result = [],
 		split = content.split( '' );
-	if ( !annotations || annotations.length == 0 ) {
+	if ( !annotations || annotations.length === 0 ) {
 		return split;
 	}
 	for ( i = 0; i < split.length; i++ ) {

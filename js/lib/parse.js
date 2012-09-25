@@ -127,8 +127,8 @@ var ParserPipelineFactory = require('./mediawiki.parser.js').ParserPipelineFacto
 	}
 
 	var stdin = process.stdin,
-	    stdout = process.stdout,
-	    inputChunks = [];
+		stdout = process.stdout,
+		inputChunks = [];
 
 	// collect input
 	stdin.resume();
@@ -142,8 +142,8 @@ var ParserPipelineFactory = require('./mediawiki.parser.js').ParserPipelineFacto
 		var input = inputChunks.join('');
 		if (argv.html2wt || argv.html2html) {
 			htmlparser.parse('<html><body>' + input.replace(/\r/g, '') + '</body></html>');
-			var content = htmlparser.tree.document.childNodes[0].childNodes[1];
-			var wt = serializer.serializeDOM(content);
+			var content = htmlparser.tree.document.childNodes[0].childNodes[1],
+				wt = serializer.serializeDOM(content);
 
 			env.text = wt;
 			if (argv.html2wt) {

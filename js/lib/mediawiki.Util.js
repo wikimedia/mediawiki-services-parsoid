@@ -45,7 +45,6 @@ var Util = {
 			case 'body':
 			case 'nav':
 			case 'section':
-			case 'header':
 			case 'footer':
 			case 'header':
 			case 'figure':
@@ -104,7 +103,10 @@ var Util = {
 	},
 
 	toStringTokens: function(tokens, indent) {
-		if (!indent) indent = "";
+		if (!indent) {
+			indent = "";
+		}
+
 		if (tokens.constructor !== Array) {
 			return [tokens.toString(false, indent)];
 		} else if (tokens.length === 0) {

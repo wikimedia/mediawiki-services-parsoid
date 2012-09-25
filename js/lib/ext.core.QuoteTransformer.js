@@ -277,6 +277,6 @@ QuoteTransformer.prototype.quotesToTags = function ( chunks, name ) {
 	}
 };
 
-if (typeof module == "object") {
+if (typeof module === "object") {
 	module.exports.QuoteTransformer = QuoteTransformer;
 }

@@ -107,9 +107,8 @@ TokenTransformManager.prototype.addTransform = function ( transformation, debug_
 		// Trace info
 		var mgr = this;
 		t.transform = function() {
-			var args = arguments;
 			mgr.env.tracer.startPass(debug_name + ":" + rank);
-			var r = transformation.apply(null, args);
+			var r = transformation.apply(null, arguments);
 			mgr.env.tracer.endPass(debug_name + ":" + rank);
 			return r;
 		};
@@ -1327,7 +1326,7 @@ Frame.prototype.newParserValue = function ( source, options ) {
 		return source;
 	} else {
 		if (!options) {
-			options = { frame: this, wrapTemplates: false }
+			options = { frame: this, wrapTemplates: false };
 		} else if (!options.frame) {
 			options.frame = this;
 		}
@@ -1372,7 +1371,7 @@ ExpansionCache.prototype.get = function ( frame, options ) {
 };
 
 
-if (typeof module == "object") {
+if (typeof module === "object") {
 	module.exports.AsyncTokenTransformManager = AsyncTokenTransformManager;
 	module.exports.SyncTokenTransformManager = SyncTokenTransformManager;
 	module.exports.AttributeTransformManager = AttributeTransformManager;

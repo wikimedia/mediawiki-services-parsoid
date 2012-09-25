@@ -375,7 +375,7 @@ ParserPipeline.prototype.removeAllListeners = function ( event ) {
 	}
 };
 
-if (typeof module == "object") {
+if (typeof module === "object") {
 	module.exports.ParserPipeline = ParserPipeline;
 	module.exports.ParserPipelineFactory = ParserPipelineFactory;
 }

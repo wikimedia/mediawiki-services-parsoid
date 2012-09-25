@@ -26,8 +26,6 @@ function PegTokenizer( env, canCache ) {
 	}
 }
 
-
-
 // Inherit from EventEmitter
 PegTokenizer.prototype = new events.EventEmitter();
 PegTokenizer.prototype.constructor = PegTokenizer;
@@ -66,6 +64,7 @@ PegTokenizer.prototype.process = function( text, cacheKey ) {
 						// Include the stops key in the cache key
 						.replace(/var cacheKey = "[^@"]+@" \+ pos/g,
 								function(m){ return m +' + stops.key'; });
+		// eval is not evil in the case of a grammar-generated tokenizer.
 		//console.warn( tokenizerSource );
 		PegTokenizer.prototype.tokenizer = eval( tokenizerSource );
 		// alias the parse method
@@ -89,7 +88,6 @@ PegTokenizer.prototype.process = function( text, cacheKey ) {
 			this.cacheAccum.key = cacheKey;
 		}
 	}
-
 
 	// Some input normalization: force a trailing newline
 	//if ( text.substring(text.length - 1) !== "\n" ) {
@@ -294,8 +292,6 @@ PegTokenizer.prototype.inline_breaks_hash = function (input, pos, syntaxFlags ) 
 	//return res;
 };
 
-
-
-if (typeof module == "object") {
+if (typeof module === "object") {
 	module.exports.PegTokenizer = PegTokenizer;
 }

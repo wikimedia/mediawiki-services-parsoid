@@ -15,8 +15,9 @@ var fetch = function(url, target_name) {
 			out.write(data);
 		});
 		result.on('end', function() {
-			if (out)
+			if (out) {
 				out.end();
+			}
 		});
 	}).on('error', function(err) {
 		console.error(err);
