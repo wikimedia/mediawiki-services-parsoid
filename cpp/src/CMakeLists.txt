@@ -11,6 +11,7 @@ set(
         Parsoid.cpp
 )
 
+
 include_directories( 
     ${CMAKE_BINARY_DIR}/include 
     # for parsoid_internal.hpp, which is transcluded from
@@ -24,6 +25,8 @@ add_library(
 	parsoid
 	${LIBPARSOID_SRCS}
 )
+
+add_dependencies( parsoid pugixml )
 
 target_link_libraries( parsoid ${PARSOID_LIBS} )
 
@@ -47,9 +50,10 @@ install(
 	DESTINATION ${CMAKE_BINARY_DIR}/include/libparsoid
 )
 
-add_custom_command(
+add_custom_command (
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/wikitext_tokenizer.cpp
     COMMAND ${CMAKE_BINARY_DIR}/bin/leg ${CMAKE_CURRENT_SOURCE_DIR}/wikitext_tokenizer.leg > ${CMAKE_CURRENT_BINARY_DIR}/wikitext_tokenizer.cpp
     DEPENDS peg ${CMAKE_CURRENT_SOURCE_DIR}/wikitext_tokenizer.leg
     COMMENT "Generating the tokenizer using leg parser generator"
-    VERBATIM)
+    VERBATIM
+)

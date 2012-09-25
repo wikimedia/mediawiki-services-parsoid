@@ -1,5 +1,9 @@
 #include "XMLDOM.hpp"
 
+// FIXME: Fix up cmake build files to install header before building
+// libparsoid & set include paths properly
+#include "../contrib/pugixml/src/pugixml.hpp"
+
 namespace parsoid
 {
 

@@ -16,3 +16,6 @@
 [submodule "cpp/contrib/double-conversion"]
 	path = cpp/contrib/double-conversion
 	url = https://code.google.com/p/double-conversion/
+[submodule "cpp/contrib/pugixml"]
+	path = cpp/contrib/pugixml
+	url = git://github.com/zeux/pugixml.git
