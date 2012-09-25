@@ -11,7 +11,7 @@ class Parsoid {
         Parsoid();
         void parse( string input, DOM::DocumentReceiver receiver );
         // Overloaded sync version
-        DOM::XMLDocument* parse( string input );
+        DOM::XMLDocumentPtr parse( string input );
 
         void setReceiver( DOM::DocumentReceiver receiver ) {
             this->receiver = receiver;

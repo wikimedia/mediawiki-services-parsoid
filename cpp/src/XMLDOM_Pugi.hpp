@@ -23,6 +23,8 @@ class XMLNode_Pugi: public XMLNodeBase<DOM>
 class XMLDocument_Pugi: public XMLDocumentBase<DOM>
 {
     // TODO: Implement
+    public:
+        ~XMLDocument_Pugi();
 };
 
 }
