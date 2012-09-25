@@ -26,8 +26,11 @@ set(
 	PARSOID_LIBS
 	parsoid
 	pthread
+        pugixml
 )
 set( envs PREFIX=${CMAKE_BINARY_DIR} )
+add_subdirectory( contrib/pugixml-cmake )
+
 add_subdirectory( src )
 add_subdirectory( test )
 include_directories( ${CMAKE_BINARY_DIR}/include )
@@ -84,3 +87,4 @@ contrib_makeinstall( peg
 contrib_make( double-conversion
 	contrib/double-conversion
 )
+
