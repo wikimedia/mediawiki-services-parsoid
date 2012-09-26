@@ -649,10 +649,11 @@ WSP._linkHandler =  function( state, tokens ) {
 
 		// Helper function for getting RT data from the tokens
 		function populateRoundTripData() {
+			isCat = attribDict.rel.match( /\bmw:WikiLink\/Category/ );
 			target = tplAttrState.vs.href;
 
 			// If the link target came from a template, target will be non-null
-			if (target) {
+			if (target && !isCat) {
 				href = target;
 			} else {
 				href = attribDict.href;
@@ -709,13 +710,22 @@ WSP._linkHandler =  function( state, tokens ) {
 			{
 				return '[[' + target + ']]' + tail;
 			} else {
-				isCat = attribDict.rel.match( /\bmw:WikiLink\/Category/ );
 				if (tokenData.pipetrick) {
 					linkText = '';
 				} else if ( isCat ) {
 					targetParts = target.match( /^([^#]*)#(.*)/ );
-					target = targetParts[1].replace( /^.\//, '' );
-					linkText = Util.decodeURI( targetParts[2] ).replace( /%23/g, '#' ).replace( /%20/g, ' ' );
+
+					if ( tplAttrState.vs.href ) {
+						target = tplAttrState.vs.href;
+					} else {
+						target = targetParts[1].replace( /^(\.\.?\/)*/, '' );
+					}
+
+					if ( tplAttrState.vs['mw:valAffected'] ) {
+						linkText = tplAttrState.vs['mw:valAffected'];
+					} else {
+						linkText = Util.decodeURI( targetParts[2] ).replace( /%23/g, '#' ).replace( /%20/g, ' ' );
+					}
 				} else {
 					linkText = state.serializer.serializeTokens(state.currLine, tokens).join('');
 					linkText = Util.stripSuffix( linkText, tail );
