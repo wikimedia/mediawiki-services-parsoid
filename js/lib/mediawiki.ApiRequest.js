@@ -77,9 +77,7 @@ TemplateRequest.prototype._handler = function (error, response, body) {
 			this.emit('src', dnee, dnee.toString(), 'text/x-mediawiki');
 		}
 	} else if(response.statusCode ===  200) {
-		var src = '',
-			data,
-			normalizedTitle;
+		var src = '', data;
 		try {
 			//console.warn( 'body: ' + body );
 			data = JSON.parse( body );
@@ -90,14 +88,8 @@ TemplateRequest.prototype._handler = function (error, response, body) {
 			$.each( data.query.pages, function(i, page) {
 				if (page.revisions && page.revisions.length) {
 					src = page.revisions[0]['*'];
-					normalizeTitle = page.title;
 				} else {
-					var normalName = self.env.normalizeTitle(
-						self.env.pageName );
 					throw new DoesNotExistError( 'Did not find page revisions for ' + self.title );
-					if ( this.title === normalName ) {
-						src = 'No revisions for ' + self.title;
-					}
 				}
 			});
 		} catch ( e2 ) {
