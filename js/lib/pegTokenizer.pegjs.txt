@@ -1923,10 +1923,12 @@ extlink_preprocessor_text
 
 // Attribute values with preprocessor support
 attribute_preprocessor_text
-  = r:( ts:(!inline_breaks t:[^=<>{}\n\r&'"\t ] {return t})+ { return ts.join(''); }
-  / !inline_breaks ( 
+  = r:( ts:(!inline_breaks t:[^=<>{}\n\r&'"\t/ ] {return t})+ { return ts.join(''); }
+  / !inline_breaks 
+    ! '/>'
+    ( 
           directive
-        / !inline_breaks [&%] 
+        / !inline_breaks [&%/] 
     )
   )+ 
   {
@@ -1956,8 +1958,9 @@ attribute_preprocessor_text_double
 
 // Variants with the entire attribute on a single line
 attribute_preprocessor_text_line
-  = r:( ts:[^=<>{\n\r&'"\t \[\]|{}]+ { return ts.join(''); }
+  = r:( ts:[^=<>{\n\r&'"\t \[\]|{}/]+ { return ts.join(''); }
         /  !inline_breaks 
+           ! '/>'
             t:( 
                 directive
               / !(newline / space / [\[>]) c:. { 
