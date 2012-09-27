@@ -717,13 +717,13 @@ WSP._linkHandler =  function( state, tokens ) {
 
 					if ( tplAttrState.vs.href ) {
 						target = tplAttrState.vs.href;
-					} else {
+					} else if ( targetParts && targetParts.length > 1 ) {
 						target = targetParts[1].replace( /^(\.\.?\/)*/, '' );
 					}
 
 					if ( tplAttrState.vs['mw:valAffected'] ) {
 						linkText = tplAttrState.vs['mw:valAffected'];
-					} else {
+					} else if ( targetParts && targetParts.length > 2 ) {
 						linkText = Util.decodeURI( targetParts[2] ).replace( /%23/g, '#' ).replace( /%20/g, ' ' );
 					}
 				} else {
