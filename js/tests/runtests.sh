@@ -20,18 +20,20 @@ else
     ( cd results && git checkout -f )
 fi
 
+node=` ( nodejs --version > /dev/null 2>&1 && echo 'nodejs' ) || echo 'node' `
+
 if [ "$1" = "--wt2wt" ];then
-    time node parserTests.js --cache --wt2wt \
+    time $node parserTests.js --cache --wt2wt \
         > results/roundtrip.txt 2>&1 || exit 1
 elif [ "$1" = '--wt2html' ];then
-    time node parserTests.js --cache --printwhitelist \
+    time $node parserTests.js --cache --printwhitelist \
         > results/html.txt 2>&1 || exit 1
 else
-    time node parserTests.js --wt2html --cache --printwhitelist \
+    time $node parserTests.js --wt2html --cache --printwhitelist \
         > results/all.txt 2>&1 || exit 1
-    time node parserTests.js --wt2wt --cache --printwhitelist \
+    time $node parserTests.js --wt2wt --cache --printwhitelist \
         >> results/all.txt 2>&1 || exit 1
-    time node parserTests.js --html2html --cache --printwhitelist \
+    time $node parserTests.js --html2html --cache --printwhitelist \
         >> results/all.txt 2>&1 || exit 1
     summary=`grep -A10 SUMMARY: results/all.txt`
     echo "\n\n\n\n=========================\nALL:\n$summary" >> results/all.txt
