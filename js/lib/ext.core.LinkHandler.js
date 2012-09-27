@@ -87,7 +87,7 @@ function buildLinkAttrs(attrs, getLinkText, rdfaType, linkAttrs) {
 
 WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 
-	var j, maybeContent, about, possibleTags, property,
+	var j, maybeContent, about, possibleTags, property, newType,
 		hrefkv, saniContent, env = this.manager.env,
 		attribs = token.attribs,
 		href = Util.tokensToString( Util.lookup( attribs, 'href' ) ),
@@ -170,17 +170,16 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 			if ( maybeContent && maybeContent.v ) {
 				for ( j = 0; j < maybeContent.v.length; j++ ) {
 					property = Util.lookupKV( maybeContent.v[j].attribs, 'property' );
-					if ( Util.tokensToString( maybeContent.v[j] ) === saniContent ) {
-						// continue
-					} else if ( property && property.v.match( /mw\:maybeContent/ ) ) {
+					// If we have a maybe-content token, it's actually part of the href
+					if ( property && property.v.match( /mw\:maybeContent/ ) ) {
 						newType = Util.lookupKV( obj.attribs, 'typeof' );
-						if ( !newType.v.match( /mw\:ExpandedAttrs/ ) ) {
-							if ( newType ) {
-								newType.v = '/' + newType.v;
-							} else {
-								newType.v = '';
-							}
-							newType.v = 'mw:ExpandedAttrs' + newType.v;
+						if ( newType && !newType.v.match( /mw\:ExpandedAttrs/ ) ) {
+							// Add the mw:ExpandedAttrs/ to an existing typeof
+							newType.v = 'mw:ExpandedAttrs' + '/' + newType.v;
+						} else {
+							// Make a new typeof, call it mw:ExpandedAttrs
+							newType = new KV( 'typeof', 'mw:ExpandedAttrs' );
+							obj.attribs.push( newType );
 						}
 					}
 				}
