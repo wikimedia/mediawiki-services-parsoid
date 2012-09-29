@@ -177,8 +177,8 @@ PegTokenizer.prototype.inline_breaks = function (input, pos, stops ) {
 						.match(/[ \t]*(?:[\r\n]|$)/) !== null )
 				) || null;
 		case '|':
-			return counters.pipe ||
-					counters.template ||
+			return stops.onStack( 'pipe' ) ||
+					//counters.template ||
 					counters.linkdesc ||
 				( stops.onStack('table') &&
 					( ( pos < input.length - 1 &&
@@ -189,7 +189,9 @@ PegTokenizer.prototype.inline_breaks = function (input, pos, stops ) {
 		case '{':
 			// {{!}} pipe templates..
 			return (
-						counters.pipe ||
+						( stops.onStack( 'pipe' ) &&
+						  ! counters.template &&
+						  input.substr(pos, 5) === '{{!}}' ) ||
 						( stops.onStack( 'table' ) &&
 							(
 								input.substr(pos, 10) === '{{!}}{{!}}' ||

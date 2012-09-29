@@ -637,8 +637,14 @@ extlink
         & { return stops.push('extlink', true); }
         //target:urllink
         target:extlink_preprocessor_text
-        text:(( space / [\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000] )* 
-              t:inlineline { return t } )?
+        text:(
+                ( space / [\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000] )* 
+                t1:(
+                    & { return  stops.push('pipe', false); }
+                    t:inlineline { stops.pop('pipe'); return t }
+                    / ! { return stops.pop('pipe') }
+                ) { return t1 }
+              )?
         "]" {
             stops.pop('extlink');
             //if ( text === '' ) {
@@ -901,11 +907,13 @@ template_param_text
         // re-enable tables within template parameters
         stops.push('table', false ); 
         stops.push('extlink', false);
+        stops.push('pipe', true);
         return stops.inc('template') 
     }
     il:nested_block+ {
         stops.pop('table');
         stops.pop('extlink');
+        stops.pop('pipe');
         stops.dec('template');
         //console.warn( 'tpt match: ' + pp (il) + " stops: " + pp(stops));
         // il is guaranteed to be an array -- so, flattenIfArray will
@@ -931,7 +939,7 @@ template_param_text
 
         return r;
     }
-  / & { stops.pop('table'); stops.pop('extlink'); return stops.dec('template'); }
+  / & { stops.pop('table'); stops.pop('extlink'); stops.pop('pipe'); return stops.dec('template'); }
 
 
 wikilink_content
@@ -1008,14 +1016,14 @@ link_text
   / & { return stops.dec('linkdesc'); }
 
 link_option
-  = & { stops.inc('pipe'); return stops.inc('linkdesc'); }
+  = & { stops.push('pipe', true); return stops.inc('linkdesc'); }
     h:inline 
     // 'equal' syntaxFlag is set for links in template parameters. Consume the
     // '=' here.
     hs:( '=' inline)?
     { 
         //console.warn('link_text' + pp(h) + pp(hs));
-        stops.dec('pipe');
+        stops.pop('pipe');
         stops.dec('linkdesc');
         if( hs !== '' ) {
             return h.concat(hs);
@@ -1023,7 +1031,7 @@ link_option
             return h;
         }
     }
-  / & { stops.dec('pipe'); return stops.dec('linkdesc'); }
+  / & { stops.pop('pipe'); return stops.dec('linkdesc'); }
 
 link_end = "]]"
 
@@ -1046,9 +1054,9 @@ quote = "''" x:"'"* {
  * transformer, and only for images.
  */
 img_options = 
-  & { return stops.inc( 'pipe' ); }
+  & { return stops.push( 'pipe', true ); }
   os:img_option* {
-    stops.dec( 'pipe' );
+    stops.pop( 'pipe' );
 	var options = {};
     // os will always be an array
     os = flattenIfArray( os );
@@ -1059,7 +1067,7 @@ img_options =
 	options._options = os;
 	return options;
 }
-/ & { return stops.dec( 'pipe' ); }
+/ & { return stops.pop( 'pipe' ); }
 
 img_option 
   = pipe space*
@@ -1111,10 +1119,10 @@ img_link
   = 'link=' space* 
     u:( 
         t:url {
-            stops.dec( 'pipe' );
+            stops.pop( 'pipe' );
             return t;
         }
-        / & { return stops.dec( 'pipe' ); }
+        / & { return stops.pop( 'pipe' ); }
       ) 
 {
       return new KV( 'link', u );
