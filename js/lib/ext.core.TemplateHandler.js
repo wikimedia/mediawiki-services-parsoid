@@ -181,6 +181,9 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 	// load template w/ canonical name
 	// load template w/ variant names (language variants)
 
+	// strip template target
+	attribs = attribs.slice(1);
+
 	// For now, just fetch the template and pass the callback for further
 	// processing along.
 	this._fetchTemplateAndTitle(
@@ -391,45 +394,48 @@ TemplateHandler.prototype._fetchTemplateAndTitle = function ( title, parentCB, c
 /**
  * Expand template arguments with tokens from the containing frame.
  */
-TemplateHandler.prototype.onTemplateArg = function ( token, frame, cb ) {
-	new AttributeTransformManager (
-				this.manager,
-				{ wrapTemplates: false },
-				this._returnArgAttributes.bind( this, token, cb, frame )
-			).process(token.attribs.slice() );
+
+TemplateHandler.prototype.onTemplateArg = function (token, frame, cb) {
+	// SSS FIXME: Are 'frame' and 'this.manager.frame' different?
+	var dict    = this.manager.frame.args.named();
+	var attribs = token.attribs;
+	this.fetchArg(attribs[0].k, this.lookupArg.bind(this, dict, attribs, cb));
 };
 
-TemplateHandler.prototype._returnArgAttributes = function ( token, cb, frame, attributes ) {
-	var env = this.manager.env;
-	//console.warn( '_returnArgAttributes: ' + JSON.stringify( attributes ));
-	var argName = Util.tokensToString( attributes[0].k ).trim(),
-		dict = this.manager.frame.args.named(),
-		res;
-	env.dp( 'args', argName /*, dict*/ );
-	if ( argName in dict ) {
-		// return tokens for argument
-		//console.warn( 'templateArg found: ' + argName +
-		//		' vs. ' + JSON.stringify( this.manager.args ) );
-		res = dict[argName];
-		env.dp( 'arg res:', res );
-		if ( res.constructor === String ) {
+TemplateHandler.prototype.fetchArg = function(arg, argCB) {
+	if (arg.constructor === String) {
+		argCB({tokens: arg});
+	} else {
+		this.manager.frame.expand(arg, {
+			wrapTemplates: false,
+			type: "tokens/x-mediawiki/expanded",
+			cb: function(tokens) {
+				argCB({tokens: Util.stripEOFTkfromTokens(tokens)});
+			}
+		});
+	}
+};
+
+TemplateHandler.prototype.lookupArg = function(dict, attribs, cb, ret) {
+	var toks    = ret.tokens;
+	var argName = toks.constructor === String ? toks : Util.tokensToString(toks).trim();
+	var res     = dict[argName];
+
+	if (res) {
+		if (res.constructor === String) {
 			cb( { tokens: [res] } );
 		} else {
-			dict[argName].get({
+			res.get({
 				type: 'tokens/x-mediawiki/expanded',
 				cb: function( res ) { cb ( { tokens: res } ); },
 				asyncCB: cb
 			});
 		}
+	} else if (attribs.length > 1 ) {
+		this.fetchArg(attribs[1].v, cb);
 	} else {
-		env.dp( 'templateArg not found: ', argName /*' vs. ', dict */ );
-		if ( attributes.length > 1 ) {
-			res = attributes[1].v;
-		} else {
-			//console.warn('no default for ' + argName + JSON.stringify( attributes ));
-			res = [ '{{{' + argName + '}}}' ];
-		}
-		cb( { tokens: res } );
+		//console.warn('no default for ' + argName + JSON.stringify( attribs ));
+		cb({ tokens: [ '{{{' + argName + '}}}' ] });
 	}
 };
 
