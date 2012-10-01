@@ -829,10 +829,8 @@ AttributeTransformManager.prototype.process = function (attributes) {
 				this.outstanding++;
 
 				// transform the value
-				this.frame.expand( v,
-						{
+				this.frame.expand( v, {
 							wrapTemplates: this.options.wrapTemplates,
-							// if k is empty, we consider it wrappable
 							type: this._toType,
 							cb: this._returnAttributeValue.bind( this, i )
 						} );
@@ -850,8 +848,7 @@ AttributeTransformManager.prototype.process = function (attributes) {
 				this.outstanding++;
 
 				// transform the key
-				this.frame.expand( k,
-						{
+				this.frame.expand( k, {
 							wrapTemplates: this.options.wrapTemplates,
 							type: this._toType,
 							cb: this._returnAttributeKey.bind( this, i )
@@ -867,7 +864,6 @@ AttributeTransformManager.prototype.process = function (attributes) {
 		this.callback( this.kvs );
 	}
 };
-
 
 /**
  * Expand only keys of key/value pairs. This is generally used for template
