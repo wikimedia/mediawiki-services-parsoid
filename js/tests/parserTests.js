@@ -92,7 +92,7 @@ function ParserTests () {
  */
 ParserTests.prototype.getOpts = function () {
 	var default_args = ["Default tests-file: " + this.parser_tests_file,
-	                    "Default options   : --wt2html --whitelist --color"];
+	                    "Default options   : --wt2html --wt2wt --html2html --whitelist --color"];
 
 	return optimist.usage( 'Usage: $0 [options] [tests-file]\n\n' + default_args.join("\n"), {
 		'help': {
@@ -101,7 +101,7 @@ ParserTests.prototype.getOpts = function () {
 		},
 		'wt2html': {
 			description: 'Wikitext -> HTML(DOM)',
-			'default': true,
+			'default': false,
 			'boolean': true
 		},
 		'html2wt': {
@@ -111,12 +111,12 @@ ParserTests.prototype.getOpts = function () {
 		},
 		'wt2wt': {
 			description: 'Roundtrip testing: Wikitext -> DOM(HTML) -> Wikitext',
-			'default': true,
+			'default': false,
 			'boolean': true
 		},
 		'html2html': {
 			description: 'Roundtrip testing: HTML(DOM) -> Wikitext -> HTML(DOM)',
-			'default': true,
+			'default': false,
 			'boolean': true
 		},
 		'cache': {
@@ -755,6 +755,12 @@ ParserTests.prototype.main = function ( options ) {
 
 	// Forward normalizeOut so we can call it everywhere
 	options.normalizeOut = this.normalizeOut;
+
+	if ( !( options.wt2wt || options.wt2html || options.html2wt || options.html2html ) ) {
+		options.wt2wt = true;
+		options.wt2html = true;
+		options.html2html = true;
+	}
 
 	if ( typeof options.reportFailure !== 'function' ) {
 		// default failure reporting is standard out,
