@@ -36,10 +36,18 @@ int main()
     string testtext = "";
     char tmpChr;
 
+	if ( isatty( fileno( stdout ) ) ) {
+		int timeout = 5;
+		cerr << "Waiting for wikitext input from terminal, timeout in " << timeout << " seconds,." << endl;
+		alarm( 5 );
+	}
+
     while ( !cin.eof() ) {
         cin.get( tmpChr );
 	testtext += tmpChr;
     }
+
+	alarm( 0 );
 
     WikiTokenizer t( testtext );
 
