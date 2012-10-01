@@ -338,13 +338,15 @@ TemplateHandler.prototype._onChunk = function( state, cb, chunk ) {
 TemplateHandler.prototype._onEnd = function( state, cb ) {
 	this.manager.env.dp( 'TemplateHandler._onEnd' );
 	if (this.options.wrapTemplates) {
-		var res = { tokens: [
-			new SelfclosingTagTk( 'meta',
+		var tsr = state.token.dataAttribs.tsr;
+		var endTag = new SelfclosingTagTk( 'meta',
 				[
 					new KV( 'typeof', 'mw:Object/Template/End' ),
 					new KV( 'about', '#' + state.templateId )
-				] )
-			] };
+				], {
+					tsr: [null, tsr ? tsr[1] : null],
+				});
+		var res = { tokens: [endTag] };
 		state.emittedFirstChunk = false;
 		cb( res );
 	} else {
