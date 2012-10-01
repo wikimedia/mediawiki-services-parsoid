@@ -1,14 +1,17 @@
 cmake_minimum_required( VERSION 2.8 )
 project( libparsoid )
-set(
+FILE(
+	GLOB
 	LIBPARSOID_SRCS
-	html_parser.cpp
-	Token.cpp
-        QueueDispatcher.cpp
-        # The generated wikitext tokenizer
-        wikitext_tokenizer.cpp
-        WikiTokenizer.cpp
-        Parsoid.cpp
+	"*.cpp"
+)
+
+# if you need to exclude any source files:
+#LIST( REMOVE_ITEM LIBPARSOID_SRCS ${SKIP_SRCS} )
+
+SET(
+	GENERATED_SRCS
+	wikitext_tokenizer.cpp
 )
 
 
@@ -23,6 +26,7 @@ include_directories(
 
 add_library(
 	parsoid
+	${GENERATED_SRCS}
 	${LIBPARSOID_SRCS}
 )
 
