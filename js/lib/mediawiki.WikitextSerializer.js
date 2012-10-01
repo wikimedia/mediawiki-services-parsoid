@@ -1063,27 +1063,34 @@ WSP.tagHandlers = {
 		start: {
 			handle: function ( state, token ) {
 				var argDict = Util.KVtoHash( token.attribs );
-				if ( argDict['typeof'] === 'mw:tag' ) {
-					// we use this currently for nowiki and noinclude & co
-					this.newlineTransparent = true;
-					if ( argDict.content === 'nowiki' ) {
-						state.inNoWiki = true;
-					} else if ( argDict.content === '/nowiki' ) {
-						state.inNoWiki = false;
-					} else {
-						console.warn( JSON.stringify( argDict ) );
-					}
-					return '<' + argDict.content + '>';
-				} else if ( argDict['typeof'] === 'mw:noinclude' ) {
-					this.newlineTransparent = true;
-					if ( token.dataAttribs.src === '<noinclude>' ) {
+				switch ( argDict['typeof'] ) { 
+					case 'mw:tag':
+						// we use this currently for nowiki and co
+						this.newlineTransparent = true;
+						if ( argDict.content === 'nowiki' ) {
+							state.inNoWiki = true;
+						} else if ( argDict.content === '/nowiki' ) {
+							state.inNoWiki = false;
+						} else {
+							console.warn( JSON.stringify( argDict ) );
+						}
+						return '<' + argDict.content + '>';
+					case 'mw:IncludeOnly':
+						this.newlineTransparent = true;
+						return token.dataAttribs.src;
+					case 'mw:NoInclude':
+						this.newlineTransparent = true;
 						return '<noinclude>';
-					} else {
+					case 'mw:NoInclude/End':
 						return '</noinclude>';
-					}
-				} else {
-					this.newlineTransparent = false;
-					return WSP._serializeHTMLTag( state, token );
+					case 'mw:OnlyInclude':
+						this.newlineTransparent = true;
+						return '<onlyinclude>';
+					case 'mw:OnlyInclude/End':
+						return '</onlyinclude>';
+					default:
+						this.newlineTransparent = false;
+						return WSP._serializeHTMLTag( state, token );
 				}
 			}
 		}
