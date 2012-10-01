@@ -63,7 +63,7 @@ var colorizeCount = function ( count, color ) {
 };
 
 var testWhiteList = require(__dirname + '/parserTests-whitelist.js').testWhiteList,
-	modes = ['wt2wt', 'wt2html', 'html2html', 'html2wt'];
+	modes = ['wt2html', 'wt2wt', 'html2html', 'html2wt'];
 
 function ParserTests () {
 	var i;
@@ -294,7 +294,7 @@ ParserTests.prototype.normalizeHTML = function (source) {
 		console.trace();
 		return source;
 	}
-		
+
 };
 
 // Specialized normalization of the wiki parser output, mostly to ignore a few
@@ -915,17 +915,17 @@ ParserTests.prototype.processCase = function ( i, oldOptions ) {
 					options.wt2html = false;
 					options.html2wt = false;
 					options.html2html = false;
-					if ( oldOptions.wt2wt ) {
-						options.wt2wt = true;
-						item.done.wt2wt = false;
-						this.processTest( item, options, nextCallback );
-						options.wt2wt = false;
-					}
 					if ( oldOptions.wt2html ) {
 						options.wt2html = true;
 						item.done.wt2html = false;
 						this.processTest( item, options, nextCallback );
 						options.wt2html = false;
+					}
+					if ( oldOptions.wt2wt ) {
+						options.wt2wt = true;
+						item.done.wt2wt = false;
+						this.processTest( item, options, nextCallback );
+						options.wt2wt = false;
 					}
 					if ( oldOptions.html2html ) {
 						options.html2html = true;
