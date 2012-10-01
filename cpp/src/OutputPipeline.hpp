@@ -9,7 +9,7 @@ class DOMPostProcessor {};
 class OutputPipeline {
     public:
         OutputPipeline()
-            : syncTransformManager( SyncTokenTransformManager( false ) )
+            : syncTransformManager( false )
         {
             // Create handlers and implicitly register them with this manager
             // new QuoteHandler( *this );

@@ -8,8 +8,8 @@ class InputExpansionPipeline {
     public:
         // TODO: pass in environment
         InputExpansionPipeline( bool isAtToplevel )
-            : syncTransformManager( SyncTokenTransformManager( isAtToplevel ) )
-            , asyncTransformManager( AsyncTokenTransformManager( isAtToplevel ) )
+            : syncTransformManager( isAtToplevel )
+            , asyncTransformManager( isAtToplevel )
         {
             // Hook up to tokenizer
             tokenizer.setReceiver(

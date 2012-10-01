@@ -22,15 +22,6 @@ namespace parsoid {
 // below
 class XMLDocument;
 class XMLNode;
-class XMLAttribute;
-
-
-
-// A string-like object.
-// XXX: Subclass form std::string to enrich with overloaded assign and
-// .as{Int,Double,..} methods?
-//class XMLText;
-
 
 // At the very minimum, we have to support the equivalent to the following
 // libhubbub -> DOM callbacks:
@@ -178,6 +169,9 @@ class XMLNodeBase
         const XMLNodeBase& operator=(const XMLNodeBase&);
 
     public:
+        typedef typename XMLDOM_T::XMLDocument document_type;
+        typedef typename XMLDOM_T::XMLNode node_type;
+        typedef typename XMLDOM_T::XMLAttribute attribute_type;
 
         // Safe C++11 bool conversion operator
         explicit operator bool() const;
@@ -186,12 +180,12 @@ class XMLNodeBase
         explicit operator string() const;
 
         // Comparison operators (compares wrapped node pointers)
-        bool operator==(const typename XMLDOM_T::XMLNode& r) const;
-        bool operator!=(const typename XMLDOM_T::XMLNode& r) const;
-        bool operator<(const typename XMLDOM_T::XMLNode& r) const;
-        bool operator>(const typename XMLDOM_T::XMLNode& r) const;
-        bool operator<=(const typename XMLDOM_T::XMLNode& r) const;
-        bool operator>=(const typename XMLDOM_T::XMLNode& r) const;
+        bool operator==(const node_type& r) const;
+        bool operator!=(const node_type& r) const;
+        bool operator<(const node_type& r) const;
+        bool operator>(const node_type& r) const;
+        bool operator<=(const node_type& r) const;
+        bool operator>=(const node_type& r) const;
 
         // Check if node is empty.
         bool empty() const;
@@ -201,31 +195,31 @@ class XMLNodeBase
         const string value() const;
 
         // Get first/last attribute
-        typename XMLDOM_T::XMLAttribute firstAttribute() const;
-        typename XMLDOM_T::XMLAttribute lastAttribute() const;
+        attribute_type firstAttribute() const;
+        attribute_type lastAttribute() const;
 
         // Get children list
-        typename XMLDOM_T::XMLNode firstChild() const;
-        typename XMLDOM_T::XMLNode lastChild() const;
+        node_type firstChild() const;
+        node_type lastChild() const;
 
         // Get next/previous sibling in the children list of the parent node
-        typename XMLDOM_T::XMLNode nextSibling() const;
-        typename XMLDOM_T::XMLNode previousSibling() const;
+        node_type nextSibling() const;
+        node_type previousSibling() const;
 
         // Get parent node
-        typename XMLDOM_T::XMLNode parent() const;
+        node_type parent() const;
 
         // Get root of DOM tree this node belongs to
-        typename XMLDOM_T::XMLNode root() const;
+        node_type root() const;
 
         // Get text object for the current node
         const string text() const;
 
         // Get child, attribute or next/previous sibling with the specified name
-        typename XMLDOM_T::XMLNode child(const string& name) const;
-        typename XMLDOM_T::XMLAttribute attribute(const string& name) const;
-        typename XMLDOM_T::XMLNode nextSibling(const string& name) const;
-        typename XMLDOM_T::XMLNode previousSibling(const string& name) const;
+        node_type child(const string& name) const;
+        attribute_type attribute(const string& name) const;
+        node_type nextSibling(const string& name) const;
+        node_type previousSibling(const string& name) const;
 
         // Get child value of current node; that is, value of the first child node of type PCDATA/CDATA
         const string childValue() const;
@@ -234,60 +228,60 @@ class XMLNodeBase
         const string childValue(const string& name) const;
 
         // Set node name/value
-        typename XMLDOM_T::XMLNode setName(const string& rhs);
-        typename XMLDOM_T::XMLNode setValue(const string& rhs);
+        node_type setName(const string& rhs);
+        node_type setValue(const string& rhs);
 
         // Add attribute with specified name. Returns added attribute, or empty attribute on errors.
-        typename XMLDOM_T::XMLAttribute appendAttribute(const string& name);
-        typename XMLDOM_T::XMLAttribute prependAttribute(const string& name);
-        typename XMLDOM_T::XMLAttribute insertAttribute_after(const string& name
-                , const typename XMLDOM_T::XMLAttribute& attr);
-        typename XMLDOM_T::XMLAttribute insertAttribute_before(const string& name
-                , const typename XMLDOM_T::XMLAttribute& attr);
+        attribute_type appendAttribute(const string& name);
+        attribute_type prependAttribute(const string& name);
+        attribute_type insertAttribute_after(const string& name
+                , const attribute_type& attr);
+        attribute_type insertAttribute_before(const string& name
+                , const attribute_type& attr);
 
         // Add a copy of the specified attribute. Returns added attribute, or empty attribute on errors.
-        typename XMLDOM_T::XMLAttribute appendCopy(const typename XMLDOM_T::XMLAttribute& proto);
-        typename XMLDOM_T::XMLAttribute prependCopy(const typename XMLDOM_T::XMLAttribute& proto);
-        typename XMLDOM_T::XMLAttribute insertCopyAfter(const typename XMLDOM_T::XMLAttribute& proto
-                                            , const typename XMLDOM_T::XMLAttribute& attr);
-        typename XMLDOM_T::XMLAttribute insertCopyBefore(const typename XMLDOM_T::XMLAttribute& proto
-                                            , const typename XMLDOM_T::XMLAttribute& attr);
+        attribute_type appendCopy(const attribute_type& proto);
+        attribute_type prependCopy(const attribute_type& proto);
+        attribute_type insertCopyAfter(const attribute_type& proto
+                                            , const attribute_type& attr);
+        attribute_type insertCopyBefore(const attribute_type& proto
+                                            , const attribute_type& attr);
 
         // Add child node with specified type. Returns added node, or empty node on errors.
-        typename XMLDOM_T::XMLNode appendChild(XMLNodeType type = XMLNodeType::Element);
-        typename XMLDOM_T::XMLNode prependChild(XMLNodeType type = XMLNodeType::Element);
-        typename XMLDOM_T::XMLNode insertChildAfter(XMLNodeType type, const typename XMLDOM_T::XMLNode& node);
-        typename XMLDOM_T::XMLNode insertChildBefore(XMLNodeType type, const typename XMLDOM_T::XMLNode& node);
+        node_type appendChild(XMLNodeType type = XMLNodeType::Element);
+        node_type prependChild(XMLNodeType type = XMLNodeType::Element);
+        node_type insertChildAfter(XMLNodeType type, const node_type& node);
+        node_type insertChildBefore(XMLNodeType type, const node_type& node);
 
         // Add child element with specified name. Returns added node, or empty node on errors.
-        typename XMLDOM_T::XMLNode appendChild(const string& name);
-        typename XMLDOM_T::XMLNode prependChild(const string& name);
-        typename XMLDOM_T::XMLNode insertChildAfter(const string& name, const typename XMLDOM_T::XMLNode& node);
-        typename XMLDOM_T::XMLNode insertChildBefore(const string& name, const typename XMLDOM_T::XMLNode& node);
+        node_type appendChild(const string& name);
+        node_type prependChild(const string& name);
+        node_type insertChildAfter(const string& name, const node_type& node);
+        node_type insertChildBefore(const string& name, const node_type& node);
 
         // Move the specified node as a child. Returns the added node, or an
         // empty node on errors.
-        typename XMLDOM_T::XMLNode appendChild(const typename XMLDOM_T::XMLNode& node);
-        typename XMLDOM_T::XMLNode prependChild(const typename XMLDOM_T::XMLNode& node);
-        typename XMLDOM_T::XMLNode insertChildAfter(const typename XMLDOM_T::XMLNode& node
-                , const typename XMLDOM_T::XMLNode& afterNode);
-        typename XMLDOM_T::XMLNode insertChildBefore(const typename XMLDOM_T::XMLNode& node
-                , const typename XMLDOM_T::XMLNode& beforeNode);
+        node_type appendChild(const node_type& node);
+        node_type prependChild(const node_type& node);
+        node_type insertChildAfter(const node_type& node
+                , const node_type& afterNode);
+        node_type insertChildBefore(const node_type& node
+                , const node_type& beforeNode);
 
         // Add a copy of the specified node as a child. Returns added node, or empty node on errors.
-        typename XMLDOM_T::XMLNode appendCopy(const typename XMLDOM_T::XMLNode& proto);
-        typename XMLDOM_T::XMLNode prependCopy(const typename XMLDOM_T::XMLNode& proto);
-        typename XMLDOM_T::XMLNode insertCopyAfter(const typename XMLDOM_T::XMLNode& proto
-                , const typename XMLDOM_T::XMLNode& node);
-        typename XMLDOM_T::XMLNode insertCopyBefore(const typename XMLDOM_T::XMLNode& proto
-                , const typename XMLDOM_T::XMLNode& node);
+        node_type appendCopy(const node_type& proto);
+        node_type prependCopy(const node_type& proto);
+        node_type insertCopyAfter(const node_type& proto
+                , const node_type& node);
+        node_type insertCopyBefore(const node_type& proto
+                , const node_type& node);
 
         // Remove specified attribute
-        bool removeAttribute(const typename XMLDOM_T::XMLAttribute& a);
+        bool removeAttribute(const attribute_type& a);
         bool removeAttribute(const string& name);
 
         // Remove specified child
-        bool removeChild(const typename XMLDOM_T::XMLNode& n);
+        bool removeChild(const node_type& n);
         bool removeChild(const string& name);
 
 
@@ -324,15 +318,18 @@ class XMLDocumentBase
     , public IntrusivePtrBase<XMLDocumentBase<XMLDOM_T>>
 {
     public:
+        typedef typename XMLDOM_T::XMLDocument document_type;
+        typedef typename XMLDOM_T::XMLNode node_type;
+        typedef typename XMLDOM_T::XMLAttribute attribute_type;
 
         // Removes all nodes, leaving the empty document
         void reset();
 
         // Removes all nodes, then copies the entire contents of the specified document
-        void reset(const typename XMLDOM_T::XMLDocument& proto);
+        void reset(const document_type& proto);
 
         // Get document element
-        typename XMLDOM_T::XMLNode documentElement() const;
+        node_type documentElement() const;
 
         // loading/saving left out for now
 
@@ -345,8 +342,8 @@ class XMLDocumentBase
 
     private:
         // Non-copyable semantics
-        XMLDocumentBase(const typename XMLDOM_T::XMLDocument&);
-        const XMLDocumentBase& operator=(const typename XMLDOM_T::XMLDocument&);
+        XMLDocumentBase(const document_type&);
+        const XMLDocumentBase& operator=(const document_type&);
 
 };
 
