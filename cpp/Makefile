@@ -6,7 +6,7 @@ BUILD_DIR ?= build
 all:
 	mkdir -p $(BUILD_DIR)
 	cd $(BUILD_DIR) && cmake ..
-	make -C $(BUILD_DIR) install
+	$(MAKE) $(MFLAGS) -C $(BUILD_DIR) install
 
 clean:
 	rm -rf $(BUILD_DIR)

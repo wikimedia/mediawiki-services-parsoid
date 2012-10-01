@@ -10,6 +10,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include <boost/intrusive_ptr.hpp>
 #include <vector>
 #include <deque>
 #include <map>
@@ -19,6 +20,7 @@ using std::vector;
 using std::deque;
 using boost::bind;
 using boost::function;
+using boost::intrusive_ptr;
 using std::pair;
 using std::map;
 

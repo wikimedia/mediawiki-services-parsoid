@@ -5,8 +5,6 @@
 #include "parsoid_internal.hpp"
 using namespace parsoid;
 using std::stringstream;
-using std::min;
-using std::max;
 
 // Wrap the tokenizer in its own sub-namespace
 namespace parsoid{
@@ -99,8 +97,9 @@ h = & "=" # guard, to make sure '='+ will match.
             string start = s[0].getText();
             string end = e[0].getText();
 
-            int level = min( start.size(), end.size() );
-            level = min( level, 6 );
+            unsigned int level = std::min( (unsigned int)start.size()
+                                , (unsigned int)end.size() );
+            level = std::min( level, (unsigned int)6 );
 
             stringstream out;
             out << "h" << level;
