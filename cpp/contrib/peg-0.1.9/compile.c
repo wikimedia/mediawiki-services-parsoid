@@ -473,7 +473,7 @@ YY_LOCAL(int) yymatchChar(yycontext *ctx, int c)\n\
   return 0;\n\
 }\n\
 \n\
-YY_LOCAL(int) yymatchString(yycontext *ctx, char *s)\n\
+YY_LOCAL(int) yymatchString(yycontext *ctx, const char *s)\n\
 {\n\
   int yysav= ctx->pos;\n\
   while (*s)\n\
