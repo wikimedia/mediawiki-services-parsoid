@@ -1,9 +1,6 @@
 # Simple utility makefile so that we can use vim :make from the src dir too.
-all:
-	( cd .. && make )
+default_target: all
+.PHONY: default_target all clean test
 
-clean:
-	( cd .. && make clean )
-
-test:
-	( cd .. && make test )
+all clean test:
+	$(MAKE) -C .. $(MFLAGS) $@
