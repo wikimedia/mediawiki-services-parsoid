@@ -3,7 +3,7 @@
 	url = git://git.netsurf-browser.org/buildsystem.git
 [submodule "cpp/contrib/netsurf/libhubbub"]
 	path = cpp/contrib/netsurf/libhubbub
-	url = git://git.netsurf-browser.org/libhubbub.git
+	url = https://gerrit.wikimedia.org/r/p/mediawiki/extensions/Parsoid/cpp/contrib/libhubbub.git
 [submodule "cpp/contrib/netsurf/json-c"]
 	path = cpp/contrib/netsurf/json-c
 	url = git://git.netsurf-browser.org/json-c.git
