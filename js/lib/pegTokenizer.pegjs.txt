@@ -1144,9 +1144,7 @@ img_attribute
 pre_indent 
   = pre_indent_in_tags
   / l:pre_indent_line ls:(sol pre_indent_line)* {
-      return [new TagTk( 'pre', [], { tsr: [pos0, pos0 + 1] } )]
-                    .concat( [l], ls
-                           , [new EndTagTk( 'pre', [], {tsr: [pos, pos]} )]);
+      return [l].concat(ls);
   }
 
 // An indented pre block that is surrounded with pre tags. The pre tags are
@@ -1156,7 +1154,7 @@ pre_indent
 // FIXME: fix tag end position
 pre_indent_in_tags
   = space+ // XXX: capture space for round-tripping
-    "<pre" 
+    "<pre"
     attribs:generic_attribute* 
     ">"
     & { return stops.inc('pre'); }
@@ -1173,7 +1171,7 @@ pre_indent_in_tags
 
 pre_indent_line = space l:inlineline { 
     //console.warn( JSON.stringify( [s, l] ) );
-    return l; 
+    return [' '].concat(l);
 }
 
 /*
