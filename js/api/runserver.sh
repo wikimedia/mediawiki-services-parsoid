@@ -6,6 +6,17 @@ if ! `iptables -tnat -L | grep -q 'tcp dpt:http redir ports 8000'`;then
     iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 8000
 fi
 
+if [ "$1" = "--testing" ]; then
+    echo "Cloning git repo for testing purposes...."
+    mkdir -p testing-repos testing-repos/main
+    chown -R nobody testing-repos
+    cd testing-repos
+    rm -rf master
+    sudo -u nobody git clone https://gerrit.wikimedia.org/r/p/mediawiki/extensions/Parsoid.git master 2>&1 > /dev/null
+    cd master/js
+    npm install
+fi
+
 # update the source
 git pull
 
