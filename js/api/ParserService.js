@@ -26,6 +26,9 @@ var config = {};
 // global includes
 var express = require('express'),
 	jsDiff = require('diff'),
+	childProc = require('child_process'),
+	spawn = childProc.spawn,
+	fork = childProc.fork,
 	html5 = require('html5'),
 	path = require('path'),
 	cluster = require('cluster');
@@ -480,6 +483,26 @@ app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 		console.warn("completed parsing of " + target + " in " + (et - st) + " ms");
 	}));
 });
+
+app.get( /\/_ci\/refs\/changes\/(\d+)\/(\d+)\/(\d+)/, function ( req, res ) {
+	var gerritChange = 'refs/changes/' + req.params[0] + '/' + req.params[1] + '/' + req.params[2];
+	if ( gerritChange !== 'master' ) {
+		var testSh = spawn( './testGerritChange.sh', [ gerritChange ], {
+			cwd: '.'
+		} );
+
+		res.setHeader('Content-Type', 'text/xml; charset=UTF-8');
+
+		testSh.stdout.on( 'data', function ( data ) {
+			res.write( data );
+		} );
+
+		var cwd = path.join( process.cwd(), 'testing-repos' );
+		testSh.on( 'exit', function () {
+			res.end( '' );
+		} );
+	}
+} );
 
 /**
  * Regular article serialization using POST
