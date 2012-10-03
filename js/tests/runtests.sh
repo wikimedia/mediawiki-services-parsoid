@@ -6,6 +6,11 @@
 #  ./runtests.sh       # wikitext -> HTML DOM; only show diff (no commit)
 #  ./runtests.sh -r    # round-trip tests; only show diff (no commit)
 
+# Helper function to echo a message to stderr
+warn() {
+	echo "$@" 1>&2
+}
+
 if [ ! -d results ];then
     git init results
     touch results/html.txt
