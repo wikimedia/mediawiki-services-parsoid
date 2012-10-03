@@ -115,7 +115,7 @@ ParserPipelineFactory.prototype.recipes = {
 				// No expansion of quotes, paragraphs etc in attributes, as in
 				// PHP parser- up to text/x-mediawiki/expanded only.
 				AttributeExpander,
-				
+
 				// now all attributes expanded to tokens or string
 
 				WikiLinkHandler, // more convenient after attribute expansion
@@ -138,6 +138,9 @@ ParserPipelineFactory.prototype.recipes = {
 			SyncTokenTransformManager,
 			[ 3, 'tokens/x-mediawiki/expanded' ],
 			[
+				// Introduce <pre>s
+				PreHandler,
+
 				// text/wiki-specific tokens
 				QuoteTransformer,
 				ListHandler,
@@ -148,9 +151,6 @@ ParserPipelineFactory.prototype.recipes = {
 
 				// Synchronous extensions
 				Cite, // both before and after paragraph handler
-
-				// Eliminate spurious <pre> wrapping
-				PreHandler,
 
 				// Paragraph wrapping
 				PostExpandParagraphHandler,
@@ -212,7 +212,7 @@ ParserPipelineFactory.prototype.makePipeline = function( type, options ) {
 		// create the stage
 		var stageData = recipe[i],
 			stage;
-		
+
 		if ( stageData.constructor === String ) {
 			// Points to another subpipeline, get it recursively
 			// Clone options object and clear cache type
@@ -316,7 +316,7 @@ function ParserPipeline ( first, last, returnToCacheCB ) {
 		this.returnToCacheCB = function () {
 			returnToCacheCB( self );
 		};
-	
+
 		// add a callback to return the pipeline back to the cache
 		this.last.addListener( 'end', this.returnToCacheCB );
 	}

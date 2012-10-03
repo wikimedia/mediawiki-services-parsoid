@@ -735,7 +735,7 @@ SyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 			// token), and process them next.
 			var revTokens = res.tokens.slice();
 			revTokens.reverse();
-			revTokens.rank = transformer.rank;
+			revTokens.rank = res.tokens.rank || transformer.rank;
 			workStack.push( revTokens );
 		} else if ( res.token ) {
 			localAccum.push(res.token);

@@ -26,9 +26,9 @@ function PostExpandParagraphHandler ( dispatcher ) {
 }
 
 // constants
-PostExpandParagraphHandler.prototype.newlineRank = 2.5;
-PostExpandParagraphHandler.prototype.anyRank = 2.501;
-PostExpandParagraphHandler.prototype.endRank = 2.502;
+PostExpandParagraphHandler.prototype.newlineRank = 5.00;
+PostExpandParagraphHandler.prototype.anyRank     = 5.01;
+PostExpandParagraphHandler.prototype.endRank     = 5.02;
 
 // Register this transformer with the TokenTransformer
 PostExpandParagraphHandler.prototype.register = function ( dispatcher ) {
