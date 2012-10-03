@@ -86,9 +86,10 @@ ParserPipelineFactory.prototype.recipes = {
 			SyncTokenTransformManager,
 			[ 1, 'tokens/x-mediawiki' ],
 			[
-				OnlyInclude,
-				IncludeOnly,
-				NoInclude
+				// PHASE RANGE: [0,1)
+				OnlyInclude,	// 0.01
+				IncludeOnly,	// 0.02
+				NoInclude		// 0.03
 				// Insert TokenCollectors for extensions here (don't expand
 				// templates in extension contents); wrap collected tokens in
 				// special extension token.
@@ -108,18 +109,22 @@ ParserPipelineFactory.prototype.recipes = {
 			AsyncTokenTransformManager,
 			[ 2, 'tokens/x-mediawiki' ],
 			[
-				TemplateHandler,
+				// PHASE RANGE: [1,2)
+
+				TemplateHandler,	// 1.1
 				/* ExtensionHandler1, */ // using SFH_OBJECT_ARGS in PHP
 
 				// Expand attributes after templates to avoid expanding unused branches
 				// No expansion of quotes, paragraphs etc in attributes, as in
 				// PHP parser- up to text/x-mediawiki/expanded only.
-				AttributeExpander,
+				AttributeExpander,	// 1.11
 
 				// now all attributes expanded to tokens or string
 
-				WikiLinkHandler, // more convenient after attribute expansion
-				ExternalLinkHandler
+				// more convenient after attribute expansion
+				WikiLinkHandler,	// 1.15
+
+				ExternalLinkHandler // 1.15
 				/* ExtensionHandler2, */ // using expanded args
 				// Finally expand attributes to plain text
 			]
@@ -138,23 +143,26 @@ ParserPipelineFactory.prototype.recipes = {
 			SyncTokenTransformManager,
 			[ 3, 'tokens/x-mediawiki/expanded' ],
 			[
-				// Introduce <pre>s
-				PreHandler,
+				// PHASE RANGE: [2,3)
 
-				// text/wiki-specific tokens
-				QuoteTransformer,
-				ListHandler,
+				// Introduce <pre>s
+				PreHandler,			// 2.0
+
+
+				QuoteTransformer,	// 2.1
 
 				// before transforms that depend on behavior switches
 				// examples: toc generation, edit sections
-				BehaviorSwitchHandler,
+				BehaviorSwitchHandler,	// 2.14
 
-				// Synchronous extensions
-				Cite, // both before and after paragraph handler
+				Cite,				// 2.15
+
+				ListHandler,		// 2.49
 
 				// Paragraph wrapping
-				PostExpandParagraphHandler,
-				Sanitizer
+				PostExpandParagraphHandler, // FIXME: 5.00
+
+				Sanitizer			// 2.99
 				// SkipperUnpacker
 			]
 		],
