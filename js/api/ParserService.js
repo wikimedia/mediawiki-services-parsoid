@@ -486,22 +486,35 @@ app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 
 app.get( /\/_ci\/refs\/changes\/(\d+)\/(\d+)\/(\d+)/, function ( req, res ) {
 	var gerritChange = 'refs/changes/' + req.params[0] + '/' + req.params[1] + '/' + req.params[2];
-	if ( gerritChange !== 'master' ) {
-		var testSh = spawn( './testGerritChange.sh', [ gerritChange ], {
-			cwd: '.'
-		} );
+	var testSh = spawn( './testGerritChange.sh', [ gerritChange ], {
+		cwd: '.'
+	} );
 
-		res.setHeader('Content-Type', 'text/xml; charset=UTF-8');
+	res.setHeader('Content-Type', 'text/xml; charset=UTF-8');
 
-		testSh.stdout.on( 'data', function ( data ) {
-			res.write( data );
-		} );
+	testSh.stdout.on( 'data', function ( data ) {
+		res.write( data );
+	} );
 
-		var cwd = path.join( process.cwd(), 'testing-repos' );
-		testSh.on( 'exit', function () {
-			res.end( '' );
-		} );
-	}
+	testSh.on( 'exit', function () {
+		res.end( '' );
+	} );
+} );
+
+app.get( /\/_ci\/master/, function ( req, res ) {
+	var testSh = spawn( './testGerritMaster.sh', [], {
+		cwd: '.'
+	} );
+
+	res.setHeader('Content-Type', 'text/xml; charset=UTF-8');
+
+	testSh.stdout.on( 'data', function ( data ) {
+		res.write( data );
+	} );
+
+	testSh.on( 'exit', function () {
+		res.end( '' );
+	} );
 } );
 
 /**

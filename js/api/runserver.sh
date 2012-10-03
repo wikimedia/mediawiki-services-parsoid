@@ -8,7 +8,6 @@ fi
 
 if [ "$1" = "--testing" ]; then
     echo "Cloning git repo for testing purposes...."
-    mkdir -p testing-repos testing-repos/main
     chown -R nobody testing-repos
     cd testing-repos
     rm -rf master
