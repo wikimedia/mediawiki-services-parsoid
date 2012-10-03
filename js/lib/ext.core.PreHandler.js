@@ -11,9 +11,10 @@ function PreHandler( manager, options ) {
 }
 
 // Handler ranks
-PreHandler.prototype.nlRank  = 2.01;
-PreHandler.prototype.anyRank = 2.02;
-PreHandler.prototype.endRank = 2.03;
+PreHandler.prototype.nlRank   = 2.01;
+PreHandler.prototype.anyRank  = 2.02;
+PreHandler.prototype.endRank  = 2.03;
+PreHandler.prototype.skipRank = 2.04; // should be higher than all other ranks above
 
 // FSM states
 PreHandler.STATE_SOL     = 1;
@@ -64,7 +65,7 @@ PreHandler.prototype.getResultAndReset = function(token) {
 	ret.push(token);
 	this.tokens = [];
 
-	ret.rank = this.anyRank + 0.03; // prevent them from being processed again
+	ret.rank = this.skipRank; // prevent them from being processed again
 	return ret;
 };
 
@@ -85,7 +86,7 @@ PreHandler.prototype.processPre = function(token) {
 	this.onlyWS = true;
 	this.tokens = [];
 
-	ret.rank = this.anyRank + 0.03; // prevent them from being processed again
+	ret.rank = this.skipRank; // prevent them from being processed again
 	return ret;
 };
 

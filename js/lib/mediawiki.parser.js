@@ -30,8 +30,7 @@ var fs = require('fs'),
 	OnlyInclude	= NoIncludeOnly.OnlyInclude,
 	QuoteTransformer = require('./ext.core.QuoteTransformer.js').QuoteTransformer,
 	PreHandler = require('./ext.core.PreHandler.js').PreHandler,
-	PostExpandParagraphHandler = require('./ext.core.PostExpandParagraphHandler.js')
-																.PostExpandParagraphHandler,
+	ParagraphWrapper = require('./ext.core.ParagraphWrapper.js').ParagraphWrapper,
 	Sanitizer = require('./ext.core.Sanitizer.js').Sanitizer,
 	TemplateHandler = require('./ext.core.TemplateHandler.js').TemplateHandler,
 	AttributeExpander = require('./ext.core.AttributeExpander.js').AttributeExpander,
@@ -159,10 +158,14 @@ ParserPipelineFactory.prototype.recipes = {
 
 				ListHandler,		// 2.49
 
-				// Paragraph wrapping
-				PostExpandParagraphHandler, // FIXME: 5.00
+				Sanitizer,          // 2.99
 
-				Sanitizer			// 2.99
+				// Wrap tokens into paragraphs post-sanitization so that
+				// tags that converted to text by the sanitizer have a chance
+				// of getting wrapped into paragraphs.  The sanitizer does not
+				// require the existence of p-tags for its functioning.
+				ParagraphWrapper // 2.9995
+
 				// SkipperUnpacker
 			]
 		],

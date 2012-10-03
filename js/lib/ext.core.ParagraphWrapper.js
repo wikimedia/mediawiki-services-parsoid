@@ -11,7 +11,7 @@
 var Util = require('./mediawiki.Util.js').Util;
 
 
-function PostExpandParagraphHandler ( dispatcher ) {
+function ParagraphWrapper ( dispatcher ) {
 	this.nlWsTokens = [];
 	this.nonNlTokens = [];
 	this.currLine = {
@@ -26,22 +26,22 @@ function PostExpandParagraphHandler ( dispatcher ) {
 }
 
 // constants
-PostExpandParagraphHandler.prototype.newlineRank = 5.00;
-PostExpandParagraphHandler.prototype.anyRank     = 5.01;
-PostExpandParagraphHandler.prototype.endRank     = 5.02;
+ParagraphWrapper.prototype.newlineRank = 2.995;
+ParagraphWrapper.prototype.anyRank     = 2.996;
+ParagraphWrapper.prototype.endRank     = 2.997;
 
 // Register this transformer with the TokenTransformer
-PostExpandParagraphHandler.prototype.register = function ( dispatcher ) {
+ParagraphWrapper.prototype.register = function ( dispatcher ) {
 	this.dispatcher = dispatcher;
 	dispatcher.addTransform( this.onNewLineOrEOF.bind(this),
-		"PostExpandParagraphHandler:onNewLine", this.newlineRank, 'newline' );
+		"ParagraphWrapper:onNewLine", this.newlineRank, 'newline' );
 	dispatcher.addTransform( this.onAny.bind(this),
-		"PostExpandParagraphHandler:onAny", this.anyRank, 'any' );
+		"ParagraphWrapper:onAny", this.anyRank, 'any' );
 	dispatcher.addTransform( this.onNewLineOrEOF.bind(this),
-		"PostExpandParagraphHandler:onEnd", this.endRank, 'end' );
+		"ParagraphWrapper:onEnd", this.endRank, 'end' );
 };
 
-PostExpandParagraphHandler.prototype._getTokensAndReset = function (res) {
+ParagraphWrapper.prototype._getTokensAndReset = function (res) {
 	var resToks = res ? res : this.nonNlTokens;
 	// console.warn("RET toks: " + JSON.stringify(resToks));
 	this.nonNlTokens = [];
@@ -50,7 +50,7 @@ PostExpandParagraphHandler.prototype._getTokensAndReset = function (res) {
 	return resToks;
 };
 
-PostExpandParagraphHandler.prototype.discardOneNlTk = function(out) {
+ParagraphWrapper.prototype.discardOneNlTk = function(out) {
 	for (var i = 0, n = this.nlWsTokens.length; i < n; i++) {
 		var t = this.nlWsTokens[i];
 		if (t.constructor === NlTk) {
@@ -62,14 +62,14 @@ PostExpandParagraphHandler.prototype.discardOneNlTk = function(out) {
 	return null;
 };
 
-PostExpandParagraphHandler.prototype.closeOpenPTag = function(out) {
+ParagraphWrapper.prototype.closeOpenPTag = function(out) {
 	if (this.hasOpenPTag) {
 		out.push(new EndTagTk('p'));
 		this.hasOpenPTag = false;
 	}
 };
 
-PostExpandParagraphHandler.prototype.resetCurrLine = function () {
+ParagraphWrapper.prototype.resetCurrLine = function () {
 	this.currLine = {
 		tokens: [],
 		hasBlockToken: false,
@@ -78,7 +78,7 @@ PostExpandParagraphHandler.prototype.resetCurrLine = function () {
 };
 
 // Handle NEWLINE tokens
-PostExpandParagraphHandler.prototype.onNewLineOrEOF = function (  token, frame, cb ) {
+ParagraphWrapper.prototype.onNewLineOrEOF = function (  token, frame, cb ) {
 /**
 	console.warn("-----");
 	console.warn("TNL: " + JSON.stringify(token));
@@ -109,7 +109,7 @@ PostExpandParagraphHandler.prototype.onNewLineOrEOF = function (  token, frame, 
 	}
 };
 
-PostExpandParagraphHandler.prototype.processPendingNLs = function (isBlockToken) {
+ParagraphWrapper.prototype.processPendingNLs = function (isBlockToken) {
 	var resToks = this.nonNlTokens,
 		newLineCount = this.newLineCount,
 		nlTk, nlTk2;
@@ -165,12 +165,12 @@ PostExpandParagraphHandler.prototype.processPendingNLs = function (isBlockToken)
 	return resToks;
 };
 
-PostExpandParagraphHandler.prototype.onAny = function ( token, frame, cb ) {
+ParagraphWrapper.prototype.onAny = function ( token, frame, cb ) {
 /**
 	console.warn("-----");
 	console.warn("TA: " + JSON.stringify(token));
 **/
-	//console.warn( 'PostExpandParagraphHandler.onAny' );
+	//console.warn( 'ParagraphWrapper.onAny' );
 
 	var res,
 		tc = token.constructor;
@@ -186,7 +186,7 @@ PostExpandParagraphHandler.prototype.onAny = function ( token, frame, cb ) {
 		return { tokens: this._getTokensAndReset(res) };
 	} else if (tc === EndTagTk && token.name === 'pre') {
 		this.dispatcher.addTransform(this.onNewLineOrEOF.bind(this),
-			"PostExpandParagraphHandler:onNewLine", this.newlineRank, 'newline');
+			"ParagraphWrapper:onNewLine", this.newlineRank, 'newline');
 		this.inPre = false;
 		this.currLine.hasBlockToken = true;
 		return { tokens: [token] };
@@ -207,12 +207,11 @@ PostExpandParagraphHandler.prototype.onAny = function ( token, frame, cb ) {
 			this.newLineCount = 0;
 			this.nlWsTokens = [];
 
-			// Swallow the current line
+			// Swallow the current line as well
 			Array.prototype.push.apply(this.nonNlTokens, this.currLine.tokens);
 			this.resetCurrLine();
 
-			// But, dont process the stashed tokens yet ... we may still
-			// end up wrapping them in a paragraph later on.
+			// But, dont process the new token yet
 			this.currLine.tokens.push(token);
 			return {};
 		} else {
@@ -233,5 +232,5 @@ PostExpandParagraphHandler.prototype.onAny = function ( token, frame, cb ) {
 };
 
 if (typeof module === "object") {
-	module.exports.PostExpandParagraphHandler = PostExpandParagraphHandler;
+	module.exports.ParagraphWrapper = ParagraphWrapper;
 }
