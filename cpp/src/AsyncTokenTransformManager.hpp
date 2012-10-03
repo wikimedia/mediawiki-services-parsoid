@@ -10,7 +10,7 @@ class AsyncTokenTransformManager
             : TokenTransformManagerBase<TokenMessageReceiver>(isAtToplevel) {}
         void receive ( TokenMessage message ) {
             // We are not doing anything useful currently..
-            receiver( message );
+            emit( message );
         }
 };
 

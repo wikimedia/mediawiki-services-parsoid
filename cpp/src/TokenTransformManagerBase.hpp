@@ -1,19 +1,19 @@
 #include "parsoid_internal.hpp"
 
+#include "PipelineStage.hpp"
+
 namespace parsoid {
 
 
 template <typename HandlerType>
-class TokenTransformManagerBase {
+class TokenTransformManagerBase
+    : public PipelineStage< TokenMessage, TokenMessage >
+{
     public:
         typedef pair<float, HandlerType> TokenHandler;
         // The constructor
         TokenTransformManagerBase();
         TokenTransformManagerBase( bool isAtToplevel );
-
-        void setReceiver( TokenMessageReceiver receiver ) {
-            this->receiver = receiver;
-        }
 
         /**
          * Register a token transformer
@@ -54,8 +54,6 @@ class TokenTransformManagerBase {
         vector<TokenHandler> commentHandlers;
         vector<TokenHandler> nlHandlers;
         vector<TokenHandler> eofHandlers;
-
-        TokenMessageReceiver receiver;
 
 };
 

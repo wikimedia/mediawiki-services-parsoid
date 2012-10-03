@@ -1,9 +1,11 @@
 #include "parsoid_internal.hpp"
-
+#include "PipelineStage.hpp"
 
 namespace parsoid {
 
-class InputExpansionPipeline {
+class InputExpansionPipeline
+    : public PipelineStage<const string&, TokenMessage>
+{
 
     public:
         // TODO: pass in environment
@@ -29,15 +31,11 @@ class InputExpansionPipeline {
             tokenizer.tokenize();
         }
 
-        void setReceiver( TokenMessageReceiver receiver ) {
-            this->receiver = receiver;
-        }
 
     private:
         WikiTokenizer tokenizer;
         SyncTokenTransformManager syncTransformManager;
         AsyncTokenTransformManager asyncTransformManager;
-        TokenMessageReceiver receiver;
 };
 
 } // namespace parsoid

@@ -11,7 +11,7 @@ class SyncTokenTransformManager
 
         void receive( TokenMessage message ) {
             // We are not doing anything useful currently..
-            receiver( message );
+            emit( message );
         }
 };
 
