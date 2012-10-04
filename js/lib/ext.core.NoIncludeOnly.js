@@ -5,7 +5,7 @@
  * @author Gabriel Wicke <gwicke@wikimedia.org>
  */
 
-var TokenCollector = require( './ext.util.TokenCollector.js' ).TokenCollector;
+var Collector = require( './ext.util.TokenAndAttrCollector.js' ).TokenAndAttrCollector;
 
 /**
  * This helper function will build a meta token in the right way for these
@@ -63,7 +63,7 @@ OnlyInclude.prototype.onOnlyInclude = function ( token, manager ) {
 
 OnlyInclude.prototype.onAnyInclude = function ( token, manager ) {
 	//this.manager.env.dp( 'onAnyInclude', token, this );
-	var isTag, tagName, buiMeTo, meta;
+	var isTag, tagName, curriedBuildMetaToken, meta;
 
 	if ( token.constructor === EOFTk ) {
 		this.inOnlyInclude = false;
@@ -97,18 +97,18 @@ OnlyInclude.prototype.onAnyInclude = function ( token, manager ) {
 		}
 	}
 
-	buiMeTo = buildMetaToken.bind( null, manager, tagName );
+	curriedBuildMetaToken = buildMetaToken.bind( null, manager, tagName );
 
 	if ( isTag && token.name === 'onlyinclude' ) {
 		if ( ! this.inOnlyInclude ) {
 			this.foundOnlyInclude = true;
 			this.inOnlyInclude = true;
 			// wrap collected tokens into meta tag for round-tripping
-			meta = buiMeTo( token.constructor === EndTagTk );
+			meta = curriedBuildMetaToken( token.constructor === EndTagTk );
 			return meta;
 		} else {
 			this.inOnlyInclude = false;
-			meta = buiMeTo( token.constructor === EndTagTk );
+			meta = curriedBuildMetaToken( token.constructor === EndTagTk );
 		}
 		//meta.rank = this.rank;
 		return { token: meta };
@@ -123,54 +123,114 @@ OnlyInclude.prototype.onAnyInclude = function ( token, manager ) {
 	}
 };
 
+function defaultNestedDelimiterHandler(nestedDelimiterInfo) {
+	// Clone the container token and strip the delimiter tag out of wherever it is nested!
+	var token = nestedDelimiterInfo.token.clone();
+	var i = nestedDelimiterInfo.attrIndex;
+	if (nestedDelimiterInfo.k >= 0) {
+		token.attribs[i].k.splice(nestedDelimiterInfo.k, 1);
+	} else {
+		token.attribs[i].v.splice(nestedDelimiterInfo.v, 1);
+	}
+
+	return {containerToken: token, delimiter: nestedDelimiterInfo.delimiter};
+}
+
+function noIncludeHandler(manager, options, collection) {
+	var tokens = [];
+
+	// Deal with nested opening delimiter found in another token
+	if (collection.start.constructor !== TagTk) {
+		// FIXME: May use other handlers later.
+		// May abort collection, convert to text, whatever ....
+		// For now, this is just an intermediate solution while we
+		// figure out other smarter strategies and how to plug them in here.
+		tokens.push(defaultNestedDelimiterHandler(collection.start).containerToken);
+	}
+
+	if (!options.isInclude) {
+		var curriedBuildMetaToken = buildMetaToken.bind( null, manager, 'mw:NoInclude' );
+		tokens.push(curriedBuildMetaToken(false));
+		tokens = tokens.concat(collection.tokens);
+		tokens.push(curriedBuildMetaToken(true));
+	}
+
+	// Deal with nested closing delimiter found in another token
+	if (collection.end && collection.end.constructor !== EndTagTk) {
+		tokens.push(defaultNestedDelimiterHandler(collection.end).containerToken);
+	}
+
+	return { tokens: tokens };
+}
 
 function NoInclude( manager, options ) {
-	new TokenCollector(
+	new Collector(
 			manager,
-			function ( tokens ) {
-				var buiMeTo = buildMetaToken.bind( null, manager, 'mw:NoInclude' );
-				if ( options.isInclude ) {
-					//manager.env.tp( 'noinclude stripping' );
-					return {};
-				} else {
-					return { tokens: [
-						buiMeTo( false ),
-						( tokens.length > 1 && ! ( tokens[1] instanceof EOFTk) ) ? tokens[1] : '',
-						buiMeTo( true )
-					] };
-				}
-			}, // just strip it all..
+			noIncludeHandler.bind(null, manager, options),
 			true, // match the end-of-input if </noinclude> is missing
 			0.02, // very early in stage 1, to avoid any further processing.
-			'tag',
 			'noinclude'
 			);
+}
+
+function includeOnlyHandler(manager, options, collection) {
+	// Deal with nested opening delimiter found in another token
+	var startDelim, startHead;
+	if (collection.start.constructor !== TagTk) {
+		// FIXME: May use other handlers later.
+		// May abort collection, convert to text, whatever ....
+		// For now, this is just an intermediate solution while we
+		// figure out other smarter strategies and how to plug them in here.
+		var x = defaultNestedDelimiterHandler(collection.start);
+		startHead  = x.containerToken;
+		startDelim = x.delimiter;
+	} else {
+		startDelim = collection.start;
+	}
+
+	// Deal with nested closing delimiter found in another token
+	var endDelim, endTail;
+	if (collection.end) {
+		if (collection.end.constructor !== EndTagTk) {
+			var x = defaultNestedDelimiterHandler(collection.end);
+			endTail  = x.containerToken;
+			endDelim = x.delimiter;
+		} else {
+			endDelim = collection.end;
+		}
+	}
+
+	var tokens = [];
+	if (startHead) {
+		tokens.push(startHead);
+	}
+
+	if (options.isInclude) {
+		tokens = tokens.concat(collection.tokens);
+	} else {
+		var da, t0, t1;
+		da = startDelim.dataAttribs;
+		t0 = (da && da.tsr) ? da.tsr[0] : null;
+		da = endDelim ? endDelim.dataAttribs : null;
+		t1 = (da && da.tsr) ? da.tsr[1] : null;
+		tokens.push(buildMetaToken(manager, 'mw:IncludeOnly', false, [t0, t1]));
+	}
+
+	if (endTail) {
+		tokens.push(endTail);
+	}
+
+	return { tokens: tokens };
 }
 
 // XXX: Preserve includeonly content in meta tag (data attribute) for
 // round-tripping!
 function IncludeOnly( manager, options ) {
-	new TokenCollector(
+	new Collector(
 			manager,
-			function ( tokens ) {
-				var buiMeTo = buildMetaToken.bind( null, manager, 'mw:IncludeOnly', false ), ioText = '';
-				if ( options.isInclude ) {
-					tokens.shift();
-					if ( tokens.length &&
-						tokens[tokens.length - 1].constructor !== EOFTk ) {
-							tokens.pop();
-					}
-					return { tokens: tokens };
-				} else {
-					manager.env.tp( 'includeonly stripping' );
-					return { tokens: [
-						buiMeTo( [tokens[0].dataAttribs.tsr[0], tokens[tokens.length-1].dataAttribs.tsr[1]] )
-					] };
-				}
-			},
+			includeOnlyHandler.bind(null, manager, options),
 			true, // match the end-of-input if </noinclude> is missing
 			0.03, // very early in stage 1, to avoid any further processing.
-			'tag',
 			'includeonly'
 			);
 }

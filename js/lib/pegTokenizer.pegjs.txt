@@ -1388,7 +1388,6 @@ generic_attribute
 
 generic_attribute_name
   = & { return stops.push( 'equal', true ) }
-  ! '/>'
   name:attribute_preprocessor_text_line
     {
         stops.pop( 'equal' );
@@ -1836,43 +1835,19 @@ nl_comment_space = newline / comment / space
  * |Hello
  * |}
  */
-include_limits = noinclude / includeonly / onlyinclude
 
-noinclude 
-  = & { return stops.inc('noinclude'); }
-    "<noinclude>"
-    i:inline
-    "</noinclude>"
-    {
-        stops.dec('noinclude');
-        return [new TagTk('noinclude', [], {tsr: [pos0, pos0+13]})]
-            .concat(i, [new EndTagTk('noinclude', [], {tsr: [pos - 14, pos]})]);
-    }
-  / & { return stops.dec('noinclude'); }
-
-includeonly 
-  = & { return stops.inc('includeonly'); }
-    "<includeonly>"
-    i:inline
-    "</includeonly>"
-    {
-        stops.dec('includeonly');
-        return [new TagTk('includeonly', [], {tsr: [pos0, pos0+13]})]
-            .concat(i, [new EndTagTk('includeonly', [], {tsr: [pos - 14, pos]})]);
-    }
-  / & { return stops.dec('includeonly'); }
-
-onlyinclude 
-  = & { return stops.inc('onlyinclude'); }
-    "<onlyinclude>"
-    i:inline
-    "</onlyinclude>"
-    {
-        stops.dec('onlyinclude');
-        return [new TagTk('onlyinclude', [], {tsr: [pos0, pos0+13]})]
-            .concat(i, [new EndTagTk('onlyinclude', [], {tsr: [pos - 14, pos]})]);
-    }
-  / & { return stops.dec('onlyinclude'); }
+include_limits = "<" end:"/"? name:[0-9a-zA-Z]+ (space / newline)* ">" {
+     var incl = name.join('').toLowerCase();
+     if (incl === "noinclude" || incl === "onlyinclude" || incl === "includeonly") {
+         if (end) {
+            return [new EndTagTk(incl, [], {tsr: [pos0, pos]})];
+         } else {
+            return [new TagTk(incl, [], {tsr: [pos0, pos]})];
+         }
+     } else {
+         return null;
+     }
+  }
 
 eof = & { return isEOF(pos); } { return true; }
 
@@ -1943,19 +1918,19 @@ attribute_preprocessor_text
   }
 
 attribute_preprocessor_text_single
-  = r:( t:[^{}&']+ { return t.join(''); }
+  = r:( t:[^{}&'<]+ { return t.join(''); }
   / !inline_breaks ( 
       directive
-    / [{&] )
+    / [{&<] )
   )* 
   {
       return flatten_string ( r );
   }
 attribute_preprocessor_text_double
-  = r:( t:[^{}&"]+ { return t.join(''); }
+  = r:( t:[^{}&"<]+ { return t.join(''); }
   / !inline_breaks ( 
       directive
-    / [{&] )
+    / [{&<] )
   )* 
   {
       //console.warn( 'double:' + pp(r) );
@@ -1966,7 +1941,7 @@ attribute_preprocessor_text_double
 attribute_preprocessor_text_line
   = r:( ts:[^=<>{\n\r&'"\t \[\]|{}/]+ { return ts.join(''); }
         /  !inline_breaks 
-           ! '/>'
+            ! '/>'
             t:( 
                 directive
               / !(newline / space / [\[>]) c:. { 
@@ -1981,20 +1956,19 @@ attribute_preprocessor_text_line
   }
 
 attribute_preprocessor_text_single_line
-  = r:( t:[^{}&']+ { return t.join(''); }
+  = r:( t:[^{}&'<]+ { return t.join(''); }
   / !inline_breaks ( 
       directive
-    / ![\r\n] [{&] )
+    / ![\r\n] [{&<] )
   )* {
       return flatten_string ( r );
   }
 attribute_preprocessor_text_double_line
-  = r:( t:[^{}&"]+ { return t.join(''); }
+  = r:( t:[^{}&"<]+ { return t.join(''); }
   / !inline_breaks (
       directive
-    / ![\r\n] [{&] )
+    / ![\r\n] [{&<] )
   )* {
-      //console.warn( 'double:' + pp(r) );
       return flatten_string ( r );
   }
 
