@@ -16,11 +16,14 @@ using pugi::xml_attribute;
 // Forward declarations
 class XMLDocument_Pugi;
 class XMLNode_Pugi;
+class XMLNodeIterator_Pugi;
+class XMLAttributeIterator_Pugi;
 
 
 class XMLAttribute_Pugi: public XMLAttributeBase
 {
     friend class XMLNode_Pugi;
+    friend class XMLAttributeIterator_Pugi;
     // TODO: More complete implementation!
     public:
         XMLAttribute_Pugi()
@@ -131,7 +134,6 @@ class XMLAttribute_Pugi: public XMLAttributeBase
         xml_attribute pugiAttrib;
         XMLAttribute_Pugi(xml_attribute attr)
             : pugiAttrib( attr ) {};
-
 };
 
 typedef XMLDOM<XMLDocument_Pugi, XMLNode_Pugi, XMLAttribute_Pugi> DOM;
@@ -139,6 +141,10 @@ typedef XMLDOM<XMLDocument_Pugi, XMLNode_Pugi, XMLAttribute_Pugi> DOM;
 class XMLNode_Pugi: public XMLNodeBase<DOM>
 {
     friend class XMLDocument_Pugi;
+    friend class XMLNodeIterator_Pugi;
+
+    // FIXME: for 0-argument constructor
+    friend class TreeBuilderHandler;
 
     // TODO: Implement
     public:
@@ -150,6 +156,16 @@ class XMLNode_Pugi: public XMLNodeBase<DOM>
             std::ostringstream oss;
             pugiNode.print(oss);
             return oss.str();
+        }
+
+        // Convert to and from an opaque pointer type.
+        // We choose a location that is already memory-managed.
+        XMLNode_Pugi(void* pugiInternalRep)
+            : pugiNode( static_cast<pugi::xml_node_struct*>( pugiInternalRep ) )
+        {}
+
+        explicit operator void*() const {
+            return pugiNode.internal_object();
         }
 
         // Comparison operators (compares wrapped node pointers)
@@ -346,27 +362,23 @@ class XMLNode_Pugi: public XMLNodeBase<DOM>
         bool removeChild(const XMLNode_Pugi& n);
         bool removeChild(const string& name);
 
-
         // Search for a node by path consisting of node names and . or .. elements.
         //XMLDOM_T::XMLNode first_element_by_path(const string& path, string delimiter = '/') const;
 
-
         // Child nodes iterators
-        //typedef XMLNode_PugiIterator iterator;
-
+        typedef XMLNodeIterator_Pugi iterator;
         iterator begin() const;
         iterator end() const;
 
         // Attribute iterators
-        //typedef XMLAttribute_PugiIterator attributeIterator;
-
-        //attributeIterator attributesBegin() const;
-        //attributeIterator attributesEnd() const;
+        typedef XMLAttributeIterator_Pugi attributeIterator;
+        attributeIterator attributesBegin() const;
+        attributeIterator attributesEnd() const;
 
         // Range-based for support
-        //XMLObjectRange<XMLDOM_T::XMLNodeIterator> children() const;
+        XMLObjectRange<iterator> children() const;
         //XMLObjectRange<xml_named_nodeIterator> children(const string& name) const;
-        //XMLObjectRange<XMLAttributeIterator> attributes() const;
+        XMLObjectRange<attributeIterator> attributes() const;
 
         // Get hash value (unique for handles to the same object)
         size_t hash_value() const {
@@ -409,5 +421,20 @@ class XMLDocument_Pugi: public XMLDocumentBase<DOM>
         xml_node pugiNode() const;
         xml_document pugiDoc;
 };
+
+class XMLNodeIterator_Pugi
+    : public pugi::xml_node_iterator
+{
+public:
+    XMLNode_Pugi operator*() const { return XMLNode_Pugi(pugi::xml_node_iterator::operator*()); }
+};
+
+class XMLAttributeIterator_Pugi
+    : public pugi::xml_attribute_iterator
+{
+public:
+    XMLAttribute_Pugi operator*() const { return XMLAttribute_Pugi(pugi::xml_attribute_iterator::operator*()); }
+};
+
 
 }

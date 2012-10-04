@@ -20,12 +20,20 @@ add_library(
         ${public_headers}
 )
 
-install (
-    TARGETS pugixml
-    DESTINATION ${CMAKE_BINARY_DIR}/lib
+get_target_property(
+    pugi_lib
+    pugixml
+    OUTPUT_NAME
 )
 
-install(
-    FILES ${public_headers}
+#file(
+#    COPY
+#    ${pugi_lib}
+#    DESTINATION ${CMAKE_BINARY_DIR}/lib
+#)
+
+file(
+    COPY
+    ${public_headers}
     DESTINATION ${CMAKE_BINARY_DIR}/include/libpugixml
 )

@@ -28,7 +28,7 @@ class InputExpansionPipeline
         void receive ( const string& input ) {
             tokenizer.setInput( input );
             // FIXME: in loop / looping async task?
-            tokenizer.tokenize();
+            emit( tokenizer.tokenize() );
         }
 
 

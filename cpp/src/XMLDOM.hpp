@@ -23,31 +23,6 @@ namespace parsoid {
 class XMLDocument;
 class XMLNode;
 
-// At the very minimum, we have to support the equivalent to the following
-// libhubbub -> DOM callbacks:
-// libhubbub cb     // DOMBase equivalent
-// ---------------------------------------
-// create_comment,  // node.appendChild( XMLNodeType::Comment ) (always attach)
-// create_doctype,  // node.appendChild( XMLNodeType::Doctype )
-// create_element,  // node.appendChild( XMLNodeType::Element )
-// create_text,     // node.appendChild( XMLNodeType::Text )
-// ref_node,        // not needed: remove remove_node_from_dom calls that
-//                     are not followed by unref_node (moving append/insert
-//                     instead)
-// unref_node,      // not needed: always attach node to DOM, use moving
-//                     append_child/insert_before
-// append_child,    // node.appendChild (moving!)
-// insert_before,   // insertChildBefore (moving!)
-// remove_child,    // removeChild
-// clone_node,      // copy constructor
-// reparent_children, // wrapper around appendChild and iterator
-// get_parent,      // parent()
-// has_children,    // empty()
-// form_associate,  // do nothing really (not needed)
-// add_attributes,  // iterate with addAttribute()
-// set_quirks_mode, // n/a and not needed
-// change_encoding, // not needed, always utf8
-
 
 // Tree node types
 enum class XMLNodeType
@@ -302,9 +277,9 @@ class XMLNodeBase
         attributeIterator attributesEnd() const;
 
         // Range-based for support
-        //XMLObjectRange<XMLDOM_T::XMLNodeIterator> children() const;
+        XMLObjectRange<iterator> children() const;
         //XMLObjectRange<xml_named_nodeIterator> children(const string& name) const;
-        //XMLObjectRange<XMLAttributeIterator> attributes() const;
+        XMLObjectRange<attributeIterator> attributes() const;
 
         // Get hash value (unique for handles to the same object)
         size_t hash_value() const;

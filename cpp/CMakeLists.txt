@@ -30,6 +30,7 @@ set(
 )
 set( envs PREFIX=${CMAKE_BINARY_DIR} )
 add_subdirectory( contrib/pugixml-cmake )
+add_subdirectory( contrib/netsurf/libhubbub )
 
 add_subdirectory( src )
 add_subdirectory( test )

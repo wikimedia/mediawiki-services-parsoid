@@ -60,8 +60,7 @@ XMLNode_Pugi::insertAttribute_before(const string& name
 XMLNode_Pugi
 XMLNode_Pugi::appendChild(const XMLNode_Pugi& node) {
     // Implemented as a copy & remove for now.
-    // TODO: implement as move- will need access the internal xml_node_struct
-    // for that.
+    // TODO: implement move in pugi
     XMLNode_Pugi res = XMLNode_Pugi( pugiNode.append_copy( node.pugiNode ) );
     node.parent().removeChild( node );
     return res;
@@ -137,5 +136,18 @@ XMLAttribute_Pugi::setValue(bool rhs) {
     setValue( rhs ? "true" : "false" );
     return *this;
 }
+
+XMLObjectRange<XMLNodeIterator_Pugi>
+XMLNode_Pugi::children() const
+{
+    return XMLObjectRange<XMLNodeIterator_Pugi>(begin(), end());
+}
+
+XMLObjectRange<XMLAttributeIterator_Pugi>
+XMLNode_Pugi::attributes() const
+{
+    return XMLObjectRange<XMLAttributeIterator_Pugi>(attributesBegin(), attributesEnd());
+}
+
 
 } // namespace parsoid
