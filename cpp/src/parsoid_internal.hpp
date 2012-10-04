@@ -20,10 +20,6 @@
 #include "OutputPipeline.hpp"
 #include "Parsoid.hpp"
 
-// forward declaration
-namespace parsoid {
-    int tokenize();
-}
 
 
 #endif

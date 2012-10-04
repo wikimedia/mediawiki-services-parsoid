@@ -1,5 +1,8 @@
 cmake_minimum_required( VERSION 2.8 )
-include_directories( ${libparsoid_SOURCE_DIR} )
+include_directories(
+    ${CMAKE_BINARY_DIR}/include
+    ${libparsoid_SOURCE_DIR}
+)
 
 add_executable( test
 	test.cc

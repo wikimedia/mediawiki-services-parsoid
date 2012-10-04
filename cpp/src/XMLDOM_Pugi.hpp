@@ -139,6 +139,7 @@ typedef XMLDOM<XMLDocument_Pugi, XMLNode_Pugi, XMLAttribute_Pugi> DOM;
 class XMLNode_Pugi: public XMLNodeBase<DOM>
 {
     friend class XMLDocument_Pugi;
+
     // TODO: Implement
     public:
         explicit operator bool() const {
@@ -372,6 +373,11 @@ class XMLNode_Pugi: public XMLNodeBase<DOM>
             return pugiNode.hash_value();
         }
 
+        template<typename stream_type>
+        stream_type operator<<( stream_type& stream ) const {
+            pugiNode.print( stream );
+            return stream;
+        }
 
 
     protected:
@@ -392,6 +398,13 @@ class XMLDocument_Pugi: public XMLDocumentBase<DOM>
         ~XMLDocument_Pugi() = default;
         void reset();
         void reset(const XMLDocument_Pugi& other);
+
+        template<typename stream_type>
+        stream_type operator<<( stream_type& stream ) const {
+            pugiDoc.save( stream );
+            return stream;
+        }
+
     private:
         xml_node pugiNode() const;
         xml_document pugiDoc;

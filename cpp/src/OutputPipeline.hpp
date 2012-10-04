@@ -1,3 +1,6 @@
+#ifndef __HAVE_OUTPUT_PIPELINE__
+#define __HAVE_OUTPUT_PIPELINE__
+
 #include "parsoid_internal.hpp"
 
 
@@ -43,3 +46,5 @@ class OutputPipeline
 };
 
 } // namespace parsoid
+
+#endif
