@@ -1,15 +1,6 @@
-[submodule "cpp/contrib/netsurf/buildsystem"]
-	path = cpp/contrib/netsurf/buildsystem
-	url = git://git.netsurf-browser.org/buildsystem.git
 [submodule "cpp/contrib/netsurf/libhubbub"]
 	path = cpp/contrib/netsurf/libhubbub
 	url = https://gerrit.wikimedia.org/r/p/mediawiki/extensions/Parsoid/cpp/contrib/libhubbub.git
-[submodule "cpp/contrib/netsurf/json-c"]
-	path = cpp/contrib/netsurf/json-c
-	url = git://git.netsurf-browser.org/json-c.git
-[submodule "cpp/contrib/netsurf/libparserutils"]
-	path = cpp/contrib/netsurf/libparserutils
-	url = git://git.netsurf-browser.org/libparserutils.git
 [submodule "cpp/contrib/folly"]
 	path = cpp/contrib/folly
 	url = git://github.com/facebook/folly.git
