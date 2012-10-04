@@ -13,7 +13,7 @@ class TokenTransformManagerBase
         typedef pair<float, HandlerType> TokenHandler;
         // The constructor
         TokenTransformManagerBase();
-        TokenTransformManagerBase( bool isAtToplevel );
+        TokenTransformManagerBase( bool isAtToplevel ) {}
 
         /**
          * Register a token transformer

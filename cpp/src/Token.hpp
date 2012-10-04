@@ -455,6 +455,11 @@ namespace parsoid
 
             }
 
+            // Construct a TokenChunkChunk from a single TokenChunkPtr
+            TokenMessage( const TokenChunkPtr& chunk )
+                : chunks( TokenChunkChunk( { chunk } ) )
+            {}
+
             bool isAsync() {
                 return accumTailPtr != nullptr;
             }
