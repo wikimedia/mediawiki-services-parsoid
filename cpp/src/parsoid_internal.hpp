@@ -7,7 +7,7 @@
 #include "WikiTokenizer.hpp"
 #include "QueueDispatcher.hpp"
 #include "ParsoidEnvironment.hpp"
-#include "TokenTransformManagerBase.hpp"
+//#include "TokenTransformManager.hpp"
 #include "AsyncTokenTransformManager.hpp"
 #include "SyncTokenTransformManager.hpp"
 //#include "XMLDOM.hpp"

@@ -523,6 +523,21 @@ namespace parsoid
             bool isSiblingDone;
             bool isChildDone;
     };
+
+    /**
+     * Define some rank-related constants
+     *
+     * Each transformer gets a rank slice of
+     * [baseRank, baseRank + 0.00099..) This gives us up to 999 transformers,
+     * enough for anyone^TM.
+     */
+    const float TRANSFORMER_DELTA = 0.001;
+
+    /**
+     * Each handler increments the rank by this much, which allows for 999
+     * handlers per transformer.
+     */
+    const float HANDLER_DELTA = 0.000001;
 }
 
 /**
