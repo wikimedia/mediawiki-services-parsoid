@@ -1,3 +1,56 @@
+/* --------------------------------------------------------------------------
+
+ PRE-handling relies on the following 5-state FSM.
+
+ ------
+ States
+ ------
+ SOL           -- start-of-line
+                  (white-space, comments, meta-tags are all SOL transparent)
+ PRE           -- we might need a pre-block
+                  (if we enter the PRE_COLLECT state)
+ PRE_COLLECT   -- we will need to generate a pre-block and are collecting
+                  content for it.
+ MULTILINE_PRE -- we might need to extend the pre-block to multiple lines.
+                  (depending on whether we see a white-space tok or not)
+ IGNORE        -- nothing to do for the rest of the line.
+
+ -----------
+ Transitions
+ -----------
+
+ + --------------+-----------------+---------------+--------------------------+
+ | Start state   |     Token       | End state     |  Action                  |
+ + --------------+-----------------+---------------+--------------------------+
+ | SOL           | --- nl      --> | SOL           | purge                    |
+ | SOL           | --- eof     --> | SOL           | purge                    |
+ | SOL           | --- ws      --> | PRE           | -- nothing to do --      |
+ | SOL           | --- sol-tr  --> | SOL           | TOKS << tok              |
+ | SOL           | --- other   --> | IGNORE        | purge                    |
+ + --------------+-----------------+---------------+--------------------------+
+ | PRE           | --- nl      --> | SOL           | purge   if |TOKS| == 0   |
+ |               |                 |               | gen-pre if |TOKS| > 0    |
+ | PRE           | --- eof     --> | SOL           | purge                    |
+ | PRE           | --- sol-tr  --> | PRE           | SOL-TR-TOKS << tok       |
+ | PRE           | --- other   --> | PRE_COLLECT   | TOKS = SOL-TR-TOKS + tok |
+ + --------------+-----------------+---------------+--------------------------+
+ | PRE_COLLECT   | --- nl      --> | MULTILINE_PRE | save nl token            |
+ | PRE_COLLECT   | --- eof     --> | SOL           | gen-pre                  |
+ | PRE_COLLECT   | --- blk tag --> | IGNORE        | gen-pre                  |
+ | PRE_COLLECT   | --- any     --> | PRE_COLLECT   | TOKS << tok              |
+ + --------------+-----------------+---------------+--------------------------+
+ | MULTILINE_PRE | --- nl      --> | SOL           | gen-pre                  |
+ | MULTILINE_PRE | --- eof     --> | SOL           | gen-pre                  |
+ | MULTILINE_PRE | --- ws      --> | PRE           | pop saved nl token       |
+ | MULTILINE_PRE | --- sol-tr  --> | MULTILINE_PRE | SOL-TR-TOKS << tok       |
+ | MULTILINE_PRE | --- any     --> | IGNORE        | gen-pre                  |
+ + --------------+-----------------+---------------+--------------------------+
+ | IGNORE        | --- nl      --> | SOL           | purge                    |
+ | IGNORE        | --- eof     --> | SOL           | purge                    |
+ + --------------+-----------------+---------------+--------------------------+
+
+ * --------------------------------------------------------------------------*/
+
 var Util = require('./mediawiki.Util.js').Util;
 
 // Constructor
@@ -17,16 +70,17 @@ PreHandler.prototype.endRank  = 2.03;
 PreHandler.prototype.skipRank = 2.04; // should be higher than all other ranks above
 
 // FSM states
-PreHandler.STATE_SOL     = 1;
-PreHandler.STATE_PRE     = 2;
-PreHandler.STATE_COLLECT = 3;
-PreHandler.STATE_IGNORE  = 4;
+PreHandler.STATE_SOL = 1;
+PreHandler.STATE_PRE = 2;
+PreHandler.STATE_PRE_COLLECT = 3;
+PreHandler.STATE_MULTILINE_PRE = 4;
+PreHandler.STATE_IGNORE = 5;
 
 function init(handler, addAnyHandler) {
-	handler.lastNLTk = null;
-	handler.onlyWS = true;
-	handler.tokens = [];
 	handler.state  = PreHandler.STATE_SOL;
+	handler.lastNLTk = null;
+	handler.tokens = [];
+	handler.solTransparentTokens = [];
 	if (addAnyHandler) {
 		handler.manager.addTransform(handler.onAny.bind(handler),
 			"PreHandler:onAny", handler.anyRank, 'any');
@@ -62,31 +116,42 @@ PreHandler.prototype.getResultAndReset = function(token) {
 	this.popLastNL(this.tokens);
 
 	var ret = this.tokens;
+	if (this.solTransparentTokens.length > 0) {
+		// sol-transparent tokens can only follow a white-space token
+		// which we ignored earlier (in PRE and MULTILINE_PRE states).
+		// Recover it now.
+		ret.push(' ');
+		ret = ret.concat(this.solTransparentTokens);
+		this.solTransparentTokens = [];
+	}
 	ret.push(token);
 	this.tokens = [];
 
-	ret.rank = this.skipRank; // prevent them from being processed again
+	ret.rank = this.skipRank; // prevent this from being processed again
 	return ret;
 };
 
 PreHandler.prototype.processPre = function(token) {
-	var ret;
-	if (this.onlyWS) {
-		ret = this.tokens.length > 0 ? [' '].concat(this.tokens) : this.tokens;
+	var ret = [];
+	if (this.tokens.length === 0) {
+		this.popLastNL(ret);
+		var stToks = this.solTransparentTokens;
+		ret = stToks.length > 0 ? [' '].concat(stToks) : stToks;
 	} else {
 		ret = [ new TagTk('pre') ].concat(this.tokens);
 		ret.push(new EndTagTk('pre'));
+		this.popLastNL(ret);
+		ret = ret.concat(this.solTransparentTokens);
 	}
 
-	// push the last new line and the current token
-	this.popLastNL(ret);
+	// push the the current token
 	ret.push(token);
 
 	// reset!
-	this.onlyWS = true;
+	this.solTransparentTokens = [];
 	this.tokens = [];
 
-	ret.rank = this.skipRank; // prevent them from being processed again
+	ret.rank = this.skipRank; // prevent this from being processed again
 	return ret;
 };
 
@@ -98,22 +163,34 @@ PreHandler.prototype.onNewline = function (token, manager, cb) {
 
 	var ret = null;
 	switch (this.state) {
-		case PreHandler.STATE_PRE:
-			this.state = PreHandler.STATE_COLLECT;
-			this.lastNlTk = token;
-			break;
-
-		case PreHandler.STATE_IGNORE:
-			ret = this.getResultAndReset(token);
-			init(this, true); // Reset!
-			break;
-
 		case PreHandler.STATE_SOL:
 			ret = this.getResultAndReset(token);
 			break;
 
-		case PreHandler.STATE_COLLECT:
+		case PreHandler.STATE_PRE:
+			if (this.tokens.length > 0) {
+				// we got here from a multiline-pre
+				ret = this.processPre(token);
+			} else {
+				ret = this.getResultAndReset(token);
+			}
+			this.state = PreHandler.STATE_SOL;
+			break;
+
+		case PreHandler.STATE_PRE_COLLECT:
+			this.lastNlTk = token;
+			this.state = PreHandler.STATE_MULTILINE_PRE;
+			break;
+
+		case PreHandler.STATE_MULTILINE_PRE:
 			ret = this.processPre(token);
+			this.state = PreHandler.STATE_SOL;
+			break;
+
+		case PreHandler.STATE_IGNORE:
+			ret = [token];
+			ret.rank = this.skipRank; // prevent this from being processed again
+			init(this, true); // Reset!
 			break;
 	}
 
@@ -149,10 +226,16 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 	var ret = null;
 	var tc = token.constructor;
 	if (tc === EOFTk) {
-		if (this.state === PreHandler.STATE_SOL) {
-			ret = this.getResultAndReset(token);
-		} else {
-			ret = this.processPre(token);
+		switch (this.state) {
+			case PreHandler.STATE_SOL:
+			case PreHandler.STATE_PRE:
+				ret = this.getResultAndReset(token);
+				break;
+
+			case PreHandler.STATE_PRE_COLLECT:
+			case PreHandler.STATE_MULTILINE_PRE:
+				ret = this.processPre(token);
+				break;
 		}
 
 		// reset for next use of this pipeline!
@@ -172,31 +255,38 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 				}
 				break;
 
-			case PreHandler.STATE_COLLECT:
-				if ((tc === String) && token.match(/^\s/)) {
-					this.popLastNL(this.tokens);
-					this.state = PreHandler.STATE_PRE;
-					// SSS FIXME: white-space token is lost and won't be RT-ed.
-					// Ex: " a\n<!--a-->\nc" VS " a\n <!--a-->\nc"
-				} else if (isSolTransparent(token)) { // continue watching
-					this.popLastNL(this.tokens);
-					this.tokens.push(token);
+			case PreHandler.STATE_PRE:
+				if (isSolTransparent(token)) { // continue watching
+					this.solTransparentTokens.push(token);
 				} else {
-					ret = this.processPre(token);
-					this.moveToIgnoreState();
+					this.tokens = this.tokens.concat(this.solTransparentTokens);
+					this.tokens.push(token);
+					this.solTransparentTokens = [];
+					this.state = PreHandler.STATE_PRE_COLLECT;
 				}
 				break;
 
-			case PreHandler.STATE_PRE:
+			case PreHandler.STATE_PRE_COLLECT:
 				if (token.isHTMLTag() && Util.isBlockTag(token.name)) {
 					ret = this.processPre(token);
 					this.moveToIgnoreState();
 				} else {
 					// nothing to do .. keep collecting!
-					if (!isSolTransparent(token)) {
-						this.onlyWS = false;
-					}
 					this.tokens.push(token);
+				}
+				break;
+
+			case PreHandler.STATE_MULTILINE_PRE:
+				if ((tc === String) && token.match(/^\s/)) {
+					this.popLastNL(this.tokens);
+					this.state = PreHandler.STATE_PRE;
+					// Ignore white-space token. It will be recovered, if needed,
+					// in getResultAndReset
+				} else if (isSolTransparent(token)) { // continue watching
+					this.solTransparentTokens.push(token);
+				} else {
+					ret = this.processPre(token);
+					this.moveToIgnoreState();
 				}
 				break;
 		}
