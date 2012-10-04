@@ -15,9 +15,9 @@ var fs = require('fs'),
 	path = require('path'),
 	jsDiff = require('diff'),
 	colors = require('colors'),
+	Util = require( '../lib/mediawiki.Util.js' ).Util,
 	util = require( 'util' ),
 	jsdom = require( 'jsdom' ),
-	HTML5 = require('html5').HTML5,  //TODO is this fixup for tests only, or part of real parsing...
 	PEG = require('pegjs'),
 	// Handle options/arguments with optimist module
 	optimist = require('optimist');
@@ -263,60 +263,6 @@ ParserTests.prototype.processArticle = function( item, cb ) {
 	process.nextTick( cb );
 };
 
-/* Normalize the expected parser output by parsing it using a HTML5 parser and
- * re-serializing it to HTML. Ideally, the parser would normalize inter-tag
- * whitespace for us. For now, we fake that by simply stripping all newlines.
- */
-ParserTests.prototype.normalizeHTML = function (source) {
-	// TODO: Do not strip newlines in pre and nowiki blocks!
-	source = source.replace(/[\r\n]/g, '');
-	try {
-		this.htmlparser.parse('<body>' + source + '</body>');
-		return this.htmlparser.document.childNodes[0].childNodes[1]
-			.innerHTML
-			// a few things we ignore for now..
-			//.replace(/\/wiki\/Main_Page/g, 'Main Page')
-			// do not expect a toc for now
-			.replace(/<table[^>]+?id="toc"[^>]*>.+?<\/table>/mg, '')
-			// do not expect section editing for now
-			.replace(/(<span class="editsection">\[.*?<\/span> *)?<span[^>]+class="mw-headline"[^>]*>(.*?)<\/span>/g, '$2')
-			// general class and titles, typically on links
-			.replace(/(title|class|rel)="[^"]+"/g, '')
-			// strip red link markup, we do not check if a page exists yet
-			.replace(/\/index.php\?title=([^']+?)&amp;action=edit&amp;redlink=1/g, '/wiki/$1')
-			// the expected html has some extra space in tags, strip it
-			.replace(/<a +href/g, '<a href')
-			.replace(/href="\/wiki\//g, 'href="')
-			.replace(/" +>/g, '">');
-	} catch(e) {
-        console.log("normalizeHTML failed on" +
-				source + " with the following error: " + e);
-		console.trace();
-		return source;
-	}
-
-};
-
-// Specialized normalization of the wiki parser output, mostly to ignore a few
-// known-ok differences.
-ParserTests.prototype.normalizeOut = function ( out ) {
-	// TODO: Do not strip newlines in pre and nowiki blocks!
-	return out
-		.replace(/<span typeof="mw:(?:(?:Placeholder|Nowiki|Object\/Template|Entity))"[^>]*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1')
-		.replace(/[\r\n]| (data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content)="[^">]*"/g, '')
-		.replace(/<!--.*?-->\n?/gm, '')
-		.replace(/<\/?meta[^>]*>/g, '')
-		.replace(/<span[^>]+about="[^]+>/g, '')
-		.replace(/<span><\/span>/g, '')
-		.replace(/href="(?:\.?\.\/)+/g, 'href="');
-};
-
-ParserTests.prototype.formatHTML = function ( source ) {
-	// Quick hack to insert newlines before some block level start tags
-	return source.replace(
-		/(?!^)<((div|dd|dt|li|p|table|tr|td|tbody|dl|ol|ul|h1|h2|h3|h4|h5|h6)[^>]*)>/g, '\n<$1>');
-};
-
 ParserTests.prototype.convertHtml2Wt = function( options, processWikitextCB, doc ) {
 	var content = options.wt2wt ? doc.body : doc;
 	try {
@@ -359,7 +305,7 @@ ParserTests.prototype.processTest = function ( item, options, endCb ) {
 
 	item.time = {};
 
-	var cb, cb2;
+	var cb, cb2, domtree;
 	if ( options.wt2html || options.wt2wt ) {
 		if ( options.wt2wt ) {
 			// insert an additional step in the callback chain
@@ -383,8 +329,8 @@ ParserTests.prototype.processTest = function ( item, options, endCb ) {
 		}
 
 		item.time.start = Date.now();
-		this.htmlparser.parse( '<html><body>' + item.result + '</body></html>' );
-		this.convertHtml2Wt( options, cb, this.htmlparser.tree.document.childNodes[0].childNodes[1] );
+		domtree = Util.parseHTML( '<html><body>' + item.result + '</body></html>' );
+		this.convertHtml2Wt( options, cb, domtree.document.childNodes[0].childNodes[1] );
 	}
 };
 
@@ -448,30 +394,6 @@ ParserTests.prototype.processSerializedWT = function ( item, options, cb, wikite
 	process.nextTick( cb );
 };
 
-ParserTests.prototype.diff = function ( a, b, color ) {
-	if ( color ) {
-		return jsDiff.diffWords( a, b ).map( function ( change ) {
-			if ( change.added ) {
-				return change.value.green;
-			} else if ( change.removed ) {
-				return change.value.red;
-			} else {
-				return change.value;
-			}
-		}).join('');
-	} else {
-		var patch = jsDiff.createPatch('wikitext.txt', a, b, 'before', 'after');
-
-		// Strip the header from the patch, we know how diffs work..
-		patch = patch.replace(/^[^\n]*\n[^\n]*\n[^\n]*\n[^\n]*\n/, '');
-
-		// Don't care about not having a newline.
-		patch = patch.replace( /^\\ No newline at end of file\n/, '' );
-
-		return patch;
-	}
-};
-
 /**
  * Print a failure message for a test.
  *
@@ -505,7 +427,7 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 		console.log( 'INPUT'.cyan + ':' );
 		console.log( actual.input + '\n' );
 
-		console.log( options.getActualExpected( actual, expected, options.getDiff, options.formatHTML, options.color ) );
+		console.log( options.getActualExpected( actual, expected, options.getDiff, options.color ) );
 
 		if ( options.printwhitelist ) {
 			this.printWhitelistEntry( title, actual.raw );
@@ -552,31 +474,30 @@ ParserTests.prototype.printSuccess = function ( title, mode, isWhitelist, should
  * @arg actual {object} Actual output from the parser. Contains 'raw' and 'normal', the output in different formats
  * @arg expected {object} Expected output for this test. Contains 'raw' and 'normal' as above.
  * @arg getDiff {function} The function we use to get the diff for output (if any)
- * @arg formatHTML {function} A function for making HTML look nicer.
  * @arg color {bool} Whether we should output colorful strings or not.
  *
  * Side effect: Both objects will, after this, have 'formattedRaw' and 'formattedNormal' properties,
- * which are the result of calling ParserTests.prototype.formatHTML() on the 'raw' and 'normal' properties.
+ * which are the result of calling Util.formatHTML() on the 'raw' and 'normal' properties.
  */
-ParserTests.prototype.getActualExpected = function ( actual, expected, getDiff, formatHTML, color ) {
+ParserTests.prototype.getActualExpected = function ( actual, expected, getDiff, color ) {
 	var returnStr = '';
-	expected.formattedRaw = formatHTML( expected.raw );
+	expected.formattedRaw = Util.formatHTML( expected.raw );
 	returnStr += ( color ? 'RAW EXPECTED'.cyan : 'RAW EXPECTED' ) + ':';
 	returnStr += expected.formattedRaw + '\n';
 
-	actual.formattedRaw = formatHTML( actual.raw );
+	actual.formattedRaw = Util.formatHTML( actual.raw );
 	returnStr += ( color ? 'RAW RENDERED'.cyan : 'RAW RENDERED' ) + ':';
 	returnStr += actual.formattedRaw + '\n';
 
-	expected.formattedNormal = formatHTML( expected.normal );
+	expected.formattedNormal = Util.formatHTML( expected.normal );
 	returnStr += ( color ? 'NORMALIZED EXPECTED'.magenta : 'NORMALIZED EXPECTED' ) + ':';
 	returnStr += expected.formattedNormal + '\n';
 
-	actual.formattedNormal = formatHTML( actual.normal );
+	actual.formattedNormal = Util.formatHTML( actual.normal );
 	returnStr += ( color ? 'NORMALIZED RENDERED'.magenta : 'NORMALIZED RENDERED' ) + ':';
 	returnStr += actual.formattedNormal + '\n';
 
-	returnStr += ( color ? 'DIFF'.cyan : 'DIFF' ) + ': ';
+	returnStr += ( color ? 'DIFF'.cyan : 'DIFF' ) + ': \n';
 	returnStr += getDiff( actual, expected, color );
 
 	return returnStr;
@@ -590,7 +511,7 @@ ParserTests.prototype.getActualExpected = function ( actual, expected, getDiff, 
  * @arg color {bool} Do you want color in the diff output?
  */
 ParserTests.prototype.getDiff = function ( actual, expected, color ) {
-	return this.diff( expected.formattedNormal, actual.formattedNormal, color );
+	return Util.diff( expected.formattedNormal, actual.formattedNormal, color );
 };
 
 /**
@@ -621,7 +542,7 @@ ParserTests.prototype.printWhitelistEntry = function ( title, raw ) {
 ParserTests.prototype.printResult = function ( title, time, comments, iopts, expected, actual, options, mode ) {
 	if ( expected.normal !== actual.normal ) {
 		if ( options.whitelist && title in testWhiteList &&
-			options.normalizeOut( testWhiteList[title] ) ===  actual.normal ) {
+			Util.normalizeOut( testWhiteList[title] ) ===  actual.normal ) {
 			options.reportSuccess( title, mode, true, options.quiet );
 			return;
 		}
@@ -640,8 +561,8 @@ ParserTests.prototype.printResult = function ( title, time, comments, iopts, exp
  * @arg options {object} Options for this test and some shared methods.
  */
 ParserTests.prototype.checkHTML = function ( item, out, options ) {
-	var normalizedOut = this.normalizeOut(out);
-	var normalizedExpected = this.normalizeHTML(item.result);
+	var normalizedOut = Util.normalizeOut( out );
+	var normalizedExpected = Util.normalizeHTML(item.result);
 
 	var mode = (
 		options.wt2html ? 'wt2html' : (
@@ -750,12 +671,6 @@ ParserTests.prototype.main = function ( options ) {
 		process.exit( 0 );
 	}
 
-	// Forward this.formatHTML so we don't have unnecessary coupling
-	options.formatHTML = this.formatHTML;
-
-	// Forward normalizeOut so we can call it everywhere
-	options.normalizeOut = this.normalizeOut;
-
 	if ( !( options.wt2wt || options.wt2html || options.html2wt || options.html2html ) ) {
 		options.wt2wt = true;
 		options.wt2html = true;
@@ -852,7 +767,6 @@ ParserTests.prototype.main = function ( options ) {
 	});
 
 	// Create parsers, serializers, ..
-	this.htmlparser = new HTML5.Parser();
 	if ( options.html2html || options.wt2wt || options.wt2html ) {
 		var parserPipelineFactory = new ParserPipelineFactory( this.env );
 		this.parserPipeline = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
@@ -983,55 +897,38 @@ var xmlFuncs = function () {
 	},
 
 	/**
-	 * Local helper function for encoding XML entities
-	 */
-	encodeXml = function ( string ) {
-		var xml_special_to_escaped_one_map = {
-			'&': '&amp;',
-			'"': '&quot;',
-			'<': '&lt;',
-			'>': '&gt;'
-		};
-
-		return string.replace( /([\&"<>])/g, function ( str, item ) {
-			return xml_special_to_escaped_one_map[item];
-		} );
-	},
-
-	/**
 	 * Get the actual and expected outputs encoded for XML output.
 	 *
 	 * @arg actual {object} Actual output from the parser. Contains 'raw' and 'normal', the output in different formats
 	 * @arg expected {object} Expected output for this test. Contains 'raw' and 'normal' as above.
 	 * @arg getDiff {function} The function we use to get the diff for output (if any)
-	 * @arg formatHTML {function} A function for making HTML look nicer.
 	 * @arg color {bool} Whether we should output colorful strings or not.
 	 *
 	 * Side effect: Both objects will, after this, have 'formattedRaw' and 'formattedNormal' properties,
-	 * which are the result of calling ParserTests.prototype.formatHTML() on the 'raw' and 'normal' properties.
+	 * which are the result of calling Util.formatHTML() on the 'raw' and 'normal' properties.
 	 */
-	getActualExpectedXML = function ( actual, expected, getDiff, formatHTML, color ) {
+	getActualExpectedXML = function ( actual, expected, getDiff, color ) {
 		var returnStr = '';
 
-		expected.formattedRaw = formatHTML( expected.raw );
-		actual.formattedRaw = formatHTML( actual.raw );
-		expected.formattedNormal = formatHTML( expected.normal );
-		actual.formattedNormal = formatHTML( actual.normal );
+		expected.formattedRaw = Util.formatHTML( expected.raw );
+		actual.formattedRaw = Util.formatHTML( actual.raw );
+		expected.formattedNormal = Util.formatHTML( expected.normal );
+		actual.formattedNormal = Util.formatHTML( actual.normal );
 
 		returnStr += 'RAW EXPECTED:\n';
-		returnStr += encodeXml( expected.formattedRaw ) + '\n\n';
+		returnStr += Util.encodeXml( expected.formattedRaw ) + '\n\n';
 
 		returnStr += 'RAW RENDERED:\n';
-		returnStr += encodeXml( actual.formattedRaw ) + '\n\n';
+		returnStr += Util.encodeXml( actual.formattedRaw ) + '\n\n';
 
 		returnStr += 'NORMALIZED EXPECTED:\n';
-		returnStr += encodeXml( expected.formattedNormal ) + '\n\n';
+		returnStr += Util.encodeXml( expected.formattedNormal ) + '\n\n';
 
 		returnStr += 'NORMALIZED RENDERED:\n';
-		returnStr += encodeXml( actual.formattedNormal ) + '\n\n';
+		returnStr += Util.encodeXml( actual.formattedNormal ) + '\n\n';
 
 		returnStr += 'DIFF:\n';
-		returnStr += encodeXml ( getDiff( actual, expected, false ) );
+		returnStr += Util.encodeXml ( getDiff( actual, expected, false ) );
 
 		return returnStr;
 	},
@@ -1073,7 +970,7 @@ var xmlFuncs = function () {
 	reportFailureXML = function ( title, comments, iopts, options, actual, expected, failure_only, mode ) {
 		fail++;
 		var failEle = '<failure type="parserTestsDifferenceInOutputFailure">\n';
-		failEle += getActualExpectedXML( actual, expected, options.getDiff, options.formatHTML, false );
+		failEle += getActualExpectedXML( actual, expected, options.getDiff, false );
 		failEle += '\n</failure>\n';
 		results[mode] += failEle;
 	},
@@ -1111,7 +1008,7 @@ var xmlFuncs = function () {
 	reportResultXML = function ( title, time, comments, iopts, expected, actual, options, mode ) {
 		var timeTotal, testcaseEle;
 
-		testcaseEle = '<testcase name="' + encodeXml( title ) + '" ';
+		testcaseEle = '<testcase name="' + Util.encodeXml( title ) + '" ';
 		testcaseEle += 'assertions="1" ';
 
 		if ( time && time.end && time.start ) {
@@ -1127,7 +1024,7 @@ var xmlFuncs = function () {
 
 		if ( expected.normal !== actual.normal ) {
 			if ( options.whitelist && title in testWhiteList &&
-				 options.normalizeOut( testWhiteList[title] ) ===  actual.normal ) {
+				 Util.normalizeOut( testWhiteList[title] ) ===  actual.normal ) {
 				reportSuccessXML( title, mode, true, options.quiet );
 			} else {
 				reportFailureXML( title, comments, iopts, options, actual, expected, options.quick, mode );
