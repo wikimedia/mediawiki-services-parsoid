@@ -54,7 +54,7 @@ public:
         : done( false ) {}
 
     void receive( DOM::XMLDocumentPtr value ) {
-        cout << "received chunk: " << *value << endl;
+        cout << "received chunk:" << endl << *value << endl;
         doc = value;
         done = true;
     }
@@ -74,11 +74,13 @@ void test_pipeline(const string& testtext) {
     TestDocReceiver doc_receiver;
     parser.parse(testtext, doc_receiver.getReceiver());
 
-    cerr << "Waiting indefinitely for parsing to complete..." << endl;
+    // FIXME assuming the parse was synchronous.
+    // otherwise:
+    //cerr << "Waiting indefinitely for parsing to complete..." << endl;
 
-    while ( !doc_receiver.done ) {
-        sleep( 1 );
-    }
+    //while ( !doc_receiver.done ) {
+    //    sleep( 1 );
+    //}
 
     cout << "PARSER FINISH!\n\n";
 }

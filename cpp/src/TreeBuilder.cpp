@@ -64,7 +64,11 @@ void TreeBuilder::receive(TokenMessage message)
             hubbub_from_tk(&h_tok, tok);
             hubbub_treebuilder_token_handler(&h_tok, hubbubTreeBuilder);
             if (h_tok.data.tag.attributes) {
-                delete h_tok.data.tag.attributes;
+                TreeBuilder::hubbubAllocator(
+                    h_tok.data.tag.attributes,
+                    0,
+                    nullptr
+                );
             }
 
             if (tok.type() == TokenType::Eof)
@@ -317,14 +321,22 @@ void TreeBuilder::hubbub_from_tk(hubbub_token* h_tok, Tk tok)
         case TokenType::StartTag:
             h_tok->type = HUBBUB_TOKEN_START_TAG;
             hubbub_from_string(&h_tok->data.tag.name, tok.getName());
-            //FIXME
-            //int index = 0;
-            //h_tok->data.tag.n_attributes = tok.attributes().size();
-            //h_tok->data.tag.attributes = new hubbub_attribute[tok.attributes().size() + 1];
-            //for (auto p : tok.attributes()) {
-            //    hubbub_from_string(&h_tok->data.tag.attributes[index].name, p.first);
-            //    hubbub_from_string(&h_tok->data.tag.attributes[index].value, p.second);
-            //}
+            h_tok->data.tag.n_attributes = tok.attributes().size();
+            h_tok->data.tag.attributes = static_cast<hubbub_attribute*>(
+                TreeBuilder::hubbubAllocator(
+                    nullptr,
+                    sizeof(hubbub_attribute) * (tok.attributes().size() + 1),
+                    nullptr
+                )
+            );
+            {
+                int index = 0;
+                for (pair<vector<Tk>, vector<Tk>> p : tok.attributes()) {
+                    hubbub_from_string(&h_tok->data.tag.attributes[index].name, p.first[0].getText());
+                    hubbub_from_string(&h_tok->data.tag.attributes[index].value, p.second[0].getText());
+                    index++;
+                }
+            }
             break;
         case TokenType::EndTag:
             h_tok->type = HUBBUB_TOKEN_END_TAG;

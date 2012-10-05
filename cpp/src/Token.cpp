@@ -43,6 +43,10 @@ namespace parsoid
         return mToken->getAttribute(name);
     }
     //void TK::removeAttribute( const vector<Tk>& name )
+    const vector< pair< vector<Tk>, vector<Tk> > > Tk::attributes() const {
+        return static_cast<const TagToken*>(&(*mToken))->attributes();
+    }
+
 
     // The ContentToken interface
     void Tk::setText ( const std::string& text ) {
