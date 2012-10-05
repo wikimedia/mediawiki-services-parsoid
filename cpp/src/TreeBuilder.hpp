@@ -23,36 +23,17 @@ class TreeBuilder
     : public PipelineStage<TokenMessage, DOM::XMLDocumentPtr>
 {
 public:
-    TreeBuilder() {}
+    TreeBuilder();
+    ~TreeBuilder();
 
-    void receive(TokenMessage message)
-    {
-        std::cerr << "ignoring message" << std::endl;
-        DOM::XMLDocumentPtr doc(new DOM::XMLDocument);
+    void receive(TokenMessage message);
 
-        // Iterate through chunk, convert each token to stack-allocated
-        // libhubbub token and feed each to libhubbub tree builder
-        //
-        // If EofTk is found, call receiver( DOM );
-
-        for (TokenChunkPtr chunk : message.getChunks())
-        {
-            for (Tk tok : chunk->getChunk())
-            {
-                std::cerr << tok.toString() << std::endl;
-
-                if (tok.type() == TokenType::Eof)
-                {
-                    emit(doc);
-                    doc = DOM::XMLDocumentPtr(new DOM::XMLDocument);
-                }
-            }
-        }
-
-        //FIXME implicit Eof?
-        emit(doc);
-        doc.reset();
+    static void* hubbubAllocator(void *ptr, size_t len, void *pw) {
+       return realloc(ptr, len);
     }
+
+    void hubbub_from_tk(hubbub_token* h_tok, Tk tok);
+    void hubbub_from_string(hubbub_string* h_str, const string& str);
 
 private:
     hubbub_treebuilder* hubbubTreeBuilder;

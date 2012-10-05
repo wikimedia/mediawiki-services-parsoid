@@ -3,6 +3,87 @@
 namespace parsoid
 {
 
+TreeBuilder::TreeBuilder()
+    : hubbubTreeBuilder(nullptr)
+{
+    hubbub_error error;
+
+    error = hubbub_treebuilder_create(
+        &TreeBuilder::hubbubAllocator,
+        NULL,
+        &hubbubTreeBuilder
+    );
+    if (error != HUBBUB_OK) {
+        throw "Not ok";
+    }
+
+    callbacks = TreeBuilderHandler::get_handler();
+    callbacks.ctx = static_cast<void *>(this);
+    hubbub_treebuilder_optparams params;
+    params.tree_handler = &callbacks;
+    hubbub_treebuilder_setopt(
+        hubbubTreeBuilder,
+        HUBBUB_TREEBUILDER_TREE_HANDLER,
+        &params
+    );
+}
+
+TreeBuilder::~TreeBuilder()
+{
+    if (hubbubTreeBuilder) {
+        hubbub_treebuilder_destroy(hubbubTreeBuilder);
+    }
+}
+
+
+void TreeBuilder::receive(TokenMessage message)
+{
+    DOM::XMLDocumentPtr doc(new DOM::XMLDocument);
+    hubbub_treebuilder_optparams params;
+    params.document_node = static_cast<void*>(*doc);
+    hubbub_treebuilder_setopt(hubbubTreeBuilder, HUBBUB_TREEBUILDER_DOCUMENT_NODE, &params);
+
+    // Iterate through chunk, convert each token to stack-allocated
+    // libhubbub token and feed each to libhubbub tree builder
+    //
+    // If EofTk is found, call receiver( DOM );
+
+    for (TokenChunkPtr chunk : message.getChunks())
+    {
+        for (Tk tok : chunk->getChunk())
+        {
+            //std::cerr << "h_tokening: " << tok.toString() << std::endl;
+
+            hubbub_token h_tok;
+            hubbub_from_tk(&h_tok, tok);
+            hubbub_treebuilder_token_handler(&h_tok, hubbubTreeBuilder);
+            if (h_tok.data.tag.attributes) {
+                delete h_tok.data.tag.attributes;
+            }
+
+            if (tok.type() == TokenType::Eof)
+            {
+                emit(doc);
+
+                doc = DOM::XMLDocumentPtr(new DOM::XMLDocument);
+                hubbub_treebuilder_optparams params;
+                params.document_node = static_cast<void*>(*doc);
+                hubbub_treebuilder_setopt(hubbubTreeBuilder, HUBBUB_TREEBUILDER_DOCUMENT_NODE, &params);
+            }
+        }
+    }
+
+    //FIXME implicit Eof?
+    if (!doc->empty()) {
+        Tk tok = mkEof();
+        hubbub_token h_tok;
+        hubbub_from_tk(&h_tok, tok);
+        hubbub_treebuilder_token_handler(&h_tok, hubbubTreeBuilder);
+        emit(doc);
+        doc.reset();
+    }
+}
+
 
 hubbub_error TreeBuilderHandler::append_child(void* ctx, void* p_parent, void* p_child, void** p_result)
 {
@@ -220,5 +301,56 @@ TreeBuilderHandler::string_from_hubbub(const hubbub_string& str)
     return string_type(reinterpret_cast< const char* >(str.ptr), str.len);
 }
 
+void TreeBuilder::hubbub_from_tk(hubbub_token* h_tok, Tk tok)
+{
+    h_tok->data.tag.n_attributes = 0;
+    h_tok->data.tag.attributes = nullptr;
+
+    switch (tok.type()) {
+        case TokenType::Abstract:
+            //FIXME
+            std::cerr << "got abstract token!" << std::endl;
+            break;
+        case TokenType::StartTag:
+            h_tok->type = HUBBUB_TOKEN_START_TAG;
+            hubbub_from_string(&h_tok->data.tag.name, tok.getName());
+            //FIXME
+            //int index = 0;
+            //h_tok->data.tag.n_attributes = tok.attributes().size();
+            //h_tok->data.tag.attributes = new hubbub_attribute[tok.attributes().size() + 1];
+            //for (auto p : tok.attributes()) {
+            //    hubbub_from_string(&h_tok->data.tag.attributes[index].name, p.first);
+            //    hubbub_from_string(&h_tok->data.tag.attributes[index].value, p.second);
+            //}
+            break;
+        case TokenType::EndTag:
+            h_tok->type = HUBBUB_TOKEN_END_TAG;
+            hubbub_from_string(&h_tok->data.tag.name, tok.getName());
+            break;
+        case TokenType::Text:
+            h_tok->type = HUBBUB_TOKEN_CHARACTER;
+            hubbub_from_string(&h_tok->data.character, tok.getText());
+            break;
+        case TokenType::Comment:
+            h_tok->type = HUBBUB_TOKEN_COMMENT;
+            hubbub_from_string(&h_tok->data.comment, tok.getText());
+            break;
+        case TokenType::Nl:
+            h_tok->type = HUBBUB_TOKEN_CHARACTER;
+            hubbub_from_string(&h_tok->data.character, "\n");
+            break;
+        case TokenType::Eof:
+            h_tok->type = HUBBUB_TOKEN_EOF;
+            break;
+    }
+    //h_tok.type = HUBBUB_TOKEN_DOCTYPE; FIXME
+    //FIXME HUBBUB_TOKEN_EOF
+}
+
+void TreeBuilder::hubbub_from_string(hubbub_string* h_str, const string& str)
+{
+    h_str->ptr = reinterpret_cast<const uint8_t*>(str.c_str());
+    h_str->len = str.length();
+}
 
 } // namespace parsoid
