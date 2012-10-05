@@ -386,8 +386,8 @@ class XMLNode_Pugi: public XMLNodeBase<DOM>
         }
 
         template<typename stream_type>
-        stream_type operator<<( stream_type& stream ) const {
-            pugiNode.print( stream );
+        friend stream_type& operator<<(stream_type& stream, XMLNode_Pugi& node) {
+            node.pugiNode.print( stream );
             return stream;
         }
 
@@ -406,19 +406,32 @@ class XMLDocument_Pugi: public XMLDocumentBase<DOM>
 {
     // TODO: Implement
     public:
-        XMLDocument_Pugi() = default;
+        XMLDocument_Pugi() {
+            pugiNode = pugiDoc.append_child("html");
+        }
         ~XMLDocument_Pugi() = default;
         void reset();
         void reset(const XMLDocument_Pugi& other);
 
         template<typename stream_type>
-        stream_type operator<<( stream_type& stream ) const {
-            pugiDoc.save( stream );
+        friend stream_type& operator<<(stream_type& stream, const XMLDocument_Pugi& doc) {
+            doc.pugiDoc.save( stream );
             return stream;
         }
 
+        explicit operator void*() const {
+            return static_cast<void*>(root());
+        }
+
+        XMLNode_Pugi documentElement() const {
+            return XMLNode_Pugi(pugiDoc.document_element());
+        }
+
+        XMLNode_Pugi root() const {
+            return XMLNode_Pugi(pugiDoc.root());
+        }
+
     private:
-        xml_node pugiNode() const;
         xml_document pugiDoc;
 };
 
@@ -426,6 +439,10 @@ class XMLNodeIterator_Pugi
     : public pugi::xml_node_iterator
 {
 public:
+    XMLNodeIterator_Pugi(pugi::xml_node_iterator it)
+        : pugi::xml_node_iterator(it)
+    {}
+
     XMLNode_Pugi operator*() const { return XMLNode_Pugi(pugi::xml_node_iterator::operator*()); }
 };
 
@@ -433,6 +450,10 @@ class XMLAttributeIterator_Pugi
     : public pugi::xml_attribute_iterator
 {
 public:
+    XMLAttributeIterator_Pugi(pugi::xml_attribute_iterator it)
+        : pugi::xml_attribute_iterator(it)
+    {}
+
     XMLAttribute_Pugi operator*() const { return XMLAttribute_Pugi(pugi::xml_attribute_iterator::operator*()); }
 };
 

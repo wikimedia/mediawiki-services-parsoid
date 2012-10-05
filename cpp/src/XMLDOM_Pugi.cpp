@@ -102,6 +102,30 @@ XMLNode_Pugi::insertChildBefore(const XMLNode_Pugi& node
     return res;
 }
 
+bool
+XMLNode_Pugi::removeChild(const XMLNode_Pugi& n) {
+    return pugiNode.remove_child(n.pugiNode);
+}
+
+XMLNode_Pugi::iterator
+XMLNode_Pugi::begin() const {
+    return XMLNode_Pugi::iterator(pugiNode.begin());
+}
+
+XMLNode_Pugi::iterator
+XMLNode_Pugi::end() const {
+    return XMLNode_Pugi::iterator(pugiNode.end());
+}
+
+XMLNode_Pugi::attributeIterator
+XMLNode_Pugi::attributesBegin() const {
+    return XMLNode_Pugi::attributeIterator(pugiNode.attributes_begin());
+}
+
+XMLNode_Pugi::attributeIterator
+XMLNode_Pugi::attributesEnd() const {
+    return XMLNode_Pugi::attributeIterator(pugiNode.attributes_end());
+}
 
 /**
  * XMLAttribute_Pugi implementation

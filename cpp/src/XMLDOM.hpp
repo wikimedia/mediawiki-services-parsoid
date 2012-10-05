@@ -43,8 +43,6 @@ enum class XMLNodeType
 template <typename It> class XMLObjectRange
 {
     public:
-        typedef It const_iterator;
-
         XMLObjectRange(It b, It e): _begin(b), _end(e)
     {
     }
@@ -66,7 +64,7 @@ class XMLAttributeBase
         XMLAttributeBase() = default;
         ~XMLAttributeBase() = default;
         // no copying either
-        XMLAttributeBase( const XMLAttributeBase& );
+        XMLAttributeBase( const XMLAttributeBase& ) = default;
         const XMLAttributeBase& operator=(const XMLAttributeBase&);
 
     public:
@@ -140,7 +138,7 @@ class XMLNodeBase
         XMLNodeBase() = default;
         ~XMLNodeBase() = default;
         // no copying either
-        XMLNodeBase( const XMLNodeBase& );
+        XMLNodeBase( const XMLNodeBase& ) = default;
         const XMLNodeBase& operator=(const XMLNodeBase&);
 
     public:

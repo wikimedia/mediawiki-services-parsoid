@@ -44,15 +44,11 @@ namespace parsoid
             // dynamically (or perhaps later only when debugging)
 
             Tk()
-                : mToken(boost::intrusive_ptr<Token>(NULL))
+                : mToken(boost::intrusive_ptr<Token>())
             {};
 
             Tk( Token* tokenPtr )
                 : mToken( boost::intrusive_ptr<Token>(tokenPtr) )
-            {};
-
-            Tk( Token& token )
-                : mToken( boost::intrusive_ptr<Token>(&token) )
             {};
 
             // General token source range accessors
@@ -71,6 +67,7 @@ namespace parsoid
             const std::string& getName( ) const;
             void setAttribute ( const vector<Tk>& name, const vector<Tk>&value );
             const vector<Tk> getAttribute( const vector<Tk>& name ) const;
+            const vector< pair< vector<Tk>, vector<Tk> > > attributes() const;
 
             // The ContentToken interface: TextTk and CommentTk
             void setText ( const std::string& text );
@@ -84,6 +81,11 @@ namespace parsoid
         private:
             // The wrapped intrusive_ptr to Token
             boost::intrusive_ptr<const Token> mToken;
+
+            // prevent
+            Tk(Token);
+            Tk(Token&);
+            Tk& operator&() const;
     };
 
 
@@ -185,6 +187,12 @@ namespace parsoid
 
             virtual void setAttribute ( const vector<Tk>& name, const vector<Tk>&value );
             virtual const vector<Tk> getAttribute( const vector<Tk>& name ) const;
+
+            virtual const vector< pair< vector<Tk>, vector<Tk> > >
+            attributes() const
+            {
+                return mAttribs;
+            }
 
             void appendAttribute( const vector<Tk>& name, const vector<Tk>& value );
             void prependAttribute( const vector<Tk>& name, const vector<Tk>& value );
