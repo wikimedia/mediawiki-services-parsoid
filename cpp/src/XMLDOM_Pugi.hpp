@@ -406,10 +406,6 @@ class XMLDocument_Pugi: public XMLDocumentBase<DOM>
 {
     // TODO: Implement
     public:
-        XMLDocument_Pugi() {
-            pugiNode = pugiDoc.append_child("html");
-        }
-        ~XMLDocument_Pugi() = default;
         void reset();
         void reset(const XMLDocument_Pugi& other);
 

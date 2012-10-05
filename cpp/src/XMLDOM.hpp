@@ -286,9 +286,8 @@ class XMLNodeBase
 // Document class (DOM tree root)
 template <class XMLDOM_T>
 class XMLDocumentBase
-    : public XMLDOM_T::XMLNode
     // The XMLDocumentBase is refcounted
-    , public IntrusivePtrBase<XMLDocumentBase<XMLDOM_T>>
+    : public IntrusivePtrBase<XMLDocumentBase<XMLDOM_T>>
 {
     public:
         typedef typename XMLDOM_T::XMLDocument document_type;

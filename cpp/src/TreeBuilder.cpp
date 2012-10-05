@@ -4,7 +4,8 @@ namespace parsoid
 {
 
 TreeBuilder::TreeBuilder()
-    : hubbubTreeBuilder(nullptr)
+    : document(new DOM::XMLDocument)
+    , hubbubTreeBuilder(nullptr)
 {
     hubbub_error error;
 
@@ -35,13 +36,18 @@ TreeBuilder::~TreeBuilder()
     }
 }
 
+void TreeBuilder::reset()
+{
+    document->reset();
+
+    hubbub_treebuilder_optparams params;
+    params.document_node = static_cast<void*>(document->root());
+    hubbub_treebuilder_setopt(hubbubTreeBuilder, HUBBUB_TREEBUILDER_DOCUMENT_NODE, &params);
+}
 
 void TreeBuilder::receive(TokenMessage message)
 {
-    DOM::XMLDocumentPtr doc(new DOM::XMLDocument);
-    hubbub_treebuilder_optparams params;
-    params.document_node = static_cast<void*>(*doc);
-    hubbub_treebuilder_setopt(hubbubTreeBuilder, HUBBUB_TREEBUILDER_DOCUMENT_NODE, &params);
+    reset();
 
     // Iterate through chunk, convert each token to stack-allocated
     // libhubbub token and feed each to libhubbub tree builder
@@ -63,24 +69,21 @@ void TreeBuilder::receive(TokenMessage message)
 
             if (tok.type() == TokenType::Eof)
             {
-                emit(doc);
+                emit(document);
 
-                doc = DOM::XMLDocumentPtr(new DOM::XMLDocument);
-                hubbub_treebuilder_optparams params;
-                params.document_node = static_cast<void*>(*doc);
-                hubbub_treebuilder_setopt(hubbubTreeBuilder, HUBBUB_TREEBUILDER_DOCUMENT_NODE, &params);
+                reset();
             }
         }
     }
 
     //FIXME implicit Eof?
-    if (!doc->empty()) {
+    if (!document->root().empty()) {
         Tk tok = mkEof();
         hubbub_token h_tok;
         hubbub_from_tk(&h_tok, tok);
         hubbub_treebuilder_token_handler(&h_tok, hubbubTreeBuilder);
-        emit(doc);
-        doc.reset();
+        emit(document);
+        reset();
     }
 }
 

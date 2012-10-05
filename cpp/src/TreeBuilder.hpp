@@ -26,6 +26,8 @@ public:
     TreeBuilder();
     ~TreeBuilder();
 
+    void reset();
+
     void receive(TokenMessage message);
 
     static void* hubbubAllocator(void *ptr, size_t len, void *pw) {
@@ -36,6 +38,7 @@ public:
     void hubbub_from_string(hubbub_string* h_str, const string& str);
 
 private:
+    DOM::XMLDocumentPtr document;
     hubbub_treebuilder* hubbubTreeBuilder;
     hubbub_tree_handler callbacks;
 };
