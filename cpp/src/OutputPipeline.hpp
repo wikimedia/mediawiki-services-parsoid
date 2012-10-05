@@ -47,6 +47,10 @@ class OutputPipeline
             syncTransformManager.receive( message );
         }
 
+        void setReceiver(function<void(DOM::XMLDocumentPtr)> receiver) {
+            postProcessor.setReceiver(receiver);
+        }
+
     private:
         SyncTokenTransformManager syncTransformManager;
         TreeBuilder treeBuilder;

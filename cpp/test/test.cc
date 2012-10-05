@@ -29,26 +29,7 @@ void test_tokens() {
         << endl;
 }
 
-int main()
-{
-    //    test_tokens();
-
-    string testtext = "";
-    char tmpChr;
-
-	if ( isatty( fileno( stdout ) ) ) {
-		int timeout = 5;
-		cerr << "Waiting for wikitext input from terminal, timeout in " << timeout << " seconds,." << endl;
-		alarm( 5 );
-	}
-
-    while ( !cin.eof() ) {
-        cin.get( tmpChr );
-	testtext += tmpChr;
-    }
-
-	alarm( 0 );
-
+void test_tokenizer(const string& testtext) {
     WikiTokenizer t( testtext );
 
     TokenChunkPtr tcp;
@@ -57,14 +38,75 @@ int main()
 
     do {
         tcp = t.tokenize();
-	cout << tcp->toString() << endl;
+        cout << tcp->toString() << endl;
     } while ( tcp->size() != 0 && tcp->back().type() != TokenType::Eof );
 
     if ( tcp->size() != 0 ) {
         cout << "Input was not totally matched.";
-    } else {
-        cout << "TOKENIZER FINISH!\n\n";
     }
+    cout << "TOKENIZER FINISH!\n\n";
+}
+
+class TestDocReceiver
+{
+public:
+    TestDocReceiver()
+        : done( false ) {}
+
+    void receive( DOM::XMLDocumentPtr value ) {
+        cout << "received chunk: " << *value << endl;
+        doc = value;
+        done = true;
+    }
+
+    DOM::DocumentReceiver getReceiver() {
+        return boost::bind(&TestDocReceiver::receive, boost::ref(*this), _1);
+    }
+
+    bool done;
+    DOM::XMLDocumentPtr doc;
+};
+
+void test_pipeline(const string& testtext) {
+    cout << "PARSER START!\n\n";
+
+    Parsoid parser;
+    TestDocReceiver doc_receiver;
+    parser.parse(testtext, doc_receiver.getReceiver());
+
+    cerr << "Waiting indefinitely for parsing to complete..." << endl;
+
+    while ( !doc_receiver.done ) {
+        sleep( 1 );
+    }
+
+    cout << "PARSER FINISH!\n\n";
+
+    cout << doc_receiver.doc << endl;
+}
+
+int main()
+{
+    //    test_tokens();
+
+    string testtext = "";
+    char tmpChr;
+
+    if ( isatty( fileno( stdout ) ) ) {
+        int timeout = 5;
+        cerr << "Waiting for wikitext input from terminal, timeout in " << timeout << " seconds." << endl;
+        alarm( 5 );
+    }
+
+    while ( !cin.eof() ) {
+        cin.get( tmpChr );
+        testtext += tmpChr;
+    }
+
+    alarm( 0 );
+
+    //test_tokenizer(testtext);
+    test_pipeline(testtext);
 
     return 0;
 }
