@@ -81,8 +81,6 @@ void test_pipeline(const string& testtext) {
     }
 
     cout << "PARSER FINISH!\n\n";
-
-    cout << doc_receiver.doc << endl;
 }
 
 int main()
