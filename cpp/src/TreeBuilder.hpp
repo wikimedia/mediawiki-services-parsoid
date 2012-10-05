@@ -3,8 +3,10 @@
 
 #include "parsoid_internal.hpp"
 
-#include <hubbub/hubbub.h>
-#include <treebuilder/treebuilder.h>
+extern "C" {
+    #include <hubbub/hubbub.h>
+    #include <treebuilder/treebuilder.h>
+};
 
 namespace parsoid
 {

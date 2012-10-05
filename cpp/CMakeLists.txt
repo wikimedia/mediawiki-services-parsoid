@@ -23,10 +23,11 @@ else()
 endif()
 
 set(
-	PARSOID_LIBS
-	parsoid
-	pthread
-        pugixml
+    PARSOID_LIBS
+    pthread
+    pugixml
+    hubbub_treebuilder
+    parsoid
 )
 set( envs PREFIX=${CMAKE_BINARY_DIR} )
 add_subdirectory( contrib/pugixml-cmake )

@@ -7,7 +7,7 @@ include_directories(
 add_executable( test
 	test.cc
 )
-target_link_libraries( test ${PARSOID_LIBS} boost_system pugixml )
+target_link_libraries( test ${PARSOID_LIBS} boost_system )
 
 install (
     TARGETS test
