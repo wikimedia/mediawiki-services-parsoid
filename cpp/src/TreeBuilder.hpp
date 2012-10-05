@@ -55,7 +55,6 @@ public:
     }
 
 private:
-    DOM::DocumentReceiver receiver;
     hubbub_treebuilder* hubbubTreeBuilder;
     hubbub_tree_handler callbacks;
 };

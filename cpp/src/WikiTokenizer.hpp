@@ -2,11 +2,14 @@
 #define __HAVE_PARSOID_TOKENIZER_H__
 
 #include "Token.hpp"
+#include "PipelineStage.hpp"
 
 namespace parsoid
 {
 
-class WikiTokenizer {
+class WikiTokenizer
+    : public PipelineStage<const string&, TokenMessage>
+{
     public:
         WikiTokenizer();
         WikiTokenizer( const string& input );
@@ -14,10 +17,6 @@ class WikiTokenizer {
         TokenChunkPtr tokenize();
 
         void setInput ( const string& input );
-
-        void setReceiver ( TokenMessageReceiver receiver ) {
-            this->receiver = receiver;
-        }
 
         // Accumulator interface
         void emit(Tk tk) {
@@ -143,7 +142,6 @@ class WikiTokenizer {
     private:
         void* _ctx;
         AccumStack accumStack;
-        TokenMessageReceiver receiver;
 };
 
 } // namespace parsoid

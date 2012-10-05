@@ -7,7 +7,15 @@
 namespace parsoid {
 
 // FIXME
-class DOMPostProcessor {};
+class DOMPostProcessor
+    : public PipelineStage<DOM::XMLDocumentPtr, DOM::XMLDocumentPtr>
+{
+public:
+    void receive(DOM::XMLDocumentPtr doc)
+    {
+        emit(doc);
+    }
+};
 
 class OutputPipeline
     : public PipelineStage<TokenMessage, DOM::XMLDocumentPtr>
@@ -27,11 +35,11 @@ class OutputPipeline
 
             // Hook up the (default constructed) treeBuilder with the
             // syncTransformManager
-            // syncTransformManager.setReceiver( treeBuilder );
+            syncTransformManager.setReceiver( treeBuilder );
 
             // Hook up the (default constructed) DOM postprocessor to the
             // treebuilder
-            //treeBuilder.setReceiver( postProcessor );
+            treeBuilder.setReceiver( postProcessor );
         }
 
         void receive ( TokenMessage message ) {

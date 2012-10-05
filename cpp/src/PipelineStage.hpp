@@ -16,11 +16,12 @@ public:
 template< typename output_type >
 class OutputStage {
 public:
-    typedef InputStage< output_type > receiving_object_type;
+    //typedef InputStage< output_type > receiving_object_type;
     typedef function<void( output_type )> receiving_function_type;
 
-    void setReceiver( receiving_object_type receiver ) {
-        setReceiver( boost::bind( &receiving_object_type::receive, receiver, _1 ) );
+    template <class receiving_object_type>
+    void setReceiver( receiving_object_type& receiver ) {
+        emit = boost::bind( &receiving_object_type::receive, boost::ref(receiver), _1 );
     }
 
     void setReceiver( receiving_function_type receiver ) {

@@ -3,18 +3,14 @@
 namespace parsoid {
 
 Parsoid::Parsoid ()
-    : mainInputExpansionPipeline( InputExpansionPipeline( true ) )
+    : mainInputExpansionPipeline( true )
+    , syncOutputPipeline()
 {
     // Create a new environment per request
-
-    // Create the output pipeline
-    // TODO: pass in environment
-    syncOutputPipeline = OutputPipeline();
+    // TODO: pass environment to pipeline ctors
 
     // Hook up the output pipeline to the input pipeline
-    mainInputExpansionPipeline.setReceiver(
-        bind( &OutputPipeline::receive, &syncOutputPipeline, _1 )
-    );
+    mainInputExpansionPipeline.setReceiver( syncOutputPipeline );
 }
 
 DOM::XMLDocumentPtr Parsoid::parse( string input ) {

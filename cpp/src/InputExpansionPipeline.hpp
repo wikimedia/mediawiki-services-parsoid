@@ -1,5 +1,7 @@
+#ifndef __HAVE_INPUT_EXPANSION__
+#define __HAVE_INPUT_EXPANSION__
+
 #include "parsoid_internal.hpp"
-#include "PipelineStage.hpp"
 
 namespace parsoid {
 
@@ -14,15 +16,10 @@ class InputExpansionPipeline
             , asyncTransformManager( isAtToplevel )
         {
             // Hook up to tokenizer
-            tokenizer.setReceiver(
-                bind( &SyncTokenTransformManager::receive, &syncTransformManager, _1 )
-            );
+            tokenizer.setReceiver( syncTransformManager );
 
             // Hook up to SyncTokenTransformManager
-            syncTransformManager.setReceiver(
-                bind( &AsyncTokenTransformManager::receive, &asyncTransformManager, _1 )
-            );
-
+            syncTransformManager.setReceiver( asyncTransformManager );
         }
 
         void receive ( const string& input ) {
@@ -39,3 +36,5 @@ class InputExpansionPipeline
 };
 
 } // namespace parsoid
+
+#endif

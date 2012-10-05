@@ -6,6 +6,7 @@
 #include "LibIncludes.hpp"
 
 #include "Token.hpp"
+#include "PipelineStage.hpp"
 #include "WikiTokenizer.hpp"
 #include "QueueDispatcher.hpp"
 #include "ParsoidEnvironment.hpp"
