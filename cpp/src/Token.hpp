@@ -28,9 +28,25 @@ namespace parsoid
     };
 
     // Forward declarations
+    class Tk;
     class Token;
     class TagToken;
     class ContentToken;
+    class TokenChunk;
+
+    // container prototypes
+    typedef pair<vector<Tk>, vector<Tk>> Attribute;
+    typedef vector<Attribute> AttribMap;
+    typedef boost::intrusive_ptr<Token> TokenPtr;
+    typedef boost::intrusive_ptr<TokenChunk> TokenChunkPtr;
+    /**
+     * A chunk of TokenChunkPtrs ;) Cheap concatenation of immutable and
+     * refcounted chunks.
+     */
+    // TODO: use concurrent_vector from TBB later, or protect
+    // TokenAccumulator / QueueDispatcher with Mutex!
+    typedef std::deque<TokenChunkPtr> TokenChunkChunk;
+
 
     /**
      * Wrapper class around an intrusive pointer to a Token.
@@ -44,11 +60,11 @@ namespace parsoid
             // dynamically (or perhaps later only when debugging)
 
             Tk()
-                : mToken(boost::intrusive_ptr<Token>())
+                : mToken()
             {};
 
             Tk( Token* tokenPtr )
-                : mToken( boost::intrusive_ptr<Token>(tokenPtr) )
+                : mToken(tokenPtr)
             {};
 
             // General token source range accessors
@@ -56,46 +72,36 @@ namespace parsoid
             unsigned int getSourceRangeStart( ) const;
             unsigned int getSourceRangeEnd( ) const;
 
-            // type tag for safe upcasting
-            // Alternative solution: Use typeid RTTI info. Disadvantage:
-            // cannot use switch, have to compare each to typeid(type) in
-            // if..else if.. structure
             const TokenType type() const;
 
             // The TagToken interface: StartTagTk and EndTagTk
-            void setName ( const std::string& name );
-            const std::string& getName( ) const;
+
+            void setName ( const string& name );
+            const string& getName( ) const;
             void setAttribute ( const vector<Tk>& name, const vector<Tk>&value );
             const vector<Tk> getAttribute( const vector<Tk>& name ) const;
-            const vector< pair< vector<Tk>, vector<Tk> > > attributes() const;
+            const AttribMap& attributes() const;
 
             // The ContentToken interface: TextTk and CommentTk
-            void setText ( const std::string& text );
-            const std::string& getText ( ) const;
+            void setText( const string& text );
+            const string& getText() const;
 
             bool operator==( const Tk& t ) const;
 
             // Print helper
-            const string toString () const;
+            const string toString() const;
 
         private:
             // The wrapped intrusive_ptr to Token
-            boost::intrusive_ptr<const Token> mToken;
+            TokenPtr mToken;
 
-            // prevent
+            // discourage pointers to illegal storage
             Tk(Token);
             Tk(Token&);
             Tk& operator&() const;
     };
 
 
-
-    /**
-     * Provide simple typedefs for a token chunk and -vector
-     * (for now, to get started)
-     */
-
-    typedef vector< pair< vector<Tk>, vector<Tk> > > AttribMap;
 
     /**
      * A few Tk creation helpers
@@ -135,10 +141,10 @@ namespace parsoid
             virtual TokenType type() const { return TokenType::Abstract; };
 
             // The TagToken interface
-            virtual void setName ( const std::string& name ) {
+            virtual void setName ( const string& name ) {
                 throw std::runtime_error("setName only supported by Tag and EndTag tokens");
             };
-            virtual const std::string& getName( ) const {
+            virtual const string& getName( ) const {
                 throw std::runtime_error("getName only supported by Tag and EndTag tokens");
             };
 
@@ -153,10 +159,10 @@ namespace parsoid
             };
 
             // The ContentToken interface
-            virtual void setText ( const std::string& text ) {
+            virtual void setText ( const string& text ) {
                 throw std::runtime_error( "setText only supported by text and comment tokens" );
             };
-            virtual const std::string& getText ( ) const {
+            virtual const string& getText ( ) const {
                 throw ( "getText only supported by text and comment tokens" );
             }
             virtual bool equals ( const Token& t ) const;
@@ -164,7 +170,7 @@ namespace parsoid
             virtual ~Token ();
 
         protected:
-            std::string text;   // Name or text content
+            string text;   // Name or text content
 
         private:
             uint32_t srStart;
@@ -182,15 +188,13 @@ namespace parsoid
             virtual ~TagToken();
             // Attributes and tag name: only available for tags
             // Inherited form Token
-            virtual void setName ( const std::string& name );
-            virtual const std::string& getName( ) const;
+            virtual void setName ( const string& name );
+            virtual const string& getName( ) const;
 
             virtual void setAttribute ( const vector<Tk>& name, const vector<Tk>&value );
             virtual const vector<Tk> getAttribute( const vector<Tk>& name ) const;
 
-            virtual const vector< pair< vector<Tk>, vector<Tk> > >
-            attributes() const
-            {
+            virtual const AttribMap& attributes() const {
                 return mAttribs;
             }
 
@@ -209,7 +213,7 @@ namespace parsoid
 
         protected:
             // data members
-            std::vector< pair<vector<Tk>, vector<Tk>> > mAttribs;
+            AttribMap mAttribs;
     };
 
     // These two inherit all their functionality from TagToken
@@ -266,8 +270,8 @@ namespace parsoid
 
             // Value accessors: only available for text and comment tokens
             // Inherited from Token
-            virtual void setText ( const std::string& text );
-            virtual const std::string& getText ( ) const;
+            virtual void setText ( const string& text );
+            virtual const string& getText ( ) const;
             virtual ~ContentToken ();
             virtual TokenType type() const {
                 return TokenType::Abstract;
@@ -363,7 +367,7 @@ namespace parsoid
 
             // Overload append to handle both refcounted and stack-allocated
             // chunks.
-            void append( const boost::intrusive_ptr<TokenChunk> chunkPtr ) {
+            void append( const TokenChunkPtr chunkPtr ) {
                 chunk.insert(chunk.end(), chunkPtr->chunk.begin(), chunkPtr->chunk.end());
             }
             void append( const vector<Tk>& newChunk ) {
@@ -402,19 +406,6 @@ namespace parsoid
             deque<Tk> chunk;
             float rank;
     };
-
-    // No intrusive refcounting of refs to TokenChunk, but we can use
-    // shared_ptr for now
-    typedef boost::intrusive_ptr<TokenChunk> TokenChunkPtr;
-
-    /**
-     * A chunk of TokenChunkPtrs ;) Cheap concatenation of immutable and
-     * refcounted chunks.
-     */
-    // TODO: use concurrent_vector from TBB later, or protect
-    // TokenAccumulator / QueueDispatcher with Mutex!
-    typedef std::deque<TokenChunkPtr> TokenChunkChunk;
-
 
     TokenChunkPtr mkTokenChunk();
 

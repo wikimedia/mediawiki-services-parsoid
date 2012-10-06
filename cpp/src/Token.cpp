@@ -43,8 +43,8 @@ namespace parsoid
         return mToken->getAttribute(name);
     }
     //void TK::removeAttribute( const vector<Tk>& name )
-    const vector< pair< vector<Tk>, vector<Tk> > > Tk::attributes() const {
-        return static_cast<const TagToken*>(&(*mToken))->attributes();
+    const AttribMap& Tk::attributes() const {
+        return static_cast<const TagToken*>(mToken.get())->attributes();
     }
 
 
@@ -145,7 +145,7 @@ namespace parsoid
 
     const vector<Tk> TagToken::getAttribute( const vector<Tk>& name ) const
     {
-        vector< pair<vector<Tk>, vector<Tk>> >::const_reverse_iterator p;
+        AttribMap::const_reverse_iterator p;
         for ( p = mAttribs.rbegin(); p < mAttribs.rend(); p++ ) {
             // we assume that attribute keys are ASCII, so we can use simple
             // non-unicode to_upper
@@ -168,7 +168,7 @@ namespace parsoid
         // TODO:
         // * always store lowercase version and intern standard attribute names
         // * remember non-canonical attribute cases in rt data
-        vector< pair<vector<Tk>, vector<Tk>> >::reverse_iterator p;
+        AttribMap::reverse_iterator p;
         for ( p = mAttribs.rbegin(); p < mAttribs.rend(); p++ ) {
             // we assume that attribute )keys are ASCII, so we can use simple
             // non-unicode to_upper
@@ -189,7 +189,7 @@ namespace parsoid
     void
     TagToken::prependAttribute ( const vector<Tk>& name, const vector<Tk>& value )
     {
-        pair<vector<Tk>, vector<Tk>> p( name, value );
+        Attribute p( name, value );
         mAttribs.insert( mAttribs.begin(), p );
     }
 

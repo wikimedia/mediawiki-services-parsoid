@@ -439,7 +439,9 @@ public:
         : pugi::xml_node_iterator(it)
     {}
 
-    XMLNode_Pugi operator*() const { return XMLNode_Pugi(pugi::xml_node_iterator::operator*()); }
+    XMLNode_Pugi operator*() const {
+        return XMLNode_Pugi(pugi::xml_node_iterator::operator*());
+    }
 };
 
 class XMLAttributeIterator_Pugi
@@ -450,7 +452,9 @@ public:
         : pugi::xml_attribute_iterator(it)
     {}
 
-    XMLAttribute_Pugi operator*() const { return XMLAttribute_Pugi(pugi::xml_attribute_iterator::operator*()); }
+    XMLAttribute_Pugi operator*() const {
+        return XMLAttribute_Pugi(pugi::xml_attribute_iterator::operator*());
+    }
 };
 
 

@@ -47,9 +47,11 @@ void TreeBuilder::reset()
 {
     document->reset();
 
-    hubbub_treebuilder_optparams params;
-    params.document_node = static_cast<void*>(document->root());
-    hubbub_treebuilder_setopt(hubbubTreeBuilder, HUBBUB_TREEBUILDER_DOCUMENT_NODE, &params);
+    if (hubbubTreeBuilder) {
+        hubbub_treebuilder_optparams params;
+        params.document_node = static_cast<void*>(document->root());
+        hubbub_treebuilder_setopt(hubbubTreeBuilder, HUBBUB_TREEBUILDER_DOCUMENT_NODE, &params);
+    }
 }
 
 void TreeBuilder::receive(TokenMessage message)
