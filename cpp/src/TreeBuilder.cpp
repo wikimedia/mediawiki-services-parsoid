@@ -27,10 +27,17 @@ TreeBuilder::TreeBuilder()
         HUBBUB_TREEBUILDER_TREE_HANDLER,
         &params
     );
+
+    reset();
 }
 
 TreeBuilder::~TreeBuilder()
 {
+    if (!document->root().empty()) {
+        std::cerr << "ERROR: EOF not received. Final document contents:" << std::endl;
+        std::cerr << *document;
+    }
+    reset();
     if (hubbubTreeBuilder) {
         hubbub_treebuilder_destroy(hubbubTreeBuilder);
     }
@@ -47,8 +54,6 @@ void TreeBuilder::reset()
 
 void TreeBuilder::receive(TokenMessage message)
 {
-    reset();
-
     // Iterate through chunk, convert each token to stack-allocated
     // libhubbub token and feed each to libhubbub tree builder
     //
@@ -74,20 +79,9 @@ void TreeBuilder::receive(TokenMessage message)
             if (tok.type() == TokenType::Eof)
             {
                 emit(document);
-
                 reset();
             }
         }
-    }
-
-    //FIXME implicit Eof?
-    if (!document->root().empty()) {
-        Tk tok = mkEof();
-        hubbub_token h_tok;
-        hubbub_from_tk(&h_tok, tok);
-        hubbub_treebuilder_token_handler(&h_tok, hubbubTreeBuilder);
-        emit(document);
-        reset();
     }
 }
 
