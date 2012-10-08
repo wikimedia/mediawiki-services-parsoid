@@ -55,7 +55,7 @@ class OutputPipeline
 
     private:
         SyncTokenTransformManager syncTransformManager;
-        TreeBuilder treeBuilder;
+        TreeBuilder_Hubbub treeBuilder;
         DOMPostProcessor postProcessor;
 };
 

@@ -419,6 +419,9 @@ namespace parsoid
      * TODO:
      * - Add support for error reporting
      * - convert into general Message template
+     * - iterator over all Tk
+     * - get rid of "1" hack
+     * - single constructor with default args
      */
     class TokenMessage {
         public:

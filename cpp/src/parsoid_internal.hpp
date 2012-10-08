@@ -13,7 +13,7 @@
 //#include "XMLDOM.hpp"
 // TODO: Only include implementation defining the DOM type
 #include "XMLDOM_Pugi.hpp"
-#include "TreeBuilder.hpp"
+#include "TreeBuilder_Hubbub.hpp"
 #include "InputExpansionPipeline.hpp"
 #include "OutputPipeline.hpp"
 #include "Parsoid.hpp"
