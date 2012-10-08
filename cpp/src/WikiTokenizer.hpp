@@ -7,16 +7,21 @@
 namespace parsoid
 {
 
+namespace WTTokenizer {
+typedef struct _yycontext yycontext;
+}
+using WTTokenizer::yycontext;
+
 class WikiTokenizer
     : public PipelineStage<const string&, TokenMessage>
 {
     public:
         WikiTokenizer();
-        WikiTokenizer( const string& input );
+        WikiTokenizer(const string* input);
 
         TokenChunkPtr tokenize();
 
-        void setInput ( const string& input );
+        void setInput (const string* input);
 
         // Accumulator interface
         void emit(Tk tk) {
@@ -140,7 +145,7 @@ class WikiTokenizer
 
         ~WikiTokenizer();
     private:
-        void* _ctx;
+        yycontext* ctx;
         AccumStack accumStack;
 };
 

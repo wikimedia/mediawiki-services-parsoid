@@ -30,7 +30,7 @@ void test_tokens() {
 }
 
 void test_tokenizer(const string& testtext) {
-    WikiTokenizer t( testtext );
+    WikiTokenizer t( &testtext );
 
     TokenChunkPtr tcp;
 

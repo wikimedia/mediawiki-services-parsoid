@@ -2,44 +2,10 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
-#include "parsoid_internal.hpp"
-using namespace parsoid;
-using std::stringstream;
+#include "wikitext_tokenizer.hpp"
 
-// Wrap the tokenizer in its own sub-namespace
-namespace parsoid{
+namespace parsoid {
 namespace WTTokenizer {
-
-// Actions are supposed to return this type as semantic value
-#define YYSTYPE vector<Tk>
-
-// local tokenizer context
-#define YY_CTX_LOCAL
-
-#define YY_INPUT(buf, result, max)  \
-    { \
-        result = 0; \
-    }
-
-// Add a reference to the driving WikiTokenizer object as an additional state
-// member
-#define YY_CTX_MEMBERS WikiTokenizer* tokenizer;
-
-// If you want to see _ALL THE TEXT_, uncomment this.
-//#define YY_DEBUG
-
-// Define a few convenience macros to make things more readable
-#define emit ctx->tokenizer->emit
-#define pushScope ctx->tokenizer->pushScope
-#define popScope ctx->tokenizer->popScope
-#define getAccum ctx->tokenizer->getAccum
-
-#define incFlag ctx->tokenizer->syntaxFlags.inc
-#define decFlag ctx->tokenizer->syntaxFlags.dec
-#define pushFlag ctx->tokenizer->syntaxFlags.push
-#define popFlag ctx->tokenizer->syntaxFlags.pop
-#define getFlag ctx->tokenizer->syntaxFlags.get
-
 %}
 
 

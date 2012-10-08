@@ -27,7 +27,8 @@ class InputExpansionPipeline
         }
 
         void receive ( const string& input ) {
-            tokenizer.setInput( input );
+            // FIXME input is not a shareable pointer if async
+            tokenizer.setInput( &input );
             // FIXME: in loop / looping async task?
             emit( tokenizer.tokenize() );
         }
