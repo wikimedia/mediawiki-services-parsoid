@@ -1,10 +1,7 @@
 #ifndef __HAVE_INTRUSIVEPTRBASE_HPP__
 #define __HAVE_INTRUSIVEPTRBASE_HPP__
 
-#include <iostream>
-#include <boost/checked_delete.hpp>
-#include <boost/detail/atomic_count.hpp>
-#include <boost/intrusive_ptr.hpp>
+#include <LibIncludes.hpp>
 
 using std::string;
 

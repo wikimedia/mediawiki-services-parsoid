@@ -1,6 +1,5 @@
-#include <iostream>
 #include <boost/algorithm/string.hpp>
-#include "parsoid_internal.hpp"
+#include "Token.hpp"
 
 // Experimental work in progress.
 

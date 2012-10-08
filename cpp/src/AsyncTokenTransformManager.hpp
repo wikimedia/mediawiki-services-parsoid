@@ -1,4 +1,7 @@
-#include "parsoid_internal.hpp"
+#ifndef __HAVE_ASYNC_TRANSFORM_MANAGER__
+#define __HAVE_ASYNC_TRANSFORM_MANAGER__
+
+#include "TokenTransformManagerBase.hpp"
 
 namespace parsoid {
 
@@ -16,3 +19,4 @@ class AsyncTokenTransformManager
 
 } // namespace parsoid
 
+#endif

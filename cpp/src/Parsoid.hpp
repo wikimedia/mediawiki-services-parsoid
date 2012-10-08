@@ -1,3 +1,6 @@
+#ifndef __HAVE_PARSOID_H__
+#define __HAVE_PARSOID_H__
+
 // Create minimal external header with interface types
 #include "parsoid_internal.hpp"
 
@@ -33,3 +36,5 @@ class Parsoid {
 
 
 } // namespace parsoid
+
+#endif

@@ -1,4 +1,7 @@
-#include "parsoid_internal.hpp"
+#ifndef __HAVE_SYNC_MANAGER__
+#define __HAVE_SYNC_MANAGER__
+
+#include "TokenTransformManagerBase.hpp"
 
 namespace parsoid {
 
@@ -17,3 +20,5 @@ class SyncTokenTransformManager
 
 } // namespace parsoid
 
+
+#endif

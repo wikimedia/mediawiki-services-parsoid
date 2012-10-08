@@ -1,6 +1,10 @@
+#ifndef __HAVE_QUEUE_DISPATCHER__
+#define __HAVE_QUEUE_DISPATCHER__
+
 #include <boost/asio.hpp>
 
-#include "parsoid_internal.hpp"
+#include "LibIncludes.hpp"
+#include "Token.hpp"
 
 namespace parsoid
 {
@@ -40,3 +44,5 @@ class QueueDispatcher {
 };
 
 } // namespace parsoid
+
+#endif

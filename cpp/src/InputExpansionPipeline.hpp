@@ -1,7 +1,11 @@
 #ifndef __HAVE_INPUT_EXPANSION__
 #define __HAVE_INPUT_EXPANSION__
 
-#include "parsoid_internal.hpp"
+#include "Token.hpp"
+#include "PipelineStage.hpp"
+#include "WikiTokenizer.hpp"
+#include "SyncTokenTransformManager.hpp"
+#include "AsyncTokenTransformManager.hpp"
 
 namespace parsoid {
 

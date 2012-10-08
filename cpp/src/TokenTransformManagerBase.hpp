@@ -1,5 +1,8 @@
-#include "parsoid_internal.hpp"
+#ifndef __HAVE_TOKEN_TRANSFORM_BASE__
+#define __HAVE_TOKEN_TRANSFORM_BASE__
 
+#include "LibIncludes.hpp"
+#include "Token.hpp"
 #include "PipelineStage.hpp"
 
 namespace parsoid {
@@ -59,3 +62,5 @@ class TokenTransformManagerBase
 
 
 } // namespace parsoid
+
+#endif

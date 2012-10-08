@@ -8,6 +8,9 @@
  * libraries.
  */
 
+#include <iostream>
+#include <boost/checked_delete.hpp>
+#include <boost/detail/atomic_count.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/intrusive_ptr.hpp>

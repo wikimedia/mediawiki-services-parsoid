@@ -1,3 +1,6 @@
+#ifndef __HAVE_XMLDOM_PUGI__
+#define __HAVE_XMLDOM_PUGI__
+
 #include "XMLDOM.hpp"
 #include <sstream>
 #include <stdexcept>
@@ -459,3 +462,5 @@ public:
 
 
 }
+
+#endif

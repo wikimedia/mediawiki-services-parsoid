@@ -1,4 +1,4 @@
-#include "parsoid_internal.hpp"
+#include "QueueDispatcher.hpp"
 
 namespace parsoid {
     template <class ChunkType>

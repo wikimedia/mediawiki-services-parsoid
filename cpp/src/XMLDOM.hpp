@@ -1,3 +1,6 @@
+#ifndef __HAVE_XMLDOM__
+#define __HAVE_XMLDOM__
+
 /**
  * Abstract Document Object Model wrapper
  *
@@ -347,3 +350,4 @@ class XMLDOM
 
 
 } // namespace parsoid
+#endif

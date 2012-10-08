@@ -1,8 +1,5 @@
 // General index header
 //
-#ifndef __HAVE_PARSOID_INTERNAL__
-#define __HAVE_PARSOID_INTERNAL__
-
 #include "LibIncludes.hpp"
 
 #include "Token.hpp"
@@ -20,7 +17,3 @@
 #include "InputExpansionPipeline.hpp"
 #include "OutputPipeline.hpp"
 #include "Parsoid.hpp"
-
-
-
-#endif

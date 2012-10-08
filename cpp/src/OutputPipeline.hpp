@@ -1,7 +1,9 @@
 #ifndef __HAVE_OUTPUT_PIPELINE__
 #define __HAVE_OUTPUT_PIPELINE__
 
-#include "parsoid_internal.hpp"
+#include "XMLDOM_Pugi.hpp"
+#include "TreeBuilder_Hubbub.hpp"
+#include "SyncTokenTransformManager.hpp"
 
 
 namespace parsoid {
