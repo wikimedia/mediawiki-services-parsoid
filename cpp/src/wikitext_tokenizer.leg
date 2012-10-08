@@ -46,7 +46,10 @@ namespace WTTokenizer {
 #/*********************************************************
 # * The top-level production
 # *********************************************************/
-start = block
+start
+    = block* newline* {
+        emit( mkEof() );
+    }
 
 #
 # A document (start production) is a sequence of toplevelblocks. Tokens are

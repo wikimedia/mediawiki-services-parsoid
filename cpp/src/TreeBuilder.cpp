@@ -33,7 +33,7 @@ TreeBuilder::TreeBuilder()
 
 TreeBuilder::~TreeBuilder()
 {
-    if (!document->root().empty()) {
+    if (document->root().firstChild()) {
         std::cerr << "ERROR: EOF not received. Final document contents:" << std::endl;
         std::cerr << *document;
     }
