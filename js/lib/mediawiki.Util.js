@@ -437,7 +437,7 @@ var Util = {
  * 2. In wrap-template mode, it identifies the meta-object type
  *    and returns it.
  * ---------------------------------------------------------- */
-var stripMetaTags = function ( tokens, wrapTemplates ) {
+Util.stripMetaTags = function ( tokens, wrapTemplates ) {
 	var isPushed, buf = [],
 		wikitext = [],
 		metaObjTypes = [],
@@ -495,9 +495,8 @@ var stripMetaTags = function ( tokens, wrapTemplates ) {
 		value: buf
 	};
 };
-Util.stripMetaTags = stripMetaTags;
 
-var makeTplAffectedMeta = function ( newK, updatedV, isKey ) {
+Util.makeTplAffectedMeta = function ( contentType, key, val ) {
 	// SSS FIXME: Assumes that all expanded attrs. have the same expandable type
 	// - attr1 can be expanded by a template
 	// - attr2 can be expanded by an extension
@@ -508,10 +507,9 @@ var makeTplAffectedMeta = function ( newK, updatedV, isKey ) {
 	// <meta about="#mwt1" property="mw:objectAttr#href" data-parsoid="...">
 	// about will be filled out in the end
 	return new SelfclosingTagTk( 'meta',
-		[new KV( "property", "mw:objectAttr" + ( isKey ? "Key#" : "Val#" ) + newK )],
-		{ src: updatedV.wikitext });
+		[new KV( "property", "mw:" + contentType + "#" + key )],
+		{ src: val.wikitext });
 };
-Util.makeTplAffectedMeta = makeTplAffectedMeta;
 
 if (typeof module === "object") {
 	module.exports.Util = Util;

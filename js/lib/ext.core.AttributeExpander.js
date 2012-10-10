@@ -134,26 +134,52 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 	for (i = 0, l = oldAttrs.length; i < l; i++) {
 		a    = oldAttrs[i];
 		newK = newAttrs[i].k;
+		updatedK = null;  // init
 
 		if (newK) {
+			var contentType = "objectAttrKey"; // default
 			if (a.k.constructor === Array) {
 				if ( newK.constructor === String && newK.match( /mw\:maybeContent/ ) ) {
-					updatedK = Util.stripMetaTags( 'mw:keyAffected' , this.options.wrapTemplates );
+					updatedK = Util.stripMetaTags( 'mw:keyAffected', this.options.wrapTemplates );
 					newAttrs.push( new KV( 'mw:keyAffected', newAttrs[i].v ) );
 					newK = updatedK.value;
 				} else {
-					// SSS FIXME: Do we need to figure out that this is a valid html attribute name
-					// before stripping??  What a pain!  Or, am I over-engineering this?
 					updatedK = Util.stripMetaTags(newK, this.options.wrapTemplates);
 					newK = updatedK.value;
+					if (newAttrs[i].v === '') {
+						// Some templates can return content that should be
+						// interpreted as a key-value pair.
+						// Ex: {{GetStyle}} can return style='color:red;'
+						// and might be used as <div {{GetStyle}}>foo</div> to
+						// generate: <div style='color:red;'>foo</div>.
+						//
+						// To support this, we utilize the following hack.
+						// If we got a string of the form "k=v" and our orig-v
+						// was empty, then, we split the template content around
+						// the '=' and update the 'k' and 'v' to the split values.
+						var kArr = Util.tokensToString(newK, true);
+						var kStr = (kArr.constructor === String) ? kArr : kArr[0];
+						var m    = kStr.match(/([^=]+)=['"]?([^'"]*)['"]?$/);
+						if (m) {
+							contentType = "objectAttr"; // both key and value
+							newK = m[1];
+							if (kArr.constructor === String) {
+								newAttrs[i].v = m[2];
+							} else {
+								kArr[0] = m[2];
+								newAttrs[i].v = kArr;
+							}
+						}
+					}
 					newAttrs[i].k = newK;
 				}
 			}
+
 			if ( updatedK ) {
 				metaObjType = updatedK.metaObjType;
 				if (metaObjType) {
 					producerObjType = metaObjType;
-					metaTokens.push( Util.makeTplAffectedMeta( newK, updatedK, true ) );
+					metaTokens.push( Util.makeTplAffectedMeta(contentType, newK, updatedK) );
 				}
 			}
 
@@ -162,7 +188,7 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 			if ( newK.constructor === String && newK.match( /mw\:maybeContent/ ) ) {
 				updatedV = Util.stripMetaTags( newAttrs[i].v , this.options.wrapTemplates );
 				kv = new KV( 'mw:valAffected', newAttrs[i].v );
-				kv.v.push( Util.makeTplAffectedMeta( newAttrs[i].k, updatedV, false ) );
+				kv.v.push( Util.makeTplAffectedMeta("objectAttrVal", newAttrs[i].k, updatedV) );
 				newAttrs.push( kv );
 			} else if (isHtmlAttrKey && a.v.constructor === Array) {
 				updatedV = Util.stripMetaTags(newAttrs[i].v, this.options.wrapTemplates);
@@ -170,7 +196,7 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 				metaObjType = updatedV.metaObjType;
 				if (metaObjType) {
 					producerObjType = metaObjType;
-					metaTokens.push( Util.makeTplAffectedMeta( newK, updatedV, false ) );
+					metaTokens.push( Util.makeTplAffectedMeta("objectAttrVal", newK, updatedV) );
 				}
 			}
 		}

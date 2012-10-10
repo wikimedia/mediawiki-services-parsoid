@@ -923,7 +923,7 @@ AttributeTransformManager.prototype.processKeys = function (attributes) {
  */
 AttributeTransformManager.prototype._returnAttributeValue = function ( ref, tokens ) {
 	this.manager.env.dp( 'check _returnAttributeValue: ', ref,  tokens );
-	this.kvs[ref].v = Util.stripEOFTkfromTokens( tokens );
+	this.kvs[ref].v = Util.stripEOFTkfromTokens(tokens);
 	this.outstanding--;
 	if ( this.outstanding === 0 ) {
 		this.callback( this.kvs );
@@ -934,19 +934,8 @@ AttributeTransformManager.prototype._returnAttributeValue = function ( ref, toke
  * Callback for async argument key expansions
  */
 AttributeTransformManager.prototype._returnAttributeKey = function ( ref, tokens ) {
-	//console.warn( 'check _returnAttributeKey: ' + JSON.stringify( tokens )  );
-	this.kvs[ref].k = tokens;
-	this.kvs[ref].k = Util.stripEOFTkfromTokens( this.kvs[ref].k );
-	if ( this.kvs[ref].v === '' ) {
-		// FIXME: use tokenizer production to properly parse this
-		var m = Util.tokensToString( this.kvs[ref].k )
-			.match( /([^=]+)=['"]?([^'"]*)['"]?$/ );
-		if ( m ) {
-			this.kvs[ref].k = m[1];
-			this.kvs[ref].v = m[2];
-			//console.warn( m + JSON.stringify( this.kvs[ref] ) );
-		}
-	}
+	this.manager.env.dp( 'check _returnAttributeKey: ', ref,  tokens );
+	this.kvs[ref].k = Util.stripEOFTkfromTokens(tokens);
 	this.outstanding--;
 	if ( this.outstanding === 0 ) {
 		this.callback( this.kvs );

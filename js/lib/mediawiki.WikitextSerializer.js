@@ -641,7 +641,7 @@ WSP._linkHandler =  function( state, tokens ) {
 		token = tokens.shift(),
 		endToken = tokens.pop(),
 		attribDict = Util.KVtoHash( token.attribs ),
-		tplAttrState = { ks: {}, vs: {} },
+		tplAttrState = { kvs: {}, ks: {}, vs: {} },
 		tail = '',
 		hrefFromTpl = true,
 		tokenData = token.dataAttribs,
@@ -1063,7 +1063,7 @@ WSP.tagHandlers = {
 		start: {
 			handle: function ( state, token ) {
 				var argDict = Util.KVtoHash( token.attribs );
-				switch ( argDict['typeof'] ) { 
+				switch ( argDict['typeof'] ) {
 					case 'mw:tag':
 						// we use this currently for nowiki and co
 						this.newlineTransparent = true;
@@ -1220,7 +1220,7 @@ function hasExpandedAttrs(tokType) {
 }
 
 WSP._serializeAttributes = function (state, token) {
-	var tplAttrState = { ks: {}, vs: {} },
+	var tplAttrState = { kvs: {}, ks: {}, vs: {} },
 	    tokType = token.getAttribute("typeof"),
 		attribs = token.attribs;
 
@@ -1241,22 +1241,27 @@ WSP._serializeAttributes = function (state, token) {
 		}
 
 		if (k.length) {
-			var tplK = tplAttrState.ks[k],
-				tplV = tplAttrState.vs[k],
-				v = token.getAttributeShadowInfo(k).value;
-
-			// Deal with k/v's that were template-generated
-			if (tplK) {
-				k = tplK;
-			}
-			if (tplV){
-				v = tplV;
-			}
-
-			if (v.length ) {
-				out.push(k + '=' + '"' + v.replace( '"', '&quot;' ) + '"');
+			var tplKV = tplAttrState.kvs[k];
+			if (tplKV) {
+				out.push(tplKV);
 			} else {
-				out.push(k);
+				var tplK  = tplAttrState.ks[k],
+					tplV  = tplAttrState.vs[k],
+					v     = token.getAttributeShadowInfo(k).value;
+
+				// Deal with k/v's that were template-generated
+				if (tplK) {
+					k = tplK;
+				}
+				if (tplV){
+					v = tplV;
+				}
+
+				if (v.length ) {
+					out.push(k + '=' + '"' + v.replace( '"', '&quot;' ) + '"');
+				} else {
+					out.push(k);
+				}
 			}
 		} else if ( kv.v.length ) {
 			// not very likely..
@@ -1581,14 +1586,18 @@ WSP._collectAttrMetaTags = function(node, state) {
 			var templateId = node.getAttribute("about");
 			var src  = this._getDOMRTInfo(node.attributes).src;
 			if (!state.tplAttrs[templateId]) {
-				state.tplAttrs[templateId] = { ks: {}, vs: {} };
+				state.tplAttrs[templateId] = { kvs: {}, ks: {}, vs: {} };
 			}
 
-			// prop is of the form: "mw:objectAttrKey#foo" or "mw:objectAttrVal#foo
-			// where either the foo itself or the value of foo has been templated.
+			// prop is one of:
+			// "mw:ObjectAttr#foo"    -- "foo=blah" came from a template
+			// "mw:objectAttrKey#foo" -- "foo" came from a template
+			// "mw:objectAttrVal#foo  -- "blah" (foo's value) came from a template
 			var pieces = prop.split("#");
 			var attr   = pieces[1];
-			if (pieces[0] === "mw:objectAttrKey") {
+			if (pieces[0] === "mw:objectAttr") {
+				state.tplAttrs[templateId].kvs[attr] = src;
+			} else if (pieces[0] === "mw:objectAttrKey") {
 				state.tplAttrs[templateId].ks[attr] = src;
 			} else {
 				state.tplAttrs[templateId].vs[attr] = src;
