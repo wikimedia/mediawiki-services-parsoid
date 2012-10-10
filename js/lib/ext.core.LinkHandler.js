@@ -154,10 +154,6 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 			// Change the rel to be mw:WikiLink/Category
 			Util.lookupKV( obj.attribs, 'rel' ).v += '/Category';
 
-			maybeContent = Util.lookupKV( token.attribs, 'mw:valAffected' );
-			if ( maybeContent !== null ) {
-				content = maybeContent.v;
-			}
 			saniContent = Util.sanitizeURI( Util.tokensToString( content ) ).replace( /#/, '%23' );
 
 			// Change the href to include the sort key, if any
@@ -167,27 +163,29 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 				hrefkv.v += saniContent;
 			}
 
-			if ( maybeContent && maybeContent.v ) {
-				for ( j = 0; j < maybeContent.v.length; j++ ) {
-					property = Util.lookupKV( maybeContent.v[j].attribs, 'property' );
-					// If we have a maybe-content token, it's actually part of the href
-					if ( property && property.v.match( /mw\:maybeContent/ ) ) {
-						newType = Util.lookupKV( obj.attribs, 'typeof' );
-						if ( newType && !newType.v.match( /mw\:ExpandedAttrs/ ) ) {
-							// Add the mw:ExpandedAttrs/ to an existing typeof
-							newType.v = 'mw:ExpandedAttrs' + '/' + newType.v;
-						} else {
-							// Make a new typeof, call it mw:ExpandedAttrs
-							newType = new KV( 'typeof', 'mw:ExpandedAttrs' );
-							obj.attribs.push( newType );
-						}
-					}
-				}
-			}
-
-			about = Util.lookup( token.attribs, 'about' );
-
 			tokens.push( obj );
+
+			// Deal with sort keys generated via templates/extensions
+			var producerInfo = Util.lookupKV( token.attribs, 'mw:valAffected' );
+			if (producerInfo) {
+				// Ensure that the link has about set
+				about = Util.lookup( obj.attribs, 'about' );
+				if (!about) {
+					about = '#mwt' + this.manager.env.generateUID();
+					obj.addAttribute("about", about);
+				}
+
+				// Update typeof
+				obj.addSpaceSeparatedAttribute("typeof",
+					"mw:ExpandedAttrs/" + producerInfo.v[0].substring("mw:Object/".length));
+
+				// Update producer meta-token and add it to the token stream
+				var metaToken = producerInfo.v[1];
+				metaToken.addAttribute("about", about);
+				var propKV = Util.lookupKV(metaToken.attribs, "property");
+				propKV.v = propKV.v.replace(/mw:maybeContent/, 'mw:sortKey'); // keep it clean
+				tokens.push(metaToken);
+			}
 
 			cb( {
 				tokens: tokens
@@ -226,7 +224,7 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 	// extract options
 	var options = [],
 		oHash = {},
-		caption = [];
+		captions = [];
 	for( var i = 0, l = content.length; i<l; i++ ) {
 		var oContent = content[i],
 			oText = Util.tokensToString( oContent.v, true );
@@ -267,26 +265,33 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 						options.push( new KV( key, bits[1] ) );
 						//console.warn('handle prefix ' + bits );
 					} else {
-						if (caption.length === 0) {
-							// Record the key in the options list so we can
-							// re-serialize the caption at the right place.
-							// But, only the first time we encounter caption text
-							options.push(new KV("caption", []));
-						}
-						// neither simple nor prefix option, add original
-						// tokens to caption.
-						caption = caption.concat( oContent.v );
+						// Record for RT-ing
+						var kv = new KV("caption", oContent.v);
+						captions.push(kv);
+						options.push(kv);
 					}
 				}
 			}
 		} else {
-			if (caption.length === 0) {
-				// Record the key in the options list so we can
-				// re-serialize the caption at the right place.
-				// But, only the first time we encounter caption text
-				options.push(new KV("caption", []));
-			}
-			caption = caption.concat( oContent.v );
+			var kv = new KV("caption", oContent.v);
+			captions.push(kv);
+			options.push(kv);
+		}
+	}
+
+	// Set last caption value to null -- serializer can figure this out
+	var caption;
+	var numCaptions = captions.length;
+	if (numCaptions > 0) {
+		caption = captions[numCaptions-1].v;
+		captions[numCaptions-1].v = null;
+
+		// For the rest, we need original wikitext.
+		// SSS FIXME: For now, using tokensToString
+		// We need a universal solution everywhere we discard info. like this
+		// Maybe use the serializer, tsr/dsr ... to figure out.
+		for (var i = 0; i < numCaptions-1; i++) {
+			captions[i].v = Util.tokensToString(captions[i].v);
 		}
 	}
 
@@ -491,6 +496,7 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 		txt = Sanitizer._stripIDNs( txt );
 	}
 
+	var dataAttribs = Util.clone(token.dataAtribs);
 	if ( this._isImageLink( href ) ) {
 		tagAttrs = [
 			new KV( 'src', href ),
@@ -500,11 +506,8 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 
 		// combine with existing rdfa attrs
 		tagAttrs = buildLinkAttrs(token.attribs, false, null, tagAttrs).attribs;
-		cb( { tokens: [ new SelfclosingTagTk( 'img',
-					tagAttrs,
-					{ stx: 'urllink' })
-				]
-		} );
+		dataAttribs.stx = "urllink";
+		cb( { tokens: [ new SelfclosingTagTk('img', tagAttrs, dataAttribs) ] } );
 	} else {
 		tagAttrs = [
 			new KV( 'rel', 'mw:ExtLink/URL' )
@@ -512,7 +515,7 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 
 		// combine with existing rdfa attrs
 		tagAttrs = buildLinkAttrs(token.attribs, false, null, tagAttrs).attribs;
-		builtTag = new TagTk( 'a', tagAttrs);
+		builtTag = new TagTk( 'a', tagAttrs, dataAttribs );
 
 		// Since we messed with the text of the link, we need
 		// to preserve the original in the RT data. Or else.
@@ -539,6 +542,7 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 	//console.warn('extlink href: ' + href );
 	//console.warn( 'mw:content: ' + JSON.stringify( content, null, 2 ) );
 
+	var dataAttribs = Util.clone(token.dataAtribs);
 	var rdfaType = token.getAttribute('typeof'), magLinkRe = /\bmw:ExtLink\/(?:ISBN|RFC|PMID)\b/;
 	if ( rdfaType && rdfaType.match( magLinkRe ) ) {
 		if ( rdfaType.match( /\bmw:ExtLink\/ISBN/ ) ) {
@@ -563,7 +567,7 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 		//
 		// combine with existing rdfa attrs
 		newAttrs = buildLinkAttrs(token.attribs, false, null, newAttrs).attribs;
-		aStart = new TagTk ('a', newAttrs, Util.clone(token.dataAttribs));
+		aStart = new TagTk ('a', newAttrs, dataAttribs);
 		cb( {
 			tokens: [aStart].concat(content, [new EndTagTk('a')])
 		} );
@@ -593,7 +597,7 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 		];
 		// combine with existing rdfa attrs
 		newAttrs = buildLinkAttrs(token.attribs, false, null, newAttrs).attribs;
-		aStart = new TagTk ( 'a', newAttrs, token.dataAttribs );
+		aStart = new TagTk ( 'a', newAttrs, dataAttribs );
 
 		if ( SanitizerConstants.IDN_RE.test( href ) ) {
 			// Make sure there are no IDN-ignored characters in the text so the

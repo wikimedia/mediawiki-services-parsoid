@@ -571,10 +571,7 @@ WSP._figureHandler = function ( state, figTokens ) {
 					outBits.push("upright");
 				}
 			} else if (k === "caption") {
-				if (caption) {
-					// SSS FIXME: Check required?
-					outBits.push(caption);
-				}
+				outBits.push(v === null ? caption : v);
 			} else if (simpleImgOptions[v.trim()] === k) {
 				// The values and keys in the parser attributes are a flip
 				// of how they are in the wikitext constants image hash
@@ -721,8 +718,8 @@ WSP._linkHandler =  function( state, tokens ) {
 						target = targetParts[1].replace( /^(\.\.?\/)*/, '' );
 					}
 
-					if ( tplAttrState.vs['mw:valAffected'] ) {
-						linkText = tplAttrState.vs['mw:valAffected'];
+					if ( tplAttrState.vs['mw:sortKey'] ) {
+						linkText = tplAttrState.vs['mw:sortKey'];
 					} else if ( targetParts && targetParts.length > 2 ) {
 						linkText = Util.decodeURI( targetParts[2] ).replace( /%23/g, '#' ).replace( /%20/g, ' ' );
 					}
