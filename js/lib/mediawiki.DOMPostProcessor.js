@@ -387,6 +387,12 @@ var getDOMRange = function ( doc, startElem, endElem ) {
 		updateDP = true;
 	}
 
+/**
+	if (startElem === tcStart.firstChild) {
+		// can update dsr of tcChild in some cases!
+	}
+**/
+
 	if (updateDP) {
 		var done = false;
 		var tcDP = tcStart.getAttribute("data-parsoid");
@@ -670,6 +676,7 @@ function computeNodeDSR(node, s, e) {
 				dpStr = child.getAttribute("data-parsoid"),
 				dpObj = dpStr ? JSON.parse(dpStr) : {},
 				oldCE = dpObj.tsr ? dpObj.tsr[1] : null;
+				propagateRight = false;
 
 			if (child.nodeName.toLowerCase() === "meta") {
 				// Unless they have been foster-parented meta tags
@@ -679,6 +686,7 @@ function computeNodeDSR(node, s, e) {
 					endTagWidth = dpObj.tsr[1] - dpObj.tsr[0];
 					cs = dpObj.tsr[1];
 					ce = dpObj.tsr[1];
+					propagateRight = true;
 					node.removeChild(child); // No use for this marker tag after this
 				} else if (cTypeOf.match(/\bmw:Object\//) && dpObj.tsr) {
 					// If this is a opening meta-marker tags (for templates, extensions),
@@ -687,6 +695,7 @@ function computeNodeDSR(node, s, e) {
 					// source range.
 					cs = dpObj.tsr[0];
 					ce = dpObj.tsr[1];
+					propagateRight = true;
 				}
 			} else {
 				// Non-meta tags
@@ -695,6 +704,7 @@ function computeNodeDSR(node, s, e) {
 					cs = dpObj.tsr[0];
 					if (!ce || dpObj.tsr[1] > ce) {
 						ce = dpObj.tsr[1];
+						propagateRight = true;
 					}
 				} else if (s && child.previousSibling === null) {
 					cs = s;
@@ -738,13 +748,15 @@ function computeNodeDSR(node, s, e) {
 			}
 
 			// Propagate any required changes to the right
-			if (ce !== null && (oldCE !== ce || e === null)) {
+			if (ce !== null && (propagateRight || oldCE !== ce || e === null)) {
 				var n = child.nextSibling;
 				var newCE = ce;
-				while (n & newCE !== null) {
+				while (n && newCE !== null) {
 					var nType = n.nodeType;
-					if (nType === Node.COMMENT_NODE || nType === Node.TEXT_NODE) {
+					if (nType === Node.TEXT_NODE) {
 						newCE = newCE + n.data.length;
+					} else if (nType === Node.COMMENT_NODE) {
+						newCE = newCE + n.data.length + 7;
 					} else if (nType === Node.ELEMENT_NODE) {
 						var str = n.getAttribute("data-parsoid");
 						var ndpObj = str ? JSON.parse(str) : {};
@@ -752,11 +764,12 @@ function computeNodeDSR(node, s, e) {
 							break;
 						}
 
+						if (!ndpObj.dsr) {
+							ndpObj.dsr = [];
+						}
+
 						if (ndpObj.dsr[0] !== newCE) {
 							// Update and move right
-							if (!ndpObj.dsr) {
-								ndpObj.dsr = [];
-							}
 							// console.log("CHANGING ce.start of " + n.nodeName + " from " + ndpObj.dsr[0] + " to " + newCE);
 							ndpObj.dsr[0] = newCE;
 							n.setAttribute("data-parsoid", JSON.stringify(ndpObj));
