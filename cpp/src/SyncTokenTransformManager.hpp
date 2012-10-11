@@ -5,9 +5,7 @@
 
 namespace parsoid {
 
-
-typedef function<TokenMessage( Tk token, const Frame& frame )> sync_handler_type;
-
+typedef function<TokenMessage( Tk token, const Scope& scope )> sync_handler_type;
 
 class SyncTokenTransformManager
     : public TokenTransformManager<TokenTransformer<sync_handler_type> >
@@ -16,10 +14,10 @@ class SyncTokenTransformManager
         // async APIs
         typedef function<void(TokenMessage)> handler_cb_type;
         typedef function<TokenMessage( Tk token
-            , const Frame& frame, handler_cb_type cb )> handler_type;
+            , const Scope& scope, handler_cb_type cb )> handler_type;
 
-        SyncTokenTransformManager(enum Options flags, float baseRank)
-            : TokenTransformManager(flags, baseRank) {}
+        SyncTokenTransformManager(Scope* scope, float baseRank)
+            : TokenTransformManager(scope, baseRank) {}
 
         void receive( TokenMessage message ) {
             // We are not doing anything useful currently..
@@ -28,6 +26,5 @@ class SyncTokenTransformManager
 };
 
 } // namespace parsoid
-
 
 #endif

@@ -15,22 +15,13 @@ class TokenTransformManager
     : public PipelineStage<TokenMessage, TokenMessage>
 {
     public:
-
-        /**
-         * Options
-         */
-        enum class Options {
-            none = 0,
-            atTopLevel = 1
-        };
-
         typedef typename TokenTransformerT::handler_type handler_type;
 
 
         // The constructor
         TokenTransformManager();
-        TokenTransformManager (enum Options flags, float baseRank)
-            : flags(flags), baseRank(baseRank)
+        TokenTransformManager (const Scope* scope, float baseRank)
+            : scope(scope), baseRank(baseRank)
         {}
 
         /**
@@ -78,24 +69,11 @@ class TokenTransformManager
         vector<handler_type> nlHandlers;
         vector<handler_type> eofHandlers;
 
-        Options flags;
+        const Scope* scope;
         float baseRank;
 
 };
 
-/**
- * Provide operator| for TokenTransformManager options
- *
- * TODO: makes this a bit more.... readable ;)
- */
-template <class TokenTransformerT>
-inline typename TokenTransformManager<TokenTransformerT>::Options operator|(
-          typename TokenTransformManager<TokenTransformerT>::Options a
-        , typename TokenTransformManager<TokenTransformerT>::Options b) {
-    return static_cast<typename TokenTransformManager<TokenTransformerT>::Options>(
-            static_cast<unsigned int>(a)
-            | static_cast<unsigned int>(b));
-}
 
 } // namespace parsoid
 

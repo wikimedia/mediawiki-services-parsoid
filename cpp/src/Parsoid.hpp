@@ -21,6 +21,13 @@ class Parsoid {
         }
     private:
         /**
+         * The top-level scope. Lower-level scopes will be owned by the
+         * TemplateTransformer and AttributeExpansionTransfomer, which are in
+         * turn owned by their pipeline via the AsyncTokenTransformManager.
+         */
+        Scope scope;
+
+        /**
          * The main input / expansion pipeline
          */
         InputExpansionPipeline mainInputExpansionPipeline;
@@ -32,6 +39,7 @@ class Parsoid {
 
         // The document receiver
         DOM::DocumentReceiver receiver;
+
 };
 
 

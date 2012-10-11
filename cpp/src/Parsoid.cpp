@@ -3,8 +3,9 @@
 namespace parsoid {
 
 Parsoid::Parsoid ()
-    : mainInputExpansionPipeline( true )
-    , syncOutputPipeline()
+    : scope("", this)
+    , mainInputExpansionPipeline(&scope)
+    , syncOutputPipeline(&scope)
 {
     // Create a new environment per request
     // TODO: pass environment to pipeline ctors
@@ -29,6 +30,5 @@ void Parsoid::parse( string input, DOM::DocumentReceiver receiver ) {
     // Feed the input pipeline
     mainInputExpansionPipeline.receive( input );
 }
-
 
 }

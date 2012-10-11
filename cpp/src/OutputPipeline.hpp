@@ -23,9 +23,9 @@ class OutputPipeline
     : public PipelineStage<TokenMessage, DOM::XMLDocumentPtr>
 {
     public:
-        OutputPipeline()
+        OutputPipeline(Scope* scope)
             // FIXME: use proper flags
-            : syncTransformManager(SyncTokenTransformManager::Options::atTopLevel, 2.0)
+            : syncTransformManager(scope, 2.0)
         {
             // Create handlers and implicitly register them with this manager
             // new QuoteHandler( *this );

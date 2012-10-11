@@ -3,7 +3,7 @@
 
 #include "LibIncludes.hpp"
 #include "Token.hpp"
-#include "Frame.hpp"
+#include "Scope.hpp"
 
 namespace parsoid {
 
