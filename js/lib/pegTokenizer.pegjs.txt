@@ -945,7 +945,7 @@ template_param_text
 wikilink_content
   = lcs:( pipe lt:link_text? {
     if ( lt === '' ) {
-        return '';
+        return new KV( 'mw:maybeContent', [] );
     } else {
         return new KV( 'mw:maybeContent', lt );
     } } ) + {
