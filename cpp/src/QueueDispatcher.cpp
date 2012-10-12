@@ -1,13 +1,9 @@
 #include "QueueDispatcher.hpp"
 
 namespace parsoid {
-    template <class ChunkType>
-    void QueueDispatcher<ChunkType>::setReceiver( TokenMessageReceiver receiver ) {
-        this->receiver = receiver;
-    }
 
     template <class ChunkType>
-    void QueueDispatcher<ChunkType>::operator() ( TokenMessage ret ) {
+    void QueueDispatcher<ChunkType>::receive ( ChunkType ret ) {
         queue.push_front( ret.getChunks() );
         if ( ! ret.isAsync() ) {
             haveEndOfInput = true;
