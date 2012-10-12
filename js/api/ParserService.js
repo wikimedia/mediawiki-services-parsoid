@@ -52,7 +52,7 @@ var interwikiRE;
 function getInterwikiRE() {
 	// this RE won't change -- so, cache it
 	if (!interwikiRE) {
-		interwikiRE = Util.getParserEnv( lsp ).interwikiRegexp;
+		interwikiRE = Util.getParserEnv( lsp, config ).interwikiRegexp;
 	}
 	return interwikiRE;
 }

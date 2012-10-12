@@ -735,7 +735,7 @@ parse = function ( env, cb, err, src ) {
 	}
 },
 
-getParserEnv = function ( lsp ) {
+getParserEnv = function ( lsp, config ) {
 	var ParserEnv = require( './mediawiki.parser.environment.js' ).MWParserEnvironment,
 		env = new ParserEnv( {
 		// stay within the 'proxied' content, so that we can click around
@@ -757,7 +757,7 @@ getParserEnv = function ( lsp ) {
 	env.setInterwiki( 'localhost', 'http://localhost/w' );
 
 	// Apply local settings
-	if ( lsp && path.existsSync( lsp ) ) {
+	if ( lsp && path.existsSync( lsp ) && config ) {
 		require( lsp ).setup( config, env );
 	}
 
