@@ -220,13 +220,13 @@ checkIfSignificant = function ( offsets, src, body, out, cb, document ) {
 	cb( null, results );
 },
 
-doubleRoundtripDiff = function ( offsets, src, body, out, cb ) {
+doubleRoundtripDiff = function ( offsets, src, body, out, cb, wiki ) {
 	var parser, env;
 
 	if ( offsets.length > 0 ) {
 		env = Util.getParserEnv();
 		env.text = src;
-		env.wgScript = env.interwikiMap.mw;
+		env.wgScript = env.interwikiMap[wiki];
 
 		parserPipeline = Util.getParser( env, 'text/x-mediawiki/full' );
 
@@ -236,7 +236,7 @@ doubleRoundtripDiff = function ( offsets, src, body, out, cb ) {
 	}
 },
 
-roundTripDiff = function ( src, document, cb ) {
+roundTripDiff = function ( src, document, cb, wiki ) {
 	var out, curPair, patch, diff, env = Util.getParserEnv();
 
 	out = new WikitextSerializer( { env: env } ).serializeDOM( document.body );
@@ -246,17 +246,16 @@ roundTripDiff = function ( src, document, cb ) {
 		diff = Util.convertDiffToOffsetPairs( jsDiff.diffLines( out, src ) );
 
 		if ( diff.length > 0 ) {
-			doubleRoundtripDiff( diff, src, document.body, out, cb );
+			doubleRoundtripDiff( diff, src, document.body, out, cb, wiki );
 		}
 	}
 },
 
-fetch = function ( page, cb ) {
+fetch = function ( page, cb, wiki ) {
 	cb = typeof cb === 'function' ? cb : function () {};
 
 	var env = Util.getParserEnv();
-	env.setInterwiki( 'mw', 'http://www.mediawiki.org/w' );
-	env.wgScript = env.interwikiMap.en;
+	env.wgScript = env.interwikiMap[wiki || 'en'];
 	env.setPageName( page );
 
 	var target = env.resolveTitle( env.normalizeTitle( env.pageName ), '' );
@@ -267,7 +266,7 @@ fetch = function ( page, cb ) {
 			if ( err ) {
 				console.log( err );
 			} else {
-				roundTripDiff( src, out, cb );
+				roundTripDiff( src, out, cb, wiki || 'en' );
 			}
 		}, err, src );
 	} );
@@ -298,9 +297,9 @@ if ( !module.parent ) {
 
 		callback = callback.bind( null, consoleOut );
 
-		fetch( title, callback );
+		fetch( title, callback, argv.wiki );
 	} else {
-		console.log( 'Usage: node roundtrip-test.js PAGETITLE [--xml]' );
+		console.log( 'Usage: node roundtrip-test.js PAGETITLE [--xml] [--wiki CODE]' );
 	}
 }
 
