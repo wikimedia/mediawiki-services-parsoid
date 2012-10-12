@@ -12,7 +12,7 @@ var fs = require( 'fs' ),
 
 callback, argv, title,
 
-plainCallback = function ( outputcb, err, results ) {
+plainCallback = function ( results ) {
 	var i, result, output = '';
 	for ( i = 0; i < results.length; i++ ) {
 		result = results[i];
@@ -31,10 +31,10 @@ plainCallback = function ( outputcb, err, results ) {
 		}
 	}
 
-	outputcb( err, output );
+	return output;
 },
 
-xmlCallback = function ( outputcb, err, results ) {
+xmlCallback = function ( results ) {
 	var i, result,
 
 	output = '<testsuite name="Roundtrip article ' + Util.encodeXml( title ) + '">';
@@ -67,7 +67,7 @@ xmlCallback = function ( outputcb, err, results ) {
 
 	output += '</testsuite>\n';
 
-	outputcb( err, output );
+	return output;
 },
 
 findDsr = function () {
@@ -272,6 +272,10 @@ fetch = function ( page, cb, wiki ) {
 	} );
 },
 
+cbCombinator = function ( formatter, cb, err, text ) {
+	cb( err, formatter( text ) );
+},
+
 consoleOut = function ( err, output ) {
 	if ( err ) {
 		console.error( err );
@@ -297,7 +301,7 @@ if ( !module.parent ) {
 			callback = plainCallback;
 		}
 
-		callback = callback.bind( null, consoleOut );
+		callback = cbCombinator.bind( null, callback, consoleOut );
 
 		fetch( title, callback, argv.wiki );
 	} else {
