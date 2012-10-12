@@ -2,7 +2,9 @@
  * General utilities for token transforms
  */
 
-var Util = {
+var HTML5 = require('html5').HTML5,
+	jsDiff = require( 'diff' ),
+	Util = {
 	/**
 	 * Determine if a tag name is block-level or not
 	 *
@@ -510,6 +512,205 @@ Util.makeTplAffectedMeta = function ( contentType, key, val ) {
 		[new KV( "property", "mw:" + contentType + "#" + key )],
 		{ src: val.wikitext });
 };
+
+// Separate closure for normalize functions that
+// use a singleton html parser
+( function ( Util ) {
+
+var htmlparser = new HTML5.Parser(),
+
+/**
+ * Specialized normalization of the wiki parser output, mostly to ignore a few
+ * known-ok differences.
+ */
+normalizeOut = function ( out ) {
+	// TODO: Do not strip newlines in pre and nowiki blocks!
+	return out
+		.replace(/<span typeof="mw:(?:(?:Placeholder|Nowiki|Object\/Template|Entity))"[^>]*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1')
+		.replace(/[\r\n]| (data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content)="[^">]*"/g, '')
+		.replace(/<!--.*?-->\n?/gm, '')
+		.replace(/<\/?meta[^>]*>/g, '')
+		.replace(/<span[^>]+about="[^]+>/g, '')
+		.replace(/<span><\/span>/g, '')
+		.replace(/href="(?:\.?\.\/)+/g, 'href="');
+},
+
+/**
+ * Normalize the expected parser output by parsing it using a HTML5 parser and
+ * re-serializing it to HTML. Ideally, the parser would normalize inter-tag
+ * whitespace for us. For now, we fake that by simply stripping all newlines.
+ *
+ * @arg source {string} The source to normalize.
+ */
+normalizeHTML = function ( source ) {
+	// TODO: Do not strip newlines in pre and nowiki blocks!
+	source = source.replace(/[\r\n]/g, '');
+	try {
+		htmlparser.parse('<body>' + source + '</body>');
+		return htmlparser.document.childNodes[0].childNodes[1]
+			.innerHTML
+			// a few things we ignore for now..
+			//.replace(/\/wiki\/Main_Page/g, 'Main Page')
+			// do not expect a toc for now
+			.replace(/<table[^>]+?id="toc"[^>]*>.+?<\/table>/mg, '')
+			// do not expect section editing for now
+			.replace(/(<span class="editsection">\[.*?<\/span> *)?<span[^>]+class="mw-headline"[^>]*>(.*?)<\/span>/g, '$2')
+			// general class and titles, typically on links
+			.replace(/(title|class|rel)="[^"]+"/g, '')
+			// strip red link markup, we do not check if a page exists yet
+			.replace(/\/index.php\?title=([^']+?)&amp;action=edit&amp;redlink=1/g, '/wiki/$1')
+			// the expected html has some extra space in tags, strip it
+			.replace(/<a +href/g, '<a href')
+			.replace(/href="\/wiki\//g, 'href="')
+			.replace(/" +>/g, '">');
+	} catch(e) {
+        console.log("normalizeHTML failed on" +
+				source + " with the following error: " + e);
+		console.trace();
+		return source;
+	}
+},
+
+formatHTML = function ( source ) {
+	// Quick hack to insert newlines before some block level start tags
+	return source.replace(
+		/(?!^)<((div|dd|dt|li|p|table|tr|td|tbody|dl|ol|ul|h1|h2|h3|h4|h5|h6)[^>]*)>/g, '\n<$1>');
+},
+
+/**
+ * Parse HTML, return the tree.
+ *
+ * @arg html {string} The HTML to parse.
+ * @returns {object} The HTML DOM tree.
+ */
+parseHTML = function ( html ) {
+	htmlparser.parse( html );
+	return htmlparser.tree;
+},
+
+/**
+ * Little helper function for encoding XML entities
+ */
+encodeXml = function ( string ) {
+	var xml_special_to_escaped_one_map = {
+		'&': '&amp;',
+		'"': '&quot;',
+		'<': '&lt;',
+		'>': '&gt;'
+	};
+
+	return string.replace( /([\&"<>])/g, function ( str, item ) {
+		return xml_special_to_escaped_one_map[item];
+	} );
+};
+
+Util.encodeXml = encodeXml;
+Util.parseHTML = parseHTML;
+Util.normalizeHTML = normalizeHTML;
+Util.normalizeOut = normalizeOut;
+Util.formatHTML = formatHTML;
+
+}( Util ) );
+
+( function ( Util ) {
+
+var convertDiffToOffsetPairs = function ( diff ) {
+	var currentPair, pairs = [], srcOff = 0, outOff = 0;
+	diff.map( function ( change ) {
+		var pushPair = function ( pair, start ) {
+			if ( !pair.added ) {
+				pair.added = {start: start, end: start };
+			} else if ( !pair.removed ) {
+				pair.removed = {start: start, end: start };
+			}
+
+			pairs.push( [pair.added, pair.removed] );
+			currentPair = {};
+		};
+
+		if ( !currentPair ) {
+			currentPair = {};
+		}
+
+		if ( change.added ) {
+			if ( currentPair.added ) {
+				pushPair( currentPair, outOff );
+			}
+
+			currentPair.added = { start: outOff };
+			outOff += change.value.length;
+			currentPair.added.end = outOff;
+
+			if ( currentPair.removed ) {
+				pushPair( currentPair );
+			}
+		} else if ( change.removed ) {
+			if ( currentPair.removed ) {
+				pushPair( currentPair, srcOff );
+			}
+
+			currentPair.removed = { start: srcOff };
+			srcOff += change.value.length;
+			currentPair.removed.end = srcOff;
+
+			if ( currentPair.added ) {
+				pushPair( currentPair );
+			}
+		} else {
+			if ( currentPair.added || currentPair.removed ) {
+				pushPair( currentPair, currentPair.added ? srcOff : outOff );
+			}
+
+			srcOff += change.value.length;
+			outOff += change.value.length;
+		}
+	} );
+
+	return pairs;
+};
+Util.convertDiffToOffsetPairs = convertDiffToOffsetPairs;
+
+}( Util ) );
+
+var diff = function ( a, b, color, onlyReportChanges, useLines ) {
+	var thediff, patch, diffs = 0;
+	if ( color ) {
+		thediff = jsDiff[useLines ? 'diffLines' : 'diffWords']( a, b ).map( function ( change ) {
+			if ( useLines && change.value[-1] !== '\n' ) {
+				change.value += '\n';
+			}
+			if ( change.added ) {
+				diffs++;
+				return change.value.split( '\n' ).map( function ( line ) {
+					return line.green;
+				} ).join( '\n' );
+			} else if ( change.removed ) {
+				diffs++;
+				return change.value.split( '\n' ).map( function ( line ) {
+					return line.red;
+				} ).join( '\n' );
+			} else {
+				return change.value;
+			}
+		}).join('');
+		if ( !onlyReportChanges || diffs > 0 ) {
+			return thediff;
+		} else {
+			return '';
+		}
+	} else {
+		patch = jsDiff.createPatch('wikitext.txt', a, b, 'before', 'after');
+
+		// Strip the header from the patch, we know how diffs work..
+		patch = patch.replace(/^[^\n]*\n[^\n]*\n[^\n]*\n[^\n]*\n/, '');
+
+		// Don't care about not having a newline.
+		patch = patch.replace( /^\\ No newline at end of file\n/, '' );
+
+		return patch;
+	}
+};
+Util.diff = diff;
 
 if (typeof module === "object") {
 	module.exports.Util = Util;
