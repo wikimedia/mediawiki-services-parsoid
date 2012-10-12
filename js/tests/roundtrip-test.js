@@ -207,8 +207,8 @@ checkIfSignificant = function ( offsets, src, body, out, cb, document ) {
 
 		if ( diff.length > 0 ) {
 			thisResult.type = 'fail';
-			thisResult.wtDiff = Util.diff( out.substring( offset[1].start, offset[1].end ),
-				src.substring( offset[0].start, offset[0].end ), false, true, true );
+			thisResult.wtDiff = Util.diff( src.substring( offset[0].start, offset[0].end,
+				out.substring( offset[1].start, offset[1].end ) ), false, true, true );
 			thisResult.htmlDiff = diff;
 		} else {
 			thisResult.type = 'skip';
