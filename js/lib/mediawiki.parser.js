@@ -14,10 +14,10 @@
 
 // make this global for now
 // XXX: figure out a way to get away without a global for PEG actions!
-$ = require('jquery');
-var events = require( 'events' );
+var $ = require('jquery'),
+	events = require( 'events' ),
 
-var fs = require('fs'),
+	fs = require('fs'),
 	path = require('path'),
 	PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	TokenTransformManager = require('./mediawiki.TokenTransformManager.js'),

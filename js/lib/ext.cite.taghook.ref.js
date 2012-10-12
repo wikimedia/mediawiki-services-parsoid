@@ -1,5 +1,5 @@
-var Util = require( './mediawiki.Util.js' ).Util;
-
+var Util = require( './mediawiki.Util.js' ).Util,
+	$ = require( 'jquery' );
 /**
  * The ref / references tags don't do any fancy HTML, so we can actually
  * implement this in terms of parse tree manipulations, skipping the need

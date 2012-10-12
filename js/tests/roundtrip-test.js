@@ -6,92 +6,68 @@ var fs = require( 'fs' ),
 	jsDiff = require( 'diff' ),
 	optimist = require( 'optimist' ),
 
-	ParserPipelineFactory = require( '../lib/mediawiki.parser.js' ).ParserPipelineFactory,
 	Util = require( '../lib/mediawiki.Util.js' ).Util,
-	ParserEnv = require( '../lib/mediawiki.parser.environment.js').MWParserEnvironment,
 	WikitextSerializer = require( '../lib/mediawiki.WikitextSerializer.js').WikitextSerializer,
-	libtr = require( '../lib/mediawiki.ApiRequest.js'),
-	TemplateRequest = libtr.TemplateRequest,
+	TemplateRequest = require( '../lib/mediawiki.ApiRequest.js' ).TemplateRequest,
 
-callback, argv = optimist.argv, title = argv._[0],
+callback, argv, title,
 
-plainCallback = function ( err, results ) {
-	var i, result;
-	for ( i = 0; i < results.length; i++ ) {
-		result = results[i];
-		if ( result.type === 'fail' ) {
-			console.log( ( new Array( 70 ) ).join( '=' ) );
-			console.log( 'Wikitext diff:\n' );
-			console.log( result.wtDiff );
-			console.log( ( new Array( 70 ) ).join( '-' ) );
-			console.log( 'HTML diff:\n' );
-			console.log( result.htmlDiff );
-		} else {
-			console.log( ( new Array( 70 ) ).join( '=' ) );
-			console.log( 'Insignificant wikitext diff:\n' );
-			console.log( result.wtDiff );
-		}
-	}
-},
-
-xmlCallback = function ( err, results ) {
-	var i, result;
-	console.log( '<testsuite name="Roundtrip article ' + Util.encodeXml( title ) + '">' );
-
+plainCallback = function ( outputcb, err, results ) {
+	var i, result, output = '';
 	for ( i = 0; i < results.length; i++ ) {
 		result = results[i];
 
-		console.log( '<testcase name="' + Util.encodeXml( title ) + ' character ' + result.offset[0].start + '>' );
-
 		if ( result.type === 'fail' ) {
-			console.log( '<failure type="significantHtmlDiff">' );
-
-			console.log( '<diff class="wt">' );
-			console.log( Util.encodeXml( result.wtDiff ) );
-			console.log( '</diff>' );
-
-			console.log( '<diff class="html">' );
-			console.log( Util.encodeXml( result.htmlDiff ) );
-			console.log( '</diff>' );
-
-			console.log( '</failure>' );
+			output += ( new Array( 70 ) ).join( '=' ) + '\n';
+			output += 'Wikitext diff:\n\n';
+			output += result.wtDiff + '\n';
+			output += ( new Array( 70 ) ).join( '-' ) + '\n';
+			output += 'HTML diff:\n\n';
+			output += result.htmlDiff + '\n';
 		} else {
-			console.log( '<skipped type="insignificantWikitextDiff"' );
-			console.log( Util.encodeXml( result.wtDiff ) );
-			console.log( '</skipped>' );
+			output += ( new Array( 70 ) ).join( '=' ) + '\n';
+			output += 'Insignificant wikitext diff:\n\n';
+			output += result.wtDiff + '\n';
 		}
-
-		console.log( '</testcase>' );
 	}
 
-	console.log( '</testsuite>' );
+	outputcb( err, output );
 },
 
-getParserEnv = function () {
-	var env = new ParserEnv( {
-		// stay within the 'proxied' content, so that we can click around
-		wgScriptPath: '/', //http://en.wikipedia.org/wiki',
-		wgScriptExtension: '.php',
-		// XXX: add options for this!
-		wgUploadPath: 'http://upload.wikimedia.org/wikipedia/commons',
-		fetchTemplates: true,
-		// enable/disable debug output using this switch
-		debug: false,
-		trace: false,
-		maxDepth: 40
-	} );
+xmlCallback = function ( outputcb, err, results ) {
+	var i, result,
 
-	// add mediawiki.org
-	env.setInterwiki( 'mw', 'http://www.mediawiki.org/w' );
+	output = '<testsuite name="Roundtrip article ' + Util.encodeXml( title ) + '">';
 
-	// add localhost default
-	env.setInterwiki( 'localhost', 'http://localhost/w' );
+	for ( i = 0; i < results.length; i++ ) {
+		result = results[i];
 
-	return env;
-},
+		output += '<testcase name="' + Util.encodeXml( title ) + ' character ' + result.offset[0].start + '>';
 
-getParser = function ( env, type ) {
-	return ( new ParserPipelineFactory( env ) ).makePipeline( type );
+		if ( result.type === 'fail' ) {
+			output += '<failure type="significantHtmlDiff">\n';
+
+			output += '<diff class="wt">\n';
+			output += Util.encodeXml( result.wtDiff );
+			output += '\n</diff>\n';
+
+			output += '<diff class="html">\n';
+			output += Util.encodeXml( result.htmlDiff );
+			output += '\n</diff>\n';
+
+			output += '</failure>\n';
+		} else {
+			output += '<skipped type="insignificantWikitextDiff">\n';
+			output += Util.encodeXml( result.wtDiff );
+			output += '\n</skipped>\n';
+		}
+
+		output += '</testcase>\n';
+	}
+
+	output += '</testsuite>\n';
+
+	outputcb( err, output );
 },
 
 findDsr = function () {
@@ -202,67 +178,66 @@ return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
 }(),
 
 
+checkIfSignificant = function ( offsets, src, body, out, cb, document ) {
+	var i, k, diff, offset, origOut, newOut, origHTML, newHTML, origOrigHTML, origNewHTML, thisResult, results = [];
+	for ( i = 0; i < offsets.length; i++ ) {
+		thisResult = {};
+		origOrigHTML = '';
+		origNewHTML = '';
+
+		offset = offsets[i];
+
+		thisResult.offset = offset;
+
+		origOut = findDsr( body, offset[0] || {}, src.length, true ) || [];
+		newOut = findDsr( document.firstChild.childNodes[1], offset[1] || {}, out.length, true ) || [];
+
+		for ( k = 0; k < origOut.length; k++ ) {
+			origOrigHTML += origOut[k].outerHTML || origOut[k].__nodeValue;
+		}
+
+		for ( k = 0; k < newOut.length; k++ ) {
+			origNewHTML += newOut[k].outerHTML || newOut[k].__nodeValue;
+		}
+
+		origHTML = Util.formatHTML( Util.normalizeOut( origOrigHTML ) );
+		newHTML = Util.formatHTML( Util.normalizeOut( origNewHTML ) );
+
+		diff = Util.diff( origHTML, newHTML, false, true, true );
+
+		if ( diff.length > 0 ) {
+			thisResult.type = 'fail';
+			thisResult.wtDiff = Util.diff( out.substring( offset[1].start, offset[1].end ),
+				src.substring( offset[0].start, offset[0].end ), false, true, true );
+			thisResult.htmlDiff = diff;
+		} else {
+			thisResult.type = 'skip';
+			thisResult.wtDiff = Util.diff( out.substring( offset[1].start, offset[1].end ),
+				src.substring( offset[0].start, offset[0].end ), false, true, true );
+		}
+		results.push( thisResult );
+	}
+	cb( null, results );
+},
+
 doubleRoundtripDiff = function ( offsets, src, body, out, cb ) {
-	var parser, env, offset;
+	var parser, env;
 
 	if ( offsets.length > 0 ) {
-		env = new ParserEnv( {
-			fetchTemplates: true
-		} );
-
+		env = Util.getParserEnv();
 		env.text = src;
 		env.wgScript = env.interwikiMap.mw;
 
-		parserPipeline = getParser( env, 'text/x-mediawiki/full' );
+		parserPipeline = Util.getParser( env, 'text/x-mediawiki/full' );
 
-		parserPipeline.on( 'document', function ( document ) {
-			var i, k, diff, origOut, newOut, origHTML, newHTML, origOrigHTML, origNewHTML, thisResult, results = [];
-			for ( i = 0; i < offsets.length; i++ ) {
-				thisResult = {};
-				origOrigHTML = '';
-				origNewHTML = '';
-
-				offset = offsets[i];
-
-				thisResult.offset = offset;
-
-				origOut = findDsr( body, offset[0] || {}, src.length, true ) || [];
-				newOut = findDsr( document.firstChild.childNodes[1], offset[1] || {}, out.length, true ) || [];
-
-				for ( k = 0; k < origOut.length; k++ ) {
-					origOrigHTML += origOut[k].outerHTML || origOut[k].__nodeValue;
-				}
-
-				for ( k = 0; k < newOut.length; k++ ) {
-					origNewHTML += newOut[k].outerHTML || newOut[k].__nodeValue;
-				}
-
-				origHTML = Util.formatHTML( Util.normalizeOut( origOrigHTML ) );
-				newHTML = Util.formatHTML( Util.normalizeOut( origNewHTML ) );
-
-				diff = Util.diff( origHTML, newHTML, false, true, true );
-
-				if ( diff.length > 0 ) {
-					thisResult.type = 'fail';
-					thisResult.wtDiff = Util.diff( out.substring( offset[1].start, offset[1].end ),
-						src.substring( offset[0].start, offset[0].end ), false, true, true );
-					thisResult.htmlDiff = diff;
-				} else {
-					thisResult.type = 'skip';
-					thisResult.wtDiff = Util.diff( out.substring( offset[1].start, offset[1].end ),
-						src.substring( offset[0].start, offset[0].end ), false, true, true );
-				}
-				results.push( thisResult );
-			}
-			cb( null, results );
-		} );
+		parserPipeline.on( 'document', checkIfSignificant.bind( null, offsets, src, body, out, cb ) );
 
 		parserPipeline.process( out );
 	}
 },
 
 roundTripDiff = function ( src, document, cb ) {
-	var out, curPair, patch, diff, env = getParserEnv();
+	var out, curPair, patch, diff, env = Util.getParserEnv();
 
 	out = new WikitextSerializer( { env: env } ).serializeDOM( document.body );
 	if ( out === undefined ) {
@@ -276,31 +251,10 @@ roundTripDiff = function ( src, document, cb ) {
 	}
 },
 
-parse = function ( env, cb, err, src ) {
-	if ( err !== null ) {
-		if ( !err.code ) {
-			err.code = 500;
-		}
-		console.log( err.toString(), err.code );
-	} else {
-		var parser = getParser( env, 'text/x-mediawiki/full' );
-		parser.on( 'document', cb.bind( null, src ) );
-		try {
-			env.text = src;
-			parser.process( src );
-		} catch (e) {
-			console.log( e );
-		}
-	}
-},
-
 fetch = function ( page, cb ) {
 	cb = typeof cb === 'function' ? cb : function () {};
 
-	var env = new ParserEnv( {
-		fetchTemplates: true
-	} );
-
+	var env = Util.getParserEnv();
 	env.setInterwiki( 'mw', 'http://www.mediawiki.org/w' );
 	env.wgScript = env.interwikiMap.en;
 	env.setPageName( page );
@@ -309,21 +263,45 @@ fetch = function ( page, cb ) {
 	var tpr = new TemplateRequest( env, target, null );
 
 	tpr.once( 'src', function ( err, src ) {
-		parse( env, function ( src, out ) {
-			roundTripDiff( src, out, cb );
+		Util.parse( env, function ( src, err, out ) {
+			if ( err ) {
+				console.log( err );
+			} else {
+				roundTripDiff( src, out, cb );
+			}
 		}, err, src );
 	} );
+},
+
+consoleOut = function ( err, output ) {
+	if ( err ) {
+		console.error( err );
+	} else {
+		console.log( output );
+	}
 };
 
-if ( title ) {
-	if ( argv.xml ) {
-		callback = xmlCallback;
+if ( typeof module === 'object' ) {
+	module.exports.fetch = fetch;
+}
+
+if ( !module.parent ) {
+	argv = optimist.argv;
+	title = argv._[0];
+
+	if ( title ) {
+		if ( argv.xml ) {
+			callback = xmlCallback;
+		} else {
+			callback = plainCallback;
+		}
+
+		callback = callback.bind( null, consoleOut );
+
+		fetch( title, callback );
 	} else {
-		callback = plainCallback;
+		console.log( 'Usage: node roundtrip-test.js PAGETITLE [--xml]' );
 	}
-	fetch( title, callback );
-} else {
-	console.log( 'Usage: node roundtrip-test.js PAGETITLE [--xml]' );
 }
 
 } )();

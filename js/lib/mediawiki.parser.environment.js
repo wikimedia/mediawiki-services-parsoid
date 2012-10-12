@@ -1,5 +1,6 @@
 var Util = require('./mediawiki.Util.js').Util;
 var title = require('./mediawiki.Title.js'),
+	$ = require( 'jquery' ),
 	Title = title.Title,
 	Namespace = title.Namespace;
 

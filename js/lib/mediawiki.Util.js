@@ -2,8 +2,11 @@
  * General utilities for token transforms
  */
 
-var HTML5 = require('html5').HTML5,
+var HTML5 = require( 'html5' ).HTML5,
+	path = require('path'),
+	$ = require( 'jquery' ),
 	jsDiff = require( 'diff' ),
+
 	Util = {
 	/**
 	 * Determine if a tag name is block-level or not
@@ -450,7 +453,7 @@ Util.stripMetaTags = function ( tokens, wrapTemplates ) {
 		isPushed = false;
 		if ([TagTk, SelfclosingTagTk].indexOf(token.constructor) !== -1) {
 			// Strip all meta tags.
- 			// SSS FIXME: should I be selective and only strip mw:Object/* tags?
+			// SSS FIXME: should I be selective and only strip mw:Object/* tags?
 			if (wrapTemplates) {
 				// If we are in wrap-template mode, extract info from the meta-tag
 				var t = token.getAttribute("typeof");
@@ -711,6 +714,59 @@ var diff = function ( a, b, color, onlyReportChanges, useLines ) {
 	}
 };
 Util.diff = diff;
+
+var getParser = function ( env, type ) {
+	var ParserPipelineFactory = require( './mediawiki.parser.js' ).ParserPipelineFactory;
+	return ( new ParserPipelineFactory( env || getParserEnv() ) ).makePipeline( type );
+},
+
+parse = function ( env, cb, err, src ) {
+	if ( err !== null ) {
+		cb( null, err );
+	} else {
+		var parser = getParser( env, 'text/x-mediawiki/full' );
+		parser.on( 'document', cb.bind( null, src, null ) );
+		try {
+			env.text = src;
+			parser.process( src );
+		} catch ( e ) {
+			cb( null, e );
+		}
+	}
+},
+
+getParserEnv = function ( lsp ) {
+	var ParserEnv = require( './mediawiki.parser.environment.js' ).MWParserEnvironment,
+		env = new ParserEnv( {
+		// stay within the 'proxied' content, so that we can click around
+		wgScriptPath: '/', //http://en.wikipedia.org/wiki',
+		wgScriptExtension: '.php',
+		// XXX: add options for this!
+		wgUploadPath: 'http://upload.wikimedia.org/wikipedia/commons',
+		fetchTemplates: true,
+		// enable/disable debug output using this switch
+		debug: false,
+		trace: false,
+		maxDepth: 40
+	} );
+
+	// add mediawiki.org
+	env.setInterwiki( 'mw', 'http://www.mediawiki.org/w' );
+
+	// add localhost default
+	env.setInterwiki( 'localhost', 'http://localhost/w' );
+
+	// Apply local settings
+	if ( lsp && path.existsSync( lsp ) ) {
+		require( lsp ).setup( config, env );
+	}
+
+	return env;
+};
+
+Util.getParserEnv = getParserEnv;
+Util.getParser = getParser;
+Util.parse = parse;
 
 if (typeof module === "object") {
 	module.exports.Util = Util;
