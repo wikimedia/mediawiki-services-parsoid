@@ -673,7 +673,7 @@ WSP._linkHandler =  function( state, tokens ) {
 			// Escape anything that looks like percent encoding, since we
 			// decode the wikitext
 			if ( typeof target === 'string' ) {
-				target = target.replace( /%(?=[a-f\d]{2})/g, '%25' );
+				target = target.replace( /%(?=[a-f\d]{2})/gi, '%25' );
 			}
 
 			// If the normalized link text is the same as the normalized
@@ -700,13 +700,13 @@ WSP._linkHandler =  function( state, tokens ) {
 			if ((hrefFromTpl && tokenData.stx === 'simple') ||
 				(linkText.constructor === String &&
 				 env.normalizeTitle( Util.stripSuffix( linkText, tail ) ) ===
-				 env.normalizeTitle( unencodedTarget ) &&
+				 env.normalizeTitle( Util.decodeURI( unencodedTarget ) ) &&
 				 (  Object.keys( tokenData ).length === 0 ||
 					hrefInfo.modified ||
 					tokenData.stx === 'simple' )
 				))
 			{
-				return '[[' + target + ']]' + tail;
+				return '[[' + Util.decodeURI( target ) + ']]' + tail;
 			} else {
 				if (tokenData.pipetrick) {
 					linkText = '';
