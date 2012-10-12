@@ -756,6 +756,9 @@ getParserEnv = function ( lsp, config ) {
 	// add localhost default
 	env.setInterwiki( 'localhost', 'http://localhost/w' );
 
+	// add the dump in case we want to use that
+	env.setInterwiki( 'dump', 'http://dump-api.wmflabs.org/w' );
+
 	// Apply local settings
 	if ( lsp && path.existsSync( lsp ) && config ) {
 		require( lsp ).setup( config, env );
