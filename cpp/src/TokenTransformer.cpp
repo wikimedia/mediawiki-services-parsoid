@@ -11,7 +11,7 @@ TokenTransformer<HandlerT>::TokenTransformer (manager_type& manager)
 
 template <class HandlerT>
 void
-TokenTransformer<HandlerT>::addHandler(HandlerT handler) {
+TokenTransformer<HandlerT>::addHandler(HandlerT& handler) {
     handler.rank = baseRank;
     manager.addHandler( handler );
 }
@@ -19,8 +19,8 @@ TokenTransformer<HandlerT>::addHandler(HandlerT handler) {
 template <class HandlerT>
 void
 TokenTransformer<HandlerT>::addHandler(
-          const HandlerT& afterHandler
-        , HandlerT& handler)
+        HandlerT& handler
+        , const HandlerT& afterHandler )
 {
     handler.rank = afterHandler.rank + HANDLER_DELTA;
     manager.addHandler( handler );

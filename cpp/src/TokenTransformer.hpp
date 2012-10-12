@@ -29,13 +29,13 @@ class TokenTransformer
         virtual ~TokenTransformer();
     protected:
         // Basic transformation interface
-        void addHandler( HandlerT handler );
+        void addHandler( HandlerT& handler );
 
         /**
          * Basic transformations, give precedence to other transformation
          * - uses afterHandler's rank as the new base
          */
-        void addHandler( const HandlerT& afterHandler, HandlerT& handler );
+        void addHandler( HandlerT& handler, const HandlerT& afterHandler );
         void removeHandler( const HandlerT& handler );
     private:
         float baseRank;
