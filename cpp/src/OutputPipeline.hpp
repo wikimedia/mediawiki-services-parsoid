@@ -24,7 +24,8 @@ class OutputPipeline
 {
     public:
         OutputPipeline()
-            : syncTransformManager( false )
+            // FIXME: use proper flags
+            : syncTransformManager(SyncTokenTransformManager::Options::atTopLevel, 2.0)
         {
             // Create handlers and implicitly register them with this manager
             // new QuoteHandler( *this );
@@ -37,11 +38,11 @@ class OutputPipeline
 
             // Hook up the (default constructed) treeBuilder with the
             // syncTransformManager
-            syncTransformManager.setReceiver( treeBuilder );
+            syncTransformManager.setReceiver(treeBuilder);
 
             // Hook up the (default constructed) DOM postprocessor to the
             // treebuilder
-            treeBuilder.setReceiver( postProcessor );
+            treeBuilder.setReceiver(postProcessor);
         }
 
         void receive ( TokenMessage message ) {

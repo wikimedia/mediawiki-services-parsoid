@@ -40,7 +40,10 @@ set(
         # FIXME: divide into internal and external headers
         WikiTokenizer.hpp
         ParsoidEnvironment.hpp
-        TokenTransformManagerBase.hpp
+        TokenTransformManager.hpp
+        TokenTransformer.hpp
+        TokenHandler.hpp
+        Frame.hpp
         SyncTokenTransformManager.hpp
         AsyncTokenTransformManager.hpp
         InputExpansionPipeline.hpp
