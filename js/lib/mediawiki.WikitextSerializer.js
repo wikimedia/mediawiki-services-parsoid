@@ -1264,7 +1264,7 @@ WSP._serializeAttributes = function (state, token) {
 				}
 
 				if (v.length ) {
-					out.push(k + '=' + '"' + v.replace( '"', '&quot;' ) + '"');
+					out.push(k + '=' + '"' + v.replace( /"/g, '&quot;' ) + '"');
 				} else {
 					out.push(k);
 				}
@@ -1304,7 +1304,7 @@ WSP._serializeAttributes = function (state, token) {
 						v = tplV;
 					}
 
-					out.push(k + '=' + '"' + v.replace( '"', '&quot;' ) + '"');
+					out.push(k + '=' + '"' + v.replace( /"/g, '&quot;' ) + '"');
 				}
 			}
 		}
