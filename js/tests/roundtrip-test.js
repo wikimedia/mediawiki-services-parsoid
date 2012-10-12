@@ -282,6 +282,8 @@ consoleOut = function ( err, output ) {
 
 if ( typeof module === 'object' ) {
 	module.exports.fetch = fetch;
+	module.exports.plainFormat = plainCallback;
+	module.exports.xmlFormat = xmlCallback;
 }
 
 if ( !module.parent ) {
