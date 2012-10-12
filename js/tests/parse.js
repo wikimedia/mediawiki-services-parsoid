@@ -6,10 +6,10 @@
  * @author Gabriel Wicke <gwicke@wikimedia.org>
  */
 
-var ParserPipelineFactory = require('./mediawiki.parser.js').ParserPipelineFactory,
-	ParserEnv = require('./mediawiki.parser.environment.js').MWParserEnvironment,
-	ConvertDOMToLM = require('./mediawiki.LinearModelConverter.js').ConvertDOMToLM,
-	WikitextSerializer = require('./mediawiki.WikitextSerializer.js').WikitextSerializer,
+var ParserPipelineFactory = require('../lib/mediawiki.parser.js').ParserPipelineFactory,
+	ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnvironment,
+	ConvertDOMToLM = require('../lib/mediawiki.LinearModelConverter.js').ConvertDOMToLM,
+	WikitextSerializer = require('../lib/mediawiki.WikitextSerializer.js').WikitextSerializer,
 	optimist = require('optimist'),
 	html5 = require('html5');
 
