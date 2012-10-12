@@ -29,6 +29,7 @@ require('./core-upgrade.js');
 var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	WikitextConstants = require('./mediawiki.wikitext.constants.js').WikitextConstants,
 	Util = require('./mediawiki.Util.js').Util,
+	$ = require( 'jquery' ),
 	tagWhiteListHash;
 
 // SSS FIXME: Can be set up as part of an init routine

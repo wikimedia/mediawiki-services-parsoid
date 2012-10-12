@@ -1,4 +1,5 @@
 var request = require('request'),
+	$ = require( 'jquery' ),
 	qs = require('querystring'),
 	events = require('events');
 

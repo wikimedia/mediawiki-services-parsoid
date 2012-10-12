@@ -34,7 +34,8 @@ var Node = {
 	DOCUMENT_TYPE_NODE: 10,
 	DOCUMENT_FRAGMENT_NODE: 11,
 	NOTATION_NODE: 12
-};
+},
+	$ = require( 'jquery' );
 
 /**
  * Object mapping HTML DOM node names to linear model element names.

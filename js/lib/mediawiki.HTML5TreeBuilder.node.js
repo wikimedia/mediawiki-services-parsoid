@@ -4,6 +4,7 @@
  * or .body(). */
 
 var events = require('events'),
+	$ = require( 'jquery' ),
 	HTML5 = require('./html5/index');
 
 FauxHTML5 = {};

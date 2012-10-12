@@ -3,8 +3,9 @@
  * strings or String objects (if attributes are needed).
  */
 
-var async = require('async');
-var Util = require('./mediawiki.Util.js').Util;
+var async = require('async'),
+	Util = require('./mediawiki.Util.js').Util,
+	$ = require( 'jquery' );
 
 // To support isHTMLTag querying
 String.prototype.isHTMLTag = function() {
