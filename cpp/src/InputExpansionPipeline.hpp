@@ -15,9 +15,10 @@ class InputExpansionPipeline
 
     public:
         // TODO: pass in environment
-        InputExpansionPipeline( bool isAtToplevel )
-            : syncTransformManager( SyncTokenTransformManager::Options::atTopLevel, 0.0 )
-            , asyncTransformManager( AsyncTokenTransformManager::Options::atTopLevel, 1.0 )
+        InputExpansionPipeline( Scope* scope )
+            : scope(scope)
+            , syncTransformManager(scope, 0.0)
+            , asyncTransformManager(scope, 1.0)
         {
             // Hook up to tokenizer
             tokenizer.setReceiver( syncTransformManager );
@@ -35,6 +36,7 @@ class InputExpansionPipeline
 
 
     private:
+        Scope* scope;
         WikiTokenizer tokenizer;
         SyncTokenTransformManager syncTransformManager;
         AsyncTokenTransformManager asyncTransformManager;

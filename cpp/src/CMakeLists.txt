@@ -43,7 +43,7 @@ set(
         TokenTransformManager.hpp
         TokenTransformer.hpp
         TokenHandler.hpp
-        Frame.hpp
+        Scope.hpp
         SyncTokenTransformManager.hpp
         AsyncTokenTransformManager.hpp
         InputExpansionPipeline.hpp
