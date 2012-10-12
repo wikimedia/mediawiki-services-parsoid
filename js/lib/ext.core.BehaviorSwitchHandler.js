@@ -11,18 +11,18 @@ function BehaviorSwitchHandler( manager, options ) {
 BehaviorSwitchHandler.prototype.rank = 2.14;
 
 BehaviorSwitchHandler.prototype.onBehaviorSwitch = function ( token, manager, cb ) {
-	var env = this.manager.env,
-		magic_word = token.attribs[0].v;
+	var metaToken, switchType, env = this.manager.env,
+		magicWord = token.attribs[0].v;
 
-	env.setVariable(magic_word, true);
+	env.setVariable( magicWord, true );
 
-	return { tokens:
-		[
-			new SelfclosingTagTk( 'meta',
-					[ new KV( 'typeof', 'mw:Placeholder' ) ],
-					Util.clone(token.dataAttribs) )
-		]
-	};
+	switchType = magicWord.toLowerCase();
+
+	metaToken = new SelfclosingTagTk( 'meta',
+		[ new KV( 'property', 'mw:PageProp/' + switchType ) ],
+		Util.clone( token.dataAttribs ) );
+
+	return { tokens: [ metaToken ] };
 };
 
 

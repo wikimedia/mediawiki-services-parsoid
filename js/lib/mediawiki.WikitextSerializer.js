@@ -1062,35 +1062,43 @@ WSP.tagHandlers = {
 	meta: {
 		start: {
 			handle: function ( state, token ) {
-				var argDict = Util.KVtoHash( token.attribs );
-				switch ( argDict['typeof'] ) {
-					case 'mw:tag':
-						// we use this currently for nowiki and co
-						this.newlineTransparent = true;
-						if ( argDict.content === 'nowiki' ) {
-							state.inNoWiki = true;
-						} else if ( argDict.content === '/nowiki' ) {
-							state.inNoWiki = false;
-						} else {
-							console.warn( JSON.stringify( argDict ) );
-						}
-						return '<' + argDict.content + '>';
-					case 'mw:IncludeOnly':
-						this.newlineTransparent = true;
-						return token.dataAttribs.src;
-					case 'mw:NoInclude':
-						this.newlineTransparent = true;
-						return '<noinclude>';
-					case 'mw:NoInclude/End':
-						return '</noinclude>';
-					case 'mw:OnlyInclude':
-						this.newlineTransparent = true;
-						return '<onlyinclude>';
-					case 'mw:OnlyInclude/End':
-						return '</onlyinclude>';
-					default:
-						this.newlineTransparent = false;
-						return WSP._serializeHTMLTag( state, token );
+				var switchType, argDict = Util.KVtoHash( token.attribs );
+
+				if ( argDict['typeof'] ) {
+					switch ( argDict['typeof'] ) {
+						case 'mw:tag':
+							// we use this currently for nowiki and co
+							this.newlineTransparent = true;
+							if ( argDict.content === 'nowiki' ) {
+								state.inNoWiki = true;
+							} else if ( argDict.content === '/nowiki' ) {
+								state.inNoWiki = false;
+							} else {
+								console.warn( JSON.stringify( argDict ) );
+							}
+							return '<' + argDict.content + '>';
+						case 'mw:IncludeOnly':
+							this.newlineTransparent = true;
+							return token.dataAttribs.src;
+						case 'mw:NoInclude':
+							this.newlineTransparent = true;
+							return '<noinclude>';
+						case 'mw:NoInclude/End':
+							return '</noinclude>';
+						case 'mw:OnlyInclude':
+							this.newlineTransparent = true;
+							return '<onlyinclude>';
+						case 'mw:OnlyInclude/End':
+							return '</onlyinclude>';
+						default:
+							this.newlineTransparent = false;
+							return WSP._serializeHTMLTag( state, token );
+					}
+				} else if ( argDict.property ) {
+					switchType = argDict.property.match( /^mw\:PageProp\/(.*)$/ );
+					if ( switchType ) {
+						return '__' + switchType[1].toUpperCase() + '__';
+					}
 				}
 			}
 		}
