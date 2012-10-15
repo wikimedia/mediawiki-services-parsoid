@@ -101,13 +101,6 @@
         return out;
     }
 
-    // Remove escaped quotes from attributes etc
-    // This was in the original PEG parser, but could not find anything in
-    // MediaWiki that supports \' and \"-style escaping. So remove? -- gwicke
-    var unquote = function (quotec, text) {
-        return text.replace('\\' + quotec, quotec);
-    };
-
     // Decode html entities. In a browser, this should only be fed the entity,
     // not untrusted html! XXX: replace with safer version.
     var unentity = function ( entity ) {

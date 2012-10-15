@@ -154,7 +154,7 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 			// Change the rel to be mw:WikiLink/Category
 			Util.lookupKV( obj.attribs, 'rel' ).v += '/Category';
 
-			saniContent = Util.sanitizeURI( Util.tokensToString( content ) ).replace( /#/, '%23' );
+			saniContent = Util.sanitizeURI( Util.tokensToString( content ) ).replace( /#/g, '%23' );
 
 			// Change the href to include the sort key, if any
 			if ( saniContent && saniContent !== '' && saniContent !== href ) {
