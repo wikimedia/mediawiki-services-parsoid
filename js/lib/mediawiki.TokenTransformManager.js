@@ -1114,9 +1114,13 @@ function Frame ( title, manager, args, parentFrame ) {
 	this.title = title;
 	this.manager = manager;
 	this.args = new Params( this.manager.env, args );
-	// cache key fragment for expansion cache
-	// FIXME: better use fully expand args for the cache key! Can avoid using
-	// the parent cache keys in that case.
+	// Cache key fragment for expansion cache
+	// FIXME: We are hashing the unexpanded args here. To keep things correct,
+	// we thus need to assume that the parent frame can affect the argument
+	// value. It would be more efficient to use the fully expanded args for
+	// the cache key instead, as this would allow sharing of all expansions of
+	// a template with identical expanded parameters independent of its
+	// containing frame.
 	var MD5 = new jshashes.MD5();
 	if ( args._cacheKey === undefined ) {
 		args._cacheKey = MD5.hex( JSON.stringify( args ) );
@@ -1125,6 +1129,8 @@ function Frame ( title, manager, args, parentFrame ) {
 	if ( parentFrame ) {
 		this.parentFrame = parentFrame;
 		this.depth = parentFrame.depth + 1;
+		// FIXME: Since our args are unexpanded, the expanded value might
+		// depend on the parent frame.
 		this._cacheKey = MD5.hex( parentFrame._cacheKey + args._cacheKey );
 	} else {
 		this.parentFrame = null;
