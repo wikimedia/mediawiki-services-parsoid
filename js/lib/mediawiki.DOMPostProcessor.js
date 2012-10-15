@@ -309,6 +309,12 @@ var remove_trailing_newlines_from_paragraphs = function ( document ) {
  * Find the common DOM ancestor of two DOM nodes
  */
 var getDOMRange = function ( doc, startElem, endElem ) {
+	// Detect empty content
+	if (startElem.nextSibling === endElem) {
+		var emptySpan = doc.createElement('span');
+		startElem.parentNode.insertBefore(emptySpan, endElem);
+	}
+
 	var startAncestors = [],
 		elem = startElem;
 	// build ancestor list -- path to root
@@ -328,6 +334,8 @@ var getDOMRange = function ( doc, startElem, endElem ) {
 			res = {
 				'root': startElem,
 				// widen the scope to include the full subtree
+				startElem: startElem,
+				endElem: endElem,
 				start: startElem.firstChild,
 				end: startElem.lastChild
 			};
@@ -335,6 +343,8 @@ var getDOMRange = function ( doc, startElem, endElem ) {
 		} else if ( i > 0) {
 			res = {
 				'root': parentNode,
+				startElem: startElem,
+				endElem: endElem,
 				start: startAncestors[i - 1],
 				end: elem
 			};
@@ -378,7 +388,7 @@ var getDOMRange = function ( doc, startElem, endElem ) {
 
 		if (!skipSpan) {
 			// wrap tcStart in a span.
-			span = doc.createElement('span');
+			var span = doc.createElement('span');
 			tcStart.parentNode.insertBefore(span, tcStart);
 			span.appendChild(tcStart);
 			tcStart = span;
@@ -386,12 +396,6 @@ var getDOMRange = function ( doc, startElem, endElem ) {
 		res.start = tcStart;
 		updateDP = true;
 	}
-
-/**
-	if (startElem === tcStart.firstChild) {
-		// can update dsr of tcChild in some cases!
-	}
-**/
 
 	if (updateDP) {
 		var done = false;
@@ -423,19 +427,41 @@ var getDOMRange = function ( doc, startElem, endElem ) {
  * TODO: split in common ancestor algo, sibling splicing and -annotation /
  * wrapping
  */
-var encapsulateTrees = function ( env, startElem, endElem, doc ) {
-	// Detect empty content
-	if (startElem.nextSibling === endElem) {
-		var emptySpan = doc.createElement('span');
-		startElem.parentNode.insertBefore(emptySpan, endElem);
+var encapsulateTemplates = function ( env, doc, tplRanges) {
+
+	// 1. Merge overlapping template ranges
+	var newRanges = [];
+	var i, numRanges = tplRanges.length;
+	var hash = { start: {}, end: {} };
+	for (i = 0; i < numRanges; i++) {
+		var r = tplRanges[i];
+		var prev = hash.end[r.start];
+		if (prev) {
+			// found overlap!  merge prev and r
+			hash.end[r.start] = null;
+			prev.end = r.end;
+			prev.endElem.parentNode.removeChild(prev.endElem);
+			prev.endElem = r.endElem;
+			r = prev;
+		} else {
+			newRanges.push(r);
+		}
+
+		// delete template-end marker meta tags
+
+		hash.start[r.start] = r;
+		hash.end[r.end] = r;
 	}
 
-	var n, span,
-		range = getDOMRange( doc, startElem, endElem );
-	if (range) {
-		//console.log ( 'HTML of template-affected subtrees: ' );
-		var n = range.start,
+	// 2. Wrap templates
+	numRanges = newRanges.length;
+	for (i = 0; i < numRanges; i++) {
+		var span,
+			range = newRanges[i],
+			startElem = range.startElem,
+			n = range.start,
 			about = startElem.getAttribute('about');
+		//console.log ( 'HTML of template-affected subtrees: ' );
 		while (n) {
 			if ( n.nodeType === Node.TEXT_NODE || n.nodeType === Node.COMMENT_NODE ) {
 				span = doc.createElement( 'span' );
@@ -522,7 +548,7 @@ var encapsulateTrees = function ( env, startElem, endElem, doc ) {
 			startElem.parentNode.removeChild(startElem);
 		}
 
-		endElem.parentNode.removeChild(endElem);
+		range.endElem.parentNode.removeChild(range.endElem);
 	}
 };
 
@@ -543,7 +569,8 @@ var findTableSibling = function ( elem, about ) {
 /**
  * Recursive worker
  */
-var doEncapsulateTemplateOutput = function ( env, root, tpls, doc ) {
+var findWrappableTemplateRanges = function ( root, tpls, doc ) {
+	var tplRanges = [];
 	var elem = root.firstChild;
 	while (elem) {
 		// get the next sibling before doing anything since
@@ -566,7 +593,7 @@ var doEncapsulateTemplateOutput = function ( env, root, tpls, doc ) {
 							// End marker was foster-parented. Found actual
 							// start tag.
 							console.warn( 'end marker was foster-parented' );
-							encapsulateTrees( env, elem, aboutRef.end, doc );
+							tplRanges.push(getDOMRange( doc, elem, aboutRef.end ));
 						} else {
 							// should not happen!
 							console.warn( 'start found after content' );
@@ -586,7 +613,7 @@ var doEncapsulateTemplateOutput = function ( env, root, tpls, doc ) {
 						console.warn( 'foster-parented content following!' );
 						aboutRef.end = tableNode;
 						if ( aboutRef && aboutRef.start ) {
-							encapsulateTrees( env, aboutRef.start, tableNode, doc );
+							tplRanges.push(getDOMRange( doc, aboutRef.start, tableNode ));
 						} else {
 							console.warn( 'found foster-parented end marker followed ' +
 									'by table, but no start marker!');
@@ -596,19 +623,21 @@ var doEncapsulateTemplateOutput = function ( env, root, tpls, doc ) {
 						// Walk up the DOM to find common parent with start tag.
 						aboutRef.end = elem;
 
-						encapsulateTrees( env, aboutRef.start, aboutRef.end, doc );
+						tplRanges.push(getDOMRange(doc, aboutRef.start, aboutRef.end));
 					} else {
 						tpls[about] = { end: elem };
 					}
 				}
 			} else {
 				// recurse down the tree
-				doEncapsulateTemplateOutput( env, elem, tpls, doc );
+				tplRanges = tplRanges.concat(findWrappableTemplateRanges( elem, tpls, doc ));
 			}
 		}
 
 		elem = nextSibling;
 	}
+
+	return tplRanges;
 };
 
 // node  -- node to process
@@ -675,7 +704,7 @@ function computeNodeDSR(node, s, e) {
 			var cTypeOf = null,
 				dpStr = child.getAttribute("data-parsoid"),
 				dpObj = dpStr ? JSON.parse(dpStr) : {},
-				oldCE = dpObj.tsr ? dpObj.tsr[1] : null;
+				oldCE = dpObj.tsr ? dpObj.tsr[1] : null,
 				propagateRight = false;
 
 			if (child.nodeName.toLowerCase() === "meta") {
@@ -749,36 +778,36 @@ function computeNodeDSR(node, s, e) {
 
 			// Propagate any required changes to the right
 			if (ce !== null && (propagateRight || oldCE !== ce || e === null)) {
-				var n = child.nextSibling;
+				var sibling = child.nextSibling;
 				var newCE = ce;
-				while (n && newCE !== null) {
-					var nType = n.nodeType;
+				while (sibling && newCE !== null) {
+					var nType = sibling.nodeType;
 					if (nType === Node.TEXT_NODE) {
-						newCE = newCE + n.data.length;
+						newCE = newCE + sibling.data.length;
 					} else if (nType === Node.COMMENT_NODE) {
-						newCE = newCE + n.data.length + 7;
+						newCE = newCE + sibling.data.length + 7;
 					} else if (nType === Node.ELEMENT_NODE) {
-						var str = n.getAttribute("data-parsoid");
+						var str = sibling.getAttribute("data-parsoid");
 						var ndpObj = str ? JSON.parse(str) : {};
 						if (ndpObj.dsr && ndpObj.dsr[0] === newCE && e) {
 							break;
 						}
 
 						if (!ndpObj.dsr) {
-							ndpObj.dsr = [];
+							ndpObj.dsr = [null, null];
 						}
 
 						if (ndpObj.dsr[0] !== newCE) {
 							// Update and move right
 							// console.log("CHANGING ce.start of " + n.nodeName + " from " + ndpObj.dsr[0] + " to " + newCE);
 							ndpObj.dsr[0] = newCE;
-							n.setAttribute("data-parsoid", JSON.stringify(ndpObj));
+							sibling.setAttribute("data-parsoid", JSON.stringify(ndpObj));
 						}
 						newCE = ndpObj.dsr[1];
 					} else {
 						break;
 					}
-					n = n.nextSibling;
+					sibling = sibling.nextSibling;
 				}
 
 				// We hit the end successfully
@@ -837,7 +866,10 @@ var encapsulateTemplateOutput = function ( env, document ) {
 	console.warn("------- doc before encap ---------");
 	console.warn(document.outerHTML);
 **/
-	doEncapsulateTemplateOutput( env, document.body, tpls, document );
+	var tplRanges = findWrappableTemplateRanges( document.body, tpls, document );
+	if (tplRanges.length > 0) {
+		encapsulateTemplates(env, document, tplRanges);
+	}
 };
 
 function DOMPostProcessor(env, options) {
