@@ -405,6 +405,7 @@ namespace parsoid
         private:
             deque<Tk> chunk;
             float rank;
+            // TODO: expansion cache -> need hash for Scope
     };
 
     TokenChunkPtr mkTokenChunk();
