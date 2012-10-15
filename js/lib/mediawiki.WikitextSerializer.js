@@ -976,10 +976,12 @@ WSP.tagHandlers = {
 	tr: {
 		start: {
 			handle: function ( state, token ) {
-				if ( state.prevToken.constructor === TagTk && state.prevToken.name === 'tbody' ) {
-					// Omit for first row in a table. XXX: support optional trs
-					// for first line (in source wikitext) too using some flag in
-					// data-parsoid (stx: 'wikitext' ?)
+				// If the token has 'stx'='wt' set, it means that "|-" was present
+				// in the wikitext and we emit it -- if not, we ignore it.
+				if (state.prevToken.constructor === TagTk
+					&& state.prevToken.name === 'tbody'
+					&& token.dataAttribs.stx !== 'wt')
+				{
 					return '';
 				} else {
 					return WSP._serializeTableTag("|-", '', state, token );
