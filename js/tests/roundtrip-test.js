@@ -22,14 +22,14 @@ plainCallback = function ( results ) {
 
 		output += testDivider;
 		if ( result.type === 'fail' ) {
-			output += 'Wikitext diff:\n\n';
+			output += 'Semantic difference:\n\n';
 			output += result.wtDiff + '\n';
 			output += diffDivider;
 			output += 'HTML diff:\n\n';
 			output += result.htmlDiff + '\n';
 			semanticDiffs++;
 		} else {
-			output += 'Insignificant wikitext diff:\n\n';
+			output += 'Syntactic difference:\n\n';
 			output += result.wtDiff + '\n';
 			syntacticDiffs++;
 		}
