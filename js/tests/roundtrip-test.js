@@ -13,23 +13,38 @@ var fs = require( 'fs' ),
 callback, argv, title,
 
 plainCallback = function ( results ) {
-	var i, result, output = '';
+	var i, result, output = '',
+		semanticDiffs = 0, syntacticDiffs = 0,
+		testDivider = ( new Array( 70 ) ).join( '=' ) + '\n'
+		diffDivider = ( new Array( 70 ) ).join( '-' ) + '\n'
 	for ( i = 0; i < results.length; i++ ) {
 		result = results[i];
 
+		output += testDivider;
 		if ( result.type === 'fail' ) {
-			output += ( new Array( 70 ) ).join( '=' ) + '\n';
 			output += 'Wikitext diff:\n\n';
 			output += result.wtDiff + '\n';
-			output += ( new Array( 70 ) ).join( '-' ) + '\n';
+			output += diffDivider;
 			output += 'HTML diff:\n\n';
 			output += result.htmlDiff + '\n';
+			semanticDiffs++;
 		} else {
-			output += ( new Array( 70 ) ).join( '=' ) + '\n';
 			output += 'Insignificant wikitext diff:\n\n';
 			output += result.wtDiff + '\n';
+			syntacticDiffs++;
 		}
 	}
+
+
+	output += testDivider;
+	output += testDivider;
+	output += "SUMMARY:\n";
+	output += "Semantic differences : " + semanticDiffs + "\n";
+	output += "Syntactic differences: " + syntacticDiffs + "\n";
+	output += diffDivider;
+	output += "ALL differences      : " + (semanticDiffs + syntacticDiffs) + "\n";
+	output += testDivider;
+	output += testDivider;
 
 	return output;
 },
