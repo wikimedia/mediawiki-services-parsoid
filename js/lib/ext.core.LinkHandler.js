@@ -280,7 +280,7 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 	}
 
 	// Set last caption value to null -- serializer can figure this out
-	var caption;
+	var caption = '';
 	var numCaptions = captions.length;
 	if (numCaptions > 0) {
 		caption = captions[numCaptions-1].v;
