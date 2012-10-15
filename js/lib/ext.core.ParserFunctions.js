@@ -233,7 +233,8 @@ ParserFunctions.prototype['pf_#ifexpr'] = function ( token, frame, cb, args ) {
 			var f = new Function ( 'return (' + target + ')' );
 			res = f();
 		} catch ( e ) {
-			return cb( { tokens: [ 'class="error" in expression ' + target ] } );
+			cb( { tokens: [ 'class="error" in expression ' + target ] } );
+			return;
 		}
 	}
 

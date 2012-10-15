@@ -19,6 +19,9 @@
  Transitions
  -----------
 
+ In the transition table below, purge is just a shortcut for:
+ "pass on collected tokens to the callback and reset (getResultAndReset)"
+
  + --------------+-----------------+---------------+--------------------------+
  | Start state   |     Token       | End state     |  Action                  |
  + --------------+-----------------+---------------+--------------------------+
@@ -29,7 +32,7 @@
  | SOL           | --- other   --> | IGNORE        | purge                    |
  + --------------+-----------------+---------------+--------------------------+
  | PRE           | --- nl      --> | SOL           | purge   if |TOKS| == 0   |
- |               |                 |               | gen-pre if |TOKS| > 0    |
+ |               |                 |               | gen-pre if |TOKS| > 0 (#)|
  | PRE           | --- eof     --> | SOL           | purge                    |
  | PRE           | --- sol-tr  --> | PRE           | SOL-TR-TOKS << tok       |
  | PRE           | --- other   --> | PRE_COLLECT   | TOKS = SOL-TR-TOKS + tok |
@@ -48,6 +51,13 @@
  | IGNORE        | --- nl      --> | SOL           | purge                    |
  | IGNORE        | --- eof     --> | SOL           | purge                    |
  + --------------+-----------------+---------------+--------------------------+
+
+ # In PRE-state, |TOKS| > 0 only if we got here from MULTILINE_PRE.  In addition,
+   we are guaranteed that they will not all be whitespace/sol-transparent tokens
+   since the transition path would have been:
+      SOL -> PRE -> PRE_COLLECT -> MULTILINE_PRE -> PRE
+   and the transition from PRE -> PRE_COLLECT adds a non-ws/non-sol-tr token
+   to TOKS.
 
  * --------------------------------------------------------------------------*/
 
