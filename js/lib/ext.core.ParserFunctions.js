@@ -233,7 +233,7 @@ ParserFunctions.prototype['pf_#ifexpr'] = function ( token, frame, cb, args ) {
 			var f = new Function ( 'return (' + target + ')' );
 			res = f();
 		} catch ( e ) {
-			cb( { tokens: [ 'class="error" in expression ' + target ] } );
+			return cb( { tokens: [ 'class="error" in expression ' + target ] } );
 		}
 	}
 
@@ -425,7 +425,7 @@ ParserFunctions.prototype._pf_time = function ( target, args ) {
 	//	res = [ date.format( target ) ];
 	//} catch ( e ) {
 	//	this.env.dp( 'ERROR: #time ' + e );
-	
+
 		try {
 			res = [ new Date().format ( tpl ) ];
 		} catch ( e2 ) {
