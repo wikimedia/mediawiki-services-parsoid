@@ -12,11 +12,11 @@ var fs = require( 'fs' ),
 
 callback, argv, title,
 
-plainCallback = function ( results ) {
+plainCallback = function ( page, results ) {
 	var i, result, output = '',
 		semanticDiffs = 0, syntacticDiffs = 0,
-		testDivider = ( new Array( 70 ) ).join( '=' ) + '\n'
-		diffDivider = ( new Array( 70 ) ).join( '-' ) + '\n'
+		testDivider = ( new Array( 70 ) ).join( '=' ) + '\n',
+		diffDivider = ( new Array( 70 ) ).join( '-' ) + '\n';
 	for ( i = 0; i < results.length; i++ ) {
 		result = results[i];
 
@@ -49,15 +49,15 @@ plainCallback = function ( results ) {
 	return output;
 },
 
-xmlCallback = function ( results ) {
+xmlCallback = function ( page, results ) {
 	var i, result,
 
-	output = '<testsuite name="Roundtrip article ' + Util.encodeXml( title ) + '">';
+	output = '<testsuite name="Roundtrip article ' + Util.encodeXml( page ) + '">';
 
 	for ( i = 0; i < results.length; i++ ) {
 		result = results[i];
 
-		output += '<testcase name="' + Util.encodeXml( title ) + ' character ' + result.offset[0].start + '>';
+		output += '<testcase name="' + Util.encodeXml( page ) + ' character ' + result.offset[0].start + '">';
 
 		if ( result.type === 'fail' ) {
 			output += '<failure type="significantHtmlDiff">\n';
@@ -133,7 +133,7 @@ return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
 			if ( childNode ) {
 				elesOnOffset = [];
 
-				if ( !currentOffset && attribs.dsr[0] ) {
+				if ( !currentOffset && attribs.dsr && attribs.dsr[0] ) {
 					currentOffset = attribs.dsr[0];
 					while ( preText.length > 0 && currentOffset >= targetRange.start ) {
 						currentPreText = preText.pop();
@@ -193,7 +193,7 @@ return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
 }(),
 
 
-checkIfSignificant = function ( offsets, src, body, out, cb, document ) {
+checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 	var i, k, diff, offset, origOut, newOut, origHTML, newHTML, origOrigHTML, origNewHTML, thisResult, results = [];
 	for ( i = 0; i < offsets.length; i++ ) {
 		thisResult = {};
@@ -236,10 +236,10 @@ checkIfSignificant = function ( offsets, src, body, out, cb, document ) {
 		}
 		results.push( thisResult );
 	}
-	cb( null, results );
+	cb( null, page, results );
 },
 
-doubleRoundtripDiff = function ( offsets, src, body, out, cb, wiki ) {
+doubleRoundtripDiff = function ( page, offsets, src, body, out, cb, wiki ) {
 	var parser, env;
 
 	if ( offsets.length > 0 ) {
@@ -249,24 +249,28 @@ doubleRoundtripDiff = function ( offsets, src, body, out, cb, wiki ) {
 
 		parserPipeline = Util.getParser( env, 'text/x-mediawiki/full' );
 
-		parserPipeline.on( 'document', checkIfSignificant.bind( null, offsets, src, body, out, cb ) );
+		parserPipeline.on( 'document', checkIfSignificant.bind( null, page, offsets, src, body, out, cb ) );
 
 		parserPipeline.process( out );
+	} else {
+		cb( null, page, [] );
 	}
 },
 
-roundTripDiff = function ( src, document, cb, wiki ) {
+roundTripDiff = function ( page, src, document, cb, wiki ) {
 	var out, curPair, patch, diff, env = Util.getParserEnv();
 
 	out = new WikitextSerializer( { env: env } ).serializeDOM( document.body );
 	if ( out === undefined ) {
 		out = 'An error occured in the WikitextSerializer, please check the log for information';
-	} else {
-		diff = Util.convertDiffToOffsetPairs( jsDiff.diffLines( out, src ) );
+	}
 
-		if ( diff.length > 0 ) {
-			doubleRoundtripDiff( diff, src, document.body, out, cb, wiki );
-		}
+	diff = Util.convertDiffToOffsetPairs( jsDiff.diffLines( out, src ) );
+
+	if ( diff.length > 0 ) {
+		doubleRoundtripDiff( page, diff, src, document.body, out, cb, wiki );
+	} else {
+		cb( null, page, [] );
 	}
 },
 
@@ -285,14 +289,14 @@ fetch = function ( page, cb, wiki ) {
 			if ( err ) {
 				console.log( err );
 			} else {
-				roundTripDiff( src, out, cb, wiki || 'en' );
+				roundTripDiff( page, src, out, cb, wiki || 'en' );
 			}
 		}, err, src );
 	} );
 },
 
-cbCombinator = function ( formatter, cb, err, text ) {
-	cb( err, formatter( text ) );
+cbCombinator = function ( formatter, cb, err, page, text ) {
+	cb( err, formatter( page, text ) );
 },
 
 consoleOut = function ( err, output ) {
@@ -307,6 +311,7 @@ if ( typeof module === 'object' ) {
 	module.exports.fetch = fetch;
 	module.exports.plainFormat = plainCallback;
 	module.exports.xmlFormat = xmlCallback;
+	module.exports.cbCombinator = cbCombinator;
 }
 
 if ( !module.parent ) {
