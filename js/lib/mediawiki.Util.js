@@ -107,6 +107,19 @@ var HTML5 = require( 'html5' ).HTML5,
 		}
 	},
 
+	isSolTransparent: function(token) {
+		var tc = token.constructor;
+		if (tc === String) {
+			if (token.match(/[^\s]/)) {
+				return false;
+			}
+		} else if (tc !== CommentTk && (tc !== SelfclosingTagTk || token.name !== 'meta')) {
+			return false;
+		}
+
+		return true;
+	},
+
 	toStringTokens: function(tokens, indent) {
 		if (!indent) {
 			indent = "";

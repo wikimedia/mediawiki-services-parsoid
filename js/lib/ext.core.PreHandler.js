@@ -97,19 +97,6 @@ function init(handler, addAnyHandler) {
 	}
 }
 
-function isSolTransparent(token) {
-	var tc = token.constructor;
-	if (tc === String) {
-		if (token.match(/[^\s]/)) {
-			return false;
-		}
-	} else if (tc !== CommentTk && (tc !== SelfclosingTagTk || token.name !== 'meta')) {
-		return false;
-	}
-
-	return true;
-}
-
 PreHandler.prototype.moveToIgnoreState = function() {
 	this.state = PreHandler.STATE_IGNORE;
 	this.manager.removeTransform(this.anyRank, 'any');
@@ -257,7 +244,7 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 					ret = this.tokens;
 					this.tokens = [];
 					this.state = PreHandler.STATE_PRE;
-				} else if (isSolTransparent(token)) { // continue watching
+				} else if (Util.isSolTransparent(token)) { // continue watching
 					this.tokens.push(token);
 				} else {
 					ret = this.getResultAndReset(token);
@@ -266,7 +253,7 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 				break;
 
 			case PreHandler.STATE_PRE:
-				if (isSolTransparent(token)) { // continue watching
+				if (Util.isSolTransparent(token)) { // continue watching
 					this.solTransparentTokens.push(token);
 				} else {
 					this.tokens = this.tokens.concat(this.solTransparentTokens);
@@ -292,7 +279,7 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 					this.state = PreHandler.STATE_PRE;
 					// Ignore white-space token. It will be recovered, if needed,
 					// in getResultAndReset
-				} else if (isSolTransparent(token)) { // continue watching
+				} else if (Util.isSolTransparent(token)) { // continue watching
 					this.solTransparentTokens.push(token);
 				} else {
 					ret = this.processPre(token);

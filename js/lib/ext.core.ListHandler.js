@@ -28,28 +28,37 @@ ListHandler.prototype.bulletCharsMap = {
 ListHandler.prototype.reset = function() {
 	this.newline = false; // flag to identify a list-less line that terminates
 						// a list block
+	this.solTokens = [];
 	this.bstack = []; // Bullet stack, previous element's listStyle
 	this.endtags = [];  // Stack of end tags
 };
 
 ListHandler.prototype.onAny = function ( token, frame, prevToken ) {
-	var tokens;
+	var tokens, solTokens;
 	if ( token.constructor === NlTk ) {
 		if (this.newline) {
 			// second newline without a list item in between, close the list
-			tokens = this.end().concat( [token] );
+			solTokens = this.solTokens;
+			tokens = this.end().concat(solTokens, [token]);
 			this.newline = false;
 		} else {
 			tokens = [token];
 			this.newline = true;
 		}
 		return { tokens: tokens };
-	} else if ( token.constructor === SelfclosingTagTk && token.name === "meta" ) {
-		return { token: token };
 	} else if ( this.newline ) {
-		tokens = this.end().concat( [token] );
-		this.newline = false;
-		return { tokens: tokens };
+		if (Util.isSolTransparent(token)) {
+			// Hold on to see where the token stream goes from here
+			// - another list item, or
+			// - end of list
+			this.solTokens.push(token);
+			return {};
+		} else {
+			solTokens = this.solTokens;
+			tokens = this.end().concat(solTokens, [token]);
+			this.newline = false;
+			return { tokens: tokens };
+		}
 	} else {
 		return { token: token };
 	}
@@ -57,7 +66,8 @@ ListHandler.prototype.onAny = function ( token, frame, prevToken ) {
 
 
 ListHandler.prototype.onEnd = function( token, frame, prevToken ) {
-	return { tokens: this.end().concat([token]) };
+	var solTokens = this.solTokens;
+	return { tokens: this.end().concat(solTokens, [token]) };
 };
 
 ListHandler.prototype.end = function( ) {
@@ -79,8 +89,10 @@ ListHandler.prototype.onListItem = function ( token, frame, prevToken ) {
 
 ListHandler.prototype.commonPrefixLength = function (x, y) {
 	var minLength = Math.min(x.length, y.length);
-	for(var i = 0; i < minLength; i++) {
-		if (x[i] !== y[i]) break;
+	for (var i = 0; i < minLength; i++) {
+		if (x[i] !== y[i]) {
+			break;
+		}
 	}
 	return i;
 };
@@ -96,11 +108,13 @@ ListHandler.prototype.pushList = function ( container ) {
 
 ListHandler.prototype.popTags = function ( n ) {
 	var tokens = [];
-	for(;n > 0; n--) {
+	while (n > 0) {
 		// push list item..
 		tokens.push(this.endtags.pop());
 		// and the list end tag
 		tokens.push(this.endtags.pop());
+
+		n--;
 	}
 	return tokens;
 };
@@ -120,7 +134,7 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 		this.manager.addTransform( this.onAny.bind(this), "ListHandler:onAny",
 				this.anyRank, 'any' );
 	}
-	
+
 	var itemToken;
 
 	// emit close tag tokens for closed lists
@@ -158,10 +172,10 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 			}
 		}
 
-
-		for(var i = prefixLen; i < bn.length; i++) {
-			if (!this.bulletCharsMap[bn[i]])
+		for (var i = prefixLen; i < bn.length; i++) {
+			if (!this.bulletCharsMap[bn[i]]) {
 				throw("Unknown node prefix " + prefix[i]);
+			}
 
 			tokens = tokens.concat(this.pushList(this.bulletCharsMap[bn[i]]));
 		}
@@ -171,6 +185,12 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 	if (this.manager.env.trace) {
 		this.manager.env.tracer.output("Returning: " + Util.toStringTokens(res).join(","));
 	}
+
+	// clear out sol-tokens
+	res = this.solTokens.concat(res);
+	res.rank = this.anyRank + 0.01;
+	this.solTokens = [];
+
 	return res;
 };
 
