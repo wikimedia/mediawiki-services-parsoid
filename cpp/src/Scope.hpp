@@ -7,7 +7,7 @@
 
 namespace parsoid {
 
-// Forward declaration
+// Forward declaration for global Parsoid object
 class Parsoid;
 
 class Scope
@@ -73,6 +73,22 @@ class Scope
 
         // The template parameters
         AttribMap params;
+
+        /**
+         * TODO: provide hash_value for scope-based caching
+         *
+         * Dependencies:
+         * - (fully expanded) parameters
+         *
+         * Additional dependencies, if expansion is shared across requests:
+         * - page title *if page-based magic words are used*
+         * - wiki-wide statistics, if used
+         * - properties of transcluding page, if used
+         * - current time, if #time is used to print current timestamp
+         * - templates used
+         * - extensions used, and their data dependencies
+         */
+
 };
 
 
