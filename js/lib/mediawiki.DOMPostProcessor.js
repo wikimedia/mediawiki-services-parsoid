@@ -12,11 +12,7 @@ var Node = {
     DOCUMENT_NODE: 9
 };
 
-var isElementContentWhitespace = function ( e ) {
-	return (e.data.match(/^[ \r\n\t]*$/) !== null);
-};
-
-function minimize_inline_tags(root, rewriteable_nodes) {
+function minimizeInlineTags(root, rewriteable_nodes) {
 	var rewriteable_node_map = null;
 
 	function tail(a) {
@@ -262,15 +258,15 @@ function minimize_inline_tags(root, rewriteable_nodes) {
 	}
 }
 
-var normalize_document = function(document) {
-	minimize_inline_tags(document.body, ['b','u','i','s']);
-};
+function normalizeDocument(document) {
+	minimizeInlineTags(document.body, ['b','u','i','s']);
+}
 
 /**
  * Remove trailing newlines from paragraph content (and move them to
  * inter-element whitespace)
  */
-var remove_trailing_newlines_from_paragraphs = function ( document ) {
+function removeTrailingNewlinesFromParagraphs( document ) {
 	var cnodes = document.body.childNodes;
 	for( var i = 0; i < cnodes.length; i++ ) {
 		var cnode = cnodes[i];
@@ -303,12 +299,12 @@ var remove_trailing_newlines_from_paragraphs = function ( document ) {
 			}
 		}
 	}
-};
+}
 
 /**
  * Find the common DOM ancestor of two DOM nodes
  */
-var getDOMRange = function ( doc, startElem, endElem ) {
+function getDOMRange( doc, startElem, endElem ) {
 	// Detect empty content
 	if (startElem.nextSibling === endElem) {
 		var emptySpan = doc.createElement('span');
@@ -421,13 +417,13 @@ var getDOMRange = function ( doc, startElem, endElem ) {
 	}
 
 	return res;
-};
+}
 
 /**
  * TODO: split in common ancestor algo, sibling splicing and -annotation /
  * wrapping
  */
-var encapsulateTemplates = function ( env, doc, tplRanges) {
+function encapsulateTemplates( env, doc, tplRanges) {
 
 	// 1. Merge overlapping template ranges
 	var newRanges = [];
@@ -550,9 +546,9 @@ var encapsulateTemplates = function ( env, doc, tplRanges) {
 
 		range.endElem.parentNode.removeChild(range.endElem);
 	}
-};
+}
 
-var findTableSibling = function ( elem, about ) {
+function findTableSibling( elem, about ) {
 	var tableNode = null;
 	elem = elem.nextSibling;
 	while (elem &&
@@ -564,12 +560,12 @@ var findTableSibling = function ( elem, about ) {
 
 	//if (elem) console.log( 'tableNode found' + elem.outerHTML );
 	return elem;
-};
+}
 
 /**
  * Recursive worker
  */
-var findWrappableTemplateRanges = function ( root, tpls, doc ) {
+function findWrappableTemplateRanges( root, tpls, doc ) {
 	var tplRanges = [];
 	var elem = root.firstChild;
 	while (elem) {
@@ -638,7 +634,7 @@ var findWrappableTemplateRanges = function ( root, tpls, doc ) {
 	}
 
 	return tplRanges;
-};
+}
 
 // node  -- node to process
 // [s,e) -- if defined, start/end position of wikitext source that generated
@@ -859,7 +855,7 @@ function computeDocDSR(env, root) {
  * spans and adding RDFa attributes to all subtree roots according to
  * http://www.mediawiki.org/wiki/Parsoid/RDFa_vocabulary#Template_content
  */
-var encapsulateTemplateOutput = function ( env, document ) {
+function encapsulateTemplateOutput( env, document ) {
 	// walk through document and look for tags with typeof="mw:Object*"
 	var tpls = {};
 /**
@@ -870,13 +866,13 @@ var encapsulateTemplateOutput = function ( env, document ) {
 	if (tplRanges.length > 0) {
 		encapsulateTemplates(env, document, tplRanges);
 	}
-};
+}
 
 function DOMPostProcessor(env, options) {
 	this.env = env;
 	this.processors = [
-		remove_trailing_newlines_from_paragraphs,
-		normalize_document,
+		removeTrailingNewlinesFromParagraphs,
+		normalizeDocument,
 		computeDocDSR.bind(null, env),
 		encapsulateTemplateOutput.bind(null, env)
 	];
