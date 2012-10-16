@@ -25,6 +25,16 @@ class Scope
          */
         Scope (string title, const Scope* parent, AttribMap&& params );
 
+        /**
+         * Expand a token chunk in this scope to phase 2
+         *
+         * It creates a new pipeline with a reference to this scope and sets its
+         * callback to the passed-in receiver. The receiver is normally owned
+         * by a token stream transformer (Attribute or Template transformers
+         * mainly) and will thus outlive the async expansion processing.
+         */
+        void expand(TokenChunkPtr chunk, const TokenMessageReceiver* receiver);
+
     private:
         Scope();
         // TODO: memory management?
