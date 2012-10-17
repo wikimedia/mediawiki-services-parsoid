@@ -1480,6 +1480,14 @@ WSP._serializeToken = function ( state, token ) {
 
 	if (! dropContent || ! state.dropContent ) {
 		var newTrailingNLCount = 0;
+
+		// FIXME: figure out where the non-string res comes from
+		if (res !== '' && res.constructor !== String) {
+			console.err("res was not a string!");
+			console.trace();
+			res = '';
+		}
+
 		if (res !== '') {
 			// Strip leading or trailing newlines from the returned string
 			var match = res.match( /^((?:\r?\n)*)((?:.*?|[\r\n]+[^\r\n])*?)((?:\r?\n)*)$/ ),
