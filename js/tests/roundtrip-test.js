@@ -299,13 +299,18 @@ fetch = function ( page, cb, wiki ) {
 	var tpr = new TemplateRequest( env, target, null );
 
 	tpr.once( 'src', function ( err, src ) {
-		Util.parse( env, function ( src, err, out ) {
-			if ( err ) {
-				console.log( err );
-			} else {
-				roundTripDiff( page, src, out, cb, wiki || 'en' );
-			}
-		}, err, src );
+		if ( err ) {
+			cb( err, page, [] );
+		} else {
+			Util.parse( env, function ( src, err, out ) {
+				if ( err ) {
+					console.log( err );
+					cb( err, page, [] );
+				} else {
+					roundTripDiff( page, src, out, cb, wiki || 'en' );
+				}
+			}, err, src );
+		}
 	} );
 },
 
