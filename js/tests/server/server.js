@@ -12,7 +12,7 @@ getTitle = function ( req, res ) {
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 
 	db.serialize( function () {
-		db.get( 'SELECT title FROM pages WHERE result IS NULL AND claimed IS NULL ORDER BY RAND() LIMIT 1', function ( err, row ) {
+		db.get( 'SELECT title FROM pages WHERE result IS NULL AND claimed IS NULL ORDER BY RANDOM() LIMIT 1', function ( err, row ) {
 			if ( err ) {
 				console.log( err );
 				res.send( 'Error! ' + err.toString(), 500 );
