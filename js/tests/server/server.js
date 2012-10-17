@@ -65,7 +65,8 @@ recieveResults = function ( req, res ) {
 
 statsWebInterface = function ( req, res ) {
 	db.serialize( function () {
-		db.all( 'SELECT title, skips, fails, errors FROM pages WHERE result IS NOT NULL ORDER BY errors DESC, fails DESC, skips DESC', function ( err, rows ) {
+		var offset = ( req.params[0] - 0 || 0 ) * 40;
+		db.all( 'SELECT title, skips, fails, errors FROM pages WHERE result IS NOT NULL ORDER BY errors DESC, fails DESC, skips DESC LIMIT 40 OFFSET ?', [ offset ], function ( err, rows ) {
 			var i, row, output, matches, total = {};
 
 			if ( err ) {
@@ -137,6 +138,8 @@ app.use( express.bodyParser() );
 app.get( /^\/results$/, resultsWebInterface );
 
 // Overview of stats
+app.get( /^\/stats\/(\d+)$/, statsWebInterface );
+// 0th page
 app.get( /^\/stats$/, statsWebInterface );
 
 // Clients will GET this path if they want to run a test
