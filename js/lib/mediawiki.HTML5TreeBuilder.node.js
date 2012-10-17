@@ -75,9 +75,10 @@ FauxHTML5.TreeBuilder.prototype._att = function (maybeAttribs) {
 FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 	//console.warn( 'processToken: ' + JSON.stringify( token ));
 
-	var attribs = token.attribs || [];
-	if ( token.dataAttribs ) {
-		var dataMW = JSON.stringify( token.dataAttribs );
+	var attribs = token.attribs || [],
+	    dataAttribs = token.dataAttribs;
+	if ( dataAttribs ) {
+		var dataMW = JSON.stringify( dataAttribs );
 		if ( dataMW !== '{}' ) {
 			attribs = attribs.concat([
 					{
@@ -89,6 +90,7 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 	}
 
 	// console.warn("T: " + JSON.stringify(token));
+	var tName, attrs, dataAttribs;
 	switch( token.constructor ) {
 		case String:
 			if ( token.match(/^[ \t\r\n\f]+$/) ) {
@@ -103,28 +105,32 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			this.emit('token', {type: 'SpaceCharacters', data: '\n'});
 			break;
 		case TagTk:
-			this.emit('token', {type: 'StartTag',
-				name: token.name,
-				data: this._att(attribs)});
+			tName = token.name;
+			this.emit('token', {type: 'StartTag', name: tName, data: this._att(attribs)});
 			break;
 		case SelfclosingTagTk:
-			this.emit('token', {type: 'StartTag',
-				name: token.name,
-				data: this._att(attribs)});
-			if ( HTML5.VOID_ELEMENTS.indexOf( token.name.toLowerCase() ) < 0 ) {
+			tName = token.name;
+			this.emit('token', {type: 'StartTag', name: tName, data: this._att(attribs)});
+			if ( HTML5.VOID_ELEMENTS.indexOf( tName.toLowerCase() ) < 0 ) {
 				// VOID_ELEMENTS are automagically treated as self-closing by
 				// the tree builder
-				this.emit('token', {type: 'EndTag',
-					name: token.name,
-					data: this._att(attribs)});
+				this.emit('token', {type: 'EndTag', name: tName, data: this._att(attribs)});
 			}
 			break;
 		case EndTagTk:
-			// not used since HTML5 tree builder strips this anyway
-			this.emit('token', {type: 'EndTag', name: token.name});
-			if (token.dataAttribs && token.dataAttribs.tsr) {
-				var attrs = this._att(attribs);
+			tName = token.name;
+			this.emit('token', {type: 'EndTag', name: tName});
+
+			if (dataAttribs &&
+				dataAttribs.tsr &&
+				(dataAttribs.stx !== 'html' ||
+				tName === 'tr' ||
+				tName === 'td' ||
+				tName === 'table'))
+			{
+				attrs = this._att(attribs);
 				attrs.push({nodeName: "typeof", nodeValue: "mw:EndTag"});
+				attrs.push({nodeName: "data-etag", nodeValue: tName});
 				this.emit('token', {type: 'StartTag', name: 'meta', data: attrs});
 			}
 			break;
