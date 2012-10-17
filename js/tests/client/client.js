@@ -54,7 +54,7 @@ runTest = function ( cb, title ) {
 	} );
 
 	try {
-		rtTest.fetch( title, callback, 'dump-internal' );
+		rtTest.fetch( title, callback, 'en' );
 	} catch ( err ) {
 		// Log it to console (for gabriel to watch scroll by)
 		console.log( err );

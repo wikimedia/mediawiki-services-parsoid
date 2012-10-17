@@ -45,16 +45,22 @@ recieveResults = function ( req, res ) {
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 
 	console.log( 'Updating database' );
-	db.run( 'UPDATE pages SET result = ?, skips = ?, fails = ?, errors = ?, client = ? WHERE title = ?',
-		[ result, skipCount, failCount, errorCount, clientName, title ], function ( err ) {
-		console.log( 'Updated.' );
-		if ( err ) {
-			res.send( err.toString(), 500 );
-		} else {
-			console.log( title, '-', skipCount, 'skips,', failCount, 'fails,', errorCount, 'errors.' );
-			res.send( '', 200 );
-		}
-	} );
+
+	if ( errorCount > 0 && result.match( 'DoesNotExist' ) ) {
+		console.log( 'DoesNotExist error get, skipping update.' );
+		res.send( '', 200 );
+	} else {
+		db.run( 'UPDATE pages SET result = ?, skips = ?, fails = ?, errors = ?, client = ? WHERE title = ?',
+			[ result, skipCount, failCount, errorCount, clientName, title ], function ( err ) {
+			console.log( 'Updated.' );
+			if ( err ) {
+				res.send( err.toString(), 500 );
+			} else {
+				console.log( title, '-', skipCount, 'skips,', failCount, 'fails,', errorCount, 'errors.' );
+				res.send( '', 200 );
+			}
+		} );
+	}
 },
 
 statsWebInterface = function ( req, res ) {
