@@ -12,72 +12,86 @@ var fs = require( 'fs' ),
 
 callback, argv, title,
 
-plainCallback = function ( page, results ) {
+plainCallback = function ( page, err, results ) {
 	var i, result, output = '',
 		semanticDiffs = 0, syntacticDiffs = 0,
 		testDivider = ( new Array( 70 ) ).join( '=' ) + '\n',
 		diffDivider = ( new Array( 70 ) ).join( '-' ) + '\n';
-	for ( i = 0; i < results.length; i++ ) {
-		result = results[i];
+
+	if ( err ) {
+		output += 'Parser failure!\n\n';
+		output += diffDivider;
+		output += err;
+	} else {
+		for ( i = 0; i < results.length; i++ ) {
+			result = results[i];
+
+			output += testDivider;
+			if ( result.type === 'fail' ) {
+				output += 'Semantic difference:\n\n';
+				output += result.wtDiff + '\n';
+				output += diffDivider;
+				output += 'HTML diff:\n\n';
+				output += result.htmlDiff + '\n';
+				semanticDiffs++;
+			} else {
+				output += 'Syntactic difference:\n\n';
+				output += result.wtDiff + '\n';
+				syntacticDiffs++;
+			}
+		}
+
 
 		output += testDivider;
-		if ( result.type === 'fail' ) {
-			output += 'Semantic difference:\n\n';
-			output += result.wtDiff + '\n';
-			output += diffDivider;
-			output += 'HTML diff:\n\n';
-			output += result.htmlDiff + '\n';
-			semanticDiffs++;
-		} else {
-			output += 'Syntactic difference:\n\n';
-			output += result.wtDiff + '\n';
-			syntacticDiffs++;
-		}
+		output += testDivider;
+		output += "SUMMARY:\n";
+		output += "Semantic differences : " + semanticDiffs + "\n";
+		output += "Syntactic differences: " + syntacticDiffs + "\n";
+		output += diffDivider;
+		output += "ALL differences      : " + (semanticDiffs + syntacticDiffs) + "\n";
+		output += testDivider;
+		output += testDivider;
 	}
-
-
-	output += testDivider;
-	output += testDivider;
-	output += "SUMMARY:\n";
-	output += "Semantic differences : " + semanticDiffs + "\n";
-	output += "Syntactic differences: " + syntacticDiffs + "\n";
-	output += diffDivider;
-	output += "ALL differences      : " + (semanticDiffs + syntacticDiffs) + "\n";
-	output += testDivider;
-	output += testDivider;
 
 	return output;
 },
 
-xmlCallback = function ( page, results ) {
+xmlCallback = function ( page, err, results ) {
 	var i, result,
 
 	output = '<testsuite name="Roundtrip article ' + Util.encodeXml( page ) + '">';
 
-	for ( i = 0; i < results.length; i++ ) {
-		result = results[i];
+	if ( err ) {
+		output += '<testcase name="entire article"><error type="parserFailedToFinish">';
+		output += err.toString();
+		output += '</error></testcase>';
+	} else {
 
-		output += '<testcase name="' + Util.encodeXml( page ) + ' character ' + result.offset[0].start + '">';
+		for ( i = 0; i < results.length; i++ ) {
+			result = results[i];
 
-		if ( result.type === 'fail' ) {
-			output += '<failure type="significantHtmlDiff">\n';
+			output += '<testcase name="' + Util.encodeXml( page ) + ' character ' + result.offset[0].start + '">';
 
-			output += '<diff class="wt">\n';
-			output += Util.encodeXml( result.wtDiff );
-			output += '\n</diff>\n';
+			if ( result.type === 'fail' ) {
+				output += '<failure type="significantHtmlDiff">\n';
 
-			output += '<diff class="html">\n';
-			output += Util.encodeXml( result.htmlDiff );
-			output += '\n</diff>\n';
+				output += '<diff class="wt">\n';
+				output += Util.encodeXml( result.wtDiff );
+				output += '\n</diff>\n';
 
-			output += '</failure>\n';
-		} else {
-			output += '<skipped type="insignificantWikitextDiff">\n';
-			output += Util.encodeXml( result.wtDiff );
-			output += '\n</skipped>\n';
+				output += '<diff class="html">\n';
+				output += Util.encodeXml( result.htmlDiff );
+				output += '\n</diff>\n';
+
+				output += '</failure>\n';
+			} else {
+				output += '<skipped type="insignificantWikitextDiff">\n';
+				output += Util.encodeXml( result.wtDiff );
+				output += '\n</skipped>\n';
+			}
+
+			output += '</testcase>\n';
 		}
-
-		output += '</testcase>\n';
 	}
 
 	output += '</testsuite>\n';
@@ -296,7 +310,7 @@ fetch = function ( page, cb, wiki ) {
 },
 
 cbCombinator = function ( formatter, cb, err, page, text ) {
-	cb( err, formatter( page, text ) );
+	cb( err, formatter( page, err, text ) );
 },
 
 consoleOut = function ( err, output ) {

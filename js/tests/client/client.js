@@ -49,14 +49,17 @@ getTitle = function ( cb ) {
 },
 
 runTest = function ( cb, title ) {
-	var callback = rtTest.cbCombinator.bind( null, rtTest.xmlFormat, function ( err, results ) {
+	var result, callback = rtTest.cbCombinator.bind( null, rtTest.xmlFormat, function ( err, results ) {
 		cb( title, results );
 	} );
 
 	try {
-		rtTest.fetch( title, callback, 'en' );
-	} catch ( x ) {
-		console.log( x );
+		rtTest.fetch( title, callback, 'dump' );
+	} catch ( err ) {
+		// Log it to console (for gabriel to watch scroll by)
+		console.log( err );
+
+		cb( title, rtTest.xmlFormat( title, err, null ) );
 	}
 },
 
@@ -91,11 +94,10 @@ callbackOmnibus = function () {
 			runTest( callbackOmnibus, arguments[0] );
 			break;
 		case 2:
-			console.log( 'Posting a result....' );
+			console.log( 'Posting a result for ' + arguments[0] + '....' );
 			postResult( callbackOmnibus, arguments[0], arguments[1] );
 			break;
 		default:
-			console.log( 'Getting a title....' );
 			getTitle( callbackOmnibus );
 			break;
 	}

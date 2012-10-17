@@ -34,25 +34,63 @@ getTitle = function ( req, res ) {
 
 recieveResults = function ( req, res ) {
 	var clientName = req.params[0], title = decodeURIComponent( req.params[1] ), result = req.body.results,
-		skipCount = result.match( /\<skipped/g ), failCount = result.match( /\<failure/g );
+		skipCount = result.match( /\<skipped/g ), failCount = result.match( /\<failure/g ), errorCount = result.match( /\<error/g );
 
 	skipCount = skipCount ? skipCount.length - 1 : 0;
 	failCount = failCount ? failCount.length - 1 : 0;
+	errorCount = errorCount ? 1 : 0;
 
 	console.log( 'Client sent back results.' );
 
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 
 	console.log( 'Updating database' );
-	db.run( 'UPDATE pages SET result = ?, skips = ?, fails = ?, client = ? WHERE title = ?',
-		[ result, skipCount, failCount, clientName, title ], function ( err ) {
+	db.run( 'UPDATE pages SET result = ?, skips = ?, fails = ?, errors = ?, client = ? WHERE title = ?',
+		[ result, skipCount, failCount, errorCount, clientName, title ], function ( err ) {
 		console.log( 'Updated.' );
 		if ( err ) {
 			res.send( err.toString(), 500 );
 		} else {
-			console.log( title, '-', skipCount, 'skips,', failCount, 'fails' );
+			console.log( title, '-', skipCount, 'skips,', failCount, 'fails,', errorCount, 'errors.' );
 			res.send( '', 200 );
 		}
+	} );
+},
+
+statsWebInterface = function ( req, res ) {
+	db.serialize( function () {
+		db.all( 'SELECT title, skips, fails, errors FROM pages WHERE result IS NOT NULL ORDER BY errors DESC, fails DESC, skips DESC', function ( err, rows ) {
+			var i, row, output, matches, total = {};
+
+			if ( err ) {
+				res.send( err.toString(), 500 );
+			} else if ( rows.length <= 0 ) {
+				res.send( 'No entries found', 404 );
+			} else {
+				res.setHeader( 'Content-Type', 'text/html' );
+				res.status( 200 );
+				res.write( '<html><body><table>' );
+				res.write( '<tr><th>Title</th><th>Syntactic diffs</th><th>Semantic diffs</th><th>Errors</th></tr>' );
+				for ( i = 0; i < rows.length; i++ ) {
+					res.write( '<tr style="background-color: ' );
+					row = rows[i];
+
+					if ( row.skips === 0 && row.fails === 0 && row.errors === 0 ) {
+						res.write( 'green' );
+					} else if ( row.errors > 0 ) {
+						res.write( 'red' );
+					} else if ( row.fails === 0 ) {
+						res.write( 'yellow' );
+					} else {
+						res.write( 'red' );
+					}
+
+					res.write( '"><td>' + row.title + '</td>' );
+					res.write( '<td>' + row.skips + '</td><td>' + row.fails + '</td><td>' + ( row.errors === null ? 0 : row.errors ) + '</td></tr>' );
+				}
+				res.end( '</table></body></html>' );
+			}
+		} );
 	} );
 },
 
@@ -92,6 +130,9 @@ app.use( express.bodyParser() );
 // Main interface
 app.get( /^\/results$/, resultsWebInterface );
 
+// Overview of stats
+app.get( /^\/stats$/, statsWebInterface );
+
 // Clients will GET this path if they want to run a test
 app.get( /^\/title$/, getTitle );
 
@@ -99,7 +140,7 @@ app.get( /^\/title$/, getTitle );
 app.post( /^\/result\/([^\/]+)\/([^\/]+)/, recieveResults );
 
 db.serialize( function () {
-	db.run( 'CREATE TABLE IF NOT EXISTS pages ( title TEXT DEFAULT "", result TEXT DEFAULT NULL, claimed INTEGER DEFAULT NULL, client TEXT DEFAULT NULL , fails INTEGER DEFAULT NULL, skips INTEGER DEFAULT NULL );', function ( err )  {
+	db.run( 'CREATE TABLE IF NOT EXISTS pages ( title TEXT DEFAULT "", result TEXT DEFAULT NULL, claimed INTEGER DEFAULT NULL, client TEXT DEFAULT NULL , fails INTEGER DEFAULT NULL, skips INTEGER DEFAULT NULL, errors INTEGER DEFAULT NULL );', function ( err )  {
 		if ( err ) {
 			console.log( dberr || err );
 		} else {
