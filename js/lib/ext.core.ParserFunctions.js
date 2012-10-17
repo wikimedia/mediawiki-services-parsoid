@@ -351,11 +351,15 @@ ParserFunctions.prototype['pf_#tag'] = function ( token, frame, cb, args ) {
 	// TODO: handle things like {{#tag:nowiki|{{{input1|[[shouldnotbelink]]}}}}}
 	// https://www.mediawiki.org/wiki/Future/Parser_development#Token_stream_transforms
 	var target = args[0].k;
-	args[1].v.get({
-		type: 'tokens/x-mediawiki/expanded',
-		cb: this.tag_worker.bind( this, target, cb ),
-		asyncCB: cb
-	});
+	if ( args[1] ) {
+		args[1].v.get({
+			type: 'tokens/x-mediawiki/expanded',
+			cb: this.tag_worker.bind( this, target, cb ),
+			asyncCB: cb
+		});
+	} else {
+		this.tag_worker( target, cb, [''] );
+	}
 };
 
 ParserFunctions.prototype.tag_worker = function( target, cb, content ) {
