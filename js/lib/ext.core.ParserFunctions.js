@@ -215,10 +215,16 @@ ParserFunctions.prototype['pf_#expr'] = function ( token, frame, cb, args ) {
 			var f = new Function ( 'return (' + target + ')' );
 			res = f();
 		} catch ( e ) {
-			return cb( { tokens: [ 'class="error" in expression ' + target ] } );
+			cb( { tokens: [ 'class="error" in expression ' + target ] } );
+			return;
 		}
 	} else {
 		res = '';
+	}
+	// Avoid crashes
+	if ( res === undefined ) {
+			cb( { tokens: [ 'class="error" in expression ' + target ] } );
+			return;
 	}
 	cb( { tokens: [ res.toString() ] } );
 };
