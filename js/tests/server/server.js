@@ -7,8 +7,6 @@ var http = require( 'http' ),
 	db = new sqlite.Database( 'pages.db' ),
 
 getTitle = function ( req, res ) {
-	console.log( 'Client asked for title.' );
-
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 
 	db.serialize( function () {
@@ -22,6 +20,7 @@ getTitle = function ( req, res ) {
 						console.log( err );
 						res.send( 'Error! ' + err.toString(), 500 );
 					} else {
+						console.log( 'Dispatching ', row.title );
 						res.send( row.title );
 					}
 				} );
@@ -65,7 +64,42 @@ recieveResults = function ( req, res ) {
 
 statsWebInterface = function ( req, res ) {
 	db.serialize( function () {
-		var offset = ( req.params[0] - 0 || 0 ) * 40;
+		db.get( 'SELECT * FROM ((SELECT count(*) FROM pages WHERE result IS NOT NULL) AS total,'
+				+ '(SELECT count(*) FROM pages WHERE result IS NOT NULL AND errors = 0) AS noError,'
+				+ '(SELECT count(*) FROM pages WHERE result IS NOT NULL AND errors = 0 AND fails = 0) AS noFail,'
+				+ '(SELECT count(*) FROM pages WHERE result IS NOT NULL AND errors = 0 AND fails = 0 AND skips = 0) AS noSkip) AS temp', function ( err, row ) {
+			if ( err ) {
+				res.send( err.toString(), 500 );
+			} else if ( row.length <= 0 ) {
+				res.send( 'No entries found', 404 );
+			} else {
+				res.setHeader( 'Content-Type', 'text/html' );
+				res.status( 200 );
+				res.write( '<html><body>' );
+
+				res.write( '<p>We have run <b>'
+						   + row['count(*)']
+						   + '</b> tests, of which <ul><li><b>'
+						   + Math.floor( ( row['count(*):1'] / row['count(*)'] ) * 100 )
+						   + '%</b> have no errors, </li><li><b>'
+						   + Math.floor( ( row['count(*):2'] / row['count(*)'] ) * 100 )
+						   + '%</b> have no semantic differences, and </li><li><b>'
+						   + Math.floor( ( row['count(*):3'] / row['count(*)'] ) * 100 )
+						   + '%</b> have no round-trip differences at all.</li></ul></p>' );
+
+				res.write( '<p><a href="/topfails/0">See the individual results by title</a></p>' );
+
+				res.end( '</body></html>' );
+			}
+		} );
+	} );
+},
+
+failsWebInterface = function ( req, res ) {
+	db.serialize( function () {
+		var page = ( req.params[0] || 0 ) - 0,
+			offset = page * 40;
+
 		db.all( 'SELECT title, skips, fails, errors FROM pages WHERE result IS NOT NULL ORDER BY errors DESC, fails DESC, skips DESC LIMIT 40 OFFSET ?', [ offset ], function ( err, rows ) {
 			var i, row, output, matches, total = {};
 
@@ -74,47 +108,39 @@ statsWebInterface = function ( req, res ) {
 			} else if ( rows.length <= 0 ) {
 				res.send( 'No entries found', 404 );
 			} else {
-				db.get( 'SELECT * FROM ((SELECT count(*) FROM pages WHERE result IS NOT NULL) AS total,'
-						+ '(SELECT count(*) FROM pages WHERE result IS NOT NULL AND errors = 0) AS noError,'
-						+ '(SELECT count(*) FROM pages WHERE result IS NOT NULL AND errors = 0 AND fails = 0) AS noFail,'
-						+ '(SELECT count(*) FROM pages WHERE result IS NOT NULL AND errors = 0 AND fails = 0 AND skips = 0) AS noSkip) AS temp', function ( err, row ) {
-					res.setHeader( 'Content-Type', 'text/html' );
-					res.status( 200 );
-					res.write( '<html><body>' );
+				res.setHeader( 'Content-Type', 'text/html' );
+				res.status( 200 );
+				res.write( '<html><body>' );
 
-					console.log( row );
+				res.write( '<p>' );
+				if ( page > 0 ) {
+					res.write( '<a href="/topfails/' + ( page - 1 ) + '">Previous</a> | ' );
+				} else {
+					res.write( 'Previous | ' );
+				}
+				res.write( '<a href="/topfails/' + ( page + 1 ) + '">Next</a>' );
+				res.write( '</p>' );
 
-					res.write( '<p>We have run <b>'
-							   + row['count(*)']
-							   + '</b> tests, of which <ul><li><b>'
-							   + Math.floor( ( row['count(*):1'] / row['count(*)'] ) * 100 )
-							   + '%</b> have no errors, </li><li><b>'
-							   + Math.floor( ( row['count(*):2'] / row['count(*)'] ) * 100 )
-							   + '%</b> have no semantic differences, and </li><li><b>'
-							   + Math.floor( ( row['count(*):3'] / row['count(*)'] ) * 100 )
-							   + '%</b> have no round-trip differences at all.</li></ul></p>' );
+				res.write( '<table><tr><th>Title</th><th>Syntactic diffs</th><th>Semantic diffs</th><th>Errors</th></tr>' );
 
-					res.write( '<table><tr><th>Title</th><th>Syntactic diffs</th><th>Semantic diffs</th><th>Errors</th></tr>' );
+				for ( i = 0; i < rows.length; i++ ) {
+					res.write( '<tr><td style="color: ' );
+					row = rows[i];
 
-					for ( i = 0; i < rows.length; i++ ) {
-						res.write( '<tr><td style="color: ' );
-						row = rows[i];
-
-						if ( row.skips === 0 && row.fails === 0 && row.errors === 0 ) {
-							res.write( 'green' );
-						} else if ( row.errors > 0 ) {
-							res.write( 'red' );
-						} else if ( row.fails === 0 ) {
-							res.write( 'orange' );
-						} else {
-							res.write( 'red' );
-						}
-
-						res.write( '">' + row.title + '</td>' );
-						res.write( '<td>' + row.skips + '</td><td>' + row.fails + '</td><td>' + ( row.errors === null ? 0 : row.errors ) + '</td></tr>' );
+					if ( row.skips === 0 && row.fails === 0 && row.errors === 0 ) {
+						res.write( 'green' );
+					} else if ( row.errors > 0 ) {
+						res.write( 'red' );
+					} else if ( row.fails === 0 ) {
+						res.write( 'orange' );
+					} else {
+						res.write( 'red' );
 					}
-					res.end( '</table></body></html>' );
-				} );
+
+					res.write( '">' + row.title + '</td>' );
+					res.write( '<td>' + row.skips + '</td><td>' + row.fails + '</td><td>' + ( row.errors === null ? 0 : row.errors ) + '</td></tr>' );
+				}
+				res.end( '</table></body></html>' );
 			}
 		} );
 	} );
@@ -156,9 +182,12 @@ app.use( express.bodyParser() );
 // Main interface
 app.get( /^\/results$/, resultsWebInterface );
 
-// Overview of stats
-app.get( /^\/stats\/(\d+)$/, statsWebInterface );
+// List of failures sorted by severity
+app.get( /^\/topfails\/(\d+)$/, failsWebInterface );
 // 0th page
+app.get( /^\/topfails$/, failsWebInterface );
+
+// Overview of stats
 app.get( /^\/stats$/, statsWebInterface );
 
 // Clients will GET this path if they want to run a test
