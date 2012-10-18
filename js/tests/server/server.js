@@ -74,28 +74,58 @@ statsWebInterface = function ( req, res ) {
 			} else if ( rows.length <= 0 ) {
 				res.send( 'No entries found', 404 );
 			} else {
-				res.setHeader( 'Content-Type', 'text/html' );
-				res.status( 200 );
-				res.write( '<html><body><table>' );
-				res.write( '<tr><th>Title</th><th>Syntactic diffs</th><th>Semantic diffs</th><th>Errors</th></tr>' );
-				for ( i = 0; i < rows.length; i++ ) {
-					res.write( '<tr style="background-color: ' );
-					row = rows[i];
+				db.serialize( function () {
+					var totals = {},
+						setTotal = function ( data ) {
+							return function ( err, row ) {
+								if ( err ) {
+									console.log( err );
+									totals[data] = 0;
+								} else {
+									totals[data] = row['count(*)'];
+								}
+							};
+						};
+					db.get( 'SELECT count(*) FROM pages WHERE result IS NOT NULL', setTotal( 'total' ) );
+					db.get( 'SELECT count(*) FROM pages WHERE result IS NOT NULL AND errors = 0', setTotal( 'noError' ) );
+					db.get( 'SELECT count(*) FROM pages WHERE result IS NOT NULL AND errors = 0 AND fails = 0', setTotal( 'noFail' ) );
+					db.get( 'SELECT count(*) FROM pages WHERE result IS NOT NULL and errors = 0 AND fails = 0 AND skips = 0', function ( err, row ) {
+						res.setHeader( 'Content-Type', 'text/html' );
+						res.status( 200 );
+						res.write( '<html><body>' );
 
-					if ( row.skips === 0 && row.fails === 0 && row.errors === 0 ) {
-						res.write( 'green' );
-					} else if ( row.errors > 0 ) {
-						res.write( 'red' );
-					} else if ( row.fails === 0 ) {
-						res.write( 'yellow' );
-					} else {
-						res.write( 'red' );
-					}
+						res.write( '<p>We have run <b>'
+								   + totals.total
+								   + '</b> tests, of which <b>'
+								   + Math.floor( ( totals.noError / totals.total ) * 100 )
+								   + '%</b> have no errors, <b>'
+								   + Math.floor( ( totals.noFail / totals.total ) * 100 )
+								   + '%</b> have no semantic differences, and <b>'
+								   + Math.floor( ( row['count(*)'] / totals.total ) * 100 )
+								   + '%</b> have no round-trip differences at all.' );
 
-					res.write( '"><td>' + row.title + '</td>' );
-					res.write( '<td>' + row.skips + '</td><td>' + row.fails + '</td><td>' + ( row.errors === null ? 0 : row.errors ) + '</td></tr>' );
-				}
-				res.end( '</table></body></html>' );
+						res.write( '<table><tr><th>Title</th><th>Syntactic diffs</th><th>Semantic diffs</th><th>Errors</th></tr>' );
+
+						for ( i = 0; i < rows.length; i++ ) {
+							res.write( '<tr style="background-color: ' );
+							row = rows[i];
+
+							if ( row.skips === 0 && row.fails === 0 && row.errors === 0 ) {
+								res.write( 'green' );
+							} else if ( row.errors > 0 ) {
+								res.write( 'red' );
+							} else if ( row.fails === 0 ) {
+								res.write( 'yellow' );
+							} else {
+								res.write( 'red' );
+							}
+
+							res.write( '"><td>' + row.title + '</td>' );
+							res.write( '<td>' + row.skips + '</td><td>' + row.fails + '</td><td>' + ( row.errors === null ? 0 : row.errors ) + '</td></tr>' );
+						}
+						res.end( '</table></body></html>' );
+					} );
+				} );
 			}
 		} );
 	} );
