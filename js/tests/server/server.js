@@ -10,12 +10,12 @@ getTitle = function ( req, res ) {
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 
 	db.serialize( function () {
-		db.get( 'BEGIN TRANSACTION; SELECT title FROM pages WHERE result IS NULL AND claimed IS NULL ORDER BY RANDOM() LIMIT 1', function ( err, row ) {
+		db.get( 'SELECT title FROM pages WHERE result IS NULL AND claimed IS NULL ORDER BY RANDOM() LIMIT 1', function ( err, row ) {
 			if ( err ) {
 				console.log( err );
 				res.send( 'Error! ' + err.toString(), 500 );
 			} else if ( row ) {
-				db.run( 'UPDATE pages SET claimed = ? WHERE title = ?; COMMIT TRANSACTION;', [ Date.now(), row.title ], function ( err ) {
+				db.run( 'UPDATE pages SET claimed = ? WHERE title = ?', [ Date.now(), row.title ], function ( err ) {
 					if ( err ) {
 						console.log( err );
 						res.send( 'Error! ' + err.toString(), 500 );
@@ -95,13 +95,13 @@ statsWebInterface = function ( req, res ) {
 				var width = 800;
 				res.write( '<table><tr height=60px>');
 				res.write( '<td width=' +
-						(width * perfects / 100 || 100) +
+						(width * perfects / 100 || 0) +
 						'px style="background:green" title="Perfect / no diffs"></td>' );
 				res.write( '<td width=' +
-						(width * (syntacticDiffs - perfects) / 100 || 100) +
+						(width * (syntacticDiffs - perfects) / 100 || 0) +
 						'px style="background:yellow" title="Syntactic diffs"></td>' );
 				res.write( '<td width=' +
-						(width * (100 - syntacticDiffs) / 100 || 100) +
+						(width * (100 - syntacticDiffs) / 100 || 0) +
 						'px style="background:red" title="Semantic diffs"></td>' );
 				res.write( '</tr></table>' );
 
