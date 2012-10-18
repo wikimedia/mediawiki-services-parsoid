@@ -13,7 +13,7 @@ if ( typeof module === 'object' ) {
 			host: 'localhost',
 
 			// The port where the server is running
-			port: 8001
+			port: 8002
 		},
 
 		// A unique name for this client (optional) (URL-safe characters only)

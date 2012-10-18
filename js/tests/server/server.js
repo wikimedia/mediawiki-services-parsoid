@@ -79,7 +79,7 @@ statsWebInterface = function ( req, res ) {
 
 				res.write( '<p>We have run <b>'
 						   + row['count(*)']
-						   + '</b> tests, of which <ul><li><b>'
+						   + '</b> roundtrip tests, of which <ul><li><b>'
 						   + Math.floor( ( row['count(*):1'] / row['count(*)'] ) * 100 )
 						   + '%</b> have no errors, </li><li><b>'
 						   + Math.floor( ( row['count(*):2'] / row['count(*)'] ) * 100 )
@@ -176,6 +176,9 @@ resultsWebInterface = function ( req, res ) {
 // Make an app
 app = express.createServer();
 
+// Make the coordinator app
+coordApp = express.createServer();
+
 // Add in the bodyParser middleware (because it's pretty standard)
 app.use( express.bodyParser() );
 
@@ -191,10 +194,10 @@ app.get( /^\/topfails$/, failsWebInterface );
 app.get( /^\/stats$/, statsWebInterface );
 
 // Clients will GET this path if they want to run a test
-app.get( /^\/title$/, getTitle );
+coordApp.get( /^\/title$/, getTitle );
 
 // Recieve results from clients
-app.post( /^\/result\/([^\/]+)\/([^\/]+)/, recieveResults );
+coordApp.post( /^\/result\/([^\/]+)\/([^\/]+)/, recieveResults );
 
 db.serialize( function () {
 	db.run( 'CREATE TABLE IF NOT EXISTS pages ( title TEXT DEFAULT "", result TEXT DEFAULT NULL, claimed INTEGER DEFAULT NULL, client TEXT DEFAULT NULL , fails INTEGER DEFAULT NULL, skips INTEGER DEFAULT NULL, errors INTEGER DEFAULT NULL );', function ( err )  {
@@ -202,6 +205,7 @@ db.serialize( function () {
 			console.log( dberr || err );
 		} else {
 			app.listen( 8001 );
+			coordApp.listen( 8002 );
 		}
 	} );
 } );
