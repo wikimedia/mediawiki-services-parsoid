@@ -88,26 +88,34 @@ ParserFunctions.prototype._switchLookupFallback = function ( frame, kvs, key, di
 			cb( { tokens: res } );
 		}
 	};
-	if ( v && v.constructor !== String ) {
-		v = '';
-		console.warn(JSON.stringify(v));
-	}
-	if ( v && key === v.trim() ) {
-		// found. now look for the next entry with a non-empty key.
+
+	// 'v' need not be a string in cases where it is the last fall-through case
+	var vStr = v ? (v.constructor === String ? v : Util.tokensToString(v)) : null;
+	if (vStr && key === vStr.trim()) {
+		// This handles fall-through switch cases:
+		//
+		//   {{#switch:<key>
+		//     | c1 | c2 | c3 = <res>
+		//     ...
+		//   }}
+		//
+		// So if <key> matched c1, we want to return <res>.
+		// Hence, we are looking for the next entry with a non-empty key.
 		this.manager.env.dp( 'switch found' );
 		for ( var j = 0; j < l; j++) {
 			kv = kvs[j];
 			// XXX: make sure the key is always one of these!
 			if ( kv.k.length ) {
-				return kv.v.get({
+				kv.v.get({
 					type: 'tokens/x-mediawiki/expanded',
 					cb: _cb,
 					asyncCB: _cb
 				});
+				return;
 			}
 		}
 		// No value found, return empty string? XXX: check this
-		return cb( {} );
+		cb( {} );
 	} else if ( kvs.length ) {
 		// search for value-only entry which matches
 		var i = 0;
@@ -125,9 +133,34 @@ ParserFunctions.prototype._switchLookupFallback = function ( frame, kvs, key, di
 					console.trace();
 				}
 				var self = this;
-				//cb({ async: true });
 				//console.warn( 'swtch value: ' + kv.v );
-				return kv.v.get({
+
+				// We found a value-only entry.  However, we have to verify
+				// if we have any fall-through cases that this matches.
+				//
+				//   {{#switch:<key>
+				//     | c1 | c2 | c3 = <res>
+				//     ...
+				//   }}
+				//
+				// In the switch example below, if we found 'c1', that is
+				// not the fallback value -- we have to check for fall-through
+				// cases.  Hence the recursive callback to _switchLookupFallback.
+				//
+				//   {{#switch:<key>
+				//     | c1 = <..>
+				//     | c2 = <..>
+				//     | [[Foo]]</div>
+				//   }}
+				//
+				// 'val' may be an array of tokens rather than a string as in the
+				// example above where 'val' is indeed the final return value.
+				// Hence 'tokens/x-mediawiki/expanded' type below.
+				kv.v.get({
+					type: 'tokens/x-mediawiki/expanded',
+					// SSS FIXME: JSHint is warning us not to create
+					// funtions in a loop -- worth creating a static fn.
+					// and using it, but have to bind lots of args -- lazy today.
 					cb: function( val ) {
 						process.nextTick(
 							self._switchLookupFallback.bind( self, frame,
@@ -136,28 +169,31 @@ ParserFunctions.prototype._switchLookupFallback = function ( frame, kvs, key, di
 					},
 					asyncCB: cb
 				});
+				return;
 			}
 		}
 		// value not found!
 		if ( '#default' in dict ) {
-			return dict['#default'].get({
+			dict['#default'].get({
 				type: 'tokens/x-mediawiki/expanded',
 				cb: _cb,
 				asyncCB: cb
 			});
+			return;
 		} else if ( kvs.length ) {
 			var lastKV = kvs[kvs.length - 1];
 			if ( lastKV && ! lastKV.k.length ) {
-				return lastKV.v.get( {
+				lastKV.v.get( {
 					cb: _cb,
 					asyncCB: cb } );
+				return;
 				//cb ( { tokens: lastKV.v } );
 			} else {
 				cb ( {} );
 			}
 		} else {
 			// nothing found at all.
-			return cb ( {} );
+			cb ( {} );
 		}
 	} else if ( v ) {
 		cb( { tokens: v } );
@@ -170,7 +206,7 @@ ParserFunctions.prototype._switchLookupFallback = function ( frame, kvs, key, di
 // TODO: Implement
 // http://www.mediawiki.org/wiki/Help:Extension:ParserFunctions#Grouping_results
 ParserFunctions.prototype['pf_#switch'] = function ( token, frame, cb, args ) {
-	target = args[0].k.trim();
+	var target = args[0].k.trim();
 	this.env.dp( 'switch enter', target, token );
 	// create a dict from the remaining args
 	args.shift();
@@ -330,6 +366,7 @@ ParserFunctions.prototype.pf_padright = function ( token, frame, cb, params ) {
 		type: 'text/x-mediawiki/expanded',
 		cb: function ( args ) {
 				if ( args[0].v > 0) {
+					var pad;
 					if ( args[1] && args[1].v !== '' ) {
 						pad = args[1].v;
 					} else {
