@@ -83,15 +83,15 @@ statsWebInterface = function ( req, res ) {
 					perfects = Math.floor( ( row['count(*):3'] / row['count(*)'] ) * 100 );
 
 
-				res.write( '<p>We have run <b>'
+				res.write( '<p>We have run roundtrip-tests on <b>'
 						   + tests
-						   + '</b> roundtrip tests, of which <ul><li><b>'
+						   + '</b> articles, of which <ul><li><b>'
 						   + noErrors
-						   + '%</b> have no errors, </li><li><b>'
+						   + '%</b> parsed without crashes, </li><li><b>'
 						   + syntacticDiffs
-						   + '%</b> have no semantic differences, and </li><li><b>'
+						   + '%</b> round-tripped without semantic differences, and </li><li><b>'
 						   + perfects
-						   + '%</b> have no round-trip differences at all.</li></ul></p>' );
+						   + '%</b> round-tripped with no character differences at all.</li></ul></p>' );
 				var width = 800;
 				res.write( '<table><tr height=60px>');
 				res.write( '<td width=' +
