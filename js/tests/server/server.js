@@ -95,13 +95,13 @@ statsWebInterface = function ( req, res ) {
 				var width = 800;
 				res.write( '<table><tr height=60px>');
 				res.write( '<td width=' +
-						(width * perfects / tests || 100) +
+						(width * perfects / 100 || 100) +
 						'px style="background:green" title="Perfect / no diffs"></td>' );
 				res.write( '<td width=' +
-						(width * (syntacticDiffs - noErrors) / tests || 100) +
+						(width * (syntacticDiffs - perfects) / 100 || 100) +
 						'px style="background:yellow" title="Syntactic diffs"></td>' );
 				res.write( '<td width=' +
-						(width * (tests - syntacticDiffs) / tests || 100) +
+						(width * (100 - syntacticDiffs) / 100 || 100) +
 						'px style="background:red" title="Semantic diffs"></td>' );
 				res.write( '</tr></table>' );
 
