@@ -10,12 +10,12 @@ getTitle = function ( req, res ) {
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 
 	db.serialize( function () {
-		db.get( 'SELECT title FROM pages WHERE result IS NULL AND claimed IS NULL ORDER BY RANDOM() LIMIT 1', function ( err, row ) {
+		db.get( 'BEGIN TRANSACTION; SELECT title FROM pages WHERE result IS NULL AND claimed IS NULL ORDER BY RANDOM() LIMIT 1', function ( err, row ) {
 			if ( err ) {
 				console.log( err );
 				res.send( 'Error! ' + err.toString(), 500 );
 			} else if ( row ) {
-				db.run( 'UPDATE pages SET claimed = ? WHERE title = ?', [ Date.now(), row.title ], function ( err ) {
+				db.run( 'UPDATE pages SET claimed = ? WHERE title = ?; COMMIT TRANSACTION;', [ Date.now(), row.title ], function ( err ) {
 					if ( err ) {
 						console.log( err );
 						res.send( 'Error! ' + err.toString(), 500 );
