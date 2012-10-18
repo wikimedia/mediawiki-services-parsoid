@@ -181,6 +181,7 @@ coordApp = express.createServer();
 
 // Add in the bodyParser middleware (because it's pretty standard)
 app.use( express.bodyParser() );
+coordApp.use( express.bodyParser() );
 
 // Main interface
 app.get( /^\/results$/, resultsWebInterface );
