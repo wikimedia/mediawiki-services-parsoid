@@ -17,7 +17,10 @@ if ( typeof module === 'object' ) {
 		},
 
 		// A unique name for this client (optional) (URL-safe characters only)
-		clientName: 'AnonymousClient'
+		clientName: 'AnonymousClient',
+
+		// The interwiki prefix you want to use (see mediawiki.parser.environment.js for more information)
+		interwiki: 'dump'
 	};
 }
 
