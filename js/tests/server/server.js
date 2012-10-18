@@ -77,15 +77,33 @@ statsWebInterface = function ( req, res ) {
 				res.status( 200 );
 				res.write( '<html><body>' );
 
+				var tests = row['count(*)'],
+					noErrors = Math.floor( ( row['count(*):1'] / row['count(*)'] ) * 100 ),
+					syntacticDiffs = Math.floor( ( row['count(*):2'] / row['count(*)'] ) * 100 ),
+					perfects = Math.floor( ( row['count(*):3'] / row['count(*)'] ) * 100 );
+
+
 				res.write( '<p>We have run <b>'
-						   + row['count(*)']
+						   + tests
 						   + '</b> roundtrip tests, of which <ul><li><b>'
-						   + Math.floor( ( row['count(*):1'] / row['count(*)'] ) * 100 )
+						   + noErrors
 						   + '%</b> have no errors, </li><li><b>'
-						   + Math.floor( ( row['count(*):2'] / row['count(*)'] ) * 100 )
+						   + syntacticDiffs
 						   + '%</b> have no semantic differences, and </li><li><b>'
-						   + Math.floor( ( row['count(*):3'] / row['count(*)'] ) * 100 )
+						   + perfects
 						   + '%</b> have no round-trip differences at all.</li></ul></p>' );
+				var width = 800;
+				res.write( '<table><tr height=60px>');
+				res.write( '<td width=' +
+						(width * perfects / tests || 100) +
+						'px style="background:green" title="Perfect / no diffs"></td>' );
+				res.write( '<td width=' +
+						(width * (syntacticDiffs - noErrors) / tests || 100) +
+						'px style="background:yellow" title="Syntactic diffs"></td>' );
+				res.write( '<td width=' +
+						(width * (tests - syntacticDiffs) / tests || 100) +
+						'px style="background:red" title="Semantic diffs"></td>' );
+				res.write( '</tr></table>' );
 
 				res.write( '<p><a href="/topfails/0">See the individual results by title</a></p>' );
 
