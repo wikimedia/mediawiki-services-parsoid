@@ -139,11 +139,6 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 		}
 
 		var tail = Util.lookup( attribs, 'tail' );
-		if ( tail ) {
-			obj.dataAttribs.tail = tail;
-			content.push( tail );
-		}
-
 		if ( title.ns.isCategory() ) {
 			tokens = [];
 
@@ -187,10 +182,19 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 				tokens.push(metaToken);
 			}
 
+			if ( tail ) {
+				tokens.push(tail);
+			}
+
 			cb( {
 				tokens: tokens
 			} );
 		} else {
+			if ( tail ) {
+				obj.dataAttribs.tail = tail;
+				content.push( tail );
+			}
+
 			for ( j = 0; j < content.length; j++ ) {
 				if ( content[j].constructor !== String ) {
 					property = Util.lookup( content[j].attribs, 'property' );
@@ -332,7 +336,14 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 					new KV( 'alt', oHash.alt || title.key )
 				] );
 
-		return { tokens: [ a, img, new EndTagTk( 'a' )] };
+		var tokens = [ a, img, new EndTagTk( 'a' )];
+		var linkTail = Util.lookup(token.attribs, 'tail');
+		if (linkTail) {
+			var src = a.dataAttribs.src;
+			a.dataAttribs.src = src.substr(0,src.length - linkTail.length);
+			tokens.push(linkTail);
+		}
+		return { tokens: tokens };
 	}
 };
 
@@ -421,6 +432,11 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 				new EndTagTk( 'figcaption' ),
 				new EndTagTk( 'figure' )
 			]);
+
+	var linkTail = Util.lookup(token.attribs, 'tail');
+	if (linkTail) {
+		thumb.push(linkTail);
+	}
 
 	// set round-trip information on the wrapping figure token
 	thumb[0].dataAttribs = dataAttribs;
