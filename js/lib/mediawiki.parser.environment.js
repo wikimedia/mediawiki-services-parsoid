@@ -182,11 +182,11 @@ MWParserEnvironment.prototype.normalizeTitle = function( name ) {
 	if ( name.substr( 0, 10 ).toLowerCase() === 'mediawiki:' ) {
 		name = 'MediaWiki:' + name.substr( 10 );
 	}
-	
+
 	function upperFirst( s ) { return s.substr(0, 1).toUpperCase() + s.substr(1); }
 
 	function splitNS ( ) {
-		var nsMatch = name.match( /([a-zA-Z\-]+):/ ),
+		var nsMatch = name.match( /^([a-zA-Z\-]+):/ ),
 			ns = nsMatch && nsMatch[1] || '';
 		if( ns !== '' && ns !== name ) {
 			if ( self.interwikiMap[ns.toLowerCase()] ) {
