@@ -9,8 +9,10 @@ var http = require( 'http' ),
 getTitle = function ( req, res ) {
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 
+	// Select pages that were not claimed in the last hour
+	var cutOffTimestamp = Date.now() - 3600;
 	db.serialize( function () {
-		db.get( 'SELECT title FROM pages WHERE result IS NULL AND claimed IS NULL ORDER BY RANDOM() LIMIT 1', function ( err, row ) {
+		db.get( 'SELECT title FROM pages WHERE result IS NULL AND (claimed < ? or claimed is null) ORDER BY RANDOM() LIMIT 1', [cutOffTimestamp], function ( err, row ) {
 			if ( err ) {
 				console.log( err );
 				res.send( 'Error! ' + err.toString(), 500 );
