@@ -35,7 +35,8 @@ var express = require('express'),
 
 // local includes
 var mp = '../lib/',
-	lsp = __dirname + '/localsettings.js';
+	lsp = __dirname + '/localsettings.js',
+	localSettings = require( lsp );
 
 var instanceName = cluster.isWorker ? 'worker(' + process.pid + ')' : 'master';
 
@@ -52,7 +53,7 @@ var interwikiRE;
 function getInterwikiRE() {
 	// this RE won't change -- so, cache it
 	if (!interwikiRE) {
-		interwikiRE = Util.getParserEnv( lsp, config ).interwikiRegexp;
+		interwikiRE = Util.getParserEnv( localSettings, config ).interwikiRegexp;
 	}
 	return interwikiRE;
 }
@@ -163,7 +164,7 @@ var refineDiff = function ( diff ) {
 };
 
 var roundTripDiff = function ( req, res, src, document ) {
-	var env = Util.getParserEnv( lsp );
+	var env = Util.getParserEnv( localSettings );
 	var out, patch;
 	res.write('<html><head><script type="text/javascript" src="/jquery.js"></script><script type="text/javascript" src="/scrolling.js"></script><style>ins { background: #ff9191; text-decoration: none; } del { background: #99ff7e; text-decoration: none }; </style></head><body>');
 	res.write( '<h2>Wikitext parsed to HTML DOM</h2><hr>' );
@@ -271,7 +272,7 @@ app.get( new RegExp( '^/((?:_rt|_rtve)/)?(' + getInterwikiRE() +
  * Form-based HTML DOM -> wikitext interface for manual testing
  */
 app.get(/\/_html\/(.*)/, function ( req, res ) {
-	var env = Util.getParserEnv( lsp );
+	var env = Util.getParserEnv( localSettings );
 	env.setPageName( req.params[0] );
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 	res.write( "Your HTML DOM:" );
@@ -280,7 +281,7 @@ app.get(/\/_html\/(.*)/, function ( req, res ) {
 });
 
 app.post(/\/_html\/(.*)/, function ( req, res ) {
-	var env = Util.getParserEnv( lsp );
+	var env = Util.getParserEnv( localSettings );
 	env.setPageName( req.params[0] );
 	setDefaultWiki( config, env );
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
@@ -302,7 +303,7 @@ app.post(/\/_html\/(.*)/, function ( req, res ) {
  * Form-based wikitext -> HTML DOM interface for manual testing
  */
 app.get(/\/_wikitext\/(.*)/, function ( req, res ) {
-	var env = Util.getParserEnv( lsp );
+	var env = Util.getParserEnv( localSettings );
 	env.setPageName( req.params[0] );
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 	res.write( "Your wikitext:" );
@@ -310,7 +311,7 @@ app.get(/\/_wikitext\/(.*)/, function ( req, res ) {
 	res.end('');
 });
 app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
-	var env = Util.getParserEnv( lsp );
+	var env = Util.getParserEnv( localSettings );
 	env.setPageName( req.params[0] );
 	setDefaultWiki( config, env );
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
@@ -339,7 +340,7 @@ app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
  * Round-trip article testing
  */
 app.get( new RegExp('/_rt/(' + getInterwikiRE() + ')/(.*)'), function(req, res) {
-	var env = Util.getParserEnv( lsp );
+	var env = Util.getParserEnv( localSettings );
 	env.setPageName( req.params[1] );
 	env.wgScriptPath = '/_rt/' + req.params[0] + '/';
 	env.wgScript = env.interwikiMap[req.params[0]];
@@ -365,7 +366,7 @@ app.get( new RegExp('/_rt/(' + getInterwikiRE() + ')/(.*)'), function(req, res) 
  * simulation
  */
 app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)') , function(req, res) {
-	var env = Util.getParserEnv( lsp );
+	var env = Util.getParserEnv( localSettings );
 	env.setPageName( req.params[1] );
 	env.wgScriptPath = '/_rtve/' + req.params[0] + '/';
 	env.wgScript = env.interwikiMap[req.params[0]];
@@ -401,7 +402,7 @@ app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)') , function(req, re
  * Form-based round-tripping for manual testing
  */
 app.get(/\/_rtform\/(.*)/, function ( req, res ) {
-	var env = Util.getParserEnv( lsp );
+	var env = Util.getParserEnv( localSettings );
 	env.setPageName( req.params[0] );
 	setDefaultWiki( config, env );
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
@@ -411,7 +412,7 @@ app.get(/\/_rtform\/(.*)/, function ( req, res ) {
 });
 
 app.post(/\/_rtform\/(.*)/, function ( req, res ) {
-	var env = Util.getParserEnv( lsp );
+	var env = Util.getParserEnv( localSettings );
 	env.setPageName ( req.params[0] );
 	setDefaultWiki( config, env );
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
@@ -423,7 +424,7 @@ app.post(/\/_rtform\/(.*)/, function ( req, res ) {
  * Regular article parsing
  */
 app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
-	var env = Util.getParserEnv( lsp );
+	var env = Util.getParserEnv( localSettings );
 	env.setPageName( req.params[1] );
 	env.wgScriptPath = '/' + req.params[0] + '/';
 	env.wgScript = env.interwikiMap[req.params[0]];
@@ -484,7 +485,7 @@ app.get( /\/_ci\/master/, function ( req, res ) {
  * Regular article serialization using POST
  */
 app.post(/\/(.*)/, function ( req, res ) {
-	var env = Util.getParserEnv( lsp );
+	var env = Util.getParserEnv( localSettings );
 	env.setPageName( req.params[0] );
 	env.wgScriptPath = '/';
 	setDefaultWiki( config, env );
