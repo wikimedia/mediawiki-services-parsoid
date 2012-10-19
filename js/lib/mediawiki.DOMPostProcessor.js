@@ -300,7 +300,7 @@ function normalizeDocument(document) {
  *   means the outermost table will protected).  This is no different from
  *   how it handles all other templates.
  * ------------------------------------------------------------------------ */
-function patchUpDOM(node, tplIdToSkip) {
+function patchUpDOM(node, env, tplIdToSkip) {
 
 	function collectTplsTillFarthestBadTemplate(node, tpls) {
 		var currTpl = tpls.length > 0 ? tpls.last() : null;
@@ -390,7 +390,16 @@ function patchUpDOM(node, tplIdToSkip) {
 				c.parentNode.insertBefore(farthestTpl.end, c.nextSibling);
 
 				// Update TSR
-				var tplDP = JSON.parse(farthestTpl.end.getAttribute("data-parsoid"));
+				var dpSrc = farthestTpl.end.getAttribute("data-parsoid");
+
+				if (dpSrc === null) {
+					// TODO: Figure out why there is no data-parsoid here!
+					console.err( "XXX Error in patchUpDOM: no data-parsoid found! " +
+							env.page );
+					dpSrc = '{}';
+				}
+
+				var tplDP = JSON.parse(dpSrc);
 				tplDP.tsr = JSON.parse(c.getAttribute("data-parsoid")).tsr;
 				farthestTpl.end.setAttribute("data-parsoid", JSON.stringify(tplDP));
 
@@ -404,7 +413,7 @@ function patchUpDOM(node, tplIdToSkip) {
 			}
 		} else if (c.nodeType === Node.ELEMENT_NODE) {
 			// Look at c's subtree
-			patchUpDOM(c, tplIdToSkip);
+			patchUpDOM(c, env, tplIdToSkip);
 		}
 
 		c = c.previousSibling;
@@ -986,7 +995,7 @@ function computeNodeDSR(node, s, e) {
 	return [cs, e];
 }
 
-function computeDocDSR(env, root) {
+function computeDocDSR(root, env) {
 /**
 	console.log("------------------------");
 	console.log("ORIG DOC: " + root.outerHTML);
@@ -1005,7 +1014,7 @@ function computeDocDSR(env, root) {
  * spans and adding RDFa attributes to all subtree roots according to
  * http://www.mediawiki.org/wiki/Parsoid/RDFa_vocabulary#Template_content
  */
-function encapsulateTemplateOutput( env, document ) {
+function encapsulateTemplateOutput( document, env ) {
 	// walk through document and look for tags with typeof="mw:Object*"
 	var tpls = {};
 /**
@@ -1024,8 +1033,8 @@ function DOMPostProcessor(env, options) {
 		patchUpDOM,
 		removeTrailingNewlinesFromParagraphs,
 		normalizeDocument,
-		computeDocDSR.bind(null, env),
-		encapsulateTemplateOutput.bind(null, env)
+		computeDocDSR,
+		encapsulateTemplateOutput
 	];
 }
 
@@ -1041,7 +1050,7 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 **/
 	for (var i = 0; i < this.processors.length; i++) {
 		try {
-			this.processors[i](document);
+			this.processors[i](document, this.env);
 		} catch ( e ) {
 			console.log(e.stack);
 		}
