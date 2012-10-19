@@ -848,6 +848,18 @@ function buildHeadingHandler(headingWT) {
  * ignore
  *     if true, the serializer pretends as if it never saw this token.
  * ********************************************************************* */
+function dashyString(prefix, num_dashes) {
+	if (num_dashes && num_dashes > 0) {
+		var buf = [prefix];
+		for (var i = 0; i < num_dashes; i++) {
+			buf.push("-");
+		}
+		return buf.join('');
+	} else {
+		return prefix;
+	}
+}
+
 WSP.tagHandlers = {
 	body: {
 		end: {
@@ -984,7 +996,8 @@ WSP.tagHandlers = {
 				{
 					return '';
 				} else {
-					return WSP._serializeTableTag("|-", '', state, token );
+					var trWT = dashyString("|-", token.dataAttribs.extra_dashes);
+					return WSP._serializeTableTag(trWT, '', state, token );
 				}
 			},
 			startsNewline: true
@@ -1164,17 +1177,7 @@ WSP.tagHandlers = {
 			startsNewline: true,
 			endsLine: true,
 			handle: function(state, token) {
-				var extra_dashes = token.dataAttribs.extra_dashes;
-				if (extra_dashes && (extra_dashes > 0)) {
-					var buf = ["----"];
-					for (var i = 0; i < extra_dashes; i++) {
-						buf.push("-");
-					}
-					return buf.join('');
-				} else {
-					// num_dashes undefined OR exactly 4
-					return "----";
-				}
+				return dashyString("----", token.dataAttribs.extra_dashes);
 			}
 		}
 	},

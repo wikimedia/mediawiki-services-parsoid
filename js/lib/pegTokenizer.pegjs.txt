@@ -1575,7 +1575,7 @@ table_caption_tag
 
 table_row_tag
   = //& { console.warn("table row enter @" + input.substr(pos, 30)); return true; }
-    pipe "-"
+    pipe dashes:"-"+
     a:generic_attribute*
     space*
     tagEndPos:({return pos})
@@ -1585,12 +1585,15 @@ table_row_tag
         // We rely on our tree builder to close the row as needed. This is
         // needed to support building tables from fragment templates with
         // individual cells or rows.
-        var trToken = [ new TagTk( 'tr', a, {tsr: [pos0, tagEndPos], 'stx': 'wt'} ) ];
+        var trToken = new TagTk( 'tr', a, {tsr: [pos0, tagEndPos], 'stx': 'wt'} );
+        if (dashes.length > 1) {
+            trToken.dataAttribs.extra_dashes = dashes.length - 1;
+        }
         if ( !td ) {
-            return trToken;
+            return [trToken];
         } else {
             //console.warn( 'tr result: ' + pp(trToken.concat(td)) + ' stops: ' + pp(stops));
-            return trToken.concat(td);
+            return [trToken].concat(td);
         }
     }
 
