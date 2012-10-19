@@ -1482,8 +1482,8 @@ WSP._serializeToken = function ( state, token ) {
 		var newTrailingNLCount = 0;
 
 		// FIXME: figure out where the non-string res comes from
-		if (res !== '' && res.constructor !== String) {
-			console.err("res was not a string!");
+		if (res === undefined) {
+			console.err("res was undefined!");
 			console.trace();
 			res = '';
 		}
