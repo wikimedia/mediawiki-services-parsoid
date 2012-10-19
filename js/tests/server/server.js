@@ -10,9 +10,10 @@ getTitle = function ( req, res ) {
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 
 	// Select pages that were not claimed in the last hour
-	var cutOffTimestamp = Date.now() - 3600;
+	var cutOffTimestamp = Date.now() - 3600,
+		randOffset = Math.floor(Math.random() * 100);
 	db.serialize( function () {
-		db.get( 'SELECT title FROM pages WHERE result IS NULL AND (claimed < ? or claimed is null) ORDER BY RANDOM() LIMIT 1', [cutOffTimestamp], function ( err, row ) {
+		db.get( 'SELECT title FROM pages WHERE result IS NULL AND (claimed < ? or claimed is null) LIMIT 1 OFFSET ?', [cutOffTimestamp, randOffset], function ( err, row ) {
 			if ( err ) {
 				console.log( err );
 				res.send( 'Error! ' + err.toString(), 500 );
@@ -27,7 +28,25 @@ getTitle = function ( req, res ) {
 					}
 				} );
 			} else {
-				res.send( 'no available titles that fit those constraints', 404 );
+				// Fall back to slow order by random() method
+				db.get( 'SELECT title FROM pages WHERE result IS NULL AND (claimed < ? or claimed is null) ORDER BY RANDOM() LIMIT 1', [cutOffTimestamp], function ( err, row ) {
+					if ( err ) {
+						console.log( err );
+						res.send( 'Error! ' + err.toString(), 500 );
+					} else if ( row ) {
+						db.run( 'UPDATE pages SET claimed = ? WHERE title = ?', [ Date.now(), row.title ], function ( err ) {
+							if ( err ) {
+								console.log( err );
+								res.send( 'Error! ' + err.toString(), 500 );
+							} else {
+								console.log( 'Dispatching ', row.title );
+								res.send( row.title );
+							}
+						} );
+					} else {
+						res.send( 'no available titles that fit those constraints', 404 );
+					}
+				} );
 			}
 		} );
 	} );
