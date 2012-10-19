@@ -6,7 +6,7 @@ var http = require( 'http' ),
 	qs = require( 'querystring' ),
 	exec = require( 'child_process' ).exec,
 
-	commit,
+	commit, ctime,
 	lastCommit, lastCommitTime, lastCommitCheck,
 	repoPath = __dirname,
 
@@ -17,7 +17,7 @@ function getTitle( cb ) {
 	var requestOptions = {
 		host: config.server.host,
 		port: config.server.port,
-		path: '/title',
+		path: '/title?commit=' + commit + '&ctime=' + encodeURIComponent( ctime ),
 		method: 'GET'
 	},
 
@@ -64,27 +64,29 @@ function runTest( cb, title ) {
 }
 
 function postResult( cb, title, result ) {
-	result = qs.stringify( { results: result } );
+	getGitCommit( function ( newCommit, newTime ) {
+		result = qs.stringify( { results: result, commit: newCommit, ctime: newTime } );
 
-	var requestOptions = {
-		host: config.server.host,
-		port: config.server.port,
-		headers: {
-			'Content-Type': 'application/x-www-form-urlencoded',
-			'Content-Length': result.length
+		var requestOptions = {
+			host: config.server.host,
+			port: config.server.port,
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+				'Content-Length': result.length
+			},
+			path: '/result/' + encodeURIComponent( title ),
+			method: 'POST'
 		},
-		path: '/result/' + encodeURIComponent( config.clientName ) + '/' + encodeURIComponent( title ),
-		method: 'POST'
-	},
 
-	req = http.request( requestOptions, function ( res ) {
-		res.on( 'end', function () {
-			cb();
+		req = http.request( requestOptions, function ( res ) {
+			res.on( 'end', function () {
+				cb();
+			} );
 		} );
-	} );
 
-	req.write( result, 'utf8' );
-	req.end();
+		req.write( result, 'utf8' );
+		req.end();
+	} );
 }
 
 /**
@@ -96,10 +98,10 @@ function getGitCommit( cb ) {
 	if ( !lastCommitCheck || ( now - lastCommitCheck ) > ( 5 * 60 * 1000 ) ) {
 		lastCommitCheck = now;
 		exec( 'git log --max-count=1 --pretty=format:"%H %ci"', { cwd: repoPath }, function ( err, data ) {
-			var cobj = data.split( ' ' );
-			lastCommit = cobj[0];
-			lastCommitTime = cobj[1];
-			cb( cobj[0], cobj[1] );
+			var cobj = data.match( /^([^ ]+) (.*)$/ );
+			lastCommit = cobj[1];
+			lastCommitTime = cobj[2];
+			cb( cobj[1], cobj[2] );
 		} );
 	} else {
 		cb( lastCommit, lastCommitTime );
@@ -135,8 +137,9 @@ if ( typeof module === 'object' ) {
 }
 
 if ( module && !module.parent ) {
-	getGitCommit( function ( commitHash ) {
+	getGitCommit( function ( commitHash, commitTime ) {
 		commit = commitHash;
+		ctime = commitTime;
 		callbackOmnibus();
 	} );
 }
