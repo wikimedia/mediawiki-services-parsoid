@@ -27,12 +27,12 @@
  + --------------+-----------------+---------------+--------------------------+
  | SOL           | --- nl      --> | SOL           | purge                    |
  | SOL           | --- eof     --> | SOL           | purge                    |
- | SOL           | --- ws      --> | PRE           | -- nothing to do --      |
+ | SOL           | --- ws      --> | PRE           | save whitespace token    |
  | SOL           | --- sol-tr  --> | SOL           | TOKS << tok              |
  | SOL           | --- other   --> | IGNORE        | purge                    |
  + --------------+-----------------+---------------+--------------------------+
- | PRE           | --- nl      --> | SOL           | purge   if |TOKS| == 0   |
- |               |                 |               | gen-pre if |TOKS| > 0 (#)|
+ | PRE           | --- nl OR   --> | SOL           | purge   if |TOKS| == 0   |
+ |               |   table-tag     |               | gen-pre if |TOKS| > 0 (#)|
  | PRE           | --- eof     --> | SOL           | purge                    |
  | PRE           | --- sol-tr  --> | PRE           | SOL-TR-TOKS << tok       |
  | PRE           | --- other   --> | PRE_COLLECT   | TOKS = SOL-TR-TOKS + tok |
@@ -90,6 +90,7 @@ function init(handler, addAnyHandler) {
 	handler.state  = PreHandler.STATE_SOL;
 	handler.lastNLTk = null;
 	handler.tokens = [];
+	handler.preWSToken = null;
 	handler.solTransparentTokens = [];
 	if (addAnyHandler) {
 		handler.manager.addTransform(handler.onAny.bind(handler),
@@ -113,11 +114,11 @@ PreHandler.prototype.getResultAndReset = function(token) {
 	this.popLastNL(this.tokens);
 
 	var ret = this.tokens;
+	if (this.preWSToken) {
+		ret.push(this.preWSToken);
+		this.preWSToken = null;
+	}
 	if (this.solTransparentTokens.length > 0) {
-		// sol-transparent tokens can only follow a white-space token
-		// which we ignored earlier (in PRE and MULTILINE_PRE states).
-		// Recover it now.
-		ret.push(' ');
 		ret = ret.concat(this.solTransparentTokens);
 		this.solTransparentTokens = [];
 	}
@@ -129,6 +130,9 @@ PreHandler.prototype.getResultAndReset = function(token) {
 };
 
 PreHandler.prototype.processPre = function(token) {
+	// discard the white-space token that triggered pre
+	this.preWSToken = null;
+
 	var ret = [];
 	if (this.tokens.length === 0) {
 		this.popLastNL(ret);
@@ -209,6 +213,12 @@ PreHandler.prototype.onEnd = function (token, manager, cb) {
 	return {tokens: [token]};
 };
 
+function isTableTag(token) {
+	var tc = token.constructor;
+	return (tc === TagTk || tc == EndTagTk) &&
+		['table','tr','td','th','tbody'].indexOf(token.name.toLowerCase()) !== -1;
+}
+
 PreHandler.prototype.onAny = function ( token, manager, cb ) {
 /*
 	console.warn("----------");
@@ -243,6 +253,7 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 				if ((tc === String) && token.match(/^\s/)) {
 					ret = this.tokens;
 					this.tokens = [];
+					this.preWSToken = token;
 					this.state = PreHandler.STATE_PRE;
 				} else if (Util.isSolTransparent(token)) { // continue watching
 					this.tokens.push(token);
@@ -255,6 +266,16 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 			case PreHandler.STATE_PRE:
 				if (Util.isSolTransparent(token)) { // continue watching
 					this.solTransparentTokens.push(token);
+				} else if (isTableTag(token) ||
+					(token.isHTMLTag() && Util.isBlockTag(token.name)))
+				{
+					if (this.tokens.length > 0) {
+						// we got here from a multiline-pre
+						ret = this.processPre(token);
+					} else {
+						ret = this.getResultAndReset(token);
+					}
+					this.state = PreHandler.STATE_SOL;
 				} else {
 					this.tokens = this.tokens.concat(this.solTransparentTokens);
 					this.tokens.push(token);
@@ -277,8 +298,7 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 				if ((tc === String) && token.match(/^\s/)) {
 					this.popLastNL(this.tokens);
 					this.state = PreHandler.STATE_PRE;
-					// Ignore white-space token. It will be recovered, if needed,
-					// in getResultAndReset
+					// Ignore white-space token.
 				} else if (Util.isSolTransparent(token)) { // continue watching
 					this.solTransparentTokens.push(token);
 				} else {
