@@ -582,6 +582,13 @@ function getDOMRange( doc, startElem, endElem ) {
  * wrapping
  */
 function encapsulateTemplates( env, doc, tplRanges) {
+	// Does 'n1' occur before 'n2 in their parent's children list?
+	function inSiblingOrder(n1, n2) {
+		while (n1 && n1 !== n2) {
+			n1 = n1.nextSibling;
+		}
+		return n1 !== null;
+	}
 
 	// 1. Merge overlapping template ranges
 	var newRanges = [];
@@ -591,11 +598,34 @@ function encapsulateTemplates( env, doc, tplRanges) {
 		var r = tplRanges[i];
 		var prev = hash.end[r.start];
 		if (prev) {
-			// found overlap!  merge prev and r
-			hash.end[r.start] = null;
-			prev.end = r.end;
-			prev.endElem.parentNode.removeChild(prev.endElem);
-			prev.endElem = r.endElem;
+			// Found overlap!  merge prev and r
+			var endTagToRemove;
+			if (inSiblingOrder(r.start, r.end)) {
+				// Because of foster-parenting, in some situations,
+				// 'r.start' can occur after 'r.end'.  In those siutations,
+				// the ranges are already merged and no fixup should be done.
+				endTagToRemove = prev.endElem;
+				hash.end[r.start] = null;
+				prev.end = r.end;
+				prev.endElem = r.endElem;
+			} else {
+				endTagToRemove = r.endElem;
+			}
+
+			// Remove end tag
+			endTagToRemove.parentNode.removeChild(endTagToRemove);
+
+			// Remove start tag (r.startElem) as well
+			// Not required, but good to cleanup
+			if (r.startElem.nodeName.toLowerCase() === 'meta') {
+				r.startElem.parentNode.removeChild(r.startElem);
+			} else {
+				// Remove mw:Object/* from the typeof
+				var type = r.startElem.getAttribute("typeof");
+				type = type.replace(/\bmw:Object?(\/[^\s]+|\b)/, '');
+				r.startElem.setAttribute("typeof", type);
+			}
+
 			r = prev;
 		} else {
 			newRanges.push(r);
