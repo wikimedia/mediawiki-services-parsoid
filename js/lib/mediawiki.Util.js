@@ -548,7 +548,8 @@ normalizeOut = function ( out ) {
 		.replace(/<\/?meta[^>]*>/g, '')
 		.replace(/<span[^>]+about="[^]+>/g, '')
 		.replace(/<span><\/span>/g, '')
-		.replace(/href="(?:\.?\.\/)+/g, 'href="');
+		.replace(/href="(?:\.?\.\/)+/g, 'href="')
+		.replace(/(<(table|tbody|tr|th|td|\/th|\/td)[^<>]*>)\s+/g, '$1');
 },
 
 /**
