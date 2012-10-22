@@ -579,7 +579,8 @@ normalizeHTML = function ( source ) {
 			// the expected html has some extra space in tags, strip it
 			.replace(/<a +href/g, '<a href')
 			.replace(/href="\/wiki\//g, 'href="')
-			.replace(/" +>/g, '">');
+			.replace(/" +>/g, '">')
+			.replace(/(<(table|tbody|tr|th|td|\/th|\/td)[^<>]*>)\s+/g, '$1');
 	} catch(e) {
         console.log("normalizeHTML failed on" +
 				source + " with the following error: " + e);
