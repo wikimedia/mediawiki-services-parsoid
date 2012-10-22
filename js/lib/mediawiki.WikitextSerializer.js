@@ -1493,21 +1493,25 @@ WSP._serializeToken = function ( state, token ) {
 
 		if (res !== '') {
 			// Strip leading or trailing newlines from the returned string
-			var match = res.match( /^((?:\r?\n)*)((?:.*?|[\r\n]+[^\r\n])*?)((?:\r?\n)*)$/ ),
-				leadingNLs = match[1],
-				trailingNLs = match[3];
-
+			var leadingNLs = '',
+				trailingNLs = '',
+				match = res.match(/^[\r\n]+/);
+			if (match) {
+				leadingNLs = match[0];
+				state.availableNewlineCount += ( leadingNLs.match(/\n/g) || [] ).length;
+			}
 			if (leadingNLs === res) {
-				// all newlines, accumulate count, and clear output
-				state.availableNewlineCount += leadingNLs.replace(/\r\n/g, '\n').length;
+				// clear output
 				res = "";
 			} else {
-				newTrailingNLCount = trailingNLs.replace(/\r\n/g, '\n').length;
-				if ( leadingNLs !== '' ) {
-					state.availableNewlineCount += leadingNLs.replace(/\r\n/g, '\n').length;
+				// check for trailing newlines
+				match = res.match(/[\r\n]+$/);
+				if (match) {
+					trailingNLs = match[0];
 				}
+				newTrailingNLCount = ( trailingNLs.match(/\n/g) || [] ).length;
 				// strip newlines
-				res = match[2];
+				res = res.replace(/^[\r\n]+|[\r\n]+$/g, '');
 			}
 		}
 
@@ -1715,6 +1719,7 @@ function gatherInlineText(buf, node) {
  * calling _serializeToken on each of these.
  */
 WSP._serializeDOM = function( node, state ) {
+
 	// serialize this node
 	if (node.nodeType === Node.ELEMENT_NODE) {
 		if (state.activeTemplateId === node.getAttribute("about")) {
