@@ -13,7 +13,7 @@ getTitle = function ( req, res ) {
 
 	// Select pages that were not claimed in the last hour
 	var cutOffTimestamp = Date.now() - 3600,
-		randOffset = Math.floor(Math.random() * 100);
+		randOffset = Math.floor(Math.random() * 500);
 	db.serialize( function () {
 		db.get( 'SELECT title, errors FROM pages ' +
 			'WHERE result IS NULL AND ' +
