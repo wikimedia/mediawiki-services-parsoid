@@ -1580,7 +1580,7 @@ table_row_tag
     space*
     tagEndPos:({return pos})
     // handle tables with missing table cells after a row
-    td:( s:sol !( pipe / "!" ) tdt:table_data_tag { return s.concat(tdt); } )?
+    td:( s:sol !( pipe / [!+-] ) tdt:table_data_tag { return s.concat(tdt); } )?
     { 
         // We rely on our tree builder to close the row as needed. This is
         // needed to support building tables from fragment templates with
@@ -1599,7 +1599,7 @@ table_row_tag
 
 table_data_tags
   = pipe
-    td:table_data_tag
+    ![+-] td:table_data_tag
     tagEndPos:({return pos})
     tds:( pipe_pipe tdt:table_data_tag { tdt[0].dataAttribs.stx_v = 'row';  return tdt } )* {
         td[0].dataAttribs.tsr[0] = pos0;
@@ -1608,7 +1608,7 @@ table_data_tags
 
 table_data_tag
   = //& { dp("table_data enter, pos=" + pos + input.substr(pos,10)); return true; }
-    ! [}+-]
+    ! "}"
     a:table_cell_args?
     //& { console.warn("past attrib, pos=" + pos + input.substr(pos,10)); return true; }
     // use inline_breaks to break on tr etc
