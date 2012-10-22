@@ -28,6 +28,7 @@ ListHandler.prototype.bulletCharsMap = {
 ListHandler.prototype.reset = function() {
 	this.newline = false; // flag to identify a list-less line that terminates
 						// a list block
+	this.tableCount = 0;
 	this.solTokens = [];
 	this.bstack = []; // Bullet stack, previous element's listStyle
 	this.endtags = [];  // Stack of end tags
@@ -35,32 +36,45 @@ ListHandler.prototype.reset = function() {
 
 ListHandler.prototype.onAny = function ( token, frame, prevToken ) {
 	var tokens, solTokens;
-	if ( token.constructor === NlTk ) {
-		if (this.newline) {
-			// second newline without a list item in between, close the list
-			solTokens = this.solTokens;
-			tokens = this.end().concat(solTokens, [token]);
-			this.newline = false;
-		} else {
-			tokens = [token];
-			this.newline = true;
+	if (this.tableCount > 0) {
+		// We are in a table context.  Continue to pass through tokens
+		// till we find matching end-table tags.
+		if (token.constructor === EndTagTk && token.name === 'table') {
+			this.tableCount--;
 		}
-		return { tokens: tokens };
-	} else if ( this.newline ) {
-		if (Util.isSolTransparent(token)) {
-			// Hold on to see where the token stream goes from here
-			// - another list item, or
-			// - end of list
-			this.solTokens.push(token);
-			return {};
-		} else {
-			solTokens = this.solTokens;
-			tokens = this.end().concat(solTokens, [token]);
-			this.newline = false;
-			return { tokens: tokens };
-		}
-	} else {
 		return { token: token };
+	} else {
+		// No tables -- all good!
+		if ( token.constructor === NlTk ) {
+			if (this.newline) {
+				// second newline without a list item in between, close the list
+				solTokens = this.solTokens;
+				tokens = this.end().concat(solTokens, [token]);
+				this.newline = false;
+			} else {
+				tokens = [token];
+				this.newline = true;
+			}
+			return { tokens: tokens };
+		} else if ( this.newline ) {
+			if (Util.isSolTransparent(token)) {
+				// Hold on to see where the token stream goes from here
+				// - another list item, or
+				// - end of list
+				this.solTokens.push(token);
+				return {};
+			} else {
+				solTokens = this.solTokens;
+				tokens = this.end().concat(solTokens, [token]);
+				this.newline = false;
+				return { tokens: tokens };
+			}
+		} else {
+			if (token.constructor === TagTk && token.name === 'table') {
+				this.tableCount++;
+			}
+			return { token: token };
+		}
 	}
 };
 
