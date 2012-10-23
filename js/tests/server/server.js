@@ -4,7 +4,8 @@ var http = require( 'http' ),
 	express = require( 'express' ),
 	sqlite = require( 'sqlite3' ),
 	dbStack = [], dbFlag = false,
-	db = new sqlite.Database( 'pages.db' ),
+	argv = require( 'optimist' ).argv,
+	db = new sqlite.Database( argv._[0] || '/mnt/rtserver/pages.db' ),
 	// The maximum number of tries per article
 	maxTries = 6,
 
