@@ -1493,8 +1493,9 @@ WSP._serializeToken = function ( state, token ) {
 		var newTrailingNLCount = 0;
 
 		// FIXME: figure out where the non-string res comes from
-		if (res === undefined) {
-			console.err("res was undefined!");
+		if (res === undefined || res.constructor !== String) {
+			console.error(state.env.pageName ": res was undefined or not a string!");
+			console.error(JSON.stringify(res));
 			console.trace();
 			res = '';
 		}
