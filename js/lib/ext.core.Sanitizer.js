@@ -621,7 +621,7 @@ Sanitizer.prototype.onAnchor = function ( token ) {
 
 	return { token: token };
 };
-	
+
 /**
  * Sanitize any tag.
  *
@@ -681,7 +681,7 @@ Sanitizer.prototype.onAny = function ( token ) {
 			if (token.constructor === TagTk) {
 				this.sanitizeTagAttrs(newToken, attribs);
 			}
-			
+
 			token = newToken;
 		}
 	}
@@ -695,11 +695,11 @@ Sanitizer.prototype.onAny = function ( token ) {
  * pseudo-entity source (eg "&foo;")
  */
 Sanitizer.prototype.decodeEntity = function(name) {
-	if (this.constants.htmlEntityAliases(name)) {
-		name = this.constants.htmlEntityAliases(name);
+	if (this.constants.htmlEntityAliases[name]) {
+		name = this.constants.htmlEntityAliases[name];
 	}
 
-	var e = this.constants.htmlEntities(name);
+	var e = this.constants.htmlEntities[name];
 	return e ? Util.codepointToUtf8(e) : "&" + name + ";";
 };
 
@@ -720,13 +720,14 @@ Sanitizer.prototype.decodeChar = function (codepoint) {
  * in the text and return a UTF-8 string.
  */
 Sanitizer.prototype.decodeCharReferences = function ( text ) {
-	return text.replace(this.constants.CHAR_REFS_RE, function() {
+	var sanitizer = this;
+	return text.replace(sanitizer.constants.CHAR_REFS_RE, function() {
 		if (arguments[1]) {
-			return this.decodeEntity(arguments[1]);
+			return sanitizer.decodeEntity(arguments[1]);
 		} else if (arguments[2]) {
-			return this.decodeChar(parseInt(arguments[2], 10));
+			return sanitizer.decodeChar(parseInt(arguments[2], 10));
 		} else if (arguments[3]) {
-			return this.decodeChar(parseInt(arguments[3], 16));
+			return sanitizer.decodeChar(parseInt(arguments[3], 16));
 		} else {
 			return arguments[4];
 		}
