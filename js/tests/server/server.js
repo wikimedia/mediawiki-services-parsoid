@@ -6,7 +6,7 @@ var http = require( 'http' ),
 	dbStack = [], dbFlag = false,
 	db = new sqlite.Database( 'pages.db' ),
 	// The maximum number of tries per article
-	maxTries = 3,
+	maxTries = 6,
 
 getTitle = function ( req, res ) {
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
@@ -17,7 +17,8 @@ getTitle = function ( req, res ) {
 	db.serialize( function () {
 		db.get( 'SELECT title, errors FROM pages ' +
 			'WHERE result IS NULL AND ' +
-			'(claimed < ? or claimed is null) and errors < ? LIMIT 1 OFFSET ?',
+			'(claimed < ? or claimed is null) ' +
+			' and (errors is null or errors < ? ) LIMIT 1 OFFSET ?',
 			[cutOffTimestamp, maxTries, randOffset],
 			// FIXME: move cb out!
 			function ( err, row ) {
@@ -45,7 +46,7 @@ getTitle = function ( req, res ) {
 					db.get( 'SELECT title, errors FROM pages WHERE ' +
 							'result IS NULL AND ' +
 							'(claimed < ? or claimed is null) '+
-							' and errors < ? ORDER BY RANDOM() LIMIT 1',
+							' and (errors is null or errors < ?) ORDER BY RANDOM() LIMIT 1',
 							[cutOffTimestamp, maxTries],
 							// FIXME: move cb to separate function!
 							function ( err, row )
@@ -70,6 +71,7 @@ getTitle = function ( req, res ) {
 								}
 								);
 						} else {
+							console.log( 'no available titles' );
 							res.send( 'no available titles that fit those constraints', 404 );
 						}
 					} );
@@ -120,11 +122,12 @@ recieveResults = function ( req, res ) {
 },
 
 statsWebInterface = function ( req, res ) {
+	console.log( 'GET /stats' );
 	db.serialize( function () {
-		db.get( 'SELECT * FROM ((SELECT count(*) FROM pages WHERE result IS NOT NULL) AS total,'
-				+ '(SELECT count(*) FROM pages WHERE errors = 0) AS noError,'
+		db.get( 'SELECT * FROM ((SELECT count(*) FROM pages WHERE result IS NOT NULL or errors >= ?) AS total,'
+				+ '(SELECT count(*) FROM pages WHERE result IS NOT NULL AND errors = 0) AS noError,'
 				+ '(SELECT count(*) FROM pages WHERE result IS NOT NULL AND errors = 0 AND fails = 0) AS noFail,'
-				+ '(SELECT count(*) FROM pages WHERE result IS NOT NULL AND errors = 0 AND fails = 0 AND skips = 0) AS noSkip) AS temp', function ( err, row ) {
+				+ '(SELECT count(*) FROM pages WHERE result IS NOT NULL AND errors = 0 AND fails = 0 AND skips = 0) AS noSkip) AS temp', [maxTries], function ( err, row ) {
 			if ( err ) {
 				res.send( err.toString(), 500 );
 			} else if ( row.length <= 0 ) {
@@ -144,7 +147,8 @@ statsWebInterface = function ( req, res ) {
 						   + tests
 						   + '</b> articles, of which <ul><li><b>'
 						   + noErrors
-						   + '%</b> parsed without crashes, </li><li><b>'
+						   + '%</b> parsed without crashes, source ' +
+						   'retrieval failures or timeouts, </li><li><b>'
 						   + syntacticDiffs
 						   + '%</b> round-tripped without semantic differences, and </li><li><b>'
 						   + perfects
@@ -171,6 +175,7 @@ statsWebInterface = function ( req, res ) {
 },
 
 failsWebInterface = function ( req, res ) {
+	console.log( 'GET /topfails/' + req.params[0] );
 	db.serialize( function () {
 		var page = ( req.params[0] || 0 ) - 0,
 			offset = page * 40;
