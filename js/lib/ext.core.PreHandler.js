@@ -32,7 +32,8 @@
  | SOL           | --- other   --> | IGNORE        | purge                    |
  + --------------+-----------------+---------------+--------------------------+
  | PRE           | --- nl OR   --> | SOL           | purge   if |TOKS| == 0   |
- |               |   table-tag     |               | gen-pre if |TOKS| > 0 (#)|
+ |               |  wt-table tag   |               | gen-pre if |TOKS| > 0 (#)|
+ |               |  html-blk tag   |               |                          |
  | PRE           | --- eof     --> | SOL           | purge                    |
  | PRE           | --- sol-tr  --> | PRE           | SOL-TR-TOKS << tok       |
  | PRE           | --- other   --> | PRE_COLLECT   | TOKS = SOL-TR-TOKS + tok |
