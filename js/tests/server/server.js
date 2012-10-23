@@ -8,17 +8,18 @@ var http = require( 'http' ),
 	// The maximum number of tries per article
 	maxTries = 6,
 
+dbGetTitle = db.prepare('SELECT title, errors FROM pages ' +
+			'WHERE result IS NULL AND ' +
+			'(claimed < ? or claimed is null) ' +
+			' and (errors is null or errors < ? ) LIMIT 1 OFFSET ?' ),
+dbClaimTitle = db.prepare( 'UPDATE pages SET claimed = ?, errors = ? WHERE title = ?' ),
 getTitle = function ( req, res ) {
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 
 	// Select pages that were not claimed in the last hour
 	var cutOffTimestamp = Date.now() - 3600,
 		randOffset = Math.floor(Math.random() * 500);
-	db.serialize( function () {
-		db.get( 'SELECT title, errors FROM pages ' +
-			'WHERE result IS NULL AND ' +
-			'(claimed < ? or claimed is null) ' +
-			' and (errors is null or errors < ? ) LIMIT 1 OFFSET ?',
+		dbGetTitle.get(
 			[cutOffTimestamp, maxTries, randOffset],
 			// FIXME: move cb out!
 			function ( err, row ) {
@@ -26,7 +27,7 @@ getTitle = function ( req, res ) {
 					console.log( err );
 					res.send( 'Error! ' + err.toString(), 500 );
 				} else if ( row ) {
-					db.run( 'UPDATE pages SET claimed = ?, errors = ? WHERE title = ?',
+					dbClaimTitle.run(
 						[ Date.now(),
 						(row.errors === null ? 0 : row.errors + 1),
 						row.title ],
@@ -36,7 +37,7 @@ getTitle = function ( req, res ) {
 								console.log( err );
 								res.send( 'Error! ' + err.toString(), 500 );
 							} else {
-								console.log( 'Dispatching ', row.title );
+								console.log( ' -> ' + row.title );
 								res.send( row.title );
 							}
 						}
@@ -65,7 +66,7 @@ getTitle = function ( req, res ) {
 										console.log( err );
 										res.send( 'Error! ' + err.toString(), 500 );
 									} else {
-										console.log( 'Dispatching ', row.title );
+										console.log( ' -> ' + row.title );
 										res.send( row.title );
 									}
 								}
@@ -78,9 +79,11 @@ getTitle = function ( req, res ) {
 				}
 			}
 		);
-	} );
 },
 
+dbUpdateResult = db.prepare( 'UPDATE pages SET ' +
+				'result = ?, skips = ?, fails = ?, errors = ?, client = ? ' +
+				' WHERE title = ?' ),
 recieveResults = function ( req, res ) {
 	var clientName = req.params[0],
 		title = decodeURIComponent( req.params[1] ),
@@ -93,26 +96,19 @@ recieveResults = function ( req, res ) {
 	failCount = failCount ? failCount.length - 1 : 0;
 	errorCount = errorCount ? 1 : 0;
 
-	console.log( 'Client sent back results.' );
-
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
-
-	console.log( 'Updating database' );
 
 	if ( errorCount > 0 && result.match( 'DoesNotExist' ) ) {
 		console.log( 'DoesNotExist error get, skipping update.' );
 		res.send( '', 200 );
 	} else {
-		db.run( 'UPDATE pages SET ' +
-				'result = ?, skips = ?, fails = ?, errors = ?, client = ? ' +
-				' WHERE title = ?',
+		dbUpdateResult.run(
 			[ result, skipCount, failCount, errorCount, clientName, title ],
 			function ( err ) {
-				console.log( 'Updated.' );
 				if ( err ) {
 					res.send( err.toString(), 500 );
 				} else {
-					console.log( title, '-', skipCount, 'skips,',
+					console.log( '<-  ' + title, ':', skipCount, 'skips,',
 						failCount, 'fails,', errorCount, 'errors.' );
 					res.send( '', 200 );
 				}
@@ -121,13 +117,14 @@ recieveResults = function ( req, res ) {
 	}
 },
 
-statsWebInterface = function ( req, res ) {
-	console.log( 'GET /stats' );
-	db.serialize( function () {
-		db.get( 'SELECT * FROM ((SELECT count(*) FROM pages WHERE result IS NOT NULL or errors >= ?) AS total,'
+dbStatsQuery = db.prepare( 'SELECT * FROM ((SELECT count(*) FROM pages WHERE result IS NOT NULL or errors >= ?) AS total,'
 				+ '(SELECT count(*) FROM pages WHERE result IS NOT NULL AND errors = 0) AS noError,'
 				+ '(SELECT count(*) FROM pages WHERE result IS NOT NULL AND errors = 0 AND fails = 0) AS noFail,'
-				+ '(SELECT count(*) FROM pages WHERE result IS NOT NULL AND errors = 0 AND fails = 0 AND skips = 0) AS noSkip) AS temp', [maxTries], function ( err, row ) {
+				+ '(SELECT count(*) FROM pages WHERE result IS NOT NULL AND errors = 0 AND fails = 0 AND skips = 0) AS noSkip) AS temp' ),
+statsWebInterface = function ( req, res ) {
+	console.log( 'GET /stats' );
+	//db.serialize( function () {
+		dbStatsQuery.get( [maxTries], function ( err, row ) {
 			if ( err ) {
 				res.send( err.toString(), 500 );
 			} else if ( row.length <= 0 ) {
@@ -171,18 +168,19 @@ statsWebInterface = function ( req, res ) {
 				res.end( '</body></html>' );
 			}
 		} );
-	} );
+	//} );
 },
 
+dbFailsQuery = db.prepare( 'SELECT title, skips, fails, errors FROM pages ' +
+			'WHERE (result IS NOT NULL OR errors >= ?) ' +
+			'ORDER BY errors DESC, fails DESC, skips DESC LIMIT 40 OFFSET ?' ),
 failsWebInterface = function ( req, res ) {
 	console.log( 'GET /topfails/' + req.params[0] );
-	db.serialize( function () {
+	//db.serialize( function () {
 		var page = ( req.params[0] || 0 ) - 0,
 			offset = page * 40;
 
-		db.all( 'SELECT title, skips, fails, errors FROM pages ' +
-			'WHERE (result IS NOT NULL OR errors >= ?) ' +
-			'ORDER BY errors DESC, fails DESC, skips DESC LIMIT 40 OFFSET ?',
+		dbFailsQuery.all(
 			[ maxTries, offset ],
 			function ( err, rows )
 			{
@@ -229,7 +227,7 @@ failsWebInterface = function ( req, res ) {
 				}
 			}
 		);
-	} );
+	//} );
 },
 
 resultsWebInterface = function ( req, res ) {
