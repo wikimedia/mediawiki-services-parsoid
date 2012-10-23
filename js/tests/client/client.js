@@ -2,18 +2,17 @@
  * A client for testing round-tripping of articles.
  */
 
-( function () {
-
 var http = require( 'http' ),
 	qs = require( 'querystring' ),
+	exec = require( 'child_process' ).exec,
 
-// git log --max-count=1 --pretty=format:"%H""
-// git rev-parse HEAD
+	commit,
+	lastCommit, lastCommitTime, lastCommitCheck,
 
 	config = require( process.argv[2] || './config.js' ),
-	rtTest = require( '../roundtrip-test.js' ),
+	rtTest = require( '../roundtrip-test.js' );
 
-getTitle = function ( cb ) {
+function getTitle( cb ) {
 	var requestOptions = {
 		host: config.server.host,
 		port: config.server.port,
@@ -46,9 +45,9 @@ getTitle = function ( cb ) {
 	};
 
 	http.get( requestOptions, callback );
-},
+}
 
-runTest = function ( cb, title ) {
+function runTest( cb, title ) {
 	var result, callback = rtTest.cbCombinator.bind( null, rtTest.xmlFormat, function ( err, results ) {
 		cb( title, results );
 	} );
@@ -61,9 +60,9 @@ runTest = function ( cb, title ) {
 
 		cb( title, rtTest.xmlFormat( title, err, null ) );
 	}
-},
+}
 
-postResult = function ( cb, title, result ) {
+function postResult( cb, title, result ) {
 	result = qs.stringify( { results: result } );
 
 	var requestOptions = {
@@ -85,9 +84,28 @@ postResult = function ( cb, title, result ) {
 
 	req.write( result, 'utf8' );
 	req.end();
-},
+}
 
-callbackOmnibus = function () {
+/**
+ * Get the current git commit hash.
+ */
+function getGitCommit( cb ) {
+	var now = Date.now();
+
+	if ( !lastCommitCheck || ( now - lastCommitCheck ) > ( 5 * 60 * 1000 ) ) {
+		lastCommitCheck = now;
+		exec( 'git log --max-count=1 --pretty=format:"%H %ci"', function ( err, data ) {
+			var cobj = data.split( ' ' );
+			lastCommit = cobj[0];
+			lastCommitTime = cobj[1];
+			cb( cobj[0], cobj[1] );
+		} );
+	} else {
+		cb( lastCommit, lastCommitTime );
+	}
+}
+
+function callbackOmnibus() {
 	switch ( arguments.length ) {
 		case 1:
 			console.log( 'Running a test on ' + arguments[0] +  '....' );
@@ -98,7 +116,13 @@ callbackOmnibus = function () {
 			postResult( callbackOmnibus, arguments[0], arguments[1] );
 			break;
 		default:
-			getTitle( callbackOmnibus );
+			getGitCommit( function ( latestCommit ) {
+				if ( latestCommit !== commit ) {
+					process.exit( 0 );
+				}
+
+				getTitle( callbackOmnibus );
+			} );
 			break;
 	}
 };
@@ -110,7 +134,8 @@ if ( typeof module === 'object' ) {
 }
 
 if ( module && !module.parent ) {
-	callbackOmnibus();
+	getGitCommit( function ( commitHash ) {
+		commit = commitHash;
+		callbackOmnibus();
+	} );
 }
-
-}() );
