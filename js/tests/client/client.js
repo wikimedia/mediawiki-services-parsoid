@@ -10,7 +10,7 @@ var http = require( 'http' ),
 // git log --max-count=1 --pretty=format:"%H""
 // git rev-parse HEAD
 
-	config = require( './config.js' ),
+	config = require( process.argv[1] || './config.js' ),
 	rtTest = require( '../roundtrip-test.js' ),
 
 getTitle = function ( cb ) {
