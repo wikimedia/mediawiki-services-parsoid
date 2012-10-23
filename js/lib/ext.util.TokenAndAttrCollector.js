@@ -84,13 +84,14 @@ TokenAndAttrCollector.prototype.inspectAttrs = function(token) {
 				balanced = !balanced;
 			} else if ((tc === EndTagTk) && (t.name === collector.tagName)) {
 				// First unmatched closing tag is the nested tag we are looking for
-				if (!nestedTagInfo && collector.hasOpenTag && balanced) {
+				if (!nestedTagInfo && balanced) {
 					nestedTagInfo = {
 						delimiter: t,
 						token: containerToken,
 						attrIndex: attrIndex,
 						k: isK  ? j : -1,
-						v: !isK ? j : -1
+						v: !isK ? j : -1,
+						unbalanced: !collector.hasOpenTag
 					};
 				}
 				balanced = !balanced;
