@@ -8,6 +8,7 @@ var http = require( 'http' ),
 
 	commit,
 	lastCommit, lastCommitTime, lastCommitCheck,
+	repoPath = __dirname,
 
 	config = require( process.argv[2] || './config.js' ),
 	rtTest = require( '../roundtrip-test.js' );
@@ -94,7 +95,7 @@ function getGitCommit( cb ) {
 
 	if ( !lastCommitCheck || ( now - lastCommitCheck ) > ( 5 * 60 * 1000 ) ) {
 		lastCommitCheck = now;
-		exec( 'git log --max-count=1 --pretty=format:"%H %ci"', function ( err, data ) {
+		exec( 'git log --max-count=1 --pretty=format:"%H %ci"', { cwd: repoPath }, function ( err, data ) {
 			var cobj = data.split( ' ' );
 			lastCommit = cobj[0];
 			lastCommitTime = cobj[1];
