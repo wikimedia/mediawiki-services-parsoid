@@ -208,7 +208,10 @@ var HTML5 = require( 'html5' ).HTML5,
 
 				if (toks) {
 					if (toks.constructor === Array) {
-						[].push.apply(this.accum, toks);
+						for ( var i = 0, l = toks.length; i < l; i++ ) {
+							this.accum.push(toks[i]);
+						}
+						//this.accum = this.accum.concat(toks);
 					} else {
 						this.accum.push(toks);
 					}

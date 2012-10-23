@@ -93,7 +93,7 @@ ParagraphWrapper.prototype.onNewLineOrEOF = function (  token, frame, cb ) {
 	}
 
 	// this.nonNlTokens += this.currLine.tokens
-	Array.prototype.push.apply(this.nonNlTokens, l.tokens);
+	this.nonNlTokens = this.nonNlTokens.concat(l.tokens);
 	this.resetCurrLine();
 
 	this.nlWsTokens.push(token);
@@ -161,7 +161,7 @@ ParagraphWrapper.prototype.processPendingNLs = function (isBlockToken) {
 	}
 
 	// Gather remaining ws and nl tokens
-	Array.prototype.push.apply(resToks, this.nlWsTokens);
+	resToks = resToks.concat(this.nlWsTokens);
 	return resToks;
 };
 
@@ -176,7 +176,7 @@ ParagraphWrapper.prototype.onAny = function ( token, frame, cb ) {
 		tc = token.constructor;
 	if (tc === TagTk && token.name === 'pre') {
 		res = this.processPendingNLs(true);
-		Array.prototype.push.apply(res, this.currLine.tokens);
+		res = res.concat(this.currLine.tokens);
 		res.push(token);
 
 		this.dispatcher.removeTransform(this.newlineRank, 'newline');
@@ -203,12 +203,12 @@ ParagraphWrapper.prototype.onAny = function ( token, frame, cb ) {
 			return { tokens: this._getTokensAndReset() };
 		} else if (this.newLineCount === 1) {
 			// Swallow newline, whitespace, and comments
-			Array.prototype.push.apply(this.nonNlTokens, this.nlWsTokens);
+			this.nonNlTokens = this.nonNlTokens.concat(this.nlWsTokens);
 			this.newLineCount = 0;
 			this.nlWsTokens = [];
 
 			// Swallow the current line as well
-			Array.prototype.push.apply(this.nonNlTokens, this.currLine.tokens);
+			this.nonNlTokens = this.nonNlTokens.concat(this.currLine.tokens);
 			this.resetCurrLine();
 
 			// But, dont process the new token yet

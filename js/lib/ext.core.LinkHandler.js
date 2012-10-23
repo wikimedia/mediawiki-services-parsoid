@@ -73,7 +73,7 @@ function buildLinkAttrs(attrs, getLinkText, rdfaType, linkAttrs) {
 	}
 
 	if (linkAttrs) {
-		[].push.apply(newAttrs, linkAttrs);
+		newAttrs = newAttrs.concat(linkAttrs);
 	}
 
 	return {

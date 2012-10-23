@@ -481,7 +481,9 @@ EOFTk.prototype = {
  */
 function Params ( env, params ) {
 	this.env = env;
-	this.push.apply( this, params );
+	for (var i = 0; i < params.length; i++) {
+		this.push( params[i] );
+	}
 }
 
 Params.prototype = [];

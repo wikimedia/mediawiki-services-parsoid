@@ -108,7 +108,13 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text ) {
 	}
 
 	var p = new PegTokenizer( state.env ), tokens = [];
-	p.on('chunk', function ( chunk ) { tokens.push.apply( tokens, chunk ); });
+	p.on('chunk', function ( chunk ) {
+		// Avoid a stack overflow if chunk is large, but still update token
+		// in-place
+		for ( var ci = 0, l = chunk.length; ci < l; ci++ ) {
+			tokens.push(chunk[ci]);
+		}
+	});
 	p.on('end', function(){ });
 
 	// Tokenizer.process is synchronous -- this call wont return till everything is parsed.

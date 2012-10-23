@@ -387,11 +387,15 @@ var SanitizerConstants = {
 
 			// RDFa attributes
 			var rdfa = ["about", "property", "resource", "datatype", "typeof"];
-			if (config.allowRdfaAttrs) [].push.apply(common, rdfa);
+			if (config.allowRdfaAttrs) {
+				common = common.concat(rdfa);
+			}
 
 			// MicroData attrs
 			var mda = ["itemid", "itemprop", "itemref", "itemscope", "itemtype"];
-			if (config.allowMicrodataAttrs) [].push.apply(common, mda);
+			if (config.allowMicrodataAttrs) {
+				common = common.concat(mda);
+			}
 
 			var block = common.concat(["align"]);
 			var tablealign = ["align", "char", "charoff", "valign"];
