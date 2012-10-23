@@ -1494,7 +1494,7 @@ WSP._serializeToken = function ( state, token ) {
 
 		// FIXME: figure out where the non-string res comes from
 		if (res === undefined || res.constructor !== String) {
-			console.error(state.env.pageName ": res was undefined or not a string!");
+			console.error(state.env.pageName + ": res was undefined or not a string!");
 			console.error(JSON.stringify(res));
 			console.trace();
 			res = '';
