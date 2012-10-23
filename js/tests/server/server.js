@@ -207,7 +207,7 @@ failsWebInterface = function ( req, res ) {
 					res.write( '<table><tr><th>Title</th><th>Syntactic diffs</th><th>Semantic diffs</th><th>Errors</th></tr>' );
 
 					for ( i = 0; i < rows.length; i++ ) {
-						res.write( '<tr><td style="color: ' );
+						res.write( '<tr><td style="padding-left: 0.4em; border-left: 5px solid ' );
 						row = rows[i];
 
 						if ( row.skips === 0 && row.fails === 0 && row.errors === 0 ) {
@@ -220,7 +220,12 @@ failsWebInterface = function ( req, res ) {
 							res.write( 'red' );
 						}
 
-						res.write( '">' + row.title + '</td>' );
+						res.write( '"><a href="http://parsoid.wmflabs.org/_rt/en/'
+								+ row.title + '">'
+								+ row.title + '</a> | '
+								+ '<a href="http://localhost:8000/_rt/en/' + row.title
+								+ '">@lh</a>'
+								+ '</td>' );
 						res.write( '<td>' + row.skips + '</td><td>' + row.fails + '</td><td>' + ( row.errors === null ? 0 : row.errors ) + '</td></tr>' );
 					}
 					res.end( '</table></body></html>' );
