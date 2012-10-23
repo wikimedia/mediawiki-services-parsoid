@@ -89,10 +89,6 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text ) {
 	// console.warn("---EWT:DBG0---");
 	// console.warn("---HWT---:onl:" + onNewline + ":" + text);
 	// tokenize the text
-	var p = new PegTokenizer( state.env ),
-		tokens = [];
-	p.on('chunk', function ( chunk ) { tokens.push.apply( tokens, chunk ); });
-	p.on('end', function(){ });
 
 	// this is synchronous for now, will still need sync version later, or
 	// alternatively make text processing in the serializer async
@@ -111,6 +107,12 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text ) {
 		prefixedText = prefixedText.replace(/(\r?\n)/g, '$1_');
 	}
 
+	var p = new PegTokenizer( state.env ), tokens = [];
+	p.on('chunk', function ( chunk ) { tokens.push.apply( tokens, chunk ); });
+	p.on('end', function(){ });
+
+	// Tokenizer.process is synchronous -- this call wont return till everything is parsed.
+	// The code below will break if tokenization becomes async.
 	p.process( prefixedText );
 
 	// If the token stream has a TagTk, SelfclosingTagTk, EndTagTk or CommentTk
@@ -321,6 +323,8 @@ WSP.escapeWikiText = function ( state, text ) {
 	}
 
 	// Template and template-arg markers are escaped unconditionally!
+	// Conditional escaping requires matching brace pairs and knowledge
+	// of whether we are in template arg context or not.
 	if (text.match(/{{{|{{|}}}|}}/)) {
 		// console.warn("---EWT:F3---");
 		return escapedText(text);
@@ -329,8 +333,9 @@ WSP.escapeWikiText = function ( state, text ) {
 	var sol = state.onNewline || state.emitNewlineOnNextToken;
 	var hasNewlines = text.match(/\n./);
 	if (!hasNewlines) {
-		// {|, |}, ||, |-, |+,  , *#:;, ----, =*= only need to escaped in SOL context.
-		// '', [], <> might need escaping anywhere.  {{, {{{, }}}, }} are handled above.
+		// {{, {{{, }}}, }} are handled above.
+		// Test 1: '', [], <> need escaping wherever they occur
+		// Test 2: {|, |}, ||, |-, |+,  , *#:;, ----, =*= need escaping only in SOL context.
 		if (!sol && !text.match(/''|[<>]|\[.*\]|\]/)) {
 			// It is not necessary to test for an unmatched opening bracket ([)
 			// as long as we always escape an unmatched closing bracket (]).
@@ -349,7 +354,10 @@ WSP.escapeWikiText = function ( state, text ) {
 	// escape existing nowiki tags
 	text = text.replace(/<(\/?nowiki)>/g, '&lt;$1&gt;');
 
-	// use the tokenizer to see if we have any wikitext tokens
+	// SSS FIXME: pre-escaping is currently broken since the front-end parser
+	// eliminated pre-tokens in the tokenizer and moved to a stream handler.
+	//
+	// Use the tokenizer to see if we have any wikitext tokens
 	if (this.wteHandlers.hasWikitextTokens(state, sol, text)) {
 		// console.warn("---EWT:DBG1---");
 		return escapedText(text);
@@ -1492,6 +1500,12 @@ WSP._serializeToken = function ( state, token ) {
 		}
 
 		if (res !== '') {
+			// NOTE: This used to be a single regexp:
+			//   res.match( /^((?:\r?\n)*)((?:.*?|[\r\n]+[^\r\n])*?)((?:\r?\n)*)$/ );
+			// But, we have split this into two 3 different REs since this RE got stuck
+			// on certain pages (Ex: en:Good_Operating_Practice).  Recording this here
+			// so we dont attempt this again in the future.
+
 			// Strip leading or trailing newlines from the returned string
 			var leadingNLs = '',
 				trailingNLs = '',
