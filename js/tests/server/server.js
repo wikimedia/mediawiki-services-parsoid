@@ -10,7 +10,7 @@ var http = require( 'http' ),
 	maxTries = 6,
 
 dbGetTitle = db.prepare('SELECT title, errors FROM pages ' +
-			'WHERE result IS NULL AND ' +
+			'WHERE skips IS NULL AND ' +
 			'(claimed < ? or claimed is null) ' +
 			' and (errors is null or errors < ? ) LIMIT 1 OFFSET ?' ),
 dbClaimTitle = db.prepare( 'UPDATE pages SET claimed = ?, errors = ? WHERE title = ?' ),
