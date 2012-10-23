@@ -423,7 +423,9 @@ TemplateHandler.prototype.lookupArg = function(dict, attribs, cb, ret) {
 	var argName = toks.constructor === String ? toks : Util.tokensToString(toks).trim();
 	var res     = dict[argName];
 
-	if (res) {
+	// protect against references to prototype or constructor, if those are
+	// not set to strings..
+	if ( res && res.constructor !== Function ) {
 		if (res.constructor === String) {
 			cb( { tokens: [res] } );
 		} else {
