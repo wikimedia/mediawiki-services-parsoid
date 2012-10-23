@@ -57,7 +57,7 @@ runTest = function ( cb, title ) {
 		rtTest.fetch( title, callback, config.interwiki );
 	} catch ( err ) {
 		// Log it to console (for gabriel to watch scroll by)
-		console.log( err );
+		console.error( "ERROR in " + title + ': ' + err );
 
 		cb( title, rtTest.xmlFormat( title, err, null ) );
 	}
