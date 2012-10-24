@@ -392,10 +392,10 @@ function patchUpDOM(node, env, tplIdToSkip) {
 				// Update TSR
 				var dpSrc = farthestTpl.end.getAttribute("data-parsoid");
 
-				if (dpSrc === null) {
+				if (dpSrc === null || dpSrc === "") {
 					// TODO: Figure out why there is no data-parsoid here!
-					console.err( "XXX Error in patchUpDOM: no data-parsoid found! " +
-							env.page );
+					console.error( "XXX Error in patchUpDOM: no data-parsoid found! " +
+							env.pageName );
 					dpSrc = '{}';
 				}
 
