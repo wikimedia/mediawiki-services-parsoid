@@ -136,9 +136,9 @@ statsWebInterface = function ( req, res ) {
 				res.write( '<html><body>' );
 
 				var tests = row['count(*)'],
-					noErrors = Math.floor( ( row['count(*):1'] / row['count(*)'] ) * 100 ),
-					syntacticDiffs = Math.floor( ( row['count(*):2'] / row['count(*)'] ) * 100 ),
-					perfects = Math.floor( ( row['count(*):3'] / row['count(*)'] ) * 100 );
+					noErrors = Math.round( 100 * ( row['count(*):1'] / row['count(*)'] ) * 100 ) / 100,
+					syntacticDiffs = Math.round ( 100 * ( row['count(*):2'] / row['count(*)'] ) * 100 ) / 100,
+					perfects = Math.round( 100 * ( row['count(*):3'] / row['count(*)'] ) * 100 ) / 100;
 
 
 				res.write( '<p>We have run roundtrip-tests on <b>'
