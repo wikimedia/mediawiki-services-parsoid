@@ -254,7 +254,7 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 	try {
 		rewrite(root);
 	} catch (e) {
-		console.log(e.stack);
+		console.error(e.stack);
 	}
 }
 
@@ -831,7 +831,7 @@ function findWrappableTemplateRanges( root, tpls, doc ) {
 // node  -- node to process
 // [s,e) -- if defined, start/end position of wikitext source that generated
 //          node's subtree
-function computeNodeDSR(node, s, e) {
+function computeNodeDSR(node, s, e, traceDSR) {
 
 	var WT_TagWidths = {
 		"body"  : [0,0],
@@ -868,7 +868,7 @@ function computeNodeDSR(node, s, e) {
 		e = null;
 	}
 
-	// console.log("-- Received " + s + ", " + e + " for " + node.nodeName + " --");
+	if (traceDSR) console.warn("-- Received " + s + ", " + e + " for " + node.nodeName + " --");
 	var children = node.childNodes;
 	var cs, ce = e, savedEndTagWidth = null;
 	for (var n = children.length, i = n-1; i >= 0; i--) {
@@ -878,17 +878,17 @@ function computeNodeDSR(node, s, e) {
 		    cType = child.nodeType,
 			endTagWidth = null;
 		if (cType === Node.TEXT_NODE) {
-			// console.log("-- Processing <child " + i + ">; text: " + child.data + " with [" + cs + "," + ce + "]");
+			if (traceDSR) console.warn("-- Processing <child " + i + ">; text: " + child.data + " with [" + cs + "," + ce + "]");
 			if (ce) {
 				cs = ce - child.data.length;
 			}
 		} else if (cType === Node.COMMENT_NODE) {
-			// console.log("-- Processing <child " + i + ">; comment: " + child.data + " with [" + cs + "," + ce + "]");
+			if (traceDSR) console.warn("-- Processing <child " + i + ">; comment: " + child.data + " with [" + cs + "," + ce + "]");
 			if (ce) {
 				cs = ce - child.data.length - 7; // 7 chars for "<!--" and "-->"
 			}
 		} else if (cType === Node.ELEMENT_NODE) {
-			// console.log("-- Processing <child " + i + ">; elt: " + child.nodeName + " with [" + cs + "," + ce + "]");
+			if (traceDSR) console.warn("-- Processing <child " + i + ">; elt: " + child.nodeName + " with [" + cs + "," + ce + "]");
 			var cTypeOf = null,
 				dpStr = child.getAttribute("data-parsoid"),
 				dpObj = dpStr ? JSON.parse(dpStr) : {},
@@ -917,7 +917,7 @@ function computeNodeDSR(node, s, e) {
 			} else {
 				// Non-meta tags
 				if (dpObj.tsr) {
-					// console.log("TSR: " + JSON.stringify(dpObj.tsr));
+					if (traceDSR) console.warn("TSR: " + JSON.stringify(dpObj.tsr));
 					cs = dpObj.tsr[0];
 					if (!ce || dpObj.tsr[1] > ce) {
 						ce = dpObj.tsr[1];
@@ -947,7 +947,7 @@ function computeNodeDSR(node, s, e) {
 						cce = ce - savedEndTagWidth;
 					}
 				}
-				newDsr = computeNodeDSR(child, ccs, cce);
+				newDsr = computeNodeDSR(child, ccs, cce, traceDSR);
 
 				if (newDsr[0] !== null && cs === null && wtTagWidth) {
 					cs = newDsr[0] - wtTagWidth[0];
@@ -960,7 +960,7 @@ function computeNodeDSR(node, s, e) {
 			}
 
 			if (cs !== null || ce !== null) {
-				// console.log("-- UPDATING; " + child.nodeName + " with [" + cs + "," + ce + "]; typeof: " + cTypeOf);
+				if (traceDSR) console.warn("-- UPDATING; " + child.nodeName + " with [" + cs + "," + ce + "]; typeof: " + cTypeOf);
 				dpObj.dsr = [cs, ce];
 			}
 
@@ -987,7 +987,7 @@ function computeNodeDSR(node, s, e) {
 
 						if (ndpObj.dsr[0] !== newCE) {
 							// Update and move right
-							// console.log("CHANGING ce.start of " + n.nodeName + " from " + ndpObj.dsr[0] + " to " + newCE);
+							if (traceDSR) console.warn("CHANGING ce.start of " + n.nodeName + " from " + ndpObj.dsr[0] + " to " + newCE);
 							ndpObj.dsr[0] = newCE;
 							sibling.setAttribute("data-parsoid", JSON.stringify(ndpObj));
 						}
@@ -1018,29 +1018,37 @@ function computeNodeDSR(node, s, e) {
 	// Detect errors
 	if (s && cs && cs !== s) {
 		// SSS TODO FIXME: MarkTraceur commented this out because it was crashing the roundtrip tests. Make it work!
-//		console.log("*********** ERROR: cs/s mismatch for node: " + node.nodeName + " s: " + s + "; cs: " + cs + " ************");
+		if (traceDSR) console.warn("*********** ERROR: cs/s mismatch for node: " + node.nodeName + " s: " + s + "; cs: " + cs + " ************");
 	}
 
 	if (cs === undefined || cs === null) {
 		cs = s;
 	}
 
-	// console.log("For " + node.nodeName + ", returning: " + cs + ", " + e);
+	if (traceDSR) console.warn("For " + node.nodeName + ", returning: " + cs + ", " + e);
 	return [cs, e];
 }
 
 function computeDocDSR(root, env) {
-/**
-	console.log("------------------------");
-	console.log("ORIG DOC: " + root.outerHTML);
-	console.log("------------------------");
-**/
-	computeNodeDSR(root, 0, env.text.length);
-/**
-	console.log("------------------------");
-	console.log("NEW DOC: " + root.outerHTML);
-	console.log("------------------------");
-**/
+	if (env.debug || (env.dumpFlags && (env.dumpFlags.indexOf("dom:pre-dsr") !== -1))) {
+		console.warn("------ DOM: pre-DSR -------");
+		console.warn(root.outerHTML);
+		console.warn("----------------------------");
+	}
+
+	var traceDSR = env.debug || (env.traceFlags && (env.traceFlags.indexOf("dsr") !== -1));
+	if (traceDSR) console.warn("------- tracing DSR computation -------");
+
+	// The actual computation buried in trace/debug stmts.
+	computeNodeDSR(root, 0, env.text.length, traceDSR);
+
+	if (traceDSR) console.warn("------- done tracing DSR computation -------");
+
+	if (env.debug || (env.dumpFlags && (env.dumpFlags.indexOf("dom:post-dsr") !== -1))) {
+		console.warn("------ DOM: post-DSR -------");
+		console.warn(root.outerHTML);
+		console.warn("----------------------------");
+	}
 }
 
 /**
@@ -1051,10 +1059,11 @@ function computeDocDSR(root, env) {
 function encapsulateTemplateOutput( document, env ) {
 	// walk through document and look for tags with typeof="mw:Object*"
 	var tpls = {};
-/**
-	console.warn("------- doc before encap ---------");
-	console.warn(document.outerHTML);
-**/
+	if (env.debug || (env.dumpFlags && (env.dumpFlags.indexOf("dom:pre-encap") !== -1))) {
+		console.warn("------ DOM: pre-encapsulation -------");
+		console.warn(document.outerHTML);
+		console.warn("----------------------------");
+	}
 	var tplRanges = findWrappableTemplateRanges( document.body, tpls, document );
 	if (tplRanges.length > 0) {
 		encapsulateTemplates(env, document, tplRanges);
@@ -1077,16 +1086,18 @@ DOMPostProcessor.prototype = new events.EventEmitter();
 DOMPostProcessor.prototype.constructor = DOMPostProcessor;
 
 DOMPostProcessor.prototype.doPostProcess = function ( document ) {
-/**
-	console.warn("---- doc after tree builder ----");
-	console.warn(document.outerHTML);
-	console.warn("--------------------------------");
-**/
+	var env = this.env;
+	if (env.debug || (env.dumpFlags && (env.dumpFlags.indexOf("dom:post-builder") !== -1))) {
+		console.warn("---- DOM: after tree builder ----");
+		console.warn(document.outerHTML);
+		console.warn("--------------------------------");
+	}
+
 	for (var i = 0; i < this.processors.length; i++) {
 		try {
 			this.processors[i](document, this.env);
 		} catch ( e ) {
-			console.log(e.stack);
+			console.error(e.stack);
 		}
 	}
 	this.emit( 'document', document );

@@ -51,10 +51,15 @@ var ParserPipelineFactory = require('../lib/mediawiki.parser.js').ParserPipeline
 			'boolean': true,
 			'default': false
 		},
-		'trace': {
+		'trace <opt-flags>': {
 			description: 'Trace mode (light debugging), implied by --debug',
 			'boolean': true,
 			'default': false
+		},
+		'dump <flags>': {
+			description: 'Dump state at a specific point during execution (ex: --dump dom:pre-dsr)',
+			'boolean': false,
+			'default': ""
 		},
 		'maxdepth': {
 			description: 'Maximum expansion depth',
@@ -109,7 +114,9 @@ var ParserPipelineFactory = require('../lib/mediawiki.parser.js').ParserPipeline
 		wgUploadPath: 'http://upload.wikimedia.org/wikipedia/commons',
 		fetchTemplates: argv.fetchTemplates,
 		debug: argv.debug,
-		trace: argv.trace,
+		trace: argv.trace === true,
+		traceFlags: argv.trace && argv.trace !== true ? argv.trace.split(",") : null,
+		dumpFlags: argv.dump ? argv.dump.split(",") : null,
 		maxDepth: argv.maxdepth,
 		pageName: argv.pagename
 	});
