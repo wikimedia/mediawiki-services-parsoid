@@ -593,11 +593,17 @@ function encapsulateTemplates( env, doc, tplRanges) {
 	// 1. Merge overlapping template ranges
 	var newRanges = [];
 	var i, numRanges = tplRanges.length;
-	var hash = { start: {}, end: {} };
+
+	// FIXME: Since template wrappings don't currently nest, and since the
+	// DOM is walked in-order left-to-right to build the list of templates
+	// (findWrappableTemplateRanges) it is sufficient to only look at the
+	// most recent template to see if the current one overlaps with it.
+	// If these assumptions change, might have to check against more than
+	// just the previous one.
+	var prev = null;
 	for (i = 0; i < numRanges; i++) {
 		var r = tplRanges[i];
-		var prev = hash.end[r.start];
-		if (prev) {
+		if (prev && prev.end === r.start) {
 			// Found overlap!  merge prev and r
 			var endTagToRemove;
 			if (inSiblingOrder(r.start, r.end)) {
@@ -605,7 +611,6 @@ function encapsulateTemplates( env, doc, tplRanges) {
 				// 'r.start' can occur after 'r.end'.  In those siutations,
 				// the ranges are already merged and no fixup should be done.
 				endTagToRemove = prev.endElem;
-				hash.end[r.start] = null;
 				prev.end = r.end;
 				prev.endElem = r.endElem;
 			} else {
@@ -633,8 +638,7 @@ function encapsulateTemplates( env, doc, tplRanges) {
 
 		// delete template-end marker meta tags
 
-		hash.start[r.start] = r;
-		hash.end[r.end] = r;
+		prev = r;
 	}
 
 	// 2. Wrap templates
