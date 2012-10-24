@@ -591,42 +591,51 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
 		this.env.dp( 'maybeSyncReturn async', s.c, ret );
 		var asyncCB = cbs.parent,
 			tokens = ret.tokens;
-		if ( tokens && tokens.length &&
-				( ! tokens.rank || tokens.rank < this.phaseEndRank ) &&
-				! ( tokens.length === 1 && tokens[0].constructor === String ) ) {
-			// Re-process incomplete tokens
-			this.env.dp( 'maybeSyncReturn: recursive transformTokens',
-					this.frame.title, ret.tokens );
+		if ( tokens )
+		{
+			if ( tokens.constructor === String ) {
+				ret.tokens = [ tokens ];
+				// XXX: We should probably fix the callers to return proper tokens
+				// instead
+				//console.error( "ERROR: got string as tokens in async maybeSyncReturn" );
+				//console.trace();
+			} else if (  tokens.length &&
+					( ! tokens.rank || tokens.rank < this.phaseEndRank ) &&
+					! ( tokens.length === 1 && tokens[0].constructor === String ) )
+			{
+				// Re-process incomplete tokens
+				this.env.dp( 'maybeSyncReturn: recursive transformTokens',
+						this.frame.title, ret.tokens );
 
-			// Set up a new child callback with its own callback state
-			var _cbs = { async: cbs.parent },
-				childCB = this.maybeSyncReturn.bind( this, s, _cbs );
-			_cbs.self = childCB;
+				// Set up a new child callback with its own callback state
+				var _cbs = { async: cbs.parent },
+					childCB = this.maybeSyncReturn.bind( this, s, _cbs );
+				_cbs.self = childCB;
 
-			var res = this.transformTokens( ret.tokens, childCB );
-			ret.tokens = res.tokens;
-			if ( res.async ) {
-				// Insert new child accumulator chain- any further chunks from
-				// the transform will be passed as sibling to the last accum
-				// in this chain, and the new chain will pass its results to
-				// the former parent accumulator.
+				var res = this.transformTokens( ret.tokens, childCB );
+				ret.tokens = res.tokens;
+				if ( res.async ) {
+					// Insert new child accumulator chain- any further chunks from
+					// the transform will be passed as sibling to the last accum
+					// in this chain, and the new chain will pass its results to
+					// the former parent accumulator.
 
-				if ( ! ret.async ) {
-					// There will be no more input to the child pipeline
-					res.async.siblingDone();
+					if ( ! ret.async ) {
+						// There will be no more input to the child pipeline
+						res.async.siblingDone();
 
-					// We need to indicate that more results will follow from
-					// the child pipeline.
-					ret.async = true;
-				} else {
-					// More tokens will follow from original expand.
-					// Need to return results of recursive expand *before* further
-					// async results, so we simply pass further results to the
-					// last accumulator in the new chain.
-					cbs.parent = res.async.getParentCB( 'sibling' );
+						// We need to indicate that more results will follow from
+						// the child pipeline.
+						ret.async = true;
+					} else {
+						// More tokens will follow from original expand.
+						// Need to return results of recursive expand *before* further
+						// async results, so we simply pass further results to the
+						// last accumulator in the new chain.
+						cbs.parent = res.async.getParentCB( 'sibling' );
+					}
 				}
 			}
-
 		}
 
 		asyncCB( ret );
