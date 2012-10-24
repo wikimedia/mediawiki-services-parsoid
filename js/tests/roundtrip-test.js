@@ -208,6 +208,19 @@ return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
 
 
 checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
+
+	function wsAndQuoteNormalForm(str) {
+		var orig = str;
+		// 1. Normalize multiple spaces to single space
+		str = str.replace(/ +/g, " ");
+		// 2. Eliminate spaces around wikitext chars
+		str = str.replace(/([<"'!#\*:;+-=|{}\[\]\/]) /g, "$1");
+		// 3. Strip double-quotes
+		str = str.replace(/"([^"]*?)"/g, "$1");
+
+		return str;
+	}
+
 	var i, k, diff, offset, origOut, newOut, origHTML, newHTML, origOrigHTML, origNewHTML, thisResult, results = [];
 	for ( i = 0; i < offsets.length; i++ ) {
 		thisResult = {};
@@ -232,21 +245,19 @@ checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 		origHTML = Util.formatHTML( Util.normalizeOut( origOrigHTML ) );
 		newHTML = Util.formatHTML( Util.normalizeOut( origNewHTML ) );
 
+		// compute wt diffs
+		var wt1 = src.substring( offset[0].start, offset[0].end );
+		var wt2 = out.substring( offset[1].start, offset[1].end );
+		thisResult.wtDiff = Util.diff(wt1, wt2, false, true, true);
+
 		diff = Util.diff( origHTML, newHTML, false, true, true );
 
-		if ( diff.length > 0 ) {
-			thisResult.type = 'fail';
-			thisResult.wtDiff = Util.diff(
-				src.substring( offset[0].start, offset[0].end ),
-				out.substring( offset[1].start, offset[1].end ),
-				false, true, true );
+		// Normalize wts to check if we really have a semantic diff
+		if (diff.length > 0 && (wsAndQuoteNormalForm(wt1) !== wsAndQuoteNormalForm(wt2))) {
 			thisResult.htmlDiff = diff;
+			thisResult.type = 'fail';
 		} else {
 			thisResult.type = 'skip';
-			thisResult.wtDiff = Util.diff(
-				src.substring( offset[0].start, offset[0].end ),
-				out.substring( offset[1].start, offset[1].end ),
-				false, true, true );
 		}
 		results.push( thisResult );
 	}
