@@ -288,12 +288,15 @@ roundTripDiff = function ( page, src, document, cb, wiki ) {
 	}
 },
 
-fetch = function ( page, cb, wiki ) {
+fetch = function ( page, cb, options ) {
 	cb = typeof cb === 'function' ? cb : function () {};
 
 	var env = Util.getParserEnv();
-	env.wgScript = env.interwikiMap[wiki || 'en'];
+	env.wgScript = env.interwikiMap[options.wiki || 'en'];
 	env.setPageName( page );
+
+	env.debug = options.debug;
+	env.trace = options.trace;
 
 	var target = env.resolveTitle( env.normalizeTitle( env.pageName ), '' );
 	var tpr = new TemplateRequest( env, target, null );
@@ -307,7 +310,7 @@ fetch = function ( page, cb, wiki ) {
 					console.log( err );
 					cb( err, page, [] );
 				} else {
-					roundTripDiff( page, src, out, cb, wiki || 'en' );
+					roundTripDiff( page, src, out, cb, options.wiki || 'en' );
 				}
 			}, err, src );
 		}
@@ -346,9 +349,16 @@ if ( !module.parent ) {
 
 		callback = cbCombinator.bind( null, callback, consoleOut );
 
-		fetch( title, callback, argv.wiki );
+		var options = {
+			wiki: argv.wiki,
+			debug: argv.debug,
+			trace: argv.trace
+		};
+		fetch( title, callback, options );
 	} else {
-		console.log( 'Usage: node roundtrip-test.js PAGETITLE [--xml] [--wiki CODE]' );
+		// FIXME: set up optimist spec so that the title does not need to come
+		// first
+		console.log( 'Usage: node roundtrip-test.js PAGETITLE [--xml] [--wiki CODE] [--debug] [--trace]' );
 	}
 }
 
