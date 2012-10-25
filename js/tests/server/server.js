@@ -143,6 +143,7 @@ function titleCallback( req, res, retry, commitHash, cutOffTimestamp, err, row )
 					// Claim doesn't exist
 					dbInsertClaim.run( [ row.id, commitHash, Date.now() ], function(err) {
 						if (!err) {
+							console.log( ' -> ' + title);
 							res.send( row.title );
 						} else {
 							console.error(err);
@@ -234,6 +235,7 @@ receiveResults = function ( req, res ) {
 							dbUpdateErrCB.bind(null, title, commitHash, "stats", "null"));
 					}
 
+					console.log( '<-  ' + title + ': ', skipCount, failCount, errorCount );
 					// NOTE: the last db update may not have completed yet
 					// For now, always sending HTTP 200 back to client.
 					res.send( '', 200 );
@@ -274,9 +276,10 @@ statsWebInterface = function ( req, res ) {
 					var tests = row.total,
 						errorLess = row.no_errors,
 						skipLess = row.no_skips,
-						noErrors = Math.floor( 100 * errorLess / tests ),
-						perfects = Math.floor( 100 * skipLess / tests ),
-						syntacticDiffs = Math.floor( 100 * ( 1 - skipLess / tests ) );
+						noErrors = Math.round( 100 * 100 * errorLess / tests ) / 100,
+						perfects = Math.round( 100* 100 * skipLess / tests ) / 100,
+						syntacticDiffs = Math.round( 100 * 100 *
+							( row.no_fails / tests ) ) / 100;
 
 					res.write( '<p>We have run roundtrip-tests on <b>' +
 							   tests +
