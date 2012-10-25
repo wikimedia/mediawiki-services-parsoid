@@ -12,6 +12,26 @@ var Node = {
     DOCUMENT_NODE: 9
 };
 
+// Does 'n1' occur before 'n2 in their parent's children list?
+function inSiblingOrder(n1, n2) {
+	while (n1 && n1 !== n2) {
+		n1 = n1.nextSibling;
+	}
+	return n1 !== null;
+}
+
+// Is 'n1' an ancestor of 'n2' in the DOM?
+function isAncestorOf(n1, n2) {
+	while (n2 && n2 !== n1) {
+		n2 = n2.parentNode;
+	}
+	return n2 !== null;
+}
+
+function deleteNode(n) {
+	n.parentNode.removeChild(n);
+}
+
 function minimizeInlineTags(root, rewriteable_nodes) {
 	var rewriteable_node_map = null;
 
@@ -582,30 +602,37 @@ function getDOMRange( doc, startElem, endElem ) {
  * wrapping
  */
 function encapsulateTemplates( env, doc, tplRanges) {
-	// Does 'n1' occur before 'n2 in their parent's children list?
-	function inSiblingOrder(n1, n2) {
-		while (n1 && n1 !== n2) {
-			n1 = n1.nextSibling;
+	function stripStartMeta(meta) {
+		if (meta.nodeName.toLowerCase() === 'meta') {
+			deleteNode(meta);
+		} else {
+			// Remove mw:Object/* from the typeof
+			var type = meta.getAttribute("typeof");
+			type = type.replace(/\bmw:Object?(\/[^\s]+|\b)/, '');
+			meta.setAttribute("typeof", type);
 		}
-		return n1 !== null;
 	}
 
 	// 1. Merge overlapping template ranges
 	var newRanges = [];
 	var i, numRanges = tplRanges.length;
 
-	// FIXME: Since template wrappings don't currently nest, and since the
-	// DOM is walked in-order left-to-right to build the list of templates
-	// (findWrappableTemplateRanges) it is sufficient to only look at the
-	// most recent template to see if the current one overlaps with it.
-	// If these assumptions change, might have to check against more than
-	// just the previous one.
+	// Since the DOM is walked in-order left-to-right to build the list
+	// of templates (findWrappableTemplateRanges) it is sufficient to
+	// only look at the most recent template to see if the current one
+	// overlaps with it.
+	//
+	// However, if <prev.start, prev.end> (can have a wider DOM range
+	// than the template meta-tags) completely nests the content of
+	// <r.start, r.end>, we have to handle this scenario specially.
+	// We strip r's meta-tags and skip it completely.
 	var prev = null;
 	for (i = 0; i < numRanges; i++) {
-		var r = tplRanges[i];
+		var endTagToRemove = null,
+			startTagToStrip = null,
+			r = tplRanges[i];
 		if (prev && prev.end === r.start) {
 			// Found overlap!  merge prev and r
-			var endTagToRemove;
 			if (inSiblingOrder(r.start, r.end)) {
 				// Because of foster-parenting, in some situations,
 				// 'r.start' can occur after 'r.end'.  In those siutations,
@@ -617,28 +644,24 @@ function encapsulateTemplates( env, doc, tplRanges) {
 				endTagToRemove = r.endElem;
 			}
 
-			// Remove end tag
-			endTagToRemove.parentNode.removeChild(endTagToRemove);
-
-			// Remove start tag (r.startElem) as well
-			// Not required, but good to cleanup
-			if (r.startElem.nodeName.toLowerCase() === 'meta') {
-				r.startElem.parentNode.removeChild(r.startElem);
-			} else {
-				// Remove mw:Object/* from the typeof
-				var type = r.startElem.getAttribute("typeof");
-				type = type.replace(/\bmw:Object?(\/[^\s]+|\b)/, '');
-				r.startElem.setAttribute("typeof", type);
-			}
-
-			r = prev;
+			startTagToStrip = r.startElem;
+		} else if (prev && isAncestorOf(prev.end, r.start)) {
+			// Range 'r' is nested inside of range 'prev'
+			// Skip 'r' completely.
+			startTagToStrip = r.startElem;
+			endTagToRemove = r.endElem;
 		} else {
+			// Default case -- no overlap or nesting
 			newRanges.push(r);
+			prev = r;
 		}
 
-		// delete template-end marker meta tags
-
-		prev = r;
+		if (endTagToRemove) {
+			// Remove start and end meta-tags
+			// Not necessary to remove the start tag, but good to cleanup
+			deleteNode(endTagToRemove);
+			stripStartMeta(startTagToStrip);
+		}
 	}
 
 	// 2. Wrap templates
@@ -733,10 +756,10 @@ function encapsulateTemplates( env, doc, tplRanges) {
 
 		// remove start/end
 		if (startElem.nodeName.toLowerCase() === "meta")  {
-			startElem.parentNode.removeChild(startElem);
+			deleteNode(startElem);
 		}
 
-		range.endElem.parentNode.removeChild(range.endElem);
+		deleteNode(range.endElem);
 	}
 }
 
