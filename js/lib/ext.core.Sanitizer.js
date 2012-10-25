@@ -540,6 +540,10 @@ var SanitizerConstants = {
 			};
 		}
 
+		// Tags whose end tags are not accepted, but whose start /
+		// self-closing version might be legal.
+		this.noEndTagHash = { br: 1 };
+
 		this.tagWhiteListHash = Util.arrayToHash(WikitextConstants.Sanitizer.TagWhiteList);
 		this.validProtocolsRE = new RegExp("^(" + this.validUrlProtocols.join('|') + ")$" );
 		//|/?[^/])[^\\s]+$");
@@ -639,8 +643,14 @@ Sanitizer.prototype.onAny = function ( token ) {
 
 	var i,l,k,v,kv;
 	var attribs = token.attribs;
-	var tagWLHash = this.constants.tagWhiteListHash;
-	if (token.isHTMLTag() && !tagWLHash[token.name.toLowerCase()]) { // unknown tag -- convert to plain text
+	var tagWLHash = this.constants.tagWhiteListHash,
+		noEndTagHash = this.constants.noEndTagHash;
+	if (token.isHTMLTag() &&
+			( !tagWLHash[token.name.toLowerCase()] ||
+			  ( token.constructor === EndTagTk && noEndTagHash[token.name.toLowerCase()] )
+			)
+		)
+	{ // unknown tag -- convert to plain text
 		if (token.constructor !== EndTagTk) {
 			// SSS FIXME: This wont reproduce original text (white-space, quote, text-case
 			// differences will creep up since attr text is being normalized).  We need
