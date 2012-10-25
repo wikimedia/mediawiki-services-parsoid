@@ -234,12 +234,38 @@ checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 		origOut = findDsr( body, offset[0] || {}, src.length, true ) || [];
 		newOut = findDsr( document.firstChild.childNodes[1], offset[1] || {}, out.length, true ) || [];
 
+		// Work around JSDOM's borken outerHTML pretty-printing / indenting.
+		// At least it does not indent innerHTML, so we get to fish out the
+		// parent element tag(s) and combine them with innerHTML.
+		//
+		// See jsdom/lib/jsdom/browser/index.js for the broken call to
+		// domToHtml.
+		function myOuterHTML ( node ) {
+			var jsOuterHTML = node.outerHTML || node.__nodeValue,
+				startTagMatch = jsOuterHTML.match(/^ *(<[^>]+>)/),
+				endTagMatch = jsOuterHTML.match(/<[^>]+>$/);
+			if ( startTagMatch ) {
+				var tag = startTagMatch[1];
+				if ( startTagMatch[0].length === jsOuterHTML.length ) {
+					return tag;
+				} else {
+					if ( endTagMatch ) {
+						return tag + node.innerHTML + endTagMatch[0];
+					} else {
+						return tag + node.innerHTML;
+					}
+				}
+			} else {
+				return jsOuterHTML;
+			}
+		}
+
 		for ( k = 0; k < origOut.length; k++ ) {
-			origOrigHTML += origOut[k].outerHTML || origOut[k].__nodeValue;
+			origOrigHTML += myOuterHTML(origOut[k]);
 		}
 
 		for ( k = 0; k < newOut.length; k++ ) {
-			origNewHTML += newOut[k].outerHTML || newOut[k].__nodeValue;
+			origNewHTML += myOuterHTML(newOut[k]);
 		}
 
 		origHTML = Util.formatHTML( Util.normalizeOut( origOrigHTML ) );
