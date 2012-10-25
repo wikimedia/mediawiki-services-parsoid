@@ -143,7 +143,7 @@ function titleCallback( req, res, retry, commitHash, cutOffTimestamp, err, row )
 					// Claim doesn't exist
 					dbInsertClaim.run( [ row.id, commitHash, Date.now() ], function(err) {
 						if (!err) {
-							console.log( ' -> ' + title);
+							console.log( ' -> ' + row.title);
 							res.send( row.title );
 						} else {
 							console.error(err);
