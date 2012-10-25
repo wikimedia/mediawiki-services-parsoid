@@ -550,8 +550,8 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 // Bracketed external link
 ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 	var env = this.manager.env,
-		orighref = Util.lookup( token.attribs, 'href' ),
-		href = Util.sanitizeURI( Util.tokensToString( orighref ) ),
+		origHref = Util.lookup( token.attribs, 'href' ),
+		href = Util.sanitizeURI( Util.tokensToString( origHref ) ),
 		content = Util.lookup( token.attribs, 'mw:content'),
 		newAttrs, aStart, hrefKv, title;
 
@@ -621,13 +621,28 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 			href = Sanitizer._stripIDNs( href );
 		}
 
-		aStart.addNormalizedAttribute( 'href', href, orighref );
+		aStart.addNormalizedAttribute( 'href', href, origHref );
 		cb( {
 			tokens: [aStart].concat(content, [new EndTagTk('a')])
 		} );
 	} else {
-		// not a link
-		var tokens = ['[', href ];
+		// Not a link, convert href to plain text.
+		//
+		// Since we'd need to reconstruct a possible template
+		// encapsulation from the href attribute for proper template
+		// round-tripping, we simply use source-based round-tripping for now.
+		var hrefText = env.text.substr(
+						(token.dataAttribs.tsr[0] + 1),
+						token.dataAttribs.targetOff
+						- (token.dataAttribs.tsr[0] + 1)
+					),
+			span = new TagTk('span',
+				[new KV('typeof', 'mw:Placeholder')],
+				{
+					tsr: [token.dataAttribs.tsr[0] + 1, token.dataAttribs.targetOff],
+					src: hrefText
+				} ),
+			tokens = ['[', span, hrefText, new EndTagTk('span')];
 		if ( content.length ) {
 			tokens = tokens.concat( [' '], content );
 		}

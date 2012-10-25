@@ -630,6 +630,7 @@ extlink
         & { return stops.push('extlink', true); }
         //target:urllink
         target:extlink_preprocessor_text
+        targetOff:({return pos;})
         text:(
                 ( space / [\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000] )* 
                 t1:(
@@ -646,7 +647,9 @@ extlink
             //    linkCount++;
             //}
             //console.warn( 'extlink text: ' + pp( text ) );
-            var dataAttribs = {};
+            var dataAttribs = {
+                targetOff: targetOff
+            };
             if ( text === '' ) {
                 dataAttribs.gc = 1;
             }
