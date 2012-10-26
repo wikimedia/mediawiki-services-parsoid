@@ -8,9 +8,11 @@ CREATE TABLE commits (
 CREATE TABLE pages (
 	id INTEGER NOT NULL UNIQUE PRIMARY KEY ASC AUTOINCREMENT,
 	num_fetch_errors INTEGER NOT NULL DEFAULT 0,
-	title TEXT NOT NULL
+	title TEXT NOT NULL,
+	latest_result INTEGER DEFAULT NULL
 );
 CREATE INDEX title_idx ON pages ( title );
+CREATE INDEX latest_result_idx ON pages ( latest_result );
 
 CREATE TABLE results (
 	id INTEGER NOT NULL UNIQUE PRIMARY KEY ASC AUTOINCREMENT,

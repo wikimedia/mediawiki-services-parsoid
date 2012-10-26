@@ -17,16 +17,24 @@ var http = require( 'http' ),
 var dbGetTitle = db.prepare(
 	'SELECT pages.id, pages.title ' +
 	'FROM pages ' +
-	'LEFT JOIN claims ON pages.id = claims.page_id AND claims.commit_hash = ? AND timestamp < ? ' +
-	'WHERE num_fetch_errors < ? AND (claims.id IS NULL OR (claims.has_errorless_result = 0 AND claims.num_tries < ?))' +
-	'LIMIT 1 OFFSET ? ' );
+	'LEFT JOIN claims ON pages.id = claims.page_id AND claims.commit_hash = ? ' +
+	'LEFT JOIN stats ON stats.id = pages.latest_result ' +
+	'WHERE num_fetch_errors < ? AND ' +
+	'( claims.id IS NULL OR ' +
+	'( claims.has_errorless_result = 0 AND claims.num_tries < ? AND claims.timestamp < ? ) ) ' +
+	'ORDER BY stats.score DESC, ' +
+	'claims.timestamp ASC LIMIT 1 OFFSET ? ' );
 
 var dbGetTitleRandom = db.prepare(
 	'SELECT pages.id, pages.title ' +
 	'FROM pages ' +
-	'LEFT JOIN claims ON pages.id = claims.page_id AND claims.commit_hash = ? AND timestamp < ? ' +
-	'WHERE num_fetch_errors < ? AND (claims.id IS NULL OR (claims.has_errorless_result = 0 AND claims.num_tries < ?))' +
-	'ORDER BY RANDOM() LIMIT 1 ' );
+	'LEFT JOIN claims ON pages.id = claims.page_id AND claims.commit_hash = ? ' +
+	'LEFT JOIN stats ON stats.id = pages.latest_result ' +
+	'WHERE num_fetch_errors < ? AND ' +
+	'( claims.id IS NULL OR ' +
+	'( claims.has_errorless_result = 0 AND claims.num_tries < ? AND claims.timestamp < ? ) ) ' +
+	'ORDER BY stats.score DESC, ' +
+	'claims.timestamp ASC, RANDOM() LIMIT 1' );
 
 var dbIncrementFetchErrorCount = db.prepare(
 	'UPDATE pages SET num_fetch_errors = num_fetch_errors + 1 WHERE title = ?');
@@ -70,12 +78,18 @@ var dbUpdateResult = db.prepare(
 var dbInsertClaimStats = db.prepare(
 	'INSERT INTO stats ' +
 	'( skips, fails, errors, score, page_id, commit_hash ) ' +
-	'VALUES ( ?, ?, ?, ?, ?, ? )' );
+	'VALUES ( ?, ?, ?, ?, ?, ? ) ' );
 
 var dbUpdateClaimStats = db.prepare(
-	'UPDATE STATS ' +
+	'UPDATE stats ' +
 	'SET skips = ?, fails = ?, errors = ?, score = ? ' +
-	'WHERE page_id = ? AND commit_hash = ?');
+	'WHERE page_id = ? AND commit_hash = ?' );
+
+var dbUpdateLatestResult = db.prepare(
+	'UPDATE pages ' +
+	'SET latest_result = ( SELECT id from stats ' +
+    'WHERE stats.commit_hash = ? AND page_id = pages.id ) ' +
+    'WHERE id = ?' );
 
 var dbLatestCommitHash = db.prepare(
 	'SELECT hash FROM commits ORDER BY timestamp LIMIT 1');
@@ -149,6 +163,7 @@ function titleCallback( req, res, retry, commitHash, cutOffTimestamp, err, row )
 					// Increment the # of tries, update timestamp
 					dbUpdateClaim.run([Date.now(), claim.id],
 						dbUpdateErrCB.bind(null, row.title, commitHash, "claim", null));
+					console.log( ' -> ' + row.title);
 					res.send( row.title );
 				} else {
 					// Claim doesn't exist
@@ -161,7 +176,7 @@ function titleCallback( req, res, retry, commitHash, cutOffTimestamp, err, row )
 							console.error("Multiple clients trying to access the same title: " + row.title);
 							// In the rare scenario that some other client snatched the
 							// title before us, get a new title (use the randomized ordering query)
-							dbGetTitleRandom.get( [ commitHash, cutOffTimestamp, maxFetchRetries, maxTries ],
+							dbGetTitleRandom.get( [ commitHash, maxFetchRetries, maxTries, cutOffTimestamp ],
 								titleCallback.bind( null, req, res, false, commitHash, cutOffTimestamp ) );
 						}
 					});
@@ -170,7 +185,7 @@ function titleCallback( req, res, retry, commitHash, cutOffTimestamp, err, row )
 		});
 	} else if ( retry ) {
 		// Try again with the slow DB search method
-		dbGetTitleRandom.get( [ commitHash, cutOffTimestamp, maxFetchRetries, maxTries ],
+		dbGetTitleRandom.get( [ commitHash, maxFetchRetries, maxTries, cutOffTimestamp ],
 			titleCallback.bind( null, req, res, false, commitHash, cutOffTimestamp ) );
 	} else {
 		res.send( 'no available titles that fit those constraints', 404 );
@@ -180,7 +195,7 @@ function titleCallback( req, res, retry, commitHash, cutOffTimestamp, err, row )
 function fetchPage( commitHash, cutOffTimestamp, req, res ) {
 	// This query picks a random page among the first 'pendingPagesEstimate' pages
 	var rowOffset = Math.floor(Math.random() * pendingPagesEstimate);
-	dbGetTitle.get([ commitHash, cutOffTimestamp, maxFetchRetries, maxTries, rowOffset ],
+	dbGetTitle.get([ commitHash, maxFetchRetries, maxTries, cutOffTimestamp, rowOffset ],
 		titleCallback.bind( null, req, res, true, commitHash, cutOffTimestamp ) );
 }
 
@@ -237,14 +252,27 @@ receiveResults = function ( req, res ) {
 					if (claim.num_tries === 1) {
 						dbInsertResult.run([claim.id, result],
 							dbUpdateErrCB.bind(null, title, commitHash, "result", "null"));
-						dbInsertClaimStats.run(stats.concat([claim.page_id, commitHash]),
-							dbUpdateErrCB.bind(null, title, commitHash, "stats", "null"));
+						dbInsertClaimStats.run(stats.concat([claim.page_id, commitHash]), function ( err ) {
+							if ( err ) {
+                                dbUpdateErrCB( title, commitHash, 'stats', null, err );
+                            } else {
+                                dbUpdateLatestResult.run( commitHash, claim.page_id,
+                                    dbUpdateErrCB.bind(null, title, commitHash, 'latest result', null ) );
+                            }
+                        } );
 					} else {
 						dbUpdateResult.run([result, claim.id],
 							dbUpdateErrCB.bind(null, title, commitHash, "result", "null"));
-						dbUpdateClaimStats.run(stats.concat([claim.page_id, commitHash]),
-							dbUpdateErrCB.bind(null, title, commitHash, "stats", "null"));
-					}
+						dbUpdateClaimStats.run(stats.concat([claim.page_id, commitHash]), function ( err ) {
+                            if ( err ) {
+							    dbUpdateErrCB( title, commithash, 'stats', null, err );
+                            } else {
+
+                                dbUpdateLatestResult.run( commitHash, claim.page_id,
+    								dbUpdateErrCB.bind(null, title, commitHash, 'latest result', null ) );
+                            }
+                        } );
+                    }
 
 					console.log( '<-  ' + title + ': ', skipCount, failCount, errorCount );
 					// NOTE: the last db update may not have completed yet
