@@ -1309,21 +1309,25 @@ WSP._serializeAttributes = function (state, token) {
 			var k = aKeys[i];
 			// Attrib not present -- sanitized away!
 			if (!Util.lookupKV(attribs, k)) {
+				// Deal with k/v's that were template-generated
+				// and then sanitized away!
+				var tplK = tplAttrState.ks[k];
+				if (tplK) {
+					k = tplK;
+				}
+
 				v = dataAttribs.sa[k];
 				if (v) {
-					// Deal with k/v's that were template-generated
-					// and then sanitized away!
-					var tplK = tplAttrState.ks[k],
-						tplV = tplAttrState.vs[k];
+					var tplV = tplAttrState.vs[k];
 
-					if (tplK) {
-						k = tplK;
-					}
 					if (tplV){
 						v = tplV;
 					}
 
 					out.push(k + '=' + '"' + v.replace( /"/g, '&quot;' ) + '"');
+				} else {
+					// at least preserve the key
+					out.push(k);
 				}
 			}
 		}
