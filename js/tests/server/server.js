@@ -115,6 +115,14 @@ var dbFailsQuery = db.prepare(
 	'ORDER BY commits.timestamp DESC, stats.score DESC ' +
 	'LIMIT 40 OFFSET ?' );
 
+var dbGetOneResult = db.prepare(
+	'SELECT result FROM results ' +
+	'JOIN claims ON results.claim_id = claims.id ' +
+	'JOIN commits ON claims.commit_hash = commits.hash ' +
+	'JOIN pages ON pages.id = claims.page_id ' +
+	'WHERE pages.title = ? ' +
+	'ORDER BY commits.timestamp DESC LIMIT 1' );
+
 function dbUpdateErrCB(title, hash, type, msg, err) {
 	if (err) {
 		console.error("Error inserting/updating " + type + " for page: " + title + " and hash: " + hash);
@@ -361,7 +369,8 @@ failsWebInterface = function ( req, res ) {
 						row.title + '">' +
 						row.title + '</a> | ' +
 						'<a target="_blank" href="http://localhost:8000/_rt/en/' + row.title +
-						'">@lh</a>' +
+						'">@lh</a> | ' +
+						'<a target="_blank" href="/result/' + row.title + '">latest result</a>' +
 						'</td>' );
 
 					res.write( '<td>' + row.skips + '</td><td>' + row.fails + '</td><td>' + ( row.errors === null ? 0 : row.errors ) + '</td></tr>' );
@@ -373,8 +382,6 @@ failsWebInterface = function ( req, res ) {
 },
 
 resultsWebInterface = function ( req, res ) {
-	var hasStarted = false;
-
 	db.all( 'SELECT result FROM results', function ( err, rows ) {
 		var i;
 		if ( err ) {
@@ -396,14 +403,26 @@ resultsWebInterface = function ( req, res ) {
 			}
 		}
 	} );
-},
+};
 
+function resultWebInterface( req, res ) {
+	dbGetOneResult.get( req.params[0], function ( err, row ) {
+		if ( err ) {
+			console.log( err );
+			res.send( err.toString(), 500 );
+		} else {
+			res.setHeader( 'Content-Type', 'text/xml; charset=UTF-8' );
+			res.status( 200 );
+			res.end( row.result );
+		}
+	} );
+}
 
 // Make an app
-app = express.createServer();
+var app = express.createServer();
 
 // Make the coordinator app
-coordApp = express.createServer();
+var coordApp = express.createServer();
 
 // Add in the bodyParser middleware (because it's pretty standard)
 app.use( express.bodyParser() );
@@ -411,6 +430,9 @@ coordApp.use( express.bodyParser() );
 
 // Main interface
 app.get( /^\/results$/, resultsWebInterface );
+
+// Results for a title (on latest commit)
+app.get( /^\/result\/(.*)$/, resultWebInterface );
 
 // List of failures sorted by severity
 app.get( /^\/topfails\/(\d+)$/, failsWebInterface );
