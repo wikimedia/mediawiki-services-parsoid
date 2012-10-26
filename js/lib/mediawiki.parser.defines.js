@@ -218,7 +218,7 @@ TagTk.prototype.defaultToString = function(t) {
 	return "<" + this.name + ">";
 };
 
-TagTk.prototype.tagToStringFns = {
+var tagToStringFns = {
 	"listItem": function() {
 		return "<li:" + this.bullets.join('') + ">";
 	},
@@ -231,7 +231,14 @@ TagTk.prototype.tagToStringFns = {
 	"behavior-switch": function() {
 		return "<behavior-switch:" + this.attribs[0].v + ">";
 	}
-};
+}
+
+// Hide tagToStringFns when serializing tokens to JSON
+Object.defineProperty( TagTk.prototype, 'tagToStringFns',
+		{
+			enumerable: false,
+			value: tagToStringFns
+		} );
 
 TagTk.prototype.toString = function(compact) {
 	if (this.isHTMLTag()) {
@@ -246,7 +253,7 @@ TagTk.prototype.toString = function(compact) {
 			return "<HTML:" + this.name + " " + buf.join(' ') + ">";
 		}
 	} else {
-		var f = this.tagToStringFns[this.name];
+		var f = TagTk.prototype.tagToStringFns[this.name];
 		return f ? f.bind(this)() : this.defaultToString();
 	}
 };
@@ -347,7 +354,7 @@ SelfclosingTagTk.prototype.defaultToString = function(compact, indent) {
 	}
 };
 
-SelfclosingTagTk.prototype.tagToStringFns = {
+tagToStringFns = {
 	"extlink": function(compact, indent) {
 		var indentIncrement = "  ";
 		var href = Util.toStringTokens(Util.lookup(this.attribs, 'href'), indent + indentIncrement);
@@ -392,6 +399,13 @@ SelfclosingTagTk.prototype.tagToStringFns = {
 		}
 	}
 };
+
+// Hide tagToStringFns when serializing tokens to JSON
+Object.defineProperty( SelfclosingTagTk.prototype, 'tagToStringFns',
+		{
+			enumerable: false,
+			value: tagToStringFns
+		} );
 
 SelfclosingTagTk.prototype.toString = function(compact, indent) {
 	if (this.isHTMLTag()) {
