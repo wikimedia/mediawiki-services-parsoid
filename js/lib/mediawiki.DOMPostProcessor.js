@@ -922,11 +922,16 @@ function computeNodeDSR(node, s, e, traceDSR) {
 				// Unless they have been foster-parented meta tags
 				// of type mw:EndTag and mw:Object/* have valid tsr info.
 				cTypeOf = child.getAttribute("typeof");
-				if (cTypeOf === "mw:EndTag") {
-					endTagWidth = dpObj.tsr[1] - dpObj.tsr[0];
-					cs = dpObj.tsr[1];
-					ce = dpObj.tsr[1];
-					propagateRight = true;
+				if (cTypeOf === "mw:EndTag" || cTypeOf === "mw:TSRMarker") {
+					// TSR info will be absent if the tsr-marker came
+					// from a template since template tokens have all
+					// their tsr info. stripped.
+					if (dpObj.tsr) {
+						endTagWidth = dpObj.tsr[1] - dpObj.tsr[0];
+						cs = dpObj.tsr[1];
+						ce = dpObj.tsr[1];
+						propagateRight = true;
+					}
 					node.removeChild(child); // No use for this marker tag after this
 				} else if (cTypeOf.match(/\bmw:Object\//) && dpObj.tsr) {
 					// If this is a opening meta-marker tags (for templates, extensions),

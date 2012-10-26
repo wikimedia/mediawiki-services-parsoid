@@ -1592,12 +1592,17 @@ table_row_tag
         if (dashes.length > 1) {
             trToken.dataAttribs.extra_dashes = dashes.length - 1;
         }
+        var res;
         if ( !td ) {
-            return [trToken];
+            res = [trToken];
         } else {
             //console.warn( 'tr result: ' + pp(trToken.concat(td)) + ' stops: ' + pp(stops));
-            return [trToken].concat(td);
+            res = [trToken].concat(td);
         }
+        // SSS FIXME: Unsure if this is actually helpful, but adding it in just in case
+        // Can test later and strip it out if it doesn't make any diff to rting.
+        res.push(new SelfclosingTagTk('meta', [new KV('typeof', 'mw:TSRMarker')], {tsr: [pos, pos]}));
+        return res;
     }
 
 table_data_tags
@@ -1623,7 +1628,17 @@ table_data_tag
         }
         //console.warn("table data result: " + pp(td) + ", attribs: " + pp(a));
         var tokens = [new TagTk( 'td', a, {tsr: [pos0, tagEndPos]} )].concat( td );
-        tokens.push(new EndTagTk('td', [], {tsr: [pos, pos]}));
+
+        // We rely on our tree builder to close the table cell as needed.
+        // We cannot close the cell here because cell content can come from
+        // multiple parsing contexts and we cannot close the tag in the same
+        // parsing context in which the td was opened:  
+        //   Ex: {{echo|{{!}}foo}}{{echo|bar}} has to output <td>foobar</td>
+        //
+        // But, add a marker meta-tag to capture tsr info.
+        // SSS FIXME: Unsure if this is actually helpful, but adding it in just in case.
+        // Can test later and strip it out if it doesn't make any diff to rting.
+        tokens.push(new SelfclosingTagTk('meta', [new KV('typeof', 'mw:TSRMarker')], {tsr: [pos, pos]}));
         return tokens;
     }
 
