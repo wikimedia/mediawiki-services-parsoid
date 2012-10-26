@@ -1943,6 +1943,9 @@ attribute_preprocessor_text_line
             ! '/>'
             t:( 
                 directive
+              // Eat insane tags-inside-attributes. Example: 
+              // <hiddentext>generated with.. <\hiddentext>
+              / &generic_tag inlineline
               / !(newline / space / [\[>]) c:. { 
                     //console.warn( 'aptl: ' + pp(c) ); 
                     return c 
