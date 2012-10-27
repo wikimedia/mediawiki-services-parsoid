@@ -110,9 +110,12 @@ var dbStatsQuery = db.prepare(
 var dbFailsQuery = db.prepare(
 	'SELECT pages.title, commits.hash, stats.errors, stats.fails, stats.skips ' +
 	'FROM stats ' +
+	'JOIN (' +
+	'	SELECT MAX(id) AS most_recent FROM stats GROUP BY page_id' +
+	') AS s1 ON s1.most_recent = stats.id ' +
 	'JOIN pages ON stats.page_id = pages.id ' +
 	'JOIN commits ON stats.commit_hash = commits.hash ' +
-	'ORDER BY commits.timestamp DESC, stats.score DESC ' +
+	'ORDER BY stats.score DESC ' +
 	'LIMIT 40 OFFSET ?' );
 
 var dbGetOneResult = db.prepare(
