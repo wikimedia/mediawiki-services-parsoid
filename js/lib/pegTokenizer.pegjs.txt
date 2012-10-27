@@ -1345,33 +1345,47 @@ generic_tag
 // A generic attribute that can span multiple lines.
 generic_newline_attribute
   = s:( space / newline )* 
+    namePos0:({return pos;})
     name:generic_attribute_name
+    namePos:({return pos;})
     value:(( space / newline )*
           v:generic_attribute_newline_value { return v })?
 {
     //console.warn('generic_newline_attribute: ' + pp( name ))
+    var res;
     if ( value !== '' ) {
-        return new KV( name, value );
+        res = new KV( name, value );
     } else {
-        return new KV( name, '' );
+        res = new KV( name, '' );
     }
+    if ( name.constructor === Array ) {
+        res.ksrc = input.substr(namePos0, namePos - namePos0);
+    }
+    return res;
 }
 
 // A single-line attribute.
 generic_attribute
   = s:optionalSpaceToken
+    namePos0:({return pos;})
     name:generic_attribute_name
+    namePos:({return pos;})
     value:(optionalSpaceToken
           v:generic_attribute_value { return v })?
 {
     //console.warn( 'generic attribute: ' + pp([name, value]));
     // FIXME: name might just be a template, which can expand to a key-value
     // pair later. We'll need to handle that in the AttributeTransformManager.
+    var res;
     if ( value !== '' ) {
-        return new KV( name, value );
+        res = new KV( name, value );
     } else {
-        return new KV( name, '' );
+        res = new KV( name, '' );
     }
+    if ( name.constructor === Array ) {
+        res.ksrc = input.substr(namePos0, namePos - namePos0);
+    }
+    return res;
 }
 
 // ( Replaced by generic_attribute_name for template / parameter support. )
