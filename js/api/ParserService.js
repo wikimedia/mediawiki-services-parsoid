@@ -167,9 +167,9 @@ var roundTripDiff = function ( req, res, src, document ) {
 	var env = Util.getParserEnv( localSettings );
 	var out, patch;
 	res.write('<html><head><script type="text/javascript" src="/jquery.js"></script><script type="text/javascript" src="/scrolling.js"></script><style>ins { background: #ff9191; text-decoration: none; } del { background: #99ff7e; text-decoration: none }; </style></head><body>');
-	res.write( '<h2>Wikitext parsed to HTML DOM</h2><hr>' );
-	res.write(document.body.innerHTML + '<hr>');
-	res.write( '<h2>HTML DOM converted back to Wikitext</h2><hr>' );
+	res.write( '<h2>Wikitext parsed to HTML DOM</h2><hr>\n' );
+	res.write(document.body.innerHTML + '\n<hr>');
+	res.write( '<h2>HTML DOM converted back to Wikitext</h2><hr>\n' );
 	out = new WikitextSerializer({env: env}).serializeDOM( document.body );
 	if ( out === undefined ) {
 		out = "An error occured in the WikitextSerializer, please check the log for information";
