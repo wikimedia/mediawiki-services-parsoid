@@ -308,8 +308,10 @@ doubleRoundtripDiff = function ( page, offsets, src, body, out, cb, wiki ) {
 	}
 },
 
-roundTripDiff = function ( page, src, document, cb, wiki ) {
+roundTripDiff = function ( page, src, document, cb, options ) {
 	var out, curPair, patch, diff, env = Util.getParserEnv();
+	env.debug = options.debug;
+	env.trace = options.trace;
 
 	out = new WikitextSerializer( { env: env } ).serializeDOM( document.body );
 	if ( out === undefined ) {
@@ -319,7 +321,7 @@ roundTripDiff = function ( page, src, document, cb, wiki ) {
 	diff = Util.convertDiffToOffsetPairs( jsDiff.diffLines( out, src ) );
 
 	if ( diff.length > 0 ) {
-		doubleRoundtripDiff( page, diff, src, document.body, out, cb, wiki );
+		doubleRoundtripDiff( page, diff, src, document.body, out, cb, options.wiki );
 	} else {
 		cb( null, page, [] );
 	}
@@ -329,7 +331,7 @@ fetch = function ( page, cb, options ) {
 	cb = typeof cb === 'function' ? cb : function () {};
 
 	var env = Util.getParserEnv();
-	env.wgScript = env.interwikiMap[options.wiki || 'en'];
+	env.wgScript = env.interwikiMap[options.wiki];
 	env.setPageName( page );
 
 	env.debug = options.debug;
@@ -347,7 +349,7 @@ fetch = function ( page, cb, options ) {
 					console.log( err );
 					cb( err, page, [] );
 				} else {
-					roundTripDiff( page, src, out, cb, options.wiki || 'en' );
+					roundTripDiff( page, src, out, cb, options );
 				}
 			}, err, src );
 		}
@@ -387,7 +389,7 @@ if ( !module.parent ) {
 		callback = cbCombinator.bind( null, callback, consoleOut );
 
 		var options = {
-			wiki: argv.wiki,
+			wiki: argv.wiki || 'en',
 			debug: argv.debug,
 			trace: argv.trace
 		};
