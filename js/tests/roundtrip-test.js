@@ -209,7 +209,7 @@ return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
 
 checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 
-	function wsAndQuoteNormalForm(str) {
+	function normalizeWikitext(str) {
 		var orig = str;
 		// 1. Normalize multiple spaces to single space
 		str = str.replace(/ +/g, " ");
@@ -217,6 +217,10 @@ checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 		str = str.replace(/([<"'!#\*:;+-=|{}\[\]\/]) /g, "$1");
 		// 3. Strip double-quotes
 		str = str.replace(/"([^"]*?)"/g, "$1");
+		// 4. Ignore capitalization of tags and void tag indications
+		str = str.replace(/<([^ >\/]+)((?:[^>/]|\/(?!>))*)\/?>/g, function(match, name, remaining) {
+			return '<' + name.toLowerCase() + remaining + '>';
+		} );
 
 		return str;
 	}
@@ -279,7 +283,7 @@ checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 		diff = Util.diff( origHTML, newHTML, false, true, true );
 
 		// Normalize wts to check if we really have a semantic diff
-		if (diff.length > 0 && (wsAndQuoteNormalForm(wt1) !== wsAndQuoteNormalForm(wt2))) {
+		if (diff.length > 0 && (normalizeWikitext(wt1) !== normalizeWikitext(wt2))) {
 			thisResult.htmlDiff = diff;
 			thisResult.type = 'fail';
 		} else {
