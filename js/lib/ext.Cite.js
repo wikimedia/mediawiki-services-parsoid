@@ -159,10 +159,12 @@ Cite.prototype.onReferences = function ( token, manager ) {
 		group: null
 	}, Util.KVtoHash(token.attribs));
 
+    var dataAttribs;
 	if (options.group in refGroups) {
 		var group = refGroups[options.group],
-			listItems = $.map(group.refs, renderLine ),
-			dataAttribs = Util.clone(token.dataAttribs);
+			listItems = $.map(group.refs, renderLine );
+
+		dataAttribs = Util.clone(token.dataAttribs);
 		dataAttribs.src = token.getWTSource(this.manager.env);
 		res = [
 			new TagTk( 'ol', [
@@ -171,7 +173,20 @@ Cite.prototype.onReferences = function ( token, manager ) {
 					], dataAttribs)
 		].concat( listItems, [ new EndTagTk( 'ol' ) ] );
 	} else {
-		res = [ new SelfclosingTagTk( 'meta', [ new KV('fixme', 'add-rdfa-rt-info') ] ) ];
+		var tsr = token.dataAttribs.tsr;
+		if (tsr) {
+			// src from original src
+			dataAttribs = {
+				tsr: tsr,
+				src: this.manager.env.text.substring(tsr[0], tsr[1])
+			};
+		} else {
+			// Use a default string
+			dataAttribs = {
+				src: "<references />"
+			};
+		}
+		res = [ new TagTk('span', [ new KV( 'typeof', 'mw:Placeholder' ) ], dataAttribs) ];
 	}
 
 	//console.warn( 'references res: ' + JSON.stringify( res, null, 2 ) );

@@ -1513,6 +1513,8 @@ WSP._serializeToken = function ( state, token ) {
 
 		// FIXME: figure out where the non-string res comes from
 		if (res === undefined || res.constructor !== String) {
+			console.error("-------- Serializer error --------");
+			console.error("TOKEN: " + JSON.stringify(token));
 			console.error(state.env.pageName + ": res was undefined or not a string!");
 			console.error(JSON.stringify(res));
 			console.trace();
