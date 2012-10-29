@@ -699,7 +699,7 @@ WSP._linkHandler =  function( state, tokens ) {
 
 	// Check if this token has attributes that have been
 	// expanded from templates or extensions
-	if (hasExpandedAttrs(attribDict.typeof)) {
+	if (hasExpandedAttrs(attribDict['typeof'])) {
 		tplAttrState = state.tplAttrs[attribDict.about];
 	}
 
@@ -1367,8 +1367,14 @@ WSP.defaultHTMLTagHandler = {
 
 WSP._getTokenHandler = function(state, token) {
 	var handler;
-	if ( token.dataAttribs.src !== undefined &&
-		Util.lookup( token.attribs, 'typeof' ) === 'mw:Placeholder' ) {
+	if (token.dataAttribs.src !== undefined)  {
+		var tokTypeof = Util.lookup( token.attribs, 'typeof' );
+		if (tokTypeof === "mw:TemplateSource") {
+			return {
+				handle: id( token.dataAttribs.src ),
+				isTemplateSrc: true
+			};
+		} else if (tokTypeof === "mw:Placeholder") {
 			// implement generic src round-tripping:
 			// return src, and drop the generated content
 			if ( token.constructor === TagTk ) {
@@ -1380,7 +1386,10 @@ WSP._getTokenHandler = function(state, token) {
 				state.tokenCollector = null;
 				return { handle: id('') };
 			}
-	} else if (token.isHTMLTag()) {
+		}
+	}
+
+	if (token.isHTMLTag()) {
 		handler = this.defaultHTMLTagHandler;
 	} else {
 		var tname = token.name;
@@ -1584,9 +1593,12 @@ WSP._serializeToken = function ( state, token ) {
 				out += '\n';
 			}
 
-			if ( state.singleLineMode ) {
+			// XXX: Switch singleLineMode to stack if there are more
+			// exceptions than just isTemplateSrc later on.
+			if ( state.singleLineMode && !handler.isTemplateSrc) {
 				res = res.replace(/\n/g, ' ');
 			}
+
 			out += res;
 			state.env.dp(' =>', out);
 			state.chunkCB( out );
@@ -1762,7 +1774,7 @@ WSP._serializeDOM = function( node, state ) {
 			if (typeofVal && typeofVal.match(/\bmw:Object(\/[^\s]+|\b)/)) {
 				state.activeTemplateId = node.getAttribute("about");
 				var dummyToken = new SelfclosingTagTk("meta",
-					[ new KV("typeof", "mw:Placeholder") ],
+					[ new KV("typeof", "mw:TemplateSource") ],
 					{ src: this._getDOMRTInfo(node.attributes).src }
 				);
 				this._serializeToken(state, dummyToken);
