@@ -1567,6 +1567,7 @@ WSP._serializeToken = function ( state, token ) {
 					", res: " + JSON.stringify( res ) +
 					", nl: " + state.onNewline +
 					", sol: " + state.onStartOfLine +
+					", singleMode: " + state.singleLineMode +
 					', eon:' + state.emitNewlineOnNextToken +
 					", #nl: " + state.availableNewlineCount +
 					', #new:' + newTrailingNLCount);

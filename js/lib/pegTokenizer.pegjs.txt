@@ -187,7 +187,9 @@
         return true;
     };
     SyntaxStops.prototype.dec = function(flag) {
-        this.counters[flag]--;
+        if ( this.counters[flag] !== undefined ) {
+            this.counters[flag]--;
+        }
         this._updateCounterKey();
         return false;
     };
@@ -1179,7 +1181,8 @@ pre_indent_line = space l:inlineline {
  * TODO: add entity support!
  */
 pre
-  = "<pre" 
+  = & { return stops.inc('pre'); }
+    "<pre" 
     attribs:generic_attribute* 
     endpos:(">" { return pos })
     // MediaWiki <pre> is special in that it converts all pre content to plain
@@ -1188,6 +1191,7 @@ pre
                 / nowiki 
                 / !"</pre>" t2:. { return t2 })+ 
     ("</pre>" / eof) {
+        stops.dec('pre');
         var firstTok = ts[0];
         if (firstTok.constructor === String && firstTok.match(/\n/)) {
             // Strip leading newline from the token
@@ -1204,7 +1208,8 @@ pre
         return [ new TagTk( 'pre', attribs, { stx: 'html', tsr: [pos0, endpos] } ) ] 
                     .concat(ts, [ new EndTagTk( 'pre', [], { tsr: [pos - 6, pos] } ) ]);
     }
-  / "</pre>" { return "</pre>"; }
+  / "</pre>" { stops.dec('pre'); return "</pre>"; }
+  / & { return stops.dec('pre'); }
 
 /* XXX: Extension tags can require a change in the tokenizer mode, which
  * returns any text between extension tags verbatim. For now, we simply
@@ -1250,19 +1255,22 @@ nowiki
       return ['</nowiki>']; 
   }
 
+// Should abort the nowiki match:
+//   <pre><nowiki></pre></nowiki>
+// Should allow the </pre> in nowiki:
+//   <nowiki></pre></nowiki>
+pre_break = "</pre>" { 
+    //console.log( stops.counters );
+    return stops.counters.pre > 0 || null; 
+}
+
 nowiki_content
   = ts:(   t:[^<]+ { return t.join('') } 
            / "<pre" p0:optionalSpaceToken p1:[^>]* ">" p2:nowiki_content "</pre>" {
                  //console.warn('nested pre in nowiki');
                  return ["<pre"].concat(p0, p1, [">"], p2, ["</pre>"]).join('');
                }
-            // FIXME: convert the </pre> stop to a syntactic stop, so that it
-            // only triggers if we are in a pre context.
-            // Should abort the nowiki match:
-            //   <pre><nowiki></pre></nowiki>
-            // Should allow the </pre> in nowiki:
-            //   <nowiki></pre></nowiki>
-           / (!("</"( "nowiki>" / "pre>")) c:. {
+           / (!pre_break !"</nowiki>" c:. {
                //console.warn('nowiki: single char' + c);
                return c;
            }) 
