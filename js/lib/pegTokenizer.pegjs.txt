@@ -370,11 +370,7 @@ toplevelblock
     }
 
     if (__parseArgs[3].env.trace) {
-        console.warn("---- <chunk:tokenized> ----");
-        for (var i = 0, n = tokens.length; i < n; i++) {
-            console.warn(tokens[i].toString());
-        }
-        console.warn("---- </chunk:tokenized> ----");
+        __parseArgs[3].Util.outputChunk(tokens);
     }
     
     // Emit tokens for this toplevelblock. This feeds a chunk to the parser pipeline.

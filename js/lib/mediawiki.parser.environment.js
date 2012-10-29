@@ -41,6 +41,16 @@ Tracer.prototype = {
 		if (this.env.trace) {
 			console.warn(string);
 		}
+	},
+
+	outputChunk: function(chunk) {
+		if (this.env.trace) {
+			console.warn("---- <chunk:tokenized> ----");
+			for (var i = 0, n = chunk.length; i < n; i++) {
+				console.warn(chunk[i].toString());
+			}
+			console.warn("---- </chunk:tokenized> ----");
+		}
 	}
 };
 

@@ -194,7 +194,10 @@ var genericTokenMethods = {
 
 		var myClone = $.extend({}, this);
 		if (cloneAttribs) {
-			myClone.attribs = this.attribs.slice();
+			myClone.attribs = [];
+			for (var i = 0, n = this.attribs.length; i < n; i++) {
+				myClone.attribs.push(Util.clone(this.attribs[i]));
+			}
 			myClone.dataAttribs = Util.clone(this.dataAttribs);
 		}
 		return myClone;
@@ -411,7 +414,7 @@ SelfclosingTagTk.prototype.toString = function(compact, indent) {
 	if (this.isHTMLTag()) {
 		return "<HTML:" + this.name + " />";
 	} else {
-		var f = this.tagToStringFns[this.name];
+		var f = SelfclosingTagTk.prototype.tagToStringFns[this.name];
 		return f ? f.bind(this)(compact, indent) : this.defaultToString(compact, indent);
 	}
 };

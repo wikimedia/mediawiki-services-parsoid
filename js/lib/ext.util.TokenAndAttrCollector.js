@@ -35,6 +35,7 @@ function TokenAndAttrCollector(manager, transformation, toEnd, rank, name) {
 	this.tagName = name;
 	this.toEnd = toEnd;
 	this.hasOpenTag = false;
+	// this.uid = this.manager.env.generateUID();
 	manager.addTransform(this.onAnyToken.bind( this ), "TokenAndAttrCollector:onAnyToken", rank, 'any');
 }
 
@@ -143,6 +144,7 @@ TokenAndAttrCollector.prototype.inspectAttrs = function(token) {
 };
 
 TokenAndAttrCollector.prototype.onAnyToken = function( token, frame, cb ) {
+	// console.warn("T<" + this.uid + ":" + this.rank + ":" + this.hasOpenTag + ">:" + JSON.stringify(token));
 	var tc = token.constructor;
 	if ((tc === TagTk) && (token.name === this.tagName)) {
 		this.init(token);
