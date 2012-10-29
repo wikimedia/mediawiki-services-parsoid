@@ -54,7 +54,7 @@ function runTest( cb, title ) {
 	} );
 
 	try {
-		rtTest.fetch( title, callback, config.interwiki );
+		rtTest.fetch( title, callback, { wiki: config.interwiki } );
 	} catch ( err ) {
 		// Log it to console (for gabriel to watch scroll by)
 		console.error( "ERROR in " + title + ': ' + err );
