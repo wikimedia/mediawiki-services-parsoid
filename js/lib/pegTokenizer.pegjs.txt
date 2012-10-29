@@ -501,7 +501,7 @@ inline
 
 
 inlineline
-  = c:(urltext / !inline_breaks (inline_element / [^\r\n]))+ {
+  = c:(urltext / ! inline_breaks (inline_element / [^\r\n]))+ {
       //console.warn('inlineline out:' + pp(c) + input.substr(pos0, pos));
       return flatten_stringlist( c );
 }
