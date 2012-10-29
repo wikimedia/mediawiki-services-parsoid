@@ -688,6 +688,9 @@ Sanitizer.prototype.onAny = function ( token ) {
 						v = Util.tokensToString ( v );
 					}
 					attribs[i] = new KV( k, v );
+					if ( kv.ksrc ) {
+						attribs[i].ksrc = kv.ksrc;
+					}
 				}
 			}
 
@@ -822,26 +825,27 @@ Sanitizer.prototype.sanitizeTagAttrs = function(newToken, attrs) {
 	var newAttrs = {};
 	var n = attrs.length;
 	for (var i = 0; i < n; i++) {
-		var a = attrs[i];
-		var k = a.k;
-		var v = a.v;
-		var origV = v;
+		var a = attrs[i],
+			k = a.k,
+			origK = a.ksrc || k,
+			v = a.v,
+			origV = a.vsrc || v;
 
 		//console.warn('k = ' + k + '; v = ' + v);
 
 		// allow XML namespace declaration if RDFa is enabled
 		if (allowRdfa && k.match(xmlnsRE)) {
 			if (!v.match(evilUriRE)) {
-				newAttrs[k] = [v, origV];
+				newAttrs[k] = [v, origV, origK];
 			} else {
-				newAttrs[k] = [null, origV];
+				newAttrs[k] = [null, origV, origK];
 			}
 			continue;
 		}
 
 		// Allow any attribute beginning with "data-", if in HTML5 mode
 		if (!(html5Mode && k.match(/^data-/i)) && !wlist[k]) {
-			newAttrs[k] = [null, origV];
+			newAttrs[k] = [null, origV, origK];
 			continue;
 		}
 
@@ -864,7 +868,7 @@ Sanitizer.prototype.sanitizeTagAttrs = function(newToken, attrs) {
 
 			//Paranoia. Allow "simple" values but suppress javascript
 			if (v.match(evilUriRE)) {
-				newAttrs[k] = [null, origV];
+				newAttrs[k] = [null, origV, origK];
 				continue;
 			}
 		}
@@ -874,7 +878,7 @@ Sanitizer.prototype.sanitizeTagAttrs = function(newToken, attrs) {
 		if ( k === 'href' || k === 'src' ) {
 			var newHref = this.sanitizeHref( v );
 			if ( newHref !== v ) {
-				newAttrs[k] = [newHref, origV];
+				newAttrs[k] = [newHref, origV, origK];
 				continue;
 			}
 		}
@@ -882,7 +886,7 @@ Sanitizer.prototype.sanitizeTagAttrs = function(newToken, attrs) {
 		// SSS FIXME: This logic is not RT-friendly.
 		// If this attribute was previously set, override it.
 		// Output should only have one attribute of each name.
-		newAttrs[k] = [v, origV];
+		newAttrs[k] = [v, origV, origK];
 
 		if (!allowMda) {
 			// itemtype, itemid, itemref don't make sense without itemscope
@@ -908,11 +912,12 @@ Sanitizer.prototype.sanitizeTagAttrs = function(newToken, attrs) {
 		var vs = newAttrs[k];
 		var newV  = vs[0];
 		var origV = vs[1];
+		var origK = vs[2];
 		// explicit check against null to prevent discarding empty strings
 		if (newV !== null) {
 			newToken.addNormalizedAttribute(k, newV, origV);
 		} else {
-			newToken.setShadowInfo(k, newV, origV);
+			newToken.setShadowInfo(origK, newV, origV);
 		}
 	});
 };

@@ -70,6 +70,10 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 		a    = oldAttrs[i];
 		newK = newAttrs[i].k;
 
+		// Preserve the key and value source, if available
+		newAttrs[i].ksrc = a.ksrc;
+		newAttrs[i].vsrc = a.vsrc;
+
 		if (newK) {
 			var contentType = "objectAttrKey"; // default
 			if (a.k.constructor === Array) {
