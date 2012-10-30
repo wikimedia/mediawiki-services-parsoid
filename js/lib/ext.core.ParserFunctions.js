@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Some parser functions, and quite a bunch of stubs of parser functions.
  * There are still quite a few missing, see

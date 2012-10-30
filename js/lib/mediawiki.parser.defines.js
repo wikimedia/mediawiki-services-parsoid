@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Constructors for different token types. Plain text is represented as simple
  * strings or String objects (if attributes are needed).

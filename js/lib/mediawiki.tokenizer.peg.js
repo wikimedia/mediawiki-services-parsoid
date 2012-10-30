@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Tokenizer for wikitext, using PEG.js and a separate PEG grammar file
  * (pegTokenizer.pegjs.txt)

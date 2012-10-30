@@ -1,3 +1,4 @@
+"use strict";
 /*
  * Insert paragraph tags where needed -- smartly and carefully
  * -- there is much fun to be had mimicking "wikitext visual newlines"

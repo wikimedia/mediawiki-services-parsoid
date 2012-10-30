@@ -1,3 +1,5 @@
+"use strict";
+
 /* Perform post-processing steps on an already-built HTML DOM. */
 
 var events = require('events'),

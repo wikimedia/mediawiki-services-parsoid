@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Small utility class that encapsulates the common 'collect all tokens
  * starting from a token of type x until token of type y or (optionally) the

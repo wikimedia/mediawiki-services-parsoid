@@ -1,3 +1,4 @@
+"use strict";
 /* --------------------------------------------------------------------------
 
  PRE-handling relies on the following 5-state FSM.

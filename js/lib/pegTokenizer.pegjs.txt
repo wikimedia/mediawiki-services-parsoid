@@ -235,7 +235,7 @@
     };
     SyntaxStops.prototype._updateCounterKey = function ( ) {
         var counters = [];
-        for ( k in this.counters ) {
+        for ( var k in this.counters ) {
             if ( this.counters[k] > 0 ) {
                 counters.push(k);
             }
@@ -245,7 +245,7 @@
     };
     SyntaxStops.prototype._updateStackKey = function ( ) {
         var stackStops = [];
-        for ( k in this.stacks ) {
+        for ( var k in this.stacks ) {
             if ( this.onStack( k )  ) {
                 stackStops.push(k);
             }

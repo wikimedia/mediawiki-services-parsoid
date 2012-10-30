@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Token transformation managers with a (mostly) abstract
  * TokenTransformManager base class and AsyncTokenTransformManager and
@@ -192,7 +193,7 @@ TokenTransformManager.prototype._getTransforms = function ( token, minRank ) {
 	if ( minRank !== undefined ) {
 		// skip transforms <= minRank
 		var i = 0;
-		for ( l = tts.length; i < l && tts[i].rank <= minRank; i++ ) { }
+		for ( var l = tts.length; i < l && tts[i].rank <= minRank; i++ ) { }
 		return ( i && tts.slice( i ) ) || tts;
 	} else {
 		return tts;
@@ -1272,8 +1273,10 @@ Frame.prototype.onThunkEvent = function ( state, notYetDone, ret ) {
 		this.manager.env.dp( 'Frame.onThunkEvent:', this._cacheKey, state.accum );
 		state.cache.set( this, state.options, state.accum );
 		// Add cache to accum too
-		Object.defineProperty( state.accum, 'cache',
-				{ value: state.cache, enumerable: false } );
+		if ( ! Object.isFrozen( state.accum ) ) {
+			Object.defineProperty( state.accum, 'cache',
+					{ value: state.cache, enumerable: false } );
+		}
 		state.cb ( state.accum );
 	}
 };
@@ -1367,7 +1370,7 @@ ExpansionCache.prototype.set = function ( frame, options, value ) {
 };
 
 ExpansionCache.prototype.get = function ( frame, options ) {
-	return this._cache.get( this.makeKey( frame, options ) );
+	return Util.deepFreeze( this._cache.get( this.makeKey( frame, options ) ) );
 };
 
 

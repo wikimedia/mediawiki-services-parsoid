@@ -373,12 +373,15 @@ ParserTests.prototype.processParsedHTML = function( item, options, cb, doc ) {
  * @arg error {string} The results of the parse.
  */
 ParserTests.prototype.processSerializedWT = function ( item, options, cb, wikitext, error ) {
+	var mode = (
+		options.html2wt ? 'html2wt' : (
+			options.wt2wt ? 'wt2wt' : 'unknown mode'
+		)
+	);
 	item.time.end = Date.now();
 
 	if (error) {
-		console.log( error );
-		options.reportFailure( item );
-		console.log('SERIALIZE FAIL', error);
+		options.reportFailure( item.title, item.comments, item.options || [], options, null, null, options.quick, mode, error );
 	} else {
 		// Check the result vs. the expected result.
 		this.checkWikitext( item, wikitext, options );
@@ -406,7 +409,7 @@ ParserTests.prototype.processSerializedWT = function ( item, options, cb, wikite
  * @arg failure_only {bool} Whether we should print only a failure message, or go on to print the diff
  * @arg mode {string} The mode we're in (wt2wt, wt2html, html2wt, or html2html)
  */
-ParserTests.prototype.printFailure = function ( title, comments, iopts, options, actual, expected, failure_only, mode ) {
+ParserTests.prototype.printFailure = function ( title, comments, iopts, options, actual, expected, failure_only, mode, error ) {
 	this.stats.failOutputTests++;
 	this.stats.modes[mode].failOutputTests++;
 
@@ -416,7 +419,7 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 
 	console.log( 'FAILED'.red + ': ' + ( title + ( mode ? ( ' (' + mode + ')' ) : '' ) ).yellow );
 
-	if ( !failure_only ) {
+	if ( !failure_only && !error ) {
 		console.log( comments.join('\n') );
 
 		if ( options ) {
@@ -432,6 +435,12 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 		if ( options.printwhitelist ) {
 			this.printWhitelistEntry( title, actual.raw );
 		}
+	} else if ( !failure_only && error ) {
+		// The error object exists, which means
+		// there was an error! gwicke said it wouldn't happen, but handle
+		// it anyway, just in case.
+		console.log( '\nBECAUSE THERE WAS AN ERROR:\n'.red );
+		console.log( error.toString() );
 	}
 };
 
@@ -967,11 +976,20 @@ var xmlFuncs = function () {
 	 * @arg failure_only {bool} Whether we should print only a failure message, or go on to print the diff
 	 * @arg mode {string} The mode we're in (wt2wt, wt2html, html2wt, or html2html)
 	 */
-	reportFailureXML = function ( title, comments, iopts, options, actual, expected, failure_only, mode ) {
+	reportFailureXML = function ( title, comments, iopts, options, actual, expected, failure_only, mode, error ) {
 		fail++;
-		var failEle = '<failure type="parserTestsDifferenceInOutputFailure">\n';
-		failEle += getActualExpectedXML( actual, expected, options.getDiff, false );
-		failEle += '\n</failure>\n';
+		var failEle;
+
+		if ( error ) {
+			failEle = '<error type="somethingCrashedFail">\n';
+			failEle += error.toString();
+			failEle += '\n</error>\n';
+		} else {
+			failEle = '<failure type="parserTestsDifferenceInOutputFailure">\n';
+			failEle += getActualExpectedXML( actual, expected, options.getDiff, false );
+			failEle += '\n</failure>\n';
+		}
+
 		results[mode] += failEle;
 	},
 

@@ -1,3 +1,5 @@
+"use strict";
+
 var Util = require('./mediawiki.Util.js').Util;
 
 function Title ( key, ns, nskey, env ) {

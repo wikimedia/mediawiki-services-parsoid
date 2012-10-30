@@ -1,3 +1,5 @@
+"use strict";
+
 var TokenCollector = require( './ext.util.TokenCollector.js' ).TokenCollector,
 	Util = require( './mediawiki.Util.js' ).Util,
 	$ = require( 'jquery' );

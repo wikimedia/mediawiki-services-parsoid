@@ -1,3 +1,4 @@
+"use strict";
 /*
  * Create list tag around list items and map wiki bullet levels to html
  */

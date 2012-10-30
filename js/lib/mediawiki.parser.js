@@ -1,3 +1,4 @@
+"use strict";
 /**
  * This module assembles parser pipelines from parser stages with
  * asynchronous communnication between stages based on events. Apart from the
