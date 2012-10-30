@@ -124,16 +124,61 @@ OnlyInclude.prototype.onAnyInclude = function ( token, manager ) {
 };
 
 function defaultNestedDelimiterHandler(nestedDelimiterInfo) {
-	// Clone the container token and strip the delimiter tag out of wherever it is nested!
+	// Always clone the container token before modifying it
 	var token = nestedDelimiterInfo.token.clone();
+
+	// Strip the delimiter token wherever it is nested
+	// and strip upto/from the delimiter depending on the
+	// token type and where in the stream we are.
 	var i = nestedDelimiterInfo.attrIndex;
+	var delimiter = nestedDelimiterInfo.delimiter;
+	var isOpenTag = delimiter.constructor === TagTk;
+	var stripFrom = ((delimiter.name === "noinclude") && isOpenTag) ||
+					((delimiter.name === "includeOnly") && !isOpenTag);
+	var stripUpto = ((delimiter.name === "noinclude") && !isOpenTag) ||
+					((delimiter.name === "includeOnly") && isOpenTag);
+
 	if (nestedDelimiterInfo.k >= 0) {
-		token.attribs[i].k.splice(nestedDelimiterInfo.k, 1);
+		if (stripFrom) {
+			token.attribs.splice(i+1);
+			token.attribs[i].k.splice(nestedDelimiterInfo.k);
+		}
+		if (stripUpto) {
+			// Since we are stripping upto the delimiter,
+			// change the token to a simple span.
+			// SSS FIXME: For sure in the case of table tags (tr,td,th,etc.) but, always??
+			token.name = 'span';
+			token.attribs.splice(0, i);
+			token.attribs[i].k.splice(0, nestedDelimiterInfo.k);
+		}
+
+		// default -- not sure when this might be triggered
+		if (!stripFrom && !stripUpto) {
+			token.attribs[i].k.splice(nestedDelimiterInfo.k, 1);
+		}
+		token.attribs[i].ksrc = undefined;
 	} else {
-		token.attribs[i].v.splice(nestedDelimiterInfo.v, 1);
+		if (stripFrom) {
+			token.attribs.splice(i+1);
+			token.attribs[i].v.splice(nestedDelimiterInfo.v);
+		}
+		if (stripUpto) {
+			// Since we are stripping upto the delimiter,
+			// change the token to a simple span.
+			// SSS FIXME: For sure in the case of table tags (tr,td,th,etc.) but, always??
+			token.name = 'span';
+			token.attribs.splice(0, i);
+			token.attribs[i].v.splice(0, nestedDelimiterInfo.v);
+		}
+
+		// default -- not sure when this might be triggered
+		if (!stripFrom && !stripUpto) {
+			token.attribs[i].v.splice(nestedDelimiterInfo.v, 1);
+		}
+		token.attribs[i].vsrc = undefined;
 	}
 
-	return {containerToken: token, delimiter: nestedDelimiterInfo.delimiter};
+	return {containerToken: token, delimiter: delimiter};
 }
 
 function noIncludeHandler(manager, options, collection) {
