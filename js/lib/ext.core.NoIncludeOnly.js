@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Simple noinclude / onlyinclude implementation. Strips all tokens in
  * noinclude sections.

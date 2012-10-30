@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Template and template argument handling, first cut.
  *
@@ -301,8 +302,18 @@ TemplateHandler.prototype._onChunk = function( state, cb, chunk ) {
 
 	var i, n;
 	for (i = 0, n = chunk.length; i < n; i++) {
-		if (chunk[i].dataAttribs) {
-			chunk[i].dataAttribs.tsr = undefined;
+		// FIXME: This modifies without cloning! Instead, move the tsr
+		// clearing to an earlier stage before the tokens enter the cache.
+		if (chunk[i].dataAttribs && chunk[i].dataAttribs.tsr ) {
+			if ( Object.isFrozen( chunk[i] ) ) {
+				if ( ! Object.isFrozen( chunk ) ) {
+					env.tp( 'TemplateHandler: Cloning object for tsr' );
+					chunk[i] = Util.clone(chunk[i], true);
+				} else {
+					env.tp( 'ERROR: would need to clone the entire chunk' );
+				}
+			}
+			delete chunk[i].dataAttribs.tsr;
 		}
 	}
 

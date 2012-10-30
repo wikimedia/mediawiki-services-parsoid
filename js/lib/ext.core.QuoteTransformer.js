@@ -1,10 +1,11 @@
+"use strict";
 /*
  * MediaWiki-compatible italic/bold handling as a token stream transformation.
  *
  * @author Gabriel Wicke <gwicke@wikimedia.org>
  */
 
-Util = require('./mediawiki.Util.js').Util;
+var Util = require('./mediawiki.Util.js').Util;
 
 function QuoteTransformer ( dispatcher ) {
 	this.reset();

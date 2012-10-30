@@ -1,3 +1,5 @@
+"use strict";
+
 var Util = require( './mediawiki.Util.js' ).Util,
 	$ = require( 'jquery' );
 /**
@@ -63,7 +65,7 @@ MWRefTagHook = function( env ) {
 			name: null,
 			group: null
 		}, node.params);
-		
+
 		var group = getRefGroup(options.group ),
 			ref = group.add(node, options),
 			linkback = ref.linkbacks[ref.linkbacks.length - 1],

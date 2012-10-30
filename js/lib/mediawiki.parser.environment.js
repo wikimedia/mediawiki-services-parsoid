@@ -1,3 +1,5 @@
+"use strict";
+
 var Util = require('./mediawiki.Util.js').Util;
 var title = require('./mediawiki.Title.js'),
 	$ = require( 'jquery' ),
@@ -226,7 +228,7 @@ MWParserEnvironment.prototype.resolveTitle = function( name, namespace ) {
 	var relUp = name.match(/^(\.\.\/)+/);
 	if ( relUp ) {
 		var levels = relUp[0].length / 3,
-			titleBits = this.pageName.split(/\//);
+			titleBits = this.pageName.split(/\//),
 			newBits = titleBits.slice(0, titleBits.length - levels);
 		if ( name !== relUp[0] ) {
 			newBits.push( name.substr(levels * 3) );

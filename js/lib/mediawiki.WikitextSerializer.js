@@ -1,3 +1,5 @@
+"use strict";
+
 /* ----------------------------------------------------------------------
  * This serializer is designed to eventually
  * - accept arbitrary HTML and
@@ -44,7 +46,7 @@ function isHtmlBlockTag(name) {
 	return name === 'body' || Util.isBlockTag(name);
 }
 
-WikitextEscapeHandlers = function() { };
+var WikitextEscapeHandlers = function() { };
 
 var WEHP = WikitextEscapeHandlers.prototype;
 
@@ -154,7 +156,7 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text ) {
  * @constructor
  * @param options {Object} List of options for serialization
  */
-WikitextSerializer = function( options ) {
+var WikitextSerializer = function( options ) {
 	this.options = $.extend( {
 		// defaults
 	}, options || {} );
@@ -655,6 +657,7 @@ WSP._linkHandler =  function( state, tokens ) {
 		attribDict = Util.KVtoHash( token.attribs ),
 		tplAttrState = { kvs: {}, ks: {}, vs: {} },
 		tail = '',
+		isCat = false,
 		hrefFromTpl = true,
 		tokenData = token.dataAttribs,
 		target, linkText, unencodedTarget, hrefInfo, href;
@@ -725,7 +728,10 @@ WSP._linkHandler =  function( state, tokens ) {
 				if (tokenData.pipetrick) {
 					linkText = '';
 				} else if ( isCat ) {
-					targetParts = target.match( /^([^#]*)#(.*)/ );
+					// FIXME: isCat is only set as a side-effect of
+					// populateRoundTripData, which is not the best code
+					// style!
+					var targetParts = target.match( /^([^#]*)#(.*)/ );
 
 					if ( tplAttrState.vs.href ) {
 						target = tplAttrState.vs.href;
@@ -743,8 +749,10 @@ WSP._linkHandler =  function( state, tokens ) {
 					linkText = Util.stripSuffix( linkText, tail );
 				}
 
-				needToChangeCategory = token.name === 'link' && linkText !== '' && linkText !== target && isCat;
-				hasOtherLinkText = !isCat && linkText !== '';
+				var needToChangeCategory = token.name === 'link' &&
+						linkText !== '' &&
+						linkText !== target && isCat,
+					hasOtherLinkText = !isCat && linkText !== '';
 
 				if ( needToChangeCategory || hasOtherLinkText || tokenData.pipetrick ) {
 					return '[[' + target + '|' + linkText + ']]' + tail;
@@ -1759,7 +1767,6 @@ function gatherInlineText(buf, node) {
  * calling _serializeToken on each of these.
  */
 WSP._serializeDOM = function( node, state ) {
-
 	// serialize this node
 	if (node.nodeType === Node.ELEMENT_NODE) {
 		if (state.activeTemplateId === node.getAttribute("about")) {

@@ -1,3 +1,4 @@
+"use strict";
 /* ------------------------------------------------------------------------
  * Token attributes can have one or both of their key/value information
  * come from a token stream.  Ex: <div {{echo|id}}="{{echo|test}}">

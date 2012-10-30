@@ -1,3 +1,4 @@
+"use strict";
 /* -------------------------------------------------------------------
  * The WikitextConstant structure holds "global constants" that
  * capture properties about wikitext markup.

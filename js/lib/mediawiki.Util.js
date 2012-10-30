@@ -1,3 +1,4 @@
+"use strict";
 /**
  * General utilities for token transforms
  */
@@ -167,6 +168,34 @@ var HTML5 = require( 'html5' ).HTML5,
 			deepClone = true;
 		}
 		return $.extend(deepClone, {}, obj);
+	},
+
+	// Deep-freeze an object
+	// See
+	// https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/freeze
+	deepFreeze: function (o) {
+		if ( o === undefined ) {
+			return;
+		} else if ( ! (o instanceof Object) ) {
+			//console.log( o );
+			//console.trace();
+			return;
+		} else if ( Object.isFrozen(o) ) {
+			return;
+		}
+
+		Object.freeze(o); // First freeze the object.
+		for (var propKey in o) {
+			var prop = o[propKey];
+			if (!o.hasOwnProperty(propKey) || !(typeof prop === "object") || Object.isFrozen(prop)) {
+				// If the object is on the prototype, not an object, or is already frozen,
+				// skip it. Note that this might leave an unfrozen reference somewhere in the
+				// object if there is an already frozen object containing an unfrozen object.
+				continue;
+			}
+
+			this.deepFreeze(prop); // Recursively call deepFreeze.
+		}
 	},
 
 	// 'cb' can only be called once after "everything" is done.

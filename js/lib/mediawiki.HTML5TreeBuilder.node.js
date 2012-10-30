@@ -1,3 +1,5 @@
+"use strict";
+
 /* Front-end/Wrapper for a particular tree builder, in this case the
  * parser/tree builder from the node 'html5' module. Feed it tokens using
  * processToken, and it will build you a DOM tree retrievable using .document
@@ -7,7 +9,7 @@ var events = require('events'),
 	$ = require( 'jquery' ),
 	HTML5 = require('./html5/index');
 
-FauxHTML5 = {};
+var FauxHTML5 = {};
 
 
 FauxHTML5.TreeBuilder = function ( env ) {

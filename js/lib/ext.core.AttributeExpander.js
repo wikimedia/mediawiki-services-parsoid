@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Generic attribute expansion handler.
  *
@@ -62,7 +64,7 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 	var tokens      = [];
 	var metaTokens  = [];
 	var oldAttrs    = token.attribs;
-	var a, newK, i, l, metaObjType, producerObjType, kv, updatedK;
+	var a, newK, i, l, metaObjType, producerObjType, kv, updatedK, updatedV;
 
 	// Identify attributes that were generated in full or in part using templates
 	// and add appropriate meta tags for them.

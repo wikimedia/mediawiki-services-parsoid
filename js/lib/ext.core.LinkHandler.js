@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Simple link handler. Registers after template expansions, as an
  * asynchronous transform.
@@ -140,7 +141,7 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 
 		var tail = Util.lookup( attribs, 'tail' );
 		if ( title.ns.isCategory() ) {
-			tokens = [];
+			var tokens = [];
 
 			// We let this get handled earlier as a normal wikilink, but we need
 			// to add in a few extras.
