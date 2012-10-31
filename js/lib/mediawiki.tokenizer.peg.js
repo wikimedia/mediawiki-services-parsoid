@@ -178,8 +178,10 @@ PegTokenizer.prototype.inline_breaks = function (input, pos, stops ) {
 			return stops.onStack( 'equal' ) ||
 				( counters.h &&
 					( pos === input.length - 1 ||
-					  input.substr( pos + 1, 500)
-						.match(/^[= \t]*(?:[\r\n]|$)/) !== null )
+					  input.substr( pos + 1 )
+						// possibly more equals followed by spaces or comments
+						.match(/^=*(?:[ \t]+|<\!--(?:(?!-->)[^\r\n])+-->)*(?:[\r\n]|$)/)
+							!== null )
 				) || null;
 		case '|':
 			return stops.onStack( 'pipe' ) ||
