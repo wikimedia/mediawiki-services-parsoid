@@ -10,6 +10,7 @@ var ParserPipelineFactory = require('../lib/mediawiki.parser.js').ParserPipeline
 	ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnvironment,
 	ConvertDOMToLM = require('../lib/mediawiki.LinearModelConverter.js').ConvertDOMToLM,
 	WikitextSerializer = require('../lib/mediawiki.WikitextSerializer.js').WikitextSerializer,
+	SelectiveSerializer = require( '../lib/mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
 	optimist = require('optimist'),
 	html5 = require('html5');
 
@@ -38,6 +39,11 @@ var ParserPipelineFactory = require('../lib/mediawiki.parser.js').ParserPipeline
 		},
 		'html2html': {
 			description: 'HTML -> Wikitext -> HTML',
+			'boolean': true,
+			'default': false
+		},
+		'selser': {
+			description: 'Use the selective serializer to go from HTML to Wikitext.',
 			'boolean': true,
 			'default': false
 		},
@@ -90,6 +96,11 @@ var ParserPipelineFactory = require('../lib/mediawiki.parser.js').ParserPipeline
 			description: 'The page name, returned for {{PAGENAME}}.',
 			'boolean': false,
 			'default': 'Main page'
+		},
+		'oldtext': {
+			description: 'The old page text for a selective-serialization operation (see --selser)',
+			'boolean': false,
+			'default': false
 		}
 	});
 
@@ -123,14 +134,18 @@ var ParserPipelineFactory = require('../lib/mediawiki.parser.js').ParserPipeline
 
 	// Init parsers, serializers, etc.
 	var parserPipeline,
-	    serializer,
+		serializer,
 		htmlparser = new html5.Parser();
 	if (!argv.html2wt) {
 		var parserPipelineFactory = new ParserPipelineFactory(env);
 		parserPipeline = parserPipelineFactory.makePipeline('text/x-mediawiki/full');
 	}
 	if (!argv.wt2html) {
-		serializer = new WikitextSerializer({env: env});
+		if ( argv.selser ) {
+			serializer = new SelectiveSerializer( { env: env, oldid: null, oldtext: argv.oldtext || null } );
+		} else {
+			serializer = new WikitextSerializer( { env: env } );
+		}
 	}
 
 	var stdin = process.stdin,
@@ -150,36 +165,44 @@ var ParserPipelineFactory = require('../lib/mediawiki.parser.js').ParserPipeline
 		if (argv.html2wt || argv.html2html) {
 			htmlparser.parse('<html><body>' + input.replace(/\r/g, '') + '</body></html>');
 			var content = htmlparser.tree.document.childNodes[0].childNodes[1],
-				wt = serializer.serializeDOM(content);
+				wt = '';
 
-			env.text = wt;
-			if (argv.html2wt) {
-				// add a trailing newline for shell user's benefit
-				stdout.write(wt);
-				stdout.write("\n");
-			} else {
-				parserPipeline.on('document', function(document) {
-					stdout.write( document.body.innerHTML );
-				});
-				parserPipeline.process(wt);
-			}
-
-			process.exit(0);
-		} else {
-			parserPipeline.on('document', function ( document ) {
-				var res;
-				if (argv.wt2html) {
-					res = document.body.innerHTML;
-				} else if (argv.wt2wt) {
-					res = serializer.serializeDOM(document.body);
-				} else { // linear model
-					res = JSON.stringify( ConvertDOMToLM( document.body ), null, 2 );
+			serializer.serializeDOM( content, function ( chunk ) {
+				wt += chunk;
+			}, function () {
+				env.text = wt;
+				if (argv.html2wt) {
+					// add a trailing newline for shell user's benefit
+					stdout.write(wt);
+					stdout.write("\n");
+				} else {
+					parserPipeline.on('document', function(document) {
+						stdout.write( document.body.innerHTML );
+					});
+					parserPipeline.process(wt);
 				}
 
-				// add a trailing newline for shell user's benefit
-				stdout.write(res);
-				stdout.write("\n");
 				process.exit(0);
+			} );
+		} else {
+			parserPipeline.on('document', function ( document ) {
+				var res, finishCb = function () {
+					stdout.write( res );
+					stdout.write( '\n' );
+					process.exit( 0 );
+				};
+				if (argv.wt2html) {
+					res = document.body.innerHTML;
+					finishCb();
+				} else if (argv.wt2wt) {
+					res = '';
+					serializer.serializeDOM( document.body, function ( chunk ) {
+						res += chunk;
+					}, finishCb );
+				} else { // linear model
+					res = JSON.stringify( ConvertDOMToLM( document.body ), null, 2 );
+					finishCb();
+				}
 			});
 
 			// Kick off the pipeline by feeding the input into the parser pipeline

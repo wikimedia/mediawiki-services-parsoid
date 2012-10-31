@@ -1472,7 +1472,9 @@ WSP.serializeTokens = function(startState, tokens, chunkCB ) {
 	state.serializer = this;
 	if ( chunkCB === undefined ) {
 		var out = [];
-		state.chunkCB = out.push.bind(out);
+		state.chunkCB = function ( chunk ) {
+			out.push( chunk );
+		};
 		for ( i = 0, l = tokens.length; i < l; i++ ) {
 			this._serializeToken( state, tokens[i] );
 		}
@@ -1639,7 +1641,7 @@ WSP._serializeToken = function ( state, token ) {
 				for ( var i = 0, l = state.availableNewlineCount; i < l; i++ ) {
 					res += '\n';
 				}
-				state.chunkCB( res );
+				state.chunkCB( res, state.serializeID );
 				break;
 			default:
 				res = '';
@@ -1742,7 +1744,7 @@ WSP._serializeToken = function ( state, token ) {
 
 		out += res;
 		WSP.debug(' =>', out);
-		state.chunkCB( out );
+		state.chunkCB( out, state.serializeID );
 
 		// Update new line state
 		// 1. If this token generated new trailing new lines, we are in a newline state again.
@@ -1822,11 +1824,15 @@ WSP._collectAttrMetaTags = function(node, state) {
 /**
  * Serialize an HTML DOM document.
  */
-WSP.serializeDOM = function( node, chunkCB ) {
+WSP.serializeDOM = function( node, chunkCB, finalCB ) {
 	// console.warn("DOM: " + node.outerHTML);
+	if ( !finalCB || typeof finalCB !== 'function' ) {
+		finalCB = function () {};
+	}
 	try {
 		var state = Util.extendProps({}, this.initialState, this.options);
 		state.serializer = this;
+		state.serializeID = null;
 		this._collectAttrMetaTags(node, state);
 		//console.warn( node.innerHTML );
 		if ( ! chunkCB ) {
@@ -1840,6 +1846,7 @@ WSP.serializeDOM = function( node, chunkCB ) {
 			this._serializeDOM( node, state );
 			this._serializeToken( state, new EOFTk() );
 		}
+		finalCB();
 	} catch (e) {
 		state.env.errCB(e);
 		throw e;
@@ -1939,6 +1946,14 @@ WSP._serializeDOM = function( node, state ) {
 				}
 			}
 
+			var serializeID = null;
+			if ( state.serializeID === null ) {
+				serializeID = node.getAttribute( 'data-serialize-id' );
+				if ( serializeID ) {
+					state.serializeID = serializeID;
+				}
+			}
+
 			// Serialize the start token
 			var startToken = new TagTk(name, tkAttribs, tkRTInfo);
 			this._serializeToken(state, startToken);
@@ -1976,6 +1991,10 @@ WSP._serializeDOM = function( node, state ) {
 			// then the end token
 			this._serializeToken(state, new EndTagTk(name, tkAttribs, tkRTInfo));
 
+			if ( serializeID !== null ) {
+				state.serializeID = null;
+			}
+
 			break;
 		case Node.TEXT_NODE:
 			if (state.currLine.text === null) {
@@ -2006,7 +2025,7 @@ WSP._getDOMAttribs = function( attribs ) {
 	var out = [];
 	for ( var i = 0, l = attribs.length; i < l; i++ ) {
 		var attrib = attribs.item(i);
-		if ( attrib.name !== 'data-parsoid' ) {
+		if ( attrib.name !== 'data-parsoid' && attrib.name !== 'data-ve-changed' && attrib.name !== 'data-serialize-id' ) {
 			out.push( { k: attrib.name, v: attrib.value } );
 		}
 	}

@@ -32,6 +32,7 @@ var mp = '../lib/',
 	ParserPipelineFactory = require(mp + 'mediawiki.parser.js').ParserPipelineFactory,
 	MWParserEnvironment = require(mp + 'mediawiki.parser.environment.js').MWParserEnvironment,
 	WikitextSerializer = require(mp + 'mediawiki.WikitextSerializer.js').WikitextSerializer,
+	SelectiveSerializer = require( mp + 'mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
 	TemplateRequest = require(mp + 'mediawiki.ApiRequest.js').TemplateRequest;
 
 // For now most modules only need this for $.extend and $.each :)
@@ -64,13 +65,14 @@ var colorizeCount = function ( count, color ) {
 };
 
 var testWhiteList = require(__dirname + '/parserTests-whitelist.js').testWhiteList,
-	modes = ['wt2html', 'wt2wt', 'html2html', 'html2wt'];
+	modes = ['wt2html', 'wt2wt', 'html2html', 'html2wt', 'selser'];
 
 function ParserTests () {
 	var i;
 
 	this.cache_file = "parserTests.cache"; // Name of file used to cache the parser tests cases
 	this.parser_tests_file = "parserTests.txt";
+	this.tests_changes_file = 'changes.txt';
 
 	this.articles = {};
 
@@ -117,6 +119,11 @@ ParserTests.prototype.getOpts = function () {
 		},
 		'html2html': {
 			description: 'Roundtrip testing: HTML(DOM) -> Wikitext -> HTML(DOM)',
+			'default': false,
+			'boolean': true
+		},
+		'selser': {
+			description: 'Roundtrip testing: Wikitext -> DOM(HTML) -> Wikitext (with selective serialization)',
 			'default': false,
 			'boolean': true
 		},
@@ -184,6 +191,52 @@ ParserTests.prototype.getOpts = function () {
 		}
 	}).argv; // keep that
 };
+
+ParserTests.prototype.getSelectiveChanges = function ( options ) {
+	var changeFile, j = 0;
+	try {
+		changeFile = fs.readFileSync( this.changeFileName, 'utf8' );
+		fileDependencies.push( this.changeFileName );
+	} catch ( e ) {
+		console.log( e.stack );
+	}
+
+	var selectiveChanges = this.parseChanges( changeFile );
+	for ( var i = 0; selectiveChanges && i < selectiveChanges.length; i++ ) {
+		thischange = selectiveChanges[i];
+		if ( thischange && thischange.type && thischange.type === 'test' ) {
+			do {
+				j++;
+			} while ( this.cases[j].type !== 'test' || this.cases[j].title !== thischange.title );
+
+			this.cases[j].changes = this.parseSingleChange( thischange.options || '' );
+			this.cases[j].selresult = thischange.result;
+		}
+	}
+};
+
+ParserTests.prototype.parseSingleChange = function ( changes ) {
+	var i, opt, finalobj = {}, clist = changes.split( '\n' );
+	for ( i = 0; i < clist.length; i++ ) {
+		opt = clist[i].split( '=' );
+		finalobj[opt[0]] = opt[1];
+		try {
+			finalobj[opt[0]] = JSON.parse( opt[1] );
+		} catch ( e ) {
+			// Assume everything's all right, carry on.
+		}
+	}
+	return finalobj;
+};
+
+ParserTests.prototype.parseChanges = function ( txt ) {
+	try {
+		return this.changeParser.parse( txt );
+	} catch ( e ) {
+		console.log( e.stack || e.toString() );
+	}
+};
+
 
 /**
  * Get an object holding our tests cases. Eventually from a cache file
@@ -264,13 +317,86 @@ ParserTests.prototype.processArticle = function( item, cb ) {
 	process.nextTick( cb );
 };
 
-ParserTests.prototype.convertHtml2Wt = function( options, mode, processWikitextCB, doc ) {
-	var content = mode === 'wt2wt' ? doc.body : doc;
+ParserTests.prototype.convertHtml2Wt = function( options, mode, processWikitextCB, item, doc ) {
+	var content = ( mode === 'wt2wt' || mode === 'selser' ) ? doc.body : doc;
+	var serializer = mode === 'selser' ? this.selectiveSerializer : this.serializer;
+	var wt = '';
 	try {
-		processWikitextCB(this.serializer.serializeDOM(content), null);
+		if ( mode === 'selser' ) {
+			serializer.oldtext = item.input;
+			serializer.target = null;
+			this.makeChanges( content, item );
+		}
+		serializer.serializeDOM( content, function ( res ) {
+			wt += res;
+		}, function () {
+			processWikitextCB( wt, null );
+			delete serializer.oldtext;
+		} );
 	} catch (e) {
 		processWikitextCB(null, e);
+		delete serializer.oldtext;
 	}
+};
+
+ParserTests.prototype.makeChanges = function ( doc, item ) {
+	var changes;
+	if ( item && item.changes ) {
+		changes = item.changes.changes;
+	}
+	if ( changes === undefined || changes === null ) {
+		// There weren't any changes. No problem, just return.
+		return;
+	}
+
+	function changeNode( node, cobj ) {
+		var change = {};
+		if ( cobj.content ) {
+			node.innerHTML = cobj.content;
+			change.content = 1;
+		}
+		if ( cobj.children ) {
+			for ( var ix in cobj.children ) {
+			if ( cobj.children.hasOwnProperty( ix ) && node.childNodes[ix - 0] ) {
+				changeNode( node.childNodes[ix - 0], cobj.children[ix] );
+			} }
+		}
+		if ( cobj.remove ) {
+			node.parentNode.removeChild( node );
+			change.childrenRemoved = 1;
+		}
+		if ( cobj.add ) {
+			var newNode = node.ownerDocument.createElement( cobj.add.tagName );
+			newNode.innerHTML = cobj.add.content;
+			if ( cobj.add.type && cobj.add.type === 'annotation' || cobj.add.type === 'inline' ) {
+				change.content = 1;
+			} else {
+				changeNode( newNode, { 'new': 1 } );
+			}
+			node.appendChild( newNode );
+		}
+		if ( cobj.prepend ) {
+			var newNode = node.ownerDocument.createElement( cobj.prepend.tagName );
+			newNode.innerHTML = cobj.prepend.content;
+			if ( cobj.prepend.type && cobj.prepend.type === 'annotation' || cobj.prepend.type === 'inline' ) {
+				change.content = 1;
+			} else {
+				changeNode( newNode, { 'new': 1 } );
+			}
+			node.insertBefore( newNode, node.childNodes[0] );
+		}
+		if ( cobj['new'] ) {
+			change = cobj;
+		}
+		if ( node.nodeName !== '#text' ) {
+			node.setAttribute( 'data-ve-changed', JSON.stringify( change ) );
+		}
+	}
+
+	for ( var ix in changes ) {
+	if ( changes.hasOwnProperty( ix ) && doc.childNodes[ix - 0] ) {
+		changeNode( doc.childNodes[ix - 0], changes[ix] );
+	} }
 };
 
 ParserTests.prototype.convertWt2Html = function( mode, processHtmlCB, wikitext, error ) {
@@ -311,12 +437,12 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 	item.time = {};
 
 	var cb, cb2, domtree;
-	if ( mode === 'wt2html' || mode === 'wt2wt' ) {
-		if ( mode === 'wt2wt' ) {
+	if ( mode === 'wt2html' || mode === 'wt2wt' || mode === 'selser' ) {
+		if ( mode === 'wt2wt' || mode === 'selser' ) {
 			// insert an additional step in the callback chain
 			// if we are roundtripping
 			cb2 = this.processSerializedWT.bind( this, item, options, mode, endCb );
-			cb = this.convertHtml2Wt.bind( this, options, mode, cb2 );
+			cb = this.convertHtml2Wt.bind( this, options, mode, cb2, item );
 		} else {
 			cb = this.processParsedHTML.bind( this, item, options, mode, endCb );
 		}
@@ -335,7 +461,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 
 		item.time.start = Date.now();
 		domtree = Util.parseHTML( '<html><body>' + item.result + '</body></html>' );
-		this.convertHtml2Wt( options, mode, cb, domtree.document.childNodes[0].childNodes[1] );
+		this.convertHtml2Wt( options, mode, cb, item, domtree.document.childNodes[0].childNodes[1] );
 	}
 };
 
@@ -428,7 +554,7 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 		// there was an error! gwicke said it wouldn't happen, but handle
 		// it anyway, just in case.
 		console.log( '\nBECAUSE THERE WAS AN ERROR:\n'.red );
-		console.log( error.toString() );
+		console.log( error.stack || error.toString() );
 	}
 };
 
@@ -576,13 +702,19 @@ ParserTests.prototype.checkHTML = function ( item, out, options, mode ) {
  * @arg options {object} Options passed into the process on the command line.
  */
 ParserTests.prototype.checkWikitext = function ( item, out, options, mode ) {
-	// FIXME: normalization not in place yet
-	var normalizedOut = mode === 'html2wt' ? out.replace(/\n+$/, '') : out,
+	var normalizedExpected;
+	if ( mode === 'selser' && item.selresult ) {
+		normalizedExpected = item.selresult;
+	} else {
 		// FIXME: normalization not in place yet
 		normalizedExpected = mode === 'html2wt' ? item.input.replace(/\n+$/, '') : item.input;
+	}
+
+	// FIXME: normalization not in place yet
+	normalizedOut = mode === 'html2wt' ? out.replace(/\n+$/, '') : out;
 
 	var input = mode === 'html2wt' ? item.result : item.input;
-	var expected = { normal: normalizedExpected, raw: item.input };
+	var expected = { normal: normalizedExpected, raw: mode === 'selser' ? item.selresult : item.input };
 	var actual = { normal: normalizedOut, raw: out, input: input };
 
 	options.reportResult( item.title, item.time, item.comments, item.options || null, expected, actual, options, mode );
@@ -656,7 +788,7 @@ ParserTests.prototype.main = function ( options ) {
 		process.exit( 0 );
 	}
 
-	if ( !( options.wt2wt || options.wt2html || options.html2wt || options.html2html ) ) {
+	if ( !( options.wt2wt || options.wt2html || options.html2wt || options.html2html || options.selser ) ) {
 		options.wt2wt = true;
 		options.wt2html = true;
 		options.html2html = true;
@@ -727,10 +859,22 @@ ParserTests.prototype.main = function ( options ) {
 		this.testFileName = __dirname + '/' + this.parser_tests_file;
 	}
 
+	if ( options.changes ) {
+		this.changeFileName = options.changes;
+	} else {
+		this.changeFileName = __dirname + '/' + this.tests_changes_file;
+	}
+
 	try {
 		this.testParser = PEG.buildParser( fs.readFileSync( __dirname + '/parserTests.pegjs', 'utf8' ) );
 	} catch ( e2 ) {
 		console.log( e2 );
+	}
+
+	try {
+		this.changeParser = PEG.buildParser( fs.readFileSync( __dirname + '/parserTests.pegjs', 'utf8' ) );
+	} catch ( e3 ) {
+		console.log( e3.stack || e3.toString() );
 	}
 
 	this.cases = this.getTests( options ) || [];
@@ -767,14 +911,21 @@ ParserTests.prototype.main = function ( options ) {
 	if ( options.html2wt ) {
 		options.modes.push( 'html2wt' );
 	}
+	if ( options.selser ) {
+		options.modes.push( 'selser' );
+	}
 
 	// Create parsers, serializers, ..
-	if ( options.html2html || options.wt2wt || options.wt2html ) {
+	if ( options.html2html || options.wt2wt || options.wt2html || options.selser ) {
 		var parserPipelineFactory = new ParserPipelineFactory( this.env );
 		this.parserPipeline = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
 	}
 	if ( options.wt2wt || options.html2wt || options.html2html ) {
 		this.serializer = new WikitextSerializer({env: this.env});
+	}
+	if ( options.selser ) {
+		this.selectiveSerializer = new SelectiveSerializer( { env: this.env, wts: this.serializer } );
+		this.getSelectiveChanges();
 	}
 
 	options.reportStart();
@@ -795,7 +946,9 @@ ParserTests.prototype.reportStartOfTests = function () {
 ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 	var tasks = [];
 	for ( var i = 0; i < modes.length; i++ ) {
-		tasks.push( this.processTest.bind( this, item, options, modes[i] ) );
+		if ( modes[i] !== 'selser' || item.changes ) {
+			tasks.push( this.processTest.bind( this, item, options, modes[i] ) );
+		}
 	}
 	return tasks;
 };

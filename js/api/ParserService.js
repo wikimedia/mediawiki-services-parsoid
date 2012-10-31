@@ -6,9 +6,9 @@
  * To configure locally, add localsettings.js to this directory and export a setup function.
  *
  * @example
- *    exports.setup = function( config, env ) {
- *        env.setInterwiki( 'localhost', 'http://localhost/wiki' );
- *    };
+ *	exports.setup = function( config, env ) {
+ *		env.setInterwiki( 'localhost', 'http://localhost/wiki' );
+ *	};
  */
 
 /**
@@ -43,6 +43,7 @@ var instanceName = cluster.isWorker ? 'worker(' + process.pid + ')' : 'master';
 console.log( ' - ' + instanceName + ' loading...' );
 
 var WikitextSerializer = require(mp + 'mediawiki.WikitextSerializer.js').WikitextSerializer,
+	SelectiveSerializer = require( mp + 'mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
 	Util = require( mp + 'mediawiki.Util.js' ).Util,
 	libtr = require(mp + 'mediawiki.ApiRequest.js'),
 	DoesNotExistError = libtr.DoesNotExistError,
@@ -172,6 +173,7 @@ var roundTripDiff = function ( req, res, src, document ) {
 	res.write( '<h2>HTML DOM converted back to Wikitext</h2><hr>\n' );
 	out = new WikitextSerializer({env: env}).serializeDOM( document.body );
 	if ( out === undefined ) {
+		console.log( 'Serializer error!' );
 		out = "An error occured in the WikitextSerializer, please check the log for information";
 		res.send( out, 500 );
 		return;
@@ -201,6 +203,7 @@ var parse = function ( env, req, res, cb, err, src ) {
 			if ( !err.code ) {
 				err.code = 500;
 			}
+			console.log( err.stack );
 			res.send( err.toString(), err.code );
 		} else {
 			res.setHeader('Content-Type', 'text/html; charset=UTF-8');
@@ -344,7 +347,8 @@ app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
 		env.text = req.body.content;
 		parser.process( req.body.content.replace(/\r/g, '') );
 	} catch (e) {
-		env.errCB(e);
+		console.log( e.stack );
+		res.send( e.toString(), 500 );
 	}
 });
 
@@ -496,22 +500,49 @@ app.get( /\/_ci\/master/, function ( req, res ) {
 /**
  * Regular article serialization using POST
  */
-app.post(/\/(.*)/, function ( req, res ) {
-	var env = getParserEnv( localSettings, res );
-	env.setPageName( req.params[0] );
+app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function ( req, res ) {
+	var env = Util.getParserEnv( localSettings, res );
+	var oldid = req.body.oldid || null;
+	env.setPageName( req.params[1] );
 	env.wgScriptPath = '/';
-	setDefaultWiki( config, env );
+	setDefaultWiki( localSettings, env );
+	env.wgScript = env.interwikiMap[req.params[0]];
 	res.setHeader('Content-Type', 'text/x-mediawiki; charset=UTF-8');
-	var p = new html5.Parser();
-	p.parse( req.body.content );
-	new WikitextSerializer({env: env}).serializeDOM(
-		p.tree.document.childNodes[0].childNodes[1],
-		res.write.bind( res ) );
-	res.end('');
-});
+
+	try {
+		var p = new html5.Parser();
+		p.parse( req.body.content );
+	} catch ( e ) {
+		console.log( 'There was an error in the HTML5 parser! Sending it back to the editor.' );
+		console.error( e.stack );
+		res.send( e.stack, 500 );
+	}
+
+	env.errCB = function ( e ) {
+		console.error( e.stack );
+		res.send( e.stack, 500 );
+	};
+
+	try {
+		new WikitextSerializer( { env: env, oldid: oldid } ).serializeDOM(
+		// The below can be uncommented to turn on selective serialization on the main API service.
+		// This is not currently advisable. It's not working perfectly.
+		//new SelectiveSerializer( { env: env, oldid: oldid } ).serializeDOM(
+			p.tree.document.childNodes[0].childNodes[1],
+			function ( chunk ) {
+				res.write( chunk );
+			}, function () {
+				// XXX TODO FIXME BBQ There should be an error callback in SelSer.
+				res.end( '' );
+			} );
+	} catch ( e ) {
+		env.errCB( e );
+	}
+} );
 
 app.use( express.static( __dirname + '/scripts' ) );
 
 console.log( ' - ' + instanceName + ' ready' );
 
 module.exports = app;
+
