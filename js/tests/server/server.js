@@ -431,9 +431,9 @@ resultsWebInterface = function ( req, res ) {
 			} else {
 				res.setHeader( 'Content-Type', 'text/xml; charset=UTF-8' );
 				res.status( 200 );
-				res.write( '<testsuite>' );
-
-				for ( i = 0; i < rows.length; i++ ) {
+                res.write( '<?xml-stylesheet href="/static/result.css"?>\n' );
+	 			res.write( '<testsuite>' );
+      			for ( i = 0; i < rows.length; i++ ) {
 					res.write( rows[i].result );
 				}
 
@@ -450,6 +450,7 @@ function resultWebCallback( req, res, err, row ) {
     } else if ( row ) {
         res.setHeader( 'Content-Type', 'text/xml; charset=UTF-8' );
         res.status( 200 );
+        res.write( '<?xml-stylesheet href="/static/result.css"?>\n' );
         res.end( row.result );
     } else {
         res.send( 'no results for that page at the requested revision', 404 );
@@ -457,7 +458,7 @@ function resultWebCallback( req, res, err, row ) {
 }
 
 function resultWebInterface( req, res ) {
-	var commit = req.params[1] ? req.params[0] : null; 
+	var commit = req.params[1] ? req.params[0] : null;
     var title = commit === null ? req.params[0] : req.params[1];
 
     if ( commit !== null ) {
@@ -634,6 +635,8 @@ app.get( /^\/stats\/failsDistr$/, GET_failsDistr );
 
 // Distribution of fails
 app.get( /^\/stats\/skipsDistr$/, GET_skipsDistr );
+
+app.use( '/static', express.static( __dirname + '/static' ) );
 
 // Clients will GET this path if they want to run a test
 coordApp.get( /^\/title$/, getTitle );
