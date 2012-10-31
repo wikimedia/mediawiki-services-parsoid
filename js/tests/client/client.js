@@ -100,7 +100,8 @@ function getGitCommit( cb ) {
 		exec( 'git log --max-count=1 --pretty=format:"%H %ci"', { cwd: repoPath }, function ( err, data ) {
 			var cobj = data.match( /^([^ ]+) (.*)$/ );
 			lastCommit = cobj[1];
-			lastCommitTime = cobj[2];
+			// convert the timestamp to UTC
+			lastCommitTime = new Date(cobj[2]).toISOString();
 			cb( cobj[1], cobj[2] );
 		} );
 	} else {
