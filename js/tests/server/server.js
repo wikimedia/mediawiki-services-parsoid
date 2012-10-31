@@ -410,8 +410,7 @@ failsWebInterface = function ( req, res ) {
 						'">@lh</a> | ' +
 						'<a target="_blank" href="/latestresult/' + row.title + '">latest result</a>' +
 						'</td>' );
-					res.write( '<td><a href="/result/' + row.hash +
-                        '/' + row.title + '">' + ( row.hash || '' ).substr(0,7) + '</a></td>' );
+					res.write( '<td>' + makeCommitLink( row.hash, row.title ) + '</td>' );
 					res.write( '<td>' + row.skips + '</td><td>' + row.fails + '</td><td>' + ( row.errors === null ? 0 : row.errors ) + '</td></tr>' );
 				}
 				res.end( '</table></body></html>' );
@@ -537,6 +536,13 @@ function GET_skipsDistr( req, res ) {
 	} );
 }
 
+function makeCommitLink( commit, title ) {
+    return '<a href="/result/' +
+        commit + '/' + title +
+        '">' + commit.substr( 0, 7 ) +
+        '</a>';
+}
+
 function GET_regressions ( req, res ) {
 	console.log( 'GET /regressions/' + req.params[0] );
 	var page = ( req.params[0] || 0 ) - 0,
@@ -577,9 +583,9 @@ function GET_regressions ( req, res ) {
 					var r = rows[i];
 					res.write('<tr>');
 					res.write('<td class="title">' + r.title + '</td>');
-					res.write('<td>' + r.new_commit.substr(0,7) + '</td>');
+					res.write('<td>' + makeCommitLink( r.new_commit, r.title ) + '</td>');
 					res.write('<td>' + r.new_errors + "|" + r.new_fails + "|" + r.new_skips + '</td>');
-					res.write('<td>' + r.old_commit.substr(0,7) + '</td>');
+					res.write('<td>' + makeCommitLink( r.old_commit, r.title ) + '</td>');
 					res.write('<td>' + r.old_errors + "|" + r.old_fails + "|" + r.old_skips + '</td>');
 					res.write('</tr>');
 				}
