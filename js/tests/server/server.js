@@ -94,14 +94,6 @@ var dbUpdateLatestResult = db.prepare(
 var dbLatestCommitHash = db.prepare(
 	'SELECT hash FROM commits ORDER BY timestamp LIMIT 1');
 
-var dbTruncateStatsIdsTbl = db.prepare('DELETE FROM tmp_ids');
-
-var dbFillStatsIdsTbl = db.prepare(
-	'INSERT INTO tmp_ids(id) SELECT MAX(id) FROM stats GROUP BY page_id');
-
-var dbCountQuery = db.prepare(
-	'SELECT COUNT(*) AS total FROM tmp_ids');
-
 // IMPORTANT: node-sqlite3 library has a bug where it seems to cache
 // invalid results when a prepared statement has no variables.
 // Without this dummy variable as a workaround for the caching bug,
@@ -135,6 +127,13 @@ var dbGetOneResult = db.prepare(
 	'JOIN pages ON pages.id = claims.page_id ' +
 	'WHERE pages.title = ? ' +
 	'ORDER BY commits.timestamp DESC LIMIT 1' );
+
+var dbGetResultWithCommit = db.prepare(
+    'SELECT result FROM results ' +
+    'JOIN claims ON results.claim_id = claims.id ' +
+    'AND claims.commit_hash = ? ' +
+    'JOIN pages ON pages.id = claims.page_id ' +
+    'WHERE pages.title = ?' );
 
 var dbFailedFetches = db.prepare(
 	'SELECT title FROM pages WHERE num_fetch_errors >= ?');
@@ -409,9 +408,10 @@ failsWebInterface = function ( req, res ) {
 						row.title + '</a> | ' +
 						'<a target="_blank" href="http://localhost:8000/_rt/en/' + row.title +
 						'">@lh</a> | ' +
-						'<a target="_blank" href="/result/' + row.title + '">latest result</a>' +
+						'<a target="_blank" href="/latestresult/' + row.title + '">latest result</a>' +
 						'</td>' );
-					res.write('<td>' + (row.hash || '').substr(0,7) + '</td>');
+					res.write( '<td><a href="/result/' + row.hash +
+                        '/' + row.title + '">' + ( row.hash || '' ).substr(0,7) + '</a></td>' );
 					res.write( '<td>' + row.skips + '</td><td>' + row.fails + '</td><td>' + ( row.errors === null ? 0 : row.errors ) + '</td></tr>' );
 				}
 				res.end( '</table></body></html>' );
@@ -444,17 +444,28 @@ resultsWebInterface = function ( req, res ) {
 	} );
 };
 
+function resultWebCallback( req, res, err, row ) {
+    if ( err ) {
+        console.log( err );
+        res.send( err.toString(), 500 );
+    } else if ( row ) {
+        res.setHeader( 'Content-Type', 'text/xml; charset=UTF-8' );
+        res.status( 200 );
+        res.end( row.result );
+    } else {
+        res.send( 'no results for that page at the requested revision', 404 );
+    }
+}
+
 function resultWebInterface( req, res ) {
-	dbGetOneResult.get( req.params[0], function ( err, row ) {
-		if ( err ) {
-			console.log( err );
-			res.send( err.toString(), 500 );
-		} else {
-			res.setHeader( 'Content-Type', 'text/xml; charset=UTF-8' );
-			res.status( 200 );
-			res.end( row.result );
-		}
-	} );
+	var commit = req.params[1] ? req.params[0] : null; 
+    var title = commit === null ? req.params[0] : req.params[1];
+
+    if ( commit !== null ) {
+        dbGetResultWithCommit.get( commit, title, resultWebCallback.bind( null, req, res ) );
+    } else {
+        dbGetOneResult.get( title, resultWebCallback.bind( null, req, res ) );
+    }
 }
 
 function GET_failedFetches( req, res ) {
@@ -592,7 +603,10 @@ coordApp.use( express.bodyParser() );
 app.get( /^\/results$/, resultsWebInterface );
 
 // Results for a title (on latest commit)
-app.get( /^\/result\/(.*)$/, resultWebInterface );
+app.get( /^\/latestresult\/(.*)$/, resultWebInterface );
+
+// Results for a title on any commit
+app.get( /^\/result\/([a-f0-9]*)\/(.*)$/, resultWebInterface );
 
 // List of failures sorted by severity
 app.get( /^\/topfails\/(\d+)$/, failsWebInterface );
