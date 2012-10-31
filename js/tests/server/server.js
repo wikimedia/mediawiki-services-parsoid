@@ -108,18 +108,14 @@ var dbCountQuery = db.prepare(
 // stats query always fails after the first invocation.  So, if you
 // do upgrade the library, please test before removing this workaround.
 var dbStatsQuery = db.prepare(
-	'SELECT ? AS caching_bug_workaround, ' +
-	'(SELECT count(*) FROM stats ' +
-	'				  JOIN tmp_ids ON stats.id = tmp_ids.id) AS total, ' +
-	'(SELECT count(*) FROM stats ' +
-	'				  JOIN tmp_ids ON stats.id = tmp_ids.id ' +
-	'				  WHERE errors = 0) AS no_errors, ' +
-	'(SELECT count(*) FROM stats ' +
-	'				  JOIN tmp_ids ON stats.id = tmp_ids.id ' +
-	'				  WHERE errors = 0 AND fails = 0) AS no_fails, ' +
-	'(SELECT count(*) FROM stats ' +
-	'				  JOIN tmp_ids ON stats.id = tmp_ids.id ' +
-	'				  WHERE errors = 0 AND fails = 0 AND skips = 0) AS no_skips');
+	'SELECT ? AS cache_bug_workaround, ' +
+	'count(*) AS total, ' +
+	'count(CASE WHEN stats.errors=0 THEN 1 ELSE NULL END) AS no_errors, ' +
+	'count(CASE WHEN stats.errors=0 AND stats.fails=0 '+
+		'then 1 else null end) AS no_fails, ' +
+	'count(CASE WHEN stats.errors=0 AND stats.fails=0 AND stats.skips=0 '+
+		'then 1 else null end) AS no_skips ' +
+	'FROM pages JOIN stats on pages.latest_result = stats.id');
 
 var dbFailsQuery = db.prepare(
 	'SELECT pages.title, commits.hash, stats.errors, stats.fails, stats.skips ' +
@@ -290,66 +286,53 @@ receiveResults = function ( req, res ) {
 
 statsWebInterface = function ( req, res ) {
 	// Fetch stats for commit
-	// 1. truncate tmp_ids table
-	// 2. fill it up with max_id or every page
-	// 3. fetch stats by using ids from the tmp_ids table.
-	dbTruncateStatsIdsTbl.run([], function(err) {
-		if (err) {
-			console.error("tmp_ids truncate query returned err: " + JSON.stringify(err));
+	dbStatsQuery.get([-1], function ( err, row ) {
+		if ( err || !row ) {
+			var msg = "Stats query returned nothing!";
+			msg = err ? msg + "\n" + err.toString() : msg;
+			console.error("Error: " + msg);
+			res.send( msg, 500 );
+		} else {
+			res.setHeader( 'Content-Type', 'text/html' );
+			res.status( 200 );
+			res.write( '<html><body>' );
+
+			var tests = row.total,
+	errorLess = row.no_errors,
+	skipLess = row.no_skips,
+	noErrors = Math.round( 100 * 100 * errorLess / tests ) / 100,
+	perfects = Math.round( 100* 100 * skipLess / tests ) / 100,
+	syntacticDiffs = Math.round( 100 * 100 *
+		( row.no_fails / tests ) ) / 100;
+
+	res.write( '<p>We have run roundtrip-tests on <b>' +
+		tests +
+		'</b> articles, of which <ul><li><b>' +
+		noErrors +
+		'%</b> parsed without crashes, source ' +
+		'retrieval failures or timeouts, </li><li><b>' +
+		syntacticDiffs +
+		'%</b> round-tripped without semantic differences, and </li><li><b>' +
+		perfects +
+		'%</b> round-tripped with no character differences at all.</li></ul></p>' );
+
+	var width = 800;
+	res.write( '<table><tr height=60px>');
+	res.write( '<td width=' +
+			( width * perfects / 100 || 0 ) +
+			'px style="background:green" title="Perfect / no diffs"></td>' );
+	res.write( '<td width=' +
+			( width * ( syntacticDiffs - perfects ) / 100 || 0 ) +
+			'px style="background:yellow" title="Syntactic diffs"></td>' );
+	res.write( '<td width=' +
+			( width * ( 100 - syntacticDiffs ) / 100 || 0 ) +
+			'px style="background:red" title="Semantic diffs"></td>' );
+	res.write( '</tr></table>' );
+
+	res.write( '<p><a href="/topfails/0">See the individual results by title</a></p>' );
+
+	res.end( '</body></html>' );
 		}
-		dbFillStatsIdsTbl.run([], function(err) {
-			if (err) {
-				console.error("tmp_ids fill query returned err: " + JSON.stringify(err));
-			}
-			dbStatsQuery.get([-1], function ( err, row ) {
-				if ( err || !row ) {
-					var msg = "Stats query returned nothing!";
-					msg = err ? msg + "\n" + err.toString() : msg;
-					console.error("Error: " + msg);
-					res.send( msg, 500 );
-				} else {
-					res.setHeader( 'Content-Type', 'text/html' );
-					res.status( 200 );
-					res.write( '<html><body>' );
-
-					var tests = row.total,
-						errorLess = row.no_errors,
-						skipLess = row.no_skips,
-						noErrors = Math.round( 100 * 100 * errorLess / tests ) / 100,
-						perfects = Math.round( 100* 100 * skipLess / tests ) / 100,
-						syntacticDiffs = Math.round( 100 * 100 *
-							( row.no_fails / tests ) ) / 100;
-
-					res.write( '<p>We have run roundtrip-tests on <b>' +
-							   tests +
-							   '</b> articles, of which <ul><li><b>' +
-							   noErrors +
-							   '%</b> parsed without crashes, source ' +
-							   'retrieval failures or timeouts, </li><li><b>' +
-							   syntacticDiffs +
-							   '%</b> round-tripped without semantic differences, and </li><li><b>' +
-							   perfects +
-							   '%</b> round-tripped with no character differences at all.</li></ul></p>' );
-
-					var width = 800;
-					res.write( '<table><tr height=60px>');
-					res.write( '<td width=' +
-							( width * perfects / 100 || 0 ) +
-							'px style="background:green" title="Perfect / no diffs"></td>' );
-					res.write( '<td width=' +
-							( width * ( syntacticDiffs - perfects ) / 100 || 0 ) +
-							'px style="background:yellow" title="Syntactic diffs"></td>' );
-					res.write( '<td width=' +
-							( width * ( 100 - syntacticDiffs ) / 100 || 0 ) +
-							'px style="background:red" title="Semantic diffs"></td>' );
-					res.write( '</tr></table>' );
-
-					res.write( '<p><a href="/topfails/0">See the individual results by title</a></p>' );
-
-					res.end( '</body></html>' );
-				}
-			});
-		});
 	});
 },
 

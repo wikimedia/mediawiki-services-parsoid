@@ -41,9 +41,3 @@ CREATE TABLE stats (
 	score INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX page_idx ON stats ( page_id );
-
-CREATE TABLE tmp_ids (
-	id INTEGER NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS id_idx ON tmp_ids( id );
