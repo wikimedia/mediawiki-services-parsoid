@@ -136,6 +136,33 @@ var dbGetOneResult = db.prepare(
 	'WHERE pages.title = ? ' +
 	'ORDER BY commits.timestamp DESC LIMIT 1' );
 
+var dbFailedFetches = db.prepare(
+	'SELECT title FROM pages WHERE num_fetch_errors >= ?');
+
+var dbRegressedPages = db.prepare(
+	'SELECT pages.title, ' +
+	's1.commit_hash AS new_commit, s1.errors AS new_errors, s1.fails AS new_fails, s1.skips AS new_skips, ' +
+	's2.commit_hash AS old_commit, s2.errors AS old_errors, s2.fails AS old_fails, s2.skips AS old_skips ' +
+	'FROM pages ' +
+	'JOIN stats AS s1 ON s1.id = pages.latest_result ' +
+	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
+	'WHERE s2.id != s1.id AND s1.score > s2.score ' +
+	'GROUP BY pages.id ' + // picks a "random" past hash from which we regressed
+	'ORDER BY s1.score - s2.score DESC ' +
+	'LIMIT 40 OFFSET ?');
+
+var dbFailsDistribution = db.prepare(
+	'SELECT ? AS caching_bug_workaround, fails, count(*) AS num_pages ' +
+	'FROM stats ' +
+	'JOIN pages ON pages.latest_result = stats.id ' +
+	'GROUP by fails');
+
+var dbSkipsDistribution = db.prepare(
+	'SELECT ? AS caching_bug_workaround, skips, count(*) AS num_pages ' +
+	'FROM stats ' +
+	'JOIN pages ON pages.latest_result = stats.id ' +
+	'GROUP by skips');
+
 function dbUpdateErrCB(title, hash, type, msg, err) {
 	if (err) {
 		console.error("Error inserting/updating " + type + " for page: " + title + " and hash: " + hash);
@@ -261,11 +288,10 @@ receiveResults = function ( req, res ) {
 							dbUpdateErrCB.bind(null, title, commitHash, "result", "null"));
 						dbUpdateClaimStats.run(stats.concat([claim.page_id, commitHash]), function ( err ) {
                             if ( err ) {
-							    dbUpdateErrCB( title, commithash, 'stats', null, err );
+							    dbUpdateErrCB( title, commitHash, 'stats', null, err );
                             } else {
-
                                 dbUpdateLatestResult.run( commitHash, claim.page_id,
-    								dbUpdateErrCB.bind(null, title, commitHash, 'latest result', null ) );
+									dbUpdateErrCB.bind(null, title, commitHash, 'latest result', null ) );
                             }
                         } );
                     }
@@ -298,40 +324,39 @@ statsWebInterface = function ( req, res ) {
 			res.write( '<html><body>' );
 
 			var tests = row.total,
-	errorLess = row.no_errors,
-	skipLess = row.no_skips,
-	noErrors = Math.round( 100 * 100 * errorLess / tests ) / 100,
-	perfects = Math.round( 100* 100 * skipLess / tests ) / 100,
-	syntacticDiffs = Math.round( 100 * 100 *
-		( row.no_fails / tests ) ) / 100;
+			errorLess = row.no_errors,
+			skipLess = row.no_skips,
+			noErrors = Math.round( 100 * 100 * errorLess / tests ) / 100,
+			perfects = Math.round( 100* 100 * skipLess / tests ) / 100,
+			syntacticDiffs = Math.round( 100 * 100 *
+				( row.no_fails / tests ) ) / 100;
 
-	res.write( '<p>We have run roundtrip-tests on <b>' +
-		tests +
-		'</b> articles, of which <ul><li><b>' +
-		noErrors +
-		'%</b> parsed without crashes, source ' +
-		'retrieval failures or timeouts, </li><li><b>' +
-		syntacticDiffs +
-		'%</b> round-tripped without semantic differences, and </li><li><b>' +
-		perfects +
-		'%</b> round-tripped with no character differences at all.</li></ul></p>' );
+			res.write( '<p>We have run roundtrip-tests on <b>' +
+				tests +
+				'</b> articles, of which <ul><li><b>' +
+				noErrors +
+				'%</b> parsed without crashes </li><li><b>' +
+				syntacticDiffs +
+				'%</b> round-tripped without semantic differences, and </li><li><b>' +
+				perfects +
+				'%</b> round-tripped with no character differences at all.</li></ul></p>' );
 
-	var width = 800;
-	res.write( '<table><tr height=60px>');
-	res.write( '<td width=' +
-			( width * perfects / 100 || 0 ) +
-			'px style="background:green" title="Perfect / no diffs"></td>' );
-	res.write( '<td width=' +
-			( width * ( syntacticDiffs - perfects ) / 100 || 0 ) +
-			'px style="background:yellow" title="Syntactic diffs"></td>' );
-	res.write( '<td width=' +
-			( width * ( 100 - syntacticDiffs ) / 100 || 0 ) +
-			'px style="background:red" title="Semantic diffs"></td>' );
-	res.write( '</tr></table>' );
+			var width = 800;
+			res.write( '<table><tr height=60px>');
+			res.write( '<td width=' +
+					( width * perfects / 100 || 0 ) +
+					'px style="background:green" title="Perfect / no diffs"></td>' );
+			res.write( '<td width=' +
+					( width * ( syntacticDiffs - perfects ) / 100 || 0 ) +
+					'px style="background:yellow" title="Syntactic diffs"></td>' );
+			res.write( '<td width=' +
+					( width * ( 100 - syntacticDiffs ) / 100 || 0 ) +
+					'px style="background:red" title="Semantic diffs"></td>' );
+			res.write( '</tr></table>' );
 
-	res.write( '<p><a href="/topfails/0">See the individual results by title</a></p>' );
+			res.write( '<p><a href="/topfails/0">See the individual results by title</a></p>' );
 
-	res.end( '</body></html>' );
+			res.end( '</body></html>' );
 		}
 	});
 },
@@ -363,7 +388,7 @@ failsWebInterface = function ( req, res ) {
 				res.write( '<a href="/topfails/' + ( page + 1 ) + '">Next</a>' );
 				res.write( '</p>' );
 
-				res.write( '<table><tr><th>Title</th><th>Syntactic diffs</th><th>Semantic diffs</th><th>Errors</th></tr>' );
+				res.write( '<table><tr><th>Title</th><th>Commit</th><th>Syntactic diffs</th><th>Semantic diffs</th><th>Errors</th></tr>' );
 
 				for ( i = 0; i < rows.length; i++ ) {
 					res.write( '<tr><td style="padding-left: 0.4em; border-left: 5px solid ' );
@@ -386,7 +411,7 @@ failsWebInterface = function ( req, res ) {
 						'">@lh</a> | ' +
 						'<a target="_blank" href="/result/' + row.title + '">latest result</a>' +
 						'</td>' );
-
+					res.write('<td>' + row['commits.hash'].substr(0,7) + '</td>');
 					res.write( '<td>' + row.skips + '</td><td>' + row.fails + '</td><td>' + ( row.errors === null ? 0 : row.errors ) + '</td></tr>' );
 				}
 				res.end( '</table></body></html>' );
@@ -432,6 +457,127 @@ function resultWebInterface( req, res ) {
 	} );
 }
 
+function GET_failedFetches( req, res ) {
+	dbFailedFetches.all( [maxFetchRetries], function ( err, rows ) {
+		if ( err ) {
+			console.log( err );
+			res.send( err.toString(), 500 );
+		} else {
+			var n = rows.length;
+			res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
+			res.status( 200 );
+			res.write( '<html><body>' );
+			if (n === 0) {
+				res.write('No titles returning 404!  All\'s well with the world!');
+			} else {
+				res.write('<h1> The following ' + n + ' titles return 404</h1>');
+				res.write('<ul>');
+				for (var i = 0; i < n; i++) {
+					res.write('<li> ' + rows[i].title + ' </li>');
+				}
+				res.write( '</ul>');
+			}
+			res.end('</body></html>' );
+		}
+	} );
+}
+
+function GET_failsDistr( req, res ) {
+	dbFailsDistribution.all([-1], function ( err, rows ) {
+		if ( err ) {
+			console.log( err );
+			res.send( err.toString(), 500 );
+		} else {
+			var n = rows.length;
+			res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
+			res.status( 200 );
+			res.write( '<html><body>' );
+			res.write('<h1> Distribution of semantic errors </h1>');
+			res.write('<table><tbody>');
+			res.write('<tr><th># errors</th><th># pages</th></tr>');
+			for (var i = 0; i < n; i++) {
+				var r = rows[i];
+				res.write('<tr><td>' + r.fails + '</td><td>' + r.num_pages + '</td></tr>');
+			}
+			res.end('</table></body></html>' );
+		}
+	} );
+}
+
+function GET_skipsDistr( req, res ) {
+	dbSkipsDistribution.all([-1], function ( err, rows ) {
+		if ( err ) {
+			console.log( err );
+			res.send( err.toString(), 500 );
+		} else {
+			var n = rows.length;
+			res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
+			res.status( 200 );
+			res.write( '<html><body>' );
+			res.write('<h1> Distribution of syntactic errors </h1>');
+			res.write('<table><tbody>');
+			res.write('<tr><th># errors</th><th># pages</th></tr>');
+			for (var i = 0; i < n; i++) {
+				var r = rows[i];
+				res.write('<tr><td>' + r.skips + '</td><td>' + r.num_pages + '</td></tr>');
+			}
+			res.end('</table></body></html>' );
+		}
+	} );
+}
+
+function GET_regressions ( req, res ) {
+	console.log( 'GET /regressions/' + req.params[0] );
+	var page = ( req.params[0] || 0 ) - 0,
+		offset = page * 40;
+
+	dbRegressedPages.all( [ offset ],
+		function ( err, rows ) {
+			if ( err ) {
+				res.send( err.toString(), 500 );
+			} else if ( rows.length <= 0 ) {
+				res.send( 'No entries found', 404 );
+			} else {
+				res.setHeader( 'Content-Type', 'text/html' );
+				res.status( 200 );
+				res.write('<html>');
+				res.write('<head><style type="text/css">');
+				res.write('th { padding: 0 10px }');
+				res.write('td { text-align: center; }');
+				res.write('td.title { text-align: left; }');
+				res.write('</style></head>');
+				res.write('<body>');
+
+				res.write('<p>');
+				if ( page > 0 ) {
+					res.write( '<a href="/regressions/' + ( page - 1 ) + '">Previous</a> | ' );
+				} else {
+					res.write( 'Previous | ' );
+				}
+				if (rows.length === 40) {
+					res.write('<a href="/regressions/' + ( page + 1 ) + '">Next</a>');
+				}
+				res.write('</p>');
+
+				res.write('<table>');
+				res.write('<tr><th>Title</th><th>New Commit</th><th>Errors|Fails|Skips</th><th>Old Commit</th><th>Errors|Fails|Skips</th></tr>' );
+
+				for (var i = 0; i < rows.length; i++ ) {
+					var r = rows[i];
+					res.write('<tr>');
+					res.write('<td class="title">' + r.title + '</td>');
+					res.write('<td>' + r.new_commit.substr(0,7) + '</td>');
+					res.write('<td>' + r.new_errors + "|" + r.new_fails + "|" + r.new_skips + '</td>');
+					res.write('<td>' + r.old_commit.substr(0,7) + '</td>');
+					res.write('<td>' + r.old_errors + "|" + r.old_fails + "|" + r.old_skips + '</td>');
+					res.write('</tr>');
+				}
+				res.end( '</table></body></html>' );
+			}
+		}
+	);
+}
+
 // Make an app
 var app = express.createServer();
 
@@ -455,6 +601,19 @@ app.get( /^\/topfails$/, failsWebInterface );
 
 // Overview of stats
 app.get( /^\/stats$/, statsWebInterface );
+
+// Failed fetches
+app.get( /^\/stats\/failedFetches$/, GET_failedFetches );
+
+// Regressions -- 0th and later pages
+app.get( /^\/regressions$/, GET_regressions );
+app.get( /^\/regressions\/(\d+)$/, GET_regressions );
+
+// Distribution of fails
+app.get( /^\/stats\/failsDistr$/, GET_failsDistr );
+
+// Distribution of fails
+app.get( /^\/stats\/skipsDistr$/, GET_skipsDistr );
 
 // Clients will GET this path if they want to run a test
 coordApp.get( /^\/title$/, getTitle );
