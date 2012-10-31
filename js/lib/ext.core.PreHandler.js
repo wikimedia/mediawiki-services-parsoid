@@ -132,16 +132,20 @@ PreHandler.prototype.getResultAndReset = function(token) {
 };
 
 PreHandler.prototype.processPre = function(token) {
+
 	// discard the white-space token that triggered pre
+	var ret = [];
+	if (!this.preWSToken.match(/^\s*$/)) {
+		ret.push(this.preWSToken.replace(/^\s/, ''));
+	}
 	this.preWSToken = null;
 
-	var ret = [];
-	if (this.tokens.length === 0) {
+	if (this.tokens.length === 0 && ret.length === 0) {
 		this.popLastNL(ret);
 		var stToks = this.solTransparentTokens;
 		ret = stToks.length > 0 ? [' '].concat(stToks) : stToks;
 	} else {
-		ret = [ new TagTk('pre') ].concat(this.tokens);
+		ret = [ new TagTk('pre') ].concat(ret).concat(this.tokens);
 		ret.push(new EndTagTk('pre'));
 		this.popLastNL(ret);
 		ret = ret.concat(this.solTransparentTokens);

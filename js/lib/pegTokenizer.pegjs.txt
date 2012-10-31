@@ -370,7 +370,7 @@ toplevelblock
     }
 
     if (__parseArgs[3].env.trace) {
-        __parseArgs[3].Util.outputChunk(tokens);
+        __parseArgs[3].env.tracer.outputChunk(tokens);
     }
     
     // Emit tokens for this toplevelblock. This feeds a chunk to the parser pipeline.
