@@ -411,7 +411,7 @@ failsWebInterface = function ( req, res ) {
 						'">@lh</a> | ' +
 						'<a target="_blank" href="/result/' + row.title + '">latest result</a>' +
 						'</td>' );
-					res.write('<td>' + row['commits.hash'].substr(0,7) + '</td>');
+					res.write('<td>' + (row.hash || '').substr(0,7) + '</td>');
 					res.write( '<td>' + row.skips + '</td><td>' + row.fails + '</td><td>' + ( row.errors === null ? 0 : row.errors ) + '</td></tr>' );
 				}
 				res.end( '</table></body></html>' );
