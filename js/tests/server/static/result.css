@@ -3,7 +3,7 @@ diff {
     white-space: pre;
     margin-top: 1em;
     display: block;
-    border-left: 3px solid red;
+    border-left: 7px solid red;
 }
 skipped {
     font-family: monospace;
@@ -11,6 +11,6 @@ skipped {
     margin-top: 1em;
     display: block;
     /* orange border */
-    border-left: 3px solid #ffa800;
+    border-left: 7px solid #ffa800;
 }
 
