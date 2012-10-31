@@ -319,7 +319,7 @@ statsWebInterface = function ( req, res ) {
 			console.error("Error: " + msg);
 			res.send( msg, 500 );
 		} else {
-			res.setHeader( 'Content-Type', 'text/html' );
+			res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
 			res.status( 200 );
 			res.write( '<html><body>' );
 
@@ -375,7 +375,7 @@ failsWebInterface = function ( req, res ) {
 			} else if ( rows.length <= 0 ) {
 				res.send( 'No entries found', 404 );
 			} else {
-				res.setHeader( 'Content-Type', 'text/html' );
+				res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
 				res.status( 200 );
 				res.write( '<html><body>' );
 
@@ -538,7 +538,7 @@ function GET_regressions ( req, res ) {
 			} else if ( rows.length <= 0 ) {
 				res.send( 'No entries found', 404 );
 			} else {
-				res.setHeader( 'Content-Type', 'text/html' );
+				res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
 				res.status( 200 );
 				res.write('<html>');
 				res.write('<head><style type="text/css">');
