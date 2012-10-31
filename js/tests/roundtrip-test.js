@@ -235,6 +235,15 @@ checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 
 		thisResult.offset = offset;
 
+		if ( offset[0].start === offset[0].end &&
+				out.substr(offset[1].start, offset[1].end - offset[1].start)
+					.match(/^\n?<\/[^>]+>\n?$/) )
+		{
+			// An element was implicitly closed. Fudge the orig offset
+			// slightly so it finds the corresponding elements which have the
+			// original (unclosed) DSR.
+			offset[0].start--;
+		}
 		origOut = findDsr( body, offset[0] || {}, src.length, true ) || [];
 		newOut = findDsr( document.firstChild.childNodes[1], offset[1] || {}, out.length, true ) || [];
 
