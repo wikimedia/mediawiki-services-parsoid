@@ -76,8 +76,7 @@ Cite.prototype.handleRef = function ( tokens ) {
 		var start = startTsr[0],
 			end   = endTsr ? endTsr[1] : text.length;
 		span.dataAttribs = {
-			tsr: [start, end],
-			src: endTsr ? text.substring(start, end) : text.substring(start)
+			tsr: [start, end]
 		};
 	}
 
@@ -93,8 +92,9 @@ Cite.prototype.handleRef = function ( tokens ) {
 		new SelfclosingTagTk( 'meta',
 			[
 				new KV( 'typeof', 'mw:Object/Ext/Cite/End' ),
-				new KV( 'about', refId)
-			] )
+				new KV( 'about', refId),
+			]
+			, { tsr: ( endTsr || [null, text.length] ) } )
 	];
 	//console.warn( 'ref res: ' + JSON.stringify( res, null, 2 ) );
 	return { tokens: res };
