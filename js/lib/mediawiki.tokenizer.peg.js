@@ -82,7 +82,7 @@ PegTokenizer.prototype.process = function( text, cacheKey ) {
 			for ( var i = 0, l = maybeCached.length; i < l; i++ ) {
 				var cachedChunk = maybeCached[i];
 				if (this.env.trace) {
-					this.env.outputChunk(cachedChunk);
+					this.env.tracer.outputChunk(cachedChunk);
 				}
 				// emit a clone of this chunk
 				this.emit('chunk', cachedChunk );
