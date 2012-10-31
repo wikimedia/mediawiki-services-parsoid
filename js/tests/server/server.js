@@ -235,9 +235,9 @@ receiveResults = function ( req, res ) {
 		failCount = result.match( /\<failure/g ),
 		errorCount = result.match( /\<error/g );
 
-	skipCount = skipCount ? skipCount.length - 1 : 0;
-	failCount = failCount ? failCount.length - 1 : 0;
-	errorCount = errorCount ? 1 : 0;
+	skipCount = skipCount ? skipCount.length : 0;
+	failCount = failCount ? failCount.length : 0;
+	errorCount = errorCount ? errorCount.length : 0;
 
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 
