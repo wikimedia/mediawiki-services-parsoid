@@ -150,6 +150,7 @@ function defaultNestedDelimiterHandler(nestedDelimiterInfo) {
 			// SSS FIXME: For sure in the case of table tags (tr,td,th,etc.) but, always??
 			token.name = 'span';
 			token.attribs.splice(0, i);
+			i = 0;
 			token.attribs[i].k.splice(0, nestedDelimiterInfo.k);
 		}
 
