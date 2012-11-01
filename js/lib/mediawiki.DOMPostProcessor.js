@@ -1117,8 +1117,8 @@ function computeNodeDSR(node, s, e, traceDSR) {
 					sibling = sibling.nextSibling;
 				}
 
-				// We hit the end successfully
-				if (!n) {
+				// Propagate new end information
+				if (e < newCE) {
 					e = newCE;
 				}
 			}
