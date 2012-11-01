@@ -14,6 +14,13 @@ var Node = {
     DOCUMENT_NODE: 9
 };
 
+// SSS FIXME: Should we convert these 4 functions to properties
+// of Node so we can use it as n.f(..) instead of f(n, ..)
+function dataParsoid(n) {
+	var str = n.getAttribute("data-parsoid");
+	return str ? JSON.parse(str) : {};
+}
+
 // Does 'n1' occur before 'n2 in their parent's children list?
 function inSiblingOrder(n1, n2) {
 	while (n1 && n1 !== n2) {
@@ -422,7 +429,7 @@ function patchUpDOM(node, env, tplIdToSkip) {
 				}
 
 				var tplDP = JSON.parse(dpSrc);
-				tplDP.tsr = JSON.parse(c.getAttribute("data-parsoid")).tsr;
+				tplDP.tsr = dataParsoid(c).tsr;
 				farthestTpl.end.setAttribute("data-parsoid", JSON.stringify(tplDP));
 
 				// Skip all nodes till we find the opening id of this template
@@ -484,7 +491,7 @@ function removeTrailingNewlinesFromParagraphs( document ) {
 /**
  * Find the common DOM ancestor of two DOM nodes
  */
-function getDOMRange( doc, startElem, endElem ) {
+function getDOMRange( doc, startElem, endMeta, endElem ) {
 	// Detect empty content
 	if (startElem.nextSibling === endElem) {
 		var emptySpan = doc.createElement('span');
@@ -511,7 +518,7 @@ function getDOMRange( doc, startElem, endElem ) {
 				'root': startElem,
 				// widen the scope to include the full subtree
 				startElem: startElem,
-				endElem: endElem,
+				endElem: endMeta,
 				start: startElem.firstChild,
 				end: startElem.lastChild
 			};
@@ -520,7 +527,7 @@ function getDOMRange( doc, startElem, endElem ) {
 			res = {
 				'root': parentNode,
 				startElem: startElem,
-				endElem: endElem,
+				endElem: endMeta,
 				start: startAncestors[i - 1],
 				end: elem
 			};
@@ -553,9 +560,8 @@ function getDOMRange( doc, startElem, endElem ) {
 			tcStartPar.lastChild === endElem &&
 			res.end.parentNode === tcStartPar)
 		{
-			var dcpObj = tcStartPar.getAttribute("data-parsoid");
 			if ((tcStartPar.nodeName.toLowerCase() === 'p') &&
-				(!dcpObj || JSON.parse(dcpObj).stx !== "html")) {
+				(dataParsoid(tcStartPar).stx !== "html")) {
 				tcStart = tcStartPar;
 				res.end = tcStartPar;
 				skipSpan = true;
@@ -575,20 +581,16 @@ function getDOMRange( doc, startElem, endElem ) {
 
 	if (updateDP) {
 		var done = false;
-		var tcDP = tcStart.getAttribute("data-parsoid");
-		var seDP = startElem.getAttribute("data-parsoid");
-		if (tcDP && seDP) {
-			var tcDPObj = JSON.parse(tcDP);
-			var seDPObj = JSON.parse(seDP);
+		var tcDP = dataParsoid(tcStart);
+		var seDP = dataParsoid(startElem);
+		if (tcDP && seDP && tcDP.dsr && seDP.dsr && tcDP.dsr[1] > seDP.dsr[1]) {
 			// Since TSRs on template content tokens are cleared by the
 			// template handler, all computed dsr values for template content
 			// is always inferred from top-level content values and is safe.
 			// So, do not overwrite a bigger end-dsr value.
-			if (tcDPObj.dsr && seDPObj.dsr && tcDPObj.dsr[1] > seDPObj.dsr[1]) {
-				tcDPObj.dsr[0] = seDPObj.dsr[0];
-				tcStart.setAttribute("data-parsoid", JSON.stringify(tcDPObj));
-				done = true;
-			}
+			tcDP.dsr[0] = seDP.dsr[0];
+			tcStart.setAttribute("data-parsoid", JSON.stringify(tcDP));
+			done = true;
 		}
 
 		if (!done) {
@@ -713,26 +715,55 @@ function encapsulateTemplates( env, doc, tplRanges) {
 */
 
 		// Update dsr and compute src based on dsr.  Not possible always.
-		var dp1 = tcStart.getAttribute("data-parsoid");
-		var dp2 = tcEnd.getAttribute("data-parsoid");
+		var dp1 = dataParsoid(tcStart);
+		var dp2 = dataParsoid(tcEnd);
 		var done = false;
-		if (dp1) {
-			// SSS FIXME: Maybe worth making tsr/dsr top-level attrs
-			// during the tree-building pass.
-			dp1 = JSON.parse(dp1);
-			if (dp1.dsr && dp2) {
-				dp2 = JSON.parse(dp2);
-				// if range.end (tcEnd) is an ancestor of endElem,
-				// and range.end content is produced by template,
-				// we cannot use it.
-				if (dp2.dsr && dp2.dsr[1] > dp1.dsr[1]) {
+		if (dp1.dsr) {
+			// if range.end (tcEnd) is an ancestor of endElem,
+			// and range.end content is produced by template,
+			// we cannot use it.
+			if (dp2.dsr) {
+				if (dp2.dsr[1] > dp1.dsr[1]) {
 					dp1.dsr[1] = dp2.dsr[1];
 				}
-				if (dp1.dsr[0] !== null && dp1.dsr[1] !== null) {
-					dp1.src = env.text.substr(dp1.dsr[0], dp1.dsr[1]-dp1.dsr[0]);
-					tcStart.setAttribute("data-parsoid", JSON.stringify(dp1));
-					done = true;
+
+				/* ----------------------------------------------------
+				 * SSS FIXME: While this is a credible possibility and
+				 * fixes some rt-issues, how do we distinguish between
+				 * the two scenarios here?
+				 *
+				 * Example 1: meta-start and 'a' gets foster parented out
+				 * but meta-end stays in the table and the fixup below is
+				 * a valid fix.
+				 *
+				 * {|
+				 * {{echo|
+				 * a <div>b</div>
+				 * }}
+				 * |}
+				 *
+				 * Example 2: template generates the table-start tag
+				 *
+				 * {{gen-table-start|a <div>b</div>}}
+				 * |}
+				 *
+				 * The argument, I guess, is that dsr for the table
+				 * tag will not satisfy the property below.
+				 * --------------------------------------------------- */
+
+				// If tcEnd is a table, and it has a dsr-start that
+				// is smaller than tsStart, then this could be
+				// a foster-parented scenario.
+				if (tcEnd.nodeName.toLowerCase() === 'table' &&
+					dp2.dsr[0] < dp1.dsr[0])
+				{
+					dp1.dsr[0] = dp2.dsr[0];
 				}
+			}
+			if (dp1.dsr[0] !== null && dp1.dsr[1] !== null) {
+				dp1.src = env.text.substr(dp1.dsr[0], dp1.dsr[1]-dp1.dsr[0]);
+				tcStart.setAttribute("data-parsoid", JSON.stringify(dp1));
+				done = true;
 			}
 		}
 
@@ -765,6 +796,21 @@ function encapsulateTemplates( env, doc, tplRanges) {
 	}
 }
 
+function swallowTableIfNestedDSR(elt, tbl) {
+	var eltDP  = dataParsoid(elt),
+		tblDP  = dataParsoid(tbl),
+		eltDSR = eltDP.dsr,
+		tblDSR = tblDP.dsr;
+
+	if (eltDSR && tblDSR && eltDSR[0] >= tblDSR[0] && eltDSR[1] <= tblDSR[1]) {
+		eltDP.dsr[0] = tblDSR[0];
+		elt.setAttribute("data-parsoid", JSON.stringify(eltDP));
+		return true;
+	} else {
+		return false;
+	}
+}
+
 function findTableSibling( elem, about ) {
 	var tableNode = null;
 	elem = elem.nextSibling;
@@ -792,13 +838,13 @@ function findWrappableTemplateRanges( root, tpls, doc ) {
 
 		if ( elem.nodeType === Node.ELEMENT_NODE ) {
 			var type = elem.getAttribute( 'typeof' ),
-				match = type ? type.match( /\b(mw:Object?(?:\/[^\s]+|\b))/ ) : null;
-			if ( match ) {
-				var tm = match[1],
+				metaMatch = type ? type.match( /\b(mw:Object?(?:\/[^\s]+|\b))/ ) : null;
+			if ( metaMatch ) {
+				var metaType = metaMatch[1],
 					about = elem.getAttribute('about'),
 					aboutRef = tpls[about];
 				// Is this a start marker?
-				if (!tm.match(/\/End\b/)) {
+				if (!metaType.match(/\/End\b/)) {
 					if ( aboutRef ) {
 						aboutRef.start = elem;
 						// content or end marker existed already
@@ -806,7 +852,8 @@ function findWrappableTemplateRanges( root, tpls, doc ) {
 							// End marker was foster-parented. Found actual
 							// start tag.
 							console.warn( 'end marker was foster-parented' );
-							tplRanges.push(getDOMRange( doc, elem, aboutRef.end ));
+							aboutRef.processed = true;
+							tplRanges.push(getDOMRange( doc, elem, aboutRef.end, aboutRef.end ));
 						} else {
 							// should not happen!
 							console.warn( 'start found after content' );
@@ -815,35 +862,79 @@ function findWrappableTemplateRanges( root, tpls, doc ) {
 						tpls[about] = { start: elem };
 					}
 				} else {
-					// check if followed by table node
+					// elem is the end-meta tag
+					// check if it is followed by a table node
 					var tableNode = findTableSibling( elem, about );
-
 					if ( tableNode ) {
 						// found following table content, the end marker
 						// was foster-parented. Extend the DOM range to
 						// include the table.
 						// TODO: implement
 						console.warn( 'foster-parented content following!' );
-						aboutRef.end = tableNode;
 						if ( aboutRef && aboutRef.start ) {
-							tplRanges.push(getDOMRange( doc, aboutRef.start, tableNode ));
+							aboutRef.processed = true;
+							tplRanges.push(getDOMRange( doc, aboutRef.start, elem, tableNode ));
 						} else {
 							console.warn( 'found foster-parented end marker followed ' +
 									'by table, but no start marker!');
 						}
 					} else if ( aboutRef ) {
-						// no foster-parenting involved, plain start/end pair.
-						// Walk up the DOM to find common parent with start tag.
-						aboutRef.end = elem;
-
-						tplRanges.push(getDOMRange(doc, aboutRef.start, aboutRef.end));
+						/* ------------------------------------------------------------
+						 * Special case: In some cases, the entire template content can
+						 * get fostered out of a table, not just the start/end marker.
+						 *
+						 * Simplest example:
+						 *
+						 *   {|
+						 *   {{echo|foo}}
+						 *   |}
+						 *
+						 * More complex example:
+						 *
+						 *   {|
+						 *   {{echo|
+						 *   a
+						 *    b
+						 *
+						 *     c
+						 *   }}
+						 *   |}
+						 *
+						 * Since meta-tags dont normally get fostered out, this scenario
+						 * only arises when the entire content including meta-tags was
+						 * wrapped in p-tags.  So, we look to see if:
+						 * 1. the end-meta-tag's parent has a table sibling,
+						 * 2. the DSR of the start-meta-tag's parent is nested inside
+						 *    that table's DSR
+						 * If so, we recognize this as a adoption scenario and fix up
+						 * DSR of start-meta-tag's parent to include the table's DSR.
+						 * ------------------------------------------------------------*/
+						var sm  = aboutRef.start,
+						    em  = elem,
+							ee  = em,
+							tbl = em.parentNode.nextSibling;
+						if (tbl &&
+							tbl.nodeName.toLowerCase() === 'table' &&
+							swallowTableIfNestedDSR(sm.parentNode, tbl))
+						{
+							tbl.setAttribute('about', about); // set about on elem
+							ee = tbl;
+						}
+						aboutRef.processed = true;
+						tplRanges.push(getDOMRange(doc, sm, em, ee));
 					} else {
 						tpls[about] = { end: elem };
 					}
 				}
 			} else {
-				// recurse down the tree
-				tplRanges = tplRanges.concat(findWrappableTemplateRanges( elem, tpls, doc ));
+				var about = elem.getAttribute('about');
+				if (!about || !tpls[about] || !tpls[about].processed) {
+					// Recurse down the tree
+					// Skip if this node has an about-tag from a template
+					// that has already been processed.
+					// Useful or unnecessary opt?
+					tplRanges = tplRanges.concat(findWrappableTemplateRanges( elem, tpls, doc ));
+				}
 			}
 		}
 
@@ -915,8 +1006,7 @@ function computeNodeDSR(node, s, e, traceDSR) {
 		} else if (cType === Node.ELEMENT_NODE) {
 			if (traceDSR) console.warn("-- Processing <child " + i + ">; elt: " + child.nodeName + " with [" + cs + "," + ce + "]");
 			var cTypeOf = null,
-				dpStr = child.getAttribute("data-parsoid"),
-				dpObj = dpStr ? JSON.parse(dpStr) : {},
+				dpObj = dataParsoid(child),
 				oldCE = dpObj.tsr ? dpObj.tsr[1] : null,
 				propagateRight = false;
 
@@ -1005,8 +1095,7 @@ function computeNodeDSR(node, s, e, traceDSR) {
 					} else if (nType === Node.COMMENT_NODE) {
 						newCE = newCE + sibling.data.length + 7;
 					} else if (nType === Node.ELEMENT_NODE) {
-						var str = sibling.getAttribute("data-parsoid");
-						var ndpObj = str ? JSON.parse(str) : {};
+						var ndpObj = dataParsoid(sibling);
 						if (ndpObj.dsr && ndpObj.dsr[0] === newCE && e) {
 							break;
 						}
