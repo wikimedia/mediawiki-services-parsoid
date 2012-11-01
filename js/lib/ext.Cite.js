@@ -73,6 +73,9 @@ Cite.prototype.handleRef = function ( tokens ) {
 			]);
 
 	if (startTsr) {
+		// For template ref tokens, both start and end tsr's are stripped.
+		// So, if there is a start-tsr, there will also be an end-tsr.
+		// And, if absent, it is safe to go to end-of-text.
 		var start = startTsr[0],
 			end   = endTsr ? endTsr[1] : text.length;
 		span.dataAttribs = {
@@ -80,6 +83,8 @@ Cite.prototype.handleRef = function ( tokens ) {
 		};
 	}
 
+	// NOTE: endTsr can be undefined below when it has been
+	// stripped from ref-tags coming from template/extension content.
 	var res = [
 		span,
 		new TagTk( 'a', [
@@ -89,12 +94,10 @@ Cite.prototype.handleRef = function ( tokens ) {
 		'[' + bits.join(' ')  + ']',
 		new EndTagTk( 'a' ),
 		new EndTagTk( 'span' ),
-		new SelfclosingTagTk( 'meta',
-			[
+		new SelfclosingTagTk( 'meta', [
 				new KV( 'typeof', 'mw:Object/Ext/Cite/End' ),
 				new KV( 'about', refId),
-			]
-			, { tsr: ( endTsr || [null, text.length] ) } )
+			], { tsr: endTsr } )
 	];
 	//console.warn( 'ref res: ' + JSON.stringify( res, null, 2 ) );
 	return { tokens: res };
