@@ -23,6 +23,7 @@ FauxHTML5.TreeBuilder = function ( env ) {
 	this.processToken(new TagTk( 'body' ));
 
 	this.env = env;
+	this.trace = env.debug || (env.traceFlags && (env.traceFlags.indexOf("html") !== -1));
 };
 
 // Inherit from EventEmitter
@@ -39,10 +40,19 @@ FauxHTML5.TreeBuilder.prototype.addListenersOn = function ( emitter ) {
 };
 
 FauxHTML5.TreeBuilder.prototype.onChunk = function ( tokens ) {
+	var n = tokens.length;
+	if (n === 0) {
+		return;
+	}
+
+	if (this.trace) console.warn("---- <chunk> ----");
+
 	this.env.dp( 'chunk: ' + JSON.stringify( tokens, null, 2 ) );
-	for (var i = 0, length = tokens.length; i < length; i++) {
+	for (var i = 0; i < n; i++) {
 		this.processToken(tokens[i]);
 	}
+
+	if (this.trace) console.warn("---- </chunk> ----");
 };
 
 FauxHTML5.TreeBuilder.prototype.onEnd = function ( ) {
@@ -51,8 +61,6 @@ FauxHTML5.TreeBuilder.prototype.onEnd = function ( ) {
 	// which normally fixes the body reference up.
 	var document = this.parser.document;
 	document.body = document.getElementsByTagName('body')[0];
-
-	//console.warn( 'onEnd: ' + document.body.innerHTML );
 
 	this.emit( 'document', document );
 
@@ -91,7 +99,10 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 		}
 	}
 
-	// console.warn("T: " + JSON.stringify(token));
+	if (this.trace) {
+		console.warn("T:html: " + JSON.stringify(token));
+	}
+
 	var tName, attrs, dataAttribs;
 	switch( token.constructor ) {
 		case String:

@@ -72,6 +72,9 @@ function PreHandler( manager, options ) {
 		"PreHandler:onNewline", this.nlRank, 'newline');
 	this.manager.addTransform(this.onEnd.bind(this),
 		"PreHandler:onEnd", this.endRank, 'end');
+	var env = manager.env;
+	this.debug = env.debug || (env.traceFlags && (env.traceFlags.indexOf("pre_debug") !== -1));
+	this.trace = this.debug || env.traceFlags && (env.traceFlags.indexOf("pre") !== -1);
 	init(this, true);
 }
 
@@ -163,10 +166,10 @@ PreHandler.prototype.processPre = function(token) {
 };
 
 PreHandler.prototype.onNewline = function (token, manager, cb) {
-/*
-	console.warn("----------");
-	console.warn("ST: " + this.state + "; NL: " + JSON.stringify(token));
-*/
+	if (this.trace) {
+		if (this.debug) console.warn("----------");
+		console.warn("T:pre:nl : " + this.state);
+	}
 
 	var ret = null;
 	switch (this.state) {
@@ -201,10 +204,11 @@ PreHandler.prototype.onNewline = function (token, manager, cb) {
 			break;
 	}
 
-/*
-	console.warn("TOKS: " + JSON.stringify(this.tokens));
-	console.warn("RET:  " + JSON.stringify(ret));
-*/
+	if (this.debug) {
+		console.warn("saved: " + JSON.stringify(this.tokens));
+		console.warn("ret  : " + JSON.stringify(ret));
+	}
+
 	return { tokens: ret };
 };
 
@@ -226,10 +230,10 @@ function isTableTag(token) {
 }
 
 PreHandler.prototype.onAny = function ( token, manager, cb ) {
-/*
-	console.warn("----------");
-	console.warn("ST: " + this.state + "; T: " + JSON.stringify(token));
-*/
+	if (this.trace) {
+		if (this.debug) console.warn("----------");
+		console.warn("T:pre:any: " + this.state + " : " + JSON.stringify(token));
+	}
 
 	if (this.state === PreHandler.STATE_IGNORE) {
 		console.error("!ERROR! IGNORE! Cannot get here: " + JSON.stringify(token));
@@ -315,10 +319,10 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 		}
 	}
 
-/*
-	console.warn("TOKS: " + JSON.stringify(this.tokens));
-	console.warn("RET:  " + JSON.stringify(ret));
-*/
+	if (this.debug) {
+		console.warn("saved: " + JSON.stringify(this.tokens));
+		console.warn("ret  : " + JSON.stringify(ret));
+	}
 
 	return { tokens: ret };
 };
