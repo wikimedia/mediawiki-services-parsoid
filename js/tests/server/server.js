@@ -104,6 +104,14 @@ var dbStatsQuery = db.prepare(
 	'(select hash from commits order by timestamp desc limit 1) as maxhash, ' +
 	'(select count(*) from stats where stats.commit_hash = ' +
 		'(select hash from commits order by timestamp desc limit 1)) as maxresults, ' +
+	'(select avg(stats.errors) from stats join pages on ' +
+		'pages.latest_result = stats.id) as avgerrors, ' +
+	'(select avg(stats.fails) from stats join pages on ' +
+		'pages.latest_result = stats.id) as avgfails, ' +
+	'(select avg(stats.skips) from stats join pages on ' +
+		'pages.latest_result = stats.id) as avgskips, ' +
+	'(select avg(stats.score) from stats join pages on ' +
+		'pages.latest_result = stats.id) as avgscore, ' +
 	'count(*) AS total, ' +
 	'count(CASE WHEN stats.errors=0 THEN 1 ELSE NULL END) AS no_errors, ' +
 	'count(CASE WHEN stats.errors=0 AND stats.fails=0 '+
@@ -372,6 +380,20 @@ statsWebInterface = function ( req, res ) {
 			res.write( '<p>There are ' + row.maxresults +
 					' test results for the latest tested revision ' +
 					row.maxhash + '.</p>' );
+
+			function displayRow(res, title, val) {
+				res.write( '<tr style="font-weight:bold"><td style="padding-left:20px;">' +
+							title + '</td><td style="padding-left:20px; text-align:right">' +
+							Math.round(val*100)/100 + '</td></tr>' );
+			}
+
+			res.write( '<p>Averages (over the latest results):' );
+			res.write( '<table><tbody>');
+			displayRow(res, "Errors", row.avgerrors);
+			displayRow(res, "Fails", row.avgfails);
+			displayRow(res, "Skips", row.avgskips);
+			displayRow(res, "Score", row.avgscore);
+			res.write( '</tbody></table>' );
 
 			res.write( indexLinkList() );
 
