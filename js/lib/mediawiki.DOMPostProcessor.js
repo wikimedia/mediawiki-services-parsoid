@@ -1106,7 +1106,7 @@ function computeNodeDSR(node, s, e, traceDSR) {
 
 						if (ndpObj.dsr[0] !== newCE) {
 							// Update and move right
-							if (traceDSR) console.warn("CHANGING ce.start of " + n.nodeName + " from " + ndpObj.dsr[0] + " to " + newCE);
+							if (traceDSR) console.warn("CHANGING ce.start of " + sibling.nodeName + " from " + ndpObj.dsr[0] + " to " + newCE);
 							ndpObj.dsr[0] = newCE;
 							sibling.setAttribute("data-parsoid", JSON.stringify(ndpObj));
 						}
@@ -1118,7 +1118,7 @@ function computeNodeDSR(node, s, e, traceDSR) {
 				}
 
 				// Propagate new end information
-				if (e < newCE) {
+				if (!sibling) {
 					e = newCE;
 				}
 			}
