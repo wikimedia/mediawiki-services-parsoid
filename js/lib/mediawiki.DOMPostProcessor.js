@@ -850,8 +850,10 @@ function findTableSibling( elem, about ) {
  * Recursive worker
  */
 function findWrappableTemplateRanges( root, tpls, doc ) {
-	var tplRanges = [];
-	var elem = root.firstChild;
+	var tplRanges = [],
+	    elem = root.firstChild,
+		about, aboutRef;
+
 	while (elem) {
 		// get the next sibling before doing anything since
 		// we may delete elem as part of encapsulation
@@ -862,9 +864,10 @@ function findWrappableTemplateRanges( root, tpls, doc ) {
 				// SSS FIXME: This regexp differs from that in isTplMetaType
 				metaMatch = type ? type.match( /\b(mw:Object(?:\/[^\s]+|\b))/ ) : null;
 			if ( metaMatch ) {
-				var metaType = metaMatch[1],
-					about = elem.getAttribute('about'),
-					aboutRef = tpls[about];
+				var metaType = metaMatch[1];
+
+				about = elem.getAttribute('about'),
+				aboutRef = tpls[about];
 				// Is this a start marker?
 				if (!metaType.match(/\/End\b/)) {
 					if ( aboutRef ) {
@@ -949,7 +952,7 @@ function findWrappableTemplateRanges( root, tpls, doc ) {
 					}
 				}
 			} else {
-				var about = elem.getAttribute('about');
+				about = elem.getAttribute('about');
 				if (!about || !tpls[about] || !tpls[about].processed) {
 					// Recurse down the tree
 					// Skip if this node has an about-tag from a template
@@ -970,6 +973,40 @@ function findWrappableTemplateRanges( root, tpls, doc ) {
 // [s,e) -- if defined, start/end position of wikitext source that generated
 //          node's subtree
 function computeNodeDSR(node, s, e, traceDSR) {
+
+	// TSR info on all these tags are only valid for the opening tag.
+	// (closing tags dont have attrs since tree-builder strips them
+	//  and adds meta-tags tracking the corresponding TSR)
+	//
+	// On other tags, a, hr, br, meta-marker tags, the tsr spans
+	// the entire DOM, not just the tag.
+	var WT_tagsWithLimitedTSR = {
+		"b" : true,
+		"i" : true,
+		"h1" : true,
+		"h2" : true,
+		"h3" : true,
+		"h4" : true,
+		"h5" : true,
+		"li" : true,
+		"dt" : true,
+		"dd" : true,
+		"table" : true,
+		"caption" : true,
+		"tr": true,
+		"td": true,
+		"th": true
+	};
+
+	function tsrSpansTagDOM(n, parsoidData) {
+		// - tags known to have tag-specific tsr
+		// - html tags with 'stx' set
+		// - span tags with 'mw:Nowiki' type
+		var name = n.nodeName.toLowerCase();
+		return !WT_tagsWithLimitedTSR[name] &&
+			(parsoidData.stx !== "html") &&
+			!(n === 'span' && n.getAttribute("typeof") === "mw:Nowiki");
+	}
 
 	var WT_TagWidths = {
 		"body"  : [0,0],
@@ -1007,9 +1044,11 @@ function computeNodeDSR(node, s, e, traceDSR) {
 	}
 
 	if (traceDSR) console.warn("Received " + s + ", " + e + " for " + node.nodeName + " --");
-	var children = node.childNodes;
-	var cs, ce = e, savedEndTagWidth = null;
+
+	var children = node.childNodes,
+	    cs, ce = e, savedEndTagWidth = null;
 	for (var n = children.length, i = n-1; i >= 0; i--) {
+		var isMarkerTag = false;
 		cs = null;
 
 		var child = children[i],
@@ -1028,8 +1067,9 @@ function computeNodeDSR(node, s, e, traceDSR) {
 		} else if (cType === Node.ELEMENT_NODE) {
 			if (traceDSR) console.warn("-- Processing <child " + i + ">; elt: " + child.nodeName + " with [" + cs + "," + ce + "]");
 			var cTypeOf = null,
-				dpObj = dataParsoid(child),
-				oldCE = dpObj.tsr ? dpObj.tsr[1] : null,
+				dp = dataParsoid(child),
+				tsr = dp.tsr,
+				oldCE = tsr ? tsr[1] : null,
 				propagateRight = false;
 
 			if (child.nodeName.toLowerCase() === "meta") {
@@ -1037,34 +1077,34 @@ function computeNodeDSR(node, s, e, traceDSR) {
 				// meta marker tags have valid tsr info.
 				cTypeOf = child.getAttribute("typeof");
 				if (cTypeOf === "mw:EndTag" || cTypeOf === "mw:TSRMarker") {
+					isMarkerTag = true;
 					// TSR info will be absent if the tsr-marker came
 					// from a template since template tokens have all
 					// their tsr info. stripped.
-					if (dpObj.tsr) {
-						endTagWidth = dpObj.tsr[1] - dpObj.tsr[0];
-						cs = dpObj.tsr[1];
-						ce = dpObj.tsr[1];
+					if (tsr) {
+						endTagWidth = tsr[1] - tsr[0];
+						cs = tsr[1];
+						ce = tsr[1];
 						propagateRight = true;
 					}
-					node.removeChild(child); // No use for this marker tag after this
-				} else if (isTplMetaType(cTypeOf) && dpObj.tsr) {
+				} else if (tsr && isTplMetaType(cTypeOf)) {
 					// If this is a meta-marker tag (for templates, extensions),
 					// we have a new valid 'cs'.  This marker also effectively resets tsr
 					// back to the top-level wikitext source range from nested template
 					// source range.
-					cs = dpObj.tsr[0];
-					ce = dpObj.tsr[1];
+					cs = tsr[0];
+					ce = tsr[1];
 					propagateRight = true;
 				}
 			} else {
 				// Non-meta tags
-				if (dpObj.tsr) {
-					if (traceDSR) console.warn("TSR: " + JSON.stringify(dpObj.tsr));
-					cs = dpObj.tsr[0];
-					if (!ce || dpObj.tsr[1] > ce) {
-						ce = dpObj.tsr[1];
+				if (tsr) {
+					cs = tsr[0];
+					if (tsrSpansTagDOM(child, dp) && (!ce || tsr[1] > ce)) {
+						ce = tsr[1];
 						propagateRight = true;
 					}
+					if (traceDSR) console.warn("TSR: " + JSON.stringify(tsr) + "; cs: " + cs + "; ce: " + ce);
 				} else if (s && child.previousSibling === null) {
 					cs = s;
 				}
@@ -1074,10 +1114,10 @@ function computeNodeDSR(node, s, e, traceDSR) {
 				var newDsr, nodeName = child.nodeName.toLowerCase(),
 					ccs = null, cce = null,
 					wtTagWidth;
-				if (dpObj.stx === "html") {
-					if (dpObj.tsr) {
+				if (dp.stx === "html") {
+					if (tsr) {
 						// For HTML tags, tsr info covers the length of the tag
-						ccs = dpObj.tsr[1];
+						ccs = tsr[1];
 						cce = ce !== null && savedEndTagWidth !== null ? ce - savedEndTagWidth : null;
 					}
 				} else {
@@ -1103,7 +1143,7 @@ function computeNodeDSR(node, s, e, traceDSR) {
 
 			if (cs !== null || ce !== null) {
 				if (traceDSR) console.warn("-- UPDATING; " + child.nodeName + " with [" + cs + "," + ce + "]; typeof: " + cTypeOf);
-				dpObj.dsr = [cs, ce];
+				dp.dsr = [cs, ce];
 			}
 
 			// Propagate any required changes to the right
@@ -1121,22 +1161,22 @@ function computeNodeDSR(node, s, e, traceDSR) {
 					} else if (nType === Node.COMMENT_NODE) {
 						newCE = newCE + sibling.data.length + 7;
 					} else if (nType === Node.ELEMENT_NODE) {
-						var ndpObj = dataParsoid(sibling);
-						if (ndpObj.dsr && ndpObj.dsr[0] === newCE && e) {
+						var siblingDP = dataParsoid(sibling);
+						if (siblingDP.dsr && siblingDP.dsr[0] === newCE && e) {
 							break;
 						}
 
-						if (!ndpObj.dsr) {
-							ndpObj.dsr = [null, null];
+						if (!siblingDP.dsr) {
+							siblingDP.dsr = [null, null];
 						}
 
-						if (ndpObj.dsr[0] !== newCE) {
+						if (siblingDP.dsr[0] !== newCE) {
 							// Update and move right
-							if (traceDSR) console.warn("CHANGING ce.start of " + sibling.nodeName + " from " + ndpObj.dsr[0] + " to " + newCE);
-							ndpObj.dsr[0] = newCE;
-							sibling.setAttribute("data-parsoid", JSON.stringify(ndpObj));
+							if (traceDSR) console.warn("CHANGING ce.start of " + sibling.nodeName + " from " + siblingDP.dsr[0] + " to " + newCE);
+							siblingDP.dsr[0] = newCE;
+							sibling.setAttribute("data-parsoid", JSON.stringify(siblingDP));
 						}
-						newCE = ndpObj.dsr[1];
+						newCE = siblingDP.dsr[1];
 					} else {
 						break;
 					}
@@ -1149,9 +1189,13 @@ function computeNodeDSR(node, s, e, traceDSR) {
 				}
 			}
 
-			if (Object.keys(dpObj).length > 0) {
-				child.setAttribute("data-parsoid", JSON.stringify(dpObj));
+			if (Object.keys(dp).length > 0) {
+				child.setAttribute("data-parsoid", JSON.stringify(dp));
 			}
+		}
+
+		if (isMarkerTag) {
+			node.removeChild(child); // No use for this marker tag after this
 		}
 
 		// ce for next child = cs of current child
