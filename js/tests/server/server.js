@@ -53,7 +53,7 @@ var dbFindClaimByPageId = db.prepare(
 var dbFindClaimByTitle = db.prepare(
 	'SELECT claims.id, claims.num_tries, claims.page_id FROM claims ' +
 	'JOIN pages ON pages.id = claims.page_id AND pages.title = ? ' +
-	'WHERE claims.commit_hash = ?');
+	'WHERE claims.commit_hash = ? AND claims.has_errorless_result = 0');
 
 var dbInsertClaim = db.prepare(
 	'INSERT INTO claims ( page_id, commit_hash, timestamp ) ' +
@@ -278,37 +278,26 @@ receiveResults = function ( req, res ) {
 					var score = errorCount*1000000+failCount*1000+skipCount;
 					var stats = [skipCount, failCount, errorCount, score];
 
-					// set 'has_errorless_result = 1' if we get a result without errors!
-					if (errorCount === 0) {
-						dbUpdateClaimResult.run([claim.id],
-							dbUpdateErrCB.bind(null, title, commitHash, "claim result", "null"));
-					}
 
 					// Insert/update result and stats depending on whether this was
 					// the first try or a subsequent retry -- prevents duplicates
-					if (claim.num_tries === 1) {
-						dbInsertResult.run([claim.id, result],
-							dbUpdateErrCB.bind(null, title, commitHash, "result", "null"));
-						dbInsertClaimStats.run(stats.concat([claim.page_id, commitHash]), function ( err ) {
-							if ( err ) {
-                                dbUpdateErrCB( title, commitHash, 'stats', null, err );
-                            } else {
-                                dbUpdateLatestResult.run( commitHash, claim.page_id,
-                                    dbUpdateErrCB.bind(null, title, commitHash, 'latest result', null ) );
-                            }
-                        } );
-					} else {
-						dbUpdateResult.run([result, claim.id],
-							dbUpdateErrCB.bind(null, title, commitHash, "result", "null"));
-						dbUpdateClaimStats.run(stats.concat([claim.page_id, commitHash]), function ( err ) {
-                            if ( err ) {
-							    dbUpdateErrCB( title, commitHash, 'stats', null, err );
-                            } else {
-                                dbUpdateLatestResult.run( commitHash, claim.page_id,
-									dbUpdateErrCB.bind(null, title, commitHash, 'latest result', null ) );
-                            }
-                        } );
-                    }
+					dbInsertResult.run([claim.id, result],
+						dbUpdateErrCB.bind(null, title, commitHash, "result", "null"));
+					dbInsertClaimStats.run(stats.concat([claim.page_id, commitHash]), function ( err ) {
+						if ( err ) {
+							dbUpdateErrCB( title, commitHash, 'stats', null, err );
+						} else {
+							dbUpdateLatestResult.run( commitHash, claim.page_id,
+								dbUpdateErrCB.bind(null, title, commitHash, 'latest result', null ) );
+						}
+					} );
+
+					// Mark the claim as having a result. Used to be
+					// error-free result, but now we are using it to track if
+					// we have a result already.
+					dbUpdateClaimResult.run([claim.id],
+						dbUpdateErrCB.bind(null, title, commitHash, "claim result", "null"));
+
 
 					console.log( '<-  ' + title + ': ', skipCount, failCount,
 							errorCount, commitHash.substr(0,7) );
