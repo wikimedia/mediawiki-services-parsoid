@@ -602,7 +602,7 @@ behavior_switch
             [new KV('word', behavior)],
             { 
                 tsr: [pos0, pos],
-                src: input.substr(pos0, pos - pos0)
+                src: input.substring( pos0, pos )
             }
         )
     ];
@@ -697,7 +697,7 @@ isbn
     // ISBNs can only be 10 or 13 chars long
     if ([10, 13].indexOf(isbncode.length) === -1) {
         // just return the string
-        return [ input.substr( pos0, pos - pos0 ) ];
+        return [ input.substring( pos0, pos ) ];
     }
 
     // Don't validate in the tokenizer, since the PHP parser does not either.
@@ -982,7 +982,7 @@ wikilink
       obj.attribs.push( new KV('href', target) );
       obj.dataAttribs = { 
           tsr: [pos0, pos],
-          src: input.substr(pos0, pos - pos0),
+          src: input.substring( pos0, pos )
       };
       if ( lcontent.pipetrick ) {
           obj.dataAttribs.pipetrick = lcontent.pipetrick;
@@ -1373,7 +1373,7 @@ generic_newline_attribute
         res = new KV( name, '' );
     }
     if ( name.constructor === Array ) {
-        res.ksrc = input.substr(namePos0, namePos - namePos0);
+        res.ksrc = input.substring( namePos0, namePos );
     }
     return res;
 }
@@ -1397,7 +1397,7 @@ generic_attribute
         res = new KV( name, '' );
     }
     if ( name.constructor === Array ) {
-        res.ksrc = input.substr(namePos0, namePos - namePos0);
+        res.ksrc = input.substring( namePos0, namePos );
     }
     return res;
 }

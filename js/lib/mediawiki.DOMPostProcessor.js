@@ -761,7 +761,7 @@ function encapsulateTemplates( env, doc, tplRanges) {
 				}
 			}
 			if (dp1.dsr[0] !== null && dp1.dsr[1] !== null) {
-				dp1.src = env.text.substr(dp1.dsr[0], dp1.dsr[1]-dp1.dsr[0]);
+				dp1.src = env.text.substring( dp1.dsr[0], dp1.dsr[1] );
 				tcStart.setAttribute("data-parsoid", JSON.stringify(dp1));
 				done = true;
 			}

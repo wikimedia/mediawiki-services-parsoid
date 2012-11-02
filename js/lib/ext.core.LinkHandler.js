@@ -301,7 +301,7 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 	}
 
 	//var contentPos = token.dataAttribs.contentPos;
-	//var optionSource = token.source.substr( contentPos[0], contentPos[1] - contentPos[0] );
+	//var optionSource = token.source.substring( contentPos[0], contentPos[1] );
 	//console.log( 'optionSource: ' + optionSource );
 	// XXX: The trouble with re-parsing is the need to re-expand templates.
 	// Figure out how often non-image links contain image-like parameters!
@@ -632,11 +632,7 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 		// Since we'd need to reconstruct a possible template
 		// encapsulation from the href attribute for proper template
 		// round-tripping, we simply use source-based round-tripping for now.
-		var hrefText = env.text.substr(
-						(token.dataAttribs.tsr[0] + 1),
-						token.dataAttribs.targetOff
-						- (token.dataAttribs.tsr[0] + 1)
-					),
+		var hrefText = env.text.substring( token.dataAttribs.tsr[0] + 1, token.dataAttribs.targetOff ),
 			span = new TagTk('span',
 				[new KV('typeof', 'mw:Placeholder')],
 				{
