@@ -102,7 +102,8 @@ function getGitCommit( cb ) {
 			lastCommit = cobj[1];
 			// convert the timestamp to UTC
 			lastCommitTime = new Date(cobj[2]).toISOString();
-			cb( cobj[1], cobj[2] );
+			//console.log( 'New commit: ', cobj[1], lastCommitTime );
+			cb( cobj[1], lastCommitTime );
 		} );
 	} else {
 		cb( lastCommit, lastCommitTime );
