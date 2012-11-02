@@ -185,6 +185,11 @@ var dbSkipsDistribution = db.prepare(
 	'JOIN pages ON pages.latest_result = stats.id ' +
 	'GROUP by skips');
 
+var dbCommits = db.prepare(
+	'SELECT ? AS caching_bug_workaround, hash, timestamp ' +
+	'FROM commits ' +
+	'order by timestamp desc');
+
 function dbUpdateErrCB(title, hash, type, msg, err) {
 	if (err) {
 		console.error("Error inserting/updating " + type + " for page: " + title + " and hash: " + hash);
@@ -330,6 +335,7 @@ indexLinkList = function () {
 		'<li><a href="/stats/failedFetches">Non-existing test pages</a></li>\n' +
 		'<li><a href="/stats/failsDistr">Histogram of failures</a></li>\n' +
 		'<li><a href="/stats/skipsDistr">Histogram of skips</a></li>\n' +
+		'<li><a href="/commits">List of all tested commits</a></li>\n' +
 		'</ul>';
 },
 
@@ -690,6 +696,28 @@ function GET_topfixes ( req, res ) {
 	);
 }
 
+function GET_commits( req, res ) {
+	dbCommits.all([-1], function ( err, rows ) {
+		if ( err ) {
+			console.log( err );
+			res.send( err.toString(), 500 );
+		} else {
+			var n = rows.length;
+			res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
+			res.status( 200 );
+			res.write( '<html><body>' );
+			res.write('<h1> List of all commits </h1>');
+			res.write('<table><tbody>');
+			res.write('<tr><th>Commit hash</th><th>Timestamp</th></tr>');
+			for (var i = 0; i < n; i++) {
+				var r = rows[i];
+				res.write('<tr><td>' + r.hash + '</td><td>' + r.timestamp + '</td></tr>');
+			}
+			res.end('</table></body></html>' );
+		}
+	} );
+}
+
 // Make an app
 var app = express.createServer();
 
@@ -734,6 +762,9 @@ app.get( /^\/stats\/failsDistr$/, GET_failsDistr );
 
 // Distribution of fails
 app.get( /^\/stats\/skipsDistr$/, GET_skipsDistr );
+
+// List of all commits
+app.use( '/commits', GET_commits );
 
 app.use( '/static', express.static( __dirname + '/static' ) );
 
