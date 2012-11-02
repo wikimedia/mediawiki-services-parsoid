@@ -325,6 +325,17 @@ receiveResults = function ( req, res ) {
 	}
 },
 
+indexLinkList = function () {
+	return '<p>More details:</p>\n<ul>' +
+		'<li><a href="/topfails">Results by title</a></li>\n' +
+		'<li><a href="/regressions">Top regressions</a></li>\n' +
+		'<li><a href="/topfixes">Top fixes</a></li>\n' +
+		'<li><a href="/stats/failedFetches">Non-existing test pages</a></li>\n' +
+		'<li><a href="/stats/failsDistr">Histogram of failures</a></li>\n' +
+		'<li><a href="/stats/skipsDistr">Histogram of skips</a></li>\n' +
+		'</ul>';
+},
+
 statsWebInterface = function ( req, res ) {
 	// Fetch stats for commit
 	dbStatsQuery.get([-1], function ( err, row ) {
@@ -369,9 +380,11 @@ statsWebInterface = function ( req, res ) {
 					'px style="background:red" title="Semantic diffs"></td>' );
 			res.write( '</tr></table>' );
 
-			res.write( '<p>There are ' + row.maxresults + ' test results for the latest tested revision ' + row.maxhash + '.</p>' );
+			res.write( '<p>There are ' + row.maxresults +
+					' test results for the latest tested revision ' +
+					row.maxhash + '.</p>' );
 
-			res.write( '<p><a href="/topfails/0">See the individual results by title</a></p>' );
+			res.write( indexLinkList() );
 
 			res.end( '</body></html>' );
 		}
@@ -691,6 +704,7 @@ app.get( /^\/topfails\/(\d+)$/, failsWebInterface );
 app.get( /^\/topfails$/, failsWebInterface );
 
 // Overview of stats
+app.get( /^\/$/, statsWebInterface );
 app.get( /^\/stats$/, statsWebInterface );
 
 // Failed fetches
