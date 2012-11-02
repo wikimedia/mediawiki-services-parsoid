@@ -311,6 +311,8 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 		rewrite(root);
 	} catch (e) {
 		console.error(e.stack);
+		// make sure we don't hang
+		process.exit(1);
 	}
 }
 
@@ -1287,6 +1289,8 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 			this.processors[i](document, this.env);
 		} catch ( e ) {
 			console.error(e.stack);
+			// make sure we don't hang
+			process.exit(1);
 		}
 	}
 	this.emit( 'document', document );
