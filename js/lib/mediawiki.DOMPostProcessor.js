@@ -1144,7 +1144,7 @@ function computeNodeDSR(node, s, e, traceDSR) {
 				}
 
 				// Propagate new end information
-				if (!sibling) {
+				if (!sibling || newCE > e) {
 					e = newCE;
 				}
 			}
