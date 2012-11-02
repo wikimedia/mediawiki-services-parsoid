@@ -789,7 +789,7 @@ Sanitizer.prototype.checkCss = function (text) {
 	// incorrect client implementations.
 	var commentPos = text.indexOf('/*');
 	if (commentPos >= 0) {
-		text = text.substring(0, commentPos);
+		text = text.substr( 0, commentPos );
 	}
 
 	// SSS FIXME: Looks like the HTML5 library normalizes attributes

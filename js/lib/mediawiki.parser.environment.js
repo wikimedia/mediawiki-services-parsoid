@@ -195,7 +195,7 @@ MWParserEnvironment.prototype.normalizeTitle = function( name ) {
 		name = 'MediaWiki:' + name.substr( 10 );
 	}
 
-	function upperFirst( s ) { return s.substr(0, 1).toUpperCase() + s.substr(1); }
+	function upperFirst( s ) { return s.substr( 0, 1 ).toUpperCase() + s.substr(1); }
 
 	function splitNS ( ) {
 		var nsMatch = name.match( /^([a-zA-Z\-]+):/ ),
