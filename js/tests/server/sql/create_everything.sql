@@ -26,6 +26,9 @@ CREATE TABLE claims (
 	page_id INTEGER NOT NULL,
 	commit_hash TEXT NOT NULL,
 	num_tries INTEGER NOT NULL DEFAULT 1,
+        -- FIXME: rename to has_result or use a pointer to the result instead.
+        -- We currently just use it to track whether it has a result, error or
+        -- not.
 	has_errorless_result INTEGER NOT NULL DEFAULT 0,
 	timestamp INTEGER NOT NULL
 );
