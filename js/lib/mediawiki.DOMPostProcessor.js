@@ -41,6 +41,33 @@ function deleteNode(n) {
 	n.parentNode.removeChild(n);
 }
 
+function isTplMetaType(nType)  {
+	return nType.match(/\bmw:Object(\/[^\s]+)*\b/);
+}
+
+function isTplMetaNode(n)  {
+	return (n.nodeName.toLowerCase() === "meta") && isTplMetaType(n.getAttribute("typeof"));
+}
+
+function isTplStartMetaNode(n)  {
+	if (n.nodeName.toLowerCase() === "meta") {
+		var t = n.getAttribute("typeof");
+		var tMatch = t.match(/\bmw:Object(\/[^\s]+)*\b/);
+		return tMatch && !t.match(/\/End\b/);
+	} else {
+		return false;
+	}
+}
+
+function isTplEndMetaNode(n)  {
+	if (n.nodeName.toLowerCase() === "meta") {
+		var t = n.getAttribute("typeof");
+		return t.match(/\bmw:Object(\/[^\s]+)*\/End\b/);
+	} else {
+		return false;
+	}
+}
+
 function minimizeInlineTags(root, rewriteable_nodes) {
 	var rewriteable_node_map = null;
 
@@ -338,8 +365,8 @@ function patchUpDOM(node, env, tplIdToSkip) {
 		while (node !== null) {
 			var nodeName = node.nodeName.toLowerCase();
 			if (nodeName === "meta") {
-				var t = node.getAttribute("typeof");
-				if (t.match(/\bmw:Object(\/[^\s]+)*\b/)) {
+				var nTypeOf = node.getAttribute("typeof");
+				if (isTplMetaType(nTypeOf)) {
 					if (openTplId) {
 						// We have an open template -- this tag should the opening tag
 						// of the same open template since template wrapper meta tags
@@ -351,7 +378,7 @@ function patchUpDOM(node, env, tplIdToSkip) {
 							currTpl.tplId = null;
 							currTpl.start = node;
 						}
-					} else if (t.match(/End/)) { // we are guaranteed to match this
+					} else if (nTypeOf.match(/End/)) { // we are guaranteed to match this
 						openTplId = node.getAttribute("about");
 						currTpl = { end: node, tplId: openTplId };
 						tpls.push(currTpl);
@@ -394,16 +421,10 @@ function patchUpDOM(node, env, tplIdToSkip) {
 
 	var c = node.lastChild;
 	while (c) {
-		var nodeName = c.nodeName.toLowerCase();
-		if (tplIdToSkip && nodeName === "meta") {
-			var t = c.getAttribute("typeof");
-			if (t.match(/\bmw:Object(\/[^\s]+)*\b/)) {
-				// Check if we hit the opening tag of the tpl/extension we are ignoring
-				if (c.getAttribute("about") === tplIdToSkip) {
-					tplIdToSkip = null;
-				}
-			}
-		} else if (nodeName === "meta" &&
+		if (tplIdToSkip && isTplMetaNode(c) && (c.getAttribute("about") === tplIdToSkip)) {
+			// Check if we hit the opening tag of the tpl/extension we are ignoring
+			tplIdToSkip = null;
+		} else if (c.nodeName.toLowerCase() === "meta" &&
 			c.getAttribute("typeof") === "mw:EndTag" &&
 			c.getAttribute("data-etag") === "table")
 		{
@@ -838,7 +859,8 @@ function findWrappableTemplateRanges( root, tpls, doc ) {
 
 		if ( elem.nodeType === Node.ELEMENT_NODE ) {
 			var type = elem.getAttribute( 'typeof' ),
-				metaMatch = type ? type.match( /\b(mw:Object?(?:\/[^\s]+|\b))/ ) : null;
+				// SSS FIXME: This regexp differs from that in isTplMetaType
+				metaMatch = type ? type.match( /\b(mw:Object(?:\/[^\s]+|\b))/ ) : null;
 			if ( metaMatch ) {
 				var metaType = metaMatch[1],
 					about = elem.getAttribute('about'),
@@ -984,7 +1006,7 @@ function computeNodeDSR(node, s, e, traceDSR) {
 		e = null;
 	}
 
-	if (traceDSR) console.warn("-- Received " + s + ", " + e + " for " + node.nodeName + " --");
+	if (traceDSR) console.warn("Received " + s + ", " + e + " for " + node.nodeName + " --");
 	var children = node.childNodes;
 	var cs, ce = e, savedEndTagWidth = null;
 	for (var n = children.length, i = n-1; i >= 0; i--) {
@@ -1011,8 +1033,8 @@ function computeNodeDSR(node, s, e, traceDSR) {
 				propagateRight = false;
 
 			if (child.nodeName.toLowerCase() === "meta") {
-				// Unless they have been foster-parented meta tags
-				// of type mw:EndTag and mw:Object/* have valid tsr info.
+				// Unless they have been foster-parented,
+				// meta marker tags have valid tsr info.
 				cTypeOf = child.getAttribute("typeof");
 				if (cTypeOf === "mw:EndTag" || cTypeOf === "mw:TSRMarker") {
 					// TSR info will be absent if the tsr-marker came
@@ -1025,8 +1047,8 @@ function computeNodeDSR(node, s, e, traceDSR) {
 						propagateRight = true;
 					}
 					node.removeChild(child); // No use for this marker tag after this
-				} else if (cTypeOf.match(/\bmw:Object\//) && dpObj.tsr) {
-					// If this is a opening meta-marker tags (for templates, extensions),
+				} else if (isTplMetaType(cTypeOf) && dpObj.tsr) {
+					// If this is a meta-marker tag (for templates, extensions),
 					// we have a new valid 'cs'.  This marker also effectively resets tsr
 					// back to the top-level wikitext source range from nested template
 					// source range.
@@ -1085,10 +1107,14 @@ function computeNodeDSR(node, s, e, traceDSR) {
 			}
 
 			// Propagate any required changes to the right
-			if (ce !== null && (propagateRight || oldCE !== ce || e === null)) {
+			// taking care not to cross-over into template content
+			if (ce !== null &&
+				!isTplStartMetaNode(child) &&
+				(propagateRight || oldCE !== ce || e === null))
+			{
 				var sibling = child.nextSibling;
 				var newCE = ce;
-				while (sibling && newCE !== null) {
+				while (newCE !== null && sibling && !isTplStartMetaNode(sibling)) {
 					var nType = sibling.nodeType;
 					if (nType === Node.TEXT_NODE) {
 						newCE = newCE + sibling.data.length;
@@ -1176,13 +1202,13 @@ function computeDocDSR(root, env) {
  * http://www.mediawiki.org/wiki/Parsoid/RDFa_vocabulary#Template_content
  */
 function encapsulateTemplateOutput( document, env ) {
-	// walk through document and look for tags with typeof="mw:Object*"
 	var tpls = {};
 	if (env.debug || (env.dumpFlags && (env.dumpFlags.indexOf("dom:pre-encap") !== -1))) {
 		console.warn("------ DOM: pre-encapsulation -------");
 		console.warn(document.outerHTML);
 		console.warn("----------------------------");
 	}
+	// walk through document and look for tags with typeof="mw:Object*"
 	var tplRanges = findWrappableTemplateRanges( document.body, tpls, document );
 	if (tplRanges.length > 0) {
 		encapsulateTemplates(env, document, tplRanges);
