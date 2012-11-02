@@ -259,7 +259,8 @@ ParserPipelineFactory.prototype.makePipeline = function( type, options ) {
 			stages[0],
 			stages[stages.length - 1],
 			options.cacheType ? this.returnPipeline.bind( this, options.cacheType )
-						: null
+						: null,
+			this.env
 			);
 };
 
@@ -323,9 +324,10 @@ ParserPipelineFactory.prototype.returnPipeline = function ( type, pipe ) {
  * supposed to emit events, while the first is supposed to support a process()
  * method that sets the pipeline in motion.
  */
-function ParserPipeline ( first, last, returnToCacheCB ) {
+function ParserPipeline ( first, last, returnToCacheCB, env ) {
 	this.first = first;
 	this.last = last;
+	this.env = env;
 
 	if ( returnToCacheCB ) {
 		var self = this;
@@ -342,7 +344,11 @@ function ParserPipeline ( first, last, returnToCacheCB ) {
  * Feed input tokens to the first pipeline stage
  */
 ParserPipeline.prototype.process = function(input, key) {
-	return this.first.process(input, key);
+	try {
+		return this.first.process(input, key);
+	} catch ( err ) {
+		this.env.errCB( err );
+	}
 };
 
 /**

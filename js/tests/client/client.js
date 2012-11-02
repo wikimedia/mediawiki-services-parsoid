@@ -50,6 +50,9 @@ function getTitle( cb ) {
 
 function runTest( cb, title ) {
 	var result, callback = rtTest.cbCombinator.bind( null, rtTest.xmlFormat, function ( err, results ) {
+		if ( err ) {
+			console.log( err.stack );
+		}
 		cb( title, results );
 	} );
 
@@ -123,6 +126,7 @@ function callbackOmnibus() {
 		default:
 			getGitCommit( function ( latestCommit ) {
 				if ( latestCommit !== commit ) {
+					console.log( 'Exiting because the commit hash changed' );
 					process.exit( 0 );
 				}
 
