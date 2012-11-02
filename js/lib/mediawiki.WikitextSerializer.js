@@ -1717,6 +1717,8 @@ WSP.serializeDOM = function( node, chunkCB ) {
 		}
 	} catch (e) {
 		console.log(e.stack);
+		// don't hang
+		process.exit(1);
 	}
 };
 
