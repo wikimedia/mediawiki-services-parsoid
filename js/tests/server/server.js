@@ -150,6 +150,18 @@ var dbRegressedPages = db.prepare(
 	'ORDER BY s1.score - s2.score DESC ' +
 	'LIMIT 40 OFFSET ?');
 
+var dbFixedPages = db.prepare(
+	'SELECT pages.title, ' +
+	's1.commit_hash AS new_commit, s1.errors AS new_errors, s1.fails AS new_fails, s1.skips AS new_skips, ' +
+	's2.commit_hash AS old_commit, s2.errors AS old_errors, s2.fails AS old_fails, s2.skips AS old_skips ' +
+	'FROM pages ' +
+	'JOIN stats AS s1 ON s1.id = pages.latest_result ' +
+	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
+	'WHERE s2.id != s1.id AND s1.score < s2.score ' +
+	'GROUP BY pages.id ' + // picks a "random" past hash from which we regressed
+	'ORDER BY s1.score - s2.score ASC ' +
+	'LIMIT 40 OFFSET ?');
+
 var dbFailsDistribution = db.prepare(
 	'SELECT ? AS caching_bug_workaround, fails, count(*) AS num_pages ' +
 	'FROM stats ' +
@@ -596,6 +608,58 @@ function GET_regressions ( req, res ) {
 	);
 }
 
+function GET_topfixes ( req, res ) {
+	console.log( 'GET /topfixes/' + req.params[0] );
+	var page = ( req.params[0] || 0 ) - 0,
+		offset = page * 40;
+
+	dbFixedPages.all( [ offset ],
+		function ( err, rows ) {
+			if ( err ) {
+				res.send( err.toString(), 500 );
+			} else if ( rows.length <= 0 ) {
+				res.send( 'No entries found', 404 );
+			} else {
+				res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
+				res.status( 200 );
+				res.write('<html>');
+				res.write('<head><style type="text/css">');
+				res.write('th { padding: 0 10px }');
+				res.write('td { text-align: center; }');
+				res.write('td.title { text-align: left; }');
+				res.write('</style></head>');
+				res.write('<body>');
+
+				res.write('<p>');
+				if ( page > 0 ) {
+					res.write( '<a href="/topfixes/' + ( page - 1 ) + '">Previous</a> | ' );
+				} else {
+					res.write( 'Previous | ' );
+				}
+				if (rows.length === 40) {
+					res.write('<a href="/topfixes/' + ( page + 1 ) + '">Next</a>');
+				}
+				res.write('</p>');
+
+				res.write('<table>');
+				res.write('<tr><th>Title</th><th>New Commit</th><th>Errors|Fails|Skips</th><th>Old Commit</th><th>Errors|Fails|Skips</th></tr>' );
+
+				for (var i = 0; i < rows.length; i++ ) {
+					var r = rows[i];
+					res.write('<tr>');
+					res.write('<td class="title">' + r.title + '</td>');
+					res.write('<td>' + makeCommitLink( r.new_commit, r.title ) + '</td>');
+					res.write('<td>' + r.new_errors + "|" + r.new_fails + "|" + r.new_skips + '</td>');
+					res.write('<td>' + makeCommitLink( r.old_commit, r.title ) + '</td>');
+					res.write('<td>' + r.old_errors + "|" + r.old_fails + "|" + r.old_skips + '</td>');
+					res.write('</tr>');
+				}
+				res.end( '</table></body></html>' );
+			}
+		}
+	);
+}
+
 // Make an app
 var app = express.createServer();
 
@@ -629,6 +693,10 @@ app.get( /^\/stats\/failedFetches$/, GET_failedFetches );
 // Regressions -- 0th and later pages
 app.get( /^\/regressions$/, GET_regressions );
 app.get( /^\/regressions\/(\d+)$/, GET_regressions );
+
+// Topfixes -- 0th and later pages
+app.get( /^\/topfixes$/, GET_topfixes );
+app.get( /^\/topfixes\/(\d+)$/, GET_topfixes );
 
 // Distribution of fails
 app.get( /^\/stats\/failsDistr$/, GET_failsDistr );
