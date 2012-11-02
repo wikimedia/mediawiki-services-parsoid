@@ -101,6 +101,9 @@ var dbLatestCommitHash = db.prepare(
 // do upgrade the library, please test before removing this workaround.
 var dbStatsQuery = db.prepare(
 	'SELECT ? AS cache_bug_workaround, ' +
+	'(select hash from commits order by timestamp desc limit 1) as maxhash, ' +
+	'(select count(*) from stats where stats.commit_hash = ' +
+		'(select hash from commits order by timestamp desc limit 1)) as maxresults, ' +
 	'count(*) AS total, ' +
 	'count(CASE WHEN stats.errors=0 THEN 1 ELSE NULL END) AS no_errors, ' +
 	'count(CASE WHEN stats.errors=0 AND stats.fails=0 '+
@@ -307,7 +310,8 @@ receiveResults = function ( req, res ) {
                         } );
                     }
 
-					console.log( '<-  ' + title + ': ', skipCount, failCount, errorCount );
+					console.log( '<-  ' + title + ': ', skipCount, failCount,
+							errorCount, commitHash.substr(0,7) );
 					// NOTE: the last db update may not have completed yet
 					// For now, always sending HTTP 200 back to client.
 					res.send( '', 200 );
@@ -364,6 +368,8 @@ statsWebInterface = function ( req, res ) {
 					( width * ( 100 - syntacticDiffs ) / 100 || 0 ) +
 					'px style="background:red" title="Semantic diffs"></td>' );
 			res.write( '</tr></table>' );
+
+			res.write( '<p>There are ' + row.maxresults + ' test results for the latest tested revision ' + row.maxhash + '.</p>' );
 
 			res.write( '<p><a href="/topfails/0">See the individual results by title</a></p>' );
 
