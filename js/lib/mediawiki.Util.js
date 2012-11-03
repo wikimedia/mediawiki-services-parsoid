@@ -577,7 +577,7 @@ normalizeOut = function ( out ) {
 		.replace(/<span typeof="mw:(?:(?:Placeholder|Nowiki|Object\/Template|Entity))"[^>]*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1')
 		.replace(/[\r\n]| (data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content)="[^">]*"/g, '')
 		.replace(/<!--.*?-->\n?/gm, '')
-		.replace(/<\/?meta[^>]*>/g, '')
+		.replace(/<\/?(?:meta|link) [^>]*>/g, '')
 		.replace(/<span[^>]+about="[^]+>/g, '')
 		.replace(/<span><\/span>/g, '')
 		.replace(/href="(?:\.?\.\/)+/g, 'href="')

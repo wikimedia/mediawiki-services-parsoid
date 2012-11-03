@@ -178,7 +178,13 @@ ParagraphWrapper.prototype.onAny = function ( token, frame, cb ) {
 	}
 
 	var res,
-		tc = token.constructor;
+		tc = token.constructor,
+		isNamedTagToken = function ( token, names ) {
+			return ( token.constructor === TagTk ||
+					token.constructor === SelfclosingTagTk ||
+					token.constructor === EndTagTk ) &&
+					names[token.name.toLowerCase()];
+		};
 	if (tc === TagTk && token.name === 'pre') {
 		res = this.processPendingNLs(true);
 		res = res.concat(this.currLine.tokens);
@@ -200,7 +206,8 @@ ParagraphWrapper.prototype.onAny = function ( token, frame, cb ) {
 	} else if ((tc === String && token.match( /^[\t ]*$/)) ||
 			(tc === CommentTk) ||
 			// TODO: narrow this down a bit more to take typeof into account
-			(tc === SelfclosingTagTk && token.name === 'meta'))
+			(tc === SelfclosingTagTk && token.name === 'meta') ||
+			isNamedTagToken(token, {'link':1}) )
 	{
 		if (this.newLineCount === 0) {
 			this.currLine.tokens.push(token);
@@ -232,6 +239,7 @@ ParagraphWrapper.prototype.onAny = function ( token, frame, cb ) {
 		res = this.processPendingNLs(isBlockToken);
 		this.currLine.tokens.push(token);
 		this.currLine.hasWrappableTokens = true;
+
 		return { tokens: this._getTokensAndReset(res) };
 	}
 };
