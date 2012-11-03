@@ -1199,7 +1199,7 @@ pre
     ("</pre>" / eof) {
         stops.dec('pre');
         var firstTok = ts[0];
-        if (firstTok.constructor === String && firstTok.match(/\n/)) {
+        if (firstTok.constructor === String && firstTok.match(/^\n/)) {
             // Strip leading newline from the token
             ts.shift();
             if (firstTok.length > 1) {
