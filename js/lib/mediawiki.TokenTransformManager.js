@@ -1370,7 +1370,9 @@ ExpansionCache.prototype.set = function ( frame, options, value ) {
 };
 
 ExpansionCache.prototype.get = function ( frame, options ) {
-	return Util.deepFreeze( this._cache.get( this.makeKey( frame, options ) ) );
+	var cachedTokens = this._cache.get( this.makeKey( frame, options ) );
+	Util.deepFreeze(cachedTokens);
+	return cachedTokens;
 };
 
 
