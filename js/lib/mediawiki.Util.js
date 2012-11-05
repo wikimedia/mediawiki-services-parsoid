@@ -567,16 +567,30 @@ Util.makeTplAffectedMeta = function ( contentType, key, val ) {
 
 var htmlparser = new HTML5.Parser(),
 
+normalizeNewlines = function ( source ) {
+	return source
+				// strip comments first
+				.replace(/<!--(?:[^-]+|-(?!->))*-->/gm, '')
+
+				// preserve a space for non-inter-tag-whitespace
+				// non-tag content followed by non-tag content
+				.replace(/([^<> \r\n]|<\/span>)[\r\n ]+([^ \r\n<]|<span typeof="mw:)/g, '$1 $2')
+
+				// and eat all remaining newlines
+				.replace(/[\r\n]/g, '');
+},
+
 /**
  * Specialized normalization of the wiki parser output, mostly to ignore a few
  * known-ok differences.
  */
 normalizeOut = function ( out ) {
 	// TODO: Do not strip newlines in pre and nowiki blocks!
+	out = normalizeNewlines( out );
 	return out
 		.replace(/<span typeof="mw:(?:(?:Placeholder|Nowiki|Object\/Template|Entity))"[^>]*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1')
-		.replace(/[\r\n]| (data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content)="[^">]*"/g, '')
-		.replace(/<!--.*?-->\n?/gm, '')
+		.replace(/ (data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content)="[^">]*"/g, '')
+		//.replace(/<!--.*?-->\n?/gm, '')
 		.replace(/<\/?(?:meta|link) [^>]*>/g, '')
 		.replace(/<span[^>]+about="[^]+>/g, '')
 		.replace(/<span><\/span>/g, '')
@@ -593,7 +607,7 @@ normalizeOut = function ( out ) {
  */
 normalizeHTML = function ( source ) {
 	// TODO: Do not strip newlines in pre and nowiki blocks!
-	source = source.replace(/[\r\n]/g, '');
+	source = normalizeNewlines( source );
 	try {
 		htmlparser.parse('<body>' + source + '</body>');
 		return htmlparser.document.childNodes[0].childNodes[1]
