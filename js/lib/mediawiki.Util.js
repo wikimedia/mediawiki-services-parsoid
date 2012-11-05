@@ -79,6 +79,35 @@ var HTML5 = require( 'html5' ).HTML5,
 		}
 	},
 
+	// In the PHP parser, these block tags open block-tag scope
+	tagOpensBlockScope: function(name) {
+		switch ( name ) {
+			case 'p':
+			case 'table':
+			case 'tr':
+			case 'ul':
+			case 'ol':
+			case 'li':
+			case 'dl':
+			case 'h1':
+			case 'h2':
+			case 'h3':
+			case 'h4':
+			case 'h5':
+			case 'h6':
+			case 'blockquote':
+			case 'pre':
+				return true;
+			default:
+				return false;
+		}
+	},
+
+	// In the PHP parser, these block tags close block-tag scope
+	tagClosesBlockScope: function(name) {
+		return name === 'td' || name === 'th';
+	},
+
 	// See http://www.whatwg.org/specs/web-apps/current-work/#void-elements
 	voidElements: { area: 1, base: 1, br: 1, col: 1, command: 1, embed: 1, hr: 1, img: 1,
 		input: 1, keygen: 1, link: 1, meta: 1, param: 1, source: 1, track: 1, wbr: 1 },

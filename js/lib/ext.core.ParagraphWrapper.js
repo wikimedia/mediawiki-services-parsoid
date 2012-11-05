@@ -227,7 +227,7 @@ ParagraphWrapper.prototype.onAny = function ( token, frame, cb ) {
 			this.currLine.tokens.push(token);
 			return {};
 		} else {
-			res = this.processPendingNLs(isBlockToken);
+			res = this.processPendingNLs(false);
 			this.currLine.tokens.push(token);
 			return { tokens: this._getTokensAndReset(res) };
 		}

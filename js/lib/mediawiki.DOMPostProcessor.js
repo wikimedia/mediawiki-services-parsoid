@@ -14,8 +14,11 @@ var Node = {
     DOCUMENT_NODE: 9
 };
 
-// SSS FIXME: Should we convert these 4 functions to properties
+/* ------------- utility functions on DOM nodes/Node attributes ------------ */
+
+// SSS FIXME: Should we convert some of these functions to properties
 // of Node so we can use it as n.f(..) instead of f(n, ..)
+
 function dataParsoid(n) {
 	var str = n.getAttribute("data-parsoid");
 	return str ? JSON.parse(str) : {};
@@ -68,6 +71,15 @@ function isTplEndMetaNode(n)  {
 	}
 }
 
+function hasLiteralHTMLMarker(dp) {
+	return dp.stx === 'html';
+}
+
+function isLiteralHTMLToken(n) {
+	return hasLiteralHTMLMarker(dataParsoid(n));
+}
+
+/* ------------- DOM post processor ----------------- */
 function minimizeInlineTags(root, rewriteable_nodes) {
 	var rewriteable_node_map = null;
 
@@ -472,6 +484,77 @@ function patchUpDOM(node, env, tplIdToSkip) {
 	}
 }
 
+/* --------------------------------------------------------------
+ * Block tags change the behaviour of indent-pres.  This behaviour
+ * cannot be emulated till the DOM is built if we are to avoid
+ * having to deal with unclosed/mis-nested tags in the token stream.
+ *
+ * This function goes through the DOM looking for special kinds of
+ * block tags (as determined by the PHP parser behavior -- which
+ * has its own notion of block-tag which overlaps with, but is
+ * different from, the HTML block tag notion.
+ *
+ * Wherever such a block tag is found, any Parsoid-inserted
+ * pre-tags are removed.
+ * -------------------------------------------------------------- */
+function stripPreFromBlockNodes(document, env) {
+
+	function deletePreFromDOM(node) {
+		var c = node.firstChild;
+		while (c) {
+			// get sibling before DOM is modified
+			var c_sibling = c.nextSibling;
+
+			if (c.nodeName.toLowerCase() === "pre" && !isLiteralHTMLToken(c)) {
+				// space corresponding to the 'pre'
+				node.insertBefore(document.createTextNode(' '), c);
+
+				// transfer children over
+				var c_child = c.firstChild;
+				while (c_child) {
+					var next_child = c_child.nextSibling;
+					node.insertBefore(c_child, c);
+					c_child = next_child;
+				}
+
+				// delete the pre
+				deleteNode(c);
+			} else if (!Util.tagClosesBlockScope(c.nodeName.toLowerCase())) {
+				deletePreFromDOM(c);
+			}
+
+			c = c_sibling;
+		}
+	}
+
+	function findAndStripPre(doc, elt) {
+		var children = elt.childNodes;
+		for (var i = 0; i < children.length; i++) {
+			var processed = false;
+			var n = children[i];
+			if (n.nodeType === Node.ELEMENT_NODE) {
+				if (Util.tagOpensBlockScope(n.nodeName.toLowerCase())) {
+					if (isTplMetaType(n.getAttribute("typeof")) || isLiteralHTMLToken(n)) {
+						deletePreFromDOM(n);
+						processed = true;
+					}
+				} else if (n.getAttribute("typeof") === "mw:Object/References") {
+					// No pre-tags in references
+					deletePreFromDOM(n);
+					processed = true;
+				}
+			}
+
+			if (!processed) {
+				findAndStripPre(doc, n);
+			}
+		}
+	}
+
+	// kick it off
+	findAndStripPre(document, document.body);
+}
+
 /**
  * Remove trailing newlines from paragraph content (and move them to
  * inter-element whitespace)
@@ -584,7 +667,8 @@ function getDOMRange( doc, startElem, endMeta, endElem ) {
 			res.end.parentNode === tcStartPar)
 		{
 			if ((tcStartPar.nodeName.toLowerCase() === 'p') &&
-				(dataParsoid(tcStartPar).stx !== "html")) {
+				!isLiteralHTMLToken(tcStartPar))
+			{
 				tcStart = tcStartPar;
 				res.end = tcStartPar;
 				skipSpan = true;
@@ -1006,7 +1090,7 @@ function computeNodeDSR(node, s, e, traceDSR) {
 		// - span tags with 'mw:Nowiki' type
 		var name = n.nodeName.toLowerCase();
 		return !WT_tagsWithLimitedTSR[name] &&
-			(parsoidData.stx !== "html") &&
+			!hasLiteralHTMLMarker(parsoidData) &&
 			!(n === 'span' && n.getAttribute("typeof") === "mw:Nowiki");
 	}
 
@@ -1116,7 +1200,7 @@ function computeNodeDSR(node, s, e, traceDSR) {
 				var newDsr, nodeName = child.nodeName.toLowerCase(),
 					ccs = null, cce = null,
 					wtTagWidth;
-				if (dp.stx === "html") {
+				if (hasLiteralHTMLMarker(dp)) {
 					if (tsr) {
 						// For HTML tags, tsr info covers the length of the tag
 						ccs = tsr[1];
@@ -1265,6 +1349,7 @@ function DOMPostProcessor(env, options) {
 	this.env = env;
 	this.processors = [
 		patchUpDOM,
+		stripPreFromBlockNodes,
 		removeTrailingNewlinesFromParagraphs,
 		normalizeDocument,
 		computeDocDSR,
