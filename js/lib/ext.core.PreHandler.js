@@ -74,7 +74,7 @@ function PreHandler( manager, options ) {
 		"PreHandler:onEnd", this.endRank, 'end');
 	var env = manager.env;
 	this.debug = env.debug || (env.traceFlags && (env.traceFlags.indexOf("pre_debug") !== -1));
-	this.trace = this.debug || env.traceFlags && (env.traceFlags.indexOf("pre") !== -1);
+	this.trace = this.debug || (env.traceFlags && (env.traceFlags.indexOf("pre") !== -1));
 	init(this, true);
 }
 

@@ -24,6 +24,9 @@ function ParagraphWrapper ( dispatcher ) {
 	this.hasOpenPTag = false;
 	this.inPre = false;
 	this.register( dispatcher );
+	this.trace = dispatcher.env.debug ||
+		(dispatcher.env.traceFlags &&
+		(dispatcher.env.traceFlags.indexOf("p-wrap") !== -1));
 }
 
 // constants
@@ -44,7 +47,9 @@ ParagraphWrapper.prototype.register = function ( dispatcher ) {
 
 ParagraphWrapper.prototype._getTokensAndReset = function (res) {
 	var resToks = res ? res : this.nonNlTokens;
-	// console.warn("RET toks: " + JSON.stringify(resToks));
+	if (this.trace) {
+		console.warn("  p-wrap:RET: " + JSON.stringify(resToks));
+	}
 	this.nonNlTokens = [];
 	this.nlWsTokens = [];
 	this.newLineCount = 0;
@@ -80,10 +85,9 @@ ParagraphWrapper.prototype.resetCurrLine = function () {
 
 // Handle NEWLINE tokens
 ParagraphWrapper.prototype.onNewLineOrEOF = function (  token, frame, cb ) {
-/**
-	console.warn("-----");
-	console.warn("TNL: " + JSON.stringify(token));
-*/
+	if (this.trace) {
+		console.warn("T:p-wrap:NL: " + JSON.stringify(token));
+	}
 
 	// If we dont have an open p-tag, and this line didn't have a block token,
 	// start a p-tag
@@ -115,7 +119,9 @@ ParagraphWrapper.prototype.processPendingNLs = function (isBlockToken) {
 		newLineCount = this.newLineCount,
 		nlTk, nlTk2;
 
-	// console.log("NLC: " + newLineCount);
+	if (this.trace) {
+		console.warn("  p-wrap:NL-count: " + newLineCount);
+	}
 
 	if (newLineCount >= 2) {
 		while ( newLineCount >= 3 ) {
@@ -167,11 +173,9 @@ ParagraphWrapper.prototype.processPendingNLs = function (isBlockToken) {
 };
 
 ParagraphWrapper.prototype.onAny = function ( token, frame, cb ) {
-/**
-	console.warn("-----");
-	console.warn("TA: " + JSON.stringify(token));
-**/
-	//console.warn( 'ParagraphWrapper.onAny' );
+	if (this.trace) {
+		console.warn("T:p-wrap:any: " + JSON.stringify(token));
+	}
 
 	var res,
 		tc = token.constructor;
