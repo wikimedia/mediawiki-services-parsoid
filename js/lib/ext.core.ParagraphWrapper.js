@@ -137,9 +137,7 @@ ParagraphWrapper.prototype.processPendingNLs = function (isBlockToken) {
 			resToks.push(nlTk); // For readable html output
 
 			// 3. Insert <p><br></p> sections
-			// FIXME: Mark this as a placeholder for now until the
-			// editor handles this properly
-			resToks.push(new TagTk( 'p', [new KV('typeof', 'mw:Placeholder')] ));
+			resToks.push(new TagTk( 'p' ));
 			resToks.push(new SelfclosingTagTk('br'));
 			if (newLineCount > 3) {
 				resToks.push(new EndTagTk('p'));
