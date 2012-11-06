@@ -145,7 +145,7 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 
 			// We let this get handled earlier as a normal wikilink, but we need
 			// to add in a few extras.
-			obj = new SelfclosingTagTk('link', obj.attribs, obj.dataAttribs);
+			obj.name = 'link';
 
 			// Change the rel to be mw:WikiLink/Category
 			Util.lookupKV( obj.attribs, 'rel' ).v += '/Category';

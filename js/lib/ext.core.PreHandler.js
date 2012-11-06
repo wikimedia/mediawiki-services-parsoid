@@ -35,7 +35,6 @@
  | PRE           | --- nl OR   --> | SOL           | purge   if |TOKS| == 0   |
  |               |  wt-table tag   |               | gen-pre if |TOKS| > 0 (#)|
  |               |  html-blk tag   |               |                          |
- |               |  html-end tag   |               |                          |
  | PRE           | --- eof     --> | SOL           | purge                    |
  | PRE           | --- sol-tr  --> | PRE           | SOL-TR-TOKS << tok       |
  | PRE           | --- other   --> | PRE_COLLECT   | TOKS = SOL-TR-TOKS + tok |
@@ -43,7 +42,6 @@
  | PRE_COLLECT   | --- nl      --> | MULTILINE_PRE | save nl token            |
  | PRE_COLLECT   | --- eof     --> | SOL           | gen-pre                  |
  | PRE_COLLECT   | --- blk tag --> | IGNORE        | gen-pre                  |
- |               |  html-end tag   |               |                          |
  | PRE_COLLECT   | --- any     --> | PRE_COLLECT   | TOKS << tok              |
  + --------------+-----------------+---------------+--------------------------+
  | MULTILINE_PRE | --- nl      --> | SOL           | gen-pre                  |
@@ -115,7 +113,7 @@ PreHandler.prototype.popLastNL = function(ret) {
 		ret.push(this.lastNlTk);
 		this.lastNlTk = null;
 	}
-};
+}
 
 PreHandler.prototype.getResultAndReset = function(token) {
 	this.popLastNL(this.tokens);
@@ -150,17 +148,8 @@ PreHandler.prototype.processPre = function(token) {
 		var stToks = this.solTransparentTokens;
 		ret = stToks.length > 0 ? [' '].concat(stToks) : stToks;
 	} else {
-		// Special case handling when the last token before </pre>
-		// is a TagTk -- close the pre before that opening tag.
-		var lastToken = this.tokens.pop();
 		ret = [ new TagTk('pre') ].concat(ret).concat(this.tokens);
-		if (lastToken.constructor === TagTk) {
-			ret.push(new EndTagTk('pre'));
-			ret.push(lastToken);
-		} else {
-			ret.push(lastToken);
-			ret.push(new EndTagTk('pre'));
-		}
+		ret.push(new EndTagTk('pre'));
 		this.popLastNL(ret);
 		ret = ret.concat(this.solTransparentTokens);
 	}
@@ -236,7 +225,7 @@ PreHandler.prototype.onEnd = function (token, manager, cb) {
 
 function isTableTag(token) {
 	var tc = token.constructor;
-	return (tc === TagTk || tc === EndTagTk) &&
+	return (tc === TagTk || tc == EndTagTk) &&
 		['table','tr','td','th','tbody'].indexOf(token.name.toLowerCase()) !== -1;
 }
 
@@ -288,7 +277,7 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 				if (Util.isSolTransparent(token)) { // continue watching
 					this.solTransparentTokens.push(token);
 				} else if (isTableTag(token) ||
-					(token.isHTMLTag() && (Util.isBlockTag(token.name) || tc === EndTagTk)))
+					(token.isHTMLTag() && Util.isBlockTag(token.name)))
 				{
 					if (this.tokens.length > 0) {
 						// we got here from a multiline-pre
@@ -306,7 +295,7 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 				break;
 
 			case PreHandler.STATE_PRE_COLLECT:
-				if (token.isHTMLTag() && (Util.isBlockTag(token.name) || tc === EndTagTk)) {
+				if (token.isHTMLTag() && Util.isBlockTag(token.name)) {
 					ret = this.processPre(token);
 					this.moveToIgnoreState();
 				} else {
