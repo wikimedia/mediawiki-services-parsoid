@@ -28,13 +28,14 @@
  + --------------+-----------------+---------------+--------------------------+
  | SOL           | --- nl      --> | SOL           | purge                    |
  | SOL           | --- eof     --> | SOL           | purge                    |
- | SOL           | --- ws      --> | PRE           | save whitespace token    |
+ | SOL           | --- ws      --> | PRE           | save whitespace token(##)|
  | SOL           | --- sol-tr  --> | SOL           | TOKS << tok              |
  | SOL           | --- other   --> | IGNORE        | purge                    |
  + --------------+-----------------+---------------+--------------------------+
  | PRE           | --- nl OR   --> | SOL           | purge   if |TOKS| == 0   |
+ |               |                 |               | gen-pre if |TOKS| > 0 (#)|
+ | PRE           |  html-blk tag   | IGNORE        | purge   if |TOKS| == 0   |
  |               |  wt-table tag   |               | gen-pre if |TOKS| > 0 (#)|
- |               |  html-blk tag   |               |                          |
  | PRE           | --- eof     --> | SOL           | purge                    |
  | PRE           | --- sol-tr  --> | PRE           | SOL-TR-TOKS << tok       |
  | PRE           | --- other   --> | PRE_COLLECT   | TOKS = SOL-TR-TOKS + tok |
@@ -46,7 +47,7 @@
  + --------------+-----------------+---------------+--------------------------+
  | MULTILINE_PRE | --- nl      --> | SOL           | gen-pre                  |
  | MULTILINE_PRE | --- eof     --> | SOL           | gen-pre                  |
- | MULTILINE_PRE | --- ws      --> | PRE           | pop saved nl token       |
+ | MULTILINE_PRE | --- ws      --> | PRE           | pop saved nl token (##)  |
  | MULTILINE_PRE | --- sol-tr  --> | MULTILINE_PRE | SOL-TR-TOKS << tok       |
  | MULTILINE_PRE | --- any     --> | IGNORE        | gen-pre                  |
  + --------------+-----------------+---------------+--------------------------+
@@ -60,6 +61,10 @@
       SOL -> PRE -> PRE_COLLECT -> MULTILINE_PRE -> PRE
    and the transition from PRE -> PRE_COLLECT adds a non-ws/non-sol-tr token
    to TOKS.
+
+ ## In these states, check if the whitespace token is a single space or has
+   additional chars (white-space or non-whitespace) -- if yes, slice it off
+   and pass it through the FSM
 
  * --------------------------------------------------------------------------*/
 
@@ -138,9 +143,6 @@ PreHandler.prototype.processPre = function(token) {
 
 	// discard the white-space token that triggered pre
 	var ret = [];
-	if (!this.preWSToken.match(/^\s*$/)) {
-		ret.push(this.preWSToken.replace(/^\s/, ''));
-	}
 	this.preWSToken = null;
 
 	if (this.tokens.length === 0 && ret.length === 0) {
@@ -263,8 +265,13 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 				if ((tc === String) && token.match(/^\s/)) {
 					ret = this.tokens;
 					this.tokens = [];
-					this.preWSToken = token;
+					this.preWSToken = token[0];
 					this.state = PreHandler.STATE_PRE;
+					if (!token.match(/^\s$/)) {
+						// Treat everything after the first space
+						// as a new token
+						this.onAny(token.slice(1), manager, cb);
+					}
 				} else if (Util.isSolTransparent(token)) { // continue watching
 					this.tokens.push(token);
 				} else {
@@ -285,7 +292,7 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 					} else {
 						ret = this.getResultAndReset(token);
 					}
-					this.state = PreHandler.STATE_SOL;
+					this.moveToIgnoreState();
 				} else {
 					this.tokens = this.tokens.concat(this.solTransparentTokens);
 					this.tokens.push(token);
@@ -307,8 +314,14 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 			case PreHandler.STATE_MULTILINE_PRE:
 				if ((tc === String) && token.match(/^\s/)) {
 					this.popLastNL(this.tokens);
-					this.state = PreHandler.STATE_PRE;
-					// Ignore white-space token.
+						this.state = PreHandler.STATE_PRE;
+
+					// check if token is single-space or more
+					if (!token.match(/^\s$/)) {
+						// Treat everything after the first space
+						// as a new token
+						this.onAny(token.slice(1), manager, cb);
+					}
 				} else if (Util.isSolTransparent(token)) { // continue watching
 					this.solTransparentTokens.push(token);
 				} else {
