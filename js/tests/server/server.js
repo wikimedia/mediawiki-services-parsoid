@@ -190,6 +190,42 @@ var dbCommits = db.prepare(
 	'FROM commits ' +
 	'order by timestamp desc');
 
+var dbFixesBetweenRevs = db.prepare(
+	'SELECT pages.title, ' +
+	's1.commit_hash AS new_commit, s1.errors AS new_errors, s1.fails AS new_fails, s1.skips AS new_skips, ' +
+	's2.commit_hash AS old_commit, s2.errors AS old_errors, s2.fails AS old_fails, s2.skips AS old_skips ' +
+	'FROM pages ' +
+	'JOIN stats AS s1 ON s1.page_id = pages.id ' +
+	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
+	'WHERE s1.commit_hash = ? AND s2.commit_hash = ? AND s1.score < s2.score ' +
+	'ORDER BY s1.score - s2.score ASC ' +
+	'LIMIT 40 OFFSET ?');
+
+var dbNumFixesBetweenRevs = db.prepare(
+	'SELECT count(*) as numFixes ' +
+	'FROM pages ' +
+	'JOIN stats AS s1 ON s1.page_id = pages.id ' +
+	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
+	'WHERE s1.commit_hash = ? AND s2.commit_hash = ? AND s1.score < s2.score ');
+
+var dbRegressionsBetweenRevs = db.prepare(
+	'SELECT pages.title, ' +
+	's1.commit_hash AS new_commit, s1.errors AS new_errors, s1.fails AS new_fails, s1.skips AS new_skips, ' +
+	's2.commit_hash AS old_commit, s2.errors AS old_errors, s2.fails AS old_fails, s2.skips AS old_skips ' +
+	'FROM pages ' +
+	'JOIN stats AS s1 ON s1.page_id = pages.id ' +
+	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
+	'WHERE s1.commit_hash = ? AND s2.commit_hash = ? AND s1.score > s2.score ' +
+	'ORDER BY s1.score - s2.score DESC ' +
+	'LIMIT 40 OFFSET ?');
+
+var dbNumRegressionsBetweenRevs = db.prepare(
+	'SELECT count(*) as numRegressions ' +
+	'FROM pages ' +
+	'JOIN stats AS s1 ON s1.page_id = pages.id ' +
+	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
+	'WHERE s1.commit_hash = ? AND s2.commit_hash = ? AND s1.score > s2.score ');
+
 function dbUpdateErrCB(title, hash, type, msg, err) {
 	if (err) {
 		console.error("Error inserting/updating " + type + " for page: " + title + " and hash: " + hash);
@@ -340,6 +376,12 @@ indexLinkList = function () {
 },
 
 statsWebInterface = function ( req, res ) {
+	function displayRow(res, title, val) {
+		res.write( '<tr style="font-weight:bold"><td style="padding-left:20px;">' +
+					title + '</td><td style="padding-left:20px; text-align:right">' +
+					Math.round(val*100)/100 + '</td></tr>' );
+	}
+
 	// Fetch stats for commit
 	dbStatsQuery.get([-1], function ( err, row ) {
 		if ( err || !row ) {
@@ -386,12 +428,6 @@ statsWebInterface = function ( req, res ) {
 			res.write( '<p>There are ' + row.maxresults +
 					' test results for the latest tested revision ' +
 					row.maxhash + '.</p>' );
-
-			function displayRow(res, title, val) {
-				res.write( '<tr style="font-weight:bold"><td style="padding-left:20px;">' +
-							title + '</td><td style="padding-left:20px; text-align:right">' +
-							Math.round(val*100)/100 + '</td></tr>' );
-			}
 
 			res.write( '<p>Averages (over the latest results):' );
 			res.write( '<table><tbody>');
@@ -479,9 +515,9 @@ resultsWebInterface = function ( req, res ) {
 			} else {
 				res.setHeader( 'Content-Type', 'text/xml; charset=UTF-8' );
 				res.status( 200 );
-                res.write( '<?xml-stylesheet href="/static/result.css"?>\n' );
-	 			res.write( '<testsuite>' );
-      			for ( i = 0; i < rows.length; i++ ) {
+				res.write( '<?xml-stylesheet href="/static/result.css"?>\n' );
+				res.write( '<testsuite>' );
+				for ( i = 0; i < rows.length; i++ ) {
 					res.write( rows[i].result );
 				}
 
@@ -492,28 +528,28 @@ resultsWebInterface = function ( req, res ) {
 };
 
 function resultWebCallback( req, res, err, row ) {
-    if ( err ) {
-        console.log( err );
-        res.send( err.toString(), 500 );
-    } else if ( row ) {
-        res.setHeader( 'Content-Type', 'text/xml; charset=UTF-8' );
-        res.status( 200 );
-        res.write( '<?xml-stylesheet href="/static/result.css"?>\n' );
-        res.end( row.result );
-    } else {
-        res.send( 'no results for that page at the requested revision', 404 );
-    }
+	if ( err ) {
+		console.log( err );
+		res.send( err.toString(), 500 );
+	} else if ( row ) {
+		res.setHeader( 'Content-Type', 'text/xml; charset=UTF-8' );
+		res.status( 200 );
+		res.write( '<?xml-stylesheet href="/static/result.css"?>\n' );
+		res.end( row.result );
+	} else {
+		res.send( 'no results for that page at the requested revision', 404 );
+	}
 }
 
 function resultWebInterface( req, res ) {
 	var commit = req.params[1] ? req.params[0] : null;
-    var title = commit === null ? req.params[0] : req.params[1];
+	var title = commit === null ? req.params[0] : req.params[1];
 
-    if ( commit !== null ) {
-        dbGetResultWithCommit.get( commit, title, resultWebCallback.bind( null, req, res ) );
-    } else {
-        dbGetOneResult.get( title, resultWebCallback.bind( null, req, res ) );
-    }
+	if ( commit !== null ) {
+		dbGetResultWithCommit.get( commit, title, resultWebCallback.bind( null, req, res ) );
+	} else {
+		dbGetOneResult.get( title, resultWebCallback.bind( null, req, res ) );
+	}
 }
 
 function GET_failedFetches( req, res ) {
@@ -586,114 +622,109 @@ function GET_skipsDistr( req, res ) {
 }
 
 function makeCommitLink( commit, title ) {
-    return '<a href="/result/' +
-        commit + '/' + title +
-        '">' + commit.substr( 0, 7 ) +
-        '</a>';
+	return '<a href="/result/' +
+		commit + '/' + title +
+		'">' + commit.substr( 0, 7 ) +
+		'</a>';
+}
+
+function displayPageList(res, urlPrefix, page, header, err, rows) {
+	console.log( 'GET ' + urlPrefix + "/" + page );
+	if ( err ) {
+		res.send( err.toString(), 500 );
+	} else if ( !rows || rows.length <= 0 ) {
+		res.send( 'No entries found', 404 );
+	} else {
+		res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
+		res.status( 200 );
+		res.write('<html>');
+		res.write('<head><style type="text/css">');
+		res.write('th { padding: 0 10px }');
+		res.write('td { text-align: center; }');
+		res.write('td.title { text-align: left; }');
+		res.write('</style></head>');
+		res.write('<body>');
+
+		if (header) {
+			res.write("<b>" + header + "</b>");
+		}
+
+		res.write('<p>');
+		if ( page > 0 ) {
+			res.write( '<a href="' + urlPrefix + "/" + ( page - 1 ) + '">Previous</a> | ' );
+		} else {
+			res.write( 'Previous | ' );
+		}
+		if (rows.length === 40) {
+			res.write('<a href="' + urlPrefix + "/" + ( page + 1 ) + '">Next</a>');
+		}
+		res.write('</p>');
+
+		res.write('<table>');
+		res.write('<tr><th>Title</th><th>New Commit</th><th>Errors|Fails|Skips</th><th>Old Commit</th><th>Errors|Fails|Skips</th></tr>' );
+
+		for (var i = 0; i < rows.length; i++ ) {
+			var r = rows[i];
+			res.write('<tr>');
+			res.write('<td class="title">' + r.title + '</td>');
+			res.write('<td>' + makeCommitLink( r.new_commit, r.title ) + '</td>');
+			res.write('<td>' + r.new_errors + "|" + r.new_fails + "|" + r.new_skips + '</td>');
+			res.write('<td>' + makeCommitLink( r.old_commit, r.title ) + '</td>');
+			res.write('<td>' + r.old_errors + "|" + r.old_fails + "|" + r.old_skips + '</td>');
+			res.write('</tr>');
+		}
+		res.end( '</table></body></html>' );
+	}
 }
 
 function GET_regressions ( req, res ) {
-	console.log( 'GET /regressions/' + req.params[0] );
-	var page = ( req.params[0] || 0 ) - 0,
+	var page, offset, urlPrefix;
+	if (req.params.length > 1) {
+		var r1 = req.params[0];
+		var r2 = req.params[1];
+		urlPrefix = "/regressions/between/" + r1 + "/" + r2;
+		page = (req.params[2] || 0) - 0;
 		offset = page * 40;
-
-	dbRegressedPages.all( [ offset ],
-		function ( err, rows ) {
-			if ( err ) {
+		dbNumRegressionsBetweenRevs.get([r2,r1], function(err, row) {
+			if (err || !row) {
 				res.send( err.toString(), 500 );
-			} else if ( rows.length <= 0 ) {
-				res.send( 'No entries found', 404 );
 			} else {
-				res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
-				res.status( 200 );
-				res.write('<html>');
-				res.write('<head><style type="text/css">');
-				res.write('th { padding: 0 10px }');
-				res.write('td { text-align: center; }');
-				res.write('td.title { text-align: left; }');
-				res.write('</style></head>');
-				res.write('<body>');
-
-				res.write('<p>');
-				if ( page > 0 ) {
-					res.write( '<a href="/regressions/' + ( page - 1 ) + '">Previous</a> | ' );
-				} else {
-					res.write( 'Previous | ' );
-				}
-				if (rows.length === 40) {
-					res.write('<a href="/regressions/' + ( page + 1 ) + '">Next</a>');
-				}
-				res.write('</p>');
-
-				res.write('<table>');
-				res.write('<tr><th>Title</th><th>New Commit</th><th>Errors|Fails|Skips</th><th>Old Commit</th><th>Errors|Fails|Skips</th></tr>' );
-
-				for (var i = 0; i < rows.length; i++ ) {
-					var r = rows[i];
-					res.write('<tr>');
-					res.write('<td class="title">' + r.title + '</td>');
-					res.write('<td>' + makeCommitLink( r.new_commit, r.title ) + '</td>');
-					res.write('<td>' + r.new_errors + "|" + r.new_fails + "|" + r.new_skips + '</td>');
-					res.write('<td>' + makeCommitLink( r.old_commit, r.title ) + '</td>');
-					res.write('<td>' + r.old_errors + "|" + r.old_fails + "|" + r.old_skips + '</td>');
-					res.write('</tr>');
-				}
-				res.end( '</table></body></html>' );
+				var header = "Total regressions between selected revisions: " + row.numRegressions;
+				dbRegressionsBetweenRevs.all([r2, r1, offset ],
+					displayPageList.bind(null, res, urlPrefix, page, header));
 			}
-		}
-	);
+		});
+	} else {
+		urlPrefix = "/regressions";
+		page = ( req.params[0] || 0 ) - 0;
+		offset = page * 40;
+		dbRegressedPages.all([ offset ], displayPageList.bind(null, res, urlPrefix, page, null));
+	}
 }
 
 function GET_topfixes ( req, res ) {
-	console.log( 'GET /topfixes/' + req.params[0] );
-	var page = ( req.params[0] || 0 ) - 0,
+	var page, offset, urlPrefix;
+	if (req.params.length > 1) {
+		var r1 = req.params[0];
+		var r2 = req.params[1];
+		urlPrefix = "/topfixes/between/" + r1 + "/" + r2;
+		page = (req.params[2] || 0) - 0;
 		offset = page * 40;
-
-	dbFixedPages.all( [ offset ],
-		function ( err, rows ) {
-			if ( err ) {
+		dbNumFixesBetweenRevs.get([r2,r1], function(err, row) {
+			if (err || !row) {
 				res.send( err.toString(), 500 );
-			} else if ( rows.length <= 0 ) {
-				res.send( 'No entries found', 404 );
 			} else {
-				res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
-				res.status( 200 );
-				res.write('<html>');
-				res.write('<head><style type="text/css">');
-				res.write('th { padding: 0 10px }');
-				res.write('td { text-align: center; }');
-				res.write('td.title { text-align: left; }');
-				res.write('</style></head>');
-				res.write('<body>');
-
-				res.write('<p>');
-				if ( page > 0 ) {
-					res.write( '<a href="/topfixes/' + ( page - 1 ) + '">Previous</a> | ' );
-				} else {
-					res.write( 'Previous | ' );
-				}
-				if (rows.length === 40) {
-					res.write('<a href="/topfixes/' + ( page + 1 ) + '">Next</a>');
-				}
-				res.write('</p>');
-
-				res.write('<table>');
-				res.write('<tr><th>Title</th><th>New Commit</th><th>Errors|Fails|Skips</th><th>Old Commit</th><th>Errors|Fails|Skips</th></tr>' );
-
-				for (var i = 0; i < rows.length; i++ ) {
-					var r = rows[i];
-					res.write('<tr>');
-					res.write('<td class="title">' + r.title + '</td>');
-					res.write('<td>' + makeCommitLink( r.new_commit, r.title ) + '</td>');
-					res.write('<td>' + r.new_errors + "|" + r.new_fails + "|" + r.new_skips + '</td>');
-					res.write('<td>' + makeCommitLink( r.old_commit, r.title ) + '</td>');
-					res.write('<td>' + r.old_errors + "|" + r.old_fails + "|" + r.old_skips + '</td>');
-					res.write('</tr>');
-				}
-				res.end( '</table></body></html>' );
+				var header = "Total fixes between selected revisions: " + row.numFixes;
+				dbFixesBetweenRevs.all([r2, r1, offset ],
+					displayPageList.bind(null, res, urlPrefix, page, header));
 			}
-		}
-	);
+		});
+	} else {
+		urlPrefix = "/topfixes";
+		page = ( req.params[0] || 0 ) - 0;
+		offset = page * 40;
+		dbFixedPages.all([ offset ], displayPageList.bind(null, res, urlPrefix, page, null));
+	}
 }
 
 function GET_commits( req, res ) {
@@ -708,10 +739,19 @@ function GET_commits( req, res ) {
 			res.write( '<html><body>' );
 			res.write('<h1> List of all commits </h1>');
 			res.write('<table><tbody>');
-			res.write('<tr><th>Commit hash</th><th>Timestamp</th></tr>');
+			res.write('<tr><th>Commit hash</th><th>Timestamp</th><th>-</th><th>+</th></tr>');
 			for (var i = 0; i < n; i++) {
 				var r = rows[i];
-				res.write('<tr><td>' + r.hash + '</td><td>' + r.timestamp + '</td></tr>');
+				res.write('<tr><td>' + r.hash + '</td><td>' + r.timestamp + '</td>');
+				if ( i + 1 < n ) {
+					res.write('<td><a href="/regressions/between/' + rows[i+1].hash +
+						'/' + r.hash + '"><b>-</b></a></td>' );
+					res.write('<td><a href="/topfixes/between/' + rows[i+1].hash +
+						'/' + r.hash + '"><b>+</b></a></td>' );
+				} else {
+					res.write('<td></td><td></td>');
+				}
+				res.write('</tr>');
 			}
 			res.end('</table></body></html>' );
 		}
@@ -752,10 +792,12 @@ app.get( /^\/stats\/failedFetches$/, GET_failedFetches );
 // Regressions -- 0th and later pages
 app.get( /^\/regressions$/, GET_regressions );
 app.get( /^\/regressions\/(\d+)$/, GET_regressions );
+app.get( /^\/regressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_regressions );
 
 // Topfixes -- 0th and later pages
 app.get( /^\/topfixes$/, GET_topfixes );
 app.get( /^\/topfixes\/(\d+)$/, GET_topfixes );
+app.get( /^\/topfixes\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_topfixes );
 
 // Distribution of fails
 app.get( /^\/stats\/failsDistr$/, GET_failsDistr );
