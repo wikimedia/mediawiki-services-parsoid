@@ -12,7 +12,7 @@
 		"optimist": "0.x.x",
 		"assert": "0.x.x",
 		"jsdom": "0.x.x",
-		"pegjs": "0.x.x",
+		"pegjs": "0.7.x",
 		"lru-cache": "1.x.x",
 		"async": "0.x.x",
 		"express": "2.5.x"
