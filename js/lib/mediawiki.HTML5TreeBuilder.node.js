@@ -103,19 +103,33 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 		console.warn("T:html: " + JSON.stringify(token));
 	}
 
-	var tName, attrs, dataAttribs;
+	var tName, attrs, dataAttribs,
+		self = this,
+		isNotPrecededByPre = function () {
+			return  ! self.lastToken ||
+						self.lastToken.constructor !== TagTk ||
+						self.lastToken.name.toLowerCase() !== 'pre';
+		};
 	switch( token.constructor ) {
 		case String:
-			if ( token.match(/^[ \t\r\n\f]+$/) ) {
+			if ( token.match(/^[ \t\r\n\f]+$/) && isNotPrecededByPre() ) {
 				// Treat space characters specially so that the tree builder
 				// doesn't apply the foster parenting algorithm
 				this.emit('token', {type: 'SpaceCharacters', data: token});
 			} else {
+				// Emit the newline as Characters token to prevent it from
+				// being eaten by the treebuilder when preceded by a pre.
 				this.emit('token', {type: 'Characters', data: token});
 			}
 			break;
 		case NlTk:
-			this.emit('token', {type: 'SpaceCharacters', data: '\n'});
+			if (isNotPrecededByPre()) {
+				this.emit('token', {type: 'SpaceCharacters', data: '\n'});
+			} else {
+				// Emit the newline as Characters token to prevent it from
+				// being eaten by the treebuilder when preceded by a pre.
+				this.emit('token', {type: 'Characters', data: '\n'});
+			}
 			break;
 		case TagTk:
 			tName = token.name;
@@ -165,6 +179,7 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			console.warn("Unhandled token: " + JSON.stringify(token));
 			break;
 	}
+	this.lastToken = token;
 };
 
 

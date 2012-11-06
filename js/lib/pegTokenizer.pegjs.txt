@@ -1219,11 +1219,14 @@ pre
     endpos:(">" { return pos })
     // MediaWiki <pre> is special in that it converts all pre content to plain
     // text.
-    ts:(t1:[^<]+ { return t1.join('') } 
+    ts:(    newlineToken
+                / t1:[^<]+ { return t1.join('') } 
                 / nowiki 
                 / !"</pre>" t2:. { return t2 })+ 
     ("</pre>" / eof) {
         stops.dec('pre');
+        /*
+         * The VE will be fixed up to preserve this newline real soon, so disable it for now.
         var firstTok = ts[0];
         if (firstTok.constructor === String && firstTok.match(/^\n/)) {
             // Strip leading newline from the token
@@ -1236,6 +1239,7 @@ pre
             ts.unshift("\n");
             ts.unshift(new TagTk( 'span', [ new KV( 'typeof', 'mw:Placeholder' ) ], { src: '\n' } ));
         }
+        */
         // return nowiki tags as well?
         return [ new TagTk( 'pre', attribs, { stx: 'html', tsr: [pos0, endpos] } ) ] 
                     .concat(ts, [ new EndTagTk( 'pre', [], { tsr: [pos - 6, pos] } ) ]);
