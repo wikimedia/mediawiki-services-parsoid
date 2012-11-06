@@ -80,6 +80,7 @@ var HTML5 = require( 'html5' ).HTML5,
 	},
 
 	// In the PHP parser, these block tags open block-tag scope
+	// See doBlockLevels in the PHP parser (includes/parser/Parser.php)
 	tagOpensBlockScope: function(name) {
 		switch ( name ) {
 			case 'p':
@@ -104,6 +105,7 @@ var HTML5 = require( 'html5' ).HTML5,
 	},
 
 	// In the PHP parser, these block tags close block-tag scope
+	// See doBlockLevels in the PHP parser (includes/parser/Parser.php)
 	tagClosesBlockScope: function(name) {
 		return name === 'td' || name === 'th';
 	},
