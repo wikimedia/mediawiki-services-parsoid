@@ -913,55 +913,29 @@ template_param_text
         // il is guaranteed to be an array -- so, flattenIfArray will
         // always return an array
         var r = flattenIfArray( il );
+/* ------------
+ * SSS: Do not discard newlines -- they change semantics
+ * Example 1:
+ *
+ *      {{echo|
+ * a}} should not introduce a pre
+ *
+ * What about pure white-space?
+ *
+            firstToken = r[0];
 
-        /* ----------------------------------------------------------
-         * Strip whitespace but retain newlines.
-         * This example should not produce a pre:
-         *
-         *   {{echo|
-         * a}}
-         *
-         * SSS FIXME: I cannot figure out why we need to strip
-         * whitespace. It seems wrong because neither of the
-         * following wikitext will parse as a pre:
-         *
-         * {{echo| }}a
-         * {{echo|
-         *  }}a
-         *
-         * But, without this, parsing of several pages introduces
-         * incorrect pre-protected text which then messes up RTing.
-         *
-         * Ex: en:Barack_Obama; en:Ta_Mok; en:Knights_of_Classic_Lore
-         *
-         * Reduced test case to debug this behavior
-         * -------------
-         * <ref name="latimesobit"> {{cite news|url=http://wp.org}} {{Dead link|date=October 2010|bot=H3llBot}} </ref> 
-         *  
-         * {{Reflist}}
-         *   
-         * [[Category:1924 births]]
-         * -------------
-         *
-         * ---------------------------------------------------------- */
+        // Strip leading newlines and space-only text tokens. 
         // XXX: Will need to round-trip these eventually.
-        var nls = [];
-        var firstToken = r[0];
-        while (firstToken !== undefined &&
-               (firstToken.constructor === NlTk ||
-               (firstToken.constructor === String && firstToken.match( /^[\t ]*$/ ) )))
+        while ( 
+                firstToken !== undefined &&
+                ( firstToken.constructor === NlTk || 
+                  firstToken.constructor === String && firstToken.match( /^[\t ]+$/ ) )
+              )
         {
             r.shift();
-            if (firstToken.constructor === NlTk) {
-                nls.push(firstToken);
-            }
             firstToken = r[0];
         }
-
-        if (nls.length > 0) {
-            r = nls.concat(r);
-        }
-
+ * ------------ */
         //console.warn('tpl param name' + pos + r[0] + '::' + input.substr(pos, 40) );
         if ( r.length === 1 && r[0].constructor === String ) {
             r = r[0];
