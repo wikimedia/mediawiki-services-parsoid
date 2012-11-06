@@ -214,13 +214,24 @@ checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 		// 1. Normalize multiple spaces to single space
 		str = str.replace(/ +/g, " ");
 		// 2. Eliminate spaces around wikitext chars
-		str = str.replace(/([<"'!#\*:;+-=|{}\[\]\/]) /g, "$1");
-		// 3. Strip double-quotes
-		str = str.replace(/"([^"]*?)"/g, "$1");
-		// 4. Ignore capitalization of tags and void tag indications
+		//str = str.replace(/([<"'!#\*:;+-=|{}\[\]\/]) /g, "$1");
+		// 3. Ignore capitalization of tags and void tag indications
 		str = str.replace(/<([^ >\/]+)((?:[^>/]|\/(?!>))*)\/?>/g, function(match, name, remaining) {
 			return '<' + name.toLowerCase() + remaining + '>';
 		} );
+		// 4. Ignore whitespace in table cell attributes
+		str = str.replace(/(^|\n)([!|]|{\||\|-) *([^|\n]*?) *(?=[|\n])/g, '$1$2$3');
+		// 5. Ignore trailing semicolons and spaces in style attributes
+		str = str.replace(/style\s*=\s*"[^"|]+?;\s*"/g, function(match) {
+				return match.replace(/[\s;]/g, '');
+		});
+		// 6. Strip double-quotes
+		str = str.replace(/"([^"]*?)"/g, "$1");
+
+		// 7. Ignore implicit </small> and </center> in table cells for now
+		str = str.replace(/^<\/(?:small|center)>\n?(?=[|!])/g, '')
+
+		//console.log(str);
 
 		return str;
 	}
