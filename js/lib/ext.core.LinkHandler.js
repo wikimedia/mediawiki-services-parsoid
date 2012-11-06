@@ -199,8 +199,8 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 			for ( j = 0; j < content.length; j++ ) {
 				if ( content[j].constructor !== String ) {
 					property = Util.lookup( content[j].attribs, 'property' );
-					if ( property && property.constructor === String
-						&& property.match( /mw\:objectAttr(Val|Key)\#mw\:maybeContent/ ) ) {
+					if ( property && property.constructor === String &&
+						property.match( /mw\:objectAttr(Val|Key)\#mw\:maybeContent/ ) ) {
 						content.splice( j, 1 );
 					}
 				}
@@ -218,19 +218,19 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 		// distinguish media types
 		// if image: parse options
 		rdfaAttrs = buildLinkAttrs(token.attribs, true, null, null ),
-		content = rdfaAttrs.content;
-
-	var MD5 = new jshashes.MD5(),
+		content = rdfaAttrs.content,
+		MD5 = new jshashes.MD5(),
 		hash = MD5.hex( title.key ),
 		// TODO: Hackhack.. Move to proper test harness setup!
 		path = [ this.manager.env.wgUploadPath, hash[0],
 					hash.substr(0, 2), title.key ].join('/');
 
 	// extract options
-	var options = [],
+	var i, l, kv,
+		options = [],
 		oHash = {},
 		captions = [];
-	for( var i = 0, l = content.length; i<l; i++ ) {
+	for( i = 0, l = content.length; i<l; i++ ) {
 		var oContent = content[i],
 			oText = Util.tokensToString( oContent.v, true );
 		//console.log( JSON.stringify( oText, null, 2 ) );
@@ -271,14 +271,14 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 						//console.warn('handle prefix ' + bits );
 					} else {
 						// Record for RT-ing
-						var kv = new KV("caption", oContent.v);
+						kv = new KV("caption", oContent.v);
 						captions.push(kv);
 						options.push(kv);
 					}
 				}
 			}
 		} else {
-			var kv = new KV("caption", oContent.v);
+			kv = new KV("caption", oContent.v);
 			captions.push(kv);
 			options.push(kv);
 		}
@@ -295,7 +295,7 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 		// SSS FIXME: For now, using tokensToString
 		// We need a universal solution everywhere we discard info. like this
 		// Maybe use the serializer, tsr/dsr ... to figure out.
-		for (var i = 0; i < numCaptions-1; i++) {
+		for (i = 0; i < numCaptions-1; i++) {
 			captions[i].v = Util.tokensToString(captions[i].v);
 		}
 	}

@@ -811,8 +811,7 @@ AttributeTransformManager.prototype._toType = 'tokens/x-mediawiki/expanded';
  * templates are already expanded.
  */
 AttributeTransformManager.prototype.process = function (attributes) {
-	var pipe,
-		ref;
+	var n, pipe, ref;
 	// console.warn( 'AttributeTransformManager.process: ' + JSON.stringify( attributes ) );
 
 	// transform each argument (key and value), and handle asynchronous returns
@@ -831,7 +830,7 @@ AttributeTransformManager.prototype.process = function (attributes) {
 		this.kvs.push( kv );
 
 		if (v.constructor === Array) {
-			var n = v.length;
+			n = v.length;
 			if (n === 0 || (n === 1 && v[0].constructor === String)) {
 				kv.v = v;
 			} else {
@@ -850,7 +849,7 @@ AttributeTransformManager.prototype.process = function (attributes) {
 		}
 
 		if ( k.constructor === Array) {
-			var n = k.length;
+			n = k.length;
 			if (n === 0 || (n === 1 && k[0].constructor === String)) {
 				kv.k = k;
 			} else {

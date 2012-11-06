@@ -164,13 +164,13 @@ QuoteTransformer.prototype.onNewLine = function (  token, frame, prevToken ) {
 								firstsingleletterword === -1)
 						{
 							firstsingleletterword = j;
-						} else if ( firstmultiletterword == -1) {
+						} else if ( firstmultiletterword === -1) {
 							firstmultiletterword = j;
 						}
 					}
 				} else if ( ( ctxPrevToken.constructor === NlTk ||
 								ctxPrevToken.constructor === TagTk ) &&
-								firstmultiletterword == -1 ) {
+								firstmultiletterword === -1 ) {
 					// This is an approximation, as the original doQuotes
 					// operates on the source and just looks at space vs.
 					// non-space. At least some tags are thus recognized as

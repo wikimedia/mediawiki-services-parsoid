@@ -587,7 +587,8 @@ Sanitizer._stripIDNs = function ( host ) {
 };
 
 Sanitizer.prototype.sanitizeHref = function ( href ) {
-		var bits = href.match( /(.*?\/\/)([^\/]+)(\/?.*)/ );
+		var bits = href.match( /(.*?\/\/)([^\/]+)(\/?.*)/ ),
+			proto, host, path;
 		if ( bits ) {
 			proto = bits[1];
 			host = bits[2];

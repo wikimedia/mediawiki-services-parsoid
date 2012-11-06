@@ -236,7 +236,7 @@ var tagToStringFns = {
 	"behavior-switch": function() {
 		return "<behavior-switch:" + this.attribs[0].v + ">";
 	}
-}
+};
 
 // Hide tagToStringFns when serializing tokens to JSON
 Object.defineProperty( TagTk.prototype, 'tagToStringFns',

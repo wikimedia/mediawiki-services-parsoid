@@ -103,7 +103,7 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 		console.warn("T:html: " + JSON.stringify(token));
 	}
 
-	var tName, attrs, dataAttribs,
+	var tName, attrs,
 		self = this,
 		isNotPrecededByPre = function () {
 			return  ! self.lastToken ||
