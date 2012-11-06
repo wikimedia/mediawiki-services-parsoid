@@ -305,6 +305,20 @@ MWParserEnvironment.prototype.generateUID = function () {
 	return this.uid++;
 };
 
+/**
+ * Default implementation of an error callback for async
+ * error reporting in the parser pipeline.
+ *
+ * For best results, define your own. For better results,
+ * call it from places you notice errors happening.
+ */
+MWParserEnvironment.prototype.errCB = function ( error ) {
+	if ( error ) {
+		console.log( error.stack );
+		process.exit( 1 );
+	}
+};
+
 
 if (typeof module === "object") {
 	module.exports.MWParserEnvironment = MWParserEnvironment;

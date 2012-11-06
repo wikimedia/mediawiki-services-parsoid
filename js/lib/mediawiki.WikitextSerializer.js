@@ -1260,7 +1260,7 @@ WSP._serializeAttributes = function (state, token) {
 	// Check if this token has attributes that have been
 	// expanded from templates or extensions
 	if (hasExpandedAttrs(tokType)) {
-		tplAttrState = state.tplAttrs[token.getAttribute("about")];
+		tplAttrState = state.tplAttrs[token.getAttribute("about")] || tplAttrState;
 	}
 
 	var out = [];
@@ -1507,7 +1507,7 @@ WSP._serializeToken = function ( state, token ) {
 				for ( var i = 0, l = state.availableNewlineCount; i < l; i++ ) {
 					res += '\n';
 				}
-				state.chunkCB(res);
+				state.chunkCB( res );
 				break;
 			default:
 				res = '';
@@ -1520,7 +1520,7 @@ WSP._serializeToken = function ( state, token ) {
 		var newTrailingNLCount = 0;
 
 		// FIXME: figure out where the non-string res comes from
-		if (res === undefined || res.constructor !== String) {
+		if ( res === undefined || res.constructor !== String ) {
 			console.error("-------- Serializer error --------");
 			console.error("TOKEN: " + JSON.stringify(token));
 			console.error(state.env.pageName + ": res was undefined or not a string!");
@@ -1716,9 +1716,7 @@ WSP.serializeDOM = function( node, chunkCB ) {
 			this._serializeToken( state, new EOFTk() );
 		}
 	} catch (e) {
-		console.log(e.stack);
-		// don't hang
-		process.exit(1);
+		throw e;
 	}
 };
 

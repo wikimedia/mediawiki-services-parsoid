@@ -59,11 +59,11 @@ plainCallback = function ( page, err, results ) {
 xmlCallback = function ( page, err, results ) {
 	var i, result,
 
-	output = '<testsuite name="Roundtrip article ' + Util.encodeXml( page ) + '">';
+	output = '<testsuite name="Roundtrip article ' + Util.encodeXml( page || '' ) + '">';
 
 	if ( err ) {
 		output += '<testcase name="entire article"><error type="parserFailedToFinish">';
-		output += err.toString();
+		output += Util.encodeXml( err.stack || err.toString() );
 		output += '</error></testcase>';
 	} else {
 
@@ -303,13 +303,16 @@ checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 	cb( null, page, results );
 },
 
-doubleRoundtripDiff = function ( page, offsets, src, body, out, cb, wiki ) {
-	var parser, env;
+doubleRoundtripDiff = function ( page, offsets, src, body, out, cb, wgScript ) {
+	var parser, env = Util.getParserEnv();
 
 	if ( offsets.length > 0 ) {
-		env = Util.getParserEnv();
 		env.text = src;
-		env.wgScript = env.interwikiMap[wiki];
+		env.wgScript = wgScript;
+		env.errCB = function ( error ) {
+			cb( error, page, [] );
+			process.exit( 1 );
+		};
 
 		parserPipeline = Util.getParser( env, 'text/x-mediawiki/full' );
 
@@ -321,22 +324,21 @@ doubleRoundtripDiff = function ( page, offsets, src, body, out, cb, wiki ) {
 	}
 },
 
-roundTripDiff = function ( page, src, document, cb, options ) {
-	var out, curPair, patch, diff, env = Util.getParserEnv();
-	env.debug = options.debug;
-	env.trace = options.trace;
+roundTripDiff = function ( page, src, document, cb, env ) {
+	var out, curPair, patch, diff;
 
-	out = new WikitextSerializer( { env: env } ).serializeDOM( document.body );
-	if ( out === undefined ) {
-		out = 'An error occured in the WikitextSerializer, please check the log for information';
-	}
+	try {
+		out = new WikitextSerializer( { env: env } ).serializeDOM( document.body );
 
-	diff = Util.convertDiffToOffsetPairs( jsDiff.diffLines( out, src ) );
+		diff = Util.convertDiffToOffsetPairs( jsDiff.diffLines( out, src ) );
 
-	if ( diff.length > 0 ) {
-		doubleRoundtripDiff( page, diff, src, document.body, out, cb, options.wiki );
-	} else {
-		cb( null, page, [] );
+		if ( diff.length > 0 ) {
+			doubleRoundtripDiff( page, diff, src, document.body, out, cb, env.wgScript );
+		} else {
+			cb( null, page, [] );
+		}
+	} catch ( e ) {
+		cb( e, page, [] );
 	}
 },
 
@@ -344,11 +346,17 @@ fetch = function ( page, cb, options ) {
 	cb = typeof cb === 'function' ? cb : function () {};
 
 	var env = Util.getParserEnv();
+
 	env.wgScript = env.interwikiMap[options.wiki];
 	env.setPageName( page );
 
 	env.debug = options.debug;
 	env.trace = options.trace;
+
+    env.errCB = function ( error ) {
+        cb( error, null, [] );
+		process.exit( 1 );
+    };
 
 	var target = env.resolveTitle( env.normalizeTitle( env.pageName ), '' );
 	var tpr = new TemplateRequest( env, target, null );
@@ -362,7 +370,7 @@ fetch = function ( page, cb, options ) {
 					console.log( err );
 					cb( err, page, [] );
 				} else {
-					roundTripDiff( page, src, out, cb, options );
+					roundTripDiff( page, src, out, cb, env );
 				}
 			}, err, src );
 		}
