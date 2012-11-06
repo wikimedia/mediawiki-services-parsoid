@@ -689,7 +689,10 @@ function GET_regressions ( req, res ) {
 			if (err || !row) {
 				res.send( err.toString(), 500 );
 			} else {
-				var header = "Total regressions between selected revisions: " + row.numRegressions;
+				var topfixesLink = "/topfixes/between/" + r1 + "/" + r2,
+					header = "Total regressions between selected revisions: " +
+							row.numRegressions +
+							' | <a href="' + topfixesLink + '">topfixes</a>';
 				dbRegressionsBetweenRevs.all([r2, r1, offset ],
 					displayPageList.bind(null, res, urlPrefix, page, header));
 			}
@@ -714,7 +717,9 @@ function GET_topfixes ( req, res ) {
 			if (err || !row) {
 				res.send( err.toString(), 500 );
 			} else {
-				var header = "Total fixes between selected revisions: " + row.numFixes;
+				var regressionLink = "/regressions/between/" + r1 + "/" + r2,
+					header = "Total fixes between selected revisions: " + row.numFixes +
+						' | <a href="' + regressionLink + '">regressions</a>';
 				dbFixesBetweenRevs.all([r2, r1, offset ],
 					displayPageList.bind(null, res, urlPrefix, page, header));
 			}
