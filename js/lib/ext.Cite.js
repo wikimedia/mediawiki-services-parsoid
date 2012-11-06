@@ -28,7 +28,10 @@ function Cite ( manager, options ) {
 			this.referencesRank, 'tag', 'references' );
 }
 
-Cite.prototype.rank = 2.15; // after QuoteTransformer, but before PostExpandParagraphHandler
+// Cite should be the first thing to run in pahse 3 so the <ref>-</ref>
+// content tokens are pulled out of the token stream and dont pollute
+// the main token stream with any unbalanced tags/pres and the like.
+Cite.prototype.rank = 2.01; // after QuoteTransformer, but before PostExpandParagraphHandler
 Cite.prototype.referencesRank = 2.6; // after PostExpandParagraphHandler
 //Cite.prototype.rank = 2.6;
 

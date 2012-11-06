@@ -79,10 +79,10 @@ function PreHandler( manager, options ) {
 }
 
 // Handler ranks
-PreHandler.prototype.nlRank   = 2.01;
-PreHandler.prototype.anyRank  = 2.02;
-PreHandler.prototype.endRank  = 2.03;
-PreHandler.prototype.skipRank = 2.04; // should be higher than all other ranks above
+PreHandler.prototype.nlRank   = 2.02;
+PreHandler.prototype.anyRank  = 2.03;
+PreHandler.prototype.endRank  = 2.04;
+PreHandler.prototype.skipRank = 2.05; // should be higher than all other ranks above
 
 // FSM states
 PreHandler.STATE_SOL = 1;

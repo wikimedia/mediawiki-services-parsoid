@@ -145,8 +145,14 @@ ParserPipelineFactory.prototype.recipes = {
 			[
 				// PHASE RANGE: [2,3)
 
+				// Cite should be the first thing to run so the <ref>-</ref>
+				// content tokens are pulled out of the token stream and
+				// dont pollute the main token stream with any unbalanced
+				// tags/pres and the like.
+				Cite,				// 2.01
+
 				// Introduce <pre>s
-				PreHandler,			// 2.0
+				PreHandler,			// 2.02
 
 
 				QuoteTransformer,	// 2.1
@@ -154,8 +160,6 @@ ParserPipelineFactory.prototype.recipes = {
 				// before transforms that depend on behavior switches
 				// examples: toc generation, edit sections
 				BehaviorSwitchHandler,	// 2.14
-
-				Cite,				// 2.15
 
 				ListHandler,		// 2.49
 
