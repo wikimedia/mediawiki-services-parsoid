@@ -72,9 +72,10 @@ TokenCollector.prototype._onDelimiterToken = function ( token, frame, cb ) {
 
 		return { };
 	} else if (tc === SelfclosingTagTk) {
-		// Nothing to do -- just pass it along.
-		this.manager.env.dp( 'skipping collection on ', token );
-		return { tokens: [ token ] }; //this.transformation( [token, token] );
+		//return { tokens: [ token ] }; //
+
+		// We need to handle <ref /> for example, so call the handler.
+		return this.transformation( [token, token] );
 	} else if (haveOpenTag) {
 		// EOFTk or EndTagTk
 		this.manager.env.dp( 'finishing collection on ', token );
