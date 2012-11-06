@@ -99,7 +99,7 @@ TemplateRequest.prototype._handler = function (error, response, body) {
 			if ( e2 instanceof DoesNotExistError ) {
 				error = e2;
 			} else {
-				error = DoesNotExistError( 'Did not find page revisions in the returned body:' + body + e2 );
+				error = new DoesNotExistError( 'Did not find page revisions in the returned body:' + body + e2 );
 			}
 		}
 

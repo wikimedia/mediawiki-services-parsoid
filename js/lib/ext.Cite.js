@@ -99,7 +99,7 @@ Cite.prototype.handleRef = function ( tokens ) {
 		new EndTagTk( 'span' ),
 		new SelfclosingTagTk( 'meta', [
 				new KV( 'typeof', 'mw:Object/Ext/Cite/End' ),
-				new KV( 'about', refId),
+				new KV( 'about', refId)
 			], { tsr: endTsr } )
 	];
 	//console.warn( 'ref res: ' + JSON.stringify( res, null, 2 ) );

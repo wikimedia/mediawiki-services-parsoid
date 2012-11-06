@@ -355,7 +355,7 @@ TemplateHandler.prototype._onEnd = function( state, cb ) {
 					new KV( 'typeof', 'mw:Object/Template/End' ),
 					new KV( 'about', '#' + state.templateId )
 				], {
-					tsr: [null, tsr ? tsr[1] : null],
+					tsr: [null, tsr ? tsr[1] : null]
 				});
 		var res = { tokens: [endTag] };
 		state.emittedFirstChunk = false;

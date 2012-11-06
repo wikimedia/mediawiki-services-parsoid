@@ -228,9 +228,9 @@ function includeOnlyHandler(manager, options, collection) {
 		// May abort collection, convert to text, whatever ....
 		// For now, this is just an intermediate solution while we
 		// figure out other smarter strategies and how to plug them in here.
-		var x = defaultNestedDelimiterHandler(collection.start);
-		startHead  = x.containerToken;
-		startDelim = x.delimiter;
+		var s = defaultNestedDelimiterHandler(collection.start);
+		startHead  = s.containerToken;
+		startDelim = s.delimiter;
 	} else {
 		startDelim = collection.start;
 	}
@@ -239,9 +239,9 @@ function includeOnlyHandler(manager, options, collection) {
 	var endDelim, endTail;
 	if (collection.end) {
 		if (collection.end.constructor !== EndTagTk) {
-			var x = defaultNestedDelimiterHandler(collection.end);
-			endTail  = x.containerToken;
-			endDelim = x.delimiter;
+			var e = defaultNestedDelimiterHandler(collection.end);
+			endTail  = e.containerToken;
+			endDelim = e.delimiter;
 		} else {
 			endDelim = collection.end;
 		}

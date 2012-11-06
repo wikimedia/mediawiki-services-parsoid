@@ -118,7 +118,7 @@ PreHandler.prototype.popLastNL = function(ret) {
 		ret.push(this.lastNlTk);
 		this.lastNlTk = null;
 	}
-}
+};
 
 PreHandler.prototype.getResultAndReset = function(token) {
 	this.popLastNL(this.tokens);
@@ -227,7 +227,7 @@ PreHandler.prototype.onEnd = function (token, manager, cb) {
 
 function isTableTag(token) {
 	var tc = token.constructor;
-	return (tc === TagTk || tc == EndTagTk) &&
+	return (tc === TagTk || tc === EndTagTk) &&
 		['table','tr','td','th','tbody'].indexOf(token.name.toLowerCase()) !== -1;
 }
 
