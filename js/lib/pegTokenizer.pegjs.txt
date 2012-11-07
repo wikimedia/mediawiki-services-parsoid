@@ -358,14 +358,12 @@ toplevelblock
         if (bs.dataAttribs === undefined) {
             bs.dataAttribs = {};
         }
-        bs.dataAttribs.bsp = [pos0, pos];
         tokens = b;
     } else if (b.constructor === String && b.attribs === undefined) {
         b = new String( b );
         if (b.dataAttribs === undefined) {
             b.dataAttribs = {};
         }
-        b.dataAttribs.bsp = [pos0, pos];
         tokens = [b];
     }
 
