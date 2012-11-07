@@ -20,7 +20,7 @@ if ( typeof module === 'object' ) {
 		clientName: 'AnonymousClient',
 
 		// The interwiki prefix you want to use (see mediawiki.parser.environment.js for more information)
-		interwiki: 'dump'
+		interwiki: 'en'
 	};
 }
 
