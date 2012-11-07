@@ -1058,7 +1058,7 @@ function findWrappableTemplateRanges( root, tpls, doc ) {
 // node  -- node to process
 // [s,e) -- if defined, start/end position of wikitext source that generated
 //          node's subtree
-function computeNodeDSR(node, s, e, traceDSR) {
+function computeNodeDSR(env, node, s, e, traceDSR) {
 
 	// TSR info on all these tags are only valid for the opening tag.
 	// (closing tags dont have attrs since tree-builder strips them
@@ -1114,8 +1114,12 @@ function computeNodeDSR(node, s, e, traceDSR) {
 		"h4"    : [4,4],
 		"h5"    : [5,5],
 		"h6"    : [6,6],
-		"hr"    : [4,0]
-		// span, figure, caption, figcaption, br, table, th, td, tr, a, i, b
+		"hr"    : [4,0],
+		"table" : [2, 2],
+		"tr"    : [2, 0],
+		"td"    : [null, 0],
+		"th"    : [null, 0]
+		// span, figure, caption, figcaption, br, a, i, b
 	};
 
 	// No undefined values here onwards.
@@ -1141,17 +1145,17 @@ function computeNodeDSR(node, s, e, traceDSR) {
 		    cType = child.nodeType,
 			endTagWidth = null;
 		if (cType === Node.TEXT_NODE) {
-			if (traceDSR) console.warn("-- Processing <child " + i + ">; text: " + child.data + " with [" + cs + "," + ce + "]");
-			if (ce) {
+			if (traceDSR) console.warn("-- Processing <" + node.nodeName + ":" + i + ">; text: " + child.data + " with [" + cs + "," + ce + "]");
+			if (ce !== null) {
 				cs = ce - child.data.length;
 			}
 		} else if (cType === Node.COMMENT_NODE) {
-			if (traceDSR) console.warn("-- Processing <child " + i + ">; comment: " + child.data + " with [" + cs + "," + ce + "]");
-			if (ce) {
+			if (traceDSR) console.warn("-- Processing <" + node.nodeName + ":" + i + ">; comment: " + child.data + " with [" + cs + "," + ce + "]");
+			if (ce !== null) {
 				cs = ce - child.data.length - 7; // 7 chars for "<!--" and "-->"
 			}
 		} else if (cType === Node.ELEMENT_NODE) {
-			if (traceDSR) console.warn("-- Processing <child " + i + ">; elt: " + child.nodeName + " with [" + cs + "," + ce + "]");
+			if (traceDSR) console.warn("-- Processing <" + node.nodeName + ":" + i + ">; elt: " + child.nodeName + " with [" + cs + "," + ce + "]");
 			var cTypeOf = null,
 				dp = dataParsoid(child),
 				tsr = dp.tsr,
@@ -1184,59 +1188,66 @@ function computeNodeDSR(node, s, e, traceDSR) {
 				}
 			} else {
 				// Non-meta tags
+				var stWidth = null, etWidth = null;
 				if (tsr) {
 					cs = tsr[0];
 					if (tsrSpansTagDOM(child, dp) && (!ce || tsr[1] > ce)) {
 						ce = tsr[1];
 						propagateRight = true;
+					} else {
+						stWidth = tsr[1] - tsr[0];
 					}
 					if (traceDSR) console.warn("TSR: " + JSON.stringify(tsr) + "; cs: " + cs + "; ce: " + ce);
 				} else if (s && child.previousSibling === null) {
 					cs = s;
 				}
 
-				// Process DOM subtree rooted at child.
-				// We dont know the start/end ranges for the child node
+				// Compute width of opening/closing tags for this dom node
 				var newDsr, nodeName = child.nodeName.toLowerCase(),
-					ccs = null, cce = null,
-					wtTagWidth;
+					ccs = null, cce = null;
 				if (hasLiteralHTMLMarker(dp)) {
 					if (tsr) {
-						// For HTML tags, tsr info covers the length of the tag
-						ccs = tsr[1];
-						cce = ce !== null && savedEndTagWidth !== null ? ce - savedEndTagWidth : null;
+						etWidth = savedEndTagWidth;
 					}
 				} else {
-					wtTagWidth = WT_TagWidths[nodeName];
+					var wtTagWidth = WT_TagWidths[nodeName];
 					if (wtTagWidth) {
-						ccs = cs !== null ? cs + wtTagWidth[0] : null;
-						cce = ce !== null ? ce - wtTagWidth[1] : null;
-					} else if (savedEndTagWidth !== null) {
-						cce = ce - savedEndTagWidth;
+						stWidth = wtTagWidth[0];
 					}
-				}
-				newDsr = computeNodeDSR(child, ccs, cce, traceDSR);
-
-				if (newDsr[0] !== null && cs === null && wtTagWidth) {
-					cs = newDsr[0] - wtTagWidth[0];
+					etWidth = wtTagWidth ? wtTagWidth[1] : savedEndTagWidth;
 				}
 
-				// Max(child-dom-tree dsr[1], current dsr[1])
-				if (newDsr[1] !== null && (ce === null || newDsr[1] > ce)) {
-					ce = newDsr[1];
+				// Process DOM subtree rooted at child.
+				var ccs = cs !== null && stWidth !== null ? cs + stWidth : null,
+				    cce = ce !== null && etWidth !== null ? ce - etWidth : null;
+				if (traceDSR) console.warn("Before recursion, cs: " + cs + "; ccs: " + ccs + "; ce: " + ce + "; cce: " + cce);
+				newDsr = computeNodeDSR(env, child, ccs, cce, traceDSR);
+
+				// Min(child-dom-tree dsr[0] - tag-width, current dsr[0])
+				if (stWidth !== null && newDsr[0] !== null && (cs === null || (newDsr[0] - stWidth) < cs)) {
+					cs = newDsr[0] - stWidth;
+				}
+
+				// Max(child-dom-tree dsr[1] + tag-width, current dsr[1])
+				if (etWidth !== null && newDsr[1] !== null && ((newDsr[1] + etWidth) > ce)) {
+					ce = newDsr[1] + etWidth;
 				}
 			}
 
 			if (cs !== null || ce !== null) {
-				if (traceDSR) console.warn("-- UPDATING; " + child.nodeName + " with [" + cs + "," + ce + "]; typeof: " + cTypeOf);
 				dp.dsr = [cs, ce];
+				if (traceDSR) {
+					console.warn("-- UPDATING; " + child.nodeName + " with [" + cs + "," + ce + "]; typeof: " + cTypeOf);
+					// Set up 'src' so we can debug this
+					dp.src = env.text.substring(cs, ce);
+				}
 			}
 
 			// Propagate any required changes to the right
 			// taking care not to cross-over into template content
 			if (ce !== null &&
-				!isTplStartMetaNode(child) &&
-				(propagateRight || oldCE !== ce || e === null))
+				(propagateRight || oldCE !== ce || e === null) &&
+				!isTplStartMetaNode(child))
 			{
 				var sibling = child.nextSibling;
 				var newCE = ce;
@@ -1248,7 +1259,7 @@ function computeNodeDSR(node, s, e, traceDSR) {
 						newCE = newCE + sibling.data.length + 7;
 					} else if (nType === Node.ELEMENT_NODE) {
 						var siblingDP = dataParsoid(sibling);
-						if (siblingDP.dsr && siblingDP.dsr[0] === newCE && e) {
+						if (siblingDP.dsr && siblingDP.dsr[0] === newCE && e !== null) {
 							break;
 						}
 
@@ -1258,7 +1269,13 @@ function computeNodeDSR(node, s, e, traceDSR) {
 
 						if (siblingDP.dsr[0] !== newCE) {
 							// Update and move right
-							if (traceDSR) console.warn("CHANGING ce.start of " + sibling.nodeName + " from " + siblingDP.dsr[0] + " to " + newCE);
+							if (traceDSR) {
+								console.warn("CHANGING ce.start of " + sibling.nodeName + " from " + siblingDP.dsr[0] + " to " + newCE);
+								// debug info
+								if (siblingDP.dsr[1]) {
+									siblingDP.src = env.text.substring(newCE, siblingDP.dsr[1]);
+								}
+							}
 							siblingDP.dsr[0] = newCE;
 							sibling.setAttribute("data-parsoid", JSON.stringify(siblingDP));
 						}
@@ -1290,17 +1307,19 @@ function computeNodeDSR(node, s, e, traceDSR) {
 		savedEndTagWidth = endTagWidth;
 	}
 
-	// Detect errors
-	if (s && cs && cs !== s) {
-		// SSS TODO FIXME: MarkTraceur commented this out because it was crashing the roundtrip tests. Make it work!
-		if (traceDSR) console.warn("*********** ERROR: cs/s mismatch for node: " + node.nodeName + " s: " + s + "; cs: " + cs + " ************");
-	}
-
 	if (cs === undefined || cs === null) {
 		cs = s;
 	}
 
-	if (traceDSR) console.warn("For " + node.nodeName + ", returning: " + cs + ", " + e);
+	if (traceDSR) {
+		// Detect errors
+		if (s !== null && s !== undefined && cs !== s) {
+			console.warn("*********** ERROR: cs/s mismatch for node: " +
+				node.nodeName + " s: " + s + "; cs: " + cs + " ************");
+		}
+		console.warn("For " + node.nodeName + ", returning: " + cs + ", " + e);
+	}
+
 	return [cs, e];
 }
 
@@ -1315,7 +1334,7 @@ function computeDocDSR(root, env) {
 	if (traceDSR) console.warn("------- tracing DSR computation -------");
 
 	// The actual computation buried in trace/debug stmts.
-	computeNodeDSR(root, 0, env.text.length, traceDSR);
+	computeNodeDSR(env, root, 0, env.text.length, traceDSR);
 
 	if (traceDSR) console.warn("------- done tracing DSR computation -------");
 
