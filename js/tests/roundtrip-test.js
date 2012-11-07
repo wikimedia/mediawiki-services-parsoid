@@ -226,8 +226,8 @@ checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 		str = str.replace(/style\s*=\s*"[^"]+"/g, function(match) {
 			return match.replace(/\s|;(?=")/g, '');
 		});
-		// 6. Strip double-quotes where optional
-		str = str.replace(/"([^" ]*?)"/g, "$1");
+		// 6. Strip double-quotes
+		str = str.replace(/"([^"]*?)"/g, "$1");
 
 		// 7. Ignore implicit </small> and </center> in table cells or the end
 		// of the string for now
