@@ -1641,8 +1641,14 @@ table_data_tags
   = pipe
     ![+-] td:table_data_tag
     tagEndPos:({return pos})
-    tds:( pipe_pipe tdt:table_data_tag { tdt[0].dataAttribs.stx_v = 'row';  return tdt } )* {
-        td[0].dataAttribs.tsr[0] = pos0;
+    tds:( pipe_pipe tdt:table_data_tag { 
+            var da = tdt[0].dataAttribs;
+            da.stx_v = 'row';
+            da.tsr[0] = da.tsr[0] - 2; // include "||"
+            return tdt;
+        } 
+    )* {
+        td[0].dataAttribs.tsr[0]--; // include "|"
         return td.concat(tds);
     }
 
@@ -1678,9 +1684,15 @@ table_heading_tags
   = //& { console.warn( 'th enter @' + input.substr(pos, 10)); return true; }
     "!"
     th:table_heading_tag
-    ths:( "!!" tht:table_heading_tag  { tht[0].dataAttribs.stx_v = 'row'; return tht } )* {
+    ths:( "!!" tht:table_heading_tag { 
+            var da = tht[0].dataAttribs;
+            da.stx_v = 'row';
+            da.tsr[0] = da.tsr[0] - 2; // include "!!"
+            return tht;
+          }
+    )* {
         //console.warn( 'thts: ' + pp([th, ths]));
-        th[0].dataAttribs.tsr[0]--;
+        th[0].dataAttribs.tsr[0]--; // include "!"
         return th.concat(ths);
     }
 
