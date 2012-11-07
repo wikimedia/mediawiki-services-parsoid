@@ -221,7 +221,7 @@ checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 			return '<' + close + name.toLowerCase() + remaining.replace(/ $/, '') + '>';
 		} );
 		// 4. Ignore whitespace in table cell attributes
-		str = str.replace(/(^|\n|\|(?=\|)|!(?=!))({\||\|[-+]?|!) *([^|\n]*?) *(?=[|\n]|$)/g, '$1$2$3');
+		str = str.replace(/(^|\n|\|(?=\|)|!(?=!))({\||\|[-+]*|!) *([^|\n]*?) *(?=[|\n]|$)/g, '$1$2$3');
 		// 5. Ignore trailing semicolons and spaces in style attributes
 		str = str.replace(/style\s*=\s*"[^"]+"/g, function(match) {
 			return match.replace(/\s|;(?=")/g, '');
