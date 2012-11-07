@@ -214,24 +214,24 @@ checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 		// 1. Normalize multiple spaces to single space
 		str = str.replace(/ +/g, " ");
 		// 2. Eliminate spaces around wikitext chars
+		// gwicke: disabled for now- too aggressive IMO
 		//str = str.replace(/([<"'!#\*:;+-=|{}\[\]\/]) /g, "$1");
 		// 3. Ignore capitalization of tags and void tag indications
-		str = str.replace(/<([^ >\/]+)((?:[^>/]|\/(?!>))*)\/?>/g, function(match, name, remaining) {
-			return '<' + name.toLowerCase() + remaining + '>';
+		str = str.replace(/<(\/?)([^ >\/]+)((?:[^>/]|\/(?!>))*)\/?>/g, function(match, close, name, remaining) {
+			return '<' + close + name.toLowerCase() + remaining.replace(/ $/, '') + '>';
 		} );
 		// 4. Ignore whitespace in table cell attributes
-		str = str.replace(/(^|\n)([!|]|{\||\|-) *([^|\n]*?) *(?=[|\n])/g, '$1$2$3');
+		str = str.replace(/(^|\n)({\||\|[-+]?|!) *([^|\n]*?) *(?=[|\n]|$)/g, '$1$2$3');
 		// 5. Ignore trailing semicolons and spaces in style attributes
-		str = str.replace(/style\s*=\s*"[^"|]+?;\s*"/g, function(match) {
-				return match.replace(/[\s;]/g, '');
+		str = str.replace(/style\s*=\s*"[^"]+"/g, function(match) {
+			return match.replace(/\s|;(?=")/g, '');
 		});
-		// 6. Strip double-quotes
-		str = str.replace(/"([^"]*?)"/g, "$1");
+		// 6. Strip double-quotes where optional
+		str = str.replace(/"([^" ]*?)"/g, "$1");
 
-		// 7. Ignore implicit </small> and </center> in table cells for now
-		str = str.replace(/^<\/(?:small|center)>\n?(?=[|!])/g, '')
-
-		//console.log(str);
+		// 7. Ignore implicit </small> and </center> in table cells or the end
+		// of the string for now
+		str = str.replace(/(^|\n)<\/(?:small|center)>(?=\n[|!]|\n?$)/g, '');
 
 		return str;
 	}
@@ -303,11 +303,16 @@ checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 		diff = Util.diff( origHTML, newHTML, false, true, true );
 
 		// Normalize wts to check if we really have a semantic diff
-		if (diff.length > 0 && (normalizeWikitext(wt1) !== normalizeWikitext(wt2))) {
-			thisResult.htmlDiff = diff;
-			thisResult.type = 'fail';
-		} else {
-			thisResult.type = 'skip';
+		thisResult.type = 'skip';
+		if (diff.length > 0) {
+			var normWT1 = normalizeWikitext(wt1),
+				normWT2 = normalizeWikitext(wt2);
+
+			if ( normWT1 !== normWT2 ) {
+				//console.log( 'normDiff: =======\n' + normWT1 + '\n--------\n' + normWT2);
+				thisResult.htmlDiff = diff;
+				thisResult.type = 'fail';
+			}
 		}
 		results.push( thisResult );
 	}
