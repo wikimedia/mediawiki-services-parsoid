@@ -933,9 +933,104 @@ function findTableSibling( elem, about ) {
 }
 
 /**
+ * Special-case handling for template-generated list items.
+ *
+ * If bullet has a content of '* bar',
+ *
+ * * {{bullet}}
+ * will result in
+ * <ul><li>bar</li></ul>
+ *
+ * and
+ *
+ * * foo {{bullet}}
+ * is expanded to
+ * <ul><li>foo</li><li>bar</li></ul>
+ *
+ * See https://bugzilla.wikimedia.org/show_bug.cgi?id=529 and Parser.php,
+ * method braceSubstitution, line 3466 for the gory details how this came to
+ * be.
+ *
+ * The PHP parser also strips empty lists, which causes it to swallow the deep
+ * prefix in
+ *
+ * ********* {{bullet}}
+ *
+ * We don't currently do this in general, so perform a custom version of it
+ * here.
+ */
+function fixTemplateCreatedListItem( startMeta, env ) {
+	// Handle template-created list items a bit differently by
+	// starting the wrapping with the next list item if the
+	// start meta was at the end of the preceding list item.
+	var li     = startMeta.parentNode,
+	    nextLi = li.nextSibling;
+
+	if ( startMeta.nextSibling === null &&
+			li.nodeName.toLowerCase() === 'li' &&
+			nextLi !== null &&
+			nextLi.nodeName.toLowerCase() === 'li' &&
+			!nextLi.getAttribute('typeof'))
+	{
+		var about = startMeta.getAttribute('about'),
+			nextLiDP = dataParsoid(nextLi),
+			newDP = dataParsoid(startMeta),
+			liDP;
+
+		nextLi.setAttribute('typeof', startMeta.getAttribute('typeof'));
+		//console.log( '====\n', li.outerHTML, startMeta.outerHTML );
+
+		// Update the dsr in the new data-parsoid and old parent
+		if ( nextLiDP && nextLiDP.dsr && nextLiDP.dsr[1] !== null ) {
+
+			var dsrEnd = nextLiDP.dsr[1];
+			// tweak end dsr
+			if ( newDP.dsr[1] < dsrEnd ) {
+				newDP.dsr[1] = dsrEnd;
+			}
+			liDP = dataParsoid(li);
+			// update parent dsr to match
+			if (liDP && liDP.dsr) {
+				liDP.dsr[1] = dsrEnd;
+				li.setAttribute('data-parsoid', JSON.stringify(liDP));
+			}
+		}
+
+		// Eliminate empty parent node
+		// TODO: Implement this generically as a separate DOM postprocessor
+		// that eliminates empty lists and replaces them with round-trip
+		// information only.
+		var liChildren = li.childNodes;
+		if ( liChildren.length === 1 ||
+				( liChildren.length === 2 &&
+				  liChildren[0].nodeName === '#TEXT' &&
+				  liChildren[0].nodeValue.match(/^\s*%/)))
+		{
+			var parentDP = dataParsoid(li);
+			if ( parentDP && parentDP.dsr ) {
+				newDP.dsr[0] = parentDP.dsr[0];
+			}
+			li.parentNode.removeChild( li );
+		} else {
+			li.removeChild( startMeta );
+		}
+
+		// Update the template source to include any stripped list item
+		// prefix
+		newDP.src = env.text.substring( newDP.dsr[0], newDP.dsr[1] );
+		nextLi.setAttribute('data-parsoid', JSON.stringify(newDP));
+		nextLi.setAttribute('about', about);
+		//console.log( '--- new elem:\n', nextLi.outerHTML );
+		return nextLi;
+	} else {
+		return startMeta;
+	}
+}
+
+/**
  * Recursive worker
  */
-function findWrappableTemplateRanges( root, tpls, doc ) {
+function findWrappableTemplateRanges( root, tpls, doc, env ) {
 	var tplRanges = [],
 	    elem = root.firstChild,
 		about, aboutRef;
@@ -956,6 +1051,7 @@ function findWrappableTemplateRanges( root, tpls, doc ) {
 				aboutRef = tpls[about];
 				// Is this a start marker?
 				if (!metaType.match(/\/End\b/)) {
+					elem = fixTemplateCreatedListItem( elem, env );
 					if ( aboutRef ) {
 						aboutRef.start = elem;
 						// content or end marker existed already
@@ -1044,7 +1140,7 @@ function findWrappableTemplateRanges( root, tpls, doc ) {
 					// Skip if this node has an about-tag from a template
 					// that has already been processed.
 					// Useful or unnecessary opt?
-					tplRanges = tplRanges.concat(findWrappableTemplateRanges( elem, tpls, doc ));
+					tplRanges = tplRanges.concat(findWrappableTemplateRanges( elem, tpls, doc, env ));
 				}
 			}
 		}
@@ -1358,7 +1454,7 @@ function encapsulateTemplateOutput( document, env ) {
 		console.warn("----------------------------");
 	}
 	// walk through document and look for tags with typeof="mw:Object*"
-	var tplRanges = findWrappableTemplateRanges( document.body, tpls, document );
+	var tplRanges = findWrappableTemplateRanges( document.body, tpls, document, env );
 	if (tplRanges.length > 0) {
 		encapsulateTemplates(env, document, tplRanges);
 	}
