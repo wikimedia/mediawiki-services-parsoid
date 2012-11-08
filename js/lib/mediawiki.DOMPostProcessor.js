@@ -1241,17 +1241,17 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 		    cType = child.nodeType,
 			endTagWidth = null;
 		if (cType === Node.TEXT_NODE) {
-			if (traceDSR) console.warn("-- Processing <" + node.nodeName + ":" + i + ">; text: " + child.data + " with [" + cs + "," + ce + "]");
+			if (traceDSR) console.warn("-- Processing <" + node.nodeName + ":" + i + ">=#" + child.data + " with [" + cs + "," + ce + "]");
 			if (ce !== null) {
 				cs = ce - child.data.length;
 			}
 		} else if (cType === Node.COMMENT_NODE) {
-			if (traceDSR) console.warn("-- Processing <" + node.nodeName + ":" + i + ">; comment: " + child.data + " with [" + cs + "," + ce + "]");
+			if (traceDSR) console.warn("-- Processing <" + node.nodeName + ":" + i + ">=!" + child.data + " with [" + cs + "," + ce + "]");
 			if (ce !== null) {
 				cs = ce - child.data.length - 7; // 7 chars for "<!--" and "-->"
 			}
 		} else if (cType === Node.ELEMENT_NODE) {
-			if (traceDSR) console.warn("-- Processing <" + node.nodeName + ":" + i + ">; elt: " + child.nodeName + " with [" + cs + "," + ce + "]");
+			if (traceDSR) console.warn("-- Processing <" + node.nodeName + ":" + i + ">=" + child.nodeName + " with [" + cs + "," + ce + "]");
 			var cTypeOf = null,
 				dp = dataParsoid(child),
 				tsr = dp.tsr,
@@ -1307,7 +1307,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 					}
 				} else {
 					var wtTagWidth = WT_TagWidths[nodeName];
-					if (wtTagWidth) {
+					if (wtTagWidth && stWidth === null) {
 						stWidth = wtTagWidth[0];
 					}
 					etWidth = wtTagWidth ? wtTagWidth[1] : savedEndTagWidth;
@@ -1316,7 +1316,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				// Process DOM subtree rooted at child.
 				var ccs = cs !== null && stWidth !== null ? cs + stWidth : null,
 				    cce = ce !== null && etWidth !== null ? ce - etWidth : null;
-				if (traceDSR) console.warn("Before recursion, cs: " + cs + "; ccs: " + ccs + "; ce: " + ce + "; cce: " + cce);
+				if (traceDSR) console.warn("Before recursion, [cs,ce]=" + cs + "," + ce + "; [ccs,cce]=" + ccs + "," + cce);
 				newDsr = computeNodeDSR(env, child, ccs, cce, traceDSR);
 
 				// Min(child-dom-tree dsr[0] - tag-width, current dsr[0])

@@ -141,7 +141,6 @@ ListHandler.prototype.isDtDd = function (a, b) {
 
 ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 	var prefixLen = this.commonPrefixLength (bs, bn),
-		changeLen = Math.max(bs.length, bn.length) - prefixLen,
 		prefix = bn.slice(0, prefixLen);
 	this.newline = false;
 	this.bstack = bn;
@@ -150,11 +149,11 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 				this.anyRank, 'any' );
 	}
 
-	var itemToken;
+	var res, itemToken;
 
 	// emit close tag tokens for closed lists
-	var res;
-	if (changeLen === 0) {
+	if (prefix.length === bs.length && bn.length === bs.length) {
+		// same list item types and same nesting level
 		itemToken = this.endtags.pop();
 		this.endtags.push(new EndTagTk( itemToken.name ));
 		res = [
@@ -167,14 +166,29 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 			 bn.length > prefixLen &&
 			this.isDtDd( bs[prefixLen], bn[prefixLen] ) )
 		{
+			/*---------------------------------------
+			 * Example:
+			 *
+			 * **;:: foo
+			 * **::: bar
+			 *
+			 * the 3rd bullet is the dt-dd transition
+			 * -------------------------------------- */
+
 			tokens = this.popTags(bs.length - prefixLen - 1);
 			// handle dd/dt transitions
 			var newName = this.bulletCharsMap[bn[prefixLen]].item;
 			var endTag = this.endtags.pop();
 			this.endtags.push(new EndTagTk( newName ));
-			// TODO: review dataAttribs forwarding here and below in
-			// doListItem, in particular re accuracy of tsr!
-			var newTag = new TagTk(newName, [], Util.clone(token.dataAttribs));
+			var dp = Util.clone(token.dataAttribs);
+			if (dp.tsr) {
+				// The bullets get split here.
+				// Set tsr length to prefix used here.
+				//
+				// So, "**:" in the example above with prefixLen = 2
+				dp.tsr[1] = dp.tsr[0] + prefixLen + 1;
+			}
+			var newTag = new TagTk(newName, [], dp);
 			tokens = tokens.concat([ endTag, newTag ]);
 			prefixLen++;
 		} else {
