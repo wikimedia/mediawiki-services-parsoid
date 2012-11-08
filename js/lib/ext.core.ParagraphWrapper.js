@@ -126,15 +126,23 @@ ParagraphWrapper.prototype.processPendingNLs = function (isBlockToken) {
 	if (newLineCount >= 2) {
 		while ( newLineCount >= 3 ) {
 			// 1. close any open p-tag
+			var hadOpenTag = this.hasOpenPTag;
 			this.closeOpenPTag(resToks);
 
 			// 2. Discard 3 newlines (the p-br-p section
 			// serializes back to 3 newlines)
 			nlTk = this.discardOneNlTk(resToks);
-			this.discardOneNlTk(resToks);
+			nlTk2 = this.discardOneNlTk(resToks);
 			this.discardOneNlTk(resToks);
 
-			resToks.push(nlTk); // For readable html output
+			if (hadOpenTag) {
+				// We strictly dont need this for correctness,
+				// but useful for readable html output
+				resToks.push(nlTk);
+			} else {
+				resToks.push(nlTk);
+				resToks.push(nlTk2);
+			}
 
 			// 3. Insert <p><br></p> sections
 			// FIXME: Mark this as a placeholder for now until the
