@@ -703,7 +703,8 @@ WSP._linkHandler =  function( state, tokens ) {
 	// Check if this token has attributes that have been
 	// expanded from templates or extensions
 	if (hasExpandedAttrs(attribDict['typeof'])) {
-		tplAttrState = state.tplAttrs[attribDict.about];
+		// FIXME: Investigate why this can sometimes be undefined
+		tplAttrState = state.tplAttrs[attribDict.about] || { kvs: {}, ks: {}, vs: {} };
 	}
 
 	if ( attribDict.rel && attribDict.rel.match( /\bmw:/ ) &&
