@@ -232,6 +232,7 @@ checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 		// 7. Ignore implicit </small> and </center> in table cells or the end
 		// of the string for now
 		str = str.replace(/(^|\n)<\/(?:small|center)>(?=\n[|!]|\n?$)/g, '');
+		str = str.replace(/([|!].*?)<\/(?:small|center)>(?=\n[|!]|\n?$)/gi, '$1');
 
 		return str;
 	}
