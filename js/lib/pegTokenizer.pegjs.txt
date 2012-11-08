@@ -911,29 +911,6 @@ template_param_text
         // il is guaranteed to be an array -- so, flattenIfArray will
         // always return an array
         var r = flattenIfArray( il );
-/* ------------
- * SSS: Do not discard newlines -- they change semantics
- * Example 1:
- *
- *      {{echo|
- * a}} should not introduce a pre
- *
- * What about pure white-space?
- *
-            firstToken = r[0];
-
-        // Strip leading newlines and space-only text tokens. 
-        // XXX: Will need to round-trip these eventually.
-        while ( 
-                firstToken !== undefined &&
-                ( firstToken.constructor === NlTk || 
-                  firstToken.constructor === String && firstToken.match( /^[\t ]+$/ ) )
-              )
-        {
-            r.shift();
-            firstToken = r[0];
-        }
- * ------------ */
         //console.warn('tpl param name' + pos + r[0] + '::' + input.substr(pos, 40) );
         if ( r.length === 1 && r[0].constructor === String ) {
             r = r[0];

@@ -68,25 +68,6 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 };
 
 /**
- * Create positional (number) keys for arguments without explicit keys
- */
-TemplateHandler.prototype._nameArgs = function ( attribs ) {
-	var n = 1,
-		out = [];
-	for ( var i = 0, l = attribs.length; i < l; i++ ) {
-		// FIXME: Also check for whitespace-only named args!
-		if ( ! attribs[i].k.length ) {
-			out.push( new KV( n.toString(), attribs[i].v ) );
-			n++;
-		} else {
-			out.push( attribs[i] );
-		}
-	}
-	this.manager.env.dp( '_nameArgs: ', out );
-	return out;
-};
-
-/**
  * Parser functions also need template wrapping
  */
 TemplateHandler.prototype._parserFunctionsWrapper = function(state, cb, ret) {
@@ -410,9 +391,9 @@ TemplateHandler.prototype._fetchTemplateAndTitle = function ( title, parentCB, c
 
 TemplateHandler.prototype.onTemplateArg = function (token, frame, cb) {
 	// SSS FIXME: Are 'frame' and 'this.manager.frame' different?
-	var dict    = this.manager.frame.args.named();
+	var args    = this.manager.frame.args.named();
 	var attribs = token.attribs;
-	this.fetchArg(attribs[0].k, this.lookupArg.bind(this, dict, attribs, cb));
+	this.fetchArg(attribs[0].k, this.lookupArg.bind(this, args, attribs, cb));
 };
 
 TemplateHandler.prototype.fetchArg = function(arg, argCB) {
@@ -429,21 +410,23 @@ TemplateHandler.prototype.fetchArg = function(arg, argCB) {
 	}
 };
 
-TemplateHandler.prototype.lookupArg = function(dict, attribs, cb, ret) {
+TemplateHandler.prototype.lookupArg = function(args, attribs, cb, ret) {
 	var toks    = ret.tokens;
 	var argName = toks.constructor === String ? toks : Util.tokensToString(toks).trim();
-	var res     = dict[argName];
+	var res     = args.dict[argName];
 
-	// protect against references to prototype or constructor, if those are
-	// not set to strings..
+	// The 'res.constructor !== Function' protects against references to
+	// tpl-args named 'prototype' or 'constructor' that haven't been passed in.
 	if ( res && res.constructor !== Function ) {
 		if (res.constructor === String) {
-			cb( { tokens: [res] } );
+			cb( { tokens: args.namedArgs[argName] ? Util.tokenTrim([res]) : [res] } );
 		} else {
 			res.get({
 				type: 'tokens/x-mediawiki/expanded',
-				cb: function( res ) { cb ( { tokens: res } ); },
-				asyncCB: cb
+				asyncCB: cb,
+				cb: ((args.namedArgs[argName]) ?
+						function(res) { cb( {tokens: Util.tokenTrim(res)} ); } :
+						function(res) { cb( {tokens: res} ); })
 			});
 		}
 	} else if (attribs.length > 1 ) {

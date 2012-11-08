@@ -525,23 +525,29 @@ Params.prototype.dict = function () {
 
 Params.prototype.named = function () {
 	var n = 1,
-		out = {};
+		out = {},
+		namedArgs = {};
+
 	for ( var i = 0, l = this.length; i < l; i++ ) {
 		// FIXME: Also check for whitespace-only named args!
 		var k = this[i].k;
+		var v = this[i].v;
 		if ( k.constructor === String ) {
 			k = k.trim();
 		}
 		if ( ! k.length ) {
-			out[n.toString()] = this[i].v;
+			out[n.toString()] = v;
 			n++;
 		} else if ( k.constructor === String ) {
-			out[k] = this[i].v;
+			namedArgs[k] = true;
+			out[k] = v;
 		} else {
-			out[Util.tokensToString( k ).trim()] = this[i].v;
+			k = Util.tokensToString( k ).trim();
+			namedArgs[k] = true;
+			out[k] = v;
 		}
 	}
-	return out;
+	return { namedArgs: namedArgs, dict: out };
 };
 
 /**

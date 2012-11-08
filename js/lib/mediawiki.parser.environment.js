@@ -35,7 +35,11 @@ Tracer.prototype = {
 		}
 
 		if (this.env.trace) {
-			console.warn("T: " + token.toString(compact));
+			if (token.constructor === String) {
+				console.warn("T: '" + token + "'");
+			} else  {
+				console.warn("T: " + token.toString(compact));
+			}
 		}
 	},
 

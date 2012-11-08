@@ -27,16 +27,20 @@ function ParserFunctions ( manager ) {
 }
 
 // Temporary helper.
-ParserFunctions.prototype._rejoinKV = function ( k, v ) {
+ParserFunctions.prototype._rejoinKV = function ( trim, k, v ) {
 	if ( k.length ) {
 		return k.concat( ['='], v );
 	} else {
-		return v;
+		return trim ? Util.tokenTrim(v) : v;
 	}
 };
 
 // XXX: move to frame?
-ParserFunctions.prototype.expandKV = function ( kv, cb, defaultValue, type ) {
+ParserFunctions.prototype.expandKV = function ( kv, cb, defaultValue, type, trim ) {
+	if (trim === undefined) {
+		trim = true;
+	}
+
 	if ( type === undefined ) {
 		type = 'tokens/x-mediawiki/expanded';
 	}
@@ -48,13 +52,13 @@ ParserFunctions.prototype.expandKV = function ( kv, cb, defaultValue, type ) {
 		if ( kv.k ) {
 			cb( { tokens: [kv.k + '=' + kv.v] } );
 		} else {
-			cb( { tokens: [kv.v] } );
+			cb( { tokens: trim ? Util.tokenTrim([kv.v]) : [kv.v] } );
 		}
 	} else {
 		var self = this,
 			getCB = function ( v ) {
 				cb ( { tokens:
-					self._rejoinKV( kv.k, v ) } );
+					self._rejoinKV( trim, kv.k, v ) } );
 			};
 		kv.v.get({
 			type: type,
@@ -80,9 +84,15 @@ ParserFunctions.prototype._switchLookupFallback = function ( frame, kvs, key, di
 	var kv,
 		l = kvs.length;
 	this.manager.env.tp('swl');
-	//console.trace();
 	this.manager.env.dp('_switchLookupFallback', kvs.length, key, v );
-	var _cb = function( res ) {
+	var _cbTrim = function( res ) {
+		if (res.switchToAsync) {
+			cb(res);
+		} else {
+			cb( { tokens: Util.tokenTrim(res) } );
+		}
+	};
+	var _cbNoTrim = function( res ) {
 		if (res.switchToAsync) {
 			cb(res);
 		} else {
@@ -109,8 +119,8 @@ ParserFunctions.prototype._switchLookupFallback = function ( frame, kvs, key, di
 			if ( kv.k.length ) {
 				kv.v.get({
 					type: 'tokens/x-mediawiki/expanded',
-					cb: _cb,
-					asyncCB: _cb
+					cb: _cbTrim,
+					asyncCB: _cbTrim
 				});
 				return;
 			}
@@ -144,7 +154,7 @@ ParserFunctions.prototype._switchLookupFallback = function ( frame, kvs, key, di
 				//     ...
 				//   }}
 				//
-				// In the switch example below, if we found 'c1', that is
+				// In the switch example above, if we found 'c1', that is
 				// not the fallback value -- we have to check for fall-through
 				// cases.  Hence the recursive callback to _switchLookupFallback.
 				//
@@ -177,7 +187,7 @@ ParserFunctions.prototype._switchLookupFallback = function ( frame, kvs, key, di
 		if ( '#default' in dict ) {
 			dict['#default'].get({
 				type: 'tokens/x-mediawiki/expanded',
-				cb: _cb,
+				cb: _cbTrim,
 				asyncCB: cb
 			});
 			return;
@@ -185,7 +195,7 @@ ParserFunctions.prototype._switchLookupFallback = function ( frame, kvs, key, di
 			var lastKV = kvs[kvs.length - 1];
 			if ( lastKV && ! lastKV.k.length ) {
 				lastKV.v.get( {
-					cb: _cb,
+					cb: _cbNoTrim,
 					asyncCB: cb } );
 				return;
 				//cb ( { tokens: lastKV.v } );
@@ -216,7 +226,7 @@ ParserFunctions.prototype['pf_#switch'] = function ( token, frame, cb, args ) {
 		this.env.dp( 'switch found: ', target, dict, ' res=', dict[target] );
 		dict[target].get({
 			type: 'tokens/x-mediawiki/expanded',
-			cb: function( res ) { cb ( { tokens: res } ); },
+			cb: function( res ) { cb ( { tokens: Util.tokenTrim(res) } ); },
 			asyncCB: cb
 		});
 	} else {
@@ -614,7 +624,7 @@ ParserFunctions.prototype.pf_localurl = function ( token, frame, cb, args ) {
 			function ( item, cb ) {
 				// SSS FIXME: By binding null to cb's first arg, we are swallowing all errors!
 				var resCB = Util.buildAsyncOutputBufferCB(cb.bind(this,null));
-				self.expandKV(item, resCB, '', 'text/x-mediawiki/expanded');
+				self.expandKV(item, resCB, '', 'text/x-mediawiki/expanded', false);
 			},
 			function ( err, expandedArgs ) {
 				if ( err ) {

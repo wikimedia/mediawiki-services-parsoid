@@ -350,14 +350,24 @@ var HTML5 = require( 'html5' ).HTML5,
 	 * Trim space and newlines from leading and trailing text tokens.
 	 */
 	tokenTrim: function ( tokens ) {
-		var l = tokens.length,
-			i, token;
+		if (tokens.constructor !== Array) {
+			return tokens;
+		}
+
+		// Since the tokens array might be frozen,
+		// we have to create a new array -- but, create it
+		// only if needed
+
+		var i, n = tokens.length, token;
+
 		// strip leading space
-		for ( i = 0; i < l; i++ ) {
+		var leadingToks = [];
+		for ( i = 0; i < n; i++ ) {
 			token = tokens[i];
-			if ( token.constructor === String ) {
-				token = token.replace( /^\s+/, '' );
-				tokens[i] = token;
+			if (token.constructor === NlTk) {
+				leadingToks.push('');
+			} else if ( token.constructor === String ) {
+				leadingToks.push(token.replace( /^\s+/, '' ));
 				if ( token !== '' ) {
 					break;
 				}
@@ -365,12 +375,20 @@ var HTML5 = require( 'html5' ).HTML5,
 				break;
 			}
 		}
+
+		i = leadingToks.length;
+		if (i > 0) {
+			tokens = leadingToks.concat(tokens.slice(i));
+		}
+
 		// strip trailing space
-		for ( i = l - 1; i >= 0; i-- ) {
+		var trailingToks = [];
+		for ( i = n - 1; i >= 0; i-- ) {
 			token = tokens[i];
-			if ( token.constructor === String ) {
-				token = token.replace( /\s+$/, '' );
-				tokens[i] = token;
+			if (token.constructor === NlTk) {
+				trailingToks.push(''); // replace newline with empty
+			} else if ( token.constructor === String ) {
+				trailingToks.push(token.replace( /\s+$/, '' ));
 				if ( token !== '' ) {
 					break;
 				}
@@ -378,6 +396,12 @@ var HTML5 = require( 'html5' ).HTML5,
 				break;
 			}
 		}
+
+		var j = trailingToks.length;
+		if (j !== 0) {
+			tokens = tokens.slice(0, n - j).concat(trailingToks.reverse());
+		}
+
 		return tokens;
 	},
 
