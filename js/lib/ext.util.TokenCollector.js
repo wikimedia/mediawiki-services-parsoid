@@ -103,7 +103,20 @@ TokenCollector.prototype._onDelimiterToken = function ( token, frame, cb ) {
 			}
 			allToks = allToks.concat(activeTokens);
 
-			return this.toEnd ? this.transformation(allToks) : { tokens: allToks };
+			var res = this.toEnd ? this.transformation(allToks) : { tokens: allToks };
+			if ( res.tokens && res.tokens.length &&
+					res.tokens.last().constructor !== EOFTk ) {
+				var obj = {};
+				Error.captureStackTrace(obj);
+				console.error( obj.stack );
+				//this.manager.env.errCB(obj.stack);
+
+				// preserve the EOFTk
+				res.tokens.push(token);
+			} else {
+				res = { tokens: [token] };
+			}
+			return res;
 		}
 	} else {
 		// EOFTk or  EndTagTk
