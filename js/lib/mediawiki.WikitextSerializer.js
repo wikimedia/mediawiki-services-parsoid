@@ -703,8 +703,7 @@ WSP._linkHandler =  function( state, tokens ) {
 	// Check if this token has attributes that have been
 	// expanded from templates or extensions
 	if (hasExpandedAttrs(attribDict['typeof'])) {
-		// FIXME: Investigate why this can sometimes be undefined
-		tplAttrState = state.tplAttrs[attribDict.about] || { kvs: {}, ks: {}, vs: {} };
+		tplAttrState = state.tplAttrs[attribDict.about];
 	}
 
 	if ( attribDict.rel && attribDict.rel.match( /\bmw:/ ) &&
@@ -1261,7 +1260,11 @@ WSP._serializeAttributes = function (state, token) {
 	// Check if this token has attributes that have been
 	// expanded from templates or extensions
 	if (hasExpandedAttrs(tokType)) {
-		tplAttrState = state.tplAttrs[token.getAttribute("about")] || tplAttrState;
+		tplAttrState = state.tplAttrs[token.getAttribute("about")];
+		if (!tplAttrState) {
+			console.warn("state.tplAttrs: " + JSON.stringify(state.tplAttrs));
+			console.warn("about: " + JSON.stringify(token.getAttribute("about")));
+		}
 	}
 
 	var out = [];
@@ -1667,6 +1670,7 @@ WSP._collectAttrMetaTags = function(node, state) {
 			// "mw:objectAttrVal#foo  -- "blah" (foo's value) came from a template
 			var pieces = prop.split("#");
 			var attr   = pieces[1];
+
 			if (pieces[0] === "mw:objectAttr") {
 				state.tplAttrs[templateId].kvs[attr] = src;
 			} else if (pieces[0] === "mw:objectAttrKey") {
@@ -1679,18 +1683,13 @@ WSP._collectAttrMetaTags = function(node, state) {
 			node.parentNode.removeChild(node);
 		}
 	} else {
-		// Skip dom subtrees that have an about tag set to /mwt/
-		// -- these are nodes with template generated content which
-		// wont have the meta tags we are looking for.
 		var about = node.nodeType === Node.ELEMENT_NODE ? node.getAttribute("about") : "";
-		if (!about.match(/mwt/)) {
-			var child = node.firstChild;
-			while (child) {
-				// get the next sibling first thing becase we may delete this child
-				var nextSibling = child.nextSibling;
-				this._collectAttrMetaTags(child, state);
-				child = nextSibling;
-			}
+		var child = node.firstChild;
+		while (child) {
+			// get the next sibling first thing becase we may delete this child
+			var nextSibling = child.nextSibling;
+			this._collectAttrMetaTags(child, state);
+			child = nextSibling;
 		}
 	}
 };
