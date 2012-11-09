@@ -1716,6 +1716,7 @@ WSP.serializeDOM = function( node, chunkCB ) {
 			this._serializeToken( state, new EOFTk() );
 		}
 	} catch (e) {
+		state.env.errCB(e);
 		throw e;
 	}
 };

@@ -121,6 +121,7 @@ PegTokenizer.prototype.process = function( text, cacheKey ) {
 			console.log(e.stack);
 			chunkCB( ['Tokenizer error in ' + cacheKey + ': ' + e.stack] );
 			this.onEnd();
+			this.env.errCB(e);
 		}
 	} else {
 		this.tokenizer.tokenize(text, 'start',
