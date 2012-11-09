@@ -513,7 +513,7 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 		txt = Sanitizer._stripIDNs( txt );
 	}
 
-	var dataAttribs = Util.clone(token.dataAtribs);
+	var dataAttribs = Util.clone(token.dataAttribs);
 	if ( this._isImageLink( href ) ) {
 		tagAttrs = [
 			new KV( 'src', href ),
@@ -559,7 +559,7 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 	//console.warn('extlink href: ' + href );
 	//console.warn( 'mw:content: ' + JSON.stringify( content, null, 2 ) );
 
-	var dataAttribs = Util.clone(token.dataAtribs);
+	var dataAttribs = Util.clone(token.dataAttribs);
 	var rdfaType = token.getAttribute('typeof'), magLinkRe = /\bmw:ExtLink\/(?:ISBN|RFC|PMID)\b/;
 	if ( rdfaType && rdfaType.match( magLinkRe ) ) {
 		if ( rdfaType.match( /\bmw:ExtLink\/ISBN/ ) ) {
