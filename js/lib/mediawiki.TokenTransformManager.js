@@ -101,7 +101,10 @@ TokenTransformManager.prototype._cmpTransformations = function ( a, b ) {
  * @param {String} tag name for tags, omitted for non-tags
  */
 TokenTransformManager.prototype.addTransform = function ( transformation, debug_name, rank, type, name ) {
-	var t = { rank: rank };
+	var t = {
+		rank: rank,
+		name: debug_name
+	};
 	if (!this.env.trace) {
 		t.transform = transformation;
 	} else {
@@ -741,6 +744,12 @@ SyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 		//this.env.dp( 'sync res:', res );
 
 		if ( res.tokens && res.tokens.length ) {
+			if ( token.constructor === EOFTk &&
+					res.tokens.last().constructor !== EOFTk ) {
+				console.error( 'ERROR: EOFTk was dropped by ' + transformer.name );
+				// fix it up for now by adding it back in
+				res.tokens.push(token);
+			}
 			// Splice in the returned tokens (while replacing the original
 			// token), and process them next.
 			var revTokens = res.tokens.slice();
