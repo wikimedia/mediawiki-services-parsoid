@@ -17,6 +17,7 @@ var fs = require('fs'),
 	colors = require('colors'),
 	Util = require( '../lib/mediawiki.Util.js' ).Util,
 	util = require( 'util' ),
+	async = require( 'async' ),
 	jsdom = require( 'jsdom' ),
 	PEG = require('pegjs'),
 	// Handle options/arguments with optimist module
@@ -263,21 +264,25 @@ ParserTests.prototype.processArticle = function( item, cb ) {
 	process.nextTick( cb );
 };
 
-ParserTests.prototype.convertHtml2Wt = function( options, processWikitextCB, doc ) {
-	var content = options.wt2wt ? doc.body : doc;
+ParserTests.prototype.convertHtml2Wt = function( options, mode, processWikitextCB, doc ) {
+	var content = mode === 'wt2wt' ? doc.body : doc;
 	try {
-		processWikitextCB(this.serializer.serializeDOM(content));
+		processWikitextCB(this.serializer.serializeDOM(content), null);
 	} catch (e) {
 		processWikitextCB(null, e);
 	}
 };
 
-ParserTests.prototype.convertWt2Html = function( processHtmlCB, wikitext, error ) {
+ParserTests.prototype.convertWt2Html = function( mode, processHtmlCB, wikitext, error ) {
 	if (error) {
 		console.error("ERROR: " + error);
 		return;
 	}
-	this.parserPipeline.once('document', processHtmlCB);
+	try {
+		this.parserPipeline.once('document', processHtmlCB);
+	} catch ( e ) {
+		console.error( e.stack );
+	}
 	this.env.text = wikitext;
 	this.parserPipeline.process(wikitext);
 };
@@ -289,7 +294,7 @@ ParserTests.prototype.convertWt2Html = function( processHtmlCB, wikitext, error 
  * @arg options {object} The options for this test.
  * @arg endCb {function} The callback function we should call when this test is done.
  */
-ParserTests.prototype.processTest = function ( item, options, endCb ) {
+ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 	if ( !( 'title' in item ) ) {
 		console.log( item );
 		throw new Error( 'Missing title from test case.' );
@@ -306,31 +311,31 @@ ParserTests.prototype.processTest = function ( item, options, endCb ) {
 	item.time = {};
 
 	var cb, cb2, domtree;
-	if ( options.wt2html || options.wt2wt ) {
-		if ( options.wt2wt ) {
+	if ( mode === 'wt2html' || mode === 'wt2wt' ) {
+		if ( mode === 'wt2wt' ) {
 			// insert an additional step in the callback chain
 			// if we are roundtripping
-			cb2 = this.processSerializedWT.bind( this, item, options, endCb );
-			cb = this.convertHtml2Wt.bind( this, options, cb2 );
+			cb2 = this.processSerializedWT.bind( this, item, options, mode, endCb );
+			cb = this.convertHtml2Wt.bind( this, options, mode, cb2 );
 		} else {
-			cb = this.processParsedHTML.bind( this, item, options, endCb );
+			cb = this.processParsedHTML.bind( this, item, options, mode, endCb );
 		}
 
 		item.time.start = Date.now();
-		this.convertWt2Html( cb, item.input );
+		this.convertWt2Html( mode, cb, item.input );
 	} else {
-		if ( options.html2html ) {
+		if ( mode === 'html2html' ) {
 			// insert an additional step in the callback chain
 			// if we are roundtripping
-			cb2 = this.processParsedHTML.bind( this, item, options, endCb );
-			cb = this.convertWt2Html.bind( this, cb2 );
+			cb2 = this.processParsedHTML.bind( this, item, options, mode, endCb );
+			cb = this.convertWt2Html.bind( this, mode, cb2 );
 		} else {
-			cb = this.processSerializedWT.bind( this, item, options, endCb );
+			cb = this.processSerializedWT.bind( this, item, options, mode, endCb );
 		}
 
 		item.time.start = Date.now();
 		domtree = Util.parseHTML( '<html><body>' + item.result + '</body></html>' );
-		this.convertHtml2Wt( options, cb, domtree.document.childNodes[0].childNodes[1] );
+		this.convertHtml2Wt( options, mode, cb, domtree.document.childNodes[0].childNodes[1] );
 	}
 };
 
@@ -342,7 +347,7 @@ ParserTests.prototype.processTest = function ( item, options, endCb ) {
  * @arg cb {function} The callback function we should call when this test is done.
  * @arg doc {object} The results of the parse.
  */
-ParserTests.prototype.processParsedHTML = function( item, options, cb, doc ) {
+ParserTests.prototype.processParsedHTML = function( item, options, mode, cb, doc ) {
 	item.time.end = Date.now();
 
 	if (doc.err) {
@@ -350,13 +355,7 @@ ParserTests.prototype.processParsedHTML = function( item, options, cb, doc ) {
 		console.log('PARSE FAIL', doc.err);
 	} else {
 		// Check the result vs. the expected result.
-		this.checkHTML( item, doc.body.innerHTML, options );
-	}
-
-	if ( options.wt2html ) {
-		item.done.wt2html = true;
-	} else if ( options.html2html ) {
-		item.done.html2html = true;
+		this.checkHTML( item, doc.body.innerHTML, options, mode );
 	}
 
 	// Now schedule the next test, if any
@@ -372,25 +371,14 @@ ParserTests.prototype.processParsedHTML = function( item, options, cb, doc ) {
  * @arg wikitext {string} The results of the parse.
  * @arg error {string} The results of the parse.
  */
-ParserTests.prototype.processSerializedWT = function ( item, options, cb, wikitext, error ) {
-	var mode = (
-		options.html2wt ? 'html2wt' : (
-			options.wt2wt ? 'wt2wt' : 'unknown mode'
-		)
-	);
+ParserTests.prototype.processSerializedWT = function ( item, options, mode, cb, wikitext, error ) {
 	item.time.end = Date.now();
 
 	if (error) {
 		options.reportFailure( item.title, item.comments, item.options || [], options, null, null, options.quick, mode, error );
 	} else {
 		// Check the result vs. the expected result.
-		this.checkWikitext( item, wikitext, options );
-	}
-
-	if ( options.wt2wt ) {
-		item.done.wt2wt = true;
-	} else if ( options.html2wt ) {
-		item.done.html2wt = true;
+		this.checkWikitext( item, wikitext, options, mode );
 	}
 
 	// Now schedule the next test, if any
@@ -569,17 +557,11 @@ ParserTests.prototype.printResult = function ( title, time, comments, iopts, exp
  * @arg out {string} The actual output of the parser.
  * @arg options {object} Options for this test and some shared methods.
  */
-ParserTests.prototype.checkHTML = function ( item, out, options ) {
+ParserTests.prototype.checkHTML = function ( item, out, options, mode ) {
 	var normalizedOut = Util.normalizeOut( out );
 	var normalizedExpected = Util.normalizeHTML(item.result);
 
-	var mode = (
-		options.wt2html ? 'wt2html' : (
-			options.html2html ? 'html2html' : 'unknown mode'
-		)
-	);
-
-	var input = options.html2html ? item.result : item.input;
+	var input = mode === 'html2html' ? item.result : item.input;
 	var expected = { normal: normalizedExpected, raw: item.result };
 	var actual = { normal: normalizedOut, raw: out, input: input };
 
@@ -593,19 +575,13 @@ ParserTests.prototype.checkHTML = function ( item, out, options ) {
  * @arg out {string} The actual output of the parser.
  * @arg options {object} Options passed into the process on the command line.
  */
-ParserTests.prototype.checkWikitext = function ( item, out, options ) {
+ParserTests.prototype.checkWikitext = function ( item, out, options, mode ) {
 	// FIXME: normalization not in place yet
-	var normalizedOut = options.html2wt ? out.replace(/\n+$/, '') : out,
+	var normalizedOut = mode === 'html2wt' ? out.replace(/\n+$/, '') : out,
 		// FIXME: normalization not in place yet
-		normalizedExpected = options.html2wt ? item.input.replace(/\n+$/, '') : item.input;
+		normalizedExpected = mode === 'html2wt' ? item.input.replace(/\n+$/, '') : item.input;
 
-	var mode = (
-		options.wt2wt ? 'wt2wt' : (
-			options.html2wt ? 'html2wt' : 'unknown mode'
-		)
-	);
-
-	var input = options.html2wt ? item.result : item.input;
+	var input = mode === 'html2wt' ? item.result : item.input;
 	var expected = { normal: normalizedExpected, raw: item.input };
 	var actual = { normal: normalizedOut, raw: out, input: input };
 
@@ -772,8 +748,25 @@ ParserTests.prototype.main = function ( options ) {
 		fetchTemplates: false,
 		debug: options.debug,
 		trace: options.trace,
-		wgUploadPath: 'http://example.com/images'
+		wgUploadPath: 'http://example.com/images',
+		errCB: function ( e ) {
+			console.error( e.stack );
+		}
 	});
+
+	options.modes = [];
+	if ( options.wt2html ) {
+		options.modes.push( 'wt2html' );
+	}
+	if ( options.wt2wt ) {
+		options.modes.push( 'wt2wt' );
+	}
+	if ( options.html2html ) {
+		options.modes.push( 'html2html' );
+	}
+	if ( options.html2wt ) {
+		options.modes.push( 'html2wt' );
+	}
 
 	// Create parsers, serializers, ..
 	if ( options.html2html || options.wt2wt || options.wt2html ) {
@@ -799,24 +792,21 @@ ParserTests.prototype.reportStartOfTests = function () {
 	console.log( 'Initialisation complete. Now launching tests.' );
 };
 
-ParserTests.prototype.processCase = function ( i, oldOptions ) {
-	var options = Util.clone( oldOptions ), oldItem = this.cases[i - 1];
-	if ( oldItem ) {
-		oldItem = oldItem.done;
-		if ( oldItem && ( this.cases[i - 1].passed ||
-				oldItem.wt2wt === false || oldItem.wt2html === false
-				|| oldItem.html2html === false || oldItem.html2wt === false ) ) {
-			return false;
-		} else {
-			this.cases[i - 1].passed = true;
-		}
+ParserTests.prototype.buildTasks = function ( item, modes, options ) {
+	var tasks = [];
+	for ( var i = 0; i < modes.length; i++ ) {
+		tasks.push( this.processTest.bind( this, item, options, modes[i] ) );
 	}
+	return tasks;
+};
 
-	var nextCallback = this.processCase.bind( this, i + 1, oldOptions );
+ParserTests.prototype.processCase = function ( i, options ) {
+	var item, cases = this.cases;
+
+	var nextCallback = this.processCase.bind( this, i + 1, options );
 
 	if ( i < this.cases.length ) {
-		var item = this.cases[i];
-		this.cases[i].done = {};
+		item = this.cases[i];
 		//console.log( 'processCase ' + i + JSON.stringify( item )  );
 		if ( typeof item === 'object' ) {
 			switch(item.type) {
@@ -832,36 +822,9 @@ ParserTests.prototype.processCase = function ( i, oldOptions ) {
 						break;
 					}
 					// Add comments to following test.
-					item.comments = this.comments;
+					item.comments = item.comments || this.comments;
 					this.comments = [];
-					options.wt2wt = false;
-					options.wt2html = false;
-					options.html2wt = false;
-					options.html2html = false;
-					if ( oldOptions.wt2html ) {
-						options.wt2html = true;
-						item.done.wt2html = false;
-						this.processTest( item, options, nextCallback );
-						options.wt2html = false;
-					}
-					if ( oldOptions.wt2wt ) {
-						options.wt2wt = true;
-						item.done.wt2wt = false;
-						this.processTest( item, options, nextCallback );
-						options.wt2wt = false;
-					}
-					if ( oldOptions.html2html ) {
-						options.html2html = true;
-						item.done.html2html = false;
-						this.processTest( item, options, nextCallback );
-						options.html2html = false;
-					}
-					if ( oldOptions.html2wt ) {
-						options.html2wt = true;
-						item.done.html2wt = false;
-						this.processTest( item, options, nextCallback );
-						options.html2wt = false;
-					}
+					async.series( this.buildTasks( item, options.modes, options ), nextCallback );
 					break;
 				case 'comment':
 					this.comments.push( item.comment );
