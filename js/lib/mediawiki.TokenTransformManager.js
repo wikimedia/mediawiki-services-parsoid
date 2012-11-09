@@ -770,6 +770,10 @@ SyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 			localAccum.push(res.token);
 			this.prevToken = res.token;
 		} else {
+			if ( token.constructor === EOFTk ) {
+				console.error( 'ERROR: EOFTk was dropped by ' + transformer.name );
+				localAccum.push(new EOFTk());
+			}
 			this.prevToken = token;
 		}
 	}
