@@ -31,6 +31,7 @@ require('./core-upgrade.js');
 var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	WikitextConstants = require('./mediawiki.wikitext.constants.js').WikitextConstants,
 	Util = require('./mediawiki.Util.js').Util,
+	SanitizerConstants = require('./ext.core.Sanitizer.js').SanitizerConstants,
 	$ = require( 'jquery' ),
 	tagWhiteListHash;
 
@@ -49,6 +50,8 @@ function isHtmlBlockTag(name) {
 var WikitextEscapeHandlers = function() { };
 
 var WEHP = WikitextEscapeHandlers.prototype;
+
+WEHP.urlParser = new PegTokenizer();
 
 WEHP.headingHandler = function(state, text) {
 	// replace heading-handler with the default handler
@@ -126,22 +129,53 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text ) {
 	// If the token stream has a TagTk, SelfclosingTagTk, EndTagTk or CommentTk
 	// then this text needs escaping!
 	var tagWhiteList = getTagWhiteList();
+	var numEntities = 0;
 	for (var i = 0, n = tokens.length; i < n; i++) {
 		var t = tokens[i];
+
 		// Ignore non-whitelisted html tags
 		if (t.isHTMLTag() && !tagWhiteList[t.name.toLowerCase()]) {
 			continue;
 		}
-		if ([TagTk, SelfclosingTagTk, EndTagTk].indexOf(t.constructor) !== -1) {
-			// Ignore nowiki tokens and url links
-			if (t.name !== 'urllink' &&
-				((t.name.toLowerCase() !== "span") ||
-				Util.lookup(t.attribs, 'typeof' !== 'mw:NoWiki')))
+
+		var tc = t.constructor;
+		if (tc === SelfclosingTagTk) {
+			// Ignore url links, extlink tokens without valid urls
+			if (t.name === 'urllink' ||
+				(t.name === 'extlink' && !this.urlParser.tokenizeURL(t.getAttribute("href"))))
 			{
-				return true;
+				continue;
 			}
+
+			return true;
 		}
-		if (t.constructor === CommentTk) {
+
+		if (tc === TagTk) {
+			// mw:Entity tokens
+			if (t.name === 'span' && t.getAttribute('typeof') === 'mw:Entity') {
+				numEntities++;
+				continue;
+			}
+
+			return true;
+		}
+
+		if (tc === EndTagTk) {
+			// mw:Entity tokens
+			if (numEntities > 0 && t.name === 'span') {
+				numEntities--;
+				continue;
+			}
+
+			// </br>!
+			if (SanitizerConstants.noEndTagHash[t.name.toLowerCase()]) {
+				continue;
+			}
+
+			return true;
+		}
+
+		if (tc === CommentTk) {
 			return true;
 		}
 	}
@@ -359,7 +393,12 @@ WSP.escapeWikiText = function ( state, text ) {
 		}
 	}
 
-	// escape existing nowiki tags
+	if (sol && text.match(/^ |\n /)) {
+		// console.warn("---EWT:F6---");
+		return escapedText(text);
+	}
+
+	// escape nowiki tags
 	text = text.replace(/<(\/?nowiki)>/g, '&lt;$1&gt;');
 
 	// SSS FIXME: pre-escaping is currently broken since the front-end parser

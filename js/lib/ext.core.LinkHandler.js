@@ -21,10 +21,10 @@ function WikiLinkHandler( manager, options ) {
 	this.manager = manager;
 	this.manager.addTransform( this.onWikiLink.bind( this ), "WikiLinkHandler:onWikiLink", this.rank, 'tag', 'wikilink' );
 	// create a new peg parser for image options..
-	if ( !this.imageParser ) {
+	if ( !this.urlParser ) {
 		// Actually the regular tokenizer, but we'll call it with the
 		// img_options production only.
-		WikiLinkHandler.prototype.imageParser = new PegTokenizer();
+		WikiLinkHandler.prototype.urlParser = new PegTokenizer();
 	}
 }
 
@@ -305,7 +305,7 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 	//console.log( 'optionSource: ' + optionSource );
 	// XXX: The trouble with re-parsing is the need to re-expand templates.
 	// Figure out how often non-image links contain image-like parameters!
-	//var options = this.imageParser.processImageOptions( optionSource );
+	//var options = this.urlParser.processImageOptions( optionSource );
 	//console.log( JSON.stringify( options, null, 2 ) );
 	// XXX: check if the file exists, generate thumbnail, get size
 	// XXX: render according to mode (inline, thumb, framed etc)
@@ -471,10 +471,10 @@ function ExternalLinkHandler( manager, options ) {
 	this.manager.addTransform( this.onEnd.bind( this ), "ExternalLinkHandler:onEnd",
 			this.rank, 'end' );
 	// create a new peg parser for image options..
-	if ( !this.imageParser ) {
+	if ( !this.urlParser ) {
 		// Actually the regular tokenizer, but we'll call it with the
 		// img_options production only.
-		ExternalLinkHandler.prototype.imageParser = new PegTokenizer();
+		ExternalLinkHandler.prototype.urlParser = new PegTokenizer();
 	}
 	this._reset();
 }
@@ -588,7 +588,7 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 		cb( {
 			tokens: [aStart].concat(content, [new EndTagTk('a')])
 		} );
-	} else if ( this.imageParser.tokenizeURL( href )) {
+	} else if ( this.urlParser.tokenizeURL( href )) {
 		rdfaType = 'mw:ExtLink';
 		if ( ! content.length ) {
 			content = ['[' + this.linkCount + ']'];
@@ -596,7 +596,7 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 			rdfaType = 'mw:ExtLink/Numbered';
 		} else if ( content.length === 1 &&
 				content[0].constructor === String &&
-				this.imageParser.tokenizeURL( content[0] ) &&
+				this.urlParser.tokenizeURL( content[0] ) &&
 				this._isImageLink( content[0] ) )
 		{
 			var src = content[0];
