@@ -161,7 +161,8 @@ TokenAndAttrCollector.prototype.onAnyToken = function( token, frame, cb ) {
 				this.hasOpenTag = false;
 				res = this.transformation(this.collection);
 				// make sure we preserve the EOFTk
-				if ( res.tokens && res.tokens.last().constructor !== EOFTk ) {
+				if ( res.tokens && res.tokens.length &&
+						res.tokens.last().constructor !== EOFTk ) {
 					res.tokens.push(token);
 				} else {
 					res = { tokens: [token] };
