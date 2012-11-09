@@ -1260,6 +1260,7 @@ Frame.prototype.expand = function ( chunk, options ) {
 
 // constant chunk terminator
 Frame.prototype._eofTkList = [ new EOFTk() ];
+Object.freeze(Frame.prototype._eofTkList[0]);
 
 /**
  * Event handler for chunk conversion pipelines

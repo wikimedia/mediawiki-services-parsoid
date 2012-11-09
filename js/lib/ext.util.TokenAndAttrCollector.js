@@ -146,7 +146,7 @@ TokenAndAttrCollector.prototype.inspectAttrs = function(token) {
 
 TokenAndAttrCollector.prototype.onAnyToken = function( token, frame, cb ) {
 	// console.warn("T<" + this.uid + ":" + this.rank + ":" + this.hasOpenTag + ">:" + JSON.stringify(token));
-	var tc = token.constructor;
+	var tc = token.constructor, res;
 	if ((tc === TagTk) && (token.name === this.tagName)) {
 		this.init(token);
 		return {tokens: null};
@@ -155,15 +155,27 @@ TokenAndAttrCollector.prototype.onAnyToken = function( token, frame, cb ) {
 			this.hasOpenTag = false;
 			this.collection.end = token;
 			return this.transformation(this.collection);
-		} else if ((tc === EOFTk) && this.toEnd) {
-			this.collection.tokens.push(token);
-			this.hasOpenTag = false;
-			return this.transformation(this.collection);
+		} else if (tc === EOFTk) {
+			if (  this.toEnd) {
+				this.collection.tokens.push(token);
+				this.hasOpenTag = false;
+				res = this.transformation(this.collection);
+				// make sure we preserve the EOFTk
+				if ( res.tokens && res.tokens.last().constructor !== EOFTk ) {
+					res.tokens.push(token);
+				} else {
+					res = { tokens: [token] };
+				}
+				return res;
+			} else {
+				this.collection.tokens.push(token);
+				return { tokens: this.collection.tokens };
+			}
 		} else if (tc === TagTk || tc === EndTagTk || tc === SelfclosingTagTk){
 			return this.inspectAttrs(token);
 		} else {
 			this.collection.tokens.push(token);
-			return {tokens: null};
+			return { };
 		}
 	} else {
 		if ((tc === EndTagTk) && (token.name === this.tagName)) {
