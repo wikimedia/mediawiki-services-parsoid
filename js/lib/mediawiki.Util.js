@@ -357,6 +357,11 @@ var HTML5 = require( 'html5' ).HTML5,
 		// Since the tokens array might be frozen,
 		// we have to create a new array -- but, create it
 		// only if needed
+		//
+		// FIXME: If tokens is not frozen, we can avoid
+		// all this circus with leadingToks and trailingToks
+		// but we will need a new function altogether -- so,
+		// something worth considering if this is a perf. problem.
 
 		var i, n = tokens.length, token;
 
@@ -398,7 +403,7 @@ var HTML5 = require( 'html5' ).HTML5,
 		}
 
 		var j = trailingToks.length;
-		if (j !== 0) {
+		if (j > 0) {
 			tokens = tokens.slice(0, n - j).concat(trailingToks.reverse());
 		}
 

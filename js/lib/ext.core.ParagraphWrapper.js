@@ -22,6 +22,7 @@ function ParagraphWrapper ( dispatcher ) {
 	};
 	this.newLineCount = 0;
 	this.hasOpenPTag = false;
+	this.hasOpenHTMLPTag = false;
 	this.inPre = false;
 	this.register( dispatcher );
 	this.trace = dispatcher.env.debug ||
@@ -72,6 +73,7 @@ ParagraphWrapper.prototype.closeOpenPTag = function(out) {
 	if (this.hasOpenPTag) {
 		out.push(new EndTagTk('p'));
 		this.hasOpenPTag = false;
+		this.hasOpenHTMLPTag = false;
 	}
 };
 
@@ -107,6 +109,7 @@ ParagraphWrapper.prototype.onNewLineOrEOF = function (  token, frame, cb ) {
 		var res = this.processPendingNLs(false);
 		this.inPre = false;
 		this.hasOpenPTag = false;
+		this.hasOpenHTMLPTag = false;
 		return { tokens: this._getTokensAndReset(res) };
 	} else {
 		this.newLineCount++;
@@ -194,21 +197,32 @@ ParagraphWrapper.prototype.onAny = function ( token, frame, cb ) {
 					names[token.name.toLowerCase()];
 		};
 	if (tc === TagTk && token.name === 'pre') {
-		res = this.processPendingNLs(true);
-		res = res.concat(this.currLine.tokens);
-		res.push(token);
+		if (this.hasOpenHTMLPTag) {
+			// No pre-tokens inside html-p-tags -- replace it with a ' '
+			this.currLine.tokens.push(' ');
+			return {};
+		} else {
+			res = this.processPendingNLs(true);
+			res = res.concat(this.currLine.tokens);
+			res.push(token);
 
-		this.dispatcher.removeTransform(this.newlineRank, 'newline');
-		this.inPre = true;
-		this.resetCurrLine();
+			this.dispatcher.removeTransform(this.newlineRank, 'newline');
+			this.inPre = true;
+			this.resetCurrLine();
 
-		return { tokens: this._getTokensAndReset(res) };
+			return { tokens: this._getTokensAndReset(res) };
+		}
 	} else if (tc === EndTagTk && token.name === 'pre') {
-		this.dispatcher.addTransform(this.onNewLineOrEOF.bind(this),
-			"ParagraphWrapper:onNewLine", this.newlineRank, 'newline');
-		this.inPre = false;
-		this.currLine.hasBlockToken = true;
-		return { tokens: [token] };
+		if (this.hasOpenHTMLPTag) {
+			// No pre-tokens inside html-p-tags -- swallow it.
+			return {};
+		} else {
+			this.dispatcher.addTransform(this.onNewLineOrEOF.bind(this),
+				"ParagraphWrapper:onNewLine", this.newlineRank, 'newline');
+			this.inPre = false;
+			this.currLine.hasBlockToken = true;
+			return { tokens: [token] };
+		}
 	} else if (tc === EOFTk || this.inPre) {
 		return { tokens: [token] };
 	} else if ((tc === String && token.match( /^[\t ]*$/)) ||
@@ -222,13 +236,10 @@ ParagraphWrapper.prototype.onAny = function ( token, frame, cb ) {
 			// Safe to push these out since we have no pending newlines to trip us up.
 			return { tokens: this._getTokensAndReset() };
 		} else if (this.newLineCount === 1) {
-			// Swallow newline, whitespace, and comments
-			this.nonNlTokens = this.nonNlTokens.concat(this.nlWsTokens);
+			// Swallow newline, whitespace, comments, and the current line
+			this.nonNlTokens = this.nonNlTokens.concat(this.nlWsTokens, this.currLine.tokens);
 			this.newLineCount = 0;
 			this.nlWsTokens = [];
-
-			// Swallow the current line as well
-			this.nonNlTokens = this.nonNlTokens.concat(this.currLine.tokens);
 			this.resetCurrLine();
 
 			// But, dont process the new token yet
@@ -239,12 +250,33 @@ ParagraphWrapper.prototype.onAny = function ( token, frame, cb ) {
 			this.currLine.tokens.push(token);
 			return { tokens: this._getTokensAndReset(res) };
 		}
+	} else if (tc === EndTagTk && token.name.toLowerCase() === 'p' && token.isHTMLTag()) {
+		// process everything
+		res = this.nonNlTokens.concat(this.nlWsTokens, this.currLine.tokens);
+		res.push(token);
+
+		// reset everthing
+		this.resetCurrLine();
+		this.hasOpenHTMLPTag = false;
+		this.hasOpenPTag = false;
+
+		return { tokens: this._getTokensAndReset(res) };
 	} else {
 		var isBlockToken = Util.isBlockToken(token);
 		if (isBlockToken) {
 			this.currLine.hasBlockToken = true;
 		}
 		res = this.processPendingNLs(isBlockToken);
+
+		// Deal with html p-tokens
+		if (tc === TagTk && token.name.toLowerCase() === 'p' && token.isHTMLTag()) {
+			if (this.hasOpenPTag) {
+				this.closeOpenPTag(this.currLine.tokens);
+			}
+			this.hasOpenHTMLPTag = true;
+			this.hasOpenPTag = true;
+		}
+
 		this.currLine.tokens.push(token);
 		this.currLine.hasWrappableTokens = true;
 
