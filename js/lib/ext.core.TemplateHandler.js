@@ -179,6 +179,16 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
  * Process a fetched template source
  */
 TemplateHandler.prototype._processTemplateAndTitle = function( state, frame, cb, name, attribs, err, src, type ) {
+
+	// We have a choice between aborting or keeping going and reporting the
+	// error inline.
+	// TODO: report as special error token and format / remove that just
+	// before the serializer. (something like <mw:error ../> as source)
+	if ( err ) {
+		src = '';
+		//this.manager.env.errCB(err);
+	}
+
 	// Get a nested transformation pipeline for the input type. The input
 	// pipeline includes the tokenizer, synchronous stage-1 transforms for
 	// 'text/wiki' input and asynchronous stage-2 transforms).

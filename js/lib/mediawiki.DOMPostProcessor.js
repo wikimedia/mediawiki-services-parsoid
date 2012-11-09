@@ -319,13 +319,7 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 	init();
 
 	// Kick it off
-	try {
-		rewrite(root);
-	} catch (e) {
-		console.error(e.stack);
-		// make sure we don't hang
-		process.exit(1);
-	}
+	rewrite(root);
 }
 
 function normalizeDocument(document) {
@@ -1488,9 +1482,7 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 		try {
 			this.processors[i](document, this.env);
 		} catch ( e ) {
-			console.error(e.stack);
-			// make sure we don't hang
-			process.exit(1);
+			env.errCB(e);
 		}
 	}
 	this.emit( 'document', document );

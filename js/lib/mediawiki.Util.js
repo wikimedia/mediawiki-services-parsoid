@@ -851,6 +851,7 @@ parse = function ( env, cb, err, src ) {
 			env.text = src;
 			parser.process( src );
 		} catch ( e ) {
+			env.errCB(e);
 			cb( null, e );
 		}
 	}
