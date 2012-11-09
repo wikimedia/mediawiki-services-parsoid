@@ -261,9 +261,18 @@ AsyncTokenTransformManager.prototype.setFrame = function ( parentFrame, title, a
  */
 AsyncTokenTransformManager.prototype.emitChunk = function( ret ) {
 	this.env.dp( 'emitChunk', ret );
-	this.emit( 'chunk', ret.tokens );
 
 	if ( ! ret.async ) {
+		// Check if an EOFTk went missing
+		if ( this.frame.depth === 0 &&
+				ret.tokens && ret.tokens.length &&
+				ret.tokens.last() && ret.tokens.last().constructor !== EOFTk )
+		{
+			console.error("ERROR: EOFTk went missing in AsyncTokenTransformManager");
+			ret.tokens.push(new EOFTk());
+		}
+
+		this.emit( 'chunk', ret.tokens );
 		this.emit('end');
 		// NOTE: This is a dummy return.  We are exiting async mode and
 		// there is no caller waiting to consume this return value.
@@ -271,6 +280,7 @@ AsyncTokenTransformManager.prototype.emitChunk = function( ret ) {
 		// and not confuse anyone wondering if there is a missing return here.
 		return;
 	} else {
+		this.emit( 'chunk', ret.tokens );
 		// allow accumulators to go direct
 		return this.emitChunk.bind( this );
 	}
