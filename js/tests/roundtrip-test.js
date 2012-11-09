@@ -140,10 +140,17 @@ return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
 		}
 	}
 
-	for ( j = 0; j < element.childNodes.length; j++ ) {
+	var children = element.childNodes;
+	for ( j = 0; j < children.length; j++ ) {
+		var c = children[j];
+		if (!c) {
+			// FIXME: why would this be anyway?
+			continue;
+		}
+
 		wasWaiting = waitingForEndMatch;
-		if ( element.childNodes[j] && element.childNodes[j].outerHTML ) {
-			childNode = findDsr( element.childNodes[j], targetRange, sourceLen );
+		if ( c.nodeType === c.ELEMENT_NODE ) {
+			childNode = findDsr( c, targetRange, sourceLen );
 			if ( childNode ) {
 				elesOnOffset = [];
 
@@ -151,10 +158,10 @@ return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
 					currentOffset = attribs.dsr[0];
 					while ( preText.length > 0 && currentOffset >= targetRange.start ) {
 						currentPreText = preText.pop();
-						if ( currentPreText.__nodeValue.length > currentOffset - targetRange.start ) {
+						if ( currentPreText.nodeValue.length > currentOffset - targetRange.start ) {
 							break;
 						}
-						currentOffset -= currentPreText.__nodeValue.length;
+						currentOffset -= currentPreText.nodeValue.length;
 						elesOnOffset.push( currentPreText );
 					}
 					elesOnOffset.reverse();
@@ -177,15 +184,19 @@ return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
 
 				elements = elements.concat( childNode );
 			}
-		} else if ( element.childNodes[j] && element.childNodes[j]._nodeName === '#text' ) {
+		} else if ( c.nodeType === c.TEXT_NODE || c.nodeType === c.COMMENT_NODE ) {
 			if ( currentOffset && ( currentOffset < targetRange.end ) ) {
-				currentOffset += element.childNodes[j].__nodeValue.length;
-				elements = elements.concat( [ element.childNodes[j] ] );
+				currentOffset += c.nodeValue.length;
+				if ( c.nodeType === c.COMMENT_NODE ) {
+					// Add the length of the '<!--' and '--> bits
+					currentOffset += 7;
+				}
+				elements = elements.concat( [ c ] );
 				if ( wasWaiting && currentOffset >= targetRange.end ) {
 					waitingForEndMatch = false;
 				}
 			} else if ( !currentOffset ) {
-				preText.push( element.childNodes[j] );
+				preText.push( c );
 			}
 		}
 
@@ -194,11 +205,13 @@ return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
 		}
 	}
 
-	if ( elements.length > 0 && elements.length < element.childNodes.length ) {
+	var numElements = elements.length;
+	var numChildren = children.length;
+	if ( numElements > 0 && numElements < numChildren ) {
 		return elements;
 /*	} else if ( attribs && attribs.dsr && attribs.dsr.length ) {
 		return [ element ]; */
-	} else if ( element.childNodes.length > 0 && elements.length === element.childNodes.length ) {
+	} else if ( numChildren > 0 && numElements === numChildren ) {
 		return [ element ];
 	} else {
 		return null;
@@ -208,6 +221,32 @@ return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
 
 
 checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
+
+	// Work around JSDOM's borken outerHTML pretty-printing / indenting.
+	// At least it does not indent innerHTML, so we get to fish out the
+	// parent element tag(s) and combine them with innerHTML.
+	//
+	// See jsdom/lib/jsdom/browser/index.js for the broken call to
+	// domToHtml.
+	function myOuterHTML ( node ) {
+		var jsOuterHTML = node.outerHTML || node.nodeValue,
+			startTagMatch = jsOuterHTML.match(/^ *(<[^>]+>)/),
+			endTagMatch = jsOuterHTML.match(/<[^>]+>$/);
+		if ( startTagMatch ) {
+			var tag = startTagMatch[1];
+			if ( startTagMatch[0].length === jsOuterHTML.length ) {
+				return tag;
+			} else {
+				if ( endTagMatch ) {
+					return tag + node.innerHTML + endTagMatch[0];
+				} else {
+					return tag + node.innerHTML;
+				}
+			}
+		} else {
+			return jsOuterHTML;
+		}
+	}
 
 	function normalizeWikitext(str) {
 		var orig = str;
@@ -259,32 +298,6 @@ checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 		origOut = findDsr( body, offset[0] || {}, src.length, true ) || [];
 		newOut = findDsr( document.firstChild.childNodes[1], offset[1] || {}, out.length, true ) || [];
 
-		// Work around JSDOM's borken outerHTML pretty-printing / indenting.
-		// At least it does not indent innerHTML, so we get to fish out the
-		// parent element tag(s) and combine them with innerHTML.
-		//
-		// See jsdom/lib/jsdom/browser/index.js for the broken call to
-		// domToHtml.
-		function myOuterHTML ( node ) {
-			var jsOuterHTML = node.outerHTML || node.__nodeValue,
-				startTagMatch = jsOuterHTML.match(/^ *(<[^>]+>)/),
-				endTagMatch = jsOuterHTML.match(/<[^>]+>$/);
-			if ( startTagMatch ) {
-				var tag = startTagMatch[1];
-				if ( startTagMatch[0].length === jsOuterHTML.length ) {
-					return tag;
-				} else {
-					if ( endTagMatch ) {
-						return tag + node.innerHTML + endTagMatch[0];
-					} else {
-						return tag + node.innerHTML;
-					}
-				}
-			} else {
-				return jsOuterHTML;
-			}
-		}
-
 		for ( k = 0; k < origOut.length; k++ ) {
 			origOrigHTML += myOuterHTML(origOut[k]);
 		}
@@ -331,7 +344,7 @@ doubleRoundtripDiff = function ( page, offsets, src, body, out, cb, wgScript ) {
 			process.exit( 1 );
 		};
 
-		parserPipeline = Util.getParser( env, 'text/x-mediawiki/full' );
+		var parserPipeline = Util.getParser( env, 'text/x-mediawiki/full' );
 
 		parserPipeline.on( 'document', checkIfSignificant.bind( null, page, offsets, src, body, out, cb ) );
 
