@@ -194,6 +194,17 @@ var WikitextSerializer = function( options ) {
 	this.options = $.extend( {
 		// defaults
 	}, options || {} );
+	if ( options.env.debug || options.env.trace ) {
+		WikitextSerializer.prototype.debug = function ( ) {
+			var out = ['WTS:'];
+			for ( var i = 0; i < arguments.length; i++) {
+				out.push( JSON.stringify(arguments[i]) );
+			}
+			console.error(out.join(' '));
+		}
+	} else {
+		WikitextSerializer.prototype.debug = function ( ) {}
+	}
 };
 
 var WSP = WikitextSerializer.prototype;
@@ -479,7 +490,7 @@ WSP._listHandler = function( handler, bullet, state, token ) {
 		}
 	}
 	stack.push({ itemCount: 0, bullets: bullets, itemBullet: ''});
-	state.env.dp('lh res', bullets, res, handler );
+	WSP.debug('lh res', bullets, res, handler );
 	return res;
 };
 
@@ -555,7 +566,7 @@ WSP._listItemHandler = function ( handler, bullet, state, token ) {
 		handler.startsNewline = false;
 		res = bullet;
 	}
-	state.env.dp( 'lih', token, res, handler );
+	WSP.debug( 'lih', token, res, handler );
 	return res;
 };
 
@@ -1613,16 +1624,14 @@ WSP._serializeToken = function ( state, token ) {
 			}
 		}
 
-		if (state.env.debug) {
-			console.warn(token +
-					", res: " + JSON.stringify( res ) +
-					", nl: " + state.onNewline +
-					", sol: " + state.onStartOfLine +
-					", singleMode: " + state.singleLineMode +
-					', eon:' + state.emitNewlineOnNextToken +
-					", #nl: " + state.availableNewlineCount +
-					', #new:' + newTrailingNLCount);
-		}
+		WSP.debug( token,
+					"res: ", res,
+					", nl: ", state.onNewline,
+					", sol: ", state.onStartOfLine,
+					", singleMode: ", state.singleLineMode,
+					', eon:', state.emitNewlineOnNextToken,
+					", #nl: ", state.availableNewlineCount,
+					', #new:', newTrailingNLCount );
 
 		if (res !== '') {
 			var out = '';
@@ -1654,7 +1663,7 @@ WSP._serializeToken = function ( state, token ) {
 			}
 
 			out += res;
-			state.env.dp(' =>', out);
+			WSP.debug(' =>', out);
 			state.chunkCB( out );
 
 			// Update new line state
