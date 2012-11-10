@@ -632,22 +632,19 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 		// Since we'd need to reconstruct a possible template
 		// encapsulation from the href attribute for proper template
 		// round-tripping, we simply use source-based round-tripping for now.
-		var hrefText = env.text.substring( token.dataAttribs.tsr[0] + 1, token.dataAttribs.targetOff ),
-			span = new TagTk('span',
-				[new KV('typeof', 'mw:Placeholder')],
-				{
-					tsr: [token.dataAttribs.tsr[0] + 1, token.dataAttribs.targetOff],
-					src: hrefText
-				} ),
-			tokens = ['[', span, hrefText, new EndTagTk('span')];
+		var tokens = ['['];
+		var hrefText = token.getAttribute("href");
+		if (hrefText.constructor === Array) {
+			tokens = tokens.concat(hrefText);
+		} else {
+			tokens.push(hrefText);
+		}
 		if ( content.length ) {
 			tokens = tokens.concat( [' '], content );
 		}
 		tokens.push(']');
 
-		cb( {
-			tokens: tokens
-		} );
+		cb( { tokens: tokens } );
 	}
 };
 

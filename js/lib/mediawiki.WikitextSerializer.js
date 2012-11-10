@@ -90,7 +90,7 @@ WEHP.tdHandler = function(state, text) {
 	return text.match(/\|/) || (isTd(state.currTagToken) && text.match(/^[-+]/));
 };
 
-WEHP.hasWikitextTokens = function ( state, onNewline, text ) {
+WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
 	// console.warn("---EWT:DBG0---");
 	// console.warn("---HWT---:onl:" + onNewline + ":" + text);
 	// tokenize the text
@@ -140,17 +140,22 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text ) {
 
 		var tc = t.constructor;
 		if (tc === SelfclosingTagTk) {
-			// Ignore url links, extlink tokens without valid urls
-			if (t.name === 'urllink' ||
-				(t.name === 'extlink' && !this.urlParser.tokenizeURL(t.getAttribute("href"))))
-			{
+			// Ignore extlink tokens without valid urls
+			if (t.name === 'extlink' && !this.urlParser.tokenizeURL(t.getAttribute("href"))) {
 				continue;
 			}
 
-			return true;
+			// Ignore url links
+			if (t.name === 'urllink') {
+				continue;
+			}
+
+			if (!linksOnly || t.name === 'wikilink') {
+				return true;
+			}
 		}
 
-		if (tc === TagTk) {
+		if (!linksOnly && tc === TagTk) {
 			// mw:Entity tokens
 			if (t.name === 'span' && t.getAttribute('typeof') === 'mw:Entity') {
 				numEntities++;
@@ -160,7 +165,7 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text ) {
 			return true;
 		}
 
-		if (tc === EndTagTk) {
+		if (!linksOnly && tc === EndTagTk) {
 			// mw:Entity tokens
 			if (numEntities > 0 && t.name === 'span') {
 				numEntities--;
@@ -172,10 +177,6 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text ) {
 				continue;
 			}
 
-			return true;
-		}
-
-		if (tc === CommentTk) {
 			return true;
 		}
 	}
@@ -404,7 +405,7 @@ WSP.escapeWikiText = function ( state, text ) {
 		}
 	}
 
-	if (sol && text.match(/^ |\n /)) {
+	if (sol && text.match(/(^ |\n )[^\s]+/)) {
 		// console.warn("---EWT:F6---");
 		return escapedText(text);
 	}
@@ -443,9 +444,11 @@ WSP.escapeWikiText = function ( state, text ) {
 			 * NOTE: [[[ ... ]]] does not need escaping, it appears.
 			 * So, the regexp checks for 1 or 2 of those.
 			 * -------------------------------------------------------- */
-			cl.hasHeadingPair = cl.text.match(/^=.*=\n*$/);
-			cl.hasBracketPair = cl.text.match(/(^|[^\[])(\[\[?)([^\[].*[^\]])(\]\]?)([^\]]|$)/);
 			cl.processed = true;
+			cl.hasHeadingPair = cl.text.match(/^=.*=\n*$/);
+			if (this.wteHandlers.hasWikitextTokens(state, sol, cl.text, true)) {
+				cl.hasBracketPair = true;
+			}
 		}
 
 		// If the current line has a wikitext token pair, and the current
