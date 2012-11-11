@@ -628,20 +628,37 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 		} );
 	} else {
 		// Not a link, convert href to plain text.
-		//
-		// Since we'd need to reconstruct a possible template
-		// encapsulation from the href attribute for proper template
-		// round-tripping, we simply use source-based round-tripping for now.
-		var tokens = ['['];
+		var tokens = ['['],
+			closingTok = null;
+
+		if ((token.getAttribute("typeof") || "").match(/mw:ExpandedAttrs/)) {
+			// The token 'non-url' came from a template.
+			// Introduce a span and capture the original source for RT purposes.
+			var da = token.dataAttribs,
+				span = new TagTk('span', [new KV('typeof', 'mw:Placeholder')], {
+						tsr: [da.tsr[0] + 1, da.targetOff],
+						src: env.text.substring( da.tsr[0] + 1, da.targetOff )
+					} );
+
+			tokens.push(span);
+			closingTok = new EndTagTk('span');
+		}
+
 		var hrefText = token.getAttribute("href");
 		if (hrefText.constructor === Array) {
 			tokens = tokens.concat(hrefText);
 		} else {
 			tokens.push(hrefText);
 		}
+
+		if (closingTok) {
+			tokens.push(closingTok);
+		}
+
 		if ( content.length ) {
 			tokens = tokens.concat( [' '], content );
 		}
+
 		tokens.push(']');
 
 		cb( { tokens: tokens } );
