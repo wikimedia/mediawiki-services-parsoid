@@ -134,6 +134,12 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 		case TagTk:
 			tName = token.name;
 			this.emit('token', {type: 'StartTag', name: tName, data: this._att(attribs)});
+			if (dataAttribs && dataAttribs.tsr && dataAttribs.stx === 'html') {
+				attrs = [];
+				attrs.push({nodeName: "typeof", nodeValue: "mw:StartTag"});
+				attrs.push({nodeName: "data-stag", nodeValue: tName});
+				this.emit('token', {type: 'StartTag', name: 'meta', data: attrs});
+			}
 			break;
 		case SelfclosingTagTk:
 			tName = token.name;
@@ -148,13 +154,7 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			tName = token.name;
 			this.emit('token', {type: 'EndTag', name: tName});
 
-			if (dataAttribs &&
-				dataAttribs.tsr &&
-				(dataAttribs.stx !== 'html' ||
-				tName === 'tr' ||
-				tName === 'td' ||
-				tName === 'table'))
-			{
+			if (dataAttribs && dataAttribs.tsr) {
 				attrs = this._att(attribs);
 				attrs.push({nodeName: "typeof", nodeValue: "mw:EndTag"});
 				attrs.push({nodeName: "data-etag", nodeValue: tName});

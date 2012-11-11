@@ -668,14 +668,18 @@ WSP._serializeTableTag = function ( symbol, optionalEndSymbol, state, token ) {
 };
 
 WSP._serializeHTMLTag = function ( state, token ) {
-	var close = '';
-	if ( (Util.isVoidElement( token.name ) && !token.dataAttribs.noClose) || token.dataAttribs.selfClose ) {
-		close = '/';
-	}
-
 	if ( token.name === 'pre' ) {
 		// html-syntax pre is very similar to nowiki
 		state.inHTMLPre = true;
+	}
+
+	if (token.dataAttribs.autoInsertedStart) {
+		return '';
+	}
+
+	var close = '';
+	if ( (Util.isVoidElement( token.name ) && !token.dataAttribs.noClose) || token.dataAttribs.selfClose ) {
+		close = '/';
 	}
 
 	var sAttribs = WSP._serializeAttributes(state, token);
@@ -690,7 +694,7 @@ WSP._serializeHTMLEndTag = function ( state, token ) {
 	if ( token.name === 'pre' ) {
 		state.inHTMLPre = false;
 	}
-	if ( ! Util.isVoidElement( token.name ) && !token.dataAttribs.selfClose  ) {
+	if ( !token.dataAttribs.autoInsertedEnd && ! Util.isVoidElement( token.name ) && !token.dataAttribs.selfClose  ) {
 		return '</' + token.name + '>';
 	} else {
 		return '';
