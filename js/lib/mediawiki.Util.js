@@ -9,6 +9,29 @@ var HTML5 = require( 'html5' ).HTML5,
 	jsDiff = require( 'diff' ),
 
 	Util = {
+
+	// Update only those properties that are undefined or null
+	// $.extend updates properties that are falsy (which means false gets updated as well)
+	extendProps: function() {
+		function internalExtend(target, obj) {
+			var allKeys = [].concat(Object.keys(target),Object.keys(obj));
+			for (var i = 0, numKeys = allKeys.length; i < numKeys; i++) {
+				var k = allKeys[i];
+				if (target[k] === undefined || target[k] === null) {
+					target[k] = obj[k];
+				}
+			}
+			return target;
+		}
+
+		var n = arguments.length;
+		var tgt = arguments[0];
+		for (var i = 1; i < n; i++) {
+			internalExtend(tgt, arguments[i]);
+		}
+		return tgt;
+	},
+
 	/**
 	 * Determine if a tag name is block-level or not
 	 *

@@ -192,7 +192,7 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
  * @param options {Object} List of options for serialization
  */
 var WikitextSerializer = function( options ) {
-	this.options = $.extend( {
+	this.options = Util.extendProps( {
 		// defaults
 	}, options || {} );
 	if ( options.env.debug || options.env.trace ) {
@@ -275,6 +275,16 @@ WSP.initialState = {
 		processed: false,
 		hasBracketPair: false,
 		hasHeadingPair: false
+	},
+	serializeTokens: function(newLineStart, tokens, chunkCB) {
+		var initState = {
+			onNewline: newLineStart,
+			onStartOfLine: newLineStart,
+			tplAttrs: this.tplAttrs,
+			currLine: this.currLine,
+			wteHandlerStack: []
+		}
+		return this.serializer.serializeTokens(initState, tokens, chunkCB);
 	}
 };
 
@@ -602,7 +612,7 @@ WSP._figureHandler = function ( state, figTokens ) {
 	}
 
 	// Call the serializer to build the caption
-	var caption = state.serializer.serializeTokens(state.currLine, figTokens.slice(fcStartIndex+1, fcEndIndex)).join('');
+	var caption = state.serializeTokens(false, figTokens.slice(fcStartIndex+1, fcEndIndex)).join('');
 
 	// Get the image resource name
 	// FIXME: file name has been capitalized -- need some fix in the parser
@@ -802,7 +812,7 @@ WSP._linkHandler =  function( state, tokens ) {
 						linkText = Util.decodeURI( targetParts[2] ).replace( /%23/g, '#' ).replace( /%20/g, ' ' );
 					}
 				} else {
-					linkText = state.serializer.serializeTokens(state.currLine, tokens).join('');
+					linkText = state.serializeTokens(false, tokens).join('');
 					linkText = Util.stripSuffix( linkText, tail );
 				}
 
@@ -821,7 +831,7 @@ WSP._linkHandler =  function( state, tokens ) {
 			populateRoundTripData();
 
 			return '[' + href + ' ' +
-				state.serializer.serializeTokens(state.currLine, tokens ).join('') +
+				state.serializeTokens(false, tokens ).join('') +
 				']';
 		} else if ( attribDict.rel.match( /mw:ExtLink\/(?:ISBN|RFC|PMID)/ ) ) {
 			return tokens.join('');
@@ -857,7 +867,7 @@ WSP._linkHandler =  function( state, tokens ) {
 		if ( true || isComplexLink ( attribDict ) ) {
 			// Complex attributes we can't support in wiki syntax
 			return WSP._serializeHTMLTag( state, token ) +
-				state.serializer.serializeTokens(state.currLine,  tokens ) +
+				state.serializeTokens(state.onNewline, tokens ) +
 				WSP._serializeHTMLEndTag( state, endToken );
 		} else {
 			// TODO: serialize as external wikilink
@@ -884,7 +894,7 @@ WSP.compareSourceHandler = function ( state, tokens ) {
 		lastToken = tokens.pop(),
 		content = Util.tokensToString( tokens, true );
 	if ( content.constructor !== String ) {
-		return state.serializer.serializeTokens(state.currLine,  tokens ).join('');
+		return state.serializeTokens(state.onNewline, tokens ).join('');
 	} else if ( content === token.dataAttribs.srcContent ) {
 		return token.dataAttribs.src;
 	} else {
@@ -1409,10 +1419,8 @@ WSP._serializeAttributes = function (state, token) {
 /**
  * Serialize a chunk of tokens
  */
-WSP.serializeTokens = function(currLine, tokens, chunkCB ) {
-	var state = $.extend({}, this.initialState, this.options),
-		i, l;
-	state.currLine = currLine;
+WSP.serializeTokens = function(startState, tokens, chunkCB ) {
+	var i, l, state = Util.extendProps(startState || {}, this.initialState, this.options);
 	state.serializer = this;
 	if ( chunkCB === undefined ) {
 		var out = [];
@@ -1755,7 +1763,7 @@ WSP._collectAttrMetaTags = function(node, state) {
 WSP.serializeDOM = function( node, chunkCB ) {
 	// console.warn("DOM: " + node.outerHTML);
 	try {
-		var state = $.extend({}, this.initialState, this.options);
+		var state = Util.extendProps({}, this.initialState, this.options);
 		state.serializer = this;
 		this._collectAttrMetaTags(node, state);
 		//console.warn( node.innerHTML );
