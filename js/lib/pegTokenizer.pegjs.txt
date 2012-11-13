@@ -1560,17 +1560,27 @@ table_line
   / table_end_tag
 
 table_start_tag
-  = "{" pipe
+  = b:"{" p:pipe
     ta:generic_attribute* 
     space*
     tsEndPos:({return pos})
     te:table_end_tag? // can occur somewhere in the middle of the line too
-    { 
-        var toks = [ new TagTk( 'table', [], { tsr: [pos0, tsEndPos] } ) ];
-        if ( ta )
-            toks[0].attribs = ta;
-        if ( te )
+    {
+        var tblStart = new TagTk( 'table', [], { tsr: [pos0, tsEndPos] } );
+        if (p !== "|") {
+            // Variation form default
+            // "<brace-char>"+p is triggering some bug in pegJS
+            // I cannot even use that expression in the comment!
+            tblStart.dataAttribs.startTagSrc = b+p;
+        }
+        if ( ta ) {
+            tblStart.attribs = ta;
+        }
+
+        var toks = [tblStart];
+        if ( te ) {
             toks = toks.concat( te );
+        }
         return toks;
     }
 
@@ -1585,7 +1595,7 @@ table_caption_tag
 
 table_row_tag
   = //& { console.warn("table row enter @" + input.substr(pos, 30)); return true; }
-    pipe dashes:"-"+
+    p:pipe dashes:"-"+
     a:generic_attribute*
     space*
     tagEndPos:({return pos})
@@ -1595,10 +1605,7 @@ table_row_tag
         // We rely on our tree builder to close the row as needed. This is
         // needed to support building tables from fragment templates with
         // individual cells or rows.
-        var trToken = new TagTk( 'tr', a, {tsr: [pos0, tagEndPos], 'stx': 'wt'} );
-        if (dashes.length > 1) {
-            trToken.dataAttribs.extra_dashes = dashes.length - 1;
-        }
+        var trToken = new TagTk( 'tr', a, { tsr: [pos0, tagEndPos], startTagSrc: p + dashes.join('') } );
         var res;
         if ( !td ) {
             res = [trToken];
@@ -1613,34 +1620,48 @@ table_row_tag
     }
 
 table_data_tags
-  = pipe
+  = p:pipe
     ![+-] td:table_data_tag
     tagEndPos:({return pos})
-    tds:( pipe_pipe tdt:table_data_tag { 
+    tds:( pp:pipe_pipe tdt:table_data_tag { 
             var da = tdt[0].dataAttribs;
-            da.stx_v = 'row';
-            da.tsr[0] = da.tsr[0] - 2; // include "||"
+            da.stx_v = "row";
+            if (pp !== "||") {
+                // Variation from default
+                da.startTagSrc = pp;
+            }
+            da.tsr[0] = da.tsr[0] - pp.length; // include "||"
             return tdt;
         } 
     )* {
-        td[0].dataAttribs.tsr[0]--; // include "|"
+        var da = td[0].dataAttribs;
+        if (p !== "|") {
+            // Variation from default
+            da.startTagSrc = p;
+        }
+        da.tsr[0] = da.tsr[0] - p.length; // include "|"
         return td.concat(tds);
     }
 
 table_data_tag
   = //& { dp("table_data enter, pos=" + pos + input.substr(pos,10)); return true; }
     ! "}"
-    a:table_cell_args?
+    arg:table_cell_args?
     //& { console.warn("past attrib, pos=" + pos + input.substr(pos,10)); return true; }
     // use inline_breaks to break on tr etc
     tagEndPos:({return pos})
     td:nested_block* 
     { 
+        var a = arg[0];
         if ( a === '' ) {
             a = [];
         }
         //console.warn("table data result: " + pp(td) + ", attribs: " + pp(a));
         var tokens = [new TagTk( 'td', a, {tsr: [pos0, tagEndPos]} )].concat( td );
+        if (arg[1] !== "|") {
+            // Variation from default
+            tokens[0].dataAttribs.attrSepSrc = arg[1];
+        }
 
         // We rely on our tree builder to close the table cell as needed.
         // We cannot close the cell here because cell content can come from
@@ -1672,29 +1693,39 @@ table_heading_tags
     }
 
 table_heading_tag
-  = a:table_cell_args?
+  = arg:table_cell_args?
     tagEndPos:({return pos})
     c:nested_block* {
          //console.warn( 'table_heading_tag: ' + pp( [a, c] ) );
+         var a = arg[0];
          if ( a === '' ) {
              a = [];
          }
-         return [ new TagTk( 'th', a, {tsr: [pos0, tagEndPos]} ) ]
-						.concat( c );
+         var th = new TagTk( 'th', a, {tsr: [pos0, tagEndPos]} );
+         if (arg[1] !== "|") {
+             // Variation from default
+             th.dataAttribs.attrSepSrc = arg[1];
+         }
+         return [ th ].concat( c );
      }
 
 table_end_tag
-  = space* pipe "}" { 
-      var tok = [new EndTagTk( 'table', [], { tsr: [pos0, pos] } )];
-	  return tok;
+  = space* p:pipe b:"}" { 
+      var tblEnd = new EndTagTk( 'table', [], { tsr: [pos0, pos] } );
+      if (p !== "|") {
+          // p+"<brace-char>" is triggering some bug in pegJS
+          // I cannot even use that expression in the comment!
+          tblEnd.dataAttribs.endTagSrc = p+b;
+      }
+	  return [ tblEnd ];
   }
 
 table_cell_args
   = & { return stops.inc('tableCellArg'); }
-    as:generic_attribute* space* pipe !pipe { 
+    as:generic_attribute* space* p:pipe !pipe { 
         stops.dec('tableCellArg');
         //console.warn( 'tcargs' + JSON.stringify( as ) + " stops: " + pp(stops) );
-        return as;
+        return [as, p];
     }
     / & { return stops.dec('tableCellArg'); }
 

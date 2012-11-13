@@ -1046,7 +1046,10 @@ WSP.tagHandlers = {
 	// XXX: handle options
 	table: {
 		start: {
-			handle: WSP._serializeTableTag.bind(null, "{|", '')
+			handle: function(state, token) {
+				var wt = token.dataAttribs.startTagSrc || "{|";
+				return WSP._serializeTableTag(wt, '', state, token);
+			}
 		},
 		end: {
 			handle: function(state, token) {
@@ -1055,7 +1058,7 @@ WSP.tagHandlers = {
 				} else {
 					this.startsNewline = false;
 				}
-				return "|}";
+				return token.dataAttribs.endTagSrc || "|}";
 			}
 		}
 	},
@@ -1063,12 +1066,14 @@ WSP.tagHandlers = {
 	th: {
 		start: {
 			handle: function ( state, token ) {
-				if ( token.dataAttribs.stx_v === 'row' ) {
+				var da = token.dataAttribs;
+				var sep = " " + (da.attrSepSrc || "|");
+				if ( da.stx_v === 'row' ) {
 					this.startsNewline = false;
-					return WSP._serializeTableTag("!!", ' |', state, token);
+					return WSP._serializeTableTag("!!", sep, state, token);
 				} else {
 					this.startsNewline = true;
-					return WSP._serializeTableTag( "!", ' |', state, token);
+					return WSP._serializeTableTag( "!", sep, state, token);
 				}
 			}
 		},
@@ -1077,16 +1082,16 @@ WSP.tagHandlers = {
 	tr: {
 		start: {
 			handle: function ( state, token ) {
-				// If the token has 'stx'='wt' set, it means that "|-" was present
-				// in the wikitext and we emit it -- if not, we ignore it.
+				// If the token has 'startTagSrc' set, it means that the tr was present
+				// in the source wikitext and we emit it -- if not, we ignore it.
+				var da = token.dataAttribs;
 				if (state.prevToken.constructor === TagTk
 					&& state.prevToken.name === 'tbody'
-					&& token.dataAttribs.stx !== 'wt')
+					&& !da.startTagSrc )
 				{
 					return '';
 				} else {
-					var trWT = dashyString("|-", token.dataAttribs.extra_dashes);
-					return WSP._serializeTableTag(trWT, '', state, token );
+					return WSP._serializeTableTag(da.startTagSrc || "|-", '', state, token );
 				}
 			},
 			startsNewline: true
@@ -1095,12 +1100,14 @@ WSP.tagHandlers = {
 	td: {
 		start: {
 			handle: function ( state, token ) {
-				if ( token.dataAttribs.stx_v === 'row' ) {
+				var da = token.dataAttribs;
+				var sep = " " + (da.attrSepSrc || "|");
+				if ( da.stx_v === 'row' ) {
 					this.startsNewline = false;
-					return WSP._serializeTableTag("||", ' |', state, token);
+					return WSP._serializeTableTag(da.startTagSrc || "||", sep, state, token);
 				} else {
 					this.startsNewline = true;
-					return WSP._serializeTableTag("|", ' |', state, token);
+					return WSP._serializeTableTag(da.startTagSrc || "|", sep, state, token);
 				}
 			}
 		},

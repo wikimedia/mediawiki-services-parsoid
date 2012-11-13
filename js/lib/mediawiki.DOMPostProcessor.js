@@ -1309,6 +1309,25 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				// meta marker tags have valid tsr info.
 				cTypeOf = child.getAttribute("typeof");
 				if (cTypeOf === "mw:EndTag" || cTypeOf === "mw:TSRMarker") {
+					if (cTypeOf === "mw:EndTag") {
+						// FIXME: This seems like a different function that is
+						// tacked onto DSR computation, but there is no clean place
+						// to do this one-off thing without doing yet another pass
+						// over the DOM -- maybe we need a 'do-misc-things-pass'.
+						//
+						// Update table-end syntax using info from the meta tag
+						var prev = child.previousSibling;
+						if (prev && prev.nodeName.toLowerCase() === "table") {
+							var prevDP = dataParsoid(prev);
+							if (!hasLiteralHTMLMarker(prevDP)) {
+								if (dp.endTagSrc) {
+									prevDP.endTagSrc = dp.endTagSrc;
+									prev.setAttribute("data-parsoid", JSON.stringify(prevDP));
+								}
+							}
+						}
+					}
+
 					isMarkerTag = true;
 					// TSR info will be absent if the tsr-marker came
 					// from a template since template tokens have all
