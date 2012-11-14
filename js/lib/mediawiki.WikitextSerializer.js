@@ -1542,6 +1542,9 @@ WSP._serializeToken = function ( state, token ) {
 			state.onStartOfLine = true;
 		}
 
+		// Important: get this before running handlers
+		var textHandler = state.textHandler;
+
 		switch( token.constructor ) {
 			case TagTk:
 			case SelfclosingTagTk:
@@ -1550,6 +1553,9 @@ WSP._serializeToken = function ( state, token ) {
 					state.prevTagToken = state.currTagToken;
 					state.currTagToken = token;
 					res = handler.handle ? handler.handle( state, token ) : '';
+					if (textHandler) {
+						res = textHandler( state, res );
+					}
 				}
 
 				// SSS FIXME: There are no SelfclosingTagTk types constructed
@@ -1574,7 +1580,9 @@ WSP._serializeToken = function ( state, token ) {
 			case String:
 				res = ( state.inNoWiki || state.inHTMLPre ) ? token
 					: this.escapeWikiText( state, token );
-				res = state.textHandler ? state.textHandler( state, res ) : res;
+				if (textHandler) {
+					res = textHandler( state, res );
+				}
 				solTransparent = res.match(/^\s*$/);
 				if (!solTransparent) {
 					// Clear prev tag token
@@ -1591,8 +1599,7 @@ WSP._serializeToken = function ( state, token ) {
 				handler = { newlineTransparent: true };
 				break;
 			case NlTk:
-				res = '\n';
-				res = state.textHandler ? state.textHandler( state, res ) : res;
+				res = textHandler ? textHandler( state, '\n' ) : '\n';
 				break;
 			case EOFTk:
 				res = '';
