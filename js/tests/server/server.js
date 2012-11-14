@@ -666,7 +666,9 @@ function displayPageList(res, urlPrefix, page, header, err, rows) {
 		for (var i = 0; i < rows.length; i++ ) {
 			var r = rows[i];
 			res.write('<tr>');
-			res.write('<td class="title">' + r.title + '</td>');
+			res.write('<td class="title"><a href="http://parsoid.wmflabs.org/_rt/en/' +
+					r.title.replace(/"/g, '&quot;') +
+					'">' + r.title + '</a></td>');
 			res.write('<td>' + makeCommitLink( r.new_commit, r.title ) + '</td>');
 			res.write('<td>' + r.new_errors + "|" + r.new_fails + "|" + r.new_skips + '</td>');
 			res.write('<td>' + makeCommitLink( r.old_commit, r.title ) + '</td>');
