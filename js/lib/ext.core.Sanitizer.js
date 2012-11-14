@@ -646,7 +646,8 @@ Sanitizer.prototype.onAny = function ( token ) {
 	var attribs = token.attribs;
 	var tagWLHash = this.constants.tagWhiteListHash,
 		noEndTagHash = this.constants.noEndTagHash;
-	if (token.isHTMLTag() &&
+
+	if (token.isHTMLTag && token.isHTMLTag() &&
 			( !tagWLHash[token.name.toLowerCase()] ||
 			  ( token.constructor === EndTagTk && noEndTagHash[token.name.toLowerCase()] )
 			)
