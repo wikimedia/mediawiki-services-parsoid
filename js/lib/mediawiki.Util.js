@@ -221,7 +221,21 @@ var HTML5 = require( 'html5' ).HTML5,
 		if (deepClone === undefined) {
 			deepClone = true;
 		}
-		return $.extend(deepClone, {}, obj);
+		if ( obj ) {
+			if ( obj.constructor === Array ) {
+				if ( deepClone ) {
+					return $.extend(true, {}, {o: obj}).o;
+				} else {
+					return obj.slice();
+				}
+			} else if ( obj instanceof Object ) {
+				return $.extend(deepClone, {}, obj);
+			} else {
+				return obj;
+			}
+		} else {
+			return obj;
+		}
 	},
 
 	// Deep-freeze an object
