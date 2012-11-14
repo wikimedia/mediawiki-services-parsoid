@@ -82,7 +82,6 @@ var HTML5 = require( 'html5' ).HTML5,
 			case 'details':
 			case 'blockquote':
 			// other
-			case 'br':
 			case 'hr':
 			case 'button':
 			case 'canvas':
@@ -90,7 +89,6 @@ var HTML5 = require( 'html5' ).HTML5,
 			case 'col':
 			case 'colgroup':
 			case 'embed':
-			//case 'img': // hmm!
 			case 'map':
 			case 'object':
 			case 'pre':
