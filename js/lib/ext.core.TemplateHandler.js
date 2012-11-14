@@ -84,6 +84,26 @@ TemplateHandler.prototype._parserFunctionsWrapper = function(state, cb, ret) {
 	}
 };
 
+TemplateHandler.prototype.targetToString = function ( tokens ) {
+	var maybeTarget = Util.tokensToString( tokens, true );
+	if ( maybeTarget.constructor === Array ) {
+		for ( var i = 0, l = maybeTarget[1].length; i < l; i++ ) {
+			var nonTextTokenCons = maybeTarget[1][0].constructor;
+			if ( nonTextTokenCons === TagTk ||
+					nonTextTokenCons === SelfclosingTagTk ||
+					nonTextTokenCons === EndTagTk )
+			{
+				return null;
+			}
+		}
+		// No tag tokens, strip comments and newlines
+		return Util.tokensToString(tokens).trim();
+	} else {
+		// Only string
+		return maybeTarget.trim();
+	}
+};
+
 /**
  * Fetch, tokenize and token-transform a template after all arguments and the
  * target were expanded.
@@ -105,10 +125,11 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 	// check for msg, msgnw, raw magics
 	// check for parser functions
 
-	// First, check the target for loops
-	target = Util.tokensToString( target ).trim();
 
 	//var args = Util.KVtoHash( tplExpandData.expandedArgs );
+
+	// Convert the target to a string while stripping all non-text tokens
+	target = Util.tokensToString(target);
 
 	// strip subst for now.
 	target = target.replace( /^(safe)?subst:/, '' );
@@ -136,6 +157,41 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 		this.parserFunctions['pf_' + prefix](state.token, this.manager.frame, newCB, pfAttribs);
 		return;
 	}
+
+	// We are dealing with a real template, an not a parser function.
+	// Apply more stringent standards for template targets
+	target = this.targetToString(attribs[0].k);
+	if ( target === null ) {
+		// Target contains tags, convert template braces and pipes back into text
+		var attribTokens = [];
+
+		// Re-join attribute tokens with '=' and '|'
+		attribs.map( function ( kv ) {
+				if ( kv.k && kv.k.length ) {
+					if ( kv.k.constructor === String ) {
+						attribTokens.push(kv.k);
+					} else {
+						attribTokens = attribTokens.concat( kv.k );
+					}
+				}
+				if ( kv.v && kv.v.length ) {
+					attribTokens.push('=');
+					if ( kv.v.constructor === String ) {
+						attribTokens.push( kv.v );
+					} else {
+						attribTokens = attribTokens.concat(kv.v);
+					}
+				}
+				attribTokens.push('|');
+		} );
+		// pop last pipe separator
+		attribTokens.pop();
+
+		cb( { tokens: ['{{'].concat(attribTokens, ['}}']) } );
+		return;
+	}
+	// strip subst for now.
+	target = target.replace( /^(safe)?subst:/, '' );
 	env.tp( 'template target: ' + target );
 
 	// now normalize the target before template processing

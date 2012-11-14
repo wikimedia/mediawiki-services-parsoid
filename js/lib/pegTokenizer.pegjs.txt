@@ -807,7 +807,7 @@ template
       // Insert target as first positional attribute, so that it can be
       // generically expanded. The TemplateHandler then needs to shift it out
       // again.
-      params.unshift( { k: flattenIfArray( target ), v: [] } );
+      params.unshift( { k: flattenIfArray( target ), v: '' } );
       var obj = new SelfclosingTagTk( 'template', params, {tsr: [pos0, pos]} );
       //console.warn( 'tokenizer template ' + pos + );
       //console.warn('template @' + pos + '::' + input.substr(pos, 40) );
@@ -857,14 +857,14 @@ template_param
           if ( val.value !== '' ) {
             return new KV( name, flattenIfArray( val.value ) );
           } else {
-            return new KV(flattenIfArray( name ), []);
+            return new KV(flattenIfArray( name ), '');
           }
       } else {
-        return new KV([], flattenIfArray(name));
+        return new KV('', flattenIfArray(name));
       }
     } 
   // empty parameter
-  / & [|}] { return new KV([], []); }
+  / & [|}] { return new KV('', ''); }
 
 
 // FIXME: handle template args and templates in key! (or even parser functions?)
@@ -924,7 +924,7 @@ template_param_text
 wikilink_content
   = lcs:( pipe lt:link_text? {
     if ( lt === '' ) {
-        return new KV( 'mw:maybeContent', [] );
+        return new KV( 'mw:maybeContent', '' );
     } else {
         return new KV( 'mw:maybeContent', lt );
     } } ) + {
