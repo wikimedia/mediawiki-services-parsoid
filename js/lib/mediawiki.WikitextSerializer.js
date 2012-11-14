@@ -1154,7 +1154,7 @@ WSP.tagHandlers = {
 			handle: function( state, token ) {
 				state.inIndentPre = true;
 				state.textHandler = function( t ) {
-					return t.replace(/\n/g, '\n ' );
+					return t.replace(/\n([^$])/g, '\n $1' );
 				};
 				return ' ';
 			}
@@ -1501,8 +1501,7 @@ WSP._serializeToken = function ( state, token ) {
 	var res = '',
 		collectorResult = false,
 		onlyWhiteSpace = false,
-		handler = {},
-		dropContent = state.dropContent;
+		handler = {};
 
 	if (state.tokenCollector) {
 		collectorResult = state.tokenCollector.collect( state, token );
@@ -1592,130 +1591,128 @@ WSP._serializeToken = function ( state, token ) {
 		}
 	}
 
-	if (! dropContent || ! state.dropContent ) {
-		var newTrailingNLCount = 0;
+	var newTrailingNLCount = 0;
 
-		// FIXME: figure out where the non-string res comes from
-		if ( res === undefined || res === null || res.constructor !== String ) {
-			console.error("-------- Serializer error --------");
-			console.error("TOKEN: " + JSON.stringify(token));
-			console.error(state.env.pageName + ": res was undefined or not a string!");
-			console.error(JSON.stringify(res));
-			console.trace();
-			res = '';
+	// FIXME: figure out where the non-string res comes from
+	if ( res === undefined || res === null || res.constructor !== String ) {
+		console.error("-------- Serializer error --------");
+		console.error("TOKEN: " + JSON.stringify(token));
+		console.error(state.env.pageName + ": res was undefined or not a string!");
+		console.error(JSON.stringify(res));
+		console.trace();
+		res = '';
+	}
+
+	if (res !== '') {
+		// NOTE: This used to be a single regexp:
+		//   res.match( /^((?:\r?\n)*)((?:.*?|[\r\n]+[^\r\n])*?)((?:\r?\n)*)$/ );
+		// But, we have split this into two 3 different REs since this RE got stuck
+		// on certain pages (Ex: en:Good_Operating_Practice).  Recording this here
+		// so we dont attempt this again in the future.
+
+		// Strip leading or trailing newlines from the returned string
+		var leadingNLs = '',
+			trailingNLs = '',
+			match = res.match(/^[\r\n]+/);
+		if (match) {
+			leadingNLs = match[0];
+			state.availableNewlineCount += ( leadingNLs.match(/\n/g) || [] ).length;
 		}
-
-		if (res !== '') {
-			// NOTE: This used to be a single regexp:
-			//   res.match( /^((?:\r?\n)*)((?:.*?|[\r\n]+[^\r\n])*?)((?:\r?\n)*)$/ );
-			// But, we have split this into two 3 different REs since this RE got stuck
-			// on certain pages (Ex: en:Good_Operating_Practice).  Recording this here
-			// so we dont attempt this again in the future.
-
-			// Strip leading or trailing newlines from the returned string
-			var leadingNLs = '',
-				trailingNLs = '',
-				match = res.match(/^[\r\n]+/);
+		if (leadingNLs === res) {
+			// clear output
+			res = "";
+		} else {
+			// check for trailing newlines
+			match = res.match(/[\r\n]+$/);
 			if (match) {
-				leadingNLs = match[0];
-				state.availableNewlineCount += ( leadingNLs.match(/\n/g) || [] ).length;
+				trailingNLs = match[0];
 			}
-			if (leadingNLs === res) {
-				// clear output
-				res = "";
-			} else {
-				// check for trailing newlines
-				match = res.match(/[\r\n]+$/);
-				if (match) {
-					trailingNLs = match[0];
-				}
-				newTrailingNLCount = ( trailingNLs.match(/\n/g) || [] ).length;
-				// strip newlines
-				res = res.replace(/^[\r\n]+|[\r\n]+$/g, '');
-			}
+			newTrailingNLCount = ( trailingNLs.match(/\n/g) || [] ).length;
+			// strip newlines
+			res = res.replace(/^[\r\n]+|[\r\n]+$/g, '');
 		}
+	}
 
-		// Check if we have a pair of identical tag tokens </p><p>; </ul><ul>; etc.
-		// that have to be separated by extra newlines and add those in.
-		if (handler.pairSepNLCount && state.prevTagToken &&
-				state.prevTagToken.constructor === EndTagTk &&
-				state.prevTagToken.name === token.name )
+	// Check if we have a pair of identical tag tokens </p><p>; </ul><ul>; etc.
+	// that have to be separated by extra newlines and add those in.
+	if (handler.pairSepNLCount && state.prevTagToken &&
+			state.prevTagToken.constructor === EndTagTk &&
+			state.prevTagToken.name === token.name )
+	{
+		if ( state.availableNewlineCount < handler.pairSepNLCount) {
+			state.availableNewlineCount = handler.pairSepNLCount;
+		}
+	}
+
+	WSP.debug( token,
+				"res: ", res,
+				", nl: ", state.onNewline,
+				", sol: ", state.onStartOfLine,
+				", singleMode: ", state.singleLineMode,
+				', eon:', state.emitNewlineOnNextToken,
+				", #nl: ", state.availableNewlineCount,
+				', #new:', newTrailingNLCount );
+
+	if (res !== '') {
+		var out = '';
+		// If this is not a html tag and the serializer is not in single-line mode,
+		// allocate a newline if
+		// - prev token needs a single line,
+		// - handler starts a new line and we aren't on a new line,
+		//
+		// Newline-equivalent tokens (HTML tags for example) don't get
+		// implicit newlines.
+		if (!handler.isNewlineEquivalent &&
+			!state.singleLineMode &&
+			!state.availableNewlineCount &&
+			((!onlyWhiteSpace && state.emitNewlineOnNextToken) ||
+			 (!state.onStartOfLine && handler.startsNewline)))
 		{
-			if ( state.availableNewlineCount < handler.pairSepNLCount) {
-				state.availableNewlineCount = handler.pairSepNLCount;
+			state.availableNewlineCount = handler.defaultStartNewlineCount || 1;
+		}
+
+		// Add required # of new lines in the beginning
+		for (; state.availableNewlineCount; state.availableNewlineCount--) {
+			out += '\n';
+		}
+
+		// XXX: Switch singleLineMode to stack if there are more
+		// exceptions than just isTemplateSrc later on.
+		if ( state.singleLineMode && !handler.isTemplateSrc) {
+			res = res.replace(/\n/g, ' ');
+		}
+
+		out += res;
+		WSP.debug(' =>', out);
+		state.chunkCB( out );
+
+		// Update new line state
+		// 1. If this token generated new trailing new lines, we are in a newline state again.
+		//    If not, we are not!  But, handle onStartOfLine specially.
+		if (newTrailingNLCount > 0) {
+			state.availableNewlineCount = newTrailingNLCount;
+			state.onNewline = true;
+			state.onStartOfLine = true;
+		} else {
+			state.availableNewlineCount = 0;
+			state.onNewline = false;
+			if (!handler.newlineTransparent) {
+				state.onStartOfLine = false;
 			}
 		}
 
-		WSP.debug( token,
-					"res: ", res,
-					", nl: ", state.onNewline,
-					", sol: ", state.onStartOfLine,
-					", singleMode: ", state.singleLineMode,
-					', eon:', state.emitNewlineOnNextToken,
-					", #nl: ", state.availableNewlineCount,
-					', #new:', newTrailingNLCount );
+		// 2. Previous token nl state is no longer relevant
+		state.emitNewlineOnNextToken = false;
+	} else if ( handler.startsNewline && !state.onStartOfLine ) {
+		state.emitNewlineOnNextToken = true;
+	}
 
-		if (res !== '') {
-			var out = '';
-			// If this is not a html tag and the serializer is not in single-line mode,
-			// allocate a newline if
-			// - prev token needs a single line,
-			// - handler starts a new line and we aren't on a new line,
-			//
-			// Newline-equivalent tokens (HTML tags for example) don't get
-			// implicit newlines.
-			if (!handler.isNewlineEquivalent &&
-					!state.singleLineMode &&
-					!state.availableNewlineCount &&
-					((!onlyWhiteSpace && state.emitNewlineOnNextToken) ||
-					(!state.onStartOfLine && handler.startsNewline)))
-			{
-				state.availableNewlineCount = handler.defaultStartNewlineCount || 1;
-			}
-
-			// Add required # of new lines in the beginning
-			for (; state.availableNewlineCount; state.availableNewlineCount--) {
-				out += '\n';
-			}
-
-			// XXX: Switch singleLineMode to stack if there are more
-			// exceptions than just isTemplateSrc later on.
-			if ( state.singleLineMode && !handler.isTemplateSrc) {
-				res = res.replace(/\n/g, ' ');
-			}
-
-			out += res;
-			WSP.debug(' =>', out);
-			state.chunkCB( out );
-
-			// Update new line state
-			// 1. If this token generated new trailing new lines, we are in a newline state again.
-			//    If not, we are not!  But, handle onStartOfLine specially.
-			if (newTrailingNLCount > 0) {
-				state.availableNewlineCount = newTrailingNLCount;
-				state.onNewline = true;
-				state.onStartOfLine = true;
-			} else {
-				state.availableNewlineCount = 0;
-				state.onNewline = false;
-				if (!handler.newlineTransparent) {
-					state.onStartOfLine = false;
-				}
-			}
-
-			// 2. Previous token nl state is no longer relevant
-			state.emitNewlineOnNextToken = false;
-		} else if ( handler.startsNewline && !state.onStartOfLine ) {
-			state.emitNewlineOnNextToken = true;
-		}
-
-		if (handler.endsLine) {
-			// Record end of line
-			state.emitNewlineOnNextToken = true;
-		}
-		if ( handler.singleLine > 0 ) {
-			state.singleLineMode += handler.singleLine;
-		}
+	if (handler.endsLine) {
+		// Record end of line
+		state.emitNewlineOnNextToken = true;
+	}
+	if ( handler.singleLine > 0 ) {
+		state.singleLineMode += handler.singleLine;
 	}
 };
 
@@ -1910,12 +1907,7 @@ WSP._serializeDOM = function( node, state ) {
 			break;
 		case Node.COMMENT_NODE:
 			// delay the newline creation until after the comment
-			var onNewline = state.onNewline;
-			var savedEmitNewlineOnNextToken = state.emitNewlineOnNextToken;
-			state.emitNewlineOnNextToken = false;
 			this._serializeToken( state, new CommentTk( node.data ) );
-			state.emitNewlineOnNextToken = savedEmitNewlineOnNextToken;
-			state.onNewline = onNewline;
 			break;
 		default:
 			console.warn( "Unhandled node type: " +

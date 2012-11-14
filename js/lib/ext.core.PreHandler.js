@@ -32,7 +32,7 @@
  | SOL           | --- sol-tr  --> | SOL           | TOKS << tok              |
  | SOL           | --- other   --> | IGNORE        | purge                    |
  + --------------+-----------------+---------------+--------------------------+
- | PRE           | --- nl OR   --> | SOL           | purge   if |TOKS| == 0   |
+ | PRE           | --- nl      --> | SOL           | purge   if |TOKS| == 0   |
  |               |                 |               | gen-pre if |TOKS| > 0 (#)|
  | PRE           |  html-blk tag   | IGNORE        | purge   if |TOKS| == 0   |
  |               |  wt-table tag   |               | gen-pre if |TOKS| > 0 (#)|
@@ -145,16 +145,20 @@ PreHandler.prototype.processPre = function(token) {
 	var ret = [];
 	this.preWSToken = null;
 
-	if (this.tokens.length === 0 && ret.length === 0) {
-		this.popLastNL(ret);
-		var stToks = this.solTransparentTokens;
-		ret = stToks.length > 0 ? [' '].concat(stToks) : stToks;
-	} else {
+	// pre only if we have tokens to enclose
+	if (this.tokens.length > 0) {
 		ret = [ new TagTk('pre') ].concat(ret).concat(this.tokens);
 		ret.push(new EndTagTk('pre'));
-		this.popLastNL(ret);
-		ret = ret.concat(this.solTransparentTokens);
 	}
+
+	// if we the last token was a newline, we got here
+	// from a multi-line pre -- so, emit the space from this line
+	if (this.tokens.last().constructor === NlTk) {
+		ret.push(' ');
+	}
+
+	this.popLastNL(ret);
+	ret = ret.concat(this.solTransparentTokens);
 
 	// push the the current token
 	ret.push(token);
@@ -314,7 +318,7 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 			case PreHandler.STATE_MULTILINE_PRE:
 				if ((tc === String) && token.match(/^\s/)) {
 					this.popLastNL(this.tokens);
-						this.state = PreHandler.STATE_PRE;
+					this.state = PreHandler.STATE_PRE;
 
 					// check if token is single-space or more
 					if (!token.match(/^\s$/)) {
