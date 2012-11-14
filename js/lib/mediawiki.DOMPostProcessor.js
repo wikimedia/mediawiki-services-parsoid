@@ -1264,6 +1264,31 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 		// span, figure, caption, figcaption, br, a, i, b
 	};
 
+	function computeTagWidths(widths, child, dp) {
+		var stWidth = widths[0], etWidth = null;
+
+		if (hasLiteralHTMLMarker(dp)) {
+			if (dp.tsr) {
+				etWidth = widths[1];
+			}
+		} else {
+			var nodeName = child.nodeName.toLowerCase(),
+				wtTagWidth = WT_TagWidths[nodeName];
+			// 'tr' tags not in the original source have zero width
+			if (nodeName === 'tr' && !dp.startTagSrc) {
+				stWidth = 0;
+				etWidth = 0;
+			} else {
+				if (wtTagWidth && widths[0] === null) {
+					stWidth = wtTagWidth[0];
+				}
+				etWidth = wtTagWidth ? wtTagWidth[1] : widths[1];
+			}
+		}
+
+		return [stWidth, etWidth];
+	}
+
 	// No undefined values here onwards.
 	// NOTE: Never use !s, !e, !cs, !ce for testing for non-null
 	// because any of them could be zero.
@@ -1349,7 +1374,9 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				}
 			} else {
 				// Non-meta tags
-				var stWidth = null, etWidth = null;
+				var stWidth = null, etWidth = null,
+					tagWidths, newDsr, ccs, cce;
+
 				if (tsr) {
 					cs = tsr[0];
 					if (tsrSpansTagDOM(child, dp) && (!ce || tsr[1] > ce)) {
@@ -1364,23 +1391,13 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				}
 
 				// Compute width of opening/closing tags for this dom node
-				var newDsr, nodeName = child.nodeName.toLowerCase(),
-					ccs = null, cce = null;
-				if (hasLiteralHTMLMarker(dp)) {
-					if (tsr) {
-						etWidth = savedEndTagWidth;
-					}
-				} else {
-					var wtTagWidth = WT_TagWidths[nodeName];
-					if (wtTagWidth && stWidth === null) {
-						stWidth = wtTagWidth[0];
-					}
-					etWidth = wtTagWidth ? wtTagWidth[1] : savedEndTagWidth;
-				}
+				tagWidths = computeTagWidths([stWidth, savedEndTagWidth], child, dp);
+				stWidth = tagWidths[0];
+				etWidth = tagWidths[1];
 
-				// Process DOM subtree rooted at child.
-				var ccs = cs !== null && stWidth !== null ? cs + stWidth : null,
-				    cce = ce !== null && etWidth !== null ? ce - etWidth : null;
+				// Process DOM subtree rooted at child
+				ccs = cs !== null && stWidth !== null ? cs + stWidth : null;
+				cce = ce !== null && etWidth !== null ? ce - etWidth : null;
 				if (traceDSR) console.warn("Before recursion, [cs,ce]=" + cs + "," + ce + "; [ccs,cce]=" + ccs + "," + cce);
 				newDsr = computeNodeDSR(env, child, ccs, cce, traceDSR);
 
