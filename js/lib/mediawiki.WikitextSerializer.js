@@ -246,6 +246,13 @@ WSP.wteHandlers = new WikitextEscapeHandlers();
  *    swallow newlines in contexts where they shouldn't be emitted for
  *    ensuring equivalent wikitext output. (ex dom: ..</li>\n\n</li>..)
  *
+ * nlsSinceLastEndTag
+ *    # of newlines that have been emitted since last end-tag
+ *    Used to ensure that the right # of newlines are emitted between
+ *    tag-pairs that need X number of newlines.  This state variable
+ *    tracks newlines emitted while dealing with comments, ws and
+ *    other such tokens that show up in the interim.
+ *
  * wteHandlerStack
  *    stack of wikitext escaping handlers -- these handlers are responsible
  *    for smart escaping when the surrounding wikitext context is known.
@@ -267,6 +274,7 @@ WSP.initialState = {
 	emitNewlineOnNextToken: false,
 	onStartOfLine : true,
 	availableNewlineCount: 0,
+	nlsSinceLastEndTag: 0,
 	singleLineMode: 0,
 	wteHandlerStack: [],
 	tplAttrs: {},
@@ -1156,8 +1164,12 @@ WSP.tagHandlers = {
 			pairSepNLCount: 2,
 			handle: function( state, token ) {
 				state.inIndentPre = true;
-				state.textHandler = function( t ) {
-					return t.replace(/\n([^$])/g, '\n $1' );
+				state.textHandler = function( currState, t ) {
+					// replace \n in the middle of the text with
+					// a leading space, and start of text if
+					// the serializer in at start of line state.
+					var res = t.replace(/\n(?!$)/g, '\n ' );
+					return currState.onStartOfLine ? ' ' + res : res;
 				};
 				return ' ';
 			}
@@ -1503,7 +1515,7 @@ WSP._getTokenHandler = function(state, token) {
 WSP._serializeToken = function ( state, token ) {
 	var res = '',
 		collectorResult = false,
-		onlyWhiteSpace = false,
+		solTransparent = false,
 		handler = {};
 
 	if (state.tokenCollector) {
@@ -1551,6 +1563,7 @@ WSP._serializeToken = function ( state, token ) {
 				state.wteHandlerStack.pop();
 				if ( ! handler.ignore ) {
 					state.prevTagToken = state.currTagToken;
+					state.nlsSinceLastEndTag = 0;
 					state.currTagToken = token;
 					if ( handler.singleLine < 0 && state.singleLineMode ) {
 						state.singleLineMode--;
@@ -1561,15 +1574,16 @@ WSP._serializeToken = function ( state, token ) {
 			case String:
 				res = ( state.inNoWiki || state.inHTMLPre ) ? token
 					: this.escapeWikiText( state, token );
-				res = state.textHandler ? state.textHandler( res ) : res;
-				onlyWhiteSpace = res.match(/^\s*$/);
-				if (!onlyWhiteSpace) {
+				res = state.textHandler ? state.textHandler( state, res ) : res;
+				solTransparent = res.match(/^\s*$/);
+				if (!solTransparent) {
 					// Clear prev tag token
 					state.prevTagToken = null;
 					state.currTagToken = null;
 				}
 				break;
 			case CommentTk:
+				solTransparent = true;
 				res = '<!--' + token.value + '-->';
 				// don't consider comments for changes of the onStartOfLine status
 				// XXX: convert all non-tag handlers to a similar handler
@@ -1578,7 +1592,7 @@ WSP._serializeToken = function ( state, token ) {
 				break;
 			case NlTk:
 				res = '\n';
-				res = state.textHandler ? state.textHandler( res ) : res;
+				res = state.textHandler ? state.textHandler( state, res ) : res;
 				break;
 			case EOFTk:
 				res = '';
@@ -1642,8 +1656,8 @@ WSP._serializeToken = function ( state, token ) {
 			state.prevTagToken.constructor === EndTagTk &&
 			state.prevTagToken.name === token.name )
 	{
-		if ( state.availableNewlineCount < handler.pairSepNLCount) {
-			state.availableNewlineCount = handler.pairSepNLCount;
+		if ( state.nlsSinceLastEndTag + state.availableNewlineCount < handler.pairSepNLCount) {
+			state.availableNewlineCount = handler.pairSepNLCount - state.nlsSinceLastEndTag;
 		}
 	}
 
@@ -1668,13 +1682,14 @@ WSP._serializeToken = function ( state, token ) {
 		if (!handler.isNewlineEquivalent &&
 			!state.singleLineMode &&
 			!state.availableNewlineCount &&
-			((!onlyWhiteSpace && state.emitNewlineOnNextToken) ||
+			((!solTransparent && state.emitNewlineOnNextToken) ||
 			 (!state.onStartOfLine && handler.startsNewline)))
 		{
 			state.availableNewlineCount = handler.defaultStartNewlineCount || 1;
 		}
 
 		// Add required # of new lines in the beginning
+		state.nlsSinceLastEndTag += state.availableNewlineCount;
 		for (; state.availableNewlineCount; state.availableNewlineCount--) {
 			out += '\n';
 		}

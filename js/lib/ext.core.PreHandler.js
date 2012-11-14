@@ -101,6 +101,7 @@ function init(handler, addAnyHandler) {
 	handler.lastNLTk = null;
 	handler.tokens = [];
 	handler.preWSToken = null;
+	handler.multiLinePreWSToken = null;
 	handler.solTransparentTokens = [];
 	if (addAnyHandler) {
 		handler.manager.addTransform(handler.onAny.bind(handler),
@@ -134,16 +135,14 @@ PreHandler.prototype.getResultAndReset = function(token) {
 	}
 	ret.push(token);
 	this.tokens = [];
+	this.multiLinePreWSToken = null;
 
 	ret.rank = this.skipRank; // prevent this from being processed again
 	return ret;
 };
 
 PreHandler.prototype.processPre = function(token) {
-
-	// discard the white-space token that triggered pre
 	var ret = [];
-	this.preWSToken = null;
 
 	// pre only if we have tokens to enclose
 	if (this.tokens.length > 0) {
@@ -151,13 +150,15 @@ PreHandler.prototype.processPre = function(token) {
 		ret.push(new EndTagTk('pre'));
 	}
 
-	// if we the last token was a newline, we got here
-	// from a multi-line pre -- so, emit the space from this line
-	if (this.tokens.last().constructor === NlTk) {
-		ret.push(' ');
+	this.popLastNL(ret);
+
+	// emit multiline-pre WS token
+	if (this.multiLinePreWSToken) {
+		ret.push(this.multiLinePreWSToken);
+		this.multiLinePreWSToken = null;
 	}
 
-	this.popLastNL(ret);
+	// sol-transparent toks
 	ret = ret.concat(this.solTransparentTokens);
 
 	// push the the current token
@@ -188,6 +189,7 @@ PreHandler.prototype.onNewline = function (token, manager, cb) {
 				// we got here from a multiline-pre
 				ret = this.processPre(token);
 			} else {
+				// we will never get here from a multiline-pre
 				ret = this.getResultAndReset(token);
 			}
 			this.state = PreHandler.STATE_SOL;
@@ -294,6 +296,7 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 						// we got here from a multiline-pre
 						ret = this.processPre(token);
 					} else {
+						// we can never get here from a multiline-pre
 						ret = this.getResultAndReset(token);
 					}
 					this.moveToIgnoreState();
@@ -301,6 +304,9 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 					this.tokens = this.tokens.concat(this.solTransparentTokens);
 					this.tokens.push(token);
 					this.solTransparentTokens = [];
+					// discard pre/multiline-pre ws tokens that got us here
+					this.preWSToken = null;
+					this.multiLinePreWSToken = null;
 					this.state = PreHandler.STATE_PRE_COLLECT;
 				}
 				break;
@@ -321,6 +327,7 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 					this.state = PreHandler.STATE_PRE;
 
 					// check if token is single-space or more
+					this.multiLinePreWSToken = token[0];
 					if (!token.match(/^\s$/)) {
 						// Treat everything after the first space
 						// as a new token
