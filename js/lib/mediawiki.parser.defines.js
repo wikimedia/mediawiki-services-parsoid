@@ -102,18 +102,21 @@ var genericTokenMethods = {
 		if ( this.dataAttribs.a === undefined ) {
 			return {
 				value: curVal,
-				modified: false
+				modified: false,
+				fromsrc: false
 			};
 		} else if ( this.dataAttribs.a[name] !== curVal ||
 				this.dataAttribs.sa[name] === undefined ) {
 			return {
 				value: curVal,
-				modified: true
+				modified: true,
+				fromsrc: false
 			};
 		} else {
 			return {
 				value: this.dataAttribs.sa[name],
-				modified: false
+				modified: false,
+				fromsrc: true
 			};
 		}
 	},

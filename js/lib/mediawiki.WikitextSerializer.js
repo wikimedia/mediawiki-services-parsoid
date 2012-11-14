@@ -727,7 +727,9 @@ WSP._linkHandler =  function( state, tokens ) {
 		isCat = false,
 		hrefFromTpl = true,
 		tokenData = token.dataAttribs,
-		target, linkText, unencodedTarget, hrefInfo, href;
+		target, linkText, unencodedTarget,
+		hrefInfo = { fromsrc: false },
+		href;
 
 		// Helper function for getting RT data from the tokens
 		function populateRoundTripData() {
@@ -754,11 +756,12 @@ WSP._linkHandler =  function( state, tokens ) {
 
 			unencodedTarget = target;
 
-			// Escape anything that looks like percent encoding, since we
-			// decode the wikitext
-			if ( typeof target === 'string' ) {
+			if ( ! hrefInfo.fromsrc && target.constructor === String ) {
+				// Escape anything that looks like percent encoding, since we
+				// decode the wikitext for regular attributes.
 				target = target.replace( /%(?=[a-f\d]{2})/gi, '%25' );
 			}
+
 
 			// If the normalized link text is the same as the normalized
 			// target and the link was either modified or not originally a
@@ -790,7 +793,7 @@ WSP._linkHandler =  function( state, tokens ) {
 					tokenData.stx === 'simple' )
 				))
 			{
-				return '[[' + Util.decodeURI( target ) + ']]' + tail;
+				return '[[' + target + ']]' + tail;
 			} else {
 				if (tokenData.pipetrick) {
 					linkText = '';
