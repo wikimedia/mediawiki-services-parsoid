@@ -317,10 +317,8 @@ MWParserEnvironment.prototype.generateUID = function () {
  * call it from places you notice errors happening.
  */
 MWParserEnvironment.prototype.errCB = function ( error ) {
-	if ( error ) {
-		console.log( error.stack );
-		process.exit( 1 );
-	}
+	console.log( 'ERROR in ' + this.pageName + ':\n' + error.stack );
+	process.exit( 1 );
 };
 
 

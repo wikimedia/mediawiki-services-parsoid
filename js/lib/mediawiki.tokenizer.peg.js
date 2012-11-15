@@ -122,11 +122,9 @@ PegTokenizer.prototype.process = function( text, cacheKey ) {
 					);
 			this.onEnd();
 		} catch (e) {
-			console.warn( 'Tokenizer error in ' + cacheKey + ': ' + e );
-			console.log(e.stack);
-			chunkCB( ['Tokenizer error in ' + cacheKey + ': ' + e.stack] );
-			this.onEnd();
 			this.env.errCB(e);
+			//chunkCB( ['Tokenizer error in ' + cacheKey + ': ' + e.stack] );
+			//this.onEnd();
 		}
 	} else {
 		this.tokenizer.tokenize(text, 'start',

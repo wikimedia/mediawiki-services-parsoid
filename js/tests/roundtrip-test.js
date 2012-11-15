@@ -344,26 +344,29 @@ doubleRoundtripDiff = function ( page, offsets, src, body, out, cb, wgScript ) {
 			process.exit( 1 );
 		};
 
+
 		var parserPipeline = Util.getParser( env, 'text/x-mediawiki/full' );
 
 		parserPipeline.on( 'document', checkIfSignificant.bind( null, page, offsets, src, body, out, cb ) );
 
 		parserPipeline.process( out );
+
 	} else {
 		cb( null, page, [] );
 	}
 },
 
 roundTripDiff = function ( page, src, document, cb, env ) {
-	var out, curPair, patch, diff;
+	var out, curPair, patch, diff, offsetPairs;
 
 	try {
 		out = new WikitextSerializer( { env: env } ).serializeDOM( document.body );
 
-		diff = Util.convertDiffToOffsetPairs( jsDiff.diffLines( out, src ) );
+		diff = jsDiff.diffLines( out, src );
+		offsetPairs = Util.convertDiffToOffsetPairs( diff );
 
 		if ( diff.length > 0 ) {
-			doubleRoundtripDiff( page, diff, src, document.body, out, cb, env.wgScript );
+			doubleRoundtripDiff( page, offsetPairs, src, document.body, out, cb, env.wgScript );
 		} else {
 			cb( null, page, [] );
 		}
@@ -385,7 +388,6 @@ fetch = function ( page, cb, options ) {
 
     env.errCB = function ( error ) {
         cb( error, null, [] );
-		process.exit( 1 );
     };
 
 	var target = env.resolveTitle( env.normalizeTitle( env.pageName ), '' );
@@ -397,7 +399,6 @@ fetch = function ( page, cb, options ) {
 		} else {
 			Util.parse( env, function ( src, err, out ) {
 				if ( err ) {
-					console.log( err );
 					cb( err, page, [] );
 				} else {
 					roundTripDiff( page, src, out, cb, env );
@@ -413,7 +414,8 @@ cbCombinator = function ( formatter, cb, err, page, text ) {
 
 consoleOut = function ( err, output ) {
 	if ( err ) {
-		console.error( err );
+		console.log( 'ERROR: ' + err.stack );
+		console.exit( 1 );
 	} else {
 		console.log( output );
 	}

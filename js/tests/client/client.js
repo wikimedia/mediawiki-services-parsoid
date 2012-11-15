@@ -51,9 +51,11 @@ function getTitle( cb ) {
 function runTest( cb, title ) {
 	var result, callback = rtTest.cbCombinator.bind( null, rtTest.xmlFormat, function ( err, results ) {
 		if ( err ) {
-			console.log( err.stack );
+			console.log( 'ERROR in ' + title + ':\n' + err + err.stack );
+			cb( title, results, function () { process.exit( 1 ); } );
+		} else {
+			cb( title, results );
 		}
-		cb( title, results );
 	} );
 
 	try {
@@ -66,7 +68,7 @@ function runTest( cb, title ) {
 	}
 }
 
-function postResult( cb, title, result ) {
+function postResult( cb, title, result, finalCB ) {
 	getGitCommit( function ( newCommit, newTime ) {
 		result = qs.stringify( { results: result, commit: newCommit, ctime: newTime } );
 
@@ -83,7 +85,11 @@ function postResult( cb, title, result ) {
 
 		req = http.request( requestOptions, function ( res ) {
 			res.on( 'end', function () {
-				cb();
+				if ( finalCB ) {
+					finalCB();
+				} else {
+					cb();
+				}
 			} );
 		} );
 
@@ -120,8 +126,9 @@ function callbackOmnibus() {
 			runTest( callbackOmnibus, arguments[0] );
 			break;
 		case 2:
+		case 3:
 			console.log( 'Posting a result for ' + arguments[0] + '....' );
-			postResult( callbackOmnibus, arguments[0], arguments[1] );
+			postResult( callbackOmnibus, arguments[0], arguments[1], arguments[2] );
 			break;
 		default:
 			getGitCommit( function ( latestCommit ) {
