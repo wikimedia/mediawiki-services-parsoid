@@ -1305,12 +1305,11 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 	var children = node.childNodes,
 	    cs, ce = e, savedEndTagWidth = null;
 	for (var n = children.length, i = n-1; i >= 0; i--) {
-		var isMarkerTag = false;
-		cs = null;
-
-		var child = children[i],
+		var isMarkerTag = false,
+			child = children[i],
 		    cType = child.nodeType,
 			endTagWidth = null;
+		cs = null;
 		if (cType === Node.TEXT_NODE) {
 			if (traceDSR) console.warn("-- Processing <" + node.nodeName + ":" + i + ">=#" + child.data + " with [" + cs + "," + ce + "]");
 			if (ce !== null) {
@@ -1379,9 +1378,11 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 
 				if (tsr) {
 					cs = tsr[0];
-					if (tsrSpansTagDOM(child, dp) && (!ce || tsr[1] > ce)) {
-						ce = tsr[1];
-						propagateRight = true;
+					if (tsrSpansTagDOM(child, dp)) {
+						if (!ce || tsr[1] > ce) {
+							ce = tsr[1];
+							propagateRight = true;
+						}
 					} else {
 						stWidth = tsr[1] - tsr[0];
 					}
@@ -1398,7 +1399,11 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				// Process DOM subtree rooted at child
 				ccs = cs !== null && stWidth !== null ? cs + stWidth : null;
 				cce = ce !== null && etWidth !== null ? ce - etWidth : null;
-				if (traceDSR) console.warn("Before recursion, [cs,ce]=" + cs + "," + ce + "; [ccs,cce]=" + ccs + "," + cce);
+				if (traceDSR) {
+					console.warn("Before recursion, [cs,ce]=" + cs + "," + ce +
+						"; [sw,ew]=" + stWidth + "," + etWidth +
+						"; [ccs,cce]=" + ccs + "," + cce);
+				}
 				newDsr = computeNodeDSR(env, child, ccs, cce, traceDSR);
 
 				// Min(child-dom-tree dsr[0] - tag-width, current dsr[0])
