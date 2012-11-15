@@ -36,6 +36,8 @@
     //    return es;
     //};
 
+    var Util = require('./mediawiki.Util.js').Util;
+
     var flattenIfArray = function(e) {
         function internal_flatten(e, res) {
             // Don't bother flattening if we dont have an array
@@ -298,18 +300,50 @@
     // Define block-level tags in JS, so we can use toLowerCase to match tags
     // case-independently. This would be quite ugly (and possibly slower) if
     // done manually in the grammar.
-    var block_names = (function () {
-        var names = [ "p", "table", "td", "tr", "ul", "ol"
-                    , "li", "dl", "dt", "dd", "div", "center"
-                    , "blockquote" ];
-        var bnames = {};
-        for(var i = 0, l = names.length; i < l; i++) {
-            bnames[names[i]] = true;
-        }
-        return bnames;
-    })();
+    var block_names = Util.arrayToHash([ 
+        "p", "table", "td", "tr", "ul", "ol", "li", 
+        "dl", "dt", "dd", "div", "center", "blockquote" 
+    ]);
+
+    // The list of HTML5 tags, mainly used for the identification of *non*-html
+    // tags. Non-html tags terminate otherwise tag-eating productions (see list
+    // below) in order to support potential extension tags.
+    var html5_tag_names = Util.arrayToHash([
+        "a", "abbr", "address", "area", "article",
+        "aside", "audio", "b", "base", "bdi", "bdo", "blockquote",
+        "body", "br", "button", "canvas", "caption", "cite", "code",
+        "col", "colgroup", "command", "data", "datalist", "dd", "del",
+        "details", "dfn", "div", "dl", "dt", "em", "embed", "fieldset",
+        "figcaption", "figure", "footer", "form",
+        "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup",
+        "hr", "html", "i", "iframe", "img", "input", "ins", "kbd", "keygen",
+        "label", "legend", "li", "link", "map", "mark", "menu", "meta",
+        "meter", "nav", "noscript", "object", "ol", "optgroup", "option",
+        "output", "p", "param", "pre", "progress", "q", "rp", "rt",
+        "ruby", "s", "samp", "script", "section", "select", "small",
+        "source", "span", "strong", "style", "sub", "summary", "sup",
+        "table", "tbody", "td", "textarea", "tfoot", "th", "thead", "time",
+        "title", "tr", "track", "u", "ul", "var", "video", "wbr"
+    ]);
+
+    var html_old_names = Util.arrayToHash([ "center", "font", "tt" ]);
 
     var self = this;
+
+    function buildXMLTag(name, attribs, endTag, selfClose, tsr) {
+        var tok, da = { tsr: tsr, stx: 'html' };
+
+        if ( endTag != '' ) {
+            tok = new EndTagTk( name, attribs, da );
+        } else if ( selfClose != '' ) {
+            da.selfClose = true;
+            tok = new SelfclosingTagTk( name, attribs, da );
+        } else {
+            tok = new TagTk( name, attribs, da  );
+        }
+
+        return tok;
+    }
 
     /*
      * Emit a chunk of tokens to our consumers.  Once this has been done, the
@@ -559,7 +593,8 @@ h = & "=" // guard, to make sure '='+ will match.
     ) { return r }
 
 comment
-  = '<!--' c:comment_chars* ('-->' / eof)
+    ='<!--' c:comment_chars* ('-->' / eof)
+//  = '<!--' c:(!nonhtml_tag cc:comment_chars { return cc; } )* ('-->' / eof)
     {
         return [new CommentTk( c.join(''), { tsr: [pos0, pos] } )];
     }
@@ -1266,36 +1301,24 @@ nowiki_content
           }
 
 
-// The list of HTML5 tags, mainly used for the identification of *non*-html
-// tags. Non-html tags terminate otherwise tag-eating productions (see list
-// below) in order to support potential extension tags.
-html5_tagnames 
-  = "a" / "abbr" / "address" / "area" / "article" 
-    / "aside" / "audio" / "b" / "base" / "bdi" / "bdo" / "blockquote" 
-    / "body" / "br" / "button" / "canvas" / "caption" / "cite" / "code" 
-    / "col" / "colgroup" / "command" / "data" / "datalist" / "dd" / "del" 
-    / "details" / "dfn" / "div" / "dl" / "dt" / "em" / "embed" / "fieldset" 
-    / "figcaption" / "figure" / "footer" / "form" 
-    / "h1" / "h2" / "h3" / "h4" / "h5" / "h6" / "head" / "header" / "hgroup" 
-    / "hr" / "html" / "i" / "iframe" / "img" / "input" / "ins" / "kbd" / "keygen" 
-    / "label" / "legend" / "li" / "link" / "map" / "mark" / "menu" / "meta" 
-    / "meter" / "nav" / "noscript" / "object" / "ol" / "optgroup" / "option" 
-    / "output" / "p" / "param" / "pre" / "progress" / "q" / "rp" / "rt" 
-    / "ruby" / "s" / "samp" / "script" / "section" / "select" / "small" 
-    / "source" / "span" / "strong" / "style" / "sub" / "summary" / "sup" 
-    / "table" / "tbody" / "td" / "textarea" / "tfoot" / "th" / "thead" / "time" 
-    / "title" / "tr" / "track" / "u" / "ul" / "var" / "video" / "wbr"
 
 html_oldnames = "center" / "font" / "tt"
 
 // Simple match on non-html endtags, for use in inline_breaks
-nonhtml_endtag
-  = '</' 
-    ! ( html5_tagnames / html_oldnames )
-    [^ >]+
+nonhtml_tag
+  = "<" 
+    end:"/"? name:[0-9a-zA-Z]+ 
+    attribs:generic_newline_attribute* 
     ( space / newline ) *
-    [^>]*
-    '>'
+    selfclose:"/"?
+    ">" {
+        name = name.join('').toLowerCase();
+        if (html5_tag_names[name] || html_old_names[name]) {
+            return null;
+        } else {
+            return buildXMLTag(name, attribs, end, selfclose, [pos0, pos]);
+        }
+    }
 
 /* Generic XML-like tags
  * 
@@ -1314,24 +1337,15 @@ generic_tag
     selfclose:"/"?
     ">" {
         name = name.join('');
-        var res;
-        if ( end != '' ) {
-            res = new EndTagTk( name, attribs );
-        } else if ( selfclose !== '' || __parseArgs[3].Util.isVoidElement( name ) ) {
-            res = new SelfclosingTagTk( name, attribs );
-            if ( __parseArgs[3].Util.isVoidElement( name ) && selfclose === '' ) {
-                res.dataAttribs.noClose = true;
-            } else if (!__parseArgs[3].Util.isVoidElement( name ) && selfclose !== '') {
-                res.dataAttribs.selfClose = true;
-            }
-        } else {
-            res = new TagTk( name, attribs );
+        var isVoidElt = Util.isVoidElement( name ),
+            res = buildXMLTag(name, attribs, end, selfclose !== '' || isVoidElt, [pos0, pos]); 
+
+        // change up data-attribs in one scenario
+        // void-elts that aren't self-closed ==> useful for accurate RT-ing
+        if (selfclose === '' && isVoidElt) {
+            delete res.dataAttribs.selfClose;
+            res.dataAttribs.noClose = true;
         }
-        if ( res.dataAttribs === undefined ) {
-            res.dataAttribs = {};
-        }
-        res.dataAttribs.tsr = [pos0, pos];
-        res.dataAttribs.stx = 'html';
         return res;
     }
 
@@ -1435,21 +1449,12 @@ block_tag
     ( space / newline ) *
     selfclose:"/"?
     ">" {
-        if (block_names[name.toLowerCase()] !== true) {
+        if (block_names[name.toLowerCase()]) {
+            return [buildXMLTag(name, attribs, end, selfclose, [pos0, pos])];
+        } else {
             // abort match if tag is not block-level
             return null;
         }
-        var res;
-        if ( end != '' ) {
-            res = new EndTagTk( name, attribs );
-        } else if ( selfclose != '' ) {
-            res = new SelfclosingTagTk( name, attribs, { selfClose: true} );
-        } else {
-            res = new TagTk( name, attribs );
-        }
-        res.dataAttribs.tsr = [pos0, pos];
-        res.dataAttribs.stx = 'html';
-        return [res];
     }
 
 
