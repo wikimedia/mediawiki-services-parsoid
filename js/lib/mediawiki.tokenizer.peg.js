@@ -77,18 +77,23 @@ PegTokenizer.prototype.process = function( text, cacheKey ) {
 	if ( this.canCache && cacheKey ) {
 		var maybeCached = this.cache.get(cacheKey);
 		if ( maybeCached ) {
-			this.env.tp( 'tokenizer cache hit for ' + cacheKey );
-			//console.warn( JSON.stringify( maybeCached, null, 2 ) );
-			for ( var i = 0, l = maybeCached.length; i < l; i++ ) {
-				var cachedChunk = maybeCached[i];
-				if (this.env.trace) {
-					this.env.tracer.outputChunk(cachedChunk);
+			try {
+				this.env.tp( 'tokenizer cache hit for ' + cacheKey );
+				//console.warn( JSON.stringify( maybeCached, null, 2 ) );
+				for ( var i = 0, l = maybeCached.length; i < l; i++ ) {
+					var cachedChunk = maybeCached[i];
+					if (this.env.trace) {
+						this.env.tracer.outputChunk(cachedChunk);
+					}
+					// emit a clone of this chunk
+					this.emit('chunk', cachedChunk );
 				}
-				// emit a clone of this chunk
-				this.emit('chunk', cachedChunk );
+				this.emit('end');
+				return;
+			} catch ( e ) {
+				this.env.errCB(e);
 			}
-			this.emit('end');
-			return;
+
 		} else {
 			this.cacheAccum.key = cacheKey;
 		}
@@ -138,7 +143,11 @@ PegTokenizer.prototype.onCacheChunk = function ( chunk ) {
 	// make a deep copy of the chunk for now
 	this.cacheAccum.chunks.push( chunk.slice() );
 	//console.warn( 'onCacheChunk: ' + this.cacheAccum.key + JSON.stringify( chunk, null, 2 ) );
-	this.emit('chunk', chunk);
+	try {
+		this.emit('chunk', chunk);
+	} catch ( e ) {
+		this.env.errCB(e);
+	}
 };
 
 PegTokenizer.prototype.onEnd = function ( ) {

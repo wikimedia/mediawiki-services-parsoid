@@ -262,27 +262,33 @@ AsyncTokenTransformManager.prototype.setFrame = function ( parentFrame, title, a
 AsyncTokenTransformManager.prototype.emitChunk = function( ret ) {
 	this.env.dp( 'emitChunk', ret );
 
-	if ( ! ret.async ) {
-		// Check if an EOFTk went missing
-		if ( this.frame.depth === 0 &&
-				ret.tokens && ret.tokens.length &&
-				ret.tokens.last() && ret.tokens.last().constructor !== EOFTk )
-		{
-			console.error("ERROR: EOFTk went missing in AsyncTokenTransformManager");
-			ret.tokens.push(new EOFTk());
-		}
+	// This method is often the root of the call stack, so makes a good point
+	// for a try/catch to ensure error handling.
+	try {
+		if ( ! ret.async ) {
+			// Check if an EOFTk went missing
+			if ( this.frame.depth === 0 &&
+					ret.tokens && ret.tokens.length &&
+					ret.tokens.last() && ret.tokens.last().constructor !== EOFTk )
+			{
+				console.error("ERROR: EOFTk went missing in AsyncTokenTransformManager");
+				ret.tokens.push(new EOFTk());
+			}
 
-		this.emit( 'chunk', ret.tokens );
-		this.emit('end');
-		// NOTE: This is a dummy return.  We are exiting async mode and
-		// there is no caller waiting to consume this return value.
-		// This is present here for parity with the return on the other branch
-		// and not confuse anyone wondering if there is a missing return here.
-		return;
-	} else {
-		this.emit( 'chunk', ret.tokens );
-		// allow accumulators to go direct
-		return this.emitChunk.bind( this );
+			this.emit( 'chunk', ret.tokens );
+			this.emit('end');
+			// NOTE: This is a dummy return.  We are exiting async mode and
+			// there is no caller waiting to consume this return value.
+			// This is present here for parity with the return on the other branch
+			// and not confuse anyone wondering if there is a missing return here.
+			return;
+		} else {
+			this.emit( 'chunk', ret.tokens );
+			// allow accumulators to go direct
+			return this.emitChunk.bind( this );
+		}
+	} catch ( e ) {
+		this.env.errCB( e );
 	}
 };
 
