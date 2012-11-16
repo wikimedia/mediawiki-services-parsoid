@@ -115,6 +115,22 @@ Cite.prototype.handleRef = function ( tokens ) {
 	return { tokens: res };
 };
 
+function genPlaceholderTokens(env, token, src) {
+	var tsr = token.dataAttribs.tsr, dataAttribs;
+	if (tsr) {
+		// src from original src
+		dataAttribs = { tsr: tsr, src: env.text.substring(tsr[0], tsr[1]) };
+	} else {
+		// Use a default string
+		dataAttribs = { src: src };
+	}
+
+	return [
+		new TagTk('span', [ new KV( 'typeof', 'mw:Placeholder' ) ], dataAttribs),
+		new EndTagTk('span')
+	];
+}
+
 /**
  * Handle references tag tokens.
  *
@@ -124,7 +140,7 @@ Cite.prototype.handleRef = function ( tokens ) {
  */
 Cite.prototype.onReferences = function ( token, manager ) {
 	if ( token.constructor === EndTagTk ) {
-		return {};
+		return { tokens: genPlaceholderTokens(this.manager.env, token, "</references>") };
 	}
 
 	//console.warn( 'references refGroups:' + JSON.stringify( this.refGroups, null, 2 ) );
@@ -190,20 +206,7 @@ Cite.prototype.onReferences = function ( token, manager ) {
 					], dataAttribs)
 		].concat( listItems, [ new EndTagTk( 'ol' ) ] );
 	} else {
-		var tsr = token.dataAttribs.tsr;
-		if (tsr) {
-			// src from original src
-			dataAttribs = {
-				tsr: tsr,
-				src: this.manager.env.text.substring(tsr[0], tsr[1])
-			};
-		} else {
-			// Use a default string
-			dataAttribs = {
-				src: "<references />"
-			};
-		}
-		res = [ new TagTk('span', [ new KV( 'typeof', 'mw:Placeholder' ) ], dataAttribs) ];
+		res = genPlaceholderTokens(this.manager.env, token, "<references />");
 	}
 
 	//console.warn( 'references res: ' + JSON.stringify( res, null, 2 ) );
