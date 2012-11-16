@@ -655,8 +655,16 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 			tokens.push(closingTok);
 		}
 
+		// FIXME: Use this attribute in regular extline
+		// cases to rt spaces correctly maybe?  Unsure
+		// it is worth it.
+		var spaces = token.getAttribute('spaces');
+		if (spaces) {
+			tokens.push(spaces);
+		}
+
 		if ( content.length ) {
-			tokens = tokens.concat( [' '], content );
+			tokens = tokens.concat( content );
 		}
 
 		tokens.push(']');
