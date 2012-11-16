@@ -29,6 +29,7 @@ var $ = require('jquery'),
 	IncludeOnly = NoIncludeOnly.IncludeOnly,
 	NoInclude = NoIncludeOnly.NoInclude,
 	OnlyInclude	= NoIncludeOnly.OnlyInclude,
+	ExtensionContent = require('./ext.ExtensionContentCollector.js').ExtensionContent,
 	QuoteTransformer = require('./ext.core.QuoteTransformer.js').QuoteTransformer,
 	PreHandler = require('./ext.core.PreHandler.js').PreHandler,
 	ParagraphWrapper = require('./ext.core.ParagraphWrapper.js').ParagraphWrapper,
@@ -89,12 +90,8 @@ ParserPipelineFactory.prototype.recipes = {
 				// PHASE RANGE: [0,1)
 				OnlyInclude,	// 0.01
 				IncludeOnly,	// 0.02
-				NoInclude		// 0.03
-				// Insert TokenCollectors for extensions here (don't expand
-				// templates in extension contents); wrap collected tokens in
-				// special extension token.
-				/* Extension1, */
-				/* Extension2, */
+				NoInclude,		// 0.03
+				ExtensionContent, // 0.04
 			]
 		],
 		/*
