@@ -1260,7 +1260,8 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 		"table" : [2, 2],
 		"tr"    : [2, 0],
 		"td"    : [null, 0],
-		"th"    : [null, 0]
+		"th"    : [null, 0],
+		"br"    : [2,0] // non-html <br>s are inserted to replace 2 newlines in wikitext
 		// span, figure, caption, figcaption, br, a, i, b
 	};
 
@@ -1303,7 +1304,13 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 	if (traceDSR) console.warn("Received " + s + ", " + e + " for " + node.nodeName + " --");
 
 	var children = node.childNodes,
-	    cs, ce = e, savedEndTagWidth = null;
+		savedEndTagWidth = null,
+	    ce = e,
+		// initialize cs to ce to handle the zero-children case properly
+		// if this node has no child content, then the start and end for
+		// the child dom are indeed identical.  Alternatively, we could
+		// explicitly code this check before everything and bypass this.
+		cs = ce;
 	for (var n = children.length, i = n-1; i >= 0; i--) {
 		var isMarkerTag = false,
 			child = children[i],
