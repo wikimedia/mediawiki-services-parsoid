@@ -312,7 +312,7 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 				break;
 
 			case PreHandler.STATE_PRE_COLLECT:
-				if (token.isHTMLTag() && Util.isBlockTag(token.name)) {
+				if (token.isHTMLTag && token.isHTMLTag() && Util.isBlockTag(token.name)) {
 					ret = this.processPre(token);
 					this.moveToIgnoreState();
 				} else {
