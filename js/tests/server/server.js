@@ -92,7 +92,10 @@ var dbUpdateLatestResult = db.prepare(
     'WHERE id = ?' );
 
 var dbLatestCommitHash = db.prepare(
-	'SELECT hash FROM commits ORDER BY timestamp LIMIT 1');
+	'SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1');
+
+var dbSecondLastCommitHash = db.prepare(
+	'SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1 OFFSET 1');
 
 // IMPORTANT: node-sqlite3 library has a bug where it seems to cache
 // invalid results when a prepared statement has no variables.
@@ -117,7 +120,26 @@ var dbStatsQuery = db.prepare(
 	'count(CASE WHEN stats.errors=0 AND stats.fails=0 '+
 		'then 1 else null end) AS no_fails, ' +
 	'count(CASE WHEN stats.errors=0 AND stats.fails=0 AND stats.skips=0 '+
-		'then 1 else null end) AS no_skips ' +
+		'then 1 else null end) AS no_skips, ' +
+	// get regression count between last two commits
+	'(SELECT count(*) ' +
+	'FROM pages p ' +
+	'JOIN stats AS s1 ON s1.page_id = p.id ' +
+	'JOIN stats AS s2 ON s2.page_id = p.id ' +
+	'WHERE s1.commit_hash = (SELECT hash ' +
+	                        'FROM commits ORDER BY timestamp DESC LIMIT 1 ) ' +
+        'AND s2.commit_hash = (SELECT hash ' +
+                              'FROM commits ORDER BY timestamp DESC LIMIT 1 OFFSET 1) ' +
+	'AND s1.score > s2.score ) as numregressions, ' +
+	// get fix count between last two commits
+	'(SELECT count(*) ' +
+        'FROM pages ' +
+        'JOIN stats AS s1 ON s1.page_id = pages.id ' +
+        'JOIN stats AS s2 ON s2.page_id = pages.id ' +
+        'WHERE s1.commit_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1 ) ' +
+	'AND s2.commit_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1 OFFSET 1 ) ' +
+	'AND s1.score < s2.score ) as numfixes '  +
+
 	'FROM pages JOIN stats on pages.latest_result = stats.id');
 
 var dbFailsQuery = db.prepare(
@@ -186,9 +208,25 @@ var dbSkipsDistribution = db.prepare(
 	'GROUP by skips');
 
 var dbCommits = db.prepare(
-	'SELECT ? AS caching_bug_workaround, hash, timestamp ' +
-	'FROM commits ' +
-	'order by timestamp desc');
+	'SELECT ? AS caching_bug_workaround, hash, timestamp, ' +
+	// get the number of fixes column
+		'(SELECT count(*) ' +
+		'FROM pages ' +
+			'JOIN stats AS s1 ON s1.page_id = pages.id ' +
+			'JOIN stats AS s2 ON s2.page_id = pages.id ' +
+		'WHERE s1.commit_hash = (SELECT hash FROM commits c2 where c2.timestamp < c1.timestamp ORDER BY timestamp DESC LIMIT 1 ) ' +
+			'AND s2.commit_hash = c1.hash AND s1.score < s2.score) as numfixes, ' +
+	// get the number of regressions column
+		'(SELECT count(*) ' +
+		'FROM pages ' +
+			'JOIN stats AS s1 ON s1.page_id = pages.id ' +
+			'JOIN stats AS s2 ON s2.page_id = pages.id ' +
+		'WHERE s1.commit_hash = (SELECT hash FROM commits c2 where c2.timestamp < c1.timestamp ORDER BY timestamp DESC LIMIT 1 ) ' +
+			'AND s2.commit_hash = c1.hash AND s1.score > s2.score) as numregressions, ' +
+	// get the number of tests for this commit column
+		'(select count(*) from stats where stats.commit_hash = c1.hash) as numtests ' +
+	'FROM commits c1 ' +
+	'ORDER BY timestamp DESC');
 
 var dbFixesBetweenRevs = db.prepare(
 	'SELECT pages.title, ' +
@@ -225,6 +263,18 @@ var dbNumRegressionsBetweenRevs = db.prepare(
 	'JOIN stats AS s1 ON s1.page_id = pages.id ' +
 	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
 	'WHERE s1.commit_hash = ? AND s2.commit_hash = ? AND s1.score > s2.score ');
+
+var dbNumRegressionsBetweenLastTwoRevs = db.prepare(
+	'SELECT count(*) as numRegressions ' +
+	'FROM pages ' +
+	'JOIN stats AS s1 ON s1.page_id = pages.id ' +
+	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
+	'WHERE s1.commit_hash = (SELECT hash ' +
+	                        'FROM commits ORDER BY timestamp DESC LIMIT 1 ) ' +
+        'AND s2.commit_hash = (SELECT hash ' +
+                              'FROM commits ORDER BY timestamp DESC LIMIT 1 OFFSET 1) ' +
+        'AND s1.score > s2.score ');
+
 
 function dbUpdateErrCB(title, hash, type, msg, err) {
 	if (err) {
@@ -377,9 +427,13 @@ indexLinkList = function () {
 
 statsWebInterface = function ( req, res ) {
 	function displayRow(res, title, val) {
+		// round numeric data, but ignore others
+		if(!isNaN(Math.round(val*100)/100)) {
+			val = Math.round(val*100)/100;
+		}
 		res.write( '<tr style="font-weight:bold"><td style="padding-left:20px;">' +
 					title + '</td><td style="padding-left:20px; text-align:right">' +
-					Math.round(val*100)/100 + '</td></tr>' );
+					val + '</td></tr>' );
 	}
 
 	// Fetch stats for commit
@@ -397,6 +451,8 @@ statsWebInterface = function ( req, res ) {
 			var tests = row.total,
 			errorLess = row.no_errors,
 			skipLess = row.no_skips,
+			numRegressions = row.numregressions,
+			numFixes = row.numfixes,
 			noErrors = Math.round( 100 * 100 * errorLess / tests ) / 100,
 			perfects = Math.round( 100* 100 * skipLess / tests ) / 100,
 			syntacticDiffs = Math.round( 100 * 100 *
@@ -410,9 +466,11 @@ statsWebInterface = function ( req, res ) {
 				syntacticDiffs +
 				'%</b> round-tripped without semantic differences, and </li><li><b>' +
 				perfects +
-				'%</b> round-tripped with no character differences at all.</li></ul></p>' );
+				'%</b> round-tripped with no character differences at all.</li>' +
+				'</ul></p>' );
 
 			var width = 800;
+
 			res.write( '<table><tr height=60px>');
 			res.write( '<td width=' +
 					( width * perfects / 100 || 0 ) +
@@ -425,9 +483,13 @@ statsWebInterface = function ( req, res ) {
 					'px style="background:red" title="Semantic diffs"></td>' );
 			res.write( '</tr></table>' );
 
-			res.write( '<p>There are ' + row.maxresults +
-					' test results for the latest tested revision ' +
-					row.maxhash + '.</p>' );
+			res.write( '<p>Latest revision:' );
+			res.write( '<table><tbody>');
+			displayRow(res, "Git SHA1", row.maxhash);
+			displayRow(res, "Test Results", row.maxresults);
+			displayRow(res, "Regressions", numRegressions);
+			displayRow(res, "Fixes", numFixes);
+			res.write( '</tbody></table></p>' );
 
 			res.write( '<p>Averages (over the latest results):' );
 			res.write( '<table><tbody>');
@@ -435,8 +497,7 @@ statsWebInterface = function ( req, res ) {
 			displayRow(res, "Fails", row.avgfails);
 			displayRow(res, "Skips", row.avgskips);
 			displayRow(res, "Score", row.avgscore);
-			res.write( '</tbody></table>' );
-
+			res.write( '</tbody></table></p>' );
 			res.write( indexLinkList() );
 
 			res.end( '</body></html>' );
@@ -746,10 +807,15 @@ function GET_commits( req, res ) {
 			res.write( '<html><body>' );
 			res.write('<h1> List of all commits </h1>');
 			res.write('<table><tbody>');
-			res.write('<tr><th>Commit hash</th><th>Timestamp</th><th>-</th><th>+</th></tr>');
+			res.write('<tr><th>Commit hash</th><th>Timestamp</th>' +
+				  '<th>Regressions</th><th>Fixes</th><th>Tests</th>' +
+				  '<th>-</th><th>+</th></tr>');
 			for (var i = 0; i < n; i++) {
 				var r = rows[i];
 				res.write('<tr><td>' + r.hash + '</td><td>' + r.timestamp + '</td>');
+				res.write('<td>' + r.numregressions + '</td>');
+				res.write('<td>' + r.numfixes + '</td>');
+				res.write('<td>' + r.numtests + '</td>');
 				if ( i + 1 < n ) {
 					res.write('<td><a href="/regressions/between/' + rows[i+1].hash +
 						'/' + r.hash + '"><b>-</b></a></td>' );
