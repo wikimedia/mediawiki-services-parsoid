@@ -7,8 +7,6 @@ var TokenCollector = require( './ext.util.TokenCollector.js' ).TokenCollector,
 // List of supported extensions
 var supportedExtensions = ['math', 'gallery'];
 
-ExtensionContent.prototype.rank = 0.04;
-
 /**
  * Simple token collector for extensions
  */
@@ -27,6 +25,8 @@ function ExtensionContent ( manager, options ) {
 	}
 }
 
+ExtensionContent.prototype.rank = 0.04;
+
 ExtensionContent.prototype.handleExtensionTag = function(extension, tokens) {
 	// We can only use tsr if we are the top-level
 	// since env. only stores top-level wikitext and
@@ -34,13 +34,13 @@ ExtensionContent.prototype.handleExtensionTag = function(extension, tokens) {
 	if (this.options.wrapTemplates && tokens.length > 1) {
 		// Discard tokens and just create a span with text content
 		// with span typeof set to mw:Object/Extension/Content
-		var st = tokens[0];
-		var et = tokens.last();
-		var s_tsr = st.dataAttribs.tsr;
-		var e_tsr = et.dataAttribs.tsr;
-		var text  = this.manager.env.text;
-		var nt = new TagTk('span', [
-				new KV('typeof', 'mw:Object/Extension/Content'),
+		var st = tokens[0],
+			et = tokens.last(),
+			s_tsr = st.dataAttribs.tsr,
+			e_tsr = et.dataAttribs.tsr,
+			text  = this.manager.env.text,
+			nt = new TagTk('span', [
+				new KV('typeof', 'mw:Object/Extension'),
 				new KV('about', "#mwt" + this.manager.env.generateUID())
 			], {
 				tsr: [s_tsr[0], e_tsr[1]],
@@ -50,7 +50,7 @@ ExtensionContent.prototype.handleExtensionTag = function(extension, tokens) {
 	} else {
 		return { tokens: tokens };
 	}
-}
+};
 
 if (typeof module === "object") {
 	module.exports.ExtensionContent = ExtensionContent;
