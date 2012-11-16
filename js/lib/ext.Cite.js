@@ -13,7 +13,7 @@ var TokenCollector = require( './ext.util.TokenCollector.js' ).TokenCollector,
 function Cite ( manager, options ) {
 	this.manager = manager;
 	this.options = options;
-	this.refGroups = {};
+	this.reset();
 	// Set up the collector for ref sections
 	new TokenCollector(
 			manager,
@@ -26,7 +26,16 @@ function Cite ( manager, options ) {
 	// And register for references tags
 	manager.addTransform( this.onReferences.bind(this), "Cite:onReferences",
 			this.referencesRank, 'tag', 'references' );
+	// And register for cleanup
+	manager.addTransform( this.reset.bind(this), "Cite:reset",
+			this.referencesRank, 'end' );
 }
+
+Cite.prototype.reset = function ( token ) {
+	this.refGroups = {};
+	return { token: token };
+};
+
 
 // Cite should be the first thing to run in pahse 3 so the <ref>-</ref>
 // content tokens are pulled out of the token stream and dont pollute
