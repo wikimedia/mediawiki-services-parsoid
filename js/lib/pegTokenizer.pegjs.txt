@@ -1415,13 +1415,13 @@ generic_attribute_name
 
 // A generic attribute, possibly spanning multiple lines.
 generic_attribute_newline_value
-  = "=" (space / newline )* v:xml_att_value { 
-      return v; 
+  = "=" (space / newline )* v:xml_att_value? { 
+      return v === '' ? [] : v; 
   }
 // A generic but single-line attribute.
 generic_attribute_value
-  = "=" space* v:att_value { 
-      return v; 
+  = "=" space* v:att_value? { 
+      return v === '' ? [] : v; 
   }
 
 // Attribute value, quoted variants can span multiple lines.
