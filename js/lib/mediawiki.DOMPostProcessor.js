@@ -1121,6 +1121,13 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 						    em  = elem,
 							ee  = em,
 							tbl = em.parentNode.nextSibling;
+
+						// Dont get distracted by whitespace text nodes -- skip over them
+						// Unsure why these show up in some cases (only seen 1 node so far).
+						while (tbl && tbl.nodeName.toLowerCase() === "#text" && tbl.data.match(/^\s*$/)) {
+							tbl = tbl.nextSibling;
+						}
+
 						if (tbl &&
 							hasNodeName(tbl, 'table') &&
 							swallowTableIfNestedDSR(sm.parentNode, tbl))
