@@ -36,20 +36,26 @@ ExtensionContent.prototype.handleExtensionTag = function(extension, tokens) {
 		// with span typeof set to mw:Object/Extension/Content
 		var st = tokens[0],
 			et = tokens.last(),
-			s_tsr = st.dataAttribs.tsr,
-			e_tsr = et.dataAttribs.tsr,
-			text  = this.manager.env.text,
-			nt = new TagTk('span', [
-				new KV('typeof', 'mw:Object/Extension'),
-				new KV('about', "#mwt" + this.manager.env.generateUID())
-			], {
-				tsr: [s_tsr[0], e_tsr[1]],
-				src: text.substring(s_tsr[0], e_tsr[1])
-			});
-		return { tokens: [nt, text.substring(s_tsr[1],e_tsr[0]), new EndTagTk('span')] };
-	} else {
-		return { tokens: tokens };
+			s_tsr = (st.dataAttribs || {}).tsr,
+			e_tsr = (et.dataAttribs || {}).tsr;
+
+		// Dont crash if we dont get tsr values
+		// FIXME: Just a temporary patch-up to prevent crashers in RT testing.
+		if (s_tsr && e_tsr) {
+			var text  = this.manager.env.text,
+				nt = new TagTk('span', [
+					new KV('typeof', 'mw:Object/Extension'),
+					new KV('about', "#mwt" + this.manager.env.generateUID())
+				], {
+					tsr: [s_tsr[0], e_tsr[1]],
+					src: text.substring(s_tsr[0], e_tsr[1])
+				});
+
+			return { tokens: [nt, text.substring(s_tsr[1],e_tsr[0]), new EndTagTk('span')] };
+		}
 	}
+
+	return { tokens: tokens };
 };
 
 if (typeof module === "object") {
