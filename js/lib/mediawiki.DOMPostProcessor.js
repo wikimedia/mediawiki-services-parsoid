@@ -1457,7 +1457,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 							siblingDP.dsr = [null, null];
 						}
 
-						if (siblingDP.dsr[0] !== newCE) {
+						if (siblingDP.dsr[0] > newCE) {
 							// Update and move right
 							if (traceDSR) {
 								console.warn("CHANGING ce.start of " + sibling.nodeName + " from " + siblingDP.dsr[0] + " to " + newCE);
