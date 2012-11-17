@@ -662,13 +662,13 @@ extlink
         //target:urllink
         target:extlink_preprocessor_text
         targetOff:({return pos;})
-        text:(
-                ( space / [\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000] )* 
+        content:(
+                sp:( space / [\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000] )* 
                 t1:(
                     & { return  stops.push('pipe', false); }
                     t:inlineline { stops.pop('pipe'); return t }
                     / ! { return stops.pop('pipe') }
-                ) { return t1 }
+                ) { return [sp.join(''), t1] }
               )?
         "]" {
             stops.pop('extlink');
@@ -678,6 +678,7 @@ extlink
             //    linkCount++;
             //}
             //console.warn( 'extlink text: ' + pp( text ) );
+            var sp = content[0], text = content[1];
             var dataAttribs = {
                 targetOff: targetOff
             };
@@ -688,7 +689,8 @@ extlink
             return [
                 new SelfclosingTagTk( 'extlink', [
                     new KV('href', target),
-                    new KV('mw:content', text)
+                    new KV('mw:content', text),
+                    new KV('spaces', sp)
                 ],
                 dataAttribs)
             ];
