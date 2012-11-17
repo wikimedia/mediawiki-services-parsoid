@@ -1488,7 +1488,14 @@ WSP._getTokenHandler = function(state, token) {
 		}
 	}
 
-	if (token.isHTMLTag()) {
+	if (token.isHTMLTag() ||
+			(
+			 // Inherit stx: html for new elements from parent in some cases
+				( token.constructor === TagTk || token.constructor === EndTagTk ) &&
+				// new element
+				Object.keys(token.dataAttribs).length === 0 &&
+				state.parentSTX === 'html' ) )
+	{
 		handler = this.defaultHTMLTagHandler;
 	} else {
 		var tname = token.name;
@@ -1893,7 +1900,8 @@ WSP._serializeDOM = function( node, state ) {
 			var children = node.childNodes,
 				name = node.nodeName.toLowerCase(),
 				tkAttribs = this._getDOMAttribs(node.attributes),
-				tkRTInfo = this._getDOMRTInfo(node.attributes);
+				tkRTInfo = this._getDOMRTInfo(node.attributes),
+				parentSTX = state.parentSTX;
 
 			if (isHtmlBlockTag(name)) {
 				state.currLine = {
@@ -1906,12 +1914,38 @@ WSP._serializeDOM = function( node, state ) {
 			}
 
 			// Serialize the start token
-			this._serializeToken(state, new TagTk(name, tkAttribs, tkRTInfo));
+			var startToken = new TagTk(name, tkAttribs, tkRTInfo);
+			this._serializeToken(state, startToken);
+
+			// Newly created elements/tags in this list inherit their default
+			// syntax from their parent scope
+			var inheritSTXTags = { tbody:1, tr: 1, td: 1, li: 1, dd: 1, dt: 1 },
+				// These reset the inherited syntax no matter what
+				setSTXTags = { table: 1, ul: 1, ol: 1, dl: 1 },
+				// These (and inline elements) reset the default syntax to
+				// undefined
+				noHTMLSTXTags = {p: 1};
+
+			// Set self to parent token if data-parsoid is set
+			if ( Object.keys(tkRTInfo).length > 0 ||
+					setSTXTags[name] ||
+					! inheritSTXTags[name] )
+			{
+				if ( noHTMLSTXTags[name] || ! Util.isBlockTag(name) ) {
+					// Don't inherit stx in these
+					state.parentSTX = undefined;
+				} else {
+					state.parentSTX = tkRTInfo.stx;
+				}
+			}
 
 			// then children
 			for (var i = 0, n = children.length; i < n; i++) {
 				this._serializeDOM( children[i], state );
 			}
+
+			// Reset parent token
+			state.parentSTX = parentSTX;
 
 			// then the end token
 			this._serializeToken(state, new EndTagTk(name, tkAttribs, tkRTInfo));
