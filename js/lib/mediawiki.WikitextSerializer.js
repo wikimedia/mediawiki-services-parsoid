@@ -1283,6 +1283,17 @@ WSP.tagHandlers = {
 		},
 		wtEscapeHandler: WSP.wteHandlers.linkHandler
 	},
+	img: {
+		start: {
+			handle: function ( state, token ) {
+				if ( token.getAttribute('rel') === 'mw:externalImage' ) {
+					return token.getAttribute('src');
+				} else {
+					return '';
+				}
+			}
+		}
+	},
 	hr: {
 		start: {
 			startsNewline: true,
