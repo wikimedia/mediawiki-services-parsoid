@@ -1318,12 +1318,20 @@ WSP.tagHandlers = {
 	},
 	b:  {
 		start: { handle: id("'''") },
-		end: { handle: id("'''") },
+		end: {
+			handle: function ( state, token ) {
+				return token.dataAttribs.autoInsertedEnd ? "" : "'''";
+			}
+		},
 		wtEscapeHandler: WSP.wteHandlers.quoteHandler
 	},
 	i:  {
 		start: { handle: id("''") },
-		end: { handle: id("''") },
+		end: {
+			handle: function ( state, token ) {
+				return token.dataAttribs.autoInsertedEnd ? "" : "''";
+			}
+		},
 		wtEscapeHandler: WSP.wteHandlers.quoteHandler
 	},
 	a:  {
