@@ -256,7 +256,9 @@ QuoteTransformer.prototype.quotesToTags = function ( chunks, name ) {
 		//console.warn( 'quotesToTags t: ' + JSON.stringify( t, null, 2));
 
 		if(toggle) {
-			chunks[j][0] = new TagTk( name, t.attribs, {} );
+			chunks[j][0] = new TagTk( name, t.attribs,
+					// Mark last element as auto-closed
+					j === chunks.length - 1 ? { autoInsertedEnd: 1 } : {} );
 		} else {
 			chunks[j][0] = new EndTagTk( name, t.attribs, {} );
 		}
