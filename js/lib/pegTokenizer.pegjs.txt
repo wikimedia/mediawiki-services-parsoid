@@ -1020,8 +1020,8 @@ wikilink
 
       // We store the tail and content(s) in attributes, so that it is
       // expanded by the AttributeExpander pass.
-      obj.attribs.push( new KV( 'tail',  tail && tail.join('') || '') );
       obj.attribs = obj.attribs.concat( lcontent.content );
+      obj.attribs.push( new KV( 'tail',  tail && tail.join('') || '') );
       //console.warn( "XXX:" + pp([obj].concat(textTokens, [new EndTagTk( 'a' )])) );
       return [obj];
   }

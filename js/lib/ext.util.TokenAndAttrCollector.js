@@ -1,5 +1,11 @@
-"use strict";
 /* ------------------------------------------------------------------------
+ * TL:DR; This whole handler is one giant hack of sorts to get around
+ *
+ * (1) precedence issues in a single-pass tokenizer (without
+ *     preprocessing passes like in the multi-pass PHP parser)
+ *     to process noinclude/includeonly and extension content tags.
+ * (2) unbalanced/misnested tags in source wikitext.
+ * ------------------------------------------------------------------------
  * Token attributes can have one or both of their key/value information
  * come from a token stream.  Ex: <div {{echo|id}}="{{echo|test}}">
  *
@@ -21,7 +27,7 @@
  * Ex: <p id="<noinclude>"> foo </noinclude></p>
  *
  * This use of <noinclude> tags spans a DOM-attribute and a DOM child
- * across levels and is not really well-structure wrt DOM semantics and
+ * across levels and is not really well-structured wrt DOM semantics and
  * ideally should not be supported/seen in wikitext.  This support may
  * evolve in the future to issue appropriate warnings/error messages to
  * encourage fixing up the relevant pages.
@@ -29,6 +35,9 @@
  * Authors: Subramanya Sastry <ssastry@wikimedia.org>
  *          Gabriel Wicke <gwicke@wikimedia.org>
  * ------------------------------------------------------------------------ */
+
+"use strict";
+
 function TokenAndAttrCollector(manager, transformation, toEnd, rank, name) {
 	this.transformation = transformation;
 	this.manager = manager;
@@ -49,11 +58,11 @@ TokenAndAttrCollector.prototype.init = function(start) {
 	 * tokens are all tokens in between start and end.
 	 *
 	 * The nesting info object has the following fields:
-	 * 	- delimiter : the nested delimiter (ex: </noinclude>, <includeonly> ..)
-	 * 	- token     : the token that nested the delimiter
-	 * 	- attrIndex : index of the attribute where the delimiter was found
-	 * 	- k         : if >= 0, the index of the delimiter with the k-array of the attribute
- 	 * 	- v         : if >= 0, the index of the delimiter with the v-array of the attribute
+	 * - delimiter : the nested delimiter (ex: </noinclude>, <includeonly> ..)
+	 * - token     : the token that nested the delimiter
+	 * - attrIndex : index of the attribute where the delimiter was found
+	 * - k         : if >= 0, the index of the delimiter with the k-array of the attribute
+ 	 * - v         : if >= 0, the index of the delimiter with the v-array of the attribute
 	 */
 	this.collection = {
 		start  : null,
@@ -65,87 +74,286 @@ TokenAndAttrCollector.prototype.init = function(start) {
 };
 
 TokenAndAttrCollector.prototype.inspectAttrs = function(token) {
-	var balanced = true;
-	var nestedTagInfo = null;
+	/* --------------------------------------------------
+	 * NOTE: This code assumes:
+	 * - balanced open/closed delimiters.
+	 * - no nesting of delimiters.
+	 * -------------------------------------------------- */
 
-	function testForNestedDelimiter(collector, containerToken, attrIndex, isK, tagArray) {
+	function nothingSpecialToDo(collector, token) {
+		if (collector.hasOpenTag) {
+			collector.collection.tokens.push(token);
+			return {};
+		} else {
+			return {tokens: [token]};
+		}
+	}
+
+	function collectNestedDelimiters(collector, containerToken, attrIndex, isK, tagArray) {
+		// Don't collect balanced pairs of open-closed tags.
+		// They will be taken care of by the attribute-handler.
+		//
+		// This let us distinguish between (a) and (b).
+		// (a) <div style="<noinclude>">...</div>
+		// (b) <div style="<noinclude>foo</noinclude>">...</div>
+		var delims = [], openTag = null, closedTag = null;
 		for (var j = 0, m = tagArray.length; j < m; j++) {
 			var t  = tagArray[j];
 			var tc = t.constructor;
-			// Last open unmatched tag is the nested tag we are looking for
 			if ((tc === TagTk) && (t.name === collector.tagName)) {
-				if (!collector.hasOpenTag && balanced) {
-					nestedTagInfo = {
-						delimiter: t,
-						token: containerToken,
-						attrIndex: attrIndex,
-						k: isK  ? j : -1,
-						v: !isK ? j : -1
-					};
-				}
-				balanced = !balanced;
+				openTag = {
+					delimiter: t,
+					open: true,
+					token: containerToken,
+					attrIndex: attrIndex,
+					k: isK  ? j : -1,
+					v: !isK ? j : -1
+				};
 			} else if ((tc === EndTagTk) && (t.name === collector.tagName)) {
-				// First unmatched closing tag is the nested tag we are looking for
-				if (!nestedTagInfo && balanced) {
-					nestedTagInfo = {
-						delimiter: t,
-						token: containerToken,
-						attrIndex: attrIndex,
-						k: isK  ? j : -1,
-						v: !isK ? j : -1,
-						unbalanced: !collector.hasOpenTag
-					};
+				closedTag = {
+					delimiter: t,
+					open: false,
+					token: containerToken,
+					attrIndex: attrIndex,
+					k: isK  ? j : -1,
+					v: !isK ? j : -1
+				};
+
+				// Collect any unbalanced closed tag
+				if (!openTag) {
+					closedTag.unbalanced = true;
+					delims.push(closedTag);
 				}
-				balanced = !balanced;
+
+				openTag = closedTag = null;
 			}
-			// FIXME: Not recursing down for now
-			// else if is-tag { .. inspectAttrs ..  }
+			// FIXME: Not recursing down into t's attributes above
 		}
+
+		// Collect any unbalanced open tag
+		if (openTag) {
+			delims.push(openTag);
+		}
+
+		return delims;
+	}
+
+	function reuniteSeparatedPairs(token, delims) {
+		/* -----------------------------------------------------------
+		 * FIXME: Merging attributes is not necessarily the right
+		 * solution in all cases.  In certain parsing contexts,
+		 * we shouldn't be merging the attributes at all.
+		 *
+		 * Ex: [[Image:foo.jpg|thumb|<noinclude>foo|bar|baz</noinclude>]]
+		 *
+		 * PHP parser treats these as 3 different attributes and
+		 * discards everything but 'baz'.  But, by merging the 3 attrs,
+		 * this handler will include everything.  This is an edge case,
+		 * so, not worrying about it now.
+		 * ------------------------------------------------------------ */
+
+		// helper function
+		function mergeToks(toks, t) {
+			if (t.constructor === Array) {
+				return toks.concat(t);
+			} else {
+				toks.push(t);
+				return toks;
+			}
+		}
+
+		// helper function
+		function mergeAttr(toks, a) {
+			// Compute toks + a.k + "=" + a.v
+			if (a.k === "mw:maybeContent") {
+				/* -----------------------------------------------------
+				 * FIXME: This is not the right solution in all cases.
+				 * This is appropriate only when we are processing
+				 * extension content where "|" has no special meaning.
+				 * For now, we are turning a blind eye since this is
+				 * likely an edge case:
+				 *
+				 * [[Image:foo.jpg|thumb|<noinclude>foo|bar|baz</noinclude>]]
+				 * ---------------------------------------------------------- */
+				toks.push("|");
+				toks = mergeToks(toks, a.v);
+			} else {
+				toks = mergeToks(toks, a.k);
+				if (a.v !== "") {
+					toks.push('=');
+					toks = mergeToks(toks, a.v);
+				}
+			}
+			return toks;
+		}
+
+		// console.warn("T: " + JSON.stringify(token));
+
+		var n = delims.length, i = 0, j = n-1;
+
+		// find the first open delim -- will be delims[0/1] for well-formed WT
+		while (i < n && !delims[i].open) {
+			i++;
+		}
+
+		// find the last closed delim -- will be delims[n-2/n-1] for well-formed WT
+		while (j >= 0 && delims[j].open) {
+			j--;
+		}
+
+		var openD = delims[i],
+			closeD = delims[j];
+
+		// Merge all attributes between openD.attrIndex and closeD.attrIndex
+		// into a single attribute while reinserting "|" as a new token.
+		// Tricky bits:
+		// - every attribute is a (k,v) pair, and we need to merge
+		//   both the k and v into one set of tokens and insert a "=" token
+		//   in between.
+		// - we need to handle the first/last attribute specially since the
+		//   openD/closeD may show up in either k/v of those attrs.  That
+		//   will determine what the merged k/v value will be.
+		if (i < j) {
+			var attrs = token.attribs, toks;
+
+			// console.warn("openD: " + JSON.stringify(openD));
+			// console.warn("closeD: " + JSON.stringify(closeD));
+
+			if (openD.k === -1) {
+				// openD didn't show up in k. Start with v
+				toks = mergeToks([], attrs[openD.attrIndex].v);
+			} else {
+				// openD showed up in k.  Merge k & v
+				toks = mergeAttr([], attrs[openD.attrIndex]);
+			}
+
+			var x = openD.attrIndex + 1;
+			while (x < closeD.attrIndex) {
+				// Compute toks + a.k + "=" + a.v //+ "|"
+				toks = mergeAttr(toks, attrs[x]);
+				// toks.push('|');
+				x++;
+			}
+
+			// Compute merged (k,v)
+			var mergedK, mergedV;
+			if (openD.k === -1) {
+				// openD didn't show up in k.
+				// Use orig-k for the merged KV
+				// Merge closeD's attr into toks and use it for v
+				mergedK = attrs[openD.attrIndex].k;
+				mergedV = mergeAttr(toks, attrs[closeD.attrIndex]);
+			} else {
+				// openD showed up in k.
+				// check where closedD showed up.
+				if (closeD.k !== -1) {
+					mergedK = mergeToks(toks, attrs[closeD.attrIndex].k);
+					mergedV = attrs[closeD.attrIndex].v;
+				} else {
+					mergedK = mergeAttr(toks, attrs[closeD.attrIndex]);
+					mergedV = [];
+				}
+			}
+
+			// console.warn("t-delims: " + JSON.stringify(delims));
+			// console.warn("-------------");
+			// console.warn("t-orig: " + JSON.stringify(token));
+			// console.warn("merged k: " + JSON.stringify(mergedK));
+			// console.warn("merged v: " + JSON.stringify(mergedV));
+
+			// clone token and splice in merged attribute
+			var numDeleted = closeD.attrIndex - openD.attrIndex;
+			token = token.clone();
+			token.attribs.splice(openD.attrIndex, numDeleted + 1, new KV(mergedK, mergedV));
+
+			// console.warn("-------------");
+			// console.warn("t-merged: " + JSON.stringify(token));
+
+			// remove merged delims and update attr-index for remaining delimiters
+			delims.splice(i,j-i+1);
+			while (i < delims.length) {
+				delims.attrIndex -= numDeleted;
+				i++;
+			}
+		}
+
+		return [token, delims];
 	}
 
 	// Check tags to see if we have a nested delimiter
 	var attrs = token.attribs;
+	var delims = [];
 	for (var i = 0, n = attrs.length; i < n; i++) {
 		var a = attrs[i];
 		var k = a.k;
 		if (k.constructor === Array && k.length > 0) {
-			testForNestedDelimiter(this, token, i, true, k);
+			delims = delims.concat(collectNestedDelimiters(this, token, i, true, k));
 		}
 		var v = a.v;
 		if (v.constructor === Array && v.length > 0) {
-			testForNestedDelimiter(this, token, i, false, v);
+			delims = delims.concat(collectNestedDelimiters(this, token, i, false, v));
 		}
 	}
 
-	// Check if we have the nested delimiters were balanced.
-	//
-	// This let us distinguish between (a) and (b).
-	// (a) <div style="<noinclude>">...</div>
-	// (b) <div style="<noinclude>foo</noinclude>">...</div>
-	//
-	// If balanced, the attribute-handler will deal with nested tags later on.
-	// If unbalanced, we let the collection user deal with the mess.
-	if (balanced) {
-		if (this.hasOpenTag) {
-			this.collection.tokens.push(token);
-			return {tokens: null};
-		} else {
-			return {tokens: [token]};
-		}
+	// console.warn("delims: " + JSON.stringify(delims));
+
+	if (delims.length === 0) {
+		return nothingSpecialToDo(this, token);
 	} else {
-		if (this.hasOpenTag) {
-			this.collection.end = nestedTagInfo ? nestedTagInfo : token;
-			this.hasOpenTag = false;
-			return this.transformation(this.collection);
+		if (delims.length > 1) {
+			// we will have delims.length %2 matched pairs across
+			// attributes and their .k and .v properties.  Merge
+			// them into a unified attribute since this separation
+			// is a Parsoid parsing artefact.
+			var ret = reuniteSeparatedPairs(token, delims);
+			token  = ret[0];
+			delims = ret[1];
+		}
+
+		var numDelims = delims.length;
+		if (numDelims === 0) {
+			// we merged matching pairs and eliminated all nested
+			// delims to process in this pass.
+			return nothingSpecialToDo(this, token);
 		} else {
-			this.init(nestedTagInfo);
-			return {tokens: null};
+			if (this.hasOpenTag) {
+				// Find first closed delim -- should always be the delims[0]
+				// if everything is working properly.
+				i = 0;
+				while (i < numDelims && delims[i].open) {
+					i++;
+				}
+
+				if (i < numDelims) {
+					this.collection.end = delims[i];
+					this.hasOpenTag = false;
+					return this.transformation(this.collection);
+				} else {
+					// nested/extra tag?  we'll ignore it.
+					return nothingSpecialToDo(this, token);
+				}
+			} else {
+				// Find last open delim -- should always be the delims[numDelims-1]
+				// if everything is working properly.
+				i = numDelims-1;
+				while (i >= 0 && !delims[i].open) {
+					i--;
+				}
+
+				if (i >= 0) {
+					this.init(delims[i]);
+					return {tokens: null};
+				} else {
+					// nested/extra tag?  we'll ignore it.
+					return nothingSpecialToDo(this, token);
+				}
+			}
 		}
 	}
 };
 
 TokenAndAttrCollector.prototype.onAnyToken = function( token, frame, cb ) {
-	// console.warn("T<" + this.uid + ":" + this.rank + ":" + this.hasOpenTag + ">:" + JSON.stringify(token));
+	//console.warn("T<" + this.tagName + ":" + this.rank + ":" + this.hasOpenTag + ">:" + JSON.stringify(token));
 	var tc = token.constructor, res;
 	if ((tc === TagTk) && (token.name === this.tagName)) {
 		this.init(token);
@@ -156,7 +364,7 @@ TokenAndAttrCollector.prototype.onAnyToken = function( token, frame, cb ) {
 			this.collection.end = token;
 			return this.transformation(this.collection);
 		} else if (tc === EOFTk) {
-			if (  this.toEnd) {
+			if (this.toEnd) {
 				this.collection.tokens.push(token);
 				this.hasOpenTag = false;
 				res = this.transformation(this.collection);
