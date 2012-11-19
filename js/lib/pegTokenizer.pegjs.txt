@@ -465,11 +465,23 @@ block_line
       }
   / ! { return stops.counters.nopre } pre_indent
   / pre
-  / "----" d:"-"* { 
+  / // Horizontal rules
+    "----" d:"-"* 
+    // Check if a newline or content follows
+    lineContent:( &sol { return undefined; } / { return true } ) { 
       if (d.length > 0) {
-          return new SelfclosingTagTk( "hr", [], {tsr: [pos0, pos], extra_dashes: d.length} ); 
+          return new SelfclosingTagTk( "hr", [], 
+                    {
+                        tsr: [pos0, pos], 
+                        extra_dashes: d.length, 
+                        lineContent: lineContent
+                    } ); 
       } else {
-          return new SelfclosingTagTk( "hr", [], {tsr: [pos0, pos]} ); 
+          return new SelfclosingTagTk( "hr", [], 
+                    {
+                        tsr: [pos0, pos], 
+                        lineContent: lineContent
+                    } ); 
       }
   }
 

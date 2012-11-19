@@ -1297,9 +1297,16 @@ WSP.tagHandlers = {
 	hr: {
 		start: {
 			startsNewline: true,
-			endsLine: true,
 			handle: function(state, token) {
 				return dashyString("----", token.dataAttribs.extra_dashes);
+			}
+		},
+		end: {
+			handle: function(state, token) {
+				// Default to ending the line, but omit it if the source did
+				// not have one.
+				this.endsLine = ! token.dataAttribs.lineContent;
+				return '';
 			}
 		}
 	},
