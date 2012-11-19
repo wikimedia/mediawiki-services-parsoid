@@ -218,12 +218,7 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 		// distinguish media types
 		// if image: parse options
 		rdfaAttrs = buildLinkAttrs(token.attribs, true, null, null ),
-		content = rdfaAttrs.content,
-		MD5 = new jshashes.MD5(),
-		hash = MD5.hex( title.key ),
-		// TODO: Hackhack.. Move to proper test harness setup!
-		path = [ this.manager.env.wgUploadPath, hash[0],
-					hash.substr(0, 2), title.key ].join('/');
+		content = rdfaAttrs.content;
 
 	// extract options
 	var i, l, kv,
@@ -311,7 +306,8 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 	// XXX: render according to mode (inline, thumb, framed etc)
 
 	if ( oHash.format && ( oHash.format === 'thumb' || oHash.format === 'thumbnail') ) {
-		return this.renderThumb( token, this.manager, cb, title, fileName, path, caption, oHash, options, rdfaAttrs);
+		return this.renderThumb( token, this.manager, cb, title, fileName,
+				caption, oHash, options, rdfaAttrs);
 	} else {
 		// TODO: get /wiki from config!
 		var newAttribs = [
@@ -328,7 +324,8 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 			height = oHash.height;
 		}
 
-		var img = new SelfclosingTagTk( 'img',
+		var path = this.getThumbPath( title.key, width.replace(/px$/, '') ),
+			img = new SelfclosingTagTk( 'img',
 				[
 					// FIXME!
 					new KV( 'height', height || '' ),
@@ -348,7 +345,24 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 	}
 };
 
-WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fileName, path, caption, oHash, options, rdfaAttrs ) {
+// Create an url for the scaled image src.
+// FIXME: This is just a dirty hack which will only ever work with the WMF
+// cluster configuration which creates an on-demand thumbnail when accessing a
+// width-prefixed image URL.
+WikiLinkHandler.prototype.getThumbPath = function ( key, width ) {
+	var MD5 = new jshashes.MD5(),
+		hash = MD5.hex( key );
+
+	return [ this.manager.env.wgUploadPath, 'thumb', hash[0],
+				hash.substr(0, 2), key,
+				width + 'px-' + key
+			].join('/');
+};
+
+
+WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fileName,
+		caption, oHash, options, rdfaAttrs )
+{
 	// TODO: get /wiki from config!
 	var dataAttribs = Util.clone(token.dataAttribs);
 	dataAttribs.optionHash = oHash;
@@ -403,7 +417,9 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 		figAttrs.push(new KV('typeof', rdfaType));
 	}
 
-	var thumb = [
+	var path = this.getThumbPath( title.key, width ),
+
+		thumb = [
 		new TagTk('figure', figAttrs),
 		new TagTk( 'a', [
 					new KV('href', title.makeLink()),
