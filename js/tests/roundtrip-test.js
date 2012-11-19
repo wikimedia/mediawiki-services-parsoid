@@ -415,7 +415,7 @@ cbCombinator = function ( formatter, cb, err, page, text ) {
 consoleOut = function ( err, output ) {
 	if ( err ) {
 		console.log( 'ERROR: ' + err.stack );
-		console.exit( 1 );
+		process.exit( 1 );
 	} else {
 		console.log( output );
 	}
