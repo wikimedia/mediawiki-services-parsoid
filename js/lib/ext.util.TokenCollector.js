@@ -44,8 +44,11 @@ function TokenCollector ( manager, transformation, toEnd, rank, type, name ) {
  * Register any collector with slightly lower priority than the start/end token type
  * XXX: This feels a bit hackish, a list-of-registrations per rank might be
  * better.
+ *
+ * Don't make this delta much larger- could lead to conflicts in the
+ * ExtensionContentCollector for example.
  */
-TokenCollector.prototype._anyDelta = 0.00001;
+TokenCollector.prototype._anyDelta = 0.00000001;
 
 
 /**
