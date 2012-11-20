@@ -78,7 +78,8 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 		currentId: 1,
 		maybeSourceChunks: [],
 		originalSourceChunks: [],
-		startdsr: null
+		startdsr: null,
+		foundChange: false
 	};
 
 	for ( var i = 0; i < node.childNodes.length; i++ ) {
@@ -121,6 +122,10 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 
 				// Reset the start DSR, because we aren't processing identical nodes now.
 				state.startdsr = null;
+			}
+
+			if ( hasChangeMarker( thisda ) ) {
+				state.foundChange = true;
 			}
 
 			// Actually set the serialize-id
@@ -216,39 +221,47 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 		if ( foundRevisions ) {
 			// If we found text, then use this chunk callback.
 			var state = _this.assignSerializerIds( doc, src );
-			chunkCB = function ( res, serID ) {
-				// Only handle something that actually has a serialize-ID,
-				// else skip it for now.
-				if ( serID ) {
-					serID = Number( serID );
-					if ( state.originalSourceChunks[serID] ) {
-						// Prefix the result with the original source that
-						// preceded this element.
-						srcWikitext += state.originalSourceChunks[serID];
-						state.originalSourceChunks[serID] = null;
+			if ( state.foundChange === false ) {
+				srcWikitext = src;
+				cb( srcWikitext );
+				finalcb();
+			} else {
+				chunkCB = function ( res, serID ) {
+					// Only handle something that actually has a serialize-ID,
+						// else skip it for now.
+					if ( serID ) {
+						serID = Number( serID );
+						if ( state.originalSourceChunks[serID] ) {
+							// Prefix the result with the original source that
+							// preceded this element.
+							srcWikitext += state.originalSourceChunks[serID];
+							state.originalSourceChunks[serID] = null;
+						}
+						// Unconditionally add the result of the serialization to
+						// the end result.
+						srcWikitext += res;
 					}
-					// Unconditionally add the result of the serialization to
-					// the end result.
-					srcWikitext += res;
-				}
-			};
+				};
+			}
 		} else {
 			// If there's no old source, fall back to non-selective serialization.
 			chunkCB = cb;
 		}
 
-		// Call the WikitextSerializer to do our bidding
-		_this.wts.serializeDOM( doc, chunkCB, function () {
-			if ( foundRevisions ) {
-				if ( state.startdsr !== null ) {
-					srcWikitext += src.substring( state.startdsr - 1 );
+		if ( state.foundChange === true ) {
+			// Call the WikitextSerializer to do our bidding
+			_this.wts.serializeDOM( doc, chunkCB, function () {
+				if ( foundRevisions ) {
+					if ( state.startdsr !== null ) {
+						srcWikitext += src.substring( state.startdsr - 1 );
+					}
+
+					cb( srcWikitext );
 				}
 
-				cb( srcWikitext );
-			}
-
-			finalcb();
-		} );
+				finalcb();
+			} );
+		}
 	} );
 };
 
