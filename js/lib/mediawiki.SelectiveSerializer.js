@@ -91,7 +91,7 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 		// duplicate later for special cases.
 		thisdp = Util.getJSONAttribute( child, 'data-parsoid', {} );
 
-		if ( !thisdp.dsr && child.nodeType === child.TEXT_NODE ) {
+		if ( !thisdp.dsr && !child.setAttribute ) {
 			// We can't mess with a text node, but we do need to avoid the
 			// error caused by calling setAttribute on it.
 		} else if (
