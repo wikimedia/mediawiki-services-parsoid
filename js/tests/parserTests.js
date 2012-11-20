@@ -231,7 +231,7 @@ ParserTests.prototype.parseSingleChange = function ( changes ) {
 
 ParserTests.prototype.parseChanges = function ( txt ) {
 	try {
-		return this.changeParser.parse( txt );
+		return this.testParser.parse( txt );
 	} catch ( e ) {
 		console.log( e.stack || e.toString() );
 	}
@@ -859,22 +859,10 @@ ParserTests.prototype.main = function ( options ) {
 		this.testFileName = __dirname + '/' + this.parser_tests_file;
 	}
 
-	if ( options.changes ) {
-		this.changeFileName = options.changes;
-	} else {
-		this.changeFileName = __dirname + '/' + this.tests_changes_file;
-	}
-
 	try {
 		this.testParser = PEG.buildParser( fs.readFileSync( __dirname + '/parserTests.pegjs', 'utf8' ) );
 	} catch ( e2 ) {
 		console.log( e2 );
-	}
-
-	try {
-		this.changeParser = PEG.buildParser( fs.readFileSync( __dirname + '/parserTests.pegjs', 'utf8' ) );
-	} catch ( e3 ) {
-		console.log( e3.stack || e3.toString() );
 	}
 
 	this.cases = this.getTests( options ) || [];
