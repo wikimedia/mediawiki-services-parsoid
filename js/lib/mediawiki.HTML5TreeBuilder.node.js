@@ -56,6 +56,12 @@ FauxHTML5.TreeBuilder.prototype.onChunk = function ( tokens ) {
 };
 
 FauxHTML5.TreeBuilder.prototype.onEnd = function ( ) {
+	// Check if the EOFTk actually made it all the way through, and flag the
+	// page where it did not!
+	if ( this.lastToken && this.lastToken.constructor !== EOFTk ) {
+		this.env.errCB( "EOFTk was lost in page " + this.env.pageName );
+	}
+
 	//console.warn('Fauxhtml5 onEnd');
 	// FIXME HACK: For some reason the end token is not processed sometimes,
 	// which normally fixes the body reference up.
