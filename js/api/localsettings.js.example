@@ -10,3 +10,6 @@ exports.setup = function( config, env ) {
 	// The URL here is supposed to be your MediaWiki installation root
 	env.setInterwiki( 'localhost', 'http://localhost/wiki' );
 };
+
+exports.useSelser = false;
+

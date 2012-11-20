@@ -36,7 +36,8 @@ var express = require('express'),
 // local includes
 var mp = '../lib/',
 	lsp = __dirname + '/localsettings.js',
-	localSettings = require( lsp );
+	localSettings = require( lsp ),
+	useSelser = localSettings.useSelser;
 
 var instanceName = cluster.isWorker ? 'worker(' + process.pid + ')' : 'master';
 
@@ -44,6 +45,7 @@ console.log( ' - ' + instanceName + ' loading...' );
 
 var WikitextSerializer = require(mp + 'mediawiki.WikitextSerializer.js').WikitextSerializer,
 	SelectiveSerializer = require( mp + 'mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
+	Serializer = useSelser ? SelectiveSerializer : WikitextSerializer,
 	Util = require( mp + 'mediawiki.Util.js' ).Util,
 	libtr = require(mp + 'mediawiki.ApiRequest.js'),
 	DoesNotExistError = libtr.DoesNotExistError,
@@ -171,7 +173,7 @@ var roundTripDiff = function ( req, res, src, document ) {
 	res.write( '<h2>Wikitext parsed to HTML DOM</h2><hr>\n' );
 	res.write(document.body.innerHTML + '\n<hr>');
 	res.write( '<h2>HTML DOM converted back to Wikitext</h2><hr>\n' );
-	out = new WikitextSerializer({env: env}).serializeDOM( document.body );
+	out = new Serializer({env: env}).serializeDOM( document.body );
 	if ( out === undefined ) {
 		console.log( 'Serializer error!' );
 		out = "An error occured in the WikitextSerializer, please check the log for information";
@@ -304,7 +306,7 @@ app.post(/\/_html\/(.*)/, function ( req, res ) {
 	var p = new html5.Parser();
 	p.parse( '<html><body>' + req.body.content.replace(/\r/g, '') + '</body></html>' );
 	res.write('<pre style="background-color: #efefef">');
-	new WikitextSerializer({env: env}).serializeDOM(
+	new Serializer({env: env}).serializeDOM(
 		p.tree.document.childNodes[0].childNodes[1],
 		function( c ) {
 			res.write( htmlSpecialChars( c ) );
@@ -524,7 +526,7 @@ app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function ( req, res 
 	};
 
 	try {
-		new WikitextSerializer( { env: env, oldid: oldid } ).serializeDOM(
+		new Serializer( { env: env, oldid: oldid } ).serializeDOM(
 		// The below can be uncommented to turn on selective serialization on the main API service.
 		// This is not currently advisable. It's not working perfectly.
 		//new SelectiveSerializer( { env: env, oldid: oldid } ).serializeDOM(
