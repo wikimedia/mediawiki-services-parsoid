@@ -30,6 +30,23 @@ var buildMetaToken = function ( manager, tokenName, isEnd, tsr ) {
 	return metaToken;
 };
 
+var buildStrippedMetaToken = function ( manager, tokenName, startDelim, endDelim ) {
+	var tokens = [],
+		da, t0, tsr0,
+	da = startDelim.dataAttribs;
+	tsr0 = da ? da.tsr : null;
+	t0 = tsr0 ? tsr0[0] : null;
+
+	var t1, tsr1;
+	if (endDelim) {
+		da = endDelim ? endDelim.dataAttribs : null;
+		tsr1 = da ? da.tsr : null;
+		t1 = tsr1 ? tsr1[1] : null;
+	} else {
+		t1 = manager.env.text.length;
+	}
+	return buildMetaToken(manager, tokenName, false, [t0, t1]);
+};
 
 /**
  * OnlyInclude sadly forces synchronous template processing, as it needs to
@@ -197,10 +214,26 @@ function noIncludeHandler(manager, options, collection) {
 	}
 
 	if (!options.isInclude) {
-		var curriedBuildMetaToken = buildMetaToken.bind( null, manager, 'mw:NoInclude' );
-		tokens.push(curriedBuildMetaToken(false));
+		// Content is preserved
+		var curriedBuildMetaToken = buildMetaToken.bind( null, manager, 'mw:NoInclude' ),
+			// TODO: abstract this!
+			startTSR = collection.start &&
+				collection.start.dataAttribs &&
+				collection.start.dataAttribs.tsr,
+			endTSR = collection.end &&
+				collection.end.dataAttribs &&
+				collection.end.dataAttribs.tsr;
+		tokens.push(curriedBuildMetaToken(false, startTSR));
 		tokens = tokens.concat(collection.tokens);
-		tokens.push(curriedBuildMetaToken(true));
+		if ( collection.end ) {
+			tokens.push(curriedBuildMetaToken(true, endTSR));
+		} else if ( tokens.last().constructor === EOFTk ) {
+			tokens.pop();
+		}
+	} else {
+		// content is stripped
+		tokens.push(buildStrippedMetaToken(manager, 'mw:NoInclude', false,
+					collection.start, collection.end));
 	}
 
 	// Deal with nested closing delimiter found in another token
@@ -254,22 +287,12 @@ function includeOnlyHandler(manager, options, collection) {
 	}
 
 	if (options.isInclude) {
+		// Just pass through the full collection including delimiters
 		tokens = tokens.concat(collection.tokens);
 	} else {
-		var da, t0, tsr0;
-		da = startDelim.dataAttribs;
-		tsr0 = da ? da.tsr : null;
-		t0 = tsr0 ? tsr0[0] : null;
-
-		var t1, tsr1;
-		if (endDelim) {
-			da = endDelim ? endDelim.dataAttribs : null;
-			tsr1 = da ? da.tsr : null;
-			t1 = tsr1 ? tsr1[1] : null;
-		} else {
-			t1 = manager.env.text.length;
-		}
-		tokens.push(buildMetaToken(manager, 'mw:IncludeOnly', false, [t0, t1]));
+		// Content is stripped, add a meta for round-tripping
+		tokens.push(buildStrippedMetaToken(manager, 'mw:IncludeOnly',
+					startDelim, endDelim));
 	}
 
 	if (endTail) {
