@@ -138,7 +138,7 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			}
 			break;
 		case TagTk:
-			tName = token.name;
+			tName = token.name.toLowerCase();
 			this.emit('token', {type: 'StartTag', name: tName, data: this._att(attribs)});
 			if (dataAttribs && dataAttribs.tsr && dataAttribs.stx === 'html') {
 				attrs = [];
@@ -148,7 +148,7 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			}
 			break;
 		case SelfclosingTagTk:
-			tName = token.name;
+			tName = token.name.toLowerCase();
 			this.emit('token', {type: 'StartTag', name: tName, data: this._att(attribs)});
 			if ( HTML5.VOID_ELEMENTS.indexOf( tName.toLowerCase() ) < 0 ) {
 				// VOID_ELEMENTS are automagically treated as self-closing by
@@ -157,7 +157,7 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			}
 			break;
 		case EndTagTk:
-			tName = token.name;
+			tName = token.name.toLowerCase();
 			this.emit('token', {type: 'EndTag', name: tName});
 
 			if (dataAttribs && dataAttribs.tsr) {
