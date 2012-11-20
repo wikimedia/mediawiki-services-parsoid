@@ -65,7 +65,7 @@ p.startTagOther = function(name, attributes) {
 
 p.endTagTr = function(name) {
 	if(this.ignoreEndTagTr()) {
-		assert.ok(this.parser.inner_html);
+		//assert.ok(this.parser.inner_html);
 		this.parse_error
 	} else {
 		this.clearStackToTableRowContext();
@@ -79,7 +79,7 @@ p.endTagTable = function(name) {
 	this.endTagTr('tr');
 	// Reprocess the current tag if the tr end tag was not ignored
 	// XXX how are we sure it's always ignored in the inner_html case?
-	if(!ignoreEndTag) this.parser.phase.processEndTag(name) 
+	if(!ignoreEndTag) this.parser.phase.processEndTag(name)
 }
 
 p.endTagTableRowGroup = function(name) {
