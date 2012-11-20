@@ -1313,7 +1313,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 	var children = node.childNodes,
 		savedEndTagWidth = null,
 	    ce = e,
-		// initialize cs to ce to handle the zero-children case properly
+		// Initialize cs to ce to handle the zero-children case properly
 		// if this node has no child content, then the start and end for
 		// the child dom are indeed identical.  Alternatively, we could
 		// explicitly code this check before everything and bypass this.
@@ -1384,6 +1384,10 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 					cs = tsr[0];
 					ce = tsr[1];
 					propagateRight = true;
+				} else if (tsr) {
+					// All other meta-tags: <includeonly>, <noinclude>, etc.
+					cs = tsr[0];
+					ce = tsr[1];
 				}
 			} else {
 				// Non-meta tags
