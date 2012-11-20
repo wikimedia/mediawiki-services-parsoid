@@ -625,9 +625,11 @@ function getDOMRange( doc, startElem, endMeta, endElem ) {
 	while (parentNode && parentNode.nodeType !== Node.DOCUMENT_NODE) {
 		var i = startAncestors.indexOf( parentNode );
 		if (i === 0) {
+			// widen the scope to include the full subtree
 			res = {
 				'root': startElem,
-				// widen the scope to include the full subtree
+				// SSS FIXME: Is this fragile?
+				aboutId: startElem.getAttribute("about").replace(/#mwt/, ''),
 				startElem: startElem,
 				endElem: endMeta,
 				start: startElem.firstChild,
@@ -637,6 +639,8 @@ function getDOMRange( doc, startElem, endMeta, endElem ) {
 		} else if ( i > 0) {
 			res = {
 				'root': parentNode,
+				// SSS FIXME: Is this fragile?
+				aboutId: startElem.getAttribute("about").replace(/#mwt/, ''),
 				startElem: startElem,
 				endElem: endMeta,
 				start: startAncestors[i - 1],
@@ -727,14 +731,16 @@ function encapsulateTemplates( env, doc, tplRanges) {
 		}
 	}
 
+	// 0. Sort by about tpl id
+	tplRanges.sort(function(r1, r2) { return r1.aboutId - r2.aboutId });
+
 	// 1. Merge overlapping template ranges
 	var newRanges = [];
 	var i, numRanges = tplRanges.length;
 
-	// Since the DOM is walked in-order left-to-right to build the list
-	// of templates (findWrappableTemplateRanges) it is sufficient to
-	// only look at the most recent template to see if the current one
-	// overlaps with it.
+	// Since the tpl ranges are sorted in textual order (by about-id)
+	// it is sufficient to only look at the most recent template to see
+	// if the current one overlaps with it.
 	//
 	// However, if <prev.start, prev.end> (can have a wider DOM range
 	// than the template meta-tags) completely nests the content of
@@ -759,7 +765,7 @@ function encapsulateTemplates( env, doc, tplRanges) {
 			}
 
 			startTagToStrip = r.startElem;
-		} else if (prev && isAncestorOf(prev.end, r.start)) {
+		} else if (prev && (prev.start === r.start || isAncestorOf(prev.end, r.start))) {
 			// Range 'r' is nested inside of range 'prev'
 			// Skip 'r' completely.
 			startTagToStrip = r.startElem;
