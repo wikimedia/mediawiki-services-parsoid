@@ -256,11 +256,19 @@ function includeOnlyHandler(manager, options, collection) {
 	if (options.isInclude) {
 		tokens = tokens.concat(collection.tokens);
 	} else {
-		var da, t0, t1;
+		var da, t0, tsr0;
 		da = startDelim.dataAttribs;
-		t0 = (da && da.tsr) ? da.tsr[0] : null;
-		da = endDelim ? endDelim.dataAttribs : null;
-		t1 = (da && da.tsr) ? da.tsr[1] : null;
+		tsr0 = da ? da.tsr : null;
+		t0 = tsr0 ? tsr0[0] : null;
+
+		var t1, tsr1;
+		if (endDelim) {
+			da = endDelim ? endDelim.dataAttribs : null;
+			tsr1 = da ? da.tsr : null;
+			t1 = tsr1 ? tsr1[1] : null;
+		} else {
+			t1 = manager.env.text.length;
+		}
 		tokens.push(buildMetaToken(manager, 'mw:IncludeOnly', false, [t0, t1]));
 	}
 
