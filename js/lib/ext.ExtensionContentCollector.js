@@ -19,7 +19,10 @@ function ExtensionContent ( manager, options ) {
 				manager,
 				this.handleExtensionTag.bind(this, ext),
 				true, // match the end-of-input if closing tag is missing
-				this.rank,
+				// *NEVER* register several independent transformers with the
+				// same rank, as deregistration will *not* work otherwise.
+				// This gives us a few thousand extensions.
+				this.rank + i * 0.00001,
 				'tag',
 				ext);
 	}
