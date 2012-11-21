@@ -192,52 +192,6 @@ ParserTests.prototype.getOpts = function () {
 	}).argv; // keep that
 };
 
-ParserTests.prototype.getSelectiveChanges = function ( options ) {
-	var changeFile, j = 0;
-	try {
-		changeFile = fs.readFileSync( this.changeFileName, 'utf8' );
-		fileDependencies.push( this.changeFileName );
-	} catch ( e ) {
-		console.log( e.stack );
-	}
-
-	var selectiveChanges = this.parseChanges( changeFile );
-	for ( var i = 0; selectiveChanges && i < selectiveChanges.length; i++ ) {
-		thischange = selectiveChanges[i];
-		if ( thischange && thischange.type && thischange.type === 'test' ) {
-			do {
-				j++;
-			} while ( this.cases[j].type !== 'test' || this.cases[j].title !== thischange.title );
-
-			this.cases[j].changes = this.parseSingleChange( thischange.options || '' );
-			this.cases[j].selresult = thischange.result;
-		}
-	}
-};
-
-ParserTests.prototype.parseSingleChange = function ( changes ) {
-	var i, opt, finalobj = {}, clist = changes.split( '\n' );
-	for ( i = 0; i < clist.length; i++ ) {
-		opt = clist[i].split( '=' );
-		finalobj[opt[0]] = opt[1];
-		try {
-			finalobj[opt[0]] = JSON.parse( opt[1] );
-		} catch ( e ) {
-			// Assume everything's all right, carry on.
-		}
-	}
-	return finalobj;
-};
-
-ParserTests.prototype.parseChanges = function ( txt ) {
-	try {
-		return this.testParser.parse( txt );
-	} catch ( e ) {
-		console.log( e.stack || e.toString() );
-	}
-};
-
-
 /**
  * Get an object holding our tests cases. Eventually from a cache file
  */
@@ -339,64 +293,46 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, processWikitextC
 	}
 };
 
-ParserTests.prototype.makeChanges = function ( doc, item ) {
-	var changes;
-	if ( item && item.changes ) {
-		changes = item.changes.changes;
-	}
-	if ( changes === undefined || changes === null ) {
-		// There weren't any changes. No problem, just return.
-		return;
+ParserTests.prototype.makeChanges = function ( node ) {
+	// This function won't actually change anything, but it will add change
+	// markers to random elements.
+	var child, i, changeObj;
+
+	var changes = [
+		'new',
+		'content',
+		'rebuilt',
+		'childrenRemoved',
+		'attributes',
+		'annotations'
+	];
+
+	// Helper function for getting a random change marker
+	function getRandomChange() {
+		var o = {};
+		o[changes[Math.floor( Math.random() * changes.length )]] = 1;
+		return o;
 	}
 
-	function changeNode( node, cobj ) {
-		var change = {};
-		if ( cobj.content ) {
-			node.innerHTML = cobj.content;
-			change.content = 1;
+	for ( i = 0; i < node.childNodes.length; i++ ) {
+		child = node.childNodes[i];
+
+		if ( !child.setAttribute ) {
+			// This is probably a text node or comment node or something,
+			// so we'll skip it in favor of something a little more
+			// interesting.
+			continue;
 		}
-		if ( cobj.children ) {
-			for ( var ix in cobj.children ) {
-			if ( cobj.children.hasOwnProperty( ix ) && node.childNodes[ix - 0] ) {
-				changeNode( node.childNodes[ix - 0], cobj.children[ix] );
-			} }
-		}
-		if ( cobj.remove ) {
-			node.parentNode.removeChild( node );
-			change.childrenRemoved = 1;
-		}
-		if ( cobj.add ) {
-			var newNode = node.ownerDocument.createElement( cobj.add.tagName );
-			newNode.innerHTML = cobj.add.content;
-			if ( cobj.add.type && cobj.add.type === 'annotation' || cobj.add.type === 'inline' ) {
-				change.content = 1;
-			} else {
-				changeNode( newNode, { 'new': 1 } );
-			}
-			node.appendChild( newNode );
-		}
-		if ( cobj.prepend ) {
-			var newNode = node.ownerDocument.createElement( cobj.prepend.tagName );
-			newNode.innerHTML = cobj.prepend.content;
-			if ( cobj.prepend.type && cobj.prepend.type === 'annotation' || cobj.prepend.type === 'inline' ) {
-				change.content = 1;
-			} else {
-				changeNode( newNode, { 'new': 1 } );
-			}
-			node.insertBefore( newNode, node.childNodes[0] );
-		}
-		if ( cobj['new'] ) {
-			change = cobj;
-		}
-		if ( node.nodeName !== '#text' ) {
-			node.setAttribute( 'data-ve-changed', JSON.stringify( change ) );
+
+		if ( Math.random() < 0.75 ) {
+			changeObj = getRandomChange();
+			child.setAttribute(
+				'data-ve-changed',
+				JSON.stringify( changeObj ) );
+		} else {
+			this.makeChanges( child );
 		}
 	}
-
-	for ( var ix in changes ) {
-	if ( changes.hasOwnProperty( ix ) && doc.childNodes[ix - 0] ) {
-		changeNode( doc.childNodes[ix - 0], changes[ix] );
-	} }
 };
 
 ParserTests.prototype.convertWt2Html = function( mode, processHtmlCB, wikitext, error ) {
@@ -703,18 +639,14 @@ ParserTests.prototype.checkHTML = function ( item, out, options, mode ) {
  */
 ParserTests.prototype.checkWikitext = function ( item, out, options, mode ) {
 	var normalizedExpected;
-	if ( mode === 'selser' && item.selresult ) {
-		normalizedExpected = item.selresult;
-	} else {
-		// FIXME: normalization not in place yet
-		normalizedExpected = mode === 'html2wt' ? item.input.replace(/\n+$/, '') : item.input;
-	}
+	// FIXME: normalization not in place yet
+	normalizedExpected = mode === 'html2wt' ? item.input.replace(/\n+$/, '') : item.input;
 
 	// FIXME: normalization not in place yet
 	normalizedOut = mode === 'html2wt' ? out.replace(/\n+$/, '') : out;
 
 	var input = mode === 'html2wt' ? item.result : item.input;
-	var expected = { normal: normalizedExpected, raw: mode === 'selser' ? item.selresult : item.input };
+	var expected = { normal: normalizedExpected, raw: item.input };
 	var actual = { normal: normalizedOut, raw: out, input: input };
 
 	options.reportResult( item.title, item.time, item.comments, item.options || null, expected, actual, options, mode );
@@ -913,7 +845,6 @@ ParserTests.prototype.main = function ( options ) {
 	}
 	if ( options.selser ) {
 		this.selectiveSerializer = new SelectiveSerializer( { env: this.env, wts: this.serializer } );
-		this.getSelectiveChanges();
 	}
 
 	options.reportStart();
@@ -934,9 +865,7 @@ ParserTests.prototype.reportStartOfTests = function () {
 ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 	var tasks = [];
 	for ( var i = 0; i < modes.length; i++ ) {
-		if ( modes[i] !== 'selser' || item.changes ) {
-			tasks.push( this.processTest.bind( this, item, options, modes[i] ) );
-		}
+		tasks.push( this.processTest.bind( this, item, options, modes[i] ) );
 	}
 	return tasks;
 };
