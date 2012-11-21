@@ -155,7 +155,7 @@ var HTML5 = require( 'html5' ).HTML5,
 		if ( token.constructor === TagTk ||
 				token.constructor === EndTagTk ||
 				token.constructor === SelfclosingTagTk ) {
-			return Util.isBlockTag( token.name.toLowerCase() );
+			return Util.isBlockTag( token.name );
 		} else {
 			return false;
 		}

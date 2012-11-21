@@ -194,7 +194,7 @@ ParagraphWrapper.prototype.onAny = function ( token, frame, cb ) {
 			return ( token.constructor === TagTk ||
 					token.constructor === SelfclosingTagTk ||
 					token.constructor === EndTagTk ) &&
-					names[token.name.toLowerCase()];
+					names[token.name];
 		};
 	if (tc === TagTk && token.name === 'pre') {
 		if (this.hasOpenHTMLPTag) {
@@ -250,7 +250,7 @@ ParagraphWrapper.prototype.onAny = function ( token, frame, cb ) {
 			this.currLine.tokens.push(token);
 			return { tokens: this._getTokensAndReset(res) };
 		}
-	} else if (tc === EndTagTk && token.name.toLowerCase() === 'p' && token.isHTMLTag()) {
+	} else if (tc === EndTagTk && token.name === 'p' && token.isHTMLTag()) {
 		// process everything
 		res = this.nonNlTokens.concat(this.nlWsTokens, this.currLine.tokens);
 		res.push(token);
@@ -269,7 +269,7 @@ ParagraphWrapper.prototype.onAny = function ( token, frame, cb ) {
 		res = this.processPendingNLs(isBlockToken);
 
 		// Deal with html p-tokens
-		if (tc === TagTk && token.name.toLowerCase() === 'p' && token.isHTMLTag()) {
+		if (tc === TagTk && token.name === 'p' && token.isHTMLTag()) {
 			if (this.hasOpenPTag) {
 				this.closeOpenPTag(this.currLine.tokens);
 			}

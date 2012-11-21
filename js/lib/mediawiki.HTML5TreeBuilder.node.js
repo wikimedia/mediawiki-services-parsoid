@@ -94,20 +94,6 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 	var attribs = token.attribs || [],
 	    dataAttribs = token.dataAttribs;
 
-	// Record info about actual tag name if we are lower-casing it.
-	var tName, tc = token.constructor;
-	if (tc === TagTk || tc === EndTagTk || tc === SelfclosingTagTk) {
-		tName = token.name.toLowerCase();
-		// Non-canonical tag name -- record RT info.
-		// FIXME: For now, assuming that end-tag follows case of start-tag.
-		if (tName !== token.name) {
-			if (!dataAttribs) {
-				dataAttribs = {};
-			}
-			dataAttribs.tag = token.name;
-		}
-	}
-
 	if ( dataAttribs ) {
 		var dataMW = JSON.stringify( dataAttribs );
 		if ( dataMW !== '{}' ) {
@@ -124,12 +110,12 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 		console.warn("T:html: " + JSON.stringify(token));
 	}
 
-	var attrs,
+	var tName, attrs,
 		self = this,
 		isNotPrecededByPre = function () {
 			return  ! self.lastToken ||
 						self.lastToken.constructor !== TagTk ||
-						self.lastToken.name.toLowerCase() !== 'pre';
+						self.lastToken.name !== 'pre';
 		};
 	switch( token.constructor ) {
 		case String:
@@ -153,6 +139,7 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			}
 			break;
 		case TagTk:
+			tName = token.name;
 			this.emit('token', {type: 'StartTag', name: tName, data: this._att(attribs)});
 			if (dataAttribs && dataAttribs.tsr && dataAttribs.stx === 'html') {
 				attrs = [];
@@ -162,14 +149,16 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			}
 			break;
 		case SelfclosingTagTk:
+			tName = token.name;
 			this.emit('token', {type: 'StartTag', name: tName, data: this._att(attribs)});
-			if ( HTML5.VOID_ELEMENTS.indexOf( tName.toLowerCase() ) < 0 ) {
+			if ( HTML5.VOID_ELEMENTS.indexOf( tName ) < 0 ) {
 				// VOID_ELEMENTS are automagically treated as self-closing by
 				// the tree builder
 				this.emit('token', {type: 'EndTag', name: tName, data: this._att(attribs)});
 			}
 			break;
 		case EndTagTk:
+			tName = token.name;
 			this.emit('token', {type: 'EndTag', name: tName});
 
 			if (dataAttribs && dataAttribs.tsr) {

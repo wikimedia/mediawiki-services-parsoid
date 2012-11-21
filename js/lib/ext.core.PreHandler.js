@@ -234,7 +234,7 @@ PreHandler.prototype.onEnd = function (token, manager, cb) {
 function isTableTag(token) {
 	var tc = token.constructor;
 	return (tc === TagTk || tc === EndTagTk) &&
-		['table','tr','td','th','tbody'].indexOf(token.name.toLowerCase()) !== -1;
+		['table','tr','td','th','tbody'].indexOf(token.name) !== -1;
 }
 
 PreHandler.prototype.onAny = function ( token, manager, cb ) {
