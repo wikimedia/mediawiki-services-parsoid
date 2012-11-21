@@ -14,7 +14,7 @@ function Title ( key, ns, nskey, env ) {
 Title.prototype.makeLink = function () {
 	// XXX: links always point to the canonical namespace name.
 	if ( false && this.nskey ) {
-		return Util.sanitizeURI( this.env.relativeLinkPrefix +
+		return Util.sanitizeTitleURI( this.env.relativeLinkPrefix +
 				this.nskey + ':' + this.key );
 	} else {
 		var l = this.env.relativeLinkPrefix,
@@ -23,7 +23,7 @@ Title.prototype.makeLink = function () {
 		if ( ns ) {
 			l += ns + ':';
 		}
-		return Util.sanitizeURI( l + this.key );
+		return Util.sanitizeTitleURI( l + this.key );
 	}
 };
 
@@ -37,7 +37,7 @@ Title.prototype.getPrefixedText = function () {
 		if ( ns ) {
 			ns += ':';
 		}
-		return Util.sanitizeURI( ns + this.key );
+		return Util.sanitizeTitleURI( ns + this.key );
 	}
 };
 
