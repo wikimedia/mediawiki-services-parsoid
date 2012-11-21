@@ -653,10 +653,15 @@ Sanitizer.prototype.onAny = function ( token ) {
 			)
 		)
 	{ // unknown tag -- convert to plain text
-		if (token.constructor !== EndTagTk) {
-			// SSS FIXME: This wont reproduce original text (white-space, quote, text-case
-			// differences will creep up since attr text is being normalized).  We need
-			// to record original text in 'src' and 'srcContent'.
+
+		if ( token.dataAttribs.tsr ) {
+			// TSR is only set on top-level content tokens, for which the page
+			// source is available in the environment. Just get the original
+			// token source, so that we can avoid whitespace differences.
+			token = token.getWTSource( this.manager.env );
+		} else if (token.constructor !== EndTagTk) {
+			// Handle things without a TSR: For example template or extension
+			// content. Whitespace in these is not necessarily preserved.
 			var buf = ["<", token.name];
 			for (i = 0, l = attribs.length; i < l; i++ ) {
 				kv = attribs[i];
