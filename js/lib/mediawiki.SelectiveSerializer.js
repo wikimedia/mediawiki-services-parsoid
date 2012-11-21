@@ -36,7 +36,7 @@ var SelectiveSerializer = function ( options ) {
 var SSP = SelectiveSerializer.prototype;
 
 SSP.getOldText = function ( cb ) {
-	if ( this.oldtext ) {
+	if ( this.oldtext !== undefined ) {
 		cb( null, this.oldtext );
 	} else if ( this.env && this.target ) {
 		Util.getPageSrc( this.env, this.target, cb, this.oldid || null );
@@ -221,11 +221,7 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 		if ( foundRevisions ) {
 			// If we found text, then use this chunk callback.
 			var state = _this.assignSerializerIds( doc, src );
-			if ( state.foundChange === false ) {
-				srcWikitext = src;
-				cb( srcWikitext );
-				finalcb();
-			} else {
+			if ( state && state.foundChange === true ) {
 				chunkCB = function ( res, serID ) {
 					// Only handle something that actually has a serialize-ID,
 						// else skip it for now.
@@ -243,12 +239,14 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 					}
 				};
 			}
-		} else {
+		} else if ( err === null ) {
 			// If there's no old source, fall back to non-selective serialization.
 			chunkCB = cb;
+		} else {
+			throw err;
 		}
 
-		if ( state.foundChange === true ) {
+		if ( state && state.foundChange === true ) {
 			// Call the WikitextSerializer to do our bidding
 			_this.wts.serializeDOM( doc, chunkCB, function () {
 				if ( foundRevisions ) {
@@ -261,6 +259,11 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 
 				finalcb();
 			} );
+		} else if ( foundRevisions ) {
+			cb( src );
+			finalcb();
+		} else {
+			throw new Error( 'Could not figure any way to serialize.' );
 		}
 	} );
 };
