@@ -1,5 +1,3 @@
-"use strict";
-
 /* ----------------------------------------------------------------------
  * This serializer is designed to eventually
  * - accept arbitrary HTML and
@@ -26,6 +24,8 @@
  * @author Subramanya Sastry <ssastry@wikimedia.org>
  * @author Gabriel Wicke <gwicke@wikimedia.org>
  * ---------------------------------------------------------------------- */
+
+"use strict";
 
 require('./core-upgrade.js');
 var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
@@ -1234,6 +1234,8 @@ WSP.tagHandlers = {
 					if ( switchType ) {
 						return '__' + switchType[1].toUpperCase() + '__';
 					}
+				} else {
+					return WSP._serializeHTMLTag( state, token );
 				}
 			}
 		}
