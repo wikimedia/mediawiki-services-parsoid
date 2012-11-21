@@ -92,7 +92,7 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 		hrefkv, saniContent, env = this.manager.env,
 		attribs = token.attribs,
 		href = Util.tokensToString( Util.lookup( attribs, 'href' ) ),
-		title = env.makeTitleFromPrefixedText(env.normalizeTitle(href));
+		title = env.makeTitleFromPrefixedText(env.normalizeTitle(Util.decodeURI(href)));
 
 	if ( title.ns.isFile() ) {
 		cb( this.renderFile( token, frame, cb, href, title) );
@@ -150,7 +150,7 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 			// Change the rel to be mw:WikiLink/Category
 			Util.lookupKV( obj.attribs, 'rel' ).v += '/Category';
 
-			saniContent = Util.sanitizeURI( Util.tokensToString( content ) ).replace( /#/g, '%23' );
+			saniContent = Util.sanitizeTitleURI( Util.tokensToString( content ) ).replace( /#/g, '%23' );
 
 			// Change the href to include the sort key, if any
 			if ( saniContent && saniContent !== '' && saniContent !== href ) {
@@ -518,7 +518,7 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 	var env = this.manager.env,
 		tagAttrs,
 		builtTag,
-		href = Util.sanitizeURI( Util.tokensToString( Util.lookup( token.attribs, 'href' ) ) ),
+		href = Util.tokensToString( Util.lookup( token.attribs, 'href' ) ),
 		modTxt = false,
 		origTxt = token.getWTSource( env ),
 		txt = href;
@@ -568,7 +568,7 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 	var env = this.manager.env,
 		origHref = Util.lookup( token.attribs, 'href' ),
-		href = Util.sanitizeURI( Util.tokensToString( origHref ) ),
+		href = Util.tokensToString( origHref ),
 		content = Util.lookup( token.attribs, 'mw:content'),
 		newAttrs, aStart, hrefKv, title;
 

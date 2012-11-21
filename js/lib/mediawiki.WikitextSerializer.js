@@ -733,6 +733,7 @@ WSP._linkHandler =  function( state, tokens ) {
 		tplAttrState = { kvs: {}, ks: {}, vs: {} },
 		tail = '',
 		isCat = false,
+		isWikiLink = false,
 		hrefFromTpl = true,
 		tokenData = token.dataAttribs,
 		target, linkText, unencodedTarget,
@@ -742,6 +743,7 @@ WSP._linkHandler =  function( state, tokens ) {
 		// Helper function for getting RT data from the tokens
 		function populateRoundTripData() {
 			isCat = attribDict.rel.match( /\bmw:WikiLink\/Category/ );
+			isWikiLink = attribDict.rel.match( /\bmw:WikiLink/ );
 			target = tplAttrState.vs.href;
 
 			// If the link target came from a template, target will be non-null
@@ -755,8 +757,17 @@ WSP._linkHandler =  function( state, tokens ) {
 
 				if ( hrefInfo.modified ) {
 					// there was no rt info or the href was modified: normalize it
-					target = target.replace( /_/g, ' ' ).replace(/^(\.\.\/)+/, '');
-					tail = '';
+					if ( isWikiLink ) {
+						// We (lightly) percent-encode wikilinks (but not
+						// external links) on the way out, and expect
+						// percent-encoded links on the way in. Wikitext links
+						// are always serialized in decoded form, so decode
+						// them here.
+						target = Util.decodeURI(target)
+												.replace( /_/g, ' ' )
+												.replace(/^(\.\.\/)+/, '');
+						tail = '';
+					}
 				} else {
 					tail = tokenData.tail || '';
 				}
@@ -764,11 +775,11 @@ WSP._linkHandler =  function( state, tokens ) {
 
 			unencodedTarget = target;
 
-			if ( ! hrefInfo.fromsrc && target.constructor === String ) {
-				// Escape anything that looks like percent encoding, since we
-				// decode the wikitext for regular attributes.
-				target = target.replace( /%(?=[a-f\d]{2})/gi, '%25' );
-			}
+			//if ( ! hrefInfo.fromsrc && target.constructor === String ) {
+			//	// Escape anything that looks like percent encoding, since we
+			//	// decode the wikitext for regular attributes.
+			//	//target = target.replace( /%(?=[a-f\d]{2})/gi, '%25' );
+			//}
 
 
 			// If the normalized link text is the same as the normalized
@@ -848,10 +859,10 @@ WSP._linkHandler =  function( state, tokens ) {
 			return tokens.join('');
 		} else if ( attribDict.rel === 'mw:ExtLink/URL' ) {
 			populateRoundTripData();
-			return Util.decodeURI( Util.tokensToString( target ) );
+			return Util.tokensToString( target );
 		} else if ( attribDict.rel === 'mw:ExtLink/Numbered' ) {
 			populateRoundTripData();
-			return '[' + Util.decodeURI( Util.tokensToString( target ) ) + ']';
+			return '[' + Util.tokensToString( target ) + ']';
 		} else if ( attribDict.rel === 'mw:Image' ) {
 			// simple source-based round-tripping for now..
 			// TODO: properly implement!
@@ -1654,7 +1665,7 @@ WSP._serializeToken = function ( state, token ) {
 
 	// FIXME: figure out where the non-string res comes from
 	if ( res === undefined || res === null || res.constructor !== String ) {
-		console.error("-------- Serializer error --------");
+		console.error("-------- Warning: Serializer error --------");
 		console.error("TOKEN: " + JSON.stringify(token));
 		console.error(state.env.pageName + ": res was undefined or not a string!");
 		console.error(JSON.stringify(res));

@@ -509,6 +509,22 @@ var HTML5 = require( 'html5' ).HTML5,
 		} );
 	},
 
+	sanitizeTitleURI: function ( title ) {
+		var bits = title.split('#'),
+			anchor = null;
+		if ( bits.length > 1 ) {
+			anchor = bits[bits.length - 1];
+			title = title.substring(0, title.length - anchor.length - 1);
+		}
+		title = title.replace( /[%? \[\]#|]/g, function ( m ) {
+			return encodeURIComponent( m );
+		} );
+		if ( anchor !== null ) {
+			title += '#' + anchor;
+		}
+		return title;
+	},
+
 	sanitizeURI: function ( s ) {
 		var host = s.match(/^[a-zA-Z]+:\/\/[^\/]+(?:\/|$)/),
 			path = s,
@@ -525,10 +541,10 @@ var HTML5 = require( 'html5' ).HTML5,
 			anchor = bits[bits.length - 1];
 			path = path.substr(0, path.length - anchor.length - 1);
 		}
-		host = host.replace( /%(?![0-9a-fA-F][0-9a-fA-F])|[#|]/g, function ( m ) {
+		host = host.replace( /[%#|]/g, function ( m ) {
 			return encodeURIComponent( m );
 		} );
-		path = path.replace( /%(?![0-9a-fA-F][0-9a-fA-F])|[ \[\]#|]/g, function ( m ) {
+		path = path.replace( /[% \[\]#|]/g, function ( m ) {
 			return encodeURIComponent( m );
 		} );
 		s = host + path;
