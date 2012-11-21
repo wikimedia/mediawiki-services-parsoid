@@ -5,7 +5,7 @@ var TokenCollector = require( './ext.util.TokenCollector.js' ).TokenCollector,
 	$ = require( 'jquery' );
 
 // List of supported extensions
-var supportedExtensions = ['math', 'gallery'];
+var supportedExtensions = ['math', 'gallery', 'source', 'tag'];
 
 /**
  * Simple token collector for extensions
