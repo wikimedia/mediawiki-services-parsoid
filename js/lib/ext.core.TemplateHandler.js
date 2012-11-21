@@ -52,7 +52,7 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 
 	var state = { token: token };
 	if (this.options.wrapTemplates) {
-		state.templateId = 'mwt' + this.manager.env.generateUID();
+		state.templateId = this.manager.env.newObjectId();
 		state.emittedFirstChunk = false;
 	}
 

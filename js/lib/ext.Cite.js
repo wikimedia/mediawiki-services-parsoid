@@ -75,12 +75,12 @@ Cite.prototype.handleRef = function ( tokens ) {
 	//bits.push(Util.formatNum( ref.groupIndex + 1 ));
 	bits.push(ref.groupIndex + 1);
 
-	var refId = "#mwt" + this.manager.env.generateUID(),
+	var about = "#" + this.manager.env.newObjectId(),
 		text  = this.manager.env.text,
 		span  = new TagTk('span', [
 				new KV('id', linkback),
 				new KV('class', 'reference'),
-				new KV('about', refId),
+				new KV('about', about),
 				new KV('typeof', 'mw:Object/Ext/Cite')
 			]);
 
@@ -108,7 +108,7 @@ Cite.prototype.handleRef = function ( tokens ) {
 		new EndTagTk( 'span' ),
 		new SelfclosingTagTk( 'meta', [
 				new KV( 'typeof', 'mw:Object/Ext/Cite/End' ),
-				new KV( 'about', refId)
+				new KV( 'about', about)
 			], { tsr: endTsr } )
 	];
 	//console.warn( 'ref res: ' + JSON.stringify( res, null, 2 ) );
@@ -126,8 +126,7 @@ function genPlaceholderTokens(env, token, src) {
 	}
 
 	return [
-		new TagTk('span', [ new KV( 'typeof', 'mw:Placeholder' ) ], dataAttribs),
-		new EndTagTk('span')
+		new SelfclosingTagTk('meta', [ new KV( 'typeof', 'mw:Placeholder' ) ], dataAttribs)
 	];
 }
 

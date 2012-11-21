@@ -177,7 +177,7 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 		var tokenId = token.getAttribute( 'about' );
 
 		if ( !tokenId ) {
-			tokenId = '#mwt' + this.manager.env.generateUID();
+			tokenId = "#" + this.manager.env.newObjectId();
 			token.addAttribute("about", tokenId);
 			token.addSpaceSeparatedAttribute("typeof", "mw:ExpandedAttrs/" + producerObjType.substring("mw:Object/".length));
 		}

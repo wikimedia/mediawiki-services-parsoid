@@ -309,6 +309,14 @@ MWParserEnvironment.prototype.generateUID = function () {
 	return this.uid++;
 };
 
+MWParserEnvironment.prototype.newObjectId = function () {
+	return "mwt" + this.generateUID();
+};
+
+MWParserEnvironment.prototype.stripIdPrefix = function(aboutId) {
+	return aboutId.replace(/#?mwt/, '');
+};
+
 /**
  * Default implementation of an error callback for async
  * error reporting in the parser pipeline.
