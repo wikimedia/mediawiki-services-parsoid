@@ -295,6 +295,8 @@ WSP.initialState = {
 		return this.serializer.serializeTokens(initState, tokens, chunkCB);
 	}
 };
+// Make sure the initialState is never modified
+Util.deepFreeze( WSP.initialState );
 
 var id = function(v) {
 	return function( state ) {
@@ -1494,7 +1496,12 @@ WSP._serializeAttributes = function (state, token) {
  * Serialize a chunk of tokens
  */
 WSP.serializeTokens = function(startState, tokens, chunkCB ) {
-	var i, l, state = Util.extendProps(startState || {}, this.initialState, this.options);
+	var i, l,
+		state = Util.extendProps(startState || {},
+			// Make sure these two are cloned, so we don't alter the initial
+			// state for later serializer runs.
+			Util.clone(this.initialState),
+			Util.clone(this.options));
 	state.serializer = this;
 	if ( chunkCB === undefined ) {
 		var out = [];
@@ -1856,7 +1863,11 @@ WSP.serializeDOM = function( node, chunkCB, finalCB ) {
 		finalCB = function () {};
 	}
 	try {
-		var state = Util.extendProps({}, this.initialState, this.options);
+		var state = Util.extendProps({},
+			// Make sure these two are cloned, so we don't alter the initial
+			// state for later serializer runs.
+			Util.clone(this.initialState),
+			Util.clone(this.options));
 		state.serializer = this;
 		state.serializeID = null;
 		this._collectAttrMetaTags(node, state);
