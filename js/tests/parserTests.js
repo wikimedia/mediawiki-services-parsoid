@@ -288,7 +288,7 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, processWikitextC
 			serializer.oldtext = item.input;
 			serializer.target = null;
 			var changelist = this.makeChanges( content, item.changes );
-			item.changes = changelist;
+			item.changes = item.changes || changelist;
 		}
 		serializer.serializeDOM( content, function ( res ) {
 			wt += res;
@@ -327,6 +327,9 @@ ParserTests.prototype.makeChanges = function ( node, nonRandomChanges ) {
 		child = node.childNodes[i];
 
 		if ( !child.setAttribute ) {
+			if ( !nonRandomChanges ) {
+				changelist.push( null );
+			}
 			// This is probably a text node or comment node or something,
 			// so we'll skip it in favor of something a little more
 			// interesting.
@@ -340,10 +343,15 @@ ParserTests.prototype.makeChanges = function ( node, nonRandomChanges ) {
 					'data-ve-changed',
 					JSON.stringify( changeObj ) );
 			} else {
-				changeObj = { children: this.makeChanges( child ) };
+				childChanges = this.makeChanges( child );
+				if ( childChanges && childChanges.length ) {
+					changeObj = { children: childChanges };
+				} else {
+					changeObj = null;
+				}
 			}
 			changelist.push( changeObj );
-		} else if ( nonRandomChanges.length ) {
+		} else if ( nonRandomChanges.length > i ) {
 			changeObj = nonRandomChanges[i];
 			if ( changeObj && changeObj.children ) {
 				this.makeChanges( child, changeObj.children );
@@ -886,7 +894,7 @@ ParserTests.prototype.main = function ( options ) {
 
 	if ( options.changesin ) {
 		this.changes = JSON.parse(
-			fs.readFileSync( options.changesin ) );
+			fs.readFileSync( options.changesin, 'utf-8' ) );
 	}
 
 	options.reportStart();

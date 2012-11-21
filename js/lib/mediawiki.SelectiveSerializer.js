@@ -68,18 +68,25 @@ function hasChangeMarker( dataVeChanged ) {
  * the old text, by assigning IDs to each node in the DOM that has changed.
  */
 SSP.assignSerializerIds = function ( node, src, state ) {
-	var child, thisda, thisdp, dsr, nodesrc, hasRun,
-		oldstartdsr, oldId, lastdsr, tname, backi, backdp;
+	var child, thisda, thisdp, thisdsr, dsr, nodesrc, hasRun,
+		oldstartdsr, oldId, tname, backi, backdp,
+		parentChangeMarkers, contentChanged;
 
 	// state will hold our local state, this is different from the
 	// WikitextSerializer state but will eventually be returned as the new
 	// state for the SelectiveSerializer.
 	state = state || {
 		currentId: 1,
-		maybeSourceChunks: [],
 		originalSourceChunks: [],
 		startdsr: null,
-		foundChange: false
+		foundChange: false,
+		lastdsr: null
+	};
+
+	var assignSourceChunk = function ( index, start, end ) {
+		if ( index && !state.originalSourceChunks[index] ) {
+			state.originalSourceChunks[index] = src.substring( start, end );
+		}
 	};
 
 	for ( var i = 0; i < node.childNodes.length; i++ ) {
@@ -92,33 +99,44 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 		// duplicate later for special cases.
 		thisdp = Util.getJSONAttribute( child, 'data-parsoid', {} );
 
+		thisdsr = thisdp.dsr;
+
 		if ( !thisdp.dsr && !child.setAttribute ) {
 			// We can't mess with a text node, but we do need to avoid the
 			// error caused by calling setAttribute on it.
 		} else if (
 				(
-					state.startdsr === null && (
+					( state.foundChange && state.startdsr === null ) && (
 						!thisdp.dsr || thisdp.dsr[0] === null 
 					)
 				) || hasChangeMarker( thisda ) ) {
 			// This is either a changed node that needs to be serialized or a node
 			// without opening DSR that can't be copied over anyway, so we mark it
 			// to the best of our ability and move on.
-			thisdp = thisdp.dsr;
 			if (
-					state.startdsr !== null && thisdp && thisdp[0] && (
-						!lastdsr || thisdp[0] < lastdsr ) ) {
+					(
+					 state.startdsr !== null || !state.foundChange
+					) && thisdsr && thisdsr[0] && (
+						!state.lastdsr || thisdsr[0] < state.lastdsr ) ) {
 				// In the case that we were in the middle of processing a series of
 				// unchanged nodes, we use this node's startdsr as the end index if
 				// possible.
-				state.maybeSourceChunks[state.currentId] = src.substring( state.startdsr, thisdp[0] );
+				if ( state.startdsr === null ) {
+					state.startdsr = 0;
+				}
+				assignSourceChunk( state.currentId, state.startdsr, thisdsr[0] );
 
 				// Reset the start DSR, because we aren't processing identical nodes now.
 				state.startdsr = null;
-			} else if ( lastdsr && state.startdsr !== null ) {
+			} else if (
+					state.lastdsr && (
+						state.startdsr !== null || !state.foundChange ) ) {
 				// If we were processing identical nodes and there is no start DSR on the
 				// current node, we use the end DSR of the last node.
-				state.maybeSourceChunks[state.currentId] = src.substring( state.startdsr, lastdsr );
+				if ( state.startdsr === null ) {
+					state.startdsr = 0;
+				}
+				assignSourceChunk( state.currentId, state.startdsr, state.lastdsr );
 
 				// Reset the start DSR, because we aren't processing identical nodes now.
 				state.startdsr = null;
@@ -142,12 +160,12 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 			oldstartdsr = state.startdsr;
 			this.assignSerializerIds( child, src, state );
 
-			if ( oldId === state.currentId && thisdp.dsr && (
-					thisdp.dsr[0] !== null ) ) {
+			if ( oldId === state.currentId && thisdsr && (
+					thisdsr[0] !== null ) ) {
 				// If no children were bothered, then this entire node can be copied
 				// over verbatim. If there's no startdsr yet, set it.
 				if ( state.startdsr === null ) {
-					state.startdsr = thisdp.dsr[0];
+					state.startdsr = thisdsr[0];
 				}
 			} else if ( oldId !== state.currentId && state.parentMarked === false ) {
 				// If the serializeID changed while processing this node's children, then
@@ -156,22 +174,12 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 
 				// Special case handling for specific tags.
 				tname = child.tagName ? child.tagName.toLowerCase() : 'tbody';
-				if ( tname !== 'tbody' && tname !== 'thead' ) {
-					// A tbody's parent element needs to be marked as well as the tbody
-					// itself, or the serializer won't correctly serialize everything.
-					if ( state.startdsr !== null ) {
-						if ( thisdp && thisdp.dsr && thisdp.dsr[0] ) {
-							state.originalSourceChunks[oldId] = src.substring( state.startdsr, thisdp.dsr[0] );
-						} else if ( lastdsr ) {
-							state.originalSourceChunks[oldId] = src.substring( state.startdsr, lastdsr );
-						}
-						state.startdsr = null;
-					}
-					child.setAttribute( 'data-serialize-id', oldId );
-				} else {
+				if ( tname === 'tbody' || tname === 'thead' ) {
 					child.setAttribute( 'data-serialize-id', oldId );
 
 					state.parentMarked = true;
+				} else if ( state.lastdsr !== null && thisdsr[1] !== null ) {
+					assignSourceChunk( state.currentId, state.lastdsr, thisdsr[1] );
 				}
 			} else if ( oldId !== state.currentId && state.parentMarked === true ) {
 				// This is a special case for parents who were marked as
@@ -184,25 +192,24 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 				if ( oldstartdsr !== null ) {
 					// If there's a chunk of unmodified code in progress,
 					// finish it first.
-					if ( thisdp && thisdp.dsr && thisdp.dsr[0] !== null ) {
-						state.maybeSourceChunks[oldId] = src.substring(
+					if ( thisdsr && thisdsr[0] !== null ) {
+						state.originalSourceChunks[oldId] = src.substring(
 							oldstartdsr,
-							thisdp.dsr[0] );
-					} else if ( lastdsr ) {
-						state.maybeSourceChunks[oldId] = src.substring( oldstartdsr, lastdsr );
+							thisdsr[0] );
+					} else if ( state.lastdsr ) {
+						state.originalSourceChunks[oldId] = src.substring( oldstartdsr, state.lastdsr );
 					}
 					state.startdsr = null;
 				}
-				state.originalSourceChunks[oldId] = state.maybeSourceChunks[oldId];
 				child.setAttribute( 'data-serialize-id', oldId );
 				delete state.parentMarked;
 			}
 		}
-		if ( thisdp ) {
+		if ( thisdsr ) {
 			// Make sure we have the dsr[1] of the last node we processed, so
 			// we can use it as a backup later if a changed node doesn't have
 			// dsr[0]. Fall back to the last known dsr[1] otherwise.
-			lastdsr = thisdp[1] || lastdsr;
+			state.lastdsr = thisdsr[1] || state.lastdsr;
 		}
 	}
 
@@ -215,27 +222,75 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 	// Get the old text of this page
 	this.getOldText( function ( err, src ) {
 		var foundRevisions = err === null;
-		var srcWikitext = '';
+		var resWikitextChunks = [];
 		var chunkCB;
+		var matchedRes, nonNewline, nls = 0, latestSerID = null;
 		Util.stripFirstParagraph( doc );
 		if ( foundRevisions ) {
 			// If we found text, then use this chunk callback.
 			var state = _this.assignSerializerIds( doc, src );
+			var getLeadingNls = function ( chunk ) {
+				return ( chunk.match( /^\n+/ ) || [ '' ] )[0];
+			};
+
+			var pushIdentical = function ( index ) {
+				var identicalChunk = state.originalSourceChunks[index] || '';
+				var leadingNewlines = getLeadingNls( identicalChunk );
+
+				if ( identicalChunk && leadingNewlines.length < identicalChunk.length ) {
+					resWikitextChunks.push( identicalChunk );
+					state.originalSourceChunks[index] = null;
+				}
+			};
+
 			if ( state && state.foundChange === true ) {
 				chunkCB = function ( res, serID ) {
-					// Only handle something that actually has a serialize-ID,
-						// else skip it for now.
-					if ( serID ) {
-						serID = Number( serID );
-						if ( state.originalSourceChunks[serID] ) {
-							// Prefix the result with the original source that
-							// preceded this element.
-							srcWikitext += state.originalSourceChunks[serID];
-							state.originalSourceChunks[serID] = null;
+					var lnls;
+
+					// Special handling for preceding newlines
+					if (
+							nls &&
+							latestSerID !== null &&
+							serID === null &&
+							res !== '' ) {
+						matchedRes = getLeadingNls( res );
+						nonNewline = ( res.match( /[^\n]/ ) || [ '' ] )[0];
+
+						if ( matchedRes.length > nls ) {
+							resWikitextChunks.push( matchedRes.substring( 0, nls ) );
+							nls = 0;
+						} else {
+							resWikitextChunks.push( matchedRes );
+							nls -= matchedRes.length;
 						}
-						// Unconditionally add the result of the serialization to
-						// the end result.
-						srcWikitext += res;
+						if ( nonNewline ) {
+							nls = 0;
+							latestSerID = null;
+						}
+					}
+
+					if ( res === '' ) {
+						nls++;
+					}
+					
+					// Only handle something that actually has a serialize-ID,
+					// else skip it for now.
+					if ( serID  ) {
+						serID = Number( serID );
+
+						if ( latestSerID !== serID && nls !== 0 ) {
+							pushIdentical( latestSerID );
+						}
+
+						latestSerID = serID;
+						if ( res !== '' ) {
+							nls = 0;
+							pushIdentical( serID );
+
+							// Unconditionally add the result of the serialization to
+							// the end result.
+							resWikitextChunks.push( res );
+						}
 					}
 				};
 			}
@@ -251,10 +306,12 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 			_this.wts.serializeDOM( doc, chunkCB, function () {
 				if ( foundRevisions ) {
 					if ( state.startdsr !== null ) {
-						srcWikitext += src.substring( state.startdsr - 1 );
+						resWikitextChunks.push( src.substring( state.startdsr ) );
+					} else if ( state.lastdsr !== null ) {
+						resWikitextChunks.push( src.substring( state.lastdsr ) );
 					}
 
-					cb( srcWikitext );
+					cb( resWikitextChunks.join( '' ) );
 				}
 
 				finalcb();

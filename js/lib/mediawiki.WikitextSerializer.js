@@ -1823,6 +1823,8 @@ WSP._serializeToken = function ( state, token ) {
 		state.emitNewlineOnNextToken = false;
 	} else if ( handler.startsNewline && !state.onStartOfLine ) {
 		state.emitNewlineOnNextToken = true;
+	} else {
+		state.chunkCB( '', state.serializeID );
 	}
 
 	if (handler.endsLine) {
