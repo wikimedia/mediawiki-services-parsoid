@@ -330,16 +330,20 @@
 
     var self = this;
 
-    function buildXMLTag(name, attribs, endTag, selfClose, tsr) {
+    function buildXMLTag(name, lcName, attribs, endTag, selfClose, tsr) {
         var tok, da = { tsr: tsr, stx: 'html' };
 
+        if (name !== lcName) {
+            da.srcTagName = name;
+        }
+
         if ( endTag != '' ) {
-            tok = new EndTagTk( name, attribs, da );
+            tok = new EndTagTk( lcName, attribs, da );
         } else if ( selfClose != '' ) {
             da.selfClose = true;
-            tok = new SelfclosingTagTk( name, attribs, da );
+            tok = new SelfclosingTagTk( lcName, attribs, da );
         } else {
-            tok = new TagTk( name, attribs, da  );
+            tok = new TagTk( lcName, attribs, da  );
         }
 
         return tok;
@@ -1326,11 +1330,12 @@ nonhtml_tag
     ( space / newline ) *
     selfclose:"/"?
     ">" {
-        name = name.join('').toLowerCase();
-        if (html5_tag_names[name] || html_old_names[name]) {
+        name = name.join('');
+        var lcName = name.toLowerCase();
+        if (html5_tag_names[lcName] || html_old_names[lcName]) {
             return null;
         } else {
-            return buildXMLTag(name, attribs, end, selfclose, [pos0, pos]);
+            return buildXMLTag(name, lcName, attribs, end, selfclose, [pos0, pos]);
         }
     }
 
@@ -1351,8 +1356,9 @@ generic_tag
     selfclose:"/"?
     ">" {
         name = name.join('');
-        var isVoidElt = Util.isVoidElement( name ),
-            res = buildXMLTag(name, attribs, end, selfclose !== '' || isVoidElt, [pos0, pos]); 
+        var lcName = name.toLowerCase();
+        var isVoidElt = Util.isVoidElement( lcName ),
+            res = buildXMLTag(name, lcName, attribs, end, selfclose !== '' || isVoidElt, [pos0, pos]); 
 
         // change up data-attribs in one scenario
         // void-elts that aren't self-closed ==> useful for accurate RT-ing
@@ -1463,8 +1469,9 @@ block_tag
     ( space / newline ) *
     selfclose:"/"?
     ">" {
-        if (block_names[name.toLowerCase()]) {
-            return [buildXMLTag(name, attribs, end, selfclose, [pos0, pos])];
+        var lcName = name.toLowerCase();
+        if (block_names[lcName]) {
+            return [buildXMLTag(name, lcName, attribs, end, selfclose, [pos0, pos])];
         } else {
             // abort match if tag is not block-level
             return null;
@@ -1920,12 +1927,17 @@ nl_comment_space = newline / comment / space
  */
 
 include_limits = "<" end:"/"? name:[0-9a-zA-Z]+ (space / newline)* ">" {
-     var incl = name.join('').toLowerCase();
+     name = name.join('');
+     var incl = name.toLowerCase();
      if (incl === "noinclude" || incl === "onlyinclude" || incl === "includeonly") {
+         var da = {tsr: [pos0, pos]};
+         if (name !== incl) {
+             da.srcTagName = name;
+         }
          if (end) {
-            return [new EndTagTk(incl, [], {tsr: [pos0, pos]})];
+            return [new EndTagTk(name, [], da)];
          } else {
-            return [new TagTk(incl, [], {tsr: [pos0, pos]})];
+            return [new TagTk(name, [], da)];
          }
      } else {
          return null;

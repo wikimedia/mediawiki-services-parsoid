@@ -36,7 +36,7 @@ function TokenTransformManager( env, options, pipeFactory, phaseEndRank, attribu
 }
 
 function tokenTransformersKey(tkType, tagName) {
-	return (tkType === 'tag') ? "tag:" + tagName.toLowerCase() : tkType;
+	return (tkType === 'tag') ? "tag:" + tagName : tkType;
 }
 
 // Map of: token constructor ==> transfomer type

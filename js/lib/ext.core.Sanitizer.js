@@ -648,8 +648,8 @@ Sanitizer.prototype.onAny = function ( token ) {
 		noEndTagHash = this.constants.noEndTagHash;
 
 	if (token.isHTMLTag && token.isHTMLTag() &&
-			( !tagWLHash[token.name.toLowerCase()] ||
-			  ( token.constructor === EndTagTk && noEndTagHash[token.name.toLowerCase()] )
+			( !tagWLHash[token.name] ||
+			  ( token.constructor === EndTagTk && noEndTagHash[token.name] )
 			)
 		)
 	{ // unknown tag -- convert to plain text

@@ -702,9 +702,9 @@ WSP._serializeHTMLTag = function ( state, token ) {
 
 	var sAttribs = WSP._serializeAttributes(state, token);
 	if (sAttribs.length > 0) {
-		return '<' + (token.dataAttribs.tag || token.name) + ' ' + sAttribs + close + '>';
+		return '<' + (token.dataAttribs.srcTagName || token.name) + ' ' + sAttribs + close + '>';
 	} else {
-		return '<' + (token.dataAttribs.tag || token.name) + close + '>';
+		return '<' + (token.dataAttribs.srcTagName || token.name) + close + '>';
 	}
 };
 
@@ -713,7 +713,7 @@ WSP._serializeHTMLEndTag = function ( state, token ) {
 		state.inHTMLPre = false;
 	}
 	if ( !token.dataAttribs.autoInsertedEnd && ! Util.isVoidElement( token.name ) && !token.dataAttribs.selfClose  ) {
-		return '</' + (token.dataAttribs.tag || token.name) + '>';
+		return '</' + (token.dataAttribs.srcTagName || token.name) + '>';
 	} else {
 		return '';
 	}
