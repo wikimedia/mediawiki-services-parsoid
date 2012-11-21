@@ -437,7 +437,7 @@ ParserTests.prototype.processSerializedWT = function ( item, options, mode, cb, 
 	item.time.end = Date.now();
 
 	if (error) {
-		options.reportFailure( item.title, item.comments, item.options || [], options, null, null, options.quick, mode, error );
+		options.reportFailure( item.title, item.comments, item.options || [], options, null, null, options.quick, mode, error, item );
 	} else {
 		// Check the result vs. the expected result.
 		this.checkWikitext( item, wikitext, options, mode );
