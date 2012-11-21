@@ -459,7 +459,8 @@ ParserTests.prototype.processSerializedWT = function ( item, options, mode, cb, 
  * @arg failure_only {bool} Whether we should print only a failure message, or go on to print the diff
  * @arg mode {string} The mode we're in (wt2wt, wt2html, html2wt, or html2html)
  */
-ParserTests.prototype.printFailure = function ( title, comments, iopts, options, actual, expected, failure_only, mode, error ) {
+ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
+		actual, expected, failure_only, mode, error, item ) {
 	this.stats.failOutputTests++;
 	this.stats.modes[mode].failOutputTests++;
 
@@ -468,6 +469,14 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 	}
 
 	console.log( 'FAILED'.red + ': ' + ( title + ( mode ? ( ' (' + mode + ')' ) : '' ) ).yellow );
+
+	if ( mode === 'selser' ) {
+		if ( item.wt2wtPassed ) {
+			console.log( 'Even worse, the normal roundtrip test passed!'.red );
+		} else if ( item.wt2wtResult !== actual.raw ) {
+			console.log( 'Even worse, the normal roundtrip test had a different result!'.red );
+		}
+	}
 
 	if ( !failure_only && !error ) {
 		console.log( comments.join('\n') );
@@ -598,7 +607,7 @@ ParserTests.prototype.printWhitelistEntry = function ( title, raw ) {
  * @arg options {object} Options for the test runner. Usually just a copy of argv.
  * @arg mode {string} The mode we're in (wt2wt, wt2html, html2wt, or html2html)
  */
-ParserTests.prototype.printResult = function ( title, time, comments, iopts, expected, actual, options, mode ) {
+ParserTests.prototype.printResult = function ( title, time, comments, iopts, expected, actual, options, mode, item ) {
 	if ( expected.normal !== actual.normal ) {
 		if ( options.whitelist && title in testWhiteList &&
 			Util.normalizeOut( testWhiteList[title] ) ===  actual.normal ) {
@@ -606,8 +615,13 @@ ParserTests.prototype.printResult = function ( title, time, comments, iopts, exp
 			return;
 		}
 
-		options.reportFailure( title, comments, iopts, options, actual, expected, options.quick, mode );
+		item.wt2wtResult = actual.raw;
+
+		options.reportFailure( title, comments, iopts, options, actual, expected, options.quick, mode, null, item );
 	} else {
+		if ( mode === 'wt2wt' ) {
+			item.wt2wtPassed = true;
+		}
 		options.reportSuccess( title, mode, false, options.quiet );
 	}
 };
@@ -627,7 +641,7 @@ ParserTests.prototype.checkHTML = function ( item, out, options, mode ) {
 	var expected = { normal: normalizedExpected, raw: item.result };
 	var actual = { normal: normalizedOut, raw: out, input: input };
 
-	options.reportResult( item.title, item.time, item.comments, item.options || null, expected, actual, options, mode );
+	options.reportResult( item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item );
 };
 
 /**
@@ -649,7 +663,7 @@ ParserTests.prototype.checkWikitext = function ( item, out, options, mode ) {
 	var expected = { normal: normalizedExpected, raw: item.input };
 	var actual = { normal: normalizedOut, raw: out, input: input };
 
-	options.reportResult( item.title, item.time, item.comments, item.options || null, expected, actual, options, mode );
+	options.reportResult( item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item );
 };
 
 /**
