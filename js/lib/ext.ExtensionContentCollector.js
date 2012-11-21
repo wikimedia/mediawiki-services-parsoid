@@ -48,7 +48,7 @@ ExtensionContent.prototype.handleExtensionTag = function(extension, tokens) {
 			var text  = this.manager.env.text,
 				nt = new TagTk('span', [
 					new KV('typeof', 'mw:Object/Extension'),
-					new KV('about', "#mwt" + this.manager.env.generateUID())
+					new KV('about', "#" + this.manager.env.newObjectId())
 				], {
 					tsr: [s_tsr[0], e_tsr[1]],
 					src: text.substring(s_tsr[0], e_tsr[1])

@@ -602,7 +602,7 @@ function removeTrailingNewlinesFromParagraphs( document ) {
 /**
  * Find the common DOM ancestor of two DOM nodes
  */
-function getDOMRange( doc, startElem, endMeta, endElem ) {
+function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 	// Detect empty content
 	if (startElem.nextSibling === endElem) {
 		var emptySpan = doc.createElement('span');
@@ -628,8 +628,7 @@ function getDOMRange( doc, startElem, endMeta, endElem ) {
 			// widen the scope to include the full subtree
 			res = {
 				'root': startElem,
-				// SSS FIXME: Is this fragile?
-				aboutId: startElem.getAttribute("about").replace(/#mwt/, ''),
+				aboutId: env.stripIdPrefix(startElem.getAttribute("about")),
 				startElem: startElem,
 				endElem: endMeta,
 				start: startElem.firstChild,
@@ -639,8 +638,7 @@ function getDOMRange( doc, startElem, endMeta, endElem ) {
 		} else if ( i > 0) {
 			res = {
 				'root': parentNode,
-				// SSS FIXME: Is this fragile?
-				aboutId: startElem.getAttribute("about").replace(/#mwt/, ''),
+				aboutId: env.stripIdPrefix(startElem.getAttribute("about")),
 				startElem: startElem,
 				endElem: endMeta,
 				start: startAncestors[i - 1],
@@ -1067,7 +1065,7 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 							// start tag.
 							console.warn( 'end marker was foster-parented' );
 							aboutRef.processed = true;
-							tplRanges.push(getDOMRange( doc, elem, aboutRef.end, aboutRef.end ));
+							tplRanges.push(getDOMRange( env, doc, elem, aboutRef.end, aboutRef.end ));
 						} else {
 							// should not happen!
 							console.warn( 'start found after content' );
@@ -1087,7 +1085,7 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 						console.warn( 'foster-parented content following!' );
 						if ( aboutRef && aboutRef.start ) {
 							aboutRef.processed = true;
-							tplRanges.push(getDOMRange( doc, aboutRef.start, elem, tableNode ));
+							tplRanges.push(getDOMRange( env, doc, aboutRef.start, elem, tableNode ));
 						} else {
 							console.warn( 'found foster-parented end marker followed ' +
 									'by table, but no start marker!');
@@ -1130,7 +1128,7 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 
 						// Dont get distracted by whitespace text nodes -- skip over them
 						// Unsure why these show up in some cases (only seen 1 node so far).
-						while (tbl && tbl.nodeName.toLowerCase() === "#text" && tbl.data.match(/^\s*$/)) {
+						while (tbl && tbl.nodeType === Node.TEXT_NODE && tbl.data.match(/^\s*$/)) {
 							tbl = tbl.nextSibling;
 						}
 
@@ -1142,7 +1140,7 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 							ee = tbl;
 						}
 						aboutRef.processed = true;
-						tplRanges.push(getDOMRange(doc, sm, em, ee));
+						tplRanges.push(getDOMRange(env, doc, sm, em, ee));
 					} else {
 						tpls[about] = { end: elem };
 					}
@@ -1382,18 +1380,20 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 						ce = tsr[1];
 						propagateRight = true;
 					}
-				} else if (tsr && isTplMetaType(cTypeOf)) {
-					// If this is a meta-marker tag (for templates, extensions),
-					// we have a new valid 'cs'.  This marker also effectively resets tsr
-					// back to the top-level wikitext source range from nested template
-					// source range.
-					cs = tsr[0];
-					ce = tsr[1];
-					propagateRight = true;
 				} else if (tsr) {
-					// All other meta-tags: <includeonly>, <noinclude>, etc.
-					cs = tsr[0];
-					ce = tsr[1];
+					if (isTplMetaType(cTypeOf)) {
+						// If this is a meta-marker tag (for templates, extensions),
+						// we have a new valid 'cs'.  This marker also effectively resets tsr
+						// back to the top-level wikitext source range from nested template
+						// source range.
+						cs = tsr[0];
+						ce = tsr[1];
+						propagateRight = true;
+					} else {
+						// All other meta-tags: <includeonly>, <noinclude>, etc.
+						cs = tsr[0];
+						ce = tsr[1];
+					}
 				}
 			} else {
 				// Non-meta tags
