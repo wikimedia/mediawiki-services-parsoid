@@ -640,9 +640,12 @@ WSP._figureHandler = function ( state, figTokens ) {
 		var a = figAttrs[i];
 		var k = a.k, v = a.v;
 		if (sizeOptions[k]) {
+			// Since width and height have to be output as a pair,
+			// collect both of them.
 			size[k] = v;
 		} else {
-			// Output size first and clear it
+			// If we have width set, it got set in the most recent iteration
+			// Output height and width now (one iteration later).
 			var w = size.width;
 			if (w) {
 				outBits.push(w + (size.height ? "x" + size.height : '') + "px");
@@ -671,6 +674,16 @@ WSP._figureHandler = function ( state, figTokens ) {
 				console.warn("Unknown image option encountered: " + JSON.stringify(a));
 			}
 		}
+	}
+
+	// Handle case when size is the last element which has accumulated
+	// in the size object.  Since size attribute is output one iteration
+	// after which it showed up, we have to handle this specially when
+	// size is the last element of the figAttrs array.  An alternative fix
+	// for this edge case is to fix the parser to not split up height
+	// and width into different attrs.
+	if (size.width) {
+		outBits.push(size.width + (size.height ? "x" + size.height : '') + "px");
 	}
 
 	return "[[" + outBits.join('|') + "]]";
