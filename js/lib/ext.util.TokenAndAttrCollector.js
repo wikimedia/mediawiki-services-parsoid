@@ -1,28 +1,39 @@
 /* ------------------------------------------------------------------------
- * TL:DR; This whole handler is one giant hack of sorts to get around
+ * Summary
+ * -------
+ * This whole handler collects delimiter-separated tokens on behalf of other
+ * transformers.  It is also one giant hack of sorts to get around:
  *
  * (1) precedence issues in a single-pass tokenizer (without
  *     preprocessing passes like in the multi-pass PHP parser)
  *     to process noinclude/includeonly and extension content tags.
  * (2) unbalanced/misnested tags in source wikitext.
  * ------------------------------------------------------------------------
+ *
  * Token attributes can have one or both of their key/value information
  * come from a token stream.  Ex: <div {{echo|id}}="{{echo|test}}">
  *
- * In these examples, "<noinclude" or "</noinclude>" is encountered in
- * an attribute key/value position within the parser and is added to the
- * attribute of the div/table.
+ * However if noinclude/includeonly or an extension tag shows up in
+ * an attribute key/value position (as far as the tokenizer is concerned),
+ * these delimiter tags get buried inside token attributes rather than
+ * being present at the top-level of the token stream.
  *
+ * Examples:
  * - <div <noinclude>id</noinclude><includeonly>about</includeonly>='foo'>
  * - <noinclude>{|</noinclude> ...
  * - {|<noinclude>style='color:red'</noinclude>
+ * - [[Image:foo.jpg| .. <math>a|b</math> ..]]
  *
  * This class attempts to match up opening and closing tags across token
  * nesting boundaries when the parser cannot always accurately match them
- * up within the restricted parsing context.  While a different parsing
- * strategy might be able to handle these, the current strategy has been
- * adopted to not crash while handling weird uses of <noinclude>, etc. tags
- * that may not be properly nested vis-a-vis other tags:
+ * up within the restricted parsing context.  The broad strategy is to
+ * find matching pairs of delimiters within attributes of the same token
+ * and merge those attributes into a single attribute to let the
+ * Attribute Expander handle them.  After this is done, there should only
+ * be atmost one unmatched open/closing delimiter within each token.
+ *
+ * The current strategy has been adopted to not crash while handling uses
+ * of such tags that may not be properly nested vis-a-vis other tags:
  *
  * Ex: <p id="<noinclude>"> foo </noinclude></p>
  *
@@ -62,7 +73,7 @@ TokenAndAttrCollector.prototype.init = function(start) {
 	 * - token     : the token that nested the delimiter
 	 * - attrIndex : index of the attribute where the delimiter was found
 	 * - k         : if >= 0, the index of the delimiter with the k-array of the attribute
- 	 * - v         : if >= 0, the index of the delimiter with the v-array of the attribute
+	 * - v         : if >= 0, the index of the delimiter with the v-array of the attribute
 	 */
 	this.collection = {
 		start  : null,
@@ -75,10 +86,35 @@ TokenAndAttrCollector.prototype.init = function(start) {
 
 TokenAndAttrCollector.prototype.inspectAttrs = function(token) {
 	/* --------------------------------------------------
-	 * NOTE: This code assumes:
+	 * NOTE: This function assumes:
 	 * - balanced open/closed delimiters.
 	 * - no nesting of delimiters.
 	 * -------------------------------------------------- */
+
+	function findMatchingDelimIndex(delims, opts) {
+		// Finds first/last open/closed delimiter tag
+		var i, n = delims.length;
+		if (opts.first) {
+			i = 0;
+			// xor to detect unmet condition
+			while (i < n && (opts.open ^ delims[i].open)) {
+				i++;
+			}
+
+			// failure case
+			if (i === n) {
+				i = -1;
+			}
+		} else {
+			i = n - 1;
+			// xor to detect unmet condition
+			while (i >= 0 && (opts.open ^ delims[i].open)) {
+				i--;
+			}
+		}
+
+		return i;
+	}
 
 	function nothingSpecialToDo(collector, token) {
 		if (collector.hasOpenTag) {
@@ -150,6 +186,8 @@ TokenAndAttrCollector.prototype.inspectAttrs = function(token) {
 		 * discards everything but 'baz'.  But, by merging the 3 attrs,
 		 * this handler will include everything.  This is an edge case,
 		 * so, not worrying about it now.
+		 *
+		 * FIXME: Later on, we may implement smarter merging strategies.
 		 * ------------------------------------------------------------ */
 
 		// helper function
@@ -189,23 +227,15 @@ TokenAndAttrCollector.prototype.inspectAttrs = function(token) {
 
 		// console.warn("T: " + JSON.stringify(token));
 
-		var n = delims.length, i = 0, j = n-1;
-
 		// find the first open delim -- will be delims[0/1] for well-formed WT
-		while (i < n && !delims[i].open) {
-			i++;
-		}
+		var i = findMatchingDelimIndex(delims, {first: true, open: true});
+		var openD = delims[i];
 
 		// find the last closed delim -- will be delims[n-2/n-1] for well-formed WT
-		while (j >= 0 && delims[j].open) {
-			j--;
-		}
-
-		var openD = delims[i],
-			closeD = delims[j];
+		var j = findMatchingDelimIndex(delims, {first: false, open: false});
+		var closeD = delims[j];
 
 		// Merge all attributes between openD.attrIndex and closeD.attrIndex
-		// into a single attribute while reinserting "|" as a new token.
 		// Tricky bits:
 		// - every attribute is a (k,v) pair, and we need to merge
 		//   both the k and v into one set of tokens and insert a "=" token
@@ -229,9 +259,8 @@ TokenAndAttrCollector.prototype.inspectAttrs = function(token) {
 
 			var x = openD.attrIndex + 1;
 			while (x < closeD.attrIndex) {
-				// Compute toks + a.k + "=" + a.v //+ "|"
+				// Compute toks + a.k + "=" + a.v
 				toks = mergeAttr(toks, attrs[x]);
-				// toks.push('|');
 				x++;
 			}
 
@@ -283,7 +312,9 @@ TokenAndAttrCollector.prototype.inspectAttrs = function(token) {
 	// Check tags to see if we have a nested delimiter
 	var attrs = token.attribs;
 	var delims = [];
-	for (var i = 0, n = attrs.length; i < n; i++) {
+	var i, n;
+
+	for (i = 0, n = attrs.length; i < n; i++) {
 		var a = attrs[i];
 		var k = a.k;
 		if (k.constructor === Array && k.length > 0) {
@@ -310,22 +341,26 @@ TokenAndAttrCollector.prototype.inspectAttrs = function(token) {
 			delims = ret[1];
 		}
 
-		var numDelims = delims.length;
-		if (numDelims === 0) {
+		if (delims.length === 0) {
 			// we merged matching pairs and eliminated all nested
 			// delims to process in this pass.
 			return nothingSpecialToDo(this, token);
 		} else {
-			if (this.hasOpenTag) {
-				// Find first closed delim -- should always be the delims[0]
-				// if everything is working properly.
-				i = 0;
-				while (i < numDelims && delims[i].open) {
-					i++;
-				}
+			var openDelim, closedDelim;
 
-				if (i < numDelims) {
-					this.collection.end = delims[i];
+			// Find first closed delim -- should always be the delims[0]
+			// if everything is working properly.
+			i = findMatchingDelimIndex(delims, {first: true, open: false });
+			closedDelim = i === -1 ? null : delims[i];
+
+			// Find last open delim -- should always be the delims[numDelims-1]
+			// if everything is working properly.
+			i = findMatchingDelimIndex(delims, {first: false, open: true });
+			openDelim = i === -1 ? null : delims[i];
+
+			if (this.hasOpenTag) {
+				if (closedDelim) {
+					this.collection.end = closedDelim;
 					this.hasOpenTag = false;
 					return this.transformation(this.collection);
 				} else {
@@ -333,15 +368,8 @@ TokenAndAttrCollector.prototype.inspectAttrs = function(token) {
 					return nothingSpecialToDo(this, token);
 				}
 			} else {
-				// Find last open delim -- should always be the delims[numDelims-1]
-				// if everything is working properly.
-				i = numDelims-1;
-				while (i >= 0 && !delims[i].open) {
-					i--;
-				}
-
-				if (i >= 0) {
-					this.init(delims[i]);
+				if (openDelim) {
+					this.init(openDelim);
 					return {tokens: null};
 				} else {
 					// nested/extra tag?  we'll ignore it.
@@ -392,6 +420,12 @@ TokenAndAttrCollector.prototype.onAnyToken = function( token, frame, cb ) {
 			// Spit out error somewhere.
 			// FIXME: Copy over tsr
 			return {tokens: [new String("</" + this.tagName + ">")]};
+		} else if (tc === SelfclosingTagTk && token.name === this.tagName) {
+			return this.transformation({
+				start  : token,
+				end    : null,
+				tokens : []
+			});
 		} else if (tc === TagTk || tc === EndTagTk || tc === SelfclosingTagTk){
 			return this.inspectAttrs(token);
 		} else {
