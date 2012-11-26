@@ -111,6 +111,7 @@ TokenCollector.prototype._onDelimiterToken = function ( token, frame, cb ) {
 					res.tokens.last().constructor !== EOFTk ) {
 				var obj = {};
 				Error.captureStackTrace(obj);
+				console.error( 'ERROR: ' + this.name + ' handler dropped the EOFTk!');
 				console.error( obj.stack );
 				//this.manager.env.errCB(obj.stack);
 

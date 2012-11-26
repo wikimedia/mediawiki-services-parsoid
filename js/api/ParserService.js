@@ -364,6 +364,8 @@ app.get( new RegExp('/_rt/(' + getInterwikiRE() + ')/(.*)'), function(req, res) 
 	env.wgScriptPath = '/_rt/' + req.params[0] + '/';
 	env.wgScript = env.interwikiMap[req.params[0]];
 
+	req.connection.setTimeout(300 * 1000);
+
 	if ( env.pageName === 'favicon.ico' ) {
 		res.send( 'no favicon yet..', 404 );
 		return;
@@ -447,11 +449,15 @@ app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 	env.setPageName( req.params[1] );
 	env.wgScriptPath = '/' + req.params[0] + '/';
 	env.wgScript = env.interwikiMap[req.params[0]];
+
 	if ( env.pageName === 'favicon.ico' ) {
 		res.send( 'no favicon yet..', 404 );
 		return;
 	}
 	var target = env.resolveTitle( env.normalizeTitle( env.pageName ), '' );
+
+	// Set the timeout to 900 seconds..
+	req.connection.setTimeout(900 * 1000);
 
 	var st = new Date();
 	console.log('starting parsing of ' + target);

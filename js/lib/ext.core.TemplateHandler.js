@@ -17,6 +17,7 @@ var events = require('events'),
 									.AttributeTransformManager,
 	defines = require('./mediawiki.parser.defines.js'),
 	TemplateRequest = require('./mediawiki.ApiRequest.js').TemplateRequest,
+	PreprocessorRequest = require('./mediawiki.ApiRequest.js').PreprocessorRequest,
 	Util = require('./mediawiki.Util.js').Util;
 
 function TemplateHandler ( manager, options ) {
@@ -56,15 +57,33 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 		state.emittedFirstChunk = false;
 	}
 
-	// expand argument keys, with callback set to next processing step
-	// XXX: would likely be faster to do this in a tight loop here
-	var atm = new AttributeTransformManager(
-				this.manager,
-				{ wrapTemplates: false },
-				this._expandTemplate.bind( this, state, frame, cb )
-			);
-	cb( { async: true } );
-	atm.processKeys(token.attribs);
+	if ( this.manager.env.usePHPPreProcessor ) {
+		if ( this.options.wrapTemplates ) {
+			// Use MediaWiki's action=expandtemplates preprocessor
+			var text = token.getWTSource( this.manager.env ),
+				srcHandler = this._processTemplateAndTitle.bind( this, state, frame,
+						cb, text, [] );
+			//console.log( text );
+			cb( { async: true } );
+			this.fetchExpandedTemplate( this.manager.env.pageName || '',
+					text, cb, srcHandler);
+		} else {
+			// We don't perform recursive template expansion- something
+			// template-like that the PHP parser did not expand. This is
+			// encapsulated already, so just return the plain text.
+			cb( { tokens: [ Util.tokensToString( [token] ) ] } );
+		}
+	} else {
+		// expand argument keys, with callback set to next processing step
+		// XXX: would likely be faster to do this in a tight loop here
+		var atm = new AttributeTransformManager(
+					this.manager,
+					{ wrapTemplates: false },
+					this._expandTemplate.bind( this, state, frame, cb )
+				);
+		cb( { async: true } );
+		atm.processKeys(token.attribs);
+	}
 };
 
 /**
@@ -264,6 +283,11 @@ TemplateHandler.prototype._processTemplateAndTitle = function( state, frame, cb,
 		//this.manager.env.errCB(err);
 	}
 
+	//console.log( "=================================");
+	//console.log( name );
+	//console.log( "---------------------------------");
+	//console.log( src );
+
 	// Get a nested transformation pipeline for the input type. The input
 	// pipeline includes the tokenizer, synchronous stage-1 transforms for
 	// 'text/wiki' input and asynchronous stage-2 transforms).
@@ -454,19 +478,50 @@ TemplateHandler.prototype._fetchTemplateAndTitle = function ( title, parentCB, c
 			env.tp( 'Note: Starting new request for ' + title );
 			env.requestQueue[title] = new TemplateRequest( env, title );
 		}
-		// Append a listener to the request at the toplevel, but prepend at
+		// Idea: Append a listener to the request at the toplevel, but prepend at
 		// lower levels to enforce depth-first processing
-		if ( false && this.manager.options.isInclude ) {
-			// prepend request: deal with requests from includes first
-			env.requestQueue[title].listeners( 'src' ).unshift( cb );
-		} else {
-			// append request, process in document order
-			env.requestQueue[title].listeners( 'src' ).push( cb );
-		}
+		// Did not really speed things up, so disabled for now..
+		//if ( false && this.manager.options.isInclude ) {
+		//	// prepend request: deal with requests from includes first
+		//	env.requestQueue[title].listeners( 'src' ).unshift( cb );
+		//} else {
+
+		// append request, process in document order
+		env.requestQueue[title].listeners( 'src' ).push( cb );
+
+		//}
 		parentCB ( { async: true } );
 	}
 };
 
+/**
+ * Fetch the preprocessed wikitext for a template-like construct
+ */
+TemplateHandler.prototype.fetchExpandedTemplate = function ( title, text, parentCB, cb ) {
+	var env = this.manager.env;
+	if ( text in env.pageCache ) {
+		// XXX: store type too (and cache tokens/x-mediawiki)
+		cb(null, env.pageCache[text] /* , type */ );
+	} else if ( false && ! env.fetchTemplates ) {
+		parentCB(  { tokens: [ 'Warning: Page/template fetching disabled, and no cache for ' +
+				text ] } );
+	} else {
+
+		// We are about to start an async request for a template
+		env.dp( 'Note: trying to expand ', text );
+
+		// Start a new request if none is outstanding
+		//env.dp( 'requestQueue: ', env.requestQueue );
+		if ( env.requestQueue[text] === undefined ) {
+			env.tp( 'Note: Starting new request for ' + text );
+			env.requestQueue[text] = new PreprocessorRequest( env, title, text );
+		}
+		// append request, process in document order
+		env.requestQueue[text].listeners( 'src' ).push( cb );
+
+		parentCB ( { async: true } );
+	}
+};
 
 /*********************** Template argument expansion *******************/
 
