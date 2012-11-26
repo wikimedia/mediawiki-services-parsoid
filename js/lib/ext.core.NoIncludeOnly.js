@@ -230,9 +230,9 @@ function noIncludeHandler(manager, options, collection) {
 		} else if ( tokens.last().constructor === EOFTk ) {
 			tokens.pop();
 		}
-	} else {
+	} else if (options.wrapTemplates) {
 		// content is stripped
-		tokens.push(buildStrippedMetaToken(manager, 'mw:NoInclude', false,
+		tokens.push(buildStrippedMetaToken(manager, 'mw:NoInclude',
 					collection.start, collection.end));
 	}
 
@@ -289,7 +289,7 @@ function includeOnlyHandler(manager, options, collection) {
 	if (options.isInclude) {
 		// Just pass through the full collection including delimiters
 		tokens = tokens.concat(collection.tokens);
-	} else {
+	} else if (options.wrapTemplates) {
 		// Content is stripped, add a meta for round-tripping
 		tokens.push(buildStrippedMetaToken(manager, 'mw:IncludeOnly',
 					startDelim, endDelim));
