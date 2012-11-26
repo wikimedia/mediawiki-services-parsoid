@@ -611,8 +611,7 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
 		this.env.dp( 'maybeSyncReturn async', s.c, ret );
 		var asyncCB = cbs.parent,
 			tokens = ret.tokens;
-		if ( tokens )
-		{
+		if ( tokens ) {
 			if ( tokens.constructor === String ) {
 				ret.tokens = [ tokens ];
 				// XXX: We should probably fix the callers to return proper tokens

@@ -88,12 +88,15 @@ TemplateHandler.prototype.targetToString = function ( tokens ) {
 	var maybeTarget = Util.tokensToString( tokens, true );
 	if ( maybeTarget.constructor === Array ) {
 		for ( var i = 0, l = maybeTarget[1].length; i < l; i++ ) {
-			var nonTextTokenCons = maybeTarget[1][0].constructor;
+			var ntt = maybeTarget[1][0];
+			var nonTextTokenCons = ntt.constructor;
 			if ( nonTextTokenCons === TagTk ||
 					nonTextTokenCons === SelfclosingTagTk ||
 					nonTextTokenCons === EndTagTk )
 			{
-				return null;
+				if (ntt.name !== 'meta' || !ntt.getAttribute("typeof").match(/mw:/)) {
+					return null;
+				}
 			}
 		}
 		// No tag tokens, strip comments and newlines
@@ -104,11 +107,37 @@ TemplateHandler.prototype.targetToString = function ( tokens ) {
 	}
 };
 
+
 /**
  * Fetch, tokenize and token-transform a template after all arguments and the
  * target were expanded.
  */
 TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs ) {
+	function appendToks(toks, prefix, v) {
+		if (v.constructor === Array || v.constructor === String) {
+			if (v.length > 0) {
+				if (prefix) {
+					toks.push(prefix);
+				}
+				// FIXME: Is cloning required?
+				toks = toks.concat(Util.clone(v));
+			}
+		} else {
+			if (prefix) {
+				toks.push(prefix);
+			}
+			if (v.constructor === ParserValue) {
+				// FIXME: Correct?
+				toks = appendToks(toks, prefix, v.source);
+			} else {
+				// FIXME: Is cloning required?
+				toks.push(Util.clone(v));
+			}
+		}
+
+		return toks;
+	}
+
 	//console.warn('TemplateHandler.expandTemplate: ' +
 	//		JSON.stringify( tplExpandData, null, 2 ) );
 	var env = this.manager.env;
@@ -158,29 +187,19 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 		return;
 	}
 
-	// We are dealing with a real template, an not a parser function.
-	// Apply more stringent standards for template targets
+	// We are dealing with a real template, not a parser function.
+	// Apply more stringent standards for template targets.
 	target = this.targetToString(attribs[0].k);
 	if ( target === null ) {
 		// Target contains tags, convert template braces and pipes back into text
-		var attribTokens = [];
-
 		// Re-join attribute tokens with '=' and '|'
+		var attribTokens = [];
 		attribs.map( function ( kv ) {
-				if ( kv.k && kv.k.length ) {
-					if ( kv.k.constructor === String ) {
-						attribTokens.push(kv.k);
-					} else {
-						attribTokens = attribTokens.concat( kv.k );
-					}
+				if ( kv.k) {
+					attribTokens = appendToks(attribTokens, null, kv.k);
 				}
-				if ( kv.v && kv.v.length ) {
-					attribTokens.push('=');
-					if ( kv.v.constructor === String ) {
-						attribTokens.push( kv.v );
-					} else {
-						attribTokens = attribTokens.concat(kv.v);
-					}
+				if (kv.v) {
+					attribTokens = appendToks(attribTokens, "=", kv.v);
 				}
 				attribTokens.push('|');
 		} );
@@ -490,7 +509,7 @@ TemplateHandler.prototype.lookupArg = function(args, attribs, cb, ret) {
 			res.get({
 				type: 'tokens/x-mediawiki/expanded',
 				asyncCB: cb,
-				cb: ((args.namedArgs[argName]) ?
+				cb: (args.namedArgs[argName] ?
 						function(res) { cb( {tokens: Util.tokenTrim(res)} ); } :
 						function(res) { cb( {tokens: res} ); })
 			});

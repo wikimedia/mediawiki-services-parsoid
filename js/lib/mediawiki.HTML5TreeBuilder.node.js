@@ -183,12 +183,13 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			//this.emit('document', this.document);
 			break;
 		default:
-			console.warn("Unhandled token: " + JSON.stringify(token));
+			console.warn("-------- Unhandled token ---------");
+			console.warn("TYPE: " + token.constructor.name);
+			console.warn("VAL : " + JSON.stringify(token));
 			break;
 	}
 	this.lastToken = token;
 };
-
 
 
 if (typeof module === "object") {

@@ -614,6 +614,8 @@ function ParserValue ( source, options ) {
 
 ParserValue.prototype = {};
 
+ParserValue.prototype.constructor = ParserValue;
+
 ParserValue.prototype._defaultTransformOptions = {
 	type: 'text/x-mediawiki/expanded'
 };
@@ -660,11 +662,6 @@ ParserValue.prototype.get = function( options, cb ) {
 		this.frame.expand( source, options );
 	}
 };
-
-ParserValue.prototype.length = function () {
-	return this.source.length;
-};
-
 
 // TODO: don't use globals!
 if (typeof module === "object") {

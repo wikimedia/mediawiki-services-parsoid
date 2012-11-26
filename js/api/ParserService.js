@@ -257,6 +257,7 @@ var getParserEnv = function ( options, res ) {
 	var env = Util.getParserEnv( localSettings );
 	env.errCB = function ( e ) {
 		console.log( e );
+		console.log(e.stack);
 		res.send( e.toString(), 500 );
 		// Force a clean restart of this worker
 		process.exit(1);
