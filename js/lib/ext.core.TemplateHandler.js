@@ -502,7 +502,7 @@ TemplateHandler.prototype.fetchExpandedTemplate = function ( title, text, parent
 	if ( text in env.pageCache ) {
 		// XXX: store type too (and cache tokens/x-mediawiki)
 		cb(null, env.pageCache[text] /* , type */ );
-	} else if ( false && ! env.fetchTemplates ) {
+	} else if ( ! env.fetchTemplates ) {
 		parentCB(  { tokens: [ 'Warning: Page/template fetching disabled, and no cache for ' +
 				text ] } );
 	} else {
