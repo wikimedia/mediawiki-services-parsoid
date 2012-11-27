@@ -868,8 +868,9 @@ function encapsulateTemplates( env, doc, tplRanges) {
 				// If tcEnd is a table, and it has a dsr-start that
 				// is smaller than tsStart, then this could be
 				// a foster-parented scenario.
-				if (hasNodeName(tcEnd, 'table') && dp2.dsr[0] < dp1.dsr[0]) {
-					dp1.dsr[0] = dp2.dsr[0];
+				var endDsr = dp2.dsr[0];
+				if (hasNodeName(tcEnd, 'table') && endDsr !== null && endDsr < dp1.dsr[0]) {
+					dp1.dsr[0] = endDsr;
 				}
 			}
 			if (dp1.dsr[0] !== null && dp1.dsr[1] !== null) {
