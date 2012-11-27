@@ -349,6 +349,37 @@
         return tok;
     }
 
+    function buildTableTokens(tagName, wtChar, attrInfo, tsr, content) {
+        var a, dp = {tsr: tsr};
+        if (attrInfo === '') {
+            a = [];
+        } else {
+            a = attrInfo[0];
+            if ( a.length === 0 ) {
+                dp.startTagSrc = wtChar + attrInfo[1].join('') + "|";
+            }
+        }
+        if (attrInfo[2] !== "|") {
+            // Variation from default
+            dp.attrSepSrc = attrInfo[2];
+        }
+
+        var tokens = [new TagTk( tagName, a, dp )].concat( content );
+
+        // We rely on our tree builder to close the table cell (td/th) as needed.
+        // We cannot close the cell here because cell content can come from
+        // multiple parsing contexts and we cannot close the tag in the same
+        // parsing context in which the td was opened:  
+        //   Ex: {{echo|{{!}}foo}}{{echo|bar}} has to output <td>foobar</td>
+        //
+        // But, add a marker meta-tag to capture tsr info.
+        // SSS FIXME: Unsure if this is actually helpful, but adding it in just in case.
+        // Can test later and strip it out if it doesn't make any diff to rting.
+        tokens.push(new SelfclosingTagTk('meta', [new KV('typeof', 'mw:TSRMarker')], {tsr: [pos, pos]}));
+
+        return tokens;
+    }
+
     /*
      * Emit a chunk of tokens to our consumers.  Once this has been done, the
      * current expression can return an empty list (true).
@@ -1677,28 +1708,7 @@ table_data_tag
     tagEndPos:({return pos})
     td:nested_block* 
     { 
-        var a = arg[0];
-        if ( a === '' ) {
-            a = [];
-        }
-        //console.warn("table data result: " + pp(td) + ", attribs: " + pp(a));
-        var tokens = [new TagTk( 'td', a, {tsr: [pos0, tagEndPos]} )].concat( td );
-        if (arg[1] !== "|") {
-            // Variation from default
-            tokens[0].dataAttribs.attrSepSrc = arg[1];
-        }
-
-        // We rely on our tree builder to close the table cell as needed.
-        // We cannot close the cell here because cell content can come from
-        // multiple parsing contexts and we cannot close the tag in the same
-        // parsing context in which the td was opened:  
-        //   Ex: {{echo|{{!}}foo}}{{echo|bar}} has to output <td>foobar</td>
-        //
-        // But, add a marker meta-tag to capture tsr info.
-        // SSS FIXME: Unsure if this is actually helpful, but adding it in just in case.
-        // Can test later and strip it out if it doesn't make any diff to rting.
-        tokens.push(new SelfclosingTagTk('meta', [new KV('typeof', 'mw:TSRMarker')], {tsr: [pos, pos]}));
-        return tokens;
+        return buildTableTokens("td", "|", arg, [pos0, tagEndPos], td);
     }
 
 table_heading_tags
@@ -1721,17 +1731,8 @@ table_heading_tag
   = arg:table_cell_args?
     tagEndPos:({return pos})
     c:nested_block* {
-         //console.warn( 'table_heading_tag: ' + pp( [a, c] ) );
-         var a = arg[0];
-         if ( a === '' ) {
-             a = [];
-         }
-         var th = new TagTk( 'th', a, {tsr: [pos0, tagEndPos]} );
-         if (arg[1] !== "|") {
-             // Variation from default
-             th.dataAttribs.attrSepSrc = arg[1];
-         }
-         return [ th ].concat( c );
+        //console.warn( 'table_heading_tag: ' + pp( [a, c] ) );
+        return buildTableTokens("th", "!", arg, [pos0, tagEndPos], c);
      }
 
 table_end_tag
@@ -1747,10 +1748,10 @@ table_end_tag
 
 table_cell_args
   = & { return stops.inc('tableCellArg'); }
-    as:generic_attribute* space* p:pipe !pipe { 
+    as:generic_attribute* s:space* p:pipe !pipe { 
         stops.dec('tableCellArg');
         //console.warn( 'tcargs' + JSON.stringify( as ) + " stops: " + pp(stops) );
-        return [as, p];
+        return [as, s, p];
     }
     / & { return stops.dec('tableCellArg'); }
 

@@ -1119,10 +1119,10 @@ WSP.tagHandlers = {
 				var sep = " " + (da.attrSepSrc || "|");
 				if ( da.stx_v === 'row' ) {
 					this.startsNewline = false;
-					return WSP._serializeTableTag("!!", sep, state, token);
+					return WSP._serializeTableTag(da.startTagSrc || "!!", sep, state, token);
 				} else {
 					this.startsNewline = true;
-					return WSP._serializeTableTag( "!", sep, state, token);
+					return WSP._serializeTableTag(da.startTagSrc || "!", sep, state, token);
 				}
 			}
 		},
