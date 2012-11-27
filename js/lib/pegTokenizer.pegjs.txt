@@ -349,7 +349,7 @@
         return tok;
     }
 
-    function buildTableTokens(tagName, wtChar, attrInfo, tsr, content) {
+    function buildTableTokens(tagName, wtChar, attrInfo, tsr, endPos, content) {
         var a, dp = {tsr: tsr};
         if (attrInfo === '') {
             a = [];
@@ -375,7 +375,12 @@
         // But, add a marker meta-tag to capture tsr info.
         // SSS FIXME: Unsure if this is actually helpful, but adding it in just in case.
         // Can test later and strip it out if it doesn't make any diff to rting.
-        tokens.push(new SelfclosingTagTk('meta', [new KV('typeof', 'mw:TSRMarker')], {tsr: [pos, pos]}));
+        tokens.push(new SelfclosingTagTk('meta', [
+                        new KV('typeof', 'mw:TSRMarker'), 
+                        new KV('data-tag', tagName)
+                    ], {
+                        tsr: [endPos, endPos]
+                    }));
 
         return tokens;
     }
@@ -1600,9 +1605,9 @@ table_lines
         & { return stops.push('table', true); }
         tl:table_line 
         tls:( 
-            ss:optionalNewlines
+            nls:optionalNewlines
             s:sol 
-            tl2:table_line { return ss.concat(s, tl2); } 
+            tl2:table_line { return nls.concat(s, tl2); } 
         )* 
         {
             stops.pop('table');
@@ -1665,12 +1670,12 @@ table_row_tag
         // Try to eat up *extra* spaces separately. This side-steps
         // complications from start-of-line-transparent content that is not a
         // newline (comments, noinclude etc) for now.
-        sss:optionalNewlines
+        nls:optionalNewlines
         ss:sol+ 
         !( space* pipe / [!+-] ) 
         tdt:table_data_tag 
         { 
-            return sss.concat(flattenIfArray(ss), tdt); 
+            return nls.concat(flattenIfArray(ss), tdt); 
         } 
     )?
     { 
@@ -1685,9 +1690,6 @@ table_row_tag
             //console.warn( 'tr result: ' + pp(trToken.concat(td)) + ' stops: ' + pp(stops));
             res = [trToken].concat(td);
         }
-        // SSS FIXME: Unsure if this is actually helpful, but adding it in just in case
-        // Can test later and strip it out if it doesn't make any diff to rting.
-        res.push(new SelfclosingTagTk('meta', [new KV('typeof', 'mw:TSRMarker')], {tsr: [pos, pos]}));
         return res;
     }
 
@@ -1724,7 +1726,7 @@ table_data_tag
     tagEndPos:({return pos})
     td:nested_block* 
     { 
-        return buildTableTokens("td", "|", arg, [pos0, tagEndPos], td);
+        return buildTableTokens("td", "|", arg, [pos0, tagEndPos], pos, td);
     }
 
 table_heading_tags
@@ -1748,7 +1750,7 @@ table_heading_tag
     tagEndPos:({return pos})
     c:nested_block* {
         //console.warn( 'table_heading_tag: ' + pp( [a, c] ) );
-        return buildTableTokens("th", "!", arg, [pos0, tagEndPos], c);
+        return buildTableTokens("th", "!", arg, [pos0, tagEndPos], pos, c);
      }
 
 table_end_tag

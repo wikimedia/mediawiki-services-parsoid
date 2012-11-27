@@ -7,9 +7,9 @@ var HTML5 = require( 'html5' ).HTML5,
 	path = require('path'),
 	$ = require( 'jquery' ),
 	jsDiff = require( 'diff' ),
-	TemplateRequest = require( './mediawiki.ApiRequest.js' ).TemplateRequest,
+	TemplateRequest = require( './mediawiki.ApiRequest.js' ).TemplateRequest;
 
-	Util = {
+var Util = {
 
 	// Update only those properties that are undefined or null
 	// $.extend updates properties that are falsy (which means false gets updated as well)
@@ -213,6 +213,31 @@ var HTML5 = require( 'html5' ).HTML5,
 			}
 		}
 		return out.join('');
+	},
+
+	flattenAndAppendToks: function(array, prefix, t) {
+		if (t.constructor === Array || t.constructor === String) {
+			if (t.length > 0) {
+				if (prefix) {
+					array.push(prefix);
+				}
+				// FIXME: Is cloning required?
+				array = array.concat(Util.clone(t));
+			}
+		} else {
+			if (prefix) {
+				array.push(prefix);
+			}
+			if (t.constructor === ParserValue) {
+				// FIXME: Correct?
+				array = appendToks(array, prefix, t.source);
+			} else {
+				// FIXME: Is cloning required?
+				array.push(Util.clone(t));
+			}
+		}
+
+		return array;
 	},
 
 	// deep clones by default.
@@ -588,6 +613,21 @@ var HTML5 = require( 'html5' ).HTML5,
 			(cp >=    0x20 && cp <=   0xd7ff) ||
 			(cp >=  0xe000 && cp <=   0xfffd) ||
 			(cp >= 0x10000 && cp <= 0x10ffff);
+	},
+
+	debug_pp: function() {
+		var out = [arguments[0]];
+		for ( var i = 2; i < arguments.length; i++) {
+			var a = arguments[i];
+			if (a.constructor === Boolean) {
+				out.push(a ? '1' : '0');
+			} else if (a.constructor !== String || a.match(/\n|^\s*$/)) {
+				out.push(JSON.stringify(a));
+			} else {
+				out.push(a);
+			}
+		}
+		console.error(out.join(arguments[1]));
 	}
 };
 

@@ -132,30 +132,6 @@ TemplateHandler.prototype.targetToString = function ( tokens ) {
  * target were expanded.
  */
 TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs ) {
-	function appendToks(toks, prefix, v) {
-		if (v.constructor === Array || v.constructor === String) {
-			if (v.length > 0) {
-				if (prefix) {
-					toks.push(prefix);
-				}
-				// FIXME: Is cloning required?
-				toks = toks.concat(Util.clone(v));
-			}
-		} else {
-			if (prefix) {
-				toks.push(prefix);
-			}
-			if (v.constructor === ParserValue) {
-				// FIXME: Correct?
-				toks = appendToks(toks, prefix, v.source);
-			} else {
-				// FIXME: Is cloning required?
-				toks.push(Util.clone(v));
-			}
-		}
-
-		return toks;
-	}
 
 	//console.warn('TemplateHandler.expandTemplate: ' +
 	//		JSON.stringify( tplExpandData, null, 2 ) );
@@ -215,10 +191,10 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 		var attribTokens = [];
 		attribs.map( function ( kv ) {
 				if ( kv.k) {
-					attribTokens = appendToks(attribTokens, null, kv.k);
+					attribTokens = Util.flattenAndAppendToks(attribTokens, null, kv.k);
 				}
 				if (kv.v) {
-					attribTokens = appendToks(attribTokens, "=", kv.v);
+					attribTokens = Util.flattenAndAppendToks(attribTokens, "=", kv.v);
 				}
 				attribTokens.push('|');
 		} );
