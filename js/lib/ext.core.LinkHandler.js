@@ -351,11 +351,12 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 // width-prefixed image URL.
 WikiLinkHandler.prototype.getThumbPath = function ( key, width ) {
 	var MD5 = new jshashes.MD5(),
-		hash = MD5.hex( key );
+		hash = MD5.hex( key ),
+		thumbKey = key.match(/.svg$/) ? key + '.png' : key;
 
 	return [ this.manager.env.wgUploadPath, 'thumb', hash[0],
 				hash.substr(0, 2), key,
-				width + 'px-' + key
+				width + 'px-' + thumbKey
 			].join('/');
 };
 
