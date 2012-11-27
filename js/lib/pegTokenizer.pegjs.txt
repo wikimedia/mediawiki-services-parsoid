@@ -1578,12 +1578,12 @@ table_lines
 
 // This production assumes start-of-line position!
 table_line
-  = table_start_tag
+  = space* (table_start_tag
+  / table_heading_tags
   / table_row_tag
   / table_data_tags
-  / table_heading_tags
   / table_caption_tag
-  / table_end_tag
+  / table_end_tag)
 
 table_start_tag
   = b:"{" p:pipe
@@ -1623,10 +1623,9 @@ table_row_tag
   = //& { console.warn("table row enter @" + input.substr(pos, 30)); return true; }
     p:pipe dashes:"-"+
     a:generic_attribute*
-    space*
     tagEndPos:({return pos})
     // handle tables with missing table cells after a row
-    td:( ss:sol+ !( pipe / [!+-] ) tdt:table_data_tag { return flattenIfArray(ss).concat(tdt); } )?
+    td:( ss:sol+ !( space* pipe / [!+-] ) tdt:table_data_tag { return flattenIfArray(ss).concat(tdt); } )?
     { 
         // We rely on our tree builder to close the row as needed. This is
         // needed to support building tables from fragment templates with
@@ -1671,7 +1670,7 @@ table_data_tags
 
 table_data_tag
   = //& { dp("table_data enter, pos=" + pos + input.substr(pos,10)); return true; }
-    ! "}"
+    ! ("}" / space* "!")
     arg:table_cell_args?
     //& { console.warn("past attrib, pos=" + pos + input.substr(pos,10)); return true; }
     // use inline_breaks to break on tr etc

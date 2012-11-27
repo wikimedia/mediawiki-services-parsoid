@@ -196,14 +196,26 @@ var WikitextSerializer = function( options ) {
 		// defaults
 	}, options || {} );
 	if ( options.env.debug || options.env.trace ) {
-		WikitextSerializer.prototype.debug = function ( ) {
-			var out = ['WTS:'];
-			for ( var i = 0; i < arguments.length; i++) {
-				out.push( JSON.stringify(arguments[i]) );
+		WikitextSerializer.prototype.debug_pp = function ( ) {
+			var out = [arguments[0]];
+			for ( var i = 2; i < arguments.length; i++) {
+				var a = arguments[i];
+				if (a.constructor === Boolean) {
+					out.push(a ? '1' : '0');
+				} else if (a.constructor !== String || a.match(/\n|^\s*$/)) {
+					out.push(JSON.stringify(a));
+				} else {
+					out.push(a);
+				}
 			}
-			console.error(out.join(' '));
+			console.error(out.join(arguments[1]));
+		}
+
+		WikitextSerializer.prototype.debug = function ( ) {
+			this.debug_pp.apply(this, ["WTS: ", ''].concat([].slice.apply(arguments)));
 		}
 	} else {
+		WikitextSerializer.prototype.debug_pp = function ( ) {}
 		WikitextSerializer.prototype.debug = function ( ) {}
 	}
 };
@@ -513,7 +525,7 @@ WSP._listHandler = function( handler, bullet, state, token ) {
 		}
 	}
 	stack.push({ itemCount: 0, bullets: bullets, itemBullet: ''});
-	WSP.debug('lh res', bullets, res, handler );
+	WSP.debug_pp('lh res', '; ', bullets, res, handler );
 	return res;
 };
 
@@ -589,7 +601,7 @@ WSP._listItemHandler = function ( handler, bullet, state, token ) {
 		handler.startsNewline = false;
 		res = bullet;
 	}
-	WSP.debug( 'lih', token, res, handler );
+	WSP.debug_pp( 'lih res', '; ', token, res, handler );
 	return res;
 };
 
@@ -1651,8 +1663,11 @@ WSP._serializeToken = function ( state, token ) {
 				if (textHandler) {
 					res = textHandler( state, res );
 				}
-				solTransparent = res.match(/^\s*$/);
-				if (!solTransparent) {
+				if (res.match(/^\s*$/)) {
+					// ws-only
+					solTransparent = true;
+				} else {
+					solTransparent = false;
 					// Clear prev tag token
 					state.prevTagToken = null;
 					state.currTagToken = null;
@@ -1736,17 +1751,19 @@ WSP._serializeToken = function ( state, token ) {
 		}
 	}
 
-	WSP.debug( token,
-				"res: ", res,
-				", nl: ", state.onNewline,
-				", sol: ", state.onStartOfLine,
-				", singleMode: ", state.singleLineMode,
-				', eon:', state.emitNewlineOnNextToken,
-				", #nl: ", state.availableNewlineCount,
-				', #new:', newTrailingNLCount );
+	WSP.debug(  "nl:", state.onNewline,
+				", sol:", state.onStartOfLine,
+				", sol-tr:", solTransparent,
+				", sl-mode:", state.singleLineMode,
+				", eon:", state.emitNewlineOnNextToken,
+				", #nl:", state.availableNewlineCount,
+				", #new:", newTrailingNLCount,
+				", res:", res,
+				", T:", token);
 
 	if (res !== '') {
 		var out = '';
+
 		// If this is not a html tag and the serializer is not in single-line mode,
 		// allocate a newline if
 		// - prev token needs a single line,
@@ -1764,7 +1781,8 @@ WSP._serializeToken = function ( state, token ) {
 		}
 
 		// Add required # of new lines in the beginning
-		state.nlsSinceLastEndTag += state.availableNewlineCount;
+		var emittedNLs = state.availableNewlineCount;
+		state.nlsSinceLastEndTag += emittedNLs;
 		for (; state.availableNewlineCount; state.availableNewlineCount--) {
 			out += '\n';
 		}
@@ -1776,7 +1794,7 @@ WSP._serializeToken = function ( state, token ) {
 		}
 
 		out += res;
-		WSP.debug(' =>', out);
+		WSP.debug_pp("===> ", "", out);
 		state.chunkCB( out, state.serializeID );
 
 		// Update new line state
@@ -1789,7 +1807,9 @@ WSP._serializeToken = function ( state, token ) {
 		} else {
 			state.availableNewlineCount = 0;
 			state.onNewline = false;
-			if (!handler.newlineTransparent) {
+			if (emittedNLs && solTransparent) {
+				state.onStartOfLine = true;
+			} else if (!handler.newlineTransparent) {
 				state.onStartOfLine = false;
 			}
 		}
