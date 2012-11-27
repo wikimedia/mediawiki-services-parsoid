@@ -196,19 +196,8 @@ var WikitextSerializer = function( options ) {
 		// defaults
 	}, options || {} );
 	if ( options.env.debug || options.env.trace ) {
-		WikitextSerializer.prototype.debug_pp = function ( ) {
-			var out = [arguments[0]];
-			for ( var i = 2; i < arguments.length; i++) {
-				var a = arguments[i];
-				if (a.constructor === Boolean) {
-					out.push(a ? '1' : '0');
-				} else if (a.constructor !== String || a.match(/\n|^\s*$/)) {
-					out.push(JSON.stringify(a));
-				} else {
-					out.push(a);
-				}
-			}
-			console.error(out.join(arguments[1]));
+		WikitextSerializer.prototype.debug_pp = function () {
+			Util.debug_pp.apply(Util, arguments);
 		}
 
 		WikitextSerializer.prototype.debug = function ( ) {
