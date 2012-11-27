@@ -1599,7 +1599,12 @@ table_lines
     r:(
         & { return stops.push('table', true); }
         tl:table_line 
-        tls:( s:sol tl2:table_line { return s.concat(tl2); } )* {
+        tls:( 
+            ss:optionalNewlines
+            s:sol 
+            tl2:table_line { return ss.concat(s, tl2); } 
+        )* 
+        {
             stops.pop('table');
             //console.warn('table_lines: ' + pp(tl.concat(tls)));
             return tl.concat( tls );
@@ -1656,7 +1661,18 @@ table_row_tag
     a:generic_attribute*
     tagEndPos:({return pos})
     // handle tables with missing table cells after a row
-    td:( ss:sol+ !( space* pipe / [!+-] ) tdt:table_data_tag { return flattenIfArray(ss).concat(tdt); } )?
+    td:( 
+        // Try to eat up *extra* spaces separately. This side-steps
+        // complications from start-of-line-transparent content that is not a
+        // newline (comments, noinclude etc) for now.
+        sss:optionalNewlines
+        ss:sol+ 
+        !( space* pipe / [!+-] ) 
+        tdt:table_data_tag 
+        { 
+            return sss.concat(flattenIfArray(ss), tdt); 
+        } 
+    )?
     { 
         // We rely on our tree builder to close the row as needed. This is
         // needed to support building tables from fragment templates with
@@ -1871,6 +1887,26 @@ optionalSpaceToken
           return [];
       }
   }
+
+// Extra newlines followed by at least another newline. Usually used to
+// compress surplus newlines into a meta tag, so that they don't trigger
+// paragraphs.
+optionalNewlines
+  = spc:(n:[\n\r\t ] &([\n\r]) { return n })*
+{
+    if ( spc.length ) {
+        // Encapsulate in meta, so that these don't trigger paragraphs, but
+        // can still be round-tripped and (potentially) edited.
+        return [ new SelfclosingTagTk('meta', 
+                    [new KV('typeof', 'mw:Placeholder')],
+                    {
+                        src: spc.join(''),
+            tsr: [pos0, pos0 + spc.length]
+                    } ) ];
+    } else {
+        return [];
+    }
+}
 
 
 // Start of line
