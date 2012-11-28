@@ -390,6 +390,10 @@ fetch = function ( page, cb, options ) {
         cb( error, null, [] );
     };
 
+	if ( options.setup ) {
+		options.setup( env );
+	}
+
 	var target = env.resolveTitle( env.normalizeTitle( env.pageName ), '' );
 	var tpr = new TemplateRequest( env, target, null );
 
