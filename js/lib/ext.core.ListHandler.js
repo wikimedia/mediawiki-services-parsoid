@@ -26,22 +26,30 @@ ListHandler.prototype.bulletCharsMap = {
 	':': { list: 'dl', item: 'dd' }
 };
 
+function newListFrame() {
+	return {
+		solTokens: [],
+		bstack   : [], // Bullet stack, previous element's listStyle
+		endtags  : []  // Stack of end tags
+	};
+}
+
 ListHandler.prototype.reset = function() {
 	this.newline = false; // flag to identify a list-less line that terminates
 						// a list block
-	this.tableCount = 0;
-	this.solTokens = [];
-	this.bstack = []; // Bullet stack, previous element's listStyle
-	this.endtags = [];  // Stack of end tags
+	this.tableStack = [];
+	this.currListFrame = newListFrame();
 };
 
 ListHandler.prototype.onAny = function ( token, frame, prevToken ) {
+	// console.warn("AT: " + JSON.stringify(token));
+
 	var tokens, solTokens;
-	if (this.tableCount > 0) {
+	if (!this.currListFrame) {
 		// We are in a table context.  Continue to pass through tokens
 		// till we find matching end-table tags.
 		if (token.constructor === EndTagTk && token.name === 'table') {
-			this.tableCount--;
+			this.currListFrame = this.tableStack.pop();
 		}
 		return { token: token };
 	} else {
@@ -49,7 +57,7 @@ ListHandler.prototype.onAny = function ( token, frame, prevToken ) {
 		if ( token.constructor === NlTk ) {
 			if (this.newline) {
 				// second newline without a list item in between, close the list
-				solTokens = this.solTokens;
+				solTokens = this.currListFrame.solTokens;
 				tokens = this.end().concat(solTokens, [token]);
 				this.newline = false;
 			} else {
@@ -62,17 +70,18 @@ ListHandler.prototype.onAny = function ( token, frame, prevToken ) {
 				// Hold on to see where the token stream goes from here
 				// - another list item, or
 				// - end of list
-				this.solTokens.push(token);
+				this.currListFrame.solTokens.push(token);
 				return {};
 			} else {
-				solTokens = this.solTokens;
+				solTokens = this.currListFrame.solTokens;
 				tokens = this.end().concat(solTokens, [token]);
 				this.newline = false;
 				return { tokens: tokens };
 			}
 		} else {
 			if (token.constructor === TagTk && token.name === 'table') {
-				this.tableCount++;
+				this.tableStack.push(this.currListFrame);
+				this.currListFrame = null;
 			}
 			return { token: token };
 		}
@@ -81,13 +90,15 @@ ListHandler.prototype.onAny = function ( token, frame, prevToken ) {
 
 
 ListHandler.prototype.onEnd = function( token, frame, prevToken ) {
-	var solTokens = this.solTokens;
+	// console.warn("ET: " + JSON.stringify(token));
+
+	var solTokens = this.currListFrame.solTokens;
 	return { tokens: this.end().concat(solTokens, [token]) };
 };
 
 ListHandler.prototype.end = function( ) {
 	// pop all open list item tokens
-	var tokens = this.popTags(this.bstack.length);
+	var tokens = this.popTags(this.currListFrame.bstack.length);
 	this.reset();
 	this.manager.removeTransform( this.anyRank, 'any' );
 	return tokens;
@@ -96,8 +107,11 @@ ListHandler.prototype.end = function( ) {
 ListHandler.prototype.onListItem = function ( token, frame, prevToken ) {
 	this.newline = false;
 	if (token.constructor === TagTk){
+		if (!this.currListFrame) {
+			this.currListFrame = newListFrame();
+		}
 		// convert listItem to list and list item tokens
-		return { tokens: this.doListItem(this.bstack, token.bullets, token) };
+		return { tokens: this.doListItem(this.currListFrame.bstack, token.bullets, token) };
 	}
 	return { token: token };
 };
@@ -113,8 +127,8 @@ ListHandler.prototype.commonPrefixLength = function (x, y) {
 };
 
 ListHandler.prototype.pushList = function ( container ) {
-	this.endtags.push( new EndTagTk( container.list ));
-	this.endtags.push( new EndTagTk( container.item ));
+	this.currListFrame.endtags.push( new EndTagTk( container.list ));
+	this.currListFrame.endtags.push( new EndTagTk( container.item ));
 	return [
 		new TagTk( container.list ),
 		new TagTk( container.item )
@@ -125,9 +139,9 @@ ListHandler.prototype.popTags = function ( n ) {
 	var tokens = [];
 	while (n > 0) {
 		// push list item..
-		tokens.push(this.endtags.pop());
+		tokens.push(this.currListFrame.endtags.pop());
 		// and the list end tag
-		tokens.push(this.endtags.pop());
+		tokens.push(this.currListFrame.endtags.pop());
 
 		n--;
 	}
@@ -140,10 +154,12 @@ ListHandler.prototype.isDtDd = function (a, b) {
 };
 
 ListHandler.prototype.doListItem = function ( bs, bn, token ) {
+	// console.warn("LT: " + JSON.stringify(token));
+
 	var prefixLen = this.commonPrefixLength (bs, bn),
 		prefix = bn.slice(0, prefixLen);
 	this.newline = false;
-	this.bstack = bn;
+	this.currListFrame.bstack = bn;
 	if (!bs.length) {
 		this.manager.addTransform( this.onAny.bind(this), "ListHandler:onAny",
 				this.anyRank, 'any' );
@@ -154,8 +170,8 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 	// emit close tag tokens for closed lists
 	if (prefix.length === bs.length && bn.length === bs.length) {
 		// same list item types and same nesting level
-		itemToken = this.endtags.pop();
-		this.endtags.push(new EndTagTk( itemToken.name ));
+		itemToken = this.currListFrame.endtags.pop();
+		this.currListFrame.endtags.push(new EndTagTk( itemToken.name ));
 		res = [
 			itemToken,
 			new TagTk( itemToken.name, [], Util.clone(token.dataAttribs) )
@@ -178,8 +194,8 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 			tokens = this.popTags(bs.length - prefixLen - 1);
 			// handle dd/dt transitions
 			var newName = this.bulletCharsMap[bn[prefixLen]].item;
-			var endTag = this.endtags.pop();
-			this.endtags.push(new EndTagTk( newName ));
+			var endTag = this.currListFrame.endtags.pop();
+			this.currListFrame.endtags.push(new EndTagTk( newName ));
 			var dp = Util.clone(token.dataAttribs);
 			if (dp.tsr) {
 				// The bullets get split here.
@@ -194,10 +210,10 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 		} else {
 			tokens = tokens.concat( this.popTags(bs.length - prefixLen) );
 			if (prefixLen > 0 && bn.length === prefixLen ) {
-				itemToken = this.endtags.pop();
+				itemToken = this.currListFrame.endtags.pop();
 				tokens.push(itemToken);
 				tokens.push(new TagTk(itemToken.name, [], Util.clone(token.dataAttribs)));
-				this.endtags.push(new EndTagTk( itemToken.name ));
+				this.currListFrame.endtags.push(new EndTagTk( itemToken.name ));
 			}
 		}
 
@@ -216,9 +232,9 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 	}
 
 	// clear out sol-tokens
-	res = this.solTokens.concat(res);
+	res = this.currListFrame.solTokens.concat(res);
 	res.rank = this.anyRank + 0.01;
-	this.solTokens = [];
+	this.currListFrame.solTokens = [];
 
 	return res;
 };
