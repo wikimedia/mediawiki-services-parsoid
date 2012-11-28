@@ -1672,7 +1672,7 @@ table_row_tag
         // newline (comments, noinclude etc) for now.
         nls:optionalNewlines
         ss:sol+ 
-        !( space* pipe / [!+-] ) 
+        !( space* (pipe / [!+-]) ) 
         tdt:table_data_tag 
         { 
             return nls.concat(flattenIfArray(ss), tdt); 
@@ -1719,7 +1719,7 @@ table_data_tags
 
 table_data_tag
   = //& { dp("table_data enter, pos=" + pos + input.substr(pos,10)); return true; }
-    ! ("}" / space* "!")
+    ! "}"
     arg:table_cell_args?
     //& { console.warn("past attrib, pos=" + pos + input.substr(pos,10)); return true; }
     // use inline_breaks to break on tr etc
