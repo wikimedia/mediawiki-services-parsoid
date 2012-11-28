@@ -188,20 +188,26 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 	if ( target === null ) {
 		// Target contains tags, convert template braces and pipes back into text
 		// Re-join attribute tokens with '=' and '|'
-		var attribTokens = [];
-		attribs.map( function ( kv ) {
-				if ( kv.k) {
-					attribTokens = Util.flattenAndAppendToks(attribTokens, null, kv.k);
-				}
-				if (kv.v) {
-					attribTokens = Util.flattenAndAppendToks(attribTokens, "=", kv.v);
-				}
-				attribTokens.push('|');
-		} );
-		// pop last pipe separator
-		attribTokens.pop();
+		cb( { async: true } );
+		Util.expandParserValueValues (
+				attribs,
+				function ( expandedAttrs ) {
+					var attribTokens = [];
+					expandedAttrs.map( function ( kv ) {
+						if ( kv.k) {
+							attribTokens = Util.flattenAndAppendToks(attribTokens, null, kv.k);
+						}
+						if (kv.v) {
+							attribTokens = Util.flattenAndAppendToks(attribTokens, "=", kv.v);
+						}
+						attribTokens.push('|');
+					} );
+					// pop last pipe separator
+					attribTokens.pop();
 
-		cb( { tokens: ['{{'].concat(attribTokens, ['}}']) } );
+					cb( { tokens: ['{{'].concat(attribTokens, ['}}']) } );
+				}
+		);
 		return;
 	}
 	// strip subst for now.
