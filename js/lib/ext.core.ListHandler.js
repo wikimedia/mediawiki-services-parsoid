@@ -7,6 +7,7 @@ var Util = require('./mediawiki.Util.js').Util;
 
 function ListHandler ( manager ) {
 	this.manager = manager;
+	this.listFrames = [];
 	this.reset();
 	this.manager.addTransform(this.onListItem.bind(this),
 							"ListHandler:onListItem",
@@ -14,6 +15,8 @@ function ListHandler ( manager ) {
 	this.manager.addTransform( this.onEnd.bind(this),
 							"ListHandler:onEnd",
 							this.listRank, 'end' );
+	var env = manager.env;
+	this.trace = env.debug || (env.traceFlags && (env.traceFlags.indexOf("list") !== -1));
 }
 
 ListHandler.prototype.listRank = 2.49; // before PostExpandParagraphHandler
@@ -28,6 +31,7 @@ ListHandler.prototype.bulletCharsMap = {
 
 function newListFrame() {
 	return {
+		newline  : false, // flag to identify a list-less line that terminates a list block
 		solTokens: [],
 		bstack   : [], // Bullet stack, previous element's listStyle
 		endtags  : []  // Stack of end tags
@@ -35,81 +39,97 @@ function newListFrame() {
 }
 
 ListHandler.prototype.reset = function() {
-	this.newline = false; // flag to identify a list-less line that terminates
-						// a list block
-	this.tableStack = [];
-	this.currListFrame = newListFrame();
+	this.currListFrame = null;
 };
 
 ListHandler.prototype.onAny = function ( token, frame, prevToken ) {
-	// console.warn("AT: " + JSON.stringify(token));
+	if (this.trace) {
+		console.warn("T:list:any " + JSON.stringify(token));
+	}
 
 	var tokens, solTokens;
 	if (!this.currListFrame) {
-		// We are in a table context.  Continue to pass through tokens
-		// till we find matching end-table tags.
+		// this.currListFrame will be null only when we are in a table
+		// that in turn was seen in a list context.
+		//
+		// Since we are not in  a list within the table, nothing to do.
+		// Just send the token back unchanged.
 		if (token.constructor === EndTagTk && token.name === 'table') {
-			this.currListFrame = this.tableStack.pop();
+			this.currListFrame = this.listFrames.pop();
 		}
 		return { token: token };
-	} else {
-		// No tables -- all good!
-		if ( token.constructor === NlTk ) {
-			if (this.newline) {
-				// second newline without a list item in between, close the list
-				solTokens = this.currListFrame.solTokens;
-				tokens = this.end().concat(solTokens, [token]);
-				this.newline = false;
-			} else {
-				tokens = [token];
-				this.newline = true;
-			}
-			return { tokens: tokens };
-		} else if ( this.newline ) {
-			if (Util.isSolTransparent(token)) {
-				// Hold on to see where the token stream goes from here
-				// - another list item, or
-				// - end of list
-				this.currListFrame.solTokens.push(token);
-				return {};
-			} else {
-				solTokens = this.currListFrame.solTokens;
-				tokens = this.end().concat(solTokens, [token]);
-				this.newline = false;
-				return { tokens: tokens };
-			}
+	} else if (token.constructor === EndTagTk && token.name === 'table') {
+		// close all open lists and pop a frame
+		var ret = this.closeLists(token);
+		this.currListFrame = this.listFrames.pop();
+		return { tokens: ret };
+	} else if ( this.currListFrame.newline ) {
+		if (token.constructor !== NlTk && Util.isSolTransparent(token)) {
+			// Hold on to see where the token stream goes from here
+			// - another list item, or
+			// - end of list
+			this.currListFrame.solTokens.push(token);
+			return {};
 		} else {
-			if (token.constructor === TagTk && token.name === 'table') {
-				this.tableStack.push(this.currListFrame);
-				this.currListFrame = null;
-			}
-			return { token: token };
+			// Non-list item in newline context ==> close all previous lists
+			tokens = this.closeLists(token);
+			return { tokens: tokens };
 		}
+	} else if ( token.constructor === NlTk ) {
+		this.currListFrame.newline = true;
+		return { token: token };
+	} else if (token.constructor === TagTk && token.name === 'table') {
+		this.listFrames.push(this.currListFrame);
+		this.currListFrame = null;
+		return { token: token };
+	} else {
+		return { token: token };
 	}
 };
 
-
 ListHandler.prototype.onEnd = function( token, frame, prevToken ) {
-	// console.warn("ET: " + JSON.stringify(token));
+	if (this.trace) {
+		console.warn("T:list:end " + JSON.stringify(token));
+	}
 
-	var solTokens = this.currListFrame.solTokens;
-	return { tokens: this.end().concat(solTokens, [token]) };
+	this.listFrames = [];
+	if (!this.currListFrame) {
+		// init here so we dont have to have a check in closeLists
+		// That way, if we get a null frame there, we know we have a bug.
+		this.currListFrame = newListFrame();
+	}
+	return { tokens: this.closeLists(token) };
 };
 
-ListHandler.prototype.end = function( ) {
+ListHandler.prototype.closeLists = function(token) {
 	// pop all open list item tokens
 	var tokens = this.popTags(this.currListFrame.bstack.length);
+
+	// purge all stashed sol-tokens
+	tokens = tokens.concat(this.currListFrame.solTokens);
+	tokens.push(token);
+
+	// remove any transform if we dont have any stashed list frames
+	if (this.listFrames.length === 0) {
+		this.manager.removeTransform( this.anyRank, 'any' );
+	}
+
 	this.reset();
-	this.manager.removeTransform( this.anyRank, 'any' );
+
+	if (this.trace) {
+		console.warn("----closing all lists----");
+		console.warn("list:RET: " + JSON.stringify(tokens));
+	}
+
 	return tokens;
 };
 
 ListHandler.prototype.onListItem = function ( token, frame, prevToken ) {
-	this.newline = false;
 	if (token.constructor === TagTk){
 		if (!this.currListFrame) {
 			this.currListFrame = newListFrame();
 		}
+		this.currListFrame.newline = false;
 		// convert listItem to list and list item tokens
 		return { tokens: this.doListItem(this.currListFrame.bstack, token.bullets, token) };
 	}
@@ -154,13 +174,15 @@ ListHandler.prototype.isDtDd = function (a, b) {
 };
 
 ListHandler.prototype.doListItem = function ( bs, bn, token ) {
-	// console.warn("LT: " + JSON.stringify(token));
+	if (this.trace) {
+		console.warn("T:list:begin " + JSON.stringify(token));
+	}
 
 	var prefixLen = this.commonPrefixLength (bs, bn),
 		prefix = bn.slice(0, prefixLen);
-	this.newline = false;
+	this.currListFrame.newline = false;
 	this.currListFrame.bstack = bn;
-	if (!bs.length) {
+	if (!bs.length && this.listFrames.length === 0) {
 		this.manager.addTransform( this.onAny.bind(this), "ListHandler:onAny",
 				this.anyRank, 'any' );
 	}
