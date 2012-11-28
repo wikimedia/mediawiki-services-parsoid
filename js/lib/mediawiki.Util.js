@@ -230,7 +230,7 @@ var Util = {
 			}
 			if (t.constructor === ParserValue) {
 				// FIXME: Correct?
-				array = flattenAndAppendToks(array, prefix, t.source);
+				array = Util.flattenAndAppendToks(array, prefix, t.source);
 			} else {
 				// FIXME: Is cloning required?
 				array.push(Util.clone(t));
