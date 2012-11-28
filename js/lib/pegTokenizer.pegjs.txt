@@ -1733,10 +1733,13 @@ table_heading_tags
   = //& { console.warn( 'th enter @' + input.substr(pos, 10)); return true; }
     "!"
     th:table_heading_tag
-    ths:( "!!" tht:table_heading_tag { 
+    ths:( pp:("!!" / pipe_pipe ) tht:table_heading_tag { 
             var da = tht[0].dataAttribs;
             da.stx_v = 'row';
-            da.tsr[0] = da.tsr[0] - 2; // include "!!"
+            da.tsr[0] = da.tsr[0] - pp.length; // include "!!" or "||"
+            if (pp !== "!!") {
+                da.startTagSrc = pp;
+            }
             return tht;
           }
     )* {
@@ -1751,7 +1754,7 @@ table_heading_tag
     c:nested_block* {
         //console.warn( 'table_heading_tag: ' + pp( [a, c] ) );
         return buildTableTokens("th", "!", arg, [pos0, tagEndPos], pos, c);
-     }
+    }
 
 table_end_tag
   = space* p:pipe b:"}" { 
@@ -2113,6 +2116,7 @@ pipe = "|" / "{{!}}"
 
 end_pipe = "|" ! "|" / "{{!}}" ! "{{!}}"
 
+// SSS FIXME: what about |{{!}} and {{!}}|
 pipe_pipe = "||" / "{{!}}{{!}}"
 
 

@@ -191,15 +191,16 @@ PegTokenizer.prototype.inline_breaks = function (input, pos, stops ) {
 						.match(/^=*(?:[ \t]+|<\!--(?:(?!-->)[^\r\n])+-->)*(?:[\r\n]|$)/) !== null )
 				) || null;
 		case '|':
-			return stops.onStack( 'pipe' ) ||
-					//counters.template ||
-					counters.linkdesc ||
-				( stops.onStack('table') &&
-					( ( pos < input.length - 1 &&
-					  input[pos + 1].match(/[|}]/) !== null ) ||
-						counters.tableCellArg
+			return stops.onStack('pipe') ||
+				//counters.template ||
+				counters.linkdesc || (
+					stops.onStack('table') && (
+						counters.tableCellArg || (
+							pos < input.length - 1 && input[pos+1].match(/[}|]/) !== null
+						)
 					)
-				) || null;
+				) ||
+				null;
 		case '{':
 			// {{!}} pipe templates..
 			return (
