@@ -5,6 +5,7 @@
 
 var HTML5 = require( 'html5' ).HTML5,
 	path = require('path'),
+	async = require('async'),
 	$ = require( 'jquery' ),
 	jsDiff = require( 'diff' ),
 	TemplateRequest = require( './mediawiki.ApiRequest.js' ).TemplateRequest;
@@ -216,29 +217,55 @@ var Util = {
 	},
 
 	flattenAndAppendToks: function(array, prefix, t) {
-		if (t.constructor === Array || t.constructor === String) {
+		if (t.constructor === ParserValue) {
+			// The check above will explode for undefined or null, but that is
+			// fine. Fail early and loudly!
+			throw new TypeError("Got ParserValue in flattenAndAppendToks!");
+		} else if (t.constructor === Array || t.constructor === String) {
 			if (t.length > 0) {
 				if (prefix) {
 					array.push(prefix);
 				}
-				// FIXME: Is cloning required?
-				array = array.concat(Util.clone(t));
+				array = array.concat(t);
 			}
 		} else {
 			if (prefix) {
 				array.push(prefix);
 			}
-			if (t.constructor === ParserValue) {
-				// FIXME: Correct?
-				array = Util.flattenAndAppendToks(array, prefix, t.source);
-			} else {
-				// FIXME: Is cloning required?
-				array.push(Util.clone(t));
-			}
+			array.push(t);
 		}
 
 		return array;
 	},
+
+	/**
+	 * Expand all ParserValue values in the passed-in KV pairs, and call the
+	 * supplied callback with the new KV pairs.
+	 */
+	expandParserValueValues: function(kvs, cb) {
+		var kv, v, cb1;
+		async.map(
+				kvs,
+				function ( kv, cb1 ) {
+					v = kv.v;
+					if ( v.constructor === ParserValue ) {
+						v.get({
+							type: 'text/x-mediawiki/expanded',
+							cb: cb1.bind(null, null)
+						});
+					} else {
+						cb1 ( null, kv );
+					}
+				},
+				function ( err, expandedAttrs ) {
+					if ( err ) {
+						throw( err );
+					}
+					cb(expandedAttrs);
+				}
+		);
+	},
+
 
 	// deep clones by default.
 	clone: function(obj, deepClone) {
