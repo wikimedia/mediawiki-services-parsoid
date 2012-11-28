@@ -76,6 +76,7 @@ var MWParserEnvironment = function(opts) {
 		pageName: 'Main page',
 		interwikiMap: interwikiMap,
 		interwikiRegexp: Object.keys(interwikiMap).join('|'),
+		usePHPPreProcessor: false,
 		uid: 1
 	};
 	// XXX: this should be namespaced
