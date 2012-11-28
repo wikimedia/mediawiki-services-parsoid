@@ -188,7 +188,6 @@ Cite.prototype.onReferences = function ( token, manager ) {
 	var res,
 		attribHash = Util.KVtoHash(token.attribs),
 		// Default to null group if the group param is actually empty
-		options = {},
 		dataAttribs,
 		group = attribHash.group;
 
