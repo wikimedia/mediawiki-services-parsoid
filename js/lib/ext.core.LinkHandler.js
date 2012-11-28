@@ -8,8 +8,7 @@
  * TODO: keep round-trip information in meta tag or the like
  */
 
-var jshashes = require('jshashes'),
-	PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
+var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	WikitextConstants = require('./mediawiki.wikitext.constants.js').WikitextConstants,
 	Util = require('./mediawiki.Util.js').Util,
 	// Why mess around? We already have a URL sanitizer.
@@ -350,14 +349,11 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 // cluster configuration which creates an on-demand thumbnail when accessing a
 // width-prefixed image URL.
 WikiLinkHandler.prototype.getThumbPath = function ( key, width ) {
-	var MD5 = new jshashes.MD5(),
-		hash = MD5.hex( key ),
-		thumbKey = key.match(/.svg$/) ? key + '.png' : key;
+	var env = this.manager.env;
 
-	return [ this.manager.env.wgUploadPath, 'thumb', hash[0],
-				hash.substr(0, 2), key,
-				width + 'px-' + thumbKey
-			].join('/');
+	// Simply let Special:FilePath redirect to the real thumb location
+	return env.wgScript + '?title=Special:FilePath/' +
+				key + '&width=' + width;
 };
 
 
