@@ -87,7 +87,12 @@ WEHP.thHandler = function(state, text) {
 };
 
 WEHP.tdHandler = function(state, text) {
-	return text.match(/\|/) || (isTd(state.currTagToken) && text.match(/^[-+]/));
+	var tok = state.currTagToken;
+	return text.match(/\|/) ||
+		(text.match(/^[-+]/) &&
+		isTd(tok) &&
+		tok.dataAttribs.stx_v !== 'row' &&
+		tok.attribs.length === 0);
 };
 
 WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
