@@ -186,14 +186,31 @@ Cite.prototype.onReferences = function ( token, manager ) {
 	};
 
 	var res,
-		options = $.extend({
-		name: null,
-		group: null
-	}, Util.KVtoHash(token.attribs));
+		attribHash = Util.KVtoHash(token.attribs),
+		// Default to null group if the group param is actually empty
+		options = {},
+		dataAttribs,
+		group = attribHash.group;
 
-    var dataAttribs;
-	if (options.group in refGroups) {
-		var group = refGroups[options.group],
+	if ( group && group.constructor === Array ) {
+		// Array of tokens, convert to string.
+		group = Util.tokensToString(group);
+	}
+
+	if ( group ) {
+		// have a String, strip whitespace
+		group = group.replace(/^\s*(.*)\s$/, '$1');
+	}
+
+	// Point invalid / empty groups to null
+	if ( ! group )
+	{
+		group = null;
+	}
+
+
+	if (group in refGroups) {
+		var group = refGroups[group],
 			listItems = $.map(group.refs, renderLine );
 
 		dataAttribs = Util.clone(token.dataAttribs);
