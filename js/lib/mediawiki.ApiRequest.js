@@ -216,15 +216,17 @@ function PreprocessorRequest ( env, title, text ) {
 		text: text
 	};
 	var url = env.wgScript + '/api' +
-		env.wgScriptExtension +
-		'?' +
-		qs.stringify( apiargs );
+		env.wgScriptExtension;
 
 	this.requestOptions = {
-		method: 'GET',
+		// Use POST since we are passing a bit of source, and GET has a very
+		// limited length. You'll be greeted by "HTTP Error 414 Request URI
+		// too long" otherwise ;)
+		method: 'POST',
+		form: apiargs, // The API arguments
 		followRedirect: true,
 		url: url,
-		timeout: 12 * 1000, // 12 seconds
+		timeout: 16 * 1000, // 16 seconds
 		headers: {
 			'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:9.0.1) ' +
 							'Gecko/20100101 Firefox/9.0.1 Iceweasel/9.0.1',
