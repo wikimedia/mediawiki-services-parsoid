@@ -221,6 +221,10 @@ WSP.wteHandlers = new WikitextEscapeHandlers();
 /* *********************************************************************
  * Here is what the state attributes mean:
  *
+ * tableStack
+ *    Stack of table contexts that stashes away list context since
+ *    list context dont cross table boundaries.
+ *
  * listStack
  *    Stack of list contexts to let us emit wikitext for nested lists.
  *    Each context keeps track of 3 values:
@@ -275,6 +279,7 @@ WSP.wteHandlers = new WikitextEscapeHandlers();
  * ********************************************************************* */
 
 WSP.initialState = {
+	tableStack: [],
 	listStack: [],
 	onNewline: true,
 	emitNewlineOnNextToken: false,
@@ -494,6 +499,7 @@ WSP.escapeWikiText = function ( state, text ) {
 };
 
 WSP._listHandler = function( handler, bullet, state, token ) {
+
 	if ( state.singleLineMode ) {
 		state.singleLineMode--;
 	}
@@ -518,7 +524,7 @@ WSP._listHandler = function( handler, bullet, state, token ) {
 			handler.startsNewline = false;
 		}
 	}
-	stack.push({ itemCount: 0, bullets: bullets, itemBullet: ''});
+	stack.push({ itemCount: 0, bullets: bullets, itemBullet: '' });
 	WSP.debug_pp('lh res', '; ', bullets, res, handler );
 	return res;
 };
@@ -1090,12 +1096,17 @@ WSP.tagHandlers = {
 	table: {
 		start: {
 			handle: function(state, token) {
+				state.tableStack.push(state.listStack);
+				state.listStack = [];
+
 				var wt = token.dataAttribs.startTagSrc || "{|";
 				return WSP._serializeTableTag(wt, '', state, token);
 			}
 		},
 		end: {
 			handle: function(state, token) {
+				state.listStack = state.tableStack.pop();
+
 				if ( state.prevTagToken && state.prevTagToken.name === 'tr' ) {
 					this.startsNewline = true;
 				} else {
