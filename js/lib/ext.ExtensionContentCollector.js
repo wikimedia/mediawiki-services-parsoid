@@ -4,8 +4,17 @@ var Collector = require( './ext.util.TokenAndAttrCollector.js' ).TokenAndAttrCol
 	Util = require( './mediawiki.Util.js' ).Util,
 	$ = require( 'jquery' );
 
+// SSS FIXME: Since we sweep the entire token stream in TokenAndAttrCollector
+// and since we add a new collector for each entry below, this is an expensive way
+// to collect extension content.  We should probably use a single collector and
+// match up against all these tags.
+//
 // List of supported extensions
-var supportedExtensions = ['math', 'gallery', 'source', 'tag'];
+var supportedExtensions = [
+	'categorytree', 'charinsert', 'gallery', 'hiero', 'imagemap',
+	'inputbox', 'math', 'poem', 'syntaxhighlight', 'source', 'tag',
+	'timeline'
+];
 
 /**
  * Simple token collector for extensions
