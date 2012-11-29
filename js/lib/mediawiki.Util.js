@@ -243,7 +243,12 @@ var Util = {
 	 * supplied callback with the new KV pairs.
 	 */
 	expandParserValueValues: function(kvs, cb) {
-		var kv, v, cb1;
+		var kv, v,
+		reassembleKV = function( kv, cb2, v )  {
+			cb2(null, new KV(kv.k, v));
+		};
+
+
 		async.map(
 				kvs,
 				function ( kv, cb1 ) {
@@ -251,7 +256,7 @@ var Util = {
 					if ( v.constructor === ParserValue ) {
 						v.get({
 							type: 'text/x-mediawiki/expanded',
-							cb: cb1.bind(null, null)
+							cb: reassembleKV.bind(null, kv, cb1)
 						});
 					} else {
 						cb1 ( null, kv );
