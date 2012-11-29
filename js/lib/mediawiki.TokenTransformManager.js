@@ -873,6 +873,8 @@ AttributeTransformManager.prototype.process = function (attributes) {
 						} );
 			}
 		} else {
+			// NOTE: 'v' can be an unexpanded parser value
+			// This will be lazily expanded when it is needed.
 			kv.v = v;
 		}
 
@@ -920,10 +922,11 @@ AttributeTransformManager.prototype.processKeys = function (attributes) {
 	var pvOpts = { wrapTemplates: this.options.wrapTemplates };
 	for ( var i = 0, l = attributes.length; i < l; i++ ) {
 		var cur = attributes[i];
+		var k = cur.k;
 
 		// fast path for string-only attributes
-		if ( cur.k.constructor === String && cur.v.constructor === String ) {
-			kv = new KV( cur.k, this.frame.newParserValue( cur.v, pvOpts ) );
+		if ( k.constructor === String && cur.v.constructor === String ) {
+			kv = new KV( k, this.frame.newParserValue( cur.v, pvOpts ) );
 			this.kvs.push( kv );
 			continue;
 		}
@@ -933,21 +936,22 @@ AttributeTransformManager.prototype.processKeys = function (attributes) {
 		this.kvs.push( kv );
 
 		// And expand the key, if needed
-		if ( cur.k.constructor === Array && cur.k.length && ! cur.k.get ) {
+		if ( k.constructor === Array && k.length && ! k.get ) {
 			// Assume that the return is async, will be decremented in callback
 			this.outstanding++;
 
 			// transform the key
-			this.frame.expand( cur.k,
+			this.frame.expand( k,
 					{
 						wrapTemplates: this.options.wrapTemplates,
 						type: this._toType,
 						cb: this._returnAttributeKey.bind( this, i )
 					} );
 		} else {
-			kv.k = cur.k;
+			kv.k = k;
 		}
 	}
+
 	this.outstanding--;
 	if ( this.outstanding === 0 ) {
 		// synchronously done
