@@ -127,6 +127,14 @@ ParserTests.prototype.getOpts = function () {
 			'default': false,
 			'boolean': true
 		},
+		'changesout': {
+			description: 'Output file for randomly-generated changes (only works if --selser is enabled too)',
+			'default': null
+		},
+		'changesin': {
+			description: 'Way to pass in non-random changes for tests. Use --changesout to generate a useful file for this purpose.',
+			'default': null
+		},
 		'cache': {
 			description: 'Get tests cases from cache file ' + this.cache_file,
 			'boolean': true,
@@ -279,7 +287,8 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, processWikitextC
 		if ( mode === 'selser' ) {
 			serializer.oldtext = item.input;
 			serializer.target = null;
-			this.makeChanges( content, item );
+			var changelist = this.makeChanges( content, item.changes );
+			item.changes = changelist;
 		}
 		serializer.serializeDOM( content, function ( res ) {
 			wt += res;
@@ -293,10 +302,10 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, processWikitextC
 	}
 };
 
-ParserTests.prototype.makeChanges = function ( node ) {
+ParserTests.prototype.makeChanges = function ( node, nonRandomChanges ) {
 	// This function won't actually change anything, but it will add change
 	// markers to random elements.
-	var child, i, changeObj;
+	var child, i, changeObj, changelist = [];
 
 	var changes = [
 		'new',
@@ -324,15 +333,29 @@ ParserTests.prototype.makeChanges = function ( node ) {
 			continue;
 		}
 
-		if ( Math.random() < 0.75 ) {
-			changeObj = getRandomChange();
-			child.setAttribute(
-				'data-ve-changed',
-				JSON.stringify( changeObj ) );
-		} else {
-			this.makeChanges( child );
+		if ( !nonRandomChanges ) {
+			if ( Math.random() < 0.75 ) {
+				changeObj = getRandomChange();
+				child.setAttribute(
+					'data-ve-changed',
+					JSON.stringify( changeObj ) );
+			} else {
+				changeObj = { children: this.makeChanges( child ) };
+			}
+			changelist.push( changeObj );
+		} else if ( nonRandomChanges.length ) {
+			changeObj = nonRandomChanges[i];
+			if ( changeObj && changeObj.children ) {
+				this.makeChanges( child, changeObj.children );
+			} else if ( changeObj ) {
+				child.setAttribute(
+					'data-ve-changed',
+					JSON.stringify( changeObj ) );
+			}
 		}
 	}
+
+	return changelist;
 };
 
 ParserTests.prototype.convertWt2Html = function( mode, processHtmlCB, wikitext, error ) {
@@ -473,7 +496,7 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 	if ( mode === 'selser' ) {
 		if ( item.wt2wtPassed ) {
 			console.log( 'Even worse, the normal roundtrip test passed!'.red );
-		} else if ( item.wt2wtResult !== actual.raw ) {
+		} else if ( actual && item.wt2wtResult !== actual.raw ) {
 			console.log( 'Even worse, the normal roundtrip test had a different result!'.red );
 		}
 	}
@@ -861,6 +884,11 @@ ParserTests.prototype.main = function ( options ) {
 		this.selectiveSerializer = new SelectiveSerializer( { env: this.env, wts: this.serializer } );
 	}
 
+	if ( options.changesin ) {
+		this.changes = JSON.parse(
+			fs.readFileSync( options.changesin ) );
+	}
+
 	options.reportStart();
 	this.env.pageCache = this.articles;
 	this.comments = [];
@@ -905,6 +933,7 @@ ParserTests.prototype.processCase = function ( i, options ) {
 						process.nextTick( nextCallback );
 						break;
 					}
+					item.changes = ( this.changes || {} )[item.title];
 					// Add comments to following test.
 					item.comments = item.comments || this.comments;
 					this.comments = [];
@@ -929,6 +958,20 @@ ParserTests.prototype.processCase = function ( i, options ) {
 			process.nextTick( nextCallback );
 		}
 	} else {
+		// We're done testing, first need to add the test changes to an output
+		// file if it was specified.
+		if ( options.changesout !== null && options.selser ) {
+			var allChanges = {};
+			for ( var ci = 0; ci < cases.length; ci++ ) {
+				if ( cases[ci].type === 'test' ) {
+					allChanges[cases[ci].title] = cases[ci].changes || [];
+				}
+			}
+			fs.writeFileSync(
+				options.changesout,
+				JSON.stringify( allChanges ) );
+		}
+
 		// print out the summary
 		// note: these stats won't necessarily be useful if someone
 		// reimplements the reporting methods, since that's where we
