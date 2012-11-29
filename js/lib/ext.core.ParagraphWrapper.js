@@ -11,38 +11,47 @@
 // Include general utilities
 var Util = require('./mediawiki.Util.js').Util;
 
+function ParagraphWrapper ( manager, options ) {
+	this.options = options;
+	this.register( manager );
+	this.trace = manager.env.debug ||
+		(manager.env.traceFlags &&
+		(manager.env.traceFlags.indexOf("p-wrap") !== -1));
+	this.reset();
+}
 
-function ParagraphWrapper ( dispatcher ) {
+ParagraphWrapper.prototype.reset = function() {
+	if (this.inPre) {
+		// Clean up in case we run into EOF before seeing a </pre>
+		this.manager.addTransform(this.onNewLineOrEOF.bind(this),
+			"ParagraphWrapper:onNewLine", this.newlineRank, 'newline');
+	}
 	this.nlWsTokens = [];
 	this.nonNlTokens = [];
 	this.currLine = {
 		tokens: [],
-		hasBlockToken: false,
+		hasBlockToken: this.options.inBlockToken === undefined ? false : this.options.inBlockToken,
 		hasWrappableTokens: false
 	};
 	this.newLineCount = 0;
 	this.hasOpenPTag = false;
 	this.hasOpenHTMLPTag = false;
 	this.inPre = false;
-	this.register( dispatcher );
-	this.trace = dispatcher.env.debug ||
-		(dispatcher.env.traceFlags &&
-		(dispatcher.env.traceFlags.indexOf("p-wrap") !== -1));
 }
 
 // constants
-ParagraphWrapper.prototype.newlineRank = 2.995;
-ParagraphWrapper.prototype.anyRank     = 2.996;
-ParagraphWrapper.prototype.endRank     = 2.997;
+ParagraphWrapper.prototype.newlineRank = 2.95;
+ParagraphWrapper.prototype.anyRank     = 2.96;
+ParagraphWrapper.prototype.endRank     = 2.97;
 
 // Register this transformer with the TokenTransformer
-ParagraphWrapper.prototype.register = function ( dispatcher ) {
-	this.dispatcher = dispatcher;
-	dispatcher.addTransform( this.onNewLineOrEOF.bind(this),
+ParagraphWrapper.prototype.register = function ( manager ) {
+	this.manager = manager;
+	manager.addTransform( this.onNewLineOrEOF.bind(this),
 		"ParagraphWrapper:onNewLine", this.newlineRank, 'newline' );
-	dispatcher.addTransform( this.onAny.bind(this),
+	manager.addTransform( this.onAny.bind(this),
 		"ParagraphWrapper:onAny", this.anyRank, 'any' );
-	dispatcher.addTransform( this.onNewLineOrEOF.bind(this),
+	manager.addTransform( this.onNewLineOrEOF.bind(this),
 		"ParagraphWrapper:onEnd", this.endRank, 'end' );
 };
 
@@ -110,7 +119,8 @@ ParagraphWrapper.prototype.onNewLineOrEOF = function (  token, frame, cb ) {
 		this.inPre = false;
 		this.hasOpenPTag = false;
 		this.hasOpenHTMLPTag = false;
-		return { tokens: this._getTokensAndReset(res) };
+		this.reset();
+		return { tokens: res };
 	} else {
 		this.newLineCount++;
 		return {};
@@ -206,7 +216,7 @@ ParagraphWrapper.prototype.onAny = function ( token, frame, cb ) {
 			res = res.concat(this.currLine.tokens);
 			res.push(token);
 
-			this.dispatcher.removeTransform(this.newlineRank, 'newline');
+			this.manager.removeTransform(this.newlineRank, 'newline');
 			this.inPre = true;
 			this.resetCurrLine();
 
@@ -217,7 +227,7 @@ ParagraphWrapper.prototype.onAny = function ( token, frame, cb ) {
 			// No pre-tokens inside html-p-tags -- swallow it.
 			return {};
 		} else {
-			this.dispatcher.addTransform(this.onNewLineOrEOF.bind(this),
+			this.manager.addTransform(this.onNewLineOrEOF.bind(this),
 				"ParagraphWrapper:onNewLine", this.newlineRank, 'newline');
 			this.inPre = false;
 			this.currLine.hasBlockToken = true;

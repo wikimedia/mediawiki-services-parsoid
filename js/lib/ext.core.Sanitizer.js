@@ -572,8 +572,8 @@ Sanitizer.prototype.getAttrWhiteList = function(tag) {
 };
 
 // constants
-Sanitizer.prototype.handledRank = 2.99;
-Sanitizer.prototype.anyRank = 2.9901;
+Sanitizer.prototype.handledRank = 2.90;
+Sanitizer.prototype.anyRank = 2.91;
 
 // Register this transformer with the TokenTransformer
 Sanitizer.prototype.register = function ( manager ) {

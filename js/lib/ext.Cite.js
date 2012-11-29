@@ -40,9 +40,8 @@ Cite.prototype.reset = function ( token ) {
 // Cite should be the first thing to run in pahse 3 so the <ref>-</ref>
 // content tokens are pulled out of the token stream and dont pollute
 // the main token stream with any unbalanced tags/pres and the like.
-Cite.prototype.rank = 2.01; // after QuoteTransformer, but before PostExpandParagraphHandler
-Cite.prototype.referencesRank = 2.6; // after PostExpandParagraphHandler
-//Cite.prototype.rank = 2.6;
+Cite.prototype.rank = 2.01;
+Cite.prototype.referencesRank = 2.6;
 
 /**
  * Handle ref section tokens collected by the TokenCollector.
@@ -139,6 +138,27 @@ function genPlaceholderTokens(env, token, src) {
  * @returns {Object} TokenContext
  */
 Cite.prototype.onReferences = function ( token, manager ) {
+	function processRefTokens(ref) {
+		var out;
+		// pipeline for processing ref-content
+		// NOTE: This is a synchronous pipeline
+		var pipeline = manager.pipeFactory.getPipeline(
+				'tokens/x-mediawiki/post-expansion',
+				{ wrapTemplates: false, inBlockToken: true }
+			);
+		pipeline.addListener('chunk', function(toks) {
+			out = Util.stripEOFTkfromTokens(toks);
+		});
+		pipeline.addListener('end', function() {});
+		ref.tokens.push(new EOFTk());
+		pipeline.process(ref.tokens);
+		// SSS FIXME: Even though pipeline is a sync-pipeline,
+		// are we guaranteed that at this point, the 'chunk'
+		// handler has run?
+
+		return out;
+	}
+
 	if ( token.constructor === EndTagTk ) {
 		return { tokens: genPlaceholderTokens(this.manager.env, token, "</references>") };
 	}
@@ -146,21 +166,15 @@ Cite.prototype.onReferences = function ( token, manager ) {
 	//console.warn( 'references refGroups:' + JSON.stringify( this.refGroups, null, 2 ) );
 
 	var refGroups = this.refGroups;
-
 	var arrow = '↑';
 	var renderLine = function( ref ) {
 		var out = [ new TagTk('li', [new KV('id', ref.target)] ) ];
 		if (ref.linkbacks.length === 1) {
 			out = out.concat([
-					new TagTk( 'a', [
-								new KV('href', '#' + ref.linkbacks[0])
-							]
-						),
+					new TagTk( 'a', [ new KV('href', '#' + ref.linkbacks[0]) ]),
 					arrow,
 					new EndTagTk( 'a' )
-				],
-				ref.tokens // The original content tokens
-			);
+				], processRefTokens(ref));
 		} else {
 			out.push( arrow );
 			$.each(ref.linkbacks, function(i, linkback) {
@@ -177,9 +191,7 @@ Cite.prototype.onReferences = function ( token, manager ) {
 						//},
 						ref.groupIndex + '.' + i,
 						new EndTagTk( 'a' )
-					],
-					ref.tokens // The original content tokens
-				);
+					], processRefTokens(ref));
 			});
 		}
 		//console.warn( 'renderLine res: ' + JSON.stringify( out, null, 2 ));

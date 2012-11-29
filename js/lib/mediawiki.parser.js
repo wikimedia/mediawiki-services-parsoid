@@ -62,6 +62,24 @@ function ParserPipelineFactory ( env ) {
  * Should perhaps be moved to mediawiki.parser.environment.js, so that all
  * configuration can be found in a single place.
  */
+
+// These handlers are used in two different recipes
+var postExpansionHandlers = [
+		// add <pre>s
+	PreHandler,				// 2.051 -- 2.054
+	QuoteTransformer,		// 2.1
+		// add before transforms that depend on behavior switches
+		// examples: toc generation, edit sections
+	BehaviorSwitchHandler,	// 2.14
+	ListHandler,			// 2.49
+	Sanitizer,          	// 2.90, 2.91
+		// Wrap tokens into paragraphs post-sanitization so that
+		// tags that converted to text by the sanitizer have a chance
+		// of getting wrapped into paragraphs.  The sanitizer does not
+		// require the existence of p-tags for its functioning.
+	ParagraphWrapper 	// 2.95 -- 2.97
+];
+
 ParserPipelineFactory.prototype.recipes = {
 	// The full wikitext pipeline
 	'text/x-mediawiki/full': [
@@ -76,6 +94,14 @@ ParserPipelineFactory.prototype.recipes = {
 	'text/x-mediawiki': [
 		[ PegTokenizer, [] ],
 		'tokens/x-mediawiki'
+	],
+
+	'tokens/x-mediawiki/post-expansion': [
+		[
+			SyncTokenTransformManager,
+			[ 3, 'tokens/x-mediawiki/post-expansion' ],
+			postExpansionHandlers
+		]
 	],
 
 	// Synchronous per-input and async token stream transformations. Produces
@@ -138,38 +164,19 @@ ParserPipelineFactory.prototype.recipes = {
 		// overhead for unused transforms.
 		[
 			SyncTokenTransformManager,
+				// PHASE RANGE: [2,3)
 			[ 3, 'tokens/x-mediawiki/expanded' ],
 			[
-				// PHASE RANGE: [2,3)
-
 				// Cite should be the first thing to run so the <ref>-</ref>
 				// content tokens are pulled out of the token stream and
 				// dont pollute the main token stream with any unbalanced
 				// tags/pres and the like.
-				Cite,				// 2.01
-
-				// Introduce <pre>s
-				PreHandler,			// 2.02
-
-
-				QuoteTransformer,	// 2.1
-
-				// before transforms that depend on behavior switches
-				// examples: toc generation, edit sections
-				BehaviorSwitchHandler,	// 2.14
-
-				ListHandler,		// 2.49
-
-				Sanitizer,          // 2.99
-
-				// Wrap tokens into paragraphs post-sanitization so that
-				// tags that converted to text by the sanitizer have a chance
-				// of getting wrapped into paragraphs.  The sanitizer does not
-				// require the existence of p-tags for its functioning.
-				ParagraphWrapper // 2.9995
-
-				// SkipperUnpacker
-			]
+				//
+				// RANK: 2.01, 2.99
+				//
+				// Cite + all other handlers
+				Cite
+			].concat(postExpansionHandlers)
 		],
 
 		// Build a tree out of the fully processed token stream
@@ -267,6 +274,9 @@ function getCacheKey(cacheType, options) {
 	}
 	if ( ! options.wrapTemplates ) {
 		cacheType += '::noWrap';
+	}
+	if ( options.inBlockToken ) {
+		cacheType += '::inBlockToken';
 	}
 	return cacheType;
 }
