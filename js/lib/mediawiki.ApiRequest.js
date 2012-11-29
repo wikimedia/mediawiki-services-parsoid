@@ -149,6 +149,11 @@ util.inherits(TemplateRequest, ApiRequest);
 TemplateRequest.prototype.handleJSON = function ( error, data ) {
 	var src = '',
 		self = this;
+	if ( error ) {
+		this.processListeners( error, '' );
+		return;
+	}
+
 	try {
 		$.each( data.query.pages, function(i, page) {
 			if (page.revisions && page.revisions.length) {
@@ -246,6 +251,11 @@ util.inherits( PreprocessorRequest, ApiRequest );
 
 // The TemplateRequest-specific JSON handler
 PreprocessorRequest.prototype.handleJSON = function ( error, data ) {
+	if ( error ) {
+		this.processListeners( error, '' );
+		return;
+	}
+
 	var src = '';
 	try {
 		src = data.expandtemplates['*'];
