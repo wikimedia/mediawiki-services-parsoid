@@ -229,11 +229,11 @@ TokenAndAttrCollector.prototype.inspectAttrs = function(token) {
 
 		// find the first open delim -- will be delims[0/1] for well-formed WT
 		var i = findMatchingDelimIndex(delims, {first: true, open: true});
-		var openD = delims[i];
+		var openD = i === -1 ? null : delims[i];
 
 		// find the last closed delim -- will be delims[n-2/n-1] for well-formed WT
 		var j = findMatchingDelimIndex(delims, {first: false, open: false});
-		var closeD = delims[j];
+		var closeD = j === -1 ? null : delims[j];
 
 		// Merge all attributes between openD.attrIndex and closeD.attrIndex
 		// Tricky bits:
@@ -243,7 +243,7 @@ TokenAndAttrCollector.prototype.inspectAttrs = function(token) {
 		// - we need to handle the first/last attribute specially since the
 		//   openD/closeD may show up in either k/v of those attrs.  That
 		//   will determine what the merged k/v value will be.
-		if (i < j) {
+		if (openD && closeD && i < j) {
 			var attrs = token.attribs, toks;
 
 			// console.warn("openD: " + JSON.stringify(openD));
