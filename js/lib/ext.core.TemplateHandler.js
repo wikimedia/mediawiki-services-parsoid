@@ -198,7 +198,9 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 							attribTokens = Util.flattenAndAppendToks(attribTokens, null, kv.k);
 						}
 						if (kv.v) {
-							attribTokens = Util.flattenAndAppendToks(attribTokens, "=", kv.v);
+							attribTokens = Util.flattenAndAppendToks(attribTokens,
+								kv.k ? "=" : '',
+								kv.v);
 						}
 						attribTokens.push('|');
 					} );
