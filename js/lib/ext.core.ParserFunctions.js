@@ -1,5 +1,4 @@
-"use strict";
-/**
+/**JSON.stringify(token));
  * Some parser functions, and quite a bunch of stubs of parser functions.
  * There are still quite a few missing, see
  * http://www.mediawiki.org/wiki/Help:Magic_words and
@@ -17,6 +16,8 @@
  *
  * @author Gabriel Wicke <gwicke@wikimedia.org>
  */
+
+"use strict";
 
 var async = require('async');
 var Util = require('./mediawiki.Util.js').Util;
@@ -402,26 +403,33 @@ ParserFunctions.prototype.pf_padright = function ( token, frame, cb, params ) {
 };
 
 ParserFunctions.prototype['pf_#tag'] = function ( token, frame, cb, args ) {
-	// TODO: handle things like {{#tag:nowiki|{{{input1|[[shouldnotbelink]]}}}}}
-	// https://www.mediawiki.org/wiki/Future/Parser_development#Token_stream_transforms
+	// Check http://www.mediawiki.org/wiki/Extension:TagParser for more info
+	// about the #tag parser function.
 	var target = args[0].k;
-	if ( args[1] ) {
-		args[1].v.get({
-			type: 'tokens/x-mediawiki/expanded',
-			cb: this.tag_worker.bind( this, target, cb ),
-			asyncCB: cb
-		});
+	if (!target || target === '') {
+		cb({});
 	} else {
-		this.tag_worker( target, cb, [''] );
+		// remove tag-name
+		args.shift();
+		Util.expandParserValueValues(args, this.tag_worker.bind(this, target, cb));
 	}
 };
 
-ParserFunctions.prototype.tag_worker = function( target, cb, content ) {
-	cb({
-		tokens: [ new TagTk( target ) ]
-			.concat( content,
-				[ new EndTagTk( target ) ] )
-	});
+ParserFunctions.prototype.tag_worker = function( target, cb, kvs ) {
+	var contentToks = [];
+	var tagAttribs = [];
+	for (var i = 0, n = kvs.length; i < n; i++) {
+		if (kvs[i].k === '') {
+			contentToks = contentToks.concat(kvs[i].v);
+		} else {
+			tagAttribs.push(kvs[i]);
+		}
+	}
+
+	var ret = [new TagTk(target, tagAttribs)];
+	ret = ret.concat(contentToks);
+	ret.push(new EndTagTk(target));
+	cb({ tokens: ret });
 };
 
 

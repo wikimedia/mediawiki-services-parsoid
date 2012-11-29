@@ -62,6 +62,7 @@ Cite.prototype.handleRef = function ( tokens ) {
 		group: null
 	}, Util.KVtoHash(startTag.attribs));
 
+
 	var group = this.getRefGroup(options.group ),
 		ref = group.add(tokens, options ),
 		//console.warn( 'added tokens: ' + JSON.stringify( this.refGroups, null, 2 ));
@@ -202,11 +203,9 @@ Cite.prototype.onReferences = function ( token, manager ) {
 	}
 
 	// Point invalid / empty groups to null
-	if ( ! group )
-	{
+	if ( ! group ) {
 		group = null;
 	}
-
 
 	if (group in refGroups) {
 		var group = refGroups[group],
