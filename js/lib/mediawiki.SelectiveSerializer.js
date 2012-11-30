@@ -104,6 +104,13 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 		if ( !thisdp.dsr && !child.setAttribute ) {
 			// We can't mess with a text node, but we do need to avoid the
 			// error caused by calling setAttribute on it.
+			// However, we try to do the right thing by setting state.startdsr
+			// to indicate where the previous element ended. Hopefully that
+			// will make up for text and comment nodes not having any DSR.
+			if ( state.startdsr === null && state.lastdsr !== null ) {
+				state.startdsr = state.lastdsr;
+				state.lastdsr = null;
+			}
 		} else if (
 				(
 					( state.foundChange && state.startdsr === null ) && (
@@ -143,7 +150,18 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 			}
 
 			if ( hasChangeMarker( thisda ) ) {
+				// Let the rest of the program know that something changed
+				// in the source of the document.
 				state.foundChange = true;
+			}
+
+			if ( !thisda || !thisda.new ) {
+				// Make sure we reset lastdsr whenever we fully serialize
+				// something that already existed in the original document.
+				// Otherwise, the DSR would lead to duplication.
+				if ( !thisdsr || !thisdsr[1] ) {
+					state.lastdsr = null;
+				}
 			}
 
 			// Actually set the serialize-id
