@@ -658,7 +658,7 @@ ParserValue.prototype.get = function( options, cb ) {
 				JSON.stringify( this, null, 2 );
 		}
 		options.cb = cb;
-		options.wrapTemplates = this.wrapTemplates;
+		options.wrapTemplates = options.wrapTemplates || this.wrapTemplates;
 		this.frame.expand( source, options );
 	}
 };

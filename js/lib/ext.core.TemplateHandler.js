@@ -113,7 +113,10 @@ TemplateHandler.prototype.targetToString = function ( tokens ) {
 					nonTextTokenCons === SelfclosingTagTk ||
 					nonTextTokenCons === EndTagTk )
 			{
-				if (ntt.name !== 'meta' || !ntt.getAttribute("typeof").match(/mw:/)) {
+				if (ntt.name !== 'meta' ||
+						!ntt.getAttribute("typeof") ||
+						!ntt.getAttribute("typeof").match(/mw:/))
+				{
 					return null;
 				}
 			}
@@ -135,8 +138,9 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 
 	//console.warn('TemplateHandler.expandTemplate: ' +
 	//		JSON.stringify( tplExpandData, null, 2 ) );
-	var env = this.manager.env;
-	var target = attribs[0].k;
+	var env = this.manager.env,
+		target = attribs[0].k,
+		self = this;
 
 	if ( ! target ) {
 		env.ap( 'No target! ', attribs );
@@ -207,7 +211,19 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 					// pop last pipe separator
 					attribTokens.pop();
 
-					cb( { tokens: ['{{'].concat(attribTokens, ['}}']) } );
+					var tokens = ['{{'].concat(attribTokens, ['}}']);
+					if ( self.options.wrapTemplates ) {
+						// Encapsulate the output as a single template for
+						// now. A finer-grained encapsulation of values is
+						// already supported by passing true as the optional
+						// last argument to expandParserValueValues, but
+						// template-generated keys are still not covered by
+						// that.
+						// TODO: refine later!
+						tokens = self.addEncapsulationInfo(state, tokens);
+						tokens.push(self.getEncapsulationInfoEndTag(state));
+					}
+					cb( { tokens: tokens } );
 				}
 		);
 		return;
@@ -364,6 +380,17 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 	return this.addAboutToTableElements( state, chunk );
 };
 
+TemplateHandler.prototype.getEncapsulationInfoEndTag = function ( state ) {
+	var tsr = state.token.dataAttribs.tsr;
+	return new SelfclosingTagTk( 'meta',
+				[
+					new KV( 'typeof', 'mw:Object/Template/End' ),
+					new KV( 'about', '#' + state.templateId )
+				], {
+					tsr: [null, tsr ? tsr[1] : null]
+				});
+};
+
 /**
  * Handle chunk emitted from the input pipeline after feeding it a template
  */
@@ -423,15 +450,9 @@ TemplateHandler.prototype._onChunk = function( state, cb, chunk ) {
 TemplateHandler.prototype._onEnd = function( state, cb ) {
 	this.manager.env.dp( 'TemplateHandler._onEnd' );
 	if (this.options.wrapTemplates) {
-		var tsr = state.token.dataAttribs.tsr;
-		var endTag = new SelfclosingTagTk( 'meta',
-				[
-					new KV( 'typeof', 'mw:Object/Template/End' ),
-					new KV( 'about', '#' + state.templateId )
-				], {
-					tsr: [null, tsr ? tsr[1] : null]
-				});
-		var res = { tokens: [endTag] };
+		var tsr = state.token.dataAttribs.tsr,
+			endTag = this.getEncapsulationInfoEndTag(state),
+			res = { tokens: [endTag] };
 		state.emittedFirstChunk = false;
 		cb( res );
 	} else {

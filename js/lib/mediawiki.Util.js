@@ -242,7 +242,7 @@ var Util = {
 	 * Expand all ParserValue values in the passed-in KV pairs, and call the
 	 * supplied callback with the new KV pairs.
 	 */
-	expandParserValueValues: function(kvs, cb) {
+	expandParserValueValues: function(kvs, cb, wrapTemplates) {
 		var kv, v,
 		reassembleKV = function( kv, cb2, v )  {
 			cb2(null, new KV(kv.k, v));
@@ -255,8 +255,9 @@ var Util = {
 					v = kv.v;
 					if ( v.constructor === ParserValue ) {
 						v.get({
-							type: 'text/x-mediawiki/expanded',
-							cb: reassembleKV.bind(null, kv, cb1)
+							type: 'tokens/x-mediawiki/expanded',
+							cb: reassembleKV.bind(null, kv, cb1),
+							wrapTemplates: wrapTemplates
 						});
 					} else {
 						cb1 ( null, kv );
