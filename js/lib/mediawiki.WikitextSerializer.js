@@ -1249,14 +1249,14 @@ WSP.tagHandlers = {
 							return token.dataAttribs.src;
 						case 'mw:NoInclude':
 							this.newlineTransparent = true;
-							return '<noinclude>';
+							return token.dataAttribs.src || '<noinclude>';
 						case 'mw:NoInclude/End':
-							return '</noinclude>';
+							return token.dataAttribs.src || '</noinclude>';
 						case 'mw:OnlyInclude':
 							this.newlineTransparent = true;
-							return '<onlyinclude>';
+							return token.dataAttribs.src || '<onlyinclude>';
 						case 'mw:OnlyInclude/End':
-							return '</onlyinclude>';
+							return token.dataAttribs.src || '</onlyinclude>';
 						default:
 							this.newlineTransparent = false;
 							return WSP._serializeHTMLTag( state, token );
