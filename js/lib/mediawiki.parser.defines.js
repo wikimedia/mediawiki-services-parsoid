@@ -427,7 +427,9 @@ SelfclosingTagTk.prototype.toString = function(compact, indent) {
 $.extend( SelfclosingTagTk.prototype, genericTokenMethods );
 
 /* -------------------- NlTk -------------------- */
-function NlTk( ) { }
+function NlTk( tsr ) {
+	this.tsr = tsr || [];
+}
 
 NlTk.prototype = {
 	constructor: NlTk,

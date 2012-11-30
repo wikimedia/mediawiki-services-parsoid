@@ -1991,7 +1991,7 @@ eof = & { return isEOF(pos); } { return true; }
 newline
   = '\n' / '\r\n'
 
-newlineToken = newline { return [new NlTk()] }
+newlineToken = newline { return [new NlTk([pos0, pos])] }
 
 eolf = newline / eof
 

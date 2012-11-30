@@ -98,7 +98,8 @@ PreHandler.STATE_IGNORE = 5;
 
 function init(handler, addAnyHandler) {
 	handler.state  = PreHandler.STATE_SOL;
-	handler.lastNLTk = null;
+	handler.lastNlTk = null;
+	handler.preTSR = 0;
 	handler.tokens = [];
 	handler.preWSToken = null;
 	handler.multiLinePreWSToken = null;
@@ -146,7 +147,11 @@ PreHandler.prototype.processPre = function(token) {
 
 	// pre only if we have tokens to enclose
 	if (this.tokens.length > 0) {
-		ret = [ new TagTk('pre') ].concat(ret).concat(this.tokens);
+		var da = null;
+		if (this.preTSR !== -1) {
+			da = { tsr: [this.preTSR, this.preTSR+1] };
+		}
+		ret = [ new TagTk('pre', [], da) ].concat(ret).concat(this.tokens);
 		ret.push(new EndTagTk('pre'));
 	}
 
@@ -175,13 +180,19 @@ PreHandler.prototype.processPre = function(token) {
 PreHandler.prototype.onNewline = function (token, manager, cb) {
 	if (this.trace) {
 		if (this.debug) console.warn("----------");
-		console.warn("T:pre:nl : " + this.state);
+		console.warn("T:pre:nl : " + this.state + " : " + JSON.stringify(token));
 	}
+
+	// Whenever we move into SOL-state anew (not from multiline-pre)
+	// init preTSR to the newline's tsr[1].  This will later be
+	// used to assign 'tsr' values to the <pre> token.
 
 	var ret = null;
 	switch (this.state) {
 		case PreHandler.STATE_SOL:
 			ret = this.getResultAndReset(token);
+			// tsr[1] can never be 0, hence safe to use this idiom
+			this.preTSR = token.tsr[1] || -1;
 			break;
 
 		case PreHandler.STATE_PRE:
@@ -192,6 +203,8 @@ PreHandler.prototype.onNewline = function (token, manager, cb) {
 				// we will never get here from a multiline-pre
 				ret = this.getResultAndReset(token);
 			}
+			// tsr[1] can never be 0, hence safe to use this idiom
+			this.preTSR = token.tsr[1] || -1;
 			this.state = PreHandler.STATE_SOL;
 			break;
 
@@ -209,6 +222,8 @@ PreHandler.prototype.onNewline = function (token, manager, cb) {
 			ret = [token];
 			ret.rank = this.skipRank; // prevent this from being processed again
 			init(this, true); // Reset!
+			// tsr[1] can never be 0, hence safe to use this idiom
+			this.preTSR = token.tsr[1] || -1;
 			break;
 	}
 
@@ -237,7 +252,23 @@ function isTableTag(token) {
 		['table','tr','td','th','tbody'].indexOf(token.name) !== -1;
 }
 
+function getUpdatedPreTSR(tsr, token) {
+	var tc = token.constructor;
+	if (tc === CommentTk) {
+		tsr = token.tsr ? token.tsr[1] : (tsr === -1 ? -1 : token.value.length + 7 + tsr);
+	} else if (tc === SelfclosingTagTk) {
+		// meta-tag (cannot compute)
+		tsr = -1;
+	} else if (tsr !== -1) {
+		// string
+		tsr = tsr + token.length;
+	}
+
+	return tsr;
+}
+
 PreHandler.prototype.onAny = function ( token, manager, cb ) {
+
 	if (this.trace) {
 		if (this.debug) console.warn("----------");
 		console.warn("T:pre:any: " + this.state + " : " + JSON.stringify(token));
@@ -278,7 +309,10 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 						// as a new token
 						this.onAny(token.slice(1), manager, cb);
 					}
-				} else if (Util.isSolTransparent(token)) { // continue watching
+				} else if (Util.isSolTransparent(token)) {
+					// continue watching ...
+					// update pre-tsr since we haven't transitioned to PRE yet
+					this.preTSR = getUpdatedPreTSR(this.preTSR, token);
 					this.tokens.push(token);
 				} else {
 					ret = this.getResultAndReset(token);
