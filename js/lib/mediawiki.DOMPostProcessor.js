@@ -560,6 +560,28 @@ function stripPreFromBlockNodes(document, env) {
 	findAndStripPre(document, document.body);
 }
 
+// If the last child of a node is a start-meta, simply
+// move it up and make it the parent's sibling.
+// This will move the start-meta closest to the content
+// that the template/extension produced and improve accuracy
+// of finding dom ranges and wrapping templates.
+function migrateStartMetas(node, env) {
+	var c = node.firstChild;
+	while (c) {
+		var sibling = c.nextSibling;
+		if (c.childNodes.length > 0) {
+			migrateStartMetas(c, env);
+		}
+		c = sibling;
+	}
+
+	var lastChild = node.lastChild;
+	if (lastChild && isTplStartMarkerMeta(lastChild)) {
+		var p = node.parentNode;
+		p.insertBefore(lastChild, node.nextSibling);
+	}
+}
+
 /**
  * Remove trailing newlines from paragraph content (and move them to
  * inter-element whitespace)
@@ -939,101 +961,6 @@ function findTableSibling( elem, about ) {
 }
 
 /**
- * Special-case handling for template-generated list items.
- *
- * If bullet has a content of '* bar',
- *
- * * {{bullet}}
- * will result in
- * <ul><li>bar</li></ul>
- *
- * and
- *
- * * foo {{bullet}}
- * is expanded to
- * <ul><li>foo</li><li>bar</li></ul>
- *
- * See https://bugzilla.wikimedia.org/show_bug.cgi?id=529 and Parser.php,
- * method braceSubstitution, line 3466 for the gory details how this came to
- * be.
- *
- * The PHP parser also strips empty lists, which causes it to swallow the deep
- * prefix in
- *
- * ********* {{bullet}}
- *
- * We don't currently do this in general, so perform a custom version of it
- * here.
- */
-function fixTemplateCreatedListItem( startMeta, env ) {
-	// Handle template-created list items a bit differently by
-	// starting the wrapping with the next list item if the
-	// start meta was at the end of the preceding list item.
-	var li     = startMeta.parentNode,
-	    nextLi = li.nextSibling;
-
-	if ( startMeta.nextSibling === null &&
-			hasNodeName(li, 'li') &&
-			nextLi !== null &&
-			hasNodeName(nextLi, 'li') &&
-			!nextLi.getAttribute('typeof'))
-	{
-		var about = startMeta.getAttribute('about'),
-			nextLiDP = dataParsoid(nextLi),
-			newDP = dataParsoid(startMeta),
-			liDP;
-
-		nextLi.setAttribute('typeof', startMeta.getAttribute('typeof'));
-		//console.log( '====\n', li.outerHTML, startMeta.outerHTML );
-
-		// Update the dsr in the new data-parsoid and old parent
-		if ( nextLiDP && nextLiDP.dsr && nextLiDP.dsr[1] !== null ) {
-
-			var dsrEnd = nextLiDP.dsr[1];
-			// tweak end dsr
-			if ( newDP.dsr[1] < dsrEnd ) {
-				newDP.dsr[1] = dsrEnd;
-			}
-			liDP = dataParsoid(li);
-			// update parent dsr to match
-			if (liDP && liDP.dsr) {
-				liDP.dsr[1] = dsrEnd;
-				setDataParsoid(li, liDP);
-			}
-		}
-
-		// Eliminate empty parent node
-		// TODO: Implement this generically as a separate DOM postprocessor
-		// that eliminates empty lists and replaces them with round-trip
-		// information only.
-		var liChildren = li.childNodes;
-		if ( liChildren.length === 1 ||
-				( liChildren.length === 2 &&
-				  hasNodeName(liChildren[0], '#text') &&
-				  liChildren[0].nodeValue.match(/^\s*%/)))
-		{
-			var parentDP = dataParsoid(li);
-			if ( parentDP && parentDP.dsr ) {
-				newDP.dsr[0] = parentDP.dsr[0];
-			}
-			li.parentNode.removeChild( li );
-		} else {
-			li.removeChild( startMeta );
-		}
-
-		// Update the template source to include any stripped list item
-		// prefix
-		newDP.src = env.text.substring( newDP.dsr[0], newDP.dsr[1] );
-		setDataParsoid(nextLi, newDP);
-		nextLi.setAttribute('about', about);
-		//console.log( '--- new elem:\n', nextLi.outerHTML );
-		return nextLi;
-	} else {
-		return startMeta;
-	}
-}
-
-/**
  * Recursive worker
  */
 function findWrappableTemplateRanges( root, tpls, doc, env ) {
@@ -1057,7 +984,6 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 				aboutRef = tpls[about];
 				// Is this a start marker?
 				if (!metaType.match(/\/End\b/)) {
-					elem = fixTemplateCreatedListItem( elem, env );
 					if ( aboutRef ) {
 						aboutRef.start = elem;
 						// content or end marker existed already
@@ -1572,11 +1498,13 @@ function encapsulateTemplateOutput( document, env ) {
 	}
 }
 
+
 function DOMPostProcessor(env, options) {
 	this.env = env;
 	this.processors = [
 		patchUpDOM,
 		stripPreFromBlockNodes,
+		migrateStartMetas,
 		/* -----------------------------------------------
 		   SSS: Not sure this is required anymore
 		   Doing this patch-up may have been because of bugs
