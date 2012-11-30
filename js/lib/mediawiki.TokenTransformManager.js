@@ -1259,11 +1259,10 @@ Frame.prototype.expand = function ( chunk, options ) {
 		// - not in a nested template        Ex: {{Templ:Foo}} and we are processing Foo
 		// - not in a template use context   Ex: {{ .. | {{ here }} | .. }}
 		// - the attribute use is wrappable  Ex: [[ ... | {{ .. link text }} ]]
-		var wrap = this.depth === 0 && options.wrapTemplates;
 
 		var pipelineOpts = {
 			isInclude: this.depth > 0,
-			wrapTemplates: wrap
+			wrapTemplates: options.wrapTemplates
 		};
 
 		var pipeline = this.manager.pipeFactory.getPipeline(
