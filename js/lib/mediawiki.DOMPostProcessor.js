@@ -577,46 +577,20 @@ function migrateStartMetas(node, env) {
 
 	var lastChild = node.lastChild;
 	if (lastChild && isTplStartMarkerMeta(lastChild)) {
+		// console.warn("migration: " + lastChild.outerHTML);
 		var p = node.parentNode;
 		p.insertBefore(lastChild, node.nextSibling);
-	}
-}
-
-/**
- * Remove trailing newlines from paragraph content (and move them to
- * inter-element whitespace)
- */
-function removeTrailingNewlinesFromParagraphs( document ) {
-	var cnodes = document.body.childNodes;
-	for (var i = 0; i < cnodes.length; i++) {
-		var cnode = cnodes[i];
-		if (hasNodeName(cnode, 'p')) {
-			//var firstChild = cnode.firstChild,
-			//	leadingNewLines = firstChild.data.match(/[\r\n]+/);
-			//if ( leadingNewLines ) {
-			//	// don't include newlines in the paragraph
-			//	cnode.insertBefore(
-			//			document.createTextNode( leadingNewLines[0] ),
-			//			firstChild
-			//			);
-			//	firstChild.data = firstChild.data.substr( leadingNewLines[0].length );
-			//}
-
-			var lastChild = cnode.lastChild;
-			// Verify lastChild is not null since we can have empty p-nodes
-			if ( lastChild && lastChild.nodeType === Node.TEXT_NODE ) {
-				var trailingNewlines = lastChild.data.match(/[\r\n]+$/);
-				if ( trailingNewlines ) {
-					lastChild.data = lastChild.data.substr( 0,
-							lastChild.data.length - trailingNewlines[0].length );
-					var newText = document.createTextNode( trailingNewlines[0] );
-					if ( cnode.nextSibling ) {
-						cnode.parentNode.insertBefore( newText, cnode.nextSibling );
-					} else {
-						cnode.parentNode.appendChild( newText );
-					}
-				}
-			}
+	} else if (lastChild.nodeType === Node.TEXT_NODE && lastChild.data.match(/^\n$/)) {
+		// Occasionally (sometimes non-deterministically),
+		// a stray newline messes with this meta-migration
+		// Work around it (and then investigate why it is happening).
+		//
+		// var data = lastChild.data;
+		lastChild = lastChild.previousSibling;
+		if (lastChild && isTplStartMarkerMeta(lastChild)) {
+			// console.warn("migration (thwarted by: '" + data + "', len: " + data.length + "): " + lastChild.outerHTML);
+			var p = node.parentNode;
+			p.insertBefore(lastChild, node.nextSibling);
 		}
 	}
 }
@@ -1053,9 +1027,9 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 							ee  = em,
 							tbl = em.parentNode.nextSibling;
 
-						// Dont get distracted by whitespace text nodes -- skip over them
-						// Unsure why these show up in some cases (only seen 1 node so far).
-						while (tbl && tbl.nodeType === Node.TEXT_NODE && tbl.data.match(/^\s*$/)) {
+						// Dont get distracted by a newline node -- skip over it
+						// Unsure why it shows up occasionally
+						if (tbl && tbl.nodeType === Node.TEXT_NODE && tbl.data.match(/^\n$/)) {
 							tbl = tbl.nextSibling;
 						}
 
@@ -1505,13 +1479,6 @@ function DOMPostProcessor(env, options) {
 		patchUpDOM,
 		stripPreFromBlockNodes,
 		migrateStartMetas,
-		/* -----------------------------------------------
-		   SSS: Not sure this is required anymore
-		   Doing this patch-up may have been because of bugs
-		   in the p-wrapper which is much more robust now.
-
-		// removeTrailingNewlinesFromParagraphs,
-		* ------------------------------------------------*/
 		normalizeDocument,
 		findBuilderInsertedTags,
 		computeDocDSR,
