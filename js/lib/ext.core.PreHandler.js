@@ -99,6 +99,9 @@ PreHandler.STATE_IGNORE = 5;
 function init(handler, addAnyHandler) {
 	handler.state  = PreHandler.STATE_SOL;
 	handler.lastNlTk = null;
+	// Initialize to zero to deal with indent-pre
+	// on the very first line where there is no
+	// preceding newline to initialize this.
 	handler.preTSR = 0;
 	handler.tokens = [];
 	handler.preWSToken = null;

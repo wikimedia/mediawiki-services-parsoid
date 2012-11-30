@@ -579,8 +579,22 @@ function migrateStartMetas(node, env) {
 	if (lastChild && isTplStartMarkerMeta(lastChild)) {
 		// console.warn("migration: " + lastChild.outerHTML);
 		var p = node.parentNode;
-		p.insertBefore(lastChild, node.nextSibling);
-	} else if (lastChild.nodeType === Node.TEXT_NODE && lastChild.data.match(/^\n$/)) {
+
+		// We can migrate the meta-tag across the parent's
+		// end-tag barrier only if that end-tag is zero-width.
+		var ptagWidth = WT_TagWidths[p.nodeName.toLowerCase()];
+		if (ptagWidth && ptagWidth[1] === 0) {
+			p.insertBefore(lastChild, node.nextSibling);
+		}
+	}
+
+/* ----------------------------------------------------------
+ * SSS FIXME: A little too aggressive and incorrect.
+ * There is another condition that will let us migrate this
+ * meta-tag across not just the end-tag but also across the newline
+ * To be investigated
+ *
+	else if (lastChild.nodeType === Node.TEXT_NODE && lastChild.data.match(/^\n$/)) {
 		// Occasionally (sometimes non-deterministically),
 		// a stray newline messes with this meta-migration
 		// Work around it (and then investigate why it is happening).
@@ -593,6 +607,8 @@ function migrateStartMetas(node, env) {
 			p.insertBefore(lastChild, node.nextSibling);
 		}
 	}
+ *
+ * ---------------------------------------------------------- */
 }
 
 /**
@@ -1133,6 +1149,36 @@ function findBuilderCorrectedTags(node) {
 	}
 }
 
+// Known wikitext tag widths
+var WT_TagWidths = {
+	"body"  : [0,0],
+	"html"  : [0,0],
+	"head"  : [0,0],
+	"p"     : [0,0],
+	"ol"    : [0,0],
+	"ul"    : [0,0],
+	"dl"    : [0,0],
+	"meta"  : [0,0],
+	"tbody" : [0,0],
+	"pre"   : [1,0],
+	"li"    : [1,0],
+	"dt"    : [1,0],
+	"dd"    : [1,0],
+	"h1"    : [1,1],
+	"h2"    : [2,2],
+	"h3"    : [3,3],
+	"h4"    : [4,4],
+	"h5"    : [5,5],
+	"h6"    : [6,6],
+	"hr"    : [4,0],
+	"table" : [2, 2],
+	"tr"    : [2, 0],
+	"td"    : [null, 0],
+	"th"    : [null, 0],
+	"br"    : [2,0] // non-html <br>s are inserted to replace 2 newlines in wikitext
+	// span, figure, caption, figcaption, br, a, i, b
+};
+
 // node  -- node to process
 // [s,e) -- if defined, start/end position of wikitext source that generated
 //          node's subtree
@@ -1171,35 +1217,6 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 			!hasLiteralHTMLMarker(parsoidData) &&
 			!(n === 'span' && n.getAttribute("typeof") === "mw:Nowiki");
 	}
-
-	var WT_TagWidths = {
-		"body"  : [0,0],
-		"html"  : [0,0],
-		"head"  : [0,0],
-		"p"     : [0,0],
-		"ol"    : [0,0],
-		"ul"    : [0,0],
-		"dl"    : [0,0],
-		"meta"  : [0,0],
-		"tbody" : [0,0],
-		"pre"   : [1,0],
-		"li"    : [1,0],
-		"dt"    : [1,0],
-		"dd"    : [1,0],
-		"h1"    : [1,1],
-		"h2"    : [2,2],
-		"h3"    : [3,3],
-		"h4"    : [4,4],
-		"h5"    : [5,5],
-		"h6"    : [6,6],
-		"hr"    : [4,0],
-		"table" : [2, 2],
-		"tr"    : [2, 0],
-		"td"    : [null, 0],
-		"th"    : [null, 0],
-		"br"    : [2,0] // non-html <br>s are inserted to replace 2 newlines in wikitext
-		// span, figure, caption, figcaption, br, a, i, b
-	};
 
 	function computeTagWidths(widths, child, dp) {
 		var stWidth = widths[0], etWidth = null;
