@@ -334,21 +334,22 @@ app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
 	env.setPageName( req.params[0] );
 	setDefaultWiki( config, env );
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-	var parser = Util.getParser(env, 'text/x-mediawiki/full');
+	var parser = Util.getParser(env, 'text/x-mediawiki/full'),
+		src = req.body.content.replace(/\r/g, '');
 	parser.on('document', function ( document ) {
 		res.write(document.body.innerHTML);
 		//res.write('<form method=POST><input name="content"></form>');
 		//res.end("hello world\n" + req.method + ' ' + req.params.title);
 		res.write( "<hr>Your wikitext:" );
-		textarea( res, req.body.content.replace(/\r/g, '') );
+		textarea( res, src );
 		res.end('');
 	});
 	try {
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 		console.log('starting parsing of ' + req.params[0]);
 		// FIXME: This does not handle includes or templates correctly
-		env.text = req.body.content;
-		parser.process( req.body.content.replace(/\r/g, '') );
+		env.text = src;
+		parser.process( src );
 	} catch (e) {
 		console.log( e.stack );
 		res.send( e.toString(), 500 );
