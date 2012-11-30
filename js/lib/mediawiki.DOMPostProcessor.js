@@ -1577,7 +1577,13 @@ function DOMPostProcessor(env, options) {
 	this.processors = [
 		patchUpDOM,
 		stripPreFromBlockNodes,
-		removeTrailingNewlinesFromParagraphs,
+		/* -----------------------------------------------
+		   SSS: Not sure this is required anymore
+		   Doing this patch-up may have been because of bugs
+		   in the p-wrapper which is much more robust now.
+
+		// removeTrailingNewlinesFromParagraphs,
+		* ------------------------------------------------*/
 		normalizeDocument,
 		findBuilderInsertedTags,
 		computeDocDSR,
