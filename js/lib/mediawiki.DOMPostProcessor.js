@@ -1064,7 +1064,7 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 	return tplRanges;
 }
 
-function findBuilderInsertedTags(node) {
+function findBuilderCorrectedTags(node) {
 	var children = node.childNodes,
 		c = node.firstChild,
 		sibling;
@@ -1091,8 +1091,32 @@ function findBuilderInsertedTags(node) {
 					dp.autoInsertedStart = true;
 					setDataParsoid(c, dp);
 				}
+			} else if ( isMarkerMeta(c, 'mw:EndTag') )
+			{
+				// Got an mw:EndTag meta element, see if the previous sibling
+				// is the corresponding element.
+				sibling = c.previousSibling;
+				if (!sibling ||
+						sibling.nodeName.toLowerCase() !== c.getAttribute('data-etag'))
+				{
+					// Not found, the tag was stripped. Insert an
+					// mw:Placeholder for round-tripping
+					var placeHolder = c.ownerDocument.createElement('meta'),
+						// TODO: pass in more precise source!
+						endSrc = dp.src ||
+							( hasLiteralHTMLMarker(dp) ?
+								'</' + c.getAttribute('data-etag') + '>' : '' );
+
+					if ( endSrc ) {
+						placeHolder.setAttribute('typeof', 'mw:Placeholder');
+						setDataParsoid(placeHolder, {src: endSrc});
+
+						// Insert the placeHolder
+						c.parentNode.insertBefore(placeHolder, c);
+					}
+				}
 			}
-			findBuilderInsertedTags(c);
+			findBuilderCorrectedTags(c);
 		}
 
 		c = c.nextSibling;
@@ -1480,7 +1504,7 @@ function DOMPostProcessor(env, options) {
 		stripPreFromBlockNodes,
 		migrateStartMetas,
 		normalizeDocument,
-		findBuilderInsertedTags,
+		findBuilderCorrectedTags,
 		computeDocDSR,
 		encapsulateTemplateOutput
 	];
