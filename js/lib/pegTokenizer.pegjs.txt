@@ -1036,7 +1036,7 @@ wikilink
     // XXX In real MediaWiki, this is a language-dependent positive character
     // class. Can we work out a static negative class instead?
     // XXX: Exclude uppercase chars from non-latin languages too!
-    tail:( ![A-Z \t(),.:\n\r-] tc:text_char { return tc } )* 
+    tail:( ![A-Z \t(),.:\n\r&-] tc:text_char { return tc } )* 
   {
       if ( lcontent === '' ) {
           lcontent = { pos: [pos0, pos], content: [] };
