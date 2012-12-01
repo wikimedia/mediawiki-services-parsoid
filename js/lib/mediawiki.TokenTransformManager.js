@@ -222,6 +222,7 @@ function AsyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, a
 	this.phaseEndRank = phaseEndRank;
 	this.attributeType = attributeType;
 	this.setFrame( null, null, [] );
+	this.trace = env.traceFlags && (env.traceFlags.indexOf("async:" + phaseEndRank) !== -1);
 	this._construct();
 }
 
@@ -450,7 +451,13 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 			}
 		}
 
-		this.env.tracer.traceToken(token);
+		if (this.trace) {
+			console.warn("A" + this.phaseEndRank + ": " + JSON.stringify(token));
+		} else {
+			// SSS FIXME: with individual stage tracing, this overall generic tracing
+			// is becoming less and less useful now.  Do a cleanup one of these days.
+			this.env.tracer.traceToken(token);
+		}
 
 		var ts = this._getTransforms( token, minRank );
 
@@ -686,6 +693,7 @@ function SyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, at
 	this.pipeFactory = pipeFactory;
 	this.phaseEndRank = phaseEndRank;
 	this.attributeType = attributeType;
+	this.trace = env.traceFlags && (env.traceFlags.indexOf("sync:" + phaseEndRank) !== -1);
 	this._construct();
 }
 
@@ -734,7 +742,13 @@ SyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 			i++;
 		}
 
-		this.env.tracer.traceToken(token);
+		if (this.trace) {
+			console.warn("S" + this.phaseEndRank + ": " + JSON.stringify(token));
+		} else {
+			// SSS FIXME: with individual stage tracing, this overall generic tracing
+			// is becoming less and less useful now.  Do a cleanup one of these days.
+			this.env.tracer.traceToken(token);
+		}
 
 		var transformer,
 			ts = this._getTransforms( token, minRank ),
