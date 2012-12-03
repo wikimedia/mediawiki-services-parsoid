@@ -19,6 +19,35 @@ var Node = {
 // SSS FIXME: Should we convert some of these functions to properties
 // of Node so we can use it as n.f(..) instead of f(n, ..)
 
+// Build path from n ---> ancestor
+// Doesn't include ancestor in the path itself
+function pathToAncestor(n, ancestor) {
+	var path = [];
+	while (n && n !== ancestor) {
+		path.push(n);
+		n = n.parentNode;
+	}
+
+	return path;
+}
+
+function pathToRoot(n) {
+	return pathToAncestor(n, null);
+}
+
+// Build path from n ---> sibling (default)
+// If left is true, will build from sibling ---> n
+// Doesn't include sibling in the path in either case
+function pathToSibling(n, sibling, left) {
+	var path = [];
+	while (n && n !== sibling) {
+		path.push(n);
+		n = left ? n.previousSibling : n.nextSibling;
+	}
+
+	return path;
+}
+
 function dataParsoid(n) {
 	var str = n.getAttribute("data-parsoid");
 	return str ? JSON.parse(str) : {};
@@ -621,16 +650,10 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 		startElem.parentNode.insertBefore(emptySpan, endElem);
 	}
 
-	var startAncestors = [],
-		elem = startElem;
-	// build ancestor list -- path to root
-	while (elem) {
-		startAncestors.push( elem );
-		elem = elem.parentNode;
-	}
+	var startAncestors = pathToRoot(startElem);
 
 	// now find common ancestor
-	elem = endElem;
+	var elem = endElem;
 	var parentNode = endElem.parentNode,
 	    firstSibling, lastSibling;
 	var res = null;
@@ -741,6 +764,22 @@ function encapsulateTemplates( env, doc, tplRanges) {
 		}
 	}
 
+	function arraysIntersect(a1, a2) {
+		// a1 and a2 are arrays of nodes.
+		// We cannot use DOM nodes as hash keys
+		// So for now, just rely on nested array check
+		var i, j, m = a1.length, n = a2.length;
+		for (i = 0; i < m; i++) {
+			for (j = 0; j < n; j++) {
+				if (a1[i] === a2[j]) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	// 0. Sort by about tpl id
 	tplRanges.sort(function(r1, r2) { return r1.aboutId - r2.aboutId });
 
@@ -761,29 +800,59 @@ function encapsulateTemplates( env, doc, tplRanges) {
 		var endTagToRemove = null,
 			startTagToStrip = null,
 			r = tplRanges[i];
-		if (prev && prev.end === r.start) {
-			// Found overlap!  merge prev and r
-			if (inSiblingOrder(r.start, r.end)) {
-				// Because of foster-parenting, in some situations,
-				// 'r.start' can occur after 'r.end'.  In those siutations,
-				// the ranges are already merged and no fixup should be done.
-				endTagToRemove = prev.endElem;
-				prev.end = r.end;
-				prev.endElem = r.endElem;
-			} else {
-				endTagToRemove = r.endElem;
-			}
+/**
+		console.warn("##############################################");
+		console.warn("range " + i + "; r-start-elem: " + r.startElem.outerHTML);
+		console.warn("range " + i + "; r-end-elem: " + r.endElem.outerHTML);
+		console.warn("-----------------------------");
+		console.warn("range " + i + "; r-start: " + r.start.outerHTML);
+		console.warn("-----------------------------");
+		console.warn("range " + i + "; r-end: " + r.end.outerHTML);
+		console.warn("-----------------------------");
+*/
+		if (!prev) {
+			// First range -- nothing to do
+			newRanges.push(r);
+			prev = r;
+		} else if (r.start === prev.end && inSiblingOrder(r.start, r.end)) {
+			// Overlapping ranges.  Merge r with prev
+			//
+			// Because of foster-parenting, in some situations,
+			// 'r.start' can occur after 'r.end'.  If yes, 'r' is
+			// nested inside 'prev' and no fixup should be done.
+			// Hence the check to see if r.end shows up after r.end
 
 			startTagToStrip = r.startElem;
-		} else if (prev && (prev.start === r.start || isAncestorOf(prev.end, r.start))) {
+			endTagToRemove = prev.endElem;
+
+			prev.end = r.end;
+			prev.endElem = r.endElem;
+		} else if (r.start === prev.end || r.start === prev.start) {
+			// Simple nesting cases -- including foster-parenting case above.
+
 			// Range 'r' is nested inside of range 'prev'
 			// Skip 'r' completely.
 			startTagToStrip = r.startElem;
 			endTagToRemove = r.endElem;
 		} else {
-			// Default case -- no overlap or nesting
-			newRanges.push(r);
-			prev = r;
+			// Generic nesting cases
+			var rPath = pathToRoot(r.start);
+			var siblings = pathToSibling(prev.start, prev.end);
+			siblings.push(prev.end);
+
+			// Find if there is an intersection between the two arrays.
+			// If yes, we merge the 2 ranges since 'r' is considered
+			// completely nested inside 'prev'.
+			if (arraysIntersect(rPath, siblings)) {
+				// Range 'r' is nested inside of range 'prev'
+				// Skip 'r' completely.
+				startTagToStrip = r.startElem;
+				endTagToRemove = r.endElem;
+			} else {
+				// Default case -- no overlap or nesting
+				newRanges.push(r);
+				prev = r;
+			}
 		}
 
 		if (endTagToRemove) {
@@ -923,12 +992,19 @@ function encapsulateTemplates( env, doc, tplRanges) {
 
 function swallowTableIfNestedDSR(elt, tbl) {
 	var eltDP  = dataParsoid(elt),
-		tblDP  = dataParsoid(tbl),
 		eltDSR = eltDP.dsr,
-		tblDSR = tblDP.dsr;
+		tblDP  = dataParsoid(tbl),
+		tblTSR = tblDP.tsr;
 
-	if (eltDSR && tblDSR && eltDSR[0] >= tblDSR[0] && eltDSR[1] <= tblDSR[1]) {
-		eltDP.dsr[0] = tblDSR[0];
+	// IMPORTANT: Do not use dsr to compare because the table may not
+	// have a valid dsr[1] (if the  table's end-tag is generated by
+	// a template transcluded into the table) always.  But it is
+	// sufficient to check against tsr[1] because the only way 'elt'
+	// could have a dsr[0] after the table-start-tag but show up before
+	// 'tbl' is if 'elt' got fostered out of the table.
+	if (eltDSR && tblTSR && eltDSR[0] >= tblTSR[1]) {
+		eltDP.dsr[0] = tblTSR[0];
+		eltDP.dsr[1] = null;
 		setDataParsoid(elt, eltDP);
 		return true;
 	} else {
@@ -981,7 +1057,6 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 							// End marker was foster-parented. Found actual
 							// start tag.
 							console.warn( 'end marker was foster-parented' );
-							aboutRef.processed = true;
 							tplRanges.push(getDOMRange( env, doc, elem, aboutRef.end, aboutRef.end ));
 						} else {
 							// should not happen!
@@ -1001,7 +1076,6 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 						// TODO: implement
 						console.warn( 'foster-parented content following!' );
 						if ( aboutRef && aboutRef.start ) {
-							aboutRef.processed = true;
 							tplRanges.push(getDOMRange( env, doc, aboutRef.start, elem, tableNode ));
 						} else {
 							console.warn( 'found foster-parented end marker followed ' +
@@ -1056,7 +1130,6 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 							tbl.setAttribute('about', about); // set about on elem
 							ee = tbl;
 						}
-						aboutRef.processed = true;
 						tplRanges.push(getDOMRange(env, doc, sm, em, ee));
 					} else {
 						tpls[about] = { end: elem };
@@ -1064,13 +1137,7 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 				}
 			} else {
 				about = elem.getAttribute('about');
-				if (!about || !tpls[about] || !tpls[about].processed) {
-					// Recurse down the tree
-					// Skip if this node has an about-tag from a template
-					// that has already been processed.
-					// Useful or unnecessary opt?
-					tplRanges = tplRanges.concat(findWrappableTemplateRanges( elem, tpls, doc, env ));
-				}
+				tplRanges = tplRanges.concat(findWrappableTemplateRanges( elem, tpls, doc, env ));
 			}
 		}
 
