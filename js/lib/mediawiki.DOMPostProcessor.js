@@ -583,7 +583,7 @@ function migrateStartMetas(node, env) {
 		// We can migrate the meta-tag across the parent's
 		// end-tag barrier only if that end-tag is zero-width.
 		var ptagWidth = WT_TagWidths[p.nodeName.toLowerCase()];
-		if (ptagWidth && ptagWidth[1] === 0) {
+		if (ptagWidth && ptagWidth[1] === 0 && !isLiteralHTMLNode(p)) {
 			p.insertBefore(lastChild, node.nextSibling);
 		}
 	}
