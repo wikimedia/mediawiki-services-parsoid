@@ -337,7 +337,7 @@ ParserTests.prototype.makeChanges = function ( node, nonRandomChanges ) {
 		}
 
 		if ( !nonRandomChanges ) {
-			if ( Math.random() < 0.75 ) {
+			if ( Util.isNodeEditable( child ) && Math.random() < 0.75 ) {
 				changeObj = getRandomChange();
 				child.setAttribute(
 					'data-ve-changed',

@@ -1069,6 +1069,17 @@ Util.getPageSrc = function ( env, title, cb, oldid ) {
 	pageRequest.once( 'src', cb );
 };
 
+/**
+ * This method should return "true" for a node that can be edited in the
+ * VisualEditor extension. We're using this to basically ignore changes on
+ * things that can't have changed, because nothing could possibly have changed
+ * them.
+ */
+Util.isNodeEditable = function( someNode ) {
+	var about = someNode.getAttribute( 'about' );
+	return !about || !about.match( /^#mwt/ );
+}
+
 if (typeof module === "object") {
 	module.exports.Util = Util;
 }
