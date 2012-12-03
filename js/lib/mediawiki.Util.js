@@ -343,7 +343,7 @@ var Util = {
 			// * Accumulate async call results in an array
 			//   till we get the signal that we are all done
 			// * Once we are done, pass everything to the target cb.
-			if (!res.switchToAsync) {
+			if (res.async !== true) {
 				// There are 3 kinds of callbacks:
 				// 1. cb({tokens: .. })
 				// 2. cb({}) ==> toks can be undefined

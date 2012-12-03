@@ -269,11 +269,19 @@ AsyncTokenTransformManager.prototype.emitChunk = function( ret ) {
 		if ( ! ret.async ) {
 			// Check if an EOFTk went missing
 			if ( this.frame.depth === 0 &&
-					ret.tokens && ret.tokens.length &&
-					ret.tokens.last() && ret.tokens.last().constructor !== EOFTk )
-			{
-				console.error("ERROR: EOFTk went missing in AsyncTokenTransformManager");
-				ret.tokens.push(new EOFTk());
+					ret.tokens && ret.tokens.length ) {
+				if ( ret.tokens.last() && ret.tokens.last().constructor !== EOFTk )
+				{
+					console.error("ERROR: EOFTk went missing in AsyncTokenTransformManager");
+					ret.tokens.push(new EOFTk());
+				}
+				for ( var i = 0, l = ret.tokens.lengh; i < l - 1; i++ ) {
+					if ( ret.tokens[i] && ret.tokens[1].constructor === EOFTk ) {
+						console.error("ERROR: EOFTk in the middle of chunk");
+						console.trace();
+					}
+				}
+
 			}
 
 			this.emit( 'chunk', ret.tokens );
@@ -284,6 +292,16 @@ AsyncTokenTransformManager.prototype.emitChunk = function( ret ) {
 			// and not confuse anyone wondering if there is a missing return here.
 			return;
 		} else {
+			if ( this.frame.depth === 0 &&
+					ret.tokens && ret.tokens.length ) {
+				for ( var i = 0, l = ret.tokens.lengh; i < l; i++ ) {
+					if ( ret.tokens[i] && ret.tokens[1].constructor === EOFTk ) {
+						console.error("ERROR: EOFTk in the middle of chunk");
+						console.trace();
+					}
+				}
+
+			}
 			this.emit( 'chunk', ret.tokens );
 			// allow accumulators to go direct
 			return this.emitChunk.bind( this );
@@ -577,14 +595,6 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
  * the provided asyncCB (TokenAccumulator._returnTokens normally).
  */
 AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) {
-	if (ret.switchToAsync) {
-		// simple async signalling
-		// SSS FIXME: Is this check required at all?
-		if (s.transforming) {
-			s.res.async = true;
-		}
-		return;
-	}
 
 	if ( s.transforming ) {
 		// transformTokens is still ongoing, handle as sync return by
@@ -603,7 +613,6 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
 					// is safe. We might want to revisit that later.
 					Math.min( oldRank, ret.tokens.rank );
 				}
-				s.res.async = ret.async;
 			} else {
 				s.res = ret;
 			}
@@ -662,7 +671,14 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
 					}
 				}
 			}
+		} else if ( ret.async === true ) {
+			// No tokens, was supposed to indicate async processing but came
+			// too late.
+			// TODO: Track down sources for these (unnecessary) calls and try
+			// to avoid them if possible.
+			return;
 		}
+
 
 		asyncCB( ret );
 
@@ -1266,7 +1282,7 @@ Frame.prototype.expand = function ( chunk, options ) {
 	if ( outType === 'tokens/x-mediawiki/expanded' ) {
 		if ( options.asyncCB ) {
 			// Signal (potentially) asynchronous expansion to parent.
-			options.asyncCB({ switchToAsync: true });
+			options.asyncCB({ async: true });
 		}
 
 		// Downstream template uses should be tracked and wrapped only if:

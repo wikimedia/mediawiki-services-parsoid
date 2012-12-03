@@ -90,16 +90,12 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
  * Parser functions also need template wrapping
  */
 TemplateHandler.prototype._parserFunctionsWrapper = function(state, cb, ret) {
-	if (ret.switchToAsync) {
-		cb(ret);
-	} else {
-		if (ret.tokens) {
-			this._onChunk(state, cb, ret.tokens);
-		}
-		if (!ret.async) {
-			// Now, ready to finish up
-			this._onEnd(state, cb);
-		}
+	if (ret.tokens) {
+		this._onChunk(state, cb, ret.tokens);
+	}
+	if (!ret.async) {
+		// Now, ready to finish up
+		this._onEnd(state, cb);
 	}
 };
 

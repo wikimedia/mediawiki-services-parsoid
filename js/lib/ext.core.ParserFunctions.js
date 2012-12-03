@@ -87,18 +87,10 @@ ParserFunctions.prototype._switchLookupFallback = function ( frame, kvs, key, di
 	this.manager.env.tp('swl');
 	this.manager.env.dp('_switchLookupFallback', kvs.length, key, v );
 	var _cbTrim = function( res ) {
-		if (res.switchToAsync) {
-			cb(res);
-		} else {
-			cb( { tokens: Util.tokenTrim(res) } );
-		}
+		cb( { tokens: Util.tokenTrim(res), async: res.async } );
 	};
 	var _cbNoTrim = function( res ) {
-		if (res.switchToAsync) {
-			cb(res);
-		} else {
-			cb( { tokens: res } );
-		}
+		cb( { tokens: res, async: res.async } );
 	};
 
 	// 'v' need not be a string in cases where it is the last fall-through case
