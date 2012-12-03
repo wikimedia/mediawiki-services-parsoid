@@ -192,9 +192,9 @@ PreHandler.prototype.onNewline = function (token, manager, cb) {
 		console.warn("T:pre:nl : " + this.state + " : " + JSON.stringify(token));
 	}
 
-	// Whenever we move into SOL-state anew (not from multiline-pre)
-	// init preTSR to the newline's tsr[1].  This will later be
-	// used to assign 'tsr' values to the <pre> token.
+	// Whenever we move into SOL-state, init preTSR to
+	// the newline's tsr[1].  This will later be  used
+	// to assign 'tsr' values to the <pre> token.
 
 	var ret = null;
 	switch (this.state) {
@@ -222,6 +222,7 @@ PreHandler.prototype.onNewline = function (token, manager, cb) {
 
 		case PreHandler.STATE_MULTILINE_PRE:
 			ret = this.processPre(token);
+			this.preTSR = initPreTSR(token);
 			this.state = PreHandler.STATE_SOL;
 			break;
 
@@ -261,7 +262,7 @@ function isTableTag(token) {
 function getUpdatedPreTSR(tsr, token) {
 	var tc = token.constructor;
 	if (tc === CommentTk) {
-		tsr = token.tsr ? token.tsr[1] : (tsr === -1 ? -1 : token.value.length + 7 + tsr);
+		tsr = token.dataAttribs.tsr ? token.dataAttribs.tsr[1] : (tsr === -1 ? -1 : token.value.length + 7 + tsr);
 	} else if (tc === SelfclosingTagTk) {
 		// meta-tag (cannot compute)
 		tsr = -1;
