@@ -1,0 +1,8791 @@
+{
+  "Blank input": [],
+  "Simple paragraph": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Paragraphs with extra newline spacing": [
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    null
+  ],
+  "Simple list": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Italics and bold": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Italics and bold: 2-quote opening sequence: (2,2)": [
+    {
+      "content": 1
+    }
+  ],
+  "Italics and bold: 2-quote opening sequence: (2,3)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Italics and bold: 2-quote opening sequence: (2,4)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Italics and bold: 2-quote opening sequence: (2,5)": [
+    {
+      "content": 1
+    }
+  ],
+  "Italics and bold: 3-quote opening sequence: (3,2)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Italics and bold: 3-quote opening sequence: (3,3)": [
+    {
+      "children": [
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    }
+  ],
+  "Italics and bold: 3-quote opening sequence: (3,4)": [
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        }
+      ]
+    }
+  ],
+  "Italics and bold: 3-quote opening sequence: (3,5)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Italics and bold: 4-quote opening sequence: (4,2)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Italics and bold: 4-quote opening sequence: (4,3)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Italics and bold: 4-quote opening sequence: (4,4)": [
+    {
+      "children": [
+        null,
+        {
+          "attributes": 1
+        }
+      ]
+    }
+  ],
+  "Italics and bold: 4-quote opening sequence: (4,5)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Italics and bold: 5-quote opening sequence: (5,2)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Italics and bold: 5-quote opening sequence: (5,3)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Italics and bold: 5-quote opening sequence: (5,4)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Italics and bold: 5-quote opening sequence: (5,5)": [
+    {
+      "new": 1
+    }
+  ],
+  "Italics and bold: multiple quote sequences: (2,4,2)": [
+    {
+      "children": [
+        {
+          "children": [
+            null,
+            {
+              "content": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "Italics and bold: multiple quote sequences: (2,4,3)": [
+    {
+      "children": [
+        {
+          "content": 1
+        }
+      ]
+    }
+  ],
+  "Italics and bold: multiple quote sequences: (2,4,4)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Italics and bold: multiple quote sequences: (3,4,2)": [
+    {
+      "content": 1
+    }
+  ],
+  "Italics and bold: multiple quote sequences: (3,4,3)": [
+    {
+      "content": 1
+    }
+  ],
+  "Italics and bold: other quote tests: (2,3,5)": [
+    {
+      "new": 1
+    }
+  ],
+  "Italics and bold: other quote tests: (2,(3,3),2)": [
+    {
+      "children": [
+        {
+          "new": 1
+        }
+      ]
+    }
+  ],
+  "Italics and bold: other quote tests: (3,2,3,2)": [
+    {
+      "content": 1
+    }
+  ],
+  "Italics and bold: other quote tests: (3,2,3,3)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Italics and bold: other quote tests: (3,(2,2),3)": [
+    {
+      "children": [
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "<nowiki> unordered list": [
+    {
+      "content": 1
+    }
+  ],
+  "<nowiki> spacing": [
+    {
+      "attributes": 1
+    }
+  ],
+  "nowiki 3": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "content": 1
+    }
+  ],
+  "Comments and Pre": [
+    null,
+    {
+      "content": 1
+    },
+    null,
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    null,
+    null,
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    null,
+    {
+      "annotations": 1
+    }
+  ],
+  "Comment test 2a": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Comment test 2b": [
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "Comment test 3": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Comment test 4": [
+    {
+      "content": 1
+    }
+  ],
+  "Comment spacing": [
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "children": [
+        null,
+        null,
+        null
+      ]
+    },
+    null,
+    {
+      "annotations": 1
+    }
+  ],
+  "Comment whitespace": [
+    null
+  ],
+  "Comment semantics and delimiters": [
+    null,
+    null,
+    null,
+    null
+  ],
+  "Comment semantics and delimiters, redux": [
+    null
+  ],
+  "Comment semantics and delimiters: directors cut": [
+    {
+      "content": 1
+    }
+  ],
+  "Comment semantics: nesting": [
+    {
+      "content": 1
+    }
+  ],
+  "Comment semantics: unclosed comment at end": [
+    null
+  ],
+  "Comment in template title": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Comment on its own line post-expand": [
+    {
+      "content": 1
+    }
+  ],
+  "Comment on its own line post-expand with non-significant whitespace": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "No block tags": [
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Block tag on one line": [
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "content": 1
+    }
+  ],
+  "Block tag on both lines": [
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "attributes": 1
+    }
+  ],
+  "Multiple lines without block tags": [
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null,
+        null,
+        null
+      ]
+    },
+    null,
+    {
+      "content": 1
+    },
+    null
+  ],
+  "Preformatted text": [
+    null,
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Ident preformatting with inline content": [
+    null,
+    {
+      "content": 1
+    }
+  ],
+  "<pre> with <nowiki> inside (compatibility with 1.6 and earlier)": [
+    {
+      "children": [
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "Regression with preformatted in <center>": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Bug 6200: Preformatted in <blockquote>": [
+    {
+      "children": [
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  ],
+  "<pre> with attributes (bug 3202)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "<pre> with width attribute (bug 3202)": [
+    {
+      "new": 1
+    }
+  ],
+  "<pre> with forbidden attribute (bug 3202)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "<pre> with forbidden attribute values (bug 3202)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "<nowiki> inside <pre> (bug 13238)": [
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "children": [
+        null,
+        {
+          "childrenRemoved": 1
+        },
+        null
+      ]
+    },
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "<nowiki> and <pre> preference (first one wins)": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "children": [
+        {
+          "new": 1
+        },
+        null
+      ]
+    },
+    null
+  ],
+  "</pre> inside nowiki": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Templates: Pre: 1a. Templates that break a line should suppress <pre>": [
+    null,
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Templates: Pre: 1b. Templates that break a line should suppress <pre>": [
+    null,
+    {
+      "new": 1
+    },
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Templates: Pre: 1c: Wrapping should be based on expanded content": [
+    null,
+    {
+      "content": 1
+    },
+    {
+      "content": 1
+    },
+    {
+      "content": 1
+    }
+  ],
+  "Templates: Pre: 1d: Wrapping should be based on expanded content": [
+    null,
+    {
+      "new": 1
+    },
+    {
+      "rebuilt": 1
+    },
+    {
+      "new": 1
+    },
+    {
+      "children": [
+        null
+      ]
+    },
+    {
+      "attributes": 1
+    },
+    {
+      "children": [
+        null
+      ]
+    },
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Templates: Pre: 1e. Wrapping should be based on expanded content": [
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "children": [
+        null,
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    },
+    null,
+    {
+      "children": [
+        null,
+        null,
+        {
+          "children": [
+            null
+          ]
+        }
+      ]
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Templates: Pre: 1f: Wrapping should be based on expanded content": [
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Templates: Single-line variant of parameter whitespace stripping test": [
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Templates: Strip whitespace from named parameters, but not positional ones": [
+    {
+      "rebuilt": 1
+    },
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "rebuilt": 1
+    }
+  ],
+  "1a. Pre and Comments": [
+    null,
+    {
+      "new": 1
+    },
+    null,
+    null,
+    null,
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "1b. Pre and Comments": [
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    null,
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "1c. Pre and Comments": [
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "children": [
+        null,
+        null
+      ]
+    }
+  ],
+  "2a. Pre and tables": [
+    null,
+    {
+      "children": [
+        null,
+        {
+          "children": [
+            {
+              "rebuilt": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "2b. Pre and tables": [
+    null,
+    {
+      "children": [
+        null,
+        {
+          "content": 1
+        }
+      ]
+    }
+  ],
+  "3a. Pre and block tags (single-line html)": [
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    }
+  ],
+  "3b. Pre and block tags (pre-content on separate line)": [
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "children": [
+        null,
+        {
+          "childrenRemoved": 1
+        },
+        null
+      ]
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "children": [
+        {
+          "content": 1
+        }
+      ]
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null
+  ],
+  "4. Multiple spaces at start-of-line": [
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    null
+  ],
+  "Simple definition": [
+    {
+      "children": [
+        {
+          "new": 1
+        },
+        {
+          "attributes": 1
+        }
+      ]
+    }
+  ],
+  "Definition list for indentation only": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Definition list with no space": [
+    {
+      "children": [
+        {
+          "attributes": 1
+        },
+        {
+          "content": 1
+        }
+      ]
+    }
+  ],
+  "Definition list with URL link": [
+    {
+      "content": 1
+    }
+  ],
+  "Definition list with bracketed URL link": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Definition list with wikilink containing colon": [
+    {
+      "children": [
+        {
+          "childrenRemoved": 1
+        },
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "Definition list with news link containing colon": [
+    {
+      "content": 1
+    }
+  ],
+  "Malformed definition list with colon": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Definition lists: colon in external link text": [
+    {
+      "children": [
+        {
+          "attributes": 1
+        },
+        {
+          "children": [
+            null
+          ]
+        }
+      ]
+    }
+  ],
+  "Definition lists: colon in HTML attribute": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "childrenRemoved": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "Definition lists: self-closed tag": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Bug 11748: Literal closing tags": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Definition and unordered list using wiki syntax nested in unordered list using html tags.": [
+    {
+      "annotations": 1
+    }
+  ],
+  "\nDefinition list with empty definition and following paragraph": [
+    {
+      "children": [
+        {
+          "new": 1
+        },
+        {
+          "annotations": 1
+        }
+      ]
+    },
+    null
+  ],
+  "Nested definition lists using html syntax": [
+    {
+      "new": 1
+    }
+  ],
+  "Definition Lists: No nesting: Multiple dd's": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Definition Lists: Indentation: Regular": [
+    {
+      "content": 1
+    }
+  ],
+  "Definition Lists: Indentation: Missing 1st level": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Definition Lists: Indentation: Multi-level indent": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "new": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "Definition Lists: Hacky use to indent tables": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "Definition Lists: Nesting: Multi-level (Parsoid only)": [
+    {
+      "children": [
+        {
+          "childrenRemoved": 1
+        },
+        {
+          "annotations": 1
+        },
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "Definition Lists: Nesting: Test 2 (Parsoid only)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Definition Lists: Nesting: Test 3 (Parsoid only)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Definition Lists: Nesting: Test 4": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Definition Lists: Mixed Lists: Test 1": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Definition Lists: Mixed Lists: Test 2": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Definition Lists: Mixed Lists: Test 3": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "rebuilt": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "Definition Lists: Mixed Lists: Test 4": [
+    {
+      "new": 1
+    }
+  ],
+  "Definition Lists: Mixed Lists: Test 5": [
+    {
+      "new": 1
+    }
+  ],
+  "Definition Lists: Mixed Lists: Test 6": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Definition Lists: Mixed Lists: Test 7": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Definition Lists: Mixed Lists: Test 8": [
+    {
+      "children": [
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    }
+  ],
+  "Definition Lists: Mixed Lists: Test 9": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Definition Lists: Mixed Lists: Test 10": [
+    {
+      "content": 1
+    }
+  ],
+  "Definition Lists: Mixed Lists: Test 11": [
+    {
+      "new": 1
+    }
+  ],
+  "Definition Lists: Weird Ones: Test 1": [
+    {
+      "annotations": 1
+    }
+  ],
+  "External links: non-bracketed": [
+    {
+      "new": 1
+    }
+  ],
+  "External links: numbered": [
+    {
+      "children": [
+        null,
+        {
+          "childrenRemoved": 1
+        },
+        null,
+        {
+          "attributes": 1
+        },
+        null,
+        {
+          "content": 1
+        }
+      ]
+    }
+  ],
+  "External links: specified text": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "External links: trail": [
+    {
+      "annotations": 1
+    }
+  ],
+  "External links: dollar sign in URL": [
+    {
+      "attributes": 1
+    }
+  ],
+  "External links: dollar sign in URL (named)": [
+    {
+      "children": [
+        {
+          "attributes": 1
+        }
+      ]
+    }
+  ],
+  "External links: open square bracket forbidden in URL (bug 4377)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "External links: open square bracket forbidden in URL (named) (bug 4377)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "External links: nowiki in URL link text (bug 6230)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "External links: newline forbidden in text (bug 6230 regression check)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "External links: Pipe char between url and text": [
+    {
+      "new": 1
+    }
+  ],
+  "External links: protocol-relative URL in brackets": [
+    {
+      "annotations": 1
+    }
+  ],
+  "External links: protocol-relative URL in brackets without text": [
+    {
+      "attributes": 1
+    }
+  ],
+  "External links: protocol-relative URL in free text is left alone": [
+    {
+      "annotations": 1
+    }
+  ],
+  "External links: protocol-relative URL in the middle of a word is left alone (bug 30269)": [
+    {
+      "content": 1
+    }
+  ],
+  "External image": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "External image from https": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Link to non-http image, no img tag": [
+    {
+      "children": [
+        null,
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "External links: terminating separator": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "External links: intervening separator": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "External links: old bug with URL in query": [
+    {
+      "children": [
+        null,
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "External links: old URL-in-URL bug, mixed protocols": [
+    {
+      "attributes": 1
+    }
+  ],
+  "External links: URL in text": [
+    {
+      "attributes": 1
+    }
+  ],
+  "External links: Clickable images": [
+    {
+      "attributes": 1
+    }
+  ],
+  "External links: raw ampersand": [
+    {
+      "content": 1
+    }
+  ],
+  "External links: encoded ampersand": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "External links: encoded equals (bug 6102)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "External links: [raw ampersand]": [
+    {
+      "new": 1
+    }
+  ],
+  "External links: [encoded ampersand]": [
+    {
+      "annotations": 1
+    }
+  ],
+  "External links: [encoded equals] (bug 6102)": [
+    {
+      "content": 1
+    }
+  ],
+  "External links: [IDN ignored character reference in hostname; strip it right off]": [
+    {
+      "attributes": 1
+    }
+  ],
+  "External links: IDN ignored character reference in hostname; strip it right off": [
+    {
+      "children": [
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "External links: www.jpeg.org (bug 554)": [
+    {
+      "new": 1
+    }
+  ],
+  "External links: URL within URL (original bug 2)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "BUG 361: URL inside bracketed URL": [
+    {
+      "children": [
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    }
+  ],
+  "BUG 361: URL within URL, not bracketed": [
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        }
+      ]
+    }
+  ],
+  "BUG 289: \">\"-token in URL-tail": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "BUG 289: literal \">\"-token in URL-tail": [
+    {
+      "attributes": 1
+    }
+  ],
+  "BUG 289: \">\"-token in bracketed URL": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "BUG 289: literal \">\"-token in bracketed URL": [
+    {
+      "children": [
+        {
+          "attributes": 1
+        }
+      ]
+    }
+  ],
+  "BUG 289: literal double quote at end of URL": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "BUG 289: literal double quote in bracketed URL": [
+    {
+      "annotations": 1
+    }
+  ],
+  "External links: multiple legal whitespace is fine, Magnus. Don't break it please. (bug 5081)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "External links: wiki links within external link (Bug 3695)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "BUG 787: Links with one slash after the url protocol are invalid": [
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Bracketed external links with template-generated invalid target": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Bug 4781: %26 in URL": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Bug 4781, 5267: %25 in URL": [
+    {
+      "children": [
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "Bug 4781, 5267: %28, %29 in URL": [
+    {
+      "new": 1
+    }
+  ],
+  "Bug 4781: %26 in autonumber URL": [
+    {
+      "new": 1
+    }
+  ],
+  "Bug 4781, 5267: %26 in autonumber URL": [
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        }
+      ]
+    }
+  ],
+  "Bug 4781, 5267: %28, %29 in autonumber URL": [
+    {
+      "children": [
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "Bug 4781: %26 in bracketed URL": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Bug 4781, 5267: %26 in bracketed URL": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Bug 4781, 5267: %28, %29 in bracketed URL": [
+    {
+      "attributes": 1
+    }
+  ],
+  "External link containing double-single-quotes in text '' (bug 4598 sanity check)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "External link containing double-single-quotes in text embedded in italics (bug 4598 sanity check)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "External link containing double-single-quotes with no space separating the url from text in italics": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [
+                null
+              ]
+            },
+            null
+          ]
+        },
+        {
+          "attributes": 1
+        },
+        null
+      ]
+    }
+  ],
+  "URL-encoding in URL functions (single parameter)": [
+    {
+      "new": 1
+    }
+  ],
+  "URL-encoding in URL functions (multiple parameters)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Brackets in urls": [
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "children": [
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    }
+  ],
+  "IPv6 urls (bug 21261)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Non-extlinks in brackets": [
+    {
+      "children": [
+        null,
+        {
+          "annotations": 1
+        },
+        null,
+        {
+          "rebuilt": 1
+        },
+        null,
+        {
+          "children": [
+            null
+          ]
+        },
+        null,
+        {
+          "annotations": 1
+        },
+        null,
+        {
+          "children": [
+            null
+          ]
+        },
+        null,
+        {
+          "content": 1
+        },
+        null,
+        {
+          "children": [
+            null
+          ]
+        },
+        null,
+        {
+          "rebuilt": 1
+        },
+        null,
+        {
+          "annotations": 1
+        },
+        null,
+        {
+          "children": [
+            null
+          ]
+        },
+        null,
+        {
+          "annotations": 1
+        },
+        null,
+        {
+          "new": 1
+        },
+        null
+      ]
+    }
+  ],
+  "Quotes": [
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "annotations": 1
+    }
+  ],
+  "Unclosed and unmatched quotes": [
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "children": [
+        {
+          "annotations": 1
+        }
+      ]
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    null,
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        {
+          "new": 1
+        },
+        {
+          "rebuilt": 1
+        },
+        null
+      ]
+    },
+    null,
+    {
+      "attributes": 1
+    }
+  ],
+  "A table with no data.": [
+    {
+      "annotations": 1
+    }
+  ],
+  "A table with nothing but a caption": [
+    {
+      "children": [
+        null,
+        {
+          "annotations": 1
+        },
+        null
+      ]
+    }
+  ],
+  "Simple table": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Simple table but with multiple dashes for row wikitext": [
+    {
+      "new": 1
+    }
+  ],
+  "Multiplication table": [
+    {
+      "new": 1
+    }
+  ],
+  "Allow +/- in 2nd and later cells in a row": [
+    {
+      "children": [
+        null,
+        {
+          "content": 1
+        }
+      ]
+    }
+  ],
+  "Table rowspan": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Nested table": [
+    {
+      "new": 1
+    }
+  ],
+  "Invalid attributes in table cell (bug 1830)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Table security: embedded pipes (http://lists.wikimedia.org/mailman/htdig/wikitech-l/2006-April/022293.html)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Indented table markup mixed with indented pre content (proposed in bug 6200)": [
+    null,
+    {
+      "attributes": 1
+    }
+  ],
+  "Template-generated table cell attributes and cell content": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Table with row followed by newlines and table heading": [
+    {
+      "children": [
+        null,
+        {
+          "children": [
+            {
+              "attributes": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "Table attributes with empty value": [
+    {
+      "content": 1
+    }
+  ],
+  "Plain link, capitalized": [
+    {
+      "new": 1
+    }
+  ],
+  "Plain link, uncapitalized": [
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        }
+      ]
+    }
+  ],
+  "Piped link": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Broken link": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Broken link with fragment": [
+    {
+      "new": 1
+    }
+  ],
+  "Special page link with fragment": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Nonexistent special page link with fragment": [
+    {
+      "children": [
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "Link with prefix": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Link with suffix": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Link with 3 brackets": [
+    {
+      "new": 1
+    }
+  ],
+  "Piped link with 3 brackets": [
+    {
+      "new": 1
+    }
+  ],
+  "Link with multiple pipes": [
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        }
+      ]
+    }
+  ],
+  "Link to namespaces": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Piped link to namespace": [
+    {
+      "new": 1
+    }
+  ],
+  "Link containing }": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Link containing % (not as a hex sequence)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Link containing % as a single hex sequence interpreted to char": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Link containing % as a double hex sequence interpreted to hex sequence": [
+    {
+      "new": 1
+    }
+  ],
+  "Link containing \"#<\" and \"#>\" % as a hex sequences- these are valid section anchors\nExample for such a section: == < ==": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Link containing \"<#\" and \">#\" as a hex sequences": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Link containing double-single-quotes '' (bug 4598)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Link containing double-single-quotes '' in text (bug 4598 sanity check)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Link containing double-single-quotes '' in text embedded in italics (bug 4598 sanity check)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Link with double quotes in title part (literal) and alternate part (interpreted)": [
+    {
+      "new": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "content": 1
+    }
+  ],
+  "Broken image links with HTML captions (bug 39700)": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "rebuilt": 1
+            }
+          ]
+        },
+        null,
+        {
+          "children": [
+            {
+              "rebuilt": 1
+            }
+          ]
+        },
+        null,
+        {
+          "new": 1
+        },
+        null,
+        {
+          "new": 1
+        }
+      ]
+    }
+  ],
+  "Plain link to URL": [
+    {
+      "new": 1
+    }
+  ],
+  "Plain link to URL with link text": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Plain link to protocol-relative URL": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Plain link to protocol-relative URL with link text": [
+    {
+      "children": [
+        null,
+        {
+          "children": [
+            null
+          ]
+        },
+        null
+      ]
+    }
+  ],
+  "Piped link to URL": [
+    {
+      "content": 1
+    }
+  ],
+  "BUG 2: [[page|http://url/]] should link to page, not http://url/": [
+    {
+      "children": [
+        {
+          "attributes": 1
+        },
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    }
+  ],
+  "BUG 337: Escaped self-links should be bold": [
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        },
+        null,
+        {
+          "attributes": 1
+        }
+      ]
+    }
+  ],
+  "Self-link to section should not be bold": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Self-link to numeric title": [
+    {
+      "new": 1
+    }
+  ],
+  "Link to numeric-equivalent title": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "<nowiki> inside a link": [
+    {
+      "new": 1
+    }
+  ],
+  "Non-breaking spaces in title": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Internal link with ca linktrail, surrounded by bold apostrophes (bug 27473 primary issue)": [
+    {
+      "new": 1
+    }
+  ],
+  "Internal link with ca linktrail, surrounded by italic apostrophes (bug 27473 primary issue)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Internal link with en linktrail: no apostrophes (bug 27473)": [
+    {
+      "children": [
+        {
+          "attributes": 1
+        },
+        null
+      ]
+    }
+  ],
+  "Internal link with ca linktrail with apostrophes (bug 27473)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Internal link with kaa linktrail with apostrophes (bug 27473)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Inline interwiki link": [
+    {
+      "children": [
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    }
+  ],
+  "Inline interwiki link with empty title (bug 2372)": [
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        }
+      ]
+    }
+  ],
+  "Interwiki link encoding conversion (bug 1636)": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "new": 1
+            },
+            null
+          ]
+        },
+        {
+          "attributes": 1
+        }
+      ]
+    }
+  ],
+  "Interwiki link with fragment (bug 2130)": [
+    {
+      "children": [
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "Interlanguage link": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Double interlanguage link": [
+    {
+      "children": [
+        null,
+        {
+          "new": 1
+        },
+        null,
+        {
+          "content": 1
+        }
+      ]
+    }
+  ],
+  "Interlanguage link, with prefix links": [
+    {
+      "new": 1
+    }
+  ],
+  "Double interlanguage link, with prefix links (bug 8897)": [
+    {
+      "children": [
+        null,
+        {
+          "content": 1
+        },
+        null,
+        {
+          "content": 1
+        }
+      ]
+    }
+  ],
+  "Parsoid-specific test: Wikilinks with &nbsp; should RT properly": [
+    {
+      "content": 1
+    }
+  ],
+  "<br> to <br />": [
+    {
+      "content": 1
+    }
+  ],
+  "Broken br tag sanitization": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Incorrecly removing closing slashes from correctly formed XHTML": [
+    {
+      "children": [
+        {
+          "new": 1
+        }
+      ]
+    }
+  ],
+  "Failing to transform badly formed HTML into correct XHTML": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Handling html with a div self-closing tag": [
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null,
+        {
+          "annotations": 1
+        },
+        null,
+        {
+          "attributes": 1
+        },
+        null,
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "Handling html with a br self-closing tag": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Horizontal ruler (should it add that extra space?)": [
+    null,
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null
+  ],
+  "Horizontal ruler -- 4+ dashes render hr": [
+    {
+      "content": 1
+    }
+  ],
+  "Horizontal ruler -- eats additional dashes on the same line": [
+    {
+      "content": 1
+    }
+  ],
+  "Horizontal ruler -- does not collaps dashes on consecutive lines": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "content": 1
+    }
+  ],
+  "Horizontal ruler -- <4 dashes render as plain text": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Horizontal ruler -- Supports content following dashes on same line": [
+    {
+      "content": 1
+    },
+    null
+  ],
+  "Common list": [
+    {
+      "children": [
+        {
+          "content": 1
+        },
+        {
+          "children": [
+            null
+          ]
+        },
+        {
+          "content": 1
+        }
+      ]
+    }
+  ],
+  "Numbered list": [
+    {
+      "children": [
+        {
+          "rebuilt": 1
+        },
+        {
+          "rebuilt": 1
+        },
+        {
+          "new": 1
+        }
+      ]
+    }
+  ],
+  "Mixed list": [
+    {
+      "content": 1
+    },
+    {
+      "annotations": 1
+    }
+  ],
+  "Nested lists 1": [
+    {
+      "children": [
+        {
+          "attributes": 1
+        }
+      ]
+    }
+  ],
+  "Nested lists 2": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Nested lists 3 (first element empty)": [
+    {
+      "new": 1
+    }
+  ],
+  "Nested lists 4 (first element empty)": [
+    {
+      "new": 1
+    }
+  ],
+  "Nested lists 5 (both elements empty)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Nested lists 6 (both elements empty)": [
+    {
+      "children": [
+        {
+          "content": 1
+        }
+      ]
+    }
+  ],
+  "Nested lists 7 (skip initial nesting levels)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Nested lists 8 (multiple nesting transitions)": [
+    {
+      "content": 1
+    }
+  ],
+  "1. Lists with start-of-line-transparent tokens before bullets: Comments": [
+    {
+      "content": 1
+    }
+  ],
+  "2. Lists with start-of-line-transparent tokens before bullets: Template close": [
+    {
+      "new": 1
+    }
+  ],
+  "List items are not parsed correctly following a <pre> block (bug 785)": [
+    {
+      "children": [
+        {
+          "children": [
+            null,
+            {
+              "children": [
+                null
+              ]
+            },
+            null
+          ]
+        },
+        {
+          "children": [
+            null,
+            {
+              "children": [
+                null
+              ]
+            },
+            null
+          ]
+        },
+        {
+          "content": 1
+        }
+      ]
+    }
+  ],
+  "List items from template": [
+    null,
+    {
+      "children": [
+        {
+          "annotations": 1
+        },
+        {
+          "annotations": 1
+        }
+      ]
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "children": [
+        {
+          "annotations": 1
+        },
+        {
+          "attributes": 1
+        },
+        {
+          "content": 1
+        },
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "List interrupted by empty line or heading": [
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    {
+      "content": 1
+    },
+    null,
+    {
+      "annotations": 1
+    }
+  ],
+  "Magic Word: {{CURRENTDAY}}": [
+    {
+      "children": [
+        {
+          "attributes": 1
+        },
+        null
+      ]
+    }
+  ],
+  "Magic Word: {{CURRENTDAY2}}": [
+    {
+      "children": [
+        {
+          "annotations": 1
+        },
+        {
+          "new": 1
+        }
+      ]
+    }
+  ],
+  "Magic Word: {{CURRENTDAYNAME}}": [
+    {
+      "children": [
+        {
+          "childrenRemoved": 1
+        },
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "Magic Word: {{CURRENTDOW}}": [
+    {
+      "new": 1
+    }
+  ],
+  "Magic Word: {{CURRENTMONTH}}": [
+    {
+      "children": [
+        {
+          "new": 1
+        },
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "Magic Word: {{CURRENTMONTHABBREV}}": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Magic Word: {{CURRENTMONTHNAME}}": [
+    {
+      "content": 1
+    }
+  ],
+  "Magic Word: {{CURRENTMONTHNAMEGEN}}": [
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        },
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    }
+  ],
+  "Magic Word: {{CURRENTTIME}}": [
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        },
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    }
+  ],
+  "Magic Word: {{CURRENTWEEK}} (@bug 4594)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Magic Word: {{CURRENTYEAR}}": [
+    {
+      "children": [
+        {
+          "content": 1
+        },
+        {
+          "new": 1
+        }
+      ]
+    }
+  ],
+  "Magic Word: {{FULLPAGENAME}}": [
+    {
+      "children": [
+        {
+          "rebuilt": 1
+        },
+        null
+      ]
+    }
+  ],
+  "Magic Word: {{FULLPAGENAMEE}}": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Magic Word: {{NAMESPACE}}": [
+    {
+      "new": 1
+    }
+  ],
+  "Magic Word: {{NAMESPACEE}}": [
+    {
+      "children": [
+        {
+          "rebuilt": 1
+        },
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "Magic Word: {{NAMESPACENUMBER}}": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Magic Word: {{NUMBEROFFILES}}": [
+    {
+      "content": 1
+    }
+  ],
+  "Magic Word: {{PAGENAME}}": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Magic Word: {{PAGENAME}} with metacharacters": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Magic Word: {{PAGENAME}} with metacharacters (bug 26781)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Magic Word: {{PAGENAMEE}}": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Magic Word: {{PAGENAMEE}} with metacharacters (bug 26781)": [
+    {
+      "content": 1
+    }
+  ],
+  "Magic Word: {{REVISIONID}}": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Magic Word: {{SCRIPTPATH}}": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Magic Word: {{SERVER}}": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Magic Word: {{SERVERNAME}}": [
+    {
+      "new": 1
+    }
+  ],
+  "Magic Word: {{SITENAME}}": [
+    {
+      "content": 1
+    }
+  ],
+  "Namespace 1 {{ns:1}}": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Namespace 1 {{ns:01}}": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Namespace 0 {{ns:0}} (bug 4783)": [
+    {
+      "new": 1
+    }
+  ],
+  "Namespace 0 {{ns:00}} (bug 4783)": [
+    {
+      "children": [
+        {
+          "attributes": 1
+        },
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    }
+  ],
+  "Namespace -1 {{ns:-1}}": [
+    {
+      "children": [
+        {
+          "rebuilt": 1
+        },
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "Namespace User {{ns:User}}": [
+    {
+      "new": 1
+    }
+  ],
+  "Namespace User talk {{ns:User_talk}}": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Namespace User talk {{ns:uSeR tAlK}}": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Namespace File {{ns:File}}": [
+    {
+      "content": 1
+    }
+  ],
+  "Namespace File {{ns:Image}}": [
+    {
+      "children": [
+        {
+          "content": 1
+        },
+        null
+      ]
+    }
+  ],
+  "Namespace (lang=de) Benutzer {{ns:User}}": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Namespace (lang=de) Benutzer Diskussion {{ns:3}}": [
+    {
+      "content": 1
+    }
+  ],
+  "Urlencode": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Magic links: internal link to RFC (bug 479)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Magic links: RFC (bug 479)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Magic links: ISBN (bug 1937)": [
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        }
+      ]
+    }
+  ],
+  "Magic links: PMID incorrectly converts space to underscore": [
+    {
+      "children": [
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "Nonexistent template": [
+    {
+      "content": 1
+    }
+  ],
+  "Simple template": [
+    {
+      "new": 1
+    }
+  ],
+  "Template with explicit namespace": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Template parameter": [
+    {
+      "new": 1
+    }
+  ],
+  "Template unnamed parameter": [
+    {
+      "children": [
+        {
+          "attributes": 1
+        }
+      ]
+    }
+  ],
+  "Template with template name as unnamed argument": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Template with template name as argument": [
+    {
+      "new": 1
+    }
+  ],
+  "Template with template name as argument (2)": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Template with default value": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Template with default value (value set)": [
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        }
+      ]
+    }
+  ],
+  "Template redirect": [
+    {
+      "new": 1
+    }
+  ],
+  "Template with argument in separate line": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Template with complex template as argument": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Template with thumb image (with link in description)": [
+    {
+      "childrenRemoved": 1
+    },
+    {
+      "new": 1
+    }
+  ],
+  "Template with complex arguments": [
+    {
+      "attributes": 1
+    }
+  ],
+  "BUG 553: link with two variables in a piped link": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Magic variable as template parameter": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Template parameter as link source": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Template-generated attribute string (k='v')": [
+    {
+      "children": [
+        {
+          "childrenRemoved": 1
+        },
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "Template passing argument to another template": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Template as link source": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Template infinite loop": [
+    {
+      "content": 1
+    }
+  ],
+  "Template from main namespace": [
+    {
+      "new": 1
+    }
+  ],
+  "BUG 529: Template with table, not included at beginning of line": [
+    null,
+    {
+      "children": [
+        null,
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "BUG 523: Template shouldn't eat newline (or add an extra one before table)": [
+    {
+      "children": [
+        null
+      ]
+    },
+    {
+      "children": [
+        null,
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "BUG 41: Template parameters shown as broken links": [
+    {
+      "new": 1
+    }
+  ],
+  "Template with targets containing wikilinks": [
+    {
+      "children": [
+        {
+          "content": 1
+        },
+        {
+          "children": [
+            null
+          ]
+        },
+        {
+          "rebuilt": 1
+        }
+      ]
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "msgnw keyword": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "int keyword": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "<includeonly> and <noinclude> being included": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "<onlyinclude> being included": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "<onlyinclude> and <includeonly> being included": [
+    {
+      "children": [
+        {
+          "rebuilt": 1
+        },
+        {
+          "new": 1
+        }
+      ]
+    }
+  ],
+  "<includeonly> and <noinclude> on a page": [
+    {
+      "content": 1
+    }
+  ],
+  "Un-closed <noinclude>": [
+    {
+      "content": 1
+    }
+  ],
+  "<onlyinclude> on a page": [
+    {
+      "children": [
+        {
+          "new": 1
+        },
+        null,
+        null,
+        null
+      ]
+    }
+  ],
+  "Un-closed <onlyinclude>": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Bug 6563: Edit link generation for section shown by <includeonly>": [
+    {
+      "rebuilt": 1
+    },
+    {
+      "annotations": 1
+    },
+    {
+      "attributes": 1
+    },
+    {
+      "new": 1
+    }
+  ],
+  "Bug 6563: Section extraction for section shown by <includeonly>": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "content": 1
+    }
+  ],
+  "Bug 6563: Edit link generation for section suppressed by <includeonly>": [
+    null,
+    null,
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Bug 6563: Section extraction for section suppressed by <includeonly>": [
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Un-closed <includeonly>": [
+    null
+  ],
+  "0. includeonly around the entire attribute": [
+    {
+      "content": 1
+    }
+  ],
+  "1. includeonly in html attr key": [
+    {
+      "annotations": 1
+    }
+  ],
+  "2. includeonly in html attr value": [
+    {
+      "annotations": 1
+    }
+  ],
+  "3. includeonly in part of an attr value": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Templates: Template Name/Arg clash: 1. Use of positional param": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Templates: Template Name/Arg clash: 2. Use of named param": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Templates: Template Name/Arg clash: 3. Use of named param with empty input": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Templates: 1. Simple use": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Templates: 2. Inside a block tag": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Templates: P-wrapping: 1a. Templates on consecutive lines": [
+    {
+      "content": 1
+    }
+  ],
+  "Templates: P-wrapping: 1b. Templates on consecutive lines": [
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        {
+          "annotations": 1
+        },
+        null,
+        {
+          "content": 1
+        }
+      ]
+    }
+  ],
+  "Templates: P-wrapping: 1c. Templates on consecutive lines": [
+    {
+      "attributes": 1
+    },
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Templates: Inline Text: 1. Multiple tmeplate uses": [
+    {
+      "children": [
+        {
+          "attributes": 1
+        },
+        null,
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "Templates: Inline Text: 2. Back-to-back template uses": [
+    {
+      "children": [
+        {
+          "annotations": 1
+        },
+        {
+          "new": 1
+        }
+      ]
+    }
+  ],
+  "Templates: Block Tags: 1. Multiple template uses": [
+    {
+      "content": 1
+    },
+    {
+      "attributes": 1
+    },
+    {
+      "annotations": 1
+    }
+  ],
+  "Templates: Block Tags: 2. Back-to-back template uses": [
+    {
+      "rebuilt": 1
+    },
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Templates: Links: 1. Simple example": [
+    {
+      "new": 1
+    }
+  ],
+  "Templates: Links: 2. Generation of link href": [
+    {
+      "content": 1
+    }
+  ],
+  "Templates: Links: 3. Generation of part of a link href": [
+    {
+      "children": [
+        {
+          "annotations": 1
+        },
+        {
+          "children": [
+            null
+          ]
+        }
+      ]
+    }
+  ],
+  "Templates: Links: 4. Multiple templates generating link href": [
+    {
+      "content": 1
+    }
+  ],
+  "Templates: Links: 5. Generation of link text": [
+    {
+      "children": [
+        {
+          "attributes": 1
+        }
+      ]
+    }
+  ],
+  "Templates: Links: 5. Nested templates (only outermost template should be marked)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Templates: HTML Tag: 1. Generation of HTML attr. key": [
+    {
+      "new": 1
+    },
+    {
+      "new": 1
+    }
+  ],
+  "Templates: HTML Tag: 2. Generation of HTML attr. value": [
+    null,
+    {
+      "attributes": 1
+    }
+  ],
+  "Templates: HTML Tag: 3. Generation of HTML attr key and value": [
+    {
+      "attributes": 1
+    },
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Templates: HTML Tag: 4. Generation of starting piece of HTML attr value": [
+    null,
+    {
+      "annotations": 1
+    }
+  ],
+  "Templates: HTML Tag: 5. Generation of middle piece of HTML attr value": [
+    {
+      "new": 1
+    },
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Templates: HTML Tag: 6. Generation of end piece of HTML attr value": [
+    {
+      "new": 1
+    },
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Templates: HTML Tables: 1. Generating start of a HTML table": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Templates: HTML Tables: 2a. Generating middle of a HTML table": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "attributes": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "Templates: HTML Tables: 2b. Generating middle of a HTML table": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Templates: HTML Tables: 3. Generating end of a HTML table": [
+    {
+      "children": [
+        {
+          "attributes": 1
+        }
+      ]
+    }
+  ],
+  "Templates: HTML Tables: 4a. Generating a single tag of a HTML table": [
+    {
+      "children": [
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "Templates: HTML Tables: 4b. Generating a single tag of a HTML table": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Templates: HTML Tables: 4c. Generating a single tag of a HTML table": [
+    {
+      "children": [
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "Templates: HTML Tables: 4d. Generating a single tag of a HTML table": [
+    {
+      "new": 1
+    }
+  ],
+  "Templates: HTML Tables: 4e. Generating a single tag of a HTML table": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Templates: HTML Tables: 4f. Generating a single tag of a HTML table": [
+    {
+      "content": 1
+    },
+    {
+      "content": 1
+    }
+  ],
+  "Templates: Wiki Tables: 1. Fostering of entire template content": [
+    {
+      "rebuilt": 1
+    },
+    {
+      "annotations": 1
+    }
+  ],
+  "Templates: Wiki Tables: 2. Fostering of partial template content": [
+    {
+      "attributes": 1
+    },
+    {
+      "children": [
+        null
+      ]
+    },
+    {
+      "children": [
+        null,
+        null
+      ]
+    }
+  ],
+  "Templates: Wiki Tables: 3. td-content via multiple templates": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Templates: Lists: Multi-line list-items via templates": [
+    {
+      "new": 1
+    }
+  ],
+  "Templates: Ugly nesting: 1. Quotes opened/closed across templates (echo)": [
+    {
+      "new": 1
+    }
+  ],
+  "Templates: Ugly nesting: 2. Quotes opened/closed across templates (echo_with_span)\n(PHP parser generates misnested html)": [
+    {
+      "children": [
+        {
+          "new": 1
+        },
+        {
+          "content": 1
+        },
+        {
+          "attributes": 1
+        },
+        {
+          "childrenRemoved": 1
+        },
+        {
+          "children": [
+            null
+          ]
+        }
+      ]
+    }
+  ],
+  "Templates: Ugly nesting: 3. Quotes opened/closed across templates (echo_with_div)\n(PHP parser generates misnested html)": [
+    {
+      "new": 1
+    },
+    {
+      "children": [
+        {
+          "childrenRemoved": 1
+        },
+        null,
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    },
+    {
+      "annotations": 1
+    }
+  ],
+  "Templates: Ugly nesting: 4. Divs opened/closed across templates": [
+    null,
+    {
+      "children": [
+        null,
+        null
+      ]
+    },
+    {
+      "children": [
+        null
+      ]
+    },
+    null
+  ],
+  "Templates: Ugly templates: 1. Navbox template parses badly leading to table misnesting\n(Parsoid-centric)": [
+    {
+      "attributes": 1
+    },
+    {
+      "children": [
+        null
+      ]
+    },
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Templates: Ugly templates: 2. Navbox template parses badly leading to table misnesting\n(Parsoid-centric)": [
+    {
+      "new": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    {
+      "annotations": 1
+    },
+    {
+      "rebuilt": 1
+    },
+    {
+      "new": 1
+    },
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    {
+      "new": 1
+    },
+    {
+      "children": [
+        null
+      ]
+    },
+    {
+      "rebuilt": 1
+    },
+    {
+      "attributes": 1
+    },
+    {
+      "new": 1
+    },
+    {
+      "content": 1
+    },
+    {
+      "annotations": 1
+    },
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    {
+      "content": 1
+    }
+  ],
+  "Parser Functions: 1. Simple example": [
+    {
+      "new": 1
+    }
+  ],
+  "Parser Functions: 2. Nested use (only outermost should be marked up)": [
+    {
+      "children": [
+        {
+          "childrenRemoved": 1
+        },
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "pre-save transform: subst:": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "pre-save transform: normal template": [
+    {
+      "content": 1
+    }
+  ],
+  "pre-save transform: nonexistent template": [
+    {
+      "content": 1
+    }
+  ],
+  "pre-save transform: subst magic variables": [
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        },
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "pre-save transform: subst: templates with parameters": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "pre-save transform: nowiki in subst (bug 1188)": [
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        }
+      ]
+    }
+  ],
+  "pre-save transform: comment in subst (bug 1936)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "pre-save transform: unclosed tag": [
+    {
+      "children": [
+        null,
+        {
+          "new": 1
+        }
+      ]
+    }
+  ],
+  "pre-save transform: mixed tag case": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "pre-save transform: unclosed comment in <nowiki>": [
+    {
+      "children": [
+        null,
+        {
+          "children": [
+            null
+          ]
+        },
+        null
+      ]
+    }
+  ],
+  "(confirming safety of fix for subst bug 1936)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "pre-save transform: comment containing gallery (bug 5024)": [
+    null
+  ],
+  "pre-save transform: comment containing extension": [
+    null
+  ],
+  "pre-save transform: comment containing nowiki": [
+    null
+  ],
+  "pre-save transform: <noinclude> in subst (bug 3298)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "pre-save transform: <onlyinclude> in subst (bug 3298)": [
+    {
+      "new": 1
+    }
+  ],
+  "bug 22297: safesubst: works during PST": [
+    {
+      "children": [
+        {
+          "rebuilt": 1
+        },
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "bug 22297: safesubst: works during normal parse": [
+    {
+      "annotations": 1
+    }
+  ],
+  "subst: does not work during normal parse": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "pre-save transform: context links (\"pipe trick\")": [
+    {
+      "content": 1
+    }
+  ],
+  "pre-save transform: context links (\"pipe trick\") with interwiki prefix": [
+    {
+      "children": [
+        {
+          "new": 1
+        },
+        null,
+        {
+          "new": 1
+        },
+        null,
+        {
+          "rebuilt": 1
+        },
+        null,
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    }
+  ],
+  "pre-save transform: context links (\"pipe trick\") with parens in title": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "pre-save transform: context links (\"pipe trick\") with comma in title": [
+    {
+      "children": [
+        null,
+        null,
+        null,
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "pre-save transform: context links (\"pipe trick\") with parens and comma": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "pre-save transform: context links (\"pipe trick\") with comma and parens": [
+    {
+      "children": [
+        null,
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    }
+  ],
+  "pre-save transform: context links (\"pipe trick\") with namespace": [
+    {
+      "new": 1
+    }
+  ],
+  "pre-save transform: context links (\"pipe trick\") with namespace and parens": [
+    {
+      "content": 1
+    }
+  ],
+  "pre-save transform: context links (\"pipe trick\") with namespace and comma": [
+    {
+      "annotations": 1
+    }
+  ],
+  "pre-save transform: context links (\"pipe trick\") with namespace, comma and parens": [
+    {
+      "new": 1
+    }
+  ],
+  "pre-save transform: context links (\"pipe trick\") with namespace, parens and comma": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "pre-save transform: context links (\"pipe trick\") with full-width parens and no space (Japanese and Chinese style, bug 30149)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "pre-save transform: context links (\"pipe trick\") with full-width parens and space (Japanese and Chinese style, bug 30149)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "pre-save transform: context links (\"pipe trick\") with parens and no space (Korean style, bug 30149)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "pre-save transform: context links (\"pipe trick\") with commas (bug 21660)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "pre-save transform: trim trailing empty lines": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "children": [
+        {
+          "annotations": 1
+        }
+      ]
+    },
+    null
+  ],
+  "pre-save transform: Signature expansion": [
+    {
+      "attributes": 1
+    }
+  ],
+  "pre-save transform: Signature expansion in nowiki tags (bug 93)": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "children": [
+        null,
+        {
+          "childrenRemoved": 1
+        },
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "children": [
+        {
+          "content": 1
+        },
+        null
+      ]
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "children": [
+        null,
+        null
+      ]
+    }
+  ],
+  "message transform: magic variables": [
+    {
+      "children": [
+        {
+          "new": 1
+        },
+        {
+          "new": 1
+        }
+      ]
+    }
+  ],
+  "message transform: should not transform wiki markup": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "message transform: <noinclude> in transcluded template (bug 4926)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "message transform: <onlyinclude> in transcluded template (bug 4926)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "{{#special:}} page name, known": [
+    {
+      "content": 1
+    }
+  ],
+  "{{#special:}} page name with subpage, known": [
+    {
+      "content": 1
+    }
+  ],
+  "{{#special:}} page name, unknown": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "{{#speciale:}} page name, known": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "{{#speciale:}} page name with subpage, known": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "{{#speciale:}} page name, unknown": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Simple image": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Right-aligned image": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Simple image (using File: namespace, now canonical)": [
+    {
+      "new": 1
+    }
+  ],
+  "Image with caption": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Image with empty attribute": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Image with link tails": [
+    {
+      "children": [
+        null,
+        {
+          "new": 1
+        },
+        null,
+        {
+          "children": [
+            {
+              "content": 1
+            }
+          ]
+        },
+        null
+      ]
+    },
+    null,
+    {
+      "children": [
+        {
+          "attributes": 1
+        },
+        {
+          "new": 1
+        },
+        {
+          "rebuilt": 1
+        }
+      ]
+    },
+    null
+  ],
+  "Image with multiple captions -- only last one is accepted": [
+    {
+      "children": [
+        {
+          "content": 1
+        }
+      ]
+    }
+  ],
+  "Image with link parameter, wiki target": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Image with link parameter, URL target": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Image with link parameter, wgExternalLinkTarget": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Image with link parameter, wgNoFollowLinks set to false": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Image with link parameter, wgNoFollowDomainExceptions": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Image with link parameter, wgExternalLinkTarget, unnamed parameter": [
+    {
+      "children": [
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    }
+  ],
+  "Image with empty link parameter": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Image with link parameter (wiki target) and unnamed parameter": [
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        }
+      ]
+    }
+  ],
+  "Image with link parameter (URL target) and unnamed parameter": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Thumbnail image with link parameter": [
+    {
+      "new": 1
+    }
+  ],
+  "Image with frame and link": [
+    {
+      "new": 1
+    }
+  ],
+  "Image with frame and link and explicit alt": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "content": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "Image with wiki markup in implicit alt": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Image with wiki markup in explicit alt": [
+    {
+      "children": [
+        {
+          "attributes": 1
+        }
+      ]
+    }
+  ],
+  "Link to image page- image page normally doesn't exists, hence edit link\nAdd test with existing image page\n#<p><a href=\"/wiki/File:Test\" title=\"Image:Test\">Image:test</a>": [
+    {
+      "new": 1
+    }
+  ],
+  "bug 18784  Link to non-existent image page with caption should use caption as link text": [
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        }
+      ]
+    }
+  ],
+  "Frameless image caption with a free URL": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Thumbnail image caption with a free URL": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Thumbnail image caption with a free URL and explicit alt": [
+    {
+      "content": 1
+    }
+  ],
+  "BUG 1887: A ISBN with a thumbnail": [
+    {
+      "new": 1
+    }
+  ],
+  "BUG 1887: A RFC with a thumbnail": [
+    {
+      "attributes": 1
+    }
+  ],
+  "BUG 1887: A mailto link with a thumbnail": [
+    {
+      "annotations": 1
+    }
+  ],
+  "BUG 648: Frameless image caption with a link": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "content": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "BUG 648: Frameless image caption with a link (suffix)": [
+    {
+      "content": 1
+    }
+  ],
+  "BUG 648: Frameless image caption with an interwiki link": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "BUG 648: Frameless image caption with a piped interwiki link": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Escape HTML special chars in image alt text": [
+    {
+      "content": 1
+    }
+  ],
+  "BUG 499: Alt text should have &#1234;, not &amp;1234;": [
+    {
+      "children": [
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "Broken image caption with link": [
+    {
+      "content": 1
+    }
+  ],
+  "Image caption containing another image": [
+    {
+      "children": [
+        {
+          "new": 1
+        },
+        null,
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    }
+  ],
+  "Image caption containing a newline": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Bug 3090: External links other than http: in image captions": [
+    {
+      "new": 1
+    }
+  ],
+  "Custom class": [
+    {
+      "content": 1
+    }
+  ],
+  "Redirected image": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "annotations": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "Missing image with uploads disabled": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Subpage link": [
+    {
+      "content": 1
+    }
+  ],
+  "Subpage noslash link": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Disabled subpages": [
+    {
+      "attributes": 1
+    }
+  ],
+  "BUG 561: {{/Subpage}}": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Link to category": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Simple category": [
+    null
+  ],
+  "PAGESINCATEGORY invalid title fatal (r33546 fix)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Category with different sort key": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Category with identical sort key": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Category with empty sort key": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Category with empty sort key and parentheses": [
+    {
+      "new": 1
+    }
+  ],
+  "Category with link tail": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Category with template": [
+    null,
+    null
+  ],
+  "Category with template in sort key": [
+    {
+      "new": 1
+    },
+    null
+  ],
+  "Category with template in sort key and title": [
+    {
+      "attributes": 1
+    },
+    {
+      "attributes": 1
+    },
+    {
+      "content": 1
+    }
+  ],
+  "Category / paragraph interactions": [
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Inter-language links": [
+    {
+      "children": [
+        {
+          "content": 1
+        },
+        null,
+        {
+          "annotations": 1
+        },
+        null,
+        {
+          "attributes": 1
+        }
+      ]
+    }
+  ],
+  "Duplicate interlanguage links (bug 24502)": [
+    {
+      "content": 1
+    }
+  ],
+  "Basic section headings": [
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Section headings with TOC": [
+    {
+      "new": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "Handling of sections up to level 6 and beyond": [
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "content": 1
+    }
+  ],
+  "TOC regression (bug 9764)": [
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "content": 1
+    }
+  ],
+  "TOC with wgMaxTocLevel=3 (bug 6204)": [
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "rebuilt": 1
+    }
+  ],
+  "TOC with wgMaxTocLevel=3 and two level four headings (bug 6204)": [
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "attributes": 1
+    }
+  ],
+  "Resolving duplicate section names": [
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Resolving duplicate section names with differing case (bug 10721)": [
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "annotations": 1
+    }
+  ],
+  "Template with sections, __NOTOC__": [
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    {
+      "new": 1
+    },
+    {
+      "content": 1
+    },
+    null,
+    {
+      "annotations": 1
+    }
+  ],
+  "__NOEDITSECTION__ keyword": [
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "Link inside a section heading": [
+    {
+      "content": 1
+    }
+  ],
+  "TOC regression (bug 12077)": [
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "BUG 1219 URL next to image (good)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Short headings with trailing space should match behaviour of Parser::doHeadings (bug 19910)": [
+    {
+      "children": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  ],
+  "Header with special characters (bug 25462)": [
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "annotations": 1
+    }
+  ],
+  "Headers with excess '=' characters\n(Are similar tests necessary beyond the 1st level?)": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "children": [
+        null,
+        {
+          "children": [
+            null
+          ]
+        },
+        null
+      ]
+    }
+  ],
+  "BUG 1219 URL next to image (broken)": [
+    {
+      "content": 1
+    }
+  ],
+  "Bug 1186 news: in the middle of text": [
+    {
+      "children": [
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "Namespaced link must have a title": [
+    {
+      "children": [
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "Namespaced link must have a title (bad fragment version)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "div with no attributes": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "div with double-quoted attribute": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "div with single-quoted attribute": [
+    {
+      "new": 1
+    }
+  ],
+  "div with unquoted attribute": [
+    {
+      "content": 1
+    }
+  ],
+  "div with illegal double attributes": [
+    {
+      "attributes": 1
+    }
+  ],
+  "div with empty attribute value, space before equals": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "div with empty attribute value, no space before equals": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "HTML multiple attributes correction": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Table multiple attributes correction": [
+    {
+      "annotations": 1
+    }
+  ],
+  "DIV IN UPPERCASE": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Non-ASCII pseudo-tags are rendered as text": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Pseudo-tag with URL 'name' renders as url link": [
+    {
+      "attributes": 1
+    }
+  ],
+  "text with amp in the middle of nowhere": [
+    {
+      "new": 1
+    }
+  ],
+  "text with character entity: eacute": [
+    {
+      "annotations": 1
+    }
+  ],
+  "text with undefined character entity: xacute": [
+    {
+      "new": 1
+    }
+  ],
+  "Media link": [
+    {
+      "content": 1
+    }
+  ],
+  "Media link with text": [
+    {
+      "content": 1
+    }
+  ],
+  "Media link with nasty text\nfixme: doBlockLevels won't wrap this in a paragraph because it contains a div": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Media link to nonexistent file (bug 1702)": [
+    {
+      "new": 1
+    }
+  ],
+  "Image link to nonexistent file (bug 1850 - good)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  ":Image link to nonexistent file (bug 1850 - bad)": [
+    {
+      "new": 1
+    }
+  ],
+  "Character reference normalization in link text (bug 1938)": [
+    {
+      "new": 1
+    }
+  ],
+  "(bug 19451) Links should refer to the normalized form.": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Empty attribute crash test (bug 2067)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Empty attribute crash test single-quotes (bug 2067)": [
+    {
+      "content": 1
+    }
+  ],
+  "Attribute test: equals, then nothing": [
+    {
+      "new": 1
+    }
+  ],
+  "Attribute test: unquoted value": [
+    {
+      "children": [
+        {
+          "new": 1
+        }
+      ]
+    }
+  ],
+  "Attribute test: unquoted but illegal value (hash)": [
+    {
+      "content": 1
+    }
+  ],
+  "Attribute test: no value": [
+    {
+      "content": 1
+    }
+  ],
+  "Bug 2095: link with three closing brackets": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Bug 2095: link with pipe and three closing brackets": [
+    {
+      "new": 1
+    }
+  ],
+  "Bug 2095: link with pipe and three closing brackets, version 2": [
+    {
+      "content": 1
+    }
+  ],
+  "Bug 2304: HTML attribute safety (safe template; regression bug 2309)": [
+    {
+      "attributes": 1
+    },
+    {
+      "new": 1
+    }
+  ],
+  "Bug 2304: HTML attribute safety (dangerous template; 2309)": [
+    {
+      "annotations": 1
+    },
+    {
+      "attributes": 1
+    }
+  ],
+  "Bug 2304: HTML attribute safety (dangerous style template; 2309)": [
+    {
+      "content": 1
+    },
+    null
+  ],
+  "Bug 2304: HTML attribute safety (safe parameter; 2309)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Bug 2304: HTML attribute safety (unsafe parameter; 2309)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Bug 2304: HTML attribute safety (unsafe breakout parameter; 2309)": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Bug 2304: HTML attribute safety (unsafe breakout parameter 2; 2309)": [
+    {
+      "new": 1
+    }
+  ],
+  "Bug 2304: HTML attribute safety (link)": [
+    null
+  ],
+  "Bug 2304: HTML attribute safety (italics)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Bug 2304: HTML attribute safety (bold)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Bug 2304: HTML attribute safety (ISBN)": [
+    {
+      "new": 1
+    }
+  ],
+  "Bug 2304: HTML attribute safety (RFC)": [
+    {
+      "new": 1
+    }
+  ],
+  "Bug 2304: HTML attribute safety (PMID)": [
+    {
+      "new": 1
+    }
+  ],
+  "Bug 2304: HTML attribute safety (web link)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Bug 2304: HTML attribute safety (named web link)": [
+    null
+  ],
+  "Bug 3244: HTML attribute safety (extension; safe)": [
+    null
+  ],
+  "Bug 3244: HTML attribute safety (extension; unsafe)": [
+    {
+      "new": 1
+    }
+  ],
+  "MSIE CSS safety test: spurious slash": [
+    {
+      "new": 1
+    }
+  ],
+  "MSIE CSS safety test: hex code": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "MSIE CSS safety test: comment in url": [
+    {
+      "annotations": 1
+    }
+  ],
+  "MSIE CSS safety test: comment in expression": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Table attribute legitimate extension": [
+    {
+      "children": [
+        null,
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "Table attribute safety": [
+    {
+      "attributes": 1
+    }
+  ],
+  "CSS line continuation 1": [
+    {
+      "new": 1
+    }
+  ],
+  "CSS line continuation 2": [
+    null
+  ],
+  "Expansion of multi-line templates in attribute values (bug 6255)": [
+    {
+      "content": 1
+    },
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Expansion of multi-line templates in attribute values (bug 6255 sanity check)": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Expansion of multi-line templates in attribute values (bug 6255 sanity check 2)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Parser hook: empty input": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Parser hook: empty input using terminated empty elements": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Parser hook: empty input using terminated empty elements (space before)": [
+    {
+      "content": 1
+    }
+  ],
+  "Parser hook: basic input": [
+    {
+      "new": 1
+    }
+  ],
+  "Parser hook: case insensitive": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Parser hook: case insensitive, redux": [
+    {
+      "children": [
+        {
+          "attributes": 1
+        }
+      ]
+    }
+  ],
+  "Parser hook: nested tags": [
+    {
+      "new": 1
+    }
+  ],
+  "Parser hook: basic arguments": [
+    {
+      "new": 1
+    }
+  ],
+  "Parser hook: argument containing a forward slash (bug 5344)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Parser hook: empty input using terminated empty elements (bug 2374)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Parser hook: basic arguments using terminated empty elements (bug 2374)": [
+    {
+      "new": 1
+    }
+  ],
+  "Parser hook: static parser hook not inside a comment": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Parser hook: static parser hook inside a comment": [
+    null,
+    null,
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Nested template calls": [
+    {
+      "content": 1
+    }
+  ],
+  "Sanitizer: Closing of open tags": [
+    {
+      "new": 1
+    },
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Sanitizer: Closing of open but not closed tags": [
+    {
+      "new": 1
+    }
+  ],
+  "Sanitizer: Closing of closed but not open tags": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Sanitizer: Closing of closed but not open table tags": [
+    null,
+    {
+      "new": 1
+    },
+    {
+      "childrenRemoved": 1
+    },
+    {
+      "new": 1
+    }
+  ],
+  "Sanitizer: Escaping of spaces, multibyte characters, colons & other stuff in id=\"\"": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Sanitizer: Validating the contents of the id attribute (bug 4515)": [
+    {
+      "content": 1
+    }
+  ],
+  "Sanitizer: Validating id attribute uniqueness (bug 4515, bug 6301)": [
+    {
+      "new": 1
+    }
+  ],
+  "Sanitizer: Validating that <meta> and <link> work, but only for Microdata": [
+    {
+      "children": [
+        null,
+        {
+          "annotations": 1
+        },
+        null,
+        {
+          "children": [
+            null
+          ]
+        },
+        null
+      ]
+    }
+  ],
+  "Language converter: output gets cut off unexpectedly (bug 5757)": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Self closed html pairs (bug 5487)": [
+    {
+      "new": 1
+    },
+    null,
+    {
+      "attributes": 1
+    }
+  ],
+  "Punctuation: nbsp before exclamation": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Punctuation: CSS !important (bug 11874)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Punctuation: CSS ! important (bug 11874; with space after)": [
+    {
+      "new": 1
+    }
+  ],
+  "HTML bullet list, closed tags (bug 5497)": [
+    {
+      "children": [
+        null,
+        {
+          "children": [
+            null
+          ]
+        },
+        null,
+        {
+          "childrenRemoved": 1
+        },
+        null
+      ]
+    }
+  ],
+  "HTML bullet list, unclosed tags (bug 5497)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "HTML ordered list, closed tags (bug 5497)": [
+    {
+      "new": 1
+    }
+  ],
+  "HTML ordered list, unclosed tags (bug 5497)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "HTML nested bullet list, closed tags (bug 5497)": [
+    {
+      "children": [
+        null,
+        {
+          "children": [
+            null
+          ]
+        },
+        null,
+        {
+          "rebuilt": 1
+        },
+        null
+      ]
+    }
+  ],
+  "HTML nested bullet list, open tags (bug 5497)": [
+    {
+      "content": 1
+    }
+  ],
+  "HTML nested ordered list, closed tags (bug 5497)": [
+    {
+      "content": 1
+    }
+  ],
+  "HTML nested ordered list, open tags (bug 5497)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "HTML ordered list item with parameters oddity": [
+    {
+      "annotations": 1
+    }
+  ],
+  "bug 5918: autonumbering": [
+    {
+      "children": [
+        {
+          "attributes": 1
+        },
+        null,
+        {
+          "children": [
+            null
+          ]
+        },
+        null,
+        {
+          "rebuilt": 1
+        }
+      ]
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "attributes": 1
+    }
+  ],
+  "Fuzz testing: Parser13": [
+    {
+      "children": [
+        null,
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "Fuzz testing: Parser14": [
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "content": 1
+    }
+  ],
+  "Fuzz testing: Parser14-table": [
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    null
+  ],
+  "Fuzz testing: Parser16": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Fuzz testing: Parser21": [
+    {
+      "children": [
+        null,
+        {
+          "content": 1
+        }
+      ]
+    }
+  ],
+  "Fuzz testing: Parser22": [
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "content": 1
+    }
+  ],
+  "Fuzz testing: Parser24": [
+    {
+      "rebuilt": 1
+    },
+    {
+      "annotations": 1
+    },
+    {
+      "children": [
+        null,
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "Fuzz testing: Parser25 (bug 6055)": [
+    {
+      "content": 1
+    }
+  ],
+  "Fuzz testing: URL adjacent extension (with space, clean)": [
+    {
+      "children": [
+        {
+          "content": 1
+        },
+        null,
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "Fuzz testing: URL adjacent extension (no space, dirty; nowiki)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Fuzz testing: URL adjacent extension (no space, dirty; pre)": [
+    {
+      "childrenRemoved": 1
+    },
+    {
+      "content": 1
+    }
+  ],
+  "Fuzz testing: image with bogus manual thumbnail": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Fuzz testing: encoded newline in generated HTML replacements (bug 6577)": [
+    null
+  ],
+  "Parsing optional HTML elements (Bug 6171)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Correct handling of <td>, <tr> (Bug 6171)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Parsing crashing regression (fr:JavaScript)": [
+    {
+      "new": 1
+    }
+  ],
+  "Inline wiki vs wiki block nesting": [
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "content": 1
+    }
+  ],
+  "Inline HTML vs wiki block nesting": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Mixing markup for italics and bold": [
+    {
+      "children": [
+        {
+          "new": 1
+        }
+      ]
+    }
+  ],
+  "Special page transclusion": [
+    {
+      "new": 1
+    }
+  ],
+  "Special page transclusion twice (bug 5021)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Transclusion of default MediaWiki message": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Transclusion of nonexistent MediaWiki message": [
+    {
+      "content": 1
+    }
+  ],
+  "Transclusion of MediaWiki message with underscore": [
+    {
+      "new": 1
+    }
+  ],
+  "Transclusion of MediaWiki message with space": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Invalid header with following text": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Section extraction test (section 0)": [
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "attributes": 1
+    }
+  ],
+  "Section extraction test (section 1)": [
+    {
+      "new": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "content": 1
+    }
+  ],
+  "Section extraction test (section 2)": [
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Section extraction test (section 3)": [
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Section extraction test (section 4)": [
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Section extraction test (section 5)": [
+    {
+      "new": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "Section extraction test (section 6)": [
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Section extraction test (section 7)": [
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Section extraction test (section 8)": [
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Section extraction test (section 9)": [
+    {
+      "new": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "Section extraction test (section 10)": [
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "Section extraction test (nonexistent section 11)": [
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "attributes": 1
+    }
+  ],
+  "Section extraction test with bogus heading (section 1)": [
+    {
+      "new": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Section extraction test with bogus heading (section 2)": [
+    {
+      "new": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Section extraction test with comment after heading (section 1)": [
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    null,
+    null,
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Section extraction test with comment after heading (section 2)": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    null,
+    null,
+    {
+      "annotations": 1
+    }
+  ],
+  "Section extraction test with bogus <nowiki> heading (section 1)": [
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "content": 1
+    }
+  ],
+  "Section extraction test with bogus <nowiki> heading (section 2)": [
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "children": [
+        null,
+        {
+          "rebuilt": 1
+        }
+      ]
+    },
+    null,
+    {
+      "attributes": 1
+    }
+  ],
+  "Section extraction prefixed by comment (section 1)": [
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "Section extraction prefixed by comment (section 2)": [
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "annotations": 1
+    }
+  ],
+  "Section extraction, mixed wiki and html (section 1)": [
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Section extraction, mixed wiki and html (section 2)": [
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Section extraction, heading surrounded by <noinclude>": [
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "attributes": 1
+    }
+  ],
+  "Sectiion with all-equals": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Section replacement test (section 0)": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "content": 1
+    }
+  ],
+  "Section replacement test (section 1)": [
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Section replacement test (section 2)": [
+    {
+      "new": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Section replacement test (section 3)": [
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "Section replacement test (section 4)": [
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "attributes": 1
+    }
+  ],
+  "Section replacement test (section 5)": [
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "Section replacement test (section 6)": [
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Section replacement test (section 7)": [
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "Section replacement test (section 8)": [
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "annotations": 1
+    }
+  ],
+  "Section replacement test (section 9)": [
+    {
+      "new": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Section replacement test (section 10)": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "annotations": 1
+    }
+  ],
+  "Section replacement test with initial whitespace (bug 13728)": [
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "annotations": 1
+    }
+  ],
+  "Section extraction, heading followed by pre with 20 spaces (bug 6398)": [
+    {
+      "new": 1
+    },
+    null,
+    {
+      "annotations": 1
+    }
+  ],
+  "Section extraction, heading followed by pre with 19 spaces (bug 6398 sanity check)": [
+    {
+      "new": 1
+    },
+    null,
+    {
+      "annotations": 1
+    }
+  ],
+  "Section extraction, <pre> around bogus header (bug 10309)": [
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Section replacement, <pre> around bogus header (bug 10309)": [
+    {
+      "new": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "attributes": 1
+    }
+  ],
+  "Handling of &#x0A; in URLs": [
+    {
+      "new": 1
+    }
+  ],
+  "5 quotes, code coverage +1 line": [
+    {
+      "children": [
+        {
+          "content": 1
+        }
+      ]
+    }
+  ],
+  "Special:Search page linking.": [
+    {
+      "new": 1
+    }
+  ],
+  "Say the magic word": [
+    {
+      "children": [
+        {
+          "children": [
+            null,
+            {
+              "rebuilt": 1
+            },
+            {
+              "annotations": 1
+            },
+            null
+          ]
+        },
+        {
+          "children": [
+            null
+          ]
+        },
+        {
+          "new": 1
+        },
+        {
+          "attributes": 1
+        },
+        {
+          "annotations": 1
+        },
+        {
+          "rebuilt": 1
+        },
+        {
+          "annotations": 1
+        },
+        {
+          "children": [
+            null
+          ]
+        },
+        {
+          "childrenRemoved": 1
+        },
+        {
+          "children": [
+            null
+          ]
+        },
+        {
+          "attributes": 1
+        },
+        {
+          "children": [
+            null,
+            {
+              "rebuilt": 1
+            },
+            {
+              "annotations": 1
+            },
+            null
+          ]
+        },
+        {
+          "children": [
+            null,
+            {
+              "new": 1
+            },
+            {
+              "rebuilt": 1
+            },
+            null
+          ]
+        },
+        {
+          "rebuilt": 1
+        },
+        {
+          "children": [
+            null,
+            {
+              "annotations": 1
+            },
+            {
+              "content": 1
+            },
+            null
+          ]
+        },
+        {
+          "childrenRemoved": 1
+        },
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    }
+  ],
+  "Gallery": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Gallery (with options)": [
+    {
+      "children": [
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "Gallery with wikitext inside caption": [
+    {
+      "attributes": 1
+    }
+  ],
+  "gallery (with showfilename option)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Gallery (with namespace-less filenames)": [
+    {
+      "children": [
+        {
+          "new": 1
+        }
+      ]
+    }
+  ],
+  "HTML Hex character encoding (spells the word \"JavaScript\")": [
+    {
+      "children": [
+        {
+          "attributes": 1
+        },
+        {
+          "children": [
+            null
+          ]
+        },
+        {
+          "annotations": 1
+        },
+        {
+          "annotations": 1
+        },
+        {
+          "new": 1
+        },
+        {
+          "children": [
+            null
+          ]
+        },
+        {
+          "rebuilt": 1
+        },
+        {
+          "new": 1
+        },
+        {
+          "childrenRemoved": 1
+        },
+        {
+          "attributes": 1
+        }
+      ]
+    }
+  ],
+  "HTML Hex character encoding bogus encoding (bug 26437 regression check)": [
+    {
+      "children": [
+        {
+          "attributes": 1
+        },
+        {
+          "attributes": 1
+        }
+      ]
+    }
+  ],
+  "HTML Hex character encoding mixed case": [
+    {
+      "new": 1
+    }
+  ],
+  "__FORCETOC__ override": [
+    {
+      "rebuilt": 1
+    },
+    null,
+    null
+  ],
+  "ISBN code coverage": [
+    {
+      "new": 1
+    }
+  ],
+  "ISBN followed by 5 spaces": [
+    {
+      "content": 1
+    }
+  ],
+  "Double ISBN": [
+    {
+      "new": 1
+    }
+  ],
+  "Bug 22905: <abbr> followed by ISBN followed by </a>": [
+    {
+      "content": 1
+    }
+  ],
+  "Double RFC": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Double RFC with a wiki link": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "RFC code coverage": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Centre-aligned image": [
+    {
+      "children": [
+        {
+          "content": 1
+        }
+      ]
+    }
+  ],
+  "None-aligned image": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Width + Height sized image (using px) (height is ignored)": [
+    {
+      "new": 1
+    }
+  ],
+  "Width-sized image (using px, no following whitespace)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Width-sized image (using px, with following whitespace - test regression from r39467)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Width-sized image (using px, with preceding whitespace - test regression from r39467)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Another italics / bold test": [
+    null,
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "dt/dd/dl test": [
+    {
+      "new": 1
+    }
+  ],
+  "Images with the \"|\" character in the comment": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "[Before] HTML without raw HTML enabled ($wgRawHtml==false)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "HTML with raw HTML ($wgRawHtml==true)": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Parents of subpages, one level up": [
+    {
+      "content": 1
+    }
+  ],
+  "Parents of subpages, one level up, not named": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Parents of subpages, two levels up": [
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "Parents of subpages, two levels up, without trailing slash or name.": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Parents of subpages, two levels up, with lots of extra trailing slashes.": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Definition list code coverage": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Don't fall for the self-closing div": [
+    {
+      "attributes": 1
+    }
+  ],
+  "MSGNW magic word": [
+    {
+      "annotations": 1
+    }
+  ],
+  "RAW magic word": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Always escape literal '>' in output, not just after '<'": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Template caching": [
+    {
+      "children": [
+        {
+          "rebuilt": 1
+        },
+        null,
+        {
+          "new": 1
+        }
+      ]
+    }
+  ],
+  "Inclusion of !userCanEdit() content": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Out-of-order TOC heading levels": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "ISBN with a dummy number": [
+    {
+      "annotations": 1
+    }
+  ],
+  "ISBN with space-delimited number": [
+    {
+      "annotations": 1
+    }
+  ],
+  "ISBN with multiple spaces, no number": [
+    {
+      "new": 1
+    }
+  ],
+  "ISBN length": [
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "children": [
+        {
+          "rebuilt": 1
+        }
+      ]
+    },
+    null,
+    {
+      "content": 1
+    }
+  ],
+  "ISBN with trailing year (bug 8110)": [
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        },
+        null
+      ]
+    }
+  ],
+  "anchorencode": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "anchorencode trims spaces": [
+    {
+      "content": 1
+    }
+  ],
+  "anchorencode deals with links": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "anchorencode deals with templates": [
+    {
+      "new": 1
+    }
+  ],
+  "anchorencode encodes like the TOC generator: (bug 18431)": [
+    {
+      "new": 1
+    },
+    null,
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        },
+        null,
+        null,
+        null
+      ]
+    }
+  ],
+  "Bug 6200: blockquotes and paragraph formatting": [
+    {
+      "new": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Bug 8293: Use of center tag ruins paragraph formatting": [
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "attributes": 1
+    }
+  ],
+  "Self-link in language variants": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Link to pages in language variants": [
+    {
+      "content": 1
+    }
+  ],
+  "Multiple links to pages in language variants": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Simple template in language variants": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Template with explicit namespace in language variants": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Basic test for template parameter in language variants": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Simple category in language variants": [
+    null
+  ],
+  "Stripping -{}- tags (language variants)": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Prevent conversion with -{}- tags (language variants)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Prevent conversion of text with -{}- tags (language variants)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Prevent conversion of links with -{}- tags (language variants)": [
+    {
+      "children": [
+        null,
+        {
+          "content": 1
+        },
+        null
+      ]
+    }
+  ],
+  "-{}- tags within headlines (within html for parserConvert())": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Explicit definition of language variant alternatives": [
+    {
+      "content": 1
+    }
+  ],
+  "Explicit session-wise language variant mapping (A flag and - flag)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Explicit session-wise language variant mapping (H flag for hide)": [
+    {
+      "content": 1
+    }
+  ],
+  "Adding explicit conversion rule for title (T flag)": [
+    {
+      "content": 1
+    }
+  ],
+  "Testing that changing the language variant here in the tests actually works": [
+    {
+      "new": 1
+    }
+  ],
+  "Bug 24072: more test on conversion rule for title": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Raw output of variant escape tags (R flag)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Nested using of manual convert syntax": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Do not convert roman numbers to language variants": [
+    {
+      "content": 1
+    }
+  ],
+  "Unclosed language converter markup \"-{\"": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Don't convert raw rule \"-{R|=&gt;}-\" to \"=>\"": [
+    {
+      "content": 1
+    }
+  ],
+  "Bug 529: Uncovered bullet": [
+    {
+      "new": 1
+    }
+  ],
+  "Bug 529: Uncovered bullet leaving empty list, normally removed by tidy": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Bug 529: Uncovered table already at line-start": [
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "children": [
+        null,
+        {
+          "children": [
+            {
+              "attributes": 1
+            },
+            {
+              "rebuilt": 1
+            }
+          ]
+        }
+      ]
+    },
+    null,
+    {
+      "attributes": 1
+    }
+  ],
+  "Bug 529: Uncovered bullet in parser function result": [
+    {
+      "content": 1
+    }
+  ],
+  "Bug 5678: Double-parsed template argument": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Bug 5678: Double-parsed template invocation": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Case insensitivity of parser functions for non-ASCII characters (bug 8143)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Morwen/13: Unclosed link followed by heading": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    }
+  ],
+  "HHP2.1: Heuristics for headings in preprocessor parenthetical structures": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    }
+  ],
+  "HHP2.2: Heuristics for headings in preprocessor parenthetical structures": [
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Tildes in comments": [
+    null
+  ],
+  "Paragraphs inside divs (no extra line breaks)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Paragraphs inside divs (extra line break on open)": [
+    {
+      "children": [
+        null,
+        {
+          "new": 1
+        },
+        null
+      ]
+    }
+  ],
+  "Paragraphs inside divs (extra line break on close)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Paragraphs inside divs (extra line break on open and close)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Nesting tags, paragraphs on lines which begin with <div>": [
+    null,
+    {
+      "new": 1
+    },
+    {
+      "new": 1
+    }
+  ],
+  "Bug 6200: paragraphs inside blockquotes (no extra line breaks)": [
+    {
+      "content": 1
+    }
+  ],
+  "Bug 6200: paragraphs inside blockquotes (extra line break on open)": [
+    {
+      "content": 1
+    }
+  ],
+  "Bug 6200: paragraphs inside blockquotes (extra line break on close)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Bug 6200: paragraphs inside blockquotes (extra line break on open and close)": [
+    {
+      "children": [
+        null,
+        {
+          "annotations": 1
+        },
+        null,
+        {
+          "annotations": 1
+        },
+        null
+      ]
+    }
+  ],
+  "Paragraphs inside blockquotes/divs (no extra line breaks)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Paragraphs inside blockquotes/divs (extra line break on open)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Paragraphs inside blockquotes/divs (extra line break on close)": [
+    {
+      "children": [
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    }
+  ],
+  "Paragraphs inside blockquotes/divs (extra line break on open and close)": [
+    {
+      "content": 1
+    }
+  ],
+  "Interwiki links trounced by replaceExternalLinks after early LinkHolderArray expansion": [
+    {
+      "children": [
+        {
+          "new": 1
+        },
+        null,
+        {
+          "new": 1
+        },
+        null,
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    }
+  ],
+  "Free external link invading image caption": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "annotations": 1
+            }
+          ]
+        },
+        null,
+        {
+          "children": [
+            null
+          ]
+        }
+      ]
+    }
+  ],
+  "Bug 15196: localised external link numbers": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Multibyte character in padleft": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Multibyte character in padright": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Formatted date": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "formatdate parser function": [
+    {
+      "annotations": 1
+    }
+  ],
+  "formatdate parser function, with default format": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Linked date with autoformatting disabled": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Spacing of numbers in formatted dates": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Spacing of numbers in formatted dates (linked)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "formatdate parser function, with default format and on a page of which the content language is always English and different from the wiki content language": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Edit comment with link": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Edit comment with link and link text": [
+    {
+      "children": [
+        null,
+        {
+          "content": 1
+        },
+        null
+      ]
+    }
+  ],
+  "Edit comment with link and link text with suffix": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Edit comment with section link (non-local, eg in history list)": [
+    {
+      "new": 1
+    }
+  ],
+  "Edit comment with section link and text before it (non-local, eg in history list)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Edit comment with section link (local, eg in diff view)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Edit comment with subpage link (bug 14080)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Edit comment with subpage link and link text (bug 14080)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Edit comment with bogus subpage link in non-subpage NS (bug 14080)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Edit comment with bare anchor link (local, as on diff)": [
+    {
+      "new": 1
+    }
+  ],
+  "Edit comment with bare anchor link (non-local, as on history)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Anchor starting with underscore": [
+    {
+      "content": 1
+    }
+  ],
+  "Id starting with underscore": [
+    {
+      "content": 1
+    }
+  ],
+  "Space normalisation on autocomment (bug 22784)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "percent-encoding and + signs in comments (Bug 26410)": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Bad images - basic functionality": [
+    {
+      "content": 1
+    }
+  ],
+  "Bad images - bug 16039: text after bad image disappears": [
+    {
+      "content": 1
+    }
+  ],
+  "Verify that displaytitle works (bug #22501) no displaytitle": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Verify that displaytitle works (bug #22501) RestrictDisplayTitle=false": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Verify that displaytitle works (bug #22501) RestrictDisplayTitle=true mismatch": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Verify that displaytitle works (bug #22501) RestrictDisplayTitle=true matching": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Verify that displaytitle works (bug #22501) AllowDisplayTitle=false": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Verify that displaytitle works (bug #22501) AllowDisplayTitle=false no DISPLAYTITLE": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "preload: check <noinclude> and <includeonly>": [
+    {
+      "new": 1
+    }
+  ],
+  "preload: check <onlyinclude>": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "preload: can pass tags through if we want to": [
+    {
+      "children": [
+        {
+          "content": 1
+        },
+        null,
+        {
+          "content": 1
+        },
+        null
+      ]
+    }
+  ],
+  "preload: check that it doesn't try to do tricks": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Play a bit with r67090 and bug 3158": [
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "children": [
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "HTML5 data attributes": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "percent-encoding and + signs in internal links (Bug 26410)": [
+    {
+      "content": 1
+    }
+  ],
+  "Special characters in embedded file links (bug 27679)": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Confirm that 'apos' named character reference doesn't make it to output (not legal in HTML 4)": [
+    {
+      "content": 1
+    }
+  ],
+  "Bug 19052 U+3000 IDEOGRAPHIC SPACE should terminate free external links": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Bug 19052 U+3000 IDEOGRAPHIC SPACE should terminate bracketed external links": [
+    {
+      "content": 1
+    }
+  ],
+  "Bug 19052 U+3000 IDEOGRAPHIC SPACE should terminate external images links": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Bug 31098 Template which includes system messages which includes the template": [
+    {
+      "new": 1
+    }
+  ],
+  "Bug31490 Turkish: ucfirst 'blah'": [
+    {
+      "children": [
+        {
+          "rebuilt": 1
+        },
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "Bug31490 Turkish: ucfirst 'ix'": [
+    {
+      "content": 1
+    }
+  ],
+  "Bug31490 Turkish: lcfirst 'BLAH'": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Bug31490 Turkish: ucfırst (with a dotless i)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Bug31490 ucfırst (with a dotless i) with English language": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Bug 26375: TOC with italics": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Bug 26375: TOC with bold": [
+    {
+      "new": 1
+    },
+    null,
+    {
+      "children": [
+        null,
+        {
+          "rebuilt": 1
+        },
+        null
+      ]
+    }
+  ],
+  "Bug 33845: Headings become cursive in TOC when they contain an image": [
+    {
+      "new": 1
+    },
+    null,
+    {
+      "annotations": 1
+    }
+  ],
+  "Bug 33845 (2): Headings become bold in TOC when they contain a blockquote": [
+    null,
+    null,
+    {
+      "children": [
+        null,
+        {
+          "children": [
+            null
+          ]
+        },
+        null
+      ]
+    }
+  ],
+  "Unclosed tags in TOC": [
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "attributes": 1
+    }
+  ],
+  "Multiple tags in TOC": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "Tags with parameters in TOC": [
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "span tags with directionality in TOC": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "children": [
+        null,
+        {
+          "annotations": 1
+        },
+        null
+      ]
+    },
+    null,
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Bug 32057: Title needed when expanding <h> nodes.": [
+    {
+      "children": [
+        null
+      ]
+    }
+  ],
+  "Strip marker in urlencode": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Strip marker in lc": [
+    {
+      "children": [
+        {
+          "rebuilt": 1
+        },
+        {
+          "rebuilt": 1
+        }
+      ]
+    }
+  ],
+  "Strip marker in uc": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Strip marker in formatNum": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Strip marker in grammar": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Strip marker in padleft": [
+    {
+      "new": 1
+    }
+  ],
+  "Strip marker in padright": [
+    {
+      "content": 1
+    }
+  ],
+  "Strip marker in anchorencode": [
+    {
+      "children": [
+        {
+          "rebuilt": 1
+        },
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "nowiki inside link inside heading (bug 18295)": [
+    {
+      "attributes": 1
+    }
+  ],
+  "new support for bdi element (bug 31817)": [
+    {
+      "children": [
+        null,
+        {
+          "children": [
+            null
+          ]
+        },
+        null
+      ]
+    }
+  ],
+  "Ignore pipe between table row attributes": [
+    {
+      "content": 1
+    }
+  ],
+  "Gallery override link with WikiLink (bug 34852)": [
+    {
+      "content": 1
+    }
+  ],
+  "Gallery override link with absolute external link (bug 34852)": [
+    {
+      "new": 1
+    }
+  ],
+  "Gallery override link with malicious javascript (bug 34852)": [
+    {
+      "children": [
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    }
+  ],
+  "Language parser function": [
+    {
+      "children": [
+        {
+          "attributes": 1
+        },
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "Padleft and padright as substr": [
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        },
+        null,
+        null,
+        {
+          "childrenRemoved": 1
+        },
+        {
+          "annotations": 1
+        }
+      ]
+    }
+  ],
+  "Bug 34939 - Case insensitive link parsing ([HttP://])": [
+    {
+      "content": 1
+    }
+  ],
+  "Bug 34939 - Case insensitive link parsing ([HttP:// title])": [
+    {
+      "content": 1
+    }
+  ],
+  "Bug 34939 - Case insensitive link parsing (HttP://)": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "1. SOL-sensitive wikitext tokens as template-args": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Headings: 0. Unnested": [
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "Headings: 1. Nested inside html": [
+    {
+      "children": [
+        {
+          "annotations": 1
+        }
+      ]
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        }
+      ]
+    },
+    null,
+    {
+      "children": [
+        {
+          "attributes": 1
+        }
+      ]
+    },
+    null,
+    {
+      "content": 1
+    }
+  ],
+  "Headings: 2. Outside heading nest on a single line <h1>foo</h1>*bar": [
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "children": [
+        {
+          "attributes": 1
+        }
+      ]
+    }
+  ],
+  "Headings: 3. Nested inside html with wikitext split by html tags": [
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Headings: 4. No escaping needed (testing just h1 and h2)": [
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "children": [
+        null
+      ]
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Headings: 5. Empty headings": [
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "children": [
+        {
+          "attributes": 1
+        }
+      ]
+    },
+    null,
+    {
+      "children": [
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    },
+    null,
+    {
+      "children": [
+        {
+          "content": 1
+        }
+      ]
+    },
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "Headings: 6. Heading chars in SOL context": [
+    {
+      "content": 1
+    }
+  ],
+  "Lists: 0. Outside nests": [
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "Lists: 1. Nested inside html": [
+    {
+      "children": [
+        {
+          "content": 1
+        }
+      ]
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "Lists: 2. Inside definition lists": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "attributes": 1
+            },
+            null
+          ]
+        }
+      ]
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "new": 1
+    }
+  ],
+  "Lists: 3. Only bullets at start of text should be escaped": [
+    {
+      "new": 1
+    },
+    null,
+    {
+      "annotations": 1
+    }
+  ],
+  "Lists: 4. No escapes needed": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "children": [
+        {
+          "childrenRemoved": 1
+        }
+      ]
+    }
+  ],
+  "Lists: 5. No unnecessary escapes": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "attributes": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    },
+    null,
+    {
+      "children": [
+        {
+          "new": 1
+        }
+      ]
+    }
+  ],
+  "Lists: 6. Escape bullets in SOL position": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Lists: 7. Escape bullets in a multi-line context": [
+    {
+      "content": 1
+    }
+  ],
+  "HRs: 1. Single line": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        }
+      ]
+    },
+    null,
+    null,
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "content": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    }
+  ],
+  "Tables: 1a. Simple example": [
+    {
+      "children": [
+        {
+          "children": [
+            null
+          ]
+        }
+      ]
+    }
+  ],
+  "Tables: 1b. No escaping needed": [
+    null
+  ],
+  "Tables: 1c. No escaping needed": [
+    null
+  ],
+  "Tables: 1d. No escaping needed": [
+    null
+  ],
+  "Tables: 2a. Nested in td": [
+    {
+      "new": 1
+    }
+  ],
+  "Tables: 2b. Nested in td": [
+    {
+      "attributes": 1
+    }
+  ],
+  "Tables: 2c. Nested in td -- no escaping needed": [
+    {
+      "children": [
+        null,
+        {
+          "new": 1
+        }
+      ]
+    }
+  ],
+  "Tables: 3a. Nested in th": [
+    {
+      "new": 1
+    }
+  ],
+  "Tables: 3b. Nested in th": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Tables: 3c. Nested in th -- no escaping needed": [
+    {
+      "children": [
+        null,
+        {
+          "children": [
+            {
+              "new": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "Tables: 4a. Escape -": [
+    {
+      "content": 1
+    }
+  ],
+  "Tables: 4b. Escape +": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Tables: 4c. No escaping needed": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Links 1. Quote marks in link text": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Links 2. WikiLinks: Escapes needed": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Links 3. WikiLinks: No escapes needed": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Links 4. ExtLinks: Escapes needed": [
+    {
+      "annotations": 1
+    }
+  ],
+  "Links 5. ExtLinks: No escapes needed": [
+    {
+      "new": 1
+    }
+  ],
+  "1. Quotes inside <b> and <i>": [
+    {
+      "annotations": 1
+    }
+  ],
+  "2. Link fragments separated by <i> and <b> tags": [
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "rebuilt": 1
+    }
+  ],
+  "2. Link fragments inside <i> and <b>\n(FIXME: Escaping one or both of [[ and ]] is also acceptable --\n this is one of the shortcomings of this format)": [
+    {
+      "annotations": 1
+    },
+    null,
+    {
+      "children": [
+        {
+          "annotations": 1
+        },
+        {
+          "new": 1
+        }
+      ]
+    }
+  ],
+  "1. No unnecessary escapes": [
+    {
+      "content": 1
+    },
+    null,
+    {
+      "new": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "childrenRemoved": 1
+    },
+    null,
+    {
+      "children": [
+        {
+          "content": 1
+        },
+        {
+          "children": [
+            null
+          ]
+        },
+        null
+      ]
+    }
+  ],
+  "1. Leading space in SOL context should be escaped": [
+    {
+      "children": [
+        {
+          "content": 1
+        },
+        null,
+        null,
+        {
+          "children": [
+            null
+          ]
+        }
+      ]
+    }
+  ],
+  "1. a tags": [
+    {
+      "annotations": 1
+    }
+  ],
+  "2. other tags": [
+    {
+      "attributes": 1
+    }
+  ],
+  "3. multi-line html tag": [
+    {
+      "childrenRemoved": 1
+    }
+  ],
+  "Escaping nowikis": [
+    {
+      "annotations": 1
+    }
+  ]
+}

@@ -977,7 +977,7 @@ ParserTests.prototype.processCase = function ( i, options ) {
 			}
 			fs.writeFileSync(
 				options.changesout,
-				JSON.stringify( allChanges ) );
+				JSON.stringify( allChanges, null, 2 ) );
 		}
 
 		// print out the summary
