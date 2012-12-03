@@ -428,7 +428,9 @@ $.extend( SelfclosingTagTk.prototype, genericTokenMethods );
 
 /* -------------------- NlTk -------------------- */
 function NlTk( tsr ) {
-	this.tsr = tsr || [];
+	if (tsr) {
+		this.dataAttribs = { tsr: tsr };
+	}
 }
 
 NlTk.prototype = {

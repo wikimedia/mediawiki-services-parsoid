@@ -1203,9 +1203,10 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 		"dd" : true,
 		"table" : true,
 		"caption" : true,
-		"tr": true,
-		"td": true,
-		"th": true
+		"tr" : true,
+		"td" : true,
+		"th" : true,
+		"pre" : true
 	};
 
 	function tsrSpansTagDOM(n, parsoidData) {

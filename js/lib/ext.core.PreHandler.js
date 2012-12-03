@@ -181,6 +181,12 @@ PreHandler.prototype.processPre = function(token) {
 };
 
 PreHandler.prototype.onNewline = function (token, manager, cb) {
+	function initPreTSR(nltk) {
+		var da = nltk.dataAttribs;
+		// tsr[1] can never be zero, so safe to use da.tsr[1] to check for null/undefined
+		return (da && da.tsr && da.tsr[1]) ? da.tsr[1] : -1;
+	}
+
 	if (this.trace) {
 		if (this.debug) console.warn("----------");
 		console.warn("T:pre:nl : " + this.state + " : " + JSON.stringify(token));
@@ -194,8 +200,7 @@ PreHandler.prototype.onNewline = function (token, manager, cb) {
 	switch (this.state) {
 		case PreHandler.STATE_SOL:
 			ret = this.getResultAndReset(token);
-			// tsr[1] can never be 0, hence safe to use this idiom
-			this.preTSR = token.tsr[1] || -1;
+			this.preTSR = initPreTSR(token);
 			break;
 
 		case PreHandler.STATE_PRE:
@@ -206,8 +211,7 @@ PreHandler.prototype.onNewline = function (token, manager, cb) {
 				// we will never get here from a multiline-pre
 				ret = this.getResultAndReset(token);
 			}
-			// tsr[1] can never be 0, hence safe to use this idiom
-			this.preTSR = token.tsr[1] || -1;
+			this.preTSR = initPreTSR(token);
 			this.state = PreHandler.STATE_SOL;
 			break;
 
@@ -225,8 +229,7 @@ PreHandler.prototype.onNewline = function (token, manager, cb) {
 			ret = [token];
 			ret.rank = this.skipRank; // prevent this from being processed again
 			init(this, true); // Reset!
-			// tsr[1] can never be 0, hence safe to use this idiom
-			this.preTSR = token.tsr[1] || -1;
+			this.preTSR = initPreTSR(token);
 			break;
 	}
 
