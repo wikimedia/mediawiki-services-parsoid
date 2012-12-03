@@ -196,8 +196,8 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 					child.setAttribute( 'data-serialize-id', oldId );
 
 					state.parentMarked = true;
-				} else if ( state.lastdsr !== null && thisdsr[1] !== null ) {
-					assignSourceChunk( state.currentId, state.lastdsr, thisdsr[1] );
+				} else if ( state.lastdsr !== null && state.startdsr === null ) {
+					state.startdsr = state.lastdsr;
 				}
 			} else if ( oldId !== state.currentId && state.parentMarked === true ) {
 				// This is a special case for parents who were marked as
@@ -247,6 +247,9 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 		if ( foundRevisions ) {
 			// If we found text, then use this chunk callback.
 			var state = _this.assignSerializerIds( doc, src );
+			if ( _this.env.debug ) {
+				console.log( doc.outerHTML );
+			}
 			var getLeadingNls = function ( chunk ) {
 				return ( chunk.match( /^\n+/ ) || [ '' ] )[0];
 			};
