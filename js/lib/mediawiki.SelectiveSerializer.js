@@ -196,6 +196,9 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 					child.setAttribute( 'data-serialize-id', oldId );
 
 					state.parentMarked = true;
+				} else if ( tname === 'ul' || tname === 'ol' ) {
+					child.setAttribute( 'data-serialize-id', oldId );
+					delete state.parentMarked;
 				} else if ( state.lastdsr !== null && state.startdsr === null ) {
 					state.startdsr = state.lastdsr;
 				}
