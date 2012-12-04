@@ -1574,8 +1574,8 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				dp.dsr = [cs, ce];
 				if (traceDSR) {
 					console.warn("-- UPDATING; " + child.nodeName + " with [" + cs + "," + ce + "]; typeof: " + cTypeOf);
-					// Set up 'src' so we can debug this
-					dp.src = env.text.substring(cs, ce);
+					// Set up 'dbsrc' so we can debug this
+					dp.dbsrc = env.text.substring(cs, ce);
 				}
 			}
 
