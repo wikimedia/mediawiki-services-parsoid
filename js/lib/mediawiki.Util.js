@@ -12,6 +12,15 @@ var HTML5 = require( 'html5' ).HTML5,
 
 var Util = {
 
+	setDebuggingFlags: function(obj, opts) {
+		obj.debug = opts.debug;
+		obj.trace = (opts.trace === true);
+		obj.traceFlags = opts.trace && opts.trace !== true ? opts.trace.split(",") : null;
+		obj.dumpFlags = opts.dump ? opts.dump.split(",") : null;
+
+		return obj;
+	},
+
 	// Update only those properties that are undefined or null
 	// $.extend updates properties that are falsy (which means false gets updated as well)
 	extendProps: function() {

@@ -183,10 +183,15 @@ ParserTests.prototype.getOpts = function () {
 			'default': false,
 			'boolean': true
 		},
-		'trace': {
-			description: 'Print trace information (light debugging)',
+		'trace [optional-flags]': {
+			description: 'Same trace options as "parse.js" (See: node parse --help)',
 			'default': false,
 			'boolean': true
+		},
+		'dump <flags>': {
+			description: 'Same dump options as "parse.js" (See: node parse --help)',
+			'boolean': false,
+			'default': ""
 		},
 		xml: {
 			description: 'Print output in JUnit XML format.',
@@ -853,15 +858,13 @@ ParserTests.prototype.main = function ( options ) {
 	}
 
 	// Create a new parser environment
-	this.env = new MWParserEnvironment({
+	this.env = new MWParserEnvironment(Util.setDebuggingFlags({
 		fetchTemplates: false,
-		debug: options.debug,
-		trace: options.trace,
 		wgUploadPath: 'http://example.com/images',
 		errCB: function ( e ) {
 			console.error( e.stack );
 		}
-	});
+	}, options));
 
 	options.modes = [];
 	if ( options.wt2html ) {

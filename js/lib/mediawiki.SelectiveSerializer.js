@@ -114,7 +114,7 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 		} else if (
 				(
 					( state.foundChange && state.startdsr === null ) && (
-						!thisdp.dsr || thisdp.dsr[0] === null 
+						!thisdp.dsr || thisdp.dsr[0] === null
 					)
 				) || hasChangeMarker( thisda ) ) {
 			// This is either a changed node that needs to be serialized or a node
@@ -250,9 +250,14 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 		if ( foundRevisions ) {
 			// If we found text, then use this chunk callback.
 			var state = _this.assignSerializerIds( doc, src );
-			if ( _this.env.debug ) {
+
+			if ( _this.env.debug || (_this.env.dumpFlags &&
+				_this.env.dumpFlags.indexOf("dom:serialize-ids") !== -1))
+			{
+				console.log("----- DOM after assigning serialize-ids -----");
 				console.log( doc.outerHTML );
 			}
+
 			var getLeadingNls = function ( chunk ) {
 				return ( chunk.match( /^\n+/ ) || [ '' ] )[0];
 			};
@@ -296,7 +301,7 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 					if ( res === '' ) {
 						nls++;
 					}
-					
+
 					// Only handle something that actually has a serialize-ID,
 					// else skip it for now.
 					if ( serID  ) {

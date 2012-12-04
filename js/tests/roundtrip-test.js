@@ -383,8 +383,7 @@ fetch = function ( page, cb, options ) {
 	env.wgScript = env.interwikiMap[options.wiki];
 	env.setPageName( page );
 
-	env.debug = options.debug;
-	env.trace = options.trace;
+	Util.setDebuggingFlags(env, options);
 
     env.errCB = function ( error ) {
         cb( error, null, [] );
@@ -433,28 +432,49 @@ if ( typeof module === 'object' ) {
 }
 
 if ( !module.parent ) {
-	argv = optimist.argv;
+	var opts = optimist.usage( 'Usage: $0 [options] <page-title> \n\n', {
+		'xml': {
+			description: 'Use xml callback',
+			'boolean': true,
+			'default': false
+		},
+		'wiki': {
+			description: 'code of wiki to use (default: en)',
+			'boolean': false,
+			'default': 'en'
+		},
+		'help': {
+			description: 'Show this message',
+			'boolean': true,
+			'default': false
+		},
+		'debug': {
+			description: 'Debug mode',
+			'boolean': true,
+			'default': false
+		},
+		'trace [optional-flags]': {
+			description: 'Trace tokens (see below for supported trace options)',
+			'boolean': true,
+			'default': false
+		},
+		'dump <flags>': {
+			description: 'Dump state (see below for supported dump flags)',
+			'boolean': false,
+			'default': ""
+		}
+	});
+
+	argv = opts.argv;
 	title = argv._[0];
 
 	if ( title ) {
-		if ( argv.xml ) {
-			callback = xmlCallback;
-		} else {
-			callback = plainCallback;
-		}
-
+		callback = argv.xml ? xmlCallback : plainCallback;
 		callback = cbCombinator.bind( null, callback, consoleOut );
-
-		var options = {
-			wiki: argv.wiki || 'en',
-			debug: argv.debug,
-			trace: argv.trace
-		};
-		fetch( title, callback, options );
+		fetch( title, callback, argv );
 	} else {
-		// FIXME: set up optimist spec so that the title does not need to come
-		// first
-		console.log( 'Usage: node roundtrip-test.js PAGETITLE [--xml] [--wiki CODE] [--debug] [--trace]' );
+		opts.showHelp();
+		console.error( 'Run "node parse --help" for supported trace and dump flags');
 	}
 }
 

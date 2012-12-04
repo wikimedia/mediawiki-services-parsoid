@@ -11,8 +11,52 @@ var ParserPipelineFactory = require('../lib/mediawiki.parser.js').ParserPipeline
 	ConvertDOMToLM = require('../lib/mediawiki.LinearModelConverter.js').ConvertDOMToLM,
 	WikitextSerializer = require('../lib/mediawiki.WikitextSerializer.js').WikitextSerializer,
 	SelectiveSerializer = require( '../lib/mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
+	Util = require('../lib/mediawiki.Util.js').Util,
 	optimist = require('optimist'),
 	html5 = require('html5');
+
+function traceUsage() {
+	var buf = [];
+	buf.push("Tracing");
+	buf.push("-------");
+	buf.push("- Without any flags, enables a light high-level tracing (not as useful anymore)");
+	buf.push("- With one or more comma-separated flags, traces those specific phases");
+	buf.push("- Supported flags:");
+	buf.push("  * sync:1    : shows tokens flowing through the post-tokenizer Sync Token Transform Manager");
+	buf.push("  * async:2   : shows tokens flowing through the Async Token Transform Manager");
+	buf.push("  * sync:3    : shows tokens flowing through the post-expansion Sync Token Transform Manager");
+	buf.push("  * list      : shows actions of the list handler");
+	buf.push("  * pre       : shows actions of the pre handler");
+	buf.push("  * pre_debug : shows actions of the pre handler + tokens returned from it");
+	buf.push("  * p-wrap    : shows actions of the paragraph wrapper");
+	buf.push("  * html      : shows tokens that are sent to the HTML tree builder");
+	buf.push("  * dsr       : shows dsr computation on the DOM\n");
+	buf.push("--debug enables tracing of all the above phases except Token Transform Managers\n");
+	buf.push("Examples:");
+	buf.push("$ node parse --trace pre,p-wrap,html < foo");
+	buf.push("$ node parse --trace sync:3,dsr < foo");
+	return buf.join('\n');
+}
+
+function dumpFlags() {
+	var buf = [];
+	buf.push("Dumping state");
+	buf.push("-------------");
+	buf.push("- Dumps state at different points of execution");
+	buf.push("- DOM dumps are always doc.outerHTML");
+	buf.push("- Supported flags:");
+	buf.push("  * dom:post-builder  : dumps DOM returned by HTML builder");
+	buf.push("  * dom:pre-dsr       : dumps DOM prior to computing DSR");
+	buf.push("  * dom:post-dsr      : dumps DOM after computing DSR");
+	buf.push("  * dom:pre-encap     : dumps DOM before template encapsulation");
+	buf.push("  * dom:serialize-ids : in selective serialization, dumps DOM after assigning serializer ids");
+	buf.push("--debug dumps state at these different stages\n");
+	buf.push("Examples:");
+	buf.push("$ node parse --dump dom:post-builder,dom:pre-dsr,dom:pre-encap < foo");
+	buf.push("$ node parse --trace html --dump dom:pre-encap < foo");
+	buf.push("\n");
+	return buf.join('\n');
+}
 
 ( function() {
 	var default_mode_str = "Default conversion mode : --wt2html";
@@ -57,13 +101,13 @@ var ParserPipelineFactory = require('../lib/mediawiki.parser.js').ParserPipeline
 			'boolean': true,
 			'default': false
 		},
-		'trace <opt-flags>': {
-			description: 'Trace mode (light debugging), implied by --debug',
+		'trace [optional-flags]': {
+			description: 'Trace tokens (see below for supported trace options)',
 			'boolean': true,
 			'default': false
 		},
 		'dump <flags>': {
-			description: 'Dump state at a specific point during execution (ex: --dump dom:pre-dsr)',
+			description: 'Dump state (see below for supported dump flags)',
 			'boolean': false,
 			'default': ""
 		},
@@ -108,6 +152,9 @@ var ParserPipelineFactory = require('../lib/mediawiki.parser.js').ParserPipeline
 
 	if ( argv.help ) {
 		optimist.showHelp();
+		console.error(traceUsage());
+		console.error("\n");
+		console.error(dumpFlags());
 		return;
 	}
 
@@ -116,7 +163,7 @@ var ParserPipelineFactory = require('../lib/mediawiki.parser.js').ParserPipeline
 		argv.wt2html = true;
 	}
 
-	var env = new ParserEnv({
+	var env = new ParserEnv(Util.setDebuggingFlags({
 		// fetch templates from enwiki by default.
 		wgScript: argv.wgScript,
 		wgScriptPath: argv.wgScriptPath,
@@ -124,13 +171,9 @@ var ParserPipelineFactory = require('../lib/mediawiki.parser.js').ParserPipeline
 		// XXX: add options for this!
 		wgUploadPath: 'http://upload.wikimedia.org/wikipedia/commons',
 		fetchTemplates: argv.fetchTemplates,
-		debug: argv.debug,
-		trace: argv.trace === true,
-		traceFlags: argv.trace && argv.trace !== true ? argv.trace.split(",") : null,
-		dumpFlags: argv.dump ? argv.dump.split(",") : null,
 		maxDepth: argv.maxdepth,
 		pageName: argv.pagename
-	});
+	}, argv));
 
 	// Init parsers, serializers, etc.
 	var parserPipeline,
