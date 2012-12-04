@@ -141,10 +141,11 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 		case TagTk:
 			tName = token.name;
 			this.emit('token', {type: 'StartTag', name: tName, data: this._att(attribs)});
-			if (dataAttribs && dataAttribs.tsr && dataAttribs.stx === 'html') {
+			if (dataAttribs && dataAttribs.tsr) {
 				attrs = [];
+				if ( this.trace ) console.warn('inserting shadow meta');
 				attrs.push({nodeName: "typeof", nodeValue: "mw:StartTag"});
-				attrs.push({nodeName: "data-stag", nodeValue: tName});
+				attrs.push({nodeName: "data-stag", nodeValue: tName + ':' + dataAttribs.tsr});
 				this.emit('token', {type: 'StartTag', name: 'meta', data: attrs});
 			}
 			break;
@@ -161,12 +162,11 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			tName = token.name;
 			this.emit('token', {type: 'EndTag', name: tName});
 
-			if (dataAttribs && dataAttribs.tsr) {
-				attrs = this._att(attribs);
-				attrs.push({nodeName: "typeof", nodeValue: "mw:EndTag"});
-				attrs.push({nodeName: "data-etag", nodeValue: tName});
-				this.emit('token', {type: 'StartTag', name: 'meta', data: attrs});
-			}
+			if ( this.trace ) console.warn('inserting shadow meta');
+			attrs = this._att(attribs);
+			attrs.push({nodeName: "typeof", nodeValue: "mw:EndTag"});
+			attrs.push({nodeName: "data-etag", nodeValue: tName});
+			this.emit('token', {type: 'StartTag', name: 'meta', data: attrs});
 			break;
 		case CommentTk:
 			this.emit('token', {type: 'Comment', data: token.value});

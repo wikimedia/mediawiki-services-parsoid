@@ -1370,19 +1370,13 @@ WSP.tagHandlers = {
 	},
 	b:  {
 		start: { handle: id("'''") },
-		end: {
-			handle: function ( state, token ) {
-				return token.dataAttribs.autoInsertedEnd ? "" : "'''";
-			}
-		},
+		end: { handle: id("'''") },
 		wtEscapeHandler: WSP.wteHandlers.quoteHandler
 	},
 	i:  {
 		start: { handle: id("''") },
 		end: {
-			handle: function ( state, token ) {
-				return token.dataAttribs.autoInsertedEnd ? "" : "''";
-			}
+			handle: id("''")
 		},
 		wtEscapeHandler: WSP.wteHandlers.quoteHandler
 	},
@@ -1427,13 +1421,23 @@ WSP._serializeAttributes = function (state, token) {
 		}
 	}
 
-	var out = [];
+	var out = [],
+		ignoreKeys = {
+			about: 1, // FIXME: only strip if value starts with #mw?
+			'typeof': 1, // similar: only strip values with mw: prefix
+			// The following should be filtered out earlier, but we ignore
+			// them here too just to make sure.
+			'data-parsoid': 1,
+			'data-ve-changed': 1,
+			'data-serialize-id': 1
+		};
+
 	for ( var i = 0, l = attribs.length; i < l; i++ ) {
 		var kv = attribs[i];
 		var k = kv.k;
 
 		// Ignore about and typeof if they are template-related
-		if (tokType && (k === "about" || k === "typeof")) {
+		if (tokType && ignoreKeys[k]) {
 			continue;
 		}
 
@@ -1587,10 +1591,20 @@ WSP._getTokenHandler = function(state, token) {
 		handler = this.defaultHTMLTagHandler;
 	}
 	if ( token.constructor === TagTk || token.constructor === SelfclosingTagTk ) {
-		state.wteHandlerStack.push(handler.wtEscapeHandler || null);
-		return handler.start || {};
+		if ( token.dataAttribs.autoInsertedStart ) {
+			// Auto-inserted start tag- don't seriaulize
+			return { handle: id('') };
+		} else {
+			state.wteHandlerStack.push(handler.wtEscapeHandler || null);
+			return handler.start || {};
+		}
 	} else {
-		return handler.end || {};
+		if ( token.constructor === EndTagTk && token.dataAttribs.autoInsertedEnd ) {
+			// Auto-inserted end tag- don't seriaulize
+			return { handle: id('') };
+		} else {
+			return handler.end || {};
+		}
 	}
 };
 
@@ -2086,10 +2100,15 @@ WSP._serializeDOM = function( node, state ) {
 
 WSP._getDOMAttribs = function( attribs ) {
 	// convert to list fo key-value pairs
-	var out = [];
+	var out = [],
+		ignoreAttribs = {
+			'data-parsoid': 1,
+			'data-ve-changed': 1,
+			'data-serialize-id': 1
+		};
 	for ( var i = 0, l = attribs.length; i < l; i++ ) {
 		var attrib = attribs.item(i);
-		if ( attrib.name !== 'data-parsoid' && attrib.name !== 'data-ve-changed' && attrib.name !== 'data-serialize-id' ) {
+		if ( !ignoreAttribs[attrib.name] ) {
 			out.push( { k: attrib.name, v: attrib.value } );
 		}
 	}
