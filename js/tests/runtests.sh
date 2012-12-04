@@ -32,6 +32,11 @@ if [ "$1" = "--wt2wt" ];then
     time $node parserTests.js --cache --wt2wt \
         > $OUTPUT 2>&1
 	TEST_EXIT_CODE=$?
+elif [ "$1" = '--selser' ];then
+	OUTPUT="results/selser.txt"
+    time $node parserTests.js --selser --changesin selser.changes.json --cache --printwhitelist \
+        > $OUTPUT 2>&1
+	TEST_EXIT_CODE=$?
 elif [ "$1" = '--wt2html' ];then
 	OUTPUT="results/html.txt"
     time $node parserTests.js --wt2html --cache --printwhitelist \
@@ -39,7 +44,7 @@ elif [ "$1" = '--wt2html' ];then
 	TEST_EXIT_CODE=$?
 else
 	OUTPUT="results/all.txt"
-    time $node parserTests.js --wt2html --wt2wt --html2html --cache --printwhitelist \
+    time $node parserTests.js --wt2html --wt2wt --html2html --selser --changesin selser.changes.json --cache --printwhitelist \
         > $OUTPUT 2>&1
 	TEST_EXIT_CODE=$?
 fi
@@ -57,13 +62,15 @@ cd results || exit 1
 if [ "$1" != '-c' -a "$2" != '-c' ];then
     git diff | less -R
 else
+	git add $OUTPUT
     if [ "$1" = '--wt2wt' ];then
-        git commit -a -m "`tail -8 roundtrip.txt`" || exit 1
+        git commit -m "`tail -8 roundtrip.txt`" || exit 1
+    elif [ "$1" = '--selser' ];then
+        git commit -m "`tail -8 selser.txt`" || exit 1
     elif [ "$1" = '--wt2html' ];then
-        git commit -a -m "`tail -8 html.txt`" || exit 1
+        git commit -m "`tail -8 html.txt`" || exit 1
     else
-        git add all.txt
-        git commit -m "`tail -10 all.txt`" all.txt || exit 1
+        git commit -m "`tail -11 all.txt`" all.txt || exit 1
     fi
     git diff HEAD~1 | less -R || exit 1
 fi
