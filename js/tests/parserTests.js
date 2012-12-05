@@ -292,6 +292,11 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, processWikitextC
 		if ( mode === 'selser' ) {
 			serializer.oldtext = item.input;
 			serializer.target = null;
+			if ( options.changesin && item.changes === undefined ) {
+				// A changesin option was passed, so set the changes to null,
+				// so we don't try to regenerate the changes.
+				item.changes = null;
+			}
 			var changelist = this.makeChanges( content, item.changes );
 			item.changes = item.changes || changelist;
 		}
@@ -341,7 +346,7 @@ ParserTests.prototype.makeChanges = function ( node, nonRandomChanges ) {
 			continue;
 		}
 
-		if ( !nonRandomChanges ) {
+		if ( nonRandomChanges === undefined ) {
 			if ( Util.isNodeEditable( child ) && Math.random() < 0.75 ) {
 				changeObj = getRandomChange();
 				child.setAttribute(
@@ -356,7 +361,7 @@ ParserTests.prototype.makeChanges = function ( node, nonRandomChanges ) {
 				}
 			}
 			changelist.push( changeObj );
-		} else if ( nonRandomChanges.length > i ) {
+		} else if ( nonRandomChanges && nonRandomChanges.length > i ) {
 			changeObj = nonRandomChanges[i];
 			if ( changeObj && changeObj.children ) {
 				this.makeChanges( child, changeObj.children );
