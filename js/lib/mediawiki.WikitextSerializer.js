@@ -835,16 +835,27 @@ WSP._linkHandler =  function( state, tokens ) {
 			// We'll need to check for round-trip data
 			populateRoundTripData();
 
-			if ((hrefFromTpl && tokenData.stx === 'simple') ||
-				(linkText.constructor === String &&
-				 env.normalizeTitle( Util.stripSuffix( linkText, tail ) ) ===
-				 env.normalizeTitle( Util.decodeURI( unencodedTarget ) ) &&
-				 (  Object.keys( tokenData ).length === 0 ||
-					hrefInfo.modified ||
-					tokenData.stx === 'simple' )
-				))
+			var innerLinkText = linkText.constructor === String ?
+							Util.stripSuffix( linkText, tail ) : null,
+				decodedTarget = Util.decodeURI( unencodedTarget );
+
+			// FIXME: restructure the below in a saner way!
+			if ( !isCat && !hrefInfo.modified && tokenData.stx === 'simple')
 			{
+				// Unmodified, was simple before. The target is
+				// authorative.
 				return '[[' + target + ']]' + tail;
+			} else if ( !isCat && linkText.constructor === String &&
+				 (	innerLinkText === target ||
+					env.normalizeTitle( innerLinkText, true ) === decodedTarget ) &&
+				 ! tokenData.pipetrick &&
+				 // Either no data-parsoid info, or the href was changed.
+				 (  Object.keys( tokenData ).length === 0 ||
+					hrefInfo.modified )
+				)
+			{
+				// we can get away with a simple link
+				return '[[' + innerLinkText + ']]' + tail;
 			} else {
 				if (tokenData.pipetrick) {
 					linkText = '';

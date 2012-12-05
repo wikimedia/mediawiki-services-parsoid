@@ -175,7 +175,7 @@ MWParserEnvironment.prototype.makeTitleFromPrefixedText = function ( text ) {
 
 
 // XXX: move to Title!
-MWParserEnvironment.prototype.normalizeTitle = function( name ) {
+MWParserEnvironment.prototype.normalizeTitle = function( name, noUnderScores ) {
 	if (typeof name !== 'string') {
 		throw new Error('nooooooooo not a string');
 	}
@@ -188,7 +188,10 @@ MWParserEnvironment.prototype.normalizeTitle = function( name ) {
 	}
 
 
-	name = name.trim().replace(/[\s_]+/g, '_');
+	name = name.trim();
+	if ( ! noUnderScores ) {
+		name = name.replace(/[\s_]+/g, '_');
+	}
 
 	// Implement int: as alias for MediaWiki:
 	if ( name.substr( 0, 4 ) === 'int:' ) {
