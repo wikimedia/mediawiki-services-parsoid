@@ -518,22 +518,22 @@ function patchUpDOM(node, env, tplIdToSkip) {
 	}
 }
 
-/* --------------------------------------------------------------
- * Block tags change the behaviour of indent-pres.  This behaviour
- * cannot be emulated till the DOM is built if we are to avoid
- * having to deal with unclosed/mis-nested tags in the token stream.
- *
- * This function goes through the DOM looking for special kinds of
- * block tags (as determined by the PHP parser behavior -- which
- * has its own notion of block-tag which overlaps with, but is
- * different from, the HTML block tag notion.
- *
- * Wherever such a block tag is found, any Parsoid-inserted
- * pre-tags are removed.
- * -------------------------------------------------------------- */
-function stripPreFromBlockNodes(document, env) {
+function handlePres(document, env) {
 
-	function deletePreFromDOM(node) {
+	/* --------------------------------------------------------------
+	 * Block tags change the behaviour of indent-pres.  This behaviour
+	 * cannot be emulated till the DOM is built if we are to avoid
+	 * having to deal with unclosed/mis-nested tags in the token stream.
+	 *
+	 * This function goes through the DOM looking for special kinds of
+	 * block tags (as determined by the PHP parser behavior -- which
+	 * has its own notion of block-tag which overlaps with, but is
+	 * different from, the HTML block tag notion.
+	 *
+	 * Wherever such a block tag is found, any Parsoid-inserted
+	 * pre-tags are removed.
+	 * -------------------------------------------------------------- */
+	function deleteIndentPreFromDOM(node) {
 		var c = node.firstChild;
 		while (c) {
 			// get sibling before DOM is modified
@@ -554,39 +554,59 @@ function stripPreFromBlockNodes(document, env) {
 				// delete the pre
 				deleteNode(c);
 			} else if (!Util.tagClosesBlockScope(c.nodeName.toLowerCase())) {
-				deletePreFromDOM(c);
+				deleteIndentPreFromDOM(c);
 			}
 
 			c = c_sibling;
 		}
 	}
 
-	function findAndStripPre(doc, elt) {
+	function findAndHandlePres(doc, elt, indentPresHandled) {
 		var children = elt.childNodes;
 		for (var i = 0; i < children.length; i++) {
 			var processed = false;
 			var n = children[i];
-			if (n.nodeType === Node.ELEMENT_NODE) {
-				if (Util.tagOpensBlockScope(n.nodeName.toLowerCase())) {
-					if (isTplMetaType(n.getAttribute("typeof")) || isLiteralHTMLNode(n)) {
-						deletePreFromDOM(n);
+			if (!indentPresHandled) {
+				if (n.nodeType === Node.ELEMENT_NODE) {
+					if (Util.tagOpensBlockScope(n.nodeName.toLowerCase())) {
+						if (isTplMetaType(n.getAttribute("typeof")) || isLiteralHTMLNode(n)) {
+							deleteIndentPreFromDOM(n);
+							processed = true;
+						}
+					} else if (n.getAttribute("typeof") === "mw:Object/References") {
+						// No pre-tags in references
+						deleteIndentPreFromDOM(n);
 						processed = true;
 					}
-				} else if (n.getAttribute("typeof") === "mw:Object/References") {
-					// No pre-tags in references
-					deletePreFromDOM(n);
-					processed = true;
 				}
 			}
 
-			if (!processed) {
-				findAndStripPre(doc, n);
+			// Deal with html-pres
+			if (hasNodeName(n, "pre") && isLiteralHTMLNode(n)) {
+				var fc = n.firstChild;
+				if (fc && fc.nodeType === Node.TEXT_NODE &&
+					fc.data.match(/^(\r\n|\r|\n)([^\r\n]|$)/) && (
+						!fc.nextSibling ||
+						fc.nextSibling.nodeType !== Node.TEXT_NODE ||
+						!fc.nextSibling.data.match(/^[\r\n]/)
+					))
+				{
+					var matches = fc.data.match(/^(\r\n|\r|\n)/);
+					if (matches) {
+						// Record it in data-parsoid
+						var preDP = dataParsoid(n);
+						preDP.strippedNL = matches[1];
+						setDataParsoid(n, preDP);
+					}
+				}
 			}
+
+			findAndHandlePres(doc, n, indentPresHandled || processed);
 		}
 	}
 
 	// kick it off
-	findAndStripPre(document, document.body);
+	findAndHandlePres(document, document.body, false);
 }
 
 // If the last child of a node is a start-meta, simply
@@ -780,7 +800,7 @@ function encapsulateTemplates( env, doc, tplRanges) {
 	}
 
 	// 0. Sort by about tpl id
-	tplRanges.sort(function(r1, r2) { return r1.aboutId - r2.aboutId });
+	tplRanges.sort(function(r1, r2) { return r1.aboutId - r2.aboutId; });
 
 	// 1. Merge overlapping template ranges
 	var newRanges = [];
@@ -1654,10 +1674,10 @@ function DOMPostProcessor(env, options) {
 	this.env = env;
 	this.processors = [
 		patchUpDOM,
-		stripPreFromBlockNodes,
 		migrateStartMetas,
 		normalizeDocument,
 		findBuilderCorrectedTags,
+		handlePres,
 		computeDocDSR,
 		encapsulateTemplateOutput
 	];

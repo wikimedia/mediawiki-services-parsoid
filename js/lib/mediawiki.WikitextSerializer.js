@@ -203,14 +203,14 @@ var WikitextSerializer = function( options ) {
 	if ( options.env.debug || options.env.trace ) {
 		WikitextSerializer.prototype.debug_pp = function () {
 			Util.debug_pp.apply(Util, arguments);
-		}
+		};
 
 		WikitextSerializer.prototype.debug = function ( ) {
 			this.debug_pp.apply(this, ["WTS: ", ''].concat([].slice.apply(arguments)));
-		}
+		};
 	} else {
-		WikitextSerializer.prototype.debug_pp = function ( ) {}
-		WikitextSerializer.prototype.debug = function ( ) {}
+		WikitextSerializer.prototype.debug_pp = function ( ) {};
+		WikitextSerializer.prototype.debug = function ( ) {};
 	}
 };
 
@@ -302,7 +302,7 @@ WSP.initialState = {
 			tplAttrs: this.tplAttrs,
 			currLine: this.currLine,
 			wteHandlerStack: []
-		}
+		};
 		return this.serializer.serializeTokens(initState, tokens, chunkCB);
 	}
 };
@@ -713,25 +713,27 @@ WSP._serializeTableTag = function ( symbol, optionalEndSymbol, state, token ) {
 };
 
 WSP._serializeHTMLTag = function ( state, token ) {
+	var da = token.dataAttribs;
 	if ( token.name === 'pre' ) {
 		// html-syntax pre is very similar to nowiki
 		state.inHTMLPre = true;
 	}
 
-	if (token.dataAttribs.autoInsertedStart) {
+	if (da.autoInsertedStart) {
 		return '';
 	}
 
 	var close = '';
-	if ( (Util.isVoidElement( token.name ) && !token.dataAttribs.noClose) || token.dataAttribs.selfClose ) {
+	if ( (Util.isVoidElement( token.name ) && !da.noClose) || da.selfClose ) {
 		close = '/';
 	}
 
 	var sAttribs = WSP._serializeAttributes(state, token);
+	var tokenName = da.srcTagName || token.name;
 	if (sAttribs.length > 0) {
-		return '<' + (token.dataAttribs.srcTagName || token.name) + ' ' + sAttribs + close + '>';
+		return '<' + tokenName + ' ' + sAttribs + close + '>';
 	} else {
-		return '<' + (token.dataAttribs.srcTagName || token.name) + close + '>';
+		return '<' + tokenName + close + '>';
 	}
 };
 
@@ -739,7 +741,10 @@ WSP._serializeHTMLEndTag = function ( state, token ) {
 	if ( token.name === 'pre' ) {
 		state.inHTMLPre = false;
 	}
-	if ( !token.dataAttribs.autoInsertedEnd && ! Util.isVoidElement( token.name ) && !token.dataAttribs.selfClose  ) {
+	if ( !token.dataAttribs.autoInsertedEnd &&
+		 !Util.isVoidElement( token.name ) &&
+		 !token.dataAttribs.selfClose  )
+	{
 		return '</' + (token.dataAttribs.srcTagName || token.name) + '>';
 	} else {
 		return '';
@@ -968,7 +973,7 @@ function buildHeadingHandler(headingWT) {
  *     if true, the wikitext for the dom subtree rooted
  *     at this html tag ends the line.
  *
- * pairsSepNlCount
+ * pairSepNLCount
  *     # of new lines required between wikitext for dom siblings
  *     of the same tag type (..</p><p>.., etc.)
  *
@@ -2021,6 +2026,34 @@ WSP._serializeDOM = function( node, state ) {
 					processed: false,
 					hasBracketPair: false,
 					hasHeadingPair: false
+				}
+			}
+
+			// Handle html-pres specially
+			// 1. If the node has a leading newline, add one like it (logic copied from VE)
+			// 2. If not, and it has a data-parsoid strippedNL flag, add it back.
+			// This patched DOM will serialize html-pres correctly.
+			//
+			// FIXME: This code should be extracted into a DOMUtils.js file to be used
+			// by the testing setup.
+			if (name === 'pre' && tkRTInfo.stx === 'html') {
+				var modified = false;
+				var fc = node.firstChild;
+				if (fc && fc.nodeType === Node.TEXT_NODE) {
+					var matches = fc.data.match(/^(\r\n|\r|\n)/);
+					if (matches) {
+						fc.insertData(0, matches[1]);
+						modified = true;
+					}
+				}
+
+				var strippedNL = tkRTInfo.strippedNL;
+				if (!modified && strippedNL) {
+					if (fc && fc.nodeType === Node.TEXT_NODE) {
+						fc.insertData(0, strippedNL);
+					} else {
+						node.insertBefore(node.ownerDocument.createTextNode(strippedNL), fc);
+					}
 				}
 			}
 
