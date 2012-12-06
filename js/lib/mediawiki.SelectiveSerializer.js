@@ -247,7 +247,7 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 		var chunkCB;
 		var matchedRes, nonNewline, nls = 0, latestSerID = null;
 		Util.stripFirstParagraph( doc );
-		if ( foundRevisions ) {
+		if ( foundRevisions && src !== null) {
 			// If we found text, then use this chunk callback.
 			var state = _this.assignSerializerIds( doc, src );
 
@@ -326,6 +326,7 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 		} else if ( err === null ) {
 			// If there's no old source, fall back to non-selective serialization.
 			chunkCB = cb;
+			_this.wts.serializeDOM(doc, chunkCB, finalcb);
 		} else {
 			throw err;
 		}
