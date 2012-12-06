@@ -14,6 +14,38 @@ var Node = {
     DOCUMENT_NODE: 9
 };
 
+// Known wikitext tag widths
+var WT_TagWidths = {
+	"body"  : [0,0],
+	"html"  : [0,0],
+	"head"  : [0,0],
+	"p"     : [0,0],
+	"ol"    : [0,0],
+	"ul"    : [0,0],
+	"dl"    : [0,0],
+	"meta"  : [0,0],
+	"tbody" : [0,0],
+	"pre"   : [1,0],
+	"li"    : [1,0],
+	"dt"    : [1,0],
+	"dd"    : [1,0],
+	"h1"    : [1,1],
+	"h2"    : [2,2],
+	"h3"    : [3,3],
+	"h4"    : [4,4],
+	"h5"    : [5,5],
+	"h6"    : [6,6],
+	"hr"    : [4,0],
+	"table" : [2, 2],
+	"tr"    : [2, 0],
+	"b"     : [3, 3],
+	"i"     : [2, 2],
+	"td"    : [null, 0],
+	"th"    : [null, 0],
+	"br"    : [2,0] // non-html <br>s are inserted to replace 2 newlines in wikitext
+	// span, figure, caption, figcaption, br, a, i, b
+};
+
 /* ------------- utility functions on DOM nodes/Node attributes ------------ */
 
 // SSS FIXME: Should we convert some of these functions to properties
@@ -1302,38 +1334,6 @@ function findBuilderCorrectedTags(node) {
 	}
 }
 
-// Known wikitext tag widths
-var WT_TagWidths = {
-	"body"  : [0,0],
-	"html"  : [0,0],
-	"head"  : [0,0],
-	"p"     : [0,0],
-	"ol"    : [0,0],
-	"ul"    : [0,0],
-	"dl"    : [0,0],
-	"meta"  : [0,0],
-	"tbody" : [0,0],
-	"pre"   : [1,0],
-	"li"    : [1,0],
-	"dt"    : [1,0],
-	"dd"    : [1,0],
-	"h1"    : [1,1],
-	"h2"    : [2,2],
-	"h3"    : [3,3],
-	"h4"    : [4,4],
-	"h5"    : [5,5],
-	"h6"    : [6,6],
-	"hr"    : [4,0],
-	"table" : [2, 2],
-	"tr"    : [2, 0],
-	"b"     : [3, 3],
-	"i"     : [2, 2],
-	"td"    : [null, 0],
-	"th"    : [null, 0],
-	"br"    : [2,0] // non-html <br>s are inserted to replace 2 newlines in wikitext
-	// span, figure, caption, figcaption, br, a, i, b
-};
-
 // node  -- node to process
 // [s,e) -- if defined, start/end position of wikitext source that generated
 //          node's subtree
@@ -1374,6 +1374,29 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 			!(n === 'span' && n.getAttribute("typeof") === "mw:Nowiki");
 	}
 
+	function computeListEltWidth(li, nodeName) {
+		if (!li.previousSibling && li.firstChild) {
+			var n = li.firstChild.nodeName.toLowerCase();
+			if (n === 'dl' || n === 'ol' || n === 'ul') {
+				// Special case!!
+				// First child of a list that is on a chain
+				// of nested lists doesn't get a width.
+				return 0;
+			}
+		}
+
+		// count nest listing depth and assign
+		// that to the opening tag width.
+		var depth = 0;
+		while (nodeName === 'li' || nodeName === 'dd') {
+			depth++;
+			li = li.parentNode.parentNode;
+			nodeName = li.nodeName.toLowerCase();
+		}
+
+		return depth;
+	}
+
 	function computeTagWidths(widths, child, dp) {
 		var stWidth = widths[0], etWidth = null;
 
@@ -1382,15 +1405,20 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				etWidth = widths[1];
 			}
 		} else {
-			var nodeName = child.nodeName.toLowerCase(),
-				wtTagWidth = WT_TagWidths[nodeName];
+			var nodeName = child.nodeName.toLowerCase();
 			// 'tr' tags not in the original source have zero width
 			if (nodeName === 'tr' && !dp.startTagSrc) {
 				stWidth = 0;
 				etWidth = 0;
 			} else {
-				if (wtTagWidth && widths[0] === null) {
-					stWidth = wtTagWidth[0];
+				var wtTagWidth = WT_TagWidths[nodeName];
+				if (stWidth === null) {
+					// we didn't have a tsr to tell us how wide this tag was.
+					if (nodeName === 'li' || nodeName === 'dd') {
+						stWidth = computeListEltWidth(child, nodeName);
+					} else if (wtTagWidth) {
+						stWidth = wtTagWidth[0];
+					}
 				}
 				etWidth = wtTagWidth ? wtTagWidth[1] : widths[1];
 			}
@@ -1529,8 +1557,11 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				newDsr = computeNodeDSR(env, child, ccs, cce, traceDSR);
 
 				// Min(child-dom-tree dsr[0] - tag-width, current dsr[0])
-				if (stWidth !== null && newDsr[0] !== null && (cs === null || (newDsr[0] - stWidth) < cs)) {
-					cs = newDsr[0] - stWidth;
+				if (stWidth !== null && newDsr[0] !== null) {
+					var newCs = newDsr[0] - stWidth;
+					if (cs === null || (!tsr && newCs < cs)) {
+						cs = newCs;
+					}
 				}
 
 				// Max(child-dom-tree dsr[1] + tag-width, current dsr[1])
