@@ -9,10 +9,10 @@
 exports.setup = function( config, env ) {
 	// The URL here is supposed to be your MediaWiki installation root
 	env.setInterwiki( 'localhost', 'http://localhost/wiki' );
+
+        // Use the PHP preprocessor to expand templates via the MW API
+        env.usePHPPreProcessor = false;
 };
 
 // Use selective serialization
 exports.useSelser = false;
-
-// Use the PHP preprocessor to expand templates via the MW API
-env.usePHPPreProcessor = false;
