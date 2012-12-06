@@ -566,7 +566,7 @@ var Util = {
 	},
 
 	decodeURI: function ( s ) {
-		return s.replace( /%[0-9a-f][0-9a-f]/g, function( m ) {
+		return s.replace( /(%[0-9a-fA-F][0-9a-fA-F])+/g, function( m ) {
 			try {
 				// JS library function
 				return decodeURI( m );
