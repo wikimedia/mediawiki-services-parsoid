@@ -146,12 +146,14 @@ ListHandler.prototype.commonPrefixLength = function (x, y) {
 	return i;
 };
 
-ListHandler.prototype.pushList = function ( container ) {
+ListHandler.prototype.pushList = function ( container, liTok ) {
 	this.currListFrame.endtags.push( new EndTagTk( container.list ));
 	this.currListFrame.endtags.push( new EndTagTk( container.item ));
+
+	var da = liTok.dataAttribs ? Util.clone(liTok.dataAttribs) : undefined;
 	return [
 		new TagTk( container.list ),
-		new TagTk( container.item )
+		new TagTk( container.item, [], da)
 	];
 };
 
@@ -244,7 +246,7 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 				throw("Unknown node prefix " + prefix[i]);
 			}
 
-			tokens = tokens.concat(this.pushList(this.bulletCharsMap[bn[i]]));
+			tokens = tokens.concat(this.pushList(this.bulletCharsMap[bn[i]], token));
 		}
 		res = tokens;
 	}
