@@ -1729,6 +1729,7 @@ WSP._serializeToken = function ( state, token ) {
 			default:
 				res = '';
 				console.warn( 'Unhandled token type ' + JSON.stringify( token ) );
+				console.trace();
 				break;
 		}
 	}
