@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * This is a Serializer class that will run through a DOM looking for special
  * change markers, usually supplied by an HTML5 WYSIWYG editor (like the
@@ -7,11 +5,12 @@
  * serialized and what can simply be copied over.
  */
 
+'use strict';
+
 var WikitextSerializer = require( './mediawiki.WikitextSerializer.js' ).WikitextSerializer,
 	Util = require( './mediawiki.Util.js' ).Util,
 	apirql = require( './mediawiki.ApiRequest.js' ),
 	DoesNotExistError = apirql.DoesNotExistError;
-
 
 /**
  * Create a selective serializer.
@@ -68,8 +67,8 @@ function hasChangeMarker( dataVeChanged ) {
  * the old text, by assigning IDs to each node in the DOM that has changed.
  */
 SSP.assignSerializerIds = function ( node, src, state ) {
-	var child, thisda, thisdp, thisdsr, dsr, nodesrc, hasRun,
-		oldstartdsr, oldId, tname, childname, backi, backdp,
+	var child, thisda, thisdsr, dsr, nodesrc, hasRun,
+		childHasStartDsr, oldstartdsr, oldId, tname, childname, backi, backdp,
 		parentChangeMarkers, contentChanged;
 
 	// state will hold our local state, this is different from the
@@ -103,11 +102,11 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 
 		// data-parsoid has DSR information and possibly some things we'll need to
 		// duplicate later for special cases.
-		thisdp = Util.getJSONAttribute( child, 'data-parsoid', {} );
+		thisdsr = Util.getJSONAttribute( child, 'data-parsoid', {} ).dsr;
 
-		thisdsr = thisdp.dsr;
+		childHasStartDsr = thisdsr && thisdsr[0] !== null;
 
-		if ( !thisdp.dsr && !child.setAttribute ) {
+		if ( !thisdsr && !child.setAttribute ) {
 			// We can't mess with a text node, but we do need to avoid the
 			// error caused by calling setAttribute on it.
 			// However, we try to do the right thing by setting state.startdsr
@@ -118,20 +117,16 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 				state.lastdsr = null;
 				state.probablyPairSep = true;
 			}
-		} else if (
-				(
-					( state.foundChange && state.startdsr === null ) && (
-						!thisdp.dsr || thisdp.dsr[0] === null
-					)
-				) || hasChangeMarker( thisda ) ) {
+		} else if ( ( !childHasStartDsr && state.startdsr === null && state.foundChange ) ||
+					hasChangeMarker( thisda ) )
+		{
 			// This is either a changed node that needs to be serialized or a node
 			// without opening DSR that can't be copied over anyway, so we mark it
 			// to the best of our ability and move on.
-			if (
-					(
-					 state.startdsr !== null || !state.foundChange
-					) && thisdsr && thisdsr[0] && (
-						!state.lastdsr || thisdsr[0] < state.lastdsr ) ) {
+			if ( childHasStartDsr &&
+				( state.startdsr !== null || !state.foundChange ) &&
+				( state.lastdsr === null || thisdsr[0] < state.lastdsr ))
+			{
 				// In the case that we were in the middle of processing a series of
 				// unchanged nodes, we use this node's startdsr as the end index if
 				// possible.
@@ -142,8 +137,7 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 
 				// Reset the start DSR, because we aren't processing identical nodes now.
 				state.startdsr = null;
-			} else if (
-					state.lastdsr && (
+			} else if ( state.lastdsr !== null && (
 						state.startdsr !== null || !state.foundChange ) ) {
 				// If we were processing identical nodes and there is no start DSR on the
 				// current node, we use the end DSR of the last node.
@@ -178,29 +172,27 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 			// parent should probably be marked with the same serialize ID. This helps
 			// with processing tough things like lists and tables that might not work
 			// otherwise.
-			state.whyMarkingParent = child.tagName ? child.tagName.toLowerCase() : null;
-			state.parentMarked = false;
+			state.markedNodeName = child.tagName ? child.tagName.toLowerCase() : null;
 		} else {
 			// This node wasn't marked, but its children might be. Check first.
 			oldId = state.currentId;
 			oldstartdsr = state.startdsr;
 			this.assignSerializerIds( child, src, state );
 
-			if ( oldId === state.currentId && thisdsr && (
-					thisdsr[0] !== null ) ) {
+			if ( oldId === state.currentId && childHasStartDsr ) {
 				// If no children were bothered, then this entire node can be copied
 				// over verbatim. If there's no startdsr yet, set it.
 				if ( state.startdsr === null ) {
 					state.startdsr = thisdsr[0];
 				}
-			} else if ( oldId !== state.currentId && state.parentMarked === false ) {
+			} else if ( oldId !== state.currentId && state.markedNodeName !== null ) {
 				// If the serializeID changed while processing this node's children, then
 				// we can't copy it over entirely. If this particular node type needs
 				// special handling, we need to do that now.
 
 				// Special case handling for specific tags.
 				tname = child.tagName ? child.tagName.toLowerCase() : 'tbody';
-				childname = state.whyMarkingParent;
+				childname = state.markedNodeName;
 				if ( tname === 'tbody' || tname === 'thead' ) {
 					child.setAttribute( 'data-serialize-id', oldId );
 
@@ -211,11 +203,12 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 						childname === 'i' ||
 						childname === 'b' ) {
 					child.setAttribute( 'data-serialize-id', oldId );
-					delete state.parentMarked;
+					state.markedNodeName = null;
+					state.parentMarked = false;
 				} else if ( state.lastdsr !== null && state.startdsr === null ) {
 					state.startdsr = state.lastdsr;
 				}
-			} else if ( oldId !== state.currentId && state.parentMarked === true ) {
+			} else if ( oldId !== state.currentId && state.parentMarked ) {
 				// This is a special case for parents who were marked as
 				// changed because of a child, if a child was not tbody or
 				// thead then we can safely copy this source chunk into the
@@ -226,15 +219,16 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 				if ( oldstartdsr !== null ) {
 					// If there's a chunk of unmodified code in progress,
 					// finish it first.
-					if ( thisdsr && thisdsr[0] !== null ) {
+					if ( childHasStartDsr ) {
 						assignSourceChunk( oldId, oldstartdsr, thisdsr[0] );
-					} else if ( state.lastdsr ) {
+					} else if ( state.lastdsr !== null ) {
 						assignSourceChunk( oldId, oldstartdsr, state.lastdsr );
 					}
 					state.startdsr = null;
 				}
 				child.setAttribute( 'data-serialize-id', oldId );
-				delete state.parentMarked;
+				state.markedNodeName = null;
+				state.parentMarked = false;
 			}
 		}
 		if ( thisdsr ) {
@@ -253,11 +247,20 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 
 	// Get the old text of this page
 	this.getOldText( function ( err, src ) {
-		var foundRevisions = err === null;
-		var resWikitextChunks = [];
+		if ( err ) {
+			throw err;
+		}
+
 		var chunkCB;
+		var resWikitextChunks = [];
+		var matchedRes, nonNewline, nls = 0, latestSerID = null;
 		Util.stripFirstParagraph( doc );
-		if ( foundRevisions && src !== null) {
+
+		if ( src === null ) {
+			// If there's no old source, fall back to non-selective serialization.
+			chunkCB = cb;
+			selser.wts.serializeDOM(doc, chunkCB, finalcb);
+		} else {
 			// If we found text, then use this chunk callback.
 			var state = selser.assignSerializerIds( doc, src );
 
@@ -294,19 +297,9 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 						resWikitextChunks.push( res );
 					}
 				};
-			}
-		} else if ( err === null ) {
-			// If there's no old source, fall back to non-selective serialization.
-			chunkCB = cb;
-			selser.wts.serializeDOM(doc, chunkCB, finalcb);
-		} else {
-			throw err;
-		}
 
-		if ( state && state.foundChange === true ) {
-			// Call the WikitextSerializer to do our bidding
-			selser.wts.serializeDOM( doc, chunkCB, function () {
-				if ( foundRevisions ) {
+				// Call the WikitextSerializer to do our bidding
+				selser.wts.serializeDOM( doc, chunkCB, function () {
 					if ( state.startdsr !== null ) {
 						resWikitextChunks.push( src.substring( state.startdsr ) );
 					} else if ( state.lastdsr !== null ) {
@@ -314,15 +307,12 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 					}
 
 					cb( resWikitextChunks.join( '' ) );
-				}
-
+					finalcb();
+				} );
+			} else {
+				cb( src );
 				finalcb();
-			} );
-		} else if ( foundRevisions ) {
-			cb( src );
-			finalcb();
-		} else {
-			throw new Error( 'Could not figure any way to serialize.' );
+			}
 		}
 	} );
 };
