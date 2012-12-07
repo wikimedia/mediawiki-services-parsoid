@@ -30,6 +30,20 @@ var SelectiveSerializer = function ( options ) {
 	this.target = this.env.pageName || null;
 	this.oldtext = options.oldtext;
 	this.oldid = options.oldid;
+
+	var trace = (this.env.traceFlags && (this.env.traceFlags.indexOf("selser") !== -1));
+	if ( this.env.debug || trace ) {
+		SelectiveSerializer.prototype.debug_pp = function () {
+			Util.debug_pp.apply(Util, arguments);
+		};
+
+		SelectiveSerializer.prototype.debug = function ( ) {
+			this.debug_pp.apply(this, ["SS: ", ''].concat([].slice.apply(arguments)));
+		};
+	} else {
+		SelectiveSerializer.prototype.debug_pp = function ( ) {};
+		SelectiveSerializer.prototype.debug = function ( ) {};
+	}
 };
 
 var SSP = SelectiveSerializer.prototype;
@@ -156,7 +170,7 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 				state.foundChange = true;
 			}
 
-			if ( !thisda || !thisda.new ) {
+			if ( !thisda || !thisda['new'] ) {
 				// Make sure we reset lastdsr whenever we fully serialize
 				// something that already existed in the original document.
 				// Otherwise, the DSR would lead to duplication.
@@ -277,7 +291,8 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 
 				if ( identicalChunk && (
 						state.pairSeps[index] !== true ||
-						identicalChunk.match( RegExp( '[^' + identicalChunk[0] + ']' ) ) ) ) {
+						identicalChunk.match( new RegExp( '[^' + identicalChunk[0] + ']' ) ) ) ) {
+					selser.debug("[Identical] serID=", index, ", chunk: ", identicalChunk);
 					resWikitextChunks.push( identicalChunk );
 					state.originalSourceChunks[index] = null;
 				}
@@ -285,15 +300,11 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 
 			if ( state && state.foundChange === true ) {
 				chunkCB = function ( res, serID ) {
+					selser.debug("serID=", serID || '', ", res: ", res);
 					// Only handle something that actually has a serialize-ID,
 					// else skip it for now.
 					if ( serID ) {
-						serID = Number( serID );
-
-						originalSourceAccum( serID );
-
-						// Unconditionally add the result of the serialization to
-						// the end result.
+						originalSourceAccum( Number( serID ));
 						resWikitextChunks.push( res );
 					}
 				};
@@ -301,9 +312,13 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 				// Call the WikitextSerializer to do our bidding
 				selser.wts.serializeDOM( doc, chunkCB, function () {
 					if ( state.startdsr !== null ) {
-						resWikitextChunks.push( src.substring( state.startdsr ) );
+						var startSrc = src.substring( state.startdsr );
+						selser.debug("[startdsr], src: ", startSrc);
+						resWikitextChunks.push( startSrc );
 					} else if ( state.lastdsr !== null ) {
-						resWikitextChunks.push( src.substring( state.lastdsr ) );
+						var lastSrc = src.substring( state.lastdsr );
+						selser.debug("[lastdsr], src: ", lastSrc);
+						resWikitextChunks.push( lastSrc );
 					}
 
 					cb( resWikitextChunks.join( '' ) );

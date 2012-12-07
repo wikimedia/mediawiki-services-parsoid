@@ -30,7 +30,9 @@ function traceUsage() {
 	buf.push("  * pre_debug : shows actions of the pre handler + tokens returned from it");
 	buf.push("  * p-wrap    : shows actions of the paragraph wrapper");
 	buf.push("  * html      : shows tokens that are sent to the HTML tree builder");
-	buf.push("  * dsr       : shows dsr computation on the DOM\n");
+	buf.push("  * dsr       : shows dsr computation on the DOM");
+	buf.push("  * wts       : trace actions of the regular wikitext serializer");
+	buf.push("  * selser    : trace actions of the selective serializer\n");
 	buf.push("--debug enables tracing of all the above phases except Token Transform Managers\n");
 	buf.push("Examples:");
 	buf.push("$ node parse --trace pre,p-wrap,html < foo");
@@ -49,7 +51,7 @@ function dumpFlags() {
 	buf.push("  * dom:pre-dsr       : dumps DOM prior to computing DSR");
 	buf.push("  * dom:post-dsr      : dumps DOM after computing DSR");
 	buf.push("  * dom:pre-encap     : dumps DOM before template encapsulation");
-	buf.push("  * dom:serialize-ids : in selective serialization, dumps DOM after assigning serializer ids");
+	buf.push("  * dom:serialize-ids : in selective serialization, dumps DOM after assigning serializer ids\n");
 	buf.push("--debug dumps state at these different stages\n");
 	buf.push("Examples:");
 	buf.push("$ node parse --dump dom:post-builder,dom:pre-dsr,dom:pre-encap < foo");

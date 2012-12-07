@@ -200,7 +200,11 @@ var WikitextSerializer = function( options ) {
 	this.options = Util.extendProps( {
 		// defaults
 	}, options || {} );
-	if ( options.env.debug || options.env.trace ) {
+
+	var env = options.env,
+	    trace = env.traceFlags && (env.traceFlags.indexOf("wts") !== -1);
+
+	if ( env.debug || trace ) {
 		WikitextSerializer.prototype.debug_pp = function () {
 			Util.debug_pp.apply(Util, arguments);
 		};
