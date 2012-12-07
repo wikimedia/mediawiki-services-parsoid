@@ -605,8 +605,8 @@ h = & "=" // guard, to make sure '='+ will match.
      s:'='+ // moved in here to make s accessible to inner action
      & { return stops.inc('h'); }
      c:inlineline 
-     endTPos:({ return pos })
      e:'='+ 
+     endTPos:({ return pos })
      spc:(sp:space+ { return sp.join('') } / comment)*
      &eolf 
      {
