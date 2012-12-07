@@ -90,7 +90,8 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 	var j, maybeContent, about, possibleTags, property, newType,
 		hrefkv, saniContent, env = this.manager.env,
 		attribs = token.attribs,
-		href = Util.tokensToString( Util.lookup( attribs, 'href' ) ),
+		target = Util.lookup( attribs, 'href' ),
+		href = Util.tokensToString( target ),
 		title = env.makeTitleFromPrefixedText(env.normalizeTitle(Util.decodeURI(href)));
 
 	if ( title.ns.isFile() ) {
@@ -182,6 +183,24 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 				propKV.v = propKV.v.replace(/mw:maybeContent/, 'mw:sortKey'); // keep it clean
 				tokens.push(metaToken);
 			}
+
+			if ( tail ) {
+				tokens.push(tail);
+			}
+
+			cb( {
+				tokens: tokens
+			} );
+		} else if ( href.match( new RegExp( '^(' + this.manager.env.interwikiRegexp + '):' ) ) ) {
+			var tokens = [];
+
+			obj.dataAttribs.src = token.getWTSource( env );
+			obj = new SelfclosingTagTk('link', obj.attribs, obj.dataAttribs);
+
+			// Change the rel to be mw:WikiLink/Language
+			Util.lookupKV( obj.attribs, 'rel' ).v += '/Language';
+
+			tokens.push( obj );
 
 			if ( tail ) {
 				tokens.push(tail);

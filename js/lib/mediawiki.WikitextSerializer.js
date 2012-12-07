@@ -826,7 +826,9 @@ WSP._linkHandler =  function( state, tokens ) {
 
 		var target = linkData.target;
 
-		if ( linkData.type === 'mw:WikiLink' || linkData.type === 'mw:WikiLink/Category' ) {
+		if ( linkData.type === 'mw:WikiLink' ||
+				linkData.type === 'mw:WikiLink/Category' ||
+				linkData.type === 'mw:WikiLink/Language' ) {
 
 			// Decode any link that did not come from the source
 			if (! target.fromsrc) {
@@ -862,6 +864,8 @@ WSP._linkHandler =  function( state, tokens ) {
 						linkData.content.string = sortKeySrc.value;
 					}
 				//}
+			} else if ( linkData.type === 'mw:WikiLink/Language' ) {
+				return dp.src;
 			}
 
 			// figure out if we need a piped or simple link
