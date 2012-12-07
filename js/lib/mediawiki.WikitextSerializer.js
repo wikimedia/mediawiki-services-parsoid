@@ -397,10 +397,14 @@ WSP.escapeWikiText = function ( state, text ) {
 	 * the entire string without further analysis of the rest of the string.
 	 * ----------------------------------------------------------------- */
 
+	// SSS FIXME: Move this somewhere else
+	var urlTriggers = /\b(RFC|ISBN|PMID)\b/;
+	var fullCheckNeeded = text.match(urlTriggers);
+
 	// Quick check for the common case (useful to kill a majority of requests)
 	//
 	// Pure white-space or text without wt-special chars need not be analyzed
-	if (!text.match(/^[ \t][^\s]+|[<>\[\]\-\+\|'!=#\*:;{}]/)) {
+	if (!fullCheckNeeded && !text.match(/^[ \t][^\s]+|[<>\[\]\-\+\|'!=#\*:;{}]/)) {
 		// console.warn("---EWT:F1---");
 		return text;
 	}
@@ -422,7 +426,7 @@ WSP.escapeWikiText = function ( state, text ) {
 
 	var sol = state.onNewline || state.emitNewlineOnNextToken;
 	var hasNewlines = text.match(/\n./);
-	if (!hasNewlines) {
+	if (!fullCheckNeeded && !hasNewlines) {
 		// {{, {{{, }}}, }} are handled above.
 		// Test 1: '', [], <> need escaping wherever they occur
 		// Test 2: {|, |}, ||, |-, |+,  , *#:;, ----, =*= need escaping only in SOL context.
