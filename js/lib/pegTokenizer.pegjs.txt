@@ -637,7 +637,7 @@ h = & "=" // guard, to make sure '='+ will match.
         return [new TagTk( 'h' + level, [], { tsr: [pos0, pos0+level] } )]
                 .concat(c, [
                         new EndTagTk( 'h' + level, [], 
-                            { tsr: [endTPos, endTPos + level]} ), 
+                            { tsr: [endTPos - level, endTPos]} ), 
                         spc
                         ]);
       }
