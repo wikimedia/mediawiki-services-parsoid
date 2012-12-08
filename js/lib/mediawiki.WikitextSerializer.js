@@ -825,10 +825,7 @@ WSP._linkHandler =  function( state, tokens ) {
 	// Get the rt data from the token and tplAttrs
 	linkData = getLinkRoundTripData(token, attribDict, dp, tokens, state.tplAttrs);
 
-
-
-	if ( linkData.type !== null && linkData.target.value !== null  )
-	{
+	if ( linkData.type !== null && linkData.target.value !== null  ) {
 		// We have a type and target info
 
 		var target = linkData.target;
@@ -853,7 +850,9 @@ WSP._linkHandler =  function( state, tokens ) {
 							// gwicke: verify that spaces are really
 							// double-encoded!
 							.replace( /%20/g, ' ');
-				} // else: no sort key, just use the full target
+				} else { // No sort key, will serialize to simple link
+					linkData.content.string = '';
+				}
 
 				// Special-case handling for template-affected sort keys
 				// FIXME: sort keys cannot be modified yet, but if they are we
@@ -867,26 +866,23 @@ WSP._linkHandler =  function( state, tokens ) {
 				//}
 			}
 
-
 			// figure out if we need a piped or simple link
 			var canUseSimple =  // Would need to pipe for any non-string content
-								linkData.content.string &&
+								linkData.content.string !== undefined &&
 								// See if the (normalized) content matches the
 								// target
 								( linkData.content.string === target.value ||
 									env.normalizeTitle(linkData.content.string, true) ===
 										Util.decodeURI(target.value) ||
-									// Empty link content
-									linkData.content.string.trim() === '' ||
 									// Unmodified simple links
-									(! linkData.target.modified && dp.stx === 'simple') ) &&
+									(! target.modified && dp.stx === 'simple') ) &&
 								// but preserve non-minimal piped links
-								! ( ! linkData.target.modified && dp.stx === 'piped' );
+								! ( ! target.modified && dp.stx === 'piped' );
 
 			if ( canUseSimple ) {
 				// Simple case
 				if ( ! target.modified ) {
-					return '[[' + linkData.target.value + ']]' + linkData.tail;
+					return '[[' + target.value + ']]' + linkData.tail;
 				} else {
 					return '[[' + linkData.content.string + ']]' + linkData.tail;
 				}
