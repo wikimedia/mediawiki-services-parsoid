@@ -113,6 +113,7 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 					out.push( '|' );
 				}
 			}
+			obj.dataAttribs.stx = 'piped';
 			content = out;
 		} else {
 			var morecontent = Util.decodeURI(href);

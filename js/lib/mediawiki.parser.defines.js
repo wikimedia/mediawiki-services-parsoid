@@ -97,12 +97,33 @@ var genericTokenMethods = {
 	 * detection and uses unnormalized attribute values if set. Expects the
 	 * context to be set to a token.
 	 */
-	getAttributeShadowInfo: function ( name ) {
+	getAttributeShadowInfo: function ( name, tplAttrs ) {
 		var curVal = Util.lookup( this.attribs, name );
+
+		// If tplAttrs is truish, check if this attribute was
+		// template-generated. Return that value if set.
+		if ( tplAttrs ) {
+			var type = Util.lookup(this.attribs, 'typeof'),
+				about = Util.lookup(this.attribs, 'about'),
+				tplAttrState = tplAttrs[about];
+			if (type && type.match(/\bmw:ExpandedAttrs\/[^\s]+/) &&
+					tplAttrState &&
+					tplAttrState.vs[name] )
+			{
+				return {
+					value: tplAttrState.vs[name],
+					modified: false,
+					fromsrc: true
+				};
+			}
+		}
+
+		// Not the case, continue regular round-trip information.
 		if ( this.dataAttribs.a === undefined ) {
 			return {
 				value: curVal,
-				modified: false,
+				// Mark as modified if a new element
+				modified: Object.keys(this.dataAttribs).length === 0,
 				fromsrc: false
 			};
 		} else if ( this.dataAttribs.a[name] !== curVal ||

@@ -89,7 +89,7 @@ WEHP.thHandler = function(state, text) {
 WEHP.tdHandler = function(state, text) {
 	var tok = state.currTagToken;
 	return text.match(/\|/) ||
-		(text.match(/^[-+]/) &&
+		(text.match(/^[\-+]/) &&
 		isTd(tok) &&
 		tok.dataAttribs.stx_v !== 'row' &&
 		tok.attribs.length === 0);
@@ -764,6 +764,50 @@ WSP._serializeHTMLEndTag = function ( state, token ) {
 	}
 };
 
+var stripLinkContentString = function (contentString, dp) {
+	if (dp.tail) {
+		// strip the tail off the content
+		contentString = Util.stripSuffix(contentString, dp.tail);
+	}
+	if (dp.pipetrick) {
+		// Drop the content completely..
+		contentString = '';
+	}
+	return contentString;
+};
+
+
+// Helper function for getting RT data from the tokens
+var getLinkRoundTripData = function( token, attribDict, dp, tokens, tplAttrs ) {
+			var rtData = {
+				type: null,
+				target: null, // filled in below
+				tail: dp.tail || '',
+				content: {} // string or tokens
+			};
+
+			// Figure out the type of the link
+			if ( attribDict.rel ) {
+				var typeMatch = attribDict.rel.match( /\bmw:[^\b]+/ );
+				if ( typeMatch ) {
+					rtData.type = typeMatch[0];
+				}
+			}
+
+			// Now get the target from rt data
+			rtData.target = token.getAttributeShadowInfo('href', tplAttrs);
+
+			// Get the content string or tokens
+			var contentString = Util.tokensToString(tokens, true);
+			if (contentString.constructor === String) {
+				rtData.content.string = stripLinkContentString(contentString, dp);
+			} else {
+				rtData.content.tokens = tokens;
+			}
+
+			return rtData;
+};
+
 
 WSP._linkHandler =  function( state, tokens ) {
 	//return '[[';
@@ -775,155 +819,106 @@ WSP._linkHandler =  function( state, tokens ) {
 		token = tokens.shift(),
 		endToken = tokens.pop(),
 		attribDict = Util.KVtoHash( token.attribs ),
-		tplAttrState = { kvs: {}, ks: {}, vs: {} },
-		tail = '',
-		isCat = false,
-		isWikiLink = false,
-		hrefFromTpl = true,
-		tokenData = token.dataAttribs,
-		target, linkText, unencodedTarget,
-		hrefInfo = { fromsrc: false },
-		href;
+		dp = token.dataAttribs,
+		linkData;
 
-		// Helper function for getting RT data from the tokens
-		function populateRoundTripData() {
-			isCat = attribDict.rel.match( /\bmw:WikiLink\/Category/ );
-			isWikiLink = attribDict.rel.match( /\bmw:WikiLink/ );
-			target = tplAttrState.vs.href;
+	// Get the rt data from the token and tplAttrs
+	linkData = getLinkRoundTripData(token, attribDict, dp, tokens, state.tplAttrs);
 
-			// If the link target came from a template, target will be non-null
-			if (target && !isCat) {
-				href = target;
-			} else {
-				href = attribDict.href;
-				hrefFromTpl = false;
-				hrefInfo = token.getAttributeShadowInfo( 'href' );
-				target = hrefInfo.value; //.replace(/^(\.\.\/)+/, ''),
 
-				if ( hrefInfo.modified ) {
-					// there was no rt info or the href was modified: normalize it
-					if ( isWikiLink ) {
-						// We (lightly) percent-encode wikilinks (but not
-						// external links) on the way out, and expect
-						// percent-encoded links on the way in. Wikitext links
-						// are always serialized in decoded form, so decode
-						// them here.
-						target = Util.decodeURI(target)
-												.replace( /_/g, ' ' )
-												.replace(/^(\.\.\/)+/, '');
-						tail = '';
-					}
-				} else {
-					tail = tokenData.tail || '';
-				}
+
+	if ( linkData.type !== null && linkData.target.value !== null  )
+	{
+		// We have a type and target info
+
+		var target = linkData.target;
+
+		if ( linkData.type === 'mw:WikiLink' || linkData.type === 'mw:WikiLink/Category' ) {
+
+			// Decode any link that did not come from the source
+			if (! target.fromsrc) {
+				target.value = Util.decodeURI(target.value);
 			}
 
-			unencodedTarget = target;
+			// Special-case handling for category links
+			if ( linkData.type === 'mw:WikiLink/Category' ) {
+				// Split target and sort key
+				var targetParts = target.value.match( /^([^#]*)#(.*)/ );
+				if ( targetParts ) {
+					target.value = targetParts[1]
+						.replace( /^(\.\.?\/)*/, '' )
+						.replace(/_/g, ' ');
+					linkData.content.string = Util.decodeURI( targetParts[2] )
+							.replace( /%23/g, '#' )
+							// gwicke: verify that spaces are really
+							// double-encoded!
+							.replace( /%20/g, ' ');
+				} // else: no sort key, just use the full target
 
-			//if ( ! hrefInfo.fromsrc && target.constructor === String ) {
-			//	// Escape anything that looks like percent encoding, since we
-			//	// decode the wikitext for regular attributes.
-			//	//target = target.replace( /%(?=[a-f\d]{2})/gi, '%25' );
-			//}
+				// Special-case handling for template-affected sort keys
+				// FIXME: sort keys cannot be modified yet, but if they are we
+				// need to fully shadow the sort key.
+				//if ( ! target.modified ) {
+					// The target and source key was not modified
+					var sortKeySrc = token.getAttributeShadowInfo('mw:sortKey', state.tplAttrs);
+					if ( sortKeySrc.value !== null ) {
+						linkData.content.string = sortKeySrc.value;
+					}
+				//}
+			}
 
 
-			// If the normalized link text is the same as the normalized
-			// target and the link was either modified or not originally a
-			// piped link, serialize to a simple link.
-			// TODO: implement
-			linkText = Util.tokensToString( tokens, true );
-		}
+			// figure out if we need a piped or simple link
+			var canUseSimple =  // Would need to pipe for any non-string content
+								linkData.content.string &&
+								// See if the (normalized) content matches the
+								// target
+								( linkData.content.string === target.value ||
+									env.normalizeTitle(linkData.content.string, true) ===
+										Util.decodeURI(target.value) ||
+									// Empty link content
+									linkData.content.string.trim() === '' ||
+									// Unmodified simple links
+									(! linkData.target.modified && dp.stx === 'simple') ) &&
+								// but preserve non-minimal piped links
+								! ( ! linkData.target.modified && dp.stx === 'piped' );
 
-	// Check if this token has attributes that have been
-	// expanded from templates or extensions
-	if (hasExpandedAttrs(attribDict['typeof'])) {
-		tplAttrState = state.tplAttrs[attribDict.about];
-	}
-
-	if ( attribDict.rel && attribDict.rel.match( /\bmw:/ ) &&
-			attribDict.href !== undefined )
-	{
-		// we have a rel starting with mw: prefix and href
-		if ( attribDict.rel.match( /\bmw:WikiLink/ ) ) {
-			// We'll need to check for round-trip data
-			populateRoundTripData();
-
-			var innerLinkText = linkText.constructor === String ?
-							Util.stripSuffix( linkText, tail ) : null,
-				decodedTarget = Util.decodeURI( unencodedTarget );
-
-			// FIXME: restructure the below in a saner way!
-			if ( !isCat && !hrefInfo.modified && tokenData.stx === 'simple')
-			{
-				// Unmodified, was simple before. The target is
-				// authorative.
-				return '[[' + target + ']]' + tail;
-			} else if ( !isCat && linkText.constructor === String &&
-				 (	innerLinkText === target ||
-					env.normalizeTitle( innerLinkText, true ) === decodedTarget ) &&
-				 ! tokenData.pipetrick &&
-				 // Either no data-parsoid info, or the href was changed.
-				 (  Object.keys( tokenData ).length === 0 ||
-					hrefInfo.modified )
-				)
-			{
-				// we can get away with a simple link
-				return '[[' + innerLinkText + ']]' + tail;
+			if ( canUseSimple ) {
+				// Simple case
+				if ( ! target.modified ) {
+					return '[[' + linkData.target.value + ']]' + linkData.tail;
+				} else {
+					return '[[' + linkData.content.string + ']]' + linkData.tail;
+				}
 			} else {
-				if (tokenData.pipetrick) {
-					linkText = '';
-				} else if ( isCat ) {
-					// FIXME: isCat is only set as a side-effect of
-					// populateRoundTripData, which is not the best code
-					// style!
-					var targetParts = target.match( /^([^#]*)#(.*)/ );
 
-					if ( tplAttrState.vs.href ) {
-						target = tplAttrState.vs.href;
-					} else if ( targetParts && targetParts.length > 1 ) {
-						target = targetParts[1].replace( /^(\.\.?\/)*/, '' );
-					}
-
-					if ( tplAttrState.vs['mw:sortKey'] ) {
-						linkText = tplAttrState.vs['mw:sortKey'];
-					} else if ( targetParts && targetParts.length > 2 ) {
-						linkText = Util.decodeURI( targetParts[2] ).replace( /%23/g, '#' ).replace( /%20/g, ' ' );
-					}
+				// First get the content source
+				var contentSrc;
+				if ( linkData.content.tokens ) {
+					contentSrc = state.serializeTokens(false, tokens).join('');
+					// strip off the tail and handle the pipe trick
+					contentSrc = stripLinkContentString(contentSrc, dp);
 				} else {
-					linkText = state.serializeTokens(false, tokens).join('');
-					linkText = Util.stripSuffix( linkText, tail );
+					contentSrc = linkData.content.string;
 				}
 
-				var needToChangeCategory = token.name === 'link' &&
-						linkText !== '' &&
-						linkText !== target && isCat,
-					hasOtherLinkText = !isCat && linkText !== '';
-
-				if ( needToChangeCategory || hasOtherLinkText || tokenData.pipetrick ) {
-					return '[[' + target + '|' + linkText + ']]' + tail;
-				} else {
-					return '[[' + target + ']]' + tail;
-				}
+				return '[[' + linkData.target.value + '|' + contentSrc + ']]' + linkData.tail;
 			}
 		} else if ( attribDict.rel === 'mw:ExtLink' ) {
-			populateRoundTripData();
-
-			return '[' + href + ' ' +
+			return '[' + linkData.target.value + ' ' +
 				state.serializeTokens(false, tokens ).join('') +
 				']';
 		} else if ( attribDict.rel.match( /mw:ExtLink\/(?:ISBN|RFC|PMID)/ ) ) {
 			return tokens.join('');
 		} else if ( attribDict.rel === 'mw:ExtLink/URL' ) {
-			populateRoundTripData();
-			return Util.tokensToString( target );
+			return Util.tokensToString( linkData.target.value );
 		} else if ( attribDict.rel === 'mw:ExtLink/Numbered' ) {
-			populateRoundTripData();
-			return '[' + Util.tokensToString( target ) + ']';
+			return '[' + Util.tokensToString( linkData.target.value ) + ']';
 		} else if ( attribDict.rel === 'mw:Image' ) {
 			// simple source-based round-tripping for now..
 			// TODO: properly implement!
-			if ( tokenData.src ) {
-				return tokenData.src;
+			if ( dp.src ) {
+				return dp.src;
 			}
 		} else {
 			// Unknown rel was set
