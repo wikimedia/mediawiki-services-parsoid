@@ -299,11 +299,7 @@ WSP.initialState = {
 		hasBracketPair: false,
 		hasHeadingPair: false
 	},
-	selser: {
-		serializeID: null,
-		pendingNLID: null,
-		pendingNLs: 0
-	},
+	serializeID: null,
 	serializeTokens: function(newLineStart, tokens, chunkCB) {
 		var initState = {
 			onNewline: newLineStart,
@@ -1543,6 +1539,7 @@ WSP.serializeTokens = function(startState, tokens, chunkCB ) {
 			// state for later serializer runs.
 			Util.clone(this.initialState),
 			Util.clone(this.options));
+	state.serializeID = null;
 	state.serializer = this;
 	if ( chunkCB === undefined ) {
 		var out = [];
@@ -1728,7 +1725,7 @@ WSP._serializeToken = function ( state, token ) {
 				for ( var i = 0, l = state.availableNewlineCount; i < l; i++ ) {
 					res += '\n';
 				}
-				state.chunkCB( res, state.selser.serializeID );
+				state.chunkCB( res, state.serializeID );
 				break;
 			default:
 				res = '';
@@ -1766,10 +1763,6 @@ WSP._serializeToken = function ( state, token ) {
 			state.availableNewlineCount += ( leadingNLs.match(/\n/g) || [] ).length;
 		}
 		if (leadingNLs === res) {
-			if (state.selser.serializeID) {
-				state.selser.pendingNLID = state.selser.serializeID;
-				state.selser.pendingNLs = leadingNLs.length;
-			}
 			// clear output
 			res = "";
 		} else {
@@ -1781,10 +1774,6 @@ WSP._serializeToken = function ( state, token ) {
 			newTrailingNLCount = ( trailingNLs.match(/\n/g) || [] ).length;
 			// strip newlines
 			res = res.replace(/^[\r\n]+|[\r\n]+$/g, '');
-			if (state.selser.serializeID) {
-				state.selser.pendingNLID = state.selser.serializeID;
-				state.selser.pendingNLs = newTrailingNLCount;
-			}
 		}
 	}
 
@@ -1834,35 +1823,18 @@ WSP._serializeToken = function ( state, token ) {
 		for (; state.availableNewlineCount; state.availableNewlineCount--) {
 			out += '\n';
 		}
-
-		// If we have pending nls from a previous element and we are
-		// no longer in serialization mode, purge pending NLs with
-		// that element's serializer id.
-		var ss = state.selser;
-		if (ss.pendingNLID && !ss.serializeID) {
-			var nls;
-			if (out.length > ss.pendingNLs) {
-				nls = out.substring(0, ss.pendingNLs);
-				out = out.substring(ss.pendingNLs);
-			} else {
-				nls = out;
-				out = "";
-			}
-			// console.warn("--here with: " + nls.length + "; id: " + ss.pendingNLID + "; out.length: " + out.length);
-			state.chunkCB(nls, ss.pendingNLID);
-			ss.pendingNLID = null;
-			ss.pendingNLs = 0;
-		}
+		// Emit newlines separately from regular content
+		// for the benefit of the selective serializer.
+		state.chunkCB( out, state.serializeID );
 
 		// XXX: Switch singleLineMode to stack if there are more
 		// exceptions than just isTemplateSrc later on.
 		if ( state.singleLineMode && !handler.isTemplateSrc) {
 			res = res.replace(/\n/g, ' ');
 		}
+		state.chunkCB( res, state.serializeID );
 
-		out += res;
-		WSP.debug_pp("===> ", "", out);
-		state.chunkCB( out, ss.serializeID );
+		WSP.debug_pp("===> ", "", out + res);
 
 		// Update new line state
 		// 1. If this token generated new trailing new lines, we are in a newline state again.
@@ -1956,6 +1928,7 @@ WSP.serializeDOM = function( node, chunkCB, finalCB ) {
 			Util.clone(this.initialState),
 			Util.clone(this.options));
 		state.serializer = this;
+		state.serializeID = null;
 		this._collectAttrMetaTags(node, state);
 		//console.warn( node.innerHTML );
 		if ( ! chunkCB ) {
@@ -2098,10 +2071,10 @@ WSP._serializeDOM = function( node, state ) {
 			}
 
 			var serializeID = null;
-			if ( state.selser.serializeID === null ) {
+			if ( state.serializeID === null ) {
 				serializeID = node.getAttribute( 'data-serialize-id' );
 				if ( serializeID ) {
-					state.selser.serializeID = serializeID;
+					state.serializeID = serializeID;
 				}
 			}
 
@@ -2143,7 +2116,7 @@ WSP._serializeDOM = function( node, state ) {
 			this._serializeToken(state, new EndTagTk(name, tkAttribs, tkRTInfo));
 
 			if ( serializeID !== null ) {
-				state.selser.serializeID = null;
+				state.serializeID = null;
 			}
 
 			break;

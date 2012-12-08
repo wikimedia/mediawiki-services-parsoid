@@ -30,9 +30,12 @@ var SelectiveSerializer = function ( options ) {
 	this.target = this.env.pageName || null;
 	this.oldtext = options.oldtext;
 	this.oldid = options.oldid;
+	this.wtChunks = [];
+	this.trace = this.env.debug || (
+		this.env.traceFlags && (this.env.traceFlags.indexOf("selser") !== -1)
+	);
 
-	var trace = (this.env.traceFlags && (this.env.traceFlags.indexOf("selser") !== -1));
-	if ( this.env.debug || trace ) {
+	if ( this.trace ) {
 		SelectiveSerializer.prototype.debug_pp = function () {
 			Util.debug_pp.apply(Util, arguments);
 		};
@@ -94,17 +97,33 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 		startdsr: null,
 		foundChange: false,
 		lastdsr: null,
-		probablyPairSep: false,
-		pairSeps: []
+		inModifiedContent: false,
+		lastNLChunk: null
 	};
 
+	var selser = this;
 	var assignSourceChunk = function ( index, start, end ) {
 		if ( index && !state.originalSourceChunks[index] ) {
-			state.originalSourceChunks[index] = src.substring( start, end );
-		}
-		if ( state.probablyPairSep === true ) {
-			state.pairSeps[index] = true;
-			state.probablyPairSep = false;
+			// Sanity check
+			if (start > end) {
+				if (selser.trace) {
+					console.error("ERROR (start > end) start: " + start + "; end: " + end);
+					console.trace();
+				}
+				return;
+			}
+
+			// Strip all leading/trailing newlines since they
+			// will come through via the regular serializer
+			var chunk = src.substring( start, end ).replace(/(^\n+|\n+$)/, '');
+			if (chunk) {
+				state.originalSourceChunks[index] = chunk;
+				selser.debug(
+					"ser-id: ", index,
+					", start:", start,
+					", end:", end,
+					", chunk:", chunk);
+			}
 		}
 	};
 
@@ -129,7 +148,6 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 			if ( state.startdsr === null && state.lastdsr !== null ) {
 				state.startdsr = state.lastdsr;
 				state.lastdsr = null;
-				state.probablyPairSep = true;
 			}
 		} else if ( ( !childHasStartDsr && state.startdsr === null && state.foundChange ) ||
 					hasChangeMarker( thisda ) )
@@ -256,6 +274,55 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 	return state;
 };
 
+SSP.handleSerializedResult = function( state, res, serID ) {
+	// Helper function for accumulating source chunks.
+	function getUnmodifiedSource(state, serID) {
+		var src = state.originalSourceChunks[serID] || '';
+		if ( src ) {
+			state.originalSourceChunks[serID] = null;
+		}
+		return src;
+	}
+
+	this.debug(
+		"serID: ", serID || '',
+		", inModified: ", state.inModifiedContent,
+		", res: ", res);
+
+	if ( serID ) {
+		if (!state.inModifiedContent) {
+			// 1. original unmodified source preceding this
+			// modified serialized content
+			state.inModifiedContent = true;
+			var origSrc = getUnmodifiedSource(state, serID);
+			this.wtChunks.push( origSrc);
+			this.debug("[Original]: ", origSrc);
+
+			// 2. separator nls between the unmodified & modified content
+			if (state.lastNLChunk) {
+				this.wtChunks.push( state.lastNLChunk );
+				state.lastNLChunk = null;
+				this.debug("[NLs]: ", state.lastNLChunk);
+			}
+		}
+
+		// modified serialized content
+		this.wtChunks.push( res );
+	} else if (res.match(/^\n*$/)) {
+		// NL-separators
+		// - push out if we are in modified content
+		// - stash if we are in unmodified content
+		if (state.inModifiedContent) {
+			this.wtChunks.push( res );
+		} else {
+			state.lastNLChunk = res;
+		}
+	} else {
+		// in unmodified content -- ignore
+		state.inModifiedContent = false;
+	}
+};
+
 SSP.serializeDOM = function( doc, cb, finalcb ) {
 	var selser = this;
 
@@ -265,65 +332,45 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 			throw err;
 		}
 
-		var chunkCB;
-		var resWikitextChunks = [];
 		var matchedRes, nonNewline, nls = 0, latestSerID = null;
 		Util.stripFirstParagraph( doc );
 
 		if ( src === null ) {
 			// If there's no old source, fall back to non-selective serialization.
-			chunkCB = cb;
-			selser.wts.serializeDOM(doc, chunkCB, finalcb);
+			selser.wts.serializeDOM(doc, cb, finalcb);
 		} else {
 			// If we found text, then use this chunk callback.
 			var state = selser.assignSerializerIds( doc, src );
 
 			// If we found text, then use this chunk callback.
-			if ( selser.env.debug || ( selser.env.dumpFlags &&
-				selser.env.dumpFlags.indexOf( 'dom:serialize-ids' ) !== -1) ) {
+			if ( selser.trace || ( selser.env.dumpFlags &&
+				selser.env.dumpFlags.indexOf( 'dom:serialize-ids' ) !== -1) )
+			{
 				console.log( '----- DOM after assigning serialize-ids -----' );
 				console.log( doc.outerHTML );
 			}
 
-			// Helper function for accumulating source chunks.
-			var originalSourceAccum = function ( index ) {
-				var identicalChunk = state.originalSourceChunks[index] || '';
-
-				if ( identicalChunk && (
-						state.pairSeps[index] !== true ||
-						identicalChunk.match( new RegExp( '[^' + identicalChunk[0] + ']' ) ) ) ) {
-					selser.debug("[Identical] serID=", index, ", chunk: ", identicalChunk);
-					resWikitextChunks.push( identicalChunk );
-					state.originalSourceChunks[index] = null;
-				}
-			};
-
 			if ( state && state.foundChange === true ) {
-				chunkCB = function ( res, serID ) {
-					selser.debug("serID=", serID || '', ", res: ", res);
-					// Only handle something that actually has a serialize-ID,
-					// else skip it for now.
-					if ( serID ) {
-						originalSourceAccum( Number( serID ));
-						resWikitextChunks.push( res );
-					}
-				};
-
 				// Call the WikitextSerializer to do our bidding
-				selser.wts.serializeDOM( doc, chunkCB, function () {
-					if ( state.startdsr !== null ) {
-						var startSrc = src.substring( state.startdsr );
-						selser.debug("[startdsr], src: ", startSrc);
-						resWikitextChunks.push( startSrc );
-					} else if ( state.lastdsr !== null ) {
-						var lastSrc = src.substring( state.lastdsr );
-						selser.debug("[lastdsr], src: ", lastSrc);
-						resWikitextChunks.push( lastSrc );
-					}
+				selser.wtChunks = [];
+				selser.wts.serializeDOM(
+					doc,
+					selser.handleSerializedResult.bind(selser, state),
+					function () {
+						if ( state.startdsr !== null ) {
+							var startSrc = src.substring( state.startdsr ).replace(/^\n*/, '');
+							selser.debug("[startdsr], src: ", startSrc);
+							selser.wtChunks.push( startSrc );
+						} else if ( state.lastdsr !== null ) {
+							var lastSrc = src.substring( state.lastdsr ).replace(/^\n*$/, '');
+							selser.debug("[lastdsr], src: ", lastSrc);
+							selser.wtChunks.push( lastSrc );
+						}
 
-					cb( resWikitextChunks.join( '' ) );
-					finalcb();
-				} );
+						cb( selser.wtChunks.join( '' ) );
+						finalcb();
+					}
+				);
 			} else {
 				cb( src );
 				finalcb();
@@ -335,4 +382,3 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 if ( typeof module === 'object' ) {
 	module.exports.SelectiveSerializer = SelectiveSerializer;
 }
-
