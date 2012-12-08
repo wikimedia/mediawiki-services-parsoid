@@ -845,11 +845,13 @@ WSP._linkHandler =  function( state, tokens ) {
 					target.value = targetParts[1]
 						.replace( /^(\.\.?\/)*/, '' )
 						.replace(/_/g, ' ');
-					linkData.content.string = Util.decodeURI( targetParts[2] )
-							.replace( /%23/g, '#' )
-							// gwicke: verify that spaces are really
-							// double-encoded!
-							.replace( /%20/g, ' ');
+					linkData.content.string = stripLinkContentString(
+							Util.decodeURI( targetParts[2] )
+								.replace( /%23/g, '#' )
+								// gwicke: verify that spaces are really
+								// double-encoded!
+								.replace( /%20/g, ' '),
+							dp );
 				} else { // No sort key, will serialize to simple link
 					linkData.content.string = '';
 				}
@@ -877,7 +879,8 @@ WSP._linkHandler =  function( state, tokens ) {
 									// Unmodified simple links
 									(! target.modified && dp.stx === 'simple') ) &&
 								// but preserve non-minimal piped links
-								! ( ! target.modified && dp.stx === 'piped' );
+								! ( ! target.modified &&
+										( dp.stx === 'piped' || dp.pipetrick ) );
 
 			if ( canUseSimple ) {
 				// Simple case
@@ -896,6 +899,11 @@ WSP._linkHandler =  function( state, tokens ) {
 					contentSrc = stripLinkContentString(contentSrc, dp);
 				} else {
 					contentSrc = linkData.content.string;
+				}
+
+				if ( contentSrc === '' && ! dp.pipetrick ) {
+					// Protect empty link content from PST pipe trick
+					contentSrc = '<nowiki/>';
 				}
 
 				return '[[' + linkData.target.value + '|' + contentSrc + ']]' + linkData.tail;
