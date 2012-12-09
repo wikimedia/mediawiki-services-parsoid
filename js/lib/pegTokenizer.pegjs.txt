@@ -1017,7 +1017,7 @@ wikilink_content
     } else {
         return new KV( 'mw:maybeContent', lt );
     } } ) + {
-        if ( lcs.length === 1 && lcs[0] === '' ) {
+        if ( lcs.length === 1 && lcs[0].v === '' ) {
             return { pos: [pos0, pos], content: [], pipetrick: true };
         } else {
             return { pos: [pos0, pos], content: lcs };
