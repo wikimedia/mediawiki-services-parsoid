@@ -13,7 +13,8 @@ var ParserPipelineFactory = require('../lib/mediawiki.parser.js').ParserPipeline
 	SelectiveSerializer = require( '../lib/mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
 	Util = require('../lib/mediawiki.Util.js').Util,
 	optimist = require('optimist'),
-	html5 = require('html5');
+	html5 = require('html5'),
+	fs = require('fs');
 
 function traceUsage() {
 	var buf = [];
@@ -147,6 +148,11 @@ function dumpFlags() {
 			description: 'The old page text for a selective-serialization operation (see --selser)',
 			'boolean': false,
 			'default': false
+		},
+		'oldtextfile': {
+			description: 'File containing the old page text for a selective-serialization operation (see --selser)',
+			'boolean': false,
+			'default': false
 		}
 	});
 
@@ -187,6 +193,9 @@ function dumpFlags() {
 	}
 	if (!argv.wt2html) {
 		if ( argv.selser ) {
+			if ( argv.oldtextfile ) {
+				argv.oldtext = fs.readFileSync(argv.oldtextfile, 'utf8');
+			}
 			serializer = new SelectiveSerializer( { env: env, oldid: null, oldtext: argv.oldtext || null } );
 		} else {
 			serializer = new WikitextSerializer( { env: env } );
