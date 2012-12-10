@@ -10,7 +10,8 @@
 var WikitextSerializer = require( './mediawiki.WikitextSerializer.js' ).WikitextSerializer,
 	Util = require( './mediawiki.Util.js' ).Util,
 	apirql = require( './mediawiki.ApiRequest.js' ),
-	DoesNotExistError = apirql.DoesNotExistError;
+	DoesNotExistError = apirql.DoesNotExistError,
+	Node = require('./mediawiki.wikitext.constants.js').Node;
 
 /**
  * Create a selective serializer.

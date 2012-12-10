@@ -3,16 +3,8 @@
 /* Perform post-processing steps on an already-built HTML DOM. */
 
 var events = require('events'),
-	Util = require('./mediawiki.Util.js').Util;
-
-// Quick HACK: define Node constants
-// https://developer.mozilla.org/en/nodeType
-var Node = {
-	ELEMENT_NODE: 1,
-	TEXT_NODE: 3,
-	COMMENT_NODE: 8,
-    DOCUMENT_NODE: 9
-};
+	Util = require('./mediawiki.Util.js').Util,
+	Node = require('./mediawiki.wikitext.constants.js').Node;
 
 // Known wikitext tag widths
 var WT_TagWidths = {
