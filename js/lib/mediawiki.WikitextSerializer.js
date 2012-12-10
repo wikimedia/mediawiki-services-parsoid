@@ -303,7 +303,10 @@ WSP.initialState = {
 		hasBracketPair: false,
 		hasHeadingPair: false
 	},
-	serializeID: null,
+	selser: {
+		generatedOutput: false,
+		serializeID: null
+	},
 	serializeTokens: function(newLineStart, wteHandler, tokens, chunkCB) {
 		// newLineStart -- sets newline and sol state
 		// wteHandler   -- sets wikitext context for the purpose of wikitext escaping
@@ -1559,7 +1562,6 @@ WSP.serializeTokens = function(startState, tokens, chunkCB ) {
 			// state for later serializer runs.
 			Util.clone(this.initialState),
 			Util.clone(this.options));
-	state.serializeID = null;
 	state.serializer = this;
 	if ( chunkCB === undefined ) {
 		var out = [];
@@ -1745,7 +1747,8 @@ WSP._serializeToken = function ( state, token ) {
 				for ( var i = 0, l = state.availableNewlineCount; i < l; i++ ) {
 					res += '\n';
 				}
-				state.chunkCB( res, state.serializeID );
+				state.selser.generatedOutput = true;
+				state.chunkCB( res, state.selser.serializeID );
 				break;
 			default:
 				res = '';
@@ -1845,14 +1848,15 @@ WSP._serializeToken = function ( state, token ) {
 		}
 		// Emit newlines separately from regular content
 		// for the benefit of the selective serializer.
-		state.chunkCB( out, state.serializeID );
+		state.chunkCB( out, state.selser.serializeID );
 
 		// XXX: Switch singleLineMode to stack if there are more
 		// exceptions than just isTemplateSrc later on.
 		if ( state.singleLineMode && !handler.isTemplateSrc) {
 			res = res.replace(/\n/g, ' ');
 		}
-		state.chunkCB( res, state.serializeID );
+		state.chunkCB( res, state.selser.serializeID );
+		state.selser.generatedOutput = true;
 
 		WSP.debug_pp("===> ", "", out + res);
 
@@ -1948,7 +1952,6 @@ WSP.serializeDOM = function( node, chunkCB, finalCB ) {
 			Util.clone(this.initialState),
 			Util.clone(this.options));
 		state.serializer = this;
-		state.serializeID = null;
 		this._collectAttrMetaTags(node, state);
 		//console.warn( node.innerHTML );
 		if ( ! chunkCB ) {
@@ -2091,10 +2094,11 @@ WSP._serializeDOM = function( node, state ) {
 			}
 
 			var serializeID = null;
-			if ( state.serializeID === null ) {
+			if ( state.selser.serializeID === null ) {
+				state.selser.generatedOutput = false;
 				serializeID = node.getAttribute( 'data-serialize-id' );
 				if ( serializeID ) {
-					state.serializeID = serializeID;
+					state.selser.serializeID = serializeID;
 				}
 			}
 
@@ -2136,7 +2140,13 @@ WSP._serializeDOM = function( node, state ) {
 			this._serializeToken(state, new EndTagTk(name, tkAttribs, tkRTInfo));
 
 			if ( serializeID !== null ) {
-				state.serializeID = null;
+				if (!state.selser.generatedOutput) {
+					// Generate a dummy call so that any unmodified output
+					// corresponding to this serialize-id can be emitted by
+					// the selective serializer.
+					state.chunkCB( '', state.selser.serializeID );
+				}
+				state.selser.serializeID = null;
 			}
 
 			break;

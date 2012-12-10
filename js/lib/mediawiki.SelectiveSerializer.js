@@ -115,7 +115,7 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 
 			// Strip all leading/trailing newlines since they
 			// will come through via the regular serializer
-			var chunk = src.substring( start, end ).replace(/(^\n+|\n+$)/, '');
+			var chunk = src.substring( start, end ).replace(/(^\n+|\n+$)/g, '');
 			if (chunk) {
 				state.originalSourceChunks[index] = chunk;
 				selser.debug(
