@@ -424,7 +424,7 @@ WSP.escapeWikiText = function ( state, text ) {
 		return escapedText(text);
 	}
 
-	var sol = state.onNewline || state.emitNewlineOnNextToken;
+	var sol = state.onStartOfLine || state.emitNewlineOnNextToken;
 	var hasNewlines = text.match(/\n./);
 	if (!fullCheckNeeded && !hasNewlines) {
 		// {{, {{{, }}}, }} are handled above.
@@ -445,6 +445,9 @@ WSP.escapeWikiText = function ( state, text ) {
 		}
 	}
 
+	// SSS FIXME: pre-escaping is currently broken since the front-end parser
+	// eliminated pre-tokens in the tokenizer and moved to a stream handler.
+	// So, we always conservatively escape text with ' ' in sol posn.
 	if (sol && text.match(/(^ |\n )[^\s]+/)) {
 		// console.warn("---EWT:F6---");
 		return escapedText(text);
@@ -453,9 +456,6 @@ WSP.escapeWikiText = function ( state, text ) {
 	// escape nowiki tags
 	text = text.replace(/<(\/?nowiki)>/g, '&lt;$1&gt;');
 
-	// SSS FIXME: pre-escaping is currently broken since the front-end parser
-	// eliminated pre-tokens in the tokenizer and moved to a stream handler.
-	//
 	// Use the tokenizer to see if we have any wikitext tokens
 	if (this.wteHandlers.hasWikitextTokens(state, sol, text)) {
 		// console.warn("---EWT:DBG1---");
@@ -997,7 +997,7 @@ function buildHeadingHandler(headingWT) {
  *     of the same tag type (..</p><p>.., etc.)
  *
  * newlineTransparent
- *     if true, this token does not change the newline status
+ *     if true, this token does not change sol status
  *     after it is emitted.
  *
  * singleLine
@@ -1038,8 +1038,7 @@ WSP.tagHandlers = {
 			handle: function ( state, token ) {
 					return WSP._listHandler( this, '*', state, token );
 			},
-			pairSepNLCount: 2,
-			newlineTransparent: true
+			pairSepNLCount: 2
 		},
 		end: {
 			endsLine: true,
@@ -1052,8 +1051,7 @@ WSP.tagHandlers = {
 			handle: function ( state, token ) {
 					return WSP._listHandler( this, '#', state, token );
 			},
-			pairSepNLCount: 2,
-			newlineTransparent: true
+			pairSepNLCount: 2
 		},
 		end: {
 			endsLine      : true,
@@ -1093,8 +1091,7 @@ WSP.tagHandlers = {
 			handle: function ( state, token ) {
 				return WSP._listItemHandler( this, ';', state, token );
 			},
-			pairSepNLCount: 1,
-			newlineTransparent: true
+			pairSepNLCount: 1
 		},
 		end: {
 			singleLine: -1
@@ -1107,8 +1104,7 @@ WSP.tagHandlers = {
 			handle: function ( state, token ) {
 				return WSP._listItemHandler( this, ':', state, token );
 			},
-			pairSepNLCount: 1,
-			newlineTransparent: true
+			pairSepNLCount: 1
 		},
 		end: {
 			endsLine: true,
