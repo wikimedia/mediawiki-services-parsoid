@@ -2948,14 +2948,7 @@
     {
       "childrenRemoved": 1
     },
-    {
-      "children": [
-        null,
-        {
-          "new": 1
-        }
-      ]
-    }
+	null
   ],
   "BUG 41: Template parameters shown as broken links": [
     {
@@ -7891,14 +7884,7 @@
       "content": 1
     },
     null,
-    {
-      "children": [
-        null,
-        {
-          "annotations": 1
-        }
-      ]
-    },
+	null,
     null,
     {
       "children": [
