@@ -170,9 +170,6 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 			// otherwise.
 			state.markedNodeName = child.tagName ? child.tagName.toLowerCase() : null;
 		} else if ( hasChangeMarker( thisda ) ) {
-			child.setAttribute( 'data-serialize-id', state.currentId++ );
-
-			state.foundChange = true;
 
 			if ( childHasStartDsr &&
 				( state.startdsr !== null || !state.foundChange ) &&
@@ -200,6 +197,9 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 				// Reset the start DSR, because we aren't processing identical nodes now.
 				state.startdsr = null;
 			}
+
+			state.foundChange = true;
+			child.setAttribute( 'data-serialize-id', state.currentId++ );
 
 			// Make sure we reset lastdsr whenever we fully serialize
 			// something that already existed in the original document.
