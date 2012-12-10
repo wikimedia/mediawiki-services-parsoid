@@ -86,6 +86,10 @@ WEHP.thHandler = function(state, text) {
 	return text.match(/!!/);
 };
 
+WEHP.aHandler = function(state, text) {
+	return text.match(/\]$/);
+};
+
 WEHP.tdHandler = function(state, text) {
 	var tok = state.currTagToken;
 	return text.match(/\|/) ||
@@ -300,13 +304,15 @@ WSP.initialState = {
 		hasHeadingPair: false
 	},
 	serializeID: null,
-	serializeTokens: function(newLineStart, tokens, chunkCB) {
+	serializeTokens: function(newLineStart, wteHandler, tokens, chunkCB) {
+		// newLineStart -- sets newline and sol state
+		// wteHandler   -- sets wikitext context for the purpose of wikitext escaping
 		var initState = {
 			onNewline: newLineStart,
 			onStartOfLine: newLineStart,
 			tplAttrs: this.tplAttrs,
 			currLine: this.currLine,
-			wteHandlerStack: []
+			wteHandlerStack: wteHandler ? [wteHandler] : []
 		};
 		return this.serializer.serializeTokens(initState, tokens, chunkCB);
 	}
@@ -643,7 +649,7 @@ WSP._figureHandler = function ( state, figTokens ) {
 	}
 
 	// Call the serializer to build the caption
-	var caption = state.serializeTokens(false, figTokens.slice(fcStartIndex+1, fcEndIndex)).join('');
+	var caption = state.serializeTokens(false, WSP.wteHandlers.aHandler, figTokens.slice(fcStartIndex+1, fcEndIndex)).join('');
 
 	// Get the image resource name
 	// FIXME: file name has been capitalized -- need some fix in the parser
@@ -760,21 +766,23 @@ WSP._serializeHTMLEndTag = function ( state, token ) {
 	}
 };
 
-var stripLinkContentString = function (contentString, dp) {
-	if (dp.tail) {
-		// strip the tail off the content
-		contentString = Util.stripSuffix(contentString, dp.tail);
-	}
+var stripLinkContentString = function (contentString, dp, wtEscaper) {
 	if (dp.pipetrick) {
 		// Drop the content completely..
-		contentString = '';
+		return '';
+	} else {
+		if (dp.tail) {
+			// strip the tail off the content
+			contentString = Util.stripSuffix(contentString, dp.tail);
+		}
+
+		return wtEscaper ? wtEscaper(contentString) : contentString;
 	}
-	return contentString;
 };
 
 
 // Helper function for getting RT data from the tokens
-var getLinkRoundTripData = function( token, attribDict, dp, tokens, tplAttrs ) {
+var getLinkRoundTripData = function( token, attribDict, dp, tokens, tplAttrs, wtEscaper ) {
 			var rtData = {
 				type: null,
 				target: null, // filled in below
@@ -796,7 +804,7 @@ var getLinkRoundTripData = function( token, attribDict, dp, tokens, tplAttrs ) {
 			// Get the content string or tokens
 			var contentString = Util.tokensToString(tokens, true);
 			if (contentString.constructor === String) {
-				rtData.content.string = stripLinkContentString(contentString, dp);
+				rtData.content.string = stripLinkContentString(contentString, dp, wtEscaper);
 			} else {
 				rtData.content.tokens = tokens;
 			}
@@ -819,7 +827,9 @@ WSP._linkHandler =  function( state, tokens ) {
 		linkData;
 
 	// Get the rt data from the token and tplAttrs
-	linkData = getLinkRoundTripData(token, attribDict, dp, tokens, state.tplAttrs);
+	state.wteHandlerStack.push(WSP.wteHandlers.aHandler);
+	linkData = getLinkRoundTripData(token, attribDict, dp, tokens, state.tplAttrs, WSP.escapeWikiText.bind(WSP, state));
+	state.wteHandlerStack.pop();
 
 	if ( linkData.type !== null && linkData.target.value !== null  ) {
 		// We have a type and target info
@@ -890,7 +900,7 @@ WSP._linkHandler =  function( state, tokens ) {
 				// First get the content source
 				var contentSrc;
 				if ( linkData.content.tokens ) {
-					contentSrc = state.serializeTokens(false, tokens).join('');
+					contentSrc = state.serializeTokens(false, WSP.wteHandlers.aHandler, tokens).join('');
 					// strip off the tail and handle the pipe trick
 					contentSrc = stripLinkContentString(contentSrc, dp);
 				} else {
@@ -906,7 +916,7 @@ WSP._linkHandler =  function( state, tokens ) {
 			}
 		} else if ( attribDict.rel === 'mw:ExtLink' ) {
 			return '[' + linkData.target.value + ' ' +
-				state.serializeTokens(false, tokens ).join('') +
+				state.serializeTokens(false, WSP.wteHandlers.aHandler, tokens).join('') +
 				']';
 		} else if ( attribDict.rel.match( /mw:ExtLink\/(?:ISBN|RFC|PMID)/ ) ) {
 			return tokens.join('');
@@ -940,7 +950,7 @@ WSP._linkHandler =  function( state, tokens ) {
 		if ( true || isComplexLink ( attribDict ) ) {
 			// Complex attributes we can't support in wiki syntax
 			return WSP._serializeHTMLTag( state, token ) +
-				state.serializeTokens(state.onNewline, tokens ) +
+				state.serializeTokens(state.onNewline, null, tokens ) +
 				WSP._serializeHTMLEndTag( state, endToken );
 		} else {
 			// TODO: serialize as external wikilink
@@ -967,7 +977,9 @@ WSP.compareSourceHandler = function ( state, tokens ) {
 		lastToken = tokens.pop(),
 		content = Util.tokensToString( tokens, true );
 	if ( content.constructor !== String ) {
-		return state.serializeTokens(state.onNewline, tokens ).join('');
+		// SSS FIXME: What should the initial wikitext-context be
+		// for escaping wt chars?
+		return state.serializeTokens(state.onNewline, null, tokens ).join('');
 	} else if ( content === token.dataAttribs.srcContent ) {
 		return token.dataAttribs.src;
 	} else {
