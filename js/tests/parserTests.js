@@ -352,7 +352,7 @@ ParserTests.prototype.makeChanges = function ( node, nonRandomChanges ) {
 				child.setAttribute(
 					'data-ve-changed',
 					JSON.stringify( changeObj ) );
-			} else {
+			} else if ( Util.isNodeEditable( child ) ) {
 				childChanges = this.makeChanges( child );
 				if ( childChanges && childChanges.length ) {
 					changeObj = { children: childChanges };
@@ -365,7 +365,7 @@ ParserTests.prototype.makeChanges = function ( node, nonRandomChanges ) {
 			changeObj = nonRandomChanges[i];
 			if ( changeObj && changeObj.children ) {
 				this.makeChanges( child, changeObj.children );
-			} else if ( changeObj ) {
+			} else if ( Util.isNodeEditable( child ) && changeObj ) {
 				child.setAttribute(
 					'data-ve-changed',
 					JSON.stringify( changeObj ) );
