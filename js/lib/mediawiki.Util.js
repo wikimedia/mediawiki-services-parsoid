@@ -825,7 +825,8 @@ normalizeOut = function ( out ) {
 	out = normalizeNewlines( out );
 	return out
 		.replace(/<span typeof="mw:(?:(?:Placeholder|Nowiki|Object\/Template|Entity))"[^>]*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1')
-		.replace(/ (data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content)="[^">]*"/g, '')
+		// Ignore these attributes for now
+		.replace(/ (data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content|title|class)="[^">]*"/g, '')
 		//.replace(/<!--.*?-->\n?/gm, '')
 		.replace(/<\/?(?:meta|link) [^>]*>/g, '')
 		.replace(/<span[^>]+about="[^]+>/g, '')
@@ -857,7 +858,7 @@ normalizeHTML = function ( source ) {
 			// do not expect section editing for now
 			.replace(/(<span class="editsection">\[.*?<\/span> *)?<span[^>]+class="mw-headline"[^>]*>(.*?)<\/span>/g, '$2')
 			// general class and titles, typically on links
-			.replace(/(title|class|rel)="[^"]+"/g, '')
+			.replace(/ (title|class|rel)="[^"]*"/g, '')
 			// strip red link markup, we do not check if a page exists yet
 			.replace(/\/index.php\?title=([^']+?)&amp;action=edit&amp;redlink=1/g, '/wiki/$1')
 			// the expected html has some extra space in tags, strip it

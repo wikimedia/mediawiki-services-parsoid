@@ -2045,7 +2045,7 @@ attribute_preprocessor_text
     ! '/>'
     ( 
           directive
-        / !inline_breaks [&%/] 
+        / [&%/{}] 
     )
   )+ 
   {
@@ -2057,7 +2057,7 @@ attribute_preprocessor_text_single
   = r:( t:[^{}&'<]+ { return t.join(''); }
   / !inline_breaks ( 
       directive
-    / [{&<] )
+    / [{}&<] )
   )* 
   {
       return flatten_string ( r );
@@ -2066,7 +2066,7 @@ attribute_preprocessor_text_double
   = r:( t:[^{}&"<]+ { return t.join(''); }
   / !inline_breaks ( 
       directive
-    / [{&<] )
+    / [{}&<] )
   )* 
   {
       //console.warn( 'double:' + pp(r) );
@@ -2098,7 +2098,7 @@ attribute_preprocessor_text_single_line
   = r:( t:[^{}&'<]+ { return t.join(''); }
   / !inline_breaks ( 
       directive
-    / ![\r\n] [{&<] )
+    / ![\r\n] [{}&<] )
   )* {
       return flatten_string ( r );
   }
@@ -2106,7 +2106,7 @@ attribute_preprocessor_text_double_line
   = r:( t:[^{}&"<]+ { return t.join(''); }
   / !inline_breaks (
       directive
-    / ![\r\n] [{&<] )
+    / ![\r\n] [{}&<] )
   )* {
       return flatten_string ( r );
   }
