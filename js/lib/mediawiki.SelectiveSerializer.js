@@ -171,25 +171,19 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 			state.markedNodeName = child.tagName ? child.tagName.toLowerCase() : null;
 		} else if ( hasChangeMarker( thisda ) ) {
 
-			if ( childHasStartDsr &&
-				( state.startdsr !== null || !state.foundChange ) &&
-				( state.lastdsr === null || thisdsr[0] < state.lastdsr ))
-			{
-				// In the case that we were in the middle of processing a series of
-				// unchanged nodes, we use this node's startdsr as the end index if
-				// possible.
-				if ( state.startdsr === null ) {
-					state.startdsr = 0;
+			if (state.startdsr !== null || !state.foundChange) {
+				// SSS FIXME: Not sure what this check is doing ...
+				var usableDsr0 = childHasStartDsr && (state.lastdsr === null || thisdsr[0] < state.lastdsr );
+				if (usableDsr0 || state.lastdsr !== null) {
+					// In the case that we were in the middle of processing a series of
+					// unchanged nodes, we use this node's startdsr as the end index if
+					// possible.
+					assignSourceChunk(
+						state.currentId,
+						state.startdsr || 0,
+						usableDsr0 ? thisdsr[0] : state.lastdsr
+					);
 				}
-				assignSourceChunk( state.currentId, state.startdsr, thisdsr[0] );
-			} else if ( state.lastdsr !== null && (
-						state.startdsr !== null || !state.foundChange ) ) {
-				// If we were processing identical nodes and there is no start DSR on the
-				// current node, we use the end DSR of the last node.
-				if ( state.startdsr === null ) {
-					state.startdsr = 0;
-				}
-				assignSourceChunk( state.currentId, state.startdsr, state.lastdsr );
 			}
 
 			state.foundChange = true;
@@ -242,13 +236,13 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 					child.setAttribute( 'data-serialize-id', oldId );
 					state.markedNodeName = null;
 					state.parentMarked = false;
-
 					state.startdsr = null;
-					if ( childHasStartDsr ) {
-						assignSourceChunk( oldId, oldstartdsr, thisdsr[0] );
-					} else {
-						assignSourceChunk( oldId, oldstartdsr, state.lastdsr );
-					}
+
+					assignSourceChunk(
+						oldId,
+						oldstartdsr,
+						childHasStartDsr ? thisdsr[0] : state.lastdsr
+					);
 				} else if ( state.lastdsr !== null && state.startdsr === null ) {
 					state.startdsr = state.lastdsr;
 				}
@@ -263,11 +257,12 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 				if ( oldstartdsr !== null ) {
 					// If there's a chunk of unmodified code in progress,
 					// finish it first.
-					if ( childHasStartDsr ) {
-						assignSourceChunk( oldId, oldstartdsr, thisdsr[0], true );
-					} else if ( state.lastdsr !== null ) {
-						assignSourceChunk( oldId, oldstartdsr, state.lastdsr, true );
-					}
+					assignSourceChunk(
+						oldId,
+						oldstartdsr,
+						childHasStartDsr ? thisdsr[0] : state.lastdsr,
+						true
+					);
 					state.startdsr = null;
 				}
 				child.setAttribute( 'data-serialize-id', oldId );
