@@ -85,7 +85,7 @@ function hasChangeMarker( dataVeChanged ) {
  * the old text, by assigning IDs to each node in the DOM that has changed.
  */
 SSP.assignSerializerIds = function ( node, src, state ) {
-	var child, thisda, thisdsr, dsr, nodesrc, hasRun,
+	var thisda, thisdsr, dsr, nodesrc, hasRun,
 		childHasStartDsr, oldstartdsr, oldId, tname, childname, backi, backdp,
 		parentChangeMarkers, contentChanged;
 
@@ -93,10 +93,10 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 	// WikitextSerializer state but will eventually be returned as the new
 	// state for the SelectiveSerializer.
 	state = state || {
+		foundChange: false,
 		currentId: 1,
 		originalSourceChunks: [],
 		startdsr: null,
-		foundChange: false,
 		lastdsr: null,
 		inModifiedContent: false,
 		lastNLChunk: null
@@ -129,7 +129,8 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 	};
 
 	for ( var i = 0; i < node.childNodes.length; i++ ) {
-		child = node.childNodes[i];
+		var child = node.childNodes[i],
+			nodeType = child.nodeType;
 
 		// data-ve-changed is what we watch for the change markers.
 		thisda = Util.getJSONAttribute( child, 'data-ve-changed', {} );
@@ -140,22 +141,39 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 
 		childHasStartDsr = thisdsr && thisdsr[0] !== null;
 
-		if ( !thisdsr && !child.setAttribute ) {
-			// We can't mess with a text node, but we do need to avoid the
-			// error caused by calling setAttribute on it.
-			// However, we try to do the right thing by setting state.startdsr
-			// to indicate where the previous element ended. Hopefully that
-			// will make up for text and comment nodes not having any DSR.
+		if ( !thisdsr && (nodeType === Node.TEXT_NODE || nodeType === Node.COMMENT_NODE) ) {
+			// Update dsr values
 			if ( state.startdsr === null && state.lastdsr !== null ) {
 				state.startdsr = state.lastdsr;
 				state.lastdsr = null;
 			}
-		} else if ( ( !childHasStartDsr && state.startdsr === null && state.foundChange ) ||
-					hasChangeMarker( thisda ) )
-		{
-			// This is either a changed node that needs to be serialized or a node
-			// without opening DSR that can't be copied over anyway, so we mark it
-			// to the best of our ability and move on.
+		} else if ( !childHasStartDsr && state.startdsr === null ) {
+			// This node does not have have a start-dsr ==> cannot be copied from src.
+			// So treat it as a modified node and move on.
+
+			child.setAttribute( 'data-serialize-id', state.currentId++ );
+
+			if ( hasChangeMarker( thisda ) ) {
+				state.foundChange = true;
+			}
+
+			// Make sure we reset lastdsr whenever we fully serialize
+			// something that already existed in the original document.
+			// Otherwise, the DSR would lead to duplication.
+			if ( (!thisda || !thisda['new']) && ( !thisdsr || !thisdsr[1] )) {
+				state.lastdsr = null;
+			}
+
+			// Set this flag to indicate that something changed in a child, and the
+			// parent should probably be marked with the same serialize ID. This helps
+			// with processing tough things like lists and tables that might not work
+			// otherwise.
+			state.markedNodeName = child.tagName ? child.tagName.toLowerCase() : null;
+		} else if ( hasChangeMarker( thisda ) ) {
+			child.setAttribute( 'data-serialize-id', state.currentId++ );
+
+			state.foundChange = true;
+
 			if ( childHasStartDsr &&
 				( state.startdsr !== null || !state.foundChange ) &&
 				( state.lastdsr === null || thisdsr[0] < state.lastdsr ))
@@ -183,23 +201,12 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 				state.startdsr = null;
 			}
 
-			if ( hasChangeMarker( thisda ) ) {
-				// Let the rest of the program know that something changed
-				// in the source of the document.
-				state.foundChange = true;
+			// Make sure we reset lastdsr whenever we fully serialize
+			// something that already existed in the original document.
+			// Otherwise, the DSR would lead to duplication.
+			if ( (!thisda || !thisda['new']) && ( !thisdsr || !thisdsr[1] )) {
+				state.lastdsr = null;
 			}
-
-			if ( !thisda || !thisda['new'] ) {
-				// Make sure we reset lastdsr whenever we fully serialize
-				// something that already existed in the original document.
-				// Otherwise, the DSR would lead to duplication.
-				if ( !thisdsr || !thisdsr[1] ) {
-					state.lastdsr = null;
-				}
-			}
-
-			// Actually set the serialize-id
-			child.setAttribute( 'data-serialize-id', state.currentId++ );
 
 			// Set this flag to indicate that something changed in a child, and the
 			// parent should probably be marked with the same serialize ID. This helps
