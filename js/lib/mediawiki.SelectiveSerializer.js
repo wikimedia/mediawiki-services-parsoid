@@ -104,7 +104,7 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 
 	var selser = this;
 	var assignSourceChunk = function ( index, start, end, overwrite ) {
-		if ( index && ( !state.originalSourceChunks[index] || overwrite ) ) {
+		if ( index && ( (state.originalSourceChunks[index] !== null) || overwrite ) ) {
 			// Sanity check
 			if (start > end) {
 				if (selser.trace) {
@@ -117,14 +117,12 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 			// Strip all leading/trailing newlines since they
 			// will come through via the regular serializer
 			var chunk = src.substring( start, end ).replace(/(^\n+|\n+$)/g, '');
-			if (chunk) {
-				state.originalSourceChunks[index] = chunk;
-				selser.debug(
-					"ser-id: ", index,
-					", start:", start,
-					", end:", end,
-					", chunk:", chunk);
-			}
+			state.originalSourceChunks[index] = chunk;
+			selser.debug(
+				"ser-id: ", index,
+				", start:", start,
+				", end:", end,
+				", chunk:", chunk);
 		}
 	};
 
