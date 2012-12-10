@@ -815,7 +815,11 @@ var getLinkRoundTripData = function( token, attribDict, dp, tokens, tplAttrs, wt
 			return rtData;
 };
 
-
+// SSS FIXME: This doesn't deal with auto-inserted start/end tags.
+// To handle that, we have to split every 'return ...' statement into
+// openTagSrc = ...; endTagSrc = ...; and at the end of the function,
+// check for autoInsertedStart and autoInsertedEnd attributes and
+// supress openTagSrc or endTagSrc appropriately.
 WSP._linkHandler =  function( state, tokens ) {
 	//return '[[';
 	// TODO: handle internal/external links etc using RDFa and dataAttribs
@@ -1630,20 +1634,10 @@ WSP._getTokenHandler = function(state, token) {
 		handler = this.defaultHTMLTagHandler;
 	}
 	if ( token.constructor === TagTk || token.constructor === SelfclosingTagTk ) {
-		if ( token.dataAttribs.autoInsertedStart ) {
-			// Auto-inserted start tag- don't seriaulize
-			return { handle: id('') };
-		} else {
-			state.wteHandlerStack.push(handler.wtEscapeHandler || null);
-			return handler.start || {};
-		}
+		state.wteHandlerStack.push(handler.wtEscapeHandler || null);
+		return handler.start || {};
 	} else {
-		if ( token.constructor === EndTagTk && token.dataAttribs.autoInsertedEnd ) {
-			// Auto-inserted end tag- don't seriaulize
-			return { handle: id('') };
-		} else {
-			return handler.end || {};
-		}
+		return handler.end || {};
 	}
 };
 
@@ -1680,6 +1674,8 @@ WSP._serializeToken = function ( state, token ) {
 			state.onStartOfLine = true;
 		}
 
+		var suppressOutput = false;
+
 		// Important: get this before running handlers
 		var textHandler = state.textHandler;
 
@@ -1693,6 +1689,11 @@ WSP._serializeToken = function ( state, token ) {
 					res = handler.handle ? handler.handle( state, token ) : '';
 					if (textHandler) {
 						res = textHandler( state, res );
+					}
+
+					// suppress output
+					if (token.dataAttribs.autoInsertedStart) {
+						suppressOutput = true;
 					}
 				}
 
@@ -1713,6 +1714,11 @@ WSP._serializeToken = function ( state, token ) {
 						state.singleLineMode--;
 					}
 					res = handler.handle ? handler.handle( state, token ) : '';
+
+					// suppress output
+					if (token.dataAttribs.autoInsertedEnd) {
+						suppressOutput = true;
+					}
 				}
 				break;
 			case String:
@@ -1770,7 +1776,7 @@ WSP._serializeToken = function ( state, token ) {
 		res = '';
 	}
 
-	if (res !== '') {
+	if (res !== '' && !suppressOutput) {
 		// NOTE: This used to be a single regexp:
 		//   res.match( /^((?:\r?\n)*)((?:.*?|[\r\n]+[^\r\n])*?)((?:\r?\n)*)$/ );
 		// But, we have split this into two 3 different REs since this RE got stuck
@@ -1802,7 +1808,7 @@ WSP._serializeToken = function ( state, token ) {
 
 	// Check if we have a pair of identical tag tokens </p><p>; </ul><ul>; etc.
 	// that have to be separated by extra newlines and add those in.
-	if (handler.pairSepNLCount && state.prevTagToken &&
+	if (!suppressOutput && handler.pairSepNLCount && state.prevTagToken &&
 			state.prevTagToken.constructor === EndTagTk &&
 			state.prevTagToken.name === token.name )
 	{
@@ -1831,7 +1837,7 @@ WSP._serializeToken = function ( state, token ) {
 		//
 		// Newline-equivalent tokens (HTML tags for example) don't get
 		// implicit newlines.
-		if (!handler.isNewlineEquivalent &&
+		if (!suppressOutput && !handler.isNewlineEquivalent &&
 			!state.singleLineMode &&
 			!state.availableNewlineCount &&
 			((!solTransparent && state.emitNewlineOnNextToken) ||
@@ -1855,7 +1861,7 @@ WSP._serializeToken = function ( state, token ) {
 		if ( state.singleLineMode && !handler.isTemplateSrc) {
 			res = res.replace(/\n/g, ' ');
 		}
-		state.chunkCB( res, state.selser.serializeID );
+		state.chunkCB( suppressOutput ? '' : res, state.selser.serializeID );
 		state.selser.generatedOutput = true;
 
 		WSP.debug_pp("===> ", "", out + res);
