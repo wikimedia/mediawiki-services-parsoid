@@ -278,7 +278,12 @@ QuoteTransformer.prototype.quotesToTags = function ( chunks, name ) {
 	var toggle = true,
 		t,
 		j,
-		out = [];
+		out = [],
+		newToken,
+		nameToWidth = {
+			b: 3,
+			i: 2
+		};
 
 	for (j = 0; j < chunks.length; j++) {
 		//console.warn( 'quotesToTags ' + name + ': ' + JSON.stringify( chunks, null, 2 ) );
@@ -286,22 +291,27 @@ QuoteTransformer.prototype.quotesToTags = function ( chunks, name ) {
 		//console.warn( 'quotesToTags t: ' + JSON.stringify( t, null, 2));
 
 		if(toggle) {
-			chunks[j][0] = new TagTk( name, t.attribs,
+			newToken = new TagTk( name, t.attribs,
 					// Mark last element as auto-closed
 					j === chunks.length - 1 ? { autoInsertedEnd: 1 } : {} );
 		} else {
-			chunks[j][0] = new EndTagTk( name, t.attribs, {} );
+			newToken = new EndTagTk( name, t.attribs, {} );
 		}
 		if (t.dataAttribs && t.dataAttribs.tsr) {
-			var tsr = t.dataAttribs.tsr;
-			var len = tsr[1] - tsr[0];
+			var tsr = t.dataAttribs.tsr,
+				len = tsr[1] - tsr[0];
 			// Verify if we the tsr value is accurate
 			// SSS FIXME: We could potentially adjust tsr based on length
 			// but dont know yet whether to fix tsr[0] or tsr[1]
-			if ((len === 3 && name === 'b') || (len === 2 && name === 'i')) {
-				chunks[j][0].dataAttribs.tsr = Util.clone(tsr);
+			if (len === nameToWidth[name]) {
+				newToken.dataAttribs.tsr = Util.clone(tsr);
+			} else {
+				// we generally use the last quotes, so adjust the tsr to that
+				newToken.dataAttribs.tsr = [tsr[1] - nameToWidth[name], tsr[1]];
 			}
 		}
+
+		chunks[j][0] = newToken;
 
 		toggle = !toggle;
 	}
