@@ -2111,6 +2111,26 @@ WSP._serializeDOM = function( node, state ) {
 				}
 			}
 
+
+			var tailSrc = '';
+			// Hack for link tail escaping- access to the next node is
+			// difficult otherwise.
+			// TODO: Implement this more cleanly!
+			if ( node.nodeName.toLowerCase() === 'a' &&
+					node.getAttribute('rel') === 'mw:WikiLink' )
+			{
+				var dp = JSON.parse(node.getAttribute('data-parsoid') || '{}');
+				if ( dp.stx !== 'html' &&
+					! dp.tail &&
+					node.nextSibling && node.nextSibling.nodeType === Node.TEXT_NODE &&
+					// TODO: use tokenizer
+					node.nextSibling.value.match(/^[a-z]/) )
+				{
+					tailSrc = '<nowiki/>';
+				}
+			}
+
+
 			// Handle html-pres specially
 			// 1. If the node has a leading newline, add one like it (logic copied from VE)
 			// 2. If not, and it has a data-parsoid strippedNL flag, add it back.
@@ -2184,6 +2204,11 @@ WSP._serializeDOM = function( node, state ) {
 
 			// then the end token
 			this._serializeToken(state, new EndTagTk(name, tkAttribs, tkRTInfo));
+
+			if ( tailSrc ) {
+				// emit the tail
+				state.chunkCB( tailSrc, state.selser.serializeID );
+			}
 
 			if ( serializeID !== null ) {
 				if (!state.selser.generatedOutput) {
