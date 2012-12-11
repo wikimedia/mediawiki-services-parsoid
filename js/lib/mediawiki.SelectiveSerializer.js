@@ -89,19 +89,16 @@ function SelserState(selser, sourceWT) {
 	this.lastNLChunk = null;
 
 	this.getUnmodifiedSource = function(serID) {
-		var src = this.originalSourceChunks[serID] || '';
-		if ( src ) {
-			this.originalSourceChunks[serID] = null;
-		}
-		return src;
+		return this.originalSourceChunks[serID];
 	};
 
-	this.assignSourceChunk = function( serID, start, end, overwrite ) {
-		if ( serID && ( (this.originalSourceChunks[serID] !== null) || overwrite ) ) {
+	this.assignSourceChunk = function( serID, start, end ) {
+		var chunk = this.getUnmodifiedSource(serID);
+		if ( chunk === undefined || chunk === null ) {
 			// Sanity check
 			if (start > end) {
 				if (selser.trace) {
-					console.error("ERROR for " + serID + "; (start > end) start: " + start + "; end: " + end);
+					console.error("ERROR: (start > end) for " + serID + ";  start: " + start + "; end: " + end);
 					console.trace();
 				}
 				return;
@@ -109,19 +106,33 @@ function SelserState(selser, sourceWT) {
 
 			// Strip all leading/trailing newlines since they
 			// will come through via the regular serializer
-			var chunk = this.sourceWT.substring( start, end ).replace(/(^\n+|\n+$)/g, '');
+			chunk = this.sourceWT.substring( start, end ).replace(/(^\n+|\n+$)/g, '');
 			this.originalSourceChunks[serID] = chunk;
 			selser.debug(
 				"serId: ", serID,
 				", start:", start,
 				", end:", end,
 				", chunk:", chunk);
+		} else if (selser.trace) {
+			// Sanity check
+			console.error("ERROR: (duplicate assignment) for " + serID + "; start: " + start + "; end: " + end);
+			console.trace();
 		}
 	};
 
 	this.clearSourceChunk = function(serID) {
 		this.originalSourceChunks[serID] = null;
-	}
+	};
+
+	this.updateSourceChunk = function( serID, start, end ) {
+		this.clearSourceChunk(serID);
+		if (start === null) {
+			this.missingSourceChunkId = serID;
+		} else {
+			this.assignSourceChunk(serID, start, end);
+			this.startdsr = null;
+		}
+	};
 };
 
 /**
@@ -129,7 +140,6 @@ function SelserState(selser, sourceWT) {
  * the old text, by assigning IDs to each node in the DOM that has changed.
  */
 SSP.assignSerializerIds = function ( node, state ) {
-
 	/**
 	 * Helper function to check for a change marker.
 	 */
@@ -275,16 +285,11 @@ SSP.assignSerializerIds = function ( node, state ) {
 					child.setAttribute( 'data-serialize-id', oldId );
 					modified = true;
 					state.parentMarked = true;
-					if (oldstartdsr !== null) {
-						state.assignSourceChunk(
-							oldId,
-							oldstartdsr,
-							childHasStartDsr ? thisdsr[0] : state.lastdsr
-						);
-					} else {
-						state.missingSourceChunkId = oldId;
-						state.clearSourceChunk(oldId);
-					}
+					state.updateSourceChunk(
+						oldId,
+						oldstartdsr,
+						childHasStartDsr ? thisdsr[0] : state.lastdsr
+					);
 				} else if (
 						tname === 'ul' ||
 						tname === 'ol' ||
@@ -295,15 +300,12 @@ SSP.assignSerializerIds = function ( node, state ) {
 					modified = true;
 					state.markedNodeName = null;
 					state.parentMarked = false;
-					state.startdsr = null;
 
-					if (oldstartdsr !== null) {
-						state.assignSourceChunk(
-							oldId,
-							oldstartdsr,
-							childHasStartDsr ? thisdsr[0] : state.lastdsr
-						);
-					}
+					state.updateSourceChunk(
+						oldId,
+						oldstartdsr,
+						childHasStartDsr ? thisdsr[0] : state.lastdsr
+					);
 				} else if ( state.lastdsr !== null && state.startdsr === null ) {
 					state.startdsr = state.lastdsr;
 				}
@@ -318,13 +320,11 @@ SSP.assignSerializerIds = function ( node, state ) {
 				if ( oldstartdsr !== null ) {
 					// If there's a chunk of unmodified code in progress,
 					// finish it first.
-					state.assignSourceChunk(
+					state.updateSourceChunk(
 						oldId,
 						oldstartdsr,
-						childHasStartDsr ? thisdsr[0] : state.lastdsr,
-						true
+						childHasStartDsr ? thisdsr[0] : state.lastdsr
 					);
-					state.startdsr = null;
 				}
 				child.setAttribute( 'data-serialize-id', oldId );
 				state.markedNodeName = null;
@@ -364,7 +364,7 @@ SSP.handleSerializedResult = function( state, res, serID ) {
 			// 1. original unmodified source preceding this
 			// modified serialized content
 			state.inModifiedContent = true;
-			var origSrc = state.getUnmodifiedSource(serID);
+			var origSrc = state.getUnmodifiedSource(serID) || '';
 			this.wtChunks.push( origSrc);
 			this.debug("[Original]: ", origSrc);
 
