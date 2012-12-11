@@ -171,9 +171,11 @@ SSP.assignSerializerIds = function ( node, state ) {
 
 		if ( !thisdsr && (nodeType === Node.TEXT_NODE || nodeType === Node.COMMENT_NODE) ) {
 			// Update dsr values
-			if ( state.startdsr === null && state.lastdsr !== null ) {
-				state.startdsr = state.lastdsr;
-				state.lastdsr = null;
+			if (state.lastdsr !== null) {
+				if ( state.startdsr === null ) {
+					state.startdsr = state.lastdsr;
+				}
+				state.lastdsr += child.data.length + (nodeType === Node.TEXT_NODE ? 0 : 7);
 			}
 		} else if ( !childHasStartDsr && state.startdsr === null ) {
 			// This node does not have have a start-dsr ==> cannot be copied from src.
