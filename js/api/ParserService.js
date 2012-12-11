@@ -31,7 +31,8 @@ var express = require('express'),
 	fork = childProc.fork,
 	html5 = require('html5'),
 	path = require('path'),
-	cluster = require('cluster');
+	cluster = require('cluster'),
+	fs = require('fs');
 
 // local includes
 var mp = '../lib/',
@@ -282,6 +283,29 @@ app.get( new RegExp( '^/((?:_rt|_rtve)/)?(' + getInterwikiRE() +
 		res.redirect(  '/' + req.params[0] + req.params[1] + '/' + req.params[2]);
 	} else {
 		res.redirect( '/' + req.params[1] + '/' + req.params[2]);
+	}
+	res.end( );
+});
+
+/**
+ * Bug report posts
+ */
+app.post( /^\/_bugs\//, function ( req, res ) {
+	console.log( '_bugs', req.body.data );
+	try {
+		var data = JSON.parse( req.body.data ),
+			filename = '/mnt/bugs/' +
+				new Date().toISOString() +
+				'-' + encodeURIComponent(data.title);
+		console.log( filename, data );
+		fs.writeFile(filename, req.body.data, function(err) {
+			if(err) {
+				console.log(err);
+			} else {
+				console.log("The file " + filename + " was saved!");
+			}
+		});
+	} catch ( e ) {
 	}
 	res.end( );
 });
