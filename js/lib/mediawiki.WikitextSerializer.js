@@ -397,7 +397,7 @@ function isListItem(token) {
 }
 
 function escapedText(text) {
-	var match = text.match(/^((?:.*?|[\r\n]+[^\r\n])*?)((?:\r?\n)*)$/);
+	var match = text.match(/^((?:.*?|[\r\n]+[^\r\n]|[~]{3,5})*?)((?:\r?\n)*)$/);
 	return ["<nowiki>", match[1], "</nowiki>", match[2]].join('');
 }
 
@@ -416,7 +416,7 @@ WSP.escapeWikiText = function ( state, text ) {
 	// Quick check for the common case (useful to kill a majority of requests)
 	//
 	// Pure white-space or text without wt-special chars need not be analyzed
-	if (!fullCheckNeeded && !text.match(/^[ \t][^\s]+|[<>\[\]\-\+\|'!=#\*:;{}]/)) {
+	if (!fullCheckNeeded && !text.match(/^[ \t][^\s]+|[<>\[\]\-\+\|'!=#\*:;~{}]/)) {
 		// console.warn("---EWT:F1---");
 		return text;
 	}
@@ -436,9 +436,10 @@ WSP.escapeWikiText = function ( state, text ) {
 		return escapedText(text);
 	}
 
-	var sol = state.onStartOfLine || state.emitNewlineOnNextToken;
-	var hasNewlines = text.match(/\n./);
-	if (!fullCheckNeeded && !hasNewlines) {
+	var sol = state.onStartOfLine || state.emitNewlineOnNextToken,
+		hasNewlines = text.match(/\n./),
+		hasTildes = text.match(/~{3,5}/);
+	if (!fullCheckNeeded && !hasNewlines && !hasTildes) {
 		// {{, {{{, }}}, }} are handled above.
 		// Test 1: '', [], <> need escaping wherever they occur
 		// Test 2: {|, |}, ||, |-, |+,  , *#:;, ----, =*= need escaping only in SOL context.
@@ -469,7 +470,7 @@ WSP.escapeWikiText = function ( state, text ) {
 	text = text.replace(/<(\/?nowiki)>/g, '&lt;$1&gt;');
 
 	// Use the tokenizer to see if we have any wikitext tokens
-	if (this.wteHandlers.hasWikitextTokens(state, sol, text)) {
+	if (this.wteHandlers.hasWikitextTokens(state, sol, text) || hasTildes) {
 		// console.warn("---EWT:DBG1---");
 		return escapedText(text);
 	} else if (state.currLine.numPieces > 1) {
