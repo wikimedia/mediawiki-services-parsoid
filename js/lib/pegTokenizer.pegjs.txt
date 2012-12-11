@@ -1320,14 +1320,20 @@ nowiki
                     { tsr: [pos - 9, pos] }) 
                 ] ); 
     }
-  / "<nowiki>" { 
+  // nowiki fallback: source-based round-tripping.
+  / ! { return stops.counters.pre }
+    nw0:({return pos})
+    "<" "/"? "nowiki" [ ]* "/"? ">" { 
           //console.warn('nowiki fallback');
-          return ['<nowiki>']; 
+      return [
+          new SelfclosingTagTk('meta', 
+                  [new KV('typeof', 'mw:Placeholder')], 
+                  {
+                      src: input.substring(nw0, pos),
+                      tsr: [nw0, pos]
+                  })
+        ]; 
     }
-  / "</nowiki>" { 
-      //console.warn('nowiki end fallback');
-      return ['</nowiki>']; 
-  }
 
 // Should abort the nowiki match:
 //   <pre><nowiki></pre></nowiki>
