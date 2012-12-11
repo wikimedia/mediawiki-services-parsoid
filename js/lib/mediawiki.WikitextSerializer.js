@@ -2081,11 +2081,23 @@ WSP._serializeDOM = function( node, state ) {
 			var typeofVal = node.getAttribute("typeof");
 			if (typeofVal && typeofVal.match(/\bmw:Object(\/[^\s]+|\b)/)) {
 				state.activeTemplateId = node.getAttribute("about");
+				var attrs = [ new KV("typeof", "mw:TemplateSource") ];
+				var serID = node.getAttribute("data-serialize-id");
+				if (serID) {
+					attrs.push(new KV("data-serialize-id", serID));
+				}
 				var dummyToken = new SelfclosingTagTk("meta",
-					[ new KV("typeof", "mw:TemplateSource") ],
+					attrs,
 					{ src: this._getDOMRTInfo(node.attributes).src }
 				);
+
+				if ( serID ) {
+					state.selser.serializeID = serID;
+				}
 				this._serializeToken(state, dummyToken);
+				if ( serID ) {
+					state.selser.serializeID = null;
+				}
 				return;
 			}
 		}
