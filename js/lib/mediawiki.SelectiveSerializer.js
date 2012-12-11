@@ -96,8 +96,10 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 		foundChange: false,
 		currentId: 1,
 		originalSourceChunks: [],
-		startdsr: null,
-		lastdsr: null,
+		startdsr: 0, // start offset of the current unmodified chunk
+		lastdsr: null, // end offset of the last processed node
+		lastModifiedChunkEnd: null, // end offset of the last modified chunk
+		missingSourceChunkId: null, // serialize-id for which we couldn't assign an unmodified source chunk
 		inModifiedContent: false,
 		lastNLChunk: null
 	};
@@ -108,7 +110,7 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 			// Sanity check
 			if (start > end) {
 				if (selser.trace) {
-					console.error("ERROR (start > end) start: " + start + "; end: " + end);
+					console.error("ERROR for " + index + "; (start > end) start: " + start + "; end: " + end);
 					console.trace();
 				}
 				return;
@@ -128,7 +130,10 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 
 	for ( var i = 0; i < node.childNodes.length; i++ ) {
 		var child = node.childNodes[i],
-			nodeType = child.nodeType;
+			nodeType = child.nodeType,
+			modified = false;
+
+		// console.warn("n: " + child.nodeName + "; s: " + state.startdsr + "; l: " + state.lastdsr);
 
 		// data-ve-changed is what we watch for the change markers.
 		thisda = Util.getJSONAttribute( child, 'data-ve-changed', {} );
@@ -149,7 +154,10 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 			// This node does not have have a start-dsr ==> cannot be copied from src.
 			// So treat it as a modified node and move on.
 
+			// console.warn("--missing start dsr--");
+
 			child.setAttribute( 'data-serialize-id', state.currentId++ );
+			modified = true;
 
 			if ( hasChangeMarker( thisda ) ) {
 				state.foundChange = true;
@@ -162,12 +170,17 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 				state.lastdsr = null;
 			}
 
+			// FIXME: This can overwrite previously set values.  What is the
+			// expected behavior in that case?
+			//
 			// Set this flag to indicate that something changed in a child, and the
 			// parent should probably be marked with the same serialize ID. This helps
 			// with processing tough things like lists and tables that might not work
 			// otherwise.
 			state.markedNodeName = child.tagName ? child.tagName.toLowerCase() : null;
 		} else if ( hasChangeMarker( thisda ) ) {
+
+			// console.warn("--found change marker--");
 
 			if (state.startdsr !== null || !state.foundChange) {
 				// SSS FIXME: Not sure what this check is doing ...
@@ -178,16 +191,20 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 					// possible.
 					assignSourceChunk(
 						state.currentId,
-						state.startdsr || 0,
+						state.startdsr,
 						usableDsr0 ? thisdsr[0] : state.lastdsr
 					);
+				} else {
+					// console.warn("== missing! ==");
+					state.missingSourceChunkId = state.currentId;
 				}
 			}
 
 			state.foundChange = true;
 			child.setAttribute( 'data-serialize-id', state.currentId++ );
+			modified = true;
 
-			// Reset the start DSR, because we aren't processing identical nodes now.
+			// No longer in an unmodified chunk
 			state.startdsr = null;
 
 			// Make sure we reset lastdsr whenever we fully serialize
@@ -197,6 +214,9 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 				state.lastdsr = null;
 			}
 
+			// FIXME: This can overwrite previously set values.  What is the
+			// expected behavior in that case?
+			//
 			// Set this flag to indicate that something changed in a child, and the
 			// parent should probably be marked with the same serialize ID. This helps
 			// with processing tough things like lists and tables that might not work
@@ -206,11 +226,25 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 			// This node wasn't marked, but its children might be. Check first.
 			oldId = state.currentId;
 			oldstartdsr = state.startdsr;
+
+			// Process DOM rooted at 'child'
 			this.assignSerializerIds( child, src, state );
 
-			if ( oldId === state.currentId && childHasStartDsr ) {
-				// If no children were bothered, then this entire node can be copied
-				// over verbatim. If there's no startdsr yet, set it.
+			if (state.missingSourceChunkId) {
+				modified = true;
+				child.setAttribute( 'data-serialize-id', state.missingSourceChunkId );
+				if (childHasStartDsr && oldstartdsr !== null) {
+					assignSourceChunk(
+						state.missingSourceChunkId,
+						oldstartdsr,
+						thisdsr[0]
+					);
+					state.missingSourceChunkId = null;
+					state.startdsr = null;
+				}
+			} else if ( oldId === state.currentId && (childHasStartDsr || state.startdsr === null)) {
+				// No modifications in child's DOM.
+				// It can be copied over from src.
 				if ( state.startdsr === null ) {
 					state.startdsr = thisdsr[0];
 				}
@@ -223,24 +257,32 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 				tname = child.tagName ? child.tagName.toLowerCase() : 'tbody';
 				childname = state.markedNodeName;
 				if ( tname === 'tbody' || tname === 'thead' ) {
+					// SSS FIXME: Why set 'oldId'?
+					// Can't there be left-siblings of child that
+					// may not have any serialize-id assigned to them
+					// in which case this assignment is buggy.
 					child.setAttribute( 'data-serialize-id', oldId );
-
+					modified = true;
 					state.parentMarked = true;
 				} else if (
 						tname === 'ul' ||
 						tname === 'ol' ||
 						childname === 'i' ||
-						childname === 'b' ) {
+						childname === 'b' )
+				{
 					child.setAttribute( 'data-serialize-id', oldId );
+					modified = true;
 					state.markedNodeName = null;
 					state.parentMarked = false;
 					state.startdsr = null;
 
-					assignSourceChunk(
-						oldId,
-						oldstartdsr,
-						childHasStartDsr ? thisdsr[0] : state.lastdsr
-					);
+					if (oldstartdsr !== null) {
+						assignSourceChunk(
+							oldId,
+							oldstartdsr,
+							childHasStartDsr ? thisdsr[0] : state.lastdsr
+						);
+					}
 				} else if ( state.lastdsr !== null && state.startdsr === null ) {
 					state.startdsr = state.lastdsr;
 				}
@@ -268,11 +310,23 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 				state.parentMarked = false;
 			}
 		}
+
 		if ( thisdsr ) {
+			if (modified) {
+				state.lastModifiedChunkEnd = thisdsr[1];
+			}
+
 			// Make sure we have the dsr[1] of the last node we processed, so
 			// we can use it as a backup later if a changed node doesn't have
 			// dsr[0]. Fall back to the last known dsr[1] otherwise.
 			state.lastdsr = thisdsr[1] || state.lastdsr;
+		}
+
+		// If this node has a serialize-id but we couldn't
+		// assign an unmodified source chunk to it, we bail and
+		// mark the parent instead.
+		if (state.missingSourceChunkId) {
+			return state;
 		}
 	}
 
@@ -306,8 +360,8 @@ SSP.handleSerializedResult = function( state, res, serID ) {
 			// 2. separator nls between the unmodified & modified content
 			if (state.lastNLChunk) {
 				this.wtChunks.push( state.lastNLChunk );
-				state.lastNLChunk = null;
 				this.debug("[NLs]: ", state.lastNLChunk);
+				state.lastNLChunk = null;
 			}
 		}
 
@@ -353,6 +407,10 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 			{
 				console.log( '----- DOM after assigning serialize-ids -----' );
 				console.log( doc.outerHTML );
+				console.log( '-------- state: --------- ');
+				console.log('startdsr: ' + state.startdsr);
+				console.log('lastdsr: ' + state.lastdsr);
+				console.log('last-mod-chunk-end: ' + state.lastModifiedChunkEnd);
 			}
 
 			if ( state && state.foundChange === true ) {
@@ -362,14 +420,10 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 					doc,
 					selser.handleSerializedResult.bind(selser, state),
 					function () {
-						if ( state.startdsr !== null ) {
-							var startSrc = src.substring( state.startdsr ).replace(/^\n*/, '');
+						if ( state.lastModifiedChunkEnd !== null ) {
+							var startSrc = src.substring( state.lastModifiedChunkEnd ).replace(/^\n*/, '');
 							selser.debug("[startdsr], src: ", startSrc);
 							selser.wtChunks.push( startSrc );
-						} else if ( state.lastdsr !== null ) {
-							var lastSrc = src.substring( state.lastdsr ).replace(/^\n*$/, '');
-							selser.debug("[lastdsr], src: ", lastSrc);
-							selser.wtChunks.push( lastSrc );
 						}
 
 						cb( selser.wtChunks.join( '' ) );
