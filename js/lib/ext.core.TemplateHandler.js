@@ -412,6 +412,15 @@ TemplateHandler.prototype._onChunk = function( state, cb, chunk ) {
 			}
 			delete chunk[i].dataAttribs.tsr;
 		}
+		var t = chunk[i];
+		if ( t.constructor === SelfclosingTagTk &&
+				t.name.toLowerCase() === 'meta' &&
+				t.getAttribute('typeof') &&
+				t.getAttribute('typeof') === 'mw:Placeholder' )
+		{
+			// replace with empty string to avoid metas being foster-parented out
+			chunk[i] = '';
+		}
 	}
 
 	if (this.options.wrapTemplates) {
