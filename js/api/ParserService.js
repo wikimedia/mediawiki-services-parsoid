@@ -490,6 +490,9 @@ app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 	if ( req.query.oldid ) {
 		oldid = req.query.oldid;
 	}
+	if ( req.query.cache ) {
+		res.setHeader('Cache-Control', 's-maxage=2592000');
+	}
 	var tpr = new TemplateRequest( env, target, oldid );
 	tpr.once('src', parse.bind( null, env, req, res, function ( req, res, src, document ) {
 		res.end(document.body.innerHTML);
