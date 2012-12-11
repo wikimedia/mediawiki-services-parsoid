@@ -343,10 +343,8 @@ SSP.handleSerializedResult = function( state, res, serID ) {
 		return src;
 	}
 
-	this.debug(
-		"serID: ", serID || '',
-		", inModified: ", state.inModifiedContent,
-		", res: ", res);
+	var before = state.inModifiedContent;
+	this.debug("---- serID: ", serID || '', " ----");
 
 	if ( serID ) {
 		if (!state.inModifiedContent) {
@@ -366,20 +364,27 @@ SSP.handleSerializedResult = function( state, res, serID ) {
 		}
 
 		// modified serialized content
+		this.debug("[MOD]: ", res);
 		this.wtChunks.push( res );
 	} else if (res.match(/^\n*$/)) {
 		// NL-separators
 		// - push out if we are in modified content
 		// - stash if we are in unmodified content
 		if (state.inModifiedContent) {
+			this.debug("[MOD]: ", res);
 			this.wtChunks.push( res );
 		} else {
+			this.debug("saved NLS: ", res);
 			state.lastNLChunk = res;
 		}
 	} else {
-		// in unmodified content -- ignore
+		// in unmodified content -- ignore and clear saved nl-chunk
+		this.debug("cleared NLS");
 		state.inModifiedContent = false;
+		state.lastNLChunk = null;
 	}
+
+	this.debug("inModified-before: ", before, ", inModified-after: ", state.inModifiedContent);
 };
 
 SSP.serializeDOM = function( doc, cb, finalcb ) {
