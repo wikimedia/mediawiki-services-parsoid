@@ -2124,6 +2124,7 @@ WSP._serializeDOM = function( node, state ) {
 					! dp.tail &&
 					node.nextSibling && node.nextSibling.nodeType === Node.TEXT_NODE &&
 					// TODO: use tokenizer
+					node.nextSibling.value &&
 					node.nextSibling.value.match(/^[a-z]/) )
 				{
 					tailSrc = '<nowiki/>';
