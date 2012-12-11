@@ -1518,7 +1518,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				var stWidth = null, etWidth = null,
 					tagWidths, newDsr, ccs, cce;
 
-				if (tsr) {
+				if (tsr && !dp.autoInsertedStart && !dp.autoInsertedEnd) {
 					cs = tsr[0];
 					if (tsrSpansTagDOM(child, dp)) {
 						if (!ce || tsr[1] > ce) {
@@ -1537,6 +1537,13 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				tagWidths = computeTagWidths([stWidth, savedEndTagWidth], child, dp);
 				stWidth = tagWidths[0];
 				etWidth = tagWidths[1];
+
+				if (dp.autoInsertedStart) {
+					stWidth = 0;
+				}
+				if (dp.autoInsertedEnd) {
+					etWidth = 0;
+				}
 
 				// Process DOM subtree rooted at child
 				ccs = cs !== null && stWidth !== null ? cs + stWidth : null;
