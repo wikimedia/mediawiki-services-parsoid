@@ -146,14 +146,13 @@ ListHandler.prototype.commonPrefixLength = function (x, y) {
 	return i;
 };
 
-ListHandler.prototype.pushList = function ( container, liTok ) {
+ListHandler.prototype.pushList = function ( container, liTok, dp ) {
 	this.currListFrame.endtags.push( new EndTagTk( container.list ));
 	this.currListFrame.endtags.push( new EndTagTk( container.item ));
 
-	var da = liTok.dataAttribs ? Util.clone(liTok.dataAttribs) : undefined;
 	return [
 		new TagTk( container.list ),
-		new TagTk( container.item, [], da)
+		new TagTk( container.item, [], dp)
 	];
 };
 
@@ -181,7 +180,21 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 	}
 
 	var prefixLen = this.commonPrefixLength (bs, bn),
-		prefix = bn.slice(0, prefixLen);
+		prefix = bn.slice(0, prefixLen),
+		dp = token.dataAttribs,
+		tsr = dp.tsr,
+		makeDP = function(i) {
+			var newTSR, newDP;
+			if ( tsr ) {
+				newTSR = [ tsr[0] + i, tsr[0] + i + 1 ];
+			} else {
+				newTSR = undefined;
+			}
+
+			newDP = Util.clone(dp);
+			newDP.tsr = newTSR;
+			return newDP;
+		};
 	this.currListFrame.newline = false;
 	this.currListFrame.bstack = bn;
 	if (!bs.length && this.listFrames.length === 0) {
@@ -198,7 +211,8 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 		this.currListFrame.endtags.push(new EndTagTk( itemToken.name ));
 		res = [
 			itemToken,
-			new TagTk( itemToken.name, [], Util.clone(token.dataAttribs) )
+			new TagTk( itemToken.name, [],
+					makeDP( bn.length - 1 ) )
 		];
 	} else {
 		var tokens = [];
@@ -220,15 +234,18 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 			var newName = this.bulletCharsMap[bn[prefixLen]].item;
 			var endTag = this.currListFrame.endtags.pop();
 			this.currListFrame.endtags.push(new EndTagTk( newName ));
-			var dp = Util.clone(token.dataAttribs);
-			if (dp.tsr) {
-				// The bullets get split here.
-				// Set tsr length to prefix used here.
-				//
-				// So, "**:" in the example above with prefixLen = 2
-				dp.tsr[1] = dp.tsr[0] + prefixLen + 1;
-			}
-			var newTag = new TagTk(newName, [], dp);
+			//var dp = Util.clone(token.dataAttribs);
+			//if (dp.tsr) {
+			//	// The bullets get split here.
+			//	// Set tsr length to prefix used here.
+			//	//
+			//	// So, "**:" in the example above with prefixLen = 2
+			//	dp.tsr[1] = dp.tsr[0] + prefixLen + 1;
+			//}
+			var newTag = new TagTk(newName, [],
+							makeDP( prefixLen )
+					//dp
+					);
 			tokens = tokens.concat([ endTag, newTag ]);
 			prefixLen++;
 		} else {
@@ -236,7 +253,10 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 			if (prefixLen > 0 && bn.length === prefixLen ) {
 				itemToken = this.currListFrame.endtags.pop();
 				tokens.push(itemToken);
-				tokens.push(new TagTk(itemToken.name, [], Util.clone(token.dataAttribs)));
+				tokens.push(new TagTk(itemToken.name, [],
+							makeDP( bn.length )
+							//Util.clone(token.dataAttribs)
+							));
 				this.currListFrame.endtags.push(new EndTagTk( itemToken.name ));
 			}
 		}
@@ -246,7 +266,10 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 				throw("Unknown node prefix " + prefix[i]);
 			}
 
-			tokens = tokens.concat(this.pushList(this.bulletCharsMap[bn[i]], token));
+			tokens = tokens.concat(
+						this.pushList(this.bulletCharsMap[bn[i]], token,
+										makeDP(i))
+						);
 		}
 		res = tokens;
 	}
