@@ -296,6 +296,7 @@ WSP.initialState = {
 	onStartOfLine : true,
 	availableNewlineCount: 0,
 	nlsSinceLastEndTag: 0,
+	lastRes: '',
 	singleLineMode: 0,
 	wteHandlerStack: [],
 	tplAttrs: {},
@@ -1414,12 +1415,34 @@ WSP.tagHandlers = {
 		}
 	},
 	b:  {
-		start: { handle: id("'''") },
+		start: {
+			handle: function (state, token) {
+				var res = '';
+				if ( state.lastRes.match(/'''''$/ ) &&
+						! state.availableNewlineCount )
+				{
+					return "<nowiki/>'''";
+				} else {
+					return "'''"
+				}
+			}
+		},
 		end: { handle: id("'''") },
 		wtEscapeHandler: WSP.wteHandlers.quoteHandler
 	},
 	i:  {
-		start: { handle: id("''") },
+		start: {
+			handle: function (state, token) {
+				var res = '';
+				if ( state.lastRes.match(/'''''$/ ) &&
+						! state.availableNewlineCount )
+				{
+					return "<nowiki/>''";
+				} else {
+					return "''"
+				}
+			}
+		},
 		end: {
 			handle: id("''")
 		},
@@ -1571,7 +1594,9 @@ WSP.serializeTokens = function(startState, tokens, chunkCB ) {
 	state.serializer = this;
 	if ( chunkCB === undefined ) {
 		var out = [];
-		state.chunkCB = function ( chunk ) {
+		state.chunkCB = function ( chunk, serializeID ) {
+			// Keep a sliding buffer of the last emitted source
+			state.lastRes = (state.lastRes + chunk).substr(-100);
 			out.push( chunk );
 		};
 		for ( i = 0, l = tokens.length; i < l; i++ ) {
@@ -1579,7 +1604,11 @@ WSP.serializeTokens = function(startState, tokens, chunkCB ) {
 		}
 		return out;
 	} else {
-		state.chunkCB = chunkCB;
+		state.chunkCB = function ( chunk, serializeID ) {
+			// Keep a sliding buffer of the last emitted source
+			state.lastRes = (state.lastRes + chunk).substr(-100);
+			chunkCB(chunk, serializeID);
+		}
 		for ( i = 0, l = tokens.length; i < l; i++ ) {
 			this._serializeToken( state, tokens[i] );
 		}
@@ -1964,12 +1993,20 @@ WSP.serializeDOM = function( node, chunkCB, finalCB ) {
 		//console.warn( node.innerHTML );
 		if ( ! chunkCB ) {
 			var out = [];
-			state.chunkCB = out.push.bind( out );
+			state.chunkCB = function ( chunk, serializeID ) {
+				// Keep a sliding buffer of the last emitted source
+				state.lastRes = (state.lastRes + chunk).substr(-100);
+				out.push( chunk );
+			};
 			this._serializeDOM( node, state );
 			this._serializeToken( state, new EOFTk() );
 			return out.join('');
 		} else {
-			state.chunkCB = chunkCB;
+			state.chunkCB = function ( chunk, serializeID ) {
+				// Keep a sliding buffer of the last emitted source
+				state.lastRes = (state.lastRes + chunk).substr(-100);
+				chunkCB(chunk, serializeID);
+			}
 			this._serializeDOM( node, state );
 			this._serializeToken( state, new EOFTk() );
 		}
