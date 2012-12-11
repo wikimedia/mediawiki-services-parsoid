@@ -67,50 +67,41 @@ SSP.getOldText = function ( cb ) {
 	}
 };
 
-/**
- * Helper function to check for a change marker.
- */
-function hasChangeMarker( dataVeChanged ) {
-	if ( dataVeChanged ) {
-		return dataVeChanged['new'] || dataVeChanged.attributes ||
-			dataVeChanged.content || dataVeChanged.annotations ||
-			dataVeChanged.childrenRemoved || dataVeChanged.rebuilt;
-	} else {
-		return false;
-	}
-}
+function SelserState(selser, sourceWT) {
+	// Used "everywhere"
+	this.foundChange = false;
 
-/**
- * Determine what needs to be serialized and what we can just carry over from
- * the old text, by assigning IDs to each node in the DOM that has changed.
- */
-SSP.assignSerializerIds = function ( node, src, state ) {
-	var thisda, thisdsr, dsr, nodesrc, hasRun,
-		childHasStartDsr, oldstartdsr, oldId, tname, childname, backi, backdp,
-		parentChangeMarkers, contentChanged;
+	// Used to assign serialize-ids
+	this.selser = selser; // required only for debug/trace flags
+	this.sourceWT = sourceWT;
+	this.currentId = 1;
+	this.startdsr = 0; // start offset of the current unmodified chunk
+	this.lastdsr = null; // end offset of the last processed node
+	this.missingSourceChunkId = null; // serialize-id for which we couldn't assign an unmodified source chunk
 
-	// state will hold our local state, this is different from the
-	// WikitextSerializer state but will eventually be returned as the new
-	// state for the SelectiveSerializer.
-	state = state || {
-		foundChange: false,
-		currentId: 1,
-		originalSourceChunks: [],
-		startdsr: 0, // start offset of the current unmodified chunk
-		lastdsr: null, // end offset of the last processed node
-		lastModifiedChunkEnd: null, // end offset of the last modified chunk
-		missingSourceChunkId: null, // serialize-id for which we couldn't assign an unmodified source chunk
-		inModifiedContent: false,
-		lastNLChunk: null
+	// Set during serialize-id assignment
+	// and used during serialization
+	this.originalSourceChunks = [];
+	this.lastModifiedChunkEnd = null; // end offset of the last modified chunk
+
+	// Used only during serialization
+	this.inModifiedContent = false;
+	this.lastNLChunk = null;
+
+	this.getUnmodifiedSource = function(serID) {
+		var src = this.originalSourceChunks[serID] || '';
+		if ( src ) {
+			this.originalSourceChunks[serID] = null;
+		}
+		return src;
 	};
 
-	var selser = this;
-	var assignSourceChunk = function ( index, start, end, overwrite ) {
-		if ( index && ( (state.originalSourceChunks[index] !== null) || overwrite ) ) {
+	this.assignSourceChunk = function( serID, start, end, overwrite ) {
+		if ( serID && ( (this.originalSourceChunks[serID] !== null) || overwrite ) ) {
 			// Sanity check
 			if (start > end) {
 				if (selser.trace) {
-					console.error("ERROR for " + index + "; (start > end) start: " + start + "; end: " + end);
+					console.error("ERROR for " + serID + "; (start > end) start: " + start + "; end: " + end);
 					console.trace();
 				}
 				return;
@@ -118,15 +109,39 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 
 			// Strip all leading/trailing newlines since they
 			// will come through via the regular serializer
-			var chunk = src.substring( start, end ).replace(/(^\n+|\n+$)/g, '');
-			state.originalSourceChunks[index] = chunk;
+			var chunk = this.sourceWT.substring( start, end ).replace(/(^\n+|\n+$)/g, '');
+			this.originalSourceChunks[serID] = chunk;
 			selser.debug(
-				"ser-id: ", index,
+				"serId: ", serID,
 				", start:", start,
 				", end:", end,
 				", chunk:", chunk);
 		}
 	};
+
+	this.clearSourceChunk = function(serID) {
+		this.originalSourceChunks[serID] = null;
+	}
+};
+
+/**
+ * Determine what needs to be serialized and what we can just carry over from
+ * the old text, by assigning IDs to each node in the DOM that has changed.
+ */
+SSP.assignSerializerIds = function ( node, state ) {
+
+	/**
+	 * Helper function to check for a change marker.
+	 */
+	function hasChangeMarker( dataVeChanged ) {
+		return dataVeChanged && (
+			dataVeChanged['new'] || dataVeChanged.attributes ||
+			dataVeChanged.content || dataVeChanged.annotations ||
+			dataVeChanged.childrenRemoved || dataVeChanged.rebuilt
+		);
+	}
+
+	var thisda, thisdsr, childHasStartDsr, oldstartdsr, oldId, tname, childname;
 
 	for ( var i = 0; i < node.childNodes.length; i++ ) {
 		var child = node.childNodes[i],
@@ -189,7 +204,7 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 					// In the case that we were in the middle of processing a series of
 					// unchanged nodes, we use this node's startdsr as the end index if
 					// possible.
-					assignSourceChunk(
+					state.assignSourceChunk(
 						state.currentId,
 						state.startdsr,
 						usableDsr0 ? thisdsr[0] : state.lastdsr
@@ -228,13 +243,13 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 			oldstartdsr = state.startdsr;
 
 			// Process DOM rooted at 'child'
-			this.assignSerializerIds( child, src, state );
+			this.assignSerializerIds( child, state );
 
 			if (state.missingSourceChunkId) {
 				modified = true;
 				child.setAttribute( 'data-serialize-id', state.missingSourceChunkId );
 				if (childHasStartDsr && oldstartdsr !== null) {
-					assignSourceChunk(
+					state.assignSourceChunk(
 						state.missingSourceChunkId,
 						oldstartdsr,
 						thisdsr[0]
@@ -257,13 +272,19 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 				tname = child.tagName ? child.tagName.toLowerCase() : 'tbody';
 				childname = state.markedNodeName;
 				if ( tname === 'tbody' || tname === 'thead' ) {
-					// SSS FIXME: Why set 'oldId'?
-					// Can't there be left-siblings of child that
-					// may not have any serialize-id assigned to them
-					// in which case this assignment is buggy.
 					child.setAttribute( 'data-serialize-id', oldId );
 					modified = true;
 					state.parentMarked = true;
+					if (oldstartdsr !== null) {
+						state.assignSourceChunk(
+							oldId,
+							oldstartdsr,
+							childHasStartDsr ? thisdsr[0] : state.lastdsr
+						);
+					} else {
+						state.missingSourceChunkId = oldId;
+						state.clearSourceChunk(oldId);
+					}
 				} else if (
 						tname === 'ul' ||
 						tname === 'ol' ||
@@ -277,7 +298,7 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 					state.startdsr = null;
 
 					if (oldstartdsr !== null) {
-						assignSourceChunk(
+						state.assignSourceChunk(
 							oldId,
 							oldstartdsr,
 							childHasStartDsr ? thisdsr[0] : state.lastdsr
@@ -297,7 +318,7 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 				if ( oldstartdsr !== null ) {
 					// If there's a chunk of unmodified code in progress,
 					// finish it first.
-					assignSourceChunk(
+					state.assignSourceChunk(
 						oldId,
 						oldstartdsr,
 						childHasStartDsr ? thisdsr[0] : state.lastdsr,
@@ -326,22 +347,14 @@ SSP.assignSerializerIds = function ( node, src, state ) {
 		// assign an unmodified source chunk to it, we bail and
 		// mark the parent instead.
 		if (state.missingSourceChunkId) {
-			return state;
+			return;
 		}
 	}
 
-	return state;
+	return;
 };
 
 SSP.handleSerializedResult = function( state, res, serID ) {
-	// Helper function for accumulating source chunks.
-	function getUnmodifiedSource(state, serID) {
-		var src = state.originalSourceChunks[serID] || '';
-		if ( src ) {
-			state.originalSourceChunks[serID] = null;
-		}
-		return src;
-	}
 
 	var before = state.inModifiedContent;
 	this.debug("---- serID: ", serID || '', " ----");
@@ -351,7 +364,7 @@ SSP.handleSerializedResult = function( state, res, serID ) {
 			// 1. original unmodified source preceding this
 			// modified serialized content
 			state.inModifiedContent = true;
-			var origSrc = getUnmodifiedSource(state, serID);
+			var origSrc = state.getUnmodifiedSource(serID);
 			this.wtChunks.push( origSrc);
 			this.debug("[Original]: ", origSrc);
 
@@ -404,7 +417,8 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 			selser.wts.serializeDOM(doc, cb, finalcb);
 		} else {
 			// If we found text, then use this chunk callback.
-			var state = selser.assignSerializerIds( doc, src );
+			var state = new SelserState(selser, src);
+			selser.assignSerializerIds( doc, state );
 
 			// If we found text, then use this chunk callback.
 			if ( selser.trace || ( selser.env.dumpFlags &&
