@@ -185,6 +185,9 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 			}
 
 			if ( tail ) {
+				if ( obj.dataAttribs.tsr ) {
+					obj.dataAttribs.tsr[1] -= tail.length;
+				}
 				tokens.push(tail);
 			}
 
@@ -203,6 +206,9 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 			tokens.push( obj );
 
 			if ( tail ) {
+				if ( obj.dataAttribs.tsr ) {
+					obj.dataAttribs.tsr[1] -= tail.length;
+				}
 				tokens.push(tail);
 			}
 
@@ -356,6 +362,9 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 		var tokens = [ a, img, new EndTagTk( 'a' )];
 		var linkTail = Util.lookup(token.attribs, 'tail');
 		if (linkTail) {
+			if ( a.dataAttribs.tsr ) {
+				a.dataAttribs.tsr[1] -= linkTail.length;
+			}
 			var src = a.dataAttribs.src;
 			a.dataAttribs.src = src.substr(0,src.length - linkTail.length);
 			tokens.push(linkTail);
@@ -467,13 +476,17 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 				new EndTagTk( 'figure' )
 			]);
 
-	var linkTail = Util.lookup(token.attribs, 'tail');
-	if (linkTail) {
-		thumb.push(linkTail);
-	}
 
 	// set round-trip information on the wrapping figure token
 	thumb[0].dataAttribs = dataAttribs;
+
+	var linkTail = Util.lookup(token.attribs, 'tail');
+	if (linkTail) {
+		if ( dataAttribs.tsr ) {
+			dataAttribs.tsr[1] -= linkTail.length;
+		}
+		thumb.push(linkTail);
+	}
 
 /*
  * Wikia DOM:
