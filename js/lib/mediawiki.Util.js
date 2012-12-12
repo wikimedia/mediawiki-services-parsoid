@@ -569,7 +569,7 @@ var Util = {
 		return s.replace( /(%[0-9a-fA-F][0-9a-fA-F])+/g, function( m ) {
 			try {
 				// JS library function
-				return decodeURI( m );
+				return decodeURIComponent( m );
 			} catch ( e ) {
 				return m;
 			}
