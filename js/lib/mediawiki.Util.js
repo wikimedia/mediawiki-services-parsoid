@@ -287,6 +287,41 @@ var Util = {
 		);
 	},
 
+	/**
+	 * Determine whether two objects are identical, recursively.
+	 */
+	deepEquals: function ( a, b ) {
+		var i;
+		if ( a === b ) {
+			// If only it were that simple.
+			return true;
+		}
+
+		if ( a === undefined || b === undefined ||
+				a === null || b === null ) {
+			return false;
+		}
+
+		if ( a.constructor !== b.constructor ) {
+			return false;
+		}
+
+		if ( a instanceof Object ) {
+			for ( i in a ) {
+				if ( !this.deepEquals( a[i], b[i] ) ) {
+					return false;
+				}
+			}
+			for ( i in b ) {
+				if ( a[i] === undefined ) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		return false;
+	},
 
 	// deep clones by default.
 	clone: function(obj, deepClone) {
