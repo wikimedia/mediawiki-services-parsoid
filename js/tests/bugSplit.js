@@ -10,7 +10,7 @@ function writeFiles ( data ) {
 		var key = keys[i],
 			fileName = encodeURIComponent(data[key]);
 		console.log( 'Creating file ' + fileName );
-		fs.writeFileSync(key, fileName);
+		fs.writeFileSync(filename, data[key]);
 	}
 }
 
