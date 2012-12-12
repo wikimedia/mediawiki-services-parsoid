@@ -98,7 +98,12 @@ function isAncestorOf(n1, n2) {
 }
 
 function deleteNode(n) {
-	n.parentNode.removeChild(n);
+	if ( n.parentNode ) {
+		n.parentNode.removeChild(n);
+	} else {
+		console.warn('ERROR: Null parentNode in deleteNode');
+		console.trace();
+	}
 }
 
 function hasNodeName(n, name) {
