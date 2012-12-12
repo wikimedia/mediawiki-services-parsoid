@@ -4,6 +4,7 @@
 
 var events = require('events'),
 	Util = require('./mediawiki.Util.js').Util,
+	DU = require('./mediawiki.DOMUtils.js').DOMUtils,
 	Node = require('./mediawiki.wikitext.constants.js').Node;
 
 // Known wikitext tag widths
@@ -43,60 +44,6 @@ var WT_TagWidths = {
 // SSS FIXME: Should we convert some of these functions to properties
 // of Node so we can use it as n.f(..) instead of f(n, ..)
 
-// Build path from n ---> ancestor
-// Doesn't include ancestor in the path itself
-function pathToAncestor(n, ancestor) {
-	var path = [];
-	while (n && n !== ancestor) {
-		path.push(n);
-		n = n.parentNode;
-	}
-
-	return path;
-}
-
-function pathToRoot(n) {
-	return pathToAncestor(n, null);
-}
-
-// Build path from n ---> sibling (default)
-// If left is true, will build from sibling ---> n
-// Doesn't include sibling in the path in either case
-function pathToSibling(n, sibling, left) {
-	var path = [];
-	while (n && n !== sibling) {
-		path.push(n);
-		n = left ? n.previousSibling : n.nextSibling;
-	}
-
-	return path;
-}
-
-function dataParsoid(n) {
-	var str = n.getAttribute("data-parsoid");
-	return str ? JSON.parse(str) : {};
-}
-
-function setDataParsoid(n, dpObj) {
-	n.setAttribute("data-parsoid", JSON.stringify(dpObj));
-}
-
-// Does 'n1' occur before 'n2 in their parent's children list?
-function inSiblingOrder(n1, n2) {
-	while (n1 && n1 !== n2) {
-		n1 = n1.nextSibling;
-	}
-	return n1 !== null;
-}
-
-// Is 'n1' an ancestor of 'n2' in the DOM?
-function isAncestorOf(n1, n2) {
-	while (n2 && n2 !== n1) {
-		n2 = n2.parentNode;
-	}
-	return n2 !== null;
-}
-
 function deleteNode(n) {
 	if ( n.parentNode ) {
 		n.parentNode.removeChild(n);
@@ -104,49 +51,6 @@ function deleteNode(n) {
 		console.warn('ERROR: Null parentNode in deleteNode');
 		console.trace();
 	}
-}
-
-function hasNodeName(n, name) {
-	return n.nodeName.toLowerCase() === name;
-}
-
-function isMarkerMeta(n, type) {
-	return hasNodeName(n, "meta") && n.getAttribute("typeof") === type;
-}
-
-function isTplMetaType(nType)  {
-	return nType.match(/\bmw:Object(\/[^\s]+)*\b/);
-}
-
-function isTplMarkerMeta(n)  {
-	return hasNodeName(n, "meta") && isTplMetaType(n.getAttribute("typeof"));
-}
-
-function isTplStartMarkerMeta(n)  {
-	if (hasNodeName(n, "meta")) {
-		var t = n.getAttribute("typeof");
-		var tMatch = t.match(/\bmw:Object(\/[^\s]+)*\b/);
-		return tMatch && !t.match(/\/End\b/);
-	} else {
-		return false;
-	}
-}
-
-function isTplEndMarkerMeta(n)  {
-	if (hasNodeName(n, "meta")) {
-		var t = n.getAttribute("typeof");
-		return t.match(/\bmw:Object(\/[^\s]+)*\/End\b/);
-	} else {
-		return false;
-	}
-}
-
-function hasLiteralHTMLMarker(dp) {
-	return dp.stx === 'html';
-}
-
-function isLiteralHTMLNode(n) {
-	return hasLiteralHTMLMarker(dataParsoid(n));
 }
 
 /* ------------- DOM post processor ----------------- */
@@ -444,7 +348,7 @@ function patchUpDOM(node, env, tplIdToSkip) {
 			var nodeName = node.nodeName.toLowerCase();
 			if (nodeName === "meta") {
 				var nTypeOf = node.getAttribute("typeof");
-				if (isTplMetaType(nTypeOf)) {
+				if (DU.isTplMetaType(nTypeOf)) {
 					if (openTplId) {
 						// We have an open template -- this tag should the opening tag
 						// of the same open template since template wrapper meta tags
@@ -493,16 +397,16 @@ function patchUpDOM(node, env, tplIdToSkip) {
 	}
 
 	// special case for top-level
-	if (hasNodeName(node, "#document")) {
+	if (DU.hasNodeName(node, "#document")) {
 		node = node.body;
 	}
 
 	var c = node.lastChild;
 	while (c) {
-		if (tplIdToSkip && isTplMarkerMeta(c) && (c.getAttribute("about") === tplIdToSkip)) {
+		if (tplIdToSkip && DU.isTplMarkerMeta(c) && (c.getAttribute("about") === tplIdToSkip)) {
 			// Check if we hit the opening tag of the tpl/extension we are ignoring
 			tplIdToSkip = null;
-		} else if (isMarkerMeta(c, "mw:EndTag") &&
+		} else if (DU.isMarkerMeta(c, "mw:EndTag") &&
 			c.getAttribute("data-etag") === "table")
 		{
 			// console.warn("---- found table etag: " + c.outerHTML);
@@ -527,8 +431,8 @@ function patchUpDOM(node, env, tplIdToSkip) {
 				}
 
 				var tplDP = JSON.parse(dpSrc);
-				tplDP.tsr = dataParsoid(c).tsr;
-				setDataParsoid(farthestTpl.end, tplDP);
+				tplDP.tsr = DU.dataParsoid(c).tsr;
+				DU.setDataParsoid(farthestTpl.end, tplDP);
 
 				// Skip all nodes till we find the opening id of this template
 				// FIXME: Ugh!  Duplicate tree traversal
@@ -568,7 +472,7 @@ function handlePres(document, env) {
 			// get sibling before DOM is modified
 			var c_sibling = c.nextSibling;
 
-			if (hasNodeName(c, "pre") && !isLiteralHTMLNode(c)) {
+			if (DU.hasNodeName(c, "pre") && !DU.isLiteralHTMLNode(c)) {
 				// space corresponding to the 'pre'
 				node.insertBefore(document.createTextNode(' '), c);
 
@@ -598,7 +502,7 @@ function handlePres(document, env) {
 			if (!indentPresHandled) {
 				if (n.nodeType === Node.ELEMENT_NODE) {
 					if (Util.tagOpensBlockScope(n.nodeName.toLowerCase())) {
-						if (isTplMetaType(n.getAttribute("typeof")) || isLiteralHTMLNode(n)) {
+						if (DU.isTplMetaType(n.getAttribute("typeof")) || DU.isLiteralHTMLNode(n)) {
 							deleteIndentPreFromDOM(n);
 							processed = true;
 						}
@@ -611,7 +515,7 @@ function handlePres(document, env) {
 			}
 
 			// Deal with html-pres
-			if (hasNodeName(n, "pre") && isLiteralHTMLNode(n)) {
+			if (DU.hasNodeName(n, "pre") && DU.isLiteralHTMLNode(n)) {
 				var fc = n.firstChild;
 				if (fc && fc.nodeType === Node.TEXT_NODE &&
 					fc.data.match(/^(\r\n|\r|\n)([^\r\n]|$)/) && (
@@ -623,9 +527,9 @@ function handlePres(document, env) {
 					var matches = fc.data.match(/^(\r\n|\r|\n)/);
 					if (matches) {
 						// Record it in data-parsoid
-						var preDP = dataParsoid(n);
+						var preDP = DU.dataParsoid(n);
 						preDP.strippedNL = matches[1];
-						setDataParsoid(n, preDP);
+						DU.setDataParsoid(n, preDP);
 					}
 				}
 			}
@@ -654,13 +558,13 @@ function migrateStartMetas(node, env) {
 	}
 
 	var lastChild = node.lastChild;
-	if (lastChild && isTplStartMarkerMeta(lastChild)) {
+	if (lastChild && DU.isTplStartMarkerMeta(lastChild)) {
 		// console.warn("migration: " + lastChild.outerHTML);
 
 		// We can migrate the meta-tag across this node's end-tag barrier only
 		// if that end-tag is zero-width.
 		var tagWidth = WT_TagWidths[node.nodeName.toLowerCase()];
-		if (tagWidth && tagWidth[1] === 0 && !isLiteralHTMLNode(node)) {
+		if (tagWidth && tagWidth[1] === 0 && !DU.isLiteralHTMLNode(node)) {
 			node.parentNode.insertBefore(lastChild, node.nextSibling);
 		}
 	}
@@ -678,7 +582,7 @@ function migrateStartMetas(node, env) {
 		//
 		// var data = lastChild.data;
 		lastChild = lastChild.previousSibling;
-		if (lastChild && isTplStartMarkerMeta(lastChild)) {
+		if (lastChild && DU.isTplStartMarkerMeta(lastChild)) {
 			// console.warn("migration (thwarted by: '" + data + "', len: " + data.length + "): " + lastChild.outerHTML);
 			var p = node.parentNode;
 			p.insertBefore(lastChild, node.nextSibling);
@@ -698,7 +602,7 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 		startElem.parentNode.insertBefore(emptySpan, endElem);
 	}
 
-	var startAncestors = pathToRoot(startElem);
+	var startAncestors = DU.pathToRoot(startElem);
 
 	// now find common ancestor
 	var elem = endElem;
@@ -737,7 +641,7 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 	var tcStart = res.start;
 
 	// Skip meta-tags
-	if (tcStart === startElem && hasNodeName(startElem, "meta")) {
+	if (tcStart === startElem && DU.hasNodeName(startElem, "meta")) {
 		tcStart = tcStart.nextSibling;
 		res.start = tcStart;
 		updateDP = true;
@@ -756,7 +660,7 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 			tcStartPar.lastChild === endElem &&
 			res.end.parentNode === tcStartPar)
 		{
-			if (hasNodeName(tcStartPar, 'p') && !isLiteralHTMLNode(tcStartPar)) {
+			if (DU.hasNodeName(tcStartPar, 'p') && !DU.isLiteralHTMLNode(tcStartPar)) {
 				tcStart = tcStartPar;
 				res.end = tcStartPar;
 				skipSpan = true;
@@ -776,15 +680,15 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 
 	if (updateDP) {
 		var done = false;
-		var tcDP = dataParsoid(tcStart);
-		var seDP = dataParsoid(startElem);
+		var tcDP = DU.dataParsoid(tcStart);
+		var seDP = DU.dataParsoid(startElem);
 		if (tcDP && seDP && tcDP.dsr && seDP.dsr && tcDP.dsr[1] > seDP.dsr[1]) {
 			// Since TSRs on template content tokens are cleared by the
 			// template handler, all computed dsr values for template content
 			// is always inferred from top-level content values and is safe.
 			// So, do not overwrite a bigger end-dsr value.
 			tcDP.dsr[0] = seDP.dsr[0];
-			setDataParsoid(tcStart, tcDP);
+			DU.setDataParsoid(tcStart, tcDP);
 			done = true;
 		}
 
@@ -802,7 +706,7 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
  */
 function encapsulateTemplates( env, doc, tplRanges) {
 	function stripStartMeta(meta) {
-		if (hasNodeName(meta, 'meta')) {
+		if (DU.hasNodeName(meta, 'meta')) {
 			deleteNode(meta);
 		} else {
 			// Remove mw:Object/* from the typeof
@@ -862,7 +766,7 @@ function encapsulateTemplates( env, doc, tplRanges) {
 			// First range -- nothing to do
 			newRanges.push(r);
 			prev = r;
-		} else if (r.start === prev.end && inSiblingOrder(r.start, r.end)) {
+		} else if (r.start === prev.end && DU.inSiblingOrder(r.start, r.end)) {
 			// Overlapping ranges.  Merge r with prev
 			//
 			// Because of foster-parenting, in some situations,
@@ -884,8 +788,8 @@ function encapsulateTemplates( env, doc, tplRanges) {
 			endTagToRemove = r.endElem;
 		} else {
 			// Generic nesting cases
-			var rPath = pathToRoot(r.start);
-			var siblings = pathToSibling(prev.start, prev.end);
+			var rPath = DU.pathToRoot(r.start);
+			var siblings = DU.pathToSibling(prev.start, prev.end);
 			siblings.push(prev.end);
 
 			// Find if there is an intersection between the two arrays.
@@ -958,8 +862,8 @@ function encapsulateTemplates( env, doc, tplRanges) {
 */
 
 		// Update dsr and compute src based on dsr.  Not possible always.
-		var dp1 = dataParsoid(tcStart);
-		var dp2 = dataParsoid(tcEnd);
+		var dp1 = DU.dataParsoid(tcStart);
+		var dp2 = DU.dataParsoid(tcEnd);
 		var done = false;
 		if (dp1.dsr) {
 			// if range.end (tcEnd) is an ancestor of endElem,
@@ -998,13 +902,13 @@ function encapsulateTemplates( env, doc, tplRanges) {
 				// is smaller than tsStart, then this could be
 				// a foster-parented scenario.
 				var endDsr = dp2.dsr[0];
-				if (hasNodeName(tcEnd, 'table') && endDsr !== null && endDsr < dp1.dsr[0]) {
+				if (DU.hasNodeName(tcEnd, 'table') && endDsr !== null && endDsr < dp1.dsr[0]) {
 					dp1.dsr[0] = endDsr;
 				}
 			}
 			if (dp1.dsr[0] !== null && dp1.dsr[1] !== null) {
 				dp1.src = env.text.substring( dp1.dsr[0], dp1.dsr[1] );
-				setDataParsoid(tcStart, dp1);
+				DU.setDataParsoid(tcStart, dp1);
 				done = true;
 			}
 		}
@@ -1030,7 +934,7 @@ function encapsulateTemplates( env, doc, tplRanges) {
 ***/
 
 		// remove start/end
-		if (hasNodeName(startElem, "meta"))  {
+		if (DU.hasNodeName(startElem, "meta"))  {
 			deleteNode(startElem);
 		}
 
@@ -1039,10 +943,8 @@ function encapsulateTemplates( env, doc, tplRanges) {
 }
 
 function swallowTableIfNestedDSR(elt, tbl) {
-	var eltDP  = dataParsoid(elt),
-		eltDSR = eltDP.dsr,
-		tblDP  = dataParsoid(tbl),
-		tblTSR = tblDP.tsr;
+	var eltDP = DU.dataParsoid(elt), eltDSR = eltDP.dsr,
+		tblDP = DU.dataParsoid(tbl), tblTSR = tblDP.tsr;
 
 	// IMPORTANT: Do not use dsr to compare because the table may not
 	// have a valid dsr[1] (if the  table's end-tag is generated by
@@ -1053,7 +955,7 @@ function swallowTableIfNestedDSR(elt, tbl) {
 	if (eltDSR && tblTSR && eltDSR[0] >= tblTSR[1]) {
 		eltDP.dsr[0] = tblTSR[0];
 		eltDP.dsr[1] = null;
-		setDataParsoid(elt, eltDP);
+		DU.setDataParsoid(elt, eltDP);
 		return true;
 	} else {
 		return false;
@@ -1064,7 +966,7 @@ function findTableSibling( elem, about ) {
 	var tableNode = null;
 	elem = elem.nextSibling;
 	while (elem &&
-			(!hasNodeName(elem, 'table') ||
+			(!DU.hasNodeName(elem, 'table') ||
 			 elem.getAttribute('about') !== about))
 	{
 		elem = elem.nextSibling;
@@ -1172,7 +1074,7 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 						}
 
 						if (tbl &&
-							hasNodeName(tbl, 'table') &&
+							DU.hasNodeName(tbl, 'table') &&
 							swallowTableIfNestedDSR(sm.parentNode, tbl))
 						{
 							tbl.setAttribute('about', about); // set about on elem
@@ -1204,12 +1106,12 @@ function findBuilderCorrectedTags(node) {
 		var placeHolder = node.ownerDocument.createElement('meta'),
 			// TODO: pass in more precise source!
 			endSrc = dp.src ||
-				( hasLiteralHTMLMarker(dp) ?
+				( DU.hasLiteralHTMLMarker(dp) ?
 				  '</' + name + '>' : '' );
 
 		if ( endSrc ) {
 			placeHolder.setAttribute('typeof', 'mw:Placeholder');
-			setDataParsoid(placeHolder, {src: endSrc});
+			DU.setDataParsoid(placeHolder, {src: endSrc});
 
 			// Insert the placeHolder
 			node.parentNode.insertBefore(placeHolder, c);
@@ -1223,7 +1125,7 @@ function findBuilderCorrectedTags(node) {
 			if ( sibling !== null ) {
 				if ( sibling.nodeType === node.ELEMENT_NODE ) {
 					if ( sibling.nodeName.toLowerCase() === 'meta' ) {
-						if ( isMarkerMeta( sibling, type ) &&
+						if ( DU.isMarkerMeta( sibling, type ) &&
 								sibling.getAttribute('data-etag') === name )
 						{
 							return sibling;
@@ -1245,7 +1147,7 @@ function findBuilderCorrectedTags(node) {
 
 	while (c !== null) {
 		if (c.nodeType === Node.ELEMENT_NODE) {
-			var dp = dataParsoid(c),
+			var dp = DU.dataParsoid(c),
 				nextC,
 				cNodeName = c.nodeName.toLowerCase();
 			if (dp.tsr && !Util.isVoidElement(cNodeName) && !dp.selfClose) {
@@ -1256,16 +1158,19 @@ function findBuilderCorrectedTags(node) {
 					// 'c' is a html node that has tsr, but no end-tag marker tag
 					// => its closing tag was auto-generated by treebuilder.
 					dp.autoInsertedEnd = true;
-					setDataParsoid(c, dp);
+					DU.setDataParsoid(c, dp);
 				}
 
 				var fc = c.firstChild;
-				if (!fc || !isMarkerMeta(fc, "mw:StartTag") ||
+				if (!fc || !DU.isMarkerMeta(fc, "mw:StartTag") ||
+						// SSS FIXME: This check below is a bad check
+						// discovered by trying to fix the JSHint warning about
+						// the strange use of "!"
 						!fc.getAttribute('data-stag') === cNodeName + dp.tsr)
 				{
 					//console.log('autoInsertedStart:', c.outerHTML);
 					dp.autoInsertedStart = true;
-					setDataParsoid(c, dp);
+					DU.setDataParsoid(c, dp);
 				}
 			} else if ( cNodeName === 'meta') {
 				var type = c.getAttribute('typeof');
@@ -1324,7 +1229,7 @@ function findBuilderCorrectedTags(node) {
 	c = node.firstChild;
 	while (c !== null) {
 		sibling = c.nextSibling;
-		if (isMarkerMeta(c, "mw:StartTag")) {
+		if (DU.isMarkerMeta(c, "mw:StartTag")) {
 			deleteNode(c);
 		}
 		c = sibling;
@@ -1367,7 +1272,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 		// - span tags with 'mw:Nowiki' type
 		var name = n.nodeName.toLowerCase();
 		return !WT_tagsWithLimitedTSR[name] &&
-			!hasLiteralHTMLMarker(parsoidData) &&
+			!DU.hasLiteralHTMLMarker(parsoidData) &&
 			!(n === 'span' && n.getAttribute("typeof") === "mw:Nowiki");
 	}
 
@@ -1397,7 +1302,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 	function computeTagWidths(widths, child, dp) {
 		var stWidth = widths[0], etWidth = null;
 
-		if (hasLiteralHTMLMarker(dp)) {
+		if (DU.hasLiteralHTMLMarker(dp)) {
 			if (dp.tsr) {
 				etWidth = widths[1];
 			}
@@ -1464,12 +1369,12 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 		} else if (cType === Node.ELEMENT_NODE) {
 			if (traceDSR) console.warn("-- Processing <" + node.nodeName + ":" + i + ">=" + child.nodeName + " with [" + cs + "," + ce + "]");
 			var cTypeOf = null,
-				dp = dataParsoid(child),
+				dp = DU.dataParsoid(child),
 				tsr = dp.tsr,
 				oldCE = tsr ? tsr[1] : null,
 				propagateRight = false;
 
-			if (hasNodeName(child, "meta")) {
+			if (DU.hasNodeName(child, "meta")) {
 				// Unless they have been foster-parented,
 				// meta marker tags have valid tsr info.
 				cTypeOf = child.getAttribute("typeof");
@@ -1482,12 +1387,12 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 						//
 						// Update table-end syntax using info from the meta tag
 						var prev = child.previousSibling;
-						if (prev && hasNodeName(prev, "table")) {
-							var prevDP = dataParsoid(prev);
-							if (!hasLiteralHTMLMarker(prevDP)) {
+						if (prev && DU.hasNodeName(prev, "table")) {
+							var prevDP = DU.dataParsoid(prev);
+							if (!DU.hasLiteralHTMLMarker(prevDP)) {
 								if (dp.endTagSrc) {
 									prevDP.endTagSrc = dp.endTagSrc;
-									setDataParsoid(prev, prevDP);
+									DU.setDataParsoid(prev, prevDP);
 								}
 							}
 						}
@@ -1504,7 +1409,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 						propagateRight = true;
 					}
 				} else if (tsr) {
-					if (isTplMetaType(cTypeOf)) {
+					if (DU.isTplMetaType(cTypeOf)) {
 						// If this is a meta-marker tag (for templates, extensions),
 						// we have a new valid 'cs'.  This marker also effectively resets tsr
 						// back to the top-level wikitext source range from nested template
@@ -1587,18 +1492,18 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 			// taking care not to cross-over into template content
 			if (ce !== null &&
 				(propagateRight || oldCE !== ce || e === null) &&
-				!isTplStartMarkerMeta(child))
+				!DU.isTplStartMarkerMeta(child))
 			{
 				var sibling = child.nextSibling;
 				var newCE = ce;
-				while (newCE !== null && sibling && !isTplStartMarkerMeta(sibling)) {
+				while (newCE !== null && sibling && !DU.isTplStartMarkerMeta(sibling)) {
 					var nType = sibling.nodeType;
 					if (nType === Node.TEXT_NODE) {
 						newCE = newCE + sibling.data.length;
 					} else if (nType === Node.COMMENT_NODE) {
 						newCE = newCE + sibling.data.length + 7;
 					} else if (nType === Node.ELEMENT_NODE) {
-						var siblingDP = dataParsoid(sibling);
+						var siblingDP = DU.dataParsoid(sibling);
 						if (siblingDP.dsr && siblingDP.dsr[0] === newCE && e !== null) {
 							break;
 						}
@@ -1617,7 +1522,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 								}
 							}
 							siblingDP.dsr[0] = newCE;
-							setDataParsoid(sibling, siblingDP);
+							DU.setDataParsoid(sibling, siblingDP);
 						}
 						newCE = siblingDP.dsr[1];
 					} else {
@@ -1633,7 +1538,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 			}
 
 			if (Object.keys(dp).length > 0) {
-				setDataParsoid(child, dp);
+				DU.setDataParsoid(child, dp);
 			}
 		}
 
