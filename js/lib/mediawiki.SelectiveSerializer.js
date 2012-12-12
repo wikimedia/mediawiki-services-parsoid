@@ -58,12 +58,7 @@ SSP.getOldText = function ( cb ) {
 	} else if ( this.env && this.target ) {
 		Util.getPageSrc( this.env, this.target, cb, this.oldid || null );
 	} else {
-		cb(
-			new Error(
-				'Error in Selective Serializer: fetching the original page source for revision ' +
-				this.oldid + ' of ' + this.target + ' failed.'
-			), ''
-		);
+		cb( null, null );
 	}
 };
 
@@ -412,14 +407,10 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 
 	// Get the old text of this page
 	this.getOldText( function ( err, src ) {
-		if ( err ) {
-			throw err;
-		}
-
 		var matchedRes, nonNewline, nls = 0, latestSerID = null;
 		Util.stripFirstParagraph( doc );
 
-		if ( src === null ) {
+		if ( err || src === '' || src === null ) {
 			// If there's no old source, fall back to non-selective serialization.
 			selser.wts.serializeDOM(doc, cb, finalcb);
 		} else {
