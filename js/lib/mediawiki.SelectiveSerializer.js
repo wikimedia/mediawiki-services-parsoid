@@ -139,7 +139,7 @@ function SelserState(selser, sourceWT) {
  * Determine what needs to be serialized and what we can just carry over from
  * the old text, by assigning IDs to each node in the DOM that has changed.
  */
-SSP.assignSerializerIds = function ( node, state ) {
+SSP.detectDOMChanges = function ( node, state ) {
 	/**
 	 * Helper function to check for a change marker.
 	 */
@@ -255,7 +255,7 @@ SSP.assignSerializerIds = function ( node, state ) {
 			oldstartdsr = state.startdsr;
 
 			// Process DOM rooted at 'child'
-			this.assignSerializerIds( child, state );
+			this.detectDOMChanges( child, state );
 
 			if (state.missingSourceChunkId) {
 				modified = true;
@@ -399,7 +399,7 @@ SSP.handleSerializedResult = function( state, res, serID ) {
 		state.lastNLChunk = null;
 	}
 
-	this.debug("inModified-before: ", before, ", inModified-after: ", state.inModifiedContent);
+	this.debug("inModified: ", before, " --> ", state.inModifiedContent);
 };
 
 SSP.serializeDOM = function( doc, cb, finalcb ) {
@@ -416,7 +416,7 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 		} else {
 			// If we found text, then use this chunk callback.
 			var state = new SelserState(selser, src);
-			selser.assignSerializerIds( doc, state );
+			selser.detectDOMChanges( doc, state );
 
 			// If we found text, then use this chunk callback.
 			if ( selser.trace || ( selser.env.dumpFlags &&
@@ -439,7 +439,7 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 					function () {
 						if ( state.lastModifiedChunkEnd !== null ) {
 							var startSrc = src.substring( state.lastModifiedChunkEnd ).replace(/^\n*/, '');
-							selser.debug("[startdsr], src: ", startSrc);
+							selser.debug("[End], src: ", startSrc);
 							selser.wtChunks.push( startSrc );
 						}
 
