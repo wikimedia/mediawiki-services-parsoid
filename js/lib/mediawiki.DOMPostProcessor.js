@@ -1359,7 +1359,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 		if (cType === Node.TEXT_NODE) {
 			if (traceDSR) console.warn("-- Processing <" + node.nodeName + ":" + i + ">=#" + child.data + " with [" + cs + "," + ce + "]");
 			if (ce !== null) {
-				cs = ce - child.data.length;
+				cs = ce - child.data.length - DU.indentPreDSRCorrection(child);
 			}
 		} else if (cType === Node.COMMENT_NODE) {
 			if (traceDSR) console.warn("-- Processing <" + node.nodeName + ":" + i + ">=!" + child.data + " with [" + cs + "," + ce + "]");
@@ -1499,12 +1499,13 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				while (newCE !== null && sibling && !DU.isTplStartMarkerMeta(sibling)) {
 					var nType = sibling.nodeType;
 					if (nType === Node.TEXT_NODE) {
-						newCE = newCE + sibling.data.length;
+						newCE = newCE + sibling.data.length + DU.indentPreDSRCorrection(sibling);
 					} else if (nType === Node.COMMENT_NODE) {
 						newCE = newCE + sibling.data.length + 7;
 					} else if (nType === Node.ELEMENT_NODE) {
 						var siblingDP = DU.dataParsoid(sibling);
-						if (siblingDP.dsr && siblingDP.dsr[0] === newCE && e !== null) {
+						if (siblingDP.dsr && siblingDP.tsr && siblingDP.dsr[0] <= newCE && e !== null) {
+							// sibling's dsr wont change => ltr propagation stops here.
 							break;
 						}
 
@@ -1512,18 +1513,16 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 							siblingDP.dsr = [null, null];
 						}
 
-						if (siblingDP.dsr[0] > newCE) {
-							// Update and move right
-							if (traceDSR) {
-								console.warn("CHANGING ce.start of " + sibling.nodeName + " from " + siblingDP.dsr[0] + " to " + newCE);
-								// debug info
-								if (siblingDP.dsr[1]) {
-									siblingDP.src = env.text.substring(newCE, siblingDP.dsr[1]);
-								}
+						// Update and move right
+						if (traceDSR) {
+							console.warn("CHANGING ce.start of " + sibling.nodeName + " from " + siblingDP.dsr[0] + " to " + newCE);
+							// debug info
+							if (siblingDP.dsr[1]) {
+								siblingDP.dbsrc = env.text.substring(newCE, siblingDP.dsr[1]);
 							}
-							siblingDP.dsr[0] = newCE;
-							DU.setDataParsoid(sibling, siblingDP);
 						}
+						siblingDP.dsr[0] = newCE;
+						DU.setDataParsoid(sibling, siblingDP);
 						newCE = siblingDP.dsr[1];
 					} else {
 						break;
