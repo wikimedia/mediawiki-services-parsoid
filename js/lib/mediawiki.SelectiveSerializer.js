@@ -104,9 +104,14 @@ function SelserState(selser, sourceWT) {
 				return;
 			}
 
-			// Strip all leading/trailing newlines since they
-			// will come through via the regular serializer
-			chunk = this.sourceWT.substring( start, end ).replace(/(^\n+|\n+$)/g, '');
+			if ( start === 0 ) {
+				// Only strip trailing newlines
+				chunk = this.sourceWT.substring( start, end ).replace(/\n+$/g, '');
+			} else {
+				// Strip all leading/trailing newlines since they
+				// will come through via the regular serializer
+				chunk = this.sourceWT.substring( start, end ).replace(/(^\n+|\n+$)/g, '');
+			}
 			this.originalSourceChunks[serID] = chunk;
 			selser.debug(
 				"serId: ", serID,
