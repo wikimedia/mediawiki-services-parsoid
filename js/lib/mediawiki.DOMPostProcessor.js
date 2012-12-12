@@ -1518,7 +1518,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				var stWidth = null, etWidth = null,
 					tagWidths, newDsr, ccs, cce;
 
-				if (tsr && !dp.autoInsertedStart && !dp.autoInsertedEnd) {
+				if (tsr && !dp.autoInsertedStart) {
 					cs = tsr[0];
 					if (tsrSpansTagDOM(child, dp)) {
 						if (!ce || tsr[1] > ce) {
