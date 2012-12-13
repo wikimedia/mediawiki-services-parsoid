@@ -228,7 +228,7 @@ PegTokenizer.prototype.inline_breaks = function (input, pos, stops ) {
 				input.substr(pos).match(/\r\n?\s*[!|]/) !== null ||
 				null;
 		case "\n":
-			//console.warn(input.substr(pos, 5));
+			//console.warn(JSON.stringify(input.substr(pos, 5)), stops);
 			return ( stops.onStack( 'table' ) &&
 				// allow leading whitespace in tables
 				input.substr(pos, 200).match( /^\n\s*[!|]/ ) ) ||

@@ -468,7 +468,7 @@ block
     // Inlineline includes generic tags; wrapped into paragraphs in token
     // transform and DOM postprocessor
     / inlineline
-    / sol
+    / sol !inline_breaks
 
 /*
  * A block nested in other constructs. Avoid eating end delimiters for other
