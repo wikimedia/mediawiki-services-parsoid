@@ -423,6 +423,14 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 			var state = new SelserState(selser, src);
 			selser.detectDOMChanges( doc, state );
 
+			// If we get a top-level missing source chunk,
+			// there isn't much that can be done anymore.
+			// Just use the regular serializer.
+			if (state.missingSourceChunkId) {
+				selser.wts.serializeDOM(doc, cb, finalcb);
+				return;
+			}
+
 			// If we found text, then use this chunk callback.
 			if ( selser.trace || ( selser.env.dumpFlags &&
 				selser.env.dumpFlags.indexOf( 'dom:serialize-ids' ) !== -1) )
