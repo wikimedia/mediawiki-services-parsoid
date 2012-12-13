@@ -1501,7 +1501,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 			}
 
 			if (cs !== null || ce !== null) {
-				dp.dsr = [cs, ce];
+				dp.dsr = [cs, ce, stWidth, etWidth];
 				if (traceDSR) {
 					console.warn("-- UPDATING; " + child.nodeName + " with [" + cs + "," + ce + "]; typeof: " + cTypeOf);
 					// Set up 'dbsrc' so we can debug this

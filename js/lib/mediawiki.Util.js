@@ -702,7 +702,11 @@ var Util = {
 		var out = [arguments[0]];
 		for ( var i = 2; i < arguments.length; i++) {
 			var a = arguments[i];
-			if (a.constructor === Boolean) {
+			if (a === null) {
+				out.push('null');
+			} else if (a === undefined) {
+				out.push('undefined');
+			} else if (a.constructor === Boolean) {
 				out.push(a ? '1' : '0');
 			} else if (a.constructor !== String || a.match(/\n|^\s*$/)) {
 				out.push(JSON.stringify(a));

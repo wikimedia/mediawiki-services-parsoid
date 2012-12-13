@@ -307,8 +307,9 @@ WSP.initialState = {
 		hasHeadingPair: false
 	},
 	selser: {
-		generatedOutput: false,
-		serializeID: null
+		serializeInfo: null,
+		dpsStartCB: function(){},
+		dpsEndCB: function(){}
 	},
 	serializeTokens: function(newLineStart, wteHandler, tokens, chunkCB) {
 		// newLineStart -- sets newline and sol state
@@ -983,7 +984,7 @@ WSP._linkHandler =  function( state, tokens ) {
 	//	return '[' + rtinfo.
 };
 
-WSP.genContentSpanTypes = { 'mw:Nowiki':1, 'mw:Entity': 1 };
+WSP.genContentSpanTypes = { 'mw:Nowiki':1, 'mw:Entity': 1, 'mw:ChangeMarkerWrapper': 1 };
 
 /**
  * Compare the actual content with the previous content and use
@@ -1307,6 +1308,9 @@ WSP.tagHandlers = {
 							return token.dataAttribs.src || '<onlyinclude>';
 						case 'mw:OnlyInclude/End':
 							return token.dataAttribs.src || '</onlyinclude>';
+						case 'mw:ChangeMarker':
+							// just strip it
+							return '';
 						default:
 							this.newlineTransparent = false;
 							return WSP._serializeHTMLTag( state, token );
@@ -1501,7 +1505,7 @@ WSP._serializeAttributes = function (state, token) {
 			// them here too just to make sure.
 			'data-parsoid': 1,
 			'data-ve-changed': 1,
-			'data-serialize-id': 1
+			'data-parsoid-serialize': 1
 		};
 
 	for ( var i = 0, l = attribs.length; i < l; i++ ) {
@@ -1789,7 +1793,7 @@ WSP._serializeToken = function ( state, token ) {
 					res += '\n';
 				}
 				state.selser.generatedOutput = true;
-				state.chunkCB( res, state.selser.serializeID );
+				state.chunkCB( res, state.selser.serializeInfo );
 				break;
 			default:
 				res = '';
@@ -1889,14 +1893,14 @@ WSP._serializeToken = function ( state, token ) {
 		}
 		// Emit newlines separately from regular content
 		// for the benefit of the selective serializer.
-		state.chunkCB( out, state.selser.serializeID );
+		state.chunkCB( out, state.selser.serializeInfo );
 
 		// XXX: Switch singleLineMode to stack if there are more
 		// exceptions than just isTemplateSrc later on.
 		if ( state.singleLineMode && !handler.isTemplateSrc) {
 			res = res.replace(/\n/g, ' ');
 		}
-		state.chunkCB( suppressOutput ? '' : res, state.selser.serializeID );
+		state.chunkCB( suppressOutput ? '' : res, state.selser.serializeInfo );
 		state.selser.generatedOutput = true;
 
 		WSP.debug_pp("===> ", "", out + res);
@@ -1981,7 +1985,7 @@ WSP._collectAttrMetaTags = function(node, state) {
 /**
  * Serialize an HTML DOM document.
  */
-WSP.serializeDOM = function( node, chunkCB, finalCB ) {
+WSP.serializeDOM = function( node, chunkCB, finalCB, selser ) {
 	// console.warn("DOM: " + node.outerHTML);
 	if ( !finalCB || typeof finalCB !== 'function' ) {
 		finalCB = function () {};
@@ -1995,6 +1999,9 @@ WSP.serializeDOM = function( node, chunkCB, finalCB ) {
 		state.serializer = this;
 		this._collectAttrMetaTags(node, state);
 		//console.warn( node.innerHTML );
+		if ( selser !== undefined ) {
+			state.selser = selser;
+		}
 		if ( ! chunkCB ) {
 			var out = [];
 			state.chunkCB = function ( chunk, serializeID ) {
@@ -2068,6 +2075,7 @@ function gatherInlineText(buf, node) {
  * calling _serializeToken on each of these.
  */
 WSP._serializeDOM = function( node, state ) {
+	var newNLs;
 	// serialize this node
 	if (node.nodeType === Node.ELEMENT_NODE) {
 		if (state.activeTemplateId === node.getAttribute("about")) {
@@ -2085,21 +2093,32 @@ WSP._serializeDOM = function( node, state ) {
 			if (typeofVal && typeofVal.match(/\bmw:Object(\/[^\s]+|\b)/)) {
 				state.activeTemplateId = node.getAttribute("about");
 				var attrs = [ new KV("typeof", "mw:TemplateSource") ];
-				var serID = node.getAttribute("data-serialize-id");
-				if (serID) {
-					attrs.push(new KV("data-serialize-id", serID));
+				var dps = node.getAttribute("data-parsoid-serialize");
+				if (dps) {
+					attrs.push(new KV("data-parsoid-serialize", dps));
 				}
 				var dummyToken = new SelfclosingTagTk("meta",
 					attrs,
 					{ src: this._getDOMRTInfo(node.attributes).src }
 				);
 
-				if ( serID ) {
-					state.selser.serializeID = serID;
+				if ( dps ) {
+					newNLs = state.selser.dpsStartCB(dps);
+					if ( newNLs !== undefined ) {
+						console.log('newNLs', state.availableNewlineCount, newNLs);
+						//state.nlsSinceLastEndTag += newNLs;
+						if ( state.availableNewlineCount > newNLs ) {
+							state.availableNewlineCount -= newNLs;
+						} else {
+							state.availableNewlineCount = 0;
+						}
+						state.onNewline = true;
+						state.onStartOfLine = true;
+					}
 				}
 				this._serializeToken(state, dummyToken);
-				if ( serID ) {
-					state.selser.serializeID = null;
+				if ( dps ) {
+					state.selser.dpsEndCB(dps);
 				}
 				return;
 			}
@@ -2175,13 +2194,22 @@ WSP._serializeDOM = function( node, state ) {
 				}
 			}
 
-			var serializeID = null;
-			if ( state.selser.serializeID === null ) {
-				state.selser.generatedOutput = false;
-				serializeID = node.getAttribute( 'data-serialize-id' );
-				if ( serializeID ) {
-					state.selser.serializeID = serializeID;
+			var serializeInfo = null;
+			if ( state.selser.serializeInfo === null ) {
+				serializeInfo = node.getAttribute( 'data-parsoid-serialize' ) || null;
+				newNLs = state.selser.dpsStartCB(serializeInfo);
+				if ( newNLs !== undefined ) {
+					console.log('newNLs', state.availableNewlineCount, newNLs);
+					//state.nlsSinceLastEndTag += newNLs;
+					if ( state.availableNewlineCount > newNLs ) {
+						state.availableNewlineCount -= newNLs;
+					} else {
+						state.availableNewlineCount = 0;
+					}
+					state.onNewline = true;
+					state.onStartOfLine = true;
 				}
+
 			}
 
 			// Serialize the start token
@@ -2226,14 +2254,8 @@ WSP._serializeDOM = function( node, state ) {
 				state.chunkCB( tailSrc, state.selser.serializeID );
 			}
 
-			if ( serializeID !== null ) {
-				if (!state.selser.generatedOutput) {
-					// Generate a dummy call so that any unmodified output
-					// corresponding to this serialize-id can be emitted by
-					// the selective serializer.
-					state.chunkCB( '', state.selser.serializeID );
-				}
-				state.selser.serializeID = null;
+			if ( serializeInfo !== null ) {
+				state.selser.dpsEndCB(serializeInfo);
 			}
 
 			break;
@@ -2267,7 +2289,7 @@ WSP._getDOMAttribs = function( attribs ) {
 		ignoreAttribs = {
 			'data-parsoid': 1,
 			'data-ve-changed': 1,
-			'data-serialize-id': 1
+			'data-parsoid-serialize': 1
 		};
 	for ( var i = 0, l = attribs.length; i < l; i++ ) {
 		var attrib = attribs.item(i);

@@ -16,6 +16,21 @@ var DOMUtils = {
 
 	setDataParsoid: function(n, dpObj) {
 		n.setAttribute("data-parsoid", JSON.stringify(dpObj));
+		return n;
+	},
+
+	getJSONAttribute: function(n, name) {
+		try {
+			return JSON.parse(n.getAttribute(name));
+		} catch(e) {
+			console.warn('ERROR: Could not decode attribute ' +
+					name + ' on node ' + n);
+			return {};
+		}
+	},
+
+	setJSONAttribute: function(n, name, obj) {
+		n.setAttribute(name, JSON.stringify(obj));
 	},
 
 	// Build path from n ---> ancestor
