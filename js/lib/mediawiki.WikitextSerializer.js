@@ -929,7 +929,11 @@ WSP._linkHandler =  function( state, tokens ) {
 				return '[[' + linkData.target.value + '|' + contentSrc + ']]' + linkData.tail;
 			}
 		} else if ( attribDict.rel === 'mw:ExtLink' ) {
-			return '[' + linkData.target.value + ' ' +
+			if ( target.modified ) {
+				// encodeURI only encodes spaces and the like
+				target.value = encodeURI(target.value);
+			}
+			return '[' + target.value + ' ' +
 				state.serializeTokens(false, WSP.wteHandlers.aHandler, tokens).join('') +
 				']';
 		} else if ( attribDict.rel.match( /mw:ExtLink\/(?:ISBN|RFC|PMID)/ ) ) {
