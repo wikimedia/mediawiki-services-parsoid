@@ -9,6 +9,8 @@
  * @author Gabriel Wicke <gwicke@wikimedia.org>
  */
 
+"use strict";
+
 require('./mediawiki.parser.defines.js');
 var Util = require('./mediawiki.Util.js').Util;
 var WikitextConstants = require('./mediawiki.wikitext.constants.js').WikitextConstants;
@@ -549,21 +551,24 @@ var SanitizerConstants = {
 		//|/?[^/])[^\\s]+$");
 		this.cssDecodeRE = computeCSSDecodeRegexp();
 		this.attrWhiteList = computeAttrWhiteList(this.globalConfig);
-		this.attrWhiteListCache = {};
 	}
 };
 
 // init caches, convert lists to hashtables, etc.
 SanitizerConstants.setDerivedConstants();
 
+// Freeze it blocking all accidental changes
+Util.deepFreeze(SanitizerConstants);
+
 function Sanitizer ( manager ) {
 	this.manager = manager;
 	this.register( manager );
 	this.constants = SanitizerConstants;
+	this.attrWhiteListCache = {};
 }
 
 Sanitizer.prototype.getAttrWhiteList = function(tag) {
-	var awlCache = this.constants.attrWhiteListCache;
+	var awlCache = this.attrWhiteListCache;
 	if (!awlCache[tag]) {
 		awlCache[tag] = Util.arrayToHash(this.constants.attrWhiteList[tag] || []);
 	}
