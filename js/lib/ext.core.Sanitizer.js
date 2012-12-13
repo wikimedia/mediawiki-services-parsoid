@@ -587,25 +587,24 @@ Sanitizer._stripIDNs = function ( host ) {
 };
 
 Sanitizer.prototype.sanitizeHref = function ( href ) {
-		var bits = href.match( /(.*?\/\/)([^\/]+)(\/?.*)/ ),
-			proto, host, path;
-		if ( bits ) {
-			proto = bits[1];
-			host = bits[2];
-			path = bits[3];
-			if ( ! proto.match(this.hrefRE)) {
-				// invalid proto, disallow URL
-				return null;
-			}
-		} else {
-			proto = '';
-			host = '';
-			path = href;
+	var bits = href.match( /(.*?\/\/)([^\/]+)(\/?.*)/ ),
+		proto, host, path;
+	if ( bits ) {
+		proto = bits[1];
+		host = bits[2];
+		path = bits[3];
+		if ( ! proto.match(this.hrefRE)) {
+			// invalid proto, disallow URL
+			return null;
 		}
-		host = Sanitizer._stripIDNs( host );
+	} else {
+		proto = '';
+		host = '';
+		path = href;
+	}
+	host = Sanitizer._stripIDNs( host );
 
-		return proto + host + path;
-
+	return proto + host + path;
 };
 
 Sanitizer.prototype.onAnchor = function ( token ) {

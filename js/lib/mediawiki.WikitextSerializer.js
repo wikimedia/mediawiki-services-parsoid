@@ -787,36 +787,35 @@ var stripLinkContentString = function (contentString, dp, wtEscaper) {
 	}
 };
 
-
 // Helper function for getting RT data from the tokens
 var getLinkRoundTripData = function( token, attribDict, dp, tokens, tplAttrs, wtEscaper ) {
-			var rtData = {
-				type: null,
-				target: null, // filled in below
-				tail: dp.tail || '',
-				content: {} // string or tokens
-			};
+	var rtData = {
+		type: null,
+		target: null, // filled in below
+		tail: dp.tail || '',
+		content: {} // string or tokens
+	};
 
-			// Figure out the type of the link
-			if ( attribDict.rel ) {
-				var typeMatch = attribDict.rel.match( /\bmw:[^\b]+/ );
-				if ( typeMatch ) {
-					rtData.type = typeMatch[0];
-				}
-			}
+	// Figure out the type of the link
+	if ( attribDict.rel ) {
+		var typeMatch = attribDict.rel.match( /\bmw:[^\b]+/ );
+		if ( typeMatch ) {
+			rtData.type = typeMatch[0];
+		}
+	}
 
-			// Now get the target from rt data
-			rtData.target = token.getAttributeShadowInfo('href', tplAttrs);
+	// Now get the target from rt data
+	rtData.target = token.getAttributeShadowInfo('href', tplAttrs);
 
-			// Get the content string or tokens
-			var contentString = Util.tokensToString(tokens, true);
-			if (contentString.constructor === String) {
-				rtData.content.string = stripLinkContentString(contentString, dp, wtEscaper);
-			} else {
-				rtData.content.tokens = tokens;
-			}
+	// Get the content string or tokens
+	var contentString = Util.tokensToString(tokens, true);
+	if (contentString.constructor === String) {
+		rtData.content.string = stripLinkContentString(contentString, dp, wtEscaper);
+	} else {
+		rtData.content.tokens = tokens;
+	}
 
-			return rtData;
+	return rtData;
 };
 
 // SSS FIXME: This doesn't deal with auto-inserted start/end tags.
