@@ -108,7 +108,7 @@ var DOMUtils = {
 	},
 
 	isIndentPre: function(n) {
-		this.hasNodeName(n, "pre") && !this.isLiteralHTMLNode(n);
+		return this.hasNodeName(n, "pre") && !this.isLiteralHTMLNode(n);
 	},
 
 	indentPreDSRCorrection: function(textNode) {

@@ -9,6 +9,7 @@
 
 var WikitextSerializer = require( './mediawiki.WikitextSerializer.js' ).WikitextSerializer,
 	Util = require( './mediawiki.Util.js' ).Util,
+	DU = require( './mediawiki.DOMUtils.js' ).DOMUtils,
 	apirql = require( './mediawiki.ApiRequest.js' ),
 	DoesNotExistError = apirql.DoesNotExistError,
 	Node = require('./mediawiki.wikitext.constants.js').Node;
@@ -175,7 +176,11 @@ SSP.detectDOMChanges = function ( node, state ) {
 				if ( state.startdsr === null ) {
 					state.startdsr = state.lastdsr;
 				}
-				state.lastdsr += child.data.length + (nodeType === Node.TEXT_NODE ? 0 : 7);
+				if (nodeType === Node.TEXT_NODE) {
+					state.lastdsr += (child.data.length + DU.indentPreDSRCorrection(child));
+				} else {
+					state.lastdsr += (child.data.length + 7);
+				}
 			}
 		} else if ( !childHasStartDsr && state.startdsr === null ) {
 			// This node does not have have a start-dsr ==> cannot be copied from src.
