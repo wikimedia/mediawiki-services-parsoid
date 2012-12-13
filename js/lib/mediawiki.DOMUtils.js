@@ -4,7 +4,8 @@
  * General DOM utilities
  */
 
-var HTML5 = require( 'html5' ).HTML5;
+var HTML5 = require( 'html5' ).HTML5,
+	Node = require('./mediawiki.wikitext.constants.js').Node;
 
 var DOMUtils = {
 	dataParsoid: function(n) {
@@ -115,6 +116,34 @@ var DOMUtils = {
 		// NOTE: This assumes a text-node and doesn't check
 		var numNLs = (textNode.data.match(/\n/g)||[]).length;
 		return numNLs && this.isIndentPre(textNode.parentNode) ? numNLs : 0;
+	},
+
+	// Check if node is an ELEMENT node belongs to a template/extension.
+	//
+	// NOTE: Use with caution. This technique works reliably for the
+	// root level elements of tpl-content DOM subtrees since only they
+	// are guaranteed to be  marked and nested content might not
+	// necessarily be marked.
+	isTplElementNode: function(env, node) {
+		if (node.nodeType === Node.ELEMENT_NODE) {
+			var about = node.getAttribute('about');
+			return about && env.isParsoidObjectId(about);
+		} else {
+			return false;
+		}
+	},
+
+	/**
+	 * This method should return "true" for a node that can be edited in the
+	 * VisualEditor extension. We're using this to basically ignore changes on
+	 * things that can't have changed, because nothing could possibly have changed
+	 * them.
+	 *
+	 * For now, template/extension content is not editable.
+	 * TODO: Add anything else that is not covered here.
+	 */
+	isNodeEditable: function(env, someNode) {
+		return !this.isTplElementNode(env, someNode);
 	}
 };
 

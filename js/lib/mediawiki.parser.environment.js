@@ -318,8 +318,12 @@ MWParserEnvironment.prototype.newObjectId = function () {
 };
 
 MWParserEnvironment.prototype.stripIdPrefix = function(aboutId) {
-	return aboutId.replace(/#?mwt/, '');
+	return aboutId.replace(/^#?mwt/, '');
 };
+
+MWParserEnvironment.prototype.isParsoidObjectId = function(aboutId) {
+	return aboutId.match(/^#mwt/);
+}
 
 /**
  * Default implementation of an error callback for async

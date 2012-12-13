@@ -170,7 +170,15 @@ SSP.detectDOMChanges = function ( node, state ) {
 
 		childHasStartDsr = thisdsr && thisdsr[0] !== null;
 
-		if ( !thisdsr && (nodeType === Node.TEXT_NODE || nodeType === Node.COMMENT_NODE) ) {
+		if (DU.isTplElementNode(this.env, child)) {
+			// Update dsr when we encounter the tpl start-marker
+			if (thisdsr && thisdsr[1] && DU.isTplStartMarkerMeta(child)) {
+				state.lastdsr = thisdsr[1];
+			}
+
+			// Skip over the rest of the tpl content
+			continue;
+		} else if ( !thisdsr && (nodeType === Node.TEXT_NODE || nodeType === Node.COMMENT_NODE) ) {
 			// Update dsr values
 			if (state.lastdsr !== null) {
 				if ( state.startdsr === null ) {

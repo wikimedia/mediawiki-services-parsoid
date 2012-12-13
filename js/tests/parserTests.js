@@ -16,6 +16,7 @@ var fs = require('fs'),
 	jsDiff = require('diff'),
 	colors = require('colors'),
 	Util = require( '../lib/mediawiki.Util.js' ).Util,
+	DOMUtils = require( '../lib/mediawiki.DOMUtils.js' ).DOMUtils,
 	util = require( 'util' ),
 	async = require( 'async' ),
 	jsdom = require( 'jsdom' ),
@@ -347,12 +348,12 @@ ParserTests.prototype.makeChanges = function ( node, nonRandomChanges ) {
 		}
 
 		if ( nonRandomChanges === undefined ) {
-			if ( Util.isNodeEditable( child ) && Math.random() < 0.75 ) {
+			if ( DOMUtils.isNodeEditable( this.env, child ) && Math.random() < 0.75 ) {
 				changeObj = getRandomChange();
 				child.setAttribute(
 					'data-ve-changed',
 					JSON.stringify( changeObj ) );
-			} else if ( Util.isNodeEditable( child ) ) {
+			} else if ( DOMUtils.isNodeEditable( this.env, child ) ) {
 				childChanges = this.makeChanges( child );
 				if ( childChanges && childChanges.length ) {
 					changeObj = { children: childChanges };
@@ -365,7 +366,7 @@ ParserTests.prototype.makeChanges = function ( node, nonRandomChanges ) {
 			changeObj = nonRandomChanges[i];
 			if ( changeObj && changeObj.children ) {
 				this.makeChanges( child, changeObj.children );
-			} else if ( Util.isNodeEditable( child ) && changeObj ) {
+			} else if ( DOMUtils.isNodeEditable( this.env, child ) && changeObj ) {
 				child.setAttribute(
 					'data-ve-changed',
 					JSON.stringify( changeObj ) );
