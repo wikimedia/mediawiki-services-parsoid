@@ -216,7 +216,7 @@ SSP.detectDOMChanges = function ( node, state ) {
 
 			if (state.startdsr !== null || !state.foundChange) {
 				// SSS FIXME: Not sure what this check is doing ...
-				var usableDsr0 = childHasStartDsr && (state.lastdsr === null || thisdsr[0] < state.lastdsr );
+				var usableDsr0 = childHasStartDsr && (state.lastdsr === null || thisdsr[0] > state.lastdsr );
 				if (usableDsr0 || state.lastdsr !== null) {
 					// In the case that we were in the middle of processing a series of
 					// unchanged nodes, we use this node's startdsr as the end index if
@@ -399,7 +399,7 @@ SSP.handleSerializedResult = function( state, res, serID ) {
 		}
 	} else {
 		// in unmodified content -- ignore and clear saved nl-chunk
-		this.debug("cleared NLS");
+		this.debug("cleared NLS: ", res);
 		state.inModifiedContent = false;
 		state.lastNLChunk = null;
 	}
