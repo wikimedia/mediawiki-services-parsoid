@@ -9,6 +9,8 @@
  * about Wikitext itself.  For now, this is barebones and sparse.
  * ------------------------------------------------------------------- */
 
+var Util = require('./mediawiki.Util.js').Util;
+
 var WikitextConstants = {
 	// Valid image options:
 	// * Prefix options are of the form "alt=foo"
@@ -96,6 +98,10 @@ var Node = {
 	DOCUMENT_FRAGMENT_NODE: 11,
 	NOTATION_NODE: 12
 };
+
+// Freeze constants to prevent accidental changes
+Util.deepFreeze(WikitextConstants);
+Util.deepFreeze(Node);
 
 if (typeof module === "object") {
 	module.exports.WikitextConstants = WikitextConstants;
