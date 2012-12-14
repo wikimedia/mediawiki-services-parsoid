@@ -14,20 +14,6 @@ String.prototype.isHTMLTag = function() {
 	return false;
 };
 
-/* -------------------- KV -------------------- */
-// A key-value pair
-function KV ( k, v ) {
-	this.k = k;
-	this.v = v;
-}
-
-/* -------------------- TagTk -------------------- */
-function TagTk( name, attribs, dataAttribs ) {
-	this.name = name;
-	this.attribs = attribs || [];
-	this.dataAttribs = dataAttribs || {};
-}
-
 /**
  * Private helper for genericTokenMethods
  */
@@ -234,6 +220,20 @@ var genericTokenMethods = {
 		return tsr ? env.text.substring(tsr[0], tsr[1]) : null;
 	}
 };
+
+/* -------------------- KV -------------------- */
+// A key-value pair
+function KV ( k, v ) {
+	this.k = k;
+	this.v = v;
+}
+
+/* -------------------- TagTk -------------------- */
+function TagTk( name, attribs, dataAttribs ) {
+	this.name = name;
+	this.attribs = attribs || [];
+	this.dataAttribs = dataAttribs || {};
+}
 
 TagTk.prototype = {};
 
@@ -513,8 +513,32 @@ EOFTk.prototype = {
 	}
 };
 
+/* -------------------- InternalTk ----------------------
+ * An internal token to pass around collections of tokens
+ * and letting handlers take action on the entire collection
+ * en masse -- for example, not processing them and passing
+ * them through unchanged.
+ * ------------------------------------------------------ */
+function InternalTk( attribs, dataAttribs ) {
+	this.name = "Internal";
+	this.attribs = attribs || [];
+	this.dataAttribs = dataAttribs || {};
+}
 
+InternalTk.prototype = {};
 
+InternalTk.prototype.constructor = InternalTk;
+
+InternalTk.prototype.toJSON = function () {
+	return $.extend( { type: 'InternalTk' }, this );
+};
+
+InternalTk.prototype.defaultToString = function(t) {
+	return JSON.stringify(this);
+}
+
+// add in generic token methods
+$.extend( InternalTk.prototype, genericTokenMethods );
 
 /* -------------------- Params -------------------- */
 /**
@@ -692,6 +716,7 @@ ParserValue.prototype.get = function( options, cb ) {
 if (typeof module === "object") {
 	module.exports = {};
 	global.TagTk = TagTk;
+	global.InternalTk = InternalTk;
 	global.EndTagTk = EndTagTk;
 	global.SelfclosingTagTk = SelfclosingTagTk;
 	global.NlTk = NlTk;

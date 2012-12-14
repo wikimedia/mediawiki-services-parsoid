@@ -82,16 +82,18 @@ function defaultNestedDelimiterHandler(tokens, nestedDelimiterInfo) {
 ExtensionContent.prototype.handleExtensionTag = function(extension, collection) {
 	function wrappedExtensionContent(env, tagTsr, contentTsr) {
 		var text = env.text,
-			nt = new TagTk('span', [
+			content = contentTsr ? text.substring(contentTsr[0], contentTsr[1]) : '',
+			nt = new SelfclosingTagTk('extension', [
 				new KV('typeof', 'mw:Object/Extension'),
-				new KV('about', "#" + env.newObjectId())
+				new KV('name', extension),
+				new KV('about', "#" + env.newObjectId()),
+				new KV('content', content)
 			], {
 				tsr: [tagTsr[0], tagTsr[1]],
 				src: text.substring(tagTsr[0], tagTsr[1])
 			});
 
-		var content = contentTsr ? text.substring(contentTsr[0], contentTsr[1]) : '';
-		return { tokens: [nt, content, new EndTagTk('span')] };
+		return { tokens: [nt] };
 	}
 
 	var tokens = [], start = collection.start, end = collection.end;

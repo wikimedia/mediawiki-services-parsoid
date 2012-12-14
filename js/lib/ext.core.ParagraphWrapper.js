@@ -193,7 +193,7 @@ ParagraphWrapper.prototype.processPendingNLs = function (isBlockToken) {
 	return resToks;
 };
 
-ParagraphWrapper.prototype.onAny = function ( token, frame, cb ) {
+ParagraphWrapper.prototype.onAny = function ( token, frame ) {
 	if (this.trace) {
 		console.warn("T:p-wrap:any: " + JSON.stringify(token));
 	}
@@ -206,7 +206,22 @@ ParagraphWrapper.prototype.onAny = function ( token, frame, cb ) {
 					token.constructor === EndTagTk ) &&
 					names[token.name];
 		};
-	if (tc === TagTk && token.name === 'pre') {
+
+	if (tc === InternalTk) {
+		// Unwrap the internal token so paragraph-wrapping considers
+		// fully expanded content from extensions in the context of
+		// current p-wrapping state.
+		var buf = [],
+			wrappedTks = token.getAttribute("tokens"),
+			n = wrappedTks.length;
+		for (var j = 0; j < n; j++) {
+			var ret = this.onAny(wrappedTks[j], frame);
+			if (ret.tokens) {
+				buf = buf.concat(ret.tokens);
+			}
+		}
+		return { tokens: buf };
+	} else if (tc === TagTk && token.name === 'pre') {
 		if (this.hasOpenHTMLPTag) {
 			// No pre-tokens inside html-p-tags -- replace it with a ' '
 			this.currLine.tokens.push(' ');

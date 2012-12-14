@@ -32,6 +32,7 @@ function ApiRequest ( env, title ) {
 	this.retries = 5;
 	this.env = env;
 	this.title = title;
+	this.reqType = "Page Fetch";
 }
 
 // Inherit from EventEmitter
@@ -67,28 +68,28 @@ ApiRequest.prototype.requestCB = function (error, response, body) {
 		this.env.tp('WARNING: RETRY:', error, this.queueKey);
 		if ( this.retries ) {
 			this.retries--;
-			this.env.tp( 'Retrying template request for ' + this.title + ', ' +
+			this.env.tp( 'Retrying ' + this.reqType + ' request for ' + this.title + ', ' +
 					this.retries + ' remaining' );
 			// retry
 			request( this.requestOptions, this.requestCB.bind(this) );
 			return;
 		} else {
-			var dnee = new DoesNotExistError( 'Page/template fetch failure for title ' + this.title );
+			var dnee = new DoesNotExistError( this.reqType + ' failure for ' + this.title );
 			//this.emit('src', dnee, dnee.toString(), 'text/x-mediawiki');
 			this.handleJSON( dnee, {} );
 		}
-	} else if(response.statusCode ===  200) {
+	} else if (response.statusCode === 200) {
 		var src = '', data;
 		try {
 			//console.warn( 'body: ' + body );
 			data = JSON.parse( body );
 		} catch(e) {
-			error = new ParserError( 'Failed to parse the JSON response for the template ' + self.title );
+			error = new ParserError( 'Failed to parse the JSON response for ' + this.reqType + " " + self.title );
 		}
 		this.handleJSON( error, data );
 	} else {
 		console.warn( 'non-200 response: ' + response.statusCode );
-		error = new DoesNotExistError( 'Page/template fetch failure for title ' + this.title );
+		error = new DoesNotExistError( this.reqType + ' failure for ' + this.title );
 		this.handleJSON( error, {} );
 	}
 
@@ -106,7 +107,9 @@ ApiRequest.prototype.requestCB = function (error, response, body) {
 function TemplateRequest ( env, title, oldid ) {
 	// Construct ApiRequest;
 	ApiRequest.call(this, env, title);
+
 	this.queueKey = title;
+	this.reqType = "Template Fetch";
 
 	var apiargs = {
 		format: 'json',
@@ -213,6 +216,7 @@ function PreprocessorRequest ( env, title, text ) {
 
 	this.text = text;
 	this.queueKey = text;
+	this.reqType = "Template Expansion";
 
 	var apiargs = {
 		format: 'json',
@@ -275,9 +279,78 @@ PreprocessorRequest.prototype.handleJSON = function ( error, data ) {
 	this.processListeners( error, src );
 };
 
+/******************* PHPParseRequest *****************************/
+
+/**
+ * Gets the PHP parser to parse content for us.
+ * - Used for handling extension content right now.
+ * - And, probably magic words later on.
+ */
+function PHPParseRequest ( env, extension, text ) {
+	ApiRequest.call(this, env, extension);
+
+	this.text = text;
+	this.queueKey = text;
+	this.reqType = "Extension Parse";
+
+	var apiargs = {
+		format: 'json',
+		action: 'parse',
+		text: ["<", extension, ">", text, "</", extension, ">"].join('')
+	};
+	var url = env.wgScript + '/api' + env.wgScriptExtension;
+
+	this.requestOptions = {
+		// Use POST since we are passing a bit of source, and GET has a very
+		// limited length. You'll be greeted by "HTTP Error 414 Request URI
+		// too long" otherwise ;)
+		method: 'POST',
+		form: apiargs, // The API arguments
+		followRedirect: true,
+		url: url,
+		timeout: 16 * 1000, // 16 seconds
+		headers: {
+			'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:9.0.1) ' +
+							'Gecko/20100101 Firefox/9.0.1 Iceweasel/9.0.1',
+			'Connection': 'close'
+		}
+	};
+
+	// Start the request
+	request( this.requestOptions, this.requestCB.bind(this) );
+}
+
+// Inherit from ApiRequest
+util.inherits( PHPParseRequest, ApiRequest );
+
+// The TemplateRequest-specific JSON handler
+PHPParseRequest.prototype.handleJSON = function ( error, data ) {
+	if ( error ) {
+		this.processListeners( error, '' );
+		return;
+	}
+
+	var parsedHtml = '';
+	try {
+		// Strip php parse stats from the html
+		parsedHtml = data.parse.text['*'].replace(/(^<p>)|(<\/p>\s*<!--\s*NewPP limit(\n|.)*$)/g, '');
+		this.env.tp( 'Expanded ', this.text, parsedHtml );
+
+		// Add the source to the cache
+		this.env.pageCache[this.text] = parsedHtml;
+	} catch ( e2 ) {
+		error = new DoesNotExistError( 'Could not expand extension content for ' +
+				this.title + e2 );
+	}
+
+	//console.log( this.listeners('parsedHtml') );
+	this.processListeners( error, parsedHtml );
+};
+
 if (typeof module === "object") {
 	module.exports.TemplateRequest = TemplateRequest;
-	module.exports.PreprocessorRequest = PreprocessorRequest;
+	module.exports.PreprocessorRequest= PreprocessorRequest;
+	module.exports.PHPParseRequest = PHPParseRequest;
 	module.exports.DoesNotExistError = DoesNotExistError;
 	module.exports.ParserError = ParserError;
 }
