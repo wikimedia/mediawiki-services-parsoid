@@ -991,7 +991,7 @@ template_param_text
         stops.push('pipe', true);
         return stops.inc('template') 
     }
-    il:nested_block+ {
+    il:(nested_block / newlineToken)+ {
         stops.pop('table');
         stops.pop('extlink');
         stops.pop('pipe');
