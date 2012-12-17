@@ -253,12 +253,6 @@ PreHandler.prototype.onEnd = function (token, manager, cb) {
 	return {tokens: [token]};
 };
 
-function isTableTag(token) {
-	var tc = token.constructor;
-	return (tc === TagTk || tc === EndTagTk) &&
-		['table','tr','td','th','tbody'].indexOf(token.name) !== -1;
-}
-
 function getUpdatedPreTSR(tsr, token) {
 	var tc = token.constructor;
 	if (tc === CommentTk) {
@@ -330,7 +324,7 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 			case PreHandler.STATE_PRE:
 				if (Util.isSolTransparent(token)) { // continue watching
 					this.solTransparentTokens.push(token);
-				} else if (isTableTag(token) ||
+				} else if (Util.isTableTag(token) ||
 					(token.isHTMLTag() && Util.isBlockTag(token.name)))
 				{
 					if (this.tokens.length > 0) {

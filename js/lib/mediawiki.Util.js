@@ -171,6 +171,12 @@ var Util = {
 		}
 	},
 
+	isTableTag: function(token) {
+		var tc = token.constructor;
+		return (tc === TagTk || tc === EndTagTk) &&
+			['table','tbody','th','tr','td'].indexOf(token.name) !== -1;
+	},
+
 	isSolTransparent: function(token) {
 		var tc = token.constructor;
 		if (tc === String) {

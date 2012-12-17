@@ -26,6 +26,7 @@ ParagraphWrapper.prototype.reset = function() {
 		this.manager.addTransform(this.onNewLineOrEOF.bind(this),
 			"ParagraphWrapper:onNewLine", this.newlineRank, 'newline');
 	}
+	this.tableTags = [];
 	this.nlWsTokens = [];
 	this.nonNlTokens = [];
 	this.currLine = {
@@ -66,7 +67,7 @@ ParagraphWrapper.prototype._getTokensAndReset = function (res) {
 	return resToks;
 };
 
-ParagraphWrapper.prototype.discardOneNlTk = function(out) {
+ParagraphWrapper.prototype.discardOneNlTk = function() {
 	for (var i = 0, n = this.nlWsTokens.length; i < n; i++) {
 		var t = this.nlWsTokens[i];
 		if (t.constructor === NlTk) {
@@ -138,49 +139,56 @@ ParagraphWrapper.prototype.processPendingNLs = function (isBlockToken) {
 
 	if (newLineCount >= 2) {
 		while ( newLineCount >= 3 ) {
-			// 1. close any open p-tag
+			// 1. Close any open p-tag
 			var hadOpenTag = this.hasOpenPTag;
 			this.closeOpenPTag(resToks);
 
-			// 2. Discard 3 newlines (the p-br-p section
-			// serializes back to 3 newlines)
-			nlTk = this.discardOneNlTk(resToks);
-			nlTk2 = this.discardOneNlTk(resToks);
-			this.discardOneNlTk(resToks);
+			var topTag = this.tableTags.length > 0 ? this.tableTags.last(): null;
+			if (!topTag || topTag === 'td' || topTag === 'th') {
+				// 2. Discard 3 newlines (the p-br-p section
+				// serializes back to 3 newlines)
+				nlTk = this.discardOneNlTk();
+				nlTk2 = this.discardOneNlTk();
+				this.discardOneNlTk();
 
-			if (hadOpenTag) {
-				// We strictly dont need this for correctness,
-				// but useful for readable html output
-				resToks.push(nlTk);
-			} else {
-				resToks.push(nlTk);
-				resToks.push(nlTk2);
-			}
+				if (hadOpenTag) {
+					// We strictly dont need this for correctness,
+					// but useful for readable html output
+					resToks.push(nlTk);
+				} else {
+					resToks.push(nlTk);
+					resToks.push(nlTk2);
+				}
 
-			// 3. Insert <p><br></p> sections
-			// FIXME: Mark this as a placeholder for now until the
-			// editor handles this properly
-			resToks.push(new TagTk( 'p', [new KV('typeof', 'mw:Placeholder')] ));
-			resToks.push(new SelfclosingTagTk('br'));
-			if (newLineCount > 3) {
-				resToks.push(new EndTagTk('p'));
+				// 3. Insert <p><br></p> sections
+				// FIXME: Mark this as a placeholder for now until the
+				// editor handles this properly
+				resToks.push(new TagTk( 'p', [new KV('typeof', 'mw:Placeholder')] ));
+				resToks.push(new SelfclosingTagTk('br'));
+				if (newLineCount > 3) {
+					resToks.push(new EndTagTk('p'));
+				} else {
+					this.hasOpenPTag = true;
+				}
 			} else {
-				this.hasOpenPTag = true;
+				resToks.push(this.discardOneNlTk());
+				resToks.push(this.discardOneNlTk());
+				resToks.push(this.discardOneNlTk());
 			}
 
 			newLineCount -= 3;
 		}
 
 		if (newLineCount === 2) {
-			nlTk = this.discardOneNlTk(resToks);
-			nlTk2 = this.discardOneNlTk(resToks);
+			nlTk = this.discardOneNlTk();
+			nlTk2 = this.discardOneNlTk();
 			this.closeOpenPTag(resToks);
 			resToks.push(nlTk);
 			resToks.push(nlTk2);
 		}
 	} else if (isBlockToken) {
 		if (newLineCount === 1){
-			nlTk = this.discardOneNlTk(resToks);
+			nlTk = this.discardOneNlTk();
 			this.closeOpenPTag(resToks);
 			resToks.push(nlTk);
 		} else {
@@ -194,6 +202,46 @@ ParagraphWrapper.prototype.processPendingNLs = function (isBlockToken) {
 };
 
 ParagraphWrapper.prototype.onAny = function ( token, frame ) {
+	function updateTableContext(tblTags, token) {
+		function popTags(tblTags, tokenName, altTag1, altTag2) {
+			while (tblTags.length > 0) {
+				var topTag = tblTags.pop();
+				if (topTag === tokenName || topTag === altTag1 || topTag === altTag2) {
+					break;
+				}
+			}
+		}
+
+		if (Util.isTableTag(token)) {
+			var tokenName = token.name;
+			if (tc === TagTk) {
+				tblTags.push(tokenName);
+			} else {
+				switch (tokenName) {
+				case "table":
+					// Pop till we match
+					popTags(tblTags, tokenName);
+					break;
+				case "tbody":
+					// Pop till we match
+					popTags(tblTags, tokenName, "table");
+					break;
+				case "tr":
+					// Pop till we match
+					popTags(tblTags, tokenName, "table", "tbody");
+					break;
+				case "td":
+				case "th":
+					// Pop just the topmost tag if it matches the token
+					if (tblTags.last() === token.name) {
+						tblTags.pop();
+					}
+					break;
+				}
+			}
+		}
+	}
+
 	if (this.trace) {
 		console.warn("T:p-wrap:any: " + JSON.stringify(token));
 	}
@@ -292,6 +340,10 @@ ParagraphWrapper.prototype.onAny = function ( token, frame ) {
 			this.currLine.hasBlockToken = true;
 		}
 		res = this.processPendingNLs(isBlockToken);
+
+		// Partial DOM-building!  What a headache
+		// This is necessary to avoid introducing fosterable tags inside the table.
+		updateTableContext(this.tableTags, token);
 
 		// Deal with html p-tokens
 		if (tc === TagTk && token.name === 'p' && token.isHTMLTag()) {
