@@ -17,7 +17,9 @@ var events = require('events'),
 									.AttributeTransformManager,
 	defines = require('./mediawiki.parser.defines.js'),
 	TemplateRequest = require('./mediawiki.ApiRequest.js').TemplateRequest,
-	PreprocessorRequest = require('./mediawiki.ApiRequest.js').PreprocessorRequest,
+	api = require('./mediawiki.ApiRequest.js'),
+	PreprocessorRequest = api.PreprocessorRequest,
+	PHPParseRequest = api.PHPParseRequest,
 	Util = require('./mediawiki.Util.js').Util;
 
 function TemplateHandler ( manager, options ) {
@@ -38,6 +40,10 @@ TemplateHandler.prototype.register = function ( manager ) {
 	// Template argument expansion
 	manager.addTransform( this.onTemplateArg.bind(this), "TemplateHandler:onTemplateArg",
 			this.rank, 'tag', 'templatearg' );
+
+	// Extension content expansion
+	manager.addTransform( this.onExtension.bind(this), "TemplateHandler:onExtension",
+			this.rank, 'tag', 'extension' );
 };
 
 /**
@@ -53,7 +59,8 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 
 	var state = { token: token };
 	if (this.options.wrapTemplates) {
-		state.templateId = this.manager.env.newObjectId();
+		state.wrapperType = 'mw:Object/Template';
+		state.wrappedObjectId = this.manager.env.newObjectId();
 		state.emittedFirstChunk = false;
 	}
 
@@ -65,8 +72,8 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 						cb, text, [] );
 			//console.log( text );
 			cb( { async: true } );
-			this.fetchExpandedTemplate( this.manager.env.pageName || '',
-					text, cb, srcHandler);
+			this.fetchExpandedTplOrExtension( this.manager.env.pageName || '',
+					text, PreprocessorRequest, cb, srcHandler);
 		} else {
 			// We don't perform recursive template expansion- something
 			// template-like that the PHP parser did not expand. This is
@@ -313,7 +320,7 @@ TemplateHandler.prototype.addAboutToTableElements = function ( state, tokens ) {
 		if ( token.constructor === TagTk && token.name === 'table' ) {
 			// clone before update attributes
 			token = token.clone();
-			token.addAttribute( 'about', '#' + state.templateId );
+			token.addAttribute( 'about', '#' + state.wrappedObjectId );
 			tokens[i] = token;
 		}
 	}
@@ -345,9 +352,9 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 			// Wrap in span with info
 			var span = new TagTk( 'span',
 						[
-							new KV('typeof', 'mw:Object/Template'),
-							new KV('about', '#' + state.templateId),
-							new KV('id', state.templateId)
+							new KV('typeof', state.wrapperType),
+							new KV('about', '#' + state.wrappedObjectId),
+							new KV('id', state.wrappedObjectId)
 						],
 						{
 							tsr: Util.clone(tsr),
@@ -362,9 +369,9 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 	if (!done) {
 		// add meta tag
 		var mtag = new SelfclosingTagTk( 'meta', [
-					new KV( 'about', '#' + state.templateId ),
-					new KV( 'typeof', 'mw:Object/Template' ),
-					new KV('id', state.templateId)
+					new KV( 'about', '#' + state.wrappedObjectId ),
+					new KV( 'typeof', state.wrapperType ),
+					new KV('id', state.wrappedObjectId)
 				], {
 					tsr: Util.clone(tsr),
 					src: src
@@ -380,8 +387,8 @@ TemplateHandler.prototype.getEncapsulationInfoEndTag = function ( state ) {
 	var tsr = state.token.dataAttribs.tsr;
 	return new SelfclosingTagTk( 'meta',
 				[
-					new KV( 'typeof', 'mw:Object/Template/End' ),
-					new KV( 'about', '#' + state.templateId )
+					new KV( 'typeof', state.wrapperType + '/End' ),
+					new KV( 'about', '#' + state.wrappedObjectId )
 				], {
 					tsr: [null, tsr ? tsr[1] : null]
 				});
@@ -507,7 +514,7 @@ TemplateHandler.prototype._fetchTemplateAndTitle = function ( title, parentCB, c
 /**
  * Fetch the preprocessed wikitext for a template-like construct
  */
-TemplateHandler.prototype.fetchExpandedTemplate = function ( title, text, parentCB, cb ) {
+TemplateHandler.prototype.fetchExpandedTplOrExtension = function ( title, text, processor, parentCB, cb ) {
 	var env = this.manager.env;
 	if ( text in env.pageCache ) {
 		// XXX: store type too (and cache tokens/x-mediawiki)
@@ -517,14 +524,14 @@ TemplateHandler.prototype.fetchExpandedTemplate = function ( title, text, parent
 				text ] } );
 	} else {
 
-		// We are about to start an async request for a template
+		// We are about to start an async request for a template/extension
 		env.dp( 'Note: trying to expand ', text );
 
 		// Start a new request if none is outstanding
 		//env.dp( 'requestQueue: ', env.requestQueue );
 		if ( env.requestQueue[text] === undefined ) {
 			env.tp( 'Note: Starting new request for ' + text );
-			env.requestQueue[text] = new PreprocessorRequest( env, title, text );
+			env.requestQueue[text] = new processor( env, title, text );
 		}
 		// append request, process in document order
 		env.requestQueue[text].listeners( 'src' ).push( cb );
@@ -584,6 +591,47 @@ TemplateHandler.prototype.lookupArg = function(args, attribs, cb, ret) {
 	} else {
 		//console.warn('no default for ' + argName + JSON.stringify( attribs ));
 		cb({ tokens: [ '{{{' + argName + '}}}' ] });
+	}
+};
+
+TemplateHandler.prototype.onExtension = function ( token, frame, cb ) {
+	// Strip stx='html' from tokens sense these have already been parsed
+	function tagConverter(arg) {
+		var tokens = arg.tokens;
+		if (tokens) {
+			// pass it forward!
+			cb({ tokens: [new InternalTk([new KV('tokens', tokens)])], async: arg.async });
+		} else {
+			cb(arg);
+		}
+	}
+
+	var extensionName = token.getAttribute('name');
+	if ( this.manager.env.usePHPPreProcessor ) {
+		// Use MediaWiki's action=parse preprocessor
+		var text = token.getAttribute('content');
+		var state = { token: token };
+		if (this.options.wrapTemplates) {
+			state.wrapperType = 'mw:Object/Extension/' + extensionName;
+			state.wrappedObjectId = this.manager.env.newObjectId();
+			state.emittedFirstChunk = false;
+		}
+
+		this.fetchExpandedTplOrExtension(
+			extensionName,
+			text,
+			PHPParseRequest,
+			cb,
+			this._processTemplateAndTitle.bind(this, state, frame, tagConverter, text, [] )
+		);
+	} else {
+		var span = new TagTk('span', [
+					new KV('typeof', 'mw:Object/Extension/' + extensionName),
+					new KV('about', token.getAttribute('about'))
+				], token.dataAttribs);
+
+		cb({ tokens: [span, token.getAttribute('content'), new EndTagTk('span')] });
+		/* Convert this into a span with extention content as plain text */
 	}
 };
 
