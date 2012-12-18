@@ -286,8 +286,8 @@ PreprocessorRequest.prototype.handleJSON = function ( error, data ) {
  * - Used for handling extension content right now.
  * - And, probably magic words later on.
  */
-function PHPParseRequest ( env, extension, text ) {
-	ApiRequest.call(this, env, extension);
+function PHPParseRequest ( env, title, text ) {
+	ApiRequest.call(this, env, title);
 
 	this.text = text;
 	this.queueKey = text;
@@ -296,7 +296,7 @@ function PHPParseRequest ( env, extension, text ) {
 	var apiargs = {
 		format: 'json',
 		action: 'parse',
-		text: ["<", extension, ">", text, "</", extension, ">"].join('')
+		text: text
 	};
 	var url = env.wgScript + '/api' + env.wgScriptExtension;
 
@@ -333,7 +333,7 @@ PHPParseRequest.prototype.handleJSON = function ( error, data ) {
 	var parsedHtml = '';
 	try {
 		// Strip php parse stats from the html
-		parsedHtml = data.parse.text['*'].replace(/(^<p>)|(<\/p>\s*<!--\s*NewPP limit(\n|.)*$)/g, '');
+		parsedHtml = data.parse.text['*'].replace(/(^<p>)|((<\/p>)?\s*<!--\s*NewPP limit(\n|.)*$)/g, '');
 		this.env.tp( 'Expanded ', this.text, parsedHtml );
 
 		// Add the source to the cache

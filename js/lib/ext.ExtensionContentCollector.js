@@ -79,9 +79,9 @@ function defaultNestedDelimiterHandler(tokens, nestedDelimiterInfo) {
 }
 
 ExtensionContent.prototype.handleExtensionTag = function(extension, collection) {
-	function wrappedExtensionContent(env, tagTsr, contentTsr) {
+	function wrappedExtensionContent(env, tagTsr) {
 		var text = env.text,
-			content = contentTsr ? text.substring(contentTsr[0], contentTsr[1]) : '',
+			content = text.substring(tagTsr[0], tagTsr[1]),
 			nt = new SelfclosingTagTk('extension', [
 				new KV('typeof', 'mw:Object/Extension'),
 				new KV('name', extension),
@@ -89,7 +89,7 @@ ExtensionContent.prototype.handleExtensionTag = function(extension, collection) 
 				new KV('content', content)
 			], {
 				tsr: [tagTsr[0], tagTsr[1]],
-				src: text.substring(tagTsr[0], tagTsr[1])
+				src: content
 			});
 
 		return { tokens: [nt] };
@@ -101,7 +101,7 @@ ExtensionContent.prototype.handleExtensionTag = function(extension, collection) 
 	if (start.constructor === SelfclosingTagTk) {
 		var tsr = (start.dataAttribs || {}).tsr;
 		if (tsr) {
-			return wrappedExtensionContent(this.manager.env, tsr, null);
+			return wrappedExtensionContent(this.manager.env, tsr);
 		} else {
 			return { tokens: [start] };
 		}
@@ -135,11 +135,9 @@ ExtensionContent.prototype.handleExtensionTag = function(extension, collection) 
 			eTsr = (et.dataAttribs || {}).tsr;
 
 		// Dont crash if we dont get tsr values
-		// FIXME: Just a temporary patch-up to prevent crashers in RT testing.
+		// FIXME: Still required?
 		if (sTsr && eTsr) {
-			return wrappedExtensionContent(this.manager.env,
-				[sTsr[0], eTsr[1]],
-				[sTsr[1], eTsr[0]]);
+			return wrappedExtensionContent(this.manager.env, [sTsr[0], eTsr[1]]);
 		}
 	}
 
