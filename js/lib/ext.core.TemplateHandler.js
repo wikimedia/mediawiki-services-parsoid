@@ -20,7 +20,8 @@ var events = require('events'),
 	api = require('./mediawiki.ApiRequest.js'),
 	PreprocessorRequest = api.PreprocessorRequest,
 	PHPParseRequest = api.PHPParseRequest,
-	Util = require('./mediawiki.Util.js').Util;
+	Util = require('./mediawiki.Util.js').Util,
+	DOMUtils = require('./mediawiki.DOMUtils.js').DOMUtils;
 
 function TemplateHandler ( manager, options ) {
 	this.register( manager );
@@ -594,44 +595,44 @@ TemplateHandler.prototype.lookupArg = function(args, attribs, cb, ret) {
 	}
 };
 
-TemplateHandler.prototype.onExtension = function ( token, frame, cb ) {
-	// Strip stx='html' from tokens sense these have already been parsed
-	function tagConverter(arg) {
-		var tokens = arg.tokens;
-		if (tokens) {
-			// pass it forward!
-			cb({ tokens: [new InternalTk([new KV('tokens', tokens)])], async: arg.async });
-		} else {
-			cb(arg);
-		}
+TemplateHandler.prototype.parseExtensionHTML = function(extToken, cb, err, html) {
+	// document -> html -> body -> children
+	var topNodes = Util.parseHTML(html).document.childNodes[0].childNodes[1].childNodes;
+	var toks = [];
+	for (var i = 0, n = topNodes.length; i < n; i++) {
+		DOMUtils.convertDOMtoTokens(toks, topNodes[i]);
 	}
 
+	var state = { token: extToken };
+	if (this.options.wrapTemplates) {
+		state.wrapperType = 'mw:Object/Extension/' + extToken.getAttribute('name');
+		state.wrappedObjectId = this.manager.env.newObjectId();
+		toks = this.addEncapsulationInfo(state, toks);
+		toks.push(this.getEncapsulationInfoEndTag(state));
+	}
+
+	cb({ tokens: [new InternalTk([new KV('tokens', toks)])] });
+};
+
+TemplateHandler.prototype.onExtension = function ( token, frame, cb ) {
 	var extensionName = token.getAttribute('name');
 	if ( this.manager.env.usePHPPreProcessor ) {
 		// Use MediaWiki's action=parse preprocessor
-		var text = token.getAttribute('content');
-		var state = { token: token };
-		if (this.options.wrapTemplates) {
-			state.wrapperType = 'mw:Object/Extension/' + extensionName;
-			state.wrappedObjectId = this.manager.env.newObjectId();
-			state.emittedFirstChunk = false;
-		}
-
 		this.fetchExpandedTplOrExtension(
 			extensionName,
-			text,
+			token.getAttribute('content'),
 			PHPParseRequest,
 			cb,
-			this._processTemplateAndTitle.bind(this, state, frame, tagConverter, text, [] )
+			this.parseExtensionHTML.bind(this, token, cb)
 		);
 	} else {
+		/* Convert this into a span with extention content as plain text */
 		var span = new TagTk('span', [
 					new KV('typeof', 'mw:Object/Extension/' + extensionName),
 					new KV('about', token.getAttribute('about'))
 				], token.dataAttribs);
 
 		cb({ tokens: [span, token.getAttribute('content'), new EndTagTk('span')] });
-		/* Convert this into a span with extention content as plain text */
 	}
 };
 

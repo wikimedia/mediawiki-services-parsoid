@@ -5,6 +5,7 @@
  */
 
 var HTML5 = require( 'html5' ).HTML5,
+	Util = require('./mediawiki.Util.js').Util,
 	Node = require('./mediawiki.wikitext.constants.js').Node;
 
 var DOMUtils = {
@@ -144,6 +145,51 @@ var DOMUtils = {
 	 */
 	isNodeEditable: function(env, someNode) {
 		return !this.isTplElementNode(env, someNode);
+	},
+
+	convertDOMtoTokens: function(tokBuf, node) {
+		function domAttrsToTagAttrs(attrs) {
+			var out = [];
+			for (var i = 0, n = attrs.length; i < n; i++) {
+				var a = attrs.item(i);
+				out.push(new KV(a.name, a.value));
+			}
+			return out;
+		}
+
+		switch(node.nodeType) {
+			case Node.ELEMENT_NODE:
+				var nodeName = node.nodeName.toLowerCase(),
+					children = node.childNodes,
+					tagAttrs = domAttrsToTagAttrs(node.attributes);
+
+				if (Util.isVoidElement(nodeName)) {
+					tokBuf.push(new SelfclosingTagTk(nodeName, tagAttrs));
+				} else {
+					tokBuf.push(new TagTk(nodeName, tagAttrs));
+					for (var i = 0, n = children.length; i < n; i++) {
+						this.convertDOMtoTokens(tokBuf, children[i]);
+					}
+					tokBuf.push(new EndTagTk(nodeName));
+				}
+				break;
+
+			case Node.TEXT_NODE:
+				// FIXME: Hmm .. what about newlines?
+				// This might not be handled properly by the p-wrapper
+				// which might expect newlines to be its own NlTk!
+				var txt = node.data;
+				tokBuf.push(node.data);
+				break;
+
+			case Node.COMMENT_NODE:
+				tokBuf.push(new CommentTk(node.data));
+				break;
+
+			default:
+				console.warn( "Unhandled node type: " + node.outerHTML );
+				break;
+		}
 	}
 };
 
