@@ -291,7 +291,9 @@ ParserTests.prototype.processArticle = function( item, cb ) {
 };
 
 ParserTests.prototype.convertHtml2Wt = function( options, mode, processWikitextCB, item, doc ) {
-	var content = ( mode === 'wt2wt' || mode === 'selser' ) ? doc.body : doc;
+	// In some cases (which?) the full document is passed in, but we are
+	// interested in the body. So check if we got a document.
+	var content = doc.nodeType === doc.DOCUMENT_NODE ? doc.body : doc;
 	var serializer = mode === 'selser' ? this.selectiveSerializer : this.serializer;
 	var wt = '';
 	var changelist = [];
@@ -487,7 +489,12 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 		}
 
 		item.time.start = Date.now();
-		this.convertWt2Html( mode, cb, item.input );
+
+		if ( item.cachedHTML === null ) {
+			this.convertWt2Html( mode, cb, item.input );
+		} else {
+			cb( item.cachedHTML.cloneNode( true ) );
+		}
 	} else {
 		if ( mode === 'html2html' ) {
 			// insert an additional step in the callback chain
@@ -513,6 +520,10 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
  * @arg doc {object} The results of the parse.
  */
 ParserTests.prototype.processParsedHTML = function( item, options, mode, cb, doc ) {
+	if ( item.cachedHTML === null && !doc.err ) {
+		item.cachedHTML = doc.body.cloneNode( true );
+	}
+
 	item.time.end = Date.now();
 
 	if (doc.err) {
@@ -737,8 +748,16 @@ ParserTests.prototype.printResult = function ( title, time, comments, iopts, exp
  * @arg options {object} Options for this test and some shared methods.
  */
 ParserTests.prototype.checkHTML = function ( item, out, options, mode ) {
-	var normalizedOut = Util.normalizeOut( out );
-	var normalizedExpected = Util.normalizeHTML(item.result);
+	var normalizedOut, normalizedExpected;
+
+	normalizedOut = Util.normalizeOut( out );
+
+	if ( item.cachedNormalizedHTML === null ) {
+		normalizedExpected = Util.normalizeHTML( item.result );
+		item.cachedNormalizedHTML = normalizedExpected;
+	} else {
+		normalizedExpected = item.cachedNormalizedHTML;
+	}
 
 	var input = mode === 'html2html' ? item.result : item.input;
 	var expected = { normal: normalizedExpected, raw: item.result };
@@ -1022,6 +1041,12 @@ ParserTests.prototype.processCase = function ( i, options ) {
 
 	if ( i < this.cases.length ) {
 		item = this.cases[i];
+		// Reset the cached results for the new case.
+		// All test modes happen in a single run of processCase.
+		item.cachedHTML = null;
+		item.cachedWT = null;
+		item.cachedNormalizedHTML = null;
+
 		//console.log( 'processCase ' + i + JSON.stringify( item )  );
 		if ( typeof item === 'object' ) {
 			switch(item.type) {
