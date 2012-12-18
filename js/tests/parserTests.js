@@ -136,6 +136,11 @@ ParserTests.prototype.getOpts = function () {
 			description: 'Way to pass in non-random changes for tests. Use --changesout to generate a useful file for this purpose.',
 			'default': null
 		},
+		'numchanges': {
+			description: 'Make multiple different changes to the DOM, run a selser test for each one.',
+			'default': 1,
+			'boolean': false
+		},
 		'cache': {
 			description: 'Get tests cases from cache file ' + this.cache_file,
 			'boolean': true,
@@ -289,16 +294,21 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, processWikitextC
 	var content = ( mode === 'wt2wt' || mode === 'selser' ) ? doc.body : doc;
 	var serializer = mode === 'selser' ? this.selectiveSerializer : this.serializer;
 	var wt = '';
+	var changelist = [];
+	var waiting = 0;
+	var changesReturn;
 	try {
 		if ( mode === 'selser' ) {
 			serializer.oldtext = item.input;
 			serializer.target = null;
 			if ( options.changesin && item.changes === undefined ) {
-				// A changesin option was passed, so set the changes to null,
+				// A changesin option was passed, so set the changes to 0,
 				// so we don't try to regenerate the changes.
-				item.changes = null;
+				item.changes = 0;
 			}
-			var changelist = this.makeChanges( content, item.changes );
+			changelist = this.generateChanges( content, item.changes, item );
+			this.makeChanges( content, changelist );
+
 			item.changes = item.changes || changelist;
 		}
 		serializer.serializeDOM( content, function ( res ) {
@@ -313,13 +323,22 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, processWikitextC
 	}
 };
 
-ParserTests.prototype.makeChanges = function ( node, nonRandomChanges ) {
-	// This function won't actually change anything, but it will add change
-	// markers to random elements.
-	var child, i, changeObj, changelist = [];
+ParserTests.prototype.doesChangeExist = function ( changes, change ) {
+	if ( !changes || changes.constructor !== Array ) {
+		return false;
+	}
 
+	var i;
+	for ( i = 0; i < changes.length; i++ ) {
+		if ( Util.deepEquals( changes[i], change ) ) {
+			return true;
+		}
+	}
+	return false;
+};
+
+ParserTests.prototype.makeChanges = function ( content, changelist ) {
 	var changes = [
-		'new',
 		'content',
 		'rebuilt',
 		'childrenRemoved',
@@ -334,45 +353,87 @@ ParserTests.prototype.makeChanges = function ( node, nonRandomChanges ) {
 		return o;
 	}
 
-	for ( i = 0; i < node.childNodes.length; i++ ) {
-		child = node.childNodes[i];
-
-		if ( !child.setAttribute ) {
-			if ( !nonRandomChanges ) {
-				changelist.push( null );
-			}
-			// This is probably a text node or comment node or something,
-			// so we'll skip it in favor of something a little more
-			// interesting.
-			continue;
-		}
-
-		if ( nonRandomChanges === undefined ) {
-			if ( DOMUtils.isNodeEditable( this.env, child ) && Math.random() < 0.75 ) {
-				changeObj = getRandomChange();
-				child.setAttribute(
-					'data-ve-changed',
-					JSON.stringify( changeObj ) );
-			} else if ( DOMUtils.isNodeEditable( this.env, child ) ) {
-				childChanges = this.makeChanges( child );
-				if ( childChanges && childChanges.length ) {
-					changeObj = { children: childChanges };
-				} else {
-					changeObj = null;
-				}
-			}
-			changelist.push( changeObj );
-		} else if ( nonRandomChanges && nonRandomChanges.length > i ) {
-			changeObj = nonRandomChanges[i];
-			if ( changeObj && changeObj.children ) {
-				this.makeChanges( child, changeObj.children );
-			} else if ( DOMUtils.isNodeEditable( this.env, child ) && changeObj ) {
-				child.setAttribute(
-					'data-ve-changed',
-					JSON.stringify( changeObj ) );
+	var node, change;
+	for ( var i = 0; i < changelist.length; i++ ) {
+		node = content && content.childNodes[i];
+		change = changelist[i];
+		if ( change && change.constructor === Array ) {
+			this.makeChanges( node, change );
+		} else if ( node && node.setAttribute && DOMUtils.isNodeEditable( this.env, node ) ) {
+			switch ( change ) {
+				case 3:
+					// One day we'll use this to delete a node, but for now
+					// it can bleed over into the random change marker case.
+				case 1:
+					node.setAttribute(
+						'data-ve-changed',
+						JSON.stringify( getRandomChange() ) );
+					break;
+				case 4:
+					// One day we'll use this to change a node, but for now
+					// it can bleed over into the "new" case.
+				case 2:
+					node.setAttribute(
+						'data-ve-changed',
+						JSON.stringify( { 'new': 1 } ) );
+					break;
+				default:
+					// Do nothing
+					break;
 			}
 		}
 	}
+};
+
+ParserTests.prototype.generateChanges = function ( content, nonRandomChanges, item ) {
+	// This function won't actually change anything, but it will add change
+	// markers to random elements.
+	var numAttempts = 0, child, i, changeObj, changelist;
+
+	item = item || {};
+
+	do {
+		node = content.cloneNode( true );
+		changelist = [];
+
+		for ( i = 0; i < node.childNodes.length; i++ ) {
+			child = node.childNodes[i];
+
+			if ( !child.setAttribute ) {
+				if ( nonRandomChanges === undefined ) {
+					changelist.push( 0 );
+				}
+				// This is probably a text node or comment node or something,
+				// so we'll skip it in favor of something a little more
+				// interesting.
+				continue;
+			}
+
+			if ( nonRandomChanges === undefined ) {
+				if ( DOMUtils.isNodeEditable( this.env, child ) ) {
+					if ( Math.random() < 0.5 ) {
+						changeObj = Math.floor( Math.random() * 4 ) + 1;
+					} else {
+						childChanges = this.generateChanges( child );
+						if ( childChanges && childChanges.length ) {
+							changeObj = childChanges;
+						} else {
+							changeObj = 0;
+						}
+					}
+				} else {
+					changeObj = 0;
+				}
+
+				changelist.push( changeObj );
+			} else {
+				changelist = nonRandomChanges;
+				break;
+			}
+		}
+	} while ( nonRandomChanges === undefined &&
+		this.doesChangeExist( item.otherChanges, changelist ) &&
+		++numAttempts < 1000 );
 
 	return changelist;
 };
@@ -904,6 +965,9 @@ ParserTests.prototype.main = function ( options ) {
 	if ( options.changesin ) {
 		this.changes = JSON.parse(
 			fs.readFileSync( options.changesin, 'utf-8' ) );
+		if ( this.changes._numchanges ) {
+			options.numchanges = true;
+		}
 	}
 
 	options.reportStart();
@@ -924,7 +988,29 @@ ParserTests.prototype.reportStartOfTests = function () {
 ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 	var tasks = [];
 	for ( var i = 0; i < modes.length; i++ ) {
-		tasks.push( this.processTest.bind( this, item, options, modes[i] ) );
+		if ( modes[i] === 'selser' && options.numchanges ) {
+			if ( !item.changes ) {
+				item.changes = new Array( options.numchanges );
+			}
+
+			for ( var j = 0; j < item.changes.length; j++ ) {
+				tasks.push( function ( modeIndex, changesIndex ) {
+					return function ( cb ) {
+						var newitem = Util.clone( item );
+						newitem.changes = item.changes[changesIndex];
+						newitem.otherChanges = item.changes;
+						this.processTest( newitem, options, modes[modeIndex], function () {
+							if ( !this.doesChangeExist( item.changes, newitem.changes ) ) {
+								item.changes[changesIndex] = Util.clone( newitem.changes );
+							}
+							process.nextTick( cb );
+						}.bind( this ) );
+					};
+				}( i, j ).bind( this ) );
+			}
+		} else {
+			tasks.push( this.processTest.bind( this, item, options, modes[i] ) );
+		}
 	}
 	return tasks;
 };
@@ -978,15 +1064,29 @@ ParserTests.prototype.processCase = function ( i, options ) {
 		// We're done testing, first need to add the test changes to an output
 		// file if it was specified.
 		if ( options.changesout !== null && options.selser ) {
-			var allChanges = {};
+			var changes, allChanges = {};
 			for ( var ci = 0; ci < cases.length; ci++ ) {
 				if ( cases[ci].type === 'test' ) {
-					allChanges[cases[ci].title] = cases[ci].changes || [];
+					changes = cases[ci].changes || [];
+
+					for ( var cci = 0; cci < changes.length; cci++ ) {
+						if ( !changes[cci] || changes[cci].constructor !== Array ) {
+							changes.splice( cci, 1 );
+							cci--;
+						}
+					}
+					allChanges[cases[ci].title] = changes;
 				}
 			}
+			allChanges._numchanges = options.numchanges;
+
 			fs.writeFileSync(
 				options.changesout,
-				JSON.stringify( allChanges, null, 2 ) );
+				JSON.stringify( allChanges, null, 1 )
+					.replace( /\n */g, '\n' )
+					.replace( /\n\]/g, ']' )
+					.replace( /,\n([^"])/g, ',$1' )
+					.replace( /[\n ]*(\[)[\n ]*/g, '$1' ) );
 		}
 
 		// print out the summary
