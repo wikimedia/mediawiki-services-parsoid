@@ -12,8 +12,7 @@ var Collector = require( './ext.util.TokenAndAttrCollector.js' ).TokenAndAttrCol
 // List of supported extensions
 var supportedExtensions = [
 	'categorytree', 'charinsert', 'gallery', 'hiero', 'imagemap',
-	'inputbox', 'math', 'poem', 'syntaxhighlight', 'source', 'tag',
-	'timeline'
+	'inputbox', 'math', 'poem', 'syntaxhighlight', 'tag', 'timeline'
 ];
 
 /**
