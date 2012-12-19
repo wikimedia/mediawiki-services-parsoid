@@ -151,14 +151,7 @@ ParagraphWrapper.prototype.processPendingNLs = function (isBlockToken) {
 				nlTk2 = this.discardOneNlTk();
 				this.discardOneNlTk();
 
-				if (hadOpenTag) {
-					// We strictly dont need this for correctness,
-					// but useful for readable html output
-					resToks.push(nlTk);
-				} else {
-					resToks.push(nlTk);
-					resToks.push(nlTk2);
-				}
+				resToks.push(nlTk);
 
 				// 3. Insert <p><br></p> sections
 				// FIXME: Mark this as a placeholder for now until the
