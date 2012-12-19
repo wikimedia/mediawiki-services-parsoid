@@ -1255,6 +1255,9 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 		"h3" : true,
 		"h4" : true,
 		"h5" : true,
+		"ul" : true,
+		"ol" : true,
+		"dl" : true,
 		"li" : true,
 		"dt" : true,
 		"dd" : true,
@@ -1557,12 +1560,12 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 		cs = s;
 	}
 
+	// Detect errors
+	if (s !== null && s !== undefined && cs !== s) {
+		console.warn("*********** ERROR: cs/s mismatch for node: " +
+			node.nodeName + " s: " + s + "; cs: " + cs + " ************");
+	}
 	if (traceDSR) {
-		// Detect errors
-		if (s !== null && s !== undefined && cs !== s) {
-			console.warn("*********** ERROR: cs/s mismatch for node: " +
-				node.nodeName + " s: " + s + "; cs: " + cs + " ************");
-		}
 		console.warn("For " + node.nodeName + ", returning: " + cs + ", " + e);
 	}
 
