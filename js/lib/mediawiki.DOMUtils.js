@@ -114,8 +114,16 @@ var DOMUtils = {
 	},
 
 	indentPreDSRCorrection: function(textNode) {
-		// NOTE: This assumes a text-node and doesn't check
-		var numNLs = (textNode.data.match(/\n/g)||[]).length;
+		// NOTE: This assumes a text-node and doesn't check that it is one.
+		var numNLs;
+		if (textNode.parentNode.lastChild === textNode) {
+			// We dont want the trailing newline of the last child of the pre
+			// to contribute a pre-correction since it doesn't add new content
+			// in the pre-node after the text
+			numNLs = (textNode.data.match(/\n./g)||[]).length;
+		} else {
+			numNLs = (textNode.data.match(/\n/g)||[]).length;
+		}
 		return numNLs && this.isIndentPre(textNode.parentNode) ? numNLs : 0;
 	},
 
