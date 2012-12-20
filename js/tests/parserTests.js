@@ -356,17 +356,14 @@ ParserTests.prototype.makeChanges = function ( item, content, changelist, cb ) {
 		return o;
 	}
 
-	var node, change;
+	var node, change, nodes = content.childNodes.slice();
 	for ( var i = 0; i < changelist.length; i++ ) {
-		node = content && content.childNodes[i];
+		node = nodes[i];
 		change = changelist[i];
-		if ( change && change.constructor === Array ) {
+		if ( node && change && change.constructor === Array ) {
 			this.makeChanges( item, node, change );
 		} else if ( node && node.setAttribute && DOMUtils.isNodeEditable( this.env, node ) ) {
 			switch ( change ) {
-				case 3:
-					// One day we'll use this to delete a node, but for now
-					// it can bleed over into the random change marker case.
 				case 1:
 					node.setAttribute(
 						'data-ve-changed',
@@ -379,6 +376,10 @@ ParserTests.prototype.makeChanges = function ( item, content, changelist, cb ) {
 					node.setAttribute(
 						'data-ve-changed',
 						JSON.stringify( { 'new': 1 } ) );
+					break;
+				case 3:
+					// Delete this node!
+					node.parentNode.removeChild( node );
 					break;
 				default:
 					// Do nothing
@@ -556,6 +557,12 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 	if ( mode === 'selser' ) {
 		testTasks.push( this.generateChanges.bind( this, options, item.changes, item ) );
 		testTasks.push( this.makeChanges.bind( this, item ) );
+
+		// Save the modified DOM so we can re-test it later
+		testTasks.push( function ( doc, cb ) {
+			item.changedHTML = doc.cloneNode( true );
+			cb( null, doc );
+		} );
 	}
 
 	// Roundtrip stage
@@ -604,6 +611,16 @@ ParserTests.prototype.processParsedHTML = function( item, options, mode, doc, cb
  */
 ParserTests.prototype.processSerializedWT = function ( item, options, mode, wikitext, cb ) {
 	item.time.end = Date.now();
+
+	if ( mode === 'selser' ) {
+		this.convertHtml2Wt( options, 'wt2wt', item, item.changedHTML.cloneNode( true ), function ( err, wt ) {
+			if ( err === null ) {
+				item.resultWT = wt;
+			} else {
+				item.resultWT = item.input;
+			}
+		} );
+	}
 
 	// Check the result vs. the expected result.
 	this.checkWikitext( item, wikitext, options, mode );
@@ -825,6 +842,10 @@ ParserTests.prototype.checkHTML = function ( item, out, options, mode ) {
  * @arg options {object} Options passed into the process on the command line.
  */
 ParserTests.prototype.checkWikitext = function ( item, out, options, mode ) {
+	if ( mode === 'selser' && item.resultWT !== null ) {
+		item.input = item.resultWT;
+	}
+
 	var normalizedExpected;
 	// FIXME: normalization not in place yet
 	normalizedExpected = mode === 'html2wt' ? item.input.replace(/\n+$/, '') : item.input;
@@ -1073,6 +1094,12 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 							if ( !this.doesChangeExist( item.changes, newitem.changes ) ) {
 								item.changes[changesIndex] = Util.clone( newitem.changes );
 							}
+
+							// Push the caches forward!
+							item.cachedHTML = newitem.cachedHTML;
+							item.cachedNormalizedHTML = newitem.cachedNormalizedHTML;
+							item.cachedResultHTML = newitem.cachedResultHTML;
+
 							process.nextTick( cb );
 						}.bind( this ) );
 					};
@@ -1095,7 +1122,6 @@ ParserTests.prototype.processCase = function ( i, options ) {
 		// Reset the cached results for the new case.
 		// All test modes happen in a single run of processCase.
 		item.cachedHTML = null;
-		item.cachedWT = null;
 		item.cachedNormalizedHTML = null;
 		item.cachedSourceHTML = null;
 
