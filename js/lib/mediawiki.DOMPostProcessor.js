@@ -1266,6 +1266,8 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 		"tr" : true,
 		"td" : true,
 		"th" : true,
+		"hr" : true, // void element
+		"br" : true, // void element
 		"pre" : true
 	};
 
@@ -1468,6 +1470,20 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 						"; [sw,ew]=" + stWidth + "," + etWidth +
 						"; [ccs,cce]=" + ccs + "," + cce);
 				}
+
+				/* --------------------------------------------------------------------
+				 * Process DOM rooted at 'child'.
+				 *
+				 * NOTE: You might wonder why we are not checking for the zero-children
+				 * case.  It is strictly not necessary and you can set newDsr directly.
+				 *
+				 * But, you have 2 options: [ccs, ccs] or [cce, cce].  Setting it to
+				 * [cce, cce] would be consistent with the RTL approach.  We should
+				 * then compare ccs and cce and verify that they are identical.
+				 *
+				 * But, if we handled the zero-child case like the other scenarios, we
+				 * don't have to worry about the above decisions and checks.
+				 * -------------------------------------------------------------------- */
 				newDsr = computeNodeDSR(env, child, ccs, cce, traceDSR);
 
 				// Min(child-dom-tree dsr[0] - tag-width, current dsr[0])
