@@ -290,7 +290,7 @@ ParserTests.prototype.processArticle = function( item, cb ) {
 	process.nextTick( cb );
 };
 
-ParserTests.prototype.convertHtml2Wt = function( options, mode, processWikitextCB, item, doc ) {
+ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, processWikitextCB ) {
 	// In some cases (which?) the full document is passed in, but we are
 	// interested in the body. So check if we got a document.
 	var content = doc.nodeType === doc.DOCUMENT_NODE ? doc.body : doc;
@@ -316,11 +316,11 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, processWikitextC
 		serializer.serializeDOM( content, function ( res ) {
 			wt += res;
 		}, function () {
-			processWikitextCB( wt, null );
+			processWikitextCB( null, wt );
 			delete serializer.oldtext;
 		} );
-	} catch (e) {
-		processWikitextCB(null, e);
+	} catch ( e ) {
+		processWikitextCB( e, null );
 		delete serializer.oldtext;
 	}
 };
@@ -440,18 +440,16 @@ ParserTests.prototype.generateChanges = function ( content, nonRandomChanges, it
 	return changelist;
 };
 
-ParserTests.prototype.convertWt2Html = function( mode, processHtmlCB, wikitext, error ) {
-	if (error) {
-		console.error("ERROR: " + error);
-		return;
-	}
+ParserTests.prototype.convertWt2Html = function( mode, wikitext, processHtmlCB ) {
 	try {
-		this.parserPipeline.once('document', processHtmlCB);
+		this.parserPipeline.once( 'document', function ( doc ) {
+			processHtmlCB( null, doc );
+		} );
 	} catch ( e ) {
-		console.error( e.stack );
+		processHtmlCB( e );
 	}
 	this.env.text = wikitext;
-	this.parserPipeline.process(wikitext);
+	this.parserPipeline.process( wikitext );
 };
 
 /**
@@ -477,37 +475,69 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 
 	item.time = {};
 
-	var cb, cb2, domtree;
+	var domtree;
+
+	/**
+	 * The remainder of this function is built around the async.waterfall
+	 * method. A string of functions is added to a list, with a final callback
+	 * defined to catch any errors and call the next test. Each function gets
+	 * called with the results of the last one, which makes for slightly more
+	 * expressive code.
+	 *
+	 * Also, hopefully this async model will allow us to be a bit more modular
+	 * about which pipeline stages we add and remove based on the mode. The
+	 * primary use will probably be the selser tests, where extra stages can
+	 * now be added to generate and make changes, as opposed to using those
+	 * functions from inside other parts of the pipeline.
+	 */
+
+	var finishHandler = function ( err, res ) {
+		if ( err ) {
+			options.reportFailure(
+				item.title, item.comments, item.options,
+				options, null, null, true, mode, err, item );
+		}
+		process.nextTick( endCb );
+	};
+
+	var testTasks = [];
+
 	if ( mode === 'wt2html' || mode === 'wt2wt' || mode === 'selser' ) {
+		if ( item.cachedHTML === null ) {
+			testTasks.push( this.convertWt2Html.bind( this, mode, item.input ) );
+		} else {
+			testTasks.push( function ( cb ) {
+				cb( null, item.cachedHTML.cloneNode( true ) );
+			} );
+		}
+
 		if ( mode === 'wt2wt' || mode === 'selser' ) {
 			// insert an additional step in the callback chain
 			// if we are roundtripping
-			cb2 = this.processSerializedWT.bind( this, item, options, mode, endCb );
-			cb = this.convertHtml2Wt.bind( this, options, mode, cb2, item );
+			testTasks.push( this.convertHtml2Wt.bind( this, options, mode, item ) );
+			testTasks.push( this.processSerializedWT.bind( this, item, options, mode ) );
 		} else {
-			cb = this.processParsedHTML.bind( this, item, options, mode, endCb );
+			testTasks.push( this.processParsedHTML.bind( this, item, options, mode ) );
 		}
 
 		item.time.start = Date.now();
-
-		if ( item.cachedHTML === null ) {
-			this.convertWt2Html( mode, cb, item.input );
-		} else {
-			cb( item.cachedHTML.cloneNode( true ) );
-		}
+		async.waterfall( testTasks, finishHandler );
 	} else {
+		domtree = Util.parseHTML( '<html><body>' + item.result + '</body></html>' );
+		testTasks.push(	this.convertHtml2Wt.bind(
+			this, options, mode, item, domtree.document.childNodes[0].childNodes[1]
+		) );
 		if ( mode === 'html2html' ) {
 			// insert an additional step in the callback chain
 			// if we are roundtripping
-			cb2 = this.processParsedHTML.bind( this, item, options, mode, endCb );
-			cb = this.convertWt2Html.bind( this, mode, cb2 );
+			testTasks.push( this.convertWt2Html.bind( this, mode ) );
+			testTasks.push( this.processParsedHTML.bind( this, item, options, mode ) );
 		} else {
-			cb = this.processSerializedWT.bind( this, item, options, mode, endCb );
+			testTasks.push( this.processSerializedWT.bind( this, item, options, mode ) );
 		}
 
 		item.time.start = Date.now();
-		domtree = Util.parseHTML( '<html><body>' + item.result + '</body></html>' );
-		this.convertHtml2Wt( options, mode, cb, item, domtree.document.childNodes[0].childNodes[1] );
+		async.waterfall( testTasks, finishHandler );
 	}
 };
 
@@ -519,20 +549,14 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
  * @arg cb {function} The callback function we should call when this test is done.
  * @arg doc {object} The results of the parse.
  */
-ParserTests.prototype.processParsedHTML = function( item, options, mode, cb, doc ) {
+ParserTests.prototype.processParsedHTML = function( item, options, mode, doc, cb ) {
 	if ( item.cachedHTML === null && !doc.err ) {
 		item.cachedHTML = doc.body.cloneNode( true );
 	}
 
 	item.time.end = Date.now();
-
-	if (doc.err) {
-		options.reportFailure( item );
-		console.log('PARSE FAIL', doc.err);
-	} else {
-		// Check the result vs. the expected result.
-		this.checkHTML( item, doc.body.innerHTML, options, mode );
-	}
+	// Check the result vs. the expected result.
+	this.checkHTML( item, doc.body.innerHTML, options, mode );
 
 	// Now schedule the next test, if any
 	process.nextTick( cb );
@@ -547,16 +571,12 @@ ParserTests.prototype.processParsedHTML = function( item, options, mode, cb, doc
  * @arg wikitext {string} The results of the parse.
  * @arg error {string} The results of the parse.
  */
-ParserTests.prototype.processSerializedWT = function ( item, options, mode, cb, wikitext, error ) {
+ParserTests.prototype.processSerializedWT = function ( item, options, mode, wikitext, cb ) {
 	item.time.end = Date.now();
 
-	if (error) {
-		options.reportFailure( item.title, item.comments, item.options || [], options, null, null, options.quick, mode, error, item );
-	} else {
-		// Check the result vs. the expected result.
-		this.checkWikitext( item, wikitext, options, mode );
-	}
-
+	// Check the result vs. the expected result.
+	this.checkWikitext( item, wikitext, options, mode );
+	
 	// Now schedule the next test, if any
 	process.nextTick( cb );
 };
