@@ -1530,8 +1530,10 @@ li = bullets:list_char+
      c:inlineline?
      &eolf 
 {
-    if ( c === '' )
+    if ( c === '' ) {
         c = [];
+    }
+    // Leave bullets as an array -- list handler expects this
     var li = new TagTk( 'listItem', [], { tsr: [pos0, pos0 + bullets.length] }  );
     li.bullets = bullets;
     return [ li, c ];
@@ -1549,8 +1551,10 @@ hacky_dl_uses = bullets:":"+
                c:table_lines
                &eolf
 {
-    if ( c === '' )
+    if ( c === '' ) {
         c = [];
+    }
+    // Leave bullets as an array -- list handler expects this
     var li = new TagTk( 'listItem', [], { tsr: [pos0, pos0 + bullets.length] }  );
     li.bullets = bullets;
     return [ li, c ];
@@ -1568,20 +1572,15 @@ dtdd
     & { stops.counters['colon'] = 0; return true;}
     d:inlineline?
     &eolf {
-        bullets = bullets.join('');
-        var li = new TagTk( 'listItem', [], 
-                { 
-                    tsr: [pos0, pos0 + bullets.length]
-                }   );
-        li.bullets = bullets + ";";
-        var li2 = new TagTk( 'listItem', [],
-                { 
-                    tsr: [cpos-1, cpos],
-                    stx: 'row'
-                }   );
-        li2.bullets = bullets + ":";
+        // Leave bullets as an array -- list handler expects this
+        var li1 = new TagTk( 'listItem', [], { tsr: [pos0, pos0 + bullets.length] } );
+        li1.bullets = bullets.slice();
+        li1.bullets.push(";");
+        var li2 = new TagTk( 'listItem', [], { tsr: [cpos-1, cpos], stx: 'row' } );
+        li2.bullets = bullets.slice();
+        li2.bullets.push(":");
 
-        return [ li ].concat( c, [ li2 ], d || '' );
+        return [ li1 ].concat( c, [ li2 ], d || '' );
     }
   // Fall-back case to clear the colon flag
   / & { return true; } { stops.counters['colon'] = 0; return null; }

@@ -146,13 +146,13 @@ ListHandler.prototype.commonPrefixLength = function (x, y) {
 	return i;
 };
 
-ListHandler.prototype.pushList = function ( container, liTok, dp ) {
+ListHandler.prototype.pushList = function ( container, liTok, dp1, dp2 ) {
 	this.currListFrame.endtags.push( new EndTagTk( container.list ));
 	this.currListFrame.endtags.push( new EndTagTk( container.item ));
 
 	return [
-		new TagTk( container.list ),
-		new TagTk( container.item, [], dp)
+		new TagTk( container.list, [], dp1),
+		new TagTk( container.item, [], dp2)
 	];
 };
 
@@ -183,10 +183,10 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 		prefix = bn.slice(0, prefixLen),
 		dp = token.dataAttribs,
 		tsr = dp.tsr,
-		makeDP = function(i) {
+		makeDP = function(i, j) {
 			var newTSR, newDP;
 			if ( tsr ) {
-				newTSR = [ tsr[0] + i, tsr[0] + i + 1 ];
+				newTSR = [ tsr[0] + i, tsr[0] + j ];
 			} else {
 				newTSR = undefined;
 			}
@@ -205,71 +205,132 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 	var res, itemToken;
 
 	// emit close tag tokens for closed lists
+	if (this.trace) {
+		console.warn("    bs: " + JSON.stringify(bs) + "; bn: " + JSON.stringify(bn));
+	}
 	if (prefix.length === bs.length && bn.length === bs.length) {
+		if (this.trace) {
+			console.warn("    -> no nesting change");
+		}
 		// same list item types and same nesting level
 		itemToken = this.currListFrame.endtags.pop();
 		this.currListFrame.endtags.push(new EndTagTk( itemToken.name ));
 		res = [
 			itemToken,
-			new TagTk( itemToken.name, [],
-					makeDP( bn.length - 1 ) )
+			// this list item gets all the bullets since this is
+			// a list item at the same level
+			//
+			// **a
+			// **b
+			new TagTk( itemToken.name, [], makeDP( 0, bn.length ) )
 		];
 	} else {
+		var prefixCorrection = 0;
 		var tokens = [];
 		if ( bs.length > prefixLen &&
 			 bn.length > prefixLen &&
 			this.isDtDd( bs[prefixLen], bn[prefixLen] ) )
 		{
-			/*---------------------------------------
+			/*-------------------------------------------------
+			 * Handle dd/dt transitions
+			 *
 			 * Example:
 			 *
 			 * **;:: foo
 			 * **::: bar
 			 *
 			 * the 3rd bullet is the dt-dd transition
-			 * -------------------------------------- */
+			 * ------------------------------------------------ */
 
 			tokens = this.popTags(bs.length - prefixLen - 1);
-			// handle dd/dt transitions
 			var newName = this.bulletCharsMap[bn[prefixLen]].item;
 			var endTag = this.currListFrame.endtags.pop();
 			this.currListFrame.endtags.push(new EndTagTk( newName ));
-			//var dp = Util.clone(token.dataAttribs);
-			//if (dp.tsr) {
-			//	// The bullets get split here.
-			//	// Set tsr length to prefix used here.
-			//	//
-			//	// So, "**:" in the example above with prefixLen = 2
-			//	dp.tsr[1] = dp.tsr[0] + prefixLen + 1;
-			//}
-			var newTag = new TagTk(newName, [],
-							makeDP( prefixLen )
-					//dp
-					);
+
+			/* ------------------------------------------------
+			 * 1. ;a:b  (;a  -> :b ) is a dt -> dd transition
+			 * 2. ;;a:b (;;a -> ;:b) is a dt -> dd transition
+			 *    ;;c:d (;:b -> ;;c) is a dd -> dt transition
+			 * 3. *;a:b (*:a -> *;b) is a dt -> dd transition
+			 * -------------------------------------- ----------*/
+			var newTag;
+			if (prefixLen === 0 || (bs[prefixLen-1] !== ':' && bs[prefixLen] === ';')) {
+				if (this.trace) {
+					console.warn("    -> dt->dd");
+				}
+				// dt --> dd transition (dd token has a 1-length prefix: see tokenizer)
+				newTag = new TagTk(newName, [], makeDP( 0, 1 ));
+			} else {
+				if (this.trace) {
+					console.warn("    -> dd->dt");
+				}
+				// dd --> dt transition (dt token has a prefixLen prefix: see tokenizer)
+				newTag = new TagTk(newName, [], makeDP( 0, prefixLen + 1 ));
+			}
 			tokens = tokens.concat([ endTag, newTag ]);
-			prefixLen++;
+
+			prefixCorrection = 1;
 		} else {
+			if (this.trace) {
+				console.warn("    -> reduced nesting");
+			}
 			tokens = tokens.concat( this.popTags(bs.length - prefixLen) );
 			if (prefixLen > 0 && bn.length === prefixLen ) {
 				itemToken = this.currListFrame.endtags.pop();
 				tokens.push(itemToken);
-				tokens.push(new TagTk(itemToken.name, [],
-							makeDP( bn.length )
-							//Util.clone(token.dataAttribs)
-							));
+				// this list item gets all bullets upto the shared prefix
+				tokens.push(new TagTk(itemToken.name, [], makeDP(0, bn.length)));
 				this.currListFrame.endtags.push(new EndTagTk( itemToken.name ));
 			}
 		}
 
-		for (var i = prefixLen; i < bn.length; i++) {
+		for (var i = prefixLen + prefixCorrection; i < bn.length; i++) {
 			if (!this.bulletCharsMap[bn[i]]) {
 				throw("Unknown node prefix " + prefix[i]);
 			}
 
+			// First list item gets all bullets upto the shared prefix.
+			// Later ones in the chain get one bullet each.
+			// Example:
+			//
+			// **a
+			// ****b
+			//
+			// When handling ***b, the "**" bullets are assigned to the
+			// li that opens the "**" list item.
+			// <ul><li>
+			//   <ul><li>a</li>
+			//       <li-FIRST-ONE-gets-**>
+			//         <ul><li-*><ul><li-*>b</li></ul></li></ul>
+			//
+			// prefixCorrection is for handling dl-dts like this
+			//
+			// ;a:b
+			// ;;c:d
+			//
+			// ";c:d" is embedded within a dt that is 1 char wide(;)
+			// and needs to be accounted for.
+
+			var listDP, listItemDP;
+			if (i === prefixLen) {
+				if (this.trace) {
+					console.warn("    -> increased nesting: first");
+				}
+				listDP     = makeDP(prefixCorrection,prefixCorrection);
+				listItemDP = makeDP(prefixCorrection,prefixLen+1);
+			} else {
+				if (this.trace) {
+					console.warn("    -> increased nesting: 2nd and higher");
+				}
+				listDP     = makeDP(i,i);
+				listItemDP = makeDP(i,i+1);
+			}
+
 			tokens = tokens.concat(
-						this.pushList(this.bulletCharsMap[bn[i]], token,
-										makeDP(i))
-						);
+				this.pushList(
+					this.bulletCharsMap[bn[i]], token, listDP, listItemDP
+				)
+			);
 		}
 		res = tokens;
 	}
