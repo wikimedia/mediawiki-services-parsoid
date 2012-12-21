@@ -1419,7 +1419,20 @@ WSP.tagHandlers = {
 		start: {
 			startsNewline: true,
 			endsLine: true,
-			handle: id("\n")
+			handle: function(state, token) {
+				var prevTagToken = state.prevTagToken;
+				if (prevTagToken &&
+					prevTagToken.constructor === TagTk &&
+					prevTagToken.name === 'p')
+				{
+					if (state.availableNewlineCount < 3) {
+						state.availableNewlineCount = 3;
+					}
+					return '';
+				} else {
+					return '\n';
+				}
+			}
 		}
 	},
 	b:  {
@@ -1794,6 +1807,8 @@ WSP._serializeToken = function ( state, token ) {
 				}
 				state.selser.generatedOutput = true;
 				state.chunkCB( res, state.selser.serializeInfo );
+				res = '';
+				state.availableNewlineCount = 0;
 				break;
 			default:
 				res = '';
