@@ -308,10 +308,6 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
 				// so we don't try to regenerate the changes.
 				item.changes = 0;
 			}
-			changelist = this.generateChanges( content, item.changes, item );
-			this.makeChanges( content, changelist );
-
-			item.changes = item.changes || changelist;
 		}
 		serializer.serializeDOM( content, function ( res ) {
 			wt += res;
@@ -339,7 +335,12 @@ ParserTests.prototype.doesChangeExist = function ( changes, change ) {
 	return false;
 };
 
-ParserTests.prototype.makeChanges = function ( content, changelist ) {
+ParserTests.prototype.makeChanges = function ( item, content, changelist, cb ) {
+	cb = cb || function () {};
+
+	// Keep the changes in the item object in case of --changesout
+	item.changes = item.changes || changelist;
+
 	var changes = [
 		'content',
 		'rebuilt',
@@ -360,7 +361,7 @@ ParserTests.prototype.makeChanges = function ( content, changelist ) {
 		node = content && content.childNodes[i];
 		change = changelist[i];
 		if ( change && change.constructor === Array ) {
-			this.makeChanges( node, change );
+			this.makeChanges( item, node, change );
 		} else if ( node && node.setAttribute && DOMUtils.isNodeEditable( this.env, node ) ) {
 			switch ( change ) {
 				case 3:
@@ -385,12 +386,22 @@ ParserTests.prototype.makeChanges = function ( content, changelist ) {
 			}
 		}
 	}
+
+	cb( null, content );
 };
 
-ParserTests.prototype.generateChanges = function ( content, nonRandomChanges, item ) {
+ParserTests.prototype.generateChanges = function ( options, nonRandomChanges, item, content, cb ) {
 	// This function won't actually change anything, but it will add change
 	// markers to random elements.
 	var numAttempts = 0, child, i, changeObj, changelist;
+
+	var setChange = function ( err, nc, childChanges ) {
+		if ( childChanges && childChanges.length ) {
+			changeObj = childChanges;
+		} else {
+			changeObj = 0;
+		}
+	};
 
 	item = item || {};
 
@@ -411,17 +422,12 @@ ParserTests.prototype.generateChanges = function ( content, nonRandomChanges, it
 				continue;
 			}
 
-			if ( nonRandomChanges === undefined ) {
+			if ( nonRandomChanges === null) {
 				if ( DOMUtils.isNodeEditable( this.env, child ) ) {
 					if ( Math.random() < 0.5 ) {
 						changeObj = Math.floor( Math.random() * 4 ) + 1;
 					} else {
-						childChanges = this.generateChanges( child );
-						if ( childChanges && childChanges.length ) {
-							changeObj = childChanges;
-						} else {
-							changeObj = 0;
-						}
+						this.generateChanges( options, null, null, child, setChange );
 					}
 				} else {
 					changeObj = 0;
@@ -437,7 +443,7 @@ ParserTests.prototype.generateChanges = function ( content, nonRandomChanges, it
 		this.doesChangeExist( item.otherChanges, changelist ) &&
 		++numAttempts < 1000 );
 
-	return changelist;
+	cb( null, content, changelist );
 };
 
 ParserTests.prototype.convertWt2Html = function( mode, wikitext, processHtmlCB ) {
@@ -477,20 +483,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 
 	var domtree;
 
-	/**
-	 * The remainder of this function is built around the async.waterfall
-	 * method. A string of functions is added to a list, with a final callback
-	 * defined to catch any errors and call the next test. Each function gets
-	 * called with the results of the last one, which makes for slightly more
-	 * expressive code.
-	 *
-	 * Also, hopefully this async model will allow us to be a bit more modular
-	 * about which pipeline stages we add and remove based on the mode. The
-	 * primary use will probably be the selser tests, where extra stages can
-	 * now be added to generate and make changes, as opposed to using those
-	 * functions from inside other parts of the pipeline.
-	 */
-
+	// Build a list of tasks for this test that will be passed to async.waterfall
 	var finishHandler = function ( err, res ) {
 		if ( err ) {
 			options.reportFailure(
@@ -502,7 +495,42 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 
 	var testTasks = [];
 
-	if ( mode === 'wt2html' || mode === 'wt2wt' || mode === 'selser' ) {
+	// Some useful booleans
+	var startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser',
+		startsAtHtml = mode === 'html2html' || mode === 'html2wt',
+		endsAtWikitext = mode === 'wt2wt' || mode === 'selser' || mode === 'html2wt',
+		endsAtHtml = mode === 'wt2html' || mode === 'html2html';
+
+	// Source preparation stage
+	if ( startsAtHtml ) {
+		if ( item.cachedSourceHTML === null ) {
+			testTasks.push( function ( cb ) {
+				cb( null, Util.parseHTML( '<html><body>' + item.result + '</body></html>' )
+					.document
+					.childNodes[0]
+					.childNodes[1] );
+			} );
+		} else {
+			testTasks.push( function ( cb ) {
+				cb( null, item.cachedSourceHTML.cloneNode( true ) );
+			} );
+		}
+	}
+
+	// Caching stage 0 - save the result of the first stage so we can maybe skip it later
+	if ( startsAtHtml ) {
+		testTasks.push( function ( result, cb ) {
+			if ( startsAtHtml && item.cachedSourceHTML === null ) {
+				// Cache source HTML
+				item.cachedSourceHTML = result.cloneNode( true );
+			}
+
+			cb( null, result );
+		} );
+	}
+
+	// First conversion stage
+	if ( startsAtWikitext ) {
 		if ( item.cachedHTML === null ) {
 			testTasks.push( this.convertWt2Html.bind( this, mode, item.input ) );
 		} else {
@@ -510,35 +538,42 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 				cb( null, item.cachedHTML.cloneNode( true ) );
 			} );
 		}
-
-		if ( mode === 'wt2wt' || mode === 'selser' ) {
-			// insert an additional step in the callback chain
-			// if we are roundtripping
-			testTasks.push( this.convertHtml2Wt.bind( this, options, mode, item ) );
-			testTasks.push( this.processSerializedWT.bind( this, item, options, mode ) );
-		} else {
-			testTasks.push( this.processParsedHTML.bind( this, item, options, mode ) );
-		}
-
-		item.time.start = Date.now();
-		async.waterfall( testTasks, finishHandler );
-	} else {
-		domtree = Util.parseHTML( '<html><body>' + item.result + '</body></html>' );
-		testTasks.push(	this.convertHtml2Wt.bind(
-			this, options, mode, item, domtree.document.childNodes[0].childNodes[1]
-		) );
-		if ( mode === 'html2html' ) {
-			// insert an additional step in the callback chain
-			// if we are roundtripping
-			testTasks.push( this.convertWt2Html.bind( this, mode ) );
-			testTasks.push( this.processParsedHTML.bind( this, item, options, mode ) );
-		} else {
-			testTasks.push( this.processSerializedWT.bind( this, item, options, mode ) );
-		}
-
-		item.time.start = Date.now();
-		async.waterfall( testTasks, finishHandler );
+	} else if ( startsAtHtml ) {
+		testTasks.push(	this.convertHtml2Wt.bind( this, options, mode, item	) );
 	}
+
+	// Caching stage 1 - save the result of the first two stages so we can maybe skip them later
+	testTasks.push( function ( result, cb ) {
+		if ( startsAtWikitext && item.cachedHTML === null ) {
+			// Cache parsed HTML
+			item.cachedHTML = result.body.cloneNode( true );
+		}
+
+		cb( null, result );
+	} );
+
+	// Generate and make changes for the selser test mode
+	if ( mode === 'selser' ) {
+		testTasks.push( this.generateChanges.bind( this, options, item.changes, item ) );
+		testTasks.push( this.makeChanges.bind( this, item ) );
+	}
+
+	// Roundtrip stage
+	if ( mode === 'wt2wt' || mode === 'selser' ) {
+		testTasks.push( this.convertHtml2Wt.bind( this, options, mode, item ) );
+	} else if ( mode === 'html2html' ) {
+		testTasks.push( this.convertWt2Html.bind( this, mode ) );
+	}
+
+	// Processing stage
+	if ( endsAtWikitext ) {
+		testTasks.push( this.processSerializedWT.bind( this, item, options, mode ) );
+	} else if ( endsAtHtml ) {
+		testTasks.push( this.processParsedHTML.bind( this, item, options, mode ) );
+	}
+
+	item.time.start = Date.now();
+	async.waterfall( testTasks, finishHandler );
 };
 
 /**
@@ -550,10 +585,6 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
  * @arg doc {object} The results of the parse.
  */
 ParserTests.prototype.processParsedHTML = function( item, options, mode, doc, cb ) {
-	if ( item.cachedHTML === null && !doc.err ) {
-		item.cachedHTML = doc.body.cloneNode( true );
-	}
-
 	item.time.end = Date.now();
 	// Check the result vs. the expected result.
 	this.checkHTML( item, doc.body.innerHTML, options, mode );
@@ -1066,6 +1097,7 @@ ParserTests.prototype.processCase = function ( i, options ) {
 		item.cachedHTML = null;
 		item.cachedWT = null;
 		item.cachedNormalizedHTML = null;
+		item.cachedSourceHTML = null;
 
 		//console.log( 'processCase ' + i + JSON.stringify( item )  );
 		if ( typeof item === 'object' ) {
