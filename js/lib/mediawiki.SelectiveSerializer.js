@@ -12,7 +12,8 @@ var WikitextSerializer = require( './mediawiki.WikitextSerializer.js' ).Wikitext
 	DU = require( './mediawiki.DOMUtils.js' ).DOMUtils,
 	apirql = require( './mediawiki.ApiRequest.js' ),
 	DoesNotExistError = apirql.DoesNotExistError,
-	Node = require('./mediawiki.wikitext.constants.js').Node;
+	// don't redefine Node
+	NODE = require('./mediawiki.wikitext.constants.js').Node;
 
 /**
  * Create a selective serializer.
@@ -32,7 +33,6 @@ var SelectiveSerializer = function ( options ) {
 	this.target = this.env.pageName || null;
 	this.oldtext = options.oldtext;
 	this.oldid = options.oldid;
-	this.wtChunks = [];
 	this.trace = this.env.debug || (
 		this.env.traceFlags && (this.env.traceFlags.indexOf("selser") !== -1)
 	);
@@ -43,7 +43,7 @@ var SelectiveSerializer = function ( options ) {
 		};
 
 		SelectiveSerializer.prototype.debug = function ( ) {
-			this.debug_pp.apply(this, ["SS: ", ''].concat([].slice.apply(arguments)));
+			this.debug_pp.apply(this, ["SS:", ' '].concat([].slice.apply(arguments)));
 		};
 	} else {
 		SelectiveSerializer.prototype.debug_pp = function ( ) {};
@@ -63,358 +63,478 @@ SSP.getOldText = function ( cb ) {
 	}
 };
 
-function SelserState(selser, sourceWT) {
-	// Used "everywhere"
-	this.foundChange = false;
+function SelserState(selser, src) {
 
 	// Used to assign serialize-ids
 	this.selser = selser; // required only for debug/trace flags
-	this.sourceWT = sourceWT;
-	this.currentId = 1;
-	this.startdsr = 0; // start offset of the current unmodified chunk
-	this.lastdsr = null; // end offset of the last processed node
-	this.missingSourceChunkId = null; // serialize-id for which we couldn't assign an unmodified source chunk
+	this.src = src;
+	this.wtChunks = [];
 
-	// Set during serialize-id assignment
-	// and used during serialization
-	this.originalSourceChunks = [];
-	this.lastModifiedChunkEnd = null; // end offset of the last modified chunk
+	/**
+	 * detectDOMChanges state
+	 * TODO: move out!
+	 */
+	this.currentId = 0;
+	this.startPos = 0; // start offset of the current unmodified chunk
+	this.curPos = 0; // end offset of the last processed node
+
+	// current data-parsoid-serialize info or null
+	this.dps = null;
 
 	// Used only during serialization
 	this.inModifiedContent = false;
 	this.lastNLChunk = null;
 
-	this.getUnmodifiedSource = function(serID) {
-		return this.originalSourceChunks[serID];
+	// The selective serializer-specific state exposed to the
+	// WikitextSerializer (this.selser in WTS).
+	this.selserState = {
+		serializeInfo: null
+		// callbacks are added in near serializeDOM call
 	};
 
-	this.assignSourceChunk = function( serID, start, end ) {
-		var chunk = this.getUnmodifiedSource(serID);
-		if ( chunk === undefined || chunk === null ) {
-			// Sanity check
-			if (start > end) {
-				if (selser.trace) {
-					console.error("ERROR: (start > end) for " + serID + ";  start: " + start + "; end: " + end);
-					console.trace();
-				}
-				return;
-			}
+}
 
-			if ( start === 0 ) {
-				// Only strip trailing newlines
-				chunk = this.sourceWT.substring( start, end ).replace(/\n+$/g, '');
-			} else {
-				// Strip all leading/trailing newlines since they
-				// will come through via the regular serializer
-				chunk = this.sourceWT.substring( start, end ).replace(/(^\n+|\n+$)/g, '');
-			}
-			this.originalSourceChunks[serID] = chunk;
-			selser.debug(
-				"serId: ", serID,
-				", start:", start,
-				", end:", end,
-				", chunk:", chunk);
-		} else if (selser.trace) {
-			// Sanity check
-			console.error("ERROR: (duplicate assignment) for " + serID + "; start: " + start + "; end: " + end);
-			console.trace();
+var SStateP = SelserState.prototype;
+
+/**
+ * Update startPos (if null) and curPos to the passed-in position
+ */
+SStateP.updatePos = function ( pos ) {
+	//console.log(pos);
+	//console.trace();
+	if ( pos !== undefined && pos !== null ) {
+		if ( this.startPos === null ) {
+			this.startPos = pos;
 		}
-	};
-
-	this.clearSourceChunk = function(serID) {
-		this.originalSourceChunks[serID] = null;
-	};
-
-	this.updateSourceChunk = function( serID, start, end ) {
-		this.clearSourceChunk(serID);
-		if (start === null) {
-			this.missingSourceChunkId = serID;
-		} else {
-			this.assignSourceChunk(serID, start, end);
-			this.startdsr = null;
-		}
-	};
+		this.curPos = pos;
+	}
 };
+
+/**
+ * Set startPos to curPos if it is null and move curPos by passed-in delta.
+ */
+SStateP.movePos = function (delta) {
+	if ( this.curPos !== null && delta !== null ) {
+		this.updatePos( this.curPos + delta );
+	}
+};
+
+/**
+ * Get a substring of the original wikitext
+ */
+SStateP.getSource = function(start, end) {
+	return this.src.substring( start, end );
+};
+
+
+/**
+ * Helper function to check for a change marker.
+ */
+function hasChangeMarker( dvec ) {
+	return dvec && (
+			dvec['new'] || dvec.attributes ||
+			dvec.content || dvec.annotations ||
+			dvec.childrenRemoved || dvec.rebuilt
+			);
+}
+
+
+
+/**
+ * Set change information on an element node
+ *
+ * TODO: implement!
+ */
+function markElementNode(node, state, modified, dp, srcRange) {
+	// Add serialization info to this node
+	DU.setJSONAttribute(node, 'data-parsoid-serialize',
+			{
+				id: state.currentId,
+				modified: modified,
+				// let startPos override state.startPos
+				srcRange: srcRange || [state.startPos, state.curPos]
+			} );
+
+	if ( !srcRange && state.startPos === null ) {
+		console.error('startPos is null');
+	}
+
+	if(modified) {
+		// Increment the currentId
+		state.currentId++;
+		if( dp && dp.dsr ) {
+			// reset state positions
+			state.startPos = dp.dsr[1];
+			state.updatePos(dp.dsr[1]);
+		} else {
+			state.startPos = null;
+			state.curPos = null;
+		}
+	} else {
+		if( dp && dp.dsr ) {
+			// reset state positions
+			state.startPos = dp.dsr[0];
+			state.updatePos(dp.dsr[1]);
+		} else {
+			state.startPos = null;
+			state.curPos = null;
+		}
+	}
+}
+
+/**
+ * Wrap a bare (DSR-less) text or comment node in a span and set modification
+ * markers on that, so that it is serialized out using the WTS
+ */
+function markTextOrCommentNode(node, state, modified, srcRange) {
+	var wrapperSpanNode = node.ownerDocument.createElement('span');
+	wrapperSpanNode.setAttribute('typeof', 'mw:ChangeMarkerWrapper');
+	// insert the span
+	node.parentNode.insertBefore(wrapperSpanNode, node);
+	// move the node into the wrapper span
+	wrapperSpanNode.appendChild(node);
+	markElementNode(wrapperSpanNode, state, modified, null, srcRange);
+}
+
+/**
+ * Insert a modification marker meta with the current position. This starts a
+ * new serialization chunk. Used to handle gaps in unmodified content.
+ */
+function insertModificationMarker(parentNode, beforeNode, state) {
+	var modMarker = parentNode.ownerDocument.createElement('meta');
+	modMarker.setAttribute('typeof', 'mw:ChangeMarker');
+	parentNode.insertBefore(modMarker, beforeNode);
+	markElementNode(modMarker, state, false);
+	state.startPos = null;
+}
+
+/**
+ * Utility: Calculate the wikitext source text length for the content of a DOM
+ * text node, depending on whether the text node is inside an indent-pre block
+ * or not.
+ *
+ * FIXME: Fix DOMUtils.indentPreDSRCorrection to properly handle text nodes
+ * that are not direct children of pre nodes, and use it instead of this code.
+ * This code might break when the (optional) leading newline is stripped by
+ * the HTML parser.
+ */
+function srcTextLen ( src, inIndentPre ) {
+	if ( ! inIndentPre ) {
+		return src.length;
+	} else {
+		var nlMatch = src.match(/\n/g),
+			nlCount = nlMatch ? nlMatch.length : 0;
+		return src.length + nlCount;
+	}
+}
 
 /**
  * Determine what needs to be serialized and what we can just carry over from
  * the old text, by assigning IDs to each node in the DOM that has changed.
+ *
+ * * track current dsr offset, also using the tsr (or isr?) if available
+ * * append a new unmodified chunk / increment serializeID if:
+ *	  startdsr !== null && (
+ *		change marker
+ *		|| element without data-parsoid (new content)
+ *		|| dsr does not match up (gap not within separator range)
+ *		|| text change: [lastdsr, nextdsr] source substr !== text node content
+ *		later: || element change: compare outerHTML?
+ *	  )
+ *	  * insert span/meta with serializeID (serializing to empty string) for text
+ *      change or dsr mismatch
+ * * don't descend into mw content (rel, typeof or about with mwt)
  */
-SSP.detectDOMChanges = function ( node, state ) {
-	/**
-	 * Helper function to check for a change marker.
-	 */
-	function hasChangeMarker( dataVeChanged ) {
-		return dataVeChanged && (
-			dataVeChanged['new'] || dataVeChanged.attributes ||
-			dataVeChanged.content || dataVeChanged.annotations ||
-			dataVeChanged.childrenRemoved || dataVeChanged.rebuilt
-		);
-	}
+SSP.detectDOMChanges = function ( parentNode, state, parentDSR ) {
 
-	var thisda, thisdsr, childHasStartDsr, oldstartdsr, oldId, tname, childname;
+	var node;
 
-	for ( var i = 0; i < node.childNodes.length; i++ ) {
-		var child = node.childNodes[i],
-			nodeType = child.nodeType,
-			modified = false;
+	for ( var i = 0; i < parentNode.childNodes.length; i++ ) {
+		node = parentNode.childNodes[i];
+		var dvec = null,
+			dp = null,
+			src = '',
+			nodeType = node.nodeType,
+			nodeName = node.nodeName.toLowerCase(),
+			inIndentPre = state.inIndentPre,
+			isModified = false;
 
-		// console.warn("n: " + child.nodeName + "; s: " + state.startdsr + "; l: " + state.lastdsr);
+		//console.warn("n: " + node.nodeName + "; s: " +
+		//		state.startPos + "; c: " + state.curPos);
 
-		// data-ve-changed is what we watch for the change markers.
-		thisda = Util.getJSONAttribute( child, 'data-ve-changed', {} );
-
-		// data-parsoid has DSR information and possibly some things we'll need to
-		// duplicate later for special cases.
-		thisdsr = Util.getJSONAttribute( child, 'data-parsoid', {} ).dsr;
-
-		childHasStartDsr = thisdsr && thisdsr[0] !== null;
-
-		if (DU.isTplElementNode(this.env, child)) {
-			// Update dsr when we encounter the tpl start-marker
-			if (thisdsr && thisdsr[1] && DU.isTplStartMarkerMeta(child)) {
-				state.lastdsr = thisdsr[1];
+		if ( nodeType === NODE.TEXT_NODE || nodeType === NODE.COMMENT_NODE ) {
+			src = (node.nodeValue || '');
+			if (nodeType === NODE.COMMENT_NODE) {
+				src = '<!--' + src + '-->';
 			}
-
-			// Skip over the rest of the tpl content
-			continue;
-		} else if ( !thisdsr && (nodeType === Node.TEXT_NODE || nodeType === Node.COMMENT_NODE) ) {
-			// Update dsr values
-			if (state.lastdsr !== null) {
-				if ( state.startdsr === null ) {
-					state.startdsr = state.lastdsr;
+			// Get the wikitext source length adjusted for any stripped
+			// leading ws in indent-pre context
+			var srcLen = srcTextLen(src, inIndentPre);
+			if ( state.startPos === null )
+				// Text diff detection is disabled currently, as it leads to a
+				// few spurious change detections, mostly because of slightly
+				// faulty dsr.
+				// TODO: re-enable text diff detection after fixing some of
+				// these dsr issues!
+				//|| state.getSource(state.curPos, state.curPos + src.length) !== src
+			{
+				if (this.trace) {
+					console.log('src diff:', JSON.stringify( [src,
+								state.getSource(state.curPos, state.curPos + srcLen),
+								state.curPos, state.curPos + srcLen]
+								));
 				}
-				if (nodeType === Node.TEXT_NODE) {
-					state.lastdsr += (child.data.length + DU.indentPreDSRCorrection(child));
-				} else {
-					state.lastdsr += (child.data.length + 7);
+				isModified = state.startPos !== null;
+				// zero-length range
+				//state.startPos = state.curPos;
+				// TODO: implement
+				markTextOrCommentNode(node, state,
+						// modified?
+						isModified);
+
+				// The text was modified, so our positions are invalid now.
+				state.startPos = null;
+				state.curPos = null;
+			} else {
+				// not modified, just move along
+				state.movePos(srcLen);
+			}
+
+		} else if ( nodeType === NODE.ELEMENT_NODE )
+		{
+
+			// data-ve-changed is what we watch for the change markers.
+			dvec = Util.getJSONAttribute(node, 'data-ve-changed', {});
+			// get data-parsoid
+			dp = Util.getJSONAttribute( node, 'data-parsoid', null);
+
+
+			isModified = hasChangeMarker(dvec) ||
+				// no data-parsoid: new content
+				! dp;
+				// TODO: also *detect* element modifications without change
+				// markers! use outerHTML?
+
+			if (DU.isTplElementNode(this.env, node))
+			{
+				// Don't descend into template content
+				var type = node.getAttribute('typeof');
+				if(dp && dp.dsr && type.match(/^mw:Object/)) {
+					// Only use the dsr from the typeof-marked elements
+					state.updatePos(dp.dsr[1]);
 				}
-			}
-		} else if ( !childHasStartDsr && state.startdsr === null ) {
-			// This node does not have have a start-dsr ==> cannot be copied from src.
-			// So treat it as a modified node and move on.
+				this.debug('tpl', state.startPos, state.curPos);
+				// nothing to see here, move along..
+				continue;
+			} else if ( // need to fully serialize if there is no startPos
+					state.startPos === null ||
+					isModified ||
+					// No DSR / DSR mismatch. TODO: ignore minor variations in
+					// separator newlines
+					!dp.dsr || dp.dsr[0] !== state.curPos )
+			{
 
-			// console.warn("--missing start dsr--");
+				// Mark element for serialization.
+				markElementNode(node, state, isModified, dp );
+				continue;
 
-			child.setAttribute( 'data-serialize-id', state.currentId++ );
-			modified = true;
-
-			if ( hasChangeMarker( thisda ) ) {
-				state.foundChange = true;
-			}
-
-			// Make sure we reset lastdsr whenever we fully serialize
-			// something that already existed in the original document.
-			// Otherwise, the DSR would lead to duplication.
-			if ( (!thisda || !thisda['new']) && ( !thisdsr || !thisdsr[1] )) {
-				state.lastdsr = null;
 			}
 
-			// FIXME: This can overwrite previously set values.  What is the
-			// expected behavior in that case?
-			//
-			// Set this flag to indicate that something changed in a child, and the
-			// parent should probably be marked with the same serialize ID. This helps
-			// with processing tough things like lists and tables that might not work
-			// otherwise.
-			state.markedNodeName = child.tagName ? child.tagName.toLowerCase() : null;
-		} else if ( hasChangeMarker( thisda ) ) {
-
-			// console.warn("--found change marker--");
-
-			if (state.startdsr !== null || !state.foundChange) {
-				// SSS FIXME: Not sure what this check is doing ...
-				var usableDsr0 = childHasStartDsr && (state.lastdsr === null || thisdsr[0] > state.lastdsr );
-				if (usableDsr0 || state.lastdsr !== null) {
-					// In the case that we were in the middle of processing a series of
-					// unchanged nodes, we use this node's startdsr as the end index if
-					// possible.
-					state.assignSourceChunk(
-						state.currentId,
-						state.startdsr,
-						usableDsr0 ? thisdsr[0] : state.lastdsr
-					);
-				} else {
-					// console.warn("== missing! ==");
-					state.missingSourceChunkId = state.currentId;
+			if ( node.childNodes.length &&
+					dp.dsr[2] !== null &&
+					// Don't descend into html-pres for now.
+					// FIXME: Handle pres properly in general!
+					(nodeName !== 'pre' || dp.stx !== 'html') )
+			{
+				// Prepare for recursion
+				if ( DU.isIndentPre(node) ) {
+					state.inIndentPre = true;
 				}
+
+				// Remember positions before adjusting them for the child
+				var lastID = state.currentId,
+					lastRange = [state.startPos, state.curPos];
+				// Try to update the position for the child
+				if (dp && dp.dsr) {
+					state.updatePos(dp.dsr[0] + dp.dsr[2]);
+				}
+
+				// Handle the subdom.
+				this.detectDOMChanges(node, state, dp.dsr);
+
+				if ( state.currentId !== lastID ) {
+					// something was modified
+					if (nodeName === 'table' ||
+							nodeName === 'ul' ||
+							nodeName === 'ol' ||
+							nodeName === 'dl' )
+					{
+						this.debug('lastrange', lastRange);
+						// We want to fully serialize elements of this type
+						// until our support for selective serialization in
+						// these elements is improved. Hence, mark this node
+						// for full serialization.
+						markElementNode(node, state, true, dp, lastRange);
+					}
+				}
+				// reset pre state
+				state.inIndentPre = inIndentPre;
 			}
 
-			state.foundChange = true;
-			child.setAttribute( 'data-serialize-id', state.currentId++ );
-			modified = true;
-
-			// No longer in an unmodified chunk
-			state.startdsr = null;
-
-			// Make sure we reset lastdsr whenever we fully serialize
-			// something that already existed in the original document.
-			// Otherwise, the DSR would lead to duplication.
-			if ( (!thisda || !thisda['new']) && ( !thisdsr || !thisdsr[1] )) {
-				state.lastdsr = null;
+			// Move the position past the element.
+			if (dp && dp.dsr && dp.dsr[1]) {
+				//console.log( 'back up, update pos to', dp.dsr[1]);
+				state.updatePos(dp.dsr[1]);
 			}
-
-			// FIXME: This can overwrite previously set values.  What is the
-			// expected behavior in that case?
-			//
-			// Set this flag to indicate that something changed in a child, and the
-			// parent should probably be marked with the same serialize ID. This helps
-			// with processing tough things like lists and tables that might not work
-			// otherwise.
-			state.markedNodeName = child.tagName ? child.tagName.toLowerCase() : null;
-		} else {
-			// This node wasn't marked, but its children might be. Check first.
-			oldId = state.currentId;
-			oldstartdsr = state.startdsr;
-
-			// Process DOM rooted at 'child'
-			this.detectDOMChanges( child, state );
-
-			if (state.missingSourceChunkId) {
-				modified = true;
-				child.setAttribute( 'data-serialize-id', state.missingSourceChunkId );
-				if (childHasStartDsr && oldstartdsr !== null) {
-					state.assignSourceChunk(
-						state.missingSourceChunkId,
-						oldstartdsr,
-						thisdsr[0]
-					);
-					state.missingSourceChunkId = null;
-					state.startdsr = null;
-				}
-			} else if ( oldId === state.currentId && (childHasStartDsr || state.startdsr === null)) {
-				// No modifications in child's DOM.
-				// It can be copied over from src.
-				if ( state.startdsr === null ) {
-					state.startdsr = thisdsr[0];
-				}
-			} else if ( oldId !== state.currentId && state.markedNodeName !== null ) {
-				// If the serializeID changed while processing this node's children, then
-				// we can't copy it over entirely. If this particular node type needs
-				// special handling, we need to do that now.
-
-				// Special case handling for specific tags.
-				tname = child.tagName ? child.tagName.toLowerCase() : 'tbody';
-				childname = state.markedNodeName;
-				if ( tname === 'tbody' || tname === 'thead' ) {
-					child.setAttribute( 'data-serialize-id', oldId );
-					modified = true;
-					state.parentMarked = true;
-					state.updateSourceChunk(
-						oldId,
-						oldstartdsr,
-						childHasStartDsr ? thisdsr[0] : state.lastdsr
-					);
-				} else if (
-						tname === 'ul' ||
-						tname === 'ol' ||
-						childname === 'i' ||
-						childname === 'b' )
-				{
-					child.setAttribute( 'data-serialize-id', oldId );
-					modified = true;
-					state.markedNodeName = null;
-					state.parentMarked = false;
-
-					state.updateSourceChunk(
-						oldId,
-						oldstartdsr,
-						childHasStartDsr ? thisdsr[0] : state.lastdsr
-					);
-				} else if ( state.lastdsr !== null && state.startdsr === null ) {
-					state.startdsr = state.lastdsr;
-				}
-			} else if ( oldId !== state.currentId && state.parentMarked ) {
-				// This is a special case for parents who were marked as
-				// changed because of a child, if a child was not tbody or
-				// thead then we can safely copy this source chunk into the
-				// final list.
-
-				// First get the DSR of the parent from our backup.
-				state.startdsr = oldstartdsr;
-				if ( oldstartdsr !== null ) {
-					// If there's a chunk of unmodified code in progress,
-					// finish it first.
-					state.updateSourceChunk(
-						oldId,
-						oldstartdsr,
-						childHasStartDsr ? thisdsr[0] : state.lastdsr
-					);
-				}
-				child.setAttribute( 'data-serialize-id', oldId );
-				state.markedNodeName = null;
-				state.parentMarked = false;
-			}
-		}
-
-		if ( thisdsr ) {
-			if (modified) {
-				state.lastModifiedChunkEnd = thisdsr[1];
-			}
-
-			// Make sure we have the dsr[1] of the last node we processed, so
-			// we can use it as a backup later if a changed node doesn't have
-			// dsr[0]. Fall back to the last known dsr[1] otherwise.
-			state.lastdsr = thisdsr[1] || state.lastdsr;
-		}
-
-		// If this node has a serialize-id but we couldn't
-		// assign an unmodified source chunk to it, we bail and
-		// mark the parent instead.
-		if (state.missingSourceChunkId) {
-			return;
 		}
 	}
 
-	return;
+	// Check if the expected end source offset still matches. If it does not,
+	// content was removed.
+	if ( parentDSR && parentDSR[3] !== null ) {
+		var endPos = parentDSR[1] - parentDSR[3];
+		if (state.curPos !== endPos) {
+			this.debug('end pos mismatch', state.curPos, endPos, parentDSR);
+			if ( state.startPos === null ) {
+				state.startPos = state.curPos;
+			}
+			// Insert a modification marker
+			insertModificationMarker(parentNode, null, state);
+		}
+		// Now jump over the gap
+		this.debug('updating end pos to', endPos);
+		state.updatePos(endPos);
+	} else if ( parentNode.nodeName.toLowerCase() === 'body' &&
+			state.startPos !== null &&
+			state.startPos !== state.curPos )
+	{
+		insertModificationMarker(parentNode, null, state);
+	}
+};
+
+/**
+ * Handler that is called by the WikitextSerializer when starting to
+ * serialize a node with data-parsoid-serialize set.
+ */
+SSP.dpsStartCB = function ( state, serializeInfo ) {
+	// Reset the (string) data-parsoid-serialize copy watched by the WTS
+	state.selserState.serializeInfo = null;
+	if ( serializeInfo ) {
+		try {
+			// Try to decode data-parsoid-serialize
+			var dps = JSON.parse(serializeInfo), origSrc;
+			this.debug('dps', dps );
+			state.dps = dps;
+			// Check if this node is modified
+			this.debug("inModified: ", state.inModifiedContent,
+					" --> ", dps.modified);
+			state.inModifiedContent = dps.modified;
+			if ( dps.srcRange && dps.srcRange[0] !== dps.srcRange[1] ) {
+				// get the unmodified source chunk preceding this node
+				origSrc = state.getSource(dps.srcRange[0], dps.srcRange[1]) || '';
+				if (dps.srcRange[0] && state.lastNLChunk) {
+					// Insert separator newlines that the WTS emitted before
+					// entering the marked node
+					var leadingNLMatch = origSrc.match(/^\n+/);
+					if ( leadingNLMatch ) {
+						// don't duplicate newlines
+						state.lastNLChunk = state.lastNLChunk.substr(leadingNLMatch[0].length);
+					}
+					state.wtChunks.push(state.lastNLChunk);
+					this.debug("[NLs 1]:", state.lastNLChunk);
+				}
+				// clear the nl chunk
+				state.lastNLChunk = null;
+				// Remove trailing newlines from the original source- those
+				// are buffered in the WTS and inserted when serializing the
+				// content for that.
+				origSrc = origSrc.replace(/\n+$/g,'');
+				state.wtChunks.push(origSrc);
+				this.debug("[Original]:", origSrc);
+			} else {
+				if (state.lastNLChunk) {
+					state.wtChunks.push( state.lastNLChunk );
+					this.debug("[NLs 2]:", state.lastNLChunk);
+				}
+				state.lastNLChunk = null;
+			}
+			// Set the serializeInfo passed on to callbacks by the WTS to the
+			// special 'SEP' value. The first call to chunkCB from the WTS
+			// will contain newline separators, and pass along this 'SEP' id.
+			// The callback will then update the id to the value of
+			// state.dps.id.
+			state.selserState.serializeInfo = 'SEP';
+
+		} catch ( e ) {
+			console.error(e);
+			console.error('ERROR: Could not handle data-parsoid-serialize attribute ' +
+					serializeInfo);
+		}
+		state.afterEnd = false;
+	}
 };
 
 SSP.handleSerializedResult = function( state, res, serID ) {
 
-	var before = state.inModifiedContent;
-	this.debug("---- serID: ", serID || '', " ----");
+	this.debug("---- serID:", serID || '', "----");
 
-	if ( serID ) {
-		if (!state.inModifiedContent) {
-			// 1. original unmodified source preceding this
-			// modified serialized content
-			state.inModifiedContent = true;
-			var origSrc = state.getUnmodifiedSource(serID) || '';
-			this.wtChunks.push( origSrc);
-			this.debug("[Original]: ", origSrc);
-
-			// 2. separator nls between the unmodified & modified content
-			if (state.lastNLChunk) {
-				this.wtChunks.push( state.lastNLChunk );
-				this.debug("[NLs]: ", state.lastNLChunk);
-				state.lastNLChunk = null;
-			}
-		}
-
-		// modified serialized content
-		this.debug("[MOD]: ", res);
-		this.wtChunks.push( res );
-	} else if (res.match(/^\n*$/)) {
-		// NL-separators
-		// - push out if we are in modified content
-		// - stash if we are in unmodified content
-		if (state.inModifiedContent) {
-			this.debug("[MOD]: ", res);
-			this.wtChunks.push( res );
-		} else {
-			this.debug("saved NLS: ", res);
-			state.lastNLChunk = res;
-		}
-	} else {
-		// in unmodified content -- ignore and clear saved nl-chunk
-		this.debug("cleared NLS: ", res);
-		state.inModifiedContent = false;
-		state.lastNLChunk = null;
+	if( serID === undefined ) {
+		console.trace();
 	}
 
-	this.debug("inModified: ", before, " --> ", state.inModifiedContent);
+	if ( serID === 'SEP' ) {
+		// NL-separators *before* fully serialized content
+		this.debug("[MOD 2]:", res);
+		state.wtChunks.push( res );
+		state.lastNLChunk = null;
+		// NL separators are handled, switch to the real serialize ID
+		state.selserState.serializeInfo = state.dps.id;
+	} else if ( state.inModifiedContent ) {
+		// modified serialized content, append to buffer.
+		this.debug("[MOD 1]:", res);
+		state.wtChunks.push( res );
+		state.lastNLChunk = null;
+	} else if ( state.afterEnd && res.match(/^\n+$/) ) {
+		// Remember the first (trailing) newline separator.
+		if ( state.lastNLChunk === null ) {
+			this.debug("saved NLS 2:", res);
+			//console.trace();
+			state.lastNLChunk = res;
+		}
+	} else if ( serID !== null ) {
+		// unmodified content -- drop and clear saved nl-chunk
+		this.debug("cleared NLS:", res);
+		state.wtChunks.push( res );
+		state.lastNLChunk = null;
+	}
+	state.afterEnd = false;
+
 };
 
+/**
+ * Callback called when leaving a data-parsoid-serialize marked node in the
+ * WikitextSerializer
+ *
+ *
+ */
+SSP.dpsEndCB = function ( state, serializeInfo ) {
+	if ( state.dps ) {
+		// Reset the state
+		state.dps = null;
+		state.selserState.serializeInfo = null;
+		// No longer in modified content..
+		this.debug("inModified:", state.inModifiedContent,
+				" --> ", false);
+		state.inModifiedContent = false;
+		state.afterEnd = true;
+	}
+};
+
+
+/**
+ * The main serializer handler. Calls detectDOMChanges and prepares and calls
+ * WikitextSerializer.serializeDOM if changes were found.
+ */
 SSP.serializeDOM = function( doc, cb, finalcb ) {
 	var selser = this;
 
@@ -431,44 +551,38 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 			var state = new SelserState(selser, src);
 			selser.detectDOMChanges( doc, state );
 
-			// If we get a top-level missing source chunk,
-			// there isn't much that can be done anymore.
-			// Just use the regular serializer.
-			if (state.missingSourceChunkId) {
-				selser.wts.serializeDOM(doc, cb, finalcb);
-				return;
-			}
+			// Set up dps start / end callbacks
+			state.selserState.dpsStartCB = selser.dpsStartCB.bind(selser, state);
+			state.selserState.dpsEndCB = selser.dpsEndCB.bind(selser, state);
+			state.selserState.serializeInfo = null;
+
 
 			// If we found text, then use this chunk callback.
 			if ( selser.trace || ( selser.env.dumpFlags &&
 				selser.env.dumpFlags.indexOf( 'dom:serialize-ids' ) !== -1) )
 			{
 				console.log( '----- DOM after assigning serialize-ids -----' );
-				console.log( doc.outerHTML );
+				console.log( doc.innerHTML );
 				console.log( '-------- state: --------- ');
-				console.log('startdsr: ' + state.startdsr);
-				console.log('lastdsr: ' + state.lastdsr);
-				console.log('last-mod-chunk-end: ' + state.lastModifiedChunkEnd);
+				console.log('startdsr: ' + state.startPos);
+				console.log('lastdsr: ' + state.curPos);
 			}
 
-			if ( state && state.foundChange === true ) {
+			if ( state && state.currentId ) {
+
 				// Call the WikitextSerializer to do our bidding
-				selser.wtChunks = [];
 				selser.wts.serializeDOM(
 					doc,
 					selser.handleSerializedResult.bind(selser, state),
 					function () {
-						if ( state.lastModifiedChunkEnd !== null ) {
-							var startSrc = src.substring( state.lastModifiedChunkEnd ).replace(/^\n*/, '');
-							selser.debug("[End], src: ", startSrc);
-							selser.wtChunks.push( startSrc );
-						}
-
-						cb( selser.wtChunks.join( '' ) );
+						cb( state.wtChunks.join( '' ) );
 						finalcb();
-					}
+					},
+					// pass in selser state
+					state.selserState
 				);
 			} else {
+				// Nothing was modified, just re-use the original source
 				cb( src );
 				finalcb();
 			}
