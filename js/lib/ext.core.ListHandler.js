@@ -34,7 +34,10 @@ function newListFrame() {
 		newline  : false, // flag to identify a list-less line that terminates a list block
 		solTokens: [],
 		bstack   : [], // Bullet stack, previous element's listStyle
-		endtags  : []  // Stack of end tags
+		endtags  : [], // Stack of end tags
+		// Partial DOM building heuristic
+		// # of open block tags encountered within list context
+		numOpenBlockTags: 0
 	};
 }
 
@@ -58,11 +61,19 @@ ListHandler.prototype.onAny = function ( token, frame, prevToken ) {
 			this.currListFrame = this.listFrames.pop();
 		}
 		return { token: token };
-	} else if (token.constructor === EndTagTk && token.name === 'table') {
-		// close all open lists and pop a frame
-		var ret = this.closeLists(token);
-		this.currListFrame = this.listFrames.pop();
-		return { tokens: ret };
+	} else if (token.constructor === EndTagTk) {
+		if (token.name === 'table') {
+			// close all open lists and pop a frame
+			var ret = this.closeLists(token);
+			this.currListFrame = this.listFrames.pop();
+			return { tokens: ret };
+		} else if (this.currListFrame.numOpenBlockTags === 0) {
+			// Unbalanced closing block tag in a list context ==> close all previous lists
+			return { tokens: this.closeLists(token) };
+		} else {
+			this.currListFrame.numOpenBlockTags--;
+			return { token: token };
+		}
 	} else if ( this.currListFrame.newline ) {
 		if (token.constructor !== NlTk && Util.isSolTransparent(token)) {
 			// Hold on to see where the token stream goes from here
@@ -78,10 +89,15 @@ ListHandler.prototype.onAny = function ( token, frame, prevToken ) {
 	} else if ( token.constructor === NlTk ) {
 		this.currListFrame.newline = true;
 		return { token: token };
-	} else if (token.constructor === TagTk && token.name === 'table') {
-		this.listFrames.push(this.currListFrame);
-		this.currListFrame = null;
-		return { token: token };
+	} else if (token.constructor === TagTk) {
+		if (token.name === 'table') {
+			this.listFrames.push(this.currListFrame);
+			this.currListFrame = null;
+			return { token: token };
+		} else {
+			this.currListFrame.numOpenBlockTags++;
+			return { token: token };
+		}
 	} else {
 		return { token: token };
 	}
