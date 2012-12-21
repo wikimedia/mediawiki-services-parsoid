@@ -67,11 +67,15 @@ ListHandler.prototype.onAny = function ( token, frame, prevToken ) {
 			var ret = this.closeLists(token);
 			this.currListFrame = this.listFrames.pop();
 			return { tokens: ret };
-		} else if (this.currListFrame.numOpenBlockTags === 0) {
-			// Unbalanced closing block tag in a list context ==> close all previous lists
-			return { tokens: this.closeLists(token) };
+		} else if (Util.isBlockTag(token.name)) {
+			if (this.currListFrame.numOpenBlockTags === 0) {
+				// Unbalanced closing block tag in a list context ==> close all previous lists
+				return { tokens: this.closeLists(token) };
+			} else {
+				this.currListFrame.numOpenBlockTags--;
+				return { token: token };
+			}
 		} else {
-			this.currListFrame.numOpenBlockTags--;
 			return { token: token };
 		}
 	} else if ( this.currListFrame.newline ) {
@@ -94,8 +98,10 @@ ListHandler.prototype.onAny = function ( token, frame, prevToken ) {
 			this.listFrames.push(this.currListFrame);
 			this.currListFrame = null;
 			return { token: token };
-		} else {
+		} else if (Util.isBlockTag(token.name)) {
 			this.currListFrame.numOpenBlockTags++;
+			return { token: token };
+		} else {
 			return { token: token };
 		}
 	} else {
