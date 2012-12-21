@@ -790,6 +790,10 @@ ParserTests.prototype.printWhitelistEntry = function ( title, raw ) {
  * @arg mode {string} The mode we're in (wt2wt, wt2html, html2wt, or html2html)
  */
 ParserTests.prototype.printResult = function ( title, time, comments, iopts, expected, actual, options, mode, item ) {
+	if ( mode === 'selser' ) {
+		title += ' ' + JSON.stringify( item.changes );
+	}
+
 	if ( expected.normal !== actual.normal ) {
 		if ( options.whitelist && title in testWhiteList &&
 			Util.normalizeOut( testWhiteList[title] ) ===  actual.normal ) {
