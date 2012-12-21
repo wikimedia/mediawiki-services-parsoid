@@ -902,6 +902,8 @@ normalizeHTML = function ( source ) {
 			.replace(/<table[^>]+?id="toc"[^>]*>.+?<\/table>/mg, '')
 			// do not expect section editing for now
 			.replace(/(<span class="editsection">\[.*?<\/span> *)?<span[^>]+class="mw-headline"[^>]*>(.*?)<\/span>/g, '$2')
+			// remove empty span tags
+			.replace(/<span><\/span>/g, '')
 			// general class and titles, typically on links
 			.replace(/ (title|class|rel)="[^"]*"/g, '')
 			// strip red link markup, we do not check if a page exists yet
