@@ -228,7 +228,6 @@ function dumpFlags() {
 				if (argv.html2wt) {
 					// add a trailing newline for shell user's benefit
 					stdout.write(wt);
-					stdout.write("\n");
 				} else {
 					parserPipeline.on('document', function(document) {
 						stdout.write( document.body.innerHTML );
@@ -240,14 +239,16 @@ function dumpFlags() {
 			} );
 		} else {
 			parserPipeline.on('document', function ( document ) {
-				var res, finishCb = function () {
+				var res, finishCb = function (trailingNL) {
 					stdout.write( res );
-					stdout.write( '\n' );
+					if (trailingNL) {
+						stdout.write("\n");
+					}
 					process.exit( 0 );
 				};
 				if (argv.wt2html) {
 					res = document.body.innerHTML;
-					finishCb();
+					finishCb(true);
 				} else if (argv.wt2wt) {
 					res = '';
 					serializer.serializeDOM( document.body, function ( chunk ) {
