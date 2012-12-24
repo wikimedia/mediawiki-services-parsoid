@@ -337,6 +337,11 @@ ParserTests.prototype.doesChangeExist = function ( changes, change ) {
 
 ParserTests.prototype.makeChanges = function ( item, content, changelist, cb ) {
 	cb = cb || function () {};
+	var initContent = content;
+
+	if ( content.nodeType === content.DOCUMENT_NODE ) {
+		content = content.body;
+	}
 
 	// Keep the changes in the item object in case of --changesout
 	item.changes = item.changes || changelist;
@@ -388,13 +393,19 @@ ParserTests.prototype.makeChanges = function ( item, content, changelist, cb ) {
 		}
 	}
 
-	cb( null, content );
+	cb( null, initContent );
 };
 
 ParserTests.prototype.generateChanges = function ( options, nonRandomChanges, item, content, cb ) {
 	// This function won't actually change anything, but it will add change
 	// markers to random elements.
-	var numAttempts = 0, child, i, changeObj, changelist;
+	var child, i, changeObj, node, changelist = [], numAttempts = 0;
+
+	var initContent = content;
+
+	if ( content.nodeType === content.DOCUMENT_NODE ) {
+		content = content.body;
+	}
 
 	var setChange = function ( err, nc, childChanges ) {
 		if ( childChanges && childChanges.length ) {
@@ -555,6 +566,11 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 
 	// Generate and make changes for the selser test mode
 	if ( mode === 'selser' ) {
+		if ( item.changes === undefined ) {
+			// Make sure we set this to the *right* falsy value.
+			item.changes = null;
+		}
+
 		testTasks.push( this.generateChanges.bind( this, options, item.changes, item ) );
 		testTasks.push( this.makeChanges.bind( this, item ) );
 
@@ -1050,7 +1066,7 @@ ParserTests.prototype.main = function ( options ) {
 		var parserPipelineFactory = new ParserPipelineFactory( this.env );
 		this.parserPipeline = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
 	}
-	if ( options.wt2wt || options.html2wt || options.html2html ) {
+	if ( options.wt2wt || options.html2wt || options.html2html || options.selser ) {
 		this.serializer = new WikitextSerializer({env: this.env});
 	}
 	if ( options.selser ) {
