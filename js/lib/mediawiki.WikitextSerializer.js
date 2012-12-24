@@ -88,6 +88,10 @@ WEHP.thHandler = function(state, text) {
 	return text.match(/!!/);
 };
 
+WEHP.wikilinkHandler = function(state, text) {
+	return text.match(/^\||\]$/);
+};
+
 WEHP.aHandler = function(state, text) {
 	return text.match(/\]$/);
 };
@@ -774,7 +778,7 @@ WSP._serializeHTMLEndTag = function ( state, token ) {
 	}
 };
 
-var stripLinkContentString = function (contentString, dp, wtEscaper) {
+var stripLinkContentString = function (contentString, dp) {
 	if (dp.pipetrick) {
 		// Drop the content completely..
 		return '';
@@ -783,13 +787,13 @@ var stripLinkContentString = function (contentString, dp, wtEscaper) {
 			// strip the tail off the content
 			contentString = Util.stripSuffix(contentString, dp.tail);
 		}
-
-		return wtEscaper ? wtEscaper(contentString) : contentString;
+		return contentString;
 	}
 };
 
 // Helper function for getting RT data from the tokens
-var getLinkRoundTripData = function( token, attribDict, dp, tokens, tplAttrs, wtEscaper ) {
+var getLinkRoundTripData = function( token, attribDict, dp, tokens, state ) {
+	var tplAttrs = state.tplAttrs;
 	var rtData = {
 		type: null,
 		target: null, // filled in below
@@ -811,7 +815,20 @@ var getLinkRoundTripData = function( token, attribDict, dp, tokens, tplAttrs, wt
 	// Get the content string or tokens
 	var contentString = Util.tokensToString(tokens, true);
 	if (contentString.constructor === String) {
-		rtData.content.string = stripLinkContentString(contentString, dp, wtEscaper);
+		contentString = stripLinkContentString(contentString, dp);
+
+		// Wikitext-escape content.
+		//
+		// When processing link text, we are no longer in newline state
+		// since that will be preceded by "[[" or "[" text in target wikitext.
+		state.onStartOfLine = false;
+		state.emitNewlineOnNextToken = false;
+		state.wteHandlerStack.push(rtData.type && rtData.type.match(/mw:WikiLink/) ?
+			WSP.wteHandlers.wikilinkHandler :
+			WSP.wteHandlers.aHandler
+		);
+		rtData.content.string = WSP.escapeWikiText(state, contentString);
+		state.wteHandlerStack.pop();
 	} else {
 		rtData.content.tokens = tokens;
 	}
@@ -838,9 +855,7 @@ WSP._linkHandler =  function( state, tokens ) {
 		linkData;
 
 	// Get the rt data from the token and tplAttrs
-	state.wteHandlerStack.push(WSP.wteHandlers.aHandler);
-	linkData = getLinkRoundTripData(token, attribDict, dp, tokens, state.tplAttrs, WSP.escapeWikiText.bind(WSP, state));
-	state.wteHandlerStack.pop();
+	linkData = getLinkRoundTripData(token, attribDict, dp, tokens, state);
 
 	if ( linkData.type !== null && linkData.target.value !== null  ) {
 		// We have a type and target info
@@ -915,7 +930,7 @@ WSP._linkHandler =  function( state, tokens ) {
 				// First get the content source
 				var contentSrc;
 				if ( linkData.content.tokens ) {
-					contentSrc = state.serializeTokens(false, WSP.wteHandlers.aHandler, tokens).join('');
+					contentSrc = state.serializeTokens(false, WSP.wteHandlers.wikilinkHandler, tokens).join('');
 					// strip off the tail and handle the pipe trick
 					contentSrc = stripLinkContentString(contentSrc, dp);
 				} else {
