@@ -809,6 +809,9 @@ var getLinkRoundTripData = function( token, attribDict, dp, tokens, state ) {
 		}
 	}
 
+	// Save the token's "real" href for comparison
+	rtData.href = attribDict.href.replace( /^(\.\.?\/)+/, '' );
+
 	// Now get the target from rt data
 	rtData.target = token.getAttributeShadowInfo('href', tplAttrs);
 
@@ -827,7 +830,8 @@ var getLinkRoundTripData = function( token, attribDict, dp, tokens, state ) {
 			WSP.wteHandlers.wikilinkHandler :
 			WSP.wteHandlers.aHandler
 		);
-		rtData.content.string = WSP.escapeWikiText(state, contentString);
+		rtData.content.string = contentString;
+		rtData.content.escapedString = WSP.escapeWikiText(state, contentString);
 		state.wteHandlerStack.pop();
 	} else {
 		rtData.content.tokens = tokens;
@@ -886,8 +890,10 @@ WSP._linkHandler =  function( state, tokens ) {
 								// double-encoded!
 								.replace( /%20/g, ' '),
 							dp );
+					linkData.content.escapedString = linkData.content.string;
 				} else { // No sort key, will serialize to simple link
-					linkData.content.string = '';
+					linkData.content.string = target.value;
+					linkData.content.escapedString = target.value;
 				}
 
 				// Special-case handling for template-affected sort keys
@@ -898,6 +904,7 @@ WSP._linkHandler =  function( state, tokens ) {
 					var sortKeySrc = token.getAttributeShadowInfo('mw:sortKey', state.tplAttrs);
 					if ( sortKeySrc.value !== null ) {
 						linkData.content.string = sortKeySrc.value;
+						linkData.content.escapedString = sortKeySrc.value;
 					}
 				//}
 			} else if ( linkData.type === 'mw:WikiLink/Language' ) {
@@ -908,12 +915,14 @@ WSP._linkHandler =  function( state, tokens ) {
 			var canUseSimple =  // Would need to pipe for any non-string content
 								linkData.content.string !== undefined &&
 								// See if the (normalized) content matches the
-								// target
-								( linkData.content.string === target.value ||
-									env.normalizeTitle(linkData.content.string, true) ===
-										Util.decodeURI(target.value) ||
-									// Unmodified simple links
-									(! target.modified && dp.stx === 'simple') ) &&
+								// target, either shadowed or actual.
+								(	linkData.content.string === target.value ||
+									linkData.content.string === linkData.href ||
+									env.normalizeTitle( linkData.content.string, true ) ===
+										Util.decodeURI( target.value ) ||
+									env.normalizeTitle( linkData.content.string, true ) ===
+										Util.decodeURI( linkData.href ) ||
+									linkData.href === linkData.content.string ) &&
 								// but preserve non-minimal piped links
 								! ( ! target.modified &&
 										( dp.stx === 'piped' || dp.pipetrick ) );
@@ -923,7 +932,7 @@ WSP._linkHandler =  function( state, tokens ) {
 				if ( ! target.modified ) {
 					return '[[' + target.value + ']]' + linkData.tail;
 				} else {
-					return '[[' + linkData.content.string + ']]' + linkData.tail;
+					return '[[' + linkData.content.escapedString + ']]' + linkData.tail;
 				}
 			} else {
 
@@ -934,7 +943,7 @@ WSP._linkHandler =  function( state, tokens ) {
 					// strip off the tail and handle the pipe trick
 					contentSrc = stripLinkContentString(contentSrc, dp);
 				} else {
-					contentSrc = linkData.content.string;
+					contentSrc = linkData.content.escapedString;
 				}
 
 				if ( contentSrc === '' && ! dp.pipetrick ) {
