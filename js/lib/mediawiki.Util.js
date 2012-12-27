@@ -174,7 +174,7 @@ var Util = {
 	isTableTag: function(token) {
 		var tc = token.constructor;
 		return (tc === TagTk || tc === EndTagTk) &&
-			['table','tbody','th','tr','td'].indexOf(token.name) !== -1;
+			['table','tbody','caption','th','tr','td'].indexOf(token.name) !== -1;
 	},
 
 	isSolTransparent: function(token) {
