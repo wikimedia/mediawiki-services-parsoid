@@ -9,6 +9,10 @@ var HTML5 = require( 'html5' ).HTML5,
 	Node = require('./mediawiki.wikitext.constants.js').Node;
 
 var DOMUtils = {
+	isBlockNode: function(node) {
+		return node && Util.isBlockTag(node.nodeName.toLowerCase());
+	},
+
 	dataParsoid: function(n) {
 		var str = n.getAttribute("data-parsoid");
 		return str ? JSON.parse(str) : {};

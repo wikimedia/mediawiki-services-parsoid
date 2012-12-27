@@ -1377,7 +1377,8 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				dp = DU.dataParsoid(child),
 				tsr = dp.tsr,
 				oldCE = tsr ? tsr[1] : null,
-				propagateRight = false;
+				propagateRight = false,
+				stWidth = null, etWidth = null;
 
 			if (DU.hasNodeName(child, "meta")) {
 				// Unless they have been foster-parented,
@@ -1427,13 +1428,12 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 						cs = tsr[0];
 						ce = tsr[1];
 					}
-				} else if (cTypeOf == "mw:Placeholder" && ce !== null && dp.src) {
+				} else if (cTypeOf === "mw:Placeholder" && ce !== null && dp.src) {
 					cs = ce - dp.src.length;
 				}
 			} else {
 				// Non-meta tags
-				var stWidth = null, etWidth = null,
-					tagWidths, newDsr, ccs, cce;
+				var tagWidths, newDsr, ccs, cce;
 
 				if (tsr && !dp.autoInsertedStart) {
 					cs = tsr[0];
@@ -1610,6 +1610,115 @@ function computeDocDSR(root, env) {
 	}
 }
 
+function normalizeWhitespace(node) {
+
+	function recordNLCount(node, index, nlCount) {
+		var dp = DU.dataParsoid(node) || {};
+		// [dsr[0], dsr[1],
+		//  start-tag-width, end-tag-width,
+		//  node-pre-nls, node-post-nls,
+		//  subdom-pre-nls, subdom-post-nls]
+		dp.dsr = dp.dsr || [];
+		dp.dsr[index] = nlCount;
+		DU.setDataParsoid(node, dp);
+	}
+
+	// newlines and white-space is significant in PRE-nodes
+	if (node.nodeName.toLowerCase() === 'pre') {
+		return;
+	}
+
+	var child = node.firstChild;
+	while (child) {
+		// Strip non-semantic leading and trailing newlines and record it
+		var next = child.nextSibling,
+		    prev = child.previousSibling;
+
+		if (child.nodeType === Node.TEXT_NODE) {
+			var str = child.data,
+				matches, nls, meta, dp,
+			    allNLs = str.match(/^\n*$/);
+
+			// Leading nls
+			matches = str.match(/^\n+/);
+			if (matches) {
+				nls = matches[0].length;
+				if (DU.isBlockNode(prev)) {
+					recordNLCount(prev, 5, nls);
+					// We need a symmetric value on the next block-node
+					// If we cannot add one, add a placeholder meta to
+					// hold this info. for us.
+					if (!allNLs || (next && !DU.isBlockNode(next))) {
+						meta = node.ownerDocument.createElement('meta');
+						meta.setAttribute('typeof', 'mw:Placeholder');
+						dp = { 'src': '' };
+						dp.dsr = dp.dsr || [];
+						dp.dsr[4] = nls;
+						DU.setDataParsoid(meta, dp);
+						node.insertBefore(meta, child);
+						/*--------------------------------
+						// remove these leading newlines
+						// since the serializer wont strip these
+						child.data = child.data.replace(/^\n+/, '');
+						--------------------------------- */
+					}
+				} else if (!prev && !(allNLs && DU.isBlockNode(next))) {
+					// If pure-nl and we have a block next sibling, it will swallow
+					// these newlines.  Dont assign to parent
+					recordNLCount(child.parentNode, 6, nls);
+				}
+
+				// SSS: At this time, merely record the info.
+				// Later on, this can be stripped and the
+				// DOM pretty-printed if necessary
+				//
+				// child.data = str.replace(/^\n+/, '');
+			}
+
+			// Trailing nls
+			matches = str.match(/\n+$/);
+			if (matches) {
+				nls = matches[0].length;
+				if (DU.isBlockNode(next)) {
+					recordNLCount(next, 4, nls);
+					// We need a symmetric value on the previous block-node
+					// If we cannot add one, add a placeholder meta to
+					// hold this info. for us.
+					if (!allNLs || (prev && !DU.isBlockNode(prev))) {
+						meta = node.ownerDocument.createElement('meta');
+						meta.setAttribute('typeof', 'mw:Placeholder');
+						dp = { 'src': '' };
+						dp.dsr = dp.dsr || [];
+						dp.dsr[5] = nls;
+						DU.setDataParsoid(meta, dp);
+						node.insertBefore(meta, child.nextSibling);
+						/*--------------------------------
+						// remove these trailing newlines
+						// since the serializer wont strip these
+						child.data = child.data.replace(/\n+$/, '');
+						--------------------------------- */
+					}
+				} else if (!next && !(allNLs && DU.isBlockNode(prev))) {
+					// If pure-nl and we have a block prev sibling, it will have swallowed
+					// these newlines.  Dont assign to parent.
+					recordNLCount(child.parentNode, 7, nls);
+				}
+
+				// SSS: At this time, merely record the info.
+				// Later on, this can be stripped and the
+				// DOM pretty-printed if necessary
+				//
+				// child.data = str.replace(/\n+$/, '');
+			}
+		} else if (child.childNodes.length > 0) {
+			// Descend!
+			normalizeWhitespace(child);
+		}
+
+		child = next;
+	}
+}
+
 /**
  * Encapsulate template-affected DOM structures by wrapping text nodes into
  * spans and adding RDFa attributes to all subtree roots according to
@@ -1639,6 +1748,7 @@ function DOMPostProcessor(env, options) {
 		findBuilderCorrectedTags,
 		handlePres,
 		computeDocDSR,
+		normalizeWhitespace,
 		encapsulateTemplateOutput
 	];
 }
