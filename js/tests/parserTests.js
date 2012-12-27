@@ -747,19 +747,19 @@ ParserTests.prototype.printSuccess = function ( title, mode, isWhitelist, should
  */
 ParserTests.prototype.getActualExpected = function ( actual, expected, getDiff, color ) {
 	var returnStr = '';
-	expected.formattedRaw = Util.formatHTML( expected.raw );
+	expected.formattedRaw = expected.isWT ? expected.raw : Util.formatHTML( expected.raw );
 	returnStr += ( color ? 'RAW EXPECTED'.cyan : 'RAW EXPECTED' ) + ':';
 	returnStr += expected.formattedRaw + '\n';
 
-	actual.formattedRaw = Util.formatHTML( actual.raw );
+	actual.formattedRaw = actual.isWT ? actual.raw : Util.formatHTML( actual.raw );
 	returnStr += ( color ? 'RAW RENDERED'.cyan : 'RAW RENDERED' ) + ':';
 	returnStr += actual.formattedRaw + '\n';
 
-	expected.formattedNormal = Util.formatHTML( expected.normal );
+	expected.formattedNormal = expected.isWT ? expected.normal : Util.formatHTML( expected.normal );
 	returnStr += ( color ? 'NORMALIZED EXPECTED'.magenta : 'NORMALIZED EXPECTED' ) + ':';
 	returnStr += expected.formattedNormal + '\n';
 
-	actual.formattedNormal = Util.formatHTML( actual.normal );
+	actual.formattedNormal = actual.isWT ? actual.normal : Util.formatHTML( actual.normal );
 	returnStr += ( color ? 'NORMALIZED RENDERED'.magenta : 'NORMALIZED RENDERED' ) + ':';
 	returnStr += actual.formattedNormal + '\n';
 
@@ -874,8 +874,8 @@ ParserTests.prototype.checkWikitext = function ( item, out, options, mode ) {
 	normalizedOut = mode === 'html2wt' || mode === 'wt2wt' ? out.replace(/\n+$/, '') : out;
 
 	var input = mode === 'html2wt' ? item.result : item.input;
-	var expected = { normal: normalizedExpected, raw: item.input };
-	var actual = { normal: normalizedOut, raw: out, input: input };
+	var expected = { isWT: true, normal: normalizedExpected, raw: item.input };
+	var actual = { isWT: true, normal: normalizedOut, raw: out, input: input };
 
 	options.reportResult( item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item );
 };
