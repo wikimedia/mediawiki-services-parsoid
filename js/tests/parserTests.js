@@ -640,7 +640,7 @@ ParserTests.prototype.processSerializedWT = function ( item, options, mode, wiki
 
 	// Check the result vs. the expected result.
 	this.checkWikitext( item, wikitext, options, mode );
-	
+
 	// Now schedule the next test, if any
 	process.nextTick( cb );
 };
@@ -868,10 +868,10 @@ ParserTests.prototype.checkWikitext = function ( item, out, options, mode ) {
 
 	var normalizedExpected;
 	// FIXME: normalization not in place yet
-	normalizedExpected = mode === 'html2wt' ? item.input.replace(/\n+$/, '') : item.input;
+	normalizedExpected = mode === 'html2wt' || mode === 'wt2wt' ? item.input.replace(/\n+$/, '') : item.input;
 
 	// FIXME: normalization not in place yet
-	normalizedOut = mode === 'html2wt' ? out.replace(/\n+$/, '') : out;
+	normalizedOut = mode === 'html2wt' || mode === 'wt2wt' ? out.replace(/\n+$/, '') : out;
 
 	var input = mode === 'html2wt' ? item.result : item.input;
 	var expected = { normal: normalizedExpected, raw: item.input };
