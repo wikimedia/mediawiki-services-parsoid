@@ -918,9 +918,11 @@ WSP._linkHandler =  function( state, tokens ) {
 								// target, either shadowed or actual.
 								(	linkData.content.string === target.value ||
 									linkData.content.string === linkData.href ||
+									// normalize without underscores for comparison with target.value
 									env.normalizeTitle( linkData.content.string, true ) ===
 										Util.decodeURI( target.value ) ||
-									env.normalizeTitle( linkData.content.string, true ) ===
+									// normalize with underscores for comparison with href
+									env.normalizeTitle( linkData.content.string ) ===
 										Util.decodeURI( linkData.href ) ||
 									linkData.href === linkData.content.string ) &&
 								// but preserve non-minimal piped links
