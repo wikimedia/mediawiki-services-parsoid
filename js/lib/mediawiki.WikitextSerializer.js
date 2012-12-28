@@ -778,16 +778,26 @@ WSP._serializeHTMLEndTag = function ( state, token ) {
 	}
 };
 
-var stripLinkContentString = function (contentString, dp) {
+var splitLinkContentString = function (contentString, dp, target) {
+	var tail = dp.tail;
 	if (dp.pipetrick) {
 		// Drop the content completely..
-		return '';
+		return { contentString: '', tail: tail || '' };
 	} else {
-		if (dp.tail) {
-			// strip the tail off the content
-			contentString = Util.stripSuffix(contentString, dp.tail);
+		if ( target && contentString.substr( 0, target.length ) === target ) {
+			tail = contentString.substr( target.length );
 		}
-		return contentString;
+		if ( tail && contentString.substr( contentString.length - tail.length ) === tail ) {
+			// strip the tail off the content
+			contentString = Util.stripSuffix( contentString, tail );
+		} else if ( tail ) {
+			tail = '';
+		}
+
+		return {
+			contentString: contentString || '',
+			tail: tail || ''
+		};
 	}
 };
 
@@ -816,9 +826,13 @@ var getLinkRoundTripData = function( token, attribDict, dp, tokens, state ) {
 	rtData.target = token.getAttributeShadowInfo('href', tplAttrs);
 
 	// Get the content string or tokens
+	var contentParts;
 	var contentString = Util.tokensToString(tokens, true);
 	if (contentString.constructor === String) {
-		contentString = stripLinkContentString(contentString, dp);
+		contentParts = splitLinkContentString(contentString, dp, rtData.target.value);
+		contentString = contentParts.contentString;
+		rtData.tail = contentParts.tail;
+		dp.tail = contentParts.tail;
 
 		// Wikitext-escape content.
 		//
@@ -856,7 +870,7 @@ WSP._linkHandler =  function( state, tokens ) {
 		endToken = tokens.pop(),
 		attribDict = Util.KVtoHash( token.attribs ),
 		dp = token.dataAttribs,
-		linkData;
+		linkData, contentParts;
 
 	// Get the rt data from the token and tplAttrs
 	linkData = getLinkRoundTripData(token, attribDict, dp, tokens, state);
@@ -883,14 +897,17 @@ WSP._linkHandler =  function( state, tokens ) {
 					target.value = targetParts[1]
 						.replace( /^(\.\.?\/)*/, '' )
 						.replace(/_/g, ' ');
-					linkData.content.string = stripLinkContentString(
+					contentParts = splitLinkContentString(
 							Util.decodeURI( targetParts[2] )
 								.replace( /%23/g, '#' )
 								// gwicke: verify that spaces are really
 								// double-encoded!
 								.replace( /%20/g, ' '),
 							dp );
-					linkData.content.escapedString = linkData.content.string;
+					linkData.content.string = contentParts.contentString;
+					linkData.content.escapedString = contentParts.contentString;
+					dp.tail = contentParts.tail;
+					linkData.tail = contentParts.tail;
 				} else { // No sort key, will serialize to simple link
 					linkData.content.string = target.value;
 					linkData.content.escapedString = target.value;
@@ -943,7 +960,10 @@ WSP._linkHandler =  function( state, tokens ) {
 				if ( linkData.content.tokens ) {
 					contentSrc = state.serializeTokens(false, WSP.wteHandlers.wikilinkHandler, tokens).join('');
 					// strip off the tail and handle the pipe trick
-					contentSrc = stripLinkContentString(contentSrc, dp);
+					contentParts = splitLinkContentString(contentSrc, dp);
+					contentSrc = contentParts.contentString;
+					dp.tail = contentParts.tail;
+					linkData.tail = contentParts.tail;
 				} else {
 					contentSrc = linkData.content.escapedString;
 				}
