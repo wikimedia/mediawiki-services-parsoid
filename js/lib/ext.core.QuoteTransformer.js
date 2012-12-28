@@ -1,8 +1,6 @@
 "use strict";
 /*
  * MediaWiki-compatible italic/bold handling as a token stream transformation.
- *
- * @author Gabriel Wicke <gwicke@wikimedia.org>
  */
 
 var Util = require('./mediawiki.Util.js').Util;

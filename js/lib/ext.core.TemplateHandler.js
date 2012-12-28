@@ -7,9 +7,6 @@
  * individual transforms from concurrency issues. Template expansion is
  * controlled using a tplExpandData structure created independently for each
  * handled template tag.
- *
- * @author Gabriel Wicke <gwicke@wikimedia.org>
- * @author Brion Vibber <brion@wikimedia.org>
  */
 var events = require('events'),
 	ParserFunctions = require('./ext.core.ParserFunctions.js').ParserFunctions,

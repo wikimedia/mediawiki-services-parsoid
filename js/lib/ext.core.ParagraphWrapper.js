@@ -3,9 +3,6 @@
  * Insert paragraph tags where needed -- smartly and carefully
  * -- there is much fun to be had mimicking "wikitext visual newlines"
  * behavior as implemented by the PHP parser.
- *
- * @author Gabriel Wicke <gwicke@wikimedia.org>
- * @author Subramanya Sastry <ssastry@wikimedia.org>
  */
 
 // Include general utilities

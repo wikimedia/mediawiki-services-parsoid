@@ -13,8 +13,6 @@
  *     exprTests.txt
  *     funcsParserTests.txt
  *     stringFunctionTests.txt
- *
- * @author Gabriel Wicke <gwicke@wikimedia.org>
  */
 
 "use strict";

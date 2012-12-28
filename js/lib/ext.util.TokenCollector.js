@@ -6,9 +6,6 @@
  * stages (SyncTokenTransformManager), as async out-of-order expansions
  * would wreak havoc with this kind of collector.
  *
- * @author Gabriel Wicke <gwicke@wikimedia.org>
- * @author Subramanya Sastry <ssastry@wikimedia.org>
- *
  * Calls the passed-in callback with the collected tokens.
  */
 

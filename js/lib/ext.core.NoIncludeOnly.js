@@ -2,8 +2,6 @@
 /**
  * Simple noinclude / onlyinclude implementation. Strips all tokens in
  * noinclude sections.
- *
- * @author Gabriel Wicke <gwicke@wikimedia.org>
  */
 
 var Collector = require( './ext.util.TokenAndAttrCollector.js' ).TokenAndAttrCollector;
