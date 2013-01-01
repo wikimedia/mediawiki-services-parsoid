@@ -59,7 +59,7 @@ FauxHTML5.TreeBuilder.prototype.onEnd = function ( ) {
 	// Check if the EOFTk actually made it all the way through, and flag the
 	// page where it did not!
 	if ( this.lastToken && this.lastToken.constructor !== EOFTk ) {
-		this.env.errCB( "EOFTk was lost in page " + this.env.pageName );
+		this.env.errCB( "EOFTk was lost in page " + this.env.page.name );
 	}
 
 	//console.warn('Fauxhtml5 onEnd');

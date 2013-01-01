@@ -680,17 +680,17 @@ ParserFunctions.prototype.pf_pagenamee = function ( token, frame, cb, args ) {
 };
 ParserFunctions.prototype.pf_fullpagename = function ( token, frame, cb, args ) {
 	var target = args[0].k;
-	cb( { tokens: [target || this.env.pageName ] } );
+	cb( { tokens: [target || this.env.page.name || '' ] } );
 };
 ParserFunctions.prototype.pf_fullpagenamee = function ( token, frame, cb, args ) {
 	var target = args[0].k;
-	cb( { tokens: [ target || this.env.pageName ] } );
+	cb( { tokens: [ target || this.env.page.name || '' ] } );
 };
 // This should be doable with the information in the envirionment
 // (this.env) already.
 ParserFunctions.prototype.pf_fullurl = function ( token, frame, cb, args ) {
 	var target = args[0].k;
-	cb( { tokens: [ target || this.env.wgScriptPath + this.env.pageName || "http://example.com/fixme/" ] } );
+	cb( { tokens: [ target || this.env.wgScriptPath + this.env.page.name || "http://example.com/fixme/" ] } );
 };
 ParserFunctions.prototype.pf_urlencode = function ( token, frame, cb, args ) {
 	var target = args[0].k;
@@ -753,16 +753,16 @@ ParserFunctions.prototype.pf_namespacee = function ( token, frame, cb, args ) {
 	cb( { tokens: [target.split(':').pop() || 'Main'] } );
 };
 ParserFunctions.prototype.pf_pagename = function ( token, frame, cb, args ) {
-	cb( { tokens: [this.env.pageName || ''] } );
+	cb( { tokens: [this.env.page.name || ''] } );
 };
 ParserFunctions.prototype.pf_pagenamebase = function ( token, frame, cb, args ) {
-	cb( { tokens: [this.env.pageName || ''] } );
+	cb( { tokens: [this.env.page.name || ''] } );
 };
 ParserFunctions.prototype.pf_scriptpath = function ( token, frame, cb, args ) {
 	cb( { tokens: [this.env.wgScriptPath] } );
 };
 ParserFunctions.prototype.pf_talkpagename = function ( token, frame, cb, args ) {
-	cb( { tokens: [this.env.pageName.replace(/^[^:]:/, 'Talk:' ) || ''] } );
+	cb( { tokens: [this.env.page.name.replace(/^[^:]:/, 'Talk:' ) || ''] } );
 };
 
 // TODO: #titleparts, SUBJECTPAGENAME, BASEPAGENAME. SUBPAGENAME, DEFAULTSORT

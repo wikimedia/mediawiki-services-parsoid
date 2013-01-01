@@ -325,9 +325,7 @@ WSP.initialState = {
 		hasHeadingPair: false
 	},
 	selser: {
-		serializeInfo: null,
-		dpsStartCB: function(){},
-		dpsEndCB: function(){}
+		serializeInfo: null
 	},
 	serializeTokens: function(newLineStart, wteHandler, tokens, chunkCB) {
 		// newLineStart -- sets newline and sol state
@@ -1088,7 +1086,12 @@ WSP._linkHandler =  function( state, tokens ) {
 	//	return '[' + rtinfo.
 };
 
-WSP.genContentSpanTypes = { 'mw:Nowiki':1, 'mw:Entity': 1, 'mw:ChangeMarkerWrapper': 1 };
+WSP.genContentSpanTypes = {
+	'mw:Nowiki':1,
+	'mw:Entity': 1,
+	'mw:DiffWrapper': 1,
+	'mw:SerializeWrapper': 1
+};
 
 /**
  * Compare the actual content with the previous content and use
@@ -1598,6 +1601,7 @@ WSP._serializeAttributes = function (state, token) {
 			// them here too just to make sure.
 			'data-parsoid': 1,
 			'data-ve-changed': 1,
+			'data-parsoid-diff': 1,
 			'data-parsoid-serialize': 1
 		};
 
@@ -1899,7 +1903,7 @@ WSP._serializeToken = function ( state, token ) {
 	if ( res === undefined || res === null || res.constructor !== String ) {
 		console.error("-------- Warning: Serializer error --------");
 		console.error("TOKEN: " + JSON.stringify(token));
-		console.error(state.env.pageName + ": res was undefined or not a string!");
+		console.error(state.env.page.name + ": res was undefined or not a string!");
 		console.error(JSON.stringify(res));
 		console.trace();
 		res = '';
@@ -2267,17 +2271,9 @@ WSP._serializeDOM = function( node, state ) {
 				);
 
 				if ( dps ) {
-					newNLs = state.selser.dpsStartCB(dps);
-					if ( newNLs !== undefined ) {
-						console.log('newNLs', newNLs);
-						state.onNewline = true;
-						state.onStartOfLine = true;
-					}
+					state.selser.serializeInfo = dps;
 				}
 				this._serializeToken(state, dummyToken);
-				if ( dps ) {
-					state.selser.dpsEndCB(dps);
-				}
 				return;
 			}
 		}
@@ -2356,13 +2352,7 @@ WSP._serializeDOM = function( node, state ) {
 			var serializeInfo = null;
 			if ( state.selser.serializeInfo === null ) {
 				serializeInfo = node.getAttribute( 'data-parsoid-serialize' ) || null;
-				newNLs = state.selser.dpsStartCB(serializeInfo);
-				if ( newNLs !== undefined ) {
-					console.log('newNLs',  newNLs);
-					state.onNewline = true;
-					state.onStartOfLine = true;
-				}
-
+				state.selser.serializeInfo = serializeInfo;
 			}
 
 			// Serialize the start token
@@ -2446,7 +2436,7 @@ WSP._serializeDOM = function( node, state ) {
 			}
 
 			if ( serializeInfo !== null ) {
-				state.selser.dpsEndCB(serializeInfo);
+				state.selser.serializeInfo = null;
 			}
 
 			break;

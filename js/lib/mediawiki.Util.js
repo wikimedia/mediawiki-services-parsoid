@@ -565,8 +565,9 @@ var Util = {
 		}
 		// Strip 'end' tokens and trailing newlines
 		var l = tokens[tokens.length - 1];
-		if ( l.constructor === EOFTk || l.constructor === NlTk ||
-				( l.constructor === String && l.match( /^\s+$/ ) ) ) {
+		if ( l && (
+			l.constructor === EOFTk || l.constructor === NlTk ||
+				( l.constructor === String && l.match( /^\s+$/ ) ) ) ) {
 			var origTokens = tokens;
 			tokens = origTokens.slice();
 			tokens.rank = origTokens.rank;

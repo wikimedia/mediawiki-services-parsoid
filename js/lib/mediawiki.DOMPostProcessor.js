@@ -426,7 +426,7 @@ function handleUnbalancedTableTags(node, env, tplIdToSkip) {
 				if (dpSrc === null || dpSrc === "") {
 					// TODO: Figure out why there is no data-parsoid here!
 					console.error( "XXX Error in handleUnbalancedTableTags: no data-parsoid found! " +
-							env.pageName );
+							env.page.name );
 					dpSrc = '{}';
 				}
 

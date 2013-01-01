@@ -390,12 +390,12 @@ app.get( new RegExp('/_rt/(' + getInterwikiRE() + ')/(.*)'), function(req, res) 
 
 	req.connection.setTimeout(300 * 1000);
 
-	if ( env.pageName === 'favicon.ico' ) {
+	if ( env.page.name === 'favicon.ico' ) {
 		res.send( 'no favicon yet..', 404 );
 		return;
 	}
 
-	var target = env.resolveTitle( env.normalizeTitle( env.pageName ), '' );
+	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
 	console.log('starting parsing of ' + target);
 	var oldid = null;
@@ -416,12 +416,12 @@ app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)') , function(req, re
 	env.wgScriptPath = '/_rtve/' + req.params[0] + '/';
 	env.wgScript = env.interwikiMap[req.params[0]];
 
-	if ( env.pageName === 'favicon.ico' ) {
+	if ( env.page.name === 'favicon.ico' ) {
 		res.send( 'no favicon yet..', 404 );
 		return;
 	}
 
-	var target = env.resolveTitle( env.normalizeTitle( env.pageName ), '' );
+	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
 	console.log('starting parsing of ' + target);
 	var oldid = null;
@@ -474,11 +474,11 @@ app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 	env.wgScriptPath = '/' + req.params[0] + '/';
 	env.wgScript = env.interwikiMap[req.params[0]];
 
-	if ( env.pageName === 'favicon.ico' ) {
+	if ( env.page.name === 'favicon.ico' ) {
 		res.send( 'no favicon yet..', 404 );
 		return;
 	}
-	var target = env.resolveTitle( env.normalizeTitle( env.pageName ), '' );
+	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
 	// Set the timeout to 900 seconds..
 	req.connection.setTimeout(900 * 1000);
@@ -538,8 +538,8 @@ app.get( /\/_ci\/master/, function ( req, res ) {
  */
 app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function ( req, res ) {
 	var env = Util.getParserEnv( localSettings, res );
-	var oldid = req.body.oldid || null;
 	env.setPageName( req.params[1] );
+	env.page.id = req.body.oldid || null;
 	env.wgScriptPath = '/';
 	setDefaultWiki( localSettings, env );
 	env.wgScript = env.interwikiMap[req.params[0]];

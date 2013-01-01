@@ -392,7 +392,7 @@ fetch = function ( page, cb, options ) {
 		options.setup( env );
 	}
 
-	var target = env.resolveTitle( env.normalizeTitle( env.pageName ), '' );
+	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 	var tpr = new TemplateRequest( env, target, null );
 
 	tpr.once( 'src', function ( err, src ) {

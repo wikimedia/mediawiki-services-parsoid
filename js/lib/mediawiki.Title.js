@@ -14,10 +14,10 @@ function Title ( key, ns, nskey, env ) {
 Title.prototype.makeLink = function () {
 	// XXX: links always point to the canonical namespace name.
 	if ( false && this.nskey ) {
-		return Util.sanitizeTitleURI( this.env.relativeLinkPrefix +
+		return Util.sanitizeTitleURI( this.env.page.relativeLinkPrefix +
 				this.nskey + ':' + this.key );
 	} else {
-		var l = this.env.relativeLinkPrefix,
+		var l = this.env.page.relativeLinkPrefix,
 			ns = this.ns.getDefaultName();
 
 		if ( ns ) {

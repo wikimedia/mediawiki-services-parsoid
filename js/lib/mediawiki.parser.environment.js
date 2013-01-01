@@ -61,10 +61,17 @@ Tracer.prototype = {
 };
 
 var MWParserEnvironment = function(opts) {
+	// The parser environment really serves several distinct purposes currently:
+	// - it holds config data which is not modified at runtime -> a config object
+	// - it provides debugging objects -> can be part of config (immutable)
+	// - the page name, src, oldid etc is held -> a page object
+	// - global per-execution state: page cache, uid
+	// TODO: disentangle these!
+
 	var options = {
+		// config
 		tagHooks: {},
 		parserFunctions: {},
-		pageCache: {}, // @fixme use something with managed space
 		debug: false,
 		trace: false,
 		wgScriptPath: "/wiki/",
@@ -73,17 +80,28 @@ var MWParserEnvironment = function(opts) {
 		wgScriptExtension: ".php",
 		fetchTemplates: false,
 		maxDepth: 40,
-		pageName: 'Main page',
 		interwikiMap: interwikiMap,
 		interwikiRegexp: Object.keys(interwikiMap).join('|'),
 		usePHPPreProcessor: false,
+
+		// page information
+		page: {
+			name: 'Main page',
+			relativeLinkPrefix: '',
+			id: null,
+			src: null,
+			dom: null
+		},
+
+		// execution state
+		pageCache: {}, // @fixme use something with managed space
 		uid: 1
 	};
 	// XXX: this should be namespaced
 	$.extend(options, opts);
 	$.extend(this, options);
 
-	this.setPageName( this.pageName );
+	this.setPageName( this.page.name );
 
 	// Tracing object
 	this.tracer = new Tracer(this);
@@ -103,22 +121,22 @@ MWParserEnvironment.prototype.removeInterwiki = function (prefix) {
 MWParserEnvironment.prototype.requestQueue = {};
 
 MWParserEnvironment.prototype.setPageName = function ( pageName ) {
-	this.pageName = pageName;
+	this.page.name = pageName;
 	// Construct a relative link prefix depending on the number of slashes in
 	// pageName
-	this.relativeLinkPrefix = '';
-	var slashMatches = this.pageName.match(/\//g),
+	this.page.relativeLinkPrefix = '';
+	var slashMatches = this.page.name.match(/\//g),
 		numSlashes = slashMatches ? slashMatches.length : 0;
 	if ( numSlashes ) {
 		while ( numSlashes ) {
-			this.relativeLinkPrefix += '../';
+			this.page.relativeLinkPrefix += '../';
 			numSlashes--;
 		}
 	} else {
 		// Always prefix a ./ so that we don't have to escape colons. Those
 		// would otherwise fool browsers into treating namespaces as
 		// protocols.
-		this.relativeLinkPrefix = './';
+		this.page.relativeLinkPrefix = './';
 	}
 };
 
@@ -236,7 +254,7 @@ MWParserEnvironment.prototype.resolveTitle = function( name, namespace ) {
 	var relUp = name.match(/^(\.\.\/)+/);
 	if ( relUp ) {
 		var levels = relUp[0].length / 3,
-			titleBits = this.pageName.split(/\//),
+			titleBits = this.page.name.split(/\//),
 			newBits = titleBits.slice(0, titleBits.length - levels);
 		if ( name !== relUp[0] ) {
 			newBits.push( name.substr(levels * 3) );
@@ -246,7 +264,7 @@ MWParserEnvironment.prototype.resolveTitle = function( name, namespace ) {
 	}
 
 	if ( name.length && name[0] === '/' ) {
-		name = this.normalizeTitle( this.pageName ) + name;
+		name = this.normalizeTitle( this.page.name ) + name;
 	}
 	// FIXME: match against proper list of namespaces
 	if ( name.indexOf(':') === -1 && namespace ) {
@@ -333,7 +351,7 @@ MWParserEnvironment.prototype.isParsoidObjectId = function(aboutId) {
  * call it from places you notice errors happening.
  */
 MWParserEnvironment.prototype.errCB = function ( error ) {
-	console.log( 'ERROR in ' + this.pageName + ':\n' + error.stack );
+	console.log( 'ERROR in ' + this.page.name + ':\n' + error.stack );
 	process.exit( 1 );
 };
 

@@ -179,9 +179,10 @@ function dumpFlags() {
 		// XXX: add options for this!
 		wgUploadPath: 'http://upload.wikimedia.org/wikipedia/commons',
 		fetchTemplates: argv.fetchTemplates,
-		maxDepth: argv.maxdepth,
-		pageName: argv.pagename
+		maxDepth: argv.maxdepth
 	}, argv));
+
+	env.setPageName(argv.pagename);
 
 	// Init parsers, serializers, etc.
 	var parserPipeline,

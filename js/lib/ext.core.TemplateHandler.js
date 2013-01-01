@@ -73,7 +73,7 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 						cb, text, [] );
 			//console.log( text );
 			cb( { async: true } );
-			this.fetchExpandedTplOrExtension( this.manager.env.pageName || '',
+			this.fetchExpandedTplOrExtension( this.manager.env.page.name || '',
 					text, PreprocessorRequest, cb, srcHandler);
 		} else {
 			// We don't perform recursive template expansion- something
@@ -409,7 +409,7 @@ TemplateHandler.prototype._onChunk = function( state, cb, chunk ) {
 	for (i = 0, n = chunk.length; i < n; i++) {
 		// FIXME: This modifies without cloning! Instead, move the tsr
 		// clearing to an earlier stage before the tokens enter the cache.
-		if (chunk[i].dataAttribs && chunk[i].dataAttribs.tsr ) {
+		if (chunk[i] && chunk[i].dataAttribs && chunk[i].dataAttribs.tsr ) {
 			if ( Object.isFrozen( chunk[i] ) ) {
 				if ( ! Object.isFrozen( chunk ) ) {
 					env.tp( 'TemplateHandler: Cloning object for tsr' );

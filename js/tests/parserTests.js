@@ -298,16 +298,19 @@ ParserTests.prototype.processArticle = function( item, cb ) {
 ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, processWikitextCB ) {
 	// In some cases (which?) the full document is passed in, but we are
 	// interested in the body. So check if we got a document.
-	var content = doc.nodeType === doc.DOCUMENT_NODE ? doc.body : doc;
-	var serializer = mode === 'selser' ? this.selectiveSerializer : this.serializer;
-	var wt = '';
-	var changelist = [];
-	var waiting = 0;
-	var changesReturn;
+	var content = doc.nodeType === doc.DOCUMENT_NODE ? doc.body : doc,
+		serializer = (mode === 'selser') ? new SelectiveSerializer({env: this.env})
+										: new WikitextSerializer({env: this.env}),
+		wt = '',
+		changelist = [],
+		waiting = 0,
+		changesReturn,
+		self = this;
 	try {
 		if ( mode === 'selser' ) {
-			serializer.oldtext = item.input;
-			serializer.target = null;
+			this.env.page.src = item.input;
+			this.env.page.dom = item.cachedHTML;
+			this.env.page.name = '';
 			if ( options.changesin && item.changes === undefined ) {
 				// A changesin option was passed, so set the changes to 0,
 				// so we don't try to regenerate the changes.
@@ -320,11 +323,14 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
 			wt += res;
 		}, function () {
 			processWikitextCB( null, wt );
-			delete serializer.oldtext;
+			self.env.page.src = null;
+			self.env.page.dom = null;
 		} );
 	} catch ( e ) {
+		console.error(e.stack);
 		processWikitextCB( e, null );
-		delete serializer.oldtext;
+		this.env.page.src = null;
+		this.env.page.dom = null;
 	}
 };
 
@@ -873,12 +879,13 @@ ParserTests.prototype.checkWikitext = function ( item, out, options, mode ) {
 		item.input = item.resultWT;
 	}
 
-	var normalizedExpected;
+	var normalizedExpected
+		toWikiText = mode === 'html2wt' || mode === 'wt2wt' || mode === 'selser';
 	// FIXME: normalization not in place yet
-	normalizedExpected = mode === 'html2wt' || mode === 'wt2wt' ? item.input.replace(/\n+$/, '') : item.input;
+	normalizedExpected = toWikiText ? item.input.replace(/\n+$/, '') : item.input;
 
 	// FIXME: normalization not in place yet
-	normalizedOut = mode === 'html2wt' || mode === 'wt2wt' ? out.replace(/\n+$/, '') : out;
+	normalizedOut = toWikiText ? out.replace(/\n+$/, '') : out;
 
 	var input = mode === 'html2wt' ? item.result : item.input;
 	var expected = { isWT: true, normal: normalizedExpected, raw: item.input };

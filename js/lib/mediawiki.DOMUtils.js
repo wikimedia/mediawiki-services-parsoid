@@ -23,13 +23,17 @@ var DOMUtils = {
 		return n;
 	},
 
-	getJSONAttribute: function(n, name) {
+	getJSONAttribute: function(n, name, defaultVal) {
+		var attVal = n.getAttribute(name);
+		if (!attVal) {
+			return defaultVal !== undefined ? defaultVal : {};
+		}
 		try {
-			return JSON.parse(n.getAttribute(name));
+			return JSON.parse(attVal);
 		} catch(e) {
 			console.warn('ERROR: Could not decode attribute ' +
 					name + ' on node ' + n);
-			return {};
+			return defaultVal !== undefined ? defaultVal : {};
 		}
 	},
 
@@ -217,7 +221,74 @@ var DOMUtils = {
 				console.warn( "Unhandled node type: " + node.outerHTML );
 				break;
 		}
+	},
+
+	/**
+	 * Helper function to check for a change marker in data-ve-changed structure
+	 */
+	hasChangeMarker: function( dvec ) {
+		return dvec && (
+				dvec['new'] || dvec.attributes ||
+				dvec.content || dvec.annotations ||
+				dvec.childrenRemoved || dvec.rebuilt
+				);
+	},
+
+	hasCurrentDiffMark: function(node, env) {
+		if( node.nodeType !== node.ELEMENT_NODE ) {
+			return false;
+		}
+		var dpd = this.getJSONAttribute(node, 'data-parsoid-diff', null);
+		return dpd !== null && dpd.id === env.page.id;
+	},
+
+	setDiffMark: function(node, env, change) {
+		var dpd = this.getJSONAttribute(node, 'data-parsoid-diff', null);
+		if (dpd !== null && dpd.id === env.page.id) {
+			// Diff is up to date, append this change
+			dpd.diff.push(change);
+		} else {
+			// Was an old diff entry or no diff at all, reset
+			dpd = {
+				// The base page revision this change happened on
+				id: env.page.id,
+				diff: [change]
+			};
+		}
+
+		// Add serialization info to this node
+		this.setJSONAttribute(node, 'data-parsoid-diff', dpd);
+	},
+
+	/**
+	 * Is a node representing inter-element ws?
+	 */
+	isIEW: function (node) {
+		return node.nodeType === node.TEXT_NODE &&
+			// ws-only
+			node.nodeValue.match(/^\s*$/) &&
+			// Node preceded by element sibling and followed by element or no sibling
+			((node.previousSibling !== null &&
+				node.previousSibling.nodeType === node.ELEMENT_NODE &&
+			  (node.nextSibling === null || node.nextSibling.nodeType === node.ELEMENT_NODE)) ||
+			 // First child followed by an element sibling
+			 (node.previousSibling === null &&
+			  (node.nextSibling && node.nextSibling.nodeType === node.ELEMENT_NODE)));
+	},
+
+
+	wrapTextInSpan: function(node, type) {
+		var wrapperSpanNode = node.ownerDocument.createElement('span');
+		wrapperSpanNode.setAttribute('typeof', type);
+		// insert the span
+		node.parentNode.insertBefore(wrapperSpanNode, node);
+		// move the node into the wrapper span
+		wrapperSpanNode.appendChild(node);
+		return wrapperSpanNode;
 	}
+
+
+
 };
 
 if (typeof module === "object") {
