@@ -35,7 +35,7 @@ var WT_TagWidths = {
 	"i"     : [2, 2],
 	"td"    : [null, 0],
 	"th"    : [null, 0],
-	"br"    : [2,0] // non-html <br>s are inserted to replace 2 newlines in wikitext
+	"br"    : [1,0]
 	// span, figure, caption, figcaption, br, a, i, b
 };
 
@@ -338,7 +338,7 @@ function normalizeDocument(document) {
  *   means the outermost table will protected).  This is no different from
  *   how it handles all other templates.
  * ------------------------------------------------------------------------ */
-function patchUpDOM(node, env, tplIdToSkip) {
+function handleUnbalancedTableTags(node, env, tplIdToSkip) {
 
 	function collectTplsTillFarthestBadTemplate(node, tpls) {
 		var currTpl = tpls.length > 0 ? tpls.last() : null;
@@ -409,7 +409,7 @@ function patchUpDOM(node, env, tplIdToSkip) {
 		} else if (DU.isMarkerMeta(c, "mw:EndTag") &&
 			c.getAttribute("data-etag") === "table")
 		{
-			// console.warn("---- found table etag: " + c.outerHTML);
+			// console.warn("---- found table etag: " + c.innerHTML);
 			// Find all templates from here till the farthest template
 			// that is the source of all trouble
 			var allTpls = [];
@@ -425,7 +425,7 @@ function patchUpDOM(node, env, tplIdToSkip) {
 
 				if (dpSrc === null || dpSrc === "") {
 					// TODO: Figure out why there is no data-parsoid here!
-					console.error( "XXX Error in patchUpDOM: no data-parsoid found! " +
+					console.error( "XXX Error in handleUnbalancedTableTags: no data-parsoid found! " +
 							env.pageName );
 					dpSrc = '{}';
 				}
@@ -444,7 +444,7 @@ function patchUpDOM(node, env, tplIdToSkip) {
 			}
 		} else if (c.nodeType === Node.ELEMENT_NODE) {
 			// Look at c's subtree
-			patchUpDOM(c, env, tplIdToSkip);
+			handleUnbalancedTableTags(c, env, tplIdToSkip);
 		}
 
 		c = c.previousSibling;
@@ -495,10 +495,10 @@ function handlePres(document, env) {
 	}
 
 	function findAndHandlePres(doc, elt, indentPresHandled) {
-		var children = elt.childNodes;
+		var children = elt.childNodes, n;
 		for (var i = 0; i < children.length; i++) {
 			var processed = false;
-			var n = children[i];
+			n = children[i];
 			if (!indentPresHandled) {
 				if (n.nodeType === Node.ELEMENT_NODE) {
 					if (Util.tagOpensBlockScope(n.nodeName.toLowerCase())) {
@@ -542,6 +542,74 @@ function handlePres(document, env) {
 	findAndHandlePres(document, document.body, false);
 }
 
+// Migrate trailing newlines out of
+function migrateTrailingNLs(elt, env) {
+	// These nodes either end a line in wikitext (tr, li, dd, ol, ul, dl, caption, p)
+	// or have implicit closing tags that can leak newlines to those that end a line (th, td)
+	var nodesToMigrateFrom = Util.arrayToHash([
+		"th", "td", "tr", "li", "dd", "ol", "ul", "dl", "caption", "p"
+	]);
+
+	if (DU.hasNodeName(elt, "pre")) {
+		return;
+	}
+
+	// 1. Process DOM rooted at 'elt' first
+	var children = elt.childNodes;
+	for (var i = 0; i < children.length; i++) {
+		migrateTrailingNLs(children[i], env);
+	}
+
+	// 2. Process 'elt' itself after -- skip literal-HTML nodes
+	if (nodesToMigrateFrom[elt.nodeName.toLowerCase()] && !DU.isLiteralHTMLNode(elt)) {
+		var firstEltToMigrate = null,
+			partialContent = false,
+			n = elt.lastChild;
+
+		// Find nodes that need to be migrated out:
+		// - a sequence of comment and newline nodes that is preceded by
+		//   a non-migratable node (text node with non-white-space content
+		//   or an element node).
+		while (n && (n.nodeType === Node.TEXT_NODE || n.nodeType === Node.COMMENT_NODE)) {
+			if (n.nodeType === Node.COMMENT_NODE) {
+				firstEltToMigrate = n;
+			} else {
+				if (n.data.match(/^\s+$/)) {
+					firstEltToMigrate = n;
+					partialContent = false;
+				} else if (n.data.match(/\n$/)) {
+					firstEltToMigrate = n;
+					partialContent = true;
+					break;
+				} else {
+					break;
+				}
+			}
+
+			n = n.previousSibling;
+		}
+
+		if (firstEltToMigrate) {
+			var eltParent = elt.parentNode,
+				insertPosition = elt.nextSibling;
+
+			n = firstEltToMigrate;
+			while (n) {
+				var next = n.nextSibling;
+				if (partialContent) {
+					var nls = n.data;
+					n.data = n.data.replace(/\n*$/, '');
+					nls = nls.substring(n.data.length);
+					n = n.ownerDocument.createTextNode(nls);
+					partialContent = false;
+				}
+				eltParent.insertBefore(n, insertPosition);
+				n = next;
+			}
+		}
+	}
+}
+
 // If the last child of a node is a start-meta, simply
 // move it up and make it the parent's sibling.
 // This will move the start-meta closest to the content
@@ -559,7 +627,7 @@ function migrateStartMetas(node, env) {
 
 	var lastChild = node.lastChild;
 	if (lastChild && DU.isTplStartMarkerMeta(lastChild)) {
-		// console.warn("migration: " + lastChild.outerHTML);
+		// console.warn("migration: " + lastChild.innerHTML);
 
 		// We can migrate the meta-tag across this node's end-tag barrier only
 		// if that end-tag is zero-width.
@@ -583,7 +651,7 @@ function migrateStartMetas(node, env) {
 		// var data = lastChild.data;
 		lastChild = lastChild.previousSibling;
 		if (lastChild && DU.isTplStartMarkerMeta(lastChild)) {
-			// console.warn("migration (thwarted by: '" + data + "', len: " + data.length + "): " + lastChild.outerHTML);
+			// console.warn("migration (thwarted by: '" + data + "', len: " + data.length + "): " + lastChild.innerHTML);
 			var p = node.parentNode;
 			p.insertBefore(lastChild, node.nextSibling);
 		}
@@ -596,8 +664,10 @@ function migrateStartMetas(node, env) {
  * Find the common DOM ancestor of two DOM nodes
  */
 function getDOMRange( env, doc, startElem, endMeta, endElem ) {
+	var startElemIsMeta = DU.hasNodeName(startElem, "meta");
+
 	// Detect empty content
-	if (startElem.nextSibling === endElem) {
+	if (startElemIsMeta && startElem.nextSibling === endElem) {
 		var emptySpan = doc.createElement('span');
 		startElem.parentNode.insertBefore(emptySpan, endElem);
 	}
@@ -641,7 +711,7 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 	var tcStart = res.start;
 
 	// Skip meta-tags
-	if (tcStart === startElem && DU.hasNodeName(startElem, "meta")) {
+	if (startElemIsMeta && tcStart === startElem) {
 		tcStart = tcStart.nextSibling;
 		res.start = tcStart;
 		updateDP = true;
@@ -754,12 +824,12 @@ function encapsulateTemplates( env, doc, tplRanges) {
 			r = tplRanges[i];
 /**
 		console.warn("##############################################");
-		console.warn("range " + i + "; r-start-elem: " + r.startElem.outerHTML);
-		console.warn("range " + i + "; r-end-elem: " + r.endElem.outerHTML);
+		console.warn("range " + i + "; r-start-elem: " + r.startElem.innerHTML);
+		console.warn("range " + i + "; r-end-elem: " + r.endElem.innerHTML);
 		console.warn("-----------------------------");
-		console.warn("range " + i + "; r-start: " + r.start.outerHTML);
+		console.warn("range " + i + "; r-start: " + r.start.innerHTML);
 		console.warn("-----------------------------");
-		console.warn("range " + i + "; r-end: " + r.end.outerHTML);
+		console.warn("range " + i + "; r-end: " + r.end.innerHTML);
 		console.warn("-----------------------------");
 */
 		if (!prev) {
@@ -825,6 +895,8 @@ function encapsulateTemplates( env, doc, tplRanges) {
 			about = startElem.getAttribute('about');
 		//console.log ( 'HTML of template-affected subtrees: ' );
 		while (n) {
+			var next = n.nextSibling;
+
 			if ( n.nodeType === Node.TEXT_NODE || n.nodeType === Node.COMMENT_NODE ) {
 				span = doc.createElement( 'span' );
 				span.setAttribute( 'about', about );
@@ -842,7 +914,7 @@ function encapsulateTemplates( env, doc, tplRanges) {
 				break;
 			}
 
-			n = n.nextSibling;
+			n = next;
 		}
 
 		// update type-of
@@ -855,10 +927,10 @@ function encapsulateTemplates( env, doc, tplRanges) {
 		}
 
 /*
-		console.log("startElem: " + startElem.outerHTML);
-		console.log("endElem: " + range.endElem.outerHTML);
-		console.log("tcStart: " + tcStart.outerHTML);
-		console.log("tcEnd: " + tcEnd.outerHTML);
+		console.log("startElem: " + startElem.innerHTML);
+		console.log("endElem: " + range.endElem.innerHTML);
+		console.log("tcStart: " + tcStart.innerHTML);
+		console.log("tcEnd: " + tcEnd.innerHTML);
 */
 
 		// Update dsr and compute src based on dsr.  Not possible always.
@@ -917,9 +989,9 @@ function encapsulateTemplates( env, doc, tplRanges) {
 		if (!done) {
 			console.warn("Do not have necessary info. for comput DSR for node");
 			console.warn("------ START: ------");
-			console.warn(tcStart.outerHTML);
+			console.warn(tcStart.innerHTML);
 			console.warn("------ END: ------");
-			console.warn(tcEnd.outerHTML);
+			console.warn(tcEnd.innerHTML);
 		}
 
 		// Compute 'src' value by ascending up the tree
@@ -972,7 +1044,7 @@ function findTableSibling( elem, about ) {
 		elem = elem.nextSibling;
 	}
 
-	//if (elem) console.log( 'tableNode found' + elem.outerHTML );
+	//if (elem) console.log( 'tableNode found' + elem.innerHTML );
 	return elem;
 }
 
@@ -1154,7 +1226,7 @@ function findBuilderCorrectedTags(node) {
 				var metaNode = findMetaShadowNode(c, 'mw:EndTag', cNodeName);
 				if (!metaNode)
 				{
-					//console.log( c.nodeName, c.parentNode.outerHTML );
+					//console.log( c.nodeName, c.parentNode.innerHTML );
 					// 'c' is a html node that has tsr, but no end-tag marker tag
 					// => its closing tag was auto-generated by treebuilder.
 					dp.autoInsertedEnd = true;
@@ -1168,7 +1240,7 @@ function findBuilderCorrectedTags(node) {
 						// the strange use of "!"
 						!fc.getAttribute('data-stag') === cNodeName + dp.tsr)
 				{
-					//console.log('autoInsertedStart:', c.outerHTML);
+					//console.log('autoInsertedStart:', c.innerHTML);
 					dp.autoInsertedStart = true;
 					DU.setDataParsoid(c, dp);
 				}
@@ -1186,7 +1258,7 @@ function findBuilderCorrectedTags(node) {
 					{
 						// Not found, the tag was stripped. Insert an
 						// mw:Placeholder for round-tripping
-						//console.log('autoinsertedEnd', c.outerHTML, c.parentNode.outerHTML);
+						//console.log('autoinsertedEnd', c.innerHTML, c.parentNode.innerHTML);
 						addPlaceholderMeta(c, dp, expectedName);
 
 					}
@@ -1591,7 +1663,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 function computeDocDSR(root, env) {
 	if (env.debug || (env.dumpFlags && (env.dumpFlags.indexOf("dom:pre-dsr") !== -1))) {
 		console.warn("------ DOM: pre-DSR -------");
-		console.warn(root.outerHTML);
+		console.warn(root.innerHTML);
 		console.warn("----------------------------");
 	}
 
@@ -1605,117 +1677,8 @@ function computeDocDSR(root, env) {
 
 	if (env.debug || (env.dumpFlags && (env.dumpFlags.indexOf("dom:post-dsr") !== -1))) {
 		console.warn("------ DOM: post-DSR -------");
-		console.warn(root.outerHTML);
+		console.warn(root.innerHTML);
 		console.warn("----------------------------");
-	}
-}
-
-function normalizeWhitespace(node) {
-
-	function recordNLCount(node, index, nlCount) {
-		var dp = DU.dataParsoid(node) || {};
-		// [dsr[0], dsr[1],
-		//  start-tag-width, end-tag-width,
-		//  node-pre-nls, node-post-nls,
-		//  subdom-pre-nls, subdom-post-nls]
-		dp.dsr = dp.dsr || [];
-		dp.dsr[index] = nlCount;
-		DU.setDataParsoid(node, dp);
-	}
-
-	// newlines and white-space is significant in PRE-nodes
-	if (node.nodeName.toLowerCase() === 'pre') {
-		return;
-	}
-
-	var child = node.firstChild;
-	while (child) {
-		// Strip non-semantic leading and trailing newlines and record it
-		var next = child.nextSibling,
-		    prev = child.previousSibling;
-
-		if (child.nodeType === Node.TEXT_NODE) {
-			var str = child.data,
-				matches, nls, meta, dp,
-			    allNLs = str.match(/^\n*$/);
-
-			// Leading nls
-			matches = str.match(/^\n+/);
-			if (matches) {
-				nls = matches[0].length;
-				if (DU.isBlockNode(prev)) {
-					recordNLCount(prev, 5, nls);
-					// We need a symmetric value on the next block-node
-					// If we cannot add one, add a placeholder meta to
-					// hold this info. for us.
-					if (!allNLs || (next && !DU.isBlockNode(next))) {
-						meta = node.ownerDocument.createElement('meta');
-						meta.setAttribute('typeof', 'mw:Placeholder');
-						dp = { 'src': '' };
-						dp.dsr = dp.dsr || [];
-						dp.dsr[4] = nls;
-						DU.setDataParsoid(meta, dp);
-						node.insertBefore(meta, child);
-						/*--------------------------------
-						// remove these leading newlines
-						// since the serializer wont strip these
-						child.data = child.data.replace(/^\n+/, '');
-						--------------------------------- */
-					}
-				} else if (!prev && !(allNLs && DU.isBlockNode(next))) {
-					// If pure-nl and we have a block next sibling, it will swallow
-					// these newlines.  Dont assign to parent
-					recordNLCount(child.parentNode, 6, nls);
-				}
-
-				// SSS: At this time, merely record the info.
-				// Later on, this can be stripped and the
-				// DOM pretty-printed if necessary
-				//
-				// child.data = str.replace(/^\n+/, '');
-			}
-
-			// Trailing nls
-			matches = str.match(/\n+$/);
-			if (matches) {
-				nls = matches[0].length;
-				if (DU.isBlockNode(next)) {
-					recordNLCount(next, 4, nls);
-					// We need a symmetric value on the previous block-node
-					// If we cannot add one, add a placeholder meta to
-					// hold this info. for us.
-					if (!allNLs || (prev && !DU.isBlockNode(prev))) {
-						meta = node.ownerDocument.createElement('meta');
-						meta.setAttribute('typeof', 'mw:Placeholder');
-						dp = { 'src': '' };
-						dp.dsr = dp.dsr || [];
-						dp.dsr[5] = nls;
-						DU.setDataParsoid(meta, dp);
-						node.insertBefore(meta, child.nextSibling);
-						/*--------------------------------
-						// remove these trailing newlines
-						// since the serializer wont strip these
-						child.data = child.data.replace(/\n+$/, '');
-						--------------------------------- */
-					}
-				} else if (!next && !(allNLs && DU.isBlockNode(prev))) {
-					// If pure-nl and we have a block prev sibling, it will have swallowed
-					// these newlines.  Dont assign to parent.
-					recordNLCount(child.parentNode, 7, nls);
-				}
-
-				// SSS: At this time, merely record the info.
-				// Later on, this can be stripped and the
-				// DOM pretty-printed if necessary
-				//
-				// child.data = str.replace(/\n+$/, '');
-			}
-		} else if (child.childNodes.length > 0) {
-			// Descend!
-			normalizeWhitespace(child);
-		}
-
-		child = next;
 	}
 }
 
@@ -1728,7 +1691,7 @@ function encapsulateTemplateOutput( document, env ) {
 	var tpls = {};
 	if (env.debug || (env.dumpFlags && (env.dumpFlags.indexOf("dom:pre-encap") !== -1))) {
 		console.warn("------ DOM: pre-encapsulation -------");
-		console.warn(document.outerHTML);
+		console.warn(document.innerHTML);
 		console.warn("----------------------------");
 	}
 	// walk through document and look for tags with typeof="mw:Object*"
@@ -1738,17 +1701,16 @@ function encapsulateTemplateOutput( document, env ) {
 	}
 }
 
-
 function DOMPostProcessor(env, options) {
 	this.env = env;
 	this.processors = [
-		patchUpDOM,
+		handleUnbalancedTableTags,
 		migrateStartMetas,
 		normalizeDocument,
 		findBuilderCorrectedTags,
 		handlePres,
+		migrateTrailingNLs,
 		computeDocDSR,
-		normalizeWhitespace,
 		encapsulateTemplateOutput
 	];
 }
@@ -1761,7 +1723,7 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 	var env = this.env;
 	if (env.debug || (env.dumpFlags && (env.dumpFlags.indexOf("dom:post-builder") !== -1))) {
 		console.warn("---- DOM: after tree builder ----");
-		console.warn(document.outerHTML);
+		console.warn(document.innerHTML);
 		console.warn("--------------------------------");
 	}
 

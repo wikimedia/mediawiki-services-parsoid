@@ -31,7 +31,8 @@ ListHandler.prototype.bulletCharsMap = {
 
 function newListFrame() {
 	return {
-		newline  : false, // flag to identify a list-less line that terminates a list block
+		atEOL    : true, // flag indicating a list-less line that terminates a list block
+		nlTk     : null, // NlTk that triggered atEOL
 		solTokens: [],
 		bstack   : [], // Bullet stack, previous element's listStyle
 		endtags  : [], // Stack of end tags
@@ -78,11 +79,15 @@ ListHandler.prototype.onAny = function ( token, frame, prevToken ) {
 		} else {
 			return { token: token };
 		}
-	} else if ( this.currListFrame.newline ) {
+	} else if ( this.currListFrame.atEOL ) {
 		if (token.constructor !== NlTk && Util.isSolTransparent(token)) {
 			// Hold on to see where the token stream goes from here
 			// - another list item, or
 			// - end of list
+			if (this.currListFrame.nlTk) {
+				this.currListFrame.solTokens.push(this.currListFrame.nlTk);
+				this.currListFrame.nlTk = null;
+			}
 			this.currListFrame.solTokens.push(token);
 			return {};
 		} else {
@@ -91,8 +96,9 @@ ListHandler.prototype.onAny = function ( token, frame, prevToken ) {
 			return { tokens: tokens };
 		}
 	} else if ( token.constructor === NlTk ) {
-		this.currListFrame.newline = true;
-		return { token: token };
+		this.currListFrame.atEOL = true;
+		this.currListFrame.nlTk = token;
+		return { };
 	} else if (token.constructor === TagTk) {
 		if (token.name === 'table') {
 			this.listFrames.push(this.currListFrame);
@@ -129,6 +135,9 @@ ListHandler.prototype.closeLists = function(token) {
 
 	// purge all stashed sol-tokens
 	tokens = tokens.concat(this.currListFrame.solTokens);
+	if (this.currListFrame.nlTk) {
+		tokens.push(this.currListFrame.nlTk);
+	}
 	tokens.push(token);
 
 	// remove any transform if we dont have any stashed list frames
@@ -151,7 +160,6 @@ ListHandler.prototype.onListItem = function ( token, frame, prevToken ) {
 		if (!this.currListFrame) {
 			this.currListFrame = newListFrame();
 		}
-		this.currListFrame.newline = false;
 		// convert listItem to list and list item tokens
 		return { tokens: this.doListItem(this.currListFrame.bstack, token.bullets, token) };
 	}
@@ -217,7 +225,6 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 			newDP.tsr = newTSR;
 			return newDP;
 		};
-	this.currListFrame.newline = false;
 	this.currListFrame.bstack = bn;
 	if (!bs.length && this.listFrames.length === 0) {
 		this.manager.addTransform( this.onAny.bind(this), "ListHandler:onAny",
@@ -244,6 +251,7 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 			//
 			// **a
 			// **b
+			this.currListFrame.nlTk || '',
 			new TagTk( itemToken.name, [], makeDP( 0, bn.length ) )
 		];
 	} else {
@@ -289,7 +297,7 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 				// dd --> dt transition (dt token has a prefixLen prefix: see tokenizer)
 				newTag = new TagTk(newName, [], makeDP( 0, prefixLen + 1 ));
 			}
-			tokens = tokens.concat([ endTag, newTag ]);
+			tokens = tokens.concat([ endTag, this.currListFrame.nlTk || '', newTag ]);
 
 			prefixCorrection = 1;
 		} else {
@@ -297,6 +305,9 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 				console.warn("    -> reduced nesting");
 			}
 			tokens = tokens.concat( this.popTags(bs.length - prefixLen) );
+			if (this.currListFrame.nlTk) {
+				tokens.push(this.currListFrame.nlTk);
+			}
 			if (prefixLen > 0 && bn.length === prefixLen ) {
 				itemToken = this.currListFrame.endtags.pop();
 				tokens.push(itemToken);
@@ -365,7 +376,12 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 	res = this.currListFrame.solTokens.concat(res);
 	res.rank = this.anyRank + 0.01;
 	this.currListFrame.solTokens = [];
+	this.currListFrame.nlTk = null;
+	this.currListFrame.atEOL = false;
 
+	if (this.trace) {
+		console.warn("list:RET: " + JSON.stringify(res));
+	}
 	return res;
 };
 

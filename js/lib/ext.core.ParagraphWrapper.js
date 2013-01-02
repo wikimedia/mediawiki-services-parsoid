@@ -151,8 +151,9 @@ ParagraphWrapper.prototype.processPendingNLs = function (isBlockToken) {
 				nlTk2 = this.discardOneNlTk();
 				this.discardOneNlTk();
 
-				// Preserve one nl for pretty-printing and dsr reliability
+				// Preserve nls for pretty-printing and dsr reliability
 				resToks.push(nlTk);
+				resToks.push(nlTk2);
 
 				// 3. Insert <p><br></p> sections
 				// FIXME: Mark this as a placeholder for now until the
