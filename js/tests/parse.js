@@ -192,13 +192,13 @@ function dumpFlags() {
 		parserPipeline = parserPipelineFactory.makePipeline('text/x-mediawiki/full');
 	}
 	if (!argv.wt2html) {
+		if ( argv.oldtextfile ) {
+			argv.oldtext = fs.readFileSync(argv.oldtextfile, 'utf8');
+		}
 		if ( argv.selser ) {
-			if ( argv.oldtextfile ) {
-				argv.oldtext = fs.readFileSync(argv.oldtextfile, 'utf8');
-			}
 			serializer = new SelectiveSerializer( { env: env, oldid: null, oldtext: argv.oldtext || null } );
 		} else {
-			serializer = new WikitextSerializer( { env: env } );
+			serializer = new WikitextSerializer( { env: env, oldtext: argv.oldtext || null } );
 		}
 	}
 
