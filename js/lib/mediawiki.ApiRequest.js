@@ -97,6 +97,7 @@ ApiRequest.prototype.requestCB = function (error, response, body) {
 
 	// Remove self from request queue
 	//this.env.dp( 'trying to remove ', this.title, ' from requestQueue' );
+
 	delete this.env.requestQueue[this.queueKey];
 	//this.env.dp( 'after deletion:', this.env.requestQueue );
 };
@@ -347,7 +348,52 @@ PHPParseRequest.prototype.handleJSON = function ( error, data ) {
 	this.processListeners( error, parsedHtml );
 };
 
+var ConfigRequest = function ( uri, env ) {
+	ApiRequest.call( this, env, null );
+
+	var apiargs = {
+		format: 'json',
+		action: 'query',
+		meta: 'siteinfo|allmessages',
+		ammessages: 'linktrail|linkprefix',
+		siprop: 'namespaces|namespacealiases|specialpagealiases|magicwords|extensiontags'
+	};
+
+	var url = uri + '?' +
+		qs.stringify( apiargs );
+
+	this.requestOptions = {
+		method: 'GET',
+		followRedirect: true,
+		url: url,
+		timeout: 40 * 1000,
+		headers: {
+			'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:9.0.1) ' +
+				'Gecko/20100101 Firefox/9.0.1 Iceweasel/9.0.1',
+			'Connection': 'close'
+		}
+	};
+
+	request( this.requestOptions, this.requestCB.bind( this ) );
+};
+
+util.inherits( ConfigRequest, ApiRequest );
+
+ConfigRequest.prototype.handleJSON = function ( error, data ) {
+	if ( error ) {
+		this.processListeners( error, {} );
+		return;
+	}
+
+	if ( data && data.query ) {
+		this.processListeners( null, data.query );
+	} else {
+		this.processListeners( null, {} );
+	}
+};
+
 if (typeof module === "object") {
+	module.exports.ConfigRequest = ConfigRequest;
 	module.exports.TemplateRequest = TemplateRequest;
 	module.exports.PreprocessorRequest= PreprocessorRequest;
 	module.exports.PHPParseRequest = PHPParseRequest;

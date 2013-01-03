@@ -1,6 +1,8 @@
 "use strict";
 
 var Util = require('./mediawiki.Util.js').Util;
+var WikiConfig = require( './mediawiki.WikiConfig.js' ).WikiConfig;
+var ConfigRequest = require( './mediawiki.ApiRequest.js' ).ConfigRequest;
 var title = require('./mediawiki.Title.js'),
 	$ = require( 'jquery' ),
 	Title = title.Title,
@@ -12,6 +14,8 @@ var interwikiMap = {};
 wikipedias.split('|').forEach( function (prefix) {
 	interwikiMap[prefix] = 'http://' + prefix + '.wikipedia.org/w';
 });
+
+var interwikiRegexp = Object.keys(interwikiMap).join('|');
 
 function Tracer(env) {
 	this.env = env;
@@ -81,7 +85,7 @@ var MWParserEnvironment = function(opts) {
 		fetchTemplates: false,
 		maxDepth: 40,
 		interwikiMap: interwikiMap,
-		interwikiRegexp: Object.keys(interwikiMap).join('|'),
+		interwikiRegexp: interwikiRegexp,
 		usePHPPreProcessor: false,
 
 		// page information
@@ -105,7 +109,13 @@ var MWParserEnvironment = function(opts) {
 
 	// Tracing object
 	this.tracer = new Tracer(this);
+
+	// Initialise empty default values for interwiki config
+	this.iwp = '';
+	this.conf = {};
 };
+
+MWParserEnvironment.interwikiRegexp = interwikiRegexp;
 
 MWParserEnvironment.prototype.setInterwiki = function (prefix, wgScript) {
 	this.interwikiMap[prefix] = wgScript;
@@ -173,13 +183,81 @@ MWParserEnvironment.prototype.getTagHook = function( name ) {
 	}
 };
 
+/**
+ * Alternate constructor - takes a localsettings object, config, and an interwiki
+ * prefix to set up the environment. Calls back with the resulting object.
+ */
+MWParserEnvironment.getParserEnv = function ( ls, config, prefix, options, pageName, cb ) {
+	var env = new this( options || {
+		// stay within the 'proxied' content, so that we can click around
+		wgScriptPath: '/', //http://en.wikipedia.org/wiki',
+		wgScriptExtension: '.php',
+		// XXX: add options for this!
+		wgUploadPath: 'http://upload.wikimedia.org/wikipedia/commons',
+		fetchTemplates: true,
+		// enable/disable debug output using this switch
+		debug: false,
+		trace: false,
+		maxDepth: 40
+	} );
+
+	// add mediawiki.org
+	env.setInterwiki( 'mw', 'http://www.mediawiki.org/w' );
+
+	// add localhost default
+	env.setInterwiki( 'localhost', 'http://localhost/w' );
+
+	// add the dump in case we want to use that
+	env.setInterwiki( 'dump', 'http://dump-api.wmflabs.org/w' );
+	env.setInterwiki( 'dump-internal', 'http://10.4.0.162/w' );
+
+	if ( pageName ) {
+		env.setPageName( pageName );
+	}
+
+	// Apply local settings
+	if ( ls && ls.setup ) {
+		ls.setup( config, env );
+	}
+
+	// Set the current interwiki prefix
+	env.iwp = '';
+
+	// Get that wiki's config
+	env.switchToConfig( prefix, function () {
+		cb( env );
+	} );
+};
+
+/**
+ * Function that switches to a different configuration for a different wiki.
+ * Caches all configs so we only need to get each one once (if we do it right)
+ */
+MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
+	var uri = this.interwikiMap[prefix] + '/api' + this.wgScriptExtension;
+	this.confCache = this.confCache || {};
+	this.confCache[this.iwp] = this.conf;
+
+	this.iwp = prefix;
+
+	if ( this.confCache[this.iwp] ) {
+		this.conf = this.confCache[this.iwp];
+		cb();
+	} else {
+		var confRequest = new ConfigRequest( uri, this );
+		confRequest.on( 'src', function ( error, resultConf ) {
+			this.conf = new WikiConfig( resultConf );
+			cb();
+		}.bind( this ) );
+	}
+};
 
 MWParserEnvironment.prototype.makeTitleFromPrefixedText = function ( text ) {
 	text = this.normalizeTitle( text );
 	var nsText = text.split( ':', 1 )[0];
 	if ( nsText && nsText !== text ) {
-		var _ns = new Namespace(0);
-		var ns = _ns._defaultNamespaceIDs[ nsText.toLowerCase() ];
+		var _ns = new Namespace( 0, this );
+		var ns = _ns.namespaceIds[ nsText.toLowerCase().replace( ' ', '_' ) ];
 		//console.warn( JSON.stringify( [ nsText, ns ] ) );
 		if ( ns !== undefined ) {
 			return new Title( text.substr( nsText.length + 1 ), ns, nsText, this );

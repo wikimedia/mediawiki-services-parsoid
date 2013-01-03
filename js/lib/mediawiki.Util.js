@@ -1065,7 +1065,7 @@ Util.diff = diff;
 
 var getParser = function ( env, type ) {
 	var ParserPipelineFactory = require( './mediawiki.parser.js' ).ParserPipelineFactory;
-	return ( new ParserPipelineFactory( env || getParserEnv() ) ).makePipeline( type );
+	return ( new ParserPipelineFactory( env ) ).makePipeline( type );
 },
 
 parse = function ( env, cb, err, src ) {
@@ -1082,42 +1082,9 @@ parse = function ( env, cb, err, src ) {
 			cb( null, e );
 		}
 	}
-},
-
-getParserEnv = function ( ls, config ) {
-	var ParserEnv = require( './mediawiki.parser.environment.js' ).MWParserEnvironment,
-		env = new ParserEnv( {
-		// stay within the 'proxied' content, so that we can click around
-		wgScriptPath: '/', //http://en.wikipedia.org/wiki',
-		wgScriptExtension: '.php',
-		// XXX: add options for this!
-		wgUploadPath: 'http://upload.wikimedia.org/wikipedia/commons',
-		fetchTemplates: true,
-		// enable/disable debug output using this switch
-		debug: false,
-		trace: false,
-		maxDepth: 40
-	} );
-
-	// add mediawiki.org
-	env.setInterwiki( 'mw', 'http://www.mediawiki.org/w' );
-
-	// add localhost default
-	env.setInterwiki( 'localhost', 'http://localhost/w' );
-
-	// add the dump in case we want to use that
-	env.setInterwiki( 'dump', 'http://dump-api.wmflabs.org/w' );
-	env.setInterwiki( 'dump-internal', 'http://10.4.0.162/w' );
-
-	// Apply local settings
-	if ( ls && ls.setup ) {
-		ls.setup( config, env );
-	}
-
-	return env;
 };
 
-Util.getParserEnv = getParserEnv;
+
 Util.getParser = getParser;
 Util.parse = parse;
 

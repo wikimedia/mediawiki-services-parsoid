@@ -25,16 +25,16 @@ function initParsoid() {
 	_import(path.join('lib', 'mediawiki.parser.js'), ['ParserPipelineFactory']);
 	_import(path.join('lib', 'mediawiki.WikitextSerializer.js'), ['WikitextSerializer']);
 
-	var mwEnv = new MWParserEnvironment({
-		fetchTemplates: false,
-		debug: false,
-		trace: false,
-		wgUploadPath: 'http://example.com/images'
-	});
+	MWParserEnvironment.getParserEnv( null, null, '', null, null, function ( mwEnv ) {
+		mwEnv.fetchTemplates = false;
+		mwEnv.debug = false;
+		mwEnv.trace = false;
+		mwEnv.wgUploadPath = 'http://example.com/images';
 
-	// "class" properties
-	Parsoid.html5 = new HTML5.Parser();
-	Parsoid.serializer = new WikitextSerializer({env: mwEnv});
+		// "class" properties
+		Parsoid.html5 = new HTML5.Parser();
+		Parsoid.serializer = new WikitextSerializer({env: mwEnv});
+	} );
 }
 
 initParsoid();

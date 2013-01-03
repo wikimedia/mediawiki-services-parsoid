@@ -51,13 +51,14 @@ var WikitextSerializer = require(mp + 'mediawiki.WikitextSerializer.js').Wikitex
 	libtr = require(mp + 'mediawiki.ApiRequest.js'),
 	DoesNotExistError = libtr.DoesNotExistError,
 	ParserError = libtr.ParserError,
+	MWParserEnvironment = require( mp + 'mediawiki.parser.environment.js' ).MWParserEnvironment,
 	TemplateRequest = libtr.TemplateRequest;
 
 var interwikiRE;
 function getInterwikiRE() {
 	// this RE won't change -- so, cache it
 	if (!interwikiRE) {
-		interwikiRE = Util.getParserEnv( localSettings, config ).interwikiRegexp;
+		interwikiRE = MWParserEnvironment.interwikiRegexp;
 	}
 	return interwikiRE;
 }
@@ -71,6 +72,7 @@ function setDefaultWiki ( config, env ) {
 		interwiki = config.defaultInterwiki;
 	}
 	env.wgScript = env.interwikiMap[interwiki];
+	env.conf.iwp = interwiki;
 }
 
 var htmlSpecialChars = function ( s ) {
@@ -183,34 +185,37 @@ var refineDiff = function ( diff ) {
 };
 
 var roundTripDiff = function ( req, res, src, document ) {
-	var patch;
-	var env = Util.getParserEnv( localSettings );
-	var out = new Serializer({env: env, oldtext: src}).serializeDOM(document.body);
-
-	res.write('<html><head><script type="text/javascript" src="/jquery.js"></script><script type="text/javascript" src="/scrolling.js"></script><style>ins { background: #ff9191; text-decoration: none; } del { background: #99ff7e; text-decoration: none }; </style></head><body>');
-	res.write( '<h2>Wikitext parsed to HTML DOM</h2><hr>\n' );
-	res.write(document.body.innerHTML + '\n<hr>');
-
-	res.write( '<h2>HTML DOM converted back to Wikitext</h2><hr>\n' );
-	res.write('<pre>' + htmlSpecialChars( out ) + '</pre><hr>\n');
-
-	res.write( '<h2>Diff between original Wikitext (green) and round-tripped wikitext (red)</h2><p>(use shift+alt+n and shift+alt+p to navigate forward and backward)<hr>\n' );
-	src = src.replace(/\n(?=\n)/g, '\n ');
-	out = out.replace(/\n(?=\n)/g, '\n ');
-	//console.log(JSON.stringify( jsDiff.diffLines( out, src ) ));
-	patch = jsDiff.convertChangesToXML( jsDiff.diffLines( src, out ) );
-	//patch = jsDiff.convertChangesToXML( refineDiff( jsDiff.diffLines( src, out ) ) );
-	res.write( '<pre>' + patch);
-	// Add a 'report issue' link
-	res.end('<hr><h2>'+
-			'<a style="color: red" ' +
-			'href="http://www.mediawiki.org/w/index.php?title=Talk:Parsoid/Todo' +
-			'&action=edit&section=new&preloadtitle=' +
-			'Issue%20on%20http://parsoid.wmflabs.org' + req.url + '">' +
-			'Report a parser issue in this page</a> at ' +
-			'<a href="http://www.mediawiki.org/wiki/Talk:Parsoid/Todo">'+
-			'[[:mw:Talk:Parsoid/Todo]]</a></h2><hr>');
-
+	MWParserEnvironment.getParserEnv( localSettings, null, '', null, null, function ( env ) {
+		var patch;
+		var out = new Serializer({env: env}).serializeDOM( document.body );
+		if ( out === undefined ) {
+			console.log( 'Serializer error!' );
+			out = "An error occured in the WikitextSerializer, please check the log for information";
+			res.send( out, 500 );
+			return;
+		}
+		res.write('<html><head><script type="text/javascript" src="/jquery.js"></script><script type="text/javascript" src="/scrolling.js"></script><style>ins { background: #ff9191; text-decoration: none; } del { background: #99ff7e; text-decoration: none }; </style></head><body>');
+		res.write( '<h2>Wikitext parsed to HTML DOM</h2><hr>\n' );
+		res.write(document.body.innerHTML + '\n<hr>');
+		res.write( '<h2>HTML DOM converted back to Wikitext</h2><hr>\n' );
+		res.write('<pre>' + htmlSpecialChars( out ) + '</pre><hr>\n');
+		res.write( '<h2>Diff between original Wikitext (green) and round-tripped wikitext (red)</h2><p>(use shift+alt+n and shift+alt+p to navigate forward and backward)<hr>\n' );
+		src = src.replace(/\n(?=\n)/g, '\n ');
+		out = out.replace(/\n(?=\n)/g, '\n ');
+		//console.log(JSON.stringify( jsDiff.diffLines( out, src ) ));
+		patch = jsDiff.convertChangesToXML( jsDiff.diffLines( src, out ) );
+		//patch = jsDiff.convertChangesToXML( refineDiff( jsDiff.diffLines( src, out ) ) );
+		res.write( '<pre>' + patch);
+		// Add a 'report issue' link
+		res.end('<hr><h2>'+
+				'<a style="color: red" ' +
+				'href="http://www.mediawiki.org/w/index.php?title=Talk:Parsoid/Todo' +
+				'&action=edit&section=new&preloadtitle=' +
+				'Issue%20on%20http://parsoid.wmflabs.org' + req.url + '">' +
+				'Report a parser issue in this page</a> at ' +
+				'<a href="http://www.mediawiki.org/wiki/Talk:Parsoid/Todo">'+
+				'[[:mw:Talk:Parsoid/Todo]]</a></h2><hr>');
+	} );
 };
 
 var parse = function ( env, req, res, cb, err, src ) {
@@ -252,16 +257,17 @@ app.get('/', function(req, res){
 });
 
 
-var getParserEnv = function ( options, res ) {
-	var env = Util.getParserEnv( localSettings );
-	env.errCB = function ( e ) {
-		console.log( e );
-		console.log(e.stack);
-		res.send( e.toString(), 500 );
-		// Force a clean restart of this worker
-		process.exit(1);
-	};
-	return env;
+var getParserServiceEnv = function ( options, res, iwp, pageName, cb ) {
+	MWParserEnvironment.getParserEnv( options, null, iwp || '', null, pageName, function ( env ) {
+		env.errCB = function ( e ) {
+			console.log( e );
+			console.log(e.stack);
+			res.send( e.toString(), 500 );
+			// Force a clean restart of this worker
+			process.exit(1);
+		};
+		cb( env );
+	} );
 };
 
 
@@ -313,192 +319,210 @@ app.post( /^\/_bugs\//, function ( req, res ) {
  * Form-based HTML DOM -> wikitext interface for manual testing
  */
 app.get(/\/_html\/(.*)/, function ( req, res ) {
-	var env = getParserEnv( localSettings, res );
-	env.setPageName( req.params[0] );
-	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-	res.write( "Your HTML DOM:" );
-	textarea( res );
-	res.end('');
-});
+	var cb = function ( env ) {
+		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+		res.write( "Your HTML DOM:" );
+		textarea( res );
+		res.end('');
+	};
+
+	getParserServiceEnv( localSettings, res, null, req.params[0], cb );
+} );
 
 app.post(/\/_html\/(.*)/, function ( req, res ) {
-	var env = getParserEnv( localSettings, res );
-	env.setPageName( req.params[0] );
-	setDefaultWiki( config, env );
+	var cb = function ( env ) {
+		setDefaultWiki( config, env );
+		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+		var p = new html5.Parser();
+		p.parse( '<html><body>' + req.body.content.replace(/\r/g, '') + '</body></html>' );
+		res.write('<pre style="background-color: #efefef">');
+		new Serializer({env: env}).serializeDOM(
+			p.tree.document.childNodes[0].childNodes[1],
+			function( c ) {
+				res.write( htmlSpecialChars( c ) );
+			});
+		res.write('</pre>');
+		res.write( "<hr>Your HTML DOM:" );
+		textarea( res, req.body.content.replace(/\r/g, '') );
+		res.end('');
+	};
 
-	var p = new html5.Parser();
-	p.parse( '<html><body>' + req.body.content.replace(/\r/g, '') + '</body></html>' );
-	var out = new Serializer({env: env}).serializeDOM(
-		p.tree.document.childNodes[0].childNodes[1]
-	);
-
-	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-	res.write('<pre style="background-color: #efefef">');
-	res.write( htmlSpecialChars( out ) );
-	res.write('</pre>');
-	res.write( "<hr>Your HTML DOM:" );
-	textarea( res, req.body.content.replace(/\r/g, '') );
-	res.end('');
-});
+	getParserServiceEnv( localSettings, res, null, req.params[0], cb );
+} );
 
 /**
  * Form-based wikitext -> HTML DOM interface for manual testing
  */
 app.get(/\/_wikitext\/(.*)/, function ( req, res ) {
-	var env = getParserEnv( localSettings, res );
-	env.setPageName( req.params[0] );
-	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-	res.write( "Your wikitext:" );
-	textarea( res );
-	res.end('');
-});
-app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
-	var env = getParserEnv( localSettings, res );
-	env.setPageName( req.params[0] );
-	setDefaultWiki( config, env );
-	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-	var parser = Util.getParser(env, 'text/x-mediawiki/full'),
-		src = req.body.content.replace(/\r/g, '');
-	parser.on('document', function ( document ) {
-		res.write(document.body.innerHTML);
-		//res.write('<form method=POST><input name="content"></form>');
-		//res.end("hello world\n" + req.method + ' ' + req.params.title);
-		res.write( "<hr>Your wikitext:" );
-		textarea( res, src );
-		res.end('');
-	});
-	try {
+	var cb = function ( env ) {
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-		console.log('starting parsing of ' + req.params[0]);
-		// FIXME: This does not handle includes or templates correctly
-		env.text = src;
-		parser.process( src );
-	} catch (e) {
-		console.log( e.stack );
-		res.send( e.toString(), 500 );
-	}
-});
+		res.write( "Your wikitext:" );
+		textarea( res );
+		res.end('');
+	};
+
+	getParserServiceEnv( localSettings, res, null, req.params[0], cb );
+} );
+
+app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
+	var cb = function ( env ) {
+		setDefaultWiki( config, env );
+		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+		var parser = Util.getParser(env, 'text/x-mediawiki/full'),
+			src = req.body.content.replace(/\r/g, '');
+		parser.on('document', function ( document ) {
+			res.write(document.body.innerHTML);
+			//res.write('<form method=POST><input name="content"></form>');
+			//res.end("hello world\n" + req.method + ' ' + req.params.title);
+			res.write( "<hr>Your wikitext:" );
+			textarea( res, src );
+			res.end('');
+		});
+		try {
+			res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+			console.log('starting parsing of ' + req.params[0]);
+			// FIXME: This does not handle includes or templates correctly
+			env.text = src;
+			parser.process( src );
+		} catch (e) {
+			console.log( e.stack );
+			res.send( e.toString(), 500 );
+		}
+	};
+
+	getParserServiceEnv( localSettings, res, null, req.params[0], cb );
+} );
 
 /**
  * Round-trip article testing
  */
 app.get( new RegExp('/_rt/(' + getInterwikiRE() + ')/(.*)'), function(req, res) {
-	var env = getParserEnv( localSettings, res );
-	env.setPageName( req.params[1] );
-	env.wgScriptPath = '/_rt/' + req.params[0] + '/';
-	env.wgScript = env.interwikiMap[req.params[0]];
+	var cb = function ( env ) {
+		env.wgScriptPath = '/_rt/' + req.params[0] + '/';
+		env.wgScript = env.interwikiMap[req.params[0]];
 
-	req.connection.setTimeout(300 * 1000);
+		req.connection.setTimeout(300 * 1000);
 
-	if ( env.page.name === 'favicon.ico' ) {
-		res.send( 'no favicon yet..', 404 );
-		return;
-	}
+		if ( env.page.name === 'favicon.ico' ) {
+			res.send( 'no favicon yet..', 404 );
+			return;
+		}
 
-	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
+		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
-	console.log('starting parsing of ' + target);
-	var oldid = null;
-	if ( req.query.oldid ) {
-		oldid = req.query.oldid;
-	}
-	var tpr = new TemplateRequest( env, target, oldid );
-	tpr.once('src', parse.bind( null, env, req, res, roundTripDiff ));
-});
+		console.log('starting parsing of ' + target);
+		var oldid = null;
+		if ( req.query.oldid ) {
+			oldid = req.query.oldid;
+		}
+		var tpr = new TemplateRequest( env, target, oldid );
+		tpr.once('src', parse.bind( null, env, req, res, roundTripDiff ));
+	};
+
+	getParserServiceEnv( localSettings, res, req.params[0], req.params[1], cb );
+} );
 
 /**
  * Round-trip article testing with newline stripping for editor-created HTML
  * simulation
  */
 app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)') , function(req, res) {
-	var env = getParserEnv( localSettings, res );
-	env.setPageName( req.params[1] );
-	env.wgScriptPath = '/_rtve/' + req.params[0] + '/';
-	env.wgScript = env.interwikiMap[req.params[0]];
+	var cb = function ( env ) {
+		env.wgScriptPath = '/_rtve/' + req.params[0] + '/';
+		env.wgScript = env.interwikiMap[req.params[0]];
 
-	if ( env.page.name === 'favicon.ico' ) {
-		res.send( 'no favicon yet..', 404 );
-		return;
-	}
+		if ( env.page.name === 'favicon.ico' ) {
+			res.send( 'no favicon yet..', 404 );
+			return;
+		}
 
-	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
+		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
-	console.log('starting parsing of ' + target);
-	var oldid = null;
-	if ( req.query.oldid ) {
-		oldid = req.query.oldid;
-	}
-	var tpr = new TemplateRequest( env, target, oldid ),
-		cb = function ( req, res, src, document ) {
-			// strip newlines from the html
-			var html = document.innerHTML.replace(/[\r\n]/g, ''),
-				p = new html5.Parser();
-			p.parse( html );
-			var newDocument = p.tree.document;
-			// monkey-patch document.body reference for now..
-			newDocument.body = newDocument.childNodes[0].childNodes[1];
-			roundTripDiff( req, res, src, newDocument );
-		};
+		console.log('starting parsing of ' + target);
+		var oldid = null;
+		if ( req.query.oldid ) {
+			oldid = req.query.oldid;
+		}
+		var tpr = new TemplateRequest( env, target, oldid ),
+			cb = function ( req, res, src, document ) {
+				// strip newlines from the html
+				var html = document.innerHTML.replace(/[\r\n]/g, ''),
+					p = new html5.Parser();
+				p.parse( html );
+				var newDocument = p.tree.document;
+				// monkey-patch document.body reference for now..
+				newDocument.body = newDocument.childNodes[0].childNodes[1];
+				roundTripDiff( req, res, src, newDocument );
+			};
 
-	tpr.once('src', parse.bind( null, env, req, res, cb ));
+		tpr.once('src', parse.bind( null, env, req, res, cb ));
+	};
+
+	getParserServiceEnv( localSettings, res, req.params[0], req.params[1], cb );
 });
 
 /**
  * Form-based round-tripping for manual testing
  */
 app.get(/\/_rtform\/(.*)/, function ( req, res ) {
-	var env = getParserEnv( localSettings, res );
-	env.setPageName( req.params[0] );
-	setDefaultWiki( config, env );
-	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-	res.write( "Your wikitext:" );
-	textarea( res );
-	res.end('');
+	var cb = function ( env ) {
+		setDefaultWiki( config, env );
+		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+		res.write( "Your wikitext:" );
+		textarea( res );
+		res.end('');
+	};
+
+	getParserServiceEnv( localSettings, res, null, req.params[0], cb );
 });
 
 app.post(/\/_rtform\/(.*)/, function ( req, res ) {
-	var env = getParserEnv( localSettings, res );
-	env.setPageName ( req.params[0] );
-	setDefaultWiki( config, env );
-	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-	// we don't care about \r, and normalize everything to \n
-	parse( env, req, res, roundTripDiff, null, req.body.content.replace(/\r/g, ''));
-});
+	var cb = function ( env ) {
+		setDefaultWiki( config, env );
+		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+		// we don't care about \r, and normalize everything to \n
+		parse( env, req, res, roundTripDiff, null, req.body.content.replace(/\r/g, ''));
+	};
+
+	getParserServiceEnv( localSettings, res, null, req.params[0], cb );
+} );
 
 /**
  * Regular article parsing
  */
 app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
-	var env = getParserEnv( localSettings, res );
-	env.setPageName( req.params[1] );
-	env.wgScriptPath = '/' + req.params[0] + '/';
-	env.wgScript = env.interwikiMap[req.params[0]];
+	var cb = function ( env ) {
+		env.wgScriptPath = '/' + req.params[0] + '/';
+		env.wgScript = env.interwikiMap[req.params[0]];
 
-	if ( env.page.name === 'favicon.ico' ) {
-		res.send( 'no favicon yet..', 404 );
-		return;
-	}
-	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
+		if ( env.page.name === 'favicon.ico' ) {
+			res.send( 'no favicon yet..', 404 );
+			return;
+		}
+		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
-	// Set the timeout to 900 seconds..
-	req.connection.setTimeout(900 * 1000);
+		// Set the timeout to 900 seconds..
+		req.connection.setTimeout(900 * 1000);
 
-	var st = new Date();
-	console.log('starting parsing of ' + target);
-	var oldid = null;
-	if ( req.query.oldid ) {
-		oldid = req.query.oldid;
-	}
-	if ( req.query.cache ) {
-		res.setHeader('Cache-Control', 's-maxage=2592000');
-	}
-	var tpr = new TemplateRequest( env, target, oldid );
-	tpr.once('src', parse.bind( null, env, req, res, function ( req, res, src, document ) {
-		res.end(document.body.innerHTML);
-		var et = new Date();
-		console.warn("completed parsing of " + target + " in " + (et - st) + " ms");
-	}));
-});
+		var st = new Date();
+		console.log('starting parsing of ' + target);
+		var oldid = null;
+		if ( req.query.oldid ) {
+			oldid = req.query.oldid;
+		}
+		if ( req.query.cache ) {
+			res.setHeader('Cache-Control', 's-maxage=2592000');
+		}
+		var tpr = new TemplateRequest( env, target, oldid );
+		tpr.once('src', parse.bind( null, env, req, res, function ( req, res, src, document ) {
+			res.end(document.body.innerHTML);
+			var et = new Date();
+			console.warn("completed parsing of " + target + " in " + (et - st) + " ms");
+		}));
+	};
+
+	getParserServiceEnv( localSettings, res, req.params[0], req.params[1], cb );
+} );
 
 app.get( /\/_ci\/refs\/changes\/(\d+)\/(\d+)\/(\d+)/, function ( req, res ) {
 	var gerritChange = 'refs/changes/' + req.params[0] + '/' + req.params[1] + '/' + req.params[2];
@@ -537,44 +561,47 @@ app.get( /\/_ci\/master/, function ( req, res ) {
  * Regular article serialization using POST
  */
 app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function ( req, res ) {
-	var env = Util.getParserEnv( localSettings, res );
-	env.setPageName( req.params[1] );
-	env.page.id = req.body.oldid || null;
-	env.wgScriptPath = '/';
-	setDefaultWiki( localSettings, env );
-	env.wgScript = env.interwikiMap[req.params[0]];
-	res.setHeader('Content-Type', 'text/x-mediawiki; charset=UTF-8');
+	var cb = function ( env ) {
+		var oldid = req.body.oldid || null;
+		env.page.id = req.body.oldid || null;
+		env.wgScriptPath = '/';
+		setDefaultWiki( localSettings, env );
+		env.wgScript = env.interwikiMap[req.params[0]];
+		res.setHeader('Content-Type', 'text/x-mediawiki; charset=UTF-8');
 
-	var p;
-	try {
-		p = new html5.Parser();
-		p.parse( req.body.content );
-	} catch ( e ) {
-		console.log( 'There was an error in the HTML5 parser! Sending it back to the editor.' );
-		console.error( e.stack );
-		res.send( e.stack, 500 );
-	}
+		try {
+			var p = new html5.Parser();
+			p.parse( req.body.content );
+		} catch ( e ) {
+			console.log( 'There was an error in the HTML5 parser! Sending it back to the editor.' );
+			console.error( e.stack );
+			res.send( e.stack, 500 );
+		}
 
-	env.errCB = function ( e ) {
-		console.error( e.stack );
-		res.send( e.stack, 500 );
+		env.errCB = function ( e ) {
+			console.error( e.stack );
+			res.send( e.stack, 500 );
+		};
+
+		try {
+			// FIXME: Fetch oldid source and pass it in.
+			new Serializer( { env: env, oldid: env.page.id } ).serializeDOM(
+			// The below can be uncommented to turn on selective serialization on the main API service.
+			// This is not currently advisable. It's not working perfectly.
+			//new SelectiveSerializer( { env: env, oldid: oldid } ).serializeDOM(
+				p.tree.document.childNodes[0].childNodes[1],
+				function ( chunk ) {
+					res.write( chunk );
+				}, function () {
+					// XXX TODO FIXME BBQ There should be an error callback in SelSer.
+					res.end( '' );
+				} );
+		} catch ( e ) {
+			env.errCB( e );
+		}
 	};
 
-	try {
-		// The below can be uncommented to turn on selective serialization on the main API service.
-		// This is not currently advisable. It's not working perfectly.
-		//new SelectiveSerializer( { env: env, oldid: oldid } ).serializeDOM(
-
-		// FIXME: Fetch oldid source and pass it in.
-		var out = new Serializer( { env: env, oldid: env.page.id } ).serializeDOM(
-			p.tree.document.childNodes[0].childNodes[1]
-		);
-
-		res.write( out );
-		res.end( '' ); // XXX TODO FIXME BBQ There should be an error callback in SelSer.
-	} catch ( e ) {
-		env.errCB( e );
-	}
+	getParserServiceEnv( localSettings, res, req.params[0], req.params[1], cb );
 } );
 
 app.use( express.static( __dirname + '/scripts' ) );

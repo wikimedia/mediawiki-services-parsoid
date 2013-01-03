@@ -69,19 +69,19 @@ var domDatabase = {
 };
 
 $(function() {
-	var env = new MWParserEnvironment({
-		'pageCache': pageDatabase,
-		'domCache': domDatabase
-	});
-	env.debug = true;
-	var frame = new PPFrame(env);
-	//var victim = 'Boring';
-	var victim = 'ParenCaller';
-	frame.expand(domDatabase[victim], 0, function(node, err) {
-		if (err) {
-			console.log('error', err);
-		} else {
-			console.log(node);
-		}
+	MWParserEnvironment.getParserEnv( null, null, '', function ( env ) {
+		env.pageCache = pageDatabase;
+		env.domCache = domDatabase;
+		env.debug = true;
+		var frame = new PPFrame(env);
+		//var victim = 'Boring';
+		var victim = 'ParenCaller';
+		frame.expand(domDatabase[victim], 0, function(node, err) {
+			if (err) {
+				console.log('error', err);
+			} else {
+				console.log(node);
+			}
+		} );
 	} );
 } );

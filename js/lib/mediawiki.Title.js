@@ -4,8 +4,9 @@ var Util = require('./mediawiki.Util.js').Util;
 
 function Title ( key, ns, nskey, env ) {
 	this.key = env.resolveTitle( key );
-	// Namespace index
-	this.ns = new Namespace( ns );
+
+	this.ns = new Namespace( ns, env );
+
 	// the original ns string
 	this.nskey = nskey;
 	this.env = env;
@@ -42,38 +43,51 @@ Title.prototype.getPrefixedText = function () {
 };
 
 
-function Namespace ( id ) {
+function Namespace( id, env ) {
+	var ids = env.conf.namespaceIds;
+	var names = env.conf.namespaceNames;
 	this.id = id;
+	this.namespaceIds = this.canonicalNamespaces;
+
+	if ( ids ) {
+		for ( var ix in ids ) {
+		if ( ids.hasOwnProperty( ix ) ) {
+			this.namespaceIds[ix.toLowerCase()] = ids[ix] - 0;
+			}
+		}
+	}
+
+	this.namespaceNames = names || {
+		'6': 'File',
+		'-2': 'Media',
+		'-1': 'Special',
+		'0': '',
+		'14': 'Category'
+	};
 }
 
-Namespace.prototype._defaultNamespaceIDs = {
-	file: -2,
-	image: -2,
+/**
+ * So we can get namespace IDs that we need for tests
+ */
+Namespace.prototype.canonicalNamespaces = {
+	file: 6,
+	image: 6,
+	media: -2,
 	special: -1,
 	main: 0,
+	'': 0,
 	category: 14
 };
 
-Namespace.prototype._defaultNamespaceNames = {
-	'-2': 'File',
-	'-1': 'Special',
-	'0': '',
-	'14': 'Category'
-};
-
 Namespace.prototype.isFile = function ( ) {
-	return this.id === this._defaultNamespaceIDs.file;
+	return this.id === this.canonicalNamespaces.file;
 };
 Namespace.prototype.isCategory = function ( ) {
-	return this.id === this._defaultNamespaceIDs.category;
+	return this.id === this.canonicalNamespaces.category;
 };
 
 Namespace.prototype.getDefaultName = function ( ) {
-	if ( this.id === this._defaultNamespaceIDs.main ) {
-		return '';
-	} else {
-		return this._defaultNamespaceNames[this.id.toString()];
-	}
+	return this.namespaceNames[this.id.toString()];
 };
 
 
@@ -81,3 +95,4 @@ if (typeof module === "object") {
 	module.exports.Title = Title;
 	module.exports.Namespace = Namespace;
 }
+

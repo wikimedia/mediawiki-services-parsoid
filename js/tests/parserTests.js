@@ -1050,55 +1050,56 @@ ParserTests.prototype.main = function ( options ) {
 	}
 
 	// Create a new parser environment
-	this.env = new MWParserEnvironment(Util.setDebuggingFlags({
-		fetchTemplates: false,
-		wgUploadPath: 'http://example.com/images',
-		errCB: function ( e ) {
+	MWParserEnvironment.getParserEnv( null, null, '', options, null, function ( env ) {
+		this.env = env;
+		this.env.fetchTemplates = false;
+		this.env.wgUploadPath = 'http://example.com/images';
+		this.env.errCB = function ( e ) {
 			console.error( e.stack );
+		};
+		Util.setDebuggingFlags( this.env, options );
+		options.modes = [];
+		if ( options.wt2html ) {
+			options.modes.push( 'wt2html' );
 		}
-	}, options));
-
-	options.modes = [];
-	if ( options.wt2html ) {
-		options.modes.push( 'wt2html' );
-	}
-	if ( options.wt2wt ) {
-		options.modes.push( 'wt2wt' );
-	}
-	if ( options.html2html ) {
-		options.modes.push( 'html2html' );
-	}
-	if ( options.html2wt ) {
-		options.modes.push( 'html2wt' );
-	}
-	if ( options.selser ) {
-		options.modes.push( 'selser' );
-	}
-
-	// Create parsers, serializers, ..
-	if ( options.html2html || options.wt2wt || options.wt2html || options.selser ) {
-		var parserPipelineFactory = new ParserPipelineFactory( this.env );
-		this.parserPipeline = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
-	}
-	if ( options.wt2wt || options.html2wt || options.html2html || options.selser ) {
-		this.serializer = new WikitextSerializer({env: this.env});
-	}
-	if ( options.selser ) {
-		this.selectiveSerializer = new SelectiveSerializer( { env: this.env, wts: this.serializer } );
-	}
-
-	if ( options.changesin ) {
-		this.changes = JSON.parse(
-			fs.readFileSync( options.changesin, 'utf-8' ) );
-		if ( this.changes._numchanges ) {
-			options.numchanges = true;
+		if ( options.wt2wt ) {
+			options.modes.push( 'wt2wt' );
 		}
-	}
+		if ( options.html2html ) {
+			options.modes.push( 'html2html' );
+		}
+		if ( options.html2wt ) {
+			options.modes.push( 'html2wt' );
+		}
+		if ( options.selser ) {
+			options.modes.push( 'selser' );
+		}
 
-	options.reportStart();
-	this.env.pageCache = this.articles;
-	this.comments = [];
-	this.processCase( 0, options );
+		// Create parsers, serializers, ..
+		if ( options.html2html || options.wt2wt || options.wt2html || options.selser ) {
+			var parserPipelineFactory = new ParserPipelineFactory( this.env );
+			this.parserPipeline = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
+		}
+		if ( options.wt2wt || options.html2wt || options.html2html || options.selser ) {
+			this.serializer = new WikitextSerializer({env: this.env});
+		}
+		if ( options.selser ) {
+			this.selectiveSerializer = new SelectiveSerializer( { env: this.env, wts: this.serializer } );
+		}
+
+		if ( options.changesin ) {
+			this.changes = JSON.parse(
+				fs.readFileSync( options.changesin, 'utf-8' ) );
+			if ( this.changes._numchanges ) {
+				options.numchanges = true;
+			}
+		}
+
+		options.reportStart();
+		this.env.pageCache = this.articles;
+		this.comments = [];
+		this.processCase( 0, options );
+	}.bind( this ) );
 };
 
 /**
