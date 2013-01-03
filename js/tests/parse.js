@@ -198,7 +198,7 @@ function dumpFlags() {
 		if ( argv.selser ) {
 			serializer = new SelectiveSerializer( { env: env, oldid: null, oldtext: argv.oldtext || null } );
 		} else {
-			serializer = new WikitextSerializer( { env: env, oldtext: argv.oldtext || null } );
+			serializer = new WikitextSerializer( { env: env, src: argv.oldtext || null } );
 		}
 	}
 

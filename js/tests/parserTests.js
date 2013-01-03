@@ -121,7 +121,7 @@ ParserTests.prototype.getOpts = function () {
 		'use_source': {
 			description: 'Use original source in wt2wt tests',
 			'boolean': false,
-			'default': ""
+			'default': true
 		},
 		'html2html': {
 			description: 'Roundtrip testing: HTML(DOM) -> Wikitext -> HTML(DOM)',
@@ -314,7 +314,7 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
 				item.changes = 0;
 			}
 		} else if (options.use_source) {
-			serializer.oldtext = item.input;
+			serializer.src = item.input;
 		}
 		serializer.serializeDOM( content, function ( res ) {
 			wt += res;

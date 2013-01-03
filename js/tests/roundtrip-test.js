@@ -357,11 +357,10 @@ doubleRoundtripDiff = function ( page, offsets, src, body, out, cb, wgScript ) {
 },
 
 roundTripDiff = function ( page, src, document, cb, env ) {
-	var out, curPair, patch, diff, offsetPairs;
+	var curPair, out, patch, diff, offsetPairs;
 
 	try {
-		out = new WikitextSerializer( { env: env } ).serializeDOM( document.body );
-
+		out = new WikitextSerializer( { env: env, oldtext: src } ).serializeDOM(document.body);
 		diff = jsDiff.diffLines( out, src );
 		offsetPairs = Util.convertDiffToOffsetPairs( diff );
 

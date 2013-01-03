@@ -227,8 +227,8 @@ var WikitextSerializer = function( options ) {
 		WikitextSerializer.prototype.debug_pp = function ( ) {};
 		WikitextSerializer.prototype.debug = function ( ) {};
 	}
-	this.oldtext = options.oldtext;
-	// console.warn("oldtext: " + JSON.stringify(this.oldtext));
+	// SSS FIXME: Temporarily backward compatibility hack
+	this.src = options.src || options.oldtext;
 };
 
 var WSP = WikitextSerializer.prototype;
@@ -1955,16 +1955,6 @@ WSP._getDOMRTInfo = function( attribs ) {
 	}
 };
 
-WSP.getOldText = function ( cb ) {
-	if ( this.oldtext !== undefined ) {
-		cb( null, this.oldtext );
-	} else if ( this.env && this.target ) {
-		Util.getPageSrc( this.env, this.target, cb, this.oldid || null );
-	} else {
-		cb( null, null );
-	}
-};
-
 // 1. Update state with the set of templated attributes.
 // 2. Strip non-semantic leading and trailing newlines.
 WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
@@ -2106,59 +2096,53 @@ WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
  * Serialize an HTML DOM document.
  */
 WSP.serializeDOM = function( node, chunkCB, finalCB, selser ) {
-	var serializer = this;
-	this.getOldText(function(err, src) {
-		// console.warn("DOM: " + node.outerHTML);
-		if ( !finalCB || typeof finalCB !== 'function' ) {
-			finalCB = function () {};
+	var state = Util.extendProps({},
+		// Make sure these two are cloned, so we don't alter the initial
+		// state for later serializer runs.
+		Util.clone(this.initialState),
+		Util.clone(this.options));
+	state.serializer = this;
+
+	// Record original wikitext source
+	state.src = this.src;
+
+	try {
+		// Preprocess DOM (collect tpl attr tags + strip empty white space)
+		this.preprocessDOM(node, state, false, state.src);
+		this.debug(" DOM ==> ", node.innerHTML);
+
+		if ( selser !== undefined ) {
+			state.selser = selser;
 		}
 
-		var state = Util.extendProps({},
-			// Make sure these two are cloned, so we don't alter the initial
-			// state for later serializer runs.
-			Util.clone(serializer.initialState),
-			Util.clone(serializer.options));
-		state.serializer = serializer;
-
-		// Record original wikitext source
-		if (!err && src !== '') {
-			state.src = src;
+		var out = [];
+	    if ( ! chunkCB ) {
+			state.chunkCB = function ( chunk, serializeID ) {
+				// Keep a sliding buffer of the last emitted source
+				state.lastRes = (state.lastRes + chunk).substr(-100);
+				out.push( chunk );
+			};
+		} else {
+			state.chunkCB = function ( chunk, serializeID ) {
+				// Keep a sliding buffer of the last emitted source
+				state.lastRes = (state.lastRes + chunk).substr(-100);
+				chunkCB(chunk, serializeID);
+			};
 		}
 
-		try {
-			// Preprocess DOM (collect tpl attr tags + strip empty white space)
-			serializer.preprocessDOM(node, state, false, state.src);
-			serializer.debug(" DOM ==> ", node.innerHTML);
+		this._serializeDOM( node, state );
+		this._serializeToken( state, new EOFTk() );
 
-			if ( selser !== undefined ) {
-				state.selser = selser;
-			}
-			if ( ! chunkCB ) {
-				var out = [];
-				state.chunkCB = function ( chunk, serializeID ) {
-					// Keep a sliding buffer of the last emitted source
-					state.lastRes = (state.lastRes + chunk).substr(-100);
-					out.push( chunk );
-				};
-				serializer._serializeDOM( node, state );
-				serializer._serializeToken( state, new EOFTk() );
-				return out.join('');
-			} else {
-				state.chunkCB = function ( chunk, serializeID ) {
-					// Keep a sliding buffer of the last emitted source
-					state.lastRes = (state.lastRes + chunk).substr(-100);
-					chunkCB(chunk, serializeID);
-				};
-				serializer._serializeDOM( node, state );
-				serializer._serializeToken( state, new EOFTk() );
-			}
+		if ( finalCB && typeof finalCB === 'function' ) {
 			finalCB();
-		} catch (e) {
-			console.warn("e: " + JSON.stringify(e) + "; stack: " + e.stack);
-			state.env.errCB(e);
-			throw e;
 		}
-	});
+
+		return chunkCB ? '' : out.join('');
+	} catch (e) {
+		console.warn("e: " + JSON.stringify(e) + "; stack: " + e.stack);
+		state.env.errCB(e);
+		throw e;
+	}
 };
 
 function firstBlockNodeAncestor(node) {

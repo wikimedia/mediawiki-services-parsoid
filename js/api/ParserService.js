@@ -73,6 +73,21 @@ function setDefaultWiki ( config, env ) {
 	env.wgScript = env.interwikiMap[interwiki];
 }
 
+var htmlSpecialChars = function ( s ) {
+	return s.replace(/&/g,'&amp;')
+		.replace(/</g,'&lt;')
+		.replace(/"/g,'&quot;')
+		.replace(/'/g,'&#039;');
+};
+
+var textarea = function ( res, content ) {
+	res.write('<form method=POST><textarea name="content" cols=90 rows=9>');
+	res.write( ( content &&
+					htmlSpecialChars( content) ) ||
+			'');
+	res.write('</textarea><br><input type="submit"></form>');
+};
+
 /**
  * Perform word-based diff on a line-based diff. The word-based algorithm is
  * practically unusable for inputs > 5k bytes, so we only perform it on the
@@ -168,20 +183,17 @@ var refineDiff = function ( diff ) {
 };
 
 var roundTripDiff = function ( req, res, src, document ) {
+	var patch;
 	var env = Util.getParserEnv( localSettings );
-	var out, patch;
+	var out = new Serializer({env: env, oldtext: src}).serializeDOM(document.body);
+
 	res.write('<html><head><script type="text/javascript" src="/jquery.js"></script><script type="text/javascript" src="/scrolling.js"></script><style>ins { background: #ff9191; text-decoration: none; } del { background: #99ff7e; text-decoration: none }; </style></head><body>');
 	res.write( '<h2>Wikitext parsed to HTML DOM</h2><hr>\n' );
 	res.write(document.body.innerHTML + '\n<hr>');
+
 	res.write( '<h2>HTML DOM converted back to Wikitext</h2><hr>\n' );
-	out = new Serializer({env: env}).serializeDOM( document.body );
-	if ( out === undefined ) {
-		console.log( 'Serializer error!' );
-		out = "An error occured in the WikitextSerializer, please check the log for information";
-		res.send( out, 500 );
-		return;
-	}
 	res.write('<pre>' + htmlSpecialChars( out ) + '</pre><hr>\n');
+
 	res.write( '<h2>Diff between original Wikitext (green) and round-tripped wikitext (red)</h2><p>(use shift+alt+n and shift+alt+p to navigate forward and backward)<hr>\n' );
 	src = src.replace(/\n(?=\n)/g, '\n ');
 	out = out.replace(/\n(?=\n)/g, '\n ');
@@ -198,6 +210,7 @@ var roundTripDiff = function ( req, res, src, document ) {
 			'Report a parser issue in this page</a> at ' +
 			'<a href="http://www.mediawiki.org/wiki/Talk:Parsoid/Todo">'+
 			'[[:mw:Talk:Parsoid/Todo]]</a></h2><hr>');
+
 };
 
 var parse = function ( env, req, res, cb, err, src ) {
@@ -211,25 +224,10 @@ var parse = function ( env, req, res, cb, err, src ) {
 		} else {
 			res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 			cb( req, res, src, doc );
-		};
+		}
 	};
 
 	Util.parse( env, newCb, err, src );
-};
-
-var htmlSpecialChars = function ( s ) {
-	return s.replace(/&/g,'&amp;')
-		.replace(/</g,'&lt;')
-		.replace(/"/g,'&quot;')
-		.replace(/'/g,'&#039;');
-};
-
-var textarea = function ( res, content ) {
-	res.write('<form method=POST><textarea name="content" cols=90 rows=9>');
-	res.write( ( content &&
-					htmlSpecialChars( content) ) ||
-			'');
-	res.write('</textarea><br><input type="submit"></form>');
 };
 
 /* -------------------- web app access points below --------------------- */
@@ -327,15 +325,16 @@ app.post(/\/_html\/(.*)/, function ( req, res ) {
 	var env = getParserEnv( localSettings, res );
 	env.setPageName( req.params[0] );
 	setDefaultWiki( config, env );
-	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+
 	var p = new html5.Parser();
 	p.parse( '<html><body>' + req.body.content.replace(/\r/g, '') + '</body></html>' );
+	var out = new Serializer({env: env}).serializeDOM(
+		p.tree.document.childNodes[0].childNodes[1]
+	);
+
+	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 	res.write('<pre style="background-color: #efefef">');
-	new Serializer({env: env}).serializeDOM(
-		p.tree.document.childNodes[0].childNodes[1],
-		function( c ) {
-			res.write( htmlSpecialChars( c ) );
-		});
+	res.write( htmlSpecialChars( out ) );
 	res.write('</pre>');
 	res.write( "<hr>Your HTML DOM:" );
 	textarea( res, req.body.content.replace(/\r/g, '') );
@@ -546,8 +545,9 @@ app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function ( req, res 
 	env.wgScript = env.interwikiMap[req.params[0]];
 	res.setHeader('Content-Type', 'text/x-mediawiki; charset=UTF-8');
 
+	var p;
 	try {
-		var p = new html5.Parser();
+		p = new html5.Parser();
 		p.parse( req.body.content );
 	} catch ( e ) {
 		console.log( 'There was an error in the HTML5 parser! Sending it back to the editor.' );
@@ -561,17 +561,17 @@ app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function ( req, res 
 	};
 
 	try {
-		new Serializer( { env: env, oldid: oldid } ).serializeDOM(
 		// The below can be uncommented to turn on selective serialization on the main API service.
 		// This is not currently advisable. It's not working perfectly.
 		//new SelectiveSerializer( { env: env, oldid: oldid } ).serializeDOM(
-			p.tree.document.childNodes[0].childNodes[1],
-			function ( chunk ) {
-				res.write( chunk );
-			}, function () {
-				// XXX TODO FIXME BBQ There should be an error callback in SelSer.
-				res.end( '' );
-			} );
+
+		// FIXME: Fetch oldid source and pass it in.
+		var out = new Serializer( { env: env, oldid: oldid } ).serializeDOM(
+			p.tree.document.childNodes[0].childNodes[1]
+		);
+
+		res.write( out );
+		res.end( '' ); // XXX TODO FIXME BBQ There should be an error callback in SelSer.
 	} catch ( e ) {
 		env.errCB( e );
 	}
