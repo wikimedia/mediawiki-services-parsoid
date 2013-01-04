@@ -289,7 +289,7 @@ WSP.wteHandlers = new WikitextEscapeHandlers();
  *    the serializer correctly handle original as well as modified content
  *    in the HTML.
  *
- * separatorEmitted
+ * separatorEmittedFromSrc
  *    Valid only when 'src' is not null.
  *
  *    A flag that indicates if a separator has already been emitted from
@@ -317,7 +317,7 @@ WSP.initialState = {
 	tplAttrs: {},
 	src: null,
 	bufferedSeparator: null,
-	separatorEmitted: false,
+	separatorEmittedFromSrc: false,
 	currLine: {
 		text: null,
 		processed: false,
@@ -344,14 +344,21 @@ WSP.initialState = {
 	},
 	emitSeparator: function(n1, dsrIndex1, n2, dsrIndex2) {
 		function emit(state, separator) {
-			if (separator.match(/\n$/)) {
-				state.onNewline = true;
+			if (state.tokenCollector) {
+				// If in token collection mode, convert the
+				// separator into a token so that it shows up
+				// in the right place in the token stream.
+				state.tokenCollector.collect( state, separator );
+			} else {
+				if (separator.match(/\n$/)) {
+					state.onNewline = true;
+				}
+				if (separator.match(/\n/)) {
+					state.onStartOfLine = true;
+				}
+				WSP.debug_pp("===> ", "sep: ", separator);
+				state.chunkCB(separator, "separator");
 			}
-			if (separator.match(/\n/)) {
-				state.onStartOfLine = true;
-			}
-			WSP.debug_pp("===> ", "sep: ", separator);
-			state.chunkCB(separator, "separator");
 			state.bufferedSeparator = null;
 		}
 
@@ -387,7 +394,7 @@ WSP.initialState = {
 		if (separator.match(/^(\s|<!--([^-]|-[^->]|--[^>])*-->)*$/)) {
 			// verify that the separator is really one
 			emit(this, separator);
-			this.separatorEmitted = true;
+			this.separatorEmittedFromSrc = true;
 		} else {
 			// something not right with the separator that we extracted!
 			if (this.bufferedSeparator) {
@@ -1779,16 +1786,16 @@ WSP._getTokenHandler = function(state, token) {
  */
 WSP._serializeToken = function ( state, token ) {
 
-	function emitNLs(nls, debugStr) {
+	function emitNLs(nls, debugStr, dontBuffer) {
 		// Skip emitting newlines if we used original source
 		// to emit separators.
-		if (!state.separatorEmitted) {
-			if (state.src) {
+		if (!state.separatorEmittedFromSrc) {
+			if (state.src && !dontBuffer) {
 				// Buffer this till we know we cannot emit
 				// separator from source in emitSeparator
 				state.bufferedSeparator = nls;
 			} else {
-				state.chunkCB( nls, state.selser.serializeInfo );
+				state.chunkCB( nls, 'separator' );
 				WSP.debug_pp("===> ", debugStr || "", nls);
 				state.onNewline = true;
 				state.onStartOfLine = true;
@@ -1915,7 +1922,11 @@ WSP._serializeToken = function ( state, token ) {
 	if (handler.startsLine && !state.onStartOfLine && !suppressOutput && !state.singleLineMode) {
 		// Emit newlines separately from regular content
 		// for the benefit of the selective serializer.
-		emitNLs('\n', "sol: ");
+		//
+		// Dont buffer newlines if separater hasn't been
+		// emitted from original source -- emit nls right
+		// away since these are SOL nls
+		emitNLs('\n', "sol: ", true);
 	}
 
 	// SSS FIXME: Questionable avoidance of newline in single-line mode
@@ -1963,7 +1974,10 @@ WSP._serializeToken = function ( state, token ) {
 
 	// end-of-line processing
 	if (handler.endsLine && !state.onNewline) {
-		emitNLs('\n', "eol: ");
+		// Buffer newlines if we have access to original source.
+		// These will be emitted if separator cannot be extracted
+		// from original source for whatever reason.
+		emitNLs('\n', "eol: ", false);
 	}
 
 	if ( handler.singleLine > 0 ) {
@@ -1971,7 +1985,7 @@ WSP._serializeToken = function ( state, token ) {
 	}
 
 	// Reset
-	state.separatorEmitted = false;
+	state.separatorEmittedFromSrc = false;
 };
 
 WSP._getDOMAttribs = function( attribs ) {
