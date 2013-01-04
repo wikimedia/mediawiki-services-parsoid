@@ -598,7 +598,7 @@ function migrateTrailingNLs(elt, env) {
 				var next = n.nextSibling;
 				if (partialContent) {
 					var nls = n.data;
-					n.data = n.data.replace(/\n*$/, '');
+					n.data = n.data.replace(/\n+$/, '');
 					nls = nls.substring(n.data.length);
 					n = n.ownerDocument.createTextNode(nls);
 					partialContent = false;

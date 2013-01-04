@@ -365,11 +365,6 @@ WSP.initialState = {
 // Make sure the initialState is never modified
 Util.deepFreeze( WSP.initialState );
 
-var installCollector = function ( collectorConstructor, cb, handler, state, token ) {
-	state.tokenCollector = new collectorConstructor( token, cb, handler );
-	return '';
-};
-
 var endTagMatchTokenCollector = function ( tk, cb ) {
 	var tokens = [tk];
 
@@ -1411,12 +1406,12 @@ WSP.tagHandlers = {
 						return '<nowiki>';
 					} else if ( token.dataAttribs.src ) {
 						// FIXME: compare content with original content
-						return installCollector(
-									endTagMatchTokenCollector,
-									WSP.compareSourceHandler,
-									this,
-									state, token
-								);
+						// after collection
+						state.tokenCollector = new endTagMatchTokenCollector(
+							token,
+							WSP.compareSourceHandler,
+							this );
+						return '';
 					} else {
 						return '';
 					}
@@ -1517,21 +1512,25 @@ WSP.tagHandlers = {
 	},
 	a:  {
 		start: {
-			handle: installCollector.bind(null,
-						endTagMatchTokenCollector,
-						WSP._linkHandler,
-						this
-					)
+			handle: function(state, token) {
+				state.tokenCollector = new endTagMatchTokenCollector(
+					token,
+					WSP._linkHandler,
+					WSP);
+				return '';
+			}
 		},
 		wtEscapeHandler: WSP.wteHandlers.linkHandler
 	},
 	link:  {
 		start: {
-			handle: installCollector.bind(null,
-						endTagMatchTokenCollector,
-						WSP._linkHandler,
-						this
-					)
+			handle: function(state, token) {
+				state.tokenCollector = new endTagMatchTokenCollector(
+					token,
+					WSP._linkHandler,
+					WSP);
+				return '';
+			}
 		},
 		wtEscapeHandler: WSP.wteHandlers.linkHandler
 	}
@@ -2023,9 +2022,12 @@ WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
 			child = next;
 		}
 
-		if (!inPre) {
-			// Post-text-normalization, strip inter-element whitespace, including comments
-			// (http://dev.w3.org/html5/spec-LC/content-models.html#content-models)
+		// Post-text-normalization, strip inter-element whitespace, including comments
+		// (http://dev.w3.org/html5/spec-LC/content-models.html#content-models)
+		//
+		// Dont normalize if we are in a PRE-node or if the node is a mw:Entity SPAN
+		if (!inPre &&
+			!(DU.hasNodeName(node, 'span') && node.getAttribute('typeof') === 'mw:Entity')) {
 			child = node.firstChild;
 			while (child) {
 				next = child.nextSibling, prev = child.previousSibling;

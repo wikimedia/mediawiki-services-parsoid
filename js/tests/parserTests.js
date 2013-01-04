@@ -120,7 +120,7 @@ ParserTests.prototype.getOpts = function () {
 		},
 		'use_source': {
 			description: 'Use original source in wt2wt tests',
-			'boolean': false,
+			'boolean': true,
 			'default': true
 		},
 		'html2html': {
