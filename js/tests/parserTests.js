@@ -121,7 +121,7 @@ ParserTests.prototype.getOpts = function () {
 		'use_source': {
 			description: 'Use original source in wt2wt tests',
 			'boolean': true,
-			'default': true
+			'default': false
 		},
 		'html2html': {
 			description: 'Roundtrip testing: HTML(DOM) -> Wikitext -> HTML(DOM)',

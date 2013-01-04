@@ -267,6 +267,34 @@ WSP.wteHandlers = new WikitextEscapeHandlers();
  *    stack of wikitext escaping handlers -- these handlers are responsible
  *    for smart escaping when the surrounding wikitext context is known.
  *
+ * tplAttrs
+ *    tag attributes that came from templates in source wikitext -- these
+ *    are collected upfront from the DOM from mw-marked nodes.
+ *
+ * src
+ *    The original wikitext that generated the (possibly modified) HTML
+ *    that we are serializing back.  This src is used wherever possible to
+ *    emit inter-element separators -- this simplifies the serializer by
+ *    eliminating complicated bookkeeping and buffering to emit the right
+ *    amount of separators in the right place.  When 'src' is not available,
+ *    the HTML is serialized with normalized separators (ex: 2 newlines
+ *    between </p> and <p> tags no matter how many show in the HTML).
+ *
+ * bufferedSeparator
+ *    Valid only when 'src' is not null.
+ *
+ *    Temporary buffering of normalized separators as determined by node
+ *    handlers.  They are used when emitting separators from src fails
+ *    and discarded if emitting separators from src suceeds.  This lets
+ *    the serializer correctly handle original as well as modified content
+ *    in the HTML.
+ *
+ * separatorEmitted
+ *    Valid only when 'src' is not null.
+ *
+ *    A flag that indicates if a separator has already been emitted from
+ *    original wikitext src.
+ *
  * currLine
  *    This object is used by the wikitext escaping algorithm -- represents
  *    a "single line" of output wikitext as represented by a block node in
@@ -288,6 +316,8 @@ WSP.initialState = {
 	wteHandlerStack: [],
 	tplAttrs: {},
 	src: null,
+	bufferedSeparator: null,
+	separatorEmitted: false,
 	currLine: {
 		text: null,
 		processed: false,
@@ -313,51 +343,56 @@ WSP.initialState = {
 		return this.serializer.serializeTokens(initState, tokens, chunkCB);
 	},
 	emitSeparator: function(n1, dsrIndex1, n2, dsrIndex2) {
-		// console.warn("separator: " + dsrIndex1 + "; " + dsrIndex2);
+		function emit(state, separator) {
+			if (separator.match(/\n$/)) {
+				state.onNewline = true;
+			}
+			if (separator.match(/\n/)) {
+				state.onStartOfLine = true;
+			}
+			WSP.debug_pp("===> ", "sep: ", separator);
+			state.chunkCB(separator, "separator");
+			state.bufferedSeparator = null;
+		}
 
 		// cannot do anything if we dont have original wikitext
 		if (!this.src) {
-			// console.warn("--0. fail--");
+			if (this.bufferedSeparator) {
+				emit(this, this.bufferedSeparator);
+			}
 			return;
 		}
 
 		// cannot do anything if we dont have dsr for either node
 		var dsr1 = DU.dataParsoid(n1).dsr;
 		if (!dsr1 || dsr1[dsrIndex1] === null) {
-			// console.warn("--1. fail--");
+			if (this.bufferedSeparator) {
+				emit(this, this.bufferedSeparator);
+			}
 			return;
 		}
 
-		// cannot do anything if we dont have dsr for either node
 		var dsr2 = DU.dataParsoid(n2).dsr;
 		if (!dsr2 || dsr2[dsrIndex2] === null) {
-			// console.warn("--2. fail--");
+			if (this.bufferedSeparator) {
+				emit(this, this.bufferedSeparator);
+			}
 			return;
 		}
 
-		// verify
 		var i1 = dsr1[dsrIndex1] + (dsrIndex1 === 0 && dsrIndex2 === 0 ? dsr1[2] : 0);
 		var i2 = dsr2[dsrIndex2] - (dsrIndex1 === 1 && dsrIndex2 === 1 ? dsr2[3] : 0);
 		var separator = this.src.substring(i1, i2);
-/*
-		console.warn("dsrIndex1: " + dsrIndex1);
-		console.warn("dsrIndex2: " + dsrIndex2);
-		console.warn("i1: " + i1);
-		console.warn("i2: " + i2);
-		console.warn("sep: " + JSON.stringify(separator));
-*/
+
 		if (separator.match(/^(\s|<!--([^-]|-[^->]|--[^>])*-->)*$/)) {
-			if (separator.match(/\n$/)) {
-				this.onNewline = true;
-			}
-			if (separator.match(/\n/)) {
-				this.onStartOfLine = true;
-			}
-			WSP.debug_pp("===> ", "sep: ", separator);
-			this.chunkCB(separator, this.selser.serializeInfo);
+			// verify that the separator is really one
+			emit(this, separator);
+			this.separatorEmitted = true;
 		} else {
 			// something not right with the separator that we extracted!
-			// console.warn("--3. fail--");
+			if (this.bufferedSeparator) {
+				emit(this, this.bufferedSeparator);
+			}
 			return;
 		}
 	}
@@ -1745,12 +1780,19 @@ WSP._getTokenHandler = function(state, token) {
 WSP._serializeToken = function ( state, token ) {
 
 	function emitNLs(nls, debugStr) {
-		// Skip emitting newlines if we are using original source
-		if (!state.src) {
-			state.chunkCB( nls, state.selser.serializeInfo );
-			WSP.debug_pp("===> ", debugStr || "", nls);
-			state.onNewline = true;
-			state.onStartOfLine = true;
+		// Skip emitting newlines if we used original source
+		// to emit separators.
+		if (!state.separatorEmitted) {
+			if (state.src) {
+				// Buffer this till we know we cannot emit
+				// separator from source in emitSeparator
+				state.bufferedSeparator = nls;
+			} else {
+				state.chunkCB( nls, state.selser.serializeInfo );
+				WSP.debug_pp("===> ", debugStr || "", nls);
+				state.onNewline = true;
+				state.onStartOfLine = true;
+			}
 		}
 	}
 
@@ -1927,6 +1969,9 @@ WSP._serializeToken = function ( state, token ) {
 	if ( handler.singleLine > 0 ) {
 		state.singleLineMode += handler.singleLine;
 	}
+
+	// Reset
+	state.separatorEmitted = false;
 };
 
 WSP._getDOMAttribs = function( attribs ) {
