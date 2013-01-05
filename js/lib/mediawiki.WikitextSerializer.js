@@ -389,7 +389,7 @@ WSP.initialState = {
 		var i2 = dsr2[dsrIndex2] - (dsrIndex1 === 1 && dsrIndex2 === 1 ? dsr2[3] : 0);
 		var separator = this.src.substring(i1, i2);
 
-		if (separator.match(/^(\s|<!--([^-]|-[^->]|--[^>])*-->)*$/)) {
+		if (separator.match(/^(\s|<!--([^\-]|-(?!->)|--(?!>))*-->)*$/)) {
 			// verify that the separator is really one
 			emit(this, separator);
 			this.separatorEmittedFromSrc = true;
