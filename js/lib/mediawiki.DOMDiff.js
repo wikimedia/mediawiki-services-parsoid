@@ -28,21 +28,17 @@ DDP.diff = function ( node ) {
 	// work on a cloned copy of the passed-in node
 	var workNode = node.cloneNode(true);
 
-	// Test DOMDiff
+	// First do a quick check on the nodes themselves
+	if (!this.treeEquals(this.env.page.dom, workNode, false)) {
+		this.markNode(workNode, 'modified');
+		return { isEmpty: false, dom: workNode };
+	}
+
+
+	// The root nodes are equal, call recursive differ
 	var foundChange = this.doDOMDiff(this.env.page.dom, workNode);
 	this.debug('ORIG:\n', node.outerHTML, '\nNEW :\n', workNode.outerHTML );
 	return { isEmpty: ! foundChange, dom: workNode };
-
-	// Continue with old DSR-based marking for now..
-	//workNode = node.cloneNode(true);
-
-	////
-	//try {
-	//	this.doDetectDOMChangesUsingDSR ( workNode );
-	//} catch(e) {
-	//	console.error(e);
-	//}
-	//return workNode;
 };
 
 // These attributes are ignored for equality purposes if they are added to a
@@ -54,7 +50,7 @@ var ignoreAttributes = {
 
 function countIgnoredAttributes (attributes) {
 	var n = 0;
-	for (name in ignoreAttributes) {
+	for (var name in ignoreAttributes) {
 		if (attributes[name]) {
 			n++;
 		}
@@ -132,7 +128,6 @@ DDP.treeEquals = function (nodeA, nodeB, deep) {
 };
 
 
-
 /**
  * Diff two DOM trees by comparing them node-by-node
  *
@@ -149,12 +144,7 @@ DDP.treeEquals = function (nodeA, nodeB, deep) {
  * Assume typical CSS white-space, so ignore ws diffs in non-pre content.
  */
 DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
-	// First do a quick check on the nodes themselves
-	if (!this.treeEquals(baseParentNode, newParentNode, false)) {
-		return false;
-	}
-
-	// Now perform a relaxed version of the recursive treeEquals algorithm that
+	// Perform a relaxed version of the recursive treeEquals algorithm that
 	// allows for some minor differences and tries to produce a sensible diff
 	// marking using heuristics like look-ahead on siblings.
 	var baseNode = baseParentNode.firstChild,
@@ -216,7 +206,7 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 			foundDiff = true;
 		} else if(!DU.isTplElementNode(this.env, newNode)) {
 			// Recursively diff subtrees if not template-like content
-			foundDiff |= this.doDOMDiff(baseNode, newNode);
+			foundDiff = foundDiff || this.doDOMDiff(baseNode, newNode);
 		}
 
 		// And move on to the next pair
