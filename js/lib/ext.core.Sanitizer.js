@@ -5,8 +5,6 @@
  * can bypass sanitation by setting their rank to 3.
  *
  * A large part of this code is a straight port from the PHP version.
- *
- * @author Gabriel Wicke <gwicke@wikimedia.org>
  */
 
 "use strict";

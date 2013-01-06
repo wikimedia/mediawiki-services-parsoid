@@ -13,8 +13,6 @@
  * See
  * https://www.mediawiki.org/wiki/Parsoid/Token_stream_transformations
  * for more documentation.
- *
- * @author Gabriel Wicke <gwicke@wikimedia.org>
  */
 
 var events = require('events'),

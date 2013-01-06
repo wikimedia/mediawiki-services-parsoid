@@ -3,8 +3,6 @@
  * Simple link handler. Registers after template expansions, as an
  * asynchronous transform.
  *
- * @author Gabriel Wicke <gwicke@wikimedia.org>
- *
  * TODO: keep round-trip information in meta tag or the like
  */
 

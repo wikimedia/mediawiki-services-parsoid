@@ -8,9 +8,6 @@
  * See http://www.mediawiki.org/wiki/Parsoid and
  * http://www.mediawiki.org/wiki/Parsoid/Token_stream_transformations
  * for illustrations of the pipeline architecture.
- *
- * @author Gabriel Wicke <gwicke@wikimedia.org>
- * @author Neil Kandalgaonkar <neilk@wikimedia.org>
  */
 
 // make this global for now

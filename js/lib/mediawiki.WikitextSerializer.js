@@ -20,9 +20,6 @@
  * * add a generic 'can this HTML node be serialized to wikitext in this
  *   context' detection method and use that to adaptively switch between
  *   wikitext and HTML serialization
- *
- * @author Subramanya Sastry <ssastry@wikimedia.org>
- * @author Gabriel Wicke <gwicke@wikimedia.org>
  * ---------------------------------------------------------------------- */
 
 "use strict";

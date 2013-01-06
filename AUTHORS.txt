@@ -1,16 +1,30 @@
-Principal Authors (major contributors, by number of commits)
+Full list of authors, by number of lines in revision
+ad8d60a7e739c3c537746c7b8b38f88cf01cfefb Dec 27 2012:
 
 Gabriel Wicke <gwicke@wikimedia.org>
 Subramanya Sastry <ssastry@wikimedia.org>
 Mark Holmquist <mtraceur@member.fsf.org>
 Adam Wight <awight@wikimedia.org>
-
-Patch Contributors (minor contributors, alphabetically)
-
-Antoine Musso <hashar@free.fr>
-Audrey Tang <audreyt@audreyt.org>
+Catrope <roan@wikimedia.org>
 Brion Vibber <brion@wikimedia.org>
+Siebrand Mazeland <s.mazeland@xs4all.nl>
+Antoine Musso <hashar@free.fr>
+lwelling <lwelling@wikimedia.org>
 Neil Kandalgaonkar <neilk@brevity.org>
-Ori Livneh <ori@wikimedia.org>
-Roan Kattouw <roan@wikimedia.org>
 Trevor Parscal <trevor@wikimedia.org>
+Timo Tijhof <ttijhof@wikimedia.org>
+Audrey Tang (au) <audreyt@audreyt.org>
+MZMcBride <w@mzmcbride.com>
+Ori Livneh <ori.livneh@gmail.com>
+GWicke <gwicke@wikimedia.org>
+
+A version of this list can be regenerated with the following one-liner:
+
+git ls-tree -r HEAD|cut -f 2|grep -E '\.(js|cc|h|cpp|hpp|c|txt|sh)$' | grep -v -E 'scripts|html5'   |xargs -n1 git blame --line-porcelain|grep -e "^author "|sort|uniq -c|sort -nr
+
+Same for mail adresses:
+
+git ls-tree -r HEAD|cut -f 2|grep -E '\.(js|cc|h|cpp|hpp|c|txt|sh)$' | grep -v -E 'scripts|html5'   |xargs -n1 git blame --line-porcelain|grep -e "^author-mail "|sort|uniq -c|sort -nr
+
+
+Please see git blame for per-file information.

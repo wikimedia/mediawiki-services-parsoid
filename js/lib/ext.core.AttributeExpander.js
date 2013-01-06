@@ -2,8 +2,6 @@
 
 /**
  * Generic attribute expansion handler.
- *
- * @author Gabriel Wicke <gwicke@wikimedia.org>
  */
 var $ = require('jquery'),
 	request = require('request'),

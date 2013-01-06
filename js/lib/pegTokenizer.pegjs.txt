@@ -3,9 +3,6 @@
  * chunks of tokens (one chunk per top-level block matched) and eventually an
  * end event. Tokens map to HTML tags as far as possible, with custom tokens
  * used where further processing on the token stream is needed.
- *
- * @author Gabriel Wicke <gwicke@wikimedia.org>
- * @author Brion Vibber <brion@wikimedia.org>
  */
 {
     /* Fixme: use static functions to separate module! Unfortunately, this

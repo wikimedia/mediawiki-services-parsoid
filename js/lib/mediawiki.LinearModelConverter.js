@@ -1,7 +1,5 @@
 /**
  * HTML DOM -> linear model converter
- *
- * @author Roan Kattouw
  */
 
 /**
@@ -215,7 +213,7 @@ function convertHTMLNode( node, annotations, typeData ) {
 		attributes, typeData, childTypeData;
 	annotations = annotations || [];
 	typeData = typeData || {};
-	
+
 	if ( typeData.type ) {
 		element = { 'type': typeData.type };
 		attributes = convertAttributes( node.attributes );
@@ -227,7 +225,7 @@ function convertHTMLNode( node, annotations, typeData ) {
 		}
 		data.push( element );
 	}
-	
+
 	for ( i = 0; i < node.childNodes.length; i++ ) {
 		child = node.childNodes[i];
 		switch ( child.nodeType ) {
@@ -255,13 +253,13 @@ function convertHTMLNode( node, annotations, typeData ) {
 							'leaf node (' + node.nodeName + ')' );
 						break;
 					}
-					
+
 					// Close the last paragraph, if still open
 					if ( paragraphOpened ) {
 						data.push( { 'type': '/paragraph' } );
 						paragraphOpened = false;
 					}
-					
+
 					// Get the typeData for this node
 					childTypeData = elementTypes[child.nodeName.toLowerCase()];
 					if ( childTypeData ) {
@@ -297,7 +295,7 @@ function convertHTMLNode( node, annotations, typeData ) {
 	if ( paragraphOpened ) {
 		data.push( { 'type': '/paragraph' } );
 	}
-	
+
 	if ( typeData && typeData.type ) {
 		data.push( { 'type': '/' + typeData.type } );
 	}
