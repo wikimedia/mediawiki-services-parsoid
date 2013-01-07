@@ -337,48 +337,38 @@ WSP.initialState = {
 		};
 		return this.serializer.serializeTokens(initState, tokens, chunkCB);
 	},
-	emitSeparator: function(n1, dsrIndex1, n2, dsrIndex2) {
-		function emit(state, separator) {
-			if (state.tokenCollector) {
-				// If in token collection mode, convert the
-				// separator into a token so that it shows up
-				// in the right place in the token stream.
-				state.tokenCollector.collect( state, separator );
-			} else {
-				if (separator.match(/\n$/)) {
-					state.onNewline = true;
-				}
-				if (separator.match(/\n/)) {
-					state.onStartOfLine = true;
-				}
-				WSP.debug_pp("===> ", "sep: ", separator);
-				state.chunkCB(separator, "separator");
+	emitSepChunk: function(separator, debugStr) {
+		if (this.tokenCollector) {
+			// If in token collection mode, convert the
+			// separator into a token so that it shows up
+			// in the right place in the token stream.
+			this.tokenCollector.collect( this, separator );
+		} else {
+			if (separator.match(/\n$/)) {
+				this.onNewline = true;
 			}
-			state.bufferedSeparator = null;
+			if (separator.match(/\n/)) {
+				this.onStartOfLine = true;
+			}
+			WSP.debug_pp("===> ", debugStr || "sep: ", separator);
+			this.chunkCB(separator, "separator");
 		}
-
+		this.bufferedSeparator = null;
+	},
+	emitSeparator: function(n1, dsrIndex1, n2, dsrIndex2) {
 		// cannot do anything if we dont have original wikitext
 		if (!this.src) {
-			if (this.bufferedSeparator) {
-				emit(this, this.bufferedSeparator);
-			}
 			return;
 		}
 
 		// cannot do anything if we dont have dsr for either node
 		var dsr1 = DU.dataParsoid(n1).dsr;
 		if (!dsr1 || dsr1[dsrIndex1] === null) {
-			if (this.bufferedSeparator) {
-				emit(this, this.bufferedSeparator);
-			}
 			return;
 		}
 
 		var dsr2 = DU.dataParsoid(n2).dsr;
 		if (!dsr2 || dsr2[dsrIndex2] === null) {
-			if (this.bufferedSeparator) {
-				emit(this, this.bufferedSeparator);
-			}
 			return;
 		}
 
@@ -388,13 +378,10 @@ WSP.initialState = {
 
 		if (separator.match(/^(\s|<!--([^\-]|-(?!->)|--(?!>))*-->)*$/)) {
 			// verify that the separator is really one
-			emit(this, separator);
+			this.emitSepChunk(separator);
 			this.separatorEmittedFromSrc = true;
 		} else {
 			// something not right with the separator that we extracted!
-			if (this.bufferedSeparator) {
-				emit(this, this.bufferedSeparator);
-			}
 			return;
 		}
 	}
@@ -1334,10 +1321,11 @@ WSP.tagHandlers = {
 				var prevTag = state.prevTagToken;
 				if (state.src || (
 					prevTag && prevTag.constructor === TagTk && prevTag.name === 'body')) {
-					return '';
+					this.emitsNL = false;
 				} else {
-					return '\n';
+					this.emitsNL = true;
 				}
+				return '';
 			}
 		},
 		end: {
@@ -1346,14 +1334,15 @@ WSP.tagHandlers = {
 				if (prevTag && ((prevTag.constructor === TagTk && prevTag.name === 'p') ||
 					(prevTag.constructor === EndTagTk &&prevTag.name === 'br'))) {
 					this.endsLine = true;
-					return '';
+					this.emitsNL = false;
 				} else if (state.src) {
 					this.endsLine = false;
-					return '';
+					this.emitsNL = false;
 				} else {
 					this.endsLine = true;
-					return '\n';
+					this.emitsNL = true;
 				}
+				return '';
 			}
 		}
 	},
@@ -1786,20 +1775,17 @@ WSP._getTokenHandler = function(state, token) {
  * Serialize a token.
  */
 WSP._serializeToken = function ( state, token ) {
-
 	function emitNLs(nls, debugStr, dontBuffer) {
 		// Skip emitting newlines if we used original source
 		// to emit separators.
 		if (!state.separatorEmittedFromSrc) {
+			var sep = (state.bufferedSeparator || "") + nls;
 			if (state.src && !dontBuffer) {
 				// Buffer this till we know we cannot emit
 				// separator from source in emitSeparator
-				state.bufferedSeparator = nls;
+				state.bufferedSeparator = sep;
 			} else {
-				state.chunkCB( nls, 'separator' );
-				WSP.debug_pp("===> ", debugStr || "", nls);
-				state.onNewline = true;
-				state.onStartOfLine = true;
+				state.emitSepChunk(sep, debugStr);
 			}
 		}
 	}
@@ -1927,7 +1913,7 @@ WSP._serializeToken = function ( state, token ) {
 		// Dont buffer newlines if separater hasn't been
 		// emitted from original source -- emit nls right
 		// away since these are SOL nls
-		emitNLs('\n', "sol: ", true);
+		emitNLs('\n', "sol: ", false);
 	}
 
 	// SSS FIXME: Questionable avoidance of newline in single-line mode
@@ -1971,6 +1957,12 @@ WSP._serializeToken = function ( state, token ) {
 		if (!handler.solTransparent) {
 			state.onStartOfLine = false;
 		}
+	}
+
+	if (handler.emitsNL) {
+		emitNLs('\n', "emitsNL: ", true);
+	} else if (state.bufferedSeparator) {
+		state.emitSepChunk(state.bufferedSeparator);
 	}
 
 	// end-of-line processing
@@ -2432,6 +2424,15 @@ WSP._serializeDOM = function( node, state ) {
 				// prevEltChild.dsr[1], node.dsr[1]
 				state.emitSeparator(prevEltChild, 1, node, 1);
 			}
+
+			/* SSS FIXME:
+			 * Handle zero-children case -- there may be some whitespace here.
+			 * Look at node.dsr and check if dsr[0] + dsr[3] < dsr[2].
+			 * If so, the gap is a separator.
+			 *
+			 * Found in examples like "{|\n| \n|}" -- the extra white space after
+			 * the "|" is lost without this fix/check.
+			 */
 
 			// Reset parent state
 			state.prevTagToken = oldPrevTagToken;
