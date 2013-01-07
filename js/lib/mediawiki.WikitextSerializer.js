@@ -693,6 +693,12 @@ WSP._figureHandler = function ( state, figTokens ) {
 		i++;
 	}
 
+	if ( !img ) {
+		console.error('ERROR _figureHandler: no img ' + figTokens);
+		// No image, at least don't crash below
+		return '';
+	}
+
 	// skip tokens looking for the start and end caption tags
 	var fcStartIndex = 0, fcEndIndex = 0;
 	while (i < n) {
