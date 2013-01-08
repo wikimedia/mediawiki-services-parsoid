@@ -1676,9 +1676,11 @@ table_row_tag
         ss:sol+ 
         !( space* (pipe / [!+-]) ) 
         tdt:table_data_tag 
-        { 
-            return nls.concat(flattenIfArray(ss), tdt); 
-        } 
+        {
+            tdt[0].dataAttribs.autoInsertedStart = true;
+            tdt[0].dataAttribs.autoInsertedEnd = true;
+            return nls.concat(flattenIfArray(ss), tdt);
+        }
     )?
     { 
         // We rely on our tree builder to close the row as needed. This is
