@@ -2105,7 +2105,10 @@ WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
 						//    "<div>foo</div> <!--b--> c"
 						// In the above example, the whitespace after the </div> is
 						// significant.
-						if (str.match(/^\s*$/) && (!next || next.nodeType === Node.ELEMENT_NODE)) {
+						if (str.match(/^\s*$/) &&
+							(prev || next) &&
+							(!next || next.nodeType === Node.ELEMENT_NODE))
+						{
 							node.removeChild(child);
 						}
 					} else if (!haveOrigSrc) {
@@ -2113,10 +2116,10 @@ WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
 						// followed by block nodes -- these newlines are syntactic
 						// and can be normalized away since the serializer in sourceless
 						// mode is tuned to normalize newlines.
-						if (str.match(/\n$/) && (!next || DU.isBlockNode(next))) {
+						if (str.match(/\n$/) && (prev||next) && (!next || DU.isBlockNode(next))) {
 							child.data = str.replace(/\n+$/, '');
 						}
-					    if (str.match(/^\n/) && (!prev || DU.isBlockNode(prev))) {
+					    if (str.match(/^\n/) && (prev||next) && (!prev || DU.isBlockNode(prev))) {
 							child.data = str.replace(/^\n+/, '');
 						}
 					}
@@ -2434,15 +2437,6 @@ WSP._serializeDOM = function( node, state ) {
 				// prevEltChild.dsr[1], node.dsr[1]
 				state.emitSeparator(prevEltChild, 1, node, 1);
 			}
-
-			/* SSS FIXME:
-			 * Handle zero-children case -- there may be some whitespace here.
-			 * Look at node.dsr and check if dsr[0] + dsr[3] < dsr[2].
-			 * If so, the gap is a separator.
-			 *
-			 * Found in examples like "{|\n| \n|}" -- the extra white space after
-			 * the "|" is lost without this fix/check.
-			 */
 
 			// Reset parent state
 			state.prevTagToken = oldPrevTagToken;
