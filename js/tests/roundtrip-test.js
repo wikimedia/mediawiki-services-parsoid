@@ -102,7 +102,7 @@ xmlCallback = function ( page, err, results ) {
 findDsr = function () {
 var currentOffset, wasWaiting = false, waitingForEndMatch = false;
 return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
-	var j, childNode, childAttribs, attribs, elesOnOffset, currentPreText, start, end,
+	var j, matchedChildren, childAttribs, attribs, elesOnOffset, currentPreText, start, end,
 		elements = [], preText = [];
 
 	if ( resetCurrentOffset ) {
@@ -135,7 +135,10 @@ return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
 			waitingForEndMatch = true;
 		}
 
-		if ( targetRange.end < start || targetRange.start > end ) {
+		if ( (targetRange.end-1) < start ) {
+			waitingForEndMatch = false;
+			return null;
+		} else if ( targetRange.start > (end-1) ) {
 			return null;
 		}
 	}
@@ -143,15 +146,11 @@ return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
 	var children = element.childNodes;
 	for ( j = 0; j < children.length; j++ ) {
 		var c = children[j];
-		if (!c) {
-			// FIXME: why would this be anyway?
-			continue;
-		}
 
 		wasWaiting = waitingForEndMatch;
 		if ( c.nodeType === c.ELEMENT_NODE ) {
-			childNode = findDsr( c, targetRange, sourceLen );
-			if ( childNode ) {
+			matchedChildren = findDsr( c, targetRange, sourceLen );
+			if ( matchedChildren ) {
 				elesOnOffset = [];
 
 				if ( !currentOffset && attribs.dsr && attribs.dsr[0] ) {
@@ -165,24 +164,24 @@ return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
 						elesOnOffset.push( currentPreText );
 					}
 					elesOnOffset.reverse();
-					childNode = elesOnOffset.concat( childNode );
+					matchedChildren = elesOnOffset.concat( matchedChildren );
 				}
 
 				// Check if there's only one child, and make sure it's a node with getAttribute
-				if ( childNode.length === 1 && childNode[0].getAttribute ) {
-					childAttribs = childNode[0].getAttribute( 'data-parsoid' );
+				if ( matchedChildren.length === 1 && matchedChildren[0].nodeType === c.ELEMENT_NODE ) {
+					childAttribs = matchedChildren[0].getAttribute( 'data-parsoid' );
 					if ( childAttribs ) {
 						childAttribs = JSON.parse( childAttribs );
 						if ( childAttribs.dsr && childAttribs.dsr[1] >= targetRange.end ) {
 							currentOffset = null;
 							preText = [];
-						} else if ( childAttribs.dsr ) {
-							currentOffset = childAttribs.dsr[1] || currentOffset;
+						} else if ( childAttribs.dsr && childAttribs.dsr[1]) {
+							currentOffset = childAttribs.dsr[1];
 						}
 					}
 				}
 
-				elements = elements.concat( childNode );
+				elements = elements.concat( matchedChildren );
 			}
 		} else if ( c.nodeType === c.TEXT_NODE || c.nodeType === c.COMMENT_NODE ) {
 			if ( currentOffset && ( currentOffset < targetRange.end ) ) {
@@ -200,6 +199,10 @@ return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
 			}
 		}
 
+		if (wasWaiting || waitingForEndMatch) {
+			elements.push(c);
+		}
+
 		if ( wasWaiting && !waitingForEndMatch ) {
 			break;
 		}
@@ -207,14 +210,12 @@ return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
 
 	var numElements = elements.length;
 	var numChildren = children.length;
-	if ( numElements > 0 && numElements < numChildren ) {
-		return elements;
-/*	} else if ( attribs && attribs.dsr && attribs.dsr.length ) {
-		return [ element ]; */
-	} else if ( numChildren > 0 && numElements === numChildren ) {
-		return [ element ];
-	} else {
+	if (numElements === 0) {
 		return null;
+	} else if ( numElements < numChildren ) {
+		return elements;
+	} else { /* numElements === numChildren */
+		return [ element ];
 	}
 };
 }(),
@@ -296,17 +297,15 @@ checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 			offset[0].start--;
 		}
 		origOut = findDsr( body, offset[0] || {}, src.length, true ) || [];
-		newOut = findDsr( document.firstChild.childNodes[1], offset[1] || {}, out.length, true ) || [];
-
 		for ( k = 0; k < origOut.length; k++ ) {
 			origOrigHTML += myOuterHTML(origOut[k]);
 		}
+		origHTML = Util.formatHTML( Util.normalizeOut( origOrigHTML ) );
 
+		newOut = findDsr( document.firstChild.childNodes[1], offset[1] || {}, out.length, true ) || [];
 		for ( k = 0; k < newOut.length; k++ ) {
 			origNewHTML += myOuterHTML(newOut[k]);
 		}
-
-		origHTML = Util.formatHTML( Util.normalizeOut( origOrigHTML ) );
 		newHTML = Util.formatHTML( Util.normalizeOut( origNewHTML ) );
 
 		// compute wt diffs
@@ -379,6 +378,9 @@ fetch = function ( page, cb, options ) {
 
 	var env = Util.getParserEnv();
 
+	if (options.wiki === 'localhost') {
+		env.setInterwiki( 'localhost', 'http://localhost/wiki' );
+	}
 	env.wgScript = env.interwikiMap[options.wiki];
 	env.setPageName( page );
 
