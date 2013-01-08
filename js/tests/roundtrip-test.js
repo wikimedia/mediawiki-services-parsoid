@@ -135,10 +135,10 @@ return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
 			waitingForEndMatch = true;
 		}
 
-		if ( (targetRange.end-1) < start ) {
+		if ( (targetRange.end - 1) < start ) {
 			waitingForEndMatch = false;
 			return null;
-		} else if ( targetRange.start > (end-1) ) {
+		} else if ( targetRange.start > (end - 1) ) {
 			return null;
 		}
 	}
@@ -336,13 +336,12 @@ doubleRoundtripDiff = function ( page, offsets, src, body, out, cb, wgScript ) {
 	var parser, env = Util.getParserEnv();
 
 	if ( offsets.length > 0 ) {
-		env.text = src;
+		env.text = out;
 		env.wgScript = wgScript;
 		env.errCB = function ( error ) {
 			cb( error, page, [] );
 			process.exit( 1 );
 		};
-
 
 		var parserPipeline = Util.getParser( env, 'text/x-mediawiki/full' );
 
