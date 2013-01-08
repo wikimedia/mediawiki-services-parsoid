@@ -837,8 +837,12 @@ var splitLinkContentString = function (contentString, dp, target) {
 		// Drop the content completely..
 		return { contentString: '', tail: tail || '' };
 	} else {
-		if ( target && contentString.substr( 0, target.length ) === target ) {
+		if ( target && contentString.substr( 0, target.length ) === target &&
+				dp.stx === 'simple' ) {
 			tail = contentString.substr( target.length );
+			if ( !Util.isLinkTrail( tail ) ) {
+				tail = dp.tail;
+			}
 		}
 		if ( tail && contentString.substr( contentString.length - tail.length ) === tail ) {
 			// strip the tail off the content

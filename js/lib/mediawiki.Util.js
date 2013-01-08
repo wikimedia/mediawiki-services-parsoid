@@ -1127,6 +1127,15 @@ Util.getPageSrc = function ( env, title, cb, oldid ) {
 	pageRequest.once( 'src', cb );
 };
 
+Util.linkTrailRegex = /^[^A-Z \t(),.:!'\n\r&-]+$/;
+Util.isLinkTrail = function ( text ) {
+	if ( text && text.match && text.match( this.linkTrailRegex ) ) {
+		return true;
+	} else {
+		return false;
+	}
+};
+
 if (typeof module === "object") {
 	module.exports.Util = Util;
 }
