@@ -886,30 +886,33 @@ var getLinkRoundTripData = function( token, attribDict, dp, tokens, state ) {
 	var contentParts;
 	var contentString = Util.tokensToString(tokens, true);
 	if (contentString.constructor === String) {
-		contentParts = splitLinkContentString(contentString, dp, rtData.target.value);
-		contentString = contentParts.contentString;
-		rtData.tail = contentParts.tail;
-		dp.tail = contentParts.tail;
-
-		// Wikitext-escape content.
-		//
-		// When processing link text, we are no longer in newline state
-		// since that will be preceded by "[[" or "[" text in target wikitext.
-		state.onStartOfLine = false;
-		state.emitNewlineOnNextToken = false;
-		state.wteHandlerStack.push(rtData.type && rtData.type.match(/mw:WikiLink/) ?
-			WSP.wteHandlers.wikilinkHandler :
-			WSP.wteHandlers.aHandler
-		);
-		rtData.content.string = contentString;
-		rtData.content.escapedString = WSP.escapeWikiText(state, contentString);
-		state.wteHandlerStack.pop();
+		if ( ! rtData.target.modified ) {
+			rtData.content.string = Util.stripSuffix( contentString, rtData.tail );
+		} else {
+			// Try to identify a new potential tail
+			contentParts = splitLinkContentString(contentString, dp, rtData.target);
+			rtData.content.string = contentParts.contentString;
+			rtData.tail = contentParts.tail;
+		}
 	} else {
 		rtData.content.tokens = tokens;
 	}
 
 	return rtData;
 };
+
+function escapeWikiLinkContentString ( contentString, state ) {
+	// Wikitext-escape content.
+	//
+	// When processing link text, we are no longer in newline state
+	// since that will be preceded by "[[" or "[" text in target wikitext.
+	state.onStartOfLine = false;
+	state.emitNewlineOnNextToken = false;
+	state.wteHandlerStack.push(WSP.wteHandlers.wikilinkHandler);
+	var res = WSP.escapeWikiText(state, contentString);
+	state.wteHandlerStack.pop();
+	return res;
+}
 
 // SSS FIXME: This doesn't deal with auto-inserted start/end tags.
 // To handle that, we have to split every 'return ...' statement into
@@ -927,7 +930,8 @@ WSP._linkHandler =  function( state, tokens ) {
 		endToken = tokens.pop(),
 		attribDict = Util.KVtoHash( token.attribs ),
 		dp = token.dataAttribs,
-		linkData, contentParts;
+		linkData, contentParts,
+		contentSrc = '';
 
 	// Get the rt data from the token and tplAttrs
 	linkData = getLinkRoundTripData(token, attribDict, dp, tokens, state);
@@ -962,12 +966,10 @@ WSP._linkHandler =  function( state, tokens ) {
 								.replace( /%20/g, ' '),
 							dp );
 					linkData.content.string = contentParts.contentString;
-					linkData.content.escapedString = contentParts.contentString;
 					dp.tail = contentParts.tail;
 					linkData.tail = contentParts.tail;
 				} else { // No sort key, will serialize to simple link
 					linkData.content.string = target.value;
-					linkData.content.escapedString = target.value;
 				}
 
 				// Special-case handling for template-affected sort keys
@@ -977,8 +979,12 @@ WSP._linkHandler =  function( state, tokens ) {
 					// The target and source key was not modified
 					var sortKeySrc = token.getAttributeShadowInfo('mw:sortKey', state.tplAttrs);
 					if ( sortKeySrc.value !== null ) {
+						linkData.content.tokens = undefined;
 						linkData.content.string = sortKeySrc.value;
-						linkData.content.escapedString = sortKeySrc.value;
+						// TODO: generalize this flag. It is already used by
+						// getAttributeShadowInfo. Maybe use the same
+						// structure as its return value?
+						linkData.content.fromsrc = true;
 					}
 				//}
 			} else if ( linkData.type === 'mw:WikiLink/Language' ) {
@@ -1001,19 +1007,30 @@ WSP._linkHandler =  function( state, tokens ) {
 									linkData.href === linkData.content.string ) &&
 								// but preserve non-minimal piped links
 								! ( ! target.modified &&
-										( dp.stx === 'piped' || dp.pipetrick ) );
+										( dp.stx === 'piped' || dp.pipetrick ) ),
+				canUsePipeTrick = linkData.content.string !== undefined &&
+					(
+						Util.stripPipeTrickChars(Util.decodeURI(target.value)) ===
+							linkData.content.string ||
+						Util.stripPipeTrickChars(Util.decodeURI(linkData.href)) ===
+							linkData.content.string
+						// XXX: try more pairs similar to the canUseSimple
+						// test above?
+					);
+
+
 
 			if ( canUseSimple ) {
 				// Simple case
 				if ( ! target.modified ) {
 					return '[[' + target.value + ']]' + linkData.tail;
 				} else {
-					return '[[' + linkData.content.escapedString + ']]' + linkData.tail;
+					contentSrc = escapeWikiLinkContentString(linkData.content.string, state);
+					return '[[' + contentSrc + ']]' + linkData.tail;
 				}
 			} else {
 
 				// First get the content source
-				var contentSrc;
 				if ( linkData.content.tokens ) {
 					contentSrc = state.serializeTokens(false, WSP.wteHandlers.wikilinkHandler, tokens).join('');
 					// strip off the tail and handle the pipe trick
@@ -1021,8 +1038,13 @@ WSP._linkHandler =  function( state, tokens ) {
 					contentSrc = contentParts.contentString;
 					dp.tail = contentParts.tail;
 					linkData.tail = contentParts.tail;
-				} else {
-					contentSrc = linkData.content.escapedString;
+				} else if (!canUsePipeTrick) {
+					if (linkData.content.fromsrc) {
+						contentSrc = linkData.content.string;
+					} else {
+						contentSrc = escapeWikiLinkContentString(linkData.content.string,
+								state);
+					}
 				}
 
 				if ( contentSrc === '' && ! dp.pipetrick ) {
