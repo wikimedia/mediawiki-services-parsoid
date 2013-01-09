@@ -102,8 +102,8 @@ xmlCallback = function ( page, err, results ) {
 findDsr = function () {
 var currentOffset, wasWaiting = false, waitingForEndMatch = false;
 return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
-	var j, matchedChildren, childAttribs, attribs, elesOnOffset, currentPreText, start, end,
-		elements = [], preText = [];
+	var j, matchedChildren, childAttribs, attribs, elesOnOffset, start, end,
+		elements = [], precedingNodes = [];
 
 	if ( resetCurrentOffset ) {
 		currentOffset = null;
@@ -151,17 +151,33 @@ return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
 		if ( c.nodeType === c.ELEMENT_NODE ) {
 			matchedChildren = findDsr( c, targetRange, sourceLen );
 			if ( matchedChildren ) {
+				// If we get a subset of c's children, this means that
+				// the subset matches the target range => there is no need
+				// to process any of c's siblings.
+				var done = (matchedChildren[0] !== c);
+
 				elesOnOffset = [];
 
 				if ( !currentOffset && attribs.dsr && attribs.dsr[0] ) {
 					currentOffset = attribs.dsr[0];
-					while ( preText.length > 0 && currentOffset >= targetRange.start ) {
-						currentPreText = preText.pop();
-						if ( currentPreText.nodeValue.length > currentOffset - targetRange.start ) {
-							break;
+					// Walk the preceding nodes without dsr values and prefix matchedChildren
+					// till we get the desired matching start value.
+					var diff = currentOffset - targetRange.start;
+					while ( precedingNodes.length > 0 && diff > 0 ) {
+						var n = precedingNodes.pop();
+						if (n.nodeType === c.TEXT_NODE) {
+							if ( n.nodeValue.length > diff ) {
+								break;
+							}
+							diff -= n.nodeValue.length;
+						} else {
+							// comment
+							if ( n.nodeValue.length + 7 > diff ) {
+								break;
+							}
+							diff -= (n.nodeValue.length + 7);
 						}
-						currentOffset -= currentPreText.nodeValue.length;
-						elesOnOffset.push( currentPreText );
+						elesOnOffset.push( n );
 					}
 					elesOnOffset.reverse();
 					matchedChildren = elesOnOffset.concat( matchedChildren );
@@ -172,17 +188,33 @@ return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
 					childAttribs = matchedChildren[0].getAttribute( 'data-parsoid' );
 					if ( childAttribs ) {
 						childAttribs = JSON.parse( childAttribs );
-						if ( childAttribs.dsr && childAttribs.dsr[1] >= targetRange.end ) {
-							currentOffset = null;
-							preText = [];
-						} else if ( childAttribs.dsr && childAttribs.dsr[1]) {
-							currentOffset = childAttribs.dsr[1];
+						if ( childAttribs.dsr && childAttribs.dsr[1]) {
+							if ( childAttribs.dsr[1] >= targetRange.end ) {
+								currentOffset = null;
+								precedingNodes = [];
+							} else {
+								currentOffset = childAttribs.dsr[1];
+							}
 						}
 					}
 				}
 
-				elements = elements.concat( matchedChildren );
+/**
+ * SSS FIXME: Hmm .. why doesn't this work??
+ *
+				if (done) {
+					return matchedChildren;
+				} else {
+					elements = matchedChildren;
+				}
+**/
+				elements = matchedChildren;
+			} else if (wasWaiting || waitingForEndMatch) {
+				elements.push(c);
 			}
+
+			// Clear out when an element node is encountered.
+			precedingNodes = [];
 		} else if ( c.nodeType === c.TEXT_NODE || c.nodeType === c.COMMENT_NODE ) {
 			if ( currentOffset && ( currentOffset < targetRange.end ) ) {
 				currentOffset += c.nodeValue.length;
@@ -190,17 +222,18 @@ return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
 					// Add the length of the '<!--' and '--> bits
 					currentOffset += 7;
 				}
-				elements = elements.concat( [ c ] );
-				if ( wasWaiting && currentOffset >= targetRange.end ) {
+				if ( currentOffset >= targetRange.end ) {
 					waitingForEndMatch = false;
 				}
-			} else if ( !currentOffset ) {
-				preText.push( c );
 			}
-		}
 
-		if (wasWaiting || waitingForEndMatch) {
-			elements.push(c);
+			if (wasWaiting || waitingForEndMatch) {
+				// Part of target range
+				elements.push(c);
+			} else if ( !currentOffset ) {
+				// Accumulate nodes without dsr
+				precedingNodes.push( c );
+			}
 		}
 
 		if ( wasWaiting && !waitingForEndMatch ) {
