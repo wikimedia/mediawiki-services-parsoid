@@ -566,7 +566,7 @@ app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function ( req, res 
 		//new SelectiveSerializer( { env: env, oldid: oldid } ).serializeDOM(
 
 		// FIXME: Fetch oldid source and pass it in.
-		var out = new Serializer( { env: env, oldid: oldid } ).serializeDOM(
+		var out = new Serializer( { env: env, oldid: env.page.id } ).serializeDOM(
 			p.tree.document.childNodes[0].childNodes[1]
 		);
 
