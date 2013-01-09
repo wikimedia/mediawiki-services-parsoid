@@ -99,160 +99,136 @@ xmlCallback = function ( page, err, results ) {
 	return output;
 },
 
-findDsr = function () {
-var currentOffset, wasWaiting = false, waitingForEndMatch = false;
-return function ( element, targetRange, sourceLen, resetCurrentOffset ) {
-	var j, matchedChildren, childAttribs, attribs, elesOnOffset, start, end,
-		elements = [], precedingNodes = [];
+findDsr = function (root, targetRange, sourceLen) {
+	var currentOffset = null, wasWaiting = false, waitingForEndMatch = false;
 
-	if ( resetCurrentOffset ) {
-		currentOffset = null;
-		wasWaiting = false;
-		waitingForEndMatch = false;
-	}
+	function walkDOM(element) {
+		var j, matchedChildren, childAttribs, attribs, start, end,
+			elements = [], precedingNodes = [];
 
-	if ( element ) {
 		attribs = element.getAttribute( 'data-parsoid' );
 		if ( attribs ) {
 			attribs = JSON.parse( attribs );
 		}
-	}
 
-	if ( attribs && attribs.dsr && attribs.dsr.length ) {
-		start = attribs.dsr[0] || 0;
-		end = attribs.dsr[1] || sourceLen - 1;
+		if ( attribs && attribs.dsr && attribs.dsr.length ) {
+			start = attribs.dsr[0] || 0;
+			end = attribs.dsr[1] || sourceLen - 1;
 
-		if ( waitingForEndMatch ) {
-			if ( end >= targetRange.end ) {
-				waitingForEndMatch = false;
-			}
-			return [ element ];
-		}
-
-		if ( attribs.dsr[0] && targetRange.start === start && end === targetRange.end ) {
-			return [ element ];
-		} else if ( targetRange.start === start ) {
-			waitingForEndMatch = true;
-		}
-
-		if ( (targetRange.end - 1) < start ) {
-			waitingForEndMatch = false;
-			return null;
-		} else if ( targetRange.start > (end - 1) ) {
-			return null;
-		}
-	}
-
-	var children = element.childNodes;
-	for ( j = 0; j < children.length; j++ ) {
-		var c = children[j];
-
-		wasWaiting = waitingForEndMatch;
-		if ( c.nodeType === c.ELEMENT_NODE ) {
-			matchedChildren = findDsr( c, targetRange, sourceLen );
-			if ( matchedChildren ) {
-				// If we get a subset of c's children, this means that
-				// the subset matches the target range => there is no need
-				// to process any of c's siblings.
-				var done = (matchedChildren[0] !== c);
-
-				elesOnOffset = [];
-
-				if ( !currentOffset && attribs.dsr && attribs.dsr[0] ) {
-					currentOffset = attribs.dsr[0];
-					// Walk the preceding nodes without dsr values and prefix matchedChildren
-					// till we get the desired matching start value.
-					var diff = currentOffset - targetRange.start;
-					while ( precedingNodes.length > 0 && diff > 0 ) {
-						var n = precedingNodes.pop();
-						if (n.nodeType === c.TEXT_NODE) {
-							if ( n.nodeValue.length > diff ) {
-								break;
-							}
-							diff -= n.nodeValue.length;
-						} else {
-							// comment
-							if ( n.nodeValue.length + 7 > diff ) {
-								break;
-							}
-							diff -= (n.nodeValue.length + 7);
-						}
-						elesOnOffset.push( n );
-					}
-					elesOnOffset.reverse();
-					matchedChildren = elesOnOffset.concat( matchedChildren );
-				}
-
-				// Check if there's only one child, and make sure it's a node with getAttribute
-				if ( matchedChildren.length === 1 && matchedChildren[0].nodeType === c.ELEMENT_NODE ) {
-					childAttribs = matchedChildren[0].getAttribute( 'data-parsoid' );
-					if ( childAttribs ) {
-						childAttribs = JSON.parse( childAttribs );
-						if ( childAttribs.dsr && childAttribs.dsr[1]) {
-							if ( childAttribs.dsr[1] >= targetRange.end ) {
-								currentOffset = null;
-								precedingNodes = [];
-							} else {
-								currentOffset = childAttribs.dsr[1];
-							}
-						}
-					}
-				}
-
-/**
- * SSS FIXME: Hmm .. why doesn't this work??
- *
-				if (done) {
-					return matchedChildren;
-				} else {
-					elements = matchedChildren;
-				}
-**/
-				elements = matchedChildren;
-			} else if (wasWaiting || waitingForEndMatch) {
-				elements.push(c);
-			}
-
-			// Clear out when an element node is encountered.
-			precedingNodes = [];
-		} else if ( c.nodeType === c.TEXT_NODE || c.nodeType === c.COMMENT_NODE ) {
-			if ( currentOffset && ( currentOffset < targetRange.end ) ) {
-				currentOffset += c.nodeValue.length;
-				if ( c.nodeType === c.COMMENT_NODE ) {
-					// Add the length of the '<!--' and '--> bits
-					currentOffset += 7;
-				}
-				if ( currentOffset >= targetRange.end ) {
+			if ( waitingForEndMatch ) {
+				if ( end >= targetRange.end ) {
 					waitingForEndMatch = false;
 				}
+				return { done: true, nodes: [element] }
 			}
 
-			if (wasWaiting || waitingForEndMatch) {
-				// Part of target range
-				elements.push(c);
-			} else if ( !currentOffset ) {
-				// Accumulate nodes without dsr
-				precedingNodes.push( c );
+			if ( attribs.dsr[0] && targetRange.start === start && end === targetRange.end ) {
+				return { done: true, nodes: [element] }
+			} else if ( targetRange.start === start ) {
+				waitingForEndMatch = true;
+			}
+
+			if ( (targetRange.end - 1) < start ) {
+				return null;
+			} else if ( targetRange.start > (end - 1) ) {
+				return null;
 			}
 		}
 
-		if ( wasWaiting && !waitingForEndMatch ) {
-			break;
+		var children = element.childNodes;
+		for ( j = 0; j < children.length; j++ ) {
+			var c = children[j];
+
+			wasWaiting = waitingForEndMatch;
+			if ( c.nodeType === c.ELEMENT_NODE ) {
+				var res = walkDOM(c);
+				matchedChildren = res ? res.nodes : null;
+				if ( matchedChildren ) {
+					if ( !currentOffset && attribs.dsr && attribs.dsr[0] ) {
+						var elesOnOffset = [];
+						currentOffset = attribs.dsr[0];
+						// Walk the preceding nodes without dsr values and prefix matchedChildren
+						// till we get the desired matching start value.
+						var diff = currentOffset - targetRange.start;
+						while ( precedingNodes.length > 0 && diff > 0 ) {
+							var n = precedingNodes.pop();
+							var len = n.nodeValue.length + (n.nodeType === c.COMMENT_NODE ? 7 : 0);
+							if ( len > diff ) {
+								break;
+							}
+							diff -= len;
+							elesOnOffset.push( n );
+						}
+						elesOnOffset.reverse();
+						matchedChildren = elesOnOffset.concat( matchedChildren );
+					}
+
+					// Check if there's only one child, and make sure it's a node with getAttribute
+					if ( matchedChildren.length === 1 && matchedChildren[0].nodeType === c.ELEMENT_NODE ) {
+						childAttribs = matchedChildren[0].getAttribute( 'data-parsoid' );
+						if ( childAttribs ) {
+							childAttribs = JSON.parse( childAttribs );
+							if ( childAttribs.dsr && childAttribs.dsr[1]) {
+								if ( childAttribs.dsr[1] >= targetRange.end ) {
+									res.done = true;
+								} else {
+									currentOffset = childAttribs.dsr[1];
+								}
+							}
+						}
+					}
+
+					if (res.done) {
+						res.nodes = matchedChildren;
+						return res;
+					} else {
+						elements = matchedChildren;
+					}
+				} else if (wasWaiting || waitingForEndMatch) {
+					elements.push(c);
+				}
+
+				// Clear out when an element node is encountered.
+				precedingNodes = [];
+			} else if ( c.nodeType === c.TEXT_NODE || c.nodeType === c.COMMENT_NODE ) {
+				if ( currentOffset && ( currentOffset < targetRange.end ) ) {
+					currentOffset += c.nodeValue.length;
+					if ( c.nodeType === c.COMMENT_NODE ) {
+						// Add the length of the '<!--' and '--> bits
+						currentOffset += 7;
+					}
+					if ( currentOffset >= targetRange.end ) {
+						waitingForEndMatch = false;
+					}
+				}
+
+				if (wasWaiting || waitingForEndMatch) {
+					// Part of target range
+					elements.push(c);
+				} else if ( !currentOffset ) {
+					// Accumulate nodes without dsr
+					precedingNodes.push( c );
+				}
+			}
+
+			if ( wasWaiting && !waitingForEndMatch ) {
+				break;
+			}
 		}
-	}
 
-	var numElements = elements.length;
-	var numChildren = children.length;
-	if (numElements === 0) {
-		return null;
-	} else if ( numElements < numChildren ) {
-		return elements;
-	} else { /* numElements === numChildren */
-		return [ element ];
-	}
-};
-}(),
+		var numElements = elements.length;
+		var numChildren = children.length;
+		if (numElements === 0) {
+			return null;
+		} else if ( numElements < numChildren ) {
+			return { done: !waitingForEndMatch, nodes: elements } ;
+		} else { /* numElements === numChildren */
+			return { done: !waitingForEndMatch, nodes: [element] } ;
+		}
+	};
 
+	return walkDOM(root);
+},
 
 checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 
@@ -319,6 +295,7 @@ checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 		offset = offsets[i];
 
 		thisResult.offset = offset;
+		// console.warn("--processing: " + JSON.stringify(offset));
 
 		if ( offset[0].start === offset[0].end &&
 				out.substr(offset[1].start, offset[1].end - offset[1].start)
@@ -329,13 +306,17 @@ checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 			// original (unclosed) DSR.
 			offset[0].start--;
 		}
-		origOut = findDsr( body, offset[0] || {}, src.length, true ) || [];
+		// console.warn("--orig--");
+		var res = findDsr( body, offset[0] || {}, src.length);
+		origOut = res ? res.nodes : [];
 		for ( k = 0; k < origOut.length; k++ ) {
 			origOrigHTML += myOuterHTML(origOut[k]);
 		}
 		origHTML = Util.formatHTML( Util.normalizeOut( origOrigHTML ) );
 
-		newOut = findDsr( document.firstChild.childNodes[1], offset[1] || {}, out.length, true ) || [];
+		// console.warn("--new--");
+		res = findDsr( document.firstChild.childNodes[1], offset[1] || {}, out.length);
+		newOut = res ? res.nodes : [];
 		for ( k = 0; k < newOut.length; k++ ) {
 			origNewHTML += myOuterHTML(newOut[k]);
 		}
