@@ -121,7 +121,7 @@ ParserTests.prototype.getOpts = function () {
 		'use_source': {
 			description: 'Use original source in wt2wt tests',
 			'boolean': true,
-			'default': false
+			'default': true
 		},
 		'html2html': {
 			description: 'Roundtrip testing: HTML(DOM) -> Wikitext -> HTML(DOM)',
@@ -305,19 +305,22 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
 		changelist = [],
 		waiting = 0,
 		changesReturn,
-		self = this;
+		self = this,
+		startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser';
 	try {
+		this.env.page.dom = item.cachedHTML || null;
 		if ( mode === 'selser' ) {
 			this.env.page.src = item.input;
-			this.env.page.dom = item.cachedHTML;
 			this.env.page.name = '';
 			if ( options.changesin && item.changes === undefined ) {
 				// A changesin option was passed, so set the changes to 0,
 				// so we don't try to regenerate the changes.
 				item.changes = 0;
 			}
-		} else if (options.use_source) {
-			serializer.src = item.input;
+		} else if (options.use_source && startsAtWikitext ) {
+			this.env.page.src = item.input;
+		} else {
+			this.env.page.src = null;
 		}
 		serializer.serializeDOM( content, function ( res ) {
 			wt += res;

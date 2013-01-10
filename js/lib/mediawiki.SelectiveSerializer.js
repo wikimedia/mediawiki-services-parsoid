@@ -195,6 +195,7 @@ SSP.parseOriginalSource = function ( doc, cb, finalcb, err, src ) {
 		parserPipelineFactory = new ParserPipelineFactory( this.env ),
 		parserPipeline = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
 
+	// Makes sure that the src is available even when just fetched.
 	this.env.page.src = src;
 
 	// Parse the wikitext src to the original DOM, and pass that on to

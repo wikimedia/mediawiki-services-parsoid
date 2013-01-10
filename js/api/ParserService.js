@@ -184,38 +184,36 @@ var refineDiff = function ( diff ) {
 	return out;
 };
 
-var roundTripDiff = function ( req, res, src, document ) {
-	MWParserEnvironment.getParserEnv( localSettings, null, '', null, null, function ( env ) {
-		var patch;
-		var out = new Serializer({env: env}).serializeDOM( document.body );
-		if ( out === undefined ) {
-			console.log( 'Serializer error!' );
-			out = "An error occured in the WikitextSerializer, please check the log for information";
-			res.send( out, 500 );
-			return;
-		}
-		res.write('<html><head><script type="text/javascript" src="/jquery.js"></script><script type="text/javascript" src="/scrolling.js"></script><style>ins { background: #ff9191; text-decoration: none; } del { background: #99ff7e; text-decoration: none }; </style></head><body>');
-		res.write( '<h2>Wikitext parsed to HTML DOM</h2><hr>\n' );
-		res.write(document.body.innerHTML + '\n<hr>');
-		res.write( '<h2>HTML DOM converted back to Wikitext</h2><hr>\n' );
-		res.write('<pre>' + htmlSpecialChars( out ) + '</pre><hr>\n');
-		res.write( '<h2>Diff between original Wikitext (green) and round-tripped wikitext (red)</h2><p>(use shift+alt+n and shift+alt+p to navigate forward and backward)<hr>\n' );
-		src = src.replace(/\n(?=\n)/g, '\n ');
-		out = out.replace(/\n(?=\n)/g, '\n ');
-		//console.log(JSON.stringify( jsDiff.diffLines( out, src ) ));
-		patch = jsDiff.convertChangesToXML( jsDiff.diffLines( src, out ) );
-		//patch = jsDiff.convertChangesToXML( refineDiff( jsDiff.diffLines( src, out ) ) );
-		res.write( '<pre>' + patch);
-		// Add a 'report issue' link
-		res.end('<hr><h2>'+
-				'<a style="color: red" ' +
-				'href="http://www.mediawiki.org/w/index.php?title=Talk:Parsoid/Todo' +
-				'&action=edit&section=new&preloadtitle=' +
-				'Issue%20on%20http://parsoid.wmflabs.org' + req.url + '">' +
-				'Report a parser issue in this page</a> at ' +
-				'<a href="http://www.mediawiki.org/wiki/Talk:Parsoid/Todo">'+
-				'[[:mw:Talk:Parsoid/Todo]]</a></h2><hr>');
-	} );
+var roundTripDiff = function ( req, res, env, document ) {
+	var patch;
+	var out = new Serializer({env: env}).serializeDOM( document.body );
+	if ( out === undefined ) {
+		console.log( 'Serializer error!' );
+		out = "An error occured in the WikitextSerializer, please check the log for information";
+		res.send( out, 500 );
+		return;
+	}
+	res.write('<html><head><script type="text/javascript" src="/jquery.js"></script><script type="text/javascript" src="/scrolling.js"></script><style>ins { background: #ff9191; text-decoration: none; } del { background: #99ff7e; text-decoration: none }; </style></head><body>');
+	res.write( '<h2>Wikitext parsed to HTML DOM</h2><hr>\n' );
+	res.write(document.body.innerHTML + '\n<hr>');
+	res.write( '<h2>HTML DOM converted back to Wikitext</h2><hr>\n' );
+	res.write('<pre>' + htmlSpecialChars( out ) + '</pre><hr>\n');
+	res.write( '<h2>Diff between original Wikitext (green) and round-tripped wikitext (red)</h2><p>(use shift+alt+n and shift+alt+p to navigate forward and backward)<hr>\n' );
+	var src = env.page.src.replace(/\n(?=\n)/g, '\n ');
+	out = out.replace(/\n(?=\n)/g, '\n ');
+	//console.log(JSON.stringify( jsDiff.diffLines( out, src ) ));
+	patch = jsDiff.convertChangesToXML( jsDiff.diffLines( src, out ) );
+	//patch = jsDiff.convertChangesToXML( refineDiff( jsDiff.diffLines( src, out ) ) );
+	res.write( '<pre>' + patch);
+	// Add a 'report issue' link
+	res.end('<hr><h2>'+
+			'<a style="color: red" ' +
+			'href="http://www.mediawiki.org/w/index.php?title=Talk:Parsoid/Todo' +
+			'&action=edit&section=new&preloadtitle=' +
+			'Issue%20on%20http://parsoid.wmflabs.org' + req.url + '">' +
+			'Report a parser issue in this page</a> at ' +
+			'<a href="http://www.mediawiki.org/wiki/Talk:Parsoid/Todo">'+
+			'[[:mw:Talk:Parsoid/Todo]]</a></h2><hr>');
 };
 
 var parse = function ( env, req, res, cb, err, src ) {
@@ -226,11 +224,14 @@ var parse = function ( env, req, res, cb, err, src ) {
 			}
 			console.log( err.stack );
 			res.send( err.toString(), err.code );
+			return;
 		} else {
 			res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 			cb( req, res, src, doc );
 		}
 	};
+	// Set the source
+	env.page.src = src;
 
 	Util.parse( env, newCb, err, src );
 };

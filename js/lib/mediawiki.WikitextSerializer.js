@@ -209,10 +209,10 @@ var WikitextSerializer = function( options ) {
 		// defaults
 	}, options || {} );
 
-	var env = options.env,
-	    trace = env.traceFlags && (env.traceFlags.indexOf("wts") !== -1);
+	this.env = options.env;
+	var trace = this.env.traceFlags && (this.env.traceFlags.indexOf("wts") !== -1);
 
-	if ( env.debug || trace ) {
+	if ( this.env.debug || trace ) {
 		WikitextSerializer.prototype.debug_pp = function () {
 			Util.debug_pp.apply(Util, arguments);
 		};
@@ -224,8 +224,6 @@ var WikitextSerializer = function( options ) {
 		WikitextSerializer.prototype.debug_pp = function ( ) {};
 		WikitextSerializer.prototype.debug = function ( ) {};
 	}
-	// SSS FIXME: Temporarily backward compatibility hack
-	this.src = options.src || options.oldtext;
 };
 
 var WSP = WikitextSerializer.prototype;
@@ -267,15 +265,6 @@ WSP.wteHandlers = new WikitextEscapeHandlers();
  * tplAttrs
  *    tag attributes that came from templates in source wikitext -- these
  *    are collected upfront from the DOM from mw-marked nodes.
- *
- * src
- *    The original wikitext that generated the (possibly modified) HTML
- *    that we are serializing back.  This src is used wherever possible to
- *    emit inter-element separators -- this simplifies the serializer by
- *    eliminating complicated bookkeeping and buffering to emit the right
- *    amount of separators in the right place.  When 'src' is not available,
- *    the HTML is serialized with normalized separators (ex: 2 newlines
- *    between </p> and <p> tags no matter how many show in the HTML).
  *
  * bufferedSeparator
  *    Valid only when 'src' is not null.
@@ -332,7 +321,6 @@ WSP.initialState = {
 			onStartOfLine: newLineStart,
 			tplAttrs: this.tplAttrs,
 			currLine: this.currLine,
-			src: this.src,
 			wteHandlerStack: wteHandler ? [wteHandler] : []
 		};
 		return this.serializer.serializeTokens(initState, tokens, chunkCB);
@@ -357,7 +345,7 @@ WSP.initialState = {
 	},
 	emitSeparator: function(n1, dsrIndex1, n2, dsrIndex2) {
 		// cannot do anything if we dont have original wikitext
-		if (!this.src) {
+		if (!this.env.page.src) {
 			return;
 		}
 
@@ -374,7 +362,7 @@ WSP.initialState = {
 
 		var i1 = dsr1[dsrIndex1] + (dsrIndex1 === 0 && dsrIndex2 === 0 ? dsr1[2] : 0);
 		var i2 = dsr2[dsrIndex2] - (dsrIndex1 === 1 && dsrIndex2 === 1 ? dsr2[3] : 0);
-		var separator = this.src.substring(i1, i2);
+		var separator = this.env.page.src.substring(i1, i2);
 
 		if (separator.match(/^(\s|<!--([^\-]|-(?!->)|--(?!>))*-->)*$/)) {
 			// verify that the separator is really one
@@ -1359,7 +1347,7 @@ WSP.tagHandlers = {
 			startsLine: true,
 			handle: function(state, token) {
 				var prevTag = state.prevTagToken;
-				if (state.src || (
+				if (state.env.page.src || (
 					prevTag && prevTag.constructor === TagTk && prevTag.name === 'body')) {
 					this.emitsNL = false;
 				} else {
@@ -1375,7 +1363,7 @@ WSP.tagHandlers = {
 					(prevTag.constructor === EndTagTk &&prevTag.name === 'br'))) {
 					this.endsLine = true;
 					this.emitsNL = false;
-				} else if (state.src) {
+				} else if (state.env.page.src) {
 					this.endsLine = false;
 					this.emitsNL = false;
 				} else {
@@ -1401,7 +1389,7 @@ WSP.tagHandlers = {
 				};
 
 				var prevTagToken = state.prevTagToken;
-				if (!state.src && prevTagToken && prevTagToken.constructor === EndTagTk &&
+				if (!state.env.page.src && prevTagToken && prevTagToken.constructor === EndTagTk &&
 					prevTagToken.name === 'pre' && prevTagToken.dataAttribs.stx !== 'html')
 				{
 					return '\n ';
@@ -1820,7 +1808,7 @@ WSP._serializeToken = function ( state, token ) {
 		// to emit separators.
 		if (!state.separatorEmittedFromSrc) {
 			var sep = (state.bufferedSeparator || "") + nls;
-			if (state.src && !dontBuffer) {
+			if (state.env.page.src && !dontBuffer) {
 				// Buffer this till we know we cannot emit
 				// separator from source in emitSeparator
 				state.bufferedSeparator = sep;
@@ -1980,7 +1968,7 @@ WSP._serializeToken = function ( state, token ) {
 	// Something to consider later maybe.
 	//
 	// content processing
-	if (!state.src && state.singleLineMode && !handler.isTemplateSrc) {
+	if (!state.env.page.src && state.singleLineMode && !handler.isTemplateSrc) {
 		// XXX: Switch singleLineMode to stack if there are more
 		// exceptions than just isTemplateSrc later on.
 		res = res.replace(/\n/g, '');
@@ -2200,12 +2188,9 @@ WSP.serializeDOM = function( node, chunkCB, finalCB, selser ) {
 		Util.clone(this.options));
 	state.serializer = this;
 
-	// Record original wikitext source
-	state.src = this.src;
-
 	try {
 		// Preprocess DOM (collect tpl attr tags + strip empty white space)
-		this.preprocessDOM(node, state, false, state.src);
+		this.preprocessDOM(node, state, false, state.env.page.src);
 		this.debug(" DOM ==> ", node.innerHTML);
 
 		if ( selser !== undefined ) {

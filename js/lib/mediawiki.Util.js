@@ -1063,19 +1063,18 @@ var diff = function ( a, b, color, onlyReportChanges, useLines ) {
 };
 Util.diff = diff;
 
-var getParser = function ( env, type ) {
+Util.getParser = function ( env, type ) {
 	var ParserPipelineFactory = require( './mediawiki.parser.js' ).ParserPipelineFactory;
 	return ( new ParserPipelineFactory( env ) ).makePipeline( type );
 },
 
-parse = function ( env, cb, err, src ) {
+Util.parse = function ( env, cb, err, src ) {
 	if ( err !== null ) {
 		cb( null, err );
 	} else {
-		var parser = getParser( env, 'text/x-mediawiki/full' );
-		parser.on( 'document', cb.bind( null, src, null ) );
+		var parser = Util.getParser( env, 'text/x-mediawiki/full' );
+		parser.on( 'document', cb.bind( null, env, null ) );
 		try {
-			env.page.src = src;
 			parser.process( src );
 		} catch ( e ) {
 			env.errCB(e);
@@ -1084,9 +1083,6 @@ parse = function ( env, cb, err, src ) {
 	}
 };
 
-
-Util.getParser = getParser;
-Util.parse = parse;
 
 Util.getPageSrc = function ( env, title, cb, oldid ) {
 	title = env.resolveTitle( title, '' );

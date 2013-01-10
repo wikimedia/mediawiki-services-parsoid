@@ -194,10 +194,11 @@ function dumpFlags() {
 			if ( argv.oldtextfile ) {
 				argv.oldtext = fs.readFileSync(argv.oldtextfile, 'utf8');
 			}
+			env.page.src = argv.oldtext || null;
 			if ( argv.selser ) {
-				serializer = new SelectiveSerializer( { env: env, oldid: null, oldtext: argv.oldtext || null } );
+				serializer = new SelectiveSerializer( { env: env, oldid: null } );
 			} else {
-				serializer = new WikitextSerializer( { env: env, src: argv.oldtext || null } );
+				serializer = new WikitextSerializer( { env: env } );
 			}
 		}
 
