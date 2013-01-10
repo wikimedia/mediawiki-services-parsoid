@@ -80,7 +80,7 @@ function defaultNestedDelimiterHandler(tokens, nestedDelimiterInfo) {
 
 ExtensionContent.prototype.handleExtensionTag = function(extension, collection) {
 	function wrappedExtensionContent(env, tagTsr) {
-		var text = env.text,
+		var text = env.page.src,
 			content = text.substring(tagTsr[0], tagTsr[1]),
 			nt = new SelfclosingTagTk('extension', [
 				new KV('typeof', 'mw:Object/Extension'),

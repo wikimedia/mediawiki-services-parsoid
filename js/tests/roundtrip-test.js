@@ -351,7 +351,7 @@ doubleRoundtripDiff = function ( page, offsets, src, body, out, cb, oldEnv ) {
 	var wgScript = oldEnv.wgScript;
 	var envCb = function ( env ) {
 		if ( offsets.length > 0 ) {
-			env.text = src;
+			env.page.src = src;
 			env.wgScript = wgScript;
 			env.errCB = function ( error ) {
 				cb( error, page, [] );
@@ -359,7 +359,7 @@ doubleRoundtripDiff = function ( page, offsets, src, body, out, cb, oldEnv ) {
 			};
 
 		if ( offsets.length > 0 ) {
-			env.text = out;
+			env.page.src = out;
 			env.wgScript = wgScript;
 			env.errCB = function ( error ) {
 				cb( error, page, [] );

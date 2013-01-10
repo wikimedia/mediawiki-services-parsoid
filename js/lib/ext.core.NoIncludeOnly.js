@@ -40,7 +40,7 @@ var buildStrippedMetaToken = function ( manager, tokenName, startDelim, endDelim
 		tsr1 = da ? da.tsr : null;
 		t1 = tsr1 ? tsr1[1] : null;
 	} else {
-		t1 = manager.env.text.length;
+		t1 = manager.env.page.src.length;
 	}
 
 	return buildMetaToken(manager, tokenName, false, [t0, t1]);

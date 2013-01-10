@@ -667,7 +667,7 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 			var da = token.dataAttribs,
 				span = new TagTk('span', [new KV('typeof', 'mw:Placeholder')], {
 						tsr: [da.tsr[0] + 1, da.targetOff],
-						src: env.text.substring( da.tsr[0] + 1, da.targetOff )
+						src: env.page.src.substring( da.tsr[0] + 1, da.targetOff )
 					} );
 
 			tokens.push(span);

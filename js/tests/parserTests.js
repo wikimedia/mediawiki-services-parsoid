@@ -479,7 +479,7 @@ ParserTests.prototype.convertWt2Html = function( mode, wikitext, processHtmlCB )
 	} catch ( e ) {
 		processHtmlCB( e );
 	}
-	this.env.text = wikitext;
+	this.env.page.src = wikitext;
 	this.parserPipeline.process( wikitext );
 };
 

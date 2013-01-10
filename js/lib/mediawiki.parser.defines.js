@@ -217,7 +217,7 @@ var genericTokenMethods = {
 
 	getWTSource: function(env) {
 		var tsr = this.dataAttribs.tsr;
-		return tsr ? env.text.substring(tsr[0], tsr[1]) : null;
+		return tsr ? env.page.src.substring(tsr[0], tsr[1]) : null;
 	}
 };
 

@@ -76,7 +76,7 @@ Cite.prototype.handleRef = function ( tokens ) {
 	bits.push(ref.groupIndex + 1);
 
 	var about = "#" + this.manager.env.newObjectId(),
-		text  = this.manager.env.text,
+		text  = this.manager.env.page.src,
 		span  = new TagTk('span', [
 				new KV('id', linkback),
 				new KV('class', 'reference'),
@@ -119,7 +119,7 @@ function genPlaceholderTokens(env, token, src) {
 	var tsr = token.dataAttribs.tsr, dataAttribs;
 	if (tsr) {
 		// src from original src
-		dataAttribs = { tsr: tsr, src: env.text.substring(tsr[0], tsr[1]) };
+		dataAttribs = { tsr: tsr, src: env.page.src.substring(tsr[0], tsr[1]) };
 	} else {
 		// Use a default string
 		dataAttribs = { src: src };

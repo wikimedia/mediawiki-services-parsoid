@@ -1075,7 +1075,7 @@ parse = function ( env, cb, err, src ) {
 		var parser = getParser( env, 'text/x-mediawiki/full' );
 		parser.on( 'document', cb.bind( null, src, null ) );
 		try {
-			env.text = src;
+			env.page.src = src;
 			parser.process( src );
 		} catch ( e ) {
 			env.errCB(e);

@@ -382,7 +382,7 @@ app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
 			res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 			console.log('starting parsing of ' + req.params[0]);
 			// FIXME: This does not handle includes or templates correctly
-			env.text = src;
+			env.page.src = src;
 			parser.process( src );
 		} catch (e) {
 			console.log( e.stack );

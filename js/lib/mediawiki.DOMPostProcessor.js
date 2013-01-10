@@ -979,7 +979,7 @@ function encapsulateTemplates( env, doc, tplRanges) {
 				}
 			}
 			if (dp1.dsr[0] !== null && dp1.dsr[1] !== null) {
-				dp1.src = env.text.substring( dp1.dsr[0], dp1.dsr[1] );
+				dp1.src = env.page.src.substring( dp1.dsr[0], dp1.dsr[1] );
 				DU.setDataParsoid(tcStart, dp1);
 				done = true;
 			}
@@ -999,7 +999,7 @@ function encapsulateTemplates( env, doc, tplRanges) {
 		// * from endElem --> tcEnd
 		if (!done) {
 			var dsr = JSON.parse(startElem.getAttribute("data-parsoid")).dsr;
-			var src = [env.text.substr(dsr[0], dsr[1])];
+			var src = [env.page.src.substr(dsr[0], dsr[1])];
 			while (!done) {
 			}
 		}
@@ -1577,7 +1577,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				if (traceDSR) {
 					console.warn("-- UPDATING; " + child.nodeName + " with [" + cs + "," + ce + "]; typeof: " + cTypeOf);
 					// Set up 'dbsrc' so we can debug this
-					dp.dbsrc = env.text.substring(cs, ce);
+					dp.dbsrc = env.page.src.substring(cs, ce);
 				}
 			}
 
@@ -1611,7 +1611,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 							console.warn("CHANGING ce.start of " + sibling.nodeName + " from " + siblingDP.dsr[0] + " to " + newCE);
 							// debug info
 							if (siblingDP.dsr[1]) {
-								siblingDP.dbsrc = env.text.substring(newCE, siblingDP.dsr[1]);
+								siblingDP.dbsrc = env.page.src.substring(newCE, siblingDP.dsr[1]);
 							}
 						}
 						siblingDP.dsr[0] = newCE;
@@ -1671,7 +1671,7 @@ function computeDocDSR(root, env) {
 	if (traceDSR) console.warn("------- tracing DSR computation -------");
 
 	// The actual computation buried in trace/debug stmts.
-	computeNodeDSR(env, root, 0, env.text.length, traceDSR);
+	computeNodeDSR(env, root, 0, env.page.src.length, traceDSR);
 
 	if (traceDSR) console.warn("------- done tracing DSR computation -------");
 

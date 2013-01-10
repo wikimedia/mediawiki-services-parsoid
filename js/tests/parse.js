@@ -223,7 +223,7 @@ function dumpFlags() {
 				serializer.serializeDOM( content, function ( chunk ) {
 					wt += chunk;
 				}, function () {
-					env.text = wt;
+					env.page.src = wt;
 					if (argv.html2wt) {
 						// add a trailing newline for shell user's benefit
 						stdout.write(wt);
@@ -260,7 +260,7 @@ function dumpFlags() {
 				});
 
 				// Kick off the pipeline by feeding the input into the parser pipeline
-				env.text = input;
+				env.page.src = input;
 				parserPipeline.process( input );
 			}
 		} );
