@@ -968,6 +968,10 @@ WSP._linkHandler =  function( state, tokens ) {
 					linkData.content.string = contentParts.contentString;
 					dp.tail = contentParts.tail;
 					linkData.tail = contentParts.tail;
+				} else if ( dp.pipetrick ) {
+					// Handle empty sort key, which is not encoded as fragment
+					// in the LinkHandler
+					linkData.content.string = '';
 				} else { // No sort key, will serialize to simple link
 					linkData.content.string = target.value;
 				}
@@ -1009,6 +1013,7 @@ WSP._linkHandler =  function( state, tokens ) {
 								! ( ! target.modified &&
 										( dp.stx === 'piped' || dp.pipetrick ) ),
 				canUsePipeTrick = linkData.content.string !== undefined &&
+					linkData.type !== 'mw:WikiLink/Category' &&
 					(
 						Util.stripPipeTrickChars(Util.decodeURI(target.value)) ===
 							linkData.content.string ||
@@ -1016,8 +1021,10 @@ WSP._linkHandler =  function( state, tokens ) {
 							linkData.content.string
 						// XXX: try more pairs similar to the canUseSimple
 						// test above?
-					);
-
+					),
+				// Only preserve pipe trick instances across edits, but don't
+				// introduce new ones.
+				willUsePipeTrick = canUsePipeTrick && dp.pipetrick;
 
 
 			if ( canUseSimple ) {
@@ -1038,7 +1045,7 @@ WSP._linkHandler =  function( state, tokens ) {
 					contentSrc = contentParts.contentString;
 					dp.tail = contentParts.tail;
 					linkData.tail = contentParts.tail;
-				} else if (!canUsePipeTrick) {
+				} else if ( !willUsePipeTrick ) {
 					if (linkData.content.fromsrc) {
 						contentSrc = linkData.content.string;
 					} else {
@@ -1047,7 +1054,8 @@ WSP._linkHandler =  function( state, tokens ) {
 					}
 				}
 
-				if ( contentSrc === '' && ! dp.pipetrick ) {
+				if ( contentSrc === '' && ! willUsePipeTrick &&
+						linkData.type !== 'mw:WikiLink/Category' ) {
 					// Protect empty link content from PST pipe trick
 					contentSrc = '<nowiki/>';
 				}
