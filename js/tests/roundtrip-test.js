@@ -260,25 +260,29 @@ checkIfSignificant = function ( env, offsets, src, body, out, cb, document ) {
 
 	function normalizeWikitext(str) {
 		var orig = str;
-		// 1. Normalize multiple spaces to single space
+
+		// Ignore leading tabs vs. leading spaces
+		str = str.replace(/^\t/, ' ');
+		str = str.replace(/\n\t/g, '\n ');
+		// Normalize multiple spaces to single space
 		str = str.replace(/ +/g, " ");
-		// 2. Eliminate spaces around wikitext chars
+		// Eliminate spaces around wikitext chars
 		// gwicke: disabled for now- too aggressive IMO
 		//str = str.replace(/([<"'!#\*:;+-=|{}\[\]\/]) /g, "$1");
-		// 3. Ignore capitalization of tags and void tag indications
+		// Ignore capitalization of tags and void tag indications
 		str = str.replace(/<(\/?)([^ >\/]+)((?:[^>/]|\/(?!>))*)\/?>/g, function(match, close, name, remaining) {
 			return '<' + close + name.toLowerCase() + remaining.replace(/ $/, '') + '>';
 		} );
-		// 4. Ignore whitespace in table cell attributes
+		// Ignore whitespace in table cell attributes
 		str = str.replace(/(^|\n|\|(?=\|)|!(?=!))(\{\||\|[\-+]*|!) *([^|\n]*?) *(?=[|\n]|$)/g, '$1$2$3');
-		// 5. Ignore trailing semicolons and spaces in style attributes
+		// Ignore trailing semicolons and spaces in style attributes
 		str = str.replace(/style\s*=\s*"[^"]+"/g, function(match) {
 			return match.replace(/\s|;(?=")/g, '');
 		});
-		// 6. Strip double-quotes
+		// Strip double-quotes
 		str = str.replace(/"([^"]*?)"/g, "$1");
 
-		// 7. Ignore implicit </small> and </center> in table cells or the end
+		// Ignore implicit </small> and </center> in table cells or the end
 		// of the string for now
 		str = str.replace(/(^|\n)<\/(?:small|center)>(?=\n[|!]|\n?$)/g, '');
 		str = str.replace(/([|!].*?)<\/(?:small|center)>(?=\n[|!]|\n?$)/gi, '$1');
