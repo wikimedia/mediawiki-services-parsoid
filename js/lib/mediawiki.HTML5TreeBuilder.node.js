@@ -143,7 +143,7 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			this.emit('token', {type: 'StartTag', name: tName, data: this._att(attribs)});
 			if (dataAttribs && dataAttribs.tsr) {
 				attrs = [];
-				if ( this.trace ) console.warn('inserting shadow meta');
+				if ( this.trace ) console.warn('inserting shadow meta for ' + tName);
 				attrs.push({nodeName: "typeof", nodeValue: "mw:StartTag"});
 				attrs.push({nodeName: "data-stag", nodeValue: tName + ':' + dataAttribs.tsr});
 				this.emit('token', {type: 'StartTag', name: 'meta', data: attrs});
@@ -162,7 +162,7 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			tName = token.name;
 			this.emit('token', {type: 'EndTag', name: tName});
 
-			if ( this.trace ) console.warn('inserting shadow meta');
+			if ( this.trace ) console.warn('inserting shadow meta for ' + tName);
 			attrs = this._att(attribs);
 			attrs.push({nodeName: "typeof", nodeValue: "mw:EndTag"});
 			attrs.push({nodeName: "data-etag", nodeValue: tName});

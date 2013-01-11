@@ -1169,7 +1169,7 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 	return tplRanges;
 }
 
-function findBuilderCorrectedTags(node) {
+function findBuilderCorrectedTags(node, env) {
 	var children = node.childNodes,
 		c = node.firstChild,
 		sibling, expectedName;
@@ -1181,6 +1181,9 @@ function findBuilderCorrectedTags(node) {
 				( DU.hasLiteralHTMLMarker(dp) ?
 				  '</' + name + '>' : '' );
 
+		if (!endSrc && dp.tsr) {
+			endSrc = env.page.src.substring(dp.tsr[0], dp.tsr[1]);
+		}
 		if ( endSrc ) {
 			placeHolder.setAttribute('typeof', 'mw:Placeholder');
 			DU.setDataParsoid(placeHolder, {src: endSrc});
@@ -1190,30 +1193,21 @@ function findBuilderCorrectedTags(node) {
 		}
 	}
 
-	// Search forward and up for a shadow meta, skipping over other end metas
+	// Search forward for a shadow meta, skipping over other end metas
 	function findMetaShadowNode ( node, type, name ) {
 		while ( node ) {
 			var sibling = node.nextSibling;
-			if ( sibling !== null ) {
-				if ( sibling.nodeType === node.ELEMENT_NODE ) {
-					if ( sibling.nodeName.toLowerCase() === 'meta' ) {
-						if ( DU.isMarkerMeta( sibling, type ) &&
-								sibling.getAttribute('data-etag') === name )
-						{
-							return sibling;
-						} else {
-							node = sibling;
-						}
-					} else {
-						return null;
-					}
-				} else {
-					return null;
-				}
-			} else {
-				node = node.parentNode;
+			if (!sibling || !DU.isMarkerMeta( sibling, type )) {
+				return null;
 			}
+
+			if (sibling.getAttribute('data-etag') === name ) {
+				return sibling;
+			}
+
+			node = sibling;
 		}
+
 		return null;
 	}
 
@@ -1291,7 +1285,7 @@ function findBuilderCorrectedTags(node) {
 			}
 
 
-			findBuilderCorrectedTags(c);
+			findBuilderCorrectedTags(c, env);
 		}
 
 		c = c.nextSibling;
