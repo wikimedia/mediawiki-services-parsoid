@@ -426,7 +426,7 @@ fetch = function ( page, cb, options ) {
 },
 
 cbCombinator = function ( formatter, cb, err, env, text ) {
-	cb( env, formatter( env, err, text ) );
+	cb( err, formatter( env, err, text ) );
 },
 
 consoleOut = function ( err, output ) {
