@@ -1370,7 +1370,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 		return depth;
 	}
 
-	function computeTagWidths(widths, child, dp) {
+	function computeTagWidths(widths, node, dp) {
 		var stWidth = widths[0], etWidth = null;
 
 		if (DU.hasLiteralHTMLMarker(dp)) {
@@ -1378,7 +1378,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				etWidth = widths[1];
 			}
 		} else {
-			var nodeName = child.nodeName.toLowerCase();
+			var nodeName = node.nodeName.toLowerCase();
 			// 'tr' tags not in the original source have zero width
 			if (nodeName === 'tr' && !dp.startTagSrc) {
 				stWidth = 0;
@@ -1388,7 +1388,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				if (stWidth === null) {
 					// we didn't have a tsr to tell us how wide this tag was.
 					if (nodeName === 'li' || nodeName === 'dd') {
-						stWidth = computeListEltWidth(child, nodeName);
+						stWidth = computeListEltWidth(node, nodeName);
 					} else if (wtTagWidth) {
 						stWidth = wtTagWidth[0];
 					}
@@ -1439,7 +1439,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 			}
 		} else if (cType === Node.ELEMENT_NODE) {
 			if (traceDSR) console.warn("-- Processing <" + node.nodeName + ":" + i + ">=" + child.nodeName + " with [" + cs + "," + ce + "]");
-			var cTypeOf = null,
+			var cTypeOf = child.getAttribute("typeof"),
 				dp = DU.dataParsoid(child),
 				tsr = dp.tsr,
 				oldCE = tsr ? tsr[1] : null,
@@ -1449,7 +1449,6 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 			if (DU.hasNodeName(child, "meta")) {
 				// Unless they have been foster-parented,
 				// meta marker tags have valid tsr info.
-				cTypeOf = child.getAttribute("typeof");
 				if (cTypeOf === "mw:EndTag" || cTypeOf === "mw:TSRMarker") {
 					if (cTypeOf === "mw:EndTag") {
 						// FIXME: This seems like a different function that is
@@ -1497,6 +1496,8 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				} else if (cTypeOf === "mw:Placeholder" && ce !== null && dp.src) {
 					cs = ce - dp.src.length;
 				}
+			} else if (cTypeOf === "mw:Placeholder" && ce !== null && dp.src) {
+				cs = ce - dp.src.length;
 			} else {
 				// Non-meta tags
 				var tagWidths, newDsr, ccs, cce;
