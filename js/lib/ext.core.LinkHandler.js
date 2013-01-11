@@ -373,6 +373,39 @@ WikiLinkHandler.prototype.getThumbPath = function ( key, width ) {
 WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fileName,
 		caption, oHash, options, rdfaAttrs )
 {
+	// It turns out that image captions can have unclosed block tags
+	// which then messes up the entire DOM and wraps the reset of the
+	// page into the image caption which is wrong and also screws up
+	// the RTing in turn.  So, we forcibly close all unclosed block
+	// tags by treating the caption as a well-nested DOM context.
+	//
+	// TODO: Actually build a real DOM so that inlines etc are encapsulated
+	// too. This would need to apply phase 3 token transforms, as the caption
+	// as an attribute is already expanded to phase 2.
+	function closeUnclosedBlockTags(tokens) {
+		var openBlockTagStack = [];
+		for (var i = 0, n = tokens.length; i < n; i++) {
+			var t = tokens[i];
+			if (Util.isBlockToken(t)) {
+				if (t.constructor === TagTk) {
+					openBlockTagStack.push(t);
+				} else if (t.constructor === EndTagTk) {
+					if (openBlockTagStack.last().name === t.name) {
+						openBlockTagStack.pop();
+					}
+				}
+			}
+		}
+
+		for (i = 0, n = openBlockTagStack.length; i < n; i++) {
+			var t = openBlockTagStack.pop();
+			t.dataAttribs.autoInsertedEnd = true;
+			tokens.push(new EndTagTk(t.name));
+		}
+
+		return tokens;
+	}
+
 	// TODO: get /wiki from config!
 	var dataAttribs = Util.clone(token.dataAttribs);
 	dataAttribs.optionHash = oHash;
@@ -428,7 +461,6 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 	}
 
 	var path = this.getThumbPath( title.key, width ),
-
 		thumb = [
 		new TagTk('figure', figAttrs),
 		new TagTk( 'a', [
@@ -455,7 +487,7 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 					new KV('class', 'thumbcaption'),
 					new KV('property', 'mw:thumbcaption')
 				] )
-	].concat( caption, [
+	].concat( closeUnclosedBlockTags(caption), [
 				new EndTagTk( 'figcaption' ),
 				new EndTagTk( 'figure' )
 			]);
