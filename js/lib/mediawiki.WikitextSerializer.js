@@ -2277,7 +2277,9 @@ WSP._serializeDOM = function( node, state ) {
 	var newNLs;
 	// serialize this node
 	if (node.nodeType === Node.ELEMENT_NODE) {
-		if (state.activeTemplateId === node.getAttribute("about")) {
+		if (state.activeTemplateId &&
+			state.activeTemplateId === node.getAttribute("about"))
+		{
 			// skip -- template content
 			return;
 		} else {
@@ -2425,7 +2427,10 @@ WSP._serializeDOM = function( node, state ) {
 				var nodeType = child.nodeType;
 				if (  nodeType !== Node.COMMENT_NODE &&
 					!(nodeType === Node.TEXT_NODE && child.data.match(/^\s*$/)) &&
-					!(nodeType === Node.ELEMENT_NODE && state.activeTemplateId === child.getAttribute("about")))
+					!(nodeType === Node.ELEMENT_NODE &&
+						state.activeTemplateId &&
+						state.activeTemplateId === child.getAttribute("about"))
+					)
 				{
 					if (child.nodeType === Node.ELEMENT_NODE) {
 						if (prevEltChild === null) {
