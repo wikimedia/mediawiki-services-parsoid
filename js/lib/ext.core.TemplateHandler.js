@@ -234,7 +234,9 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 	env.tp( 'template target: ' + target );
 
 	// now normalize the target before template processing
-	target = env.normalizeTitle( target );
+	target = env.normalizeTitle( target, false,
+			// preserve the leading colon in the target
+			true );
 
 	// Resolve a possibly relative link
 	var templateName = env.resolveTitle(target, 'Template');

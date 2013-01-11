@@ -1003,17 +1003,22 @@ WSP._linkHandler =  function( state, tokens ) {
 				canUsePipeTrick = linkData.content.string !== undefined &&
 					linkData.type !== 'mw:WikiLink/Category' &&
 					(
-						Util.stripPipeTrickChars(Util.decodeURI(target.value)) ===
+						Util.stripPipeTrickChars(target.value) ===
 							linkData.content.string ||
-						Util.stripPipeTrickChars(Util.decodeURI(linkData.href)) ===
-							linkData.content.string
+						Util.stripPipeTrickChars(linkData.href) ===
+							linkData.content.string ||
+						env.normalizeTitle(Util.stripPipeTrickChars(
+								Util.decodeURI(target.value))) ===
+							env.normalizeTitle(linkData.content.string) ||
+						env.normalizeTitle(
+							Util.stripPipeTrickChars(Util.decodeURI(linkData.href))) ===
+							env.normalizeTitle(linkData.content.string)
 						// XXX: try more pairs similar to the canUseSimple
 						// test above?
 					),
 				// Only preserve pipe trick instances across edits, but don't
 				// introduce new ones.
 				willUsePipeTrick = canUsePipeTrick && dp.pipetrick;
-
 
 			if ( canUseSimple ) {
 				// Simple case

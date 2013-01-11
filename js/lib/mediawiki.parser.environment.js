@@ -271,13 +271,15 @@ MWParserEnvironment.prototype.makeTitleFromPrefixedText = function ( text ) {
 
 
 // XXX: move to Title!
-MWParserEnvironment.prototype.normalizeTitle = function( name, noUnderScores ) {
+MWParserEnvironment.prototype.normalizeTitle = function( name, noUnderScores,
+		preserveLeadingColon )
+{
 	if (typeof name !== 'string') {
 		throw new Error('nooooooooo not a string');
 	}
 	var forceNS, self = this;
 	if ( name.substr( 0, 1 ) === ':' ) {
-		forceNS = ':';
+		forceNS = preserveLeadingColon ? ':' : '';
 		name = name.substr(1);
 	} else {
 		forceNS = '';

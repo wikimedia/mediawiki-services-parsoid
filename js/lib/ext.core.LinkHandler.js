@@ -120,11 +120,15 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 			if ( obj.dataAttribs.pipetrick ) {
 				morecontent = Util.stripPipeTrickChars(morecontent);
 			}
+
+			// Strip leading colon
+			morecontent = morecontent.replace(/^:/, '');
+
 			content = [ morecontent ];
 		}
 
 		var tail = Util.lookup( attribs, 'tail' );
-		if ( title.ns.isCategory() ) {
+		if ( title.ns.isCategory() && ! href.match(/^:/) ) {
 			var tokens = [];
 
 			// We let this get handled earlier as a normal wikilink, but we need
