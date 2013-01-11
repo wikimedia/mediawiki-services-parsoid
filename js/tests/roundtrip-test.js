@@ -1,4 +1,3 @@
-( function () {
 var fs = require( 'fs' ),
 	path = require( 'path' ),
 	colors = require( 'colors' ),
@@ -9,10 +8,11 @@ var fs = require( 'fs' ),
 	Util = require( '../lib/mediawiki.Util.js' ).Util,
 	WikitextSerializer = require( '../lib/mediawiki.WikitextSerializer.js').WikitextSerializer,
 	TemplateRequest = require( '../lib/mediawiki.ApiRequest.js' ).TemplateRequest,
+	MWParserEnvironment = require( '../lib/mediawiki.parser.environment.js' ).MWParserEnvironment,
 
 callback, argv, title,
 
-plainCallback = function ( page, err, results ) {
+plainCallback = function ( env, err, results ) {
 	var i, result, output = '',
 		semanticDiffs = 0, syntacticDiffs = 0,
 		testDivider = ( new Array( 70 ) ).join( '=' ) + '\n',
@@ -56,10 +56,10 @@ plainCallback = function ( page, err, results ) {
 	return output;
 },
 
-xmlCallback = function ( page, err, results ) {
+xmlCallback = function ( env, err, results ) {
 	var i, result,
 
-	output = '<testsuite name="Roundtrip article ' + Util.encodeXml( page || '' ) + '">';
+	output = '<testsuite name="Roundtrip article ' + Util.encodeXml( env.page.name || '' ) + '">';
 
 	if ( err ) {
 		output += '<testcase name="entire article"><error type="parserFailedToFinish">';
@@ -70,7 +70,7 @@ xmlCallback = function ( page, err, results ) {
 		for ( i = 0; i < results.length; i++ ) {
 			result = results[i];
 
-			output += '<testcase name="' + Util.encodeXml( page ) + ' character ' + result.offset[0].start + '">';
+			output += '<testcase name="' + Util.encodeXml( env.page.name ) + ' character ' + result.offset[0].start + '">';
 
 			if ( result.type === 'fail' ) {
 				output += '<failure type="significantHtmlDiff">\n';
@@ -119,11 +119,11 @@ findDsr = function (root, targetRange, sourceLen) {
 				if ( end >= targetRange.end ) {
 					waitingForEndMatch = false;
 				}
-				return { done: true, nodes: [element] }
+				return { done: true, nodes: [element] };
 			}
 
 			if ( attribs.dsr[0] && targetRange.start === start && end === targetRange.end ) {
-				return { done: true, nodes: [element] }
+				return { done: true, nodes: [element] };
 			} else if ( targetRange.start === start ) {
 				waitingForEndMatch = true;
 			}
@@ -225,12 +225,12 @@ findDsr = function (root, targetRange, sourceLen) {
 		} else { /* numElements === numChildren */
 			return { done: !waitingForEndMatch, nodes: [element] } ;
 		}
-	};
+	}
 
 	return walkDOM(root);
 },
 
-checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
+checkIfSignificant = function ( env, offsets, src, body, out, cb, document ) {
 
 	// Work around JSDOM's borken outerHTML pretty-printing / indenting.
 	// At least it does not indent innerHTML, so we get to fish out the
@@ -270,7 +270,7 @@ checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 			return '<' + close + name.toLowerCase() + remaining.replace(/ $/, '') + '>';
 		} );
 		// 4. Ignore whitespace in table cell attributes
-		str = str.replace(/(^|\n|\|(?=\|)|!(?=!))({\||\|[-+]*|!) *([^|\n]*?) *(?=[|\n]|$)/g, '$1$2$3');
+		str = str.replace(/(^|\n|\|(?=\|)|!(?=!))(\{\||\|[\-+]*|!) *([^|\n]*?) *(?=[|\n]|$)/g, '$1$2$3');
 		// 5. Ignore trailing semicolons and spaces in style attributes
 		str = str.replace(/style\s*=\s*"[^"]+"/g, function(match) {
 			return match.replace(/\s|;(?=")/g, '');
@@ -343,58 +343,45 @@ checkIfSignificant = function ( page, offsets, src, body, out, cb, document ) {
 		}
 		results.push( thisResult );
 	}
-	cb( null, page, results );
+	cb( null, env, results );
 },
 
-doubleRoundtripDiff = function ( page, offsets, src, body, out, cb, oldEnv ) {
-	var prefix = oldEnv.iwp;
-	var wgScript = oldEnv.wgScript;
-	var envCb = function ( env ) {
-		if ( offsets.length > 0 ) {
-			env.page.src = src;
-			env.wgScript = wgScript;
-			env.errCB = function ( error ) {
-				cb( error, page, [] );
-				process.exit( 1 );
-			};
+doubleRoundtripDiff = function ( env, offsets, body, out, cb ) {
+	var src = env.page.src;
 
-		if ( offsets.length > 0 ) {
-			env.page.src = out;
-			env.wgScript = wgScript;
-			env.errCB = function ( error ) {
-				cb( error, page, [] );
-				process.exit( 1 );
-			};
+	if ( offsets.length > 0 ) {
+		env.page.src = out;
+		env.errCB = function ( error ) {
+			cb( error, env, [] );
+			process.exit( 1 );
+		};
 
-			var parserPipeline = Util.getParser( env, 'text/x-mediawiki/full' );
+		var parserPipeline = Util.getParser( env, 'text/x-mediawiki/full' );
 
-			parserPipeline.on( 'document', checkIfSignificant.bind( null, page, offsets, src, body, out, cb ) );
+		parserPipeline.on( 'document', checkIfSignificant.bind( null, env, offsets, src, body, out, cb ) );
 
-			parserPipeline.process( out );
+		parserPipeline.process( out );
 
-		} else {
-			cb( null, page, [] );
-		}
-	};
-
-	MWParserEnvironment.getParserEnv( null, null, prefix, null, page, envCb );
+	} else {
+		cb( null, env, [] );
+	}
 },
 
-roundTripDiff = function ( page, src, document, cb, env ) {
+roundTripDiff = function ( env, document, cb ) {
 	var curPair, out, patch, diff, offsetPairs;
 
 	try {
-		out = new WikitextSerializer( { env: env, oldtext: src } ).serializeDOM(document.body);
-		diff = jsDiff.diffLines( out, src );
+		out = new WikitextSerializer( { env: env } ).serializeDOM(document.body);
+		diff = jsDiff.diffLines( out, env.page.src );
 		offsetPairs = Util.convertDiffToOffsetPairs( diff );
 
 		if ( diff.length > 0 ) {
-			doubleRoundtripDiff( page, offsetPairs, src, document.body, out, cb, env );
+			doubleRoundtripDiff( env, offsetPairs, document.body, out, cb );
 		} else {
-			cb( null, page, [] );
+			cb( null, env, [] );
 		}
 	} catch ( e ) {
-		cb( e, page, [] );
+		cb( e, env, [] );
 	}
 },
 
@@ -402,9 +389,6 @@ fetch = function ( page, cb, options ) {
 	cb = typeof cb === 'function' ? cb : function () {};
 
 	var envCb = function ( env ) {
-		env.wgScript = env.interwikiMap[options.wiki];
-		env.setPageName( page );
-
 		if (options.wiki === 'localhost') {
 			env.setInterwiki( 'localhost', 'http://localhost/wiki' );
 		}
@@ -424,13 +408,14 @@ fetch = function ( page, cb, options ) {
 
 		tpr.once( 'src', function ( err, src ) {
 			if ( err ) {
-				cb( err, page, [] );
+				cb( err, env, [] );
 			} else {
+				env.page.src = src;
 				Util.parse( env, function ( src, err, out ) {
 					if ( err ) {
-						cb( err, page, [] );
+						cb( err, env, [] );
 					} else {
-						roundTripDiff( page, src, out, cb, env );
+						roundTripDiff( env, out, cb );
 					}
 				}, err, src );
 			}
@@ -440,8 +425,8 @@ fetch = function ( page, cb, options ) {
 	MWParserEnvironment.getParserEnv( null, null, options.wiki, null, page,	envCb );
 },
 
-cbCombinator = function ( formatter, cb, err, page, text ) {
-	cb( err, formatter( page, err, text ) );
+cbCombinator = function ( formatter, cb, err, env, text ) {
+	cb( env, formatter( env, err, text ) );
 },
 
 consoleOut = function ( err, output ) {
@@ -505,6 +490,5 @@ if ( !module.parent ) {
 		opts.showHelp();
 		console.error( 'Run "node parse --help" for supported trace and dump flags');
 	}
-}
 
-} )();
+}
