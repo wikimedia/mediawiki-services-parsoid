@@ -50,16 +50,18 @@ var WikiConfig = function ( resultConf ) {
 	var thismsg;
 	for ( var amx = 0; amx < messages.length; amx++ ) {
 		thismsg = messages[amx];
-		switch ( thismsg.name ) {
-			case 'linktrail':
-				conf.linkTrailRegex = new RegExp( thismsg['*'].match( stripRegex )[1] );
-				break;
-			case 'linkprefix':
-				conf.linkPrefixRegex = new RegExp( thismsg['*'].match( stripRegex )[1] );
-				break;
-			default:
-				// Do nothing!
-				break;
+		if ( thismsg['*'] ) {
+			switch ( thismsg.name ) {
+				case 'linktrail':
+					conf.linkTrailRegex = new RegExp( thismsg['*'].match( stripRegex )[1] );
+					break;
+				case 'linkprefix':
+					conf.linkPrefixRegex = new RegExp( thismsg['*'].match( stripRegex )[1] );
+					break;
+				default:
+					// Do nothing!
+					break;
+			}
 		}
 	}
 };

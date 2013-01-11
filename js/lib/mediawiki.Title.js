@@ -57,7 +57,7 @@ function Namespace( id, env ) {
 		}
 	}
 
-	this.namespaceNames = names || {
+	this.namespaceNames = ( names && names.length ) ? names : {
 		'6': 'File',
 		'-2': 'Media',
 		'-1': 'Special',

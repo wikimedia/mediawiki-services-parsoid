@@ -51,14 +51,16 @@ var WikitextSerializer = require(mp + 'mediawiki.WikitextSerializer.js').Wikitex
 	libtr = require(mp + 'mediawiki.ApiRequest.js'),
 	DoesNotExistError = libtr.DoesNotExistError,
 	ParserError = libtr.ParserError,
+	ParsoidConfig = require( mp + 'mediawiki.ParsoidConfig' ).ParsoidConfig,
 	MWParserEnvironment = require( mp + 'mediawiki.parser.environment.js' ).MWParserEnvironment,
 	TemplateRequest = libtr.TemplateRequest;
 
 var interwikiRE;
+var defaultParsoidConf = new ParsoidConfig( localSettings );
 function getInterwikiRE() {
 	// this RE won't change -- so, cache it
 	if (!interwikiRE) {
-		interwikiRE = MWParserEnvironment.interwikiRegexp;
+		interwikiRE = defaultParsoidConf.interwikiRegexp;
 	}
 	return interwikiRE;
 }
@@ -71,7 +73,7 @@ function setDefaultWiki ( config, env ) {
 	if ( config && config.defaultInterwiki ) {
 		interwiki = config.defaultInterwiki;
 	}
-	env.wgScript = env.interwikiMap[interwiki];
+	env.wgScript = env.parsoidConf.interwikiMap[interwiki];
 	env.conf.iwp = interwiki;
 }
 
@@ -400,7 +402,7 @@ app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
 app.get( new RegExp('/_rt/(' + getInterwikiRE() + ')/(.*)'), function(req, res) {
 	var cb = function ( env ) {
 		env.wgScriptPath = '/_rt/' + req.params[0] + '/';
-		env.wgScript = env.interwikiMap[req.params[0]];
+		env.wgScript = env.parsoidConf.interwikiMap[req.params[0]];
 
 		req.connection.setTimeout(300 * 1000);
 
@@ -430,7 +432,7 @@ app.get( new RegExp('/_rt/(' + getInterwikiRE() + ')/(.*)'), function(req, res) 
 app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)') , function(req, res) {
 	var cb = function ( env ) {
 		env.wgScriptPath = '/_rtve/' + req.params[0] + '/';
-		env.wgScript = env.interwikiMap[req.params[0]];
+		env.wgScript = env.parsoidConf.interwikiMap[req.params[0]];
 
 		if ( env.page.name === 'favicon.ico' ) {
 			res.send( 'no favicon yet..', 404 );
@@ -494,7 +496,7 @@ app.post(/\/_rtform\/(.*)/, function ( req, res ) {
 app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 	var cb = function ( env ) {
 		env.wgScriptPath = '/' + req.params[0] + '/';
-		env.wgScript = env.interwikiMap[req.params[0]];
+		env.wgScript = env.parsoidConf.interwikiMap[req.params[0]];
 
 		if ( env.page.name === 'favicon.ico' ) {
 			res.send( 'no favicon yet..', 404 );
@@ -567,7 +569,7 @@ app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function ( req, res 
 		env.page.id = req.body.oldid || null;
 		env.wgScriptPath = '/';
 		setDefaultWiki( localSettings, env );
-		env.wgScript = env.interwikiMap[req.params[0]];
+		env.wgScript = env.parsoidConf.interwikiMap[req.params[0]];
 		res.setHeader('Content-Type', 'text/x-mediawiki; charset=UTF-8');
 
 		try {
