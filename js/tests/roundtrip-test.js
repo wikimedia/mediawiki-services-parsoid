@@ -394,9 +394,9 @@ fetch = function ( page, cb, options ) {
 
 	var envCb = function ( env ) {
 		if (options.wiki === 'localhost') {
-			env.setInterwiki( 'localhost', 'http://localhost/wiki' );
+			env.parsoidConf.setInterwiki( 'localhost', 'http://localhost/wiki' );
 		}
-		env.wgScript = env.interwikiMap[options.wiki];
+		env.wgScript = env.parsoidConf.interwikiMap[options.wiki];
 		env.setPageName( page );
 
 		env.errCB = function ( error ) {

@@ -2,20 +2,12 @@
 
 var Util = require('./mediawiki.Util.js').Util;
 var WikiConfig = require( './mediawiki.WikiConfig.js' ).WikiConfig;
+var ParsoidConfig = require( './mediawiki.ParsoidConfig.js' ).ParsoidConfig;
 var ConfigRequest = require( './mediawiki.ApiRequest.js' ).ConfigRequest;
 var title = require('./mediawiki.Title.js'),
 	$ = require( 'jquery' ),
 	Title = title.Title,
 	Namespace = title.Namespace;
-
-var wikipedias = "en|de|fr|nl|it|pl|es|ru|ja|pt|zh|sv|vi|uk|ca|no|fi|cs|hu|ko|fa|id|tr|ro|ar|sk|eo|da|sr|lt|ms|eu|he|sl|bg|kk|vo|war|hr|hi|et|az|gl|simple|nn|la|th|el|new|roa-rup|oc|sh|ka|mk|tl|ht|pms|te|ta|be-x-old|ceb|br|be|lv|sq|jv|mg|cy|lb|mr|is|bs|yo|an|hy|fy|bpy|lmo|pnb|ml|sw|bn|io|af|gu|zh-yue|ne|nds|ku|ast|ur|scn|su|qu|diq|ba|tt|my|ga|cv|ia|nap|bat-smg|map-bms|wa|kn|als|am|bug|tg|gd|zh-min-nan|yi|vec|hif|sco|roa-tara|os|arz|nah|uz|sah|mn|sa|mzn|pam|hsb|mi|li|ky|si|co|gan|glk|ckb|bo|fo|bar|bcl|ilo|mrj|fiu-vro|nds-nl|tk|vls|se|gv|ps|rue|dv|nrm|pag|koi|pa|rm|km|kv|udm|csb|mhr|fur|mt|wuu|lij|ug|lad|pi|zea|sc|bh|zh-classical|nov|ksh|or|ang|kw|so|nv|xmf|stq|hak|ay|frp|frr|ext|szl|pcd|ie|gag|haw|xal|ln|rw|pdc|pfl|krc|crh|eml|ace|gn|to|ce|kl|arc|myv|dsb|vep|pap|bjn|as|tpi|lbe|wo|mdf|jbo|kab|av|sn|cbk-zam|ty|srn|kbd|lo|ab|lez|mwl|ltg|ig|na|kg|tet|za|kaa|nso|zu|rmy|cu|tn|chr|got|sm|bi|mo|bm|iu|chy|ik|pih|ss|sd|pnt|cdo|ee|ha|ti|bxr|om|ks|ts|ki|ve|sg|rn|dz|cr|lg|ak|tum|fj|st|tw|ch|ny|ff|xh|ng|ii|cho|mh|aa|kj|ho|mus|kr|hz";
-
-var interwikiMap = {};
-wikipedias.split('|').forEach( function (prefix) {
-	interwikiMap[prefix] = 'http://' + prefix + '.wikipedia.org/w';
-});
-
-var interwikiRegexp = Object.keys(interwikiMap).join('|');
 
 function Tracer(env) {
 	this.env = env;
@@ -84,8 +76,6 @@ var MWParserEnvironment = function(opts) {
 		wgScriptExtension: ".php",
 		fetchTemplates: false,
 		maxDepth: 40,
-		interwikiMap: interwikiMap,
-		interwikiRegexp: interwikiRegexp,
 		usePHPPreProcessor: false,
 
 		// page information
@@ -110,20 +100,14 @@ var MWParserEnvironment = function(opts) {
 	// Tracing object
 	this.tracer = new Tracer(this);
 
+	// Default value for parsoid config
+	if ( !this.parsoidConf ) {
+		this.parsoidConf = new ParsoidConfig();
+	}
+
 	// Initialise empty default values for interwiki config
 	this.iwp = '';
 	this.conf = {};
-};
-
-MWParserEnvironment.interwikiRegexp = interwikiRegexp;
-
-MWParserEnvironment.prototype.setInterwiki = function (prefix, wgScript) {
-	this.interwikiMap[prefix] = wgScript;
-	this.interwikiRegexp = Object.keys(this.interwikiMap).join('|');
-};
-MWParserEnvironment.prototype.removeInterwiki = function (prefix) {
-	delete this.interwikiMap[prefix];
-	this.interwikiRegexp = Object.keys(this.interwikiMap).join('|');
 };
 
 // Outstanding page requests (for templates etc)
@@ -198,18 +182,19 @@ MWParserEnvironment.getParserEnv = function ( ls, config, prefix, options, pageN
 		// enable/disable debug output using this switch
 		debug: false,
 		trace: false,
-		maxDepth: 40
+		maxDepth: 40,
+		parsoidConf: parsoidConf
 	} );
 
 	// add mediawiki.org
-	env.setInterwiki( 'mw', 'http://www.mediawiki.org/w' );
+	env.parsoidConf.setInterwiki( 'mw', 'http://www.mediawiki.org/w' );
 
 	// add localhost default
-	env.setInterwiki( 'localhost', 'http://localhost/w' );
+	env.parsoidConf.setInterwiki( 'localhost', 'http://localhost/w' );
 
 	// add the dump in case we want to use that
-	env.setInterwiki( 'dump', 'http://dump-api.wmflabs.org/w' );
-	env.setInterwiki( 'dump-internal', 'http://10.4.0.162/w' );
+	env.parsoidConf.setInterwiki( 'dump', 'http://dump-api.wmflabs.org/w' );
+	env.parsoidConf.setInterwiki( 'dump-internal', 'http://10.4.0.162/w' );
 
 	if ( pageName ) {
 		env.setPageName( pageName );
@@ -217,7 +202,7 @@ MWParserEnvironment.getParserEnv = function ( ls, config, prefix, options, pageN
 
 	// Apply local settings
 	if ( ls && ls.setup ) {
-		ls.setup( config, env );
+		ls.setup( config, env.parsoidConf );
 	}
 
 	// Set the current interwiki prefix
@@ -234,7 +219,7 @@ MWParserEnvironment.getParserEnv = function ( ls, config, prefix, options, pageN
  * Caches all configs so we only need to get each one once (if we do it right)
  */
 MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
-	var uri = this.interwikiMap[prefix] + '/api' + this.wgScriptExtension;
+	var uri = this.parsoidConf.interwikiMap[prefix] + '/api' + this.wgScriptExtension;
 	this.confCache = this.confCache || {};
 	this.confCache[this.iwp] = this.conf;
 
@@ -246,6 +231,17 @@ MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
 	} else {
 		var confRequest = new ConfigRequest( uri, this );
 		confRequest.on( 'src', function ( error, resultConf ) {
+			if ( error !== null ) {
+				resultConf = {
+					namespaces: {},
+					namespacealiases: [],
+					magicwords: [],
+					specialpagealiases: [],
+					extensiontags: null,
+					allmessages: []
+				};
+			}
+
 			this.conf = new WikiConfig( resultConf );
 			cb();
 		}.bind( this ) );
@@ -305,7 +301,7 @@ MWParserEnvironment.prototype.normalizeTitle = function( name, noUnderScores ) {
 		var nsMatch = name.match( /^([a-zA-Z\-]+):/ ),
 			ns = nsMatch && nsMatch[1] || '';
 		if( ns !== '' && ns !== name ) {
-			if ( self.interwikiMap[ns.toLowerCase()] ) {
+			if ( self.parsoidConf.interwikiMap[ns.toLowerCase()] ) {
 				forceNS += ns + ':';
 				name = name.substr( nsMatch[0].length );
 				splitNS();
