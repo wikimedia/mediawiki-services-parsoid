@@ -56,7 +56,7 @@ Tracer.prototype = {
 	}
 };
 
-var MWParserEnvironment = function(opts) {
+var MWParserEnvironment = function(opts, ls) {
 	// The parser environment really serves several distinct purposes currently:
 	// - it holds config data which is not modified at runtime -> a config object
 	// - it provides debugging objects -> can be part of config (immutable)
@@ -100,14 +100,25 @@ var MWParserEnvironment = function(opts) {
 	// Tracing object
 	this.tracer = new Tracer(this);
 
+	this.conf = {
+		parsoid: {},
+		wiki: {}
+	};
+
 	// Default value for parsoid config
-	if ( !this.parsoidConf ) {
-		this.parsoidConf = new ParsoidConfig();
+	if ( this.parsoidConf ) {
+		this.conf.parsoid = this.parsoidConf;
+		delete this.parsoidConf;
+	} else {
+		this.conf.parsoid = new ParsoidConfig();
+	}
+
+	if ( ls && ls.setup ) {
+		ls.setup( null, this.conf.parsoid );
 	}
 
 	// Initialise empty default values for interwiki config
 	this.iwp = '';
-	this.conf = {};
 };
 
 // Outstanding page requests (for templates etc)
@@ -182,27 +193,19 @@ MWParserEnvironment.getParserEnv = function ( ls, config, prefix, options, pageN
 		// enable/disable debug output using this switch
 		debug: false,
 		trace: false,
-		maxDepth: 40,
-		parsoidConf: parsoidConf
-	} );
+		maxDepth: 40
+	}, ls );
 
 	// add mediawiki.org
-	env.parsoidConf.setInterwiki( 'mw', 'http://www.mediawiki.org/w' );
+	env.conf.parsoid.setInterwiki( 'mw', 'http://www.mediawiki.org/w' );
 
-	// add localhost default
-	env.parsoidConf.setInterwiki( 'localhost', 'http://localhost/w' );
-
-	// add the dump in case we want to use that
-	env.parsoidConf.setInterwiki( 'dump', 'http://dump-api.wmflabs.org/w' );
-	env.parsoidConf.setInterwiki( 'dump-internal', 'http://10.4.0.162/w' );
+	if ( !env.conf.parsoid.interwikiMap.localhost ) {
+		// add localhost default
+		env.conf.parsoid.setInterwiki( 'localhost', 'http://localhost/w' );
+	}
 
 	if ( pageName ) {
 		env.setPageName( pageName );
-	}
-
-	// Apply local settings
-	if ( ls && ls.setup ) {
-		ls.setup( config, env.parsoidConf );
 	}
 
 	// Set the current interwiki prefix
@@ -219,14 +222,14 @@ MWParserEnvironment.getParserEnv = function ( ls, config, prefix, options, pageN
  * Caches all configs so we only need to get each one once (if we do it right)
  */
 MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
-	var uri = this.parsoidConf.interwikiMap[prefix] + '/api' + this.wgScriptExtension;
+	var uri = this.conf.parsoid.interwikiMap[prefix] + '/api' + this.wgScriptExtension;
 	this.confCache = this.confCache || {};
-	this.confCache[this.iwp] = this.conf;
+	this.confCache[this.iwp] = this.conf.wiki;
 
 	this.iwp = prefix;
 
 	if ( this.confCache[this.iwp] ) {
-		this.conf = this.confCache[this.iwp];
+		this.conf.wiki = this.confCache[this.iwp];
 		cb();
 	} else {
 		var confRequest = new ConfigRequest( uri, this );
@@ -242,7 +245,7 @@ MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
 				};
 			}
 
-			this.conf = new WikiConfig( resultConf );
+			this.conf.wiki = new WikiConfig( resultConf );
 			cb();
 		}.bind( this ) );
 	}
@@ -301,7 +304,7 @@ MWParserEnvironment.prototype.normalizeTitle = function( name, noUnderScores ) {
 		var nsMatch = name.match( /^([a-zA-Z\-]+):/ ),
 			ns = nsMatch && nsMatch[1] || '';
 		if( ns !== '' && ns !== name ) {
-			if ( self.parsoidConf.interwikiMap[ns.toLowerCase()] ) {
+			if ( self.conf.parsoid.interwikiMap[ns.toLowerCase()] ) {
 				forceNS += ns + ':';
 				name = name.substr( nsMatch[0].length );
 				splitNS();

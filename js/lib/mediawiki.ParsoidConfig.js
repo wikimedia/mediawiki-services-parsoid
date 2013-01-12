@@ -16,7 +16,7 @@ var ParsoidConfig = function ( localSettings ) {
 	this.interwikiRegexp = Object.keys( this.interwikiMap ).join( '|' );
 
 	if ( localSettings && localSettings.setup ) {
-		localSettings.setup( this );
+		localSettings.setup( null, this );
 	}
 };
 
