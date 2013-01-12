@@ -136,6 +136,17 @@ var DOMUtils = {
 		return this.hasNodeName(n, "pre") && !this.isLiteralHTMLNode(n);
 	},
 
+	hasElementChild: function(node) {
+		var children = node.children;
+		for (var i = 0, n = children.length; i < n; i++) {
+			if (children[i].nodeType === Node.ELEMENT_NODE) {
+				return true;
+			}
+		}
+
+		return false;
+	},
+
 	indentPreDSRCorrection: function(textNode) {
 		// NOTE: This assumes a text-node and doesn't check that it is one.
 		var numNLs;

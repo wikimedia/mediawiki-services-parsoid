@@ -2111,8 +2111,10 @@ WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
 		// (http://dev.w3.org/html5/spec-LC/content-models.html#content-models)
 		//
 		// Dont normalize if we are in a PRE-node or if the node is a mw:Entity SPAN
+		// Or if the node has no element-node child
 		if (!inPre &&
-			!(DU.hasNodeName(node, 'span') && node.getAttribute('typeof') === 'mw:Entity')) {
+			!(DU.hasNodeName(node, 'span') && node.getAttribute('typeof') === 'mw:Entity')
+			&& (!haveOrigSrc || DU.hasElementChild(node))) {
 			child = node.firstChild;
 			while (child) {
 				next = child.nextSibling, prev = child.previousSibling;
@@ -2129,7 +2131,6 @@ WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
 						// In the above example, the whitespace after the </div> is
 						// significant.
 						if (str.match(/^\s*$/) &&
-							(prev || next) &&
 							(!next || next.nodeType === Node.ELEMENT_NODE))
 						{
 							node.removeChild(child);
@@ -2139,10 +2140,10 @@ WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
 						// followed by block nodes -- these newlines are syntactic
 						// and can be normalized away since the serializer in sourceless
 						// mode is tuned to normalize newlines.
-						if (str.match(/\n$/) && (prev||next) && (!next || DU.isBlockNode(next))) {
+						if (str.match(/\n$/) && (!next || DU.isBlockNode(next))) {
 							child.data = str.replace(/\n+$/, '');
 						}
-					    if (str.match(/^\n/) && (prev||next) && (!prev || DU.isBlockNode(prev))) {
+					    if (str.match(/^\n/) && (!prev || DU.isBlockNode(prev))) {
 							child.data = str.replace(/^\n+/, '');
 						}
 					}
@@ -2159,12 +2160,10 @@ WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
 					// 3. it is followed by an element/white-space node, if one exists
 					//
 					// In addition, if (2) is satisfied, delete the preceding white-space node
-					if ((prev || next) && (
-							!prev ||
+					if ((!prev ||
 							prev.nodeType === Node.ELEMENT_NODE ||
 							(prev.nodeType === Node.TEXT_NODE && prev.data.match(/^\s*$/))
-						) && (
-							!next ||
+						) && (!next ||
 							next.nodeType === Node.ELEMENT_NODE ||
 							(next.nodeType === Node.TEXT_NODE && next.data.match(/^\s*$/))
 						))
