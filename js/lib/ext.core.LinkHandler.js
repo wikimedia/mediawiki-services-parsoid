@@ -181,7 +181,7 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 			cb( {
 				tokens: tokens
 			} );
-		} else if ( href.match( new RegExp( '^(' + this.manager.env.parsoidConf.interwikiRegexp + '):' ) ) ) {
+		} else if ( href.match( new RegExp( '^(' + this.manager.env.conf.parsoid.interwikiRegexp + '):' ) ) ) {
 			var tokens = [];
 
 			obj.dataAttribs.src = token.getWTSource( env );

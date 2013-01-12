@@ -44,8 +44,8 @@ Title.prototype.getPrefixedText = function () {
 
 
 function Namespace( id, env ) {
-	var ids = env.conf.namespaceIds;
-	var names = env.conf.namespaceNames;
+	var ids = env.conf.wiki.namespaceIds;
+	var names = env.conf.wiki.namespaceNames;
 	this.id = id;
 	this.namespaceIds = this.canonicalNamespaces;
 
