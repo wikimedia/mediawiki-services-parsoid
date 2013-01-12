@@ -765,6 +765,27 @@ Sanitizer.prototype.decodeCharReferences = function ( text ) {
 };
 
 Sanitizer.prototype.checkCss = function (text) {
+	function removeMismatchedQuoteChar(str, quoteChar) {
+		var re1, re2;
+		if (quoteChar === "'") {
+			re1 = /'/g;
+			re2 = /'([^'\n\r\f]*)$/;
+		} else {
+			re1 = /"/g;
+			re2 = /"([^"\n\r\f]*)$/;
+		}
+
+		var mismatch = ((str.match(re1) || []).length) % 2 === 1;
+		if (mismatch) {
+			str = str.replace(re2, function() {
+				// replace the mismatched quoteChar with a space
+				return " " + arguments[1];
+			});
+		}
+
+		return str;
+	}
+
 	// Decode character references like &#123;
 	text = this.decodeCharReferences(text);
 	text = text.replace(this.constants.cssDecodeRE, function() {
@@ -797,6 +818,20 @@ Sanitizer.prototype.checkCss = function (text) {
 	// sequences, because it replaces comments with spaces rather
 	// than removing them completely.
 	text = text.replace(/\/\*.*\*\//g, ' ');
+
+	// Fix up unmatched double-quote and single-quote chars
+	// Full CSS syntax here: http://www.w3.org/TR/CSS21/syndata.html#syntax
+	//
+	// This can be converted to a function and called once for ' and "
+	// but we have to construct 4 different REs anyway
+	text = removeMismatchedQuoteChar(text, "'");
+	text = removeMismatchedQuoteChar(text, '"');
+
+	/* --------- shorter but less efficient alternative to removeMismatchedQuoteChar ------------
+	text = text.replace(/("[^"\n\r\f]*")+|('[^'\n\r\f]*')+|([^'"\n\r\f]+)|"([^"\n\r\f]*)$|'([^'\n\r\f]*)$/g, function() {
+		return arguments[1] || arguments[2] || arguments[3] || arguments[4]|| arguments[5];
+	});
+	* ----------------------------------- */
 
 	// Remove anything after a comment-start token, to guard against
 	// incorrect client implementations.
