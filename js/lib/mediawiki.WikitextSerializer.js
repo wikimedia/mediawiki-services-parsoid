@@ -2464,7 +2464,9 @@ WSP._serializeDOM = function( node, state ) {
 			if (prevEltChild && prevEltChild.nodeType === Node.ELEMENT_NODE) {
 				// extract separator text between prevEltChild and node
 				// prevEltChild.dsr[1], node.dsr[1]
-				state.emitSeparator(prevEltChild, 1, node, 1);
+				if (!DU.hasNodeName(node, "pre")) {
+					state.emitSeparator(prevEltChild, 1, node, 1);
+				}
 			}
 
 			// Reset parent state
