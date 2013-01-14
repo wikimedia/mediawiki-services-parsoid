@@ -707,7 +707,7 @@ WSP._figureHandler = function ( state, figTokens ) {
 	// Get the image resource name
 	// FIXME: file name has been capitalized -- need some fix in the parser
 	var argDict = Util.KVtoHash( img.attribs );
-	var imgR = argDict.resource.replace(/(^\[:)|(\]$)/g, '');
+	var imgR = (argDict.resource || '').replace(/(^\[:)|(\]$)/g, '');
 
 	// Now, build the complete wikitext for the figure
 	var outBits  = [imgR];
@@ -1659,6 +1659,8 @@ WSP._serializeAttributes = function (state, token) {
 				}
 
 				if (v.length ) {
+					// Escape HTML entities
+					v = Util.escapeEntities(v);
 					out.push(k + '=' + '"' + v.replace( /"/g, '&quot;' ) + '"');
 				} else {
 					out.push(k);
@@ -1894,8 +1896,11 @@ WSP._serializeToken = function ( state, token ) {
 
 				break;
 			case String:
-				res = ( state.inNoWiki || state.inHTMLPre ) ? token
-					: this.escapeWikiText( state, token );
+				// Always escape entities
+				res = Util.escapeEntities(token);
+				// If not in nowiki and pre context, also escape wikitext
+				res = ( state.inNoWiki || state.inHTMLPre ) ? res
+					: this.escapeWikiText( state, res );
 				if (textHandler) {
 					res = textHandler( state, res );
 				}

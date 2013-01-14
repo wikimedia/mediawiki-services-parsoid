@@ -1140,6 +1140,38 @@ Util.stripPipeTrickChars = function ( target ) {
 	return res.replace( p3, '' );
 };
 
+/**
+ * Decode a HTML entity, and return either the decoded char or the original
+ * text if it turned out not to be a valid entity.
+ *
+ * Security: This method should only be passed strings matching
+ * /&[#0-9a-zA-Z]+; to avoid JS injection.
+ *
+ * TODO: Figure out a safer and more efficient way to do this that does not
+ * involve building a DOM.
+ */
+Util.decodeEntity = function ( entity ) {
+    return $("<div/>").html(entity).text();
+};
+
+
+/**
+ * Entity-escape anything that would decode to a valid HTML entity
+ */
+Util.escapeEntities = function ( text ) {
+	return text.replace(/&[#0-9a-zA-Z]+;/, function(match) {
+		var decodedChar = Util.decodeEntity(match);
+		if ( decodedChar !== match ) {
+			// Escape the and
+			return '&amp;' + match.substr(1);
+		} else {
+			// Not an entity, just return the string
+			return match;
+		}
+	});
+};
+
+
 if (typeof module === "object") {
 	module.exports.Util = Util;
 }
