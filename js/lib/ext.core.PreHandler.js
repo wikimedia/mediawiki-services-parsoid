@@ -96,6 +96,15 @@ PreHandler.STATE_PRE_COLLECT = 3;
 PreHandler.STATE_MULTILINE_PRE = 4;
 PreHandler.STATE_IGNORE = 5;
 
+// debug string output of FSM states
+PreHandler.STATE_STR = {
+	1: 'sol        ',
+	2: 'pre        ',
+	3: 'pre_collect',
+	4: 'multiline  ',
+	5: 'ignore     '
+}
+
 function init(handler, addAnyHandler) {
 	handler.state  = PreHandler.STATE_SOL;
 	handler.lastNlTk = null;
@@ -189,7 +198,7 @@ PreHandler.prototype.onNewline = function (token, manager, cb) {
 
 	if (this.trace) {
 		if (this.debug) console.warn("----------");
-		console.warn("T:pre:nl : " + this.state + " : " + JSON.stringify(token));
+		console.warn("T:pre:nl : " + PreHandler.STATE_STR[this.state] + " : " + JSON.stringify(token));
 	}
 
 	// Whenever we move into SOL-state, init preTSR to
@@ -272,7 +281,7 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 
 	if (this.trace) {
 		if (this.debug) console.warn("----------");
-		console.warn("T:pre:any: " + this.state + " : " + JSON.stringify(token));
+		console.warn("T:pre:any: " + PreHandler.STATE_STR[this.state] + " : " + JSON.stringify(token));
 	}
 
 	if (this.state === PreHandler.STATE_IGNORE) {
