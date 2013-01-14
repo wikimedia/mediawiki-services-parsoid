@@ -178,7 +178,9 @@ ParagraphWrapper.prototype.processPendingNLs = function (isBlockToken) {
 			resToks.push(nlTk);
 			resToks.push(nlTk2);
 		}
-	} else if (isBlockToken) {
+	}
+
+	if (isBlockToken) {
 		if (newLineCount === 1){
 			nlTk = this.discardOneNlTk();
 			this.closeOpenPTag(resToks);
