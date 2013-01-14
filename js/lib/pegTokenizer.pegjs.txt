@@ -100,12 +100,6 @@
         return out;
     }
 
-    // Decode html entities. In a browser, this should only be fed the entity,
-    // not untrusted html! XXX: replace with safer version.
-    var unentity = function ( entity ) {
-        return $("<div/>").html(entity).text();
-    };
-
     // Debug print with global switch
     var dp = function ( msg ) {
         if ( false ) {
@@ -1874,13 +1868,12 @@ urltext = ( t:[^'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:\]} &=]+ { return t.join(''); 
 htmlentity = "&" c:[#0-9a-zA-Z]+ ";" { 
     //return "&" + c.join('') + ";";
     var m = "&" + c.join('') + ";",
-        c = unentity(m);
+        c = Util.decodeEntity(m);
     return [
         new TagTk('span', [new KV('typeof', 'mw:Entity')], { src: m, srcContent: c } ),
         c,
         new EndTagTk('span')
     ];
-    //return unentity("&" + c.join('') + ";") 
 }
 
 spaces
