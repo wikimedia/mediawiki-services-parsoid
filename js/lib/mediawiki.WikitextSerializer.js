@@ -99,6 +99,7 @@ WEHP.tdHandler = function(state, text) {
 	return text.match(/\|/) ||
 		(text.match(/^[\-+]/) &&
 		isTd(tok) &&
+		(!tok.dataAttribs.dsr || tok.dataAttribs.dsr[2] === 1) &&
 		tok.dataAttribs.stx_v !== 'row' &&
 		tok.attribs.length === 0);
 };
