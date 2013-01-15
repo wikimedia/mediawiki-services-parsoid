@@ -9,6 +9,10 @@ var HTML5 = require( 'html5' ).HTML5,
 	Node = require('./mediawiki.wikitext.constants.js').Node;
 
 var DOMUtils = {
+	isElt: function(node) {
+		return node.nodeType === Node.ELEMENT_NODE;
+	},
+
 	isBlockNode: function(node) {
 		return node && Util.isBlockTag(node.nodeName.toLowerCase());
 	},
@@ -139,11 +143,39 @@ var DOMUtils = {
 	hasElementChild: function(node) {
 		var children = node.children;
 		for (var i = 0, n = children.length; i < n; i++) {
-			if (children[i].nodeType === Node.ELEMENT_NODE) {
+			if (this.isElt(children[i])) {
 				return true;
 			}
 		}
 
+		return false;
+	},
+
+	// This function tests if its end tag is outside a template.
+	endTagOutsideTemplate: function(node, dp) {
+		if (dp.tsr) {
+			return true;
+		}
+
+		var next = node.nextSibling;
+		if (next && this.isElt(next) && this.dataParsoid(next).tsr) {
+			// If node's sibling has a valid tsr, then the sibling
+			// is outside a template, and since node's start tag itself
+			// is inside a template, this automatically implies that
+			// the end tag is outside a template as well.
+			return true;
+		}
+
+		// Descend into children -- walk backward
+		var children = node.children;
+		for (var n = children.length, i = n-1; i >= 0; i--) {
+			var c = children[i];
+			if (this.isElt(c)) {
+				return this.endTagOutsideTemplate(c, this.dataParsoid(c));
+			}
+		}
+
+		// We ran out of children to test
 		return false;
 	},
 
@@ -168,7 +200,7 @@ var DOMUtils = {
 	// are guaranteed to be  marked and nested content might not
 	// necessarily be marked.
 	isTplElementNode: function(env, node) {
-		if (node.nodeType === Node.ELEMENT_NODE) {
+		if (this.isElt(node)) {
 			var about = node.getAttribute('about');
 			return about && env.isParsoidObjectId(about);
 		} else {
@@ -246,7 +278,7 @@ var DOMUtils = {
 	},
 
 	hasCurrentDiffMark: function(node, env) {
-		if( node.nodeType !== node.ELEMENT_NODE ) {
+		if( !this.isElt(node)) {
 			return false;
 		}
 		var dpd = this.getJSONAttribute(node, 'data-parsoid-diff', null);
@@ -280,11 +312,11 @@ var DOMUtils = {
 			node.nodeValue.match(/^\s*$/) &&
 			// Node preceded by element sibling and followed by element or no sibling
 			((node.previousSibling !== null &&
-				node.previousSibling.nodeType === node.ELEMENT_NODE &&
-			  (node.nextSibling === null || node.nextSibling.nodeType === node.ELEMENT_NODE)) ||
+				this.isElt(node.previousSibling) &&
+			  (node.nextSibling === null || this.isElt(node.nextSibling))) ||
 			 // First child followed by an element sibling
 			 (node.previousSibling === null &&
-			  (node.nextSibling && node.nextSibling.nodeType === node.ELEMENT_NODE)));
+			  (node.nextSibling && this.isElt(node.nextSibling))));
 	},
 
 
