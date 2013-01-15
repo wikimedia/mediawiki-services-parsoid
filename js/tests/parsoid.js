@@ -25,12 +25,14 @@ function initParsoid() {
 	_import(path.join('lib', 'mediawiki.parser.js'), ['ParserPipelineFactory']);
 	_import(path.join('lib', 'mediawiki.WikitextSerializer.js'), ['WikitextSerializer']);
 
-	MWParserEnvironment.getParserEnv( null, null, '', null, null, function ( mwEnv ) {
-		mwEnv.fetchTemplates = false;
-		mwEnv.debug = false;
-		mwEnv.trace = false;
-		mwEnv.wgUploadPath = 'http://example.com/images';
+	var options = {
+		fetchTemplates: false,
+		debug: false,
+		trace: false
+	};
+	var parsoidConfig = new ParsoidConfig( null, options );
 
+	MWParserEnvironment.getParserEnv( parsoidConfig, null, null, function ( mwEnv ) {
 		// "class" properties
 		Parsoid.html5 = new HTML5.Parser();
 		Parsoid.serializer = new WikitextSerializer({env: mwEnv});

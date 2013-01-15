@@ -6,13 +6,14 @@
  * Also see the file ParserService.js for more information.
  */
 
-exports.setup = function( config, env ) {
+exports.setup = function( parsoidConfig ) {
 	// The URL here is supposed to be your MediaWiki installation root
-	env.setInterwiki( 'localhost', 'http://localhost/wiki' );
+	parsoidConfig.setInterwiki( 'localhost', 'http://localhost/wiki/api.php' );
 
-        // Use the PHP preprocessor to expand templates via the MW API
-        env.usePHPPreProcessor = false;
+	// Use the PHP preprocessor to expand templates via the MW API (default true)
+	//parsoidConfig.usePHPPreProcessor = false;
+
+	// Use selective serialization (default false)
+	//parsoidConfig.useSelser = true;
 };
 
-// Use selective serialization
-exports.useSelser = false;

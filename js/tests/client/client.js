@@ -59,7 +59,7 @@ function runTest( cb, title ) {
 	} );
 
 	try {
-		rtTest.fetch( title, callback, { wiki: config.interwiki, setup: config.setup } );
+		rtTest.fetch( title, callback, { setup: config.setup } );
 	} catch ( err ) {
 		// Log it to console (for gabriel to watch scroll by)
 		console.error( "ERROR in " + title + ': ' + err );

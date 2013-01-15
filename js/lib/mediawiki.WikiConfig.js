@@ -6,8 +6,20 @@ var qs = require( 'querystring' ),
 	util = require( 'util' ),
 	request = require( 'request' )
 
-var WikiConfig = function ( resultConf ) {
+var WikiConfig = function ( resultConf, prefix, uri ) {
 	var conf = this;
+
+	conf.iwp = prefix;
+
+	if ( uri ) {
+		this.apiURI = uri;
+	}
+
+	if ( resultConf === null ) {
+		// We can't set it up any further without result JSON.
+		// Just give up while we're behind.
+		return;
+	}
 
 	conf.namespaceNames = {};
 	conf.namespaceIds = {};
@@ -64,6 +76,29 @@ var WikiConfig = function ( resultConf ) {
 			}
 		}
 	}
+
+	// Get the general information and use it for article, upload, and image
+	// paths.
+	if ( resultConf.general ) {
+		var general = resultConf.general;
+		if ( general.articlepath ) {
+			this.articlePath = general.articlepath;
+		}
+		if ( general.script ) {
+			this.wgScript = general.script;
+		}
+		if ( general.server ) {
+			this.server = general.server;
+		}
+	}
+};
+
+WikiConfig.prototype = {
+	wgScriptPath: '/wiki/',
+	wgScript: '/wiki/index.php',
+	wgUploadPath: '/wiki/images',
+	wgScriptExtension: '.php',
+	articlePath: '/wiki/$1'
 };
 
 if ( typeof module === 'object' ) {

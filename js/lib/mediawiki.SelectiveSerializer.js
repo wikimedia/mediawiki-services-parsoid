@@ -38,8 +38,8 @@ var SelectiveSerializer = function ( options ) {
 	this.wtChunks = [];
 
 	// Debug options
-	this.trace = this.env.debug || (
-		this.env.traceFlags && (this.env.traceFlags.indexOf("selser") !== -1)
+	this.trace = this.env.conf.parsoid.debug || (
+		this.env.conf.parsoid.traceFlags && (this.env.conf.parsoid.traceFlags.indexOf("selser") !== -1)
 	);
 
 	if ( this.trace ) {
@@ -154,8 +154,8 @@ SSP.doSerializeDOM = function ( err, doc, cb, finalcb ) {
 		var diff = new DOMDiff(this.env).diff( doc );
 
 		// If we found text, then use this chunk callback.
-		if ( this.trace || ( this.env.dumpFlags &&
-					this.env.dumpFlags.indexOf( 'dom:serialize-ids' ) !== -1) )
+		if ( this.trace || ( this.env.conf.parsoid.dumpFlags &&
+					this.env.conf.parsoid.dumpFlags.indexOf( 'dom:serialize-ids' ) !== -1) )
 		{
 			console.log( '----- DOM after assigning serialize-ids -----' );
 			console.log( doc.innerHTML );
@@ -240,8 +240,8 @@ function DiffToSelserConverter ( env, diffDOM ) {
 	this.curPos = 0; // end offset of the last processed node
 	this.dom = diffDOM;
 	// TODO: abstract the debug method setup!
-	this.debug = env.debug ||
-		(env.traceFlags && env.traceFlags.indexOf('selser') !== -1) ?
+	this.debug = env.conf.parsoid.debug ||
+		(env.conf.parsoid.traceFlags && env.conf.parsoid.traceFlags.indexOf('selser') !== -1) ?
 						console.error : function(){};
 }
 

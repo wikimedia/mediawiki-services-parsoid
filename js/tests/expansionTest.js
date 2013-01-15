@@ -72,7 +72,7 @@ $(function() {
 	MWParserEnvironment.getParserEnv( null, null, '', null, null, function ( env ) {
 		env.pageCache = pageDatabase;
 		env.domCache = domDatabase;
-		env.debug = true;
+		env.conf.parsoid.debug = true;
 		var frame = new PPFrame(env);
 		//var victim = 'Boring';
 		var victim = 'ParenCaller';

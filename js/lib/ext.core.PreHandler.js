@@ -78,8 +78,8 @@ function PreHandler( manager, options ) {
 	this.manager.addTransform(this.onEnd.bind(this),
 		"PreHandler:onEnd", this.endRank, 'end');
 	var env = manager.env;
-	this.debug = env.debug || (env.traceFlags && (env.traceFlags.indexOf("pre_debug") !== -1));
-	this.trace = this.debug || (env.traceFlags && (env.traceFlags.indexOf("pre") !== -1));
+	this.debug = env.conf.parsoid.debug || (env.conf.parsoid.traceFlags && (env.conf.parsoid.traceFlags.indexOf("pre_debug") !== -1));
+	this.trace = this.debug || (env.conf.parsoid.traceFlags && (env.conf.parsoid.traceFlags.indexOf("pre") !== -1));
 	init(this, true);
 }
 

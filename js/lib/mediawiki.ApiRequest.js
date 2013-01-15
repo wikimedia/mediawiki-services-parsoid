@@ -123,9 +123,7 @@ function TemplateRequest ( env, title, oldid ) {
 		apiargs.revids = oldid;
 		delete apiargs.titles;
 	}
-	var url = env.wgScript + '/api' +
-		env.wgScriptExtension +
-		'?' +
+	var url = env.conf.wiki.apiURI + '?' +
 		qs.stringify( apiargs );
 		//'?format=json&action=query&prop=revisions&rvprop=content&titles=' + title;
 
@@ -180,9 +178,7 @@ TemplateRequest.prototype.handleJSON = function ( error, data ) {
 	var redirMatch = src.match( /[\r\n\s]*#\s*redirect\s*\[\[([^\]]+)\]\]/i );
 	if ( redirMatch ) {
 		var title = redirMatch[1],
-			url = this.env.wgScript + '/api' +
-				this.env.wgScriptExtension +
-				'?' +
+			url = this.env.conf.wiki.apiURI + '?' +
 				qs.stringify( {
 					format: 'json',
 				action: 'query',
@@ -225,8 +221,7 @@ function PreprocessorRequest ( env, title, text ) {
 		title: title,
 		text: text
 	};
-	var url = env.wgScript + '/api' +
-		env.wgScriptExtension;
+	var url = env.conf.wiki.apiURI;
 
 	this.requestOptions = {
 		// Use POST since we are passing a bit of source, and GET has a very
@@ -299,7 +294,7 @@ function PHPParseRequest ( env, title, text ) {
 		action: 'parse',
 		text: text
 	};
-	var url = env.wgScript + '/api' + env.wgScriptExtension;
+	var url = env.conf.wiki.apiURI;
 
 	this.requestOptions = {
 		// Use POST since we are passing a bit of source, and GET has a very
@@ -356,7 +351,7 @@ var ConfigRequest = function ( uri, env ) {
 		action: 'query',
 		meta: 'siteinfo|allmessages',
 		ammessages: 'linktrail|linkprefix',
-		siprop: 'namespaces|namespacealiases|specialpagealiases|magicwords|extensiontags'
+		siprop: 'namespaces|namespacealiases|specialpagealiases|magicwords|extensiontags|general|interwikimap'
 	};
 
 	var url = uri + '?' +

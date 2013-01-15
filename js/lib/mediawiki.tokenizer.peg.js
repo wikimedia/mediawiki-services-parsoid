@@ -112,7 +112,7 @@ PegTokenizer.prototype.process = function( text, cacheKey ) {
 	}
 	// XXX: Commented out exception handling during development to get
 	// reasonable traces.
-	if ( ! this.env.debug ) {
+	if ( ! this.env.conf.parsoid.debug ) {
 		try {
 			this.tokenizer.tokenize(text, 'start',
 					// callback

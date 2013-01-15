@@ -35,10 +35,19 @@ var express = require('express'),
 	fs = require('fs');
 
 // local includes
-var mp = '../lib/',
-	lsp = __dirname + '/localsettings.js',
-	localSettings = require( lsp ),
-	useSelser = localSettings.useSelser;
+var mp = '../lib/';
+
+var lsp, localSettings;
+
+try {
+	lsp = __dirname + '/localsettings.js';
+	localSettings = require( lsp );
+} catch ( e ) {
+	// Build a skeleton localSettings to prevent errors later.
+	localSettings = {
+		setup: function ( pconf ) {}
+	};
+}
 
 var instanceName = cluster.isWorker ? 'worker(' + process.pid + ')' : 'master';
 
@@ -46,35 +55,26 @@ console.log( ' - ' + instanceName + ' loading...' );
 
 var WikitextSerializer = require(mp + 'mediawiki.WikitextSerializer.js').WikitextSerializer,
 	SelectiveSerializer = require( mp + 'mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
-	Serializer = useSelser ? SelectiveSerializer : WikitextSerializer,
 	Util = require( mp + 'mediawiki.Util.js' ).Util,
 	libtr = require(mp + 'mediawiki.ApiRequest.js'),
 	DoesNotExistError = libtr.DoesNotExistError,
 	ParserError = libtr.ParserError,
+	WikiConfig = require( mp + 'mediawiki.WikiConfig' ).WikiConfig,
 	ParsoidConfig = require( mp + 'mediawiki.ParsoidConfig' ).ParsoidConfig,
 	MWParserEnvironment = require( mp + 'mediawiki.parser.environment.js' ).MWParserEnvironment,
 	TemplateRequest = libtr.TemplateRequest;
 
 var interwikiRE;
-var parsoidConf = new ParsoidConfig( localSettings );
+
+var parsoidConfig = new ParsoidConfig( localSettings, null ),
+	Serializer = parsoidConfig.useSelser ? SelectiveSerializer : WikitextSerializer;
+
 function getInterwikiRE() {
 	// this RE won't change -- so, cache it
 	if (!interwikiRE) {
-		interwikiRE = parsoidConf.interwikiRegexp;
+		interwikiRE = parsoidConfig.interwikiRegexp;
 	}
 	return interwikiRE;
-}
-
-/**
- * Set up environment defaults for the default wiki
- */
-function setDefaultWiki ( config, env ) {
-	var interwiki = 'en';
-	if ( config && config.defaultInterwiki ) {
-		interwiki = config.defaultInterwiki;
-	}
-	env.wgScript = env.conf.parsoid.interwikiMap[interwiki];
-	env.iwp = interwiki;
 }
 
 var htmlSpecialChars = function ( s ) {
@@ -224,7 +224,7 @@ var parse = function ( env, req, res, cb, err, src ) {
 			if ( !err.code ) {
 				err.code = 500;
 			}
-			console.log( err.stack );
+			console.error( err.trace || err.toString() );
 			res.send( err.toString(), err.code );
 			return;
 		} else {
@@ -260,8 +260,8 @@ app.get('/', function(req, res){
 });
 
 
-var getParserServiceEnv = function ( options, res, iwp, pageName, cb ) {
-	MWParserEnvironment.getParserEnv( options, null, iwp || '', null, pageName, function ( env ) {
+var getParserServiceEnv = function ( res, iwp, pageName, cb ) {
+	MWParserEnvironment.getParserEnv( parsoidConfig, null, iwp || '', pageName, function ( env ) {
 		env.errCB = function ( e ) {
 			console.log( e );
 			console.log(e.stack);
@@ -329,12 +329,11 @@ app.get(/\/_html\/(.*)/, function ( req, res ) {
 		res.end('');
 	};
 
-	getParserServiceEnv( localSettings, res, null, req.params[0], cb );
+	getParserServiceEnv( res, null, req.params[0], cb );
 } );
 
 app.post(/\/_html\/(.*)/, function ( req, res ) {
 	var cb = function ( env ) {
-		setDefaultWiki( config, env );
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 		var p = new html5.Parser();
 		p.parse( '<html><body>' + req.body.content.replace(/\r/g, '') + '</body></html>' );
@@ -350,7 +349,7 @@ app.post(/\/_html\/(.*)/, function ( req, res ) {
 		res.end('');
 	};
 
-	getParserServiceEnv( localSettings, res, null, req.params[0], cb );
+	getParserServiceEnv( res, parsoidConfig.defaultWiki, req.params[0], cb );
 } );
 
 /**
@@ -364,12 +363,11 @@ app.get(/\/_wikitext\/(.*)/, function ( req, res ) {
 		res.end('');
 	};
 
-	getParserServiceEnv( localSettings, res, null, req.params[0], cb );
+	getParserServiceEnv( res, null, req.params[0], cb );
 } );
 
 app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
 	var cb = function ( env ) {
-		setDefaultWiki( config, env );
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 		var parser = Util.getParser(env, 'text/x-mediawiki/full'),
 			src = req.body.content.replace(/\r/g, '');
@@ -393,7 +391,7 @@ app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
 		}
 	};
 
-	getParserServiceEnv( localSettings, res, null, req.params[0], cb );
+	getParserServiceEnv( res, parsoidConfig.defaultWiki, req.params[0], cb );
 } );
 
 /**
@@ -401,9 +399,6 @@ app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
  */
 app.get( new RegExp('/_rt/(' + getInterwikiRE() + ')/(.*)'), function(req, res) {
 	var cb = function ( env ) {
-		env.wgScriptPath = '/_rt/' + req.params[0] + '/';
-		env.wgScript = env.conf.parsoid.interwikiMap[req.params[0]];
-
 		req.connection.setTimeout(300 * 1000);
 
 		if ( env.page.name === 'favicon.ico' ) {
@@ -422,7 +417,7 @@ app.get( new RegExp('/_rt/(' + getInterwikiRE() + ')/(.*)'), function(req, res) 
 		tpr.once('src', parse.bind( null, env, req, res, roundTripDiff ));
 	};
 
-	getParserServiceEnv( localSettings, res, req.params[0], req.params[1], cb );
+	getParserServiceEnv( res, req.params[0], req.params[1], cb );
 } );
 
 /**
@@ -431,9 +426,6 @@ app.get( new RegExp('/_rt/(' + getInterwikiRE() + ')/(.*)'), function(req, res) 
  */
 app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)') , function(req, res) {
 	var cb = function ( env ) {
-		env.wgScriptPath = '/_rtve/' + req.params[0] + '/';
-		env.wgScript = env.conf.parsoid.interwikiMap[req.params[0]];
-
 		if ( env.page.name === 'favicon.ico' ) {
 			res.send( 'no favicon yet..', 404 );
 			return;
@@ -461,7 +453,7 @@ app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)') , function(req, re
 		tpr.once('src', parse.bind( null, env, req, res, cb ));
 	};
 
-	getParserServiceEnv( localSettings, res, req.params[0], req.params[1], cb );
+	getParserServiceEnv( res, req.params[0], req.params[1], cb );
 });
 
 /**
@@ -469,25 +461,23 @@ app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)') , function(req, re
  */
 app.get(/\/_rtform\/(.*)/, function ( req, res ) {
 	var cb = function ( env ) {
-		setDefaultWiki( config, env );
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 		res.write( "Your wikitext:" );
 		textarea( res );
 		res.end('');
 	};
 
-	getParserServiceEnv( localSettings, res, null, req.params[0], cb );
+	getParserServiceEnv( res, parsoidConfig.defaultWiki, req.params[0], cb );
 });
 
 app.post(/\/_rtform\/(.*)/, function ( req, res ) {
 	var cb = function ( env ) {
-		setDefaultWiki( config, env );
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 		// we don't care about \r, and normalize everything to \n
 		parse( env, req, res, roundTripDiff, null, req.body.content.replace(/\r/g, ''));
 	};
 
-	getParserServiceEnv( localSettings, res, null, req.params[0], cb );
+	getParserServiceEnv( res, parsoidConfig.defaultWiki, req.params[0], cb );
 } );
 
 /**
@@ -495,9 +485,6 @@ app.post(/\/_rtform\/(.*)/, function ( req, res ) {
  */
 app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 	var cb = function ( env ) {
-		env.wgScriptPath = '/' + req.params[0] + '/';
-		env.wgScript = env.conf.parsoid.interwikiMap[req.params[0]];
-
 		if ( env.page.name === 'favicon.ico' ) {
 			res.send( 'no favicon yet..', 404 );
 			return;
@@ -524,7 +511,7 @@ app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 		}));
 	};
 
-	getParserServiceEnv( localSettings, res, req.params[0], req.params[1], cb );
+	getParserServiceEnv( res, req.params[0], req.params[1], cb );
 } );
 
 app.get( /\/_ci\/refs\/changes\/(\d+)\/(\d+)\/(\d+)/, function ( req, res ) {
@@ -567,9 +554,6 @@ app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function ( req, res 
 	var cb = function ( env ) {
 		var oldid = req.body.oldid || null;
 		env.page.id = req.body.oldid || null;
-		env.wgScriptPath = '/';
-		setDefaultWiki( localSettings, env );
-		env.wgScript = env.conf.parsoid.interwikiMap[req.params[0]];
 		res.setHeader('Content-Type', 'text/x-mediawiki; charset=UTF-8');
 
 		try {
@@ -604,7 +588,7 @@ app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function ( req, res 
 		}
 	};
 
-	getParserServiceEnv( localSettings, res, req.params[0], req.params[1], cb );
+	getParserServiceEnv( res, req.params[0], req.params[1], cb );
 } );
 
 app.use( express.static( __dirname + '/scripts' ) );

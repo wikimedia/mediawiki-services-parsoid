@@ -366,7 +366,14 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 // width-prefixed image URL.
 WikiLinkHandler.prototype.getThumbPath = function ( key, width ) {
 	var env = this.manager.env;
-	var scriptProtoRel = env.wgScript.replace('/^https?:\/\//', '//');
+	// Choose the applicable URL
+	var scriptProtoRel = ( env.conf.wiki.apiURI || env.conf.wiki.wgScript )
+		// Make it protocol-relative
+		.replace('/^https?:\/\//', '//');
+
+	if ( env.conf.wiki.server && env.conf.wiki.wgScript ) {
+		scriptProtoRel = env.conf.wiki.server + env.conf.wiki.wgScript;
+	}
 
 	// Simply let Special:FilePath redirect to the real thumb location
 	return scriptProtoRel + '?title=Special:FilePath/' +

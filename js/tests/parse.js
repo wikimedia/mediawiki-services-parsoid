@@ -171,14 +171,21 @@ function dumpFlags() {
 		argv.wt2html = true;
 	}
 
-	ParserEnv.getParserEnv( null, null, '', null, argv.pagename || null, function ( env ) {
+	ParserEnv.getParserEnv( null, null, '', argv.pagename || null, function ( env ) {
 		// fetch templates from enwiki by default.
-		env.wgScript = argv.wgScript;
-		env.wgScriptPath = argv.wgScriptPath;
-		env.wgScriptExtension = argv.wgScriptExtension;
+		if ( argv.wgScript ) {
+			env.conf.wiki.wgScript = argv.wgScript;
+		}
+		if ( argv.wgScriptPath ) {
+			env.conf.wiki.wgScriptPath = argv.wgScriptPath;
+		}
+		if ( argv.wgScriptExtension ) {
+			env.conf.wiki.wgScriptExtension = argv.wgScriptExtension;
+		}
+
 		// XXX: add options for this!
-		env.fetchTemplates = argv.fetchTemplates;
-		env.maxDepth = argv.maxdepth || env.maxDepth;
+		env.conf.parsoid.fetchTemplates = argv.fetchTemplates;
+		env.conf.parsoid.maxDepth = argv.maxdepth || env.conf.parsoid.maxDepth;
 
 		Util.setDebuggingFlags( env, argv );
 
