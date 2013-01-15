@@ -874,13 +874,17 @@ var getLinkRoundTripData = function( token, attribDict, dp, tokens, state ) {
 	var contentParts;
 	var contentString = Util.tokensToString(tokens, true);
 	if (contentString.constructor === String) {
-		if ( ! rtData.target.modified ) {
+		if ( ! rtData.target.modified && rtData.tail &&
+				contentString.substr(- rtData.tail.length) === rtData.tail ) {
 			rtData.content.string = Util.stripSuffix( contentString, rtData.tail );
-		} else {
+		} else if (rtData.target.string && rtData.target.string !== contentString) {
 			// Try to identify a new potential tail
 			contentParts = splitLinkContentString(contentString, dp, rtData.target);
 			rtData.content.string = contentParts.contentString;
 			rtData.tail = contentParts.tail;
+		} else {
+			rtData.tail = '';
+			rtData.content.string = contentString;
 		}
 	} else {
 		rtData.content.tokens = tokens;
@@ -1019,6 +1023,7 @@ WSP._linkHandler =  function( state, tokens ) {
 				// Only preserve pipe trick instances across edits, but don't
 				// introduce new ones.
 				willUsePipeTrick = canUsePipeTrick && dp.pipetrick;
+			//console.log(linkData.content.string, canUsePipeTrick);
 
 			if ( canUseSimple ) {
 				// Simple case
