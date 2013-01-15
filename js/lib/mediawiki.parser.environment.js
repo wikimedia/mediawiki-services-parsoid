@@ -76,7 +76,7 @@ var MWParserEnvironment = function(opts, ls) {
 		wgScriptExtension: ".php",
 		fetchTemplates: false,
 		maxDepth: 40,
-		usePHPPreProcessor: false,
+		usePHPPreProcessor: true,
 
 		// page information
 		page: {
