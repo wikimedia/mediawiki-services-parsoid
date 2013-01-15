@@ -1648,11 +1648,12 @@ table_start_tag
     }
 
 table_caption_tag
-  = pipe "+"
-    tcStartPos:({return pos;})
-    c:inline* { 
-        return [ new TagTk( 'caption', [], {tsr: [pos0, tcStartPos]} )]
-                    .concat( c, [ new EndTagTk( 'caption' ) ]);
+  = p:pipe "+"
+    args:single_cell_table_args?
+    tagEndPos:({return pos})
+    c:nested_block* { 
+        return buildTableTokens("caption", "|+", args, [pos0, tagEndPos], pos, c)
+            .concat([new EndTagTk('caption')]);
     }
 
 
@@ -1718,7 +1719,7 @@ table_data_tags
 table_data_tag
   = //& { dp("table_data enter, pos=" + pos + input.substr(pos,10)); return true; }
     ! "}"
-    arg:table_cell_args?
+    arg:row_syntax_table_args?
     //& { console.warn("past attrib, pos=" + pos + input.substr(pos,10)); return true; }
     // use inline_breaks to break on tr etc
     tagEndPos:({return pos})
@@ -1747,7 +1748,7 @@ table_heading_tags
     }
 
 table_heading_tag
-  = arg:table_cell_args?
+  = arg:row_syntax_table_args?
     tagEndPos:({return pos})
     c:nested_block* {
         //console.warn( 'table_heading_tag: ' + pp( [a, c] ) );
@@ -1765,7 +1766,24 @@ table_end_tag
 	  return [ tblEnd ];
   }
 
-table_cell_args
+/**
+ * Table parameters separated from the content by a single pipe. Matches even
+ * if there are more pipes following.
+ */
+single_cell_table_args
+  = & { return stops.push('pipe', true); }
+    as:generic_attribute* s:space* p:pipe { 
+        stops.pop('pipe');
+        //console.warn( 'tcargs' + JSON.stringify( as ) + " stops: " + pp(stops) );
+        return [as, s, p];
+    }
+    / & { return stops.pop('pipe'); }
+
+/**
+ * Table parameters separated from the content by a single pipe. Does *not*
+ * match if followed by double pipe (row-based syntax).
+ */
+row_syntax_table_args
   = & { return stops.inc('tableCellArg'); }
     as:generic_attribute* s:space* p:pipe !pipe { 
         stops.dec('tableCellArg');
