@@ -695,15 +695,20 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 	} else {
 		// Not a link, convert href to plain text.
 		var tokens = ['['],
-			closingTok = null;
+			closingTok = null,
+			spaces = token.getAttribute('spaces') || '';
 
 		if ((token.getAttribute("typeof") || "").match(/mw:ExpandedAttrs/)) {
 			// The token 'non-url' came from a template.
 			// Introduce a span and capture the original source for RT purposes.
 			var da = token.dataAttribs,
+				// targetOff covers all spaces before content
+				// and we need src without those spaces.
+				tsr0 = da.tsr[0] + 1,
+				tsr1 = da.targetOff - spaces.length,
 				span = new TagTk('span', [new KV('typeof', 'mw:Placeholder')], {
-						tsr: [da.tsr[0] + 1, da.targetOff],
-						src: env.page.src.substring( da.tsr[0] + 1, da.targetOff )
+						tsr: [tsr0, tsr1],
+						src: env.page.src.substring(tsr0, tsr1)
 					} );
 
 			tokens.push(span);
@@ -724,7 +729,6 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 		// FIXME: Use this attribute in regular extline
 		// cases to rt spaces correctly maybe?  Unsure
 		// it is worth it.
-		var spaces = token.getAttribute('spaces');
 		if (spaces) {
 			tokens.push(spaces);
 		}

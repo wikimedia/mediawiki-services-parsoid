@@ -704,14 +704,14 @@ extlink
         & { return stops.push('extlink', true); }
         //target:urllink
         target:extlink_preprocessor_text
+        sp:( space / [\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000] )*
         targetOff:({return pos;})
         content:(
-                sp:( space / [\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000] )* 
                 t1:(
                     & { return  stops.push('pipe', false); }
                     t:inlineline { stops.pop('pipe'); return t }
                     / ! { return stops.pop('pipe') }
-                ) { return [sp.join(''), t1] }
+                ) { return t1 }
               )?
         "]" {
             stops.pop('extlink');
@@ -721,19 +721,16 @@ extlink
             //    linkCount++;
             //}
             //console.warn( 'extlink text: ' + pp( text ) );
-            var sp = content[0], text = content[1];
-            var dataAttribs = {
-                targetOff: targetOff
-            };
-            if ( text === '' ) {
+            var dataAttribs = { targetOff: targetOff };
+            if ( content === '' ) {
                 dataAttribs.gc = 1;
             }
             dataAttribs.tsr = [pos0, pos];
             return [
                 new SelfclosingTagTk( 'extlink', [
                     new KV('href', target),
-                    new KV('mw:content', text),
-                    new KV('spaces', sp)
+                    new KV('mw:content', content),
+                    new KV('spaces', sp.join(''))
                 ],
                 dataAttribs)
             ];

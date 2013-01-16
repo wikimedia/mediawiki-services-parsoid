@@ -102,6 +102,10 @@ var DOMUtils = {
 		return nType.match(/\bmw:Object(\/[^\s]+)*\b/);
 	},
 
+	isExpandedAttrsMetaType: function(nType) {
+		return nType.match(/\bmw:ExpandedAttrs(\/[^\s]+)*\b/);
+	},
+
 	isTplMarkerMeta: function(n)  {
 		return (
 			this.hasNodeName(n, "meta") &&

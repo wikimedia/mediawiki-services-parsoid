@@ -1401,6 +1401,46 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 		return depth;
 	}
 
+	function computeATagWidth(node, dp) {
+		/* -------------------------------------------------------------
+		 * Tag widths are computed as per this logic here:
+		 *
+		 * 1. [[Foo|bar]] <-- piped mw:WikiLink
+		 *     -> start-tag: "[[Foo|"
+		 *     -> content  : "bar"
+		 *     -> end-tag  : "]]"
+		 *
+		 * 2. [[Foo]] <-- non-piped mw:WikiLink
+		 *     -> start-tag: "[["
+		 *     -> content  : "Foo"
+		 *     -> end-tag  : "]]"
+		 *
+		 * 3. [[{{echo|Foo}}|Foo]] <-- tpl-attr mw:WikiLink
+		 *    Dont bother setting tag widths since dp.sa["href"] will be
+		 *    the expanded target and won't correspond to original source.
+		 *    We dont always have access to the meta-tag that has the source.
+		 *
+		 * 4. [http://wp.org foo] <-- mw:ExtLink
+		 *     -> start-tag: "[http://wp.org "
+		 *     -> content  : "foo"
+		 *     -> end-tag  : "]"
+		 * -------------------------------------------------------------- */
+		var aType = node.getAttribute("rel");
+		if (aType === "mw:WikiLink" &&
+			!DU.isExpandedAttrsMetaType(node.getAttribute("typeof")))
+		{
+			if (dp.stx === "piped") {
+				return [dp.sa["href"].length + 3, 2];
+			} else {
+				return [2, 2];
+			}
+		} else if (aType === "mw:ExtLink") {
+			return [dp.targetOff - dp.tsr[0], 1];
+		} else {
+			return null;
+		}
+	}
+
 	function computeTagWidths(widths, node, dp) {
 		var stWidth = widths[0], etWidth = null;
 
@@ -1418,7 +1458,10 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				var wtTagWidth = WT_TagWidths[nodeName];
 				if (stWidth === null) {
 					// we didn't have a tsr to tell us how wide this tag was.
-					if (nodeName === 'li' || nodeName === 'dd') {
+					if (nodeName === 'a') {
+						wtTagWidth = computeATagWidth(node, dp);
+						stWidth = wtTagWidth ? wtTagWidth[0] : null;
+					} else if (nodeName === 'li' || nodeName === 'dd') {
 						stWidth = computeListEltWidth(node, nodeName);
 					} else if (wtTagWidth) {
 						stWidth = wtTagWidth[0];
@@ -1582,7 +1625,21 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				 * But, if we handled the zero-child case like the other scenarios, we
 				 * don't have to worry about the above decisions and checks.
 				 * -------------------------------------------------------------------- */
-				newDsr = computeNodeDSR(env, child, ccs, cce, traceDSR);
+
+				if (DU.hasNodeName(child, "a") &&
+					child.getAttribute("rel") === "mw:WikiLink" &&
+					dp.stx !== "piped")
+				{
+					// This check here eliminates artifical DSR mismatches on content text of
+					// the a-node because of entity expansion, etc.
+					//
+					// Ex: [[7%25 solution]] will be rendered as <a href=....>7% solution</a>
+					// and if we descend into the text for the a-node, we'll have a 2-char
+					// DSR mismatch which will trigger artificial error warnings.
+					newDsr = [ccs, cce];
+				} else {
+					newDsr = computeNodeDSR(env, child, ccs, cce, traceDSR);
+				}
 
 				// Min(child-dom-tree dsr[0] - tag-width, current dsr[0])
 				if (stWidth !== null && newDsr[0] !== null) {
