@@ -200,7 +200,7 @@ SSP.parseOriginalSource = function ( doc, cb, finalcb, err, src ) {
 
 	// Parse the wikitext src to the original DOM, and pass that on to
 	// doSerializeDOM
-	this.parserPipeline.once( 'document', function ( doc ) {
+	parserPipeline.once( 'document', function ( doc ) {
 		// XXX: need to get body with .tree.document.childNodes[0].childNodes[1] ?
 		self.env.page.dom = doc;
 		self.doSerializeDOM(err, doc, cb, finalcb);
