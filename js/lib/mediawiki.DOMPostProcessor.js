@@ -1433,11 +1433,16 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				!DU.isExpandedAttrsMetaType(node.getAttribute("typeof")))
 			{
 				if (dp.stx === "piped") {
-					return [dp.sa["href"].length + 3, 2];
+					var href = dp.sa ? dp.sa["href"] : null
+					if (href) {
+						return [href.length + 3, 2];
+					} else {
+						return null;
+					}
 				} else {
 					return [2, 2];
 				}
-			} else if (aType === "mw:ExtLink") {
+			} else if (aType === "mw:ExtLink" && dp.tsr) {
 				return [dp.targetOff - dp.tsr[0], 1];
 			} else {
 				return null;
