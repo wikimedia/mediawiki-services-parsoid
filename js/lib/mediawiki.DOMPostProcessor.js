@@ -1425,19 +1425,23 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 		 *     -> content  : "foo"
 		 *     -> end-tag  : "]"
 		 * -------------------------------------------------------------- */
-		var aType = node.getAttribute("rel");
-		if (aType === "mw:WikiLink" &&
-			!DU.isExpandedAttrsMetaType(node.getAttribute("typeof")))
-		{
-			if (dp.stx === "piped") {
-				return [dp.sa["href"].length + 3, 2];
-			} else {
-				return [2, 2];
-			}
-		} else if (aType === "mw:ExtLink") {
-			return [dp.targetOff - dp.tsr[0], 1];
-		} else {
+		if (!dp) {
 			return null;
+		} else {
+			var aType = node.getAttribute("rel");
+			if (aType === "mw:WikiLink" &&
+				!DU.isExpandedAttrsMetaType(node.getAttribute("typeof")))
+			{
+				if (dp.stx === "piped") {
+					return [dp.sa["href"].length + 3, 2];
+				} else {
+					return [2, 2];
+				}
+			} else if (aType === "mw:ExtLink") {
+				return [dp.targetOff - dp.tsr[0], 1];
+			} else {
+				return null;
+			}
 		}
 	}
 
@@ -1612,7 +1616,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 						"; [ccs,cce]=" + ccs + "," + cce);
 				}
 
-				/* --------------------------------------------------------------------
+				/* -----------------------------------------------------------------
 				 * Process DOM rooted at 'child'.
 				 *
 				 * NOTE: You might wonder why we are not checking for the zero-children
@@ -1622,20 +1626,27 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				 * [cce, cce] would be consistent with the RTL approach.  We should
 				 * then compare ccs and cce and verify that they are identical.
 				 *
-				 * But, if we handled the zero-child case like the other scenarios, we
-				 * don't have to worry about the above decisions and checks.
-				 * -------------------------------------------------------------------- */
+				 * But, if we handled the zero-child case like the other scenarios,
+				 * we don't have to worry about the above decisions and checks.
+				 * ----------------------------------------------------------------- */
 
 				if (DU.hasNodeName(child, "a") &&
 					child.getAttribute("rel") === "mw:WikiLink" &&
 					dp.stx !== "piped")
 				{
-					// This check here eliminates artifical DSR mismatches on content text of
-					// the a-node because of entity expansion, etc.
-					//
-					// Ex: [[7%25 solution]] will be rendered as <a href=....>7% solution</a>
-					// and if we descend into the text for the a-node, we'll have a 2-char
-					// DSR mismatch which will trigger artificial error warnings.
+					/* -------------------------------------------------------------
+					 * This check here eliminates artifical DSR mismatches on content
+					 * text of  the a-node because of entity expansion, etc.
+					 *
+					 * Ex: [[7%25 solution]] will be rendered as:
+					 *    <a href=....>7% solution</a>
+					 * If we descend into the text for the a-node, we'll have a 2-char
+					 * DSR mismatch which will trigger artificial error warnings.
+					 *
+					 * In the non-piped link scenario, all dsr info is already present
+					 * in the link target and so we get nothing new by processing
+					 * content.
+					 * ------------------------------------------------------------- */
 					newDsr = [ccs, cce];
 				} else {
 					newDsr = computeNodeDSR(env, child, ccs, cce, traceDSR);
