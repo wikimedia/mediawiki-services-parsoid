@@ -20,37 +20,35 @@ var WikitextConstants = {
 	// for more information about how they are used.
 	Image: {
 		PrefixOptions: {
-			'link'     : 'link',
-			'alt'      : 'alt',
-			'page'     : 'page',
-			'thumbnail': 'thumbnail',
-			'thumb'    : 'thumb',
-			'upright'  : 'aspect'
+			'img_link'      : 'img_link',
+			'img_alt'       : 'img_alt',
+			'img_page'      : 'img_page',
+			'img_thumbnail' : 'img_thumbnail',
+			'img_upright'   : 'aspect'
 		},
 		SimpleOptions: {
 			// halign
-			'left'  : 'halign',
-			'right' : 'halign',
-			'center': 'halign',
-			'float' : 'halign',
-			'none'  : 'halign',
+			'img_left'   : 'halign',
+			'img_right'  : 'halign',
+			'img_center' : 'halign',
+			'img_float'  : 'halign',
+			'img_none'   : 'halign',
 
 			// valign
-			'baseline'   : 'valign',
-			'sub'        : 'valign',
-			'super'      : 'valign',
-			'top'        : 'valign',
-			'text-top'   : 'valign',
-			'middle'     : 'valign',
-			'bottom'     : 'valign',
-			'text-bottom': 'valign',
+			'img_baseline'    : 'valign',
+			'img_sub'         : 'valign',
+			'img_super'       : 'valign',
+			'img_top'         : 'valign',
+			'img_text_top'    : 'valign',
+			'img_middle'      : 'valign',
+			'img_bottom'      : 'valign',
+			'img_text_bottom' : 'valign',
 
 			// format
-			'border'   : 'format',
-			'frameless': 'format',
-			'frame'    : 'format',
-			'thumbnail': 'format',
-			'thumb'    : 'format'
+			'img_border'    : 'format',
+			'img_frameless' : 'format',
+			'img_framed'    : 'format',
+			'img_thumbnail' : 'format'
 		}
 	},
 

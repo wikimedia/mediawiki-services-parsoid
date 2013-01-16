@@ -650,38 +650,22 @@ comment_chars
 
 // Behavior switches. See https://www.mediawiki.org/wiki/Help:Magic_words#Behavior_switches
 behavior_switch
-  = '__' 
-    behavior:(
-        'NOTOC'
-      / 'FORCETOC'
-      / 'TOC'
-      / 'NOEDITSECTION'
-      / 'NEWSECTIONLINK'
-      / 'NONEWSECTIONLINK'
-      / 'NOGALLERY'
-      / 'HIDDENCAT'
-      / 'NOCONTENTCONVERT'
-      / 'NOCC'
-      / 'NOTITLECONVERT'
-      / 'NOTC'
-      / 'START'
-      / 'END'    // XXX: Removed in 19213. Should we keep this?
-      / 'INDEX'
-      / 'NOINDEX'
-      / 'STATICREDIRECT'
-    )
-    '__'
+  = '__' behavior:behavior_text '__'
 {
     return [
         new TagTk(
             'behavior-switch',
-            [new KV('word', behavior)],
+            [new KV('word', '__' + behavior + '__')],
             { 
                 tsr: [pos0, pos],
                 src: input.substring( pos0, pos )
             }
         )
     ];
+}
+
+behavior_text = text:( &( !'__' ) text_char )* {
+    return flatten_stringlist( text );
 }
 
 /**************************************************************

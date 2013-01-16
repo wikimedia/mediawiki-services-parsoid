@@ -243,11 +243,19 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 		//console.log( JSON.stringify( oText, null, 2 ) );
 		if ( oText.constructor === String ) {
 			var origOText = oText;
-			oText = oText.trim().toLowerCase();
-			var imgOption = WikitextConstants.Image.SimpleOptions[oText];
+			oText = oText.trim();
+			var lowerOText = oText.toLowerCase();
+			var canonicalOption = env.conf.wiki.magicWords[oText] ||
+				env.conf.wiki.magicWords[lowerOText] ||
+				lowerOText;
+			var imgOption = WikitextConstants.Image.SimpleOptions[canonicalOption];
 			if (imgOption) {
 				options.push( new KV(imgOption, origOText ) );
-				oHash[imgOption] = oText;
+				oHash[imgOption] = canonicalOption;
+				if ( token.dataAttribs.optNames === undefined ) {
+					token.dataAttribs.optNames = {};
+				}
+				token.dataAttribs.optNames[canonicalOption] = origOText;
 				continue;
 			} else {
 				var maybeSize = oText.match(/^(\d*)(?:x(\d+))?px$/);
@@ -265,10 +273,18 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 					}
 				} else {
 					var bits = origOText.split( '=', 2 ),
-						normalizedBit0 = bits[0].trim().toLowerCase(),
-						key = WikitextConstants.Image.PrefixOptions[normalizedBit0];
+						normalizedBit0 = bits[0],
+						trimNb0 = normalizedBit0.trim(),
+						lowerNb0 = trimNb0.toLowerCase(),
+						canonicalNb0 = env.conf.wiki.magicWords[trimNb0] ||
+							env.conf.wiki.magicWords[lowerNb0] || lowerNb0,
+						key = WikitextConstants.Image.PrefixOptions[canonicalNb0];
 					if ( bits[0] && key) {
 						oHash[key] = bits[1];
+						if ( token.dataAttribs.optNames === undefined ) {
+							token.dataAttribs.optNames = {};
+						}
+						token.dataAttribs.optNames[key] = bits[0];
 						// Preserve white space
 						// FIXME: But this doesn't work for the 'upright' key
 						if (key === normalizedBit0) {
@@ -317,7 +333,7 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 	// XXX: check if the file exists, generate thumbnail, get size
 	// XXX: render according to mode (inline, thumb, framed etc)
 
-	if ( oHash.format && ( oHash.format === 'thumb' || oHash.format === 'thumbnail') ) {
+	if ( oHash.format && ( oHash.format === 'img_thumbnail') ) {
 		return this.renderThumb( token, this.manager, cb, title, fileName,
 				caption, oHash, options, rdfaAttrs);
 	} else {
@@ -343,7 +359,7 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 					new KV( 'height', height || '' ),
 					new KV( 'width', width || '' ),
 					new KV( 'src', path ),
-					new KV( 'alt', oHash.alt || title.key )
+					new KV( 'alt', oHash.img_alt || title.key )
 				] );
 
 		var tokens = [ a, img, new EndTagTk( 'a' )];
@@ -484,7 +500,7 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 					new KV('width', width + 'px'),
 					//new KV('height', '160px'),
 					new KV('class', 'thumbimage'),
-					new KV('alt', oHash.alt || title.key ),
+					new KV('alt', oHash.img_alt || title.key ),
 					// Add resource as CURIE- needs global default prefix
 					// definition.
 					new KV('resource', '[:' + fileName + ']')
