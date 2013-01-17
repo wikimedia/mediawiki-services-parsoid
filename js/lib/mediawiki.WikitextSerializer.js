@@ -211,9 +211,9 @@ var WikitextSerializer = function( options ) {
 	}, options || {} );
 
 	this.env = options.env;
-	var trace = this.env.traceFlags && (this.env.traceFlags.indexOf("wts") !== -1);
+	var trace = this.env.conf.parsoid.traceFlags && (this.env.conf.parsoid.traceFlags.indexOf("wts") !== -1);
 
-	if ( this.env.debug || trace ) {
+	if ( this.env.conf.parsoid.debug || trace ) {
 		WikitextSerializer.prototype.debug_pp = function () {
 			Util.debug_pp.apply(Util, arguments);
 		};

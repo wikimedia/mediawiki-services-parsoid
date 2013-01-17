@@ -16,7 +16,7 @@ function ListHandler ( manager ) {
 							"ListHandler:onEnd",
 							this.listRank, 'end' );
 	var env = manager.env;
-	this.trace = env.debug || (env.traceFlags && (env.traceFlags.indexOf("list") !== -1));
+	this.trace = env.conf.parsoid.debug || (env.conf.parsoid.traceFlags && (env.conf.parsoid.traceFlags.indexOf("list") !== -1));
 }
 
 ListHandler.prototype.listRank = 2.49; // before PostExpandParagraphHandler
@@ -368,7 +368,7 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 		res = tokens;
 	}
 
-	if (this.manager.env.trace) {
+	if (this.manager.env.conf.parsoid.trace) {
 		this.manager.env.tracer.output("Returning: " + Util.toStringTokens(res).join(","));
 	}
 

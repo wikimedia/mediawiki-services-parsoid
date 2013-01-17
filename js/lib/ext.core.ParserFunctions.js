@@ -647,9 +647,9 @@ ParserFunctions.prototype.pf_localurl = function ( token, frame, cb, args ) {
 				}
 				cb({ tokens: [ '/' +
 					// FIXME! Figure out correct prefix to use
-					//this.env.wgScriptPath +
+					//this.env.conf.wiki.wgScriptPath +
 					'index' +
-					env.wgScriptExtension + '?title=' +
+					env.conf.wiki.wgScriptExtension + '?title=' +
 					env.normalizeTitle( target ) + '&' +
 					expandedArgs.join('&') ]
 				});
@@ -688,7 +688,7 @@ ParserFunctions.prototype.pf_fullpagenamee = function ( token, frame, cb, args )
 // (this.env) already.
 ParserFunctions.prototype.pf_fullurl = function ( token, frame, cb, args ) {
 	var target = args[0].k;
-	cb( { tokens: [ target || this.env.wgScriptPath + this.env.page.name || "http://example.com/fixme/" ] } );
+	cb( { tokens: [ target || this.env.conf.wiki.articlePath + this.env.page.name || "http://example.com/fixme/" ] } );
 };
 ParserFunctions.prototype.pf_urlencode = function ( token, frame, cb, args ) {
 	var target = args[0].k;
@@ -757,7 +757,7 @@ ParserFunctions.prototype.pf_pagenamebase = function ( token, frame, cb, args ) 
 	cb( { tokens: [this.env.page.name || ''] } );
 };
 ParserFunctions.prototype.pf_scriptpath = function ( token, frame, cb, args ) {
-	cb( { tokens: [this.env.wgScriptPath] } );
+	cb( { tokens: [this.env.conf.wiki.wgScriptPath] } );
 };
 ParserFunctions.prototype.pf_talkpagename = function ( token, frame, cb, args ) {
 	cb( { tokens: [this.env.page.name.replace(/^[^:]:/, 'Talk:' ) || ''] } );

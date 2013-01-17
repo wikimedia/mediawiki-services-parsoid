@@ -19,11 +19,17 @@ if ( typeof module === 'object' ) {
 		// A unique name for this client (optional) (URL-safe characters only)
 		clientName: 'AnonymousClient',
 
-		// The interwiki prefix you want to use (see mediawiki.parser.environment.js for more information)
 		interwiki: 'en',
 
-		setup = function ( env ) {
-			env.usePHPPreProcessor = false;
+		setup: function ( parsoidConfig ) {
+			// Whether to use the PHP preprocessor to expand templates and the like
+			parsoidConfig.usePHPPreProcessor = false;
+
+			// The interwiki prefix you want to use (see mediawiki.parser.environment.js for more information)
+			parsoidConfig.defaultWiki = 'en';
+
+			// Insert the interwiki prefix for a localhost wiki
+			parsoidConfig.setInterwiki( 'localhost', 'http://localhost/wiki/api.php' );
 		}
 	};
 }

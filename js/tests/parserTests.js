@@ -34,6 +34,7 @@ var mp = '../lib/',
 	MWParserEnvironment = require(mp + 'mediawiki.parser.environment.js').MWParserEnvironment,
 	WikitextSerializer = require(mp + 'mediawiki.WikitextSerializer.js').WikitextSerializer,
 	SelectiveSerializer = require( mp + 'mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
+	ParsoidConfig = require( mp + 'mediawiki.ParsoidConfig' ).ParsoidConfig,
 	TemplateRequest = require(mp + 'mediawiki.ApiRequest.js').TemplateRequest;
 
 // For now most modules only need this for $.extend and $.each :)
@@ -1052,11 +1053,13 @@ ParserTests.prototype.main = function ( options ) {
 		}
 	}
 
+	options.fetchTemplates = false;
+
+	var parsoidConfig = new ParsoidConfig( null, options );
+
 	// Create a new parser environment
-	MWParserEnvironment.getParserEnv( null, null, '', options, null, function ( env ) {
+	MWParserEnvironment.getParserEnv( parsoidConfig, null, '', null, function ( env ) {
 		this.env = env;
-		this.env.fetchTemplates = false;
-		this.env.wgUploadPath = 'http://example.com/images';
 		this.env.errCB = function ( e ) {
 			console.error( e.stack );
 		};

@@ -56,7 +56,7 @@ Tracer.prototype = {
 	}
 };
 
-var MWParserEnvironment = function(opts, ls) {
+var MWParserEnvironment = function( parsoidConfig, wikiConfig ) {
 	// The parser environment really serves several distinct purposes currently:
 	// - it holds config data which is not modified at runtime -> a config object
 	// - it provides debugging objects -> can be part of config (immutable)
@@ -65,19 +65,6 @@ var MWParserEnvironment = function(opts, ls) {
 	// TODO: disentangle these!
 
 	var options = {
-		// config
-		tagHooks: {},
-		parserFunctions: {},
-		debug: false,
-		trace: false,
-		wgScriptPath: "/wiki/",
-		wgScript: "/wiki/index.php",
-		wgUploadPath: "/wiki/images",
-		wgScriptExtension: ".php",
-		fetchTemplates: false,
-		maxDepth: 40,
-		usePHPPreProcessor: true,
-
 		// page information
 		page: {
 			name: 'Main page',
@@ -87,38 +74,33 @@ var MWParserEnvironment = function(opts, ls) {
 			dom: null
 		},
 
+		// Configuration
+		conf: {},
+
 		// execution state
 		pageCache: {}, // @fixme use something with managed space
 		uid: 1
 	};
-	// XXX: this should be namespaced
-	$.extend(options, opts);
-	$.extend(this, options);
+
+	$.extend( this, options );
+
+	if ( !parsoidConfig ) {
+		// Global things, per-parser
+		parsoidConfig = new ParsoidConfig( null, null );
+	}
+
+	if ( !wikiConfig ) {
+		// Local things, per-wiki
+		wikiConfig = new WikiConfig( null, '' );
+	}
+
+	this.conf.wiki = wikiConfig;
+	this.conf.parsoid = parsoidConfig;
 
 	this.setPageName( this.page.name );
 
 	// Tracing object
 	this.tracer = new Tracer(this);
-
-	this.conf = {
-		parsoid: {},
-		wiki: {}
-	};
-
-	// Default value for parsoid config
-	if ( this.parsoidConf ) {
-		this.conf.parsoid = this.parsoidConf;
-		delete this.parsoidConf;
-	} else {
-		this.conf.parsoid = new ParsoidConfig();
-	}
-
-	if ( ls && ls.setup ) {
-		ls.setup( null, this.conf.parsoid );
-	}
-
-	// Initialise empty default values for interwiki config
-	this.iwp = '';
 };
 
 // Outstanding page requests (for templates etc)
@@ -179,37 +161,24 @@ MWParserEnvironment.prototype.getTagHook = function( name ) {
 };
 
 /**
- * Alternate constructor - takes a localsettings object, config, and an interwiki
+ * Alternate constructor - takes a few config objects, and an interwiki
  * prefix to set up the environment. Calls back with the resulting object.
  */
-MWParserEnvironment.getParserEnv = function ( ls, config, prefix, options, pageName, cb ) {
-	var env = new this( options || {
-		// stay within the 'proxied' content, so that we can click around
-		wgScriptPath: '/', //http://en.wikipedia.org/wiki',
-		wgScriptExtension: '.php',
-		// XXX: add options for this!
-		wgUploadPath: 'http://upload.wikimedia.org/wikipedia/commons',
-		fetchTemplates: true,
-		// enable/disable debug output using this switch
-		debug: false,
-		trace: false,
-		maxDepth: 40
-	}, ls );
-
-	// add mediawiki.org
-	env.conf.parsoid.setInterwiki( 'mw', 'http://www.mediawiki.org/w' );
-
-	if ( !env.conf.parsoid.interwikiMap.localhost ) {
-		// add localhost default
-		env.conf.parsoid.setInterwiki( 'localhost', 'http://localhost/w' );
+MWParserEnvironment.getParserEnv = function ( parsoidConfig, wikiConfig, prefix, pageName, cb ) {
+	if ( !parsoidConfig ) {
+		parsoidConfig = new ParsoidConfig();
+		parsoidConfig.setInterwiki( 'mw', 'http://www.mediawiki.org/w/api.php' );
 	}
+
+	if ( !wikiConfig ) {
+		wikiConfig = new WikiConfig( null, '' );
+	}
+
+	var env = new this( parsoidConfig, wikiConfig );
 
 	if ( pageName ) {
 		env.setPageName( pageName );
 	}
-
-	// Set the current interwiki prefix
-	env.iwp = '';
 
 	// Get that wiki's config
 	env.switchToConfig( prefix, function () {
@@ -222,14 +191,12 @@ MWParserEnvironment.getParserEnv = function ( ls, config, prefix, options, pageN
  * Caches all configs so we only need to get each one once (if we do it right)
  */
 MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
-	var uri = this.conf.parsoid.interwikiMap[prefix] + '/api' + this.wgScriptExtension;
+	var uri = this.conf.parsoid.interwikiMap[prefix];
 	this.confCache = this.confCache || {};
-	this.confCache[this.iwp] = this.conf.wiki;
+	this.confCache[this.conf.wiki.iwp] = this.conf.wiki;
 
-	this.iwp = prefix;
-
-	if ( this.confCache[this.iwp] ) {
-		this.conf.wiki = this.confCache[this.iwp];
+	if ( this.confCache[prefix] ) {
+		this.conf.wiki = this.confCache[prefix];
 		cb();
 	} else {
 		var confRequest = new ConfigRequest( uri, this );
@@ -245,7 +212,7 @@ MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
 				};
 			}
 
-			this.conf.wiki = new WikiConfig( resultConf );
+			this.conf.wiki = new WikiConfig( resultConf, prefix, this.conf.parsoid.interwikiMap[prefix] );
 			cb();
 		}.bind( this ) );
 	}
@@ -362,7 +329,7 @@ MWParserEnvironment.prototype.resolveTitle = function( name, namespace ) {
  * Simple debug helper
  */
 MWParserEnvironment.prototype.dp = function ( ) {
-	if ( this.debug ) {
+	if ( this.conf.parsoid.debug ) {
 		if ( arguments.length > 1 ) {
 			try {
 				console.warn( JSON.stringify( arguments, null, 2 ) );
@@ -394,7 +361,7 @@ MWParserEnvironment.prototype.ap = function ( ) {
  * Simple debug helper, trace-only
  */
 MWParserEnvironment.prototype.tp = function ( ) {
-	if ( this.debug || this.trace ) {
+	if ( this.conf.parsoid.debug || this.conf.parsoid.trace ) {
 		if ( arguments.length > 1 ) {
 			console.warn( JSON.stringify( arguments, null, 2 ) );
 		} else {

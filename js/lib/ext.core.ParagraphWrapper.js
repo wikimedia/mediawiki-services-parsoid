@@ -11,9 +11,9 @@ var Util = require('./mediawiki.Util.js').Util;
 function ParagraphWrapper ( manager, options ) {
 	this.options = options;
 	this.register( manager );
-	this.trace = manager.env.debug ||
-		(manager.env.traceFlags &&
-		(manager.env.traceFlags.indexOf("p-wrap") !== -1));
+	this.trace = manager.env.conf.parsoid.debug ||
+		(manager.env.conf.parsoid.traceFlags &&
+		(manager.env.conf.parsoid.traceFlags.indexOf("p-wrap") !== -1));
 	this.reset();
 }
 

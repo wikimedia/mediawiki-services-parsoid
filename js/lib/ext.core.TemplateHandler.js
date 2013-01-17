@@ -62,7 +62,8 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 		state.emittedFirstChunk = false;
 	}
 
-	if ( this.manager.env.usePHPPreProcessor ) {
+	if ( this.manager.env.conf.parsoid.usePHPPreProcessor &&
+			this.manager.env.conf.wiki.apiURI !== '' ) {
 		if ( this.options.wrapTemplates ) {
 			// Use MediaWiki's action=expandtemplates preprocessor
 			var text = token.getWTSource( this.manager.env ),
@@ -241,7 +242,7 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 	// Resolve a possibly relative link
 	var templateName = env.resolveTitle(target, 'Template');
 
-	var checkRes = this.manager.frame.loopAndDepthCheck( templateName, env.maxDepth );
+	var checkRes = this.manager.frame.loopAndDepthCheck( templateName, env.conf.parsoid.maxDepth );
 	if( checkRes ) {
 		// Loop detected or depth limit exceeded, abort!
 		var res = [
@@ -481,7 +482,7 @@ TemplateHandler.prototype._fetchTemplateAndTitle = function ( title, parentCB, c
 	if ( title in env.pageCache ) {
 		// XXX: store type too (and cache tokens/x-mediawiki)
 		cb(null, env.pageCache[title] /* , type */ );
-	} else if ( ! env.fetchTemplates ) {
+	} else if ( ! env.conf.parsoid.fetchTemplates ) {
 		parentCB(  { tokens: [ 'Warning: Page/template fetching disabled, and no cache for ' +
 				title ] } );
 	} else {
@@ -519,7 +520,7 @@ TemplateHandler.prototype.fetchExpandedTplOrExtension = function ( title, text, 
 	if ( text in env.pageCache ) {
 		// XXX: store type too (and cache tokens/x-mediawiki)
 		cb(null, env.pageCache[text] /* , type */ );
-	} else if ( ! env.fetchTemplates ) {
+	} else if ( ! env.conf.parsoid.fetchTemplates ) {
 		parentCB(  { tokens: [ 'Warning: Page/template fetching disabled, and no cache for ' +
 				text ] } );
 	} else {
@@ -615,7 +616,8 @@ TemplateHandler.prototype.parseExtensionHTML = function(extToken, cb, err, html)
 
 TemplateHandler.prototype.onExtension = function ( token, frame, cb ) {
 	var extensionName = token.getAttribute('name');
-	if ( this.manager.env.usePHPPreProcessor ) {
+	if ( this.manager.env.conf.parsoid.usePHPPreProcessor &&
+			this.manager.env.conf.wiki.apiURI !== '' ) {
 		// Use MediaWiki's action=parse preprocessor
 		this.fetchExpandedTplOrExtension(
 			extensionName,

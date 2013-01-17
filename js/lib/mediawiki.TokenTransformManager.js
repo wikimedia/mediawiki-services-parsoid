@@ -104,7 +104,7 @@ TokenTransformManager.prototype.addTransform = function ( transformation, debug_
 		rank: rank,
 		name: debug_name
 	};
-	if (!this.env.trace) {
+	if (!this.env.conf.parsoid.trace) {
 		t.transform = transformation;
 	} else {
 		// Trace info
@@ -221,7 +221,7 @@ function AsyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, a
 	this.phaseEndRank = phaseEndRank;
 	this.attributeType = attributeType;
 	this.setFrame( null, null, [] );
-	this.trace = env.traceFlags && (env.traceFlags.indexOf("async:" + phaseEndRank) !== -1);
+	this.trace = env.conf.parsoid.traceFlags && (env.conf.parsoid.traceFlags.indexOf("async:" + phaseEndRank) !== -1);
 	this._construct();
 }
 
@@ -1070,7 +1070,7 @@ TokenAccumulator.prototype._returnTokens = function ( reference, ret ) {
 
 	// FIXME
 	if ( ret.tokens === undefined ) {
-		if ( this.manager.env.debug ) {
+		if ( this.manager.env.conf.parsoid.debug ) {
 			console.warn( 'ret.tokens undefined: ' + JSON.stringify( ret ) );
 			console.trace();
 		}

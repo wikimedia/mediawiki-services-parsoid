@@ -8,6 +8,7 @@ var fs = require( 'fs' ),
 	Util = require( '../lib/mediawiki.Util.js' ).Util,
 	WikitextSerializer = require( '../lib/mediawiki.WikitextSerializer.js').WikitextSerializer,
 	TemplateRequest = require( '../lib/mediawiki.ApiRequest.js' ).TemplateRequest,
+	ParsoidConfig = require( '../lib/mediawiki.ParsoidConfig' ).ParsoidConfig,
 	MWParserEnvironment = require( '../lib/mediawiki.parser.environment.js' ).MWParserEnvironment,
 
 callback, argv, title,
@@ -393,19 +394,9 @@ fetch = function ( page, cb, options ) {
 	cb = typeof cb === 'function' ? cb : function () {};
 
 	var envCb = function ( env ) {
-		if (options.wiki === 'localhost') {
-			env.conf.parsoid.setInterwiki( 'localhost', 'http://localhost/wiki' );
-		}
-		env.wgScript = env.conf.parsoid.interwikiMap[options.wiki];
-		env.setPageName( page );
-
 		env.errCB = function ( error ) {
 			cb( error, null, [] );
 		};
-
-		if ( options.setup ) {
-			options.setup( env );
-		}
 
 		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 		var tpr = new TemplateRequest( env, target, null );
@@ -426,7 +417,8 @@ fetch = function ( page, cb, options ) {
 		} );
 	};
 
-	MWParserEnvironment.getParserEnv( null, null, options.wiki, null, page,	envCb );
+	var parsoidConfig = new ParsoidConfig( options, null );
+	MWParserEnvironment.getParserEnv( parsoidConfig, null, options.wiki, page, envCb );
 },
 
 cbCombinator = function ( formatter, cb, err, env, text ) {

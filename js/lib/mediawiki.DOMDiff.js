@@ -10,8 +10,8 @@ var DU = require('./mediawiki.DOMUtils.js').DOMUtils,
  */
 function DOMDiff ( env ) {
 	this.env = env;
-	this.debug = env.debug ||
-		(env.traceFlags && env.traceFlags.indexOf('selser') !== -1) ?
+	this.debug = env.conf.parsoid.debug ||
+		(env.conf.parsoid.traceFlags && env.conf.parsoid.traceFlags.indexOf('selser') !== -1) ?
 						console.error : function(){};
 	this.currentId = 0;
 	this.startPos = 0; // start offset of the current unmodified chunk
