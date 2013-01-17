@@ -1578,6 +1578,11 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 					}
 				} else if (cTypeOf === "mw:Placeholder" && ce !== null && dp.src) {
 					cs = ce - dp.src.length;
+				} else {
+					var property = child.getAttribute("property");
+					if (property && property.match(/mw:objectAttr/)) {
+						cs = ce;
+					}
 				}
 			} else if (cTypeOf === "mw:Placeholder" && ce !== null && dp.src) {
 				cs = ce - dp.src.length;

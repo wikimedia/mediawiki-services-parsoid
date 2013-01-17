@@ -212,6 +212,7 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 				if ( content[j].constructor !== String ) {
 					property = Util.lookup( content[j].attribs, 'property' );
 					if ( property && property.constructor === String &&
+						// SSS FIXME: Is this check correct?
 						property.match( /mw\:objectAttr(Val|Key)\#mw\:maybeContent/ ) ) {
 						content.splice( j, 1 );
 					}
