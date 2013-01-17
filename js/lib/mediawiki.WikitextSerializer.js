@@ -35,6 +35,10 @@ var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	$ = require( 'jquery' ),
 	tagWhiteListHash;
 
+var START_SEP = 1,
+	IE_SEP = 2,
+	END_SEP = 3;
+
 // SSS FIXME: Can be set up as part of an init routine
 function getTagWhiteList() {
 	if (!tagWhiteListHash) {
@@ -344,10 +348,28 @@ WSP.initialState = {
 		}
 		this.bufferedSeparator = null;
 	},
-	emitSeparator: function(n1, dsrIndex1, n2, dsrIndex2) {
+	emitSeparator: function(n1, n2, sepType) {
 		// cannot do anything if we dont have original wikitext
 		if (!this.env.page.src) {
 			return;
+		}
+
+		var dsrIndex1, dsrIndex2;
+		switch (sepType) {
+			case START_SEP:
+				dsrIndex1 = 0;
+				dsrIndex2 = 0;
+				break;
+
+			case IE_SEP:
+				dsrIndex1 = 1;
+				dsrIndex2 = 0;
+				break;
+
+			case END_SEP:
+				dsrIndex1 = 1;
+				dsrIndex2 = 1;
+				break;
 		}
 
 		// cannot do anything if we dont have dsr for either node
@@ -361,8 +383,8 @@ WSP.initialState = {
 			return;
 		}
 
-		var i1 = dsr1[dsrIndex1] + (dsrIndex1 === 0 && dsrIndex2 === 0 ? dsr1[2] : 0);
-		var i2 = dsr2[dsrIndex2] - (dsrIndex1 === 1 && dsrIndex2 === 1 ? dsr2[3] : 0);
+		var i1 = dsr1[dsrIndex1] + (sepType === START_SEP ? dsr1[2] : 0);
+		var i2 = dsr2[dsrIndex2] - (sepType === END_SEP   ? dsr2[3] : 0);
 		var separator = this.env.page.src.substring(i1, i2);
 
 		if (separator.match(/^(\s|<!--([^\-]|-(?!->)|--(?!>))*-->)*$/)) {
@@ -1825,6 +1847,7 @@ WSP._serializeToken = function ( state, token ) {
 				// Buffer this till we know we cannot emit
 				// separator from source in emitSeparator
 				state.bufferedSeparator = sep;
+				WSP.debug_pp("BUFFERED: " + JSON.stringify(sep) + " from " + debugStr);
 			} else {
 				state.emitSepChunk(sep, debugStr);
 			}
@@ -2053,6 +2076,25 @@ WSP._getDOMRTInfo = function( attribs ) {
 // 1. Update state with the set of templated attributes.
 // 2. Strip non-semantic leading and trailing newlines.
 WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
+
+	function setupSeparator(nodeA, nodeB, sepNodes, sepText) {
+		// Create meta with the separator src in data-sep attribute
+		var sepMeta = (nodeA || nodeB).ownerDocument.createElement('meta');
+		sepMeta.setAttribute("typeof", "mw:Separator");
+		sepMeta.setAttribute("data-sep", sepText.join(''));
+
+		if (nodeA) {
+			nodeA.parentNode.insertBefore(sepMeta, nodeA.nextSibling);
+		} else {
+			nodeB.parentNode.insertBefore(sepMeta, nodeB.previousSibling);
+		}
+
+		// delete separator nodes
+		for (var i = 0, n = sepNodes.length; i < n; i++) {
+			sepNodes[i].parentNode.removeChild(sepNodes[i]);
+		}
+	}
+
 	if (node.nodeName.toLowerCase() === "meta") {
 		var prop = node.getAttribute("property");
 		if (prop.match(/mw:objectAttr/)) {
@@ -2118,35 +2160,38 @@ WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
 			child = next;
 		}
 
-		// Post-text-normalization, strip inter-element whitespace, including comments
+		// Post-text-normalization, strip runs of whitespace and comments and
+		// record them in a meta-tag.
+		//
 		// (http://dev.w3.org/html5/spec-LC/content-models.html#content-models)
 		//
 		// Dont normalize if we are in a PRE-node or if the node is a mw:Entity SPAN
 		// Or if the node has no element-node child
 		if (!inPre &&
 			!(DU.hasNodeName(node, 'span') && node.getAttribute('typeof') === 'mw:Entity')
-			&& (!haveOrigSrc || DU.hasElementChild(node))) {
+			&& (!haveOrigSrc || DU.hasElementChild(node)))
+		{
+			var prevSentinel = null,
+				waitForSentinel = false,
+				sepNodes = [],
+				sepText = [];
+
 			child = node.firstChild;
 			while (child) {
-				next = child.nextSibling, prev = child.previousSibling;
+				var nodeType = child.nodeType;
 
-				if (child.nodeType === Node.TEXT_NODE) {
-					str = child.data;
-					if (haveOrigSrc) {
-						// Strip pure white-space if followed by an element node
-						// Since we have original source, we can recover the syntactic
-						// whitespace from the source.
-						//
-						// The conditional is to prevent removal in situations like
-						//    "<div>foo</div> <!--b--> c"
-						// In the above example, the whitespace after the </div> is
-						// significant.
-						if (str.match(/^\s*$/) &&
-							(!next || next.nodeType === Node.ELEMENT_NODE))
-						{
-							node.removeChild(child);
-						}
-					} else if (!haveOrigSrc) {
+				next = child.nextSibling;
+
+				// Delete empty text nodes
+				if (nodeType === Node.TEXT_NODE && child.data === '') {
+					node.removeChild(child);
+					child = next;
+					continue;
+				}
+
+				if (!haveOrigSrc) {
+					if (nodeType === Node.TEXT_NODE) {
+						str = child.data;
 						// Strip leading/trailing newlines if preceded by or
 						// followed by block nodes -- these newlines are syntactic
 						// and can be normalized away since the serializer in sourceless
@@ -2158,35 +2203,45 @@ WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
 							child.data = str.replace(/^\n+/, '');
 						}
 					}
+				} else {
+					switch (nodeType) {
+						case Node.TEXT_NODE:
+							str = child.data;
+							if (!waitForSentinel && str.match(/^\s+$/)) {
+								sepText.push(str);
+								sepNodes.push(child);
+							} else {
+								prevSentinel = null;
+								waitForSentinel = true;
+							}
+							break;
 
-					// Delete empty text nodes
-					if (child.data === '') {
-						node.removeChild(child);
-					}
-				} else if (haveOrigSrc && child.nodeType === Node.COMMENT_NODE) {
-					// If we are using original source to RT, delete comment if:
-					//
-					// 1. it has a sibling
-					// 2. it is preceded by an element/white-space node, if one exists
-					// 3. it is followed by an element/white-space node, if one exists
-					//
-					// In addition, if (2) is satisfied, delete the preceding white-space node
-					if ((!prev ||
-							prev.nodeType === Node.ELEMENT_NODE ||
-							(prev.nodeType === Node.TEXT_NODE && prev.data.match(/^\s*$/))
-						) && (!next ||
-							next.nodeType === Node.ELEMENT_NODE ||
-							(next.nodeType === Node.TEXT_NODE && next.data.match(/^\s*$/))
-						))
-					{
-						node.removeChild(child);
-						if (prev && prev.nodeType === Node.TEXT_NODE && prev.data.match(/^\s*$/)) {
-							node.removeChild(prev);
-						}
+						case Node.COMMENT_NODE:
+							if (!waitForSentinel) {
+								sepText.push("<!--");
+								sepText.push(child.data);
+								sepText.push("-->");
+								sepNodes.push(child);
+							}
+							break;
+
+						case Node.ELEMENT_NODE:
+							if (!waitForSentinel) {
+								setupSeparator(prevSentinel, child, sepNodes, sepText);
+							}
+							waitForSentinel = false;
+							prevSentinel = child;
+							sepNodes = [];
+							sepText = [];
+							break;
 					}
 				}
 
 				child = next;
+			}
+
+			if (prevSentinel) {
+				setupSeparator(prevSentinel, null, sepNodes, sepText);
 			}
 		}
 	}
@@ -2204,13 +2259,19 @@ WSP.serializeDOM = function( node, chunkCB, finalCB, selser ) {
 	state.serializer = this;
 
 	try {
+		if ( selser === undefined ) {
+			// Clone the DOM if we are not in selser-mode
+			// since we will modify the DOM in preprocessDOM.
+			node = node.cloneNode(true);
+		} else {
+			// In selser mode, cloning is not required since
+			// selser passes us a cloned DOM.
+			state.selser = selser;
+		}
+
 		// Preprocess DOM (collect tpl attr tags + strip empty white space)
 		this.preprocessDOM(node, state, false, state.env.page.src);
 		this.debug(" DOM ==> ", node.innerHTML);
-
-		if ( selser !== undefined ) {
-			state.selser = selser;
-		}
 
 		var out = [];
 	    if ( ! chunkCB ) {
@@ -2438,6 +2499,13 @@ WSP._serializeDOM = function( node, state ) {
 			for (i = 0, n = children.length; i < n; i++) {
 				child = children[i];
 
+				// Ignore -- handled separately
+				if (DU.hasNodeName(child, "meta") &&
+					child.getAttribute("typeof") === "mw:Separator")
+				{
+					continue;
+				}
+
 				// Skip over comment, white-space text nodes, and tpl-content nodes
 				var nodeType = child.nodeType;
 				if (  nodeType !== Node.COMMENT_NODE &&
@@ -2451,13 +2519,11 @@ WSP._serializeDOM = function( node, state ) {
 						if (prevEltChild === null) {
 							if (!DU.hasNodeName(node, "pre")) {
 								// extract separator text between node and child;
-								// node.dsr[0], child.dsr[0]
-								state.emitSeparator(node, 0, child, 0);
+								state.emitSeparator(node, child, START_SEP);
 							}
 						} else if (prevEltChild.nodeType === Node.ELEMENT_NODE) {
 							// extract separator text between prevEltChild and child;
-							// prevEltChild.dsr[1], child.dsr[0]
-							state.emitSeparator(prevEltChild, 1, child, 0);
+							state.emitSeparator(prevEltChild, child, IE_SEP);
 						}
 					}
 
@@ -2469,9 +2535,8 @@ WSP._serializeDOM = function( node, state ) {
 
 			if (prevEltChild && prevEltChild.nodeType === Node.ELEMENT_NODE) {
 				// extract separator text between prevEltChild and node
-				// prevEltChild.dsr[1], node.dsr[1]
 				if (!DU.hasNodeName(node, "pre")) {
-					state.emitSeparator(prevEltChild, 1, node, 1);
+					state.emitSeparator(prevEltChild, node, END_SEP);
 				}
 			}
 
