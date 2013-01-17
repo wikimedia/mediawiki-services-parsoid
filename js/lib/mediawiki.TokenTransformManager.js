@@ -708,7 +708,7 @@ function SyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, at
 	this.pipeFactory = pipeFactory;
 	this.phaseEndRank = phaseEndRank;
 	this.attributeType = attributeType;
-	this.trace = env.traceFlags && (env.traceFlags.indexOf("sync:" + phaseEndRank) !== -1);
+	this.trace = env.conf.parsoid.traceFlags && (env.conf.parsoid.traceFlags.indexOf("sync:" + phaseEndRank) !== -1);
 	this._construct();
 }
 

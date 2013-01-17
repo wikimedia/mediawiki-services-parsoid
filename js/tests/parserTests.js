@@ -1054,6 +1054,7 @@ ParserTests.prototype.main = function ( options ) {
 	}
 
 	options.fetchTemplates = false;
+	options.usePHPPreProcessor = false;
 
 	var parsoidConfig = new ParsoidConfig( null, options );
 
@@ -1063,7 +1064,7 @@ ParserTests.prototype.main = function ( options ) {
 		this.env.errCB = function ( e ) {
 			console.error( e.stack );
 		};
-		Util.setDebuggingFlags( this.env, options );
+		Util.setDebuggingFlags( this.env.conf.parsoid, options );
 		options.modes = [];
 		if ( options.wt2html ) {
 			options.modes.push( 'wt2html' );

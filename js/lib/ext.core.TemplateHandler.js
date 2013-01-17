@@ -63,7 +63,7 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 	}
 
 	if ( this.manager.env.conf.parsoid.usePHPPreProcessor &&
-			this.manager.env.conf.wiki.apiURI !== '' ) {
+			this.manager.env.conf.wiki.apiURI !== null ) {
 		if ( this.options.wrapTemplates ) {
 			// Use MediaWiki's action=expandtemplates preprocessor
 			var text = token.getWTSource( this.manager.env ),
@@ -617,7 +617,7 @@ TemplateHandler.prototype.parseExtensionHTML = function(extToken, cb, err, html)
 TemplateHandler.prototype.onExtension = function ( token, frame, cb ) {
 	var extensionName = token.getAttribute('name');
 	if ( this.manager.env.conf.parsoid.usePHPPreProcessor &&
-			this.manager.env.conf.wiki.apiURI !== '' ) {
+			this.manager.env.conf.wiki.apiURI !== null ) {
 		// Use MediaWiki's action=parse preprocessor
 		this.fetchExpandedTplOrExtension(
 			extensionName,

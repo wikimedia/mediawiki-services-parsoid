@@ -1765,13 +1765,13 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 }
 
 function computeDocDSR(root, env) {
-	if (env.debug || (env.dumpFlags && (env.dumpFlags.indexOf("dom:pre-dsr") !== -1))) {
+	if (env.conf.parsoid.debug || (env.conf.parsoid.dumpFlags && (env.conf.parsoid.dumpFlags.indexOf("dom:pre-dsr") !== -1))) {
 		console.warn("------ DOM: pre-DSR -------");
 		console.warn(root.innerHTML);
 		console.warn("----------------------------");
 	}
 
-	var traceDSR = env.debug || (env.traceFlags && (env.traceFlags.indexOf("dsr") !== -1));
+	var traceDSR = env.debug || (env.conf.parsoid.traceFlags && (env.conf.parsoid.traceFlags.indexOf("dsr") !== -1));
 	if (traceDSR) console.warn("------- tracing DSR computation -------");
 
 	// The actual computation buried in trace/debug stmts.
@@ -1779,7 +1779,7 @@ function computeDocDSR(root, env) {
 
 	if (traceDSR) console.warn("------- done tracing DSR computation -------");
 
-	if (env.debug || (env.dumpFlags && (env.dumpFlags.indexOf("dom:post-dsr") !== -1))) {
+	if (env.conf.parsoid.debug || (env.conf.parsoid.dumpFlags && (env.conf.parsoid.dumpFlags.indexOf("dom:post-dsr") !== -1))) {
 		console.warn("------ DOM: post-DSR -------");
 		console.warn(root.innerHTML);
 		console.warn("----------------------------");
@@ -1793,7 +1793,7 @@ function computeDocDSR(root, env) {
  */
 function encapsulateTemplateOutput( document, env ) {
 	var tpls = {};
-	if (env.debug || (env.dumpFlags && (env.dumpFlags.indexOf("dom:pre-encap") !== -1))) {
+	if (env.conf.parsoid.debug || (env.conf.parsoid.dumpFlags && (env.conf.parsoid.dumpFlags.indexOf("dom:pre-encap") !== -1))) {
 		console.warn("------ DOM: pre-encapsulation -------");
 		console.warn(document.innerHTML);
 		console.warn("----------------------------");
@@ -1825,7 +1825,7 @@ DOMPostProcessor.prototype.constructor = DOMPostProcessor;
 
 DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 	var env = this.env;
-	if (env.debug || (env.dumpFlags && (env.dumpFlags.indexOf("dom:post-builder") !== -1))) {
+	if (env.conf.parsoid.debug || (env.conf.parsoid.dumpFlags && (env.conf.parsoid.dumpFlags.indexOf("dom:post-builder") !== -1))) {
 		console.warn("---- DOM: after tree builder ----");
 		console.warn(document.innerHTML);
 		console.warn("--------------------------------");

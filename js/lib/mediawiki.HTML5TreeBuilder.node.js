@@ -23,7 +23,7 @@ FauxHTML5.TreeBuilder = function ( env ) {
 	this.processToken(new TagTk( 'body' ));
 
 	this.env = env;
-	this.trace = env.debug || (env.traceFlags && (env.traceFlags.indexOf("html") !== -1));
+	this.trace = env.conf.parsoid.debug || (env.conf.parsoid.traceFlags && (env.conf.parsoid.traceFlags.indexOf("html") !== -1));
 };
 
 // Inherit from EventEmitter

@@ -648,8 +648,7 @@ ParserFunctions.prototype.pf_localurl = function ( token, frame, cb, args ) {
 				cb({ tokens: [ '/' +
 					// FIXME! Figure out correct prefix to use
 					//this.env.conf.wiki.wgScriptPath +
-					'index' +
-					env.conf.wiki.wgScriptExtension + '?title=' +
+					env.conf.wiki.script + '?title=' +
 					env.normalizeTitle( target ) + '&' +
 					expandedArgs.join('&') ]
 				});

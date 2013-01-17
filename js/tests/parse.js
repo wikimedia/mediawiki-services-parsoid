@@ -120,22 +120,22 @@ function dumpFlags() {
 			'default': 40
 		},
 		'wgScript': {
-			description: 'http path to remote API, e.g. http://wiki.sample.com/w',
+			description: 'http path to remote API, e.g. http://wiki.sample.com/w/api.php',
 			'boolean': false,
-			'default': 'http://en.wikipedia.org/w'
+			'default': 'http://en.wikipedia.org/w/api.php'
 		},
 		'wgScriptPath': {
 			description: 'http path to remote web interface, e.g. http://wiki.sample.com/wiki',
 			'boolean': false,
 			'default': 'http://en.wikipedia.org/wiki/'
 		},
-		'wgScriptExtension': {
-			description: 'Extension for PHP files on remote API server, if any. Include the period, e.g. ".php"',
-			'boolean': false,
-			'default': '.php'
-		},
 		'fetchTemplates': {
 			description: 'Whether to fetch included templates recursively',
+			'boolean': true,
+			'default': true
+		},
+		'usephppreprocessor': {
+			description: 'Whether to use the PHP preprocessor to expand templates and extensions',
 			'boolean': true,
 			'default': true
 		},
@@ -174,20 +174,19 @@ function dumpFlags() {
 	ParserEnv.getParserEnv( null, null, '', argv.pagename || null, function ( env ) {
 		// fetch templates from enwiki by default.
 		if ( argv.wgScript ) {
-			env.conf.wiki.wgScript = argv.wgScript;
+			env.conf.wiki.script = argv.wgScript;
+			env.conf.wiki.apiURI = argv.wgScript;
 		}
 		if ( argv.wgScriptPath ) {
 			env.conf.wiki.wgScriptPath = argv.wgScriptPath;
 		}
-		if ( argv.wgScriptExtension ) {
-			env.conf.wiki.wgScriptExtension = argv.wgScriptExtension;
-		}
 
 		// XXX: add options for this!
 		env.conf.parsoid.fetchTemplates = argv.fetchTemplates;
+		env.conf.parsoid.usePHPPreProcessor = env.conf.parsoid.fetchTemplates && argv.usephppreprocessor;
 		env.conf.parsoid.maxDepth = argv.maxdepth || env.conf.parsoid.maxDepth;
 
-		Util.setDebuggingFlags( env, argv );
+		Util.setDebuggingFlags( env.conf.parsoid, argv );
 
 		// Init parsers, serializers, etc.
 		var parserPipeline,

@@ -85,7 +85,7 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 			this.articlePath = general.articlepath;
 		}
 		if ( general.script ) {
-			this.wgScript = general.script;
+			this.script = general.script;
 		}
 		if ( general.server ) {
 			this.server = general.server;
@@ -95,10 +95,9 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 
 WikiConfig.prototype = {
 	wgScriptPath: '/wiki/',
-	wgScript: '/wiki/index.php',
-	wgUploadPath: '/wiki/images',
-	wgScriptExtension: '.php',
-	articlePath: '/wiki/$1'
+	script: '/wiki/index.php',
+	articlePath: '/wiki/$1',
+	apiURI: null
 };
 
 if ( typeof module === 'object' ) {

@@ -88,6 +88,7 @@ ApiRequest.prototype.requestCB = function (error, response, body) {
 		}
 		this.handleJSON( error, data );
 	} else {
+		console.log( body );
 		console.warn( 'non-200 response: ' + response.statusCode );
 		error = new DoesNotExistError( this.reqType + ' failure for ' + this.title );
 		this.handleJSON( error, {} );
