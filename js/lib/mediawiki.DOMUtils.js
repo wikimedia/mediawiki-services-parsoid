@@ -94,8 +94,12 @@ var DOMUtils = {
 		return n.nodeName.toLowerCase() === name;
 	},
 
+	isNodeOfType: function(n, name, type) {
+		return this.hasNodeName(n, name) && n.getAttribute("typeof") === type;
+	},
+
 	isMarkerMeta: function(n, type) {
-		return this.hasNodeName(n, "meta") && n.getAttribute("typeof") === type;
+		return this.isNodeOfType(n, "meta", type);
 	},
 
 	isTplMetaType: function(nType)  {

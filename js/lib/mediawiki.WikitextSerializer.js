@@ -2168,7 +2168,7 @@ WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
 		// Dont normalize if we are in a PRE-node or if the node is a mw:Entity SPAN
 		// Or if the node has no element-node child
 		if (!inPre &&
-			!(DU.hasNodeName(node, 'span') && node.getAttribute('typeof') === 'mw:Entity') &&
+			!DU.isNodeOfType(node, 'span', 'mw:Entity') &&
 			(!haveOrigSrc || DU.hasElementChild(node)))
 		{
 			var prevSentinel = null,

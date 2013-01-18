@@ -1375,7 +1375,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 		var name = n.nodeName.toLowerCase();
 		return !WT_tagsWithLimitedTSR[name] &&
 			!DU.hasLiteralHTMLMarker(parsoidData) &&
-			!(n === 'span' && n.getAttribute("typeof") === "mw:Nowiki");
+			!DU.isNodeOfType(n, 'span', 'mw:Nowiki');
 	}
 
 	function computeListEltWidth(li, nodeName) {
