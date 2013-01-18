@@ -387,7 +387,7 @@ WSP.initialState = {
 		var i2 = dsr2[dsrIndex2] - (sepType === END_SEP   ? dsr2[3] : 0);
 		var separator = this.env.page.src.substring(i1, i2);
 
-		if (separator.match(/^(\s|<!--([^\-]|-(?!->)|--(?!>))*-->)*$/)) {
+		if (separator.match(/^(\s|<!--([^\-]|-(?!->))*-->)*$/)) {
 			// verify that the separator is really one
 			this.emitSepChunk(separator);
 			this.separatorEmittedFromSrc = true;
@@ -2226,7 +2226,7 @@ WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
 							break;
 
 						case Node.ELEMENT_NODE:
-							if (!waitForSentinel) {
+							if (!waitForSentinel && sepNodes.length > 0) {
 								setupSeparator(prevSentinel, child, sepNodes, sepText);
 							}
 							waitForSentinel = false;
@@ -2240,7 +2240,7 @@ WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
 				child = next;
 			}
 
-			if (prevSentinel) {
+			if (prevSentinel && sepNodes.length > 0) {
 				setupSeparator(prevSentinel, null, sepNodes, sepText);
 			}
 		}

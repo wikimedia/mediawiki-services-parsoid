@@ -1584,7 +1584,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 						cs = ce;
 					}
 				}
-			} else if (cTypeOf === "mw:Placeholder" && ce !== null && dp.src) {
+			} else if ((cTypeOf === "mw:Placeholder" || cTypeOf === "mw:Entity") && ce !== null && dp.src) {
 				cs = ce - dp.src.length;
 			} else {
 				// Non-meta tags
