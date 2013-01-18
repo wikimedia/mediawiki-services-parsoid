@@ -59,12 +59,12 @@ function runTest( cb, title ) {
 	} );
 
 	try {
-		rtTest.fetch( title, callback, { setup: config.setup } );
+		rtTest.fetch( title, callback, { setup: config.setup, wiki: config.interwiki } );
 	} catch ( err ) {
 		// Log it to console (for gabriel to watch scroll by)
 		console.error( "ERROR in " + title + ': ' + err );
 
-		cb( title, rtTest.xmlFormat( title, err, null ) );
+		cb( title, rtTest.xmlFormat( { page: { name: title } }, err, null ) );
 	}
 }
 
