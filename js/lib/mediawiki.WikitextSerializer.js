@@ -2522,8 +2522,10 @@ WSP._serializeDOM = function( node, state ) {
 								state.emitSeparator(node, child, START_SEP);
 							}
 						} else if (prevEltChild.nodeType === Node.ELEMENT_NODE) {
-							// extract separator text between prevEltChild and child;
-							state.emitSeparator(prevEltChild, child, IE_SEP);
+							if (!DU.hasNodeName(node, "pre")) {
+								// extract separator text between prevEltChild and child;
+								state.emitSeparator(prevEltChild, child, IE_SEP);
+							}
 						}
 					}
 
