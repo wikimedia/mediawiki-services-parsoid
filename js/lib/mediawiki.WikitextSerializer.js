@@ -2226,13 +2226,19 @@ WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
 							break;
 
 						case Node.ELEMENT_NODE:
-							if (!waitForSentinel && sepNodes.length > 0) {
-								setupSeparator(prevSentinel, child, sepNodes, sepText);
+							if (!waitForSentinel && DU.isMarkerMeta(child, "mw:DiffWrapper")) {
+								// Float "mw:DiffWrapper" to the left till we bump into a sentinel
+								node.insertBefore(child, prevSentinel ? prevSentinel.nextSibling : null);
+								prevSentinel = child;
+							} else {
+								if (!waitForSentinel && sepNodes.length > 0) {
+									setupSeparator(prevSentinel, child, sepNodes, sepText);
+								}
+								waitForSentinel = false;
+								prevSentinel = child;
+								sepNodes = [];
+								sepText = [];
 							}
-							waitForSentinel = false;
-							prevSentinel = child;
-							sepNodes = [];
-							sepText = [];
 							break;
 					}
 				}
@@ -2500,9 +2506,7 @@ WSP._serializeDOM = function( node, state ) {
 				child = children[i];
 
 				// Ignore -- handled separately
-				if (DU.hasNodeName(child, "meta") &&
-					child.getAttribute("typeof") === "mw:Separator")
-				{
+				if (DU.isMarkerMeta(child, "mw:Separator")) {
 					continue;
 				}
 
