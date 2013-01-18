@@ -128,8 +128,8 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 		}
 
 		var tail = Util.lookup( attribs, 'tail' );
+		var tokens = [];
 		if ( title.ns.isCategory() && ! href.match(/^:/) ) {
-			var tokens = [];
 
 			// We let this get handled earlier as a normal wikilink, but we need
 			// to add in a few extras.
@@ -182,7 +182,6 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 				tokens: tokens
 			} );
 		} else if ( href.match( new RegExp( '^(' + this.manager.env.conf.parsoid.interwikiRegexp + '):' ) ) ) {
-			var tokens = [];
 
 			obj.dataAttribs.src = token.getWTSource( env );
 			obj = new SelfclosingTagTk('link', obj.attribs, obj.dataAttribs);
@@ -395,9 +394,10 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 	// too. This would need to apply phase 3 token transforms, as the caption
 	// as an attribute is already expanded to phase 2.
 	function closeUnclosedBlockTags(tokens) {
+		var t;
 		var openBlockTagStack = [];
 		for (var i = 0, n = tokens.length; i < n; i++) {
-			var t = tokens[i];
+			t = tokens[i];
 			if (Util.isBlockToken(t)) {
 				if (t.constructor === TagTk) {
 					openBlockTagStack.push(t);
@@ -410,7 +410,7 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 		}
 
 		for (i = 0, n = openBlockTagStack.length; i < n; i++) {
-			var t = openBlockTagStack.pop();
+			t = openBlockTagStack.pop();
 			t.dataAttribs.autoInsertedEnd = true;
 			tokens.push(new EndTagTk(t.name));
 		}

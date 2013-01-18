@@ -1433,7 +1433,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				!DU.isExpandedAttrsMetaType(node.getAttribute("typeof")))
 			{
 				if (dp.stx === "piped") {
-					var href = dp.sa ? dp.sa["href"] : null
+					var href = dp.sa ? dp.sa["href"] : null;
 					if (href) {
 						return [href.length + 3, 2];
 					} else {
