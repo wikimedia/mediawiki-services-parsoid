@@ -1933,6 +1933,13 @@ WSP._serializeToken = function ( state, token ) {
 				if (textHandler) {
 					res = textHandler( state, res );
 				}
+
+				// Clear out buffered separator from the previous token's
+				// endsLine handler if we encounter a bare text node that
+				// has a newline that meets the endsLine requirement.
+				if (res.match(/^[ \t]*\n/)) {
+					state.bufferedSeparator = null;
+				}
 				break;
 			case CommentTk:
 				res = '<!--' + token.value + '-->';
