@@ -2235,7 +2235,7 @@ WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
 						case Node.ELEMENT_NODE:
 							if (!waitForSentinel && DU.isMarkerMeta(child, "mw:DiffWrapper")) {
 								// Float "mw:DiffWrapper" to the left till we bump into a sentinel
-								node.insertBefore(child, prevSentinel ? prevSentinel.nextSibling : null);
+								node.insertBefore(child, prevSentinel ? prevSentinel.nextSibling : node.firstChild);
 								prevSentinel = child;
 							} else {
 								if (!waitForSentinel && sepNodes.length > 0) {
