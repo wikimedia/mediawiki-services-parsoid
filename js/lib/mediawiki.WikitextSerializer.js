@@ -459,6 +459,10 @@ function isListItem(token) {
 		['li', 'dt', 'dd'].indexOf(token.name) !== -1;
 }
 
+function isMultilineListItem(token) {
+	return isListItem(token) && token.dataAttribs.stx !== 'row';
+}
+
 function escapedText(text) {
 	var match = text.match(/^((?:.*?|[\r\n]+[^\r\n]|[~]{3,5})*?)((?:\r?\n)*)$/);
 	return ["<nowiki>", match[1], "</nowiki>", match[2]].join('');
@@ -601,7 +605,7 @@ WSP._listHandler = function( handler, bullet, state, token ) {
 		bullets = curList.bullets + curList.itemBullet + bullet;
 		curList.itemCount++;
 		// A nested list, not directly after a list item
-		if (curList.itemCount > 1 && !isListItem(state.prevToken)) {
+		if (curList.itemCount > 1 && !isMultilineListItem(state.prevToken)) {
 			res = bullets;
 			handler.startsLine = true;
 		} else {

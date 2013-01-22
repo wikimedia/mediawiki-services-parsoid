@@ -284,7 +284,7 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 			 * 3. *;a:b (*:a -> *;b) is a dt -> dd transition
 			 * -------------------------------------- ----------*/
 			var newTag;
-			if (prefixLen === 0 || dp.single_line_dtdd || (bs[prefixLen-1] !== ':' && bs[prefixLen] === ';')) {
+			if (prefixLen === 0 || dp.stx === 'row' || (bs[prefixLen-1] !== ':' && bs[prefixLen] === ';')) {
 				if (this.trace) {
 					console.warn("    -> dt->dd");
 				}

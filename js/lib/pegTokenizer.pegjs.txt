@@ -1564,7 +1564,7 @@ dtdd
         var li1 = new TagTk( 'listItem', [], { tsr: [pos0, pos0 + bullets.length] } );
         li1.bullets = bullets.slice();
         li1.bullets.push(";");
-        var li2 = new TagTk( 'listItem', [], { single_line_dtdd: true, tsr: [cpos-1, cpos], stx: 'row' } );
+        var li2 = new TagTk( 'listItem', [], { tsr: [cpos-1, cpos], stx: 'row' } );
         li2.bullets = bullets.slice();
         li2.bullets.push(":");
 
