@@ -23,7 +23,7 @@ if ( typeof module === 'object' ) {
 
 		setup: function ( parsoidConfig ) {
 			// Whether to use the PHP preprocessor to expand templates and the like
-			parsoidConfig.usePHPPreProcessor = false;
+			parsoidConfig.usePHPPreProcessor = true;
 
 			// The interwiki prefix you want to use (see mediawiki.parser.environment.js for more information)
 			parsoidConfig.defaultWiki = 'en';
