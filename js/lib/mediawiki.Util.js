@@ -1159,7 +1159,7 @@ Util.decodeEntity = function ( entity ) {
  * Entity-escape anything that would decode to a valid HTML entity
  */
 Util.escapeEntities = function ( text ) {
-	return text.replace(/&[#0-9a-zA-Z]+;/, function(match) {
+	return text.replace(/&[#0-9a-zA-Z]+;/g, function(match) {
 		var decodedChar = Util.decodeEntity(match);
 		if ( decodedChar !== match ) {
 			// Escape the and
