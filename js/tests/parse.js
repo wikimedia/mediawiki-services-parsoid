@@ -8,6 +8,7 @@
 
 var ParserPipelineFactory = require('../lib/mediawiki.parser.js').ParserPipelineFactory,
 	ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnvironment,
+	ParsoidConfig = require( '../lib/mediawiki.ParsoidConfig.js' ).ParsoidConfig,
 	ConvertDOMToLM = require('../lib/mediawiki.LinearModelConverter.js').ConvertDOMToLM,
 	WikitextSerializer = require('../lib/mediawiki.WikitextSerializer.js').WikitextSerializer,
 	SelectiveSerializer = require( '../lib/mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
@@ -171,12 +172,15 @@ function dumpFlags() {
 		argv.wt2html = true;
 	}
 
-	ParserEnv.getParserEnv( null, null, '', argv.pagename || null, function ( env ) {
+	var prefix = 'en';
+	var parsoidConfig = new ParsoidConfig( null, null );
+	if ( argv.wgScript ) {
+		parsoidConfig.setInterwiki( 'alternate', argv.wgScript );
+		prefix = 'alternate';
+	}
+
+	ParserEnv.getParserEnv( parsoidConfig, null, prefix, argv.pagename || null, function ( env ) {
 		// fetch templates from enwiki by default.
-		if ( argv.wgScript ) {
-			env.conf.wiki.script = argv.wgScript;
-			env.conf.wiki.apiURI = argv.wgScript;
-		}
 		if ( argv.wgScriptPath ) {
 			env.conf.wiki.wgScriptPath = argv.wgScriptPath;
 		}
