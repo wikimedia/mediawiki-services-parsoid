@@ -38,7 +38,9 @@ var $ = require('jquery'),
 	WikiLinkHandler	= LinkHandler.WikiLinkHandler,
 	ExternalLinkHandler	= LinkHandler.ExternalLinkHandler,
 	Cite = require('./ext.Cite.js').Cite,
-	BehaviorSwitchHandler = require('./ext.core.BehaviorSwitchHandler.js').BehaviorSwitchHandler,
+	BehaviorSwitch = require('./ext.core.BehaviorSwitchHandler.js'),
+	BehaviorSwitchHandler = BehaviorSwitch.BehaviorSwitchHandler,
+	BehaviorSwitchPreprocessor = BehaviorSwitch.BehaviorSwitchPreprocessor,
 	TreeBuilder = require('./mediawiki.HTML5TreeBuilder.node.js')
 													.FauxHTML5.TreeBuilder,
 	DOMPostProcessor = require('./mediawiki.DOMPostProcessor.js').DOMPostProcessor;
@@ -115,6 +117,9 @@ ParserPipelineFactory.prototype.recipes = {
 				IncludeOnly,	// 0.02
 				NoInclude,		// 0.03
 				ExtensionContent, // 0.04
+
+				// Preprocess behavior switches
+				BehaviorSwitchPreprocessor, // 0.05
 			]
 		],
 		/*

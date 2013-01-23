@@ -168,8 +168,10 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 	// and each member (key/value) into object with .tokens(), .dom() and
 	// .wikitext() methods (subclass of Array)
 
-	var prefix = target.split(':', 1)[0].toLowerCase().trim();
-	if ( prefix && 'pf_' + prefix in this.parserFunctions ) {
+	var prefix = target.split(':', 1)[0].trim();
+	var lowerPrefix = prefix.toLowerCase();
+	var translatedPrefix = env.conf.wiki.magicWords[prefix] || env.conf.wiki.magicWords[lowerPrefix] || lowerPrefix;
+	if ( translatedPrefix && 'pf_' + translatedPrefix in this.parserFunctions ) {
 		var pfAttribs = new Params( env, attribs );
 		pfAttribs[0] = new KV( target.substr( prefix.length + 1 ), [] );
 		//env.dp( 'func prefix/args: ', prefix,
@@ -184,7 +186,7 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 		} else {
 			newCB = cb;
 		}
-		this.parserFunctions['pf_' + prefix](state.token, this.manager.frame, newCB, pfAttribs);
+		this.parserFunctions['pf_' + translatedPrefix](state.token, this.manager.frame, newCB, pfAttribs);
 		return;
 	}
 

@@ -21,8 +21,6 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 		return;
 	}
 
-	conf.namespaceNames = {};
-	conf.namespaceIds = {};
 	var names = resultConf.namespaces;
 	var nkeys = Object.keys( names );
 	for ( var nx = 0; nx < nkeys.length; nx++ ) {
@@ -35,16 +33,22 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 		conf.namespaceIds[aliases[ax]['*']] = aliases[ax].id;
 	}
 
-	conf.magicWords = {};
 	var mws = resultConf.magicwords;
+	if ( mws.length > 0 ) {
+		// Don't use the default if we get a result.
+		conf.magicWords = {};
+	}
 	for ( var mwx = 0; mwx < mws.length; mwx++ ) {
 		aliases = mws[mwx].aliases;
 		for ( mwax = 0; mwax < aliases.length; mwax++ ) {
+			if ( mws[mwx]['case-sensitive'] !== '' ) {
+				aliases[mwax] = aliases[mwax].toLowerCase();
+			}
+
 			conf.magicWords[aliases[mwax]] = mws[mwx].name;
 		}
 	}
 
-	conf.specialPages = {};
 	var specials = resultConf.specialpagealiases;
 	for ( var sx = 0; sx < specials.length; sx++ ) {
 		aliases = specials[sx].aliases;
@@ -52,8 +56,6 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 			conf.specialPages[aliases[sax]] = specials[sx].realname;
 		}
 	}
-
-	conf.extensionTags = resultConf.extensiontags;
 
 	// Get the linktrail and linkprefix messages from the server
 	// TODO XXX etc. : Use these somewhere
@@ -97,7 +99,66 @@ WikiConfig.prototype = {
 	wgScriptPath: '/wiki/',
 	script: '/wiki/index.php',
 	articlePath: '/wiki/$1',
-	apiURI: null
+	apiURI: null,
+	namespaceNames: {},
+	namespaceIds: {},
+	magicWords: {
+		// Behaviour switches
+		'__notoc__': 'notoc',
+		'__forcetoc__': 'forcetoc',
+		'__toc__': 'toc',
+		'__noeditsection__': 'noeditsection',
+		'__newsectionlink__': 'newsectionlink',
+		'__nonewsectionlink__': 'nonewsectionlink',
+		'__nogallery__': 'nogallery',
+		'__hiddencat__': 'hiddencat',
+		'__nocontentconvert__': 'nocontentconvert',
+		'__nocc__': 'nocc',
+		'__notitleconvert__': 'notitleconvert',
+		'__notc__': 'notc',
+		'__start__': 'start',
+		'__end__': 'end',
+		'__index__': 'index',
+		'__noindex__': 'noindex',
+		'__staticredirect__': 'staticredirect',
+
+		// Image-related magic words
+		// See also mediawiki.wikitext.constants.js
+
+		// prefix
+		'link': 'img_link',
+		'alt': 'img_alt',
+		'page': 'img_page',
+		'upright': 'img_upright',
+
+		// format
+		'thumbnail': 'thumbnail',
+		'thumb': 'img_thumbnail',
+		'framed': 'img_framed',
+		'frame': 'img_framed',
+		'frameless': 'img_frameless',
+		'border': 'img_border',
+
+		// valign
+		'baseline': 'img_baseline',
+		'sub': 'img_sub',
+		'super': 'img_super',
+		'sup': 'img_super',
+		'top': 'img_top',
+		'text-top': 'img_text_top',
+		'middle': 'img_middle',
+		'bottom': 'img_bottom',
+		'text-bottom': 'img_text_bottom',
+
+		// halign
+		'left': 'img_left',
+		'right': 'img_right',
+		'center': 'img_center',
+		'float': 'img_float',
+		'none': 'img_none'
+	},
+	specialPages: {},
+	extensionTags: {}
 };
 
 if ( typeof module === 'object' ) {

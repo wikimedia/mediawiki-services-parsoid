@@ -696,6 +696,7 @@ WSP._listItemHandler = function ( handler, bullet, state, token ) {
 
 
 WSP._figureHandler = function ( state, figTokens ) {
+	var env = state.env;
 
 	// skip tokens looking for the image tag
 	var img;
@@ -740,18 +741,29 @@ WSP._figureHandler = function ( state, figTokens ) {
 	var outBits  = [imgR];
 	var figToken = figTokens[0];
 	var figAttrs = figToken.dataAttribs.optionList;
+	var optNames = figToken.dataAttribs.optNames;
 
 	var simpleImgOptions = WikitextConstants.Image.SimpleOptions;
 	var prefixImgOptions = WikitextConstants.Image.PrefixOptions;
 	var sizeOptions      = { "width": 1, "height": 1};
 	var size             = {};
 	for (i = 0, n = figAttrs.length; i < n; i++) {
-		var a = figAttrs[i];
-		var k = a.k, v = a.v;
-		if (sizeOptions[k]) {
+		var a = figAttrs[i],
+			k = a.k, v = a.v,
+
+			trimv = v ? v.trim() : v,
+			lowv = trimv ? trimv.toLowerCase() : trimv,
+			actualv = env.conf.wiki.magicWords[trimv] ||
+				env.conf.wiki.magicWords[lowv] || lowv,
+
+			trimk = k ? k.trim() : k,
+			lowk = trimk ? trimk.toLowerCase() : trimk,
+			actualk = env.conf.wiki.magicWords[trimk] ||
+				env.conf.wiki.magicWords[lowk] || lowk;
+		if (sizeOptions[actualk]) {
 			// Since width and height have to be output as a pair,
 			// collect both of them.
-			size[k] = v;
+			size[actualk] = v;
 		} else {
 			// If we have width set, it got set in the most recent iteration
 			// Output height and width now (one iteration later).
@@ -761,7 +773,7 @@ WSP._figureHandler = function ( state, figTokens ) {
 				size.width = null;
 			}
 
-			if (k === "aspect") {
+			if (actualk === "aspect") {
 				// SSS: Bad Hack!  Need a better solution
 				// One solution is to search through prefix options hash but seems ugly.
 				// Another is to flip prefix options hash and use it to search.
@@ -770,15 +782,15 @@ WSP._figureHandler = function ( state, figTokens ) {
 				} else {
 					outBits.push("upright");
 				}
-			} else if (k === "caption") {
+			} else if (actualk === "caption") {
 				outBits.push(v === null ? caption : v);
-			} else if (simpleImgOptions[v.trim()] === k) {
+			} else if (simpleImgOptions[actualv] === actualk) {
 				// The values and keys in the parser attributes are a flip
 				// of how they are in the wikitext constants image hash
 				// Hence the indexing by 'v' instead of 'k'
-				outBits.push(v);
-			} else if (prefixImgOptions[k.trim()]) {
-				outBits.push(k + "=" + v);
+				outBits.push(optNames[actualv]);
+			} else if (prefixImgOptions[actualk]) {
+				outBits.push(optNames[actualk] + "=" + v);
 			} else {
 				console.warn("Unknown image option encountered: " + JSON.stringify(a));
 			}
@@ -1484,7 +1496,11 @@ WSP.tagHandlers = {
 				} else if ( argDict.property ) {
 					switchType = argDict.property.match( /^mw\:PageProp\/(.*)$/ );
 					if ( switchType ) {
-						return '__' + switchType[1].toUpperCase() + '__';
+						switchType = switchType[1];
+						if ( token.dataAttribs.magicSrc ) {
+							switchType = token.dataAttribs.magicSrc;
+						}
+						return switchType;
 					}
 				} else {
 					return WSP._serializeHTMLTag( state, token );
