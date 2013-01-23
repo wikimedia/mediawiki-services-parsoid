@@ -14,13 +14,13 @@ function Tracer(env) {
 }
 Tracer.prototype = {
 	startPass: function(string) {
-		if (this.env.trace) {
+		if (this.env.conf.parsoid.trace) {
 			console.warn("---- start: " + string + " ----");
 		}
 	},
 
 	endPass: function(string) {
-		if (this.env.trace) {
+		if (this.env.conf.parsoid.trace) {
 			console.warn("---- end  : " + string + " ----");
 		}
 	},
@@ -30,7 +30,7 @@ Tracer.prototype = {
 			compact = true;
 		}
 
-		if (this.env.trace) {
+		if (this.env.conf.parsoid.trace) {
 			if (token.constructor === String) {
 				console.warn("T: '" + token + "'");
 			} else  {
@@ -40,13 +40,13 @@ Tracer.prototype = {
 	},
 
 	output: function(string) {
-		if (this.env.trace) {
+		if (this.env.conf.parsoid.trace) {
 			console.warn(string);
 		}
 	},
 
 	outputChunk: function(chunk) {
-		if (this.env.trace) {
+		if (this.env.conf.parsoid.trace) {
 			console.warn("---- <chunk:tokenized> ----");
 			for (var i = 0, n = chunk.length; i < n; i++) {
 				console.warn(chunk[i].toString());

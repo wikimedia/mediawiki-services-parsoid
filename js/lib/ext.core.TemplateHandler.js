@@ -402,7 +402,7 @@ TemplateHandler.prototype.getEncapsulationInfoEndTag = function ( state ) {
  */
 TemplateHandler.prototype._onChunk = function( state, cb, chunk ) {
 	var env = this.manager.env;
-	if (env.trace) {
+	if (env.conf.parsoid.trace) {
 		env.tracer.startPass("TemplateHandler:onChunk (" + state.token.toString(true) + ")");
 	}
 	chunk = Util.stripEOFTkfromTokens( chunk );
@@ -453,7 +453,7 @@ TemplateHandler.prototype._onChunk = function( state, cb, chunk ) {
 
 	env.dp( 'TemplateHandler._onChunk', chunk );
 	cb( { tokens: chunk, async: true } );
-	if (env.trace) {
+	if (env.conf.parsoid.trace) {
 		env.tracer.endPass("TemplateHandler:onChunk (" + state.token.toString(true) + ")");
 	}
 };
