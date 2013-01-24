@@ -79,18 +79,25 @@ function defaultNestedDelimiterHandler(tokens, nestedDelimiterInfo) {
 }
 
 ExtensionContent.prototype.handleExtensionTag = function(extension, collection) {
-	function wrappedExtensionContent(env, tagTsr) {
-		var text = env.page.src,
-			content = text.substring(tagTsr[0], tagTsr[1]),
-			nt = new SelfclosingTagTk('extension', [
+	var wrapTemplates = this.options.wrapTemplates;
+
+	function wrappedExtensionContent(env, startTag, tagTsr) {
+		var dp = {}, content = '';
+
+		if (wrapTemplates && tagTsr[0] !== null && tagTsr[1] !== null) {
+			dp.tsr = [tagTsr[0], tagTsr[1]];
+		}
+
+		content = startTag.dataAttribs.src;
+		dp.src = content;
+
+		var nt = new SelfclosingTagTk('extension', [
 				new KV('typeof', 'mw:Object/Extension'),
 				new KV('name', extension),
 				new KV('about', "#" + env.newObjectId()),
 				new KV('content', content)
-			], {
-				tsr: [tagTsr[0], tagTsr[1]],
-				src: content
-			});
+			], dp);
+
 
 		return { tokens: [nt] };
 	}
@@ -99,12 +106,8 @@ ExtensionContent.prototype.handleExtensionTag = function(extension, collection) 
 
 	// Handle self-closing tag case specially!
 	if (start.constructor === SelfclosingTagTk) {
-		var tsr = (start.dataAttribs || {}).tsr;
-		if (tsr) {
-			return wrappedExtensionContent(this.manager.env, tsr);
-		} else {
-			return { tokens: [start] };
-		}
+		var tsr = (start.dataAttribs || {}).tsr || [null, null];
+		return wrappedExtensionContent(this.manager.env, start, tsr);
 	}
 
 	// Deal with nested opening delimiter found in another token
@@ -126,19 +129,15 @@ ExtensionContent.prototype.handleExtensionTag = function(extension, collection) 
 	// We can only use tsr if we are the top-level
 	// since env. only stores top-level wikitext and
 	// not template wikitext.
-	if (this.options.wrapTemplates && tokens.length > 1) {
+	if (tokens.length > 1) {
 		// Discard tokens and just create a span with text content
 		// with span typeof set to mw:Object/Extension/Content
 		var st = tokens[0],
 			et = tokens.last(),
-			sTsr = (st.dataAttribs || {}).tsr,
-			eTsr = (et.dataAttribs || {}).tsr;
+			sTsr = (st.dataAttribs || {}).tsr || [null,null],
+			eTsr = (et.dataAttribs || {}).tsr || [null,null];
 
-		// Dont crash if we dont get tsr values
-		// FIXME: Still required?
-		if (sTsr && eTsr) {
-			return wrappedExtensionContent(this.manager.env, [sTsr[0], eTsr[1]]);
-		}
+		return wrappedExtensionContent(this.manager.env, st, [sTsr[0], eTsr[1]]);
 	}
 
 	return { tokens: tokens };

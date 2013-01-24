@@ -629,7 +629,7 @@ TemplateHandler.prototype.onExtension = function ( token, frame, cb ) {
 			this.parseExtensionHTML.bind(this, token, cb)
 		);
 	} else {
-		/* Convert this into a span with extention content as plain text */
+		/* Convert this into a span with extension content as plain text */
 		var span = new TagTk('span', [
 					new KV('typeof', 'mw:Object/Extension/' + extensionName),
 					new KV('about', token.getAttribute('about'))

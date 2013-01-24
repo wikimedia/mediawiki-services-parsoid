@@ -637,7 +637,6 @@ h = & "=" // guard, to make sure '='+ will match.
 
 comment
     ='<!--' c:comment_chars* ('-->' / eof)
-//  = '<!--' c:(!nonhtml_tag cc:comment_chars { return cc; } )* ('-->' / eof)
     {
         return [new CommentTk( c.join(''), { tsr: [pos0, pos] } )];
     }
@@ -1266,7 +1265,21 @@ pre
  * as a comment. To avoid this, we might need to look ahead for the end tag
  * and limit the content parsing to this section. */
 
-xmlish_tag = nowiki / generic_tag
+xmlish_tag = nowiki 
+    / t:generic_tag {
+        var tagName = t.name;
+        // TagTk and SelfclosingTagTk
+        if (t.constructor !== EndTagTk && !html5_tag_names[tagName] && !html_old_names[tagName]) {
+            if (t.constructor === TagTk) {
+                var restOfInput = input.substring(t.dataAttribs.tsr[0]);
+                var tagContent = restOfInput.match(new RegExp("^(.|\n)*?</\s*" + tagName + ">", "m"));
+                t.dataAttribs.src = tagContent ? tagContent[0] : restOfInput;
+            } else {
+                t.dataAttribs.src = input.substring(t.dataAttribs.tsr[0], t.dataAttribs.tsr[1]);
+            }
+        }
+        return t;
+    }
 
 /*
  * Nowiki treats anything inside it as plain text. It could thus also be
@@ -1331,27 +1344,6 @@ nowiki_content
             //console.warn('nowiki_content: return' + pp(ts));
             return flatten_stringlist(ts);
           }
-
-
-
-html_oldnames = "center" / "font" / "tt"
-
-// Simple match on non-html endtags, for use in inline_breaks
-nonhtml_tag
-  = "<" 
-    end:"/"? name:[0-9a-zA-Z]+ 
-    attribs:generic_newline_attribute* 
-    ( space / newline ) *
-    selfclose:"/"?
-    ">" {
-        name = name.join('');
-        var lcName = name.toLowerCase();
-        if (html5_tag_names[lcName] || html_old_names[lcName]) {
-            return null;
-        } else {
-            return buildXMLTag(name, lcName, attribs, end, selfclose, [pos0, pos]);
-        }
-    }
 
 /* Generic XML-like tags
  * 
@@ -2077,7 +2069,7 @@ attribute_preprocessor_text_line
             t:( 
                 directive
               // Eat insane tags-inside-attributes. Example: 
-              // <hiddentext>generated with.. <\hiddentext>
+              // <hiddentext>generated with.. </hiddentext>
               / &generic_tag inlineline
               / !(newline / space / [\[>]) c:. { 
                     //console.warn( 'aptl: ' + pp(c) ); 
