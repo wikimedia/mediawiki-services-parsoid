@@ -277,12 +277,23 @@ var DOMUtils = {
 	/**
 	 * Helper function to check for a change marker in data-ve-changed structure
 	 */
-	hasChangeMarker: function( dvec ) {
+	isModificationChangeMarker: function( dvec ) {
 		return dvec && (
 				dvec['new'] || dvec.attributes ||
 				dvec.content || dvec.annotations ||
 				dvec.childrenRemoved || dvec.rebuilt
 				);
+	},
+
+	isNodeModified: function(node, env) {
+		if( node.nodeType !== node.ELEMENT_NODE ) {
+			return false;
+		}
+		var dpd = this.getJSONAttribute(node, 'data-parsoid-diff', null);
+		if ( !dpd ) {
+			return false;
+		}
+		return dpd.diff.indexOf('modified') !== -1;
 	},
 
 	hasCurrentDiffMark: function(node, env) {
@@ -328,7 +339,7 @@ var DOMUtils = {
 	},
 
 
-	wrapTextInSpan: function(node, type) {
+	wrapTextInTypedSpan: function(node, type) {
 		var wrapperSpanNode = node.ownerDocument.createElement('span');
 		wrapperSpanNode.setAttribute('typeof', type);
 		// insert the span
@@ -336,9 +347,15 @@ var DOMUtils = {
 		// move the node into the wrapper span
 		wrapperSpanNode.appendChild(node);
 		return wrapperSpanNode;
+	},
+
+
+	prependTypedMeta: function(node, type) {
+		var meta = node.ownerDocument.createElement('meta');
+		meta.setAttribute('typeof', type);
+		node.parentNode.insertBefore(meta, node);
+		return meta;
 	}
-
-
 
 };
 

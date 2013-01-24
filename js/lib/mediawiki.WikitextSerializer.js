@@ -1157,8 +1157,7 @@ WSP._linkHandler =  function( state, tokens ) {
 WSP.genContentSpanTypes = {
 	'mw:Nowiki':1,
 	'mw:Entity': 1,
-	'mw:DiffWrapper': 1,
-	'mw:SerializeWrapper': 1
+	'mw:DiffMarker': 1
 };
 
 /**
@@ -1486,7 +1485,7 @@ WSP.tagHandlers = {
 							return token.dataAttribs.src || '<onlyinclude>';
 						case 'mw:OnlyInclude/End':
 							return token.dataAttribs.src || '</onlyinclude>';
-						case 'mw:ChangeMarker':
+						case 'mw:DiffMarker':
 							// just strip it
 							return '';
 						default:
@@ -1776,7 +1775,7 @@ WSP.serializeTokens = function(startState, tokens, chunkCB ) {
 	state.serializer = this;
 	if ( chunkCB === undefined ) {
 		var out = [];
-		state.chunkCB = function ( chunk, serializeID ) {
+		state.chunkCB = function ( chunk, serializeInfo ) {
 			// Keep a sliding buffer of the last emitted source
 			state.lastRes = (state.lastRes + chunk).substr(-100);
 			out.push( chunk );
@@ -1786,10 +1785,10 @@ WSP.serializeTokens = function(startState, tokens, chunkCB ) {
 		}
 		return out;
 	} else {
-		state.chunkCB = function ( chunk, serializeID ) {
+		state.chunkCB = function ( chunk, serializeInfo ) {
 			// Keep a sliding buffer of the last emitted source
 			state.lastRes = (state.lastRes + chunk).substr(-100);
-			chunkCB(chunk, serializeID);
+			chunkCB(chunk, serializeInfo);
 		};
 		for ( i = 0, l = tokens.length; i < l; i++ ) {
 			this._serializeToken( state, tokens[i] );
@@ -2253,8 +2252,8 @@ WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
 							break;
 
 						case Node.ELEMENT_NODE:
-							if (!waitForSentinel && DU.isMarkerMeta(child, "mw:DiffWrapper")) {
-								// Float "mw:DiffWrapper" to the left till we bump into a sentinel
+							if (!waitForSentinel && DU.isMarkerMeta(child, "mw:DiffMarker")) {
+								// Float "mw:DiffMarker" to the left till we bump into a sentinel
 								node.insertBefore(child, prevSentinel ? prevSentinel.nextSibling : node.firstChild);
 								prevSentinel = child;
 							} else {
@@ -2308,16 +2307,16 @@ WSP.serializeDOM = function( node, chunkCB, finalCB, selser ) {
 
 		var out = [];
 	    if ( ! chunkCB ) {
-			state.chunkCB = function ( chunk, serializeID ) {
+			state.chunkCB = function ( chunk, serializeInfo ) {
 				// Keep a sliding buffer of the last emitted source
 				state.lastRes = (state.lastRes + chunk).substr(-100);
 				out.push( chunk );
 			};
 		} else {
-			state.chunkCB = function ( chunk, serializeID ) {
+			state.chunkCB = function ( chunk, serializeInfo ) {
 				// Keep a sliding buffer of the last emitted source
 				state.lastRes = (state.lastRes + chunk).substr(-100);
-				chunkCB(chunk, serializeID);
+				chunkCB(chunk, serializeInfo);
 			};
 		}
 
@@ -2583,7 +2582,7 @@ WSP._serializeDOM = function( node, state ) {
 
 			if ( tailSrc ) {
 				// emit the tail
-				state.chunkCB( tailSrc, state.selser.serializeID );
+				state.chunkCB( tailSrc, state.selser.serializeInfo );
 			}
 
 			if ( serializeInfo !== null ) {

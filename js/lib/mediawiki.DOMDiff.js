@@ -37,7 +37,7 @@ DDP.diff = function ( node ) {
 
 	// The root nodes are equal, call recursive differ
 	var foundChange = this.doDOMDiff(this.env.page.dom, workNode);
-	this.debug('ORIG:\n', node.outerHTML, '\nNEW :\n', workNode.outerHTML );
+	this.debug('ORIG:\n', this.env.page.dom.outerHTML, '\nNEW :\n', workNode.outerHTML );
 	return { isEmpty: ! foundChange, dom: workNode };
 };
 
@@ -45,7 +45,8 @@ DDP.diff = function ( node ) {
 // node.
 var ignoreAttributes = {
 	//Do our own full diff for now, so ignore data-ve-changed info.
-	'data-ve-changed': 1
+	'data-ve-changed': 1,
+	'data-parsoid': 1
 };
 
 function countIgnoredAttributes (attributes) {
@@ -65,22 +66,27 @@ function countIgnoredAttributes (attributes) {
 DDP.attribsEquals = function(nodeA, nodeB) {
 	// First compare the number of attributes
 	if ( nodeA.attributes.length !== nodeB.attributes.length &&
-			(nodeA.attributes.length !==
+			(nodeA.attributes.length - countIgnoredAttributes(nodeA.attributes) !==
 			 nodeB.attributes.length - countIgnoredAttributes(nodeB.attributes)) )
 	{
 		return false;
 	}
 	// same number of attributes, also check their values
-	var skipped = 0;
+	var skippedA = 0,
+		skippedB = 0;
 	for (var i = 0, la = nodeA.attributes.length, lb = nodeB.attributes.length;
-			i < la && i < lb; i++)
+			i + skippedA < la && i + skippedB < lb; i++)
 	{
-		if ( ignoreAttributes[nodeB.attributes[i + skipped].name] ) {
-			skipped++;
+		if ( ignoreAttributes[nodeA.attributes[i + skippedA].name] ) {
+			skippedA++;
 			continue;
 		}
-		if (nodeA.attributes[i].name !== nodeB.attributes[i + skipped].name ||
-				nodeA.attributes[i].value !== nodeB.attributes[i + skipped].value)
+		if ( ignoreAttributes[nodeB.attributes[i + skippedB].name] ) {
+			skippedB++;
+			continue;
+		}
+		if (nodeA.attributes[i + skippedA].name !== nodeB.attributes[i + skippedB].name ||
+				nodeA.attributes[i + skippedA].value !== nodeB.attributes[i + skippedB].value)
 		{
 			return false;
 		}
@@ -150,8 +156,11 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 	var baseNode = baseParentNode.firstChild,
 		newNode = newParentNode.firstChild,
 		lookaheadNode = null,
-		foundDiff = false;
+		foundDiff = false,
+		foundDiffOverall = false;
 	while ( baseNode && newNode ) {
+		// Reset per-iteration diff flag
+		foundDiff = false;
 		// Quick shallow equality check first
 		if ( ! this.treeEquals(baseNode, newNode, false) ) {
 			// Check if one of them is IEW (inter-element whitespace),
@@ -175,38 +184,47 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 				{
 					// mark skipped-over nodes as inserted
 					var markNode = newNode;
-					while(markNode !== lookaheadNode) {
+					// XXX: Somehow markNode would be null here sometimes,
+					// although I see no reason why that would be so
+					while(markNode && markNode !== lookaheadNode) {
 						this.markNode(markNode, 'inserted');
-						foundDiff = true;
 						markNode = markNode.nextSibling;
 					}
+					foundDiff = true;
+					newNode = lookaheadNode;
 					break;
 				}
 				lookaheadNode = lookaheadNode.nextSibling;
 			}
 
 			// look-ahead in *base* DOM to detect deletions
-			lookaheadNode = baseNode.nextSibling;
-			while (lookaheadNode) {
-				if (this.treeEquals(newNode, lookaheadNode, true)
-						//&& !DU.isIEW(lookaheadNode)
-					)
-				{
-					// TODO: treat skipped-over nodes as deleted
-					// insertModificationMarker
-					this.markNode(lookaheadNode, 'deleted-before');
-					foundDiff = true;
-					break;
+			if (!foundDiff) {
+				lookaheadNode = baseNode.nextSibling;
+				while (lookaheadNode) {
+					if (this.treeEquals(newNode, lookaheadNode, true)
+							//&& !DU.isIEW(lookaheadNode)
+						)
+					{
+						// TODO: treat skipped-over nodes as deleted
+						// insertModificationMarker
+						//console.log('inserting deletion mark before ' + newNode.outerHTML);
+						this.markNode(newNode, 'deleted-before');
+						foundDiff = true;
+						baseNode = lookaheadNode;
+						break;
+					}
+					lookaheadNode = lookaheadNode.nextSibling;
 				}
-				lookaheadNode = lookaheadNode.nextSibling;
 			}
 
 			// nothing found, mark new node as modified / differing
-			this.markNode(newNode, 'modified');
-			foundDiff = true;
+			if (!foundDiff) {
+				this.markNode(newNode, 'modified');
+			}
+			foundDiffOverall = true;
 		} else if(!DU.isTplElementNode(this.env, newNode)) {
 			// Recursively diff subtrees if not template-like content
-			foundDiff = foundDiff || this.doDOMDiff(baseNode, newNode);
+			foundDiffOverall = this.doDOMDiff(baseNode, newNode) || foundDiffOverall;
 		}
 
 		// And move on to the next pair
@@ -217,7 +235,7 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 	// mark extra new nodes as modified
 	while (newNode) {
 		this.markNode(newNode, 'modified');
-		foundDiff = true;
+		foundDiffOverall = true;
 		newNode = newNode.nextSibling;
 	}
 
@@ -225,10 +243,10 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 	// having lost children for now.
 	if (baseNode) {
 		this.markNode(newParentNode, 'deleted-child');
-		foundDiff = true;
+		foundDiffOverall = true;
 	}
 
-	return foundDiff;
+	return foundDiffOverall;
 };
 
 
@@ -242,20 +260,20 @@ DDP.markNode = function(node, change) {
 	if (node.nodeType === node.ELEMENT_NODE) {
 		DU.setDiffMark(node, this.env, change);
 	} else if (node.nodeType === node.TEXT_NODE || node.nodeType === node.COMMENT_NODE) {
-		// wrap node in span
-		var wrapper = this.addDiffWrapper(node);
-		DU.setDiffMark(wrapper, this.env, change);
+		var markNode;
+		if ( change === 'deleted-before' ) {
+			// insert a meta tag
+			markNode = DU.prependTypedMeta(node, 'mw:DiffMarker');
+		} else {
+			// wrap node in span
+			markNode = DU.wrapTextInTypedSpan(node, 'mw:DiffMarker');
+		}
+		DU.setDiffMark(markNode, this.env, change);
 	} else {
 		console.error('ERROR: Unhandled node type ' + node.nodeType + ' in markNode!');
 		console.trace();
 	}
 };
-
-
-DDP.addDiffWrapper = function(node) {
-	return DU.wrapTextInSpan(node, 'mw:DiffWrapper');
-};
-
 
 
 if (typeof module === "object") {
