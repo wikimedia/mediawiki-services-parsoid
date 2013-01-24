@@ -906,13 +906,15 @@ normalizeHTML = function ( source ) {
 			// remove empty span tags
 			.replace(/<span><\/span>/g, '')
 			// general class and titles, typically on links
-			.replace(/ (title|class|rel)="[^"]*"/g, '')
+			.replace(/ (title|class|rel|about|typeof)="[^"]*"/g, '')
 			// strip red link markup, we do not check if a page exists yet
 			.replace(/\/index.php\?title=([^']+?)&amp;action=edit&amp;redlink=1/g, '/wiki/$1')
 			// the expected html has some extra space in tags, strip it
 			.replace(/<a +href/g, '<a href')
 			.replace(/href="\/wiki\//g, 'href="')
 			.replace(/" +>/g, '">')
+			// strip empty spans
+			.replace(/<span><\/span>/g, '')
 			.replace(/(<(table|tbody|tr|th|td|\/th|\/td)[^<>]*>)\s+/g, '$1');
 	} catch(e) {
         console.log("normalizeHTML failed on" +
