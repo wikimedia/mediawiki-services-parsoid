@@ -1452,14 +1452,22 @@ generic_attribute_value
 
 // Attribute value, quoted variants can span multiple lines.
 xml_att_value
-  = "'" t:attribute_preprocessor_text_single "'" { return t; }
-  / '"' t:attribute_preprocessor_text_double '"' { return t; }
+  = "'" r:( t1:attribute_preprocessor_text_single "'" { return t1; }
+        // Missing end quote: accept | and > look-ahead as heuristic
+        / t2:attribute_preprocessor_text_single_broken &[|>] {return t2;} ) { return r; }
+  / '"' r:( t1:attribute_preprocessor_text_double '"' { return t1; }
+        // Missing end quote: accept | and > look-ahead as heuristic
+        / t2:attribute_preprocessor_text_double_broken &[|>] {return t2;} ) { return r; }
   / attribute_preprocessor_text
 
 // Attribute value, restricted to a single line.
 att_value
-  = "'" t:attribute_preprocessor_text_single_line "'" { return t; }
-  / '"' t:attribute_preprocessor_text_double_line '"' { return t; }
+  = "'" r:( t1:attribute_preprocessor_text_single_line "'" { return t1; }
+        // Missing end quote: accept | and > look-ahead as heuristic
+        / t2:attribute_preprocessor_text_single_line_broken &[|>] {return t2;} ) { return r; }
+  / '"' r:( t1:attribute_preprocessor_text_double_line '"' { return t1; }
+        // Missing end quote: accept | and > look-ahead as heuristic
+        / t2:attribute_preprocessor_text_double_line_broken &[|>] {return t2;} ) { return r; }
   / attribute_preprocessor_text_line
 
 /*
@@ -2050,8 +2058,27 @@ attribute_preprocessor_text_single
   {
       return flatten_string ( r );
   }
+attribute_preprocessor_text_single_broken
+  = r:( t:[^{}&'<>|]+ { return t.join(''); }
+  / !inline_breaks ( 
+      directive
+    / [{}&<] )
+  )* 
+  {
+      return flatten_string ( r );
+  }
 attribute_preprocessor_text_double
   = r:( t:[^{}&"<]+ { return t.join(''); }
+  / !inline_breaks ( 
+      directive
+    / [{}&<] )
+  )* 
+  {
+      //console.warn( 'double:' + pp(r) );
+      return flatten_string ( r );
+  }
+attribute_preprocessor_text_double_broken
+  = r:( t:[^{}&"<>|]+ { return t.join(''); }
   / !inline_breaks ( 
       directive
     / [{}&<] )
@@ -2090,8 +2117,24 @@ attribute_preprocessor_text_single_line
   )* {
       return flatten_string ( r );
   }
+attribute_preprocessor_text_single_line_broken
+  = r:( t:[^{}&'<>|]+ { return t.join(''); }
+  / !inline_breaks ( 
+      directive
+    / ![\r\n] [{}&<] )
+  )* {
+      return flatten_string ( r );
+  }
 attribute_preprocessor_text_double_line
   = r:( t:[^{}&"<]+ { return t.join(''); }
+  / !inline_breaks (
+      directive
+    / ![\r\n] [{}&<] )
+  )* {
+      return flatten_string ( r );
+  }
+attribute_preprocessor_text_double_line_broken
+  = r:( t:[^{}&"<>|]+ { return t.join(''); }
   / !inline_breaks (
       directive
     / ![\r\n] [{}&<] )
