@@ -48,6 +48,7 @@ var ignoreAttributes = {
 	'data-ve-changed': 1,
 	'data-parsoid-changed': 1,
 	'data-parsoid': 1,
+	'data-parsoid-diff': 1,
 	'about': 1
 };
 
