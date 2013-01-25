@@ -393,10 +393,14 @@ roundTripDiff = function ( env, document, cb ) {
 fetch = function ( page, cb, options ) {
 	cb = typeof cb === 'function' ? cb : function () {};
 
-	var envCb = function ( env ) {
+	var envCb = function ( err, env ) {
 		env.errCB = function ( error ) {
 			cb( error, null, [] );
 		};
+		if ( err !== null ) {
+			env.errCB( err );
+			return;
+		}
 
 		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 		var tpr = new TemplateRequest( env, target, null );

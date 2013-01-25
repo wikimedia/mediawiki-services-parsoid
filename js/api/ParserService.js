@@ -261,15 +261,20 @@ app.get('/', function(req, res){
 
 
 var getParserServiceEnv = function ( res, iwp, pageName, cb ) {
-	MWParserEnvironment.getParserEnv( parsoidConfig, null, iwp || '', pageName, function ( env ) {
+	MWParserEnvironment.getParserEnv( parsoidConfig, null, iwp || '', pageName, function ( err, env ) {
 		env.errCB = function ( e ) {
-			console.log( e );
-			console.log(e.stack);
-			res.send( e.toString(), 500 );
+			var errmsg = e.stack || e.toString();
+			var code = e.code || 500;
+			console.log( errmsg );
+			res.send( errmsg, code );
 			// Force a clean restart of this worker
 			process.exit(1);
 		};
-		cb( env );
+		if ( err === null ) {
+			cb( env );
+		} else {
+			env.errCB( err );
+		}
 	} );
 };
 

@@ -32,7 +32,11 @@ function initParsoid() {
 	};
 	var parsoidConfig = new ParsoidConfig( null, options );
 
-	MWParserEnvironment.getParserEnv( parsoidConfig, null, null, function ( mwEnv ) {
+	MWParserEnvironment.getParserEnv( parsoidConfig, null, null, function ( err, mwEnv ) {
+		if ( err !== null ) {
+			console.error( err.toString() );
+			process.exit( 1 );
+		}
 		// "class" properties
 		Parsoid.html5 = new HTML5.Parser();
 		Parsoid.serializer = new WikitextSerializer({env: mwEnv});

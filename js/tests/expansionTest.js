@@ -69,7 +69,10 @@ var domDatabase = {
 };
 
 $(function() {
-	MWParserEnvironment.getParserEnv( null, null, '', null, null, function ( env ) {
+	MWParserEnvironment.getParserEnv( null, null, '', null, null, function ( err, env ) {
+		if ( err ) {
+			console.log( 'error', err );
+		}
 		env.pageCache = pageDatabase;
 		env.domCache = domDatabase;
 		env.conf.parsoid.debug = true;

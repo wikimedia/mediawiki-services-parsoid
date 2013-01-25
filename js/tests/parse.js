@@ -179,7 +179,12 @@ function dumpFlags() {
 		prefix = 'alternate';
 	}
 
-	ParserEnv.getParserEnv( parsoidConfig, null, prefix, argv.pagename || null, function ( env ) {
+	ParserEnv.getParserEnv( parsoidConfig, null, prefix, argv.pagename || null, function ( err, env ) {
+		if ( err !== null ) {
+			console.error( err.toString() );
+			process.exit( 1 );
+		}
+
 		// fetch templates from enwiki by default.
 		if ( argv.wgScriptPath ) {
 			env.conf.wiki.wgScriptPath = argv.wgScriptPath;

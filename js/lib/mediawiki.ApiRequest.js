@@ -20,6 +20,13 @@ function ParserError( message ) {
 }
 ParserError.prototype = Error.prototype;
 
+function AccessDeniedError( message ) {
+	this.name = 'AccessDeniedError';
+	this.message = message || 'Your wiki requires a logged-in account to access the API. Parsoid will not work for this wiki!';
+	this.code = 401;
+}
+AccessDeniedError.prototype = Error.prototype;
+
 /**
  * Abstract API request base class constructor
  */
@@ -383,6 +390,13 @@ ConfigRequest.prototype.handleJSON = function ( error, data ) {
 
 	if ( data && data.query ) {
 		this.processListeners( null, data.query );
+	} else if ( data && data.error ) {
+		if ( data.error.code === 'readapidenied' ) {
+			error = new AccessDeniedError();
+		} else {
+			error = new Error( 'Something happened on the API side. Message: ' + data.error.code + ': ' + data.error.info );
+		}
+		this.processListeners( error, {} );
 	} else {
 		this.processListeners( null, {} );
 	}
