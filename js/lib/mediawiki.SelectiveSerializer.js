@@ -151,6 +151,8 @@ DiffToSelserConverter.prototype.doConvert = function(parentNode, parentDSR) {
 
 				if ( this.currentId !== lastID ) {
 					// something was modified
+					// gwicke: Try to disable this table / list heuristic- our
+					// DSR is better now?
 					if (nodeName === 'table' ||
 							nodeName === 'ul' ||
 							nodeName === 'ol' ||
@@ -162,6 +164,7 @@ DiffToSelserConverter.prototype.doConvert = function(parentNode, parentDSR) {
 						// these elements is improved. Hence, mark this node
 						// for full serialization.
 						this.markElementNode(node, true, dp, lastRange);
+						lastModified = true;
 					}
 				}
 				// reset pre state
