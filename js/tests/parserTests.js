@@ -388,7 +388,7 @@ ParserTests.prototype.makeChanges = function ( item, content, changelist, cb ) {
 			switch ( change ) {
 				case 1:
 					node.setAttribute(
-						'data-ve-changed',
+						'data-parsoid-changed',
 						JSON.stringify( getRandomChange() ) );
 					break;
 				case 4:
@@ -396,7 +396,7 @@ ParserTests.prototype.makeChanges = function ( item, content, changelist, cb ) {
 					// it can bleed over into the "new" case.
 				case 2:
 					node.setAttribute(
-						'data-ve-changed',
+						'data-parsoid-changed',
 						JSON.stringify( { 'new': 1 } ) );
 					break;
 				case 3:

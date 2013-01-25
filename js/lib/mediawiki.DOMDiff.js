@@ -44,8 +44,9 @@ DDP.diff = function ( node ) {
 // These attributes are ignored for equality purposes if they are added to a
 // node.
 var ignoreAttributes = {
-	//Do our own full diff for now, so ignore data-ve-changed info.
+	//Do our own full diff for now, so ignore data-parsoid-changed info.
 	'data-ve-changed': 1,
+	'data-parsoid-changed': 1,
 	'data-parsoid': 1,
 	'about': 1
 };

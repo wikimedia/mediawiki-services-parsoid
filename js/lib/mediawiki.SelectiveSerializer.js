@@ -83,13 +83,16 @@ DiffToSelserConverter.prototype.doConvert = function(parentNode, parentDSR) {
 		} else if ( nodeType === NODE.ELEMENT_NODE )
 		{
 
-			// data-ve-changed is what we watch for the change markers.
-			dvec = Util.getJSONAttribute(node, 'data-ve-changed', {});
+			// data-parsoid-changed is what we watch for the change markers.
+			dvec = Util.getJSONAttribute(node, 'data-parsoid-changed', {});
 			// get data-parsoid
 			dp = Util.getJSONAttribute( node, 'data-parsoid', null);
 
 
-			isModified = DU.isModificationChangeMarker(dvec) ||
+			isModified =
+				// Comment this out to ignore the VE's change markers!
+				DU.isModificationChangeMarker(dvec) ||
+
 				// Marked as modified by our diff algo
 				(DU.hasCurrentDiffMark(node, this.env) &&
 				 DU.isNodeModified(node)) ||
@@ -449,7 +452,8 @@ SSP.handleSerializedResult = function( res, dpsSource ) {
 SSP.doSerializeDOM = function ( err, doc, cb, finalcb ) {
 	var matchedRes, nonNewline, nls = 0, latestSerID = null,
 		self = this;
-	Util.stripFirstParagraph( doc );
+	// gwicke: This does not seem to be needed any more?
+	//Util.stripFirstParagraph( doc );
 
 	if ( err || this.env.page.dom === null ) {
 		// If there's no old source, fall back to non-selective serialization.

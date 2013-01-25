@@ -1674,6 +1674,7 @@ WSP._serializeAttributes = function (state, token) {
 			// them here too just to make sure.
 			'data-parsoid': 1,
 			'data-ve-changed': 1,
+			'data-parsoid-changed': 1,
 			'data-parsoid-diff': 1,
 			'data-parsoid-serialize': 1
 		};
@@ -2080,6 +2081,7 @@ WSP._getDOMAttribs = function( attribs ) {
 		ignoreAttribs = {
 			'data-parsoid': 1,
 			'data-ve-changed': 1,
+			'data-parsoid-changed': 1,
 			'data-parsoid-serialize': 1
 		};
 	for ( var i = 0, l = attribs.length; i < l; i++ ) {

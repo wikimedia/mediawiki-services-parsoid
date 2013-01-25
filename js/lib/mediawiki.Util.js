@@ -728,6 +728,7 @@ Util.stripFirstParagraph = function ( node ) {
 	for ( var i = 0; i < node.childNodes.length; i++ ) {
 		thisnode = node.childNodes[i];
 		exemptAttrs += Util.getJSONAttribute( thisnode, 'data-ve-changed' ) ? 1 : 0;
+		exemptAttrs += Util.getJSONAttribute( thisnode, 'data-parsoid-changed' ) ? 1 : 0;
 		dataParsoid = Util.getJSONAttribute( thisnode, 'data-parsoid' );
 		exemptAttrs += dataParsoid ? 1 : 0;
 		attrs = thisnode.attributes;
