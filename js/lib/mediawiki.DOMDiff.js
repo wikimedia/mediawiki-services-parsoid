@@ -46,7 +46,8 @@ DDP.diff = function ( node ) {
 var ignoreAttributes = {
 	//Do our own full diff for now, so ignore data-ve-changed info.
 	'data-ve-changed': 1,
-	'data-parsoid': 1
+	'data-parsoid': 1,
+	'about': 1
 };
 
 function countIgnoredAttributes (attributes) {
