@@ -253,7 +253,6 @@ DiffToSelserConverter.prototype.markElementNode = function(node, modified, dp, s
 	// Add serialization info to this node
 	DU.setJSONAttribute(node, 'data-parsoid-serialize',
 			{
-				id: this.currentId,
 				modified: modified,
 				// might be undefined
 				srcRange: srcRange
@@ -438,7 +437,8 @@ SSP.handleSerializedResult = function( res, dpsSource ) {
 			// finally push the newly serialized wikitext
 			this.wtChunks.push(res);
 			this.lastType = 'modified';
-		} else {
+		} else if ( res !== '' ) {
+			// XXX: Fix this properly!
 			this.lastType = 'unmodified';
 		}
 	}
