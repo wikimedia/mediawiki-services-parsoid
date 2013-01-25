@@ -81,6 +81,32 @@ function buildLinkAttrs(attrs, getLinkText, rdfaType, linkAttrs) {
 	};
 }
 
+function splitLink( link ) {
+	var match = link.match(/^(:)?([^:]+):(.*)$/);
+	if ( match ) {
+		return {
+			colonEscape: match[1],
+			interwikiPrefix: match[2],
+			article: match[3]
+		};
+	} else {
+		return null;
+	}
+}
+
+function interwikiContent( token ) {
+	// maybeContent is not set for links with pipetrick
+	var kv = Util.lookupKV( token.attribs, 'mw:maybeContent' ),
+		href = Util.tokensToString( Util.lookupKV( token.attribs, 'href' ).v );
+	if ( token.dataAttribs.pipetrick ) {
+		return href.substring( href.indexOf( ':' ) + 1 );
+	} else if ( kv !== null ) {
+		return  Util.tokensToString( kv.v );
+	} else {
+		return href.replace( /^:/, '' );
+	}
+}
+
 // SSS FIXME: the attr called content should probably be called link-text?
 
 WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
@@ -88,6 +114,7 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 	var j, maybeContent, about, possibleTags, property, newType,
 		hrefkv, saniContent, env = this.manager.env,
 		attribs = token.attribs,
+		hrefSrc = Util.lookupKV( token.attribs, 'href' ).vsrc,
 		target = Util.lookup( attribs, 'href' ),
 		href = Util.tokensToString( target ),
 		title = env.makeTitleFromPrefixedText(env.normalizeTitle(Util.decodeURI(href)));
@@ -100,7 +127,7 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 		var content = newAttrs.content;
 		var obj = new TagTk( 'a', newAttrs.attribs, Util.clone(token.dataAttribs));
 		obj.dataAttribs.src = undefined; // clear src string since we can serialize this
-		obj.addNormalizedAttribute( 'href', title.makeLink(), href );
+		obj.addNormalizedAttribute( 'href', title.makeLink(), hrefSrc );
 		//console.warn('content: ' + JSON.stringify( content, null, 2 ) );
 
 		// XXX: handle trail
@@ -181,46 +208,76 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 			cb( {
 				tokens: tokens
 			} );
-		} else if ( href.match( new RegExp( '^(' + this.manager.env.conf.parsoid.interwikiRegexp + '):' ) ) ) {
-
-			obj.dataAttribs.src = token.getWTSource( env );
-			obj = new SelfclosingTagTk('link', obj.attribs, obj.dataAttribs);
-
-			// Change the rel to be mw:WikiLink/Language
-			Util.lookupKV( obj.attribs, 'rel' ).v += '/Language';
-
-			tokens.push( obj );
-
-			if ( tail ) {
-				if ( obj.dataAttribs.tsr ) {
-					obj.dataAttribs.tsr[1] -= tail.length;
-				}
-				tokens.push(tail);
-			}
-
-			cb( {
-				tokens: tokens
-			} );
 		} else {
-			if ( tail ) {
-				obj.dataAttribs.tail = tail;
-				content.push( tail );
-			}
+			var linkParts = splitLink( href );
 
-			for ( j = 0; j < content.length; j++ ) {
-				if ( content[j].constructor !== String ) {
-					property = Util.lookup( content[j].attribs, 'property' );
-					if ( property && property.constructor === String &&
-						// SSS FIXME: Is this check correct?
-						property.match( /mw\:objectAttr(Val|Key)\#mw\:maybeContent/ ) ) {
-						content.splice( j, 1 );
+			if ( linkParts !== null &&
+			     env.conf.wiki.interwikiMap[linkParts.interwikiPrefix] !== undefined ) {
+				// The prefix is listed in the interwiki map
+
+				var interwikiInfo = env.conf.wiki.interwikiMap[linkParts.interwikiPrefix];
+
+				// We set an absolute link to the article in the other wiki/language
+				var absHref = interwikiInfo.url.replace( "$1", linkParts.article );
+				obj.addNormalizedAttribute('href', absHref, hrefSrc);
+
+				if ( interwikiInfo.language !== undefined &&
+				     linkParts.colonEscape === undefined ) {
+					// It is a language link and does not start with a colon
+
+					obj.dataAttribs.src = token.getWTSource( env );
+					obj = new SelfclosingTagTk('link', obj.attribs, obj.dataAttribs);
+
+					// Change the rel to be mw:WikiLink/Language
+					Util.lookupKV( obj.attribs, 'rel' ).v += '/Language';
+				} else {
+					// It is a non-language interwiki link or a language link
+					// that starts with a colon
+
+					// Change the rel to be mw:WikiLink/Interwiki
+					Util.lookupKV( obj.attribs, 'rel' ).v += '/Interwiki';
+				}
+
+				tokens.push( obj );
+
+				if ( tail ) {
+					if ( obj.dataAttribs.tsr ) {
+						obj.dataAttribs.tsr[1] -= tail.length;
+					}
+					tokens.push(tail);
+				}
+
+				if ( interwikiInfo.language !== undefined &&
+				     linkParts.colonEscape === undefined )  {
+					cb( {
+						tokens: tokens
+					} );
+				} else {
+					cb( {
+						tokens: [obj].concat( interwikiContent( token ), [new EndTagTk( 'a' )] )
+					} );
+				}
+			} else {
+				if ( tail ) {
+					obj.dataAttribs.tail = tail;
+					content.push( tail );
+				}
+
+				for ( j = 0; j < content.length; j++ ) {
+					if ( content[j].constructor !== String ) {
+						property = Util.lookup( content[j].attribs, 'property' );
+						if ( property && property.constructor === String &&
+						     // SSS FIXME: Is this check correct?
+						     property.match( /mw\:objectAttr(Val|Key)\#mw\:maybeContent/ ) ) {
+							content.splice( j, 1 );
+						}
 					}
 				}
-			}
 
-			cb ( {
-				tokens: [obj].concat( content, [ new EndTagTk( 'a' ) ] )
-			} );
+				cb ( {
+					tokens: [obj].concat( content, [ new EndTagTk( 'a' ) ] )
+				} );
+			}
 		}
 	}
 };

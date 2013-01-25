@@ -40,6 +40,34 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 		conf.namespaceIds[aliases[ax]['*']] = aliases[ax].id;
 	}
 
+	// The interwikiMap maps prefixes to the corresponding information
+	// gathered from the api query (prefix, language, url, local)
+	conf.interwikiMap = {};
+	var interwikimap = resultConf.interwikimap;
+	var interwikiKeys = Object.keys(interwikimap);
+	for ( var index = 0; index < interwikiKeys.length; index++ ) {
+		var key = interwikimap[index].prefix;
+		conf.interwikiMap[key] = interwikimap[index];
+	}
+
+	// Add in wikipedia languages too- they are not necessarily registered as
+	// interwikis and are expected by parserTests.
+	for( var i = 0, l = resultConf.languages.length; i < l; i++) {
+		var entry = resultConf.languages[i];
+		if (!conf.interwikiMap[entry.code]) {
+			conf.interwikiMap[entry.code] = {
+				prefix: entry.code,
+				url: 'http://' + entry.code + '.wikipedia.org/wiki/$1',
+				language: entry['*']
+			};
+		} else if (!conf.interwikiMap[entry.code].language) {
+			// Not sure if this case is possible, but make sure this is
+			// treated as a language.
+			conf.interwikiMap[entry.code].language = entry['*'];
+		}
+	}
+
+
 	var mws = resultConf.magicwords;
 	if ( mws.length > 0 ) {
 		// Don't use the default if we get a result.
@@ -47,7 +75,7 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 	}
 	for ( var mwx = 0; mwx < mws.length; mwx++ ) {
 		aliases = mws[mwx].aliases;
-		for ( mwax = 0; mwax < aliases.length; mwax++ ) {
+		for ( var mwax = 0; mwax < aliases.length; mwax++ ) {
 			if ( mws[mwx]['case-sensitive'] !== '' ) {
 				aliases[mwax] = aliases[mwax].toLowerCase();
 			}
@@ -143,4 +171,3 @@ WikiConfig.prototype = {
 if ( typeof module === 'object' ) {
 	module.exports.WikiConfig = WikiConfig;
 }
-

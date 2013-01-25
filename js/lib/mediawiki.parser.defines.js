@@ -149,7 +149,7 @@ var genericTokenMethods = {
 	setShadowedAttribute: function ( name, value ) {
 		var out = [],
 			found = false;
-		for ( var i = this.attribs.length; i >= 0; i-- ) {
+		for ( var i = this.attribs.length - 1; i >= 0; i-- ) {
 			var kv = this.attribs[i];
 			if ( kv.k.toLowerCase() !== name ) {
 				out.push( kv );
