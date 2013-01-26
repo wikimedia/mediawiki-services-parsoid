@@ -19,6 +19,7 @@
 
 var async = require('async');
 var Util = require('./mediawiki.Util.js').Util;
+var Namespace = require( './mediawiki.Title.js' ).Namespace;
 
 function ParserFunctions ( manager ) {
 	this.manager = manager;
@@ -719,7 +720,17 @@ ParserFunctions.prototype.pf_protectionlevel = function ( token, frame, cb, args
 	cb( { tokens: [''] } );
 };
 ParserFunctions.prototype.pf_ns = function ( token, frame, cb, args ) {
-	var target = args[0].k;
+	var nsid, target = args[0].k, env = this.env;
+
+	if ( env.conf.wiki.namespaceIds[target.toLowerCase()] ) {
+		nsid = env.conf.wiki.namespaceIds[target.toLowerCase()];
+	} else if ( env.conf.wiki.canonicalNamespaces[target.toLowerCase()] ) {
+		nsid = env.conf.wiki.canonicalNamespaces[target.toLowerCase()];
+	}
+
+	if ( nsid !== undefined && env.conf.wiki.namespaceNames[nsid] ) {
+		target = env.conf.wiki.namespaceNames[nsid];
+	}
 	cb( { tokens: [target] } );
 };
 ParserFunctions.prototype.pf_subjectspace = function ( token, frame, cb, args ) {

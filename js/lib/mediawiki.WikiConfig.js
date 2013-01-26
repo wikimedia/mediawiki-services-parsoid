@@ -26,6 +26,11 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 	for ( var nx = 0; nx < nkeys.length; nx++ ) {
 		conf.namespaceNames[nx] = names[nkeys[nx]]['*'];
 		conf.namespaceIds[names[nkeys[nx]]['*'].toLowerCase()] = nkeys[nx];
+		if ( names[nkeys[nx]].canonical ) {
+			conf.canonicalNamespaces[names[nkeys[nx]].canonical.toLowerCase()] = nkeys[nx];
+		} else {
+			conf.canonicalNamespaces[names[nkeys[nx]]['*'].toLowerCase()] = nkeys[nx];
+		}
 	}
 
 	var aliases = resultConf.namespacealiases;
@@ -100,7 +105,49 @@ WikiConfig.prototype = {
 	script: '/wiki/index.php',
 	articlePath: '/wiki/$1',
 	apiURI: null,
-	namespaceNames: {},
+	canonicalNamespaces: {
+		media: -2,
+		special: -1,
+		main: 0,
+		'': 0,
+		talk: 1,
+		user: 2,
+		user_talk: 3,
+		project: 4,
+		project_talk: 5,
+		file: 6,
+		image: 6,
+		file_talk: 7,
+		image_talk: 7,
+		mediawiki: 8,
+		mediawiki_talk: 9,
+		template: 10,
+		template_talk: 11,
+		help: 12,
+		help_talk: 13,
+		category: 14,
+		category_talk: 15
+	},
+	namespaceNames: {
+		'-2': 'Media',
+		'-1': 'Special',
+		'0': '',
+		'1': 'Talk',
+		'2': 'User',
+		'3': 'User talk',
+		'4': 'Project',
+		'5': 'Project talk',
+		'6': 'File',
+		'7': 'File talk',
+		'8': 'MediaWiki',
+		'9': 'MediaWiki talk',
+		'10': 'Template',
+		'11': 'Template talk',
+		'12': 'Help',
+		'13': 'Help talk',
+		'14': 'Category',
+		'15': 'Category talk'
+	},
 	namespaceIds: {},
 	magicWords: {
 		// Behaviour switches

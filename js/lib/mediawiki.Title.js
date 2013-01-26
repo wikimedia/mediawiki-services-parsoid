@@ -47,7 +47,8 @@ function Namespace( id, env ) {
 	var ids = env.conf.wiki.namespaceIds;
 	var names = env.conf.wiki.namespaceNames;
 	this.id = id;
-	this.namespaceIds = this.canonicalNamespaces;
+	this.namespaceIds = env.conf.wiki.canonicalNamespaces;
+	this.canonicalNamespaces = env.conf.wiki.canonicalNamespaces;
 
 	if ( ids ) {
 		for ( var ix in ids ) {
@@ -57,7 +58,7 @@ function Namespace( id, env ) {
 		}
 	}
 
-	this.namespaceNames = ( names && names.length ) ? names : {
+	this.namespaceNames = ( names ) ? names : {
 		'6': 'File',
 		'-2': 'Media',
 		'-1': 'Special',
@@ -65,19 +66,6 @@ function Namespace( id, env ) {
 		'14': 'Category'
 	};
 }
-
-/**
- * So we can get namespace IDs that we need for tests
- */
-Namespace.prototype.canonicalNamespaces = {
-	file: 6,
-	image: 6,
-	media: -2,
-	special: -1,
-	main: 0,
-	'': 0,
-	category: 14
-};
 
 Namespace.prototype.isFile = function ( ) {
 	return this.id === this.canonicalNamespaces.file;
