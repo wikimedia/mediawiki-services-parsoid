@@ -2082,6 +2082,7 @@ WSP._getDOMAttribs = function( attribs ) {
 			'data-parsoid': 1,
 			'data-ve-changed': 1,
 			'data-parsoid-changed': 1,
+			'dtaa-parsoid-diff': 1,
 			'data-parsoid-serialize': 1
 		};
 	for ( var i = 0, l = attribs.length; i < l; i++ ) {
