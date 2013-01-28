@@ -357,11 +357,14 @@ app.post(/\/_html\/(.*)/, function ( req, res ) {
 			p.tree.document.childNodes[0].childNodes[1],
 			function( c ) {
 				res.write( htmlSpecialChars( c ) );
-			});
-		res.write('</pre>');
-		res.write( "<hr>Your HTML DOM:" );
-		textarea( res, req.body.content.replace(/\r/g, '') );
-		res.end('');
+			},
+			function() {
+				res.write('</pre>');
+				res.write( "<hr>Your HTML DOM:" );
+				textarea( res, req.body.content.replace(/\r/g, '') );
+				res.end('');
+			}
+			);
 	};
 
 	getParserServiceEnv( res, parsoidConfig.defaultWiki, req.params[0], cb );
