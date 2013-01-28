@@ -46,14 +46,14 @@ Title.prototype.getPrefixedText = function () {
 function Namespace( id, env ) {
 	var ids = env.conf.wiki.namespaceIds;
 	var names = env.conf.wiki.namespaceNames;
-	this.id = id;
+	this.id = Number( id );
 	this.namespaceIds = env.conf.wiki.canonicalNamespaces;
 	this.canonicalNamespaces = env.conf.wiki.canonicalNamespaces;
 
 	if ( ids ) {
 		for ( var ix in ids ) {
 		if ( ids.hasOwnProperty( ix ) ) {
-			this.namespaceIds[ix.toLowerCase()] = ids[ix] - 0;
+			this.namespaceIds[ix.toLowerCase()] = ids[ix];
 			}
 		}
 	}

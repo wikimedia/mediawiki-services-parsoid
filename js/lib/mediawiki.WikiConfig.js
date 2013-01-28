@@ -25,11 +25,11 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 	var nkeys = Object.keys( names );
 	for ( var nx = 0; nx < nkeys.length; nx++ ) {
 		conf.namespaceNames[nx] = names[nkeys[nx]]['*'];
-		conf.namespaceIds[names[nkeys[nx]]['*'].toLowerCase()] = nkeys[nx];
+		conf.namespaceIds[names[nkeys[nx]]['*'].toLowerCase()] = Number( nkeys[nx] );
 		if ( names[nkeys[nx]].canonical ) {
-			conf.canonicalNamespaces[names[nkeys[nx]].canonical.toLowerCase()] = nkeys[nx];
+			conf.canonicalNamespaces[names[nkeys[nx]].canonical.toLowerCase()] = Number( nkeys[nx] );
 		} else {
-			conf.canonicalNamespaces[names[nkeys[nx]]['*'].toLowerCase()] = nkeys[nx];
+			conf.canonicalNamespaces[names[nkeys[nx]]['*'].toLowerCase()] = Number( nkeys[nx] );
 		}
 	}
 
