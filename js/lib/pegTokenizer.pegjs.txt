@@ -2094,7 +2094,7 @@ attribute_preprocessor_text_double_broken
 
 // Variants with the entire attribute on a single line
 attribute_preprocessor_text_line
-  = r:( ts:[^=<>{\n\r&'"\t \[\]|{}/]+ { return ts.join(''); }
+  = r:( ts:[^=<>{\n\r&'"\t \[\]|{}/!]+ { return ts.join(''); }
         /  !inline_breaks 
             ! '/>'
             t:( 
@@ -2114,7 +2114,7 @@ attribute_preprocessor_text_line
   }
 
 attribute_preprocessor_text_single_line
-  = r:( t:[^{}&'<|]+ { return t.join(''); }
+  = r:( t:[^{}&'<|!]+ { return t.join(''); }
   / !inline_breaks ( 
       directive
     / ![\r\n] [{}&<] )
@@ -2122,7 +2122,7 @@ attribute_preprocessor_text_single_line
       return flatten_string ( r );
   }
 attribute_preprocessor_text_single_line_broken
-  = r:( t:[^{}&'<>|]+ { return t.join(''); }
+  = r:( t:[^{}&'<>|!]+ { return t.join(''); }
   / !inline_breaks ( 
       directive
     / ![\r\n] [{}&<] )
@@ -2130,7 +2130,7 @@ attribute_preprocessor_text_single_line_broken
       return flatten_string ( r );
   }
 attribute_preprocessor_text_double_line
-  = r:( t:[^{}&"<|]+ { return t.join(''); }
+  = r:( t:[^{}&"<|!]+ { return t.join(''); }
   / !inline_breaks (
       directive
     / ![\r\n] [{}&<] )
@@ -2138,7 +2138,7 @@ attribute_preprocessor_text_double_line
       return flatten_string ( r );
   }
 attribute_preprocessor_text_double_line_broken
-  = r:( t:[^{}&"<>|]+ { return t.join(''); }
+  = r:( t:[^{}&"<>|!]+ { return t.join(''); }
   / !inline_breaks (
       directive
     / ![\r\n] [{}&<] )
