@@ -874,6 +874,8 @@ normalizeOut = function ( out ) {
 		.replace(/<span typeof="mw:(?:(?:Placeholder|Nowiki|Object\/Template|Entity))"[^>]*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1')
 		// Ignore these attributes for now
 		.replace(/ (data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content|title|class)="[^">]*"/g, '')
+		// replace mwt ids
+		.replace(/\s*id="mwt\d+"/, '')
 		//.replace(/<!--.*?-->\n?/gm, '')
 		.replace(/<\/?(?:meta|link) [^>]*>/g, '')
 		.replace(/<span[^>]+about="[^]+>/g, '')
