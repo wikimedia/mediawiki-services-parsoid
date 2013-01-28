@@ -1832,7 +1832,8 @@ WSP._getTokenHandler = function(state, token) {
 				( token.constructor === TagTk || token.constructor === EndTagTk ) &&
 				// new element
 				Object.keys(token.dataAttribs).length === 0 &&
-				state.parentSTX === 'html' ) )
+				state.parentSTX === 'html' &&
+				token.name !== 'meta' ) )
 	{
 		handler = this.defaultHTMLTagHandler;
 	} else {

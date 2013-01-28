@@ -77,7 +77,10 @@ DiffToSelserConverter.prototype.doConvert = function(parentNode, parentDSR) {
 					this.markTextOrCommentNode(node, false);
 				}
 			} else if ( !lastModified &&
-					( ! node.nextSibling || !DU.isNodeModified(node.nextSibling))  ) {
+					( ! node.nextSibling ||
+					  !DU.isIEW(node) ||
+					  !DU.isNodeModified(node.nextSibling))  )
+			{
 				this.movePos(srcLen);
 			}
 		} else if ( nodeType === NODE.ELEMENT_NODE )
@@ -95,7 +98,9 @@ DiffToSelserConverter.prototype.doConvert = function(parentNode, parentDSR) {
 
 				// Marked as modified by our diff algo
 				(DU.hasCurrentDiffMark(node, this.env) &&
-				 DU.isNodeModified(node)) ||
+				 ( DU.isNodeModified(node) ||
+				   // The deleted-child case where no chilren are left
+				   ! node.childNodes.length )) ||
 				// no data-parsoid: new content
 				! dp;
 				// TODO: also *detect* element modifications without change
@@ -381,6 +386,13 @@ SSP.getSource = function(start, end) {
  * The chunkCB handler for the WTS
  *
  * Assumption: separator source is passed in a single call.
+ *
+ * Selser uses WTS output in these cases:
+ *
+ * - separator: if adjacent node or parent is marked as modified
+ * - regular src: if node (or parent) is marked as modified
+ * - regular src: if node (or parent) is marked for serialization, but is not
+ *   actually modified (needed if dsr is not available)
  */
 SSP.handleSerializedResult = function( res, dpsSource ) {
 
