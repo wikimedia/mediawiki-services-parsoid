@@ -1680,20 +1680,20 @@ table_data_tags
     tds:( pp:pipe_pipe tdt:table_data_tag { 
             var da = tdt[0].dataAttribs;
             da.stx_v = "row";
+            da.tsr[0] = da.tsr[0] - pp.length; // include "||"
             if (pp !== "||") {
                 // Variation from default
                 da.startTagSrc = pp;
             }
-            da.tsr[0] = da.tsr[0] - pp.length; // include "||"
             return tdt;
         } 
     )* {
         var da = td[0].dataAttribs;
+        da.tsr[0] = da.tsr[0] - p.length; // include "|"
         if (p !== "|") {
             // Variation from default
             da.startTagSrc = p;
         }
-        da.tsr[0] = da.tsr[0] - p.length; // include "|"
         return td.concat(tds);
     }
 
@@ -1713,11 +1713,18 @@ table_heading_tags
   = //& { console.warn( 'th enter @' + input.substr(pos, 10)); return true; }
     "!"
     th:table_heading_tag
-    ths:( pp:("!!" / pipe_pipe ) tht:table_heading_tag { 
+    ths:( pp:("!!" / pipe_pipe ) tht:table_heading_tag {
             var da = tht[0].dataAttribs;
             da.stx_v = 'row';
             da.tsr[0] = da.tsr[0] - pp.length; // include "!!" or "||"
-            if (pp !== "!!") {
+
+            // Handle "!!|" cases
+            var tagSrc = da.startTagSrc;
+            if (tagSrc && tagSrc[tagSrc.length-1] === '|') {
+                // Variation from default
+                da.startTagSrc = pp + "|";
+            } else if (pp !== "!!") {
+                // Variation from default
                 da.startTagSrc = pp;
             }
             return tht;
