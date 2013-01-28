@@ -553,7 +553,28 @@ TemplateHandler.prototype.onTemplateArg = function (token, frame, cb) {
 	// SSS FIXME: Are 'frame' and 'this.manager.frame' different?
 	var args    = this.manager.frame.args.named();
 	var attribs = token.attribs;
-	this.fetchArg(attribs[0].k, this.lookupArg.bind(this, args, attribs, cb));
+	var newCB;
+
+	if (this.options.wrapTemplates) {
+		// This is a bare use of template arg syntax at the top level
+		// outside any template use context.  Wrap this use with RDF attrs.
+		// so that this chunk can be RT-ed en-masse.
+		var tplHandler = this;
+		newCB = function(res) {
+			var toks = res.tokens;
+			var state = {
+				token: token,
+				wrapperType: "mw:Object/Param",
+				wrappedObjectId: tplHandler.manager.env.newObjectId()
+			};
+			toks = tplHandler.addEncapsulationInfo(state, toks);
+			toks.push(tplHandler.getEncapsulationInfoEndTag(state));
+			cb( {tokens: toks});
+		}
+	} else {
+		newCB = cb;
+	}
+	this.fetchArg(attribs[0].k, this.lookupArg.bind(this, args, attribs, newCB));
 };
 
 TemplateHandler.prototype.fetchArg = function(arg, argCB) {
