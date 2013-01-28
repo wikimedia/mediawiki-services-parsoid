@@ -810,12 +810,14 @@ WSP._figureHandler = function ( state, figTokens ) {
 	return "[[" + outBits.join('|') + "]]";
 };
 
-WSP._serializeTableTag = function ( symbol, optionalEndSymbol, state, token ) {
+WSP._serializeTableTag = function ( symbol, endSymbol, state, token ) {
 	var sAttribs = WSP._serializeAttributes(state, token);
 	if (sAttribs.length > 0) {
-		return symbol + ' ' + sAttribs + optionalEndSymbol;
+		// IMPORTANT: 'endSymbol !== null' NOT 'endSymbol' since the '' string
+		// is a falsy value and we want to treat it as a truthy value.
+		return symbol + ' ' + sAttribs + (endSymbol !== null ? endSymbol : ' |');
 	} else {
-		return symbol;
+		return symbol + (endSymbol || '');
 	}
 };
 
@@ -1309,13 +1311,12 @@ WSP.tagHandlers = {
 		start: {
 			handle: function ( state, token ) {
 				var da = token.dataAttribs;
-				var sep = " " + (da.attrSepSrc || "|");
 				if ( da.stx_v === 'row' ) {
 					this.startsLine = false;
-					return WSP._serializeTableTag(da.startTagSrc || "!!", sep, state, token);
+					return WSP._serializeTableTag(da.startTagSrc || "!!", da.attrSepSrc || null, state, token);
 				} else {
 					this.startsLine = true;
-					return WSP._serializeTableTag(da.startTagSrc || "!", sep, state, token);
+					return WSP._serializeTableTag(da.startTagSrc || "!", da.attrSepSrc || null, state, token);
 				}
 			}
 		},
@@ -1349,15 +1350,14 @@ WSP.tagHandlers = {
 		start: {
 			handle: function ( state, token ) {
 				var da = token.dataAttribs;
-				var sep = " " + (da.attrSepSrc || "|");
 				if ( da.stx_v === 'row' ) {
 					this.startsLine = false;
-					return WSP._serializeTableTag(da.startTagSrc || "||", sep, state, token);
+					return WSP._serializeTableTag(da.startTagSrc || "||", da.attrSepSrc || null, state, token);
 				} else {
 					// If the HTML for the first td is not enclosed in a tr-tag,
 					// we start a new line.  If not, tr will have taken care of it.
 					this.startsLine = true;
-					return WSP._serializeTableTag(da.startTagSrc || "|", sep, state, token);
+					return WSP._serializeTableTag(da.startTagSrc || "|", da.attrSepSrc || null, state, token);
 				}
 			}
 		},
@@ -1366,7 +1366,7 @@ WSP.tagHandlers = {
 	caption: {
 		start: {
 			startsLine: true,
-			handle: WSP._serializeTableTag.bind(null, "|+", ' |')
+			handle: WSP._serializeTableTag.bind(null, "|+", null)
 		},
 		end: {
 			endsLine: true

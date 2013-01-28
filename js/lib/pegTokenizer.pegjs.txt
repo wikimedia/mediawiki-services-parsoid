@@ -347,11 +347,13 @@
         } else {
             a = attrInfo[0];
             if ( a.length === 0 ) {
-                dp.startTagSrc = wtChar + attrInfo[1].join('') + "|";
+                dp.startTagSrc = wtChar + attrInfo[1].join('');
             }
         }
-        if (attrInfo[2] !== "|") {
+        if ((a.length === 0 && attrInfo[2]) || attrInfo[2] !== "|") {
             // Variation from default
+            // 1. Separator present with an empty attribute block
+            // 2. Not "|"
             dp.attrSepSrc = attrInfo[2];
         }
 
@@ -1718,12 +1720,7 @@ table_heading_tags
             da.stx_v = 'row';
             da.tsr[0] = da.tsr[0] - pp.length; // include "!!" or "||"
 
-            // Handle "!!|" cases
-            var tagSrc = da.startTagSrc;
-            if (tagSrc && tagSrc[tagSrc.length-1] === '|') {
-                // Variation from default
-                da.startTagSrc = pp + "|";
-            } else if (pp !== "!!") {
+            if (pp !== "!!" || (da.startTagSrc && da.startTagSrc !== pp)) {
                 // Variation from default
                 da.startTagSrc = pp;
             }
