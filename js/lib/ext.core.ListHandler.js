@@ -8,7 +8,7 @@ var Util = require('./mediawiki.Util.js').Util;
 function ListHandler ( manager ) {
 	this.manager = manager;
 	this.listFrames = [];
-	this.reset();
+	this.init();
 	this.manager.addTransform(this.onListItem.bind(this),
 							"ListHandler:onListItem",
 							this.listRank, 'tag', 'listItem' );
@@ -42,6 +42,11 @@ function newListFrame() {
 	};
 }
 
+ListHandler.prototype.init = function() {
+	this.reset();
+	this.nestedTableCount = 0;
+};
+
 ListHandler.prototype.reset = function() {
 	this.currListFrame = null;
 };
@@ -56,10 +61,16 @@ ListHandler.prototype.onAny = function ( token, frame, prevToken ) {
 		// this.currListFrame will be null only when we are in a table
 		// that in turn was seen in a list context.
 		//
-		// Since we are not in  a list within the table, nothing to do.
+		// Since we are not in a list within the table, nothing to do.
 		// Just send the token back unchanged.
 		if (token.constructor === EndTagTk && token.name === 'table') {
-			this.currListFrame = this.listFrames.pop();
+			if (this.nestedTableCount === 0) {
+				this.currListFrame = this.listFrames.pop();
+			} else {
+				this.nestedTableCount--;
+			}
+		} else if (token.constructor === TagTk && token.name === 'table') {
+			this.nestedTableCount++;
 		}
 		return { token: token };
 	} else if (token.constructor === EndTagTk) {
@@ -126,7 +137,9 @@ ListHandler.prototype.onEnd = function( token, frame, prevToken ) {
 		// That way, if we get a null frame there, we know we have a bug.
 		this.currListFrame = newListFrame();
 	}
-	return { tokens: this.closeLists(token) };
+	var toks = this.closeLists(token);
+	this.init();
+	return { tokens: toks };
 };
 
 ListHandler.prototype.closeLists = function(token) {
