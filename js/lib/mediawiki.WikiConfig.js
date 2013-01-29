@@ -4,10 +4,11 @@
 
 var qs = require( 'querystring' ),
 	util = require( 'util' ),
-	request = require( 'request' )
+	request = require( 'request' ),
+	baseConfig = require( './mediawiki.BaseConfig.json' ).query;
 
 var WikiConfig = function ( resultConf, prefix, uri ) {
-	var conf = this;
+	var nsid, name, conf = this;
 
 	conf.iwp = prefix;
 
@@ -16,20 +17,21 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 	}
 
 	if ( resultConf === null ) {
-		// We can't set it up any further without result JSON.
-		// Just give up while we're behind.
-		return;
+		// Use the default JSON that we've already loaded above.
+		resultConf = baseConfig;
 	}
 
 	var names = resultConf.namespaces;
 	var nkeys = Object.keys( names );
 	for ( var nx = 0; nx < nkeys.length; nx++ ) {
-		conf.namespaceNames[nx] = names[nkeys[nx]]['*'];
-		conf.namespaceIds[names[nkeys[nx]]['*'].toLowerCase()] = Number( nkeys[nx] );
-		if ( names[nkeys[nx]].canonical ) {
-			conf.canonicalNamespaces[names[nkeys[nx]].canonical.toLowerCase()] = Number( nkeys[nx] );
+		nsid = nkeys[nx];
+		name = names[nsid];
+		conf.namespaceNames[nsid] = name['*'];
+		conf.namespaceIds[name['*'].toLowerCase()] = Number( nsid );
+		if ( name.canonical ) {
+			conf.canonicalNamespaces[name.canonical.toLowerCase()] = Number( nsid );
 		} else {
-			conf.canonicalNamespaces[names[nkeys[nx]]['*'].toLowerCase()] = Number( nkeys[nx] );
+			conf.canonicalNamespaces[name['*'].toLowerCase()] = Number( nsid );
 		}
 	}
 
@@ -54,13 +56,16 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 		}
 	}
 
-	var specials = resultConf.specialpagealiases;
-	for ( var sx = 0; sx < specials.length; sx++ ) {
-		aliases = specials[sx].aliases;
-		for ( var sax = 0; sax < aliases.length; sax++ ) {
-			conf.specialPages[aliases[sax]] = specials[sx].realname;
-		}
-	}
+// This path isn't necessary because we don't need special page aliases.
+// Before you uncomment this, make sure you actually need it, and be sure to
+// also add 'specialpagealiases' back into the API request for the config.
+//	var specials = resultConf.specialpagealiases;
+//	for ( var sx = 0; sx < specials.length; sx++ ) {
+//		aliases = specials[sx].aliases;
+//		for ( var sax = 0; sax < aliases.length; sax++ ) {
+//			conf.specialPages[aliases[sax]] = specials[sx].realname;
+//		}
+//	}
 
 	// Get the linktrail and linkprefix messages from the server
 	// TODO XXX etc. : Use these somewhere
@@ -128,82 +133,9 @@ WikiConfig.prototype = {
 		category: 14,
 		category_talk: 15
 	},
-	namespaceNames: {
-		'-2': 'Media',
-		'-1': 'Special',
-		'0': '',
-		'1': 'Talk',
-		'2': 'User',
-		'3': 'User talk',
-		'4': 'Project',
-		'5': 'Project talk',
-		'6': 'File',
-		'7': 'File talk',
-		'8': 'MediaWiki',
-		'9': 'MediaWiki talk',
-		'10': 'Template',
-		'11': 'Template talk',
-		'12': 'Help',
-		'13': 'Help talk',
-		'14': 'Category',
-		'15': 'Category talk'
-	},
+	namespaceNames: {},
 	namespaceIds: {},
-	magicWords: {
-		// Behaviour switches
-		'__notoc__': 'notoc',
-		'__forcetoc__': 'forcetoc',
-		'__toc__': 'toc',
-		'__noeditsection__': 'noeditsection',
-		'__newsectionlink__': 'newsectionlink',
-		'__nonewsectionlink__': 'nonewsectionlink',
-		'__nogallery__': 'nogallery',
-		'__hiddencat__': 'hiddencat',
-		'__nocontentconvert__': 'nocontentconvert',
-		'__nocc__': 'nocc',
-		'__notitleconvert__': 'notitleconvert',
-		'__notc__': 'notc',
-		'__start__': 'start',
-		'__end__': 'end',
-		'__index__': 'index',
-		'__noindex__': 'noindex',
-		'__staticredirect__': 'staticredirect',
-
-		// Image-related magic words
-		// See also mediawiki.wikitext.constants.js
-
-		// prefix
-		'link': 'img_link',
-		'alt': 'img_alt',
-		'page': 'img_page',
-		'upright': 'img_upright',
-
-		// format
-		'thumbnail': 'thumbnail',
-		'thumb': 'img_thumbnail',
-		'framed': 'img_framed',
-		'frame': 'img_framed',
-		'frameless': 'img_frameless',
-		'border': 'img_border',
-
-		// valign
-		'baseline': 'img_baseline',
-		'sub': 'img_sub',
-		'super': 'img_super',
-		'sup': 'img_super',
-		'top': 'img_top',
-		'text-top': 'img_text_top',
-		'middle': 'img_middle',
-		'bottom': 'img_bottom',
-		'text-bottom': 'img_text_bottom',
-
-		// halign
-		'left': 'img_left',
-		'right': 'img_right',
-		'center': 'img_center',
-		'float': 'img_float',
-		'none': 'img_none'
-	},
+	magicWords: {},
 	specialPages: {},
 	extensionTags: {}
 };

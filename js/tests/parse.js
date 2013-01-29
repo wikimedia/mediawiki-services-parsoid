@@ -130,6 +130,11 @@ function dumpFlags() {
 			'boolean': false,
 			'default': 'http://en.wikipedia.org/wiki/'
 		},
+		'fetchConfig': {
+			description: 'Whether to call an API to fetch the configuration we need',
+			'boolean': true,
+			'default': false
+		},
 		'fetchTemplates': {
 			description: 'Whether to fetch included templates recursively',
 			'boolean': true,
@@ -172,9 +177,14 @@ function dumpFlags() {
 		argv.wt2html = true;
 	}
 
-	var prefix = 'en';
+	var prefix = null;
+
+	if ( argv.fetchConfig ) {
+		prefix = 'en';
+	}
+
 	var parsoidConfig = new ParsoidConfig( null, null );
-	if ( argv.wgScript ) {
+	if ( argv.wgScript && argv.fetchConfig ) {
 		parsoidConfig.setInterwiki( 'alternate', argv.wgScript );
 		prefix = 'alternate';
 	}

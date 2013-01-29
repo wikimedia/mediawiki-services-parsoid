@@ -171,7 +171,7 @@ MWParserEnvironment.getParserEnv = function ( parsoidConfig, wikiConfig, prefix,
 	}
 
 	if ( !wikiConfig ) {
-		wikiConfig = new WikiConfig( null, '' );
+		wikiConfig = new WikiConfig( null, null );
 	}
 
 	var env = new this( parsoidConfig, wikiConfig );
@@ -193,16 +193,16 @@ MWParserEnvironment.getParserEnv = function ( parsoidConfig, wikiConfig, prefix,
 MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
 	var uri = this.conf.parsoid.interwikiMap[prefix];
 	this.confCache = this.confCache || {};
-	this.confCache[this.conf.wiki.iwp] = this.conf.wiki;
+	this.confCache[this.conf.wiki.iwp || ''] = this.conf.wiki;
 
-	if ( this.confCache[prefix] ) {
-		this.conf.wiki = this.confCache[prefix];
+	if ( this.confCache[prefix || ''] ) {
+		this.conf.wiki = this.confCache[prefix || ''];
 		cb( null );
 	} else {
 		var confRequest = new ConfigRequest( uri, this );
 		confRequest.on( 'src', function ( error, resultConf ) {
 			if ( error === null ) {
-				this.conf.wiki = new WikiConfig( resultConf, prefix, this.conf.parsoid.interwikiMap[prefix] );
+				this.conf.wiki = new WikiConfig( resultConf, prefix, uri );
 			}
 
 			cb( error );

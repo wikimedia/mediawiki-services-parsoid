@@ -359,7 +359,7 @@ var ConfigRequest = function ( uri, env ) {
 		action: 'query',
 		meta: 'siteinfo|allmessages',
 		ammessages: 'linktrail|linkprefix',
-		siprop: 'namespaces|namespacealiases|specialpagealiases|magicwords|extensiontags|general|interwikimap'
+		siprop: 'namespaces|namespacealiases|magicwords|extensiontags|general|interwikimap'
 	};
 
 	var url = uri + '?' +
