@@ -29,12 +29,12 @@ var WT_TagWidths = {
 	"h5"    : [5,5],
 	"h6"    : [6,6],
 	"hr"    : [4,0],
-	"table" : [2, 2],
-	"tr"    : [2, 0],
-	"b"     : [3, 3],
-	"i"     : [2, 2],
-	"td"    : [null, 0],
-	"th"    : [null, 0],
+	"table" : [2,2],
+	"tr"    : [2,0],
+	"b"     : [3,3],
+	"i"     : [2,2],
+	"td"    : [null,0],
+	"th"    : [null,0],
 	"br"    : [1,0]
 	// span, figure, caption, figcaption, br, a, i, b
 };
