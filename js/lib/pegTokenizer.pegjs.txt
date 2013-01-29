@@ -1683,9 +1683,9 @@ table_data_tags
             var da = tdt[0].dataAttribs;
             da.stx_v = "row";
             da.tsr[0] = da.tsr[0] - pp.length; // include "||"
-            if (pp !== "||") {
+            if (pp !== "||" || (da.startTagSrc && da.startTagSrc !== pp)) {
                 // Variation from default
-                da.startTagSrc = pp;
+                da.startTagSrc = pp + (da.startTagSrc ? da.startTagSrc.substring(1) : '');
             }
             return tdt;
         } 
@@ -1722,7 +1722,7 @@ table_heading_tags
 
             if (pp !== "!!" || (da.startTagSrc && da.startTagSrc !== pp)) {
                 // Variation from default
-                da.startTagSrc = pp;
+                da.startTagSrc = pp + (da.startTagSrc ? da.startTagSrc.substring(1) : '');
             }
             return tht;
           }
