@@ -1,8 +1,8 @@
-"use strict";
 /*
  * Create list tag around list items and map wiki bullet levels to html
  */
 
+"use strict";
 var Util = require('./mediawiki.Util.js').Util;
 
 function ListHandler ( manager ) {
@@ -72,8 +72,11 @@ ListHandler.prototype.onAny = function ( token, frame, prevToken ) {
 		} else if (token.constructor === TagTk && token.name === 'table') {
 			this.nestedTableCount++;
 		}
+
 		return { token: token };
-	} else if (token.constructor === EndTagTk) {
+	}
+
+	if (token.constructor === EndTagTk) {
 		if (token.name === 'table') {
 			// close all open lists and pop a frame
 			var ret = this.closeLists(token);
@@ -87,10 +90,12 @@ ListHandler.prototype.onAny = function ( token, frame, prevToken ) {
 				this.currListFrame.numOpenBlockTags--;
 				return { token: token };
 			}
-		} else {
-			return { token: token };
 		}
-	} else if ( this.currListFrame.atEOL ) {
+
+		/* Non-block tag -- fall-through to other tests below */
+	}
+
+	if ( this.currListFrame.atEOL ) {
 		if (token.constructor !== NlTk && Util.isSolTransparent(token)) {
 			// Hold on to see where the token stream goes from here
 			// - another list item, or
@@ -100,30 +105,32 @@ ListHandler.prototype.onAny = function ( token, frame, prevToken ) {
 				this.currListFrame.nlTk = null;
 			}
 			this.currListFrame.solTokens.push(token);
-			return {};
+			return { };
 		} else {
 			// Non-list item in newline context ==> close all previous lists
 			tokens = this.closeLists(token);
 			return { tokens: tokens };
 		}
-	} else if ( token.constructor === NlTk ) {
+	}
+
+	if ( token.constructor === NlTk ) {
 		this.currListFrame.atEOL = true;
 		this.currListFrame.nlTk = token;
 		return { };
-	} else if (token.constructor === TagTk) {
+	}
+
+	if (token.constructor === TagTk) {
 		if (token.name === 'table') {
 			this.listFrames.push(this.currListFrame);
 			this.currListFrame = null;
-			return { token: token };
 		} else if (Util.isBlockTag(token.name)) {
 			this.currListFrame.numOpenBlockTags++;
-			return { token: token };
-		} else {
-			return { token: token };
 		}
-	} else {
 		return { token: token };
 	}
+
+	// Nothing else left to do
+	return { token: token };
 };
 
 ListHandler.prototype.onEnd = function( token, frame, prevToken ) {
