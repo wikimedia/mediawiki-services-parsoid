@@ -467,6 +467,28 @@ function handlePres(document, env) {
 	 * pre-tags are removed.
 	 * -------------------------------------------------------------- */
 	function deleteIndentPreFromDOM(node) {
+
+		function fixedIndentPreText(str, isLastChild) {
+			if (isLastChild) {
+				return str.replace(/\n(?!$)/g, "\n ");
+			} else {
+				return str.replace(/\n/g, "\n ");
+			}
+		}
+
+		function reinsertLeadingSpace(elt, isLastChild) {
+			var children = elt.childNodes;
+			for (var i = 0, n = children.length; i < n; i++) {
+				var c = children[i];
+				if (c.nodeType === Node.TEXT_NODE) {
+					c.data = fixedIndentPreText(c.data, isLastChild && i === n-1);
+				} else {
+					// recurse
+					reinsertLeadingSpace(c, isLastChild && i === n-1);
+				}
+			}
+		}
+
 		var c = node.firstChild;
 		while (c) {
 			// get sibling before DOM is modified
@@ -479,9 +501,17 @@ function handlePres(document, env) {
 				// transfer children over
 				var c_child = c.firstChild;
 				while (c_child) {
-					var next_child = c_child.nextSibling;
+					var next = c_child.nextSibling;
+					if (c_child.nodeType === Node.TEXT_NODE) {
+						// new child with fixed up text
+						c_child = document.createTextNode(fixedIndentPreText(c_child.data, next === null));
+					} else if (c_child.nodeType === Node.ELEMENT_NODE) {
+						// recursively process all text nodes to make
+						// sure every new line gets a space char added back.
+						reinsertLeadingSpace(c_child, next === null);
+					}
 					node.insertBefore(c_child, c);
-					c_child = next_child;
+					c_child = next;
 				}
 
 				// delete the pre
