@@ -339,52 +339,59 @@ function normalizeDocument(document) {
  *   how it handles all other templates.
  * ------------------------------------------------------------------------ */
 function handleUnbalancedTableTags(node, env, tplIdToSkip) {
+	function foundMatch(currTpl, nodeName) {
+		// Did we hit a table (table/th/td/tr/tbody/th) tag
+		// that is outside a template?
+		var insideTpl = currTpl && !currTpl.start;
+		if (!insideTpl && ['tr', 'td', 'th', 'tbody', 'table'].indexOf(nodeName) !== -1) {
+			if (currTpl) {
+				currTpl.isCulprit = true;
+			}
+			return true;
+		}
 
-	function collectTplsTillFarthestBadTemplate(node, tpls) {
-		var currTpl = tpls.length > 0 ? tpls.last() : null;
-		var openTplId = currTpl ? currTpl.tplId : null;
+		return false;
+	}
 
+	// This walks the DOM right-to-left and tries to find a table-tag
+	// (opening or closing tag) that is outside a template.  It keeps
+	// track of the currently open template and checks for a table-tag
+	// match only when outside it.  When a match is found, it returns
+	// the most recently closed template and returns it all the way up.
+	function findProblemTemplate(node, currTpl) {
 		while (node !== null) {
-			var nodeName = node.nodeName.toLowerCase();
-			if (nodeName === "meta") {
+			if (DU.isElt(node)) {
 				var nTypeOf = node.getAttribute("typeof");
 				if (DU.isTplMetaType(nTypeOf)) {
-					if (openTplId) {
-						// We have an open template -- this tag should the opening tag
-						// of the same open template since template wrapper meta tags
-						// are currently not nested.  But, in the future we might nest
-						// them.  So, dont make the assumption.
-						if (node.getAttribute("about") === openTplId) {
-							// console.warn("---> TPL <start>: " + openTplId);
-							openTplId = null;
-							currTpl.tplId = null;
-							currTpl.start = node;
-						}
-					} else if (nTypeOf.match(/End/)) { // we are guaranteed to match this
-						openTplId = node.getAttribute("about");
-						currTpl = { end: node, tplId: openTplId };
-						tpls.push(currTpl);
-						// console.warn("---> TPL <end>: " + openTplId);
-					} else {
-						// error??
+					var insideTpl = currTpl && !currTpl.start;
+					if (insideTpl && node.getAttribute("about") === currTpl.tplId) {
+						currTpl.start = node;
+						// console.warn("---> TPL <start>: " + currTpl.tplId);
+					} else if (!insideTpl && nTypeOf.match(/End/)) {
+						currTpl = { end: node, tplId: node.getAttribute("about") };
+						// console.warn("---> TPL <end>: " + currTpl.tplId);
 					}
 				}
-			}
 
-			if (!openTplId) {
-				// We hit an unstripped td/tr/table open/end tag!
-				// We can stop now.
-				if (nodeName === 'tr' || nodeName === 'td' || nodeName === 'table') {
-					// console.warn("-----DONE-----");
-					// done!
-					return true;
+				var nodeName = node.nodeName.toLowerCase();
+
+				// Test for "end"-tag before processing subtree
+				if (foundMatch(currTpl, nodeName)) {
+					return currTpl;
 				}
-			}
 
-			if (node.lastChild) {
-				// Descend down n's DOM subtree -- if we get true, we are done!
-				if (collectTplsTillFarthestBadTemplate(node.lastChild, tpls)) {
-					return true;
+				// Process subtree
+				if (node.lastChild) {
+					currTpl = findProblemTemplate(node.lastChild, currTpl);
+					if (currTpl && currTpl.isCulprit) {
+						// We got what we wanted -- get out of here.
+						return currTpl;
+					}
+				}
+
+				// Test for "start"-tag after processing subtree
+				if (foundMatch(currTpl, nodeName)) {
+					return currTpl;
 				}
 			}
 
@@ -392,8 +399,7 @@ function handleUnbalancedTableTags(node, env, tplIdToSkip) {
 			node = node.previousSibling;
 		}
 
-		// not done
-		return false;
+		return currTpl;
 	}
 
 	// special case for top-level
@@ -406,22 +412,23 @@ function handleUnbalancedTableTags(node, env, tplIdToSkip) {
 		if (tplIdToSkip && DU.isTplMarkerMeta(c) && (c.getAttribute("about") === tplIdToSkip)) {
 			// Check if we hit the opening tag of the tpl/extension we are ignoring
 			tplIdToSkip = null;
-		} else if (DU.isMarkerMeta(c, "mw:EndTag") &&
-			c.getAttribute("data-etag") === "table")
-		{
-			// console.warn("---- found table etag: " + c.innerHTML);
-			// Find all templates from here till the farthest template
-			// that is the source of all trouble
-			var allTpls = [];
-			collectTplsTillFarthestBadTemplate(c.previousSibling, allTpls);
+		} else if (DU.isMarkerMeta(c, "mw:EndTag") && c.getAttribute("data-etag") === "table") {
+			// We have a stray table-end-tag marker -- this signals a problem either with
+			// wikitext or with our parsed DOM.  In either case, we do the following:
+			// * Find the farthest template beyond which there is a top-level table tag
+			// * Artifically expand that template's range to cover this missing end tag.
+			// This effectively papers over the problem by treating the entire content as
+			// output of that farthest template and protects it from being edited.
 
-			var farthestTpl = allTpls.pop();
-			if (farthestTpl) {
+			// console.warn("---- found table etag: " + c.outerHTML);
+			var problemTpl = findProblemTemplate(c.previousSibling, null);
+			if (problemTpl && problemTpl.isCulprit) {
+				// console.warn("---- found problem tpl: " + problemTpl.tplId);
 				// Move that template's end-tag after c
-				c.parentNode.insertBefore(farthestTpl.end, c.nextSibling);
+				c.parentNode.insertBefore(problemTpl.end, c.nextSibling);
 
 				// Update TSR
-				var dpSrc = farthestTpl.end.getAttribute("data-parsoid");
+				var dpSrc = problemTpl.end.getAttribute("data-parsoid");
 
 				if (dpSrc === null || dpSrc === "") {
 					// TODO: Figure out why there is no data-parsoid here!
@@ -432,15 +439,11 @@ function handleUnbalancedTableTags(node, env, tplIdToSkip) {
 
 				var tplDP = JSON.parse(dpSrc);
 				tplDP.tsr = DU.dataParsoid(c).tsr;
-				DU.setDataParsoid(farthestTpl.end, tplDP);
+				DU.setDataParsoid(problemTpl.end, tplDP);
 
 				// Skip all nodes till we find the opening id of this template
 				// FIXME: Ugh!  Duplicate tree traversal
-				tplIdToSkip = farthestTpl.tplId;
-
-				// FIXME: Should we strip away all the intermediate template
-				// wrapper tags?  I thought we might have to, but looks like all
-				// works even without stripping.
+				tplIdToSkip = problemTpl.tplId;
 			}
 		} else if (c.nodeType === Node.ELEMENT_NODE) {
 			// Look at c's subtree
