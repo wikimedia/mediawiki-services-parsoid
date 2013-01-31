@@ -718,7 +718,7 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 			// widen the scope to include the full subtree
 			res = {
 				'root': startElem,
-				aboutId: env.stripIdPrefix(startElem.getAttribute("about")),
+				startOffset: DU.dataParsoid(startElem).tsr[0],
 				startElem: startElem,
 				endElem: endMeta,
 				start: startElem.firstChild,
@@ -728,7 +728,7 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 		} else if ( i > 0) {
 			res = {
 				'root': parentNode,
-				aboutId: env.stripIdPrefix(startElem.getAttribute("about")),
+				startOffset: DU.dataParsoid(startElem).tsr[0],
 				startElem: startElem,
 				endElem: endMeta,
 				start: startAncestors[i - 1],
@@ -835,14 +835,14 @@ function encapsulateTemplates( env, doc, tplRanges) {
 		return false;
 	}
 
-	// 0. Sort by about tpl id
-	tplRanges.sort(function(r1, r2) { return r1.aboutId - r2.aboutId; });
+	// 0. Sort by start offset in source wikitext
+	tplRanges.sort(function(r1, r2) { return r1.startOffset - r2.startOffset; });
 
 	// 1. Merge overlapping template ranges
 	var newRanges = [];
 	var i, numRanges = tplRanges.length;
 
-	// Since the tpl ranges are sorted in textual order (by about-id)
+	// Since the tpl ranges are sorted in textual order (by start offset),
 	// it is sufficient to only look at the most recent template to see
 	// if the current one overlaps with it.
 	//
@@ -857,8 +857,8 @@ function encapsulateTemplates( env, doc, tplRanges) {
 			r = tplRanges[i];
 /**
 		console.warn("##############################################");
-		console.warn("range " + i + "; r-start-elem: " + r.startElem.innerHTML);
-		console.warn("range " + i + "; r-end-elem: " + r.endElem.innerHTML);
+		console.warn("range " + i + "; r-start-elem: " + r.startElem.outerHTML);
+		console.warn("range " + i + "; r-end-elem: " + r.endElem.outerHTML);
 		console.warn("-----------------------------");
 		console.warn("range " + i + "; r-start: " + r.start.innerHTML);
 		console.warn("-----------------------------");
@@ -1098,7 +1098,7 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 			var type = elem.getAttribute( 'typeof' ),
 				// SSS FIXME: This regexp differs from that in isTplMetaType
 				metaMatch = type ? type.match( /\b(mw:Object(?:\/[^\s]+|\b))/ ) : null;
-			if ( metaMatch ) {
+			if ( metaMatch && DU.dataParsoid(elem).tsr) {
 				var metaType = metaMatch[1];
 
 				about = elem.getAttribute('about'),
