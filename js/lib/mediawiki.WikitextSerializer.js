@@ -330,6 +330,56 @@ WSP.initialState = {
 		};
 		return this.serializer.serializeTokens(initState, tokens, chunkCB);
 	},
+
+	// Serialize a DOM node, sharing the global serializer state
+	serializeDOM: function(node, chunkCB, wtEscaper) {
+		if ( wtEscaper ) {
+			this.wteHandlerStack.push(wtEscaper);
+		}
+
+		var origChunkCB = this.chunkCB;
+		if (chunkCB) {
+			this.chunkCB = chunkCB;
+		}
+
+		this.serializer._serializeDOM(node, this);
+
+		if ( wtEscaper ) {
+			this.wteHandlerStack.pop();
+		}
+		state.chunkCB = origChunkCB;
+	},
+
+	serializeDOMToString: function(node, wtEscaper) {
+		var bits = [];
+		this.serializeDOM(node, bits.push.bind(bits), wtEscaper);
+		return bits.join('');
+	},
+
+	// Serialize the children of a DOM node, sharing the global serializer
+	// state. Typically called by a DOM-based handler to continue handling its
+	// children.
+	serializeChildren: function(nodes, chunkCB, wtEscaper) {
+		var oldCB = this.chunkCB;
+		this.chunkCB = chunkCB;
+		if ( wtEscaper ) {
+			this.wteHandlerStack.push(wtEscaper);
+		}
+		for (var i = 0, l = nodes.length; i < l; i++) {
+			this.serializer._serializeDOM(nodes[i], this);
+		}
+		this.chunkCB = oldCB;
+		if ( wtEscaper ) {
+			this.wteHandlerStack.pop();
+		}
+	},
+
+	serializeChildrenToString: function(nodes, wtEscaper) {
+		var bits = [];
+		this.serializeChildren(nodes, bits.push.bind(bits), wtEscaper);
+		return bits.join('');
+	},
+
 	emitSepChunk: function(separator, debugStr) {
 		if (this.tokenCollector) {
 			// If in token collection mode, convert the
@@ -694,60 +744,39 @@ WSP._listItemHandler = function ( handler, bullet, state, token ) {
 	return res;
 };
 
+/**
+ * DOM-based figure handler
+ */
+WSP.figureHandler = function(state, node, cb) {
 
-WSP._figureHandler = function ( state, figTokens ) {
-	var env = state.env;
-
-	// skip tokens looking for the image tag
-	var img;
-	var i = 1, n = figTokens.length;
-	while (i < n) {
-		if (figTokens[i].name === "img") {
-			img = figTokens[i];
-			break;
+	var img, caption,
+		dp = node.data.parsoid,
+		env = state.env;
+	try {
+		img = node.firstChild.firstChild;
+		if ( img.nodeType !== img.ELEMENT_NODE ) {
+			throw('No img found!');
 		}
-		i++;
+
+		caption = node.lastChild;
+	} catch (e) {
+		console.error('ERROR in figureHandler: no img or caption found!');
+		return cb('');
 	}
 
-	if ( !img ) {
-		console.error('ERROR _figureHandler: no img ' + figTokens);
-		// No image, at least don't crash below
-		return '';
-	}
 
-	// skip tokens looking for the start and end caption tags
-	var fcStartIndex = 0, fcEndIndex = 0;
-	while (i < n) {
-		if (figTokens[i].name === "figcaption") {
-			if (fcStartIndex > 0) {
-				fcEndIndex = i;
-				break;
-			} else {
-				fcStartIndex = i;
-			}
-		}
-		i++;
-	}
+	var captionSrc = state.serializeChildrenToString(caption.childNodes,
+													WSP.wteHandlers.aHandler),
+		imgResource = (img && img.getAttribute('resource') || '').replace(/(^\[:)|(\]$)/g, ''),
+		outBits = [imgResource],
+		figAttrs = dp.optionList,
+		optNames = dp.optNames,
+		simpleImgOptions = WikitextConstants.Image.SimpleOptions,
+		prefixImgOptions = WikitextConstants.Image.PrefixOptions,
+		sizeOptions = {"width": 1, "height": 1},
+		size = {};
 
-	// Call the serializer to build the caption
-	var caption = state.serializeTokens(false, WSP.wteHandlers.aHandler, figTokens.slice(fcStartIndex+1, fcEndIndex)).join('');
-
-	// Get the image resource name
-	// FIXME: file name has been capitalized -- need some fix in the parser
-	var argDict = Util.KVtoHash( img.attribs );
-	var imgR = (argDict.resource || '').replace(/(^\[:)|(\]$)/g, '');
-
-	// Now, build the complete wikitext for the figure
-	var outBits  = [imgR];
-	var figToken = figTokens[0];
-	var figAttrs = figToken.dataAttribs.optionList;
-	var optNames = figToken.dataAttribs.optNames;
-
-	var simpleImgOptions = WikitextConstants.Image.SimpleOptions;
-	var prefixImgOptions = WikitextConstants.Image.PrefixOptions;
-	var sizeOptions      = { "width": 1, "height": 1};
-	var size             = {};
-	for (i = 0, n = figAttrs.length; i < n; i++) {
+	for (var i = 0, n = figAttrs.length; i < n; i++) {
 		var a = figAttrs[i],
 			k = a.k, v = a.v,
 
@@ -783,7 +812,7 @@ WSP._figureHandler = function ( state, figTokens ) {
 					outBits.push("upright");
 				}
 			} else if (actualk === "caption") {
-				outBits.push(v === null ? caption : v);
+				outBits.push(v === null ? captionSrc : v);
 			} else if (simpleImgOptions[actualv] === actualk) {
 				// The values and keys in the parser attributes are a flip
 				// of how they are in the wikitext constants image hash
@@ -807,8 +836,9 @@ WSP._figureHandler = function ( state, figTokens ) {
 		outBits.push(size.width + (size.height ? "x" + size.height : '') + "px");
 	}
 
-	return "[[" + outBits.join('|') + "]]";
+	cb( "[[" + outBits.join('|') + "]]" );
 };
+
 
 WSP._serializeTableTag = function ( symbol, endSymbol, state, token ) {
 	var sAttribs = WSP._serializeAttributes(state, token);
@@ -887,9 +917,12 @@ var splitLinkContentString = function (contentString, dp, target) {
 	}
 };
 
+
 // Helper function for getting RT data from the tokens
-var getLinkRoundTripData = function( token, attribDict, dp, tokens, state ) {
-	var tplAttrs = state.tplAttrs;
+var getLinkRoundTripData = function( node, state ) {
+	var tplAttrs = state.tplAttrs,
+		dp = node.data.parsoid,
+		attribs = node.attributes;
 	var rtData = {
 		type: null,
 		target: null, // filled in below
@@ -898,23 +931,26 @@ var getLinkRoundTripData = function( token, attribDict, dp, tokens, state ) {
 	};
 
 	// Figure out the type of the link
-	if ( attribDict.rel ) {
-		var typeMatch = attribDict.rel.match( /\bmw:[^\b]+/ );
+	var rel = node.getAttribute('rel');
+	if ( rel ) {
+		var typeMatch = rel.match( /\bmw:[^\b]+/ );
 		if ( typeMatch ) {
 			rtData.type = typeMatch[0];
 		}
 	}
 
+	var href = node.getAttribute('href');
+
 	// Save the token's "real" href for comparison
-	rtData.href = attribDict.href.replace( /^(\.\.?\/)+/, '' );
+	rtData.href = href.replace( /^(\.\.?\/)+/, '' );
 
 	// Now get the target from rt data
-	rtData.target = token.getAttributeShadowInfo('href', tplAttrs);
+	rtData.target = DU.getAttributeShadowInfo(node, 'href', tplAttrs);
 
 	// Get the content string or tokens
 	var contentParts;
-	var contentString = Util.tokensToString(tokens, true);
-	if (contentString.constructor === String) {
+	if (node.childNodes.length === 1 && node.firstChild.nodeType === node.TEXT_NODE) {
+		var contentString = node.firstChild.nodeValue;
 		if ( ! rtData.target.modified && rtData.tail &&
 				contentString.substr(- rtData.tail.length) === rtData.tail ) {
 			rtData.content.string = Util.stripSuffix( contentString, rtData.tail );
@@ -927,12 +963,13 @@ var getLinkRoundTripData = function( token, attribDict, dp, tokens, state ) {
 			rtData.tail = '';
 			rtData.content.string = contentString;
 		}
-	} else {
-		rtData.content.tokens = tokens;
+	} else if ( node.childNodes.length ) {
+		rtData.content.nodes = node.childNodes;
 	}
 
 	return rtData;
 };
+
 
 function escapeWikiLinkContentString ( contentString, state ) {
 	// Wikitext-escape content.
@@ -946,28 +983,26 @@ function escapeWikiLinkContentString ( contentString, state ) {
 	state.wteHandlerStack.pop();
 	return res;
 }
-
 // SSS FIXME: This doesn't deal with auto-inserted start/end tags.
 // To handle that, we have to split every 'return ...' statement into
 // openTagSrc = ...; endTagSrc = ...; and at the end of the function,
 // check for autoInsertedStart and autoInsertedEnd attributes and
 // supress openTagSrc or endTagSrc appropriately.
-WSP._linkHandler =  function( state, tokens ) {
+WSP.linkHandler =  function( state, node, cb ) {
 	//return '[[';
 	// TODO: handle internal/external links etc using RDFa and dataAttribs
 	// Also convert unannotated html links without advanced attributes to
 	// external wiki links for html import. Might want to consider converting
 	// relative links without path component and file extension to wiki links.
 	var env = state.env,
-		token = tokens.shift(),
-		endToken = tokens.pop(),
-		attribDict = Util.KVtoHash( token.attribs ),
-		dp = token.dataAttribs,
+		dp = node.data.parsoid,
 		linkData, contentParts,
-		contentSrc = '';
+		contentSrc = '',
+		rel = node.getAttribute('rel');
 
 	// Get the rt data from the token and tplAttrs
-	linkData = getLinkRoundTripData(token, attribDict, dp, tokens, state);
+	linkData = getLinkRoundTripData(node, state);
+
 
 	if ( linkData.type !== null && linkData.target.value !== null  ) {
 		// We have a type and target info
@@ -976,7 +1011,9 @@ WSP._linkHandler =  function( state, tokens ) {
 
 		if ( linkData.type === 'mw:WikiLink' ||
 				linkData.type === 'mw:WikiLink/Category' ||
-				linkData.type === 'mw:WikiLink/Language' ) {
+				linkData.type === 'mw:WikiLink/Language' )
+		{
+			state.onStartOfLine = false;
 
 			// Decode any link that did not come from the source
 			if (! target.fromsrc) {
@@ -1014,9 +1051,9 @@ WSP._linkHandler =  function( state, tokens ) {
 				// need to fully shadow the sort key.
 				//if ( ! target.modified ) {
 					// The target and source key was not modified
-					var sortKeySrc = token.getAttributeShadowInfo('mw:sortKey', state.tplAttrs);
+					var sortKeySrc = DU.getAttributeShadowInfo(node, 'mw:sortKey', state.tplAttrs);
 					if ( sortKeySrc.value !== null ) {
-						linkData.content.tokens = undefined;
+						linkData.content.nodes = undefined;
 						linkData.content.string = sortKeySrc.value;
 						// TODO: generalize this flag. It is already used by
 						// getAttributeShadowInfo. Maybe use the same
@@ -1025,7 +1062,8 @@ WSP._linkHandler =  function( state, tokens ) {
 					}
 				//}
 			} else if ( linkData.type === 'mw:WikiLink/Language' ) {
-				return dp.src;
+				cb( dp.src );
+				return;
 			}
 
 			// figure out if we need a piped or simple link
@@ -1069,16 +1107,20 @@ WSP._linkHandler =  function( state, tokens ) {
 			if ( canUseSimple ) {
 				// Simple case
 				if ( ! target.modified ) {
-					return '[[' + target.value + ']]' + linkData.tail;
+					cb( '[[' + target.value + ']]' + linkData.tail );
+					return;
 				} else {
 					contentSrc = escapeWikiLinkContentString(linkData.content.string, state);
-					return '[[' + contentSrc + ']]' + linkData.tail;
+					cb( '[[' + contentSrc + ']]' + linkData.tail );
+					return;
 				}
 			} else {
 
 				// First get the content source
-				if ( linkData.content.tokens ) {
-					contentSrc = state.serializeTokens(false, WSP.wteHandlers.wikilinkHandler, tokens).join('');
+				if ( linkData.content.nodes ) {
+					contentSrc = state.serializeChildrenToString(
+							linkData.content.nodes,
+							WSP.wteHandlers.wikilinkHandler);
 					// strip off the tail and handle the pipe trick
 					contentParts = splitLinkContentString(contentSrc, dp);
 					contentSrc = contentParts.contentString;
@@ -1088,7 +1130,7 @@ WSP._linkHandler =  function( state, tokens ) {
 					if (linkData.content.fromsrc) {
 						contentSrc = linkData.content.string;
 					} else {
-						contentSrc = escapeWikiLinkContentString(linkData.content.string,
+						contentSrc = escapeWikiLinkContentString(linkData.content.string || '',
 								state);
 					}
 				}
@@ -1099,53 +1141,56 @@ WSP._linkHandler =  function( state, tokens ) {
 					contentSrc = '<nowiki/>';
 				}
 
-				return '[[' + linkData.target.value + '|' + contentSrc + ']]' + linkData.tail;
+				cb( '[[' + linkData.target.value + '|' + contentSrc + ']]' + linkData.tail );
+				return;
 			}
-		} else if ( attribDict.rel === 'mw:ExtLink' ) {
+		} else if ( rel === 'mw:ExtLink' ) {
 			if ( target.modified ) {
 				// encodeURI only encodes spaces and the like
 				target.value = encodeURI(target.value);
 			}
-			return '[' + target.value + ' ' +
-				state.serializeTokens(false, WSP.wteHandlers.aHandler, tokens).join('') +
-				']';
-		} else if ( attribDict.rel.match( /mw:ExtLink\/(?:ISBN|RFC|PMID)/ ) ) {
-			return tokens.join('');
-		} else if ( attribDict.rel === 'mw:ExtLink/URL' ) {
-			return Util.tokensToString( linkData.target.value );
-		} else if ( attribDict.rel === 'mw:ExtLink/Numbered' ) {
-			return '[' + Util.tokensToString( linkData.target.value ) + ']';
-		} else if ( attribDict.rel === 'mw:Image' ) {
+			state.onStartOfLine = false;
+
+			cb( '[' + target.value + ' ' +
+				state.serializeChildrenToString(node.childNodes, WSP.wteHandlers.aHandler) +
+				']' );
+		} else if ( rel.match( /mw:ExtLink\/(?:ISBN|RFC|PMID)/ ) ) {
+			cb( node.firstChild.nodeValue );
+		} else if ( rel === 'mw:ExtLink/URL' ) {
+			cb( linkData.target.value );
+		} else if ( rel === 'mw:ExtLink/Numbered' ) {
+			// XXX: Use shadowed href? Storing serialized tokens in
+			// data-parsoid seems to be... wrong.
+			cb( '[' + Util.tokensToString(linkData.target.value) + ']');
+		} else if ( rel === 'mw:Image' ) {
 			// simple source-based round-tripping for now..
 			// TODO: properly implement!
 			if ( dp.src ) {
-				return dp.src;
+				cb( dp.src );
 			}
 		} else {
 			// Unknown rel was set
-			return WSP._serializeHTMLTag( state, token );
+			cb( state.serializeDOMToString( node ) );
 		}
 	} else {
 		// TODO: default to extlink for simple links with unknown rel set
 		// switch to html only when needed to support attributes
 
-		var isComplexLink = function ( attribDict ) {
-			for ( var name in attribDict ) {
-				if ( name && ! ( name in { href: 1 } ) ) {
+		var isComplexLink = function ( attributes ) {
+			for ( var attr in attributes ) {
+				if ( attr.name && ! ( attr.name in { href: 1 } ) ) {
 					return true;
 				}
 			}
 			return false;
 		};
 
-		if ( true || isComplexLink ( attribDict ) ) {
+		if ( true || isComplexLink ( node.attributes ) ) {
 			// Complex attributes we can't support in wiki syntax
-			return WSP._serializeHTMLTag( state, token ) +
-				state.serializeTokens(state.onNewline, null, tokens ) +
-				WSP._serializeHTMLEndTag( state, endToken );
+			WSP.htmlElementHandler(state, node, cb);
 		} else {
 			// TODO: serialize as external wikilink
-			return '';
+			cb( '' );
 		}
 	}
 
@@ -1155,6 +1200,7 @@ WSP._linkHandler =  function( state, tokens ) {
 	//	// external link
 	//	return '[' + rtinfo.
 };
+
 
 WSP.genContentSpanTypes = {
 	'mw:Nowiki':1,
@@ -1552,16 +1598,9 @@ WSP.tagHandlers = {
 		}
 	},
 	figure: {
-		start: {
-			handle: function ( state, token ) {
-				state.tokenCollector = endTagMatchTokenCollector( token, WSP._figureHandler );
-				// Set the handler- not terribly useful since this one doesn't
-				// have any flags, but still useful for general testing
-				state.tokenCollector.handler = this;
-				return '';
-			}
-		},
-		wtEscapeHandler: WSP.wteHandlers.linkHandler
+		node: {
+			handle: WSP.figureHandler.bind(WSP)
+		}
 	},
 	img: {
 		start: {
@@ -1622,28 +1661,34 @@ WSP.tagHandlers = {
 		wtEscapeHandler: WSP.wteHandlers.quoteHandler
 	},
 	a:  {
-		start: {
-			handle: function(state, token) {
-				state.tokenCollector = new endTagMatchTokenCollector(
-					token,
-					WSP._linkHandler,
-					WSP);
-				return '';
-			}
-		},
-		wtEscapeHandler: WSP.wteHandlers.linkHandler
+		node: {
+			handle: WSP.linkHandler.bind(WSP)
+		}
+		//start: {
+		//	handle: function(state, token) {
+		//		state.tokenCollector = new endTagMatchTokenCollector(
+		//			token,
+		//			WSP._linkHandler,
+		//			WSP);
+		//		return '';
+		//	}
+		//},
+		//wtEscapeHandler: WSP.wteHandlers.linkHandler
 	},
 	link:  {
-		start: {
-			handle: function(state, token) {
-				state.tokenCollector = new endTagMatchTokenCollector(
-					token,
-					WSP._linkHandler,
-					WSP);
-				return '';
-			}
-		},
-		wtEscapeHandler: WSP.wteHandlers.linkHandler
+		node: {
+			handle: WSP.linkHandler.bind(WSP)
+		}
+		//start: {
+		//	handle: function(state, token) {
+		//		state.tokenCollector = new endTagMatchTokenCollector(
+		//			token,
+		//			WSP._linkHandler,
+		//			WSP);
+		//		return '';
+		//	}
+		//},
+		//wtEscapeHandler: WSP.wteHandlers.linkHandler
 	}
 };
 
@@ -1776,7 +1821,7 @@ WSP.serializeTokens = function(startState, tokens, chunkCB ) {
 	state.serializer = this;
 	if ( chunkCB === undefined ) {
 		var out = [];
-		state.chunkCB = function ( chunk, serializeInfo ) {
+		state.chunkCB = function ( chunk ) {
 			// Keep a sliding buffer of the last emitted source
 			state.lastRes = (state.lastRes + chunk).substr(-100);
 			out.push( chunk );
@@ -1789,7 +1834,11 @@ WSP.serializeTokens = function(startState, tokens, chunkCB ) {
 		state.chunkCB = function ( chunk, serializeInfo ) {
 			// Keep a sliding buffer of the last emitted source
 			state.lastRes = (state.lastRes + chunk).substr(-100);
-			chunkCB(chunk, serializeInfo);
+			if ( serializeInfo ) {
+				chunkCB(chunk, serializeInfo);
+			} else {
+				chunkCB(chunk, state.selser.serializeInfo);
+			}
 		};
 		for ( i = 0, l = tokens.length; i < l; i++ ) {
 			this._serializeToken( state, tokens[i] );
@@ -1801,6 +1850,64 @@ WSP.defaultHTMLTagHandler = {
 	start: { handle: WSP._serializeHTMLTag },
 	end  : { handle: WSP._serializeHTMLEndTag }
 };
+
+WSP.htmlElementHandler = function (state, node, cb) {
+	var attribKVs = DU.getAttributeKVArray(node);
+
+	cb( WSP._serializeHTMLTag(
+				state,
+				new TagTk(node.nodeName.toLowerCase(), attribKVs, node.data.parsoid)
+	  ) );
+	if (node.childNodes.length) {
+		state.serializeChildren(node.childNodes, cb);
+	}
+	cb( WSP._serializeHTMLEndTag(
+				state,
+				new EndTagTk(node.nodeName.toLowerCase(), attribKVs, node.data.parsoid)
+				) );
+};
+
+/**
+ * Get a DOM-based handler for an element node
+ */
+WSP.getDOMHandler = function(state, node, cb) {
+	var dp = node.data.parsoid,
+		nodeName = node.nodeName.toLowerCase(),
+		handler;
+	if ( dp.src !== undefined ) {
+		//console.log(node.parentNode.outerHTML);
+		var nodeTypeOf = node.getAttribute( 'typeof' );
+		if (nodeTypeOf === "mw:TemplateSource") {
+			return {
+				handle: function () {
+					cb(dp.src)
+				},
+				isTemplateSrc: true
+			};
+		} else if (nodeTypeOf === "mw:Placeholder") {
+			// implement generic src round-tripping:
+			// return src, and drop the generated content
+			return {
+				handle: function() {
+					cb(dp.src)
+				}
+			};
+		}
+	}
+
+	if (dp.stx === 'html' ||
+			( node.getAttribute('data-parsoid') === null &&
+			  nodeName !== 'meta' &&
+			  node.parentNode.data.parsoid.stx === 'html' ) )
+	{
+		return null; // this.htmlElementHandler;
+	} else if (this.tagHandlers[nodeName]) {
+		handler = this.tagHandlers[nodeName];
+		return handler.node || null;
+	}
+
+};
+
 
 WSP._getTokenHandler = function(state, token) {
 	var handler;
@@ -1832,8 +1939,8 @@ WSP._getTokenHandler = function(state, token) {
 				( token.constructor === TagTk || token.constructor === EndTagTk ) &&
 				// new element
 				Object.keys(token.dataAttribs).length === 0 &&
-				state.parentSTX === 'html' &&
-				token.name !== 'meta' ) )
+				token.name !== 'meta' &&
+				state.parentSTX === 'html' ) )
 	{
 		handler = this.defaultHTMLTagHandler;
 	} else {
@@ -1848,6 +1955,8 @@ WSP._getTokenHandler = function(state, token) {
 		handler = this.defaultHTMLTagHandler;
 	}
 	if ( token.constructor === TagTk || token.constructor === SelfclosingTagTk ) {
+		// XXX: This looks like a slightly strange side-effect for
+		// getTokenHandler
 		state.wteHandlerStack.push(handler.wtEscapeHandler || null);
 		return handler.start || {};
 	} else {
@@ -1974,7 +2083,7 @@ WSP._serializeToken = function ( state, token ) {
 				break;
 			case EOFTk:
 				res = '';
-				state.chunkCB( res, state.selser.serializeInfo );
+				state.chunkCB( res );
 				break;
 			default:
 				res = '';
@@ -2001,7 +2110,8 @@ WSP._serializeToken = function ( state, token ) {
 				", T:", token);
 
 	// start-of-line processing
-	if (handler.startsLine && !state.onStartOfLine && !suppressOutput && !state.singleLineMode) {
+	if (handler.startsLine && !state.onStartOfLine && !suppressOutput && !state.singleLineMode)
+	{
 		// Emit newlines separately from regular content
 		// for the benefit of the selective serializer.
 		//
@@ -2041,7 +2151,7 @@ WSP._serializeToken = function ( state, token ) {
 		res = res.replace(/\n/g, '');
 	}
 
-	state.chunkCB( suppressOutput ? '' : res, state.selser.serializeInfo );
+	state.chunkCB( suppressOutput ? '' : res );
 	this.debug_pp("===> ", "res: ", suppressOutput ? '' : res);
 
 	if (res.match(/[\r\n]$/)) {
@@ -2054,6 +2164,7 @@ WSP._serializeToken = function ( state, token ) {
 		}
 	}
 
+	// Emit newlines/separators after the token
 	if (handler.emitsNL) {
 		emitNLs('\n', "emitsNL: ", true);
 	} else if (state.bufferedSeparator) {
@@ -2311,7 +2422,7 @@ WSP.serializeDOM = function( node, chunkCB, finalCB, selser ) {
 
 		var out = [];
 	    if ( ! chunkCB ) {
-			state.chunkCB = function ( chunk, serializeInfo ) {
+			state.chunkCB = function ( chunk ) {
 				// Keep a sliding buffer of the last emitted source
 				state.lastRes = (state.lastRes + chunk).substr(-100);
 				out.push( chunk );
@@ -2320,7 +2431,11 @@ WSP.serializeDOM = function( node, chunkCB, finalCB, selser ) {
 			state.chunkCB = function ( chunk, serializeInfo ) {
 				// Keep a sliding buffer of the last emitted source
 				state.lastRes = (state.lastRes + chunk).substr(-100);
-				chunkCB(chunk, serializeInfo);
+				if ( serializeInfo ) {
+					chunkCB(chunk, serializeInfo);
+				} else {
+					chunkCB(chunk, state.selser.serializeInfo);
+				}
 			};
 		}
 
@@ -2333,7 +2448,8 @@ WSP.serializeDOM = function( node, chunkCB, finalCB, selser ) {
 
 		return chunkCB ? '' : out.join('');
 	} catch (e) {
-		console.warn("e: " + JSON.stringify(e) + "; stack: " + e.stack);
+		console.warn("Error in serializeDOM: " + JSON.stringify(e) + "; stack: " + e.stack);
+		console.warn(e.toString());
 		state.env.errCB(e);
 		throw e;
 	}
@@ -2380,6 +2496,42 @@ function gatherInlineText(buf, node) {
 			return;
 	}
 }
+
+/**
+ * Create and emit separator wikitext between element nodes nodeA and nodeB.
+ * If sepNode is not null, its content will be taken into account. It is
+ * expected to be inter-element whitespace (check with DU.isIEW(node)).
+ *
+ * Uses the following start/end handler callbacks if defined:
+ * startLines(separator, precedingElement) returning [min, max].
+ * endLines(separator) returning min.
+ *
+ * node handlers:
+ * node: {
+ *	handle: function(state, node) {},
+ *		// responsible for calling
+ *	sep: function(node, axis) with axis in
+ *		['before', 'first-child', 'last-child', 'after']
+ *		returning min or [min, max]
+ *	sep: {
+ *		before: function(node)
+ *		after: function(node)
+ *		first_child: function(node)
+ *		last_child: function(node)
+ *	}
+ * }
+ *
+ */
+WSP.handleSeparator = function( nodeA, handlerA, nodeB, handlerB, sepNode, state ) {
+	if ( nodeB.parentNode === nodeA ) {
+		// parent-child separator, nodeA parent of nodeB
+	} else if ( nodeA.parentNode === nodeB ) {
+		// parent-child separator, nodeB parent of nodeA
+	} else {
+		// sibling separator
+	}
+};
+
 
 /**
  * Internal worker. Recursively serialize a DOM subtree by creating tokens and
@@ -2434,6 +2586,10 @@ WSP._serializeDOM = function( node, state ) {
 				tkAttribs = this._getDOMAttribs(node.attributes),
 				tkRTInfo = this._getDOMRTInfo(node.attributes),
 				parentSTX = state.parentSTX;
+
+			// populate node.data.parsoid and node.data['parsoid-serialize']
+			DU.loadDataParsoid(node);
+			DU.loadDataAttrib(node, 'parsoid-serialize', null);
 
 			children = node.childNodes;
 
@@ -2496,97 +2652,123 @@ WSP._serializeDOM = function( node, state ) {
 
 			var serializeInfo = null;
 			if ( state.selser.serializeInfo === null ) {
-				serializeInfo = node.getAttribute( 'data-parsoid-serialize' ) || null;
+				serializeInfo = node.data['parsoid-serialize'];
 				state.selser.serializeInfo = serializeInfo;
 			}
 
-			// Serialize the start token
-			var startToken = new TagTk(name, tkAttribs, tkRTInfo);
-			this._serializeToken(state, startToken);
+			// See if we have a DOM-based handler for this node
+			var domHandler = this.getDOMHandler(state, node, state.chunkCB);
+			if ( domHandler && domHandler.handle ) {
 
-			// Newly created elements/tags in this list inherit their default
-			// syntax from their parent scope
-			var inheritSTXTags = { tbody:1, tr: 1, td: 1, li: 1, dd: 1, dt: 1 },
-				// These reset the inherited syntax no matter what
-				setSTXTags = { table: 1, ul: 1, ol: 1, dl: 1 },
-				// These (and inline elements) reset the default syntax to
-				// undefined
-				noHTMLSTXTags = {p: 1};
-
-			// Set self to parent token if data-parsoid is set
-			if ( Object.keys(tkRTInfo).length > 0 ||
-					setSTXTags[name] ||
-					! inheritSTXTags[name] )
-			{
-				if ( noHTMLSTXTags[name] || ! Util.isBlockTag(name) ) {
-					// Don't inherit stx in these
-					state.parentSTX = undefined;
-				} else {
-					state.parentSTX = tkRTInfo.stx;
-				}
-			}
-
-			// Clear out prevTagToken at each dom level
-			var oldPrevToken = state.prevToken, oldPrevTagToken = state.prevTagToken;
-			state.prevToken = null;
-			state.prevTagToken = null;
-
-			var prevEltChild = null;
-			for (i = 0, n = children.length; i < n; i++) {
-				child = children[i];
-
-				// Ignore -- handled separately
-				if (DU.isMarkerMeta(child, "mw:Separator")) {
-					continue;
+				// Update some state based on the serializer result
+				var stateCB = state.chunkCB, // remember the current cb
+					cbWrapper = function (res, serializeInfo) {
+					if (res) {
+						state.onStartOfLine = res.match(/\n$/) ? true : false;
+					}
+					stateCB(res, serializeInfo);
 				}
 
-				// Skip over comment, white-space text nodes, and tpl-content nodes
-				var nodeType = child.nodeType;
-				if (  nodeType !== Node.COMMENT_NODE &&
-					!(nodeType === Node.TEXT_NODE && child.data.match(/^\s*$/)) &&
-					!(nodeType === Node.ELEMENT_NODE &&
-						state.activeTemplateId &&
-						state.activeTemplateId === child.getAttribute("about"))
-					)
+				// DOM-based serialization
+				domHandler.handle(state, node, cbWrapper);
+
+				// Fake curToken state for token-based handlers. This is then
+				// assigned to prevToken in _serializeToken.
+				state.curToken = new EndTagTk(name, tkAttribs, tkRTInfo);
+				state.prevToken = state.curToken;
+				state.currTagToken = state.curToken;
+				state.prevTagToken = state.curToken;
+			} else {
+				// Token-based serialization
+
+				// Serialize the start token
+				var startToken = new TagTk(name, tkAttribs, tkRTInfo);
+				this._serializeToken(state, startToken);
+
+				// Newly created elements/tags in this list inherit their default
+				// syntax from their parent scope
+				var inheritSTXTags = { tbody:1, tr: 1, td: 1, li: 1, dd: 1, dt: 1 },
+					// These reset the inherited syntax no matter what
+					setSTXTags = { table: 1, ul: 1, ol: 1, dl: 1 },
+					// These (and inline elements) reset the default syntax to
+					// undefined
+					noHTMLSTXTags = {p: 1};
+
+				// Set self to parent token if data-parsoid is set
+				if ( Object.keys(tkRTInfo).length > 0 ||
+						setSTXTags[name] ||
+						! inheritSTXTags[name] )
 				{
-					if (child.nodeType === Node.ELEMENT_NODE) {
-						if (prevEltChild === null) {
-							if (!DU.hasNodeName(node, "pre")) {
-								// extract separator text between node and child;
-								state.emitSeparator(node, child, START_SEP);
-							}
-						} else if (prevEltChild.nodeType === Node.ELEMENT_NODE) {
-							if (!DU.hasNodeName(node, "pre")) {
-								// extract separator text between prevEltChild and child;
-								state.emitSeparator(prevEltChild, child, IE_SEP);
-							}
-						}
+					if ( noHTMLSTXTags[name] || ! Util.isBlockTag(name) ) {
+						// Don't inherit stx in these
+						state.parentSTX = undefined;
+					} else {
+						state.parentSTX = tkRTInfo.stx;
+					}
+				}
+
+				// Clear out prevTagToken at each dom level
+				var oldPrevToken = state.prevToken, oldPrevTagToken = state.prevTagToken;
+				state.prevToken = null;
+				state.prevTagToken = null;
+
+				var prevEltChild = null;
+				for (i = 0, n = children.length; i < n; i++) {
+					child = children[i];
+
+					// Ignore -- handled separately
+					if (DU.isMarkerMeta(child, "mw:Separator")) {
+						continue;
 					}
 
-					prevEltChild = child;
+					// Skip over comment, white-space text nodes, and tpl-content nodes
+					var nodeType = child.nodeType;
+					if (  nodeType !== Node.COMMENT_NODE &&
+						!(nodeType === Node.TEXT_NODE && child.data.match(/^\s*$/)) &&
+						!(nodeType === Node.ELEMENT_NODE &&
+							state.activeTemplateId &&
+							state.activeTemplateId === child.getAttribute("about"))
+						)
+					{
+						if (child.nodeType === Node.ELEMENT_NODE) {
+							if (prevEltChild === null) {
+								if (!DU.hasNodeName(node, "pre")) {
+									// extract separator text between node and child;
+									state.emitSeparator(node, child, START_SEP);
+								}
+							} else if (prevEltChild.nodeType === Node.ELEMENT_NODE) {
+								if (!DU.hasNodeName(node, "pre")) {
+									// extract separator text between prevEltChild and child;
+									state.emitSeparator(prevEltChild, child, IE_SEP);
+								}
+							}
+						}
+
+						prevEltChild = child;
+					}
+
+					this._serializeDOM( children[i], state );
 				}
 
-				this._serializeDOM( children[i], state );
-			}
-
-			if (prevEltChild && prevEltChild.nodeType === Node.ELEMENT_NODE) {
-				// extract separator text between prevEltChild and node
-				if (!DU.hasNodeName(node, "pre")) {
-					state.emitSeparator(prevEltChild, node, END_SEP);
+				if (prevEltChild && prevEltChild.nodeType === Node.ELEMENT_NODE) {
+					// extract separator text between prevEltChild and node
+					if (!DU.hasNodeName(node, "pre")) {
+						state.emitSeparator(prevEltChild, node, END_SEP);
+					}
 				}
-			}
 
-			// Reset parent state
-			state.prevTagToken = oldPrevTagToken;
-			state.prevToken = oldPrevToken;
-			state.parentSTX = parentSTX;
+				// Reset parent state
+				state.prevTagToken = oldPrevTagToken;
+				state.prevToken = oldPrevToken;
+				state.parentSTX = parentSTX;
 
-			// then the end token
-			this._serializeToken(state, new EndTagTk(name, tkAttribs, tkRTInfo));
+				// then the end token
+				this._serializeToken(state, new EndTagTk(name, tkAttribs, tkRTInfo));
 
-			if ( tailSrc ) {
-				// emit the tail
-				state.chunkCB( tailSrc, state.selser.serializeInfo );
+				if ( tailSrc ) {
+					// emit the tail
+					state.chunkCB( tailSrc, state.selser.serializeInfo );
+				}
 			}
 
 			if ( serializeInfo !== null ) {

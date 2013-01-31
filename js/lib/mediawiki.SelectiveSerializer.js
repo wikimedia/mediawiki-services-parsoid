@@ -424,12 +424,16 @@ SSP.handleSerializedResult = function( res, dpsSource ) {
 		// TODO: push unmodified source up to separator from
 		// data-parsoid-serialize dsr data
 		var dps = {};
-		try {
-			// Try to decode data-parsoid-serialize
-			dps = JSON.parse(dpsSource);
-		} catch (e) {
-			console.error('Error decoding dps ' + dpsSource);
-			console.trace();
+		if (dpsSource instanceof Object) {
+			dps = dpsSource;
+		} else {
+			try {
+				// Try to decode data-parsoid-serialize
+				dps = JSON.parse(dpsSource);
+			} catch (e) {
+				console.error('Error decoding dps ' + dpsSource);
+				console.trace();
+			}
 		}
 
 
