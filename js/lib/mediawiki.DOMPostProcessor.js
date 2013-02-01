@@ -711,28 +711,31 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 	var elem = endElem;
 	var parentNode = endElem.parentNode,
 	    firstSibling, lastSibling;
-	var res = null;
+	var range = null;
 	while (parentNode && parentNode.nodeType !== Node.DOCUMENT_NODE) {
 		var i = startAncestors.indexOf( parentNode );
+		var tsr0 = DU.dataParsoid(startElem).tsr[0];
 		if (i === 0) {
 			// widen the scope to include the full subtree
-			res = {
+			range = {
 				'root': startElem,
-				startOffset: DU.dataParsoid(startElem).tsr[0],
 				startElem: startElem,
 				endElem: endMeta,
 				start: startElem.firstChild,
-				end: startElem.lastChild
+				end: startElem.lastChild,
+				id: env.stripIdPrefix(startElem.getAttribute("about")),
+				startOffset: tsr0
 			};
 			break;
 		} else if ( i > 0) {
-			res = {
+			range = {
 				'root': parentNode,
-				startOffset: DU.dataParsoid(startElem).tsr[0],
 				startElem: startElem,
 				endElem: endMeta,
 				start: startAncestors[i - 1],
-				end: elem
+				end: elem,
+				id: env.stripIdPrefix(startElem.getAttribute("about")),
+				startOffset: tsr0
 			};
 			break;
 		}
@@ -741,12 +744,12 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 	}
 
 	var updateDP = false;
-	var tcStart = res.start;
+	var tcStart = range.start;
 
 	// Skip meta-tags
 	if (startElemIsMeta && tcStart === startElem) {
 		tcStart = tcStart.nextSibling;
-		res.start = tcStart;
+		range.start = tcStart;
 		updateDP = true;
 	}
 
@@ -761,11 +764,11 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 		var tcStartPar = tcStart.parentNode;
 		if (tcStartPar.firstChild === startElem &&
 			tcStartPar.lastChild === endElem &&
-			res.end.parentNode === tcStartPar)
+			range.end.parentNode === tcStartPar)
 		{
 			if (DU.hasNodeName(tcStartPar, 'p') && !DU.isLiteralHTMLNode(tcStartPar)) {
 				tcStart = tcStartPar;
-				res.end = tcStartPar;
+				range.end = tcStartPar;
 				skipSpan = true;
 			}
 		}
@@ -777,7 +780,7 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 			span.appendChild(tcStart);
 			tcStart = span;
 		}
-		res.start = tcStart;
+		range.start = tcStart;
 		updateDP = true;
 	}
 
@@ -800,14 +803,17 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 		}
 	}
 
-	return res;
+	if (!DU.inSiblingOrder(range.start, range.end)) {
+		// In foster-parenting situations, the end-meta tag (and hence r.end)
+		// can show up before the r.start which would be the table itself.
+		// So, we record this info for later analysis
+		range.flipped = true;
+	}
+
+	return range;
 }
 
-/**
- * TODO: split in common ancestor algo, sibling splicing and -annotation /
- * wrapping
- */
-function encapsulateTemplates( env, doc, tplRanges) {
+function findToplevelNonoverlappingRanges(env, document, tplRanges) {
 	function stripStartMeta(meta) {
 		if (DU.hasNodeName(meta, 'meta')) {
 			deleteNode(meta);
@@ -819,95 +825,142 @@ function encapsulateTemplates( env, doc, tplRanges) {
 		}
 	}
 
-	function arraysIntersect(a1, a2) {
-		// a1 and a2 are arrays of nodes.
-		// We cannot use DOM nodes as hash keys
-		// So for now, just rely on nested array check
-		var i, j, m = a1.length, n = a2.length;
-		for (i = 0; i < m; i++) {
-			for (j = 0; j < n; j++) {
-				if (a1[i] === a2[j]) {
-					return true;
+	var i, r, n, e, tpls;
+	var numRanges = tplRanges.length;
+
+	// For each node, assign an attribute that is a record of all
+	// tpl ranges it belongs to at the top-level
+	//
+	// FIXME: Ideally we would have used a hash-table external to the
+	// DOM, but we have no way of computing a hash-code on a dom-node
+	// right now.  So, this is the next best solution (=hack) to use
+	// dom-attrs as hash-table storage.
+	for (i = 0; i < numRanges; i++) {
+		r = tplRanges[i];
+		n = !r.flipped ? r.start : r.end;
+		e = !r.flipped ? r.end : r.start;
+
+		while (n) {
+			if (DU.isElt(n)) {
+				tpls = n.getAttribute("data-tpl-ranges") || "";
+				n.setAttribute("data-tpl-ranges", tpls + " " + r.id);
+
+				// Done
+				if (n === e) {
+					break;
 				}
 			}
-		}
 
-		return false;
+			n = n.nextSibling;
+		}
 	}
 
-	// 0. Sort by start offset in source wikitext
-	tplRanges.sort(function(r1, r2) { return r1.startOffset - r2.startOffset; });
+	// For each range r:(s, e), walk up from s --> root and if if any of
+	// these nodes have tpl-ranges (besides r itself) assigned to them,
+	// then r is nested in those other templates and can be ignored.
+	var nestedRangesMap = {};
+	var docBody = document.body;
+	for (i = 0; i < numRanges; i++) {
+		r = tplRanges[i];
+		n = r.start;
 
-	// 1. Merge overlapping template ranges
-	var newRanges = [];
-	var i, numRanges = tplRanges.length;
+		while (n !== docBody) {
+			tpls = n.getAttribute("data-tpl-ranges");
+			if (tpls) {
+				var tplArray = tpls.split(' ');
+				tplArray.shift(); // remove the leading white-space
+				if (n !== r.start) {
+					// 'r' is nested for sure
+					// console.warn("1. nested: tpls: " + tpls);
+					nestedRangesMap[r.id] = true;
+					break;
+				} else {
+					// n === r.start
+					var e_tpls = r.end.getAttribute("data-tpl-ranges");
+					if (e_tpls === tpls && (tplArray.length > 1 || tplArray[0] !== r.id)) {
+						// 'r' is nested
+						// console.warn("2. nested: tpls: " + tpls + "; e_tpls: " + e_tpls);
+						nestedRangesMap[r.id] = true;
+						break;
+					}
+				}
+			}
+
+			// Move up
+			n = n.parentNode;
+		}
+	}
+
+	// Clear the temporary data-tpl-ranges attribute
+	for (i = 0; i < numRanges; i++) {
+		r = tplRanges[i];
+		n = !r.flipped ? r.start : r.end;
+		e = !r.flipped ? r.end : r.start;
+
+		while (n) {
+			if (DU.isElt(n)) {
+				n.removeAttribute("data-tpl-ranges");
+				if (n === e) {
+					break;
+				}
+			}
+			n = n.nextSibling;
+		}
+	}
+
+	// Sort by start offset in source wikitext
+	tplRanges.sort(function(r1, r2) { return r1.startOffset - r2.startOffset; });
 
 	// Since the tpl ranges are sorted in textual order (by start offset),
 	// it is sufficient to only look at the most recent template to see
-	// if the current one overlaps with it.
+	// if the current one overlaps with the previous one.
 	//
-	// However, if <prev.start, prev.end> (can have a wider DOM range
-	// than the template meta-tags) completely nests the content of
-	// <r.start, r.end>, we have to handle this scenario specially.
-	// We strip r's meta-tags and skip it completely.
-	var prev = null;
+	// This works because we've already identify nested ranges and can
+	// ignore them.
+
+	var newRanges = [],
+		prev = null;
+
 	for (i = 0; i < numRanges; i++) {
 		var endTagToRemove = null,
-			startTagToStrip = null,
-			r = tplRanges[i];
-/**
-		console.warn("##############################################");
-		console.warn("range " + i + "; r-start-elem: " + r.startElem.outerHTML);
-		console.warn("range " + i + "; r-end-elem: " + r.endElem.outerHTML);
-		console.warn("-----------------------------");
-		console.warn("range " + i + "; r-start: " + r.start.innerHTML);
-		console.warn("-----------------------------");
-		console.warn("range " + i + "; r-end: " + r.end.innerHTML);
-		console.warn("-----------------------------");
-*/
-		if (!prev) {
-			// First range -- nothing to do
-			newRanges.push(r);
-			prev = r;
-		} else if (r.start === prev.end && DU.inSiblingOrder(r.start, r.end)) {
-			// Overlapping ranges.  Merge r with prev
+			startTagToStrip = null;
+
+		r = tplRanges[i];
+
+		/*
+		if (!nestedRangesMap[r.id]) {
+			console.warn("##############################################");
+			console.warn("range " + i + "; r-start-elem: " + r.startElem.outerHTML);
+			console.warn("range " + i + "; r-end-elem: " + r.endElem.outerHTML);
+			console.warn("-----------------------------");
+			console.warn("range " + i + "; r-start: " + r.start.innerHTML);
+			console.warn("-----------------------------");
+			console.warn("range " + i + "; r-end: " + r.end.innerHTML);
+			console.warn("-----------------------------");
+		}
+		*/
+
+		if (nestedRangesMap[r.id]) {
+			// Nested -- ignore
+			startTagToStrip = r.startElem;
+			endTagToRemove = r.endElem;
+		} else if (prev && !r.flipped && r.start === prev.end) {
+			// Overlapping ranges.
+			// r is the regular kind
+			// Merge r with prev
 			//
-			// Because of foster-parenting, in some situations,
-			// 'r.start' can occur after 'r.end'.  If yes, 'r' is
-			// nested inside 'prev' and no fixup should be done.
-			// Hence the check to see if r.end shows up after r.end
+			// SSS FIXME: What if r is the flipped kind?
+			// Does that require special treatment?
 
 			startTagToStrip = r.startElem;
 			endTagToRemove = prev.endElem;
 
 			prev.end = r.end;
 			prev.endElem = r.endElem;
-		} else if (r.start === prev.end || r.start === prev.start) {
-			// Simple nesting cases -- including foster-parenting case above.
-
-			// Range 'r' is nested inside of range 'prev'
-			// Skip 'r' completely.
-			startTagToStrip = r.startElem;
-			endTagToRemove = r.endElem;
 		} else {
-			// Generic nesting cases
-			var rPath = DU.pathToRoot(r.start);
-			var siblings = DU.pathToSibling(prev.start, prev.end);
-			siblings.push(prev.end);
-
-			// Find if there is an intersection between the two arrays.
-			// If yes, we merge the 2 ranges since 'r' is considered
-			// completely nested inside 'prev'.
-			if (arraysIntersect(rPath, siblings)) {
-				// Range 'r' is nested inside of range 'prev'
-				// Skip 'r' completely.
-				startTagToStrip = r.startElem;
-				endTagToRemove = r.endElem;
-			} else {
-				// Default case -- no overlap or nesting
-				newRanges.push(r);
-				prev = r;
-			}
+			// Default -- no overlap
+			newRanges.push(r);
+			prev = r;
 		}
 
 		if (endTagToRemove) {
@@ -918,15 +971,22 @@ function encapsulateTemplates( env, doc, tplRanges) {
 		}
 	}
 
-	// 2. Wrap templates
-	numRanges = newRanges.length;
+	return newRanges;
+}
+
+/**
+ * TODO: split in common ancestor algo, sibling splicing and -annotation / wrapping
+ */
+function encapsulateTemplates( env, doc, tplRanges) {
+	var i, numRanges = tplRanges.length;
 	for (i = 0; i < numRanges; i++) {
 		var span,
-			range = newRanges[i],
+			range = tplRanges[i],
+			n = !range.flipped ? range.start : range.end,
+			e = !range.flipped ? range.end : range.start,
 			startElem = range.startElem,
-			n = range.start,
 			about = startElem.getAttribute('about');
-		//console.log ( 'HTML of template-affected subtrees: ' );
+
 		while (n) {
 			var next = n.nextSibling;
 
@@ -942,8 +1002,7 @@ function encapsulateTemplates( env, doc, tplRanges) {
 				n.setAttribute( 'about', about );
 			}
 
-			//console.log ( str.replace(/(^|\n)/g, "$1 " ) );
-			if ( n === range.end ) {
+			if ( n === e ) {
 				break;
 			}
 
@@ -1011,6 +1070,7 @@ function encapsulateTemplates( env, doc, tplRanges) {
 					dp1.dsr[0] = endDsr;
 				}
 			}
+
 			if (dp1.dsr[0] !== null && dp1.dsr[1] !== null) {
 				dp1.src = env.page.src.substring( dp1.dsr[0], dp1.dsr[1] );
 				DU.setDataParsoid(tcStart, dp1);
@@ -1018,25 +1078,13 @@ function encapsulateTemplates( env, doc, tplRanges) {
 			}
 		}
 
-/*
 		if (!done) {
-			console.warn("Do not have necessary info. for comput DSR for node");
-			console.warn("------ START: ------");
-			console.warn(tcStart.innerHTML);
-			console.warn("------ END: ------");
-			console.warn(tcEnd.innerHTML);
+			console.warn("ERROR: Do not have necessary info. to RT Tpl: " + i);
+			console.warn("Start Elt : " + startElem.outerHTML);
+			console.warn("End Elt   : " + range.endElem.innerHTML);
+			console.warn("Start DSR : " + JSON.stringify(dp1 || {}));
+			console.warn("End   DSR : " + JSON.stringify(dp2 || {}));
 		}
-
-		// Compute 'src' value by ascending up the tree
-		// * from startElem -> tcStart
-		// * from endElem --> tcEnd
-		if (!done) {
-			var dsr = JSON.parse(startElem.getAttribute("data-parsoid")).dsr;
-			var src = [env.page.src.substr(dsr[0], dsr[1])];
-			while (!done) {
-			}
-		}
-***/
 
 		// remove start/end
 		if (DU.hasNodeName(startElem, "meta"))  {
@@ -1098,7 +1146,11 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 			var type = elem.getAttribute( 'typeof' ),
 				// SSS FIXME: This regexp differs from that in isTplMetaType
 				metaMatch = type ? type.match( /\b(mw:Object(?:\/[^\s]+|\b))/ ) : null;
-			if ( metaMatch && DU.dataParsoid(elem).tsr) {
+
+			// Ignore templates without tsr -- these are definitely nested
+			// in other templates / extensions and need not be wrapped
+			// themselves since they can never be edited directly.
+			if ( metaMatch && DU.dataParsoid(elem).tsr ) {
 				var metaType = metaMatch[1];
 
 				about = elem.getAttribute('about'),
@@ -1834,6 +1886,7 @@ function encapsulateTemplateOutput( document, env ) {
 	// walk through document and look for tags with typeof="mw:Object*"
 	var tplRanges = findWrappableTemplateRanges( document.body, tpls, document, env );
 	if (tplRanges.length > 0) {
+		tplRanges = findToplevelNonoverlappingRanges(env, document, tplRanges);
 		encapsulateTemplates(env, document, tplRanges);
 	}
 }
