@@ -163,14 +163,21 @@ PegTokenizer.prototype.processImageOptions = function( text ) {
 };
 
 /**
- * Tokenize a URL
+ * Tokenize via a production passed in as an arg
  */
-PegTokenizer.prototype.tokenizeURL = function( text ) {
+PegTokenizer.prototype.tokenize = function( text, production ) {
 	try {
-		return this.tokenizer.tokenize(text, 'url', null, this );
+		return this.tokenizer.tokenize(text, production, null, this );
 	} catch ( e ) {
 		return false;
 	}
+};
+
+/**
+ * Tokenize a URL
+ */
+PegTokenizer.prototype.tokenizeURL = function( text ) {
+	return this.tokenize(text, "url");
 };
 
 /*

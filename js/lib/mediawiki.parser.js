@@ -28,6 +28,7 @@ var $ = require('jquery'),
 	OnlyInclude	= NoIncludeOnly.OnlyInclude,
 	ExtensionContent = require('./ext.ExtensionContentCollector.js').ExtensionContent,
 	QuoteTransformer = require('./ext.core.QuoteTransformer.js').QuoteTransformer,
+	TokenStreamPatcher = require('./ext.core.TokenStreamPatcher.js').TokenStreamPatcher,
 	PreHandler = require('./ext.core.PreHandler.js').PreHandler,
 	ParagraphWrapper = require('./ext.core.ParagraphWrapper.js').ParagraphWrapper,
 	Sanitizer = require('./ext.core.Sanitizer.js').Sanitizer,
@@ -64,6 +65,7 @@ function ParserPipelineFactory ( env ) {
 
 // These handlers are used in two different recipes
 var postExpansionHandlers = [
+	TokenStreamPatcher,	    // 2.001 -- 2.003
 		// add <pre>s
 	PreHandler,				// 2.051 -- 2.054
 	QuoteTransformer,		// 2.1
