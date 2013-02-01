@@ -1147,10 +1147,18 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 				// SSS FIXME: This regexp differs from that in isTplMetaType
 				metaMatch = type ? type.match( /\b(mw:Object(?:\/[^\s]+|\b))/ ) : null;
 
-			// Ignore templates without tsr -- these are definitely nested
-			// in other templates / extensions and need not be wrapped
-			// themselves since they can never be edited directly.
-			if ( metaMatch && DU.dataParsoid(elem).tsr ) {
+			// Ignore templates without tsr.
+			//
+			// These are definitely nested in other templates / extensions
+			// and need not be wrapped themselves since they
+			// can never be edited directly.
+			//
+			// NOTE: We are only testing for tsr presence on the start-elem
+			// because wikitext errors can lead to parse failures and no tsr
+			// on end-meta-tags.
+			//
+			// Ex: "<ref>{{echo|bar}}<!--bad-></ref>"
+			if (metaMatch && (DU.dataParsoid(elem).tsr || type.match(/\/End\b/))) {
 				var metaType = metaMatch[1];
 
 				about = elem.getAttribute('about'),
