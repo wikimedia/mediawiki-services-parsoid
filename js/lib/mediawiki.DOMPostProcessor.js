@@ -813,7 +813,7 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 	return range;
 }
 
-function findToplevelNonoverlappingRanges(env, document, tplRanges) {
+function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 	function stripStartMeta(meta) {
 		if (DU.hasNodeName(meta, 'meta')) {
 			deleteNode(meta);
@@ -825,7 +825,7 @@ function findToplevelNonoverlappingRanges(env, document, tplRanges) {
 		}
 	}
 
-	var i, r, n, e, tpls;
+	var i, r, n, e;
 	var numRanges = tplRanges.length;
 
 	// For each node, assign an attribute that is a record of all
@@ -834,7 +834,7 @@ function findToplevelNonoverlappingRanges(env, document, tplRanges) {
 	// FIXME: Ideally we would have used a hash-table external to the
 	// DOM, but we have no way of computing a hash-code on a dom-node
 	// right now.  So, this is the next best solution (=hack) to use
-	// dom-attrs as hash-table storage.
+	// node.data as hash-table storage.
 	for (i = 0; i < numRanges; i++) {
 		r = tplRanges[i];
 		n = !r.flipped ? r.start : r.end;
@@ -842,8 +842,24 @@ function findToplevelNonoverlappingRanges(env, document, tplRanges) {
 
 		while (n) {
 			if (DU.isElt(n)) {
-				tpls = n.getAttribute("data-tpl-ranges") || "";
-				n.setAttribute("data-tpl-ranges", tpls + " " + r.id);
+				// Initialize n.data.tmp_tplRanges, if necessary
+				if (!n.data) {
+					n.data = {};
+				}
+				// Use a "_tmp" prefix on tplRanges so that it doesn't
+				// get serialized out as a data-attribute by utility
+				// methods on the DOM -- the prefix will be a signal
+				// to the method to not serialize it.  This data on the
+				// DOM nodes is purely temporary and doesn't need to
+				// persist beyond this pass.
+				var tpls = n.data.tmp_tplRanges;
+				if (!tpls) {
+					tpls = {};
+					n.data = { tmp_tplRanges : tpls };
+				}
+
+				// Record 'r'
+				tpls[r.id] = true;
 
 				// Done
 				if (n === e) {
@@ -865,21 +881,36 @@ function findToplevelNonoverlappingRanges(env, document, tplRanges) {
 		n = r.start;
 
 		while (n !== docBody) {
-			tpls = n.getAttribute("data-tpl-ranges");
-			if (tpls) {
-				var tplArray = tpls.split(' ');
-				tplArray.shift(); // remove the leading white-space
+			if (n.data && n.data.tmp_tplRanges) {
 				if (n !== r.start) {
 					// 'r' is nested for sure
-					// console.warn("1. nested: tpls: " + tpls);
+					// console.warn("1. nested: tpls: " + s_tpls);
 					nestedRangesMap[r.id] = true;
 					break;
 				} else {
 					// n === r.start
-					var e_tpls = r.end.getAttribute("data-tpl-ranges");
-					if (e_tpls === tpls && (tplArray.length > 1 || tplArray[0] !== r.id)) {
+					//
+					// We have to make sure this is not an overlap scenario.
+					// Find the ranges that r.start and r.end belong to and
+					// compute their intersection.  If this intersection has
+					// another tpl range besides r itself, we have a winner!
+					//
+					// The code below does the above check efficiently.
+					var s_tpls = r.start.data.tmp_tplRanges,
+						e_tpls = r.end.data.tmp_tplRanges,
+						s_keys = Object.keys(s_tpls),
+						foundIntersection = false;
+
+					for (var j = 0; j < s_keys.length; j++) {
+						if (s_keys[j] !== r.id && e_tpls[s_keys[j]]) {
+							foundIntersection = true;
+							break;
+						}
+					}
+
+					if (foundIntersection) {
 						// 'r' is nested
-						// console.warn("2. nested: tpls: " + tpls + "; e_tpls: " + e_tpls);
+						// console.warn("2. nested: tpls: " + Object.keys(s_tpls) + "; e_tpls: " + e_tpls);
 						nestedRangesMap[r.id] = true;
 						break;
 					}
@@ -888,23 +919,6 @@ function findToplevelNonoverlappingRanges(env, document, tplRanges) {
 
 			// Move up
 			n = n.parentNode;
-		}
-	}
-
-	// Clear the temporary data-tpl-ranges attribute
-	for (i = 0; i < numRanges; i++) {
-		r = tplRanges[i];
-		n = !r.flipped ? r.start : r.end;
-		e = !r.flipped ? r.end : r.start;
-
-		while (n) {
-			if (DU.isElt(n)) {
-				n.removeAttribute("data-tpl-ranges");
-				if (n === e) {
-					break;
-				}
-			}
-			n = n.nextSibling;
 		}
 	}
 
@@ -1169,8 +1183,8 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 						aboutRef.start = elem;
 						// content or end marker existed already
 						if ( aboutRef.end ) {
-							// End marker was foster-parented. Found actual
-							// start tag.
+							// End marker was foster-parented.
+							// Found actual start tag.
 							console.warn( 'end marker was foster-parented' );
 							tplRanges.push(getDOMRange( env, doc, elem, aboutRef.end, aboutRef.end ));
 						} else {
@@ -1894,7 +1908,7 @@ function encapsulateTemplateOutput( document, env ) {
 	// walk through document and look for tags with typeof="mw:Object*"
 	var tplRanges = findWrappableTemplateRanges( document.body, tpls, document, env );
 	if (tplRanges.length > 0) {
-		tplRanges = findToplevelNonoverlappingRanges(env, document, tplRanges);
+		tplRanges = findTopLevelNonOverlappingRanges(env, document, tplRanges);
 		encapsulateTemplates(env, document, tplRanges);
 	}
 }
