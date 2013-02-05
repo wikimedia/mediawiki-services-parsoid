@@ -58,6 +58,7 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 	var state = { token: token };
 	if (this.options.wrapTemplates) {
 		state.wrapperType = 'mw:Object/Template';
+		// state.recordArgDict = true;
 		state.wrappedObjectId = this.manager.env.newObjectId();
 		state.emittedFirstChunk = false;
 	}
@@ -67,8 +68,9 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 		if ( this.options.wrapTemplates ) {
 			// Use MediaWiki's action=expandtemplates preprocessor
 			var text = token.getWTSource( this.manager.env ),
+				templateName = this.resolveTemplateTarget(token.attribs[0].k || '').target || "",
 				srcHandler = this._processTemplateAndTitle.bind( this, state, frame,
-						cb, text, [] );
+						cb, templateName, [] );
 			//console.log( text );
 			cb( { async: true } );
 			this.fetchExpandedTplOrExtension( this.manager.env.page.name || '',
@@ -105,30 +107,70 @@ TemplateHandler.prototype._parserFunctionsWrapper = function(state, cb, ret) {
 	}
 };
 
-TemplateHandler.prototype.targetToString = function ( tokens ) {
-	var maybeTarget = Util.tokensToString( tokens, true );
-	if ( maybeTarget.constructor === Array ) {
-		for ( var i = 0, l = maybeTarget[1].length; i < l; i++ ) {
-			var ntt = maybeTarget[1][0];
-			var nonTextTokenCons = ntt.constructor;
-			if ( nonTextTokenCons === TagTk ||
-					nonTextTokenCons === SelfclosingTagTk ||
-					nonTextTokenCons === EndTagTk )
-			{
-				if (ntt.name !== 'meta' ||
-						!ntt.getAttribute("typeof") ||
-						!ntt.getAttribute("typeof").match(/mw:/))
+TemplateHandler.prototype.resolveTemplateTarget = function ( targetToks ) {
+
+	function isConvertibleToString( tokens ) {
+		var maybeTarget = Util.tokensToString( tokens, true );
+		if ( maybeTarget.constructor === Array ) {
+			for ( var i = 0, l = maybeTarget[1].length; i < l; i++ ) {
+				var ntt = maybeTarget[1][0];
+				var nonTextTokenCons = ntt.constructor;
+				if ( nonTextTokenCons === TagTk ||
+						nonTextTokenCons === SelfclosingTagTk ||
+						nonTextTokenCons === EndTagTk )
 				{
-					return null;
+					if (ntt.name !== 'meta' ||
+							!ntt.getAttribute("typeof") ||
+							!ntt.getAttribute("typeof").match(/mw:/))
+					{
+						return false;
+					}
 				}
 			}
+
+			return true;
+		} else {
+			return true;
 		}
-		// No tag tokens, strip comments and newlines
-		return Util.tokensToString(tokens).trim();
-	} else {
-		// Only string
-		return maybeTarget.trim();
 	}
+
+	var env = this.manager.env;
+
+	// Convert the target to a string while stripping all non-text tokens
+	var target = Util.tokensToString(targetToks).trim();
+
+	// strip subst for now.
+	target = target.replace( /^(safe)?subst:/, '' );
+
+	// Check if we have a parser function
+	var prefix = target.split(':', 1)[0].trim();
+	var lowerPrefix = prefix.toLowerCase();
+	var translatedPrefix = env.conf.wiki.magicWords[prefix] || env.conf.wiki.magicWords[lowerPrefix] || lowerPrefix;
+	if ( translatedPrefix && 'pf_' + translatedPrefix in this.parserFunctions ) {
+		return {
+			isPF: true,
+			prefix: prefix,
+			target: 'pf_' + translatedPrefix,
+			pfArg: target.substr( prefix.length + 1 )
+		};
+	}
+
+	// We are dealing with a real template, not a parser function.
+	// Apply more stringent standards for template targets.
+	if (isConvertibleToString(targetToks)) {
+		// We can use the stringified target tokens
+
+		// Normalize the target before template processing
+		// preserve the leading colon in the target
+		target = env.normalizeTitle( target, false, true );
+
+		// Resolve a possibly relative link
+		target = env.resolveTitle(target, 'Template');
+	} else {
+		target = null;
+	}
+
+	return { isPF: false, target: target };
 };
 
 
@@ -138,65 +180,10 @@ TemplateHandler.prototype.targetToString = function ( tokens ) {
  */
 TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs ) {
 
-	//console.warn('TemplateHandler.expandTemplate: ' +
-	//		JSON.stringify( tplExpandData, null, 2 ) );
-	var env = this.manager.env,
-		target = attribs[0].k,
-		self = this;
-
-	if ( ! target ) {
-		env.ap( 'No target! ', attribs );
-		console.trace();
-	}
-
-	// TODO:
-	// check for 'subst:'
-	// check for variable magic names
-	// check for msg, msgnw, raw magics
-	// check for parser functions
-
-
-	//var args = Util.KVtoHash( tplExpandData.expandedArgs );
-
-	// Convert the target to a string while stripping all non-text tokens
-	target = Util.tokensToString(target);
-
-	// strip subst for now.
-	target = target.replace( /^(safe)?subst:/, '' );
-
-	// XXX: wrap attribs in object with .dict() and .named() methods,
-	// and each member (key/value) into object with .tokens(), .dom() and
-	// .wikitext() methods (subclass of Array)
-
-	var prefix = target.split(':', 1)[0].trim();
-	var lowerPrefix = prefix.toLowerCase();
-	var translatedPrefix = env.conf.wiki.magicWords[prefix] || env.conf.wiki.magicWords[lowerPrefix] || lowerPrefix;
-	if ( translatedPrefix && 'pf_' + translatedPrefix in this.parserFunctions ) {
-		var pfAttribs = new Params( env, attribs );
-		pfAttribs[0] = new KV( target.substr( prefix.length + 1 ), [] );
-		//env.dp( 'func prefix/args: ', prefix,
-		//		tplExpandData.expandedArgs,
-		//		'unnamedArgs', tplExpandData.origToken.attribs,
-		//		'funcArg:', funcArg
-		//		);
-		env.dp( 'entering prefix', target, state.token  );
-		var newCB;
-		if (this.options.wrapTemplates) {
-			newCB = this._parserFunctionsWrapper.bind(this, state, cb);
-		} else {
-			newCB = cb;
-		}
-		this.parserFunctions['pf_' + translatedPrefix](state.token, this.manager.frame, newCB, pfAttribs);
-		return;
-	}
-
-	// We are dealing with a real template, not a parser function.
-	// Apply more stringent standards for template targets.
-	target = this.targetToString(attribs[0].k);
-	if ( target === null ) {
-		// Target contains tags, convert template braces and pipes back into text
-		// Re-join attribute tokens with '=' and '|'
+	function convertAttribsToString(attribs, cb) {
 		cb( { async: true } );
+
+		// Re-join attribute tokens with '=' and '|'
 		Util.expandParserValueValues (
 				attribs,
 				function ( expandedAttrs ) {
@@ -230,27 +217,59 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 					cb( { tokens: tokens } );
 				}
 		);
+	}
+
+	var env = this.manager.env,
+		target = attribs[0].k,
+		self = this;
+
+	if ( ! target ) {
+		env.ap( 'No target! ', attribs );
+		console.trace();
+	}
+
+	var resolvedTgt = this.resolveTemplateTarget(target);
+	target = resolvedTgt.target;
+
+	// TODO:
+	// check for 'subst:'
+	// check for variable magic names
+	// check for msg, msgnw, raw magics
+	// check for parser functions
+
+	// XXX: wrap attribs in object with .dict() and .named() methods,
+	// and each member (key/value) into object with .tokens(), .dom() and
+	// .wikitext() methods (subclass of Array)
+
+	if ( resolvedTgt.isPF ) {
+		var pfAttribs = new Params( env, attribs );
+		pfAttribs[0] = new KV( resolvedTgt.pfArg, [] );
+		env.dp( 'entering prefix', target, state.token  );
+		var newCB;
+		if (this.options.wrapTemplates) {
+			newCB = this._parserFunctionsWrapper.bind(this, state, cb);
+		} else {
+			newCB = cb;
+		}
+		state.tokenTarget = target;
+		this.parserFunctions[target](state.token, this.manager.frame, newCB, pfAttribs);
 		return;
 	}
-	// strip subst for now.
-	target = target.replace( /^(safe)?subst:/, '' );
-	env.tp( 'template target: ' + target );
 
-	// now normalize the target before template processing
-	target = env.normalizeTitle( target, false,
-			// preserve the leading colon in the target
-			true );
+	if ( target === null ) {
+		// Target contains tags, convert template braces and pipes back into text
+		// Re-join attribute tokens with '=' and '|'
+		convertAttribsToString(attribs, cb);
+		return;
+	}
 
-	// Resolve a possibly relative link
-	var templateName = env.resolveTitle(target, 'Template');
-
-	var checkRes = this.manager.frame.loopAndDepthCheck( templateName, env.conf.parsoid.maxDepth );
+	var checkRes = this.manager.frame.loopAndDepthCheck( target, env.conf.parsoid.maxDepth );
 	if( checkRes ) {
 		// Loop detected or depth limit exceeded, abort!
 		var res = [
 				checkRes,
 				new TagTk( 'a', [{k: 'href', v: target}] ),
-				templateName,
+				target,
 				new EndTagTk( 'a' )
 			];
 		res.rank = this.manager.phaseEndRank;
@@ -269,9 +288,9 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 	// For now, just fetch the template and pass the callback for further
 	// processing along.
 	this._fetchTemplateAndTitle(
-			templateName,
+			target,
 			cb,
-			this._processTemplateAndTitle.bind( this, state, frame, cb, templateName, attribs )
+			this._processTemplateAndTitle.bind( this, state, frame, cb, target, attribs )
 		);
 };
 
@@ -308,6 +327,7 @@ TemplateHandler.prototype._processTemplateAndTitle = function( state, frame, cb,
 			);
 
 	pipeline.setFrame( this.manager.frame, name, attribs );
+	state.tokenTarget = name;
 
 	// Hook up the inputPipeline output events to our handlers
 	pipeline.addListener( 'chunk', this._onChunk.bind ( this, state, cb ) );
@@ -341,9 +361,27 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 	// * ref all tables to this (just add about)
 	// * ref end token to this, add property="mw:Object/Template/End"
 
-	var tsr = state.token.dataAttribs.tsr;
-	var src = state.token.getWTSource(this.manager.env);
-	var done = false;
+	var done = false,
+		attrs = [
+			new KV('typeof', state.wrapperType),
+			new KV('about', '#' + state.wrappedObjectId),
+			new KV('id', state.wrappedObjectId)
+		],
+		dataParsoid = {
+			tsr: Util.clone(state.token.dataAttribs.tsr),
+			src: state.token.getWTSource(this.manager.env)
+		};
+
+	/*
+	if (state.recordArgDict) {
+		dataParsoid.argInfo = {
+			id: state.wrapperObjectId,
+			target: state.tokenTarget,
+			params: state.token.attribs.slice(1)
+		};
+	}
+	*/
+
 	if ( chunk.length ) {
 		var firstToken = chunk[0];
 		if ( firstToken.constructor === String ) {
@@ -353,17 +391,7 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 				stringTokens.push( chunk.shift() );
 			}
 			// Wrap in span with info
-			var span = new TagTk( 'span',
-						[
-							new KV('typeof', state.wrapperType),
-							new KV('about', '#' + state.wrappedObjectId),
-							new KV('id', state.wrappedObjectId)
-						],
-						{
-							tsr: Util.clone(tsr),
-							src: src
-						}
-					);
+			var span = new TagTk( 'span', attrs, dataParsoid );
 			chunk = [span].concat(stringTokens, [ new EndTagTk( 'span' ) ], chunk);
 			done = true;
 		}
@@ -371,15 +399,7 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 
 	if (!done) {
 		// add meta tag
-		var mtag = new SelfclosingTagTk( 'meta', [
-					new KV( 'about', '#' + state.wrappedObjectId ),
-					new KV( 'typeof', state.wrapperType ),
-					new KV('id', state.wrappedObjectId)
-				], {
-					tsr: Util.clone(tsr),
-					src: src
-				});
-		chunk = [mtag].concat(chunk);
+		chunk = [new SelfclosingTagTk( 'meta', attrs, dataParsoid )].concat(chunk);
 	}
 
 	// add about ref to all tables
@@ -570,7 +590,7 @@ TemplateHandler.prototype.onTemplateArg = function (token, frame, cb) {
 			toks = tplHandler.addEncapsulationInfo(state, toks);
 			toks.push(tplHandler.getEncapsulationInfoEndTag(state));
 			cb( {tokens: toks});
-		}
+		};
 	} else {
 		newCB = cb;
 	}

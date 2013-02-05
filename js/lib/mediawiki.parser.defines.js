@@ -555,6 +555,8 @@ function Params ( env, params ) {
 	for (var i = 0; i < params.length; i++) {
 		this.push( params[i] );
 	}
+	this.argDict = null;
+	this.namedArgsDict = null;
 }
 
 Params.prototype = [];
@@ -566,40 +568,48 @@ Params.prototype.toString = function () {
 };
 
 Params.prototype.dict = function () {
-	var res = {};
-	for ( var i = 0, l = this.length; i < l; i++ ) {
-		var kv = this[i],
-			key = Util.tokensToString( kv.k ).trim();
-		res[key] = kv.v;
+	if (this.argDict === null) {
+		var res = {};
+		for ( var i = 0, l = this.length; i < l; i++ ) {
+			var kv = this[i],
+				key = Util.tokensToString( kv.k ).trim();
+			res[key] = kv.v;
+		}
+		this.argDict = res;
 	}
-	return res;
+
+	return this.argDict;
 };
 
 Params.prototype.named = function () {
-	var n = 1,
-		out = {},
-		namedArgs = {};
+	if (this.namedArgsDict === null) {
+		var n = 1,
+			out = {},
+			namedArgs = {};
 
-	for ( var i = 0, l = this.length; i < l; i++ ) {
-		// FIXME: Also check for whitespace-only named args!
-		var k = this[i].k;
-		var v = this[i].v;
-		if ( k.constructor === String ) {
-			k = k.trim();
+		for ( var i = 0, l = this.length; i < l; i++ ) {
+			// FIXME: Also check for whitespace-only named args!
+			var k = this[i].k;
+			var v = this[i].v;
+			if ( k.constructor === String ) {
+				k = k.trim();
+			}
+			if ( ! k.length ) {
+				out[n.toString()] = v;
+				n++;
+			} else if ( k.constructor === String ) {
+				namedArgs[k] = true;
+				out[k] = v;
+			} else {
+				k = Util.tokensToString( k ).trim();
+				namedArgs[k] = true;
+				out[k] = v;
+			}
 		}
-		if ( ! k.length ) {
-			out[n.toString()] = v;
-			n++;
-		} else if ( k.constructor === String ) {
-			namedArgs[k] = true;
-			out[k] = v;
-		} else {
-			k = Util.tokensToString( k ).trim();
-			namedArgs[k] = true;
-			out[k] = v;
-		}
+		this.namedArgsDict = { namedArgs: namedArgs, dict: out };
 	}
-	return { namedArgs: namedArgs, dict: out };
+
+	return this.namedArgsDict;
 };
 
 /**
