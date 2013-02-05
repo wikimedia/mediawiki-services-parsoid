@@ -5,7 +5,8 @@
 var qs = require( 'querystring' ),
 	util = require( 'util' ),
 	request = require( 'request' ),
-	baseConfig = require( './mediawiki.BaseConfig.json' ).query;
+	baseConfig = require( './mediawiki.BaseConfig.json' ).query,
+	request = require( 'request' );
 
 var WikiConfig = function ( resultConf, prefix, uri ) {
 	var nsid, name, conf = this;
@@ -67,21 +68,42 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 		}
 	}
 
-
+	// "mw" here refers to "magicwords", not "mediawiki"
 	var mws = resultConf.magicwords;
+	var mw, replaceRegex = /\$1/;
+	var namedMagicOptions = [];
 	if ( mws.length > 0 ) {
 		// Don't use the default if we get a result.
 		conf.magicWords = {};
+		conf.mwAliases = {};
+		conf.interpolatedList = [];
 	}
 	for ( var mwx = 0; mwx < mws.length; mwx++ ) {
-		aliases = mws[mwx].aliases;
-		for ( var mwax = 0; mwax < aliases.length; mwax++ ) {
-			if ( mws[mwx]['case-sensitive'] !== '' ) {
-				aliases[mwax] = aliases[mwax].toLowerCase();
+		mw = mws[mwx];
+		aliases = mw.aliases;
+		if ( aliases.length > 0 ) {
+			conf.mwAliases[mw.name] = [];
+		}
+		for ( mwax = 0; mwax < aliases.length; mwax++ ) {
+			alias = aliases[mwax];
+			if ( mw['case-sensitive'] !== '' ) {
+				alias = alias.toLowerCase();
 			}
 
-			conf.magicWords[aliases[mwax]] = mws[mwx].name;
+			if ( alias.match( /\$1/ ) !== null ) {
+				// This is a named option. Add it to the array.
+				namedMagicOptions.push( alias.replace( replaceRegex, '(.*)' ) );
+				conf.interpolatedList.push( alias );
+			}
+			conf.magicWords[alias] = mw.name;
+			conf.mwAliases[mw.name].push( alias );
 		}
+	}
+
+	if ( mws.length > 0 ) {
+		// Combine the gathered named magic words into a single regex
+		var namedMagicString = namedMagicOptions.join( '|' );
+		conf.namedMagicRegex = new RegExp( namedMagicString );
 	}
 
 // This path isn't necessary because we don't need special page aliases.
@@ -164,8 +186,65 @@ WikiConfig.prototype = {
 	namespaceNames: {},
 	namespaceIds: {},
 	magicWords: {},
+	mwAliases: {},
 	specialPages: {},
-	extensionTags: {}
+	extensionTags: {},
+	interpolatedList: [],
+
+	getMagicWord: function ( alias ) {
+		return this.magicWords[alias] || null;
+	},
+
+	getMagicPatternMatcher: function ( optionsList ) {
+		var ix, mwlist, aliases, regex, regexString = '',
+			getInterpolatedMagicWord = function ( text, useRegex, useMwList ) {
+				var ix, alias, value, canonical,
+					useMwList = useMwList || this.interpolatedList,
+					useRegex = useRegex || this.namedMagicRegex,
+					matches = text.match( useRegex );
+
+				if ( matches === null ) {
+					return null;
+				}
+				alias = null;
+				for ( var ix = 1; ix < matches.length && ix - 1 < useMwList.length && alias === null; ix++ ) {
+					if ( matches[ix] !== undefined ) {
+						alias = useMwList[ix - 1];
+						value = matches[ix];
+					}
+				}
+				if ( alias === null ) {
+					return null;
+				}
+				canonical = this.getMagicWord( alias );
+				if ( canonical !== null ) {
+					return { k: canonical, v: value, a: alias };
+				}
+				return null;
+			}.bind( this );
+
+
+		mwlist = [];
+		for ( ix = 0; ix < optionsList.length; ix++ ) {
+			if ( ix > 0 ) {
+				regexString += '|';
+			}
+			aliases = this.mwAliases[optionsList[ix]];
+			regexString += aliases.join( '|' )
+				.replace( /((?:^|\|)(?:[^\$]|\$[^1])*)($|\|)/g, '$1$$1$2' )
+				.replace( /\$1/g, '(.*)' );
+			mwlist = mwlist.concat( aliases );
+		}
+		regex = new RegExp( regexString );
+
+		return function ( text ) {
+			return getInterpolatedMagicWord( text, regex, mwlist );
+		};
+	},
+
+	replaceInterpolatedMagicWord: function ( alias, value ) {
+		return alias.replace( /\$1/, value );
+	}
 };
 
 if ( typeof module === 'object' ) {

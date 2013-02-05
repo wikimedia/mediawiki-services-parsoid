@@ -20,11 +20,11 @@ var WikitextConstants = {
 	// for more information about how they are used.
 	Image: {
 		PrefixOptions: {
-			'img_link'      : 'img_link',
-			'img_alt'       : 'img_alt',
-			'img_page'      : 'img_page',
-			'img_thumbnail' : 'img_thumbnail',
-			'img_upright'   : 'aspect'
+			'img_link'      : 'link',
+			'img_alt'       : 'alt',
+			'img_page'      : 'page',
+			'img_upright'   : 'upright',
+			'img_width'		: 'width'
 		},
 		SimpleOptions: {
 			// halign

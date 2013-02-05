@@ -756,7 +756,10 @@ WSP.figureHandler = function(state, node, cb) {
 			trimk = k ? k.trim() : k,
 			lowk = trimk ? trimk.toLowerCase() : trimk,
 			actualk = env.conf.wiki.magicWords[trimk] ||
-				env.conf.wiki.magicWords[lowk] || lowk;
+				env.conf.wiki.magicWords[lowk] ||
+				env.conf.wiki.magicWords['img_' + trimk] ||
+				env.conf.wiki.magicWords['img_' + lowk] ||
+				lowk;
 		if (sizeOptions[actualk]) {
 			// Since width and height have to be output as a pair,
 			// collect both of them.
@@ -770,24 +773,15 @@ WSP.figureHandler = function(state, node, cb) {
 				size.width = null;
 			}
 
-			if (actualk === "aspect") {
-				// SSS: Bad Hack!  Need a better solution
-				// One solution is to search through prefix options hash but seems ugly.
-				// Another is to flip prefix options hash and use it to search.
-				if (v) {
-					outBits.push("upright=" + v);
-				} else {
-					outBits.push("upright");
-				}
-			} else if (actualk === "caption") {
+			if (actualk === "caption") {
 				outBits.push(v === null ? captionSrc : v);
 			} else if (simpleImgOptions[actualv] === actualk) {
 				// The values and keys in the parser attributes are a flip
 				// of how they are in the wikitext constants image hash
 				// Hence the indexing by 'v' instead of 'k'
 				outBits.push(optNames[actualv]);
-			} else if (prefixImgOptions[actualk]) {
-				outBits.push(optNames[actualk] + "=" + v);
+			} else if ( prefixImgOptions[actualk] && optNames[actualk] ) {
+				outBits.push( env.conf.wiki.replaceInterpolatedMagicWord( optNames[actualk], v ) );
 			} else {
 				console.warn("Unknown image option encountered: " + JSON.stringify(a));
 			}

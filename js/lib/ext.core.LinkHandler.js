@@ -293,7 +293,10 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 	var i, l, kv,
 		options = [],
 		oHash = {},
-		captions = [];
+		captions = [],
+		validOptions = Object.keys( WikitextConstants.Image.PrefixOptions ),
+		getOption = env.conf.wiki.getMagicPatternMatcher( validOptions );
+
 	for( i = 0, l = content.length; i<l; i++ ) {
 		var oContent = content[i],
 			oText = Util.tokensToString( oContent.v, true );
@@ -302,9 +305,9 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 			var origOText = oText;
 			oText = oText.trim();
 			var lowerOText = oText.toLowerCase();
-			var canonicalOption = env.conf.wiki.magicWords[oText] ||
+			var canonicalOption = ( env.conf.wiki.magicWords[oText] ||
 				env.conf.wiki.magicWords[lowerOText] ||
-				lowerOText;
+				lowerOText ).replace( /^img_/, '' );
 			var imgOption = WikitextConstants.Image.SimpleOptions[canonicalOption];
 			if (imgOption) {
 				options.push( new KV(imgOption, origOText ) );
@@ -315,46 +318,45 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 				token.dataAttribs.optNames[canonicalOption] = origOText;
 				continue;
 			} else {
-				var maybeSize = oText.match(/^(\d*)(?:x(\d+))?px$/);
-				//console.log( maybeSize );
-				if ( maybeSize !== null ) {
-					var x = maybeSize[1],
-						y = maybeSize[2];
-					if ( x !== undefined ) {
-						options.push(new KV( 'width', x ) );
-						oHash.width = x;
+				var bits = getOption( origOText.trim() ),
+					normalizedBit0 = bits ? bits.k.trim().toLowerCase() : null,
+					key = bits ? WikitextConstants.Image.PrefixOptions[normalizedBit0] : null;
+
+				if ( bits && key ) {
+					key = key.replace( /^img_/, '' );
+					if ( token.dataAttribs.optNames === undefined ) {
+						token.dataAttribs.optNames = {};
 					}
-					if ( y !== undefined ) {
-						options.push(new KV( 'height', y ) );
-						oHash.height = y;
-					}
-				} else {
-					var bits = origOText.split( '=', 2 ),
-						normalizedBit0 = bits[0],
-						trimNb0 = normalizedBit0.trim(),
-						lowerNb0 = trimNb0.toLowerCase(),
-						canonicalNb0 = env.conf.wiki.magicWords[trimNb0] ||
-							env.conf.wiki.magicWords[lowerNb0] || lowerNb0,
-						key = WikitextConstants.Image.PrefixOptions[canonicalNb0];
-					if ( bits[0] && key) {
-						oHash[key] = bits[1];
-						if ( token.dataAttribs.optNames === undefined ) {
-							token.dataAttribs.optNames = {};
+					token.dataAttribs.optNames[key] = bits.a;
+					if ( key === 'width' ) {
+						var x, y, maybeSize = bits.v.match( /^(\d*)(?:x(\d+))?$/ );
+						if ( maybeSize !== null ) {
+							x = maybeSize[1];
+							y = maybeSize[2];
 						}
-						token.dataAttribs.optNames[key] = bits[0];
+						if ( x !== undefined ) {
+							options.push( new KV( 'width', x ) );
+							oHash.width = x;
+						}
+						if ( y !== undefined ) {
+							options.push( new KV( 'height', y ) );
+							oHash.height = y;
+						}
+					} else {
+						oHash[key] = bits.v;
 						// Preserve white space
 						// FIXME: But this doesn't work for the 'upright' key
 						if (key === normalizedBit0) {
-							key = bits[0];
+							key = bits.k;
 						}
-						options.push( new KV( key, bits[1] ) );
+						options.push( new KV( key, bits.v ) );
 						//console.warn('handle prefix ' + bits );
-					} else {
-						// Record for RT-ing
-						kv = new KV("caption", oContent.v);
-						captions.push(kv);
-						options.push(kv);
 					}
+				} else {
+					// Record for RT-ing
+					kv = new KV("caption", oContent.v);
+					captions.push(kv);
+					options.push(kv);
 				}
 			}
 		} else {
@@ -388,19 +390,29 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 	//var options = this.urlParser.processImageOptions( optionSource );
 	//console.log( JSON.stringify( options, null, 2 ) );
 	// XXX: check if the file exists, generate thumbnail, get size
-	// XXX: render according to mode (inline, thumb, framed etc)
-
-	if ( oHash.format && ( oHash.format === 'img_thumbnail') ) {
+	// XXX: render according to mode (inline, thumb, framed etc
+	
+	if ( oHash.format && ( oHash.format === 'thumbnail') ) {
 		return this.renderThumb( token, this.manager, cb, title, fileName,
 				caption, oHash, options, rdfaAttrs);
 	} else {
 		// TODO: get /wiki from config!
+		var linkTitle = title;
+		var isImageLink = ( oHash.link === undefined || oHash.link !== '' );
 		var newAttribs = [
-			new KV('href', title.makeLink()),
-			new KV('rel', 'mw:Image')
-		].concat(rdfaAttrs.attribs);
+			new KV( isImageLink ? 'rel' : 'typeof', 'mw:Image')
+		];
 
-		var a = new TagTk('a', newAttribs, Util.clone(token.dataAttribs));
+		if ( isImageLink ) {
+			if ( oHash.link !== undefined ) {
+				linkTitle = env.makeTitleFromPrefixedText( oHash.link );
+			}
+			newAttribs.push( new KV('href', linkTitle.makeLink() ) )
+		}
+
+		newAttribs = newAttribs.concat(rdfaAttrs.attribs);
+
+		var a = new TagTk( isImageLink ? 'a' : 'span', newAttribs, Util.clone(token.dataAttribs));
 		var width, height;
 		if ( ! oHash.height && ! oHash.width ) {
 			width = '200px';
@@ -416,12 +428,12 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 					new KV( 'height', height || '' ),
 					new KV( 'width', width || '' ),
 					new KV( 'src', path ),
-					new KV( 'alt', oHash.img_alt || title.key )
+					new KV( 'alt', oHash.alt || title.key )
 				] );
 
-		var tokens = [ a, img, new EndTagTk( 'a' )];
+		var tokens = [ a, img, new EndTagTk( isImageLink ? 'a' : 'span' )];
 		var linkTail = Util.lookup(token.attribs, 'tail');
-		if (linkTail) {
+		if (isImageLink && linkTail) {
 			if ( a.dataAttribs.tsr ) {
 				a.dataAttribs.tsr[1] -= linkTail.length;
 			}
@@ -499,10 +511,17 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 
 	var width = 165;
 
+	var env = this.manager.env;
+
+	// Handle explicit width value
+	if ( oHash.width ) {
+		width = oHash.width;
+	}
+
 	// Handle upright
-	if ( 'aspect' in oHash ) {
-		if ( oHash.aspect > 0 ) {
-			width = width * oHash.aspect;
+	if ( 'upright' in oHash ) {
+		if ( oHash.upright > 0 ) {
+			width = width * oHash.upright;
 		} else {
 			width *= 0.75;
 		}
@@ -545,24 +564,35 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 		figAttrs.push(new KV('typeof', rdfaType));
 	}
 
+	var linkTitle = title;
+	var isImageLink = ( oHash.link === undefined || oHash.link !== '' );
+	if ( isImageLink && oHash.link !== undefined ) {
+		linkTitle = env.makeTitleFromPrefixedText( oHash.link );
+	}
+
 	var path = this.getThumbPath( title.key, width ),
 		thumb = [
 		new TagTk('figure', figAttrs),
-		new TagTk( 'a', [
-					new KV('href', title.makeLink()),
-					new KV('class', 'image')
-				]),
+		( isImageLink ?
+			new TagTk( 'a', [
+						new KV('href', linkTitle.makeLink()),
+						new KV('class', 'image')
+					] ) :
+			new TagTk( 'span', [
+				new KV( 'typeof', rdfaType )
+			] )
+		),
 		new SelfclosingTagTk( 'img', [
 					new KV('src', path),
 					new KV('width', width + 'px'),
 					//new KV('height', '160px'),
 					new KV('class', 'thumbimage'),
-					new KV('alt', oHash.img_alt || title.key ),
+					new KV('alt', oHash.alt || title.key ),
 					// Add resource as CURIE- needs global default prefix
 					// definition.
 					new KV('resource', '[:' + fileName + ']')
 				]),
-		new EndTagTk( 'a' ),
+		new EndTagTk( isImageLink ? 'a' : 'span' ),
 		new SelfclosingTagTk ( 'a', [
 					new KV('href', title.makeLink()),
 					new KV('class', 'internal sprite details magnify'),
