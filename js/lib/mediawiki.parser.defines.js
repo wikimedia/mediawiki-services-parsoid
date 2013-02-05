@@ -223,9 +223,12 @@ var genericTokenMethods = {
 
 /* -------------------- KV -------------------- */
 // A key-value pair
-function KV ( k, v ) {
+function KV ( k, v, srcOffsets ) {
 	this.k = k;
 	this.v = v;
+	if (srcOffsets) {
+		this.srcOffsets = srcOffsets;
+	}
 }
 
 /* -------------------- TagTk -------------------- */

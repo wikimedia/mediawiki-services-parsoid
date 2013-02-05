@@ -857,7 +857,7 @@ template
   = "{{" nl_comment_space*
     target:template_param_value
     params:(nl_comment_space* "|"
-                r:( nl_comment_space* &"|" { return new KV( '', '') } // empty argument
+                r:( nl_comment_space* p:({return pos}) &"|" { return new KV( '', '', [p,p,p,p]); } // empty argument
                     / p:template_param { return p }
                   ) { return r }
             )*
@@ -902,28 +902,28 @@ template_param
     // MW accepts |foo | = bar | as a single param..
     ('|' (space / newline)* &'=')?
     val:(
-        s0:optionalSpaceToken
+        kEndPos:({return pos})
+        optionalSpaceToken
         "="
-        s1:optionalSpaceToken
+        optionalSpaceToken
+        vStartPos:({return pos})
         value:template_param_value? {
-            return { s0: s0, s1: s1, value: value };
+            return { kEndPos:kEndPos, vStartPos: vStartPos, value: value };
         }
-        )?
-
-    {
+    )? {
       //console.warn( 'named template_param matched' + pp([name, value ]) );
       if ( val !== '' ) {
           if ( val.value !== '' ) {
-            return new KV( name, flattenIfArray( val.value ) );
+            return new KV( name, flattenIfArray( val.value ), [pos0, val.kEndPos, val.vStartPos, pos] );
           } else {
-            return new KV(flattenIfArray( name ), '');
+            return new KV(flattenIfArray( name ), '', [pos0, val.kEndPos, val.vStartPos, pos] );
           }
       } else {
-        return new KV('', flattenIfArray(name));
+        return new KV('', flattenIfArray(name), [pos0, pos0, pos0, pos] );
       }
     }
   // empty parameter
-  / & [|}] { return new KV('', ''); }
+  / & [|}] { return new KV('', '', [pos0, pos0, pos0, pos] ); }
 
 
 // FIXME: handle template args and templates in key! (or even parser functions?)

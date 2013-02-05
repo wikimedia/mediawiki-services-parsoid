@@ -825,6 +825,15 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 		}
 	}
 
+	function findToplevelEnclosingRange(nestingInfo, rId) {
+		// Walk up the implicit nesting tree to the find the
+		// top-level range within which rId is nested.
+		while (nestingInfo[rId]) {
+			rId = nestingInfo[rId];
+		}
+		return rId;
+	}
+
 	var i, r, n, e;
 	var numRanges = tplRanges.length;
 
@@ -880,12 +889,16 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 		r = tplRanges[i];
 		n = r.start;
 
+		// console.warn("Range: " + r.id);
+
 		while (n !== docBody) {
 			if (n.data && n.data.tmp_tplRanges) {
 				if (n !== r.start) {
+					// console.warn("1. nested; n_tpls: " + Object.keys(n.data.tmp_tplRanges));
+
 					// 'r' is nested for sure
-					// console.warn("1. nested: tpls: " + s_tpls);
-					nestedRangesMap[r.id] = true;
+					// Record a range in which 'r' is nested in.
+					nestedRangesMap[r.id] = Object.keys(n.data.tmp_tplRanges)[0];
 					break;
 				} else {
 					// n === r.start
@@ -904,14 +917,15 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 					for (var j = 0; j < s_keys.length; j++) {
 						if (s_keys[j] !== r.id && e_tpls[s_keys[j]]) {
 							foundIntersection = true;
+							// Record a range in which 'r' is nested in.
+							nestedRangesMap[r.id] = s_keys[j];
 							break;
 						}
 					}
 
 					if (foundIntersection) {
 						// 'r' is nested
-						// console.warn("2. nested: tpls: " + Object.keys(s_tpls) + "; e_tpls: " + e_tpls);
-						nestedRangesMap[r.id] = true;
+						// console.warn("2. nested: s_tpls: " + Object.keys(s_tpls) + "; e_tpls: " + Object.keys(e_tpls));
 						break;
 					}
 				}
@@ -933,32 +947,53 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 	// ignore them.
 
 	var newRanges = [],
-		prev = null;
+		prev = null,
+		tplParams = {},
+		merged;
 
 	for (i = 0; i < numRanges; i++) {
 		var endTagToRemove = null,
 			startTagToStrip = null;
 
+		merged = false;
 		r = tplRanges[i];
+
+		// Extract argInfo and clear it
+		var argInfo = r.startElem.getAttribute("argInfo");
+		if (argInfo) {
+			argInfo = JSON.parse(argInfo);
+			r.startElem.removeAttribute("argInfo");
+		}
 
 		/*
 		if (!nestedRangesMap[r.id]) {
 			console.warn("##############################################");
-			console.warn("range " + i + "; r-start-elem: " + r.startElem.outerHTML);
-			console.warn("range " + i + "; r-end-elem: " + r.endElem.outerHTML);
-			console.warn("-----------------------------");
-			console.warn("range " + i + "; r-start: " + r.start.innerHTML);
-			console.warn("-----------------------------");
-			console.warn("range " + i + "; r-end: " + r.end.innerHTML);
+			console.warn("range " + r.id + "; r-start-elem: " + r.startElem.outerHTML);
+			console.warn("range " + r.id + "; r-end-elem: " + r.endElem.outerHTML);
 			console.warn("-----------------------------");
 		}
 		*/
 
 		if (nestedRangesMap[r.id]) {
+			// console.warn("--nested--");
+
 			// Nested -- ignore
 			startTagToStrip = r.startElem;
 			endTagToRemove = r.endElem;
+
+			if (argInfo) {
+				var containingRangeId = findToplevelEnclosingRange(nestedRangesMap, r.id);
+
+				// 'r' is nested in 'containingRange' at the top-level
+				// So, containingRange gets r's argInfo
+				if (!tplParams[containingRangeId]) {
+					tplParams[containingRangeId] = [];
+				}
+				tplParams[containingRangeId].push(argInfo);
+			}
 		} else if (prev && !r.flipped && r.start === prev.end) {
+			// console.warn("--overlapped--");
+
 			// Overlapping ranges.
 			// r is the regular kind
 			// Merge r with prev
@@ -971,10 +1006,26 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 
 			prev.end = r.end;
 			prev.endElem = r.endElem;
+
+			// Update tplParams
+			if (argInfo) {
+				tplParams[prev.id].push(argInfo);
+			}
 		} else {
+			// console.warn("--normal--");
+
 			// Default -- no overlap
+			// Emit the merged range
 			newRanges.push(r);
 			prev = r;
+
+			// Update tplParams
+			if (argInfo) {
+				if (!tplParams[r.id]) {
+					tplParams[r.id] = [];
+				}
+				tplParams[r.id].push(argInfo);
+			}
 		}
 
 		if (endTagToRemove) {
@@ -985,13 +1036,13 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 		}
 	}
 
-	return newRanges;
+	return { ranges: newRanges, params: tplParams };
 }
 
 /**
  * TODO: split in common ancestor algo, sibling splicing and -annotation / wrapping
  */
-function encapsulateTemplates( env, doc, tplRanges) {
+function encapsulateTemplates( env, doc, tplRanges, tplParams) {
 	var i, numRanges = tplRanges.length;
 	for (i = 0; i < numRanges; i++) {
 		var span,
@@ -1103,6 +1154,15 @@ function encapsulateTemplates( env, doc, tplRanges) {
 		// remove start/end
 		if (DU.hasNodeName(startElem, "meta"))  {
 			deleteNode(startElem);
+		}
+
+		// Add templateParams meta-tag after the endElem
+		if (tplParams[range.id]) {
+			var tplParamsMeta = doc.createElement('meta');
+			tplParamsMeta.setAttribute("about", about);
+			tplParamsMeta.setAttribute("property", "mw:TemplateParams");
+			tplParamsMeta.setAttribute("content", JSON.stringify(tplParams[range.id]));
+			range.endElem.parentNode.insertBefore(tplParamsMeta, range.endElem.nextSibling);
 		}
 
 		deleteNode(range.endElem);
@@ -1909,7 +1969,7 @@ function encapsulateTemplateOutput( document, env ) {
 	var tplRanges = findWrappableTemplateRanges( document.body, tpls, document, env );
 	if (tplRanges.length > 0) {
 		tplRanges = findTopLevelNonOverlappingRanges(env, document, tplRanges);
-		encapsulateTemplates(env, document, tplRanges);
+		encapsulateTemplates(env, document, tplRanges.ranges, tplRanges.params);
 	}
 }
 

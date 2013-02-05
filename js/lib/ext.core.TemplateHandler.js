@@ -58,7 +58,7 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 	var state = { token: token };
 	if (this.options.wrapTemplates) {
 		state.wrapperType = 'mw:Object/Template';
-		// state.recordArgDict = true;
+		state.recordArgDict = true;
 		state.wrappedObjectId = this.manager.env.newObjectId();
 		state.emittedFirstChunk = false;
 	}
@@ -166,11 +166,12 @@ TemplateHandler.prototype.resolveTemplateTarget = function ( targetToks ) {
 
 		// Resolve a possibly relative link
 		target = env.resolveTitle(target, 'Template');
+
+		return { isPF: false, target: target };
 	} else {
-		target = null;
+		return null;
 	}
 
-	return { isPF: false, target: target };
 };
 
 
@@ -229,7 +230,12 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 	}
 
 	var resolvedTgt = this.resolveTemplateTarget(target);
-	target = resolvedTgt.target;
+	if ( resolvedTgt === null ) {
+		// Target contains tags, convert template braces and pipes back into text
+		// Re-join attribute tokens with '=' and '|'
+		convertAttribsToString(attribs, cb);
+		return;
+	}
 
 	// TODO:
 	// check for 'subst:'
@@ -241,6 +247,7 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 	// and each member (key/value) into object with .tokens(), .dom() and
 	// .wikitext() methods (subclass of Array)
 
+	target = resolvedTgt.target;
 	if ( resolvedTgt.isPF ) {
 		var pfAttribs = new Params( env, attribs );
 		pfAttribs[0] = new KV( resolvedTgt.pfArg, [] );
@@ -253,13 +260,6 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 		}
 		state.tokenTarget = target;
 		this.parserFunctions[target](state.token, this.manager.frame, newCB, pfAttribs);
-		return;
-	}
-
-	if ( target === null ) {
-		// Target contains tags, convert template braces and pipes back into text
-		// Re-join attribute tokens with '=' and '|'
-		convertAttribsToString(attribs, cb);
 		return;
 	}
 
@@ -372,15 +372,33 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 			src: state.token.getWTSource(this.manager.env)
 		};
 
-	/*
 	if (state.recordArgDict) {
-		dataParsoid.argInfo = {
-			id: state.wrapperObjectId,
+		var src = this.manager.env.page.src,
+			params = state.token.attribs.slice(1),
+			dict = {},
+			argIndex = 1;
+
+		// Use source offsets to extract arg-name and arg-value wikitext
+		// since the 'k' and 'v' values in params will be expanded tokens
+		for (var i = 0, n = params.length; i < n; i++) {
+			var srcOffsets = params[i].srcOffsets;
+			var name;
+			if (srcOffsets[0] === srcOffsets[1]) {
+				name = argIndex.toString();
+				argIndex++;
+			} else {
+				name = src.substring(srcOffsets[0], srcOffsets[1]);
+			}
+
+			dict[name] = src.substring(srcOffsets[2], srcOffsets[3]);
+		}
+
+		attrs.push(new KV("argInfo", JSON.stringify({
+			id: state.wrappedObjectId,
 			target: state.tokenTarget,
-			params: state.token.attribs.slice(1)
-		};
+			params: dict
+		})));
 	}
-	*/
 
 	if ( chunk.length ) {
 		var firstToken = chunk[0];
