@@ -67,10 +67,19 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 			this.manager.env.conf.wiki.apiURI !== null ) {
 		if ( this.options.wrapTemplates ) {
 			// Use MediaWiki's action=expandtemplates preprocessor
-			var text = token.getWTSource( this.manager.env ),
+			// We'll never get to frame depth beyond 1 in this scenario
+			// which means cached content in this frame will not be used
+			// by any child frames since there won't be any children.
+			// So, it is sufficient to pass in '[]' in place of attribs
+			// since the cache key for Frame doesn't matter.
+			//
+			// However, tokenizer needs to use 'text' as the cache key
+			// for caching expanded tokens from the expanded transclusion text
+			// that we get from the preprocessor.
+			var text = token.getWTSource( this.manager.env );
 				templateName = this.resolveTemplateTarget(token.attribs[0].k || '').target || "",
 				srcHandler = this._processTemplateAndTitle.bind( this, state, frame,
-						cb, templateName, [] );
+					cb, templateName, [], text );
 			//console.log( text );
 			cb( { async: true } );
 			this.fetchExpandedTplOrExtension( this.manager.env.page.name || '',
@@ -290,14 +299,14 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 	this._fetchTemplateAndTitle(
 			target,
 			cb,
-			this._processTemplateAndTitle.bind( this, state, frame, cb, target, attribs )
+			this._processTemplateAndTitle.bind( this, state, frame, cb, target, attribs, target )
 		);
 };
 
 /**
  * Process a fetched template source
  */
-TemplateHandler.prototype._processTemplateAndTitle = function( state, frame, cb, name, attribs, err, src, type ) {
+TemplateHandler.prototype._processTemplateAndTitle = function( state, frame, cb, name, attribs, cacheKey, err, src, type ) {
 
 	// We have a choice between aborting or keeping going and reporting the
 	// error inline.
@@ -334,7 +343,7 @@ TemplateHandler.prototype._processTemplateAndTitle = function( state, frame, cb,
 	pipeline.addListener( 'end', this._onEnd.bind ( this, state, cb ) );
 	// Feed the pipeline. XXX: Support different formats.
 	this.manager.env.dp( 'TemplateHandler._processTemplateAndTitle', name, attribs );
-	pipeline.process ( src, name );
+	pipeline.process ( src, cacheKey );
 };
 
 TemplateHandler.prototype.addAboutToTableElements = function ( state, tokens ) {
