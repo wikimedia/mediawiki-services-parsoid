@@ -388,21 +388,14 @@ WSP.initialState = {
 	},
 
 	emitSepChunk: function(separator, debugStr) {
-		if (this.tokenCollector) {
-			// If in token collection mode, convert the
-			// separator into a token so that it shows up
-			// in the right place in the token stream.
-			this.tokenCollector.collect( this, separator );
-		} else {
-			if (separator.match(/\n$/)) {
-				this.onNewline = true;
-			}
-			if (separator.match(/\n/)) {
-				this.onStartOfLine = true;
-			}
-			WSP.debug_pp("===> ", debugStr || "sep: ", separator);
-			this.chunkCB(separator, "separator");
+		if (separator.match(/\n$/)) {
+			this.onNewline = true;
 		}
+		if (separator.match(/\n/)) {
+			this.onStartOfLine = true;
+		}
+		WSP.debug_pp("===> ", debugStr || "sep: ", separator);
+		this.chunkCB(separator, "separator");
 		this.bufferedSeparator = null;
 	},
 	emitSeparator: function(n1, n2, sepType) {
@@ -456,38 +449,6 @@ WSP.initialState = {
 };
 // Make sure the initialState is never modified
 Util.deepFreeze( WSP.initialState );
-
-var endTagMatchTokenCollector = function ( tk, cb ) {
-	var tokens = [tk];
-
-	return {
-		cb: cb,
-		collect: function ( state, token ) {
-			tokens.push( token );
-			if ([TagTk, SelfclosingTagTk, EndTagTk].indexOf(token.constructor) === -1) {
-				state.prevTagToken = state.currTagToken;
-				state.currTagToken = token;
-			}
-
-			if ( token.constructor === EndTagTk && token.name === tk.name ) {
-				// finish collection
-				if ( this.cb ) {
-					// abort further token processing since the cb handled it
-					var res = this.cb( state, tokens );
-					state.wteHandlerStack.pop();
-					return res;
-				} else {
-					// let a handler deal with token processing
-					return false;
-				}
-			} else {
-				// continue collection
-				return true;
-			}
-		},
-		tokens: tokens
-	};
-};
 
 var openHeading = function(v) {
 	return function( state ) {
@@ -1215,25 +1176,6 @@ WSP.genContentSpanTypes = {
 	'mw:DiffMarker': 1
 };
 
-/**
- * Compare the actual content with the previous content and use
- * dataAttribs.src if it does. Return serialization of modified content
- * otherwise.
- */
-WSP.compareSourceHandler = function ( state, tokens ) {
-	var token = tokens.shift(),
-		lastToken = tokens.pop(),
-		content = Util.tokensToString( tokens, true );
-	if ( content.constructor !== String ) {
-		// SSS FIXME: What should the initial wikitext-context be
-		// for escaping wt chars?
-		return state.serializeTokens(state.onNewline, null, tokens ).join('');
-	} else if ( content === token.dataAttribs.srcContent ) {
-		return token.dataAttribs.src;
-	} else {
-		return content;
-	}
-};
 
 /* *********************************************************************
  * ignore
@@ -1569,14 +1511,6 @@ WSP.tagHandlers = {
 					if ( argDict['typeof'] === 'mw:Nowiki' ) {
 						state.inNoWiki = true;
 						return '<nowiki>';
-					} else if ( token.dataAttribs.src ) {
-						// FIXME: compare content with original content
-						// after collection
-						state.tokenCollector = new endTagMatchTokenCollector(
-							token,
-							WSP.compareSourceHandler,
-							this );
-						return '';
 					} else {
 						return '';
 					}
@@ -1672,31 +1606,11 @@ WSP.tagHandlers = {
 		node: {
 			handle: WSP.linkHandler.bind(WSP)
 		}
-		//start: {
-		//	handle: function(state, token) {
-		//		state.tokenCollector = new endTagMatchTokenCollector(
-		//			token,
-		//			WSP._linkHandler,
-		//			WSP);
-		//		return '';
-		//	}
-		//},
-		//wtEscapeHandler: WSP.wteHandlers.linkHandler
 	},
 	link:  {
 		node: {
 			handle: WSP.linkHandler.bind(WSP)
 		}
-		//start: {
-		//	handle: function(state, token) {
-		//		state.tokenCollector = new endTagMatchTokenCollector(
-		//			token,
-		//			WSP._linkHandler,
-		//			WSP);
-		//		return '';
-		//	}
-		//},
-		//wtEscapeHandler: WSP.wteHandlers.linkHandler
 	}
 };
 
@@ -1881,10 +1795,10 @@ WSP.htmlElementHandler = function (state, node, cb) {
 WSP.getDOMHandler = function(state, node, cb) {
 	var dp = node.data.parsoid,
 		nodeName = node.nodeName.toLowerCase(),
-		handler;
+		handler,
+		nodeTypeOf = node.getAttribute( 'typeof' );
 	if ( dp.src !== undefined ) {
 		//console.log(node.parentNode.outerHTML);
-		var nodeTypeOf = node.getAttribute( 'typeof' );
 		if (nodeTypeOf === "mw:TemplateSource") {
 			return {
 				handle: function () {
@@ -1900,7 +1814,30 @@ WSP.getDOMHandler = function(state, node, cb) {
 					cb(dp.src)
 				}
 			};
+		} else if (nodeTypeOf === "mw:Entity") {
+			var contentSrc = state.serializeChildrenToString(node.childNodes);
+			return {
+				handle: function () {
+					if ( contentSrc === dp.srcContent ) {
+						cb(dp.src);
+					} else {
+						cb(contentSrc);
+					}
+				}
+			};
 		}
+	}
+	if (nodeName === 'span' && nodeTypeOf === 'mw:Image') {
+		console.log('img span');
+		// Hack: forward this span to DOM-based link handler until the span
+		// handler is fully DOM-based.
+
+		// Fake regular link attributes
+		// Set rel in addition to typeof
+		node.setAttribute('rel', 'mw:Image');
+		// And set an empty href, so that
+		node.setAttribute('href', '');
+		return this.tagHandlers.a.node;
 	}
 
 	if (dp.stx === 'html' ||
@@ -1926,18 +1863,6 @@ WSP._getTokenHandler = function(state, token) {
 				handle: id( token.dataAttribs.src ),
 				isTemplateSrc: true
 			};
-		} else if (tokTypeof === "mw:Placeholder") {
-			// implement generic src round-tripping:
-			// return src, and drop the generated content
-			if ( token.constructor === TagTk ) {
-				state.tokenCollector = endTagMatchTokenCollector( token );
-				return { handle: id( token.dataAttribs.src ) };
-			} else if ( token.constructor === SelfclosingTagTk ) {
-				return { handle: id( token.dataAttribs.src ) };
-			} else { // EndTagTk
-				state.tokenCollector = null;
-				return { handle: id('') };
-			}
 		}
 	}
 
@@ -1993,112 +1918,95 @@ WSP._serializeToken = function ( state, token ) {
 	}
 
 	var res = '',
-		collectorResult = false,
 		handler = {};
-
-	if (state.tokenCollector) {
-		collectorResult = state.tokenCollector.collect( state, token );
-		if ( collectorResult === true ) {
-			// continue collecting
-			return;
-		} else if ( collectorResult !== false ) {
-			res = collectorResult;
-			if ( state.tokenCollector.handler ) {
-				handler = state.tokenCollector.handler;
-			}
-			state.tokenCollector = null;
-		}
-	}
 
 	var suppressOutput = false;
 
-	if ( collectorResult === false ) {
-		state.prevToken = state.curToken;
-		state.curToken  = token;
+	state.prevToken = state.curToken;
+	state.curToken  = token;
 
-		// Important: get this before running handlers
-		var textHandler = state.textHandler;
+	// Important: get this before running handlers
+	var textHandler = state.textHandler;
 
-		switch( token.constructor ) {
-			case TagTk:
-			case SelfclosingTagTk:
-				handler = WSP._getTokenHandler( state, token );
-				if ( ! handler.ignore ) {
-					state.prevTagToken = state.currTagToken;
-					state.currTagToken = token;
-					res = handler.handle ? handler.handle( state, token ) : '';
-					if (textHandler) {
-						res = textHandler( state, res );
-					}
-
-					// suppress output
-					if (token.dataAttribs.autoInsertedStart) {
-						suppressOutput = true;
-					}
-				}
-
-				// SSS FIXME: There are no SelfclosingTagTk types constructed
-				// right now and can be removed to simplify the code and logic.
-				if (token.constructor === SelfclosingTagTk) {
-					state.wteHandlerStack.pop();
-				}
-				break;
-			case EndTagTk:
-				handler = WSP._getTokenHandler( state, token );
-				state.wteHandlerStack.pop();
-				if ( ! handler.ignore ) {
-					state.prevTagToken = state.currTagToken;
-					state.nlsSinceLastEndTag = 0;
-					state.currTagToken = token;
-					if ( handler.singleLine < 0 && state.singleLineMode ) {
-						state.singleLineMode--;
-					}
-					res = handler.handle ? handler.handle( state, token ) : '';
-
-					// suppress output
-					if (token.dataAttribs.autoInsertedEnd) {
-						suppressOutput = true;
-					}
-				}
-
-				break;
-			case String:
-				// Always escape entities
-				res = Util.escapeEntities(token);
-				// If not in nowiki and pre context, also escape wikitext
-				res = ( state.inNoWiki || state.inHTMLPre ) ? res
-					: this.escapeWikiText( state, res );
+	switch( token.constructor ) {
+		case TagTk:
+		case SelfclosingTagTk:
+			handler = WSP._getTokenHandler( state, token );
+			if ( ! handler.ignore ) {
+				state.prevTagToken = state.currTagToken;
+				state.currTagToken = token;
+				res = handler.handle ? handler.handle( state, token ) : '';
 				if (textHandler) {
 					res = textHandler( state, res );
 				}
 
-				// Clear out buffered separator from the previous token's
-				// endsLine handler if we encounter a bare text node that
-				// has a newline that meets the endsLine requirement.
-				if (res.match(/^[ \t]*\n/)) {
-					state.bufferedSeparator = null;
+				// suppress output
+				if (token.dataAttribs.autoInsertedStart) {
+					suppressOutput = true;
 				}
-				break;
-			case CommentTk:
-				res = '<!--' + token.value + '-->';
-				// don't consider comments for changes of the onStartOfLine status
-				// XXX: convert all non-tag handlers to a similar handler
-				// structure as tags?
-				handler = { solTransparent: true };
-				break;
-			case NlTk:
-				res = textHandler ? textHandler( state, '\n' ) : '\n';
-				break;
-			case EOFTk:
-				res = '';
-				state.chunkCB( res );
-				break;
-			default:
-				res = '';
-				console.warn( 'Unhandled token type ' + JSON.stringify( token ) );
-				console.trace();
-				break;
-		}
+			}
+
+			// SSS FIXME: There are no SelfclosingTagTk types constructed
+			// right now and can be removed to simplify the code and logic.
+			if (token.constructor === SelfclosingTagTk) {
+				state.wteHandlerStack.pop();
+			}
+			break;
+		case EndTagTk:
+			handler = WSP._getTokenHandler( state, token );
+			state.wteHandlerStack.pop();
+			if ( ! handler.ignore ) {
+				state.prevTagToken = state.currTagToken;
+				state.nlsSinceLastEndTag = 0;
+				state.currTagToken = token;
+				if ( handler.singleLine < 0 && state.singleLineMode ) {
+					state.singleLineMode--;
+				}
+				res = handler.handle ? handler.handle( state, token ) : '';
+
+				// suppress output
+				if (token.dataAttribs.autoInsertedEnd) {
+					suppressOutput = true;
+				}
+			}
+
+			break;
+		case String:
+			// Always escape entities
+			res = Util.escapeEntities(token);
+			// If not in nowiki and pre context, also escape wikitext
+			res = ( state.inNoWiki || state.inHTMLPre ) ? res
+				: this.escapeWikiText( state, res );
+			if (textHandler) {
+				res = textHandler( state, res );
+			}
+
+			// Clear out buffered separator from the previous token's
+			// endsLine handler if we encounter a bare text node that
+			// has a newline that meets the endsLine requirement.
+			if (res.match(/^[ \t]*\n/)) {
+				state.bufferedSeparator = null;
+			}
+			break;
+		case CommentTk:
+			res = '<!--' + token.value + '-->';
+			// don't consider comments for changes of the onStartOfLine status
+			// XXX: convert all non-tag handlers to a similar handler
+			// structure as tags?
+			handler = { solTransparent: true };
+			break;
+		case NlTk:
+			res = textHandler ? textHandler( state, '\n' ) : '\n';
+			break;
+		case EOFTk:
+			res = '';
+			state.chunkCB( res );
+			break;
+		default:
+			res = '';
+			console.warn( 'Unhandled token type ' + JSON.stringify( token ) );
+			console.trace();
+			break;
 	}
 
 	// FIXME: figure out where the non-string res comes from
