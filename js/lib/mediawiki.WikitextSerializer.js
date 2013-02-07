@@ -351,8 +351,12 @@ WSP.initialState = {
 	},
 
 	serializeDOMToString: function(node, wtEscaper) {
-		var bits = [];
-		this.serializeDOM(node, bits.push.bind(bits), wtEscaper);
+		var bits = [],
+			cb = function(res) {
+				bits.push(res);
+			};
+
+		this.serializeDOM(node, cb, wtEscaper);
 		return bits.join('');
 	},
 
@@ -375,8 +379,11 @@ WSP.initialState = {
 	},
 
 	serializeChildrenToString: function(nodes, wtEscaper) {
-		var bits = [];
-		this.serializeChildren(nodes, bits.push.bind(bits), wtEscaper);
+		var bits = [],
+			cb = function(res) {
+				bits.push(res);
+			};
+		this.serializeChildren(nodes, cb, wtEscaper);
 		return bits.join('');
 	},
 
