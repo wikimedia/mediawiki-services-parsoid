@@ -17,6 +17,36 @@ var DOMUtils = {
 		return node && Util.isBlockTag(node.nodeName.toLowerCase());
 	},
 
+	// Decode a JSON object into the data member of DOM nodes
+	loadDataAttrib: function(node, name, defaultVal) {
+		if ( ! node.data ) {
+			node.data = {};
+		}
+		if ( node.data[name] === undefined ) {
+			node.data[name] = this.getJSONAttribute(node, 'data-' + name, defaultVal);
+		}
+		// nothing to do if already loaded
+	},
+
+	// Save all node.data.* structures to data attributes
+	saveDataAttribs: function(node) {
+		for(var key in node.data) {
+			var val = node.data[key];
+			if ( val && val.constructor === String ) {
+				node.setAttribute('data-' + key, val);
+			} else if (val instanceof Object) {
+				this.setJSONAttribute(node, 'data-' + key, val);
+			}
+			// Else: throw error?
+		}
+	},
+
+	// Decode data-parsoid into node.data.parsoid
+	loadDataParsoid: function(node) {
+		this.loadDataAttrib(node, 'parsoid', {});
+	},
+
+
 	dataParsoid: function(n) {
 		var str = n.getAttribute("data-parsoid");
 		return str ? JSON.parse(str) : {};
@@ -44,6 +74,73 @@ var DOMUtils = {
 	setJSONAttribute: function(n, name, obj) {
 		n.setAttribute(name, JSON.stringify(obj));
 	},
+
+	getAttributeShadowInfo: function ( node, name, tplAttrs ) {
+		var curVal = node.getAttribute(name),
+			dp = node.data.parsoid;
+
+		// work around JSDOM bug
+		if(node.attributes[name] === undefined) {
+			curVal = null;
+		}
+
+		// If tplAttrs is truish, check if this attribute was
+		// template-generated. Return that value if set.
+		if ( tplAttrs ) {
+			var type = node.getAttribute('typeof'),
+				about = node.getAttribute('about'),
+				tplAttrState = tplAttrs[about];
+			if (type && type.match(/\bmw:ExpandedAttrs\/[^\s]+/) &&
+					tplAttrState &&
+					tplAttrState.vs[name] )
+			{
+				return {
+					value: tplAttrState.vs[name],
+					modified: false,
+					fromsrc: true
+				};
+			}
+		}
+
+		// Not the case, continue regular round-trip information.
+		if ( dp.a === undefined ) {
+			return {
+				value: curVal,
+				// Mark as modified if a new element
+				modified: Object.keys(dp).length === 0,
+				fromsrc: false
+			};
+		} else if ( dp.a[name] !== curVal ||
+				dp.sa[name] === undefined )
+		{
+			//console.log(name, node.getAttribute(name), node.attributes.name.value);
+			//console.log(
+			//		node.outerHTML, name, JSON.stringify([curVal, dp.a[name]]));
+			return {
+				value: curVal,
+				modified: true,
+				fromsrc: false
+			};
+		} else {
+			return {
+				value: dp.sa[name],
+				modified: false,
+				fromsrc: true
+			};
+		}
+	},
+
+	getAttributeKVArray: function(node) {
+		var attribs = node.attributes,
+			kvs = [];
+		for(var i = 0, l = attribs.length; i < l; i++) {
+			var attrib = attribs[i];
+			kvs.push(new KV(attrib.name, attrib.value));
+		}
+		return kvs;
+	},
+
+
 
 	// Build path from n ---> ancestor
 	// Doesn't include ancestor in the path itself
