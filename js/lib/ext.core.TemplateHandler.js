@@ -76,7 +76,7 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 			// However, tokenizer needs to use 'text' as the cache key
 			// for caching expanded tokens from the expanded transclusion text
 			// that we get from the preprocessor.
-			var text = token.getWTSource( this.manager.env );
+			var text = token.getWTSource( this.manager.env ),
 				templateName = this.resolveTemplateTarget(token.attribs[0].k || '').target || "",
 				srcHandler = this._processTemplateAndTitle.bind( this, state, frame,
 					cb, templateName, [], text );
