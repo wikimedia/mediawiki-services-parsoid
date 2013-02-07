@@ -1532,7 +1532,8 @@ WSP.tagHandlers = {
 						case 'mw:OnlyInclude/End':
 							return token.dataAttribs.src || '</onlyinclude>';
 						case 'mw:DiffMarker':
-							// just strip it
+						case 'mw:Separator':
+							// just ignore it
 							return '';
 						default:
 							this.solTransparent = false;
@@ -1903,7 +1904,7 @@ WSP.getDOMHandler = function(state, node, cb) {
 		return null; // this.htmlElementHandler;
 	} else if (this.tagHandlers[nodeName]) {
 		handler = this.tagHandlers[nodeName];
-		return handler.node || null;
+		return handler && handler.node || null;
 	}
 
 };
