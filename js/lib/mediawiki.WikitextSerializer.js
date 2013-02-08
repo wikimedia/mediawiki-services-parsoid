@@ -979,7 +979,8 @@ WSP.linkHandler =  function( state, node, cb ) {
 
 		if ( linkData.type === 'mw:WikiLink' ||
 				linkData.type === 'mw:WikiLink/Category' ||
-				linkData.type === 'mw:WikiLink/Language' )
+				linkData.type === 'mw:WikiLink/Language' ||
+				linkData.type === 'mw:WikiLink/Interwiki')
 		{
 			state.onStartOfLine = false;
 
@@ -1030,9 +1031,13 @@ WSP.linkHandler =  function( state, node, cb ) {
 					}
 				//}
 			} else if ( linkData.type === 'mw:WikiLink/Language' ) {
-				cb( dp.src );
-				return;
+				// Fix up the the content string
+				// TODO: see if linkData can be cleaner!
+				if (linkData.content.string === undefined) {
+					linkData.content.string = target.value;
+				}
 			}
+
 
 			// figure out if we need a piped or simple link
 			var canUseSimple =  // Would need to pipe for any non-string content
@@ -1138,7 +1143,9 @@ WSP.linkHandler =  function( state, node, cb ) {
 			}
 		} else {
 			// Unknown rel was set
-			cb( state.serializeDOMToString( node ) );
+			//cb( state.serializeDOMToString( node ) );
+			WSP.htmlElementHandler(state, node, cb);
+			return;
 		}
 	} else {
 		// TODO: default to extlink for simple links with unknown rel set
