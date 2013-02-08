@@ -131,7 +131,7 @@ function TemplateRequest ( env, title, oldid ) {
 		apiargs.revids = oldid;
 		delete apiargs.titles;
 	}
-	var url = env.conf.wiki.apiURI + '?' +
+	var url = env.conf.parsoid.apiURI + '?' +
 		qs.stringify( apiargs );
 		//'?format=json&action=query&prop=revisions&rvprop=content&titles=' + title;
 
@@ -186,7 +186,7 @@ TemplateRequest.prototype.handleJSON = function ( error, data ) {
 	var redirMatch = src.match( /[\r\n\s]*#\s*redirect\s*\[\[([^\]]+)\]\]/i );
 	if ( redirMatch ) {
 		var title = redirMatch[1],
-			url = this.env.conf.wiki.apiURI + '?' +
+			url = this.env.conf.parsoid.apiURI + '?' +
 				qs.stringify( {
 					format: 'json',
 				action: 'query',
@@ -229,7 +229,7 @@ function PreprocessorRequest ( env, title, text ) {
 		title: title,
 		text: text
 	};
-	var url = env.conf.wiki.apiURI;
+	var url = env.conf.parsoid.apiURI;
 
 	this.requestOptions = {
 		// Use POST since we are passing a bit of source, and GET has a very
@@ -302,7 +302,7 @@ function PHPParseRequest ( env, title, text ) {
 		action: 'parse',
 		text: text
 	};
-	var url = env.conf.wiki.apiURI;
+	var url = env.conf.parsoid.apiURI;
 
 	this.requestOptions = {
 		// Use POST since we are passing a bit of source, and GET has a very
