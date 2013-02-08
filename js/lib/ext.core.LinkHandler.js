@@ -372,7 +372,7 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 	//console.log( JSON.stringify( options, null, 2 ) );
 	// XXX: check if the file exists, generate thumbnail, get size
 	// XXX: render according to mode (inline, thumb, framed etc
-	
+
 	if ( oHash.format && ( oHash.format === 'thumbnail') ) {
 		return this.renderThumb( token, this.manager, cb, title, fileName,
 				caption, oHash, options, rdfaAttrs);
@@ -417,24 +417,17 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 	}
 };
 
+
 // Create an url for the scaled image src.
 // FIXME: This is just a dirty hack which will only ever work with the WMF
 // cluster configuration which creates an on-demand thumbnail when accessing a
 // width-prefixed image URL.
 WikiLinkHandler.prototype.getThumbPath = function ( key, width ) {
-	var env = this.manager.env;
-	// Choose the applicable URL
-	var scriptProtoRel = ( env.conf.wiki.apiURI || env.conf.wiki.script )
-		// Make it protocol-relative
-		.replace('/^https?:\/\//', '//');
-
-	if ( env.conf.wiki.server && env.conf.wiki.script ) {
-		scriptProtoRel = env.conf.wiki.server + env.conf.wiki.script;
-	}
-
+	var env = this.manager.env,
+		// Make a relative link.
+		link = env.makeTitleFromPrefixedText( 'Special:FilePath' ).makeLink();
 	// Simply let Special:FilePath redirect to the real thumb location
-	return scriptProtoRel + '?title=Special:FilePath/' +
-				key + '&width=' + width;
+	return link + '/' + key + '?width=' + width;
 };
 
 

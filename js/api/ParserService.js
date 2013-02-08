@@ -523,8 +523,9 @@ app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 			res.setHeader('Cache-Control', 's-maxage=2592000');
 		}
 		var tpr = new TemplateRequest( env, target, oldid );
-		tpr.once('src', parse.bind( tpr, env, req, res, function ( req, res, src, document ) {
-			res.end(document.body.innerHTML);
+		tpr.once('src', parse.bind( null, env, req, res, function ( req, res, src, document ) {
+			// Don't use outerHTML as that pretty-prints in JSDOM!
+			res.end(document.innerHTML);
 			var et = new Date();
 			console.warn("completed parsing of " + target + " in " + (et - st) + " ms");
 		}));

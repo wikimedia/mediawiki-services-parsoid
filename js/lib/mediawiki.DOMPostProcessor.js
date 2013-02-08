@@ -2217,6 +2217,13 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 			env.errCB(e);
 		}
 	}
+
+	// Hack: Add a base href element to the head element of the HTML DOM so
+	// that our relative links resolve fine when the DOM is viewed directly
+	// from the web API.
+	var baseMeta = document.createElement('base');
+	baseMeta.setAttribute('href', env.conf.wiki.baseURI);
+	document.firstChild.firstChild.appendChild(baseMeta);
 	this.emit( 'document', document );
 };
 

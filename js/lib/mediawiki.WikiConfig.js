@@ -21,6 +21,9 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 		// Use the default JSON that we've already loaded above.
 		resultConf = baseConfig;
 	}
+	var general = resultConf.general;
+
+	conf.baseURI = general.server + general.articlepath.replace(/$1/, '');
 
 	var names = resultConf.namespaces;
 	var nkeys = Object.keys( names );
@@ -50,6 +53,7 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 		var key = interwikimap[index].prefix;
 		conf.interwikiMap[key] = interwikimap[index];
 	}
+
 
 	// Add in wikipedia languages too- they are not necessarily registered as
 	// interwikis and are expected by parserTests.
