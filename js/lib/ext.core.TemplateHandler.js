@@ -77,7 +77,7 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 			// for caching expanded tokens from the expanded transclusion text
 			// that we get from the preprocessor.
 			var text = token.getWTSource( this.manager.env ),
-				templateName = this.resolveTemplateTarget(token.attribs[0].k || '').target || "",
+				templateName = (this.resolveTemplateTarget(token.attribs[0].k) || '').target || "",
 				srcHandler = this._processTemplateAndTitle.bind( this, state, frame,
 					cb, templateName, [], text );
 			//console.log( text );
