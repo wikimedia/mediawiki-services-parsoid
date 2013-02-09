@@ -229,6 +229,12 @@ function AsyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, a
 AsyncTokenTransformManager.prototype = new TokenTransformManager();
 AsyncTokenTransformManager.prototype.constructor = AsyncTokenTransformManager;
 
+// Reset state between uses
+AsyncTokenTransformManager.prototype.reset = function() {
+	this.tailAccumulator = null;
+	// initial top-level callback, emits chunks
+	this.tokenCB = this.emitChunk.bind( this );
+}
 
 /**
  * Reset the internal token and outstanding-callback state of the
@@ -238,10 +244,9 @@ AsyncTokenTransformManager.prototype.constructor = AsyncTokenTransformManager;
  */
 AsyncTokenTransformManager.prototype.setFrame = function ( parentFrame, title, args ) {
 	this.env.dp( 'AsyncTokenTransformManager.setFrame', title, args );
-	// First piggy-back some reset action
-	this.tailAccumulator = null;
-	// initial top-level callback, emits chunks
-	this.tokenCB = this.emitChunk.bind( this );
+
+	// Reset accumulators
+	this.reset();
 
 	// now actually set up the frame
 	if (parentFrame) {
@@ -285,6 +290,9 @@ AsyncTokenTransformManager.prototype.emitChunk = function( ret ) {
 
 			this.emit( 'chunk', ret.tokens );
 			this.emit('end');
+			// Reset accumulators
+			this.reset();
+
 			// NOTE: This is a dummy return.  We are exiting async mode and
 			// there is no caller waiting to consume this return value.
 			// This is present here for parity with the return on the other branch
@@ -365,7 +373,9 @@ AsyncTokenTransformManager.prototype.onEndEvent = function () {
 		this.env.dp( 'AsyncTokenTransformManager.onEndEvent: synchronous done',
 				this.frame.title );
 		this.emit('end');
-		//this._reset();
+
+		// Reset accumulators
+		this.reset();
 	}
 };
 
