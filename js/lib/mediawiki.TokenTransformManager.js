@@ -275,7 +275,7 @@ AsyncTokenTransformManager.prototype.emitChunk = function( ret ) {
 					ret.tokens.push(new EOFTk());
 				}
 				for ( var i = 0, l = ret.tokens.lengh; i < l - 1; i++ ) {
-					if ( ret.tokens[i] && ret.tokens[1].constructor === EOFTk ) {
+					if ( ret.tokens[i] && ret.tokens[i].constructor === EOFTk ) {
 						console.error("ERROR: EOFTk in the middle of chunk");
 						console.trace();
 					}
@@ -294,7 +294,7 @@ AsyncTokenTransformManager.prototype.emitChunk = function( ret ) {
 			if ( this.frame.depth === 0 &&
 					ret.tokens && ret.tokens.length ) {
 				for ( var i = 0, l = ret.tokens.lengh; i < l; i++ ) {
-					if ( ret.tokens[i] && ret.tokens[1].constructor === EOFTk ) {
+					if ( ret.tokens[i] && ret.tokens[i].constructor === EOFTk ) {
 						console.error("ERROR: EOFTk in the middle of chunk");
 						console.trace();
 					}
