@@ -853,18 +853,12 @@ WSP._serializeHTMLEndTag = function ( state, token ) {
 };
 
 var splitLinkContentString = function (contentString, dp, target) {
-	var tail = dp.tail;
+	var tail = dp.tail,
+		prefix = dp.prefix;
 	if (dp.pipetrick) {
 		// Drop the content completely..
-		return { contentString: '', tail: tail || '' };
+		return { contentString: '', tail: tail || '', prefix: prefix || '' };
 	} else {
-		if ( target && contentString.substr( 0, target.length ) === target &&
-				dp.stx === 'simple' ) {
-			tail = contentString.substr( target.length );
-			if ( !Util.isLinkTrail( tail ) ) {
-				tail = dp.tail;
-			}
-		}
 		if ( tail && contentString.substr( contentString.length - tail.length ) === tail ) {
 			// strip the tail off the content
 			contentString = Util.stripSuffix( contentString, tail );
@@ -872,9 +866,16 @@ var splitLinkContentString = function (contentString, dp, target) {
 			tail = '';
 		}
 
+		if ( prefix && contentString.substr( 0, prefix.length ) === prefix ) {
+			contentString = contentString.substr( prefix.length );
+		} else if ( prefix ) {
+			prefix = '';
+		}
+
 		return {
 			contentString: contentString || '',
-			tail: tail || ''
+			tail: tail || '',
+			prefix: prefix || ''
 		};
 	}
 };
@@ -889,6 +890,7 @@ var getLinkRoundTripData = function( node, state ) {
 		type: null,
 		target: null, // filled in below
 		tail: dp.tail || '',
+		prefix: dp.prefix || '',
 		content: {} // string or tokens
 	};
 
@@ -921,8 +923,10 @@ var getLinkRoundTripData = function( node, state ) {
 			contentParts = splitLinkContentString(contentString, dp, rtData.target);
 			rtData.content.string = contentParts.contentString;
 			rtData.tail = contentParts.tail;
+			rtData.prefix = contentParts.prefix;
 		} else {
 			rtData.tail = '';
+			rtData.prefix = '';
 			rtData.content.string = contentString;
 		}
 	} else if ( node.childNodes.length ) {
@@ -1001,6 +1005,8 @@ WSP.linkHandler =  function( state, node, cb ) {
 					linkData.content.string = contentParts.contentString;
 					dp.tail = contentParts.tail;
 					linkData.tail = contentParts.tail;
+					dp.prefix = contentParts.prefix;
+					linkData.prefix = contentParts.prefix;
 				} else if ( dp.pipetrick ) {
 					// Handle empty sort key, which is not encoded as fragment
 					// in the LinkHandler
@@ -1074,11 +1080,11 @@ WSP.linkHandler =  function( state, node, cb ) {
 			if ( canUseSimple ) {
 				// Simple case
 				if ( ! target.modified ) {
-					cb( '[[' + target.value + ']]' + linkData.tail );
+					cb( linkData.prefix + '[[' + target.value + ']]' + linkData.tail );
 					return;
 				} else {
 					contentSrc = escapeWikiLinkContentString(linkData.content.string, state);
-					cb( '[[' + contentSrc + ']]' + linkData.tail );
+					cb( linkData.prefix + '[[' + contentSrc + ']]' + linkData.tail );
 					return;
 				}
 			} else {
@@ -1093,6 +1099,8 @@ WSP.linkHandler =  function( state, node, cb ) {
 					contentSrc = contentParts.contentString;
 					dp.tail = contentParts.tail;
 					linkData.tail = contentParts.tail;
+					dp.prefix = contentParts.prefix;
+					linkData.prefix = contentParts.prefix;
 				} else if ( !willUsePipeTrick ) {
 					if (linkData.content.fromsrc) {
 						contentSrc = linkData.content.string;
@@ -1108,7 +1116,7 @@ WSP.linkHandler =  function( state, node, cb ) {
 					contentSrc = '<nowiki/>';
 				}
 
-				cb( '[[' + linkData.target.value + '|' + contentSrc + ']]' + linkData.tail );
+				cb( linkData.prefix + '[[' + linkData.target.value + '|' + contentSrc + ']]' + linkData.tail );
 				return;
 			}
 		} else if ( rel === 'mw:ExtLink' ) {

@@ -154,8 +154,8 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 			content = [ morecontent ];
 		}
 
-		var tail = Util.lookup( attribs, 'tail' );
 		var tokens = [];
+
 		if ( title.ns.isCategory() && ! href.match(/^:/) ) {
 
 			// We let this get handled earlier as a normal wikilink, but we need
@@ -198,13 +198,6 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 				tokens.push(metaToken);
 			}
 
-			if ( tail ) {
-				if ( obj.dataAttribs.tsr ) {
-					obj.dataAttribs.tsr[1] -= tail.length;
-				}
-				tokens.push(tail);
-			}
-
 			cb( {
 				tokens: tokens
 			} );
@@ -240,13 +233,6 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 
 				tokens.push( obj );
 
-				if ( tail ) {
-					if ( obj.dataAttribs.tsr ) {
-						obj.dataAttribs.tsr[1] -= tail.length;
-					}
-					tokens.push(tail);
-				}
-
 				if ( interwikiInfo.language !== undefined &&
 				     linkParts.colonEscape === undefined )  {
 					cb( {
@@ -258,11 +244,6 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 					} );
 				}
 			} else {
-				if ( tail ) {
-					obj.dataAttribs.tail = tail;
-					content.push( tail );
-				}
-
 				for ( j = 0; j < content.length; j++ ) {
 					if ( content[j].constructor !== String ) {
 						property = Util.lookup( content[j].attribs, 'property' );
@@ -432,15 +413,6 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 				] );
 
 		var tokens = [ a, img, new EndTagTk( isImageLink ? 'a' : 'span' )];
-		var linkTail = Util.lookup(token.attribs, 'tail');
-		if (isImageLink && linkTail) {
-			if ( a.dataAttribs.tsr ) {
-				a.dataAttribs.tsr[1] -= linkTail.length;
-			}
-			var src = a.dataAttribs.src;
-			a.dataAttribs.src = src.substr(0,src.length - linkTail.length);
-			tokens.push(linkTail);
-		}
 		return { tokens: tokens };
 	}
 };
@@ -610,14 +582,6 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 
 	// set round-trip information on the wrapping figure token
 	thumb[0].dataAttribs = dataAttribs;
-
-	var linkTail = Util.lookup(token.attribs, 'tail');
-	if (linkTail) {
-		if ( dataAttribs.tsr ) {
-			dataAttribs.tsr[1] -= linkTail.length;
-		}
-		thumb.push(linkTail);
-	}
 
 /*
  * Wikia DOM:
