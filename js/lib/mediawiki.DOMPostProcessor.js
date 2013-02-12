@@ -368,7 +368,7 @@ function handleUnbalancedTableTags(node, env, tplIdToSkip) {
 						currTpl.start = node;
 						// console.warn("---> TPL <start>: " + currTpl.tplId);
 					} else if (!insideTpl && nTypeOf.match(/End/)) {
-						currTpl = { end: node, tplId: node.getAttribute("about") };
+						currTpl = { end: node, tplId: node.getAttribute("about") || "" };
 						// console.warn("---> TPL <end>: " + currTpl.tplId);
 					}
 				}
@@ -428,9 +428,9 @@ function handleUnbalancedTableTags(node, env, tplIdToSkip) {
 				c.parentNode.insertBefore(problemTpl.end, c.nextSibling);
 
 				// Update TSR
-				var dpSrc = problemTpl.end.getAttribute("data-parsoid");
+				var dpSrc = problemTpl.end.getAttribute("data-parsoid") || "";
 
-				if (dpSrc === null || dpSrc === "") {
+				if (dpSrc === "") {
 					// TODO: Figure out why there is no data-parsoid here!
 					console.error( "XXX Error in handleUnbalancedTableTags: no data-parsoid found! " +
 							env.page.name );
@@ -1078,9 +1078,9 @@ function encapsulateTemplates( env, doc, tplRanges, tplParams) {
 		var tcStart = range.start;
 		var tcEnd = range.end;
 		if (startElem !== tcStart) {
-			var t1 = startElem.getAttribute("typeof");
-			var t2 = tcStart.getAttribute("typeof");
-			tcStart.setAttribute("typeof", t1 ? t1 + " " + t2 : t2);
+			var t1 = startElem.getAttribute("typeof"),
+				t2 = tcStart.getAttribute("typeof");
+			tcStart.setAttribute("typeof", t2 ? t1 + " " + t2 : t1);
 		}
 
 /*

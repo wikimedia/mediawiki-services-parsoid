@@ -901,7 +901,7 @@ var getLinkRoundTripData = function( node, state ) {
 		}
 	}
 
-	var href = node.getAttribute('href');
+	var href = node.getAttribute('href') || '';
 
 	// Save the token's "real" href for comparison
 	rtData.href = href.replace( /^(\.\.?\/)+/, '' );
@@ -960,7 +960,7 @@ WSP.linkHandler =  function( state, node, cb ) {
 		dp = node.data.parsoid,
 		linkData, contentParts,
 		contentSrc = '',
-		rel = node.getAttribute('rel');
+		rel = node.getAttribute('rel') || '';
 
 	// Get the rt data from the token and tplAttrs
 	linkData = getLinkRoundTripData(node, state);
@@ -1549,7 +1549,7 @@ WSP.tagHandlers = {
 		start: {
 			handle: function ( state, token ) {
 				if ( token.getAttribute('rel') === 'mw:externalImage' ) {
-					return token.getAttribute('src');
+					return token.getAttribute('src') || '';
 				} else {
 					return '';
 				}
@@ -1797,7 +1797,7 @@ WSP.getDOMHandler = function(state, node, cb) {
 	var dp = node.data.parsoid,
 		nodeName = node.nodeName.toLowerCase(),
 		handler,
-		nodeTypeOf = node.getAttribute( 'typeof' );
+		nodeTypeOf = node.getAttribute( 'typeof' ) || '';
 	if ( dp.src !== undefined ) {
 		//console.log(node.parentNode.outerHTML);
 		if (nodeTypeOf === "mw:TemplateSource") {
@@ -1843,7 +1843,9 @@ WSP.getDOMHandler = function(state, node, cb) {
 
 	if (dp.stx === 'html' ||
 			( node.getAttribute('data-parsoid') === null &&
-			  nodeName !== 'meta' &&
+			  // SSS FIXME: if we get to the root, it wont have a parent
+			  // But, why are we getting to the root?
+			  nodeName !== 'meta' && node.parentNode &&
 			  node.parentNode.data.parsoid.stx === 'html' ) )
 	{
 		return null; // this.htmlElementHandler;
@@ -1851,7 +1853,6 @@ WSP.getDOMHandler = function(state, node, cb) {
 		handler = this.tagHandlers[nodeName];
 		return handler && handler.node || null;
 	}
-
 };
 
 
@@ -2155,8 +2156,8 @@ WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
 
 	if (node.nodeName.toLowerCase() === "meta") {
 		var prop = node.getAttribute("property");
-		if (prop.match(/mw:objectAttr/)) {
-			var templateId = node.getAttribute("about");
+		if (prop && prop.match(/mw:objectAttr/)) {
+			var templateId = node.getAttribute("about") || '';
 			var src  = this._getDOMRTInfo(node.attributes).src;
 			if (!state.tplAttrs[templateId]) {
 				state.tplAttrs[templateId] = { kvs: {}, ks: {}, vs: {} };
@@ -2181,7 +2182,7 @@ WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
 			node.parentNode.removeChild(node);
 		}
 	} else {
-		var about = node.nodeType === Node.ELEMENT_NODE ? node.getAttribute("about") : "";
+		var about = DU.isElt(node) ? node.getAttribute("about") || "" : "";
 		var child = node.firstChild;
 		var next, prev, childIsPre, str;
 
@@ -2473,7 +2474,7 @@ WSP._serializeDOM = function( node, state ) {
 			// we need not verify if it is an End marker
 			var typeofVal = node.getAttribute("typeof");
 			if (typeofVal && typeofVal.match(/\bmw:Object(\/[^\s]+|\b)/)) {
-				state.activeTemplateId = node.getAttribute("about");
+				state.activeTemplateId = node.getAttribute("about") || "";
 				var attrs = [ new KV("typeof", "mw:TemplateSource") ];
 				var dps = node.getAttribute("data-parsoid-serialize");
 				if (dps) {
@@ -2499,7 +2500,7 @@ WSP._serializeDOM = function( node, state ) {
 
 	switch( node.nodeType ) {
 		case Node.ELEMENT_NODE:
-			var name = node.nodeName.toLowerCase(),
+			var nodeName = node.nodeName.toLowerCase(),
 				tkAttribs = this._getDOMAttribs(node.attributes),
 				tkRTInfo = this._getDOMRTInfo(node.attributes),
 				parentSTX = state.parentSTX;
@@ -2510,7 +2511,7 @@ WSP._serializeDOM = function( node, state ) {
 
 			children = node.childNodes;
 
-			if (isHtmlBlockTag(name)) {
+			if (isHtmlBlockTag(nodeName)) {
 				state.currLine = {
 					text: null,
 					numPieces: 0,
@@ -2524,9 +2525,7 @@ WSP._serializeDOM = function( node, state ) {
 			// Hack for link tail escaping- access to the next node is
 			// difficult otherwise.
 			// TODO: Implement this more cleanly!
-			if ( node.nodeName.toLowerCase() === 'a' &&
-					node.getAttribute('rel') === 'mw:WikiLink' )
-			{
+			if ( nodeName === 'a' && node.getAttribute('rel') === 'mw:WikiLink' ) {
 				var dp = JSON.parse(node.getAttribute('data-parsoid') || '{}');
 				if ( dp.stx !== 'html' &&
 					! dp.tail &&
@@ -2546,7 +2545,7 @@ WSP._serializeDOM = function( node, state ) {
 			//
 			// FIXME: This code should be extracted into a DOMUtils.js file to be used
 			// by the testing setup.
-			if (name === 'pre' && tkRTInfo.stx === 'html') {
+			if (nodeName === 'pre' && tkRTInfo.stx === 'html') {
 				var modified = false;
 				var fc = node.firstChild;
 				if (fc && fc.nodeType === Node.TEXT_NODE) {
@@ -2591,7 +2590,7 @@ WSP._serializeDOM = function( node, state ) {
 
 				// Fake curToken state for token-based handlers. This is then
 				// assigned to prevToken in _serializeToken.
-				state.curToken = new EndTagTk(name, tkAttribs, tkRTInfo);
+				state.curToken = new EndTagTk(nodeName, tkAttribs, tkRTInfo);
 				state.prevToken = state.curToken;
 				state.currTagToken = state.curToken;
 				state.prevTagToken = state.curToken;
@@ -2599,7 +2598,7 @@ WSP._serializeDOM = function( node, state ) {
 				// Token-based serialization
 
 				// Serialize the start token
-				var startToken = new TagTk(name, tkAttribs, tkRTInfo);
+				var startToken = new TagTk(nodeName, tkAttribs, tkRTInfo);
 				this._serializeToken(state, startToken);
 
 				// Newly created elements/tags in this list inherit their default
@@ -2613,10 +2612,10 @@ WSP._serializeDOM = function( node, state ) {
 
 				// Set self to parent token if data-parsoid is set
 				if ( Object.keys(tkRTInfo).length > 0 ||
-						setSTXTags[name] ||
-						! inheritSTXTags[name] )
+						setSTXTags[nodeName] ||
+						! inheritSTXTags[nodeName] )
 				{
-					if ( noHTMLSTXTags[name] || ! Util.isBlockTag(name) ) {
+					if ( noHTMLSTXTags[nodeName] || ! Util.isBlockTag(nodeName) ) {
 						// Don't inherit stx in these
 						state.parentSTX = undefined;
 					} else {
@@ -2680,7 +2679,7 @@ WSP._serializeDOM = function( node, state ) {
 				state.parentSTX = parentSTX;
 
 				// then the end token
-				this._serializeToken(state, new EndTagTk(name, tkAttribs, tkRTInfo));
+				this._serializeToken(state, new EndTagTk(nodeName, tkAttribs, tkRTInfo));
 
 				if ( tailSrc ) {
 					// emit the tail

@@ -79,16 +79,11 @@ var DOMUtils = {
 		var curVal = node.getAttribute(name),
 			dp = node.data.parsoid;
 
-		// work around JSDOM bug
-		if(node.attributes[name] === undefined) {
-			curVal = null;
-		}
-
 		// If tplAttrs is truish, check if this attribute was
 		// template-generated. Return that value if set.
 		if ( tplAttrs ) {
 			var type = node.getAttribute('typeof'),
-				about = node.getAttribute('about'),
+				about = node.getAttribute('about') || '',
 				tplAttrState = tplAttrs[about];
 			if (type && type.match(/\bmw:ExpandedAttrs\/[^\s]+/) &&
 					tplAttrState &&
@@ -200,11 +195,11 @@ var DOMUtils = {
 	},
 
 	isTplMetaType: function(nType)  {
-		return nType.match(/\bmw:Object(\/[^\s]+)*\b/);
+		return nType && nType.match(/\bmw:Object(\/[^\s]+)*\b/);
 	},
 
 	isExpandedAttrsMetaType: function(nType) {
-		return nType.match(/\bmw:ExpandedAttrs(\/[^\s]+)*\b/);
+		return nType && nType.match(/\bmw:ExpandedAttrs(\/[^\s]+)*\b/);
 	},
 
 	isTplMarkerMeta: function(n)  {
@@ -217,7 +212,7 @@ var DOMUtils = {
 	isTplStartMarkerMeta: function(n)  {
 		if (this.hasNodeName(n, "meta")) {
 			var t = n.getAttribute("typeof");
-			var tMatch = t.match(/\bmw:Object(\/[^\s]+)*\b/);
+			var tMatch = t && t.match(/\bmw:Object(\/[^\s]+)*\b/);
 			return tMatch && !t.match(/\/End\b/);
 		} else {
 			return false;
@@ -227,7 +222,7 @@ var DOMUtils = {
 	isTplEndMarkerMeta: function(n)  {
 		if (this.hasNodeName(n, "meta")) {
 			var t = n.getAttribute("typeof");
-			return t.match(/\bmw:Object(\/[^\s]+)*\/End\b/);
+			return t && t.match(/\bmw:Object(\/[^\s]+)*\/End\b/);
 		} else {
 			return false;
 		}

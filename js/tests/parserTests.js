@@ -378,7 +378,7 @@ ParserTests.prototype.makeChanges = function ( item, content, changelist, cb ) {
 		return o;
 	}
 
-	var node, change, nodes = content.childNodes.slice();
+	var node, change, nodes = Util.clone(content.childNodes);
 	for ( var i = 0; i < changelist.length; i++ ) {
 		node = nodes[i];
 		change = changelist[i];

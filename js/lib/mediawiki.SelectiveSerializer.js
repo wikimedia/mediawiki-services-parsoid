@@ -111,7 +111,7 @@ DiffToSelserConverter.prototype.doConvert = function(parentNode, parentDSR) {
 			{
 				// Don't descend into template content
 				var type = node.getAttribute('typeof');
-				if(dp && dp.dsr && type.match(/^mw:Object/)) {
+				if(dp && dp.dsr && type && type.match(/^mw:Object/)) {
 					// Only use the dsr from the typeof-marked elements
 					this.updatePos(dp.dsr[1]);
 				}
