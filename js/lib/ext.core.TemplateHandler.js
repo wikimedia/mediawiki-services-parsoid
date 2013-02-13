@@ -81,7 +81,8 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 				srcHandler = this._processTemplateAndTitle.bind( this, state, frame,
 					cb, templateName, [], text );
 			//console.log( text );
-			cb( { async: true } );
+			// SSS: Not required here -- fetchExpandedTplOrExtension takes care of this.
+			// cb( { async: true } );
 			this.fetchExpandedTplOrExtension( this.manager.env.page.name || '',
 					text, PreprocessorRequest, cb, srcHandler);
 		} else {

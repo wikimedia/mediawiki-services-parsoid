@@ -267,51 +267,40 @@ AsyncTokenTransformManager.prototype.setFrame = function ( parentFrame, title, a
 AsyncTokenTransformManager.prototype.emitChunk = function( ret ) {
 	this.env.dp( 'emitChunk', ret );
 
+	function checkForEOFTkErrors(ttm, ret, atEnd) {
+		if ( ttm.frame.depth === 0 &&
+				ret.tokens && ret.tokens.length ) {
+			if ( atEnd && ret.tokens.last() && ret.tokens.last().constructor !== EOFTk )
+			{
+				console.error("ERROR: EOFTk went missing in AsyncTokenTransformManager");
+				ret.tokens.push(new EOFTk());
+			}
+			for ( var i = 0, l = ret.tokens.lengh; i < l - 1; i++ ) {
+				if ( ret.tokens[i] && ret.tokens[i].constructor === EOFTk ) {
+					console.error("ERROR: EOFTk in the middle of chunk");
+					console.trace();
+				}
+			}
+
+		}
+	}
+
 	// This method is often the root of the call stack, so makes a good point
 	// for a try/catch to ensure error handling.
 	try {
-		if ( ! ret.async ) {
-			// Check if an EOFTk went missing
-			if ( this.frame.depth === 0 &&
-					ret.tokens && ret.tokens.length ) {
-				if ( ret.tokens.last() && ret.tokens.last().constructor !== EOFTk )
-				{
-					console.error("ERROR: EOFTk went missing in AsyncTokenTransformManager");
-					ret.tokens.push(new EOFTk());
-				}
-				for ( var i = 0, l = ret.tokens.lengh; i < l - 1; i++ ) {
-					if ( ret.tokens[i] && ret.tokens[i].constructor === EOFTk ) {
-						console.error("ERROR: EOFTk in the middle of chunk");
-						console.trace();
-					}
-				}
+		// Check if an EOFTk went missing
+		checkForEOFTkErrors(this, ret, !ret.async);
+		this.emit( 'chunk', ret.tokens );
 
-			}
-
-			this.emit( 'chunk', ret.tokens );
-			this.emit('end');
-			// Reset accumulators
-			this.reset();
-
-			// NOTE: This is a dummy return.  We are exiting async mode and
-			// there is no caller waiting to consume this return value.
-			// This is present here for parity with the return on the other branch
-			// and not confuse anyone wondering if there is a missing return here.
-			return;
-		} else {
-			if ( this.frame.depth === 0 &&
-					ret.tokens && ret.tokens.length ) {
-				for ( var i = 0, l = ret.tokens.lengh; i < l; i++ ) {
-					if ( ret.tokens[i] && ret.tokens[i].constructor === EOFTk ) {
-						console.error("ERROR: EOFTk in the middle of chunk");
-						console.trace();
-					}
-				}
-
-			}
-			this.emit( 'chunk', ret.tokens );
-			// allow accumulators to go direct
+		if ( ret.async ) {
+			// Our work is done here, but more async tokens are yet to come.
+			//
+			// Allow accumulators to bypass their callbacks and go directly
+			// through emitChunk for those future token chunks.
 			return this.emitChunk.bind( this );
+		} else {
+			this.emit('end');
+			this.reset(); // Reset accumulators
 		}
 	} catch ( e ) {
 		this.env.errCB( e );
@@ -336,6 +325,7 @@ AsyncTokenTransformManager.prototype.process = function ( tokens ) {
  */
 AsyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 	this.env.tracer.startPass("onChunk (Async:" + this.attributeType + ")");
+
 	// Set top-level callback to next transform phase
 	var res = this.transformTokens ( tokens, this.tokenCB );
 	this.env.dp( 'AsyncTokenTransformManager onChunk', res.async? 'async' : 'sync', res.tokens );
@@ -350,10 +340,11 @@ AsyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 	}
 
 	// Update the tail of the current accumulator chain
-	if ( res.async ) {
-		this.tailAccumulator = res.async;
-		this.tokenCB = res.async.getParentCB ( 'sibling' );
+	if ( res.asyncAccum ) {
+		this.tailAccumulator = res.asyncAccum;
+		this.tokenCB = res.asyncAccum.getParentCB ( 'sibling' );
 	}
+
 	this.env.tracer.endPass("onChunk (Async:" + this.attributeType + ")");
 };
 
@@ -385,7 +376,7 @@ AsyncTokenTransformManager.prototype.onEndEvent = function () {
  */
 AsyncTokenTransformManager.prototype._makeNextAccum = function( cb, state ) {
 	var newAccum = new TokenAccumulator( this, cb );
-	var _cbs     = { parent: newAccum.getParentCB( 'child' ) };
+	var _cbs     = { parentCB: newAccum.getParentCB( 'child' ) };
 	var newCB    = this.maybeSyncReturn.bind( this, state, _cbs );
 	_cbs.self = newCB;
 
@@ -593,7 +584,7 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 	// the returned accumulator, or call .siblingDone() to mark the end of a
 	// chain.
 	var retAccum = activeAccum !== localAccum ? activeAccum : null;
-	return { tokens: localAccum, async: retAccum };
+	return { tokens: localAccum, asyncAccum: retAccum };
 };
 
 /**
@@ -634,7 +625,7 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
 		// Since the original transformTokens call is already done, we have to
 		// re-start application of any remaining transforms here.
 		this.env.dp( 'maybeSyncReturn async', s.c, ret );
-		var asyncCB = cbs.parent,
+		var asyncCB = cbs.parentCB,
 			tokens = ret.tokens;
 		if ( tokens ) {
 			if ( tokens.constructor === String ) {
@@ -652,13 +643,13 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
 						this.frame.title, ret.tokens );
 
 				// Set up a new child callback with its own callback state
-				var _cbs = { async: cbs.parent },
+				var _cbs = { parentCB: cbs.parentCB },
 					childCB = this.maybeSyncReturn.bind( this, s, _cbs );
 				_cbs.self = childCB;
 
 				var res = this.transformTokens( ret.tokens, childCB );
 				ret.tokens = res.tokens;
-				if ( res.async ) {
+				if ( res.asyncAccum ) {
 					// Insert new child accumulator chain- any further chunks from
 					// the transform will be passed as sibling to the last accum
 					// in this chain, and the new chain will pass its results to
@@ -666,7 +657,7 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
 
 					if ( ! ret.async ) {
 						// There will be no more input to the child pipeline
-						res.async.siblingDone();
+						res.asyncAccum.siblingDone();
 
 						// We need to indicate that more results will follow from
 						// the child pipeline.
@@ -676,7 +667,7 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
 						// Need to return results of recursive expand *before* further
 						// async results, so we simply pass further results to the
 						// last accumulator in the new chain.
-						cbs.parent = res.async.getParentCB( 'sibling' );
+						cbs.parentCB = res.asyncAccum.getParentCB( 'sibling' );
 					}
 				}
 			}
@@ -1029,6 +1020,10 @@ AttributeTransformManager.prototype._returnAttributeKey = function ( ref, tokens
  * and return fully processed token chunks in-order and as soon as possible.
  * They support the AsyncTokenTransformManager.
  *
+ * They receive tokens from sibling transformers and child transformers,
+ * merge them in-order (all-child-tokens followed by all-sibling-tokens)
+ * and pass them to whoever wanted them (another sibling or a parent).
+ *
  * @class
  * @constructor
  * @param {Object} next TokenAccumulator to link to
@@ -1037,11 +1032,9 @@ AttributeTransformManager.prototype._returnAttributeKey = function ( ref, tokens
 function TokenAccumulator ( manager, parentCB ) {
 	this.manager = manager;
 	this.parentCB = parentCB;
-	this.accum = [];
-	// Wait for child and sibling by default
-	// Note: Need to decrement outstanding on last accum
-	// in a chain.
-	this.outstanding = 2;
+	this.siblingToks = [];
+	this.waitForChild = true;
+	this.waitForSibling = true;
 }
 
 /**
@@ -1069,74 +1062,58 @@ TokenAccumulator.prototype.setParentCB = function ( cb ) {
  * @returns {Mixed}: new parent callback for caller or falsy value
  */
 TokenAccumulator.prototype._returnTokens = function ( reference, ret ) {
-	var cb,
-		returnTokens = [];
-
-	if ( ! ret.async ) {
-		this.outstanding--;
-	}
-
 	this.manager.env.dp( 'TokenAccumulator._returnTokens', reference, ret );
 
-	// FIXME
+	// FIXME: Where is this coming from?
 	if ( ret.tokens === undefined ) {
-		if ( this.manager.env.conf.parsoid.debug ) {
-			console.warn( 'ret.tokens undefined: ' + JSON.stringify( ret ) );
-			console.trace();
-		}
-		if ( ret.token !== undefined ) {
-			ret.tokens = [ret.token];
-		} else {
-			ret.tokens = [];
-		}
+		console.warn( 'ret.tokens undefined: ' + JSON.stringify( ret ) );
+		console.trace();
+		ret.tokens = ( ret.token === undefined ) ? [] : [ret.token];
 	}
 
 	if ( reference === 'child' ) {
-		var res = {};
-
 		if ( !ret.async ) {
-			// empty accum too
-			ret.tokens = ret.tokens.concat( this.accum );
-			this.accum = [];
+			// Child is all done => can pass along sibling toks as well
+			// since any tokens we receive now will already be in order
+			// and no buffering is necessary.
+			this.waitForChild = false;
+			ret.tokens = ret.tokens.concat( this.siblingToks );
+			this.siblingToks = [];
 		}
-		//this.manager.env.dp( 'TokenAccumulator._returnTokens child: ',
-		//		tokens, ' outstanding: ', this.outstanding );
+
 		ret.tokens.rank = this.manager.phaseEndRank;
-		ret.async = this.outstanding > 0;
+		ret.async = this.waitForSibling || this.waitForChild;
 
 		this._callParentCB( ret );
 
 		return null;
 	} else {
-		// sibling
-		if ( this.outstanding === 0 ) {
-			ret.tokens = this.accum.concat( ret.tokens );
-			// A sibling has already transformed child tokens, so we don't
-			// have to do this again.
-			//this.manager.env.dp( 'TokenAccumulator._returnTokens: ',
-			//		'sibling done and parentCB ',
-			//		tokens );
+		// received tokens from sibling
+		if (!ret.async) {
+			this.waitForSibling = false;
+		}
+
+		if (this.waitForChild) {
+			// Just continue to accumulate sibling tokens.
+			this.siblingToks = this.siblingToks.concat( ret.tokens );
+			this.manager.env.dp( 'TokenAccumulator._returnTokens: sibling done, but not overall. async=',
+					ret.async, ', this.outstanding=', (this.waitForChild + this.waitForSibling),
+					', this.siblingToks=', this.siblingToks, ' frame.title=', this.manager.frame.title );
+		} else if (this.waitForSibling) {
+			// Sibling is not yet done, but child is. Return own parentCB to
+			// allow the sibling to go direct, and call back parent with
+			// tokens. The internal accumulator is empty at this stage, as its
+			// tokens got passed to the parent when the child was done.
+			ret.tokens.rank = this.manager.phaseEndRank;
+			return this._callParentCB( ret );
+		} else {
+			// All done
+			ret.tokens = this.siblingToks.concat( ret.tokens );
 			ret.tokens.rank = this.manager.phaseEndRank;
 			ret.async = false;
 			this.parentCB( ret );
 			return null;
-		} else if ( this.outstanding === 1 && ret.async ) {
-			// Sibling is not yet done, but child is. Return own parentCB to
-			// allow the sibling to go direct, and call back parent with
-			// tokens. The internal accumulator is empty at this stage, as its
-			// tokens are passed to the parent when the child is done.
-			ret.tokens.rank = this.manager.phaseEndRank;
-			return this._callParentCB( ret );
-		} else {
-			// sibling tokens are always fully processed for this phase, so we
-			// can directly concatenate them here.
-			this.accum  = this.accum.concat( ret.tokens );
-			this.manager.env.dp( 'TokenAccumulator._returnTokens: sibling done, but not overall. async=',
-					ret.async, ', this.outstanding=', this.outstanding,
-					', this.accum=', this.accum, ' frame.title=', this.manager.frame.title );
 		}
-
-
 	}
 };
 
@@ -1164,7 +1141,7 @@ TokenAccumulator.prototype._callParentCB = function ( ret ) {
  * @param {Object} token
  */
 TokenAccumulator.prototype.push = function ( token ) {
-	return this.accum.push(token);
+	return this.siblingToks.push(token);
 };
 
 /**
@@ -1174,7 +1151,7 @@ TokenAccumulator.prototype.push = function ( token ) {
  * @param {Object} token
  */
 TokenAccumulator.prototype.append = function ( token ) {
-	this.accum = this.accum.concat( token );
+	this.siblingToks = this.siblingToks.concat( token );
 };
 
 
