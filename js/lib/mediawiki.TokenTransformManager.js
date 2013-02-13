@@ -423,15 +423,16 @@ AsyncTokenTransformManager.prototype._counter = 0;
  */
 AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parentCB ) {
 
+	if (tokens.length === 0) {
+		return { tokens: tokens };
+	}
+
 	//console.warn('AsyncTokenTransformManager.transformTokens: ' + JSON.stringify(tokens) );
 
 	var inputRank = tokens.rank || 0,
 		localAccum = [], // a local accum for synchronously returned fully processed tokens
 		activeAccum = localAccum, // start out collecting tokens in localAccum
 								// until the first async transform is hit
-		workStack = [], // stack of stacks (reversed chunks) of tokens returned
-						// from transforms to process before consuming the next
-						// input token
 		token, // currently processed token
 		s = { // Shared state accessible to synchronous transforms in this.maybeSyncReturn
 			transforming: true,
@@ -444,50 +445,48 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 	localAccum.getParentCB = function() { return parentCB; };
 	var nextAccum = this._makeNextAccum( parentCB, s );
 
-	var i = 0,
-		l = tokens.length;
-	while ( i < l || workStack.length ) {
-		if ( workStack.length ) {
-			var curChunk = workStack.last();
-			minRank = curChunk.rank || inputRank;
-			token = curChunk.pop();
-			if ( !curChunk.length ) {
+	// stack of tokens to process -- initialized to the tokens that was passed in
+	var workStack = [tokens];
+	tokens.eltIndex = 0;
 
-				// activate nextActiveAccum after consuming the chunk
-				if ( curChunk.nextActiveAccum ) {
-					if ( activeAccum !== curChunk.oldActiveAccum ) {
-						// update the callback of the next active accum
-						curChunk.nextActiveAccum.setParentCB( activeAccum.getParentCB('sibling') );
-					}
-					activeAccum = curChunk.nextActiveAccum;
-					// create new accum and cb for transforms
-					nextAccum = this._makeNextAccum( activeAccum.getParentCB('sibling'), s );
-				}
+	while ( workStack.length ) {
+		var curChunk = workStack.last();
+		minRank = curChunk.rank || inputRank;
+		token = curChunk[curChunk.eltIndex++];
+		if ( curChunk.eltIndex === curChunk.length ) {
 
-				// remove empty chunk from workstack
-				workStack.pop();
-			}
-		} else {
-			token = tokens[i];
-			i++;
-			minRank = inputRank;
-			if ( token.constructor === Array ) {
-				if ( ! token.length ) {
-					// skip it
-				} else if ( token.rank >= this.phaseEndRank ) {
-					// don't process the array in this phase.
-					activeAccum.push( token );
-				} else {
-					workStack.push( token );
+			// activate nextActiveAccum after consuming the chunk
+			if ( curChunk.nextActiveAccum ) {
+				if ( activeAccum !== curChunk.oldActiveAccum ) {
+					// update the callback of the next active accum
+					curChunk.nextActiveAccum.setParentCB( activeAccum.getParentCB('sibling') );
 				}
-				continue;
-			} else if ( token.constructor === ParserValue ) {
-				// Parser functions etc that run before full attribute
-				// expansion are responsible for the full expansion of
-				// returned attributes in their respective environments.
-				throw( 'Unexpected ParserValue in AsyncTokenTransformManager.transformTokens:' +
-						JSON.stringify( token ) );
+				activeAccum = curChunk.nextActiveAccum;
+				// create new accum and cb for transforms
+				nextAccum = this._makeNextAccum( activeAccum.getParentCB('sibling'), s );
 			}
+
+			// remove empty chunk from workstack
+			workStack.pop();
+		}
+
+		// Token type special cases -- FIXME: why do we have this?
+		if ( token.constructor === Array ) {
+			if ( ! token.length ) {
+				// skip it
+			} else if ( token.rank >= this.phaseEndRank ) {
+				// don't process the array in this phase.
+				activeAccum.push( token );
+			} else {
+				workStack.push( token );
+			}
+			continue;
+		} else if ( token.constructor === ParserValue ) {
+			// Parser functions etc that run before full attribute
+			// expansion are responsible for the full expansion of
+			// returned attributes in their respective environments.
+			throw( 'Unexpected ParserValue in AsyncTokenTransformManager.transformTokens:' +
+					JSON.stringify( token ) );
 		}
 
 		if (this.trace) {
@@ -566,7 +565,7 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 						// There might still be something to do for these
 						// tokens. Prepare them for the workStack.
 						var revTokens = resTokens.slice();
-						revTokens.reverse();
+						revTokens.eltIndex = 0;
 						// Don't apply earlier transforms to results of a
 						// transformer to avoid loops and keep the
 						// execution model sane.
