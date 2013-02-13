@@ -234,14 +234,15 @@ var parse = function ( env, req, res, cb, err, src ) {
 			if ( !err.code ) {
 				err.code = 500;
 			}
-			console.error( err.trace || err.toString() );
-			res.send( err.toString(), err.code );
+			console.error( err.stack || err.toString() );
+			res.send( err.stack || err.toString(), err.code );
 			return;
 		} else {
 			res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 			cb( req, res, src, doc );
 		}
 	};
+
 	// Set the source
 	env.page.src = src;
 
@@ -404,8 +405,8 @@ app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
 			env.page.src = src;
 			parser.process( src );
 		} catch (e) {
-			console.log( e.stack );
-			res.send( e.toString(), 500 );
+			console.log( e.stack || e.toString() );
+			res.send( e.stack || e.toString(), 500 );
 		}
 	};
 
@@ -432,7 +433,7 @@ app.get( new RegExp('/_rt/(' + getInterwikiRE() + ')/(.*)'), function(req, res) 
 			oldid = req.query.oldid;
 		}
 		var tpr = new TemplateRequest( env, target, oldid );
-		tpr.once('src', parse.bind( null, env, req, res, roundTripDiff ));
+		tpr.once('src', parse.bind( tpr, env, req, res, roundTripDiff ));
 	};
 
 	getParserServiceEnv( res, req.params[0], req.params[1], cb );
@@ -468,7 +469,7 @@ app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)') , function(req, re
 				roundTripDiff( req, res, src, newDocument );
 			};
 
-		tpr.once('src', parse.bind( null, env, req, res, cb ));
+		tpr.once('src', parse.bind( tpr, env, req, res, cb ));
 	};
 
 	getParserServiceEnv( res, req.params[0], req.params[1], cb );
@@ -522,7 +523,7 @@ app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 			res.setHeader('Cache-Control', 's-maxage=2592000');
 		}
 		var tpr = new TemplateRequest( env, target, oldid );
-		tpr.once('src', parse.bind( null, env, req, res, function ( req, res, src, document ) {
+		tpr.once('src', parse.bind( tpr, env, req, res, function ( req, res, src, document ) {
 			res.end(document.body.innerHTML);
 			var et = new Date();
 			console.warn("completed parsing of " + target + " in " + (et - st) + " ms");
