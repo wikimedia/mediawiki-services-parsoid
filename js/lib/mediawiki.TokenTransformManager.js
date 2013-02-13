@@ -423,6 +423,7 @@ AsyncTokenTransformManager.prototype._counter = 0;
  */
 AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parentCB ) {
 
+	// Trivial case
 	if (tokens.length === 0) {
 		return { tokens: tokens };
 	}
@@ -433,28 +434,28 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 		localAccum = [], // a local accum for synchronously returned fully processed tokens
 		activeAccum = localAccum, // start out collecting tokens in localAccum
 								// until the first async transform is hit
-		token, // currently processed token
 		s = { // Shared state accessible to synchronous transforms in this.maybeSyncReturn
 			transforming: true,
 			// debug id for this expansion
 			c: 'c-' + AsyncTokenTransformManager.prototype._counter++
-		},
-		minRank;
+		};
 
 	// make localAccum compatible with getParentCB('sibling')
 	localAccum.getParentCB = function() { return parentCB; };
 	var nextAccum = this._makeNextAccum( parentCB, s );
 
-	// stack of tokens to process -- initialized to the tokens that was passed in
+	// Stack of token arrays to process
+	// Initialize to the token array that was passed in
 	var workStack = [tokens];
 	tokens.eltIndex = 0;
 
-	while ( workStack.length ) {
+	while ( workStack.length > 0 ) {
+		var token, minRank;
+
 		var curChunk = workStack.last();
 		minRank = curChunk.rank || inputRank;
 		token = curChunk[curChunk.eltIndex++];
 		if ( curChunk.eltIndex === curChunk.length ) {
-
 			// activate nextActiveAccum after consuming the chunk
 			if ( curChunk.nextActiveAccum ) {
 				if ( activeAccum !== curChunk.oldActiveAccum ) {
@@ -466,7 +467,7 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 				nextAccum = this._makeNextAccum( activeAccum.getParentCB('sibling'), s );
 			}
 
-			// remove empty chunk from workstack
+			// remove processed chunk
 			workStack.pop();
 		}
 
@@ -564,24 +565,24 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 					if ( ! resTokens.rank || resTokens.rank < this.phaseEndRank ) {
 						// There might still be something to do for these
 						// tokens. Prepare them for the workStack.
-						var revTokens = resTokens.slice();
-						revTokens.eltIndex = 0;
+						resTokens = resTokens.slice();
+						resTokens.eltIndex = 0;
 						// Don't apply earlier transforms to results of a
 						// transformer to avoid loops and keep the
 						// execution model sane.
-						revTokens.rank = resTokens.rank || transformer.rank;
-						//revTokens.rank = Math.max( resTokens.rank || 0, transformer.rank );
-						revTokens.oldActiveAccum = activeAccum;
-						workStack.push( revTokens );
+						resTokens.rank = resTokens.rank || transformer.rank;
+						//resTokens.rank = Math.max( resTokens.rank || 0, transformer.rank );
+						workStack.push( resTokens );
 						if ( s.res.async ) {
-							revTokens.nextActiveAccum = nextAccum.accum;
+							resTokens.nextActiveAccum = nextAccum.accum;
+							resTokens.oldActiveAccum = activeAccum;
+							// don't trigger activeAccum switch / _makeNextAccum call below
+							s.res.async = false;
 						}
 						// create new accum and cb for transforms
 						//activeAccum = nextAccum.accum;
 						nextAccum = this._makeNextAccum( activeAccum.getParentCB('sibling'), s );
-						// don't trigger activeAccum switch / _makeNextAccum call below
-						s.res.async = false;
-						this.env.dp( 'workStack', s.c, revTokens.rank, workStack );
+						this.env.dp( 'workStack', s.c, resTokens.rank, workStack );
 					}
 				}
 
@@ -606,6 +607,7 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 			}
 		}
 	}
+
 	// we are no longer transforming, maybeSyncReturn needs to follow the
 	// async code path
 	s.transforming = false;
@@ -613,17 +615,14 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 	// All tokens in localAccum are fully processed
 	localAccum.rank = this.phaseEndRank;
 
-	this.env.dp( 'localAccum',
-			activeAccum !== localAccum ? 'async' : 'sync',
-			s.c,
-			localAccum );
+	var inAsyncMode = activeAccum !== localAccum;
+	this.env.dp( 'localAccum', inAsyncMode ? 'async' : 'sync', s.c, localAccum );
 
 	// Return finished tokens directly to caller, and indicate if further
 	// async actions are outstanding. The caller needs to point a sibling to
 	// the returned accumulator, or call .siblingDone() to mark the end of a
 	// chain.
-	var retAccum = activeAccum !== localAccum ? activeAccum : null;
-	return { tokens: localAccum, asyncAccum: retAccum };
+	return { tokens: localAccum, asyncAccum: inAsyncMode ? activeAccum : null };
 };
 
 /**
@@ -762,30 +761,32 @@ SyncTokenTransformManager.prototype.process = function ( tokens ) {
  * @param {Array} Token chunk.
  */
 SyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
+
+	// Trivial case
+	if (tokens.length === 0) {
+		this.emit( 'chunk', tokens );
+		return;
+	}
+
 	this.env.tracer.startPass("onChunk (Sync:" + this.attributeType + ")");
 	this.env.dp( 'SyncTokenTransformManager.onChunk, input: ', tokens );
 
-	var localAccum = [],
-		workStack = [], // stack of stacks of tokens returned from transforms
-						// to process before consuming the next input token
-		i = 0,
-		l = tokens.length;
+	var localAccum = [];
 
-	while (i < l || workStack.length > 0) {
+	// Stack of token arrays to process
+	// Initialize to the token array that was passed in
+	var workStack = [tokens];
+	tokens.eltIndex = 0;
+
+	while ( workStack.length > 0 ) {
 		var token, minRank;
 
-		if ( workStack.length ) {
-			var curChunk = workStack[workStack.length - 1];
-			minRank = curChunk.rank || tokens.rank || this.phaseEndRank - 1;
-			token = curChunk.pop();
-			if ( !curChunk.length ) {
-				// remove empty chunk
-				workStack.pop();
-			}
-		} else {
-			token = tokens[i];
-			minRank = tokens.rank || this.phaseEndRank - 1;
-			i++;
+		var curChunk = workStack.last();
+		minRank = curChunk.rank || this.phaseEndRank - 1;
+		token = curChunk[curChunk.eltIndex++];
+		if ( curChunk.eltIndex === curChunk.length ) {
+			// remove processed chunk
+			workStack.pop();
 		}
 
 		if (this.trace) {
@@ -827,10 +828,10 @@ SyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 			}
 			// Splice in the returned tokens (while replacing the original
 			// token), and process them next.
-			var revTokens = res.tokens.slice();
-			revTokens.reverse();
-			revTokens.rank = res.tokens.rank || transformer.rank;
-			workStack.push( revTokens );
+			var resTokens = res.tokens.slice();
+			resTokens.eltIndex = 0;
+			resTokens.rank = res.tokens.rank || transformer.rank;
+			workStack.push( resTokens );
 		} else if ( res.token ) {
 			localAccum.push(res.token);
 			this.prevToken = res.token;
