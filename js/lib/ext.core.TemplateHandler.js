@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Template and template argument handling, first cut.
  *
@@ -8,6 +7,9 @@
  * controlled using a tplExpandData structure created independently for each
  * handled template tag.
  */
+
+"use strict";
+
 var events = require('events'),
 	ParserFunctions = require('./ext.core.ParserFunctions.js').ParserFunctions,
 	AttributeTransformManager = require('./mediawiki.TokenTransformManager.js')
@@ -80,9 +82,6 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 				templateName = (this.resolveTemplateTarget(token.attribs[0].k) || '').target || "",
 				srcHandler = this._processTemplateAndTitle.bind( this, state, frame,
 					cb, templateName, [], text );
-			//console.log( text );
-			// SSS: Not required here -- fetchExpandedTplOrExtension takes care of this.
-			// cb( { async: true } );
 			this.fetchExpandedTplOrExtension( this.manager.env.page.name || '',
 					text, PreprocessorRequest, cb, srcHandler);
 		} else {
@@ -627,7 +626,7 @@ TemplateHandler.prototype.onTemplateArg = function (token, frame, cb) {
 
 TemplateHandler.prototype.fetchArg = function(arg, argCB) {
 	if (arg.constructor === String) {
-		argCB({tokens: arg});
+		argCB({tokens: [arg]});
 	} else {
 		this.manager.frame.expand(arg, {
 			wrapTemplates: false,

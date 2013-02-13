@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Token transformation managers with a (mostly) abstract
  * TokenTransformManager base class and AsyncTokenTransformManager and
@@ -14,11 +13,34 @@
  * https://www.mediawiki.org/wiki/Parsoid/Token_stream_transformations
  * for more documentation.
  */
+"use strict";
 
 var events = require('events'),
 	LRU = require("lru-cache"),
 	jshashes = require('jshashes'),
 	Util = require('./mediawiki.Util.js').Util;
+
+
+function verifyTokensIntegrity(ret, nullOkay) {
+	// FIXME: Where is this coming from?
+	if (ret.constructor === Array) {
+		console.warn(' ret is not an object: ' + JSON.stringify( ret ) );
+		console.trace();
+		ret = { tokens: ret };
+	} else if (!nullOkay && ret.tokens === undefined) {
+		console.warn( 'ret.tokens undefined: ' + JSON.stringify( ret ) );
+		console.trace();
+		ret.tokens = ( ret.token === undefined ) ? [] : [ret.token];
+	}
+
+	if (ret.tokens && ret.tokens.constructor !== Array) {
+		console.warn( 'ret.tokens not an array: ' + JSON.stringify( ret ) );
+		console.trace();
+		ret.tokens = [ ret.tokens ];
+	}
+
+	return ret;
+}
 
 /**
  * Base class for token transform managers
@@ -234,7 +256,7 @@ AsyncTokenTransformManager.prototype.reset = function() {
 	this.tailAccumulator = null;
 	// initial top-level callback, emits chunks
 	this.tokenCB = this.emitChunk.bind( this );
-}
+};
 
 /**
  * Reset the internal token and outstanding-callback state of the
@@ -413,7 +435,6 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 		token, // currently processed token
 		s = { // Shared state accessible to synchronous transforms in this.maybeSyncReturn
 			transforming: true,
-			res: {},
 			// debug id for this expansion
 			c: 'c-' + AsyncTokenTransformManager.prototype._counter++
 		},
@@ -427,7 +448,7 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 		l = tokens.length;
 	while ( i < l || workStack.length ) {
 		if ( workStack.length ) {
-			var curChunk = workStack[workStack.length - 1];
+			var curChunk = workStack.last();
 			minRank = curChunk.rank || inputRank;
 			token = curChunk.pop();
 			if ( !curChunk.length ) {
@@ -453,11 +474,11 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 			if ( token.constructor === Array ) {
 				if ( ! token.length ) {
 					// skip it
-				} else if ( ! token.rank || token.rank < this.phaseEndRank ) {
-					workStack.push( token );
-				} else {
+				} else if ( token.rank >= this.phaseEndRank ) {
 					// don't process the array in this phase.
 					activeAccum.push( token );
+				} else {
+					workStack.push( token );
 				}
 				continue;
 			} else if ( token.constructor === ParserValue ) {
@@ -488,8 +509,15 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 			//this.env.tp( 'async trans' );
 			for (var j = 0, lts = ts.length; j < lts; j++ ) {
 				var transformer = ts[j];
+
+				// s.res is only used when we are still in this transfomer loop.
+				// In that scenario, it is safe to reset this each time around
+				// since s.res.tokens is retrieved after the transformation is done.
 				s.res = { };
-				// Transform the token.
+
+				// Transform the token.  This will call nextAccum.cb either
+				// with tokens or with an async signal.  In either case,
+				// s.res will be populated.
 				transformer.transform( token, this.frame, nextAccum.cb );
 
 				var resTokens = s.res.tokens;
@@ -507,6 +535,13 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 							resTokens.shift();
 							break;
 						}
+						// SSS FIXME: AttributeExpander clones the token
+						// So, this simplistic comparison for modification will
+						// fail leading us to do extra work on most tokens.
+						//
+						// Can be fixed by passing an additional flag from
+						// AttributeExpander that tells us if the token needs
+						// reprocessing.
 						if ( token === soleToken && ! resTokens.rank ) {
 							// token not modified, continue with transforms.
 							continue;
@@ -522,6 +557,10 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 						}
 					}
 
+					// SSS FIXME: This workstack code below can insert a workstack
+					// chunk even when there is just a single token to process.
+					// Could be fixed.
+					//
 					// token(s) were potentially modified
 					if ( ! resTokens.rank || resTokens.rank < this.phaseEndRank ) {
 						// There might still be something to do for these
@@ -546,6 +585,7 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 						this.env.dp( 'workStack', s.c, revTokens.rank, workStack );
 					}
 				}
+
 				// Abort processing for this token
 				token = null;
 				break;
@@ -596,14 +636,14 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
  */
 AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) {
 
+	// Null ret.tokens is okay since ret could just be an async signal
+	ret = verifyTokensIntegrity(ret, true);
+
 	if ( s.transforming ) {
 		// transformTokens is still ongoing, handle as sync return by
 		// collecting the results in s.res
 		this.env.dp( 'maybeSyncReturn transforming', s.c, ret );
 		if ( ret.tokens ) {
-			if ( ret.tokens.constructor !== Array ) {
-				ret.tokens = [ ret.tokens ];
-			}
 			if ( s.res.tokens ) {
 				var oldRank = s.res.tokens.rank;
 				s.res.tokens = s.res.tokens.concat( ret.tokens );
@@ -616,11 +656,9 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
 			} else {
 				s.res = ret;
 			}
-		} else if ( ret.constructor === Array ) {
-			console.trace();
 		}
+
 		s.res.async = ret.async;
-		//console.trace();
 	} else {
 		// Since the original transformTokens call is already done, we have to
 		// re-start application of any remaining transforms here.
@@ -628,15 +666,9 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
 		var asyncCB = cbs.parentCB,
 			tokens = ret.tokens;
 		if ( tokens ) {
-			if ( tokens.constructor === String ) {
-				ret.tokens = [ tokens ];
-				// XXX: We should probably fix the callers to return proper tokens
-				// instead
-				//console.error( "ERROR: got string as tokens in async maybeSyncReturn" );
-				//console.trace();
-			} else if (  tokens.length &&
-					( ! tokens.rank || tokens.rank < this.phaseEndRank ) &&
-					! ( tokens.length === 1 && tokens[0].constructor === String ) )
+			if (  tokens.length &&
+				( ! tokens.rank || tokens.rank < this.phaseEndRank ) &&
+				! ( tokens.length === 1 && tokens[0].constructor === String ) )
 			{
 				// Re-process incomplete tokens
 				this.env.dp( 'maybeSyncReturn: recursive transformTokens',
@@ -678,7 +710,6 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
 			// to avoid them if possible.
 			return;
 		}
-
 
 		asyncCB( ret );
 
@@ -1064,12 +1095,7 @@ TokenAccumulator.prototype.setParentCB = function ( cb ) {
 TokenAccumulator.prototype._returnTokens = function ( reference, ret ) {
 	this.manager.env.dp( 'TokenAccumulator._returnTokens', reference, ret );
 
-	// FIXME: Where is this coming from?
-	if ( ret.tokens === undefined ) {
-		console.warn( 'ret.tokens undefined: ' + JSON.stringify( ret ) );
-		console.trace();
-		ret.tokens = ( ret.token === undefined ) ? [] : [ret.token];
-	}
+	verifyTokensIntegrity(ret, false);
 
 	if ( reference === 'child' ) {
 		if ( !ret.async ) {
