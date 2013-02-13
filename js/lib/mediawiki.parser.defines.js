@@ -725,9 +725,20 @@ ParserValue.prototype.get = function( options, cb ) {
 	}
 };
 
-// TODO: don't use globals!
 if (typeof module === "object") {
-	module.exports = {};
+	module.exports = {
+		TagTk: TagTk,
+		InternalTk: InternalTk,
+		EndTagTk: EndTagTk,
+		SelfclosingTagTk: SelfclosingTagTk,
+		NlTk: NlTk,
+		CommentTk: CommentTk,
+		EOFTk: EOFTk,
+		KV: KV,
+		Params: Params,
+		ParserValue: ParserValue
+	};
+	// TODO: don't use globals!
 	global.TagTk = TagTk;
 	global.InternalTk = InternalTk;
 	global.EndTagTk = EndTagTk;
