@@ -39,5 +39,7 @@ if (cluster.isMaster) {
     console.log('Worker shutting down');
     process.exit(1);
   });
-  app.listen(8000);
+  // when running on appfog.com the listen port for the app
+  // is passed in an environment variable.  Most users can ignore this!
+  app.listen(process.env.VCAP_APP_PORT || 8000);
 }
