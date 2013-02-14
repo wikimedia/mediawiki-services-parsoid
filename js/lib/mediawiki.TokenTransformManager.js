@@ -448,12 +448,16 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 
 	// Stack of token arrays to process
 	// Initialize to the token array that was passed in
-	var workStack = [tokens];
-	tokens.eltIndex = 0;
+	var workStack = [];
+	workStack.pushChunk = function(toks) {
+		this.push(toks);
+		toks.eltIndex = 0;
+	}
+
+	workStack.pushChunk(tokens);
 
 	while ( workStack.length > 0 ) {
-		var token, minRank,
-			curChunk = workStack.last();
+		var curChunk = workStack.last();
 
 		// Activate nextActiveAccum after consuming the chunk
 		if ( curChunk.eltIndex === curChunk.length ) {
@@ -472,8 +476,8 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 			continue;
 		}
 
-		minRank = curChunk.rank || inputRank;
-		token = curChunk[curChunk.eltIndex++];
+		var token = curChunk[curChunk.eltIndex++],
+			minRank = curChunk.rank || inputRank;
 
 		// Token type special cases -- FIXME: why do we have this?
 		if ( token.constructor === Array ) {
@@ -483,7 +487,7 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 				// don't process the array in this phase.
 				activeAccum.push( token );
 			} else {
-				workStack.push( token );
+				workStack.pushChunk( token );
 			}
 			continue;
 		} else if ( token.constructor === ParserValue ) {
@@ -570,13 +574,11 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 						// There might still be something to do for these
 						// tokens. Prepare them for the workStack.
 						resTokens = resTokens.slice();
-						resTokens.eltIndex = 0;
 						// Don't apply earlier transforms to results of a
 						// transformer to avoid loops and keep the
 						// execution model sane.
 						resTokens.rank = resTokens.rank || transformer.rank;
 						//resTokens.rank = Math.max( resTokens.rank || 0, transformer.rank );
-						workStack.push( resTokens );
 						if ( s.res.async ) {
 							inAsyncMode = true;
 							// don't trigger activeAccum switch / _makeNextAccum call below
@@ -589,6 +591,8 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 							// create a new next-accum and cb for transforms
 							nextAccum = this._makeNextAccum( activeAccum.getParentCB('sibling'), s );
 						}
+
+						workStack.pushChunk( resTokens );
 
 						if (this.debug) {
 							// Avoid expensive map and slice if we dont need to.
@@ -791,8 +795,12 @@ SyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 
 	// Stack of token arrays to process
 	// Initialize to the token array that was passed in
-	var workStack = [tokens];
-	tokens.eltIndex = 0;
+	var workStack = [];
+	workStack.pushChunk = function(toks) {
+		this.push(toks);
+		toks.eltIndex = 0;
+	}
+	workStack.pushChunk(tokens);
 
 	while ( workStack.length > 0 ) {
 		var token, minRank;
@@ -845,9 +853,8 @@ SyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 			// Splice in the returned tokens (while replacing the original
 			// token), and process them next.
 			var resTokens = res.tokens.slice();
-			resTokens.eltIndex = 0;
 			resTokens.rank = res.tokens.rank || transformer.rank;
-			workStack.push( resTokens );
+			workStack.pushChunk( resTokens );
 		} else if ( res.token ) {
 			localAccum.push(res.token);
 			this.prevToken = res.token;
