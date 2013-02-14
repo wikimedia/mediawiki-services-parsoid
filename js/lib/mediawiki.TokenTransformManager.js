@@ -438,7 +438,8 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 			transforming: true,
 			// debug id for this expansion
 			c: 'c-' + AsyncTokenTransformManager.prototype._counter++
-		};
+		},
+		inAsyncMode = false;
 
 	// make localAccum compatible with getParentCB('sibling')
 	localAccum.getParentCB = function() { return parentCB; };
@@ -450,13 +451,11 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 	tokens.eltIndex = 0;
 
 	while ( workStack.length > 0 ) {
-		var token, minRank;
+		var token, minRank,
+			curChunk = workStack.last();
 
-		var curChunk = workStack.last();
-		minRank = curChunk.rank || inputRank;
-		token = curChunk[curChunk.eltIndex++];
+		// Activate nextActiveAccum after consuming the chunk
 		if ( curChunk.eltIndex === curChunk.length ) {
-			// activate nextActiveAccum after consuming the chunk
 			if ( curChunk.nextActiveAccum ) {
 				if ( activeAccum !== curChunk.oldActiveAccum ) {
 					// update the callback of the next active accum
@@ -469,7 +468,11 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 
 			// remove processed chunk
 			workStack.pop();
+			continue;
 		}
+
+		minRank = curChunk.rank || inputRank;
+		token = curChunk[curChunk.eltIndex++];
 
 		// Token type special cases -- FIXME: why do we have this?
 		if ( token.constructor === Array ) {
@@ -574,14 +577,17 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 						//resTokens.rank = Math.max( resTokens.rank || 0, transformer.rank );
 						workStack.push( resTokens );
 						if ( s.res.async ) {
-							resTokens.nextActiveAccum = nextAccum.accum;
-							resTokens.oldActiveAccum = activeAccum;
+							inAsyncMode = true;
 							// don't trigger activeAccum switch / _makeNextAccum call below
 							s.res.async = false;
+
+							resTokens.oldActiveAccum = activeAccum;
+							resTokens.nextActiveAccum = nextAccum.accum;
+
+							// Since we've reserved nextAccum.accum for this token chunk,
+							// create a new next-accum and cb for transforms
+							nextAccum = this._makeNextAccum( activeAccum.getParentCB('sibling'), s );
 						}
-						// create new accum and cb for transforms
-						//activeAccum = nextAccum.accum;
-						nextAccum = this._makeNextAccum( activeAccum.getParentCB('sibling'), s );
 						this.env.dp( 'workStack', s.c, resTokens.rank, workStack );
 					}
 				}
@@ -604,6 +610,7 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 				// accumulator for the next potential child.
 				activeAccum = nextAccum.accum;
 				nextAccum = this._makeNextAccum( activeAccum.getParentCB('sibling'), s );
+				inAsyncMode = true;
 			}
 		}
 	}
@@ -615,7 +622,6 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 	// All tokens in localAccum are fully processed
 	localAccum.rank = this.phaseEndRank;
 
-	var inAsyncMode = activeAccum !== localAccum;
 	this.env.dp( 'localAccum', inAsyncMode ? 'async' : 'sync', s.c, localAccum );
 
 	// Return finished tokens directly to caller, and indicate if further
