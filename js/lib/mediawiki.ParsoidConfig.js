@@ -15,6 +15,9 @@ var ParsoidConfig = function ( localSettings, options ) {
 		this.interwikiMap[wplist[ix]] = 'http://' + wplist[ix] + '.wikipedia.org/w/api.php';
 	}
 
+	// Add mediawiki.org too
+	this.interwikiMap['mw'] = 'http://www.mediawiki.org/w/api.php';
+
 	this.interwikiRegexp = Object.keys( this.interwikiMap ).join( '|' );
 
 	if ( localSettings && localSettings.setup ) {
