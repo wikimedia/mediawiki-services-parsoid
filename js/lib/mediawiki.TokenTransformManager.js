@@ -243,6 +243,7 @@ function AsyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, a
 	this.phaseEndRank = phaseEndRank;
 	this.attributeType = attributeType;
 	this.setFrame( null, null, [] );
+	this.debug = env.conf.parsoid.debug;
 	this.trace = env.conf.parsoid.traceFlags && (env.conf.parsoid.traceFlags.indexOf("async:" + phaseEndRank) !== -1);
 	this._construct();
 }
@@ -588,7 +589,16 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 							// create a new next-accum and cb for transforms
 							nextAccum = this._makeNextAccum( activeAccum.getParentCB('sibling'), s );
 						}
-						this.env.dp( 'workStack', s.c, resTokens.rank, workStack );
+
+						if (this.debug) {
+							// Avoid expensive map and slice if we dont need to.
+							this.env.dp(
+								'workStack',
+								s.c,
+								resTokens.rank,
+								// Filter out processed tokens
+								workStack.map(function(a) { return a.slice(a.eltIndex); }) );
+						}
 					}
 				}
 
