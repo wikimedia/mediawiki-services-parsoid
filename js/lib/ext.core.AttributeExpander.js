@@ -38,8 +38,6 @@ AttributeExpander.prototype.onToken = function ( token, frame, cb ) {
 			token.constructor === SelfclosingTagTk) &&
 				token.attribs &&
 				token.attribs.length ) {
-		// clone the token
-		token = token.clone();
 		var atm = new AttributeTransformManager(
 					this.manager,
 					{ wrapTemplates: this.options.wrapTemplates },
@@ -59,9 +57,9 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 {
 	this.manager.env.dp( 'AttributeExpander._returnAttributes: ', newAttrs );
 
-	var tokens      = [];
-	var metaTokens  = [];
-	var oldAttrs    = token.attribs;
+	var modified = false;
+	var metaTokens = [];
+	var oldAttrs   = token.attribs;
 	var a, newK, i, l, metaObjType, producerObjType, kv, updatedK, updatedV;
 
 	// Identify attributes that were generated in full or in part using templates
@@ -75,6 +73,10 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 		newAttrs[i].vsrc = a.vsrc;
 
 		if (newK) {
+			if (newK !== a.k) {
+				modified = true;
+			}
+
 			var contentType = "objectAttrKey"; // default
 			if (a.k.constructor === Array) {
 				if ( newK.constructor === String && newK.match( /mw\:maybeContent/ ) ) {
@@ -113,6 +115,7 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 				}
 
 				if ( updatedK ) {
+					modified = true;
 					metaObjType = updatedK.metaObjType;
 					if (metaObjType) {
 						producerObjType = metaObjType;
@@ -153,6 +156,7 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 						]);
 						newAttrs.push( kv );
 					}
+					modified = true;
 				} else if (!newK.match(/^mw:/)) {
 					updatedV = Util.stripMetaTags( newAttrs[i].v, this.options.wrapTemplates );
 					newAttrs[i].v = updatedV.value;
@@ -161,33 +165,38 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 						producerObjType = metaObjType;
 						metaTokens.push( Util.makeTplAffectedMeta("objectAttrVal", newK, updatedV) );
 					}
+					modified = true;
 				}
 			}
 		}
 	}
 
-	// Update attrs
-	token.attribs = newAttrs;
+	var tokens = [];
 
-	// Update metatoken info
-	l = metaTokens.length;
-	if (l > 0) {
-		var tokenId = token.getAttribute( 'about' );
+	// clone the token and update attrs
+	if (modified) {
+		token = token.clone();
+		token.attribs = newAttrs;
 
-		if ( !tokenId ) {
-			tokenId = "#" + this.manager.env.newObjectId();
-			token.addAttribute("about", tokenId);
-			token.addSpaceSeparatedAttribute("typeof", "mw:ExpandedAttrs/" + producerObjType.substring("mw:Object/".length));
+		// Update metatoken info
+		l = metaTokens.length;
+		if (l > 0) {
+			var tokenId = token.getAttribute( 'about' );
+
+			if ( !tokenId ) {
+				tokenId = "#" + this.manager.env.newObjectId();
+				token.addAttribute("about", tokenId);
+				token.addSpaceSeparatedAttribute("typeof", "mw:ExpandedAttrs/" + producerObjType.substring("mw:Object/".length));
+			}
+
+			for (i = 0; i < l; i++) {
+				metaTokens[i].addAttribute("about", tokenId);
+			}
 		}
-
-		for (i = 0; i < l; i++) {
-			metaTokens[i].addAttribute("about", tokenId);
-		}
+		tokens = metaTokens;
+		// console.warn("NEW TOK: " + JSON.stringify(token));
 	}
 
-	// console.warn("NEW TOK: " + JSON.stringify(token));
-
-	tokens = metaTokens;
 	tokens.push(token);
 
 	cb( { tokens: tokens } );
