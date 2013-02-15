@@ -128,6 +128,7 @@ function TemplateRequest ( env, title, oldid ) {
 		titles: title
 	};
 	if ( oldid ) {
+		this.oldid = oldid;
 		apiargs.revids = oldid;
 		delete apiargs.titles;
 	}
@@ -157,28 +158,53 @@ util.inherits(TemplateRequest, ApiRequest);
 
 // The TemplateRequest-specific JSON handler
 TemplateRequest.prototype.handleJSON = function ( error, data ) {
-	var src = '',
+	var regex, title, err, location, iwstr, interwiki, src = '',
 		self = this;
+
 	if ( error ) {
 		this.processListeners( error, '' );
 		return;
 	}
 
-	try {
-		$.each( data.query.pages, function(i, page) {
-			if (page.revisions && page.revisions.length) {
-				src = page.revisions[0]['*'];
+	if ( !data.query.pages ) {
+		if ( data.query.interwiki ) {
+			// Essentially redirect, but don't actually redirect.
+			interwiki = data.query.interwiki[0];
+			title = interwiki.title;
+			regex = new RegExp( '^' + interwiki.iw + ':' );
+			title = title.replace( regex, '' );
+			iwstr = this.env.conf.wiki.interwikiMap[interwiki.iw].url ||
+				this.env.conf.parsoid.interwikiMap[interwiki.iw].url || '/' + interwiki.iw + '/' + '$1';
+			location = iwstr.replace( '$1', title );
+			err = new DoesNotExistError( 'The page at ' +
+					self.title +
+					' can be found at a different location: '
+					+ location );
+			this.processListeners( err, '' );
+			return;
+		}
+		console.log( data );
+		error = new DoesNotExistError(
+			'No pages were returned from the API request for ' +
+			self.title
+		);
+	} else {
+		try {
+			$.each( data.query.pages, function(i, page) {
+				if (page.revisions && page.revisions.length) {
+					src = page.revisions[0]['*'];
+				} else {
+					throw new DoesNotExistError( 'Did not find page revisions for ' + self.title );
+				}
+			});
+		} catch ( e2 ) {
+			if ( e2 instanceof DoesNotExistError ) {
+				error = e2;
 			} else {
-				throw new DoesNotExistError( 'Did not find page revisions for ' + self.title );
+				error = new DoesNotExistError(
+						'Did not find page revisions in the returned body for ' +
+						self.title );
 			}
-		});
-	} catch ( e2 ) {
-		if ( e2 instanceof DoesNotExistError ) {
-			error = e2;
-		} else {
-			error = new DoesNotExistError(
-					'Did not find page revisions in the returned body for ' +
-					self.title );
 		}
 	}
 
