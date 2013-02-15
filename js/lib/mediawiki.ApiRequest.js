@@ -1,7 +1,7 @@
 "use strict";
 
 var request = require('request'),
-	$ = require( 'jquery' ),
+	$ = require( './fakejquery' ),
 	qs = require('querystring'),
 	events = require('events'),
 	util = require('util');

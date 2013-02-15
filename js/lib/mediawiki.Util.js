@@ -6,7 +6,7 @@
 var HTML5 = require( 'html5' ).HTML5,
 	path = require('path'),
 	async = require('async'),
-	$ = require( 'jquery' ),
+	$ = require( './fakejquery' ),
 	jsDiff = require( 'diff' ),
 	entities = require( 'entities' ),
 	TemplateRequest = require( './mediawiki.ApiRequest.js' ).TemplateRequest;

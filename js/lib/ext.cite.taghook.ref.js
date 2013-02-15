@@ -1,7 +1,7 @@
 "use strict";
 
 var Util = require( './mediawiki.Util.js' ).Util,
-	$ = require( 'jquery' );
+	$ = require( './fakejquery' );
 /**
  * The ref / references tags don't do any fancy HTML, so we can actually
  * implement this in terms of parse tree manipulations, skipping the need

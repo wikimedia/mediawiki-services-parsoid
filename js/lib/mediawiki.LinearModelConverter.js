@@ -33,7 +33,7 @@ var Node = {
 	DOCUMENT_FRAGMENT_NODE: 11,
 	NOTATION_NODE: 12
 },
-	$ = require( 'jquery' );
+	$ = require( './fakejquery' );
 
 /**
  * Object mapping HTML DOM node names to linear model element names.

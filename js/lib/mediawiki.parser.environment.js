@@ -5,7 +5,7 @@ var WikiConfig = require( './mediawiki.WikiConfig.js' ).WikiConfig;
 var ParsoidConfig = require( './mediawiki.ParsoidConfig.js' ).ParsoidConfig;
 var ConfigRequest = require( './mediawiki.ApiRequest.js' ).ConfigRequest;
 var title = require('./mediawiki.Title.js'),
-	$ = require( 'jquery' ),
+	$ = require( './fakejquery' ),
 	Title = title.Title,
 	Namespace = title.Namespace;
 

@@ -5,7 +5,6 @@
 	"dependencies": {
 		"entities": "0.1.x",
 		"events": "0.x.x",
-		"jquery": "1.x.x",
 		"request": "2.x.x",
 		"querystring": "0.x.x",
 		"path": "0.x.x",

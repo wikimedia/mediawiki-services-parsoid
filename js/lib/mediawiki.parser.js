@@ -12,7 +12,7 @@
 
 // make this global for now
 // XXX: figure out a way to get away without a global for PEG actions!
-var $ = require('jquery'),
+var $ = require('./fakejquery'),
 	events = require( 'events' ),
 
 	fs = require('fs'),

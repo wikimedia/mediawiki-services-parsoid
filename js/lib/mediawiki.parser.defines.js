@@ -7,7 +7,7 @@
 
 var async = require('async'),
 	Util = require('./mediawiki.Util.js').Util,
-	$ = require( 'jquery' );
+	$ = require( './fakejquery' );
 
 // To support isHTMLTag querying
 String.prototype.isHTMLTag = function() {

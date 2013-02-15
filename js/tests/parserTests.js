@@ -38,7 +38,7 @@ var mp = '../lib/',
 	TemplateRequest = require(mp + 'mediawiki.ApiRequest.js').TemplateRequest;
 
 // For now most modules only need this for $.extend and $.each :)
-global.$ = require('jquery');
+global.$ = require(mp + 'fakejquery');
 
 var pj = path.join;
 
