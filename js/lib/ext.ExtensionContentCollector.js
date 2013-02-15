@@ -1,8 +1,7 @@
 "use strict";
 
 var Collector = require( './ext.util.TokenAndAttrCollector.js' ).TokenAndAttrCollector,
-	Util = require( './mediawiki.Util.js' ).Util,
-	$ = require( 'jquery' );
+	Util = require( './mediawiki.Util.js' ).Util;
 
 // SSS FIXME: Since we sweep the entire token stream in TokenAndAttrCollector
 // and since we add a new collector for each entry below, this is an expensive way

@@ -3,8 +3,7 @@
 /**
  * Generic attribute expansion handler.
  */
-var $ = require('jquery'),
-	request = require('request'),
+var request = require('request'),
 	events = require('events'),
 	qs = require('querystring'),
 	Util = require('./mediawiki.Util.js').Util,

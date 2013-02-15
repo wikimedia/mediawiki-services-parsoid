@@ -32,7 +32,6 @@ var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	Util = require('./mediawiki.Util.js').Util,
 	DU = require('./mediawiki.DOMUtils.js').DOMUtils,
 	SanitizerConstants = require('./ext.core.Sanitizer.js').SanitizerConstants,
-	$ = require( 'jquery' ),
 	tagWhiteListHash;
 
 var START_SEP = 1,
