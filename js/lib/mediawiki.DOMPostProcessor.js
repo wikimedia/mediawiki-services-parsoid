@@ -89,8 +89,8 @@ DOMTraverser.prototype.callHandlers = function ( node ) {
 		}
 	}
 
-	if ( this.handlers[name] !== undefined ) {
-		handlers = this.handlers[name];
+	handlers = this.handlers[name];
+	if ( handlers ) {
 		for ( ix = 0; ix < handlers.length; ix++ ) {
 			result = handlers[ix]( node );
 			if ( result === false ) {
@@ -2152,8 +2152,10 @@ function handleLinkNeighbours( env, node ) {
 		}
 		if ( prefix.src.length > 0 ) {
 			dp.prefix = prefix.src;
-			dp.dsr[0] -= prefix.src.length;
-			dp.dsr[2] += prefix.src.length;
+			if (dp.dsr) {
+				dp.dsr[0] -= prefix.src.length;
+				dp.dsr[2] += prefix.src.length;
+			}
 		}
 	}
 
@@ -2163,8 +2165,10 @@ function handleLinkNeighbours( env, node ) {
 		}
 		if ( trail.src.length > 0 ) {
 			dp.tail = trail.src;
-			dp.dsr[1] += trail.src.length;
-			dp.dsr[3] += trail.src.length;
+			if (dp.dsr) {
+				dp.dsr[1] += trail.src.length;
+				dp.dsr[3] += trail.src.length;
+			}
 		}
 	}
 
