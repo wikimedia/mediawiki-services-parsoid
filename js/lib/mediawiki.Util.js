@@ -8,6 +8,7 @@ var HTML5 = require( 'html5' ).HTML5,
 	async = require('async'),
 	$ = require( 'jquery' ),
 	jsDiff = require( 'diff' ),
+	entities = require( 'entities' ),
 	TemplateRequest = require( './mediawiki.ApiRequest.js' ).TemplateRequest;
 
 var Util = {
@@ -967,16 +968,7 @@ serializeNode = function (doc) {
  * Little helper function for encoding XML entities
  */
 encodeXml = function ( string ) {
-	var xml_special_to_escaped_one_map = {
-		'&': '&amp;',
-		'"': '&quot;',
-		'<': '&lt;',
-		'>': '&gt;'
-	};
-
-	return string.replace( /([\&"<>])/g, function ( str, item ) {
-		return xml_special_to_escaped_one_map[item];
-	} );
+	return entities.encode(string, 0 /* xml entities */);
 };
 
 Util.encodeXml = encodeXml;
@@ -1168,21 +1160,18 @@ Util.stripPipeTrickChars = function ( target ) {
 /**
  * Decode a HTML entity, and return either the decoded char or the original
  * text if it turned out not to be a valid entity.
- *
- * Security: This method should only be passed strings matching
- * /&[#0-9a-zA-Z]+; to avoid JS injection.
- *
- * TODO: Figure out a safer and more efficient way to do this that does not
- * involve building a DOM.
  */
 Util.decodeEntity = function ( entity ) {
-    return $("<div/>").html(entity).text();
+    return entities.decode(entity, 2 /* html5 entities */ );
 };
 
 
 /**
  * Entity-escape anything that would decode to a valid HTML entity
  */
+// [CSA] replace with entities.encode( text, 2 )?
+// but that would encode *all* ampersands, where we apparently just want
+// to encode ampersands that precede valid entities.
 Util.escapeEntities = function ( text ) {
 	return text.replace(/&[#0-9a-zA-Z]+;/g, function(match) {
 		var decodedChar = Util.decodeEntity(match);
