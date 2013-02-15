@@ -253,7 +253,7 @@ function dumpFlags() {
 						stdout.write(wt);
 					} else {
 						parserPipeline.on('document', function(document) {
-							stdout.write( document.body.innerHTML );
+							stdout.write( Util.serializeNode(document.body) );
 						});
 						parserPipeline.process(wt);
 					}
@@ -270,7 +270,7 @@ function dumpFlags() {
 						process.exit( 0 );
 					};
 					if (argv.wt2html) {
-						res = document.body.innerHTML;
+						res = Util.serializeNode(document.body);
 						finishCb(true);
 					} else if (argv.wt2wt) {
 						res = '';
