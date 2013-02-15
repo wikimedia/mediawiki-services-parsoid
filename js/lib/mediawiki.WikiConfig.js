@@ -119,18 +119,22 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 
 	// Get the linktrail and linkprefix messages from the server
 	// TODO XXX etc. : Use these somewhere
-	var stripRegex = /^\/(.*)\/.*/;
+	var stripRegex = /^\/\^(.*)\$\//;
 	var messages = resultConf.allmessages;
-	var thismsg;
+	var thismsg, regexResult;
 	for ( var amx = 0; amx < messages.length; amx++ ) {
 		thismsg = messages[amx];
 		if ( thismsg['*'] ) {
+			regexResult = thismsg['*'].match( stripRegex );
+			if ( regexResult !== null ) {
+				regexResult = regexResult[1].replace( /\(\.\*\??\)/, '' );
+			}
 			switch ( thismsg.name ) {
 				case 'linktrail':
-					conf.linkTrailRegex = new RegExp( thismsg['*'].match( stripRegex )[1] );
+					conf.linkTrailRegex = new RegExp( '^' + regexResult );
 					break;
 				case 'linkprefix':
-					conf.linkPrefixRegex = new RegExp( thismsg['*'].match( stripRegex )[1] );
+					conf.linkPrefixRegex = new RegExp( regexResult + '$' );
 					break;
 				default:
 					// Do nothing!

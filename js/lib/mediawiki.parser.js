@@ -72,13 +72,14 @@ var postExpansionHandlers = [
 		// add before transforms that depend on behavior switches
 		// examples: toc generation, edit sections
 	BehaviorSwitchHandler,	// 2.14
+
 	ListHandler,			// 2.49
 	Sanitizer,          	// 2.90, 2.91
 		// Wrap tokens into paragraphs post-sanitization so that
 		// tags that converted to text by the sanitizer have a chance
 		// of getting wrapped into paragraphs.  The sanitizer does not
 		// require the existence of p-tags for its functioning.
-	ParagraphWrapper 	// 2.95 -- 2.97
+	ParagraphWrapper, 	// 2.95 -- 2.97
 ];
 
 ParserPipelineFactory.prototype.recipes = {

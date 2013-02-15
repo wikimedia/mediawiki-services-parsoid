@@ -53,6 +53,66 @@ function deleteNode(n) {
 	}
 }
 
+/**
+ * Class for helping us traverse the DOM.
+ *
+ * @param node {HTMLNode} The node to be traversed
+ */
+function DOMTraverser() {
+	this.handlers = {};
+	this.universalHandlers = [];
+}
+
+/**
+ * Add a handler to the DOM traversal
+ *
+ * @param {Function} action A callback, called on each node we traverse that matches nodeName. First argument is the DOM node. Return false if you want to stop any further callbacks from being called on the node.
+ */
+DOMTraverser.prototype.addHandler = function ( nodeName, action ) {
+	if ( nodeName === null ) {
+		this.universalHandlers.push( action );
+	} else {
+		if ( this.handlers[nodeName] === undefined ) {
+			this.handlers[nodeName] = [];
+		}
+
+		this.handlers[nodeName].push( action );
+	}
+};
+
+DOMTraverser.prototype.callHandlers = function ( node ) {
+	var ix, result, handlers, name = ( node.nodeName || '' ).toLowerCase();
+	for ( ix = 0; ix < this.universalHandlers.length; ix++ ) {
+		result = this.universalHandlers[ix]( node );
+		if ( result === false ) {
+			return;
+		}
+	}
+
+	if ( this.handlers[name] !== undefined ) {
+		handlers = this.handlers[name];
+		for ( ix = 0; ix < handlers.length; ix++ ) {
+			result = handlers[ix]( node );
+			if ( result === false ) {
+				return;
+			}
+		}
+	}
+};
+
+/**
+ * Traverse the DOM and fire the handlers that are registered
+ */
+DOMTraverser.prototype.traverse = function ( node ) {
+	var ix, child, childDT, children = node.childNodes;
+
+	for ( ix = 0; children && ix < children.length; ix++ ) {
+		child = children[ix];
+		this.callHandlers( child );
+		this.traverse( child );
+	}
+};
+
 /* ------------- DOM post processor ----------------- */
 function minimizeInlineTags(root, rewriteable_nodes) {
 	var rewriteable_node_map = null;
@@ -1973,6 +2033,156 @@ function encapsulateTemplateOutput( document, env ) {
 	}
 }
 
+/**
+ * Function for fetching the link prefix based on a link node.
+ *
+ * The content will be reversed, so be ready for that.
+ */
+function getLinkPrefix( env, node ) {
+	var baseAbout = null,
+		regex = env.conf.wiki.linkPrefixRegex;
+
+	if ( node !== null && DU.isTplElementNode( env, node ) ) {
+		baseAbout = node.getAttribute( 'about' );
+	}
+
+	if ( !regex ) {
+		return null;
+	}
+
+	node = node === null ? node : node.previousSibling;
+	return searchForNeighbour( env, false, regex, node, baseAbout );
+}
+
+/**
+ * Function for fetching the link trail based on a link node.
+ */
+function getLinkTrail( env, node ) {
+	var baseAbout = null,
+		regex = env.conf.wiki.linkTrailRegex;
+
+	if ( node !== null && DU.isTplElementNode( env, node ) ) {
+		baseAbout = node.getAttribute( 'about' );
+	}
+
+	if ( !regex ) {
+		return null;
+	}
+
+	node = node === null ? node : node.nextSibling;
+	return searchForNeighbour( env, true, regex, node, baseAbout );
+}
+
+/**
+ * Abstraction of both link-prefix and link-trail searches.
+ */
+function searchForNeighbour( env, goForward, regex, node, baseAbout ) {
+	var value, matches, document,
+		nextNode = goForward ? 'nextSibling' : 'previousSibling',
+		innerNode = goForward ? 'firstChild' : 'lastChild',
+		getInnerNeighbour = goForward ? getLinkTrail : getLinkPrefix,
+		result = { content: [], src: '' };
+
+	while ( node !== null ) {
+		document = node.ownerDocument;
+
+		if ( node.nodeType === node.TEXT_NODE ) {
+			matches = node.nodeValue.match( regex );
+			value = { content: node, src: node.nodeValue };
+			if ( matches !== null ) {
+				value.src = matches[0];
+				if ( value.src === node.nodeValue ) {
+					value.content = node;
+				} else {
+					value.content = document.createTextNode( matches[0] );
+					node.parentNode.replaceChild( document.createTextNode( node.nodeValue.replace( regex, '' ) ), node );
+				}
+			} else {
+				value.content = null;
+				break;
+			}
+		} else if ( DU.isTplElementNode( env, node ) &&
+				baseAbout !== '' && baseAbout !== null &&
+				node.getAttribute( 'about' ) === baseAbout ) {
+			value = getInnerNeighbour( env, node[innerNode] );
+		} else {
+			break;
+		}
+
+		if ( value.content !== null ) {
+			if ( value.content instanceof Array ) {
+				result.content = result.content.concat( value.content );
+			} else {
+				result.content.push( value.content );
+			}
+
+			if ( goForward ) {
+				result.src += value.src;
+			} else {
+				result.src = value.src + result.src;
+			}
+
+			if ( value.src !== node.nodeValue ) {
+				break;
+			}
+		} else {
+			break;
+		}
+		node = node[nextNode];
+	}
+
+	return result;
+}
+
+/**
+ * Workhorse function for bringing linktrails and link prefixes into link content.
+ */
+function handleLinkNeighbours( env, node ) {
+	var ix, prefix = getLinkPrefix( env, node ),
+		trail = getLinkTrail( env, node ),
+		dp = Util.getJSONAttribute( node, 'data-parsoid', {} );
+
+	if ( node.getAttribute( 'rel' ) !== 'mw:WikiLink' ) {
+		return;
+	}
+
+	if ( prefix && prefix.content ) {
+		for ( ix = 0; ix < prefix.content.length; ix++ ) {
+			node.insertBefore( prefix.content[ix], node.firstChild );
+		}
+		if ( prefix.src.length > 0 ) {
+			dp.prefix = prefix.src;
+			dp.dsr[0] -= prefix.src.length;
+			dp.dsr[2] += prefix.src.length;
+		}
+	}
+
+	if ( trail && trail.content ) {
+		for ( ix = 0; ix < trail.content.length; ix++ ) {
+			node.appendChild( trail.content[ix] );
+		}
+		if ( trail.src.length > 0 ) {
+			dp.tail = trail.src;
+			dp.dsr[1] += trail.src.length;
+			dp.dsr[3] += trail.src.length;
+		}
+	}
+
+	if ( trail !== null || prefix !== null ) {
+		node.setAttribute( 'data-parsoid', JSON.stringify( dp ) );
+	}
+}
+
+/**
+ * Do the final run across the DOM to finalize the render.
+ */
+function runFinalDOMTraversalHandlers( document, env ) {
+	var traverser = new DOMTraverser();
+
+	traverser.addHandler( 'a', handleLinkNeighbours.bind( null, env ) );
+	traverser.traverse( document );
+}
+
 function DOMPostProcessor(env, options) {
 	this.env = env;
 	this.processors = [
@@ -1983,7 +2193,8 @@ function DOMPostProcessor(env, options) {
 		handlePres,
 		migrateTrailingNLs,
 		computeDocDSR,
-		encapsulateTemplateOutput
+		encapsulateTemplateOutput,
+		runFinalDOMTraversalHandlers
 	];
 }
 
