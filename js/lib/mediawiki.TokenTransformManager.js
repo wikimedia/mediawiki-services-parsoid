@@ -452,7 +452,7 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 	workStack.pushChunk = function(toks) {
 		this.push(toks);
 		toks.eltIndex = 0;
-	}
+	};
 
 	workStack.pushChunk(tokens);
 
@@ -543,13 +543,7 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 							resTokens.shift();
 							break;
 						}
-						// SSS FIXME: AttributeExpander clones the token
-						// So, this simplistic comparison for modification will
-						// fail leading us to do extra work on most tokens.
-						//
-						// Can be fixed by passing an additional flag from
-						// AttributeExpander that tells us if the token needs
-						// reprocessing.
+
 						if ( token === soleToken && ! resTokens.rank ) {
 							// token not modified, continue with transforms.
 							continue;
@@ -799,7 +793,7 @@ SyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 	workStack.pushChunk = function(toks) {
 		this.push(toks);
 		toks.eltIndex = 0;
-	}
+	};
 	workStack.pushChunk(tokens);
 
 	while ( workStack.length > 0 ) {
