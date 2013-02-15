@@ -393,21 +393,9 @@ AsyncTokenTransformManager.prototype.onEndEvent = function () {
 	}
 };
 
-
-/**
- * Utility method to set up a new TokenAccumulator with the right callbacks.
- */
-AsyncTokenTransformManager.prototype._makeNextAccum = function( cb, state ) {
-	var newAccum = new TokenAccumulator( this, cb );
-	var _cbs     = { parentCB: newAccum.getParentCB( 'child' ) };
-	var newCB    = this.maybeSyncReturn.bind( this, state, _cbs );
-	_cbs.self = newCB;
-
-	return { accum: newAccum, cb: newCB };
-};
-
 // Debug counter, provides an UID for transformTokens calls so that callbacks
-// associated with it can be identified in debugging output as c-XXX.
+// associated with it can be identified in debugging output as c-XXX across
+// all instances of the Async TTM.
 AsyncTokenTransformManager.prototype._counter = 0;
 
 /**
@@ -431,20 +419,66 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 
 	//console.warn('AsyncTokenTransformManager.transformTokens: ' + JSON.stringify(tokens) );
 
-	var inputRank = tokens.rank || 0,
-		localAccum = [], // a local accum for synchronously returned fully processed tokens
-		activeAccum = localAccum, // start out collecting tokens in localAccum
-								// until the first async transform is hit
-		s = { // Shared state accessible to synchronous transforms in this.maybeSyncReturn
+	var accumChain = {
+		ttm: null,
+		firstAccum: null,
+		accum: null,
+		next: null,
+		maybeAsyncCB: null,
+		numNodes: 0,
+		debugId: 0,
+		// Shared accum-chain state accessible to synchronous transforms in maybeSyncReturn
+		state: {
+			// Indicates we are still in the transformTokens loop
 			transforming: true,
 			// debug id for this expansion
 			c: 'c-' + AsyncTokenTransformManager.prototype._counter++
 		},
-		inAsyncMode = false;
+		makeNextAccum: function(cb) {
+			var cbs = { };
+			var maybeAsyncCB = this.ttm.maybeSyncReturn.bind( this.ttm, this.state, cbs );
 
-	// make localAccum compatible with getParentCB('sibling')
-	localAccum.getParentCB = function() { return parentCB; };
-	var nextAccum = this._makeNextAccum( parentCB, s );
+			// The new accumulator is never used unless we hit async mode.
+			// Even though maybeAsyncCB references newAccum via cbs.parentCB,
+			// that code path is exercised only when async mode is entered,
+			// so we are all good on that front.
+			var newAccum = new TokenAccumulator( this.ttm, cb );
+			cbs.parentCB = newAccum.getParentCB( 'child' );
+			cbs.self = maybeAsyncCB;
+
+			return { accum: newAccum, cb: maybeAsyncCB };
+		},
+		init: function(ttm) {
+			// Local accum for synchronously returned fully processed tokens
+			// Make localAccum compatible with getParentCB('sibling')
+			var localAccum = [];
+			localAccum.getParentCB = function() { return parentCB; };
+
+			this.ttm = ttm;
+			this.firstAccum = localAccum;
+			this.accum = localAccum;
+			var nextAccumAndCB = this.makeNextAccum( parentCB );
+			this.next = nextAccumAndCB.accum;
+			this.maybeAsyncCB = nextAccumAndCB.cb;
+			this.numNodes = 1;
+		},
+		initRes: function() {
+			this.state.res = {};
+		},
+		addNode: function() {
+			this.accum = this.next;
+			var nextAccumAndCB = this.makeNextAccum( this.accum.getParentCB('sibling') );
+			this.next = nextAccumAndCB.accum;
+			this.maybeAsyncCB = nextAccumAndCB.cb;
+			this.numNodes++;
+		},
+		push: function(tok) {
+			this.accum.push(tok);
+		}
+	};
+
+	// Init
+	accumChain.init(this);
 
 	// Stack of token arrays to process
 	// Initialize to the token array that was passed in
@@ -456,19 +490,13 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 
 	workStack.pushChunk(tokens);
 
+	var inputRank = tokens.rank || 0;
 	while ( workStack.length > 0 ) {
 		var curChunk = workStack.last();
 
-		// Activate nextActiveAccum after consuming the chunk
 		if ( curChunk.eltIndex === curChunk.length ) {
-			if ( curChunk.nextActiveAccum ) {
-				if ( activeAccum !== curChunk.oldActiveAccum ) {
-					// update the callback of the next active accum
-					curChunk.nextActiveAccum.setParentCB( activeAccum.getParentCB('sibling') );
-				}
-				activeAccum = curChunk.nextActiveAccum;
-				// create new accum and cb for transforms
-				nextAccum = this._makeNextAccum( activeAccum.getParentCB('sibling'), s );
+			if ( curChunk.inAsyncMode ) {
+				accumChain.addNode();
 			}
 
 			// remove processed chunk
@@ -485,7 +513,7 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 				// skip it
 			} else if ( token.rank >= this.phaseEndRank ) {
 				// don't process the array in this phase.
-				activeAccum.push( token );
+				accumChain.push( token );
 			} else {
 				workStack.pushChunk( token );
 			}
@@ -508,29 +536,30 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 
 		var ts = this._getTransforms( token, minRank );
 
-		//this.env.dp( 'async token:', s.c, token, minRank, ts );
+		//this.env.dp( 'async token:', accumChain.state.c, token, minRank, ts );
 
 		if ( ! ts.length ) {
 			// nothing to do for this token
-			activeAccum.push( token );
+			accumChain.push( token );
 		} else {
 			//this.env.tp( 'async trans' );
 			for (var j = 0, lts = ts.length; j < lts; j++ ) {
 				var transformer = ts[j];
 
-				// s.res is only used when we are still in this transfomer loop.
+				// shared state is only used when we are still in this transfomer loop.
 				// In that scenario, it is safe to reset this each time around
 				// since s.res.tokens is retrieved after the transformation is done.
-				s.res = { };
+				accumChain.initRes();
 
-				// Transform the token.  This will call nextAccum.cb either
+				// Transform the token.  This will call accumChain.maybeAsyncCB either
 				// with tokens or with an async signal.  In either case,
-				// s.res will be populated.
-				transformer.transform( token, this.frame, nextAccum.cb );
+				// state tokens will be populated.
+				transformer.transform( token, this.frame, accumChain.maybeAsyncCB );
 
-				var resTokens = s.res.tokens;
+				var res = accumChain.state.res,
+					resTokens = res.tokens;
 
-				//this.env.dp( 's.res:', s.c, s.res );
+				//this.env.dp( 'accumChain.state.res:', accumChain.state.c, res );
 
 				// Check the result, which is changed using the
 				// maybeSyncReturn callback
@@ -573,17 +602,10 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 						// execution model sane.
 						resTokens.rank = resTokens.rank || transformer.rank;
 						//resTokens.rank = Math.max( resTokens.rank || 0, transformer.rank );
-						if ( s.res.async ) {
-							inAsyncMode = true;
+						if ( res.async ) {
+							resTokens.inAsyncMode = true;
 							// don't trigger activeAccum switch / _makeNextAccum call below
-							s.res.async = false;
-
-							resTokens.oldActiveAccum = activeAccum;
-							resTokens.nextActiveAccum = nextAccum.accum;
-
-							// Since we've reserved nextAccum.accum for this token chunk,
-							// create a new next-accum and cb for transforms
-							nextAccum = this._makeNextAccum( activeAccum.getParentCB('sibling'), s );
+							res.async = false;
 						}
 
 						workStack.pushChunk( resTokens );
@@ -592,7 +614,7 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 							// Avoid expensive map and slice if we dont need to.
 							this.env.dp(
 								'workStack',
-								s.c,
+								accumChain.state.c,
 								resTokens.rank,
 								// Filter out processed tokens
 								workStack.map(function(a) { return a.slice(a.eltIndex); }) );
@@ -609,34 +631,38 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 				// token is done.
 				// push to accumulator
 				//console.warn( 'pushing ' + token );
-				activeAccum.push( token );
+				accumChain.push( token );
 			}
 
-			if ( s.res.async ) {
-				this.env.dp( 'res.async, creating new TokenAccumulator', s.c );
-				// The child now switched to activeAccum, we have to create a new
-				// accumulator for the next potential child.
-				activeAccum = nextAccum.accum;
-				nextAccum = this._makeNextAccum( activeAccum.getParentCB('sibling'), s );
-				inAsyncMode = true;
+			if ( res.async ) {
+				this.env.dp( 'res.async, creating new TokenAccumulator', accumChain.state.c );
+				accumChain.addNode();
 			}
 		}
 	}
 
 	// we are no longer transforming, maybeSyncReturn needs to follow the
 	// async code path
-	s.transforming = false;
+	accumChain.state.transforming = false;
 
-	// All tokens in localAccum are fully processed
-	localAccum.rank = this.phaseEndRank;
+	// All tokens in firstAccum are fully processed
+	var firstAccum = accumChain.firstAccum;
+	firstAccum.rank = this.phaseEndRank;
 
-	this.env.dp( 'localAccum', inAsyncMode ? 'async' : 'sync', s.c, localAccum );
+	this.env.dp(
+		'firstAccum',
+		accumChain.numNodes > 1 ? 'async' : 'sync',
+		accumChain.state.c,
+		firstAccum );
 
 	// Return finished tokens directly to caller, and indicate if further
 	// async actions are outstanding. The caller needs to point a sibling to
 	// the returned accumulator, or call .siblingDone() to mark the end of a
 	// chain.
-	return { tokens: localAccum, asyncAccum: inAsyncMode ? activeAccum : null };
+	return {
+		tokens: firstAccum,
+		asyncAccum: accumChain.numNodes > 1 ? accumChain.accum : null
+	};
 };
 
 /**
