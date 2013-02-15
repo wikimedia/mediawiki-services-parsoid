@@ -23,7 +23,7 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 	}
 	var general = resultConf.general;
 
-	conf.baseURI = general.server + general.articlepath.replace(/$1/, '');
+	conf.baseURI = general.server + general.articlepath.replace(/\$1/, '');
 
 	var names = resultConf.namespaces;
 	var nkeys = Object.keys( names );
