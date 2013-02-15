@@ -380,13 +380,34 @@ PHPParseRequest.prototype.handleJSON = function ( error, data ) {
 var ConfigRequest = function ( uri, env ) {
 	ApiRequest.call( this, env, null );
 
-	var apiargs = {
-		format: 'json',
-		action: 'query',
-		meta: 'siteinfo|allmessages',
-		ammessages: 'linktrail|linkprefix',
-		siprop: 'namespaces|namespacealiases|magicwords|extensiontags|general|interwikimap|languages'
-	};
+	var metas = [
+			'siteinfo',
+			'allmessages'
+		],
+
+		siprops = [
+			'namespaces',
+			'namespacealiases',
+			'magicwords',
+			'extensiontags',
+			'general',
+			'interwikimap',
+			'languages',
+			'protocols'
+		],
+
+		ammessages = [
+			'linktrail',
+			'linkprefix'
+		],
+
+		apiargs = {
+			format: 'json',
+			action: 'query',
+			meta: metas.join( '|' ),
+			ammessages: ammessages.join( '|' ),
+			siprop: siprops.join( '|' )
+		};
 
 	var url = uri + '?' +
 		qs.stringify( apiargs );

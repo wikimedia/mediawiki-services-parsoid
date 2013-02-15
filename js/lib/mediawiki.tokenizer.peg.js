@@ -128,7 +128,7 @@ PegTokenizer.prototype._processText = function( text, fullParse, cacheKey ) {
 	}
 
 	// Kick it off!
-	var args = { cb: chunkCB, pegTokenizer: this, srcOffset: 0 };
+	var args = { cb: chunkCB, pegTokenizer: this, srcOffset: 0, env: this.env };
 	if (fullParse) {
 		if ( ! this.env.conf.parsoid.debug ) {
 			try {
@@ -148,7 +148,7 @@ PegTokenizer.prototype._processText = function( text, fullParse, cacheKey ) {
 PegTokenizer.prototype.tokenizeAsync = function( text, srcOffset, cb ) {
 	var ret,
 		pegTokenizer = this,
-		args = { cb: cb, pegTokenizer: this, srcOffset: srcOffset };
+		args = { cb: cb, pegTokenizer: this, srcOffset: srcOffset, env: this.env };
 
 	if ( ! this.env.conf.parsoid.debug ) {
 		try {
@@ -200,7 +200,7 @@ PegTokenizer.prototype.onEnd = function ( ) {
  */
 PegTokenizer.prototype.tokenize = function( text, production ) {
 	try {
-		var args = { cb: null, pegTokenizer: this, srcOffset: 0 };
+		var args = { cb: null, pegTokenizer: this, srcOffset: 0, env: this.env };
 		return this.tokenizer.tokenize(text, production || "start", args);
 	} catch ( e ) {
 		return false;
