@@ -4,6 +4,7 @@
  */
 
 var HTML5 = require( 'html5' ).HTML5,
+	domino = require( './domino' ),
 	path = require('path'),
 	async = require('async'),
 	$ = require( './fakejquery' ),
@@ -1019,12 +1020,9 @@ parseHTML = function ( html ) {
 		// element.
 		html = '<body>' + html;
 	}
-	var htmlparser = new HTML5.Parser();
+	var htmlparser = new HTML5.Parser({document:domino.createDocument('<html></html>')});
 	htmlparser.parse( html );
 	var doc = htmlparser.tree.document;
-	// Monkey-patch document.body.
-	// XXX: Why is this not defined by JSDOM?
-	doc.body = doc.firstChild.lastChild;
 	return doc;
 },
 

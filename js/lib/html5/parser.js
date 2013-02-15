@@ -28,11 +28,10 @@ var Parser = HTML5.Parser = function HTML5Parser(options) {
 	}
 
 	if(!this.document) {
-		var l3, jsdom
-		jsdom = require('jsdom')
-		l3 = jsdom.dom.level3.core
-		var DOM = jsdom.browserAugmentation(l3) 
-		this.document = new DOM.Document('html');
+		var domino = require('../domino')
+		// pass in an explicit string of html, or else we get the
+		// default document, which has a doctype node already present
+		this.document = domino.createDocument('<html></html>');
 	}
 
 	this.tree = new HTML5.TreeBuilder(this.document);

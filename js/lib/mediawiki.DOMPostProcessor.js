@@ -6,14 +6,14 @@ var events = require('events'),
 	Util = require('./mediawiki.Util.js').Util,
 	DU = require('./mediawiki.DOMUtils.js').DOMUtils,
 	Node = require('./mediawiki.wikitext.constants.js').Node,
-	jsdom = require('jsdom');
+	domino = require('./domino');
 
-// Sanity check for jsdom behavior. We require JSDOM >= 0.4.0 as we are
+// Sanity check for dom behavior: we are
 // relying on DOM level 4 getAttribute. In level 4, getAttribute on a
-// non-existing key returns null instead of the empty empty string.
-var testDom = jsdom.html('foo');
+// non-existing key returns null instead of the empty string.
+var testDom = domino.createWindow('<h1>Hello world</h1>').document;
 if (testDom.body.getAttribute('somerandomstring') === '') {
-	throw('Your JSDOM version appears to be out of date! \n' +
+	throw('Your DOM version appears to be out of date! \n' +
 			'Please run npm update in the js directory.');
 }
 
@@ -2243,7 +2243,7 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 	// from the web API.
 	var baseMeta = document.createElement('base');
 	baseMeta.setAttribute('href', env.conf.wiki.baseURI);
-	document.firstChild.firstChild.appendChild(baseMeta);
+	document.getElementsByTagName('head')[0].appendChild(baseMeta);
 	this.emit( 'document', document );
 };
 

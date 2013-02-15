@@ -29,7 +29,6 @@ var express = require('express'),
 	childProc = require('child_process'),
 	spawn = childProc.spawn,
 	fork = childProc.fork,
-	html5 = require('html5'),
 	path = require('path'),
 	cluster = require('cluster'),
 	fs = require('fs');

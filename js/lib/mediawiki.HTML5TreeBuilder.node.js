@@ -63,10 +63,7 @@ FauxHTML5.TreeBuilder.prototype.onEnd = function ( ) {
 	}
 
 	//console.warn('Fauxhtml5 onEnd');
-	// FIXME HACK: For some reason the end token is not processed sometimes,
-	// which normally fixes the body reference up.
 	var document = this.parser.document;
-	document.body = document.getElementsByTagName('body')[0];
 
 	this.emit( 'document', document );
 

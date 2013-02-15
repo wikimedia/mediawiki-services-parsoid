@@ -19,7 +19,6 @@ var fs = require('fs'),
 	DOMUtils = require( '../lib/mediawiki.DOMUtils.js' ).DOMUtils,
 	util = require( 'util' ),
 	async = require( 'async' ),
-	jsdom = require( 'jsdom' ),
 	PEG = require('pegjs'),
 	// Handle options/arguments with optimist module
 	optimist = require('optimist');
