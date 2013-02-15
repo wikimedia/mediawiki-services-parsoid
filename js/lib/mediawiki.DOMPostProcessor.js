@@ -5,7 +5,18 @@
 var events = require('events'),
 	Util = require('./mediawiki.Util.js').Util,
 	DU = require('./mediawiki.DOMUtils.js').DOMUtils,
-	Node = require('./mediawiki.wikitext.constants.js').Node;
+	Node = require('./mediawiki.wikitext.constants.js').Node,
+	jsdom = require('jsdom');
+
+// Sanity check for jsdom behavior. We require JSDOM >= 0.4.0 as we are
+// relying on DOM level 4 getAttribute. In level 4, getAttribute on a
+// non-existing key returns null instead of the empty empty string.
+var testDom = jsdom.html('foo');
+if (testDom.body.getAttribute('somerandomstring') === '') {
+	throw('Your JSDOM version appears to be out of date! \n' +
+			'Please run npm update in the js directory.');
+}
+
 
 // Known wikitext tag widths
 var WT_TagWidths = {
