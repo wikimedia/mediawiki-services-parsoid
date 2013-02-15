@@ -848,9 +848,8 @@ Util.makeTplAffectedMeta = function ( contentType, key, val ) {
 // use a singleton html parser
 ( function ( Util ) {
 
-var htmlparser = new HTML5.Parser(),
 
-normalizeNewlines = function ( source ) {
+var normalizeNewlines = function ( source ) {
 	return source
 				// strip comments first
 				.replace(/<!--(?:[^-]+|-(?!->))*-->/gm, '')
@@ -897,8 +896,8 @@ normalizeHTML = function ( source ) {
 	// TODO: Do not strip newlines in pre and nowiki blocks!
 	source = normalizeNewlines( source );
 	try {
-		htmlparser.parse('<body>' + source + '</body>');
-		return htmlparser.document.childNodes[0].childNodes[1]
+		var doc = this.parseHTML( source );
+		return doc.body
 			.innerHTML
 			// a few things we ignore for now..
 			//.replace(/\/wiki\/Main_Page/g, 'Main Page')
@@ -940,8 +939,28 @@ formatHTML = function ( source ) {
  * @returns {object} The HTML DOM tree.
  */
 parseHTML = function ( html ) {
+	if(! html.match(/^<(?:doctype|html|body)/)) {
+		// Make sure that we parse fragments in the body. Otherwise comments,
+		// link and meta tags end up outside the html element or in the head
+		// element.
+		html = '<body>' + html;
+	}
+	var htmlparser = new HTML5.Parser();
 	htmlparser.parse( html );
-	return htmlparser.tree;
+	var doc = htmlparser.tree.document;
+	// Monkey-patch document.body.
+	// XXX: Why is this not defined by JSDOM?
+	doc.body = doc.firstChild.lastChild;
+	return doc;
+},
+
+/**
+ * Serialize a HTML document
+ *
+ * Uses minimal attribute value quoting, which is nicer than innerHTML.
+ */
+serializeNode = function (doc) {
+	return HTML5.serialize(doc);
 },
 
 /**
@@ -962,6 +981,7 @@ encodeXml = function ( string ) {
 
 Util.encodeXml = encodeXml;
 Util.parseHTML = parseHTML;
+Util.serializeNode = serializeNode;
 Util.normalizeHTML = normalizeHTML;
 Util.normalizeOut = normalizeOut;
 Util.formatHTML = formatHTML;

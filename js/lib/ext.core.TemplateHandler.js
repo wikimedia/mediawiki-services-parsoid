@@ -667,7 +667,7 @@ TemplateHandler.prototype.lookupArg = function(args, attribs, cb, ret) {
 
 TemplateHandler.prototype.parseExtensionHTML = function(extToken, cb, err, html) {
 	// document -> html -> body -> children
-	var topNodes = Util.parseHTML(html).document.childNodes[0].childNodes[1].childNodes;
+	var topNodes = Util.parseHTML(html).body.childNodes;
 	var toks = [];
 	for (var i = 0, n = topNodes.length; i < n; i++) {
 		DOMUtils.convertDOMtoTokens(toks, topNodes[i]);

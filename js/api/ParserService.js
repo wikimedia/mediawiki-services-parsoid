@@ -351,11 +351,11 @@ app.get(/\/_html\/(.*)/, function ( req, res ) {
 app.post(/\/_html\/(.*)/, function ( req, res ) {
 	var cb = function ( env ) {
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-		var p = new html5.Parser();
-		p.parse( '<html><body>' + req.body.content.replace(/\r/g, '') + '</body></html>' );
+		var doc = Util.parseHTML( '<html><body>' + req.body.content.replace(/\r/g, '') +
+			'</body></html>' );
 		res.write('<pre style="background-color: #efefef">');
 		new Serializer({env: env}).serializeDOM(
-			p.tree.document.childNodes[0].childNodes[1],
+			doc.body,
 			function( c ) {
 				res.write( htmlSpecialChars( c ) );
 			},
@@ -461,11 +461,7 @@ app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)') , function(req, re
 			cb = function ( req, res, src, document ) {
 				// strip newlines from the html
 				var html = document.innerHTML.replace(/[\r\n]/g, ''),
-					p = new html5.Parser();
-				p.parse( html );
-				var newDocument = p.tree.document;
-				// monkey-patch document.body reference for now..
-				newDocument.body = newDocument.childNodes[0].childNodes[1];
+					newDocument = Util.parseHTML(html);
 				roundTripDiff( req, res, src, newDocument );
 			};
 
@@ -523,9 +519,10 @@ app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 			res.setHeader('Cache-Control', 's-maxage=2592000');
 		}
 		var tpr = new TemplateRequest( env, target, oldid );
-		tpr.once('src', parse.bind( null, env, req, res, function ( req, res, src, document ) {
+		tpr.once('src', parse.bind( null, env, req, res, function ( req, res, src, doc ) {
 			// Don't use outerHTML as that pretty-prints in JSDOM!
-			res.end(document.innerHTML);
+			// Instead, use serializeNode for its smarter quoting.
+			res.end(Util.serializeNode(doc));
 			var et = new Date();
 			console.warn("completed parsing of " + target + " in " + (et - st) + " ms");
 		}));
@@ -577,8 +574,7 @@ app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function ( req, res 
 		res.setHeader('Content-Type', 'text/x-mediawiki; charset=UTF-8');
 
 		try {
-			var p = new html5.Parser();
-			p.parse( req.body.content );
+			var doc = Util.parseHTML(req.body.content);
 		} catch ( e ) {
 			console.log( 'There was an error in the HTML5 parser! Sending it back to the editor.' );
 			console.error( e.stack );
@@ -596,7 +592,7 @@ app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function ( req, res 
 			// The below can be uncommented to turn on selective serialization on the main API service.
 			// This is not currently advisable. It's not working perfectly.
 			//new SelectiveSerializer( { env: env, oldid: oldid } ).serializeDOM(
-				p.tree.document.childNodes[0].childNodes[1],
+				doc.body,
 				function ( chunk ) {
 					res.write( chunk );
 				}, function () {

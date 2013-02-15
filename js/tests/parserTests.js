@@ -510,8 +510,6 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 
 	item.time = {};
 
-	var domtree;
-
 	// Build a list of tasks for this test that will be passed to async.waterfall
 	var finishHandler = function ( err, res ) {
 		if ( err ) {
@@ -535,9 +533,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 		if ( item.cachedSourceHTML === null ) {
 			testTasks.push( function ( cb ) {
 				cb( null, Util.parseHTML( '<html><body>' + item.result + '</body></html>' )
-					.document
-					.childNodes[0]
-					.childNodes[1] );
+					.body );
 			} );
 		} else {
 			testTasks.push( function ( cb ) {

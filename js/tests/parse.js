@@ -209,8 +209,7 @@ function dumpFlags() {
 
 		// Init parsers, serializers, etc.
 		var parserPipeline,
-			serializer,
-			htmlparser = new html5.Parser();
+			serializer;
 		if (!argv.html2wt) {
 			var parserPipelineFactory = new ParserPipelineFactory(env);
 			parserPipeline = parserPipelineFactory.makePipeline('text/x-mediawiki/full');
@@ -242,11 +241,10 @@ function dumpFlags() {
 		stdin.on( 'end', function() {
 			var input = inputChunks.join('');
 			if (argv.html2wt || argv.html2html) {
-				htmlparser.parse('<html><body>' + input.replace(/\r/g, '') + '</body></html>');
-				var content = htmlparser.tree.document.childNodes[0].childNodes[1],
+				var doc = Util.parseHTML('<html><body>' + input.replace(/\r/g, '') + '</body></html>'),
 					wt = '';
 
-				serializer.serializeDOM( content, function ( chunk ) {
+				serializer.serializeDOM( doc.body, function ( chunk ) {
 					wt += chunk;
 				}, function () {
 					env.page.src = wt;

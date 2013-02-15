@@ -4,8 +4,7 @@
  * General DOM utilities
  */
 
-var HTML5 = require( 'html5' ).HTML5,
-	Util = require('./mediawiki.Util.js').Util,
+var Util = require('./mediawiki.Util.js').Util,
 	Node = require('./mediawiki.wikitext.constants.js').Node;
 
 var DOMUtils = {
