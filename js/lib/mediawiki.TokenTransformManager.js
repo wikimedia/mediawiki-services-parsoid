@@ -236,7 +236,9 @@ TokenTransformManager.prototype._getTransforms = function ( token, minRank ) {
  * @class
  * @constructor
  */
+var auid = 0;
 function AsyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, attributeType ) {
+	this.uid = auid++; // useful for debugging
 	this.env = env;
 	this.options = options;
 	this.pipeFactory = pipeFactory;
@@ -313,6 +315,7 @@ AsyncTokenTransformManager.prototype.emitChunk = function( ret ) {
 	try {
 		// Check if an EOFTk went missing
 		checkForEOFTkErrors(this, ret, !ret.async);
+		// console.warn("---> ATT-" + this.uid + " emit! " + JSON.stringify(ret.tokens));
 		this.emit( 'chunk', ret.tokens );
 
 		if ( ret.async ) {
@@ -358,6 +361,7 @@ AsyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 		this.env.dp( 'emitting' );
 		this.emit( 'chunk', res.tokens );
 	} else {
+		// console.warn("--> ATT-" + this.uid + " appending: " + JSON.stringify(res.tokens));
 		this.env.dp( 'appending to tail' );
 		this.tailAccumulator.append( res.tokens );
 	}
@@ -443,6 +447,7 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 			// that code path is exercised only when async mode is entered,
 			// so we are all good on that front.
 			var newAccum = new TokenAccumulator( this.ttm, cb );
+			// 'newAccum' will receive tokens from a child pipeline/cb
 			cbs.parentCB = newAccum.receiveToksFromChild.bind(newAccum);
 			cbs.self = maybeAsyncCB;
 
@@ -466,7 +471,9 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 			this.state.res = {};
 		},
 		addNode: function() {
+			// console.warn("--> ATT-" + this.ttm.uid + " new link in chain");
 			this.accum = this.next;
+			// 'accum' will receive toks from the 'next' node that will be created
 			var nextAccumAndCB = this.makeNextAccum( this.accum.receiveToksFromSibling.bind(this.accum) );
 			this.next = nextAccumAndCB.accum;
 			this.maybeAsyncCB = nextAccumAndCB.cb;
@@ -530,7 +537,7 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 		}
 
 		if (this.trace) {
-			console.warn("A" + this.phaseEndRank + ": " + JSON.stringify(token));
+			console.warn("A" + this.phaseEndRank + "-" + this.uid + ": " + JSON.stringify(token));
 		} else {
 			// SSS FIXME: with individual stage tracing, this overall generic tracing
 			// is becoming less and less useful now.  Do a cleanup one of these days.
@@ -612,6 +619,7 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 							res.async = false;
 						}
 
+						// console.warn("--> ATT" + this.uid + ": new work chunk" + JSON.stringify(resTokens));
 						workStack.pushChunk( resTokens );
 
 						if (this.debug) {
@@ -644,6 +652,8 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 			}
 		}
 	}
+
+	// console.warn("--> ATT" + this.uid + ": chain sync processing done!");
 
 	// we are no longer transforming, maybeSyncReturn needs to follow the
 	// async code path
@@ -762,10 +772,6 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
 		}
 	}
 };
-
-
-
-
 
 /*************** In-order, synchronous transformer (phase 1 and 3) ***************/
 
@@ -1107,7 +1113,9 @@ AttributeTransformManager.prototype._returnAttributeKey = function ( ref, tokens
  * @param {Object} next TokenAccumulator to link to
  * @param {Array} (optional) tokens, init accumulator with tokens or []
  */
+var tid = 0;
 function TokenAccumulator ( manager, parentCB ) {
+	this.uid = tid++; // useful for debugging
 	this.manager = manager;
 	this.parentCB = parentCB;
 	this.siblingToks = [];
@@ -1137,6 +1145,8 @@ TokenAccumulator.prototype.receiveToksFromChild = function ( ret ) {
 		this.siblingToks = [];
 	}
 
+	// console.warn("TA-" + this.uid + "; c: " + this.waitForChild + "; s: " + this.waitForSibling + " <-- from child: " + JSON.stringify(ret));
+
 	ret.tokens.rank = this.manager.phaseEndRank;
 	ret.async = this.waitForSibling || this.waitForChild;
 
@@ -1159,6 +1169,8 @@ TokenAccumulator.prototype.receiveToksFromSibling = function ( ret ) {
 		this.waitForSibling = false;
 	}
 
+	// console.warn("TA-" + this.uid + "; c: " + this.waitForChild + "; s: " + this.waitForSibling + " <-- from sibling: " + JSON.stringify(ret));
+
 	if (this.waitForChild) {
 		// Just continue to accumulate sibling tokens.
 		this.siblingToks = this.siblingToks.concat( ret.tokens );
@@ -1173,6 +1185,7 @@ TokenAccumulator.prototype.receiveToksFromSibling = function ( ret ) {
 		ret.tokens.rank = this.manager.phaseEndRank;
 		return this._callParentCB( ret );
 	} else {
+		// console.warn("TA-" + this.uid + " --ALL DONE!--");
 		// All done
 		ret.tokens = this.siblingToks.concat( ret.tokens );
 		ret.tokens.rank = this.manager.phaseEndRank;
@@ -1190,7 +1203,6 @@ TokenAccumulator.prototype.siblingDone = function () {
 	this.receiveToksFromSibling( { tokens: [], async: false } );
 };
 
-
 TokenAccumulator.prototype._callParentCB = function ( ret ) {
 	var cb = this.parentCB( ret );
 	if ( cb ) {
@@ -1206,7 +1218,9 @@ TokenAccumulator.prototype._callParentCB = function ( ret ) {
  * @param {Object} token
  */
 TokenAccumulator.prototype.push = function ( token ) {
-	return this.siblingToks.push(token);
+	// Treat a token push as a token-receive from a sibling
+	// in whatever async state the accum is currently in.
+	return this.receiveToksFromSibling({ tokens: [token], async: this.waitForSibling });
 };
 
 /**
@@ -1215,8 +1229,10 @@ TokenAccumulator.prototype.push = function ( token ) {
  * @method
  * @param {Object} token
  */
-TokenAccumulator.prototype.append = function ( token ) {
-	this.siblingToks = this.siblingToks.concat( token );
+TokenAccumulator.prototype.append = function ( tokens ) {
+	// Treat tokens append as a token-receive from a sibling
+	// in whatever async state the accum is currently in.
+	return this.receiveToksFromSibling({ tokens: tokens, async: this.waitForSibling });
 };
 
 
