@@ -19,8 +19,7 @@
 	},
 	"devDependencies": {
 		"colors": "0.x.x",
-		"diff": "1.x.x",
-		"html5": "0.x.x"
+		"diff": "1.x.x"
 	},
 	"main": "mediawiki.parser.js",
 	"scripts": {

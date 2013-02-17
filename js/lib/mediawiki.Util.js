@@ -3,8 +3,7 @@
  * General utilities for token transforms
  */
 
-var HTML5 = require( 'html5' ).HTML5,
-	domino = require( './domino' ),
+var domino = require( './domino' ),
 	path = require('path'),
 	async = require('async'),
 	$ = require( './fakejquery' ),
@@ -1020,19 +1019,16 @@ parseHTML = function ( html ) {
 		// element.
 		html = '<body>' + html;
 	}
-	var htmlparser = new HTML5.Parser({document:domino.createDocument('<html></html>')});
-	htmlparser.parse( html );
-	var doc = htmlparser.tree.document;
-	return doc;
+	return domino.createDocument(html);
 },
 
 /**
  * Serialize a HTML document
- *
- * Uses minimal attribute value quoting, which is nicer than innerHTML.
  */
 serializeNode = function (doc) {
-	return HTML5.serialize(doc);
+	// use domino's outerHTML, as specified by
+	// http://domparsing.spec.whatwg.org/#outerhtml
+	return doc.outerHTML;
 },
 
 /**

@@ -17,6 +17,25 @@ Node.prototype.DOCUMENT_TYPE_NODE          = Node.DOCUMENT_TYPE_NODE;
 Node.prototype.DOCUMENT_FRAGMENT_NODE      = Node.DOCUMENT_FRAGMENT_NODE;
 Node.prototype.NOTATION_NODE               = Node.NOTATION_NODE;
 
+// pull in outerHTML support from https://github.com/fgnass/domino/pull/18
+var Document = domino.impl.Document;
+if (!Object.getOwnPropertyDescriptor(Document.prototype, 'outerHTML')) {
+    Object.defineProperty(Document.prototype, 'outerHTML',
+                          { get: function() { return this.innerHTML; } });
+}
+if (!Object.getOwnPropertyDescriptor(Node.prototype, 'outerHTML')) {
+    Object.defineProperty(Node.prototype, 'outerHTML', { get: function() {
+        // "the attribute must return the result of running the HTML fragment
+        // serialization algorithm on a fictional node whose only child is
+        // the context object"
+        var fictional = {
+            childNodes: [ this ],
+            nodeType: 0
+        };
+        return this.serialize.call(fictional);
+    }});
+}
+
 // address domino gh #18 upstream
 var hasBrokenSerialize = function() {
     var doc = domino.createDocument();

@@ -537,9 +537,7 @@ app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 		}
 		var tpr = new TemplateRequest( env, target, oldid );
 		tpr.once('src', parse.bind( null, env, req, res, function ( req, res, src, doc ) {
-			// Don't use outerHTML as that pretty-prints in JSDOM!
-			// Instead, use serializeNode for its smarter quoting.
-			res.end(Util.serializeNode(doc));
+			res.end(Util.serializeNode(doc.documentElement));
 			var et = new Date();
 			console.warn("completed parsing of " + target + " in " + (et - st) + " ms");
 		}));

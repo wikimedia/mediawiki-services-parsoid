@@ -14,7 +14,6 @@ var ParserPipelineFactory = require('../lib/mediawiki.parser.js').ParserPipeline
 	SelectiveSerializer = require( '../lib/mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
 	Util = require('../lib/mediawiki.Util.js').Util,
 	optimist = require('optimist'),
-	html5 = require('html5'),
 	fs = require('fs');
 
 function traceUsage() {
