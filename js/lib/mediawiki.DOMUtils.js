@@ -240,7 +240,7 @@ var DOMUtils = {
 	},
 
 	hasElementChild: function(node) {
-		var children = node.children;
+		var children = node.childNodes;
 		for (var i = 0, n = children.length; i < n; i++) {
 			if (this.isElt(children[i])) {
 				return true;
@@ -266,7 +266,7 @@ var DOMUtils = {
 		}
 
 		// Descend into children -- walk backward
-		var children = node.children;
+		var children = node.childNodes;
 		for (var n = children.length, i = n-1; i >= 0; i--) {
 			var c = children[i];
 			if (this.isElt(c)) {
