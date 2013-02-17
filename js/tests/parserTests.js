@@ -478,7 +478,11 @@ ParserTests.prototype.generateChanges = function ( options, nonRandomChanges, it
 ParserTests.prototype.convertWt2Html = function( mode, wikitext, processHtmlCB ) {
 	try {
 		this.parserPipeline.once( 'document', function ( doc ) {
-			processHtmlCB( null, doc );
+			// processHtmlCB can be asynchronous, so deep-clone
+			// document before invoking it. (the parser pipeline
+			// will attempt to reuse the document after this
+			// event is emitted)
+			processHtmlCB( null, doc.body.cloneNode(true) );
 		} );
 	} catch ( e ) {
 		processHtmlCB( e );
@@ -571,7 +575,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 	testTasks.push( function ( result, cb ) {
 		if ( startsAtWikitext && item.cachedHTML === null ) {
 			// Cache parsed HTML
-			item.cachedHTML = result.body.cloneNode( true );
+			item.cachedHTML = result.cloneNode( true );
 		}
 
 		cb( null, result );
@@ -623,7 +627,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 ParserTests.prototype.processParsedHTML = function( item, options, mode, doc, cb ) {
 	item.time.end = Date.now();
 	// Check the result vs. the expected result.
-	this.checkHTML( item, doc.body.innerHTML, options, mode );
+	this.checkHTML( item, doc.innerHTML, options, mode );
 
 	// Now schedule the next test, if any
 	process.nextTick( cb );
