@@ -128,7 +128,7 @@ var DOMUtils = {
 		var attribs = node.attributes,
 			kvs = [];
 		for(var i = 0, l = attribs.length; i < l; i++) {
-			var attrib = attribs[i];
+			var attrib = attribs.item(i);
 			kvs.push(new KV(attrib.name, attrib.value));
 		}
 		return kvs;

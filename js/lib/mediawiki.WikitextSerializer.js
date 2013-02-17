@@ -1153,7 +1153,8 @@ WSP.linkHandler =  function( state, node, cb ) {
 		// switch to html only when needed to support attributes
 
 		var isComplexLink = function ( attributes ) {
-			for ( var attr in attributes ) {
+			for ( var i=0; i < attributes.length; i++ ) {
+				var attr = attributes.item(i);
 				if ( attr.name && ! ( attr.name in { href: 1 } ) ) {
 					return true;
 				}
@@ -2113,7 +2114,7 @@ WSP._serializeToken = function ( state, token ) {
 };
 
 WSP._getDOMAttribs = function( attribs ) {
-	// convert to list fo key-value pairs
+	// convert to list of key-value pairs
 	var out = [],
 		ignoreAttribs = {
 			'data-parsoid': 1,
@@ -2131,9 +2132,9 @@ WSP._getDOMAttribs = function( attribs ) {
 	return out;
 };
 
-WSP._getDOMRTInfo = function( attribs ) {
-	if ( attribs['data-parsoid'] ) {
-		return JSON.parse( attribs['data-parsoid'].value || '{}' );
+WSP._getDOMRTInfo = function( node ) {
+	if ( node.hasAttribute('data-parsoid') ) {
+		return JSON.parse( node.getAttribute('data-parsoid') || '{}' );
 	} else {
 		return {};
 	}
@@ -2165,7 +2166,7 @@ WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
 		var prop = node.getAttribute("property");
 		if (prop && prop.match(/mw:objectAttr/)) {
 			var templateId = node.getAttribute("about") || '';
-			var src  = this._getDOMRTInfo(node.attributes).src;
+			var src  = this._getDOMRTInfo(node).src;
 			if (!state.tplAttrs[templateId]) {
 				state.tplAttrs[templateId] = { kvs: {}, ks: {}, vs: {} };
 			}
@@ -2400,7 +2401,7 @@ function gatherInlineText(buf, node) {
 		 * on the gathered text
 		 *
 			// Ignore text for extlink/numbered
-			if (name === 'a' && node.attributes["rel"].value === 'mw:ExtLink/Numbered') {
+			if (name === 'a' && node.getAttribute("rel") === 'mw:ExtLink/Numbered') {
 				return;
 			}
 		 * -----------------------------------------------------------------*/
@@ -2489,7 +2490,7 @@ WSP._serializeDOM = function( node, state ) {
 				}
 				var dummyToken = new SelfclosingTagTk("meta",
 					attrs,
-					{ src: this._getDOMRTInfo(node.attributes).src }
+					{ src: this._getDOMRTInfo(node).src }
 				);
 
 				if ( dps ) {
@@ -2509,8 +2510,8 @@ WSP._serializeDOM = function( node, state ) {
 		case Node.ELEMENT_NODE:
 			var nodeName = node.nodeName.toLowerCase(),
 				tkAttribs = this._getDOMAttribs(node.attributes),
-				tkRTInfo = this._getDOMRTInfo(node.attributes),
-				parentSTX = state.parentSTX;
+				tkRTInfo = this._getDOMRTInfo(node),
+				parentSTX = state.parentST1X;
 
 			// populate node.data.parsoid and node.data['parsoid-serialize']
 			DU.loadDataParsoid(node);

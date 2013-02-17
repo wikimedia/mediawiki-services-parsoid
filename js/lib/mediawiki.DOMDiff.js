@@ -53,9 +53,9 @@ var ignoreAttributes = {
 };
 
 function countIgnoredAttributes (attributes) {
-	var n = 0;
-	for (var name in ignoreAttributes) {
-		if (attributes[name]) {
+	var n = 0, i;
+	for (i=0; i < attributes.length; i++) {
+		if ( ignoreAttributes.hasOwnProperty(attributes.item(i).name) ) {
 			n++;
 		}
 	}
@@ -80,16 +80,16 @@ DDP.attribsEquals = function(nodeA, nodeB) {
 	for (var i = 0, la = nodeA.attributes.length, lb = nodeB.attributes.length;
 			i + skippedA < la && i + skippedB < lb; i++)
 	{
-		if ( ignoreAttributes[nodeA.attributes[i + skippedA].name] ) {
+		if ( ignoreAttributes.hasOwnProperty(nodeA.attributes.item(i + skippedA).name) ) {
 			skippedA++;
 			continue;
 		}
-		if ( ignoreAttributes[nodeB.attributes[i + skippedB].name] ) {
+		if ( ignoreAttributes.hasOwnProperty(nodeB.attributes.item(i + skippedB).name) ) {
 			skippedB++;
 			continue;
 		}
-		if (nodeA.attributes[i + skippedA].name !== nodeB.attributes[i + skippedB].name ||
-				nodeA.attributes[i + skippedA].value !== nodeB.attributes[i + skippedB].value)
+		if (nodeA.attributes.item(i + skippedA).name !== nodeB.attributes.item(i + skippedB).name ||
+				nodeA.attributes.item(i + skippedA).value !== nodeB.attributes.item(i + skippedB).value)
 		{
 			return false;
 		}
