@@ -13,17 +13,33 @@ b.prototype.reset = function() {
 }
 
 b.prototype.copyAttributeToElement = function(element, attribute) {
+	// attributes don't inherit from Node any longer in DOM level 4
 	if(attribute.nodeType && attribute.nodeType == attribute.ATTRIBUTE_NODE) {
+		// DOM 3
 		element.setAttributeNode(attribute.cloneNode());
-	} else {
-        try {
-            element.setAttribute(attribute.nodeName, attribute.nodeValue)
-        } catch(e) {
-            console.log("Can't set attribute '" + attribute.nodeName + "' to value '" + attribute.nodeValue + "': (" + e + ')');
-        }
 		if(attribute.namespace) {
 			var at = element.getAttributeNode(attribute.nodeName);
 			at.namespace = attribute.namespace;
+		}
+	} else {
+		try {
+			var name, value, namespace;
+			if ('namespaceURI' in attribute) { // DOM 4
+				name = attribute.name;
+				value = attribute.value;
+				namespace = attribute.namespaceURI;
+			} else { // token
+				name = attribute.nodeName;
+				value = attribute.nodeValue;
+				namespace = attribute.namespace;
+			}
+			if (namespace) {
+				element.setAttributeNS(namespace, name, value);
+			} else {
+				element.setAttribute(name, value);
+			}
+		} catch(e) {
+			console.log("Can't set attribute '" + attribute.name + "' to value '" + attribute.value + "': (" + e + ')');
 		}
 	}
 }
