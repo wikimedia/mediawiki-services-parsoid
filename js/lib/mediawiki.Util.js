@@ -877,7 +877,7 @@ normalizeOut = function ( out ) {
 		// replace mwt ids
 		.replace(/\s*id="mwt\d+"/, '')
 		//.replace(/<!--.*?-->\n?/gm, '')
-		.replace(/<\/?(?:meta|link) [^>]*>/g, '')
+		.replace(/<\/?(?:meta|link)(?: [^>]*)?>/g, '')
 		.replace(/<span[^>]+about="[^]+>/g, '')
 		.replace(/<span><\/span>/g, '')
 		.replace(/href="(?:\.?\.\/)+/g, 'href="')
