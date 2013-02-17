@@ -869,16 +869,22 @@ var normalizeNewlines = function ( source ) {
  */
 normalizeOut = function ( out ) {
 	// TODO: Do not strip newlines in pre and nowiki blocks!
+	// NOTE that we use a slightly restricted regexp for "attribute"
+	//  which works for the output of DOM serialization.  For example,
+	//  we know that attribute values will be surrounded with double quotes,
+	//  not unquoted or quoted with single quotes.  The serialization
+	//  algorithm is given by:
+	//  http://www.whatwg.org/specs/web-apps/current-work/multipage/the-end.html#serializing-html-fragments
 	out = normalizeNewlines( out );
 	return out
-		.replace(/<span typeof="mw:(?:(?:Placeholder|Nowiki|Object\/Template|Entity))"[^>]*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1')
+		.replace(/<span typeof="mw:(?:(?:Placeholder|Nowiki|Object\/Template|Entity))"(?:\s+[^\s"'>\/=]+(?:\s*=\s*"[^"]*")?)*\s*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1')
 		// Ignore these attributes for now
-		.replace(/ (data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content|title|class)="[^">]*"/g, '')
+		.replace(/ (data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content|title|class)="[^"]*"/g, '')
 		// replace mwt ids
 		.replace(/\s*id="mwt\d+"/, '')
 		//.replace(/<!--.*?-->\n?/gm, '')
-		.replace(/<\/?(?:meta|link)(?: [^>]*)?>/g, '')
-		.replace(/<span[^>]+about="[^]+>/g, '')
+		.replace(/<\/?(?:meta|link)(?:\s+[^\s"'>\/=]+(?:\s*=\s*"[^"]*")?)*\s*\/?>/g, '')
+		.replace(/<span[^>]+about="[^"]*"[^>]*>/g, '')
 		.replace(/<span><\/span>/g, '')
 		.replace(/href="(?:\.?\.\/)+/g, 'href="')
 		// strip thumbnail size prefixes
