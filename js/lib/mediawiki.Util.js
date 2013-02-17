@@ -877,7 +877,7 @@ normalizeOut = function ( out ) {
 	//  http://www.whatwg.org/specs/web-apps/current-work/multipage/the-end.html#serializing-html-fragments
 	out = normalizeNewlines( out );
 	return out
-		.replace(/<span typeof="mw:(?:(?:Placeholder|Nowiki|Object\/Template|Entity))"(?:\s+[^\s"'>\/=]+(?:\s*=\s*"[^"]*")?)*\s*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1')
+		.replace(/<span typeof="mw:(?:(?:Placeholder|Nowiki|Object\/Template|Entity))"(?:\s+[^\s\"\'>\/=]+(?:\s*=\s*"[^"]*")?)*\s*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1')
 		// Ignore these attributes for now
 		.replace(/ (data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content|title|class)="[^"]*"/g, '')
 		// replace mwt ids
