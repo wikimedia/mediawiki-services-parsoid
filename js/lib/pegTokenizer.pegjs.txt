@@ -488,12 +488,12 @@ block_line
   / st:optionalSpaceToken
     r:( & [{}|!] tl:table_lines { return tl; }
       // tag-only lines should not trigger pre either
-      / bts:(bt:block_tag stl:optionalSpaceToken { return bt.concat(stl) })+
-        &eolf { return bts }
+      / bts:(bt:block_tag stl:optionalSpaceToken { return bt.concat(stl); })+
+        &eolf { return bts; }
       ) {
           return st.concat(r);
       }
-  / ! { return stops.counters.nopre } pre_indent
+  / ! { return stops.counters.nopre; } pre_indent
   / pre
   / // Horizontal rules
     "----" d:"-"*
@@ -1186,11 +1186,11 @@ pre_indent
 // possibly merge with the regular 'pre' production.
 // FIXME: fix tag end position
 pre_indent_in_tags
-  = space+ // XXX: capture space for round-tripping
+  = & { return stops.inc('pre'); }
+  	space+ // XXX: capture space for round-tripping
     "<pre"
     attribs:generic_attribute*
     ">"
-    & { return stops.inc('pre'); }
     l:inlineline
     ls:(sol pre_indent_line)*
     "</pre>"
@@ -1228,21 +1228,6 @@ pre
                 / !"</pre>" t2:(htmlentity / .) { return t2 })+
     ("</pre>" / eof) {
         stops.dec('pre');
-        /*
-         * The VE will be fixed up to preserve this newline real soon, so disable it for now.
-        var firstTok = ts[0];
-        if (firstTok.constructor === String && firstTok.match(/^\n/)) {
-            // Strip leading newline from the token
-            ts.shift();
-            if (firstTok.length > 1) {
-                ts.unshift(firstTok.substr(1));
-            }
-            // Re-add it with protection
-            ts.unshift(new EndTagTk( 'span' ));
-            ts.unshift("\n");
-            ts.unshift(new TagTk( 'span', [ new KV( 'typeof', 'mw:Placeholder' ) ], { src: '\n' } ));
-        }
-        */
         // return nowiki tags as well?
         return [ new TagTk( 'pre', attribs, { stx: 'html', tsr: [pos0, endpos] } ) ]
                     .concat(flatten_stringlist(ts), [ new EndTagTk( 'pre', [], { tsr: [pos - 6, pos] } ) ]);
@@ -1299,11 +1284,10 @@ nowiki
                     { tsr: [pos - 9, pos] })
                 ] );
     }
-  // nowiki fallback: source-based round-tripping.
-  / ! { return stops.counters.pre }
-    nw0:({return pos})
-    "<" "/"? "nowiki" [ ]* "/"? ">" {
-          //console.warn('nowiki fallback');
+  // nowiki fallback: source-based round-tripping of <nowiki />.
+  / nw0:({return pos})
+    "<nowiki" [ ]* "/>" {
+      //console.warn('<nowiki/>');
       return [
           new SelfclosingTagTk('meta',
                   [new KV('typeof', 'mw:Placeholder')],
@@ -1312,6 +1296,24 @@ nowiki
                       tsr: [nw0, pos]
                   })
         ];
+    }
+  // nowiki fallback: source-based round-tripping
+  // of unbalanced nowiki tags that are treated as text.
+  / ! { return stops.counters.pre > 0; }
+    nw0:({return pos})
+    "<" "/"? "nowiki" [ ]* "/"? ">" {
+      //console.warn('nowiki text');
+      var nowiki = input.substring(nw0, pos);
+      return [
+            new TagTk( 'span', [
+                new KV( 'typeof', 'mw:Placeholder' )
+            ], {
+                src: nowiki,
+                tsr: [nw0, pos]
+            } ),
+            nowiki,
+            new EndTagTk( 'span' )
+      ];
     }
 
 // Should abort the nowiki match:
@@ -1535,7 +1537,7 @@ dtdd
     cpos:(":" { return pos })
     // Fortunately dtdds cannot be nested, so we can simply set the flag
     // back to 0 to disable it.
-    & { stops.counters['colon'] = 0; return true;}
+    & { stops.counters.colon = 0; return true;}
     d:inlineline?
     &eolf {
         // Leave bullets as an array -- list handler expects this
@@ -1549,7 +1551,7 @@ dtdd
         return [ li1 ].concat( c, [ li2 ], d || '' );
     }
   // Fall-back case to clear the colon flag
-  / & { return true; } { stops.counters['colon'] = 0; return null; }
+  / & { return true; } { stops.counters.colon = 0; return null; }
 
 
 list_char = [*#:;]
