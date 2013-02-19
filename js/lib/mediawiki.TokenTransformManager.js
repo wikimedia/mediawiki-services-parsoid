@@ -257,7 +257,6 @@ AsyncTokenTransformManager.prototype.constructor = AsyncTokenTransformManager;
 // Reset state between uses
 AsyncTokenTransformManager.prototype.reset = function() {
 	this.tailAccumulator = null;
-	// initial top-level callback, emits chunks
 	this.tokenCB = this.emitChunk.bind( this );
 };
 
