@@ -14,7 +14,7 @@
 	"noarg": true,
 	"noempty": true,
 	"nonew": true,
-	"regexp": true,
+	"regexp": false,
 	"undef": true,
 	"strict": false,
 	"trailing": true,
