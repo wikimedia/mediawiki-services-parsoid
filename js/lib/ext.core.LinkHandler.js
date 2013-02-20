@@ -273,7 +273,7 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 	// extract options
 	var i, l, kv,
 		options = [],
-		oHash = {},
+		oHash = { height: null, width: null },
 		captions = [],
 		validOptions = Object.keys( WikitextConstants.Image.PrefixOptions ),
 		getOption = env.conf.wiki.getMagicPatternMatcher( validOptions );
@@ -409,23 +409,33 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 		newAttribs = newAttribs.concat(rdfaAttrs.attribs);
 
 		var a = new TagTk( isImageLink ? 'a' : 'span', newAttribs, Util.clone(token.dataAttribs));
-		var width, height;
-		if ( ! oHash.height && ! oHash.width ) {
+		var width=null, height=null;
+		if ( oHash.height===null && oHash.width===null ) {
 			width = '200px';
 		} else {
 			width = oHash.width;
 			height = oHash.height;
 		}
 
-		var path = this.getThumbPath( title.key, width.replace(/px$/, '') ),
-			img = new SelfclosingTagTk( 'img',
-				[
-					// FIXME!
-					new KV( 'height', height || '' ),
-					new KV( 'width', width || '' ),
-					new KV( 'src', path ),
-					new KV( 'alt', oHash.alt || title.key )
-				] );
+		var path = this.getThumbPath( title.key, width.replace(/px$/, '') );
+		var imgAttrs = [
+			new KV( 'src', path ),
+			new KV( 'alt', oHash.alt || title.key )
+		];
+		if (height !== null) {
+			imgAttrs.push( new KV( 'height', height ) );
+		}
+		if (width !== null) {
+			imgAttrs.push( new KV( 'width', width ) );
+		}
+
+		var imgClass = [];
+		if (oHash.border) { imgClass.push('thumbborder'); }
+		if (imgClass.length) {
+			imgAttrs.push( new KV( 'class', imgClass.join(' ') ) );
+		}
+
+		var img = new SelfclosingTagTk( 'img', imgAttrs );
 
 		var tokens = [ a, img, new EndTagTk( isImageLink ? 'a' : 'span' )];
 		return { tokens: tokens };
@@ -508,6 +518,8 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 
 	var figurestyle = "width: " + (width + 5) + "px;",
 		figureclass = "thumb tright thumbinner";
+	// note that 'border', 'frameless', and 'frame' property is ignored
+	// for thumbnails
 
 	// set horizontal alignment
 	if ( oHash.halign ) {
@@ -526,7 +538,6 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 	}
 
 	// XXX: set vertical alignment (valign)
-	// XXX: support other formats (border, frameless, frame)
 	// XXX: support prefixes
 
 	if (oHash['class']) {
