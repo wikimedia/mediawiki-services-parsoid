@@ -199,9 +199,23 @@ var roundTripDiff = function ( req, res, env, document ) {
 			res.send( out, 500 );
 			return;
 		}
-		res.write('<html><head><script type="text/javascript" src="/jquery.js"></script><script type="text/javascript" src="/scrolling.js"></script><style>ins { background: #ff9191; text-decoration: none; } del { background: #99ff7e; text-decoration: none }; </style></head><body>');
+		res.write('<html><head>\n');
+		res.write('<script type="text/javascript" src="/jquery.js"></script><script type="text/javascript" src="/scrolling.js"></script><style>ins { background: #ff9191; text-decoration: none; } del { background: #99ff7e; text-decoration: none }; </style>\n');
+		// Emit base href so all relative urls resolve properly
+		var headNodes = document.firstChild.firstChild.childNodes;
+		for (var i = 0; i < headNodes.length; i++) {
+			if (headNodes[i].nodeName.toLowerCase() === 'base') {
+				res.write(Util.serializeNode(headNodes[i]));
+				break;
+			}
+		}
+		res.write('</head><body>\n');
 		res.write( '<h2>Wikitext parsed to HTML DOM</h2><hr>\n' );
-		res.write(document.body.innerHTML + '\n<hr>');
+		var bodyNodes = document.body.childNodes;
+		for (var i = 0; i < bodyNodes.length; i++) {
+			res.write(Util.serializeNode(bodyNodes[i]));
+		}
+		res.write('\n<hr>');
 		res.write( '<h2>HTML DOM converted back to Wikitext</h2><hr>\n' );
 		res.write('<pre>' + htmlSpecialChars( out ) + '</pre><hr>\n');
 		res.write( '<h2>Diff between original Wikitext (green) and round-tripped wikitext (red)</h2><p>(use shift+alt+n and shift+alt+p to navigate forward and backward)<hr>\n' );
@@ -210,16 +224,17 @@ var roundTripDiff = function ( req, res, env, document ) {
 		//console.log(JSON.stringify( jsDiff.diffLines( out, src ) ));
 		patch = jsDiff.convertChangesToXML( jsDiff.diffLines( src, out ) );
 		//patch = jsDiff.convertChangesToXML( refineDiff( jsDiff.diffLines( src, out ) ) );
-		res.write( '<pre>' + patch);
+		res.write( '<pre>\n' + patch + '\n</pre>');
 		// Add a 'report issue' link
-		res.end('<hr><h2>'+
+		res.write('<hr>\n<h2>'+
 				'<a style="color: red" ' +
 				'href="http://www.mediawiki.org/w/index.php?title=Talk:Parsoid/Todo' +
-				'&action=edit&section=new&preloadtitle=' +
+				'&amp;action=edit&amp;section=new&amp;preloadtitle=' +
 				'Issue%20on%20http://parsoid.wmflabs.org' + req.url + '">' +
 				'Report a parser issue in this page</a> at ' +
 				'<a href="http://www.mediawiki.org/wiki/Talk:Parsoid/Todo">'+
-				'[[:mw:Talk:Parsoid/Todo]]</a></h2><hr>');
+				'[[:mw:Talk:Parsoid/Todo]]</a></h2>\n<hr>');
+		res.end('\n</body></html>');
 	};
 
 	new Serializer({env: env}).serializeDOM( document.body,
@@ -255,19 +270,22 @@ var app = express.createServer();
 app.use(express.bodyParser());
 
 app.get('/', function(req, res){
-	res.write('<body><h3>Welcome to the alpha test web service for the ' +
-		'<a href="http://www.mediawiki.org/wiki/Parsoid">Parsoid project<a>.</h3>');
+	res.write('<html><body>\n');
+	res.write('<h3>Welcome to the alpha test web service for the ' +
+		'<a href="http://www.mediawiki.org/wiki/Parsoid">Parsoid project</a>.</h3>\n');
 	res.write( '<p>Usage: <ul><li>GET /title for the DOM. ' +
-		'Example: <strong><a href="/en/Main_Page">Main Page</a></strong>');
-	res.write('<li>POST a DOM as parameter "content" to /title for the wikitext</ul>');
-	res.write('<p>There are also some tools for experiments:<ul>');
+		'Example: <strong><a href="/en/Main_Page">Main Page</a></strong></li>\n');
+	res.write('<li>POST a DOM as parameter "content" to /title for the wikitext</li>\n');
+	res.write('</ul>\n');
+	res.write('<p>There are also some tools for experiments:\n<ul>\n');
 	res.write('<li>Round-trip test pages from the English Wikipedia: ' +
-		'<strong><a href="/_rt/en/Help:Magic">/_rt/Help:Magic</a></strong></li>');
-	res.write('<li><strong><a href="/_rtform/">WikiText -&gt; HTML DOM -&gt; WikiText round-trip form</a></strong></li>');
-	res.write('<li><strong><a href="/_wikitext/">WikiText -&gt; HTML DOM form</a></strong></li>' +
-			'<li><strong><a href="/_html/">HTML DOM -&gt; WikiText form</a></strong></li>');
-	res.write('</ul>');
-	res.end('<p>We are currently focusing on round-tripping of basic formatting like inline/bold, headings, lists, tables and links. Templates, citations and thumbnails are not expected to round-trip properly yet. <strong>Please report issues you see at <a href="http://www.mediawiki.org/w/index.php?title=Talk:Parsoid/Todo&action=edit&section=new">:mw:Talk:Parsoid/Todo</a>. Thanks!</strong></p>');
+		'<strong><a href="/_rt/en/Help:Magic">/_rt/Help:Magic</a></strong></li>\n');
+	res.write('<li><strong><a href="/_rtform/">WikiText -&gt; HTML DOM -&gt; WikiText round-trip form</a></strong></li>\n');
+	res.write('<li><strong><a href="/_wikitext/">WikiText -&gt; HTML DOM form</a></strong></li>\n');
+	res.write('<li><strong><a href="/_html/">HTML DOM -&gt; WikiText form</a></strong></li>\n');
+	res.write('</ul>\n');
+	res.write('<p>We are currently focusing on round-tripping of basic formatting like inline/bold, headings, lists, tables and links. Templates, citations and thumbnails are not expected to round-trip properly yet. <strong>Please report issues you see at <a href="http://www.mediawiki.org/w/index.php?title=Talk:Parsoid/Todo&action=edit&section=new">:mw:Talk:Parsoid/Todo</a>. Thanks!</strong></p>\n');
+	res.write('</body></html>');
 });
 
 
