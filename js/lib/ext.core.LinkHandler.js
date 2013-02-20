@@ -402,6 +402,9 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 			}
 			newAttribs.push( new KV('href', linkTitle.makeLink() ) )
 		}
+		if (oHash['class']) {
+			newAttribs.push(new KV('class', oHash['class']));
+		}
 
 		newAttribs = newAttribs.concat(rdfaAttrs.attribs);
 
@@ -526,6 +529,10 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 	// XXX: set vertical alignment (valign)
 	// XXX: support other formats (border, frameless, frame)
 	// XXX: support prefixes
+
+	if (oHash['class']) {
+		figureclass += ' ' + oHash['class'];
+	}
 
 	var rdfaType = 'mw:Thumb',
 		figAttrs = [

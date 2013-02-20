@@ -24,7 +24,8 @@ var WikitextConstants = {
 			'img_alt'       : 'alt',
 			'img_page'      : 'page',
 			'img_upright'   : 'upright',
-			'img_width'		: 'width'
+			'img_width'     : 'width',
+			'img_class'     : 'class'
 		},
 		PrefixOptionsReverseMap: {
 			/* filled in below, based on PrefixOptions */
