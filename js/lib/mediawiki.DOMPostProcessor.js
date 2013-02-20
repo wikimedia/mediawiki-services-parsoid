@@ -1567,7 +1567,7 @@ function findBuilderCorrectedTags(document, env) {
 		}
 	}
 
-	findBuilderCorrectedTagsInternal(document);
+	findBuilderCorrectedTagsInternal(document.body);
 	stripExcessMetaTags(document);
 }
 
@@ -1992,8 +1992,8 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 
 	// Detect errors
 	if (s !== null && s !== undefined && cs !== s) {
-		console.warn("*********** ERROR: cs/s mismatch for node: " +
-			node.nodeName + " s: " + s + "; cs: " + cs + " ************");
+		console.warn("WARNING: DSR inconsistency: cs/s mismatch for node: " +
+			node.nodeName + " s: " + s + "; cs: " + cs);
 	}
 	if (traceDSR) {
 		console.warn("For " + node.nodeName + ", returning: " + cs + ", " + e);
@@ -2013,7 +2013,12 @@ function computeDocDSR(root, env) {
 	if (traceDSR) console.warn("------- tracing DSR computation -------");
 
 	// The actual computation buried in trace/debug stmts.
-	computeNodeDSR(env, root, 0, env.page.src.length, traceDSR);
+	var body = root.body;
+	computeNodeDSR(env, body, 0, env.page.src.length, traceDSR);
+
+	var dp = DU.dataParsoid(body);
+	dp.dsr = [0, env.page.src.length, 0, 0];
+	DU.setDataParsoid(body, dp);
 
 	if (traceDSR) console.warn("------- done tracing DSR computation -------");
 
