@@ -970,6 +970,11 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 					// 'r' is nested for sure
 					// Record a range in which 'r' is nested in.
 					nestedRangesMap[r.id] = Object.keys(n.data.tmp_tplRanges)[0];
+					if (nestedRangesMap[r.id] === r.id) {
+						console.error("BUG! BUG! range " + r.id + " is being reported as nested in itself!");
+						console.error("Clearing the flag to eliminate possibility of infinite loops, but output might be corrupt.");
+						nestedRangesMap[r.id] = null;
+					}
 					break;
 				} else {
 					// n === r.start
