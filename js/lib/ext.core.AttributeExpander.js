@@ -68,8 +68,12 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 		newK = newAttrs[i].k;
 
 		// Preserve the key and value source, if available
-		newAttrs[i].ksrc = a.ksrc;
-		newAttrs[i].vsrc = a.vsrc;
+		if (a.ksrc) {
+			newAttrs[i].ksrc = a.ksrc;
+		}
+		if (a.vsrc) {
+			newAttrs[i].vsrc = a.vsrc;
+		}
 
 		if (newK) {
 			if (newK !== a.k) {
