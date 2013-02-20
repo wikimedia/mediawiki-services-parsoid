@@ -286,29 +286,46 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 			var origOText = oText;
 			oText = oText.trim();
 			var lowerOText = oText.toLowerCase();
+			// oText contains the localized name of this option.  the
+			// canonical option names (from mediawiki upstream) are in
+			// English and contain an 'img_' prefix.  We drop the
+			// prefix before stuffing them in data-parsoid in order to
+			// save space (that's shortCanonicalOption)
 			var canonicalOption = ( env.conf.wiki.magicWords[oText] ||
 				env.conf.wiki.magicWords[lowerOText] ||
-				lowerOText ).replace( /^img_/, '' );
+				('img_'+lowerOText) );
+			var shortCanonicalOption = canonicalOption.replace(/^img_/,  '');
+			// 'imgOption' is the key we'd put in oHash; it names the 'group'
+			// for the option, and doesn't have an img_ prefix.
 			var imgOption = WikitextConstants.Image.SimpleOptions[canonicalOption];
 			if (imgOption) {
-				options.push( new KV(imgOption, origOText ) );
-				oHash[imgOption] = canonicalOption;
+				// the options array only has non-localized values
+				options.push( new KV(imgOption, shortCanonicalOption ) );
+				oHash[imgOption] = shortCanonicalOption;
 				if ( token.dataAttribs.optNames === undefined ) {
 					token.dataAttribs.optNames = {};
 				}
-				token.dataAttribs.optNames[canonicalOption] = origOText;
+				// map short canonical name to the localized version used
+				token.dataAttribs.optNames[shortCanonicalOption] = origOText;
 				continue;
 			} else {
 				var bits = getOption( origOText.trim() ),
 					normalizedBit0 = bits ? bits.k.trim().toLowerCase() : null,
 					key = bits ? WikitextConstants.Image.PrefixOptions[normalizedBit0] : null;
+				// bits.a has the localized name for the prefix option
+				// (with $1 as a placeholder for the value, which is in bits.v)
+				// 'normalizedBit0' is the canonical English option name
+				// (from mediawiki upstream) with an img_ prefix.
+				// 'key' is the parsoid 'group' for the option; it doesn't
+				// have an img_ prefix (it's the key we'd put in oHash)
 
 				if ( bits && key ) {
-					key = key.replace( /^img_/, '' );
+					shortCanonicalOption = normalizedBit0.replace(/^img_/, '');
 					if ( token.dataAttribs.optNames === undefined ) {
 						token.dataAttribs.optNames = {};
 					}
-					token.dataAttribs.optNames[key] = bits.a;
+					// map short canonical name to the localized version used
+					token.dataAttribs.optNames[shortCanonicalOption] = bits.a;
 					if ( key === 'width' ) {
 						var x, y, maybeSize = bits.v.match( /^(\d*)(?:x(\d+))?$/ );
 						if ( maybeSize !== null ) {
@@ -325,11 +342,6 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 						}
 					} else {
 						oHash[key] = bits.v;
-						// Preserve white space
-						// FIXME: But this doesn't work for the 'upright' key
-						if (key === normalizedBit0) {
-							key = bits.k;
-						}
 						options.push( new KV( key, bits.v ) );
 						//console.warn('handle prefix ' + bits );
 					}

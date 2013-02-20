@@ -26,6 +26,9 @@ var WikitextConstants = {
 			'img_upright'   : 'upright',
 			'img_width'		: 'width'
 		},
+		PrefixOptionsReverseMap: {
+			/* filled in below, based on PrefixOptions */
+		},
 		SimpleOptions: {
 			// halign
 			'img_left'   : 'halign',
@@ -77,6 +80,12 @@ var WikitextConstants = {
 		]
 	}
 };
+
+// Fill in reverse map of prefix options.
+Object.keys(WikitextConstants.Image.PrefixOptions).forEach(function(k) {
+	var v = WikitextConstants.Image.PrefixOptions[k];
+	WikitextConstants.Image.PrefixOptionsReverseMap[v] = k;
+});
 
 // Quick HACK: define Node constants locally and export it
 // for use in other files.

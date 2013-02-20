@@ -738,48 +738,47 @@ WSP.figureHandler = function(state, node, cb) {
 		figAttrs = dp.optionList,
 		optNames = dp.optNames,
 		simpleImgOptions = WikitextConstants.Image.SimpleOptions,
-		prefixImgOptions = WikitextConstants.Image.PrefixOptions,
+		prefixImgOptionsRM = WikitextConstants.Image.PrefixOptionsReverseMap,
 		sizeOptions = {"width": 1, "height": 1},
-		size = {};
+		size = { width: null };
 
 	for (var i = 0, n = figAttrs.length; i < n; i++) {
+		// figAttr keys are the parsoid 'group' for the property,
+		// as given by the *values* in the WikitextConstants.Image
+		// maps. figAttr values are either "short canonical" property
+		// names (see WikiLinkHandler.renderFile) or the literal
+		// value (for prefix properties)
+		// both sides are not localized; the localized version will
+		// be found in the optNames map, which maps short canonical
+		// names to the localized string.
 		var a = figAttrs[i],
-			k = a.k, v = a.v,
-
-			trimv = v ? v.trim() : v,
-			lowv = trimv ? trimv.toLowerCase() : trimv,
-			actualv = env.conf.wiki.magicWords[trimv] ||
-				env.conf.wiki.magicWords[lowv] || lowv,
-
-			trimk = k ? k.trim() : k,
-			lowk = trimk ? trimk.toLowerCase() : trimk,
-			actualk = env.conf.wiki.magicWords[trimk] ||
-				env.conf.wiki.magicWords[lowk] ||
-				env.conf.wiki.magicWords['img_' + trimk] ||
-				env.conf.wiki.magicWords['img_' + lowk] ||
-				lowk;
-		if (sizeOptions[actualk]) {
+			k = a.k, v = a.v;
+		var shortCanonical;
+		if (sizeOptions[k]) {
 			// Since width and height have to be output as a pair,
 			// collect both of them.
-			size[actualk] = v;
+			size[k] = v;
 		} else {
 			// If we have width set, it got set in the most recent iteration
 			// Output height and width now (one iteration later).
 			var w = size.width;
-			if (w) {
+			if (w!==null) {
 				outBits.push(w + (size.height ? "x" + size.height : '') + "px");
 				size.width = null;
 			}
 
-			if (actualk === "caption") {
+			if (k === "caption") {
 				outBits.push(v === null ? captionSrc : v);
-			} else if (simpleImgOptions[actualv] === actualk) {
+			} else if (simpleImgOptions['img_'+v] === k) {
+				shortCanonical = v;
 				// The values and keys in the parser attributes are a flip
 				// of how they are in the wikitext constants image hash
 				// Hence the indexing by 'v' instead of 'k'
-				outBits.push(optNames[actualv]);
-			} else if ( prefixImgOptions[actualk] && optNames[actualk] ) {
-				outBits.push( env.conf.wiki.replaceInterpolatedMagicWord( optNames[actualk], v ) );
+				outBits.push(optNames[shortCanonical]);
+			} else if ( prefixImgOptionsRM[k] ) {
+				var canonical = prefixImgOptionsRM[k];
+				shortCanonical = canonical.replace(/^img_/,'');
+				outBits.push( env.conf.wiki.replaceInterpolatedMagicWord( optNames[shortCanonical], v ) );
 			} else {
 				console.warn("Unknown image option encountered: " + JSON.stringify(a));
 			}
