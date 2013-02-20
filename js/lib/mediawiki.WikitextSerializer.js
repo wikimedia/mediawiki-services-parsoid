@@ -139,9 +139,8 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
 	});
 	p.on('end', function(){ });
 
-	// Tokenizer.process is synchronous -- this call wont return till everything is parsed.
-	// The code below will break if tokenization becomes async.
-	p.process( prefixedText );
+	// The code below will break if use async tokenization.
+	p.processSync( prefixedText );
 
 	// If the token stream has a TagTk, SelfclosingTagTk, EndTagTk or CommentTk
 	// then this text needs escaping!

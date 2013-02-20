@@ -10,7 +10,8 @@
  * -------------------------------------------------------------------- */
 "use strict";
 
-var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer;
+var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
+	Util = require('./mediawiki.Util.js').Util;
 
 function TokenStreamPatcher( manager, options ) {
 	this.manager = manager;
@@ -55,23 +56,6 @@ TokenStreamPatcher.prototype.clearSOL = function() {
 };
 
 TokenStreamPatcher.prototype.onAny = function(token, manager) {
-
-	function shiftTokenTSR(tokens, offset) {
-		// update/clear tsr
-		for (var i = 0, n = tokens.length; i < n; i++) {
-			var tsr = tokens[i].dataAttribs.tsr;
-			if (tsr) {
-				if (offset) {
-					// console.warn("--updating--");
-					tokens[i].dataAttribs.tsr = [tsr[0] + offset, tsr[1] + offset];
-				} else {
-					// console.warn("--nulling--");
-					tokens[i].dataAttribs.tsr = null;
-				}
-			}
-		}
-	}
-
 	// console.warn("T: " + JSON.stringify(token));
 	var tokens = [token];
 	switch (token.constructor) {
@@ -84,7 +68,7 @@ TokenStreamPatcher.prototype.onAny = function(token, manager) {
 					// Reparse string with the 'table_start_tag' production
 					// and shift tsr of result tokens by source offset
 					tokens = this.tokenizer.tokenize(token, 'table_start_tag');
-					shiftTokenTSR(tokens, this.srcOffset);
+					Util.shiftTokenTSR(tokens, this.srcOffset);
 				} else if (token.match(/^\s*$/)) {
 					// White-space doesn't change SOL state
 					// Update srcOffset

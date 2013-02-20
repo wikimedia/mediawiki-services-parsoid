@@ -380,7 +380,12 @@
      * current expression can return an empty list (true).
      */
     var emitChunk = function (tokens) {
-        __parseArgs[2](tokens);
+        // shift tsr of all tokens by offset
+        var srcOffset = pegArgs.srcOffset;
+        if (srcOffset && srcOffset > 0) {
+            Util.shiftTokenTSR(tokens, srcOffset);
+        }
+        pegArgs.cb(tokens);
     };
 }
 
@@ -389,18 +394,52 @@
  *********************************************************/
 
 start
-  = e:toplevelblock* newline* {
+  = tlb* newline* {
       // end is passed inline as a token, as well as a separate event for now.
       emitChunk( [ new EOFTk( ) ] );
-      return []; //flattenIfArray(e);
+      return true;
   }
 
+/*
+ * This production exists to support tokenizing the document in chunks.
+ * It stops tokenization after each block and yields to the node.js
+ * event-loop to schedule other pending event handlers.
+ *
+ * It needs to keep track of sol-state so when tokenization resumes,
+ * it knows whether it is in sol-state or not.
+ */
+toplevelblock =
+  tlb save_sol_state {
+        var parsedInput = input.substring(0, pos),
+            newInput = input.substring(pos),
+            newOffset = (pegArgs.srcOffset || 0) + pos;
+
+        // Trick the tokenizer into ending parsing
+        input = parsedInput;
+        inputLength = pos;
+
+        // console.warn("Yield @pos: " + newOffset + "; input len: " + newInput.length);
+
+        return { eof: false, newInput: newInput, newOffset: newOffset };
+  }
+  / newline* eof {
+        // Clear saved sol state!
+        pegArgs.pegTokenizer.savedSOL = null;
+        // console.warn("-- EOF!");
+        emitChunk( [ new EOFTk( ) ] );
+
+        return { eof: true };
+  }
+
+save_sol_state =
+    & sol { pegArgs.pegTokenizer.savedSOL = true; return true; }
+  / &     { pegArgs.pegTokenizer.savedSOL = false; return true; }
 
 /*
  * A document (start production) is a sequence of toplevelblocks. Tokens are
  * emitted in chunks per toplevelblock to avoid buffering the full document.
  */
-toplevelblock
+tlb
   = !eof b:block {
     // Clear the tokenizer's backtracking cache after matching each
     // toplevelblock. There won't be any backtracking as a document is just a
@@ -431,8 +470,8 @@ toplevelblock
         tokens = [b];
     }
 
-    if (__parseArgs[3].env.conf.parsoid.trace) {
-        __parseArgs[3].env.tracer.outputChunk(tokens);
+    if (pegArgs.pegTokenizer.env.conf.parsoid.trace) {
+        pegArgs.pegTokenizer.env.tracer.outputChunk(tokens);
     }
 
     // Emit tokens for this toplevelblock. This feeds a chunk to the parser pipeline.
@@ -555,12 +594,12 @@ inline_breaks
     //}
     & {
         //console.warn('ilbf: ' + input.substr(pos, 5) );
-        //if ( null !== __parseArgs[3].inline_breaks( input, pos, stops ) ) {
+        //if ( null !== pegArgs.parser.inline_breaks( input, pos, stops ) ) {
         //    console.warn('ilb break: ' + pp(input.substr(pos, 5)) );
         //} else {
         //    console.warn('ilb no break: ' + pp(input.substr(pos, 5)) );
         //}
-        return null !== __parseArgs[3].inline_breaks( input, pos, stops )
+        return null !== pegArgs.pegTokenizer.inline_breaks( input, pos, stops )
       }
 
 inline
@@ -1910,7 +1949,17 @@ optionalNewlines
 
 // Start of line
 sol
-  = nl:(newlineToken / & { return pos === 0; } { return [] })
+  = & {
+      // Use saved sol-state only at start of input
+      if (pos === 0) {
+          // If we have saved state of not being in sol posn, fail the production
+          if (pegArgs.pegTokenizer.savedSOL === false) {
+              return false;
+          }
+      }
+      return true;
+    }
+    nl:(newlineToken / & { return pos === 0; } { return [] })
     // Eat multi-line comment, so that syntax after still matches as if it
     // was actually preceded by a newline
     cn:( c:comment n:newlineToken? {

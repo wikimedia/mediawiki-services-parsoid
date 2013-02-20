@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Tokenizer for wikitext, using PEG.js and a separate PEG grammar file
  * (pegTokenizer.pegjs.txt)
@@ -7,6 +6,7 @@
  * output.
  *
  */
+"use strict";
 
 var PEG = require('pegjs'),
 	path = require('path'),
@@ -33,11 +33,28 @@ PegTokenizer.prototype.constructor = PegTokenizer;
 PegTokenizer.src = false;
 
 /*
+ * Process text.  The text is tokenized in chunks and control
+ * is yielded to the event loop after each top-level block is
+ * tokenized enabling the tokenized chunks to be processed at
+ * the earliest possible opportunity.
+ */
+PegTokenizer.prototype.process = function( text, cacheKey ) {
+	this._processText(text, false, cacheKey);
+};
+
+/*
+ * Process text synchronously -- the text is tokenized in one shot
+ */
+PegTokenizer.prototype.processSync = function( text, cacheKey ) {
+	this._processText(text, true, cacheKey);
+};
+
+/*
  * The main worker. Sets up event emission ('chunk' and 'end' events).
  * Consumers are supposed to register with PegTokenizer before calling
  * process().
  */
-PegTokenizer.prototype.process = function( text, cacheKey ) {
+PegTokenizer.prototype._processText = function( text, fullParse, cacheKey ) {
 	var out, err;
 	if ( !this.tokenizer ) {
 		// Construct a singleton static tokenizer.
@@ -60,7 +77,7 @@ PegTokenizer.prototype.process = function( text, cacheKey ) {
 		* requires to the source.
 		*/
 		tokenizerSource = tokenizerSource.replace( 'parse: function(input, startRule) {',
-					'parse: function(input, startRule) { var __parseArgs = arguments;' )
+					'parse: function(input, startRule) { var pegArgs = arguments[2];' )
 						// Include the stops key in the cache key
 						.replace(/var cacheKey = "[^@"]+@" \+ pos/g,
 								function(m){ return m +' + stops.key'; });
@@ -109,30 +126,50 @@ PegTokenizer.prototype.process = function( text, cacheKey ) {
 	} else {
 		chunkCB = this.emit.bind( this, 'chunk' );
 	}
-	// XXX: Commented out exception handling during development to get
-	// reasonable traces.
+
+	// Kick it off!
+	var args = { cb: chunkCB, pegTokenizer: this, srcOffset: 0 };
+	if (fullParse) {
+		if ( ! this.env.conf.parsoid.debug ) {
+			try {
+				this.tokenizer.tokenize(text, 'start', args);
+			} catch (e) {
+				this.env.errCB(e);
+			}
+		} else {
+			this.tokenizer.tokenize(text, 'start', args);
+		}
+		this.onEnd();
+	} else {
+		this.tokenizeAsync(text, 0, chunkCB);
+	}
+};
+
+PegTokenizer.prototype.tokenizeAsync = function( text, srcOffset, cb ) {
+	var ret,
+		pegTokenizer = this,
+		args = { cb: cb, pegTokenizer: this, srcOffset: srcOffset };
+
 	if ( ! this.env.conf.parsoid.debug ) {
 		try {
-			this.tokenizer.tokenize(text, 'start',
-					// callback
-					chunkCB,
-					// inline break test
-					this
-					);
-			this.onEnd();
+			ret = this.tokenizer.tokenize(text, 'toplevelblock', args);
 		} catch (e) {
 			this.env.errCB(e);
-			//chunkCB( ['Tokenizer error in ' + cacheKey + ': ' + e.stack] );
-			//this.onEnd();
+			return;
 		}
 	} else {
-		this.tokenizer.tokenize(text, 'start',
-				// callback
-				chunkCB,
-				// inline break test
-				this
-				);
+		ret = this.tokenizer.tokenize(text, 'toplevelblock', args);
+	}
+
+	if (ret.eof) {
 		this.onEnd();
+	} else {
+		// Schedule parse of next chunk
+		process.nextTick(function() {
+			// console.warn("new input: " + JSON.stringify(ret.newInput));
+			// console.warn("offset   : " + ret.newOffset);
+			pegTokenizer.tokenizeAsync(ret.newInput, ret.newOffset, cb);
+		});
 	}
 };
 
@@ -157,16 +194,14 @@ PegTokenizer.prototype.onEnd = function ( ) {
 	this.emit('end');
 };
 
-PegTokenizer.prototype.processImageOptions = function( text ) {
-		return this.tokenizer.tokenize(text, 'img_options', null, this );
-};
-
 /**
- * Tokenize via a production passed in as an arg
+ * Tokenize via a production passed in as an arg.
+ * The text is tokenized synchronously in one shot.
  */
 PegTokenizer.prototype.tokenize = function( text, production ) {
 	try {
-		return this.tokenizer.tokenize(text, production, null, this );
+		var args = { cb: null, pegTokenizer: this, srcOffset: 0 };
+		return this.tokenizer.tokenize(text, production || "start", args);
 	} catch ( e ) {
 		return false;
 	}
@@ -177,6 +212,10 @@ PegTokenizer.prototype.tokenize = function( text, production ) {
  */
 PegTokenizer.prototype.tokenizeURL = function( text ) {
 	return this.tokenize(text, "url");
+};
+
+PegTokenizer.prototype.processImageOptions = function( text ) {
+	return this.tokenize(text, 'img_options');
 };
 
 /*

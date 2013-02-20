@@ -1064,6 +1064,7 @@ ParserTests.prototype.main = function ( options ) {
 		// to be basically empty, since the parserTests environment is very bare.
 		this.env = env;
 		this.env.errCB = function ( e ) {
+			console.warn("ERROR: " + e);
 			console.error( e.stack );
 		};
 		Util.setDebuggingFlags( this.env.conf.parsoid, options );

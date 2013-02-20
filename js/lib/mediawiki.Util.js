@@ -191,6 +191,73 @@ var Util = {
 		return true;
 	},
 
+	shiftTokenTSR: function(tokens, offset) {
+		// offset should either be a valid number or null
+		if (offset === undefined) {
+			offset = null;
+		}
+
+		// update/clear tsr
+		for (var i = 0, n = tokens.length; i < n; i++) {
+			var t = tokens[i];
+			switch (t.constructor) {
+				case TagTk:
+				case SelfclosingTagTk:
+				case NlTk:
+				case CommentTk:
+				case EndTagTk:
+					var da = tokens[i].dataAttribs;
+					var tsr = da.tsr;
+					if (tsr) {
+						if (offset !== null) {
+							da.tsr = [tsr[0] + offset, tsr[1] + offset];
+						} else {
+							da.tsr = null;
+						}
+					}
+
+					// SSS FIXME: offset will always be available in
+					// chunky-tokenizer mode in which case we wont have
+					// buggy offsets below.  The null scenario is only
+					// for when the token-stream-patcher attempts to
+					// reparse a string -- it is likely to only patch up
+					// small string fragments and the complicated use cases
+					// below should not materialize.
+
+					// target offset
+					if (offset && da.targetOff) {
+						da.targetOff += offset;
+					}
+
+					//  Process attributes
+					if (t.attribs) {
+						for (var j = 0, m = t.attribs.length; j < m; j++) {
+							var a = t.attribs[j];
+							if (a.k.constructor === Array) {
+								this.shiftTokenTSR(a.k, offset);
+							}
+							if (a.v.constructor === Array) {
+								this.shiftTokenTSR(a.v, offset);
+							}
+
+							// src offsets used to set mw:TemplateParams
+							if (offset === null) {
+								a.srcOffsets = null;
+							} else if (a.srcOffsets) {
+								for (var k = 0; k < a.srcOffsets.length; k++) {
+									a.srcOffsets[k] += offset;
+								}
+							}
+						}
+					}
+					break;
+
+				default:
+					break;
+			}
+		}
+	},
+
 	toStringTokens: function(tokens, indent) {
 		if (!indent) {
 			indent = "";

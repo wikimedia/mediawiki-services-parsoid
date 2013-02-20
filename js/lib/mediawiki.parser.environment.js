@@ -390,7 +390,8 @@ MWParserEnvironment.prototype.isParsoidObjectId = function(aboutId) {
  * call it from places you notice errors happening.
  */
 MWParserEnvironment.prototype.errCB = function ( error ) {
-	console.log( 'ERROR in ' + this.page.name + ':\n' + error.stack );
+	console.log( 'ERROR in ' + this.page.name + ':\n' + error.message);
+	console.log("stack trace: " + error.stack);
 	process.exit( 1 );
 };
 
