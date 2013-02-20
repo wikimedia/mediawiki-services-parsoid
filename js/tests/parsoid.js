@@ -1,4 +1,4 @@
-var HTML5 = require('html5').HTML5;
+var domino = require('domino');
 
 // No instance properties
 function Parsoid() {}
@@ -6,7 +6,7 @@ function Parsoid() {}
 function initParsoid() {
 	var path = require('path');
 	var fileDependencies = [];
-	var basePath = path.join(path.dirname(path.dirname(process.cwd())), 'js');
+	var basePath = '..';
 
 	function _require(filename) {
 		var fullpath = path.join( basePath, filename );
@@ -22,6 +22,7 @@ function initParsoid() {
 	}
 
 	_import(path.join('lib', 'mediawiki.parser.environment.js'), ['MWParserEnvironment']);
+	_import(path.join('lib', 'mediawiki.ParsoidConfig.js'), ['ParsoidConfig']);
 	_import(path.join('lib', 'mediawiki.parser.js'), ['ParserPipelineFactory']);
 	_import(path.join('lib', 'mediawiki.WikitextSerializer.js'), ['WikitextSerializer']);
 
@@ -32,13 +33,15 @@ function initParsoid() {
 	};
 	var parsoidConfig = new ParsoidConfig( null, options );
 
-	MWParserEnvironment.getParserEnv( parsoidConfig, null, null, function ( err, mwEnv ) {
+	MWParserEnvironment.getParserEnv( parsoidConfig, null, null, null, function ( err, mwEnv ) {
 		if ( err !== null ) {
 			console.error( err.toString() );
 			process.exit( 1 );
 		}
 		// "class" properties
-		Parsoid.html5 = new HTML5.Parser();
+		Parsoid.createDocument = function(html) {
+			return domino.createDocument(html);
+		};
 		Parsoid.serializer = new WikitextSerializer({env: mwEnv});
 	} );
 }

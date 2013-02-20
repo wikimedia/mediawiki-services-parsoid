@@ -3,8 +3,8 @@ var should  = require('should'),
 
 // Helpers
 function dom(snippet) {
-	parsoid.html5.parse( '<html><body>' + snippet + '</body></html>');
-	return parsoid.html5.tree.document.childNodes[0].childNodes[1];
+	var document = parsoid.createDocument('<html><body>' + snippet + '</body></html>');
+	return document.body;
 }
 
 function wikitext(dom) {

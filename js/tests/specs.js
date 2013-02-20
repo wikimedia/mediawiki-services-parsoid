@@ -18,6 +18,11 @@ process.argv.slice(2).forEach(function(arg){
       }
 });
 
-jasmine.executeSpecsInFolder(__dirname + '/specs', function(runner, log){
+jasmine.executeSpecsInFolder({
+    specFolder:__dirname + '/specs',
+    onComplete: function(runner, log) {
 	process.exit(runner.results().failedCount);
-}, isVerbose, showColors);
+    },
+    isVerbose: isVerbose,
+    showColors: showColors
+});
