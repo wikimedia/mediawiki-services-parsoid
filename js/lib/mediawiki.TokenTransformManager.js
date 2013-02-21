@@ -1315,6 +1315,11 @@ Frame.prototype.expand = function ( chunk, options ) {
 		maybeCached = chunk;
 	} else if ( chunk.cache === undefined ) {
 		// add a cache to the chunk
+		// If frozen, it has not yet been cloned.
+		// If not frozen, it has been cloned before getting here.
+		if (Object.isFrozen(chunk)) {
+			chunk = Util.clone(chunk);
+		}
 		Object.defineProperty( chunk, 'cache',
 				// XXX: play with cache size!
 				{ value: new ExpansionCache( 5 ), enumerable: false } );
