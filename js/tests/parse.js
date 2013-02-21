@@ -119,20 +119,15 @@ function dumpFlags() {
 			'boolean': false,
 			'default': 40
 		},
-		'wgScript': {
-			description: 'http path to remote API, e.g. http://wiki.sample.com/w/api.php',
+		'prefix': {
+			description: 'Which wiki prefix to use; e.g. "en" for English wikipedia, "es" for Spanish, "mw" for mediawiki.org',
 			'boolean': false,
-			'default': 'http://en.wikipedia.org/w/api.php'
+			'default': ''
 		},
-		'wgScriptPath': {
-			description: 'http path to remote web interface, e.g. http://wiki.sample.com/wiki',
+		'apiURL': {
+			description: 'http path to remote API, e.g. http://en.wikipedia.org/w/api.php',
 			'boolean': false,
-			'default': 'http://en.wikipedia.org/wiki/'
-		},
-		'fetchConfig': {
-			description: 'Whether to call an API to fetch the configuration we need',
-			'boolean': true,
-			'default': false
+			'default': null
 		},
 		'fetchTemplates': {
 			description: 'Whether to fetch included templates recursively',
@@ -176,17 +171,14 @@ function dumpFlags() {
 		argv.wt2html = true;
 	}
 
-	var prefix = null;
+	var prefix = argv.prefix || null;
 
-	if ( argv.fetchConfig ) {
-		prefix = 'en';
+	if (argv.apiURL) {
+		parsoidConfig.setInterwiki( 'customwiki', argv.apiURL );
+		prefix = 'customwiki';
 	}
 
-	var parsoidConfig = new ParsoidConfig( null, null );
-	if ( argv.wgScript && argv.fetchConfig ) {
-		parsoidConfig.setInterwiki( 'alternate', argv.wgScript );
-		prefix = 'alternate';
-	}
+	var parsoidConfig = new ParsoidConfig( null, { defaultWiki: prefix } );
 
 	ParserEnv.getParserEnv( parsoidConfig, null, prefix, argv.pagename || null, function ( err, env ) {
 		if ( err !== null ) {
