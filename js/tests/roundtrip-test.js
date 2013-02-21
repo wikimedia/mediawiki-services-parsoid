@@ -110,9 +110,11 @@ findDsr = function (root, targetRange, sourceLen) {
 		attribs = element.getAttribute( 'data-parsoid' );
 		if ( attribs ) {
 			attribs = JSON.parse( attribs );
+		} else {
+			attribs = {};
 		}
 
-		if ( attribs && attribs.dsr && attribs.dsr.length ) {
+		if ( attribs.dsr && attribs.dsr.length ) {
 			start = attribs.dsr[0] || 0;
 			end = attribs.dsr[1] || sourceLen - 1;
 
@@ -123,7 +125,7 @@ findDsr = function (root, targetRange, sourceLen) {
 				return { done: true, nodes: [element] };
 			}
 
-			if ( attribs.dsr[0] && targetRange.start === start && end === targetRange.end ) {
+			if ( attribs.dsr[0] !== null && targetRange.start === start && end === targetRange.end ) {
 				return { done: true, nodes: [element] };
 			} else if ( targetRange.start === start ) {
 				waitingForEndMatch = true;
@@ -145,7 +147,7 @@ findDsr = function (root, targetRange, sourceLen) {
 				var res = walkDOM(c);
 				matchedChildren = res ? res.nodes : null;
 				if ( matchedChildren ) {
-					if ( !currentOffset && attribs.dsr && attribs.dsr[0] ) {
+					if ( !currentOffset && attribs.dsr && (attribs.dsr[0] !== null) ) {
 						var elesOnOffset = [];
 						currentOffset = attribs.dsr[0];
 						// Walk the preceding nodes without dsr values and prefix matchedChildren
