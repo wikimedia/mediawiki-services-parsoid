@@ -115,12 +115,17 @@ DOMTraverser.prototype.callHandlers = function ( node ) {
  * Traverse the DOM and fire the handlers that are registered
  */
 DOMTraverser.prototype.traverse = function ( node ) {
-	var ix, child, childDT, children = node.childNodes;
+	var childDT, nextChild, child = node.firstChild;
 
-	for ( ix = 0; children && ix < children.length; ix++ ) {
-		child = children[ix];
+	while ( child !== null ) {
+		nextChild = child.nextSibling;
 		this.callHandlers( child );
-		this.traverse( child );
+
+		if ( child.parentNode !== null ) {
+			this.traverse( child );
+		}
+
+		child = nextChild;
 	}
 };
 
@@ -2063,16 +2068,16 @@ function getLinkPrefix( env, node ) {
 	var baseAbout = null,
 		regex = env.conf.wiki.linkPrefixRegex;
 
-	if ( node !== null && DU.isTplElementNode( env, node ) ) {
-		baseAbout = node.getAttribute( 'about' );
-	}
-
 	if ( !regex ) {
 		return null;
 	}
 
+	if ( node !== null && DU.isTplElementNode( env, node ) ) {
+		baseAbout = node.getAttribute( 'about' );
+	}
+
 	node = node === null ? node : node.previousSibling;
-	return searchForNeighbour( env, false, regex, node, baseAbout );
+	return findAndHandleNeighbour( env, false, regex, node, baseAbout );
 }
 
 /**
@@ -2082,29 +2087,30 @@ function getLinkTrail( env, node ) {
 	var baseAbout = null,
 		regex = env.conf.wiki.linkTrailRegex;
 
-	if ( node !== null && DU.isTplElementNode( env, node ) ) {
-		baseAbout = node.getAttribute( 'about' );
-	}
-
 	if ( !regex ) {
 		return null;
 	}
 
+	if ( node !== null && DU.isTplElementNode( env, node ) ) {
+		baseAbout = node.getAttribute( 'about' );
+	}
+
 	node = node === null ? node : node.nextSibling;
-	return searchForNeighbour( env, true, regex, node, baseAbout );
+	return findAndHandleNeighbour( env, true, regex, node, baseAbout );
 }
 
 /**
  * Abstraction of both link-prefix and link-trail searches.
  */
-function searchForNeighbour( env, goForward, regex, node, baseAbout ) {
-	var value, matches, document,
+function findAndHandleNeighbour( env, goForward, regex, node, baseAbout ) {
+	var value, matches, document, nextSibling,
 		nextNode = goForward ? 'nextSibling' : 'previousSibling',
 		innerNode = goForward ? 'firstChild' : 'lastChild',
 		getInnerNeighbour = goForward ? getLinkTrail : getLinkPrefix,
 		result = { content: [], src: '' };
 
 	while ( node !== null ) {
+		nextSibling = node[nextNode];
 		document = node.ownerDocument;
 
 		if ( node.nodeType === node.TEXT_NODE ) {
@@ -2114,6 +2120,7 @@ function searchForNeighbour( env, goForward, regex, node, baseAbout ) {
 				value.src = matches[0];
 				if ( value.src === node.nodeValue ) {
 					value.content = node;
+					node.parentNode.removeChild( node );
 				} else {
 					value.content = document.createTextNode( matches[0] );
 					node.parentNode.replaceChild( document.createTextNode( node.nodeValue.replace( regex, '' ) ), node );
@@ -2149,7 +2156,7 @@ function searchForNeighbour( env, goForward, regex, node, baseAbout ) {
 		} else {
 			break;
 		}
-		node = node[nextNode];
+		node = nextSibling;
 	}
 
 	return result;
@@ -2159,19 +2166,21 @@ function searchForNeighbour( env, goForward, regex, node, baseAbout ) {
  * Workhorse function for bringing linktrails and link prefixes into link content.
  */
 function handleLinkNeighbours( env, node ) {
-	var ix, prefix = getLinkPrefix( env, node ),
-		trail = getLinkTrail( env, node ),
-		dp = Util.getJSONAttribute( node, 'data-parsoid', {} );
-
 	if ( node.getAttribute( 'rel' ) !== 'mw:WikiLink' ) {
 		return;
 	}
+
+	var ix, prefix = getLinkPrefix( env, node ),
+		trail = getLinkTrail( env, node ),
+		dp = Util.getJSONAttribute( node, 'data-parsoid', {} ),
+		updated = false;
 
 	if ( prefix && prefix.content ) {
 		for ( ix = 0; ix < prefix.content.length; ix++ ) {
 			node.insertBefore( prefix.content[ix], node.firstChild );
 		}
 		if ( prefix.src.length > 0 ) {
+			updated = true;
 			dp.prefix = prefix.src;
 			if (dp.dsr) {
 				dp.dsr[0] -= prefix.src.length;
@@ -2185,6 +2194,7 @@ function handleLinkNeighbours( env, node ) {
 			node.appendChild( trail.content[ix] );
 		}
 		if ( trail.src.length > 0 ) {
+			updated = true;
 			dp.tail = trail.src;
 			if (dp.dsr) {
 				dp.dsr[1] += trail.src.length;
@@ -2193,7 +2203,7 @@ function handleLinkNeighbours( env, node ) {
 		}
 	}
 
-	if ( trail !== null || prefix !== null ) {
+	if ( updated ) {
 		node.setAttribute( 'data-parsoid', JSON.stringify( dp ) );
 	}
 }
