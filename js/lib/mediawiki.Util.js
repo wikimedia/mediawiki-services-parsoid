@@ -942,18 +942,21 @@ normalizeOut = function ( out ) {
 	//  not unquoted or quoted with single quotes.  The serialization
 	//  algorithm is given by:
 	//  http://www.whatwg.org/specs/web-apps/current-work/multipage/the-end.html#serializing-html-fragments
+	if (!/[^<]*(<\w+(\s+[^\0-\cZ\s"'>\/=]+(="[^"]*")?)*\/?>[^<]*)*/.test(out)) {
+		throw new Error("normalizeOut input is not in standard serialized form");
+	}
 	out = normalizeNewlines( out );
 	return out
-		.replace(/<span typeof="mw:(?:(?:Placeholder|Nowiki|Object\/Template|Entity))"(?:\s+[^\s\"\'>\/=]+(?:\s*=\s*"[^"]*")?)*\s*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1')
+		.replace(/<span typeof="mw:(?:(?:Placeholder|Nowiki|Object\/Template|Entity))"(?: [^\0-\cZ\s\"\'>\/=]+(?:="[^"]*")?)*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1')
 		// Ignore these attributes for now
 		.replace(/ (data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content|title|class)="[^"]*"/g, '')
 		// replace mwt ids
-		.replace(/\s*id="mwt\d+"/, '')
+		.replace(/ id="mwt\d+"/, '')
 		//.replace(/<!--.*?-->\n?/gm, '')
-		.replace(/<\/?(?:meta|link)(?:\s+[^\s"'>\/=]+(?:\s*=\s*"[^"]*")?)*\s*\/?>/g, '')
+		.replace(/<\/?(?:meta|link)(?: [^\0-\cZ\s"'>\/=]+(?:="[^"]*")?)*\/?>/g, '')
 		.replace(/<span[^>]+about="[^"]*"[^>]*>/g, '')
 		.replace(/<span><\/span>/g, '')
-		.replace(/href="(?:\.?\.\/)+/g, 'href="')
+		.replace(/(href=")(?:\.?\.\/)+/g, '$1')
 		// strip thumbnail size prefixes
 		.replace(/(src="[^"]*?)\/thumb(\/[0-9a-f]\/[0-9a-f]{2}\/[^\/]+)\/[0-9]+px-[^"\/]+(?=")/g, '$1$2')
 		.replace(/(<(table|tbody|tr|th|td|\/th|\/td)[^<>]*>)\s+/g, '$1');
@@ -1023,12 +1026,52 @@ parseHTML = function ( html ) {
 },
 
 /**
- * Serialize a HTML document
+ * Serialize a HTML document.
+ * The output is identical to standard DOM serialization, as given by
+ * http://www.whatwg.org/specs/web-apps/current-work/multipage/the-end.html#serializing-html-fragments
+ * except that we may quote attributes with single quotes, *only* where that would
+ * result in more compact output than the standard double-quoted serialization.
+ * Single-quoted attribute values have &amp; &#39 and &nbsp; escaped.
  */
 serializeNode = function (doc) {
 	// use domino's outerHTML, as specified by
 	// http://domparsing.spec.whatwg.org/#outerhtml
-	return doc.outerHTML;
+	var html = doc.outerHTML;
+	// technically, dom doesn't define outerHTML on a Document; that's
+	// just a convenience API defined by domino.  We can handle a
+	// more-standard DOM implementation, too.
+	if (doc.nodeName==='#document' && !html) {
+		html = doc.documentElement.outerHTML;
+	}
+	// now compress our output (and make it more readable) by using
+	// "smart quoting" of attribute values -- using single-quotes
+	// where the contents have a lot of double quotes.
+	// since the output of outerHTML is specified strictly, we know
+	// this regexp is safe. See:
+	// http://www.whatwg.org/specs/web-apps/current-work/multipage/the-end.html
+	// http://www.whatwg.org/specs/web-apps/current-work/multipage/syntax.html
+	var smart_quote = function(match, name, equals, value) {
+		if (!equals) { return match; }
+		var decoded = entities.decode(value, 2);
+		// try re-encoding with single-quotes escaped
+		var encoded = decoded.replace(/[&'\u00A0]/g, function(c) {
+			switch(c) {
+			case '&': return '&amp;';
+			case "'": return '&#39;';
+			case '\u00A0': return '&nbsp;';
+			}
+		});
+		if (encoded.length >= value.length) { return match; /* no change */ }
+		return ' '+name+"='"+encoded+"'";
+	};
+	var process_attr_list = function(match, tag, attrs) {
+		attrs = attrs.replace(/ ([^\0-\cZ\s"'>\/=]+)(="([^"]*)")?/g,
+		                      smart_quote);
+		return tag + attrs + '>';
+	};
+	html = html.replace(/(<\w+)((?: [^\0-\cZ\s"'>\/=]+(?:="[^"]*")?)+)>/g,
+	                    process_attr_list);
+	return html;
 },
 
 /**
