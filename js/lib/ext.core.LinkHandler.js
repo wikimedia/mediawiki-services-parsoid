@@ -485,7 +485,6 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 
 	// TODO: get /wiki from config!
 	var dataAttribs = Util.clone(token.dataAttribs);
-	dataAttribs.optionHash = oHash;
 	dataAttribs.optionList = options;
 	dataAttribs.src = undefined; // clear src string since we can serialize this
 
