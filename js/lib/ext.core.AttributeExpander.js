@@ -76,10 +76,6 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 		}
 
 		if (newK) {
-			if (newK !== a.k) {
-				modified = true;
-			}
-
 			var contentType = "objectAttrKey"; // default
 			if (a.k.constructor === Array) {
 				if ( newK.constructor === String && newK.match( /mw\:maybeContent/ ) ) {
@@ -125,11 +121,15 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 						metaTokens.push( Util.makeTplAffectedMeta(contentType, newK, updatedK) );
 					}
 				}
+			} else if (newK !== a.k) {
+				modified = true;
 			}
+
 
 			// We have a string key and potentially expanded value.
 			// Check if the value came from a template/extension expansion.
-			if (a.v.constructor === Array && newK.constructor === String) {
+			if (newK.constructor === String && a.v.constructor === Array) {
+				modified = true;
 				if (newK.match( /mw\:maybeContent/ ) ) {
 					// For mw:maybeContent attributes, at this point, we do not really know
 					// what this attribute represents.
@@ -159,7 +159,6 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 						]);
 						newAttrs.push( kv );
 					}
-					modified = true;
 				} else if (!newK.match(/^mw:/)) {
 					updatedV = Util.stripMetaTags( newAttrs[i].v, this.options.wrapTemplates );
 					newAttrs[i].v = updatedV.value;
@@ -168,8 +167,9 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 						producerObjType = metaObjType;
 						metaTokens.push( Util.makeTplAffectedMeta("objectAttrVal", newK, updatedV) );
 					}
-					modified = true;
 				}
+			} else if (newAttrs[i].v !== a.v) {
+				modified = true;
 			}
 		}
 	}
