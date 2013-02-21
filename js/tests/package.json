@@ -3,8 +3,8 @@
 	"description": "Jasmine test for Parsoid",
 	"version": "0.0.1",
 	"dependencies": {
-		"html5": "0.x.x",
-    "jasmine-node": "1.x.x",
+		"domino": "~1.0.8",
+    "jasmine-node": "~1.2.3",
     "should": "x.x.x"
 	}
 }
