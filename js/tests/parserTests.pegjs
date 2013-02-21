@@ -100,7 +100,7 @@ end_test =
 test =
     start_test
     title:text
-    sections:section*
+    sections:(section / option_section)*
     end_test
 {
     var test = {
@@ -115,13 +115,60 @@ test =
 }
 
 section =
-    "!!" ws? (!"end") name:(c:[a-zA-Z0-9]+ { return c.join(''); }) rest_of_line
+    "!!" ws? (!"end") (!"options") name:(c:[a-zA-Z0-9]+ { return c.join(''); }) rest_of_line
     text:text
 {
     return {
         name: name,
         text: text
     };
+}
+
+option_section =
+    "!!" ws? "options" ws? eol
+    opts:option_list?
+{
+    var o = {};
+    if (opts && opts.length) {
+        for (var i = 0; i < opts.length; i++) {
+            o[opts[i].k] = opts[i].v || '';
+        }
+    }
+    return {
+        name: "options",
+        text: o
+    };
+}
+
+option_list = o:an_option [ \t\n]+ rest:option_list?
+{
+    var result = [ o ];
+    if (rest && rest.length) {
+        result.push.apply(result, rest);
+    }
+    return result;
+}
+
+an_option = simple_option / prefix_option
+
+simple_option = k:("pst"i / "msg"i / "cat"i / "ill"i / "subpage"i /
+                   "noxml"i / "disabled"i / "showtitle"i / "comment"i /
+                   "local"i / "rawhtml"i / "preload"i )
+{
+    return {k:k.toLowerCase()};
+}
+prefix_option = title_option / nospace_prefix_option
+
+nospace_prefix_option = k:(c:[^ \t\n=]+ { return c.join(''); }) ws? "=" ws?
+                  v:(c:[^ \t\n]+ { return c.join(''); })
+{
+    return {k:k, v:v};
+}
+
+title_option = k:"title" ws? "=" ws?
+               v:("[[" (c:[^\]]+ { return c.join(''); }) "]]")
+{
+    return {k:k, v:"[["+v+"]]"};
 }
 
 /* the : is for a stray one, not sure it should be there */

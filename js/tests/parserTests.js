@@ -91,6 +91,14 @@ function ParserTests () {
 	this.stats.modes = newModes;
 }
 
+var prettyPrintIOptions = function(iopts) {
+	if (!iopts) { return ''; }
+	return Object.keys(iopts).map(function(k) {
+		if (iopts[k]==='') { return k; }
+		return k+'='+iopts[k];
+	}).join(' ');
+};
+
 /**
  * Get the options from the command line.
  */
@@ -697,7 +705,7 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 
 		if ( options ) {
 			console.log( 'OPTIONS'.cyan + ':' );
-			console.log( iopts + '\n' );
+			console.log( prettyPrintIOptions(iopts) + '\n' );
 		}
 
 		console.log( 'INPUT'.cyan + ':' );
