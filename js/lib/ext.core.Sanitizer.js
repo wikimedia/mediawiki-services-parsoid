@@ -622,11 +622,13 @@ Sanitizer.prototype.onAnchor = function ( token ) {
 	if ( hrefKV !== null ) {
 		var origHref = Util.tokensToString( hrefKV.v ),
 			newHref = this.sanitizeHref( origHref );
-		if ( newHref !== null ) {
-			hrefKV.v = newHref;
-		} else {
+		if ( newHref === null ) {
+			token = token.clone();
 			token.removeAttribute( 'href' );
 			token.setShadowInfo('href', newHref, origHref);
+		} else if (newHref !== origHref) {
+			token = token.clone();
+			hrefKV.v = newHref;
 		}
 	}
 
