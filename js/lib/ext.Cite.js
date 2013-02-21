@@ -61,12 +61,10 @@ Cite.prototype.handleRef = function ( tokens ) {
 		group: null
 	}, Util.KVtoHash(startTag.attribs));
 
-
-	var group = this.getRefGroup(options.group ),
-		ref = group.add(tokens, options ),
+	var group = this.getRefGroup(options.group),
+		ref = group.add(tokens, options),
 		//console.warn( 'added tokens: ' + JSON.stringify( this.refGroups, null, 2 ));
 		linkback = ref.linkbacks[ref.linkbacks.length - 1];
-
 
 	var bits = [];
 	if (options.group) {
@@ -140,6 +138,7 @@ function genPlaceholderTokens(env, token, src) {
 Cite.prototype.onReferences = function ( token, manager ) {
 	function processRefTokens(ref) {
 		var out;
+
 		// pipeline for processing ref-content
 		// NOTE: This is a synchronous pipeline
 		var pipeline = manager.pipeFactory.getPipeline(
@@ -152,9 +151,6 @@ Cite.prototype.onReferences = function ( token, manager ) {
 		pipeline.addListener('end', function() {});
 		ref.tokens.push(new EOFTk());
 		pipeline.process(ref.tokens);
-		// SSS FIXME: Even though pipeline is a sync-pipeline,
-		// are we guaranteed that at this point, the 'chunk'
-		// handler has run?
 
 		return out;
 	}
@@ -174,7 +170,7 @@ Cite.prototype.onReferences = function ( token, manager ) {
 					new TagTk( 'a', [ new KV('href', '#' + ref.linkbacks[0]) ]),
 					arrow,
 					new EndTagTk( 'a' )
-				], processRefTokens(ref));
+				]);
 		} else {
 			out.push( arrow );
 			$.each(ref.linkbacks, function(i, linkback) {
@@ -190,10 +186,13 @@ Cite.prototype.onReferences = function ( token, manager ) {
 						//	value: Util.formatNum( ref.groupIndex + '.' + i)
 						//},
 						ref.groupIndex + '.' + i,
-						new EndTagTk( 'a' )
-					], processRefTokens(ref));
+						new EndTagTk( 'a' ), " "
+					]);
 			});
 		}
+
+		// Output ref tokens once!
+		out = out.concat(processRefTokens(ref));
 		//console.warn( 'renderLine res: ' + JSON.stringify( out, null, 2 ));
 		return out;
 	};
