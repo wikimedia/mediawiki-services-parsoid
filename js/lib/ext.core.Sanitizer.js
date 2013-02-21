@@ -535,6 +535,10 @@ var SanitizerConstants = {
 				// http://www.w3.org/TR/REC-MathML/
 				'math'       : [ 'class', 'style', 'id', 'title' ],
 
+				// HTML 5 section 4.5
+				'figure'     : common,
+				'figcaption' : common,
+
 				// HTML 5 section 4.6
 				'bdi' : common
 			};
