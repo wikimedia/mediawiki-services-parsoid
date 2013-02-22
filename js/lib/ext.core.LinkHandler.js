@@ -410,8 +410,9 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 		newAttribs = newAttribs.concat(rdfaAttrs.attribs);
 
 		var width=null, height=null;
+		// local 'width' and 'height' vars will be strings (or null)
 		if ( oHash.height===null && oHash.width===null ) {
-			width = '200px';
+			width = '200';
 		} else {
 			width = oHash.width;
 			height = oHash.height;
@@ -553,7 +554,8 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 
 	// Handle explicit width value
 	if ( oHash.width ) {
-		width = oHash.width;
+		// keep local 'width' var numeric, not a string
+		width = parseInt(oHash.width, 10);
 	}
 
 	// Handle upright
@@ -565,7 +567,7 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 		}
 	}
 
-	var figurestyle = "width: " + (width + 5) + "px;",
+	var figurestyle = "width: " + (Math.round(width + 5)) + "px;",
 		figureclass = "thumb tright thumbinner";
 	// note that 'border', 'frameless', and 'frame' property is ignored
 	// for thumbnails
