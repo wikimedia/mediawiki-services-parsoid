@@ -28,7 +28,9 @@ function ParserFunctions ( manager ) {
 
 // Temporary helper.
 ParserFunctions.prototype._rejoinKV = function ( trim, k, v ) {
-	if ( k.length ) {
+	if ( k.constructor === String && k.length > 0 ) {
+		return [k].concat( ['='], v );
+	} else if (k.constructor === Array && k.length > 0) {
 		return k.concat( ['='], v );
 	} else {
 		return trim ? Util.tokenTrim(v) : v;
@@ -47,7 +49,7 @@ ParserFunctions.prototype.expandKV = function ( kv, cb, defaultValue, type, trim
 	if ( kv === undefined ) {
 		cb( { tokens: [ defaultValue || '' ] } );
 	} else if ( kv.constructor === String ) {
-		return cb( kv );
+		return cb( { tokens: [kv] } );
 	} else if ( kv.k.constructor === String && kv.v.constructor === String ) {
 		if ( kv.k ) {
 			cb( { tokens: [kv.k + '=' + kv.v] } );
