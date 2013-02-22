@@ -519,7 +519,7 @@ WSP.escapeWikiText = function ( state, text ) {
 		return escapedText(text);
 	}
 
-	var sol = state.onStartOfLine || state.emitNewlineOnNextToken,
+	var sol = state.onStartOfLine,
 		hasNewlines = text.match(/\n./),
 		hasTildes = text.match(/~{3,5}/);
 	if (!fullCheckNeeded && !hasNewlines && !hasTildes) {
@@ -730,10 +730,22 @@ WSP.figureHandler = function(state, node, cb) {
 		return cb('');
 	}
 
+	// Captions dont start on a new line
+	//
+	// So, even though the figure might be in a sol-state, serialize the
+	// caption in a no-sol state and restore old state.  This is required
+	// to prevent spurious wikitext escaping for this example:
+	//
+	// [[File:foo.jpg|thumb| bar]] ==> [[File:foo.jpg|thumb|<nowiki> bar</nowiki>]]
+	//
+	// In sol state, text " bar" should be nowiki escaped to prevent it from
+	// parsing to an indent-pre.  But, not in figure captions.
+	var captionSrc, oldSOLState = state.onStartOfLine;
+	state.onStartOfLine = false;
+	captionSrc = state.serializeChildrenToString(caption.childNodes, WSP.wteHandlers.aHandler);
+	state.onStartOfLine = oldSOLState;
 
-	var captionSrc = state.serializeChildrenToString(caption.childNodes,
-													WSP.wteHandlers.aHandler),
-		imgResource = (img && img.getAttribute('resource') || '').replace(/(^\[:)|(\]$)/g, ''),
+	var imgResource = (img && img.getAttribute('resource') || '').replace(/(^\[:)|(\]$)/g, ''),
 		outBits = [imgResource],
 		figAttrs = dp.optionList,
 		optNames = dp.optNames,
@@ -940,7 +952,6 @@ function escapeWikiLinkContentString ( contentString, state ) {
 	// When processing link text, we are no longer in newline state
 	// since that will be preceded by "[[" or "[" text in target wikitext.
 	state.onStartOfLine = false;
-	state.emitNewlineOnNextToken = false;
 	state.wteHandlerStack.push(WSP.wteHandlers.wikilinkHandler);
 	var res = WSP.escapeWikiText(state, contentString);
 	state.wteHandlerStack.pop();
