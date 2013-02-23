@@ -27,30 +27,25 @@ else
 fi
 
 node=` ( nodejs --version > /dev/null 2>&1 && echo 'nodejs' ) || echo 'node' `
-cache=--cache
-if [ parserTests.pegjs -nt parserTests.cache -o \
-     parserTests.txt -nt parserTests.cache ]; then
-  cache=
-fi
 
 if [ "$1" = "--wt2wt" ];then
 	OUTPUT="results/roundtrip.txt"
-    time $node parserTests.js $cache --wt2wt \
+    time $node parserTests.js --cache --wt2wt \
         > $OUTPUT 2>&1
 	TEST_EXIT_CODE=$?
 elif [ "$1" = '--selser' ];then
 	OUTPUT="results/selser.txt"
-    time $node parserTests.js --selser --changesin selser.changes.json $cache --printwhitelist \
+    time $node parserTests.js --selser --changesin selser.changes.json --cache --printwhitelist \
         > $OUTPUT 2>&1
 	TEST_EXIT_CODE=$?
 elif [ "$1" = '--wt2html' ];then
 	OUTPUT="results/html.txt"
-    time $node parserTests.js --wt2html $cache --printwhitelist \
+    time $node parserTests.js --wt2html --cache --printwhitelist \
         > $OUTPUT 2>&1
 	TEST_EXIT_CODE=$?
 else
 	OUTPUT="results/all.txt"
-    time $node parserTests.js --wt2html --wt2wt --html2html --selser --changesin selser.changes.json $cache --printwhitelist \
+    time $node parserTests.js --wt2html --wt2wt --html2html --selser --changesin selser.changes.json --cache --printwhitelist \
         > $OUTPUT 2>&1
 	TEST_EXIT_CODE=$?
 fi
