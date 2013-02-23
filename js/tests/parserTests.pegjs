@@ -149,26 +149,52 @@ option_list = o:an_option [ \t\n]+ rest:option_list?
     return result;
 }
 
-an_option = simple_option / prefix_option
-
-simple_option = k:("pst"i / "msg"i / "cat"i / "ill"i / "subpage"i /
-                   "noxml"i / "disabled"i / "showtitle"i / "comment"i /
-                   "local"i / "rawhtml"i / "preload"i )
+// from PHP parser in tests/parser/parserTest.inc:parseOptions()
+//   foo
+//   foo=bar
+//   foo="bar baz"
+//   foo=[[bar baz]]
+//   foo=bar,"baz quux",[[bat]]
+an_option = k:option_name v:option_value?
 {
-    return {k:k.toLowerCase()};
-}
-prefix_option = title_option / nospace_prefix_option
-
-nospace_prefix_option = k:(c:[^ \t\n=]+ { return c.join(''); }) ws? "=" ws?
-                  v:(c:[^ \t\n]+ { return c.join(''); })
-{
-    return {k:k, v:v};
+    return {k:k.toLowerCase(), v:(v||'')};
 }
 
-title_option = k:"title" ws? "=" ws?
-               v:("[[" (c:[^\]]+ { return c.join(''); }) "]]")
+option_name = c:[^ \t\n=!]+
 {
-    return {k:k, v:"[["+v+"]]"};
+    return c.join('');
+}
+
+option_value = ws? "=" ws? ovl:option_value_list
+{
+    return (ovl.length===1) ? ovl[0] : ovl;
+}
+
+option_value_list = v:an_option_value
+                    rest:( ws? "," ws? ovl:option_value_list {return ovl; })?
+{
+    var result = [ v ];
+    if (rest && rest.length) {
+        result.push.apply(result, rest);
+    }
+    return result;
+}
+
+an_option_value = link_target_value / quoted_value / plain_value
+
+link_target_value = v:("[[" (c:[^\]]* { return c.join(''); }) "]]")
+{
+    return v.join('');
+}
+
+quoted_value = [\"] v:[^\"]* [\"]
+{
+    return v.join('');
+}
+
+plain_value = v:[^ \t\n\"\'\[\]=,!]+
+{
+    return v.join('');
 }
 
 /* the : is for a stray one, not sure it should be there */
