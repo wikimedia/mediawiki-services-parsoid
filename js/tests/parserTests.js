@@ -117,6 +117,17 @@ var prettyPrintIOptions = function(iopts) {
 	}).join(' ');
 };
 
+// user-friendly 'boolean' command-line options:
+// allow --debug=no and --debug=false to mean the same as --no-debug
+var booleanOption = function ( val ) {
+	if ( !val ) { return false; }
+	if ( (typeof val) === 'string' &&
+	     /^(no|false)$/i.test(val)) {
+		return false;
+	}
+	return true;
+};
+
 /**
  * Get the options from the command line.
  */
@@ -232,7 +243,7 @@ ParserTests.prototype.getOpts = function () {
 		},
 		xml: {
 			description: 'Print output in JUnit XML format.',
-			default: false,
+			'default': false,
 			'boolean': true
 		}
 	}).check( function(argv) {
@@ -258,7 +269,7 @@ ParserTests.prototype.getTests = function ( argv ) {
 	// parser grammar is also a dependency
 	fileDependencies.push( this.testParserFileName );
 
-	if( !argv.cache ) {
+	if( !booleanOption(argv.cache) ) {
 		// Cache not wanted, parse file and return object
 		return this.parseTestCase( testFile );
 	}
@@ -346,7 +357,7 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
 				// so we don't try to regenerate the changes.
 				item.changes = 0;
 			}
-		} else if (options.use_source && startsAtWikitext ) {
+		} else if (booleanOption(options.use_source) && startsAtWikitext ) {
 			this.env.page.src = item.input;
 		} else {
 			this.env.page.src = null;
@@ -732,9 +743,9 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 		console.log( 'INPUT'.cyan + ':' );
 		console.log( actual.input + '\n' );
 
-		console.log( options.getActualExpected( actual, expected, options.getDiff, options.color ) );
+		console.log( options.getActualExpected( actual, expected, options.getDiff, booleanOption( options.color ) ) );
 
-		if ( options.printwhitelist ) {
+		if ( booleanOption( options.printwhitelist )  ) {
 			this.printWhitelistEntry( title, actual.raw );
 		}
 	} else if ( !failure_only && error ) {
@@ -851,25 +862,27 @@ ParserTests.prototype.printWhitelistEntry = function ( title, raw ) {
  * @arg mode {string} The mode we're in (wt2wt, wt2html, html2wt, or html2html)
  */
 ParserTests.prototype.printResult = function ( title, time, comments, iopts, expected, actual, options, mode, item ) {
+	var quick = booleanOption( options.quick );
+	var quiet = booleanOption( options.quiet );
 	if ( mode === 'selser' ) {
 		title += ' ' + JSON.stringify( item.changes );
 	}
 
 	if ( expected.normal !== actual.normal ) {
-		if ( options.whitelist && title in testWhiteList &&
+		if ( booleanOption( options.whitelist ) && title in testWhiteList &&
 			Util.normalizeOut( testWhiteList[title] ) ===  actual.normal ) {
-			options.reportSuccess( title, mode, true, options.quiet );
+			options.reportSuccess( title, mode, true, quiet );
 			return;
 		}
 
 		item.wt2wtResult = actual.raw;
 
-		options.reportFailure( title, comments, iopts, options, actual, expected, options.quick, mode, null, item );
+		options.reportFailure( title, comments, iopts, options, actual, expected, quick, mode, null, item );
 	} else {
 		if ( mode === 'wt2wt' ) {
 			item.wt2wtPassed = true;
 		}
-		options.reportSuccess( title, mode, false, options.quiet );
+		options.reportSuccess( title, mode, false, quiet );
 	}
 };
 
@@ -1054,7 +1067,7 @@ ParserTests.prototype.main = function ( options ) {
 		}
 		console.log( 'Filtering title test using Regexp ' + this.test_filter );
 	}
-	if( !options.color ) {
+	if( !booleanOption( options.color ) ) {
 		colors.mode = 'none';
 	}
 
@@ -1409,6 +1422,8 @@ var xmlFuncs = function () {
 	 */
 	reportResultXML = function ( title, time, comments, iopts, expected, actual, options, mode ) {
 		var timeTotal, testcaseEle;
+		var quick = booleanOption( options.quick );
+		var quiet = booleanOption( options.quiet );
 
 		testcaseEle = '<testcase name="' + Util.encodeXml( title ) + '" ';
 		testcaseEle += 'assertions="1" ';
@@ -1427,12 +1442,12 @@ var xmlFuncs = function () {
 		if ( expected.normal !== actual.normal ) {
 			if ( options.whitelist && title in testWhiteList &&
 				 Util.normalizeOut( testWhiteList[title] ) ===  actual.normal ) {
-				reportSuccessXML( title, mode, true, options.quiet );
+				reportSuccessXML( title, mode, true, quiet );
 			} else {
-				reportFailureXML( title, comments, iopts, options, actual, expected, options.quick, mode );
+				reportFailureXML( title, comments, iopts, options, actual, expected, quick, mode );
 			}
 		} else {
-			reportSuccessXML( title, mode, false, options.quiet );
+			reportSuccessXML( title, mode, false, quiet );
 		}
 
 		results[mode] += '</testcase>\n';
