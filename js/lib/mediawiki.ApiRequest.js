@@ -411,6 +411,11 @@ var ConfigRequest = function ( confSource, env ) {
 			siprop: siprops.join( '|' )
 		};
 
+	if ( !confSource ) {
+		this.requestCB( new Error( 'There was no base URI for the API we tried to use.' ) );
+		return;
+	}
+
 	var url = confSource + '?' +
 		qs.stringify( apiargs );
 
