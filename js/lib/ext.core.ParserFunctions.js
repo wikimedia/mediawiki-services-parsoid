@@ -650,7 +650,7 @@ ParserFunctions.prototype.pf_localurl = function ( token, frame, cb, args ) {
 					console.trace();
 					throw( err );
 				}
-				cb({ tokens: [ '/' +
+				cb({ tokens: [
 					// FIXME! Figure out correct prefix to use
 					//this.env.conf.wiki.wgScriptPath +
 					env.conf.wiki.script + '?title=' +
@@ -770,6 +770,22 @@ ParserFunctions.prototype.pf_pagenamebase = function ( token, frame, cb, args ) 
 };
 ParserFunctions.prototype.pf_scriptpath = function ( token, frame, cb, args ) {
 	cb( { tokens: [this.env.conf.wiki.wgScriptPath] } );
+};
+ParserFunctions.prototype.pf_server = function ( token, frame, cb, args ) {
+	var dataAttribs = Util.clone(token.dataAttribs);
+	cb( { tokens: [
+		new TagTk('a', [
+			new KV('rel', 'nofollow'),
+			new KV('class', 'external free'),
+			new KV('href', this.env.conf.wiki.server),
+			new KV('typeof', 'mw:ExtLink/URL')
+		], dataAttribs),
+		this.env.conf.wiki.server,
+		new EndTagTk('a')
+	] } );
+};
+ParserFunctions.prototype.pf_servername = function ( token, frame, cb, args ) {
+	cb( { tokens: [this.env.conf.wiki.server.replace(/^https?:\/\//,'')] } );
 };
 ParserFunctions.prototype.pf_talkpagename = function ( token, frame, cb, args ) {
 	cb( { tokens: [this.env.page.name.replace(/^[^:]:/, 'Talk:' ) || ''] } );
