@@ -237,26 +237,29 @@ ParserTests.prototype.getTests = function ( argv ) {
 	} catch (e) {
 		console.log( e );
 	}
+	// parser grammar is also a dependency
+	fileDependencies.push( this.testParserFileName );
+
 	if( !argv.cache ) {
 		// Cache not wanted, parse file and return object
 		return this.parseTestCase( testFile );
 	}
 
-	// Find out modification time of all files depencies and then hashes those
-	// as a unique value using sha1.
-	var mtimes = '';
-	fileDependencies.sort().forEach( function (file) {
-		mtimes += fs.statSync( file ).mtime;
-	});
+	// Find out modification time of all files dependencies and then hash those
+	// to make a unique value using sha1.
+	var mtimes = fileDependencies.sort().map( function (file) {
+		return fs.statSync( file ).mtime;
+	}).join('|');
 
 	var sha1 = require('crypto').createHash('sha1')
 		.update( mtimes ).digest( 'hex' ),
+		cache_file_name= __dirname + '/' + this.cache_file,
 		// Look for a cache_file
 		cache_content,
 		cache_file_digest;
 	try {
 		console.log( "Looking for cache file " + this.cache_file );
-		cache_content = fs.readFileSync( this.cache_file, 'utf8' );
+		cache_content = fs.readFileSync( cache_file_name, 'utf8' );
 		// Fetch previous digest
 		cache_file_digest = cache_content.match( /^CACHE: (\w+)\n/ )[1];
 	} catch( e4 ) {
@@ -265,16 +268,16 @@ ParserTests.prototype.getTests = function ( argv ) {
 
 	if( cache_file_digest === sha1 ) {
 		// cache file match our digest.
-		console.log( "Loaded tests cases from cache file" );
+		console.log( "Loaded test cases from cache file" );
 		// Return contained object after removing first line (CACHE: <sha1>)
 		return JSON.parse( cache_content.replace( /.*\n/, '' ) );
 	} else {
 		// Write new file cache, content preprended with current digest
-		console.log( "Cache file either inexistant or outdated" );
+		console.log( "Cache file either not present or outdated" );
 		var parse = this.parseTestCase( testFile );
 		if ( parse !== undefined ) {
 			console.log( "Writing parse result to " + this.cache_file );
-			fs.writeFileSync( this.cache_file,
+			fs.writeFileSync( cache_file_name,
 				"CACHE: " + sha1 + "\n" + JSON.stringify( parse ),
 				'utf8'
 			);
@@ -1045,7 +1048,8 @@ ParserTests.prototype.main = function ( options ) {
 	}
 
 	try {
-		this.testParser = PEG.buildParser( fs.readFileSync( __dirname + '/parserTests.pegjs', 'utf8' ) );
+		this.testParserFileName = __dirname + '/parserTests.pegjs';
+		this.testParser = PEG.buildParser( fs.readFileSync( this.testParserFileName, 'utf8' ) );
 	} catch ( e2 ) {
 		console.log( e2 );
 	}
