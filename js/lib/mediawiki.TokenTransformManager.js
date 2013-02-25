@@ -27,14 +27,17 @@ function verifyTokensIntegrity(ret, nullOkay) {
 		console.warn(' ret is not an object: ' + JSON.stringify( ret ) );
 		console.trace();
 		ret = { tokens: ret };
-	} else if (!nullOkay && ret.tokens === undefined) {
-		console.warn( 'ret.tokens undefined: ' + JSON.stringify( ret ) );
-		console.trace();
+	} else if (ret.tokens === undefined) {
+		if (!nullOkay) {
+			console.warn( 'ret.tokens undefined: ' + JSON.stringify( ret ) );
+			console.trace();
+		}
 		ret.tokens = ( ret.token === undefined ) ? [] : [ret.token];
 	}
 
 	if (ret.tokens && ret.tokens.constructor !== Array) {
-		console.warn( 'ret.tokens not an array: ' + JSON.stringify( ret ) );
+		console.warn( 'ret.tokens not an array: ' + ret.tokens.constructor.name);
+		console.warn( 'ret.tokens: ' + JSON.stringify( ret ) );
 		console.trace();
 		ret.tokens = [ ret.tokens ];
 	}
@@ -694,7 +697,7 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
 		// transformTokens is still ongoing, handle as sync return by
 		// collecting the results in s.res
 		this.env.dp( 'maybeSyncReturn transforming', s.c, ret );
-		if ( ret.tokens ) {
+		if ( ret.tokens && ret.tokens.length > 0) {
 			if ( s.res.tokens ) {
 				var oldRank = s.res.tokens.rank;
 				s.res.tokens = s.res.tokens.concat( ret.tokens );
@@ -702,7 +705,7 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
 					// Conservatively set the overall rank to the minimum.
 					// This assumes that multi-pass expansion for some tokens
 					// is safe. We might want to revisit that later.
-					Math.min( oldRank, ret.tokens.rank );
+					s.res.tokens.rank = Math.min( oldRank, ret.tokens.rank );
 				}
 			} else {
 				s.res = ret;
@@ -1134,7 +1137,7 @@ TokenAccumulator.prototype.setParentCB = function ( cb ) {
  * @returns {Mixed}: new parent callback for caller or falsy value
  */
 TokenAccumulator.prototype.receiveToksFromChild = function ( ret ) {
-	verifyTokensIntegrity(ret, false);
+	ret = verifyTokensIntegrity(ret, false);
 	if ( !ret.async ) {
 		// Child is all done => can pass along sibling toks as well
 		// since any tokens we receive now will already be in order
@@ -1162,7 +1165,7 @@ TokenAccumulator.prototype.receiveToksFromChild = function ( ret ) {
  * @returns {Mixed}: new parent callback for caller or falsy value
  */
 TokenAccumulator.prototype.receiveToksFromSibling = function ( ret ) {
-	verifyTokensIntegrity(ret, false);
+	ret = verifyTokensIntegrity(ret, false);
 
 	if (!ret.async) {
 		this.waitForSibling = false;
