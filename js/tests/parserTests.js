@@ -192,8 +192,16 @@ ParserTests.prototype.getOpts = function () {
 			description: 'Only run tests whose descriptions which match given regex',
 			alias: 'regex'
 		},
-		'disabled': {
-			description: 'Run disabled tests (option not implemented)',
+		'run-disabled': {
+			description: 'Run disabled tests',
+			// this defaults to true because historically parsoid-only tests
+			// were marked as 'disabled'.  Once these are all changed to
+			// 'parsoid', this default should be changed to false.
+			'default': true,
+			'boolean': true
+		},
+		'run-php': {
+			description: 'Run php-only tests',
 			'default': false,
 			'boolean': true
 		},
@@ -1056,6 +1064,9 @@ ParserTests.prototype.main = function ( options ) {
 		options.getActualExpected = this.getActualExpected.bind( this );
 	}
 
+	// test case filtering
+	this.runDisabled = booleanOption(options['run-disabled']);
+	this.runPHP = booleanOption(options['run-php']);
 	this.test_filter = null;
 	if ( options.filter ) { // null is the 'default' by definition
 		try {
@@ -1206,6 +1217,7 @@ ParserTests.prototype.processCase = function ( i, options ) {
 
 	if ( i < this.cases.length ) {
 		item = this.cases[i];
+		if (!item.options) { item.options = {}; }
 		// Reset the cached results for the new case.
 		// All test modes happen in a single run of processCase.
 		item.cachedHTML = null;
@@ -1220,9 +1232,12 @@ ParserTests.prototype.processCase = function ( i, options ) {
 					this.processArticle( item, nextCallback );
 					break;
 				case 'test':
-					if( this.test_filter &&
-						-1 === item.title.search( this.test_filter ) ) {
+						if( ('disabled' in item.options && !this.runDisabled) ||
+						    ('php' in item.options && !this.runPHP) ||
+						    (this.test_filter &&
+						     -1 === item.title.search( this.test_filter ) ) ) {
 						// Skip test whose title does not match --filter
+						// or which is disabled or php-only
 						process.nextTick( nextCallback );
 						break;
 					}
