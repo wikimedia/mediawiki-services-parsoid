@@ -49,7 +49,9 @@ var WikitextConstants = {
 			'img_text_bottom' : 'valign',
 
 			// format
-			'img_border'    : 'format',
+			// 'border' can be given in addition to *one of*
+			// frameless, framed, or thumbnail
+			'img_border'    : 'border',
 			'img_frameless' : 'format',
 			'img_framed'    : 'format',
 			'img_thumbnail' : 'format'
