@@ -381,8 +381,7 @@ var ConfigRequest = function ( uri, env ) {
 	ApiRequest.call( this, env, null );
 
 	var metas = [
-			'siteinfo',
-			'allmessages'
+			'siteinfo'
 		],
 
 		siprops = [
@@ -396,16 +395,10 @@ var ConfigRequest = function ( uri, env ) {
 			'protocols'
 		],
 
-		ammessages = [
-			'linktrail',
-			'linkprefix'
-		],
-
 		apiargs = {
 			format: 'json',
 			action: 'query',
 			meta: metas.join( '|' ),
-			ammessages: ammessages.join( '|' ),
 			siprop: siprops.join( '|' )
 		};
 

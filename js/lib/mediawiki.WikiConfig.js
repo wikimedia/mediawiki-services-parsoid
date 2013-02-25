@@ -6,6 +6,7 @@ var qs = require( 'querystring' ),
 	util = require( 'util' ),
 	request = require( 'request' ),
 	baseConfig = require( './mediawiki.BaseConfig.json' ).query,
+	Util = require( './mediawiki.Util.js' ).Util,
 	request = require( 'request' );
 
 var WikiConfig = function ( resultConf, prefix, uri ) {
@@ -23,8 +24,6 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 		resultConf = baseConfig;
 	}
 	var general = resultConf.general;
-
-	conf.baseURI = general.server + general.articlepath.replace(/\$1/, '');
 
 	var names = resultConf.namespaces;
 	var nkeys = Object.keys( names );
@@ -83,8 +82,8 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 		if ( aliases.length > 0 ) {
 			conf.mwAliases[mw.name] = [];
 		}
-		for ( mwax = 0; mwax < aliases.length; mwax++ ) {
-			alias = aliases[mwax];
+		for ( var mwax = 0; mwax < aliases.length; mwax++ ) {
+			var alias = aliases[mwax];
 			if ( mw['case-sensitive'] !== '' ) {
 				alias = alias.toLowerCase();
 			}
@@ -116,45 +115,62 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 //		}
 //	}
 
-	// Get the linktrail and linkprefix messages from the server
-	// TODO XXX etc. : Use these somewhere
+	// Regex for stripping useless stuff out of the regex messages
 	var stripRegex = /^\/\^(.*)\$\//;
-	var messages = resultConf.allmessages;
-	var thismsg, regexResult;
-	for ( var amx = 0; amx < messages.length; amx++ ) {
-		thismsg = messages[amx];
-		if ( thismsg['*'] ) {
-			regexResult = thismsg['*'].match( stripRegex );
-			if ( regexResult !== null ) {
-				regexResult = regexResult[1].replace( /\(\.\*\??\)/, '' );
-			}
-			switch ( thismsg.name ) {
-				case 'linktrail':
-					conf.linkTrailRegex = new RegExp( '^' + regexResult );
-					break;
-				case 'linkprefix':
-					conf.linkPrefixRegex = new RegExp( regexResult + '$' );
-					break;
-				default:
-					// Do nothing!
-					break;
-			}
+
+	// Helper function for parsing the linktrail/linkprefix regexes
+	function buildLinkNeighbourRegex( string, isTrail ) {
+		var regexResult = string.match( stripRegex );
+
+		if ( regexResult !== null ) {
+			regexResult = regexResult[1].replace( /\(\.\*\??\)/, '' );
 		}
+
+		if ( isTrail ) {
+			regexResult = '^' + regexResult;
+		} else {
+			regexResult += '$';
+		}
+
+		return new RegExp( regexResult );
 	}
 
 	// Get the general information and use it for article, upload, and image
 	// paths.
 	if ( resultConf.general ) {
-		var general = resultConf.general;
 		if ( general.articlepath ) {
-			this.articlePath = general.articlepath;
+			if ( general.server ) {
+				conf.baseURI = general.server + general.articlepath.replace(/\$1/, '');
+			}
+
+			conf.articlePath = general.articlepath;
 		}
+
 		if ( general.script ) {
-			this.script = general.script;
+			conf.script = general.script;
 		}
+
 		if ( general.server ) {
-			this.server = general.server;
+			conf.server = general.server;
 		}
+
+		if ( general.linktrail ) {
+			conf.linkTrailRegex = buildLinkNeighbourRegex( general.linktrail, true );
+		} else if ( general.linktrail === '' ) {
+			conf.linkTrailRegex = null;
+		} else {
+			conf.linkTrailRegex = Util.linkTrailRegex;
+		}
+
+		if ( general.linkprefix ) {
+			conf.linkPrefixRegex = buildLinkNeighbourRegex( general.linkprefix, false );
+		} else {
+			conf.linkPrefixRegex = null;
+		}
+	}
+
+	if ( !conf.baseURI ) {
+		throw new Error( 'No baseURI was provided by the config request we made.' );
 	}
 
 	// Get information about the allowed protocols for external links.
@@ -241,15 +257,15 @@ WikiConfig.prototype = {
 		var ix, mwlist, aliases, regex, regexString = '',
 			getInterpolatedMagicWord = function ( text, useRegex, useMwList ) {
 				var ix, alias, value, canonical,
-					useMwList = useMwList || this.interpolatedList,
-					useRegex = useRegex || this.namedMagicRegex,
 					matches = text.match( useRegex );
+				useMwList = useMwList || this.interpolatedList;
+				useRegex = useRegex || this.namedMagicRegex;
 
 				if ( matches === null ) {
 					return null;
 				}
 				alias = null;
-				for ( var ix = 1; ix < matches.length && ix - 1 < useMwList.length && alias === null; ix++ ) {
+				for ( ix = 1; ix < matches.length && ix - 1 < useMwList.length && alias === null; ix++ ) {
 					if ( matches[ix] !== undefined ) {
 						alias = useMwList[ix - 1];
 						value = matches[ix];
