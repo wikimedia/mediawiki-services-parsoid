@@ -93,9 +93,27 @@ function ParserTests () {
 
 var prettyPrintIOptions = function(iopts) {
 	if (!iopts) { return ''; }
+	var ppValue = function(v) {
+		if ($.isArray(v)) {
+			return v.map(ppValue).join(',');
+		}
+		if (/^\[\[[^\]]*\]\]$/.test(v) ||
+		    /^[-\w]+$/.test(v)) {
+			return v;
+		}
+		// the current PHP grammar doesn't provide for any way of
+		// including the " character in a value, other than escaping
+		// it using the [[ ... foo ... ]] syntax.  If we see a
+		// double-quote in a value at this point, it means that
+		// they've added some new fancy quoting scheme that we should
+		// be handling here.  (Of course parserTests.pegjs probably
+		// broke first.)
+		console.assert(v.indexOf('"') < 0);
+		return '"'+v+'"';
+	};
 	return Object.keys(iopts).map(function(k) {
 		if (iopts[k]==='') { return k; }
-		return k+'='+iopts[k];
+		return k+'='+ppValue(iopts[k]);
 	}).join(' ');
 };
 
