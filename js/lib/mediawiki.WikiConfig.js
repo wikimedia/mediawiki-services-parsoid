@@ -10,7 +10,7 @@ var qs = require( 'querystring' ),
 
 var WikiConfig = function ( resultConf, prefix, uri ) {
 	var nsid, name, conf = this;
-	this._init(); // initialize hashes/arrays/etc.
+	this.init(); // initialize hashes/arrays/etc.
 
 	conf.iwp = prefix;
 
@@ -194,7 +194,7 @@ WikiConfig.prototype = {
 	extensionTags: null,
 	interpolatedList: null,
 
-	_init: function() {
+	init: function() {
 		// give the instance its own hashes/arrays so they
 		// don't get aliased.
 		this.namespaceNames = {};
