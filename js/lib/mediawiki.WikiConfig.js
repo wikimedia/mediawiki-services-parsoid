@@ -10,6 +10,7 @@ var qs = require( 'querystring' ),
 
 var WikiConfig = function ( resultConf, prefix, uri ) {
 	var nsid, name, conf = this;
+	this._init(); // initialize hashes/arrays/etc.
 
 	conf.iwp = prefix;
 
@@ -76,12 +77,6 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 	var mws = resultConf.magicwords;
 	var mw, replaceRegex = /\$1/;
 	var namedMagicOptions = [];
-	if ( mws.length > 0 ) {
-		// Don't use the default if we get a result.
-		conf.magicWords = {};
-		conf.mwAliases = {};
-		conf.interpolatedList = [];
-	}
 	for ( var mwx = 0; mwx < mws.length; mwx++ ) {
 		mw = mws[mwx];
 		aliases = mw.aliases;
@@ -191,13 +186,28 @@ WikiConfig.prototype = {
 		category: 14,
 		category_talk: 15
 	},
-	namespaceNames: {},
-	namespaceIds: {},
-	magicWords: {},
-	mwAliases: {},
-	specialPages: {},
-	extensionTags: {},
-	interpolatedList: [],
+	namespaceNames: null,
+	namespaceIds: null,
+	magicWords: null,
+	mwAliases: null,
+	specialPages: null,
+	extensionTags: null,
+	interpolatedList: null,
+
+	_init: function() {
+		// give the instance its own hashes/arrays so they
+		// don't get aliased.
+		this.namespaceNames = {};
+		this.namespaceIds = {};
+		this.magicWords = {};
+		this.mwAliases = {};
+		this.specialPages = {};
+		this.extensionTags = {};
+		this.interpolatedList = [];
+		// clone the canonicalNamespace list
+		this.canonicalNamespaces =
+			Object.create(WikiConfig.prototype.canonicalNamespaces);
+	},
 
 	getMagicWord: function ( alias ) {
 		return this.magicWords[alias] || null;
@@ -254,6 +264,7 @@ WikiConfig.prototype = {
 		return alias.replace( /\$1/, value );
 	}
 };
+Object.freeze(WikiConfig.prototype.canonicalNamespaces);
 
 if ( typeof module === 'object' ) {
 	module.exports.WikiConfig = WikiConfig;
