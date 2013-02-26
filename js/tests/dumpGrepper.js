@@ -1,7 +1,5 @@
 /**
  * A simple dump grepper based on the DumpReader module.
- *
- * @author Gabriel Wicke <gwicke@wikimedia.org>
  */
 
 var dumpReader = require('./dumpReader.js'),
@@ -50,7 +48,7 @@ if (module === require.main) {
 		optimist.showHelp();
 		process.exit( 0 );
 	}
-	
+
 	var flags = 'g';
 	if(argv.i) {
 		flags += 'i';
