@@ -301,7 +301,12 @@ TokenAndAttrCollector.prototype.inspectAttrs = function(token) {
 			// clone token and splice in merged attribute
 			var numDeleted = closeD.attrIndex - openD.attrIndex;
 			token = token.clone();
-			token.attribs.splice(openD.attrIndex, numDeleted + 1, new KV(mergedK, mergedV));
+
+			// FIXME: Blindly using src-offsets from the attribute where the
+			// opening tag showed up. This is a temporary hack.  We need a
+			// better solution to this whole token-and-attr collector mess.
+			var newKV = new KV(mergedK, mergedV, attrs[openD.attrIndex].srcOffsets);
+			token.attribs.splice(openD.attrIndex, numDeleted + 1, newKV);
 
 			// console.warn("-------------");
 			// console.warn("t-merged: " + JSON.stringify(token));

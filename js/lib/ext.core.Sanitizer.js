@@ -700,16 +700,14 @@ Sanitizer.prototype.onAny = function ( token ) {
 					k = kv.k;
 					v = kv.v;
 
+					var newKV = Util.clone(kv);
 					if ( k.constructor === Array ) {
-						k = Util.tokensToString ( k );
+						newKV.k = Util.tokensToString ( k );
 					}
 					if ( v.constructor === Array ) {
-						v = Util.tokensToString ( v );
+						newKV.v = Util.tokensToString ( v );
 					}
-					attribs[i] = new KV( k, v );
-					if ( kv.ksrc ) {
-						attribs[i].ksrc = kv.ksrc;
-					}
+					attribs[i] = newKV;
 				}
 			}
 

@@ -328,7 +328,9 @@ var Util = {
 	expandParserValueValues: function(kvs, cb, wrapTemplates) {
 		var kv, v,
 		reassembleKV = function( kv, cb2, v )  {
-			cb2(null, new KV(kv.k, v));
+			var newKV = Util.clone(kv);
+			newKV.v = v;
+			cb2(null, newKV);
 		};
 
 

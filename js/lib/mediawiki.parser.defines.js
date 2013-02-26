@@ -68,9 +68,12 @@ var genericTokenMethods = {
 	setAttribute: function ( name, value ) {
 		// First look for the attribute and change the last match if found.
 		for ( var i = this.attribs.length-1; i >= 0; i-- ) {
-			var k = this.attribs[i].k;
+			var kv = this.attribs[i],
+				k = kv.k;
 			if ( k.constructor === String && k.toLowerCase() === name ) {
-				this.attribs[i] = new KV( k, value );
+				var newKV = Util.clone(kv);
+				newKV.v = value;
+				this.attribs[i] = newKV;
 				return;
 			}
 		}
@@ -631,7 +634,7 @@ Params.prototype.getSlice = function ( options, start, end ) {
 				} else if ( kv.v.constructor === Array &&
 					// remove String from Array
 					kv.v.length === 1 && kv.v[0].constructor === String ) {
-						cb2( null, new KV( kv.k, kv.v[0] ) );
+						cb2( null, new KV( kv.k, kv.v[0], kv.srcOffsets ) );
 				} else {
 					// Expand the value
 					var o2 = $.extend( {}, options );
@@ -639,7 +642,7 @@ Params.prototype.getSlice = function ( options, start, end ) {
 					// and kv.v.get can generate a stream of async calls, we have
 					// to accumulate the results of the async calls and call cb2 in the end.
 					o2.cb = Util.buildAsyncOutputBufferCB(function (toks) {
-						cb2(null, new KV(kv.k, Util.tokensToString(toks)));
+						cb2(null, new KV(kv.k, Util.tokensToString(toks), kv.srcOffsets));
 					});
 					kv.v.get( o2 );
 				}

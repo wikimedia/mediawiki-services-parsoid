@@ -970,7 +970,7 @@ AttributeTransformManager.prototype.process = function (attributes) {
 			continue;
 		}
 
-		var kv = new KV( [], [] );
+		var kv = new KV( [], [], cur.srcOffsets );
 		this.kvs.push( kv );
 
 		if (v.constructor === Array) {
@@ -1042,13 +1042,13 @@ AttributeTransformManager.prototype.processKeys = function (attributes) {
 
 		// fast path for string-only attributes
 		if ( k.constructor === String && cur.v.constructor === String ) {
-			kv = new KV( k, this.frame.newParserValue( cur.v, pvOpts ) );
+			kv = new KV( k, this.frame.newParserValue( cur.v, pvOpts ), cur.srcOffsets );
 			this.kvs.push( kv );
 			continue;
 		}
 
 		// Wrap the value in a ParserValue for lazy expansion
-		kv = new KV( [], this.frame.newParserValue( cur.v, pvOpts ) );
+		kv = new KV( [], this.frame.newParserValue( cur.v, pvOpts ), cur.srcOffsets );
 		this.kvs.push( kv );
 
 		// And expand the key, if needed

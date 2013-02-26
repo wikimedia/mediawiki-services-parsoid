@@ -383,13 +383,15 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 
 	if (state.recordArgDict) {
 		var src = this.manager.env.page.src,
-			params = state.token.attribs.slice(1),
+			params = state.token.attribs,
 			dict = {},
 			argIndex = 1;
 
 		// Use source offsets to extract arg-name and arg-value wikitext
 		// since the 'k' and 'v' values in params will be expanded tokens
-		for (var i = 0, n = params.length; i < n; i++) {
+		//
+		// Ignore params[0] -- that is the template name
+		for (var i = 1, n = params.length; i < n; i++) {
 			var srcOffsets = params[i].srcOffsets;
 			var name;
 			if (srcOffsets[0] === srcOffsets[1]) {
