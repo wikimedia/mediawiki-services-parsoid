@@ -1,9 +1,6 @@
 /**
  * Command line parse utility.
  * Read from STDIN, write to STDOUT.
- *
- * @author Neil Kandalgaonkar <neilk@wikimedia.org>
- * @author Gabriel Wicke <gwicke@wikimedia.org>
  */
 
 var ParserPipelineFactory = require('../lib/mediawiki.parser.js').ParserPipelineFactory,

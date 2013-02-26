@@ -1,12 +1,18 @@
 Full list of authors, by number of lines in revision
-ad8d60a7e739c3c537746c7b8b38f88cf01cfefb Dec 27 2012:
+fd57d9a56c67e2c150782f9564b34f17c70442ec Feb 26 2013:
+
+[ Authors from older revisions may not show up in
+  newer revisions -- so continue to add names to
+  this list, please do not remove. ]
 
 Gabriel Wicke <gwicke@wikimedia.org>
 Subramanya Sastry <ssastry@wikimedia.org>
 Mark Holmquist <mtraceur@member.fsf.org>
 Adam Wight <awight@wikimedia.org>
+C. Scott Ananian <cscott@cscott.net>
 Catrope <roan@wikimedia.org>
 Brion Vibber <brion@wikimedia.org>
+plancalculus <jan@monoid-it.de>
 Siebrand Mazeland <s.mazeland@xs4all.nl>
 Antoine Musso <hashar@free.fr>
 lwelling <lwelling@wikimedia.org>
@@ -25,6 +31,5 @@ git ls-tree -r HEAD|cut -f 2|grep -E '\.(js|cc|h|cpp|hpp|c|txt|sh)$' | grep -v -
 Same for mail adresses:
 
 git ls-tree -r HEAD|cut -f 2|grep -E '\.(js|cc|h|cpp|hpp|c|txt|sh)$' | grep -v -E 'scripts|html5'   |xargs -n1 git blame --line-porcelain|grep -e "^author-mail "|sort|uniq -c|sort -nr
-
 
 Please see git blame for per-file information.

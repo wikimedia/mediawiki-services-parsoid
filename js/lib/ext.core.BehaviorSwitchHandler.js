@@ -1,8 +1,5 @@
 "use strict";
 
-/**
- */
-
 var Util = require('./mediawiki.Util.js').Util;
 
 function BehaviorSwitchHandler( manager, options ) {

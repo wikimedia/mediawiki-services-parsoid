@@ -42,9 +42,6 @@
  * ideally should not be supported/seen in wikitext.  This support may
  * evolve in the future to issue appropriate warnings/error messages to
  * encourage fixing up the relevant pages.
- *
- * Authors: Subramanya Sastry <ssastry@wikimedia.org>
- *          Gabriel Wicke <gwicke@wikimedia.org>
  * ------------------------------------------------------------------------ */
 
 "use strict";

@@ -3,10 +3,6 @@
  *
  * This pulls all the parserTests.txt items and runs them through the JS
  * parser and JS HTML renderer.
- *
- * @author Brion Vibber <brion@pobox.com>
- * @author Gabriel Wicke <gwicke@wikimedia.org>
- * @author Neil Kandalgaonkar <neilk@wikimedia.org>
  */
 
 (function() {
