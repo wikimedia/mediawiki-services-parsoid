@@ -66,7 +66,7 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 	}
 
 	if ( this.manager.env.conf.parsoid.usePHPPreProcessor &&
-			this.manager.env.conf.wiki.apiURI !== null ) {
+			this.manager.env.conf.parsoid.apiURI !== null ) {
 		if ( this.options.wrapTemplates ) {
 			// Use MediaWiki's action=expandtemplates preprocessor
 			// We'll never get to frame depth beyond 1 in this scenario
@@ -687,7 +687,7 @@ TemplateHandler.prototype.parseExtensionHTML = function(extToken, cb, err, html)
 TemplateHandler.prototype.onExtension = function ( token, frame, cb ) {
 	var extensionName = token.getAttribute('name');
 	if ( this.manager.env.conf.parsoid.usePHPPreProcessor &&
-			this.manager.env.conf.wiki.apiURI !== null ) {
+			this.manager.env.conf.parsoid.apiURI !== null ) {
 		// Use MediaWiki's action=parse preprocessor
 		this.fetchExpandedTplOrExtension(
 			extensionName,
