@@ -234,50 +234,61 @@ TokenAndAttrCollector.prototype.inspectAttrs = function(token) {
 
 		// Merge all attributes between openD.attrIndex and closeD.attrIndex
 		// Tricky bits:
-		// - every attribute is a (k,v) pair, and we need to merge
+		//  every attribute is a (k,v) pair, and we need to merge
 		//   both the k and v into one set of tokens and insert a "=" token
 		//   in between.
 		// - we need to handle the first/last attribute specially since the
 		//   openD/closeD may show up in either k/v of those attrs.  That
 		//   will determine what the merged k/v value will be.
 		if (openD && closeD && i < j) {
-			var attrs = token.attribs, toks;
+			var attrs = token.attribs,
+				toks, mergedK, mergedV;
 
 			// console.warn("openD: " + JSON.stringify(openD));
 			// console.warn("closeD: " + JSON.stringify(closeD));
 
-			if (openD.k === -1) {
-				// openD didn't show up in k. Start with v
-				toks = mergeToks([], attrs[openD.attrIndex].v);
+			if (openD.attrIndex === closeD.attrIndex) {
+				// Special Case: openD and closeD showed up in k and v
+				// of the same attr. In this case, openD would have showed up
+				// in k and closeD in v.
+				//
+				// assert(openD.k !== -1);
+				// assert(closeD.k === -1);
+				mergedK = mergeAttr([], attrs[openD.attrIndex]);
+				mergedV = [];
 			} else {
-				// openD showed up in k.  Merge k & v
-				toks = mergeAttr([], attrs[openD.attrIndex]);
-			}
-
-			var x = openD.attrIndex + 1;
-			while (x < closeD.attrIndex) {
-				// Compute toks + a.k + "=" + a.v
-				toks = mergeAttr(toks, attrs[x]);
-				x++;
-			}
-
-			// Compute merged (k,v)
-			var mergedK, mergedV;
-			if (openD.k === -1) {
-				// openD didn't show up in k.
-				// Use orig-k for the merged KV
-				// Merge closeD's attr into toks and use it for v
-				mergedK = attrs[openD.attrIndex].k;
-				mergedV = mergeAttr(toks, attrs[closeD.attrIndex]);
-			} else {
-				// openD showed up in k.
-				// check where closedD showed up.
-				if (closeD.k !== -1) {
-					mergedK = mergeToks(toks, attrs[closeD.attrIndex].k);
-					mergedV = attrs[closeD.attrIndex].v;
+				if (openD.k === -1) {
+					// openD didn't show up in k. Start with v
+					toks = mergeToks([], attrs[openD.attrIndex].v);
 				} else {
-					mergedK = mergeAttr(toks, attrs[closeD.attrIndex]);
-					mergedV = [];
+					// openD showed up in k.  Merge k & v
+					toks = mergeAttr([], attrs[openD.attrIndex]);
+				}
+
+				var x = openD.attrIndex + 1;
+				while (x < closeD.attrIndex) {
+					// Compute toks + a.k + "=" + a.v
+					toks = mergeAttr(toks, attrs[x]);
+					x++;
+				}
+
+				// Compute merged (k,v)
+				if (openD.k === -1) {
+					// openD didn't show up in k.
+					// Use orig-k for the merged KV
+					// Merge closeD's attr into toks and use it for v
+					mergedK = attrs[openD.attrIndex].k;
+					mergedV = mergeAttr(toks, attrs[closeD.attrIndex]);
+				} else {
+					// openD showed up in k.
+					// check where closedD showed up.
+					if (closeD.k !== -1) {
+						mergedK = mergeToks(toks, attrs[closeD.attrIndex].k);
+						mergedV = attrs[closeD.attrIndex].v;
+					} else {
+						mergedK = mergeAttr(toks, attrs[closeD.attrIndex]);
+						mergedV = [];
+					}
 				}
 			}
 
