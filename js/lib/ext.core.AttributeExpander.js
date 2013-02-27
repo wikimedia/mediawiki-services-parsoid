@@ -69,14 +69,18 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 		newK = newA.k;
 
 		// Preserve the key and value source, if available
-		if (a.ksrc) {
-			newA.ksrc = a.ksrc;
-		}
-		if (a.vsrc) {
-			newA.vsrc = a.vsrc;
-		}
-		if (a.srcOffsets) {
-			newA.srcOffsets = a.srcOffsets;
+		// But, if 'a' wasn't cloned, newA will be the same as a.
+		// Dont try to update it and crash since a is frozen.
+		if (a !== newA) {
+			if (a.ksrc) {
+				newA.ksrc = a.ksrc;
+			}
+			if (a.vsrc) {
+				newA.vsrc = a.vsrc;
+			}
+			if (a.srcOffsets) {
+				newA.srcOffsets = a.srcOffsets;
+			}
 		}
 
 		if (newK) {
