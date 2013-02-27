@@ -33,7 +33,7 @@ ParserFunctions.prototype._rejoinKV = function ( trim, k, v ) {
 	} else if (k.constructor === Array && k.length > 0) {
 		return k.concat( ['='], v );
 	} else {
-		return trim ? Util.tokenTrim(v) : v;
+		return trim ? (v.constructor === String ? v.trim() : Util.tokenTrim(v)) : v;
 	}
 };
 
@@ -54,7 +54,7 @@ ParserFunctions.prototype.expandKV = function ( kv, cb, defaultValue, type, trim
 		if ( kv.k ) {
 			cb( { tokens: [kv.k + '=' + kv.v] } );
 		} else {
-			cb( { tokens: trim ? Util.tokenTrim([kv.v]) : [kv.v] } );
+			cb( { tokens: [trim ? kv.v.trim() : kv.v] } );
 		}
 	} else {
 		var self = this,
@@ -217,7 +217,7 @@ ParserFunctions.prototype._switchLookupFallback = function ( frame, kvs, key, di
 			cb ( {} );
 		}
 	} else if ( v ) {
-		cb( { tokens: v } );
+		cb( { tokens: v.constructor === Array ? v : [v] } );
 	} else {
 		// nothing found at all.
 		cb( {} );
@@ -236,7 +236,9 @@ ParserFunctions.prototype['pf_#switch'] = function ( token, frame, cb, args ) {
 		this.env.dp( 'switch found: ', target, dict, ' res=', dict[target] );
 		dict[target].get({
 			type: 'tokens/x-mediawiki/expanded',
-			cb: function( res ) { cb ( { tokens: Util.tokenTrim(res) } ); },
+			cb: function( res ) {
+				cb ( { tokens: res.constructor === String ? [res.trim()] : Util.tokenTrim(res) } );
+			},
 			asyncCB: cb
 		});
 	} else {
