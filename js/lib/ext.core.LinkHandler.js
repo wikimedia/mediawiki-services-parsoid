@@ -409,7 +409,6 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 
 		newAttribs = newAttribs.concat(rdfaAttrs.attribs);
 
-		var a = new TagTk( isImageLink ? 'a' : 'span', newAttribs, Util.clone(token.dataAttribs));
 		var width=null, height=null;
 		if ( oHash.height===null && oHash.width===null ) {
 			width = '200px';
@@ -436,6 +435,44 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 			imgAttrs.push( new KV( 'class', imgClass.join(' ') ) );
 		}
 
+		var imgStyle = [], wrapperStyle = [];
+		var halign = (oHash.format==='framed') ? 'right' : null;
+		var isInline = true, isFloat = false;
+		var wrapper = null;
+		if (oHash.halign) { halign = oHash.halign; }
+		if (halign==='none') {
+			// PHP parser wraps in <div class="floatnone">
+			isInline = false;
+		} else if (halign==='center') {
+			// PHP parser wraps in <div class="center"><div class="floatnone">
+			isInline = false;
+			wrapperStyle.push('text-align: center;');
+		} else if (halign==='left') {
+			// PHP parser wraps in <div class="floatleft">
+			isInline = false; isFloat = true;
+			wrapperStyle.push('float: left;');
+		} else if (halign==='right') {
+			// PHP parser wraps in <div class="floatright">
+			isInline = false; isFloat = true;
+			wrapperStyle.push('float: right;');
+		}
+		if (!isInline) {
+			wrapperStyle.push('display: block;');
+		}
+
+		var valign = 'middle';
+		if (oHash.valign) { valign = oHash.valign; }
+		if (isInline && !isFloat) {
+			imgStyle.push('vertical-align: '+valign.replace(/_/,'-')+';');
+		}
+		if (wrapperStyle.length) {
+			newAttribs.push( new KV( 'style', wrapperStyle.join(' ') ) );
+		}
+		if (imgStyle.length) {
+			imgAttrs.push( new KV( 'style', imgStyle.join(' ') ) );
+		}
+
+		var a = new TagTk( isImageLink ? 'a' : 'span', newAttribs, Util.clone(token.dataAttribs));
 		var img = new SelfclosingTagTk( 'img', imgAttrs );
 
 		var tokens = [ a, img, new EndTagTk( isImageLink ? 'a' : 'span' )];
