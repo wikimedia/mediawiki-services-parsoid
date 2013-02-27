@@ -397,7 +397,7 @@ fetch = function ( page, cb, options ) {
 
 	var envCb = function ( err, env ) {
 		env.errCB = function ( error ) {
-			cb( error, null, [] );
+			cb( error, env, [] );
 		};
 		if ( err !== null ) {
 			env.errCB( err );
@@ -433,7 +433,10 @@ cbCombinator = function ( formatter, cb, err, env, text ) {
 
 consoleOut = function ( err, output ) {
 	if ( err ) {
-		console.log( 'ERROR: ' + err.stack );
+		console.log( 'ERROR: ' + err);
+		if (err.stack) {
+			console.log( 'Stack trace: ' + err.stack);
+		}
 		process.exit( 1 );
 	} else {
 		console.log( output );
@@ -485,8 +488,7 @@ if ( !module.parent ) {
 	title = argv._[0];
 
 	if ( title ) {
-		callback = argv.xml ? xmlCallback : plainCallback;
-		callback = cbCombinator.bind( null, callback, consoleOut );
+		callback = cbCombinator.bind( null, argv.xml ? xmlCallback : plainCallback, consoleOut );
 		fetch( title, callback, argv );
 	} else {
 		opts.showHelp();
