@@ -385,7 +385,8 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 	// XXX: check if the file exists, generate thumbnail, get size
 	// XXX: render according to mode (inline, thumb, framed etc
 
-	if ( oHash.format && ( oHash.format === 'thumbnail') ) {
+	if ( (oHash.format && ( oHash.format === 'thumbnail') ) ||
+	     (oHash.manualthumb) ) {
 		return this.renderThumb( token, this.manager, cb, title, fileName,
 				caption, oHash, options, rdfaAttrs);
 	} else {
@@ -564,7 +565,12 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 		linkTitle = env.makeTitleFromPrefixedText( oHash.link );
 	}
 
-	var path = this.getThumbPath( title.key, width ),
+	var thumbfile = title.key;
+	if (oHash.manualthumb) {
+		thumbfile = oHash.manualthumb;
+	}
+
+	var path = this.getThumbPath( thumbfile, width ),
 		thumb = [
 		new TagTk('figure', figAttrs),
 		( isImageLink ?
