@@ -21,7 +21,7 @@ var dbGetTitle = db.prepare(
 	'LEFT JOIN stats ON stats.id = pages.latest_result ' +
 	'WHERE num_fetch_errors < ? AND ' +
 	'( claims.id IS NULL OR ' +
-	'( claims.has_errorless_result = 0 AND claims.num_tries < ? AND claims.timestamp < ? ) ) ' +
+	'( claims.has_errorless_result = 0 AND claims.num_tries <= ? AND claims.timestamp < ? ) ) ' +
 	'ORDER BY stats.score DESC, ' +
 	'claims.timestamp ASC LIMIT 1 OFFSET ? ' );
 
@@ -32,7 +32,7 @@ var dbGetTitleRandom = db.prepare(
 	'LEFT JOIN stats ON stats.id = pages.latest_result ' +
 	'WHERE num_fetch_errors < ? AND ' +
 	'( claims.id IS NULL OR ' +
-	'( claims.has_errorless_result = 0 AND claims.num_tries < ? AND claims.timestamp < ? ) ) ' +
+	'( claims.has_errorless_result = 0 AND claims.num_tries <= ? AND claims.timestamp < ? ) ) ' +
 	'ORDER BY stats.score DESC, ' +
 	'claims.timestamp ASC, RANDOM() LIMIT 1' );
 
@@ -47,7 +47,7 @@ var dbInsertCommit = db.prepare(
 	'VALUES ( ?, ? )' );
 
 var dbFindClaimByPageId = db.prepare(
-	'SELECT claims.id FROM claims ' +
+	'SELECT claims.id, claims.num_tries FROM claims ' +
 	'WHERE claims.page_id = ? AND claims.commit_hash = ?');
 
 var dbFindClaimByTitle = db.prepare(
@@ -209,21 +209,21 @@ var dbSkipsDistribution = db.prepare(
 
 var dbCommits = db.prepare(
 	'SELECT ? AS caching_bug_workaround, hash, timestamp, ' +
-	// get the number of fixes column
-		'(SELECT count(*) ' +
-		'FROM pages ' +
-			'JOIN stats AS s1 ON s1.page_id = pages.id ' +
-			'JOIN stats AS s2 ON s2.page_id = pages.id ' +
-		'WHERE s1.commit_hash = (SELECT hash FROM commits c2 where c2.timestamp < c1.timestamp ORDER BY timestamp DESC LIMIT 1 ) ' +
-			'AND s2.commit_hash = c1.hash AND s1.score < s2.score) as numfixes, ' +
-	// get the number of regressions column
-		'(SELECT count(*) ' +
-		'FROM pages ' +
-			'JOIN stats AS s1 ON s1.page_id = pages.id ' +
-			'JOIN stats AS s2 ON s2.page_id = pages.id ' +
-		'WHERE s1.commit_hash = (SELECT hash FROM commits c2 where c2.timestamp < c1.timestamp ORDER BY timestamp DESC LIMIT 1 ) ' +
-			'AND s2.commit_hash = c1.hash AND s1.score > s2.score) as numregressions, ' +
-	// get the number of tests for this commit column
+	//// get the number of fixes column
+	//	'(SELECT count(*) ' +
+	//	'FROM pages ' +
+	//		'JOIN stats AS s1 ON s1.page_id = pages.id ' +
+	//		'JOIN stats AS s2 ON s2.page_id = pages.id ' +
+	//	'WHERE s1.commit_hash = (SELECT hash FROM commits c2 where c2.timestamp < c1.timestamp ORDER BY timestamp DESC LIMIT 1 ) ' +
+	//		'AND s2.commit_hash = c1.hash AND s1.score < s2.score) as numfixes, ' +
+	//// get the number of regressions column
+	//	'(SELECT count(*) ' +
+	//	'FROM pages ' +
+	//		'JOIN stats AS s1 ON s1.page_id = pages.id ' +
+	//		'JOIN stats AS s2 ON s2.page_id = pages.id ' +
+	//	'WHERE s1.commit_hash = (SELECT hash FROM commits c2 where c2.timestamp < c1.timestamp ORDER BY timestamp DESC LIMIT 1 ) ' +
+	//		'AND s2.commit_hash = c1.hash AND s1.score > s2.score) as numregressions, ' +
+	//// get the number of tests for this commit column
 		'(select count(*) from stats where stats.commit_hash = c1.hash) as numtests ' +
 	'FROM commits c1 ' +
 	'ORDER BY timestamp DESC');
@@ -299,8 +299,25 @@ function titleCallback( req, res, retry, commitHash, cutOffTimestamp, err, row )
 					// Increment the # of tries, update timestamp
 					dbUpdateClaim.run([Date.now(), claim.id],
 						dbUpdateErrCB.bind(null, row.title, commitHash, "claim", null));
-					console.log( ' -> ' + row.title);
-					res.send( row.title );
+
+					if (claim.num_tries >= maxTries) {
+						// Too many failures.  Insert an error stats entry and retry fetch
+						console.log( ' CRASHER? ' + row.title);
+						var stats = [0, 0, 1, statsScore(0,0,1), claim.page_id, commitHash];
+						dbInsertClaimStats.run( stats, function ( err ) {
+							if (err) {
+								// Try updating the stats instead of inserting if we got an error
+								// Likely a sql constraint error
+								dbUpdateClaimStats.run(stats, function (err) {
+									dbUpdateErrCB( row.title, commitHash, 'stats', null, err );
+								});
+							}
+						} );
+						fetchPage(commitHash, cutOffTimestamp, req, res);
+					} else {
+						console.log( ' -> ' + row.title);
+						res.send( row.title );
+					}
 				} else {
 					// Claim doesn't exist
 					dbInsertClaim.run( [ row.id, commitHash, Date.now() ], function(err) {
@@ -338,9 +355,20 @@ function fetchPage( commitHash, cutOffTimestamp, req, res ) {
 var getTitle = function ( req, res ) {
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 
-	// Select pages that were not claimed in the last hour
-	fetchPage(req.query.commit, Date.now() - 3600, req, res);
+	// Select pages that were not claimed in the 10 minutes.
+	// If we didn't get a result from a client 10 minutes after
+	// it got a rt claim on a page, something is wrong with the client
+	// or with parsing the page.
+	//
+	// Hopefully, no page takes longer than 10 minutes to parse. :)
+	fetchPage(req.query.commit, Date.now() - 600, req, res);
 },
+
+statsScore = function(skipCount, failCount, errorCount) {
+	// treat <errors,fails,skips> as digits in a base 1000 system
+	// and use the number as a score which can help sort in topfails.
+	return errorCount*1000000+failCount*1000+skipCount;
+}
 
 receiveResults = function ( req, res ) {
 	var title = decodeURIComponent( req.params[0] ),
@@ -372,16 +400,12 @@ receiveResults = function ( req, res ) {
 					dbClearFetchErrorCount.run([title],
 						dbUpdateErrCB.bind(null, title, commitHash, "page fetch error count", "null"));
 
-					// treat <errors,fails,skips> as digits in a base 1000 system
-					// and use the number as a score which can help sort in topfails.
-					var score = errorCount*1000000+failCount*1000+skipCount;
-					var stats = [skipCount, failCount, errorCount, score];
-
-
 					// Insert/update result and stats depending on whether this was
 					// the first try or a subsequent retry -- prevents duplicates
 					dbInsertResult.run([claim.id, result],
 						dbUpdateErrCB.bind(null, title, commitHash, "result", "null"));
+
+					var stats = [skipCount, failCount, errorCount, statsScore(skipCount,failCount,errorCount)];
 					dbInsertClaimStats.run(stats.concat([claim.page_id, commitHash]), function ( err ) {
 						if ( err ) {
 							dbUpdateErrCB( title, commitHash, 'stats', null, err );
@@ -808,13 +832,14 @@ function GET_commits( req, res ) {
 			res.write('<h1> List of all commits </h1>');
 			res.write('<table><tbody>');
 			res.write('<tr><th>Commit hash</th><th>Timestamp</th>' +
-				  '<th>Regressions</th><th>Fixes</th><th>Tests</th>' +
+				  //'<th>Regressions</th><th>Fixes</th>' +
+				  '<th>Tests</th>' +
 				  '<th>-</th><th>+</th></tr>');
 			for (var i = 0; i < n; i++) {
 				var r = rows[i];
 				res.write('<tr><td>' + r.hash + '</td><td>' + r.timestamp + '</td>');
-				res.write('<td>' + r.numregressions + '</td>');
-				res.write('<td>' + r.numfixes + '</td>');
+				//res.write('<td>' + r.numregressions + '</td>');
+				//res.write('<td>' + r.numfixes + '</td>');
 				res.write('<td>' + r.numtests + '</td>');
 				if ( i + 1 < n ) {
 					res.write('<td><a href="/regressions/between/' + rows[i+1].hash +
