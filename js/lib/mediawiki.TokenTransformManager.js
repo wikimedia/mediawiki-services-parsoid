@@ -497,7 +497,8 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 		toks.eltIndex = 0;
 	};
 
-	workStack.pushChunk(tokens);
+	// incoming tokens can be frozen -- if so, clone just the array
+	workStack.pushChunk(Object.isFrozen(tokens) ? tokens.slice() : tokens);
 
 	var inputRank = tokens.rank || 0;
 	while ( workStack.length > 0 ) {
