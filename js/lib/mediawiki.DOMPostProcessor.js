@@ -996,10 +996,24 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 						foundIntersection = false;
 
 					for (var j = 0; j < s_keys.length; j++) {
-						if (s_keys[j] !== r.id && e_tpls[s_keys[j]]) {
+
+						// Because of fostered of end-tags, a range's end and start
+						// tags might be flipped (r.flipped).  In such a scenario,
+						// two ranges A and B might have exactly identical ranges.
+						//
+						//   A = {start: e1, end: e2}
+						//   B = {start: e2, end: e1} where B is the flipped range.
+						//
+						// Hence we also need an additional check to make sure
+						// nestedRangesMap[other] !== r.id.  Without this check,
+						// we will record that A is nested in B and B is nested in A
+						// which will introduce a loop in findToplevelEnclosingRange!
+
+						var other = s_keys[j];
+						if (other !== r.id && e_tpls[other] && nestedRangesMap[other] !== r.id) {
 							foundIntersection = true;
 							// Record a range in which 'r' is nested in.
-							nestedRangesMap[r.id] = s_keys[j];
+							nestedRangesMap[r.id] = other;
 							break;
 						}
 					}
