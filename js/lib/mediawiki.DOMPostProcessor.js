@@ -17,7 +17,6 @@ if (testDom.body.getAttribute('somerandomstring') === '') {
 			'Please run npm update in the js directory.');
 }
 
-
 // Known wikitext tag widths
 var WT_TagWidths = {
 	"body"  : [0,0],
@@ -884,6 +883,10 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 		// can show up before the r.start which would be the table itself.
 		// So, we record this info for later analysis
 		range.flipped = true;
+		if (!range.end.data) {
+			range.end.data = {};
+		}
+		range.end.data.tmp_fostered = true;
 	}
 
 	return range;
@@ -940,7 +943,7 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 				var tpls = n.data.tmp_tplRanges;
 				if (!tpls) {
 					tpls = {};
-					n.data = { tmp_tplRanges : tpls };
+					n.data.tmp_tplRanges = tpls;
 				}
 
 				// Record 'r'
@@ -1185,52 +1188,44 @@ function encapsulateTemplates( env, doc, tplRanges, tplParams) {
 		console.log("tcEnd: " + tcEnd.innerHTML);
 */
 
-		// Update dsr and compute src based on dsr.  Not possible always.
-		var dp1 = DU.dataParsoid(tcStart);
-		var dp2 = DU.dataParsoid(tcEnd);
-		var done = false;
+		/* ----------------------------------------------------------------
+		 * We'll attempt to update dp1.dsr to reflect the entire range of
+		 * the template.  This relies on a couple observations:
+		 *
+		 * 1. In the common case, dp2.dsr[1] will be > dp1.dsr[1]
+		 *    If so, new range = dp1.dsr[0], dp2.dsr[1]
+		 *
+		 * 2. But, foster parenting can complicate this when tcEnd is a table
+		 *    and tcStart has been fostered out of the table (tcEnd).
+		 *    But, we need to verify this assumption.
+		 *
+		 *    2a. If dp2.dsr[0] is smaller than dp1.dsr[0], this is a
+		 *        confirmed case of tcStart being fostered out of tcEnd.
+		 *
+		 *    2b. If dp2.dsr[0] is unknown, we rely on fostered flag on
+		 *        tcStart, if any.
+		 * ---------------------------------------------------------------- */
+		var dp1 = DU.dataParsoid(tcStart),
+			dp2 = DU.dataParsoid(tcEnd),
+			done = false;
 		if (dp1.dsr) {
-			// if range.end (tcEnd) is an ancestor of endElem,
-			// and range.end content is produced by template,
-			// we cannot use it.
 			if (dp2.dsr) {
+				// Case 1. above
 				if (dp2.dsr[1] > dp1.dsr[1]) {
 					dp1.dsr[1] = dp2.dsr[1];
 				}
 
-				/* ----------------------------------------------------
-				 * SSS FIXME: While this is a credible possibility and
-				 * fixes some rt-issues, how do we distinguish between
-				 * the two scenarios here?
-				 *
-				 * Example 1: meta-start and 'a' gets foster parented out
-				 * but meta-end stays in the table and the fixup below is
-				 * a valid fix.
-				 *
-				 * {|
-				 * {{echo|
-				 * a <div>b</div>
-				 * }}
-				 * |}
-				 *
-				 * Example 2: template generates the table-start tag
-				 *
-				 * {{gen-table-start|a <div>b</div>}}
-				 * |}
-				 *
-				 * The argument, I guess, is that dsr for the table
-				 * tag will not satisfy the property below.
-				 * --------------------------------------------------- */
-
-				// If tcEnd is a table, and it has a dsr-start that
-				// is smaller than tsStart, then this could be
-				// a foster-parented scenario.
+				// Case 2. above
 				var endDsr = dp2.dsr[0];
-				if (DU.hasNodeName(tcEnd, 'table') && endDsr !== null && endDsr < dp1.dsr[0]) {
+				if (DU.hasNodeName(tcEnd, 'table') &&
+					((endDsr !== null && endDsr < dp1.dsr[0]) ||
+					 (tcStart.data && tcStart.data.tmp_fostered)))
+				{
 					dp1.dsr[0] = endDsr;
 				}
 			}
 
+			// Check if now have a useable range on dp1
 			if (dp1.dsr[0] !== null && dp1.dsr[1] !== null) {
 				dp1.src = env.page.src.substring( dp1.dsr[0], dp1.dsr[1] );
 				DU.setDataParsoid(tcStart, dp1);
@@ -1695,7 +1690,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				!DU.isExpandedAttrsMetaType(node.getAttribute("typeof")))
 			{
 				if (dp.stx === "piped") {
-					var href = dp.sa ? dp.sa["href"] : null;
+					var href = dp.sa ? dp.sa.href : null;
 					if (href) {
 						return [href.length + 3, 2];
 					} else {
