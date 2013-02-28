@@ -170,12 +170,15 @@ function dumpFlags() {
 
 	var prefix = argv.prefix || null;
 
-	if (argv.apiURL) {
-		parsoidConfig.setInterwiki( 'customwiki', argv.apiURL );
+	if ( argv.apiURL ) {
 		prefix = 'customwiki';
 	}
 
 	var parsoidConfig = new ParsoidConfig( null, { defaultWiki: prefix } );
+
+	if ( argv.apiURL ) {
+		parsoidConfig.setInterwiki( 'customwiki', argv.apiURL );
+	}
 
 	ParserEnv.getParserEnv( parsoidConfig, null, prefix, argv.pagename || null, function ( err, env ) {
 		if ( err !== null ) {
