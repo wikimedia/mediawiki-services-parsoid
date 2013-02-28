@@ -230,6 +230,9 @@ Cite.prototype.onReferences = function ( token, manager ) {
 						new KV('typeof', 'mw:Object/References')
 					], dataAttribs)
 		].concat( listItems, [ new EndTagTk( 'ol' ) ] );
+
+		// Clear the emitted ref groups
+		group.refs = [];
 	} else {
 		res = genPlaceholderTokens(this.manager.env, token, "<references />");
 	}
