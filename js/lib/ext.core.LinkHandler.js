@@ -839,7 +839,11 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 			href = Sanitizer._stripIDNs( href );
 		}
 
-		aStart.addNormalizedAttribute( 'href', href, origHref );
+		// targetOff covers all spaces before content
+		// and we need src without those spaces.
+		var tsr0 = dataAttribs.tsr[0] + 1,
+			tsr1 = dataAttribs.targetOff - (token.getAttribute('spaces') || '').length;
+		aStart.addNormalizedAttribute( 'href', href, env.page.src.substring(tsr0, tsr1) );
 		cb( {
 			tokens: [aStart].concat(content, [new EndTagTk('a')])
 		} );
