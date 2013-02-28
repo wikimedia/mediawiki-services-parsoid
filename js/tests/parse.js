@@ -243,7 +243,6 @@ function dumpFlags() {
 						parserPipeline.process(wt);
 					}
 
-					process.exit(0);
 				} );
 			} else {
 				parserPipeline.on('document', function ( document ) {
@@ -252,7 +251,6 @@ function dumpFlags() {
 						if (trailingNL) {
 							stdout.write("\n");
 						}
-						process.exit( 0 );
 					};
 					if (argv.wt2html) {
 						res = Util.serializeNode(document.body);

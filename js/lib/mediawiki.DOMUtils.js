@@ -5,7 +5,8 @@
  */
 
 var Util = require('./mediawiki.Util.js').Util,
-	Node = require('./mediawiki.wikitext.constants.js').Node;
+	Node = require('./mediawiki.wikitext.constants.js').Node,
+	pd = require('./mediawiki.parser.defines.js');
 
 var DOMUtils = {
 	isElt: function(node) {
@@ -181,6 +182,21 @@ var DOMUtils = {
 		return n2 !== null;
 	},
 
+	/**
+	 * Get the first child element or non-IEW text node, ignoring
+	 * whitespace-only text nodes and comments.
+	 */
+	getFirstNonSepChildNode: function(node) {
+		var child = node.firstChild;
+		while (child &&
+				(this.isIEW(child) || child.nodeType === node.COMMENT_NODE))
+		{
+			// Skip it.
+			child = child.nextSibling;
+		}
+		return child;
+	},
+
 	hasNodeName: function(n, name) {
 		return n.nodeName.toLowerCase() === name;
 	},
@@ -237,6 +253,21 @@ var DOMUtils = {
 
 	isIndentPre: function(n) {
 		return this.hasNodeName(n, "pre") && !this.isLiteralHTMLNode(n);
+	},
+
+	isListNode: function(n) {
+		return n.nodeName in {OL:1, UL:1, DL:1, LI:1, DT:1, DD:1};
+	},
+
+	getPrecedingElementSibling: function(node) {
+		var sibling = node.previousSibling;
+		while (sibling) {
+			if (sibling.nodeType === node.ELEMENT_NODE) {
+				return sibling;
+			}
+			sibling = node.previousSibling;
+		}
+		return null;
 	},
 
 	hasElementChild: function(node) {
@@ -415,16 +446,22 @@ var DOMUtils = {
 	isIEW: function (node) {
 		return node.nodeType === node.TEXT_NODE &&
 			// ws-only
-			node.nodeValue.match(/^\s*$/) &&
-			// Node preceded by element sibling and followed by element or no sibling
-			((node.previousSibling !== null &&
-				this.isElt(node.previousSibling) &&
-			  (node.nextSibling === null || this.isElt(node.nextSibling))) ||
-			 // First child followed by an element sibling
-			 (node.previousSibling === null &&
-			  (node.nextSibling && this.isElt(node.nextSibling))));
+			node.nodeValue.match(/^\s*$/);
 	},
 
+	/**
+	 * Are all children of this node text nodes?
+	 */
+	allChildrenAreText: function (node) {
+		var child = node.firstChild;
+		while(child) {
+			if(child.nodeType !== node.TEXT_NODE) {
+				return false;
+			}
+			child = child.nextSibling;
+		}
+		return true;
+	},
 
 	wrapTextInTypedSpan: function(node, type) {
 		var wrapperSpanNode = node.ownerDocument.createElement('span');
@@ -442,7 +479,19 @@ var DOMUtils = {
 		meta.setAttribute('typeof', type);
 		node.parentNode.insertBefore(meta, node);
 		return meta;
-	}
+	},
+
+	// Create a TagTk corresponding to a DOM node
+	mkTagTk: function (node) {
+		var attribKVs = this.getAttributeKVArray(node);
+		return new pd.TagTk(node.nodeName.toLowerCase(), attribKVs, node.data.parsoid);
+	},
+
+	// Create a EndTagTk corresponding to a DOM node
+	mkEndTagTk: function (node) {
+		var attribKVs = this.getAttributeKVArray(node);
+		return new pd.EndTagTk(node.nodeName.toLowerCase(), attribKVs, node.data.parsoid);
+	},
 
 };
 

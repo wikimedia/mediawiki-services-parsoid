@@ -34,9 +34,32 @@ var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	SanitizerConstants = require('./ext.core.Sanitizer.js').SanitizerConstants,
 	tagWhiteListHash;
 
-var START_SEP = 1,
-	IE_SEP = 2,
-	END_SEP = 3;
+
+/**
+ * Emit the start tag source when not round-trip testing, or when the node is
+ * not marked with autoInsertedStart
+ */
+var emitStartTag = function (src, node, state, cb) {
+	if (!state.rtTesting) {
+		cb(src);
+	} else if (!node.data.parsoid.autoInsertedStart) {
+		cb(src);
+	}
+	// else: drop content
+};
+
+/**
+ * Emit the start tag source when not round-trip testing, or when the node is
+ * not marked with autoInsertedStart
+ */
+var emitEndTag = function (src, node, state, cb) {
+	if (!state.rtTesting) {
+		cb(src);
+	} else if (!node.data.parsoid.autoInsertedEnd) {
+		cb(src);
+	}
+	// else: drop content
+};
 
 // SSS FIXME: Can be set up as part of an init routine
 function getTagWhiteList() {
@@ -59,6 +82,26 @@ function isListItem(token) {
 		['li', 'dt', 'dd'].indexOf(token.name) !== -1;
 }
 
+function isListElementName(name) {
+	return name in {li:1, dt:1, dd:1};
+}
+
+function previousNonSepSibling (node) {
+	var prev = node.previousSibling;
+	while (prev && (prev.nodeType === node.COMMENT_NODE || DU.isIEW(prev))) {
+		prev = prev.previousSibling;
+	}
+	return prev;
+}
+
+function nextNonSepSibling (node) {
+	var next = node.nextSibling;
+	while (next && (next.nodeType === node.COMMENT_NODE || DU.isIEW(next))) {
+		next = next.nextSibling;
+	}
+	return next;
+}
+
 var WikitextEscapeHandlers = function() { };
 
 var WEHP = WikitextEscapeHandlers.prototype;
@@ -68,21 +111,24 @@ WEHP.urlParser = new PegTokenizer();
 WEHP.headingHandler = function(state, text) {
 	// replace heading-handler with the default handler
 	// only "=" at the extremities trigger escaping
-	state.wteHandlerStack.pop();
-	state.wteHandlerStack.push(null);
 
-	var line = state.currLine.text;
-	var len  = line ? line.length : 0;
-	return (line && len > 2 && (line[0] === '=') && (line[len-1] === '='));
+	if (state.currLine && !state.currLine.seen) {
+		var line = state.currLine.text,
+			len  = line ? line.length : 0;
+		return (line && len > 2 && (line[0] === '=') && (line[len-1] === '='));
+	} else {
+		return false;
+	}
 };
 
 WEHP.liHandler = function(state, text) {
 	// replace li-handler with the default handler
 	// only bullets at the beginning of the list trigger escaping
-	state.wteHandlerStack.pop();
-	state.wteHandlerStack.push(null);
-
-	return isListItem(state.currTagToken) && text.match(/^[#\*:;]/);
+	if (state.currLine && !state.currLine.seen) {
+		return text.match(/^[#\*:;]/);
+	} else {
+		return false;
+	}
 };
 
 WEHP.linkHandler = function(state, text) {
@@ -107,13 +153,14 @@ WEHP.aHandler = function(state, text) {
 };
 
 WEHP.tdHandler = function(state, text) {
-	var tok = state.currTagToken;
-	return text.match(/\|/) ||
-		(text.match(/^[\-+]/) &&
-		isTd(tok) &&
-		(!tok.dataAttribs.dsr || tok.dataAttribs.dsr[2] === 1) &&
-		tok.dataAttribs.stx_v !== 'row' &&
-		tok.attribs.length === 0);
+		return text.match(/\|/) ||
+			(state.currLine && !state.currLine.seen && text.match(/^[\-+]/) &&
+			!state.inWideTD);
+		// &&
+		//isTd(tok) &&
+		//(!tok.dataAttribs.dsr || tok.dataAttribs.dsr[2] === 1) &&
+		//tok.dataAttribs.stx_v !== 'row' &&
+		//tok.attribs.length === 0);
 };
 
 WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
@@ -134,7 +181,7 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
 		prefixedText = '_' + text;
 	}
 
-	if ( state.inIndentPre ) {
+	if ( state.inIndentPre || state.inPHPBlock ) {
 		prefixedText = prefixedText.replace(/(\r?\n)/g, '$1_');
 	}
 
@@ -222,9 +269,10 @@ var WikitextSerializer = function( options ) {
 	}, options || {} );
 
 	this.env = options.env;
-	var trace = this.env.conf.parsoid.traceFlags && (this.env.conf.parsoid.traceFlags.indexOf("wts") !== -1);
+	this.debugging = this.env.conf.parsoid.traceFlags &&
+		(this.env.conf.parsoid.traceFlags.indexOf("wts") !== -1);
 
-	if ( this.env.conf.parsoid.debug || trace ) {
+	if ( this.env.conf.parsoid.debug || this.debugging ) {
 		WikitextSerializer.prototype.debug_pp = function () {
 			Util.debug_pp.apply(Util, arguments);
 		};
@@ -232,9 +280,14 @@ var WikitextSerializer = function( options ) {
 		WikitextSerializer.prototype.debug = function ( ) {
 			this.debug_pp.apply(this, ["WTS: ", ''].concat([].slice.apply(arguments)));
 		};
+
+		WikitextSerializer.prototype.trace = function () {
+			console.error.apply(console, ["WTS:"].concat([].slice.apply(arguments)));
+		};
 	} else {
 		WikitextSerializer.prototype.debug_pp = function ( ) {};
 		WikitextSerializer.prototype.debug = function ( ) {};
+		WikitextSerializer.prototype.trace = function () {};
 	}
 };
 
@@ -245,24 +298,10 @@ WSP.wteHandlers = new WikitextEscapeHandlers();
 /* *********************************************************************
  * Here is what the state attributes mean:
  *
- * tableStack
- *    Stack of table contexts that stashes away list context since
- *    list context dont cross table boundaries.
- *
- * listStack
- *    Stack of list contexts to let us emit wikitext for nested lists.
- *    Each context keeps track of 3 values:
- *    - itemBullet: the wikitext bullet char for this list
- *    - itemCount : # of list items encountered so far for the list
- *    - bullets   : cumulative bullet prefix based on all the lists
- *                  that enclose the current list
- *
- * onNewline
- *    true on start of file or after a new line has been emitted.
- *
- * onStartOfLine
- *    true when onNewline is true, and also in other start-of-line contexts
- *    Ex: after a comment has been emitted, or after include/noinclude tokens.
+ * sep
+ *    Separator information:
+ *    - constraints: min/max number of newlines
+ *    - text: collected separator text from DOM text/comment nodes
  *
  * singleLineMode
  *    - if (> 0), we cannot emit any newlines.
@@ -278,26 +317,13 @@ WSP.wteHandlers = new WikitextEscapeHandlers();
  *    tag attributes that came from templates in source wikitext -- these
  *    are collected upfront from the DOM from mw-marked nodes.
  *
- * bufferedSeparator
- *    Valid only when 'src' is not null.
- *
- *    Temporary buffering of normalized separators as determined by node
- *    handlers.  They are used when emitting separators from src fails
- *    and discarded if emitting separators from src suceeds.  This lets
- *    the serializer correctly handle original as well as modified content
- *    in the HTML.
- *
- * separatorEmittedFromSrc
- *    Valid only when 'src' is not null.
- *
- *    A flag that indicates if a separator has already been emitted from
- *    original wikitext src.
- *
  * currLine
  *    This object is used by the wikitext escaping algorithm -- represents
  *    a "single line" of output wikitext as represented by a block node in
  *    the DOM.
  *
+ *    - seen           : -- to be documented --
+ *    - ancestor       : -- to be documented --
  *    - text           : accumulated text from all text nodes on the current line
  *    - processed      : have we analyzed the text so far?
  *    - hasBracketPair : does the line have bracket wikitext token pairs?
@@ -305,19 +331,19 @@ WSP.wteHandlers = new WikitextEscapeHandlers();
  * ********************************************************************* */
 
 WSP.initialState = {
-	tableStack: [],
-	listStack: [],
-	lastRes: '',
-	onNewline: true,
-	onStartOfLine : true,
+	// TODO: default to false for anything that could involve edits to the DOM
+	rtTesting: true,
+	sep: {},
+	atStartOfOutput: true,
+	inIndentPre: false,
+	inPHPBlock: false,
 	singleLineMode: 0,
 	wteHandlerStack: [],
 	tplAttrs: {},
-	src: null,
-	bufferedSeparator: null,
-	separatorEmittedFromSrc: false,
+	// XXX: replace with DOM handler?
 	currLine: {
 		text: null,
+		seen: false,
 		processed: false,
 		hasBracketPair: false,
 		hasHeadingPair: false
@@ -325,19 +351,21 @@ WSP.initialState = {
 	selser: {
 		serializeInfo: null
 	},
-	serializeTokens: function(newLineStart, wteHandler, tokens, chunkCB) {
-		// newLineStart -- sets newline and sol state
-		// wteHandler   -- sets wikitext context for the purpose of wikitext escaping
-		var initState = {
-			onNewline: newLineStart,
-			onStartOfLine: newLineStart,
-			tplAttrs: this.tplAttrs,
-			currLine: this.currLine,
-			wteHandlerStack: wteHandler ? [wteHandler] : []
+
+	/////////////////////////////////////////////////////////////////
+	// End of state
+	/////////////////////////////////////////////////////////////////
+	resetCurrLine: function () {
+		this.currLine = {
+			text: null,
+			seen: false,
+			processed: false,
+			hasBracketPair: false,
+			hasHeadingPair: false
 		};
-		return this.serializer.serializeTokens(initState, tokens, chunkCB);
 	},
 
+	// FIXME: Unused function?
 	// Serialize a DOM node, sharing the global serializer state
 	serializeDOM: function(node, chunkCB, wtEscaper) {
 		if ( wtEscaper ) {
@@ -349,7 +377,9 @@ WSP.initialState = {
 			this.chunkCB = chunkCB;
 		}
 
-		this.serializer._serializeDOM(node, this);
+		// find the body
+		node = node.ownerDocument.body;
+		this.serializer._serializeNode(node, this);
 
 		if ( wtEscaper ) {
 			this.wteHandlerStack.pop();
@@ -357,6 +387,7 @@ WSP.initialState = {
 		this.chunkCB = origChunkCB;
 	},
 
+	// FIXME: Unused function
 	serializeDOMToString: function(node, wtEscaper) {
 		var bits = [],
 			cb = function(res) {
@@ -370,14 +401,32 @@ WSP.initialState = {
 	// Serialize the children of a DOM node, sharing the global serializer
 	// state. Typically called by a DOM-based handler to continue handling its
 	// children.
-	serializeChildren: function(nodes, chunkCB, wtEscaper) {
-		var oldCB = this.chunkCB;
+	serializeChildren: function(nodes, chunkCB, wtEscaper, forceSep) {
+		var oldCB = this.chunkCB,
+			oldSep = this.sep;
 		this.chunkCB = chunkCB;
 		if ( wtEscaper ) {
 			this.wteHandlerStack.push(wtEscaper);
 		}
-		for (var i = 0, l = nodes.length; i < l; i++) {
-			this.serializer._serializeDOM(nodes[i], this);
+		var node = nodes[0],
+			parentNode = node && node.parentNode,
+			nextNode;
+		while(node) {
+			nextNode = this.serializer._serializeNode(node, this);
+			if (nextNode === parentNode) {
+				// serialized all children
+				break;
+			} else if (nextNode === node) {
+				// advance the child
+				node = node.nextSibling;
+			} else {
+				//console.log('nextNode', nextNode && nextNode.outerHTML);
+				node = nextNode;
+			}
+		}
+		if (forceSep && oldSep === this.sep) {
+			// Force separator out
+			chunkCB('');
 		}
 		this.chunkCB = oldCB;
 		if ( wtEscaper ) {
@@ -385,75 +434,31 @@ WSP.initialState = {
 		}
 	},
 
+	/**
+	 * Serialize children to a string. Assumes non-start-of-line context and
+	 * does not affect the separator state.
+	 */
 	serializeChildrenToString: function(nodes, wtEscaper) {
+		// FIXME: Make sure that the separators emitted here conform to the
+		// syntactic constraints of syntactic context.
 		var bits = [],
+			sepState = this.sep,
+			self = this,
 			cb = function(res) {
+				if(res) {
+					WSP.emitSeparator(self, function(sep) { bits.push(sep); });
+				}
 				bits.push(res);
 			};
+		this.sep = {};
 		this.serializeChildren(nodes, cb, wtEscaper);
+		WSP.emitSeparator(this, cb);
+		// restore the separator state
+		this.sep = sepState;
 		return bits.join('');
-	},
-
-	emitSepChunk: function(separator, debugStr) {
-		if (separator.match(/\n$/)) {
-			this.onNewline = true;
-		}
-		if (separator.match(/\n/)) {
-			this.onStartOfLine = true;
-		}
-		WSP.debug_pp("===> ", debugStr || "sep: ", separator);
-		this.chunkCB(separator, "separator");
-		this.bufferedSeparator = null;
-	},
-	emitSeparator: function(n1, n2, sepType) {
-		// cannot do anything if we dont have original wikitext
-		if (!this.env.page.src) {
-			return;
-		}
-
-		var dsrIndex1, dsrIndex2;
-		switch (sepType) {
-			case START_SEP:
-				dsrIndex1 = 0;
-				dsrIndex2 = 0;
-				break;
-
-			case IE_SEP:
-				dsrIndex1 = 1;
-				dsrIndex2 = 0;
-				break;
-
-			case END_SEP:
-				dsrIndex1 = 1;
-				dsrIndex2 = 1;
-				break;
-		}
-
-		// cannot do anything if we dont have dsr for either node
-		var dsr1 = DU.dataParsoid(n1).dsr;
-		if (!dsr1 || dsr1[dsrIndex1] === null) {
-			return;
-		}
-
-		var dsr2 = DU.dataParsoid(n2).dsr;
-		if (!dsr2 || dsr2[dsrIndex2] === null) {
-			return;
-		}
-
-		var i1 = dsr1[dsrIndex1] + (sepType === START_SEP ? dsr1[2] : 0);
-		var i2 = dsr2[dsrIndex2] - (sepType === END_SEP   ? dsr2[3] : 0);
-		var separator = this.env.page.src.substring(i1, i2);
-
-		if (separator.match(/^(\s|<!--([^\-]|-(?!->))*-->)*$/)) {
-			// verify that the separator is really one
-			this.emitSepChunk(separator);
-			this.separatorEmittedFromSrc = true;
-		} else {
-			// something not right with the separator that we extracted!
-			return;
-		}
 	}
 };
+
 // Make sure the initialState is never modified
 Util.deepFreeze( WSP.initialState );
 
@@ -475,9 +480,6 @@ var closeHeading = function(v) {
 	};
 };
 
-function isMultilineListItem(token) {
-	return isListItem(token) && token.dataAttribs.stx !== 'row';
-}
 
 function escapedText(text) {
 	var match = text.match(/^((?:.*?|[\r\n]+[^\r\n]|[~]{3,5})*?)((?:\r?\n)*)$/);
@@ -501,6 +503,7 @@ WSP.escapeWikiText = function ( state, text ) {
 	// Pure white-space or text without wt-special chars need not be analyzed
 	if (!fullCheckNeeded && !text.match(/^[ \t][^\s]+|[<>\[\]\-\+\|'!=#\*:;~{}]/)) {
 		// console.warn("---EWT:F1---");
+		state.currLine.seen = true;
 		return text;
 	}
 
@@ -508,8 +511,10 @@ WSP.escapeWikiText = function ( state, text ) {
 	var wteHandler = state.wteHandlerStack.last();
 	if (wteHandler && wteHandler(state,text)) {
 		// console.warn("---EWT:F2---");
+		state.currLine.seen = true;
 		return escapedText(text);
 	}
+	state.currLine.seen = true;
 
 	// Template and template-arg markers are escaped unconditionally!
 	// Conditional escaping requires matching brace pairs and knowledge
@@ -519,9 +524,25 @@ WSP.escapeWikiText = function ( state, text ) {
 		return escapedText(text);
 	}
 
-	var sol = state.onStartOfLine,
+	var nlSep = state.sep.src && state.sep.src.match(/\n$/) !== null,
+		pendingNewline = (state.sep.constraints && state.sep.constraints.min > 0) ||
+			// No constraints, but a separator ending in a newline
+			( !state.sep.constraints && nlSep ),
+		noIndentSepSrc = !state.sep.src ||
+				!state.sep.src.replace(/<!--(?:[^\-]|-(?!->))*-->/g, '') ||
+				state.sep.src.replace(/<!--(?:[^\-]|-(?!->))*-->/g, '').match(/\n$/);
+
+	var sol = (pendingNewline ||
+			(state.atStartOfOutput && noIndentSepSrc)) &&
+				// Newlines will be emitted if required
+			!state.inIndentPre &&
+			!state.inPHPBlock &&
+			!wteHandler,
 		hasNewlines = text.match(/\n./),
 		hasTildes = text.match(/~{3,5}/);
+	this.trace('sol', sol, {inphp: state.inPHPBlock, inPre: state.inIndentPre},
+			state.sep.constraints, state.sep.src, text);
+
 	if (!fullCheckNeeded && !hasNewlines && !hasTildes) {
 		// {{, {{{, }}}, }} are handled above.
 		// Test 1: '', [], <> need escaping wherever they occur
@@ -603,117 +624,11 @@ WSP.escapeWikiText = function ( state, text ) {
 	}
 };
 
-WSP._listHandler = function( handler, bullet, state, token ) {
-
-	if ( state.singleLineMode ) {
-		state.singleLineMode--;
-	}
-
-	var bullets, res;
-	var stack = state.listStack;
-	if (stack.length === 0) {
-		bullets = bullet;
-		res     = bullets;
-		handler.startsLine = true;
-	} else {
-		var curList = stack.last();
-		//console.warn(JSON.stringify( stack ));
-		bullets = curList.bullets + curList.itemBullet + bullet;
-		curList.itemCount++;
-		// A nested list, not directly after a list item
-		if (curList.itemCount > 1 && !isMultilineListItem(state.prevToken)) {
-			res = bullets;
-			handler.startsLine = true;
-		} else {
-			res = bullet;
-			handler.startsLine = false;
-		}
-	}
-	stack.push({ itemCount: 0, bullets: bullets, itemBullet: '' });
-	WSP.debug_pp('lh res', '; ', bullets, res, handler );
-	return res;
-};
-
-WSP._listEndHandler = function( state, token ) {
-	state.listStack.pop();
-	return '';
-};
-
-WSP._listItemHandler = function ( handler, bullet, state, token ) {
-
-	function isRepeatToken(state, token) {
-		return	state.prevToken.constructor === pd.EndTagTk &&
-				state.prevToken.name === token.name;
-	}
-
-	function isMultiLineDtDdPair(state, token) {
-		return	token.name === 'dd' &&
-				token.dataAttribs.stx !== 'row' &&
-				state.prevTagToken.constructor === pd.EndTagTk &&
-				state.prevTagToken.name === 'dt';
-	}
-
-	var stack   = state.listStack;
-
-	// This check is required to handle cases where the DOM is not well-formed.
-	//
-	// FIXME NOTE: This is required currently to deal with bugs in the parser
-	// as it deals with complex cases.  But, in the future, we could deal with
-	// this in one of the following ways:
-	// (a) The serializer expects a well-formed DOM and all cleanup will be
-	//     done as part of external tools/passes.
-	// (b) The serializer supports a small set of exceptional cases and bare
-	//     list items could be one of them
-	// (c) The serializer ought to handle any DOM that is thrown at it.
-	//
-	// Yet to be resolved.
-	if (stack.length === 0) {
-		stack.push({ itemCount: 0, bullets: bullet, itemBullet: bullet});
-	}
-
-	var curList = stack[stack.length - 1];
-	curList.itemCount++;
-	curList.itemBullet = bullet;
-
-	// Output bullet prefix only if:
-	// - this is not the first list item
-	// - we are either in:
-	//    * a new line context,
-	//    * seeing an identical token as the last one (..</li><li>...)
-	//      (since we are in this handler on encountering a list item token,
-	//       this means we are the 2nd or later item in the list, BUT without
-	//       any intervening new lines or other tokens in between)
-	//    * on the dd part of a multi-line dt-dd pair
-	//      (The dd on a single-line dt-dd pair sticks to the dt.
-	//       which means it won't get the bullets that the dt already got).
-	//
-	// SSS FIXME: This condition could be rephrased as:
-	//
-	// if (isRepeatToken(state, token) ||
-	//     (curList.itemCount > 1 && (inStartOfLineContext(state) || isMultiLineDtDdPair(state, token))))
-	//
-	var res;
-	if (curList.itemCount > 1 &&
-		(	state.onStartOfLine ||
-			isRepeatToken(state, token) ||
-			isMultiLineDtDdPair(state, token)
-		)
-	)
-	{
-		handler.startsLine = true;
-		res = curList.bullets + bullet;
-	} else {
-		handler.startsLine = false;
-		res = bullet;
-	}
-	WSP.debug_pp( 'lih res', '; ', token, res, handler );
-	return res;
-};
 
 /**
  * DOM-based figure handler
  */
-WSP.figureHandler = function(state, node, cb) {
+WSP.figureHandler = function(node, state, cb) {
 
 	var img, caption,
 		dp = node.data.parsoid,
@@ -740,10 +655,11 @@ WSP.figureHandler = function(state, node, cb) {
 	//
 	// In sol state, text " bar" should be nowiki escaped to prevent it from
 	// parsing to an indent-pre.  But, not in figure captions.
-	var captionSrc, oldSOLState = state.onStartOfLine;
-	state.onStartOfLine = false;
+
+	// XXX: don't use serializeChildrenToString here as that messes up the
+	// global separator state?
+	var captionSrc;
 	captionSrc = state.serializeChildrenToString(caption.childNodes, WSP.wteHandlers.aHandler);
-	state.onStartOfLine = oldSOLState;
 
 	var imgResource = (img && img.getAttribute('resource') || '').replace(/(^\[:)|(\]$)/g, ''),
 		outBits = [imgResource],
@@ -822,6 +738,19 @@ WSP._serializeTableTag = function ( symbol, endSymbol, state, token ) {
 	}
 };
 
+WSP._serializeTableElement = function ( symbol, endSymbol, state, node ) {
+	var token = DU.mkTagTk(node);
+
+	var sAttribs = WSP._serializeAttributes(state, token);
+	if (sAttribs.length > 0) {
+		// IMPORTANT: 'endSymbol !== null' NOT 'endSymbol' since the '' string
+		// is a falsy value and we want to treat it as a truthy value.
+		return symbol + ' ' + sAttribs + (endSymbol !== null ? endSymbol : ' |');
+	} else {
+		return symbol + (endSymbol || '');
+	}
+};
+
 WSP._serializeHTMLTag = function ( state, token ) {
 	var da = token.dataAttribs;
 	if ( token.name === 'pre' ) {
@@ -889,7 +818,6 @@ var splitLinkContentString = function (contentString, dp, target) {
 	}
 };
 
-
 // Helper function for getting RT data from the tokens
 var getLinkRoundTripData = function( node, state ) {
 	var tplAttrs = state.tplAttrs,
@@ -922,8 +850,8 @@ var getLinkRoundTripData = function( node, state ) {
 
 	// Get the content string or tokens
 	var contentParts;
-	if (node.childNodes.length === 1 && node.firstChild.nodeType === node.TEXT_NODE) {
-		var contentString = node.firstChild.nodeValue;
+	if (node.childNodes.length >= 1 && DU.allChildrenAreText(node)) {
+		var contentString = node.textContent;
 		if ( ! rtData.target.modified && rtData.tail &&
 				contentString.substr(- rtData.tail.length) === rtData.tail ) {
 			rtData.content.string = Util.stripSuffix( contentString, rtData.tail );
@@ -951,18 +879,18 @@ function escapeWikiLinkContentString ( contentString, state ) {
 	//
 	// When processing link text, we are no longer in newline state
 	// since that will be preceded by "[[" or "[" text in target wikitext.
-	state.onStartOfLine = false;
 	state.wteHandlerStack.push(WSP.wteHandlers.wikilinkHandler);
 	var res = WSP.escapeWikiText(state, contentString);
 	state.wteHandlerStack.pop();
 	return res;
 }
+
 // SSS FIXME: This doesn't deal with auto-inserted start/end tags.
 // To handle that, we have to split every 'return ...' statement into
 // openTagSrc = ...; endTagSrc = ...; and at the end of the function,
 // check for autoInsertedStart and autoInsertedEnd attributes and
 // supress openTagSrc or endTagSrc appropriately.
-WSP.linkHandler =  function( state, node, cb ) {
+WSP.linkHandler =  function(node, state, cb) {
 	//return '[[';
 	// TODO: handle internal/external links etc using RDFa and dataAttribs
 	// Also convert unannotated html links without advanced attributes to
@@ -988,7 +916,6 @@ WSP.linkHandler =  function( state, node, cb ) {
 				linkData.type === 'mw:WikiLink/Language' ||
 				linkData.type === 'mw:WikiLink/Interwiki')
 		{
-			state.onStartOfLine = false;
 
 			// Decode any link that did not come from the source
 			if (! target.fromsrc) {
@@ -1045,7 +972,6 @@ WSP.linkHandler =  function( state, node, cb ) {
 					linkData.content.string = target.value;
 				}
 			}
-
 
 			// figure out if we need a piped or simple link
 			var canUseSimple =  // Would need to pipe for any non-string content
@@ -1132,7 +1058,6 @@ WSP.linkHandler =  function( state, node, cb ) {
 				// encodeURI only encodes spaces and the like
 				target.value = encodeURI(target.value);
 			}
-			state.onStartOfLine = false;
 
 			cb( '[' + target.value + ' ' +
 				state.serializeChildrenToString(node.childNodes, WSP.wteHandlers.aHandler) +
@@ -1153,8 +1078,14 @@ WSP.linkHandler =  function( state, node, cb ) {
 			}
 		} else {
 			// Unknown rel was set
-			//cb( state.serializeDOMToString( node ) );
-			WSP.htmlElementHandler(state, node, cb);
+			//WSP._htmlElementHandler(node, state, cb);
+			if ( target.modified ) {
+				// encodeURI only encodes spaces and the like
+				target.value = encodeURI(target.value);
+			}
+			cb( '[' + target.value + ' ' +
+				state.serializeChildrenToString(node.childNodes, WSP.wteHandlers.aHandler) +
+				']' );
 			return;
 		}
 	} else {
@@ -1164,19 +1095,24 @@ WSP.linkHandler =  function( state, node, cb ) {
 		var isComplexLink = function ( attributes ) {
 			for ( var i=0; i < attributes.length; i++ ) {
 				var attr = attributes.item(i);
-				if ( attr.name && ! ( attr.name in { href: 1 } ) ) {
+				// XXX: Don't drop rel and class in every case once a tags are
+				// actually supported in the MW default config?
+				if ( attr.name && ! ( attr.name in { href: 1, rel:1, 'class':1 } ) ) {
 					return true;
 				}
 			}
 			return false;
 		};
 
-		if ( true || isComplexLink ( node.attributes ) ) {
+		if ( isComplexLink ( node.attributes ) ) {
 			// Complex attributes we can't support in wiki syntax
-			WSP.htmlElementHandler(state, node, cb);
+			WSP._htmlElementHandler(node, state, cb);
 		} else {
-			// TODO: serialize as external wikilink
-			cb( '' );
+			// encodeURI only encodes spaces and the like
+			var href = encodeURI(node.getAttribute('href'));
+			cb( '[' + href + ' ' +
+				state.serializeChildrenToString(node.childNodes, WSP.wteHandlers.aHandler) +
+				']' );
 		}
 	}
 
@@ -1187,7 +1123,6 @@ WSP.linkHandler =  function( state, node, cb ) {
 	//	return '[' + rtinfo.
 };
 
-
 WSP.genContentSpanTypes = {
 	'mw:Nowiki':1,
 	'mw:Entity': 1,
@@ -1195,28 +1130,6 @@ WSP.genContentSpanTypes = {
 };
 
 
-/* *********************************************************************
- * ignore
- *     if true, the serializer pretends as if it never saw this token.
- *
- * startsLine
- *     if true, the wikitext for the dom subtree rooted
- *     at this html tag requires a new line context.
- *
- * endsLine
- *     if true, the wikitext for the dom subtree rooted
- *     at this html tag ends the line.
- *
- * solTransparent
- *     if true, this token does not change sol status after it is emitted.
- *
- * singleLine
- *     if 1, the wikitext for the dom subtree rooted at this html tag
- *     requires all content to be emitted on the same line without
- *     any line breaks. +1 sets the single-line mode (on descending
- *     the dom subtree), -1 clears the single-line mod (on exiting
- *     the dom subtree).
- * ********************************************************************* */
 function id(v) {
 	return function() {
 		return v;
@@ -1225,380 +1138,692 @@ function id(v) {
 
 function buildHeadingHandler(headingWT) {
 	return {
-		start: { startsLine: true, handle: openHeading(headingWT), defaultStartNewlineCount: 2 },
-		end: { endsLine: true, handle: closeHeading(headingWT) },
-		wtEscapeHandler: WSP.wteHandlers.headingHandler
-	};
-}
-
-function buildListHandler(listBullet) {
-	// The list handler sets 'startLine' state depending
-	// on whether this is the topmost list or nested list
-	return {
-		start: {
-			handle: function ( state, token ) {
-				return WSP._listHandler( this, listBullet, state, token );
+		handle: function(node, state, cb) {
+			cb (headingWT);
+			if (node.childNodes.length) {
+				state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.headingHandler);
+			} else {
+				// Deal with empty headings
+				cb('<nowiki/>');
 			}
+			cb (headingWT);
 		},
-		end: {
-			handle: WSP._listEndHandler,
-			endsLine: true
+		sepnls: {
+			before: id({min:1, max:2}),
+			after: id({min:1, max:2})
 		}
 	};
 }
 
-function buildListItemHandler(itemBullet, endTagEndsLine) {
-	// The list-item handler sets 'startLine' state depending
-	// on whether this is the first nested list item or not
-	return {
-		start: {
-			singleLine: 1,
-			handle: function ( state, token ) {
-				return WSP._listItemHandler( this, itemBullet, state, token );
-			}
-		},
-		end: {
-			singleLine: -1,
-			endsLine: endTagEndsLine
-		},
-		wtEscapeHandler: WSP.wteHandlers.liHandler
-	};
-}
+// XXX refactor: move to DOM handlers!
+// Newly created elements/tags in this list inherit their default
+// syntax from their parent scope
+var inheritSTXTags = { tbody:1, tr: 1, td: 1, li: 1, dd: 1, dt: 1 },
+	// These reset the inherited syntax no matter what
+	setSTXTags = { table: 1, ul: 1, ol: 1, dl: 1 },
+	// These (and inline elements) reset the default syntax to
+	// undefined
+	noHTMLSTXTags = {p: 1};
 
-function charSequence(prefix, c, numChars) {
-	if (numChars && numChars > 0) {
-		var buf = [prefix];
-		for (var i = 0; i < numChars; i++) {
-			buf.push(c);
+// XXX refactor: move to dedicated template handler that consumes siblings
+//		if (state.activeTemplateId &&
+//			state.activeTemplateId === node.getAttribute("about"))
+//		{
+//			// skip -- template content
+//			return;
+//		} else {
+//			state.activeTemplateId = null;
+//		}
+//
+//		if (!state.activeTemplateId) {
+//			// Check if this node marks the start of template output
+//			// NOTE: Since we are deleting all mw:Object/**/End markers,
+//			// we need not verify if it is an End marker
+//			var typeofVal = node.getAttribute("typeof");
+//			if (typeofVal && typeofVal.match(/\bmw:Object(\/[^\s]+|\b)/)) {
+//				state.activeTemplateId = node.getAttribute("about") || "";
+//				var attrs = [ new pd.KV("typeof", "mw:TemplateSource") ];
+//				var dps = node.getAttribute("data-parsoid-serialize");
+//				if (dps) {
+//					attrs.push(new pd.KV("data-parsoid-serialize", dps));
+//				}
+//				var dummyToken = new pd.SelfclosingTagTk("meta",
+//					attrs,
+//					{ src: this._getDOMRTInfo(node).src }
+//				);
+//
+//				if ( dps ) {
+//					state.selser.serializeInfo = dps;
+//				}
+//				this._serializeToken(state, dummyToken);
+//				return;
+//			}
+//		}
+//	} else if (node.nodeType !== node.COMMENT_NODE) {
+//		state.activeTemplateId = null;
+//	}
+//
+
+
+/**
+ * List helper: DOM-based list bullet construction
+ */
+WSP._getListBullets = function(node) {
+	var listTypes = {
+		ul: '*',
+		ol: '#',
+		dl: '',
+		li: '',
+		dt: ';',
+		dd: ':'
+	},
+	res = '';
+	var nodeName = node.nodeName.toLowerCase();
+	while (nodeName in listTypes && node.data.parsoid.stx !== 'html') {
+		res = listTypes[nodeName] + res;
+		node = node.parentNode;
+		nodeName = node.nodeName.toLowerCase();
+	}
+	return res;
+};
+
+
+/**
+ * Bold/italic helper: Determine if an element was preceded by a
+ * bold/italic combination
+ */
+WSP._hasPrecedingQuoteElements = function(node, state) {
+	if (!state.sep.lastSourceNode) {
+		// A separator was emitted before some other non-empty wikitext
+		// string, which means that we can't be directly preceded by quotes.
+		return false;
+	}
+	// Move up first until we have a sibling
+	while (node && !node.previousSibling) {
+		node = node.parentNode;
+	}
+	if (node) {
+		node = node.previousSibling;
+	}
+	// Now move down the lastChilds to see if there are any italics / bolds
+	while(node && node.nodeType === node.ELEMENT_NODE) {
+		if (node.nodeName in {I:1, B:1} &&
+				node.lastChild && node.lastChild.nodeName in {I:1, B:1}) {
+			if (state.sep.lastSourceNode === node) {
+				return true;
+			} else {
+				return false;
+			}
+		} else if (state.sep.lastSourceNode === node) {
+			// If a separator was already emitted, or an outstanding separator
+			// starts at another node that produced output, we are not
+			// directly preceded by quotes in the wikitext.
+			return false;
 		}
-		return buf.join('');
+		node = node.lastChild;
+	}
+	return false;
+};
+
+
+function wtEOL(node, otherNode) {
+	if (otherNode.data.parsoid.stx === 'html' || otherNode.data.parsoid.src) {
+		return {min:0, max:2};
 	} else {
-		return prefix;
+		return {min:1, max:2};
 	}
 }
 
+function wtListEOL(node, otherNode) {
+	var nextSibling = nextNonSepSibling(node);
+	//console.log(nextSibling && nextSibling.nodeName);
+	if (nextSibling === otherNode &&
+			otherNode.data.parsoid.stx === 'html' || otherNode.data.parsoid.src)
+	{
+		return {min:0, max:2};
+	} else if (nextSibling === otherNode &&
+			otherNode.nodeName in {UL:1, OL:1, DL:1, LI:1, DD:1, DT:1})
+	{
+		if (node.nodeName in {DL:1, OL:1, UL:1} &&
+				otherNode.nodeName === node.nodeName)
+		{
+			// Adjacent lists of same type need extra newline
+			return {min: 2, max:2};
+		} else if (node.nodeName in {LI:1, DD:1, DT:1} ||
+				node.parentNode.nodeName in {LI:1, DD:1})
+		{
+			// Top-level list
+			return {min:1, max:1};
+		} else {
+			return {min:1, max:2};
+		}
+	} else {
+		return {min:1, max:2};
+	}
+}
+
+
 WSP.tagHandlers = {
-	body: {
-		end: {
-			handle: id('')
+
+	dl: {
+		handle: function (node, state, cb) {
+			var firstChildElement = DU.getFirstNonSepChildNode(node);
+			if (!firstChildElement || ! (firstChildElement.nodeName in {DT:1, DD: 1}))
+			{
+				cb(WSP._getListBullets(node));
+			}
+			// Just serialize the children, ignore the (implicit) tbody
+			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.liHandler, true);
+		},
+		sepnls: {
+			before: function (node, otherNode) {
+				if (otherNode.nodeType === node.TEXT_NODE &&
+						node.parentNode.nodeName in {LI:1, DD:1, DT:1})
+				{
+					// DL nested inside a list item
+					// <li> foo <dl> .. </dl></li>
+					return {min:0, max:1};
+				} else {
+					return {min:1, max:2};
+				}
+			},
+			after: wtListEOL //id({min:1, max:2})
 		}
 	},
-	ul: buildListHandler('*'),
-	ol: buildListHandler('#'),
-	dl: buildListHandler(''),
-	li: buildListItemHandler('',  true),
-	dt: buildListItemHandler(';', false), // XXX: handle single-line vs. multi-line dls etc
-	dd: buildListItemHandler(':', true),
+	ul: {
+		handle: function (node, state, cb) {
+			var firstChildElement = DU.getFirstNonSepChildNode(node);
+			if (!firstChildElement || firstChildElement.nodeName !== 'LI')
+			{
+				cb(WSP._getListBullets(node));
+			}
+			// Just serialize the children
+			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.liHandler, true);
+		},
+		sepnls: {
+			before: function (node, otherNode) {
+				if (otherNode.nodeType === node.TEXT_NODE &&
+						node.parentNode.nodeName in {LI:1, DD:1, DT:1})
+				{
+					// UL nested inside a list item
+					// <li> foo <ul> .. </ul></li>
+					return {min:0, max:1};
+				} else {
+					return {min:1, max:2};
+				}
+			},
+			after: wtListEOL //id({min:1, max:2})
+		}
+	},
+	ol: {
+		handle: function (node, state, cb) {
+			var firstChildElement = DU.getFirstNonSepChildNode(node);
+			if (!firstChildElement || firstChildElement.nodeName !== 'LI')
+			{
+				cb(WSP._getListBullets(node));
+			}
+			// Just serialize the children, ignore the (implicit) tbody
+			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.liHandler, true);
+		},
+		sepnls: {
+			before: function (node, otherNode) {
+				if (otherNode.nodeType === node.TEXT_NODE &&
+						node.parentNode.nodeName in {LI:1, DD:1, DT:1})
+				{
+					// OL nested inside a list item
+					// <li> foo <ol> .. </ol></li>
+					return {min:0, max:1};
+				} else {
+					return {min:1, max:2};
+				}
+			},
+			after: wtListEOL //id({min:1, max:2})
+		}
+	},
+
+
+	li: {
+		handle: function (node, state, cb) {
+			var firstChildElement = DU.getFirstNonSepChildNode(node),
+				forceSep = false;
+			if (!firstChildElement || ! (firstChildElement.nodeName in {UL:1, OL:1, DL:1}))
+			{
+				cb(WSP._getListBullets(node));
+				forceSep = true;
+			}
+			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.liHandler, forceSep);
+		},
+		sepnls: {
+			before: function (node, otherNode) {
+				if (otherNode === node.parentNode &&
+						otherNode.nodeName in {UL:1, OL:1})
+				{
+					return {}; //{min:0, max:1};
+				} else {
+					return {min:1, max:2};
+				}
+			},
+			after: wtListEOL,
+			firstChild: function (node, otherNode) {
+				if ( !(otherNode.nodeName in {UL:1, OL:1, DL:1}))
+				{
+					return {min:0, max: 0};
+				} else {
+					return {};
+				}
+			}
+		}
+	},
+
+	dt: {
+		handle: function (node, state, cb) {
+			var firstChildElement = DU.getFirstNonSepChildNode(node);
+			if (!firstChildElement || ! (firstChildElement.nodeName in {UL:1, OL:1, DL:1})) {
+				cb(WSP._getListBullets(node));
+			}
+			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.liHandler);
+		},
+		sepnls: {
+			before: id({min:1, max:2}),
+			after: function (node, otherNode) {
+				if (otherNode.nodeName === 'DD' && otherNode.data.parsoid.stx === 'row') {
+					return {min:0, max:0};
+				} else {
+					return wtListEOL(node, otherNode);
+				}
+			}
+		}
+	},
+
+	dd: {
+		handle: function (node, state, cb) {
+			var firstChildElement = DU.getFirstNonSepChildNode(node),
+				forceSep = false;
+			if (!firstChildElement || ! (firstChildElement.nodeName in {UL:1, OL:1, DL:1})) {
+				// XXX: handle stx: row
+				if (node.data.parsoid.stx === 'row') {
+					cb(':');
+				} else {
+					cb(WSP._getListBullets(node));
+				}
+				forceSep = true;
+			}
+			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.liHandler, forceSep);
+		},
+		sepnls: {
+			before: function(node, othernode) {
+				// Handle single-line dt/dd
+				if ( node.data.parsoid.stx === 'row' ) {
+					return {min:0, max:0};
+				} else {
+					return {min:1, max:2};
+				}
+			},
+			after: wtListEOL
+		}
+	},
+
+
 	// XXX: handle options
 	table: {
-		start: {
-			handle: function(state, token) {
-				// If we are in a list context, don't start a new line!
-				this.startsLine = state.listStack.length === 0;
-				state.tableStack.push({ listStack: state.listStack, singleLine: state.singleLineMode});
-				state.singleLineMode = 0;
-				state.listStack = [];
-
-				var wt = token.dataAttribs.startTagSrc || "{|";
-				return WSP._serializeTableTag(wt, '', state, token);
-			}
+		handle: function (node, state, cb) {
+			var wt = node.data.parsoid.startTagSrc || "{|";
+			cb(WSP._serializeTableTag(wt, '', state, DU.mkTagTk(node)));
+			state.serializeChildren(node.childNodes, cb);
+			emitEndTag(node.data.parsoid.endTagSrc || "|}", node, state, cb);
 		},
-		end: {
-			startsLine: true,
-			endsLine: true,
-			handle: function(state, token) {
-				var listState = state.tableStack.pop();
-				state.listStack = listState.listStack;
-				state.singleLineMode = listState.singleLineMode;
-				if ( state.prevTagToken && state.prevTagToken.name === 'tr' ) {
-					this.startsLine = true;
+		sepnls: {
+			before: function(node, otherNode) {
+				// Handle special table indentation case!
+				if (node.parentNode === otherNode && otherNode.nodeName === 'DD') {
+					return {min:0, max:2};
 				} else {
-					this.startsLine = false;
+					return {min:1, max:2};
 				}
-				return token.dataAttribs.endTagSrc || "|}";
+			},
+			after: id({min:1, max:2}),
+			firstChild: id({min:1, max:1}),
+			lastChild: id({min:1})
+		}
+	},
+	tbody: {
+		handle: function (node, state, cb) {
+			// Just serialize the children, ignore the (implicit) tbody
+			state.serializeChildren(node.childNodes, cb);
+		}
+	},
+	tr: {
+		handle: function (node, state, cb) {
+			// If the token has 'startTagSrc' set, it means that the tr was present
+			// in the source wikitext and we emit it -- if not, we ignore it.
+			var dp = node.data.parsoid;
+			if (node.previousSibling || dp.startTagSrc) {
+				cb(WSP._serializeTableTag(dp.startTagSrc || "|-", '', state,
+							DU.mkTagTk(node) ) );
+			}
+			state.serializeChildren(node.childNodes, cb);
+		},
+		sepnls: {
+			before: function(node, othernode) {
+				if (!node.previousSibling && !node.data.parsoid.startTagSrc) {
+					// first line
+					return {min:0, max:2};
+				} else {
+					return {min:1, max:2};
+				}
+			},
+			after: function(node, othernode) {
+				return {min:0, max:2};
 			}
 		}
 	},
-	tbody: { start: { ignore: true }, end: { ignore: true } },
 	th: {
-		start: {
-			handle: function ( state, token ) {
-				var da = token.dataAttribs;
-				if ( da.stx_v === 'row' ) {
-					this.startsLine = false;
-					return WSP._serializeTableTag(da.startTagSrc || "!!", da.attrSepSrc || null, state, token);
-				} else {
-					this.startsLine = true;
-					return WSP._serializeTableTag(da.startTagSrc || "!", da.attrSepSrc || null, state, token);
-				}
+		handle: function (node, state, cb) {
+			var dp = node.data.parsoid;
+			if ( dp.stx_v === 'row' ) {
+				cb(WSP._serializeTableTag(dp.startTagSrc || "!!",
+							dp.attrSepSrc || null, state, DU.mkTagTk(node)));
+			} else {
+				cb(WSP._serializeTableTag(dp.startTagSrc || "!", dp.attrSepSrc || null,
+						state, DU.mkTagTk(node)));
 			}
+			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.thHandler);
 		},
-		wtEscapeHandler: WSP.wteHandlers.thHandler
-	},
-	tr: {
-		start: {
-			startsLine: true,
-			handle: function ( state, token ) {
-				// If the token has 'startTagSrc' set, it means that the tr was present
-				// in the source wikitext and we emit it -- if not, we ignore it.
-				var da = token.dataAttribs;
-				if (state.prevToken.constructor === pd.TagTk &&
-					state.prevToken.name === 'tbody' &&
-					!da.startTagSrc )
-				{
-					return '';
+		sepnls: {
+			before: function(node, otherNode) {
+				if (node.data.parsoid.stx_v === 'row') {
+					// force single line
+					return {min:0, max:2};
 				} else {
-					return WSP._serializeTableTag(da.startTagSrc || "|-", '', state, token );
+					return {min:1, max:2};
 				}
-			}
-		},
-		end: {
-			endsLine: true,
-			handle: function(state, token) {
-				return '';
-			}
+			},
+			after: id({min: 0, max:2})
 		}
 	},
 	td: {
-		start: {
-			handle: function ( state, token ) {
-				var da = token.dataAttribs;
-				if ( da.stx_v === 'row' ) {
-					this.startsLine = false;
-					return WSP._serializeTableTag(da.startTagSrc || "||", da.attrSepSrc || null, state, token);
-				} else {
-					// If the HTML for the first td is not enclosed in a tr-tag,
-					// we start a new line.  If not, tr will have taken care of it.
-					this.startsLine = true;
-					return WSP._serializeTableTag(da.startTagSrc || "|", da.attrSepSrc || null, state, token);
-				}
+		handle: function (node, state, cb) {
+			var dp = node.data.parsoid, res;
+			if ( dp.stx_v === 'row' ) {
+				res = WSP._serializeTableTag(dp.startTagSrc || "||",
+						dp.attrSepSrc || null, state, DU.mkTagTk(node));
+			} else {
+				// If the HTML for the first td is not enclosed in a tr-tag,
+				// we start a new line.  If not, tr will have taken care of it.
+				res = WSP._serializeTableTag(dp.startTagSrc || "|",
+						dp.attrSepSrc || null, state, DU.mkTagTk(node));
+
 			}
+			// FIXME: bad state hack!
+			if(res.length > 1) {
+				state.inWideTD = true;
+			}
+			cb(res);
+			state.resetCurrLine();
+			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.tdHandler);
+			// FIXME: bad state hack!
+			state.inWideTD = undefined;
 		},
-		wtEscapeHandler: WSP.wteHandlers.tdHandler
+		sepnls: {
+			before: function(node, otherNode) {
+				return node.data.parsoid.stx_v === 'row' ?
+					{min: 0, max:2} : {min:1, max:2};
+			},
+			//after: function(node, otherNode) {
+			//	return otherNode.data.parsoid.stx_v === 'row' ?
+			//		{min: 0, max:2} : {min:1, max:2};
+			//}
+			after: id({min: 0, max:2})
+		}
 	},
 	caption: {
-		start: {
-			startsLine: true,
-			handle: WSP._serializeTableTag.bind(null, "|+", null)
+		handle: function (node, state, cb) {
+			var dp = node.data.parsoid;
+			// Serialize the tag itself
+			cb(WSP._serializeTableTag(dp.startTagSrc || "|+", null, state, DU.mkTagTk(node)));
+			state.serializeChildren(node.childNodes, cb);
 		},
-		end: {
-			endsLine: true
-		}
-	},
-	p: {
-		make: function(state, token) {
-			// "stx": "html" tags never get here
-			// Special case handling in a list context
-			// VE embeds list content in paragraph tags.
-			//
-			// SSS FIXME: This will *NOT* work if the list item has nested paragraph tags!
-			var prevToken = state.prevToken;
-			if (	token.attribs.length === 0 &&
-					(	(state.listStack.length > 0 && isListItem(prevToken)) ||
-						(prevToken.constructor === pd.TagTk && prevToken.name === 'td') ||
-						(state.ignorePTag && token.constructor === pd.EndTagTk)))
-			{
-				state.ignorePTag = !state.ignorePTag;
-				return { start: { ignore: true }, end: { ignore: true } };
-			} else {
-				return state.singleLineMode ? WSP.defaultHTMLTagHandler : this;
-			}
-		},
-		start: {
-			startsLine: true,
-			handle: function(state, token) {
-				var prevTag = state.prevTagToken;
-				if (state.env.page.src || (
-					prevTag && prevTag.constructor === pd.TagTk && prevTag.name === 'body')) {
-					this.emitsNL = false;
-				} else {
-					this.emitsNL = true;
-				}
-				return '';
-			}
-		},
-		end: {
-			handle: function(state, token) {
-				var prevTag = state.prevToken;
-				if (prevTag && ((prevTag.constructor === pd.TagTk && prevTag.name === 'p') ||
-					(prevTag.constructor === pd.EndTagTk &&prevTag.name === 'br'))) {
-					this.endsLine = true;
-					this.emitsNL = false;
-				} else if (state.env.page.src) {
-					this.endsLine = false;
-					this.emitsNL = false;
-				} else {
-					this.endsLine = true;
-					this.emitsNL = true;
-				}
-				return '';
-			}
-		},
-		sepNls: {
-			before: function(otherNode) {
-				return otherNode.nodeName === 'P' ?
-					{min: 2, max: 2} : {min: 1, max: 2};
+		sepnls: {
+			before: function(node, otherNode) {
+				return otherNode.nodeName !== 'TABLE' ?
+					{min: 1, max: 2} : {min:0, max: 2};
 			},
-			after: function(otherNode) {
-				return otherNode.nodeName === 'P' ?
-					{min: 2, max: 2} : {min: 1, max: 1};
+			after: id({min: 1, max: 2})
+		}
+	},
+	// Insert the text handler here too?
+	'#text': { },
+	p: {
+		handle: function(node, state, cb) {
+			// XXX: Handle single-line mode by switching to HTML handler!
+
+			// Hackhackhack: Avoid an indent-pre
+			if (state.sep.src && state.sep.src.match(/[ \t]$/)) {
+				state.sep.src = state.sep.src.replace(/[ \t]+$/, '');
+			}
+			state.serializeChildren(node.childNodes, cb, null, true);
+		},
+		sepnls: {
+			before: function(node, otherNode) {
+				var nodeName = otherNode.nodeName.toLowerCase();
+				if( node.parentNode === otherNode &&
+						isListElementName(nodeName) || nodeName in {td:1, body:1} )
+				{
+					if (nodeName in {td:1, body:1}) {
+						return {min: 0, max: 1};
+					} else {
+						return {min: 0, max:0};
+					}
+				} else if (otherNode === node.previousSibling &&
+						((nodeName === '#text' && otherNode === previousNonSepSibling(node)) ||
+						 nodeName === 'p')) {
+					// Treat similar to p/p transition
+
+					// XXX: Make this smarter to consider preceding text lines
+					// with html-syntax block elements. Only a single line is
+					// needed in that case. Example:
+					// <div>foo</div> a
+					// b
+					return {min:2, max:2};
+				} else {
+					return {min:1, max:2};
+				}
+			},
+			after: function(node, otherNode) {
+				return !(node.lastChild && node.lastChild.nodeName === 'BR') &&
+					otherNode.nodeName === 'P'/* || otherNode.nodeType === node.TEXT_NODE*/ ?
+					{min: 2, max: 2} : {min: 1, max: 2};
 			}
 		}
 	},
-	// XXX: support indent variant instead by registering a newline handler?
 	pre: {
-		start: {
-			startsLine: true,
-			handle: function( state, token ) {
-				state.inIndentPre = true;
-				state.textHandler = function( currState, t ) {
-					// replace \n in the middle of the text with
-					// a leading space, and start of text if
-					// the serializer in at start of line state.
-					var res = t.replace(/\n(?!$)/g, '\n ' );
-					return currState.onStartOfLine ? ' ' + res : res;
-				};
+		handle: function(node, state, cb) {
+			if (node.data.parsoid.stx === 'html') {
+				// Handle html-pres specially
+				// 1. If the node has a leading newline, add one like it (logic copied from VE)
+				// 2. If not, and it has a data-parsoid strippedNL flag, add it back.
+				// This patched DOM will serialize html-pres correctly.
 
-				var prevTagToken = state.prevTagToken;
-				if (!state.env.page.src && prevTagToken && prevTagToken.constructor === pd.EndTagTk &&
-					prevTagToken.name === 'pre' && prevTagToken.dataAttribs.stx !== 'html')
-				{
-					return '\n ';
-				} else {
-					return ' ';
+				var lostLine = '', fc = node.firstChild;
+				if (fc.nodeType === node.TEXT_NODE) {
+					var m = fc.nodeValue.match(/^\r\n|\r|\n/);
+					lostLine = m && m[0] || '';
 				}
+
+				var shadowedNL = node.data.parsoid.strippedNL;
+				if (!lostLine && shadowedNL) {
+					lostLine = shadowedNL;
+				}
+				cb('<pre>' + lostLine +
+						// escape embedded </pre>
+						node.innerHTML.replace(/<\/pre( [^>]*)>/g, '&lt;/pre$1&gt'));
+			} else {
+				// Handle indent pre
+
+				// XXX: Use a pre escaper?
+				state.inIndentPre = true;
+				var content = state.serializeChildrenToString(node.childNodes);
+
+				// Insert indentation
+				content = ' ' +
+					content.replace(/(\n(<!--(?:[^\-]|\-(?!\->))*\-\->)*)(?!$)/g, '$1 ' );
+
+
+				// Strip trailing separators
+				var trailingSep = content.match(/\s*$/);
+				content = content.replace(/\s*$/, '');
+
+				cb(content);
+
+				// Preserve separator source
+				state.sep.src = trailingSep && trailingSep[0] || '';
 			}
-		},
-		end: {
-			handle: function( state, token) {
 				state.inIndentPre = false;
-				state.textHandler = null;
-				return '';
+		},
+		sepnls: {
+			before: function(node, otherNode) {
+				return node.data.parsoid.stx === 'html' ? {} : {min:1};
+			},
+			after: function(node, otherNode) {
+				return node.data.parsoid.stx === 'html' ? {} : {min:1};
 			}
 		}
 	},
 	meta: {
-		start: {
-			handle: function ( state, token ) {
-				var switchType, argDict = Util.KVtoHash( token.attribs );
+		handle: function (node, state, cb) {
+			var type = node.getAttribute('typeof'),
+				content = node.getAttribute('content'),
+				property = node.getAttribute('property');
 
-				if ( argDict['typeof'] ) {
-					switch ( argDict['typeof'] ) {
-						case 'mw:tag':
-							// we use this currently for nowiki and co
-							this.solTransparent = true;
-							if ( argDict.content === 'nowiki' ) {
-								state.inNoWiki = true;
-							} else if ( argDict.content === '/nowiki' ) {
-								state.inNoWiki = false;
-							} else {
-								console.warn( JSON.stringify( argDict ) );
-							}
-							return '<' + argDict.content + '>';
-						case 'mw:IncludeOnly':
-							this.solTransparent = true;
-							return token.dataAttribs.src;
-						case 'mw:NoInclude':
-							this.solTransparent = true;
-							return token.dataAttribs.src || '<noinclude>';
-						case 'mw:NoInclude/End':
-							return token.dataAttribs.src || '</noinclude>';
-						case 'mw:OnlyInclude':
-							this.solTransparent = true;
-							return token.dataAttribs.src || '<onlyinclude>';
-						case 'mw:OnlyInclude/End':
-							return token.dataAttribs.src || '</onlyinclude>';
-						case 'mw:DiffMarker':
-						case 'mw:Separator':
-							// just ignore it
-							return '';
-						default:
-							this.solTransparent = false;
-							return WSP._serializeHTMLTag( state, token ) || '';
+			if ( type ) {
+				switch ( type ) {
+					case 'mw:tag':
+							 // we use this currently for nowiki and co
+							 if ( content === 'nowiki' ) {
+								 state.inNoWiki = true;
+							 } else if ( content === '/nowiki' ) {
+								 state.inNoWiki = false;
+							 } else {
+								 console.warn( JSON.stringify( node.outerHTML ) );
+							 }
+							 cb('<' + content + '>');
+							 break;
+					case 'mw:IncludeOnly':
+							 cb(node.data.parsoid.src);
+							 break;
+					case 'mw:NoInclude':
+							 cb(node.data.parsoid.src || '<noinclude>');
+							 break;
+					case 'mw:NoInclude/End':
+							 cb(node.data.parsoid.src || '</noinclude>');
+							 break;
+					case 'mw:OnlyInclude':
+							 cb(node.data.parsoid.src || '<onlyinclude>');
+							 break;
+					case 'mw:OnlyInclude/End':
+							 cb(node.data.parsoid.src || '</onlyinclude>');
+							 break;
+					case 'mw:DiffMarker':
+					case 'mw:Separator':
+							 // just ignore it
+							 //cb('');
+							 break;
+					default:
+							 WSP._htmlElementHandler(node, state, cb);
+							 break;
+				}
+			} else if ( property ) {
+				var switchType = property.match( /^mw\:PageProp\/(.*)$/ );
+				if ( switchType ) {
+					switchType = switchType[1];
+					if ( node.data.parsoid.magicSrc ) {
+						switchType = node.data.parsoid.magicSrc;
 					}
-				} else if ( argDict.property ) {
-					switchType = argDict.property.match( /^mw\:PageProp\/(.*)$/ );
-					if ( switchType ) {
-						switchType = switchType[1];
-						if ( token.dataAttribs.magicSrc ) {
-							switchType = token.dataAttribs.magicSrc;
-						}
-						return switchType;
-					} else {
-						return '';
-					}
+					cb(switchType);
+				}
+			} else {
+				WSP._htmlElementHandler(node, state, cb);
+			}
+		},
+		sepnls: {
+			// FIXME: really suppress newlines after these metas. Currently
+			// conflicts are resolved in favor of the newer constraint.
+			after: function(node, otherNode) {
+				var type = node.getAttribute('typeof');
+				if (type in {'mw:IncludeOnly':1, 'mw:NoInclude':1, 'mw:NoInclude/End':1,
+								'mw:OnlyInclude':1, 'mw:OnlyInclude/End':1})
+				{
+					return {max:0};
 				} else {
-					return WSP._serializeHTMLTag( state, token );
+					return {};
+				}
+			},
+			before: function(node, otherNode) {
+				var type = node.getAttribute('typeof');
+				if (type in {'mw:IncludeOnly':1, 'mw:NoInclude':1, 'mw:NoInclude/End':1,
+								'mw:OnlyInclude':1, 'mw:OnlyInclude/End':1})
+				{
+					return {max:0};
+				} else {
+					return {};
 				}
 			}
 		}
 	},
 	span: {
-		start: {
-			handle: function( state, token ) {
-				var argDict = Util.KVtoHash( token.attribs );
-				if ( argDict['typeof'] in WSP.genContentSpanTypes ) {
-					if ( argDict['typeof'] === 'mw:Nowiki' ) {
-						state.inNoWiki = true;
-						return '<nowiki>';
+		handle: function(node, state, cb) {
+			var type = node.getAttribute('typeof');
+			if (type && type in WSP.genContentSpanTypes) {
+				if (type === 'mw:Nowiki') {
+					cb('<nowiki>');
+					if (node.childNodes.length === 1 && node.firstChild.nodeName === 'PRE') {
+						state.serializeChildren(node.childNodes, cb);
 					} else {
-						return '';
+						var child = node.firstChild;
+						while(child) {
+							if(child.nodeType === node.ELEMENT_NODE) {
+								if (child.nodeName === 'SPAN' &&
+										child.getAttribute('typeof') === 'mw:Entity')
+								{
+									state.serializeChildren([child], cb);
+								} else {
+									cb(child.outerHTML);
+								}
+							} else if (child.nodeType === node.TEXT_NODE) {
+								cb(child.nodeValue.replace(/<(\/?nowiki)>/g, '&lt;$1&gt;'));
+							} else {
+								state.serializeChildren([child], cb);
+							}
+							child = child.nextSibling;
+						}
 					}
-				} else {
-					// Fall back to plain HTML serialization for spans created
-					// by the editor
-					return WSP._serializeHTMLTag( state, token );
+					emitEndTag('</nowiki>', node, state, cb);
 				}
-			}
-		},
-		end: {
-			handle: function ( state, token ) {
-				var argDict = Util.KVtoHash( token.attribs );
-				if ( argDict['typeof'] in WSP.genContentSpanTypes ) {
-					if ( argDict['typeof'] === 'mw:Nowiki' ) {
-						state.inNoWiki = false;
-						return '</nowiki>';
-					} else {
-						return '';
-					}
-				} else {
-					// Fall back to plain HTML serialization for spans created
-					// by the editor
-					return WSP._serializeHTMLEndTag( state, token );
-				}
+			} else {
+				// Fall back to plain HTML serialization for spans created
+				// by the editor
+				WSP._htmlElementHandler(node, state, cb);
 			}
 		}
 	},
 	figure: {
-		node: {
-			handle: WSP.figureHandler.bind(WSP)
-		}
+		handle: WSP.figureHandler.bind(WSP)
 	},
 	img: {
-		start: {
-			handle: function ( state, token ) {
-				if ( token.getAttribute('rel') === 'mw:externalImage' ) {
-					return token.getAttribute('src') || '';
-				} else {
-					return '';
-				}
+		handle: function (node, state, cb) {
+			if ( node.getAttribute('rel') === 'mw:externalImage' ) {
+				WSP.emitWikitext(node.getAttribute('src') || '', state, cb);
 			}
 		}
 	},
 	hr: {
-		start: {
-			startsLine: true,
-			handle: function(state, token) {
-				return charSequence("----", "-", token.dataAttribs.extra_dashes);
-			}
+		handle: function (node, state, cb) {
+			cb(Util.charSequence("----", "-", node.data.parsoid.extra_dashes));
 		},
-		end: {
-			handle: function(state, token) {
-				// Default to ending the line, but omit it if the source did
-				// not have one.
-				this.endsLine = ! token.dataAttribs.lineContent;
-				return '';
-			}
+		sepnls: {
+			before: id({min: 1, max: 2}),
+			// XXX: Add a newline by default if followed by new/modified content
+			after: id({min: 0, max: 2})
 		}
 	},
 	h1: buildHeadingHandler("="),
@@ -1608,38 +1833,92 @@ WSP.tagHandlers = {
 	h5: buildHeadingHandler("====="),
 	h6: buildHeadingHandler("======"),
 	br: {
-		start: {
-			handle: id('\n')
+		handle: function(node, state, cb) {
+			if (node.data.parsoid.stx === 'html' || node.parentNode.nodeName !== 'P') {
+				cb('<br>');
+			} else {
+				// Trigger separator
+				if (state.sep.constraints && state.sep.constraints.min === 2 &&
+						node.parentNode.childNodes.length === 1) {
+					// p/br pair
+					// Hackhack ;)
+					state.sep.constraints.min = 3;
+					state.sep.constraints.max = 3;
+					cb('');
+				} else {
+					cb('');
+				}
+			}
+		},
+		sepnls: {
+			before: function (node, otherNode) {
+				if (otherNode === node.parentNode && otherNode.nodeName === 'P') {
+					return {min: 1, max: 2};
+				} else {
+					return {};
+				}
+			},
+			after: id({min:1})
 		}
+
+				/*,
+		sepnls: {
+			after: function (node, otherNode) {
+				if (node.data.parsoid.stx !== 'html' || node.parentNode.nodeName === 'P') {
+					// Wikitext-syntax br, force newline
+					return {}; //{min:1};
+				} else {
+					// HTML-syntax br.
+					return {};
+				}
+			}
+
+		}*/
 	},
 	b:  {
-		start: {
-			handle: function (state, token) {
-				return state.lastRes.match(/'''''$/ ) ? "<nowiki/>'''" : "'''";
+		handle: function(node, state, cb) {
+			if (WSP._hasPrecedingQuoteElements(node, state)) {
+				emitStartTag('<nowiki/>', node, state, cb);
 			}
-		},
-		end: { handle: id("'''") },
-		wtEscapeHandler: WSP.wteHandlers.quoteHandler
-	},
-	i:  {
-		start: {
-			handle: function (state, token) {
-				return state.lastRes.match(/'''''$/ ) ? "<nowiki/>''" : "''";
-			}
-		},
-		end: {
-			handle: id("''")
-		},
-		wtEscapeHandler: WSP.wteHandlers.quoteHandler
-	},
-	a:  {
-		node: {
-			handle: WSP.linkHandler.bind(WSP)
+			emitStartTag("'''", node, state, cb);
+			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.quoteHandler);
+			emitEndTag("'''", node, state, cb);
 		}
 	},
+	i:  {
+		handle: function(node, state, cb) {
+			if (WSP._hasPrecedingQuoteElements(node, state)) {
+				emitStartTag('<nowiki/>', node, state, cb);
+			}
+			emitStartTag("''", node, state, cb);
+			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.quoteHandler);
+			emitEndTag("''", node, state, cb);
+		}
+	},
+	a:  {
+		handle: WSP.linkHandler.bind(WSP)
+		// TODO: Implement link tail escaping with nowiki in DOM handler!
+	},
 	link:  {
-		node: {
-			handle: WSP.linkHandler.bind(WSP)
+		handle: WSP.linkHandler.bind(WSP)
+	},
+	body: {
+		handle: function(node, state, cb) {
+			// Just serialize the children
+			state.serializeChildren(node.childNodes, cb);
+		},
+		sepnls: {
+			firstChild: id({min:0, max:1}),
+			lastChild: id({min:0, max:1})
+		}
+	},
+	blockquote: {
+		sepnls: {
+			// Dirty trick: Suppress newline inside blockquote to avoid a
+			// paragraph, at least for the first line.
+			// TODO: Suppress paragraphs inside blockquotes in the paragraph
+			// handler instead!
+			firstChild: id({max:0})
 		}
 	}
 };
@@ -1682,7 +1961,7 @@ WSP._serializeAttributes = function (state, token) {
 		k = kv.k;
 
 		// Ignore about and typeof if they are template-related
-		if (tokType && ignoreKeys[k]) {
+		if (ignoreKeys[k]) {
 			continue;
 		}
 
@@ -1760,98 +2039,97 @@ WSP._serializeAttributes = function (state, token) {
 	return out.join(' ');
 };
 
-/**
- * Serialize a chunk of tokens
- */
-WSP.serializeTokens = function(startState, tokens, chunkCB ) {
-	var i, l,
-		state = Util.extendProps(startState || {},
-			// Make sure these two are cloned, so we don't alter the initial
-			// state for later serializer runs.
-			Util.clone(this.initialState),
-			Util.clone(this.options));
-	state.serializer = this;
-	if ( chunkCB === undefined ) {
-		var out = [];
-		state.chunkCB = function ( chunk ) {
-			// Keep a sliding buffer of the last emitted source
-			state.lastRes = (state.lastRes + chunk).substr(-100);
-			out.push( chunk );
-		};
-		for ( i = 0, l = tokens.length; i < l; i++ ) {
-			this._serializeToken( state, tokens[i] );
-		}
-		return out;
-	} else {
-		state.chunkCB = function ( chunk, serializeInfo ) {
-			// Keep a sliding buffer of the last emitted source
-			state.lastRes = (state.lastRes + chunk).substr(-100);
-			if ( serializeInfo ) {
-				chunkCB(chunk, serializeInfo);
-			} else {
-				chunkCB(chunk, state.selser.serializeInfo);
-			}
-		};
-		for ( i = 0, l = tokens.length; i < l; i++ ) {
-			this._serializeToken( state, tokens[i] );
-		}
-	}
-};
 
-WSP.defaultHTMLTagHandler = {
-	start: { handle: WSP._serializeHTMLTag },
-	end  : { handle: WSP._serializeHTMLEndTag }
-};
-
-WSP.htmlElementHandler = function (state, node, cb) {
+WSP._htmlElementHandler = function (node, state, cb) {
 	var attribKVs = DU.getAttributeKVArray(node);
 
-	cb( WSP._serializeHTMLTag(
-				state,
-				new pd.TagTk(node.nodeName.toLowerCase(), attribKVs, node.data.parsoid)
-	  ) );
+	emitStartTag(WSP._serializeHTMLTag(state, DU.mkTagTk(node)),
+			node, state, cb);
 	if (node.childNodes.length) {
+		var inPHPBlock = state.inPHPBlock;
+		if (Util.tagOpensBlockScope(node.nodeName.toLowerCase())) {
+			state.inPHPBlock = true;
+		}
 		state.serializeChildren(node.childNodes, cb);
+		state.inPHPBlock = inPHPBlock;
 	}
-	cb( WSP._serializeHTMLEndTag(
-				state,
-				new pd.EndTagTk(node.nodeName.toLowerCase(), attribKVs, node.data.parsoid)
-				) );
+	emitEndTag(WSP._serializeHTMLEndTag(state, DU.mkEndTagTk(node)),
+			node, state, cb);
 };
 
 /**
  * Get a DOM-based handler for an element node
  */
-WSP.getDOMHandler = function(state, node, cb) {
+WSP._getDOMHandler = function(node, state, cb) {
+	if (!node || node.nodeType !== node.ELEMENT_NODE) {
+		return {};
+	}
+	if (!node.data || !node.data.parsoid) {
+		DU.loadDataParsoid(node);
+	}
+
 	var dp = node.data.parsoid,
 		nodeName = node.nodeName.toLowerCase(),
 		handler,
 		nodeTypeOf = node.getAttribute( 'typeof' ) || '';
+
+//	if (state.activeTemplateId) {
+//		if(node.getAttribute('about') === state.activeTemplateId) {
+//			// Skip template content
+//			return function(){};
+//		} else {
+//			state.activeTemplateId = null;
+//		}
+//	} else {
+//		if (nodeTypeOf && nodeTypeOf.match(/\bmw:Object(\/[^\s]+|\b)/)) {
+//			state.activeTemplateId = node.getAttribute('about' || null);
+//
+//
+
+	// XXX: Handle siblings directly in a template content handler returning
+	// the next node?
+	if (state.activeTemplateId && node.getAttribute('about') === state.activeTemplateId) {
+		// Ignore subsequent template content
+		return {handle: function() {}};
+	}
+
+	// XXX: Convert into separate handlers?
 	if ( dp.src !== undefined ) {
 		//console.log(node.parentNode.outerHTML);
-		if (nodeTypeOf === "mw:TemplateSource") {
+		if (nodeTypeOf && nodeTypeOf.match(/\bmw:Object(\/[^\s]+|\b)/)) {
+			// Source-based template/extension round-tripping for now
 			return {
 				handle: function () {
-					cb(dp.src);
+					state.activeTemplateId = node.getAttribute('about') || null;
+					WSP.emitWikitext(dp.src, state, cb);
 				},
-				isTemplateSrc: true
+				sepnls: {
+					// XXX: This is questionable, as the template can expand
+					// to newlines too. Which default should we pick for new
+					// content? We don't really want to make separator
+					// newlines in HTML significant for the semantics of the
+					// template content.
+					before: id({min:0, max:2})
+				}
 			};
 		} else if (nodeTypeOf === "mw:Placeholder") {
 			// implement generic src round-tripping:
 			// return src, and drop the generated content
 			return {
 				handle: function() {
-					cb(dp.src);
+					WSP.emitWikitext(dp.src, state, cb);
 				}
 			};
 		} else if (nodeTypeOf === "mw:Entity") {
-			var contentSrc = state.serializeChildrenToString(node.childNodes);
-			return {
+			var contentSrc = node.childNodes.length === 1 && node.textContent ||
+								node.innerHTML;
+			return  {
 				handle: function () {
 					if ( contentSrc === dp.srcContent ) {
-						cb(dp.src);
+						WSP.emitWikitext(dp.src, state, cb);
 					} else {
-						cb(contentSrc);
+						//console.log(contentSrc, dp.srcContent);
+						WSP.emitWikitext(contentSrc, state, cb);
 					}
 				}
 			};
@@ -1866,7 +2144,7 @@ WSP.getDOMHandler = function(state, node, cb) {
 		node.setAttribute('rel', 'mw:Image');
 		// And set an empty href, so that
 		node.setAttribute('href', '');
-		return this.tagHandlers.a.node;
+		return this.tagHandlers.a || null;
 	}
 
 	if (dp.stx === 'html' ||
@@ -1874,267 +2152,95 @@ WSP.getDOMHandler = function(state, node, cb) {
 			  // SSS FIXME: if we get to the root, it wont have a parent
 			  // But, why are we getting to the root?
 			  nodeName !== 'meta' && node.parentNode &&
+			  node.parentNode.data &&
 			  node.parentNode.data.parsoid.stx === 'html' ) )
 	{
-		return null; // this.htmlElementHandler;
+		return {handle: this._htmlElementHandler};
 	} else if (this.tagHandlers[nodeName]) {
 		handler = this.tagHandlers[nodeName];
-		return handler && handler.node || null;
+		if (!handler.handle) {
+			return {handle: this._htmlElementHandler, sepnls: handler.sepnls};
+		} else {
+			return handler || null;
+		}
+	} else {
+		// XXX: check against element whitelist and drop those not on it?
+		return {handle: this._htmlElementHandler};
 	}
 };
 
 
-WSP._getTokenHandler = function(state, token) {
-	var handler;
-	if (token.dataAttribs.src !== undefined)  {
-		var tokTypeof = Util.lookup( token.attribs, 'typeof' );
-		if (tokTypeof === "mw:TemplateSource") {
-			return {
-				handle: id( token.dataAttribs.src ),
-				isTemplateSrc: true
-			};
-		}
-	}
+/**
+ * Serialize the content of a text node
+ */
+WSP._serializeTextNode = function(node, state, cb) {
+	// write out a potential separator?
+	var res = node.nodeValue,
+		doubleNewlineMatch = res.match(/\n([ \t]*\n)+/g),
+		doubleNewlineCount = doubleNewlineMatch && doubleNewlineMatch.length || 0;
 
-	if (token.isHTMLTag() ||
-			(
-			 // Inherit stx: html for new elements from parent in some cases
-				( token.constructor === pd.TagTk || token.constructor === pd.EndTagTk ) &&
-				// new element
-				Object.keys(token.dataAttribs).length === 0 &&
-				token.name !== 'meta' &&
-				state.parentSTX === 'html' ) )
+	// Don't strip two newlines for wikitext like this:
+	// <div>foo
+	//
+	// bar</div>
+	// The PHP parser won't create paragraphs on lines that also contain
+	// block-level tags.
+	if (node.parentNode.childNodes.length !== 1 ||
+			!DU.isBlockNode(node.parentNode) ||
+			//node.parentNode.data.parsoid.stx !== 'html' ||
+			doubleNewlineCount !== 1)
 	{
-		handler = this.defaultHTMLTagHandler;
-	} else {
-		var tname = token.name;
-		handler = this.tagHandlers[tname];
-		if ( handler && handler.make ) {
-			handler = handler.make(state, token);
-		}
+		// Strip more than one consecutive newline
+		res = res.replace(/\n([ \t]*\n)+/g, '\n');
 	}
+	// Strip trailing newlines from text content
+	//if (node.nextSibling && node.nextSibling.nodeType === node.ELEMENT_NODE) {
+	//	res = res.replace(/\n$/, ' ');
+	//} else {
+	//	res = res.replace(/\n$/, '');
+	//}
 
-	if ( ! handler ) {
-		handler = this.defaultHTMLTagHandler;
-	}
-	if ( token.constructor === pd.TagTk || token.constructor === pd.SelfclosingTagTk ) {
-		// XXX: This looks like a slightly strange side-effect for
-		// getTokenHandler
-		state.wteHandlerStack.push(handler.wtEscapeHandler || null);
-		return handler.start || {};
-	} else {
-		return handler.end || {};
+	// Strip leading newlines. They are already added to the separator source
+	// in handleSeparatorText.
+	res = res.replace(/^\n/, '');
+
+	// Deal with trailing newlines
+	var newSepMatch = res.match(/\n+$/);
+	res = res.replace(/\n$/, '');
+
+	// Always escape entities
+	res = Util.escapeEntities(res);
+	// If not in nowiki and pre context, also escape wikitext
+	// XXX refactor: Handle this with escape handlers instead!
+	res = ( state.inNoWiki || state.inHTMLPre ) ? res
+		: this.escapeWikiText( state, res );
+
+	cb(res);
+	//console.log('text', JSON.stringify(res));
+
+	// Move trailing newlines into the next separator
+	if (newSepMatch && !state.sep.src) {
+		state.sep.src = newSepMatch[0];
 	}
 };
 
 /**
- * Serialize a token.
+ * Emit non-separator wikitext that does not need to be escaped
  */
-WSP._serializeToken = function ( state, token ) {
-	function emitNLs(nls, debugStr, dontBuffer) {
-		// Skip emitting newlines if we used original source
-		// to emit separators.
-		if (!state.separatorEmittedFromSrc) {
-			var sep = (state.bufferedSeparator || "") + nls;
-			if (state.env.page.src && !dontBuffer) {
-				// Buffer this till we know we cannot emit
-				// separator from source in emitSeparator
-				state.bufferedSeparator = sep;
-				WSP.debug_pp("BUFFERED: " + JSON.stringify(sep) + " from " + debugStr);
-			} else {
-				state.emitSepChunk(sep, debugStr);
-			}
-		}
+WSP.emitWikitext = function(text, state, cb) {
+	// Strip leading newlines. They are already added to the separator source
+	// in handleSeparatorText.
+	var res = text.replace(/^\n/, '');
+	// Deal with trailing newlines
+	var newSepMatch = res.match(/\n+$/);
+	res = res.replace(/\n$/, '');
+	cb(res);
+	// Move trailing newlines into the next separator
+	if (newSepMatch && !state.sep.src) {
+		state.sep.src = newSepMatch[0];
 	}
-
-	var res = '',
-		handler = {};
-
-	var suppressOutput = false;
-
-	state.prevToken = state.curToken;
-	state.curToken  = token;
-
-	// Important: get this before running handlers
-	var textHandler = state.textHandler;
-
-	switch( token.constructor ) {
-		case pd.TagTk:
-		case pd.SelfclosingTagTk:
-			handler = WSP._getTokenHandler( state, token );
-			if ( ! handler.ignore ) {
-				state.prevTagToken = state.currTagToken;
-				state.currTagToken = token;
-				res = handler.handle ? handler.handle( state, token ) : '';
-				if (textHandler) {
-					res = textHandler( state, res );
-				}
-
-				// suppress output
-				if (token.dataAttribs.autoInsertedStart) {
-					suppressOutput = true;
-				}
-			}
-
-			// SSS FIXME: There are no pd.SelfclosingTagTk types constructed
-			// right now and can be removed to simplify the code and logic.
-			if (token.constructor === pd.SelfclosingTagTk) {
-				state.wteHandlerStack.pop();
-			}
-			break;
-		case pd.EndTagTk:
-			handler = WSP._getTokenHandler( state, token );
-			// XXX: Return the wteHandler along with the handler instead of
-			// pushing it as a side effect. Avoids the asymmetrical popping
-			// here.
-			state.wteHandlerStack.pop();
-			if ( ! handler.ignore ) {
-				state.prevTagToken = state.currTagToken;
-				state.nlsSinceLastEndTag = 0;
-				state.currTagToken = token;
-				if ( handler.singleLine < 0 && state.singleLineMode ) {
-					state.singleLineMode--;
-				}
-				res = handler.handle ? handler.handle( state, token ) : '';
-
-				// suppress output
-				if (token.dataAttribs.autoInsertedEnd) {
-					suppressOutput = true;
-				}
-			}
-
-			break;
-		case String:
-			// Always escape entities
-			res = Util.escapeEntities(token);
-			// If not in nowiki and pre context, also escape wikitext
-			res = ( state.inNoWiki || state.inHTMLPre ) ? res
-				: this.escapeWikiText( state, res );
-			if (textHandler) {
-				res = textHandler( state, res );
-			}
-
-			// Clear out buffered separator from the previous token's
-			// endsLine handler if we encounter a bare text node that
-			// has a newline that meets the endsLine requirement.
-			if (res.match(/^[ \t]*\n/)) {
-				state.bufferedSeparator = null;
-			}
-			break;
-		case pd.CommentTk:
-			res = '<!--' + token.value + '-->';
-			// don't consider comments for changes of the onStartOfLine status
-			// XXX: convert all non-tag handlers to a similar handler
-			// structure as tags?
-			handler = { solTransparent: true };
-			break;
-		case pd.NlTk:
-			res = textHandler ? textHandler( state, '\n' ) : '\n';
-			break;
-		case pd.EOFTk:
-			res = '';
-			state.chunkCB( res );
-			break;
-		default:
-			res = '';
-			console.warn( 'Unhandled token type ' + JSON.stringify( token ) );
-			console.trace();
-			break;
-	}
-
-	// FIXME: figure out where the non-string res comes from
-	if ( res === undefined || res === null || res.constructor !== String ) {
-		console.error("-------- Warning: Serializer error --------");
-		console.error("TOKEN: " + JSON.stringify(token));
-		console.error(state.env.page.name + ": res was undefined or not a string!");
-		console.error(JSON.stringify(res));
-		console.trace();
-		res = '';
-	}
-
-	this.debug(  "nl:", state.onNewline,
-				", sol:", state.onStartOfLine,
-				", sl-mode:", state.singleLineMode,
-				", res:", res,
-				", T:", token);
-
-	// start-of-line processing
-	if (handler.startsLine && !state.onStartOfLine && !suppressOutput && !state.singleLineMode)
-	{
-		// Emit newlines separately from regular content
-		// for the benefit of the selective serializer.
-		//
-		// Dont buffer newlines if separater hasn't been
-		// emitted from original source -- emit nls right
-		// away since these are SOL nls
-		emitNLs('\n', "sol: ", false);
-	}
-
-	// SSS FIXME: Questionable avoidance of newline in single-line mode
-	// but seems to affect about 7 wt2wt tests right now.  An example
-	// wikitext that is impacted is:
-	//
-	//   :i1
-	//   ::i2
-	//
-	// which parses as:
-	//
-	//   <dl><dd>i1
-	//   <dl><dd>i2</dd></dl></dd></dl>
-	//
-	// The newline after i1 needs to be emitted -- the avoidance below is a
-	// hack since this is not a separator newline and wont be captured by
-	// emitSeparator.  An alternative fix is to create the mirror version of
-	// 'migrateTrailingNLs' in DOM to move preceding nls *into* a node that
-	// starts a line in wikitext. So, in this example, rewrite the DOM to:
-	//
-	//   <dl><dd>i1<dl>
-	//   <dd>i2</dd></dl></dd></dl>
-	//
-	// Something to consider later maybe.
-	//
-	// content processing
-	if (!state.env.page.src && state.singleLineMode && !handler.isTemplateSrc) {
-		// XXX: Switch singleLineMode to stack if there are more
-		// exceptions than just isTemplateSrc later on.
-		res = res.replace(/\n/g, '');
-	}
-
-	state.chunkCB( suppressOutput ? '' : res );
-	this.debug_pp("===> ", "res: ", suppressOutput ? '' : res);
-
-	if (res.match(/[\r\n]$/)) {
-		state.onNewline = true;
-		state.onStartOfLine = true;
-	} else if ( res !== '' ) {
-		state.onNewline = false;
-		if (!handler.solTransparent) {
-			state.onStartOfLine = false;
-		}
-	}
-
-	// Emit newlines/separators after the token
-	if (handler.emitsNL) {
-		emitNLs('\n', "emitsNL: ", true);
-	} else if (state.bufferedSeparator) {
-		state.emitSepChunk(state.bufferedSeparator);
-	}
-
-	// end-of-line processing
-	if (handler.endsLine && !state.onNewline) {
-		// Buffer newlines if we have access to original source.
-		// These will be emitted if separator cannot be extracted
-		// from original source for whatever reason.
-		emitNLs('\n', "eol: ", false);
-	}
-
-	if ( handler.singleLine > 0 ) {
-		state.singleLineMode += handler.singleLine;
-	}
-
-	// Reset
-	state.separatorEmittedFromSrc = false;
 };
+
 
 WSP._getDOMAttribs = function( attribs ) {
 	// convert to list of key-value pairs
@@ -2164,7 +2270,6 @@ WSP._getDOMRTInfo = function( node ) {
 };
 
 
-
 /**
  * Starting on a text or comment node, collect ws text / comments between
  * elements.
@@ -2177,80 +2282,60 @@ WSP._getDOMRTInfo = function( node ) {
  *	  nextElement: (next element node),
  *	  sepText: the combined separator text
  * }
+ *
+ * XXX: Support separator-transparent elements!
  */
-WSP.gatherSeparatorText = function ( node ) {
-	var startIsFirstChild = !node.previousSibling;
-	if (startIsFirstChild || node.previousSibling.nodeType === node.ELEMENT_NODE)
+WSP.handleSeparatorText = function ( node, state ) {
+	var isOnlyChild = !node.previousSibling && !node.nextSibling;
+	if (!isOnlyChild)
 	{
-		var out = [];
-		while(node) {
-			if (node.nodeType === node.TEXT_NODE) {
-				if (node.nodeValue.match(/^\s*$/)) {
-					out.push(node.nodeValue);
-				} else {
-					// not a separator between elements, bail out
-					return null;
-				}
-			} else if (node.nodeType === node.COMMENT_NODE) {
-				out.push('<!--' + node.nodeValue + '-->');
-			} else if (node.nodeType === node.ELEMENT_NODE) {
-				if(DU.isMarkerMeta(node, 'mw:DiffMarker')) {
-					// ignore it for the separator, but
-					// TODO: call chunkCB!!
-				} else {
-					// End of separator run
-					return {
-						nextElement: node,
-						sepSrc: out.join('')
-					};
-				}
-			}
-			if (node.nextSibling) {
-				// Continue gathering.
-				node = node.nextSibling;
-			} else if (startIsFirstChild) {
-				// All children were separator-like, but since they don't
-				// separate two elements (no element node found and first node
-				// was the first child) they are not inter-element whitespace.
-				// Abort match.
-				return null;
+		if (node.nodeType === node.TEXT_NODE) {
+			if (node.nodeValue.match(/^\s*$/)) {
+				state.sep.src = (state.sep.src || '') + node.nodeValue;
+				//if (!state.sep.lastSourceNode) {
+				//	// FIXME: Actually set lastSourceNode when the source is
+				//	// emitted / emitSeparator is called!
+				//	state.sep.lastSourceNode = node.previousSibling || node.parentNode;
+				//}
+				return true;
+			} else if (node.nodeValue.match(/^\n+/)) {
+				state.sep.src = (state.sep.src || '') + node.nodeValue.match(/^\n+/)[0];
+				//if (!state.sep.lastSourceNode) {
+				//	// FIXME: Actually set lastSourceNode when the source is
+				//	// emitted / emitSeparator is called!
+				//	state.sep.lastSourceNode = node.previousSibling || node.parentNode;
+				//}
+				return false;
 			} else {
-				// Separator between some child and parent
-				return {
-					nextElement: node.parentNode,
-					sepSrc: out.join('')
-				};
+				// not a separator between elements
+				return false;
 			}
+		} else if (node.nodeType === node.COMMENT_NODE) {
+			state.sep.src = (state.sep.src || '') +
+				'<!--' + node.nodeValue + '-->';
+			return true;
+		} else {
+			return false;
 		}
+	} else if (node.nodeValue.match(/^\n+/)) {
+		state.sep.src = (state.sep.src || '') + node.nodeValue.match(/^\n+/)[0];
+		//if (!state.sep.lastSourceNode) {
+		//	// FIXME: Actually set lastSourceNode when the source is
+		//	// emitted / emitSeparator is called!
+		//	//state.sep.lastSourceNode = node.previousSibling || node.parentNode;
+		//}
+		return false;
 	} else {
-		// No separator.
-		return null;
+		// not a separator between elements
+		return false;
 	}
 };
 
 
-// 1. Update state with the set of templated attributes.
-// 2. Strip non-semantic leading and trailing newlines.
-WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
-
-	function setupSeparator(nodeA, nodeB, sepNodes, sepText) {
-		// Create meta with the separator src in data-sep attribute
-		var sepMeta = (nodeA || nodeB).ownerDocument.createElement('meta');
-		sepMeta.setAttribute("typeof", "mw:Separator");
-		sepMeta.setAttribute("data-sep", sepText.join(''));
-
-		if (nodeA) {
-			nodeA.parentNode.insertBefore(sepMeta, nodeA.nextSibling);
-		} else {
-			nodeB.parentNode.insertBefore(sepMeta, nodeB.previousSibling);
-		}
-
-		// delete separator nodes
-		for (var i = 0, n = sepNodes.length; i < n; i++) {
-			sepNodes[i].parentNode.removeChild(sepNodes[i]);
-		}
-	}
-
+/**
+ * Update state with the set of templated attributes.
+ */
+WSP.extractTemplatedAttributes = function(node, state) {
 	if (node.nodeName.toLowerCase() === "meta") {
 		var prop = node.getAttribute("property");
 		if (prop && prop.match(/mw:objectAttr/)) {
@@ -2289,126 +2374,466 @@ WSP.preprocessDOM = function(node, state, inPre, haveOrigSrc) {
 			childIsPre = DU.hasNodeName(child, "pre");
 
 			// Descend and recurse
-			this.preprocessDOM(child, state, inPre || childIsPre, haveOrigSrc);
-
-			// Collapse a sequence of text nodes and delete empty text nodes
-			// NOTE: We could have used body.normalize() and got this for free,
-			// but JSDOM is buggy and strips empty comments.
-			// Domino actually exhibits the same behavior. Probably a
-			// misfeature in the spec.
-			if (child.nodeType === node.TEXT_NODE) {
-				var buf = [child.data];
-				while (next && next.nodeType === node.TEXT_NODE) {
-					var nextnext = next.nextSibling;
-					buf.push(next.data);
-					node.removeChild(next);
-					next = nextnext;
-				}
-
-				if (buf.length > 1) {
-					child.data = buf.join('');
-				}
-
-				// Delete empty text nodes
-				if (child.data === '') {
-					node.removeChild(child);
-				}
-			}
+			this.extractTemplatedAttributes(child, state);
 
 			child = next;
 		}
+	}
+};
 
-		// Post-text-normalization, strip runs of whitespace and comments and
-		// record them in a meta-tag.
-		//
-		// (http://dev.w3.org/html5/spec-LC/content-models.html#content-models)
-		//
-		// Dont normalize if we are in a PRE-node or if the node is a mw:Entity SPAN
-		// Or if the node has no element-node child
-		if (!inPre &&
-			!DU.isNodeOfType(node, 'span', 'mw:Entity') &&
-			(!haveOrigSrc || DU.hasElementChild(node)))
-		{
-			var prevSentinel = null,
-				waitForSentinel = false,
-				sepNodes = [],
-				sepText = [];
+/**
+ * Helper for handleSeparator
+ *
+ * Collects, checks and integrates separator newline requirements to a sinple
+ * min, max structure.
+ */
+WSP.getSepNlConstraints = function(nodeA, sepNlsHandlerA, nodeB, sepNlsHandlerB) {
+	var nlConstraints = { a:{}, b:{} }, bc;
+	if(sepNlsHandlerA) {
+		nlConstraints.a = sepNlsHandlerA(nodeA, nodeB);
+		nlConstraints.min = nlConstraints.a.min;
+		nlConstraints.max = nlConstraints.a.max;
+	} else {
+		// Anything more than two lines will trigger paragraphs, so default to
+		// two if nothing is specified.
+		nlConstraints.max = 2;
+	}
+	if(sepNlsHandlerB) {
+		nlConstraints.b = sepNlsHandlerB(nodeB, nodeA);
+		var cb = nlConstraints.b;
 
-			child = node.firstChild;
-			while (child) {
-				var nodeType = child.nodeType;
 
-				next = child.nextSibling;
-
-				// Delete empty text nodes
-				if (nodeType === node.TEXT_NODE && child.data === '') {
-					node.removeChild(child);
-					child = next;
-					continue;
-				}
-
-				if (!haveOrigSrc) {
-					if (nodeType === node.TEXT_NODE) {
-						str = child.data;
-						// Strip leading/trailing newlines if preceded by or
-						// followed by block nodes -- these newlines are syntactic
-						// and can be normalized away since the serializer in sourceless
-						// mode is tuned to normalize newlines.
-						if (str.match(/\n$/) && (!next || DU.isBlockNode(next))) {
-							child.data = str.replace(/\n+$/, '');
-						}
-					    if (str.match(/^\n/) && (!prev || DU.isBlockNode(prev))) {
-							child.data = str.replace(/^\n+/, '');
-						}
-					}
-				} else {
-					switch (nodeType) {
-						case node.TEXT_NODE:
-							str = child.data;
-							if (!waitForSentinel && str.match(/^\s+$/)) {
-								sepText.push(str);
-								sepNodes.push(child);
-							} else {
-								prevSentinel = null;
-								waitForSentinel = true;
-							}
-							break;
-
-						case node.COMMENT_NODE:
-							if (!waitForSentinel) {
-								sepText.push("<!--");
-								sepText.push(child.data);
-								sepText.push("-->");
-								sepNodes.push(child);
-							}
-							break;
-
-						case node.ELEMENT_NODE:
-							if (!waitForSentinel && DU.isMarkerMeta(child, "mw:DiffMarker")) {
-								// Float "mw:DiffMarker" to the left till we bump into a sentinel
-								node.insertBefore(child, prevSentinel ? prevSentinel.nextSibling : node.firstChild);
-								prevSentinel = child;
-							} else {
-								if (!waitForSentinel && sepNodes.length > 0) {
-									setupSeparator(prevSentinel, child, sepNodes, sepText);
-								}
-								waitForSentinel = false;
-								prevSentinel = child;
-								sepNodes = [];
-								sepText = [];
-							}
-							break;
-					}
-				}
-
-				child = next;
+		// now figure out if this conflicts with the nlConstraints so far
+		if (cb.min !== undefined) {
+			if (nlConstraints.max !== undefined && nlConstraints.max < cb.min) {
+				// Conflict, warn and let nodeB win.
+				console.error('Incompatible constraints 1:', nodeA.nodeName,
+						nodeB.nodeName, nlConstraints);
+				nlConstraints.min = cb.min;
+				nlConstraints.max = cb.min;
+			} else {
+				nlConstraints.min = Math.max(nlConstraints.min || 0, cb.min);
 			}
+		}
 
-			if (prevSentinel && sepNodes.length > 0) {
-				setupSeparator(prevSentinel, null, sepNodes, sepText);
+		if (cb.max !== undefined) {
+			if (nlConstraints.min !== undefined && cb.max !== undefined &&
+					nlConstraints.min > cb.max) {
+				// Conflict, warn and let nodeB win.
+				console.error('Incompatible constraints 2:', nodeA.nodeName,
+						nodeB.nodeName, nlConstraints);
+				nlConstraints.min = cb.max;
+				nlConstraints.max = cb.max;
+			} else if (nlConstraints.max !== undefined) {
+				nlConstraints.max = Math.min(nlConstraints.max, cb.max);
+			} else {
+				nlConstraints.max = cb.max;
 			}
 		}
 	}
+
+	return nlConstraints;
+};
+
+/**
+ * Create a separator given a (potentially empty) separator text and newline
+ * constraints
+ */
+WSP.makeSeparator = function(sep, nlConstraints, state) {
+	var origSep = sep;
+
+		// TODO: Move to Util?
+	var commentRe = '<!--(?:[^-]|-(?!->))*-->',
+		// Split on comment/ws-only lines, consuming subsequent newlines since
+		// those lines are ignored by the PHP parser
+		splitReString = '\n(?:[^\n]*?' + commentRe + '[^\n]*?)+(?!$)' +
+					// Subsequent comment/ws-only lines are collapsed
+					'(?:\n?(?:[^\n]*?' + commentRe + '[^\n]*?\n?\n?)+)?' +
+					// Also split on plain comments not surrounded by newlines
+					'|' + commentRe,
+		splitRe = new RegExp(splitReString),
+		sepMatch = sep.split(splitRe).join('').match(/\n/g),
+		sepNlCount = sepMatch && sepMatch.length || 0,
+		minNls = nlConstraints.min || 0;
+
+	if (state.atStartOfOutput && ! nlConstraints.a.min && minNls > 0) {
+		// Skip first newline as we are in start-of-line context
+		minNls--;
+	}
+
+	if (minNls > 0 && sepNlCount < minNls) {
+		// Append newlines
+		for (var i = 0; i < (minNls - sepNlCount); i++) {
+			sep += '\n';
+		}
+	} else if (nlConstraints.max !== undefined && sepNlCount > nlConstraints.max) {
+		// Strip some newlines outside of comments
+		// Capture separators in a single array with a capturing version of
+		// the split regexp, so that we can work on the non-separator bits
+		// when stripping newlines.
+		var allBits = sep.split(new RegExp('(' + splitReString + ')')),
+			newBits = [],
+			n = sepNlCount;
+		while (n > nlConstraints.max) {
+			var bit = allBits.pop();
+			while (bit && bit.match(splitRe)) {
+				// skip comments
+				newBits.push(bit);
+				bit = allBits.pop();
+			}
+			while(n > nlConstraints.max && bit.match(/\n/)) {
+				bit = bit.replace(/\n([^\n]*)/, '$1');
+				n--;
+			}
+			newBits.push(bit);
+		}
+		newBits.reverse();
+		newBits = allBits.concat(newBits);
+		sep = newBits.join('');
+	}
+
+	// XXX: Disabled for now- most line-based block elements move comments
+	// outside the DOM element, and still expect the comment to end up on
+	// the same line. Trailing spaces on a line don't trigger pres, so
+	// leave them in too in the interest of wt2wt round-tripping.
+	//if (nlConstraints.a.min) {
+	//	// Strip leading non-nl ws up to the first newline, but keep comments
+	//	sep.replace(/^([^\n<]*<!--(?:[^\-]+|-(?!->))*-->)?[^\n<]+/g, '$1');
+	//}
+
+	if (nlConstraints.b.min) {
+		// Strip non-nl ws from last line, but preserve comments
+		// This avoids triggering indent-pres
+		sep = sep.replace(/[^\n>]+(<!--(?:[^\-]+|-(?!->))*-->[^\n]*)?$/g, '$1');
+	}
+	this.trace('makeSeparator', sep, origSep, minNls, sepNlCount, nlConstraints);
+
+	return sep;
+};
+
+/**
+ * Merge two constraints, with the newer constraint winning in case of
+ * conflicts.
+ *
+ * XXX: Use nesting information for conflict resolution / switch to scoped
+ * constraints?
+ */
+WSP.mergeConstraints = function (oldConstraints, newConstraints) {
+	//console.log(oldConstraints);
+	var res = {a: oldConstraints.a, b:newConstraints.b};
+	res.min = Math.max(oldConstraints.min || 0, newConstraints.min || 0);
+	res.max = Math.min(oldConstraints.max !== undefined ? oldConstraints.max : 2,
+			newConstraints.max !== undefined ? newConstraints.max : 2);
+	if (res.min > res.max) {
+		// let newConstraints win, but complain
+		if (newConstraints.max !== undefined && newConstraints.max > res.min) {
+			res.max = newConstraints.max;
+		} else if (newConstraints.min && newConstraints.min < res.min) {
+			res.min = newConstraints.min;
+		}
+
+		res.max = res.min;
+		console.error('Incompatible constraints (merge):', res, oldConstraints, newConstraints);
+	}
+	return res;
+};
+
+/**
+ * Figure out separator constraints and merge them with existing constraints
+ * in state so that they can be emitted when the next content emits source.
+ *
+ * node handlers:
+ *
+ * body: {
+ *	handle: function(node, state, cb) {},
+ *		// responsible for calling
+ *	sepnls: {
+ *		before: function(node) -> {min: 1, max: 2}
+ *		after: function(node)
+ *		firstChild: function(node)
+ *		lastChild: function(node)
+ *	}
+ * }
+ *
+ */
+WSP.handleSeparator = function( state, nodeA, handlerA, nodeB, handlerB, dir)
+{
+	var nlConstraints;
+	var sepHandlerA = handlerA && handlerA.sepnls || {},
+		sepHandlerB = handlerB && handlerB.sepnls || {};
+	if ( nodeA.nextSibling === nodeB ) {
+		// sibling separator
+		nlConstraints = this.getSepNlConstraints(nodeA, sepHandlerA.after,
+											nodeB, sepHandlerB.before);
+	} else if ( nodeB.parentNode === nodeA || dir === 'prev' ) {
+		// parent-child separator, nodeA parent of nodeB
+		nlConstraints = this.getSepNlConstraints(nodeA, sepHandlerA.firstChild,
+											nodeB, sepHandlerB.before);
+	} else if ( nodeA.parentNode === nodeB || dir === 'next') {
+		// parent-child separator, nodeB parent of nodeA
+		nlConstraints = this.getSepNlConstraints(nodeA, sepHandlerA.after,
+											nodeB, sepHandlerB.lastChild);
+	} else {
+		// sibling separator
+		nlConstraints = this.getSepNlConstraints(nodeA, sepHandlerA.after,
+											nodeB, sepHandlerB.before);
+	}
+
+	if (nodeA.nodeName === undefined) {
+		console.trace();
+	}
+	this.trace('hSep', nodeA.nodeName, nodeB.nodeName,
+			nlConstraints,
+			(nodeA.outerHTML || nodeA.nodeValue || '').substr(0,40),
+			(nodeB.outerHTML || nodeB.nodeValue || '').substr(0,40)
+			);
+
+	if(state.sep.constraints) {
+		// Merge the constraints
+		state.sep.constraints = this.mergeConstraints(state.sep.constraints, nlConstraints);
+		if (state.sep.lastSourceNode && state.sep.lastSourceNode.nodeType === nodeA.TEXT_NODE) {
+			state.sep.lastSourceNode = nodeA;
+		}
+	} else {
+		state.sep.constraints = nlConstraints;
+		state.sep.lastSourceNode = nodeA;
+	}
+	//console.log('nlConstraints', state.sep.constraints);
+};
+
+/**
+ * Emit a separator based on the collected (and merged) constraints and
+ * existing separator text. Called when new output is triggered.
+ */
+WSP.emitSeparator = function(state, cb, serializeInfo) {
+	var sep,
+		constraints = state.sep.constraints;
+	if (state.sep.constraints) {
+		// TODO: set modified flag if start or end node (but not both) are
+		// modified / new so that the selser can use the separator
+		sep = this.makeSeparator(state.sep.src || '',
+					state.sep.constraints,
+					state);
+
+		// Reset separator state
+		state.sep = {};
+
+		cb(sep, serializeInfo);
+	} else if (state.sep.src) {
+		//sep = state.sep.src;
+		// Strip whitespace from the last line
+		sep = this.makeSeparator(state.sep.src,
+					{a:{},b:{}, max:0},
+					state);
+		//if (state.atStartOfOutput && sep.match(/^[ \t]$/)) {
+
+		state.sep = {};
+		cb(sep, serializeInfo);
+	}
+	if (sep && sep.match(/\n/)) {
+		state.resetCurrLine();
+	}
+	//console.log('sep', constraints, JSON.stringify(sep));
+};
+
+
+
+WSP._getPrevSeparatorElement = function (node, state) {
+	if (node.nodeName === 'BODY') {
+		return null;
+	}
+	return /* state.sep.lastSourceNode || */ previousNonSepSibling(node) || node.parentNode;
+};
+
+WSP._getNextSeparatorElement = function (node) {
+	if (node.nodeName === 'BODY') {
+		return null;
+	}
+	return nextNonSepSibling(node) || node.parentNode;
+};
+
+// Gather a text line for the wikitext escaper's benefit
+WSP._updateCurrLine = function(node, state) {
+	function firstBlockNodeAncestor(node) {
+		// FIXME: Only consider line-based (non-html-syntax for example) block
+		// nodes!
+		while (!isHtmlBlockTag(node.nodeName.toLowerCase())) {
+			node = node.parentNode;
+		}
+		return node;
+	}
+
+	// XXX: Can we simply use node.textContent?
+	function gatherInlineText(buf, node) {
+		switch (node.nodeType) {
+			case node.ELEMENT_NODE:
+				var name = node.nodeName.toLowerCase();
+				if (isHtmlBlockTag(name)) {
+					// HMM- is this safe?
+					return;
+				}
+
+				/* -----------------------------------------------------------------
+				 * SSS: check not needed if we are not doing a full tokenization
+				 * on the gathered text
+				 *
+				// Ignore text for extlink/numbered
+				if (name === 'a' && node.getAttribute("rel") === 'mw:ExtLink/Numbered') {
+				return;
+				}
+				 * -----------------------------------------------------------------*/
+
+				var children = node.childNodes;
+				for (var i = 0, n = children.length; i < n; i++) {
+					gatherInlineText(buf, children[i]);
+				}
+
+				return;
+			case node.COMMENT_NODE:
+				buf.push("<--" + node.data + "-->");
+				return;
+			case node.TEXT_NODE:
+				buf.push(node.data);
+				return;
+			default:
+				return;
+		}
+	}
+
+	var buf = [],
+		// This is a bit hacky, as it assumes that all block
+		// elements serialize to a single line. Should be
+		// conservative / safe though.
+		bn = firstBlockNodeAncestor(node);
+	if (bn === state.currLine.ancestor) {
+		//console.log('noup', node.nodeValue, bn.outerHTML);
+		state.currLine.seen = true;
+		return;
+	}
+	//console.log('up', node.nodeValue, bn.outerHTML);
+	state.resetCurrLine();
+
+	var children = bn.childNodes;
+	for (var i = 0, n = children.length; i < n; i++) {
+		gatherInlineText(buf, children[i]);
+	}
+	state.currLine.numPieces = n;
+	state.currLine.text = buf.join('');
+	state.currLine.ancestor = bn;
+};
+
+
+/**
+ * Internal worker. Recursively serialize a DOM subtree by creating tokens and
+ * calling _serializeToken on each of these.
+ */
+WSP._serializeNode = function( node, state, cb) {
+	cb = cb || state.chunkCB;
+	var prev, next;
+
+	// serialize this node
+	switch( node.nodeType ) {
+		case node.ELEMENT_NODE:
+			var nodeName = node.nodeName.toLowerCase(),
+				tkAttribs = this._getDOMAttribs(node.attributes),
+				tkRTInfo = this._getDOMRTInfo(node),
+				parentSTX = state.parentSTX;
+
+			// populate node.data.parsoid and node.data['parsoid-serialize']
+			DU.loadDataParsoid(node);
+			DU.loadDataAttrib(node, 'parsoid-serialize', null);
+
+			// Insert a possible separator
+			prev = this._getPrevSeparatorElement(node, state);
+			var domHandler = this._getDOMHandler(node, state, cb);
+			if (prev)
+			{
+				this.handleSeparator(state,
+						prev,  this._getDOMHandler(prev, state, cb),
+						node,  domHandler);
+			}
+
+
+			var serializeInfo = null;
+			if ( state.selser.serializeInfo === null ) {
+				serializeInfo = node.data['parsoid-serialize'];
+				state.selser.serializeInfo = serializeInfo;
+				cb('', serializeInfo);
+			}
+
+			if ( domHandler && domHandler.handle ) {
+				// DOM-based serialization
+				try {
+					// XXX: use a returned node to support handlers consuming
+					// siblings too
+					domHandler.handle(node, state, cb);
+				} catch(e) {
+					console.error(e.stack || e.toString());
+					console.error(node.nodeName, domHandler);
+				}
+				// The handler is responsible for serializing its children
+			} else {
+				// Used to be token-based serialization
+				console.error('No dom handler found for', node.outerHTML);
+			}
+
+			// Insert end separator
+			if (node && node.nodeType === node.ELEMENT_NODE) {
+				next = this._getNextSeparatorElement(node);
+				if (next) {
+					this.handleSeparator(state,
+							node, domHandler,
+							next, this._getDOMHandler(next, state, cb));
+				}
+			}
+			if (state.currLine.text === null ||
+					state.sep.constraints && state.sep.constraints.min > 0)
+			{
+				this._updateCurrLine(node, state);
+			}
+
+			break;
+		case node.TEXT_NODE:
+			// Gather a text line for the wikitext escaper's benefit
+			if (state.currLine.text === null ||
+					state.sep.constraints && state.sep.constraints.min > 0 ||
+					!state.currLine.seen)
+			{
+				this._updateCurrLine(node, state);
+			} else {
+				state.currLine.seen = true;
+			}
+			if (!this.handleSeparatorText(node, state)) {
+				// Text is not just whitespace
+				prev = this._getPrevSeparatorElement(node, state);
+				if (prev) {
+					this.handleSeparator(state,
+							prev,  this._getDOMHandler(prev, state, cb),
+							node,  {});
+				}
+				// regular serialization
+				this._serializeTextNode(node, state, cb );
+				next = this._getNextSeparatorElement(node);
+				if (next) {
+					//console.log(next.outerHTML);
+					this.handleSeparator(state,
+							node, {},
+							next, this._getDOMHandler(next, state, cb));
+				}
+			}
+			break;
+		case node.COMMENT_NODE:
+			// delay the newline creation until after the comment
+			if (!this.handleSeparatorText(node, state)) {
+				cb( '<!--' + node.nodeValue.replace(/-->/, '--&gt;') + '-->' );
+			}
+			break;
+		default:
+			console.warn( "Unhandled node type: " +
+					node.outerHTML );
+			break;
+	}
+	return node;
 };
 
 /**
@@ -2423,46 +2848,50 @@ WSP.serializeDOM = function( node, chunkCB, finalCB, selser ) {
 	state.serializer = this;
 
 	try {
-		if ( selser === undefined ) {
-			// Clone the DOM if we are not in selser-mode
-			// since we will modify the DOM in preprocessDOM.
-			//
-			// XXX: Remove this when the DOM is no longer modified!
-			node = node.cloneNode(true);
-		} else {
-			// In selser mode, cloning is not required since
-			// selser passes us a cloned DOM.
-			state.selser = selser;
-		}
+		state.selser = selser || {};
 
 		// Normalize the DOM (coalesces adjacent text nodes)
+		// FIXME: Disabled as this strips empty comments (<!---->).
 		//node.normalize();
 
-		// Preprocess DOM (collect tpl attr tags + strip empty white space)
-		this.preprocessDOM(node, state, false, state.env.page.src);
-		this.debug(" DOM ==> ", node.innerHTML);
+		// collect tpl attr tags
+		this.extractTemplatedAttributes(node, state);
 
-		var out = [];
-	    if ( ! chunkCB ) {
-			state.chunkCB = function ( chunk ) {
-				// Keep a sliding buffer of the last emitted source
-				state.lastRes = (state.lastRes + chunk).substr(-100);
-				out.push( chunk );
-			};
-		} else {
-			state.chunkCB = function ( chunk, serializeInfo ) {
-				// Keep a sliding buffer of the last emitted source
-				state.lastRes = (state.lastRes + chunk).substr(-100);
-				if ( serializeInfo ) {
-					chunkCB(chunk, serializeInfo);
-				} else {
-					chunkCB(chunk, state.selser.serializeInfo);
-				}
-			};
+		// Don't serialize the DOM if debugging is disabled
+		if (this.debugging) {
+			this.trace(" DOM ==> \n", node.outerHTML);
 		}
 
-		this._serializeDOM( node, state );
-		this._serializeToken( state, new pd.EOFTk() );
+		var out = [];
+
+		var chunkCBWrapper = function (cb, chunk, serializeInfo) {
+			if (!serializeInfo) {
+				serializeInfo = state.selser.serializeInfo || null;
+			}
+			if (chunk) {
+				state.currLine.seen = true;
+			}
+			WSP.emitSeparator(state, cb, serializeInfo);
+			cb(chunk, serializeInfo);
+			//if (state.currLine.text === null && chunk) {
+			//	state.currLine.seen = true;
+			//}
+			state.atStartOfOutput = false;
+		};
+
+	    if ( ! chunkCB ) {
+			state.chunkCB = chunkCBWrapper.bind(null, function ( chunk ) {
+								out.push(chunk);
+			});
+		} else {
+			state.chunkCB = chunkCBWrapper.bind(null, chunkCB);
+		}
+
+		this._serializeNode( node, state );
+
+		// Handle EOF
+		this.emitSeparator(state, state.chunkCB);
+		state.chunkCB( '' );
 
 		if ( finalCB && typeof finalCB === 'function' ) {
 			finalCB();
@@ -2474,484 +2903,6 @@ WSP.serializeDOM = function( node, chunkCB, finalCB, selser ) {
 		console.warn(e.toString());
 		state.env.errCB(e);
 		throw e;
-	}
-};
-
-function firstBlockNodeAncestor(node) {
-	while (!isHtmlBlockTag(node.nodeName.toLowerCase())) {
-		node = node.parentNode;
-	}
-	return node;
-}
-
-function gatherInlineText(buf, node) {
-	switch (node.nodeType) {
-		case node.ELEMENT_NODE:
-			var name = node.nodeName.toLowerCase();
-			if (isHtmlBlockTag(name)) {
-				return;
-			}
-
-		/* -----------------------------------------------------------------
-		 * SSS: check not needed if we are not doing a full tokenization
-		 * on the gathered text
-		 *
-			// Ignore text for extlink/numbered
-			if (name === 'a' && node.getAttribute("rel") === 'mw:ExtLink/Numbered') {
-				return;
-			}
-		 * -----------------------------------------------------------------*/
-
-			var children = node.childNodes;
-			for (var i = 0, n = children.length; i < n; i++) {
-				gatherInlineText(buf, children[i]);
-			}
-
-			return;
-		case node.COMMENT_NODE:
-			buf.push("<--" + node.data + "-->");
-			return;
-		case node.TEXT_NODE:
-			buf.push(node.data);
-			return;
-		default:
-			return;
-	}
-}
-
-/**
- * Helper for handleSeparator
- *
- * Collects, checks and integrates separator newline requirements to a sinple
- * min, max structure.
- */
-WSP.getSepConstraints = function(nodeA, sepNlsHandlerA, nodeB, sepNlsHandlerB) {
-	var constraints = { a:{}, b:{} }, bc;
-	if(sepNlsHandlerA) {
-		constraints.a = sepNlsHandlerA(nodeB);
-		constraints.min = constraints.a.min;
-		constraints.max = constraints.a.max;
-	}
-	if(sepNlsHandlerB) {
-		constraints.b = sepNlsHandlerB(nodeA);
-		var cb = constraints.b;
-
-
-		// now figure out if this conflicts with the constraints so far
-		if (cb.min !== undefined) {
-			if (constraints.max !== undefined && constraints.max < cb.min) {
-				// Conflict!
-				return null;
-			}
-			constraints.min = Math.max(constraints.min || 0, cb.min);
-		}
-
-		if (cb.max !== undefined) {
-			if (constraints.min !== undefined && constraints.min > cb.max) {
-				// Conflict!
-				return null;
-			} else if (constraints.max !== undefined) {
-				constraints.max = Math.min(constraints.max, cb.max);
-			} else {
-				constraints.max = cb.max;
-			}
-		}
-	}
-
-	return constraints;
-};
-
-/**
- * WIP, not used yet.
- *
- * Create and emit separator wikitext between element nodes nodeA and nodeB.
- * If sepNode is not null, its content will be taken into account. It is
- * expected to be inter-element whitespace (check with DU.isIEW(node)).
- *
- * node handlers:
- *
- * node: {
- *	handle: function(state, node) {},
- *		// responsible for calling
- *	sepNls: {
- *		before: function(node) -> {min: 1, max: 2}
- *		after: function(node)
- *		firstChild: function(node)
- *		lastChild: function(node)
- *	}
- * }
- *
- */
-WSP.handleSeparator = function( state, sep, cb, nodeA, handlerA, nodeB, handlerB) {
-	var constraints,
-		i;
-	var sepHandlerA = handlerA && handlerA.sepNls || {},
-		sepHandlerB = handlerB && handlerB.sepNls || {};
-	if ( nodeB.parentNode === nodeA ) {
-		// parent-child separator, nodeA parent of nodeB
-		constraints = this.getSepConstraints(nodeA, sepHandlerA.firstChild,
-											nodeB, sepHandlerB.before);
-	} else if ( nodeA.parentNode === nodeB ) {
-		// parent-child separator, nodeB parent of nodeA
-		constraints = this.getSepConstraints(nodeA, sepHandlerA.after,
-											nodeB, sepHandlerB.lastChild);
-	} else {
-		// sibling separator
-		constraints = this.getSepConstraints(nodeA, sepHandlerA.after,
-											nodeB, sepHandlerB.before);
-	}
-
-	console.log('constraints', constraints);
-
-	if (constraints === null) {
-		console.error('Conflicting separator requirements between ' + nodeA.nodeName +
-				' and ' + nodeB.nodeName);
-		cb('');
-	} else {
-		// Check if the sepNode conforms to the requirements, and adjust it if
-		// necessary. We assume that DU.isIEW(sepNode) returned true, or there
-		// was no sepNode.
-
-		var sepMatch = sep.match(/\n/g),
-			sepNlCount = sepMatch && sepMatch.length || 0;
-		if (constraints.min && sepNlCount < constraints.min) {
-			for (i = 0; i < (constraints.min - sepNlCount); i++) {
-				sep += '\n';
-			}
-		} else if (constraints.max && sepNlCount > constraints.match) {
-			// strip some newlines from the end
-			for (i = 0; i < (constraints.max - sepNlCount); i++) {
-				sep = sep.replace(/[^\n]*\n[^\n]*$/, '');
-			}
-		}
-
-		// XXX: Disabled for now- most line-based block elements move comments
-		// outside the DOM element, and still expect the comment to end up on
-		// the same line. Trailing spaces on a line don't trigger pres, so
-		// leave them in too in the interest of wt2wt round-tripping.
-		//if (constraints.a.min) {
-		//	// Strip leading non-nl ws up to the first newline, but keep comments
-		//	sep.replace(/^([^\n<]*<!--(?:[^\-]+|-(?!->))*-->)?[^\n<]+/g, '$1');
-		//}
-
-		if (constraints.b.min) {
-			// Strip trailing non-nl ws, but preserve comments
-			// This avoids triggering pres
-			sep = sep.replace(/[^\n>]+(<!--(?:[^\-]+|-(?!->))*-->[^\n]*)?$/g, '$1');
-		}
-
-		cb(sep);
-	}
-};
-
-/**
- * Temporary: Test the DOM-based separator handler
- *
- * Called on a text node.
- */
-WSP.testHandleSeparator = function(node, state) {
-	// Gather IEW nodes into string, and call handleSeparator
-	var maybeSeparator = this.gatherSeparatorText(node),
-		prev = node.previousSibling || node.parentNode,
-		prevHandler = WSP.tagHandlers[prev.nodeName.toLowerCase()],
-		cb = function(sep) {
-			console.log('NEW:', prev.outerHTML + sep + next.outerHTML);
-		},
-		next, nextHandler,
-		sepSrc = '';
-	if (maybeSeparator) {
-		//console.log('<origsep>', maybeSeparator.sepSrc, '</origsep>');
-		// call handleSeparator with separator string
-		next = maybeSeparator.nextElement;
-		nextHandler = WSP.tagHandlers[next.nodeName.toLowerCase()];
-		sepSrc = maybeSeparator.sepSrc;
-	} else {
-		// call handleSeparator
-		next = node.nextSibling || node.parentNode;
-		nextHandler = WSP.tagHandlers[next.nodeName.toLowerCase()];
-	}
-
-	// Check if we actually need a separator
-	if ( prev !== next && //
-			prev.nodeType === node.ELEMENT_NODE &&
-			next.nodeType === node.ELEMENT_NODE )
-	{
-		// Looks like it.
-		this.handleSeparator(state, sepSrc, cb,
-								prev, prevHandler,
-								next, nextHandler);
-	}
-};
-
-
-/**
- * Internal worker. Recursively serialize a DOM subtree by creating tokens and
- * calling _serializeToken on each of these.
- */
-WSP._serializeDOM = function( node, state ) {
-	var newNLs;
-	// serialize this node
-	if (node.nodeType === node.ELEMENT_NODE) {
-		if (state.activeTemplateId &&
-			state.activeTemplateId === node.getAttribute("about"))
-		{
-			// skip -- template content
-			return;
-		} else {
-			state.activeTemplateId = null;
-		}
-
-		if (!state.activeTemplateId) {
-			// Check if this node marks the start of template output
-			// NOTE: Since we are deleting all mw:Object/**/End markers,
-			// we need not verify if it is an End marker
-			var typeofVal = node.getAttribute("typeof");
-			if (typeofVal && typeofVal.match(/\bmw:Object(\/[^\s]+|\b)/)) {
-				state.activeTemplateId = node.getAttribute("about") || "";
-				var attrs = [ new pd.KV("typeof", "mw:TemplateSource") ];
-				var dps = node.getAttribute("data-parsoid-serialize");
-				if (dps) {
-					attrs.push(new pd.KV("data-parsoid-serialize", dps));
-				}
-				var dummyToken = new pd.SelfclosingTagTk("meta",
-					attrs,
-					{ src: this._getDOMRTInfo(node).src }
-				);
-
-				if ( dps ) {
-					state.selser.serializeInfo = dps;
-				}
-				this._serializeToken(state, dummyToken);
-				return;
-			}
-		}
-	} else if (node.nodeType !== node.COMMENT_NODE) {
-		state.activeTemplateId = null;
-	}
-
-	var i, n, child, children;
-
-	switch( node.nodeType ) {
-		case node.ELEMENT_NODE:
-			var nodeName = node.nodeName.toLowerCase(),
-				tkAttribs = this._getDOMAttribs(node.attributes),
-				tkRTInfo = this._getDOMRTInfo(node),
-				parentSTX = state.parentST1X;
-
-			// populate node.data.parsoid and node.data['parsoid-serialize']
-			DU.loadDataParsoid(node);
-			DU.loadDataAttrib(node, 'parsoid-serialize', null);
-
-			children = node.childNodes;
-
-			if (isHtmlBlockTag(nodeName)) {
-				state.currLine = {
-					text: null,
-					numPieces: 0,
-					processed: false,
-					hasBracketPair: false,
-					hasHeadingPair: false
-				};
-			}
-
-			var tailSrc = '';
-			// Hack for link tail escaping- access to the next node is
-			// difficult otherwise.
-			// TODO: Implement this more cleanly!
-			if ( nodeName === 'a' && node.getAttribute('rel') === 'mw:WikiLink' ) {
-				var dp = JSON.parse(node.getAttribute('data-parsoid') || '{}');
-				if ( dp.stx !== 'html' &&
-					! dp.tail &&
-					node.nextSibling && node.nextSibling.nodeType === node.TEXT_NODE &&
-					// TODO: use tokenizer
-					node.nextSibling.nodeValue &&
-					node.nextSibling.nodeValue.match(/^[a-z]/) )
-				{
-					tailSrc = '<nowiki/>';
-				}
-			}
-
-			// Handle html-pres specially
-			// 1. If the node has a leading newline, add one like it (logic copied from VE)
-			// 2. If not, and it has a data-parsoid strippedNL flag, add it back.
-			// This patched DOM will serialize html-pres correctly.
-			//
-			// FIXME: This code should be extracted into a DOMUtils.js file to be used
-			// by the testing setup.
-			if (nodeName === 'pre' && tkRTInfo.stx === 'html') {
-				var modified = false;
-				var fc = node.firstChild;
-				if (fc && fc.nodeType === node.TEXT_NODE) {
-					var matches = fc.data.match(/^(\r\n|\r|\n)/);
-					if (matches) {
-						fc.insertData(0, matches[1]);
-						modified = true;
-					}
-				}
-
-				var strippedNL = tkRTInfo.strippedNL;
-				if (!modified && strippedNL) {
-					if (fc && fc.nodeType === node.TEXT_NODE) {
-						fc.insertData(0, strippedNL);
-					} else {
-						node.insertBefore(node.ownerDocument.createTextNode(strippedNL), fc);
-					}
-				}
-			}
-
-			var serializeInfo = null;
-			if ( state.selser.serializeInfo === null ) {
-				serializeInfo = node.data['parsoid-serialize'];
-				state.selser.serializeInfo = serializeInfo;
-				state.chunkCB('', serializeInfo);
-			}
-
-			// See if we have a DOM-based handler for this node
-			var domHandler = this.getDOMHandler(state, node, state.chunkCB);
-			if ( domHandler && domHandler.handle ) {
-
-				// Update some state based on the serializer result
-				var stateCB = state.chunkCB, // remember the current cb
-					cbWrapper = function (res, serializeInfo) {
-					if (res) {
-						state.onStartOfLine = res.match(/\n$/) ? true : false;
-					}
-					stateCB(res, serializeInfo);
-				};
-
-				// DOM-based serialization
-				domHandler.handle(state, node, cbWrapper);
-
-				// Fake curToken state for token-based handlers. This is then
-				// assigned to prevToken in _serializeToken.
-				state.curToken = new pd.EndTagTk(nodeName, tkAttribs, tkRTInfo);
-				state.prevToken = state.curToken;
-				state.currTagToken = state.curToken;
-				state.prevTagToken = state.curToken;
-			} else {
-				// Token-based serialization
-
-				// Serialize the start token
-				var startToken = new pd.TagTk(nodeName, tkAttribs, tkRTInfo);
-				this._serializeToken(state, startToken);
-
-				// Newly created elements/tags in this list inherit their default
-				// syntax from their parent scope
-				var inheritSTXTags = { tbody:1, tr: 1, td: 1, li: 1, dd: 1, dt: 1 },
-					// These reset the inherited syntax no matter what
-					setSTXTags = { table: 1, ul: 1, ol: 1, dl: 1 },
-					// These (and inline elements) reset the default syntax to
-					// undefined
-					noHTMLSTXTags = {p: 1};
-
-				// Set self to parent token if data-parsoid is set
-				if ( Object.keys(tkRTInfo).length > 0 ||
-						setSTXTags[nodeName] ||
-						! inheritSTXTags[nodeName] )
-				{
-					if ( noHTMLSTXTags[nodeName] || ! Util.isBlockTag(nodeName) ) {
-						// Don't inherit stx in these
-						state.parentSTX = undefined;
-					} else {
-						state.parentSTX = tkRTInfo.stx;
-					}
-				}
-
-				// Clear out prevTagToken at each dom level
-				var oldPrevToken = state.prevToken, oldPrevTagToken = state.prevTagToken;
-				state.prevToken = null;
-				state.prevTagToken = null;
-
-				var prevEltChild = null;
-				for (i = 0, n = children.length; i < n; i++) {
-					child = children[i];
-
-					// Ignore -- handled separately
-					if (DU.isMarkerMeta(child, "mw:Separator")) {
-						continue;
-					}
-
-					// Skip over comment, white-space text nodes, and tpl-content nodes
-					var nodeType = child.nodeType;
-					if (  nodeType !== node.COMMENT_NODE &&
-						!(nodeType === node.TEXT_NODE && child.data.match(/^\s*$/)) &&
-						!(nodeType === node.ELEMENT_NODE &&
-							state.activeTemplateId &&
-							state.activeTemplateId === child.getAttribute("about"))
-						)
-					{
-						if (child.nodeType === node.ELEMENT_NODE) {
-							if (prevEltChild === null) {
-								if (!DU.hasNodeName(node, "pre")) {
-									// extract separator text between node and child;
-									state.emitSeparator(node, child, START_SEP);
-								}
-							} else if (prevEltChild.nodeType === node.ELEMENT_NODE) {
-								if (!DU.hasNodeName(node, "pre")) {
-									// extract separator text between prevEltChild and child;
-									state.emitSeparator(prevEltChild, child, IE_SEP);
-								}
-							}
-						}
-
-						prevEltChild = child;
-					}
-
-					this._serializeDOM( children[i], state );
-				}
-
-				if (prevEltChild && prevEltChild.nodeType === node.ELEMENT_NODE) {
-					// extract separator text between prevEltChild and node
-					if (!DU.hasNodeName(node, "pre")) {
-						state.emitSeparator(prevEltChild, node, END_SEP);
-					}
-				}
-
-				// Reset parent state
-				state.prevTagToken = oldPrevTagToken;
-				state.prevToken = oldPrevToken;
-				state.parentSTX = parentSTX;
-
-				// then the end token
-				this._serializeToken(state, new pd.EndTagTk(nodeName, tkAttribs, tkRTInfo));
-
-				if ( tailSrc ) {
-					// emit the tail
-					state.chunkCB( tailSrc, state.selser.serializeInfo );
-				}
-			}
-
-			if ( serializeInfo !== null ) {
-				state.selser.serializeInfo = null;
-			}
-
-			break;
-		case node.TEXT_NODE:
-			if (state.currLine.text === null) {
-				var buf = [],
-					bn = firstBlockNodeAncestor(node);
-
-				children = bn.childNodes;
-				for (i = 0, n = children.length; i < n; i++) {
-					gatherInlineText(buf, children[i]);
-				}
-				state.currLine.numPieces = n;
-				state.currLine.text = buf.join('');
-			}
-
-			// Test the separator handler, but don't use it yet.
-			//this.testHandleSeparator(node, state);
-
-			this._serializeToken( state, node.data );
-			break;
-		case node.COMMENT_NODE:
-			// delay the newline creation until after the comment
-			this._serializeToken( state, new pd.CommentTk( node.data ) );
-			break;
-		default:
-			console.warn( "Unhandled node type: " +
-					node.outerHTML );
-			break;
 	}
 };
 
