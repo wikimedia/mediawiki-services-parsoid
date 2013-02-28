@@ -507,25 +507,36 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 	// too. This would need to apply phase 3 token transforms, as the caption
 	// as an attribute is already expanded to phase 2.
 	function closeUnclosedBlockTags(tokens) {
-		var t;
-		var openBlockTagStack = [];
-		for (var i = 0, n = tokens.length; i < n; i++) {
+		var i, j, n, t,
+			// Store the index of a token in the 'tokens' array
+			// rather than the token itself.
+			openBlockTagStack = [];
+
+		for (i = 0, n = tokens.length; i < n; i++) {
 			t = tokens[i];
 			if (Util.isBlockToken(t)) {
 				if (t.constructor === TagTk) {
-					openBlockTagStack.push(t);
-				} else if (t.constructor === EndTagTk) {
-					if (openBlockTagStack.last().name === t.name) {
+					openBlockTagStack.push(i);
+				} else if (t.constructor === EndTagTk && openBlockTagStack.length > 0) {
+					if (tokens[openBlockTagStack.last()].name === t.name) {
 						openBlockTagStack.pop();
 					}
 				}
 			}
 		}
 
-		for (i = 0, n = openBlockTagStack.length; i < n; i++) {
-			t = openBlockTagStack.pop();
-			t.dataAttribs.autoInsertedEnd = true;
-			tokens.push(new EndTagTk(t.name));
+		n = openBlockTagStack.length;
+		if (n > 0) {
+			if (Object.isFrozen(tokens)) {
+				tokens = tokens.slice();
+			}
+			for (i = 0; i < n; i++) {
+				j = openBlockTagStack.pop();
+				t = tokens[j].clone();
+				t.dataAttribs.autoInsertedEnd = true;
+				tokens[j] = t;
+				tokens.push(new EndTagTk(t.name));
+			}
 		}
 
 		return tokens;
