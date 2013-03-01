@@ -1,10 +1,9 @@
 #!/bin/sh
 # Simple test runner with result archival in results git repository
 # Usage:
-#  ./runtests.sh -c    # wikitext -> HTML DOM tests and commit results
-#  ./runtests.sh -r -c # round-trip tests; commit
-#  ./runtests.sh       # wikitext -> HTML DOM; only show diff (no commit)
-#  ./runtests.sh -r    # round-trip tests; only show diff (no commit)
+#  ./runtests.sh -c    # run all tests and commit results
+#  ./runtests.sh -c -q # run all tests and commit results, no diff
+#  ./runtests.sh       # run all tests, only show diff (no commit)
 
 # Helper function to echo a message to stderr
 warn() {
@@ -73,5 +72,7 @@ else
     else
         git commit -m "`tail -11 all.txt`" all.txt || exit 1
     fi
-    git diff HEAD~1 | less -R || exit 1
+    if [ "$2" != '-q'];then
+        git diff HEAD~1 | less -R || exit 1
+    fi
 fi
