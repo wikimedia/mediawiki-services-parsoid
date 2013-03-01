@@ -1450,19 +1450,49 @@ function findBuilderCorrectedTags(document, env) {
 		}
 	}
 
-	function addPlaceholderMeta( node, dp, name ) {
-		var placeHolder = node.ownerDocument.createElement('meta'),
-			// TODO: pass in more precise source!
-			endSrc = dp.src ||
-				( DU.hasLiteralHTMLMarker(dp) ?
-				  '</' + name + '>' : '' );
+	function addPlaceholderMeta( node, dp, name, opts ) {
+		var src = dp.src;
 
-		if (!endSrc && dp.tsr) {
-			endSrc = env.page.src.substring(dp.tsr[0], dp.tsr[1]);
+		if (!src) {
+			if (dp.tsr) {
+				src = env.page.src.substring(dp.tsr[0], dp.tsr[1]);
+			} else if (opts.tsr) {
+				src = env.page.src.substring(opts.tsr[0], opts.tsr[1]);
+			} else if (DU.hasLiteralHTMLMarker(dp)) {
+				if (opts.start) {
+					src = "<" + name + ">";
+				} else if (opts.end) {
+					src = "</" + name + ">";
+				}
+			}
 		}
-		if ( endSrc ) {
+
+		if ( src ) {
+			var placeHolder;
+
+			/**
+			 * SSS FIXME: We can do better with these checks and introducing
+			 * plain text instead of a placeholder.  However, in some cases,
+			 * it does introduce nowiki escaping if this src has leading spaces
+			 * that could be parsed as pres.
+			 *
+			 * A possibly fix for this is to wrap this in a span with a public
+			 * attribute that tells WTS that this doesn't need escaping which
+			 * would have to be cleared by VE if that text gets edited.
+			 *
+			 * Another fix would be for nowiki escaping to get smarter.
+			 *
+			 * But for now, leaving this note in place and using placeholders.
+			 *
+			if (opts.start && (name === 'tr' || name === 'td' || name === 'th')) {
+				placeHolder = node.ownerDocument.createTextNode(src);
+			} else {
+			}
+			**/
+
+			placeHolder = node.ownerDocument.createElement('meta'),
 			placeHolder.setAttribute('typeof', 'mw:Placeholder');
-			DU.setDataParsoid(placeHolder, {src: endSrc});
+			DU.setDataParsoid(placeHolder, {src: src});
 
 			// Insert the placeHolder
 			node.parentNode.insertBefore(placeHolder, node);
@@ -1562,17 +1592,20 @@ function findBuilderCorrectedTags(document, env) {
 							// Not found, the tag was stripped. Insert an
 							// mw:Placeholder for round-tripping
 							//console.log('autoinsertedEnd', c.innerHTML, c.parentNode.innerHTML);
-							addPlaceholderMeta(c, dp, expectedName);
+							addPlaceholderMeta(c, dp, expectedName, {end: true});
 
 						}
 					} else if ( type === 'mw:StartTag' ) {
+						var dataStag = c.getAttribute('data-stag'),
+							data = dataStag.split(":"),
+							stagTsr = data[1].split(",");
+						expectedName = data[0];
 						sibling = c.previousSibling;
-						expectedName = c.getAttribute('data-stag').replace(/:.*$/, '');
 						if (( sibling && sibling.nodeName.toLowerCase() !== expectedName ) ||
 								(!sibling && c.parentNode.nodeName.toLowerCase() !== expectedName ))
 						{
 							//console.log( 'start stripped! ', expectedName, c.parentNode.innerHTML );
-							addPlaceholderMeta(c, dp, expectedName);
+							addPlaceholderMeta(c, dp, expectedName, {start: true, tsr: stagTsr});
 						}
 					} else {
 						// Jump over this meta tag, but preserve it
