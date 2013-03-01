@@ -150,6 +150,20 @@
         return false;
     };
 
+    /**
+     * Determine whether the protocol of a link is potentially valid. Use the environment's per-wiki config to do so.
+     */
+    function isProtocolValid( linkTarget ) {
+        var env = pegArgs.env,
+            wikiConf = env.conf.wiki;
+
+        if ( typeof linkTarget === 'string' ) {
+            return wikiConf.hasValidProtocol( linkTarget );
+        } else {
+            return true;
+        }
+    }
+
     /* End static utilities */
 
     /*
@@ -725,6 +739,7 @@ extlink
         & { return stops.push('extlink', true); }
         //target:urllink
         target:extlink_preprocessor_text
+        & { return isProtocolValid( target ); }
         sp:( space / [\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000] )*
         targetOff:({return pos;})
         content:(
@@ -815,7 +830,7 @@ isbn
 /* Default URL protocols in MediaWiki (see DefaultSettings). Normally
  * these can be configured dynamically. */
 
-url_protocol = & { return match_protocol( input.substr( pos ) ); } h:[a-zA-Z\/]+ c:':'? s:'//'? { return h.join( '' ) + c + s; }
+url_protocol = & { return isProtocolValid( input.substr( pos ) ); } h:[a-zA-Z\/]+ c:':'? s:'//'? { return h.join( '' ) + c + s; }
 
 // javascript does not support unicode features..
 unicode_separator_space = [ \u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]

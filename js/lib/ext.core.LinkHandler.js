@@ -693,7 +693,7 @@ function ExternalLinkHandler( manager, options ) {
 	if ( !this.urlParser ) {
 		// Actually the regular tokenizer, but we'll call it with the
 		// img_options production only.
-		ExternalLinkHandler.prototype.urlParser = new PegTokenizer();
+		ExternalLinkHandler.prototype.urlParser = new PegTokenizer( this.manager.env );
 	}
 	this._reset();
 }

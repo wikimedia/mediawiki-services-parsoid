@@ -156,6 +156,17 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 			this.server = general.server;
 		}
 	}
+
+	// Get information about the allowed protocols for external links.
+	if ( resultConf.protocols ) {
+		var proto, protocols = resultConf.protocols;
+		for ( var px = 0; px < protocols.length; px++ ) {
+			proto = protocols[px];
+			conf._protocols[proto] = true;
+		}
+
+		conf._protocolRegex = new RegExp( '^(' + protocols.join( '|' ) + ')', 'i' );
+	}
 };
 
 WikiConfig.prototype = {
@@ -194,6 +205,18 @@ WikiConfig.prototype = {
 	extensionTags: null,
 	interpolatedList: null,
 
+	/**
+	 * @property {string[]}
+	 * @private
+	 */
+	_protocols: null,
+
+	/**
+	 * @property {RegExp}
+	 * @private
+	 */
+	_protocolRegex: null,
+
 	init: function() {
 		// give the instance its own hashes/arrays so they
 		// don't get aliased.
@@ -204,6 +227,7 @@ WikiConfig.prototype = {
 		this.specialPages = {};
 		this.extensionTags = {};
 		this.interpolatedList = [];
+		this._protocols = {};
 		// clone the canonicalNamespace list
 		this.canonicalNamespaces =
 			Object.create(WikiConfig.prototype.canonicalNamespaces);
@@ -262,6 +286,18 @@ WikiConfig.prototype = {
 
 	replaceInterpolatedMagicWord: function ( alias, value ) {
 		return alias.replace( /\$1/, value );
+	},
+
+	/**
+	 * @param {string} potentialLink
+	 */
+	hasValidProtocol: function ( potentialLink ) {
+		if ( this._protocolRegex ) {
+			return this._protocolRegex.test( potentialLink );
+		} else {
+			// With no available restrictions, we have to assume "no".
+			return false;
+		}
 	}
 };
 Object.freeze(WikiConfig.prototype.canonicalNamespaces);
