@@ -1422,19 +1422,16 @@ var xmlFuncs = function () {
 	/**
 	 * Print the result of a test in XML.
 	 *
-	 * @arg title {string} The title of the test
-	 * @arg time {object} The times for the test--an object with 'start' and 'end' in milliseconds since epoch.
-	 * @arg comments {Array} Any comments associated with the test
-	 * @arg iopts {object|null} Any options for the test (not options passed into the process)
-	 * @arg expected {object} Expected output for this test. Contains 'raw' and 'normal' as above.
-	 * @arg actual {object} Actual output from the parser. Contains 'raw' and 'normal', the output in different formats
-	 * @arg options {object} Options for the test runner. Usually just a copy of argv.
-	 * @arg mode {string} The mode we're in (wt2wt, wt2html, html2wt, or html2html)
+	 * @inheritdoc ParserTests#printResult
 	 */
-	reportResultXML = function ( title, time, comments, iopts, expected, actual, options, mode ) {
+	reportResultXML = function ( title, time, comments, iopts, expected, actual, options, mode, item ) {
 		var timeTotal, testcaseEle;
 		var quick = booleanOption( options.quick );
 		var quiet = booleanOption( options.quiet );
+
+		if ( mode === 'selser' ) {
+			title += ' ' + JSON.stringify( item.changes );
+		}
 
 		testcaseEle = '<testcase name="' + Util.encodeXml( title ) + '" ';
 		testcaseEle += 'assertions="1" ';
