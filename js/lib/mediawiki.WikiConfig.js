@@ -417,6 +417,20 @@ WikiConfig.prototype = {
 		} else {
 			return this.extensionTags[potentialTag] === true;
 		}
+	},
+
+	/**
+	 * @param {string} newTag
+	 */
+	addExtensionTag: function ( newTag ) {
+		this.extensionTags[newTag] = true;
+	},
+
+	/**
+	 * @param {string} tagName
+	 */
+	removeExtensionTag: function ( tagName ) {
+		delete this.extensionTags[tagName];
 	}
 };
 Object.freeze(WikiConfig.prototype.canonicalNamespaces);

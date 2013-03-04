@@ -372,7 +372,7 @@ var DOMUtils = {
 				} else {
 					tokBuf.push(new TagTk(nodeName, tagAttrs));
 					for (var i = 0, n = children.length; i < n; i++) {
-						this.convertDOMtoTokens(tokBuf, children[i]);
+						tokBuf = this.convertDOMtoTokens(tokBuf, children[i]);
 					}
 					tokBuf.push(new EndTagTk(nodeName));
 				}
@@ -390,6 +390,7 @@ var DOMUtils = {
 				console.warn( "Unhandled node type: " + node.outerHTML );
 				break;
 		}
+		return tokBuf;
 	},
 
 	/**

@@ -78,7 +78,7 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 				srcHandler = this._processTemplateAndTitle.bind(
 					this, state, frame, cb,
 					{ name: templateName, attribs: [], cacheKey: text });
-			this.fetchExpandedTplOrExtension( this.manager.env.page.name || '',
+			this.fetchExpandedTpl( this.manager.env.page.name || '',
 					text, PreprocessorRequest, cb, srcHandler);
 		} else {
 			// We don't perform recursive template expansion- something
@@ -562,7 +562,7 @@ TemplateHandler.prototype._fetchTemplateAndTitle = function ( title, parentCB, c
 /**
  * Fetch the preprocessed wikitext for a template-like construct
  */
-TemplateHandler.prototype.fetchExpandedTplOrExtension = function ( title, text, processor, parentCB, cb ) {
+TemplateHandler.prototype.fetchExpandedTpl = function ( title, text, processor, parentCB, cb ) {
 	var env = this.manager.env;
 	if ( text in env.pageCache ) {
 		// XXX: store type too (and cache tokens/x-mediawiki)
@@ -572,7 +572,7 @@ TemplateHandler.prototype.fetchExpandedTplOrExtension = function ( title, text, 
 				text ] } );
 	} else {
 
-		// We are about to start an async request for a template/extension
+		// We are about to start an async request for a template
 		env.dp( 'Note: trying to expand ', text );
 
 		// Start a new request if none is outstanding

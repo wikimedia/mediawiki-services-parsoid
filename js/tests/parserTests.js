@@ -18,12 +18,22 @@ var fs = require('fs'),
 	jsDiff = require('diff'),
 	colors = require('colors'),
 	Util = require( '../lib/mediawiki.Util.js' ).Util,
+	childProc = require('child_process'),
+	spawn = childProc.spawn,
+	fork = childProc.fork,
 	DOMUtils = require( '../lib/mediawiki.DOMUtils.js' ).DOMUtils,
 	util = require( 'util' ),
 	async = require( 'async' ),
 	PEG = require('pegjs'),
 	// Handle options/arguments with optimist module
 	optimist = require('optimist');
+
+// Run a mock API in the background so we can request things from it
+var forkedAPI = fork( './mockAPI.js', [], { silent: true } );
+
+process.on( 'exit', function () {
+	forkedAPI.kill();
+} );
 
 // track files imported / required
 var fileDependencies = [];
@@ -670,8 +680,27 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 	}
 
 	item.time = {};
-	var prefix = (item.options || {}).language || 'en';
-	var variant = (item.options || {}).variant;
+
+	var i, variant,
+		extensions = [],
+		prefix = 'en';
+
+	if ( item.options ) {
+		if ( item.options.language !== undefined ) {
+			prefix = item.options.language;
+		}
+
+		variant = (item.options || {}).variant;
+
+		if ( item.options.extensions !== undefined ) {
+			extensions = item.options.extensions.split( ' ' );
+		}
+	}
+
+	item.extensions = extensions;
+	for ( i = 0; i < extensions.length; i++ ) {
+		this.env.conf.wiki.addExtensionTag( extensions[i] );
+	}
 
 	// Build a list of tasks for this test that will be passed to async.waterfall
 	var finishHandler = function ( err, res ) {
@@ -680,8 +709,13 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 				item.title, item.comments, item.options,
 				options, null, null, true, mode, err, item );
 		}
+
+		for ( i = 0; i < extensions.length; i++ ) {
+			this.env.conf.wiki.removeExtensionTag( extensions[i] );
+		}
+
 		process.nextTick( endCb );
-	};
+	}.bind( this );
 
 	var testTasks = [];
 
@@ -1218,9 +1252,16 @@ ParserTests.prototype.main = function ( options ) {
 
 	options.fetchTemplates = false;
 	options.usePHPPreProcessor = false;
+	options.expandExtensions = true;
 	options.fetchConfig = false;
 
-	var parsoidConfig = new ParsoidConfig( null, options );
+	var i, key, parsoidConfig = new ParsoidConfig( null, options ),
+		iwmap = Object.keys( parsoidConfig.interwikiMap );
+
+	for ( i = 0; i < iwmap.length; i++ ) {
+		key = iwmap[i];
+		parsoidConfig.interwikiMap[key] = 'http://localhost:7001/api.php';
+	}
 
 	// Create a new parser environment
 	MWParserEnvironment.getParserEnv( parsoidConfig, null, 'en', null, function ( err, env ) {
@@ -1410,6 +1451,9 @@ ParserTests.prototype.processCase = function ( i, options ) {
 					.replace( /,\n([^"])/g, ',$1' )
 					.replace( /[\n ]*(\[)[\n ]*/g, '$1' ) );
 		}
+
+		// Kill the forked API, so we'll exit correctly.
+		forkedAPI.kill();
 
 		// print out the summary
 		// note: these stats won't necessarily be useful if someone

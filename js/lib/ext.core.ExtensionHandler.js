@@ -36,7 +36,7 @@ ExtensionHandler.prototype.parseExtensionHTML = function(extToken, cb, err, html
 	var topNodes = Util.parseHTML(html).body.childNodes;
 	var toks = [];
 	for (var i = 0, n = topNodes.length; i < n; i++) {
-		DOMUtils.convertDOMtoTokens(toks, topNodes[i]);
+		toks = DOMUtils.convertDOMtoTokens(toks, topNodes[i]);
 	}
 
 	var state = { token: extToken };
@@ -50,14 +50,39 @@ ExtensionHandler.prototype.parseExtensionHTML = function(extToken, cb, err, html
 	cb({ tokens: [new InternalTk([new KV('tokens', toks)])] });
 };
 
+/**
+ * Fetch the preprocessed wikitext for an extension
+ */
+ExtensionHandler.prototype.fetchExpandedExtension = function ( title, text, processor, parentCB, cb ) {
+	var env = this.manager.env;
+	if ( ! env.conf.parsoid.expandExtensions ) {
+		parentCB(  { tokens: [ 'Warning: Extension tag expansion disabled, and no cache for ' +
+				title ] } );
+	} else {
+		// We are about to start an async request for an extension
+		env.dp( 'Note: trying to expand ', text );
+
+		// Start a new request if none is outstanding
+		//env.dp( 'requestQueue: ', env.requestQueue );
+		if ( env.requestQueue[text] === undefined ) {
+			env.tp( 'Note: Starting new request for ' + text );
+			env.requestQueue[text] = new processor( env, title, text );
+		}
+		// append request, process in document order
+		env.requestQueue[text].listeners( 'src' ).push( cb );
+
+		parentCB ( { async: true } );
+	}
+};
+
 ExtensionHandler.prototype.onExtension = function ( token, frame, cb ) {
 	var extensionName = token.getAttribute('name'),
 	    nativeHandler = this.nativeExtHandlers[extensionName];
 	if ( nativeHandler ) {
 		nativeHandler(token, cb);
-	} else if ( this.usePHPPreProcessor ) {
+	} else if ( this.manager.env.conf.parsoid.expandExtensions ) {
 		// Use MediaWiki's action=parse preprocessor
-		this.fetchExpandedTplOrExtension(
+		this.fetchExpandedExtension(
 			extensionName,
 			token.getAttribute('source'),
 			PHPParseRequest,

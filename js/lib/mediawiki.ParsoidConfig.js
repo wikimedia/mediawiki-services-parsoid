@@ -102,6 +102,11 @@ ParsoidConfig.prototype.traceFlags = null;
 ParsoidConfig.prototype.fetchTemplates = true;
 
 /**
+ * @property {boolean} expandExtensions Whether we should request extension tag expansions from a wiki.
+ */
+ParsoidConfig.prototype.expandExtensions = true;
+
+/**
  * @property {number} maxDepth The maximum depth to which we should expand templates. Only applies if we would fetch templates anyway, and if we're actually expanding templates. So #fetchTemplates must be true and #usePHPPreProcessor must be false.
  */
 ParsoidConfig.prototype.maxDepth = 40;

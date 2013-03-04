@@ -149,7 +149,12 @@ function dumpFlags() {
             description: 'File containing input as an alternative to stdin',
             'boolean': false,
             'default': false
-        }
+        },
+		'extensions': {
+			description: 'List of valid extensions - of form foo,bar,baz',
+			'boolean': false,
+			'default': ''
+		}
 	});
 
 	var argv = opts.argv;
@@ -196,6 +201,16 @@ function dumpFlags() {
 		env.conf.parsoid.maxDepth = argv.maxdepth || env.conf.parsoid.maxDepth;
 
 		Util.setDebuggingFlags( env.conf.parsoid, argv );
+
+		var i, validExtensions;
+
+		if ( validExtensions !== '' ) {
+			validExtensions = argv.extensions.split( ',' );
+
+			for ( i = 0; i < validExtensions.length; i++ ) {
+				env.conf.wiki.addExtensionTag( validExtensions[i] );
+			}
+		}
 
 		// Init parsers, serializers, etc.
 		var parserPipeline,
