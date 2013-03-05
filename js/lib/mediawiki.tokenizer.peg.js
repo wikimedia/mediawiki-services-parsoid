@@ -200,9 +200,25 @@ PegTokenizer.prototype.onEnd = function ( ) {
  */
 PegTokenizer.prototype.tokenize = function( text, production ) {
 	try {
-		var args = { cb: null, pegTokenizer: this, srcOffset: 0, env: this.env };
-		return this.tokenizer.tokenize(text, production || "start", args);
+		// Some productions use callbacks: start, tlb, toplevelblock.
+		// All other productions return tokens directly.
+		var toks = [],
+			retToks = this.tokenizer.tokenize(text, production, {
+				cb: function(r) { toks = toks.concat(r); },
+				pegTokenizer: this,
+				srcOffset: 0,
+				env: this.env
+			});
+
+		if (retToks.constructor === Array && retToks.length > 0) {
+			toks = toks.concat(retToks);
+		}
+		return toks;
 	} catch ( e ) {
+		// console.warn("Input: " + text);
+		// console.warn("Rule : " + production);
+		// console.warn("ERROR: " + e);
+		// console.warn("Stack: " + e.stack);
 		return false;
 	}
 };

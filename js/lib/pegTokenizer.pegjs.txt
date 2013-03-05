@@ -296,6 +296,11 @@
         return pos === inputLength;
     };
 
+    // Current extension tag being parsed.
+    var extParseInfo = {
+        currTag: null,
+    };
+
     // text start position
     var textStart = 0;
 
@@ -399,6 +404,7 @@
         if (srcOffset && srcOffset > 0) {
             Util.shiftTokenTSR(tokens, srcOffset);
         }
+        // console.warn("TOKS: " + JSON.stringify(tokens));
         pegArgs.cb(tokens);
     };
 }
@@ -631,7 +637,8 @@ inlineline
 
 inline_element
   = //& { dp('inline_element enter' + input.substr(pos, 10)); return true; }
-      & '<' ( comment / xmlish_tag )
+      & '<' xmlish_tag
+    / & '<' comment
     /// & '{' ( & '{{{{{' template / tplarg / template )
     / & '{' tplarg_or_template
     /// & '{' ( tplarg / template )
@@ -724,7 +731,7 @@ behavior_text = text:( &( !'__' ) text_char )* {
  **************************************************************/
 
 autolink
-  = ! { return stops.onStack('extlink') }
+  = ! { return stops.onStack('extlink'); }
     (urllink / autoref / isbn)
 
 urllink
@@ -733,7 +740,7 @@ urllink
   }
 
 extlink
-  = ! { return stops.onStack('extlink') } // extlink cannot be nested
+  = ! { return stops.onStack('extlink'); } // extlink cannot be nested
     (
         "["
         & { return stops.push('extlink', true); }
@@ -741,13 +748,13 @@ extlink
         target:extlink_preprocessor_text
         & { return isProtocolValid( target ); }
         sp:( space / [\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000] )*
-        targetOff:({return pos;})
+        targetOff:({ return pos; })
         content:(
                 t1:(
                     & { return  stops.push('pipe', false); }
-                    t:inlineline { stops.pop('pipe'); return t }
-                    / ! { return stops.pop('pipe') }
-                ) { return t1 }
+                    t:inlineline { stops.pop('pipe'); return t; }
+                    / ! { return stops.pop('pipe'); }
+                ) { return t1; }
               )?
         "]" {
             stops.pop('extlink');
@@ -925,7 +932,7 @@ template
       //console.warn( 'tokenizer template ' + pos + );
       //console.warn('template @' + pos + '::' + input.substr(pos, 40) );
       return obj;
-  }
+    }
 
 // XXX: support template and args in target!
 //template_target
@@ -1289,29 +1296,110 @@ pre
   / "</pre>" { stops.dec('pre'); return "</pre>"; }
   / & { return stops.dec('pre'); }
 
-/* XXX: Extension tags can require a change in the tokenizer mode, which
- * returns any text between extension tags verbatim. For now, we simply
- * continue to parse the contained text and return the tokens. The original
- * input source can be recovered from the source positions added on tag
- * tokens. This won't however work in all cases. For example, a comment start
- * (<!--) between extension tags would cause the remaining text to be consumed
- * as a comment. To avoid this, we might need to look ahead for the end tag
- * and limit the content parsing to this section. */
+/* -----------------------------------------------------------------------
+ * Extension tags should be parsed with higher priority than anything else.
+ * The trick we use is to strip out the content inside a matching tag-pair
+ * and not tokenize it. The content, if it needs to parsed (for example,
+ * for <ref>, <*include*> tags), is parsed in a fresh tokenizer context
+ * which means any error correction that needs to happen is restricted to
+ * the scope of the extension content and doesn't spill over to the higher
+ * level.  Ex: <math><!--foo</math>.
+ *
+ * This trick also lets us prevent extension content (that dont accept WT)
+ * from being parsed as wikitext (Ex: <math>\frac{foo\frac{bar}}</math>)
+ * We dont want the "}}" being treated as a template closing tag and closing
+ * outer templates.
+ * ----------------------------------------------------------------------- */
 
 xmlish_tag = nowiki
-    / t:generic_tag {
+    / t2:(t:generic_tag {
         var tagName = t.name;
+
         // TagTk and SelfclosingTagTk
         if (t.constructor !== EndTagTk && !html5_tag_names[tagName] && !html_old_names[tagName]) {
             if (t.constructor === TagTk) {
-                var restOfInput = input.substring(t.dataAttribs.tsr[0]);
-                var tagContent = restOfInput.match(new RegExp("^(.|\n)*?</\s*" + tagName + ">", "m"));
-                t.dataAttribs.src = tagContent ? tagContent[0] : restOfInput;
+                var tsr0 = t.dataAttribs.tsr[0],
+                    restOfInput = input.substring(tsr0),
+                    tagContent = restOfInput.match(new RegExp("^(.|\n)*?(</\s*" + tagName + ">)", "m"));
+
+                var extSrc = null;
+                if (tagContent) {
+                    extSrc = tagContent[0];
+                } else if (Util.extensionInstalled(pegArgs.env, tagName)) {
+                    extSrc = restOfInput;
+                }
+
+                if (extSrc) {
+                    var startTagLen = pos-tsr0,
+                        extContentLen = extSrc.length - startTagLen - (tagContent ? tagContent[2].length : 0),
+                        extContent = extSrc.substring(startTagLen, startTagLen + extContentLen);
+
+                    t.dataAttribs.src = extSrc;
+
+                    // Temporary state
+                    t.dataAttribs.isExt = true;
+                    t.dataAttribs.extContent = extContent;
+                    t.dataAttribs.extContentOffset = pos;
+                    t.dataAttribs.origInput = input;
+
+                    // Replace extension content with dummy content so it matches the
+                    // rule following this match and can be tokenized independently (if required).
+                    // This is just a trick to tokenize ref content with higher priority.
+                    input = input.slice(0,pos) + Util.charSequence('', '#', extContentLen) + input.slice(pos+extContentLen);
+
+                    // console.warn("input: " + input);
+                }
             } else {
                 t.dataAttribs.src = input.substring(t.dataAttribs.tsr[0], t.dataAttribs.tsr[1]);
             }
         }
+
+        extParseInfo.currTag = t;
+        // console.warn("curr: " + JSON.stringify(extParseInfo.currTag));
         return t;
+    }) (
+      dummyText:'#'* {
+        // Should only match if we tricked the tokenizer
+        var currExtTag = extParseInfo.currTag;
+        return currExtTag.dataAttribs.isExt &&
+            currExtTag.constructor !== SelfclosingTagTk &&
+            dummyText.length === currExtTag.dataAttribs.extContent.length;
+      }
+      / &  {
+        // Should not match if we tricked the tokenizer
+        var currExtTag = extParseInfo.currTag;
+        return !currExtTag.dataAttribs.isExt ||
+            currExtTag.constructor === SelfclosingTagTk;
+      }
+    ) {
+        var ret = t2, dp = t2.dataAttribs;
+        if (dp.isExt) {
+            if (Util.extensionUsesWT(t2.name)) {
+                // Parse ref-content, strip eof, and shift tsr
+                var extContentToks = (new PegTokenizer(pegArgs.env)).tokenize(dp.extContent);
+                extContentToks = Util.stripEOFTkfromTokens(extContentToks);
+                Util.shiftTokenTSR(extContentToks, dp.extContentOffset);
+
+                ret = [t2].concat(extContentToks);
+            } else if (!Util.extensionInstalled(t2.name)) {
+                // Unknown extension -- spit out content as plain text
+                ret = [t2, dp.extContent];
+            }
+
+            // Reset input
+            input = dp.origInput;
+
+            // Clear temporary state
+            dp.isExt = undefined;
+            dp.extContent = undefined;
+            dp.extContentOffset = undefined;
+            dp.origInput = undefined;
+        }
+        // console.warn("RET: " + JSON.stringify(ret));
+
+        extParseInfo.currTag = null;
+
+        return ret;
     }
 
 /*

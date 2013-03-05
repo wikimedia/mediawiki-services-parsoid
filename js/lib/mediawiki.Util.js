@@ -746,6 +746,22 @@ var Util = {
 		}
 	},
 
+    // SSS FIXME: This code is copied from the WTS.
+    // Given the ongoing refactoring, I figured it is good to have a copy here
+    // and de-duplicate code once the refactoring is complete and see if this
+    // code survives there.
+    charSequence: function(prefix, c, numChars) {
+        if (numChars && numChars > 0) {
+            var buf = [prefix];
+            for (var i = 0; i < numChars; i++) {
+                buf.push(c);
+            }
+            return buf.join('');
+        } else {
+            return prefix;
+        }
+    },
+
 	arrayToHash: function(a) {
 		var h = {};
 		for (var i = 0, n = a.length; i < n; i++) {
@@ -786,6 +802,39 @@ var Util = {
 			}
 		}
 		console.error(out.join(arguments[1]));
+	},
+
+	// SSS FIXME: This should probably come from some config/api?
+	// This is just a temporary hack for this patch
+	wtUsingTags: null,
+	installedExts: null,
+
+	extensionInstalled: function(env, name) {
+		// SSS FIXME: This is just a temporary hack for this patch.
+		//
+		// Once this info is available in the config, we should check
+		// env.conf.wiki.extensionTags instead.
+
+		if (!this.installedExts) {
+			this.installedExts = this.arrayToHash([
+				"includeonly", "onlyinclude", "noinclude", "ref",
+				'categorytree', 'charinsert', 'gallery', 'hiero', 'imagemap',
+				'inputbox', 'math', 'poem', 'syntaxhighlight', 'tag', 'timeline'
+			]);
+		}
+		return this.installedExts[name] !== undefined;
+	},
+
+	extensionUsesWT: function(name) {
+		// This is just a temporary hack for this patch -- some of this
+		// code will get rewritten by moving the code to the extension itself.
+		// *include* elsewhere, and ref to ext.Cite.js
+		if (!this.wtUsingTags) {
+			this.wtUsingTags = this.arrayToHash([
+				"includeonly", "onlyinclude", "noinclude", "ref"
+			]);
+		}
+		return this.wtUsingTags[name] !== undefined;
 	}
 };
 
