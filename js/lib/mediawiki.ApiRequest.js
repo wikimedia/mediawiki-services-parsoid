@@ -377,8 +377,17 @@ PHPParseRequest.prototype.handleJSON = function ( error, data ) {
 	this.processListeners( error, parsedHtml );
 };
 
-var ConfigRequest = function ( uri, env ) {
+var ConfigRequest = function ( confSource, env ) {
 	ApiRequest.call( this, env, null );
+
+	if ( env.conf.parsoid.useLocalConfig ) {
+		// Hack! Configured to use local configurations, probably for
+		// parserTests. Fetch the cached versions and use those.
+		// The confSource will be a filename in this case.
+		var localConf = require( confSource );
+		this.handleJSON( null, localConf );
+		return;
+	}
 
 	var metas = [
 			'siteinfo'
@@ -402,7 +411,7 @@ var ConfigRequest = function ( uri, env ) {
 			siprop: siprops.join( '|' )
 		};
 
-	var url = uri + '?' +
+	var url = confSource + '?' +
 		qs.stringify( apiargs );
 
 	this.requestOptions = {

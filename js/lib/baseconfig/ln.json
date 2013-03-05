@@ -1,0 +1,3630 @@
+{
+  "query": {
+    "namespaces": {
+      "0": {
+        "id": 0,
+        "case": "first-letter",
+        "*": "",
+        "content": ""
+      },
+      "1": {
+        "id": 1,
+        "case": "first-letter",
+        "*": "Discussion",
+        "subpages": "",
+        "canonical": "Talk"
+      },
+      "2": {
+        "id": 2,
+        "case": "first-letter",
+        "*": "Utilisateur",
+        "subpages": "",
+        "canonical": "User"
+      },
+      "3": {
+        "id": 3,
+        "case": "first-letter",
+        "*": "Discussion utilisateur",
+        "subpages": "",
+        "canonical": "User talk"
+      },
+      "4": {
+        "id": 4,
+        "case": "first-letter",
+        "*": "Base MW",
+        "subpages": "",
+        "canonical": "Project"
+      },
+      "5": {
+        "id": 5,
+        "case": "first-letter",
+        "*": "Discussion Base MW",
+        "subpages": "",
+        "canonical": "Project talk"
+      },
+      "6": {
+        "id": 6,
+        "case": "first-letter",
+        "*": "Fichier",
+        "canonical": "File"
+      },
+      "7": {
+        "id": 7,
+        "case": "first-letter",
+        "*": "Discussion fichier",
+        "subpages": "",
+        "canonical": "File talk"
+      },
+      "8": {
+        "id": 8,
+        "case": "first-letter",
+        "*": "MediaWiki",
+        "subpages": "",
+        "canonical": "MediaWiki"
+      },
+      "9": {
+        "id": 9,
+        "case": "first-letter",
+        "*": "Discussion MediaWiki",
+        "subpages": "",
+        "canonical": "MediaWiki talk"
+      },
+      "10": {
+        "id": 10,
+        "case": "first-letter",
+        "*": "Modèle",
+        "canonical": "Template"
+      },
+      "11": {
+        "id": 11,
+        "case": "first-letter",
+        "*": "Discussion modèle",
+        "subpages": "",
+        "canonical": "Template talk"
+      },
+      "12": {
+        "id": 12,
+        "case": "first-letter",
+        "*": "Aide",
+        "subpages": "",
+        "canonical": "Help"
+      },
+      "13": {
+        "id": 13,
+        "case": "first-letter",
+        "*": "Discussion aide",
+        "subpages": "",
+        "canonical": "Help talk"
+      },
+      "14": {
+        "id": 14,
+        "case": "first-letter",
+        "*": "Catégorie",
+        "canonical": "Category"
+      },
+      "15": {
+        "id": 15,
+        "case": "first-letter",
+        "*": "Discussion catégorie",
+        "subpages": "",
+        "canonical": "Category talk"
+      },
+      "-2": {
+        "id": -2,
+        "case": "first-letter",
+        "*": "Média",
+        "canonical": "Media"
+      },
+      "-1": {
+        "id": -1,
+        "case": "first-letter",
+        "*": "Spécial",
+        "canonical": "Special"
+      }
+    },
+    "namespacealiases": [
+      {
+        "id": 6,
+        "*": "Image"
+      },
+      {
+        "id": 7,
+        "*": "Image talk"
+      },
+      {
+        "id": 1,
+        "*": "Discuter"
+      },
+      {
+        "id": 3,
+        "*": "Discussion Utilisateur"
+      },
+      {
+        "id": 7,
+        "*": "Discussion Fichier"
+      },
+      {
+        "id": 7,
+        "*": "Discussion Image"
+      },
+      {
+        "id": 11,
+        "*": "Discussion Modèle"
+      },
+      {
+        "id": 13,
+        "*": "Discussion Aide"
+      },
+      {
+        "id": 15,
+        "*": "Discussion Catégorie"
+      }
+    ],
+    "magicwords": [
+      {
+        "name": "redirect",
+        "aliases": [
+          "#REDIRECTION",
+          "#REDIRECT"
+        ]
+      },
+      {
+        "name": "notoc",
+        "aliases": [
+          "__AUCUNSOMMAIRE__",
+          "__AUCUNETDM__",
+          "__NOTOC__"
+        ]
+      },
+      {
+        "name": "nogallery",
+        "aliases": [
+          "__AUCUNEGALERIE__",
+          "__NOGALLERY__"
+        ]
+      },
+      {
+        "name": "forcetoc",
+        "aliases": [
+          "__FORCERSOMMAIRE__",
+          "__FORCERTDM__",
+          "__FORCETOC__"
+        ]
+      },
+      {
+        "name": "toc",
+        "aliases": [
+          "__SOMMAIRE__",
+          "__TDM__",
+          "__TOC__"
+        ]
+      },
+      {
+        "name": "noeditsection",
+        "aliases": [
+          "__SECTIONNONEDITABLE__",
+          "__NOEDITSECTION__"
+        ]
+      },
+      {
+        "name": "currentmonth",
+        "aliases": [
+          "MOISACTUEL",
+          "MOIS2ACTUEL",
+          "CURRENTMONTH",
+          "CURRENTMONTH2"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "currentmonth1",
+        "aliases": [
+          "MOIS1ACTUEL",
+          "CURRENTMONTH1"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "currentmonthname",
+        "aliases": [
+          "NOMMOISACTUEL",
+          "CURRENTMONTHNAME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "currentmonthnamegen",
+        "aliases": [
+          "NOMGENMOISACTUEL",
+          "CURRENTMONTHNAMEGEN"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "currentmonthabbrev",
+        "aliases": [
+          "ABREVMOISACTUEL",
+          "CURRENTMONTHABBREV"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "currentday",
+        "aliases": [
+          "JOURACTUEL",
+          "JOUR1ACTUEL",
+          "CURRENTDAY"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "currentday2",
+        "aliases": [
+          "JOUR2ACTUEL",
+          "CURRENTDAY2"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "currentdayname",
+        "aliases": [
+          "NOMJOURACTUEL",
+          "CURRENTDAYNAME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "currentyear",
+        "aliases": [
+          "ANNEEACTUELLE",
+          "CURRENTYEAR"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "currenttime",
+        "aliases": [
+          "HORAIREACTUEL",
+          "CURRENTTIME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "currenthour",
+        "aliases": [
+          "HEUREACTUELLE",
+          "CURRENTHOUR"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localmonth",
+        "aliases": [
+          "MOISLOCAL",
+          "MOIS2LOCAL",
+          "LOCALMONTH",
+          "LOCALMONTH2"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localmonth1",
+        "aliases": [
+          "MOIS1LOCAL",
+          "LOCALMONTH1"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localmonthname",
+        "aliases": [
+          "NOMMOISLOCAL",
+          "LOCALMONTHNAME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localmonthnamegen",
+        "aliases": [
+          "NOMGENMOISLOCAL",
+          "LOCALMONTHNAMEGEN"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localmonthabbrev",
+        "aliases": [
+          "ABREVMOISLOCAL",
+          "LOCALMONTHABBREV"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localday",
+        "aliases": [
+          "JOURLOCAL",
+          "JOUR1LOCAL",
+          "LOCALDAY"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localday2",
+        "aliases": [
+          "JOUR2LOCAL",
+          "LOCALDAY2"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localdayname",
+        "aliases": [
+          "NOMJOURLOCAL",
+          "LOCALDAYNAME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localyear",
+        "aliases": [
+          "ANNEELOCALE",
+          "LOCALYEAR"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localtime",
+        "aliases": [
+          "HORAIRELOCAL",
+          "LOCALTIME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localhour",
+        "aliases": [
+          "HEURELOCALE",
+          "LOCALHOUR"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "numberofpages",
+        "aliases": [
+          "NOMBREPAGES",
+          "NUMBEROFPAGES"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "numberofarticles",
+        "aliases": [
+          "NOMBREARTICLES",
+          "NUMBEROFARTICLES"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "numberoffiles",
+        "aliases": [
+          "NOMBREFICHIERS",
+          "NUMBEROFFILES"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "numberofusers",
+        "aliases": [
+          "NOMBREUTILISATEURS",
+          "NUMBEROFUSERS"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "numberofactiveusers",
+        "aliases": [
+          "NOMBREUTILISATEURSACTIFS",
+          "NUMBEROFACTIVEUSERS"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "numberofedits",
+        "aliases": [
+          "NOMBREMODIFS",
+          "NUMBEROFEDITS"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "numberofviews",
+        "aliases": [
+          "NOMBREVUES",
+          "NUMBEROFVIEWS"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "pagename",
+        "aliases": [
+          "NOMPAGE",
+          "PAGENAME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "pagenamee",
+        "aliases": [
+          "NOMPAGEX",
+          "PAGENAMEE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "namespace",
+        "aliases": [
+          "ESPACENOMMAGE",
+          "NAMESPACE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "namespacee",
+        "aliases": [
+          "ESPACENOMMAGEX",
+          "NAMESPACEE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "namespacenumber",
+        "aliases": [
+          "NOMBREESPACENOMMAGE",
+          "NAMESPACENUMBER"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "talkspace",
+        "aliases": [
+          "ESPACEDISCUSSION",
+          "TALKSPACE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "talkspacee",
+        "aliases": [
+          "ESPACEDISCUSSIONX",
+          "TALKSPACEE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "subjectspace",
+        "aliases": [
+          "ESPACESUJET",
+          "ESPACEARTICLE",
+          "SUBJECTSPACE",
+          "ARTICLESPACE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "subjectspacee",
+        "aliases": [
+          "ESPACESUJETX",
+          "ESPACEARTICLEX",
+          "SUBJECTSPACEE",
+          "ARTICLESPACEE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "fullpagename",
+        "aliases": [
+          "NOMPAGECOMPLET",
+          "FULLPAGENAME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "fullpagenamee",
+        "aliases": [
+          "NOMPAGECOMPLETX",
+          "FULLPAGENAMEE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "subpagename",
+        "aliases": [
+          "NOMSOUSPAGE",
+          "SUBPAGENAME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "subpagenamee",
+        "aliases": [
+          "NOMSOUSPAGEX",
+          "SUBPAGENAMEE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "basepagename",
+        "aliases": [
+          "NOMBASEDEPAGE",
+          "BASEPAGENAME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "basepagenamee",
+        "aliases": [
+          "NOMBASEDEPAGEX",
+          "BASEPAGENAMEE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "talkpagename",
+        "aliases": [
+          "NOMPAGEDISCUSSION",
+          "TALKPAGENAME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "talkpagenamee",
+        "aliases": [
+          "NOMPAGEDISCUSSIONX",
+          "TALKPAGENAMEE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "subjectpagename",
+        "aliases": [
+          "NOMPAGESUJET",
+          "NOMPAGEARTICLE",
+          "SUBJECTPAGENAME",
+          "ARTICLEPAGENAME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "subjectpagenamee",
+        "aliases": [
+          "NOMPAGESUJETX",
+          "NOMPAGEARTICLEX",
+          "SUBJECTPAGENAMEE",
+          "ARTICLEPAGENAMEE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_thumbnail",
+        "aliases": [
+          "vignette",
+          "thumbnail",
+          "thumb"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_manualthumb",
+        "aliases": [
+          "vignette=$1",
+          "thumbnail=$1",
+          "thumb=$1"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_right",
+        "aliases": [
+          "droite",
+          "right"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_left",
+        "aliases": [
+          "gauche",
+          "left"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_none",
+        "aliases": [
+          "néant",
+          "neant",
+          "none"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_center",
+        "aliases": [
+          "centré",
+          "center",
+          "centre"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_framed",
+        "aliases": [
+          "cadre",
+          "encadré",
+          "encadre",
+          "framed",
+          "enframed",
+          "frame"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_frameless",
+        "aliases": [
+          "sans_cadre",
+          "non_encadré",
+          "non_encadre",
+          "frameless"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_upright",
+        "aliases": [
+          "redresse",
+          "redresse=$1",
+          "redresse $1",
+          "upright",
+          "upright=$1",
+          "upright $1"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_border",
+        "aliases": [
+          "bordure",
+          "border"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_baseline",
+        "aliases": [
+          "ligne_de_base",
+          "base",
+          "baseline"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_sub",
+        "aliases": [
+          "indice",
+          "ind",
+          "sub"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_super",
+        "aliases": [
+          "exposant",
+          "exp",
+          "super",
+          "sup"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_top",
+        "aliases": [
+          "haut",
+          "top"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_text_top",
+        "aliases": [
+          "haut-texte",
+          "haut-txt",
+          "text-top"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_middle",
+        "aliases": [
+          "milieu",
+          "middle"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_bottom",
+        "aliases": [
+          "bas",
+          "bottom"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_text_bottom",
+        "aliases": [
+          "bas-texte",
+          "bas-txt",
+          "text-bottom"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_link",
+        "aliases": [
+          "lien=$1",
+          "link=$1"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "sitename",
+        "aliases": [
+          "NOMSITE",
+          "SITENAME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "ns",
+        "aliases": [
+          "ESPACEN:",
+          "NS:"
+        ]
+      },
+      {
+        "name": "nse",
+        "aliases": [
+          "ESPACENX:",
+          "NSE:"
+        ]
+      },
+      {
+        "name": "localurl",
+        "aliases": [
+          "URLLOCALE:",
+          "LOCALURL:"
+        ]
+      },
+      {
+        "name": "localurle",
+        "aliases": [
+          "URLLOCALEX:",
+          "LOCALURLE:"
+        ]
+      },
+      {
+        "name": "articlepath",
+        "aliases": [
+          "CHEMINARTICLE",
+          "ARTICLEPATH"
+        ]
+      },
+      {
+        "name": "server",
+        "aliases": [
+          "SERVEUR",
+          "SERVER"
+        ]
+      },
+      {
+        "name": "servername",
+        "aliases": [
+          "NOMSERVEUR",
+          "SERVERNAME"
+        ]
+      },
+      {
+        "name": "scriptpath",
+        "aliases": [
+          "CHEMINSCRIPT",
+          "SCRIPTPATH"
+        ]
+      },
+      {
+        "name": "stylepath",
+        "aliases": [
+          "CHEMINSTYLE",
+          "STYLEPATH"
+        ]
+      },
+      {
+        "name": "grammar",
+        "aliases": [
+          "GRAMMAIRE:",
+          "GRAMMAR:"
+        ]
+      },
+      {
+        "name": "gender",
+        "aliases": [
+          "GENRE:",
+          "GENDER:"
+        ]
+      },
+      {
+        "name": "notitleconvert",
+        "aliases": [
+          "__SANSCONVERSIONTITRE__",
+          "__SANSCT__",
+          "__NOTITLECONVERT__",
+          "__NOTC__"
+        ]
+      },
+      {
+        "name": "nocontentconvert",
+        "aliases": [
+          "__SANSCONVERSIONCONTENU__",
+          "__SANSCC__",
+          "__NOCONTENTCONVERT__",
+          "__NOCC__"
+        ]
+      },
+      {
+        "name": "currentweek",
+        "aliases": [
+          "SEMAINEACTUELLE",
+          "CURRENTWEEK"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "currentdow",
+        "aliases": [
+          "JDSACTUEL",
+          "CURRENTDOW"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localweek",
+        "aliases": [
+          "SEMAINELOCALE",
+          "LOCALWEEK"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localdow",
+        "aliases": [
+          "JDSLOCAL",
+          "LOCALDOW"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "revisionid",
+        "aliases": [
+          "IDVERSION",
+          "REVISIONID"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "revisionday",
+        "aliases": [
+          "JOURVERSION",
+          "JOUR1VERSION",
+          "REVISIONDAY"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "revisionday2",
+        "aliases": [
+          "JOUR2VERSION",
+          "REVISIONDAY2"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "revisionmonth",
+        "aliases": [
+          "MOISVERSION",
+          "REVISIONMONTH"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "revisionmonth1",
+        "aliases": [
+          "MOISVERSION1",
+          "REVISIONMONTH1"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "revisionyear",
+        "aliases": [
+          "ANNEEVERSION",
+          "REVISIONYEAR"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "revisiontimestamp",
+        "aliases": [
+          "INSTANTVERSION",
+          "REVISIONTIMESTAMP"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "revisionuser",
+        "aliases": [
+          "UTILISATEURVERSION",
+          "REVISIONUSER"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "plural",
+        "aliases": [
+          "PLURIEL:",
+          "PLURAL:"
+        ]
+      },
+      {
+        "name": "fullurl",
+        "aliases": [
+          "URLCOMPLETE:",
+          "FULLURL:"
+        ]
+      },
+      {
+        "name": "fullurle",
+        "aliases": [
+          "URLCOMPLETEX:",
+          "FULLURLE:"
+        ]
+      },
+      {
+        "name": "lcfirst",
+        "aliases": [
+          "INITMINUS:",
+          "LCFIRST:"
+        ]
+      },
+      {
+        "name": "ucfirst",
+        "aliases": [
+          "INITMAJUS:",
+          "INITCAPIT:",
+          "UCFIRST:"
+        ]
+      },
+      {
+        "name": "lc",
+        "aliases": [
+          "MINUS:",
+          "LC:"
+        ]
+      },
+      {
+        "name": "uc",
+        "aliases": [
+          "MAJUS:",
+          "CAPIT:",
+          "UC:"
+        ]
+      },
+      {
+        "name": "raw",
+        "aliases": [
+          "BRUT:",
+          "RAW:"
+        ]
+      },
+      {
+        "name": "displaytitle",
+        "aliases": [
+          "AFFICHERTITRE",
+          "DISPLAYTITLE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "rawsuffix",
+        "aliases": [
+          "BRUT",
+          "B",
+          "R"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "newsectionlink",
+        "aliases": [
+          "__LIENNOUVELLESECTION__",
+          "__NEWSECTIONLINK__"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "nonewsectionlink",
+        "aliases": [
+          "__AUCUNLIENNOUVELLESECTION__",
+          "__NONEWSECTIONLINK__"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "currentversion",
+        "aliases": [
+          "VERSIONACTUELLE",
+          "CURRENTVERSION"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "urlencode",
+        "aliases": [
+          "ENCODEURL:",
+          "URLENCODE:"
+        ]
+      },
+      {
+        "name": "anchorencode",
+        "aliases": [
+          "ENCODEANCRE",
+          "ANCHORENCODE"
+        ]
+      },
+      {
+        "name": "currenttimestamp",
+        "aliases": [
+          "INSTANTACTUEL",
+          "CURRENTTIMESTAMP"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localtimestamp",
+        "aliases": [
+          "INSTANTLOCAL",
+          "LOCALTIMESTAMP"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "directionmark",
+        "aliases": [
+          "MARQUEDIRECTION",
+          "MARQUEDIR",
+          "DIRECTIONMARK",
+          "DIRMARK"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "language",
+        "aliases": [
+          "#LANGUE:",
+          "#LANGUAGE:"
+        ]
+      },
+      {
+        "name": "contentlanguage",
+        "aliases": [
+          "LANGUECONTENU",
+          "LANGCONTENU",
+          "CONTENTLANGUAGE",
+          "CONTENTLANG"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "pagesinnamespace",
+        "aliases": [
+          "PAGESDANSESPACE:",
+          "PAGESINNAMESPACE:",
+          "PAGESINNS:"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "numberofadmins",
+        "aliases": [
+          "NOMBREADMINS",
+          "NUMBEROFADMINS"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "formatnum",
+        "aliases": [
+          "FORMATNOMBRE",
+          "FORMATNUM"
+        ]
+      },
+      {
+        "name": "padleft",
+        "aliases": [
+          "BOURRAGEGAUCHE",
+          "BOURREGAUCHE",
+          "PADLEFT"
+        ]
+      },
+      {
+        "name": "padright",
+        "aliases": [
+          "BOURRAGEDROITE",
+          "BOURREDROITE",
+          "PADRIGHT"
+        ]
+      },
+      {
+        "name": "special",
+        "aliases": [
+          "spécial",
+          "special"
+        ]
+      },
+      {
+        "name": "defaultsort",
+        "aliases": [
+          "CLEFDETRI:",
+          "CLEDETRI:",
+          "DEFAULTSORT:",
+          "DEFAULTSORTKEY:",
+          "DEFAULTCATEGORYSORT:"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "filepath",
+        "aliases": [
+          "CHEMIN:",
+          "FILEPATH:"
+        ]
+      },
+      {
+        "name": "tag",
+        "aliases": [
+          "balise",
+          "tag"
+        ]
+      },
+      {
+        "name": "hiddencat",
+        "aliases": [
+          "__CATCACHEE__",
+          "__HIDDENCAT__"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "pagesincategory",
+        "aliases": [
+          "PAGESDANSCAT",
+          "PAGESINCATEGORY",
+          "PAGESINCAT"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "pagesize",
+        "aliases": [
+          "TAILLEPAGE",
+          "PAGESIZE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "noindex",
+        "aliases": [
+          "__AUCUNINDEX__",
+          "__NOINDEX__"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "numberingroup",
+        "aliases": [
+          "NOMBREDANSGROUPE",
+          "NBDANSGROUPE",
+          "NUMBERINGROUP",
+          "NUMINGROUP"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "staticredirect",
+        "aliases": [
+          "__REDIRECTIONSTATIQUE__",
+          "__STATICREDIRECT__"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "protectionlevel",
+        "aliases": [
+          "NIVEAUDEPROTECTION",
+          "PROTECTIONLEVEL"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "url_path",
+        "aliases": [
+          "CHEMIN",
+          "PATH"
+        ]
+      },
+      {
+        "name": "url_query",
+        "aliases": [
+          "QUESTION",
+          "QUERY"
+        ]
+      },
+      {
+        "name": "pagesincategory_all",
+        "aliases": [
+          "tous",
+          "all"
+        ]
+      },
+      {
+        "name": "pagesincategory_files",
+        "aliases": [
+          "fichier",
+          "files"
+        ]
+      },
+      {
+        "name": "msg",
+        "aliases": [
+          "MSG:"
+        ]
+      },
+      {
+        "name": "subst",
+        "aliases": [
+          "SUBST:"
+        ]
+      },
+      {
+        "name": "safesubst",
+        "aliases": [
+          "SAFESUBST:"
+        ]
+      },
+      {
+        "name": "msgnw",
+        "aliases": [
+          "MSGNW:"
+        ]
+      },
+      {
+        "name": "img_width",
+        "aliases": [
+          "$1px"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_page",
+        "aliases": [
+          "page=$1",
+          "page $1"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_alt",
+        "aliases": [
+          "alt=$1"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_class",
+        "aliases": [
+          "class=$1"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "int",
+        "aliases": [
+          "INT:"
+        ]
+      },
+      {
+        "name": "pageid",
+        "aliases": [
+          "PAGEID"
+        ]
+      },
+      {
+        "name": "canonicalurl",
+        "aliases": [
+          "CANONICALURL:"
+        ]
+      },
+      {
+        "name": "canonicalurle",
+        "aliases": [
+          "CANONICALURLE:"
+        ]
+      },
+      {
+        "name": "speciale",
+        "aliases": [
+          "speciale"
+        ]
+      },
+      {
+        "name": "index",
+        "aliases": [
+          "__INDEX__"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "formatdate",
+        "aliases": [
+          "formatdate",
+          "dateformat"
+        ]
+      },
+      {
+        "name": "url_wiki",
+        "aliases": [
+          "WIKI"
+        ]
+      },
+      {
+        "name": "defaultsort_noerror",
+        "aliases": [
+          "noerror"
+        ]
+      },
+      {
+        "name": "defaultsort_noreplace",
+        "aliases": [
+          "noreplace"
+        ]
+      },
+      {
+        "name": "pagesincategory_pages",
+        "aliases": [
+          "pages"
+        ]
+      },
+      {
+        "name": "pagesincategory_subcats",
+        "aliases": [
+          "subcats"
+        ]
+      }
+    ],
+    "extensiontags": [
+      "<pre>",
+      "<nowiki>",
+      "<gallery>"
+    ],
+    "general": {
+      "mainpage": "Lonkásá ya libosó",
+      "base": "http://localhost/wiki/index.php/Lonk%C3%A1s%C3%A1_ya_libos%C3%B3",
+      "sitename": "Base MW",
+      "generator": "MediaWiki 1.21alpha",
+      "phpversion": "5.3.10-1ubuntu3.4",
+      "phpsapi": "apache2handler",
+      "dbtype": "sqlite",
+      "dbversion": "3.7.9",
+      "langconversion": "",
+      "titleconversion": "",
+      "linkprefix": "/^(.*?)([a-zA-Z\\x80-\\xff]+)$/sD",
+      "linktrail": "/^([a-zàâçéèêîôûäëïöüùÇÉÂÊÎÔÛÄËÏÖÜÀÈÙ]+)(.*)$/sDu",
+      "git-hash": "cc3c45654bdb4e20497e487dcf7c15837538a736",
+      "case": "first-letter",
+      "rights": "",
+      "lang": "ln",
+      "fallback": [
+        {
+          "code": "fr"
+        },
+        {
+          "code": "en"
+        }
+      ],
+      "fallback8bitEncoding": "windows-1252",
+      "writeapi": "",
+      "timezone": "America/Los_Angeles",
+      "timeoffset": -480,
+      "articlepath": "/wiki/index.php/$1",
+      "scriptpath": "/wiki",
+      "script": "/wiki/index.php",
+      "variantarticlepath": false,
+      "server": "http://localhost",
+      "wikiid": "my_wiki",
+      "time": "2013-03-05T21:41:50Z",
+      "maxuploadsize": 104857600
+    },
+    "interwikimap": [
+      {
+        "prefix": "acronym",
+        "url": "http://www.acronymfinder.com/af-query.asp?String=exact&Acronym=$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "advogato",
+        "url": "http://www.advogato.org/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "annotationwiki",
+        "url": "http://www.seedwiki.com/page.cfm?wikiid=368&doc=$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "arxiv",
+        "url": "http://www.arxiv.org/abs/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "c2find",
+        "url": "http://c2.com/cgi/wiki?FindPage&value=$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "cache",
+        "url": "http://www.google.com/search?q=cache:$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "commons",
+        "url": "http://commons.wikimedia.org/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "corpknowpedia",
+        "url": "http://corpknowpedia.org/wiki/index.php/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "dictionary",
+        "url": "http://www.dict.org/bin/Dict?Database=*&Form=Dict1&Strategy=*&Query=$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "disinfopedia",
+        "url": "http://www.disinfopedia.org/wiki.phtml?title=$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "docbook",
+        "url": "http://wiki.docbook.org/topic/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "doi",
+        "url": "http://dx.doi.org/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "drumcorpswiki",
+        "url": "http://www.drumcorpswiki.com/index.php/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "dwjwiki",
+        "url": "http://www.suberic.net/cgi-bin/dwj/wiki.cgi?$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "elibre",
+        "url": "http://enciclopedia.us.es/index.php/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "emacswiki",
+        "url": "http://www.emacswiki.org/cgi-bin/wiki.pl?$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "foldoc",
+        "url": "http://foldoc.org/?$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "foxwiki",
+        "url": "http://fox.wikis.com/wc.dll?Wiki~$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "freebsdman",
+        "url": "http://www.FreeBSD.org/cgi/man.cgi?apropos=1&query=$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "gej",
+        "url": "http://www.esperanto.de/cgi-bin/aktivikio/wiki.pl?$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "gentoo-wiki",
+        "url": "http://gentoo-wiki.com/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "google",
+        "url": "http://www.google.com/search?q=$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "googlegroups",
+        "url": "http://groups.google.com/groups?q=$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "hammondwiki",
+        "url": "http://www.dairiki.org/HammondWiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "hewikisource",
+        "local": "",
+        "url": "http://he.wikisource.org/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "hrwiki",
+        "url": "http://www.hrwiki.org/index.php/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "imdb",
+        "url": "http://us.imdb.com/Title?$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "jargonfile",
+        "url": "http://sunir.org/apps/meta.pl?wiki=JargonFile&redirect=$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "jspwiki",
+        "url": "http://www.jspwiki.org/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "keiki",
+        "url": "http://kei.ki/en/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "kmwiki",
+        "url": "http://kmwiki.wikispaces.com/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "linuxwiki",
+        "url": "http://linuxwiki.de/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "lojban",
+        "url": "http://www.lojban.org/tiki/tiki-index.php?page=$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "lqwiki",
+        "url": "http://wiki.linuxquestions.org/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "lugkr",
+        "url": "http://lug-kr.sourceforge.net/cgi-bin/lugwiki.pl?$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "mathsongswiki",
+        "url": "http://SeedWiki.com/page.cfm?wikiid=237&doc=$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "meatball",
+        "url": "http://www.usemod.com/cgi-bin/mb.pl?$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "mediawikiwiki",
+        "url": "http://www.mediawiki.org/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "mediazilla",
+        "local": "",
+        "url": "https://bugzilla.wikimedia.org/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "memoryalpha",
+        "url": "http://www.memory-alpha.org/en/index.php/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "metawiki",
+        "url": "http://sunir.org/apps/meta.pl?$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "metawikimedia",
+        "url": "http://meta.wikimedia.org/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "moinmoin",
+        "url": "http://purl.net/wiki/moin/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "mozillawiki",
+        "url": "http://wiki.mozilla.org/index.php/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "mw",
+        "url": "http://www.mediawiki.org/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "oeis",
+        "url": "http://www.research.att.com/cgi-bin/access.cgi/as/njas/sequences/eisA.cgi?Anum=$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "openfacts",
+        "url": "http://openfacts.berlios.de/index.phtml?title=$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "openwiki",
+        "url": "http://openwiki.com/?$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "pmeg",
+        "url": "http://www.bertilow.com/pmeg/$1.php",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "ppr",
+        "url": "http://c2.com/cgi/wiki?$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "pythoninfo",
+        "url": "http://wiki.python.org/moin/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "rfc",
+        "url": "http://www.rfc-editor.org/rfc/rfc$1.txt",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "s23wiki",
+        "url": "http://is-root.de/wiki/index.php/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "seattlewiki",
+        "url": "http://seattle.wikia.com/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "seattlewireless",
+        "url": "http://seattlewireless.net/?$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "senseislibrary",
+        "url": "http://senseis.xmp.net/?$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "sourceforge",
+        "url": "http://sourceforge.net/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "squeak",
+        "url": "http://wiki.squeak.org/squeak/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "susning",
+        "url": "http://www.susning.nu/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "svgwiki",
+        "url": "http://wiki.svg.org/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "tavi",
+        "url": "http://tavi.sourceforge.net/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "tejo",
+        "url": "http://www.tejo.org/vikio/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "theopedia",
+        "url": "http://www.theopedia.com/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "tmbw",
+        "url": "http://www.tmbw.net/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "tmnet",
+        "url": "http://www.technomanifestos.net/?$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "tmwiki",
+        "url": "http://www.EasyTopicMaps.com/?page=$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "twiki",
+        "url": "http://twiki.org/cgi-bin/view/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "uea",
+        "url": "http://www.tejo.org/uea/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "unreal",
+        "url": "http://wiki.beyondunreal.com/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "usemod",
+        "url": "http://www.usemod.com/cgi-bin/wiki.pl?$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "vinismo",
+        "url": "http://vinismo.com/en/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "webseitzwiki",
+        "url": "http://webseitz.fluxent.com/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "why",
+        "url": "http://clublet.com/c/c/why?$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "wiki",
+        "url": "http://c2.com/cgi/wiki?$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "wikia",
+        "url": "http://www.wikia.com/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "wikibooks",
+        "local": "",
+        "url": "http://en.wikibooks.org/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "wikicities",
+        "url": "http://www.wikia.com/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "wikif1",
+        "url": "http://www.wikif1.org/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "wikihow",
+        "url": "http://www.wikihow.com/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "wikimedia",
+        "url": "http://wikimediafoundation.org/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "wikinews",
+        "local": "",
+        "url": "http://en.wikinews.org/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "wikinfo",
+        "url": "http://www.wikinfo.org/index.php/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "wikipedia",
+        "local": "",
+        "url": "http://en.wikipedia.org/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "wikiquote",
+        "local": "",
+        "url": "http://en.wikiquote.org/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "wikisource",
+        "local": "",
+        "url": "http://wikisource.org/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "wikispecies",
+        "local": "",
+        "url": "http://species.wikimedia.org/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "wikitravel",
+        "url": "http://wikitravel.org/en/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "wikiversity",
+        "local": "",
+        "url": "http://en.wikiversity.org/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "wikt",
+        "local": "",
+        "url": "http://en.wiktionary.org/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "wiktionary",
+        "local": "",
+        "url": "http://en.wiktionary.org/wiki/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "wlug",
+        "url": "http://www.wlug.org.nz/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "zwiki",
+        "url": "http://zwiki.org/$1",
+        "wikiid": "",
+        "api": ""
+      },
+      {
+        "prefix": "zzz wiki",
+        "url": "http://wiki.zzz.ee/index.php/$1",
+        "wikiid": "",
+        "api": ""
+      }
+    ],
+    "languages": [
+      {
+        "code": "aa",
+        "*": "Qafár af"
+      },
+      {
+        "code": "ab",
+        "*": "Аҧсшәа"
+      },
+      {
+        "code": "ace",
+        "*": "Acèh"
+      },
+      {
+        "code": "af",
+        "*": "Afrikaans"
+      },
+      {
+        "code": "ak",
+        "*": "Akan"
+      },
+      {
+        "code": "aln",
+        "*": "Gegë"
+      },
+      {
+        "code": "als",
+        "*": "Alemannisch"
+      },
+      {
+        "code": "am",
+        "*": "አማርኛ"
+      },
+      {
+        "code": "an",
+        "*": "aragonés"
+      },
+      {
+        "code": "ang",
+        "*": "Ænglisc"
+      },
+      {
+        "code": "anp",
+        "*": "अङ्गिका"
+      },
+      {
+        "code": "ar",
+        "*": "العربية"
+      },
+      {
+        "code": "arc",
+        "*": "ܐܪܡܝܐ"
+      },
+      {
+        "code": "arn",
+        "*": "mapudungun"
+      },
+      {
+        "code": "ary",
+        "*": "Maġribi"
+      },
+      {
+        "code": "arz",
+        "*": "مصرى"
+      },
+      {
+        "code": "as",
+        "*": "অসমীয়া"
+      },
+      {
+        "code": "ast",
+        "*": "asturianu"
+      },
+      {
+        "code": "av",
+        "*": "авар"
+      },
+      {
+        "code": "avk",
+        "*": "Kotava"
+      },
+      {
+        "code": "ay",
+        "*": "Aymar aru"
+      },
+      {
+        "code": "az",
+        "*": "azərbaycanca"
+      },
+      {
+        "code": "azb",
+        "*": "تورکجه"
+      },
+      {
+        "code": "ba",
+        "*": "башҡортса"
+      },
+      {
+        "code": "bar",
+        "*": "Boarisch"
+      },
+      {
+        "code": "bat-smg",
+        "*": "žemaitėška"
+      },
+      {
+        "code": "bcc",
+        "*": "بلوچی مکرانی"
+      },
+      {
+        "code": "bcl",
+        "*": "Bikol Central"
+      },
+      {
+        "code": "be",
+        "*": "беларуская"
+      },
+      {
+        "code": "be-tarask",
+        "*": "беларуская (тарашкевіца)‎"
+      },
+      {
+        "code": "be-x-old",
+        "*": "беларуская (тарашкевіца)‎"
+      },
+      {
+        "code": "bg",
+        "*": "български"
+      },
+      {
+        "code": "bh",
+        "*": "भोजपुरी"
+      },
+      {
+        "code": "bho",
+        "*": "भोजपुरी"
+      },
+      {
+        "code": "bi",
+        "*": "Bislama"
+      },
+      {
+        "code": "bjn",
+        "*": "Bahasa Banjar"
+      },
+      {
+        "code": "bm",
+        "*": "bamanankan"
+      },
+      {
+        "code": "bn",
+        "*": "বাংলা"
+      },
+      {
+        "code": "bo",
+        "*": "བོད་ཡིག"
+      },
+      {
+        "code": "bpy",
+        "*": "বিষ্ণুপ্রিয়া মণিপুরী"
+      },
+      {
+        "code": "bqi",
+        "*": "بختياري"
+      },
+      {
+        "code": "br",
+        "*": "brezhoneg"
+      },
+      {
+        "code": "brh",
+        "*": "Bráhuí"
+      },
+      {
+        "code": "bs",
+        "*": "bosanski"
+      },
+      {
+        "code": "bug",
+        "*": "ᨅᨔ ᨕᨘᨁᨗ"
+      },
+      {
+        "code": "bxr",
+        "*": "буряад"
+      },
+      {
+        "code": "ca",
+        "*": "català"
+      },
+      {
+        "code": "cbk-zam",
+        "*": "Chavacano de Zamboanga"
+      },
+      {
+        "code": "cdo",
+        "*": "Mìng-dĕ̤ng-ngṳ̄"
+      },
+      {
+        "code": "ce",
+        "*": "нохчийн"
+      },
+      {
+        "code": "ceb",
+        "*": "Cebuano"
+      },
+      {
+        "code": "ch",
+        "*": "Chamoru"
+      },
+      {
+        "code": "cho",
+        "*": "Choctaw"
+      },
+      {
+        "code": "chr",
+        "*": "ᏣᎳᎩ"
+      },
+      {
+        "code": "chy",
+        "*": "Tsetsêhestâhese"
+      },
+      {
+        "code": "ckb",
+        "*": "کوردی"
+      },
+      {
+        "code": "co",
+        "*": "corsu"
+      },
+      {
+        "code": "cps",
+        "*": "Capiceño"
+      },
+      {
+        "code": "cr",
+        "*": "Nēhiyawēwin / ᓀᐦᐃᔭᐍᐏᐣ"
+      },
+      {
+        "code": "crh",
+        "*": "qırımtatarca"
+      },
+      {
+        "code": "crh-latn",
+        "*": "qırımtatarca (Latin)‎"
+      },
+      {
+        "code": "crh-cyrl",
+        "*": "къырымтатарджа (Кирилл)‎"
+      },
+      {
+        "code": "cs",
+        "*": "česky"
+      },
+      {
+        "code": "csb",
+        "*": "kaszëbsczi"
+      },
+      {
+        "code": "cu",
+        "*": "словѣ́ньскъ / ⰔⰎⰑⰂⰡⰐⰠⰔⰍⰟ"
+      },
+      {
+        "code": "cv",
+        "*": "Чӑвашла"
+      },
+      {
+        "code": "cy",
+        "*": "Cymraeg"
+      },
+      {
+        "code": "da",
+        "*": "dansk"
+      },
+      {
+        "code": "de",
+        "*": "Deutsch"
+      },
+      {
+        "code": "de-at",
+        "*": "Österreichisches Deutsch"
+      },
+      {
+        "code": "de-ch",
+        "*": "Schweizer Hochdeutsch"
+      },
+      {
+        "code": "de-formal",
+        "*": "Deutsch (Sie-Form)‎"
+      },
+      {
+        "code": "diq",
+        "*": "Zazaki"
+      },
+      {
+        "code": "dsb",
+        "*": "dolnoserbski"
+      },
+      {
+        "code": "dtp",
+        "*": "Dusun Bundu-liwan"
+      },
+      {
+        "code": "dv",
+        "*": "ދިވެހިބަސް"
+      },
+      {
+        "code": "dz",
+        "*": "ཇོང་ཁ"
+      },
+      {
+        "code": "ee",
+        "*": "eʋegbe"
+      },
+      {
+        "code": "egl",
+        "*": "Emiliàn"
+      },
+      {
+        "code": "el",
+        "*": "Ελληνικά"
+      },
+      {
+        "code": "eml",
+        "*": "emiliàn e rumagnòl"
+      },
+      {
+        "code": "en",
+        "*": "English"
+      },
+      {
+        "code": "en-ca",
+        "*": "Canadian English"
+      },
+      {
+        "code": "en-gb",
+        "*": "British English"
+      },
+      {
+        "code": "eo",
+        "*": "Esperanto"
+      },
+      {
+        "code": "es",
+        "*": "español"
+      },
+      {
+        "code": "et",
+        "*": "eesti"
+      },
+      {
+        "code": "eu",
+        "*": "euskara"
+      },
+      {
+        "code": "ext",
+        "*": "estremeñu"
+      },
+      {
+        "code": "fa",
+        "*": "فارسی"
+      },
+      {
+        "code": "ff",
+        "*": "Fulfulde"
+      },
+      {
+        "code": "fi",
+        "*": "suomi"
+      },
+      {
+        "code": "fit",
+        "*": "meänkieli"
+      },
+      {
+        "code": "fiu-vro",
+        "*": "Võro"
+      },
+      {
+        "code": "fj",
+        "*": "Na Vosa Vakaviti"
+      },
+      {
+        "code": "fo",
+        "*": "føroyskt"
+      },
+      {
+        "code": "fr",
+        "*": "français"
+      },
+      {
+        "code": "frc",
+        "*": "français cadien"
+      },
+      {
+        "code": "frp",
+        "*": "arpetan"
+      },
+      {
+        "code": "frr",
+        "*": "Nordfriisk"
+      },
+      {
+        "code": "fur",
+        "*": "furlan"
+      },
+      {
+        "code": "fy",
+        "*": "Frysk"
+      },
+      {
+        "code": "ga",
+        "*": "Gaeilge"
+      },
+      {
+        "code": "gag",
+        "*": "Gagauz"
+      },
+      {
+        "code": "gan",
+        "*": "贛語"
+      },
+      {
+        "code": "gan-hans",
+        "*": "赣语（简体）‎"
+      },
+      {
+        "code": "gan-hant",
+        "*": "贛語（繁體）‎"
+      },
+      {
+        "code": "gd",
+        "*": "Gàidhlig"
+      },
+      {
+        "code": "gl",
+        "*": "galego"
+      },
+      {
+        "code": "glk",
+        "*": "گیلکی"
+      },
+      {
+        "code": "gn",
+        "*": "Avañe'ẽ"
+      },
+      {
+        "code": "got",
+        "*": "𐌲𐌿𐍄𐌹𐍃𐌺"
+      },
+      {
+        "code": "grc",
+        "*": "Ἀρχαία ἑλληνικὴ"
+      },
+      {
+        "code": "gsw",
+        "*": "Alemannisch"
+      },
+      {
+        "code": "gu",
+        "*": "ગુજરાતી"
+      },
+      {
+        "code": "gv",
+        "*": "Gaelg"
+      },
+      {
+        "code": "ha",
+        "*": "Hausa"
+      },
+      {
+        "code": "hak",
+        "*": "Hak-kâ-fa"
+      },
+      {
+        "code": "haw",
+        "*": "Hawai`i"
+      },
+      {
+        "code": "he",
+        "*": "עברית"
+      },
+      {
+        "code": "hi",
+        "*": "हिन्दी"
+      },
+      {
+        "code": "hif",
+        "*": "Fiji Hindi"
+      },
+      {
+        "code": "hif-latn",
+        "*": "Fiji Hindi"
+      },
+      {
+        "code": "hil",
+        "*": "Ilonggo"
+      },
+      {
+        "code": "ho",
+        "*": "Hiri Motu"
+      },
+      {
+        "code": "hr",
+        "*": "hrvatski"
+      },
+      {
+        "code": "hsb",
+        "*": "hornjoserbsce"
+      },
+      {
+        "code": "ht",
+        "*": "Kreyòl ayisyen"
+      },
+      {
+        "code": "hu",
+        "*": "magyar"
+      },
+      {
+        "code": "hy",
+        "*": "Հայերեն"
+      },
+      {
+        "code": "hz",
+        "*": "Otsiherero"
+      },
+      {
+        "code": "ia",
+        "*": "interlingua"
+      },
+      {
+        "code": "id",
+        "*": "Bahasa Indonesia"
+      },
+      {
+        "code": "ie",
+        "*": "Interlingue"
+      },
+      {
+        "code": "ig",
+        "*": "Igbo"
+      },
+      {
+        "code": "ii",
+        "*": "ꆇꉙ"
+      },
+      {
+        "code": "ik",
+        "*": "Iñupiak"
+      },
+      {
+        "code": "ike-cans",
+        "*": "ᐃᓄᒃᑎᑐᑦ"
+      },
+      {
+        "code": "ike-latn",
+        "*": "inuktitut"
+      },
+      {
+        "code": "ilo",
+        "*": "Ilokano"
+      },
+      {
+        "code": "inh",
+        "*": "ГӀалгӀай"
+      },
+      {
+        "code": "io",
+        "*": "Ido"
+      },
+      {
+        "code": "is",
+        "*": "íslenska"
+      },
+      {
+        "code": "it",
+        "*": "italiano"
+      },
+      {
+        "code": "iu",
+        "*": "ᐃᓄᒃᑎᑐᑦ/inuktitut"
+      },
+      {
+        "code": "ja",
+        "*": "日本語"
+      },
+      {
+        "code": "jam",
+        "*": "Patois"
+      },
+      {
+        "code": "jbo",
+        "*": "Lojban"
+      },
+      {
+        "code": "jut",
+        "*": "jysk"
+      },
+      {
+        "code": "jv",
+        "*": "Basa Jawa"
+      },
+      {
+        "code": "ka",
+        "*": "ქართული"
+      },
+      {
+        "code": "kaa",
+        "*": "Qaraqalpaqsha"
+      },
+      {
+        "code": "kab",
+        "*": "Taqbaylit"
+      },
+      {
+        "code": "kbd",
+        "*": "Адыгэбзэ"
+      },
+      {
+        "code": "kbd-cyrl",
+        "*": "Адыгэбзэ"
+      },
+      {
+        "code": "kg",
+        "*": "Kongo"
+      },
+      {
+        "code": "khw",
+        "*": "کھوار"
+      },
+      {
+        "code": "ki",
+        "*": "Gĩkũyũ"
+      },
+      {
+        "code": "kiu",
+        "*": "Kırmancki"
+      },
+      {
+        "code": "kj",
+        "*": "Kwanyama"
+      },
+      {
+        "code": "kk",
+        "*": "қазақша"
+      },
+      {
+        "code": "kk-arab",
+        "*": "قازاقشا (تٴوتە)‏"
+      },
+      {
+        "code": "kk-cyrl",
+        "*": "қазақша (кирил)‎"
+      },
+      {
+        "code": "kk-latn",
+        "*": "qazaqşa (latın)‎"
+      },
+      {
+        "code": "kk-cn",
+        "*": "قازاقشا (جۇنگو)‏"
+      },
+      {
+        "code": "kk-kz",
+        "*": "қазақша (Қазақстан)‎"
+      },
+      {
+        "code": "kk-tr",
+        "*": "qazaqşa (Türkïya)‎"
+      },
+      {
+        "code": "kl",
+        "*": "kalaallisut"
+      },
+      {
+        "code": "km",
+        "*": "ភាសាខ្មែរ"
+      },
+      {
+        "code": "kn",
+        "*": "ಕನ್ನಡ"
+      },
+      {
+        "code": "ko",
+        "*": "한국어"
+      },
+      {
+        "code": "ko-kp",
+        "*": "한국어 (조선)"
+      },
+      {
+        "code": "koi",
+        "*": "Перем Коми"
+      },
+      {
+        "code": "kr",
+        "*": "Kanuri"
+      },
+      {
+        "code": "krc",
+        "*": "къарачай-малкъар"
+      },
+      {
+        "code": "kri",
+        "*": "Krio"
+      },
+      {
+        "code": "krj",
+        "*": "Kinaray-a"
+      },
+      {
+        "code": "ks",
+        "*": "कॉशुर / کٲشُر"
+      },
+      {
+        "code": "ks-arab",
+        "*": "کٲشُر"
+      },
+      {
+        "code": "ks-deva",
+        "*": "कॉशुर"
+      },
+      {
+        "code": "ksh",
+        "*": "Ripoarisch"
+      },
+      {
+        "code": "ku",
+        "*": "Kurdî"
+      },
+      {
+        "code": "ku-latn",
+        "*": "Kurdî (latînî)‎"
+      },
+      {
+        "code": "ku-arab",
+        "*": "كوردي (عەرەبی)‏"
+      },
+      {
+        "code": "kv",
+        "*": "коми"
+      },
+      {
+        "code": "kw",
+        "*": "kernowek"
+      },
+      {
+        "code": "ky",
+        "*": "Кыргызча"
+      },
+      {
+        "code": "la",
+        "*": "Latina"
+      },
+      {
+        "code": "lad",
+        "*": "Ladino"
+      },
+      {
+        "code": "lb",
+        "*": "Lëtzebuergesch"
+      },
+      {
+        "code": "lbe",
+        "*": "лакку"
+      },
+      {
+        "code": "lez",
+        "*": "лезги"
+      },
+      {
+        "code": "lfn",
+        "*": "Lingua Franca Nova"
+      },
+      {
+        "code": "lg",
+        "*": "Luganda"
+      },
+      {
+        "code": "li",
+        "*": "Limburgs"
+      },
+      {
+        "code": "lij",
+        "*": "Ligure"
+      },
+      {
+        "code": "liv",
+        "*": "Līvõ kēļ"
+      },
+      {
+        "code": "lmo",
+        "*": "lumbaart"
+      },
+      {
+        "code": "ln",
+        "*": "lingála"
+      },
+      {
+        "code": "lo",
+        "*": "ລາວ"
+      },
+      {
+        "code": "loz",
+        "*": "Silozi"
+      },
+      {
+        "code": "lt",
+        "*": "lietuvių"
+      },
+      {
+        "code": "ltg",
+        "*": "latgaļu"
+      },
+      {
+        "code": "lus",
+        "*": "Mizo ţawng"
+      },
+      {
+        "code": "lv",
+        "*": "latviešu"
+      },
+      {
+        "code": "lzh",
+        "*": "文言"
+      },
+      {
+        "code": "lzz",
+        "*": "Lazuri"
+      },
+      {
+        "code": "mai",
+        "*": "मैथिली"
+      },
+      {
+        "code": "map-bms",
+        "*": "Basa Banyumasan"
+      },
+      {
+        "code": "mdf",
+        "*": "мокшень"
+      },
+      {
+        "code": "mg",
+        "*": "Malagasy"
+      },
+      {
+        "code": "mh",
+        "*": "Ebon"
+      },
+      {
+        "code": "mhr",
+        "*": "олык марий"
+      },
+      {
+        "code": "mi",
+        "*": "Māori"
+      },
+      {
+        "code": "min",
+        "*": "Baso Minangkabau"
+      },
+      {
+        "code": "mk",
+        "*": "македонски"
+      },
+      {
+        "code": "ml",
+        "*": "മലയാളം"
+      },
+      {
+        "code": "mn",
+        "*": "монгол"
+      },
+      {
+        "code": "mo",
+        "*": "молдовеняскэ"
+      },
+      {
+        "code": "mr",
+        "*": "मराठी"
+      },
+      {
+        "code": "mrj",
+        "*": "кырык мары"
+      },
+      {
+        "code": "ms",
+        "*": "Bahasa Melayu"
+      },
+      {
+        "code": "mt",
+        "*": "Malti"
+      },
+      {
+        "code": "mus",
+        "*": "Mvskoke"
+      },
+      {
+        "code": "mwl",
+        "*": "Mirandés"
+      },
+      {
+        "code": "my",
+        "*": "မြန်မာဘာသာ"
+      },
+      {
+        "code": "myv",
+        "*": "эрзянь"
+      },
+      {
+        "code": "mzn",
+        "*": "مازِرونی"
+      },
+      {
+        "code": "na",
+        "*": "Dorerin Naoero"
+      },
+      {
+        "code": "nah",
+        "*": "Nāhuatl"
+      },
+      {
+        "code": "nan",
+        "*": "Bân-lâm-gú"
+      },
+      {
+        "code": "nap",
+        "*": "Nnapulitano"
+      },
+      {
+        "code": "nb",
+        "*": "norsk bokmål"
+      },
+      {
+        "code": "nds",
+        "*": "Plattdüütsch"
+      },
+      {
+        "code": "nds-nl",
+        "*": "Nedersaksies"
+      },
+      {
+        "code": "ne",
+        "*": "नेपाली"
+      },
+      {
+        "code": "new",
+        "*": "नेपाल भाषा"
+      },
+      {
+        "code": "ng",
+        "*": "Oshiwambo"
+      },
+      {
+        "code": "niu",
+        "*": "Niuē"
+      },
+      {
+        "code": "nl",
+        "*": "Nederlands"
+      },
+      {
+        "code": "nl-informal",
+        "*": "Nederlands (informeel)‎"
+      },
+      {
+        "code": "nn",
+        "*": "norsk nynorsk"
+      },
+      {
+        "code": "no",
+        "*": "norsk bokmål"
+      },
+      {
+        "code": "nov",
+        "*": "Novial"
+      },
+      {
+        "code": "nrm",
+        "*": "Nouormand"
+      },
+      {
+        "code": "nso",
+        "*": "Sesotho sa Leboa"
+      },
+      {
+        "code": "nv",
+        "*": "Diné bizaad"
+      },
+      {
+        "code": "ny",
+        "*": "Chi-Chewa"
+      },
+      {
+        "code": "oc",
+        "*": "occitan"
+      },
+      {
+        "code": "om",
+        "*": "Oromoo"
+      },
+      {
+        "code": "or",
+        "*": "ଓଡ଼ିଆ"
+      },
+      {
+        "code": "os",
+        "*": "Ирон"
+      },
+      {
+        "code": "pa",
+        "*": "ਪੰਜਾਬੀ"
+      },
+      {
+        "code": "pag",
+        "*": "Pangasinan"
+      },
+      {
+        "code": "pam",
+        "*": "Kapampangan"
+      },
+      {
+        "code": "pap",
+        "*": "Papiamentu"
+      },
+      {
+        "code": "pcd",
+        "*": "Picard"
+      },
+      {
+        "code": "pdc",
+        "*": "Deitsch"
+      },
+      {
+        "code": "pdt",
+        "*": "Plautdietsch"
+      },
+      {
+        "code": "pfl",
+        "*": "Pälzisch"
+      },
+      {
+        "code": "pi",
+        "*": "पाळि"
+      },
+      {
+        "code": "pih",
+        "*": "Norfuk / Pitkern"
+      },
+      {
+        "code": "pl",
+        "*": "polski"
+      },
+      {
+        "code": "pms",
+        "*": "Piemontèis"
+      },
+      {
+        "code": "pnb",
+        "*": "پنجابی"
+      },
+      {
+        "code": "pnt",
+        "*": "Ποντιακά"
+      },
+      {
+        "code": "prg",
+        "*": "Prūsiskan"
+      },
+      {
+        "code": "ps",
+        "*": "پښتو"
+      },
+      {
+        "code": "pt",
+        "*": "português"
+      },
+      {
+        "code": "pt-br",
+        "*": "português do Brasil"
+      },
+      {
+        "code": "qu",
+        "*": "Runa Simi"
+      },
+      {
+        "code": "qug",
+        "*": "Runa shimi"
+      },
+      {
+        "code": "rgn",
+        "*": "Rumagnôl"
+      },
+      {
+        "code": "rif",
+        "*": "Tarifit"
+      },
+      {
+        "code": "rm",
+        "*": "rumantsch"
+      },
+      {
+        "code": "rmy",
+        "*": "Romani"
+      },
+      {
+        "code": "rn",
+        "*": "Kirundi"
+      },
+      {
+        "code": "ro",
+        "*": "română"
+      },
+      {
+        "code": "roa-rup",
+        "*": "Armãneashce"
+      },
+      {
+        "code": "roa-tara",
+        "*": "tarandíne"
+      },
+      {
+        "code": "ru",
+        "*": "русский"
+      },
+      {
+        "code": "rue",
+        "*": "русиньскый"
+      },
+      {
+        "code": "rup",
+        "*": "Armãneashce"
+      },
+      {
+        "code": "ruq",
+        "*": "Vlăheşte"
+      },
+      {
+        "code": "ruq-cyrl",
+        "*": "Влахесте"
+      },
+      {
+        "code": "ruq-latn",
+        "*": "Vlăheşte"
+      },
+      {
+        "code": "rw",
+        "*": "Kinyarwanda"
+      },
+      {
+        "code": "sa",
+        "*": "संस्कृतम्"
+      },
+      {
+        "code": "sah",
+        "*": "саха тыла"
+      },
+      {
+        "code": "sat",
+        "*": "Santali"
+      },
+      {
+        "code": "sc",
+        "*": "sardu"
+      },
+      {
+        "code": "scn",
+        "*": "sicilianu"
+      },
+      {
+        "code": "sco",
+        "*": "Scots"
+      },
+      {
+        "code": "sd",
+        "*": "سنڌي"
+      },
+      {
+        "code": "sdc",
+        "*": "Sassaresu"
+      },
+      {
+        "code": "se",
+        "*": "sámegiella"
+      },
+      {
+        "code": "sei",
+        "*": "Cmique Itom"
+      },
+      {
+        "code": "sg",
+        "*": "Sängö"
+      },
+      {
+        "code": "sgs",
+        "*": "žemaitėška"
+      },
+      {
+        "code": "sh",
+        "*": "srpskohrvatski / српскохрватски"
+      },
+      {
+        "code": "shi",
+        "*": "Tašlḥiyt/ⵜⴰⵛⵍⵃⵉⵜ"
+      },
+      {
+        "code": "shi-tfng",
+        "*": "ⵜⴰⵛⵍⵃⵉⵜ"
+      },
+      {
+        "code": "shi-latn",
+        "*": "Tašlḥiyt"
+      },
+      {
+        "code": "si",
+        "*": "සිංහල"
+      },
+      {
+        "code": "simple",
+        "*": "Simple English"
+      },
+      {
+        "code": "sk",
+        "*": "slovenčina"
+      },
+      {
+        "code": "sl",
+        "*": "slovenščina"
+      },
+      {
+        "code": "sli",
+        "*": "Schläsch"
+      },
+      {
+        "code": "sm",
+        "*": "Gagana Samoa"
+      },
+      {
+        "code": "sma",
+        "*": "Åarjelsaemien"
+      },
+      {
+        "code": "sn",
+        "*": "chiShona"
+      },
+      {
+        "code": "so",
+        "*": "Soomaaliga"
+      },
+      {
+        "code": "sq",
+        "*": "shqip"
+      },
+      {
+        "code": "sr",
+        "*": "српски / srpski"
+      },
+      {
+        "code": "sr-ec",
+        "*": "српски (ћирилица)‎"
+      },
+      {
+        "code": "sr-el",
+        "*": "srpski (latinica)‎"
+      },
+      {
+        "code": "srn",
+        "*": "Sranantongo"
+      },
+      {
+        "code": "ss",
+        "*": "SiSwati"
+      },
+      {
+        "code": "st",
+        "*": "Sesotho"
+      },
+      {
+        "code": "stq",
+        "*": "Seeltersk"
+      },
+      {
+        "code": "su",
+        "*": "Basa Sunda"
+      },
+      {
+        "code": "sv",
+        "*": "svenska"
+      },
+      {
+        "code": "sw",
+        "*": "Kiswahili"
+      },
+      {
+        "code": "szl",
+        "*": "ślůnski"
+      },
+      {
+        "code": "ta",
+        "*": "தமிழ்"
+      },
+      {
+        "code": "tcy",
+        "*": "ತುಳು"
+      },
+      {
+        "code": "te",
+        "*": "తెలుగు"
+      },
+      {
+        "code": "tet",
+        "*": "tetun"
+      },
+      {
+        "code": "tg",
+        "*": "тоҷикӣ"
+      },
+      {
+        "code": "tg-cyrl",
+        "*": "тоҷикӣ"
+      },
+      {
+        "code": "tg-latn",
+        "*": "tojikī"
+      },
+      {
+        "code": "th",
+        "*": "ไทย"
+      },
+      {
+        "code": "ti",
+        "*": "ትግርኛ"
+      },
+      {
+        "code": "tk",
+        "*": "Türkmençe"
+      },
+      {
+        "code": "tl",
+        "*": "Tagalog"
+      },
+      {
+        "code": "tly",
+        "*": "толышә зывон"
+      },
+      {
+        "code": "tn",
+        "*": "Setswana"
+      },
+      {
+        "code": "to",
+        "*": "lea faka-Tonga"
+      },
+      {
+        "code": "tokipona",
+        "*": "Toki Pona"
+      },
+      {
+        "code": "tpi",
+        "*": "Tok Pisin"
+      },
+      {
+        "code": "tr",
+        "*": "Türkçe"
+      },
+      {
+        "code": "tru",
+        "*": "Ṫuroyo"
+      },
+      {
+        "code": "ts",
+        "*": "Xitsonga"
+      },
+      {
+        "code": "tt",
+        "*": "татарча/tatarça"
+      },
+      {
+        "code": "tt-cyrl",
+        "*": "татарча"
+      },
+      {
+        "code": "tt-latn",
+        "*": "tatarça"
+      },
+      {
+        "code": "tum",
+        "*": "chiTumbuka"
+      },
+      {
+        "code": "tw",
+        "*": "Twi"
+      },
+      {
+        "code": "ty",
+        "*": "Reo Mā`ohi"
+      },
+      {
+        "code": "tyv",
+        "*": "тыва дыл"
+      },
+      {
+        "code": "udm",
+        "*": "удмурт"
+      },
+      {
+        "code": "ug",
+        "*": "ئۇيغۇرچە / Uyghurche"
+      },
+      {
+        "code": "ug-arab",
+        "*": "ئۇيغۇرچە"
+      },
+      {
+        "code": "ug-latn",
+        "*": "Uyghurche"
+      },
+      {
+        "code": "uk",
+        "*": "українська"
+      },
+      {
+        "code": "ur",
+        "*": "اردو"
+      },
+      {
+        "code": "uz",
+        "*": "oʻzbekcha"
+      },
+      {
+        "code": "ve",
+        "*": "Tshivenda"
+      },
+      {
+        "code": "vec",
+        "*": "vèneto"
+      },
+      {
+        "code": "vep",
+        "*": "vepsän kel’"
+      },
+      {
+        "code": "vi",
+        "*": "Tiếng Việt"
+      },
+      {
+        "code": "vls",
+        "*": "West-Vlams"
+      },
+      {
+        "code": "vmf",
+        "*": "Mainfränkisch"
+      },
+      {
+        "code": "vo",
+        "*": "Volapük"
+      },
+      {
+        "code": "vot",
+        "*": "Vaďďa"
+      },
+      {
+        "code": "vro",
+        "*": "Võro"
+      },
+      {
+        "code": "wa",
+        "*": "walon"
+      },
+      {
+        "code": "war",
+        "*": "Winaray"
+      },
+      {
+        "code": "wo",
+        "*": "Wolof"
+      },
+      {
+        "code": "wuu",
+        "*": "吴语"
+      },
+      {
+        "code": "xal",
+        "*": "хальмг"
+      },
+      {
+        "code": "xh",
+        "*": "isiXhosa"
+      },
+      {
+        "code": "xmf",
+        "*": "მარგალური"
+      },
+      {
+        "code": "yi",
+        "*": "ייִדיש"
+      },
+      {
+        "code": "yo",
+        "*": "Yorùbá"
+      },
+      {
+        "code": "yue",
+        "*": "粵語"
+      },
+      {
+        "code": "za",
+        "*": "Vahcuengh"
+      },
+      {
+        "code": "zea",
+        "*": "Zeêuws"
+      },
+      {
+        "code": "zh",
+        "*": "中文"
+      },
+      {
+        "code": "zh-classical",
+        "*": "文言"
+      },
+      {
+        "code": "zh-cn",
+        "*": "中文（中国大陆）‎"
+      },
+      {
+        "code": "zh-hans",
+        "*": "中文（简体）‎"
+      },
+      {
+        "code": "zh-hant",
+        "*": "中文（繁體）‎"
+      },
+      {
+        "code": "zh-hk",
+        "*": "中文（香港）‎"
+      },
+      {
+        "code": "zh-min-nan",
+        "*": "Bân-lâm-gú"
+      },
+      {
+        "code": "zh-mo",
+        "*": "中文（澳門）‎"
+      },
+      {
+        "code": "zh-my",
+        "*": "中文（马来西亚）‎"
+      },
+      {
+        "code": "zh-sg",
+        "*": "中文（新加坡）‎"
+      },
+      {
+        "code": "zh-tw",
+        "*": "中文（台灣）‎"
+      },
+      {
+        "code": "zh-yue",
+        "*": "粵語"
+      },
+      {
+        "code": "zu",
+        "*": "isiZulu"
+      }
+    ],
+    "protocols": [
+      "http://",
+      "https://",
+      "ftp://",
+      "irc://",
+      "ircs://",
+      "gopher://",
+      "telnet://",
+      "nntp://",
+      "worldwind://",
+      "mailto:",
+      "news:",
+      "svn://",
+      "git://",
+      "mms://",
+      "//"
+    ],
+    "allmessages": [
+      {
+        "name": "linktrail",
+        "missing": ""
+      },
+      {
+        "name": "linkprefix",
+        "*": "/^(.*?)([a-zA-Z\\x80-\\xff]+)$/sD"
+      }
+    ]
+  }
+}
