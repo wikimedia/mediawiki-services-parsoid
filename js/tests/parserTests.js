@@ -518,7 +518,7 @@ ParserTests.prototype.generateChanges = function ( options, nonRandomChanges, it
 	cb( null, content, changelist );
 };
 
-ParserTests.prototype.convertWt2Html = function( mode, prefix, variant, wikitext, processHtmlCB ) {
+ParserTests.prototype.convertWt2Html = function( mode, wikitext, processHtmlCB ) {
 	try {
 		this.parserPipeline.once( 'document', function ( doc ) {
 			// processHtmlCB can be asynchronous, so deep-clone
@@ -531,26 +531,7 @@ ParserTests.prototype.convertWt2Html = function( mode, prefix, variant, wikitext
 		processHtmlCB( e );
 	}
 	this.env.page.src = wikitext;
-	this.env.switchToConfig( prefix, function( err ) {
-		if ( err ) {
-			processHtmlCB( err );
-		} else {
-			// TODO: set language variant
-			// adjust config to match that used for PHP tests
-			// see core/tests/parser/parserTest.inc:setupGlobals() for
-			// full set of config normalizations done.
-			this.env.conf.wiki.server = 'http://example.org';
-			this.env.conf.wiki.wgScriptPath = '/';
-			this.env.conf.wiki.script = '/index.php';
-			this.env.conf.wiki.articlePath = '/wiki/$1';
-			// this has been updated in the live wikis, but the parser tests
-			// expect the old value (as set in parserTest.inc:setupDatabase())
-			this.env.conf.wiki.interwikiMap.meatball.url =
-				'http://www.usemod.com/cgi-bin/mb.pl?$1';
-			// convert this wikitext!
-			this.parserPipeline.process( wikitext );
-		}
-	}.bind(this));
+	this.parserPipeline.process( wikitext );
 };
 
 /**
@@ -575,8 +556,6 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 	}
 
 	item.time = {};
-	var prefix = (item.options || {}).language || 'en';
-	var variant = (item.options || {}).variant;
 
 	// Build a list of tasks for this test that will be passed to async.waterfall
 	var finishHandler = function ( err, res ) {
@@ -625,7 +604,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 	// First conversion stage
 	if ( startsAtWikitext ) {
 		if ( item.cachedHTML === null ) {
-			testTasks.push( this.convertWt2Html.bind( this, mode, prefix, variant, item.input ) );
+			testTasks.push( this.convertWt2Html.bind( this, mode, item.input ) );
 		} else {
 			testTasks.push( function ( cb ) {
 				cb( null, item.cachedHTML.cloneNode( true ) );
@@ -666,7 +645,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 	if ( mode === 'wt2wt' || mode === 'selser' ) {
 		testTasks.push( this.convertHtml2Wt.bind( this, options, mode, item ) );
 	} else if ( mode === 'html2html' ) {
-		testTasks.push( this.convertWt2Html.bind( this, mode, prefix, variant ) );
+		testTasks.push( this.convertWt2Html.bind( this, mode ) );
 	}
 
 	// Processing stage
