@@ -1320,9 +1320,9 @@ xmlish_tag = nowiki
             if (t.constructor === TagTk) {
                 var tsr0 = t.dataAttribs.tsr[0],
                     restOfInput = input.substring(tsr0),
-                    tagContent = restOfInput.match(new RegExp("^(.|\n)*?(</\s*" + tagName + ">)", "m"));
+                    tagContent = restOfInput.match(new RegExp("^(.|\n)*?(</\s*" + tagName + ">)", "m")),
+                    extSrc = null;
 
-                var extSrc = null;
                 if (tagContent) {
                     extSrc = tagContent[0];
                 } else if (Util.extensionInstalled(pegArgs.env, tagName)) {
@@ -1374,16 +1374,23 @@ xmlish_tag = nowiki
     ) {
         var ret = t2, dp = t2.dataAttribs;
         if (dp.isExt) {
-            if (Util.extensionUsesWT(t2.name)) {
+            // If not a known installed extension, parse content as wikitext.
+            // - include-directives: <noinclude>, <includeonly>, ...
+            // - a non-html5 tag like <big>
+            // - <ref> which is a native extension implemented in Parsoid
+            //   TODO: Treat <ref> as a regular extension and move this
+            //   processing out of here into ext.Cite.js. Will be done as part
+            //   of cite extension refactoring for supporting DOM rerendering,
+            //   incremental parsing, etc.  Till then, we'll let this go through
+            //   the same codepaths as before.
+            var name = t2.name.toLowerCase();
+            if (!Util.extensionInstalled(name)) {
                 // Parse ref-content, strip eof, and shift tsr
                 var extContentToks = (new PegTokenizer(pegArgs.env)).tokenize(dp.extContent);
                 extContentToks = Util.stripEOFTkfromTokens(extContentToks);
                 Util.shiftTokenTSR(extContentToks, dp.extContentOffset);
 
                 ret = [t2].concat(extContentToks);
-            } else if (!Util.extensionInstalled(t2.name)) {
-                // Unknown extension -- spit out content as plain text
-                ret = [t2, dp.extContent];
             }
 
             // Reset input

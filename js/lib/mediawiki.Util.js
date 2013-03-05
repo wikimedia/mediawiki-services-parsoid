@@ -806,7 +806,6 @@ var Util = {
 
 	// SSS FIXME: This should probably come from some config/api?
 	// This is just a temporary hack for this patch
-	wtUsingTags: null,
 	installedExts: null,
 
 	extensionInstalled: function(env, name) {
@@ -817,24 +816,11 @@ var Util = {
 
 		if (!this.installedExts) {
 			this.installedExts = this.arrayToHash([
-				"includeonly", "onlyinclude", "noinclude", "ref",
 				'categorytree', 'charinsert', 'gallery', 'hiero', 'imagemap',
 				'inputbox', 'math', 'poem', 'syntaxhighlight', 'tag', 'timeline'
 			]);
 		}
 		return this.installedExts[name] !== undefined;
-	},
-
-	extensionUsesWT: function(name) {
-		// This is just a temporary hack for this patch -- some of this
-		// code will get rewritten by moving the code to the extension itself.
-		// *include* elsewhere, and ref to ext.Cite.js
-		if (!this.wtUsingTags) {
-			this.wtUsingTags = this.arrayToHash([
-				"includeonly", "onlyinclude", "noinclude", "ref"
-			]);
-		}
-		return this.wtUsingTags[name] !== undefined;
 	}
 };
 
