@@ -1,5 +1,6 @@
 var fs = require('fs'),
 	path = require('path'),
+	exists = fs.exists || path.exists,
 	https = require('https');
 
 var url = {
@@ -23,7 +24,8 @@ var fetch = function(url, target_name) {
 		console.error(err);
 	});
 };
-path.exists(target_name, function(exists) {
+
+exists(target_name, function(exists) {
 	if (!exists) {
 		fetch(url, target_name);
 	}
