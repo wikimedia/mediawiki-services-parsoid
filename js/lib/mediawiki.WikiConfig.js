@@ -167,6 +167,15 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 
 		conf._protocolRegex = new RegExp( '^(' + protocols.join( '|' ) + ')', 'i' );
 	}
+
+	if ( resultConf.extensiontags ) {
+		var ext, extensions = resultConf.extensiontags;
+		for ( var ex = 0; ex < extensions.length; ex++ ) {
+			ext = extensions[ex];
+			// Strip the tag wrappers because we only want the name
+			conf.extensionTags[ext.replace( /(^<|>$)/g, '' ).toLowerCase()] = true;
+		}
+	}
 };
 
 WikiConfig.prototype = {
@@ -297,6 +306,17 @@ WikiConfig.prototype = {
 		} else {
 			// With no available restrictions, we have to assume "no".
 			return false;
+		}
+	},
+
+	/**
+	 * @param {string} potentialTag in lower case
+	 */
+	isExtensionTag: function ( potentialTag ) {
+		if ( this.extensionTags === null ) {
+			return false;
+		} else {
+			return this.extensionTags[potentialTag] === true;
 		}
 	}
 };
