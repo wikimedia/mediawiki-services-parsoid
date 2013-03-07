@@ -60,7 +60,7 @@ fi;
 
 cd results || exit 1
 if [ "$1" != '-c' -a "$2" != '-c' ];then
-    git diff | less -R
+    git diff --patience | less -R
 else
 	git add $OUTPUT
     if [ "$1" = '--wt2wt' ];then
@@ -73,6 +73,6 @@ else
         git commit -m "`tail -11 all.txt`" all.txt || exit 1
     fi
     if [ "$2" != '-q'];then
-        git diff HEAD~1 | less -R || exit 1
+        git diff --patience HEAD~1 | less -R || exit 1
     fi
 fi
