@@ -1251,6 +1251,12 @@ pre_indent
       return [l].concat(ls);
   }
 
+pre_tag_name =
+  tag:[prePRE]+ {
+      tag = tag.join('');
+      return tag.toLowerCase() === "pre" ? tag : null;
+  }
+
 // An indented pre block that is surrounded with pre tags. The pre tags are
 // used directly.
 // XXX gwicke: check if the first line is not indented, and round-trip spaces;
@@ -1259,12 +1265,12 @@ pre_indent
 pre_indent_in_tags
   = & { return stops.inc('pre'); }
   	space+ // XXX: capture space for round-tripping
-    "<pre"
+    "<" pre_tag_name
     attribs:generic_attribute*
     ">"
     l:inlineline
     ls:(sol pre_indent_line)*
-    "</pre>"
+    "</" pre_tag_name ">"
   {
     stops.dec('pre');
     var ret = [ new TagTk( 'pre', attribs, { tsr: [pos0, pos0] } ) ];
@@ -1288,7 +1294,7 @@ pre_indent_line = space l:inlineline {
  */
 pre
   = & { return stops.inc('pre'); }
-    "<pre"
+    "<" pre_tag_name
     attribs:generic_attribute*
     endpos:(">" { return pos })
     // MediaWiki <pre> is special in that it converts all pre content to plain
@@ -1296,14 +1302,14 @@ pre
     ts:(    newlineToken
                 / (htmlentity / [^&<]+)+
                 / nowiki
-                / !"</pre>" t2:(htmlentity / .) { return t2 })+
-    ("</pre>" / eof) {
+                / !("</" pre_tag_name ">") t2:(htmlentity / .) { return t2 })+
+    ("</" pre_tag_name ">" / eof) {
         stops.dec('pre');
         // return nowiki tags as well?
         return [ new TagTk( 'pre', attribs, { stx: 'html', tsr: [pos0, endpos] } ) ]
                     .concat(flatten_stringlist(ts), [ new EndTagTk( 'pre', [], { tsr: [pos - 6, pos] } ) ]);
     }
-  / "</pre>" { stops.dec('pre'); return "</pre>"; }
+  / "</" pre_tag_name ">" { stops.dec('pre'); return "</pre>"; }
   / & { return stops.dec('pre'); }
 
 /* -----------------------------------------------------------------------
@@ -1325,7 +1331,7 @@ xmlish_tag = t2:(t:generic_tag {
         var tagName = t.name.toLowerCase(),
             dp = t.dataAttribs,
             isHtmlTag = html5_tag_names[tagName] === true || html_old_names[tagName] === true,
-            isInstalledExt = Util.extensionInstalled(pegArgs.env, tagName),
+            isInstalledExt = pegArgs.env.conf.wiki.isExtensionTag(tagName),
             supportedTag = nativeParsoidExts[tagName] === true;
 
         if (!isHtmlTag && !isInstalledExt && !supportedTag) {
@@ -1464,9 +1470,16 @@ xmlish_tag = t2:(t:generic_tag {
  * pre blocks would still remain in the grammar though, so overall handling it
  * all here is cleaner.
  */
+
+nowiki_tag_name =
+  tag:[nowikNOWIK]+ {
+      tag = tag.join('');
+      return tag.toLowerCase() === "nowiki" ? tag : null;
+  }
+
 nowiki
-  = "<nowiki>" nc:nowiki_content "</nowiki>" {
-        //console.warn( 'full nowiki return: ' + pp(nc));
+  = "<" nowiki_tag_name ">" nc:nowiki_content "</" nowiki_tag_name ">" {
+        // console.warn( 'full nowiki return: ' + pp(nc));
         return [
             new TagTk( 'span',
                     [
@@ -1483,8 +1496,8 @@ nowiki
     }
   // nowiki fallback: source-based round-tripping of <nowiki />.
   / nw0:({return pos})
-    "<nowiki" [ ]* "/>" {
-      //console.warn('<nowiki/>');
+    "<" nowiki_tag_name [ ]* "/>" {
+      // console.warn('<nowiki/>');
       return [
           new SelfclosingTagTk('meta',
                   [new KV('typeof', 'mw:Placeholder')],
@@ -1498,8 +1511,8 @@ nowiki
   // of unbalanced nowiki tags that are treated as text.
   / ! { return stops.counters.pre > 0; }
     nw0:({return pos})
-    "<" "/"? "nowiki" [ ]* "/"? ">" {
-      //console.warn('nowiki text');
+    "<" "/"? nowiki_tag_name [ ]* "/"? ">" {
+      // console.warn('nowiki text');
       var nowiki = input.substring(nw0, pos);
       return [
             new TagTk( 'span', [
@@ -1528,7 +1541,7 @@ nowiki_content
                  //console.warn('nested pre in nowiki');
                  return ["<pre"].concat(p0, p1, [">"], p2, ["</pre>"]).join('');
                }
-           / (!pre_break !"</nowiki>" c:(htmlentity / .) {
+           / (!pre_break !("</" nowiki_tag_name ">") c:(htmlentity / .) {
                //console.warn('nowiki: single char' + c);
                return c;
            })

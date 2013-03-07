@@ -803,25 +803,6 @@ var Util = {
 		}
 		console.error(out.join(arguments[1]));
 	},
-
-	// SSS FIXME: This should probably come from some config/api?
-	// This is just a temporary hack for this patch
-	installedExts: null,
-
-	extensionInstalled: function(env, name) {
-		// SSS FIXME: This is just a temporary hack for this patch.
-		//
-		// Once this info is available in the config, we should check
-		// env.conf.wiki.extensionTags instead.
-
-		if (!this.installedExts) {
-			this.installedExts = this.arrayToHash([
-				'categorytree', 'charinsert', 'gallery', 'hiero', 'imagemap',
-				'inputbox', 'math', 'poem', 'syntaxhighlight', 'tag', 'timeline'
-			]);
-		}
-		return this.installedExts[name] === true;
-	}
 };
 
 /**
