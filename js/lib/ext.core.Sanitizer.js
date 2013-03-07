@@ -660,7 +660,7 @@ Sanitizer.prototype.onAny = function ( token ) {
 		noEndTagHash = this.constants.noEndTagHash;
 
 	if (token.isHTMLTag && token.isHTMLTag() &&
-			( !tagWLHash[token.name] ||
+			( tagWLHash[token.name] !== true ||
 			  ( token.constructor === EndTagTk && noEndTagHash[token.name] )
 			)
 		)
@@ -896,7 +896,7 @@ Sanitizer.prototype.sanitizeTagAttrs = function(newToken, attrs) {
 		}
 
 		// Allow any attribute beginning with "data-", if in HTML5 mode
-		if (!(html5Mode && k.match(/^data-/i)) && !wlist[k]) {
+		if (!(html5Mode && k.match(/^data-/i)) && wlist[k] !== true) {
 			newAttrs[k] = [null, origV, origK];
 			continue;
 		}

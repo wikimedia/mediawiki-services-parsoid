@@ -765,7 +765,7 @@ var Util = {
 	arrayToHash: function(a) {
 		var h = {};
 		for (var i = 0, n = a.length; i < n; i++) {
-			h[a[i]] = 1;
+			h[a[i]] = true;
 		}
 		return h;
 	},
@@ -820,7 +820,7 @@ var Util = {
 				'inputbox', 'math', 'poem', 'syntaxhighlight', 'tag', 'timeline'
 			]);
 		}
-		return this.installedExts[name] !== undefined;
+		return this.installedExts[name] === true;
 	}
 };
 

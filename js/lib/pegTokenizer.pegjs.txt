@@ -297,9 +297,12 @@
     };
 
     // Current extension tag being parsed.
-    var extParseInfo = {
-        currTag: null,
-    };
+    var currExtTag = null;
+
+    // SSS FIXME: Temporary hack till the next round of cleanup and refactoring.
+    var nativeParsoidExts = Util.arrayToHash([
+        "includeonly", "noinclude", "onlyinclude", "ref", "references"
+    ]);
 
     // text start position
     var textStart = 0;
@@ -333,7 +336,13 @@
         "title", "tr", "track", "u", "ul", "var", "video", "wbr"
     ]);
 
-    var html_old_names = Util.arrayToHash([ "center", "font", "tt" ]);
+    // From http://www.w3.org/TR/html5-diff/#obsolete-elements
+    // SSS FIXME: basefont is missing here, but looks like the PHP parser
+    // does not support it anyway and treats it as plain text.  So, skipping
+    // this one in Parsoid as well.
+    var html_old_names = Util.arrayToHash([
+        "strike", "big", "center", "font", "tt"
+    ]);
 
     var self = this;
 
@@ -637,7 +646,8 @@ inlineline
 
 inline_element
   = //& { dp('inline_element enter' + input.substr(pos, 10)); return true; }
-      & '<' xmlish_tag
+      & '<' nowiki
+    / & '<' xmlish_tag
     / & '<' comment
     /// & '{' ( & '{{{{{' template / tplarg / template )
     / & '{' tplarg_or_template
@@ -1311,21 +1321,40 @@ pre
  * outer templates.
  * ----------------------------------------------------------------------- */
 
-xmlish_tag = nowiki
-    / t2:(t:generic_tag {
-        var tagName = t.name;
+xmlish_tag = t2:(t:generic_tag {
+        var tagName = t.name.toLowerCase(),
+            dp = t.dataAttribs,
+            isHtmlTag = html5_tag_names[tagName] === true || html_old_names[tagName] === true,
+            isInstalledExt = Util.extensionInstalled(pegArgs.env, tagName),
+            supportedTag = nativeParsoidExts[tagName] === true;
 
-        // TagTk and SelfclosingTagTk
-        if (t.constructor !== EndTagTk && !html5_tag_names[tagName] && !html_old_names[tagName]) {
+        if (!isHtmlTag && !isInstalledExt && !supportedTag) {
+            // convert tag to text, but convert "\n" and "\r\n" NlTk tokens
+            var toks = input.substring(dp.tsr[0], dp.tsr[1]).split(/\n|\r\n/),
+                ret = [],
+                tsr = dp.tsr[0];
+
+            // Add one NlTk between each pair, hence toks.length-1
+            for (var i = 0, n = toks.length-1; i < n; i++) {
+                ret.push(toks[i]);
+                tsr += toks[i].length;
+                ret.push(new NlTk(tsr, tsr+1));
+            }
+            ret.push(toks[i]);
+
+            return ret;
+        }
+
+        if (t.constructor !== EndTagTk && !isHtmlTag) {
             if (t.constructor === TagTk) {
-                var tsr0 = t.dataAttribs.tsr[0],
+                var tsr0 = dp.tsr[0],
                     restOfInput = input.substring(tsr0),
                     tagContent = restOfInput.match(new RegExp("^(.|\n)*?(</\s*" + tagName + ">)", "m")),
                     extSrc = null;
 
                 if (tagContent) {
                     extSrc = tagContent[0];
-                } else if (Util.extensionInstalled(pegArgs.env, tagName)) {
+                } else if (isInstalledExt) {
                     extSrc = restOfInput;
                 }
 
@@ -1334,46 +1363,56 @@ xmlish_tag = nowiki
                         extContentLen = extSrc.length - startTagLen - (tagContent ? tagContent[2].length : 0),
                         extContent = extSrc.substring(startTagLen, startTagLen + extContentLen);
 
-                    t.dataAttribs.src = extSrc;
+                    // If the xml-tag is a known installed extension, skip the end-tag as well.
+                    var skipLen = extContentLen;
+                    if (isInstalledExt && tagContent) {
+                        skipLen += tagContent[2].length;
+                    }
+
+                    // Replace extension content (and possibly the end tag, as well) with
+                    // dummy content so it matches the rule following this match and
+                    // can be tokenized independently (if required).  This is just a trick
+                    // to tokenize ref content with higher priority.
+                    input = input.slice(0,pos) + Util.charSequence('', '#', skipLen) + input.slice(pos+skipLen);
+
+                    // Extension content source
+                    dp.src = extSrc;
 
                     // Temporary state
-                    t.dataAttribs.isExt = true;
-                    t.dataAttribs.extContent = extContent;
-                    t.dataAttribs.extContentOffset = pos;
-                    t.dataAttribs.origInput = input;
-
-                    // Replace extension content with dummy content so it matches the
-                    // rule following this match and can be tokenized independently (if required).
-                    // This is just a trick to tokenize ref content with higher priority.
-                    input = input.slice(0,pos) + Util.charSequence('', '#', extContentLen) + input.slice(pos+extContentLen);
+                    dp.extLikeTag = true;
+                    dp.isInstalledExt = isInstalledExt;
+                    dp.extContent = extContent;
+                    dp.extContentOffset = pos;
+                    dp.origInput = input;
 
                     // console.warn("input: " + input);
                 }
             } else {
-                t.dataAttribs.src = input.substring(t.dataAttribs.tsr[0], t.dataAttribs.tsr[1]);
+                dp.src = input.substring(dp.tsr[0], dp.tsr[1]);
             }
         }
 
-        extParseInfo.currTag = t;
-        // console.warn("curr: " + JSON.stringify(extParseInfo.currTag));
+        currExtTag = t;
+        // console.warn("curr: " + JSON.stringify(currExtTag));
         return t;
     }) (
       dummyText:'#'* {
-        // Should only match if we tricked the tokenizer
-        var currExtTag = extParseInfo.currTag;
-        return currExtTag.dataAttribs.isExt &&
-            currExtTag.constructor !== SelfclosingTagTk &&
-            dummyText.length === currExtTag.dataAttribs.extContent.length;
+        // Should only match if currExtTag is an extension
+        var dp = currExtTag ? currExtTag.dataAttribs : null;
+        return dp && dp.extLikeTag && dummyText.length === dp.extContent.length;
       }
       / &  {
-        // Should not match if we tricked the tokenizer
-        var currExtTag = extParseInfo.currTag;
-        return !currExtTag.dataAttribs.isExt ||
-            currExtTag.constructor === SelfclosingTagTk;
+        // Should not match if currExtTag is an extension
+        return !currExtTag || !currExtTag.dataAttribs.extLikeTag;
       }
     ) {
-        var ret = t2, dp = t2.dataAttribs;
-        if (dp.isExt) {
+        if (t2.constructor === Array) {
+            return t2;
+        }
+
+        var ret = t2,
+            dp = t2.dataAttribs;
+        if (dp.extLikeTag) {
             // If not a known installed extension, parse content as wikitext.
             // - include-directives: <noinclude>, <includeonly>, ...
             // - a non-html5 tag like <big>
@@ -1383,13 +1422,21 @@ xmlish_tag = nowiki
             //   of cite extension refactoring for supporting DOM rerendering,
             //   incremental parsing, etc.  Till then, we'll let this go through
             //   the same codepaths as before.
-            var name = t2.name.toLowerCase();
-            if (!Util.extensionInstalled(name)) {
+            var tagName = t2.name.toLowerCase();
+            if (dp.isInstalledExt) {
+                // update tsr[1] to span the start and end tags.
+                dp.tsr[1] = pos;
+                ret = new SelfclosingTagTk('extension', [
+                    new KV('typeof', 'mw:Object/Extension'),
+                    new KV('name', tagName),
+                    new KV('about', "#" + pegArgs.env.newObjectId()),
+                    new KV('content', dp.src)
+                ], dp);
+            } else {
                 // Parse ref-content, strip eof, and shift tsr
                 var extContentToks = (new PegTokenizer(pegArgs.env)).tokenize(dp.extContent);
                 extContentToks = Util.stripEOFTkfromTokens(extContentToks);
                 Util.shiftTokenTSR(extContentToks, dp.extContentOffset);
-
                 ret = [t2].concat(extContentToks);
             }
 
@@ -1397,14 +1444,15 @@ xmlish_tag = nowiki
             input = dp.origInput;
 
             // Clear temporary state
-            dp.isExt = undefined;
+            dp.extLikeTag = undefined;
+            dp.isInstalledExt = undefined;
             dp.extContent = undefined;
             dp.extContentOffset = undefined;
             dp.origInput = undefined;
         }
         // console.warn("RET: " + JSON.stringify(ret));
 
-        extParseInfo.currTag = null;
+        currExtTag = null;
 
         return ret;
     }
@@ -1629,7 +1677,7 @@ block_tag
     selfclose:"/"?
     ">" {
         var lcName = name.toLowerCase();
-        if (block_names[lcName]) {
+        if (block_names[lcName] === true) {
             return [buildXMLTag(name, lcName, attribs, end, selfclose, [pos0, pos])];
         } else {
             // abort match if tag is not block-level

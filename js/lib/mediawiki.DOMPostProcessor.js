@@ -669,7 +669,7 @@ function migrateTrailingNLs(elt, env) {
 	}
 
 	// 2. Process 'elt' itself after -- skip literal-HTML nodes
-	if (nodesToMigrateFrom[elt.nodeName.toLowerCase()] && !DU.isLiteralHTMLNode(elt)) {
+	if (nodesToMigrateFrom[elt.nodeName.toLowerCase()] === true && !DU.isLiteralHTMLNode(elt)) {
 		var firstEltToMigrate = null,
 			partialContent = false,
 			n = elt.lastChild;

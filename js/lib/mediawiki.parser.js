@@ -1,4 +1,3 @@
-"use strict";
 /**
  * This module assembles parser pipelines from parser stages with
  * asynchronous communnication between stages based on events. Apart from the
@@ -9,6 +8,7 @@
  * http://www.mediawiki.org/wiki/Parsoid/Token_stream_transformations
  * for illustrations of the pipeline architecture.
  */
+"use strict";
 
 // make this global for now
 // XXX: figure out a way to get away without a global for PEG actions!
@@ -26,7 +26,6 @@ var $ = require('./fakejquery'),
 	IncludeOnly = NoIncludeOnly.IncludeOnly,
 	NoInclude = NoIncludeOnly.NoInclude,
 	OnlyInclude	= NoIncludeOnly.OnlyInclude,
-	ExtensionContent = require('./ext.ExtensionContentCollector.js').ExtensionContent,
 	QuoteTransformer = require('./ext.core.QuoteTransformer.js').QuoteTransformer,
 	TokenStreamPatcher = require('./ext.core.TokenStreamPatcher.js').TokenStreamPatcher,
 	PreHandler = require('./ext.core.PreHandler.js').PreHandler,
@@ -119,7 +118,6 @@ ParserPipelineFactory.prototype.recipes = {
 				OnlyInclude,	// 0.01
 				IncludeOnly,	// 0.02
 				NoInclude,		// 0.03
-				ExtensionContent, // 0.04
 
 				// Preprocess behavior switches
 				BehaviorSwitchPreprocessor, // 0.05
