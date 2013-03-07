@@ -1327,14 +1327,15 @@ pre
  * outer templates.
  * ----------------------------------------------------------------------- */
 
-xmlish_tag = t2:(t:generic_tag {
+xmlish_tag =
+    t2:(t:generic_tag {
         var tagName = t.name.toLowerCase(),
             dp = t.dataAttribs,
             isHtmlTag = html5_tag_names[tagName] === true || html_old_names[tagName] === true,
             isInstalledExt = pegArgs.env.conf.wiki.isExtensionTag(tagName),
-            supportedTag = nativeParsoidExts[tagName] === true;
+            isNativeExt = nativeParsoidExts[tagName] === true;
 
-        if (!isHtmlTag && !isInstalledExt && !supportedTag) {
+        if (!isHtmlTag && !isInstalledExt && !isNativeExt) {
             // convert tag to text, but convert "\n" and "\r\n" NlTk tokens
             var toks = input.substring(dp.tsr[0], dp.tsr[1]).split(/\n|\r\n/),
                 ret = [],
@@ -1360,7 +1361,7 @@ xmlish_tag = t2:(t:generic_tag {
 
                 if (tagContent) {
                     extSrc = tagContent[0];
-                } else if (isInstalledExt) {
+                } else if (isInstalledExt || isNativeExt) {
                     extSrc = restOfInput;
                 }
 
@@ -1369,17 +1370,11 @@ xmlish_tag = t2:(t:generic_tag {
                         extContentLen = extSrc.length - startTagLen - (tagContent ? tagContent[2].length : 0),
                         extContent = extSrc.substring(startTagLen, startTagLen + extContentLen);
 
-                    // If the xml-tag is a known installed extension, skip the end-tag as well.
+                    // If the xml-tag is a known installed (not native) extension, skip the end-tag as well.
                     var skipLen = extContentLen;
-                    if (isInstalledExt && tagContent) {
+                    if (isInstalledExt && !isNativeExt && tagContent) {
                         skipLen += tagContent[2].length;
                     }
-
-                    // Replace extension content (and possibly the end tag, as well) with
-                    // dummy content so it matches the rule following this match and
-                    // can be tokenized independently (if required).  This is just a trick
-                    // to tokenize ref content with higher priority.
-                    input = input.slice(0,pos) + Util.charSequence('', '#', skipLen) + input.slice(pos+skipLen);
 
                     // Extension content source
                     dp.src = extSrc;
@@ -1387,9 +1382,17 @@ xmlish_tag = t2:(t:generic_tag {
                     // Temporary state
                     dp.extLikeTag = true;
                     dp.isInstalledExt = isInstalledExt;
+                    dp.isNativeExt = isNativeExt;
+                    dp.skipLen = skipLen;
                     dp.extContent = extContent;
                     dp.extContentOffset = pos;
                     dp.origInput = input;
+
+                    // Replace extension content (and possibly the end tag, as well) with
+                    // dummy content so it matches the rule following this match and
+                    // can be tokenized independently (if required).  This is just a trick
+                    // to tokenize ref content with higher priority.
+                    input = input.slice(0,pos) + Util.charSequence('', '#', skipLen) + input.slice(pos+skipLen);
 
                     // console.warn("input: " + input);
                 }
@@ -1405,11 +1408,11 @@ xmlish_tag = t2:(t:generic_tag {
       dummyText:'#'* {
         // Should only match if currExtTag is an extension
         var dp = currExtTag ? currExtTag.dataAttribs : null;
-        return dp && dp.extLikeTag && dummyText.length === dp.extContent.length;
+        return dp && dp.extLikeTag && dummyText.length === dp.skipLen ? true : null;
       }
       / &  {
         // Should not match if currExtTag is an extension
-        return !currExtTag || !currExtTag.dataAttribs.extLikeTag;
+        return !currExtTag || !currExtTag.dataAttribs.extLikeTag ? true : null;
       }
     ) {
         if (t2.constructor === Array) {
@@ -1429,7 +1432,7 @@ xmlish_tag = t2:(t:generic_tag {
             //   incremental parsing, etc.  Till then, we'll let this go through
             //   the same codepaths as before.
             var tagName = t2.name.toLowerCase();
-            if (dp.isInstalledExt) {
+            if (dp.isInstalledExt && !dp.isNativeExt) {
                 // update tsr[1] to span the start and end tags.
                 dp.tsr[1] = pos;
                 ret = new SelfclosingTagTk('extension', [
@@ -1439,7 +1442,7 @@ xmlish_tag = t2:(t:generic_tag {
                     new KV('content', dp.src)
                 ], dp);
             } else {
-                // Parse ref-content, strip eof, and shift tsr
+                // Parse ext-content, strip eof, and shift tsr
                 var extContentToks = (new PegTokenizer(pegArgs.env)).tokenize(dp.extContent);
                 extContentToks = Util.stripEOFTkfromTokens(extContentToks);
                 Util.shiftTokenTSR(extContentToks, dp.extContentOffset);
@@ -1451,7 +1454,9 @@ xmlish_tag = t2:(t:generic_tag {
 
             // Clear temporary state
             dp.extLikeTag = undefined;
+            dp.skipLen = undefined;
             dp.isInstalledExt = undefined;
+            dp.isNativeExt = undefined;
             dp.extContent = undefined;
             dp.extContentOffset = undefined;
             dp.origInput = undefined;
