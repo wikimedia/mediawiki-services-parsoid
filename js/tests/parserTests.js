@@ -268,7 +268,7 @@ ParserTests.prototype.getTests = function ( argv ) {
 		testFile = fs.readFileSync(this.testFileName, 'utf8');
 		fileDependencies.push( this.testFileName );
 	} catch (e) {
-		console.log( e );
+		console.error( e );
 	}
 	// parser grammar is also a dependency
 	fileDependencies.push( this.testParserFileName );
@@ -291,7 +291,6 @@ ParserTests.prototype.getTests = function ( argv ) {
 		cache_content,
 		cache_file_digest;
 	try {
-		console.log( "Looking for cache file " + this.cache_file );
 		cache_content = fs.readFileSync( cache_file_name, 'utf8' );
 		// Fetch previous digest
 		cache_file_digest = cache_content.match( /^CACHE: (\w+)\n/ )[1];
@@ -301,15 +300,13 @@ ParserTests.prototype.getTests = function ( argv ) {
 
 	if( cache_file_digest === sha1 ) {
 		// cache file match our digest.
-		console.log( "Loaded test cases from cache file" );
 		// Return contained object after removing first line (CACHE: <sha1>)
 		return JSON.parse( cache_content.replace( /.*\n/, '' ) );
 	} else {
 		// Write new file cache, content preprended with current digest
-		console.log( "Cache file either not present or outdated" );
+		console.error( "Cache file either not present or outdated" );
 		var parse = this.parseTestCase( testFile );
 		if ( parse !== undefined ) {
-			console.log( "Writing parse result to " + this.cache_file );
 			fs.writeFileSync( cache_file_name,
 				"CACHE: " + sha1 + "\n" + JSON.stringify( parse ),
 				'utf8'
@@ -327,7 +324,7 @@ ParserTests.prototype.parseTestCase = function ( content ) {
 	try {
 		return this.testParser.parse(content);
 	} catch (e) {
-		console.log(e);
+		console.error(e);
 	}
 	return undefined;
 };
@@ -543,15 +540,15 @@ ParserTests.prototype.convertWt2Html = function( mode, wikitext, processHtmlCB )
  */
 ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 	if ( !( 'title' in item ) ) {
-		console.log( item );
+		console.error( item );
 		throw new Error( 'Missing title from test case.' );
 	}
 	if ( !( 'input' in item ) ) {
-		console.log( item );
+		console.error( item );
 		throw new Error( 'Missing input from test case ' + item.title );
 	}
 	if ( !( 'result' in item ) ) {
-		console.log( item );
+		console.error( item );
 		throw new Error( 'Missing input from test case ' + item.title );
 	}
 
@@ -1072,7 +1069,6 @@ ParserTests.prototype.main = function ( options ) {
 			console.error( 'ERROR> See below for JS engine error:\n' + e + '\n' );
 			process.exit( 1 );
 		}
-		console.log( 'Filtering title test using Regexp ' + this.test_filter );
 	}
 	if( !booleanOption( options.color ) ) {
 		colors.mode = 'none';
@@ -1089,7 +1085,7 @@ ParserTests.prototype.main = function ( options ) {
 		this.testParserFileName = __dirname + '/parserTests.pegjs';
 		this.testParser = PEG.buildParser( fs.readFileSync( this.testParserFileName, 'utf8' ) );
 	} catch ( e2 ) {
-		console.log( e2 );
+		console.error( e2 );
 	}
 
 	this.cases = this.getTests( options ) || [];
@@ -1474,6 +1470,7 @@ if ( popts && popts.xml ) {
 	popts.reportResult = xmlFuncs.reportResult;
 	popts.reportStart = xmlFuncs.reportStart;
 	popts.reportSummary = xmlFuncs.reportSummary;
+	popts.reportFailure = xmlFuncs.reportFailure;
 }
 
 ptests.main( popts );
