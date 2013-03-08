@@ -15,7 +15,7 @@ function insertRecord( record ) {
 	waitingCount++;
 	dbInsert.run( [ record ], function ( err ) {
 		if ( err ) {
-			console.log( err );
+			console.error( err );
 		} else {
 			waitingCount--;
 
@@ -46,7 +46,7 @@ function loadJSON( json ) {
 db.serialize( function ( err ) {
 	var filepath;
 	if ( err ) {
-		console.log( err );
+		console.error( err );
 	} else {
 		filepath = optimist.argv._[0];
 		if ( !filepath.match( /^\// ) ) {

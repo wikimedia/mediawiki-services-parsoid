@@ -293,7 +293,7 @@ var getParserServiceEnv = function ( res, iwp, pageName, cb ) {
 		env.errCB = function ( e ) {
 			var errmsg = e.stack || e.toString();
 			var code = e.code || 500;
-			console.log( errmsg );
+			console.error( errmsg );
 			res.send( errmsg, code );
 			// Force a clean restart of this worker
 			process.exit(1);
@@ -340,7 +340,7 @@ app.post( /^\/_bugs\//, function ( req, res ) {
 		console.log( filename, data );
 		fs.writeFile(filename, req.body.data, function(err) {
 			if(err) {
-				console.log(err);
+				console.error(err);
 			} else {
 				console.log("The file " + filename + " was saved!");
 			}
@@ -422,7 +422,7 @@ app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
 			env.page.src = src;
 			parser.process( src );
 		} catch (e) {
-			console.log( e.stack || e.toString() );
+			console.error( e.stack || e.toString() );
 			res.send( e.stack || e.toString(), 500 );
 		}
 	};
