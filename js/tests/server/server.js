@@ -592,7 +592,7 @@ resultsWebInterface = function ( req, res ) {
 	db.all( 'SELECT result FROM results', function ( err, rows ) {
 		var i;
 		if ( err ) {
-			console.log( err );
+			console.error( err );
 			res.send( err.toString(), 500 );
 		} else {
 			if ( rows.length === 0 ) {
@@ -614,7 +614,7 @@ resultsWebInterface = function ( req, res ) {
 
 function resultWebCallback( req, res, err, row ) {
 	if ( err ) {
-		console.log( err );
+		console.error( err );
 		res.send( err.toString(), 500 );
 	} else if ( row ) {
 		res.setHeader( 'Content-Type', 'text/xml; charset=UTF-8' );
@@ -640,7 +640,7 @@ function resultWebInterface( req, res ) {
 function GET_failedFetches( req, res ) {
 	dbFailedFetches.all( [maxFetchRetries], function ( err, rows ) {
 		if ( err ) {
-			console.log( err );
+			console.error( err );
 			res.send( err.toString(), 500 );
 		} else {
 			var n = rows.length;
@@ -665,7 +665,7 @@ function GET_failedFetches( req, res ) {
 function GET_failsDistr( req, res ) {
 	dbFailsDistribution.all([-1], function ( err, rows ) {
 		if ( err ) {
-			console.log( err );
+			console.error( err );
 			res.send( err.toString(), 500 );
 		} else {
 			var n = rows.length;
@@ -687,7 +687,7 @@ function GET_failsDistr( req, res ) {
 function GET_skipsDistr( req, res ) {
 	dbSkipsDistribution.all([-1], function ( err, rows ) {
 		if ( err ) {
-			console.log( err );
+			console.error( err );
 			res.send( err.toString(), 500 );
 		} else {
 			var n = rows.length;
@@ -822,7 +822,7 @@ function GET_topfixes ( req, res ) {
 function GET_commits( req, res ) {
 	dbCommits.all([-1], function ( err, rows ) {
 		if ( err ) {
-			console.log( err );
+			console.error( err );
 			res.send( err.toString(), 500 );
 		} else {
 			var n = rows.length;
