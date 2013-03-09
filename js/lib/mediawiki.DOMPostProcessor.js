@@ -102,8 +102,7 @@ DOMTraverser.prototype.callHandlers = function ( node ) {
 	handlers = this.handlers[name];
 	if ( handlers ) {
 		for ( ix = 0; ix < handlers.length; ix++ ) {
-			result = handlers[ix]( node );
-			if ( result === false ) {
+			if ( handlers[ix]( node )=== false ) {
 				return;
 			}
 		}
@@ -120,7 +119,7 @@ DOMTraverser.prototype.traverse = function ( node ) {
 		nextChild = child.nextSibling;
 		this.callHandlers( child );
 
-		if ( child.parentNode !== null ) {
+		if ( child.parentNode !== null && DU.isElt(child) && child.childNodes.length > 0 ) {
 			this.traverse( child );
 		}
 
@@ -1743,7 +1742,9 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 	function computeTagWidths(widths, node, dp) {
 		var stWidth = widths[0], etWidth = null;
 
-		if (DU.hasLiteralHTMLMarker(dp)) {
+		if (dp.tagWidths) {
+			return dp.tagWidths;
+		} else if (DU.hasLiteralHTMLMarker(dp)) {
 			if (dp.tsr) {
 				etWidth = widths[1];
 			}
@@ -1873,6 +1874,11 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 					if (property && property.match(/mw:objectAttr/)) {
 						cs = ce;
 					}
+				}
+				if (dp.tagWidths) {
+					stWidth = dp.tagWidths[0];
+					etWidth = dp.tagWidths[1];
+					dp.tagWidths = undefined;
 				}
 			} else if ((cTypeOf === "mw:Placeholder" || cTypeOf === "mw:Entity") && ce !== null && dp.src) {
 				cs = ce - dp.src.length;
@@ -2055,26 +2061,30 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 }
 
 function computeDocDSR(root, env) {
-	if (env.conf.parsoid.debug || (env.conf.parsoid.dumpFlags && (env.conf.parsoid.dumpFlags.indexOf("dom:pre-dsr") !== -1))) {
+	var startOffset = 0,
+		endOffset = env.page.src.length,
+		psd = env.conf.parsoid;
+
+	if (psd.debug || (psd.dumpFlags && (psd.dumpFlags.indexOf("dom:pre-dsr") !== -1))) {
 		console.warn("------ DOM: pre-DSR -------");
 		console.warn(root.innerHTML);
 		console.warn("----------------------------");
 	}
 
-	var traceDSR = env.debug || (env.conf.parsoid.traceFlags && (env.conf.parsoid.traceFlags.indexOf("dsr") !== -1));
+	var traceDSR = env.debug || (psd.traceFlags && (psd.traceFlags.indexOf("dsr") !== -1));
 	if (traceDSR) console.warn("------- tracing DSR computation -------");
 
 	// The actual computation buried in trace/debug stmts.
 	var body = root.body;
-	computeNodeDSR(env, body, 0, env.page.src.length, traceDSR);
+	computeNodeDSR(env, body, startOffset, endOffset, traceDSR);
 
 	var dp = DU.dataParsoid(body);
-	dp.dsr = [0, env.page.src.length, 0, 0];
+	dp.dsr = [startOffset, endOffset, 0, 0];
 	DU.setDataParsoid(body, dp);
 
 	if (traceDSR) console.warn("------- done tracing DSR computation -------");
 
-	if (env.conf.parsoid.debug || (env.conf.parsoid.dumpFlags && (env.conf.parsoid.dumpFlags.indexOf("dom:post-dsr") !== -1))) {
+	if (psd.debug || (psd.dumpFlags && (psd.dumpFlags.indexOf("dom:post-dsr") !== -1))) {
 		console.warn("------ DOM: post-DSR -------");
 		console.warn(root.innerHTML);
 		console.warn("----------------------------");
@@ -2088,7 +2098,9 @@ function computeDocDSR(root, env) {
  */
 function encapsulateTemplateOutput( document, env ) {
 	var tpls = {};
-	if (env.conf.parsoid.debug || (env.conf.parsoid.dumpFlags && (env.conf.parsoid.dumpFlags.indexOf("dom:pre-encap") !== -1))) {
+	var psd = env.conf.parsoid;
+
+	if (psd.debug || (psd.dumpFlags && (psd.dumpFlags.indexOf("dom:pre-encap") !== -1))) {
 		console.warn("------ DOM: pre-encapsulation -------");
 		console.warn(document.innerHTML);
 		console.warn("----------------------------");
@@ -2098,6 +2110,30 @@ function encapsulateTemplateOutput( document, env ) {
 	if (tplRanges.length > 0) {
 		tplRanges = findTopLevelNonOverlappingRanges(env, document, tplRanges);
 		encapsulateTemplates(env, document, tplRanges.ranges, tplRanges.params);
+	}
+}
+
+function stripMarkerMetas(node) {
+	var metaType = node.getAttribute("typeof");
+	if (metaType && metaType.match(/\bmw:(Object|EndTag|TSRMarker|Ext)\/?/)) {
+		deleteNode(node);
+	}
+}
+
+function generateReferences(refsExt, node) {
+	var child = node.firstChild;
+	while (child !== null) {
+		var nextChild = child.nextSibling;
+
+		if (DU.isMarkerMeta(child, "mw:Ext/Ref/Content")) {
+			refsExt.extractRefFromNode(child);
+		} else if (DU.isMarkerMeta(child, "mw:Ext/References")) {
+			refsExt.insertReferencesIntoDOM(child);
+		} else if (DU.isElt(child) && child.childNodes.length > 0) {
+			generateReferences(refsExt, child);
+		}
+
+		child = nextChild;
 	}
 }
 
@@ -2162,7 +2198,7 @@ function findAndHandleNeighbour( env, goForward, regex, node, baseAbout ) {
 				value.src = matches[0];
 				if ( value.src === node.nodeValue ) {
 					value.content = node;
-					node.parentNode.removeChild( node );
+					deleteNode(node);
 				} else {
 					value.content = document.createTextNode( matches[0] );
 					node.parentNode.replaceChild( document.createTextNode( node.nodeValue.replace( regex, '' ) ), node );
@@ -2250,29 +2286,39 @@ function handleLinkNeighbours( env, node ) {
 	}
 }
 
-/**
- * Do the final run across the DOM to finalize the render.
- */
-function runFinalDOMTraversalHandlers( document, env ) {
-	var traverser = new DOMTraverser();
-
-	traverser.addHandler( 'a', handleLinkNeighbours.bind( null, env ) );
-	traverser.traverse( document );
-}
-
 function DOMPostProcessor(env, options) {
 	this.env = env;
+	this.options = options;
+
+	// Common post processing
 	this.processors = [
 		handleUnbalancedTableTags,
 		migrateStartMetas,
 		normalizeDocument,
 		findBuilderCorrectedTags,
 		handlePres,
-		migrateTrailingNLs,
-		computeDocDSR,
-		encapsulateTemplateOutput,
-		runFinalDOMTraversalHandlers
+		migrateTrailingNLs
 	];
+
+	if (options.wrapTemplates && !options.isExtension) {
+		// dsr computation and tpl encap are only relevant
+		// for top-level content that is not wrapped in an extension
+		this.processors.push(computeDocDSR);
+		this.processors.push(encapsulateTemplateOutput);
+	}
+
+	// References
+	this.processors.push(generateReferences.bind(null, env.conf.parsoid.nativeExtensions.refs));
+
+	// DOM traverser for passes that can be combined and will run at the end
+	// 1. Link prefixes and suffixes
+	// 2. Strip marker metas -- removes left over marker metas (ex: metas
+	//    nested in expanded tpl/extension output).
+	var lastDOMVisitor = new DOMTraverser();
+	lastDOMVisitor.addHandler( 'a', handleLinkNeighbours.bind( null, env ) );
+	lastDOMVisitor.addHandler('meta', stripMarkerMetas);
+
+	this.processors.push(lastDOMVisitor.traverse.bind(lastDOMVisitor));
 }
 
 // Inherit from EventEmitter
@@ -2280,8 +2326,10 @@ DOMPostProcessor.prototype = new events.EventEmitter();
 DOMPostProcessor.prototype.constructor = DOMPostProcessor;
 
 DOMPostProcessor.prototype.doPostProcess = function ( document ) {
-	var env = this.env;
-	if (env.conf.parsoid.debug || (env.conf.parsoid.dumpFlags && (env.conf.parsoid.dumpFlags.indexOf("dom:post-builder") !== -1))) {
+	var env = this.env,
+		psd = env.conf.parsoid;
+
+	if (psd.debug || (psd.dumpFlags && (psd.dumpFlags.indexOf("dom:post-builder") !== -1))) {
 		console.warn("---- DOM: after tree builder ----");
 		console.warn(document.innerHTML);
 		console.warn("--------------------------------");
@@ -2289,7 +2337,7 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 
 	for (var i = 0; i < this.processors.length; i++) {
 		try {
-			this.processors[i](document, this.env);
+			this.processors[i](document, this.env, this.options);
 		} catch ( e ) {
 			env.errCB(e);
 		}

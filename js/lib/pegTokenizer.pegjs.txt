@@ -300,8 +300,8 @@
     var currExtTag = null;
 
     // SSS FIXME: Temporary hack till the next round of cleanup and refactoring.
-    var nativeParsoidExts = Util.arrayToHash([
-        "includeonly", "noinclude", "onlyinclude", "ref", "references"
+    var includeTags = Util.arrayToHash([
+        "includeonly", "noinclude", "onlyinclude"
     ]);
 
     // text start position
@@ -409,10 +409,7 @@
      */
     var emitChunk = function (tokens) {
         // shift tsr of all tokens by offset
-        var srcOffset = pegArgs.srcOffset;
-        if (srcOffset && srcOffset > 0) {
-            Util.shiftTokenTSR(tokens, srcOffset);
-        }
+        Util.shiftTokenTSR(tokens, pegArgs.srcOffset);
         // console.warn("TOKS: " + JSON.stringify(tokens));
         pegArgs.cb(tokens);
     };
@@ -935,7 +932,7 @@ template
       // generically expanded. The TemplateHandler then needs to shift it out
       // again.
       params.unshift( { k: flattenIfArray( target ), v: '' } );
-      var obj = new SelfclosingTagTk( 'template', params, {tsr: [pos0, pos]} );
+      var obj = new SelfclosingTagTk( 'template', params, {tsr: [pos0, pos], src: input.substring(pos0, pos)} );
       //console.warn( 'tokenizer template ' + pos + );
       //console.warn('template @' + pos + '::' + input.substr(pos, 40) );
       return obj;
@@ -959,7 +956,7 @@ tplarg
     "}}}" {
       name = flattenIfArray( name );
       params.unshift( new KV( name, '' ) );
-      var obj = new SelfclosingTagTk( 'templatearg', params, {tsr: [pos0, pos]} );
+      var obj = new SelfclosingTagTk( 'templatearg', params, {tsr: [pos0, pos], src: input.substring(pos0, pos)} );
       //console.warn( 'tokenizer tplarg ' + JSON.stringify( obj, null, 2 ));
       //console.warn('template arg @' + pos + '::' + input.substr(pos, 40) );
       return obj;
@@ -1330,23 +1327,10 @@ xmlish_tag =
             dp = t.dataAttribs,
             isHtmlTag = html5_tag_names[tagName] === true || html_old_names[tagName] === true,
             isInstalledExt = pegArgs.env.conf.wiki.isExtensionTag(tagName),
-            isNativeExt = nativeParsoidExts[tagName] === true;
+            isIncludeTag = includeTags[tagName] === true;
 
-        if (!isHtmlTag && !isInstalledExt && !isNativeExt) {
-            // convert tag to text, but convert "\n" and "\r\n" NlTk tokens
-            var toks = input.substring(dp.tsr[0], dp.tsr[1]).split(/\n|\r\n/),
-                ret = [],
-                tsr = dp.tsr[0];
-
-            // Add one NlTk between each pair, hence toks.length-1
-            for (var i = 0, n = toks.length-1; i < n; i++) {
-                ret.push(toks[i]);
-                tsr += toks[i].length;
-                ret.push(new NlTk(tsr, tsr+1));
-            }
-            ret.push(toks[i]);
-
-            return ret;
+        if (!isHtmlTag && !isInstalledExt && !isIncludeTag) {
+            return Util.newlinesToNlTks(input.substring(dp.tsr[0], dp.tsr[1]), dp.tsr[0]);
         }
 
         if (t.constructor !== EndTagTk && !isHtmlTag) {
@@ -1354,47 +1338,69 @@ xmlish_tag =
                 var tsr0 = dp.tsr[0],
                     restOfInput = input.substring(tsr0),
                     tagContent = restOfInput.match(new RegExp("^(.|\n)*?(</\s*" + tagName + ">)", "m")),
-                    extSrc = null;
+                    extSrc = null,
+                    tagWidths = null;
 
                 if (tagContent) {
                     extSrc = tagContent[0];
-                } else if (isInstalledExt || isNativeExt) {
+                } else if (isInstalledExt || isIncludeTag) {
                     extSrc = restOfInput;
                 }
 
                 if (extSrc) {
-                    var startTagLen = pos-tsr0,
-                        extContentLen = extSrc.length - startTagLen - (tagContent ? tagContent[2].length : 0),
-                        extContent = extSrc.substring(startTagLen, startTagLen + extContentLen);
+                    var tagWidths = [pos-tsr0, (tagContent ? tagContent[2].length : 0)],
+                        extContentLen = extSrc.length - tagWidths[0] - tagWidths[1];
 
-                    // If the xml-tag is a known installed (not native) extension, skip the end-tag as well.
+                    // If the xml-tag is a known installed (not native) extension,
+                    // skip the end-tag as well.
                     var skipLen = extContentLen;
-                    if (isInstalledExt && !isNativeExt && tagContent) {
+                    if (isInstalledExt && !isIncludeTag && tagContent) {
                         skipLen += tagContent[2].length;
                     }
 
                     // Extension content source
                     dp.src = extSrc;
-
-                    // Temporary state
-                    dp.extLikeTag = true;
-                    dp.isInstalledExt = isInstalledExt;
-                    dp.isNativeExt = isNativeExt;
-                    dp.skipLen = skipLen;
-                    dp.extContent = extContent;
-                    dp.extContentOffset = pos;
                     dp.origInput = input;
 
                     // Replace extension content (and possibly the end tag, as well) with
                     // dummy content so it matches the rule following this match and
                     // can be tokenized independently (if required).  This is just a trick
                     // to tokenize ref content with higher priority.
-                    input = input.slice(0,pos) + Util.charSequence('', '#', skipLen) + input.slice(pos+skipLen);
+                    //
+                    // However, if there is a legitimate # char after the end-tag in the
+                    // original text, we need to pick a different char if the char following
+                    // the end-tag is a '#'!
+                    //    Ex: <ref>foo</ref>#bar
+                    // Admittedly a rare use case, but we need a robust fix.
+
+                    var skipChar = '#';
+                    if (input.length >= pos+skipLen && input[pos+skipLen] === '#') {
+                        skipChar = '_';
+                    }
+                    input = input.slice(0,pos) +
+                        Util.charSequence('', skipChar, skipLen) +
+                        input.slice(pos+skipLen);
+
+                    // Temporary state
+                    dp.extLikeTag = true;
+                    dp.isInstalledExt = isInstalledExt;
+                    dp.isIncludeTag = isIncludeTag;
+                    dp.skipLen = skipLen;
+                    dp.tagWidths = tagWidths;
+                    dp.skipChar = skipChar;
 
                     // console.warn("input: " + input);
                 }
             } else {
+                // SelfclosingTagTk
                 dp.src = input.substring(dp.tsr[0], dp.tsr[1]);
+                if (isInstalledExt) {
+                    dp.extLikeTag = true;
+                    dp.isInstalledExt = isInstalledExt;
+                    dp.skipLen = 0;
+                    dp.tagWidths = [dp.tsr[1] - dp.tsr[0], 0];
+                    dp.origInput = input;
+                }
             }
         }
 
@@ -1402,14 +1408,25 @@ xmlish_tag =
         // console.warn("curr: " + JSON.stringify(currExtTag));
         return t;
     }) (
-      dummyText:'#'* {
+      dummyText:('#'+ / '_'+) {
         // Should only match if currExtTag is an extension
+        // with a non-zero skip-length
+        //
+        // Ex: <ref>foo</ref>, <ref>foo</ref>#bar, <ref>foo</ref>_bar
         var dp = currExtTag ? currExtTag.dataAttribs : null;
-        return dp && dp.extLikeTag && dummyText.length === dp.skipLen ? true : null;
+        return (dp &&
+            dp.extLikeTag &&
+            dummyText.length === dp.skipLen &&
+            dummyText[0] === dp.skipChar) ? true : null;
       }
       / &  {
         // Should not match if currExtTag is an extension
-        return !currExtTag || !currExtTag.dataAttribs.extLikeTag ? true : null;
+        // or is an extension tag with a zero skip length
+        //
+        // Ex: <ref />foo, <ref />#foo, <ref />_foo
+        return (!currExtTag ||
+            !currExtTag.dataAttribs.extLikeTag ||
+            currExtTag.dataAttribs.skipLen === 0) ? true : null;
       }
     ) {
         if (t2.constructor === Array) {
@@ -1419,30 +1436,26 @@ xmlish_tag =
         var ret = t2,
             dp = t2.dataAttribs;
         if (dp.extLikeTag) {
-            // If not a known installed extension, parse content as wikitext.
-            // - include-directives: <noinclude>, <includeonly>, ...
-            // - a non-html5 tag like <big>
-            // - <ref> which is a native extension implemented in Parsoid
-            //   TODO: Treat <ref> as a regular extension and move this
-            //   processing out of here into ext.Cite.js. Will be done as part
-            //   of cite extension refactoring for supporting DOM rerendering,
-            //   incremental parsing, etc.  Till then, we'll let this go through
-            //   the same codepaths as before.
             var tagName = t2.name.toLowerCase();
-            if (dp.isInstalledExt && !dp.isNativeExt) {
+            if (dp.isInstalledExt && !dp.isIncludeTag) {
                 // update tsr[1] to span the start and end tags.
                 dp.tsr[1] = pos;
                 ret = new SelfclosingTagTk('extension', [
                     new KV('typeof', 'mw:Object/Extension'),
                     new KV('name', tagName),
                     new KV('about', "#" + pegArgs.env.newObjectId()),
-                    new KV('content', dp.src)
+                    new KV('source', dp.src),
+                    new KV('options', t2.attribs)
                 ], dp);
             } else {
+                // If not a known installed extension, parse content as wikitext.
+                // - include-directives: <noinclude>, <includeonly>, ...
+                // - a non-html5 tag like <big>
                 // Parse ext-content, strip eof, and shift tsr
-                var extContentToks = (new PegTokenizer(pegArgs.env)).tokenize(dp.extContent);
+                var extContent = dp.src.substring(dp.tagWidths[0], dp.src.length - dp.tagWidths[1]);
+                var extContentToks = (new PegTokenizer(pegArgs.env)).tokenize(extContent);
                 extContentToks = Util.stripEOFTkfromTokens(extContentToks);
-                Util.shiftTokenTSR(extContentToks, dp.extContentOffset);
+                Util.shiftTokenTSR(extContentToks, dp.tsr[0] + dp.tagWidths[0]);
                 ret = [t2].concat(extContentToks);
             }
 
@@ -1451,11 +1464,10 @@ xmlish_tag =
 
             // Clear temporary state
             dp.extLikeTag = undefined;
+            dp.skipChar = undefined;
             dp.skipLen = undefined;
             dp.isInstalledExt = undefined;
-            dp.isNativeExt = undefined;
-            dp.extContent = undefined;
-            dp.extContentOffset = undefined;
+            dp.isIncludeTag = undefined;
             dp.origInput = undefined;
         }
         // console.warn("RET: " + JSON.stringify(ret));

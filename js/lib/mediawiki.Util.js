@@ -211,10 +211,42 @@ var Util = {
 		return true;
 	},
 
-	shiftTokenTSR: function(tokens, offset) {
+	/*
+	 * Transform "\n" and "\r\n" in the input string to NlTk tokens
+	 */
+	newlinesToNlTks: function(str, tsr0) {
+		var toks = str.split(/\n|\r\n/),
+			ret = [],
+			tsr = tsr0;
+
+		// Add one NlTk between each pair, hence toks.length-1
+		for (var i = 0, n = toks.length-1; i < n; i++) {
+			ret.push(toks[i]);
+			var nlTk = new NlTk();
+			if (tsr !== undefined) {
+				tsr += toks[i].length;
+				nlTk.dataAttribs = { tsr: [tsr, tsr+1] };
+			}
+			ret.push(nlTk);
+		}
+		ret.push(toks[i]);
+
+		return ret;
+	},
+
+	shiftTokenTSR: function(tokens, offset, clearIfUnknownOffset) {
+		// Bail early if we can
+		if (offset === 0) {
+			return;
+		}
+
 		// offset should either be a valid number or null
 		if (offset === undefined) {
-			offset = null;
+			if (clearIfUnknownOffset) {
+				offset = null;
+			} else {
+				return;
+			}
 		}
 
 		// update/clear tsr
@@ -254,10 +286,10 @@ var Util = {
 						for (var j = 0, m = t.attribs.length; j < m; j++) {
 							var a = t.attribs[j];
 							if (a.k.constructor === Array) {
-								this.shiftTokenTSR(a.k, offset);
+								this.shiftTokenTSR(a.k, offset, clearIfUnknownOffset);
 							}
 							if (a.v.constructor === Array) {
-								this.shiftTokenTSR(a.v, offset);
+								this.shiftTokenTSR(a.v, offset, clearIfUnknownOffset);
 							}
 
 							// src offsets used to set mw:TemplateParams
@@ -307,6 +339,7 @@ var Util = {
 			if ( token === undefined ) {
 				console.warn( 'Util.tokensToString, invalid token: ' +
 								token, ' tokens:', tokens);
+				console.trace();
 			} else if ( token.constructor === String ) {
 				out.push( token );
 			} else if ( token.constructor === CommentTk || token.constructor === NlTk ) {

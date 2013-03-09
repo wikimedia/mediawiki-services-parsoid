@@ -643,6 +643,7 @@ ParserTests.prototype.convertWt2Html = function( mode, prefix, variant, wikitext
 			this.env.conf.wiki.interwikiMap.meatball.url =
 				'http://www.usemod.com/cgi-bin/mb.pl?$1';
 			// convert this wikitext!
+			this.parserPipeline.resetState();
 			this.parserPipeline.process( wikitext );
 		}
 	}.bind(this));

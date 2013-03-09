@@ -1,4 +1,8 @@
-"use strict";
+/* FIXME: Currently not used by anything now.
+ * But once include-directives are handled better in the tokenizer,
+ * token-and-attr-collector might become defunct and we might use
+ * this instead.  So keeping around till then.
+ */
 
 /**
  * @class
@@ -23,6 +27,8 @@
  * @param {string} type Token type to register for ('tag', 'text' etc)
  * @param {string} name (optional, only for token type 'tag'): tag name.
  */
+
+"use strict";
 
 function TokenCollector ( manager, transformation, toEnd, rank, type, name ) {
 	this.transformation = transformation;

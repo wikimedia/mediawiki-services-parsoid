@@ -348,11 +348,7 @@ var DOMUtils = {
 				break;
 
 			case Node.TEXT_NODE:
-				// FIXME: Hmm .. what about newlines?
-				// This might not be handled properly by the p-wrapper
-				// which might expect newlines to be its own NlTk!
-				var txt = node.data;
-				tokBuf.push(node.data);
+				tokBuf = tokBuf.concat(Util.newlinesToNlTks(node.data));
 				break;
 
 			case Node.COMMENT_NODE:

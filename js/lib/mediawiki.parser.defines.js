@@ -771,8 +771,7 @@ $.extend( InternalTk.prototype, genericTokenMethods );
  * custom methods. Alternatively, the object could be made more abstract with
  * a separate .array method that just returns the plain array.
  */
-function Params ( env, params ) {
-	this.env = env;
+function Params ( params ) {
 	for (var i = 0; i < params.length; i++) {
 		this.push( params[i] );
 	}

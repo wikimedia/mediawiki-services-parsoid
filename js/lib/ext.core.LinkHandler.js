@@ -753,9 +753,13 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 		tagAttrs = buildLinkAttrs(token.attribs, false, null, tagAttrs).attribs;
 		builtTag = new TagTk( 'a', tagAttrs, dataAttribs );
 
-		// Since we messed with the text of the link, we need
-		// to preserve the original in the RT data. Or else.
-		builtTag.addNormalizedAttribute( 'href', txt, origTxt );
+		if (origTxt) {
+			// origTxt will be null for content from templates
+			//
+			// Since we messed with the text of the link, we need
+			// to preserve the original in the RT data. Or else.
+			builtTag.addNormalizedAttribute( 'href', txt, origTxt );
+		}
 
 		cb( {
 			tokens: [
@@ -841,11 +845,16 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 			href = Sanitizer._stripIDNs( href );
 		}
 
-		// targetOff covers all spaces before content
-		// and we need src without those spaces.
-		var tsr0 = dataAttribs.tsr[0] + 1,
-			tsr1 = dataAttribs.targetOff - (token.getAttribute('spaces') || '').length;
-		aStart.addNormalizedAttribute( 'href', href, env.page.src.substring(tsr0, tsr1) );
+		if (dataAttribs.tsr) {
+			// If we are from a top-level page, add normalized attr info for
+			// accurate roundtripping of original content.
+			//
+			// targetOff covers all spaces before content
+			// and we need src without those spaces.
+			var tsr0 = dataAttribs.tsr[0] + 1,
+				tsr1 = dataAttribs.targetOff - (token.getAttribute('spaces') || '').length;
+			aStart.addNormalizedAttribute( 'href', href, env.page.src.substring(tsr0, tsr1) );
+		}
 		cb( {
 			tokens: [aStart].concat(content, [new EndTagTk('a')])
 		} );

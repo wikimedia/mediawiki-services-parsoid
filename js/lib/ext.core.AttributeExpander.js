@@ -30,7 +30,7 @@ function AttributeExpander ( manager, options ) {
 }
 
 // constants
-AttributeExpander.prototype.rank = 1.11;
+AttributeExpander.prototype.rank = 1.12;
 
 /**
  * Token handler

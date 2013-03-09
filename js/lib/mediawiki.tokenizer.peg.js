@@ -14,13 +14,13 @@ var PEG = require('pegjs'),
 	fs = require('fs'),
 	events = require('events'),
 	//colors = require('colors'),
-	Util = require('./mediawiki.Util.js'),
+	Util = require('./mediawiki.Util.js').Util,
 	defines = require('./mediawiki.parser.defines.js');
 
 function PegTokenizer( env, canCache ) {
 	this.env = env;
-	this.Util = Util.Util;
 	this.canCache = canCache;
+	this.options = {};
 	if ( this.canCache ) {
 		this.cacheAccum = { chunks: [] };
 	}
@@ -40,6 +40,14 @@ PegTokenizer.src = false;
  */
 PegTokenizer.prototype.process = function( text, cacheKey ) {
 	this._processText(text, false, cacheKey);
+};
+
+/**
+ * Set start and end offsets of the source that generated this DOM
+ */
+PegTokenizer.prototype.setSourceOffsets = function(start, end) {
+	this.options.startOffset = start;
+	this.options.endOffset = end;
 };
 
 /*
@@ -128,7 +136,8 @@ PegTokenizer.prototype._processText = function( text, fullParse, cacheKey ) {
 	}
 
 	// Kick it off!
-	var args = { cb: chunkCB, pegTokenizer: this, srcOffset: 0, env: this.env };
+	var srcOffset = this.options.startOffset || 0;
+	var args = { cb: chunkCB, pegTokenizer: this, srcOffset: srcOffset, env: this.env };
 	if (fullParse) {
 		if ( ! this.env.conf.parsoid.debug ) {
 			try {
@@ -141,7 +150,7 @@ PegTokenizer.prototype._processText = function( text, fullParse, cacheKey ) {
 		}
 		this.onEnd();
 	} else {
-		this.tokenizeAsync(text, 0, chunkCB);
+		this.tokenizeAsync(text, srcOffset, chunkCB);
 	}
 };
 
@@ -191,6 +200,10 @@ PegTokenizer.prototype.onEnd = function ( ) {
 		this.cacheAccum = { chunks: [] };
 	}
 
+	// Reset source offsets
+	this.options.startOffset = undefined;
+	this.options.endOffset = undefined;
+
 	this.emit('end');
 };
 
@@ -206,7 +219,7 @@ PegTokenizer.prototype.tokenize = function( text, production ) {
 			retToks = this.tokenizer.tokenize(text, production, {
 				cb: function(r) { toks = toks.concat(r); },
 				pegTokenizer: this,
-				srcOffset: 0,
+				srcOffset: this.options.startOffset || 0,
 				env: this.env
 			});
 

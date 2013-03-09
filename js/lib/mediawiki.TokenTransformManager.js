@@ -1302,7 +1302,7 @@ TokenAccumulator.prototype.append = function ( tokens ) {
 function Frame( title, manager, args, parentFrame ) {
 	this.title = title;
 	this.manager = manager;
-	this.args = new Params( this.manager.env, args );
+	this.args = new Params( args );
 	// Cache key fragment for expansion cache
 	// FIXME: We are hashing the unexpanded args here. To keep things correct,
 	// we thus need to assume that the parent frame can affect the argument
