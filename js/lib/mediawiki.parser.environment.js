@@ -191,19 +191,25 @@ MWParserEnvironment.getParserEnv = function ( parsoidConfig, wikiConfig, prefix,
  * Caches all configs so we only need to get each one once (if we do it right)
  */
 MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
-	var uri = this.conf.parsoid.interwikiMap[prefix];
-	this.conf.parsoid.apiURI = uri || this.conf.parsoid.interwikiMap['en'];
+	// This is sometimes a URI, sometimes a prefix.
+	var confSource = this.conf.parsoid.interwikiMap[prefix];
+	this.conf.parsoid.apiURI = confSource || this.conf.parsoid.interwikiMap['en'];
 	this.confCache = this.confCache || {};
 	this.confCache[this.conf.wiki.iwp || ''] = this.conf.wiki;
+
+	if ( this.conf.parsoid.useLocalConfig ) {
+		// Use the name of a cache file as the source of the config.
+		confSource = './baseconfig/' + prefix + '.json';
+	}
 
 	if ( this.confCache[prefix || ''] ) {
 		this.conf.wiki = this.confCache[prefix || ''];
 		cb( null );
 	} else {
-		var confRequest = new ConfigRequest( uri, this );
+		var confRequest = new ConfigRequest( confSource, this );
 		confRequest.on( 'src', function ( error, resultConf ) {
 			if ( error === null ) {
-				this.conf.wiki = new WikiConfig( resultConf, prefix, uri );
+				this.conf.wiki = new WikiConfig( resultConf, prefix, confSource, this.conf.parsoid );
 			}
 
 			cb( error );

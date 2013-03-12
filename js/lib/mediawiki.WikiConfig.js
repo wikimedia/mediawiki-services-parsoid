@@ -5,17 +5,17 @@
 var qs = require( 'querystring' ),
 	util = require( 'util' ),
 	request = require( 'request' ),
-	baseConfig = require( './mediawiki.BaseConfig.json' ).query,
+	baseConfig = require( './baseconfig/en.json' ).query,
 	Util = require( './mediawiki.Util.js' ).Util,
 	request = require( 'request' );
 
-var WikiConfig = function ( resultConf, prefix, uri ) {
+var WikiConfig = function ( resultConf, prefix, uri, parsoidConf ) {
 	var nsid, name, conf = this;
 	this.init(); // initialize hashes/arrays/etc.
 
 	conf.iwp = prefix;
 
-	if ( uri ) {
+	if ( uri && ( !parsoidConf || !parsoidConf.useLocalConfig ) ) {
 		this.apiURI = uri;
 	}
 

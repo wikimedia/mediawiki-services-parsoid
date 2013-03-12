@@ -50,6 +50,7 @@ ParsoidConfig.prototype.maxDepth = 40;
 ParsoidConfig.prototype.usePHPPreProcessor = true;
 ParsoidConfig.prototype.defaultWiki = 'en';
 ParsoidConfig.prototype.useSelser = false;
+ParsoidConfig.prototype.useLocalConfig = false;
 
 if (typeof module === "object") {
 	module.exports.ParsoidConfig = ParsoidConfig;
