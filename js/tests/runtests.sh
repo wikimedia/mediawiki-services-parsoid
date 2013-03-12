@@ -4,6 +4,7 @@
 #  ./runtests.sh -c    # run all tests and commit results
 #  ./runtests.sh -c -q # run all tests and commit results, no diff
 #  ./runtests.sh       # run all tests, only show diff (no commit)
+#  ./xuntests.sh --quick
 
 # Helper function to echo a message to stderr
 warn() {
@@ -16,10 +17,12 @@ if [ ! -d results ];then
     touch results/html.txt
     touch results/roundtrip.txt
     touch results/all.txt
+    touch results/quick.txt
     ( cd results;
       git add html.txt
       git add roundtrip.txt
       git add all.txt
+      git add quick.txt
       git commit -a -m 'init to empty test output' )
 else
     ( cd results && git checkout -f )
@@ -40,6 +43,11 @@ elif [ "$1" = '--selser' ];then
 elif [ "$1" = '--wt2html' ];then
 	OUTPUT="results/html.txt"
     time $node parserTests.js --wt2html --cache --printwhitelist \
+        > $OUTPUT 2>&1
+	TEST_EXIT_CODE=$?
+elif [ "$1" = '--quick' ];then
+	OUTPUT="results/quick.txt"
+    time $node parserTests.js --wt2html --wt2wt --html2html --cache --printwhitelist \
         > $OUTPUT 2>&1
 	TEST_EXIT_CODE=$?
 else
@@ -69,10 +77,12 @@ else
         git commit -m "`tail -8 selser.txt`" || exit 1
     elif [ "$1" = '--wt2html' ];then
         git commit -m "`tail -8 html.txt`" || exit 1
+    elif [ "$1" = '--quick' ];then
+        git commit -m "`tail -8 quick.txt`" || exit 1
     else
         git commit -m "`tail -11 all.txt`" all.txt || exit 1
     fi
-    if [ "$2" != '-q'];then
+    if [ "$2" != '-q' -a "$3" != '-q'];then
         git diff --patience HEAD~1 | less -R || exit 1
     fi
 fi
