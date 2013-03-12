@@ -9,13 +9,13 @@ var qs = require( 'querystring' ),
 	Util = require( './mediawiki.Util.js' ).Util,
 	request = require( 'request' );
 
-var WikiConfig = function ( resultConf, prefix, uri, parsoidConf ) {
+var WikiConfig = function ( resultConf, prefix, uri ) {
 	var nsid, name, conf = this;
 	this.init(); // initialize hashes/arrays/etc.
 
 	conf.iwp = prefix;
 
-	if ( uri && ( !parsoidConf || !parsoidConf.useLocalConfig ) ) {
+	if ( uri ) {
 		this.apiURI = uri;
 	}
 

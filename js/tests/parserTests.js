@@ -1121,7 +1121,7 @@ ParserTests.prototype.main = function ( options ) {
 
 	options.fetchTemplates = false;
 	options.usePHPPreProcessor = false;
-	options.useLocalConfig = true;
+	options.fetchConfig = false;
 
 	var parsoidConfig = new ParsoidConfig( null, options );
 

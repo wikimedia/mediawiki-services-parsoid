@@ -380,7 +380,7 @@ PHPParseRequest.prototype.handleJSON = function ( error, data ) {
 var ConfigRequest = function ( confSource, env ) {
 	ApiRequest.call( this, env, null );
 
-	if ( env.conf.parsoid.useLocalConfig ) {
+	if ( !env.conf.parsoid.fetchConfig ) {
 		// Hack! Configured to use local configurations, probably for
 		// parserTests. Fetch the cached versions and use those.
 		// The confSource will be a filename in this case.

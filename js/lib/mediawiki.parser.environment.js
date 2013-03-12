@@ -192,14 +192,16 @@ MWParserEnvironment.getParserEnv = function ( parsoidConfig, wikiConfig, prefix,
  */
 MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
 	// This is sometimes a URI, sometimes a prefix.
-	var confSource = this.conf.parsoid.interwikiMap[prefix];
-	this.conf.parsoid.apiURI = confSource || this.conf.parsoid.interwikiMap['en'];
+	var confSource, uri = this.conf.parsoid.interwikiMap[prefix];
+	this.conf.parsoid.apiURI = uri || this.conf.parsoid.interwikiMap['en'];
 	this.confCache = this.confCache || {};
 	this.confCache[this.conf.wiki.iwp || ''] = this.conf.wiki;
 
-	if ( this.conf.parsoid.useLocalConfig ) {
+	if ( !this.conf.parsoid.fetchConfig ) {
 		// Use the name of a cache file as the source of the config.
 		confSource = './baseconfig/' + prefix + '.json';
+	} else {
+		confSource = uri;
 	}
 
 	if ( this.confCache[prefix || ''] ) {
@@ -208,8 +210,12 @@ MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
 	} else {
 		var confRequest = new ConfigRequest( confSource, this );
 		confRequest.on( 'src', function ( error, resultConf ) {
+			var thisuri = confSource;
+			if ( !this.conf.parsoid.fetchConfig && uri ) {
+				thisuri = uri;
+			}
 			if ( error === null ) {
-				this.conf.wiki = new WikiConfig( resultConf, prefix, confSource, this.conf.parsoid );
+				this.conf.wiki = new WikiConfig( resultConf, prefix, thisuri );
 			}
 
 			cb( error );
