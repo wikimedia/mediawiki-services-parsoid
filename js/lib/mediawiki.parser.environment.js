@@ -244,23 +244,6 @@ MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
 	}
 };
 
-MWParserEnvironment.prototype.makeTitleFromPrefixedText = function ( text ) {
-		text = this.normalizeTitle( text );
-		var nsText = text.split( ':', 1 )[0];
-		if ( nsText && nsText !== text ) {
-			var _ns = new Namespace( 0, this );
-			var ns = _ns.namespaceIds[ nsText.toLowerCase().replace( ' ', '_' ) ];
-			//console.warn( JSON.stringify( [ nsText, ns ] ) );
-			if ( ns !== undefined ) {
-				return new Title( text.substr( nsText.length + 1 ), ns, nsText, this );
-			} else {
-				return new Title( text, 0, '', this );
-			}
-		} else {
-			return new Title( text, 0, '', this );
-		}
-};
-
 // XXX: move to Title!
 MWParserEnvironment.prototype.normalizeTitle = function( name, noUnderScores,
 		preserveLeadingColon )

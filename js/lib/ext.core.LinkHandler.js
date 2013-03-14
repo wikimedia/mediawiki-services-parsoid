@@ -8,6 +8,7 @@
 
 var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	WikitextConstants = require('./mediawiki.wikitext.constants.js').WikitextConstants,
+	Title = require( './mediawiki.Title.js' ).Title,
 	Util = require('./mediawiki.Util.js').Util,
 	// Why mess around? We already have a URL sanitizer.
 	sanitizerLib = require( './ext.core.Sanitizer.js' ),
@@ -117,7 +118,7 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 		hrefSrc = Util.lookupKV( token.attribs, 'href' ).vsrc,
 		target = Util.lookup( attribs, 'href' ),
 		href = Util.tokensToString( target ),
-		title = env.makeTitleFromPrefixedText( Util.decodeURI( href ) );
+		title = Title.fromPrefixedText( env, Util.decodeURI( href ) );
 
 	if ( title.ns.isFile() ) {
 		cb( this.renderFile( token, frame, cb, href, title) );
@@ -399,7 +400,7 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 
 		if ( isImageLink ) {
 			if ( oHash.link !== undefined ) {
-				linkTitle = env.makeTitleFromPrefixedText( oHash.link );
+				linkTitle = Title.fromPrefixedText( env, oHash.link );
 			}
 			newAttribs.push( new KV('href', linkTitle.makeLink() ) )
 		}
@@ -489,7 +490,7 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 WikiLinkHandler.prototype.getThumbPath = function ( key, width ) {
 	var env = this.manager.env,
 		// Make a relative link.
-		link = env.makeTitleFromPrefixedText( 'Special:FilePath' ).makeLink();
+		link = Title.fromPrefixedText( env, 'Special:FilePath' ).makeLink();
 	// Simply let Special:FilePath redirect to the real thumb location
 	return link + '/' + key + '?width=' + width;
 };
@@ -612,7 +613,7 @@ WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fi
 	var linkTitle = title;
 	var isImageLink = ( oHash.link === undefined || oHash.link !== '' );
 	if ( isImageLink && oHash.link !== undefined ) {
-		linkTitle = env.makeTitleFromPrefixedText( oHash.link );
+		linkTitle = Title.fromPrefixedText( env, oHash.link );
 	}
 
 	var thumbfile = title.key;
@@ -782,7 +783,7 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 	var rdfaType = token.getAttribute('typeof'), magLinkRe = /\bmw:ExtLink\/(?:ISBN|RFC|PMID)\b/;
 	if ( rdfaType && rdfaType.match( magLinkRe ) ) {
 		if ( rdfaType.match( /\bmw:ExtLink\/ISBN/ ) ) {
-			title = env.makeTitleFromPrefixedText( href );
+			title = Title.fromPrefixedText( env, href );
 			newAttrs = [
 				new KV('href', title.makeLink()),
 				new KV('rel', rdfaType.match( magLinkRe )[0] )
