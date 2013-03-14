@@ -1,8 +1,8 @@
-"use strict";
-
-/**
+/*
  * Generic attribute expansion handler.
  */
+"use strict";
+
 var request = require('request'),
 	events = require('events'),
 	qs = require('querystring'),
@@ -12,7 +12,15 @@ var request = require('request'),
 									.AttributeTransformManager,
 	defines = require('./mediawiki.parser.defines.js');
 
-
+/**
+ * @class
+ *
+ * Generic attribute expansion handler.
+ *
+ * @constructor
+ * @param {Object} manager The manager for this stage of the parse.
+ * @param {Object} options Any options for the expander.
+ */
 function AttributeExpander ( manager, options ) {
 	this.manager = manager;
 	this.options = options;
@@ -30,6 +38,11 @@ AttributeExpander.prototype.rank = 1.11;
  * Expands target and arguments (both keys and values) and either directly
  * calls or sets up the callback to _expandTemplate, which then fetches and
  * processes the template.
+ *
+ * @private
+ * @param {Token} token -- token whose attrs being expanded
+ * @param {Frame} frame -- unused here, passed in by AsyncTTM to all handlers
+ * @param {Function} cb -- callback receiving the expanded token
  */
 AttributeExpander.prototype.onToken = function ( token, frame, cb ) {
 	// console.warn( 'AttributeExpander.onToken: ', JSON.stringify( token ) );
@@ -51,6 +64,8 @@ AttributeExpander.prototype.onToken = function ( token, frame, cb ) {
 
 /**
  * Callback for attribute expansion in AttributeTransformManager
+ *
+ * @private
  */
 AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 {

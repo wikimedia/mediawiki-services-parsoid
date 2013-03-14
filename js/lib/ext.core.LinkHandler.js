@@ -1,5 +1,5 @@
 "use strict";
-/**
+/*
  * Simple link handler. Registers after template expansions, as an
  * asynchronous transform.
  *
@@ -117,7 +117,7 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 		hrefSrc = Util.lookupKV( token.attribs, 'href' ).vsrc,
 		target = Util.lookup( attribs, 'href' ),
 		href = Util.tokensToString( target ),
-		title = env.makeTitleFromPrefixedText(env.normalizeTitle(Util.decodeURI(href)));
+		title = env.makeTitleFromPrefixedText( Util.decodeURI( href ) );
 
 	if ( title.ns.isFile() ) {
 		cb( this.renderFile( token, frame, cb, href, title) );
@@ -782,7 +782,7 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 	var rdfaType = token.getAttribute('typeof'), magLinkRe = /\bmw:ExtLink\/(?:ISBN|RFC|PMID)\b/;
 	if ( rdfaType && rdfaType.match( magLinkRe ) ) {
 		if ( rdfaType.match( /\bmw:ExtLink\/ISBN/ ) ) {
-			title = env.makeTitleFromPrefixedText(env.normalizeTitle(href));
+			title = env.makeTitleFromPrefixedText( href );
 			newAttrs = [
 				new KV('href', title.makeLink()),
 				new KV('rel', rdfaType.match( magLinkRe )[0] )

@@ -13,12 +13,15 @@ require('./mediawiki.parser.defines.js');
 var Util = require('./mediawiki.Util.js').Util;
 var WikitextConstants = require('./mediawiki.wikitext.constants.js').WikitextConstants;
 
+/**
+ * @class SanitizerModule
+ * @singleton
+ */
+
 var SanitizerConstants = {
-	// FIXME: Assumptions:
-	// 1. This is "constant" and wont be modified during execution.
-	//    (if modified, you might get inconsistent results -- is there
-	//    a way to protect attribtues from modification?)
-	// 2. All sanitizer have the same global config.
+	// Assumptions:
+	// 1. This is "constant" -- enforced via Util.deepFreeze.
+	// 2. All sanitizers have the same global config.
 	globalConfig: {
 		allowRdfaAttrs: true,
 		allowMicrodataAttrs: true,
@@ -562,6 +565,12 @@ SanitizerConstants.setDerivedConstants();
 // Freeze it blocking all accidental changes
 Util.deepFreeze(SanitizerConstants);
 
+/**
+ * @class
+ *
+ * @constructor
+ * @param {Object} manager The manager for this part of the pipeline.
+ */
 function Sanitizer ( manager ) {
 	this.manager = manager;
 	this.register( manager );

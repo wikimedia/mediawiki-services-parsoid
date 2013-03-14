@@ -6,7 +6,6 @@
 var ParserPipelineFactory = require('../lib/mediawiki.parser.js').ParserPipelineFactory,
 	ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnvironment,
 	ParsoidConfig = require( '../lib/mediawiki.ParsoidConfig.js' ).ParsoidConfig,
-	ConvertDOMToLM = require('../lib/mediawiki.LinearModelConverter.js').ConvertDOMToLM,
 	WikitextSerializer = require('../lib/mediawiki.WikitextSerializer.js').WikitextSerializer,
 	SelectiveSerializer = require( '../lib/mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
 	Util = require('../lib/mediawiki.Util.js').Util,
@@ -88,11 +87,6 @@ function dumpFlags() {
 		},
 		'selser': {
 			description: 'Use the selective serializer to go from HTML to Wikitext.',
-			'boolean': true,
-			'default': false
-		},
-		'linearmodel': {
-			description: 'Output linear model data instead of HTML',
 			'boolean': true,
 			'default': false
 		},
@@ -263,14 +257,11 @@ function dumpFlags() {
 					if (argv.wt2html) {
 						res = Util.serializeNode(document.body);
 						finishCb(true);
-					} else if (argv.wt2wt) {
+					} else {
 						res = '';
 						serializer.serializeDOM( document.body, function ( chunk ) {
 							res += chunk;
 						}, finishCb );
-					} else { // linear model
-						res = JSON.stringify( ConvertDOMToLM( document.body ), null, 2 );
-						finishCb();
 					}
 				});
 

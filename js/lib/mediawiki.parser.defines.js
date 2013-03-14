@@ -1,8 +1,15 @@
 "use strict";
 
 /**
- * Constructors for different token types. Plain text is represented as simple
- * strings or String objects (if attributes are needed).
+ * @class ParserDefinesModule
+ * @singleton
+ */
+
+/**
+ * @class Token
+ * @abstract
+ *
+ * Catch-all class for all token types.
  */
 
 var async = require('async'),
@@ -15,7 +22,13 @@ String.prototype.isHTMLTag = function() {
 };
 
 /**
- * Private helper for genericTokenMethods
+ * @member Token
+ *
+ * Private helper for genericTokenMethods - store the orginal value of an attribute in a token's dataAttribs.
+ *
+ * @param {string} name
+ * @param {Mixed} value
+ * @param {Mixed} origValue
  */
 var setShadowInfo = function ( name, value, origValue ) {
 	// Don't shadow if value is the same or the orig is null
@@ -33,22 +46,35 @@ var setShadowInfo = function ( name, value, origValue ) {
 	}
 };
 
-/**
+/*
  * Generic token attribute accessors
+ *
+ * TODO make this a real base class instead of some weird hackish object.
  */
 var genericTokenMethods = {
 	setShadowInfo: setShadowInfo,
 
 	/**
-	 * Generic set attribute method. Expects the context to be set to a token.
+	 * @member Token
+	 *
+	 * Generic set attribute method.
+	 *
+	 * @param {string} name
+	 * @param {Mixed} value
 	 */
 	addAttribute: function ( name, value ) {
 		this.attribs.push( new KV( name, value ) );
 	},
 
 	/**
-	 * Generic set attribute method with support for change detection. Expects the
-	 * context to be set to a token.
+	 * @member Token
+	 *
+	 * Generic set attribute method with support for change detection.
+	 * Set a value and preserve the original wikitext that produced it.
+	 *
+	 * @param {string} name
+	 * @param {Mixed} value
+	 * @param {Mixed} origValue
 	 */
 	addNormalizedAttribute: function ( name, value, origValue ) {
 		this.addAttribute( name, value );
@@ -56,14 +82,24 @@ var genericTokenMethods = {
 	},
 
 	/**
-	 * Generic attribute accessor. Expects the context to be set to a token.
+	 * @member Token
+	 *
+	 * Generic attribute accessor.
+	 *
+	 * @param {string} name
+	 * @return {Mixed}
 	 */
 	getAttribute: function ( name ) {
 		return Util.lookup( this.attribs, name );
 	},
 
 	/**
+	 * @member Token
+	 *
 	 * Set an unshadowed attribute.
+	 *
+	 * @param {string} name
+	 * @param {Mixed} value
 	 */
 	setAttribute: function ( name, value ) {
 		// First look for the attribute and change the last match if found.
@@ -82,9 +118,18 @@ var genericTokenMethods = {
 	},
 
 	/**
+	 * @member Token
+	 *
 	 * Attribute info accessor for the wikitext serializer. Performs change
 	 * detection and uses unnormalized attribute values if set. Expects the
 	 * context to be set to a token.
+	 *
+	 * @param {string} name
+	 * @param {Array} tplAttrs The list of expanded attributes.
+	 * @returns {Object} Information about the shadow info attached to this attribute.
+	 * @returns {Mixed} return.value
+	 * @returns {boolean} return.modified Whether the attribute was changed between parsing and now.
+	 * @returns {boolean} return.fromsrc Whether we needed to get the source of the attribute to round-trip it.
 	 */
 	getAttributeShadowInfo: function ( name, tplAttrs ) {
 		var curVal = Util.lookup( this.attribs, name );
@@ -132,7 +177,11 @@ var genericTokenMethods = {
 	},
 
 	/**
+	 * @member Token
+	 *
 	 * Completely remove all attributes with this name.
+	 *
+	 * @param {string} name
 	 */
 	removeAttribute: function ( name ) {
 		var out = [],
@@ -147,7 +196,12 @@ var genericTokenMethods = {
 	},
 
 	/**
+	 * @member Token
+	 *
 	 * Set an attribute to a value, and shadow it if it was already set
+	 *
+	 * @param {string} name
+	 * @param {Mixed} value
 	 */
 	setShadowedAttribute: function ( name, value ) {
 		var out = [],
@@ -176,7 +230,12 @@ var genericTokenMethods = {
 	},
 
 	/**
+	 * @member Token
+	 *
 	 * Add a space-separated property value
+	 *
+	 * @param {string} name
+	 * @param {Mixed} value The value to add to the attribute.
 	 */
 	addSpaceSeparatedAttribute: function ( name, value ) {
 		var curVal = Util.lookupKV( this.attribs, name ),
@@ -198,11 +257,26 @@ var genericTokenMethods = {
 		}
 	},
 
-	isHTMLTag: function() {
+	/**
+	 * @member Token
+	 *
+	 * Determine whether the current token was an HTML tag in wikitext.
+	 *
+	 * @returns {boolean}
+	 */
+	isHTMLTag: function () {
 		return this.dataAttribs.stx === 'html';
 	},
 
-	clone: function(cloneAttribs) {
+	/**
+	 * @member Token
+	 *
+	 * Clone a token.
+	 *
+	 * @param {boolean} cloneAttribs Whether to clone attributes too.
+	 * @returns {Token}
+	 */
+	clone: function ( cloneAttribs ) {
 		if (cloneAttribs === undefined) {
 			cloneAttribs = true;
 		}
@@ -218,14 +292,30 @@ var genericTokenMethods = {
 		return myClone;
 	},
 
+	/**
+	 * @member Token
+	 *
+	 * Get the wikitext source of a token.
+	 *
+	 * @param {MWParserEnvironment} env
+	 * @returns {string}
+	 */
 	getWTSource: function(env) {
 		var tsr = this.dataAttribs.tsr;
 		return tsr ? env.page.src.substring(tsr[0], tsr[1]) : null;
 	}
 };
 
-/* -------------------- KV -------------------- */
-// A key-value pair
+/**
+ * @class
+ *
+ * Key-value pair.
+ *
+ * @constructor
+ * @param {Mixed} k
+ * @param {Mixed} v
+ * @param {Array} srcOffsets The source offsets.
+ */
 function KV ( k, v, srcOffsets ) {
 	this.k = k;
 	this.v = v;
@@ -234,7 +324,17 @@ function KV ( k, v, srcOffsets ) {
 	}
 }
 
-/* -------------------- TagTk -------------------- */
+/**
+ * @class
+ * @extends Token
+ *
+ * HTML tag token.
+ *
+ * @constructor
+ * @param {string} name
+ * @param {KV[]} attribs
+ * @param {Object} dataAttribs Data-parsoid object.
+ */
 function TagTk( name, attribs, dataAttribs ) {
 	this.name = name;
 	this.attribs = attribs || [];
@@ -245,10 +345,18 @@ TagTk.prototype = {};
 
 TagTk.prototype.constructor = TagTk;
 
+/**
+ * @method
+ * @returns {string}
+ */
 TagTk.prototype.toJSON = function () {
 	return $.extend( { type: 'TagTk' }, this );
 };
 
+/**
+ * @method
+ * @returns {string}
+ */
 TagTk.prototype.defaultToString = function(t) {
 	return "<" + this.name + ">";
 };
@@ -275,6 +383,11 @@ Object.defineProperty( TagTk.prototype, 'tagToStringFns',
 			value: tagToStringFns
 		} );
 
+/**
+ * @method
+ * @param {boolean} compact Whether to return the full HTML, or just the tag name.
+ * @returns {string}
+ */
 TagTk.prototype.toString = function(compact) {
 	if (this.isHTMLTag()) {
 		if (compact) {
@@ -296,7 +409,17 @@ TagTk.prototype.toString = function(compact) {
 // add in generic token methods
 $.extend( TagTk.prototype, genericTokenMethods );
 
-/* -------------------- EndTagTk -------------------- */
+/**
+ * @class
+ * @extends Token
+ *
+ * HTML end tag token.
+ *
+ * @constructor
+ * @param {string} name
+ * @param {KV[]} attribs
+ * @param {Object} dataAttribs
+ */
 function EndTagTk( name, attribs, dataAttribs ) {
 	this.name = name;
 	this.attribs = attribs || [];
@@ -307,10 +430,18 @@ EndTagTk.prototype = {};
 
 EndTagTk.prototype.constructor = EndTagTk;
 
+/**
+ * @method
+ * @returns {string}
+ */
 EndTagTk.prototype.toJSON = function () {
 	return $.extend( { type: 'EndTagTk' }, this );
 };
 
+/**
+ * @method
+ * @returns {string}
+ */
 EndTagTk.prototype.toString = function() {
 	if (this.isHTMLTag()) {
 		return "</HTML:" + this.name + ">";
@@ -318,10 +449,21 @@ EndTagTk.prototype.toString = function() {
 		return "</" + this.name + ">";
 	}
 };
+
 // add in generic token methods
 $.extend( EndTagTk.prototype, genericTokenMethods );
 
-/* -------------------- SelfclosingTagTk -------------------- */
+/**
+ * @class
+ *
+ * HTML tag token for a self-closing tag (like a br or hr).
+ *
+ * @extends Token
+ * @constructor
+ * @param {string} name
+ * @param {KV[]} attribs
+ * @param {Object} dataAttribs
+ */
 function SelfclosingTagTk( name, attribs, dataAttribs ) {
 	this.name = name;
 	this.attribs = attribs || [];
@@ -332,10 +474,24 @@ SelfclosingTagTk.prototype = {};
 
 SelfclosingTagTk.prototype.constructor = SelfclosingTagTk;
 
+/**
+ * @method
+ * @returns {string}
+ */
 SelfclosingTagTk.prototype.toJSON = function () {
 	return $.extend( { type: 'SelfclosingTagTk' }, this );
 };
 
+/**
+ * @method multiTokenArgToString
+ * @param {string} key
+ * @param {Object} arg
+ * @param {string} indent The string by which we should indent each new line.
+ * @param {string} indentIncrement The string we should add to each level of indentation.
+ * @returns {Object}
+ * @returns {boolean} return.present Whether there is any non-empty string representation of these tokens.
+ * @returns {string} return.str
+ */
 SelfclosingTagTk.prototype.multiTokenArgToString = function(key, arg, indent, indentIncrement) {
 	var newIndent = indent + indentIncrement;
 	var present = true;
@@ -351,6 +507,16 @@ SelfclosingTagTk.prototype.multiTokenArgToString = function(key, arg, indent, in
 	return {present: present, str: str};
 },
 
+/**
+ * @method attrsToSTring
+ *
+ * Get a string representation of the tag's attributes.
+ *
+ * @param {string} indent The string by which to indent every line.
+ * @param {string} indentIncrement The string to add to every successive level of indentation.
+ * @param {number} startAttrIndex Where to start converting attributes.
+ * @returns {string}
+ */
 SelfclosingTagTk.prototype.attrsToString = function(indent, indentIncrement, startAttrIndex) {
 	var buf = [];
 	for (var i = startAttrIndex, n = this.attribs.length; i < n; i++) {
@@ -373,6 +539,13 @@ SelfclosingTagTk.prototype.attrsToString = function(indent, indentIncrement, sta
 	return buf.join("\n" + indent + "|");
 };
 
+
+/**
+ * @method
+ * @param {boolean} compact Whether to return the full HTML, or just the tag name.
+ * @param {string} indent The string by which to indent each line.
+ * @returns {string}
+ */
 SelfclosingTagTk.prototype.defaultToString = function(compact, indent) {
 	if (compact) {
 		var buf = "<" + this.name + ">:";
@@ -442,6 +615,12 @@ Object.defineProperty( SelfclosingTagTk.prototype, 'tagToStringFns',
 			value: tagToStringFns
 		} );
 
+/**
+ * @method
+ * @param {boolean} compact Whether to return the full HTML, or just the tag name.
+ * @param {string} indent The string by which to indent each line.
+ * @returns {string}
+ */
 SelfclosingTagTk.prototype.toString = function(compact, indent) {
 	if (this.isHTMLTag()) {
 		return "<HTML:" + this.name + " />";
@@ -450,10 +629,19 @@ SelfclosingTagTk.prototype.toString = function(compact, indent) {
 		return f ? f.bind(this)(compact, indent) : this.defaultToString(compact, indent);
 	}
 };
+
 // add in generic token methods
 $.extend( SelfclosingTagTk.prototype, genericTokenMethods );
 
-/* -------------------- NlTk -------------------- */
+/**
+ * @class
+ *
+ * Newline token.
+ *
+ * @extends Token
+ * @constructor
+ * @param {Array} The TSR of the newline(s).
+ */
 function NlTk( tsr ) {
 	if (tsr) {
 		this.dataAttribs = { tsr: tsr };
@@ -463,20 +651,47 @@ function NlTk( tsr ) {
 NlTk.prototype = {
 	constructor: NlTk,
 
+	/**
+	 * @method
+	 *
+	 * Convert the token to JSON.
+	 *
+	 * @returns {string} JSON string.
+	 */
 	toJSON: function () {
 		return $.extend( { type: 'NlTk' }, this );
 	},
 
+	/**
+	 * @method
+	 *
+	 * Convert the token to a simple string.
+	 *
+	 * @returns {"\\n"}
+	 */
 	toString: function() {
 		return "\\n";
 	},
 
+	/**
+	 * @method
+	 *
+	 * Tell the caller that this isn't an HTML tag.
+	 *
+	 * @returns {boolean} Always false
+	 */
 	isHTMLTag: function() {
 		return false;
 	}
 };
 
-/* -------------------- CommentTk -------------------- */
+/**
+ * @class
+ * @extends Token
+ * @constructor
+ * @param {string} value
+ * @param {Object} dataAttribs data-parsoid object.
+ */
 function CommentTk( value, dataAttribs ) {
 	this.value = value;
 	// won't survive in the DOM, but still useful for token serialization
@@ -541,7 +756,7 @@ InternalTk.prototype.toJSON = function () {
 
 InternalTk.prototype.defaultToString = function(t) {
 	return JSON.stringify(this);
-}
+};
 
 // add in generic token methods
 $.extend( InternalTk.prototype, genericTokenMethods );

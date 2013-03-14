@@ -1,4 +1,4 @@
-/**
+/*
  * This is a Serializer class that will run through a DOM looking for special
  * change markers, usually supplied by an HTML5 WYSIWYG editor (like the
  * VisualEditor for MediaWiki), and determining what needs to be
@@ -18,12 +18,19 @@ var WikitextSerializer = require( './mediawiki.WikitextSerializer.js' ).Wikitext
 	DOMDiff = require('./mediawiki.DOMDiff.js').DOMDiff;
 
 /**
- * Create a Selser DOM from a diff-annotated DOM
+ * @class
+ * @private
+ *
+ * Creates a Selser DOM from a diff-annotated DOM
  *
  * Traverses a diff-annotated DOM and adds selser information based on it
  *
  * TODO: make this a nested class with a less misleading name? SelserAnnotater
  * sounds a bit weird.
+ *
+ * @constructor
+ * @param {MWParserEnvironment} env The environment to use for the serialization.
+ * @param {Node} diffDOM The DOM to annotate with selser information.
  */
 function DiffToSelserConverter ( env, diffDOM ) {
 	this.env = env;
@@ -37,13 +44,24 @@ function DiffToSelserConverter ( env, diffDOM ) {
 						console.error : function(){};
 }
 
+/**
+ * @method
+ */
 DiffToSelserConverter.prototype.convert = function () {
 	//console.log('convert dom', this.dom);
 	this.doConvert(this.dom);
 };
 
-
-DiffToSelserConverter.prototype.doConvert = function(parentNode, parentDSR) {
+/**
+ * @method
+ * @private
+ *
+ * Internal conversion method.
+ *
+ * @param {Node} parentNode The node at which we start the conversion.
+ * @param {Array} parentDSR The DSR information for the parent node.
+ */
+DiffToSelserConverter.prototype.doConvert = function ( parentNode, parentDSR ) {
 	var node;
 
 	var lastModified = false;
@@ -208,7 +226,10 @@ DiffToSelserConverter.prototype.doConvert = function(parentNode, parentDSR) {
 };
 
 /**
- * Utility: Calculate the wikitext source text length for the content of a DOM
+ * @method
+ * @private
+ *
+ * Calculate the wikitext source text length for the content of a DOM
  * text node, depending on whether the text node is inside an indent-pre block
  * or not.
  *
@@ -216,6 +237,10 @@ DiffToSelserConverter.prototype.doConvert = function(parentNode, parentDSR) {
  * that are not direct children of pre nodes, and use it instead of this code.
  * This code might break when the (optional) leading newline is stripped by
  * the HTML parser.
+ *
+ * @param {string} src
+ * @param {boolean} inIndentPre Whether the text is in a pre.
+ * @return {number} The length of the text.
  */
 DiffToSelserConverter.prototype.srcTextLen = function( src, inIndentPre ) {
 	if ( ! inIndentPre ) {
@@ -228,10 +253,16 @@ DiffToSelserConverter.prototype.srcTextLen = function( src, inIndentPre ) {
 };
 
 /**
+ * @method
+ * @private
+ *
  * Insert a modification marker meta with the current position. This starts a
  * new serialization chunk. Used to handle gaps in unmodified content.
+ *
+ * @param {Node} parentNode
+ * @param {Node} beforeNode
  */
-DiffToSelserConverter.prototype.insertModificationMarker = function(parentNode, beforeNode) {
+DiffToSelserConverter.prototype.insertModificationMarker = function ( parentNode, beforeNode ) {
 	var modMarker = parentNode.ownerDocument.createElement('meta');
 	modMarker.setAttribute('typeof', 'mw:DiffMarker');
 	parentNode.insertBefore(modMarker, beforeNode);
@@ -239,24 +270,37 @@ DiffToSelserConverter.prototype.insertModificationMarker = function(parentNode, 
 	this.startPos = null;
 };
 
-
 /**
+ * @method
+ * @private
+ *
  * Wrap a bare (DSR-less) text or comment node in a span and set modification
- * markers on that, so that it is serialized out using the WTS
+ * markers on that, so that it is serialized out using the WTS.
+ *
+ * @param {TextNode/CommentNode} node
+ * @param {boolean} modified
+ * @param {Array} srcRange The range of the node's source.
+ * @returns {HTMLElement} The wrapper span.
  */
-DiffToSelserConverter.prototype.markTextOrCommentNode = function(node, modified, srcRange) {
+DiffToSelserConverter.prototype.markTextOrCommentNode = function ( node, modified, srcRange ) {
 	var wrapper = DU.wrapTextInTypedSpan(node, 'mw:DiffMarker');
 	this.markElementNode(wrapper, modified, null, srcRange);
 	return wrapper;
 };
 
 /**
- * Set change information on an element node
+ * @method
+ * @private
  *
+ * Set change information on an element node
  * TODO: implement!
+ *
+ * @param {HTMLElement} node
+ * @param {boolean} modified
+ * @param {Object} dp The future contents of the data-parsoid attribute on the node.
+ * @param {Array} srcRange The range of the wikitext source of the node.
  */
-DiffToSelserConverter.prototype.markElementNode = function(node, modified, dp, srcRange)
-{
+DiffToSelserConverter.prototype.markElementNode = function ( node, modified, dp, srcRange ) {
 	if ( ! srcRange && this.startPos !== null ) {
 		srcRange = [this.startPos, this.curPos];
 	}
@@ -293,16 +337,26 @@ DiffToSelserConverter.prototype.markElementNode = function(node, modified, dp, s
 };
 
 /**
+ * @method
+ * @private
+ *
  * Set startPos to curPos if it is null and move curPos by passed-in delta.
+ *
+ * @param {Number} delta
  */
-DiffToSelserConverter.prototype.movePos = function (delta) {
+DiffToSelserConverter.prototype.movePos = function ( delta ) {
 	if ( this.curPos !== null && delta !== null ) {
 		this.updatePos( this.curPos + delta );
 	}
 };
 
 /**
+ * @method
+ * @private
+ *
  * Update startPos (if null) and curPos to the passed-in position
+ *
+ * @param {Number} pos
  */
 DiffToSelserConverter.prototype.updatePos = function ( pos ) {
 	//console.log(pos);
@@ -318,16 +372,17 @@ DiffToSelserConverter.prototype.updatePos = function ( pos ) {
 
 
 /**
- * Create a selective serializer.
- *
- * @arg options {object} Contains these members:
- *   * env - an instance of MWParserEnvironment, see Util.getParserEnv
- *   * oldtext - the old text of the document, if any
- *   * oldid - the ID of the old revision you want to compare to, if any (default to latest revision)
+ * @class
+ * @constructor
  *
  * If one of options.env.page.name or options.oldtext is set, we use the selective serialization
  * method, only reporting the serialized wikitext for parts of the page that changed. Else, we
  * fall back to serializing the whole DOM.
+ *
+ * @param options {Object} Options for the serializer.
+ * @param options.env {MWParserEnvironment}
+ * @param options.oldtext {string} The old text of the document, if any
+ * @param options.oldid {string} The revision ID you want to compare to (defaults to latest revision)
  */
 var SelectiveSerializer = function ( options ) {
 	this.wts = options.wts || new WikitextSerializer( options );
@@ -362,27 +417,23 @@ var SelectiveSerializer = function ( options ) {
 var SSP = SelectiveSerializer.prototype;
 
 /**
+ * @method
+ * @private
+ *
  * Get a substring of the original wikitext
+ *
+ * @param {number} start The beginning of the source range.
+ * @param {number} end The end of the source range.
+ * @returns {string} The requested substring.
  */
 SSP.getSource = function(start, end) {
 	return this.env.page.src.substring( start, end );
 };
 
-
 /**
- * TODO: Replace these callbacks with a single, simple chunkCB that gets an
- * 'unmodified', 'separator', 'modified' flag from the WTS.
+ * @method
+ * @private
  *
- * Only need to remember last flag state and last separator(s) then. Use
- * unmodified source (from range annotation on *modified* node) plus
- * separator, then fully serialized source.
- *
- * Consequence: Range annotations should not include IEW between unmodified
- * and modified elements.
- */
-
-
-/**
  * The chunkCB handler for the WTS
  *
  * Assumption: separator source is passed in a single call.
@@ -393,6 +444,19 @@ SSP.getSource = function(start, end) {
  * - regular src: if node (or parent) is marked as modified
  * - regular src: if node (or parent) is marked for serialization, but is not
  *   actually modified (needed if dsr is not available)
+ *
+ * TODO: Replace these callbacks with a single, simple chunkCB that gets an
+ * 'unmodified', 'separator', 'modified' flag from the WTS.
+ *
+ * Only need to remember last flag state and last separator(s) then. Use
+ * unmodified source (from range annotation on *modified* node) plus
+ * separator, then fully serialized source.
+ *
+ * Consequence: Range annotations should not include IEW between unmodified
+ * and modified elements.
+ *
+ * @param {string} res The Wikitext result of serialization.
+ * @param {string/Object/null} dpsSource A JSON object representing the data-parsoid-serialize attribute of the node we're serializing.
  */
 SSP.handleSerializedResult = function( res, dpsSource ) {
 
@@ -467,7 +531,18 @@ SSP.handleSerializedResult = function( res, dpsSource ) {
 
 };
 
-
+/**
+ * @method
+ * @private
+ *
+ * Run the DOM serialization on a node.
+ *
+ * @param {Error} err
+ * @param {Node} doc
+ * @param {Function} cb Callback that is called for each chunk.
+ * @param {string} cb.res The wikitext of the chunk we've just serialized.
+ * @param {Function} finalcb The callback for when we've finished serializing the DOM.
+ */
 SSP.doSerializeDOM = function ( err, doc, cb, finalcb ) {
 	var matchedRes, nonNewline, nls = 0, latestSerID = null,
 		self = this;
@@ -512,7 +587,19 @@ SSP.doSerializeDOM = function ( err, doc, cb, finalcb ) {
 	}
 };
 
-
+/**
+ * @method
+ * @private
+ *
+ * Parse the wikitext source of the page for DOM-diffing purposes.
+ *
+ * @param {Node} doc The node for which we're getting the source.
+ * @param {Function} cb A callback to call after each chunk is serialized.
+ * @param {string} cb.res The result of the chunk serialization.
+ * @param {Function} finalcb The callback for after we've serialized the entire document.
+ * @param {Error} err
+ * @param {string} src The wikitext source of the document.
+ */
 SSP.parseOriginalSource = function ( doc, cb, finalcb, err, src ) {
 	var self = this,
 		parserPipelineFactory = new ParserPipelineFactory( this.env ),
@@ -536,10 +623,17 @@ SSP.parseOriginalSource = function ( doc, cb, finalcb, err, src ) {
 
 
 /**
+ * @method
+ *
  * The main serializer handler. Calls detectDOMChanges and prepares and calls
  * WikitextSerializer.serializeDOM if changes were found.
+ *
+ * @param {Node} doc The document to serialize.
+ * @param {Function} cb A callback for any serialized chunks, called whenever we get a chunk of wikitext.
+ * @param {string} cb.res The chunk of wikitext just serialized.
+ * @param {Function} finalcb The callback fired on completion of the serialization.
  */
-SSP.serializeDOM = function( doc, cb, finalcb ) {
+SSP.serializeDOM = function ( doc, cb, finalcb ) {
 	if ( this.env.page.dom ) {
 		this.doSerializeDOM(null, doc, cb, finalcb);
 	} else if ( this.env.page.src ) {
@@ -553,10 +647,6 @@ SSP.serializeDOM = function( doc, cb, finalcb ) {
 	}
 };
 
-
-
-
 if ( typeof module === 'object' ) {
 	module.exports.SelectiveSerializer = SelectiveSerializer;
 }
-

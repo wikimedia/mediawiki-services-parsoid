@@ -1,27 +1,27 @@
-/**
+/*
  * A very basic parser / serializer web service.
  *
  * Local configuration:
  *
  * To configure locally, add localsettings.js to this directory and export a setup function.
  *
- * @example
+ * example:
  *	exports.setup = function( config, env ) {
  *		env.setInterwiki( 'localhost', 'http://localhost/wiki' );
  *	};
  */
 
 /**
- * Config section
- *
- * Could move this to a separate file later.
+ * @class ParserServiceModule
+ * @singleton
+ * @private
  */
-
-var config = {};
 
 /**
- * End config section
+ * Configuration object.
+ * @property
  */
+var config = {};
 
 // global includes
 var express = require('express'),
@@ -48,6 +48,10 @@ try {
 	};
 }
 
+/**
+ * The name of this instance.
+ * @property {string}
+ */
 var instanceName = cluster.isWorker ? 'worker(' + process.pid + ')' : 'master';
 
 console.log( ' - ' + instanceName + ' loading...' );
@@ -65,9 +69,24 @@ var WikitextSerializer = require(mp + 'mediawiki.WikitextSerializer.js').Wikitex
 
 var interwikiRE;
 
+/**
+ * The global parsoid configuration object.
+ * @property {ParsoidConfig}
+ */
 var parsoidConfig = new ParsoidConfig( localSettings, null ),
+
+/**
+ * The serializer to use for the web requests.
+ * @property {Function} Serializer
+ */
 	Serializer = parsoidConfig.useSelser ? SelectiveSerializer : WikitextSerializer;
 
+/**
+ * Get the interwiki regexp.
+ *
+ * @method
+ * @returns {RegExp} The regular expression that matches to all interwikis accepted by the API.
+ */
 function getInterwikiRE() {
 	// this RE won't change -- so, cache it
 	if (!interwikiRE) {
@@ -83,6 +102,13 @@ var htmlSpecialChars = function ( s ) {
 		.replace(/'/g,'&#039;');
 };
 
+/**
+ * Send a form with a text area.
+ *
+ * @method
+ * @param {Response} res The response object from our routing function.
+ * @param {string} content The content we should put in the textarea
+ */
 var textarea = function ( res, content ) {
 	res.write('<form method=POST><textarea name="content" cols=90 rows=9>');
 	res.write( ( content &&
@@ -95,6 +121,10 @@ var textarea = function ( res, content ) {
  * Perform word-based diff on a line-based diff. The word-based algorithm is
  * practically unusable for inputs > 5k bytes, so we only perform it on the
  * output of the more efficient line-based diff.
+ *
+ * @method
+ * @param {Array} diff The diff to refine
+ * @returns {Array} The refined diff
  */
 var refineDiff = function ( diff ) {
 	// Attempt to accumulate consecutive add-delete pairs
@@ -306,17 +336,12 @@ var getParserServiceEnv = function ( res, iwp, pageName, cb ) {
 	} );
 };
 
-
-/**
- * robots.txt: no indexing.
- */
+// robots.txt: no indexing.
 app.get(/^\/robots.txt$/, function ( req, res ) {
 	res.end( "User-agent: *\nDisallow: /\n" );
 });
 
-/**
- * Redirects for old-style URL compatibility
- */
+// Redirects for old-style URL compatibility
 app.get( new RegExp( '^/((?:_rt|_rtve)/)?(' + getInterwikiRE() +
 				'):(.*)$' ), function ( req, res ) {
 	if ( req.params[0] ) {
@@ -327,9 +352,7 @@ app.get( new RegExp( '^/((?:_rt|_rtve)/)?(' + getInterwikiRE() +
 	res.end( );
 });
 
-/**
- * Bug report posts
- */
+// Bug report posts
 app.post( /^\/_bugs\//, function ( req, res ) {
 	console.log( '_bugs', req.body.data );
 	try {
@@ -351,9 +374,7 @@ app.post( /^\/_bugs\//, function ( req, res ) {
 });
 
 
-/**
- * Form-based HTML DOM -> wikitext interface for manual testing
- */
+// Form-based HTML DOM -> wikitext interface for manual testing
 app.get(/\/_html\/(.*)/, function ( req, res ) {
 	var cb = function ( env ) {
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
@@ -388,9 +409,7 @@ app.post(/\/_html\/(.*)/, function ( req, res ) {
 	getParserServiceEnv( res, parsoidConfig.defaultWiki, req.params[0], cb );
 } );
 
-/**
- * Form-based wikitext -> HTML DOM interface for manual testing
- */
+// Form-based wikitext -> HTML DOM interface for manual testing
 app.get(/\/_wikitext\/(.*)/, function ( req, res ) {
 	var cb = function ( env ) {
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
@@ -430,9 +449,7 @@ app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
 	getParserServiceEnv( res, parsoidConfig.defaultWiki, req.params[0], cb );
 } );
 
-/**
- * Round-trip article testing
- */
+// Round-trip article testing
 app.get( new RegExp('/_rt/(' + getInterwikiRE() + ')/(.*)'), function(req, res) {
 	var cb = function ( env ) {
 		req.connection.setTimeout(300 * 1000);
@@ -456,10 +473,8 @@ app.get( new RegExp('/_rt/(' + getInterwikiRE() + ')/(.*)'), function(req, res) 
 	getParserServiceEnv( res, req.params[0], req.params[1], cb );
 } );
 
-/**
- * Round-trip article testing with newline stripping for editor-created HTML
- * simulation
- */
+// Round-trip article testing with newline stripping for editor-created HTML
+// simulation
 app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)') , function(req, res) {
 	var cb = function ( env ) {
 		if ( env.page.name === 'favicon.ico' ) {
@@ -488,9 +503,7 @@ app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)') , function(req, re
 	getParserServiceEnv( res, req.params[0], req.params[1], cb );
 });
 
-/**
- * Form-based round-tripping for manual testing
- */
+// Form-based round-tripping for manual testing
 app.get(/\/_rtform\/(.*)/, function ( req, res ) {
 	var cb = function ( env ) {
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
@@ -512,9 +525,7 @@ app.post(/\/_rtform\/(.*)/, function ( req, res ) {
 	getParserServiceEnv( res, parsoidConfig.defaultWiki, req.params[0], cb );
 } );
 
-/**
- * Regular article parsing
- */
+// Regular article parsing
 app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 	var cb = function ( env ) {
 		if ( env.page.name === 'favicon.ico' ) {
@@ -579,9 +590,7 @@ app.get( /\/_ci\/master/, function ( req, res ) {
 	} );
 } );
 
-/**
- * Regular article serialization using POST
- */
+// Regular article serialization using POST
 app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function ( req, res ) {
 	var cb = function ( env ) {
 		var oldid = req.body.oldid || null;

@@ -1,4 +1,4 @@
-/**
+/*
  * Token transformation managers with a (mostly) abstract
  * TokenTransformManager base class and AsyncTokenTransformManager and
  * SyncTokenTransformManager implementation subclasses. Individual
@@ -117,12 +117,12 @@ TokenTransformManager.prototype._cmpTransformations = function ( a, b ) {
  *
  * @method
  * @param {Function} transform.
- * @param {String} Debug string to identify the transformer in a trace.
+ * @param {string} Debug string to identify the transformer in a trace.
  * @param {Number} rank, [0,3) with [0,1) in-order on input token stream,
  * [1,2) out-of-order and [2,3) in-order on output token stream
- * @param {String} type, one of 'tag', 'text', 'newline', 'comment', 'end',
+ * @param {string} type, one of 'tag', 'text', 'newline', 'comment', 'end',
  * 'martian' (unknown token), 'any' (any token, matched before other matches).
- * @param {String} tag name for tags, omitted for non-tags
+ * @param {string} tag name for tags, omitted for non-tags
  */
 TokenTransformManager.prototype.addTransform = function ( transformation, debug_name, rank, type, name ) {
 	var t = {
@@ -169,9 +169,9 @@ TokenTransformManager.prototype.addTransform = function ( transformation, debug_
  * @param {Function} transform.
  * @param {Number} rank, [0,3) with [0,1) in-order on input token stream,
  * [1,2) out-of-order and [2,3) in-order on output token stream
- * @param {String} type, one of 'tag', 'text', 'newline', 'comment', 'end',
+ * @param {string} type, one of 'tag', 'text', 'newline', 'comment', 'end',
  * 'martian' (unknown token), 'any' (any token, matched before other matches).
- * @param {String} tag name for tags, omitted for non-tags
+ * @param {string} tag name for tags, omitted for non-tags
  */
 TokenTransformManager.prototype.removeTransform = function ( rank, type, name ) {
 	function removeMatchingTransform(transformers, rank) {
@@ -227,19 +227,27 @@ TokenTransformManager.prototype._getTransforms = function ( token, minRank ) {
 	}
 };
 
-/******************** Async token transforms: Phase 2 **********************/
+//******************** Async token transforms: Phase 2 **********************//
+
+var auid = 0;
 
 /**
+ *
  * Asynchronous and potentially out-of-order token transformations, used in phase 2.
  *
  * return protocol for individual transforms:
- *		{ tokens: [tokens], async: true }: async expansion -> outstanding++ in parent
- *		{ tokens: [tokens] }: fully expanded, tokens will be reprocessed
+ *
+ *     { tokens: [tokens], async: true }: async expansion -> outstanding++ in parent
+ *     { tokens: [tokens] }: fully expanded, tokens will be reprocessed
  *
  * @class
  * @constructor
+ * @param {MWParserEnvironment} env
+ * @param {Object} options
+ * @param {ParserPipelineFactory} pipeFactory
+ * @param {number} phaseEndRank
+ * @param {string} attributeType
  */
-var auid = 0;
 function AsyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, attributeType ) {
 	this.uid = auid++; // useful for debugging
 	this.env = env;
@@ -268,6 +276,8 @@ AsyncTokenTransformManager.prototype.reset = function() {
  * TokenTransformManager, but keep registrations untouched.
  *
  * @method
+ *
+ * @param {Frame} parentFrame
  */
 AsyncTokenTransformManager.prototype.setFrame = function ( parentFrame, title, args ) {
 	this.env.dp( 'AsyncTokenTransformManager.setFrame', title, args );
@@ -289,7 +299,12 @@ AsyncTokenTransformManager.prototype.setFrame = function ( parentFrame, title, a
 };
 
 /**
+ * @method
+ * @private
+ *
  * Callback for async returns from head of TokenAccumulator chain
+ *
+ * @param {Object} ret The chunk we're returning from the transform.
  */
 AsyncTokenTransformManager.prototype.emitChunk = function( ret ) {
 	this.env.dp( 'emitChunk', ret );
@@ -345,11 +360,13 @@ AsyncTokenTransformManager.prototype.process = function ( tokens ) {
 };
 
 /**
+ * @method
+ * @private
+ *
  * Transform and expand tokens. Transformed token chunks will be emitted in
  * the 'chunk' event.
  *
- * @method
- * @param {Array} chunk of tokens
+ * @param {Array} tokens
  */
 AsyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 	this.env.tracer.startPass("onChunk (Async:" + this.attributeType + ")");
@@ -378,6 +395,8 @@ AsyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 };
 
 /**
+ * @private
+ *
  * Callback for the end event emitted from the tokenizer.
  * Either signals the end of input to the tail of an ongoing asynchronous
  * processing pipeline, or directly emits 'end' if the processing was fully
@@ -683,6 +702,9 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 };
 
 /**
+ * @method
+ * @private
+ *
  * Callback for async transforms
  *
  * Converts direct callbacks into a synchronous return by collecting the
@@ -776,14 +798,19 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
 	}
 };
 
-/*************** In-order, synchronous transformer (phase 1 and 3) ***************/
+
+//************* In-order, synchronous transformer (phase 1 and 3) *************/
 
 /**
  * Subclass for phase 3, in-order and synchronous processing.
  *
  * @class
  * @constructor
- * @param {Object} environment.
+ * @param {MWParserEnvironment} env
+ * @param {Object} options
+ * @param {ParserPipelineFactory} pipeFactory
+ * @param {Number} phaseEndRank
+ * @param {string} attributeType
  */
 function SyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, attributeType ) {
 	this.env = env;
@@ -799,7 +826,10 @@ function SyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, at
 SyncTokenTransformManager.prototype = new TokenTransformManager();
 SyncTokenTransformManager.prototype.constructor = SyncTokenTransformManager;
 
-
+/**
+ * @method
+ * @param {Token[]} tokens
+ */
 SyncTokenTransformManager.prototype.process = function ( tokens ) {
 	this.onChunk( tokens );
 	this.onEndEvent();
@@ -811,7 +841,8 @@ SyncTokenTransformManager.prototype.process = function ( tokens ) {
  * transformed chunks of tokens in the 'chunk' event.
  *
  * @method
- * @param {Array} Token chunk.
+ * @private
+ * @param {Token[]}
  */
 SyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 
@@ -909,6 +940,8 @@ SyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 
 
 /**
+ * @private
+ *
  * Callback for the end event emitted from the tokenizer.
  * Either signals the end of input to the tail of an ongoing asynchronous
  * processing pipeline, or directly emits 'end' if the processing was fully
@@ -922,7 +955,7 @@ SyncTokenTransformManager.prototype.onEndEvent = function () {
 };
 
 
-/********************** AttributeTransformManager *************************/
+//********************** AttributeTransformManager *************************//
 
 /**
  * Utility transformation manager for attributes, using an attribute
@@ -934,8 +967,10 @@ SyncTokenTransformManager.prototype.onEndEvent = function () {
  *
  * @class
  * @constructor
- * @param {Object} Containing AsyncTokenTransformManager
- * @param {Function} Callback function, called with expanded attribute array.
+ * @param {AsyncTokenTransformManager} manager
+ * @param {Object} options
+ * @param {Function} callback
+ * @param {Array} callback.attributes
  */
 function AttributeTransformManager ( manager, options, callback ) {
 	this.manager = manager;
@@ -1077,6 +1112,8 @@ AttributeTransformManager.prototype.processKeys = function (attributes) {
 };
 
 /**
+ * @private
+ *
  * Callback for async argument value expansions
  */
 AttributeTransformManager.prototype._returnAttributeValue = function ( ref, tokens ) {
@@ -1089,6 +1126,8 @@ AttributeTransformManager.prototype._returnAttributeValue = function ( ref, toke
 };
 
 /**
+ * @private
+ *
  * Callback for async argument key expansions
  */
 AttributeTransformManager.prototype._returnAttributeKey = function ( ref, tokens ) {
@@ -1101,7 +1140,10 @@ AttributeTransformManager.prototype._returnAttributeKey = function ( ref, tokens
 };
 
 
-/******************************* TokenAccumulator *************************/
+//******************************* TokenAccumulator *************************//
+
+var tid = 0;
+
 /**
  * Token accumulators buffer tokens between asynchronous processing points,
  * and return fully processed token chunks in-order and as soon as possible.
@@ -1112,12 +1154,12 @@ AttributeTransformManager.prototype._returnAttributeKey = function ( ref, tokens
  * and pass them to whoever wanted them (another sibling or a parent).
  *
  * @class
+ * @private
  * @constructor
- * @param {Object} next TokenAccumulator to link to
- * @param {Array} (optional) tokens, init accumulator with tokens or []
+ * @param {Object} manager
+ * @param {Function} parentCB The callback to call after we've finished accumulating.
  */
-var tid = 0;
-function TokenAccumulator ( manager, parentCB ) {
+function TokenAccumulator( manager, parentCB ) {
 	this.uid = tid++; // useful for debugging
 	this.manager = manager;
 	this.parentCB = parentCB;
@@ -1134,8 +1176,10 @@ TokenAccumulator.prototype.setParentCB = function ( cb ) {
  * Receives tokens from a child accum/pipeline/cb
  *
  * @method
- * @param {Object}: { tokens, async }
- * @returns {Mixed}: new parent callback for caller or falsy value
+ * @param {Object} ret
+ * @param {Array} ret.tokens
+ * @param {boolean} ret.async
+ * @returns {Mixed} New parent callback for caller or falsy value
  */
 TokenAccumulator.prototype.receiveToksFromChild = function ( ret ) {
 	ret = verifyTokensIntegrity(ret, false);
@@ -1162,8 +1206,10 @@ TokenAccumulator.prototype.receiveToksFromChild = function ( ret ) {
  * Receives tokens from a sibling accum/cb
  *
  * @method
- * @param {Object}: { tokens, async }
- * @returns {Mixed}: new parent callback for caller or falsy value
+ * @param {Object} ret
+ * @param {Array} ret.tokens
+ * @param {boolean} ret.async
+ * @returns {Mixed} new parent callback for caller or falsy value
  */
 TokenAccumulator.prototype.receiveToksFromSibling = function ( ret ) {
 	ret = verifyTokensIntegrity(ret, false);
@@ -1218,7 +1264,7 @@ TokenAccumulator.prototype._callParentCB = function ( ret ) {
  * Push a token into the accumulator
  *
  * @method
- * @param {Object} token
+ * @param {Token} token
  */
 TokenAccumulator.prototype.push = function ( token ) {
 	// Treat a token push as a token-receive from a sibling
@@ -1230,7 +1276,7 @@ TokenAccumulator.prototype.push = function ( token ) {
  * Append tokens to an accumulator
  *
  * @method
- * @param {Object} token
+ * @param {Token} token
  */
 TokenAccumulator.prototype.append = function ( tokens ) {
 	// Treat tokens append as a token-receive from a sibling
@@ -1239,9 +1285,11 @@ TokenAccumulator.prototype.append = function ( tokens ) {
 };
 
 
-/******************************* Frame ******************************/
+//****************************** Frame ******************************//
 
 /**
+ * @class
+ *
  * The Frame object
  *
  * A frame represents a template expansion scope including parameters passed
@@ -1251,7 +1299,7 @@ TokenAccumulator.prototype.append = function ( tokens ) {
  * exceed the maximum expansion depth.
  */
 
-function Frame ( title, manager, args, parentFrame ) {
+function Frame( title, manager, args, parentFrame ) {
 	this.title = title;
 	this.manager = manager;
 	this.args = new Params( this.manager.env, args );
@@ -1399,6 +1447,8 @@ Frame.prototype._eofTkList = [ new EOFTk() ];
 Object.freeze(Frame.prototype._eofTkList[0]);
 
 /**
+ * @private
+ *
  * Event handler for chunk conversion pipelines
  */
 Frame.prototype.onThunkEvent = function ( state, notYetDone, ret ) {
@@ -1419,11 +1469,12 @@ Frame.prototype.onThunkEvent = function ( state, notYetDone, ret ) {
 
 
 /**
- * Check if expanding <title> would lead to a loop, or would exceed the
+ * @method
+ *
+ * Check if expanding a template would lead to a loop, or would exceed the
  * maximum expansion depth.
  *
- * @method
- * @param {String} Title to check.
+ * @param {string} title
  */
 Frame.prototype.loopAndDepthCheck = function ( title, maxDepth ) {
 	// XXX: set limit really low for testing!
@@ -1485,6 +1536,9 @@ Frame.prototype._getID = function( options ) {
 };
 
 /**
+ * @class
+ * @private
+ *
  * A specialized expansion cache, normally associated with a chunk of tokens.
  */
 function ExpansionCache ( n ) {

@@ -56,14 +56,19 @@ Tracer.prototype = {
 	}
 };
 
-var MWParserEnvironment = function( parsoidConfig, wikiConfig ) {
-	// The parser environment really serves several distinct purposes currently:
-	// - it holds config data which is not modified at runtime -> a config object
-	// - it provides debugging objects -> can be part of config (immutable)
-	// - the page name, src, oldid etc is held -> a page object
-	// - global per-execution state: page cache, uid
-	// TODO: disentangle these!
-
+/**
+ * @class
+ *
+ * Holds configuration data that isn't modified at runtime, debugging objects,
+ * a page object that represents the page we're parsing, and more.
+ *
+ * TODO: Disentangle these!
+ *
+ * @constructor
+ * @param {ParsoidConfig/null} parsoidConfig
+ * @param {WikiConfig/null} wikiConfig
+ */
+var MWParserEnvironment = function ( parsoidConfig, wikiConfig ) {
 	var options = {
 		// page information
 		page: {
@@ -103,10 +108,34 @@ var MWParserEnvironment = function( parsoidConfig, wikiConfig ) {
 	this.tracer = new Tracer(this);
 };
 
+/**
+ * @property {Object} page
+ * @property {string} page.name
+ * @property {String/null} page.src
+ * @property {Node/null} page.dom
+ * @property {string} page.relativeLinkPrefix
+ * Any leading ..?/ strings that will be necessary for building links.
+ * @property {Number/null} page.id
+ * The revision ID we want to use for the page.
+ */
+
+/**
+ * @property {Object} conf
+ * @property {WikiConfig} conf.wiki
+ * @property {ParsoidConfig} conf.parsoid
+ */
+
 // Outstanding page requests (for templates etc)
 // Class-static
 MWParserEnvironment.prototype.requestQueue = {};
 
+/**
+ * @method
+ *
+ * Set the name of the page we're parsing.
+ *
+ * @param {string} pageName
+ */
 MWParserEnvironment.prototype.setPageName = function ( pageName ) {
 	this.page.name = pageName;
 	// Construct a relative link prefix depending on the number of slashes in
@@ -139,30 +168,18 @@ MWParserEnvironment.prototype.setVariable = function( varname, value, options ) 
 };
 
 /**
- * @return MWParserFunction
- */
-MWParserEnvironment.prototype.getParserFunction = function( name ) {
-	if (name in this.parserFunctions) {
-		return new this.parserFunctions[name]( this );
-	} else {
-		return null;
-	}
-};
-
-/**
- * @return MWParserTagHook
- */
-MWParserEnvironment.prototype.getTagHook = function( name ) {
-	if (name in this.tagHooks) {
-		return new this.tagHooks[name](this);
-	} else {
-		return null;
-	}
-};
-
-/**
- * Alternate constructor - takes a few config objects, and an interwiki
- * prefix to set up the environment. Calls back with the resulting object.
+ * @method
+ * @static
+ *
+ * Alternate constructor for MWParserEnvironments
+ *
+ * @param {ParsoidConfig/null} parsoidConfig
+ * @param {WikiConfig/null} wikiConfig
+ * @param {string} prefix The interwiki prefix that corresponds to the wiki we should use
+ * @param {string} pageName
+ * @param {Function} cb
+ * @param {Error} cb.err
+ * @param {MWParserEnvironment} cb.env The finished environment object
  */
 MWParserEnvironment.getParserEnv = function ( parsoidConfig, wikiConfig, prefix, pageName, cb ) {
 	if ( !parsoidConfig ) {
@@ -189,6 +206,10 @@ MWParserEnvironment.getParserEnv = function ( parsoidConfig, wikiConfig, prefix,
 /**
  * Function that switches to a different configuration for a different wiki.
  * Caches all configs so we only need to get each one once (if we do it right)
+ *
+ * @param {string} prefix The interwiki prefix that corresponds to the wiki we should use
+ * @param {Function} cb
+ * @param {Error} cb.err
  */
 MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
 	// This is sometimes a URI, sometimes a prefix.
@@ -224,22 +245,21 @@ MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
 };
 
 MWParserEnvironment.prototype.makeTitleFromPrefixedText = function ( text ) {
-	text = this.normalizeTitle( text );
-	var nsText = text.split( ':', 1 )[0];
-	if ( nsText && nsText !== text ) {
-		var _ns = new Namespace( 0, this );
-		var ns = _ns.namespaceIds[ nsText.toLowerCase().replace( ' ', '_' ) ];
-		//console.warn( JSON.stringify( [ nsText, ns ] ) );
-		if ( ns !== undefined ) {
-			return new Title( text.substr( nsText.length + 1 ), ns, nsText, this );
+		text = this.normalizeTitle( text );
+		var nsText = text.split( ':', 1 )[0];
+		if ( nsText && nsText !== text ) {
+			var _ns = new Namespace( 0, this );
+			var ns = _ns.namespaceIds[ nsText.toLowerCase().replace( ' ', '_' ) ];
+			//console.warn( JSON.stringify( [ nsText, ns ] ) );
+			if ( ns !== undefined ) {
+				return new Title( text.substr( nsText.length + 1 ), ns, nsText, this );
+			} else {
+				return new Title( text, 0, '', this );
+			}
 		} else {
 			return new Title( text, 0, '', this );
 		}
-	} else {
-		return new Title( text, 0, '', this );
-	}
 };
-
 
 // XXX: move to Title!
 MWParserEnvironment.prototype.normalizeTitle = function( name, noUnderScores,
@@ -298,7 +318,7 @@ MWParserEnvironment.prototype.normalizeTitle = function( name, noUnderScores,
 };
 
 /**
- * @fixme do this for real eh
+ * TODO FIXME XXX do this for real eh
  */
 MWParserEnvironment.prototype.resolveTitle = function( name, namespace ) {
 	// Resolve subpages
@@ -376,7 +396,12 @@ MWParserEnvironment.prototype.tp = function ( ) {
 };
 
 /**
+ * @method
+ * @private
+ *
  * Generate a UID
+ *
+ * @returns {number}
  */
 MWParserEnvironment.prototype.generateUID = function () {
 	return this.uid++;
@@ -392,7 +417,7 @@ MWParserEnvironment.prototype.stripIdPrefix = function(aboutId) {
 
 MWParserEnvironment.prototype.isParsoidObjectId = function(aboutId) {
 	return aboutId.match(/^#mwt/);
-}
+};
 
 /**
  * Default implementation of an error callback for async
@@ -400,6 +425,9 @@ MWParserEnvironment.prototype.isParsoidObjectId = function(aboutId) {
  *
  * For best results, define your own. For better results,
  * call it from places you notice errors happening.
+ *
+ * @template
+ * @param {Error} error
  */
 MWParserEnvironment.prototype.errCB = function ( error ) {
 	console.log( 'ERROR in ' + this.page.name + ':\n' + error.message);
@@ -411,4 +439,3 @@ MWParserEnvironment.prototype.errCB = function ( error ) {
 if (typeof module === "object") {
 	module.exports.MWParserEnvironment = MWParserEnvironment;
 }
-

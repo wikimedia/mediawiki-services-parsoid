@@ -1,4 +1,4 @@
-/**
+/*
  * Initial parser tests runner for experimental JS parser
  *
  * This pulls all the parserTests.txt items and runs them through the JS
@@ -6,6 +6,12 @@
  */
 
 (function() {
+
+/**
+ * @class ParserTestModule
+ * @private
+ * @singleton
+ */
 
 var fs = require('fs'),
 	path = require('path'),
@@ -40,10 +46,12 @@ var pj = path.join;
 // Our code...
 
 /**
+ * @method
+ *
  * Colorize given number if <> 0
  *
- * @param count Integer: a number to colorize
- * @param color String: valid color for the colors library
+ * @param {number} count
+ * @param {string} color
  */
 var colorizeCount = function ( count, color ) {
 	if( count === 0 ) {
@@ -64,6 +72,13 @@ var colorizeCount = function ( count, color ) {
 var testWhiteList = require(__dirname + '/parserTests-whitelist.js').testWhiteList,
 	modes = ['wt2html', 'wt2wt', 'html2html', 'html2wt', 'selser'];
 
+/**
+ * @class
+ * @private
+ * @singleton
+ *
+ * Main class for the test environment.
+ */
 function ParserTests () {
 	var i;
 
@@ -125,7 +140,11 @@ var booleanOption = function ( val ) {
 };
 
 /**
+ * @method
+ *
  * Get the options from the command line.
+ *
+ * @returns {Object}
  */
 ParserTests.prototype.getOpts = function () {
 	var default_args = ["Default tests-file: " + this.parser_tests_file,
@@ -258,7 +277,12 @@ ParserTests.prototype.getOpts = function () {
 };
 
 /**
+ * @method
+ *
  * Get an object holding our tests cases. Eventually from a cache file
+ *
+ * @param {Object} argv
+ * @returns {Object}
  */
 ParserTests.prototype.getTests = function ( argv ) {
 
@@ -318,7 +342,12 @@ ParserTests.prototype.getTests = function ( argv ) {
 };
 
 /**
- * Parse given tests cases given as plaintext
+ * @method
+ *
+ * Parse content of tests case file given as plaintext
+ *
+ * @param {string} content
+ * @returns {Array}
  */
 ParserTests.prototype.parseTestCase = function ( content ) {
 	try {
@@ -329,6 +358,16 @@ ParserTests.prototype.parseTestCase = function ( content ) {
 	return undefined;
 };
 
+/**
+ * @method
+ *
+ * Process an article test case (i.e. the text of an article we need for a test)
+ *
+ * @param {Object} item
+ * @param {string} item.title
+ * @param {string} item.text
+ * @param {Function} cb
+ */
 ParserTests.prototype.processArticle = function( item, cb ) {
 	var norm = this.env.normalizeTitle(item.title);
 	//console.log( 'processArticle ' + norm );
@@ -336,6 +375,19 @@ ParserTests.prototype.processArticle = function( item, cb ) {
 	process.nextTick( cb );
 };
 
+/**
+ * @method
+ *
+ * Convert a DOM to Wikitext.
+ *
+ * @param {Object} options
+ * @param {string} mode
+ * @param {Object} item
+ * @param {Node} doc
+ * @param {Function} processWikitextCB
+ * @param {Error/null} processWikitextCB.err
+ * @param {string/null} processWikitextCB.res
+ */
 ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, processWikitextCB ) {
 	// In some cases (which?) the full document is passed in, but we are
 	// interested in the body. So check if we got a document.
@@ -378,6 +430,16 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
 	}
 };
 
+/**
+ * @method
+ *
+ * For a selser test, check if a change we could make has already been tested in this round.
+ * Used for generating unique tests.
+ *
+ * @param {Array} changes Already-tried changes
+ * @param {Array} change Candidate change
+ * @returns {boolean}
+ */
 ParserTests.prototype.doesChangeExist = function ( changes, change ) {
 	if ( !changes || changes.constructor !== Array ) {
 		return false;
@@ -392,6 +454,18 @@ ParserTests.prototype.doesChangeExist = function ( changes, change ) {
 	return false;
 };
 
+/**
+ * @method
+ *
+ * Make changes to a DOM in order to run a selser test on it.
+ *
+ * @param {Object} item
+ * @param {Node} content
+ * @param {Array} changelist
+ * @param {Function} cb
+ * @param {Error} cb.err
+ * @param {Node} cb.document
+ */
 ParserTests.prototype.makeChanges = function ( item, content, changelist, cb ) {
 	cb = cb || function () {};
 	var initContent = content;
@@ -453,6 +527,20 @@ ParserTests.prototype.makeChanges = function ( item, content, changelist, cb ) {
 	cb( null, initContent );
 };
 
+/**
+ * @method
+ *
+ * Generate a change object for a document, so we can apply it during a selser test.
+ *
+ * @param {Object} options
+ * @param {Object/null} nonRandomChanges Passed in changes, i.e., don't generate random changes.
+ * @param {Object} item
+ * @param {Node} content
+ * @param {Function} cb
+ * @param {Error/null} cb.err
+ * @param {Node} cb.content
+ * @param {Array} cb.changelist
+ */
 ParserTests.prototype.generateChanges = function ( options, nonRandomChanges, item, content, cb ) {
 	// This function won't actually change anything, but it will add change
 	// markers to random elements.
@@ -516,6 +604,16 @@ ParserTests.prototype.generateChanges = function ( options, nonRandomChanges, it
 };
 
 ParserTests.prototype.convertWt2Html = function( mode, prefix, variant, wikitext, processHtmlCB ) {
+/**
+ * @method
+ * @param {string} mode
+ * @param {string} prefix
+ * @param {string} variant
+ * @param {string} wikitext
+ * @param {Function} processHtmlCB
+ * @param {Error/null} processHtmlCB.err
+ * @param {Node/null} processHtmlCB.doc
+ */
 	try {
 		this.parserPipeline.once( 'document', function ( doc ) {
 			// processHtmlCB can be asynchronous, so deep-clone
@@ -551,11 +649,10 @@ ParserTests.prototype.convertWt2Html = function( mode, prefix, variant, wikitext
 };
 
 /**
- * Process a single test.
- *
- * @arg item {object} this.cases[index]
- * @arg options {object} The options for this test.
- * @arg endCb {function} The callback function we should call when this test is done.
+ * @method
+ * @param {Object} item
+ * @param {Object} options
+ * @param {Function} endCb
  */
 ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 	if ( !( 'title' in item ) ) {
@@ -678,12 +775,12 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 };
 
 /**
- * Process the results of a test that produces HTML.
- *
- * @arg item {object} this.cases[index]
- * @arg options {object} The options for this test.
- * @arg cb {function} The callback function we should call when this test is done.
- * @arg doc {object} The results of the parse.
+ * @method
+ * @param {Object} item
+ * @param {Object} options
+ * @param {string} mode
+ * @param {Node} doc
+ * @param {Function} cb
  */
 ParserTests.prototype.processParsedHTML = function( item, options, mode, doc, cb ) {
 	item.time.end = Date.now();
@@ -695,13 +792,12 @@ ParserTests.prototype.processParsedHTML = function( item, options, mode, doc, cb
 };
 
 /**
- * Process the results of a test that produces wikitext.
- *
- * @arg item {object} this.cases[index]
- * @arg options {object} The options for this test.
- * @arg cb {function} The callback function we should call when this test is done.
- * @arg wikitext {string} The results of the parse.
- * @arg error {string} The results of the parse.
+ * @method
+ * @param {Object} item
+ * @param {Object} options
+ * @param {string} mode
+ * @param {Node} doc
+ * @param {Function} cb
  */
 ParserTests.prototype.processSerializedWT = function ( item, options, mode, wikitext, cb ) {
 	item.time.end = Date.now();
@@ -724,16 +820,15 @@ ParserTests.prototype.processSerializedWT = function ( item, options, mode, wiki
 };
 
 /**
- * Print a failure message for a test.
- *
- * @arg title {string} The title of the test
- * @arg comments {Array} Any comments associated with the test
- * @arg iopts {object|null} Options from the test file
- * @arg options {object} Options for the test environment (usually a copy of argv)
- * @arg actual {object} The actual results (see printResult for more)
- * @arg expected {object} The expected results (see printResult for more)
- * @arg failure_only {bool} Whether we should print only a failure message, or go on to print the diff
- * @arg mode {string} The mode we're in (wt2wt, wt2html, html2wt, or html2html)
+ * @method
+ * @param {string} title
+ * @param {Array} comments
+ * @param {Object/null} iopts Options from the test file
+ * @param {Object} options
+ * @param {Object} actual
+ * @param {Object} expected
+ * @param {boolean} failure_only Whether we should print only a failure message, or go on to print the diff
+ * @param {string} mode
  */
 ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 		actual, expected, failure_only, mode, error, item ) {
@@ -780,14 +875,11 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 };
 
 /**
- * Print a success method for a test.
- *
- * This method is configurable through the options of the ParserTests object.
- *
- * @arg title {string} The title of the test
- * @arg mode {string} The mode we're in (wt2wt, wt2html, html2wt, or html2html)
- * @arg isWhitelist {bool} Whether this success was due to a whitelisting
- * @arg shouldReport {bool} Whether we should actually output this result, or just count it
+ * @method
+ * @param {string} title
+ * @param {string} mode
+ * @param {boolean} isWhitelist Whether this success was due to a whitelisting
+ * @param {boolean} shouldReport Whether we should actually output this result, or just count it
  */
 ParserTests.prototype.printSuccess = function ( title, mode, isWhitelist, shouldReport ) {
 	if ( isWhitelist ) {
@@ -813,15 +905,25 @@ ParserTests.prototype.printSuccess = function ( title, mode, isWhitelist, should
 };
 
 /**
- * Print the actual and expected outputs.
+ * @method
  *
- * @arg actual {object} Actual output from the parser. Contains 'raw' and 'normal', the output in different formats
- * @arg expected {object} Expected output for this test. Contains 'raw' and 'normal' as above.
- * @arg getDiff {function} The function we use to get the diff for output (if any)
- * @arg color {bool} Whether we should output colorful strings or not.
+ * Print the actual and expected outputs.
  *
  * Side effect: Both objects will, after this, have 'formattedRaw' and 'formattedNormal' properties,
  * which are the result of calling Util.formatHTML() on the 'raw' and 'normal' properties.
+ *
+ * @param {Object} actual
+ * @param {string} actual.raw
+ * @param {string} actual.normal
+ * @param {Object} expected
+ * @param {string} expected.raw
+ * @param {string} expected.normal
+ * @param {Function} getDiff Returns a string showing the diff(s) for the test.
+ * @param {Object} getDiff.actual
+ * @param {Object} getDiff.expected
+ * @param {string} getDiff.color
+ * @param {boolean} color Whether we should output colorful strings or not.
+ * @returns {string}
  */
 ParserTests.prototype.getActualExpected = function ( actual, expected, getDiff, color ) {
 	var returnStr = '';
@@ -848,21 +950,19 @@ ParserTests.prototype.getActualExpected = function ( actual, expected, getDiff, 
 };
 
 /**
- * Print the diff between the actual and expected outputs.
- *
- * @arg actual {object} Actual output from the parser. Contains 'formattedNormal', a side effect from 'getActualExpected' above.
- * @arg expected {object} Expected output for this test. Contains 'formattedNormal' as above.
- * @arg color {bool} Do you want color in the diff output?
+ * @param {Object} actual
+ * @param {string} actual.formattedNormal
+ * @param {Object} expected
+ * @param {string} expected.formattedNormal
+ * @param {boolean} color Whether you want color in the diff output
  */
 ParserTests.prototype.getDiff = function ( actual, expected, color ) {
 	return Util.diff( expected.formattedNormal, actual.formattedNormal, color );
 };
 
 /**
- * Print the whitelist entry for a test.
- *
- * @arg title {string} The title of the test.
- * @arg raw {string} The actual raw output from the parser.
+ * @param {string} title
+ * @param {string} raw The raw output from the parser.
  */
 ParserTests.prototype.printWhitelistEntry = function ( title, raw ) {
 	console.log( 'WHITELIST ENTRY:'.cyan);
@@ -872,16 +972,16 @@ ParserTests.prototype.printWhitelistEntry = function ( title, raw ) {
 };
 
 /**
- * Print the result of a test.
- *
- * @arg title {string} The title of the test
- * @arg time {object} The times for the test--an object with 'start' and 'end' in milliseconds since epoch.
- * @arg comments {Array} Any comments associated with the test
- * @arg iopts {object|null} Any options for the test (not options passed into the process)
- * @arg expected {object} Expected output for this test. Contains 'raw' and 'normal' as above.
- * @arg actual {object} Actual output from the parser. Contains 'raw' and 'normal', the output in different formats
- * @arg options {object} Options for the test runner. Usually just a copy of argv.
- * @arg mode {string} The mode we're in (wt2wt, wt2html, html2wt, or html2html)
+ * @param {string} title
+ * @param {Object} time
+ * @param {number} time.start
+ * @param {number} time.end
+ * @param {Array} comments
+ * @param {Object|null} iopts Any options for the test (not options passed into the process)
+ * @param {Object} expected
+ * @param {Object} actual
+ * @param {Object} options
+ * @param {string} mode
  */
 ParserTests.prototype.printResult = function ( title, time, comments, iopts, expected, actual, options, mode, item ) {
 	var quick = booleanOption( options.quick );
@@ -909,11 +1009,9 @@ ParserTests.prototype.printResult = function ( title, time, comments, iopts, exp
 };
 
 /**
- * Check the result of a "2html" operation.
- *
- * @arg item {object} The test being run.
- * @arg out {string} The actual output of the parser.
- * @arg options {object} Options for this test and some shared methods.
+ * @param {Object} item
+ * @param {string} out
+ * @param {Object} options
  */
 ParserTests.prototype.checkHTML = function ( item, out, options, mode ) {
 	var normalizedOut, normalizedExpected;
@@ -935,11 +1033,9 @@ ParserTests.prototype.checkHTML = function ( item, out, options, mode ) {
 };
 
 /**
- * Check the result of a "2wt" operation.
- *
- * @arg item {object} The test being run.
- * @arg out {string} The actual output of the parser.
- * @arg options {object} Options passed into the process on the command line.
+ * @param {Object} item
+ * @param {string} out
+ * @param {Object} options
  */
 ParserTests.prototype.checkWikitext = function ( item, out, options, mode ) {
 	if ( mode === 'selser' && item.resultWT !== null ) {
@@ -970,15 +1066,11 @@ ParserTests.prototype.printWikiDom = function ( body ) {
 };
 
 /**
- * Report the summary of all test results to the user.
- *
- * This method is customizable through the options of this ParserTests object.
- *
- * @arg stats {object} The big ol' book of statistics. Members:
- *   failOutputTests: Number of failed tests due to differences in output
- *   passedTests: Number of tests passed without any special consideration
- *   passedTestsManual: Number of tests passed by whitelisting
- *   modes: The above stats per-mode.
+ * @param {Object} stats
+ * @param {number} stats.failOutputTests Number of failed tests due to differences in output
+ * @param {number} stats.passedTests Number of tests passed without any special consideration
+ * @param {number} stats.passedTestsManual Number of tests passed by whitelisting
+ * @param {Object} stats.modes All of the stats (failOutputTests, passedTests, and passedTestsManual) per-mode.
  */
 ParserTests.prototype.reportSummary = function ( stats ) {
 	var curStr, thisMode, i, failTotalTests = stats.failOutputTests;
@@ -1023,6 +1115,10 @@ ParserTests.prototype.reportSummary = function ( stats ) {
 
 };
 
+/**
+ * @method
+ * @param {Object} options
+ */
 ParserTests.prototype.main = function ( options ) {
 	if ( options.help ) {
 		optimist.showHelp();
@@ -1188,6 +1284,9 @@ ParserTests.prototype.reportStartOfTests = function () {
 	console.log( 'Initialisation complete. Now launching tests.' );
 };
 
+/**
+ * @method
+ */
 ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 	var tasks = [];
 	for ( var i = 0; i < modes.length; i++ ) {
@@ -1224,6 +1323,9 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 	return tasks;
 };
 
+/**
+ * @method
+ */
 ParserTests.prototype.processCase = function ( i, options ) {
 	var item, cases = this.cases;
 
@@ -1321,6 +1423,14 @@ var ptests = new ParserTests(), popts = ptests.getOpts();
 
 // Note: Wrapping the XML output stuff in its own private world
 // so it can have private counters and the like
+/**
+ * @class XMLParserTestsRunner
+ *
+ * Place for XML functions for the parserTests output.
+ *
+ * @singleton
+ * @private
+ */
 var xmlFuncs = function () {
 	var fail, pass, passWhitelist,
 
@@ -1332,15 +1442,16 @@ var xmlFuncs = function () {
 	},
 
 	/**
-	 * Get the actual and expected outputs encoded for XML output.
+	 * @method getActualExpectedXML
 	 *
-	 * @arg actual {object} Actual output from the parser. Contains 'raw' and 'normal', the output in different formats
-	 * @arg expected {object} Expected output for this test. Contains 'raw' and 'normal' as above.
-	 * @arg getDiff {function} The function we use to get the diff for output (if any)
-	 * @arg color {bool} Whether we should output colorful strings or not.
+	 * Get the actual and expected outputs encoded for XML output.
 	 *
 	 * Side effect: Both objects will, after this, have 'formattedRaw' and 'formattedNormal' properties,
 	 * which are the result of calling Util.formatHTML() on the 'raw' and 'normal' properties.
+	 *
+	 * @inheritdoc ParserTests#getActualExpected.
+	 *
+	 * @returns {string} The XML representation of the actual and expected outputs
 	 */
 	getActualExpectedXML = function ( actual, expected, getDiff, color ) {
 		var returnStr = '';
@@ -1369,6 +1480,8 @@ var xmlFuncs = function () {
 	},
 
 	/**
+	 * @method reportStartXML
+	 *
 	 * Report the start of the tests output.
 	 */
 	reportStartXML = function () {
@@ -1376,6 +1489,8 @@ var xmlFuncs = function () {
 	},
 
 	/**
+	 * @method reportSummaryXML
+	 *
 	 * Report the end of the tests output.
 	 */
 	reportSummaryXML = function () {
@@ -1391,16 +1506,11 @@ var xmlFuncs = function () {
 	},
 
 	/**
+	 * @method reportFailureXML
+	 *
 	 * Print a failure message for a test in XML.
 	 *
-	 * @arg title {string} The title of the test
-	 * @arg comments {Array} Any comments associated with the test
-	 * @arg iopts {object|null} Options from the test file
-	 * @arg options {object} Options for the test environment (usually a copy of argv)
-	 * @arg actual {object} The actual results (see printResult for more)
-	 * @arg expected {object} The expected results (see printResult for more)
-	 * @arg failure_only {bool} Whether we should print only a failure message, or go on to print the diff
-	 * @arg mode {string} The mode we're in (wt2wt, wt2html, html2wt, or html2html)
+	 * @inheritdoc ParserTests#printFailure
 	 */
 	reportFailureXML = function ( title, comments, iopts, options, actual, expected, failure_only, mode, error ) {
 		fail++;
@@ -1420,14 +1530,11 @@ var xmlFuncs = function () {
 	},
 
 	/**
+	 * @method reportSuccessXML
+	 *
 	 * Print a success method for a test in XML.
 	 *
-	 * This method is configurable through the options of the ParserTests object.
-	 *
-	 * @arg title {string} The title of the test
-	 * @arg mode {string} The mode we're in (wt2wt, wt2html, html2wt, or html2html)
-	 * @arg isWhitelist {bool} Whether this success was due to a whitelisting
-	 * @arg shouldReport {bool} Whether we should actually output this result, or just count it
+	 * @inheritdoc ParserTests#printSuccess
 	 */
 	reportSuccessXML = function ( title, mode, isWhitelist, shouldReport ) {
 		if ( isWhitelist ) {
@@ -1438,6 +1545,8 @@ var xmlFuncs = function () {
 	},
 
 	/**
+	 * @method reportResultXML
+	 *
 	 * Print the result of a test in XML.
 	 *
 	 * @inheritdoc ParserTests#printResult

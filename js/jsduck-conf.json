@@ -1,0 +1,30 @@
+{
+	"--title": "Parsoid documentation",
+	"--warnings": [ "-no_doc" ],
+	"--ignore-global": true,
+	"--builtin-classes": true,
+	"--output": "doc/",
+	"--": [
+		"./doc.basicTypes.js",
+		"./lib/core-upgrade.js",
+		"./lib/ext.core.AttributeExpander.js",
+		"./lib/ext.core.LinkHandler.js",
+		"./lib/ext.core.ParserFunctions.js",
+		"./lib/ext.core.Sanitizer.js",
+		"./lib/ext.util.TokenCollector.js",
+		"./lib/mediawiki.ApiRequest.js",
+		"./lib/mediawiki.ParsoidConfig.js",
+		"./lib/mediawiki.SelectiveSerializer.js",
+		"./lib/mediawiki.Title.js",
+		"./lib/mediawiki.TokenTransformManager.js",
+		"./lib/mediawiki.Util.js",
+		"./lib/mediawiki.WikiConfig.js",
+		"./lib/mediawiki.parser.defines.js",
+		"./lib/mediawiki.parser.environment.js",
+		"./api/ParserService.js",
+		"./tests/parserTests.js",
+		"./tests/parse.js",
+		"./tests/roundtrip-test.js"
+	]
+}
+

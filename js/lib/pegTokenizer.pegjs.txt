@@ -122,7 +122,7 @@
      *
      * @static
      * @method
-     * @param {String} isbn: The string to check
+     * @param {string} isbn: The string to check
      * @returns {Boolean}: True if valid ISBN, false otherwise.
      */
     var isValidISBN = function ( isbn ) {

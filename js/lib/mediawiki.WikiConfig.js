@@ -1,4 +1,4 @@
-/**
+/*
  * Per-wiki config library for interfacing with MediaWiki.
  */
 
@@ -9,7 +9,17 @@ var qs = require( 'querystring' ),
 	Util = require( './mediawiki.Util.js' ).Util,
 	request = require( 'request' );
 
-var WikiConfig = function ( resultConf, prefix, uri ) {
+/**
+ * @class
+ *
+ * Per-wiki configuration object.
+ *
+ * @constructor
+ * @param {Object} resultConf The configuration object from a MediaWiki API request. See the #ConfigRequest class in lib/mediawiki.ApiRequest.js for information about how we get this object. If null, we use the contents of lib/mediawiki.BaseConfig.json instead.
+ * @param {string} prefix The interwiki prefix this config will represent. Will be used for caching elsewhere in the code.
+ * @param {string} uri The URI that represents this wiki's API endpoint. Usually ends in api.php.
+ */
+function WikiConfig( resultConf, prefix, uri ) {
 	var nsid, name, conf = this;
 	this.init(); // initialize hashes/arrays/etc.
 
@@ -57,7 +67,7 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 
 	// Add in wikipedia languages too- they are not necessarily registered as
 	// interwikis and are expected by parserTests.
-	for( var i = 0, l = resultConf.languages.length; i < l; i++) {
+	for ( var i = 0, l = resultConf.languages.length; i < l; i++ ) {
 		var entry = resultConf.languages[i];
 		if (!conf.interwikiMap[entry.code]) {
 			conf.interwikiMap[entry.code] = {
@@ -192,13 +202,27 @@ var WikiConfig = function ( resultConf, prefix, uri ) {
 			conf.extensionTags[ext.replace( /(^<|>$)/g, '' ).toLowerCase()] = true;
 		}
 	}
-};
+}
 
 WikiConfig.prototype = {
-	wgScriptPath: '/wiki/',
+	/**
+	 * @property {string} script The value of $wgScript for this wiki, used for some rendering tasks.
+	 */
 	script: '/wiki/index.php',
+
+	/**
+	 * @property {string} articlePath The path to articles on this wiki, used for some rendering tasks.
+	 */
 	articlePath: '/wiki/$1',
+
+	/**
+	 * @property {string} apiURI The URI for api.php on this wiki.
+	 */
 	apiURI: null,
+
+	/**
+	 * @property {Object} canonicalNamespaces The IDs for namespaces. Never overridden, but added to by the constructor.
+	 */
 	canonicalNamespaces: {
 		media: -2,
 		special: -1,
@@ -222,12 +246,42 @@ WikiConfig.prototype = {
 		category: 14,
 		category_talk: 15
 	},
+
+	/**
+	 * @property {Object/null} namespaceNames The default names of namespaces on this wiki.
+	 */
 	namespaceNames: null,
+
+	/**
+	 * @property {Object/null} namespaceIds The IDs that correspond to namespace aliases on this wiki.
+	 */
 	namespaceIds: null,
+
+	/**
+	 * @private
+	 * @property {Object/null} magicWords Canonical magic word names on this wiki, indexed by aliases.
+	 */
 	magicWords: null,
+
+	/**
+	 * @property {Object/null} mwAliases Lists of aliases, indexed by canonical magic word name.
+	 */
 	mwAliases: null,
+
+	/**
+	 * @property {Object/null} specialPages Special page names on this wiki, indexed by aliases.
+	 */
 	specialPages: null,
+
+	/**
+	 * @property {Object/null} extensionTags Extension tags on this wiki, indexed by their aliases.
+	 */
 	extensionTags: null,
+
+	/**
+	 * @property {Object/null} interpolatedList List of magic words that are interpolated, i.e., they have $1 in their aliases.
+	 * @private
+	 */
 	interpolatedList: null,
 
 	/**
@@ -242,6 +296,10 @@ WikiConfig.prototype = {
 	 */
 	_protocolRegex: null,
 
+	/**
+	 * @method
+	 * @private
+	 */
 	init: function() {
 		// give the instance its own hashes/arrays so they
 		// don't get aliased.
@@ -258,10 +316,26 @@ WikiConfig.prototype = {
 			Object.create(WikiConfig.prototype.canonicalNamespaces);
 	},
 
+	/**
+	 * @method
+	 *
+	 * Get the canonical name of a magic word alias.
+	 *
+	 * @param {string} alias
+	 * @returns {string}
+	 */
 	getMagicWord: function ( alias ) {
 		return this.magicWords[alias] || null;
 	},
 
+	/**
+	 * @method
+	 *
+	 * Get a matcher function for fetching values out of interpolated magic words, i.e. those with $1 in their aliases.
+	 *
+	 * @param {string} optionsList The list of options you want to check for (e.g. the list of all interpolated image options)
+	 * @returns {Function}
+	 */
 	getMagicPatternMatcher: function ( optionsList ) {
 		var ix, mwlist, aliases, regex, regexString = '',
 			getInterpolatedMagicWord = function ( text, useRegex, useMwList ) {
@@ -309,6 +383,15 @@ WikiConfig.prototype = {
 		};
 	},
 
+	/**
+	 * @method
+	 *
+	 * Builds a magic word string out of an alias with $1 in it and a value for the option.
+	 *
+	 * @param {string} alias
+	 * @param {string} value
+	 * @returns {string}
+	 */
 	replaceInterpolatedMagicWord: function ( alias, value ) {
 		return alias.replace( /\$1/, value );
 	},

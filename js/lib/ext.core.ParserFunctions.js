@@ -1,4 +1,4 @@
-/**JSON.stringify(token));
+/*
  * Some parser functions, and quite a bunch of stubs of parser functions.
  * There are still quite a few missing, see
  * http://www.mediawiki.org/wiki/Help:Magic_words and
@@ -662,9 +662,7 @@ ParserFunctions.prototype.pf_localurl = function ( token, frame, cb, args ) {
 };
 
 
-/**
- * Stub section: Pick any of these and actually implement them!
- */
+/* Stub section: Pick any of these and actually implement them!  */
 
 // The page name and similar information should be carried around in
 // this.env

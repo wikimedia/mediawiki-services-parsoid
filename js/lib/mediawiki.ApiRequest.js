@@ -6,6 +6,10 @@ var request = require('request'),
 	events = require('events'),
 	util = require('util');
 
+/**
+ * @class
+ * @extends Error
+ */
 function DoesNotExistError( message ) {
     this.name = "DoesNotExistError";
     this.message = message || "Something doesn't exist";
@@ -13,6 +17,10 @@ function DoesNotExistError( message ) {
 }
 DoesNotExistError.prototype = Error.prototype;
 
+/**
+ * @class
+ * @extends Error
+ */
 function ParserError( message ) {
     this.name = "ParserError";
     this.message = message || "Generic parser error";
@@ -20,6 +28,10 @@ function ParserError( message ) {
 }
 ParserError.prototype = Error.prototype;
 
+/**
+ * @class
+ * @extends Error
+ */
 function AccessDeniedError( message ) {
 	this.name = 'AccessDeniedError';
 	this.message = message || 'Your wiki requires a logged-in account to access the API. Parsoid will not work for this wiki!';
@@ -28,7 +40,15 @@ function AccessDeniedError( message ) {
 AccessDeniedError.prototype = Error.prototype;
 
 /**
- * Abstract API request base class constructor
+ *
+ * Abstract API request base class
+ *
+ * @class
+ * @extends EventEmitter
+ *
+ * @constructor
+ * @param {MWParserEnvironment} env
+ * @param {string} title The title of the page we should fetch from the API
  */
 function ApiRequest ( env, title ) {
 	// call the EventEmitter constructor
@@ -45,7 +65,13 @@ function ApiRequest ( env, title ) {
 // Inherit from EventEmitter
 util.inherits(ApiRequest, events.EventEmitter);
 
-ApiRequest.prototype.processListeners = function ( error, src ) {
+/**
+ * @method
+ * @private
+ * @param {Error/null} error
+ * @param {string} src The wikitext source of the page
+ */
+ApiRequest.prototype._processListeners = function ( error, src ) {
 	// Process only a few callbacks in each event loop iteration to
 	// reduce memory usage.
 	var listeners = this.listeners( 'src' );
@@ -67,7 +93,14 @@ ApiRequest.prototype.processListeners = function ( error, src ) {
 	process.nextTick( processSome );
 };
 
-ApiRequest.prototype.requestCB = function (error, response, body) {
+/**
+ * @method
+ * @private
+ * @param {Error/null} error
+ * @param {Object} response The API response object, with error code
+ * @param {string} body The body of the response from the API
+ */
+ApiRequest.prototype._requestCB = function (error, response, body) {
 	//console.warn( 'response for ' + title + ' :' + body + ':' );
 	var self = this;
 
@@ -78,12 +111,12 @@ ApiRequest.prototype.requestCB = function (error, response, body) {
 			this.env.tp( 'Retrying ' + this.reqType + ' request for ' + this.title + ', ' +
 					this.retries + ' remaining' );
 			// retry
-			request( this.requestOptions, this.requestCB.bind(this) );
+			request( this.requestOptions, this._requestCB.bind(this) );
 			return;
 		} else {
 			var dnee = new DoesNotExistError( this.reqType + ' failure for ' + this.title );
 			//this.emit('src', dnee, dnee.toString(), 'text/x-mediawiki');
-			this.handleJSON( dnee, {} );
+			this._handleJSON( dnee, {} );
 		}
 	} else if (response.statusCode === 200) {
 		var src = '', data;
@@ -93,12 +126,12 @@ ApiRequest.prototype.requestCB = function (error, response, body) {
 		} catch(e) {
 			error = new ParserError( 'Failed to parse the JSON response for ' + this.reqType + " " + self.title );
 		}
-		this.handleJSON( error, data );
+		this._handleJSON( error, data );
 	} else {
 		console.log( body );
 		console.warn( 'non-200 response: ' + response.statusCode );
 		error = new DoesNotExistError( this.reqType + ' failure for ' + this.title );
-		this.handleJSON( error, {} );
+		this._handleJSON( error, {} );
 	}
 
 	// XXX: handle other status codes
@@ -110,8 +143,25 @@ ApiRequest.prototype.requestCB = function (error, response, body) {
 	//this.env.dp( 'after deletion:', this.env.requestQueue );
 };
 
+/**
+ * @method _handleJSON
+ * @template
+ * @private
+ * @param {Error} error
+ * @param {Object} data The response from the server - parsed JSON object
+ */
 
-/***************** Template fetch request helper class ********/
+/**
+ * @class
+ * @extends ApiRequest
+ *
+ * Template fetch request helper class
+ *
+ * @constructor
+ * @param {MWParserEnvironment} env
+ * @param {string} title The template (or really, page) we should fetch from the wiki
+ * @param {string} oldid The revision ID you want to get, defaults to "latest revision"
+ */
 
 function TemplateRequest ( env, title, oldid ) {
 	// Construct ApiRequest;
@@ -150,19 +200,21 @@ function TemplateRequest ( env, title, oldid ) {
 	};
 
 	// Start the request
-	request( this.requestOptions, this.requestCB.bind(this) );
+	request( this.requestOptions, this._requestCB.bind(this) );
 }
 
 // Inherit from ApiRequest
 util.inherits(TemplateRequest, ApiRequest);
 
-// The TemplateRequest-specific JSON handler
-TemplateRequest.prototype.handleJSON = function ( error, data ) {
+/**
+ * @inheritdoc ApiRequest#_handleJSON
+ */
+TemplateRequest.prototype._handleJSON = function ( error, data ) {
 	var regex, title, err, location, iwstr, interwiki, src = '',
 		self = this;
 
 	if ( error ) {
-		this.processListeners( error, '' );
+		this._processListeners( error, '' );
 		return;
 	}
 
@@ -180,7 +232,7 @@ TemplateRequest.prototype.handleJSON = function ( error, data ) {
 					self.title +
 					' can be found at a different location: '
 					+ location );
-			this.processListeners( err, '' );
+			this._processListeners( err, '' );
 			return;
 		}
 		console.log( data );
@@ -222,7 +274,7 @@ TemplateRequest.prototype.handleJSON = function ( error, data ) {
 				} );
 		//'?format=json&action=query&prop=revisions&rvprop=content&titles=' + title;
 		this.requestOptions.url = url;
-		request( this.requestOptions, this.requestCB.bind(this) );
+		request( this.requestOptions, this._requestCB.bind(this) );
 		return;
 	}
 
@@ -232,15 +284,20 @@ TemplateRequest.prototype.handleJSON = function ( error, data ) {
 	// Add the source to the cache
 	this.env.pageCache[this.title] = src;
 
-	this.processListeners( error, src );
+	this._processListeners( error, src );
 };
 
-/******************* PreprocessorRequest *****************************/
-
 /**
+ * @class
+ * @extends ApiRequest
+ *
  * Passes the source of a single preprocessor construct including its
- * parameters to action=expandtemplates, and behaves otherwise just like a
- * TemplateRequest
+ * parameters to action=expandtemplates
+ *
+ * @constructor
+ * @param {MWParserEnvironment} env
+ * @param {string} title The title of the page to use as the context
+ * @param {string} text
  */
 function PreprocessorRequest ( env, title, text ) {
 	ApiRequest.call(this, env, title);
@@ -274,7 +331,7 @@ function PreprocessorRequest ( env, title, text ) {
 	};
 
 	// Start the request
-	request( this.requestOptions, this.requestCB.bind(this) );
+	request( this.requestOptions, this._requestCB.bind(this) );
 }
 
 
@@ -283,10 +340,12 @@ function PreprocessorRequest ( env, title, text ) {
 //PreprocessorRequest.prototype.constructor = PreprocessorRequest;
 util.inherits( PreprocessorRequest, ApiRequest );
 
-// The TemplateRequest-specific JSON handler
-PreprocessorRequest.prototype.handleJSON = function ( error, data ) {
+/**
+ * @inheritdoc ApiRequest#_handleJSON
+ */
+PreprocessorRequest.prototype._handleJSON = function ( error, data ) {
 	if ( error ) {
-		this.processListeners( error, '' );
+		this._processListeners( error, '' );
 		return;
 	}
 
@@ -306,15 +365,21 @@ PreprocessorRequest.prototype.handleJSON = function ( error, data ) {
 
 
 	//console.log( this.listeners('src') );
-	this.processListeners( error, src );
+	this._processListeners( error, src );
 };
 
-/******************* PHPParseRequest *****************************/
-
 /**
+ * @class
+ * @extends ApiRequest
+ *
  * Gets the PHP parser to parse content for us.
- * - Used for handling extension content right now.
- * - And, probably magic words later on.
+ * Used for handling extension content right now.
+ * And, probably magic words later on.
+ *
+ * @constructor
+ * @param {MWParserEnvironment} env
+ * @param {string} title The title of the page to use as context
+ * @param {string} text
  */
 function PHPParseRequest ( env, title, text ) {
 	ApiRequest.call(this, env, title);
@@ -347,16 +412,18 @@ function PHPParseRequest ( env, title, text ) {
 	};
 
 	// Start the request
-	request( this.requestOptions, this.requestCB.bind(this) );
+	request( this.requestOptions, this._requestCB.bind(this) );
 }
 
 // Inherit from ApiRequest
 util.inherits( PHPParseRequest, ApiRequest );
 
-// The TemplateRequest-specific JSON handler
-PHPParseRequest.prototype.handleJSON = function ( error, data ) {
+/**
+ * @inheritdoc ApiRequest#_handleJSON
+ */
+PHPParseRequest.prototype._handleJSON = function ( error, data ) {
 	if ( error ) {
-		this.processListeners( error, '' );
+		this._processListeners( error, '' );
 		return;
 	}
 
@@ -374,9 +441,19 @@ PHPParseRequest.prototype.handleJSON = function ( error, data ) {
 	}
 
 	//console.log( this.listeners('parsedHtml') );
-	this.processListeners( error, parsedHtml );
+	this._processListeners( error, parsedHtml );
 };
 
+/**
+ * @class
+ * @extends ApiRequest
+ *
+ * A request for the wiki's configuration variables.
+ *
+ * @constructor
+ * @param {string} confSource The API URI to use for fetching, or a filename
+ * @param {MWParserEnvironment} env
+ */
 var ConfigRequest = function ( confSource, env ) {
 	ApiRequest.call( this, env, null );
 
@@ -385,7 +462,7 @@ var ConfigRequest = function ( confSource, env ) {
 		// parserTests. Fetch the cached versions and use those.
 		// The confSource will be a filename in this case.
 		var localConf = require( confSource );
-		this.handleJSON( null, localConf );
+		this._handleJSON( null, localConf );
 		return;
 	}
 
@@ -412,7 +489,7 @@ var ConfigRequest = function ( confSource, env ) {
 		};
 
 	if ( !confSource ) {
-		this.requestCB( new Error( 'There was no base URI for the API we tried to use.' ) );
+		this._requestCB( new Error( 'There was no base URI for the API we tried to use.' ) );
 		return;
 	}
 
@@ -431,28 +508,31 @@ var ConfigRequest = function ( confSource, env ) {
 		}
 	};
 
-	request( this.requestOptions, this.requestCB.bind( this ) );
+	request( this.requestOptions, this._requestCB.bind( this ) );
 };
 
 util.inherits( ConfigRequest, ApiRequest );
 
-ConfigRequest.prototype.handleJSON = function ( error, data ) {
+/**
+ * @inheritdoc ApiRequest#_handleJSON
+ */
+ConfigRequest.prototype._handleJSON = function ( error, data ) {
 	if ( error ) {
-		this.processListeners( error, {} );
+		this._processListeners( error, {} );
 		return;
 	}
 
 	if ( data && data.query ) {
-		this.processListeners( null, data.query );
+		this._processListeners( null, data.query );
 	} else if ( data && data.error ) {
 		if ( data.error.code === 'readapidenied' ) {
 			error = new AccessDeniedError();
 		} else {
 			error = new Error( 'Something happened on the API side. Message: ' + data.error.code + ': ' + data.error.info );
 		}
-		this.processListeners( error, {} );
+		this._processListeners( error, {} );
 	} else {
-		this.processListeners( null, {} );
+		this._processListeners( null, {} );
 	}
 };
 

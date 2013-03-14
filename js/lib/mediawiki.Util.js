@@ -1,6 +1,7 @@
 "use strict";
-/**
- * General utilities for token transforms
+
+/*
+ * This file contains general utilities for token transforms
  */
 
 var domino = require( './domino' ),
@@ -11,8 +12,21 @@ var domino = require( './domino' ),
 	entities = require( 'entities' ),
 	TemplateRequest = require( './mediawiki.ApiRequest.js' ).TemplateRequest;
 
+/**
+ * @class
+ * @singleton
+ */
 var Util = {
 
+	/**
+	 * @method
+	 *
+	 * Set debugging flags on an object, based on an options object.
+	 *
+	 * @param {Object} obj The object to modify.
+	 * @param {Object} opts The options object to use for setting the debug flags.
+	 * @returns {Object} The modified object.
+	 */
 	setDebuggingFlags: function(obj, opts) {
 		obj.debug = opts.debug;
 		obj.trace = (opts.trace === true);
@@ -22,8 +36,16 @@ var Util = {
 		return obj;
 	},
 
-	// Update only those properties that are undefined or null
-	// $.extend updates properties that are falsy (which means false gets updated as well)
+	/**
+	 * @method
+	 *
+	 * Update only those properties that are undefined or null
+	 * $.extend updates properties that are falsy (which means false gets updated as well)
+	 *
+	 * @param {Object} tgt The object to modify.
+	 * @param {Object} subject The object to extend tgt with. Add more arguments to the function call to chain more extensions.
+	 * @returns {Object} The modified object.
+	 */
 	extendProps: function() {
 		function internalExtend(target, obj) {
 			var allKeys = [].concat(Object.keys(target),Object.keys(obj));
@@ -47,10 +69,9 @@ var Util = {
 	/**
 	 * Determine if a tag name is block-level or not
 	 *
-	 * @static
 	 * @method
-	 * @param {String} name: Lower-case tag name
-	 * @returns {Boolean}: True if tag is block-level, false otherwise.
+	 * @param {string} name: Lower-case tag name
+	 * @returns {boolean}
 	 */
 	isBlockTag: function ( name ) {
 		switch ( name ) {
@@ -157,10 +178,9 @@ var Util = {
 	/**
 	 * Determine if a token is block-level or not
 	 *
-	 * @static
 	 * @method
-	 * @param {Object} token: The token to check
-	 * @returns {Boolean}: True if token is block-level, false otherwise.
+	 * @param {Token} token
+	 * @returns {boolean}
 	 */
 	isBlockToken: function ( token ) {
 		if ( token.constructor === TagTk ||
@@ -935,6 +955,13 @@ Util.makeTplAffectedMeta = function ( contentType, key, val ) {
 ( function ( Util ) {
 
 
+/**
+ * Normalize a bit of source by stripping out unnecessary newlines.
+ *
+ * @method
+ * @param {string} source
+ * @returns {string}
+ */
 var normalizeNewlines = function ( source ) {
 	return source
 				// strip comments first
@@ -949,8 +976,13 @@ var normalizeNewlines = function ( source ) {
 },
 
 /**
+ * @method normalizeOut
+ *
  * Specialized normalization of the wiki parser output, mostly to ignore a few
  * known-ok differences.
+ *
+ * @param {string} out
+ * @returns {string}
  */
 normalizeOut = function ( out ) {
 	// TODO: Do not strip newlines in pre and nowiki blocks!
@@ -981,11 +1013,14 @@ normalizeOut = function ( out ) {
 },
 
 /**
+ * @method normalizeHTML
+ *
  * Normalize the expected parser output by parsing it using a HTML5 parser and
  * re-serializing it to HTML. Ideally, the parser would normalize inter-tag
  * whitespace for us. For now, we fake that by simply stripping all newlines.
  *
- * @arg source {string} The source to normalize.
+ * @param source {string}
+ * @return {string}
  */
 normalizeHTML = function ( source ) {
 	// TODO: Do not strip newlines in pre and nowiki blocks!
@@ -1021,17 +1056,26 @@ normalizeHTML = function ( source ) {
 	}
 },
 
+/**
+ * @method formatHTML
+ *
+ * Insert newlines before some block-level start tags.
+ *
+ * @param {string} source
+ * @returns {string}
+ */
 formatHTML = function ( source ) {
-	// Quick hack to insert newlines before some block level start tags
 	return source.replace(
 		/(?!^)<((div|dd|dt|li|p|table|tr|td|tbody|dl|ol|ul|h1|h2|h3|h4|h5|h6)[^>]*)>/g, '\n<$1>');
 },
 
 /**
+ * @method parseHTML
+ *
  * Parse HTML, return the tree.
  *
- * @arg html {string} The HTML to parse.
- * @returns {object} The HTML DOM tree.
+ * @param {string} html
+ * @returns {Node}
  */
 parseHTML = function ( html ) {
 	if(! html.match(/^<(?:!doctype|html|body)/)) {
@@ -1044,12 +1088,17 @@ parseHTML = function ( html ) {
 },
 
 /**
+ * @method serializeNode
+ *
  * Serialize a HTML document.
  * The output is identical to standard DOM serialization, as given by
  * http://www.whatwg.org/specs/web-apps/current-work/multipage/the-end.html#serializing-html-fragments
  * except that we may quote attributes with single quotes, *only* where that would
  * result in more compact output than the standard double-quoted serialization.
  * Single-quoted attribute values have &amp; &#39 and &nbsp; escaped.
+ *
+ * @param {Node} doc
+ * @returns {string}
  */
 serializeNode = function (doc) {
 	// use domino's outerHTML, as specified by
@@ -1093,7 +1142,12 @@ serializeNode = function (doc) {
 },
 
 /**
+ * @method encodeXml
+ *
  * Little helper function for encoding XML entities
+ *
+ * @param {string} string
+ * @returns {string}
  */
 encodeXml = function ( string ) {
 	return entities.encode(string, 0 /* xml entities */);
@@ -1236,6 +1290,8 @@ Util.getPageSrc = function ( env, title, cb, oldid ) {
 };
 
 /**
+ * @property linkTrailRegex
+ *
  * This regex was generated by running through *all unicode characters* and
  * testing them against *all regexes* for linktrails in a default MW install.
  * We had to treat it a little bit, here's what we changed:
@@ -1250,6 +1306,15 @@ Util.linkTrailRegex = new RegExp(
 	'ſ-ǤǦǨǪ-Ǯǰ-ȗȜ-ȞȠ-ɘɚ-ʑʓ-ʸʽ-̂̄-΅·΋΍΢Ϗ-ЯѐѝѠѢѤѦѨѪѬѮѰѲѴѶѸѺ-ѾҀ-҃҅-ҐҒҔҕҘҚҜ-ҠҤ-ҪҬҭҰҲ' +
 	'Ҵ-ҶҸҹҼ-ҿӁ-ӗӚ-ӜӞӠ-ӢӤӦӪ-ӲӴӶ-ՠֈ-׏׫-ؠً-ٳٵ-ٽٿ-څڇ-ڗڙ-ڨڪ-ڬڮڰ-ڽڿ-ۅۈ-ۊۍ-۔ۖ-਀਄਋-਎਑਒' +
 	'਩਱਴਷਺਻਽੃-੆੉੊੎-੘੝੟-੯ੴ-჏ჱ-ẼẾ-​‍-‒—-‗‚‛”--��]+$' );
+
+/**
+ * @method isLinkTrail
+ *
+ * Check whether some text is a valid link trail.
+ *
+ * @param {string} text
+ * @returns {boolean}
+ */
 Util.isLinkTrail = function ( text ) {
 	if ( text && text.match && text.match( this.linkTrailRegex ) ) {
 		return true;
@@ -1259,11 +1324,16 @@ Util.isLinkTrail = function ( text ) {
 };
 
 /**
+ * @method stripPipeTrickChars
+ *
  * Strip pipe trick chars off a link target
  *
  * Example: 'Foo (bar)' -> 'Foo'
  *
  * Used by the LinkHandler and the WikitextSerializer.
+ *
+ * @param {string} target
+ * @returns {string}
  */
 Util.stripPipeTrickChars = function ( target ) {
 	var res;
@@ -1286,8 +1356,13 @@ Util.stripPipeTrickChars = function ( target ) {
 };
 
 /**
+ * @method decodeEntity
+ *
  * Decode a HTML entity, and return either the decoded char or the original
  * text if it turned out not to be a valid entity.
+ *
+ * @param {string} entity
+ * @returns {string}
  */
 Util.decodeEntity = function ( entity ) {
     return entities.decode(entity, 2 /* html5 entities */ );
@@ -1295,12 +1370,17 @@ Util.decodeEntity = function ( entity ) {
 
 
 /**
+ * @method escapeEntities
+ *
  * Entity-escape anything that would decode to a valid HTML entity
+ *
+ * @param {string} text
+ * @returns {string}
  */
-// [CSA] replace with entities.encode( text, 2 )?
-// but that would encode *all* ampersands, where we apparently just want
-// to encode ampersands that precede valid entities.
 Util.escapeEntities = function ( text ) {
+	// [CSA] replace with entities.encode( text, 2 )?
+	// but that would encode *all* ampersands, where we apparently just want
+	// to encode ampersands that precede valid entities.
 	return text.replace(/&[#0-9a-zA-Z]+;/g, function(match) {
 		var decodedChar = Util.decodeEntity(match);
 		if ( decodedChar !== match ) {

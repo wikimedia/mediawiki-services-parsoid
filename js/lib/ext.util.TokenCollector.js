@@ -1,5 +1,8 @@
 "use strict";
+
 /**
+ * @class
+ *
  * Small utility class that encapsulates the common 'collect all tokens
  * starting from a token of type x until token of type y or (optionally) the
  * end-of-input'. Only supported for synchronous in-order transformation
@@ -7,23 +10,18 @@
  * would wreak havoc with this kind of collector.
  *
  * Calls the passed-in callback with the collected tokens.
- */
-
-/**
- * @class
+ *
  * @constructor
- * @param {Object} SyncTokenTransformManager to register with
- * @param {Function} Transform function, called like this:
- *   transform( tokens, cb, manager ) with
- *      tokens: chunk of tokens
- *      cb: function, returnTokens ( tokens, notYetDone ) with notYetDone
- *      indicating the last chunk of an async return.
- *      manager: TokenTransformManager, provides the args etc.
- * @param {Boolean} Match the 'end' tokens as closing tag as well (accept
- * unclosed sections).
- * @param {Nummber} Numerical rank of the tranform
- * @param {String} Token type to register for ('tag', 'text' etc)
- * @param {String} (optional, only for token type 'tag'): tag name.
+ * @param {Object} manager SyncTokenTransformManager to register with
+ * @param {Function} transformation Transform function
+ * @param {Array} transformation.tokens Chunk of tokens
+ * @param {Function} transformation.cb Callback fired on each chunk
+ * @param {Array} transformation.cb.tokens Tokens we got back
+ * @param {TokenTransformManager} transformation.manager Manager for the token chunk
+ * @param {boolean} toEnd Match the 'end' tokens as closing tag as well (accept unclosed sections).
+ * @param {number} rank Numerical rank of the tranform
+ * @param {string} type Token type to register for ('tag', 'text' etc)
+ * @param {string} name (optional, only for token type 'tag'): tag name.
  */
 
 function TokenCollector ( manager, transformation, toEnd, rank, type, name ) {
@@ -38,6 +36,8 @@ function TokenCollector ( manager, transformation, toEnd, rank, type, name ) {
 }
 
 /**
+ * @private
+ *
  * Register any collector with slightly lower priority than the start/end token type
  * XXX: This feels a bit hackish, a list-of-registrations per rank might be
  * better.
@@ -49,6 +49,8 @@ TokenCollector.prototype._anyDelta = 0.00000001;
 
 
 /**
+ * @private
+ *
  * Handle the delimiter token.
  * XXX: Adjust to sync phase callback when that is modified!
  */
@@ -127,6 +129,8 @@ TokenCollector.prototype._onDelimiterToken = function ( token, frame, cb ) {
 };
 
 /**
+ * @private
+ *
  * Handle 'any' token in between delimiter tokens. Activated when
  * encountering the delimiter token, and collects all tokens until the end
  * token is reached.
