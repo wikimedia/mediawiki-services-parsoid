@@ -82,7 +82,7 @@ else
     else
         git commit -m "`tail -11 all.txt`" all.txt || exit 1
     fi
-    if [ "$2" != '-q' -a "$3" != '-q'];then
+    if [ "$2" != '-q' -a "$3" != '-q' ];then
         git diff --patience HEAD~1 | less -R || exit 1
     fi
 fi
