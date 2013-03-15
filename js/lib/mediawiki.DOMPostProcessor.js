@@ -1181,10 +1181,10 @@ function encapsulateTemplates( env, doc, tplRanges, tplParams) {
 		}
 
 /*
-		console.log("startElem: " + startElem.innerHTML);
-		console.log("endElem: " + range.endElem.innerHTML);
-		console.log("tcStart: " + tcStart.innerHTML);
-		console.log("tcEnd: " + tcEnd.innerHTML);
+		console.log("startElem: " + startElem.outerHTML);
+		console.log("endElem: " + range.endElem.outerHTML);
+		console.log("tcStart: " + tcStart.outerHTML);
+		console.log("tcEnd: " + tcEnd.outerHTML);
 */
 
 		/* ----------------------------------------------------------------
@@ -1240,7 +1240,10 @@ function encapsulateTemplates( env, doc, tplRanges, tplParams) {
 			console.warn("End   DSR : " + JSON.stringify(dp2 || {}));
 		}
 
-		// remove start/end
+		// remove startElem if a meta -- if a meta, it is guaranteed
+		// to be a marker meta added to mark the start of he template.
+		// However, tcStart = range.start, even if a meta, need not be
+		// a marker meta added for the template.
 		if (DU.hasNodeName(startElem, "meta"))  {
 			deleteNode(startElem);
 		}
@@ -2114,8 +2117,18 @@ function encapsulateTemplateOutput( document, env ) {
 }
 
 function stripMarkerMetas(node) {
+	// Sometimes a non-tpl meta node might get the mw:Object/Template typeof
+	// element attached to it. So, check the property to make sure it is not
+	// of those metas before deleting it.
+	//
+	// Ex: {{compactTOC8|side=yes|seealso=yes}} generates a mw:PageProp/notoc meta
+	// that gets the mw:Object/Template typeof attached to it.  It is not okay to
+	// delete it!
 	var metaType = node.getAttribute("typeof");
-	if (metaType && metaType.match(/\bmw:(Object|EndTag|TSRMarker|Ext)\/?/)) {
+	if (metaType
+		&& metaType.match(/^\bmw:(Object|EndTag|TSRMarker|Ext)\/?[^\s]*\b/)
+		&& !node.getAttribute("property"))
+	{
 		deleteNode(node);
 	}
 }
