@@ -14,6 +14,7 @@
 		"./lib/ext.core.Sanitizer.js",
 		"./lib/ext.util.TokenCollector.js",
 		"./lib/mediawiki.ApiRequest.js",
+		"./lib/mediawiki.DOMUtils.js",
 		"./lib/mediawiki.ParsoidConfig.js",
 		"./lib/mediawiki.SelectiveSerializer.js",
 		"./lib/mediawiki.Title.js",

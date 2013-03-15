@@ -14,15 +14,36 @@ var Util = require('./mediawiki.Util.js').Util,
 // define some constructor shortcuts
 var KV = pd.KV;
 
+/**
+ * @class
+ * @singleton
+ * General DOM utilities
+ */
 var DOMUtils = {
+
+	/**
+	 * Check whether this is a DOM element node.
+	 * See http://dom.spec.whatwg.org/#dom-node-nodetype
+	 * @param {Node} node
+	 */
 	isElt: function(node) {
 		return node.nodeType === Node.ELEMENT_NODE;
 	},
 
+	/**
+	 * Check whether this is a DOM text node.
+	 * See http://dom.spec.whatwg.org/#dom-node-nodetype
+	 * @param {Node} node
+	 */
 	isText: function(node) {
 		return node.nodeType === Node.TEXT_NODE;
 	},
 
+	/**
+	 * Determine whether this is a block-level DOM element.
+	 * See Util#isBlockTag()
+	 * @param {Node} node
+	 */
 	isBlockNode: function(node) {
 		return node && Util.isBlockTag(node.nodeName.toLowerCase());
 	},
@@ -75,7 +96,13 @@ var DOMUtils = {
 		}
 	},
 
-	// Decode a JSON object into the data member of DOM nodes
+	/**
+	 * Decode a JSON object into the data member of DOM nodes
+	 *
+	 * @param {Node} node
+	 * @param {string} name We'll use the data-[name] attribute of the passed-in node as the new value.
+	 * @param {Mixed} defaultVal What to use if there is no JSON attribute by that name.
+	 */
 	loadDataAttrib: function(node, name, defaultVal) {
 		if ( node.nodeType !== node.ELEMENT_NODE ) {
 			return;
@@ -90,7 +117,9 @@ var DOMUtils = {
 		// nothing to do if already loaded
 	},
 
-	// Save all node.data.* structures to data attributes
+	/**
+	 * Save all node.data.* structures to data attributes
+	 */
 	saveDataAttribs: function(node) {
 		if ( node.nodeType !== node.ELEMENT_NODE ) {
 			return;
@@ -110,7 +139,9 @@ var DOMUtils = {
 		}
 	},
 
-	// Decode data-parsoid into node.data.parsoid
+	/**
+	 * Decode data-parsoid into node.data.parsoid
+	 */
 	loadDataParsoid: function(node) {
 		this.loadDataAttrib(node, 'parsoid', {});
 	},
@@ -129,17 +160,31 @@ var DOMUtils = {
 		return n.data.mw;
 	},
 
-	setDataParsoid: function(n, dpObj) {
-		n.setAttribute("data-parsoid", JSON.stringify(dpObj));
-		return n;
+	/**
+	 * Set the data-parsoid attribute on a node.
+	 *
+	 * TODO use this.setJSONAttribute
+	 *
+	 * @param {Object} dpObj The new value for data-parsoid
+	 * @returns {Node} `node`, with the attribute set on it
+	 */
+	setDataParsoid: function(node, dpObj) {
+		node.setAttribute("data-parsoid", JSON.stringify(dpObj));
+		return node;
 	},
 
-	getJSONAttribute: function(n, name, defaultVal) {
-		if ( n.nodeType !== n.ELEMENT_NODE ) {
+	/**
+	 * Get an object from a JSON-encoded XML attribute on a node.
+	 *
+	 * @param {string} name Name of the attribute
+	 * @param {Mixed} defaultVal What should be returned if we fail to find a valid JSON structure
+	 */
+	getJSONAttribute: function(node, name, defaultVal) {
+		if ( node.nodeType !== node.ELEMENT_NODE ) {
 			return defaultVal !== undefined ? defaultVal : {};
 		}
 
-		var attVal = n.getAttribute(name);
+		var attVal = node.getAttribute(name);
 		if (!attVal) {
 			return defaultVal !== undefined ? defaultVal : {};
 		}
@@ -147,15 +192,34 @@ var DOMUtils = {
 			return JSON.parse(attVal);
 		} catch(e) {
 			console.warn('ERROR: Could not decode attribute-val ' + attVal +
-					' for ' + name + ' on node ' + n.outerHTML);
+					' for ' + name + ' on node ' + node.outerHTML);
 			return defaultVal !== undefined ? defaultVal : {};
 		}
 	},
 
-	setJSONAttribute: function(n, name, obj) {
-		n.setAttribute(name, JSON.stringify(obj));
+	/**
+	 * Set an attribute on a node to a JSON-encoded object.
+	 *
+	 * @param {Node} n
+	 * @param {string} name Name of the attribute
+	 * @param {Object} obj
+	 */
+	setJSONAttribute: function(node, name, obj) {
+		node.setAttribute(name, JSON.stringify(obj));
+		return node;
 	},
 
+	/**
+	 * Get shadowed information about an attribute on a node.
+	 *
+	 * @param {Node} node
+	 * @param {string} name
+	 * @param {Object} tplAttrs
+	 * @returns {Object}
+	 *   @returns {Mixed} return.value
+	 *   @returns {boolean} return.modified If the value of the attribute changed since we parsed the wikitext
+	 *   @returns {boolean} return.fromsrc Whether we got the value from source-based roundtripping
+	 */
 	getAttributeShadowInfo: function ( node, name, tplAttrs ) {
 		this.getDataParsoid( node );
 		if ( node.nodeType !== node.ELEMENT_NODE ||
@@ -215,6 +279,11 @@ var DOMUtils = {
 		}
 	},
 
+	/**
+	 * Get the attributes on a node in an array of KV objects.
+	 *
+	 * @returns {KV[]}
+	 */
 	getAttributeKVArray: function(node) {
 		var attribs = node.attributes,
 			kvs = [];
@@ -225,38 +294,56 @@ var DOMUtils = {
 		return kvs;
 	},
 
-
-
-	// Build path from n ---> ancestor
-	// Doesn't include ancestor in the path itself
-	pathToAncestor: function (n, ancestor) {
+	/**
+	 * Build path from a node to its passed-in ancestor.
+	 * Doesn't include the ancestor in the returned path.
+	 *
+	 * @param {Node} ancestor Should be an ancestor of `node`
+	 * @returns {Node[]}
+	 */
+	pathToAncestor: function (node, ancestor) {
 		var path = [];
-		while (n && n !== ancestor) {
-			path.push(n);
-			n = n.parentNode;
+		while (node && node !== ancestor) {
+			path.push(node);
+			node = node.parentNode;
 		}
 
 		return path;
 	},
 
-	pathToRoot: function(n) {
-		return this.pathToAncestor(n, null);
+	/**
+	 * Build path from a node to the root of the document.
+	 *
+	 * @returns {Node[]}
+	 */
+	pathToRoot: function(node) {
+		return this.pathToAncestor(node, null);
 	},
 
-	// Build path from n ---> sibling (default)
-	// If left is true, will build from sibling ---> n
-	// Doesn't include sibling in the path in either case
-	pathToSibling: function(n, sibling, left) {
+	/**
+	 * Build path from a node to its passed-in sibling.
+	 *
+	 * @param {Node} sibling
+	 * @param {boolean} left Whether to go backwards, i.e., use previousSibling instead of nextSibling.
+	 * @returns {Node[]} Will not include the passed-in sibling.
+	 */
+	pathToSibling: function(node, sibling, left) {
 		var path = [];
-		while (n && n !== sibling) {
-			path.push(n);
-			n = left ? n.previousSibling : n.nextSibling;
+		while (node && node !== sibling) {
+			path.push(node);
+			node = left ? node.previousSibling : node.nextSibling;
 		}
 
 		return path;
 	},
 
-	// Does 'n1' occur before 'n2 in their parent's children list?
+	/**
+	 * Check whether a node `n1` comes before another node `n2` in
+	 * their parent's children list.
+	 *
+	 * @param {Node} n1 The node you expect to come first
+	 * @param {Node} n2 Expected later sibling
+	 */
 	inSiblingOrder: function(n1, n2) {
 		while (n1 && n1 !== n2) {
 			n1 = n1.nextSibling;
@@ -264,7 +351,13 @@ var DOMUtils = {
 		return n1 !== null;
 	},
 
-	// Is 'n1' an ancestor of 'n2' in the DOM?
+	/**
+	 * Check that a node `n1` is an ancestor of another node `n2` in
+	 * the DOM.
+	 *
+	 * @param {Node} n1 The suspected ancestor
+	 * @param {Node} n2 The suspected descendant
+	 */
 	isAncestorOf: function (n1, n2) {
 		while (n2 && n2 !== n1) {
 			n2 = n2.parentNode;
@@ -272,36 +365,73 @@ var DOMUtils = {
 		return n2 !== null;
 	},
 
+	/**
+	 * Check whether a node's name is...
+	 *
+	 * @param {Node} n
+	 * @param {string} name
+	 */
 	hasNodeName: function(n, name) {
 		return n.nodeName.toLowerCase() === name;
 	},
 
+	/**
+	 * Determine whether the node matches the given nodeName and typeof
+	 * attribute value.
+	 *
+	 * @param {Node} n
+	 * @param {string} name Passed into #hasNodeName
+	 * @param {string} type Expected value of "typeof" attribute
+	 */
 	isNodeOfType: function(n, name, type) {
 		return this.hasNodeName(n, name) && n.getAttribute("typeof") === type;
 	},
 
+	/**
+	 * Check a node to see whether it's a meta with some typeof.
+	 *
+	 * @param {Node} n
+	 * @param {string} type Passed into #isNodeOfType
+	 */
 	isMarkerMeta: function(n, type) {
 		return this.isNodeOfType(n, "meta", type);
 	},
 
+	/**
+	 * Check whether a meta's typeof indicates that it is a template expansion.
+	 *
+	 * @param {string} nType
+	 */
 	isTplMetaType: function(nType)  {
 		return nType && nType.match(/\bmw:Transclusion(\/[^\s]+)*\b/);
 	},
 
+	/**
+	 * Check whether a meta's typeof indicates that it signifies an
+	 * expanded attribute.
+	 *
+	 * @param {string} nType
+	 */
 	isExpandedAttrsMetaType: function(nType) {
 		return nType && nType.match(/\bmw:ExpandedAttrs(\/[^\s]+)*\b/);
 	},
 
-	isTplMarkerMeta: function(n)  {
+	/**
+	 * Check whether a node is a meta tag that signifies a template expansion.
+	 */
+	isTplMarkerMeta: function(node)  {
 		return (
-			this.hasNodeName(n, "meta") &&
-			this.isTplMetaType(n.getAttribute("typeof"))
+			this.hasNodeName(node, "meta") &&
+			this.isTplMetaType(node.getAttribute("typeof"))
 		);
 	},
 
-	isTplStartMarkerMeta: function(n)  {
-		if (this.hasNodeName(n, "meta")) {
-			var t = n.getAttribute("typeof");
+	/**
+	 * Check whether a node is a meta signifying the start of a template expansion.
+	 */
+	isTplStartMarkerMeta: function(node)  {
+		if (this.hasNodeName(node, "meta")) {
+			var t = node.getAttribute("typeof");
 			var tMatch = t && t.match(/\bmw:Transclusion(\/[^\s]+)*\b/);
 			return tMatch && !t.match(/\/End\b/);
 		} else {
@@ -309,6 +439,12 @@ var DOMUtils = {
 		}
 	},
 
+	/**
+	 * Check whether a node is a meta signifying the end of a template
+	 * expansion.
+	 *
+	 * @param {Node} n
+	 */
 	isTplEndMarkerMeta: function(n)  {
 		if (this.hasNodeName(n, "meta")) {
 			var t = n.getAttribute("typeof");
@@ -318,6 +454,14 @@ var DOMUtils = {
 		}
 	},
 
+	/**
+	 * Check whether a node's data-parsoid object includes
+	 * an indicator that the original wikitext was a literal
+	 * HTML element (like table or p)
+	 *
+	 * @param {Object} dp
+	 *   @param {string/undefined} dp.stx
+	 */
 	hasLiteralHTMLMarker: function(dp) {
 		return dp.stx === 'html';
 	},
@@ -326,14 +470,20 @@ var DOMUtils = {
 		return n.getAttribute('data-parsoid') === null;
 	},
 
-	isLiteralHTMLNode: function(n) {
-		return (n &&
-			this.isElt(n) &&
-			this.hasLiteralHTMLMarker(this.getDataParsoid(n)));
+	/**
+	 * Run a node through #hasLiteralHTMLMarker
+	 */
+	isLiteralHTMLNode: function(node) {
+		return (node &&
+			this.isElt(node) &&
+			this.hasLiteralHTMLMarker(this.getDataParsoid(node)));
 	},
 
-	isIndentPre: function(n) {
-		return this.hasNodeName(n, "pre") && !this.isLiteralHTMLNode(n);
+	/**
+	 * Check whether a pre is caused by indentation in the original wikitext.
+	 */
+	isIndentPre: function(node) {
+		return this.hasNodeName(node, "pre") && !this.isLiteralHTMLNode(node);
 	},
 
 	isFosterablePosition: function(n) {
@@ -352,6 +502,10 @@ var DOMUtils = {
 		return this.isList(n) || this.isListItem(n);
 	},
 
+	/**
+	 * Get the node's previous sibling that is an element, or else
+	 * return `null` if there is no such sibling element.
+	 */
 	getPrecedingElementSibling: function(node) {
 		var sibling = node.previousSibling;
 		while (sibling) {
@@ -363,6 +517,9 @@ var DOMUtils = {
 		return null;
 	},
 
+	/**
+	 * Check whether a node has any children that are elements.
+	 */
 	hasElementChild: function(node) {
 		var children = node.childNodes;
 		for (var i = 0, n = children.length; i < n; i++) {
@@ -375,7 +532,7 @@ var DOMUtils = {
 	},
 
 	/**
-	 * Check if a node has a block-level element descendant
+	 * Check if a node has a block-level element descendant.
 	 */
 	hasBlockElementDescendant: function(node) {
 		var children = node.childNodes;
@@ -394,6 +551,13 @@ var DOMUtils = {
 		return false;
 	},
 
+	/**
+	 * Find how much offset is necessary for the DSR of an
+	 * indent-originated pre tag.
+	 *
+	 * @param {TextNode} textNode
+	 * @returns {number}
+	 */
 	indentPreDSRCorrection: function(textNode) {
 		// NOTE: This assumes a text-node and doesn't check that it is one.
 		//
@@ -418,12 +582,17 @@ var DOMUtils = {
 		return (/\bmw:(?:Transclusion\b|Param\b|Extension\/[^\s]+)/).test(node.getAttribute('typeof'));
 	},
 
-	// Check if node is an ELEMENT node belongs to a template/extension.
-	//
-	// NOTE: Use with caution. This technique works reliably for the
-	// root level elements of tpl-content DOM subtrees since only they
-	// are guaranteed to be  marked and nested content might not
-	// necessarily be marked.
+	/**
+	 * Check if node is an ELEMENT node belongs to a template/extension.
+	 *
+	 * NOTE: Use with caution. This technique works reliably for the
+	 * root level elements of tpl-content DOM subtrees since only they
+	 * are guaranteed to be  marked and nested content might not
+	 * necessarily be marked.
+	 *
+	 * @param {MWParserEnvironment} env
+	 * @param {Node} node
+	 */
 	isTplElementNode: function(env, node) {
 		if (this.isElt(node)) {
 			var about = node.getAttribute('about');
@@ -433,6 +602,9 @@ var DOMUtils = {
 		}
 	},
 
+	/**
+	 * @param {Token[]} tokBuf This is where the tokens get stored.
+	 */
 	convertDOMtoTokens: function(tokBuf, node) {
 		function domAttrsToTagAttrs(attrs) {
 			var out = [], dp;
@@ -490,6 +662,12 @@ var DOMUtils = {
 		return dpd !== {} && dpd.id === env.page.id ? dpd : null;
 	},
 
+	/**
+	 * Check that the diff markers on the node exist and are recent.
+	 *
+	 * @param {Node} node
+	 * @param {MWParserEnvironment} env
+	 */
 	hasCurrentDiffMark: function(node, env) {
 		return this.currentDiffMark(node, env) !== null;
 	},
@@ -511,6 +689,13 @@ var DOMUtils = {
 			 diffMark.diff.indexOf('inserted') >= 0);
 	},
 
+	/**
+	 * Set a diff marker on a node.
+	 *
+	 * @param {Node} node
+	 * @param {MWParserEnvironment} env
+	 * @param {string} change
+	 */
 	setDiffMark: function(node, env, change) {
 		var dpd = this.getJSONAttribute(node, 'data-parsoid-diff', null);
 		if (dpd !== null && dpd.id === env.page.id) {
@@ -530,7 +715,7 @@ var DOMUtils = {
 	},
 
 	/**
-	 * Is a node representing inter-element ws?
+	 * Is a node representing inter-element whitespace?
 	 */
 	isIEW: function (node) {
 		// ws-only
@@ -541,13 +726,6 @@ var DOMUtils = {
 		return node.nodeType !== node.COMMENT_NODE &&
 			!this.isIEW(node) &&
 			!this.isMarkerMeta(node, "mw:DiffMarker");
-	},
-
-	/**
-	 * Check if an element is a HTML element.
-	 */
-	isHtmlElement: function (node) {
-		return Util.isHTMLElementName(node.nodeName);
 	},
 
 	/**
@@ -592,6 +770,13 @@ var DOMUtils = {
 		return true;
 	},
 
+	/**
+	 * Make a span element to wrap some bare text.
+	 *
+	 * @param {TextNode} node
+	 * @param {string} type The type for the wrapper span
+	 * @returns {Element} The wrapper span
+	 */
 	wrapTextInTypedSpan: function(node, type) {
 		var wrapperSpanNode = node.ownerDocument.createElement('span');
 		wrapperSpanNode.setAttribute('typeof', type);
@@ -602,7 +787,13 @@ var DOMUtils = {
 		return wrapperSpanNode;
 	},
 
-
+	/**
+	 * Insert a meta element with the passed-in typeof attribute before a node.
+	 *
+	 * @param {Node} node
+	 * @param {string} type
+	 * @returns {Element} The new meta.
+	 */
 	prependTypedMeta: function(node, type) {
 		var meta = node.ownerDocument.createElement('meta');
 		meta.setAttribute('typeof', type);
@@ -610,13 +801,17 @@ var DOMUtils = {
 		return meta;
 	},
 
-	// Create a TagTk corresponding to a DOM node
+	/**
+	 * Create a `TagTk` corresponding to a DOM node.
+	 */
 	mkTagTk: function (node) {
 		var attribKVs = this.getAttributeKVArray(node);
 		return new pd.TagTk(node.nodeName.toLowerCase(), attribKVs, node.data.parsoid);
 	},
 
-	// Create a EndTagTk corresponding to a DOM node
+	/**
+	 * Create a `EndTagTk` corresponding to a DOM node
+	 */
 	mkEndTagTk: function (node) {
 		var attribKVs = this.getAttributeKVArray(node);
 		return new pd.EndTagTk(node.nodeName.toLowerCase(), attribKVs, node.data.parsoid);
@@ -631,9 +826,10 @@ var DOMUtils = {
 	},
 
 	/**
+	 * Return `true` iff the element has a `class` attribute containing
+	 * `someClass` (among other space-separated classes).
 	 * @param {Element} ele
 	 * @param {string} someClass
-	 * @returns {boolean}
 	 */
 	hasClass: function ( ele, someClass ) {
 		if ( !ele || ele.nodeType !== ele.ELEMENT_NODE ) {
@@ -671,17 +867,19 @@ var DOMUtils = {
 	},
 
 	/**
-	 * Gets all siblings that follow 'node' that have an 'about' as their about id.
+	 * Gets all siblings that follow 'node' that have an 'about' as
+	 * their about id.
 	 *
-	 * This is used to fetch transclusion/extension content by using the about-id
-	 * as the key.  This works because transclusion/extension content is a forest
-	 * of dom-trees formed by adjacent dom-nodes.  This is the contract that
-	 * templace encapsulation, dom-reuse, and VE code all have to abide by.
+	 * This is used to fetch transclusion/extension content by using
+	 * the about-id as the key.  This works because
+	 * transclusion/extension content is a forest of dom-trees formed
+	 * by adjacent dom-nodes.  This is the contract that templace
+	 * encapsulation, dom-reuse, and VE code all have to abide by.
 	 *
-	 * The only exception to this adjacency rule is IEW nodes in fosterable
-	 * positions (in tables) which are not span-wrapped to prevent them from getting
-	 * fostered out.
-	 **/
+	 * The only exception to this adjacency rule is IEW nodes in
+	 * fosterable positions (in tables) which are not span-wrapped to
+	 * prevent them from getting fostered out.
+	 */
 	getAboutSiblings: function(node, about) {
 		var nodes = [node];
 
@@ -699,9 +897,10 @@ var DOMUtils = {
 	},
 
 	/**
-	 * If 'node' has about-id, it is assumed that it is generated by templates or
-	 * extensions.  This function skips over all following content nodes and returns
-	 * the first non-template node that follows it.
+	 * If 'node' has about-id, it is assumed that it is generated by
+	 * templates or extensions.  This function skips over all
+	 * following content nodes and returns the first non-template node
+	 * that follows it.
 	 */
 	skipOverEncapsulatedContent: function(node) {
 		var about = node.getAttribute('about');
@@ -715,6 +914,7 @@ var DOMUtils = {
 	/**
 	 * Extract transclusion and extension expansions from a DOM, and return
 	 * them in a structure like this:
+	 * ```
 	 * {
 	 *     transclusions: {
 	 *         'key1': {
@@ -735,6 +935,7 @@ var DOMUtils = {
 	 *			}
 	 *     }
 	 * }
+	 * ```
 	 */
 	extractExpansions: function (doc) {
 		var DU = this;
@@ -802,7 +1003,6 @@ var DOMUtils = {
 	/**
 	 * Wrap text and comment nodes in a node list into spans, so that all
 	 * top-level nodes are elements.
-	 *
 	 *
 	 * @param array List of DOM nodes to wrap, mix of node types
 	 * @return array List of *element* nodes
@@ -914,7 +1114,8 @@ var DOMUtils = {
 		return tokens;
 	},
 
-	/* Compute, when possible, the wikitext source for a node in
+	/**
+	 * Compute, when possible, the wikitext source for a node in
 	 * an environment env. Returns null if the source cannot be
 	 * extracted.
 	 */
