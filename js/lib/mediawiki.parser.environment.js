@@ -1,11 +1,11 @@
 "use strict";
 
-var Util = require('./mediawiki.Util.js').Util;
-var WikiConfig = require( './mediawiki.WikiConfig.js' ).WikiConfig;
-var ParsoidConfig = require( './mediawiki.ParsoidConfig.js' ).ParsoidConfig;
-var ConfigRequest = require( './mediawiki.ApiRequest.js' ).ConfigRequest;
-var title = require('./mediawiki.Title.js'),
+var Util = require('./mediawiki.Util.js').Util,
+	WikiConfig = require( './mediawiki.WikiConfig.js' ).WikiConfig,
+	ParsoidConfig = require( './mediawiki.ParsoidConfig.js' ).ParsoidConfig,
+	ConfigRequest = require( './mediawiki.ApiRequest.js' ).ConfigRequest,
 	$ = require( './fakejquery' ),
+	title = require('./mediawiki.Title.js'),
 	Title = title.Title,
 	Namespace = title.Namespace;
 

@@ -1,8 +1,90 @@
 "use strict";
 
-var TokenCollector = require( './ext.util.TokenCollector.js' ).TokenCollector,
-	Util = require( './mediawiki.Util.js' ).Util,
+var Util = require( './mediawiki.Util.js' ).Util,
 	$ = require( './fakejquery' );
+
+function RefGroup(group) {
+	this.name = group || '';
+	this.refs = [];
+	this.indexByName = {};
+}
+
+RefGroup.prototype.add = function(refName) {
+	var ref;
+	if (refName && this.indexByName[refName]) {
+		ref = this.indexByName[refName];
+	} else {
+		var n = this.refs.length,
+			refKey = n + '';
+
+		if (refName) {
+			refKey = refName + '-' + refKey;
+		}
+
+		ref = {
+			content: null,
+			index: n,
+			groupIndex: n, // @fixme
+			name: refName,
+			group: this.name,
+			key: refKey,
+			target: 'cite_note-' + refKey,
+			linkbacks: []
+		};
+		this.refs[n] = ref;
+		if (refName) {
+			this.indexByName[refName] = ref;
+		}
+	}
+	ref.linkbacks.push('cite_ref-' + ref.key + '-' + ref.linkbacks.length);
+	return ref;
+};
+
+RefGroup.prototype.renderLine = function(refsList, ref) {
+	var ownerDoc = refsList.ownerDocument,
+		arrow = ownerDoc.createTextNode('↑'),
+		li, a;
+
+	// Generate the li
+	li = ownerDoc.createElement('li'),
+	li.setAttribute('li', ref.target);
+
+	// Set ref content first, so the HTML gets parsed
+	// We then append the rest of the ref nodes before the first node
+	li.innerHTML = ref.content;
+	var contentNode = li.firstChild;
+	// if (!contentNode) console.warn("--empty content for: " + ref.linkbacks[0]);
+
+	// Generate leading linkbacks
+	if (ref.linkbacks.length === 1) {
+		a = ownerDoc.createElement('a');
+		a.setAttribute('href', '#' + ref.linkbacks[0]);
+		a.appendChild(arrow);
+		li.insertBefore(a, contentNode);
+	} else {
+		li.insertBefore(arrow, contentNode);
+		$.each(ref.linkbacks, function(i, linkback) {
+			a = ownerDoc.createElement('a');
+			a.setAttribute('data-type', 'hashlink');
+			a.setAttribute('href', '#' + ref.linkbacks[i]);
+			a.appendChild(ownerDoc.createTextNode(ref.groupIndex + '.' + i));
+			li.insertBefore(a, contentNode);
+			// Separate linkbacks with a space
+			li.insertBefore(ownerDoc.createTextNode(' '), contentNode);
+		});
+	}
+
+	// Add it to the ref list
+	refsList.appendChild(li);
+};
+
+function newRefGroup(refGroups, group) {
+	group = group || '';
+	if (!refGroups[group]) {
+		refGroups[group] = new RefGroup(group);
+	}
+	return refGroups[group];
+}
 
 /**
  * Simple token transform version of the Cite extension.
@@ -10,198 +92,119 @@ var TokenCollector = require( './ext.util.TokenCollector.js' ).TokenCollector,
  * @class
  * @constructor
  */
-function Cite ( manager, options ) {
-	this.manager = manager;
-	this.options = options;
-	this.reset();
-	// Set up the collector for ref sections
-	new TokenCollector(
-			manager,
-			this.handleRef.bind(this),
-			true, // match the end-of-input if </ref> is missing
-			this.rank,
-			'tag',
-			'ref'
-			);
-	// And register for references tags
-	manager.addTransform( this.onReferences.bind(this), "Cite:onReferences",
-			this.referencesRank, 'tag', 'references' );
-	// And register for cleanup
-	manager.addTransform( this.reset.bind(this), "Cite:reset",
-			this.referencesRank, 'end' );
+function Cite () {
+	this.resetState();
 }
 
-Cite.prototype.reset = function ( token ) {
+/**
+ * Reset state before each top-level parse -- this lets us share a pipeline
+ * to parse unrelated pages.
+ */
+Cite.prototype.resetState = function() {
 	this.refGroups = {};
-	return { token: token };
 };
 
-
-// Cite should be the first thing to run in pahse 3 so the <ref>-</ref>
-// content tokens are pulled out of the token stream and dont pollute
-// the main token stream with any unbalanced tags/pres and the like.
-Cite.prototype.rank = 2.01;
-Cite.prototype.referencesRank = 2.6;
-
 /**
- * Handle ref section tokens collected by the TokenCollector.
+ * Handle ref tokens
  */
-Cite.prototype.handleRef = function ( tokens ) {
-	// remove the first ref tag
-	var startTsr, endTsr,
-		startTag = tokens.shift();
-	startTsr = startTag.dataAttribs.tsr;
-	if ( tokens[tokens.length - 1].name === 'ref' ) {
-		var endTag = tokens.pop();
-		endTsr = endTag.dataAttribs.tsr;
-	}
-
-	var options = $.extend({
-		name: null,
-		group: null
-	}, Util.KVtoHash(startTag.attribs));
-
-	var group = this.getRefGroup(options.group),
-		ref = group.add(tokens, options),
+Cite.prototype.handleRef = function ( manager, refTok, cb ) {
+	var tsr = refTok.dataAttribs.tsr,
+		options = $.extend({ name: null, group: null }, Util.KVtoHash(refTok.getAttribute("options"))),
+		group = this.refGroups[options.group] || newRefGroup(this.refGroups, options.group),
+		ref = group.add(options.name),
 		//console.warn( 'added tokens: ' + JSON.stringify( this.refGroups, null, 2 ));
-		linkback = ref.linkbacks[ref.linkbacks.length - 1];
+		linkback = ref.linkbacks[ref.linkbacks.length - 1],
+		bits = [];
 
-	var bits = [];
 	if (options.group) {
 		bits.push(options.group);
 	}
+
 	//bits.push(Util.formatNum( ref.groupIndex + 1 ));
 	bits.push(ref.groupIndex + 1);
 
-	var about = "#" + this.manager.env.newObjectId(),
-		text  = this.manager.env.page.src,
+	var about = "#" + manager.env.newObjectId(),
 		span  = new TagTk('span', [
 				new KV('id', linkback),
 				new KV('class', 'reference'),
 				new KV('about', about),
 				new KV('typeof', 'mw:Object/Ext/Cite')
+			], { src: refTok.dataAttribs.src }),
+		endMeta = new SelfclosingTagTk( 'meta', [
+				new KV( 'typeof', 'mw:Object/Ext/Cite/End' ),
+				new KV( 'about', about)
 			]);
 
-	if (startTsr) {
-		// For template ref tokens, both start and end tsr's are stripped.
-		// So, if there is a start-tsr, there will also be an end-tsr.
-		// And, if absent, it is safe to go to end-of-text.
-		var start = startTsr[0],
-			end   = endTsr ? endTsr[1] : text.length;
-		span.dataAttribs = {
-			tsr: [start, end]
-		};
+	if (tsr) {
+		span.dataAttribs.tsr = tsr;
+		endMeta.dataAttribs.tsr = [null, tsr[1]];
 	}
 
-	// NOTE: endTsr can be undefined below when it has been
-	// stripped from ref-tags coming from template/extension content.
 	var res = [
 		span,
-		new TagTk( 'a', [
-				new KV('href', '#' + ref.target)
-			]
-		),
+		new TagTk( 'a', [ new KV('href', '#' + ref.target) ]),
 		'[' + bits.join(' ')  + ']',
 		new EndTagTk( 'a' ),
 		new EndTagTk( 'span' ),
-		new SelfclosingTagTk( 'meta', [
-				new KV( 'typeof', 'mw:Object/Ext/Cite/End' ),
-				new KV( 'about', about)
-			], { tsr: endTsr } )
+		endMeta
 	];
-	//console.warn( 'ref res: ' + JSON.stringify( res, null, 2 ) );
-	return { tokens: res };
+
+	var extSrc = refTok.getAttribute('source'),
+		tagWidths = refTok.dataAttribs.tagWidths,
+		content = extSrc.substring(tagWidths[0], extSrc.length - tagWidths[1]);
+
+	if (!content || content.length === 0) {
+		var contentMeta = new SelfclosingTagTk( 'meta', [
+				new KV( 'typeof', 'mw:Ext/Ref/Content' ),
+				new KV( 'about', about),
+				new KV( 'group', options.group || ''),
+				new KV( 'name', options.name || ''),
+				new KV( 'content', '')
+			]);
+		res.push(contentMeta);
+		cb({tokens: res, async: false});
+	} else {
+		// The content meta-token is yet to be emitted and depends on
+		// the ref-content getting processed completely.
+		cb({tokens: res, async: true});
+
+		// Full pipeline for processing ref-content
+		// No need to encapsulate templates in extension content
+		var pipeline = manager.pipeFactory.getPipeline('text/x-mediawiki/full', {
+			wrapTemplates: true,
+			isExtension: true,
+			inBlockToken: true
+		});
+		pipeline.setSourceOffsets(tsr[0]+tagWidths[0], tsr[1]-tagWidths[1]);
+		pipeline.addListener('document', function(refContentDoc) {
+			var contentMeta = new SelfclosingTagTk( 'meta', [
+					new KV( 'typeof', 'mw:Ext/Ref/Content' ),
+					new KV( 'about', about),
+					new KV( 'group', options.group || ''),
+					new KV( 'name', options.name || ''),
+					new KV( 'content', refContentDoc.body.innerHTML)
+				]);
+			// All done!
+			cb ({ tokens: [contentMeta], async: false });
+		});
+
+		pipeline.process(content);
+	}
 };
 
-function genPlaceholderTokens(env, token, src) {
-	var tsr = token.dataAttribs.tsr, dataAttribs;
-	if (tsr) {
-		// src from original src
-		dataAttribs = { tsr: tsr, src: env.page.src.substring(tsr[0], tsr[1]) };
-	} else {
-		// Use a default string
-		dataAttribs = { src: src };
-	}
-
-	return [
-		new SelfclosingTagTk('meta', [ new KV( 'typeof', 'mw:Placeholder' ) ], dataAttribs)
-	];
-}
-
 /**
- * Handle references tag tokens.
- *
- * @method
- * @param {Object} TokenContext
- * @returns {Object} TokenContext
+ * Sanitize the references tag and convert it into a meta-token
  */
-Cite.prototype.onReferences = function ( token, manager ) {
-	function processRefTokens(ref) {
-		var out;
+Cite.prototype.handleReferences = function ( manager, refsTok, cb ) {
+	refsTok = refsTok.clone();
 
-		// pipeline for processing ref-content
-		// NOTE: This is a synchronous pipeline
-		var pipeline = manager.pipeFactory.getPipeline(
-				'tokens/x-mediawiki/post-expansion',
-				{ wrapTemplates: false, inBlockToken: true }
-			);
-		pipeline.addListener('chunk', function(toks) {
-			out = Util.stripEOFTkfromTokens(toks);
-		});
-		pipeline.addListener('end', function() {});
-		ref.tokens.push(new EOFTk());
-		pipeline.process(ref.tokens);
+	var placeHolder = new SelfclosingTagTk('meta',
+		refsTok.attribs,
+		refsTok.dataAttribs);
 
-		return out;
-	}
-
-	if ( token.constructor === EndTagTk ) {
-		return { tokens: genPlaceholderTokens(this.manager.env, token, "</references>") };
-	}
-
-	//console.warn( 'references refGroups:' + JSON.stringify( this.refGroups, null, 2 ) );
-
-	var refGroups = this.refGroups;
-	var arrow = '↑';
-	var renderLine = function( ref ) {
-		var out = [ new TagTk('li', [new KV('id', ref.target)] ) ];
-		if (ref.linkbacks.length === 1) {
-			out = out.concat([
-					new TagTk( 'a', [ new KV('href', '#' + ref.linkbacks[0]) ]),
-					arrow,
-					new EndTagTk( 'a' )
-				]);
-		} else {
-			out.push( arrow );
-			$.each(ref.linkbacks, function(i, linkback) {
-				out = out.concat([
-						new TagTk( 'a', [
-								new KV('data-type', 'hashlink'),
-								new KV('href', '#' + ref.linkbacks[0])
-							]
-						),
-						// XXX: make formatNum available!
-						//{
-						//	type: 'TEXT',
-						//	value: Util.formatNum( ref.groupIndex + '.' + i)
-						//},
-						ref.groupIndex + '.' + i,
-						new EndTagTk( 'a' ), " "
-					]);
-			});
-		}
-
-		// Output ref tokens once!
-		out = out.concat(processRefTokens(ref));
-		//console.warn( 'renderLine res: ' + JSON.stringify( out, null, 2 ));
-		return out;
-	};
-
-	var res,
-		attribHash = Util.KVtoHash(token.attribs),
-		// Default to null group if the group param is actually empty
-		dataAttribs,
-		group = attribHash.group;
+	// group is the only recognized option?
+	var options = Util.KVtoHash(refsTok.getAttribute("options")),
+		group = options.group;
 
 	if ( group && group.constructor === Array ) {
 		// Array of tokens, convert to string.
@@ -218,72 +221,59 @@ Cite.prototype.onReferences = function ( token, manager ) {
 		group = null;
 	}
 
-	if (group in refGroups) {
-		var group = refGroups[group],
-			listItems = $.map(group.refs, renderLine );
-
-		dataAttribs = Util.clone(token.dataAttribs);
-		dataAttribs.src = token.getWTSource(this.manager.env);
-		res = [
-			new TagTk( 'ol', [
-						new KV('class', 'references'),
-						new KV('typeof', 'mw:Object/References')
-					], dataAttribs)
-		].concat( listItems, [ new EndTagTk( 'ol' ) ] );
-
-		// Clear the emitted ref groups
-		group.refs = [];
-	} else {
-		res = genPlaceholderTokens(this.manager.env, token, "<references />");
+	// Update properties
+	if (group) {
+		placeHolder.setAttribute('group', group);
 	}
+	placeHolder.setAttribute('typeof', 'mw:Ext/References');
+	placeHolder.dataAttribs.stx = undefined;
 
-	//console.warn( 'references res: ' + JSON.stringify( res, null, 2 ) );
-	return { tokens: res };
+	cb({ tokens: [placeHolder], async: false });
 };
 
-Cite.prototype.getRefGroup = function(group) {
-	var refGroups = this.refGroups;
-	if (!(group in refGroups)) {
-		var refs = [],
-			byName = {};
-		refGroups[group] = {
-			refs: refs,
-			byName: byName,
-			add: function(tokens, options) {
-				var ref;
-				if (options.name && options.name in byName) {
-					ref = byName[options.name];
-				} else {
-					var n = refs.length,
-						key = n + '';
-					if (options.name) {
-						key = options.name + '-' + key;
-					}
-					ref = {
-						tokens: tokens,
-						index: n,
-						groupIndex: n, // @fixme
-						name: options.name,
-						group: options.group,
-						key: key,
-						target: 'cite_note-' + key,
-						linkbacks: []
-					};
-					refs[n] = ref;
-					if (options.name) {
-						byName[options.name] = ref;
-					}
-				}
-				ref.linkbacks.push(
-						'cite_ref-' + ref.key + '-' + ref.linkbacks.length
-						);
-				return ref;
-			}
-		};
+function References () {
+	this.reset();
+}
+
+References.prototype.reset = function() {
+	this.refGroups = { };
+};
+
+References.prototype.extractRefFromNode = function(node) {
+	var group = node.getAttribute("group"),
+		refName = node.getAttribute("name"),
+		refGroup = this.refGroups[group] || newRefGroup(this.refGroups, group),
+		ref = refGroup.add(refName);
+
+	// This effectively ignores content from later references with the same name.
+	// The implicit assumption is that that all those identically named refs. are
+	// of the form <ref name='foo' />
+	if (!ref.content) {
+		ref.content = node.getAttribute("content");
 	}
-	return refGroups[group];
+};
+
+References.prototype.insertReferencesIntoDOM = function(refsNode) {
+	var group = refsNode.getAttribute("group") || '',
+		refGroup = this.refGroups[group];
+
+	if (refGroup && refGroup.refs.length > 0) {
+		var ol = refsNode.ownerDocument.createElement('ol');
+		ol.setAttribute('class', 'references');
+		ol.setAttribute('typeof', 'mw:Object/References');
+		ol.setAttribute('data-parsoid', refsNode.getAttribute('data-parsoid'));
+		refGroup.refs.map(refGroup.renderLine.bind(refGroup, ol));
+		refsNode.parentNode.replaceChild(ol, refsNode);
+	} else {
+		// Not a valid references tag -- convert it to a placeholder tag that will rt as is.
+		refsNode.setAttribute('typeof', 'mw:Placeholder');
+	}
+
+	// clear refs group
+	this.refGroups[group] = undefined;
 };
 
 if (typeof module === "object") {
 	module.exports.Cite = Cite;
+	module.exports.References = References;
 }

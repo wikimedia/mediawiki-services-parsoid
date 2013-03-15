@@ -18,7 +18,6 @@ var events = require('events'),
 	TemplateRequest = require('./mediawiki.ApiRequest.js').TemplateRequest,
 	api = require('./mediawiki.ApiRequest.js'),
 	PreprocessorRequest = api.PreprocessorRequest,
-	PHPParseRequest = api.PHPParseRequest,
 	Util = require('./mediawiki.Util.js').Util,
 	DOMUtils = require('./mediawiki.DOMUtils.js').DOMUtils;
 
@@ -40,10 +39,6 @@ TemplateHandler.prototype.register = function ( manager ) {
 	// Template argument expansion
 	manager.addTransform( this.onTemplateArg.bind(this), "TemplateHandler:onTemplateArg",
 			this.rank, 'tag', 'templatearg' );
-
-	// Extension content expansion
-	manager.addTransform( this.onExtension.bind(this), "TemplateHandler:onExtension",
-			this.rank, 'tag', 'extension' );
 };
 
 /**
@@ -78,10 +73,11 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 			// However, tokenizer needs to use 'text' as the cache key
 			// for caching expanded tokens from the expanded transclusion text
 			// that we get from the preprocessor.
-			var text = token.getWTSource( this.manager.env ),
+			var text = token.dataAttribs.src,
 				templateName = (this.resolveTemplateTarget(token.attribs[0].k) || '').target || "",
-				srcHandler = this._processTemplateAndTitle.bind( this, state, frame,
-					cb, templateName, [], text );
+				srcHandler = this._processTemplateAndTitle.bind(
+					this, state, frame, cb,
+					{ name: templateName, attribs: [], cacheKey: text });
 			this.fetchExpandedTplOrExtension( this.manager.env.page.name || '',
 					text, PreprocessorRequest, cb, srcHandler);
 		} else {
@@ -258,7 +254,7 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 
 	target = resolvedTgt.target;
 	if ( resolvedTgt.isPF ) {
-		var pfAttribs = new Params( env, attribs );
+		var pfAttribs = new Params( attribs );
 		pfAttribs[0] = new KV( resolvedTgt.pfArg, [] );
 		env.dp( 'entering prefix', target, state.token  );
 		var newCB;
@@ -296,17 +292,17 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 
 	// For now, just fetch the template and pass the callback for further
 	// processing along.
-	this._fetchTemplateAndTitle(
-			target,
-			cb,
-			this._processTemplateAndTitle.bind( this, state, frame, cb, target, attribs, target )
-		);
+	var srcHandler = this._processTemplateAndTitle.bind(
+		this, state, frame, cb,
+		{ name: target, attribs: attribs, cacheKey: target }
+	);
+	this._fetchTemplateAndTitle( target, cb, srcHandler );
 };
 
 /**
  * Process a fetched template source
  */
-TemplateHandler.prototype._processTemplateAndTitle = function( state, frame, cb, name, attribs, cacheKey, err, src, type ) {
+TemplateHandler.prototype._processTemplateAndTitle = function( state, frame, cb, tplArgs, err, src, type ) {
 
 	// We have a choice between aborting or keeping going and reporting the
 	// error inline.
@@ -335,15 +331,15 @@ TemplateHandler.prototype._processTemplateAndTitle = function( state, frame, cb,
 				type || 'text/x-mediawiki', pipelineOpts
 			);
 
-	pipeline.setFrame( this.manager.frame, name, attribs );
-	state.tokenTarget = name;
+	pipeline.setFrame( this.manager.frame, tplArgs.name, tplArgs.attribs );
+	state.tokenTarget = tplArgs.name;
 
 	// Hook up the inputPipeline output events to our handlers
 	pipeline.addListener( 'chunk', this._onChunk.bind ( this, state, cb ) );
 	pipeline.addListener( 'end', this._onEnd.bind ( this, state, cb ) );
 	// Feed the pipeline. XXX: Support different formats.
-	this.manager.env.dp( 'TemplateHandler._processTemplateAndTitle', name, attribs );
-	pipeline.process ( src, cacheKey );
+	this.manager.env.dp( 'TemplateHandler._processTemplateAndTitle', tplArgs.name, tplArgs.attribs );
+	pipeline.process ( src, tplArgs.cacheKey );
 };
 
 TemplateHandler.prototype.addAboutToTableElements = function ( state, tokens ) {
@@ -378,7 +374,7 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 		],
 		dataParsoid = {
 			tsr: Util.clone(state.token.dataAttribs.tsr),
-			src: state.token.getWTSource(this.manager.env)
+			src: state.token.dataAttribs.src
 		};
 
 	if (state.recordArgDict) {
@@ -664,48 +660,6 @@ TemplateHandler.prototype.lookupArg = function(args, attribs, cb, ret) {
 	} else {
 		//console.warn('no default for ' + argName + JSON.stringify( attribs ));
 		cb({ tokens: [ '{{{' + argName + '}}}' ] });
-	}
-};
-
-TemplateHandler.prototype.parseExtensionHTML = function(extToken, cb, err, html) {
-	// document -> html -> body -> children
-	var topNodes = Util.parseHTML(html).body.childNodes;
-	var toks = [];
-	for (var i = 0, n = topNodes.length; i < n; i++) {
-		DOMUtils.convertDOMtoTokens(toks, topNodes[i]);
-	}
-
-	var state = { token: extToken };
-	if (this.options.wrapTemplates) {
-		state.wrapperType = 'mw:Object/Extension/' + extToken.getAttribute('name');
-		state.wrappedObjectId = this.manager.env.newObjectId();
-		toks = this.addEncapsulationInfo(state, toks);
-		toks.push(this.getEncapsulationInfoEndTag(state));
-	}
-
-	cb({ tokens: [new InternalTk([new KV('tokens', toks)])] });
-};
-
-TemplateHandler.prototype.onExtension = function ( token, frame, cb ) {
-	var extensionName = token.getAttribute('name');
-	if ( this.manager.env.conf.parsoid.usePHPPreProcessor &&
-			this.manager.env.conf.parsoid.apiURI !== null ) {
-		// Use MediaWiki's action=parse preprocessor
-		this.fetchExpandedTplOrExtension(
-			extensionName,
-			token.getAttribute('content'),
-			PHPParseRequest,
-			cb,
-			this.parseExtensionHTML.bind(this, token, cb)
-		);
-	} else {
-		/* Convert this into a span with extension content as plain text */
-		var span = new TagTk('span', [
-					new KV('typeof', 'mw:Object/Extension/' + extensionName),
-					new KV('about', token.getAttribute('about'))
-				], token.dataAttribs);
-
-		cb({ tokens: [span, token.getAttribute('content'), new EndTagTk('span')] });
 	}
 };
 

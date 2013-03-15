@@ -68,7 +68,7 @@ TokenStreamPatcher.prototype.onAny = function(token, manager) {
 					// Reparse string with the 'table_start_tag' production
 					// and shift tsr of result tokens by source offset
 					tokens = this.tokenizer.tokenize(token, 'table_start_tag');
-					Util.shiftTokenTSR(tokens, this.srcOffset);
+					Util.shiftTokenTSR(tokens, this.srcOffset, true);
 				} else if (token.match(/^\s*$/)) {
 					// White-space doesn't change SOL state
 					// Update srcOffset
