@@ -72,13 +72,13 @@ if [ "$1" != '-c' -a "$2" != '-c' ];then
 else
 	git add $OUTPUT
     if [ "$1" = '--wt2wt' ];then
-        git commit -m "`tail -8 roundtrip.txt`" || exit 1
+        git commit -m "`tail -8 roundtrip.txt`" roundtrip.txt || exit 1
     elif [ "$1" = '--selser' ];then
-        git commit -m "`tail -8 selser.txt`" || exit 1
+        git commit -m "`tail -8 selser.txt`" selser.txt || exit 1
     elif [ "$1" = '--wt2html' ];then
-        git commit -m "`tail -8 html.txt`" || exit 1
+        git commit -m "`tail -8 html.txt`" html.txt || exit 1
     elif [ "$1" = '--quick' ];then
-        git commit -m "`tail -8 quick.txt`" || exit 1
+        git commit -m "`tail -8 quick.txt`" quick.txt || exit 1
     else
         git commit -m "`tail -11 all.txt`" all.txt || exit 1
     fi
