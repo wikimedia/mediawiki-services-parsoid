@@ -457,7 +457,7 @@ WikiConfig.prototype = {
 		if ( this.extensionTags === null ) {
 			return false;
 		} else {
-			return this.extensionTags[potentialTag] === true;
+			return this.extensionTags[potentialTag.toLowerCase()] === true;
 		}
 	},
 
