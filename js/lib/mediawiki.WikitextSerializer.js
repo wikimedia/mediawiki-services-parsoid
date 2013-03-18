@@ -1498,8 +1498,9 @@ WSP.tagHandlers = {
 			// in the source wikitext and we emit it -- if not, we ignore it.
 			var dp = node.data.parsoid;
 			if (node.previousSibling || dp.startTagSrc) {
-				cb(WSP._serializeTableTag(dp.startTagSrc || "|-", '', state,
-							DU.mkTagTk(node) ) );
+				var res = WSP._serializeTableTag(dp.startTagSrc || "|-", '', state,
+							DU.mkTagTk(node) );
+				emitStartTag(res, node, state, cb);
 			}
 			state.serializeChildren(node.childNodes, cb);
 		},
@@ -1519,14 +1520,15 @@ WSP.tagHandlers = {
 	},
 	th: {
 		handle: function (node, state, cb) {
-			var dp = node.data.parsoid;
+			var dp = node.data.parsoid, res;
 			if ( dp.stx_v === 'row' ) {
-				cb(WSP._serializeTableTag(dp.startTagSrc || "!!",
-							dp.attrSepSrc || null, state, DU.mkTagTk(node)));
+				res = WSP._serializeTableTag(dp.startTagSrc || "!!",
+							dp.attrSepSrc || null, state, DU.mkTagTk(node));
 			} else {
-				cb(WSP._serializeTableTag(dp.startTagSrc || "!", dp.attrSepSrc || null,
-						state, DU.mkTagTk(node)));
+				res = WSP._serializeTableTag(dp.startTagSrc || "!", dp.attrSepSrc || null,
+						state, DU.mkTagTk(node));
 			}
+			emitStartTag(res, node, state, cb);
 			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.thHandler);
 		},
 		sepnls: {
@@ -1558,7 +1560,7 @@ WSP.tagHandlers = {
 			if(res.length > 1) {
 				state.inWideTD = true;
 			}
-			cb(res);
+			emitStartTag(res, node, state, cb);
 			state.resetCurrLine();
 			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.tdHandler);
 			// FIXME: bad state hack!
@@ -1580,7 +1582,9 @@ WSP.tagHandlers = {
 		handle: function (node, state, cb) {
 			var dp = node.data.parsoid;
 			// Serialize the tag itself
-			cb(WSP._serializeTableTag(dp.startTagSrc || "|+", null, state, DU.mkTagTk(node)));
+			var res = WSP._serializeTableTag(
+					dp.startTagSrc || "|+", null, state, DU.mkTagTk(node));
+			emitStartTag(res, node, state, cb);
 			state.serializeChildren(node.childNodes, cb);
 		},
 		sepnls: {
@@ -1615,15 +1619,23 @@ WSP.tagHandlers = {
 						return {min: 0, max:0};
 					}
 				} else if (otherNode === node.previousSibling &&
-						((nodeName === '#text' && otherNode === previousNonSepSibling(node)) ||
-						 nodeName === 'p')) {
-					// Treat similar to p/p transition
-
-					// XXX: Make this smarter to consider preceding text lines
-					// with html-syntax block elements. Only a single line is
-					// needed in that case. Example:
-					// <div>foo</div> a
-					// b
+						// p-p transition
+						nodeName === 'p' ||
+						// Treat text/p similar to p/p transition
+						// XXX: also check if parent node and first sibling
+						// serializes(|d) to single line.
+						// Only a single line is
+						// needed in that case. Example:
+						// <div>foo</div> a
+						// b
+						((nodeName === '#text' &&
+						  otherNode === previousNonSepSibling(node) &&
+						  // FIXME HACK: Avoid forcing two newlines if the
+						  // first line is a text node that ends up on the
+						  // same line as a block
+						  ( !DU.isBlockNode(node.parentNode) ||
+								otherNode.nodeValue.match(/\n(?!$)/)))))
+				{
 					return {min:2, max:2};
 				} else {
 					return {min:1, max:2};
