@@ -144,7 +144,12 @@ function dumpFlags() {
 			description: 'File containing the old page text for a selective-serialization operation (see --selser)',
 			'boolean': false,
 			'default': false
-		}
+		},
+        'inputfile': {
+            description: 'File containing input as an alternative to stdin',
+            'boolean': false,
+            'default': false
+        }
 	});
 
 	var argv = opts.argv;
@@ -215,58 +220,68 @@ function dumpFlags() {
 			stdout = process.stdout,
 			inputChunks = [];
 
-		// collect input
-		stdin.resume();
-		stdin.setEncoding('utf8');
-		stdin.on( 'data', function( chunk ) {
-			inputChunks.push( chunk );
-		} );
-
 		// process input
-		stdin.on( 'end', function() {
-			var input = inputChunks.join('');
-			if (argv.html2wt || argv.html2html) {
-				var doc = Util.parseHTML('<html><body>' + input.replace(/\r/g, '') + '</body></html>'),
-					wt = '';
+        var processInput = function() {
+            var input = inputChunks.join('');
+            if (argv.html2wt || argv.html2html) {
+                var doc = Util.parseHTML('<html><body>' + input.replace(/\r/g, '') + '</body></html>'),
+                    wt = '';
 
-				serializer.serializeDOM( doc.body, function ( chunk ) {
-					wt += chunk;
-				}, function () {
-					env.page.src = wt;
-					if (argv.html2wt) {
-						// add a trailing newline for shell user's benefit
-						stdout.write(wt);
-					} else {
-						parserPipeline.on('document', function(document) {
-							stdout.write( Util.serializeNode(document.body) );
-						});
-						parserPipeline.process(wt);
-					}
+                serializer.serializeDOM( doc.body, function ( chunk ) {
+                    wt += chunk;
+                }, function () {
+                    env.page.src = wt;
+                    if (argv.html2wt) {
+// add a trailing newline for shell user's benefit
+                        stdout.write(wt);
+                    } else {
+                        parserPipeline.on('document', function(document) {
+                            stdout.write( Util.serializeNode(document.body) );
+                        });
+                        parserPipeline.process(wt);
+                    }
 
-				} );
-			} else {
-				parserPipeline.on('document', function ( document ) {
-					var res, finishCb = function (trailingNL) {
-						stdout.write( res );
-						if (trailingNL) {
-							stdout.write("\n");
-						}
-					};
-					if (argv.wt2html) {
-						res = Util.serializeNode(document.body);
-						finishCb(true);
-					} else {
-						res = '';
-						serializer.serializeDOM( document.body, function ( chunk ) {
-							res += chunk;
-						}, finishCb );
-					}
-				});
+                } );
+            } else {
+                parserPipeline.on('document', function ( document ) {
+                    var res, finishCb = function (trailingNL) {
+                        stdout.write( res );
+                        if (trailingNL) {
+                            stdout.write("\n");
+                        }
+                    };
+                    if (argv.wt2html) {
+                        res = Util.serializeNode(document.body);
+                        finishCb(true);
+                    } else {
+                        res = '';
+                        serializer.serializeDOM( document.body, function ( chunk ) {
+                            res += chunk;
+                        }, finishCb );
+                    }
+                });
 
-				// Kick off the pipeline by feeding the input into the parser pipeline
-				env.page.src = input;
-				parserPipeline.process( input );
-			}
-		} );
+// Kick off the pipeline by feeding the input into the parser pipeline
+                env.page.src = input;
+                parserPipeline.process( input );
+            }
+        };
+
+
+        if (argv.inputfile) {
+            //read input from the file, then process
+            var fileContents = fs.readFileSync(argv.inputfile, 'utf8');
+            inputChunks.push(fileContents);
+            processInput();
+        }
+        else {
+            // collect input
+            stdin.resume();
+            stdin.setEncoding('utf8');
+            stdin.on( 'data', function( chunk ) {
+                inputChunks.push( chunk );
+            } );
+            stdin.on( 'end', processInput );
+        }
 	} );
 } )();

@@ -164,6 +164,18 @@
         }
     }
 
+    /**
+    * Get an attribute value and source, given a start and end position.  Returned object will have a 'value' property
+    * holding the value (first argument) and a 'valueSrc' property holding the raw value source
+    */
+    function get_attribute_value_and_source( attrVal, attrValPosStart, attrValPosEnd ) {
+        //console.log([attrVal, attrValPosStart, attrValPosEnd].join(", "));
+        return {
+            value: attrVal,
+            valueSrc: input.substring(attrValPosStart, attrValPosEnd)
+        }
+    }
+
     /* End static utilities */
 
     /*
@@ -1601,13 +1613,15 @@ generic_newline_attribute
     namePos0:({return pos;})
     name:generic_attribute_name
     namePos:({return pos;})
-    value:(( space / newline )*
-          v:generic_attribute_newline_value { return v })?
+    valueData:(( space / newline )*
+        v:generic_attribute_newline_value { return v })?
 {
     //console.warn('generic_newline_attribute: ' + pp( name ))
     var res;
-    if ( value !== '' ) {
+    if ( valueData !== '' ) {
+        var value = valueData.value;
         res = new KV( name, value );
+        res.vsrc = valueData.valueSrc;
     } else {
         res = new KV( name, '' );
     }
@@ -1623,15 +1637,17 @@ generic_attribute
     namePos0:({return pos;})
     name:generic_attribute_name
     namePos:({return pos;})
-    value:(optionalSpaceToken
+    valueData:(optionalSpaceToken
           v:generic_attribute_value { return v })?
 {
     //console.warn( 'generic attribute: ' + pp([name, value]));
     // FIXME: name might just be a template, which can expand to a key-value
     // pair later. We'll need to handle that in the AttributeTransformManager.
     var res;
-    if ( value !== '' ) {
+    if ( valueData !== '' ) {
+        var value = valueData.value;
         res = new KV( name, value );
+        res.vsrc = valueData.valueSrc;
     } else {
         res = new KV( name, '' );
     }
@@ -1672,23 +1688,37 @@ generic_attribute_value
 
 // Attribute value, quoted variants can span multiple lines.
 xml_att_value
-  = "'" r:( t1:attribute_preprocessor_text_single "'" { return t1; }
+  = "'" r:(valPos1:({return pos;}) t1:attribute_preprocessor_text_single? valPos2:({return pos;}) "'"
+            { return get_attribute_value_and_source(t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
-        / t2:attribute_preprocessor_text_single_broken &[|>] {return t2;} ) { return r; }
-  / '"' r:( t1:attribute_preprocessor_text_double '"' { return t1; }
+        / valPos1:({return pos;}) t2:attribute_preprocessor_text_single_broken? valPos2:({return pos;}) &[|>]
+            { return get_attribute_value_and_source(t2, valPos1, valPos2); } )
+                { return r; }
+  / '"' r:(valPos1:({return pos;}) t1:attribute_preprocessor_text_double? valPos2:({return pos;}) '"'
+            { return get_attribute_value_and_source(t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
-        / t2:attribute_preprocessor_text_double_broken &[|>] {return t2;} ) { return r; }
-  / attribute_preprocessor_text
+        / valPos1:({return pos;}) t2:attribute_preprocessor_text_double_broken? valPos2:({return pos;}) &[|>]
+            { return get_attribute_value_and_source(t2, valPos1, valPos2); } )
+                { return r; }
+  / valPos1:({return pos;}) t:attribute_preprocessor_text? valPos2:({return pos;})
+        { return get_attribute_value_and_source(t, valPos1, valPos2); }
 
 // Attribute value, restricted to a single line.
 att_value
-  = "'" r:( t1:attribute_preprocessor_text_single_line "'" { return t1; }
+  = "'" r:(valPos1:({return pos;}) t1:attribute_preprocessor_text_single_line? valPos2:({return pos;}) "'"
+            { return get_attribute_value_and_source(t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
-        / t2:attribute_preprocessor_text_single_line_broken &[|>] {return t2;} ) { return r; }
-  / '"' r:( t1:attribute_preprocessor_text_double_line '"' { return t1; }
+        / valPos1:({return pos;}) t2:attribute_preprocessor_text_single_line_broken? valPos2:({return pos;}) &[|>]
+            { return get_attribute_value_and_source(t2, valPos1, valPos2); } )
+                { return r; }
+  / '"' r:(valPos1:({return pos;}) t1:attribute_preprocessor_text_double_line? valPos2:({return pos;}) '"'
+            { return get_attribute_value_and_source(t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
-        / t2:attribute_preprocessor_text_double_line_broken &[|>] {return t2;} ) { return r; }
-  / attribute_preprocessor_text_line
+        / valPos1:({return pos;}) t2:attribute_preprocessor_text_double_line_broken? valPos2:({return pos;}) &[|>]
+            { return get_attribute_value_and_source(t2, valPos1, valPos2); } )
+                { return r; }
+  / valPos1:({return pos;}) t:attribute_preprocessor_text_line? valPos2:({return pos;})
+        { return get_attribute_value_and_source(t, valPos1, valPos2); }
 
 /*
  * A variant of generic_tag, but also checks if the tag name is a block-level

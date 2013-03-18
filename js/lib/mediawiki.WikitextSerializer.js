@@ -1967,7 +1967,7 @@ WSP._serializeAttributes = function (state, token) {
 			'data-parsoid-serialize': 1
 		};
 
-	var kv, k, v, tplKV, tplK, tplV;
+	var kv, k, vInfo, v, tplKV, tplK, tplV;
 	for ( var i = 0, l = attribs.length; i < l; i++ ) {
 		kv = attribs[i];
 		k = kv.k;
@@ -1984,7 +1984,8 @@ WSP._serializeAttributes = function (state, token) {
 			} else {
 				tplK = tplAttrState.ks[k],
 				tplV = tplAttrState.vs[k],
-				v    = token.getAttributeShadowInfo(k).value;
+				vInfo = token.getAttributeShadowInfo(k),
+				v = vInfo.value;
 
 				// Deal with k/v's that were template-generated
 				if (tplK) {
@@ -1995,8 +1996,10 @@ WSP._serializeAttributes = function (state, token) {
 				}
 
 				if (v.length ) {
-					// Escape HTML entities
-					v = Util.escapeEntities(v);
+					if (!vInfo.fromsrc) {
+						// Escape HTML entities
+						v = Util.escapeEntities(v);
+					}
 					out.push(k + '=' + '"' + v.replace( /"/g, '&quot;' ) + '"');
 				} else {
 					out.push(k);
