@@ -6,13 +6,27 @@ var Util = require('./mediawiki.Util.js').Util,
 var KV = defines.KV,
     SelfclosingTagTk = defines.SelfclosingTagTk;
 
+/**
+ * @class
+ *
+ * Handler for behavior switches, like '__TOC__' and similar.
+ *
+ * @constructor
+ * @param {Object} manager
+ * @param {Object} options
+ */
 function BehaviorSwitchHandler( manager, options ) {
 	this.manager = manager;
 	this.manager.addTransform( this.onBehaviorSwitch.bind( this ), "BehaviorSwitchHandler:onBehaviorSwitch", this.rank, 'tag', 'behavior-switch' );
 }
 
+// Indicates where in the pipeline this handler should be run.
 BehaviorSwitchHandler.prototype.rank = 2.14;
 
+/**
+ * Main handler.
+ * See {@link TokenTransformManager#addTransform}'s transformation parameter
+ */
 BehaviorSwitchHandler.prototype.onBehaviorSwitch = function ( token, manager, cb ) {
 	var metaToken, magicWord = token.attribs[0].v,
 		env = this.manager.env,
@@ -29,14 +43,27 @@ BehaviorSwitchHandler.prototype.onBehaviorSwitch = function ( token, manager, cb
 	return { tokens: [ metaToken ] };
 };
 
+/**
+ * @class
+ *
+ * Pre-process behavior switches, check to see that they're valid magic words.
+ *
+ * @constructor
+ * @param {Object} manager
+ * @param {Object} options
+ */
 function BehaviorSwitchPreprocessor( manager, options ) {
 	this.manager = manager;
 	this.manager.addTransform( this.onBehaviorSwitch.bind( this ), 'BehaviorSwitchPreprocessor:onBehaviorSwitch',
 		this.rank, 'tag', 'behavior-switch' );
 }
 
+// Specifies where in the pipeline this stage should run.
 BehaviorSwitchPreprocessor.prototype.rank = 0.05;
 
+/**
+ * See {@link TokenTransformManager#addTransform}'s transformation parameter
+ */
 BehaviorSwitchPreprocessor.prototype.onBehaviorSwitch = function ( token, manager, cb ) {
 	var metaToken, switchType, env = this.manager.env,
 		magicWord = token.attribs[0].v;
