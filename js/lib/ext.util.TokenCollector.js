@@ -19,12 +19,12 @@ var EOFTk = defines.EOFTk,
  * Calls the passed-in callback with the collected tokens.
  *
  * @constructor
- * @param {Object} manager SyncTokenTransformManager to register with
+ * @param {TokenTransformManager} manager SyncTokenTransformManager to register with
  * @param {Function} transformation Transform function
- * @param {Array} transformation.tokens Chunk of tokens
- * @param {Function} transformation.cb Callback fired on each chunk
- * @param {Array} transformation.cb.tokens Tokens we got back
- * @param {TokenTransformManager} transformation.manager Manager for the token chunk
+ *   @param {Array} transformation.tokens Chunk of tokens
+ *   @param {Function} transformation.cb Callback fired on each chunk
+ *     @param {Array} transformation.cb.tokens Tokens we got back
+ *   @param {TokenTransformManager} transformation.manager Manager for the token chunk
  * @param {boolean} toEnd Match the 'end' tokens as closing tag as well (accept unclosed sections).
  * @param {number} rank Numerical rank of the tranform
  * @param {string} type Token type to register for ('tag', 'text' etc)

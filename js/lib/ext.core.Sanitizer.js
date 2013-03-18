@@ -575,7 +575,7 @@ Util.deepFreeze(SanitizerConstants);
  * @class
  *
  * @constructor
- * @param {Object} manager The manager for this part of the pipeline.
+ * @param {TokenTransformManager} manager The manager for this part of the pipeline.
  */
 function Sanitizer ( manager ) {
 	this.manager = manager;
