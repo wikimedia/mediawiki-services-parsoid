@@ -308,10 +308,9 @@
         return pos === inputLength;
     };
 
-    // Current extension tag being parsed.
+    // Current extension/include tag being parsed.
     var currExtTag = null;
 
-    // SSS FIXME: Temporary hack till the next round of cleanup and refactoring.
     var includeTags = Util.arrayToHash([
         "includeonly", "noinclude", "onlyinclude"
     ]);
@@ -1466,7 +1465,9 @@ xmlish_tag =
                 // Parse ext-content, strip eof, and shift tsr
                 var extContent = dp.src.substring(dp.tagWidths[0], dp.src.length - dp.tagWidths[1]);
                 var extContentToks = (new PegTokenizer(pegArgs.env)).tokenize(extContent);
-                extContentToks = Util.stripEOFTkfromTokens(extContentToks);
+                if (dp.tagWidths[1] > 0) {
+                    extContentToks = Util.stripEOFTkfromTokens(extContentToks);
+                }
                 Util.shiftTokenTSR(extContentToks, dp.tsr[0] + dp.tagWidths[0]);
                 ret = [t2].concat(extContentToks);
             }
@@ -2185,11 +2186,11 @@ sol
               }
           }
     )?
-    // Eat includeonly/noinclude at start of line, so that start-of-line
+    // Eat <*include*> section at start of line, so that start-of-line
     // syntax after it still matches
     ni:( niStart:({return pos})
          s:space*
-        "<" c:"/"? t:("includeonly" / "noinclude")
+        "<" c:"/"? t:include_limits
         ">" {return [s.join(''), c, t, [niStart, pos]]} )?
     {
         var niToken = [];
@@ -2225,34 +2226,96 @@ nl_comment_space = newline / comment / space
  * |}
  */
 
-include_limits = "<" end:"/"? name:[0-9a-zA-Z]+ (space / newline)* ">" {
+include_limits =
+  "</" name:[0-9a-zA-Z]+ (space / newline)* ">" {
+     // End tag only
      name = name.join('');
      var incl = name.toLowerCase();
      if (incl === "noinclude" || incl === "onlyinclude" || incl === "includeonly") {
-         var da = {tsr: [pos0, pos]};
+         var dp = {tsr: [pos0, pos]};
+         // Record variant since tag is not in normalized lower case
          if (name !== incl) {
-             da.srcTagName = name;
+             dp.srcTagName = name;
          }
-         if (end) {
-            return [new EndTagTk(name, [], da)];
-         } else {
-            return [new TagTk(name, [], da)];
-         }
+         return new EndTagTk(name, [], dp);
      } else {
          return null;
      }
   }
+  / inclTag:("<" name:[0-9a-zA-Z]+ (space / newline)* ">" {
+     // Start tag only
+     name = name.join('');
+     var incl = name.toLowerCase();
+     if (incl === "noinclude" || incl === "onlyinclude" || incl === "includeonly") {
+         var dp = {tsr: [pos0, pos]},
+             restOfInput = input.substring(pos0),
+             tagContent = restOfInput.match(new RegExp("^(.|\n)*?(</\s*" + incl + ">)", "m")),
+             tagWidths = [pos-pos0, (tagContent ? tagContent[2].length : 0)],
+             inclSrc = tagContent ? tagContent[0] : restOfInput,
+             inclContentLen = inclSrc.length - tagWidths[0] - tagWidths[1],
+             skipLen = inclContentLen;
+
+         dp.src = inclSrc;
+         dp.origInput = input;
+
+         // Replace incl-content with '#' or '_'
+         var skipChar = '#';
+         if (input.length >= pos+skipLen && input[pos+skipLen] === '#') {
+             skipChar = '_';
+         }
+         input = input.slice(0,pos) +
+             Util.charSequence('', skipChar, skipLen) +
+             input.slice(pos+skipLen);
+
+         // Temporary state
+         dp.skipLen = skipLen;
+         dp.tagWidths = tagWidths;
+         dp.skipChar = skipChar;
+
+         // Record variant since tag is not in normalized lower case
+         if (name !== incl) {
+             dp.srcTagName = name;
+         }
+
+         return new TagTk(name, [], dp);
+     } else {
+         return null;
+     }
+  }) dummyText:('#'+ / '_'+) {
+      var dp = inclTag.dataAttribs;
+      if (dummyText.length !== dp.skipLen || dummyText[0] !== dp.skipChar) {
+          return null;
+      }
+
+      // Tokenize include content in a new tokenizer
+      var inclContent = dp.src.substring(dp.tagWidths[0], dp.src.length - dp.tagWidths[1]),
+          inclContentToks = (new PegTokenizer(pegArgs.env)).tokenize(inclContent);
+
+      if (dp.tagWidths[1] > 0) {
+          inclContentToks = Util.stripEOFTkfromTokens(inclContentToks);
+      }
+
+      // shift tsr
+      Util.shiftTokenTSR(inclContentToks, dp.tsr[0] + dp.tagWidths[0]);
+
+      // Reset input
+      input = dp.origInput;
+
+      // Clear temporary state
+      dp.skipChar = undefined;
+      dp.skipLen = undefined;
+      dp.origInput = undefined;
+
+      return [inclTag].concat(inclContentToks);
+  }
 
 eof = & { return isEOF(pos); } { return true; }
 
-
-newline
-  = '\n' / '\r\n'
+newline = '\n' / '\r\n'
 
 newlineToken = newline { return [new NlTk([pos0, pos])] }
 
 eolf = newline / eof
-
 
 // 'Preprocessor' directive- higher-level things that can occur in otherwise
 // plain-text content.
@@ -2411,7 +2474,6 @@ end_pipe = "|" ! "|" / "{{!}}" ! "{{!}}"
 
 // SSS FIXME: what about |{{!}} and {{!}}|
 pipe_pipe = "||" / "{{!}}{{!}}"
-
 
 // Similar, for tables..
 exclam = "!" / "{{;}}"

@@ -1,9 +1,3 @@
-/* FIXME: Currently not used by anything now.
- * But once include-directives are handled better in the tokenizer,
- * token-and-attr-collector might become defunct and we might use
- * this instead.  So keeping around till then.
- */
-
 /**
  * @class
  *
@@ -52,7 +46,6 @@ function TokenCollector ( manager, transformation, toEnd, rank, type, name ) {
  * ExtensionContentCollector for example.
  */
 TokenCollector.prototype._anyDelta = 0.00000001;
-
 
 /**
  * @private
@@ -122,9 +115,8 @@ TokenCollector.prototype._onDelimiterToken = function ( token, frame, cb ) {
 
 				// preserve the EOFTk
 				res.tokens.push(token);
-			} else {
-				res = { tokens: [token] };
 			}
+
 			return res;
 		}
 	} else {

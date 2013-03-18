@@ -1736,19 +1736,20 @@ WSP.tagHandlers = {
 							 }
 							 cb('<' + content + '>');
 							 break;
-					case 'mw:IncludeOnly':
+					case 'mw:Includes/IncludeOnly':
+					case 'mw:Includes/IncludeOnly/End':
 							 cb(node.data.parsoid.src);
 							 break;
-					case 'mw:NoInclude':
+					case 'mw:Includes/NoInclude':
 							 cb(node.data.parsoid.src || '<noinclude>');
 							 break;
-					case 'mw:NoInclude/End':
+					case 'mw:Includes/NoInclude/End':
 							 cb(node.data.parsoid.src || '</noinclude>');
 							 break;
-					case 'mw:OnlyInclude':
+					case 'mw:Includes/OnlyInclude':
 							 cb(node.data.parsoid.src || '<onlyinclude>');
 							 break;
-					case 'mw:OnlyInclude/End':
+					case 'mw:Includes/OnlyInclude/End':
 							 cb(node.data.parsoid.src || '</onlyinclude>');
 							 break;
 					case 'mw:DiffMarker':
@@ -1778,9 +1779,7 @@ WSP.tagHandlers = {
 			// conflicts are resolved in favor of the newer constraint.
 			after: function(node, otherNode) {
 				var type = node.getAttribute('typeof');
-				if (type in {'mw:IncludeOnly':1, 'mw:NoInclude':1, 'mw:NoInclude/End':1,
-								'mw:OnlyInclude':1, 'mw:OnlyInclude/End':1})
-				{
+				if (type && type.match(/mw:Includes\//)) {
 					return {max:0};
 				} else {
 					return {};
@@ -1788,9 +1787,7 @@ WSP.tagHandlers = {
 			},
 			before: function(node, otherNode) {
 				var type = node.getAttribute('typeof');
-				if (type in {'mw:IncludeOnly':1, 'mw:NoInclude':1, 'mw:NoInclude/End':1,
-								'mw:OnlyInclude':1, 'mw:OnlyInclude/End':1})
-				{
+				if (type && type.match(/mw:Includes\//)) {
 					return {max:0};
 				} else {
 					return {};

@@ -16,7 +16,6 @@ var request = require('request'),
  * This helper method does two different things:
  *
  * 1. Strips all meta tags
- *    FIXME: should I be selective and only strip mw:Object/ * tags?
  * 2. In wrap-template mode, it identifies the meta-object type
  *    and returns it.
  * ---------------------------------------------------------- */
@@ -24,21 +23,32 @@ function stripMetaTags( tokens, wrapTemplates ) {
 	var isPushed, buf = [],
 		wikitext = [],
 		metaObjTypes = [],
-		inTemplate = false;
+		inTpl = false,
+		inInclude = false;
 
 	for (var i = 0, l = tokens.length; i < l; i++) {
 		var token = tokens[i];
 		isPushed = false;
 		if ([TagTk, SelfclosingTagTk].indexOf(token.constructor) !== -1) {
 			// Strip all meta tags.
-			// SSS FIXME: should I be selective and only strip mw:Object/* tags?
 			if (wrapTemplates) {
+				if (inInclude) {
+					wikitext.push(token.dataAttribs.src);
+				}
+
 				// If we are in wrap-template mode, extract info from the meta-tag
 				var t = token.getAttribute("typeof");
-				var typeMatch = t && t.match(/(mw:Object(?:\/.*)?$)/);
+				var typeMatch = t && t.match(/(mw:(Object\/?|Includes\/)(.*)?$)/);
 				if (typeMatch) {
-					inTemplate = !(typeMatch[1].match(/\/End$/));
-					if (inTemplate) {
+					if (typeMatch[1].match(/\/End$/)) {
+						inTpl = false;
+						inInclude = false;
+					} else {
+						inTpl = typeMatch[1].match(/Object/);
+						inInclude = !inTpl;
+					}
+
+					if (inTpl || inInclude) {
 						metaObjTypes.push(typeMatch[1]);
 						wikitext.push(token.dataAttribs.src);
 					}
@@ -56,7 +66,7 @@ function stripMetaTags( tokens, wrapTemplates ) {
 			// Assumes that non-template tokens are always text.
 			// In turn, based on assumption that HTML attribute values
 			// cannot contain any HTML (SSS FIXME: Isn't this true?)
-			if (!inTemplate) {
+			if (!inTpl) {
 				wikitext.push(token);
 			}
 			buf.push(token);
@@ -296,7 +306,13 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 			if ( !tokenId ) {
 				tokenId = "#" + this.manager.env.newObjectId();
 				token.addAttribute("about", tokenId);
-				token.addSpaceSeparatedAttribute("typeof", "mw:ExpandedAttrs/" + producerObjType.substring("mw:Object/".length));
+				var objType;
+				if (producerObjType.match("mw:Object/")) {
+					objType = producerObjType.substring("mw:Object/".length);
+				} else {
+					objType = producerObjType.substring("mw:Includes/".length);
+				}
+				token.addSpaceSeparatedAttribute("typeof", "mw:ExpandedAttrs/" + objType);
 			}
 
 			for (i = 0; i < l; i++) {
