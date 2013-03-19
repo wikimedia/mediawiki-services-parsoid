@@ -1498,7 +1498,7 @@ WSP.tagHandlers = {
 				}
 			},
 			after: id({min:1, max:2}),
-			firstChild: id({min:1, max:1}),
+			firstChild: id({min:1, max:2}),
 			lastChild: id({min:1})
 		}
 	},
@@ -2148,7 +2148,11 @@ WSP._getDOMHandler = function(node, state, cb) {
 			// return src, and drop the generated content
 			return {
 				handle: function() {
-					WSP.emitWikitext(dp.src, state, cb);
+					if (dp.src.match(/^\n+$/)) {
+						state.sep.src = (state.sep.src || '') + dp.src;
+					} else {
+						WSP.emitWikitext(dp.src, state, cb);
+					}
 				}
 			};
 		} else if (nodeTypeOf === "mw:Entity") {
