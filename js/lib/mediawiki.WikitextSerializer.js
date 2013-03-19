@@ -282,7 +282,7 @@ var WikitextSerializer = function( options ) {
 		};
 
 		WikitextSerializer.prototype.trace = function () {
-			console.error.apply(console, ["WTS:"].concat([].slice.apply(arguments)));
+			console.error(JSON.stringify(["WTS:"].concat([].slice.apply(arguments))));
 		};
 	} else {
 		WikitextSerializer.prototype.debug_pp = function ( ) {};
@@ -1431,6 +1431,14 @@ WSP.tagHandlers = {
 				} else {
 					return wtListEOL(node, otherNode);
 				}
+			},
+			firstChild: function (node, otherNode) {
+				if ( !(otherNode.nodeName in {UL:1, OL:1, DL:1}))
+				{
+					return {min:0, max: 0};
+				} else {
+					return {};
+				}
 			}
 		}
 	},
@@ -1459,7 +1467,15 @@ WSP.tagHandlers = {
 					return {min:1, max:2};
 				}
 			},
-			after: wtListEOL
+			after: wtListEOL,
+			firstChild: function (node, otherNode) {
+				if ( !(otherNode.nodeName in {UL:1, OL:1, DL:1}))
+				{
+					return {min:0, max: 0};
+				} else {
+					return {};
+				}
+			}
 		}
 	},
 
@@ -1633,7 +1649,7 @@ WSP.tagHandlers = {
 						  // FIXME HACK: Avoid forcing two newlines if the
 						  // first line is a text node that ends up on the
 						  // same line as a block
-						  ( !DU.isBlockNode(node.parentNode) ||
+						  !( DU.isBlockNode(node.parentNode) ||
 								otherNode.nodeValue.match(/\n(?!$)/)))))
 				{
 					return {min:2, max:2};
@@ -2194,6 +2210,10 @@ WSP._serializeTextNode = function(node, state, cb) {
 		doubleNewlineMatch = res.match(/\n([ \t]*\n)+/g),
 		doubleNewlineCount = doubleNewlineMatch && doubleNewlineMatch.length || 0;
 
+	// Deal with trailing newlines
+	var newSepMatch = res.match(/\n+$/);
+	res = res.replace(/\n+$/, '');
+
 	// Don't strip two newlines for wikitext like this:
 	// <div>foo
 	//
@@ -2218,10 +2238,6 @@ WSP._serializeTextNode = function(node, state, cb) {
 	// Strip leading newlines. They are already added to the separator source
 	// in handleSeparatorText.
 	res = res.replace(/^\n/, '');
-
-	// Deal with trailing newlines
-	var newSepMatch = res.match(/\n+$/);
-	res = res.replace(/\n$/, '');
 
 	// Always escape entities
 	res = Util.escapeEntities(res);
