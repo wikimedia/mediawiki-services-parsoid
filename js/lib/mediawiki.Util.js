@@ -944,10 +944,11 @@ var Util = {
 };
 
 /**
+ * @method
+ *
  * Utility function for stripping useless paragraphs from the beginning of a list item,
  * because they get appended by VisualEditor sometimes.
  */
-// FIXME: Dead function?  SelectiveSerializer doesn't seem to use this
 Util.stripFirstParagraph = function ( node ) {
 	var thisnode, hasAttrs, dataParsoid, attrs, exemptAttrs = 0;
 	for ( var i = 0; i < node.childNodes.length; i++ ) {

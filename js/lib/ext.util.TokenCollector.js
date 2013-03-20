@@ -1,3 +1,12 @@
+"use strict";
+
+// define some constructor shortcuts
+var defines = require('./mediawiki.parser.defines.js');
+var EOFTk = defines.EOFTk,
+    TagTk = defines.TagTk,
+    SelfclosingTagTk = defines.SelfclosingTagTk,
+    EndTagTk = defines.EndTagTk;
+
 /**
  * @class
  *
@@ -21,16 +30,6 @@
  * @param {string} type Token type to register for ('tag', 'text' etc)
  * @param {string} name (optional, only for token type 'tag'): tag name.
  */
-
-"use strict";
-
-// define some constructor shortcuts
-var defines = require('./mediawiki.parser.defines.js');
-var EOFTk = defines.EOFTk,
-    TagTk = defines.TagTk,
-    SelfclosingTagTk = defines.SelfclosingTagTk,
-    EndTagTk = defines.EndTagTk;
-
 function TokenCollector ( manager, transformation, toEnd, rank, type, name ) {
 	this.transformation = transformation;
 	this.manager = manager;
