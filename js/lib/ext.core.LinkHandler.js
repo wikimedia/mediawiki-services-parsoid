@@ -298,8 +298,11 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 			var shortCanonicalOption = canonicalOption.replace(/^img_/,  '');
 			// 'imgOption' is the key we'd put in oHash; it names the 'group'
 			// for the option, and doesn't have an img_ prefix.
-			var imgOption = WikitextConstants.Image.SimpleOptions[canonicalOption];
-			if (imgOption) {
+			var imgOption = WikitextConstants.Image.SimpleOptions[canonicalOption],
+				bits = getOption( origOText.trim() ),
+				normalizedBit0 = bits ? bits.k.trim().toLowerCase() : null,
+				key = bits ? WikitextConstants.Image.PrefixOptions[normalizedBit0] : null;
+			if (imgOption && key !== null) {
 				// the options array only has non-localized values
 				options.push( new KV(imgOption, shortCanonicalOption ) );
 				oHash[imgOption] = shortCanonicalOption;
@@ -310,9 +313,6 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 				token.dataAttribs.optNames[shortCanonicalOption] = origOText;
 				continue;
 			} else {
-				var bits = getOption( origOText.trim() ),
-					normalizedBit0 = bits ? bits.k.trim().toLowerCase() : null,
-					key = bits ? WikitextConstants.Image.PrefixOptions[normalizedBit0] : null;
 				// bits.a has the localized name for the prefix option
 				// (with $1 as a placeholder for the value, which is in bits.v)
 				// 'normalizedBit0' is the canonical English option name

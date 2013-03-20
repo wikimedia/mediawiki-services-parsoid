@@ -697,16 +697,16 @@ WSP.figureHandler = function(node, state, cb) {
 
 			if (k === "caption") {
 				outBits.push(v === null ? captionSrc : v);
+			} else if ( prefixImgOptionsRM[k] ) {
+				var canonical = prefixImgOptionsRM[k];
+				shortCanonical = canonical.replace(/^img_/,'');
+				outBits.push( env.conf.wiki.replaceInterpolatedMagicWord( optNames[shortCanonical], v ) );
 			} else if (simpleImgOptions['img_'+v] === k) {
 				shortCanonical = v;
 				// The values and keys in the parser attributes are a flip
 				// of how they are in the wikitext constants image hash
 				// Hence the indexing by 'v' instead of 'k'
 				outBits.push(optNames[shortCanonical]);
-			} else if ( prefixImgOptionsRM[k] ) {
-				var canonical = prefixImgOptionsRM[k];
-				shortCanonical = canonical.replace(/^img_/,'');
-				outBits.push( env.conf.wiki.replaceInterpolatedMagicWord( optNames[shortCanonical], v ) );
 			} else {
 				console.warn("Unknown image option encountered: " + JSON.stringify(a));
 			}
