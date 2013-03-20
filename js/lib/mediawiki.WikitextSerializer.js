@@ -61,6 +61,10 @@ var emitEndTag = function (src, node, state, cb) {
 	// else: drop content
 };
 
+function commentWT(comment) {
+	return '<!--' + comment.replace(/-->/, '--&gt;') + '-->';
+}
+
 // SSS FIXME: Can be set up as part of an init routine
 function getTagWhiteList() {
 	if (!tagWhiteListHash) {
@@ -302,6 +306,7 @@ WSP.wteHandlers = new WikitextEscapeHandlers();
  *    Separator information:
  *    - constraints: min/max number of newlines
  *    - text: collected separator text from DOM text/comment nodes
+ *    - lastSourceNode: -- to be documented --
  *
  * singleLineMode
  *    - if (> 0), we cannot emit any newlines.
@@ -365,39 +370,6 @@ WSP.initialState = {
 		};
 	},
 
-	// FIXME: Unused function?
-	// Serialize a DOM node, sharing the global serializer state
-	serializeDOM: function(node, chunkCB, wtEscaper) {
-		if ( wtEscaper ) {
-			this.wteHandlerStack.push(wtEscaper);
-		}
-
-		var origChunkCB = this.chunkCB;
-		if (chunkCB) {
-			this.chunkCB = chunkCB;
-		}
-
-		// find the body
-		node = node.ownerDocument.body;
-		this.serializer._serializeNode(node, this);
-
-		if ( wtEscaper ) {
-			this.wteHandlerStack.pop();
-		}
-		this.chunkCB = origChunkCB;
-	},
-
-	// FIXME: Unused function
-	serializeDOMToString: function(node, wtEscaper) {
-		var bits = [],
-			cb = function(res) {
-				bits.push(res);
-			};
-
-		this.serializeDOM(node, cb, wtEscaper);
-		return bits.join('');
-	},
-
 	// Serialize the children of a DOM node, sharing the global serializer
 	// state. Typically called by a DOM-based handler to continue handling its
 	// children.
@@ -411,7 +383,7 @@ WSP.initialState = {
 		var node = nodes[0],
 			parentNode = node && node.parentNode,
 			nextNode;
-		while(node) {
+		while (node) {
 			nextNode = this.serializer._serializeNode(node, this);
 			if (nextNode === parentNode) {
 				// serialized all children
@@ -915,12 +887,7 @@ WSP.linkHandler =  function(node, state, cb) {
 
 		var target = linkData.target;
 
-		if ( linkData.type === 'mw:WikiLink' ||
-				linkData.type === 'mw:WikiLink/Category' ||
-				linkData.type === 'mw:WikiLink/Language' ||
-				linkData.type === 'mw:WikiLink/Interwiki')
-		{
-
+		if (linkData.type.match(/^mw:WikiLink(\/(Category|Language|Interwiki))?$/)) {
 			// Decode any link that did not come from the source
 			if (! target.fromsrc) {
 				target.value = Util.decodeURI(target.value);
@@ -1271,7 +1238,6 @@ WSP._hasPrecedingQuoteElements = function(node, state) {
 	return false;
 };
 
-
 function wtEOL(node, otherNode) {
 	if (DU.isElt(otherNode) &&
 		(otherNode.data.parsoid.stx === 'html' || otherNode.data.parsoid.src))
@@ -1312,13 +1278,11 @@ function wtListEOL(node, otherNode) {
 	}
 }
 
-
-WSP.tagHandlers = {
-
-	dl: {
+function buildListHandler(firstChildNames) {
+	return {
 		handle: function (node, state, cb) {
 			var firstChildElement = DU.getFirstNonSepChildNode(node);
-			if (!firstChildElement || ! (firstChildElement.nodeName in {DT:1, DD: 1}))
+			if (!firstChildElement || ! (firstChildElement.nodeName in firstChildNames))
 			{
 				cb(WSP._getListBullets(node), node);
 			}
@@ -1339,58 +1303,13 @@ WSP.tagHandlers = {
 			},
 			after: wtListEOL //id({min:1, max:2})
 		}
-	},
-	ul: {
-		handle: function (node, state, cb) {
-			var firstChildElement = DU.getFirstNonSepChildNode(node);
-			if (!firstChildElement || firstChildElement.nodeName !== 'LI')
-			{
-				cb(WSP._getListBullets(node), node);
-			}
-			// Just serialize the children
-			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.liHandler, true);
-		},
-		sepnls: {
-			before: function (node, otherNode) {
-				if (otherNode.nodeType === node.TEXT_NODE &&
-						node.parentNode.nodeName in {LI:1, DD:1, DT:1})
-				{
-					// UL nested inside a list item
-					// <li> foo <ul> .. </ul></li>
-					return {min:0, max:1};
-				} else {
-					return {min:1, max:2};
-				}
-			},
-			after: wtListEOL //id({min:1, max:2})
-		}
-	},
-	ol: {
-		handle: function (node, state, cb) {
-			var firstChildElement = DU.getFirstNonSepChildNode(node);
-			if (!firstChildElement || firstChildElement.nodeName !== 'LI')
-			{
-				cb(WSP._getListBullets(node), node);
-			}
-			// Just serialize the children, ignore the (implicit) tbody
-			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.liHandler, true);
-		},
-		sepnls: {
-			before: function (node, otherNode) {
-				if (otherNode.nodeType === node.TEXT_NODE &&
-						node.parentNode.nodeName in {LI:1, DD:1, DT:1})
-				{
-					// OL nested inside a list item
-					// <li> foo <ol> .. </ol></li>
-					return {min:0, max:1};
-				} else {
-					return {min:1, max:2};
-				}
-			},
-			after: wtListEOL //id({min:1, max:2})
-		}
-	},
+	};
+}
 
+WSP.tagHandlers = {
+	dl: buildListHandler({DT:1, DD:1}),
+	ul: buildListHandler({LI:1}),
+	ol: buildListHandler({LI:1}),
 
 	li: {
 		handle: function (node, state, cb) {
@@ -1962,11 +1881,11 @@ WSP.tagHandlers = {
 	}
 };
 
-function hasExpandedAttrs(tokType) {
-	return tokType && tokType.match(/\bmw:ExpandedAttrs\/[^\s]+/);
-}
-
 WSP._serializeAttributes = function (state, token) {
+	function hasExpandedAttrs(tokType) {
+		return tokType && tokType.match(/\bmw:ExpandedAttrs\/[^\s]+/);
+	}
+
 	var tplAttrState = { kvs: {}, ks: {}, vs: {} },
 	    tokType = token.getAttribute("typeof"),
 		attribs = token.attribs;
@@ -2106,10 +2025,9 @@ WSP._getDOMHandler = function(node, state, cb) {
 	if (!node || node.nodeType !== node.ELEMENT_NODE) {
 		return {};
 	}
-	if (!node.data || !node.data.parsoid) {
-		DU.loadDataParsoid(node);
-		DU.loadDataAttrib(node, 'parsoid-serialize', {});
-	}
+
+	DU.loadDataParsoid(node);
+	DU.loadDataAttrib(node, 'parsoid-serialize', {});
 
 	var dp = node.data.parsoid,
 		nodeName = node.nodeName.toLowerCase(),
@@ -2298,7 +2216,7 @@ WSP._getDOMAttribs = function( attribs ) {
 			'data-parsoid': 1,
 			'data-ve-changed': 1,
 			'data-parsoid-changed': 1,
-			'dtaa-parsoid-diff': 1,
+			'data-parsoid-diff': 1,
 			'data-parsoid-serialize': 1
 		};
 	for ( var i = 0, l = attribs.length; i < l; i++ ) {
@@ -2326,11 +2244,7 @@ WSP._getDOMRTInfo = function( node ) {
  * Assumptions:
  * - Called on first text / comment node
  *
- * Returns either null if there is no separator, or
- * {
- *	  nextElement: (next element node),
- *	  sepText: the combined separator text
- * }
+ * Returns true if the node is a separator
  *
  * XXX: Support separator-transparent elements!
  */
@@ -2359,8 +2273,7 @@ WSP.handleSeparatorText = function ( node, state ) {
 				return false;
 			}
 		} else if (node.nodeType === node.COMMENT_NODE) {
-			state.sep.src = (state.sep.src || '') +
-				'<!--' + node.nodeValue + '-->';
+			state.sep.src = (state.sep.src || '') + commentWT(node.nodeValue);
 			return true;
 		} else {
 			return false;
@@ -2446,10 +2359,10 @@ WSP.getSepNlConstraints = function(nodeA, sepNlsHandlerA, nodeB, sepNlsHandlerB)
 		// two if nothing is specified.
 		nlConstraints.max = 2;
 	}
+
 	if(sepNlsHandlerB) {
 		nlConstraints.b = sepNlsHandlerB(nodeB, nodeA);
 		var cb = nlConstraints.b;
-
 
 		// now figure out if this conflicts with the nlConstraints so far
 		if (cb.min !== undefined) {
@@ -2601,12 +2514,10 @@ WSP.mergeConstraints = function (oldConstraints, newConstraints) {
  *		lastChild: function(node)
  *	}
  * }
- *
  */
-WSP.handleSeparator = function( state, nodeA, handlerA, nodeB, handlerB, dir)
-{
-	var nlConstraints;
-	var sepHandlerA = handlerA && handlerA.sepnls || {},
+WSP.handleSeparator = function( state, nodeA, handlerA, nodeB, handlerB, dir) {
+	var nlConstraints,
+		sepHandlerA = handlerA && handlerA.sepnls || {},
 		sepHandlerB = handlerB && handlerB.sepnls || {};
 	if ( nodeA.nextSibling === nodeB ) {
 		// sibling separator
@@ -2629,11 +2540,14 @@ WSP.handleSeparator = function( state, nodeA, handlerA, nodeB, handlerB, dir)
 	if (nodeA.nodeName === undefined) {
 		console.trace();
 	}
-	this.trace('hSep', nodeA.nodeName, nodeB.nodeName,
-			nlConstraints,
-			(nodeA.outerHTML || nodeA.nodeValue || '').substr(0,40),
-			(nodeB.outerHTML || nodeB.nodeValue || '').substr(0,40)
-			);
+
+	if (this.debugging) {
+		this.trace('hSep', nodeA.nodeName, nodeB.nodeName,
+				nlConstraints,
+				(nodeA.outerHTML || nodeA.nodeValue || '').substr(0,40),
+				(nodeB.outerHTML || nodeB.nodeValue || '').substr(0,40)
+				);
+	}
 
 	if(state.sep.constraints) {
 		// Merge the constraints
@@ -2790,18 +2704,11 @@ WSP.emitSeparator = function(state, cb, node) {
 };
 
 
-
 WSP._getPrevSeparatorElement = function (node, state) {
-	if (node.nodeName === 'BODY') {
-		return null;
-	}
 	return /* state.sep.lastSourceNode || */ previousNonSepSibling(node) || node.parentNode;
 };
 
 WSP._getNextSeparatorElement = function (node) {
-	if (node.nodeName === 'BODY') {
-		return null;
-	}
 	return nextNonSepSibling(node) || node.parentNode;
 };
 
@@ -2843,7 +2750,7 @@ WSP._updateCurrLine = function(node, state) {
 
 				return;
 			case node.COMMENT_NODE:
-				buf.push("<--" + node.data + "-->");
+				buf.push(commentWT(node.data));
 				return;
 			case node.TEXT_NODE:
 				buf.push(node.data);
@@ -2875,10 +2782,8 @@ WSP._updateCurrLine = function(node, state) {
 	state.currLine.ancestor = bn;
 };
 
-
 /**
- * Internal worker. Recursively serialize a DOM subtree by creating tokens and
- * calling _serializeToken on each of these.
+ * Internal worker. Recursively serialize a DOM subtree.
  */
 WSP._serializeNode = function( node, state, cb) {
 	cb = cb || state.chunkCB;
@@ -2893,10 +2798,8 @@ WSP._serializeNode = function( node, state, cb) {
 				parentSTX = state.parentSTX;
 
 			// populate node.data.parsoid and node.data['parsoid-serialize']
-			if (!node.data || !node.data.parsoid) {
-				DU.loadDataParsoid(node);
-				DU.loadDataAttrib(node, 'parsoid-serialize', {});
-			}
+			DU.loadDataParsoid(node);
+			DU.loadDataAttrib(node, 'parsoid-serialize', {});
 
 			// Insert a possible separator
 			prev = this._getPrevSeparatorElement(node, state);
@@ -2978,7 +2881,7 @@ WSP._serializeNode = function( node, state, cb) {
 		case node.COMMENT_NODE:
 			// delay the newline creation until after the comment
 			if (!this.handleSeparatorText(node, state)) {
-				cb( '<!--' + node.nodeValue.replace(/-->/, '--&gt;') + '-->' );
+				cb(commentWT(node.nodeValue));
 			}
 			break;
 		default:
@@ -2992,7 +2895,7 @@ WSP._serializeNode = function( node, state, cb) {
 /**
  * Serialize an HTML DOM document.
  */
-WSP.serializeDOM = function( node, chunkCB, finalCB, selser ) {
+WSP.serializeDOM = function( body, chunkCB, finalCB, selser ) {
 	var state = Util.extendProps({},
 		// Make sure these two are cloned, so we don't alter the initial
 		// state for later serializer runs.
@@ -3004,16 +2907,16 @@ WSP.serializeDOM = function( node, chunkCB, finalCB, selser ) {
 	try {
 		state.selser = selser || {};
 
-		// Normalize the DOM (coalesces adjacent text nodes)
+		// Normalize the DOM (coalesces adjacent text body)
 		// FIXME: Disabled as this strips empty comments (<!---->).
-		//node.normalize();
+		//body.normalize();
 
 		// collect tpl attr tags
-		this.extractTemplatedAttributes(node, state);
+		this.extractTemplatedAttributes(body, state);
 
 		// Don't serialize the DOM if debugging is disabled
 		if (this.debugging) {
-			this.trace(" DOM ==> \n", node.outerHTML);
+			this.trace(" DOM ==> \n", body.outerHTML);
 		}
 
 		var out = [];
@@ -3045,12 +2948,17 @@ WSP.serializeDOM = function( node, chunkCB, finalCB, selser ) {
 			state.chunkCB = chunkCBWrapper.bind(null, chunkCB);
 		}
 
-		state.sep.lastSourceNode = node;
-		state.serializeChildren(node.childNodes, state.chunkCB);
+		state.sep.lastSourceNode = body;
+		if (body.nodeName !== 'BODY') {
+			// FIXME: Do we need this fallback at all?
+			this._serializeNode( body, state );
+		} else {
+			state.serializeChildren(body.childNodes, state.chunkCB);
+		}
 
 		// Handle EOF
-		//this.emitSeparator(state, state.chunkCB, node);
-		state.chunkCB( '', node );
+		//this.emitSeparator(state, state.chunkCB, body);
+		state.chunkCB( '', body );
 
 		if ( finalCB && typeof finalCB === 'function' ) {
 			finalCB();
