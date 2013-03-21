@@ -70,8 +70,7 @@ function deleteNode(n) {
  * @param node {HTMLNode} The node to be traversed
  */
 function DOMTraverser() {
-	this.handlers = {};
-	this.universalHandlers = [];
+	this.handlers = [];
 }
 
 /**
@@ -80,30 +79,22 @@ function DOMTraverser() {
  * @param {Function} action A callback, called on each node we traverse that matches nodeName. First argument is the DOM node. Return false if you want to stop any further callbacks from being called on the node.
  */
 DOMTraverser.prototype.addHandler = function ( nodeName, action ) {
-	if ( nodeName === null ) {
-		this.universalHandlers.push( action );
-	} else {
-		if ( this.handlers[nodeName] === undefined ) {
-			this.handlers[nodeName] = [];
-		}
+	var handler = {
+		run: action,
+		name: nodeName
+	};
 
-		this.handlers[nodeName].push( action );
-	}
+	this.handlers.push( handler );
 };
 
 DOMTraverser.prototype.callHandlers = function ( node ) {
 	var ix, result, handlers, name = ( node.nodeName || '' ).toLowerCase();
-	for ( ix = 0; ix < this.universalHandlers.length; ix++ ) {
-		result = this.universalHandlers[ix]( node );
-		if ( result === false ) {
-			return;
-		}
-	}
 
-	handlers = this.handlers[name];
-	if ( handlers ) {
-		for ( ix = 0; ix < handlers.length; ix++ ) {
-			if ( handlers[ix]( node )=== false ) {
+	for ( ix = 0; ix < this.handlers.length; ix++ ) {
+		if ( this.handlers[ix].name === null ||
+				this.handlers[ix].name === name ) {
+			result = this.handlers[ix].run( node );
+			if ( result === false ) {
 				return;
 			}
 		}
@@ -413,7 +404,7 @@ function normalizeDocument(document) {
  *   means the outermost table will protected).  This is no different from
  *   how it handles all other templates.
  * ------------------------------------------------------------------------ */
-function handleUnbalancedTableTags(node, env, tplIdToSkip) {
+function handleUnbalancedTableTags(node, env, options, tplIdToSkip) {
 	function foundMatch(currTpl, nodeName) {
 		// Did we hit a table (table/th/td/tr/tbody/th) tag
 		// that is outside a template?
@@ -503,18 +494,7 @@ function handleUnbalancedTableTags(node, env, tplIdToSkip) {
 				c.parentNode.insertBefore(problemTpl.end, c.nextSibling);
 
 				// Update TSR
-				var dpSrc = problemTpl.end.getAttribute("data-parsoid") || "";
-
-				if (dpSrc === "") {
-					// TODO: Figure out why there is no data-parsoid here!
-					console.error( "XXX Error in handleUnbalancedTableTags: no data-parsoid found! " +
-							env.page.name );
-					dpSrc = '{}';
-				}
-
-				var tplDP = JSON.parse(dpSrc);
-				tplDP.tsr = DU.dataParsoid(c).tsr;
-				DU.setDataParsoid(problemTpl.end, tplDP);
+				DU.getDataParsoid( problemTpl.end ).tsr = Util.clone( DU.getDataParsoid( c ).tsr );
 
 				// Skip all nodes till we find the opening id of this template
 				// FIXME: Ugh!  Duplicate tree traversal
@@ -522,7 +502,7 @@ function handleUnbalancedTableTags(node, env, tplIdToSkip) {
 			}
 		} else if (c.nodeType === Node.ELEMENT_NODE) {
 			// Look at c's subtree
-			handleUnbalancedTableTags(c, env, tplIdToSkip);
+			handleUnbalancedTableTags(c, env, options, tplIdToSkip);
 		}
 
 		c = c.previousSibling;
@@ -635,9 +615,7 @@ function handlePres(document, env) {
 					var matches = fc.data.match(/^(\r\n|\r|\n)/);
 					if (matches) {
 						// Record it in data-parsoid
-						var preDP = DU.dataParsoid(n);
-						preDP.strippedNL = matches[1];
-						DU.setDataParsoid(n, preDP);
+						DU.getDataParsoid( n ).strippedNL = matches[1];
 					}
 				}
 			}
@@ -674,7 +652,7 @@ function migrateTrailingNLs(elt, env) {
 
 		return node && (
 			nodeEndsLineInWT(node) ||
-			(DU.isElt(node) && DU.dataParsoid(node).autoInsertedEnd) ||
+			(DU.isElt(node) && DU.getDataParsoid( node ).autoInsertedEnd) ||
 			(!node.nextSibling && canMigrateNLOutOfNode(node.parentNode))
 		);
 	}
@@ -683,7 +661,7 @@ function migrateTrailingNLs(elt, env) {
 	// - tsr[0] == tsr[1]
 	// - only has children with zero wt width
 	function hasZeroWidthWT(node) {
-		var tsr = DU.dataParsoid(node).tsr;
+		var tsr = DU.getDataParsoid( node ).tsr;
 		if (!tsr || tsr[0] === null || tsr[0] !== tsr[1]) {
 			return false;
 		}
@@ -792,7 +770,7 @@ function migrateTrailingNLs(elt, env) {
 // This will move the start-meta closest to the content
 // that the template/extension produced and improve accuracy
 // of finding dom ranges and wrapping templates.
-function migrateStartMetas(node, env) {
+function migrateStartMetas( node, env ) {
 	var c = node.firstChild;
 	while (c) {
 		var sibling = c.nextSibling;
@@ -858,7 +836,7 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 	var range = null;
 	while (parentNode && parentNode.nodeType !== Node.DOCUMENT_NODE) {
 		var i = startAncestors.indexOf( parentNode );
-		var tsr0 = DU.dataParsoid(startElem).tsr[0];
+		var tsr0 = DU.getDataParsoid( startElem ).tsr[0];
 		if (i === 0) {
 			// widen the scope to include the full subtree
 			range = {
@@ -930,20 +908,19 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 
 	if (updateDP) {
 		var done = false;
-		var tcDP = DU.dataParsoid(tcStart);
-		var seDP = DU.dataParsoid(startElem);
+		var tcDP = DU.getDataParsoid( tcStart );
+		var seDP = DU.getDataParsoid( startElem );
 		if (tcDP && seDP && tcDP.dsr && seDP.dsr && tcDP.dsr[1] > seDP.dsr[1]) {
 			// Since TSRs on template content tokens are cleared by the
 			// template handler, all computed dsr values for template content
 			// is always inferred from top-level content values and is safe.
 			// So, do not overwrite a bigger end-dsr value.
 			tcDP.dsr[0] = seDP.dsr[0];
-			DU.setDataParsoid(tcStart, tcDP);
 			done = true;
 		}
 
 		if (!done) {
-			tcStart.setAttribute("data-parsoid", startElem.getAttribute("data-parsoid"));
+			tcStart.data.parsoid = Util.clone( seDP );
 		}
 	}
 
@@ -1274,8 +1251,8 @@ function encapsulateTemplates( env, doc, tplRanges, tplParams) {
 		 *    2b. If dp2.dsr[0] is unknown, we rely on fostered flag on
 		 *        tcStart, if any.
 		 * ---------------------------------------------------------------- */
-		var dp1 = DU.dataParsoid(tcStart),
-			dp2 = DU.dataParsoid(tcEnd),
+		var dp1 = DU.getDataParsoid( tcStart ),
+			dp2 = DU.getDataParsoid( tcEnd ),
 			done = false;
 		if (dp1.dsr) {
 			if (dp2.dsr) {
@@ -1297,7 +1274,6 @@ function encapsulateTemplates( env, doc, tplRanges, tplParams) {
 			// Check if now have a useable range on dp1
 			if (dp1.dsr[0] !== null && dp1.dsr[1] !== null) {
 				dp1.src = env.page.src.substring( dp1.dsr[0], dp1.dsr[1] );
-				DU.setDataParsoid(tcStart, dp1);
 				done = true;
 			}
 		}
@@ -1332,8 +1308,10 @@ function encapsulateTemplates( env, doc, tplRanges, tplParams) {
 }
 
 function swallowTableIfNestedDSR(elt, tbl) {
-	var eltDP = DU.dataParsoid(elt), eltDSR = eltDP.dsr,
-		tblDP = DU.dataParsoid(tbl), tblTSR = tblDP.tsr;
+	var eltDP = DU.getDataParsoid( elt ),
+		eltDSR = eltDP.dsr,
+		tblDP = DU.getDataParsoid( tbl ),
+		tblTSR = tblDP.tsr;
 
 	// IMPORTANT: Do not use dsr to compare because the table may not
 	// have a valid dsr[1] (if the  table's end-tag is generated by
@@ -1344,7 +1322,6 @@ function swallowTableIfNestedDSR(elt, tbl) {
 	if (eltDSR && tblTSR && eltDSR[0] >= tblTSR[1]) {
 		eltDP.dsr[0] = tblTSR[0];
 		eltDP.dsr[1] = null;
-		DU.setDataParsoid(elt, eltDP);
 		return true;
 	} else {
 		return false;
@@ -1394,7 +1371,7 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 			// on end-meta-tags.
 			//
 			// Ex: "<ref>{{echo|bar}}<!--bad-></ref>"
-			if (metaMatch && (DU.dataParsoid(elem).tsr || type.match(/\/End\b/))) {
+			if (metaMatch && ( DU.getDataParsoid( elem ).tsr || type.match(/\/End\b/))) {
 				var metaType = metaMatch[1];
 
 				about = elem.getAttribute('about'),
@@ -1499,7 +1476,6 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 }
 
 function findBuilderCorrectedTags(document, env) {
-
 	function addPlaceholderMeta( node, dp, name, opts ) {
 		var src = dp.src;
 
@@ -1542,7 +1518,7 @@ function findBuilderCorrectedTags(document, env) {
 
 			placeHolder = node.ownerDocument.createElement('meta'),
 			placeHolder.setAttribute('typeof', 'mw:Placeholder');
-			DU.setDataParsoid(placeHolder, {src: src});
+			placeHolder.data = { parsoid: { src: src } };
 
 			// Insert the placeHolder
 			node.parentNode.insertBefore(placeHolder, node);
@@ -1578,7 +1554,7 @@ function findBuilderCorrectedTags(document, env) {
 		while (c !== null) {
 			var sibling = c.nextSibling;
 			if (DU.isElt(c)) {
-				var dp = DU.dataParsoid(c);
+				var dp = DU.getDataParsoid( c );
 				if (DU.hasNodeName(c, "meta")) {
 					var metaType = c.getAttribute("typeof");
 					if (metaType === "mw:StartTag") {
@@ -1594,7 +1570,7 @@ function findBuilderCorrectedTags(document, env) {
 							addPlaceholderMeta(c, dp, expectedName, {start: true, tsr: stagTsr});
 						}
 						deleteNode(c);
-					} else if (metaType === "mw:EndTag" && !DU.dataParsoid(c).tsr) {
+					} else if (metaType === "mw:EndTag" && !dp.tsr) {
 						// If there is no tsr, this meta is useless for DSR
 						// calculations. Remove the meta to avoid breaking
 						// other brittle DOM passes working on the DOM.
@@ -1624,7 +1600,7 @@ function findBuilderCorrectedTags(document, env) {
 				// Process subtree first
 				findAutoInsertedTags(c, env);
 
-				var dp = DU.dataParsoid(c),
+				var dp = DU.getDataParsoid( c ),
 					cNodeName = c.nodeName.toLowerCase();
 
 				// Dont bother detecting auto-inserted start/end if:
@@ -1649,7 +1625,6 @@ function findBuilderCorrectedTags(document, env) {
 							// 'c' is a html node that has tsr, but no end-tag marker tag
 							// => its closing tag was auto-generated by treebuilder.
 							dp.autoInsertedEnd = true;
-							DU.setDataParsoid(c, dp);
 						}
 					}
 
@@ -1660,7 +1635,7 @@ function findBuilderCorrectedTags(document, env) {
 							if (fc.nodeType !== Node.ELEMENT_NODE) {
 								break;
 							}
-							var fcDP = DU.dataParsoid(fc);
+							var fcDP = DU.getDataParsoid( fc );
 							if (fcDP.autoInsertedStart) {
 								fc = fc.firstChild;
 							} else {
@@ -1678,7 +1653,6 @@ function findBuilderCorrectedTags(document, env) {
 						} else {
 							//console.log('autoInsertedStart:', c.outerHTML);
 							dp.autoInsertedStart = true;
-							DU.setDataParsoid(c, dp);
 						}
 					}
 				} else if (cNodeName === 'meta') {
@@ -1693,7 +1667,6 @@ function findBuilderCorrectedTags(document, env) {
 							// mw:Placeholder for round-tripping
 							//console.log('autoinsertedEnd', c.innerHTML, c.parentNode.innerHTML);
 							addPlaceholderMeta(c, dp, expectedName, {end: true});
-
 						}
 					} else {
 						// Jump over this meta tag, but preserve it
@@ -1903,7 +1876,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 		} else if (cType === Node.ELEMENT_NODE) {
 			if (traceDSR) console.warn("-- Processing <" + node.nodeName + ":" + i + ">=" + child.nodeName + " with [" + cs + "," + ce + "]");
 			var cTypeOf = child.getAttribute("typeof"),
-				dp = DU.dataParsoid(child),
+				dp = DU.getDataParsoid( child ),
 				tsr = dp.tsr,
 				oldCE = tsr ? tsr[1] : null,
 				propagateRight = false,
@@ -1922,11 +1895,10 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 						// Update table-end syntax using info from the meta tag
 						var prev = child.previousSibling;
 						if (prev && DU.hasNodeName(prev, "table")) {
-							var prevDP = DU.dataParsoid(prev);
+							var prevDP = DU.getDataParsoid( prev );
 							if (!DU.hasLiteralHTMLMarker(prevDP)) {
 								if (dp.endTagSrc) {
 									prevDP.endTagSrc = dp.endTagSrc;
-									DU.setDataParsoid(prev, prevDP);
 								}
 							}
 						}
@@ -1967,7 +1939,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				if (dp.tagWidths) {
 					stWidth = dp.tagWidths[0];
 					etWidth = dp.tagWidths[1];
-					dp.tagWidths = undefined;
+					delete dp.tagWidths;
 				}
 			} else if ((cTypeOf === "mw:Placeholder" || cTypeOf === "mw:Entity") && ce !== null && dp.src) {
 				cs = ce - dp.src.length;
@@ -2085,7 +2057,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 					} else if (nType === Node.COMMENT_NODE) {
 						newCE = newCE + sibling.data.length + 7;
 					} else if (nType === Node.ELEMENT_NODE) {
-						var siblingDP = DU.dataParsoid(sibling);
+						var siblingDP = DU.getDataParsoid( sibling );
 						if (siblingDP.dsr && siblingDP.tsr && siblingDP.dsr[0] <= newCE && e !== null) {
 							// sibling's dsr wont change => ltr propagation stops here.
 							break;
@@ -2104,7 +2076,6 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 							}
 						}
 						siblingDP.dsr[0] = newCE;
-						DU.setDataParsoid(sibling, siblingDP);
 						newCE = siblingDP.dsr[1];
 					} else {
 						break;
@@ -2116,10 +2087,6 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				if (!sibling) {
 					e = newCE;
 				}
-			}
-
-			if (Object.keys(dp).length > 0) {
-				DU.setDataParsoid(child, dp);
 			}
 		}
 
@@ -2149,6 +2116,30 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 	return [cs, e];
 }
 
+function dumpDomWithDataAttribs( root ) {
+	function cloneData(node, clone) {
+		var d = node.data;
+		if (d && d.constructor === Object && (Object.keys(d.parsoid).length > 0)) {
+			clone.data = d;
+			saveDataParsoid( clone );
+		}
+
+		node = node.firstChild;
+		clone = clone.firstChild;
+		while (node) {
+			cloneData(node, clone);
+			node = node.nextSibling;
+			clone = clone.nextSibling;
+		}
+	}
+
+	root = root.documentElement;
+	// cloneNode doesn't clone data => walk DOM to clone it
+	var clonedRoot = root.cloneNode( true );
+	cloneData(root, clonedRoot);
+	console.warn(clonedRoot.innerHTML);
+}
+
 function computeDocDSR(root, env) {
 	var startOffset = 0,
 		endOffset = env.page.src.length,
@@ -2156,7 +2147,7 @@ function computeDocDSR(root, env) {
 
 	if (psd.debug || (psd.dumpFlags && (psd.dumpFlags.indexOf("dom:pre-dsr") !== -1))) {
 		console.warn("------ DOM: pre-DSR -------");
-		console.warn(root.innerHTML);
+		dumpDomWithDataAttribs( root );
 		console.warn("----------------------------");
 	}
 
@@ -2167,15 +2158,14 @@ function computeDocDSR(root, env) {
 	var body = root.body;
 	computeNodeDSR(env, body, startOffset, endOffset, traceDSR);
 
-	var dp = DU.dataParsoid(body);
+	var dp = DU.getDataParsoid( body );
 	dp.dsr = [startOffset, endOffset, 0, 0];
-	DU.setDataParsoid(body, dp);
 
 	if (traceDSR) console.warn("------- done tracing DSR computation -------");
 
 	if (psd.debug || (psd.dumpFlags && (psd.dumpFlags.indexOf("dom:post-dsr") !== -1))) {
 		console.warn("------ DOM: post-DSR -------");
-		console.warn(root.innerHTML);
+		dumpDomWithDataAttribs( root );
 		console.warn("----------------------------");
 	}
 }
@@ -2191,7 +2181,7 @@ function encapsulateTemplateOutput( document, env ) {
 
 	if (psd.debug || (psd.dumpFlags && (psd.dumpFlags.indexOf("dom:pre-encap") !== -1))) {
 		console.warn("------ DOM: pre-encapsulation -------");
-		console.warn(document.innerHTML);
+		dumpDomWithDataAttribs( document );
 		console.warn("----------------------------");
 	}
 	// walk through document and look for tags with typeof="mw:Object*"
@@ -2352,17 +2342,15 @@ function handleLinkNeighbours( env, node ) {
 
 	var ix, prefix = getLinkPrefix( env, node ),
 		trail = getLinkTrail( env, node ),
-		dp = Util.getJSONAttribute( node, 'data-parsoid', {} ),
-		updated = false;
+		dp = DU.getDataParsoid( node );
 
 	if ( prefix && prefix.content ) {
 		for ( ix = 0; ix < prefix.content.length; ix++ ) {
 			node.insertBefore( prefix.content[ix], node.firstChild );
 		}
 		if ( prefix.src.length > 0 ) {
-			updated = true;
 			dp.prefix = prefix.src;
-			if (dp.dsr) {
+			if ( dp.dsr ) {
 				dp.dsr[0] -= prefix.src.length;
 				dp.dsr[2] += prefix.src.length;
 			}
@@ -2374,17 +2362,35 @@ function handleLinkNeighbours( env, node ) {
 			node.appendChild( trail.content[ix] );
 		}
 		if ( trail.src.length > 0 ) {
-			updated = true;
 			dp.tail = trail.src;
-			if (dp.dsr) {
+			if ( dp.dsr ) {
 				dp.dsr[1] += trail.src.length;
 				dp.dsr[3] += trail.src.length;
 			}
 		}
 	}
+}
 
-	if ( updated ) {
-		node.setAttribute( 'data-parsoid', JSON.stringify( dp ) );
+/**
+ * @method
+ *
+ * Migrate data-parsoid attributes into a property on each DOM node. We'll
+ * migrate them back in the final DOM traversal.
+ *
+ * @param {Node} node
+ */
+function migrateDataParsoid( node ) {
+	DU.loadDataParsoid( node );
+}
+
+/**
+ * @method
+ *
+ * Save the data-parsoid attributes on each node.
+ */
+function saveDataParsoid( node ) {
+	if ( node.nodeType === node.ELEMENT_NODE && node.data ) {
+		DU.saveDataAttribs( node );
 	}
 }
 
@@ -2392,8 +2398,13 @@ function DOMPostProcessor(env, options) {
 	this.env = env;
 	this.options = options;
 
+	// DOM traverser that runs before the in-order DOM handlers.
+	var firstDOMHandlerPass = new DOMTraverser();
+	firstDOMHandlerPass.addHandler( null, migrateDataParsoid );
+
 	// Common post processing
 	this.processors = [
+		firstDOMHandlerPass.traverse.bind( firstDOMHandlerPass ),
 		handleUnbalancedTableTags,
 		migrateStartMetas,
 		normalizeDocument,
@@ -2416,11 +2427,15 @@ function DOMPostProcessor(env, options) {
 	// 1. Link prefixes and suffixes
 	// 2. Strip marker metas -- removes left over marker metas (ex: metas
 	//    nested in expanded tpl/extension output).
-	var lastDOMVisitor = new DOMTraverser();
-	lastDOMVisitor.addHandler( 'a', handleLinkNeighbours.bind( null, env ) );
-	lastDOMVisitor.addHandler('meta', stripMarkerMetas);
+	var lastDOMHandler = new DOMTraverser();
+	lastDOMHandler.addHandler( 'a', handleLinkNeighbours.bind( null, env ) );
+	lastDOMHandler.addHandler( 'meta', stripMarkerMetas );
 
-	this.processors.push(lastDOMVisitor.traverse.bind(lastDOMVisitor));
+	var reallyLastDOMHandler = new DOMTraverser();
+	reallyLastDOMHandler.addHandler( null, saveDataParsoid );
+
+	this.processors.push(lastDOMHandler.traverse.bind(lastDOMHandler));
+	this.processors.push(reallyLastDOMHandler.traverse.bind(reallyLastDOMHandler));
 }
 
 // Inherit from EventEmitter
