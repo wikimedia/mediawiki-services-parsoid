@@ -764,7 +764,7 @@ WSP._serializeHTMLTag = function ( state, token ) {
 
 	var close = '';
 	if ( (Util.isVoidElement( token.name ) && !da.noClose) || da.selfClose ) {
-		close = '/';
+		close = ' /';
 	}
 
 	var sAttribs = WSP._serializeAttributes(state, token),
@@ -2478,11 +2478,9 @@ WSP.makeSeparator = function(sep, nlConstraints, state) {
 	var commentRe = '<!--(?:[^-]|-(?!->))*-->',
 		// Split on comment/ws-only lines, consuming subsequent newlines since
 		// those lines are ignored by the PHP parser
-		splitReString = '\n(?:[^\n]*?' + commentRe + '[^\n]*?)+(?!$)' +
-					// Subsequent comment/ws-only lines are collapsed
-					'(?:\n?(?:[^\n]*?' + commentRe + '[^\n]*?\n?\n?)+)?' +
-					// Also split on plain comments not surrounded by newlines
-					'|' + commentRe,
+
+		// Ignore lines with ws and a single comment in them
+		splitReString = '(?:\n[^\n]*?' + commentRe + '[^\n]*?(?=\n))+|' + commentRe,
 		splitRe = new RegExp(splitReString),
 		sepMatch = sep.split(splitRe).join('').match(/\n/g),
 		sepNlCount = sepMatch && sepMatch.length || 0,
