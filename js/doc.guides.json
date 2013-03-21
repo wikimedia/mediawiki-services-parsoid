@@ -1,0 +1,25 @@
+[
+	{
+		"title": "Parsoid guides",
+		"items": [
+			{
+				"name": "setup",
+				"url": "guides/setup",
+				"title": "Setting up Parsoid",
+				"description": "Get Parsoid set up on your machine and start using it."
+			},
+			{
+				"name": "devsetup",
+				"url": "guides/devsetup",
+				"title": "Setting up Parsoid for development",
+				"description": "Get Parsoid set up and start developing for it."
+			},
+			{
+				"name": "apiuse",
+				"url": "guides/apiuse",
+				"title": "Using Parsoid's API",
+				"description": "How to use Parsoid's HTTP API to parse and roundtrip wikitext."
+			}
+		]
+	}
+]

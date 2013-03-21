@@ -4,6 +4,7 @@
 	"--ignore-global": true,
 	"--builtin-classes": true,
 	"--output": "doc/",
+	"--guides": "./doc.guides.json",
 	"--": [
 		"./doc.basicTypes.js",
 		"./lib/core-upgrade.js",
