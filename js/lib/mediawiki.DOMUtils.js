@@ -19,6 +19,10 @@ var DOMUtils = {
 
 	// Decode a JSON object into the data member of DOM nodes
 	loadDataAttrib: function(node, name, defaultVal) {
+		if ( node.nodeType !== node.ELEMENT_NODE ) {
+			return;
+		}
+
 		if ( ! node.data ) {
 			node.data = {};
 		}
@@ -30,7 +34,14 @@ var DOMUtils = {
 
 	// Save all node.data.* structures to data attributes
 	saveDataAttribs: function(node) {
+		if ( node.nodeType !== node.ELEMENT_NODE ) {
+			return;
+		}
+
 		for(var key in node.data) {
+			if ( key.match( /^tmp_/ ) !== null ) {
+				continue;
+			}
 			var val = node.data[key];
 			if ( val && val.constructor === String ) {
 				node.setAttribute('data-' + key, val);
@@ -58,6 +69,10 @@ var DOMUtils = {
 	},
 
 	getJSONAttribute: function(n, name, defaultVal) {
+		if ( n.nodeType !== n.ELEMENT_NODE ) {
+			return defaultVal !== undefined ? defaultVal : {};
+		}
+
 		var attVal = n.getAttribute(name);
 		if (!attVal) {
 			return defaultVal !== undefined ? defaultVal : {};
