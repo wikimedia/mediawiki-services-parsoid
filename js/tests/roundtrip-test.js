@@ -235,31 +235,6 @@ findDsr = function (root, targetRange, sourceLen) {
 
 checkIfSignificant = function ( env, offsets, src, body, out, cb, document ) {
 
-	// Work around JSDOM's borken outerHTML pretty-printing / indenting.
-	// At least it does not indent innerHTML, so we get to fish out the
-	// parent element tag(s) and combine them with innerHTML.
-	//
-	// See jsdom/lib/jsdom/browser/index.js for the broken call to
-	// domToHtml.
-	function myOuterHTML ( node ) {
-		var jsOuterHTML = node.outerHTML || node.nodeValue,
-			startTagMatch = jsOuterHTML.match(/^ *(<[^>]+>)/),
-			endTagMatch = jsOuterHTML.match(/<[^>]+>$/);
-		if ( startTagMatch ) {
-			var tag = startTagMatch[1];
-			if ( startTagMatch[0].length === jsOuterHTML.length ) {
-				return tag;
-			} else {
-				if ( endTagMatch ) {
-					return tag + node.innerHTML + endTagMatch[0];
-				} else {
-					return tag + node.innerHTML;
-				}
-			}
-		} else {
-			return jsOuterHTML;
-		}
-	}
 
 	function normalizeWikitext(str) {
 		var orig = str;
@@ -317,7 +292,7 @@ checkIfSignificant = function ( env, offsets, src, body, out, cb, document ) {
 		var res = findDsr( body, offset[0] || {}, src.length);
 		origOut = res ? res.nodes : [];
 		for ( k = 0; k < origOut.length; k++ ) {
-			origOrigHTML += myOuterHTML(origOut[k]);
+			origOrigHTML += origOut[k].outerHTML;
 		}
 		origHTML = Util.formatHTML( Util.normalizeOut( origOrigHTML ) );
 
@@ -325,16 +300,30 @@ checkIfSignificant = function ( env, offsets, src, body, out, cb, document ) {
 		res = findDsr( document.firstChild.childNodes[1], offset[1] || {}, out.length);
 		newOut = res ? res.nodes : [];
 		for ( k = 0; k < newOut.length; k++ ) {
-			origNewHTML += myOuterHTML(newOut[k]);
+			origNewHTML += newOut[k].outerHTML;
 		}
 		newHTML = Util.formatHTML( Util.normalizeOut( origNewHTML ) );
 
 		// compute wt diffs
 		var wt1 = src.substring( offset[0].start, offset[0].end );
 		var wt2 = out.substring( offset[1].start, offset[1].end );
-		thisResult.wtDiff = Util.diff(wt1, wt2, false, true, true);
+		//thisResult.wtDiff = Util.contextDiff(wt1, wt2, false, true, true);
+
+		// Get diff substrings from offsets
+		function formatDiff (context) {
+			return [
+			'----',
+			src.substring(offset[0].start - context, offset[0].end + context),
+			'++++',
+			out.substring(offset[1].start - context, offset[1].end + context)
+			].join('\n');
+		}
 
 		diff = Util.diff( origHTML, newHTML, false, true, true );
+
+
+		// No context by default
+		thisResult.wtDiff = formatDiff(0);
 
 		// Normalize wts to check if we really have a semantic diff
 		thisResult.type = 'skip';
@@ -346,6 +335,8 @@ checkIfSignificant = function ( env, offsets, src, body, out, cb, document ) {
 				//console.log( 'normDiff: =======\n' + normWT1 + '\n--------\n' + normWT2);
 				thisResult.htmlDiff = diff;
 				thisResult.type = 'fail';
+				// Provide context for semantic diffs
+				thisResult.wtDiff = formatDiff(25);
 			}
 		}
 		results.push( thisResult );

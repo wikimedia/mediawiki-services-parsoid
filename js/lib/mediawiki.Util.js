@@ -1175,6 +1175,26 @@ Util.convertDiffToOffsetPairs = convertDiffToOffsetPairs;
 
 }( Util ) );
 
+// Variant of diff with some extra context
+Util.contextDiff = function(a, b, color, onlyReportChanges, useLines) {
+	var diff = jsDiff.diffLines( a, b ),
+		offsetPairs = this.convertDiffToOffsetPairs( diff ),
+		results = [];
+	offsetPairs.map(function(pair) {
+		var context = 5,
+			asource = a.substring(pair[0].start - context, pair[0].end + context),
+			bsource = b.substring(pair[1].start - context, pair[1].end + context);
+		results.push('++++++\n' + JSON.stringify(asource));
+		results.push('------\n' + JSON.stringify(bsource));
+		//results.push('======\n' + Util.diff(a, b, color, onlyReportChanges, useLines));
+	});
+	if ( !onlyReportChanges || diff.length > 0 ) {
+		return results.join('\n');
+	} else {
+		return '';
+	}
+};
+
 var diff = function ( a, b, color, onlyReportChanges, useLines ) {
 	var thediff, patch, diffs = 0;
 	if ( color ) {
