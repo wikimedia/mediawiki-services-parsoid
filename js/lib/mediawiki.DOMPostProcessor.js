@@ -654,7 +654,7 @@ function migrateTrailingNLs(elt, env) {
 	// These nodes either end a line in wikitext (tr, li, dd, ol, ul, dl, caption, p)
 	// or have implicit closing tags that can leak newlines to those that end a line (th, td)
 	var nodesToMigrateFrom = Util.arrayToHash([
-		"th", "td", "tr", "li", "dd", "ol", "ul", "dl", "caption", "p"
+		"tbody", "th", "td", "tr", "li", "dd", "ol", "ul", "dl", "caption", "p"
 	]);
 
 	if (DU.hasNodeName(elt, "pre")) {
