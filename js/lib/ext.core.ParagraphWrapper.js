@@ -26,16 +26,13 @@ ParagraphWrapper.prototype.reset = function() {
 	this.tableTags = [];
 	this.nlWsTokens = [];
 	this.nonNlTokens = [];
-	this.currLine = {
-		tokens: [],
-		hasBlockToken: this.options.inBlockToken === undefined ? false : this.options.inBlockToken,
-		hasWrappableTokens: false
-	};
 	this.newLineCount = 0;
 	this.hasOpenPTag = false;
 	this.hasOpenHTMLPTag = false;
 	this.inPre = false;
-}
+	this.resetCurrLine(true);
+	this.currLine.hasBlockToken = this.options.inBlockToken === undefined ? false : this.options.inBlockToken;
+};
 
 // constants
 ParagraphWrapper.prototype.newlineRank = 2.95;
@@ -64,12 +61,14 @@ ParagraphWrapper.prototype._getTokensAndReset = function (res) {
 	return resToks;
 };
 
-ParagraphWrapper.prototype.discardOneNlTk = function() {
-	for (var i = 0, n = this.nlWsTokens.length; i < n; i++) {
-		var t = this.nlWsTokens[i];
+ParagraphWrapper.prototype.discardOneNlTk = function(out) {
+	var i = 0, n = this.nlWsTokens.length;
+	while (i < n) {
+		var t = this.nlWsTokens.shift();
 		if (t.constructor === NlTk) {
-			this.nlWsTokens = this.nlWsTokens.splice(i+1);
 			return t;
+		} else {
+			out.push(t);
 		}
 	}
 
@@ -84,9 +83,11 @@ ParagraphWrapper.prototype.closeOpenPTag = function(out) {
 	}
 };
 
-ParagraphWrapper.prototype.resetCurrLine = function () {
+ParagraphWrapper.prototype.resetCurrLine = function(atEOL) {
 	this.currLine = {
 		tokens: [],
+		isNewline: atEOL,
+		commentCount: 0,
 		hasBlockToken: false,
 		hasWrappableTokens: false
 	};
@@ -106,12 +107,21 @@ ParagraphWrapper.prototype.onNewLineOrEOF = function (  token, frame, cb ) {
 		this.hasOpenPTag = true;
 	}
 
+	// PHP parser ignores (= strips out during preprocessing) lines with
+	// a single comment and other white-space. This flag checks if we are
+	// on such a line.
+	var emptyLineWithSingleComment =
+		l.isNewline &&
+		!l.hasWrappableTokens &&
+		l.commentCount === 1;
+
 	// this.nonNlTokens += this.currLine.tokens
 	this.nonNlTokens = this.nonNlTokens.concat(l.tokens);
-	this.resetCurrLine();
 
-	this.nlWsTokens.push(token);
+	this.resetCurrLine(true);
+
 	if (token.constructor === EOFTk) {
+		this.nlWsTokens.push(token);
 		this.closeOpenPTag(this.nonNlTokens);
 		var res = this.processPendingNLs(false);
 		this.inPre = false;
@@ -119,8 +129,19 @@ ParagraphWrapper.prototype.onNewLineOrEOF = function (  token, frame, cb ) {
 		this.hasOpenHTMLPTag = false;
 		this.reset();
 		return { tokens: res };
+	} else if (emptyLineWithSingleComment) {
+		// 1. Dont increment newline count on "empty" lines with
+		//    a single comment -- see comment above
+		//
+		// 2. Convert the NlTk to a String-representation so that
+		//    it doesn't get processed by discardOneNlTk -- this
+		//    newline needs to be emitted (so it gets RTed) without
+		//    being processed for p-wrapping.
+		this.nlWsTokens.push("\n");
+		return {};
 	} else {
 		this.newLineCount++;
+		this.nlWsTokens.push(token);
 		return {};
 	}
 };
@@ -144,45 +165,43 @@ ParagraphWrapper.prototype.processPendingNLs = function (isBlockToken) {
 			if (!topTag || topTag === 'td' || topTag === 'th') {
 				// 2. Discard 3 newlines (the p-br-p section
 				// serializes back to 3 newlines)
-				nlTk = this.discardOneNlTk();
-				nlTk2 = this.discardOneNlTk();
-				this.discardOneNlTk();
+				resToks.push(this.discardOneNlTk(resToks));
+				resToks.push(this.discardOneNlTk(resToks));
+				nlTk = this.discardOneNlTk(resToks);
 
 				// Preserve nls for pretty-printing and dsr reliability
-				resToks.push(nlTk);
-				resToks.push(nlTk2);
 
 				// 3. Insert <p><br></p> sections
 				// FIXME: Mark this as a placeholder for now until the
 				// editor handles this properly
 				resToks.push(new TagTk( 'p', [new KV('typeof', 'mw:Placeholder')] ));
 				resToks.push(new SelfclosingTagTk('br'));
+				resToks.push(nlTk);
 				if (newLineCount > 3) {
 					resToks.push(new EndTagTk('p'));
 				} else {
 					this.hasOpenPTag = true;
 				}
 			} else {
-				resToks.push(this.discardOneNlTk());
-				resToks.push(this.discardOneNlTk());
-				resToks.push(this.discardOneNlTk());
+				resToks.push(this.discardOneNlTk(resToks));
+				resToks.push(this.discardOneNlTk(resToks));
+				resToks.push(this.discardOneNlTk(resToks));
 			}
 
 			newLineCount -= 3;
 		}
 
 		if (newLineCount === 2) {
-			nlTk = this.discardOneNlTk();
-			nlTk2 = this.discardOneNlTk();
+			resToks.push(this.discardOneNlTk(resToks));
+			nlTk = this.discardOneNlTk(resToks);
 			this.closeOpenPTag(resToks);
 			resToks.push(nlTk);
-			resToks.push(nlTk2);
 		}
 	}
 
 	if (isBlockToken) {
 		if (newLineCount === 1){
-			nlTk = this.discardOneNlTk();
+			nlTk = this.discardOneNlTk(resToks);
 			this.closeOpenPTag(resToks);
 			resToks.push(nlTk);
 		} else {
@@ -292,11 +311,25 @@ ParagraphWrapper.prototype.onAny = function ( token, frame ) {
 		}
 	} else if (tc === EOFTk || this.inPre) {
 		return { tokens: [token] };
-	} else if ((tc === String && token.match( /^[\t ]*$/)) ||
-			(tc === CommentTk) ||
+	} else if ((tc === String && token.match( /^[\t ]*$/)) || tc === CommentTk) {
+		if (tc === CommentTk) {
+			this.currLine.commentCount++;
+		}
+
+		if (this.newLineCount === 0) {
+			this.currLine.tokens.push(token);
+			// Since we have no pending newlines to trip us up,
+			// no need to buffer -- just emit everything
+			return { tokens: this._getTokensAndReset() };
+		} else {
+			// We are in buffering mode waiting till we are ready to
+			// process pending newlines.
+			this.nlWsTokens.push(token);
+			return {};
+		}
+	} else if (isNamedTagToken(token, {'link':1}) ||
 			// TODO: narrow this down a bit more to take typeof into account
-			(tc === SelfclosingTagTk && token.name === 'meta') ||
-			isNamedTagToken(token, {'link':1}) )
+			(tc === SelfclosingTagTk && token.name === 'meta' && token.dataAttribs.stx !== 'html'))
 	{
 		if (this.newLineCount === 0) {
 			this.currLine.tokens.push(token);

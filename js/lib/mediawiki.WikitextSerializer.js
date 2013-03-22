@@ -1867,8 +1867,9 @@ WSP.tagHandlers = {
 						node.parentNode.childNodes.length === 1) {
 					// p/br pair
 					// Hackhack ;)
-					state.sep.constraints.min = 3;
-					state.sep.constraints.max = 3;
+					// SSS FIXME: With the change I made, this check can be simplified?
+					state.sep.constraints.min = 2;
+					state.sep.constraints.max = 2;
 					cb('');
 				} else {
 					cb('');
