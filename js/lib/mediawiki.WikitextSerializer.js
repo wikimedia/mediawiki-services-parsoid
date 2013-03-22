@@ -41,9 +41,9 @@ var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
  */
 var emitStartTag = function (src, node, state, cb) {
 	if (!state.rtTesting) {
-		cb(src);
+		cb(src, node);
 	} else if (!node.data.parsoid.autoInsertedStart) {
-		cb(src);
+		cb(src, node);
 	}
 	// else: drop content
 };
@@ -54,9 +54,9 @@ var emitStartTag = function (src, node, state, cb) {
  */
 var emitEndTag = function (src, node, state, cb) {
 	if (!state.rtTesting) {
-		cb(src);
+		cb(src, node);
 	} else if (!node.data.parsoid.autoInsertedEnd) {
-		cb(src);
+		cb(src, node);
 	}
 	// else: drop content
 };
@@ -426,7 +426,11 @@ WSP.initialState = {
 		}
 		if (forceSep && oldSep === this.sep) {
 			// Force separator out
-			chunkCB('');
+			if (nodes.length) {
+				chunkCB('', nodes.last());
+			} else {
+				chunkCB('', {nodeName: 'fooobar'});
+			}
 		}
 		this.chunkCB = oldCB;
 		if ( wtEscaper ) {
@@ -444,9 +448,9 @@ WSP.initialState = {
 		var bits = [],
 			sepState = this.sep,
 			self = this,
-			cb = function(res) {
+			cb = function(res, node) {
 				if(res) {
-					WSP.emitSeparator(self, function(sep) { bits.push(sep); });
+					WSP.emitSeparator(self, function(sep) { bits.push(sep); }, node);
 				}
 				bits.push(res);
 			};
@@ -642,7 +646,7 @@ WSP.figureHandler = function(node, state, cb) {
 		caption = node.lastChild;
 	} catch (e) {
 		console.error('ERROR in figureHandler: no img or caption found!');
-		return cb('');
+		return cb('', node);
 	}
 
 	// Captions dont start on a new line
@@ -723,7 +727,7 @@ WSP.figureHandler = function(node, state, cb) {
 		outBits.push(size.width + (size.height ? "x" + size.height : '') + "px");
 	}
 
-	cb( "[[" + outBits.join('|') + "]]" );
+	cb( "[[" + outBits.join('|') + "]]", node );
 };
 
 
@@ -1014,11 +1018,11 @@ WSP.linkHandler =  function(node, state, cb) {
 			if ( canUseSimple ) {
 				// Simple case
 				if ( ! target.modified ) {
-					cb( linkData.prefix + '[[' + target.value + ']]' + linkData.tail );
+					cb( linkData.prefix + '[[' + target.value + ']]' + linkData.tail, node );
 					return;
 				} else {
 					contentSrc = escapeWikiLinkContentString(linkData.content.string, state);
-					cb( linkData.prefix + '[[' + contentSrc + ']]' + linkData.tail );
+					cb( linkData.prefix + '[[' + contentSrc + ']]' + linkData.tail, node );
 					return;
 				}
 			} else {
@@ -1050,7 +1054,7 @@ WSP.linkHandler =  function(node, state, cb) {
 					contentSrc = '<nowiki/>';
 				}
 
-				cb( linkData.prefix + '[[' + linkData.target.value + '|' + contentSrc + ']]' + linkData.tail );
+				cb( linkData.prefix + '[[' + linkData.target.value + '|' + contentSrc + ']]' + linkData.tail, node );
 				return;
 			}
 		} else if ( rel === 'mw:ExtLink' ) {
@@ -1061,20 +1065,20 @@ WSP.linkHandler =  function(node, state, cb) {
 
 			cb( '[' + target.value + ' ' +
 				state.serializeChildrenToString(node.childNodes, WSP.wteHandlers.aHandler) +
-				']' );
+				']', node );
 		} else if ( rel.match( /mw:ExtLink\/(?:ISBN|RFC|PMID)/ ) ) {
-			cb( node.firstChild.nodeValue );
+			cb( node.firstChild.nodeValue, node );
 		} else if ( rel === 'mw:ExtLink/URL' ) {
-			cb( linkData.target.value );
+			cb( linkData.target.value, node );
 		} else if ( rel === 'mw:ExtLink/Numbered' ) {
 			// XXX: Use shadowed href? Storing serialized tokens in
 			// data-parsoid seems to be... wrong.
-			cb( '[' + Util.tokensToString(linkData.target.value) + ']');
+			cb( '[' + Util.tokensToString(linkData.target.value) + ']', node);
 		} else if ( rel === 'mw:Image' ) {
 			// simple source-based round-tripping for now..
 			// TODO: properly implement!
 			if ( dp.src ) {
-				cb( dp.src );
+				cb( dp.src, node );
 			}
 		} else {
 			// Unknown rel was set
@@ -1085,7 +1089,7 @@ WSP.linkHandler =  function(node, state, cb) {
 			}
 			cb( '[' + target.value + ' ' +
 				state.serializeChildrenToString(node.childNodes, WSP.wteHandlers.aHandler) +
-				']' );
+				']', node );
 			return;
 		}
 	} else {
@@ -1112,7 +1116,7 @@ WSP.linkHandler =  function(node, state, cb) {
 			var href = encodeURI(node.getAttribute('href'));
 			cb( '[' + href + ' ' +
 				state.serializeChildrenToString(node.childNodes, WSP.wteHandlers.aHandler) +
-				']' );
+				']', node );
 		}
 	}
 
@@ -1144,9 +1148,9 @@ function buildHeadingHandler(headingWT) {
 				state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.headingHandler);
 			} else {
 				// Deal with empty headings
-				cb('<nowiki/>');
+				cb('<nowiki/>', node);
 			}
-			cb (headingWT);
+			cb (headingWT, node);
 		},
 		sepnls: {
 			before: id({min:1, max:2}),
@@ -1310,7 +1314,7 @@ WSP.tagHandlers = {
 			var firstChildElement = DU.getFirstNonSepChildNode(node);
 			if (!firstChildElement || ! (firstChildElement.nodeName in {DT:1, DD: 1}))
 			{
-				cb(WSP._getListBullets(node));
+				cb(WSP._getListBullets(node), node);
 			}
 			// Just serialize the children, ignore the (implicit) tbody
 			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.liHandler, true);
@@ -1335,7 +1339,7 @@ WSP.tagHandlers = {
 			var firstChildElement = DU.getFirstNonSepChildNode(node);
 			if (!firstChildElement || firstChildElement.nodeName !== 'LI')
 			{
-				cb(WSP._getListBullets(node));
+				cb(WSP._getListBullets(node), node);
 			}
 			// Just serialize the children
 			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.liHandler, true);
@@ -1360,7 +1364,7 @@ WSP.tagHandlers = {
 			var firstChildElement = DU.getFirstNonSepChildNode(node);
 			if (!firstChildElement || firstChildElement.nodeName !== 'LI')
 			{
-				cb(WSP._getListBullets(node));
+				cb(WSP._getListBullets(node), node);
 			}
 			// Just serialize the children, ignore the (implicit) tbody
 			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.liHandler, true);
@@ -1388,7 +1392,7 @@ WSP.tagHandlers = {
 				forceSep = false;
 			if (!firstChildElement || ! (firstChildElement.nodeName in {UL:1, OL:1, DL:1}))
 			{
-				cb(WSP._getListBullets(node));
+				cb(WSP._getListBullets(node), node);
 				forceSep = true;
 			}
 			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.liHandler, forceSep);
@@ -1419,7 +1423,7 @@ WSP.tagHandlers = {
 		handle: function (node, state, cb) {
 			var firstChildElement = DU.getFirstNonSepChildNode(node);
 			if (!firstChildElement || ! (firstChildElement.nodeName in {UL:1, OL:1, DL:1})) {
-				cb(WSP._getListBullets(node));
+				cb(WSP._getListBullets(node), node);
 			}
 			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.liHandler);
 		},
@@ -1450,9 +1454,9 @@ WSP.tagHandlers = {
 			if (!firstChildElement || ! (firstChildElement.nodeName in {UL:1, OL:1, DL:1})) {
 				// XXX: handle stx: row
 				if (node.data.parsoid.stx === 'row') {
-					cb(':');
+					cb(':', node);
 				} else {
-					cb(WSP._getListBullets(node));
+					cb(WSP._getListBullets(node), node);
 				}
 				forceSep = true;
 			}
@@ -1484,7 +1488,7 @@ WSP.tagHandlers = {
 	table: {
 		handle: function (node, state, cb) {
 			var wt = node.data.parsoid.startTagSrc || "{|";
-			cb(WSP._serializeTableTag(wt, '', state, DU.mkTagTk(node)));
+			cb(WSP._serializeTableTag(wt, '', state, DU.mkTagTk(node)), node);
 			state.serializeChildren(node.childNodes, cb);
 			emitEndTag(node.data.parsoid.endTagSrc || "|}", node, state, cb);
 		},
@@ -1684,7 +1688,7 @@ WSP.tagHandlers = {
 				}
 				cb('<pre>' + lostLine +
 						// escape embedded </pre>
-						node.innerHTML.replace(/<\/pre( [^>]*)>/g, '&lt;/pre$1&gt'));
+						node.innerHTML.replace(/<\/pre( [^>]*)>/g, '&lt;/pre$1&gt'), node);
 			} else {
 				// Handle indent pre
 
@@ -1698,13 +1702,14 @@ WSP.tagHandlers = {
 
 
 				// Strip trailing separators
-				var trailingSep = content.match(/\s*$/);
-				content = content.replace(/\s*$/, '');
+				//var trailingSep = content.match(/\s*$/);
+				//content = content.replace(/\s*$/, '');
 
-				cb(content);
+				cb(content, node);
 
 				// Preserve separator source
-				state.sep.src = trailingSep && trailingSep[0] || '';
+				//state.sep.src = trailingSep && trailingSep[0] || '';
+				state.sep.src = '';
 			}
 				state.inIndentPre = false;
 		},
@@ -1734,23 +1739,23 @@ WSP.tagHandlers = {
 							 } else {
 								 console.warn( JSON.stringify( node.outerHTML ) );
 							 }
-							 cb('<' + content + '>');
+							 cb('<' + content + '>', node);
 							 break;
 					case 'mw:Includes/IncludeOnly':
 					case 'mw:Includes/IncludeOnly/End':
-							 cb(node.data.parsoid.src);
+							 cb(node.data.parsoid.src, node);
 							 break;
 					case 'mw:Includes/NoInclude':
-							 cb(node.data.parsoid.src || '<noinclude>');
+							 cb(node.data.parsoid.src || '<noinclude>', node);
 							 break;
 					case 'mw:Includes/NoInclude/End':
-							 cb(node.data.parsoid.src || '</noinclude>');
+							 cb(node.data.parsoid.src || '</noinclude>', node);
 							 break;
 					case 'mw:Includes/OnlyInclude':
-							 cb(node.data.parsoid.src || '<onlyinclude>');
+							 cb(node.data.parsoid.src || '<onlyinclude>', node);
 							 break;
 					case 'mw:Includes/OnlyInclude/End':
-							 cb(node.data.parsoid.src || '</onlyinclude>');
+							 cb(node.data.parsoid.src || '</onlyinclude>', node);
 							 break;
 					case 'mw:DiffMarker':
 					case 'mw:Separator':
@@ -1768,7 +1773,7 @@ WSP.tagHandlers = {
 					if ( node.data.parsoid.magicSrc ) {
 						switchType = node.data.parsoid.magicSrc;
 					}
-					cb(switchType);
+					cb(switchType, node);
 				}
 			} else {
 				WSP._htmlElementHandler(node, state, cb);
@@ -1800,7 +1805,7 @@ WSP.tagHandlers = {
 			var type = node.getAttribute('typeof');
 			if (type && type in WSP.genContentSpanTypes) {
 				if (type === 'mw:Nowiki') {
-					cb('<nowiki>');
+					cb('<nowiki>', node);
 					if (node.childNodes.length === 1 && node.firstChild.nodeName === 'PRE') {
 						state.serializeChildren(node.childNodes, cb);
 					} else {
@@ -1812,10 +1817,10 @@ WSP.tagHandlers = {
 								{
 									state.serializeChildren([child], cb);
 								} else {
-									cb(child.outerHTML);
+									cb(child.outerHTML, node);
 								}
 							} else if (child.nodeType === node.TEXT_NODE) {
-								cb(child.nodeValue.replace(/<(\/?nowiki)>/g, '&lt;$1&gt;'));
+								cb(child.nodeValue.replace(/<(\/?nowiki)>/g, '&lt;$1&gt;'), child);
 							} else {
 								state.serializeChildren([child], cb);
 							}
@@ -1837,13 +1842,13 @@ WSP.tagHandlers = {
 	img: {
 		handle: function (node, state, cb) {
 			if ( node.getAttribute('rel') === 'mw:externalImage' ) {
-				WSP.emitWikitext(node.getAttribute('src') || '', state, cb);
+				WSP.emitWikitext(node.getAttribute('src') || '', state, cb, node);
 			}
 		}
 	},
 	hr: {
 		handle: function (node, state, cb) {
-			cb(Util.charSequence("----", "-", node.data.parsoid.extra_dashes));
+			cb(Util.charSequence("----", "-", node.data.parsoid.extra_dashes), node);
 		},
 		sepnls: {
 			before: id({min: 1, max: 2}),
@@ -1860,7 +1865,7 @@ WSP.tagHandlers = {
 	br: {
 		handle: function(node, state, cb) {
 			if (node.data.parsoid.stx === 'html' || node.parentNode.nodeName !== 'P') {
-				cb('<br>');
+				cb('<br>', node);
 			} else {
 				// Trigger separator
 				if (state.sep.constraints && state.sep.constraints.min === 2 &&
@@ -1872,7 +1877,7 @@ WSP.tagHandlers = {
 					state.sep.constraints.max = 2;
 					cb('');
 				} else {
-					cb('');
+					cb('', node);
 				}
 			}
 		},
@@ -2095,6 +2100,7 @@ WSP._getDOMHandler = function(node, state, cb) {
 	}
 	if (!node.data || !node.data.parsoid) {
 		DU.loadDataParsoid(node);
+		DU.loadDataAttrib(node, 'parsoid-serialize', {});
 	}
 
 	var dp = node.data.parsoid,
@@ -2130,7 +2136,7 @@ WSP._getDOMHandler = function(node, state, cb) {
 			return {
 				handle: function () {
 					state.activeTemplateId = node.getAttribute('about') || null;
-					WSP.emitWikitext(dp.src, state, cb);
+					WSP.emitWikitext(dp.src, state, cb, node);
 				},
 				sepnls: {
 					// XXX: This is questionable, as the template can expand
@@ -2149,7 +2155,7 @@ WSP._getDOMHandler = function(node, state, cb) {
 					if (dp.src.match(/^\n+$/)) {
 						state.sep.src = (state.sep.src || '') + dp.src;
 					} else {
-						WSP.emitWikitext(dp.src, state, cb);
+						WSP.emitWikitext(dp.src, state, cb, node);
 					}
 				}
 			};
@@ -2159,10 +2165,10 @@ WSP._getDOMHandler = function(node, state, cb) {
 			return  {
 				handle: function () {
 					if ( contentSrc === dp.srcContent ) {
-						WSP.emitWikitext(dp.src, state, cb);
+						WSP.emitWikitext(dp.src, state, cb, node);
 					} else {
 						//console.log(contentSrc, dp.srcContent);
-						WSP.emitWikitext(contentSrc, state, cb);
+						WSP.emitWikitext(contentSrc, state, cb, node);
 					}
 				}
 			};
@@ -2248,29 +2254,31 @@ WSP._serializeTextNode = function(node, state, cb) {
 	res = ( state.inNoWiki || state.inHTMLPre ) ? res
 		: this.escapeWikiText( state, res );
 
-	cb(res);
+	cb(res, node);
 	//console.log('text', JSON.stringify(res));
 
 	// Move trailing newlines into the next separator
 	if (newSepMatch && !state.sep.src) {
 		state.sep.src = newSepMatch[0];
+		state.sep.lastSourceSep = state.sep.src;
 	}
 };
 
 /**
  * Emit non-separator wikitext that does not need to be escaped
  */
-WSP.emitWikitext = function(text, state, cb) {
+WSP.emitWikitext = function(text, state, cb, node) {
 	// Strip leading newlines. They are already added to the separator source
 	// in handleSeparatorText.
 	var res = text.replace(/^\n/, '');
 	// Deal with trailing newlines
 	var newSepMatch = res.match(/\n\s*$/);
 	res = res.replace(/\n\s*$/, '');
-	cb(res);
+	cb(res, node);
 	// Move trailing newlines into the next separator
 	if (newSepMatch && !state.sep.src) {
 		state.sep.src = newSepMatch[0];
+		state.sep.lastSourceSep = state.sep.src;
 	}
 };
 
@@ -2320,8 +2328,7 @@ WSP._getDOMRTInfo = function( node ) {
  */
 WSP.handleSeparatorText = function ( node, state ) {
 	var isOnlyChild = !node.previousSibling && !node.nextSibling;
-	if (!isOnlyChild)
-	{
+	if (!isOnlyChild) {
 		if (node.nodeType === node.TEXT_NODE) {
 			if (node.nodeValue.match(/^\s*$/)) {
 				state.sep.src = (state.sep.src || '') + node.nodeValue;
@@ -2622,12 +2629,12 @@ WSP.handleSeparator = function( state, nodeA, handlerA, nodeB, handlerB, dir)
 	if(state.sep.constraints) {
 		// Merge the constraints
 		state.sep.constraints = this.mergeConstraints(state.sep.constraints, nlConstraints);
-		if (state.sep.lastSourceNode && state.sep.lastSourceNode.nodeType === nodeA.TEXT_NODE) {
-			state.sep.lastSourceNode = nodeA;
-		}
+		//if (state.sep.lastSourceNode && state.sep.lastSourceNode.nodeType === nodeA.TEXT_NODE) {
+		//	state.sep.lastSourceNode = nodeA;
+		//}
 	} else {
 		state.sep.constraints = nlConstraints;
-		state.sep.lastSourceNode = nodeA;
+		//state.sep.lastSourceNode = state.sep.lastSourceNode || nodeA;
 	}
 	//console.log('nlConstraints', state.sep.constraints);
 };
@@ -2636,35 +2643,141 @@ WSP.handleSeparator = function( state, nodeA, handlerA, nodeB, handlerB, dir)
  * Emit a separator based on the collected (and merged) constraints and
  * existing separator text. Called when new output is triggered.
  */
-WSP.emitSeparator = function(state, cb, serializeInfo) {
+WSP.emitSeparator = function(state, cb, node) {
+	var origNode = node;
+	//console.log(
+	//		state.sep.lastSourceNode && state.sep.lastSourceNode.nodeName || 'noNodeA',
+	//		node && node.nodeName || 'noNodeB');
+	//if(!node) {
+	//	console.trace();
+	//}
+
 	var sep,
+		serializeInfo = state.selser.serializeInfo,
 		constraints = state.sep.constraints;
-	if (state.sep.constraints) {
+
+	var prevNode = state.sep.lastSourceNode;
+
+	if (!state.selser.serializeInfo && node && prevNode) {
+		if (node && node.nodeType === node.TEXT_NODE) {
+			// Check if this is the first child of a zero-width element, and use
+			// that for dsr purposes instead. Typical case: text in p.
+			if (!node.previousSibling &&
+					node.parentNode &&
+					node.parentNode !== prevNode &&
+					node.parentNode.data.parsoid.dsr &&
+					node.parentNode.data.parsoid.dsr[2] === 0)
+			{
+				node = node.parentNode;
+			}
+		}
+		if (prevNode && prevNode.nodeType === prevNode.TEXT_NODE) {
+			// Check if this is the last child of a zero-width element, and use
+			// that for dsr purposes instead. Typical case: text in p.
+			if (!prevNode.nextSibling &&
+					prevNode.parentNode &&
+					prevNode.parentNode !== node &&
+					prevNode.parentNode.data.parsoid.dsr &&
+					prevNode.parentNode.data.parsoid.dsr[3] === 0)
+			{
+				prevNode = prevNode.parentNode;
+			} else if (prevNode.previousSibling &&
+					prevNode.previousSibling.nodeType === prevNode.ELEMENT_NODE &&
+					prevNode.previousSibling.data.parsoid.dsr)
+			{
+				//console.log('faking prevNode');
+				var prevSiblingEndDSR = prevNode.previousSibling.data.parsoid.dsr[1];
+				// create fake node
+				prevNode = {
+					nodeName: '#fakeelement',
+					nodeType: prevNode.ELEMENT_NODE,
+					data: {
+						parsoid: {
+							dsr:
+								[
+									prevSiblingEndDSR,
+									prevSiblingEndDSR + prevNode.nodeValue.length,
+									0, 0
+								]
+						}
+					}
+				};
+			} else {
+				//console.log( prevNode.nodeValue, prevNode.parentNode.outerHTML);
+			}
+		}
+	}
+
+	//console.log(
+	//		prevNode && prevNode.nodeName || 'noNodeA',
+	//		node && node.nodeName || 'noNodeB');
+	if (!state.selser.serializeInfo &&
+			node && node.nodeType === node.ELEMENT_NODE &&
+			prevNode && prevNode.nodeType === prevNode.ELEMENT_NODE &&
+			!(node.nodeName in {UL:1, OL:1, DL:1, DD:1, DT:1, LI:1}) &&
+			prevNode.data && prevNode.data.parsoid.dsr &&
+			node.data && node.data.parsoid.dsr)
+	{
+		//console.log(prevNode.data.parsoid.dsr, node.data.parsoid.dsr);
+		// Figure out containment relationship
+		var dsrA = prevNode.data.parsoid.dsr,
+			dsrB = node.data.parsoid.dsr,
+			src = state.env.page.src;
+		if (dsrA[0] <= dsrB[0]) {
+			if (dsrB[1] <= dsrA[1]) {
+				if (dsrA[0] === dsrB[0] && dsrA[1] === dsrB[1]) {
+					// Both have the same dsr range, so there can't be any
+					// separators between them
+					sep = '';
+				} else if (dsrA[2] !== null) {
+					// B in A, from parent to child
+					sep = src.substring(dsrA[0] + dsrA[2], dsrB[0]);
+				}
+			} else if (dsrA[1] <= dsrB[0]) {
+				// B following A (siblingish)
+				sep = src.substring(dsrA[1], dsrB[0]);
+			} else if (dsrB[3] !== null) {
+				// A in B, from child to parent
+				sep = src.substring(dsrA[1], dsrB[1] - dsrB[3]);
+			}
+		} else if (dsrA[1] <= dsrB[1]) {
+			if (dsrB[3] !== null) {
+				// A in B, from child to parent
+				sep = src.substring(dsrA[1], dsrB[1] - dsrB[3]);
+			}
+		} else {
+			console.error('dsr backwards: should not happen!');
+		}
+		if (state.sep.lastSourceSep) {
+			//console.log('lastSourceSep', state.sep.lastSourceSep);
+			sep = state.sep.lastSourceSep + sep;
+		}
+	} else if (state.sep.constraints) {
 		// TODO: set modified flag if start or end node (but not both) are
 		// modified / new so that the selser can use the separator
 		sep = this.makeSeparator(state.sep.src || '',
 					state.sep.constraints,
 					state);
-
-		// Reset separator state
-		state.sep = {};
-
-		cb(sep, serializeInfo);
 	} else if (state.sep.src) {
 		//sep = state.sep.src;
 		// Strip whitespace from the last line
 		sep = this.makeSeparator(state.sep.src,
 					{a:{},b:{}, max:0},
 					state);
-		//if (state.atStartOfOutput && sep.match(/^[ \t]$/)) {
+	}
 
+	if (sep !== undefined) {
+		// Reset separator state
 		state.sep = {};
-		cb(sep, serializeInfo);
+
+		cb(sep, origNode);
+		state.sep = {};
+
+		if (sep && sep.match(/\n/)) {
+			state.resetCurrLine();
+		}
+		//console.log('sep', constraints, JSON.stringify(sep));
 	}
-	if (sep && sep.match(/\n/)) {
-		state.resetCurrLine();
-	}
-	//console.log('sep', constraints, JSON.stringify(sep));
 };
 
 
@@ -2772,24 +2885,22 @@ WSP._serializeNode = function( node, state, cb) {
 
 			// populate node.data.parsoid and node.data['parsoid-serialize']
 			DU.loadDataParsoid(node);
-			DU.loadDataAttrib(node, 'parsoid-serialize', null);
+			DU.loadDataAttrib(node, 'parsoid-serialize', {});
 
 			// Insert a possible separator
 			prev = this._getPrevSeparatorElement(node, state);
 			var domHandler = this._getDOMHandler(node, state, cb);
-			if (prev)
-			{
+			if (prev) {
 				this.handleSeparator(state,
 						prev,  this._getDOMHandler(prev, state, cb),
 						node,  domHandler);
 			}
 
-
 			var serializeInfo = null;
 			if ( state.selser.serializeInfo === null ) {
 				serializeInfo = node.data['parsoid-serialize'];
 				state.selser.serializeInfo = serializeInfo;
-				cb('', serializeInfo);
+				cb('', node);
 			}
 
 			if ( domHandler && domHandler.handle ) {
@@ -2875,7 +2986,8 @@ WSP.serializeDOM = function( node, chunkCB, finalCB, selser ) {
 		// Make sure these two are cloned, so we don't alter the initial
 		// state for later serializer runs.
 		Util.clone(this.initialState),
-		Util.clone(this.options));
+		Util.clone(this.options)),
+		serializeInfo = state.selser.serializeInfo;
 	state.serializer = this;
 
 	try {
@@ -2895,15 +3007,19 @@ WSP.serializeDOM = function( node, chunkCB, finalCB, selser ) {
 
 		var out = [];
 
-		var chunkCBWrapper = function (cb, chunk, serializeInfo) {
+		var chunkCBWrapper = function (cb, chunk, chunkNode) {
 			if (!serializeInfo) {
 				serializeInfo = state.selser.serializeInfo || null;
 			}
 			if (chunk) {
 				state.currLine.seen = true;
 			}
-			WSP.emitSeparator(state, cb, serializeInfo);
+			WSP.emitSeparator(state, cb, chunkNode);
 			cb(chunk, serializeInfo);
+			//console.log('chunkCB', chunk,
+			//			chunkNode && chunkNode.nodeName || 'noNode');
+			state.sep.lastSourceNode = chunkNode;
+			state.sep.lastSourceSep = state.sep.src;
 			//if (state.currLine.text === null && chunk) {
 			//	state.currLine.seen = true;
 			//}
@@ -2918,11 +3034,12 @@ WSP.serializeDOM = function( node, chunkCB, finalCB, selser ) {
 			state.chunkCB = chunkCBWrapper.bind(null, chunkCB);
 		}
 
-		this._serializeNode( node, state );
+		state.sep.lastSourceNode = node;
+		state.serializeChildren(node.childNodes, state.chunkCB);
 
 		// Handle EOF
-		this.emitSeparator(state, state.chunkCB);
-		state.chunkCB( '' );
+		//this.emitSeparator(state, state.chunkCB, node);
+		state.chunkCB( '', node );
 
 		if ( finalCB && typeof finalCB === 'function' ) {
 			finalCB();
