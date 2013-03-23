@@ -2253,7 +2253,8 @@ WSP._getDOMHandler = function(node, state, cb) {
 					before: id({min:0, max:2})
 				}
 			};
-		} else if (nodeTypeOf === "mw:Placeholder") {
+		} else if (nodeTypeOf === "mw:Placeholder" ||
+				(nodeTypeOf === "mw:Nowiki" && node.textContent === dp.src )) {
 			// implement generic src round-tripping:
 			// return src, and drop the generated content
 			return {

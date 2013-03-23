@@ -682,7 +682,8 @@ inline_element
     / & '<' xmlish_tag
     / & '<' comment
     /// & '{' ( & '{{{{{' template / tplarg / template )
-    / & '{' tplarg_or_template
+    / & '{' tplarg_or_template_or_broken
+    / & '}' broken_template
     /// & '{' ( tplarg / template )
      // Eat three opening brackets as text.
     / '[[[' { return '[[['; }
@@ -953,6 +954,18 @@ tplarg_or_template
     / & ( '{{' &'{{{' tplarg )  template
     / tplarg
     / template
+
+tplarg_or_template_or_broken
+    = tplarg_or_template / broken_template
+
+broken_template
+  = v:( '{{{' / '}}}' / '{{' / '}}' )+
+{
+    return [
+        new TagTk('span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: [pos0, pos], src: input.substring(pos0, pos) } )]
+            .concat(v, [new EndTagTk( 'span' ) ]);
+}
+
 
 template
   = "{{" nl_comment_space*
@@ -2249,7 +2262,8 @@ sol
         return nl.concat(cn, niToken);
     }
 
-nl_comment_space = newline / comment / space
+comment_space = comment / space
+nl_comment_space = newline / comment_space
 
 /**
  * noinclude / includeonly / onlyinclude productions. These are normally
