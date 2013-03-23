@@ -2212,9 +2212,9 @@ WSP._serializeTextNode = function(node, state, cb) {
 		doubleNewlineMatch = res.match(/\n([ \t]*\n)+/g),
 		doubleNewlineCount = doubleNewlineMatch && doubleNewlineMatch.length || 0;
 
-	// Deal with trailing newlines
-	var newSepMatch = res.match(/\n+$/);
-	res = res.replace(/\n+$/, '');
+	// Deal with trailing separator-like text (at least 1 newline and other whitespace)
+	var newSepMatch = res.match(/\n\s*$/);
+	res = res.replace(/\n\s*$/, '');
 
 	// Don't strip two newlines for wikitext like this:
 	// <div>foo
@@ -2265,8 +2265,8 @@ WSP.emitWikitext = function(text, state, cb) {
 	// in handleSeparatorText.
 	var res = text.replace(/^\n/, '');
 	// Deal with trailing newlines
-	var newSepMatch = res.match(/\n+$/);
-	res = res.replace(/\n$/, '');
+	var newSepMatch = res.match(/\n\s*$/);
+	res = res.replace(/\n\s*$/, '');
 	cb(res);
 	// Move trailing newlines into the next separator
 	if (newSepMatch && !state.sep.src) {
