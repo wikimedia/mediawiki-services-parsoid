@@ -1143,14 +1143,16 @@ function id(v) {
 function buildHeadingHandler(headingWT) {
 	return {
 		handle: function(node, state, cb) {
-			cb (headingWT);
+			// SSS: Why isn't this cb(headingWT, node)??
+			// Fails a couple of includeonly heading parser-tests with node passed in.
+			cb(headingWT);
 			if (node.childNodes.length) {
 				state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.headingHandler);
 			} else {
 				// Deal with empty headings
 				cb('<nowiki/>', node);
 			}
-			cb (headingWT, node);
+			cb(headingWT, node);
 		},
 		sepnls: {
 			before: id({min:1, max:2}),
@@ -1271,7 +1273,9 @@ WSP._hasPrecedingQuoteElements = function(node, state) {
 
 
 function wtEOL(node, otherNode) {
-	if (otherNode.data.parsoid.stx === 'html' || otherNode.data.parsoid.src) {
+	if (DU.isElt(otherNode) &&
+		(otherNode.data.parsoid.stx === 'html' || otherNode.data.parsoid.src))
+	{
 		return {min:0, max:2};
 	} else {
 		return {min:1, max:2};
@@ -1281,8 +1285,10 @@ function wtEOL(node, otherNode) {
 function wtListEOL(node, otherNode) {
 	var nextSibling = nextNonSepSibling(node);
 	//console.log(nextSibling && nextSibling.nodeName);
-	if (nextSibling === otherNode &&
-			otherNode.data.parsoid.stx === 'html' || otherNode.data.parsoid.src)
+	if (!DU.isElt(otherNode)) {
+		return {min:0, max:2};
+	} else if (nextSibling === otherNode &&
+			(otherNode.data.parsoid.stx === 'html' || otherNode.data.parsoid.src))
 	{
 		return {min:0, max:2};
 	} else if (nextSibling === otherNode &&
@@ -1872,9 +1878,11 @@ WSP.tagHandlers = {
 						node.parentNode.childNodes.length === 1) {
 					// p/br pair
 					// Hackhack ;)
-					// SSS FIXME: With the change I made, this check can be simplified?
+
+					// SSS FIXME: With the change I made, the above check can be simplified
 					state.sep.constraints.min = 2;
 					state.sep.constraints.max = 2;
+					// SSS FIXME: Should this be cb('', node)?
 					cb('');
 				} else {
 					cb('', node);
@@ -2512,6 +2520,7 @@ WSP.makeSeparator = function(sep, nlConstraints, state) {
 		var allBits = sep.split(new RegExp('(' + splitReString + ')')),
 			newBits = [],
 			n = sepNlCount;
+
 		while (n > nlConstraints.max) {
 			var bit = allBits.pop();
 			while (bit && bit.match(splitRe)) {
@@ -2536,13 +2545,13 @@ WSP.makeSeparator = function(sep, nlConstraints, state) {
 	// leave them in too in the interest of wt2wt round-tripping.
 	//if (nlConstraints.a.min) {
 	//	// Strip leading non-nl ws up to the first newline, but keep comments
-	//	sep.replace(/^([^\n<]*<!--(?:[^\-]+|-(?!->))*-->)?[^\n<]+/g, '$1');
+	//	sep.replace(/^([^\n<]*<!--(?:[^\-]|-(?!->))*-->)?[^\n<]+/g, '$1');
 	//}
 
 	if (nlConstraints.b.min) {
 		// Strip non-nl ws from last line, but preserve comments
 		// This avoids triggering indent-pres
-		sep = sep.replace(/[^\n>]+(<!--(?:[^\-]+|-(?!->))*-->[^\n]*)?$/g, '$1');
+		sep = sep.replace(/[^\n>]+(<!--(?:[^\-]|-(?!->))*-->[^\n]*)?$/g, '$1');
 	}
 	this.trace('makeSeparator', sep, origSep, minNls, sepNlCount, nlConstraints);
 
@@ -2711,7 +2720,8 @@ WSP.emitSeparator = function(state, cb, node) {
 	//console.log(
 	//		prevNode && prevNode.nodeName || 'noNodeA',
 	//		node && node.nodeName || 'noNodeB');
-	if (!state.selser.serializeInfo &&
+	var src = state.env.page.src;
+	if (src && !state.selser.serializeInfo &&
 			node && node.nodeType === node.ELEMENT_NODE &&
 			prevNode && prevNode.nodeType === prevNode.ELEMENT_NODE &&
 			!(node.nodeName in {UL:1, OL:1, DL:1, DD:1, DT:1, LI:1}) &&
@@ -2721,8 +2731,7 @@ WSP.emitSeparator = function(state, cb, node) {
 		//console.log(prevNode.data.parsoid.dsr, node.data.parsoid.dsr);
 		// Figure out containment relationship
 		var dsrA = prevNode.data.parsoid.dsr,
-			dsrB = node.data.parsoid.dsr,
-			src = state.env.page.src;
+			dsrB = node.data.parsoid.dsr;
 		if (dsrA[0] <= dsrB[0]) {
 			if (dsrB[1] <= dsrA[1]) {
 				if (dsrA[0] === dsrB[0] && dsrA[1] === dsrB[1]) {
@@ -2884,8 +2893,10 @@ WSP._serializeNode = function( node, state, cb) {
 				parentSTX = state.parentSTX;
 
 			// populate node.data.parsoid and node.data['parsoid-serialize']
-			DU.loadDataParsoid(node);
-			DU.loadDataAttrib(node, 'parsoid-serialize', {});
+			if (!node.data || !node.data.parsoid) {
+				DU.loadDataParsoid(node);
+				DU.loadDataAttrib(node, 'parsoid-serialize', {});
+			}
 
 			// Insert a possible separator
 			prev = this._getPrevSeparatorElement(node, state);
