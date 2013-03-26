@@ -2149,14 +2149,7 @@ optionalNewlines
   = spc:(n:[\n\r\t ] &([\n\r]) { return n })*
 {
     if ( spc.length ) {
-        // Encapsulate in meta, so that these don't trigger paragraphs, but
-        // can still be round-tripped and (potentially) edited.
-        return [ new SelfclosingTagTk('meta',
-                    [new KV('typeof', 'mw:Placeholder')],
-                    {
-                        src: spc.join(''),
-            tsr: [pos0, pos0 + spc.length]
-                    } ) ];
+        return [spc.join('')];
     } else {
         return [];
     }
