@@ -55,7 +55,10 @@ var WikitextConstants = {
 			'img_border'    : 'border',
 			'img_frameless' : 'format',
 			'img_framed'    : 'format',
-			'img_thumbnail' : 'format'
+			'img_thumbnail' : 'format',
+
+			// Ha! Upright can be either one! Try parsing THAT!
+			'img_upright'   : 'upright'
 		}
 	},
 
