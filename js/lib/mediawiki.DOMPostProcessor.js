@@ -2135,10 +2135,13 @@ function stripMarkerMetas(node) {
 	// Ex: {{compactTOC8|side=yes|seealso=yes}} generates a mw:PageProp/notoc meta
 	// that gets the mw:Object/Template typeof attached to it.  It is not okay to
 	// delete it!
+	//
+	// SSS FIXME: This strips out all "Ext/Ref/Content" meta-tags that the VE needs
+	// to regenerate references on demand.  To be fixed.
 	var metaType = node.getAttribute("typeof");
-	if (metaType
-		&& metaType.match(/^\bmw:(Object|EndTag|TSRMarker|Ext)\/?[^\s]*\b/)
-		&& !node.getAttribute("property"))
+	if (metaType &&
+		metaType.match(/^\bmw:(Object|EndTag|TSRMarker|Ext)\/?[^\s]*\b/) &&
+		!node.getAttribute("property"))
 	{
 		deleteNode(node);
 	}
@@ -2324,7 +2327,7 @@ function DOMPostProcessor(env, options) {
 		migrateTrailingNLs
 	];
 
-	if (options.wrapTemplates && !options.isExtension) {
+	if (options.wrapTemplates && !options.extTag) {
 		// dsr computation and tpl encap are only relevant
 		// for top-level content that is not wrapped in an extension
 		this.processors.push(computeDocDSR);
@@ -2332,7 +2335,7 @@ function DOMPostProcessor(env, options) {
 	}
 
 	// References
-	this.processors.push(generateReferences.bind(null, env.conf.parsoid.nativeExtensions.refs));
+	this.processors.push(generateReferences.bind(null, env.conf.parsoid.nativeExtensions.cite.references));
 
 	// DOM traverser for passes that can be combined and will run at the end
 	// 1. Link prefixes and suffixes
@@ -2375,7 +2378,6 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 	document.getElementsByTagName('head')[0].appendChild(baseMeta);
 	this.emit( 'document', document );
 };
-
 
 /**
  * Register for the 'document' event, normally emitted from the HTML5 tree

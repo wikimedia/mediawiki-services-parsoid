@@ -73,14 +73,18 @@ var Util = require('./mediawiki.Util.js').Util;
 // Constructor
 function PreHandler( manager, options ) {
 	this.manager = manager;
-	this.manager.addTransform(this.onNewline.bind(this),
-		"PreHandler:onNewline", this.nlRank, 'newline');
-	this.manager.addTransform(this.onEnd.bind(this),
-		"PreHandler:onEnd", this.endRank, 'end');
 	var env = manager.env;
 	this.debug = env.conf.parsoid.debug || (env.conf.parsoid.traceFlags && (env.conf.parsoid.traceFlags.indexOf("pre_debug") !== -1));
 	this.trace = this.debug || (env.conf.parsoid.traceFlags && (env.conf.parsoid.traceFlags.indexOf("pre") !== -1));
-	init(this, true);
+
+	// <pre> seems to be disabled in <ref> tags
+	if (options.extTag !== "ref") {
+		this.manager.addTransform(this.onNewline.bind(this),
+			"PreHandler:onNewline", this.nlRank, 'newline');
+		this.manager.addTransform(this.onEnd.bind(this),
+			"PreHandler:onEnd", this.endRank, 'end');
+		init(this, true);
+	}
 }
 
 // Handler ranks

@@ -13,10 +13,13 @@ function ExtensionHandler(manager, options) {
 			(manager.env.conf.parsoid.apiURI !== null);
 
 	// Native extension handlers
-	this.citeHandler = manager.env.conf.parsoid.nativeExtensions.cite;
+	var nativeExts = manager.env.conf.parsoid.nativeExtensions,
+		ref = nativeExts.cite.ref,
+	    references = nativeExts.cite.references;
+
 	this.nativeExtHandlers = {
-		"ref": this.citeHandler.handleRef.bind(this.citeHandler, manager),
-		"references": this.citeHandler.handleReferences.bind(this.citeHandler, manager)
+		"ref": ref.handleRef.bind(ref, manager, options),
+		"references": references.handleReferences.bind(references, manager, options)
 	};
 
 	// Extension content expansion
@@ -53,7 +56,7 @@ ExtensionHandler.prototype.parseExtensionHTML = function(extToken, cb, err, html
 /**
  * Fetch the preprocessed wikitext for an extension
  */
-ExtensionHandler.prototype.fetchExpandedExtension = function ( title, text, processor, parentCB, cb ) {
+ExtensionHandler.prototype.fetchExpandedExtension = function ( title, text, parentCB, cb ) {
 	var env = this.manager.env;
 	if ( ! env.conf.parsoid.expandExtensions ) {
 		parentCB(  { tokens: [ 'Warning: Extension tag expansion disabled, and no cache for ' +
@@ -66,7 +69,7 @@ ExtensionHandler.prototype.fetchExpandedExtension = function ( title, text, proc
 		//env.dp( 'requestQueue: ', env.requestQueue );
 		if ( env.requestQueue[text] === undefined ) {
 			env.tp( 'Note: Starting new request for ' + text );
-			env.requestQueue[text] = new processor( env, title, text );
+			env.requestQueue[text] = new PHPParseRequest( env, title, text );
 		}
 		// append request, process in document order
 		env.requestQueue[text].listeners( 'src' ).push( cb );
@@ -85,7 +88,6 @@ ExtensionHandler.prototype.onExtension = function ( token, frame, cb ) {
 		this.fetchExpandedExtension(
 			extensionName,
 			token.getAttribute('source'),
-			PHPParseRequest,
 			cb,
 			this.parseExtensionHTML.bind(this, token, cb)
 		);
