@@ -918,7 +918,7 @@ Util.getJSONAttribute = function ( node, attr, fallback ) {
 var normalizeNewlines = function ( source ) {
 	return source
 				// strip comments first
-				.replace(/<!--(?:[^-]+|-(?!->))*-->/gm, '')
+				.replace(/<!--(?:[^\-]|-(?!->))*-->/gm, '')
 
 				// preserve a space for non-inter-tag-whitespace
 				// non-tag content followed by non-tag content
