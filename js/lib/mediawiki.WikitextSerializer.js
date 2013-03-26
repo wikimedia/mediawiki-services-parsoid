@@ -1669,9 +1669,6 @@ WSP.tagHandlers = {
 							 break;
 					case 'mw:Includes/IncludeOnly/End':
 							 // Just ignore.
-							 // gwicke FIXME: the dsr on the Include/End metas
-							 // also seems to be off ([0,0,null,null]). Do we
-							 // actually need the end tag at all?
 							 break;
 					case 'mw:Includes/NoInclude':
 							 cb(node.data.parsoid.src || '<noinclude>', node);

@@ -10,14 +10,14 @@ var Collector = require( './ext.util.TokenCollector.js' ).TokenCollector;
  * This helper function will build a meta token in the right way for these
  * tags.
  */
-var buildMetaToken = function ( manager, tokenName, isEnd, tsr ) {
+var buildMetaToken = function ( manager, tokenName, isEnd, tsr, src ) {
 	if ( isEnd ) {
 		tokenName += '/End';
 	}
 
 	return new SelfclosingTagTk('meta',
 		[ new KV( 'typeof', tokenName ) ],
-		tsr ? { tsr: tsr, src: manager.env.page.src.substring(tsr[0], tsr[1]) } : {}
+		tsr ? { tsr: tsr, src: manager.env.page.src.substring(tsr[0], tsr[1]) } : { src: src }
 	);
 };
 
@@ -210,7 +210,7 @@ function includeOnlyHandler(manager, options, collection) {
 		// and can be handled similarly by downstream handlers.
 		tokens.push(buildStrippedMetaToken(manager, 'mw:Includes/IncludeOnly', start, eof ? null : end ));
 		if ( end && !eof) {
-			tokens.push(buildMetaToken(manager, 'mw:Includes/IncludeOnly', true, [0,0]));
+			tokens.push(buildMetaToken(manager, 'mw:Includes/IncludeOnly', true, null, ''));
 		}
 	}
 
