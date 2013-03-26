@@ -302,7 +302,7 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 				bits = getOption( origOText.trim() ),
 				normalizedBit0 = bits ? bits.k.trim().toLowerCase() : null,
 				key = bits ? WikitextConstants.Image.PrefixOptions[normalizedBit0] : null;
-			if (imgOption && key !== null) {
+			if (imgOption && key === null) {
 				// the options array only has non-localized values
 				options.push( new KV(imgOption, shortCanonicalOption ) );
 				oHash[imgOption] = shortCanonicalOption;
