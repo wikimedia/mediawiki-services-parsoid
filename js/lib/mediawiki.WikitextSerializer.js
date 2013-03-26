@@ -1801,8 +1801,7 @@ WSP.tagHandlers = {
 					// SSS FIXME: With the change I made, the above check can be simplified
 					state.sep.constraints.min = 2;
 					state.sep.constraints.max = 2;
-					// SSS FIXME: Should this be cb('', node)?
-					cb('');
+					cb('', node);
 				} else {
 					cb('', node);
 				}
