@@ -651,11 +651,22 @@ function handlePres(document, env) {
 
 // Migrate trailing newlines out of
 function migrateTrailingNLs(elt, env) {
-	// These nodes either end a line in wikitext (tr, li, dd, ol, ul, dl, caption, p)
-	// or have implicit closing tags that can leak newlines to those that end a line (th, td)
-	var nodesToMigrateFrom = Util.arrayToHash([
-		"tbody", "th", "td", "tr", "li", "dd", "ol", "ul", "dl", "caption", "p"
-	]);
+	// If a node ends a line in wikitext, or if it is the last node in
+	// the DOM subtree rooted at a node that ends a line in wikitext, we
+	// should migrate the newline out of it.
+	function canMigrateNLOutOfNode(node) {
+		// These nodes either end a line in wikitext (tr, li, dd, ol, ul, dl, caption, p)
+		// or have implicit closing tags that can leak newlines to those that end a line (th, td)
+		var nodesToMigrateFrom = Util.arrayToHash([
+			"th", "td", "tr", "li", "dd", "ol", "ul", "dl", "caption", "p"
+		]);
+
+		function nodeEndsLineInWT(node) {
+			return nodesToMigrateFrom[node.nodeName.toLowerCase()] === true && !DU.isLiteralHTMLNode(node);
+		}
+
+		return node && (nodeEndsLineInWT(node) || (!node.nextSibling && canMigrateNLOutOfNode(node.parentNode)));
+	}
 
 	if (DU.hasNodeName(elt, "pre")) {
 		return;
@@ -668,7 +679,7 @@ function migrateTrailingNLs(elt, env) {
 	}
 
 	// 2. Process 'elt' itself after -- skip literal-HTML nodes
-	if (nodesToMigrateFrom[elt.nodeName.toLowerCase()] === true && !DU.isLiteralHTMLNode(elt)) {
+	if (canMigrateNLOutOfNode(elt)) {
 		var firstEltToMigrate = null,
 			partialContent = false,
 			n = elt.lastChild;
