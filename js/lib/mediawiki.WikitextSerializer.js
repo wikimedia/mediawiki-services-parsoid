@@ -1110,9 +1110,7 @@ function id(v) {
 function buildHeadingHandler(headingWT) {
 	return {
 		handle: function(node, state, cb) {
-			// SSS: Why isn't this cb(headingWT, node)??
-			// Fails a couple of includeonly heading parser-tests with node passed in.
-			cb(headingWT);
+			cb(headingWT, node);
 			if (node.childNodes.length) {
 				state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.headingHandler);
 			} else {
@@ -1667,8 +1665,13 @@ WSP.tagHandlers = {
 							 cb('<' + content + '>', node);
 							 break;
 					case 'mw:Includes/IncludeOnly':
-					case 'mw:Includes/IncludeOnly/End':
 							 cb(node.data.parsoid.src, node);
+							 break;
+					case 'mw:Includes/IncludeOnly/End':
+							 // Just ignore.
+							 // gwicke FIXME: the dsr on the Include/End metas
+							 // also seems to be off ([0,0,null,null]). Do we
+							 // actually need the end tag at all?
 							 break;
 					case 'mw:Includes/NoInclude':
 							 cb(node.data.parsoid.src || '<noinclude>', node);
