@@ -681,8 +681,31 @@ function migrateTrailingNLs(elt, env) {
 	// 2. Process 'elt' itself after -- skip literal-HTML nodes
 	if (canMigrateNLOutOfNode(elt)) {
 		var firstEltToMigrate = null,
+			migrationBarrier = null,
 			partialContent = false,
 			n = elt.lastChild;
+
+		// We can migrate trailing newline-containing separators
+		// across meta tags as long as the metas:
+		// - are not literal html metas (found in wikitext)
+		// - are not mw:PageProp (cannot cross page-property boundary
+		// - are not mw:Includes/* (cannot cross <*include*> boundary)
+		// - are not tpl start/end markers (cannot cross tpl boundary)
+		while (n && DU.hasNodeName(n, "meta") && !DU.isLiteralHTMLNode(n)) {
+			var prop = n.getAttribute("property"),
+			    type = n.getAttribute("typeof");
+
+			if (prop && prop.match(/mw:PageProp/)) {
+				break;
+			}
+
+			if (type && (DU.isTplMetaType(type) || type.match(/mw:Includes/))) {
+				break;
+			}
+
+			migrationBarrier = n;
+			n = n.previousSibling;
+		}
 
 		// Find nodes that need to be migrated out:
 		// - a sequence of comment and newline nodes that is preceded by
@@ -692,7 +715,7 @@ function migrateTrailingNLs(elt, env) {
 			if (n.nodeType === Node.COMMENT_NODE) {
 				firstEltToMigrate = n;
 			} else {
-				if (n.data.match(/^\s+$/)) {
+				if (n.data.match(/^\s*\n\s*$/)) {
 					firstEltToMigrate = n;
 					partialContent = false;
 				} else if (n.data.match(/\n$/)) {
@@ -712,7 +735,7 @@ function migrateTrailingNLs(elt, env) {
 				insertPosition = elt.nextSibling;
 
 			n = firstEltToMigrate;
-			while (n) {
+			while (n !== migrationBarrier) {
 				var next = n.nextSibling;
 				if (partialContent) {
 					var nls = n.data;
