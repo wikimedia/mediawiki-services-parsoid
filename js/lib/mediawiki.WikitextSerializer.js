@@ -414,7 +414,7 @@ WSP.initialState = {
 	 * Serialize children to a string. Assumes non-start-of-line context and
 	 * does not affect the separator state.
 	 */
-	serializeChildrenToString: function(nodes, wtEscaper) {
+	serializeChildrenToString: function(node, wtEscaper) {
 		// FIXME: Make sure that the separators emitted here conform to the
 		// syntactic constraints of syntactic context.
 		var bits = [],
@@ -427,8 +427,8 @@ WSP.initialState = {
 				bits.push(res);
 			};
 		this.sep = {};
-		this.serializeChildren(nodes, cb, wtEscaper);
-		WSP.emitSeparator(this, cb);
+		this.serializeChildren(node.childNodes, cb, wtEscaper);
+		WSP.emitSeparator(this, cb, node);
 		// restore the separator state
 		this.sep = sepState;
 		return bits.join('');
@@ -635,7 +635,7 @@ WSP.figureHandler = function(node, state, cb) {
 	// XXX: don't use serializeChildrenToString here as that messes up the
 	// global separator state?
 	var captionSrc;
-	captionSrc = state.serializeChildrenToString(caption.childNodes, WSP.wteHandlers.aHandler);
+	captionSrc = state.serializeChildrenToString(caption, WSP.wteHandlers.aHandler);
 
 	var imgResource = (img && img.getAttribute('resource') || '').replace(/(^\[:)|(\]$)/g, ''),
 		outBits = [imgResource],
@@ -843,7 +843,7 @@ var getLinkRoundTripData = function( node, state ) {
 			rtData.content.string = contentString;
 		}
 	} else if ( node.childNodes.length ) {
-		rtData.content.nodes = node.childNodes;
+		rtData.contentNode = node;
 	}
 
 	return rtData;
@@ -928,7 +928,7 @@ WSP.linkHandler =  function(node, state, cb) {
 					// The target and source key was not modified
 					var sortKeySrc = DU.getAttributeShadowInfo(node, 'mw:sortKey', state.tplAttrs);
 					if ( sortKeySrc.value !== null ) {
-						linkData.content.nodes = undefined;
+						linkData.contentNode = undefined;
 						linkData.content.string = sortKeySrc.value;
 						// TODO: generalize this flag. It is already used by
 						// getAttributeShadowInfo. Maybe use the same
@@ -995,9 +995,9 @@ WSP.linkHandler =  function(node, state, cb) {
 			} else {
 
 				// First get the content source
-				if ( linkData.content.nodes ) {
+				if ( linkData.contentNode ) {
 					contentSrc = state.serializeChildrenToString(
-							linkData.content.nodes,
+							linkData.contentNode,
 							WSP.wteHandlers.wikilinkHandler);
 					// strip off the tail and handle the pipe trick
 					contentParts = splitLinkContentString(contentSrc, dp);
@@ -1031,7 +1031,7 @@ WSP.linkHandler =  function(node, state, cb) {
 			}
 
 			cb( '[' + target.value + ' ' +
-				state.serializeChildrenToString(node.childNodes, WSP.wteHandlers.aHandler) +
+				state.serializeChildrenToString(node, WSP.wteHandlers.aHandler) +
 				']', node );
 		} else if ( rel.match( /mw:ExtLink\/(?:ISBN|RFC|PMID)/ ) ) {
 			cb( node.firstChild.nodeValue, node );
@@ -1055,7 +1055,7 @@ WSP.linkHandler =  function(node, state, cb) {
 				target.value = encodeURI(target.value);
 			}
 			cb( '[' + target.value + ' ' +
-				state.serializeChildrenToString(node.childNodes, WSP.wteHandlers.aHandler) +
+				state.serializeChildrenToString(node, WSP.wteHandlers.aHandler) +
 				']', node );
 			return;
 		}
@@ -1082,7 +1082,7 @@ WSP.linkHandler =  function(node, state, cb) {
 			// encodeURI only encodes spaces and the like
 			var href = encodeURI(node.getAttribute('href'));
 			cb( '[' + href + ' ' +
-				state.serializeChildrenToString(node.childNodes, WSP.wteHandlers.aHandler) +
+				state.serializeChildrenToString(node, WSP.wteHandlers.aHandler) +
 				']', node );
 		}
 	}
@@ -1605,7 +1605,7 @@ WSP.tagHandlers = {
 
 				// XXX: Use a pre escaper?
 				state.inIndentPre = true;
-				var content = state.serializeChildrenToString(node.childNodes);
+				var content = state.serializeChildrenToString(node);
 
 				// Insert indentation
 				content = ' ' +
