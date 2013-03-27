@@ -2553,7 +2553,6 @@ WSP.handleSeparator = function( state, nodeA, handlerA, nodeB, handlerB, dir) {
  * existing separator text. Called when new output is triggered.
  */
 WSP.emitSeparator = function(state, cb, node) {
-	var origNode = node;
 	//console.log(
 	//		state.sep.lastSourceNode && state.sep.lastSourceNode.nodeName || 'noNodeA',
 	//		node && node.nodeName || 'noNodeB');
@@ -2562,12 +2561,13 @@ WSP.emitSeparator = function(state, cb, node) {
 	//}
 
 	var sep,
+		origNode = node,
+		src = state.env.page.src,
 		serializeInfo = state.selser.serializeInfo,
-		constraints = state.sep.constraints;
+		constraints = state.sep.constraints,
+		prevNode = state.sep.lastSourceNode;
 
-	var prevNode = state.sep.lastSourceNode;
-
-	if (!state.selser.serializeInfo && node && prevNode) {
+	if (src && !state.selser.serializeInfo && node && prevNode) {
 		if (node && node.nodeType === node.TEXT_NODE) {
 			// Check if this is the first child of a zero-width element, and use
 			// that for dsr purposes instead. Typical case: text in p.
@@ -2615,64 +2615,64 @@ WSP.emitSeparator = function(state, cb, node) {
 				//console.log( prevNode.nodeValue, prevNode.parentNode.outerHTML);
 			}
 		}
+
+		if (DU.isElt(node) && DU.isElt(prevNode) &&
+			!DU.isListOrListElt(node) &&
+			node.data && node.data.parsoid.dsr &&
+			prevNode.data && prevNode.data.parsoid.dsr)
+		{
+			//console.log(prevNode.data.parsoid.dsr, node.data.parsoid.dsr);
+			// Figure out containment relationship
+			var dsrA = prevNode.data.parsoid.dsr,
+				dsrB = node.data.parsoid.dsr;
+			if (dsrA[0] <= dsrB[0]) {
+				if (dsrB[1] <= dsrA[1]) {
+					if (dsrA[0] === dsrB[0] && dsrA[1] === dsrB[1]) {
+						// Both have the same dsr range, so there can't be any
+						// separators between them
+						sep = '';
+					} else if (dsrA[2] !== null) {
+						// B in A, from parent to child
+						sep = src.substring(dsrA[0] + dsrA[2], dsrB[0]);
+					}
+				} else if (dsrA[1] <= dsrB[0]) {
+					// B following A (siblingish)
+					sep = src.substring(dsrA[1], dsrB[0]);
+				} else if (dsrB[3] !== null) {
+					// A in B, from child to parent
+					sep = src.substring(dsrA[1], dsrB[1] - dsrB[3]);
+				}
+			} else if (dsrA[1] <= dsrB[1]) {
+				if (dsrB[3] !== null) {
+					// A in B, from child to parent
+					sep = src.substring(dsrA[1], dsrB[1] - dsrB[3]);
+				}
+			} else {
+				console.error('dsr backwards: should not happen!');
+			}
+			if (state.sep.lastSourceSep) {
+				//console.log('lastSourceSep', state.sep.lastSourceSep);
+				sep = state.sep.lastSourceSep + sep;
+			}
+		}
 	}
 
-	//console.log(
-	//		prevNode && prevNode.nodeName || 'noNodeA',
-	//		node && node.nodeName || 'noNodeB');
-	var src = state.env.page.src;
-	if (src && !state.selser.serializeInfo &&
-			node && node.nodeType === node.ELEMENT_NODE &&
-			prevNode && prevNode.nodeType === prevNode.ELEMENT_NODE &&
-			!DU.isListOrListElt(node) &&
-			prevNode.data && prevNode.data.parsoid.dsr &&
-			node.data && node.data.parsoid.dsr)
-	{
-		//console.log(prevNode.data.parsoid.dsr, node.data.parsoid.dsr);
-		// Figure out containment relationship
-		var dsrA = prevNode.data.parsoid.dsr,
-			dsrB = node.data.parsoid.dsr;
-		if (dsrA[0] <= dsrB[0]) {
-			if (dsrB[1] <= dsrA[1]) {
-				if (dsrA[0] === dsrB[0] && dsrA[1] === dsrB[1]) {
-					// Both have the same dsr range, so there can't be any
-					// separators between them
-					sep = '';
-				} else if (dsrA[2] !== null) {
-					// B in A, from parent to child
-					sep = src.substring(dsrA[0] + dsrA[2], dsrB[0]);
-				}
-			} else if (dsrA[1] <= dsrB[0]) {
-				// B following A (siblingish)
-				sep = src.substring(dsrA[1], dsrB[0]);
-			} else if (dsrB[3] !== null) {
-				// A in B, from child to parent
-				sep = src.substring(dsrA[1], dsrB[1] - dsrB[3]);
-			}
-		} else if (dsrA[1] <= dsrB[1]) {
-			if (dsrB[3] !== null) {
-				// A in B, from child to parent
-				sep = src.substring(dsrA[1], dsrB[1] - dsrB[3]);
-			}
-		} else {
-			console.error('dsr backwards: should not happen!');
+	// Verify that the separator is really one.
+	// It cannot be anything but whitespace and comments.
+	if (sep === undefined || !sep.match(/^(\s|<!--([^\-]|-(?!->))*-->)*$/)) {
+		if (state.sep.constraints) {
+			// TODO: set modified flag if start or end node (but not both) are
+			// modified / new so that the selser can use the separator
+			sep = this.makeSeparator(state.sep.src || '',
+						state.sep.constraints,
+						state);
+		} else if (state.sep.src) {
+			//sep = state.sep.src;
+			// Strip whitespace from the last line
+			sep = this.makeSeparator(state.sep.src,
+						{a:{},b:{}, max:0},
+						state);
 		}
-		if (state.sep.lastSourceSep) {
-			//console.log('lastSourceSep', state.sep.lastSourceSep);
-			sep = state.sep.lastSourceSep + sep;
-		}
-	} else if (state.sep.constraints) {
-		// TODO: set modified flag if start or end node (but not both) are
-		// modified / new so that the selser can use the separator
-		sep = this.makeSeparator(state.sep.src || '',
-					state.sep.constraints,
-					state);
-	} else if (state.sep.src) {
-		//sep = state.sep.src;
-		// Strip whitespace from the last line
-		sep = this.makeSeparator(state.sep.src,
-					{a:{},b:{}, max:0},
-					state);
 	}
 
 	if (sep !== undefined) {
