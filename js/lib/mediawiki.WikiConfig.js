@@ -91,6 +91,7 @@ function WikiConfig( resultConf, prefix, uri ) {
 		aliases = mw.aliases;
 		if ( aliases.length > 0 ) {
 			conf.mwAliases[mw.name] = [];
+			conf.interpolatedAliases[mw.name] = [];
 		}
 		for ( var mwax = 0; mwax < aliases.length; mwax++ ) {
 			var alias = aliases[mwax];
@@ -102,6 +103,7 @@ function WikiConfig( resultConf, prefix, uri ) {
 				// This is a named option. Add it to the array.
 				namedMagicOptions.push( alias.replace( replaceRegex, '(.*)' ) );
 				conf.interpolatedList.push( alias );
+				conf.interpolatedAliases[mw.name].push( alias );
 			}
 			conf.magicWords[alias] = mw.name;
 			conf.mwAliases[mw.name].push( alias );
@@ -279,10 +281,16 @@ WikiConfig.prototype = {
 	extensionTags: null,
 
 	/**
-	 * @property {Object/null} interpolatedList List of magic words that are interpolated, i.e., they have $1 in their aliases.
+	 * @property {Array/null} interpolatedList List of magic words that are interpolated, i.e., they have $1 in their aliases.
 	 * @private
 	 */
 	interpolatedList: null,
+
+	/**
+	 * @property {Object/null} interpolatedAliases List of magic word aliases with $1 in their names, indexed by canonical name.
+	 * @private
+	 */
+	interpolatedAliases: null,
 
 	/**
 	 * @property {string[]}
@@ -310,6 +318,7 @@ WikiConfig.prototype = {
 		this.specialPages = {};
 		this.extensionTags = {};
 		this.interpolatedList = [];
+		this.interpolatedAliases = {};
 		this._protocols = {};
 		// clone the canonicalNamespace list
 		this.canonicalNamespaces =
@@ -370,7 +379,7 @@ WikiConfig.prototype = {
 			if ( ix > 0 ) {
 				regexString += '|';
 			}
-			aliases = this.mwAliases[optionsList[ix]];
+			aliases = this.interpolatedAliases[optionsList[ix]];
 			regexString += aliases.join( '|' )
 				.replace( /((?:^|\|)(?:[^\$]|\$[^1])*)($|\|)/g, '$1$$1$2' )
 				.replace( /\$1/g, '(.*)' );
