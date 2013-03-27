@@ -255,8 +255,16 @@ var DOMUtils = {
 		return this.hasNodeName(n, "pre") && !this.isLiteralHTMLNode(n);
 	},
 
-	isListNode: function(n) {
-		return n.nodeName in {OL:1, UL:1, DL:1, LI:1, DT:1, DD:1};
+	isList: function(n) {
+		return n && n.nodeName in {OL:1, UL:1, DL:1};
+	},
+
+	isListElt: function(n) {
+		return n && n.nodeName in {LI:1, DD:1, DT:1};
+	},
+
+	isListOrListElt: function(n) {
+		return n && n.nodeName in {OL:1, UL:1, DL:1, LI:1, DT:1, DD:1};
 	},
 
 	getPrecedingElementSibling: function(node) {
@@ -492,7 +500,7 @@ var DOMUtils = {
 	mkEndTagTk: function (node) {
 		var attribKVs = this.getAttributeKVArray(node);
 		return new pd.EndTagTk(node.nodeName.toLowerCase(), attribKVs, node.data.parsoid);
-	},
+	}
 
 };
 

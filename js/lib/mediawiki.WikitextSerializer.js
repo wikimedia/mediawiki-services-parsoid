@@ -1255,17 +1255,11 @@ function wtListEOL(node, otherNode) {
 			(otherNode.data.parsoid.stx === 'html' || otherNode.data.parsoid.src))
 	{
 		return {min:0, max:2};
-	} else if (nextSibling === otherNode &&
-			otherNode.nodeName in {UL:1, OL:1, DL:1, LI:1, DD:1, DT:1})
-	{
-		if (node.nodeName in {DL:1, OL:1, UL:1} &&
-				otherNode.nodeName === node.nodeName)
-		{
+	} else if (nextSibling === otherNode && DU.isListOrListElt(otherNode)) {
+		if (DU.isList(node) && otherNode.nodeName === node.nodeName) {
 			// Adjacent lists of same type need extra newline
 			return {min: 2, max:2};
-		} else if (node.nodeName in {LI:1, DD:1, DT:1} ||
-				node.parentNode.nodeName in {LI:1, DD:1})
-		{
+		} else if (DU.isListElt(node) || node.parentNode.nodeName in {LI:1, DD:1}) {
 			// Top-level list
 			return {min:1, max:1};
 		} else {
@@ -1289,9 +1283,7 @@ function buildListHandler(firstChildNames) {
 		},
 		sepnls: {
 			before: function (node, otherNode) {
-				if (otherNode.nodeType === node.TEXT_NODE &&
-						node.parentNode.nodeName in {LI:1, DD:1, DT:1})
-				{
+				if (otherNode.nodeType === node.TEXT_NODE && DU.isListElt(node.parentNode)) {
 					// DL nested inside a list item
 					// <li> foo <dl> .. </dl></li>
 					return {min:0, max:1};
@@ -1313,8 +1305,7 @@ WSP.tagHandlers = {
 		handle: function (node, state, cb) {
 			var firstChildElement = DU.getFirstNonSepChildNode(node),
 				forceSep = false;
-			if (!firstChildElement || ! (firstChildElement.nodeName in {UL:1, OL:1, DL:1}))
-			{
+			if (!DU.isList(firstChildElement)) {
 				cb(WSP._getListBullets(node), node);
 				forceSep = true;
 			}
@@ -1332,8 +1323,7 @@ WSP.tagHandlers = {
 			},
 			after: wtListEOL,
 			firstChild: function (node, otherNode) {
-				if ( !(otherNode.nodeName in {UL:1, OL:1, DL:1}))
-				{
+				if (!DU.isList(otherNode)) {
 					return {min:0, max: 0};
 				} else {
 					return {};
@@ -1345,7 +1335,7 @@ WSP.tagHandlers = {
 	dt: {
 		handle: function (node, state, cb) {
 			var firstChildElement = DU.getFirstNonSepChildNode(node);
-			if (!firstChildElement || ! (firstChildElement.nodeName in {UL:1, OL:1, DL:1})) {
+			if (!DU.isList(firstChildElement)) {
 				cb(WSP._getListBullets(node), node);
 			}
 			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.liHandler);
@@ -1360,8 +1350,7 @@ WSP.tagHandlers = {
 				}
 			},
 			firstChild: function (node, otherNode) {
-				if ( !(otherNode.nodeName in {UL:1, OL:1, DL:1}))
-				{
+				if (!DU.isList(otherNode)) {
 					return {min:0, max: 0};
 				} else {
 					return {};
@@ -1374,7 +1363,7 @@ WSP.tagHandlers = {
 		handle: function (node, state, cb) {
 			var firstChildElement = DU.getFirstNonSepChildNode(node),
 				forceSep = false;
-			if (!firstChildElement || ! (firstChildElement.nodeName in {UL:1, OL:1, DL:1})) {
+			if (!DU.isList(firstChildElement)) {
 				// XXX: handle stx: row
 				if (node.data.parsoid.stx === 'row') {
 					cb(':', node);
@@ -1396,8 +1385,7 @@ WSP.tagHandlers = {
 			},
 			after: wtListEOL,
 			firstChild: function (node, otherNode) {
-				if ( !(otherNode.nodeName in {UL:1, OL:1, DL:1}))
-				{
+				if (!DU.isList(otherNode)) {
 					return {min:0, max: 0};
 				} else {
 					return {};
@@ -2406,7 +2394,6 @@ WSP.makeSeparator = function(sep, nlConstraints, state) {
 	var commentRe = '<!--(?:[^-]|-(?!->))*-->',
 		// Split on comment/ws-only lines, consuming subsequent newlines since
 		// those lines are ignored by the PHP parser
-
 		// Ignore lines with ws and a single comment in them
 		splitReString = '(?:\n[^\n]*?' + commentRe + '[^\n]*?(?=\n))+|' + commentRe,
 		splitRe = new RegExp(splitReString),
@@ -2637,7 +2624,7 @@ WSP.emitSeparator = function(state, cb, node) {
 	if (src && !state.selser.serializeInfo &&
 			node && node.nodeType === node.ELEMENT_NODE &&
 			prevNode && prevNode.nodeType === prevNode.ELEMENT_NODE &&
-			!(node.nodeName in {UL:1, OL:1, DL:1, DD:1, DT:1, LI:1}) &&
+			!DU.isListOrListElt(node) &&
 			prevNode.data && prevNode.data.parsoid.dsr &&
 			node.data && node.data.parsoid.dsr)
 	{
