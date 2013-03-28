@@ -89,7 +89,7 @@ function stripMetaTags( tokens, wrapTemplates ) {
 	};
 }
 
-function makeTplAffectedMeta ( contentType, key, val ) {
+function makeTplAffectedMeta( contentType, key, val ) {
 	// SSS FIXME: Assumes that all expanded attrs. have the same expandable type
 	// - attr1 can be expanded by a template
 	// - attr2 can be expanded by an extension
@@ -233,7 +233,9 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 					metaObjType = updatedK.metaObjType;
 					if (metaObjType) {
 						producerObjType = metaObjType;
-						metaTokens.push( makeTplAffectedMeta(contentType, newK, updatedK) );
+						// newK can be an array
+						var key = newK.constructor === String ? newK : Util.tokensToString(newK);
+						metaTokens.push( makeTplAffectedMeta(contentType, key, updatedK) );
 					}
 				}
 			} else if (newK !== a.k) {
