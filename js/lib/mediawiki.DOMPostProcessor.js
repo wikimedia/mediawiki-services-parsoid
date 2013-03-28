@@ -45,7 +45,8 @@ var WT_TagWidths = {
 	"i"     : [2,2],
 	"td"    : [null,0],
 	"th"    : [null,0],
-	"br"    : [0,0]
+	"br"    : [0,0],
+	"figure": [2,2]
 	// span, figure, caption, figcaption, br, a, i, b
 };
 

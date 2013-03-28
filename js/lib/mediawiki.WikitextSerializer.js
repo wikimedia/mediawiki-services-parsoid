@@ -425,6 +425,8 @@ WSP.initialState = {
 				if(res) {
 					self.serializer.emitSeparator(self, function(sep) { bits.push(sep); }, node);
 				}
+				self.sep.lastSourceNode = node;
+				self.sep.lastSourceSep = self.sep.src;
 				bits.push(res);
 			};
 		this.sep = {};
@@ -2562,12 +2564,6 @@ WSP.handleSeparator = function( state, nodeA, handlerA, nodeB, handlerB, dir) {
  * existing separator text. Called when new output is triggered.
  */
 WSP.emitSeparator = function(state, cb, node) {
-	//console.log(
-	//		state.sep.lastSourceNode && state.sep.lastSourceNode.nodeName || 'noNodeA',
-	//		node && node.nodeName || 'noNodeB');
-	//if(!node) {
-	//	console.trace();
-	//}
 
 	var sep,
 		origNode = node,
@@ -2577,6 +2573,21 @@ WSP.emitSeparator = function(state, cb, node) {
 		prevNode = state.sep.lastSourceNode;
 
 	if (src && !state.selser.serializeInfo && node && prevNode) {
+		// FIXME: Maybe we shouldn't set dsr in the dsr pass if both aren't valid?
+		//
+		// When we are in the lastChild sep scenario and the parent doesn't have
+		// useable dsr, if possible, walk up the ancestor nodes till we find a dsr-bearing node
+		if (prevNode.parentNode === node) {
+			while (!node.nextSibling && node.nodeName !== 'BODY' &&
+				(!node.data ||
+				!node.data.parsoid.dsr ||
+				node.data.parsoid.dsr[0] === null ||
+				node.data.parsoid.dsr[1] === null))
+			{
+				node = node.parentNode;
+			}
+		}
+
 		if (node && node.nodeType === node.TEXT_NODE) {
 			// Check if this is the first child of a zero-width element, and use
 			// that for dsr purposes instead. Typical case: text in p.
@@ -2589,6 +2600,7 @@ WSP.emitSeparator = function(state, cb, node) {
 				node = node.parentNode;
 			}
 		}
+
 		if (prevNode && prevNode.nodeType === prevNode.TEXT_NODE) {
 			// Check if this is the last child of a zero-width element, and use
 			// that for dsr purposes instead. Typical case: text in p.
@@ -2611,12 +2623,11 @@ WSP.emitSeparator = function(state, cb, node) {
 					nodeType: prevNode.ELEMENT_NODE,
 					data: {
 						parsoid: {
-							dsr:
-								[
-									prevSiblingEndDSR,
-									prevSiblingEndDSR + prevNode.nodeValue.length,
-									0, 0
-								]
+							dsr: [
+								prevSiblingEndDSR,
+								prevSiblingEndDSR + prevNode.nodeValue.length + DU.indentPreDSRCorrection(prevNode),
+								0, 0
+							]
 						}
 					}
 				};
