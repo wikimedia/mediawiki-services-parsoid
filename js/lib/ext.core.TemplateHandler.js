@@ -314,7 +314,7 @@ TemplateHandler.prototype._processTemplateAndTitle = function( state, frame, cb,
 	}
 
 	//console.log( "=================================");
-	//console.log( name );
+	//console.log( tplArgs.name );
 	//console.log( "---------------------------------");
 	//console.log( src );
 

@@ -189,11 +189,6 @@ ParserPipelineFactory.prototype.defaultOptions = function(options) {
 		options.wrapTemplates = true;
 	}
 
-	// default: not an extension
-	if (options.isExtension === undefined) {
-		options.isExtension = false;
-	}
-
 	return options;
 };
 
@@ -275,8 +270,8 @@ function getCacheKey(cacheType, options) {
 	if ( options.inBlockToken ) {
 		cacheType += '::inBlockToken';
 	}
-	if ( options.isExtension ) {
-		cacheType += '::isExtension';
+	if ( options.extTag ) {
+		cacheType += '::'+options.extTag;
 	}
 	return cacheType;
 }
