@@ -8,7 +8,7 @@
 		"request": "2.x.x",
 		"querystring": "0.x.x",
 		"path": "0.x.x",
-		"jshashes": "0.x.x",
+		"jshashes": "1.x.x",
 		"optimist": "0.x.x",
 		"assert": "0.x.x",
 		"domino": "1.0.8",

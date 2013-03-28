@@ -427,10 +427,12 @@ app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
 		var parser = Util.getParser(env, 'text/x-mediawiki/full'),
 			src = req.body.content.replace(/\r/g, '');
 		parser.on('document', function ( document ) {
+			res.write('<pre style="white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; white-space: -o-pre-wrap; word-wrap: break-word;">');
+			res.write(htmlSpecialChars(document.body.innerHTML));
+			res.write('</pre>');
+			res.write('<hr/>');
 			res.write(document.body.innerHTML);
-			//res.write('<form method=POST><input name="content"></form>');
-			//res.end("hello world\n" + req.method + ' ' + req.params.title);
-			res.write( "<hr>Your wikitext:" );
+			res.write('<hr style="clear:both;"/>Your wikitext:');
 			textarea( res, src );
 			res.end('');
 		});
