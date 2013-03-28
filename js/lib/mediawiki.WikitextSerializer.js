@@ -267,7 +267,7 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
  * @constructor
  * @param options {Object} List of options for serialization
  */
-var WikitextSerializer = function( options ) {
+function WikitextSerializer( options ) {
 	this.options = Util.extendProps( {
 		// defaults
 	}, options || {} );
@@ -293,11 +293,12 @@ var WikitextSerializer = function( options ) {
 		WikitextSerializer.prototype.debug = function ( ) {};
 		WikitextSerializer.prototype.trace = function () {};
 	}
+
+	// New wt escaping handler
+	this.wteHandlers = new WikitextEscapeHandlers();
 };
 
 var WSP = WikitextSerializer.prototype;
-
-WSP.wteHandlers = new WikitextEscapeHandlers();
 
 /* *********************************************************************
  * Here is what the state attributes mean:
@@ -422,13 +423,13 @@ WSP.initialState = {
 			self = this,
 			cb = function(res, node) {
 				if(res) {
-					WSP.emitSeparator(self, function(sep) { bits.push(sep); }, node);
+					self.serializer.emitSeparator(self, function(sep) { bits.push(sep); }, node);
 				}
 				bits.push(res);
 			};
 		this.sep = {};
 		this.serializeChildren(node.childNodes, cb, wtEscaper);
-		WSP.emitSeparator(this, cb, node);
+		self.serializer.emitSeparator(this, cb, node);
 		// restore the separator state
 		this.sep = sepState;
 		return bits.join('');
@@ -635,7 +636,7 @@ WSP.figureHandler = function(node, state, cb) {
 	// XXX: don't use serializeChildrenToString here as that messes up the
 	// global separator state?
 	var captionSrc;
-	captionSrc = state.serializeChildrenToString(caption, WSP.wteHandlers.aHandler);
+	captionSrc = state.serializeChildrenToString(caption, this.wteHandlers.aHandler);
 
 	var imgResource = (img && img.getAttribute('resource') || '').replace(/(^\[:)|(\]$)/g, ''),
 		outBits = [imgResource],
@@ -704,7 +705,7 @@ WSP.figureHandler = function(node, state, cb) {
 
 
 WSP._serializeTableTag = function ( symbol, endSymbol, state, token ) {
-	var sAttribs = WSP._serializeAttributes(state, token);
+	var sAttribs = this._serializeAttributes(state, token);
 	if (sAttribs.length > 0) {
 		// IMPORTANT: 'endSymbol !== null' NOT 'endSymbol' since the '' string
 		// is a falsy value and we want to treat it as a truthy value.
@@ -717,7 +718,7 @@ WSP._serializeTableTag = function ( symbol, endSymbol, state, token ) {
 WSP._serializeTableElement = function ( symbol, endSymbol, state, node ) {
 	var token = DU.mkTagTk(node);
 
-	var sAttribs = WSP._serializeAttributes(state, token);
+	var sAttribs = this._serializeAttributes(state, token);
 	if (sAttribs.length > 0) {
 		// IMPORTANT: 'endSymbol !== null' NOT 'endSymbol' since the '' string
 		// is a falsy value and we want to treat it as a truthy value.
@@ -743,7 +744,7 @@ WSP._serializeHTMLTag = function ( state, token ) {
 		close = ' /';
 	}
 
-	var sAttribs = WSP._serializeAttributes(state, token),
+	var sAttribs = this._serializeAttributes(state, token),
 		tokenName = da.srcTagName || token.name;
 	if (sAttribs.length > 0) {
 		return '<' + tokenName + ' ' + sAttribs + close + '>';
@@ -855,8 +856,8 @@ function escapeWikiLinkContentString ( contentString, state ) {
 	//
 	// When processing link text, we are no longer in newline state
 	// since that will be preceded by "[[" or "[" text in target wikitext.
-	state.wteHandlerStack.push(WSP.wteHandlers.wikilinkHandler);
-	var res = WSP.escapeWikiText(state, contentString);
+	state.wteHandlerStack.push(state.serializer.wteHandlers.wikilinkHandler);
+	var res = state.serializer.escapeWikiText(state, contentString);
 	state.wteHandlerStack.pop();
 	return res;
 }
@@ -866,7 +867,7 @@ function escapeWikiLinkContentString ( contentString, state ) {
 // openTagSrc = ...; endTagSrc = ...; and at the end of the function,
 // check for autoInsertedStart and autoInsertedEnd attributes and
 // supress openTagSrc or endTagSrc appropriately.
-WSP.linkHandler =  function(node, state, cb) {
+WSP.linkHandler = function(node, state, cb) {
 	//return '[[';
 	// TODO: handle internal/external links etc using RDFa and dataAttribs
 	// Also convert unannotated html links without advanced attributes to
@@ -998,7 +999,7 @@ WSP.linkHandler =  function(node, state, cb) {
 				if ( linkData.contentNode ) {
 					contentSrc = state.serializeChildrenToString(
 							linkData.contentNode,
-							WSP.wteHandlers.wikilinkHandler);
+							this.wteHandlers.wikilinkHandler);
 					// strip off the tail and handle the pipe trick
 					contentParts = splitLinkContentString(contentSrc, dp);
 					contentSrc = contentParts.contentString;
@@ -1031,7 +1032,7 @@ WSP.linkHandler =  function(node, state, cb) {
 			}
 
 			cb( '[' + target.value + ' ' +
-				state.serializeChildrenToString(node, WSP.wteHandlers.aHandler) +
+				state.serializeChildrenToString(node, this.wteHandlers.aHandler) +
 				']', node );
 		} else if ( rel.match( /mw:ExtLink\/(?:ISBN|RFC|PMID)/ ) ) {
 			cb( node.firstChild.nodeValue, node );
@@ -1049,13 +1050,13 @@ WSP.linkHandler =  function(node, state, cb) {
 			}
 		} else {
 			// Unknown rel was set
-			//WSP._htmlElementHandler(node, state, cb);
+			//this._htmlElementHandler(node, state, cb);
 			if ( target.modified ) {
 				// encodeURI only encodes spaces and the like
 				target.value = encodeURI(target.value);
 			}
 			cb( '[' + target.value + ' ' +
-				state.serializeChildrenToString(node, WSP.wteHandlers.aHandler) +
+				state.serializeChildrenToString(node, this.wteHandlers.aHandler) +
 				']', node );
 			return;
 		}
@@ -1077,12 +1078,12 @@ WSP.linkHandler =  function(node, state, cb) {
 
 		if ( isComplexLink ( node.attributes ) ) {
 			// Complex attributes we can't support in wiki syntax
-			WSP._htmlElementHandler(node, state, cb);
+			this._htmlElementHandler(node, state, cb);
 		} else {
 			// encodeURI only encodes spaces and the like
 			var href = encodeURI(node.getAttribute('href'));
 			cb( '[' + href + ' ' +
-				state.serializeChildrenToString(node, WSP.wteHandlers.aHandler) +
+				state.serializeChildrenToString(node, this.wteHandlers.aHandler) +
 				']', node );
 		}
 	}
@@ -1112,7 +1113,7 @@ function buildHeadingHandler(headingWT) {
 		handle: function(node, state, cb) {
 			cb(headingWT, node);
 			if (node.childNodes.length) {
-				state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.headingHandler);
+				state.serializeChildren(node.childNodes, cb, state.serializer.wteHandlers.headingHandler);
 			} else {
 				// Deal with empty headings
 				cb('<nowiki/>', node);
@@ -1276,10 +1277,10 @@ function buildListHandler(firstChildNames) {
 			var firstChildElement = DU.getFirstNonSepChildNode(node);
 			if (!firstChildElement || ! (firstChildElement.nodeName in firstChildNames))
 			{
-				cb(WSP._getListBullets(node), node);
+				cb(state.serializer._getListBullets(node), node);
 			}
 			// Just serialize the children, ignore the (implicit) tbody
-			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.liHandler, true);
+			state.serializeChildren(node.childNodes, cb, state.serializer.wteHandlers.liHandler, true);
 		},
 		sepnls: {
 			before: function (node, otherNode) {
@@ -1306,10 +1307,10 @@ WSP.tagHandlers = {
 			var firstChildElement = DU.getFirstNonSepChildNode(node),
 				forceSep = false;
 			if (!DU.isList(firstChildElement)) {
-				cb(WSP._getListBullets(node), node);
+				cb(state.serializer._getListBullets(node), node);
 				forceSep = true;
 			}
-			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.liHandler, forceSep);
+			state.serializeChildren(node.childNodes, cb, state.serializer.wteHandlers.liHandler, forceSep);
 		},
 		sepnls: {
 			before: function (node, otherNode) {
@@ -1336,9 +1337,9 @@ WSP.tagHandlers = {
 		handle: function (node, state, cb) {
 			var firstChildElement = DU.getFirstNonSepChildNode(node);
 			if (!DU.isList(firstChildElement)) {
-				cb(WSP._getListBullets(node), node);
+				cb(state.serializer._getListBullets(node), node);
 			}
-			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.liHandler);
+			state.serializeChildren(node.childNodes, cb, state.serializer.wteHandlers.liHandler);
 		},
 		sepnls: {
 			before: id({min:1, max:2}),
@@ -1368,11 +1369,11 @@ WSP.tagHandlers = {
 				if (node.data.parsoid.stx === 'row') {
 					cb(':', node);
 				} else {
-					cb(WSP._getListBullets(node), node);
+					cb(state.serializer._getListBullets(node), node);
 				}
 				forceSep = true;
 			}
-			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.liHandler, forceSep);
+			state.serializeChildren(node.childNodes, cb, state.serializer.wteHandlers.liHandler, forceSep);
 		},
 		sepnls: {
 			before: function(node, othernode) {
@@ -1399,7 +1400,7 @@ WSP.tagHandlers = {
 	table: {
 		handle: function (node, state, cb) {
 			var wt = node.data.parsoid.startTagSrc || "{|";
-			cb(WSP._serializeTableTag(wt, '', state, DU.mkTagTk(node)), node);
+			cb(state.serializer._serializeTableTag(wt, '', state, DU.mkTagTk(node)), node);
 			state.serializeChildren(node.childNodes, cb);
 			emitEndTag(node.data.parsoid.endTagSrc || "|}", node, state, cb);
 		},
@@ -1429,7 +1430,7 @@ WSP.tagHandlers = {
 			// in the source wikitext and we emit it -- if not, we ignore it.
 			var dp = node.data.parsoid;
 			if (node.previousSibling || dp.startTagSrc) {
-				var res = WSP._serializeTableTag(dp.startTagSrc || "|-", '', state,
+				var res = state.serializer._serializeTableTag(dp.startTagSrc || "|-", '', state,
 							DU.mkTagTk(node) );
 				emitStartTag(res, node, state, cb);
 			}
@@ -1453,14 +1454,14 @@ WSP.tagHandlers = {
 		handle: function (node, state, cb) {
 			var dp = node.data.parsoid, res;
 			if ( dp.stx_v === 'row' ) {
-				res = WSP._serializeTableTag(dp.startTagSrc || "!!",
+				res = state.serializer._serializeTableTag(dp.startTagSrc || "!!",
 							dp.attrSepSrc || null, state, DU.mkTagTk(node));
 			} else {
-				res = WSP._serializeTableTag(dp.startTagSrc || "!", dp.attrSepSrc || null,
+				res = state.serializer._serializeTableTag(dp.startTagSrc || "!", dp.attrSepSrc || null,
 						state, DU.mkTagTk(node));
 			}
 			emitStartTag(res, node, state, cb);
-			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.thHandler);
+			state.serializeChildren(node.childNodes, cb, state.serializer.wteHandlers.thHandler);
 		},
 		sepnls: {
 			before: function(node, otherNode) {
@@ -1478,12 +1479,12 @@ WSP.tagHandlers = {
 		handle: function (node, state, cb) {
 			var dp = node.data.parsoid, res;
 			if ( dp.stx_v === 'row' ) {
-				res = WSP._serializeTableTag(dp.startTagSrc || "||",
+				res = state.serializer._serializeTableTag(dp.startTagSrc || "||",
 						dp.attrSepSrc || null, state, DU.mkTagTk(node));
 			} else {
 				// If the HTML for the first td is not enclosed in a tr-tag,
 				// we start a new line.  If not, tr will have taken care of it.
-				res = WSP._serializeTableTag(dp.startTagSrc || "|",
+				res = state.serializer._serializeTableTag(dp.startTagSrc || "|",
 						dp.attrSepSrc || null, state, DU.mkTagTk(node));
 
 			}
@@ -1493,7 +1494,7 @@ WSP.tagHandlers = {
 			}
 			emitStartTag(res, node, state, cb);
 			state.resetCurrLine();
-			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.tdHandler);
+			state.serializeChildren(node.childNodes, cb, state.serializer.wteHandlers.tdHandler);
 			// FIXME: bad state hack!
 			state.inWideTD = undefined;
 		},
@@ -1513,7 +1514,7 @@ WSP.tagHandlers = {
 		handle: function (node, state, cb) {
 			var dp = node.data.parsoid;
 			// Serialize the tag itself
-			var res = WSP._serializeTableTag(
+			var res = state.serializer._serializeTableTag(
 					dp.startTagSrc || "|+", null, state, DU.mkTagTk(node));
 			emitStartTag(res, node, state, cb);
 			state.serializeChildren(node.childNodes, cb);
@@ -1676,7 +1677,7 @@ WSP.tagHandlers = {
 							 //cb('');
 							 break;
 					default:
-							 WSP._htmlElementHandler(node, state, cb);
+							 state.serializer._htmlElementHandler(node, state, cb);
 							 break;
 				}
 			} else if ( property ) {
@@ -1689,7 +1690,7 @@ WSP.tagHandlers = {
 					cb(switchType, node);
 				}
 			} else {
-				WSP._htmlElementHandler(node, state, cb);
+				state.serializer._htmlElementHandler(node, state, cb);
 			}
 		},
 		sepnls: {
@@ -1716,7 +1717,7 @@ WSP.tagHandlers = {
 	span: {
 		handle: function(node, state, cb) {
 			var type = node.getAttribute('typeof');
-			if (type && type in WSP.genContentSpanTypes) {
+			if (type && type in state.serializer.genContentSpanTypes) {
 				if (type === 'mw:Nowiki') {
 					cb('<nowiki>', node);
 					if (node.childNodes.length === 1 && node.firstChild.nodeName === 'PRE') {
@@ -1745,17 +1746,19 @@ WSP.tagHandlers = {
 			} else {
 				// Fall back to plain HTML serialization for spans created
 				// by the editor
-				WSP._htmlElementHandler(node, state, cb);
+				state.serializer._htmlElementHandler(node, state, cb);
 			}
 		}
 	},
 	figure: {
-		handle: WSP.figureHandler.bind(WSP)
+		handle: function(node, state, cb) {
+			return state.serializer.figureHandler(node, state, cb);
+		}
 	},
 	img: {
 		handle: function (node, state, cb) {
 			if ( node.getAttribute('rel') === 'mw:externalImage' ) {
-				WSP.emitWikitext(node.getAttribute('src') || '', state, cb, node);
+				state.serializer.emitWikitext(node.getAttribute('src') || '', state, cb, node);
 			}
 		}
 	},
@@ -1822,30 +1825,34 @@ WSP.tagHandlers = {
 	},
 	b:  {
 		handle: function(node, state, cb) {
-			if (WSP._hasPrecedingQuoteElements(node, state)) {
+			if (state.serializer._hasPrecedingQuoteElements(node, state)) {
 				emitStartTag('<nowiki/>', node, state, cb);
 			}
 			emitStartTag("'''", node, state, cb);
-			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.quoteHandler);
+			state.serializeChildren(node.childNodes, cb, state.serializer.wteHandlers.quoteHandler);
 			emitEndTag("'''", node, state, cb);
 		}
 	},
 	i:  {
 		handle: function(node, state, cb) {
-			if (WSP._hasPrecedingQuoteElements(node, state)) {
+			if (state.serializer._hasPrecedingQuoteElements(node, state)) {
 				emitStartTag('<nowiki/>', node, state, cb);
 			}
 			emitStartTag("''", node, state, cb);
-			state.serializeChildren(node.childNodes, cb, WSP.wteHandlers.quoteHandler);
+			state.serializeChildren(node.childNodes, cb, state.serializer.wteHandlers.quoteHandler);
 			emitEndTag("''", node, state, cb);
 		}
 	},
 	a:  {
-		handle: WSP.linkHandler.bind(WSP)
+		handle: function(node, state, cb) {
+			return state.serializer.linkHandler(node, state, cb);
+		}
 		// TODO: Implement link tail escaping with nowiki in DOM handler!
 	},
 	link:  {
-		handle: WSP.linkHandler.bind(WSP)
+		handle: function(node, state, cb) {
+			return state.serializer.linkHandler(node, state, cb);
+		}
 	},
 	body: {
 		handle: function(node, state, cb) {
@@ -1991,7 +1998,7 @@ WSP._serializeAttributes = function (state, token) {
 WSP._htmlElementHandler = function (node, state, cb) {
 	var attribKVs = DU.getAttributeKVArray(node);
 
-	emitStartTag(WSP._serializeHTMLTag(state, DU.mkTagTk(node)),
+	emitStartTag(this._serializeHTMLTag(state, DU.mkTagTk(node)),
 			node, state, cb);
 	if (node.childNodes.length) {
 		var inPHPBlock = state.inPHPBlock;
@@ -2001,7 +2008,7 @@ WSP._htmlElementHandler = function (node, state, cb) {
 		state.serializeChildren(node.childNodes, cb);
 		state.inPHPBlock = inPHPBlock;
 	}
-	emitEndTag(WSP._serializeHTMLEndTag(state, DU.mkEndTagTk(node)),
+	emitEndTag(this._serializeHTMLEndTag(state, DU.mkEndTagTk(node)),
 			node, state, cb);
 };
 
@@ -2009,6 +2016,8 @@ WSP._htmlElementHandler = function (node, state, cb) {
  * Get a DOM-based handler for an element node
  */
 WSP._getDOMHandler = function(node, state, cb) {
+	var self = this;
+
 	if (!node || node.nodeType !== node.ELEMENT_NODE) {
 		return {};
 	}
@@ -2049,7 +2058,7 @@ WSP._getDOMHandler = function(node, state, cb) {
 			return {
 				handle: function () {
 					state.activeTemplateId = node.getAttribute('about') || null;
-					WSP.emitWikitext(dp.src, state, cb, node);
+					self.emitWikitext(dp.src, state, cb, node);
 				},
 				sepnls: {
 					// XXX: This is questionable, as the template can expand
@@ -2068,7 +2077,7 @@ WSP._getDOMHandler = function(node, state, cb) {
 					if (dp.src.match(/^\n+$/)) {
 						state.sep.src = (state.sep.src || '') + dp.src;
 					} else {
-						WSP.emitWikitext(dp.src, state, cb, node);
+						self.emitWikitext(dp.src, state, cb, node);
 					}
 				}
 			};
@@ -2078,10 +2087,10 @@ WSP._getDOMHandler = function(node, state, cb) {
 			return  {
 				handle: function () {
 					if ( contentSrc === dp.srcContent ) {
-						WSP.emitWikitext(dp.src, state, cb, node);
+						self.emitWikitext(dp.src, state, cb, node);
 					} else {
 						//console.log(contentSrc, dp.srcContent);
-						WSP.emitWikitext(contentSrc, state, cb, node);
+						self.emitWikitext(contentSrc, state, cb, node);
 					}
 				}
 			};
@@ -2096,7 +2105,7 @@ WSP._getDOMHandler = function(node, state, cb) {
 		node.setAttribute('rel', 'mw:Image');
 		// And set an empty href, so that
 		node.setAttribute('href', '');
-		return this.tagHandlers.a || null;
+		return self.tagHandlers.a || null;
 	}
 
 	if (dp.stx === 'html' ||
@@ -2107,17 +2116,17 @@ WSP._getDOMHandler = function(node, state, cb) {
 			  node.parentNode.data &&
 			  node.parentNode.data.parsoid.stx === 'html' ) )
 	{
-		return {handle: this._htmlElementHandler};
-	} else if (this.tagHandlers[nodeName]) {
-		handler = this.tagHandlers[nodeName];
+		return {handle: self._htmlElementHandler.bind(self)};
+	} else if (self.tagHandlers[nodeName]) {
+		handler = self.tagHandlers[nodeName];
 		if (!handler.handle) {
-			return {handle: this._htmlElementHandler, sepnls: handler.sepnls};
+			return {handle: self._htmlElementHandler.bind(self), sepnls: handler.sepnls};
 		} else {
 			return handler || null;
 		}
 	} else {
 		// XXX: check against element whitelist and drop those not on it?
-		return {handle: this._htmlElementHandler};
+		return {handle: self._htmlElementHandler.bind(self)};
 	}
 };
 
@@ -2657,6 +2666,13 @@ WSP.emitSeparator = function(state, cb, node) {
 		}
 	}
 
+	if (this.debugging) {
+		this.trace('emitSeparator',
+			'node: ', origNode.nodeName,
+			'prev: ', (prevNode ? prevNode.nodeName : '--none--'),
+			'sep: ', sep);
+	}
+
 	// Verify that the separator is really one.
 	// It cannot be anything but whitespace and comments.
 	if (sep === undefined || !sep.match(/^(\s|<!--([^\-]|-(?!->))*-->)*$/)) {
@@ -2867,7 +2883,7 @@ WSP._serializeNode = function( node, state, cb) {
 		case node.COMMENT_NODE:
 			// delay the newline creation until after the comment
 			if (!this.handleSeparatorText(node, state)) {
-				cb(commentWT(node.nodeValue));
+				cb(commentWT(node.nodeValue), node);
 			}
 			break;
 		default:
@@ -2888,6 +2904,8 @@ WSP.serializeDOM = function( body, chunkCB, finalCB, selser ) {
 		Util.clone(this.initialState),
 		Util.clone(this.options)),
 		serializeInfo = state.selser.serializeInfo;
+
+	// Record the serializer
 	state.serializer = this;
 
 	try {
@@ -2914,7 +2932,7 @@ WSP.serializeDOM = function( body, chunkCB, finalCB, selser ) {
 			if (chunk) {
 				state.currLine.seen = true;
 			}
-			WSP.emitSeparator(state, cb, chunkNode);
+			state.serializer.emitSeparator(state, cb, chunkNode);
 			cb(chunk, serializeInfo);
 			//console.log('chunkCB', chunk,
 			//			chunkNode && chunkNode.nodeName || 'noNode');
