@@ -374,37 +374,41 @@ WSP.initialState = {
 	// Serialize the children of a DOM node, sharing the global serializer
 	// state. Typically called by a DOM-based handler to continue handling its
 	// children.
-	serializeChildren: function(nodes, chunkCB, wtEscaper, forceSep) {
+	serializeChildren: function(node, chunkCB, wtEscaper, forceSep) {
 		var oldCB = this.chunkCB,
-			oldSep = this.sep;
+			oldSep = this.sep,
+			children = node.childNodes,
+			child = children[0],
+			nextChild;
+
 		this.chunkCB = chunkCB;
 		if ( wtEscaper ) {
 			this.wteHandlerStack.push(wtEscaper);
 		}
-		var node = nodes[0],
-			parentNode = node && node.parentNode,
-			nextNode;
-		while (node) {
-			nextNode = this.serializer._serializeNode(node, this);
-			if (nextNode === parentNode) {
+
+		while (child) {
+			nextChild = this.serializer._serializeNode(child, this);
+			if (nextChild === node) {
 				// serialized all children
 				break;
-			} else if (nextNode === node) {
+			} else if (nextChild === child) {
 				// advance the child
-				node = node.nextSibling;
+				child = child.nextSibling;
 			} else {
-				//console.log('nextNode', nextNode && nextNode.outerHTML);
-				node = nextNode;
+				//console.log('nextChild', nextChild && nextChild.outerHTML);
+				child = nextChild;
 			}
 		}
+
 		if (forceSep && oldSep === this.sep) {
 			// Force separator out
-			if (nodes.length) {
-				chunkCB('', nodes.last());
+			if (children.length) {
+				chunkCB('', children.last());
 			} else {
 				chunkCB('', {nodeName: 'fooobar'});
 			}
 		}
+
 		this.chunkCB = oldCB;
 		if ( wtEscaper ) {
 			this.wteHandlerStack.pop();
@@ -430,7 +434,7 @@ WSP.initialState = {
 				bits.push(res);
 			};
 		this.sep = {};
-		this.serializeChildren(node.childNodes, cb, wtEscaper);
+		this.serializeChildren(node, cb, wtEscaper);
 		self.serializer.emitSeparator(this, cb, node);
 		// restore the separator state
 		this.sep = sepState;
@@ -1115,7 +1119,7 @@ function buildHeadingHandler(headingWT) {
 		handle: function(node, state, cb) {
 			cb(headingWT, node);
 			if (node.childNodes.length) {
-				state.serializeChildren(node.childNodes, cb, state.serializer.wteHandlers.headingHandler);
+				state.serializeChildren(node, cb, state.serializer.wteHandlers.headingHandler);
 			} else {
 				// Deal with empty headings
 				cb('<nowiki/>', node);
@@ -1282,7 +1286,7 @@ function buildListHandler(firstChildNames) {
 				cb(state.serializer._getListBullets(node), node);
 			}
 			// Just serialize the children, ignore the (implicit) tbody
-			state.serializeChildren(node.childNodes, cb, state.serializer.wteHandlers.liHandler, true);
+			state.serializeChildren(node, cb, state.serializer.wteHandlers.liHandler, true);
 		},
 		sepnls: {
 			before: function (node, otherNode) {
@@ -1312,7 +1316,7 @@ WSP.tagHandlers = {
 				cb(state.serializer._getListBullets(node), node);
 				forceSep = true;
 			}
-			state.serializeChildren(node.childNodes, cb, state.serializer.wteHandlers.liHandler, forceSep);
+			state.serializeChildren(node, cb, state.serializer.wteHandlers.liHandler, forceSep);
 		},
 		sepnls: {
 			before: function (node, otherNode) {
@@ -1341,7 +1345,7 @@ WSP.tagHandlers = {
 			if (!DU.isList(firstChildElement)) {
 				cb(state.serializer._getListBullets(node), node);
 			}
-			state.serializeChildren(node.childNodes, cb, state.serializer.wteHandlers.liHandler);
+			state.serializeChildren(node, cb, state.serializer.wteHandlers.liHandler);
 		},
 		sepnls: {
 			before: id({min:1, max:2}),
@@ -1375,7 +1379,7 @@ WSP.tagHandlers = {
 				}
 				forceSep = true;
 			}
-			state.serializeChildren(node.childNodes, cb, state.serializer.wteHandlers.liHandler, forceSep);
+			state.serializeChildren(node, cb, state.serializer.wteHandlers.liHandler, forceSep);
 		},
 		sepnls: {
 			before: function(node, othernode) {
@@ -1403,7 +1407,7 @@ WSP.tagHandlers = {
 		handle: function (node, state, cb) {
 			var wt = node.data.parsoid.startTagSrc || "{|";
 			cb(state.serializer._serializeTableTag(wt, '', state, DU.mkTagTk(node)), node);
-			state.serializeChildren(node.childNodes, cb);
+			state.serializeChildren(node, cb);
 			emitEndTag(node.data.parsoid.endTagSrc || "|}", node, state, cb);
 		},
 		sepnls: {
@@ -1423,7 +1427,7 @@ WSP.tagHandlers = {
 	tbody: {
 		handle: function (node, state, cb) {
 			// Just serialize the children, ignore the (implicit) tbody
-			state.serializeChildren(node.childNodes, cb);
+			state.serializeChildren(node, cb);
 		}
 	},
 	tr: {
@@ -1436,7 +1440,7 @@ WSP.tagHandlers = {
 							DU.mkTagTk(node) );
 				emitStartTag(res, node, state, cb);
 			}
-			state.serializeChildren(node.childNodes, cb);
+			state.serializeChildren(node, cb);
 		},
 		sepnls: {
 			before: function(node, othernode) {
@@ -1463,7 +1467,7 @@ WSP.tagHandlers = {
 						state, DU.mkTagTk(node));
 			}
 			emitStartTag(res, node, state, cb);
-			state.serializeChildren(node.childNodes, cb, state.serializer.wteHandlers.thHandler);
+			state.serializeChildren(node, cb, state.serializer.wteHandlers.thHandler);
 		},
 		sepnls: {
 			before: function(node, otherNode) {
@@ -1496,7 +1500,7 @@ WSP.tagHandlers = {
 			}
 			emitStartTag(res, node, state, cb);
 			state.resetCurrLine();
-			state.serializeChildren(node.childNodes, cb, state.serializer.wteHandlers.tdHandler);
+			state.serializeChildren(node, cb, state.serializer.wteHandlers.tdHandler);
 			// FIXME: bad state hack!
 			state.inWideTD = undefined;
 		},
@@ -1519,7 +1523,7 @@ WSP.tagHandlers = {
 			var res = state.serializer._serializeTableTag(
 					dp.startTagSrc || "|+", null, state, DU.mkTagTk(node));
 			emitStartTag(res, node, state, cb);
-			state.serializeChildren(node.childNodes, cb);
+			state.serializeChildren(node, cb);
 		},
 		sepnls: {
 			before: function(node, otherNode) {
@@ -1539,7 +1543,7 @@ WSP.tagHandlers = {
 			if (state.sep.src && state.sep.src.match(/[ \t]$/)) {
 				state.sep.src = state.sep.src.replace(/[ \t]+$/, '');
 			}
-			state.serializeChildren(node.childNodes, cb, null, true);
+			state.serializeChildren(node, cb, null, true);
 		},
 		sepnls: {
 			before: function(node, otherNode) {
@@ -1723,7 +1727,7 @@ WSP.tagHandlers = {
 				if (type === 'mw:Nowiki') {
 					cb('<nowiki>', node);
 					if (node.childNodes.length === 1 && node.firstChild.nodeName === 'PRE') {
-						state.serializeChildren(node.childNodes, cb);
+						state.serializeChildren(node, cb);
 					} else {
 						var child = node.firstChild;
 						while(child) {
@@ -1731,14 +1735,14 @@ WSP.tagHandlers = {
 								if (child.nodeName === 'SPAN' &&
 										child.getAttribute('typeof') === 'mw:Entity')
 								{
-									state.serializeChildren([child], cb);
+									state.serializer._serializeNode(child, state, cb);
 								} else {
 									cb(child.outerHTML, node);
 								}
 							} else if (child.nodeType === node.TEXT_NODE) {
 								cb(child.nodeValue.replace(/<(\/?nowiki)>/g, '&lt;$1&gt;'), child);
 							} else {
-								state.serializeChildren([child], cb);
+								state.serializer._serializeNode(child, state, cb);
 							}
 							child = child.nextSibling;
 						}
@@ -1831,7 +1835,7 @@ WSP.tagHandlers = {
 				emitStartTag('<nowiki/>', node, state, cb);
 			}
 			emitStartTag("'''", node, state, cb);
-			state.serializeChildren(node.childNodes, cb, state.serializer.wteHandlers.quoteHandler);
+			state.serializeChildren(node, cb, state.serializer.wteHandlers.quoteHandler);
 			emitEndTag("'''", node, state, cb);
 		}
 	},
@@ -1841,7 +1845,7 @@ WSP.tagHandlers = {
 				emitStartTag('<nowiki/>', node, state, cb);
 			}
 			emitStartTag("''", node, state, cb);
-			state.serializeChildren(node.childNodes, cb, state.serializer.wteHandlers.quoteHandler);
+			state.serializeChildren(node, cb, state.serializer.wteHandlers.quoteHandler);
 			emitEndTag("''", node, state, cb);
 		}
 	},
@@ -1859,7 +1863,7 @@ WSP.tagHandlers = {
 	body: {
 		handle: function(node, state, cb) {
 			// Just serialize the children
-			state.serializeChildren(node.childNodes, cb);
+			state.serializeChildren(node, cb);
 		},
 		sepnls: {
 			firstChild: id({min:0, max:1}),
@@ -2007,7 +2011,7 @@ WSP._htmlElementHandler = function (node, state, cb) {
 		if (Util.tagOpensBlockScope(node.nodeName.toLowerCase())) {
 			state.inPHPBlock = true;
 		}
-		state.serializeChildren(node.childNodes, cb);
+		state.serializeChildren(node, cb);
 		state.inPHPBlock = inPHPBlock;
 	}
 	emitEndTag(this._serializeHTMLEndTag(state, DU.mkEndTagTk(node)),
@@ -2968,7 +2972,7 @@ WSP.serializeDOM = function( body, chunkCB, finalCB, selser ) {
 			// FIXME: Do we need this fallback at all?
 			this._serializeNode( body, state );
 		} else {
-			state.serializeChildren(body.childNodes, state.chunkCB);
+			state.serializeChildren(body, state.chunkCB);
 		}
 
 		// Handle EOF
