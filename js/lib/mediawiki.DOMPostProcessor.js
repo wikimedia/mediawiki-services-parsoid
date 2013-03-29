@@ -663,10 +663,27 @@ function migrateTrailingNLs(elt, env) {
 		]);
 
 		function nodeEndsLineInWT(node) {
-			return nodesToMigrateFrom[node.nodeName.toLowerCase()] === true && !DU.isLiteralHTMLNode(node);
+			return nodesToMigrateFrom[node.nodeName.toLowerCase()] && !DU.isLiteralHTMLNode(node);
 		}
 
 		return node && (nodeEndsLineInWT(node) || (!node.nextSibling && canMigrateNLOutOfNode(node.parentNode)));
+	}
+
+	// A node has zero wt width if:
+	// - tsr[0] == tsr[1]
+	// - only has children with zero wt width
+	function hasZeroWidthWT(node) {
+		var tsr = DU.dataParsoid(node).tsr;
+		if (!tsr || tsr[0] === null || tsr[0] !== tsr[1]) {
+			return false;
+		}
+
+		var c = node.firstChild;
+		while (c && DU.isElt(c) && hasZeroWidthWT(c)) {
+			c = c.nextSibling;
+		}
+
+		return c === null;
 	}
 
 	if (DU.hasNodeName(elt, "pre")) {
@@ -706,6 +723,14 @@ function migrateTrailingNLs(elt, env) {
 
 			migrationBarrier = n;
 			n = n.previousSibling;
+		}
+
+		// We can migrate trailing newlines across nodes that have zero-wikitext-width.
+		if (n && !DU.hasNodeName(n, "meta")) {
+			while (n && DU.isElt(n) && hasZeroWidthWT(n)) {
+				migrationBarrier = n;
+				n = n.previousSibling;
+			}
 		}
 
 		// Find nodes that need to be migrated out:

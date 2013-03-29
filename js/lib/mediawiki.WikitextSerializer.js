@@ -2203,6 +2203,7 @@ WSP.emitWikitext = function(text, state, cb, node) {
 	var newSepMatch = res.match(/\n\s*$/);
 	res = res.replace(/\n\s*$/, '');
 	cb(res, node);
+	state.sep.lastSourceNode = node;
 	// Move trailing newlines into the next separator
 	if (newSepMatch && !state.sep.src) {
 		state.sep.src = newSepMatch[0];
