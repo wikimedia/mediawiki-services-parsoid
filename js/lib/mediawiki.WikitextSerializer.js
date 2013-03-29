@@ -374,7 +374,7 @@ WSP.initialState = {
 	// Serialize the children of a DOM node, sharing the global serializer
 	// state. Typically called by a DOM-based handler to continue handling its
 	// children.
-	serializeChildren: function(node, chunkCB, wtEscaper, forceSep) {
+	serializeChildren: function(node, chunkCB, wtEscaper) {
 		var oldCB = this.chunkCB,
 			oldSep = this.sep,
 			children = node.childNodes,
@@ -400,13 +400,9 @@ WSP.initialState = {
 			}
 		}
 
-		if (forceSep && oldSep === this.sep) {
-			// Force separator out
-			if (children.length) {
-				chunkCB('', children.last());
-			} else {
-				chunkCB('', {nodeName: 'fooobar'});
-			}
+		// Force out accumulated separator
+		if (oldSep === this.sep) {
+			chunkCB('', children.last());
 		}
 
 		this.chunkCB = oldCB;
@@ -1285,8 +1281,7 @@ function buildListHandler(firstChildNames) {
 			{
 				cb(state.serializer._getListBullets(node), node);
 			}
-			// Just serialize the children, ignore the (implicit) tbody
-			state.serializeChildren(node, cb, state.serializer.wteHandlers.liHandler, true);
+			state.serializeChildren(node, cb, state.serializer.wteHandlers.liHandler);
 		},
 		sepnls: {
 			before: function (node, otherNode) {
@@ -1310,13 +1305,11 @@ WSP.tagHandlers = {
 
 	li: {
 		handle: function (node, state, cb) {
-			var firstChildElement = DU.getFirstNonSepChildNode(node),
-				forceSep = false;
+			var firstChildElement = DU.getFirstNonSepChildNode(node);
 			if (!DU.isList(firstChildElement)) {
 				cb(state.serializer._getListBullets(node), node);
-				forceSep = true;
 			}
-			state.serializeChildren(node, cb, state.serializer.wteHandlers.liHandler, forceSep);
+			state.serializeChildren(node, cb, state.serializer.wteHandlers.liHandler);
 		},
 		sepnls: {
 			before: function (node, otherNode) {
@@ -1368,8 +1361,7 @@ WSP.tagHandlers = {
 
 	dd: {
 		handle: function (node, state, cb) {
-			var firstChildElement = DU.getFirstNonSepChildNode(node),
-				forceSep = false;
+			var firstChildElement = DU.getFirstNonSepChildNode(node);
 			if (!DU.isList(firstChildElement)) {
 				// XXX: handle stx: row
 				if (node.data.parsoid.stx === 'row') {
@@ -1377,9 +1369,8 @@ WSP.tagHandlers = {
 				} else {
 					cb(state.serializer._getListBullets(node), node);
 				}
-				forceSep = true;
 			}
-			state.serializeChildren(node, cb, state.serializer.wteHandlers.liHandler, forceSep);
+			state.serializeChildren(node, cb, state.serializer.wteHandlers.liHandler);
 		},
 		sepnls: {
 			before: function(node, othernode) {
@@ -1543,7 +1534,7 @@ WSP.tagHandlers = {
 			if (state.sep.src && state.sep.src.match(/[ \t]$/)) {
 				state.sep.src = state.sep.src.replace(/[ \t]+$/, '');
 			}
-			state.serializeChildren(node, cb, null, true);
+			state.serializeChildren(node, cb, null);
 		},
 		sepnls: {
 			before: function(node, otherNode) {
@@ -2211,7 +2202,6 @@ WSP.emitWikitext = function(text, state, cb, node) {
 	}
 };
 
-
 WSP._getDOMAttribs = function( attribs ) {
 	// convert to list of key-value pairs
 	var out = [],
@@ -2252,45 +2242,31 @@ WSP._getDOMRTInfo = function( node ) {
  * XXX: Support separator-transparent elements!
  */
 WSP.handleSeparatorText = function ( node, state ) {
-	var isOnlyChild = !node.previousSibling && !node.nextSibling;
-	if (!isOnlyChild) {
-		if (node.nodeType === node.TEXT_NODE) {
-			if (node.nodeValue.match(/^\s*$/)) {
-				state.sep.src = (state.sep.src || '') + node.nodeValue;
-				//if (!state.sep.lastSourceNode) {
-				//	// FIXME: Actually set lastSourceNode when the source is
-				//	// emitted / emitSeparator is called!
-				//	state.sep.lastSourceNode = node.previousSibling || node.parentNode;
-				//}
-				return true;
-			} else if (node.nodeValue.match(/^\n+/)) {
-				state.sep.src = (state.sep.src || '') + node.nodeValue.match(/^\n+/)[0];
-				//if (!state.sep.lastSourceNode) {
-				//	// FIXME: Actually set lastSourceNode when the source is
-				//	// emitted / emitSeparator is called!
-				//	state.sep.lastSourceNode = node.previousSibling || node.parentNode;
-				//}
-				return false;
-			} else {
-				// not a separator between elements
-				return false;
-			}
-		} else if (node.nodeType === node.COMMENT_NODE) {
-			state.sep.src = (state.sep.src || '') + commentWT(node.nodeValue);
+	if (node.nodeType === node.TEXT_NODE) {
+		if (node.nodeValue.match(/^\s*$/)) {
+			state.sep.src = (state.sep.src || '') + node.nodeValue;
+			//if (!state.sep.lastSourceNode) {
+			//	// FIXME: Actually set lastSourceNode when the source is
+			//	// emitted / emitSeparator is called!
+			//	state.sep.lastSourceNode = node.previousSibling || node.parentNode;
+			//}
 			return true;
+		} else if (node.nodeValue.match(/^\n+/)) {
+			state.sep.src = (state.sep.src || '') + node.nodeValue.match(/^\n+/)[0];
+			//if (!state.sep.lastSourceNode) {
+			//	// FIXME: Actually set lastSourceNode when the source is
+			//	// emitted / emitSeparator is called!
+			//	state.sep.lastSourceNode = node.previousSibling || node.parentNode;
+			//}
+			return false;
 		} else {
+			// not a separator between elements
 			return false;
 		}
-	} else if (node.nodeValue.match(/^\n+/)) {
-		state.sep.src = (state.sep.src || '') + node.nodeValue.match(/^\n+/)[0];
-		//if (!state.sep.lastSourceNode) {
-		//	// FIXME: Actually set lastSourceNode when the source is
-		//	// emitted / emitSeparator is called!
-		//	//state.sep.lastSourceNode = node.previousSibling || node.parentNode;
-		//}
-		return false;
+	} else if (node.nodeType === node.COMMENT_NODE) {
+		state.sep.src = (state.sep.src || '') + commentWT(node.nodeValue);
+		return true;
 	} else {
-		// not a separator between elements
 		return false;
 	}
 };
@@ -2353,7 +2329,7 @@ WSP.extractTemplatedAttributes = function(node, state) {
  */
 WSP.getSepNlConstraints = function(nodeA, sepNlsHandlerA, nodeB, sepNlsHandlerB) {
 	var nlConstraints = { a:{}, b:{} }, bc;
-	if(sepNlsHandlerA) {
+	if (sepNlsHandlerA) {
 		nlConstraints.a = sepNlsHandlerA(nodeA, nodeB);
 		nlConstraints.min = nlConstraints.a.min;
 		nlConstraints.max = nlConstraints.a.max;
@@ -2363,7 +2339,7 @@ WSP.getSepNlConstraints = function(nodeA, sepNlsHandlerA, nodeB, sepNlsHandlerB)
 		nlConstraints.max = 2;
 	}
 
-	if(sepNlsHandlerB) {
+	if (sepNlsHandlerB) {
 		nlConstraints.b = sepNlsHandlerB(nodeB, nodeA);
 		var cb = nlConstraints.b;
 
@@ -2684,7 +2660,7 @@ WSP.emitSeparator = function(state, cb, node) {
 
 	if (this.debugging) {
 		this.trace('emitSeparator',
-			'node: ', origNode.nodeName,
+			'node: ', (origNode ? origNode.nodeName : '--none--'),
 			'prev: ', (prevNode ? prevNode.nodeName : '--none--'),
 			'sep: ', sep);
 	}
@@ -2718,9 +2694,11 @@ WSP.emitSeparator = function(state, cb, node) {
 			state.resetCurrLine();
 		}
 		//console.log('sep', constraints, JSON.stringify(sep));
+		if (this.debugging) {
+			console.log('SEP:', JSON.stringify(sep));
+		}
 	}
 };
-
 
 WSP._getPrevSeparatorElement = function (node, state) {
 	return /* state.sep.lastSourceNode || */ previousNonSepSibling(node) || node.parentNode;
@@ -2950,8 +2928,10 @@ WSP.serializeDOM = function( body, chunkCB, finalCB, selser ) {
 			}
 			state.serializer.emitSeparator(state, cb, chunkNode);
 			cb(chunk, serializeInfo);
-			//console.log('chunkCB', chunk,
-			//			chunkNode && chunkNode.nodeName || 'noNode');
+			if (state.serializer.debugging) {
+				console.log("OUT:", JSON.stringify(chunk),
+							chunkNode && chunkNode.nodeName || 'noNode');
+			}
 			state.sep.lastSourceNode = chunkNode;
 			state.sep.lastSourceSep = state.sep.src;
 			//if (state.currLine.text === null && chunk) {
