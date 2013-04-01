@@ -1190,14 +1190,21 @@ WSP._getListBullets = function(node) {
 		li: '',
 		dt: ';',
 		dd: ':'
-	},
-	res = '';
-	var nodeName = node.nodeName.toLowerCase();
-	while (nodeName in listTypes && node.data.parsoid.stx !== 'html') {
-		res = listTypes[nodeName] + res;
+	}, res = '';
+
+	while (node) {
+		var nodeName = node.nodeName.toLowerCase(),
+			dp = node.data.parsoid;
+
+		if (dp.stx !== 'html' && nodeName in listTypes) {
+			res = listTypes[nodeName] + res;
+		} else if (dp.stx !== 'html' || !dp.autoInsertedStart || !dp.autoInsertedEnd) {
+			break;
+		}
+
 		node = node.parentNode;
-		nodeName = node.nodeName.toLowerCase();
 	}
+
 	return res;
 };
 
@@ -1274,11 +1281,23 @@ function wtListEOL(node, otherNode) {
 }
 
 function buildListHandler(firstChildNames) {
+	function isBuilderInsertedElt(node) {
+		DU.loadDataParsoid(node);
+		return node.data && node.data.parsoid.autoInsertedStart && node.data.parsoid.autoInsertedEnd;
+	}
+
 	return {
 		handle: function (node, state, cb) {
-			var firstChildElement = DU.getFirstNonSepChildNode(node);
-			if (!firstChildElement || ! (firstChildElement.nodeName in firstChildNames))
-			{
+			var firstChildElt = DU.getFirstNonSepChildNode(node);
+
+			// Skip builder-inserted wrappers
+			// Ex: <ul><s auto-inserted-start-and-end-><li>..</li><li>..</li></s>...</ul>
+			// output from: <s>\n*a\n*b\n*c</s>
+			while (firstChildElt && isBuilderInsertedElt(firstChildElt)) {
+				firstChildElt = DU.getFirstNonSepChildNode(firstChildElt);
+			}
+
+			if (!firstChildElt || ! (firstChildElt.nodeName in firstChildNames)) {
 				cb(state.serializer._getListBullets(node), node);
 			}
 			state.serializeChildren(node, cb, state.serializer.wteHandlers.liHandler);
