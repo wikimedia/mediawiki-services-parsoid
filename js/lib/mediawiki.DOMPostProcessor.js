@@ -652,12 +652,18 @@ function handlePres(document, env) {
 
 // Migrate trailing newlines out of
 function migrateTrailingNLs(elt, env) {
-	// If a node ends a line in wikitext, or if it is the last node in
-	// the DOM subtree rooted at a node that ends a line in wikitext, we
-	// should migrate the newline out of it.
+
+	// We can migrate a newline out of a node if one of the following is true:
+	// (1) The ends a line in wikitext (=> not a literal html tag)
+	// (2) The node has an auto-closed end-tag (wikitext-generated or literal html tag)
+	// (3) It is the rightmost node in the DOM subtree rooted at a node
+	//     that ends a line in wikitext
 	function canMigrateNLOutOfNode(node) {
 		// These nodes either end a line in wikitext (tr, li, dd, ol, ul, dl, caption, p)
 		// or have implicit closing tags that can leak newlines to those that end a line (th, td)
+		//
+		// SSS FIXME: Given condition 2, we may not need to check th/td anymore
+		// (if we can rely on auto inserted start/end tags being present always).
 		var nodesToMigrateFrom = Util.arrayToHash([
 			"th", "td", "tr", "li", "dd", "ol", "ul", "dl", "caption", "p"
 		]);
@@ -666,7 +672,11 @@ function migrateTrailingNLs(elt, env) {
 			return nodesToMigrateFrom[node.nodeName.toLowerCase()] && !DU.isLiteralHTMLNode(node);
 		}
 
-		return node && (nodeEndsLineInWT(node) || (!node.nextSibling && canMigrateNLOutOfNode(node.parentNode)));
+		return node && (
+			nodeEndsLineInWT(node) ||
+			(DU.isElt(node) && DU.dataParsoid(node).autoInsertedEnd) ||
+			(!node.nextSibling && canMigrateNLOutOfNode(node.parentNode))
+		);
 	}
 
 	// A node has zero wt width if:
