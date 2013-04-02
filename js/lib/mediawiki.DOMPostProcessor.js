@@ -1601,7 +1601,7 @@ function findBuilderCorrectedTags(document, env) {
 						deleteNode(c);
 					}
 				} else if (dp.autoInsertedStart && dp.autoInsertedEnd && c.childNodes.length === 0) {
-					// DEle
+					// Delete any node that was inserted as a fixup node but has no content
 					deleteNode(c);
 				} else {
 					findDeletedStartTagsAndMore(c);

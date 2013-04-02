@@ -402,7 +402,11 @@ WSP.initialState = {
 
 		// Force out accumulated separator
 		if (oldSep === this.sep) {
-			chunkCB('', children.last());
+			if (children.length === 0) {
+				chunkCB('', node);
+			} else {
+				chunkCB('', children.last());
+			}
 		}
 
 		this.chunkCB = oldCB;
