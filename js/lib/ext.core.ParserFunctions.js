@@ -487,6 +487,8 @@ ParserFunctions.prototype.pf_currenttime = function ( token, frame, cb, args ) {
 //
 // First (very rough) approximation below based on
 // http://jacwright.com/projects/javascript/date_format/, MIT licensed.
+// check out https://github.com/mde/timezone-js if we ever get serious about
+// timezones & etc.
 ParserFunctions.prototype['pf_#time'] = function ( token, frame, cb, args ) {
 	cb ( { tokens: this._pf_time( args[0].k, args.slice(1) ) } );
 };
@@ -504,20 +506,38 @@ ParserFunctions.prototype._pf_time = function ( target, args ) {
 	//} catch ( e ) {
 	//	this.env.dp( 'ERROR: #time ' + e );
 
-		try {
-			res = [ new Date().format ( tpl ) ];
-		} catch ( e2 ) {
-			this.env.dp( 'ERROR: #time ' + e2 );
-			res = [ new Date().toString() ];
-		}
-		return res;
+	var date = new ParsoidDate(this.env);
+	try {
+		res = [ date.format ( tpl ) ];
+	} catch ( e2 ) {
+		this.env.dp( 'ERROR: #time ' + e2 );
+		res = [ date.toString() ];
+	}
+	return res;
 };
 
 // Simulates PHP's date function
-// FIXME: don't patch Date.prototype!
-Date.prototype.format = function(format) {
+var ParsoidDate = function(env) {
+	var date = new Date();
+	var offset = date.getTimezoneOffset();
+	// when testing, look aside to other date?
+	if (typeof(env.conf.wiki.fakeTimestamp)==='number') {
+		// php time stamps are in seconds; js timestamps are in milliseconds
+		date.setTime(env.conf.wiki.fakeTimestamp * 1000);
+	}
+	if (typeof(env.conf.wiki.timezoneOffset)==='number') {
+		offset = env.conf.wiki.timezoneOffset;
+	}
+	this._date = date;
+	// _localdate is a date object which is, in UTC, the desired local time.
+	// for example, if _date is 'Tue, 02 Apr 2013 21:30:44 GMT-0400 (EDT)'
+	// then _localdate is       'Tue, 02 Apr 2013 21:30:44 GMT'
+	offset *= 60 * 1000; /* convert from minutes to milliseconds */
+	this._localdate = new Date(date.getTime() - offset);
+};
+ParsoidDate.prototype.format = function(format) {
     var returnStr = '';
-    var replace = Date.replaceChars;
+    var replace = ParsoidDate.replaceChars;
     for (var i = 0; i < format.length; i++) {
 		var curChar = format.charAt(i);
 		if (i - 1 >= 0 && format.charAt(i - 1) === "\\") {
@@ -531,9 +551,55 @@ Date.prototype.format = function(format) {
     }
     return returnStr;
 };
+ParsoidDate.prototype.toString = function() {
+	return this.format('D, d M Y H:i:s O');
+};
+ParsoidDate.prototype.getTimezoneOffset = function() {
+	return (this._date.getTime() - this._localdate.getTime())/(60*1000);
+};
+var getJan1 = function(d) {
+	d = new Date(d.getTime());
+	d.setUTCMonth(0);
+	d.setUTCDate(1);
+	d.setUTCHours(0);
+	d.setUTCMinutes(0);
+	d.setUTCSeconds(0);
+	d.setUTCMilliseconds(0);
+	return d;
+}
+ParsoidDate.prototype.getWeek = function() {
+	var start = getJan1(this._localdate);
+	return Math.ceil((((this._localdate.valueOf() - start.valueOf()) / 86400000) + start.getUTCDay() + 1) / 7);
+};
+ParsoidDate.prototype.getWeekYear = function() { // ISO-8601 week year
+	var d = new Date(this._localdate);
+	d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7) + 3);
+	return d.getUTCFullYear();
+};
+ParsoidDate.prototype.getDayOfYear = function() {
+	var start = getJan1(this._localdate);
+	return Math.ceil((this._localdate.valueOf() - start.valueOf()) / 86400000);
+};
+// proxy certain methods of _date into ParsoidDate.
+['getUTCHours','getUTCMinutes','getUTCSeconds',
+ 'getTime','valueOf'].forEach(function(f) {
+	ParsoidDate.prototype[f] = function() {
+		var d = this._date;
+		return d[f].apply(d, arguments);
+	};
+});
+// local dates use UTC methods, but on _localdate
+['getHours', 'getMinutes', 'getSeconds', 'getMilliseconds',
+ 'getDate', 'getDay', 'getMonth', 'getFullYear'].forEach(function(f) {
+	var ff = f.replace('get', 'getUTC');
+	ParsoidDate.prototype[f] = function() {
+		var d = this._localdate;
+		return d[ff].apply(d, arguments);
+	};
+});
 
 // XXX: support localization
-Date.replaceChars = {
+ParsoidDate.replaceChars = {
     shortMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
 					'Sep', 'Oct', 'Nov', 'Dec'],
     longMonths: ['January', 'February', 'March', 'April', 'May', 'June',
@@ -544,9 +610,9 @@ Date.replaceChars = {
 
     // Day
     d: function() { return (this.getDate() < 10 ? '0' : '') + this.getDate(); },
-    D: function() { return Date.replaceChars.shortDays[this.getDay()]; },
+    D: function() { return ParsoidDate.replaceChars.shortDays[this.getDay()]; },
     j: function() { return this.getDate(); },
-    l: function() { return Date.replaceChars.longDays[this.getDay()]; },
+    l: function() { return ParsoidDate.replaceChars.longDays[this.getDay()]; },
     N: function() { return this.getDay() + 1; },
     S: function() {
 		return (this.getDate() % 10 === 1 &&
@@ -555,34 +621,23 @@ Date.replaceChars = {
 					this.getDate() !== 13 ? 'rd' : 'th')));
 	},
     w: function() { return this.getDay(); },
-    z: function() {
-		var d = new Date(this.getFullYear(),0,1);
-		return Math.ceil((this - d) / 86400000);
-	},
+    z: function() { return this.getDayOfYear(); },
     // Week
-    W: function() {
-		var d = new Date(this.getFullYear(), 0, 1);
-		return Math.ceil((((this - d) / 86400000) + d.getDay() + 1) / 7);
-	},
+    W: function() { return this.getWeek(); },
     // Month
-    F: function() { return Date.replaceChars.longMonths[this.getMonth()]; },
+    F: function() { return ParsoidDate.replaceChars.longMonths[this.getMonth()]; },
     m: function() { return (this.getMonth() < 9 ? '0' : '') + (this.getMonth() + 1); },
-    M: function() { return Date.replaceChars.shortMonths[this.getMonth()]; },
+    M: function() { return ParsoidDate.replaceChars.shortMonths[this.getMonth()]; },
     n: function() { return this.getMonth() + 1; },
     t: function() {
-		var d = new Date();
-		return new Date(d.getFullYear(), d.getMonth(), 0).getDate();
+		return new Date(this.getFullYear(), this.getMonth()+1, 0).getDate();
 	},
     // Year
     L: function() {
 		var year = this.getFullYear();
 		return (year % 400 === 0 || (year % 100 !== 0 && year % 4 === 0));
 	},
-    o: function() {
-		var d  = new Date(this.valueOf());
-		d.setDate(d.getDate() - ((this.getDay() + 6) % 7) + 3);
-		return d.getFullYear();
-	},
+    o: function() { return this.getWeekYear(); },
     Y: function() { return this.getFullYear(); },
     y: function() { return ('' + this.getFullYear()).substr(2); },
     // Time
@@ -619,13 +674,7 @@ Date.replaceChars = {
 			(Math.abs(this.getTimezoneOffset() / 60) < 10 ? '0' : '') +
 			(Math.abs(this.getTimezoneOffset() / 60)) + ':00';
 	},
-    T: function() {
-		var m = this.getMonth();
-		this.setMonth(0);
-		var result = this.toTimeString().replace(/^.+ \(?([^\)]+)\)?$/, '$1');
-		this.setMonth(m);
-		return result;
-	},
+    T: function() { return "Not Yet Supported"; },
     Z: function() { return -this.getTimezoneOffset() * 60; },
     // Full Date/Time
     c: function() { return this.format("Y-m-d\\TH:i:sP"); },
