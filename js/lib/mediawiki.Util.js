@@ -1063,6 +1063,15 @@ serializeNode = function (doc) {
 	if (doc.nodeName==='#document' && !html) {
 		html = doc.documentElement.outerHTML;
 	}
+	if (!html) {
+		// fall back to definition of outerHTML, for comments, etc:
+		// "return the result of running the HTML fragment
+		// serialization algorithm on a fictional node whose only child is
+		// the context object"
+		var fictional = doc.ownerDocument.createElement('p');
+		fictional.appendChild(doc.cloneNode());
+		html = fictional.innerHTML;
+	}
 	// now compress our output (and make it more readable) by using
 	// "smart quoting" of attribute values -- using single-quotes
 	// where the contents have a lot of double quotes.
