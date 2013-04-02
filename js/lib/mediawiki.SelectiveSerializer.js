@@ -112,7 +112,7 @@ DiffToSelserConverter.prototype.doConvert = function ( parentNode, parentDSR ) {
 
 			isModified =
 				// Comment this out to ignore the VE's change markers!
-				DU.isModificationChangeMarker(dvec) ||
+				//DU.isModificationChangeMarker(dvec) ||
 
 				// Marked as modified by our diff algo
 				(DU.hasCurrentDiffMark(node, this.env) &&
@@ -146,6 +146,7 @@ DiffToSelserConverter.prototype.doConvert = function ( parentNode, parentDSR ) {
 
 				// Mark element for serialization.
 				this.markElementNode(node, isModified, dp );
+				// And don't descend.
 				continue;
 
 			}
@@ -293,7 +294,6 @@ DiffToSelserConverter.prototype.markTextOrCommentNode = function ( node, modifie
  * @private
  *
  * Set change information on an element node
- * TODO: implement!
  *
  * @param {HTMLElement} node
  * @param {boolean} modified
@@ -317,7 +317,6 @@ DiffToSelserConverter.prototype.markElementNode = function ( node, modified, dp,
 		// Increment the currentId
 		this.currentId++;
 		if( dp && dp.dsr ) {
-			// reset this positions
 			this.startPos = dp.dsr[1];
 			this.updatePos(dp.dsr[1]);
 		} else {
@@ -326,7 +325,6 @@ DiffToSelserConverter.prototype.markElementNode = function ( node, modified, dp,
 		}
 	} else {
 		if( dp && dp.dsr ) {
-			// reset this positions
 			this.startPos = dp.dsr[0];
 			this.updatePos(dp.dsr[1]);
 		} else {
@@ -408,7 +406,7 @@ var SelectiveSerializer = function ( options ) {
 		};
 
 		SelectiveSerializer.prototype.debug = function ( ) {
-			this.debug_pp.apply(this, ["SS:", ' '].concat([].slice.apply(arguments)));
+			console.error.apply(console, ["SS:", ' '].concat([].slice.apply(arguments)));
 		};
 	} else {
 		SelectiveSerializer.prototype.debug_pp = function ( ) {};
@@ -443,9 +441,14 @@ SSP.getSource = function(start, end) {
  * Selser uses WTS output in these cases:
  *
  * - separator: if adjacent node or parent is marked as modified
+ *		-> pass flag from wts
  * - regular src: if node (or parent) is marked as modified
+ *		-> flag
  * - regular src: if node (or parent) is marked for serialization, but is not
  *   actually modified (needed if dsr is not available)
+ *		-> handled implicitly
+ *
+ * Otherwise, we pick up the original source from data-parsoid-serialize.
  *
  * TODO: Replace these callbacks with a single, simple chunkCB that gets an
  * 'unmodified', 'separator', 'modified' flag from the WTS.
@@ -460,75 +463,34 @@ SSP.getSource = function(start, end) {
  * @param {string} res The Wikitext result of serialization.
  * @param {string/Object/null} dpsSource A JSON object representing the data-parsoid-serialize attribute of the node we're serializing.
  */
-SSP.handleSerializedResult = function( res, dpsSource ) {
+SSP.handleSerializedResult = function( res, dps, node ) {
 
-	this.debug("---- dps:", dpsSource || 'null', "----", res);
+	this.debug("---- dps:", dps || 'null', "----", JSON.stringify(res));
 
-	if( dpsSource === undefined ) {
-		console.trace();
-	}
-
-	if ( dpsSource === null ) {
-		// unmodified, just discard
-		if ( ! res.match(/^\s*$/) ) {
-			this.lastSeparator = '';
-			this.lastType = 'unmodified';
-		}
-	} else if (dpsSource === 'separator') {
-		if ( this.lastType === 'modified' ) {
-			// push separator
-			this.lastSeparator = '';
-			this.wtChunks.push(res);
-		} else {
-			// collect separator(s)
-			this.lastSeparator = (this.lastSeparator || '') + res;
-		}
-		//this.lastType = 'separator';
-	} else {
+	if (dps) {
 		// Possibly modified element source
-
-		// TODO: push unmodified source up to separator from
-		// data-parsoid-serialize dsr data
-		var dps = {};
-		if (dpsSource instanceof Object) {
-			dps = dpsSource;
-		} else {
-			try {
-				// Try to decode data-parsoid-serialize
-				dps = JSON.parse(dpsSource);
-			} catch (e) {
-				console.error('Error decoding dps ' + dpsSource);
-				console.trace();
-			}
-		}
-
-
 		// Insert unmodified source from a srcRange in any case
 		if (dps.srcRange) {
-			if ( this.rangeStart === dps.srcRange[0] ) {
-				// but ignore repeated callbacks with the same srcRange
-			} else {
+			if (!dps.modified && res && res.match(/^\s+$/)) {
+				// separator
+				this.wtChunks.push(res);
+			}
+			// ignore repeated callbacks with the same srcRange
+			if ( this.rangeStart !== dps.srcRange[0] ) {
 				this.rangeStart = dps.srcRange[0];
 				var origSrc = this.getSource(dps.srcRange[0], dps.srcRange[1]) || '';
+				// console.log('adding selser src', JSON.stringify(origSrc));
 				this.wtChunks.push(origSrc);
-				// Reset separator
-				this.lastSeparator = '';
 			}
 		}
 
 		if (dps.modified) {
-			// Push separator, if any
-			if ( this.lastSeparator ) {
-				this.wtChunks.push(this.lastSeparator);
-				this.lastSeparator = '';
-			}
-			// finally push the newly serialized wikitext
+			// console.log('adding res src', JSON.stringify(res));
+			// push the newly serialized wikitext
 			this.wtChunks.push(res);
-			this.lastType = 'modified';
-		} else if ( res !== '' ) {
-			// XXX: Fix this properly!
-			this.lastType = 'unmodified';
 		}
+	} else if (dps !== null) {
+		console.trace();
 	}
 
 };
