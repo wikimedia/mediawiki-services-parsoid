@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+"use strict";
+
 var fs = require( 'fs' ),
 	path = require( 'path' ),
 	http = require( 'http' ),
@@ -9,11 +11,9 @@ var fs = require( 'fs' ),
 	WikitextSerializer = require( '../lib/mediawiki.WikitextSerializer.js').WikitextSerializer,
 	TemplateRequest = require( '../lib/mediawiki.ApiRequest.js' ).TemplateRequest,
 	ParsoidConfig = require( '../lib/mediawiki.ParsoidConfig' ).ParsoidConfig,
-	MWParserEnvironment = require( '../lib/mediawiki.parser.environment.js' ).MWParserEnvironment,
+	MWParserEnvironment = require( '../lib/mediawiki.parser.environment.js' ).MWParserEnvironment;
 
-callback, argv, title,
-
-plainCallback = function ( env, err, results ) {
+var plainCallback = function ( env, err, results ) {
 	var i, result, output = '',
 		semanticDiffs = 0, syntacticDiffs = 0,
 		testDivider = ( new Array( 70 ) ).join( '=' ) + '\n',
@@ -55,12 +55,14 @@ plainCallback = function ( env, err, results ) {
 	}
 
 	return output;
-},
+};
 
-xmlCallback = function ( env, err, results ) {
-	var i, result,
+var xmlCallback = function ( env, err, results ) {
+	var i, result;
+	var prefix = ( env && env.wiki && env.wiki.iwp ) || '';
+	var title = ( env && env.page && env.page.name ) || '';
 
-	output = '<testsuite name="Roundtrip article ' + Util.encodeXml( env.page.name || '' ) + '">';
+	var output = '<testsuite name="Roundtrip article ' + Util.encodeXml( prefix + ':' + title ) + '">';
 
 	if ( err ) {
 		output += '<testcase name="entire article"><error type="parserFailedToFinish">';
@@ -71,7 +73,7 @@ xmlCallback = function ( env, err, results ) {
 		for ( i = 0; i < results.length; i++ ) {
 			result = results[i];
 
-			output += '<testcase name="' + Util.encodeXml( env.page.name ) + ' character ' + result.offset[0].start + '">';
+			output += '<testcase name="' + Util.encodeXml( prefix + ':' + title ) + ' character ' + result.offset[0].start + '">';
 
 			if ( result.type === 'fail' ) {
 				output += '<failure type="significantHtmlDiff">\n';
@@ -98,9 +100,9 @@ xmlCallback = function ( env, err, results ) {
 	output += '</testsuite>\n';
 
 	return output;
-},
+};
 
-findDsr = function (root, targetRange, sourceLen) {
+var findDsr = function (root, targetRange, sourceLen) {
 	var currentOffset = null, wasWaiting = false, waitingForEndMatch = false;
 
 	function walkDOM(element) {
@@ -231,12 +233,12 @@ findDsr = function (root, targetRange, sourceLen) {
 	}
 
 	return walkDOM(root);
-},
+};
 
-checkIfSignificant = function ( env, offsets, src, body, out, cb, document ) {
+var checkIfSignificant = function ( env, offsets, src, body, out, cb, document ) {
 
 
-	function normalizeWikitext(str) {
+	var normalizeWikitext = function ( str ) {
 		var orig = str;
 
 		// Ignore leading tabs vs. leading spaces
@@ -248,7 +250,7 @@ checkIfSignificant = function ( env, offsets, src, body, out, cb, document ) {
 		// gwicke: disabled for now- too aggressive IMO
 		//str = str.replace(/([<"'!#\*:;+-=|{}\[\]\/]) /g, "$1");
 		// Ignore capitalization of tags and void tag indications
-		str = str.replace(/<(\/?)([^ >\/]+)((?:[^>/]|\/(?!>))*)\/?>/g, function(match, close, name, remaining) {
+		str = str.replace(/<(\/?)([^ >\/]+)((?:[^>\/]|\/(?!>))*)\/?>/g, function(match, close, name, remaining) {
 			return '<' + close + name.toLowerCase() + remaining.replace(/ $/, '') + '>';
 		} );
 		// Ignore whitespace in table cell attributes
@@ -266,7 +268,7 @@ checkIfSignificant = function ( env, offsets, src, body, out, cb, document ) {
 		str = str.replace(/([|!].*?)<\/(?:small|center)>(?=\n[|!]|\n?$)/gi, '$1');
 
 		return str;
-	}
+	};
 
 	var i, k, diff, offset, origOut, newOut, origHTML, newHTML, origOrigHTML, origNewHTML, thisResult, results = [];
 	for ( i = 0; i < offsets.length; i++ ) {
@@ -310,14 +312,14 @@ checkIfSignificant = function ( env, offsets, src, body, out, cb, document ) {
 		//thisResult.wtDiff = Util.contextDiff(wt1, wt2, false, true, true);
 
 		// Get diff substrings from offsets
-		function formatDiff (context) {
+		var formatDiff = function ( context ) {
 			return [
 			'----',
 			src.substring(offset[0].start - context, offset[0].end + context),
 			'++++',
 			out.substring(offset[1].start - context, offset[1].end + context)
 			].join('\n');
-		}
+		};
 
 		diff = Util.diff( origHTML, newHTML, false, true, true );
 
@@ -342,9 +344,9 @@ checkIfSignificant = function ( env, offsets, src, body, out, cb, document ) {
 		results.push( thisResult );
 	}
 	cb( null, env, results );
-},
+};
 
-doubleRoundtripDiff = function ( env, offsets, body, out, cb ) {
+var doubleRoundtripDiff = function ( env, offsets, body, out, cb ) {
 	var src = env.page.src;
 
 	if ( offsets.length > 0 ) {
@@ -363,9 +365,9 @@ doubleRoundtripDiff = function ( env, offsets, body, out, cb ) {
 	} else {
 		cb( null, env, [] );
 	}
-},
+};
 
-roundTripDiff = function ( env, document, cb ) {
+var roundTripDiff = function ( env, document, cb ) {
 	var curPair, out, patch, diff, offsetPairs;
 
 	try {
@@ -381,9 +383,9 @@ roundTripDiff = function ( env, document, cb ) {
 	} catch ( e ) {
 		cb( e, env, [] );
 	}
-},
+};
 
-fetch = function ( page, cb, options ) {
+var fetch = function ( page, cb, options ) {
 	cb = typeof cb === 'function' ? cb : function () {};
 
 	var envCb = function ( err, env ) {
@@ -414,15 +416,26 @@ fetch = function ( page, cb, options ) {
 		} );
 	};
 
-	var parsoidConfig = new ParsoidConfig( options, null );
-	MWParserEnvironment.getParserEnv( parsoidConfig, null, options.wiki, page, envCb );
-},
+	var prefix = options.prefix || null;
 
-cbCombinator = function ( formatter, cb, err, env, text ) {
+	if ( options.apiURL ) {
+		prefix = 'customwiki';
+	}
+
+	var parsoidConfig = new ParsoidConfig( options, { defaultWiki: prefix } );
+
+	if ( options.apiURL ) {
+		parsoidConfig.setInterwiki( 'customwiki', options.apiURL );
+	}
+
+	MWParserEnvironment.getParserEnv( parsoidConfig, null, prefix, page, envCb );
+};
+
+var cbCombinator = function ( formatter, cb, err, env, text ) {
 	cb( err, formatter( env, err, text ) );
-},
+};
 
-consoleOut = function ( err, output ) {
+var consoleOut = function ( err, output ) {
 	if ( err ) {
 		console.log( 'ERROR: ' + err);
 		if (err.stack) {
@@ -448,10 +461,15 @@ if ( !module.parent ) {
 			'boolean': true,
 			'default': false
 		},
-		'wiki': {
-			description: 'code of wiki to use (default: en)',
+		'prefix': {
+			description: 'Which wiki prefix to use; e.g. "en" for English wikipedia, "es" for Spanish, "mw" for mediawiki.org',
 			'boolean': false,
-			'default': 'en'
+			'default': ''
+		},
+		'apiURL': {
+			description: 'http path to remote API, e.g. http://en.wikipedia.org/w/api.php',
+			'boolean': false,
+			'default': null
 		},
 		'help': {
 			description: 'Show this message',
@@ -475,8 +493,9 @@ if ( !module.parent ) {
 		}
 	});
 
-	argv = opts.argv;
-	title = argv._[0];
+	var callback;
+	var argv = opts.argv;
+	var title = argv._[0];
 
 	if ( title ) {
 		callback = cbCombinator.bind( null,

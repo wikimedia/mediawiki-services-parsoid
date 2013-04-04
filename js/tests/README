@@ -1,28 +1,47 @@
-Work in progress. :)
-
 Please see https://www.mediawiki.org/wiki/Parsoid for some information on how
 to get started with these tests and the current parser architecture.
 
 Install dependencies and run tests:
 
-(cd .. if you are in this README file's directory)
-npm test
+	$ cd ..  # if you are in this README file's directory
+	$ npm test
 
 == Running parserTests.js ==
 
-For parserTests, you also need MediaWiki's parser test cases (parserTests.txt). 
+For parserTests, you also need MediaWiki's parser test cases (parserTests.txt).
 'npm test' from the modules directory automatically fetches the current
 version to this directory. You can also specify a test case file as an
 argument. You can also symlink parserTests.txt from a core git checkout.
 
-node ./parserTests.js
+	$ node ./parserTests.js
 
 Several options are available for parserTests:
 
-node ./parserTests.js --help
-
-Example for round-trip testing:
-
-node ./parserTests.js --roundtrip
+	$ node ./parserTests.js --help
 
 Enjoy!
+
+== Running the round-trip test server ==
+
+Set up the server.  In `js/tests/server/`
+
+	$ npm install   # or 'npm install sqlite3' from js/
+	$ sqlite3 pages.db < sql/create_everything.sql
+	$ node importJson --prefix=en titles.example.en.json
+	$ node importJson --prefix=es titles.example.es.json
+
+To test the handling of non-existent articles, you might want to also do:
+
+	$ node importJson --prefix=en titles.example.bogus.json
+	$ node importJson --prefix=es titles.example.bogus.json
+	$ # you might also want to lower maxFetchRetries in server.js
+
+Now start the server.  Again, in `js/tests/server`:
+
+	$ node server pages.db
+
+In separate window:
+
+	$ node js/tests/client/client.js
+
+Then take a look at [the statistics](http://localhost:8001/).

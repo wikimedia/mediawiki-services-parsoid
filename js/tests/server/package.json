@@ -6,7 +6,6 @@
 		"events": "0.x.x",
 		"optimist": "0.x.x",
 		"querystring": "0.x.x",
-		"jquery": "1.x.x",
 		"path": "0.x.x",
 		"sqlite3": "2.x.x",
 		"express": "2.5.x"

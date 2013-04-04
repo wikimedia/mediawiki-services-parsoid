@@ -9,10 +9,12 @@ CREATE TABLE pages (
 	id INTEGER NOT NULL UNIQUE PRIMARY KEY ASC AUTOINCREMENT,
 	num_fetch_errors INTEGER NOT NULL DEFAULT 0,
 	title TEXT NOT NULL,
-	latest_result INTEGER DEFAULT NULL
+	latest_result INTEGER DEFAULT NULL,
+	prefix char(2) NOT NULL DEFAULT 'en'
 );
 CREATE INDEX title_idx ON pages ( title );
 CREATE INDEX latest_result_idx ON pages ( latest_result );
+CREATE INDEX title_prefix ON pages ( title, prefix );
 
 CREATE TABLE results (
 	id INTEGER NOT NULL UNIQUE PRIMARY KEY ASC AUTOINCREMENT,
