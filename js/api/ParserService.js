@@ -440,13 +440,19 @@ app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
 			}
 			res.end('');
 		});
+		if (env.conf.parsoid.allowCORS) {
+			// allow cross-domain requests (CORS) so that parsoid service
+			// can be used by third-party sites
+			res.setHeader('Access-Control-Allow-Origin',
+						  env.conf.parsoid.allowCORS);
+		}
 		try {
-			res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 			console.log('starting parsing of ' + req.params[0]);
 			// FIXME: This does not handle includes or templates correctly
 			env.page.src = src;
 			parser.process( src );
 		} catch (e) {
+			res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
 			console.error( e.stack || e.toString() );
 			res.send( e.stack || e.toString(), 500 );
 		}
@@ -552,8 +558,16 @@ app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 		if ( req.query.cache ) {
 			res.setHeader('Cache-Control', 's-maxage=2592000');
 		}
+		if (env.conf.parsoid.allowCORS) {
+			// allow cross-domain requests (CORS) so that parsoid service
+			// can be used by third-party sites
+			res.setHeader('Access-Control-Allow-Origin',
+						  env.conf.parsoid.allowCORS);
+		}
+
 		var tpr = new TemplateRequest( env, target, oldid );
 		tpr.once('src', parse.bind( null, env, req, res, function ( req, res, src, doc ) {
+			res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 			res.end(Util.serializeNode(doc.documentElement));
 			var et = new Date();
 			console.warn("completed parsing of " + target + " in " + (et - st) + " ms");
