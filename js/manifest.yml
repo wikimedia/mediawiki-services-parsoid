@@ -1,0 +1,18 @@
+# AppFog.com configuration for parsoid
+# (useful if you want to deploy your own parsoid instance in the cloud)
+---
+applications:
+  .:
+    name: parsoid
+    framework:
+      name: standalone
+      info:
+        mem: 64M
+        description: Standalone Application
+        exec:
+    runtime: node08
+    command: npm run start
+    infra: aws
+    url:
+    mem: 1G
+    instances: 1
