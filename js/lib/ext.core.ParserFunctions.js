@@ -445,39 +445,26 @@ ParserFunctions.prototype.tag_worker = function( target, cb, kvs ) {
 
 
 // TODO: These are just quick wrappers for now, optimize!
-ParserFunctions.prototype.pf_currentyear = function ( token, frame, cb, args ) {
-	cb( this._pf_time_tokens( 'Y', [], {} ) );
-};
-ParserFunctions.prototype.pf_currentmonth = function ( token, frame, cb, args ) {
-	cb( this._pf_time_tokens( 'm', [], {} ) );
-};
-ParserFunctions.prototype.pf_currentmonthname = function ( token, frame, cb, args ) {
-	cb( this._pf_time_tokens( 'F', [], {} ) );
-};
+[['year','Y'], ['month','m'], ['monthname','F'], ['monthabbrev','M'],
+ ['week', 'W'], ['day','j'], ['day2','d'], ['dow', 'w'], ['dayname','l'],
+ ['time','H:i'], ['hour','H'], ['week','W'],
+ ['timestamp', 'YmdHis']].forEach(function(a) {
+	 var name = a[0], format = a[1];
+	 ParserFunctions.prototype['pf_current'+name] =
+		 function ( token, frame, cb, args ) {
+			 cb( this._pf_time_tokens( format, [], {} ) );
+		 };
+	 ParserFunctions.prototype['pf_local'+name] =
+		 function ( token, frame, cb, args ) {
+			 cb( this._pf_timel_tokens( format, [], {} ) );
+		 };
+ });
 // XXX Actually use genitive form!
 ParserFunctions.prototype.pf_currentmonthnamegen = function ( token, frame, cb, args ) {
 	cb( this._pf_time_tokens( 'F', [], {} ) );
 };
-ParserFunctions.prototype.pf_currentmonthabbrev = function ( token, frame, cb, args ) {
-	cb( this._pf_time_tokens( 'M', [], {} ) );
-};
-ParserFunctions.prototype.pf_currentweek = function ( token, frame, cb, args ) {
-	cb( this._pf_time_tokens( 'W', [], {} ) );
-};
-ParserFunctions.prototype.pf_currentdow = function ( token, frame, cb, args ) {
-	cb( this._pf_time_tokens( 'w', [], {} ) );
-};
-ParserFunctions.prototype.pf_currentday = function ( token, frame, cb, args ) {
-	cb( this._pf_time_tokens( 'j', [], {} ) );
-};
-ParserFunctions.prototype.pf_currentday2 = function ( token, frame, cb, args ) {
-	cb( this._pf_time_tokens( 'd', [], {} ) );
-};
-ParserFunctions.prototype.pf_currentdayname = function ( token, frame, cb, args ) {
-	cb( this._pf_time_tokens( 'l', [], {} ) );
-};
-ParserFunctions.prototype.pf_currenttime = function ( token, frame, cb, args ) {
-	cb( this._pf_time_tokens( 'H:i', [], {} ) );
+ParserFunctions.prototype.pf_localmonthnamegen = function ( token, frame, cb, args ) {
+	cb( this._pf_timel_tokens( 'F', [], {} ) );
 };
 
 // A first approximation of time stuff.
@@ -487,8 +474,6 @@ ParserFunctions.prototype.pf_currenttime = function ( token, frame, cb, args ) {
 //
 // First (very rough) approximation below based on
 // http://jacwright.com/projects/javascript/date_format/, MIT licensed.
-// check out https://github.com/mde/timezone-js if we ever get serious about
-// timezones & etc.
 ParserFunctions.prototype['pf_#time'] = function ( token, frame, cb, args ) {
 	cb ( { tokens: this._pf_time( args[0].k, args.slice(1) ) } );
 };
@@ -496,8 +481,15 @@ ParserFunctions.prototype['pf_#time'] = function ( token, frame, cb, args ) {
 ParserFunctions.prototype._pf_time_tokens = function ( target, args ) {
 	return { tokens: this._pf_time( target, args ) };
 };
+ParserFunctions.prototype['pf_#timel'] = function ( token, frame, cb, args ) {
+	cb ( { tokens: this._pf_time( args[0].k, args.slice(1), 'local' ) } );
+};
 
-ParserFunctions.prototype._pf_time = function ( target, args ) {
+ParserFunctions.prototype._pf_timel_tokens = function ( target, args ) {
+	return { tokens: this._pf_time( target, args, 'local' ) };
+};
+
+ParserFunctions.prototype._pf_time = function ( target, args, isLocal ) {
 	var res,
 		tpl = target.trim();
 	//try {
@@ -506,7 +498,7 @@ ParserFunctions.prototype._pf_time = function ( target, args ) {
 	//} catch ( e ) {
 	//	this.env.dp( 'ERROR: #time ' + e );
 
-	var date = new ParsoidDate(this.env);
+	var date = new ParsoidDate(this.env, isLocal);
 	try {
 		res = [ date.format ( tpl ) ];
 	} catch ( e2 ) {
@@ -517,16 +509,26 @@ ParserFunctions.prototype._pf_time = function ( target, args ) {
 };
 
 // Simulates PHP's date function
-var ParsoidDate = function(env) {
+// NOTE that Javascript doesn't have a proper user-specified-timezone API.
+// PHP format specifiers which return the name of the timezone (for example,
+// 'e' and 'T') can't be implemented in JavaScript w/o the use of an external
+// timezone database, like for instance https://github.com/mde/timezone-js
+// CURRENTLY NO SUPPORT FOR NON-GREGORIAN CALENDARS
+var ParsoidDate = function(env, isLocal, forcetime) {
 	var date = new Date();
 	var offset = date.getTimezoneOffset();
+	// XXX: parse forcetime and change date
 	// when testing, look aside to other date?
 	if (typeof(env.conf.wiki.fakeTimestamp)==='number') {
 		// php time stamps are in seconds; js timestamps are in milliseconds
 		date.setTime(env.conf.wiki.fakeTimestamp * 1000);
 	}
 	if (typeof(env.conf.wiki.timezoneOffset)==='number') {
+		// this is the wiki's $wgLocaltimezone (if set)
 		offset = env.conf.wiki.timezoneOffset;
+	}
+	if (!isLocal) {
+		offset = 0; // UTC
 	}
 	this._date = date;
 	// _localdate is a date object which is, in UTC, the desired local time.
