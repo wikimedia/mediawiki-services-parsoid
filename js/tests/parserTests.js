@@ -644,6 +644,8 @@ ParserTests.prototype.convertWt2Html = function( mode, prefix, variant, wikitext
 			// adjust config to match that used for PHP tests
 			// see core/tests/parser/parserTest.inc:setupGlobals() for
 			// full set of config normalizations done.
+			this.env.conf.wiki.fakeTimestamp = 123;
+			this.env.conf.wiki.timezoneOffset = 0; // force utc for parsertests
 			this.env.conf.wiki.server = 'http://example.org';
 			this.env.conf.wiki.wgScriptPath = '/';
 			this.env.conf.wiki.script = '/index.php';
