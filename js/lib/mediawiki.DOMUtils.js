@@ -57,12 +57,6 @@ var DOMUtils = {
 		this.loadDataAttrib(node, 'parsoid', {});
 	},
 
-
-	dataParsoid: function(n) {
-		var str = n.getAttribute("data-parsoid");
-		return str ? JSON.parse(str) : {};
-	},
-
 	getDataParsoid: function ( n ) {
 		if ( ! ( n.data && n.data.parsoid ) ) {
 			this.loadDataParsoid( n );
@@ -270,7 +264,7 @@ var DOMUtils = {
 	},
 
 	isLiteralHTMLNode: function(n) {
-		return this.hasLiteralHTMLMarker(this.dataParsoid(n));
+		return this.hasLiteralHTMLMarker(this.getDataParsoid(n));
 	},
 
 	isIndentPre: function(n) {
@@ -318,7 +312,7 @@ var DOMUtils = {
 		}
 
 		var next = node.nextSibling;
-		if (next && this.isElt(next) && this.dataParsoid(next).tsr) {
+		if (next && this.isElt(next) && this.getDataParsoid(next).tsr) {
 			// If node's sibling has a valid tsr, then the sibling
 			// is outside a template, and since node's start tag itself
 			// is inside a template, this automatically implies that
@@ -331,7 +325,7 @@ var DOMUtils = {
 		for (var n = children.length, i = n-1; i >= 0; i--) {
 			var c = children[i];
 			if (this.isElt(c)) {
-				return this.endTagOutsideTemplate(c, this.dataParsoid(c));
+				return this.endTagOutsideTemplate(c, this.getDataParsoid(c));
 			}
 		}
 
