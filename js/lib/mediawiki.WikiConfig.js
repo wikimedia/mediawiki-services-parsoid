@@ -179,6 +179,12 @@ function WikiConfig( resultConf, prefix, uri ) {
 		} else {
 			conf.linkPrefixRegex = null;
 		}
+
+		if ( general['case'] === 'case-sensitive' ) {
+			conf.caseSensitive = true;
+		} else {
+			conf.caseSensitive = false;
+		}
 	}
 
 	if ( !conf.baseURI ) {

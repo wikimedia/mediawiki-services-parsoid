@@ -288,7 +288,7 @@ MWParserEnvironment.prototype.normalizeTitle = function( name, noUnderScores,
 			} else {
 				name = upperFirst( ns ) + ':' + upperFirst( name.substr( ns.length + 1 ) );
 			}
-		} else {
+		} else if ( !self.conf.wiki.caseSensitive ) {
 			name = upperFirst( name );
 		}
 	}
