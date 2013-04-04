@@ -13,16 +13,18 @@ C. Scott Ananian <cscott@cscott.net>
 Catrope <roan@wikimedia.org>
 Brion Vibber <brion@wikimedia.org>
 plancalculus <jan@monoid-it.de>
+Jeff Evans <wayne.mokane+github@gmail.com>
 Siebrand Mazeland <s.mazeland@xs4all.nl>
 Antoine Musso <hashar@free.fr>
-lwelling <lwelling@wikimedia.org>
+Luke Welling <lwelling@wikimedia.org>
 Neil Kandalgaonkar <neilk@brevity.org>
 Trevor Parscal <trevor@wikimedia.org>
 Timo Tijhof <ttijhof@wikimedia.org>
+Molly White <molly.white5@gmail.com>
 Audrey Tang (au) <audreyt@audreyt.org>
 MZMcBride <w@mzmcbride.com>
 Ori Livneh <ori.livneh@gmail.com>
-GWicke <gwicke@wikimedia.org>
+Inez Korczyński <inez@wikia-inc.com>
 
 A version of this list can be regenerated with the following one-liner:
 
