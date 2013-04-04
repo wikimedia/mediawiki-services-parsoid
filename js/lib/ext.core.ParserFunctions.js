@@ -1,18 +1,21 @@
 /*
  * Some parser functions, and quite a bunch of stubs of parser functions.
+ *
+ * IMPORTANT NOTE: These parser functions are only used by the Parsoid-native
+ * template expansion pipeline, which is *not* the default or used in
+ * production. Normally we use API calls into a MediaWiki installation to
+ * implement parser functions and other preprocessor functionality. The only
+ * use of this code is currently in parserTests, but those tests should
+ * probably be marked as PHP-only and any mixed testing moved into separate
+ * tests. This means that there is not much point in spending time on
+ * implementing more parser functions here.
+ *
  * There are still quite a few missing, see
  * http://www.mediawiki.org/wiki/Help:Magic_words and
  * http://www.mediawiki.org/wiki/Help:Extension:ParserFunctions.
  * Instantiated and called by the TemplateHandler extension. Any pf_<prefix>
  * matching a lower-cased template name prefix up to the first colon will
  * override that template.
- *
- * TODO: Implement these more thoroughly, and test against
- * extensions/ParserFunction/
- *     convertTests.txt
- *     exprTests.txt
- *     funcsParserTests.txt
- *     stringFunctionTests.txt
  */
 
 "use strict";
