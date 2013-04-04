@@ -959,6 +959,21 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 		return rId;
 	}
 
+	function recordTemplateInfo(compoundTpls, compoundTplId, tpl, tplArgs) {
+		// Record template args info alongwith any intervening wikitext
+		// between templates part of the same compound structure
+		var tplArray = compoundTpls[compoundTplId],
+			dsr = DU.getDataParsoid(tpl.startElem).dsr;
+
+		if (tplArray.length > 0) {
+			var prevTplInfo = tplArray[tplArray.length-1];
+			if (prevTplInfo.dsr[1] < dsr[0]) {
+				tplArray.push({ wt: env.page.src.substring(prevTplInfo.dsr[1], dsr[0]) });
+			}
+		}
+		tplArray.push({ dsr: dsr, args: tplArgs });
+	}
+
 	var i, r, n, e;
 	var numRanges = tplRanges.length;
 
@@ -1092,7 +1107,7 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 
 	var newRanges = [],
 		prev = null,
-		tplParams = {},
+		compoundTpls = {},
 		merged;
 
 	for (i = 0; i < numRanges; i++) {
@@ -1103,10 +1118,10 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 		r = tplRanges[i];
 
 		// Extract argInfo and clear it
-		var argInfo = r.startElem.getAttribute("argInfo");
+		var argInfo = r.startElem.getAttribute("data-mw-arginfo");
 		if (argInfo) {
 			argInfo = JSON.parse(argInfo);
-			r.startElem.removeAttribute("argInfo");
+			r.startElem.removeAttribute("data-mw-arginfo");
 		}
 
 		/*
@@ -1130,10 +1145,10 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 
 				// 'r' is nested in 'containingRange' at the top-level
 				// So, containingRange gets r's argInfo
-				if (!tplParams[containingRangeId]) {
-					tplParams[containingRangeId] = [];
+				if (!compoundTpls[containingRangeId]) {
+					compoundTpls[containingRangeId] = [];
 				}
-				tplParams[containingRangeId].push(argInfo);
+				recordTemplateInfo(compoundTpls, containingRangeId, r, argInfo);
 			}
 		} else if (prev && !r.flipped && r.start === prev.end) {
 			// console.warn("--overlapped--");
@@ -1151,9 +1166,9 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 			prev.end = r.end;
 			prev.endElem = r.endElem;
 
-			// Update tplParams
+			// Update compoundTplInfo
 			if (argInfo) {
-				tplParams[prev.id].push(argInfo);
+				recordTemplateInfo(compoundTpls, prev.id, r, argInfo);
 			}
 		} else {
 			// console.warn("--normal--");
@@ -1163,12 +1178,12 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 			newRanges.push(r);
 			prev = r;
 
-			// Update tplParams
+			// Update compoundTpls
 			if (argInfo) {
-				if (!tplParams[r.id]) {
-					tplParams[r.id] = [];
+				if (!compoundTpls[r.id]) {
+					compoundTpls[r.id] = [];
 				}
-				tplParams[r.id].push(argInfo);
+				recordTemplateInfo(compoundTpls, r.id, r, argInfo);
 			}
 		}
 
@@ -1180,13 +1195,13 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 		}
 	}
 
-	return { ranges: newRanges, params: tplParams };
+	return { ranges: newRanges, tplArrays: compoundTpls };
 }
 
 /**
  * TODO: split in common ancestor algo, sibling splicing and -annotation / wrapping
  */
-function encapsulateTemplates( env, doc, tplRanges, tplParams) {
+function encapsulateTemplates( env, doc, tplRanges, tplArrays) {
 	var i, numRanges = tplRanges.length;
 	for (i = 0; i < numRanges; i++) {
 		var span,
@@ -1286,21 +1301,36 @@ function encapsulateTemplates( env, doc, tplRanges, tplParams) {
 			console.warn("End   DSR : " + JSON.stringify(dp2 || {}));
 		}
 
-		// remove startElem if a meta -- if a meta, it is guaranteed
-		// to be a marker meta added to mark the start of he template.
-		// However, tcStart = range.start, even if a meta, need not be
+		// Remove startElem (=range.startElem) if a meta.  If a meta,
+		// it is guaranteed to be a marker meta added to mark the start
+		// of the template.
+		// However, tcStart (= range.start), even if a meta, need not be
 		// a marker meta added for the template.
-		if (DU.hasNodeName(startElem, "meta"))  {
+		if (DU.hasNodeName(startElem, "meta")) {
 			deleteNode(startElem);
 		}
 
 		// Add templateParams meta-tag after the endElem
-		if (tplParams[range.id]) {
-			var tplParamsMeta = doc.createElement('meta');
-			tplParamsMeta.setAttribute("about", about);
-			tplParamsMeta.setAttribute("property", "mw:TemplateParams");
-			tplParamsMeta.setAttribute("content", JSON.stringify(tplParams[range.id]));
-			range.endElem.parentNode.insertBefore(tplParamsMeta, range.endElem.nextSibling);
+		var tplArray = tplArrays[range.id];
+		if (tplArray) {
+			// Add any leading wikitext
+			var firstTplInfo = tplArray[0];
+			if (firstTplInfo.dsr[0] > dp1.dsr[0]) {
+				tplArray = [{ wt: env.page.src.substring(dp1.dsr[0], firstTplInfo.dsr[0]) }].concat(tplArray);
+			}
+
+			// Add any trailing wikitext
+			var lastTplInfo = tplArray[tplArray.length-1];
+			if (lastTplInfo.dsr[1] < dp1.dsr[1]) {
+				tplArray.push({ wt: env.page.src.substring(lastTplInfo.dsr[1], dp1.dsr[1]) });
+			}
+
+			// Map the array of { dsr: .. , args: .. } objects to just the args property
+			tplArray = tplArray.map(function(a) { return a.wt ? a.wt : {template: a.args }; });
+
+			// Output the data-mw obj.
+			var datamw = (tplArray.length === 1) ? tplArray[0].template : { parts: tplArray };
+			range.start.setAttribute("data-mw", JSON.stringify(datamw));
 		}
 
 		deleteNode(range.endElem);
@@ -2003,7 +2033,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				{
 					/* -------------------------------------------------------------
 					 * This check here eliminates artifical DSR mismatches on content
-					 * text of  the a-node because of entity expansion, etc.
+					 * text of the a-node because of entity expansion, etc.
 					 *
 					 * Ex: [[7%25 solution]] will be rendered as:
 					 *    <a href=....>7% solution</a>
@@ -2188,7 +2218,7 @@ function encapsulateTemplateOutput( document, env ) {
 	var tplRanges = findWrappableTemplateRanges( document.body, tpls, document, env );
 	if (tplRanges.length > 0) {
 		tplRanges = findTopLevelNonOverlappingRanges(env, document, tplRanges);
-		encapsulateTemplates(env, document, tplRanges.ranges, tplRanges.params);
+		encapsulateTemplates(env, document, tplRanges.ranges, tplRanges.tplArrays);
 	}
 }
 
