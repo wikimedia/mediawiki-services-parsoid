@@ -15,5 +15,8 @@ exports.setup = function( parsoidConfig ) {
 
 	// Use selective serialization (default false)
 	//parsoidConfig.useSelser = true;
+
+	// allow cross-domain requests to the API (default disallowed)
+	//parsoidConfig.allowCORS = '*';
 };
 
