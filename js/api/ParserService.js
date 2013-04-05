@@ -272,7 +272,7 @@ var roundTripDiff = function ( req, res, env, document ) {
 				}, finalCB );
 };
 
-var parse = function ( env, req, res, cb, err, src ) {
+var parse = function ( env, req, res, cb, err, src_and_metadata ) {
 	var newCb = function ( src, err, doc ) {
 		if ( err !== null ) {
 			if ( !err.code ) {
@@ -289,9 +289,9 @@ var parse = function ( env, req, res, cb, err, src ) {
 	};
 
 	// Set the source
-	env.page.src = src;
+	env.setPageSrcInfo( src_and_metadata );
 
-	Util.parse( env, newCb, err, src );
+	Util.parse( env, newCb, err, env.page.src );
 };
 
 /* -------------------- web app access points below --------------------- */
@@ -450,7 +450,7 @@ app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
 		try {
 			console.log('starting parsing of ' + req.params[0]);
 			// FIXME: This does not handle includes or templates correctly
-			env.page.src = src;
+			env.setPageSrcInfo( src );
 			parser.process( src );
 		} catch (e) {
 			res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
@@ -532,7 +532,9 @@ app.post(/\/_rtform\/(.*)/, function ( req, res ) {
 	var cb = function ( env ) {
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 		// we don't care about \r, and normalize everything to \n
-		parse( env, req, res, roundTripDiff, null, req.body.content.replace(/\r/g, ''));
+		parse( env, req, res, roundTripDiff, null, {
+			revision: { '*': req.body.content.replace(/\r/g, '') }
+		});
 	};
 
 	getParserServiceEnv( res, parsoidConfig.defaultWiki, req.params[0], cb );

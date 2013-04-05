@@ -600,7 +600,8 @@ SSP.doSerializeDOM = function ( err, doc, cb, finalcb ) {
  * @param {string} cb.res The result of the chunk serialization.
  * @param {Function} finalcb The callback for after we've serialized the entire document.
  * @param {Error} err
- * @param {string} src The wikitext source of the document.
+ * @param {string} src The wikitext source of the document (optionally
+ *                     including page metadata)
  */
 SSP.parseOriginalSource = function ( doc, cb, finalcb, err, src ) {
 	var self = this,
@@ -608,7 +609,7 @@ SSP.parseOriginalSource = function ( doc, cb, finalcb, err, src ) {
 		parserPipeline = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
 
 	// Makes sure that the src is available even when just fetched.
-	this.env.page.src = src;
+	this.env.setPageSrcInfo( src );
 
 	// Parse the wikitext src to the original DOM, and pass that on to
 	// doSerializeDOM
@@ -620,7 +621,7 @@ SSP.parseOriginalSource = function ( doc, cb, finalcb, err, src ) {
 		console.log(body.outerHTML);
 		self.doSerializeDOM(null, doc, cb, finalcb);
 	} );
-	parserPipeline.process(src);
+	parserPipeline.process(env.page.src);
 };
 
 

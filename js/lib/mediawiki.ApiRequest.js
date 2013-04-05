@@ -6,6 +6,10 @@ var request = require('request'),
 	events = require('events'),
 	util = require('util');
 
+// all revision properties which parsoid is interested in.
+var PARSOID_RVPROP = ('content|ids|timestamp|user|userid|size|sha1|'+
+					  'contentmodel|comment');
+
 /**
  * @class
  * @extends Error
@@ -174,7 +178,7 @@ function TemplateRequest ( env, title, oldid ) {
 		format: 'json',
 		action: 'query',
 		prop: 'revisions',
-		rvprop: 'content',
+		rvprop: PARSOID_RVPROP,
 		titles: title
 	};
 	if ( oldid ) {
@@ -212,12 +216,17 @@ util.inherits(TemplateRequest, ApiRequest);
 TemplateRequest.prototype._handleJSON = function ( error, data ) {
 	var regex, title, err, location, iwstr, interwiki, src = '',
 		self = this;
+	var metadata = { title: self.title };
 
 	if ( error ) {
 		this._processListeners( error, '' );
 		return;
 	}
 
+	if ( data.query.normalized && data.query.normalized.length ) {
+		// update title (ie, "foo_Bar" -> "Foo Bar")
+		metadata.title = data.query.normalized[0].to;
+	}
 	if ( !data.query.pages ) {
 		if ( data.query.interwiki ) {
 			// Essentially redirect, but don't actually redirect.
@@ -244,7 +253,10 @@ TemplateRequest.prototype._handleJSON = function ( error, data ) {
 		try {
 			$.each( data.query.pages, function(i, page) {
 				if (page.revisions && page.revisions.length) {
-					src = page.revisions[0]['*'];
+					metadata.id = page.pageid;
+					metadata.ns = page.ns;
+					metadata.revision = page.revisions[0];
+					src = metadata.revision['*']; // for redirect handling & cache
 				} else {
 					throw new DoesNotExistError( 'Did not find page revisions for ' + self.title );
 				}
@@ -267,24 +279,26 @@ TemplateRequest.prototype._handleJSON = function ( error, data ) {
 			url = this.env.conf.parsoid.apiURI + '?' +
 				qs.stringify( {
 					format: 'json',
-				action: 'query',
-				prop: 'revisions',
-				rvprop: 'content',
-				titles: title
+					action: 'query',
+					prop: 'revisions',
+					rvprop: PARSOID_RVPROP,
+					titles: title
 				} );
 		//'?format=json&action=query&prop=revisions&rvprop=content&titles=' + title;
 		this.requestOptions.url = url;
+		this.title = title;
 		request( this.requestOptions, this._requestCB.bind(this) );
 		return;
 	}
 
-	//console.warn( 'Page ' + title + ': got ' + src );
-	this.env.tp( 'Retrieved ' + this.title, src );
+	//console.warn( 'Page ' + this.title + ': got ' + JSON.stringify(metadata) );
+	this.env.tp( 'Retrieved ' + this.title, metadata );
 
 	// Add the source to the cache
-	this.env.pageCache[this.title] = src;
+	// (both original title as well as possible redirected title)
+	this.env.pageCache[this.queueKey] = this.env.pageCache[this.title] = src;
 
-	this._processListeners( error, src );
+	this._processListeners( error, metadata );
 };
 
 /**
