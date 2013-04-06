@@ -8,6 +8,23 @@ var events = require('events'),
 	Node = require('./mediawiki.wikitext.constants.js').Node,
 	domino = require('./domino');
 
+// map from mediawiki metadata names to RDFa property names
+var metadataMap = {
+	ns: 'mw:articleNamespace',
+	// the articleID is not stable across article deletion/restore, while
+	// the revisionID is.  So we're going to omit the articleID from the
+	// parsoid API for now; uncomment if we find a use case.
+	//id: 'mw:articleId',
+	rev_revid:     'schema:CreativeWork/version',
+	rev_parentid:  'schema:CreativeWork/version/parent',
+	rev_timestamp: 'schema:CreativeWork/dateModified',
+	// user is not stable (but userid is)
+	rev_user:      'schema:CreativeWork/contributor/username',
+	rev_userid:    'schema:CreativeWork/contributor',
+	rev_sha1:      'mw:revisionSHA1',
+	rev_comment:   'schema:CreativeWork/comment'
+};
+
 // Sanity check for dom behavior: we are
 // relying on DOM level 4 getAttribute. In level 4, getAttribute on a
 // non-existing key returns null instead of the empty string.
@@ -2424,6 +2441,19 @@ function saveDataParsoid( node ) {
 	}
 }
 
+/**
+ * @method
+ *
+ * Create a <meta> element in the document.head with the given attrs.
+*/
+function appendMeta(document, attrs) {
+	var elt = document.createElement('meta');
+	Object.keys(attrs).forEach(function(k) {
+		elt.setAttribute(k, attrs[k] || '');
+	});
+	document.head.appendChild(elt);
+}
+
 function DOMPostProcessor(env, options) {
 	this.env = env;
 	this.options = options;
@@ -2490,12 +2520,55 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 		}
 	}
 
+	// add mw: RDFa prefix to top level
+	document.documentElement.setAttribute('prefix',
+	                                      'mw: http://mediawiki.org/rdf/');
+
+	// add <head> content based on page meta data
+	if (!document.head) {
+		document.documentElement.
+			insertBefore(document.createElement('head'), document.body);
+	}
+	appendMeta(document, { charset: "UTF-8" });
+	// don't let schema: prefix leak into <body>
+	document.head.setAttribute('prefix', 'schema: http://schema.org/');
+	var m = env.page.meta || {};
+	Object.keys(m).forEach(function(f) {
+		if (metadataMap[f] && m[f] !== null && m[f] !== undefined) {
+			appendMeta(document, { property: metadataMap[f],
+			                       content:  ''+m[f] });
+		}
+	});
+	var r = m.revision || {};
+	Object.keys(r).forEach(function(f) {
+		if (metadataMap['rev_'+f] && r[f] !== null && r[f] !== undefined) {
+			var value = '' + r[f];
+			if (f==='timestamp') { value=new Date(r[f]).toISOString(); }
+			if (f==='user') {
+				value = env.conf.wiki.baseURI +
+					env.conf.wiki.namespaceNames[2] + ':' + value;
+			}
+			if (f==='userid') {
+				// This special page doesn't exist (yet).
+				value = env.conf.wiki.baseURI +
+					'Special:UserById/' + value;
+			}
+			appendMeta(document, { property: metadataMap['rev_'+f],
+			                       content:  value });
+		}
+	});
+	if (!document.querySelector('head > title')) {
+		// this is a workaround for a bug in domino 1.0.9
+		document.head.appendChild(document.createElement('title'));
+	}
+	document.title = env.page.meta.title;
+
 	// Hack: Add a base href element to the head element of the HTML DOM so
 	// that our relative links resolve fine when the DOM is viewed directly
 	// from the web API.
 	var baseMeta = document.createElement('base');
 	baseMeta.setAttribute('href', env.conf.wiki.baseURI);
-	document.getElementsByTagName('head')[0].appendChild(baseMeta);
+	document.head.appendChild(baseMeta);
 	this.emit( 'document', document );
 };
 
