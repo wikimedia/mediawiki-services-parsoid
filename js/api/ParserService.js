@@ -279,6 +279,7 @@ var parse = function ( env, req, res, cb, err, src ) {
 				err.code = 500;
 			}
 			console.error( err.stack || err.toString() );
+			res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
 			res.send( err.stack || err.toString(), err.code );
 			return;
 		} else {
@@ -567,7 +568,6 @@ app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 
 		var tpr = new TemplateRequest( env, target, oldid );
 		tpr.once('src', parse.bind( null, env, req, res, function ( req, res, src, doc ) {
-			res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 			res.end(Util.serializeNode(doc.documentElement));
 			var et = new Date();
 			console.warn("completed parsing of " + target + " in " + (et - st) + " ms");
