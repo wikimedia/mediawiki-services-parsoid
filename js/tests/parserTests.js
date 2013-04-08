@@ -180,11 +180,6 @@ ParserTests.prototype.getOpts = function () {
 			'default': false,
 			'boolean': true
 		},
-		'use_source': {
-			description: 'Use original source in wt2wt tests',
-			'boolean': true,
-			'default': true
-		},
 		'html2html': {
 			description: 'Roundtrip testing: HTML(DOM) -> Wikitext -> HTML(DOM)',
 			'default': false,
@@ -192,6 +187,16 @@ ParserTests.prototype.getOpts = function () {
 		},
 		'selser': {
 			description: 'Roundtrip testing: Wikitext -> DOM(HTML) -> Wikitext (with selective serialization)',
+			'default': false,
+			'boolean': true
+		},
+		'use_source': {
+			description: 'Use original source in wt2wt tests',
+			'boolean': true,
+			'default': true
+		},
+		'editMode': {
+			description: 'Test in edit-mode (changes some parse & serialization strategies)',
 			'default': false,
 			'boolean': true
 		},
@@ -1274,6 +1279,7 @@ ParserTests.prototype.main = function ( options ) {
 			console.warn("ERROR: " + e);
 			console.error( e.stack );
 		};
+		this.env.conf.parsoid.editMode = options.editMode;
 		Util.setDebuggingFlags( this.env.conf.parsoid, options );
 		options.modes = [];
 		if ( options.wt2html ) {

@@ -385,9 +385,12 @@ DiffToSelserConverter.prototype.updatePos = function ( pos ) {
  * @param options.oldid {string} The revision ID you want to compare to (defaults to latest revision)
  */
 var SelectiveSerializer = function ( options ) {
-	this.wts = options.wts || new WikitextSerializer( options );
+	// Set edit mode
+	this.env = options.env || { conf : { parsoid : {} } };
+	this.env.conf.parsoid = Util.clone(this.env.conf.parsoid);
+	this.env.conf.parsoid.editMode = true;
 
-	this.env = options.env || {};
+	this.wts = options.wts || new WikitextSerializer( options );
 
 	// The output wikitext collector
 	this.wtChunks = [];

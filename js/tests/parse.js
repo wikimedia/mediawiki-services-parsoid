@@ -90,6 +90,11 @@ function dumpFlags() {
 			'boolean': true,
 			'default': false
 		},
+		'editMode': {
+			description: 'Test in edit-mode (changes some parse & serialization strategies)',
+			'default': false,
+			'boolean': true
+		},
 		'debug': {
 			description: 'Debug mode',
 			'boolean': true,
@@ -199,6 +204,7 @@ function dumpFlags() {
 		env.conf.parsoid.fetchTemplates = argv.fetchTemplates;
 		env.conf.parsoid.usePHPPreProcessor = env.conf.parsoid.fetchTemplates && argv.usephppreprocessor;
 		env.conf.parsoid.maxDepth = argv.maxdepth || env.conf.parsoid.maxDepth;
+		env.conf.parsoid.editMode = argv.editMode;
 
 		Util.setDebuggingFlags( env.conf.parsoid, argv );
 

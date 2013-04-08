@@ -1,6 +1,6 @@
-"use strict";
-
 /* Perform post-processing steps on an already-built HTML DOM. */
+
+"use strict";
 
 var events = require('events'),
 	Util = require('./mediawiki.Util.js').Util,
@@ -1564,7 +1564,7 @@ function findBuilderCorrectedTags(document, env) {
 							expectedName = data[0];
 						sibling = c.previousSibling;
 						if (( sibling && sibling.nodeName.toLowerCase() !== expectedName ) ||
-							(!sibling && c.parentNode.nodeName.toLowerCase() !== expectedName ))
+							(!sibling && c.parentNode.nodeName.toLowerCase() !== expectedName))
 						{
 							//console.log( 'start stripped! ', expectedName, c.parentNode.innerHTML );
 							addPlaceholderMeta(c, dp, expectedName, {start: true, tsr: stagTsr});

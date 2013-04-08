@@ -268,11 +268,9 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
  * @param options {Object} List of options for serialization
  */
 function WikitextSerializer( options ) {
-	this.options = Util.extendProps( {
-		// defaults
-	}, options || {} );
-
+	this.options = options || {};
 	this.env = options.env;
+	this.options.rtTesting = !this.env.conf.parsoid.editMode;
 	this.debugging = this.env.conf.parsoid.traceFlags &&
 		(this.env.conf.parsoid.traceFlags.indexOf("wts") !== -1);
 
@@ -337,7 +335,6 @@ var WSP = WikitextSerializer.prototype;
  * ********************************************************************* */
 
 WSP.initialState = {
-	// TODO: default to false for anything that could involve edits to the DOM
 	rtTesting: true,
 	sep: {},
 	atStartOfOutput: true,
@@ -2918,8 +2915,8 @@ WSP.serializeDOM = function( body, chunkCB, finalCB, selser ) {
 	var state = Util.extendProps({},
 		// Make sure these two are cloned, so we don't alter the initial
 		// state for later serializer runs.
-		Util.clone(this.initialState),
-		Util.clone(this.options)),
+		Util.clone(this.options),
+		Util.clone(this.initialState)),
 		serializeInfo = state.selser.serializeInfo;
 
 	// Record the serializer
