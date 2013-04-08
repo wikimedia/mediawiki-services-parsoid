@@ -29,7 +29,7 @@ var fs = require('fs'),
 	optimist = require('optimist');
 
 // Run a mock API in the background so we can request things from it
-var forkedAPI = fork( './mockAPI.js', [], { silent: true } );
+var forkedAPI = fork( __dirname + '/mockAPI.js', [], { silent: true } );
 
 process.on( 'exit', function () {
 	forkedAPI.kill();
