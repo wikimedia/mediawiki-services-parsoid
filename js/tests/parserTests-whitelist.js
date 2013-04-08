@@ -2,7 +2,18 @@
  * output matches the expected output listed here, the test can be marked as
  * passing in parserTests.js. */
 
-testWhiteList = {};
+// CSA note: This whitelist dates back to when parsoid was an experiment,
+// and there wasn't "php"/"parsoid" support in upstream's parserTests.  Now
+// that Parsoid is mainstream, I'm trying to deprecate this file and move
+// the tweaked tests upstream to mediawiki/core (splitting tests into 'php'
+// and 'parsoid' versions where necessary).  This helps document the
+// differences between the PHP and Parsoid parsers in one place (albeit
+// one gigantic hard-to-read file, but still).
+// So please don't add new entries here, except for experimental stuff
+// (selser?) which we're not sure we want to document/upstream.
+// Known-broken-but-we'll-fix-it stuff goes in parserTests-blacklist.js
+
+var testWhiteList = {};
 
 // Valid, but the PHP parser strips the empty tags out for giggles.
 testWhiteList["Italics and bold: 2-quote opening sequence: (2,5)"] = "<p><i>foo</i><b></b></p>";

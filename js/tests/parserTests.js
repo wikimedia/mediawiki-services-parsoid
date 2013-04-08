@@ -31,6 +31,9 @@ var fs = require('fs'),
 	optimist = require('optimist');
 var booleanOption = Util.booleanOption; // shortcut
 
+// exhaustive changesin file to use with selser blacklist
+var BLACKLIST_CHANGESIN = __dirname + "/selser.changes.json";
+
 // Run a mock API in the background so we can request things from it
 var forkedAPI = fork( __dirname + '/mockAPI.js', [], { silent: true } );
 
@@ -81,8 +84,12 @@ var colorizeCount = function ( count, color ) {
 	}
 };
 
-var testWhiteList = require(__dirname + '/parserTests-whitelist.js').testWhiteList,
-	modes = ['wt2html', 'wt2wt', 'html2html', 'html2wt', 'selser'];
+var testWhiteList = require(__dirname + '/parserTests-whitelist.js').
+		testWhiteList;
+var testBlackList = require(__dirname + '/parserTests-blacklist.js').
+		testBlackList;
+
+var modes = ['wt2html', 'wt2wt', 'html2html', 'html2wt', 'selser'];
 
 /**
  * @class
@@ -109,6 +116,7 @@ function ParserTests () {
 
 	for ( i = 0; i < modes.length; i++ ) {
 		newModes[modes[i]] = Util.clone( this.stats );
+		newModes[modes[i]].failList = [];
 	}
 
 	this.stats.modes = newModes;
@@ -248,6 +256,16 @@ ParserTests.prototype.getOpts = function () {
 		},
 		'printwhitelist': {
 			description: 'Print out a whitelist entry for failing tests. Default false.',
+			'default': false,
+			'boolean': true
+		},
+		'blacklist': {
+			description: 'Compare against expected failures from blacklist',
+			'default': true,
+			'boolean': true
+		},
+		'rewrite-blacklist': {
+			description: 'Update parserTests-blacklist.js with failing tests.',
 			'default': false,
 			'boolean': true
 		},
@@ -420,7 +438,6 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
 		this.env.page.dom = item.cachedHTML || null;
 		if ( mode === 'selser' ) {
 			this.env.setPageSrcInfo( item.input );
-			this.env.page.name = '';
 			if ( options.changesin && item.changes === undefined ) {
 				// A changesin option was passed, so set the changes to 0,
 				// so we don't try to regenerate the changes.
@@ -720,9 +737,9 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 	// Build a list of tasks for this test that will be passed to async.waterfall
 	var finishHandler = function ( err, res ) {
 		if ( err ) {
-			options.reportFailure(
-				item.title, item.comments, item.options,
-				options, null, null, true, mode, err, item );
+			options.reportFailure( item.title, item.comments, item.options,
+			                       options, null, null, false,
+			                       true, mode, err, item );
 		}
 
 		for ( i = 0; i < extensions.length; i++ ) {
@@ -876,19 +893,31 @@ ParserTests.prototype.processSerializedWT = function ( item, options, mode, wiki
  * @param {Object} options
  * @param {Object} actual
  * @param {Object} expected
+ * @param {boolean} expectFail Whether this test was expected to fail (on blacklist)
  * @param {boolean} failure_only Whether we should print only a failure message, or go on to print the diff
  * @param {string} mode
  */
 ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
-		actual, expected, failure_only, mode, error, item ) {
+		actual, expected, expectFail, failure_only, mode, error, item ) {
 	this.stats.failOutputTests++;
 	this.stats.modes[mode].failOutputTests++;
+	this.stats.modes[mode].failList.push(title);
+
+	var extTitle = ( title + ( mode ? ( ' (' + mode + ')' ) : '' ) ).
+		replace('\n', ' ');
+
+	if ( booleanOption( options.blacklist ) && expectFail ) {
+		if ( !booleanOption( options.quiet ) ) {
+			console.log( 'EXPECTED FAIL'.red + ': ' + extTitle.yellow );
+		}
+		return;
+	}
 
 	if ( !failure_only ) {
 		console.log( '=====================================================' );
 	}
 
-	console.log( 'FAILED'.red + ': ' + ( title + ( mode ? ( ' (' + mode + ')' ) : '' ) ).yellow );
+	console.log( 'UNEXPECTED FAIL'.red.inverse + ': ' + extTitle.yellow );
 
 	if ( mode === 'selser' ) {
 		if ( item.wt2wtPassed ) {
@@ -927,10 +956,12 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
  * @method
  * @param {string} title
  * @param {string} mode
+ * @param {boolean} expectSuccess Whether this success was expected (or was this test blacklisted?)
  * @param {boolean} isWhitelist Whether this success was due to a whitelisting
  * @param {boolean} shouldReport Whether we should actually output this result, or just count it
  */
-ParserTests.prototype.printSuccess = function ( title, mode, isWhitelist, quiet, item ) {
+ParserTests.prototype.printSuccess = function ( title, options, mode, expectSuccess, isWhitelist, item ) {
+	var quiet = booleanOption( options.quiet );
 	if ( isWhitelist ) {
 		this.stats.passedTestsManual++;
 		this.stats.modes[mode].passedTestsManual++;
@@ -938,16 +969,23 @@ ParserTests.prototype.printSuccess = function ( title, mode, isWhitelist, quiet,
 		this.stats.passedTests++;
 		this.stats.modes[mode].passedTests++;
 	}
+	var extTitle = ( title + ( mode ? ( ' (' + mode + ')' ) : '' ) ).
+		replace('\n', ' ');
+
+	if( booleanOption( options.blacklist ) && !expectSuccess ) {
+		console.log( 'UNEXPECTED PASS'.green.inverse +
+					 (isWhitelist ? ' (whitelist)' : '') +
+					 ':' + extTitle.yellow);
+		return;
+	}
 	if( !quiet ) {
-		var outStr = 'PASSED';
+		var outStr = 'EXPECTED PASS';
 
 		if ( isWhitelist ) {
 			outStr += ' (whitelist)';
 		}
 
-		outStr = outStr.green + ': ';
-
-		outStr += ( title + ' (' + mode + ')' ).yellow;
+		outStr = outStr.green + ': ' + extTitle.yellow;
 
 		console.log( outStr );
 
@@ -1038,25 +1076,35 @@ ParserTests.prototype.printWhitelistEntry = function ( title, raw ) {
 ParserTests.prototype.printResult = function ( title, time, comments, iopts, expected, actual, options, mode, item ) {
 	var quick = booleanOption( options.quick );
 	var quiet = booleanOption( options.quiet );
+
 	if ( mode === 'selser' ) {
 		title += ' ' + JSON.stringify( item.changes );
 	}
 
-	if ( expected.normal !== actual.normal ) {
-		if ( booleanOption( options.whitelist ) && title in testWhiteList &&
-			Util.normalizeOut( testWhiteList[title] ) ===  actual.normal ) {
-			options.reportSuccess( title, mode, true, quiet, item );
-			return;
-		}
+	var whitelist = false;
+	var expectFail = (testBlackList[title] || []).indexOf(mode) >= 0;
+	var fail = ( expected.normal !== actual.normal );
 
+	if ( fail &&
+	     booleanOption( options.whitelist ) &&
+	     title in testWhiteList &&
+	     Util.normalizeOut( testWhiteList[title] ) ===  actual.normal ) {
+		whitelist = true;
+		fail = false;
+	}
+
+	if ( mode === 'wt2wt' ) {
+		item.wt2wtPassed = !fail;
 		item.wt2wtResult = actual.raw;
+	}
 
-		options.reportFailure( title, comments, iopts, options, actual, expected, quick, mode, null, item );
+	if ( fail ) {
+		options.reportFailure( title, comments, iopts, options,
+		                       actual, expected, expectFail,
+		                       quick, mode, null, item );
 	} else {
-		if ( mode === 'wt2wt' ) {
-			item.wt2wtPassed = true;
-		}
-		options.reportSuccess( title, mode, false, quiet, item );
+		options.reportSuccess( title, options, mode, !expectFail,
+		                       whitelist, item );
 	}
 };
 
@@ -1182,6 +1230,13 @@ ParserTests.prototype.main = function ( options ) {
 		options.wt2wt = true;
 		options.wt2html = true;
 		options.html2html = true;
+		if ( booleanOption( options['rewrite-blacklist'] ) ) {
+			// turn on all modes by default for --rewrite-blacklist
+			options.html2wt = true;
+			options.selser = true;
+			// force use of the exhaustive changes file when creating blacklist.
+			options.changesin = BLACKLIST_CHANGESIN;
+		}
 	}
 
 	if ( typeof options.reportFailure !== 'function' ) {
@@ -1312,6 +1367,17 @@ ParserTests.prototype.main = function ( options ) {
 			this.parserPipeline = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
 		}
 
+		if ( booleanOption( options.blacklist ) && options.selser ) {
+			if ( options.changesin &&
+			     path.resolve( options.changesin ) ===
+			     path.resolve( BLACKLIST_CHANGESIN ) ) {
+				/* okay, everything's consistent. */
+			} else {
+				console.error( "Turning off blacklist because custom "+
+				               "changesin files is being used." );
+				options.blacklist = false;
+			}
+		}
 		if ( options.changesin ) {
 			this.changes = JSON.parse(
 				fs.readFileSync( options.changesin, 'utf-8' ) );
@@ -1467,6 +1533,28 @@ ParserTests.prototype.processCase = function ( i, options ) {
 		// Kill the forked API, so we'll exit correctly.
 		forkedAPI.kill();
 
+		// update the blacklist, if requested
+		if (booleanOption( options['rewrite-blacklist'] )) {
+			var filename = __dirname+'/parserTests-blacklist.js';
+			var shell = fs.readFileSync(filename, 'utf8').
+				split(/^.*DO NOT REMOVE THIS LINE.*$/m);
+			var contents = shell[0];
+			contents += '// ### DO NOT REMOVE THIS LINE ### ';
+			contents += '(start of automatically-generated section)\n';
+			modes.forEach(function(mode) {
+				contents += '\n// Blacklist for '+mode+'\n';
+				this.stats.modes[mode].failList.forEach(function(title) {
+					contents += 'add('+JSON.stringify(mode)+', '+
+						JSON.stringify(title)+');\n';
+				});
+				contents += '\n';
+			}.bind(this));
+			contents += '// ### DO NOT REMOVE THIS LINE ### ';
+			contents += '(end of automatically-generated section)';
+			contents += shell[2];
+			fs.writeFileSync(filename, contents, 'utf8');
+		}
+
 		// print out the summary
 		// note: these stats won't necessarily be useful if someone
 		// reimplements the reporting methods, since that's where we
@@ -1569,7 +1657,7 @@ var xmlFuncs = function () {
 	 *
 	 * @inheritdoc ParserTests#printFailure
 	 */
-	reportFailureXML = function ( title, comments, iopts, options, actual, expected, failure_only, mode, error ) {
+	reportFailureXML = function ( title, comments, iopts, options, actual, expected, expectFail, failure_only, mode, error ) {
 		fail++;
 		var failEle;
 
@@ -1593,7 +1681,7 @@ var xmlFuncs = function () {
 	 *
 	 * @inheritdoc ParserTests#printSuccess
 	 */
-	reportSuccessXML = function ( title, mode, isWhitelist, quiet, item ) {
+	reportSuccessXML = function ( title, options, mode, expectSuccess, isWhitelist, item ) {
 		if ( isWhitelist ) {
 			passWhitelist++;
 		} else {
@@ -1617,6 +1705,23 @@ var xmlFuncs = function () {
 			title += ' ' + JSON.stringify( item.changes );
 		}
 
+		var whitelist = false;
+		var expectFail = (testBlackList[title] || []).indexOf(mode) >= 0;
+		var fail = ( expected.normal !== actual.normal );
+
+		if ( fail &&
+		     booleanOption( options.whitelist ) &&
+		     title in testWhiteList &&
+		     Util.normalizeOut( testWhiteList[title] ) ===  actual.normal ) {
+			whitelist = true;
+			fail = false;
+		}
+
+		if ( mode === 'wt2wt' ) {
+			item.wt2wtPassed = !fail;
+			item.wt2wtResult = actual.raw;
+		}
+
 		testcaseEle = '<testcase name="' + Util.encodeXml( title ) + '" ';
 		testcaseEle += 'assertions="1" ';
 
@@ -1631,15 +1736,13 @@ var xmlFuncs = function () {
 
 		results[mode] += testcaseEle;
 
-		if ( expected.normal !== actual.normal ) {
-			if ( options.whitelist && title in testWhiteList &&
-				 Util.normalizeOut( testWhiteList[title] ) ===  actual.normal ) {
-				reportSuccessXML( title, mode, true, quiet, item );
-			} else {
-				reportFailureXML( title, comments, iopts, options, actual, expected, quick, mode );
-			}
+		if ( fail ) {
+			reportFailureXML( title, comments, iopts, options,
+			                  actual, expected, expectFail,
+			                  quick, mode, null, item );
 		} else {
-			reportSuccessXML( title, mode, false, quiet, item );
+			reportSuccessXML( title, options, mode, !expectFail,
+			                  whitelist, item );
 		}
 
 		results[mode] += '</testcase>\n';
