@@ -17,7 +17,7 @@
 
 var events = require('events'),
 	LRU = require("lru-cache"),
-	jshashes = require('jshashes'),
+	crypto = require('crypto'),
 	Util = require('./mediawiki.Util.js').Util;
 
 
@@ -1310,9 +1310,11 @@ function Frame( title, manager, args, parentFrame ) {
 	// the cache key instead, as this would allow sharing of all expansions of
 	// a template with identical expanded parameters independent of its
 	// containing frame.
-	var MD5 = new jshashes.MD5();
+	var MD5 = function(text) {
+		return crypto.createHash('md5').update(text).digest('hex');
+	};
 	if ( args._cacheKey === undefined ) {
-		args._cacheKey = MD5.hex( JSON.stringify( args ) );
+		args._cacheKey = MD5( JSON.stringify( args ) );
 	}
 
 	if ( parentFrame ) {
@@ -1320,7 +1322,7 @@ function Frame( title, manager, args, parentFrame ) {
 		this.depth = parentFrame.depth + 1;
 		// FIXME: Since our args are unexpanded, the expanded value might
 		// depend on the parent frame.
-		this._cacheKey = MD5.hex( parentFrame._cacheKey + args._cacheKey );
+		this._cacheKey = MD5( parentFrame._cacheKey + args._cacheKey );
 	} else {
 		this.parentFrame = null;
 		this.depth = 0;
