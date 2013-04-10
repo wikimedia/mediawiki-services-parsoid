@@ -294,7 +294,7 @@ ParserTests.prototype.getOpts = function () {
 ParserTests.prototype.getTests = function ( argv ) {
 	// double check that test file is up-to-date with upstream
 	var fetcher = require(__dirname+"/fetch-parserTests.txt.js");
-	if (fetcher.expectedSHA1 !== fetcher.computeSHA1()) {
+	if (!fetcher.isUpToDate()) {
 		console.warn("WARNING: parserTests.txt not up-to-date with upstream.");
 	}
 
