@@ -952,7 +952,7 @@ normalizeOut = function ( out ) {
 	return out
 		.replace(/<span typeof="mw:(?:(?:Placeholder|Nowiki|Object\/Template|Entity))"(?: [^\0-\cZ\s\"\'>\/=]+(?:="[^"]*")?)*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1')
 		// Ignore these attributes for now
-		.replace(/ (data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content|title|class)="[^"]*"/g, '')
+		.replace(/ (data-mw|data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content|title|class)="[^"]*"/g, '')
 		// replace mwt ids
 		.replace(/ id="mwt\d+"/, '')
 		//.replace(/<!--.*?-->\n?/gm, '')

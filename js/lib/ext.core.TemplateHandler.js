@@ -397,12 +397,17 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 				name = src.substring(srcOffsets[0], srcOffsets[1]);
 			}
 
-			dict[name] = src.substring(srcOffsets[2], srcOffsets[3]);
+			dict[name] = { wt: src.substring(srcOffsets[2], srcOffsets[3]) };
 		}
 
-		attrs.push(new KV("argInfo", JSON.stringify({
+		var tplTgtSrcOffsets = params[0].srcOffsets,
+			tplTgtWT = src.substring(tplTgtSrcOffsets[0], tplTgtSrcOffsets[1]);
+
+		// Use a data-attribute to prevent the sanitizer from stripping this
+		// attribute before it reaches the DOM pass where it is needed.
+		attrs.push(new KV("data-mw-arginfo", JSON.stringify({
 			id: state.wrappedObjectId,
-			target: state.tokenTarget,
+			target: { wt: tplTgtWT },
 			params: dict
 		})));
 	}

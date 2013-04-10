@@ -460,7 +460,6 @@ var closeHeading = function(v) {
 	};
 };
 
-
 function escapedText(text) {
 	var match = text.match(/^((?:.*?|[\r\n]+[^\r\n]|[~]{3,5})*?)((?:\r?\n)*)$/);
 	return ["<nowiki>", match[1], "</nowiki>", match[2]].join('');
@@ -604,6 +603,10 @@ WSP.escapeWikiText = function ( state, text ) {
 	}
 };
 
+WSP.escapeTplArgWT = function(arg) {
+	// FIXME: to be done
+	return arg;
+}
 
 /**
  * DOM-based figure handler
@@ -2029,6 +2032,43 @@ WSP._htmlElementHandler = function (node, state, cb) {
 			node, state, cb);
 };
 
+WSP._buildTemplateWT = function(srcParts, cb) {
+	var buf = [],
+		serializer = this;
+	srcParts.map(function(part) {
+		var tpl = part.template;
+		if (tpl) {
+			buf.push("{{");
+
+			// tpl target
+			buf.push(tpl.target.wt);
+
+			// tpl args
+			var argBuf = [],
+				keys = Object.keys(tpl.params),
+				n = keys.length;
+			if (n > 0) {
+				for (var i = 0; i < n; i++) {
+					var k = keys[i],
+						v = serializer.escapeTplArgWT(tpl.params[k].wt);
+					if (k === (i+1).toString()) {
+						argBuf.push(v);
+					} else {
+						argBuf.push(k + "=" + v);
+					}
+				}
+				buf.push("|");
+				buf.push(argBuf.join("|"));
+			}
+			buf.push("}}");
+		} else {
+			// plain wt
+			buf.push(part);
+		}
+	});
+	return buf.join('');
+}
+
 /**
  * Get a DOM-based handler for an element node
  */
@@ -2075,7 +2115,23 @@ WSP._getDOMHandler = function(node, state, cb) {
 			return {
 				handle: function () {
 					state.activeTemplateId = node.getAttribute('about') || null;
-					self.emitWikitext(dp.src, state, cb, node);
+
+					// In RT-testing mode, there will not be any edits to tpls.
+					// So, use original source to eliminate spurious diffs showing
+					// up in RT testing results.
+					var src;
+					if (state.rtTesting || nodeTypeOf.match(/mw:Object\/Ext/)) {
+						src = dp.src;
+					} else {
+						var dataMW = JSON.parse(node.getAttribute("data-mw"));
+						if (dataMW) {
+							src = state.serializer._buildTemplateWT(dataMW.parts || [{ template: dataMW }]);
+						} else {
+							console.error("ERROR: No data-mw for: " + node.outerHTML);
+							src = dp.src;
+						}
+					}
+					self.emitWikitext(src, state, cb, node);
 				},
 				sepnls: {
 					// XXX: This is questionable, as the template can expand

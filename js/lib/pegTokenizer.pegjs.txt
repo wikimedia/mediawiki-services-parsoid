@@ -942,7 +942,7 @@ template
       // Insert target as first positional attribute, so that it can be
       // generically expanded. The TemplateHandler then needs to shift it out
       // again.
-      params.unshift( { k: flattenIfArray( target ), v: '' } );
+      params.unshift( new KV(flattenIfArray( target.tokens ), '', target.srcOffsets) );
       var obj = new SelfclosingTagTk( 'template', params, {tsr: [pos0, pos], src: input.substring(pos0, pos)} );
       //console.warn( 'tokenizer template ' + pos + );
       //console.warn('template @' + pos + '::' + input.substr(pos, 40) );
@@ -965,8 +965,11 @@ tplarg
            )*
     nl_comment_space*
     "}}}" {
-      name = flattenIfArray( name );
-      params.unshift( new KV( name, '' ) );
+      if (name) {
+        params.unshift( new KV( flattenIfArray(name.tokens), '', name.srcOffsets ) );
+      } else {
+        params.unshift( new KV( '', '') );
+      }
       var obj = new SelfclosingTagTk( 'templatearg', params, {tsr: [pos0, pos], src: input.substring(pos0, pos)} );
       //console.warn( 'tokenizer tplarg ' + JSON.stringify( obj, null, 2 ));
       //console.warn('template arg @' + pos + '::' + input.substr(pos, 40) );
@@ -983,8 +986,8 @@ template_param
         "="
         optionalSpaceToken
         vStartPos:({return pos})
-        value:template_param_value? {
-            return { kEndPos:kEndPos, vStartPos: vStartPos, value: value };
+        tpv:template_param_value? {
+            return { kEndPos:kEndPos, vStartPos: vStartPos, value: tpv.tokens || [] };
         }
     )? {
       //console.warn( 'named template_param matched' + pp([name, value ]) );
@@ -1022,7 +1025,7 @@ template_param_value
         stops.dec( 'nopre' );
         stops.pop( 'equal' );
         //console.warn( 'template param value matched: ' + pp( tpt ) );
-        return tpt;
+        return { tokens: tpt, srcOffsets: [pos0, pos] };
     }
   / & { stops.dec( 'nopre' ); return stops.pop( 'equal' ) }
 
