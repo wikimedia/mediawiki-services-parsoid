@@ -72,7 +72,7 @@ cd results || exit 1
 if [ "$1" != '-c' -a "$2" != '-c' ];then
     git diff --patience | less -R
 else
-	git add $OUTPUT
+	git add $(basename $OUTPUT)
     if [ "$1" = '--wt2wt' ];then
         git commit -m "`tail -8 roundtrip.txt`" roundtrip.txt || exit 1
     elif [ "$1" = '--selser' ];then
