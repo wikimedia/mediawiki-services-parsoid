@@ -13,6 +13,7 @@ warn() {
 cd $(dirname $0) # allow running this script from other dirs
 
 OPTS="--cache"
+CHANGES="--changesin selser.changes.json"
 if [ ! -d results ];then
     git init results
     touch results/html.txt
@@ -38,7 +39,7 @@ if [ "$1" = "--wt2wt" ];then
 	TEST_EXIT_CODE=$?
 elif [ "$1" = '--selser' ];then
 	OUTPUT="results/selser.txt"
-    time $node parserTests.js $OPTS --selser --changesin selser.changes.json --printwhitelist \
+    time $node parserTests.js $OPTS --selser $CHANGES --printwhitelist \
         > $OUTPUT 2>&1
 	TEST_EXIT_CODE=$?
 elif [ "$1" = '--wt2html' ];then
@@ -53,7 +54,7 @@ elif [ "$1" = '--quick' ];then
 	TEST_EXIT_CODE=$?
 else
 	OUTPUT="results/all.txt"
-    time $node parserTests.js $OPTS --wt2html --wt2wt --html2html --selser --changesin selser.changes.json --printwhitelist \
+    time $node parserTests.js $OPTS --wt2html --wt2wt --html2html --selser $CHANGES --printwhitelist \
         > $OUTPUT 2>&1
 	TEST_EXIT_CODE=$?
 fi
