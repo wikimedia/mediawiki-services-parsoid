@@ -12,6 +12,7 @@ warn() {
 }
 cd $(dirname $0) # allow running this script from other dirs
 
+OPTS="--cache"
 if [ ! -d results ];then
     git init results
     touch results/html.txt
@@ -32,27 +33,27 @@ node=` ( nodejs --version > /dev/null 2>&1 && echo 'nodejs' ) || echo 'node' `
 
 if [ "$1" = "--wt2wt" ];then
 	OUTPUT="results/roundtrip.txt"
-    time $node parserTests.js --cache --wt2wt \
+    time $node parserTests.js $OPTS --wt2wt \
         > $OUTPUT 2>&1
 	TEST_EXIT_CODE=$?
 elif [ "$1" = '--selser' ];then
 	OUTPUT="results/selser.txt"
-    time $node parserTests.js --selser --changesin selser.changes.json --cache --printwhitelist \
+    time $node parserTests.js $OPTS --selser --changesin selser.changes.json --printwhitelist \
         > $OUTPUT 2>&1
 	TEST_EXIT_CODE=$?
 elif [ "$1" = '--wt2html' ];then
 	OUTPUT="results/html.txt"
-    time $node parserTests.js --wt2html --cache --printwhitelist \
+    time $node parserTests.js $OPTS --wt2html --printwhitelist \
         > $OUTPUT 2>&1
 	TEST_EXIT_CODE=$?
 elif [ "$1" = '--quick' ];then
 	OUTPUT="results/quick.txt"
-    time $node parserTests.js --wt2html --wt2wt --html2html --cache --printwhitelist \
+    time $node parserTests.js $OPTS --wt2html --wt2wt --html2html --printwhitelist \
         > $OUTPUT 2>&1
 	TEST_EXIT_CODE=$?
 else
 	OUTPUT="results/all.txt"
-    time $node parserTests.js --wt2html --wt2wt --html2html --selser --changesin selser.changes.json --cache --printwhitelist \
+    time $node parserTests.js $OPTS --wt2html --wt2wt --html2html --selser --changesin selser.changes.json --printwhitelist \
         > $OUTPUT 2>&1
 	TEST_EXIT_CODE=$?
 fi
