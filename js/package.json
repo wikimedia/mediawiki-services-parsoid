@@ -3,6 +3,7 @@
 	"description": "Mediawiki parser for the VisualEditor.",
 	"version": "0.0.1",
 	"dependencies": {
+		"alea": "~0.0.9",
 		"entities": "0.1.x",
 		"events": "0.x.x",
 		"request": "2.x.x",
