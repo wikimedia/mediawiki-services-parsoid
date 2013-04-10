@@ -73,7 +73,7 @@ var colorizeCount = function ( count, color ) {
 
 	// FIXME there must be a wait to call a method by its name
 	if ( count[color] ) {
-		return count[color];
+		return count[color] + '';
 	} else {
 		return count;
 	}
@@ -885,9 +885,9 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 
 	if ( mode === 'selser' ) {
 		if ( item.wt2wtPassed ) {
-			console.log( 'Even worse, the normal roundtrip test passed!'.red );
+			console.log( 'Even worse, the normal roundtrip test passed!'.red + '');
 		} else if ( actual && item.wt2wtResult !== actual.raw ) {
-			console.log( 'Even worse, the normal roundtrip test had a different result!'.red );
+			console.log( 'Even worse, the normal roundtrip test had a different result!'.red + '');
 		}
 	}
 
@@ -911,7 +911,7 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 		// The error object exists, which means
 		// there was an error! gwicke said it wouldn't happen, but handle
 		// it anyway, just in case.
-		console.log( '\nBECAUSE THERE WAS AN ERROR:\n'.red );
+		console.log( '\nBECAUSE THERE WAS AN ERROR:\n'.red + '');
 		console.log( error.stack || error.toString() );
 	}
 };
@@ -1007,7 +1007,7 @@ ParserTests.prototype.getDiff = function ( actual, expected, color ) {
  * @param {string} raw The raw output from the parser.
  */
 ParserTests.prototype.printWhitelistEntry = function ( title, raw ) {
-	console.log( 'WHITELIST ENTRY:'.cyan);
+	console.log( 'WHITELIST ENTRY:'.cyan + '');
 	console.log( 'testWhiteList[' +
 		JSON.stringify( title ) + '] = ' +
 		JSON.stringify( raw ) + ';\n' );
