@@ -30,7 +30,11 @@ else
     ( cd results && git checkout -f )
 fi
 
-node=` ( nodejs --version > /dev/null 2>&1 && echo 'nodejs' ) || echo 'node' `
+if [ -n "$NODE" ]; then
+	node="$NODE"
+else
+	node=` ( nodejs --version > /dev/null 2>&1 && echo 'nodejs' ) || echo 'node' `
+fi
 
 if [ "$1" = "--wt2wt" ];then
 	OUTPUT="results/roundtrip.txt"
