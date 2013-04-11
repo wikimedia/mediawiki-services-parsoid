@@ -25,6 +25,7 @@ var fs = require('fs'),
 	util = require( 'util' ),
 	async = require( 'async' ),
 	PEG = require('pegjs'),
+	alea = require('alea'),
 	// Handle options/arguments with optimist module
 	optimist = require('optimist');
 
@@ -482,6 +483,9 @@ ParserTests.prototype.doesChangeExist = function ( changes, change ) {
  * @param {Node} cb.document
  */
 ParserTests.prototype.makeChanges = function ( item, content, changelist, cb ) {
+	// Seed the random-number generator based on the item title
+	var random = new alea(item.title);
+
 	cb = cb || function () {};
 	var initContent = content;
 
@@ -503,7 +507,7 @@ ParserTests.prototype.makeChanges = function ( item, content, changelist, cb ) {
 	// Helper function for getting a random change marker
 	function getRandomChange() {
 		var o = {};
-		o[changes[Math.floor( Math.random() * changes.length )]] = 1;
+		o[changes[Math.floor( random() * changes.length )]] = 1;
 		return o;
 	}
 
@@ -557,6 +561,9 @@ ParserTests.prototype.makeChanges = function ( item, content, changelist, cb ) {
  * @param {Array} cb.changelist
  */
 ParserTests.prototype.generateChanges = function ( options, nonRandomChanges, item, content, cb ) {
+	// Seed the random-number generator based on the item title
+	var random = new alea( item.seed || item.title );
+
 	// This function won't actually change anything, but it will add change
 	// markers to random elements.
 	var child, i, changeObj, node, changelist = [], numAttempts = 0;
@@ -574,8 +581,6 @@ ParserTests.prototype.generateChanges = function ( options, nonRandomChanges, it
 			changeObj = 0;
 		}
 	};
-
-	item = item || {};
 
 	do {
 		node = content.cloneNode( true );
@@ -596,10 +601,13 @@ ParserTests.prototype.generateChanges = function ( options, nonRandomChanges, it
 
 			if ( nonRandomChanges === null) {
 				if ( DOMUtils.isNodeEditable( this.env, child ) ) {
-					if ( Math.random() < 0.5 ) {
-						changeObj = Math.floor( Math.random() * 4 ) + 1;
+					if ( random() < 0.5 ) {
+						changeObj = Math.floor( random() * 4 ) + 1;
 					} else {
-						this.generateChanges( options, null, null, child, setChange );
+						this.generateChanges( options, null,
+						                      // ensure the subtree has a seed
+						                      { seed: ''+random.uint32() },
+						                      child, setChange );
 					}
 				} else {
 					changeObj = 0;
