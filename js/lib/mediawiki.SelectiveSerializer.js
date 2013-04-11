@@ -387,7 +387,6 @@ DiffToSelserConverter.prototype.updatePos = function ( pos ) {
 var SelectiveSerializer = function ( options ) {
 	// Set edit mode
 	this.env = options.env || { conf : { parsoid : {} } };
-	this.env.conf.parsoid = Util.clone(this.env.conf.parsoid);
 	this.env.conf.parsoid.editMode = true;
 
 	this.wts = options.wts || new WikitextSerializer( options );

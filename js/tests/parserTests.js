@@ -406,6 +406,10 @@ ParserTests.prototype.processArticle = function( item, cb ) {
  * @param {string/null} processWikitextCB.res
  */
 ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, processWikitextCB ) {
+	// SSS FIXME: SelSer clobbers this flag -- need a better fix for this.
+	// Maybe pass this as an option, or clone the entire environment.
+	this.env.conf.parsoid.editMode = false;
+
 	// In some cases (which?) the full document is passed in, but we are
 	// interested in the body. So check if we got a document.
 	var content = doc.nodeType === doc.DOCUMENT_NODE ? doc.body : doc,
@@ -1311,12 +1315,6 @@ ParserTests.prototype.main = function ( options ) {
 		if ( options.html2html || options.wt2wt || options.wt2html || options.selser ) {
 			var parserPipelineFactory = new ParserPipelineFactory( this.env );
 			this.parserPipeline = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
-		}
-		if ( options.wt2wt || options.html2wt || options.html2html || options.selser ) {
-			this.serializer = new WikitextSerializer({env: this.env});
-		}
-		if ( options.selser ) {
-			this.selectiveSerializer = new SelectiveSerializer( { env: this.env, wts: this.serializer } );
 		}
 
 		if ( options.changesin ) {
