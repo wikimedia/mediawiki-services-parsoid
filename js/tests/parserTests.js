@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
  * Initial parser tests runner for experimental JS parser
  *
