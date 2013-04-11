@@ -49,7 +49,7 @@ var mp = '../lib/',
 	TemplateRequest = require(mp + 'mediawiki.ApiRequest.js').TemplateRequest;
 
 // For now most modules only need this for $.extend and $.each :)
-global.$ = require(mp + 'fakejquery');
+var $ = require(mp + 'fakejquery');
 
 var pj = path.join;
 
@@ -1084,13 +1084,13 @@ ParserTests.prototype.checkWikitext = function ( item, out, options, mode ) {
 		item.input = item.resultWT;
 	}
 
-	var normalizedExpected
+	var normalizedExpected,
 		toWikiText = mode === 'html2wt' || mode === 'wt2wt' || mode === 'selser';
 	// FIXME: normalization not in place yet
 	normalizedExpected = toWikiText ? item.input.replace(/\n+$/, '') : item.input;
 
 	// FIXME: normalization not in place yet
-	normalizedOut = toWikiText ? out.replace(/\n+$/, '') : out;
+	var normalizedOut = toWikiText ? out.replace(/\n+$/, '') : out;
 
 	var input = mode === 'html2wt' ? item.result : item.input;
 	var expected = { isWT: true, normal: normalizedExpected, raw: item.input };
