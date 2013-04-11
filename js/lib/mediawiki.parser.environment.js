@@ -302,6 +302,8 @@ MWParserEnvironment.prototype.normalizeTitle = function( name, noUnderScores,
 
 /**
  * TODO FIXME XXX do this for real eh
+ * XXX CSA: and look at mediawiki config before resolving subpages
+ *          (see https://bugzilla.wikimedia.org/show_bug.cgi?id=47136 )
  */
 MWParserEnvironment.prototype.resolveTitle = function( name, namespace ) {
 	// Resolve subpages
