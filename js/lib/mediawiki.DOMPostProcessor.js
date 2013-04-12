@@ -1293,7 +1293,29 @@ function encapsulateTemplates( env, doc, tplRanges, tplArrays) {
 			}
 		}
 
-		if (!done) {
+		if (done) {
+			var tplArray = tplArrays[range.id];
+			if (tplArray) {
+				// Add any leading wikitext
+				var firstTplInfo = tplArray[0];
+				if (firstTplInfo.dsr[0] > dp1.dsr[0]) {
+					tplArray = [{ wt: env.page.src.substring(dp1.dsr[0], firstTplInfo.dsr[0]) }].concat(tplArray);
+				}
+
+				// Add any trailing wikitext
+				var lastTplInfo = tplArray[tplArray.length-1];
+				if (lastTplInfo.dsr[1] < dp1.dsr[1]) {
+					tplArray.push({ wt: env.page.src.substring(lastTplInfo.dsr[1], dp1.dsr[1]) });
+				}
+
+				// Map the array of { dsr: .. , args: .. } objects to just the args property
+				tplArray = tplArray.map(function(a) { return a.wt ? a.wt : {template: a.args }; });
+
+				// Output the data-mw obj.
+				var datamw = (tplArray.length === 1) ? tplArray[0].template : { parts: tplArray };
+				range.start.setAttribute("data-mw", JSON.stringify(datamw));
+			}
+		} else {
 			console.warn("ERROR: Do not have necessary info. to RT Tpl: " + i);
 			console.warn("Start Elt : " + startElem.outerHTML);
 			console.warn("End Elt   : " + range.endElem.innerHTML);
@@ -1308,29 +1330,6 @@ function encapsulateTemplates( env, doc, tplRanges, tplArrays) {
 		// a marker meta added for the template.
 		if (DU.hasNodeName(startElem, "meta")) {
 			deleteNode(startElem);
-		}
-
-		// Add templateParams meta-tag after the endElem
-		var tplArray = tplArrays[range.id];
-		if (tplArray) {
-			// Add any leading wikitext
-			var firstTplInfo = tplArray[0];
-			if (firstTplInfo.dsr[0] > dp1.dsr[0]) {
-				tplArray = [{ wt: env.page.src.substring(dp1.dsr[0], firstTplInfo.dsr[0]) }].concat(tplArray);
-			}
-
-			// Add any trailing wikitext
-			var lastTplInfo = tplArray[tplArray.length-1];
-			if (lastTplInfo.dsr[1] < dp1.dsr[1]) {
-				tplArray.push({ wt: env.page.src.substring(lastTplInfo.dsr[1], dp1.dsr[1]) });
-			}
-
-			// Map the array of { dsr: .. , args: .. } objects to just the args property
-			tplArray = tplArray.map(function(a) { return a.wt ? a.wt : {template: a.args }; });
-
-			// Output the data-mw obj.
-			var datamw = (tplArray.length === 1) ? tplArray[0].template : { parts: tplArray };
-			range.start.setAttribute("data-mw", JSON.stringify(datamw));
 		}
 
 		deleteNode(range.endElem);
