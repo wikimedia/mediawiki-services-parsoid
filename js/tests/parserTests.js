@@ -1338,6 +1338,7 @@ ParserTests.prototype.main = function ( options ) {
  * This method can be reimplemented in the options of the ParserTests object.
  */
 ParserTests.prototype.reportStartOfTests = function () {
+	console.log( 'ParserTests running with node', process.version);
 	console.log( 'Initialisation complete. Now launching tests.' );
 };
 
