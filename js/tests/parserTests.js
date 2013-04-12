@@ -110,8 +110,11 @@ function ParserTests () {
 	// Test statistics
 	this.stats = {};
 	this.stats.passedTests = 0;
-	this.stats.passedTestsManual = 0;
-	this.stats.failOutputTests = 0;
+	this.stats.passedTestsWhitelisted = 0;
+	this.stats.passedTestsUnexpected = 0;
+	this.stats.failedTests = 0;
+	this.stats.failedTestsUnexpected = 0;
+
 	var newModes = {};
 
 	for ( i = 0; i < modes.length; i++ ) {
@@ -899,8 +902,8 @@ ParserTests.prototype.processSerializedWT = function ( item, options, mode, wiki
  */
 ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 		actual, expected, expectFail, failure_only, mode, error, item ) {
-	this.stats.failOutputTests++;
-	this.stats.modes[mode].failOutputTests++;
+	this.stats.failedTests++;
+	this.stats.modes[mode].failedTests++;
 	this.stats.modes[mode].failList.push(title);
 
 	var extTitle = ( title + ( mode ? ( ' (' + mode + ')' ) : '' ) ).
@@ -911,6 +914,9 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 			console.log( 'EXPECTED FAIL'.red + ': ' + extTitle.yellow );
 		}
 		return;
+	} else {
+		this.stats.failedTestsUnexpected++;
+		this.stats.modes[mode].failedTestsUnexpected++;
 	}
 
 	if ( !failure_only ) {
@@ -963,8 +969,8 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 ParserTests.prototype.printSuccess = function ( title, options, mode, expectSuccess, isWhitelist, item ) {
 	var quiet = booleanOption( options.quiet );
 	if ( isWhitelist ) {
-		this.stats.passedTestsManual++;
-		this.stats.modes[mode].passedTestsManual++;
+		this.stats.passedTestsWhitelisted++;
+		this.stats.modes[mode].passedTestsWhitelisted++;
 	} else {
 		this.stats.passedTests++;
 		this.stats.modes[mode].passedTests++;
@@ -973,6 +979,8 @@ ParserTests.prototype.printSuccess = function ( title, options, mode, expectSucc
 		replace('\n', ' ');
 
 	if( booleanOption( options.blacklist ) && !expectSuccess ) {
+		this.stats.passedTestsUnexpected++;
+		this.stats.modes[mode].passedTestsUnexpected++;
 		console.log( 'UNEXPECTED PASS'.green.inverse +
 					 (isWhitelist ? ' (whitelist)' : '') +
 					 ':' + extTitle.yellow);
@@ -1167,13 +1175,13 @@ ParserTests.prototype.printWikiDom = function ( body ) {
 
 /**
  * @param {Object} stats
- * @param {number} stats.failOutputTests Number of failed tests due to differences in output
+ * @param {number} stats.failedTests Number of failed tests due to differences in output
  * @param {number} stats.passedTests Number of tests passed without any special consideration
- * @param {number} stats.passedTestsManual Number of tests passed by whitelisting
- * @param {Object} stats.modes All of the stats (failOutputTests, passedTests, and passedTestsManual) per-mode.
+ * @param {number} stats.passedTestsWhitelisted Number of tests passed by whitelisting
+ * @param {Object} stats.modes All of the stats (failedTests, passedTests, and passedTestsWhitelisted) per-mode.
  */
 ParserTests.prototype.reportSummary = function ( stats ) {
-	var curStr, thisMode, i, failTotalTests = stats.failOutputTests;
+	var curStr, thisMode, i, failTotalTests = stats.failedTests;
 
 	console.log( "==========================================================");
 	console.log( "SUMMARY: ");
@@ -1182,27 +1190,39 @@ ParserTests.prototype.reportSummary = function ( stats ) {
 		for ( i = 0; i < modes.length; i++ ) {
 			curStr = modes[i] + ': ';
 			thisMode = stats.modes[modes[i]];
-			if ( thisMode.passedTests + thisMode.passedTestsManual + thisMode.failOutputTests > 0 ) {
-				curStr += colorizeCount( thisMode.passedTests, 'green' ) + ' passed / ';
-				curStr += colorizeCount( thisMode.passedTestsManual, 'yellow' ) + ' whitelisted / ';
-				curStr += colorizeCount( thisMode.failOutputTests, 'red' ) + ' failed';
+			if ( thisMode.passedTests + thisMode.passedTestsWhitelisted + thisMode.failedTests > 0 ) {
+				curStr += colorizeCount( thisMode.passedTests + stats.passedTestsWhitelisted, 'green' ) + ' passed (';
+				curStr += colorizeCount( stats.passedTestsUnexpected, 'red' ) + ' unexpected, ';
+				curStr += colorizeCount( thisMode.passedTestsWhitelisted, 'yellow' ) + ' whitelisted) / ';
+				curStr += colorizeCount( thisMode.failedTests, 'red' ) + ' failed (';
+				curStr += colorizeCount( thisMode.failedTestsUnexpected, 'red') + ' unexpected)'
 				console.log( curStr );
 			}
 		}
 
 		curStr = 'TOTAL' + ': ';
-		curStr += colorizeCount( stats.passedTests, 'green' ) + ' passed / ';
-		curStr += colorizeCount( stats.passedTestsManual, 'yellow' ) + ' whitelisted / ';
-		curStr += colorizeCount( stats.failOutputTests, 'red' ) + ' failed';
+		curStr += colorizeCount( stats.passedTests + stats.passedTestsWhitelisted, 'green' ) + ' passed (';
+		curStr += colorizeCount( stats.passedTestsUnexpected, 'red' ) + ' unexpected, ';
+		curStr += colorizeCount( stats.passedTestsWhitelisted, 'yellow' ) + ' whitelisted) / ';
+		curStr += colorizeCount( stats.failedTests, 'red' ) + ' failed (';
+		curStr += colorizeCount( stats.failedTestsUnexpected, 'red') + ' unexpected)'
 		console.log( curStr );
 
 		console.log( '\n' );
-		console.log( colorizeCount( stats.passedTests + stats.passedTestsManual, 'green' ) +
-			' total passed tests, ' +
-			colorizeCount( failTotalTests , 'red'   ) + ' total failures' );
+		console.log( colorizeCount( stats.passedTests + stats.passedTestsWhitelisted, 'green' ) +
+		             ' total passed tests (expected ' +
+		             (stats.passedTests + stats.passedTestsWhitelisted - stats.passedTestsUnexpected) +
+		             '), '+
+		             colorizeCount( failTotalTests , 'red'   ) + ' total failures (expected ' +
+		             (stats.failedTests - stats.failedTestsUnexpected) +
+		             ')' );
+		if ( stats.passedTestsUnexpected === 0 &&
+		     stats.failedTestsUnexpected === 0 ) {
+			console.log( '--> ' + 'NO UNEXPECTED RESULTS'.green + ' <--');
+		}
 	} else {
 		if( this.test_filter !== null ) {
-			console.log( "Passed " + ( stats.passedTests + stats.passedTestsManual ) +
+			console.log( "Passed " + ( stats.passedTests + stats.passedTestsWhitelisted ) +
 					" of " + stats.passedTests + " tests matching " + this.test_filter +
 					"... " + "ALL TESTS PASSED!".green );
 		} else {
@@ -1213,6 +1233,7 @@ ParserTests.prototype.reportSummary = function ( stats ) {
 	}
 	console.log( "==========================================================");
 
+	return (stats.passedTestsUnexpected + stats.failedTestsUnexpected);
 };
 
 /**
@@ -1341,6 +1362,7 @@ ParserTests.prototype.main = function ( options ) {
 		this.env.errCB = function ( e ) {
 			console.warn("ERROR: " + e);
 			console.error( e.stack );
+			process.exit(1);
 		};
 		this.env.conf.parsoid.editMode = options.editMode;
 		Util.setDebuggingFlags( this.env.conf.parsoid, options );
@@ -1559,7 +1581,10 @@ ParserTests.prototype.processCase = function ( i, options ) {
 		// note: these stats won't necessarily be useful if someone
 		// reimplements the reporting methods, since that's where we
 		// increment the stats.
-		options.reportSummary( this.stats );
+		var failures = options.reportSummary( this.stats );
+
+		// we're done!
+		process.exit(failures ? 2 : 0); // exit status 1 == uncaught exception
 	}
 };
 
