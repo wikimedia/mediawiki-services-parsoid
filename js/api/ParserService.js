@@ -266,7 +266,9 @@ var roundTripDiff = function ( req, res, env, document ) {
 		res.end('\n</body></html>');
 	};
 
-	new Serializer({env: env}).serializeDOM( document.body,
+	// Always use the regular serializer for round-trip diff tests
+	// since these will never have any edits for selser to do any work.
+	new WikitextSerializer({env: env}).serializeDOM( document.body,
 				function ( chunk ) {
 					out.push(chunk);
 				}, finalCB );
@@ -393,7 +395,8 @@ app.post(/\/_html\/(.*)/, function ( req, res ) {
 		var doc = Util.parseHTML( '<html><body>' + req.body.content.replace(/\r/g, '') +
 			'</body></html>' );
 		res.write('<pre style="background-color: #efefef">');
-		new Serializer({env: env}).serializeDOM(
+		// Always use the non-selective serializer for this mode
+		new WikitextSerializer({env: env}).serializeDOM(
 			doc.body,
 			function( c ) {
 				res.write( htmlSpecialChars( c ) );
