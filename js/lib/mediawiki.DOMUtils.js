@@ -198,21 +198,6 @@ var DOMUtils = {
 		return n2 !== null;
 	},
 
-	/**
-	 * Get the first child element or non-IEW text node, ignoring
-	 * whitespace-only text nodes and comments.
-	 */
-	getFirstNonSepChildNode: function(node) {
-		var child = node.firstChild;
-		while (child &&
-				(this.isIEW(child) || child.nodeType === node.COMMENT_NODE))
-		{
-			// Skip it.
-			child = child.nextSibling;
-		}
-		return child;
-	},
-
 	hasNodeName: function(n, name) {
 		return n.nodeName.toLowerCase() === name;
 	},
@@ -335,16 +320,22 @@ var DOMUtils = {
 
 	indentPreDSRCorrection: function(textNode) {
 		// NOTE: This assumes a text-node and doesn't check that it is one.
-		var numNLs;
-		if (textNode.parentNode.lastChild === textNode) {
-			// We dont want the trailing newline of the last child of the pre
-			// to contribute a pre-correction since it doesn't add new content
-			// in the pre-node after the text
-			numNLs = (textNode.data.match(/\n./g)||[]).length;
+		//
+		// FIXME: Doesn't handle text nodes that are not direct children of the pre
+		if (this.isIndentPre(textNode.parentNode)) {
+			var numNLs;
+			if (textNode.parentNode.lastChild === textNode) {
+				// We dont want the trailing newline of the last child of the pre
+				// to contribute a pre-correction since it doesn't add new content
+				// in the pre-node after the text
+				numNLs = (textNode.nodeValue.match(/\n./g)||[]).length;
+			} else {
+				numNLs = (textNode.nodeValue.match(/\n/g)||[]).length;
+			}
+			return numNLs;
 		} else {
-			numNLs = (textNode.data.match(/\n/g)||[]).length;
+			return 0;
 		}
-		return numNLs && this.isIndentPre(textNode.parentNode) ? numNLs : 0;
 	},
 
 	// Check if node is an ELEMENT node belongs to a template/extension.
@@ -403,11 +394,11 @@ var DOMUtils = {
 				break;
 
 			case Node.TEXT_NODE:
-				tokBuf = tokBuf.concat(Util.newlinesToNlTks(node.data));
+				tokBuf = tokBuf.concat(Util.newlinesToNlTks(node.nodeValue));
 				break;
 
 			case Node.COMMENT_NODE:
-				tokBuf.push(new CommentTk(node.data));
+				tokBuf.push(new CommentTk(node.nodeValue));
 				break;
 
 			default:
@@ -428,19 +419,8 @@ var DOMUtils = {
 				);
 	},
 
-	isNodeModified: function(node, env) {
-		if( node.nodeType !== node.ELEMENT_NODE ) {
-			return false;
-		}
-		var dpd = this.getJSONAttribute(node, 'data-parsoid-diff', null);
-		if ( !dpd ) {
-			return false;
-		}
-		return dpd.diff.indexOf('modified') !== -1;
-	},
-
 	hasCurrentDiffMark: function(node, env) {
-		if( !this.isElt(node)) {
+		if (!node || !this.isElt(node)) {
 			return false;
 		}
 		var dpd = this.getJSONAttribute(node, 'data-parsoid-diff', null);
@@ -472,6 +452,40 @@ var DOMUtils = {
 		return node.nodeType === node.TEXT_NODE &&
 			// ws-only
 			node.nodeValue.match(/^\s*$/);
+	},
+
+	isNonContentNode: function(node) {
+		return node.nodeType === node.COMMENT_NODE ||
+			this.isIEW(node) ||
+			this.isMarkerMeta(node, "mw:DiffMarker");
+	},
+
+	/**
+	 * Get the first child element or non-IEW text node, ignoring
+	 * whitespace-only text nodes and comments.
+	 */
+	getFirstNonSepChildNode: function(node) {
+		var child = node.firstChild;
+		while (child && this.isNonContentNode(child)) {
+			child = child.nextSibling;
+		}
+		return child;
+	},
+
+	previousNonSepSibling: function (node) {
+		var prev = node.previousSibling;
+		while (prev && this.isNonContentNode(prev)) {
+			prev = prev.previousSibling;
+		}
+		return prev;
+	},
+
+	nextNonSepSibling: function (node) {
+		var next = node.nextSibling;
+		while (next && this.isNonContentNode(next)) {
+			next = next.nextSibling;
+		}
+		return next;
 	},
 
 	/**

@@ -34,6 +34,49 @@ var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	SanitizerConstants = require('./ext.core.Sanitizer.js').SanitizerConstants,
 	tagWhiteListHash;
 
+function isValidSep(sep) {
+	return sep.match(/^(\s|<!--([^\-]|-(?!->))*-->)*$/);
+}
+
+function isValidDSR(dsr) {
+	return dsr &&
+		typeof(dsr[0]) === 'number' && dsr[0] >= 0 &&
+		typeof(dsr[1]) === 'number' && dsr[1] >= 0;
+}
+
+function isNonContentNode(node) {
+	return node.nodeType === node.COMMENT_NODE ||
+		DU.isIEW(node) ||
+		DU.isMarkerMeta(node, "mw:DiffMarker");
+}
+
+/**
+ * Get the first child element or non-IEW text node, ignoring
+ * whitespace-only text nodes and comments.
+ */
+function getFirstNonSepChildNode(node) {
+	var child = node.firstChild;
+	while (child && isNonContentNode(child)) {
+		child = child.nextSibling;
+	}
+	return child;
+}
+
+function previousNonSepSibling(node) {
+	var prev = node.previousSibling;
+	while (prev && isNonContentNode(prev)) {
+		prev = prev.previousSibling;
+	}
+	return prev;
+}
+
+function nextNonSepSibling(node) {
+	var next = node.nextSibling;
+	while (next && isNonContentNode(next)) {
+		next = next.nextSibling;
+	}
+	return next;
+}
 
 /**
  * Emit the start tag source when not round-trip testing, or when the node is
@@ -122,22 +165,6 @@ function precedingSeparatorTxt(n, rtTestMode) {
 	}
 
 	return buf.join('');
-}
-
-function previousNonSepSibling (node) {
-	var prev = node.previousSibling;
-	while (prev && (prev.nodeType === node.COMMENT_NODE || DU.isIEW(prev))) {
-		prev = prev.previousSibling;
-	}
-	return prev;
-}
-
-function nextNonSepSibling (node) {
-	var next = node.nextSibling;
-	while (next && (next.nodeType === node.COMMENT_NODE || DU.isIEW(next))) {
-		next = next.nextSibling;
-	}
-	return next;
 }
 
 var WikitextEscapeHandlers = function() { };
@@ -306,10 +333,6 @@ function WikitextSerializer( options ) {
 	this.env = options.env;
 	this.options.rtTesting = !this.env.conf.parsoid.editMode;
 
-	// Temporary, move to state.selser?
-	this.startPos = 0;
-	this.curPos = 0;
-
 	// Set up debugging helpers
 	this.debugging = this.env.conf.parsoid.traceFlags &&
 		(this.env.conf.parsoid.traceFlags.indexOf("wts") !== -1);
@@ -387,7 +410,6 @@ WSP.initialState = {
 		hasBracketPair: false,
 		hasHeadingPair: false
 	},
-	selser: null,
 
 	/////////////////////////////////////////////////////////////////
 	// End of state
@@ -447,9 +469,28 @@ WSP.initialState = {
 		}
 	},
 
+	getOrigSrc: function(start, end) {
+		return this.env.page.src.substring(start, end);
+	},
+
 	emitSepAndOutput: function(res, node, cb) {
 		// Emit separator first
-		this.serializer.emitSeparator(this, cb, node);
+		if (this.prevNodeUnmodified && this.currNodeUnmodified) {
+			var origSep = this.getOrigSrc(this.prevNode.data.parsoid.dsr[1], node.data.parsoid.dsr[0]);
+			if (isValidSep(origSep)) {
+				this.serializer.trace("ORIG-sep: ", origSep);
+				cb(origSep, node);
+				this.sep = {};
+			} else {
+				this.serializer.emitSeparator(this, cb, node);
+			}
+		} else {
+			this.serializer.emitSeparator(this, cb, node);
+		}
+
+		this.prevNodeUnmodified = this.currNodeUnmodified;
+		this.prevNode = node;
+		this.currNodeUnmodified = false;
 
 		// Escape 'res' if necessary
 		if (this.escapeText) {
@@ -458,7 +499,7 @@ WSP.initialState = {
 		}
 
 		// Output res
-		cb(res, this.selser, node);
+		cb(res, node);
 
 		// Update state
 		this.sep.lastSourceNode = node;
@@ -482,7 +523,7 @@ WSP.initialState = {
 		// FIXME: Make sure that the separators emitted here conform to the
 		// syntactic constraints of syntactic context.
 		var bits = [],
-			sepState = this.sep,
+			oldSep = this.sep,
 			// appendToBits just ignores anything returned but
 			// the source, but that is fine. Selser etc is handled in
 			// the top level callback at a slightly coarser level.
@@ -498,7 +539,7 @@ WSP.initialState = {
 		this.serializeChildren(node, cb, wtEscaper);
 		self.serializer.emitSeparator(this, appendToBits, node);
 		// restore the separator state
-		this.sep = sepState;
+		this.sep = oldSep;
 		return bits.join('');
 	}
 };
@@ -1222,9 +1263,6 @@ var inheritSTXTags = { tbody:1, tr: 1, td: 1, li: 1, dd: 1, dt: 1 },
 //					{ src: this._getDOMRTInfo(node).src }
 //				);
 //
-//				if ( dps ) {
-//					state.selser.serializeInfo = dps;
-//				}
 //				this._serializeToken(state, dummyToken);
 //				return;
 //			}
@@ -1344,13 +1382,13 @@ function buildListHandler(firstChildNames) {
 
 	return {
 		handle: function (node, state, cb) {
-			var firstChildElt = DU.getFirstNonSepChildNode(node);
+			var firstChildElt = getFirstNonSepChildNode(node);
 
 			// Skip builder-inserted wrappers
 			// Ex: <ul><s auto-inserted-start-and-end-><li>..</li><li>..</li></s>...</ul>
 			// output from: <s>\n*a\n*b\n*c</s>
 			while (firstChildElt && isBuilderInsertedElt(firstChildElt)) {
-				firstChildElt = DU.getFirstNonSepChildNode(firstChildElt);
+				firstChildElt = getFirstNonSepChildNode(firstChildElt);
 			}
 
 			if (!firstChildElt || ! (firstChildElt.nodeName in firstChildNames)) {
@@ -1380,7 +1418,7 @@ WSP.tagHandlers = {
 
 	li: {
 		handle: function (node, state, cb) {
-			var firstChildElement = DU.getFirstNonSepChildNode(node);
+			var firstChildElement = getFirstNonSepChildNode(node);
 			if (!DU.isList(firstChildElement)) {
 				cb(state.serializer._getListBullets(node), node);
 			}
@@ -1409,7 +1447,7 @@ WSP.tagHandlers = {
 
 	dt: {
 		handle: function (node, state, cb) {
-			var firstChildElement = DU.getFirstNonSepChildNode(node);
+			var firstChildElement = getFirstNonSepChildNode(node);
 			if (!DU.isList(firstChildElement)) {
 				cb(state.serializer._getListBullets(node), node);
 			}
@@ -1436,7 +1474,7 @@ WSP.tagHandlers = {
 
 	dd: {
 		handle: function (node, state, cb) {
-			var firstChildElement = DU.getFirstNonSepChildNode(node);
+			var firstChildElement = getFirstNonSepChildNode(node);
 			if (!DU.isList(firstChildElement)) {
 				// XXX: handle stx: row
 				if (node.data.parsoid.stx === 'row') {
@@ -2127,7 +2165,6 @@ WSP._getDOMHandler = function(node, state, cb) {
 	}
 
 	DU.loadDataParsoid(node);
-	DU.loadDataAttrib(node, 'parsoid-serialize', null);
 
 	var dp = node.data.parsoid,
 		nodeName = node.nodeName.toLowerCase(),
@@ -2681,12 +2718,11 @@ WSP.emitSeparator = function(state, cb, node) {
 	var sep,
 		origNode = node,
 		src = state.env.page.src,
-		selser = state.selser,
 		constraints = state.sep.constraints,
 		prevNode = state.sep.lastSourceNode,
 		dsrA, dsrB;
 
-	if (src && (!selser || !selser.modified) && node && prevNode) {
+	if (src && node && prevNode) {
 		if (prevNode && !DU.isElt(prevNode)) {
 			// Check if this is the last child of a zero-width element, and use
 			// that for dsr purposes instead. Typical case: text in p.
@@ -2703,12 +2739,14 @@ WSP.emitSeparator = function(state, cb, node) {
 			{
 				var endDsr = prevNode.previousSibling.data.parsoid.dsr[1],
 					correction;
-				if (prevNode.nodeType === prevNode.COMMENT_NODE) {
-					correction = prevNode.nodeValue.length + 7;
-				} else {
-					correction = prevNode.nodeValue.length;
+				if (typeof(endDsr) === 'number') {
+					if (prevNode.nodeType === prevNode.COMMENT_NODE) {
+						correction = prevNode.nodeValue.length + 7;
+					} else {
+						correction = prevNode.nodeValue.length;
+					}
+					dsrA = [endDsr, endDsr + correction + DU.indentPreDSRCorrection(prevNode), 0, 0];
 				}
-				dsrA = [endDsr, endDsr + correction + DU.indentPreDSRCorrection(prevNode), 0, 0];
 			} else {
 				//console.log( prevNode.nodeValue, prevNode.parentNode.outerHTML);
 			}
@@ -2735,7 +2773,7 @@ WSP.emitSeparator = function(state, cb, node) {
 				var sepTxt = precedingSeparatorTxt(node, state.rtTesting);
 				if (sepTxt !== null) {
 					dsrB = node.parentNode.data.parsoid.dsr;
-					if (sepTxt.length > 0) {
+					if (typeof(dsrB[0]) === 'number' && sepTxt.length > 0) {
 						dsrB = Util.clone(dsrB);
 						dsrB[0] += sepTxt.length;
 					}
@@ -2766,10 +2804,12 @@ WSP.emitSeparator = function(state, cb, node) {
 			}
 		}
 
+		// Do not use '!== null' checks on dsr elts since it appears that they can
+		// sometimes be NaN/undefined because of arithmetic done above.  This then
+		// leads to the 'dsr backwards' error.
+		//
 		// FIXME: Maybe we shouldn't set dsr in the dsr pass if both aren't valid?
-		if (dsrA && dsrA[0] !== null && dsrA[1] !== null &&
-			dsrB && dsrB[0] !== null && dsrB[1] !== null)
-		{
+		if (isValidDSR(dsrA) && isValidDSR(dsrB)) {
 			//console.log(prevNode.data.parsoid.dsr, node.data.parsoid.dsr);
 			// Figure out containment relationship
 			if (dsrA[0] <= dsrB[0]) {
@@ -2815,7 +2855,7 @@ WSP.emitSeparator = function(state, cb, node) {
 	// Verify that the separator is really one.
 	// It cannot be anything but whitespace and comments.
 	if (sep === undefined ||
-		!sep.match(/^(\s|<!--([^\-]|-(?!->))*-->)*$/) ||
+		!isValidSep(sep) ||
 		(state.sep.src && state.sep.src !== sep))
 	{
 		if (state.sep.constraints) {
@@ -2838,12 +2878,10 @@ WSP.emitSeparator = function(state, cb, node) {
 	}
 
 	if (sep !== undefined) {
+		cb(sep, origNode);
+
 		// Reset separator state
 		state.sep = {};
-
-		cb(sep, origNode);
-		state.sep = {};
-
 		if (sep && sep.match(/\n/)) {
 			state.onSOL = true;
 			state.currLineToBeReset = true;
@@ -2856,7 +2894,7 @@ WSP.emitSeparator = function(state, cb, node) {
 };
 
 WSP._getPrevSeparatorElement = function (node, state) {
-	return /* state.sep.lastSourceNode || */ previousNonSepSibling(node) || node.parentNode;
+	return previousNonSepSibling(node) || node.parentNode;
 };
 
 WSP._getNextSeparatorElement = function (node) {
@@ -2934,108 +2972,6 @@ WSP._updateCurrLine = function(node, state) {
 };
 
 /**
- * Insert a modification marker meta with the current position. This starts a
- * new serialization chunk. Used to handle gaps in unmodified content.
- */
-WSP._insertModificationMarker = function ( parentNode, beforeNode ) {
-	var modMarker = parentNode.ownerDocument.createElement('meta');
-	modMarker.setAttribute('typeof', 'mw:DiffMarker');
-	parentNode.insertBefore(modMarker, beforeNode);
-	this.markElementNode(modMarker, false);
-	this.startPos = null;
-};
-
-/**
- * Wrap a bare (DSR-less) text or comment node in a span and set modification
- * markers on that, so that it is serialized out using the WTS.
- */
-WSP._markTextOrCommentNode = function ( node, modified, srcRange ) {
-	var wrapper = DU.wrapTextInTypedSpan(node, 'mw:DiffMarker');
-	this.markElementNode(wrapper, modified, null, srcRange);
-	return wrapper;
-};
-
-/**
- * Set change information on an element node
- */
-WSP._markElementNode = function ( node, modified, dp, srcRange ) {
-	if ( ! srcRange && this.startPos !== null ) {
-		srcRange = [this.startPos, this.curPos];
-	}
-
-	// Add serialization info to this node
-	DU.setJSONAttribute(node, 'data-parsoid-serialize',
-			{
-				modified: modified,
-				// might be undefined
-				srcRange: srcRange
-			} );
-
-	if(modified) {
-		// Increment the currentId
-		this.currentId++;
-		if( dp && dp.dsr ) {
-			this.startPos = dp.dsr[1];
-			this.updatePos(dp.dsr[1]);
-		} else {
-			this.startPos = null;
-			this.curPos = null;
-		}
-	} else {
-		if( dp && dp.dsr ) {
-			this.startPos = dp.dsr[0];
-			this.updatePos(dp.dsr[1]);
-		} else {
-			this.startPos = null;
-			this.curPos = null;
-		}
-	}
-};
-
-/**
- * Set startPos to curPos if it is null and move curPos by passed-in delta.
- */
-WSP._movePos = function ( delta ) {
-	if ( this.curPos !== null && delta !== null ) {
-		this.updatePos( this.curPos + delta );
-	}
-};
-
-/**
- * Update startPos (if null) and curPos to the passed-in position
- */
-WSP._updatePos = function ( pos ) {
-	//console.log(pos);
-	//console.trace();
-	if ( pos || pos === 0 ) {
-		if ( this.startPos === null ) {
-			this.startPos = pos;
-		}
-		this.curPos = pos;
-	}
-};
-
-
-WSP._needToSerializeElement = function(node) {
-	var isModified =
-		// Comment this out to ignore the VE's change markers!
-		//DU.isModificationChangeMarker(dvec) ||
-
-		// Marked as modified by our diff algo
-		(DU.hasCurrentDiffMark(node, this.env) &&
-		 ( DU.isNodeModified(node) ||
-		   // The deleted-child case where no chilren are left
-		   ! node.childNodes.length )) ||
-		// no data-parsoid: new content
-		! node.getAttribute('data-parsoid'),
-		dp = node.data.parsoid;
-	return this.startPos === null ||
-		isModified ||
-		!dp.dsr || dp.dsr[0] !== this.curPos;
-};
-
-
-/**
  * Internal worker. Recursively serialize a DOM subtree.
  */
 WSP._serializeNode = function( node, state, cb) {
@@ -3045,16 +2981,29 @@ WSP._serializeNode = function( node, state, cb) {
 	// serialize this node
 	switch( node.nodeType ) {
 		case node.ELEMENT_NODE:
+			// Load always, even for ignored nodes
+			DU.loadDataParsoid(node);
+
+			// Ignore DiffMarker metas, but clear unmodified node state
+			if (DU.isMarkerMeta(node, "mw:DiffMarker")) {
+				state.prevNodeUnmodified = state.currNodeUnmodified;
+				state.currNodeUnmodified = false;
+				return node;
+			}
+
+			if (state.selserMode) {
+				this.trace("NODE: ", node.nodeName,
+					"; prev-flag: ", state.prevNodeUnmodified,
+					"; curr-flag: ", state.currNodeUnmodified);
+			}
+
+			var dp = node.data.parsoid;
+			dp.dsr = dp.dsr || [];
+
 			var nodeName = node.nodeName.toLowerCase(),
 				tkAttribs = this._getDOMAttribs(node.attributes),
 				tkRTInfo = this._getDOMRTInfo(node),
 				parentSTX = state.parentSTX;
-
-			// populate node.data.parsoid and node.data['parsoid-serialize']
-			DU.loadDataParsoid(node);
-			DU.loadDataAttrib(node, 'parsoid-serialize', null);
-
-			var dp = node.data.parsoid;
 
 			// Update separator constraints
 			prev = this._getPrevSeparatorElement(node, state);
@@ -3065,34 +3014,82 @@ WSP._serializeNode = function( node, state, cb) {
 						node,  domHandler);
 			}
 
-			this.debug('dps', state.selser, node.data['parsoid-serialize']);
+			var handled = false;
+			if (state.selserMode) {
+				// To serialize from source, we need 2 things of the node:
+				// -- it should not have a diff marker
+				// -- it should have valid, usable DSR
+				//
+				// SSS FIXME: Additionally, we can guard against buggy DSR with
+				// some sanity checks. We can test that non-sep src content
+				// leading wikitext markup corresponds to the node type.
+				//
+				//  Ex: If node.nodeName is 'UL', then src[0] should be '*'
+				//
+				//  TO BE DONE
+				//
+				if (dp && isValidDSR(dp.dsr) && !DU.hasCurrentDiffMark(node, this.env)) {
+					// Strip leading/trailing separators *ONLY IF* the previous/following
+					// node will go through non-selser serialization.
+					var src = state.getOrigSrc(dp.dsr[0], dp.dsr[1]),
+						stripLeading = !DU.isIndentPre(node) && DU.hasCurrentDiffMark(node.previousSibling, this.env),
+						stripTrailing = DU.hasCurrentDiffMark(node.nextSibling, this.env),
+						leadingSepMatch = stripLeading ? src.match(/^((?:\s|<!--([^\-]|-(?!->))*-->)+)/) : null,
+						trailingSepMatch = stripTrailing ? src.match(/((?:\s|<!--([^\-]|-(?!->))*-->)+)$/) : null,
+						out = src,
+						newSep = '',
+						offset = 0;
 
-			var selser = null;
-			if ( state.selser === null && node.data['parsoid-serialize']) {
-				selser = node.data['parsoid-serialize'];
-				state.selser = selser;
-				cb('', node);
-			}
+					if (leadingSepMatch) {
+						state.sep.src = (state.sep.src || '') + leadingSepMatch[0];
+						offset = leadingSepMatch[0].length;
+						out = out.substring(offset);
+						dp.dsr[0] += offset;
+					}
+					if (trailingSepMatch) {
+						newSep = trailingSepMatch[0];
+						out = out.substring(0, trailingSepMatch.index - offset);
+						dp.dsr[1] -= trailingSepMatch.index;
+					}
 
+					state.currNodeUnmodified = true;
 
-			if ( domHandler && domHandler.handle ) {
-				// DOM-based serialization
-				try {
-					// XXX: use a returned node to support handlers consuming
-					// siblings too
-					domHandler.handle(node, state, cb);
-				} catch(e) {
-					console.error(e.stack || e.toString());
-					console.error(node.nodeName, domHandler);
+					// console.warn("USED ORIG");
+					this.trace("ORIG-src:", src, '; out:', out);
+					cb(out, node);
+					handled = true;
+
+					state.sep.src = (state.sep.src || '') + newSep;
+
+					// Update active template id -- so following tpl-content nodes
+					// can be ignored, if necessary.
+					var nodeTypeOf = node.getAttribute( 'typeof' ) || '';
+					if (nodeTypeOf && nodeTypeOf.match(/\bmw:Object(\/[^\s]+|\b)/)) {
+						state.activeTemplateId = node.getAttribute('about') || null;
+					}
 				}
-				// The handler is responsible for serializing its children
-			} else {
-				// Used to be token-based serialization
-				console.error('No dom handler found for', node.outerHTML);
 			}
 
-			// Move our current dsr to the end of the element's source range
-			this._updatePos(dp.dsr && dp.dsr[1]);
+			if ( !handled ) {
+				state.prevNodeUnmodified = state.currNodeUnmodified;
+				state.currNodeUnmodified = false;
+				// console.warn("USED NEW");
+				if ( domHandler && domHandler.handle ) {
+					// DOM-based serialization
+					try {
+						// XXX: use a returned node to support handlers consuming
+						// siblings too
+						domHandler.handle(node, state, cb);
+					} catch(e) {
+						console.error(e.stack || e.toString());
+						console.error(node.nodeName, domHandler);
+					}
+					// The handler is responsible for serializing its children
+				} else {
+					// Used to be token-based serialization
+					console.error('No dom handler found for', node.outerHTML);
+				}
+			}
 
 			// Update end separator constraints
 			if (node && node.nodeType === node.ELEMENT_NODE) {
@@ -3103,14 +3100,11 @@ WSP._serializeNode = function( node, state, cb) {
 							next, this._getDOMHandler(next, state, cb));
 				}
 			}
+
 			if (state.currLine.text === null ||
 					state.sep.constraints && state.sep.constraints.min > 0)
 			{
 				this._updateCurrLine(node, state);
-			}
-
-			if (selser !== null) {
-				state.selser = null;
 			}
 
 			break;
@@ -3155,13 +3149,21 @@ WSP._serializeNode = function( node, state, cb) {
 					node.outerHTML );
 			break;
 	}
+
 	return node;
 };
 
 /**
  * Serialize an HTML DOM document.
  */
-WSP.serializeDOM = function( body, chunkCB, finalCB, selser ) {
+WSP.serializeDOM = function( body, chunkCB, finalCB, selserMode ) {
+	if (this.debugging) {
+		if (selserMode) {
+			console.warn("-----------------selser-mode-----------------");
+		} else {
+			console.warn("-----------------WTS-mode-----------------");
+		}
+	}
 	var state = Util.extendProps({},
 		// Make sure these two are cloned, so we don't alter the initial
 		// state for later serializer runs.
@@ -3172,7 +3174,7 @@ WSP.serializeDOM = function( body, chunkCB, finalCB, selser ) {
 	state.serializer = this;
 
 	try {
-		state.selser = selser || null;
+		state.selserMode = selserMode || false;
 
 		// Normalize the DOM (coalesces adjacent text body)
 		// FIXME: Disabled as this strips empty comments (<!---->).
@@ -3187,10 +3189,7 @@ WSP.serializeDOM = function( body, chunkCB, finalCB, selser ) {
 		}
 
 		var chunkCBWrapper = function (cb, chunk, node) {
-			var sepCB = function(res, node) {
-				cb(res, state.selser, node);
-			}
-			state.emitSepAndOutput(chunk, node, sepCB);
+			state.emitSepAndOutput(chunk, node, cb);
 
 			if (state.serializer.debugging) {
 				console.log("OUT:", JSON.stringify(chunk), node && node.nodeName || 'noNode');
@@ -3216,6 +3215,7 @@ WSP.serializeDOM = function( body, chunkCB, finalCB, selser ) {
 			// FIXME: Do we need this fallback at all?
 			this._serializeNode( body, state );
 		} else {
+			DU.loadDataParsoid(body);
 			state.serializeChildren(body, state.chunkCB);
 		}
 

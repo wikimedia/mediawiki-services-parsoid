@@ -48,7 +48,7 @@ function dumpFlags() {
 	buf.push("  * dom:pre-dsr       : dumps DOM prior to computing DSR");
 	buf.push("  * dom:post-dsr      : dumps DOM after computing DSR");
 	buf.push("  * dom:pre-encap     : dumps DOM before template encapsulation");
-	buf.push("  * dom:serialize-ids : in selective serialization, dumps DOM after assigning serializer ids\n");
+	buf.push("  * dom:post-dom-diff : in selective serialization, dumps DOM after running dom diff\n");
 	buf.push("--debug dumps state at these different stages\n");
 	buf.push("Examples:");
 	buf.push("$ node parse --dump dom:post-builder,dom:pre-dsr,dom:pre-encap < foo");
