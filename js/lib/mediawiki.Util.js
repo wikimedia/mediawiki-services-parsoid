@@ -989,18 +989,21 @@ var normalizeNewlines = function ( source ) {
 
 				// and eat all remaining newlines
 				.replace(/[\r\n]/g, '');
-},
+};
 
 /**
  * @method normalizeOut
  *
  * Specialized normalization of the wiki parser output, mostly to ignore a few
- * known-ok differences.
+ * known-ok differences.  If parsoidOnly is true-ish, then we allow more
+ * markup through (like property and typeof attributes), for better
+ * checking of parsoid-only test cases.
  *
  * @param {string} out
+ * @param {bool} parsoidOnly
  * @returns {string}
  */
-normalizeOut = function ( out ) {
+var normalizeOut = function ( out, parsoidOnly ) {
 	// TODO: Do not strip newlines in pre and nowiki blocks!
 	// NOTE that we use a slightly restricted regexp for "attribute"
 	//  which works for the output of DOM serialization.  For example,
@@ -1012,23 +1015,34 @@ normalizeOut = function ( out ) {
 		throw new Error("normalizeOut input is not in standard serialized form");
 	}
 	out = normalizeNewlines( out );
-	return out
-		.replace(/<span(?: [^>]+)* typeof="mw:(?:(?:Placeholder|Nowiki|Object\/Template|Entity))"(?: [^\0-\cZ\s\"\'>\/=]+(?:="[^"]*")?)*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1')
-		// Ignore these attributes for now
-		.replace(/ (data-mw|data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content|title|class)="[^"]*"/g, '')
+	if ( !parsoidOnly ) {
+		// ignore troublesome attributes
+		out = out.
+			// remove <span typeof="....">....</span>
+			replace(/<span(?: [^>]+)* typeof="mw:(?:Placeholder|Nowiki|Object\/Template|Entity)"(?: [^\0-\cZ\s\"\'>\/=]+(?:="[^"]*")?)*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1').
+			replace(/ (data-mw|data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content|title|class)="[^\"]*"/g, '');
+	} else {
+		out = out.
+			// remove <span typeof="mw:Placeholder">....</span>
+			replace(/<span(?: [^>]+)* typeof="mw:Placeholder"(?: [^\0-\cZ\s\"\'>\/=]+(?:="[^"]*")?)*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1').
+			// unnecessary attributes, we don't need to check these
+			// style is in there because we should only check classes.
+			replace(/ (data-mw|data-parsoid|prefix|about|rev|datatype|inlist|vocab|content|style)="[^\"]*"/g, '');
+	}
+	return out.
 		// replace mwt ids
-		.replace(/ id="mwt\d+"/, '')
+		replace(/ id="mwt\d+"/, '').
 		//.replace(/<!--.*?-->\n?/gm, '')
-		.replace(/<\/?(?:meta|link)(?: [^\0-\cZ\s"'>\/=]+(?:="[^"]*")?)*\/?>/g, '')
-		.replace(/<span[^>]+about="[^"]*"[^>]*>/g, '')
-		.replace(/<span><\/span>/g, '')
-		.replace(/(href=")(?:\.?\.\/)+/g, '$1')
+		replace(/<\/?(?:meta|link)(?: [^\0-\cZ\s"'>\/=]+(?:="[^"]*")?)*\/?>/g, '').
+		replace(/<span[^>]+about="[^"]*"[^>]*>/g, '').
+		replace(/<span><\/span>/g, '').
+		replace(/(href=")(?:\.?\.\/)+/g, '$1').
 		// replace unnecessary URL escaping
-		.replace(/ href="[^"]*"/g, decodeURIComponent)
+		replace(/ href="[^"]*"/g, decodeURIComponent).
 		// strip thumbnail size prefixes
-		.replace(/(src="[^"]*?)\/thumb(\/[0-9a-f]\/[0-9a-f]{2}\/[^\/]+)\/[0-9]+px-[^"\/]+(?=")/g, '$1$2')
-		.replace(/(<(table|tbody|tr|th|td|\/th|\/td)[^<>]*>)\s+/g, '$1');
-},
+		replace(/(src="[^"]*?)\/thumb(\/[0-9a-f]\/[0-9a-f]{2}\/[^\/]+)\/[0-9]+px-[^"\/]+(?=")/g, '$1$2').
+		replace(/(<(table|tbody|tr|th|td|\/th|\/td)[^<>]*>)\s+/g, '$1');
+};
 
 /**
  * @method normalizeHTML
@@ -1040,7 +1054,7 @@ normalizeOut = function ( out ) {
  * @param source {string}
  * @return {string}
  */
-normalizeHTML = function ( source ) {
+var normalizeHTML = function ( source ) {
 	// TODO: Do not strip newlines in pre and nowiki blocks!
 	source = normalizeNewlines( source );
 	try {
@@ -1069,8 +1083,8 @@ normalizeHTML = function ( source ) {
 			.replace(/<span><\/span>/g, '')
 			.replace(/(<(table|tbody|tr|th|td|\/th|\/td)[^<>]*>)\s+/g, '$1');
 	} catch(e) {
-        console.log("normalizeHTML failed on" +
-				source + " with the following error: " + e);
+		console.log("normalizeHTML failed on" +
+		            source + " with the following error: " + e);
 		console.trace();
 		return source;
 	}

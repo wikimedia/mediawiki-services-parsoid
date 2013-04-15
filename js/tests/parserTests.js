@@ -1078,6 +1078,7 @@ ParserTests.prototype.printWhitelistEntry = function ( title, raw ) {
  */
 ParserTests.prototype.printResult = function ( title, time, comments, iopts, expected, actual, options, mode, item ) {
 	var quick = booleanOption( options.quick );
+	var parsoidOnly = (iopts.parsoid !== undefined);
 
 	if ( mode === 'selser' ) {
 		title += ' ' + JSON.stringify( item.changes );
@@ -1090,7 +1091,7 @@ ParserTests.prototype.printResult = function ( title, time, comments, iopts, exp
 	if ( fail &&
 	     booleanOption( options.whitelist ) &&
 	     title in testWhiteList &&
-	     Util.normalizeOut( testWhiteList[title] ) ===  actual.normal ) {
+	     Util.normalizeOut( testWhiteList[title], parsoidOnly ) ===  actual.normal ) {
 		whitelist = true;
 		fail = false;
 	}
@@ -1117,13 +1118,14 @@ ParserTests.prototype.printResult = function ( title, time, comments, iopts, exp
  */
 ParserTests.prototype.checkHTML = function ( item, out, options, mode ) {
 	var normalizedOut, normalizedExpected;
+	var parsoidOnly = (item.options.parsoid !== undefined);
 
-	normalizedOut = Util.normalizeOut( out );
+	normalizedOut = Util.normalizeOut( out, parsoidOnly );
 
 	if ( item.cachedNormalizedHTML === null ) {
-		if ('parsoid' in item.options) {
+		if ( parsoidOnly ) {
 			var normalDOM = Util.parseHTML( item.result ).body.innerHTML;
-			normalizedExpected = Util.normalizeOut( normalDOM );
+			normalizedExpected = Util.normalizeOut( normalDOM, parsoidOnly );
 		} else {
 			normalizedExpected = Util.normalizeHTML( item.result );
 		}
@@ -1759,6 +1761,7 @@ var xmlFuncs = (function () {
 	reportResultXML = function ( title, time, comments, iopts, expected, actual, options, mode, item ) {
 		var timeTotal, testcaseEle;
 		var quick = booleanOption( options.quick );
+		var parsoidOnly = (iopts.parsoid !== undefined);
 
 		if ( mode === 'selser' ) {
 			title += ' ' + JSON.stringify( item.changes );
@@ -1771,7 +1774,7 @@ var xmlFuncs = (function () {
 		if ( fail &&
 		     booleanOption( options.whitelist ) &&
 		     title in testWhiteList &&
-		     Util.normalizeOut( testWhiteList[title] ) ===  actual.normal ) {
+		     Util.normalizeOut( testWhiteList[title], parsoidOnly ) ===  actual.normal ) {
 			whitelist = true;
 			fail = false;
 		}
