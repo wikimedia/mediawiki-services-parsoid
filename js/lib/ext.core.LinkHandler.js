@@ -113,7 +113,7 @@ function interwikiContent( token ) {
 WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 
 	var j, maybeContent, about, possibleTags, property, newType,
-		hrefkv, saniContent, env = this.manager.env,
+		hrefkv, saniContent, strContent, env = this.manager.env,
 		attribs = token.attribs,
 		hrefSrc = Util.lookupKV( token.attribs, 'href' ).vsrc,
 		target = Util.lookup( attribs, 'href' ),
@@ -158,7 +158,6 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 		var tokens = [];
 
 		if ( title.ns.isCategory() && ! href.match(/^:/) ) {
-
 			// We let this get handled earlier as a normal wikilink, but we need
 			// to add in a few extras.
 			obj = new SelfclosingTagTk('link', obj.attribs, obj.dataAttribs);
@@ -166,10 +165,11 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 			// Change the rel to be mw:WikiLink/Category
 			Util.lookupKV( obj.attribs, 'rel' ).v += '/Category';
 
-			saniContent = Util.sanitizeTitleURI( Util.tokensToString( content ) ).replace( /#/g, '%23' );
+			strContent = Util.tokensToString( content );
+			saniContent = Util.sanitizeTitleURI( strContent ).replace( /#/g, '%23' );
 
 			// Change the href to include the sort key, if any
-			if ( saniContent && saniContent !== '' && saniContent !== href ) {
+			if ( strContent && strContent !== '' && strContent !== href ) {
 				hrefkv = Util.lookupKV( obj.attribs, 'href' );
 				hrefkv.v += '#';
 				hrefkv.v += saniContent;
