@@ -489,7 +489,7 @@ ParserTests.prototype.doesChangeExist = function ( changes, change ) {
  */
 ParserTests.prototype.makeChanges = function ( item, content, changelist, cb ) {
 	// Seed the random-number generator based on the item title
-	var random = new alea(item.title);
+	var random = new alea( (item.seed || '') + (item.title || '') );
 
 	cb = cb || function () {};
 	var initContent = content;
@@ -567,7 +567,7 @@ ParserTests.prototype.makeChanges = function ( item, content, changelist, cb ) {
  */
 ParserTests.prototype.generateChanges = function ( options, nonRandomChanges, item, content, cb ) {
 	// Seed the random-number generator based on the item title
-	var random = new alea( item.seed || item.title );
+	var random = new alea( (item.seed || '') + (item.title || '') );
 
 	// This function won't actually change anything, but it will add change
 	// markers to random elements.
@@ -1361,6 +1361,7 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 				tasks.push( function ( modeIndex, changesIndex ) {
 					return function ( cb ) {
 						var newitem = Util.clone( item );
+						newitem.seed = changesIndex + '';
 						newitem.changes = item.changes[changesIndex];
 						newitem.otherChanges = item.changes;
 						this.processTest( newitem, options, modes[modeIndex], function () {
