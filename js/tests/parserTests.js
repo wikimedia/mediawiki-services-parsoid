@@ -898,9 +898,9 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 
 	if ( mode === 'selser' ) {
 		if ( item.wt2wtPassed ) {
-			console.log( 'Even worse, the normal roundtrip test passed!'.red + '');
+			console.log( 'Even worse, the non-selser wt2wt test passed!'.red + '');
 		} else if ( actual && item.wt2wtResult !== actual.raw ) {
-			console.log( 'Even worse, the normal roundtrip test had a different result!'.red + '');
+			console.log( 'Even worse, the non-selser wt2wt test had a different result!'.red + '');
 		}
 	}
 
@@ -936,7 +936,7 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
  * @param {boolean} isWhitelist Whether this success was due to a whitelisting
  * @param {boolean} shouldReport Whether we should actually output this result, or just count it
  */
-ParserTests.prototype.printSuccess = function ( title, mode, isWhitelist, shouldReport ) {
+ParserTests.prototype.printSuccess = function ( title, mode, isWhitelist, quiet, item ) {
 	if ( isWhitelist ) {
 		this.stats.passedTestsManual++;
 		this.stats.modes[mode].passedTestsManual++;
@@ -944,7 +944,7 @@ ParserTests.prototype.printSuccess = function ( title, mode, isWhitelist, should
 		this.stats.passedTests++;
 		this.stats.modes[mode].passedTests++;
 	}
-	if( !shouldReport ) {
+	if( !quiet ) {
 		var outStr = 'PASSED';
 
 		if ( isWhitelist ) {
@@ -956,6 +956,10 @@ ParserTests.prototype.printSuccess = function ( title, mode, isWhitelist, should
 		outStr += ( title + ' (' + mode + ')' ).yellow;
 
 		console.log( outStr );
+
+		if ( mode === 'selser' && !item.wt2wtPassed ) {
+			console.log( 'Even better, the non-selser wt2wt test failed!'.red + '');
+		}
 	}
 };
 
@@ -1048,7 +1052,7 @@ ParserTests.prototype.printResult = function ( title, time, comments, iopts, exp
 	if ( expected.normal !== actual.normal ) {
 		if ( booleanOption( options.whitelist ) && title in testWhiteList &&
 			Util.normalizeOut( testWhiteList[title] ) ===  actual.normal ) {
-			options.reportSuccess( title, mode, true, quiet );
+			options.reportSuccess( title, mode, true, quiet, item );
 			return;
 		}
 
@@ -1059,7 +1063,7 @@ ParserTests.prototype.printResult = function ( title, time, comments, iopts, exp
 		if ( mode === 'wt2wt' ) {
 			item.wt2wtPassed = true;
 		}
-		options.reportSuccess( title, mode, false, quiet );
+		options.reportSuccess( title, mode, false, quiet, item );
 	}
 };
 
@@ -1597,7 +1601,7 @@ var xmlFuncs = function () {
 	 *
 	 * @inheritdoc ParserTests#printSuccess
 	 */
-	reportSuccessXML = function ( title, mode, isWhitelist, shouldReport ) {
+	reportSuccessXML = function ( title, mode, isWhitelist, quiet, item ) {
 		if ( isWhitelist ) {
 			passWhitelist++;
 		} else {
@@ -1638,12 +1642,12 @@ var xmlFuncs = function () {
 		if ( expected.normal !== actual.normal ) {
 			if ( options.whitelist && title in testWhiteList &&
 				 Util.normalizeOut( testWhiteList[title] ) ===  actual.normal ) {
-				reportSuccessXML( title, mode, true, quiet );
+				reportSuccessXML( title, mode, true, quiet, item );
 			} else {
 				reportFailureXML( title, comments, iopts, options, actual, expected, quick, mode );
 			}
 		} else {
-			reportSuccessXML( title, mode, false, quiet );
+			reportSuccessXML( title, mode, false, quiet, item );
 		}
 
 		results[mode] += '</testcase>\n';
