@@ -44,8 +44,11 @@ DDP.diff = function ( node ) {
 // These attributes are ignored for equality purposes if they are added to a
 // node.
 var ignoreAttributes = {
-	//Do our own full diff for now, so ignore data-parsoid-changed info.
+	// Do our own full diff for now, so ignore data-ve-changed info.
 	'data-ve-changed': 1,
+	// SSS FIXME: parsoidTests.js adds this flag on a node when nothing in the
+	// subtree actually changes.  So, ignoring this attribute in effect,
+	// ignores the parser tests change.
 	'data-parsoid-changed': 1,
 	'data-parsoid': 1,
 	'data-parsoid-diff': 1,
@@ -62,38 +65,40 @@ function countIgnoredAttributes (attributes) {
 	return n;
 }
 
-
 /**
- * Order-sensitive (for now) attribute equality test
+ * Attribute equality test
  */
 DDP.attribsEquals = function(nodeA, nodeB) {
-	// First compare the number of attributes
-	if ( nodeA.attributes.length !== nodeB.attributes.length &&
-			(nodeA.attributes.length - countIgnoredAttributes(nodeA.attributes) !==
-			 nodeB.attributes.length - countIgnoredAttributes(nodeB.attributes)) )
-	{
+	function arrayToHash(attrs) {
+		var h = {}, count = 0;
+		for (var i = 0, n = attrs.length; i < n; i++) {
+			var a = attrs.item(i);
+			if (!ignoreAttributes[a.name]) {
+				count++;
+				h[a.name] = a.value;
+			}
+		}
+
+		return { h: h, count: count };
+	}
+
+	var xA = arrayToHash(nodeA.attributes),
+		xB = arrayToHash(nodeB.attributes);
+
+	if (xA.count !== xB.count) {
 		return false;
 	}
-	// same number of attributes, also check their values
-	var skippedA = 0,
-		skippedB = 0;
-	for (var i = 0, la = nodeA.attributes.length, lb = nodeB.attributes.length;
-			i + skippedA < la && i + skippedB < lb; i++)
-	{
-		if ( ignoreAttributes.hasOwnProperty(nodeA.attributes.item(i + skippedA).name) ) {
-			skippedA++;
-			continue;
-		}
-		if ( ignoreAttributes.hasOwnProperty(nodeB.attributes.item(i + skippedB).name) ) {
-			skippedB++;
-			continue;
-		}
-		if (nodeA.attributes.item(i + skippedA).name !== nodeB.attributes.item(i + skippedB).name ||
-				nodeA.attributes.item(i + skippedA).value !== nodeB.attributes.item(i + skippedB).value)
-		{
+
+	var hA = xA.h, keysA = Object.keys(hA).sort(),
+		hB = xB.h, keysB = Object.keys(hB).sort();
+
+	for (var i = 0; i < xA.count; i++) {
+		var k = keysA[i];
+		if (k !== keysB[i] || hA[k] !== hB[k]) {
 			return false;
 		}
 	}
+
 	return true;
 };
 
@@ -107,7 +112,10 @@ DDP.treeEquals = function (nodeA, nodeB, deep) {
 	} else if (nodeA.nodeType === nodeA.TEXT_NODE ||
 			nodeA.nodeType === nodeA.COMMENT_NODE)
 	{
-		return nodeA.nodeValue === nodeB.nodeValue;
+		// SSS FIXME: comparing nodeValue objects directly seems to
+		// return false *sometimes* when comparing across DOM trees.
+		// Use valueOf() to return the same primitive object for identical strings.
+		return nodeA.nodeValue.valueOf() === nodeB.nodeValue.valueOf();
 	} else if (nodeA.nodeType === nodeA.ELEMENT_NODE) {
 		// Compare node name and attribute length
 		if (nodeA.nodeName !== nodeB.nodeName || !this.attribsEquals(nodeA, nodeB)) {
@@ -153,81 +161,87 @@ DDP.treeEquals = function (nodeA, nodeB, deep) {
  * Assume typical CSS white-space, so ignore ws diffs in non-pre content.
  */
 DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
+	function canBeIgnored(node) {
+		return !DU.isElt(node) || DU.isIEW(node);
+	}
+
 	// Perform a relaxed version of the recursive treeEquals algorithm that
 	// allows for some minor differences and tries to produce a sensible diff
 	// marking using heuristics like look-ahead on siblings.
 	var baseNode = baseParentNode.firstChild,
 		newNode = newParentNode.firstChild,
 		lookaheadNode = null,
-		foundDiff = false,
 		foundDiffOverall = false;
 	while ( baseNode && newNode ) {
-		// Reset per-iteration diff flag
-		foundDiff = false;
+		// console.warn("--> A: " + (DU.isElt(baseNode) ? baseNode.outerHTML : JSON.stringify(baseNode.nodeValue)));
+		// console.warn("--> B: " + (DU.isElt(newNode) ? newNode.outerHTML : JSON.stringify(newNode.nodeValue)));
+
 		// Quick shallow equality check first
 		if ( ! this.treeEquals(baseNode, newNode, false) ) {
-			// Check if one of them is IEW (inter-element whitespace),
-			// and try to skip over it if it is
-			//if ( DU.isIEW(baseNode) ) {
-			//	baseNode = baseNode.nextSibling;
-			//	continue;
-			//} else if ( DU.isIEW(newNode) ) {
-			//	newNode = newNode.nextSibling;
-			//	continue;
-			//}
+			var origNode = newNode,
+				foundDiff = false;
 
 			// Some simplistic look-ahead, currently limited to a single level
 			// in the DOM.
 
 			// look-ahead in *new* DOM to detect insertions
-			lookaheadNode = newNode.nextSibling;
-			while (lookaheadNode) {
-				if (this.treeEquals(baseNode, lookaheadNode, true) &&
-						!DU.isIEW(lookaheadNode))
-				{
-					// mark skipped-over nodes as inserted
-					var markNode = newNode;
-					// XXX: Somehow markNode would be null here sometimes,
-					// although I see no reason why that would be so
-					while(markNode && markNode !== lookaheadNode) {
-						this.markNode(markNode, 'inserted');
-						markNode = markNode.nextSibling;
-					}
-					foundDiff = true;
-					newNode = lookaheadNode;
-					break;
-				}
-				lookaheadNode = lookaheadNode.nextSibling;
-			}
-
-			// look-ahead in *base* DOM to detect deletions
-			if (!foundDiff) {
-				lookaheadNode = baseNode.nextSibling;
+			if (!canBeIgnored(baseNode)) {
+				// console.warn("--lookahead in new dom--");
+				lookaheadNode = newNode.nextSibling;
 				while (lookaheadNode) {
-					if (this.treeEquals(newNode, lookaheadNode, true)
-							//&& !DU.isIEW(lookaheadNode)
-						)
+					if (!canBeIgnored(lookaheadNode) &&
+						this.treeEquals(baseNode, lookaheadNode, true))
 					{
-						// TODO: treat skipped-over nodes as deleted
-						// insertModificationMarker
-						//console.log('inserting deletion mark before ' + newNode.outerHTML);
-						this.markNode(newNode, 'deleted-before');
+						// mark skipped-over nodes as inserted
+						var markNode = newNode;
+						while(markNode !== lookaheadNode) {
+							this.markNode(markNode, 'inserted');
+							markNode = markNode.nextSibling;
+						}
 						foundDiff = true;
-						baseNode = lookaheadNode;
+						newNode = lookaheadNode;
 						break;
 					}
 					lookaheadNode = lookaheadNode.nextSibling;
 				}
 			}
 
-			// nothing found, mark new node as modified / differing
-			if (!foundDiff) {
-				this.markNode(newNode, 'modified');
+			// look-ahead in *base* DOM to detect deletions
+			if (!foundDiff && !canBeIgnored(newNode)) {
+				// console.warn("--lookahead in old dom--");
+				lookaheadNode = baseNode.nextSibling;
+				while (lookaheadNode) {
+					if (!canBeIgnored(lookaheadNode) &&
+						this.treeEquals(lookaheadNode, newNode, true))
+					{
+						// TODO: treat skipped-over nodes as deleted
+						// insertModificationMarker
+						//console.log('inserting deletion mark before ' + newNode.outerHTML);
+						this.markNode(newNode, 'deleted');
+						baseNode = lookaheadNode;
+						foundDiff = true;
+						break;
+					}
+					lookaheadNode = lookaheadNode.nextSibling;
+				}
 			}
+
+			// If we never found a diff through lookaheads, reconsider
+			// the original node, mark it modified, and recurse into subtrees.
+			if (!foundDiff) {
+				this.markNode(origNode, 'modified');
+				this.doDOMDiff(baseNode, origNode);
+			}
+
+			// nothing found, mark new node as modified / differing
 			foundDiffOverall = true;
 		} else if(!DU.isTplElementNode(this.env, newNode)) {
 			// Recursively diff subtrees if not template-like content
-			foundDiffOverall = this.doDOMDiff(baseNode, newNode) || foundDiffOverall;
+			var subtreeDiffers = this.doDOMDiff(baseNode, newNode);
+			if (subtreeDiffers) {
+				this.markNode(newNode, 'subtree-changed');
+			}
+			foundDiffOverall = subtreeDiffers || foundDiffOverall;
 		}
 
 		// And move on to the next pair
@@ -237,7 +251,7 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 
 	// mark extra new nodes as modified
 	while (newNode) {
-		this.markNode(newNode, 'modified');
+		this.markNode(newNode, 'inserted');
 		foundDiffOverall = true;
 		newNode = newNode.nextSibling;
 	}
@@ -260,24 +274,21 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
  *****************************************************/
 
 DDP.markNode = function(node, change) {
-	if (node.nodeType === node.ELEMENT_NODE) {
-		DU.setDiffMark(node, this.env, change);
-	} else if (node.nodeType === node.TEXT_NODE || node.nodeType === node.COMMENT_NODE) {
-		var markNode;
-		if ( change === 'deleted-before' ) {
-			// insert a meta tag
-			markNode = DU.prependTypedMeta(node, 'mw:DiffMarker');
-		} else {
-			// wrap node in span
-			markNode = DU.wrapTextInTypedSpan(node, 'mw:DiffMarker');
-		}
-		DU.setDiffMark(markNode, this.env, change);
+	var markNode;
+	if ( change === 'deleted' ) {
+		// insert a meta tag marking the place where content used to be
+		DU.prependTypedMeta(node, 'mw:DiffMarker');
 	} else {
-		console.error('ERROR: Unhandled node type ' + node.nodeType + ' in markNode!');
-		console.trace();
+		// modification/insertion marker
+		if (node.nodeType === node.ELEMENT_NODE) {
+			DU.setDiffMark(node, this.env, change);
+		} else if (node.nodeType !== node.TEXT_NODE && node.nodeType !== node.COMMENT_NODE) {
+			console.error('ERROR: Unhandled node type ' + node.nodeType + ' in markNode!');
+			console.trace();
+			return;
+		}
 	}
 };
-
 
 if (typeof module === "object") {
 	module.exports.DOMDiff = DOMDiff;
