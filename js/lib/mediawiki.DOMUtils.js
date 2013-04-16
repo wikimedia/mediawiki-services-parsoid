@@ -419,12 +419,26 @@ var DOMUtils = {
 				);
 	},
 
-	hasCurrentDiffMark: function(node, env) {
+	currentDiffMark: function(node, env) {
 		if (!node || !this.isElt(node)) {
 			return false;
 		}
-		var dpd = this.getJSONAttribute(node, 'data-parsoid-diff', null);
-		return dpd !== null && dpd.id === env.page.id;
+		if ( !( node.data && node.data["parsoid-diff"] ) ) {
+			this.loadDataAttrib(node, "parsoid-diff");
+		}
+		var dpd = node.data["parsoid-diff"];
+		return dpd !== {} && dpd.id === env.page.id ? dpd : null;
+	},
+
+	hasCurrentDiffMark: function(node, env) {
+		return this.currentDiffMark(node, env) !== null;
+	},
+
+	hasInsertedOrModifiedDiffMark: function(node, env) {
+		var diffMark = this.currentDiffMark(node, env);
+		return diffMark &&
+			(diffMark.diff.indexOf('modified') >= 0 ||
+			 diffMark.diff.indexOf('inserted') >= 0);
 	},
 
 	setDiffMark: function(node, env, change) {
