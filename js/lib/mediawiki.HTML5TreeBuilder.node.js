@@ -116,6 +116,12 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 		};
 	switch( token.constructor ) {
 		case String:
+			// note that we sometimes add 'dataAttrib' and 'get' fields to
+			// string objects, making them non-primitive.
+			// ("git grep 'new String'" for more details)
+			// we strip that information from the tokens here so we don't
+			// end up with non-primitive strings in the DOM.
+			token = token.valueOf(); // convert token to primitive string.
 			if ( token.match(/^[ \t\r\n\f]+$/) && isNotPrecededByPre() ) {
 				// Treat space characters specially so that the tree builder
 				// doesn't apply the foster parenting algorithm
