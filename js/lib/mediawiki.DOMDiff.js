@@ -112,10 +112,12 @@ DDP.treeEquals = function (nodeA, nodeB, deep) {
 	} else if (nodeA.nodeType === nodeA.TEXT_NODE ||
 			nodeA.nodeType === nodeA.COMMENT_NODE)
 	{
-		// SSS FIXME: comparing nodeValue objects directly seems to
-		// return false *sometimes* when comparing across DOM trees.
-		// Use valueOf() to return the same primitive object for identical strings.
-		return nodeA.nodeValue.valueOf() === nodeB.nodeValue.valueOf();
+		// In the past we've had bugs where we let non-primitive strings
+		// leak into our DOM.  Safety first:
+		console.assert(nodeA.nodeValue === nodeA.nodeValue.valueOf());
+		console.assert(nodeB.nodeValue === nodeB.nodeValue.valueOf());
+		// ok, now do the comparison.
+		return nodeA.nodeValue === nodeB.nodeValue;
 	} else if (nodeA.nodeType === nodeA.ELEMENT_NODE) {
 		// Compare node name and attribute length
 		if (nodeA.nodeName !== nodeB.nodeName || !this.attribsEquals(nodeA, nodeB)) {
