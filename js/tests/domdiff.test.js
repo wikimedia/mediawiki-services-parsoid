@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 var DOMDiff = require('../lib/mediawiki.DOMDiff.js').DOMDiff,
 	Util = require('../lib/mediawiki.Util.js').Util,
 	optimist = require('optimist'),
@@ -19,6 +20,11 @@ var opts = optimist.usage("Usage: node $0 [options] [old-html-file new-html-file
 			'boolean': false,
 			'default': null
 		},
+		'quiet': {
+			description: 'Emit only the marked-up HTML',
+			'boolean': true,
+			'default': false
+		},
 		'debug': {
 			description: 'Debug mode',
 			'boolean': true,
@@ -35,15 +41,29 @@ if (!oldhtml && argv._[0]) {
 	newhtml = fs.readFileSync(argv._[1], 'utf8')
 }
 
-if (argv.help || !oldhtml || !newhtml) {
+// user-friendly 'boolean' command-line options:
+// allow --debug=no and --debug=false to mean the same as --no-debug
+var booleanOption = function ( val ) {
+	if ( !val ) { return false; }
+	if ( (typeof val) === 'string' &&
+	     /^(no|false)$/i.test(val)) {
+		return false;
+	}
+	return true;
+};
+
+if (booleanOption( argv.help ) || !oldhtml || !newhtml) {
 	optimist.showHelp();
 	return;
 }
 
-var dd = new DOMDiff({ conf: { parsoid: { debug: argv.debug } }, page: { id: null } }),
+var dd = new DOMDiff({ conf: { parsoid: { debug: booleanOption( argv.debug ) } }, page: { id: null } }),
 	oldDOM = Util.parseHTML(oldhtml),
 	newDOM = Util.parseHTML(newhtml);
 
 dd.doDOMDiff(oldDOM, newDOM);
-console.warn("----- DIFF-marked DOM -----");
+if ( !booleanOption( argv.quiet ) ) {
+	console.warn("----- DIFF-marked DOM -----");
+}
 console.log(newDOM.outerHTML );
+process.exit(0);
