@@ -22,8 +22,8 @@ b.prototype.copyAttributeToElement = function(element, attribute) {
 			at.namespace = attribute.namespace;
 		}
 	} else {
+		var name, value, namespace;
 		try {
-			var name, value, namespace;
 			if ('namespaceURI' in attribute) { // DOM 4
 				name = attribute.name;
 				value = attribute.value;
@@ -39,7 +39,8 @@ b.prototype.copyAttributeToElement = function(element, attribute) {
 				element.setAttribute(name, value);
 			}
 		} catch(e) {
-			console.log("Can't set attribute '" + attribute.name + "' to value '" + attribute.value + "': (" + e + ')');
+			HTML5.debug('treebuilder.copyAttributes',
+						"Can't set attribute", name, value, e);
 		}
 	}
 }
