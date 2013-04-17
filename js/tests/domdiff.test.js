@@ -57,7 +57,13 @@ if (booleanOption( argv.help ) || !oldhtml || !newhtml) {
 	return;
 }
 
-var dd = new DOMDiff({ conf: { parsoid: { debug: booleanOption( argv.debug ) } }, page: { id: null } }),
+var dummyEnv = {
+	conf: { parsoid: { debug: booleanOption( argv.debug ) } },
+	page: { id: null },
+	isParsoidObjectId: function() { return true; }
+};
+
+var dd = new DOMDiff(dummyEnv),
 	oldDOM = Util.parseHTML(oldhtml),
 	newDOM = Util.parseHTML(newhtml);
 
