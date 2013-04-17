@@ -10,12 +10,9 @@ var DU = require('./mediawiki.DOMUtils.js').DOMUtils,
  */
 function DOMDiff ( env ) {
 	this.env = env;
-	this.debug = env.conf.parsoid.debug ||
-		(env.conf.parsoid.traceFlags && env.conf.parsoid.traceFlags.indexOf('selser') !== -1) ?
-						console.error : function(){};
-	this.currentId = 0;
-	this.startPos = 0; // start offset of the current unmodified chunk
-	this.curPos = 0; // end offset of the last processed node
+	this.debugging = env.conf.parsoid.debug ||
+		(env.conf.parsoid.traceFlags && env.conf.parsoid.traceFlags.indexOf('selser') !== -1);
+	this.debug = this.debugging ? console.log : function(){};
 }
 
 var DDP = DOMDiff.prototype;
@@ -28,12 +25,13 @@ DDP.diff = function ( node ) {
 	// work on a cloned copy of the passed-in node
 	var workNode = node.cloneNode(true);
 
-	// First do a quick check on the nodes themselves
+	// SSS FIXME: Is this required?
+	//
+	// First do a quick check on the top-level nodes themselves
 	if (!this.treeEquals(this.env.page.dom, workNode, false)) {
 		this.markNode(workNode, 'modified');
 		return { isEmpty: false, dom: workNode };
 	}
-
 
 	// The root nodes are equal, call recursive differ
 	var foundChange = this.doDOMDiff(this.env.page.dom, workNode);
@@ -175,8 +173,10 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 		lookaheadNode = null,
 		foundDiffOverall = false;
 	while ( baseNode && newNode ) {
-		// console.warn("--> A: " + (DU.isElt(baseNode) ? baseNode.outerHTML : JSON.stringify(baseNode.nodeValue)));
-		// console.warn("--> B: " + (DU.isElt(newNode) ? newNode.outerHTML : JSON.stringify(newNode.nodeValue)));
+		if (this.debugging) {
+			console.warn("--> A: " + (DU.isElt(baseNode) ? baseNode.outerHTML : JSON.stringify(baseNode.nodeValue)));
+			console.warn("--> B: " + (DU.isElt(newNode) ? newNode.outerHTML : JSON.stringify(newNode.nodeValue)));
+		}
 
 		// Quick shallow equality check first
 		if ( ! this.treeEquals(baseNode, newNode, false) ) {
@@ -188,7 +188,7 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 
 			// look-ahead in *new* DOM to detect insertions
 			if (!canBeIgnored(baseNode)) {
-				// console.warn("--lookahead in new dom--");
+				this.debug("--lookahead in new dom--");
 				lookaheadNode = newNode.nextSibling;
 				while (lookaheadNode) {
 					if (!canBeIgnored(lookaheadNode) &&
@@ -210,7 +210,7 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 
 			// look-ahead in *base* DOM to detect deletions
 			if (!foundDiff && !canBeIgnored(newNode)) {
-				// console.warn("--lookahead in old dom--");
+				this.debug("--lookahead in old dom--");
 				lookaheadNode = baseNode.nextSibling;
 				while (lookaheadNode) {
 					if (!canBeIgnored(lookaheadNode) &&
@@ -228,14 +228,19 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 				}
 			}
 
-			// If we never found a diff through lookaheads, reconsider
-			// the original node, mark it modified, and recurse into subtrees.
 			if (!foundDiff) {
-				this.markNode(origNode, 'modified');
-				this.doDOMDiff(baseNode, origNode);
+				if (origNode.nodeName === baseNode.nodeName) {
+					// Identical wrapper-type, but modified.
+					// Mark as modified, and recurse.
+					this.markNode(origNode, 'modified-wrapper');
+					this.doDOMDiff(baseNode, origNode);
+				} else {
+					// Mark the sub-tree as modified since
+					// we have two entirely different nodes here
+					this.markNode(origNode, 'modified');
+				}
 			}
 
-			// nothing found, mark new node as modified / differing
 			foundDiffOverall = true;
 		} else if(!DU.isTplElementNode(this.env, newNode)) {
 			// Recursively diff subtrees if not template-like content
@@ -269,8 +274,6 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 };
 
 
-
-
 /******************************************************
  * Helpers
  *****************************************************/
@@ -281,7 +284,6 @@ DDP.markNode = function(node, change) {
 		// insert a meta tag marking the place where content used to be
 		DU.prependTypedMeta(node, 'mw:DiffMarker');
 	} else {
-		// modification/insertion marker
 		if (node.nodeType === node.ELEMENT_NODE) {
 			DU.setDiffMark(node, this.env, change);
 		} else if (node.nodeType !== node.TEXT_NODE && node.nodeType !== node.COMMENT_NODE) {

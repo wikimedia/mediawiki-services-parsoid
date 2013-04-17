@@ -3015,7 +3015,7 @@ WSP._serializeNode = function( node, state, cb) {
 			}
 
 			var handled = false;
-			if (state.selserMode) {
+			if (state.selserMode && !state.inModifiedContent) {
 				// To serialize from source, we need 2 things of the node:
 				// -- it should not have a diff marker
 				// -- it should have valid, usable DSR
@@ -3073,6 +3073,9 @@ WSP._serializeNode = function( node, state, cb) {
 			if ( !handled ) {
 				state.prevNodeUnmodified = state.currNodeUnmodified;
 				state.currNodeUnmodified = false;
+				if (state.selserMode && DU.hasInsertedOrModifiedDiffMark(node, this.env)) {
+					state.inModifiedContent = true;
+				}
 				// console.warn("USED NEW");
 				if ( domHandler && domHandler.handle ) {
 					// DOM-based serialization
@@ -3089,6 +3092,7 @@ WSP._serializeNode = function( node, state, cb) {
 					// Used to be token-based serialization
 					console.error('No dom handler found for', node.outerHTML);
 				}
+				state.inModifiedContent = false;
 			}
 
 			// Update end separator constraints
