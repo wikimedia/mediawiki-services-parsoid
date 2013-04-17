@@ -52,6 +52,16 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 	//console.warn('onTemplate! ' + JSON.stringify( token, null, 2 ) +
 	//		' args: ' + JSON.stringify( this.manager.args ));
 
+	// magic word variables can be mistaken for templates
+	var translatedMagicWordKVs = this.checkForMagicWordVariable(token.attribs[0].k);
+	if (translatedMagicWordKVs) {
+		var metaToken = new SelfclosingTagTk('meta',
+											 translatedMagicWordKVs,
+											 Util.clone(token.dataAttribs));
+		cb({ tokens: [metaToken] });
+		return;
+	}
+
 	var state = { token: token };
 	if (this.options.wrapTemplates) {
 		state.wrapperType = 'mw:Object/Template';
@@ -110,6 +120,32 @@ TemplateHandler.prototype._parserFunctionsWrapper = function(state, cb, ret) {
 		// Now, ready to finish up
 		this._onEnd(state, cb);
 	}
+};
+
+/**
+ * Check if token is a magic word masquerading as a template
+ * - currently only DEFAULTSORT is considered
+ */
+TemplateHandler.prototype.checkForMagicWordVariable = function (magicWord) {
+	if (magicWord.constructor !== String) {
+		// maybe we should try to convert to string, but for now we only care for DEFAULTSORT
+		return null;
+	}
+
+	var propAndKey = magicWord.match(/^([^:]+:)(.*)$/);
+	if (propAndKey) {
+		var prop = propAndKey[1].trim(),
+			key = propAndKey[2].trim();
+
+		if (this.manager.env.conf.wiki.magicWords[prop] === 'defaultsort' && key.length > 0) {
+			return [
+				new KV('property', 'mw:PageProp/categorydefaultsort'),
+				new KV('content', key)
+		   ];
+		}
+	}
+
+	return null;
 };
 
 TemplateHandler.prototype.resolveTemplateTarget = function ( targetToks ) {

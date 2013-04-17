@@ -1755,7 +1755,13 @@ WSP.tagHandlers = {
 				var switchType = property.match( /^mw\:PageProp\/(.*)$/ );
 				if ( switchType ) {
 					switchType = switchType[1];
-					if ( node.data.parsoid.magicSrc ) {
+					if (switchType === 'categorydefaultsort') {
+						if (node.data.parsoid.src) {
+							switchType = node.data.parsoid.src;
+						} else {
+							console.warn('defaultsort is missing source');
+						}
+					} else if ( node.data.parsoid.magicSrc ) {
 						switchType = node.data.parsoid.magicSrc;
 					}
 					cb(switchType, node);
