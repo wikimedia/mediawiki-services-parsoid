@@ -82,12 +82,13 @@ SSP.doSerializeDOM = function ( err, doc, cb, finalcb ) {
 	// gwicke: This does not seem to be needed any more?
 	//Util.stripFirstParagraph( doc );
 
-	if ( err || this.env.page.dom === null ) {
+	if ( err || (!this.env.page.dom && !this.env.page.domdiff) || !this.env.page.src) {
 		// If there's no old source, fall back to non-selective serialization.
 		this.wts.serializeDOM(doc, cb, finalcb);
 	} else {
-		// If we found text, then use this chunk callback.
-		var diff = new DOMDiff(this.env).diff( doc );
+		// Use provided diff-marked DOM (used during testing)
+		// or generate one (used in production)
+		var diff = this.env.page.domdiff || new DOMDiff(this.env).diff( doc );
 
 		if ( ! diff.isEmpty ) {
 
@@ -171,7 +172,7 @@ SSP.parseOriginalSource = function ( doc, cb, finalcb, err, src ) {
  * @param {Function} finalcb The callback fired on completion of the serialization.
  */
 SSP.serializeDOM = function ( doc, cb, finalcb ) {
-	if ( this.env.page.dom ) {
+	if ( this.env.page.dom || this.env.page.domdiff ) {
 		this.doSerializeDOM(null, doc, cb, finalcb);
 	} else if ( this.env.page.src ) {
 		// Have the src, only parse the src to the dom
