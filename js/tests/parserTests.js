@@ -47,8 +47,7 @@ var mp = '../lib/',
 	MWParserEnvironment = require(mp + 'mediawiki.parser.environment.js').MWParserEnvironment,
 	WikitextSerializer = require(mp + 'mediawiki.WikitextSerializer.js').WikitextSerializer,
 	SelectiveSerializer = require( mp + 'mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
-	ParsoidConfig = require( mp + 'mediawiki.ParsoidConfig' ).ParsoidConfig,
-	TemplateRequest = require(mp + 'mediawiki.ApiRequest.js').TemplateRequest;
+	ParsoidConfig = require( mp + 'mediawiki.ParsoidConfig' ).ParsoidConfig;
 
 // For now most modules only need this for $.extend and $.each :)
 var $ = require(mp + 'fakejquery');
@@ -424,7 +423,7 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
 	try {
 		this.env.page.dom = item.cachedHTML || null;
 		if ( mode === 'selser' ) {
-			this.env.page.src = item.input;
+			this.env.setPageSrcInfo( item.input );
 			this.env.page.name = '';
 			if ( options.changesin && item.changes === undefined ) {
 				// A changesin option was passed, so set the changes to 0,
@@ -432,21 +431,21 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
 				item.changes = 0;
 			}
 		} else if (booleanOption(options.use_source) && startsAtWikitext ) {
-			this.env.page.src = item.input;
+			this.env.setPageSrcInfo( item.input );
 		} else {
-			this.env.page.src = null;
+			this.env.setPageSrcInfo( null );
 		}
 		serializer.serializeDOM( content, function ( res ) {
 			wt += res;
 		}, function () {
 			processWikitextCB( null, wt );
-			self.env.page.src = null;
+			self.env.setPageSrcInfo( null );
 			self.env.page.dom = null;
 		} );
 	} catch ( e ) {
 		console.error(e.stack);
 		processWikitextCB( e, null );
-		this.env.page.src = null;
+		this.env.setPageSrcInfo( null );
 		this.env.page.dom = null;
 	}
 };
@@ -653,7 +652,7 @@ ParserTests.prototype.convertWt2Html = function( mode, prefix, variant, wikitext
 	} catch ( e ) {
 		processHtmlCB( e );
 	}
-	this.env.page.src = wikitext;
+	this.env.setPageSrcInfo( wikitext );
 	this.env.switchToConfig( prefix, function( err ) {
 		if ( err ) {
 			processHtmlCB( err );

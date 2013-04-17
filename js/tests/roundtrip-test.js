@@ -348,7 +348,7 @@ doubleRoundtripDiff = function ( env, offsets, body, out, cb ) {
 	var src = env.page.src;
 
 	if ( offsets.length > 0 ) {
-		env.page.src = out;
+		env.setPageSrcInfo( out );
 		env.errCB = function ( error ) {
 			cb( error, env, [] );
 			process.exit( 1 );
@@ -398,18 +398,18 @@ fetch = function ( page, cb, options ) {
 		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 		var tpr = new TemplateRequest( env, target, null );
 
-		tpr.once( 'src', function ( err, src ) {
+		tpr.once( 'src', function ( err, src_and_metadata ) {
 			if ( err ) {
 				cb( err, env, [] );
 			} else {
-				env.page.src = src;
+				env.setPageSrcInfo( src_and_metadata );
 				Util.parse( env, function ( src, err, out ) {
 					if ( err ) {
 						cb( err, env, [] );
 					} else {
 						roundTripDiff( env, out, cb );
 					}
-				}, err, src );
+				}, err, env.page.src );
 			}
 		} );
 	};

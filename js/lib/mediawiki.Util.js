@@ -1268,7 +1268,7 @@ Util.parse = function ( env, cb, err, src ) {
 Util.getPageSrc = function ( env, title, cb, oldid ) {
 	title = env.resolveTitle( title, '' );
 	var pageRequest = new TemplateRequest( env, title, oldid );
-	pageRequest.once( 'src', cb );
+	pageRequest.once( 'src', function(page) { cb(page.revision['*']); });
 };
 
 /**

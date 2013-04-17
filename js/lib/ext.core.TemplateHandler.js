@@ -557,7 +557,9 @@ TemplateHandler.prototype._fetchTemplateAndTitle = function ( title, parentCB, c
 		//} else {
 
 		// append request, process in document order
-		env.requestQueue[title].listeners( 'src' ).push( cb );
+		env.requestQueue[title].listeners( 'src' ).push( function(page) {
+			cb(page.revision['*']);
+		});
 
 		//}
 		parentCB ( { async: true } );

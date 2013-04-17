@@ -229,7 +229,7 @@ function dumpFlags() {
 			if ( argv.oldtextfile ) {
 				argv.oldtext = fs.readFileSync(argv.oldtextfile, 'utf8');
 			}
-			env.page.src = argv.oldtext || null;
+			env.setPageSrcInfo( argv.oldtext || null );
 			if ( argv.selser ) {
 				serializer = new SelectiveSerializer( { env: env, oldid: null } );
 			} else {
@@ -251,7 +251,7 @@ function dumpFlags() {
                 serializer.serializeDOM( doc.body, function ( chunk ) {
                     wt += chunk;
                 }, function () {
-                    env.page.src = wt;
+                    env.setPageSrcInfo( wt );
                     if (argv.html2wt) {
 // add a trailing newline for shell user's benefit
                         stdout.write(wt);
@@ -283,8 +283,8 @@ function dumpFlags() {
                 });
 
 // Kick off the pipeline by feeding the input into the parser pipeline
-                env.page.src = input;
-                parserPipeline.process( input );
+                env.setPageSrcInfo( input );
+                parserPipeline.process( env.page.src );
             }
         };
 
