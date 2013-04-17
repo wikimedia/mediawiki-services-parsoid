@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /**
  * Command line parse utility.
  * Read from STDIN, write to STDOUT.
