@@ -155,7 +155,7 @@ SSP.parseOriginalSource = function ( doc, cb, finalcb, err, src ) {
 		//console.log(body.outerHTML);
 		self.doSerializeDOM(null, doc, cb, finalcb);
 	} );
-	parserPipeline.process(env.page.src);
+	parserPipeline.process(this.env.page.src);
 };
 
 
