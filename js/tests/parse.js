@@ -148,7 +148,12 @@ function dumpFlags() {
 		'oldtextfile': {
 			description: 'File containing the old page text for a selective-serialization operation (see --selser)',
 			'boolean': false,
-			'default': false
+			'default': null,
+		},
+		'oldhtmlfile': {
+			description: 'File containing the old HTML for a selective-serialization operation (see --selser)',
+			'boolean': false,
+			'default': null,
 		},
         'inputfile': {
             description: 'File containing input as an alternative to stdin',
@@ -228,6 +233,9 @@ function dumpFlags() {
 		if (!argv.wt2html) {
 			if ( argv.oldtextfile ) {
 				argv.oldtext = fs.readFileSync(argv.oldtextfile, 'utf8');
+			}
+			if ( argv.oldhtmlfile ) {
+				env.page.dom = Util.parseHTML(fs.readFileSync(argv.oldhtmlfile, 'utf8')).body;
 			}
 			env.setPageSrcInfo( argv.oldtext || null );
 			if ( argv.selser ) {
