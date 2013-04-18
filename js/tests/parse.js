@@ -276,7 +276,7 @@ function dumpFlags() {
                 parserPipeline.on('document', function ( document ) {
                     var res, finishCb = function (trailingNL) {
                         stdout.write( res );
-                        if (trailingNL) {
+                        if (trailingNL && process.stdout.isTTY) {
                             stdout.write("\n");
                         }
                     };
