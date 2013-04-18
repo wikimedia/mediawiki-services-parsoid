@@ -366,32 +366,33 @@ MWParserEnvironment.prototype.normalizeTitle = function( name, noUnderScores,
 };
 
 /**
- * TODO FIXME XXX do this for real eh
- * XXX CSA: and look at mediawiki config before resolving subpages
- *          (see https://bugzilla.wikimedia.org/show_bug.cgi?id=47136 )
+ * TODO: Handle relative links with namespace, they shouldn't be valid
  */
 MWParserEnvironment.prototype.resolveTitle = function( name, namespace ) {
-	// Resolve subpages
-	var relUp = name.match(/^(\.\.\/)+/);
-	if ( relUp ) {
-		var levels = relUp[0].length / 3,
-			titleBits = this.page.name.split(/\//),
-			newBits = titleBits.slice(0, titleBits.length - levels);
-		if ( name !== relUp[0] ) {
-			newBits.push( name.substr(levels * 3) );
+	if ( this.conf.wiki.namespacesWithSubpages[namespace] ) {
+		// Resolve subpages
+		var relUp = name.match(/^(\.\.\/)+/);
+		if ( relUp ) {
+			var levels = relUp[0].length / 3,
+				// Strip the main page's name of namespaces
+				mainPage = this.page.name.split( ':' ).pop(),
+				titleBits = mainPage.split( /\// ),
+				newBits = titleBits.slice( 0, titleBits.length - levels );
+			if ( name !== relUp[0] ) {
+				newBits.push( name.substr( levels * 3 ) );
+			}
+			name = newBits.join('/');
 		}
-		name = newBits.join('/');
-		//console.log( relUp, name );
+
+		// Resolve absolute subpage links
+		if ( name.length && name[0] === '/' ) {
+			var mainTitle = this.page.name.split( ':' ).pop();
+			name = this.normalizeTitle( mainTitle ) + name;
+		}
+	} else {
+		name = this.normalizeTitle( name );
 	}
 
-	if ( name.length && name[0] === '/' ) {
-		name = this.normalizeTitle( this.page.name ) + name;
-	}
-	// FIXME: match against proper list of namespaces
-	if ( name.indexOf(':') === -1 && namespace ) {
-		// hack hack hack
-		name = namespace + ':' + this.normalizeTitle( name );
-	}
 	// Strip leading ':'
 	if (name[0] === ':') {
 		name = name.substr( 1 );

@@ -14,7 +14,7 @@ var Util = require('./mediawiki.Util.js').Util;
  * @param {MWParserEnvironment} env
  */
 function Title ( key, ns, nskey, env ) {
-	this.key = env.resolveTitle( key );
+	this.key = env.resolveTitle( key, ns );
 
 	this.ns = new Namespace( ns, env );
 
@@ -45,6 +45,9 @@ Title.fromPrefixedText = function ( env, text ) {
 		} else {
 			return new Title( text, 0, '', env );
 		}
+	} else if ( text.match( /^(\.\.\/)+/ ) || text[0] === '/' ) {
+		// If the link is relative, use the page's namespace.
+		return new Title( text, env.page.meta.ns, '', env );
 	} else {
 		return new Title( text, 0, '', env );
 	}
