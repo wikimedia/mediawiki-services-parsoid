@@ -161,8 +161,13 @@ DDP.treeEquals = function (nodeA, nodeB, deep) {
  * Assume typical CSS white-space, so ignore ws diffs in non-pre content.
  */
 DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
-	function canBeIgnored(node) {
-		return !DU.isElt(node) || DU.isIEW(node);
+	var dd = this;
+
+	function debugOut(nodeA, nodeB) {
+		if (dd.debugging) {
+			dd.debug("--> A: " + (DU.isElt(nodeA) ? nodeA.outerHTML : JSON.stringify(nodeA.nodeValue)));
+			dd.debug("--> B: " + (DU.isElt(nodeB) ? nodeB.outerHTML : JSON.stringify(nodeB.nodeValue)));
+		}
 	}
 
 	// Perform a relaxed version of the recursive treeEquals algorithm that
@@ -172,14 +177,11 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 		newNode = newParentNode.firstChild,
 		lookaheadNode = null,
 		foundDiffOverall = false;
-	while ( baseNode && newNode ) {
-		if (this.debugging) {
-			console.warn("--> A: " + (DU.isElt(baseNode) ? baseNode.outerHTML : JSON.stringify(baseNode.nodeValue)));
-			console.warn("--> B: " + (DU.isElt(newNode) ? newNode.outerHTML : JSON.stringify(newNode.nodeValue)));
-		}
 
-		// Quick shallow equality check first
+	while ( baseNode && newNode ) {
+		debugOut(baseNode, newNode);
 		if ( ! this.treeEquals(baseNode, newNode, false) ) {
+			this.debug("-- not equal --");
 			var origNode = newNode,
 				foundDiff = false;
 
@@ -187,16 +189,18 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 			// in the DOM.
 
 			// look-ahead in *new* DOM to detect insertions
-			if (!canBeIgnored(baseNode)) {
+			if (DU.isContentNode(baseNode)) {
 				this.debug("--lookahead in new dom--");
 				lookaheadNode = newNode.nextSibling;
 				while (lookaheadNode) {
-					if (!canBeIgnored(lookaheadNode) &&
+					debugOut(baseNode, lookaheadNode);
+					if (DU.isContentNode(lookaheadNode) &&
 						this.treeEquals(baseNode, lookaheadNode, true))
 					{
 						// mark skipped-over nodes as inserted
 						var markNode = newNode;
-						while(markNode !== lookaheadNode) {
+						while (markNode !== lookaheadNode) {
+							this.debug("--found diff: inserted--");
 							this.markNode(markNode, 'inserted');
 							markNode = markNode.nextSibling;
 						}
@@ -209,13 +213,15 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 			}
 
 			// look-ahead in *base* DOM to detect deletions
-			if (!foundDiff && !canBeIgnored(newNode)) {
+			if (!foundDiff && DU.isContentNode(newNode)) {
 				this.debug("--lookahead in old dom--");
 				lookaheadNode = baseNode.nextSibling;
 				while (lookaheadNode) {
-					if (!canBeIgnored(lookaheadNode) &&
+					debugOut(lookaheadNode, newNode);
+					if (DU.isContentNode(lookaheadNode) &&
 						this.treeEquals(lookaheadNode, newNode, true))
 					{
+						this.debug("--found diff: deleted--");
 						// TODO: treat skipped-over nodes as deleted
 						// insertModificationMarker
 						//console.log('inserting deletion mark before ' + newNode.outerHTML);
@@ -242,7 +248,7 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 			}
 
 			foundDiffOverall = true;
-		} else if(!DU.isTplElementNode(this.env, newNode)) {
+		} else if (!DU.isTplElementNode(this.env, newNode)) {
 			// Recursively diff subtrees if not template-like content
 			var subtreeDiffers = this.doDOMDiff(baseNode, newNode);
 			if (subtreeDiffers) {
@@ -258,6 +264,7 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 
 	// mark extra new nodes as modified
 	while (newNode) {
+		this.debug("--found trailing new node: inserted--");
 		this.markNode(newNode, 'inserted');
 		foundDiffOverall = true;
 		newNode = newNode.nextSibling;
@@ -266,6 +273,7 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 	// If there are extra base nodes, something was deleted. Mark the parent as
 	// having lost children for now.
 	if (baseNode) {
+		this.debug("--found trailing base nodes: deleted--");
 		this.markNode(newParentNode, 'deleted-child');
 		foundDiffOverall = true;
 	}
