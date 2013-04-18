@@ -748,8 +748,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 	if ( startsAtHtml ) {
 		if ( item.cachedSourceHTML === null ) {
 			testTasks.push( function ( cb ) {
-				cb( null, Util.parseHTML( '<html><body>' + item.result + '</body></html>' )
-					.body );
+				cb( null, Util.parseHTML(item.result).body );
 			} );
 		} else {
 			testTasks.push( function ( cb ) {

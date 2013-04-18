@@ -392,8 +392,7 @@ app.get(/\/_html\/(.*)/, function ( req, res ) {
 app.post(/\/_html\/(.*)/, function ( req, res ) {
 	var cb = function ( env ) {
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-		var doc = Util.parseHTML( '<html><body>' + req.body.content.replace(/\r/g, '') +
-			'</body></html>' );
+		var doc = Util.parseHTML(req.body.content.replace(/\r/g, ''));
 		res.write('<pre style="background-color: #efefef">');
 		// Always use the non-selective serializer for this mode
 		new WikitextSerializer({env: env}).serializeDOM(

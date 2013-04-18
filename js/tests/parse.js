@@ -262,7 +262,7 @@ function dumpFlags() {
         var processInput = function() {
             var input = inputChunks.join('');
             if (argv.html2wt || argv.html2html) {
-                var doc = Util.parseHTML('<html><body>' + input.replace(/\r/g, '') + '</body></html>'),
+                var doc = Util.parseHTML(input.replace(/\r/g, '')),
                     wt = '';
 
                 serializer.serializeDOM( doc.body, function ( chunk ) {
