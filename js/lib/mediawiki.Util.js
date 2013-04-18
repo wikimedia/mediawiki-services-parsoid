@@ -12,6 +12,14 @@ var domino = require( './domino' ),
 	entities = require( 'entities' ),
 	TemplateRequest = require( './mediawiki.ApiRequest.js' ).TemplateRequest;
 
+/** WORKAROUND HACK to entities package, using domino. */
+// see https://github.com/fb55/node-entities/issues/8
+entities.decodeHTML5 = function(data) {
+	return data.replace(/&(#\d+|#[xX][0-9a-fA-F]+|[A-Za-z]+);/g, function(e) {
+		return domino.createDocument('x'+e).body.textContent.substr(1);
+	});
+};
+
 /**
  * @class
  * @singleton
@@ -1058,7 +1066,7 @@ compressHTML = function(html) {
 	// http://www.whatwg.org/specs/web-apps/current-work/multipage/syntax.html
 	var smart_quote = function(match, name, equals, value) {
 		if (!equals) { return match; }
-		var decoded = entities.decode(value, 2);
+		var decoded = entities.decodeHTML5(value);
 		// try re-encoding with single-quotes escaped
 		var encoded = decoded.replace(/[&'\u00A0]/g, function(c) {
 			switch(c) {
@@ -1123,7 +1131,7 @@ serializeNode = function (doc) {
  * @returns {string}
  */
 encodeXml = function ( string ) {
-	return entities.encode(string, 0 /* xml entities */);
+	return entities.encodeXML(string);
 };
 
 // FIXME gwicke: define this directly
@@ -1362,7 +1370,7 @@ Util.stripPipeTrickChars = function ( target ) {
  * @returns {string}
  */
 Util.decodeEntity = function ( entity ) {
-    return entities.decode(entity, 2 /* html5 entities */ );
+    return entities.decodeHTML5(entity);
 };
 
 
