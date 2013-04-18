@@ -1041,6 +1041,45 @@ parseHTML = function ( html ) {
 },
 
 /**
+ * @method compressHTML
+ *
+ * Compress an HTML string by applying some smart quoting
+ *
+ * @param {string} html
+ * @returns {string}
+ */
+compressHTML = function(html) {
+	// now compress our output (and make it more readable) by using
+	// "smart quoting" of attribute values -- using single-quotes
+	// where the contents have a lot of double quotes.
+	// since the output of outerHTML is specified strictly, we know
+	// this regexp is safe. See:
+	// http://www.whatwg.org/specs/web-apps/current-work/multipage/the-end.html
+	// http://www.whatwg.org/specs/web-apps/current-work/multipage/syntax.html
+	var smart_quote = function(match, name, equals, value) {
+		if (!equals) { return match; }
+		var decoded = entities.decode(value, 2);
+		// try re-encoding with single-quotes escaped
+		var encoded = decoded.replace(/[&'\u00A0]/g, function(c) {
+			switch(c) {
+			case '&': return '&amp;';
+			case "'": return '&#39;';
+			case '\u00A0': return '&nbsp;';
+			}
+		});
+		if (encoded.length >= value.length) { return match; /* no change */ }
+		return ' '+name+"='"+encoded+"'";
+	};
+	var process_attr_list = function(match, tag, attrs) {
+		attrs = attrs.replace(/ ([^\0-\cZ\s"'>\/=]+)(="([^"]*)")?/g,
+		                      smart_quote);
+		return tag + attrs + '>';
+	};
+	return html.replace(/(<\w+)((?: [^\0-\cZ\s"'>\/=]+(?:="[^"]*")?)+)>/g,
+	                    process_attr_list);
+},
+
+/**
  * @method serializeNode
  *
  * Serialize a HTML document.
@@ -1072,35 +1111,7 @@ serializeNode = function (doc) {
 		fictional.appendChild(doc.cloneNode());
 		html = fictional.innerHTML;
 	}
-	// now compress our output (and make it more readable) by using
-	// "smart quoting" of attribute values -- using single-quotes
-	// where the contents have a lot of double quotes.
-	// since the output of outerHTML is specified strictly, we know
-	// this regexp is safe. See:
-	// http://www.whatwg.org/specs/web-apps/current-work/multipage/the-end.html
-	// http://www.whatwg.org/specs/web-apps/current-work/multipage/syntax.html
-	var smart_quote = function(match, name, equals, value) {
-		if (!equals) { return match; }
-		var decoded = entities.decode(value, 2);
-		// try re-encoding with single-quotes escaped
-		var encoded = decoded.replace(/[&'\u00A0]/g, function(c) {
-			switch(c) {
-			case '&': return '&amp;';
-			case "'": return '&#39;';
-			case '\u00A0': return '&nbsp;';
-			}
-		});
-		if (encoded.length >= value.length) { return match; /* no change */ }
-		return ' '+name+"='"+encoded+"'";
-	};
-	var process_attr_list = function(match, tag, attrs) {
-		attrs = attrs.replace(/ ([^\0-\cZ\s"'>\/=]+)(="([^"]*)")?/g,
-		                      smart_quote);
-		return tag + attrs + '>';
-	};
-	html = html.replace(/(<\w+)((?: [^\0-\cZ\s"'>\/=]+(?:="[^"]*")?)+)>/g,
-	                    process_attr_list);
-	return html;
+	return compressHTML(html);
 },
 
 /**
@@ -1115,8 +1126,10 @@ encodeXml = function ( string ) {
 	return entities.encode(string, 0 /* xml entities */);
 };
 
+// FIXME gwicke: define this directly
 Util.encodeXml = encodeXml;
 Util.parseHTML = parseHTML;
+Util.compressHTML = compressHTML;
 Util.serializeNode = serializeNode;
 Util.normalizeHTML = normalizeHTML;
 Util.normalizeOut = normalizeOut;

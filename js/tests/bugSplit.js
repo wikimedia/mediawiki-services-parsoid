@@ -2,15 +2,25 @@
  * Split up a bug report JSON file into a bunch of files
  */
 
-var fs = require('fs');
+var fs = require('fs'),
+	Util = require( '../lib/mediawiki.Util.js' ).Util;
 
 function writeFiles ( data ) {
-	var keys = Object.keys(data);
+	var keys = Object.keys(data),
+		val;
 	for ( var i = 0; i < keys.length; i++ ) {
 		var key = keys[i],
 			fileName = encodeURIComponent(key);
 		console.log( 'Creating file ' + fileName );
-		fs.writeFileSync(fileName, data[key]);
+
+		val = data[key];
+
+		if (fileName === 'editedHtml') {
+			// apply smart quoting to minimize diff
+			val = Util.compressHTML(val);
+		}
+
+		fs.writeFileSync(fileName, val);
 	}
 }
 
