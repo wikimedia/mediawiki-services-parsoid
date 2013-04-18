@@ -44,40 +44,6 @@ function isValidDSR(dsr) {
 		typeof(dsr[1]) === 'number' && dsr[1] >= 0;
 }
 
-function isNonContentNode(node) {
-	return node.nodeType === node.COMMENT_NODE ||
-		DU.isIEW(node) ||
-		DU.isMarkerMeta(node, "mw:DiffMarker");
-}
-
-/**
- * Get the first child element or non-IEW text node, ignoring
- * whitespace-only text nodes and comments.
- */
-function getFirstNonSepChildNode(node) {
-	var child = node.firstChild;
-	while (child && isNonContentNode(child)) {
-		child = child.nextSibling;
-	}
-	return child;
-}
-
-function previousNonSepSibling(node) {
-	var prev = node.previousSibling;
-	while (prev && isNonContentNode(prev)) {
-		prev = prev.previousSibling;
-	}
-	return prev;
-}
-
-function nextNonSepSibling(node) {
-	var next = node.nextSibling;
-	while (next && isNonContentNode(next)) {
-		next = next.nextSibling;
-	}
-	return next;
-}
-
 /**
  * Emit the start tag source when not round-trip testing, or when the node is
  * not marked with autoInsertedStart
@@ -1351,7 +1317,7 @@ function wtEOL(node, otherNode) {
 }
 
 function wtListEOL(node, otherNode) {
-	var nextSibling = nextNonSepSibling(node);
+	var nextSibling = DU.nextNonSepSibling(node);
 	//console.log(nextSibling && nextSibling.nodeName);
 	if (!DU.isElt(otherNode)) {
 		return {min:0, max:2};
@@ -1382,13 +1348,13 @@ function buildListHandler(firstChildNames) {
 
 	return {
 		handle: function (node, state, cb) {
-			var firstChildElt = getFirstNonSepChildNode(node);
+			var firstChildElt = DU.getFirstNonSepChildNode(node);
 
 			// Skip builder-inserted wrappers
 			// Ex: <ul><s auto-inserted-start-and-end-><li>..</li><li>..</li></s>...</ul>
 			// output from: <s>\n*a\n*b\n*c</s>
 			while (firstChildElt && isBuilderInsertedElt(firstChildElt)) {
-				firstChildElt = getFirstNonSepChildNode(firstChildElt);
+				firstChildElt = DU.getFirstNonSepChildNode(firstChildElt);
 			}
 
 			if (!firstChildElt || ! (firstChildElt.nodeName in firstChildNames)) {
@@ -1418,7 +1384,7 @@ WSP.tagHandlers = {
 
 	li: {
 		handle: function (node, state, cb) {
-			var firstChildElement = getFirstNonSepChildNode(node);
+			var firstChildElement = DU.getFirstNonSepChildNode(node);
 			if (!DU.isList(firstChildElement)) {
 				cb(state.serializer._getListBullets(node), node);
 			}
@@ -1447,7 +1413,7 @@ WSP.tagHandlers = {
 
 	dt: {
 		handle: function (node, state, cb) {
-			var firstChildElement = getFirstNonSepChildNode(node);
+			var firstChildElement = DU.getFirstNonSepChildNode(node);
 			if (!DU.isList(firstChildElement)) {
 				cb(state.serializer._getListBullets(node), node);
 			}
@@ -1474,7 +1440,7 @@ WSP.tagHandlers = {
 
 	dd: {
 		handle: function (node, state, cb) {
-			var firstChildElement = getFirstNonSepChildNode(node);
+			var firstChildElement = DU.getFirstNonSepChildNode(node);
 			if (!DU.isList(firstChildElement)) {
 				// XXX: handle stx: row
 				if (node.data.parsoid.stx === 'row') {
@@ -1666,7 +1632,7 @@ WSP.tagHandlers = {
 						// <div>foo</div> a
 						// b
 						((nodeName === '#text' &&
-						  otherNode === previousNonSepSibling(node) &&
+						  otherNode === DU.previousNonSepSibling(node) &&
 						  // FIXME HACK: Avoid forcing two newlines if the
 						  // first line is a text node that ends up on the
 						  // same line as a block
@@ -2894,11 +2860,11 @@ WSP.emitSeparator = function(state, cb, node) {
 };
 
 WSP._getPrevSeparatorElement = function (node, state) {
-	return previousNonSepSibling(node) || node.parentNode;
+	return DU.previousNonSepSibling(node) || node.parentNode;
 };
 
 WSP._getNextSeparatorElement = function (node) {
-	return nextNonSepSibling(node) || node.parentNode;
+	return DU.nextNonSepSibling(node) || node.parentNode;
 };
 
 // Gather a text line for the wikitext escaper's benefit

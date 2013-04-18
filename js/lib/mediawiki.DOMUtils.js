@@ -468,10 +468,10 @@ var DOMUtils = {
 			node.nodeValue.match(/^\s*$/);
 	},
 
-	isNonContentNode: function(node) {
-		return node.nodeType === node.COMMENT_NODE ||
-			this.isIEW(node) ||
-			this.isMarkerMeta(node, "mw:DiffMarker");
+	isContentNode: function(node) {
+		return node.nodeType !== node.COMMENT_NODE &&
+			!this.isIEW(node) &&
+			!this.isMarkerMeta(node, "mw:DiffMarker");
 	},
 
 	/**
@@ -480,7 +480,7 @@ var DOMUtils = {
 	 */
 	getFirstNonSepChildNode: function(node) {
 		var child = node.firstChild;
-		while (child && this.isNonContentNode(child)) {
+		while (child && !this.isContentNode(child)) {
 			child = child.nextSibling;
 		}
 		return child;
@@ -488,7 +488,7 @@ var DOMUtils = {
 
 	previousNonSepSibling: function (node) {
 		var prev = node.previousSibling;
-		while (prev && this.isNonContentNode(prev)) {
+		while (prev && !this.isContentNode(prev)) {
 			prev = prev.previousSibling;
 		}
 		return prev;
@@ -496,7 +496,7 @@ var DOMUtils = {
 
 	nextNonSepSibling: function (node) {
 		var next = node.nextSibling;
-		while (next && this.isNonContentNode(next)) {
+		while (next && !this.isContentNode(next)) {
 			next = next.nextSibling;
 		}
 		return next;
