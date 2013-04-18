@@ -1681,7 +1681,7 @@ WSP.tagHandlers = {
 			after: function(node, otherNode) {
 				return !(node.lastChild && node.lastChild.nodeName === 'BR') &&
 					otherNode.nodeName === 'P'/* || otherNode.nodeType === node.TEXT_NODE*/ ?
-					{min: 2, max: 2} : {min: 1, max: 2};
+					{min: 2, max: 2} : {min: 0, max: 2};
 			}
 		}
 	},
