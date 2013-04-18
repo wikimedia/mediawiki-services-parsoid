@@ -142,17 +142,22 @@ function dumpFlags() {
 			'default': 'Main page'
 		},
 		'oldtext': {
-			description: 'The old page text for a selective-serialization operation (see --selser)',
+			description: 'The old page text for a selective-serialization (see --selser)',
 			'boolean': false,
 			'default': false
 		},
 		'oldtextfile': {
-			description: 'File containing the old page text for a selective-serialization operation (see --selser)',
+			description: 'File containing the old page text for a selective-serialization (see --selser)',
 			'boolean': false,
 			'default': null,
 		},
 		'oldhtmlfile': {
-			description: 'File containing the old HTML for a selective-serialization operation (see --selser)',
+			description: 'File containing the old HTML for a selective-serialization (see --selser)',
+			'boolean': false,
+			'default': null,
+		},
+		'domdiff': {
+			description: 'File containing the diff-marked HTML for used with selective-serialization (see --selser)',
 			'boolean': false,
 			'default': null,
 		},
@@ -237,6 +242,9 @@ function dumpFlags() {
 			}
 			if ( argv.oldhtmlfile ) {
 				env.page.dom = Util.parseHTML(fs.readFileSync(argv.oldhtmlfile, 'utf8')).body;
+			}
+			if ( argv.domdiff ) {
+				env.page.domdiff = { isEmpty: false, dom: Util.parseHTML(fs.readFileSync(argv.domdiff, 'utf8')).body };
 			}
 			env.setPageSrcInfo( argv.oldtext || null );
 			if ( argv.selser ) {
