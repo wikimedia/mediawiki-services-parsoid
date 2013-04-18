@@ -47,9 +47,6 @@ function WikiConfig( resultConf, prefix, uri ) {
 		} else {
 			conf.canonicalNamespaces[name['*'].toLowerCase()] = Number( nsid );
 		}
-		if ( names[nsid]['subpages'] === '' ) {
-			conf.namespacesWithSubpages[ Number( nsid ) ] = true;
-		}
 	}
 
 	var aliases = resultConf.namespacealiases;
@@ -269,11 +266,6 @@ WikiConfig.prototype = {
 	namespaceIds: null,
 
 	/**
-	 * @property {integer[]} Namespace IDs that have subpages enabled.
-	 */
-	namespacesWithSubpages: null,
-
-	/**
 	 * @private
 	 * @property {Object/null} magicWords Canonical magic word names on this wiki, indexed by aliases.
 	 */
@@ -327,7 +319,6 @@ WikiConfig.prototype = {
 		// don't get aliased.
 		this.namespaceNames = {};
 		this.namespaceIds = {};
-		this.namespacesWithSubpages = {};
 		this.magicWords = {};
 		this.mwAliases = {};
 		this.specialPages = {};
