@@ -177,12 +177,15 @@ SSP.serializeDOM = function ( doc, cb, finalcb ) {
 	} else if ( this.env.page.src ) {
 		// Have the src, only parse the src to the dom
 		this.parseOriginalSource( doc, cb, finalcb, null, this.env.page.src );
-	} else {
+	} else if (this.env.page.id) {
 		// Start by getting the old text of this page
 		Util.getPageSrc( this.env, this.env.page.name,
 				this.parseOriginalSource.bind(this, doc, cb, finalcb),
 				this.env.page.id || null );
+	} else {
+		this.doSerializeDOM(null, doc, cb, finalcb);
 	}
+
 };
 
 if ( typeof module === 'object' ) {
