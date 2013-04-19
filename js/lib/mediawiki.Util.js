@@ -1282,7 +1282,7 @@ Util.getPageSrc = function ( env, title, cb, oldid ) {
 	title = env.resolveTitle( title, '' );
 	var pageRequest = new TemplateRequest( env, title, oldid );
 	pageRequest.once( 'src', function(err, page) {
-		cb(err, page ? page.revision['*'] : null);
+		cb(err, page && page.revision ? page.revision['*'] : null);
 	});
 };
 
