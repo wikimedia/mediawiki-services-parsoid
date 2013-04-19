@@ -406,7 +406,11 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 		// Use a data-attribute to prevent the sanitizer from stripping this
 		// attribute before it reaches the DOM pass where it is needed.
 		attrs.push(new KV("data-mw-arginfo", JSON.stringify({
-			id: state.wrappedObjectId,
+			// gwicke: Removed the non-deterministic id member for now as this
+			// makes the data-mw attribute non-deterministic across reparses.
+			// That in turn triggers diffs. See
+			// https://bugzilla.wikimedia.org/show_bug.cgi?id=47426.
+			//id: state.wrappedObjectId,
 			target: { wt: tplTgtWT },
 			params: dict
 		})));
