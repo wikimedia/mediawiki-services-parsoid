@@ -36,12 +36,31 @@ var Util = {
 	 * @returns {Object} The modified object.
 	 */
 	setDebuggingFlags: function(obj, opts) {
-		obj.debug = opts.debug;
+		obj.debug = Util.booleanOption( opts.debug );
 		obj.trace = (opts.trace === true);
 		obj.traceFlags = opts.trace && opts.trace !== true ? opts.trace.split(",") : null;
 		obj.dumpFlags = opts.dump ? opts.dump.split(",") : null;
 
 		return obj;
+	},
+
+	/**
+	 * @method
+	 *
+	 * Parse a boolean option returned by the optimist package.
+	 * The strings 'false' and 'no' are also treated as false values.
+	 * This allows --debug=no and --debug=false to mean the same as
+	 * --no-debug.
+	 *
+	 * @param {Boolean} a boolean, or a string naming a boolean value.
+	 */
+	booleanOption: function ( val ) {
+		if ( !val ) { return false; }
+		if ( (typeof val) === 'string' &&
+			 /^(no|false)$/i.test(val)) {
+			return false;
+		}
+		return true;
 	},
 
 	/**

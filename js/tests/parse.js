@@ -175,7 +175,7 @@ function dumpFlags() {
 
 	var argv = opts.argv;
 
-	if ( argv.help ) {
+	if ( Util.booleanOption( argv.help ) ) {
 		optimist.showHelp();
 		console.error(traceUsage());
 		console.error("\n");
@@ -212,10 +212,10 @@ function dumpFlags() {
 		}
 
 		// XXX: add options for this!
-		env.conf.parsoid.fetchTemplates = argv.fetchTemplates;
-		env.conf.parsoid.usePHPPreProcessor = env.conf.parsoid.fetchTemplates && argv.usephppreprocessor;
+		env.conf.parsoid.fetchTemplates = Util.booleanOption( argv.fetchTemplates );
+		env.conf.parsoid.usePHPPreProcessor = env.conf.parsoid.fetchTemplates && Util.booleanOption( argv.usephppreprocessor );
 		env.conf.parsoid.maxDepth = argv.maxdepth || env.conf.parsoid.maxDepth;
-		env.conf.parsoid.editMode = argv.editMode;
+		env.conf.parsoid.editMode = Util.booleanOption( argv.editMode );
 
 		Util.setDebuggingFlags( env.conf.parsoid, argv );
 

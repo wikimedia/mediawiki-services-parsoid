@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /**
  * A simple dump grepper based on the DumpReader module.
  */
@@ -5,7 +6,8 @@
 var dumpReader = require('./dumpReader.js'),
 	events = require('events'),
 	optimist = require('optimist'),
-	colors = require('colors');
+	colors = require('colors'),
+	Util = require( '../lib/mediawiki.Util.js' ).Util;
 
 function DumpGrepper ( regexp ) {
 	// inherit from EventEmitter
@@ -50,7 +52,7 @@ if (module === require.main) {
 	}
 
 	var flags = 'g';
-	if(argv.i) {
+	if( Util.booleanOption( argv.i ) ) {
 		flags += 'i';
 	}
 

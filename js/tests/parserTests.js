@@ -29,6 +29,7 @@ var fs = require('fs'),
 	alea = require('alea'),
 	// Handle options/arguments with optimist module
 	optimist = require('optimist');
+var booleanOption = Util.booleanOption; // shortcut
 
 // Run a mock API in the background so we can request things from it
 var forkedAPI = fork( __dirname + '/mockAPI.js', [], { silent: true } );
@@ -139,16 +140,6 @@ var prettyPrintIOptions = function(iopts) {
 	}).join(' ');
 };
 
-// user-friendly 'boolean' command-line options:
-// allow --debug=no and --debug=false to mean the same as --no-debug
-var booleanOption = function ( val ) {
-	if ( !val ) { return false; }
-	if ( (typeof val) === 'string' &&
-	     /^(no|false)$/i.test(val)) {
-		return false;
-	}
-	return true;
-};
 
 /**
  * @method

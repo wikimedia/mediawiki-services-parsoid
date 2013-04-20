@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 var fs = require( 'fs' ),
 	path = require( 'path' ),
 	colors = require( 'colors' ),
@@ -479,7 +480,9 @@ if ( !module.parent ) {
 	title = argv._[0];
 
 	if ( title ) {
-		callback = cbCombinator.bind( null, argv.xml ? xmlCallback : plainCallback, consoleOut );
+		callback = cbCombinator.bind( null,
+		                              Util.booleanOption( argv.xml ) ?
+		                              xmlCallback : plainCallback, consoleOut );
 		fetch( title, callback, argv );
 	} else {
 		opts.showHelp();

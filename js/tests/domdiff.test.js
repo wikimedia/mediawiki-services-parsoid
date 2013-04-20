@@ -41,24 +41,13 @@ if (!oldhtml && argv._[0]) {
 	newhtml = fs.readFileSync(argv._[1], 'utf8')
 }
 
-// user-friendly 'boolean' command-line options:
-// allow --debug=no and --debug=false to mean the same as --no-debug
-var booleanOption = function ( val ) {
-	if ( !val ) { return false; }
-	if ( (typeof val) === 'string' &&
-	     /^(no|false)$/i.test(val)) {
-		return false;
-	}
-	return true;
-};
-
-if (booleanOption( argv.help ) || !oldhtml || !newhtml) {
+if (Util.booleanOption( argv.help ) || !oldhtml || !newhtml) {
 	optimist.showHelp();
 	return;
 }
 
 var dummyEnv = {
-	conf: { parsoid: { debug: booleanOption( argv.debug ) } },
+	conf: { parsoid: { debug: Util.booleanOption( argv.debug ) } },
 	page: { id: null },
 	isParsoidObjectId: function() { return true; }
 };
@@ -68,7 +57,7 @@ var dd = new DOMDiff(dummyEnv),
 	newDOM = Util.parseHTML(newhtml);
 
 dd.doDOMDiff(oldDOM, newDOM);
-if ( !booleanOption( argv.quiet ) ) {
+if ( !Util.booleanOption( argv.quiet ) ) {
 	console.warn("----- DIFF-marked DOM -----");
 }
 console.log(newDOM.outerHTML );
