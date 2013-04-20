@@ -150,7 +150,7 @@ var prettyPrintIOptions = function(iopts) {
  */
 ParserTests.prototype.getOpts = function () {
 	var default_args = ["Default tests-file: " + this.parser_tests_file,
-	                    "Default options   : --wt2html --wt2wt --html2html --whitelist --color"];
+	                    "Default options   : --wt2html --wt2wt --html2html --whitelist --color=auto"];
 
 	return optimist.usage( 'Usage: $0 [options] [tests-file]\n\n' + default_args.join("\n"), {
 		'help': {
@@ -254,7 +254,7 @@ ParserTests.prototype.getOpts = function () {
 		'color': {
 			description: 'Enable color output Ex: --no-color',
 			'boolean': true,
-			'default': true
+			'default': 'auto'
 		},
 		'debug': {
 			description: 'Print debugging information',
@@ -904,7 +904,7 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 		console.log( 'INPUT'.cyan + ':' );
 		console.log( actual.input + '\n' );
 
-		console.log( options.getActualExpected( actual, expected, options.getDiff, booleanOption( options.color ) ) );
+		console.log( options.getActualExpected( actual, expected, options.getDiff ) );
 
 		if ( booleanOption( options.printwhitelist )  ) {
 			this.printWhitelistEntry( title, actual.raw );
@@ -969,30 +969,28 @@ ParserTests.prototype.printSuccess = function ( title, mode, isWhitelist, quiet,
  * @param {Function} getDiff Returns a string showing the diff(s) for the test.
  * @param {Object} getDiff.actual
  * @param {Object} getDiff.expected
- * @param {string} getDiff.color
- * @param {boolean} color Whether we should output colorful strings or not.
  * @returns {string}
  */
-ParserTests.prototype.getActualExpected = function ( actual, expected, getDiff, color ) {
+ParserTests.prototype.getActualExpected = function ( actual, expected, getDiff ) {
 	var returnStr = '';
 	expected.formattedRaw = expected.isWT ? expected.raw : Util.formatHTML( expected.raw );
-	returnStr += ( color ? 'RAW EXPECTED'.cyan : 'RAW EXPECTED' ) + ':';
+	returnStr += 'RAW EXPECTED'.cyan + ':';
 	returnStr += expected.formattedRaw + '\n';
 
 	actual.formattedRaw = actual.isWT ? actual.raw : Util.formatHTML( actual.raw );
-	returnStr += ( color ? 'RAW RENDERED'.cyan : 'RAW RENDERED' ) + ':';
+	returnStr += 'RAW RENDERED'.cyan + ':';
 	returnStr += actual.formattedRaw + '\n';
 
 	expected.formattedNormal = expected.isWT ? expected.normal : Util.formatHTML( expected.normal );
-	returnStr += ( color ? 'NORMALIZED EXPECTED'.magenta : 'NORMALIZED EXPECTED' ) + ':';
+	returnStr += 'NORMALIZED EXPECTED'.magenta + ':';
 	returnStr += expected.formattedNormal + '\n';
 
 	actual.formattedNormal = actual.isWT ? actual.normal : Util.formatHTML( actual.normal );
-	returnStr += ( color ? 'NORMALIZED RENDERED'.magenta : 'NORMALIZED RENDERED' ) + ':';
+	returnStr += 'NORMALIZED RENDERED'.magenta + ':';
 	returnStr += actual.formattedNormal + '\n';
 
-	returnStr += ( color ? 'DIFF'.cyan : 'DIFF' ) + ': \n';
-	returnStr += getDiff( actual, expected, color );
+	returnStr += 'DIFF'.cyan + ': \n';
+	returnStr += getDiff( actual, expected );
 
 	return returnStr;
 };
@@ -1002,10 +1000,11 @@ ParserTests.prototype.getActualExpected = function ( actual, expected, getDiff, 
  * @param {string} actual.formattedNormal
  * @param {Object} expected
  * @param {string} expected.formattedNormal
- * @param {boolean} color Whether you want color in the diff output
  */
-ParserTests.prototype.getDiff = function ( actual, expected, color ) {
-	return Util.diff( expected.formattedNormal, actual.formattedNormal, color );
+ParserTests.prototype.getDiff = function ( actual, expected ) {
+	// safe to always request color diff, because we set color mode='none'
+	// if colors are turned off.
+	return Util.diff( expected.formattedNormal, actual.formattedNormal, true );
 };
 
 /**
@@ -1172,6 +1171,7 @@ ParserTests.prototype.main = function ( options ) {
 		optimist.showHelp();
 		process.exit( 0 );
 	}
+	Util.setColorFlags( options );
 
 	if ( !( options.wt2wt || options.wt2html || options.html2wt || options.html2html || options.selser ) ) {
 		options.wt2wt = true;
@@ -1234,9 +1234,6 @@ ParserTests.prototype.main = function ( options ) {
 			console.error( 'ERROR> See below for JS engine error:\n' + e + '\n' );
 			process.exit( 1 );
 		}
-	}
-	if( !booleanOption( options.color ) ) {
-		colors.mode = 'none';
 	}
 
 	// Identify tests file
@@ -1508,7 +1505,7 @@ var xmlFuncs = function () {
 	 *
 	 * @returns {string} The XML representation of the actual and expected outputs
 	 */
-	getActualExpectedXML = function ( actual, expected, getDiff, color ) {
+	getActualExpectedXML = function ( actual, expected, getDiff ) {
 		var returnStr = '';
 
 		expected.formattedRaw = Util.formatHTML( expected.raw );
@@ -1577,7 +1574,7 @@ var xmlFuncs = function () {
 			failEle += '\n</error>\n';
 		} else {
 			failEle = '<failure type="parserTestsDifferenceInOutputFailure">\n';
-			failEle += getActualExpectedXML( actual, expected, options.getDiff, false );
+			failEle += getActualExpectedXML( actual, expected, options.getDiff );
 			failEle += '\n</failure>\n';
 		}
 
@@ -1657,6 +1654,7 @@ if ( popts && popts.xml ) {
 	popts.reportStart = xmlFuncs.reportStart;
 	popts.reportSummary = xmlFuncs.reportSummary;
 	popts.reportFailure = xmlFuncs.reportFailure;
+	colors.mode = 'none';
 }
 
 ptests.main( popts );

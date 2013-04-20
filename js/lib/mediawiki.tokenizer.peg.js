@@ -13,7 +13,6 @@ var PEG = require('pegjs'),
 	LRU = require("lru-cache"),
 	fs = require('fs'),
 	events = require('events'),
-	//colors = require('colors'),
 	Util = require('./mediawiki.Util.js').Util,
 	defines = require('./mediawiki.parser.defines.js');
 

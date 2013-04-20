@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 var fs = require( 'fs' ),
 	path = require( 'path' ),
-	colors = require( 'colors' ),
 	http = require( 'http' ),
 	jsDiff = require( 'diff' ),
 	optimist = require( 'optimist' ),

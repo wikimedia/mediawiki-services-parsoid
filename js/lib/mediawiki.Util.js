@@ -66,6 +66,25 @@ var Util = {
 	/**
 	 * @method
 	 *
+	 * Set the color flags, based on an options object.
+	 *
+	 * @param {Options} options The options object to use for setting
+	 *        the mode of the 'color' package.
+	 */
+	setColorFlags: function(options) {
+		var colors = require('colors');
+		if( options.color === 'auto' ) {
+			if (!process.stdout.isTTY) {
+				colors.mode = 'none';
+			}
+		} else if( !Util.booleanOption( options.color ) ) {
+			colors.mode = 'none';
+		}
+	},
+
+	/**
+	 * @method
+	 *
 	 * Update only those properties that are undefined or null
 	 * $.extend updates properties that are falsy (which means false gets updated as well)
 	 *
@@ -1254,12 +1273,12 @@ var diff = function ( a, b, color, onlyReportChanges, useLines ) {
 			if ( change.added ) {
 				diffs++;
 				return change.value.split( '\n' ).map( function ( line ) {
-					return line.green;
+					return line.green + '';//add '' to workaround color bug
 				} ).join( '\n' );
 			} else if ( change.removed ) {
 				diffs++;
 				return change.value.split( '\n' ).map( function ( line ) {
-					return line.red;
+					return line.red + '';//add '' to workaround color bug
 				} ).join( '\n' );
 			} else {
 				return change.value;

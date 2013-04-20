@@ -6,7 +6,6 @@
 var dumpReader = require('./dumpReader.js'),
 	events = require('events'),
 	optimist = require('optimist'),
-	colors = require('colors'),
 	Util = require( '../lib/mediawiki.Util.js' ).Util;
 
 function DumpGrepper ( regexp ) {
@@ -40,9 +39,9 @@ if (module === require.main) {
 			'default': false
 		},
 		'color': {
-			description: 'Highlight matched substring using color. Use --no-color to disable.',
+			description: 'Highlight matched substring using color. Use --no-color to disable.  Default is "auto".',
 			'boolean': true,
-			'default': true
+			'default': 'auto'
 		}
 	} ).argv;
 
@@ -50,6 +49,7 @@ if (module === require.main) {
 		optimist.showHelp();
 		process.exit( 0 );
 	}
+	Util.setColorFlags( argv );
 
 	var flags = 'g';
 	if( Util.booleanOption( argv.i ) ) {
@@ -76,17 +76,10 @@ if (module === require.main) {
 			console.log( '== Match: [[' + revision.page.title + ']] ==' );
 			var m = matches[i];
 			//console.warn( JSON.stringify( m.index, null, 2 ) );
-			if ( argv.color ) {
-				console.log(
+			console.log(
 					revision.text.substr( m.index - 40, 40 ) +
 					m[0].green +
 					revision.text.substr( m.index + m[0].length, 40 ) );
-			} else {
-				console.log(
-					revision.text.substr( m.index, -40 ) +
-					m[0] +
-					revision.text.substr( m.index + m[0].length, 40 ) );
-			}
 		}
 	} );
 
