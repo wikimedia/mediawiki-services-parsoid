@@ -22,9 +22,7 @@
 	"smarttabs": true,
 	"multistr": true,
 
-	"browser": true,
 	"node": true,
-	"jquery": true,
 
 	"nomen": false
 	//"onevar": true

@@ -1,6 +1,8 @@
 "use strict";
+/* jshint eqnull:true, eqeqeq:false, asi:true, curly:false */
 /* minimalist jquery which just defines the tiny bits parsoid uses */
-/* based on zepto.js */
+/* based on zepto.js, which explains why the code conventions don't
+ * match the rest of parsoid. */
   var $ = module.exports = {};
 
   var class2type = {};
@@ -18,7 +20,7 @@
   function isDocument(obj)   { return obj != null && obj.nodeType == obj.DOCUMENT_NODE }
   function isObject(obj)     { return type(obj) == "object" }
   function isPlainObject(obj) {
-    return isObject(obj) && !isWindow(obj) && obj.__proto__ == Object.prototype
+    return isObject(obj) && !isWindow(obj) && Object.getPrototypeOf(obj) == Object.prototype
   }
   function isArray(value) { return value instanceof Array }
   function likeArray(obj) { return typeof obj.length == 'number' }
