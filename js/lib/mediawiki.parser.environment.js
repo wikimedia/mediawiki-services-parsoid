@@ -151,37 +151,37 @@ var MWParserEnvironment = function ( parsoidConfig, wikiConfig ) {
  * @param {String or Object} page source or metadata
  */
 MWParserEnvironment.prototype.setPageSrcInfo = function ( src_or_metadata ) {
-    if (typeof(src_or_metadata)==='string' || src_or_metadata===null) {
-	this.page.meta = { revision: {} };
-	this.page.src = src_or_metadata;
-	return;
-    }
-    // I'm chosing to initialize this.page.meta "the hard way" (rather than
-    // simply cloning the provided object) in part to document/enforce the
-    // expected structure and fields.
-    var metadata = src_or_metadata;
-    var m = this.page.meta;
-    if (!m) { m = this.page.meta = {}; }
-    m.title = metadata.title;
-    m.ns = metadata.ns;
-    m.id = metadata.id;
-    var r = m.revision;
-    if (!r) { r = m.revision = {}; }
-    if (metadata.revision) {
-	r.revid = metadata.revision.revid;
-	r.parentid = metadata.revision.parentid;
-	r.timestamp = metadata.revision.timestamp;
-	r.user = metadata.revision.user;
-	r.userid = metadata.revision.userid;
-	r.sha1 = metadata.revision.sha1;
-	r.size = metadata.revision.size;
-	r.comment = metadata.revision.comment;
-	r.contentmodel = metadata.revision.contentmodel;
-	r.contentformat = metadata.revision.contentformat;
-	if ('*' in metadata.revision) {
-	    this.page.src = metadata.revision['*'];
+	if (typeof(src_or_metadata)==='string' || src_or_metadata===null) {
+		this.page.meta = { revision: {} };
+		this.page.src = src_or_metadata;
+		return;
 	}
-    }
+	// I'm chosing to initialize this.page.meta "the hard way" (rather than
+	// simply cloning the provided object) in part to document/enforce the
+	// expected structure and fields.
+	var metadata = src_or_metadata;
+	var m = this.page.meta;
+	if (!m) { m = this.page.meta = {}; }
+	m.title = metadata.title;
+	m.ns = metadata.ns;
+	m.id = metadata.id;
+	var r = m.revision;
+	if (!r) { r = m.revision = {}; }
+	if (metadata.revision) {
+		r.revid = metadata.revision.revid;
+		r.parentid = metadata.revision.parentid;
+		r.timestamp = metadata.revision.timestamp;
+		r.user = metadata.revision.user;
+		r.userid = metadata.revision.userid;
+		r.sha1 = metadata.revision.sha1;
+		r.size = metadata.revision.size;
+		r.comment = metadata.revision.comment;
+		r.contentmodel = metadata.revision.contentmodel;
+		r.contentformat = metadata.revision.contentformat;
+		if ('*' in metadata.revision) {
+			this.page.src = metadata.revision['*'];
+		}
+	}
 };
 
 /**
