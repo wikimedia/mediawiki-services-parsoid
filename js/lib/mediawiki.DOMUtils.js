@@ -13,6 +13,10 @@ var DOMUtils = {
 		return node.nodeType === Node.ELEMENT_NODE;
 	},
 
+	isText: function(node) {
+		return node.nodeType === Node.TEXT_NODE;
+	},
+
 	isBlockNode: function(node) {
 		return node && Util.isBlockTag(node.nodeName.toLowerCase());
 	},
@@ -463,9 +467,8 @@ var DOMUtils = {
 	 * Is a node representing inter-element ws?
 	 */
 	isIEW: function (node) {
-		return node.nodeType === node.TEXT_NODE &&
-			// ws-only
-			node.nodeValue.match(/^\s*$/);
+		// ws-only
+		return this.isText(node) && node.nodeValue.match(/^\s*$/);
 	},
 
 	isContentNode: function(node) {

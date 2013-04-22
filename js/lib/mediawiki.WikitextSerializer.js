@@ -139,31 +139,27 @@ var WEHP = WikitextEscapeHandlers.prototype;
 
 WEHP.urlParser = new PegTokenizer();
 
-WEHP.headingHandler = function(state, text) {
-	// replace heading-handler with the default handler
-	// only "=" at the extremities trigger escaping
-
-	if (state.currLine && !state.currLine.seen) {
-		var line = state.currLine.text,
-			len  = line ? line.length : 0;
-		return (line && len > 2 && (line[0] === '=') && (line[len-1] === '='));
+WEHP.headingHandler = function(headingNode, state, text, opts) {
+	// Only "=" at the extremities trigger escaping
+	if (opts.isLastChild && DU.isText(headingNode.firstChild)) {
+		var line = state.currLine.text;
+		if (line.length === 0) {
+			line = text;
+		}
+		return line[0] === '=' &&
+			text && text.length > 0 && text[text.length-1] === '=';
 	} else {
 		return false;
 	}
 };
 
-WEHP.liHandler = function(state, text) {
-	// replace li-handler with the default handler
-	// only bullets at the beginning of the list trigger escaping
-	if (state.currLine && !state.currLine.seen) {
+WEHP.liHandler = function(liNode, state, text) {
+	// Only bullets at the beginning of the list trigger escaping
+	if (DU.isText(liNode.firstChild) && state.currLine.text === '') {
 		return text.match(/^[#\*:;]/);
 	} else {
 		return false;
 	}
-};
-
-WEHP.linkHandler = function(state, text) {
-	return text.match(/\]|\[.*?\]/);
 };
 
 WEHP.quoteHandler = function(state, text) {
@@ -176,7 +172,7 @@ WEHP.thHandler = function(state, text) {
 };
 
 WEHP.wikilinkHandler = function(state, text) {
-	return text.match(/^\||\]$/);
+	return text.match(/(^\|)|(^\[\[)|(^\]\])|(\]$)/);
 };
 
 WEHP.aHandler = function(state, text) {
@@ -184,14 +180,8 @@ WEHP.aHandler = function(state, text) {
 };
 
 WEHP.tdHandler = function(state, text) {
-		return text.match(/\|/) ||
-			(state.currLine && !state.currLine.seen && text.match(/^[\-+]/) &&
-			!state.inWideTD);
-		// &&
-		//isTd(tok) &&
-		//(!tok.dataAttribs.dsr || tok.dataAttribs.dsr[2] === 1) &&
-		//tok.dataAttribs.stx_v !== 'row' &&
-		//tok.attribs.length === 0);
+	return text.match(/\|/) ||
+		(state.currLine.text === '' && text.match(/^[\-+]/) && !state.inWideTD);
 };
 
 WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
@@ -349,12 +339,9 @@ var WSP = WikitextSerializer.prototype;
  *    a "single line" of output wikitext as represented by a block node in
  *    the DOM.
  *
- *    - seen           : -- to be documented --
- *    - ancestor       : -- to be documented --
- *    - text           : accumulated text from all text nodes on the current line
- *    - processed      : have we analyzed the text so far?
- *    - hasBracketPair : does the line have bracket wikitext token pairs?
- *    - hasHeadingPair : does the line have heading wikitext token pairs?
+ *    - text : text output so far from all text nodes on the current line
+ *    - hasOpenHeadingChar: does the emitted text have an "=" char in sol posn?
+ *    - hasOpenBrackets : does the line have bracket wikitext token pairs?
  * ********************************************************************* */
 
 WSP.initialState = {
@@ -362,7 +349,6 @@ WSP.initialState = {
 	sep: {},
 	onSOL: true,
 	escapeText: false,
-	currLineToBeReset: false,
 	atStartOfOutput: true,
 	inIndentPre: false,
 	inPHPBlock: false,
@@ -370,23 +356,23 @@ WSP.initialState = {
 	tplAttrs: {},
 	// XXX: replace with output buffering per line
 	currLine: {
-		text: null,
-		seen: false,
+		text: '',
+		firstNode: null,
 		processed: false,
-		hasBracketPair: false,
-		hasHeadingPair: false
+		hasOpenHeadingChar: false,
+		hasOpenBrackets: false
 	},
 
 	/////////////////////////////////////////////////////////////////
 	// End of state
 	/////////////////////////////////////////////////////////////////
-	resetCurrLine: function () {
+	resetCurrLine: function (node) {
 		this.currLine = {
-			text: null,
-			seen: false,
+			text: '',
+			firstNode: node,
 			processed: false,
-			hasBracketPair: false,
-			hasHeadingPair: false
+			hasOpenHeadingChar: false,
+			hasOpenBrackets: false
 		};
 	},
 
@@ -402,7 +388,9 @@ WSP.initialState = {
 			nextChild;
 
 		this.chunkCB = chunkCB;
-		if ( wtEscaper ) {
+
+		// SSS FIXME: Unsure if this is the right thing always
+		if (wtEscaper) {
 			this.wteHandlerStack.push(wtEscaper);
 		}
 
@@ -430,7 +418,8 @@ WSP.initialState = {
 		}
 
 		this.chunkCB = oldCB;
-		if ( wtEscaper ) {
+
+		if (wtEscaper) {
 			this.wteHandlerStack.pop();
 		}
 	},
@@ -439,14 +428,25 @@ WSP.initialState = {
 		return this.env.page.src.substring(start, end);
 	},
 
+	emitSep: function(sep, node, cb, debugPrefix) {
+		cb(sep, node);
+
+		// Reset separator state
+		this.sep = {};
+		if (sep && sep.match(/\n/)) {
+			this.onSOL = true;
+		}
+		if (this.debugging) {
+			console.log(debugPrefix, JSON.stringify(sep));
+		}
+	},
+
 	emitSepAndOutput: function(res, node, cb) {
 		// Emit separator first
 		if (this.prevNodeUnmodified && this.currNodeUnmodified) {
 			var origSep = this.getOrigSrc(this.prevNode.data.parsoid.dsr[1], node.data.parsoid.dsr[0]);
 			if (isValidSep(origSep)) {
-				this.serializer.trace("ORIG-sep: ", origSep);
-				cb(origSep, node);
-				this.sep = {};
+				this.emitSep(origSep, node, cb, 'ORIG-SEP:');
 			} else {
 				this.serializer.emitSeparator(this, cb, node);
 			}
@@ -458,10 +458,21 @@ WSP.initialState = {
 		this.prevNode = node;
 		this.currNodeUnmodified = false;
 
+		if (this.onSOL) {
+			this.resetCurrLine(node);
+		}
+
 		// Escape 'res' if necessary
+		var origRes = res;
 		if (this.escapeText) {
-			res = this.serializer.escapeWikiText(this, res);
+			res = this.serializer.escapeWikiText(this, res, { isLastChild: !node.nextSibling } );
 			this.escapeText = false;
+		}
+
+		// Emitting text that has not been escaped
+		if (DU.isText(node) && res === origRes) {
+			this.currLine.text += res;
+			this.currLine.processed = false;
 		}
 
 		// Output res
@@ -470,11 +481,6 @@ WSP.initialState = {
 		// Update state
 		this.sep.lastSourceNode = node;
 		this.sep.lastSourceSep = this.sep.src;
-
-		if (this.currLineToBeReset) {
-			this.resetCurrLine();
-			this.currLineToBeReset = false;
-		}
 
 		if (!res.match(/^(\s|<!--(?:[^\-]|-(?!->))*-->)*$/)) {
 			this.onSOL = false;
@@ -536,7 +542,7 @@ function escapedText(text) {
 	return ["<nowiki>", match[1], "</nowiki>", match[2]].join('');
 }
 
-WSP.escapeWikiText = function ( state, text ) {
+WSP.escapeWikiText = function ( state, text, opts ) {
 	// console.warn("---EWT:ALL1---");
     // console.warn("t: " + text);
 	/* -----------------------------------------------------------------
@@ -553,18 +559,15 @@ WSP.escapeWikiText = function ( state, text ) {
 	// Pure white-space or text without wt-special chars need not be analyzed
 	if (!fullCheckNeeded && !text.match(/^[ \t][^\s]+|[<>\[\]\-\+\|'!=#\*:;~{}]/)) {
 		// console.warn("---EWT:F1---");
-		state.currLine.seen = true;
 		return text;
 	}
 
 	// Context-specific escape handler
 	var wteHandler = state.wteHandlerStack.last();
-	if (wteHandler && wteHandler(state,text)) {
+	if (wteHandler && wteHandler(state, text, opts)) {
 		// console.warn("---EWT:F2---");
-		state.currLine.seen = true;
 		return escapedText(text);
 	}
-	state.currLine.seen = true;
 
 	// Template and template-arg markers are escaped unconditionally!
 	// Conditional escaping requires matching brace pairs and knowledge
@@ -583,8 +586,9 @@ WSP.escapeWikiText = function ( state, text ) {
 	if (!fullCheckNeeded && !hasNewlines && !hasTildes) {
 		// {{, {{{, }}}, }} are handled above.
 		// Test 1: '', [], <> need escaping wherever they occur
+		//         = needs escaping in end-of-line context
 		// Test 2: {|, |}, ||, |-, |+,  , *#:;, ----, =*= need escaping only in SOL context.
-		if (!sol && !text.match(/''|[<>]|\[.*\]|\]/)) {
+		if (!sol && !text.match(/''|[<>]|\[.*\]|\]|(=(\n|$))/)) {
 			// It is not necessary to test for an unmatched opening bracket ([)
 			// as long as we always escape an unmatched closing bracket (]).
 			// console.warn("---EWT:F4---");
@@ -614,49 +618,59 @@ WSP.escapeWikiText = function ( state, text ) {
 	if (this.wteHandlers.hasWikitextTokens(state, sol, text) || hasTildes) {
 		// console.warn("---EWT:DBG1---");
 		return escapedText(text);
-	} else if (state.currLine.numPieces > 1) {
-		// console.warn("---EWT:DBG2---");
-		// Last resort -- process current line text ignoring all embedded tags
-		// If it has wikitext tokens, we escape conservatively
+	} else if (!state.onSOL) {
+		// Detect if we have open brackets -- we use 'processed' flag as
+		// a performance opt. to run this detection only if/when required.
+		//
+		// FIXME: Even so, it is reset after after every emitted text chunk.
+		// Could be optimized further by figuring out a way to only test
+		// newer chunks, but not sure if it is worth the trouble and complexity
 		var cl = state.currLine;
 		if (!cl.processed) {
-			/* --------------------------------------------------------
-			 * Links and headings are the only single-line paired-token
-			 * wikitext-constructs  that can be split by html tags
-			 *
-			 * Links occur anywhere on a line.
-			 *
-			 *    Ex 1: .. [[ .. <i>..... ]] .. </i> ..
-			 *    Ex 2: .. [[ .. <i>..... </i> .. ]] ..
-			 *
-			 * Headings are constrained to be on the extremities
-			 *
-			 *    Ex: = ... <i> ... </i> .. =
-			 *
-			 * So no need to tokenize -- just check for these patterns
-			 *
-			 * NOTE: [[[ ... ]]] does not need escaping, it appears.
-			 * So, the regexp checks for 1 or 2 of those.
-			 * -------------------------------------------------------- */
 			cl.processed = true;
-			cl.hasHeadingPair = cl.text.match(/^=.*=\n*$/);
-			if (this.wteHandlers.hasWikitextTokens(state, sol, cl.text, true)) {
-				cl.hasBracketPair = true;
+			cl.hasOpenHeadingChar = false;
+			cl.hasOpenBrackets = false;
+
+			// If accumulated text starts with a '=', verify that that
+			// the opening bit came from one of two places:
+			// - a text node: (Ex: <p>=foo=</p>)
+			// - the first child of a heading node: (Ex: <h1>=foo=</h1>)
+			if (cl.text.match(/^=/) &&
+				(DU.isText(cl.firstNode) ||
+				cl.firstNode.nodeName.match(/^H/) && cl.firstNode.firstChild && DU.isText(cl.firstNode.firstChild)))
+			{
+				cl.hasOpenHeadingChar = true;
+			}
+
+			// Does cl.text have an open '['?
+			if (cl.text.match(/\[[^\]]*$/)) {
+				cl.hasOpenBrackets = true;
 			}
 		}
 
-		// If the current line has a wikitext token pair, and the current
-		// piece of text has one of the pairs ^=,],]], assume the worst and escape it.
-		// NOTE: It is sufficient to escape just one of the pairs.
-		if ((cl.hasHeadingPair && text.match(/^=/)) ||
-			(cl.hasBracketPair && text.match(/(\]\]?)([^\]]|$)/)))
+		// Escape text if:
+		// 1. we have an open heading char, and
+		//    - text ends in a '='
+		//    - text comes from the last child
+		// 2. we have an open bracket, and
+		//    - text has an unmatched bracket
+		//    - the combined text will get parsed as a link (expensive check)
+		if (cl.hasOpenHeadingChar && opts.isLastChild && text.match(/=$/) ||
+		    cl.hasOpenBrackets && text.match(/^[^\[]*\]/) &&
+				this.wteHandlers.hasWikitextTokens(state, sol, cl.text + text, true))
 		{
+			// If the current line emitted so far has an open bracket, and the current
+			// piece of text has one of the pairs ^=,],]], assume the worst and escape it.
+			// NOTE: It is sufficient to escape just one of the pairs.
+
+			// console.warn("---EWT:DBG2---");
 			return escapedText(text);
 		} else {
+			// console.warn("---EWT:DBG3---");
 			return text;
 		}
 	} else {
-		// console.warn("---EWT:DBG3---");
+		// console.warn("---EWT:DBG4---");
 		return text;
 	}
 };
@@ -1178,7 +1192,8 @@ function buildHeadingHandler(headingWT) {
 		handle: function(node, state, cb) {
 			cb(headingWT, node);
 			if (node.childNodes.length) {
-				state.serializeChildren(node, cb, state.serializer.wteHandlers.headingHandler);
+				var headingHandler = state.serializer.wteHandlers.headingHandler.bind(state.serializer.wteHandlers, node);
+				state.serializeChildren(node, cb, headingHandler);
 			} else {
 				// Deal with empty headings
 				cb('<nowiki/>', node);
@@ -1360,11 +1375,12 @@ function buildListHandler(firstChildNames) {
 			if (!firstChildElt || ! (firstChildElt.nodeName in firstChildNames)) {
 				cb(state.serializer._getListBullets(node), node);
 			}
-			state.serializeChildren(node, cb, state.serializer.wteHandlers.liHandler);
+			var liHandler = state.serializer.wteHandlers.liHandler.bind(state.serializer.wteHandlers, node);
+			state.serializeChildren(node, cb, liHandler);
 		},
 		sepnls: {
 			before: function (node, otherNode) {
-				if (otherNode.nodeType === node.TEXT_NODE && DU.isListElt(node.parentNode)) {
+				if (DU.isText(otherNode) && DU.isListElt(node.parentNode)) {
 					// DL nested inside a list item
 					// <li> foo <dl> .. </dl></li>
 					return {min:0, max:1};
@@ -1388,7 +1404,8 @@ WSP.tagHandlers = {
 			if (!DU.isList(firstChildElement)) {
 				cb(state.serializer._getListBullets(node), node);
 			}
-			state.serializeChildren(node, cb, state.serializer.wteHandlers.liHandler);
+			var liHandler = state.serializer.wteHandlers.liHandler.bind(state.serializer.wteHandlers, node);
+			state.serializeChildren(node, cb, liHandler);
 		},
 		sepnls: {
 			before: function (node, otherNode) {
@@ -1417,7 +1434,8 @@ WSP.tagHandlers = {
 			if (!DU.isList(firstChildElement)) {
 				cb(state.serializer._getListBullets(node), node);
 			}
-			state.serializeChildren(node, cb, state.serializer.wteHandlers.liHandler);
+			var liHandler = state.serializer.wteHandlers.liHandler.bind(state.serializer.wteHandlers, node);
+			state.serializeChildren(node, cb, liHandler);
 		},
 		sepnls: {
 			before: id({min:1, max:2}),
@@ -1449,7 +1467,8 @@ WSP.tagHandlers = {
 					cb(state.serializer._getListBullets(node), node);
 				}
 			}
-			state.serializeChildren(node, cb, state.serializer.wteHandlers.liHandler);
+			var liHandler = state.serializer.wteHandlers.liHandler.bind(state.serializer.wteHandlers, node);
+			state.serializeChildren(node, cb, liHandler);
 		},
 		sepnls: {
 			before: function(node, othernode) {
@@ -1569,7 +1588,7 @@ WSP.tagHandlers = {
 				state.inWideTD = true;
 			}
 			emitStartTag(res, node, state, cb);
-			state.resetCurrLine();
+			// state.resetCurrLine(node);
 			state.serializeChildren(node, cb, state.serializer.wteHandlers.tdHandler);
 			// FIXME: bad state hack!
 			state.inWideTD = undefined;
@@ -1660,7 +1679,7 @@ WSP.tagHandlers = {
 				// This patched DOM will serialize html-pres correctly.
 
 				var lostLine = '', fc = node.firstChild;
-				if (fc.nodeType === node.TEXT_NODE) {
+				if (DU.isText(fc)) {
 					var m = fc.nodeValue.match(/^\r\n|\r|\n/);
 					lostLine = m && m[0] || '';
 				}
@@ -1802,7 +1821,7 @@ WSP.tagHandlers = {
 					} else {
 						var child = node.firstChild;
 						while(child) {
-							if(child.nodeType === node.ELEMENT_NODE) {
+							if (DU.isElt(child)) {
 								if (child.nodeName === 'SPAN' &&
 										child.getAttribute('typeof') === 'mw:Entity')
 								{
@@ -1810,7 +1829,7 @@ WSP.tagHandlers = {
 								} else {
 									cb(child.outerHTML, node);
 								}
-							} else if (child.nodeType === node.TEXT_NODE) {
+							} else if (DU.isText(child)) {
 								cb(child.nodeValue.replace(/<(\/?nowiki)>/g, '&lt;$1&gt;'), child);
 							} else {
 								state.serializer._serializeNode(child, state, cb);
@@ -2374,7 +2393,7 @@ WSP._getDOMRTInfo = function( node ) {
  * XXX: Support separator-transparent elements!
  */
 WSP.handleSeparatorText = function ( node, state ) {
-	if (node.nodeType === node.TEXT_NODE) {
+	if (DU.isText(node)) {
 		if (node.nodeValue.match(/^\s*$/)) {
 			state.sep.src = (state.sep.src || '') + node.nodeValue;
 			//if (!state.sep.lastSourceNode) {
@@ -2850,18 +2869,7 @@ WSP.emitSeparator = function(state, cb, node) {
 	}
 
 	if (sep !== undefined) {
-		cb(sep, origNode);
-
-		// Reset separator state
-		state.sep = {};
-		if (sep && sep.match(/\n/)) {
-			state.onSOL = true;
-			state.currLineToBeReset = true;
-		}
-		//console.log('sep', constraints, JSON.stringify(sep));
-		if (this.debugging) {
-			console.log('SEP:', JSON.stringify(sep));
-		}
+		state.emitSep(sep, origNode, cb, 'SEP:');
 	}
 };
 
@@ -2871,76 +2879,6 @@ WSP._getPrevSeparatorElement = function (node, state) {
 
 WSP._getNextSeparatorElement = function (node) {
 	return DU.nextNonSepSibling(node) || node.parentNode;
-};
-
-// Gather a text line for the wikitext escaper's benefit
-WSP._updateCurrLine = function(node, state) {
-	function firstBlockNodeAncestor(node) {
-		// FIXME: Only consider line-based (non-html-syntax for example) block
-		// nodes!
-		while (!isHtmlBlockTag(node.nodeName.toLowerCase())) {
-			node = node.parentNode;
-		}
-		return node;
-	}
-
-	// XXX: Can we simply use node.textContent?
-	function gatherInlineText(buf, node) {
-		switch (node.nodeType) {
-			case node.ELEMENT_NODE:
-				var name = node.nodeName.toLowerCase();
-				if (isHtmlBlockTag(name)) {
-					// HMM- is this safe?
-					return;
-				}
-
-				/* -----------------------------------------------------------------
-				 * SSS: check not needed if we are not doing a full tokenization
-				 * on the gathered text
-				 *
-				// Ignore text for extlink/numbered
-				if (name === 'a' && node.getAttribute("rel") === 'mw:ExtLink/Numbered') {
-				return;
-				}
-				 * -----------------------------------------------------------------*/
-
-				var children = node.childNodes;
-				for (var i = 0, n = children.length; i < n; i++) {
-					gatherInlineText(buf, children[i]);
-				}
-
-				return;
-			case node.COMMENT_NODE:
-				buf.push(commentWT(node.data));
-				return;
-			case node.TEXT_NODE:
-				buf.push(node.data);
-				return;
-			default:
-				return;
-		}
-	}
-
-	var buf = [],
-		// This is a bit hacky, as it assumes that all block
-		// elements serialize to a single line. Should be
-		// conservative / safe though.
-		bn = firstBlockNodeAncestor(node);
-	if (bn === state.currLine.ancestor) {
-		//console.log('noup', node.nodeValue, bn.outerHTML);
-		state.currLine.seen = true;
-		return;
-	}
-	//console.log('up', node.nodeValue, bn.outerHTML);
-	state.resetCurrLine();
-
-	var children = bn.childNodes;
-	for (var i = 0, n = children.length; i < n; i++) {
-		gatherInlineText(buf, children[i]);
-	}
-	state.currLine.numPieces = n;
-	state.currLine.text = buf.join('');
-	state.currLine.ancestor = bn;
 };
 
 /**
@@ -3077,24 +3015,8 @@ WSP._serializeNode = function( node, state, cb) {
 				}
 			}
 
-			if (state.currLine.text === null ||
-					state.sep.constraints && state.sep.constraints.min > 0)
-			{
-				this._updateCurrLine(node, state);
-			}
-
 			break;
 		case node.TEXT_NODE:
-			// Gather a text line for the wikitext escaper's benefit
-			if (state.currLine.text === null ||
-					state.sep.constraints && state.sep.constraints.min > 0 ||
-					!state.currLine.seen)
-			{
-				this._updateCurrLine(node, state);
-			} else {
-				state.currLine.seen = true;
-			}
-
 			if (!this.handleSeparatorText(node, state)) {
 				// Text is not just whitespace
 				prev = this._getPrevSeparatorElement(node, state);
@@ -3171,9 +3093,6 @@ WSP.serializeDOM = function( body, chunkCB, finalCB, selserMode ) {
 				console.log("OUT:", JSON.stringify(chunk), node && node.nodeName || 'noNode');
 			}
 
-			if (chunk) {
-				state.currLine.seen = true;
-			}
 			state.atStartOfOutput = false;
 		};
 
@@ -3187,6 +3106,7 @@ WSP.serializeDOM = function( body, chunkCB, finalCB, selserMode ) {
 		}
 
 		state.sep.lastSourceNode = body;
+		state.currLine.firstNode = body.firstChild;
 		if (body.nodeName !== 'BODY') {
 			// FIXME: Do we need this fallback at all?
 			this._serializeNode( body, state );
