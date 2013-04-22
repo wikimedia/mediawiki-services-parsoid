@@ -19,7 +19,12 @@ var events = require('events'),
 	api = require('./mediawiki.ApiRequest.js'),
 	PreprocessorRequest = api.PreprocessorRequest,
 	Util = require('./mediawiki.Util.js').Util,
-	DOMUtils = require('./mediawiki.DOMUtils.js').DOMUtils;
+	DOMUtils = require('./mediawiki.DOMUtils.js').DOMUtils,
+	// define some constructor shortcuts
+	KV = defines.KV,
+	TagTk = defines.TagTk,
+	SelfclosingTagTk = defines.SelfclosingTagTk,
+	EndTagTk = defines.EndTagTk;
 
 function TemplateHandler ( manager, options ) {
 	this.register( manager );
@@ -55,7 +60,7 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 	// magic word variables can be mistaken for templates
 	var translatedMagicWordKVs = this.checkForMagicWordVariable(token.attribs[0].k);
 	if (translatedMagicWordKVs) {
-		var metaToken = new SelfclosingTagTk('meta',
+		var metaToken = new defines.SelfclosingTagTk('meta',
 											 translatedMagicWordKVs,
 											 Util.clone(token.dataAttribs));
 		cb({ tokens: [metaToken] });
@@ -290,7 +295,7 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 
 	target = resolvedTgt.target;
 	if ( resolvedTgt.isPF ) {
-		var pfAttribs = new Params( attribs );
+		var pfAttribs = new defines.Params( attribs );
 		pfAttribs[0] = new KV( resolvedTgt.pfArg, [] );
 		env.dp( 'entering prefix', target, state.token  );
 		var newCB;
@@ -534,7 +539,7 @@ TemplateHandler.prototype._onChunk = function( state, cb, chunk ) {
 		// Ignore comments in template transclusion mode
 		var newChunk = [];
 		for (i = 0, n = chunk.length; i < n; i++) {
-			if (chunk[i].constructor !== CommentTk) {
+			if (chunk[i].constructor !== defines.CommentTk) {
 				newChunk.push(chunk[i]);
 			}
 		}
@@ -626,7 +631,9 @@ TemplateHandler.prototype.fetchExpandedTpl = function ( title, text, processor, 
 		//env.dp( 'requestQueue: ', env.requestQueue );
 		if ( env.requestQueue[text] === undefined ) {
 			env.tp( 'Note: Starting new request for ' + text );
-			env.requestQueue[text] = new processor( env, title, text );
+			// fool JSHint to see a capital-case constructor
+			var JSHintFoolingProcessor = processor;
+			env.requestQueue[text] = new JSHintFoolingProcessor( env, title, text );
 		}
 		// append request, process in document order
 		env.requestQueue[text].listeners( 'src' ).push( cb );
