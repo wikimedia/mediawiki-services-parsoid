@@ -612,9 +612,10 @@ TemplateHandler.prototype._fetchTemplateAndTitle = function ( title, parentCB, c
 };
 
 /**
- * Fetch the preprocessed wikitext for a template-like construct
+ * Fetch the preprocessed wikitext for a template-like construct.
+ * (The 'Processor' argument is a constructor, hence the capitalization.)
  */
-TemplateHandler.prototype.fetchExpandedTpl = function ( title, text, processor, parentCB, cb ) {
+TemplateHandler.prototype.fetchExpandedTpl = function ( title, text, Processor, parentCB, cb ) {
 	var env = this.manager.env;
 	if ( text in env.pageCache ) {
 		// XXX: store type too (and cache tokens/x-mediawiki)
@@ -631,9 +632,7 @@ TemplateHandler.prototype.fetchExpandedTpl = function ( title, text, processor, 
 		//env.dp( 'requestQueue: ', env.requestQueue );
 		if ( env.requestQueue[text] === undefined ) {
 			env.tp( 'Note: Starting new request for ' + text );
-			// fool JSHint to see a capital-case constructor
-			var JSHintFoolingProcessor = processor;
-			env.requestQueue[text] = new JSHintFoolingProcessor( env, title, text );
+			env.requestQueue[text] = new Processor( env, title, text );
 		}
 		// append request, process in document order
 		env.requestQueue[text].listeners( 'src' ).push( cb );
