@@ -35,6 +35,17 @@
 
     var Util = require('./mediawiki.Util.js').Util;
 
+    // import defines and define some constructor shortcuts
+	var defines = require('./mediawiki.parser.defines.js'),
+        KV = defines.KV,
+        TagTk = defines.TagTk,
+        SelfclosingTagTk = defines.SelfclosingTagTk,
+        EndTagTk = defines.EndTagTk,
+        NlTk = defines.NlTk,
+        CommentTk = defines.CommentTk,
+        EOFTk = defines.EOFTk;
+
+
     var flattenIfArray = function(e) {
         function internal_flatten(e, res) {
             // Don't bother flattening if we dont have an array

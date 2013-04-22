@@ -967,15 +967,4 @@ if (typeof module === "object") {
 		Params: Params,
 		ParserValue: ParserValue
 	};
-	// TODO: don't use globals!
-	global.TagTk = TagTk;
-	global.InternalTk = InternalTk;
-	global.EndTagTk = EndTagTk;
-	global.SelfclosingTagTk = SelfclosingTagTk;
-	global.NlTk = NlTk;
-	global.CommentTk = CommentTk;
-	global.EOFTk = EOFTk;
-	global.KV = KV;
-	global.Params = Params;
-	global.ParserValue = ParserValue;
 }
