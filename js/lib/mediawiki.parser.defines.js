@@ -13,7 +13,6 @@
  */
 
 var async = require('async'),
-	Util = require('./mediawiki.Util.js').Util,
 	$ = require( './fakejquery' );
 
 // To support isHTMLTag querying
@@ -90,6 +89,7 @@ var genericTokenMethods = {
 	 * @return {Mixed}
 	 */
 	getAttribute: function ( name ) {
+		var Util = require('./mediawiki.Util.js').Util; // (circular dep)
 		return Util.lookup( this.attribs, name );
 	},
 
@@ -102,6 +102,7 @@ var genericTokenMethods = {
 	 * @param {Mixed} value
 	 */
 	setAttribute: function ( name, value ) {
+		var Util = require('./mediawiki.Util.js').Util; // (circular dep)
 		// First look for the attribute and change the last match if found.
 		for ( var i = this.attribs.length-1; i >= 0; i-- ) {
 			var kv = this.attribs[i],
@@ -132,6 +133,7 @@ var genericTokenMethods = {
 	 * @returns {boolean} return.fromsrc Whether we needed to get the source of the attribute to round-trip it.
 	 */
 	getAttributeShadowInfo: function ( name, tplAttrs ) {
+		var Util = require('./mediawiki.Util.js').Util; // (circular dep)
 		var curVal = Util.lookup( this.attribs, name );
 
 		// If tplAttrs is truish, check if this attribute was
@@ -238,6 +240,7 @@ var genericTokenMethods = {
 	 * @param {Mixed} value The value to add to the attribute.
 	 */
 	addSpaceSeparatedAttribute: function ( name, value ) {
+		var Util = require('./mediawiki.Util.js').Util; // (circular dep)
 		var curVal = Util.lookupKV( this.attribs, name ),
 			vals;
 		if ( curVal !== null ) {
@@ -277,6 +280,7 @@ var genericTokenMethods = {
 	 * @returns {Token}
 	 */
 	clone: function ( cloneAttribs ) {
+		var Util = require('./mediawiki.Util.js').Util; // (circular dep)
 		if (cloneAttribs === undefined) {
 			cloneAttribs = true;
 		}
@@ -389,6 +393,7 @@ Object.defineProperty( TagTk.prototype, 'tagToStringFns',
  * @returns {string}
  */
 TagTk.prototype.toString = function(compact) {
+	var Util = require('./mediawiki.Util.js').Util; // (circular dep)
 	if (this.isHTMLTag()) {
 		if (compact) {
 			return "<HTML:" + this.name + ">";
@@ -493,6 +498,7 @@ SelfclosingTagTk.prototype.toJSON = function () {
  * @returns {string} return.str
  */
 SelfclosingTagTk.prototype.multiTokenArgToString = function(key, arg, indent, indentIncrement) {
+	var Util = require('./mediawiki.Util.js').Util; // (circular dep)
 	var newIndent = indent + indentIncrement;
 	var present = true;
 	var toks    = Util.toStringTokens(arg, newIndent);
@@ -547,6 +553,7 @@ SelfclosingTagTk.prototype.attrsToString = function(indent, indentIncrement, sta
  * @returns {string}
  */
 SelfclosingTagTk.prototype.defaultToString = function(compact, indent) {
+	var Util = require('./mediawiki.Util.js').Util; // (circular dep)
 	if (compact) {
 		var buf = "<" + this.name + ">:";
 		var attr0 = this.attribs[0];
@@ -564,6 +571,7 @@ SelfclosingTagTk.prototype.defaultToString = function(compact, indent) {
 
 tagToStringFns = {
 	"extlink": function(compact, indent) {
+		var Util = require('./mediawiki.Util.js').Util; // (circular dep)
 		var indentIncrement = "  ";
 		var href = Util.toStringTokens(Util.lookup(this.attribs, 'href'), indent + indentIncrement);
 		if (compact) {
@@ -584,6 +592,7 @@ tagToStringFns = {
 	},
 
 	"wikilink": function(compact, indent) {
+		var Util = require('./mediawiki.Util.js').Util; // (circular dep)
 		if (!indent) {
 			indent = "";
 		}
@@ -788,6 +797,7 @@ Params.prototype.toString = function () {
 };
 
 Params.prototype.dict = function () {
+	var Util = require('./mediawiki.Util.js').Util; // (circular dep)
 	if (this.argDict === null) {
 		var res = {};
 		for ( var i = 0, l = this.length; i < l; i++ ) {
@@ -802,6 +812,7 @@ Params.prototype.dict = function () {
 };
 
 Params.prototype.named = function () {
+	var Util = require('./mediawiki.Util.js').Util; // (circular dep)
 	if (this.namedArgsDict === null) {
 		var n = 1,
 			out = {},
@@ -836,6 +847,7 @@ Params.prototype.named = function () {
  * Expand a slice of the parameters using the supplied get options.
  */
 Params.prototype.getSlice = function ( options, start, end ) {
+	var Util = require('./mediawiki.Util.js').Util; // (circular dep)
 	var args = this.slice( start, end ),
 		cb = options.cb;
 	//console.warn( JSON.stringify( args ) );

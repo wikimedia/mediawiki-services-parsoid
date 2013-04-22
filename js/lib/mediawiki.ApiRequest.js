@@ -239,8 +239,8 @@ TemplateRequest.prototype._handleJSON = function ( error, data ) {
 			location = iwstr.replace( '$1', title );
 			err = new DoesNotExistError( 'The page at ' +
 					self.title +
-					' can be found at a different location: '
-					+ location );
+					' can be found at a different location: ' +
+					location );
 			this._processListeners( err, null );
 			return;
 		}
@@ -275,8 +275,8 @@ TemplateRequest.prototype._handleJSON = function ( error, data ) {
 	// check for #REDIRECT
 	var redirMatch = src.match( /[\r\n\s]*#\s*redirect\s*\[\[([^\]]+)\]\]/i );
 	if ( redirMatch ) {
-		var title = redirMatch[1],
-			url = this.env.conf.parsoid.apiURI + '?' +
+		title = redirMatch[1];
+		var url = this.env.conf.parsoid.apiURI + '?' +
 				qs.stringify( {
 					format: 'json',
 					action: 'query',

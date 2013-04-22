@@ -18,7 +18,13 @@
 var events = require('events'),
 	LRU = require("lru-cache"),
 	crypto = require('crypto'),
-	Util = require('./mediawiki.Util.js').Util;
+	Util = require('./mediawiki.Util.js').Util,
+	defines = require('./mediawiki.parser.defines.js');
+// define some constructor shortcuts
+var KV = defines.KV,
+    EOFTk = defines.EOFTk,
+    Params = defines.Params,
+    ParserValue = defines.ParserValue;
 
 
 function verifyTokensIntegrity(ret, nullOkay) {

@@ -6,7 +6,16 @@
  */
 
 // Include general utilities
-var Util = require('./mediawiki.Util.js').Util;
+var Util = require('./mediawiki.Util.js').Util,
+    defines = require('./mediawiki.parser.defines.js');
+// define some constructor shortcuts
+var KV = defines.KV,
+    CommentTk = defines.CommentTk,
+    EOFTk = defines.EOFTk,
+    NlTk = defines.NlTk,
+    TagTk = defines.TagTk,
+    SelfclosingTagTk = defines.SelfclosingTagTk,
+    EndTagTk = defines.EndTagTk;
 
 function ParagraphWrapper ( manager, options ) {
 	this.options = options;
@@ -268,7 +277,7 @@ ParagraphWrapper.prototype.onAny = function ( token, frame ) {
 					names[token.name];
 		};
 
-	if (tc === InternalTk) {
+	if (tc === defines.InternalTk) {
 		// Unwrap the internal token so paragraph-wrapping considers
 		// fully expanded content from extensions in the context of
 		// current p-wrapping state.

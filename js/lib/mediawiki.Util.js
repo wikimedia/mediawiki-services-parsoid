@@ -22,6 +22,11 @@ if ( /^0.2.[01]$/.test( require( 'entities/package.json' ).version ) ) {
 	};
 }
 
+// This is a circular dependency.  Don't use anything from defines at module
+// evaluation time.  (For example, we can't define the usual local variable
+// shortcuts here.)
+var pd = require('./mediawiki.parser.defines.js');
+
 /**
  * @class
  * @singleton
@@ -231,9 +236,9 @@ var Util = {
 	 * @returns {boolean}
 	 */
 	isBlockToken: function ( token ) {
-		if ( token.constructor === TagTk ||
-				token.constructor === EndTagTk ||
-				token.constructor === SelfclosingTagTk ) {
+		if ( token.constructor === pd.TagTk ||
+		     token.constructor === pd.EndTagTk ||
+		     token.constructor === pd.SelfclosingTagTk ) {
 			return Util.isBlockTag( token.name );
 		} else {
 			return false;
@@ -242,7 +247,7 @@ var Util = {
 
 	isTableTag: function(token) {
 		var tc = token.constructor;
-		return (tc === TagTk || tc === EndTagTk) &&
+		return (tc === pd.TagTk || tc === pd.EndTagTk) &&
 			['table','tbody','caption','th','tr','td'].indexOf(token.name) !== -1;
 	},
 
@@ -252,7 +257,8 @@ var Util = {
 			if (token.match(/[^\s]/)) {
 				return false;
 			}
-		} else if (tc !== CommentTk && (tc !== SelfclosingTagTk || token.name !== 'meta')) {
+		} else if (tc !== pd.CommentTk &&
+		           (tc !== pd.SelfclosingTagTk || token.name !== 'meta')) {
 			return false;
 		}
 
@@ -270,7 +276,7 @@ var Util = {
 		// Add one NlTk between each pair, hence toks.length-1
 		for (var i = 0, n = toks.length-1; i < n; i++) {
 			ret.push(toks[i]);
-			var nlTk = new NlTk();
+			var nlTk = new pd.NlTk();
 			if (tsr !== undefined) {
 				tsr += toks[i].length;
 				nlTk.dataAttribs = { tsr: [tsr, tsr+1] };
@@ -301,11 +307,11 @@ var Util = {
 		for (var i = 0, n = tokens.length; i < n; i++) {
 			var t = tokens[i];
 			switch (t.constructor) {
-				case TagTk:
-				case SelfclosingTagTk:
-				case NlTk:
-				case CommentTk:
-				case EndTagTk:
+				case pd.TagTk:
+				case pd.SelfclosingTagTk:
+				case pd.NlTk:
+				case pd.CommentTk:
+				case pd.EndTagTk:
 					var da = tokens[i].dataAttribs;
 					var tsr = da.tsr;
 					if (tsr) {
@@ -390,7 +396,8 @@ var Util = {
 				console.trace();
 			} else if ( token.constructor === String ) {
 				out.push( token );
-			} else if ( token.constructor === CommentTk || token.constructor === NlTk ) {
+			} else if ( token.constructor === pd.CommentTk ||
+			            token.constructor === pd.NlTk ) {
 				// strip comments and newlines
 			} else if ( strict ) {
 				// If strict, return accumulated string on encountering first non-text token
@@ -401,7 +408,7 @@ var Util = {
 	},
 
 	flattenAndAppendToks: function(array, prefix, t) {
-		if (t.constructor === ParserValue) {
+		if (t.constructor === pd.ParserValue) {
 			// The check above will explode for undefined or null, but that is
 			// fine. Fail early and loudly!
 			throw new TypeError("Got ParserValue in flattenAndAppendToks!");
@@ -439,7 +446,7 @@ var Util = {
 				kvs,
 				function ( kv, cb1 ) {
 					v = kv.v;
-					if ( v.constructor === ParserValue ) {
+					if ( v.constructor === pd.ParserValue ) {
 						v.get({
 							type: 'tokens/x-mediawiki/expanded',
 							cb: reassembleKV.bind(null, kv, cb1),
@@ -684,7 +691,7 @@ var Util = {
 		var leadingToks = [];
 		for ( i = 0; i < n; i++ ) {
 			token = tokens[i];
-			if (token.constructor === NlTk) {
+			if (token.constructor === pd.NlTk) {
 				leadingToks.push('');
 			} else if ( token.constructor === String ) {
 				leadingToks.push(token.replace( /^\s+/, '' ));
@@ -705,7 +712,7 @@ var Util = {
 		var trailingToks = [];
 		for ( i = n - 1; i >= 0; i-- ) {
 			token = tokens[i];
-			if (token.constructor === NlTk) {
+			if (token.constructor === pd.NlTk) {
 				trailingToks.push(''); // replace newline with empty
 			} else if ( token.constructor === String ) {
 				trailingToks.push(token.replace( /\s+$/, '' ));
@@ -736,15 +743,17 @@ var Util = {
 		}
 		// Strip 'end' tokens and trailing newlines
 		var l = tokens[tokens.length - 1];
-		if ( l && (
-			l.constructor === EOFTk || l.constructor === NlTk ||
+		if ( l &&
+		     ( l.constructor === pd.EOFTk ||
+		       l.constructor === pd.NlTk ||
 				( l.constructor === String && l.match( /^\s+$/ ) ) ) ) {
 			var origTokens = tokens;
 			tokens = origTokens.slice();
 			tokens.rank = origTokens.rank;
 			while ( tokens.length &&
-					((	l.constructor === EOFTk  || l.constructor === NlTk )  ||
-				( l.constructor === String && l.match( /^\s+$/ ) ) ) )
+			        (( l.constructor === pd.EOFTk  ||
+			           l.constructor === pd.NlTk )  ||
+			         ( l.constructor === String && l.match( /^\s+$/ ) ) ) )
 			{
 				// this.dp( 'stripping end or whitespace tokens' );
 				tokens.pop();

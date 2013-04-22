@@ -5,7 +5,13 @@
 "use strict";
 
 var Util = require( './mediawiki.Util.js' ).Util,
+	defines = require('./mediawiki.parser.defines.js'),
 	$ = require( './fakejquery' );
+// define some constructor shortcuts
+var	KV = defines.KV,
+	TagTk = defines.TagTk,
+	SelfclosingTagTk = defines.SelfclosingTagTk,
+	EndTagTk = defines.EndTagTk;
 
 /**
  * Helper class used both by <ref> and <references> implementations
@@ -57,7 +63,7 @@ RefGroup.prototype.renderLine = function(refsList, ref) {
 		li, a;
 
 	// Generate the li
-	li = ownerDoc.createElement('li'),
+	li = ownerDoc.createElement('li');
 	li.setAttribute('li', ref.target);
 
 	// Set ref content first, so the HTML gets parsed
@@ -154,20 +160,6 @@ function processExtSource(manager, extToken, opts) {
 		pipeline.process(content);
 	}
 }
-
-/**
- * Native Parsoid implementation of the Cite extension
- * that ties together <ref> and <references>
- */
-function Cite() {
-	this.ref = new Ref(this);
-	this.references = new References(this);
-}
-
-Cite.prototype.resetState = function() {
-	this.ref.reset();
-	this.references.reset();
-};
 
 /**
  * Simple token transform version of the Ref extension tag
@@ -402,6 +394,20 @@ References.prototype.insertReferencesIntoDOM = function(refsNode) {
 	} else {
 		this.refGroups = {};
 	}
+};
+
+/**
+ * Native Parsoid implementation of the Cite extension
+ * that ties together <ref> and <references>
+ */
+var Cite = function() {
+	this.ref = new Ref(this);
+	this.references = new References(this);
+};
+
+Cite.prototype.resetState = function() {
+	this.ref.reset();
+	this.references.reset();
 };
 
 if (typeof module === "object") {

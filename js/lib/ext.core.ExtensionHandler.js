@@ -4,7 +4,13 @@ var TemplateHandler = require('./ext.core.TemplateHandler.js').TemplateHandler,
 	coreutil = require('util'),
 	Util = require('./mediawiki.Util.js').Util,
 	DOMUtils = require('./mediawiki.DOMUtils.js').DOMUtils,
-	PHPParseRequest = require('./mediawiki.ApiRequest.js').PHPParseRequest;
+	PHPParseRequest = require('./mediawiki.ApiRequest.js').PHPParseRequest,
+	defines = require('./mediawiki.parser.defines.js');
+// define some constructor shortcuts
+var KV = defines.KV,
+    TagTk = defines.TagTk,
+    SelfclosingTagTk = defines.SelfclosingTagTk,
+    EndTagTk = defines.EndTagTk;
 
 function ExtensionHandler(manager, options) {
 	this.manager = manager;
@@ -50,7 +56,7 @@ ExtensionHandler.prototype.parseExtensionHTML = function(extToken, cb, err, html
 		toks.push(this.getEncapsulationInfoEndTag(state));
 	}
 
-	cb({ tokens: [new InternalTk([new KV('tokens', toks)])] });
+	cb({ tokens: [new defines.InternalTk([new KV('tokens', toks)])] });
 };
 
 /**

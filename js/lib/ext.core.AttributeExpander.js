@@ -8,9 +8,14 @@ var request = require('request'),
 	qs = require('querystring'),
 	Util = require('./mediawiki.Util.js').Util,
 	ParserFunctions = require('./ext.core.ParserFunctions.js').ParserFunctions,
-	AttributeTransformManager = require('./mediawiki.TokenTransformManager.js')
-									.AttributeTransformManager,
+	AttributeTransformManager = require('./mediawiki.TokenTransformManager.js').
+	                            AttributeTransformManager,
 	defines = require('./mediawiki.parser.defines.js');
+// define some constructor shortcuts
+var KV = defines.KV,
+    TagTk = defines.TagTk,
+    SelfclosingTagTk = defines.SelfclosingTagTk,
+    EndTagTk = defines.EndTagTk;
 
 /* ----------------------------------------------------------
  * This helper method does two different things:

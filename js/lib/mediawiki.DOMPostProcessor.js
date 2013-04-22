@@ -1893,7 +1893,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 		e = null;
 	}
 
-	if (traceDSR) console.warn("Received " + s + ", " + e + " for " + node.nodeName + " --");
+	if (traceDSR) { console.warn("Received " + s + ", " + e + " for " + node.nodeName + " --"); }
 
 	var children = node.childNodes,
 		savedEndTagWidth = null,
@@ -1910,17 +1910,17 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 			endTagWidth = null;
 		cs = null;
 		if (cType === Node.TEXT_NODE) {
-			if (traceDSR) console.warn("-- Processing <" + node.nodeName + ":" + i + ">=#" + child.data + " with [" + cs + "," + ce + "]");
+			if (traceDSR) { console.warn("-- Processing <" + node.nodeName + ":" + i + ">=#" + child.data + " with [" + cs + "," + ce + "]"); }
 			if (ce !== null) {
 				cs = ce - child.data.length - DU.indentPreDSRCorrection(child);
 			}
 		} else if (cType === Node.COMMENT_NODE) {
-			if (traceDSR) console.warn("-- Processing <" + node.nodeName + ":" + i + ">=!" + child.data + " with [" + cs + "," + ce + "]");
+			if (traceDSR) { console.warn("-- Processing <" + node.nodeName + ":" + i + ">=!" + child.data + " with [" + cs + "," + ce + "]"); }
 			if (ce !== null) {
 				cs = ce - child.data.length - 7; // 7 chars for "<!--" and "-->"
 			}
 		} else if (cType === Node.ELEMENT_NODE) {
-			if (traceDSR) console.warn("-- Processing <" + node.nodeName + ":" + i + ">=" + child.nodeName + " with [" + cs + "," + ce + "]");
+			if (traceDSR) { console.warn("-- Processing <" + node.nodeName + ":" + i + ">=" + child.nodeName + " with [" + cs + "," + ce + "]"); }
 			var cTypeOf = child.getAttribute("typeof"),
 				dp = DU.getDataParsoid( child ),
 				tsr = dp.tsr,
@@ -2003,7 +2003,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 					} else {
 						stWidth = tsr[1] - tsr[0];
 					}
-					if (traceDSR) console.warn("TSR: " + JSON.stringify(tsr) + "; cs: " + cs + "; ce: " + ce);
+					if (traceDSR) { console.warn("TSR: " + JSON.stringify(tsr) + "; cs: " + cs + "; ce: " + ce); }
 				} else if (s && child.previousSibling === null) {
 					cs = s;
 				}
@@ -2198,7 +2198,7 @@ function computeDocDSR(root, env) {
 	}
 
 	var traceDSR = env.debug || (psd.traceFlags && (psd.traceFlags.indexOf("dsr") !== -1));
-	if (traceDSR) console.warn("------- tracing DSR computation -------");
+	if (traceDSR) { console.warn("------- tracing DSR computation -------"); }
 
 	// The actual computation buried in trace/debug stmts.
 	var body = root.body;
@@ -2207,7 +2207,7 @@ function computeDocDSR(root, env) {
 	var dp = DU.getDataParsoid( body );
 	dp.dsr = [startOffset, endOffset, 0, 0];
 
-	if (traceDSR) console.warn("------- done tracing DSR computation -------");
+	if (traceDSR) { console.warn("------- done tracing DSR computation -------"); }
 
 	if (psd.debug || (psd.dumpFlags && (psd.dumpFlags.indexOf("dom:post-dsr") !== -1))) {
 		console.warn("------ DOM: post-DSR -------");

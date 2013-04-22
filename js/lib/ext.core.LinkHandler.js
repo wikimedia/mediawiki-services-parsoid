@@ -13,7 +13,13 @@ var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	// Why mess around? We already have a URL sanitizer.
 	sanitizerLib = require( './ext.core.Sanitizer.js' ),
 	Sanitizer = sanitizerLib.Sanitizer,
-	SanitizerConstants = sanitizerLib.SanitizerConstants;
+	SanitizerConstants = sanitizerLib.SanitizerConstants,
+	defines = require('./mediawiki.parser.defines.js');
+// define some constructor shortcuts
+var KV = defines.KV,
+    TagTk = defines.TagTk,
+    SelfclosingTagTk = defines.SelfclosingTagTk,
+    EndTagTk = defines.EndTagTk;
 
 function WikiLinkHandler( manager, options ) {
 	this.manager = manager;
@@ -402,7 +408,7 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 			if ( oHash.link !== undefined ) {
 				linkTitle = Title.fromPrefixedText( env, oHash.link );
 			}
-			newAttribs.push( new KV('href', linkTitle.makeLink() ) )
+			newAttribs.push( new KV('href', linkTitle.makeLink() ) );
 		}
 		if (oHash['class']) {
 			newAttribs.push(new KV('class', oHash['class']));

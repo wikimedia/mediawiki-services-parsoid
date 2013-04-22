@@ -8,6 +8,9 @@ var Util = require('./mediawiki.Util.js').Util,
 	Node = require('./mediawiki.wikitext.constants.js').Node,
 	pd = require('./mediawiki.parser.defines.js');
 
+// define some constructor shortcuts
+var KV = pd.KV;
+
 var DOMUtils = {
 	isElt: function(node) {
 		return node.nodeType === Node.ELEMENT_NODE;
@@ -383,13 +386,13 @@ var DOMUtils = {
 					tagAttrs = domAttrsToTagAttrs(node.attributes);
 
 				if (Util.isVoidElement(nodeName)) {
-					tokBuf.push(new SelfclosingTagTk(nodeName, tagAttrs));
+					tokBuf.push(new pd.SelfclosingTagTk(nodeName, tagAttrs));
 				} else {
-					tokBuf.push(new TagTk(nodeName, tagAttrs));
+					tokBuf.push(new pd.TagTk(nodeName, tagAttrs));
 					for (var i = 0, n = children.length; i < n; i++) {
 						tokBuf = this.convertDOMtoTokens(tokBuf, children[i]);
 					}
-					tokBuf.push(new EndTagTk(nodeName));
+					tokBuf.push(new pd.EndTagTk(nodeName));
 				}
 				break;
 
@@ -398,7 +401,7 @@ var DOMUtils = {
 				break;
 
 			case Node.COMMENT_NODE:
-				tokBuf.push(new CommentTk(node.nodeValue));
+				tokBuf.push(new pd.CommentTk(node.nodeValue));
 				break;
 
 			default:

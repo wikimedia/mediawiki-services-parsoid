@@ -24,6 +24,14 @@
 
 "use strict";
 
+// define some constructor shortcuts
+var defines = require('./mediawiki.parser.defines.js');
+var KV = defines.KV,
+    EOFTk = defines.EOFTk,
+    TagTk = defines.TagTk,
+    SelfclosingTagTk = defines.SelfclosingTagTk,
+    EndTagTk = defines.EndTagTk;
+
 function TokenCollector ( manager, transformation, toEnd, rank, type, name ) {
 	this.transformation = transformation;
 	this.manager = manager;
