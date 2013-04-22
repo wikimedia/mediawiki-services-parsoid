@@ -14,11 +14,13 @@ var domino = require( './domino' ),
 
 /** WORKAROUND HACK to entities package, using domino. */
 // see https://github.com/fb55/node-entities/issues/8
-entities.decodeHTML5 = function(data) {
-	return data.replace(/&(#\d+|#[xX][0-9a-fA-F]+|[A-Za-z]+);/g, function(e) {
-		return domino.createDocument('x'+e).body.textContent.substr(1);
-	});
-};
+if ( /^0.2.[01]$/.test( require( 'entities/package.json' ).version ) ) {
+	entities.decodeHTML5 = function(data) {
+		return data.replace(/&(#\d+|#[xX][0-9a-fA-F]+|[A-Za-z]+);/g, function(e) {
+			return domino.createDocument('x'+e).body.textContent.substr(1);
+		});
+	};
+}
 
 /**
  * @class

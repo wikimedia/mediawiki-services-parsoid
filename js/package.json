@@ -4,7 +4,7 @@
 	"version": "0.0.1",
 	"dependencies": {
 		"alea": "~0.0.9",
-		"entities": "~0.2.1",
+		"entities": "~0.2.2",
 		"events": "0.x.x",
 		"request": "2.x.x",
 		"querystring": "0.x.x",
