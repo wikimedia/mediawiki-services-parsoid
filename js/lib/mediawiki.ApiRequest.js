@@ -219,7 +219,7 @@ TemplateRequest.prototype._handleJSON = function ( error, data ) {
 	var metadata = { title: self.title };
 
 	if ( error ) {
-		this._processListeners( error, '' );
+		this._processListeners( error, null );
 		return;
 	}
 
@@ -241,7 +241,7 @@ TemplateRequest.prototype._handleJSON = function ( error, data ) {
 					self.title +
 					' can be found at a different location: '
 					+ location );
-			this._processListeners( err, '' );
+			this._processListeners( err, null );
 			return;
 		}
 		console.log( data );
@@ -298,7 +298,7 @@ TemplateRequest.prototype._handleJSON = function ( error, data ) {
 	// (both original title as well as possible redirected title)
 	this.env.pageCache[this.queueKey] = this.env.pageCache[this.title] = src;
 
-	this._processListeners( error, metadata );
+	this._processListeners( error, error ? null : metadata );
 };
 
 /**
