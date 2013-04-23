@@ -186,12 +186,13 @@ ParserFunctions.prototype._switchLookupFallback = function ( frame, kvs, key, di
 					// SSS FIXME: JSHint is warning us not to create
 					// funtions in a loop -- worth creating a static fn.
 					// and using it, but have to bind lots of args -- lazy today.
-					cb: function( val ) {
+					/* jshint loopfunc: true */
+					cb: function( i, val ) {
 						process.nextTick(
 							self._switchLookupFallback.bind( self, frame,
 								kvs.slice(i+1), key, dict, cb, val )
 						);
-					},
+					}.bind( self, i ),
 					asyncCB: cb
 				});
 				return;

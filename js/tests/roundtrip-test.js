@@ -312,14 +312,15 @@ var checkIfSignificant = function ( env, offsets, src, body, out, cb, document )
 		//thisResult.wtDiff = Util.contextDiff(wt1, wt2, false, true, true);
 
 		// Get diff substrings from offsets
-		var formatDiff = function ( context ) {
+		/* jshint loopfunc: true */ // this function doesn't use loop variables
+		var formatDiff = function ( offset, context ) {
 			return [
 			'----',
 			src.substring(offset[0].start - context, offset[0].end + context),
 			'++++',
 			out.substring(offset[1].start - context, offset[1].end + context)
 			].join('\n');
-		};
+		}.bind( this, offset );
 
 		diff = Util.diff( origHTML, newHTML, false, true, true );
 

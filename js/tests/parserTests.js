@@ -1442,8 +1442,10 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 			}
 
 			for ( var j = 0; j < item.changes.length; j++ ) {
-				tasks.push( function ( modeIndex, changesIndex ) {
-					return function ( cb ) {
+				// we create the function in the loop but are careful to
+				// bind loop variables i and j at function creation time
+				/* jshint loopfunc: true */
+				tasks.push( function ( modeIndex, changesIndex, cb ) {
 						var newitem = Util.clone( item );
 						newitem.seed = changesIndex + '';
 						newitem.changes = item.changes[changesIndex];
@@ -1460,8 +1462,7 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 
 							process.nextTick( cb );
 						}.bind( this ) );
-					};
-				}( i, j ).bind( this ) );
+				}.bind( this, i, j ) );
 			}
 		} else {
 			tasks.push( this.processTest.bind( this, item, options, modes[i] ) );
