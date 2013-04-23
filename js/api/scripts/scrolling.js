@@ -1,3 +1,4 @@
+/* jshint browser:true, jquery:true */
 ( function ( $ ) {
 	$( document ).ready( function () {
 		var curDiff, getDiffs = function () {

@@ -226,7 +226,9 @@ TokenTransformManager.prototype._getTransforms = function ( token, minRank ) {
 	if ( minRank !== undefined ) {
 		// skip transforms <= minRank
 		var i = 0;
-		for ( var l = tts.length; i < l && tts[i].rank <= minRank; i++ ) { }
+		for ( var l = tts.length; i < l && tts[i].rank <= minRank; i++ ) {
+			/* jshint noempty: false */
+		}
 		return ( i && tts.slice( i ) ) || tts;
 	} else {
 		return tts;
@@ -549,6 +551,7 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 		if ( token.constructor === Array ) {
 			if ( ! token.length ) {
 				// skip it
+				/* jshint noempty: false */
 			} else if ( token.rank >= this.phaseEndRank ) {
 				// don't process the array in this phase.
 				accumChain.push( token );

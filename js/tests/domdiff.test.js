@@ -37,8 +37,8 @@ var argv = opts.argv,
 	newhtml = argv.newhtml;
 
 if (!oldhtml && argv._[0]) {
-	oldhtml = fs.readFileSync(argv._[0], 'utf8')
-	newhtml = fs.readFileSync(argv._[1], 'utf8')
+	oldhtml = fs.readFileSync(argv._[0], 'utf8');
+	newhtml = fs.readFileSync(argv._[1], 'utf8');
 }
 
 if (Util.booleanOption( argv.help ) || !oldhtml || !newhtml) {

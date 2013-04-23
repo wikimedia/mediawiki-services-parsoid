@@ -220,6 +220,7 @@ var roundTripDiff = function ( req, res, env, document ) {
 	var out = [];
 
 	var finalCB =  function () {
+		var i;
 		// XXX TODO FIXME BBQ There should be an error callback in SelSer.
 		out = out.join('');
 		if ( out === undefined ) {
@@ -232,7 +233,7 @@ var roundTripDiff = function ( req, res, env, document ) {
 		res.write('<script type="text/javascript" src="/jquery.js"></script><script type="text/javascript" src="/scrolling.js"></script><style>ins { background: #ff9191; text-decoration: none; } del { background: #99ff7e; text-decoration: none }; </style>\n');
 		// Emit base href so all relative urls resolve properly
 		var headNodes = document.firstChild.firstChild.childNodes;
-		for (var i = 0; i < headNodes.length; i++) {
+		for (i = 0; i < headNodes.length; i++) {
 			if (headNodes[i].nodeName.toLowerCase() === 'base') {
 				res.write(Util.serializeNode(headNodes[i]));
 				break;
@@ -241,7 +242,7 @@ var roundTripDiff = function ( req, res, env, document ) {
 		res.write('</head><body>\n');
 		res.write( '<h2>Wikitext parsed to HTML DOM</h2><hr>\n' );
 		var bodyNodes = document.body.childNodes;
-		for (var i = 0; i < bodyNodes.length; i++) {
+		for (i = 0; i < bodyNodes.length; i++) {
 			res.write(Util.serializeNode(bodyNodes[i]));
 		}
 		res.write('\n<hr>');

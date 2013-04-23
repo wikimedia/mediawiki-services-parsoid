@@ -149,17 +149,17 @@ function dumpFlags() {
 		'oldtextfile': {
 			description: 'File containing the old page text for a selective-serialization (see --selser)',
 			'boolean': false,
-			'default': null,
+			'default': null
 		},
 		'oldhtmlfile': {
 			description: 'File containing the old HTML for a selective-serialization (see --selser)',
 			'boolean': false,
-			'default': null,
+			'default': null
 		},
 		'domdiff': {
 			description: 'File containing the diff-marked HTML for used with selective-serialization (see --selser)',
 			'boolean': false,
-			'default': null,
+			'default': null
 		},
         'inputfile': {
             description: 'File containing input as an alternative to stdin',
