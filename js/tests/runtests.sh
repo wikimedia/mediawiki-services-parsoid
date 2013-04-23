@@ -12,7 +12,7 @@ warn() {
 }
 cd $(dirname $0) # allow running this script from other dirs
 
-OPTS="--cache --color --no-blacklist"
+OPTS="--cache --color --no-blacklist --exit-zero"
 CHANGES="--changesin selser.changes.json"
 if [ ! -d results ];then
     git init results

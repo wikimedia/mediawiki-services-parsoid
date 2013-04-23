@@ -292,6 +292,11 @@ ParserTests.prototype.getOpts = function () {
 			'boolean': false,
 			'default': ""
 		},
+		'exit-zero': {
+			description: "Don't exit with nonzero status if failures are found.",
+			'default': false,
+			'boolean': true
+		},
 		xml: {
 			description: 'Print output in JUnit XML format.',
 			'default': false,
@@ -1584,6 +1589,9 @@ ParserTests.prototype.processCase = function ( i, options ) {
 		var failures = options.reportSummary( this.stats );
 
 		// we're done!
+		if ( booleanOption( options['exit-zero'] ) ) {
+			failures = false;
+		}
 		process.exit(failures ? 2 : 0); // exit status 1 == uncaught exception
 	}
 };
