@@ -618,16 +618,17 @@ app.get( /\/_ci\/master/, function ( req, res ) {
 // Regular article serialization using POST
 app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function ( req, res ) {
 	var cb = function ( env ) {
-		var oldid = req.body.oldid || null;
-		env.page.id = req.body.oldid || null;
+		var doc, oldid = req.body.oldid || null;
+		env.page.id = oldid;
 		res.setHeader('Content-Type', 'text/x-mediawiki; charset=UTF-8');
 
 		try {
-			var doc = Util.parseHTML(req.body.content);
+			doc = Util.parseHTML(req.body.content);
 		} catch ( e ) {
 			console.log( 'There was an error in the HTML5 parser! Sending it back to the editor.' );
 			console.error( e.stack );
 			res.send( e.stack, 500 );
+			return;
 		}
 
 		env.errCB = function ( e ) {
