@@ -10,8 +10,15 @@
 "use strict";
 
 require('./mediawiki.parser.defines.js');
-var Util = require('./mediawiki.Util.js').Util;
 var WikitextConstants = require('./mediawiki.wikitext.constants.js').WikitextConstants;
+var Util = require('./mediawiki.Util.js').Util,
+    defines = require('./mediawiki.parser.defines.js');
+// define some constructor shortcuts
+var KV = defines.KV,
+    NlTk = defines.NlTk,
+    TagTk = defines.TagTk,
+    SelfclosingTagTk = defines.SelfclosingTagTk,
+    EndTagTk = defines.EndTagTk;
 
 /**
  * @class SanitizerModule
@@ -656,7 +663,7 @@ Sanitizer.prototype.onAnchor = function ( token ) {
  * attribute in the DOM).
  */
 Sanitizer.prototype.onAny = function ( token ) {
-	if (token.constructor === InternalTk) {
+	if (token.constructor === defines.InternalTk) {
 		return { token: token };
 	}
 

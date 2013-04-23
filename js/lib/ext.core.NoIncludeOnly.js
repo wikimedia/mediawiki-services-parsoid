@@ -6,6 +6,14 @@
 
 var Collector = require( './ext.util.TokenCollector.js' ).TokenCollector;
 
+// define some constructor shortcuts
+var defines = require('./mediawiki.parser.defines.js');
+var KV = defines.KV,
+    TagTk = defines.TagTk,
+    SelfclosingTagTk = defines.SelfclosingTagTk,
+    EndTagTk = defines.EndTagTk,
+    EOFTk = defines.EOFTk;
+
 /**
  * This helper function will build a meta token in the right way for these
  * tags.

@@ -3,7 +3,13 @@
  * MediaWiki-compatible italic/bold handling as a token stream transformation.
  */
 
-var Util = require('./mediawiki.Util.js').Util;
+var Util = require('./mediawiki.Util.js').Util,
+    defines = require('./mediawiki.parser.defines.js');
+// define some constructor shortcuts
+var KV = defines.KV,
+    NlTk = defines.NlTk,
+    TagTk = defines.TagTk,
+    EndTagTk = defines.EndTagTk;
 
 function QuoteTransformer ( dispatcher ) {
 	this.reset();

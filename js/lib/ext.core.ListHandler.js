@@ -3,7 +3,14 @@
  */
 
 "use strict";
-var Util = require('./mediawiki.Util.js').Util;
+var Util = require('./mediawiki.Util.js').Util,
+	defines = require('./mediawiki.parser.defines.js');
+// define some constructor shortcuts
+var KV = defines.KV,
+    NlTk = defines.NlTk,
+    TagTk = defines.TagTk,
+    SelfclosingTagTk = defines.SelfclosingTagTk,
+    EndTagTk = defines.EndTagTk;
 
 function ListHandler ( manager ) {
 	this.manager = manager;

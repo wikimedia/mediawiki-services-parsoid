@@ -256,7 +256,7 @@ MWParserEnvironment.getParserEnv = function ( parsoidConfig, wikiConfig, prefix,
 		wikiConfig = new WikiConfig( null, null );
 	}
 
-	var env = new this( parsoidConfig, wikiConfig );
+	var env = new MWParserEnvironment( parsoidConfig, wikiConfig );
 
 	if ( pageName ) {
 		env.setPageName( pageName );

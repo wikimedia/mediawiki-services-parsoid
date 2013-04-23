@@ -664,7 +664,7 @@ WSP.escapeWikiText = function ( state, text ) {
 WSP.escapeTplArgWT = function(arg) {
 	// FIXME: to be done
 	return arg;
-}
+};
 
 /**
  * DOM-based figure handler
@@ -2124,7 +2124,7 @@ WSP._buildTemplateWT = function(srcParts, cb) {
 		}
 	});
 	return buf.join('');
-}
+};
 
 /**
  * Get a DOM-based handler for an element node

@@ -7,7 +7,16 @@
 
 var events = require('events'),
 	$ = require( './fakejquery' ),
-	HTML5 = require('./html5/index');
+	HTML5 = require('./html5/index'),
+	defines = require('./mediawiki.parser.defines.js');
+// define some constructor shortcuts
+var KV = defines.KV,
+    CommentTk = defines.CommentTk,
+    EOFTk = defines.EOFTk,
+    NlTk = defines.NlTk,
+    TagTk = defines.TagTk,
+    SelfclosingTagTk = defines.SelfclosingTagTk,
+    EndTagTk = defines.EndTagTk;
 
 var FauxHTML5 = {};
 
@@ -45,14 +54,14 @@ FauxHTML5.TreeBuilder.prototype.onChunk = function ( tokens ) {
 		return;
 	}
 
-	if (this.trace) console.warn("---- <chunk> ----");
+	if (this.trace) { console.warn("---- <chunk> ----"); }
 
 	this.env.dp( 'chunk: ' + JSON.stringify( tokens, null, 2 ) );
 	for (var i = 0; i < n; i++) {
 		this.processToken(tokens[i]);
 	}
 
-	if (this.trace) console.warn("---- </chunk> ----");
+	if (this.trace) { console.warn("---- </chunk> ----"); }
 };
 
 FauxHTML5.TreeBuilder.prototype.onEnd = function ( ) {
@@ -146,7 +155,7 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			this.emit('token', {type: 'StartTag', name: tName, data: this._att(attribs)});
 			if (dataAttribs && dataAttribs.tsr) {
 				attrs = [];
-				if ( this.trace ) console.warn('inserting shadow meta for ' + tName);
+				if ( this.trace ) { console.warn('inserting shadow meta for ' + tName); }
 				attrs.push({nodeName: "typeof", nodeValue: "mw:StartTag"});
 				attrs.push({nodeName: "data-stag", nodeValue: tName + ':' + dataAttribs.tsr});
 				this.emit('token', {type: 'StartTag', name: 'meta', data: attrs});
@@ -165,7 +174,7 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			tName = token.name;
 			this.emit('token', {type: 'EndTag', name: tName});
 
-			if ( this.trace ) console.warn('inserting shadow meta for ' + tName);
+			if ( this.trace ) { console.warn('inserting shadow meta for ' + tName); }
 			attrs = this._att(attribs);
 			attrs.push({nodeName: "typeof", nodeValue: "mw:EndTag"});
 			attrs.push({nodeName: "data-etag", nodeValue: tName});

@@ -68,7 +68,16 @@
 
  * --------------------------------------------------------------------------*/
 
-var Util = require('./mediawiki.Util.js').Util;
+var Util = require('./mediawiki.Util.js').Util,
+    defines = require('./mediawiki.parser.defines.js');
+// define some constructor shortcuts
+var KV = defines.KV,
+    CommentTk = defines.CommentTk,
+    EOFTk = defines.EOFTk,
+    NlTk = defines.NlTk,
+    TagTk = defines.TagTk,
+    SelfclosingTagTk = defines.SelfclosingTagTk,
+    EndTagTk = defines.EndTagTk;
 
 // Constructor
 function PreHandler( manager, options ) {
@@ -107,7 +116,7 @@ PreHandler.STATE_STR = {
 	3: 'pre_collect',
 	4: 'multiline  ',
 	5: 'ignore     '
-}
+};
 
 function init(handler, addAnyHandler) {
 	handler.state  = PreHandler.STATE_SOL;
@@ -201,7 +210,7 @@ PreHandler.prototype.onNewline = function (token, manager, cb) {
 	}
 
 	if (this.trace) {
-		if (this.debug) console.warn("----------");
+		if (this.debug) { console.warn("----------"); }
 		console.warn("T:pre:nl : " + PreHandler.STATE_STR[this.state] + " : " + JSON.stringify(token));
 	}
 
@@ -284,7 +293,7 @@ function getUpdatedPreTSR(tsr, token) {
 PreHandler.prototype.onAny = function ( token, manager, cb ) {
 
 	if (this.trace) {
-		if (this.debug) console.warn("----------");
+		if (this.debug) { console.warn("----------"); }
 		console.warn("T:pre:any: " + PreHandler.STATE_STR[this.state] + " : " + JSON.stringify(token));
 	}
 

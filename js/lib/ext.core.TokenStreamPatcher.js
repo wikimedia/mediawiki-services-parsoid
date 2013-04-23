@@ -11,7 +11,15 @@
 "use strict";
 
 var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
-	Util = require('./mediawiki.Util.js').Util;
+	Util = require('./mediawiki.Util.js').Util,
+	defines = require('./mediawiki.parser.defines.js');
+// define some constructor shortcuts
+var KV = defines.KV,
+    CommentTk = defines.CommentTk,
+    NlTk = defines.NlTk,
+    TagTk = defines.TagTk,
+    SelfclosingTagTk = defines.SelfclosingTagTk,
+    EndTagTk = defines.EndTagTk;
 
 function TokenStreamPatcher( manager, options ) {
 	this.manager = manager;

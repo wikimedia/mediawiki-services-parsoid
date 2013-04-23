@@ -23,6 +23,7 @@
 var async = require('async');
 var Util = require('./mediawiki.Util.js').Util;
 var Namespace = require( './mediawiki.Title.js' ).Namespace;
+var defines = require('./mediawiki.parser.defines.js');
 
 function ParserFunctions ( manager ) {
 	this.manager = manager;
@@ -440,9 +441,9 @@ ParserFunctions.prototype.tag_worker = function( target, cb, kvs ) {
 		}
 	}
 
-	var ret = [new TagTk(target, tagAttribs)];
+	var ret = [new defines.TagTk(target, tagAttribs)];
 	ret = ret.concat(contentToks);
-	ret.push(new EndTagTk(target));
+	ret.push(new defines.EndTagTk(target));
 	cb({ tokens: ret });
 };
 
@@ -492,6 +493,8 @@ ParserFunctions.prototype._pf_timel_tokens = function ( target, args ) {
 	return { tokens: this._pf_time( target, args, 'local' ) };
 };
 
+var ParsoidDate; // forward declaration
+
 ParserFunctions.prototype._pf_time = function ( target, args, isLocal ) {
 	var res,
 		tpl = target.trim();
@@ -517,7 +520,7 @@ ParserFunctions.prototype._pf_time = function ( target, args, isLocal ) {
 // 'e' and 'T') can't be implemented in JavaScript w/o the use of an external
 // timezone database, like for instance https://github.com/mde/timezone-js
 // CURRENTLY NO SUPPORT FOR NON-GREGORIAN CALENDARS
-var ParsoidDate = function(env, isLocal, forcetime) {
+ParsoidDate = function(env, isLocal, forcetime) {
 	var date = new Date();
 	var offset = date.getTimezoneOffset();
 	// XXX: parse forcetime and change date
@@ -571,7 +574,7 @@ var getJan1 = function(d) {
 	d.setUTCSeconds(0);
 	d.setUTCMilliseconds(0);
 	return d;
-}
+};
 ParsoidDate.prototype.getWeek = function() {
 	var start = getJan1(this._localdate);
 	return Math.ceil((((this._localdate.valueOf() - start.valueOf()) / 86400000) + start.getUTCDay() + 1) / 7);
@@ -828,14 +831,14 @@ ParserFunctions.prototype.pf_scriptpath = function ( token, frame, cb, args ) {
 ParserFunctions.prototype.pf_server = function ( token, frame, cb, args ) {
 	var dataAttribs = Util.clone(token.dataAttribs);
 	cb( { tokens: [
-		new TagTk('a', [
-			new KV('rel', 'nofollow'),
-			new KV('class', 'external free'),
-			new KV('href', this.env.conf.wiki.server),
-			new KV('typeof', 'mw:ExtLink/URL')
+		new defines.TagTk('a', [
+			new defines.KV('rel', 'nofollow'),
+			new defines.KV('class', 'external free'),
+			new defines.KV('href', this.env.conf.wiki.server),
+			new defines.KV('typeof', 'mw:ExtLink/URL')
 		], dataAttribs),
 		this.env.conf.wiki.server,
-		new EndTagTk('a')
+		new defines.EndTagTk('a')
 	] } );
 };
 ParserFunctions.prototype.pf_servername = function ( token, frame, cb, args ) {
