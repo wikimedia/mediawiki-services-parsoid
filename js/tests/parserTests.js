@@ -1216,10 +1216,10 @@ ParserTests.prototype.reportSummary = function ( stats ) {
 		console.log( '\n' );
 		console.log( colorizeCount( stats.passedTests + stats.passedTestsWhitelisted, 'green' ) +
 		             ' total passed tests (expected ' +
-		             (stats.passedTests + stats.passedTestsWhitelisted - stats.passedTestsUnexpected) +
+		             (stats.passedTests + stats.passedTestsWhitelisted - stats.passedTestsUnexpected + stats.failedTestsUnexpected) +
 		             '), '+
 		             colorizeCount( failTotalTests , 'red'   ) + ' total failures (expected ' +
-		             (stats.failedTests - stats.failedTestsUnexpected) +
+		             (stats.failedTests - stats.failedTestsUnexpected + stats.passedTestsUnexpected) +
 		             ')' );
 		if ( stats.passedTestsUnexpected === 0 &&
 		     stats.failedTestsUnexpected === 0 ) {
