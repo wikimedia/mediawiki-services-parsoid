@@ -26,7 +26,7 @@ var fs = require('fs'),
 	util = require( 'util' ),
 	async = require( 'async' ),
 	PEG = require('pegjs'),
-	alea = require('alea'),
+	Alea = require('alea'),
 	// Handle options/arguments with optimist module
 	optimist = require('optimist');
 var booleanOption = Util.booleanOption; // shortcut
@@ -509,7 +509,7 @@ ParserTests.prototype.doesChangeExist = function ( changes, change ) {
  */
 ParserTests.prototype.makeChanges = function ( item, content, changelist, cb ) {
 	// Seed the random-number generator based on the item title
-	var random = new alea( (item.seed || '') + (item.title || '') );
+	var random = new Alea( (item.seed || '') + (item.title || '') );
 
 	cb = cb || function () {};
 	var initContent = content;
@@ -587,7 +587,7 @@ ParserTests.prototype.makeChanges = function ( item, content, changelist, cb ) {
  */
 ParserTests.prototype.generateChanges = function ( options, nonRandomChanges, item, content, cb ) {
 	// Seed the random-number generator based on the item title
-	var random = new alea( (item.seed || '') + (item.title || '') );
+	var random = new Alea( (item.seed || '') + (item.title || '') );
 
 	// This function won't actually change anything, but it will add change
 	// markers to random elements.
@@ -1200,7 +1200,7 @@ ParserTests.prototype.reportSummary = function ( stats ) {
 				curStr += colorizeCount( stats.passedTestsUnexpected, 'red' ) + ' unexpected, ';
 				curStr += colorizeCount( thisMode.passedTestsWhitelisted, 'yellow' ) + ' whitelisted) / ';
 				curStr += colorizeCount( thisMode.failedTests, 'red' ) + ' failed (';
-				curStr += colorizeCount( thisMode.failedTestsUnexpected, 'red') + ' unexpected)'
+				curStr += colorizeCount( thisMode.failedTestsUnexpected, 'red') + ' unexpected)';
 				console.log( curStr );
 			}
 		}
@@ -1210,7 +1210,7 @@ ParserTests.prototype.reportSummary = function ( stats ) {
 		curStr += colorizeCount( stats.passedTestsUnexpected, 'red' ) + ' unexpected, ';
 		curStr += colorizeCount( stats.passedTestsWhitelisted, 'yellow' ) + ' whitelisted) / ';
 		curStr += colorizeCount( stats.failedTests, 'red' ) + ' failed (';
-		curStr += colorizeCount( stats.failedTestsUnexpected, 'red') + ' unexpected)'
+		curStr += colorizeCount( stats.failedTestsUnexpected, 'red') + ' unexpected)';
 		console.log( curStr );
 
 		console.log( '\n' );
@@ -1399,6 +1399,7 @@ ParserTests.prototype.main = function ( options ) {
 			     path.resolve( options.changesin ) ===
 			     path.resolve( BLACKLIST_CHANGESIN ) ) {
 				/* okay, everything's consistent. */
+				/* jshint noempty: false */
 			} else {
 				console.error( "Turning off blacklist because custom "+
 				               "changesin files is being used." );
@@ -1610,7 +1611,7 @@ var ptests = new ParserTests(), popts = ptests.getOpts();
  * @singleton
  * @private
  */
-var xmlFuncs = function () {
+var xmlFuncs = (function () {
 	var fail, pass, passWhitelist,
 
 	results = {
@@ -1789,7 +1790,7 @@ var xmlFuncs = function () {
 		reportSuccess: reportSuccessXML,
 		reportFailure: reportFailureXML
 	};
-}();
+})();
 
 if ( popts && popts.xml ) {
 	popts.reportResult = xmlFuncs.reportResult;
