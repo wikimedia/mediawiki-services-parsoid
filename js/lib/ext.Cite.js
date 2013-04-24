@@ -345,7 +345,7 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 				var t = chunk[i];
 				if (t.constructor === SelfclosingTagTk &&
 					t.name === 'meta' &&
-					t.getAttribute('typeof').match(/mw:Ext\/Ref\/Content/))
+					/^mw:Ext\/Ref\/Content$/.test(t.getAttribute('typeof')))
 				{
 					res.push(t);
 				}
