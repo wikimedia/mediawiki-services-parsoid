@@ -353,6 +353,15 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 	// - (lcs: U,  paths: [U, US])
 	// - (lcs: B,  paths: [B])
 	// - (lcs: I,  paths: [I])
+	// XXX FIXME XXX
+	// when parsoid tackles
+	// http://ar.wikipedia.org/w/index.php?title=%D9%82%D8%A7%D9%84%D8%A8:%D8%A3%D8%AD%D9%88%D8%A7%D8%B6_%D8%B9%D9%85%D8%A7%D9%86&oldid=9394524
+	// it ends up invoking split_into_disjoint_sublists(JS Array[10203])
+	// which then recursively invokes itself, tries to put 10203 frames
+	// on the stack, runs out of call stack space and crashes.
+	// We've turned off the minimizeInlineTags pass for now (see bug 42803)
+	// but if we turn it back on, we need to rewrite this function to
+	// remove the recursion and use an explicit stack. [CSA]
 	function split_into_disjoint_sublists(P) {
 		var p    = P.shift();
 		var lcs  = p.path;
@@ -2466,7 +2475,7 @@ function DOMPostProcessor(env, options) {
 		firstDOMHandlerPass.traverse.bind( firstDOMHandlerPass ),
 		handleUnbalancedTableTags,
 		migrateStartMetas,
-		normalizeDocument,
+		//normalizeDocument,
 		findBuilderCorrectedTags,
 		handlePres,
 		migrateTrailingNLs
