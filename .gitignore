@@ -9,6 +9,7 @@
 api/localsettings.js
 api/nohup.out
 api/npm-debug.log
+lib/mediawiki.tokenizer.js
 tests/parserTests.cache
 tests/client/config.js
 tests/server/node_modules
