@@ -1335,6 +1335,7 @@ function encapsulateTemplates( env, doc, tplRanges, tplArrays) {
 				}
 
 				// Map the array of { dsr: .. , args: .. } objects to just the args property
+				/* jshint loopfunc: true */ // yes, this function is in a loop
 				tplArray = tplArray.map(function(a) { return a.wt ? a.wt : {template: a.args }; });
 
 				// Output the data-mw obj.

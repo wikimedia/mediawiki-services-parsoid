@@ -657,6 +657,7 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 								accumChain.state.c,
 								resTokens.rank,
 								// Filter out processed tokens
+								/* jshint loopfunc: true */ // yes, this function is in a loop
 								workStack.map(function(a) { return a.slice(a.eltIndex); }) );
 						}
 					}
