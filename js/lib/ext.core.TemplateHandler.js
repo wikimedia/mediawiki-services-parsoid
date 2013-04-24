@@ -366,7 +366,8 @@ TemplateHandler.prototype._processTemplateAndTitle = function( state, frame, cb,
 	// NOTE: No template wrapping required for nested templates.
 	var pipelineOpts = {
 		isInclude: true,
-		wrapTemplates: false
+		wrapTemplates: false,
+		extTag: this.options.extTag
 	};
 	var pipeline = this.manager.pipeFactory.getPipeline(
 				type || 'text/x-mediawiki', pipelineOpts
