@@ -357,11 +357,9 @@ var doubleRoundtripDiff = function ( env, offsets, body, out, cb ) {
 			process.exit( 1 );
 		};
 
-		var parserPipeline = Util.getParser( env, 'text/x-mediawiki/full' );
-
+		var parserPipeline = Util.getParserPipeline( env, 'text/x-mediawiki/full' );
 		parserPipeline.on( 'document', checkIfSignificant.bind( null, env, offsets, src, body, out, cb ) );
-
-		parserPipeline.process( out );
+		parserPipeline.processToplevelDoc( out );
 
 	} else {
 		cb( null, env, [] );

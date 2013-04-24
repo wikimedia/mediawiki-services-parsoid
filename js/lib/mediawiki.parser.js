@@ -417,6 +417,22 @@ ParserPipeline.prototype.process = function(input, key) {
 };
 
 /**
+ * Feed input tokens to the first pipeline stage
+ */
+ParserPipeline.prototype.processToplevelDoc = function(input) {
+	try {
+		// Reset pipeline state once per top-level doc.
+		// This clears state from any per-doc global state
+		// maintained across all pipelines used by the document.
+		// (Ex: Cite state)
+		this.resetState();
+		return this.first.process(input);
+	} catch ( err ) {
+		this.env.errCB( err );
+	}
+};
+
+/**
  * Set the frame on the last pipeline stage (normally the
  * AsyncTokenTransformManager).
  */

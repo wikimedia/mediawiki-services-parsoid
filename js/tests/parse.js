@@ -233,8 +233,7 @@ function dumpFlags() {
 		var parserPipeline,
 			serializer;
 		if (!argv.html2wt) {
-			var parserPipelineFactory = new ParserPipelineFactory(env);
-			parserPipeline = parserPipelineFactory.makePipeline('text/x-mediawiki/full');
+			parserPipeline = Util.getParserPipeline(env, 'text/x-mediawiki/full');
 		}
 		if (!argv.wt2html) {
 			if ( argv.oldtextfile ) {
@@ -276,7 +275,7 @@ function dumpFlags() {
                         parserPipeline.on('document', function(document) {
                             stdout.write( Util.serializeNode(document.body) );
                         });
-                        parserPipeline.process(wt);
+                        parserPipeline.processToplevelDoc(wt);
                     }
 
                 } );
@@ -301,7 +300,7 @@ function dumpFlags() {
 
 // Kick off the pipeline by feeding the input into the parser pipeline
                 env.setPageSrcInfo( input );
-                parserPipeline.process( env.page.src );
+                parserPipeline.processToplevelDoc( env.page.src );
             }
         };
 
