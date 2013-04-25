@@ -180,6 +180,7 @@ function noIncludeHandler(manager, options, collection) {
 }
 
 function NoInclude( manager, options ) {
+	/* jshint nonew:false */
 	new Collector(
 			manager,
 			noIncludeHandler.bind(null, manager, options),
@@ -232,6 +233,7 @@ function includeOnlyHandler(manager, options, collection) {
 // XXX: Preserve includeonly content in meta tag (data attribute) for
 // round-tripping!
 function IncludeOnly( manager, options ) {
+	/* jshint nonew:false */
 	new Collector(
 			manager,
 			includeOnlyHandler.bind(null, manager, options),
