@@ -256,12 +256,10 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 		group = null;
 	}
 
-	// Re-emit a references placeholder token
-	// to be processed in post-expansion Sync phase
+	// Emit a placeholder meta for the references token
+	// so that the dom post processor can generate and
+	// emit references at this point in the DOM.
 	var emitPlaceholderMeta = function() {
-		// Emit a placeholder meta for the references token
-		// so that the dom post processor can generate and
-		// emit references at this point in the DOM.
 		var placeHolder = new SelfclosingTagTk('meta', refsTok.attribs, refsTok.dataAttribs);
 		placeHolder.setAttribute('typeof', 'mw:Ext/References');
 		placeHolder.setAttribute('about', '#' + manager.env.newObjectId());

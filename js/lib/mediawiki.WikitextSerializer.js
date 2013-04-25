@@ -189,9 +189,6 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
 	// console.warn("---HWT---:onl:" + onNewline + ":" + text);
 	// tokenize the text
 
-	// this is synchronous for now, will still need sync version later, or
-	// alternatively make text processing in the serializer async
-
 	var prefixedText = text;
 	if (!onNewline) {
 		// Prefix '_' so that no start-of-line wiki syntax matches.
@@ -320,18 +317,37 @@ var WSP = WikitextSerializer.prototype;
 /* *********************************************************************
  * Here is what the state attributes mean:
  *
+ * rtTesting
+ *    Are we currently running round-trip tests?  If yes, then we know
+ *    there won't be any edits and we more aggressively try to use original
+ *    source and source flags during serialization since this is a test of
+ *    Parsoid's efficacy in preserving information.
+ *
  * sep
  *    Separator information:
  *    - constraints: min/max number of newlines
  *    - text: collected separator text from DOM text/comment nodes
  *    - lastSourceNode: -- to be documented --
  *
+ * onSOL
+ *    Is the serializer at the start of a new wikitext line?
+ *
+ * atStartOfOutput
+ *    True when wts kicks off, false after the first char has been output
+ *
+ * inIndentPre
+ *    Is the serializer currently handling indent-pre tags?
+ *
+ * inPHPBlock
+ *    Is the serializer currently handling a tag that the PHP parser
+ *    treats as a block tag?
+ *
  * wteHandlerStack
- *    stack of wikitext escaping handlers -- these handlers are responsible
+ *    Stack of wikitext escaping handlers -- these handlers are responsible
  *    for smart escaping when the surrounding wikitext context is known.
  *
  * tplAttrs
- *    tag attributes that came from templates in source wikitext -- these
+ *    Tag attributes that came from templates in source wikitext -- these
  *    are collected upfront from the DOM from mw-marked nodes.
  *
  * currLine
@@ -339,9 +355,11 @@ var WSP = WikitextSerializer.prototype;
  *    a "single line" of output wikitext as represented by a block node in
  *    the DOM.
  *
- *    - text : text output so far from all text nodes on the current line
+ *    - firstNode: first DOM node processed on this line
+ *    - text: output so far from all (unescaped) text nodes on the current line
+ *    - processed: has 'text' been analyzed already?
  *    - hasOpenHeadingChar: does the emitted text have an "=" char in sol posn?
- *    - hasOpenBrackets : does the line have bracket wikitext token pairs?
+ *    - hasOpenBrackets: does the line have open left brackets?
  * ********************************************************************* */
 
 WSP.initialState = {
@@ -349,7 +367,7 @@ WSP.initialState = {
 	sep: {},
 	onSOL: true,
 	escapeText: false,
-	atStartOfOutput: true,
+	atStartOfOutput: true, // SSS FIXME: Can this be done away with in some way?
 	inIndentPre: false,
 	inPHPBlock: false,
 	wteHandlerStack: [],
@@ -519,24 +537,6 @@ WSP.initialState = {
 // Make sure the initialState is never modified
 Util.deepFreeze( WSP.initialState );
 
-var openHeading = function(v) {
-	return function( state ) {
-		return v;
-	};
-};
-
-var closeHeading = function(v) {
-	return function(state, token) {
-		var prevToken = state.prevToken;
-		// Deal with empty headings. Ex: <h1></h1>
-		if (prevToken.constructor === pd.TagTk && prevToken.name === token.name) {
-			return "<nowiki></nowiki>" + v;
-		} else {
-			return v;
-		}
-	};
-};
-
 function escapedText(text) {
 	var match = text.match(/^((?:.*?|[\r\n]+[^\r\n]|[~]{3,5})*?)((?:\r?\n)*)$/);
 	return ["<nowiki>", match[1], "</nowiki>", match[2]].join('');
@@ -619,8 +619,8 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 		// console.warn("---EWT:DBG1---");
 		return escapedText(text);
 	} else if (!state.onSOL) {
-		// Detect if we have open brackets -- we use 'processed' flag as
-		// a performance opt. to run this detection only if/when required.
+		// Detect if we have open brackets or heading chars -- we use 'processed' flag
+		// as a performance opt. to run this detection only if/when required.
 		//
 		// FIXME: Even so, it is reset after after every emitted text chunk.
 		// Could be optimized further by figuring out a way to only test
@@ -659,10 +659,6 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 		    cl.hasOpenBrackets && text.match(/^[^\[]*\]/) &&
 				this.wteHandlers.hasWikitextTokens(state, sol, cl.text + text, true))
 		{
-			// If the current line emitted so far has an open bracket, and the current
-			// piece of text has one of the pairs ^=,],]], assume the worst and escape it.
-			// NOTE: It is sufficient to escape just one of the pairs.
-
 			// console.warn("---EWT:DBG2---");
 			return escapedText(text);
 		} else {
@@ -780,7 +776,6 @@ WSP.figureHandler = function(node, state, cb) {
 
 	cb( "[[" + outBits.join('|') + "]]", node );
 };
-
 
 WSP._serializeTableTag = function ( symbol, endSymbol, state, token ) {
 	var sAttribs = this._serializeAttributes(state, token);
@@ -928,14 +923,13 @@ var getLinkRoundTripData = function( node, state ) {
 	return rtData;
 };
 
-
 function escapeWikiLinkContentString ( contentString, state ) {
 	// Wikitext-escape content.
 	//
 	// When processing link text, we are no longer in newline state
 	// since that will be preceded by "[[" or "[" text in target wikitext.
-	state.wteHandlerStack.push(state.serializer.wteHandlers.wikilinkHandler);
 	state.onSOL = false;
+	state.wteHandlerStack.push(state.serializer.wteHandlers.wikilinkHandler);
 	var res = state.serializer.escapeWikiText(state, contentString);
 	state.wteHandlerStack.pop();
 	return res;
@@ -947,7 +941,6 @@ function escapeWikiLinkContentString ( contentString, state ) {
 // check for autoInsertedStart and autoInsertedEnd attributes and
 // supress openTagSrc or endTagSrc appropriately.
 WSP.linkHandler = function(node, state, cb) {
-	//return '[[';
 	// TODO: handle internal/external links etc using RDFa and dataAttribs
 	// Also convert unannotated html links without advanced attributes to
 	// external wiki links for html import. Might want to consider converting
@@ -960,7 +953,6 @@ WSP.linkHandler = function(node, state, cb) {
 
 	// Get the rt data from the token and tplAttrs
 	linkData = getLinkRoundTripData(node, state);
-
 
 	if ( linkData.type !== null && linkData.target.value !== null  ) {
 		// We have a type and target info
@@ -1180,7 +1172,6 @@ WSP.genContentSpanTypes = {
 	'mw:DiffMarker': 1
 };
 
-
 function id(v) {
 	return function() {
 		return v;
@@ -1216,42 +1207,6 @@ var inheritSTXTags = { tbody:1, tr: 1, td: 1, li: 1, dd: 1, dt: 1 },
 	// These (and inline elements) reset the default syntax to
 	// undefined
 	noHTMLSTXTags = {p: 1};
-
-// XXX refactor: move to dedicated template handler that consumes siblings
-//		if (state.activeTemplateId &&
-//			state.activeTemplateId === node.getAttribute("about"))
-//		{
-//			// skip -- template content
-//			return;
-//		} else {
-//			state.activeTemplateId = null;
-//		}
-//
-//		if (!state.activeTemplateId) {
-//			// Check if this node marks the start of template output
-//			// NOTE: Since we are deleting all mw:Object/**/End markers,
-//			// we need not verify if it is an End marker
-//			var typeofVal = node.getAttribute("typeof");
-//			if (typeofVal && typeofVal.match(/\bmw:Object(\/[^\s]+|\b)/)) {
-//				state.activeTemplateId = node.getAttribute("about") || "";
-//				var attrs = [ new pd.KV("typeof", "mw:TemplateSource") ];
-//				var dps = node.getAttribute("data-parsoid-serialize");
-//				if (dps) {
-//					attrs.push(new pd.KV("data-parsoid-serialize", dps));
-//				}
-//				var dummyToken = new pd.SelfclosingTagTk("meta",
-//					attrs,
-//					{ src: this._getDOMRTInfo(node).src }
-//				);
-//
-//				this._serializeToken(state, dummyToken);
-//				return;
-//			}
-//		}
-//	} else if (node.nodeType !== node.COMMENT_NODE) {
-//		state.activeTemplateId = null;
-//	}
-//
 
 
 /**
@@ -1637,7 +1592,7 @@ WSP.tagHandlers = {
 					if (nodeName in {td:1, body:1}) {
 						return {min: 0, max: 1};
 					} else {
-						return {min: 0, max:0};
+						return {min: 0, max: 0};
 					}
 				} else if (otherNode === node.previousSibling &&
 						// p-p transition
@@ -1657,9 +1612,9 @@ WSP.tagHandlers = {
 						  !( DU.isBlockNode(node.parentNode) ||
 								otherNode.nodeValue.match(/\n(?!$)/)))))
 				{
-					return {min:2, max:2};
+					return {min: 2, max: 2};
 				} else {
-					return {min:1, max:2};
+					return {min: 1, max: 2};
 				}
 			},
 			after: function(node, otherNode) {
@@ -1700,7 +1655,6 @@ WSP.tagHandlers = {
 				// Insert indentation
 				content = ' ' +
 					content.replace(/(\n(<!--(?:[^\-]|\-(?!\->))*\-\->)*)(?!$)/g, '$1 ' );
-
 
 				// Strip trailing separators
 				//var trailingSep = content.match(/\s*$/);
@@ -2088,7 +2042,6 @@ WSP._serializeAttributes = function (state, token) {
 	// XXX: round-trip optional whitespace / line breaks etc
 	return out.join(' ');
 };
-
 
 WSP._htmlElementHandler = function (node, state, cb) {
 	var attribKVs = DU.getAttributeKVArray(node);

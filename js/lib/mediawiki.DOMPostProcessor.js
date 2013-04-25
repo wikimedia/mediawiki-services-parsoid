@@ -2470,12 +2470,12 @@ function DOMPostProcessor(env, options) {
 	this.options = options;
 
 	// DOM traverser that runs before the in-order DOM handlers.
-	var firstDOMHandlerPass = new DOMTraverser();
-	firstDOMHandlerPass.addHandler( null, migrateDataParsoid );
+	var dataParsoidLoader = new DOMTraverser();
+	dataParsoidLoader.addHandler( null, migrateDataParsoid );
 
 	// Common post processing
 	this.processors = [
-		firstDOMHandlerPass.traverse.bind( firstDOMHandlerPass ),
+		dataParsoidLoader.traverse.bind( dataParsoidLoader ),
 		handleUnbalancedTableTags,
 		migrateStartMetas,
 		//normalizeDocument,
@@ -2501,12 +2501,11 @@ function DOMPostProcessor(env, options) {
 	var lastDOMHandler = new DOMTraverser();
 	lastDOMHandler.addHandler( 'a', handleLinkNeighbours.bind( null, env ) );
 	lastDOMHandler.addHandler( 'meta', stripMarkerMetas );
-
-	var reallyLastDOMHandler = new DOMTraverser();
-	reallyLastDOMHandler.addHandler( null, saveDataParsoid );
-
 	this.processors.push(lastDOMHandler.traverse.bind(lastDOMHandler));
-	this.processors.push(reallyLastDOMHandler.traverse.bind(reallyLastDOMHandler));
+
+	var dataParsoidSaver = new DOMTraverser();
+	dataParsoidSaver.addHandler( null, saveDataParsoid );
+	this.processors.push(dataParsoidSaver.traverse.bind(dataParsoidSaver));
 }
 
 // Inherit from EventEmitter
