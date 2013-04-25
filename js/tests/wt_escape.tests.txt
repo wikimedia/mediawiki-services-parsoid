@@ -247,6 +247,8 @@ Lists: 5. No unnecessary escapes
 *]]bar <span><nowiki>[[foo]]</nowiki></span>
 
 *=bar <span>foo]]</span>=
+
+* <s></s>: a
 !! result
 <ul><li> bar <span>[[foo]]</span>
 </li></ul>
@@ -257,6 +259,8 @@ Lists: 5. No unnecessary escapes
 <ul><li>]]bar <span>[[foo]]</span>
 </li></ul>
 <ul><li>=bar <span>foo]]</span>=
+</li></ul>
+<ul><li> <s></s>: a
 </li></ul>
 
 !!end

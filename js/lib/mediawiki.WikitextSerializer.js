@@ -153,9 +153,9 @@ WEHP.headingHandler = function(headingNode, state, text, opts) {
 	}
 };
 
-WEHP.liHandler = function(liNode, state, text) {
+WEHP.liHandler = function(liNode, state, text, opts) {
 	// Only bullets at the beginning of the list trigger escaping
-	if (DU.isText(liNode.firstChild) && state.currLine.text === '') {
+	if (state.currLine.text === '' && opts.node === liNode.firstChild) {
 		return text.match(/^[#\*:;]/);
 	} else {
 		return false;
@@ -465,7 +465,7 @@ WSP.initialState = {
 		// Escape 'res' if necessary
 		var origRes = res;
 		if (this.escapeText) {
-			res = this.serializer.escapeWikiText(this, res, { isLastChild: !node.nextSibling } );
+			res = this.serializer.escapeWikiText(this, res, { node: node, isLastChild: !node.nextSibling } );
 			this.escapeText = false;
 		}
 
@@ -1588,7 +1588,6 @@ WSP.tagHandlers = {
 				state.inWideTD = true;
 			}
 			emitStartTag(res, node, state, cb);
-			// state.resetCurrLine(node);
 			state.serializeChildren(node, cb, state.serializer.wteHandlers.tdHandler);
 			// FIXME: bad state hack!
 			state.inWideTD = undefined;
