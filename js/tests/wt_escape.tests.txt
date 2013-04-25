@@ -436,7 +436,7 @@ Tables: 3b. Nested in th
 Tables: 3b. Nested in th -- no escaping needed
 !! input
 {|
-!foo||bar
+!<nowiki>foo||bar</nowiki>
 |}
 !! result
 <table>

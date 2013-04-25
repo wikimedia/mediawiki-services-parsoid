@@ -168,7 +168,7 @@ WEHP.quoteHandler = function(state, text) {
 };
 
 WEHP.thHandler = function(state, text) {
-	return text.match(/!!/);
+	return text.match(/!!|\|\|/);
 };
 
 WEHP.wikilinkHandler = function(state, text) {
