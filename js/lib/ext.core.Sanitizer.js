@@ -559,7 +559,7 @@ var SanitizerConstants = {
 		this.noEndTagHash = { br: 1 };
 
 		this.tagWhiteListHash = Util.arrayToHash(WikitextConstants.Sanitizer.TagWhiteList);
-		this.validProtocolsRE = new RegExp("^(" + this.validUrlProtocols.join('|') + ")$" );
+		this.validProtocolsRE = new RegExp("^(" + this.validUrlProtocols.join('|') + ")$", "i" );
 		//|/?[^/])[^\\s]+$");
 		this.cssDecodeRE = computeCSSDecodeRegexp();
 		this.attrWhiteList = computeAttrWhiteList(this.globalConfig);
@@ -616,7 +616,7 @@ Sanitizer.prototype.sanitizeHref = function ( href ) {
 		proto = bits[1];
 		host = bits[2];
 		path = bits[3];
-		if ( ! proto.match(this.hrefRE)) {
+		if ( ! proto.match(this.constants.validProtocolsRE)) {
 			// invalid proto, disallow URL
 			return null;
 		}
@@ -886,7 +886,6 @@ Sanitizer.prototype.sanitizeTagAttrs = function(newToken, attrs) {
 	var html5Mode = this.constants.globalConfig.html5Mode;
 	var xmlnsRE   = this.constants.XMLNS_ATTRIBUTE_RE;
 	var evilUriRE = this.constants.EVIL_URI_RE;
-	var hrefRE    = this.constants.validProtocolsRE;
 
 	var wlist = this.getAttrWhiteList(tag);
 	//console.warn('wlist: ' + JSON.stringify(wlist));
