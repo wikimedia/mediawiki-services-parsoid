@@ -1174,7 +1174,7 @@ serializeNode = function (doc) {
 		fictional.appendChild(doc.cloneNode());
 		html = fictional.innerHTML;
 	}
-	return compressHTML(html);
+	return '<!DOCTYPE html>\n' + compressHTML(html);
 },
 
 /**
