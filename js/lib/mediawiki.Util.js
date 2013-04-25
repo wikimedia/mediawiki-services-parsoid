@@ -1165,6 +1165,12 @@ serializeNode = function (doc) {
 	if (doc.nodeName==='#document' && !html) {
 		html = doc.documentElement.outerHTML;
 	}
+	// ensure there's a doctype for documents
+	if (html &&
+	    (doc.nodeName === '#document' || /^html$/i.test(doc.nodeName)) &&
+	    ! /^\s*<!doctype/i.test(html)) {
+		html = '<!DOCTYPE html>\n' + html;
+	}
 	if (!html) {
 		// fall back to definition of outerHTML, for comments, etc:
 		// "return the result of running the HTML fragment
@@ -1174,7 +1180,7 @@ serializeNode = function (doc) {
 		fictional.appendChild(doc.cloneNode());
 		html = fictional.innerHTML;
 	}
-	return '<!DOCTYPE html>\n' + compressHTML(html);
+	return compressHTML(html);
 },
 
 /**
