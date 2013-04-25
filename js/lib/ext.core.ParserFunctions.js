@@ -22,7 +22,6 @@
 
 var async = require('async');
 var Util = require('./mediawiki.Util.js').Util;
-var Namespace = require( './mediawiki.Title.js' ).Namespace;
 var defines = require('./mediawiki.parser.defines.js');
 
 function ParserFunctions ( manager ) {

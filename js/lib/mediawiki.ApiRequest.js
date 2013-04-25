@@ -125,7 +125,7 @@ ApiRequest.prototype._requestCB = function (error, response, body) {
 			this._handleJSON( dnee, {} );
 		}
 	} else if (response.statusCode === 200) {
-		var src = '', data;
+		var data;
 		try {
 			//console.warn( 'body: ' + body );
 			data = JSON.parse( body );

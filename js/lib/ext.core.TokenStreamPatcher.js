@@ -14,9 +14,7 @@ var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	Util = require('./mediawiki.Util.js').Util,
 	defines = require('./mediawiki.parser.defines.js');
 // define some constructor shortcuts
-var KV = defines.KV,
-    CommentTk = defines.CommentTk,
-    NlTk = defines.NlTk,
+var CommentTk = defines.CommentTk,
     TagTk = defines.TagTk,
     SelfclosingTagTk = defines.SelfclosingTagTk,
     EndTagTk = defines.EndTagTk;

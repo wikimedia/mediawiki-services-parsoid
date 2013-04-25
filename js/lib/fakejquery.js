@@ -17,7 +17,6 @@
 
   function isFunction(value) { return type(value) == "function" }
   function isWindow(obj)     { return obj != null && obj == obj.window }
-  function isDocument(obj)   { return obj != null && obj.nodeType == obj.DOCUMENT_NODE }
   function isObject(obj)     { return type(obj) == "object" }
   function isPlainObject(obj) {
     return isObject(obj) && !isWindow(obj) && Object.getPrototypeOf(obj) == Object.prototype
@@ -25,7 +24,6 @@
   function isArray(value) { return value instanceof Array }
   function likeArray(obj) { return typeof obj.length == 'number' }
 
-  function compact(array) { return filter.call(array, function(item){ return item != null }) }
   function flatten(array) { return array.length > 0 ? concat.apply([], array) : array }
 
   function extend(target, source, deep) {

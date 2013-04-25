@@ -71,13 +71,13 @@
 var Util = require('./mediawiki.Util.js').Util,
     defines = require('./mediawiki.parser.defines.js');
 // define some constructor shortcuts
-var KV = defines.KV,
-    CommentTk = defines.CommentTk,
+var CommentTk = defines.CommentTk,
     EOFTk = defines.EOFTk,
-    NlTk = defines.NlTk,
     TagTk = defines.TagTk,
     SelfclosingTagTk = defines.SelfclosingTagTk,
     EndTagTk = defines.EndTagTk;
+
+var init; // forward declaration.
 
 // Constructor
 function PreHandler( manager, options ) {
@@ -118,7 +118,7 @@ PreHandler.STATE_STR = {
 	5: 'ignore     '
 };
 
-function init(handler, addAnyHandler) {
+init = function(handler, addAnyHandler) {
 	handler.state  = PreHandler.STATE_SOL;
 	handler.lastNlTk = null;
 	// Initialize to zero to deal with indent-pre
@@ -133,7 +133,7 @@ function init(handler, addAnyHandler) {
 		handler.manager.addTransform(handler.onAny.bind(handler),
 			"PreHandler:onAny", handler.anyRank, 'any');
 	}
-}
+};
 
 PreHandler.prototype.moveToIgnoreState = function() {
 	this.state = PreHandler.STATE_IGNORE;

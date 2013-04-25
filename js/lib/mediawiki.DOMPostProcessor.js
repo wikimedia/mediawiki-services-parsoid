@@ -105,7 +105,7 @@ DOMTraverser.prototype.addHandler = function ( nodeName, action ) {
 };
 
 DOMTraverser.prototype.callHandlers = function ( node ) {
-	var ix, result, handlers, name = ( node.nodeName || '' ).toLowerCase();
+	var ix, result, name = ( node.nodeName || '' ).toLowerCase();
 
 	for ( ix = 0; ix < this.handlers.length; ix++ ) {
 		if ( this.handlers[ix].name === null ||
@@ -122,7 +122,7 @@ DOMTraverser.prototype.callHandlers = function ( node ) {
  * Traverse the DOM and fire the handlers that are registered
  */
 DOMTraverser.prototype.traverse = function ( node ) {
-	var childDT, nextChild, child = node.firstChild;
+	var nextChild, child = node.firstChild;
 
 	while ( child !== null ) {
 		nextChild = child.nextSibling;
@@ -857,8 +857,7 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 
 	// now find common ancestor
 	var elem = endElem;
-	var parentNode = endElem.parentNode,
-	    firstSibling, lastSibling;
+	var parentNode = endElem.parentNode;
 	var range = null;
 	while (parentNode && parentNode.nodeType !== Node.DOCUMENT_NODE) {
 		var i = startAncestors.indexOf( parentNode );
@@ -1385,7 +1384,6 @@ function swallowTableIfNestedDSR(elt, tbl) {
 }
 
 function findTableSibling( elem, about ) {
-	var tableNode = null;
 	elem = elem.nextSibling;
 	while (elem &&
 			(!DU.hasNodeName(elem, 'table') ||
@@ -1649,8 +1647,7 @@ function findBuilderCorrectedTags(document, env) {
 	// and adds autoInsertedEnd/Start flags if it detects the tags to be inserted by
 	// the HTML tree builder
 	function findAutoInsertedTags(node) {
-		var children = node.childNodes,
-			c = node.firstChild,
+		var c = node.firstChild,
 			sibling, expectedName;
 
 		while (c !== null) {
@@ -2174,6 +2171,8 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 	return [cs, e];
 }
 
+var saveDataParsoid; // forward declaration
+
 function dumpDomWithDataAttribs( root ) {
 	function cloneData(node, clone) {
 		var d = node.data;
@@ -2287,6 +2286,8 @@ function generateReferences(refsExt, node) {
 	}
 }
 
+var findAndHandleNeighbour; // forward declaration
+
 /**
  * Function for fetching the link prefix based on a link node.
  *
@@ -2330,7 +2331,7 @@ function getLinkTrail( env, node ) {
 /**
  * Abstraction of both link-prefix and link-trail searches.
  */
-function findAndHandleNeighbour( env, goForward, regex, node, baseAbout ) {
+findAndHandleNeighbour = function( env, goForward, regex, node, baseAbout ) {
 	var value, matches, document, nextSibling,
 		nextNode = goForward ? 'nextSibling' : 'previousSibling',
 		innerNode = goForward ? 'firstChild' : 'lastChild',
@@ -2388,7 +2389,7 @@ function findAndHandleNeighbour( env, goForward, regex, node, baseAbout ) {
 	}
 
 	return result;
-}
+};
 
 /**
  * Workhorse function for bringing linktrails and link prefixes into link content.
@@ -2446,11 +2447,11 @@ function migrateDataParsoid( node ) {
  *
  * Save the data-parsoid attributes on each node.
  */
-function saveDataParsoid( node ) {
+saveDataParsoid = function( node ) {
 	if ( node.nodeType === node.ELEMENT_NODE && node.data ) {
 		DU.saveDataAttribs( node );
 	}
-}
+};
 
 /**
  * @method

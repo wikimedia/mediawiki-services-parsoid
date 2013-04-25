@@ -2,10 +2,7 @@
  * Per-wiki config library for interfacing with MediaWiki.
  */
 
-var qs = require( 'querystring' ),
-	util = require( 'util' ),
-	request = require( 'request' ),
-	baseConfig = require( './baseconfig/en.json' ).query,
+var baseConfig = require( './baseconfig/en.json' ).query,
 	Util = require( './mediawiki.Util.js' ).Util,
 	request = require( 'request' );
 

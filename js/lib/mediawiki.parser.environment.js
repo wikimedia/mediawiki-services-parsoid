@@ -1,13 +1,9 @@
 "use strict";
 
-var Util = require('./mediawiki.Util.js').Util,
-	WikiConfig = require( './mediawiki.WikiConfig.js' ).WikiConfig,
+var WikiConfig = require( './mediawiki.WikiConfig.js' ).WikiConfig,
 	ParsoidConfig = require( './mediawiki.ParsoidConfig.js' ).ParsoidConfig,
 	ConfigRequest = require( './mediawiki.ApiRequest.js' ).ConfigRequest,
-	$ = require( './fakejquery' ),
-	title = require('./mediawiki.Title.js'),
-	Title = title.Title,
-	Namespace = title.Namespace;
+	$ = require( './fakejquery' );
 
 function Tracer(env) {
 	this.env = env;

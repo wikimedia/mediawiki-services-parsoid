@@ -871,8 +871,7 @@ var splitLinkContentString = function (contentString, dp, target) {
 // Helper function for getting RT data from the tokens
 var getLinkRoundTripData = function( node, state ) {
 	var tplAttrs = state.tplAttrs,
-		dp = node.data.parsoid,
-		attribs = node.attributes;
+	    dp = node.data.parsoid;
 	var rtData = {
 		type: null,
 		target: null, // filled in below
@@ -2044,7 +2043,6 @@ WSP._serializeAttributes = function (state, token) {
 };
 
 WSP._htmlElementHandler = function (node, state, cb) {
-	var attribKVs = DU.getAttributeKVArray(node);
 
 	emitStartTag(this._serializeHTMLTag(state, DU.mkTagTk(node)),
 			node, state, cb);
@@ -2060,7 +2058,7 @@ WSP._htmlElementHandler = function (node, state, cb) {
 			node, state, cb);
 };
 
-WSP._buildTemplateWT = function(srcParts, cb) {
+WSP._buildTemplateWT = function(srcParts) {
 	var buf = [],
 		serializer = this;
 	srcParts.map(function(part) {
@@ -2407,9 +2405,8 @@ WSP.extractTemplatedAttributes = function(node, state) {
 			//node.parentNode.removeChild(node);
 		}
 	} else {
-		var about = DU.isElt(node) ? node.getAttribute("about") || "" : "";
 		var child = node.firstChild;
-		var next, prev, childIsPre, str;
+		var next, prev, childIsPre;
 
 		while (child) {
 			// Get the next sibling first thing because we may delete this child
@@ -2431,7 +2428,7 @@ WSP.extractTemplatedAttributes = function(node, state) {
  * min, max structure.
  */
 WSP.getSepNlConstraints = function(nodeA, sepNlsHandlerA, nodeB, sepNlsHandlerB) {
-	var nlConstraints = { a:{}, b:{} }, bc;
+	var nlConstraints = { a:{}, b:{} };
 	if (sepNlsHandlerA) {
 		nlConstraints.a = sepNlsHandlerA(nodeA, nodeB);
 		nlConstraints.min = nlConstraints.a.min;
@@ -2661,7 +2658,6 @@ WSP.emitSeparator = function(state, cb, node) {
 	var sep,
 		origNode = node,
 		src = state.env.page.src,
-		constraints = state.sep.constraints,
 		prevNode = state.sep.lastSourceNode,
 		dsrA, dsrB;
 
@@ -2862,11 +2858,6 @@ WSP._serializeNode = function( node, state, cb) {
 
 			var dp = node.data.parsoid;
 			dp.dsr = dp.dsr || [];
-
-			var nodeName = node.nodeName.toLowerCase(),
-				tkAttribs = this._getDOMAttribs(node.attributes),
-				tkRTInfo = this._getDOMRTInfo(node),
-				parentSTX = state.parentSTX;
 
 			// Update separator constraints
 			prev = this._getPrevSeparatorElement(node, state);

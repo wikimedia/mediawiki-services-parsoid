@@ -13,9 +13,6 @@
 // make this global for now
 // XXX: figure out a way to get away without a global for PEG actions!
 var $ = require('./fakejquery'),
-	events = require( 'events' ),
-	fs = require('fs'),
-	path = require('path'),
 	PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	TokenTransformManager = require('./mediawiki.TokenTransformManager.js'),
 	SyncTokenTransformManager = TokenTransformManager.SyncTokenTransformManager,
@@ -41,6 +38,8 @@ var $ = require('./fakejquery'),
 	BehaviorSwitchPreprocessor = BehaviorSwitch.BehaviorSwitchPreprocessor,
 	TreeBuilder = require('./mediawiki.HTML5TreeBuilder.node.js').FauxHTML5.TreeBuilder,
 	DOMPostProcessor = require('./mediawiki.DOMPostProcessor.js').DOMPostProcessor;
+
+var ParserPipeline; // forward declaration
 
 function ParserPipelineFactory ( env ) {
 	this.pipelineCache = {};
@@ -291,8 +290,7 @@ ParserPipelineFactory.prototype.getPipeline = function ( type, options ) {
 		options.isInclude = true;
 	}
 
-	var pipe,
-		cacheType = getCacheKey(type, options);
+	var cacheType = getCacheKey(type, options);
 	if ( ! this.pipelineCache[cacheType] ) {
 		this.pipelineCache[cacheType] = [];
 	}
@@ -326,7 +324,7 @@ ParserPipelineFactory.prototype.returnPipeline = function ( type, pipe ) {
  * supposed to emit events, while the first is supposed to support a process()
  * method that sets the pipeline in motion.
  */
-function ParserPipeline ( stages, returnToCacheCB, env ) {
+ParserPipeline = function( stages, returnToCacheCB, env ) {
 	this.stages = stages;
 	this.first = stages[0];
 	this.last = stages.last();
@@ -341,7 +339,7 @@ function ParserPipeline ( stages, returnToCacheCB, env ) {
 		// add a callback to return the pipeline back to the cache
 		this.last.addListener( 'end', this.returnToCacheCB );
 	}
-}
+};
 
 /*
  * Applies the function across all stages and transformers registered at each stage

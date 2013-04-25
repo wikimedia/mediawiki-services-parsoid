@@ -2,6 +2,8 @@
 
 var Util = require('./mediawiki.Util.js').Util;
 
+var Namespace; // forward declaration
+
 /**
  * @class
  *
@@ -103,7 +105,7 @@ Title.prototype.getPrefixedText = function () {
  * @param {number} id The id of the namespace to represent.
  * @param {MWParserEnvironment} env
  */
-function Namespace( id, env ) {
+Namespace = function( id, env ) {
 	var ids = env.conf.wiki.namespaceIds;
 	var names = env.conf.wiki.namespaceNames;
 	this.id = Number( id );
@@ -125,7 +127,7 @@ function Namespace( id, env ) {
 		'0': '',
 		'14': 'Category'
 	};
-}
+};
 
 /**
  * @method

@@ -17,19 +17,11 @@
  * @private
  */
 
-/**
- * Configuration object.
- * @property
- */
-var config = {};
-
 // global includes
 var express = require('express'),
 	jsDiff = require('diff'),
 	childProc = require('child_process'),
 	spawn = childProc.spawn,
-	fork = childProc.fork,
-	path = require('path'),
 	cluster = require('cluster'),
 	fs = require('fs');
 
@@ -60,9 +52,6 @@ var WikitextSerializer = require(mp + 'mediawiki.WikitextSerializer.js').Wikitex
 	SelectiveSerializer = require( mp + 'mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
 	Util = require( mp + 'mediawiki.Util.js' ).Util,
 	libtr = require(mp + 'mediawiki.ApiRequest.js'),
-	DoesNotExistError = libtr.DoesNotExistError,
-	ParserError = libtr.ParserError,
-	WikiConfig = require( mp + 'mediawiki.WikiConfig' ).WikiConfig,
 	ParsoidConfig = require( mp + 'mediawiki.ParsoidConfig' ).ParsoidConfig,
 	MWParserEnvironment = require( mp + 'mediawiki.parser.environment.js' ).MWParserEnvironment,
 	TemplateRequest = libtr.TemplateRequest;

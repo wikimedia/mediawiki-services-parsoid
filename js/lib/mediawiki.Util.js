@@ -6,7 +6,6 @@
 "use strict";
 
 var domino = require( './domino' ),
-	path = require('path'),
 	async = require('async'),
 	$ = require( './fakejquery' ),
 	jsDiff = require( 'diff' ),
@@ -436,7 +435,7 @@ var Util = {
 	 * supplied callback with the new KV pairs.
 	 */
 	expandParserValueValues: function(kvs, cb, wrapTemplates) {
-		var kv, v,
+		var v,
 		reassembleKV = function( kv, cb2, v )  {
 			var newKV = Util.clone(kv);
 			newKV.v = v;
@@ -923,7 +922,7 @@ var Util = {
  */
 // FIXME: Dead function?  SelectiveSerializer doesn't seem to use this
 Util.stripFirstParagraph = function ( node ) {
-	var thisnode, hasAttrs, dataParsoid, attrs, exemptAttrs = 0, haveGone = false;
+	var thisnode, hasAttrs, dataParsoid, attrs, exemptAttrs = 0;
 	for ( var i = 0; i < node.childNodes.length; i++ ) {
 		thisnode = node.childNodes[i];
 		exemptAttrs += Util.getJSONAttribute( thisnode, 'data-ve-changed' ) ? 1 : 0;

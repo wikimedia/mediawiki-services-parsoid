@@ -10,8 +10,7 @@ var events = require('events'),
 	HTML5 = require('./html5/index'),
 	defines = require('./mediawiki.parser.defines.js');
 // define some constructor shortcuts
-var KV = defines.KV,
-    CommentTk = defines.CommentTk,
+var CommentTk = defines.CommentTk,
     EOFTk = defines.EOFTk,
     NlTk = defines.NlTk,
     TagTk = defines.TagTk,

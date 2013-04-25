@@ -6,8 +6,7 @@
 var Util = require('./mediawiki.Util.js').Util,
     defines = require('./mediawiki.parser.defines.js');
 // define some constructor shortcuts
-var KV = defines.KV,
-    NlTk = defines.NlTk,
+var NlTk = defines.NlTk,
     TagTk = defines.TagTk,
     EndTagTk = defines.EndTagTk;
 
@@ -58,7 +57,6 @@ QuoteTransformer.prototype._startNewChunk = function ( ) {
 // onNewLine.
 QuoteTransformer.prototype.onQuote = function ( token, frame, prevToken ) {
 	var qlen = token.value.length,
-		tokens = [], // output tokens
 		ctx = {
 			token: token,
 			frame: frame,
@@ -68,7 +66,7 @@ QuoteTransformer.prototype.onQuote = function ( token, frame, prevToken ) {
 			frame: frame,
 			prevToken: prevToken
 		},
-		newToken, tsr;
+		tsr;
 
 	if ( ! this.isActive ) {
 		this.dispatcher.addTransform( this.onNewLine.bind(this), "QuoteTransformer:onNewLine",
@@ -181,8 +179,7 @@ QuoteTransformer.prototype.onNewLine = function (  token, frame, prevToken ) {
 	if (this.italics.length % 2 && this.bolds.length % 2) {
 		var firstsingleletterword = -1,
 			firstmultiletterword = -1,
-			firstspace = -1,
-			lastbold = -1;
+			firstspace = -1;
 		for (var j = 0; j < this.bolds.length; j++) {
 			var ctx = this.bolds[j][0];
 			var ctxPrevToken = ctx.prevToken;
@@ -282,7 +279,6 @@ QuoteTransformer.prototype.quotesToTags = function ( chunks, name ) {
 	var toggle = true,
 		t,
 		j,
-		out = [],
 		newToken,
 		nameToWidth = {
 			b: 3,

@@ -30,8 +30,7 @@ var buildMetaToken = function ( manager, tokenName, isEnd, tsr, src ) {
 };
 
 var buildStrippedMetaToken = function ( manager, tokenName, startDelim, endDelim ) {
-	var tokens = [],
-		da = startDelim.dataAttribs,
+	var da = startDelim.dataAttribs,
 		tsr0 = da ? da.tsr : null,
 		t0 = tsr0 ? tsr0[0] : null,
 		t1, tsr1;

@@ -118,7 +118,7 @@ function interwikiContent( token ) {
 
 WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 
-	var j, maybeContent, about, possibleTags, property, newType,
+	var j, about, property,
 		hrefkv, saniContent, strContent, env = this.manager.env,
 		attribs = token.attribs,
 		hrefSrc = Util.lookupKV( token.attribs, 'href' ).vsrc,
@@ -729,7 +729,6 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 		tagAttrs,
 		builtTag,
 		href = Util.tokensToString( Util.lookup( token.attribs, 'href' ) ),
-		modTxt = false,
 		origTxt = token.getWTSource( env ),
 		txt = href;
 
@@ -784,7 +783,7 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 		origHref = Util.lookup( token.attribs, 'href' ),
 		href = Util.tokensToString( origHref ),
 		content = Util.lookup( token.attribs, 'mw:content'),
-		newAttrs, aStart, hrefKv, title;
+		newAttrs, aStart, title;
 
 	//console.warn('extlink href: ' + href );
 	//console.warn( 'mw:content: ' + JSON.stringify( content, null, 2 ) );
@@ -858,9 +857,9 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 			//
 			// targetOff covers all spaces before content
 			// and we need src without those spaces.
-			var tsr0 = dataAttribs.tsr[0] + 1,
-				tsr1 = dataAttribs.targetOff - (token.getAttribute('spaces') || '').length;
-			aStart.addNormalizedAttribute( 'href', href, env.page.src.substring(tsr0, tsr1) );
+			var tsr0a = dataAttribs.tsr[0] + 1,
+				tsr1a = dataAttribs.targetOff - (token.getAttribute('spaces') || '').length;
+			aStart.addNormalizedAttribute( 'href', href, env.page.src.substring(tsr0a, tsr1a) );
 		}
 		cb( {
 			tokens: [aStart].concat(content, [new EndTagTk('a')])
@@ -877,11 +876,11 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 			var da = token.dataAttribs,
 				// targetOff covers all spaces before content
 				// and we need src without those spaces.
-				tsr0 = da.tsr[0] + 1,
-				tsr1 = da.targetOff - spaces.length,
+				tsr0b = da.tsr[0] + 1,
+				tsr1b = da.targetOff - spaces.length,
 				span = new TagTk('span', [new KV('typeof', 'mw:Placeholder')], {
-						tsr: [tsr0, tsr1],
-						src: env.page.src.substring(tsr0, tsr1)
+						tsr: [tsr0b, tsr1b],
+						src: env.page.src.substring(tsr0b, tsr1b)
 					} );
 
 			tokens.push(span);

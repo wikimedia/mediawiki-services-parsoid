@@ -26,6 +26,9 @@ var KV = defines.KV,
     Params = defines.Params,
     ParserValue = defines.ParserValue;
 
+// forward declarations
+var TokenAccumulator, Frame, ExpansionCache;
+
 
 function verifyTokensIntegrity(ret, nullOkay) {
 	// FIXME: Where is this coming from?
@@ -1001,7 +1004,7 @@ AttributeTransformManager.prototype._toType = 'tokens/x-mediawiki/expanded';
  * templates are already expanded.
  */
 AttributeTransformManager.prototype.process = function (attributes) {
-	var n, pipe, ref;
+	var n;
 	// console.warn( 'AttributeTransformManager.process: ' + JSON.stringify( attributes ) );
 
 	// transform each argument (key and value), and handle asynchronous returns
@@ -1072,8 +1075,6 @@ AttributeTransformManager.prototype.process = function (attributes) {
  * constructs like switches.
  */
 AttributeTransformManager.prototype.processKeys = function (attributes) {
-	var pipe,
-		ref;
 	// console.warn( 'AttributeTransformManager.processKeys: ' + JSON.stringify(attributes) );
 
 	// TODO: wrap in chunk and call
@@ -1169,14 +1170,14 @@ var tid = 0;
  * @param {Object} manager
  * @param {Function} parentCB The callback to call after we've finished accumulating.
  */
-function TokenAccumulator( manager, parentCB ) {
+TokenAccumulator = function( manager, parentCB ) {
 	this.uid = tid++; // useful for debugging
 	this.manager = manager;
 	this.parentCB = parentCB;
 	this.siblingToks = [];
 	this.waitForChild = true;
 	this.waitForSibling = true;
-}
+};
 
 TokenAccumulator.prototype.setParentCB = function ( cb ) {
 	this.parentCB = cb;
@@ -1309,7 +1310,7 @@ TokenAccumulator.prototype.append = function ( tokens ) {
  * exceed the maximum expansion depth.
  */
 
-function Frame( title, manager, args, parentFrame ) {
+Frame = function( title, manager, args, parentFrame ) {
 	this.title = title;
 	this.manager = manager;
 	this.args = new Params( args );
@@ -1338,7 +1339,7 @@ function Frame( title, manager, args, parentFrame ) {
 		this.depth = 0;
 		this._cacheKey = args._cacheKey;
 	}
-}
+};
 
 /**
  * Create a new child frame
@@ -1553,9 +1554,9 @@ Frame.prototype._getID = function( options ) {
  *
  * A specialized expansion cache, normally associated with a chunk of tokens.
  */
-function ExpansionCache ( n ) {
+ExpansionCache = function( n ) {
 	this._cache = new LRU( n );
-}
+};
 
 ExpansionCache.prototype.makeKey = function ( frame, options ) {
 	//console.warn( frame._cacheKey );
