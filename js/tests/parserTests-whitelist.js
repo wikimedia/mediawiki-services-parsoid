@@ -119,7 +119,7 @@ testWhiteList["Link containing % as a double hex sequence interpreted to hex seq
 
 // This is a test for stripping IDN ignored characters out of a link. The expected result (apparently) is that the IDN character
 // should not be present in the text of the link. But Gabriel and Mark decided that that made very little sense. Hence, whitelist.
-testWhiteList["External links: IDN ignored character reference in hostname; strip it right off"] = "<p><a rel=\"mw:ExtLink/URL\" href=\"http://example.com/\">http://e‌xample.com/</a></p>";
+testWhiteList["External links: IDN ignored character reference in hostname; strip it right off"] = "<p><a rel=\"mw:ExtLink/URL\" href=\"http://example.com/\">http://e\u200cxample.com/</a></p>";
 
 if (typeof module === "object") {
 	module.exports.testWhiteList = testWhiteList;
