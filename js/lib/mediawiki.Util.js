@@ -1314,7 +1314,7 @@ var diff = function ( a, b, color, onlyReportChanges, useLines ) {
 };
 Util.diff = diff;
 
-Util.getParser = function ( env, type ) {
+Util.getParserPipeline = function ( env, type ) {
 	var ParserPipelineFactory = require( './mediawiki.parser.js' ).ParserPipelineFactory;
 	return ( new ParserPipelineFactory( env ) ).makePipeline( type );
 },
@@ -1323,10 +1323,10 @@ Util.parse = function ( env, cb, err, src ) {
 	if ( err !== null ) {
 		cb( null, err );
 	} else {
-		var parser = Util.getParser( env, 'text/x-mediawiki/full' );
+		var parser = Util.getParserPipeline( env, 'text/x-mediawiki/full' );
 		parser.on( 'document', cb.bind( null, env, null ) );
 		try {
-			parser.process( src );
+			parser.processToplevelDoc( src );
 		} catch ( e ) {
 			env.errCB(e);
 			cb( null, e );

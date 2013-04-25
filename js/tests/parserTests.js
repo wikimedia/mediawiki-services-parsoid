@@ -47,7 +47,6 @@ var fileDependencies = [];
 // Fetch up some of our wacky parser bits...
 
 var mp = '../lib/',
-	ParserPipelineFactory = require(mp + 'mediawiki.parser.js').ParserPipelineFactory,
 	MWParserEnvironment = require(mp + 'mediawiki.parser.environment.js').MWParserEnvironment,
 	WikitextSerializer = require(mp + 'mediawiki.WikitextSerializer.js').WikitextSerializer,
 	SelectiveSerializer = require( mp + 'mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
@@ -693,8 +692,7 @@ ParserTests.prototype.convertWt2Html = function( mode, prefix, variant, wikitext
 			this.env.conf.wiki.interwikiMap.meatball.url =
 				'http://www.usemod.com/cgi-bin/mb.pl?$1';
 			// convert this wikitext!
-			this.parserPipeline.resetState();
-			this.parserPipeline.process( wikitext );
+			this.parserPipeline.processToplevelDoc( wikitext );
 		}
 	}.bind(this));
 };
@@ -1390,8 +1388,7 @@ ParserTests.prototype.main = function ( options ) {
 
 		// Create parsers, serializers, ..
 		if ( options.html2html || options.wt2wt || options.wt2html || options.selser ) {
-			var parserPipelineFactory = new ParserPipelineFactory( this.env );
-			this.parserPipeline = parserPipelineFactory.makePipeline( 'text/x-mediawiki/full' );
+			this.parserPipeline = Util.getParserPipeline(this.env, 'text/x-mediawiki/full');
 		}
 
 		if ( booleanOption( options.blacklist ) && options.selser ) {

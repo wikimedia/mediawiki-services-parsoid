@@ -427,7 +427,7 @@ app.get(/\/_wikitext\/(.*)/, function ( req, res ) {
 app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
 	var cb = function ( env ) {
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-		var parser = Util.getParser(env, 'text/x-mediawiki/full'),
+		var parser = Util.getParserPipeline(env, 'text/x-mediawiki/full'),
 			src = req.body.content.replace(/\r/g, '');
 		parser.on('document', function ( document ) {
 			if (req.body.format==='html') {
