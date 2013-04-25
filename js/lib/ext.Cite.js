@@ -9,9 +9,7 @@ var Util = require( './mediawiki.Util.js' ).Util,
 	$ = require( './fakejquery' );
 // define some constructor shortcuts
 var	KV = defines.KV,
-	TagTk = defines.TagTk,
-	SelfclosingTagTk = defines.SelfclosingTagTk,
-	EndTagTk = defines.EndTagTk;
+    SelfclosingTagTk = defines.SelfclosingTagTk;
 
 // FIXME: Move out to some common helper file?
 // Helper function to process extension source
@@ -234,8 +232,6 @@ References.prototype.reset = function(group) {
  */
 References.prototype.handleReferences = function ( manager, pipelineOpts, refsTok, cb ) {
 	refsTok = refsTok.clone();
-
-	var cite = this.cite;
 
 	// group is the only recognized option?
 	var refsOpts = Util.KVtoHash(refsTok.getAttribute("options")),

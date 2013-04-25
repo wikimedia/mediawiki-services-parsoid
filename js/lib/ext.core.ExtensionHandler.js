@@ -9,7 +9,6 @@ var TemplateHandler = require('./ext.core.TemplateHandler.js').TemplateHandler,
 // define some constructor shortcuts
 var KV = defines.KV,
     TagTk = defines.TagTk,
-    SelfclosingTagTk = defines.SelfclosingTagTk,
     EndTagTk = defines.EndTagTk;
 
 function ExtensionHandler(manager, options) {

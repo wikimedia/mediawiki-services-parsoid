@@ -3,19 +3,14 @@
  */
 "use strict";
 
-var request = require('request'),
-	events = require('events'),
-	qs = require('querystring'),
-	Util = require('./mediawiki.Util.js').Util,
-	ParserFunctions = require('./ext.core.ParserFunctions.js').ParserFunctions,
+var Util = require('./mediawiki.Util.js').Util,
 	AttributeTransformManager = require('./mediawiki.TokenTransformManager.js').
 	                            AttributeTransformManager,
 	defines = require('./mediawiki.parser.defines.js');
 // define some constructor shortcuts
 var KV = defines.KV,
     TagTk = defines.TagTk,
-    SelfclosingTagTk = defines.SelfclosingTagTk,
-    EndTagTk = defines.EndTagTk;
+    SelfclosingTagTk = defines.SelfclosingTagTk;
 
 /* ----------------------------------------------------------
  * This helper method does two different things:

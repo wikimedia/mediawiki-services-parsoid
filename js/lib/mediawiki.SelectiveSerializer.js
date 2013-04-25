@@ -9,11 +9,6 @@
 
 var WikitextSerializer = require( './mediawiki.WikitextSerializer.js' ).WikitextSerializer,
 	Util = require( './mediawiki.Util.js' ).Util,
-	DU = require( './mediawiki.DOMUtils.js' ).DOMUtils,
-	apirql = require( './mediawiki.ApiRequest.js' ),
-	DoesNotExistError = apirql.DoesNotExistError,
-	// don't redefine Node
-	NODE = require('./mediawiki.wikitext.constants.js').Node,
 	ParserPipelineFactory = require('./mediawiki.parser.js').ParserPipelineFactory,
 	DOMDiff = require('./mediawiki.DOMDiff.js').DOMDiff;
 
@@ -77,8 +72,7 @@ var SSP = SelectiveSerializer.prototype;
  * @param {Function} finalcb The callback for when we've finished serializing the DOM.
  */
 SSP.doSerializeDOM = function ( err, doc, cb, finalcb ) {
-	var matchedRes, nonNewline, nls = 0, latestSerID = null,
-		self = this;
+	var self = this;
 	// gwicke: This does not seem to be needed any more?
 	//Util.stripFirstParagraph( doc );
 

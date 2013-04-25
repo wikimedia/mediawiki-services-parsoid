@@ -16,14 +16,11 @@
 
 var fs = require('fs'),
 	path = require('path'),
-	jsDiff = require('diff'),
 	colors = require('colors'),
 	Util = require( '../lib/mediawiki.Util.js' ).Util,
 	childProc = require('child_process'),
-	spawn = childProc.spawn,
 	fork = childProc.fork,
 	DOMUtils = require( '../lib/mediawiki.DOMUtils.js' ).DOMUtils,
-	util = require( 'util' ),
 	async = require( 'async' ),
 	PEG = require('pegjs'),
 	Alea = require('alea'),
@@ -54,8 +51,6 @@ var mp = '../lib/',
 
 // For now most modules only need this for $.extend and $.each :)
 var $ = require(mp + 'fakejquery');
-
-var pj = path.join;
 
 // Our code...
 
@@ -436,9 +431,6 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
 		serializer = (mode === 'selser') ? new SelectiveSerializer({env: this.env})
 										: new WikitextSerializer({env: this.env}),
 		wt = '',
-		changelist = [],
-		waiting = 0,
-		changesReturn,
 		self = this,
 		startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser';
 	try {
@@ -591,8 +583,6 @@ ParserTests.prototype.generateChanges = function ( options, nonRandomChanges, it
 	// This function won't actually change anything, but it will add change
 	// markers to random elements.
 	var child, i, changeObj, node, changelist = [], numAttempts = 0;
-
-	var initContent = content;
 
 	if ( content.nodeType === content.DOCUMENT_NODE ) {
 		content = content.body;
@@ -1086,7 +1076,6 @@ ParserTests.prototype.printWhitelistEntry = function ( title, raw ) {
  */
 ParserTests.prototype.printResult = function ( title, time, comments, iopts, expected, actual, options, mode, item ) {
 	var quick = booleanOption( options.quick );
-	var quiet = booleanOption( options.quiet );
 
 	if ( mode === 'selser' ) {
 		title += ' ' + JSON.stringify( item.changes );
@@ -1731,7 +1720,6 @@ var xmlFuncs = (function () {
 	reportResultXML = function ( title, time, comments, iopts, expected, actual, options, mode, item ) {
 		var timeTotal, testcaseEle;
 		var quick = booleanOption( options.quick );
-		var quiet = booleanOption( options.quiet );
 
 		if ( mode === 'selser' ) {
 			title += ' ' + JSON.stringify( item.changes );

@@ -1004,7 +1004,7 @@ AttributeTransformManager.prototype._toType = 'tokens/x-mediawiki/expanded';
  * templates are already expanded.
  */
 AttributeTransformManager.prototype.process = function (attributes) {
-	var n, pipe, ref;
+	var n;
 	// console.warn( 'AttributeTransformManager.process: ' + JSON.stringify( attributes ) );
 
 	// transform each argument (key and value), and handle asynchronous returns
@@ -1075,8 +1075,6 @@ AttributeTransformManager.prototype.process = function (attributes) {
  * constructs like switches.
  */
 AttributeTransformManager.prototype.processKeys = function (attributes) {
-	var pipe,
-		ref;
 	// console.warn( 'AttributeTransformManager.processKeys: ' + JSON.stringify(attributes) );
 
 	// TODO: wrap in chunk and call

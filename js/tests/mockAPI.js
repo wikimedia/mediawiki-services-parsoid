@@ -1,13 +1,6 @@
 // This file is used to run a stub API that mimicks the MediaWiki interface
 // for the purposes of testing extension expansion.
-var express = require('express'),
-	path = require('path'),
-	fs = require('fs');
-
-var mp = '../lib/',
-	Util = require( mp + 'mediawiki.Util.js' ).Util,
-	libtr = require(mp + 'mediawiki.ApiRequest.js'),
-	DoesNotExistError = libtr.DoesNotExistError;
+var express = require('express');
 
 /* -------------------- web app access points below --------------------- */
 
@@ -34,7 +27,7 @@ var formatters = {
 
 	availableActions = {
 		parse: function ( body, cb ) {
-			var opts, content, resultText,
+			var resultText,
 				text = body.text,
 				re = /<testextension(?: ([^>]*))?>((?:[^<]|<(?!\/testextension>))*)<\/testextension>/,
 				replaceString = '<p data-options="$1">$2</p>',
@@ -86,7 +79,7 @@ function buildOptions( options ) {
 }
 
 function buildActionList() {
-	var i, j, k, action, title,
+	var i, action, title,
 		actions = Object.keys( availableActions ),
 		setStr = '';
 
@@ -101,7 +94,7 @@ function buildActionList() {
 }
 
 function buildForm( action ) {
-	var i, j, actionDef, param, params, paramList,
+	var i, actionDef, param, params, paramList,
 		formStr = '';
 
 	actionDef = actionDefinitions[action];

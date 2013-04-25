@@ -4,8 +4,7 @@
  * Read from STDIN, write to STDOUT.
  */
 
-var ParserPipelineFactory = require('../lib/mediawiki.parser.js').ParserPipelineFactory,
-	ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnvironment,
+var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnvironment,
 	ParsoidConfig = require( '../lib/mediawiki.ParsoidConfig.js' ).ParsoidConfig,
 	WikitextSerializer = require('../lib/mediawiki.WikitextSerializer.js').WikitextSerializer,
 	SelectiveSerializer = require( '../lib/mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,

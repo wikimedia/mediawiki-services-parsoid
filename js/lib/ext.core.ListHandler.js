@@ -6,10 +6,8 @@
 var Util = require('./mediawiki.Util.js').Util,
 	defines = require('./mediawiki.parser.defines.js');
 // define some constructor shortcuts
-var KV = defines.KV,
-    NlTk = defines.NlTk,
+var NlTk = defines.NlTk,
     TagTk = defines.TagTk,
-    SelfclosingTagTk = defines.SelfclosingTagTk,
     EndTagTk = defines.EndTagTk;
 
 function ListHandler ( manager ) {
@@ -63,7 +61,7 @@ ListHandler.prototype.onAny = function ( token, frame, prevToken ) {
 		console.warn("T:list:any " + JSON.stringify(token));
 	}
 
-	var tokens, solTokens;
+	var tokens;
 	if (!this.currListFrame) {
 		// this.currListFrame will be null only when we are in a table
 		// that in turn was seen in a list context.

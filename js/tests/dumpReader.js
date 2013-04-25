@@ -15,7 +15,6 @@ util.inherits(DumpReader, events.EventEmitter);
 DumpReader.prototype.makeParser = function() {
 
 	var self = this,
-		complete = false,
 		stack = [{}],
 		workspace = {},
 		buffer = '';

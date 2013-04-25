@@ -71,10 +71,8 @@
 var Util = require('./mediawiki.Util.js').Util,
     defines = require('./mediawiki.parser.defines.js');
 // define some constructor shortcuts
-var KV = defines.KV,
-    CommentTk = defines.CommentTk,
+var CommentTk = defines.CommentTk,
     EOFTk = defines.EOFTk,
-    NlTk = defines.NlTk,
     TagTk = defines.TagTk,
     SelfclosingTagTk = defines.SelfclosingTagTk,
     EndTagTk = defines.EndTagTk;

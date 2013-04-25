@@ -10,8 +10,7 @@
 
 "use strict";
 
-var events = require('events'),
-	ParserFunctions = require('./ext.core.ParserFunctions.js').ParserFunctions,
+var ParserFunctions = require('./ext.core.ParserFunctions.js').ParserFunctions,
 	AttributeTransformManager = require('./mediawiki.TokenTransformManager.js')
 									.AttributeTransformManager,
 	defines = require('./mediawiki.parser.defines.js'),
@@ -19,7 +18,6 @@ var events = require('events'),
 	api = require('./mediawiki.ApiRequest.js'),
 	PreprocessorRequest = api.PreprocessorRequest,
 	Util = require('./mediawiki.Util.js').Util,
-	DOMUtils = require('./mediawiki.DOMUtils.js').DOMUtils,
 	// define some constructor shortcuts
 	KV = defines.KV,
 	TagTk = defines.TagTk,
@@ -561,8 +559,7 @@ TemplateHandler.prototype._onChunk = function( state, cb, chunk ) {
 TemplateHandler.prototype._onEnd = function( state, cb ) {
 	this.manager.env.dp( 'TemplateHandler._onEnd' );
 	if (this.options.wrapTemplates) {
-		var tsr = state.token.dataAttribs.tsr,
-			endTag = this.getEncapsulationInfoEndTag(state),
+		var endTag = this.getEncapsulationInfoEndTag(state),
 			res = { tokens: [endTag] };
 		state.emittedFirstChunk = false;
 		cb( res );

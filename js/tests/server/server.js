@@ -2,10 +2,8 @@
 ( function () {
 "use strict";
 
-var http = require( 'http' ),
-	express = require( 'express' ),
+var express = require( 'express' ),
 	sqlite = require( 'sqlite3' ),
-	dbStack = [], dbFlag = false,
 	argv = require( 'optimist' ).argv,
 	db = new sqlite.Database( argv._[0] || '/mnt/rtserver/pages.db' ),
 	// The maximum number of tries per article
@@ -14,8 +12,6 @@ var http = require( 'http' ),
 	maxFetchRetries = 6,
 	// "Random" estimate of how many pending pages we have in the db
 	pendingPagesEstimate = 500;
-
-var counter = 0;
 
 // ----------------- Prepared queries --------------
 var dbGetTitle = db.prepare(
@@ -620,7 +616,7 @@ var failsWebInterface = function ( req, res ) {
 
 	dbFailsQuery.all( [ offset ],
 		function ( err, rows ) {
-			var i, row, output, matches, total = {};
+			var i, row;
 
 			if ( err ) {
 				res.send( err.toString(), 500 );

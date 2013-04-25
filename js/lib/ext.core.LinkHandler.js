@@ -118,7 +118,7 @@ function interwikiContent( token ) {
 
 WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 
-	var j, maybeContent, about, possibleTags, property, newType,
+	var j, about, property,
 		hrefkv, saniContent, strContent, env = this.manager.env,
 		attribs = token.attribs,
 		hrefSrc = Util.lookupKV( token.attribs, 'href' ).vsrc,
@@ -729,7 +729,6 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 		tagAttrs,
 		builtTag,
 		href = Util.tokensToString( Util.lookup( token.attribs, 'href' ) ),
-		modTxt = false,
 		origTxt = token.getWTSource( env ),
 		txt = href;
 
@@ -784,7 +783,7 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 		origHref = Util.lookup( token.attribs, 'href' ),
 		href = Util.tokensToString( origHref ),
 		content = Util.lookup( token.attribs, 'mw:content'),
-		newAttrs, aStart, hrefKv, title;
+		newAttrs, aStart, title;
 
 	//console.warn('extlink href: ' + href );
 	//console.warn( 'mw:content: ' + JSON.stringify( content, null, 2 ) );

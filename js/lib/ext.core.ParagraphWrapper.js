@@ -158,7 +158,7 @@ ParagraphWrapper.prototype.onNewLineOrEOF = function (  token, frame, cb ) {
 ParagraphWrapper.prototype.processPendingNLs = function (isBlockToken) {
 	var resToks = this.nonNlTokens,
 		newLineCount = this.newLineCount,
-		nlTk, nlTk2;
+		nlTk;
 
 	if (this.trace) {
 		console.warn("  p-wrap:NL-count: " + newLineCount);
@@ -167,7 +167,6 @@ ParagraphWrapper.prototype.processPendingNLs = function (isBlockToken) {
 	if (newLineCount >= 2) {
 		while ( newLineCount >= 3 ) {
 			// 1. Close any open p-tag
-			var hadOpenTag = this.hasOpenPTag;
 			this.closeOpenPTag(resToks);
 
 			var topTag = this.tableTags.length > 0 ? this.tableTags.last(): null;

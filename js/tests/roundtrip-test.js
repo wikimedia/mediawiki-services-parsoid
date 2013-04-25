@@ -1,10 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 
-var fs = require( 'fs' ),
-	path = require( 'path' ),
-	http = require( 'http' ),
-	jsDiff = require( 'diff' ),
+var jsDiff = require( 'diff' ),
 	optimist = require( 'optimist' ),
 
 	Util = require( '../lib/mediawiki.Util.js' ).Util,
@@ -239,7 +236,6 @@ var checkIfSignificant = function ( env, offsets, src, body, out, cb, document )
 
 
 	var normalizeWikitext = function ( str ) {
-		var orig = str;
 
 		// Ignore leading tabs vs. leading spaces
 		str = str.replace(/^\t/, ' ');
@@ -367,7 +363,7 @@ var doubleRoundtripDiff = function ( env, offsets, body, out, cb ) {
 };
 
 var roundTripDiff = function ( env, document, cb ) {
-	var curPair, out, patch, diff, offsetPairs;
+	var out, diff, offsetPairs;
 
 	try {
 		out = new WikitextSerializer( { env: env } ).serializeDOM(document.body);

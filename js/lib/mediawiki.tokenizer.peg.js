@@ -12,9 +12,7 @@ var PEG = require('pegjs'),
 	path = require('path'),
 	LRU = require("lru-cache"),
 	fs = require('fs'),
-	events = require('events'),
-	Util = require('./mediawiki.Util.js').Util,
-	defines = require('./mediawiki.parser.defines.js');
+	events = require('events');
 
 function PegTokenizer( env, canCache ) {
 	this.env = env;
@@ -62,7 +60,6 @@ PegTokenizer.prototype.processSync = function( text, cacheKey ) {
  * process().
  */
 PegTokenizer.prototype._processText = function( text, fullParse, cacheKey ) {
-	var out, err;
 	if ( !this.tokenizer ) {
 		// Construct a singleton static tokenizer.
 		var pegSrcPath = path.join( __dirname, 'pegTokenizer.pegjs.txt' );

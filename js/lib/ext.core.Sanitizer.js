@@ -14,9 +14,7 @@ var WikitextConstants = require('./mediawiki.wikitext.constants.js').WikitextCon
 var Util = require('./mediawiki.Util.js').Util,
     defines = require('./mediawiki.parser.defines.js');
 // define some constructor shortcuts
-var KV = defines.KV,
-    NlTk = defines.NlTk,
-    TagTk = defines.TagTk,
+var TagTk = defines.TagTk,
     SelfclosingTagTk = defines.SelfclosingTagTk,
     EndTagTk = defines.EndTagTk;
 

@@ -1,6 +1,4 @@
-var DU = require('./mediawiki.DOMUtils.js').DOMUtils,
-	NODE = require('./mediawiki.wikitext.constants.js').Node,
-	Util = require('./mediawiki.Util.js').Util;
+var DU = require('./mediawiki.DOMUtils.js').DOMUtils;
 
 /**
  * A DOM diff helper class
@@ -52,16 +50,6 @@ var ignoreAttributes = {
 	'data-parsoid-diff': 1,
 	'about': 1
 };
-
-function countIgnoredAttributes (attributes) {
-	var n = 0, i;
-	for (i=0; i < attributes.length; i++) {
-		if ( ignoreAttributes.hasOwnProperty(attributes.item(i).name) ) {
-			n++;
-		}
-	}
-	return n;
-}
 
 /**
  * Attribute equality test
@@ -287,7 +275,6 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
  *****************************************************/
 
 DDP.markNode = function(node, change) {
-	var markNode;
 	if ( change === 'deleted' ) {
 		// insert a meta tag marking the place where content used to be
 		DU.prependTypedMeta(node, 'mw:DiffMarker');

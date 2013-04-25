@@ -13,9 +13,6 @@
 // make this global for now
 // XXX: figure out a way to get away without a global for PEG actions!
 var $ = require('./fakejquery'),
-	events = require( 'events' ),
-	fs = require('fs'),
-	path = require('path'),
 	PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	TokenTransformManager = require('./mediawiki.TokenTransformManager.js'),
 	SyncTokenTransformManager = TokenTransformManager.SyncTokenTransformManager,
@@ -293,8 +290,7 @@ ParserPipelineFactory.prototype.getPipeline = function ( type, options ) {
 		options.isInclude = true;
 	}
 
-	var pipe,
-		cacheType = getCacheKey(type, options);
+	var cacheType = getCacheKey(type, options);
 	if ( ! this.pipelineCache[cacheType] ) {
 		this.pipelineCache[cacheType] = [];
 	}
