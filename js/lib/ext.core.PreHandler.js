@@ -79,6 +79,8 @@ var KV = defines.KV,
     SelfclosingTagTk = defines.SelfclosingTagTk,
     EndTagTk = defines.EndTagTk;
 
+var init; // forward declaration.
+
 // Constructor
 function PreHandler( manager, options ) {
 	this.manager = manager;
@@ -118,7 +120,7 @@ PreHandler.STATE_STR = {
 	5: 'ignore     '
 };
 
-function init(handler, addAnyHandler) {
+init = function(handler, addAnyHandler) {
 	handler.state  = PreHandler.STATE_SOL;
 	handler.lastNlTk = null;
 	// Initialize to zero to deal with indent-pre
@@ -133,7 +135,7 @@ function init(handler, addAnyHandler) {
 		handler.manager.addTransform(handler.onAny.bind(handler),
 			"PreHandler:onAny", handler.anyRank, 'any');
 	}
-}
+};
 
 PreHandler.prototype.moveToIgnoreState = function() {
 	this.state = PreHandler.STATE_IGNORE;

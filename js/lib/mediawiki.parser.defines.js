@@ -5,13 +5,6 @@
  * @singleton
  */
 
-/**
- * @class Token
- * @abstract
- *
- * Catch-all class for all token types.
- */
-
 var async = require('async'),
 	$ = require( './fakejquery' );
 
@@ -19,6 +12,31 @@ var async = require('async'),
 String.prototype.isHTMLTag = function() {
 	return false;
 };
+
+/**
+ * @class
+ *
+ * Key-value pair.
+ *
+ * @constructor
+ * @param {Mixed} k
+ * @param {Mixed} v
+ * @param {Array} srcOffsets The source offsets.
+ */
+function KV ( k, v, srcOffsets ) {
+	this.k = k;
+	this.v = v;
+	if (srcOffsets) {
+		this.srcOffsets = srcOffsets;
+	}
+}
+
+/**
+ * @class Token
+ * @abstract
+ *
+ * Catch-all class for all token types.
+ */
 
 /**
  * @member Token
@@ -309,24 +327,6 @@ var genericTokenMethods = {
 		return tsr ? env.page.src.substring(tsr[0], tsr[1]) : null;
 	}
 };
-
-/**
- * @class
- *
- * Key-value pair.
- *
- * @constructor
- * @param {Mixed} k
- * @param {Mixed} v
- * @param {Array} srcOffsets The source offsets.
- */
-function KV ( k, v, srcOffsets ) {
-	this.k = k;
-	this.v = v;
-	if (srcOffsets) {
-		this.srcOffsets = srcOffsets;
-	}
-}
 
 /**
  * @class

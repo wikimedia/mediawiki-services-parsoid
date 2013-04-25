@@ -42,6 +42,8 @@ var $ = require('./fakejquery'),
 	TreeBuilder = require('./mediawiki.HTML5TreeBuilder.node.js').FauxHTML5.TreeBuilder,
 	DOMPostProcessor = require('./mediawiki.DOMPostProcessor.js').DOMPostProcessor;
 
+var ParserPipeline; // forward declaration
+
 function ParserPipelineFactory ( env ) {
 	this.pipelineCache = {};
 	this.env = env;
@@ -326,7 +328,7 @@ ParserPipelineFactory.prototype.returnPipeline = function ( type, pipe ) {
  * supposed to emit events, while the first is supposed to support a process()
  * method that sets the pipeline in motion.
  */
-function ParserPipeline ( stages, returnToCacheCB, env ) {
+ParserPipeline = function( stages, returnToCacheCB, env ) {
 	this.stages = stages;
 	this.first = stages[0];
 	this.last = stages.last();
@@ -341,7 +343,7 @@ function ParserPipeline ( stages, returnToCacheCB, env ) {
 		// add a callback to return the pipeline back to the cache
 		this.last.addListener( 'end', this.returnToCacheCB );
 	}
-}
+};
 
 /*
  * Applies the function across all stages and transformers registered at each stage

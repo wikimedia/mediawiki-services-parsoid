@@ -2174,6 +2174,8 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 	return [cs, e];
 }
 
+var saveDataParsoid; // forward declaration
+
 function dumpDomWithDataAttribs( root ) {
 	function cloneData(node, clone) {
 		var d = node.data;
@@ -2287,6 +2289,8 @@ function generateReferences(refsExt, node) {
 	}
 }
 
+var findAndHandleNeighbour; // forward declaration
+
 /**
  * Function for fetching the link prefix based on a link node.
  *
@@ -2330,7 +2334,7 @@ function getLinkTrail( env, node ) {
 /**
  * Abstraction of both link-prefix and link-trail searches.
  */
-function findAndHandleNeighbour( env, goForward, regex, node, baseAbout ) {
+findAndHandleNeighbour = function( env, goForward, regex, node, baseAbout ) {
 	var value, matches, document, nextSibling,
 		nextNode = goForward ? 'nextSibling' : 'previousSibling',
 		innerNode = goForward ? 'firstChild' : 'lastChild',
@@ -2388,7 +2392,7 @@ function findAndHandleNeighbour( env, goForward, regex, node, baseAbout ) {
 	}
 
 	return result;
-}
+};
 
 /**
  * Workhorse function for bringing linktrails and link prefixes into link content.
@@ -2446,11 +2450,11 @@ function migrateDataParsoid( node ) {
  *
  * Save the data-parsoid attributes on each node.
  */
-function saveDataParsoid( node ) {
+saveDataParsoid = function( node ) {
 	if ( node.nodeType === node.ELEMENT_NODE && node.data ) {
 		DU.saveDataAttribs( node );
 	}
-}
+};
 
 /**
  * @method
