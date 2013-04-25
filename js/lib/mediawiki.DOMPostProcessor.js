@@ -1445,6 +1445,8 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 						} else {
 							// should not happen!
 							console.warn( 'start found after content' );
+							console.warn("about: " + about);
+							console.warn("aboutRef.start " + elem.outerHTML);
 						}
 					} else {
 						tpls[about] = { start: elem };
@@ -2273,7 +2275,7 @@ function generateReferences(refsExt, node) {
 	while (child !== null) {
 		var nextChild = child.nextSibling;
 
-		if (DU.isMarkerMeta(child, "mw:Ext/Ref/Content")) {
+		if (DU.isMarkerMeta(child, "mw:Ext/Ref/Marker")) {
 			refsExt.extractRefFromNode(child);
 		} else if (DU.isMarkerMeta(child, "mw:Ext/References")) {
 			refsExt.insertReferencesIntoDOM(child);
@@ -2482,15 +2484,15 @@ function DOMPostProcessor(env, options) {
 		migrateTrailingNLs
 	];
 
+	// Generate references before DSR & template encapsulation
+	this.processors.push(generateReferences.bind(null, env.conf.parsoid.nativeExtensions.cite.references));
+
 	if (options.wrapTemplates && !options.extTag) {
 		// dsr computation and tpl encap are only relevant
 		// for top-level content that is not wrapped in an extension
 		this.processors.push(computeDocDSR);
 		this.processors.push(encapsulateTemplateOutput);
 	}
-
-	// References
-	this.processors.push(generateReferences.bind(null, env.conf.parsoid.nativeExtensions.cite.references));
 
 	// DOM traverser for passes that can be combined and will run at the end
 	// 1. Link prefixes and suffixes

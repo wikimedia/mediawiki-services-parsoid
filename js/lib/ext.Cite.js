@@ -13,97 +13,6 @@ var	KV = defines.KV,
 	SelfclosingTagTk = defines.SelfclosingTagTk,
 	EndTagTk = defines.EndTagTk;
 
-/**
- * Helper class used both by <ref> and <references> implementations
- */
-function RefGroup(group) {
-	this.name = group || '';
-	this.refs = [];
-	this.indexByName = {};
-}
-
-RefGroup.prototype.add = function(refName, skipLinkback) {
-	var ref;
-	if (refName && this.indexByName[refName]) {
-		ref = this.indexByName[refName];
-	} else {
-		var n = this.refs.length,
-			refKey = (1+n) + '';
-
-		if (refName) {
-			refKey = refName + '-' + refKey;
-		}
-
-		ref = {
-			content: null,
-			index: n,
-			groupIndex: (1+n), // FIXME -- this seems to be wiki-specific
-			name: refName,
-			group: this.name,
-			key: refKey,
-			target: 'cite_note-' + refKey,
-			linkbacks: []
-		};
-		this.refs[n] = ref;
-		if (refName) {
-			this.indexByName[refName] = ref;
-		}
-	}
-
-	if (!skipLinkback) {
-		ref.linkbacks.push('cite_ref-' + ref.key + '-' + ref.linkbacks.length);
-	}
-
-	return ref;
-};
-
-RefGroup.prototype.renderLine = function(refsList, ref) {
-	var ownerDoc = refsList.ownerDocument,
-		arrow = ownerDoc.createTextNode('↑'),
-		li, a;
-
-	// Generate the li
-	li = ownerDoc.createElement('li');
-	li.setAttribute('li', ref.target);
-
-	// Set ref content first, so the HTML gets parsed
-	// We then append the rest of the ref nodes before the first node
-	li.innerHTML = ref.content;
-	var contentNode = li.firstChild;
-	// if (!contentNode) console.warn("--empty content for: " + ref.linkbacks[0]);
-
-	// Generate leading linkbacks
-	if (ref.linkbacks.length === 1) {
-		a = ownerDoc.createElement('a');
-		a.setAttribute('href', '#' + ref.linkbacks[0]);
-		a.appendChild(arrow);
-		li.insertBefore(a, contentNode);
-		li.insertBefore(ownerDoc.createTextNode(' '), contentNode);
-	} else {
-		li.insertBefore(arrow, contentNode);
-		$.each(ref.linkbacks, function(i, linkback) {
-			a = ownerDoc.createElement('a');
-			a.setAttribute('data-type', 'hashlink');
-			a.setAttribute('href', '#' + ref.linkbacks[i]);
-			a.appendChild(ownerDoc.createTextNode(ref.groupIndex + '.' + i));
-			li.insertBefore(a, contentNode);
-			// Separate linkbacks with a space
-			li.insertBefore(ownerDoc.createTextNode(' '), contentNode);
-		});
-	}
-
-	// Add it to the ref list
-	refsList.appendChild(li);
-};
-
-function newRefGroup(refGroups, group) {
-	group = group || '';
-	if (!refGroups[group]) {
-		refGroups[group] = new RefGroup(group);
-	}
-	return refGroups[group];
-}
-
 // FIXME: Move out to some common helper file?
 // Helper function to process extension source
 function processExtSource(manager, extToken, opts) {
@@ -176,73 +85,30 @@ function Ref(cite) {
  * Reset state before each top-level parse -- this lets us share a pipeline
  * to parse unrelated pages.
  */
-Ref.prototype.reset = function() {
-	this.refGroups = {};
-};
+Ref.prototype.reset = function() { };
 
 /**
  * Handle ref tokens
  */
 Ref.prototype.handleRef = function ( manager, pipelineOpts, refTok, cb ) {
 
-	var tsr = refTok.dataAttribs.tsr,
+	var inReferencesExt = pipelineOpts.extTag === "references",
 		refOpts = $.extend({ name: null, group: null }, Util.KVtoHash(refTok.getAttribute("options"))),
-		group = this.refGroups[refOpts.group] || newRefGroup(this.refGroups, refOpts.group),
-		ref = group.add(refOpts.name, pipelineOpts.extTag === "references"),
-		linkback = ref.linkbacks[ref.linkbacks.length - 1],
-		bits = [];
+		about = inReferencesExt ? '' : "#" + manager.env.newObjectId(),
+		finalCB = function(toks, content) {
+			// Marker meta with ref content
+			var da = Util.clone(refTok.dataAttribs);
+			// Clear stx='html' so that sanitizer doesn't barf
+			da.stx = undefined;
 
-	if (refOpts.group) {
-		bits.push(refOpts.group);
-	}
-
-	//bits.push(Util.formatNum( ref.groupIndex ));
-	bits.push(ref.groupIndex);
-
-	var about, res;
-	if (pipelineOpts.extTag === "references") {
-		about = '';
-		res = [];
-	} else {
-		about = "#" + manager.env.newObjectId();
-
-		var span = new TagTk('span', [
-				new KV('id', linkback),
-				new KV('class', 'reference'),
-				new KV('about', about),
-				new KV('typeof', 'mw:Object/Ext/Ref')
-			], {
-				src: refTok.dataAttribs.src
-			}),
-			endMeta = new SelfclosingTagTk( 'meta', [
-				new KV( 'typeof', 'mw:Object/Ext/Ref/End' ),
-				new KV( 'about', about)
-			]);
-
-		if (tsr) {
-			span.dataAttribs.tsr = tsr;
-			endMeta.dataAttribs.tsr = [null, tsr[1]];
-		}
-
-		res = [
-			span,
-			new TagTk( 'a', [ new KV('href', '#' + ref.target) ]),
-			'[' + bits.join(' ')  + ']',
-			new EndTagTk( 'a' ),
-			new EndTagTk( 'span' ),
-			endMeta
-		];
-	}
-
-	var finalCB = function(toks, content) {
 			toks.push(new SelfclosingTagTk( 'meta', [
-				new KV('typeof', 'mw:Ext/Ref/Content'),
+				new KV('typeof', 'mw:Ext/Ref/Marker'),
 				new KV('about', about),
 				new KV('group', refOpts.group || ''),
 				new KV('name', refOpts.name || ''),
 				new KV('content', content || ''),
-				new KV('skiplinkback', pipelineOpts.extTag === "references" ? 1 : 0)
-			]));
+				new KV('skiplinkback', inReferencesExt ? 1 : 0)
+			], da));
 
 			// All done!
 			cb({tokens: toks, async: false});
@@ -258,7 +124,7 @@ Ref.prototype.handleRef = function ( manager, pipelineOpts, refTok, cb ) {
 			// I wasted an hour because I failed to set this flag
 			wrapTemplates: true
 		},
-		res: res,
+		res: [],
 		parentCB: cb,
 		emptyContentCB: finalCB,
 		documentCB: function(refContentDoc) {
@@ -267,13 +133,100 @@ Ref.prototype.handleRef = function ( manager, pipelineOpts, refTok, cb ) {
 	});
 };
 
+/**
+ * Helper class used by <references> implementation
+ */
+function RefGroup(group) {
+	this.name = group || '';
+	this.refs = [];
+	this.indexByName = {};
+}
+
+RefGroup.prototype.add = function(refName, skipLinkback) {
+	var ref;
+	if (refName && this.indexByName[refName]) {
+		ref = this.indexByName[refName];
+	} else {
+		var n = this.refs.length,
+			refKey = (1+n) + '';
+
+		if (refName) {
+			refKey = refName + '-' + refKey;
+		}
+
+		ref = {
+			content: null,
+			index: n,
+			groupIndex: (1+n), // FIXME -- this seems to be wiki-specific
+			name: refName,
+			group: this.name,
+			key: refKey,
+			target: 'cite_note-' + refKey,
+			linkbacks: []
+		};
+		this.refs[n] = ref;
+		if (refName) {
+			this.indexByName[refName] = ref;
+		}
+	}
+
+	if (!skipLinkback) {
+		ref.linkbacks.push('cite_ref-' + ref.key + '-' + ref.linkbacks.length);
+	}
+
+	return ref;
+};
+
+RefGroup.prototype.renderLine = function(refsList, ref) {
+	var ownerDoc = refsList.ownerDocument,
+		arrow = ownerDoc.createTextNode('↑'),
+		li, a;
+
+	// Generate the li
+	li = ownerDoc.createElement('li');
+	li.setAttribute('id', ref.target);
+
+	// Set ref content first, so the HTML gets parsed
+	// We then append the rest of the ref nodes before the first node
+	li.innerHTML = ref.content;
+	var contentNode = li.firstChild;
+	// if (!contentNode) console.warn("--empty content for: " + ref.linkbacks[0]);
+
+	// Generate leading linkbacks
+	if (ref.linkbacks.length === 1) {
+		a = ownerDoc.createElement('a');
+		a.setAttribute('href', '#' + ref.linkbacks[0]);
+		a.appendChild(arrow);
+		li.insertBefore(a, contentNode);
+		li.insertBefore(ownerDoc.createTextNode(' '), contentNode);
+	} else {
+		li.insertBefore(arrow, contentNode);
+		$.each(ref.linkbacks, function(i, linkback) {
+			a = ownerDoc.createElement('a');
+			a.setAttribute('data-type', 'hashlink');
+			a.setAttribute('href', '#' + ref.linkbacks[i]);
+			a.appendChild(ownerDoc.createTextNode(ref.groupIndex + '.' + i));
+			li.insertBefore(a, contentNode);
+			// Separate linkbacks with a space
+			li.insertBefore(ownerDoc.createTextNode(' '), contentNode);
+		});
+	}
+
+	// Add it to the ref list
+	refsList.appendChild(li);
+};
+
 function References(cite) {
 	this.cite = cite;
 	this.reset();
 }
 
-References.prototype.reset = function() {
-	this.refGroups = { };
+References.prototype.reset = function(group) {
+	if (group) {
+		this.refGroups[group] = undefined;
+	} else {
+		this.refGroups = {};
+	}
 };
 
 /**
@@ -303,27 +256,20 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 		group = null;
 	}
 
-	// Emit a placeholder meta for the references token
-	// so that the dom post processor can generate and
-	// emit references at this point in the DOM.
+	// Re-emit a references placeholder token
+	// to be processed in post-expansion Sync phase
 	var emitPlaceholderMeta = function() {
-		var placeHolder = new SelfclosingTagTk('meta',
-			refsTok.attribs,
-			refsTok.dataAttribs);
-
-		// Update properties
+		// Emit a placeholder meta for the references token
+		// so that the dom post processor can generate and
+		// emit references at this point in the DOM.
+		var placeHolder = new SelfclosingTagTk('meta', refsTok.attribs, refsTok.dataAttribs);
+		placeHolder.setAttribute('typeof', 'mw:Ext/References');
+		placeHolder.setAttribute('about', '#' + manager.env.newObjectId());
+		placeHolder.dataAttribs.stx = undefined;
 		if (group) {
 			placeHolder.setAttribute('group', group);
 		}
-		placeHolder.setAttribute('typeof', 'mw:Ext/References');
-		placeHolder.dataAttribs.stx = undefined;
-
-		// All done!
 		cb({ tokens: [placeHolder], async: false });
-
-		// FIXME: This is somehow buggy -- needs investigation
-		// Reset refs after references token is processed
-		// cite.ref.resetState();
 	};
 
 	processExtSource(manager, refsTok, {
@@ -345,7 +291,7 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 				var t = chunk[i];
 				if (t.constructor === SelfclosingTagTk &&
 					t.name === 'meta' &&
-					/^mw:Ext\/Ref\/Content$/.test(t.getAttribute('typeof')))
+					/^mw:Ext\/Ref\/Marker$/.test(t.getAttribute('typeof')))
 				{
 					res.push(t);
 				}
@@ -359,10 +305,55 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 };
 
 References.prototype.extractRefFromNode = function(node) {
+	function newRefGroup(refGroups, group) {
+		group = group || '';
+		if (!refGroups[group]) {
+			refGroups[group] = new RefGroup(group);
+		}
+		return refGroups[group];
+	}
+
 	var group = node.getAttribute("group"),
 		refName = node.getAttribute("name"),
+		about = node.getAttribute("about"),
+		skipLinkback = node.getAttribute("skiplinkback") === "1",
 		refGroup = this.refGroups[group] || newRefGroup(this.refGroups, group),
-		ref = refGroup.add(refName, node.getAttribute("skiplinkback") === "1");
+		ref = refGroup.add(refName, skipLinkback);
+
+	// Add ref-index linkback
+	if (!skipLinkback) {
+		var doc = node.ownerDocument,
+			span = doc.createElement('span'),
+			endMeta = doc.createElement('meta');
+
+		span.setAttribute('id', ref.linkbacks[ref.linkbacks.length - 1]);
+		span.setAttribute('class', 'reference');
+		span.setAttribute('about', about);
+		span.setAttribute('typeof', 'mw:Object/Ext/Ref');
+		span.data = { parsoid: { src: node.data.parsoid.src } };
+
+		var tsr = node.data.parsoid.tsr;
+		if (tsr) {
+			span.data.parsoid.tsr = tsr;
+			endMeta.data = { parsoid: { tsr: [null, tsr[1]] } };
+		}
+
+		// refIndex-span
+		node.parentNode.insertBefore(span, node);
+
+		// refIndex-a
+		var refIndex = doc.createElement('a');
+		refIndex.setAttribute('href', '#' + ref.target);
+		refIndex.appendChild(doc.createTextNode(
+			'[' + ((group === '') ? '' : group + ' ') + ref.groupIndex + ']'
+		));
+		span.appendChild(refIndex);
+
+		// endMeta
+		endMeta.setAttribute('typeof', 'mw:Object/Ext/Ref/End' );
+		endMeta.setAttribute('about', about);
+		node.parentNode.insertBefore(endMeta, node);
+	}
 
 	// This effectively ignores content from later references with the same name.
 	// The implicit assumption is that that all those identically named refs. are
@@ -377,37 +368,45 @@ References.prototype.insertReferencesIntoDOM = function(refsNode) {
 		refGroup = this.refGroups[group];
 
 	if (refGroup && refGroup.refs.length > 0) {
-		var ol = refsNode.ownerDocument.createElement('ol');
+		var ol = refsNode.ownerDocument.createElement('ol'),
+			endMeta = refsNode.ownerDocument.createElement('meta'),
+			about = refsNode.getAttribute('about');
+
 		ol.setAttribute('class', 'references');
 		ol.setAttribute('typeof', 'mw:Object/References');
-		ol.setAttribute('data-parsoid', refsNode.getAttribute('data-parsoid'));
+		ol.setAttribute('about', about);
+		ol.data = refsNode.data;
 		refGroup.refs.map(refGroup.renderLine.bind(refGroup, ol));
 		refsNode.parentNode.replaceChild(ol, refsNode);
+
+		// Since this has a 'mw:Object/*' typeof, this code will be run
+		// through template encapsulation code.  Add an end-meta after
+		// the list so that that code knows where the references code ends.
+		endMeta.setAttribute('typeof', 'mw:Object/References/End' );
+		endMeta.setAttribute('about', about);
+		ol.parentNode.insertBefore(endMeta, ol.nextSibling);
 	} else {
 		// Not a valid references tag -- convert it to a placeholder tag that will rt as is.
 		refsNode.setAttribute('typeof', 'mw:Placeholder');
 	}
 
-	// clear refs group
-	if (group) {
-		this.refGroups[group] = undefined;
-	} else {
-		this.refGroups = {};
-	}
+	// reset
+	this.reset(group);
 };
 
 /**
  * Native Parsoid implementation of the Cite extension
  * that ties together <ref> and <references>
  */
+
 var Cite = function() {
 	this.ref = new Ref(this);
 	this.references = new References(this);
 };
 
-Cite.prototype.resetState = function() {
+Cite.prototype.resetState = function(group) {
 	this.ref.reset();
-	this.references.reset();
+	this.references.reset(group);
 };
 
 if (typeof module === "object") {
