@@ -12,7 +12,7 @@ Headings: 0. Unnested
 !! input
 <nowiki>=foo=</nowiki>
 
-<nowiki>=foo</nowiki>''a''=
+=foo''a''<nowiki>=</nowiki>
 !! result
 <p>=foo=
 </p><p>=foo<i>a</i>=
@@ -20,7 +20,7 @@ Headings: 0. Unnested
 !!end
 
 !! test
-Headings: 1. Nested inside html 
+Headings: 1. Nested inside html
 !! options
 disabled
 !! input
@@ -57,11 +57,11 @@ disabled
 !!end
 
 !! test
-Headings: 3. Nested inside html with wikitext split by html tags 
+Headings: 3. Nested inside html with wikitext split by html tags
 !! options
 disabled
 !! input
-=<nowiki>=</nowiki>'''bold'''foo==
+=='''bold'''<nowiki>foo=</nowiki>=
 !! result
 <h1>=<b>bold</b>foo=</h1>
 !!end
@@ -76,7 +76,7 @@ disabled
 ===foo==
 ==foo===
 =''=''foo==
-===
+=<nowiki>=</nowiki>=
 !! result
 <h1>=foo</h1>
 <h1>foo=</h1>
@@ -244,7 +244,7 @@ Lists: 5. No unnecessary escapes
 
 *[[bar <span><nowiki>[[foo]]</nowiki></span>
 
-*<nowiki>]]bar </nowiki><span><nowiki>[[foo]]</nowiki></span>
+*]]bar <span><nowiki>[[foo]]</nowiki></span>
 
 *=bar <span>foo]]</span>=
 !! result
@@ -273,7 +273,7 @@ disabled
 !!end
 
 !! test
-Lists: 7. Escape bullets in a multi-line context 
+Lists: 7. Escape bullets in a multi-line context
 !! input
 <nowiki>a
 *b</nowiki>
@@ -288,7 +288,7 @@ Lists: 7. Escape bullets in a multi-line context
 #### -----------------------------------
 
 !! test
-HRs: 1. Single line 
+HRs: 1. Single line
 !! options
 disabled
 !! input
@@ -515,11 +515,14 @@ disabled
 !! input
 [[Foo|<nowiki>[Foobar]</nowiki>]]
 [[Foo|<nowiki>Foobar]</nowiki>]]
-[[Foo|<nowiki>x [Foobar] x</nowiki>]]
+[[Foo|x [Foobar] x]]
 [[Foo|<nowiki>x [http://google.com g] x</nowiki>]]
 [[Foo|<nowiki>[[Bar]]</nowiki>]]
 [[Foo|<nowiki>x [[Bar]] x</nowiki>]]
 [[Foo|<nowiki>|Bar</nowiki>]]
+[[Foo|<nowiki>]]bar</nowiki>]]
+[[Foo|<nowiki>[[bar</nowiki>]]
+[[Foo|<nowiki>x ]] y [[ z</nowiki>]]
 !! result
 <a href="Foo" rel="mw:WikiLink">[Foobar]</a>
 <a href="Foo" rel="mw:WikiLink">Foobar]</a>
@@ -528,6 +531,9 @@ disabled
 <a href="Foo" rel="mw:WikiLink">[[Bar]]</a>
 <a href="Foo" rel="mw:WikiLink">x [[Bar]] x</a>
 <a href="Foo" rel="mw:WikiLink">|Bar</a>
+<a href="Foo" rel="mw:WikiLink">]]bar</a>
+<a href="Foo" rel="mw:WikiLink">[[bar</a>
+<a href="Foo" rel="mw:WikiLink">x ]] y [[ z</a>
 !! end
 
 !! test
@@ -629,9 +635,9 @@ bar <span><nowiki>[[foo]]</nowiki></span>
 
 [[bar <span><nowiki>[[foo]]</nowiki></span>
 
-<nowiki>]]bar </nowiki><span><nowiki>[[foo]]</nowiki></span>
+]]bar <span><nowiki>[[foo]]</nowiki></span>
 
-<nowiki>=bar </nowiki><span>foo]]</span>=
+=bar <span>foo]]</span><nowiki>=</nowiki>
 !! result
 <p>bar <span>[[foo]]</span>
 </p><p>=bar <span>[[foo]]</span>
