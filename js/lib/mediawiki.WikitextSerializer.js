@@ -2739,6 +2739,7 @@ WSP.emitSeparator = function(state, cb, node) {
 					dsrA = [endDsr, endDsr + correction + DU.indentPreDSRCorrection(prevNode), 0, 0];
 				}
 			} else {
+				/* jshint noempty: false */
 				//console.log( prevNode.nodeValue, prevNode.parentNode.outerHTML);
 			}
 		} else if (prevNode.data && prevNode.data.parsoid) {

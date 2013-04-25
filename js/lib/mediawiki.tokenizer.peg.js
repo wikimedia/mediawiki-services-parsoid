@@ -89,6 +89,7 @@ PegTokenizer.prototype._processText = function( text, fullParse, cacheKey ) {
 						.replace(/var cacheKey = "[^@"]+@" \+ pos/g,
 								function(m){ return m +' + stops.key'; });
 		// eval is not evil in the case of a grammar-generated tokenizer.
+		/* jshint evil:true */
 		//console.warn( tokenizerSource );
 		PegTokenizer.prototype.tokenizer = eval( tokenizerSource );
 		// alias the parse method

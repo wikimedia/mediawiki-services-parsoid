@@ -1,6 +1,7 @@
 /*
  * This file contains general utilities for token transforms
  */
+/* jshint nonstandard:true */ // define 'unescape'
 
 "use strict";
 
@@ -399,6 +400,7 @@ var Util = {
 			} else if ( token.constructor === pd.CommentTk ||
 			            token.constructor === pd.NlTk ) {
 				// strip comments and newlines
+				/* jshint noempty: false */
 			} else if ( strict ) {
 				// If strict, return accumulated string on encountering first non-text token
 				return [out.join(''), tokens.slice( i )];

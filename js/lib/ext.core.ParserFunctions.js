@@ -276,6 +276,7 @@ ParserFunctions.prototype['pf_#expr'] = function ( token, frame, cb, args ) {
 	if ( target ) {
 		try {
 			// FIXME: make this safe and implement MW expressions!
+			/* jshint evil:true */ // yes, this is evil.  we'll fix it someday
 			var f = new Function ( 'return (' + target + ')' );
 			res = f();
 		} catch ( e ) {
@@ -300,6 +301,7 @@ ParserFunctions.prototype['pf_#ifexpr'] = function ( token, frame, cb, args ) {
 	if ( target ) {
 		try {
 			// FIXME: make this safe, and fully implement MW expressions!
+			/* jshint evil:true */ // yes, this is evil.  we'll fix it someday
 			var f = new Function ( 'return (' + target + ')' );
 			res = f();
 		} catch ( e ) {

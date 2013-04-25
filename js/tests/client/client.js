@@ -55,7 +55,7 @@ var getTitle = function( cb ) {
 };
 
 var runTest = function( cb, prefix, title ) {
-	var result, callback = rtTest.cbCombinator.bind( null, rtTest.xmlFormat, function ( err, results ) {
+	var results, callback = rtTest.cbCombinator.bind( null, rtTest.xmlFormat, function ( err, results ) {
 		if ( err ) {
 			console.log( 'ERROR in ' + prefix + ':' + title + ':\n' + err + '\n' + err.stack);
 			/*
@@ -87,7 +87,7 @@ var runTest = function( cb, prefix, title ) {
 			page: { name: title },
 			wiki: { iwp: prefix }
 		}, err );
-		cb( 'postResult', err, results, prefix, title, function() { process.exit( 1 ) } );
+		cb( 'postResult', err, results, prefix, title, function() { process.exit( 1 ); } );
 	}
 };
 
