@@ -636,7 +636,6 @@ add("wt2wt", "Empty TD followed by TD with tpl-generated attribute");
 // Blacklist for html2html
 add("html2html", "Paragraphs with newline spacing with non-empty white-space lines in between");
 add("html2html", "Paragraphs with newline spacing with non-empty mixed comment and white-space lines in between");
-add("html2html", "Parsing an URL");
 add("html2html", "Italics and bold");
 add("html2html", "Italics and possessives");
 add("html2html", "Italics and bold: 2-quote opening sequence: (2,5) (parsoid)");
