@@ -1,3 +1,13 @@
+#### The following section of tests are primarily to test
+#### wikitext escaping capabilities of Parsoid.  Given that
+#### escaping can be done any number of ways, the wikitext (input)
+#### is always adjusted to reflect how Parsoid adds nowiki
+#### escape tags.
+####
+#### We are marking several tests as parsoid-only since the
+#### HTML in the result section is different from what the
+#### PHP parser generates it.
+
 #### --------------- Headings ---------------
 #### 0. Unnested
 #### 1. Nested inside html <h1>=foo=</h1>
@@ -12,9 +22,15 @@ Headings: 0. Unnested
 !! input
 <nowiki>=foo=</nowiki>
 
+<nowiki> =foo= </nowiki>
+<!--cmt-->
+<nowiki>=foo=</nowiki>
+
 =foo''a''<nowiki>=</nowiki>
 !! result
 <p>=foo=
+</p><p> =foo= 
+</p><p><!--cmt-->=foo=
 </p><p>=foo<i>a</i>=
 </p>
 !!end
@@ -22,7 +38,7 @@ Headings: 0. Unnested
 !! test
 Headings: 1. Nested inside html
 !! options
-disabled
+parsoid
 !! input
 =<nowiki>=foo=</nowiki>=
 ==<nowiki>=foo=</nowiki>==
@@ -42,7 +58,7 @@ disabled
 !! test
 Headings: 2. Outside heading nest on a single line <h1>foo</h1>*bar
 !! options
-disabled
+parsoid
 !! input
 =foo=
 <nowiki>*bar</nowiki>
@@ -59,7 +75,7 @@ disabled
 !! test
 Headings: 3. Nested inside html with wikitext split by html tags
 !! options
-disabled
+parsoid
 !! input
 =='''bold'''<nowiki>foo=</nowiki>=
 !! result
@@ -67,12 +83,14 @@ disabled
 !!end
 
 !! test
-Headings: 4. No escaping needed (testing just h1 and h2)
+Headings: 4a. No escaping needed (testing just h1 and h2)
 !! options
-disabled
+parsoid
 !! input
 ==foo=
 =foo==
+= =foo= =
+==foo= bar=
 ===foo==
 ==foo===
 =''=''foo==
@@ -80,23 +98,41 @@ disabled
 !! result
 <h1>=foo</h1>
 <h1>foo=</h1>
+<h1> =foo= </h1>
+<h1>=foo= bar</h1>
 <h2>=foo</h2>
 <h2>foo=</h2>
 <h1><i>=</i>foo=</h1>
 <h1>=</h1>
+
+!!end
+
+!! test
+Headings: 4b. No escaping needed (inside p-tags)
+!! options
+parsoid
+!! input
+===
+=foo= x
+=foo= <s></s>
+!! result
+<p>===
+=foo= x
+=foo= <s></s>
+</p>
 !!end
 
 !! test
 Headings: 5. Empty headings
 !! options
-disabled
+parsoid
 !! input
-=<nowiki></nowiki>=
-==<nowiki></nowiki>==
-===<nowiki></nowiki>===
-====<nowiki></nowiki>====
-=====<nowiki></nowiki>=====
-======<nowiki></nowiki>======
+=<nowiki/>=
+==<nowiki/>==
+===<nowiki/>===
+====<nowiki/>====
+=====<nowiki/>=====
+======<nowiki/>======
 !! result
 <h1></h1>
 <h2></h2>
@@ -109,11 +145,13 @@ disabled
 !! test
 Headings: 6. Heading chars in SOL context
 !! options
-disabled
+parsoid
 !! input
 <!--cmt--><nowiki>=h1=</nowiki>
+<!--cmt--><nowiki> =h1= </nowiki>
 !! result
 <p><!--cmt-->=h1=
+<!--cmt--> =h1= 
 </p>
 !!end
 
@@ -129,7 +167,7 @@ disabled
 #### ----------------------------------------
 
 !! test
-Lists: 0. Outside nests 
+Lists: 0. Outside nests
 !! input
 <nowiki>*foo</nowiki>
 
@@ -219,7 +257,7 @@ Lists: 3. Only bullets at start of text should be escaped
 !! test
 Lists: 4. No escapes needed
 !! options
-disabled
+parsoid
 !! input
 *foo*bar
 
@@ -268,7 +306,7 @@ Lists: 5. No unnecessary escapes
 !! test
 Lists: 6. Escape bullets in SOL position
 !! options
-disabled
+parsoid
 !! input
 <!--cmt--><nowiki>*foo</nowiki>
 !! result
@@ -294,14 +332,11 @@ Lists: 7. Escape bullets in a multi-line context
 !! test
 HRs: 1. Single line
 !! options
-disabled
+parsoid
 !! input
-----
-<nowiki>----</nowiki>
-----
-<nowiki>=foo=</nowiki>
-----
-<nowiki>*foo</nowiki>
+----<nowiki>----</nowiki>
+----=foo=
+----*foo
 !! result
 <hr/>----
 <hr/>=foo=
@@ -367,6 +402,8 @@ Tables: 1d. No escaping needed
 
 !! test
 Tables: 2a. Nested in td
+!! options
+parsoid
 !! input
 {|
 |<nowiki>foo|bar</nowiki>
@@ -380,6 +417,8 @@ Tables: 2a. Nested in td
 
 !! test
 Tables: 2b. Nested in td
+!! options
+parsoid
 !! input
 {|
 |<nowiki>foo||bar</nowiki>
@@ -395,6 +434,8 @@ Tables: 2b. Nested in td
 
 !! test
 Tables: 2c. Nested in td -- no escaping needed
+!! options
+parsoid
 !! input
 {|
 |foo!!bar
@@ -408,6 +449,8 @@ Tables: 2c. Nested in td -- no escaping needed
 
 !! test
 Tables: 3a. Nested in th
+!! options
+parsoid
 !! input
 {|
 !foo!bar
@@ -421,6 +464,8 @@ Tables: 3a. Nested in th
 
 !! test
 Tables: 3b. Nested in th
+!! options
+parsoid
 !! input
 {|
 !<nowiki>foo!!bar</nowiki>
@@ -433,7 +478,9 @@ Tables: 3b. Nested in th
 !! end
 
 !! test
-Tables: 3b. Nested in th -- no escaping needed
+Tables: 3c. Nested in th -- no escaping needed
+!! options
+parsoid
 !! input
 {|
 !<nowiki>foo||bar</nowiki>
@@ -447,6 +494,8 @@ Tables: 3b. Nested in th -- no escaping needed
 
 !! test
 Tables: 4a. Escape -
+!! options
+parsoid
 !! input
 {|
 |-
@@ -463,6 +512,8 @@ Tables: 4a. Escape -
 
 !! test
 Tables: 4b. Escape +
+!! options
+parsoid
 !! input
 {|
 |-
@@ -479,6 +530,8 @@ Tables: 4b. Escape +
 
 !! test
 Tables: 4c. No escaping needed
+!! options
+parsoid
 !! input
 {|
 |-
@@ -495,6 +548,31 @@ Tables: 4c. No escaping needed
 </tbody></table>
 !! end
 
+### SSS FIXME: Disabled right now because accurate html2wt
+### on this snippet requires data-parsoid flags that we've
+### stripped out of these tests.  We should scheme how we
+### we want to handle these kind of tests that require
+### data-parsoid flags for accurate html2wt serialization
+
+!! test
+Tables: 4d. No escaping needed
+!! options
+disabled
+!! input
+{|
+||+1
+||-2
+|}
+!! result
+<table>
+<tr>
+<td>+1
+</td>
+<td>-2
+</td></tr></table>
+
+!! end
+
 #### --------------- Links ---------------
 #### 1. Quote marks in link text
 #### 2. Wikilinks: Escapes needed
@@ -505,17 +583,17 @@ Tables: 4c. No escaping needed
 !! test
 Links 1. Quote marks in link text
 !! options
-disabled
+parsoid
 !! input
 [[Foo|<nowiki>Foo''boo''</nowiki>]]
 !! result
-<a rel="mw:WikiLink" href="Foo" data-parsoid="{&quot;tsr&quot;:[0,7],&quot;contentPos&quot;:[5,5],&quot;src&quot;:&quot;[[Foo]]&quot;,&quot;bsp&quot;:[0,7],&quot;stx&quot;:&quot;simple&quot;}">Foo''boo''</a>
+<a rel="mw:WikiLink" href="Foo">Foo''boo''</a>
 !! end
 
 !! test
 Links 2. WikiLinks: Escapes needed
 !! options
-disabled
+parsoid
 !! input
 [[Foo|<nowiki>[Foobar]</nowiki>]]
 [[Foo|<nowiki>Foobar]</nowiki>]]
@@ -543,7 +621,7 @@ disabled
 !! test
 Links 3. WikiLinks: No escapes needed
 !! options
-disabled
+parsoid
 !! input
 [[Foo|[Foobar]]
 [[Foo|foo|bar]]
@@ -555,7 +633,7 @@ disabled
 !! test
 Links 4. ExtLinks: Escapes needed
 !! options
-disabled
+parsoid
 !! input
 [http://google.com <nowiki>[google]</nowiki>]
 [http://google.com <nowiki>google]</nowiki>]
@@ -567,7 +645,7 @@ disabled
 !! test
 Links 5. ExtLinks: No escapes needed
 !! options
-disabled
+parsoid
 !! input
 [http://google.com [google]
 !! result
@@ -614,7 +692,7 @@ disabled
 
 !! test
 2. Link fragments inside <i> and <b>
-(FIXME: Escaping one or both of [[ and ]] is also acceptable -- 
+(FIXME: Escaping one or both of [[ and ]] is also acceptable --
  this is one of the shortcomings of this format)
 !! input
 ''[[foo''<nowiki>]]</nowiki>
@@ -657,7 +735,7 @@ bar <span><nowiki>[[foo]]</nowiki></span>
 !! test
 1. Leading space in SOL context should be escaped
 !! options
-disabled
+parsoid
 !! input
 <nowiki> foo</nowiki>
 <!--cmt--><nowiki> foo</nowiki>
@@ -675,7 +753,7 @@ disabled
 !! test
 1. a tags
 !! options
-disabled
+parsoid
 !! input
 <a href="http://google.com">google</a>
 !! result
