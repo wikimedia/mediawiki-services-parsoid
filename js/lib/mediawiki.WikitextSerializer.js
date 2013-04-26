@@ -246,9 +246,13 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
 		}
 
 		if (!linksOnly && tc === pd.TagTk) {
-			// mw:Entity tokens
+			// Ignore mw:Entity tokens
 			if (t.name === 'span' && t.getAttribute('typeof') === 'mw:Entity') {
 				numEntities++;
+				continue;
+			}
+			// Ignore heading tokens
+			if (t.name.match(/^h\d$/)) {
 				continue;
 			}
 
@@ -256,9 +260,13 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
 		}
 
 		if (!linksOnly && tc === pd.EndTagTk) {
-			// mw:Entity tokens
+			// Ignore mw:Entity tokens
 			if (numEntities > 0 && t.name === 'span') {
 				numEntities--;
+				continue;
+			}
+			// Ignore heading tokens
+			if (t.name.match(/^h\d$/)) {
 				continue;
 			}
 
@@ -615,10 +623,22 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 	text = text.replace(/<(\/?nowiki)>/g, '&lt;$1&gt;');
 
 	// Use the tokenizer to see if we have any wikitext tokens
+	//
+	// Ignores headings & entities -- headings have additional
+	// EOL matching requirements which are not captured by the
+	// hasWikitextTokens check
 	if (this.wteHandlers.hasWikitextTokens(state, sol, text) || hasTildes) {
 		// console.warn("---EWT:DBG1---");
 		return escapedText(text);
-	} else if (!state.onSOL) {
+	} else if (state.onSOL) {
+		if (text.match(/^=+[^=]+=+$/)) {
+			// console.warn("---EWT:DBG2---");
+			return escapedText(text);
+		} else {
+			// console.warn("---EWT:DBG3---");
+			return text;
+		}
+	} else {
 		// Detect if we have open brackets or heading chars -- we use 'processed' flag
 		// as a performance opt. to run this detection only if/when required.
 		//
@@ -636,7 +656,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 			// - a text node: (Ex: <p>=foo=</p>)
 			// - the first child of a heading node: (Ex: <h1>=foo=</h1>)
 			if (cl.text.match(/^=/) &&
-				(DU.isText(cl.firstNode) ||
+				(DU.isText(DU.firstNonSepChildNode(cl.firstNode.parentNode)) ||
 				cl.firstNode.nodeName.match(/^H/) && cl.firstNode.firstChild && DU.isText(cl.firstNode.firstChild)))
 			{
 				cl.hasOpenHeadingChar = true;
@@ -659,15 +679,12 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 		    cl.hasOpenBrackets && text.match(/^[^\[]*\]/) &&
 				this.wteHandlers.hasWikitextTokens(state, sol, cl.text + text, true))
 		{
-			// console.warn("---EWT:DBG2---");
+			// console.warn("---EWT:DBG4---");
 			return escapedText(text);
 		} else {
-			// console.warn("---EWT:DBG3---");
+			// console.warn("---EWT:DBG5---");
 			return text;
 		}
-	} else {
-		// console.warn("---EWT:DBG4---");
-		return text;
 	}
 };
 
@@ -1317,13 +1334,13 @@ function buildListHandler(firstChildNames) {
 
 	return {
 		handle: function (node, state, cb) {
-			var firstChildElt = DU.getFirstNonSepChildNode(node);
+			var firstChildElt = DU.firstNonSepChildNode(node);
 
 			// Skip builder-inserted wrappers
 			// Ex: <ul><s auto-inserted-start-and-end-><li>..</li><li>..</li></s>...</ul>
 			// output from: <s>\n*a\n*b\n*c</s>
 			while (firstChildElt && isBuilderInsertedElt(firstChildElt)) {
-				firstChildElt = DU.getFirstNonSepChildNode(firstChildElt);
+				firstChildElt = DU.firstNonSepChildNode(firstChildElt);
 			}
 
 			if (!firstChildElt || ! (firstChildElt.nodeName in firstChildNames)) {
@@ -1354,7 +1371,7 @@ WSP.tagHandlers = {
 
 	li: {
 		handle: function (node, state, cb) {
-			var firstChildElement = DU.getFirstNonSepChildNode(node);
+			var firstChildElement = DU.firstNonSepChildNode(node);
 			if (!DU.isList(firstChildElement)) {
 				cb(state.serializer._getListBullets(node), node);
 			}
@@ -1384,7 +1401,7 @@ WSP.tagHandlers = {
 
 	dt: {
 		handle: function (node, state, cb) {
-			var firstChildElement = DU.getFirstNonSepChildNode(node);
+			var firstChildElement = DU.firstNonSepChildNode(node);
 			if (!DU.isList(firstChildElement)) {
 				cb(state.serializer._getListBullets(node), node);
 			}
@@ -1412,7 +1429,7 @@ WSP.tagHandlers = {
 
 	dd: {
 		handle: function (node, state, cb) {
-			var firstChildElement = DU.getFirstNonSepChildNode(node);
+			var firstChildElement = DU.firstNonSepChildNode(node);
 			if (!DU.isList(firstChildElement)) {
 				// XXX: handle stx: row
 				if (node.data.parsoid.stx === 'row') {

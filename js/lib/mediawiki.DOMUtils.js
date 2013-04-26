@@ -484,7 +484,7 @@ var DOMUtils = {
 	 * Get the first child element or non-IEW text node, ignoring
 	 * whitespace-only text nodes and comments.
 	 */
-	getFirstNonSepChildNode: function(node) {
+	firstNonSepChildNode: function(node) {
 		var child = node.firstChild;
 		while (child && !this.isContentNode(child)) {
 			child = child.nextSibling;
