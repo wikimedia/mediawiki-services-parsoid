@@ -40,6 +40,7 @@ process.on( 'exit', function () {
 
 // track files imported / required
 var fileDependencies = [];
+var parserTestsUpToDate = true;
 
 // Fetch up some of our wacky parser bits...
 
@@ -315,6 +316,7 @@ ParserTests.prototype.getTests = function ( argv ) {
 	// double check that test file is up-to-date with upstream
 	var fetcher = require(__dirname+"/fetch-parserTests.txt.js");
 	if (!fetcher.isUpToDate()) {
+		parserTestsUpToDate = false;
 		console.warn("WARNING: parserTests.txt not up-to-date with upstream.");
 	}
 
@@ -1222,6 +1224,14 @@ ParserTests.prototype.reportSummary = function ( stats ) {
 			console.log( "Passed " + stats.passedTests + " of " + stats.passedTests +
 					" tests... " + "ALL TESTS PASSED!".green );
 		}
+	}
+	// repeat warning about out-of-date parser tests (we might have missed
+	// in at the top) and describe what to do about it.
+	if (!parserTestsUpToDate) {
+		console.log( "==========================================================");
+		console.warn( "WARNING:".red +
+		              " parserTests.txt not up-to-date with upstream." );
+		console.warn ("         Run fetch-parserTests.txt.js to update." );
 	}
 	console.log( "==========================================================");
 
