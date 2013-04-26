@@ -53,14 +53,15 @@ var fetch = function(url, target_name, gitCommit, cb) {
 			out.write(data);
 		});
 		result.on('end', function() {
-			if (out) {
-				out.end();
-				if (cb) {
-					return cb();
-				} else if (expectedSHA1 !== computeSHA1(target_name)) {
-					console.warn('Parsoid expected sha1sum', expectedSHA1,
-								 'but got', computeSHA1(target_name));
-				}
+			out.end();
+			out.destroySoon();
+		});
+		out.on('close', function() {
+			if (cb) {
+				return cb();
+			} else if (expectedSHA1 !== computeSHA1(target_name)) {
+				console.warn('Parsoid expected sha1sum', expectedSHA1,
+							 'but got', computeSHA1(target_name));
 			}
 		});
 	}).on('error', function(err) {
