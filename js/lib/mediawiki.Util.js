@@ -1019,7 +1019,7 @@ normalizeOut = function ( out ) {
 		.replace(/<span><\/span>/g, '')
 		.replace(/(href=")(?:\.?\.\/)+/g, '$1')
 		// replace unnecessary URL escaping
-		.replace(/ href="[^"]*"/g, unescape)
+		.replace(/ href="[^"]*"/g, decodeURIComponent)
 		// strip thumbnail size prefixes
 		.replace(/(src="[^"]*?)\/thumb(\/[0-9a-f]\/[0-9a-f]{2}\/[^\/]+)\/[0-9]+px-[^"\/]+(?=")/g, '$1$2')
 		.replace(/(<(table|tbody|tr|th|td|\/th|\/td)[^<>]*>)\s+/g, '$1');
@@ -1059,7 +1059,7 @@ normalizeHTML = function ( source ) {
 			.replace(/href="\/wiki\//g, 'href="')
 			.replace(/" +>/g, '">')
 			// replace unnecessary URL escaping
-			.replace(/ href="[^"]*"/g, unescape)
+			.replace(/ href="[^"]*"/g, decodeURIComponent)
 			// strip empty spans
 			.replace(/<span><\/span>/g, '')
 			.replace(/(<(table|tbody|tr|th|td|\/th|\/td)[^<>]*>)\s+/g, '$1');
