@@ -378,6 +378,12 @@ References.prototype.insertReferencesIntoDOM = function(refsNode) {
 		// the list so that that code knows where the references code ends.
 		endMeta.setAttribute('typeof', 'mw:Object/References/End' );
 		endMeta.setAttribute('about', about);
+		// Set end-tsr on the endMeta so that DSR computation can establish
+		// a valid DSR range on the references section.
+		var tsr = refsNode.data.parsoid.tsr;
+		if (tsr) {
+			endMeta.data = { parsoid: { tsr: [null, tsr[1]] } };
+		}
 		ol.parentNode.insertBefore(endMeta, ol.nextSibling);
 	} else {
 		// Not a valid references tag -- convert it to a placeholder tag that will rt as is.
