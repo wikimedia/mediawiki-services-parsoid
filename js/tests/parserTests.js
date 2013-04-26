@@ -1185,7 +1185,7 @@ ParserTests.prototype.reportSummary = function ( stats ) {
 			curStr = modes[i] + ': ';
 			thisMode = stats.modes[modes[i]];
 			if ( thisMode.passedTests + thisMode.passedTestsWhitelisted + thisMode.failedTests > 0 ) {
-				curStr += colorizeCount( thisMode.passedTests + stats.passedTestsWhitelisted, 'green' ) + ' passed (';
+				curStr += colorizeCount( thisMode.passedTests + thisMode.passedTestsWhitelisted, 'green' ) + ' passed (';
 				curStr += colorizeCount( thisMode.passedTestsUnexpected, 'red' ) + ' unexpected, ';
 				curStr += colorizeCount( thisMode.passedTestsWhitelisted, 'yellow' ) + ' whitelisted) / ';
 				curStr += colorizeCount( thisMode.failedTests, 'red' ) + ' failed (';
