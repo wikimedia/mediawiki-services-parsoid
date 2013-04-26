@@ -69,6 +69,12 @@ function ApiRequest ( env, title ) {
 // Inherit from EventEmitter
 util.inherits(ApiRequest, events.EventEmitter);
 
+ApiRequest.prototype.request = function( options, callback ) {
+	// this is a good place to put debugging statements
+	// if you want to watch network requests.
+	return request( options, callback );
+};
+
 /**
  * @method
  * @private
@@ -117,7 +123,7 @@ ApiRequest.prototype._requestCB = function (error, response, body) {
 			this.env.tp( 'Retrying ' + this.reqType + ' request for ' + this.title + ', ' +
 					this.retries + ' remaining' );
 			// retry
-			request( this.requestOptions, this._requestCB.bind(this) );
+			this.request( this.requestOptions, this._requestCB.bind(this) );
 			return;
 		} else {
 			var dnee = new DoesNotExistError( this.reqType + ' failure for ' + this.title );
@@ -206,7 +212,7 @@ function TemplateRequest ( env, title, oldid ) {
 	};
 
 	// Start the request
-	request( this.requestOptions, this._requestCB.bind(this) );
+	this.request( this.requestOptions, this._requestCB.bind(this) );
 }
 
 // Inherit from ApiRequest
@@ -289,7 +295,7 @@ TemplateRequest.prototype._handleJSON = function ( error, data ) {
 		//'?format=json&action=query&prop=revisions&rvprop=content&titles=' + title;
 		this.requestOptions.url = url;
 		this.title = title;
-		request( this.requestOptions, this._requestCB.bind(this) );
+		this.request( this.requestOptions, this._requestCB.bind(this) );
 		return;
 	}
 
@@ -347,7 +353,7 @@ function PreprocessorRequest ( env, title, text ) {
 	};
 
 	// Start the request
-	request( this.requestOptions, this._requestCB.bind(this) );
+	this.request( this.requestOptions, this._requestCB.bind(this) );
 }
 
 
@@ -428,7 +434,7 @@ function PHPParseRequest ( env, title, text ) {
 	};
 
 	// Start the request
-	request( this.requestOptions, this._requestCB.bind(this) );
+	this.request( this.requestOptions, this._requestCB.bind(this) );
 }
 
 // Inherit from ApiRequest
@@ -524,7 +530,7 @@ var ConfigRequest = function ( confSource, env ) {
 		}
 	};
 
-	request( this.requestOptions, this._requestCB.bind( this ) );
+	this.request( this.requestOptions, this._requestCB.bind( this ) );
 };
 
 util.inherits( ConfigRequest, ApiRequest );
