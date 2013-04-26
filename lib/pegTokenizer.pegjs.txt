@@ -259,8 +259,6 @@
     ]);
 
 
-    var self = this;
-
     function buildXMLTag(name, lcName, attribs, endTag, selfClose, tsr) {
         var tok, da = { tsr: tsr, stx: 'html' };
 
@@ -268,9 +266,9 @@
             da.srcTagName = name;
         }
 
-        if ( endTag != null ) {
+        if ( endTag !== null) {
             tok = new EndTagTk( lcName, attribs, da );
-        } else if ( selfClose != null ) {
+        } else if ( selfClose !== null) {
             da.selfClose = true;
             tok = new SelfclosingTagTk( lcName, attribs, da );
         } else {
@@ -445,7 +443,7 @@ tlb
             bs.dataAttribs = {};
         }
         tokens = b;
-    } else if (bs && b.constructor === String) {
+    } else if (b && b.constructor === String) {
         tokens = [b];
     }
 

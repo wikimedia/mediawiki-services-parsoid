@@ -4,7 +4,10 @@
 
 		"setImmediate",
 
-		"QUnit"
+		"QUnit",
+
+		"Map",
+		"Set"
 	],
 
 	"bitwise": true,
