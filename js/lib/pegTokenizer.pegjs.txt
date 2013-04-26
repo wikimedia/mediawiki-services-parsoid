@@ -36,7 +36,7 @@
     var Util = require('./mediawiki.Util.js').Util;
 
     // import defines and define some constructor shortcuts
-	var defines = require('./mediawiki.parser.defines.js'),
+    var defines = require('./mediawiki.parser.defines.js'),
         KV = defines.KV,
         TagTk = defines.TagTk,
         SelfclosingTagTk = defines.SelfclosingTagTk,
@@ -57,7 +57,7 @@
                 var v = e[i];
                 if (v.constructor === Array ) {
                     // Change in assumption from a shallow array to a nested array.
-                    if (res === null) res = e.slice(0, i);
+                    if (res === null) { res = e.slice(0, i); }
                     internal_flatten(v, res);
                 } else if (res !== null) {
                     res.push(v);
@@ -68,7 +68,7 @@
         }
 
         return internal_flatten(e, null);
-    }
+    };
 
     var flatten_string = function ( c ) {
         var out = flatten_stringlist( c );
@@ -83,7 +83,7 @@
 
     var match_protocol = function ( string ) {
         return string.match( protocol_regexp );
-    }
+    };
 
     var flatten_stringlist = function ( c ) {
         var out = [],
@@ -108,7 +108,7 @@
             out.push( text );
         }
         return out;
-    }
+    };
 
     // Debug print with global switch
     var dp = function ( msg ) {
@@ -154,7 +154,8 @@
             return (checksum % 11 === 0);
         case 13:
             for (i = 0; i < 13; i++) {
-                checksum += parseInt(isbn[i], 10) * (i & 1 ? 3 : 1);
+                /* jshint bitwise:false */
+                checksum += parseInt(isbn[i], 10) * ((i & 1) ? 3 : 1);
             }
             return (checksum % 10 === 0) && (/^97[89]/.test(isbn));
         }
@@ -184,7 +185,7 @@
         return {
             value: attrVal,
             valueSrc: input.substring(attrValPosStart, attrValPosEnd)
-        }
+        };
     }
 
     /* End static utilities */
@@ -542,7 +543,7 @@ block
             / comment &eolf
             / nowiki
             // avoid a paragraph if we know that the line starts with a block tag
-            / bt:block_tag { return [bt] }
+            / bt:block_tag { return [bt]; }
             ) { return r; }
     / paragraph
     // Inlineline includes generic tags; wrapped into paragraphs in token
@@ -554,7 +555,7 @@ block
  * A block nested in other constructs. Avoid eating end delimiters for other
  * constructs by checking against inline_breaks first.
  */
-nested_block = !inline_breaks b:block { return b }
+nested_block = !inline_breaks b:block { return b; }
 
 /*
  * Line-based block constructs.
@@ -562,7 +563,7 @@ nested_block = !inline_breaks b:block { return b }
 block_lines
   = s:sol
     // eat an empty line before the block
-    s2:(os:optionalSpaceToken so:sol { return os.concat(so) })?
+    s2:(os:optionalSpaceToken so:sol { return os.concat(so); })?
     bl:block_line {
         //console.warn( pp(s));
         var s2_ = (s2 !== '') ? s2 : [];
@@ -588,7 +589,7 @@ block_line
   / // Horizontal rules
     "----" d:"-"*
     // Check if a newline or content follows
-    lineContent:( &sol { return undefined; } / { return true } ) {
+    lineContent:( &sol { return undefined; } / { return true; } ) {
       if (d.length > 0) {
           return new SelfclosingTagTk( "hr", [],
                     {
@@ -650,7 +651,7 @@ inline_breaks
         //} else {
         //    console.warn('ilb no break: ' + pp(input.substr(pos, 5)) );
         //}
-        return null !== pegArgs.pegTokenizer.inline_breaks( input, pos, stops )
+        return null !== pegArgs.pegTokenizer.inline_breaks( input, pos, stops );
       }
 
 inline
@@ -675,7 +676,7 @@ inline_element
     / & '{' tplarg_or_template
     /// & '{' ( tplarg / template )
      // Eat three opening brackets as text.
-    / '[[[' { return '[[[' }
+    / '[[[' { return '[[['; }
     / & '[' ( wikilink / extlink / autolink )
     / & "'" quote
 
@@ -688,31 +689,31 @@ h = & "=" // guard, to make sure '='+ will match.
      & { return stops.inc('h'); }
      c:inlineline
      e:'='+
-     endTPos:({ return pos })
-     spc:(sp:space+ { return sp.join('') } / comment)*
+     endTPos:({ return pos; })
+     spc:(sp:space+ { return sp.join(''); } / comment)*
      &eolf
      {
         stops.dec('h');
         var level = Math.min( s.length, e.length );
-	level = Math.min( 6, level );
+        level = Math.min( 6, level );
         // convert surplus equals into text
         if(s.length > level) {
             s = s.join('');
-            var extras = s.substr(0, s.length - level);
+            var extras1 = s.substr(0, s.length - level);
             if(c[0].constructor === String) {
-                c[0] = extras + c[0];
+                c[0] = extras1 + c[0];
             } else {
-                c.unshift( extras );
+                c.unshift( extras1 );
             }
         }
         if(e.length > level) {
             e = e.join('');
-            var extras = e.substr(0, e.length - level),
+            var extras2 = e.substr(0, e.length - level),
                 lastElem = c[c.length - 1];
             if(lastElem.constructor === String) {
-                c[c.length-1] += extras;
+                c[c.length-1] += extras2;
             } else {
-                c.push( extras );
+                c.push( extras2 );
             }
         }
 
@@ -723,8 +724,8 @@ h = & "=" // guard, to make sure '='+ will match.
                         spc
                         ]);
       }
-    / & { /* dp('nomatch exit h'); */ stops.dec('h'); return false } { return null }
-    ) { return r }
+    / & { /* dp('nomatch exit h'); */ stops.dec('h'); return false; } { return null; }
+    ) { return r; }
 
 comment
     ='<!--' c:comment_chars* ('-->' / eof)
@@ -834,7 +835,7 @@ autoref
 isbn
   = 'ISBN' (newline / space)+
     head:[0-9]
-    digits:(d:( c:[- ] &[0-9] { return c } / [0-9] ) { return d } )+
+    digits:(d:( c:[- ] &[0-9] { return c; } / [0-9] ) { return d; } )+
     tail:'X'?
 {
     // TODO: round-trip non-decimals too!
@@ -874,7 +875,7 @@ unicode_separator_space = [ \u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]
 
 urlencoded_char = "%" c0:[0-9a-fA-F] c1:[0-9a-fA-F] {
     try {
-        return decodeURI("%" + c0 + c1)
+        return decodeURI("%" + c0 + c1);
     } catch ( e ) {
         // Reject the match, and allow other fall-back productions to have a
         // go at it.
@@ -892,16 +893,16 @@ url
     addr:( ipv6_address / ipv4_address )?
     path:(  ( !inline_breaks
               c:no_punctuation_char
-              { return c }
+              { return c; }
             )
-            / s:[.:,] !(space / eolf) { return s }
+            / s:[.:,] !(space / eolf) { return s; }
             / comment
             / tplarg_or_template
             / ! ( "&" ( [lL][tT] / [gG][tT] ) ";" )
                 r:(
                     htmlentity
                   / [&%{]
-                ) { return r }
+                ) { return r; }
          )+
 {
     //console.warn( "path: " + pp( flatten_stringlist( [proto + addr].concat( path ) ) ) );
@@ -947,9 +948,9 @@ template
   = "{{" nl_comment_space*
     target:template_param_value
     params:(nl_comment_space* "|"
-                r:( nl_comment_space* p:({return pos}) &"|" { return new KV( '', '', [p,p,p,p]); } // empty argument
-                    / p:template_param { return p }
-                  ) { return r }
+                r:( nl_comment_space* p:({return pos;}) &"|" { return new KV( '', '', [p,p,p,p]); } // empty argument
+                    / p:template_param { return p; }
+                  ) { return r; }
             )*
     nl_comment_space*
     "}}" {
@@ -973,9 +974,9 @@ tplarg
     params:( nl_comment_space*
               '|' nl_comment_space*
                r:(
-                    &'}}}' { return new KV( '', '') }
-                    / p:template_param { return p }
-               ) { return r }
+                    &'}}}' { return new KV( '', ''); }
+                    / p:template_param { return p; }
+               ) { return r; }
            )*
     nl_comment_space*
     "}}}" {
@@ -995,11 +996,11 @@ template_param
     // MW accepts |foo | = bar | as a single param..
     ('|' (space / newline)* &'=')?
     val:(
-        kEndPos:({return pos})
+        kEndPos:({return pos;})
         optionalSpaceToken
         "="
         optionalSpaceToken
-        vStartPos:({return pos})
+        vStartPos:({return pos;})
         tpv:template_param_value? {
             return { kEndPos:kEndPos, vStartPos: vStartPos, value: tpv.tokens || [] };
         }
@@ -1021,19 +1022,19 @@ template_param
 
 // FIXME: handle template args and templates in key! (or even parser functions?)
 template_param_name
-  = & { return stops.push( 'equal', true ) }
-    tpt:(template_param_text / &'=' { return '' })
+  = & { return stops.push( 'equal', true ); }
+    tpt:(template_param_text / &'=' { return ''; })
     {
         stops.pop( 'equal' );
         //console.warn( 'template param name matched: ' + pp( tpt ) );
         return tpt;
     }
 
-  / & { return stops.pop( 'equal' ) }
+  / & { return stops.pop( 'equal' ); }
   //= h:( !"}}" x:([^=|\n]) { return x } )* { return h.join(''); }
 
 template_param_value
-  = & { stops.inc( 'nopre' ); return stops.push( 'equal', false ) }
+  = & { stops.inc( 'nopre' ); return stops.push( 'equal', false ); }
     tpt:template_param_text
     {
         stops.dec( 'nopre' );
@@ -1041,7 +1042,7 @@ template_param_value
         //console.warn( 'template param value matched: ' + pp( tpt ) );
         return { tokens: tpt, srcOffsets: [pos0, pos] };
     }
-  / & { stops.dec( 'nopre' ); return stops.pop( 'equal' ) }
+  / & { stops.dec( 'nopre' ); return stops.pop( 'equal' ); }
 
 template_param_text
   = & { /*console.warn( 'tpt: ' +
@@ -1052,7 +1053,7 @@ template_param_text
         stops.push('table', false );
         stops.push('extlink', false);
         stops.push('pipe', true);
-        return stops.inc('template')
+        return stops.inc('template');
     }
     il:(nested_block / newlineToken)+ {
         stops.pop('table');
@@ -1094,7 +1095,7 @@ wikilink
     //target:link_target
     // XXX: disallow pipe!
     target:wikilink_preprocessor_text
-    tpos:({return pos})
+    tpos:({return pos;})
     lcontent:wikilink_content?
     "]]"
   {
@@ -1169,7 +1170,7 @@ link_end = "]]"
  * bolds/italics and MediaWiki's special heuristics for apostrophes, which are
  * all not context free. */
 quote = "''" x:"'"* {
-	var res = new TagTk( 'mw-quote', [], { tsr: [pos0, pos] } ); // Will be consumed in token transforms
+    var res = new TagTk( 'mw-quote', [], { tsr: [pos0, pos] } ); // Will be consumed in token transforms
     res.value = "''" + x.join('');
     return res;
 }
@@ -1183,15 +1184,15 @@ img_options =
   & { return stops.push( 'pipe', true ); }
   os:img_option* {
     stops.pop( 'pipe' );
-	var options = {};
+    var options = {};
     // os will always be an array
     os = flattenIfArray( os );
-	for ( var i = 0, l = os.length; i < l; i++ ) {
-		var o = os[i];
-		options[o.k] = o.v;
-	}
-	options._options = os;
-	return options;
+    for ( var i = 0, l = os.length; i < l; i++ ) {
+        var o = os[i];
+        options[o.k] = o.v;
+    }
+    options._options = os;
+    return options;
 }
 / & { return stops.pop( 'pipe' ); }
 
@@ -1204,7 +1205,7 @@ img_option
     / img_halign
     / img_valign
     / img_link
-    / lt:link_text { return new KV('caption', lt) }
+    / lt:link_text { return new KV('caption', lt); }
   )
   space* {
       return o;
@@ -1216,7 +1217,7 @@ img_format
   }
 
 img_dimensions
-  = x:(n:[0-9]+ { return n.join('') })? y:('x' n:[0-9]+ { return n.join('') })? 'px' {
+  = x:(n:[0-9]+ { return n.join(''); })? y:('x' n:[0-9]+ { return n.join(''); })? 'px' {
       if ( x === '' && y ) {
           return new KV( 'height', y );
       } else if ( y === '' && x ) {
@@ -1225,7 +1226,7 @@ img_dimensions
           return [ new KV( 'width', x ), new KV( 'height', y ) ];
       }
   }
-  / 'upright' { return [ new KV( 'width', 'upright' ) ] }
+  / 'upright' { return [ new KV( 'width', 'upright' ) ]; }
 
 img_halign
   = a:( 'left' / 'right' / 'center' / 'none' ) {
@@ -1318,13 +1319,13 @@ pre
   = & { return stops.inc('pre'); }
     "<" pre_tag_name
     attribs:generic_attribute*
-    endpos:(">" { return pos })
+    endpos:(">" { return pos; })
     // MediaWiki <pre> is special in that it converts all pre content to plain
     // text.
     ts:(    newlineToken
                 / (htmlentity / [^&<]+)+
                 / nowiki
-                / !("</" pre_tag_name ">") t2:(htmlentity / .) { return t2 })+
+                / !("</" pre_tag_name ">") t2:(htmlentity / .) { return t2; })+
     ("</" pre_tag_name ">" / eof) {
         stops.dec('pre');
         // return nowiki tags as well?
@@ -1365,7 +1366,7 @@ xmlish_tag =
             if (t.constructor === TagTk) {
                 var tsr0 = dp.tsr[0],
                     restOfInput = input.substring(tsr0),
-                    tagContent = restOfInput.match(new RegExp("^(.|\n)*?(</\s*" + tagName + ">)", "m")),
+                    tagContent = restOfInput.match(new RegExp("^(.|\n)*?(</\\s*" + tagName + ">)", "m")),
                     extSrc = null,
                     tagWidths = null;
 
@@ -1376,8 +1377,8 @@ xmlish_tag =
                 }
 
                 if (extSrc) {
-                    var tagWidths = [pos-tsr0, (tagContent ? tagContent[2].length : 0)],
-                        extContentLen = extSrc.length - tagWidths[0] - tagWidths[1];
+                    tagWidths = [pos-tsr0, (tagContent ? tagContent[2].length : 0)];
+                    var extContentLen = extSrc.length - tagWidths[0] - tagWidths[1];
 
                     // If the xml-tag is a known installed (not native) extension,
                     // skip the end-tag as well.
@@ -1539,7 +1540,7 @@ nowiki
                 ] );
     }
   // nowiki fallback: source-based round-tripping of <nowiki />.
-  / nw0:({return pos})
+  / nw0:({return pos;})
     "<" nowiki_tag_name [ ]* "/>" {
       // console.warn('<nowiki/>');
       return [
@@ -1554,7 +1555,7 @@ nowiki
   // nowiki fallback: source-based round-tripping
   // of unbalanced nowiki tags that are treated as text.
   / ! { return stops.counters.pre > 0; }
-    nw0:({return pos})
+    nw0:({return pos;})
     "<" "/"? nowiki_tag_name [ ]* "/"? ">" {
       // console.warn('nowiki text');
       var nowiki = input.substring(nw0, pos);
@@ -1632,7 +1633,7 @@ generic_newline_attribute
     name:generic_attribute_name
     namePos:({return pos;})
     valueData:(( space / newline )*
-        v:generic_attribute_newline_value { return v })?
+        v:generic_attribute_newline_value { return v; })?
 {
     //console.warn('generic_newline_attribute: ' + pp( name ))
     var res;
@@ -1656,7 +1657,7 @@ generic_attribute
     name:generic_attribute_name
     namePos:({return pos;})
     valueData:(optionalSpaceToken
-          v:generic_attribute_value { return v })?
+          v:generic_attribute_value { return v; })?
 {
     //console.warn( 'generic attribute: ' + pp([name, value]));
     // FIXME: name might just be a template, which can expand to a key-value
@@ -1684,23 +1685,23 @@ generic_attribute
 //  }
 
 generic_attribute_name
-  = & { return stops.push( 'equal', true ) }
+  = & { return stops.push( 'equal', true ); }
   name:attribute_preprocessor_text_line
     {
         stops.pop( 'equal' );
         //console.warn( 'generic attribute name: ' + pp( name ) );
         return name;
     }
-  / & { return stops.pop( 'equal' ) }
+  / & { return stops.pop( 'equal' ); }
 
 // A generic attribute, possibly spanning multiple lines.
 generic_attribute_newline_value
-  = "=" v:((space / newline )* vv:xml_att_value { return vv })? {
+  = "=" v:((space / newline )* vv:xml_att_value { return vv; })? {
       return v === '' ? [] : v;
   }
 // A generic but single-line attribute.
 generic_attribute_value
-  = "=" v:(space* vv:att_value { return vv })? {
+  = "=" v:(space* vv:att_value { return vv; })? {
       return v === '' ? [] : v;
   }
 
@@ -1746,7 +1747,7 @@ att_value
  */
 block_tag
   = "<" end:"/"?
-    name:(cs:[a-zA-Z]+ { return cs.join('') })
+    name:(cs:[a-zA-Z]+ { return cs.join(''); })
     attribs:generic_newline_attribute*
     ( space / newline ) *
     selfclose:"/"?
@@ -1802,11 +1803,11 @@ hacky_dl_uses = bullets:":"+
 
 
 dtdd
-  = bullets:(!(";" !list_char) lc:list_char { return lc })*
+  = bullets:(!(";" !list_char) lc:list_char { return lc; })*
     ";"
     & {return stops.inc('colon');}
     c:inlineline
-    cpos:(":" { return pos })
+    cpos:(":" { return pos; })
     // Fortunately dtdds cannot be nested, so we can simply set the flag
     // back to 0 to disable it.
     & { stops.counters.colon = 0; return true;}
@@ -1860,7 +1861,7 @@ table_lines
             return tl.concat( tls );
         }
       / & { return stops.pop('table'); }
-    ) { return r }
+    ) { return r; }
 
 // This production assumes start-of-line position!
 table_line
@@ -1875,7 +1876,7 @@ table_start_tag
   = b:"{" p:pipe
     ta:generic_attribute*
     space*
-    tsEndPos:({return pos})
+    tsEndPos:({return pos;})
     te:table_end_tag? // can occur somewhere in the middle of the line too
     {
         var tblStart = new TagTk( 'table', [], { tsr: [pos0, tsEndPos] } );
@@ -1899,7 +1900,7 @@ table_start_tag
 table_caption_tag
   = p:pipe "+"
     args:single_cell_table_args?
-    tagEndPos:({return pos})
+    tagEndPos:({return pos;})
     c:nested_block* {
         return buildTableTokens("caption", "|+", args, [pos0, tagEndPos], pos, c)
             .concat([new EndTagTk('caption')]);
@@ -1910,7 +1911,7 @@ table_row_tag
   = //& { console.warn("table row enter @" + input.substr(pos, 30)); return true; }
     p:pipe dashes:"-"+
     a:generic_attribute*
-    tagEndPos:({return pos})
+    tagEndPos:({return pos;})
     // handle tables with missing table cells after a row
     td:(
         // Try to eat up *extra* spaces separately. This side-steps
@@ -1944,7 +1945,7 @@ table_row_tag
 table_data_tags
   = p:pipe
     ![+-] td:table_data_tag
-    tagEndPos:({return pos})
+    tagEndPos:({return pos;})
     tds:( pp:pipe_pipe tdt:table_data_tag {
             var da = tdt[0].dataAttribs;
             da.stx_v = "row";
@@ -1971,7 +1972,7 @@ table_data_tag
     arg:row_syntax_table_args?
     //& { console.warn("past attrib, pos=" + pos + input.substr(pos,10)); return true; }
     // use inline_breaks to break on tr etc
-    tagEndPos:({return pos})
+    tagEndPos:({return pos;})
     td:nested_block*
     {
         return buildTableTokens("td", "|", arg, [pos0, tagEndPos], pos, td);
@@ -2000,7 +2001,7 @@ table_heading_tags
 
 table_heading_tag
   = arg:row_syntax_table_args?
-    tagEndPos:({return pos})
+    tagEndPos:({return pos;})
     c:nested_block* {
         //console.warn( 'table_heading_tag: ' + pp( [a, c] ) );
         return buildTableTokens("th", "!", arg, [pos0, tagEndPos], pos, c);
@@ -2014,7 +2015,7 @@ table_end_tag
           // I cannot even use that expression in the comment!
           tblEnd.dataAttribs.endTagSrc = p+b;
       }
-	  return [ tblEnd ];
+      return [ tblEnd ];
   }
 
 /**
@@ -2131,16 +2132,16 @@ urltext = ( t:[^'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:\]} &=]+ { return t.join(''); 
 //            var res = input.substr(textStart - 1, inputLength)
 //                        .match(/[A-Za-z0-9,._ -]+/)[0];
 //            pos = pos + (res.length - 1);
-//            return res
+//            return res;
 //       }
 
 htmlentity = "&" c:[#0-9a-zA-Z]+ ";" {
     //return "&" + c.join('') + ";";
     var m = "&" + c.join('') + ";",
-        c = Util.decodeEntity(m);
+        cc = Util.decodeEntity(m);
     return [
-        new TagTk('span', [new KV('typeof', 'mw:Entity')], { src: m, srcContent: c } ),
-        c,
+        new TagTk('span', [new KV('typeof', 'mw:Entity')], { src: m, srcContent: cc } ),
+        cc,
         new EndTagTk('span')
     ];
 }
@@ -2163,7 +2164,7 @@ optionalSpaceToken
 // compress surplus newlines into a meta tag, so that they don't trigger
 // paragraphs.
 optionalNewlines
-  = spc:(n:[\n\r\t ] &([\n\r]) { return n })*
+  = spc:(n:[\n\r\t ] &([\n\r]) { return n; })*
 {
     if ( spc.length ) {
         return [spc.join('')];
@@ -2185,7 +2186,7 @@ sol
       }
       return true;
     }
-    nl:(newlineToken / & { return pos === 0; } { return [] })
+    nl:(newlineToken / & { return pos === 0; } { return []; })
     // Eat multi-line comment, so that syntax after still matches as if it
     // was actually preceded by a newline
     cn:( c:comment n:newlineToken? {
@@ -2198,10 +2199,10 @@ sol
     )?
     // Eat <*include*> section at start of line, so that start-of-line
     // syntax after it still matches
-    ni:( niStart:({return pos})
+    ni:( niStart:({return pos;})
          s:space*
         "<" c:"/"? t:include_limits
-        ">" {return [s.join(''), c, t, [niStart, pos]]} )?
+        ">" {return [s.join(''), c, t, [niStart, pos]];} )?
     {
         var niToken = [];
         if ( ni !== '') {
@@ -2259,7 +2260,7 @@ include_limits =
      if (incl === "noinclude" || incl === "onlyinclude" || incl === "includeonly") {
          var dp = {tsr: [pos0, pos]},
              restOfInput = input.substring(pos0),
-             tagContent = restOfInput.match(new RegExp("^(.|\n)*?(</\s*" + incl + ">)", "m")),
+             tagContent = restOfInput.match(new RegExp("^(.|\n)*?(</\\s*" + incl + ">)", "m")),
              tagWidths = [pos-pos0, (tagContent ? tagContent[2].length : 0)],
              inclSrc = tagContent ? tagContent[0] : restOfInput,
              inclContentLen = inclSrc.length - tagWidths[0] - tagWidths[1],
@@ -2323,7 +2324,7 @@ eof = & { return isEOF(pos); } { return true; }
 
 newline = '\n' / '\r\n'
 
-newlineToken = newline { return [new NlTk([pos0, pos])] }
+newlineToken = newline { return [new NlTk([pos0, pos])]; }
 
 eolf = newline / eof
 
@@ -2365,14 +2366,14 @@ extlink_preprocessor_text
   / !inline_breaks ( directive / no_punctuation_char )
   /// urlencoded_char
   // !inline_breaks no_punctuation_char
-  / s:[.:,] !(space / eolf) { return s }
+  / s:[.:,] !(space / eolf) { return s; }
   / [&%] )+ {
       return flatten_string ( r );
   }
 
 // Attribute values with preprocessor support
 attribute_preprocessor_text
-  = r:( ts:(!inline_breaks t:[^=<>{}\n\r&'"\t/ ] {return t})+ { return ts.join(''); }
+  = r:( ts:(!inline_breaks t:[^=<>{}\n\r&'"\t/ ] {return t;})+ { return ts.join(''); }
   / !inline_breaks
     ! '/>'
     (
@@ -2436,9 +2437,9 @@ attribute_preprocessor_text_line
               / &generic_tag inlineline
               / !(newline / space / [\[>]) c:. {
                     //console.warn( 'aptl: ' + pp(c) );
-                    return c
+                    return c;
                 }
-            ) { return t }
+            ) { return t; }
       )+
   {
       //console.warn('prep');

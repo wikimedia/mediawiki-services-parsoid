@@ -85,6 +85,13 @@ PegTokenizer.prototype._processText = function( text, fullParse, cacheKey ) {
 						// Include the stops key in the cache key
 						.replace(/var cacheKey = "[^@"]+@" \+ pos/g,
 								function(m){ return m +' + stops.key'; });
+		// replace trailing whitespace, to make jshint happier.
+		tokenizerSource = tokenizerSource.replace(/[ \t]+$/mg, '');
+		// add jshint config
+		tokenizerSource =
+			'/* jshint loopfunc:true, latedef:false, nonstandard:true */\n' +
+			tokenizerSource + ';';
+
 		// eval is not evil in the case of a grammar-generated tokenizer.
 		/* jshint evil:true */
 		//console.warn( tokenizerSource );
