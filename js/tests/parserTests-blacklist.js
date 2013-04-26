@@ -698,6 +698,8 @@ add("html2html", "Piped link to namespace");
 add("html2html", "Link containing % (not as a hex sequence)");
 add("html2html", "Link containing % as a single hex sequence interpreted to char");
 add("html2html", "Link containing \"#<\" and \"#>\" % as a hex sequences- these are valid section anchors\nExample for such a section: == < ==");
+add("html2html", "Link containing an equals sign");
+add("html2html", "Link containing a tilde");
 add("html2html", "Link containing double-single-quotes '' (bug 4598)");
 add("html2html", "Link containing double-single-quotes '' in text (bug 4598 sanity check)");
 add("html2html", "Link containing double-single-quotes '' in text embedded in italics (bug 4598 sanity check)");
@@ -1275,6 +1277,8 @@ add("html2wt", "Link containing % as a single hex sequence interpreted to char")
 add("html2wt", "Link containing % as a double hex sequence interpreted to hex sequence");
 add("html2wt", "Link containing \"#<\" and \"#>\" % as a hex sequences- these are valid section anchors\nExample for such a section: == < ==");
 add("html2wt", "Link containing \"<#\" and \">#\" as a hex sequences");
+add("html2wt", "Link containing an equals sign");
+add("html2wt", "Link containing a tilde");
 add("html2wt", "Link containing double-single-quotes '' (bug 4598)");
 add("html2wt", "Link containing double-single-quotes '' in text (bug 4598 sanity check)");
 add("html2wt", "Link containing double-single-quotes '' in text embedded in italics (bug 4598 sanity check)");
