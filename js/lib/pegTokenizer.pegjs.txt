@@ -558,6 +558,15 @@ block
 nested_block = !inline_breaks b:block { return b; }
 
 /*
+ * The same, but suitable for use inside a table construct.
+ * Doesn't match table_heading_tag, table_row_tag, table_data_tag,
+ * table_caption tag, or table_end_tag, although it does allow
+ * table_start_tag (for nested tables).
+ */
+nested_block_in_table
+  = !(sol (optionalSpaceToken sol)? (pipe / "!")) b:nested_block { return b; }
+
+/*
  * Line-based block constructs.
  */
 block_lines
@@ -1901,7 +1910,7 @@ table_caption_tag
   = p:pipe "+"
     args:single_cell_table_args?
     tagEndPos:({return pos;})
-    c:nested_block* {
+    c:nested_block_in_table* {
         return buildTableTokens("caption", "|+", args, [pos0, tagEndPos], pos, c)
             .concat([new EndTagTk('caption')]);
     }
@@ -1973,7 +1982,7 @@ table_data_tag
     //& { console.warn("past attrib, pos=" + pos + input.substr(pos,10)); return true; }
     // use inline_breaks to break on tr etc
     tagEndPos:({return pos;})
-    td:nested_block*
+    td:nested_block_in_table*
     {
         return buildTableTokens("td", "|", arg, [pos0, tagEndPos], pos, td);
     }
@@ -2002,7 +2011,7 @@ table_heading_tags
 table_heading_tag
   = arg:row_syntax_table_args?
     tagEndPos:({return pos;})
-    c:nested_block* {
+    c:nested_block_in_table* {
         //console.warn( 'table_heading_tag: ' + pp( [a, c] ) );
         return buildTableTokens("th", "!", arg, [pos0, tagEndPos], pos, c);
     }
