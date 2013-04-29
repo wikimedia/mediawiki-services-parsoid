@@ -748,7 +748,12 @@ var GET_failedFetches = function( req, res ) {
 				res.write('<h1> The following ' + n + ' titles return 404</h1>');
 				res.write('<ul>');
 				for (var i = 0; i < n; i++) {
-					res.write('<li> ' + rows[i].prefix + ':' + rows[i].title + ' </li>');
+					var prefix = rows[i].prefix, title = rows[i].title;
+					var url = prefix + '.wikipedia.org/wiki/' + title;
+					var name = prefix + ':' + title;
+					res.write('<li><a href="http://' +
+							  encodeURI(url).replace('&', '&amp;') + '">' +
+							  name.replace('&', '&amp;') + '</a></li>\n');
 				}
 				res.write( '</ul>');
 			}
