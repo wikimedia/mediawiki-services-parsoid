@@ -93,7 +93,11 @@ function DOMTraverser() {
 /**
  * Add a handler to the DOM traversal
  *
- * @param {Function} action A callback, called on each node we traverse that matches nodeName. First argument is the DOM node. Return false if you want to stop any further callbacks from being called on the node.
+ * @param {Function} action A callback, called on each node we
+ * traverse that matches nodeName. First argument is the DOM
+ * node. Return false if you want to stop any further callbacks from
+ * being called on the node.  Return the new node if you need to replace
+ * it or change its siblings; traversal will continue with the new node.
  */
 DOMTraverser.prototype.addHandler = function ( nodeName, action ) {
 	var handler = {
@@ -112,10 +116,15 @@ DOMTraverser.prototype.callHandlers = function ( node ) {
 				this.handlers[ix].name === name ) {
 			result = this.handlers[ix].run( node );
 			if ( result === false ) {
-				return;
+				// signal that a node was deleted or children should be skipped
+				return false;
+			} else if ( result !== undefined ) {
+				// some handlers might mutate/replace node.
+				node = result;
 			}
 		}
 	}
+	return node;
 };
 
 /**
@@ -123,13 +132,20 @@ DOMTraverser.prototype.callHandlers = function ( node ) {
  */
 DOMTraverser.prototype.traverse = function ( node ) {
 	var nextChild, child = node.firstChild;
+	var result;
 
 	while ( child !== null ) {
 		nextChild = child.nextSibling;
-		this.callHandlers( child );
+		result = this.callHandlers( child );
 
-		if ( child.parentNode !== null && DU.isElt(child) && child.childNodes.length > 0 ) {
-			this.traverse( child );
+		// result is false if child is deleted or children should be skipped
+		if ( result !== false ) {
+			child = result;
+			nextChild = child.nextSibling;
+
+			if ( child.parentNode !== null && DU.isElt(child) && child.childNodes.length > 0 ) {
+				this.traverse( child );
+			}
 		}
 
 		child = nextChild;
@@ -2266,6 +2282,8 @@ function stripMarkerMetas(node) {
 		!node.getAttribute("property"))
 	{
 		deleteNode(node);
+		// stop the traversal, since this node is no longer in the DOM.
+		return false;
 	}
 }
 
@@ -2348,9 +2366,11 @@ findAndHandleNeighbour = function( env, goForward, regex, node, baseAbout ) {
 			if ( matches !== null ) {
 				value.src = matches[0];
 				if ( value.src === node.nodeValue ) {
+					// entire node matches linkprefix/trail
 					value.content = node;
 					deleteNode(node);
 				} else {
+					// part of node matches linkprefix/trail
 					value.content = document.createTextNode( matches[0] );
 					node.parentNode.replaceChild( document.createTextNode( node.nodeValue.replace( regex, '' ) ), node );
 				}
@@ -2393,6 +2413,7 @@ findAndHandleNeighbour = function( env, goForward, regex, node, baseAbout ) {
 
 /**
  * Workhorse function for bringing linktrails and link prefixes into link content.
+ * NOTE that this function mutates the node's siblings on either side.
  */
 function handleLinkNeighbours( env, node ) {
 	if ( node.getAttribute( 'rel' ) !== 'mw:WikiLink' ) {
@@ -2428,6 +2449,7 @@ function handleLinkNeighbours( env, node ) {
 			}
 		}
 	}
+	return node; // indicate that node's siblings have been mutated
 }
 
 /**
