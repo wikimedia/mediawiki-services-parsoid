@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /**
  * A very basic cluster-based server runner. Restarts failed workers, but does
  * not much else right now.
