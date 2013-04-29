@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 /**
  * Split up a bug report JSON file into a bunch of files
  */
@@ -5,9 +7,20 @@
 var fs = require('fs'),
 	Util = require( '../lib/mediawiki.Util.js' ).Util;
 
-function writeFiles ( data ) {
+function writeFiles ( bugfileName, data ) {
 	var keys = Object.keys(data),
-		val;
+		val, dirName;
+
+	// SSS: the 'wiki' field adds the 'wiki' string at the end
+	// which is unnecessary
+	dirName = "./" + (data.wiki || 'none').replace(/wiki$/, '') + "." +
+		(data.title || 'no-title') + "." +
+		(data.timestamp || ('now-' + JSON.stringify(new Date())));
+
+	// Create dir
+	fs.mkdirSync(dirName, "0755");
+
+	// Output files
 	for ( var i = 0; i < keys.length; i++ ) {
 		var key = keys[i],
 			fileName = encodeURIComponent(key);
@@ -15,13 +28,29 @@ function writeFiles ( data ) {
 
 		val = data[key];
 
+		if (fileName === 'originalHtml') {
+			// Strip everything upto <body> and after </body> tag
+			val = val.replace(/^.*<body[^<>]*>|<\/body>.*$/g, '');
+		}
+
 		if (fileName === 'editedHtml') {
-			// apply smart quoting to minimize diff
+			// SSS NOTE: Right now, editedHtml comes with these
+			// tags stripped out and this is a NOP which is why we are
+			// stripped this from originalHtml.  However, by adding
+			// the stripping on the edited HTML, we don't have to worry
+			// about tweaking the code if VE changed what it emitted.
+			//
+			// Strip everything upto <body> and after </body> tag
+			val = val.replace(/^.*<body[^<>]*>|<\/body>.*$/g, '');
+			// Apply smart quoting to minimize diff
 			val = Util.compressHTML(val);
 		}
 
-		fs.writeFileSync(fileName, val);
+		fs.writeFileSync(dirName + "/" + fileName, val);
 	}
+
+	// Move bug report into the new dir so it doesn't clutter the base dir
+	fs.renameSync( bugfileName, dirName + "/" + bugfileName.replace(/^.*\//, ''));
 }
 
 function main () {
@@ -41,7 +70,7 @@ function main () {
 		console.error(e);
 		process.exit(1);
 	}
-	writeFiles( data );
+	writeFiles( filename, data );
 }
 
 
