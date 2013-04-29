@@ -675,7 +675,11 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 		// 2. we have an open bracket, and
 		//    - text has an unmatched bracket
 		//    - the combined text will get parsed as a link (expensive check)
-		if (cl.hasOpenHeadingChar && opts.isLastChild && text.match(/=$/) ||
+		//
+		// NOTE: Escaping the "=" char in the regexp because JSHint complains that
+		// it can be confused by other developers.
+		// See http://jslinterrors.com/a-regular-expression-literal-can-be-confused-with/
+		if (cl.hasOpenHeadingChar && opts.isLastChild && text.match(/\=$/) ||
 		    cl.hasOpenBrackets && text.match(/^[^\[]*\]/) &&
 				this.wteHandlers.hasWikitextTokens(state, sol, cl.text + text, true))
 		{
@@ -2885,8 +2889,15 @@ WSP._serializeNode = function( node, state, cb) {
 						node,  domHandler);
 			}
 
-			var handled = false;
-			if (state.selserMode && !state.inModifiedContent) {
+			var handled = false,
+				about = node.getAttribute('about') || null;
+
+			// We have 2 global checks here for selser-mode
+			// 1. WTS is not in a subtree with a modification flag that applies to every
+			//    node of a subtree (rather than an indication that some node in the
+			//    subtree is modified).
+			// 2. WTS not processing template content that has already been emitted.
+			if (state.selserMode && !state.inModifiedContent && (!about || about !== state.activeTemplateId)) {
 				// To serialize from source, we need 2 things of the node:
 				// -- it should not have a diff marker
 				// -- it should have valid, usable DSR
@@ -2936,7 +2947,7 @@ WSP._serializeNode = function( node, state, cb) {
 					// can be ignored, if necessary.
 					var nodeTypeOf = node.getAttribute( 'typeof' ) || '';
 					if (nodeTypeOf && nodeTypeOf.match(/\bmw:Object(\/[^\s]+|\b)/)) {
-						state.activeTemplateId = node.getAttribute('about') || null;
+						state.activeTemplateId = about;
 					}
 				}
 			}
