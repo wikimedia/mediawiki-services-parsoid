@@ -50,7 +50,7 @@ function writeFiles ( bugfileName, data ) {
 	}
 
 	// Move bug report into the new dir so it doesn't clutter the base dir
-	fs.renameSync( bugfileName, dirName + "/" + bugfileName.replace(/^.*\//, ''));
+	//fs.renameSync( bugfileName, dirName + "/" + bugfileName.replace(/^.*\//, ''));
 }
 
 function main () {
