@@ -1047,7 +1047,7 @@ normalizeHTML = function ( source ) {
 			// do not expect a toc for now
 			.replace(/<table[^>]+?id="toc"[^>]*>.+?<\/table>/mg, '')
 			// do not expect section editing for now
-			.replace(/(<span class="editsection">\[.*?<\/span> *)?<span[^>]+class="mw-headline"[^>]*>(.*?)<\/span>/g, '$2')
+			.replace(/<span[^>]+class="mw-headline"[^>]*>(.*?)<\/span> *(<span class="mw-editsection">\[.*?<\/span>)?/g, '$1')
 			// remove empty span tags
 			.replace(/<span><\/span>/g, '')
 			// general class and titles, typically on links
