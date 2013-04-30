@@ -647,6 +647,7 @@ app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function ( req, res 
 } );
 
 app.use( express.static( __dirname + '/scripts' ) );
+app.use( express.limit( '15mb' ) );
 
 console.log( ' - ' + instanceName + ' ready' );
 
