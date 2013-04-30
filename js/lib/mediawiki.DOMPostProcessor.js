@@ -4,6 +4,7 @@
 
 var events = require('events'),
 	util = require('util'),
+	url = require('url'),
 	JSUtils = require('./jsutils.js').JSUtils,
 	Util = require('./mediawiki.Util.js').Util,
 	DU = require('./mediawiki.DOMUtils.js').DOMUtils,
@@ -14,19 +15,48 @@ var events = require('events'),
 
 // map from mediawiki metadata names to RDFa property names
 var metadataMap = {
-	ns: 'mw:articleNamespace',
+	ns: {
+		property: 'mw:articleNamespace',
+		content: '%d'
+	},
 	// the articleID is not stable across article deletion/restore, while
 	// the revisionID is.  So we're going to omit the articleID from the
 	// parsoid API for now; uncomment if we find a use case.
 	//id: 'mw:articleId',
-	rev_revid:     'schema:CreativeWork/version',
-	rev_parentid:  'schema:CreativeWork/version/parent',
-	rev_timestamp: 'schema:CreativeWork/dateModified',
+
+	// 'rev_revid' is used to set the overall subject of the document, we don't
+	// need to add a specific <meta> or <link> element for it.
+
+	rev_parentid:  {
+		rel: 'dc:replaces',
+		resource: 'mwr:revision/%d'
+	},
+	rev_timestamp: {
+		property: 'dc:modified',
+		content: function(m) {
+			return new Date(m.rev_timestamp).toISOString();
+		}
+	},
 	// user is not stable (but userid is)
-	rev_user:      'schema:CreativeWork/contributor/username',
-	rev_userid:    'schema:CreativeWork/contributor',
-	rev_sha1:      'mw:revisionSHA1',
-	rev_comment:   'schema:CreativeWork/comment'
+	rev_user:      {
+		about: function(m) {
+			return 'mwr:user/' + m.rev_userid;
+		},
+		property: 'dc:title',
+		content: '%s'
+	},
+	rev_userid:    {
+		rel: 'dc:contributor',
+		resource: 'mwr:user/%d'
+	},
+	rev_sha1:      {
+		property: 'mw:revisionSHA1',
+		content: '%s'
+	},
+	rev_comment:   {
+		property: 'dc:description',
+		content: '%s'
+	}
 };
 
 // Sanity check for dom behavior: we are
@@ -2994,14 +3024,12 @@ function cleanupAndSaveDataParsoid( node ) {
 }
 
 /**
- * @method
- *
- * Create a <meta> element in the document.head with the given attrs.
-*/
-function appendMeta(document, attrs) {
-	var elt = document.createElement('meta');
-	DU.addAttributes(elt, attrs);
-	document.head.appendChild(elt);
+ * Create an element in the document.head with the given attrs.
+ */
+function appendToHead(document, tagName, attrs) {
+	var elt = document.createElement( tagName );
+	DU.addAttributes( elt, attrs || Object.create(null) );
+	document.head.appendChild( elt );
 }
 
 function DOMPostProcessor(env, options) {
@@ -3083,55 +3111,68 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 	// So, this is a hacky patch to set data-parsoid on document.body
 	cleanupAndSaveDataParsoid(document.body);
 
-	// add mw: RDFa prefix to top level
-	document.documentElement.setAttribute('prefix',
-	                                      'mw: http://mediawiki.org/rdf/');
-
-	// add <head> content based on page meta data
+	// add <head> element if it was missing
 	if (!document.head) {
 		document.documentElement.
 			insertBefore(document.createElement('head'), document.body);
 	}
-	appendMeta(document, { charset: "UTF-8" });
-	// don't let schema: prefix leak into <body>
-	document.head.setAttribute('prefix', 'schema: http://schema.org/');
-	var m = env.page.meta || {};
-	Object.keys(m).forEach(function(f) {
-		if (metadataMap[f] && m[f] !== null && m[f] !== undefined) {
-			appendMeta(document, { property: metadataMap[f],
-			                       content:  ''+m[f] });
-		}
+
+	// add mw: and mwr: RDFa prefixes
+	var prefixes = [ 'dc: http://purl.org/dc/terms/',
+	                 'mw: http://mediawiki.org/rdf/' ];
+	// add 'http://' to baseURI if it was missing
+	var mwrPrefix = url.resolve('http://',
+	                            env.conf.wiki.baseURI + 'Special:Redirect/' );
+	document.documentElement.setAttribute('prefix', prefixes.join(' '));
+	document.head.setAttribute('prefix', 'mwr: '+mwrPrefix);
+
+	// add <head> content based on page meta data:
+
+	// collect all the page meta data (including revision metadata) in 1 object
+	var m = Object.create( null );
+	Object.keys( env.page.meta || {} ).forEach(function( k ) {
+		m[k] = env.page.meta[k];
 	});
-	var r = m.revision || {};
-	Object.keys(r).forEach(function(f) {
-		if (metadataMap['rev_'+f] && r[f] !== null && r[f] !== undefined) {
-			var value = '' + r[f];
-			if (f==='timestamp') { value=new Date(r[f]).toISOString(); }
-			if (f==='user') {
-				value = env.conf.wiki.baseURI +
-					env.conf.wiki.namespaceNames[2] + ':' + value;
-			}
-			if (f==='userid') {
-				// This special page doesn't exist (yet).
-				value = env.conf.wiki.baseURI +
-					'Special:UserById/' + value;
-			}
-			appendMeta(document, { property: metadataMap['rev_'+f],
-			                       content:  value });
-		}
+	Object.keys( m.revision || {} ).forEach(function( k ) {
+		m['rev_'+k] = m.revision[k];
 	});
+	// use the metadataMap to turn collected data into <meta> and <link> tags.
+	Object.keys( m ).forEach(function( f ) {
+		var mdm = metadataMap[f];
+		if ( m[f]===null || m[f]===undefined || !mdm ) { return; }
+		// generate proper attributes for the <meta> or <link> tag
+		var attrs = Object.create( null );
+		Object.keys( mdm ).forEach(function( k ) {
+			// evaluate a function, or perform sprintf-style formatting, or
+			// use string directly, depending on value in metadataMap
+			var v = ( typeof(mdm[k])==='function' ) ? mdm[k]( m ) :
+				mdm[k].indexOf('%') >= 0 ? util.format( mdm[k], m[f] ) :
+				mdm[k];
+			attrs[k] = v;
+		});
+		// <link> is used if there's a resource or href attribute.
+		appendToHead( document,
+		              ( attrs.resource || attrs.href ) ? 'link' : 'meta',
+		              attrs );
+	});
+	if (m.rev_revid) {
+		document.documentElement.setAttribute(
+			'about', mwrPrefix + 'revision/' + m.rev_revid );
+	}
+	var wikiPageUrl = env.conf.wiki.baseURI + env.page.name;
+	appendToHead( document, 'link',
+	              { rel: 'dc:isVersionOf', href: wikiPageUrl } );
+
 	if (!document.querySelector('head > title')) {
 		// this is a workaround for a bug in domino 1.0.9
-		document.head.appendChild(document.createElement('title'));
+		appendToHead( document, 'title' );
 	}
 	document.title = env.page.meta.title;
 
 	// Hack: Add a base href element to the head element of the HTML DOM so
 	// that our relative links resolve fine when the DOM is viewed directly
 	// from the web API. (Add the page name, in case it's a subpage.)
-	var baseMeta = document.createElement('base');
-	baseMeta.setAttribute('href', env.conf.wiki.baseURI + env.page.name);
-	document.head.appendChild(baseMeta);
+	appendToHead(document, 'base', { href: wikiPageUrl } );
 	this.emit( 'document', document );
 };
 
