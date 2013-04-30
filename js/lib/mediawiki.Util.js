@@ -262,7 +262,12 @@ var Util = {
 			return false;
 		}
 
-		return true;
+		// BUG 47854: Treat all mw:Ext/* tokens as non-SOL.
+		if (token.name === 'meta' && /\bmw:Ext\//.test(token.getAttribute('typeof'))) {
+			return false;
+		} else {
+			return true;
+		}
 	},
 
 	/*
