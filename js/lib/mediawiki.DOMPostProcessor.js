@@ -1755,6 +1755,13 @@ function findBuilderCorrectedTags(document, env) {
 	findDeletedStartTagsAndMore(document);
 }
 
+// TSR = "Tag Source Range".  Start and end offsets giving the location
+// where the tag showed up in the original source.
+//
+// DSR = "DOM Source Range".  [0] and [1] are open and end,
+// [2] and [3] are widths of the container tag.
+// So [[foo]] will have DSR [0,7,2,2]
+
 // node  -- node to process
 // [s,e) -- if defined, start/end position of wikitext source that generated
 //          node's subtree
