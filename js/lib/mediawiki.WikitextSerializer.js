@@ -189,32 +189,8 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
 	// console.warn("---HWT---:onl:" + onNewline + ":" + text);
 	// tokenize the text
 
-	var prefixedText = text;
-	if (!onNewline) {
-		// Prefix '_' so that no start-of-line wiki syntax matches.
-		// Later, strip it from the result.
-		// Ex: Consider the DOM:  <ul><li> foo</li></ul>
-		// We don't want ' foo' to be converted to a <pre>foo</pre>
-		// because of the leading space.
-		prefixedText = '_' + text;
-	}
-
-	if ( state.inIndentPre || state.inPHPBlock ) {
-		prefixedText = prefixedText.replace(/(\r?\n)/g, '$1_');
-	}
-
-	var p = new PegTokenizer( state.env ), tokens = [];
-	p.on('chunk', function ( chunk ) {
-		// Avoid a stack overflow if chunk is large, but still update token
-		// in-place
-		for ( var ci = 0, l = chunk.length; ci < l; ci++ ) {
-			tokens.push(chunk[ci]);
-		}
-	});
-	p.on('end', function(){ });
-
-	// The code below will break if use async tokenization.
-	p.processSync( prefixedText );
+	var sol = onNewline && !(state.inIndentPre || state.inPPHPBlock);
+	var tokens = state.serializer.tokenizeStr(state, text, sol);
 
 	// If the token stream has a pd.TagTk, pd.SelfclosingTagTk, pd.EndTagTk or pd.CommentTk
 	// then this text needs escaping!
@@ -550,6 +526,25 @@ function escapedText(text) {
 	return ["<nowiki>", match[1], "</nowiki>", match[2]].join('');
 }
 
+WSP.tokenizeStr = function(state, str, sol) {
+	var p = new PegTokenizer( state.env ), tokens = [];
+	p.on('chunk', function ( chunk ) {
+		// Avoid a stack overflow if chunk is large,
+		// but still update token in-place
+		for ( var ci = 0, l = chunk.length; ci < l; ci++ ) {
+			tokens.push(chunk[ci]);
+		}
+	});
+	p.on('end', function(){ });
+
+	// Init sol state
+	p.savedSOL = sol;
+
+	// The code below will break if use async tokenization.
+	p.processSync(str);
+	return tokens;
+};
+
 WSP.escapeWikiText = function ( state, text, opts ) {
 	// console.warn("---EWT:ALL1---");
     // console.warn("t: " + text);
@@ -692,9 +687,87 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 	}
 };
 
-WSP.escapeTplArgWT = function(arg) {
-	// FIXME: to be done
-	return arg;
+/**
+ * General strategy:
+ *
+ * Tokenize the arg wikitext.  Anything that parses as tags
+ * are good and we need not bother with those.  Check for harmful
+ * characters "[]{}|=" in any strings and escape those fragments
+ * since these characters could change semantics of the entire
+ * template transclusion.
+ *
+ * This function makes a couple of assumptions:
+ *
+ * 1. Each arg's wikitext has balanced opening and closing tags.
+ *    The code does make some attempt to deal with unclosed opening
+ *    and closing tags, but this may not work accurately in all cases.
+ *
+ * 2. The tokenizer sets tsr on all non-string tokens.
+ */
+WSP.escapeTplArgWT = function(state, arg) {
+	function escapeStr(str, buf) {
+		if (str.match(/[\{\[\]\}\|\=]/)) {
+			buf.push("<nowiki>");
+			buf.push(str);
+			buf.push("</nowiki>");
+		} else {
+			buf.push(str);
+		}
+	}
+
+	var tokens = this.tokenizeStr(state, arg, false);
+	var offset = 0, openTags = [], buf = [];
+	for (var i = 0, n = tokens.length; i < n; i++) {
+		var t = tokens[i], da = t.dataAttribs;
+		switch (t.constructor) {
+			case pd.TagTk:
+				if (openTags.length === 0) {
+					offset = da.tsr[0];
+				}
+				openTags.push(t);
+				break;
+
+			case pd.EndTagTk:
+				if (openTags.length > 0) {
+					openTags.pop();
+				}
+				if (openTags.length === 0) {
+					var e = da.tsr[1];
+					buf.push(arg.substring(offset, e));
+					offset = e;
+				}
+				break;
+
+			case pd.NlTk:
+			case pd.Comment:
+			case pd.SelfclosingTagTk:
+				if (openTags.length === 0) {
+					buf.push(arg.substring(da.tsr[0], da.tsr[1]));
+					offset = da.tsr[1];
+				}
+				break;
+
+			case String:
+				if (openTags.length === 0) {
+					escapeStr(t, buf);
+					offset += t.length;
+				}
+				break;
+
+			case pd.EOFTk:
+				// Deal with any unprocessed fragments (that should exist
+				// only if we have unbalanced opening/closing tags).
+				var str = arg.substring(offset, arg.length);
+				if (openTags.length === 0) {
+					buf.push(str);
+				} else {
+					escapeStr(str, buf);
+				}
+				break;
+		}
+	}
+
+	return buf.join('');
 };
 
 /**
@@ -2076,7 +2149,7 @@ WSP._htmlElementHandler = function (node, state, cb) {
 			node, state, cb);
 };
 
-WSP._buildTemplateWT = function(srcParts) {
+WSP._buildTemplateWT = function(state, srcParts) {
 	var buf = [],
 		serializer = this;
 	srcParts.map(function(part) {
@@ -2094,7 +2167,7 @@ WSP._buildTemplateWT = function(srcParts) {
 			if (n > 0) {
 				for (var i = 0; i < n; i++) {
 					var k = keys[i],
-						v = serializer.escapeTplArgWT(tpl.params[k].wt);
+						v = serializer.escapeTplArgWT(state, tpl.params[k].wt);
 					if (k === (i+1).toString()) {
 						argBuf.push(v);
 					} else {
@@ -2168,7 +2241,7 @@ WSP._getDOMHandler = function(node, state, cb) {
 					} else {
 						var dataMW = JSON.parse(node.getAttribute("data-mw"));
 						if (dataMW) {
-							src = state.serializer._buildTemplateWT(dataMW.parts || [{ template: dataMW }]);
+							src = state.serializer._buildTemplateWT(state, dataMW.parts || [{ template: dataMW }]);
 						} else {
 							console.error("ERROR: No data-mw for: " + node.outerHTML);
 							src = dp.src;
