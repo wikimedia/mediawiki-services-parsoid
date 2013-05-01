@@ -362,32 +362,38 @@ MWParserEnvironment.prototype.normalizeTitle = function( name, noUnderScores,
 };
 
 /**
- * TODO FIXME XXX do this for real eh
- * XXX CSA: and look at mediawiki config before resolving subpages
- *          (see https://bugzilla.wikimedia.org/show_bug.cgi?id=47136 )
+ * TODO: Handle namespaces relative links like [[User:../../]] correctly, they
+ * shouldn't be treated like links at all.
  */
 MWParserEnvironment.prototype.resolveTitle = function( name, namespace ) {
-	// Resolve subpages
-	var relUp = name.match(/^(\.\.\/)+/);
-	if ( relUp ) {
-		var levels = relUp[0].length / 3,
-			titleBits = this.page.name.split(/\//),
-			newBits = titleBits.slice(0, titleBits.length - levels);
-		if ( name !== relUp[0] ) {
-			newBits.push( name.substr(levels * 3) );
+	// Default to main namespace
+	namespace = namespace || 0;
+	if ( /^#/.test( name ) ) {
+		// resolve lonely fragments (important if this.page is a subpage,
+		// otherwise the relative link will be wrong)
+		name = this.page.name + name;
+	}
+	if ( this.conf.wiki.namespacesWithSubpages[namespace] ) {
+		// Resolve subpages
+		var relUp = name.match(/^(\.\.\/)+/);
+		if ( relUp ) {
+			var levels = relUp[0].length / 3, // Levels are indicated by '../'.
+			    titleBits = this.page.name.split( /\// ),
+			    newBits = titleBits.slice( 0, titleBits.length - levels );
+			if ( name !== relUp[0] ) {
+				newBits.push( name.substr( levels * 3 ) );
+			}
+			name = this.normalizeTitle( newBits.join('/') );
 		}
-		name = newBits.join('/');
-		//console.log( relUp, name );
+
+		// Resolve absolute subpage links
+		if ( name.length && name[0] === '/' ) {
+			// Remove final slash if present.
+			name = name.replace( /\/$/, '' );
+			name = this.normalizeTitle( this.page.name + name );
+		}
 	}
 
-	if ( name.length && name[0] === '/' ) {
-		name = this.normalizeTitle( this.page.name ) + name;
-	}
-	// FIXME: match against proper list of namespaces
-	if ( name.indexOf(':') === -1 && namespace ) {
-		// hack hack hack
-		name = namespace + ':' + this.normalizeTitle( name );
-	}
 	// Strip leading ':'
 	if (name[0] === ':') {
 		name = name.substr( 1 );

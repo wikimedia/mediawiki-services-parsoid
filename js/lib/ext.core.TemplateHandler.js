@@ -203,13 +203,20 @@ TemplateHandler.prototype.resolveTemplateTarget = function ( targetToks ) {
 	// Apply more stringent standards for template targets.
 	if (isConvertibleToString(targetToks)) {
 		// We can use the stringified target tokens
+		var namespaceId = env.conf.wiki.namespaceIds[lowerPrefix];
+
+		// TODO: Should we assume Template here?
+		if ( prefix === target ) {
+			namespaceId = env.conf.wiki.canonicalNamespaces.template;
+			target = env.conf.wiki.namespaceNames[namespaceId] + ':' + target;
+		}
 
 		// Normalize the target before template processing
 		// preserve the leading colon in the target
 		target = env.normalizeTitle( target, false, true );
 
 		// Resolve a possibly relative link
-		target = env.resolveTitle(target, 'Template');
+		target = env.resolveTitle(target, namespaceId);
 
 		return { isPF: false, target: target };
 	} else {

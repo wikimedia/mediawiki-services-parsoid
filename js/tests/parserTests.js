@@ -725,6 +725,20 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 		if ( item.options.extensions !== undefined ) {
 			extensions = item.options.extensions.split( ' ' );
 		}
+
+		if ( item.options.title !== undefined &&
+		     !$.isArray(item.options.title) ) {
+			// Strip the [[]] markers.
+			var title = item.options.title.replace( /^\[\[|\]\]$/g, '' );
+			title = this.env.normalizeTitle( title, true );
+			this.env.setPageName( title );
+		}
+
+		if ( item.options.subpage !== undefined ) {
+			this.env.conf.wiki.namespacesWithSubpages[0] = true;
+		} else {
+			this.env.conf.wiki.namespacesWithSubpages[0] = false;
+		}
 	}
 
 	item.extensions = extensions;
