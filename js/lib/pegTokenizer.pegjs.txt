@@ -315,6 +315,11 @@
     // cache the input length
     var inputLength = input.length;
 
+    // pseudo-production that matches at start of input
+    var isSOF = function (pos) {
+        return pos === 0;
+    };
+
     // pseudo-production that matches at end of input
     var isEOF = function (pos) {
         return pos === inputLength;
@@ -451,6 +456,31 @@ start
   }
 
 /*
+ * Redirects can only occur as the first thing in a document.  See
+ * WikitextContent::getRedirectTarget()
+ */
+redirect
+  = rw:redirect_word sp:space_or_newline* c:( ":" space_or_newline* )?
+    wl:wikilink {
+    if (sp) { rw += sp.join(''); }
+    if (c) { rw += c[0] + c[1].join(''); }
+    wl[0].addAttribute( 'redirect', rw );
+    wl[0].dataAttribs.tsr[0] -= rw.length;
+    return wl;
+}
+
+/* The 'redirect' magic word.
+ * The leading whitespace allowed is due to the PHP trim() function.
+ */
+redirect_word = sp:[ \t\n\r\0\x0b]* rw:((!space_or_newline ![:\[] c:.{return c;})+)
+{
+    rw = rw.join('');
+    if ( pegArgs.env.conf.wiki.getMagicWordMatcher( 'redirect' ).test( rw ) )
+        return sp.join('') + rw;
+    return null;
+}
+
+/*
  * This production exists to support tokenizing the document in chunks.
  * It stops tokenization after each block and yields to the node.js
  * event-loop to schedule other pending event handlers.
@@ -538,7 +568,8 @@ tlb
  * The actual contents of each block.
  */
 block
-  = block_lines
+  = &sof redirect // has to be first alternative; otherwise gets parsed as a <ol>
+    / block_lines
     / & '<' r:( pre // tag variant can start anywhere
             / comment &eolf
             / nowiki
@@ -2362,6 +2393,8 @@ include_limits =
 
       return [inclTag].concat(inclContentToks);
   }
+
+sof = & { return isSOF(pos); } { return true; }
 
 eof = & { return isEOF(pos); } { return true; }
 

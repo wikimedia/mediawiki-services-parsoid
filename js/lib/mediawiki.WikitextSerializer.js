@@ -965,7 +965,7 @@ var splitLinkContentString = function (contentString, dp, target) {
 };
 
 // Helper function for getting RT data from the tokens
-var getLinkRoundTripData = function( node, state ) {
+var getLinkRoundTripData = function( env, node, state ) {
 	var tplAttrs = state.tplAttrs,
 	    dp = node.data.parsoid;
 	var rtData = {
@@ -1010,6 +1010,11 @@ var getLinkRoundTripData = function( node, state ) {
 		}
 	} else if ( node.childNodes.length ) {
 		rtData.contentNode = node;
+	} else if ( /^mw:PageProp\/redirect$/.test( rtData.type ) ) {
+		rtData.tail = '';
+		rtData.prefix = dp.src ||
+			( ( env.conf.wiki.mwAliases.redirect || '#REDIRECT' ) + ' ' );
+		rtData.content.string = dp.content || (dp.sa && dp.sa.href) || href;
 	}
 
 	return rtData;
@@ -1044,14 +1049,15 @@ WSP.linkHandler = function(node, state, cb) {
 		rel = node.getAttribute('rel') || '';
 
 	// Get the rt data from the token and tplAttrs
-	linkData = getLinkRoundTripData(node, state);
+	linkData = getLinkRoundTripData(env, node, state);
 
 	if ( linkData.type !== null && linkData.target.value !== null  ) {
 		// We have a type and target info
 
 		var target = linkData.target;
 
-		if (linkData.type.match(/^mw:WikiLink(\/(Category|Language|Interwiki))?$/)) {
+		if (/^mw:WikiLink(\/(Category|Language|Interwiki))?$/.test( linkData.type ) ||
+		    /^mw:PageProp\/redirect$/.test( linkData.type ) ) {
 			// Decode any link that did not come from the source
 			if (! target.fromsrc) {
 				target.value = Util.decodeURI(target.value);

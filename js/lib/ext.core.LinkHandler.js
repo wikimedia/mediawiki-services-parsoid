@@ -121,13 +121,15 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 	var j, about, property,
 		hrefkv, saniContent, strContent, env = this.manager.env,
 		attribs = token.attribs,
+		redirect = Util.lookup( attribs, 'redirect' ),
 		hrefSrc = Util.lookupKV( token.attribs, 'href' ).vsrc,
 		target = Util.lookup( attribs, 'href' ),
 		href = Util.tokensToString( target ),
 		title = Title.fromPrefixedText( env, Util.decodeURI( href ) );
 
-	if ( title.ns.isFile() ) {
+	if ( title.ns.isFile() && !redirect ) {
 		cb( this.renderFile( token, frame, cb, href, title) );
+		return;
 	} else {
 		//console.warn( 'title: ' + JSON.stringify( title ) );
 		var newAttrs = buildLinkAttrs(attribs, true, null, [new KV('rel', 'mw:WikiLink')]);
@@ -163,6 +165,18 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 
 		var tokens = [];
 
+		if ( redirect ) {
+			var rlink = new SelfclosingTagTk( 'link', [],
+											  Util.clone( obj.dataAttribs ) );
+			rlink.dataAttribs.src = redirect;
+			if ( obj.dataAttribs.stx !== 'simple' ) {
+				rlink.dataAttribs.content = Util.tokensToString( content );
+			}
+			rlink.addAttribute( 'rel', 'mw:PageProp/redirect' );
+			rlink.addAttribute( 'href', Util.lookupKV( obj.attribs, 'href' ).v);
+
+			tokens.push( rlink );
+		}
 		if ( title.ns.isCategory() && ! href.match(/^:/) ) {
 			// We let this get handled earlier as a normal wikilink, but we need
 			// to add in a few extras.
@@ -180,6 +194,11 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 				hrefkv.v += '#';
 				hrefkv.v += saniContent;
 			}
+
+			// For '#REDIRECT [[Category:Foo]] we've already "used up" our
+			// tsr on the #REDIRECT part.  Use a zero-width DSR here to
+			// note that this part is synthetic and to disable selser.
+			if ( redirect ) { delete obj.dataAttribs.tsr; }
 
 			tokens.push( obj );
 
@@ -205,10 +224,7 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 				tokens.push(metaToken);
 			}
 
-			cb( {
-				tokens: tokens
-			} );
-		} else {
+		} else if ( !redirect ) {
 			var linkParts = splitLink( href );
 
 			if ( linkParts !== null &&
@@ -242,13 +258,11 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 
 				if ( interwikiInfo.language !== undefined &&
 				     linkParts.colonEscape === undefined )  {
-					cb( {
-						tokens: tokens
-					} );
+					/* jshint noempty: false */
+					/* done! */
 				} else {
-					cb( {
-						tokens: [obj].concat( interwikiContent( token ), [new EndTagTk( 'a' )] )
-					} );
+					tokens = tokens.concat( interwikiContent( token ),
+											[new EndTagTk( 'a' )] );
 				}
 			} else {
 				for ( j = 0; j < content.length; j++ ) {
@@ -262,11 +276,12 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 					}
 				}
 
-				cb ( {
-					tokens: [obj].concat( content, [ new EndTagTk( 'a' ) ] )
-				} );
+				tokens = [obj].concat( content, [ new EndTagTk( 'a' ) ] );
 			}
 		}
+		cb( {
+			tokens: tokens
+		} );
 	}
 };
 
