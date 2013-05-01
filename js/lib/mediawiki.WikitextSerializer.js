@@ -155,7 +155,9 @@ WEHP.headingHandler = function(headingNode, state, text, opts) {
 
 WEHP.liHandler = function(liNode, state, text, opts) {
 	// Only bullets at the beginning of the list trigger escaping
-	if (state.currLine.text === '' && opts.node === liNode.firstChild) {
+	if (liNode.nodeName === 'DT' && /:/.test(text)) {
+		return true;
+	} else if (state.currLine.text === '' && opts.node === liNode.firstChild) {
 		return text.match(/^[#\*:;]/);
 	} else {
 		return false;
