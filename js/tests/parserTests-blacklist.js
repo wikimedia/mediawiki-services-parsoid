@@ -529,7 +529,6 @@ add("wt2wt", "Invalid attributes in table cell (bug 1830)");
 add("wt2wt", "Table attributes with empty value");
 add("wt2wt", "Link containing double-single-quotes '' in text embedded in italics (bug 4598 sanity check)");
 add("wt2wt", "BUG 2: [[page|http://url/]] should link to page, not http://url/");
-add("wt2wt", "Internal link with is linkprefix");
 add("wt2wt", "Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved");
 add("wt2wt", "Handling html with a div self-closing tag");
 add("wt2wt", "Handling html with a br self-closing tag");
@@ -2413,7 +2412,6 @@ add("selser", "Link containing double-single-quotes '' in text embedded in itali
 add("selser", "Link containing double-single-quotes '' in text embedded in italics (bug 4598 sanity check) [[2,3,4],[0,1]]");
 add("selser", "Link containing double-single-quotes '' in text embedded in italics (bug 4598 sanity check) [[[0,3],2],[0]]");
 add("selser", "BUG 2: [[page|http://url/]] should link to page, not http://url/ true");
-add("selser", "Internal link with is linkprefix true");
 add("selser", "Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved true");
 add("selser", "Handling html with a div self-closing tag [0]");
 add("selser", "Handling html with a div self-closing tag [1,0,1,0,[0,0]]");

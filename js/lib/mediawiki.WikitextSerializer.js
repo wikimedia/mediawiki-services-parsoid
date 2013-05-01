@@ -922,10 +922,7 @@ var getLinkRoundTripData = function( node, state ) {
 	var contentParts;
 	if (node.childNodes.length >= 1 && DU.allChildrenAreText(node)) {
 		var contentString = node.textContent;
-		if ( ! rtData.target.modified && rtData.tail &&
-				contentString.substr(- rtData.tail.length) === rtData.tail ) {
-			rtData.content.string = Util.stripSuffix( contentString, rtData.tail );
-		} else if (rtData.target.string && rtData.target.string !== contentString) {
+		if (rtData.target.value && rtData.target.value !== contentString && !dp.pipetrick) {
 			// Try to identify a new potential tail
 			contentParts = splitLinkContentString(contentString, dp, rtData.target);
 			rtData.content.string = contentParts.contentString;
