@@ -289,7 +289,8 @@ var parse = function ( env, req, res, cb, err, src_and_metadata ) {
 /* -------------------- web app access points below --------------------- */
 
 var app = express.createServer();
-app.use(express.bodyParser());
+// Increase the form field size limit from the 2M default.
+app.use(express.bodyParser({maxFieldsSize: 15 * 1024 * 1024}));
 
 app.get('/', function(req, res){
 	res.write('<html><body>\n');
