@@ -46,7 +46,11 @@ var ignoreAttributes = {
 	// subtree actually changes.  So, ignoring this attribute in effect,
 	// ignores the parser tests change.
 	'data-parsoid-changed': 1,
-	'data-parsoid': 1,
+	// SSS: Don't ignore data-parsoid because in VE, sometimes wrappers get
+	// moved around without their content which occasionally leads to incorrect
+	// DSR being used by selser.  Hard to describe a reduced test case here.
+	// Discovered via: /mnt/bugs/2013-05-01T09:43:14.960Z-Reverse_innovation
+	// 'data-parsoid': 1,
 	'data-parsoid-diff': 1,
 	'about': 1
 };
@@ -151,10 +155,11 @@ DDP.treeEquals = function (nodeA, nodeB, deep) {
 DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 	var dd = this;
 
-	function debugOut(nodeA, nodeB) {
+	function debugOut(nodeA, nodeB, laPrefix) {
+		laPrefix = laPrefix || "";
 		if (dd.debugging) {
-			dd.debug("--> A: " + (DU.isElt(nodeA) ? nodeA.outerHTML : JSON.stringify(nodeA.nodeValue)));
-			dd.debug("--> B: " + (DU.isElt(nodeB) ? nodeB.outerHTML : JSON.stringify(nodeB.nodeValue)));
+			dd.debug("--> A" + laPrefix + ":" + (DU.isElt(nodeA) ? nodeA.outerHTML : JSON.stringify(nodeA.nodeValue)));
+			dd.debug("--> B" + laPrefix + ":" + (DU.isElt(nodeB) ? nodeB.outerHTML : JSON.stringify(nodeB.nodeValue)));
 		}
 	}
 
@@ -181,7 +186,7 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 				this.debug("--lookahead in new dom--");
 				lookaheadNode = newNode.nextSibling;
 				while (lookaheadNode) {
-					debugOut(baseNode, lookaheadNode);
+					debugOut(baseNode, lookaheadNode, "new");
 					if (DU.isContentNode(lookaheadNode) &&
 						this.treeEquals(baseNode, lookaheadNode, true))
 					{
@@ -205,7 +210,7 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 				this.debug("--lookahead in old dom--");
 				lookaheadNode = baseNode.nextSibling;
 				while (lookaheadNode) {
-					debugOut(lookaheadNode, newNode);
+					debugOut(lookaheadNode, newNode, "old");
 					if (DU.isContentNode(lookaheadNode) &&
 						this.treeEquals(lookaheadNode, newNode, true))
 					{
