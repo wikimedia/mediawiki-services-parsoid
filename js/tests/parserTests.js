@@ -1477,7 +1477,7 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
  * @method
  */
 ParserTests.prototype.processCase = function ( i, options ) {
-	var item, cases = this.cases;
+	var ix, item, cases = this.cases, targetModes = options.modes;
 
 	var nextCallback = this.processCase.bind( this, i + 1, options );
 
@@ -1512,7 +1512,30 @@ ParserTests.prototype.processCase = function ( i, options ) {
 					// Add comments to following test.
 					item.comments = item.comments || this.comments;
 					this.comments = [];
-					async.series( this.buildTasks( item, options.modes, options ), nextCallback );
+
+					if ( item.options.parsoid ) {
+						// pegjs parser handles item options as follows:
+						//   item option         value of item.options.parsoid
+						//    <none>                      undefined
+						//    parsoid                         ""
+						//    parsoid=wt2html              "wt2html"
+						//    parsoid=wt2html,wt2wt    ["wt2html","wt2wt"]
+						if ( item.options.parsoid.constructor !== Array ) {
+							// make a string into a 1-item array
+							item.options.parsoid = [ item.options.parsoid ];
+						}
+
+						targetModes = targetModes.filter(function(mode) {
+							return item.options.parsoid.indexOf( mode ) >= 0;
+						});
+					}
+
+					if ( targetModes.length ) {
+						async.series( this.buildTasks( item, targetModes, options ), nextCallback );
+					} else {
+						process.nextTick( nextCallback );
+					}
+
 					break;
 				case 'comment':
 					this.comments.push( item.comment );
