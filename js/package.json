@@ -11,7 +11,7 @@
 		"path": "0.x.x",
 		"optimist": "0.x.x",
 		"assert": "0.x.x",
-		"domino": "~1.0.9",
+		"domino": "~1.0.11",
 		"pegjs": "0.7.x",
 		"lru-cache": "1.x.x",
 		"async": "0.x.x",
