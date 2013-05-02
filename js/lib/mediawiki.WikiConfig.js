@@ -6,6 +6,12 @@ var baseConfig = require( './baseconfig/en.json' ).query,
 	Util = require( './mediawiki.Util.js' ).Util,
 	request = require( 'request' );
 
+// escape 'special' characters in a regexp, returning a regexp which matches
+// the string exactly
+var re_escape = function(s) {
+	return s.replace(/[\^\\$*+?.()|{}\[\]]/g, '\\$&');
+};
+
 /**
  * @class
  *
@@ -105,6 +111,11 @@ function WikiConfig( resultConf, prefix, uri ) {
 			conf.magicWords[alias] = mw.name;
 			conf.mwAliases[mw.name].push( alias );
 		}
+		conf.mwRegexps[mw.name] =
+			new RegExp( '^(' +
+			            conf.mwAliases[mw.name].map(re_escape).join('|') +
+			            ')$',
+			            mw['case-sensitive'] === '' ? '' : 'i' );
 	}
 
 	if ( mws.length > 0 ) {
@@ -274,6 +285,11 @@ WikiConfig.prototype = {
 	mwAliases: null,
 
 	/**
+	 * @property {Object/null} mwRegexp RegExp matching aliases, indexed by canonical magic word name.
+	 */
+	mwRegexps: null,
+
+	/**
 	 * @property {Object/null} specialPages Special page names on this wiki, indexed by aliases.
 	 */
 	specialPages: null,
@@ -318,6 +334,7 @@ WikiConfig.prototype = {
 		this.namespaceIds = {};
 		this.magicWords = {};
 		this.mwAliases = {};
+		this.mwRegexps = {};
 		this.specialPages = {};
 		this.extensionTags = {};
 		this.interpolatedList = [];
@@ -336,8 +353,21 @@ WikiConfig.prototype = {
 	 * @param {string} alias
 	 * @returns {string}
 	 */
-	getMagicWord: function ( alias ) {
+	getMagicWordIdFromAlias: function ( alias ) {
 		return this.magicWords[alias] || null;
+	},
+
+	/**
+	 * @method
+	 *
+	 * Get a regexp matching a localized magic word, given its id.
+	 *
+	 * @param {string} id
+	 * @return {RegExp}
+	 */
+	getMagicWordMatcher: function ( id ) {
+		// if 'id' is not found, return a regexp which will never match.
+		return this.mwRegexps[id] || /[]/;
 	},
 
 	/**
@@ -369,7 +399,7 @@ WikiConfig.prototype = {
 				if ( alias === null ) {
 					return null;
 				}
-				canonical = this.getMagicWord( alias );
+				canonical = this.getMagicWordIdFromAlias( alias );
 				if ( canonical !== null ) {
 					return { k: canonical, v: value, a: alias };
 				}
