@@ -1955,6 +1955,7 @@ add("html2wt", "Improperly nested inline or quotes tags with whitespace in betwe
 
 
 // Blacklist for selser
+add("selser", "Italics and bold [[3,4,3,[0,[0]]]]");
 add("selser", "Italics and bold: 2-quote opening sequence: (2,3) [2]");
 add("selser", "Italics and bold: 2-quote opening sequence: (2,3) [[[0]]]");
 add("selser", "Italics and bold: 2-quote opening sequence: (2,3) [4]");
@@ -2089,7 +2090,6 @@ add("selser", "<nowiki> inside <pre> (bug 13238) [2,0,4,0,4]");
 add("selser", "<nowiki> inside <pre> (bug 13238) [4,0,[0,2,0]]");
 add("selser", "<nowiki> inside <pre> (bug 13238) [1,0,[0,0]]");
 add("selser", "<nowiki> inside <pre> (bug 13238) [3,0,4,0,[1,0,3,0]]");
-add("selser", "<nowiki> inside <pre> (bug 13238) [3,0,3,0,[1,0,0]]");
 add("selser", "<nowiki> inside <pre> (bug 13238) [2,0,2,0,[4,0,0]]");
 add("selser", "<nowiki> inside <pre> (bug 13238) [4,0,[0,3,0]]");
 add("selser", "<nowiki> inside <pre> (bug 13238) [3,0,[0,3,0]]");
@@ -2098,7 +2098,6 @@ add("selser", "<nowiki> inside <pre> (bug 13238) [1,0,2,0,[[0]]]");
 add("selser", "<nowiki> and <pre> preference (first one wins) [[0]]");
 add("selser", "<nowiki> and <pre> preference (first one wins) [4,0,2,0,[4,0]]");
 add("selser", "<nowiki> and <pre> preference (first one wins) [1,0,3,0,2,0]");
-add("selser", "<nowiki> and <pre> preference (first one wins) [3,0,3,0,[[0]]]");
 add("selser", "<nowiki> and <pre> preference (first one wins) [3,0,[0]]");
 add("selser", "<nowiki> and <pre> preference (first one wins) [4,0,[0]]");
 add("selser", "<nowiki> and <pre> preference (first one wins) [4,0,2,0,1,0]");
@@ -2531,7 +2530,6 @@ add("selser", "Template with targets containing wikilinks [3,0,4,0,[0]]");
 add("selser", "Template with targets containing wikilinks [2,0,4,0,[0]]");
 add("selser", "Template with targets containing wikilinks [2,0,1,0,[0]]");
 add("selser", "Template with targets containing wikilinks [2,0,3,0,1]");
-add("selser", "Template with targets containing wikilinks [3,0,3,0,[0]]");
 add("selser", "Template with targets containing wikilinks [4,0,1,0,1]");
 add("selser", "Template with targets containing wikilinks [1,0,1,0,4]");
 add("selser", "msgnw keyword [[0]]");
