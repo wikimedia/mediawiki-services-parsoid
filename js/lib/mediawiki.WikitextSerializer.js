@@ -2188,6 +2188,20 @@ WSP._buildTemplateWT = function(state, srcParts) {
 	return buf.join('');
 };
 
+WSP.skipOverEncapsulatedContent = function(node) {
+	var about = node.getAttribute('about');
+	if (!about) {
+		return node;
+	}
+
+	node = node.nextSibling;
+	while (node && DU.isElt(node) && about === node.getAttribute('about')) {
+		node = node.nextSibling;
+	}
+
+	return node;
+};
+
 /**
  * Get a DOM-based handler for an element node
  */
@@ -2205,26 +2219,6 @@ WSP._getDOMHandler = function(node, state, cb) {
 		handler,
 		nodeTypeOf = node.getAttribute( 'typeof' ) || '';
 
-//	if (state.activeTemplateId) {
-//		if(node.getAttribute('about') === state.activeTemplateId) {
-//			// Skip template content
-//			return function(){};
-//		} else {
-//			state.activeTemplateId = null;
-//		}
-//	} else {
-//		if (nodeTypeOf && nodeTypeOf.match(/\bmw:Object(\/[^\s]+|\b)/)) {
-//			state.activeTemplateId = node.getAttribute('about' || null);
-//
-//
-
-	// XXX: Handle siblings directly in a template content handler returning
-	// the next node?
-	if (state.activeTemplateId && node.getAttribute('about') === state.activeTemplateId) {
-		// Ignore subsequent template content
-		return {handle: function() {}};
-	}
-
 	// XXX: Convert into separate handlers?
 	if ( dp.src !== undefined ) {
 		//console.log(node.parentNode.outerHTML);
@@ -2232,8 +2226,6 @@ WSP._getDOMHandler = function(node, state, cb) {
 			// Source-based template/extension round-tripping for now
 			return {
 				handle: function () {
-					state.activeTemplateId = node.getAttribute('about') || null;
-
 					// In RT-testing mode, there will not be any edits to tpls.
 					// So, use original source to eliminate spurious diffs showing
 					// up in RT testing results.
@@ -2250,6 +2242,7 @@ WSP._getDOMHandler = function(node, state, cb) {
 						}
 					}
 					self.emitWikitext(src, state, cb, node);
+					return self.skipOverEncapsulatedContent(node);
 				},
 				sepnls: {
 					// XXX: This is questionable, as the template can expand
@@ -2928,7 +2921,7 @@ WSP._getNextSeparatorElement = function (node) {
  */
 WSP._serializeNode = function( node, state, cb) {
 	cb = cb || state.chunkCB;
-	var prev, next;
+	var prev, next, nextNode;
 
 	// serialize this node
 	switch( node.nodeType ) {
@@ -2961,15 +2954,12 @@ WSP._serializeNode = function( node, state, cb) {
 						node,  domHandler);
 			}
 
-			var handled = false,
-				about = node.getAttribute('about') || null;
+			var handled = false;
 
-			// We have 2 global checks here for selser-mode
-			// 1. WTS is not in a subtree with a modification flag that applies to every
-			//    node of a subtree (rather than an indication that some node in the
-			//    subtree is modified).
-			// 2. WTS not processing template content that has already been emitted.
-			if (state.selserMode && !state.inModifiedContent && (!about || about !== state.activeTemplateId)) {
+			// WTS should not be in a subtree with a modification flag that applies
+			// to every node of a subtree (rather than an indication that some node
+			// in the subtree is modified).
+			if (state.selserMode && !state.inModifiedContent) {
 				// To serialize from source, we need 2 things of the node:
 				// -- it should not have a diff marker
 				// -- it should have valid, usable DSR
@@ -3015,11 +3005,10 @@ WSP._serializeNode = function( node, state, cb) {
 
 					state.sep.src = (state.sep.src || '') + newSep;
 
-					// Update active template id -- so following tpl-content nodes
-					// can be ignored, if necessary.
+					// Skip over encapsulated content since it has already been serialized
 					var nodeTypeOf = node.getAttribute( 'typeof' ) || '';
 					if (nodeTypeOf && nodeTypeOf.match(/\bmw:Object(\/[^\s]+|\b)/)) {
-						state.activeTemplateId = about;
+						nextNode = this.skipOverEncapsulatedContent(node);
 					}
 				}
 			}
@@ -3034,9 +3023,7 @@ WSP._serializeNode = function( node, state, cb) {
 				if ( domHandler && domHandler.handle ) {
 					// DOM-based serialization
 					try {
-						// XXX: use a returned node to support handlers consuming
-						// siblings too
-						domHandler.handle(node, state, cb);
+						nextNode = domHandler.handle(node, state, cb);
 					} catch(e) {
 						console.error(e.stack || e.toString());
 						console.error(node.nodeName, domHandler);
@@ -3092,7 +3079,13 @@ WSP._serializeNode = function( node, state, cb) {
 			break;
 	}
 
-	return node;
+	// If handlers didn't provide a valid next node,
+	// default to next sibling
+	if (nextNode === undefined) {
+		nextNode = node.nextSibling;
+	}
+
+	return nextNode;
 };
 
 /**
