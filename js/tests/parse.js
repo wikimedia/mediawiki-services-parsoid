@@ -92,7 +92,7 @@ function dumpFlags() {
 		},
 		'editMode': {
 			description: 'Test in edit-mode (changes some parse & serialization strategies)',
-			'default': false,
+			'default': true,
 			'boolean': true
 		},
 		'debug': {
