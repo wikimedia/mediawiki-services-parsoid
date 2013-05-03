@@ -86,7 +86,12 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 		foreach ( $wgParsoidCacheServers as $server ) {
 			$requests[] = array(
 				'url' => $this->getParsoidURL( $title, $server ),
-				'headers' => array('X-Parsoid: ' . json_encode( $parsoidInfo ))
+				'headers' => array(
+					'X-Parsoid: ' . json_encode( $parsoidInfo ),
+					// Force implicit cache refresh similar to
+					// https://www.varnish-cache.org/trac/wiki/VCLExampleEnableForceRefresh
+					'Cache-control: no-cache'
+				)
 			);
 		};
 		wfDebug("ParsoidCacheUpdateJob::invalidateTitle: " .

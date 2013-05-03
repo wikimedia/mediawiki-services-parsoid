@@ -18,6 +18,7 @@ var ParserFunctions = require('./ext.core.ParserFunctions.js').ParserFunctions,
 	api = require('./mediawiki.ApiRequest.js'),
 	PreprocessorRequest = api.PreprocessorRequest,
 	Util = require('./mediawiki.Util.js').Util,
+	DU = require('./mediawiki.DOMUtils.js').DOMUtils,
 	// define some constructor shortcuts
 	KV = defines.KV,
 	TagTk = defines.TagTk,
@@ -91,8 +92,37 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 				srcHandler = this._processTemplateAndTitle.bind(
 					this, state, frame, cb,
 					{ name: templateName, attribs: [], cacheKey: text });
-			this.fetchExpandedTpl( this.manager.env.page.name || '',
-					text, PreprocessorRequest, cb, srcHandler);
+			// Check if we have an expansion for this template in the cache
+			// already
+			if (this.manager.env.transclusionCache[text]) {
+				// cache hit: reuse the expansion HTML
+				var html = this.manager.env.transclusionCache[text];
+
+				// Get 2-4 wrapper tokens representing the template content in
+				// token transformations
+				var topNodes = Util.parseHTML(html).body.childNodes,
+					toks = DU.getWrapperTokens(topNodes);
+
+				state = { token: token };
+				// Use a generic DOM fragment type. This is later unpacked at
+				// the end of all DOM processing.
+				state.wrapperType = 'mw:Object/DOMFragment';
+				state.wrappedObjectId = this.manager.env.newObjectId();
+				toks = this.addEncapsulationInfo(state, toks);
+				toks.push(this.getEncapsulationInfoEndTag(state));
+
+				// Assign the HTML fragment to the data-parsoid.html on the
+				// wrapper meta token. Its data-parsoid will be transferred to
+				// the wrapper during regular template encapsulation.
+				toks[0].dataAttribs.html = html;
+
+				console.log(text, toks);
+
+				cb({ tokens: [toks] });
+			} else {
+				this.fetchExpandedTpl( this.manager.env.page.name || '',
+						text, PreprocessorRequest, cb, srcHandler);
+			}
 		} else {
 			// We don't perform recursive template expansion- something
 			// template-like that the PHP parser did not expand. This is
