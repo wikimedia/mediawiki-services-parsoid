@@ -2185,17 +2185,16 @@ optionalNewlines
 
 // Start of line
 sol
-  = & {
-      // Use saved sol-state only at start of input
-      if (pos === 0) {
-          // If we have saved state of not being in sol posn, fail the production
-          if (pegArgs.pegTokenizer.savedSOL === false) {
-              return false;
-          }
-      }
-      return true;
-    }
-    nl:(newlineToken / & { return pos === 0; } { return []; })
+  = nl:(
+       newlineToken
+       / & {
+         // Use saved sol-state only at start of input
+         // If we have saved state of not being in sol posn, fail the production
+         // NOTE: Explicitly check for 'false' and not a falsy value
+         return pos === 0 && pegArgs.pegTokenizer.savedSOL !== false;
+       }
+       { return []; }
+    )
     // Eat multi-line comment, so that syntax after still matches as if it
     // was actually preceded by a newline
     cn:( c:comment n:newlineToken? {

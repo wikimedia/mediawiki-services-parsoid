@@ -9,13 +9,13 @@ var fs = require('fs'),
 
 function writeFiles ( bugfileName, data ) {
 	var keys = Object.keys(data),
-		val, dirName;
+		val, title, dirName;
 
 	// SSS: the 'wiki' field adds the 'wiki' string at the end
-	// which is unnecessary
-	dirName = "./" + (data.wiki || 'none').replace(/wiki$/, '') + "." +
-		(data.title || 'no-title') + "." +
-		(data.timestamp || ('now-' + JSON.stringify(new Date())));
+	// which is unnecessary.  The wiki prefix makes it clear where the
+	// page comes from and whether the dev. needs to use a translation tool
+	// for that bug report.
+	dirName = "./" + (data.wiki || 'none').replace(/wiki$/, '') + "." + bugfileName;
 
 	// Create dir
 	fs.mkdirSync(dirName, "0755");
@@ -28,6 +28,10 @@ function writeFiles ( bugfileName, data ) {
 
 		val = data[key];
 
+		// Make diff readable by adding a charset meta
+		if (fileName === 'diff') {
+			val = "<html><head><meta charset='utf-8'></head><body>" + val + "</body></html>";
+		}
 		if (fileName === 'originalHtml') {
 			// Strip everything upto <body> and after </body> tag
 			val = val.replace(/^.*<body[^<>]*>|<\/body>.*$/g, '');
