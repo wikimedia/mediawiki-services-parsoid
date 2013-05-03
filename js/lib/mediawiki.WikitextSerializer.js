@@ -1405,7 +1405,7 @@ function wtListEOL(node, otherNode) {
 function buildListHandler(firstChildNames) {
 	function isBuilderInsertedElt(node) {
 		DU.loadDataParsoid(node);
-		return node.data && node.data.parsoid.autoInsertedStart && node.data.parsoid.autoInsertedEnd;
+		return node.data && node.data.parsoid && node.data.parsoid.autoInsertedStart && node.data.parsoid.autoInsertedEnd;
 	}
 
 	return {
