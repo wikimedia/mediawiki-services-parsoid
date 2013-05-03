@@ -1499,6 +1499,7 @@ ParserTests.prototype.processCase = function ( i, options ) {
 						     -1 === item.title.search( this.test_filter ) ) ) {
 						// Skip test whose title does not match --filter
 						// or which is disabled or php-only
+						this.comments = [];
 						process.nextTick( nextCallback );
 						break;
 					}
