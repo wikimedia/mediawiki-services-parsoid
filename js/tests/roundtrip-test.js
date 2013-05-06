@@ -422,6 +422,7 @@ var fetch = function ( page, cb, options ) {
 	if ( options.apiURL ) {
 		parsoidConfig.setInterwiki( 'customwiki', options.apiURL );
 	}
+	parsoidConfig.editMode = Util.booleanOption( options.editMode );
 
 	MWParserEnvironment.getParserEnv( parsoidConfig, null, prefix, page, envCb );
 };
@@ -470,6 +471,11 @@ if ( !module.parent ) {
 			description: 'Show this message',
 			'boolean': true,
 			'default': false
+		},
+		'editMode': {
+			description: 'Test in edit-mode (changes some parse & serialization strategies)',
+			'default': false, // suppress noise by default
+			'boolean': true
 		},
 		'debug': {
 			description: 'Debug mode',
