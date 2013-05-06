@@ -821,7 +821,7 @@ extlink
     )
 
 autoref
-  = ref:('RFC' / 'PMID') (newline / space)+ identifier:[0-9]+
+  = ref:('RFC' / 'PMID') space_or_newline+ identifier:[0-9]+
 {
     identifier = identifier.join('');
 
@@ -842,10 +842,11 @@ autoref
 }
 
 isbn
-  = 'ISBN' (newline / space)+
+  = 'ISBN' space_or_newline+
     head:[0-9]
     digits:(d:( c:[- ] &[0-9] { return c; } / [0-9] ) { return d; } )+
     tail:'X'?
+    end_of_word
 {
     // TODO: round-trip non-decimals too!
     var isbn = [head, digits.join(''), tail].join(''),
@@ -1003,7 +1004,7 @@ tplarg
 template_param
   = name:template_param_name
     // MW accepts |foo | = bar | as a single param..
-    ('|' (space / newline)* &'=')?
+    ('|' space_or_newline* &'=')?
     val:(
         kEndPos:({return pos;})
         optionalSpaceToken
@@ -1205,8 +1206,12 @@ img_options =
 }
 / & { return stops.pop( 'pipe' ); }
 
+/* the space around img_option is actually processed with php trim()
+ * which technically allows \0 and \x0b (and doesn't trim \x0c) but in
+ * interests of sanity we're using the standard \s* production. */
+
 img_option
-  = pipe space*
+  = pipe space_or_newline*
   o:(
       img_attribute
     / img_format
@@ -1216,7 +1221,7 @@ img_option
     / img_link
     / lt:link_text { return new KV('caption', lt); }
   )
-  space* {
+  space_or_newline* {
       return o;
   };
 
@@ -1226,7 +1231,7 @@ img_format
   }
 
 img_dimensions
-  = x:(n:[0-9]+ { return n.join(''); })? y:('x' n:[0-9]+ { return n.join(''); })? 'px' {
+  = x:(n:[0-9]+ { return n.join(''); })? y:('x' n:[0-9]+ { return n.join(''); })? (space_or_newline* 'px')? {
       if ( x === '' && y ) {
           return new KV( 'height', y );
       } else if ( y === '' && x ) {
@@ -1618,7 +1623,7 @@ generic_tag
   = "<"
     end:"/"? name:[0-9a-zA-Z]+
     attribs:generic_newline_attribute*
-    ( space / newline ) *
+    space_or_newline*
     selfclose:"/"?
     ">" {
         name = name.join('');
@@ -1637,11 +1642,11 @@ generic_tag
 
 // A generic attribute that can span multiple lines.
 generic_newline_attribute
-  = s:( space / newline )+
+  = s:space_or_newline+
     namePos0:({return pos;})
     name:generic_attribute_name
     namePos:({return pos;})
-    valueData:(( space / newline )*
+    valueData:( space_or_newline*
         v:generic_attribute_newline_value { return v; })?
 {
     //console.warn('generic_newline_attribute: ' + pp( name ))
@@ -1705,7 +1710,7 @@ generic_attribute_name
 
 // A generic attribute, possibly spanning multiple lines.
 generic_attribute_newline_value
-  = "=" v:((space / newline )* vv:xml_att_value { return vv; })? {
+  = "=" v:( space_or_newline* vv:xml_att_value { return vv; })? {
       return v === '' ? [] : v;
   }
 // A generic but single-line attribute.
@@ -1758,7 +1763,7 @@ block_tag
   = "<" end:"/"?
     name:(cs:[a-zA-Z]+ { return cs.join(''); })
     attribs:generic_newline_attribute*
-    ( space / newline ) *
+    space_or_newline*
     selfclose:"/"?
     ">" {
         var lcName = name.toLowerCase();
@@ -2169,6 +2174,22 @@ optionalSpaceToken
       }
   }
 
+/* This production corresponds to \s in the PHP preg_* functions,
+ * which is used frequently in the PHP parser.  The inclusion of
+ * form feed (but not other whitespace, like vertical tab) is a quirk
+ * of Perl, which PHP inherited via the PCRE (Perl-Compatible Regular
+ * Expressions) library.
+ */
+space_or_newline
+  = [ \t\n\r\x0c]
+
+/* This production corresponds to \b in the PHP preg_* functions,
+ * after a word character.  That is, it's a zero-width lookahead that
+ * the next character is not a word character.
+ */
+end_of_word
+  = eof / ! [A-Za-z0-9_]
+
 // Extra newlines followed by at least another newline. Usually used to
 // compress surplus newlines into a meta tag, so that they don't trigger
 // paragraphs.
@@ -2246,7 +2267,7 @@ nl_comment_space = newline / comment / space
  */
 
 include_limits =
-  "</" name:[0-9a-zA-Z]+ (space / newline)* ">" {
+  "</" name:[0-9a-zA-Z]+ space_or_newline* ">" {
      // End tag only
      name = name.join('');
      var incl = name.toLowerCase();
@@ -2261,7 +2282,7 @@ include_limits =
          return null;
      }
   }
-  / inclTag:("<" name:[0-9a-zA-Z]+ (space / newline)* ">" {
+  / inclTag:("<" name:[0-9a-zA-Z]+ space_or_newline* ">" {
      // Start tag only
      name = name.join('');
      var incl = name.toLowerCase();
@@ -2443,7 +2464,7 @@ attribute_preprocessor_text_line
               // Eat insane tags-inside-attributes. Example:
               // <hiddentext>generated with.. </hiddentext>
               / &generic_tag inlineline
-              / !(newline / space / [\[>]) c:. {
+              / !(space_or_newline / [\[>]) c:. {
                     //console.warn( 'aptl: ' + pp(c) );
                     return c;
                 }
