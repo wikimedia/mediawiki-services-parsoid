@@ -60,7 +60,7 @@ ParagraphWrapper.prototype.register = function ( manager ) {
 };
 
 ParagraphWrapper.prototype._getTokensAndReset = function (res) {
-	var resToks = res ? res : this.nonNlTokens;
+	var resToks = res ? res : this.nonNlTokens.concat(this.nlWsTokens);
 	if (this.trace) {
 		console.warn("  p-wrap:RET: " + JSON.stringify(resToks));
 	}
