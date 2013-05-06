@@ -2154,9 +2154,9 @@ htmlentity = "&" c:[#0-9a-zA-Z]+ ";" {
     var m = "&" + c.join('') + ";",
         cc = Util.decodeEntity(m);
     return [
-        new TagTk('span', [new KV('typeof', 'mw:Entity')], { src: m, srcContent: cc } ),
+        new TagTk('span', [new KV('typeof', 'mw:Entity')], { src: m, srcContent: cc, tsr: [pos0, pos0] } ),
         cc,
-        new EndTagTk('span')
+        new EndTagTk('span', [], { tsr: [pos,pos] })
     ];
 }
 
