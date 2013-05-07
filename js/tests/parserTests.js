@@ -1121,7 +1121,12 @@ ParserTests.prototype.checkHTML = function ( item, out, options, mode ) {
 	normalizedOut = Util.normalizeOut( out );
 
 	if ( item.cachedNormalizedHTML === null ) {
-		normalizedExpected = Util.normalizeHTML( item.result );
+		if ('parsoid' in item.options) {
+			var normalDOM = Util.parseHTML( item.result ).body.innerHTML;
+			normalizedExpected = Util.normalizeOut( normalDOM );
+		} else {
+			normalizedExpected = Util.normalizeHTML( item.result );
+		}
 		item.cachedNormalizedHTML = normalizedExpected;
 	} else {
 		normalizedExpected = item.cachedNormalizedHTML;
