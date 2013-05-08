@@ -2894,7 +2894,6 @@ add("selser", "Fuzz testing: Parser24 [1,[1]]");
 add("selser", "Fuzz testing: Parser24 [3,4,1]");
 add("selser", "Fuzz testing: Parser24 [4,2,[0,0,0,1],4]");
 add("selser", "Fuzz testing: Parser24 [[0,[0,2]],2]");
-add("selser", "Fuzz testing: Parser24 [4,3,[0,0,0,3],[1]]");
 add("selser", "Fuzz testing: Parser24 [2,[2]]");
 add("selser", "Fuzz testing: Parser24 [[0,3],[0,0]]");
 add("selser", "Fuzz testing: Parser24 [4,[[0]]]");
