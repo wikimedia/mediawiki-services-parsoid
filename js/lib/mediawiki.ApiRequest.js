@@ -413,7 +413,8 @@ function PHPParseRequest ( env, title, text ) {
 	var apiargs = {
 		format: 'json',
 		action: 'parse',
-		text: text
+		text: text,
+		disablepp: 'true'
 	};
 	var url = env.conf.parsoid.apiURI;
 
@@ -451,8 +452,8 @@ PHPParseRequest.prototype._handleJSON = function ( error, data ) {
 
 	var parsedHtml = '';
 	try {
-		// Strip php parse stats from the html
-		parsedHtml = data.parse.text['*'].replace(/(^<p>)|((<\/p>)?\s*<!--\s*NewPP limit(\n|.)*$)/g, '');
+		// Strip paragraph wrapper from the html
+		parsedHtml = data.parse.text['*'].replace(/(^<p>)|(<\/p>\s*$)/g, '');
 		this.env.tp( 'Expanded ', this.text, parsedHtml );
 
 		// Add the source to the cache
