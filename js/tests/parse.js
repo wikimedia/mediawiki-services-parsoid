@@ -125,6 +125,11 @@ function dumpFlags() {
 			'boolean': false,
 			'default': null
 		},
+		'fetchConfig': {
+			description: 'Whether to fetch the wiki config from the server or use our local copy',
+			'boolean': true,
+			'default': true
+		},
 		'fetchTemplates': {
 			description: 'Whether to fetch included templates recursively',
 			'boolean': true,
@@ -198,6 +203,7 @@ function dumpFlags() {
 	if ( argv.apiURL ) {
 		parsoidConfig.setInterwiki( 'customwiki', argv.apiURL );
 	}
+	parsoidConfig.fetchConfig = Util.booleanOption( argv.fetchConfig );
 
 	ParserEnv.getParserEnv( parsoidConfig, null, prefix, argv.pagename || null, function ( err, env ) {
 		if ( err !== null ) {
@@ -210,7 +216,6 @@ function dumpFlags() {
 			env.conf.wiki.wgScriptPath = argv.wgScriptPath;
 		}
 
-		// XXX: add options for this!
 		env.conf.parsoid.fetchTemplates = Util.booleanOption( argv.fetchTemplates );
 		env.conf.parsoid.usePHPPreProcessor = env.conf.parsoid.fetchTemplates && Util.booleanOption( argv.usephppreprocessor );
 		env.conf.parsoid.maxDepth = argv.maxdepth || env.conf.parsoid.maxDepth;
