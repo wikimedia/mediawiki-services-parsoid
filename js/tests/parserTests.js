@@ -1500,10 +1500,10 @@ ParserTests.prototype.processCase = function ( i, options ) {
 					this.processArticle( item, nextCallback );
 					break;
 				case 'test':
-						if( ('disabled' in item.options && !this.runDisabled) ||
-						    ('php' in item.options && !this.runPHP) ||
-						    (this.test_filter &&
-						     -1 === item.title.search( this.test_filter ) ) ) {
+					if( ('disabled' in item.options && !this.runDisabled) ||
+					    ('php' in item.options && !this.runPHP) ||
+					    (this.test_filter &&
+					     -1 === item.title.search( this.test_filter ) ) ) {
 						// Skip test whose title does not match --filter
 						// or which is disabled or php-only
 						this.comments = [];
