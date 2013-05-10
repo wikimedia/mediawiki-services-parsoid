@@ -738,7 +738,8 @@ function migrateTrailingNLs(elt, env) {
 		// - are not literal html metas (found in wikitext)
 		// - are not mw:PageProp (cannot cross page-property boundary
 		// - are not mw:Includes/* (cannot cross <*include*> boundary)
-		// - are not tpl start/end markers (cannot cross tpl boundary)
+		// - are not ext/tpl start/end markers (cannot cross ext/tpl boundary)
+		// - are not ext placeholder markers (cannot cross ext boundaries)
 		while (n && DU.hasNodeName(n, "meta") && !DU.isLiteralHTMLNode(n)) {
 			var prop = n.getAttribute("property"),
 			    type = n.getAttribute("typeof");
@@ -747,7 +748,7 @@ function migrateTrailingNLs(elt, env) {
 				break;
 			}
 
-			if (type && (DU.isTplMetaType(type) || type.match(/mw:Includes/))) {
+			if (type && (DU.isTplMetaType(type) || type.match(/\b(mw:Includes|mw:Ext\/)/))) {
 				break;
 			}
 
@@ -2280,9 +2281,6 @@ function stripMarkerMetas(node) {
 	// Ex: {{compactTOC8|side=yes|seealso=yes}} generates a mw:PageProp/notoc meta
 	// that gets the mw:Object/Template typeof attached to it.  It is not okay to
 	// delete it!
-	//
-	// SSS FIXME: This strips out all "Ext/Ref/Content" meta-tags that the VE needs
-	// to regenerate references on demand.  To be fixed.
 	var metaType = node.getAttribute("typeof");
 	if (metaType &&
 		metaType.match(/^\bmw:(Object|EndTag|TSRMarker|Ext)\/?[^\s]*\b/) &&
