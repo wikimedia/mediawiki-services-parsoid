@@ -444,7 +444,7 @@ app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
 			console.log('starting parsing of ' + req.params[0]);
 			// FIXME: This does not handle includes or templates correctly
 			env.setPageSrcInfo( src );
-			parser.process( src );
+			parser.processToplevelDoc( src );
 		} catch (e) {
 			res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
 			console.error( e.stack || e.toString() );
