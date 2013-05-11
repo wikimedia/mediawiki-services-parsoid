@@ -1397,6 +1397,9 @@ function wtListEOL(node, otherNode) {
 		} else {
 			return {min:1, max:2};
 		}
+	} else if (otherNode.nodeType === node.ELEMENT_NODE &&
+			otherNode.nodeName === 'BODY') {
+		return {min:0, max:2};
 	} else {
 		return {min:1, max:2};
 	}
