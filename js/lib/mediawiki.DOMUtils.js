@@ -263,6 +263,10 @@ var DOMUtils = {
 		return this.hasNodeName(n, "pre") && !this.isLiteralHTMLNode(n);
 	},
 
+	isFosterablePosition: function(n) {
+		return n && n.parentNode.nodeName in {TABLE:1, TBODY:1, TR:1};
+	},
+
 	isList: function(n) {
 		return n && n.nodeName in {OL:1, UL:1, DL:1};
 	},
