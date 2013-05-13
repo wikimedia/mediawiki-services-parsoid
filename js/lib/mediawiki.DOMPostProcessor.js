@@ -636,7 +636,7 @@ function handlePres(document, env) {
 							deleteIndentPreFromDOM(n);
 							processed = true;
 						}
-					} else if (n.getAttribute("typeof") === "mw:Object/References") {
+					} else if (n.getAttribute("typeof") === "mw:Object/Ext/References") {
 						// No pre-tags in references
 						deleteIndentPreFromDOM(n);
 						processed = true;
@@ -2221,9 +2221,9 @@ function dumpDomWithDataAttribs( root ) {
 	console.warn(clonedRoot.innerHTML);
 }
 
-function computeDocDSR(root, env) {
-	var startOffset = 0,
-		endOffset = env.page.src.length,
+function computeDocDSR(root, env, options) {
+	var startOffset = options.sourceOffsets ? options.sourceOffsets[0] : 0,
+		endOffset = options.sourceOffsets ? options.sourceOffsets[1] : env.page.src.length,
 		psd = env.conf.parsoid;
 
 	if (psd.debug || (psd.dumpFlags && (psd.dumpFlags.indexOf("dom:pre-dsr") !== -1))) {
@@ -2299,7 +2299,7 @@ function generateReferences(refsExt, node) {
 
 		if (DU.isMarkerMeta(child, "mw:Ext/Ref/Marker")) {
 			refsExt.extractRefFromNode(child);
-		} else if (DU.isMarkerMeta(child, "mw:Ext/References")) {
+		} else if (DU.isMarkerMeta(child, "mw:Ext/References/Marker")) {
 			refsExt.insertReferencesIntoDOM(child);
 		} else if (DU.isElt(child) && child.childNodes.length > 0) {
 			generateReferences(refsExt, child);
@@ -2487,9 +2487,7 @@ saveDataParsoid = function( node ) {
 */
 function appendMeta(document, attrs) {
 	var elt = document.createElement('meta');
-	Object.keys(attrs).forEach(function(k) {
-		elt.setAttribute(k, attrs[k] || '');
-	});
+	DU.addAttributes(elt, attrs);
 	document.head.appendChild(elt);
 }
 
@@ -2515,7 +2513,7 @@ function DOMPostProcessor(env, options) {
 	// Generate references before DSR & template encapsulation
 	this.processors.push(generateReferences.bind(null, env.conf.parsoid.nativeExtensions.cite.references));
 
-	if (options.wrapTemplates && !options.extTag) {
+	if (options.wrapTemplates) {
 		// dsr computation and tpl encap are only relevant
 		// for top-level content that is not wrapped in an extension
 		this.processors.push(computeDocDSR);
@@ -2539,6 +2537,10 @@ function DOMPostProcessor(env, options) {
 // Inherit from EventEmitter
 DOMPostProcessor.prototype = new events.EventEmitter();
 DOMPostProcessor.prototype.constructor = DOMPostProcessor;
+
+DOMPostProcessor.prototype.setSourceOffsets = function(start, end) {
+	this.options.sourceOffsets = [start, end];
+};
 
 DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 	var env = this.env,

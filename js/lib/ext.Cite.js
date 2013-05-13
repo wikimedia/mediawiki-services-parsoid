@@ -5,8 +5,10 @@
 "use strict";
 
 var Util = require( './mediawiki.Util.js' ).Util,
+	DU = require( './mediawiki.DOMUtils.js').DOMUtils,
 	defines = require('./mediawiki.parser.defines.js'),
 	$ = require( './fakejquery' );
+
 // define some constructor shortcuts
 var	KV = defines.KV,
     SelfclosingTagTk = defines.SelfclosingTagTk;
@@ -116,11 +118,7 @@ Ref.prototype.handleRef = function ( manager, pipelineOpts, refTok, cb ) {
 		// Full pipeline for processing ref-content
 		pipelineType: 'text/x-mediawiki/full',
 		pipelineOpts: {
-			extTag: "ref",
-			// Always wrap templates for ref-tags
-			// SSS FIXME: Document why this is so
-			// I wasted an hour because I failed to set this flag
-			wrapTemplates: true
+			extTag: "ref"
 		},
 		res: [],
 		parentCB: cb,
@@ -140,7 +138,7 @@ function RefGroup(group) {
 	this.indexByName = {};
 }
 
-RefGroup.prototype.add = function(refName, skipLinkback) {
+RefGroup.prototype.add = function(refName, about, skipLinkback) {
 	var ref;
 	if (refName && this.indexByName[refName]) {
 		ref = this.indexByName[refName];
@@ -153,14 +151,15 @@ RefGroup.prototype.add = function(refName, skipLinkback) {
 		}
 
 		ref = {
+			about: about,
 			content: null,
-			index: n,
-			groupIndex: (1+n), // FIXME -- this seems to be wiki-specific
-			name: refName,
 			group: this.name,
+			groupIndex: (1+n), // FIXME -- this seems to be wiki-specific
+			index: n,
 			key: refKey,
-			target: 'cite_note-' + refKey,
-			linkbacks: []
+			linkbacks: [],
+			name: refName,
+			target: 'cite_note-' + refKey
 		};
 		this.refs[n] = ref;
 		if (refName) {
@@ -180,33 +179,49 @@ RefGroup.prototype.renderLine = function(refsList, ref) {
 		arrow = ownerDoc.createTextNode('↑'),
 		li, a;
 
-	// Generate the li
-	li = ownerDoc.createElement('li');
-	li.setAttribute('id', ref.target);
-
-	// Set ref content first, so the HTML gets parsed
+	// Generate the li and set ref content first, so the HTML gets parsed.
 	// We then append the rest of the ref nodes before the first node
+	li = ownerDoc.createElement('li');
+	DU.addAttributes(li, {
+		'about': "#" + ref.target,
+		'id': ref.target
+	});
 	li.innerHTML = ref.content;
-	var contentNode = li.firstChild;
-	// if (!contentNode) console.warn("--empty content for: " + ref.linkbacks[0]);
+
+	// If ref-content has block nodes, wrap it in a div, else in a span
+	var contentNode = ownerDoc.createElement(DU.hasBlockContent(li) ? 'div' : 'span');
+
+	// Move all children from li to contentNode
+	DU.migrateChildren(li, contentNode);
+	li.appendChild(contentNode);
+
+	// 'mw:referencedBy' span wrapper
+	var span = ownerDoc.createElement('span');
+	span.setAttribute('rel', 'mw:referencedBy');
+	li.insertBefore(span, contentNode);
 
 	// Generate leading linkbacks
 	if (ref.linkbacks.length === 1) {
 		a = ownerDoc.createElement('a');
-		a.setAttribute('href', '#' + ref.linkbacks[0]);
+		DU.addAttributes(a, {
+			'href': '#' + ref.linkbacks[0]
+		});
 		a.appendChild(arrow);
-		li.insertBefore(a, contentNode);
+		span.appendChild(a);
+
+		// Space between span-wrapper and content node
 		li.insertBefore(ownerDoc.createTextNode(' '), contentNode);
 	} else {
-		li.insertBefore(arrow, contentNode);
+		span.appendChild(arrow);
 		$.each(ref.linkbacks, function(i, linkback) {
 			a = ownerDoc.createElement('a');
-			a.setAttribute('data-type', 'hashlink');
-			a.setAttribute('href', '#' + ref.linkbacks[i]);
+			DU.addAttributes(a, {
+				'href': '#' + ref.linkbacks[i]
+			});
 			a.appendChild(ownerDoc.createTextNode(ref.groupIndex + '.' + i));
-			li.insertBefore(a, contentNode);
 			// Separate linkbacks with a space
-			li.insertBefore(ownerDoc.createTextNode(' '), contentNode);
+			span.appendChild(ownerDoc.createTextNode(' '));
+			span.appendChild(a);
 		});
 	}
 
@@ -255,15 +270,16 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 	// Emit a placeholder meta for the references token
 	// so that the dom post processor can generate and
 	// emit references at this point in the DOM.
-	var emitPlaceholderMeta = function() {
-		var placeHolder = new SelfclosingTagTk('meta', refsTok.attribs, refsTok.dataAttribs);
-		placeHolder.setAttribute('typeof', 'mw:Ext/References');
-		placeHolder.setAttribute('about', '#' + manager.env.newObjectId());
-		placeHolder.dataAttribs.stx = undefined;
-		if (group) {
-			placeHolder.setAttribute('group', group);
-		}
-		cb({ tokens: [placeHolder], async: false });
+	var emitMarkerMeta = function() {
+		var marker = new SelfclosingTagTk('meta', refsTok.attribs, refsTok.dataAttribs);
+
+		marker.dataAttribs.stx = undefined;
+		DU.addAttributes(marker, {
+			'about': '#' + manager.env.newObjectId(),
+			'group': group,
+			'typeof': 'mw:Ext/References/Marker'
+		});
+		cb({ tokens: [marker], async: false });
 	};
 
 	processExtSource(manager, refsTok, {
@@ -277,7 +293,7 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 		},
 		res: [],
 		parentCB: cb,
-		emptyContentCB: emitPlaceholderMeta,
+		emptyContentCB: emitMarkerMeta,
 		chunkCB: function(chunk) {
 			// Extract ref-content tokens and discard the rest
 			var res = [];
@@ -294,7 +310,7 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 			// Pass along the ref toks
 			cb({ tokens: res, async: true });
 		},
-		endCB: emitPlaceholderMeta
+		endCB: emitMarkerMeta
 	});
 };
 
@@ -312,7 +328,7 @@ References.prototype.extractRefFromNode = function(node) {
 		about = node.getAttribute("about"),
 		skipLinkback = node.getAttribute("skiplinkback") === "1",
 		refGroup = this.refGroups[group] || newRefGroup(this.refGroups, group),
-		ref = refGroup.add(refName, skipLinkback);
+		ref = refGroup.add(refName, about, skipLinkback);
 
 	// Add ref-index linkback
 	if (!skipLinkback) {
@@ -320,10 +336,17 @@ References.prototype.extractRefFromNode = function(node) {
 			span = doc.createElement('span'),
 			endMeta = doc.createElement('meta');
 
-		span.setAttribute('id', ref.linkbacks[ref.linkbacks.length - 1]);
-		span.setAttribute('class', 'reference');
-		span.setAttribute('about', about);
-		span.setAttribute('typeof', 'mw:Object/Ext/Ref');
+		DU.addAttributes(span, {
+			'about': about,
+			'class': 'reference',
+			'data-mw': JSON.stringify({
+				'name': 'ref',
+				'body': { 'html': node.getAttribute("content") }
+			}),
+			'id': ref.linkbacks[ref.linkbacks.length - 1],
+			'rel': 'dc:references',
+			'typeof': 'mw:Object/Ext/Ref'
+		});
 		span.data = { parsoid: { src: node.data.parsoid.src } };
 
 		var tsr = node.data.parsoid.tsr;
@@ -344,8 +367,10 @@ References.prototype.extractRefFromNode = function(node) {
 		span.appendChild(refIndex);
 
 		// endMeta
-		endMeta.setAttribute('typeof', 'mw:Object/Ext/Ref/End' );
-		endMeta.setAttribute('about', about);
+		DU.addAttributes(endMeta, {
+			'about': about,
+			'typeof': 'mw:Object/Ext/Ref/End'
+		});
 		node.parentNode.insertBefore(endMeta, node);
 	}
 
@@ -366,18 +391,22 @@ References.prototype.insertReferencesIntoDOM = function(refsNode) {
 			endMeta = refsNode.ownerDocument.createElement('meta'),
 			about = refsNode.getAttribute('about');
 
-		ol.setAttribute('class', 'references');
-		ol.setAttribute('typeof', 'mw:Object/References');
-		ol.setAttribute('about', about);
+		DU.addAttributes(ol, {
+			'about': about,
+			'class': 'references',
+			'typeof': 'mw:Object/Ext/References'
+		});
 		ol.data = refsNode.data;
 		refGroup.refs.map(refGroup.renderLine.bind(refGroup, ol));
 		refsNode.parentNode.replaceChild(ol, refsNode);
 
 		// Since this has a 'mw:Object/*' typeof, this code will be run
 		// through template encapsulation code.  Add an end-meta after
-		// the list so that that code knows where the references code ends.
-		endMeta.setAttribute('typeof', 'mw:Object/References/End' );
-		endMeta.setAttribute('about', about);
+		// the list so that that code knows where the references HTML ends.
+		DU.addAttributes(endMeta, {
+			'about': about,
+			'typeof': 'mw:Object/Ext/References/End'
+		});
 		// Set end-tsr on the endMeta so that DSR computation can establish
 		// a valid DSR range on the references section.
 		var tsr = refsNode.data.parsoid.tsr;

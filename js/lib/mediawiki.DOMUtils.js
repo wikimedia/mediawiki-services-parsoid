@@ -550,8 +550,36 @@ var DOMUtils = {
 	mkEndTagTk: function (node) {
 		var attribKVs = this.getAttributeKVArray(node);
 		return new pd.EndTagTk(node.nodeName.toLowerCase(), attribKVs, node.data.parsoid);
-	}
+	},
 
+	addAttributes: function(elt, attrs) {
+		Object.keys(attrs).forEach(function(k) {
+			if (attrs[k] !== null && attrs[k] !== undefined) {
+				elt.setAttribute(k, attrs[k]);
+			}
+		});
+	},
+
+	hasBlockContent: function(node) {
+		var child = node.firstChild;
+		while (child) {
+			if (this.isBlockNode(child)) {
+				return true;
+			}
+			child = child.nextSibling;
+		}
+
+		return false;
+	},
+
+	migrateChildren: function(from, to) {
+		var child = from.firstChild;
+		while (child) {
+			var next = child.nextSibling;
+			to.appendChild(child);
+			child = next;
+		}
+	}
 };
 
 if (typeof module === "object") {
