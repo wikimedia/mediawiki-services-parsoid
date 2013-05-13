@@ -649,7 +649,12 @@ var DOMUtils = {
 				if (node.nodeType === node.ELEMENT_NODE) {
 					var typeOf = node.getAttribute('typeof'),
 						about = node.getAttribute('about');
-					if (/\b(?:mw:Object\/Template\b|mw:Object\/Ext\/)/.test(typeOf) && about) {
+					// XXX gwicke: Cite seems to use mw:Object/Ext/Ref, while
+					// other extensions use mw:Object/Extensions/<tag>? Use
+					// only one and remove the other from this regexp!
+					if (/\b(?:mw:Object\/Template\b|mw:Object\/Ext\/|mw:Object\/Extension\/)/
+							.test(typeOf) && about)
+					{
 						DOMUtils.loadDataParsoid(node);
 						nodes = getAboutSiblings(node, about);
 						var key;
@@ -721,6 +726,10 @@ var DOMUtils = {
 		if (nodes.length > 1) {
 			tokens = tokens.concat(makeWrapperForNode(nodes.last()));
 		}
+
+		// Remove the typeof attribute from the first token
+		tokens[0].removeAttribute('typeof');
+
 		return tokens;
 	}
 };

@@ -68,7 +68,8 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 
 
 	/**
-	 * Invalidate a single title object
+	 * Invalidate a single title object after an edit. Send headers that let
+	 * Parsoid reuse transclusion and extension expansions.
 	 * @param $title Title
 	 */
 	protected function invalidateTitle( $title ) {
@@ -79,7 +80,7 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 
 		# First request the new version
 		$parsoidInfo = array();
-		$parsoidInfo['prevID'] = $title->getPreviousRevisionID($title->getLatestRevID());
+		$parsoidInfo['cacheID'] = $title->getPreviousRevisionID($title->getLatestRevID());
 		$parsoidInfo['changedTitle'] = $this->title->getPrefixedDBkey();
 
 		$requests = array ();
@@ -98,7 +99,9 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 			serialize($requests) . "\n");
 		CurlMultiClient::request( $requests );
 
-		# And now purge the previous revision
+		# And now purge the previous revision so that we make efficient use of
+		# the Varnish cache space without relying on LRU. Since the URL
+		# differs we can't use implicit refresh.
 		$requests = array ();
 		foreach ( $wgParsoidCacheServers as $server ) {
 			$requests[] = array(
@@ -111,7 +114,9 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 	}
 
 	/**
-	 * Invalidate an array (or iterator) of Title objects, right now
+	 * Invalidate an array (or iterator) of Title objects, right now. Send
+	 * headers that signal Parsoid which of transclusions or extensions need
+	 * to be updated.
 	 * @param $titleArray array
 	 */
 	protected function invalidateTitles( $titleArray ) {
@@ -138,12 +143,15 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 				# anyway, and no private info is exposed.
 				$url = $this->getParsoidURL( $title, $server );
 
-				$parsoidInfo['prevID'] = $title->getPreviousRevisionID($title->getLatestRevID());
+				$parsoidInfo['cacheID'] = $title->getLatestRevID();
 
 				$requests[] = array(
 					'url' => $url,
 					'headers' => array(
-						'X-Parsoid: ' . json_encode( $parsoidInfo )
+						'X-Parsoid: ' . json_encode( $parsoidInfo ),
+						// Force implicit cache refresh similar to
+						// https://www.varnish-cache.org/trac/wiki/VCLExampleEnableForceRefresh
+						'Cache-control: no-cache'
 					)
 				);
 			}
@@ -155,12 +163,14 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 		wfDebug('ParsoidCacheUpdateJob::invalidateTitles update: ' .
 			serialize($requests) . "\n" );
 
+		/*
 		# PURGE
+		# Not needed with implicit updates (see above)
 		# Build an array of purge requests
 		$requests = array();
 		foreach ( $wgParsoidCacheServers as $server ) {
 			foreach ( $titleArray as $title ) {
-				$url = $this->getParsoidURL( $title, $server, true );
+				$url = $this->getParsoidURL( $title, $server, false );
 
 				$requests[] = array(
 					'url' => $url
@@ -175,5 +185,6 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 
 		wfDebug('ParsoidCacheUpdateJob::invalidateTitles purge: ' .
 			serialize($requests) . "\n" );
+		 */
 	}
 }
