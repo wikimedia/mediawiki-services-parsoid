@@ -683,6 +683,49 @@ var DOMUtils = {
 		return expansions;
 	},
 
+
+	/**
+	 * Wrap text and comment nodes in a node list into spans, so that all
+	 * top-level nodes are elements.
+	 *
+	 *
+	 * @param array List of DOM nodes to wrap, mix of node types
+	 * @return array List of *element* nodes
+	 */
+	addSpanWrappers: function (nodes) {
+		var textCommentAccum = [],
+			out = [],
+			doc = nodes[0] && nodes[0].ownerDocument;
+
+		function wrapAccum () {
+			// Wrap accumulated nodes in a span
+			var span = doc.createElement('span');
+			textCommentAccum.forEach( function(n) {
+				span.appendChild(n);
+			});
+			out.push(span);
+			textCommentAccum = [];
+		}
+
+		nodes.forEach( function(node) {
+			if (node.nodeType === node.TEXT_NODE ||
+				node.nodeType === node.COMMENT_NODE) {
+				textCommentAccum.push(node);
+			} else {
+				if (textCommentAccum.length) {
+					wrapAccum();
+				}
+				out.push(node);
+			}
+		});
+
+		if (textCommentAccum.length) {
+			wrapAccum();
+		}
+
+		return out;
+	},
+
 	/**
 	 * Get tokens representing a DOM subtree in the token processing stages,
 	 * mainly for transclusion and extension processing.
