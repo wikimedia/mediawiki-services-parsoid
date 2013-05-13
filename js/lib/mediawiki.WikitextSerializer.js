@@ -2967,6 +2967,9 @@ WSP._serializeNode = function( node, state, cb) {
 				// To serialize from source, we need 2 things of the node:
 				// -- it should not have a diff marker
 				// -- it should have valid, usable DSR
+				// -- it should have a non-zero length DSR
+				//    (this is used to prevent selser on synthetic content,
+				//     like the category link for '#REDIRECT [[Category:Foo]]')
 				//
 				// SSS FIXME: Additionally, we can guard against buggy DSR with
 				// some sanity checks. We can test that non-sep src content
@@ -2976,7 +2979,9 @@ WSP._serializeNode = function( node, state, cb) {
 				//
 				//  TO BE DONE
 				//
-				if (dp && isValidDSR(dp.dsr) && !DU.hasCurrentDiffMark(node, this.env)) {
+				if (dp && isValidDSR(dp.dsr) &&
+					(dp.dsr[1] > dp.dsr[0]) &&
+					!DU.hasCurrentDiffMark(node, this.env)) {
 					// Strip leading/trailing separators *ONLY IF* the previous/following
 					// node will go through non-selser serialization.
 					var src = state.getOrigSrc(dp.dsr[0], dp.dsr[1]),
