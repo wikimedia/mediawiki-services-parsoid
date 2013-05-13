@@ -39,6 +39,13 @@ coreutil.inherits(ExtensionHandler, TemplateHandler);
 
 ExtensionHandler.prototype.rank = 1.11;
 
+/**
+ * Parse the extension HTML content.
+ *
+ * TODO gwicke: Use DOMFragment instead of converting back to tokens for
+ * template content. For this, we'll have to add the extension-specific
+ * encapsulation directly on the DOM before wrapping it.
+ */
 ExtensionHandler.prototype.parseExtensionHTML = function(extToken, cb, err, html) {
 	// document -> html -> body -> children
 	var topNodes = Util.parseHTML(html).body.childNodes;
@@ -85,9 +92,17 @@ ExtensionHandler.prototype.fetchExpandedExtension = function ( title, text, pare
 
 ExtensionHandler.prototype.onExtension = function ( token, frame, cb ) {
 	var extensionName = token.getAttribute('name'),
-	    nativeHandler = this.nativeExtHandlers[extensionName];
+	    nativeHandler = this.nativeExtHandlers[extensionName],
+		// TODO: use something order/quoting etc independent instead of src
+		cacheKey = token.dataAttribs.src,
+		cachedExpansion = this.manager.env.extensionCache[cacheKey];
 	if ( nativeHandler ) {
+		// No caching for native extensions for now.
 		nativeHandler(token, cb);
+	} else if ( cachedExpansion ) {
+		// cache hit. Reuse extension expansion.
+		var toks = this.encapsulateExpansionHTML(token, cachedExpansion);
+		cb({ tokens: toks });
 	} else if ( this.manager.env.conf.parsoid.expandExtensions ) {
 		// Use MediaWiki's action=parse preprocessor
 		this.fetchExpandedExtension(

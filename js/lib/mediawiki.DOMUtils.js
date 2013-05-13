@@ -606,10 +606,16 @@ var DOMUtils = {
 	 * them in a structure like this:
 	 * {
 	 *     transclusions: {
-	 *         'key1': 'html1'
+	 *         'key1': {
+	 *				html: 'html1',
+	 *				nodes: [<node1>, <node2>]
+	 *			}
 	 *     },
 	 *     extensions: {
-	 *         'key2': 'html2'
+	 *         'key2': {
+	 *				html: 'html2',
+	 *				nodes: [<node1>, <node2>]
+	 *			}
 	 *     }
 	 * }
 	 */
@@ -620,6 +626,7 @@ var DOMUtils = {
 				transclusions: {},
 				extensions: {}
 			};
+
 		function getAboutSiblings(node, about) {
 			var nodes = [node];
 			node = node.nextSibling;
@@ -654,8 +661,10 @@ var DOMUtils = {
 							key = node.data.parsoid.src;
 						}
 
-						// push the concatenated outerHTML of all nodes
-						expAccum[key] = nodes.map(outerHTML).join('');
+						expAccum[key] = {
+							nodes: nodes,
+							html: nodes.map(outerHTML).join('')
+						};
 						node = nodes.last();
 					} else {
 						doExtractExpansions(node.firstChild);

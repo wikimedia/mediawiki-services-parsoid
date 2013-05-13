@@ -2297,7 +2297,8 @@ function stripMarkerMetas(node) {
  */
 function unpackDOMFragments(node) {
 	if (node.nodeType === node.ELEMENT_NODE) {
-		var typeOf = node.getAttribute("typeof");
+		var typeOf = node.getAttribute('typeof'),
+			about = node.getAttribute('about');
 		if (/\bmw:Object\/DOMFragment\b/.test(typeOf)) {
 			// Replace this node and possibly a sibling with node.dp.html
 			var parentNode = node.parentNode,
@@ -2341,12 +2342,15 @@ function unpackDOMFragments(node) {
 				}
 			}
 
-			// transfer the new dsr
+			// Transfer the new dsr
 			DU.loadDataParsoid(dummyNode.firstChild);
 			dummyNode.firstChild.data.parsoid.dsr = node.data.parsoid.dsr;
 
 			// Move the old content nodes over from the dummyNode
 			while (dummyNode.firstChild) {
+				// Transfer the about attribute so that it is still unique in
+				// the page
+				dummyNode.firstChild.setAttribute('about', about);
 				parentNode.insertBefore(dummyNode.firstChild, node);
 			}
 			// And delete the placeholder node

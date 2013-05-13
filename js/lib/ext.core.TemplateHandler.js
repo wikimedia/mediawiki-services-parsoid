@@ -46,6 +46,27 @@ TemplateHandler.prototype.register = function ( manager ) {
 };
 
 /**
+ * Encapsulate an expansion DOM fragment with a generic mw:Object/DOMFragment
+ * wrapper that is later unpacked in the DOMPostProcessor. Used both for
+ * transclusion and extension content.
+ */
+TemplateHandler.prototype.encapsulateExpansionHTML = function(extToken, expansion) {
+	var toks = DU.getWrapperTokens(expansion.nodes);
+
+	var state = { token: extToken };
+	state.wrapperType = 'mw:Object/DOMFragment';
+	state.wrappedObjectId = this.manager.env.newObjectId();
+	toks = this.addEncapsulationInfo(state, toks);
+	toks.push(this.getEncapsulationInfoEndTag(state));
+	// Assign the HTML fragment to the data-parsoid.html on the
+	// wrapper meta token. Its data-parsoid will be transferred to
+	// the wrapper during regular template encapsulation.
+	toks[0].dataAttribs.html = expansion.html;
+	//console.log(expansion.html, toks);
+	return toks;
+};
+
+/**
  * Main template token handler
  *
  * Expands target and arguments (both keys and values) and either directly
@@ -95,28 +116,9 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 			// Check if we have an expansion for this template in the cache
 			// already
 			if (this.manager.env.transclusionCache[text]) {
-				// cache hit: reuse the expansion HTML
-				var html = this.manager.env.transclusionCache[text];
-
-				// Get 2-4 wrapper tokens representing the template content in
-				// token transformations
-				var topNodes = Util.parseHTML(html).body.childNodes,
-					toks = DU.getWrapperTokens(topNodes);
-
-				state = { token: token };
-				// Use a generic DOM fragment type. This is later unpacked at
-				// the end of all DOM processing.
-				state.wrapperType = 'mw:Object/DOMFragment';
-				state.wrappedObjectId = this.manager.env.newObjectId();
-				toks = this.addEncapsulationInfo(state, toks);
-				toks.push(this.getEncapsulationInfoEndTag(state));
-
-				// Assign the HTML fragment to the data-parsoid.html on the
-				// wrapper meta token. Its data-parsoid will be transferred to
-				// the wrapper during regular template encapsulation.
-				toks[0].dataAttribs.html = html;
-
-				console.log(text, toks);
+				// cache hit: reuse the expansion DOM
+				var expansion = this.manager.env.transclusionCache[text],
+					toks = this.encapsulateExpansionHTML(token, expansion);
 
 				cb({ tokens: [toks] });
 			} else {
