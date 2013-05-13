@@ -411,7 +411,7 @@ var fetch = function ( page, cb, options ) {
 		} );
 	};
 
-	var prefix = options.prefix || null;
+	var prefix = options.prefix || 'en';
 
 	if ( options.apiURL ) {
 		prefix = 'customwiki';
