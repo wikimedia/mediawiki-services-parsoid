@@ -18,6 +18,7 @@ var ParserFunctions = require('./ext.core.ParserFunctions.js').ParserFunctions,
 	api = require('./mediawiki.ApiRequest.js'),
 	PreprocessorRequest = api.PreprocessorRequest,
 	Util = require('./mediawiki.Util.js').Util,
+	DU = require('./mediawiki.DOMUtils.js').DOMUtils,
 	// define some constructor shortcuts
 	KV = defines.KV,
 	TagTk = defines.TagTk,
@@ -42,6 +43,27 @@ TemplateHandler.prototype.register = function ( manager ) {
 	// Template argument expansion
 	manager.addTransform( this.onTemplateArg.bind(this), "TemplateHandler:onTemplateArg",
 			this.rank, 'tag', 'templatearg' );
+};
+
+/**
+ * Encapsulate an expansion DOM fragment with a generic mw:Object/DOMFragment
+ * wrapper that is later unpacked in the DOMPostProcessor. Used both for
+ * transclusion and extension content.
+ */
+TemplateHandler.prototype.encapsulateExpansionHTML = function(extToken, expansion) {
+	var toks = DU.getWrapperTokens(expansion.nodes);
+
+	var state = { token: extToken };
+	state.wrapperType = 'mw:Object/DOMFragment';
+	state.wrappedObjectId = this.manager.env.newObjectId();
+	toks = this.addEncapsulationInfo(state, toks);
+	toks.push(this.getEncapsulationInfoEndTag(state));
+	// Assign the HTML fragment to the data-parsoid.html on the
+	// wrapper meta token. Its data-parsoid will be transferred to
+	// the wrapper during regular template encapsulation.
+	toks[0].dataAttribs.html = expansion.html;
+	//console.log(expansion.html, toks);
+	return toks;
 };
 
 /**
@@ -91,8 +113,18 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 				srcHandler = this._processTemplateAndTitle.bind(
 					this, state, frame, cb,
 					{ name: templateName, attribs: [], cacheKey: text });
-			this.fetchExpandedTpl( this.manager.env.page.name || '',
-					text, PreprocessorRequest, cb, srcHandler);
+			// Check if we have an expansion for this template in the cache
+			// already
+			if (this.manager.env.transclusionCache[text]) {
+				// cache hit: reuse the expansion DOM
+				var expansion = this.manager.env.transclusionCache[text],
+					toks = this.encapsulateExpansionHTML(token, expansion);
+
+				cb({ tokens: [toks] });
+			} else {
+				this.fetchExpandedTpl( this.manager.env.page.name || '',
+						text, PreprocessorRequest, cb, srcHandler);
+			}
 		} else {
 			// We don't perform recursive template expansion- something
 			// template-like that the PHP parser did not expand. This is

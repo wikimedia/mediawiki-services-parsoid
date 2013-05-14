@@ -297,6 +297,26 @@ var DOMUtils = {
 		return false;
 	},
 
+	/**
+	 * Check if a node has a block-level element descendant
+	 */
+	hasBlockElementDescendant: function(node) {
+		var children = node.childNodes;
+		for (var i = 0, n = children.length; i < n; i++) {
+			var child = children[i];
+			if (child.nodeType === child.ELEMENT_NODE &&
+					// Is a block-level node
+					( this.isBlockNode(child) ||
+					  // or has a block-level child or grandchild or..
+					  this.hasBlockElementDescendant(child) ) )
+			{
+				return true;
+			}
+		}
+
+		return false;
+	},
+
 	// This function tests if its end tag is outside a template.
 	endTagOutsideTemplate: function(node, dp) {
 		if (dp.tsr) {
@@ -579,6 +599,129 @@ var DOMUtils = {
 			to.appendChild(child);
 			child = next;
 		}
+	},
+
+	/**
+	 * Extract transclusion and extension expansions from a DOM, and return
+	 * them in a structure like this:
+	 * {
+	 *     transclusions: {
+	 *         'key1': {
+	 *				html: 'html1',
+	 *				nodes: [<node1>, <node2>]
+	 *			}
+	 *     },
+	 *     extensions: {
+	 *         'key2': {
+	 *				html: 'html2',
+	 *				nodes: [<node1>, <node2>]
+	 *			}
+	 *     }
+	 * }
+	 */
+	extractExpansions: function (doc) {
+		var node = doc.body,
+			expansion,
+			expansions = {
+				transclusions: {},
+				extensions: {}
+			};
+
+		function getAboutSiblings(node, about) {
+			var nodes = [node];
+			node = node.nextSibling;
+			while (node && node.nodeType === node.ELEMENT_NODE &&
+					node.getAttribute('about') === about)
+			{
+				nodes.push(node);
+				node = node.nextSibling;
+			}
+			return nodes;
+		}
+
+		function doExtractExpansions (node) {
+			var nodes, expAccum,
+				outerHTML = function (n) {
+					return n.outerHTML;
+				};
+
+			while (node) {
+				if (node.nodeType === node.ELEMENT_NODE) {
+					var typeOf = node.getAttribute('typeof'),
+						about = node.getAttribute('about');
+					if (/\b(?:mw:Object\/Template\b|mw:Object\/Ext\/)/.test(typeOf) && about) {
+						DOMUtils.loadDataParsoid(node);
+						nodes = getAboutSiblings(node, about);
+						var key;
+						if (/\bmw:Object\/Template\b/.test(typeOf)) {
+							expAccum = expansions.transclusions;
+							key = node.data.parsoid.src;
+						} else {
+							expAccum = expansions.extensions;
+							key = node.data.parsoid.src;
+						}
+
+						expAccum[key] = {
+							nodes: nodes,
+							html: nodes.map(outerHTML).join('')
+						};
+						node = nodes.last();
+					} else {
+						doExtractExpansions(node.firstChild);
+					}
+				}
+				node = node.nextSibling;
+			}
+		}
+		// Kick off the extraction
+		doExtractExpansions(doc.body.firstChild);
+		return expansions;
+	},
+
+	/**
+	 * Get tokens representing a DOM subtree in the token processing stages,
+	 * mainly for transclusion and extension processing.
+	 */
+	getWrapperTokens: function ( nodes ) {
+		function makeWrapperForNode ( node ) {
+			var workNode;
+			if (node.nodeType === node.ELEMENT_NODE && node.childNodes.length) {
+				// create a copy of the node without children
+				workNode = node.ownerDocument.createElement(node.nodeName);
+				// copy over attributes
+				for (var i = 0; i < node.attributes.length; i++) {
+					var attribute = node.attributes.item(i);
+					workNode.setAttribute(attribute.name, attribute.value);
+				}
+				// dataAttribs are cleared implicitly
+			} else {
+				workNode = node;
+			}
+			var res = [];
+			// Now convert our node to tokens
+			DOMUtils.convertDOMtoTokens(res, workNode);
+			return res;
+		}
+
+		// XXX: not sure if we have to care about nested block-levels, as
+		// those that would break up higher-level inline elements would have
+		// broken things up already when building the DOM for the first time.
+		//var hasBlockElement = false;
+		//for (var i = 0; i < nodes.length; i++) {
+		//	if (DOMUtils.hasBlockElementDescendant(nodes[i])) {
+		//		hasBlockElement = true;
+		//		break;
+		//	}
+		//}
+
+		// First, get two tokens representing the start element
+		var tokens = makeWrapperForNode ( nodes[0] );
+
+		// If we have several sibling, also represent the last sibling.
+		if (nodes.length > 1) {
+			tokens = tokens.concat(makeWrapperForNode(nodes.last()));
+		}
+		return tokens;
 	}
 };
 

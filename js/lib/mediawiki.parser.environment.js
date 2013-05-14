@@ -58,32 +58,34 @@ Tracer.prototype = {
  * Holds configuration data that isn't modified at runtime, debugging objects,
  * a page object that represents the page we're parsing, and more.
  *
- * TODO: Disentangle these!
- *
  * @constructor
  * @param {ParsoidConfig/null} parsoidConfig
  * @param {WikiConfig/null} wikiConfig
  */
 var MWParserEnvironment = function ( parsoidConfig, wikiConfig ) {
-	var options = {
-		// page information
-		page: {
-			name: 'Main page',
-			relativeLinkPrefix: '',
-			id: null,
-			src: null,
-			dom: null
-		},
-
-		// Configuration
-		conf: {},
-
-		// execution state
-		pageCache: {}, // @fixme use something with managed space
-		uid: 1
+	// page information
+	this.page = {
+		name: 'Main page',
+		relativeLinkPrefix: '',
+		id: null,
+		src: null,
+		dom: null
 	};
 
-	$.extend( this, options );
+	// Configuration
+	this.conf = {};
+
+	// execution state
+	// TODO gwicke: probably not that useful any more as this is per-request
+	// and the PHP preprocessor eliminates template source hits
+	this.pageCache = {};
+	this.uid = 1;
+	// Global transclusion expansion cache (templates, parser functions etc)
+	// Key: Full transclusion source
+	this.transclusionCache = {};
+	// Global extension tag expansion cache (templates, parser functions etc)
+	// Key: Full extension source (including tags)
+	this.extensionCache = {};
 
 	if ( !parsoidConfig ) {
 		// Global things, per-parser

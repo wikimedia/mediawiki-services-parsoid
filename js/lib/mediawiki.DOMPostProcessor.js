@@ -1460,8 +1460,8 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 						} else {
 							// should not happen!
 							console.warn( 'start found after content' );
-							console.warn("about: " + about);
-							console.warn("aboutRef.start " + elem.outerHTML);
+							//console.warn("about: " + about);
+							//console.warn("aboutRef.start " + elem.outerHTML);
 						}
 					} else {
 						tpls[about] = { start: elem };
@@ -2292,6 +2292,74 @@ function stripMarkerMetas(node) {
 	}
 }
 
+/**
+ * Unpack DOM fragments that were injected in the token pipeline.
+ */
+function unpackDOMFragments(node) {
+	if (node.nodeType === node.ELEMENT_NODE) {
+		var typeOf = node.getAttribute('typeof'),
+			about = node.getAttribute('about');
+		if (/\bmw:Object\/DOMFragment\b/.test(typeOf)) {
+			// Replace this node and possibly a sibling with node.dp.html
+			var parentNode = node.parentNode,
+				// Use a div rather than a p, as the p might be stripped out
+				// later if the children are block-level.
+				dummyName = parentNode.nodeName !== 'P' ? parentNode.nodeName : 'div',
+				dummyNode = node.ownerDocument.createElement(dummyName);
+			dummyNode.innerHTML = node.data.parsoid.html;
+
+			// get rid of a sibling (simplifies logic below)
+			var sibling = node.nextSibling;
+			if (sibling && sibling.nodeType === node.ELEMENT_NODE &&
+					sibling.getAttribute('about') === node.getAttribute('about'))
+			{
+				deleteNode(sibling);
+			}
+
+			// Potentially undo paragraph wrapping.
+			if (parentNode.nodeName === 'P' &&
+					(parentNode.childNodes.length === 1 ||
+					 // This approximates the case where there are more nodes,
+					 // but those would normally not trigger a paragraph.
+					 // XXX gwicke: This can likely be improved!
+					 /^[ \t]*$/.test(parentNode.textContent)))
+			{
+				// check if the content has a blocklevel element
+				var hasBlock = DU.hasBlockElementDescendant(dummyNode);
+				console.log(dummyNode.nodeName, hasBlock, JSON.stringify(dummyNode.textContent),
+						dummyNode.innerHTML);
+				if (hasBlock || /^[ \t]*$/.test(dummyNode.textContent || '')) {
+					// Block-level elements are not wrapped into paragraphs,
+					// so fix it up here. Remove the parentNode and use its
+					// parent instead.
+					var newParent = parentNode.parentNode;
+					while (parentNode.firstChild) {
+						// move children up
+						newParent.insertBefore(parentNode.firstChild, parentNode);
+					}
+					deleteNode(parentNode);
+					parentNode = newParent;
+				}
+			}
+
+			// Transfer the new dsr
+			DU.loadDataParsoid(dummyNode.firstChild);
+			dummyNode.firstChild.data.parsoid.dsr = node.data.parsoid.dsr;
+
+			// Move the old content nodes over from the dummyNode
+			while (dummyNode.firstChild) {
+				// Transfer the about attribute so that it is still unique in
+				// the page
+				dummyNode.firstChild.setAttribute('about', about);
+				parentNode.insertBefore(dummyNode.firstChild, node);
+			}
+			// And delete the placeholder node
+			deleteNode(node);
+			return false;
+		}
+	}
+}
+
 function generateReferences(refsExt, node) {
 	var child = node.firstChild;
 	while (child !== null) {
@@ -2524,9 +2592,11 @@ function DOMPostProcessor(env, options) {
 	// 1. Link prefixes and suffixes
 	// 2. Strip marker metas -- removes left over marker metas (ex: metas
 	//    nested in expanded tpl/extension output).
+	// 3. Unpack DOM fragments (reused transclusion and extension content)
 	var lastDOMHandler = new DOMTraverser();
 	lastDOMHandler.addHandler( 'a', handleLinkNeighbours.bind( null, env ) );
 	lastDOMHandler.addHandler( 'meta', stripMarkerMetas );
+	lastDOMHandler.addHandler( null, unpackDOMFragments );
 	this.processors.push(lastDOMHandler.traverse.bind(lastDOMHandler));
 
 	var dataParsoidSaver = new DOMTraverser();

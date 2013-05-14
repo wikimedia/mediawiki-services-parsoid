@@ -128,22 +128,15 @@ ApiRequest.prototype._requestCB = function (error, response, body) {
 		} else {
 			var dnee = new DoesNotExistError( this.reqType + ' failure for ' + this.title );
 			//this.emit('src', dnee, dnee.toString(), 'text/x-mediawiki');
-			this._handleJSON( dnee, {} );
+			this._handleBody( dnee, '{}' );
 		}
 	} else if (response.statusCode === 200) {
-		var data;
-		try {
-			//console.warn( 'body: ' + body );
-			data = JSON.parse( body );
-		} catch(e) {
-			error = new ParserError( 'Failed to parse the JSON response for ' + this.reqType + " " + self.title );
-		}
-		this._handleJSON( error, data );
+		this._handleBody( null, body );
 	} else {
 		console.log( body );
 		console.warn( 'non-200 response: ' + response.statusCode );
 		error = new DoesNotExistError( this.reqType + ' failure for ' + this.title );
-		this._handleJSON( error, {} );
+		this._handleBody( error, '{}' );
 	}
 
 	// XXX: handle other status codes
@@ -154,6 +147,31 @@ ApiRequest.prototype._requestCB = function (error, response, body) {
 	delete this.env.requestQueue[this.queueKey];
 	//this.env.dp( 'after deletion:', this.env.requestQueue );
 };
+
+/**
+ * Default body handler: parse to JSON and call _handleJSON.
+ *
+ * @method
+ * @private
+ * @param {Error/null} error
+ * @param {Object} response The API response object, with error code
+ * @param {string} body The body of the response from the API
+ */
+ApiRequest.prototype._handleBody = function (error, body) {
+	if ( error ) {
+		this._handleJSON( error, {} );
+	}
+	var data;
+	try {
+		//console.warn( 'body: ' + body );
+		data = JSON.parse( body );
+	} catch(e) {
+		error = new ParserError( 'Failed to parse the JSON response for ' +
+				this.reqType + " " + this.title );
+	}
+	this._handleJSON( error, data );
+};
+
 
 /**
  * @method _handleJSON
@@ -174,7 +192,6 @@ ApiRequest.prototype._requestCB = function (error, response, body) {
  * @param {string} title The template (or really, page) we should fetch from the wiki
  * @param {string} oldid The revision ID you want to get, defaults to "latest revision"
  */
-
 function TemplateRequest ( env, title, oldid ) {
 	// Construct ApiRequest;
 	ApiRequest.call(this, env, title);
@@ -471,6 +488,74 @@ PHPParseRequest.prototype._handleJSON = function ( error, data ) {
  * @class
  * @extends ApiRequest
  *
+ * Requests a cached parsed page from a Parsoid cache, but try to avoid
+ * triggering re-parsing.
+ *
+ * @constructor
+ * @param {MWParserEnvironment} env
+ * @param {string} title The title of the page to use as context
+ * @param {oldid} oldid The oldid to request
+ */
+function ParsoidCacheRequest ( env, title, oldid ) {
+	ApiRequest.call(this, env, title);
+
+	this.oldid = oldid;
+	this.queueKey = title + '?oldid=' + oldid;
+	this.reqType = "Parsoid cache request";
+
+	var apiargs = {
+		oldid: oldid
+	};
+	var url = env.conf.parsoid.parsoidCacheURI +
+			env.conf.wiki.iwp + '/' + title.replace(/ /g, '_');
+
+	console.log(url);
+
+
+	this.retries = 0;
+	this.requestOptions = {
+		// Use GET so that our request is cacheable
+		method: 'GET',
+		form: apiargs, // The API arguments
+		followRedirect: false,
+		url: url,
+		timeout: 16 * 1000, // 16 seconds
+		headers: {
+			'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:9.0.1) ' +
+							'Gecko/20100101 Firefox/9.0.1 Iceweasel/9.0.1',
+			'Connection': 'close',
+			// Request a reply only from cache.
+			// TODO: support only-if-cached in varnish, possibly with VCL
+			// somewhat inspired by
+			// https://www.varnish-cache.org/trac/wiki/VCLExampleEnableForceRefresh
+			'Cache-control': 'only-if-cached'
+		}
+	};
+
+	// Start the request
+	this.request( this.requestOptions, this._requestCB.bind(this) );
+}
+
+// Inherit from ApiRequest
+util.inherits( ParsoidCacheRequest, ApiRequest );
+
+/**
+ * Handle the HTML body
+ */
+ParsoidCacheRequest.prototype._handleBody = function ( error, body ) {
+	if ( error ) {
+		this._processListeners( error, '' );
+		return;
+	}
+
+	//console.log( this.listeners('parsedHtml') );
+	this._processListeners( error, body );
+};
+
+/**
+ * @class
+ * @extends ApiRequest
+ *
  * A request for the wiki's configuration variables.
  *
  * @constructor
@@ -564,6 +649,7 @@ if (typeof module === "object") {
 	module.exports.TemplateRequest = TemplateRequest;
 	module.exports.PreprocessorRequest= PreprocessorRequest;
 	module.exports.PHPParseRequest = PHPParseRequest;
+	module.exports.ParsoidCacheRequest = ParsoidCacheRequest;
 	module.exports.DoesNotExistError = DoesNotExistError;
 	module.exports.ParserError = ParserError;
 }

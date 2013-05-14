@@ -51,6 +51,7 @@ console.log( ' - ' + instanceName + ' loading...' );
 var WikitextSerializer = require(mp + 'mediawiki.WikitextSerializer.js').WikitextSerializer,
 	SelectiveSerializer = require( mp + 'mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
 	Util = require( mp + 'mediawiki.Util.js' ).Util,
+	DU = require( mp + 'mediawiki.DOMUtils.js' ).DOMUtils,
 	libtr = require(mp + 'mediawiki.ApiRequest.js'),
 	ParsoidConfig = require( mp + 'mediawiki.ParsoidConfig' ).ParsoidConfig,
 	MWParserEnvironment = require( mp + 'mediawiki.parser.environment.js' ).MWParserEnvironment,
@@ -264,6 +265,21 @@ var roundTripDiff = function ( req, res, env, document ) {
 				}, finalCB );
 };
 
+function handleCacheRequest (env, cb, src, err, cacheSrc) {
+	if (err) {
+		// No luck with the cache request, just proceed as normal.
+		Util.parse(env, cb, null, src);
+		return;
+	}
+	// Extract template and extension content from the DOM
+	// returns {templates: {key: dom}, extensions: {key: dom}} structure
+	// TODO: implement
+	var expansions = DU.extractExpansions(Util.parseHTML(cacheSrc));
+	// pass those expansions into Util.parse to prime the caches.
+	//console.log('expansions:', expansions);
+	Util.parse(env, cb, null, src, expansions);
+}
+
 var parse = function ( env, req, res, cb, err, src_and_metadata ) {
 	var newCb = function ( src, err, doc ) {
 		if ( err !== null ) {
@@ -283,7 +299,20 @@ var parse = function ( env, req, res, cb, err, src_and_metadata ) {
 	// Set the source
 	env.setPageSrcInfo( src_and_metadata );
 
-	Util.parse( env, newCb, err, env.page.src );
+	// Now env.page.meta.title has the canonical title, and
+	// env.page.meta.revision.parentid has the predecessor oldid
+	if (env.conf.parsoid.parsoidCacheURI &&
+			// Don't enter an infinite request loop.
+			! /only-if-cached/.test(req.headers['cache-control']))
+	{
+		// Try to retrieve a cached copy of the predecessor so that we can recycle
+		// template and extension expansions.
+		var cacheRequest = new libtr.ParsoidCacheRequest(env,
+				env.page.meta.title, env.page.meta.revision.parentid);
+		cacheRequest.once('src', handleCacheRequest.bind(null, env, newCb, env.page.src));
+	} else {
+		handleCacheRequest(env, newCb, env.page.src, "Recursive request", null);
+	}
 };
 
 /* -------------------- web app access points below --------------------- */
@@ -488,7 +517,7 @@ app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)') , function(req, re
 			return;
 		}
 
-		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
+		var target = env.page.title;
 
 		console.log('starting parsing of ' + target);
 		var oldid = null;
@@ -535,6 +564,13 @@ app.post(/\/_rtform\/(.*)/, function ( req, res ) {
 
 // Regular article parsing
 app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
+	// TODO gwicke: re-enable this when actually using Varnish
+	//if (/only-if-cached/.test(req.headers['cache-control'])) {
+	//	res.send( 'Clearly not cached since this request reached Parsoid. Please fix Varnish.',
+	//		404 );
+	//	return;
+	//}
+
 	var cb = function ( env ) {
 		if ( env.page.name === 'favicon.ico' ) {
 			res.send( 'no favicon yet..', 404 );
@@ -570,39 +606,6 @@ app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 	};
 
 	getParserServiceEnv( res, req.params[0], req.params[1], cb );
-} );
-
-app.get( /\/_ci\/refs\/changes\/(\d+)\/(\d+)\/(\d+)/, function ( req, res ) {
-	var gerritChange = 'refs/changes/' + req.params[0] + '/' + req.params[1] + '/' + req.params[2];
-	var testSh = spawn( './testGerritChange.sh', [ gerritChange ], {
-		cwd: '.'
-	} );
-
-	res.setHeader('Content-Type', 'text/xml; charset=UTF-8');
-
-	testSh.stdout.on( 'data', function ( data ) {
-		res.write( data );
-	} );
-
-	testSh.on( 'exit', function () {
-		res.end( '' );
-	} );
-} );
-
-app.get( /\/_ci\/master/, function ( req, res ) {
-	var testSh = spawn( './testGerritMaster.sh', [], {
-		cwd: '.'
-	} );
-
-	res.setHeader('Content-Type', 'text/xml; charset=UTF-8');
-
-	testSh.stdout.on( 'data', function ( data ) {
-		res.write( data );
-	} );
-
-	testSh.on( 'exit', function () {
-		res.end( '' );
-	} );
 } );
 
 // Regular article serialization using POST
@@ -645,6 +648,45 @@ app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function ( req, res 
 	};
 
 	getParserServiceEnv( res, req.params[0], req.params[1], cb );
+} );
+
+/**
+ * Continuous integration end points
+ *
+ * No longer used currently, as our testing now happens on the central Jenkins
+ * server.
+ */
+app.get( /\/_ci\/refs\/changes\/(\d+)\/(\d+)\/(\d+)/, function ( req, res ) {
+	var gerritChange = 'refs/changes/' + req.params[0] + '/' + req.params[1] + '/' + req.params[2];
+	var testSh = spawn( './testGerritChange.sh', [ gerritChange ], {
+		cwd: '.'
+	} );
+
+	res.setHeader('Content-Type', 'text/xml; charset=UTF-8');
+
+	testSh.stdout.on( 'data', function ( data ) {
+		res.write( data );
+	} );
+
+	testSh.on( 'exit', function () {
+		res.end( '' );
+	} );
+} );
+
+app.get( /\/_ci\/master/, function ( req, res ) {
+	var testSh = spawn( './testGerritMaster.sh', [], {
+		cwd: '.'
+	} );
+
+	res.setHeader('Content-Type', 'text/xml; charset=UTF-8');
+
+	testSh.stdout.on( 'data', function ( data ) {
+		res.write( data );
+	} );
+
+	testSh.on( 'exit', function () {
+		res.end( '' );
+	} );
 } );
 
 app.use( express.static( __dirname + '/scripts' ) );

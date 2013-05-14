@@ -1344,15 +1344,24 @@ var diff = function ( a, b, color, onlyReportChanges, useLines ) {
 };
 Util.diff = diff;
 
+// XXX gwicke: move to a Parser object?
 Util.getParserPipeline = function ( env, type ) {
 	var ParserPipelineFactory = require( './mediawiki.parser.js' ).ParserPipelineFactory;
 	return ( new ParserPipelineFactory( env ) ).makePipeline( type );
 },
 
-Util.parse = function ( env, cb, err, src ) {
+// XXX gwicke: move to a Parser object?
+Util.parse = function ( env, cb, err, src, expansions ) {
 	if ( err !== null ) {
 		cb( null, err );
 	} else {
+		// If we got some expansions passed in, prime the caches with it.
+		if (expansions) {
+			env.transclusionCache = expansions.transclusions;
+			env.extensionCache = expansions.extensions;
+		}
+
+		// Now go ahead with the actual parsing
 		var parser = Util.getParserPipeline( env, 'text/x-mediawiki/full' );
 		parser.on( 'document', cb.bind( null, env, null ) );
 		try {
