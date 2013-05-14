@@ -741,7 +741,9 @@ var DOMUtils = {
 					var attribute = node.attributes.item(i);
 					workNode.setAttribute(attribute.name, attribute.value);
 				}
-				// dataAttribs are cleared implicitly
+				// dataAttribs are not copied over so that we don't inject
+				// broken tsr or dsr values. This also lets these tokens pass
+				// through the sanitizer as stx.html is not set.
 			} else {
 				workNode = node;
 			}
