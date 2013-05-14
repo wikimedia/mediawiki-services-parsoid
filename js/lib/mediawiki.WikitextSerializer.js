@@ -1404,6 +1404,11 @@ function wtListEOL(node, otherNode) {
 			return {min:1, max:2};
 		}
 	} else if (otherNode.nodeType === node.ELEMENT_NODE &&
+			otherNode.nodeName in {'UL':1, 'OL':1, 'DL':1}) {
+		// last child in ul/ol (the list element is our parent), defer
+		// separator constraints to the list.
+		return {};
+	} else if (otherNode.nodeType === node.ELEMENT_NODE &&
 			otherNode.nodeName === 'BODY') {
 		return {min:0, max:2};
 	} else {
