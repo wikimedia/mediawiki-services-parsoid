@@ -1077,6 +1077,8 @@ var normalizeHTML = function ( source ) {
 			.replace(/<a +href/g, '<a href')
 			.replace(/href="\/wiki\//g, 'href="')
 			.replace(/" +>/g, '">')
+			// parsoid always add a page name to lonely fragments
+			.replace(/href="#/g, 'href="Main Page#')
 			// replace unnecessary URL escaping
 			.replace(/ href="[^"]*"/g, decodeURIComponent)
 			// strip empty spans

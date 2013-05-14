@@ -16,7 +16,14 @@ var Namespace; // forward declaration
  * @param {MWParserEnvironment} env
  */
 function Title ( key, ns, nskey, env ) {
-	this.key = env.resolveTitle( key );
+	this.key = env.resolveTitle( key, ns );
+
+	// If the title is relative, the resolved key will contain the namespace
+	// from env.page.name, so we need to take it out.
+	if ( env.conf.wiki.namespacesWithSubpages[ns] &&
+	     /^(\.\.\/)+|(\/)/.test( key ) ) {
+		this.key = this.key.split( ':', 2 ).pop();
+	}
 
 	this.ns = new Namespace( ns, env );
 
@@ -47,6 +54,9 @@ Title.fromPrefixedText = function ( env, text ) {
 		} else {
 			return new Title( text, 0, '', env );
 		}
+	} else if ( /^(\#|\/|\.\.\/)/.test( text ) ) {
+		// If the link is relative, use the page's namespace.
+		return new Title( text, env.page.meta.ns, '', env );
 	} else {
 		return new Title( text, 0, '', env );
 	}

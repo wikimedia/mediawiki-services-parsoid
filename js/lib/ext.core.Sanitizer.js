@@ -608,7 +608,8 @@ Sanitizer._stripIDNs = function ( host ) {
 };
 
 Sanitizer.prototype.sanitizeHref = function ( href ) {
-	var bits = href.match( /(.*?\/\/)([^\/]+)(\/?.*)/ ),
+	// protocol needs to begin with a letter (ie, .// is not a protocol)
+	var bits = href.match( /^((?:\w.*?)?\/\/)([^\/]+)(\/?.*)/ ),
 		proto, host, path;
 	if ( bits ) {
 		proto = bits[1];
