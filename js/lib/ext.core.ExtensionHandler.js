@@ -100,6 +100,7 @@ ExtensionHandler.prototype.onExtension = function ( token, frame, cb ) {
 		// No caching for native extensions for now.
 		nativeHandler(token, cb);
 	} else if ( cachedExpansion ) {
+		//console.log('cache hit for', JSON.stringify(cacheKey.substr(0, 50)));
 		// cache hit. Reuse extension expansion.
 		var toks = this.encapsulateExpansionHTML(token, cachedExpansion);
 		cb({ tokens: toks });

@@ -265,16 +265,27 @@ var roundTripDiff = function ( req, res, env, document ) {
 				}, finalCB );
 };
 
-function handleCacheRequest (env, cb, src, err, cacheSrc) {
+function handleCacheRequest (env, req, cb, src, err, cacheSrc) {
 	if (err) {
 		// No luck with the cache request, just proceed as normal.
 		Util.parse(env, cb, null, src);
 		return;
 	}
-	// Extract template and extension content from the DOM
-	// returns {templates: {key: dom}, extensions: {key: dom}} structure
-	// TODO: implement
+	// Extract transclusion and extension content from the DOM
 	var expansions = DU.extractExpansions(Util.parseHTML(cacheSrc));
+
+	// Figure out what we can reuse
+	var parsoidHeader = JSON.parse(req.headers['x-parsoid'] || '{}');
+	if (parsoidHeader.cacheID) {
+		if (parsoidHeader.mode === 'templatelinks') {
+			// Transclusions need to be updated, so don't reuse them.
+			expansions.transclusions = undefined;
+		} /*else if (parsoidHeader.mode === 'files') {
+			// Files need to be refreshed
+			// TODO: actually handle files
+		} */
+	}
+
 	// pass those expansions into Util.parse to prime the caches.
 	//console.log('expansions:', expansions);
 	Util.parse(env, cb, null, src, expansions);
@@ -301,17 +312,25 @@ var parse = function ( env, req, res, cb, err, src_and_metadata ) {
 
 	// Now env.page.meta.title has the canonical title, and
 	// env.page.meta.revision.parentid has the predecessor oldid
+
+	// See if we can reuse transclusion or extension expansions.
 	if (env.conf.parsoid.parsoidCacheURI &&
 			// Don't enter an infinite request loop.
 			! /only-if-cached/.test(req.headers['cache-control']))
 	{
-		// Try to retrieve a cached copy of the predecessor so that we can recycle
-		// template and extension expansions.
-		var cacheRequest = new libtr.ParsoidCacheRequest(env,
-				env.page.meta.title, env.page.meta.revision.parentid);
-		cacheRequest.once('src', handleCacheRequest.bind(null, env, newCb, env.page.src));
+		// Try to retrieve a cached copy of the content so that we can recycle
+		// template and / or extension expansions.
+		var parsoidHeader = JSON.parse(req.headers['x-parsoid'] || '{}'),
+			// If we get a prevID passed in in X-Parsoid (from our PHP
+			// extension), use that explicitly. Otherwise default to the
+			// parentID.
+			cacheID = parsoidHeader.cacheID ||
+				env.page.meta.revision.parentid,
+			cacheRequest = new libtr.ParsoidCacheRequest(env,
+				env.page.meta.title, cacheID);
+		cacheRequest.once('src', handleCacheRequest.bind(null, env, req, newCb, env.page.src));
 	} else {
-		handleCacheRequest(env, newCb, env.page.src, "Recursive request", null);
+		handleCacheRequest(env, req, newCb, env.page.src, "Recursive request", null);
 	}
 };
 

@@ -649,7 +649,12 @@ var DOMUtils = {
 				if (node.nodeType === node.ELEMENT_NODE) {
 					var typeOf = node.getAttribute('typeof'),
 						about = node.getAttribute('about');
-					if (/\b(?:mw:Object\/Template\b|mw:Object\/Ext\/)/.test(typeOf) && about) {
+					// XXX gwicke: Cite seems to use mw:Object/Ext/Ref, while
+					// other extensions use mw:Object/Extensions/<tag>? Use
+					// only one and remove the other from this regexp!
+					if (/\b(?:mw:Object\/Template\b|mw:Object\/Ext\/|mw:Object\/Extension\/)/
+							.test(typeOf) && about)
+					{
 						DOMUtils.loadDataParsoid(node);
 						nodes = getAboutSiblings(node, about);
 						var key;
@@ -676,6 +681,49 @@ var DOMUtils = {
 		// Kick off the extraction
 		doExtractExpansions(doc.body.firstChild);
 		return expansions;
+	},
+
+
+	/**
+	 * Wrap text and comment nodes in a node list into spans, so that all
+	 * top-level nodes are elements.
+	 *
+	 *
+	 * @param array List of DOM nodes to wrap, mix of node types
+	 * @return array List of *element* nodes
+	 */
+	addSpanWrappers: function (nodes) {
+		var textCommentAccum = [],
+			out = [],
+			doc = nodes[0] && nodes[0].ownerDocument;
+
+		function wrapAccum () {
+			// Wrap accumulated nodes in a span
+			var span = doc.createElement('span');
+			textCommentAccum.forEach( function(n) {
+				span.appendChild(n);
+			});
+			out.push(span);
+			textCommentAccum = [];
+		}
+
+		nodes.forEach( function(node) {
+			if (node.nodeType === node.TEXT_NODE ||
+				node.nodeType === node.COMMENT_NODE) {
+				textCommentAccum.push(node);
+			} else {
+				if (textCommentAccum.length) {
+					wrapAccum();
+				}
+				out.push(node);
+			}
+		});
+
+		if (textCommentAccum.length) {
+			wrapAccum();
+		}
+
+		return out;
 	},
 
 	/**
@@ -721,6 +769,10 @@ var DOMUtils = {
 		if (nodes.length > 1) {
 			tokens = tokens.concat(makeWrapperForNode(nodes.last()));
 		}
+
+		// Remove the typeof attribute from the first token
+		tokens[0].removeAttribute('typeof');
+
 		return tokens;
 	}
 };

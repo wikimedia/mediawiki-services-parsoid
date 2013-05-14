@@ -117,6 +117,7 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 			// already
 			if (this.manager.env.transclusionCache[text]) {
 				// cache hit: reuse the expansion DOM
+				//console.log('cache hit for', JSON.stringify(text.substr(0, 50)));
 				var expansion = this.manager.env.transclusionCache[text],
 					toks = this.encapsulateExpansionHTML(token, expansion);
 

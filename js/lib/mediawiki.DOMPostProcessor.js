@@ -2326,8 +2326,9 @@ function unpackDOMFragments(node) {
 			{
 				// check if the content has a blocklevel element
 				var hasBlock = DU.hasBlockElementDescendant(dummyNode);
-				console.log(dummyNode.nodeName, hasBlock, JSON.stringify(dummyNode.textContent),
-						dummyNode.innerHTML);
+				//console.log(dummyNode.nodeName, hasBlock,
+				//		JSON.stringify(dummyNode.textContent),
+				//		dummyNode.innerHTML);
 				if (hasBlock || /^[ \t]*$/.test(dummyNode.textContent || '')) {
 					// Block-level elements are not wrapped into paragraphs,
 					// so fix it up here. Remove the parentNode and use its

@@ -72,6 +72,7 @@ util.inherits(ApiRequest, events.EventEmitter);
 ApiRequest.prototype.request = function( options, callback ) {
 	// this is a good place to put debugging statements
 	// if you want to watch network requests.
+	//console.log('ApiRequest', options);
 	return request( options, callback );
 };
 
