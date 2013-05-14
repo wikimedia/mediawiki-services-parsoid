@@ -1996,6 +1996,30 @@ WSP.tagHandlers = {
 	link:  {
 		handle: function(node, state, cb) {
 			return state.serializer.linkHandler(node, state, cb);
+		},
+		sepnls: {
+			before: function (node, otherNode) {
+				var type = node.getAttribute('rel');
+				if (/\bmw:WikiLink\/Category\b/.test(type) &&
+						!node.getAttribute('data-parsoid')) {
+					// Fresh category link: Serialize on its own line
+					return {min: 1};
+				} else {
+					return {};
+				}
+			},
+			after: function (node, otherNode) {
+				var type = node.getAttribute('rel');
+				if (/\bmw:WikiLink\/Category\b/.test(type) &&
+						!node.getAttribute('data-parsoid') &&
+						otherNode.nodeName !== 'BODY')
+				{
+					// Fresh category link: Serialize on its own line
+					return {min: 1};
+				} else {
+					return {};
+				}
+			}
 		}
 	},
 	body: {
