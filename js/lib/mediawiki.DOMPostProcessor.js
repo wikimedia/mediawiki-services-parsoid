@@ -637,6 +637,10 @@ function handlePres(document, env) {
 							processed = true;
 						}
 					} else if (n.getAttribute("typeof") === "mw:Object/Ext/References") {
+						// SSS FIXME: This may no longer be added after we started
+						// stripping leading whitespace in refs in ext.Cite.js.
+						// Verify and get rid of this special case.
+						//
 						// No pre-tags in references
 						deleteIndentPreFromDOM(n);
 						processed = true;
@@ -920,21 +924,59 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 	// Ensure range.start is an element node since we want to
 	// add/update the data-parsoid attribute to it.
 	if (tcStart.nodeType === Node.COMMENT_NODE || tcStart.nodeType === Node.TEXT_NODE) {
-		// See if we can go up one level
-		//
-		// Eliminates useless spanning of wikitext of the form: {{echo|foo}}
-		// where the the entire template content is contained in a paragraph
-		var skipSpan = false;
-		var tcStartPar = tcStart.parentNode;
-		if (tcStartPar.firstChild === startElem &&
-			tcStartPar.lastChild === endElem &&
-			range.end.parentNode === tcStartPar)
-		{
-			if (DU.hasNodeName(tcStartPar, 'p') && !DU.isLiteralHTMLNode(tcStartPar)) {
-				tcStart = tcStartPar;
-				range.end = tcStartPar;
-				skipSpan = true;
+		var skipSpan = false,
+			tcStartParent = tcStart.parentNode;
+
+		if (DU.isFosterablePosition(tcStart)) {
+			skipSpan = true;
+
+			// 1. If we are in a table in a foster-element position, then all non-element
+			//    nodes will be white-space and comments. Skip over all of them and find
+			//    the first table node
+			var newStart = tcStart;
+			while (newStart && !DU.isElt(newStart)) {
+				newStart = newStart.nextSibling;
 			}
+
+			// 2. Push leading comments and whitespace into the element node
+			//    as long as it is a tr/tbody -- pushing whitespace into the
+			//    other (th/td/caption) can change display semantics.
+			if (newStart && newStart.nodeName in {TBODY:1, TR:1}) {
+				var insertPosition = newStart.firstChild;
+				var n = tcStart;
+				while (n !== newStart) {
+					var next = n.nextSibling;
+					newStart.insertBefore(n, insertPosition);
+					n = next;
+				}
+				tcStart = newStart;
+
+				// Update dsr to point to original start
+				updateDP = true;
+			} else {
+				tcStart = tcStartParent;
+
+				// Dont update dsr to original start
+				// since we've encapsulated a wider DOM range
+				updateDP = false;
+			}
+		} else {
+			// See if we can go up one level
+			//
+			// Eliminates useless spanning of wikitext of the form: {{echo|foo}}
+			// where the the entire template content is contained in a paragraph
+			if (tcStartParent.firstChild === startElem &&
+				tcStartParent.lastChild === endElem &&
+				tcStartParent === range.end.parentNode)
+			{
+				if (DU.hasNodeName(tcStartParent, 'p') && !DU.isLiteralHTMLNode(tcStartParent)) {
+					tcStart = tcStartParent;
+					range.end = tcStartParent;
+					skipSpan = true;
+				}
+			}
+
+			updateDP = true;
 		}
 
 		if (!skipSpan) {
@@ -945,7 +987,6 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 			tcStart = span;
 		}
 		range.start = tcStart;
-		updateDP = true;
 	}
 
 	if (updateDP) {
@@ -1550,6 +1591,14 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 
 function findBuilderCorrectedTags(document, env) {
 	function addPlaceholderMeta( node, dp, name, opts ) {
+		// If node is in a position where the placeholder
+		// node will get fostered out, dont bother adding one
+		// since the browser and other compliant clients will
+		// move the placeholder out of the table.
+		if (DU.isFosterablePosition(node)) {
+			return;
+		}
+
 		var src = dp.src;
 
 		if (!src) {
@@ -1668,9 +1717,23 @@ function findBuilderCorrectedTags(document, env) {
 			sibling, expectedName;
 
 		while (c !== null) {
+
+			// Skip over template/extension content
+			if (DU.isTplElementNode( env, node )) {
+				var about = node.getAttribute( 'about' );
+				c = c.nextSibling;
+				while (c && node.getAttribute('about') === about) {
+					c = c.nextSibling;
+				}
+
+				if (!c) {
+					return;
+				}
+			}
+
 			if (c.nodeType === Node.ELEMENT_NODE) {
 				// Process subtree first
-				findAutoInsertedTags(c, env);
+				findAutoInsertedTags(c);
 
 				var dp = DU.getDataParsoid( c ),
 					cNodeName = c.nodeName.toLowerCase();
@@ -1738,6 +1801,7 @@ function findBuilderCorrectedTags(document, env) {
 							// Not found, the tag was stripped. Insert an
 							// mw:Placeholder for round-tripping
 							//console.log('autoinsertedEnd', c.innerHTML, c.parentNode.innerHTML);
+							// console.warn("expected.nodeName: " + expectedName + "; sibling.nodeName: " + sibling.nodeName);
 							addPlaceholderMeta(c, dp, expectedName, {end: true});
 						}
 					} else {
@@ -2283,7 +2347,7 @@ function stripMarkerMetas(node) {
 	// delete it!
 	var metaType = node.getAttribute("typeof");
 	if (metaType &&
-		metaType.match(/^\bmw:(Object|EndTag|TSRMarker|Ext)\/?[^\s]*\b/) &&
+		metaType.match(/^\bmw:(Object|StartTag|EndTag|TSRMarker|Ext)\/?[^\s]*\b/) &&
 		!node.getAttribute("property"))
 	{
 		deleteNode(node);
