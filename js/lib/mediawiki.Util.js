@@ -1112,7 +1112,7 @@ formatHTML = function ( source ) {
  * @returns {Node}
  */
 parseHTML = function ( html ) {
-	if(! html.match(/^<(?:!doctype|html|body)/)) {
+	if(! html.match(/^<(?:!doctype|html|body)/i)) {
 		// Make sure that we parse fragments in the body. Otherwise comments,
 		// link and meta tags end up outside the html element or in the head
 		// element.
