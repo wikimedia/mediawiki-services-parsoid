@@ -125,7 +125,7 @@ var DOMUtils = {
 			return {
 				value: curVal,
 				// Mark as modified if a new element
-				modified: Object.keys(dp).length === 0,
+				modified: !node.hasAttribute('data-parsoid'),
 				fromsrc: false
 			};
 		} else if ( dp.a[name] !== curVal ||
