@@ -118,7 +118,7 @@ function dumpFlags() {
 		'prefix': {
 			description: 'Which wiki prefix to use; e.g. "en" for English wikipedia, "es" for Spanish, "mw" for mediawiki.org',
 			'boolean': false,
-			'default': ''
+			'default': 'en'
 		},
 		'apiURL': {
 			description: 'http path to remote API, e.g. http://en.wikipedia.org/w/api.php',

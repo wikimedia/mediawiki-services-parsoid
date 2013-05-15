@@ -279,7 +279,6 @@ MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
 	var confSource, uri = this.conf.parsoid.interwikiMap[prefix];
 	this.conf.parsoid.apiURI = uri || this.conf.parsoid.interwikiMap.en;
 	this.confCache = this.confCache || {};
-	this.confCache[this.conf.wiki.iwp || ''] = this.conf.wiki;
 
 	if ( !this.conf.parsoid.fetchConfig ) {
 		// Use the name of a cache file as the source of the config.
@@ -300,6 +299,7 @@ MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
 			}
 			if ( error === null ) {
 				this.conf.wiki = new WikiConfig( resultConf, prefix, thisuri );
+				this.confCache[prefix || ''] = this.conf.wiki;
 			}
 
 			cb( error );
