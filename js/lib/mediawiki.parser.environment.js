@@ -276,8 +276,10 @@ MWParserEnvironment.getParserEnv = function ( parsoidConfig, wikiConfig, prefix,
  */
 MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
 	// This is sometimes a URI, sometimes a prefix.
-	var confSource, uri = this.conf.parsoid.interwikiMap[prefix];
-	this.conf.parsoid.apiURI = uri || this.conf.parsoid.interwikiMap.en;
+	var confSource,
+		uri = this.conf.parsoid.interwikiMap[prefix] ||
+			this.conf.parsoid.interwikiMap.en;
+	this.conf.parsoid.apiURI = uri;
 	this.confCache = this.confCache || {};
 
 	if ( !this.conf.parsoid.fetchConfig ) {
