@@ -1019,7 +1019,7 @@ var normalizeOut = function ( out, parsoidOnly ) {
 		// ignore troublesome attributes
 		out = out.
 			// remove <span typeof="....">....</span>
-			replace(/<span(?: [^>]+)* typeof="mw:(?:Placeholder|Nowiki|Object\/Template|Entity)"(?: [^\0-\cZ\s\"\'>\/=]+(?:="[^"]*")?)*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1').
+			replace(/<span(?:[^>]*) typeof="mw:(?:Placeholder|Nowiki|Object\/Template|Entity)"(?: [^\0-\cZ\s\"\'>\/=]+(?:="[^"]*")?)*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1').
 			replace(/ (data-mw|data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content|title|class)="[^\"]*"/g, '');
 	} else {
 		out = out.
