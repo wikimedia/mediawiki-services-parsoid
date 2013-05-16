@@ -104,7 +104,13 @@ var MWParserEnvironment = function ( parsoidConfig, wikiConfig ) {
 
 	// Tracing object
 	this.tracer = new Tracer(this);
+
+	// Outstanding page requests (for templates etc)
+	this.requestQueue = {};
 };
+
+// Cache for wiki configurations, shared between requests.
+MWParserEnvironment.prototype.confCache = {};
 
 /**
  * @property {Object} page
@@ -188,9 +194,6 @@ MWParserEnvironment.prototype.setPageSrcInfo = function ( src_or_metadata ) {
  * @property {ParsoidConfig} conf.parsoid
  */
 
-// Outstanding page requests (for templates etc)
-// Class-static
-MWParserEnvironment.prototype.requestQueue = {};
 
 /**
  * @method
@@ -280,7 +283,6 @@ MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
 		uri = this.conf.parsoid.interwikiMap[prefix] ||
 			this.conf.parsoid.interwikiMap.en;
 	this.conf.parsoid.apiURI = uri;
-	this.confCache = this.confCache || {};
 
 	if ( !this.conf.parsoid.fetchConfig ) {
 		// Use the name of a cache file as the source of the config.
