@@ -149,6 +149,12 @@ function WikiConfig( resultConf, prefix, uri ) {
 			regexResult = regexResult[1].replace( /\(\.\*\??\)/, '' );
 		}
 
+		if (regexResult === '()') {
+			// At least zh gives us a linktrail value of /^()(.*)$/sD, which
+			// would match anything. Refuse to use such a non-sense regexp.
+			return null;
+		}
+
 		if ( isTrail ) {
 			regexResult = '^' + regexResult;
 		} else {
