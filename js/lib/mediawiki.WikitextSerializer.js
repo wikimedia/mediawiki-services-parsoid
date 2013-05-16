@@ -1032,6 +1032,39 @@ function escapeWikiLinkContentString ( contentString, state ) {
 	return res;
 }
 
+/**
+ * Figure out if the link needs to be protected with <nowiki/> against
+ * unwanted link prefix and -trail parsing.
+ */
+WSP.getLinkPrefixTailEscapes = function (node, env) {
+	// Check if we need to escape against prefixes or tails
+	var prefixEscape = '', tailEscape = '';
+	// Check if we need to escape a link prefix
+	var escapes = {
+		prefix: '',
+		tail: ''
+	};
+	if (env.conf.wiki.linkPrefixRegex &&
+			node.previousSibling &&
+			// TODO: Also handle zero-width content here?
+			node.previousSibling.nodeType === node.TEXT_NODE &&
+			env.conf.wiki.linkPrefixRegex.test(node.previousSibling.nodeValue))
+	{
+		escapes.prefix = '<nowiki/>';
+	}
+
+	// Check if we need to escape a link trail
+	if (env.conf.wiki.linkTrailRegex &&
+			node.nextSibling &&
+			// TODO: Also handle zero-width content here?
+			node.nextSibling.nodeType === node.TEXT_NODE &&
+			env.conf.wiki.linkTrailRegex.test(node.nextSibling.nodeValue))
+	{
+		escapes.tail = '<nowiki/>';
+	}
+	return escapes;
+};
+
 // SSS FIXME: This doesn't deal with auto-inserted start/end tags.
 // To handle that, we have to split every 'return ...' statement into
 // openTagSrc = ...; endTagSrc = ...; and at the end of the function,
@@ -1152,14 +1185,20 @@ WSP.linkHandler = function(node, state, cb) {
 				willUsePipeTrick = canUsePipeTrick && dp.pipetrick;
 			//console.log(linkData.content.string, canUsePipeTrick);
 
+			// Get <nowiki/> escapes to protect against unwanted prefix / tail
+			var escapes = this.getLinkPrefixTailEscapes(node, env);
+
 			if ( canUseSimple ) {
 				// Simple case
 				if ( ! target.modified ) {
-					cb( linkData.prefix + '[[' + target.value + ']]' + linkData.tail, node );
+					cb( escapes.prefix + linkData.prefix +
+							'[[' + target.value + ']]' + linkData.tail + escapes.tail, node );
 					return;
 				} else {
 					contentSrc = escapeWikiLinkContentString(linkData.content.string, state);
-					cb( linkData.prefix + '[[' + contentSrc + ']]' + linkData.tail, node );
+
+					cb( escapes.prefix + linkData.prefix + '[[' + contentSrc + ']]' +
+							linkData.tail + escapes.tail, node );
 					return;
 				}
 			} else {
@@ -1191,7 +1230,9 @@ WSP.linkHandler = function(node, state, cb) {
 					contentSrc = '<nowiki/>';
 				}
 
-				cb( linkData.prefix + '[[' + linkData.target.value + '|' + contentSrc + ']]' + linkData.tail, node );
+				cb( escapes.prefix + linkData.prefix +
+						'[[' + linkData.target.value + '|' + contentSrc + ']]' +
+						linkData.tail + escapes.tail, node );
 				return;
 			}
 		} else if ( rel === 'mw:ExtLink' ) {
