@@ -265,10 +265,10 @@ var roundTripDiff = function ( req, res, env, document ) {
 				}, finalCB );
 };
 
-function handleCacheRequest (env, req, cb, src, err, cacheSrc) {
-	if (err) {
+function handleCacheRequest (env, req, cb, err, src, cacheErr, cacheSrc) {
+	if (cacheErr) {
 		// No luck with the cache request, just proceed as normal.
-		Util.parse(env, cb, null, src);
+		Util.parse(env, cb, err, src);
 		return;
 	}
 	// Extract transclusion and extension content from the DOM
@@ -314,7 +314,7 @@ var parse = function ( env, req, res, cb, err, src_and_metadata ) {
 	// env.page.meta.revision.parentid has the predecessor oldid
 
 	// See if we can reuse transclusion or extension expansions.
-	if (env.conf.parsoid.parsoidCacheURI &&
+	if (!err && env.conf.parsoid.parsoidCacheURI &&
 			// Don't enter an infinite request loop.
 			! /only-if-cached/.test(req.headers['cache-control']))
 	{
@@ -328,9 +328,10 @@ var parse = function ( env, req, res, cb, err, src_and_metadata ) {
 				env.page.meta.revision.parentid,
 			cacheRequest = new libtr.ParsoidCacheRequest(env,
 				env.page.meta.title, cacheID);
-		cacheRequest.once('src', handleCacheRequest.bind(null, env, req, newCb, env.page.src));
+		cacheRequest.once('src',
+				handleCacheRequest.bind(null, env, req, newCb, err, env.page.src));
 	} else {
-		handleCacheRequest(env, req, newCb, env.page.src, "Recursive request", null);
+		handleCacheRequest(env, req, newCb, err, env.page.src, "Recursive request", null);
 	}
 };
 
