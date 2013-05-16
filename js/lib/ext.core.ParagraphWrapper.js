@@ -40,7 +40,10 @@ ParagraphWrapper.prototype.reset = function() {
 	this.hasOpenHTMLPTag = false;
 	this.inPre = false;
 	this.resetCurrLine(true);
-	this.currLine.hasBlockToken = this.options.inBlockToken === undefined ? false : this.options.inBlockToken;
+	// XXX gwicke: This would be simpler if we did the paragraph wrapping on
+	// the DOM
+	this.currLine.hasBlockToken = this.options.inBlockToken === undefined ?
+		false : this.options.inBlockToken;
 };
 
 // constants

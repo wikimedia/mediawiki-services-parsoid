@@ -435,7 +435,7 @@ ParserPipeline.prototype.processToplevelDoc = function(input) {
  * AsyncTokenTransformManager).
  */
 ParserPipeline.prototype.setFrame = function(frame, title, args) {
-	return this.last.setFrame(frame, title, args);
+	return this._applyToStage("setFrame", [frame, title, args]);
 };
 
 /**

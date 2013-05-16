@@ -289,7 +289,8 @@ DDP.markNode = function(node, change) {
 	} else {
 		if (node.nodeType === node.ELEMENT_NODE) {
 			DU.setDiffMark(node, this.env, change);
-		} else if (node.nodeType !== node.TEXT_NODE && node.nodeType !== node.COMMENT_NODE) {
+		} else if (node.nodeType !== node.TEXT_NODE && node.nodeType !== node.COMMENT_NODE &&
+				node.nodeType !== node.DOCUMENT_NODE && node.nodeType !== node.DOCUMENT_TYPE_NODE) {
 			console.error('ERROR: Unhandled node type ' + node.nodeType + ' in markNode!');
 			console.trace();
 			return;

@@ -32,6 +32,9 @@ function ParsoidConfig( localSettings, options ) {
 	// Add mediawiki.org too
 	this.interwikiMap.mw = 'http://www.mediawiki.org/w/api.php';
 
+	// Add localhost too
+	this.interwikiMap.localhost = 'http://localhost/wiki/api.php';
+
 	this.interwikiRegexp = Object.keys( this.interwikiMap ).join( '|' );
 
 	if ( localSettings && localSettings.setup ) {

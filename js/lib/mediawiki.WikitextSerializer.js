@@ -203,7 +203,7 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
 
 		// Ignore non-whitelisted html tags
 		if (t.isHTMLTag()) {
-			if (/mw:Object\/Extension/.test(t.getAttribute("typeof"))) {
+			if (/\bmw:Extension\//.test(t.getAttribute("typeof"))) {
 				return true;
 			}
 			if (!tagWhiteList[t.name.toLowerCase()]) {
@@ -2621,12 +2621,12 @@ WSP._getDOMHandler = function(node, state, cb) {
 	var dp = node.data.parsoid,
 		nodeName = node.nodeName.toLowerCase(),
 		handler,
-		nodeTypeOf = node.getAttribute( 'typeof' ) || '';
+		typeOf = node.getAttribute( 'typeof' ) || '';
 
 	// XXX: Convert into separate handlers?
 	if ( dp.src !== undefined ) {
 		//console.log(node.parentNode.outerHTML);
-		if (nodeTypeOf && nodeTypeOf.match(/\bmw:Object(\/[^\s]+|\b)/)) {
+		if (/\bmw:(?:Transclusion\b|Param\b|Extension\/[^\s]+)/.test(typeOf)) {
 			// Source-based template/extension round-tripping for now
 			return {
 				handle: function () {
@@ -2636,7 +2636,7 @@ WSP._getDOMHandler = function(node, state, cb) {
 					var src, dataMW;
 					if (state.rtTesting) {
 						src = dp.src;
-					} else if (nodeTypeOf.match(/mw:Object\/Ext/)) {
+					} else if (/mw:Extension\//.test(typeOf)) {
 						dataMW = JSON.parse(node.getAttribute("data-mw"));
 						src = !dataMW ? dp.src : state.serializer._buildExtensionWT(state, node, dataMW);
 					} else {
@@ -2660,8 +2660,8 @@ WSP._getDOMHandler = function(node, state, cb) {
 					before: id({min:0, max:2})
 				}
 			};
-		} else if (nodeTypeOf === "mw:Placeholder" ||
-				(nodeTypeOf === "mw:Nowiki" && node.textContent === dp.src )) {
+		} else if (typeOf === "mw:Placeholder" ||
+				(typeOf === "mw:Nowiki" && node.textContent === dp.src )) {
 			// implement generic src round-tripping:
 			// return src, and drop the generated content
 			return {
@@ -2673,7 +2673,7 @@ WSP._getDOMHandler = function(node, state, cb) {
 					}
 				}
 			};
-		} else if (nodeTypeOf === "mw:Entity") {
+		} else if (typeOf === "mw:Entity") {
 			var contentSrc = node.childNodes.length === 1 && node.textContent ||
 								node.innerHTML;
 			return  {
@@ -3408,8 +3408,8 @@ WSP._serializeNode = function( node, state, cb) {
 					state.sep.src = (state.sep.src || '') + newSep;
 
 					// Skip over encapsulated content since it has already been serialized
-					var nodeTypeOf = node.getAttribute( 'typeof' ) || '';
-					if (nodeTypeOf && nodeTypeOf.match(/\bmw:Object(\/[^\s]+|\b)/)) {
+					var typeOf = node.getAttribute( 'typeof' ) || '';
+					if (/\bmw:(?:Transclusion\b|Param\b|Extension\/[^\s]+)/.test(typeOf)) {
 						nextNode = this.skipOverEncapsulatedContent(node);
 					}
 				}

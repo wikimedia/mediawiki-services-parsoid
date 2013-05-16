@@ -102,13 +102,13 @@ Ref.prototype.handleRef = function ( manager, pipelineOpts, refTok, cb ) {
 			da.stx = undefined;
 
 			toks.push(new SelfclosingTagTk( 'meta', [
-				new KV('typeof', 'mw:Ext/Ref/Marker'),
-				new KV('about', about),
-				new KV('group', refOpts.group || ''),
-				new KV('name', refOpts.name || ''),
-				new KV('content', content || ''),
-				new KV('skiplinkback', inReferencesExt ? 1 : 0)
-			], da));
+						new KV('typeof', 'mw:Extension/ref/Marker'),
+						new KV('about', about),
+						new KV('group', refOpts.group || ''),
+						new KV('name', refOpts.name || ''),
+						new KV('content', content || ''),
+						new KV('skiplinkback', inReferencesExt ? 1 : 0)
+						], da));
 
 			// All done!
 			cb({tokens: toks, async: false});
@@ -277,7 +277,7 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 		DU.addAttributes(marker, {
 			'about': '#' + manager.env.newObjectId(),
 			'group': group,
-			'typeof': 'mw:Ext/References/Marker'
+			'typeof': 'mw:Extension/references/Marker'
 		});
 		cb({ tokens: [marker], async: false });
 	};
@@ -301,7 +301,7 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 				var t = chunk[i];
 				if (t.constructor === SelfclosingTagTk &&
 					t.name === 'meta' &&
-					/^mw:Ext\/Ref\/Marker$/.test(t.getAttribute('typeof')))
+					/^mw:Extension\/ref\/Marker$/.test(t.getAttribute('typeof')))
 				{
 					res.push(t);
 				}
@@ -333,8 +333,7 @@ References.prototype.extractRefFromNode = function(node) {
 	// Add ref-index linkback
 	if (!skipLinkback) {
 		var doc = node.ownerDocument,
-			span = doc.createElement('span'),
-			endMeta = doc.createElement('meta');
+			span = doc.createElement('span');
 
 		DU.addAttributes(span, {
 			'about': about,
@@ -350,15 +349,14 @@ References.prototype.extractRefFromNode = function(node) {
 			}),
 			'id': ref.linkbacks[ref.linkbacks.length - 1],
 			'rel': 'dc:references',
-			'typeof': 'mw:Object/Ext/Ref'
+			'typeof': 'mw:Extension/ref'
 		});
-		span.data = { parsoid: { src: node.data.parsoid.src } };
-
-		var tsr = node.data.parsoid.tsr;
-		if (tsr) {
-			span.data.parsoid.tsr = tsr;
-			endMeta.data = { parsoid: { tsr: [null, tsr[1]] } };
-		}
+		span.data = {
+			parsoid: {
+				src: node.data.parsoid.src,
+				dsr: node.data.parsoid.dsr
+			}
+		};
 
 		// refIndex-span
 		node.parentNode.insertBefore(span, node);
@@ -370,13 +368,6 @@ References.prototype.extractRefFromNode = function(node) {
 			'[' + ((group === '') ? '' : group + ' ') + ref.groupIndex + ']'
 		));
 		span.appendChild(refIndex);
-
-		// endMeta
-		DU.addAttributes(endMeta, {
-			'about': about,
-			'typeof': 'mw:Object/Ext/Ref/End'
-		});
-		node.parentNode.insertBefore(endMeta, node);
 	}
 
 	// This effectively ignores content from later references with the same name.
@@ -393,7 +384,6 @@ References.prototype.insertReferencesIntoDOM = function(refsNode) {
 
 	if (refGroup && refGroup.refs.length > 0) {
 		var ol = refsNode.ownerDocument.createElement('ol'),
-			endMeta = refsNode.ownerDocument.createElement('meta'),
 			about = refsNode.getAttribute('about');
 
 		DU.addAttributes(ol, {
@@ -404,26 +394,11 @@ References.prototype.insertReferencesIntoDOM = function(refsNode) {
 			// scenarios where original wikitext was of the form:
 			// "<references> lot of refs here </references>"
 			// Ex: See [[en:Barack Obama]]
-			'typeof': 'mw:Object/Ext/References'
+			'typeof': 'mw:Extension/references'
 		});
 		ol.data = refsNode.data;
 		refGroup.refs.map(refGroup.renderLine.bind(refGroup, ol));
 		refsNode.parentNode.replaceChild(ol, refsNode);
-
-		// Since this has a 'mw:Object/*' typeof, this code will be run
-		// through template encapsulation code.  Add an end-meta after
-		// the list so that that code knows where the references HTML ends.
-		DU.addAttributes(endMeta, {
-			'about': about,
-			'typeof': 'mw:Object/Ext/References/End'
-		});
-		// Set end-tsr on the endMeta so that DSR computation can establish
-		// a valid DSR range on the references section.
-		var tsr = refsNode.data.parsoid.tsr;
-		if (tsr) {
-			endMeta.data = { parsoid: { tsr: [null, tsr[1]] } };
-		}
-		ol.parentNode.insertBefore(endMeta, ol.nextSibling);
 	} else {
 		// Not a valid references tag -- convert it to a placeholder tag that will rt as is.
 		refsNode.setAttribute('typeof', 'mw:Placeholder');

@@ -1558,7 +1558,13 @@ ParserTests.prototype.processCase = function ( i, options ) {
 					process.nextTick( nextCallback );
 					break;
 				case 'hooks':
-					console.warn('parserTests: Unhandled hook ' + JSON.stringify( item ) );
+					var hooks = item.text.split(/\n/), self = this;
+					hooks.forEach(function(hook) {
+						console.warn('parserTests: Adding extension hook ' +
+							JSON.stringify(hook) );
+						self.env.conf.wiki.addExtensionTag( hook );
+					});
+					process.nextTick( nextCallback );
 					break;
 				case 'functionhooks':
 					console.warn('parserTests: Unhandled functionhook ' + JSON.stringify( item ) );

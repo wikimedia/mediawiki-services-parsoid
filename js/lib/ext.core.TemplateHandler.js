@@ -46,23 +46,30 @@ TemplateHandler.prototype.register = function ( manager ) {
 };
 
 /**
- * Encapsulate an expansion DOM fragment with a generic mw:Object/DOMFragment
+ * Encapsulate an expansion DOM fragment with a generic mw:DOMFragment
  * wrapper that is later unpacked in the DOMPostProcessor. Used both for
  * transclusion and extension content.
  */
 TemplateHandler.prototype.encapsulateExpansionHTML = function(extToken, expansion) {
-	var toks = DU.getWrapperTokens(expansion.nodes);
+	var toks = DU.getWrapperTokens(expansion.nodes),
+		about = this.manager.env.newObjectId();
+	// Assign the HTML fragment to the data-parsoid.html on the first
+	// wrapper token.
+	// FIXME: figure out why template encapsulation sometimes uses the wrapper
+	// data-parsoid, and sometimes that of the first wrapped element!
+	toks[0].dataAttribs.html = expansion.html;
+	// Add the DOMFragment type so that we get unwrapped later
+	toks[0].setAttribute('typeof', 'mw:DOMFragment');
 
-	var state = { token: extToken };
-	state.wrapperType = 'mw:Object/DOMFragment';
-	state.wrappedObjectId = this.manager.env.newObjectId();
-	toks = this.addEncapsulationInfo(state, toks);
-	toks.push(this.getEncapsulationInfoEndTag(state));
-	// Assign the HTML fragment to the data-parsoid.html on the
-	// wrapper meta token. Its data-parsoid will be transferred to
-	// the wrapper during regular template encapsulation.
+	// FIXME: figure out why template encapsulation sometimes uses the wrapper
+	// data-parsoid, and sometimes that of the first wrapped element!
 	toks[0].dataAttribs.html = expansion.html;
 	//console.log(expansion.html, toks);
+
+	// Add the about to all wrapper tokens
+	toks.forEach(function(tok) {
+		tok.setAttribute('about', about);
+	});
 	return toks;
 };
 
@@ -89,10 +96,22 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 
 	var state = { token: token };
 	if (this.options.wrapTemplates) {
-		state.wrapperType = 'mw:Object/Template';
+		state.wrapperType = 'mw:Transclusion';
 		state.recordArgDict = true;
 		state.wrappedObjectId = this.manager.env.newObjectId();
 		state.emittedFirstChunk = false;
+
+		// Uncomment to use DOM-based template expansion
+		// TODO gwicke: Determine when to use this!
+		// - Collect stats per template and classify templates into
+		// balanced/unbalanced ones based on it
+		// - Always force nesting for new templates inserted by the VE
+		//state.srcCB = this._startDocumentPipeline;
+
+		// Default to 'safe' token-based template encapsulation for now.
+		state.srcCB = this._startTokenPipeline;
+	} else {
+		state.srcCB = this._startTokenPipeline;
 	}
 
 	if ( this.manager.env.conf.parsoid.usePHPPreProcessor &&
@@ -110,7 +129,7 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 			// that we get from the preprocessor.
 			var text = token.dataAttribs.src,
 				templateName = (this.resolveTemplateTarget(state, token.attribs[0].k) || '').target || "",
-				srcHandler = this._processTemplateAndTitle.bind(
+				srcHandler = state.srcCB.bind(
 					this, state, frame, cb,
 					{ name: templateName, attribs: [], cacheKey: text });
 			// Check if we have an expansion for this template in the cache
@@ -121,7 +140,7 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 				var expansion = this.manager.env.transclusionCache[text],
 					toks = this.encapsulateExpansionHTML(token, expansion);
 
-				cb({ tokens: [toks] });
+				cb({ tokens: toks });
 			} else {
 				this.fetchExpandedTpl( this.manager.env.page.name || '',
 						text, PreprocessorRequest, cb, srcHandler);
@@ -371,17 +390,56 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 
 	// For now, just fetch the template and pass the callback for further
 	// processing along.
-	var srcHandler = this._processTemplateAndTitle.bind(
+	var srcHandler = state.srcCB.bind(
 		this, state, frame, cb,
 		{ name: target, attribs: attribs, cacheKey: target }
 	);
 	this._fetchTemplateAndTitle( target, cb, srcHandler );
 };
+/**
+ * Process a fetched template source to a document, enforcing proper nesting
+ * along the way.
+ */
+TemplateHandler.prototype._startDocumentPipeline = function( state, frame, cb, tplArgs, err, src )
+{
+	// We have a choice between aborting or keeping going and reporting the
+	// error inline.
+	// TODO: report as special error token and format / remove that just
+	// before the serializer. (something like <mw:error ../> as source)
+	if ( err ) {
+		src = '';
+		//this.manager.env.errCB(err);
+	}
+	// Pipeline for processing ext-content
+	var pipeline = this.manager.pipeFactory.getPipeline(
+			// Full pipeline all the way to DOM
+			'text/x-mediawiki/full',
+			{
+				isInclude: true,
+				// we *might* be able to get away without this if we transfer
+				// more than just the about when unwrapping
+				wrapTemplates: false,
+				// suppress paragraphs
+				// Should this be the default in all cases?
+				inBlockToken: true
+			});
+	pipeline.setFrame( this.manager.frame, tplArgs.name, tplArgs.attribs );
+	state.tokenTarget = tplArgs.name;
+
+	pipeline.addListener('document', this._onDocument.bind(this, state, cb));
+	this.manager.env.dp( 'TemplateHandler._startDocumentPipeline', tplArgs.name, tplArgs.attribs );
+	pipeline.process ( src, tplArgs.cacheKey );
+};
 
 /**
- * Process a fetched template source
+ * Process a fetched template source to a token stream
  */
-TemplateHandler.prototype._processTemplateAndTitle = function( state, frame, cb, tplArgs, err, src, type ) {
+TemplateHandler.prototype._startTokenPipeline = function( state, frame, cb, tplArgs, err, src, type )
+{
+	// The type parameter is passed in from the src fetcher. Typically it is
+	// 'text/x-mediawiki' since we are fetching wikitext (search for it in
+	// ApiRequest). We can probably remove it even, as it seems unlikely that
+	// we will ever have other input types here.
 
 	// We have a choice between aborting or keeping going and reporting the
 	// error inline.
@@ -417,7 +475,7 @@ TemplateHandler.prototype._processTemplateAndTitle = function( state, frame, cb,
 	pipeline.addListener( 'chunk', this._onChunk.bind ( this, state, cb ) );
 	pipeline.addListener( 'end', this._onEnd.bind ( this, state, cb ) );
 	// Feed the pipeline. XXX: Support different formats.
-	this.manager.env.dp( 'TemplateHandler._processTemplateAndTitle', tplArgs.name, tplArgs.attribs );
+	this.manager.env.dp( 'TemplateHandler._startTokenPipeline', tplArgs.name, tplArgs.attribs );
 	pipeline.process ( src, tplArgs.cacheKey );
 };
 
@@ -443,7 +501,7 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 	// * add uid as id and about to first element
 	//	id == about marks first element
 	// * ref all tables to this (just add about)
-	// * ref end token to this, add property="mw:Object/Template/End"
+	// * ref end token to this, add property="mw:Transclusion/End"
 
 	var done = false,
 		attrs = [
@@ -457,42 +515,13 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 		};
 
 	if (state.recordArgDict) {
-		var src = this.manager.env.page.src,
-			params = state.token.attribs,
-			dict = {},
-			argIndex = 1;
-
-		// Use source offsets to extract arg-name and arg-value wikitext
-		// since the 'k' and 'v' values in params will be expanded tokens
-		//
-		// Ignore params[0] -- that is the template name
-		for (var i = 1, n = params.length; i < n; i++) {
-			var srcOffsets = params[i].srcOffsets;
-			var name;
-			if (srcOffsets[0] === srcOffsets[1]) {
-				name = argIndex.toString();
-				argIndex++;
-			} else {
-				name = src.substring(srcOffsets[0], srcOffsets[1]);
-			}
-
-			dict[name] = { wt: src.substring(srcOffsets[2], srcOffsets[3]) };
-		}
-
-		var tplTgtSrcOffsets = params[0].srcOffsets,
-			tplTgtWT = src.substring(tplTgtSrcOffsets[0], tplTgtSrcOffsets[1]);
-
+		// Get the arg dict
+		var argDict = this.getArgDict(state);
+		// Add in the resolved static target, if available
+		argDict.target.url = state.resolvedStaticTarget;
 		// Use a data-attribute to prevent the sanitizer from stripping this
 		// attribute before it reaches the DOM pass where it is needed.
-		attrs.push(new KV("data-mw-arginfo", JSON.stringify({
-			// gwicke: Removed the non-deterministic id member for now as this
-			// makes the data-mw attribute non-deterministic across reparses.
-			// That in turn triggers diffs. See
-			// https://bugzilla.wikimedia.org/show_bug.cgi?id=47426.
-			//id: state.wrappedObjectId,
-			target: { wt: tplTgtWT, url: state.resolvedStaticTarget },
-			params: dict
-		})));
+		attrs.push(new KV("data-mw-arginfo", JSON.stringify(argDict)));
 	}
 
 	if ( chunk.length ) {
@@ -608,6 +637,103 @@ TemplateHandler.prototype._onEnd = function( state, cb ) {
 };
 
 /**
+ * Handle the sub-DOM produced by a DOM-based template expansion
+ *
+ * This uses the same encapsulation mechanism as we use for template expansion
+ * recycling.
+ */
+TemplateHandler.prototype._onDocument = function(state, cb, doc) {
+	//console.log('_onDocument:', doc.body.outerHTML.substr(0, 100));
+	var nodes = doc.body.childNodes;
+
+	if (nodes.length === 0) {
+		// RT extensions expanding to nothing.
+		nodes = [doc.createElement('link')];
+	}
+	// Wrap blank text nodes into spans
+	nodes = DU.addSpanWrappers(nodes);
+
+	var firstNode = nodes[0];
+
+	// Add the wrapper attributes to the first element
+	firstNode.setAttribute('typeof', state.wrapperType);
+	firstNode.setAttribute('data-parsoid', JSON.stringify(
+		{
+			tsr: Util.clone(state.token.dataAttribs.tsr),
+			src: state.token.dataAttribs.src
+		}
+	));
+	firstNode.setAttribute('data-mw',
+			JSON.stringify(this.getArgDict(state)));
+
+	function outerHTML (n) {
+		return n.outerHTML;
+	}
+	var expansion = {
+		nodes: nodes,
+		html: nodes.map(outerHTML).join('')
+	};
+	// Get placeholder tokens to get our subdom through the token processing
+	// stages. These will be finally unwrapped on the DOM.
+	var toks = this.encapsulateExpansionHTML(state.token, expansion);
+
+	//console.log('toks', JSON.stringify(toks, null, 2));
+	// All done for this template, so perform a callback without async: set.
+	cb({ tokens: toks });
+};
+
+/**
+ * Get the public data-mw structure that exposes the template name and
+ * -parameters
+ */
+TemplateHandler.prototype.getArgDict = function (state) {
+	var src = this.manager.env.page.src,
+		params = state.token.attribs,
+		dict = {},
+		argIndex = 1;
+
+	// Use source offsets to extract arg-name and arg-value wikitext
+	// since the 'k' and 'v' values in params will be expanded tokens
+	//
+	// Ignore params[0] -- that is the template name
+	for (var i = 1, n = params.length; i < n; i++) {
+		var srcOffsets = params[i].srcOffsets;
+		var name;
+		if (srcOffsets) {
+			if (srcOffsets[0] === srcOffsets[1]) {
+				name = argIndex.toString();
+				argIndex++;
+			} else {
+				name = src.substring(srcOffsets[0], srcOffsets[1]);
+			}
+
+			dict[name] = { wt: src.substring(srcOffsets[2], srcOffsets[3]) };
+		} else {
+			dict[params[i].k] = params[i].v;
+		}
+
+	}
+
+	var tplTgtSrcOffsets = params[0].srcOffsets;
+	if (tplTgtSrcOffsets) {
+		var tplTgtWT = src.substring(tplTgtSrcOffsets[0], tplTgtSrcOffsets[1]);
+		return {
+			// gwicke: Removed the non-deterministic id member for now as this
+			// makes the data-mw attribute non-deterministic across reparses.
+			// That in turn triggers diffs. See
+			// https://bugzilla.wikimedia.org/show_bug.cgi?id=47426.
+			//id: state.wrappedObjectId,
+			target: { wt: tplTgtWT },
+				params: dict
+		};
+	} else {
+		return {
+			'attrs': dict
+		};
+	}
+};
+
+/**
  * Fetch a template
  */
 TemplateHandler.prototype._fetchTemplateAndTitle = function ( title, parentCB, cb ) {
@@ -699,7 +825,7 @@ TemplateHandler.prototype.onTemplateArg = function (token, frame, cb) {
 			var toks = res.tokens;
 			var state = {
 				token: token,
-				wrapperType: "mw:Object/Param",
+				wrapperType: "mw:Param",
 				wrappedObjectId: tplHandler.manager.env.newObjectId()
 			};
 			toks = tplHandler.addEncapsulationInfo(state, toks);

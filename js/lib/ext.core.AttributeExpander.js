@@ -38,13 +38,13 @@ function stripMetaTags( tokens, wrapTemplates ) {
 
 				// If we are in wrap-template mode, extract info from the meta-tag
 				var t = token.getAttribute("typeof");
-				var typeMatch = t && t.match(/(mw:(Object\/?|Includes\/)(.*)?$)/);
+				var typeMatch = t && t.match(/(mw:(Transclusion|Param|Extension|Includes\/)(.*)?$)/);
 				if (typeMatch) {
 					if (typeMatch[1].match(/\/End$/)) {
 						inTpl = false;
 						inInclude = false;
 					} else {
-						inTpl = typeMatch[1].match(/Object/);
+						inTpl = typeMatch[1].match(/Transclusion|Param|Extension/);
 						inInclude = !inTpl;
 					}
 
@@ -309,8 +309,11 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 				tokenId = "#" + this.manager.env.newObjectId();
 				token.addAttribute("about", tokenId);
 				var objType;
-				if (producerObjType.match("mw:Object/")) {
-					objType = producerObjType.substring("mw:Object/".length);
+				var producerObjTypeMatch = producerObjType.match(
+						"mw:(Transclusion|Param|Extension)"
+						);
+				if (producerObjTypeMatch) {
+					objType = producerObjTypeMatch[1];
 				} else {
 					objType = producerObjType.substring("mw:Includes/".length);
 				}

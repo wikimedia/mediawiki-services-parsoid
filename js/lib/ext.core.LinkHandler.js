@@ -215,7 +215,7 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 
 				// Update typeof
 				obj.addSpaceSeparatedAttribute("typeof",
-					"mw:ExpandedAttrs/" + producerInfo.v[0].substring("mw:Object/".length));
+					"mw:ExpandedAttrs/" + producerInfo.v[0].match(/mw:(.*)/)[1]);
 
 				// Update producer meta-token and add it to the token stream
 				var metaToken = producerInfo.v[1];

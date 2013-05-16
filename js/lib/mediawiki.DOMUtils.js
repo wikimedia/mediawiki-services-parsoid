@@ -24,6 +24,46 @@ var DOMUtils = {
 		return node && Util.isBlockTag(node.nodeName.toLowerCase());
 	},
 
+	/**
+	 * Add a type to the typeof attribute. This method works for both tokens
+	 * and DOM nodes as it only relies on getAttribute and setAttribute, which
+	 * are defined for both.
+	 */
+	addTypeOf: function(node, type) {
+		var typeOf = node.getAttribute('typeof');
+		if (typeOf) {
+			var types = typeOf.split(' ');
+			if (types.indexOf(type) === -1) {
+				// not in type set yet, so add it.
+				types.push(type);
+			}
+			node.setAttribute('typeof', types.join(''));
+		} else {
+			node.setAttribute(type);
+		}
+	},
+
+	/**
+	 * Remove a type from the typeof attribute. This method works on both
+	 * tokens and DOM nodes as it only relies on
+	 * getAttribute/setAttribute/removeAttribute
+	 */
+	removeTypeOf: function(node, type) {
+		var typeOf = node.getAttribute('typeof');
+		function notType (t) {
+			return t !== type;
+		}
+		if (typeOf) {
+			var types = typeOf.split(' ').filter(notType);
+
+			if (types.length) {
+				node.setAttribute('typeof', types.join(''));
+			} else {
+				node.removeAttribute('typeof');
+			}
+		}
+	},
+
 	// Decode a JSON object into the data member of DOM nodes
 	loadDataAttrib: function(node, name, defaultVal) {
 		if ( node.nodeType !== node.ELEMENT_NODE ) {
@@ -228,7 +268,7 @@ var DOMUtils = {
 	},
 
 	isTplMetaType: function(nType)  {
-		return nType && nType.match(/\bmw:Object(\/[^\s]+)*\b/);
+		return nType && nType.match(/\bmw:Transclusion(\/[^\s]+)*\b/);
 	},
 
 	isExpandedAttrsMetaType: function(nType) {
@@ -245,7 +285,7 @@ var DOMUtils = {
 	isTplStartMarkerMeta: function(n)  {
 		if (this.hasNodeName(n, "meta")) {
 			var t = n.getAttribute("typeof");
-			var tMatch = t && t.match(/\bmw:Object(\/[^\s]+)*\b/);
+			var tMatch = t && t.match(/\bmw:Transclusion(\/[^\s]+)*\b/);
 			return tMatch && !t.match(/\/End\b/);
 		} else {
 			return false;
@@ -255,7 +295,7 @@ var DOMUtils = {
 	isTplEndMarkerMeta: function(n)  {
 		if (this.hasNodeName(n, "meta")) {
 			var t = n.getAttribute("typeof");
-			return t && t.match(/\bmw:Object(\/[^\s]+)*\/End\b/);
+			return t && t.match(/\bmw:Transclusion(\/[^\s]+)*\/End\b/);
 		} else {
 			return false;
 		}
@@ -682,16 +722,13 @@ var DOMUtils = {
 				if (node.nodeType === node.ELEMENT_NODE) {
 					var typeOf = node.getAttribute('typeof'),
 						about = node.getAttribute('about');
-					// XXX gwicke: Cite seems to use mw:Object/Ext/Ref, while
-					// other extensions use mw:Object/Extensions/<tag>? Use
-					// only one and remove the other from this regexp!
-					if (/\b(?:mw:Object\/Template\b|mw:Object\/Ext\/|mw:Object\/Extension\/)/
+					if (/\b(?:mw:(?:Transclusion\b|Extension\/)/
 							.test(typeOf) && about)
 					{
 						DOMUtils.loadDataParsoid(node);
 						nodes = getAboutSiblings(node, about);
 						var key;
-						if (/\bmw:Object\/Template\b/.test(typeOf)) {
+						if (/\bmw:Transclusion\b/.test(typeOf)) {
 							expAccum = expansions.transclusions;
 							key = node.data.parsoid.src;
 						} else {
@@ -699,10 +736,12 @@ var DOMUtils = {
 							key = node.data.parsoid.src;
 						}
 
-						expAccum[key] = {
-							nodes: nodes,
-							html: nodes.map(outerHTML).join('')
-						};
+						if (key) {
+							expAccum[key] = {
+								nodes: nodes,
+								html: nodes.map(outerHTML).join('')
+							};
+						}
 						node = nodes.last();
 					} else {
 						doExtractExpansions(node.firstChild);
@@ -732,7 +771,9 @@ var DOMUtils = {
 
 		function wrapAccum () {
 			// Wrap accumulated nodes in a span
-			var span = doc.createElement('span');
+			var span = doc.createElement('span'),
+				parentNode = textCommentAccum[0].parentNode;
+			parentNode.insertBefore(span, textCommentAccum[0]);
 			textCommentAccum.forEach( function(n) {
 				span.appendChild(n);
 			});
@@ -772,7 +813,9 @@ var DOMUtils = {
 				// copy over attributes
 				for (var i = 0; i < node.attributes.length; i++) {
 					var attribute = node.attributes.item(i);
-					workNode.setAttribute(attribute.name, attribute.value);
+					if (attribute.name !== 'typeof') {
+						workNode.setAttribute(attribute.name, attribute.value);
+					}
 				}
 				// dataAttribs are not copied over so that we don't inject
 				// broken tsr or dsr values. This also lets these tokens pass
@@ -805,12 +848,22 @@ var DOMUtils = {
 			tokens = tokens.concat(makeWrapperForNode(nodes.last()));
 		}
 
-		// Remove the typeof attribute from the first token
+		// Remove the typeof attribute from the first token. It will be
+		// replaced with mw:DOMFragment.
 		tokens[0].removeAttribute('typeof');
 
 		return tokens;
 	}
 };
+
+
+/**
+ * Check if an element is a HTML element.
+ */
+DOMUtils.isHtmlElement = function (node) {
+	return Util.isHTMLElementName(node.nodeName);
+};
+
 
 if (typeof module === "object") {
 	module.exports.DOMUtils = DOMUtils;

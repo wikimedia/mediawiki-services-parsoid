@@ -115,22 +115,23 @@ DOMTraverser.prototype.callHandlers = function ( node ) {
 		if ( this.handlers[ix].name === null ||
 				this.handlers[ix].name === name ) {
 			result = this.handlers[ix].run( node );
-			if ( result === false ) {
-				// signal that a node was deleted or children should be skipped
-				return false;
-			} else if ( result !== undefined ) {
-				// some handlers might mutate/replace node.
-				node = result;
+			if ( result || result === false ) {
+				// abort processing for this node
+				return result;
 			}
 		}
 	}
-	return node;
 };
 
 /**
  * Traverse the DOM and fire the handlers that are registered
  */
 DOMTraverser.prototype.traverse = function ( node ) {
+	if (node.nodeType === node.DOCUMENT_NODE) {
+		// skip to body
+		node = node.body;
+	}
+
 	var nextChild, child = node.firstChild;
 	var result;
 
@@ -138,17 +139,26 @@ DOMTraverser.prototype.traverse = function ( node ) {
 		nextChild = child.nextSibling;
 		result = this.callHandlers( child );
 
-		// result is false if child is deleted or children should be skipped
-		if ( result !== false ) {
+		// Handlers can return
+		// - the next node to process (aborts processing for current node)
+		// - false for the next node (aborts processing for current node)
+		// - undefined / no return (continue processing for current node)
+		if ( result ) {
+			// Continue to work on the returned node
 			child = result;
-			nextChild = child.nextSibling;
-
-			if ( child.parentNode !== null && DU.isElt(child) && child.childNodes.length > 0 ) {
-				this.traverse( child );
+		} else {
+			if ( result === undefined ) {
+				// handle children
+				if ( child.parentNode !== null &&
+						DU.isElt(child) &&
+						child.childNodes.length > 0 )
+				{
+					this.traverse( child );
+				}
 			}
+			// Move on to the next child
+			child = nextChild;
 		}
-
-		child = nextChild;
 	}
 };
 
@@ -636,7 +646,7 @@ function handlePres(document, env) {
 							deleteIndentPreFromDOM(n);
 							processed = true;
 						}
-					} else if (n.getAttribute("typeof") === "mw:Object/Ext/References") {
+					} else if (n.getAttribute("typeof") === "mw:Extension/References") {
 						// SSS FIXME: This may no longer be added after we started
 						// stripping leading whitespace in refs in ext.Cite.js.
 						// Verify and get rid of this special case.
@@ -752,7 +762,7 @@ function migrateTrailingNLs(elt, env) {
 				break;
 			}
 
-			if (type && (DU.isTplMetaType(type) || type.match(/\b(mw:Includes|mw:Ext\/)/))) {
+			if (type && (DU.isTplMetaType(type) || type.match(/\b(mw:Includes|mw:Extension\/)/))) {
 				break;
 			}
 
@@ -1026,9 +1036,9 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 		if (DU.hasNodeName(meta, 'meta')) {
 			deleteNode(meta);
 		} else {
-			// Remove mw:Object/* from the typeof
+			// Remove mw:* from the typeof
 			var type = meta.getAttribute("typeof");
-			type = type.replace(/\bmw:Object?(\/[^\s]+|\b)/, '');
+			type = type.replace(/\bmw:[^\/]*(\/[^\s]+|\b)/, '');
 			meta.setAttribute("typeof", type);
 		}
 	}
@@ -1412,7 +1422,8 @@ function encapsulateTemplates( env, doc, tplRanges, tplArrays) {
 		// of the template.
 		// However, tcStart (= range.start), even if a meta, need not be
 		// a marker meta added for the template.
-		if (DU.hasNodeName(startElem, "meta")) {
+		if (DU.hasNodeName(startElem, "meta") &&
+				/\bmw:(:?Transclusion|Param)\b/.test(startElem.getAttribute('typeof'))) {
 			deleteNode(startElem);
 		}
 
@@ -1470,7 +1481,7 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 		if ( elem.nodeType === Node.ELEMENT_NODE ) {
 			var type = elem.getAttribute( 'typeof' ),
 				// SSS FIXME: This regexp differs from that in isTplMetaType
-				metaMatch = type ? type.match( /\b(mw:Object(?:\/[^\s]+|\b))/ ) : null;
+				metaMatch = type ? type.match( /\b(mw:(?:Transclusion|Param)(\/[^\s]+)?)\b/ ) : null;
 
 			// Ignore templates without tsr.
 			//
@@ -2335,19 +2346,25 @@ function encapsulateTemplateOutput( document, env ) {
 		tplRanges = findTopLevelNonOverlappingRanges(env, document, tplRanges);
 		encapsulateTemplates(env, document, tplRanges.ranges, tplRanges.tplArrays);
 	}
+	if (psd.debug || (psd.dumpFlags && (psd.dumpFlags.indexOf("dom:post-encap") !== -1))) {
+		console.warn("------ DOM: post-encapsulation -------");
+		dumpDomWithDataAttribs( document );
+		console.warn("----------------------------");
+	}
 }
 
 function stripMarkerMetas(node) {
-	// Sometimes a non-tpl meta node might get the mw:Object/Template typeof
+	// Sometimes a non-tpl meta node might get the mw:Transclusion typeof
 	// element attached to it. So, check the property to make sure it is not
 	// of those metas before deleting it.
 	//
 	// Ex: {{compactTOC8|side=yes|seealso=yes}} generates a mw:PageProp/notoc meta
-	// that gets the mw:Object/Template typeof attached to it.  It is not okay to
+	// that gets the mw:Transclusion typeof attached to it.  It is not okay to
 	// delete it!
 	var metaType = node.getAttribute("typeof");
 	if (metaType &&
-		metaType.match(/^\bmw:(Object|StartTag|EndTag|TSRMarker|Ext)\/?[^\s]*\b/) &&
+		// TODO: Use /Start for all Transclusion / Param markers!
+		metaType.match(/\bmw:(StartTag|EndTag|Extension\/(?:ref|references)\/Marker|TSRMarker)\/?[^\s]*\b/) &&
 		!node.getAttribute("property"))
 	{
 		deleteNode(node);
@@ -2362,21 +2379,44 @@ function stripMarkerMetas(node) {
 function unpackDOMFragments(node) {
 	if (node.nodeType === node.ELEMENT_NODE) {
 		var typeOf = node.getAttribute('typeof'),
-			about = node.getAttribute('about');
-		if (/\bmw:Object\/DOMFragment\b/.test(typeOf)) {
+			about = node.getAttribute('about'),
+			lastNode = node;
+		if (/\bmw:DOMFragment\b/.test(typeOf)) {
 			// Replace this node and possibly a sibling with node.dp.html
 			var parentNode = node.parentNode,
 				// Use a div rather than a p, as the p might be stripped out
 				// later if the children are block-level.
 				dummyName = parentNode.nodeName !== 'P' ? parentNode.nodeName : 'div',
 				dummyNode = node.ownerDocument.createElement(dummyName);
+			if (!node.data || !node.data.parsoid) {
+				// FIXME gwicke: This normally happens on Fragment content
+				// inside other Fragment content. Print out some info about
+				// the culprit for now.
+				var out = 'undefined data.parsoid: ',
+					workNode = node;
+				while(workNode && workNode.getAttribute) {
+					out += workNode.nodeName + '-' +
+						workNode.getAttribute('about') + '-' +
+						workNode.getAttribute('typeof') + '|';
+					workNode = workNode.parentNode;
+				}
+				DU.loadDataParsoid(node);
+			}
+			var html = node.data.parsoid.html;
+			if (!html) {
+				// Most likely a multi-part template
+				console.error('no html!');
+				return;
+			}
 			dummyNode.innerHTML = node.data.parsoid.html;
 
-			// get rid of a sibling (simplifies logic below)
+			// get rid of the wrapper sibling (simplifies logic below)
 			var sibling = node.nextSibling;
 			if (sibling && sibling.nodeType === node.ELEMENT_NODE &&
 					sibling.getAttribute('about') === node.getAttribute('about'))
 			{
+				// remove optional second element added by wrapper tokens
+				lastNode = sibling;
 				deleteNode(sibling);
 			}
 
@@ -2408,19 +2448,27 @@ function unpackDOMFragments(node) {
 			}
 
 			// Transfer the new dsr
-			DU.loadDataParsoid(dummyNode.firstChild);
-			dummyNode.firstChild.data.parsoid.dsr = node.data.parsoid.dsr;
+			var firstChild = dummyNode.firstChild;
+			DU.loadDataParsoid(firstChild);
+			if (!firstChild.data.parsoid) {
+				console.log(node.data.parsoid, dummyNode.outerHTML);
+			}
+			firstChild.data.parsoid.dsr = node.data.parsoid.dsr;
 
 			// Move the old content nodes over from the dummyNode
-			while (dummyNode.firstChild) {
+			while (firstChild) {
 				// Transfer the about attribute so that it is still unique in
 				// the page
-				dummyNode.firstChild.setAttribute('about', about);
-				parentNode.insertBefore(dummyNode.firstChild, node);
+				firstChild.setAttribute('about', about);
+				// Load data-parsoid for all children
+				DU.loadDataParsoid(firstChild);
+				parentNode.insertBefore(firstChild, node);
+				firstChild = dummyNode.firstChild;
 			}
 			// And delete the placeholder node
+			var nextNode = node.nextSibling;
 			deleteNode(node);
-			return false;
+			return nextNode;
 		}
 	}
 }
@@ -2429,13 +2477,15 @@ function generateReferences(refsExt, node) {
 	var child = node.firstChild;
 	while (child !== null) {
 		var nextChild = child.nextSibling;
-
-		if (DU.isMarkerMeta(child, "mw:Ext/Ref/Marker")) {
-			refsExt.extractRefFromNode(child);
-		} else if (DU.isMarkerMeta(child, "mw:Ext/References/Marker")) {
-			refsExt.insertReferencesIntoDOM(child);
-		} else if (DU.isElt(child) && child.childNodes.length > 0) {
-			generateReferences(refsExt, child);
+		if (DU.isElt(child)) {
+			var typeOf = child.getAttribute('typeof');
+			if (typeOf === 'mw:Extension/ref/Marker') {
+				refsExt.extractRefFromNode(child);
+			} else if (typeOf === 'mw:Extension/references/Marker') {
+				refsExt.insertReferencesIntoDOM(child);
+			} else if (child.childNodes.length > 0) {
+				generateReferences(refsExt, child);
+			}
 		}
 
 		child = nextChild;
@@ -2587,7 +2637,7 @@ function handleLinkNeighbours( env, node ) {
 			}
 		}
 	}
-	return node; // indicate that node's siblings have been mutated
+	return node.nextSibling; // indicate that node's siblings have been mutated
 }
 
 /**
@@ -2643,8 +2693,6 @@ function DOMPostProcessor(env, options) {
 		migrateTrailingNLs
 	];
 
-	// Generate references before DSR & template encapsulation
-	this.processors.push(generateReferences.bind(null, env.conf.parsoid.nativeExtensions.cite.references));
 
 	if (options.wrapTemplates) {
 		// dsr computation and tpl encap are only relevant
@@ -2653,6 +2701,7 @@ function DOMPostProcessor(env, options) {
 		this.processors.push(encapsulateTemplateOutput);
 	}
 
+
 	// DOM traverser for passes that can be combined and will run at the end
 	// 1. Link prefixes and suffixes
 	// 2. Strip marker metas -- removes left over marker metas (ex: metas
@@ -2660,11 +2709,15 @@ function DOMPostProcessor(env, options) {
 	// 3. Unpack DOM fragments (reused transclusion and extension content)
 	var lastDOMHandler = new DOMTraverser();
 	lastDOMHandler.addHandler( 'a', handleLinkNeighbours.bind( null, env ) );
-	lastDOMHandler.addHandler( 'meta', stripMarkerMetas );
 	lastDOMHandler.addHandler( null, unpackDOMFragments );
 	this.processors.push(lastDOMHandler.traverse.bind(lastDOMHandler));
 
+	// A pure DOM transformation
+	this.processors.push(generateReferences.bind(null,
+				env.conf.parsoid.nativeExtensions.cite.references));
+
 	var dataParsoidSaver = new DOMTraverser();
+	dataParsoidSaver.addHandler( 'meta', stripMarkerMetas );
 	dataParsoidSaver.addHandler( null, saveDataParsoid );
 	this.processors.push(dataParsoidSaver.traverse.bind(dataParsoidSaver));
 }

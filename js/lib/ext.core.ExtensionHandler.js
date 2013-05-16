@@ -48,21 +48,24 @@ ExtensionHandler.prototype.rank = 1.11;
  */
 ExtensionHandler.prototype.parseExtensionHTML = function(extToken, cb, err, html) {
 	// document -> html -> body -> children
-	var topNodes = Util.parseHTML(html).body.childNodes;
-	var toks = [];
-	for (var i = 0, n = topNodes.length; i < n; i++) {
-		toks = DOMUtils.convertDOMtoTokens(toks, topNodes[i]);
-	}
+	var doc = Util.parseHTML(html),
+		topNodes = doc.body.childNodes,
+		toks = [];
+
 
 	var state = { token: extToken };
 	if (this.options.wrapTemplates) {
-		state.wrapperType = 'mw:Object/Extension/' + extToken.getAttribute('name');
+		state.wrapperType = 'mw:Extension/' + extToken.getAttribute('name');
 		state.wrappedObjectId = this.manager.env.newObjectId();
-		toks = this.addEncapsulationInfo(state, toks);
-		toks.push(this.getEncapsulationInfoEndTag(state));
-	}
+		// DOMFragment-based encapsulation.
+		this._onDocument(state, cb, doc);
+	} else {
+		for (var i = 0, n = topNodes.length; i < n; i++) {
+			toks = DOMUtils.convertDOMtoTokens(toks, topNodes[i]);
+		}
 
-	cb({ tokens: [new defines.InternalTk([new KV('tokens', toks)])] });
+		cb({ tokens: [new defines.InternalTk([new KV('tokens', toks)])] });
+	}
 };
 
 /**
@@ -104,7 +107,9 @@ ExtensionHandler.prototype.onExtension = function ( token, frame, cb ) {
 		// cache hit. Reuse extension expansion.
 		var toks = this.encapsulateExpansionHTML(token, cachedExpansion);
 		cb({ tokens: toks });
-	} else if ( this.manager.env.conf.parsoid.expandExtensions ) {
+	} else if ( this.manager.env.conf.parsoid.expandExtensions &&
+			this.manager.env.conf.parsoid.usePHPPreProcessor )
+	{
 		// Use MediaWiki's action=parse preprocessor
 		this.fetchExpandedExtension(
 			extensionName,
@@ -115,7 +120,7 @@ ExtensionHandler.prototype.onExtension = function ( token, frame, cb ) {
 	} else {
 		/* Convert this into a span with extension content as plain text */
 		var span = new TagTk('span', [
-					new KV('typeof', 'mw:Object/Extension/' + extensionName),
+					new KV('typeof', 'mw:Extension/' + extensionName),
 					new KV('about', token.getAttribute('about'))
 				], token.dataAttribs);
 
