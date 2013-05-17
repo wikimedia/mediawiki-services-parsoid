@@ -202,12 +202,18 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
 		var t = tokens[i];
 
 		// Ignore non-whitelisted html tags
-		if (t.isHTMLTag() && !tagWhiteList[t.name.toLowerCase()]) {
-			continue;
+		if (t.isHTMLTag()) {
+			if (/mw:Object\/Extension/.test(t.getAttribute("typeof"))) {
+				return true;
+			}
+			if (!tagWhiteList[t.name.toLowerCase()]) {
+				continue;
+			}
 		}
 
 		var tc = t.constructor;
 		if (tc === pd.SelfclosingTagTk) {
+
 			// Ignore extlink tokens without valid urls
 			if (t.name === 'extlink' && !this.urlParser.tokenizeURL(t.getAttribute("href"))) {
 				continue;
