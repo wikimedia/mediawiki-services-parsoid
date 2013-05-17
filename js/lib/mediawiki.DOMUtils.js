@@ -71,6 +71,13 @@ var DOMUtils = {
 		return n.data.parsoid;
 	},
 
+	getDataMw: function ( n ) {
+		if ( ! ( n.data && n.data.mw ) ) {
+			this.loadDataAttrib( n, 'mw', {} );
+		}
+		return n.data.mw;
+	},
+
 	setDataParsoid: function(n, dpObj) {
 		n.setAttribute("data-parsoid", JSON.stringify(dpObj));
 		return n;
@@ -99,6 +106,11 @@ var DOMUtils = {
 	},
 
 	getAttributeShadowInfo: function ( node, name, tplAttrs ) {
+		this.getDataParsoid( node );
+		if ( node.nodeType !== node.ELEMENT_NODE ||
+				!node.data || !node.data.parsoid ) {
+			return node.getAttribute( name );
+		}
 		var curVal = node.getAttribute(name),
 			dp = node.data.parsoid;
 
@@ -128,9 +140,7 @@ var DOMUtils = {
 				modified: !node.hasAttribute('data-parsoid'),
 				fromsrc: false
 			};
-		} else if ( dp.a[name] !== curVal ||
-				dp.sa[name] === undefined )
-		{
+		} else if ( dp.a[name] !== curVal ) {
 			//console.log(name, node.getAttribute(name), node.attributes.name.value);
 			//console.log(
 			//		node.outerHTML, name, JSON.stringify([curVal, dp.a[name]]));
@@ -582,6 +592,25 @@ var DOMUtils = {
 				elt.setAttribute(k, attrs[k]);
 			}
 		});
+	},
+
+	/**
+	 * @param {Element} ele
+	 * @param {string} someClass
+	 * @returns {boolean}
+	 */
+	hasClass: function ( ele, someClass ) {
+		if ( !ele || ele.nodeType !== ele.ELEMENT_NODE ) {
+			return false;
+		}
+
+		var classes = ele.getAttribute( 'class' );
+
+		if ( classes && classes.match( new RegExp( '\\b' + someClass + '\\b' ) ) ) {
+			return true;
+		} else {
+			return false;
+		}
 	},
 
 	hasBlockContent: function(node) {

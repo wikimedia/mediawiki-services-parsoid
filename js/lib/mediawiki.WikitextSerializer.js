@@ -229,6 +229,10 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
 			}
 		}
 
+		if ( state.inCaption && tc === pd.TagTk && t.name === 'listItem' ) {
+			continue;
+		}
+
 		if (!linksOnly && tc === pd.TagTk) {
 			// Ignore mw:Entity tokens
 			if (t.name === 'span' && t.getAttribute('typeof') === 'mw:Entity') {
@@ -782,89 +786,7 @@ WSP.escapeTplArgWT = function(state, arg) {
  * DOM-based figure handler
  */
 WSP.figureHandler = function(node, state, cb) {
-
-	var img, caption,
-		dp = node.data.parsoid,
-		env = state.env;
-	try {
-		img = node.firstChild.firstChild;
-		if ( img.nodeType !== img.ELEMENT_NODE ) {
-			throw('No img found!');
-		}
-
-		caption = node.lastChild;
-	} catch (e) {
-		console.error('ERROR in figureHandler: no img or caption found!');
-		return cb('', node);
-	}
-
-	// Captions dont start on a new line
-	var captionSrc;
-	captionSrc = state.serializeChildrenToString(caption, this.wteHandlers.aHandler, false);
-
-	var imgResource = (img && img.getAttribute('resource') || '').replace(/(^\[:)|(\]$)/g, ''),
-		outBits = [imgResource],
-		figAttrs = dp.optionList,
-		optNames = dp.optNames,
-		simpleImgOptions = WikitextConstants.Image.SimpleOptions,
-		prefixImgOptionsRM = WikitextConstants.Image.PrefixOptionsReverseMap,
-		sizeOptions = {"width": 1, "height": 1},
-		size = { width: null };
-
-	for (var i = 0, n = figAttrs.length; i < n; i++) {
-		// figAttr keys are the parsoid 'group' for the property,
-		// as given by the *values* in the WikitextConstants.Image
-		// maps. figAttr values are either "short canonical" property
-		// names (see WikiLinkHandler.renderFile) or the literal
-		// value (for prefix properties)
-		// both sides are not localized; the localized version will
-		// be found in the optNames map, which maps short canonical
-		// names to the localized string.
-		var a = figAttrs[i],
-			k = a.k, v = a.v;
-		var shortCanonical;
-		if (sizeOptions[k]) {
-			// Since width and height have to be output as a pair,
-			// collect both of them.
-			size[k] = v;
-		} else {
-			// If we have width set, it got set in the most recent iteration
-			// Output height and width now (one iteration later).
-			var w = size.width;
-			if (w!==null) {
-				outBits.push(w + (size.height ? "x" + size.height : '') + "px");
-				size.width = null;
-			}
-
-			if (k === "caption") {
-				outBits.push(v === null ? captionSrc : v);
-			} else if ( prefixImgOptionsRM[k] ) {
-				var canonical = prefixImgOptionsRM[k];
-				shortCanonical = canonical.replace(/^img_/,'');
-				outBits.push( env.conf.wiki.replaceInterpolatedMagicWord( optNames[shortCanonical], v ) );
-			} else if (simpleImgOptions['img_'+v] === k) {
-				shortCanonical = v;
-				// The values and keys in the parser attributes are a flip
-				// of how they are in the wikitext constants image hash
-				// Hence the indexing by 'v' instead of 'k'
-				outBits.push(optNames[shortCanonical]);
-			} else {
-				console.warn("Unknown image option encountered: " + JSON.stringify(a));
-			}
-		}
-	}
-
-	// Handle case when size is the last element which has accumulated
-	// in the size object.  Since size attribute is output one iteration
-	// after which it showed up, we have to handle this specially when
-	// size is the last element of the figAttrs array.  An alternative fix
-	// for this edge case is to fix the parser to not split up height
-	// and width into different attrs.
-	if (size.width) {
-		outBits.push(size.width + (size.height ? "x" + size.height : '') + "px");
-	}
-
-	cb( "[[" + outBits.join('|') + "]]", node );
+	this.handleImage( node, state, cb );
 };
 
 WSP._serializeTableTag = function ( symbol, endSymbol, state, token ) {
@@ -1059,6 +981,369 @@ WSP.getLinkPrefixTailEscapes = function (node, env) {
 	return escapes;
 };
 
+/**
+ * Handle an option that was recorded in the original wikitext
+ *
+ * @param {Node} node
+ * @param {string} opt The value of the option
+ * @param {string} optName The canonical name of the option
+ * @param {Mixed} optVal The possible value of the option (used mostly in html2html)
+ * @param {Object} state
+ * @param {Function} cb
+ * @param {string} cb.result The result of the serialization for this option
+ */
+WSP.handleOpt = function ( node, opt, optName, optVal, state, cb ) {
+	var caption, val, n,
+		dp = DU.getDataParsoid( node ),
+		dmw = DU.getDataMw( node ),
+		optNames = dp.optNames,
+		rel = node.getAttribute( 'rel' ) || node.getAttribute( 'typeof' ) || '',
+		imgnode = node.getElementsByTagName( 'img' )[0],
+		imgdp = DU.getDataParsoid( imgnode ),
+		imgdata = imgdp.img || {},
+		imgwidth = imgdata.w,
+		capNode = node.getElementsByClassName( 'mw-figcaption' )[0];
+
+	switch ( opt ) {
+		case '':
+			cb( '' );
+			break;
+
+		case 'caption':
+			// Assume that the caption is straight text...that may not work long-term
+			if ( capNode ) {
+				state.inCaption = true;
+				val = state.serializeChildrenToString( capNode, this.wteHandlers.wikilinkHandler, false );
+				state.inCaption = false;
+			} else if ( dmw.caption ) {
+				//val = this.escapeWikiText( state, dmw.caption, this.wteHandlers.wikilinkHandler );
+				// FIXME gwicke: Actually pass around the HTML and escape it
+				// here! (and potentially rt using shadowing)!
+				val = dmw.caption;
+			}
+
+			cb( val );
+			break;
+
+		case 'upright':
+			val = DU.getAttributeShadowInfo( imgnode, 'width' );
+			if ( val.modified ) {
+				val = imgnode.getAttribute( 'width' ) / imgwidth;
+			} else {
+				val = val.value;
+			}
+
+			if ( rel.match( /\bmw:Image\/Frame\b/ ) && val > 1 ) {
+				val = 1;
+			}
+
+			cb( optName.replace( '$1', val ) );
+			break;
+
+		case 'link':
+			if ( imgnode.parentNode.tagName.toLowerCase() === 'span' ) {
+				cb( optName.replace( '$1', '' ) );
+			} else {
+				if ( optVal === null ) {
+					val = DU.getAttributeShadowInfo( imgnode.parentNode, 'href' );
+					val = val.value.replace( /^(\.\.?\/)+/, '' );
+				} else {
+					val = optVal;
+				}
+
+				cb( optName.replace( '$1', val ) );
+			}
+			break;
+
+		case 'width':
+			val = DU.getAttributeShadowInfo( imgnode, 'width' );
+
+			if ( dp.img.htset ) {
+				// The height was shadowed, which means we actually had a
+				// specified height. Return XxY.
+				cb( optName.replace(
+					'$1',
+					val.value + 'x' + DU.getAttributeShadowInfo( imgnode, 'height' ).value
+				) );
+				break;
+			}
+
+			cb( optName.replace( '$1', val.value ) );
+			break;
+
+		case 'height':
+			if ( dp.img.wdset ) {
+				// We can't do height, because the width attr will handle it
+				break;
+			}
+
+			val = DU.getAttributeShadowInfo( imgnode, 'height' );
+			cb( optName.replace( '$1', val.value ) );
+			break;
+
+		case 'alt':
+			val = DU.getAttributeShadowInfo( imgnode, 'alt' );
+	                // XXX FIXME: If the value does not come from
+	                // source, then we may need to escape
+	                // it.  -rsmith
+			cb( val.value );
+			break;
+
+		default:
+			cb( optName );
+	}
+};
+
+WSP.hasOpt = function ( opts, optName ) {
+	var ix;
+
+	for ( ix = 0; ix < opts.length; ix++ ) {
+		if ( opts[ix].ck === optName ) {
+			return true;
+		}
+	}
+	return false;
+};
+
+// XXX: This should probably be refactored. -rsmith
+WSP.handleImage = function ( node, state, cb ) {
+	var isDefaultSize, imgnode, linkinfo,
+		ix, curOpt, href, src,
+		width, height, wrapName,
+		filename, path, classes, currentClass, currentOpt,
+		htAttr, wdAttr, wrapdp,
+		options = [],
+		wikitext = '',
+		env = state.env,
+		mwAliases = env.conf.wiki.mwAliases,
+		rel = node.getAttribute( 'rel' ) || node.getAttribute( 'typeof' ),
+		isFigure = node.tagName.toLowerCase() === 'figure',
+		dp = DU.getDataParsoid( node ),
+		dmw = DU.getDataMw( node ),
+		opts = dp.optList || [],
+		wrapNode = node.firstChild,
+		capNode = node.getElementsByClassName( 'mw-figcaption' )[0];
+
+	if (null === wrapNode) {
+		console.error( "WARNING: In WSP.handleImage, the following node has no children:" );
+		console.error( node.outerHTML );
+		cb( '', node );
+		return;
+	}
+
+	while ( wrapNode.nodeType !== wrapNode.ELEMENT_NODE ) {
+		wrapNode = wrapNode.nextSibling;
+	}
+
+	wrapName = wrapNode.tagName.toLowerCase();
+
+	if ( wrapNode.hasAttribute( 'data-parsoid' ) ) {
+		wrapdp = DU.getDataParsoid( node );
+	}
+
+	if ( wrapName === 'a' ) {
+		href = wrapNode.getAttribute( 'href' );
+	}
+
+	imgnode = wrapNode.getElementsByTagName( 'img' )[0];
+
+	if (undefined === imgnode) {
+		console.error( "WARNING: In WSP.handleImage, node does not have any img elements:" );
+		console.error( node.outerHTML );
+		cb( '', node );
+		return;
+	}
+
+	src = imgnode.getAttribute( 'src' );
+
+	// Make sure, if the option info was lost somehow, we still
+	// roundtrip to something sane (maybe take out the option info
+	// at some future-point)
+	// First, handle link options
+	if ( wrapName === 'span' && !this.hasOpt( opts, 'link' ) ) {
+		opts.push( {
+			ck: 'link',
+			v: '',
+			ak: mwAliases.img_link[0]
+		} );
+	} else if ( wrapName === 'a' && !this.hasOpt( opts, 'link' ) ) {
+		if ( wrapdp && wrapdp.sa && wrapdp.sa.href ) {
+			linkinfo = DU.getAttributeShadowInfo( wrapNode, 'href' );
+
+			if ( linkinfo.modified || !linkinfo.value ) {
+				linkinfo.value = wrapNode.getAttribute( 'href' ).replace( /^(\.\.?\/)+/, '' );
+			}
+		} else if ( wrapdp === undefined ) {
+			linkinfo = {
+				value: wrapNode.getAttribute( 'href' ).replace( /^(\.\.?\/)+/, '' ),
+				modified: true
+			};
+		} else {
+			linkinfo = { modified: false };
+		}
+
+		if ( linkinfo.modified ) {
+			opts.push( {
+				ck: 'link',
+				v: linkinfo.value,
+				ak: mwAliases.img_link[0]
+			} );
+		}
+	}
+
+	// Handle class-signified options
+	classes = node.getAttribute( 'class' );
+
+	classes = classes === null ? [] : classes.split( ' ' );
+
+	var val, valign, valignPos, halignSet = false;
+
+	for ( ix = 0; ix < classes.length; ix++ ) {
+		currentClass = classes[ix];
+		currentOpt = {};
+
+		switch ( currentClass ) {
+			case 'mw-halign-none':
+			case 'mw-halign-right':
+			case 'mw-halign-left':
+			case 'mw-halign-center':
+				val = currentClass.replace( /^mw-halign-/, '' );
+
+				if ( halignSet ) {
+					continue;
+				}
+
+				currentOpt.ck = val;
+				currentOpt.ak = mwAliases['img_' + val];
+				break;
+
+			case 'mw-valign-top':
+			case 'mw-valign-middle':
+			case 'mw-valign-baseline':
+			case 'mw-valign-sub':
+			case 'mw-valign-super':
+			case 'mw-valign-text-top':
+			case 'mw-valign-bottom':
+			case 'mw-valign-text-bottom':
+				valign = currentClass.replace( /^mw-valign-/, '' );
+				valignPos = opts.length;
+				break;
+
+			case 'mw-image-border':
+				currentOpt.ck = 'border';
+				currentOpt.ak = mwAliases.img_border[0];
+				break;
+		}
+
+		if ( currentOpt.ck && !this.hasOpt( opts, currentOpt.ck ) ) {
+			opts.push( currentOpt );
+		}
+	}
+
+	if ( valign !== undefined ) {
+		opts.splice( valignPos, 0, {
+			ck: valign,
+			ak: mwAliases['img_' + valign]
+		} );
+	}
+
+	currentOpt = {};
+	switch ( rel ) {
+		case 'mw:Image/Thumb':
+			currentOpt.ck = 'thumbnail';
+			currentOpt.ak = mwAliases.img_thumbnail[0];
+			break;
+
+		case 'mw:Image/Frame':
+			currentOpt.ck = 'framed';
+			currentOpt.ak = mwAliases.img_framed[0];
+			break;
+
+		case 'mw:Image/Frameless':
+			currentOpt.ck = 'frameless';
+			currentOpt.ak = mwAliases.img_frameless[0];
+			break;
+	}
+
+	if ( currentOpt.ck && !this.hasOpt( opts, currentOpt.ck ) ) {
+		opts.push( currentOpt );
+	}
+
+	// Handle width and height
+	if ( !DU.hasClass( node, 'mw-default-size' ) ) {
+		if ( !dp.img ) {
+			dp.img = {};
+		}
+
+		htAttr = imgnode.getAttribute( 'height' );
+		wdAttr = imgnode.getAttribute( 'width' );
+
+		if ( htAttr && !this.hasOpt( opts, 'height' ) ) {
+			dp.img.htset = true;
+
+			opts.push( {
+				ck: 'height',
+				v: 'x' + htAttr,
+				ak: mwAliases.img_width[0]
+			} );
+		}
+
+		if ( wdAttr && !this.hasOpt( opts, 'width' ) ) {
+			dp.img.wdset = true;
+
+			opts.push( {
+				ck: 'width',
+				v: wdAttr,
+				ak: mwAliases.img_width[0]
+			} );
+		}
+	}
+
+	// Handle caption
+	if ( !this.hasOpt( opts, 'caption' ) && (
+			( !isFigure && dmw.caption ) ||
+			( isFigure && capNode ) ) ){
+		opts.push( {
+			ck: 'caption'
+		} );
+	}
+
+	if ( DU.hasClass( imgnode, 'mw-default-size' ) ) {
+		isDefaultSize = true;
+	}
+
+	if ( imgnode.hasAttribute( 'resource' ) ) {
+		filename = DU.getAttributeShadowInfo( imgnode, 'resource' );
+		if ( filename.modified || !filename.value ) {
+			filename = imgnode.getAttribute( 'resource' ).replace( /^(\.\.?\/)+/, '' );
+		} else {
+			filename = filename.value;
+		}
+	}
+
+	wikitext = '[[' + filename;
+
+	function accumOpts( result ) {
+		if ( result !== null ) {
+			options.push( result );
+		}
+	}
+
+	if ( opts ) {
+		for ( ix = 0; ix < opts.length; ix++ ) {
+			curOpt = this.handleOpt( node, opts[ix].ck, opts[ix].ak || null, opts[ix].v || null, state, accumOpts );
+		}
+	}
+
+	if ( options.length > 0 ) {
+		wikitext += '|';
+		wikitext += options.join( '|' );
+	}
+
+	wikitext += ']]';
+	cb( wikitext, node );
+};
+
 // SSS FIXME: This doesn't deal with auto-inserted start/end tags.
 // To handle that, we have to split every 'return ...' statement into
 // openTagSrc = ...; endTagSrc = ...; and at the end of the function,
@@ -1242,12 +1527,8 @@ WSP.linkHandler = function(node, state, cb) {
 			// XXX: Use shadowed href? Storing serialized tokens in
 			// data-parsoid seems to be... wrong.
 			cb( '[' + Util.tokensToString(linkData.target.value) + ']', node);
-		} else if ( rel === 'mw:Image' ) {
-			// simple source-based round-tripping for now..
-			// TODO: properly implement!
-			if ( dp.src ) {
-				cb( dp.src, node );
-			}
+		} else if ( rel.match( /\bmw:Image/ ) ) {
+			this.handleImage( node, state, cb );
 		} else {
 			// Unknown rel was set
 			//this._htmlElementHandler(node, state, cb);
@@ -1297,6 +1578,10 @@ WSP.linkHandler = function(node, state, cb) {
 
 WSP.genContentSpanTypes = {
 	'mw:Nowiki':1,
+	'mw:Image': 1,
+	'mw:Image/Frameless': 1,
+	'mw:Image/Frame': 1,
+	'mw:Image/Thumb': 1,
 	'mw:Entity': 1,
 	'mw:DiffMarker': 1
 };
@@ -1930,6 +2215,8 @@ WSP.tagHandlers = {
 						}
 					}
 					emitEndTag('</nowiki>', node, state, cb);
+				} else if ( type.match( /\bmw\:Image(\/(Frame|Frameless|Thumb))?/ ) ) {
+					state.serializer.handleImage( node, state, cb );
 				}
 			} else {
 				// Fall back to plain HTML serialization for spans created
@@ -2857,8 +3144,8 @@ WSP.updateSeparatorConstraints = function( state, nodeA, handlerA, nodeB, handle
 };
 
 /**
- * Emit a separator based on the collected (and merged) constraints and
- * existing separator text. Called when new output is triggered.
+ * Emit a separator based on the collected (and merged) constraints
+ * and existing separator text. Called when new output is triggered.
  */
 WSP.emitSeparator = function(state, cb, node) {
 

@@ -16,7 +16,16 @@ function sanitizeHTMLAttribute( text ) {
 		.replace( />/g, '&gt;' );
 }
 
-var formatters = {
+var fnames = {
+		'Image:Foobar.jpg': 'Foobar.jpg',
+		'File:Foobar.jpg': 'Foobar.jpg'
+	},
+
+	pnames = {
+		'Image:Foobar.jpg': 'File:Foobar.jpg'
+	},
+
+	formatters = {
 		json: function ( data ) {
 			return JSON.stringify( data );
 		},
@@ -54,6 +63,60 @@ var formatters = {
 			}
 
 			cb( null, { parse: { text: { '*': resultText } } } );
+		},
+
+		query: function ( body, cb ) {
+			var filename = body.titles,
+				normPagename = pnames[filename] || filename,
+				normFilename = fnames[filename] || filename,
+				baseurl = 'http://upload.wikimedia.org/wikipedia/commons/3/3a/' + normFilename,
+				height = 220,
+				width = 1941,
+				twidth = body.iiurlwidth,
+				theight = body.iiurlheight,
+				turl = baseurl,
+				durl = 'http://commons.wikimedia.org/wiki/' + normFilename,
+				imageinfo = {
+					pageid: 1,
+					ns: 6,
+					title: normPagename,
+					imageinfo: [ {
+						size: 12345,
+						height: height,
+						width: width,
+						url: baseurl,
+						descriptionurl: durl
+					} ]
+				},
+				response = {
+					query: {
+						normalized: [ {
+							from: filename,
+							to: normPagename
+						} ],
+						pages: {}
+					}
+				};
+
+			if ( twidth ) {
+				if ( theight === undefined || theight === null ) {
+					theight = Math.ceil( height * ( twidth / width ) );
+				} else {
+					if ( Math.ceil( height * ( twidth / width ) ) > theight ) {
+						twidth = Math.ceil( width * ( theight / height ) );
+					} else {
+						theight = Math.ceil( height * ( twidth / width ) );
+					}
+				}
+
+				turl += '/' + twidth + 'px-' + normFilename;
+				imageinfo.imageinfo[0].thumbwidth = twidth;
+				imageinfo.imageinfo[0].thumbheight = theight;
+				imageinfo.imageinfo[0].thumburl = turl;
+			}
+
+			response.query.pages['1'] = imageinfo;
+			cb( null, response );
 		}
 	},
 
@@ -62,6 +125,16 @@ var formatters = {
 			parameters: {
 				text: 'text',
 				title: 'text'
+			}
+		},
+
+		query: {
+			parameters: {
+				titles: 'text',
+				prop: 'text',
+				iiprop: 'text',
+				iiurlwidth: 'text',
+				iiurlheight: 'text'
 			}
 		}
 	},

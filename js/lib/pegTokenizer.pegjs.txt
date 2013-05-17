@@ -1129,12 +1129,11 @@ template_param_text
 
 
 wikilink_content
-  = lcs:( pipe lt:link_text? {
-    if ( lt === '' ) {
-        return new KV( 'mw:maybeContent', '' );
-    } else {
-        return new KV( 'mw:maybeContent', lt );
-    } } ) + {
+  = lcs:( pipe startPos:({ return pos; }) lt:link_text? {
+        var maybeContent = new KV( 'mw:maybeContent', lt );
+        maybeContent.vsrc = input.substring( startPos, pos );
+        return maybeContent;
+    } ) + {
         if ( lcs.length === 1 && lcs[0].v === '' ) {
             return { pos: [pos0, pos], content: [], pipetrick: true };
         } else {

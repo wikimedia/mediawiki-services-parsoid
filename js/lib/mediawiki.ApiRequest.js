@@ -645,12 +645,127 @@ ConfigRequest.prototype._handleJSON = function ( error, data ) {
 	}
 };
 
+/**
+ * @class
+ * @extends ApiRequest
+ * @constructor
+ * @param {MWParserEnvironment} env
+ * @param {string} filename
+ * @param @optional {Object} dims
+ * @param @optional {number} width
+ * @param @optional {number} height
+ */
+function ImageInfoRequest( env, filename, dims ) {
+	ApiRequest.call( this, env, null );
+	this.env = env;
+
+	var ix,
+		conf = env.conf.wiki,
+		url = conf.apiURI + '?',
+		filenames = [ filename ],
+		imgnsid = conf.canonicalNamespaces.image,
+		imgns = conf.namespaceNames[imgnsid],
+		props = [
+			'size',
+			'url'
+		];
+
+	this.ns = imgns;
+
+	for ( ix = 0; ix < filenames.length; ix++ ) {
+		filenames[ix] = imgns + ':' + filenames[ix];
+	}
+
+	var apiArgs = {
+		action: 'query',
+		format: 'json',
+		prop: 'imageinfo',
+		titles: filenames.join( '|' ),
+		iiprop: props.join( '|' )
+	};
+
+	if ( dims ) {
+		if ( dims.width ) {
+			apiArgs.iiurlwidth = dims.width;
+		}
+		if ( dims.height ) {
+			apiArgs.iiurlheight = dims.height;
+		}
+	}
+
+	url += qs.stringify( apiArgs );
+
+	this.requestOptions = {
+		method: 'GET',
+		followRedirect: true,
+		url: url,
+		timeout: 40 * 1000,
+		headers: {
+			'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:9.0.1) ' +
+				'Gecko/20100101 Firefox/9.0.1 Iceweasel/9.0.1',
+			'Connection': 'close'
+		}
+	};
+
+	this.request( this.requestOptions, this._requestCB.bind( this ) );
+}
+
+util.inherits( ImageInfoRequest, ApiRequest );
+
+/**
+ * @inheritdoc ApiRequest#_handleJSON
+ */
+ImageInfoRequest.prototype._handleJSON = function ( error, data ) {
+	var pagenames, names, namelist, newpages, pages, pagelist, ix;
+
+	if ( error ) {
+		this._processListeners( error, { imgns: this.ns } );
+		return;
+	}
+
+	if ( data && data.query ) {
+		// The API indexes its response by page ID. That's stupid.
+		newpages = {};
+		pagenames = {};
+		pages = data.query.pages;
+		names = data.query.normalized;
+		pagelist = Object.keys( pages );
+
+		if ( names ) {
+			for ( ix = 0; ix < names.length; ix++ ) {
+				pagenames[names[ix].to] = names[ix].from;
+			}
+		}
+
+		for ( ix = 0; ix < pagelist.length; ix++ ) {
+			if ( pagenames[pages[pagelist[ix]].title] ) {
+				newpages[pagenames[pages[pagelist[ix]].title]] = pages[pagelist[ix]];
+			}
+			newpages[pages[pagelist[ix]].title] = pages[pagelist[ix]];
+		}
+
+		data.query.pages = newpages;
+		data.query.imgns = this.ns;
+		this._processListeners( null, data.query );
+	} else if ( data && data.error ) {
+		if ( data.error.code === 'readapidenied' ) {
+			error = new AccessDeniedError();
+		} else {
+			error = new Error( 'Something happened on the API side. Message: ' + data.error.code + ': ' + data.error.info );
+		}
+		this._processListeners( error, {} );
+	} else {
+		this._processListeners( null, {} );
+	}
+};
+
 if (typeof module === "object") {
 	module.exports.ConfigRequest = ConfigRequest;
 	module.exports.TemplateRequest = TemplateRequest;
 	module.exports.PreprocessorRequest= PreprocessorRequest;
 	module.exports.PHPParseRequest = PHPParseRequest;
 	module.exports.ParsoidCacheRequest = ParsoidCacheRequest;
+	module.exports.ImageInfoRequest = ImageInfoRequest;
 	module.exports.DoesNotExistError = DoesNotExistError;
 	module.exports.ParserError = ParserError;
 }

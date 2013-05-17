@@ -19,7 +19,8 @@ var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 var KV = defines.KV,
     TagTk = defines.TagTk,
     SelfclosingTagTk = defines.SelfclosingTagTk,
-    EndTagTk = defines.EndTagTk;
+    EndTagTk = defines.EndTagTk,
+	ImageInfoRequest = require( './mediawiki.ApiRequest.js' ).ImageInfoRequest;
 
 function WikiLinkHandler( manager, options ) {
 	this.manager = manager;
@@ -118,8 +119,8 @@ function interwikiContent( token ) {
 
 WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 
-	var j, about, property,
-		hrefkv, saniContent, strContent, env = this.manager.env,
+	var j, maybeContent, about, possibleTags, property, newType,
+		hrefkv, strContent, saniContent, env = this.manager.env,
 		attribs = token.attribs,
 		redirect = Util.lookup( attribs, 'redirect' ),
 		hrefSrc = Util.lookupKV( token.attribs, 'href' ).vsrc,
@@ -128,8 +129,8 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 		title = Title.fromPrefixedText( env, Util.decodeURI( href ) );
 
 	if ( title.ns.isFile() && !redirect ) {
-		cb( this.renderFile( token, frame, cb, href, title) );
-		return;
+		// renderFile - asynchronous
+		this.renderFile( token, frame, cb, href, title);
 	} else {
 		//console.warn( 'title: ' + JSON.stringify( title ) );
 		var newAttrs = buildLinkAttrs(attribs, true, null, [new KV('rel', 'mw:WikiLink')]);
@@ -285,7 +286,551 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 	}
 };
 
+/**
+ * Handle the dimensions for an image
+ *
+ * @private
+ * @param {number} height
+ * @param {number} width
+ * @param {Object} info Image info for the image in question
+ * @param {number/null} info.height
+ * @param {number/null} info.width
+ * @param {string/null} info.thumburl
+ * @param {number/null} info.thumbwidth
+ * @param {number/null} info.thumbheight
+ * @param {Object} dataAttribs Data attributes for the image, which we may modify
+ * @returns {Object}
+ * @returns {number} return.h
+ * @returns {number} return.w
+ */
+function handleDims( height, width, info, dataAttribs ) {
+	if ( info.height ) {
+		height = info.height;
+		dataAttribs.img.h = height;
+	}
+
+	if ( info.width ) {
+		width = info.width;
+		dataAttribs.img.w = width;
+	}
+
+	if ( info.thumburl && info.thumbheight ) {
+		height = info.thumbheight;
+	}
+
+	if ( info.thumburl && info.thumbwidth ) {
+		width = info.thumbwidth;
+	}
+
+	return {
+		h: height,
+		w: width
+	};
+}
+
+/**
+ * Get the style and class lists for an image's wrapper element
+ *
+ * @private
+ * @param {Object} oHash The option hash from renderFile
+ * @param {boolean} isInline Whether the image is inline
+ * @param {boolean} isFloat Whether the image is floated
+ * @returns {Object}
+ * @returns {boolean} return.isInline Whether the image is inline after handling options
+ * @returns {boolean} return.isFloat Whether the image is floated after handling options
+ * @returns {Array} return.classes The list of classes for the wrapper
+ * @returns {Array} return.styles The list of styles for the wrapper
+ */
+function getWrapperInfo( oHash, isInline, isFloat ) {
+	var wrapperStyles = [],
+		wrapperClasses = [],
+		halign = ( oHash.format === 'framed' ) ? 'right' : null,
+		valign = 'middle';
+
+	if ( oHash.height === null && oHash.width === null ) {
+		wrapperClasses.push( 'mw-default-size' );
+	}
+
+	if ( oHash.border ) {
+		wrapperClasses.push( 'mw-image-border' );
+	}
+
+	if ( oHash.halign ) {
+		halign = oHash.halign;
+	}
+
+	switch ( halign ) {
+		case 'none':
+			// PHP parser wraps in <div class="floatnone">
+			isInline = false;
+
+			if ( oHash.halign === 'none' ) {
+				wrapperClasses.push( 'mw-halign-none' );
+			}
+			break;
+
+		case 'center':
+			// PHP parser wraps in <div class="center"><div class="floatnone">
+			isInline = false;
+			wrapperStyles.push( 'text-align: center;' );
+
+			if ( oHash.halign === 'center' ) {
+				wrapperClasses.push( 'mw-halign-center' );
+			}
+			break;
+
+		case 'left':
+			// PHP parser wraps in <div class="floatleft">
+			isInline = false;
+			isFloat = true;
+			wrapperStyles.push( 'float: left;' );
+
+			if ( oHash.halign === 'left' ) {
+				wrapperClasses.push( 'mw-halign-left' );
+			}
+			break;
+
+		case 'right':
+			// PHP parser wraps in <div class="floatright">
+			isInline = false;
+			isFloat = true;
+			wrapperStyles.push( 'float: right;' );
+
+			if ( oHash.halign === 'right' ) {
+				wrapperClasses.push( 'mw-halign-right' );
+			}
+			break;
+	}
+
+	if ( oHash.valign ) {
+		valign = oHash.valign;
+	}
+
+	if ( isInline && !isFloat ) {
+		wrapperStyles.push( 'vertical-align: ' + valign.replace( /_/, '-' ) + ';' );
+	}
+
+	if ( isInline ) {
+		switch ( oHash.valign ) {
+			case 'middle':
+				wrapperClasses.push( 'mw-valign-middle' );
+				break;
+
+			case 'baseline':
+				wrapperClasses.push( 'mw-valign-baseline' );
+				break;
+
+			case 'sub':
+				wrapperClasses.push( 'mw-valign-sub' );
+				break;
+
+			case 'super':
+				wrapperClasses.push( 'mw-valign-super' );
+				break;
+
+			case 'top':
+				wrapperClasses.push( 'mw-valign-top' );
+				break;
+
+			case 'text-top':
+				wrapperClasses.push( 'mw-valign-text-top' );
+				break;
+
+			case 'bottom':
+				wrapperClasses.push( 'mw-valign-bottom' );
+				break;
+
+			case 'text-bottom':
+				wrapperClasses.push( 'mw-valign-text-bottom' );
+				break;
+		}
+	} else {
+		wrapperStyles.push( 'display: block;' );
+	}
+
+	return {
+		styles: wrapperStyles,
+		classes: wrapperClasses,
+		isInline: isInline,
+		isFloat: isFloat
+	};
+}
+
+/**
+ * Abstract way to get the path for an image given an info object
+ *
+ * @private
+ * @param {string} path Your best guess for the path
+ * @param {Object} info
+ * @param {string/null} info.thumburl The URL for a thumbnail
+ * @param {string} info.url The base URL for the image
+ */
+function getPath( path, info ) {
+	if ( info.thumburl ) {
+		return info.thumburl;
+	} else if ( info.url ) {
+		return info.url;
+	}
+}
+
+// It turns out that image captions can have unclosed block tags which
+// then messes up the entire DOM and wraps the reset of the page into
+// the image caption which is wrong and also screws up the RTing in
+// turn.  So, we forcibly close all unclosed block tags by treating
+// the caption as a well-nested DOM context.
+//
+// TODO: Actually build a real DOM so that inlines etc are
+// encapsulated too. This would need to apply phase 3 token
+// transforms, as the caption as an attribute is already expanded to
+// phase 2.
+function closeUnclosedBlockTags(tokens) {
+	var i, j, n, t,
+		// Store the index of a token in the 'tokens' array
+		// rather than the token itself.
+		openBlockTagStack = [];
+
+	for (i = 0, n = tokens.length; i < n; i++) {
+		t = tokens[i];
+		if (Util.isBlockToken(t)) {
+			if (t.constructor === TagTk) {
+				openBlockTagStack.push(i);
+			} else if (t.constructor === EndTagTk && openBlockTagStack.length > 0) {
+				if (tokens[openBlockTagStack.last()].name === t.name) {
+					openBlockTagStack.pop();
+				}
+			}
+		}
+	}
+
+	n = openBlockTagStack.length;
+	if (n > 0) {
+		if (Object.isFrozen(tokens)) {
+			tokens = tokens.slice();
+		}
+		for (i = 0; i < n; i++) {
+			j = openBlockTagStack.pop();
+			t = tokens[j].clone();
+			t.dataAttribs.autoInsertedEnd = true;
+			tokens[j] = t;
+			tokens.push(new EndTagTk(t.name));
+		}
+	}
+
+	return tokens;
+}
+
 WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, title ) {
+	/**
+	 * Determine the name of an option
+	 * Returns an object of form
+	 * {
+	 *   ck: Canonical key for the image option
+	 *   v: Value of the option
+	 *   ak: Aliased key for the image option - includes "$1" for placeholder
+	 *   s: Whether it's a simple option or one with a value
+	 * }
+	 */
+	function getOptionInfo( optStr ) {
+		var returnObj,
+			oText = optStr.trim(),
+			lowerOText = oText.toLowerCase(),
+
+			// oText contains the localized name of this option.  the
+			// canonical option names (from mediawiki upstream) are in
+			// English and contain an 'img_' prefix.  We drop the
+			// prefix before stuffing them in data-parsoid in order to
+			// save space (that's shortCanonicalOption)
+
+			canonicalOption = ( env.conf.wiki.magicWords[oText] ||
+				env.conf.wiki.magicWords[lowerOText] ||
+				( 'img_' + lowerOText ) ),
+			shortCanonicalOption = canonicalOption.replace( /^img_/,  '' ),
+
+			// 'imgOption' is the key we'd put in oHash; it names the 'group'
+			// for the option, and doesn't have an img_ prefix.
+
+			imgOption = WikitextConstants.Image.SimpleOptions[canonicalOption],
+			bits = getOption( optStr.trim() ),
+			normalizedBit0 = bits ? bits.k.trim().toLowerCase() : null,
+			key = bits ? WikitextConstants.Image.PrefixOptions[normalizedBit0] : null;
+
+		if (imgOption && key === null) {
+			return {
+				ck: imgOption,
+				v: shortCanonicalOption,
+				ak: optStr,
+				s: true
+			};
+		} else {
+			// bits.a has the localized name for the prefix option
+			// (with $1 as a placeholder for the value, which is in bits.v)
+			// 'normalizedBit0' is the canonical English option name
+			// (from mediawiki upstream) with an img_ prefix.
+			// 'key' is the parsoid 'group' for the option; it doesn't
+			// have an img_ prefix (it's the key we'd put in oHash)
+
+			if ( bits && key ) {
+				shortCanonicalOption = normalizedBit0.replace(/^img_/, '');
+				// map short canonical name to the localized version used
+				return {
+					ck: shortCanonicalOption,
+					v: bits.v,
+					ak: optStr,
+					s: false
+				};
+			} else {
+				return null;
+			}
+		}
+	}
+
+	/**
+	 * Make option token streams into a stringy thing that we can recognize.
+	 *
+	 * @param {Array} tstream
+	 * @param {string} prefix Anything that came before this part of the recursive call stack
+	 * @returns {string}
+	 */
+	function stringifyOptionTokens( tstream, prefix ) {
+		var i, currentToken, tokenType, tkHref, nextResult,
+			skipToEndOf,
+			resultStr = '';
+
+		prefix = prefix || '';
+
+		for ( i = 0; i < tstream.length; i++ ) {
+			if ( skipToEndOf ) {
+				if ( currentToken.name === skipToEndOf && currentToken.constructor === EndTagTk ) {
+					skipToEndOf = undefined;
+				}
+				continue;
+			}
+
+			currentToken = tstream[i];
+
+			if ( currentToken.constructor === String ) {
+				resultStr += currentToken;
+			} else if ( currentToken.constructor === Array ) {
+				nextResult = stringifyOptionTokens( currentToken, prefix + resultStr );
+
+				if ( nextResult === null ) {
+					return null;
+				}
+
+				resultStr += nextResult;
+			} else {
+				// This is actually a token
+				if ( currentToken.name === 'a' ) {
+					if ( optInfo === undefined ) {
+						optInfo = getOptionInfo( prefix + resultStr );
+						if ( optInfo === null ) {
+							// An a tag before a valid option? This is most
+							// likely a caption.
+							optInfo = undefined;
+							return null;
+						}
+					}
+
+					if ( optInfo.ck === 'link' ) {
+						tokenType = Util.lookup( currentToken.attribs, 'rel' );
+						tkHref = Util.lookup( currentToken.attribs, 'href' );
+
+						// Reset the optInfo since we're changing the nature of it
+						optInfo = undefined;
+						// Figure out the proper string to put here and break.
+						if ( tokenType === 'mw:ExtLink/URL' ) {
+							// Add the URL
+							resultStr += tkHref;
+							// Tell our loop to skip to the end of this tag
+							skipToEndOf = 'a';
+						} else if ( tokenType === 'mw:WikiLink' ) {
+							// This maybe assumes some stuff about wikilinks,
+							// but nothing we haven't already assumed
+							resultStr += tkHref.replace( /^(\.\.?\/)*/g, '' );
+						} else {
+							// There shouldn't be any other kind of link...
+							// This is likely a caption.
+							return null;
+						}
+					} else {
+						// Why would there be an a tag without a link?
+						return null;
+					}
+				}
+			}
+		}
+
+		return resultStr;
+	}
+
+	// Handle a response to an imageinfo API request.
+	function handleResponse( linkTitle, err, data ) {
+		if (err || !data) {
+			// FIXME gwicke: Handle this error!!
+			cb ({tokens: [new SelfclosingTagTk('meta',
+						[new KV('typeof', 'mw:Placeholder')], token.dataAttribs)]});
+			return;
+		}
+		var	dims, image, info, containerName, container, containerClose,
+			dataAttribs,
+			rdfaType = 'mw:Image',
+			captionClass = [ 'mw-figcaption' ],
+			iContainerName = hasImageLink ? 'a' : 'span',
+			ns = data.imgns,
+			innerContain = new TagTk( iContainerName, [] ),
+			innerContainClose = new EndTagTk( iContainerName ),
+			linkDataAttribs = innerContain.dataAttribs,
+			img = new SelfclosingTagTk( 'img', [] ),
+			origFilename = Util.lookupKV( token.attribs, 'href' ).vsrc,
+			wrapperInfo = getWrapperInfo( oHash, !useFigure ),
+			wrapperStyles = wrapperInfo.styles,
+			wrapperClasses = wrapperInfo.classes,
+			wrapper = null;
+
+		useFigure = wrapperInfo.isInline !== true;
+
+		containerName = useFigure ? 'figure' : 'span';
+		container = new TagTk( containerName, [], Util.clone( token.dataAttribs ) );
+		containerClose = new EndTagTk( containerName );
+		dataAttribs = container.dataAttribs;
+
+		if ( err ) {
+			// Probably we're running without an API. Fair enough, we'll use
+			// sane defaults.
+			image = {
+				imageinfo: [
+					{
+						url: './Special:FilePath/' + filename,
+						width: 200,
+						height: 200
+					}
+				]
+			};
+			info = image.imageinfo[0];
+		} else {
+			image = data.pages[ns + ':' + filename];
+			if (image.missing !== undefined) {
+				// FIXME gwicke: Handle missing images properly!!
+				cb ({tokens: [new SelfclosingTagTk('meta',
+							[new KV('typeof', 'mw:Placeholder')], token.dataAttribs)]});
+				return;
+			}
+			info = image.imageinfo[0];
+		}
+
+		// We can roundtrip this now!
+		dataAttribs.src = undefined;
+
+		// But we need some extra information!
+		dataAttribs.img = {};
+
+		dims = handleDims( height, width, info, dataAttribs );
+
+		// Update some already-defined nonsense based on response
+		height = dims.h;
+		width = dims.w;
+		path = getPath( path, info );
+
+		if ( oHash.alt ) {
+			img.addNormalizedAttribute( 'alt', oHash.alt, altBackup );
+		}
+
+		img.addNormalizedAttribute( 'resource', linkTitle.makeLink(), origFilename );
+		img.addAttribute( 'src', path );
+
+		if ( hasImageLink ) {
+			if ( oHash.link !== undefined ) {
+				linkTitle = Title.fromPrefixedText( env, oHash.link );
+			}
+			innerContain.addNormalizedAttribute( 'href', linkTitle.makeLink(), oHash.link );
+		}
+
+		if ( height ) {
+			img.addNormalizedAttribute( 'height', String( height ), oHash.height );
+		}
+
+		if ( width ) {
+			img.addNormalizedAttribute( 'width', String( width ), oHash.width );
+		}
+
+		if ( oHash.height !== null ) {
+			// Indicate that there was a height option in the image call
+			dataAttribs.img.htset = true;
+		}
+
+		if ( oHash.width !== null ) {
+			// Indicate that there was a width option in the image call
+			dataAttribs.img.wdset = true;
+		}
+
+		if ( oHash.format === 'thumbnail' || oHash.format === 'framed' ) {
+			if ( oHash.upright !== undefined ) {
+				if ( oHash.upright > 0 ) {
+					width *= oHash.upright;
+				} else {
+					width *= 0.75;
+					wrapperClasses.push( 'mw-halign-upright' );
+				}
+			}
+
+			if ( caption !== undefined ) {
+				caption = closeUnclosedBlockTags( caption );
+			}
+		}
+
+		// If the format is something we *recognize*, add the subtype
+		switch ( oHash.format ) {
+			case 'thumbnail':
+				rdfaType += '/Thumb';
+				break;
+			case 'framed':
+				rdfaType += '/Frame';
+				break;
+			case 'frameless':
+				rdfaType += '/Frameless';
+				break;
+		}
+
+		if ( oHash['class'] ) {
+			wrapperClasses = wrapperClasses.concat( oHash['class'].split( ' ' ) );
+		}
+
+		if ( wrapperClasses.length ) {
+			container.addAttribute( 'class', wrapperClasses.join( ' ' ) );
+		}
+
+		if (wrapperStyles.length) {
+			container.addAttribute( 'style', wrapperStyles.join( ' ' ) );
+		}
+
+		container.addAttribute( 'typeof', rdfaType );
+
+		var tokens = [
+				container,
+				innerContain,
+				img,
+				innerContainClose
+			];
+
+		if ( caption !== undefined  && !useFigure ) {
+			container.addAttribute( 'data-mw', JSON.stringify( {
+				caption: captionSrc
+			} ) );
+		} else if ( caption !== undefined ) {
+			tokens = tokens.concat( [
+				new TagTk( 'figcaption', [
+					new KV( 'class', captionClass.join( ' ' ) )
+				] ),
+				caption,
+				new EndTagTk( 'figcaption' )
+			] );
+		}
+
+		tokens.push( containerClose );
+
+		cb( { tokens: tokens } );
+	}
+
 	var env = this.manager.env,
 		// distinguish media types
 		// if image: parse options
@@ -293,108 +838,106 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 		content = rdfaAttrs.content;
 
 	// extract options
-	var i, l, kv,
-		options = [],
+	// TODO gwicke: abstract out!
+	var i, l, kv, captionSrc, linkSrc, caption, captionOffset, altBackup,
+		// option hash, both keys and values normalized
 		oHash = { height: null, width: null },
-		captions = [],
 		validOptions = Object.keys( WikitextConstants.Image.PrefixOptions ),
 		getOption = env.conf.wiki.getMagicPatternMatcher( validOptions );
 
+	token.dataAttribs.optList = [];
+
 	for( i = 0, l = content.length; i<l; i++ ) {
-		var oContent = content[i],
+		var optInfo, maybeOText,
+			oContent = content[i],
 			oText = Util.tokensToString( oContent.v, true );
 		//console.log( JSON.stringify( oText, null, 2 ) );
-		if ( oText.constructor === String ) {
-			var origOText = oText;
-			oText = oText.trim();
-			var lowerOText = oText.toLowerCase();
-			// oText contains the localized name of this option.  the
-			// canonical option names (from mediawiki upstream) are in
-			// English and contain an 'img_' prefix.  We drop the
-			// prefix before stuffing them in data-parsoid in order to
-			// save space (that's shortCanonicalOption)
-			var canonicalOption = ( env.conf.wiki.magicWords[oText] ||
-				env.conf.wiki.magicWords[lowerOText] ||
-				('img_'+lowerOText) );
-			var shortCanonicalOption = canonicalOption.replace(/^img_/,  '');
-			// 'imgOption' is the key we'd put in oHash; it names the 'group'
-			// for the option, and doesn't have an img_ prefix.
-			var imgOption = WikitextConstants.Image.SimpleOptions[canonicalOption],
-				bits = getOption( origOText.trim() ),
-				normalizedBit0 = bits ? bits.k.trim().toLowerCase() : null,
-				key = bits ? WikitextConstants.Image.PrefixOptions[normalizedBit0] : null;
-			if (imgOption && key === null) {
-				// the options array only has non-localized values
-				options.push( new KV(imgOption, shortCanonicalOption ) );
-				oHash[imgOption] = shortCanonicalOption;
-				if ( token.dataAttribs.optNames === undefined ) {
-					token.dataAttribs.optNames = {};
-				}
-				// map short canonical name to the localized version used
-				token.dataAttribs.optNames[shortCanonicalOption] = origOText;
-				continue;
-			} else {
-				// bits.a has the localized name for the prefix option
-				// (with $1 as a placeholder for the value, which is in bits.v)
-				// 'normalizedBit0' is the canonical English option name
-				// (from mediawiki upstream) with an img_ prefix.
-				// 'key' is the parsoid 'group' for the option; it doesn't
-				// have an img_ prefix (it's the key we'd put in oHash)
 
-				if ( bits && key ) {
-					shortCanonicalOption = normalizedBit0.replace(/^img_/, '');
-					if ( token.dataAttribs.optNames === undefined ) {
-						token.dataAttribs.optNames = {};
-					}
-					// map short canonical name to the localized version used
-					token.dataAttribs.optNames[shortCanonicalOption] = bits.a;
-					if ( key === 'width' ) {
-						var x, y, maybeSize = bits.v.match( /^(\d*)(?:x(\d+))?$/ );
-						if ( maybeSize !== null ) {
-							x = maybeSize[1];
-							y = maybeSize[2];
-						}
-						if ( x !== undefined ) {
-							options.push( new KV( 'width', x ) );
-							oHash.width = x;
-						}
-						if ( y !== undefined ) {
-							options.push( new KV( 'height', y ) );
-							oHash.height = y;
-						}
-					} else {
-						oHash[key] = bits.v;
-						options.push( new KV( key, bits.v ) );
-						//console.warn('handle prefix ' + bits );
-					}
-				} else {
-					// Record for RT-ing
-					kv = new KV("caption", oContent.v);
-					captions.push(kv);
-					options.push(kv);
-				}
+		optInfo = undefined;
+
+		if ( oText === '' ) {
+			token.dataAttribs.optList.push( {
+				ck: '',
+				ak: ''
+			} );
+			continue;
+		}
+
+		if ( oText.constructor !== String ) {
+			// Might be that this is a valid option whose value is just
+			// complicated. Try to figure it out, step through all tokens.
+			maybeOText = stringifyOptionTokens( oText, '' );
+			if ( maybeOText !== null ) {
+				oText = maybeOText;
 			}
+		}
+
+		if ( oText.constructor === String ) {
+			if ( optInfo === undefined ) {
+				optInfo = getOptionInfo( oText );
+			}
+		}
+
+		// For the values of the caption and options, see
+		// getOptionInfo's documentation above
+		if ( oText.constructor !== String || optInfo === null ) {
+			// No valid option found!?
+			// Record for RT-ing
+			caption = {
+				v: oContent.v,
+				ak: oText
+			};
+			// So we know where to put it in the array at the end
+			captionOffset = token.dataAttribs.optList.length;
+			captionSrc = oContent.vsrc;
+			continue;
+		}
+
+		if ( optInfo.ck === 'alt' ) {
+			// Holds the shadow info for the alt option until we can save it
+			altBackup = oContent.vsrc;
+		}
+
+		if ( optInfo.s === true ) {
+			// Simple image option
+			oHash[optInfo.ck] = optInfo.v;
+			token.dataAttribs.optList.push( {
+				ck: optInfo.v,
+				ak: optInfo.ak
+			} );
 		} else {
-			kv = new KV("caption", oContent.v);
-			captions.push(kv);
-			options.push(kv);
+			// map short canonical name to the localized version used
+			token.dataAttribs.optList.push( {
+				ck: optInfo.ck,
+				ak: optInfo.ak
+			} );
+
+			if ( optInfo.ck === 'width' ) {
+				var x, y, maybeSize = optInfo.v.match( /^(\d*)(?:x(\d+))?$/ );
+				if ( maybeSize !== null ) {
+					x = maybeSize[1];
+					y = maybeSize[2];
+				}
+				if ( x !== undefined ) {
+					oHash.width = x;
+				}
+				if ( y !== undefined ) {
+					oHash.height = y;
+				}
+			} else {
+				oHash[optInfo.ck] = optInfo.v;
+				//console.warn('handle prefix ' + bits );
+			}
 		}
 	}
 
-	// Set last caption value to null -- serializer can figure this out
-	var caption = '';
-	var numCaptions = captions.length;
-	if (numCaptions > 0) {
-		caption = captions[numCaptions-1].v;
-		captions[numCaptions-1].v = null;
-
-		// For the rest, we need original wikitext.
-		// SSS FIXME: For now, using tokensToString
-		// We need a universal solution everywhere we discard info. like this
-		// Maybe use the serializer, tsr/dsr ... to figure out.
-		for (i = 0; i < numCaptions-1; i++) {
-			captions[i].v = Util.tokensToString(captions[i].v);
-		}
+	// Add the caption if there is one
+	if ( caption ) {
+		token.dataAttribs.optList.splice( captionOffset, 0, {
+			ck: 'caption',
+			ak: caption.ak
+		} );
+		caption = caption.v;
 	}
 
 	//var contentPos = token.dataAttribs.contentPos;
@@ -407,102 +950,46 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 	// XXX: check if the file exists, generate thumbnail, get size
 	// XXX: render according to mode (inline, thumb, framed etc
 
-	if ( (oHash.format && ( oHash.format === 'thumbnail') ) ||
-	     (oHash.manualthumb) ) {
-		return this.renderThumb( token, this.manager, cb, title, fileName,
-				caption, oHash, options, rdfaAttrs);
+	// TODO: get /wiki from config!
+	var linkTitle = title,
+		hasImageLink = ( oHash.link === undefined || oHash.link !== '' ),
+		useFigure = (
+			oHash.format === 'thumbnail' ||
+			oHash.format === 'framed' ||
+			oHash.manualthumb
+		);
+
+	var width = null, height = null;
+	// local 'width' and 'height' vars will be strings (or null)
+	if ( oHash.height === null && oHash.width === null ) {
+		width = '200';
 	} else {
-		// TODO: get /wiki from config!
-		var linkTitle = title;
-		var isImageLink = ( oHash.link === undefined || oHash.link !== '' );
-		var newAttribs = [
-			new KV( isImageLink ? 'rel' : 'typeof', 'mw:Image')
-		];
-
-		if ( isImageLink ) {
-			if ( oHash.link !== undefined ) {
-				linkTitle = Title.fromPrefixedText( env, oHash.link );
-			}
-			newAttribs.push( new KV('href', linkTitle.makeLink() ) );
-		}
-		if (oHash['class']) {
-			newAttribs.push(new KV('class', oHash['class']));
-		}
-
-		newAttribs = newAttribs.concat(rdfaAttrs.attribs);
-
-		var width=null, height=null;
-		// local 'width' and 'height' vars will be strings (or null)
-		if ( oHash.height===null && oHash.width===null ) {
-			width = '200';
-		} else {
-			width = oHash.width;
-			height = oHash.height;
-		}
-
-		var path = this.getThumbPath( title.key, width.replace(/px$/, '') );
-		var imgAttrs = [
-			new KV( 'src', path ),
-			new KV( 'alt', oHash.alt || title.key )
-		];
-		if (height !== null) {
-			imgAttrs.push( new KV( 'height', height ) );
-		}
-		if (width !== null) {
-			imgAttrs.push( new KV( 'width', width ) );
-		}
-
-		var imgClass = [];
-		if (oHash.border) { imgClass.push('thumbborder'); }
-		if (imgClass.length) {
-			imgAttrs.push( new KV( 'class', imgClass.join(' ') ) );
-		}
-
-		var imgStyle = [], wrapperStyle = [];
-		var halign = (oHash.format==='framed') ? 'right' : null;
-		var isInline = true, isFloat = false;
-		var wrapper = null;
-		if (oHash.halign) { halign = oHash.halign; }
-		if (halign==='none') {
-			// PHP parser wraps in <div class="floatnone">
-			isInline = false;
-		} else if (halign==='center') {
-			// PHP parser wraps in <div class="center"><div class="floatnone">
-			isInline = false;
-			wrapperStyle.push('text-align: center;');
-		} else if (halign==='left') {
-			// PHP parser wraps in <div class="floatleft">
-			isInline = false; isFloat = true;
-			wrapperStyle.push('float: left;');
-		} else if (halign==='right') {
-			// PHP parser wraps in <div class="floatright">
-			isInline = false; isFloat = true;
-			wrapperStyle.push('float: right;');
-		}
-		if (!isInline) {
-			wrapperStyle.push('display: block;');
-		}
-
-		var valign = 'middle';
-		if (oHash.valign) { valign = oHash.valign; }
-		if (isInline && !isFloat) {
-			imgStyle.push('vertical-align: '+valign.replace(/_/,'-')+';');
-		}
-		if (wrapperStyle.length) {
-			newAttribs.push( new KV( 'style', wrapperStyle.join(' ') ) );
-		}
-		if (imgStyle.length) {
-			imgAttrs.push( new KV( 'style', imgStyle.join(' ') ) );
-		}
-
-		var a = new TagTk( isImageLink ? 'a' : 'span', newAttribs, Util.clone(token.dataAttribs));
-		var img = new SelfclosingTagTk( 'img', imgAttrs );
-
-		var tokens = [ a, img, new EndTagTk( isImageLink ? 'a' : 'span' )];
-		return { tokens: tokens };
+		width = oHash.width;
+		height = oHash.height;
 	}
-};
 
+	var path = this.getThumbPath( title.key, width.replace(/px$/, '') ),
+		filename = title.key,
+		constraints = {};
+
+	if ( oHash.height ) {
+		constraints.height =  parseInt( oHash.height, 10 );
+	}
+
+	if ( oHash.width ) {
+		constraints.width = parseInt( oHash.width, 10 );
+	}
+
+	if ( oHash.format && oHash.format !== 'framed' ) {
+		constraints.height = constraints.height || 180;
+		constraints.width = constraints.width || 180;
+	}
+
+	var infoRequest = new ImageInfoRequest( env, filename, constraints );
+
+	infoRequest.on( 'src', handleResponse.bind( null, linkTitle ) );
+	cb( { async: true } );
+};
 
 // Create an url for the scaled image src.
 // FIXME: This is just a dirty hack which will only ever work with the WMF
@@ -514,194 +1001,6 @@ WikiLinkHandler.prototype.getThumbPath = function ( key, width ) {
 		link = Title.fromPrefixedText( env, 'Special:FilePath' ).makeLink();
 	// Simply let Special:FilePath redirect to the real thumb location
 	return link + '/' + key + '?width=' + width;
-};
-
-
-WikiLinkHandler.prototype.renderThumb = function ( token, manager, cb, title, fileName,
-		caption, oHash, options, rdfaAttrs )
-{
-	// It turns out that image captions can have unclosed block tags
-	// which then messes up the entire DOM and wraps the reset of the
-	// page into the image caption which is wrong and also screws up
-	// the RTing in turn.  So, we forcibly close all unclosed block
-	// tags by treating the caption as a well-nested DOM context.
-	//
-	// TODO: Actually build a real DOM so that inlines etc are encapsulated
-	// too. This would need to apply phase 3 token transforms, as the caption
-	// as an attribute is already expanded to phase 2.
-	function closeUnclosedBlockTags(tokens) {
-		var i, j, n, t,
-			// Store the index of a token in the 'tokens' array
-			// rather than the token itself.
-			openBlockTagStack = [];
-
-		for (i = 0, n = tokens.length; i < n; i++) {
-			t = tokens[i];
-			if (Util.isBlockToken(t)) {
-				if (t.constructor === TagTk) {
-					openBlockTagStack.push(i);
-				} else if (t.constructor === EndTagTk && openBlockTagStack.length > 0) {
-					if (tokens[openBlockTagStack.last()].name === t.name) {
-						openBlockTagStack.pop();
-					}
-				}
-			}
-		}
-
-		n = openBlockTagStack.length;
-		if (n > 0) {
-			if (Object.isFrozen(tokens)) {
-				tokens = tokens.slice();
-			}
-			for (i = 0; i < n; i++) {
-				j = openBlockTagStack.pop();
-				t = tokens[j].clone();
-				t.dataAttribs.autoInsertedEnd = true;
-				tokens[j] = t;
-				tokens.push(new EndTagTk(t.name));
-			}
-		}
-
-		return tokens;
-	}
-
-	// TODO: get /wiki from config!
-	var dataAttribs = Util.clone(token.dataAttribs);
-	dataAttribs.optionList = options;
-	dataAttribs.src = undefined; // clear src string since we can serialize this
-
-	var width = 165;
-
-	var env = this.manager.env;
-
-	// Handle explicit width value
-	if ( oHash.width ) {
-		// keep local 'width' var numeric, not a string
-		width = parseInt(oHash.width, 10);
-	}
-
-	// Handle upright
-	if ( 'upright' in oHash ) {
-		if ( oHash.upright > 0 ) {
-			width = width * oHash.upright;
-		} else {
-			width *= 0.75;
-		}
-	}
-
-	var figurestyle = "width: " + (Math.round(width + 5)) + "px;",
-		figureclass = "thumb tright thumbinner";
-	// note that 'border', 'frameless', and 'frame' property is ignored
-	// for thumbnails
-
-	// set horizontal alignment
-	if ( oHash.halign ) {
-		if ( oHash.halign === 'left' ) {
-			figurestyle += ' float: left;';
-			figureclass = "thumb tleft thumbinner";
-		} else if ( oHash.halign === 'center' ) {
-			figureclass = "thumb center thumbinner";
-		} else if ( oHash.halign === 'none' ) {
-			figureclass = "thumb thumbinner";
-		} else {
-			figurestyle += ' float: right;';
-		}
-	} else {
-		figurestyle += ' float: right;';
-	}
-
-	// XXX: set vertical alignment (valign)
-	// XXX: support prefixes
-
-	if (oHash['class']) {
-		figureclass += ' ' + oHash['class'];
-	}
-
-	var rdfaType = 'mw:Thumb',
-		figAttrs = [
-			new KV('class', figureclass),
-			new KV('style', figurestyle)
-		];
-
-	if (rdfaAttrs.hasRdfaType) {
-		// Update once more since we are updating typeof here
-		// and we could be carrying a typeof from earlier in the stream.
-		figAttrs = buildLinkAttrs(rdfaAttrs.attribs, false, rdfaType, figAttrs).attribs;
-	} else {
-		figAttrs.push(new KV('typeof', rdfaType));
-	}
-
-	var linkTitle = title;
-	var isImageLink = ( oHash.link === undefined || oHash.link !== '' );
-	if ( isImageLink && oHash.link !== undefined ) {
-		linkTitle = Title.fromPrefixedText( env, oHash.link );
-	}
-
-	var thumbfile = title.key;
-	if (oHash.manualthumb) {
-		thumbfile = oHash.manualthumb;
-	}
-
-	var path = this.getThumbPath( thumbfile, width ),
-		thumb = [
-		new TagTk('figure', figAttrs),
-		( isImageLink ?
-			new TagTk( 'a', [
-						new KV('href', linkTitle.makeLink()),
-						new KV('class', 'image')
-					] ) :
-			new TagTk( 'span', [
-				new KV( 'typeof', rdfaType )
-			] )
-		),
-		new SelfclosingTagTk( 'img', [
-					new KV('src', path),
-					new KV('width', width + 'px'),
-					//new KV('height', '160px'),
-					new KV('class', 'thumbimage'),
-					new KV('alt', oHash.alt || title.key ),
-					// Add resource as CURIE- needs global default prefix
-					// definition.
-					new KV('resource', '[:' + fileName + ']')
-				]),
-		new EndTagTk( isImageLink ? 'a' : 'span' ),
-		new SelfclosingTagTk ( 'a', [
-					new KV('href', title.makeLink()),
-					new KV('class', 'internal sprite details magnify'),
-					new KV('title', 'View photo details')
-				]),
-		new TagTk( 'figcaption', [
-					new KV('class', 'thumbcaption'),
-					new KV('property', 'mw:thumbcaption')
-				] )
-	].concat( closeUnclosedBlockTags(caption), [
-				new EndTagTk( 'figcaption' ),
-				new EndTagTk( 'figure' )
-			]);
-
-
-	// set round-trip information on the wrapping figure token
-	thumb[0].dataAttribs = dataAttribs;
-
-/*
- * Wikia DOM:
-<figure class="thumb tright thumbinner" style="width:270px;">
-    <a href="Delorean.jpg" class="image" data-image-name="DeLorean.jpg" id="DeLorean-jpg">
-        <img alt="" src="Delorean.jpg" width="268" height="123" class="thumbimage">
-    </a>
-    <a href="File:DeLorean.jpg" class="internal sprite details magnify" title="View photo details"></a>
-    <figcaption class="thumbcaption">
-        A DeLorean DMC-12 from the front with the gull-wing doors open
-        <table><tr><td>test</td></tr></table>
-        Continuation of the caption
-    </figcaption>
-    <div class="picture-attribution">
-        <img src="Christian-Avatar.png" width="16" height="16" class="avatar" alt="Christian">Added by <a href="User:Christian">Christian</a>
-    </div>
-</figure>
-*/
-	//console.warn( 'thumbtokens: ' + JSON.stringify( thumb, null, 2 ) );
-	return { tokens: thumb };
 };
 
 function ExternalLinkHandler( manager, options ) {
@@ -732,7 +1031,7 @@ ExternalLinkHandler.prototype._imageExtensions = {
 	'svg': true
 };
 
-ExternalLinkHandler.prototype._isImageLink = function ( href ) {
+ExternalLinkHandler.prototype._hasImageLink = function ( href ) {
 	var bits = href.split( '.' );
 	return bits.length > 1 &&
 		this._imageExtensions[ bits[bits.length - 1] ] &&
@@ -754,7 +1053,7 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 	}
 
 	var dataAttribs = Util.clone(token.dataAttribs);
-	if ( this._isImageLink( href ) ) {
+	if ( this._hasImageLink( href ) ) {
 		tagAttrs = [
 			new KV( 'src', href ),
 			new KV( 'alt', href.split('/').last() ),
@@ -841,7 +1140,7 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 		} else if ( content.length === 1 &&
 				content[0].constructor === String &&
 				this.urlParser.tokenizeURL( content[0] ) &&
-				this._isImageLink( content[0] ) )
+				this._hasImageLink( content[0] ) )
 		{
 			var src = content[0];
 			content = [ new SelfclosingTagTk( 'img',

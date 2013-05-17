@@ -559,7 +559,7 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 				// don't process the array in this phase.
 				accumChain.push( token );
 			} else {
-				workStack.pushChunk( token );
+				workStack.pushChunk( Object.isFrozen( token ) ? token.slice() : token );
 			}
 			continue;
 		} else if ( token.constructor === ParserValue ) {
