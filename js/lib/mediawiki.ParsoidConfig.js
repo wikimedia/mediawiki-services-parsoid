@@ -124,6 +124,11 @@ ParsoidConfig.prototype.defaultWiki = 'en';
 ParsoidConfig.prototype.useSelser = false;
 ParsoidConfig.prototype.fetchConfig = true;
 
+/**
+ * @property {boolean} editMode
+ */
+ParsoidConfig.prototype.editMode = true;
+
 if (typeof module === "object") {
 	module.exports.ParsoidConfig = ParsoidConfig;
 }
