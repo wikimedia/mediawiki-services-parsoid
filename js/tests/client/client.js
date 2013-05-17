@@ -77,7 +77,8 @@ var runTest = function( cb, prefix, title ) {
 	try {
 		rtTest.fetch( title, callback, {
 			setup: config.setup,
-			prefix: prefix
+			prefix: prefix,
+			editMode: false
 		} );
 	} catch ( err ) {
 		// Log it to console (for gabriel to watch scroll by)
