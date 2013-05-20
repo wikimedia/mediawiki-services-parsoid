@@ -697,6 +697,7 @@ add("html2html", "Internal link with ca linktrail with apostrophes (bug 27473)")
 add("html2html", "Internal link with kaa linktrail with apostrophes (bug 27473)");
 add("html2html", "Internal link with is link prefix");
 add("html2html", "Internal link with is link trail and link prefix");
+add("html2html", "Parsoid link prefix escaping");
 add("html2html", "Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved");
 add("html2html", "Inline interwiki link");
 add("html2html", "Inline interwiki link with empty title (bug 2372)");
