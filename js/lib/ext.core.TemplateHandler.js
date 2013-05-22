@@ -109,7 +109,7 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 			// for caching expanded tokens from the expanded transclusion text
 			// that we get from the preprocessor.
 			var text = token.dataAttribs.src,
-				templateName = (this.resolveTemplateTarget(token.attribs[0].k) || '').target || "",
+				templateName = (this.resolveTemplateTarget(state, token.attribs[0].k) || '').target || "",
 				srcHandler = this._processTemplateAndTitle.bind(
 					this, state, frame, cb,
 					{ name: templateName, attribs: [], cacheKey: text });
@@ -184,7 +184,7 @@ TemplateHandler.prototype.checkForMagicWordVariable = function (magicWord) {
 	return null;
 };
 
-TemplateHandler.prototype.resolveTemplateTarget = function ( targetToks ) {
+TemplateHandler.prototype.resolveTemplateTarget = function ( state, targetToks ) {
 
 	function isConvertibleToString( tokens ) {
 		var maybeTarget = Util.tokensToString( tokens, true );
@@ -250,6 +250,7 @@ TemplateHandler.prototype.resolveTemplateTarget = function ( targetToks ) {
 
 		// Resolve a possibly relative link
 		target = env.resolveTitle(target, namespaceId);
+		state.resolvedStaticTarget = target;
 
 		return { isPF: false, target: target };
 	} else {
@@ -313,7 +314,7 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 		console.trace();
 	}
 
-	var resolvedTgt = this.resolveTemplateTarget(target);
+	var resolvedTgt = this.resolveTemplateTarget(state, target);
 	if ( resolvedTgt === null ) {
 		// Target contains tags, convert template braces and pipes back into text
 		// Re-join attribute tokens with '=' and '|'
@@ -491,7 +492,7 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 			// That in turn triggers diffs. See
 			// https://bugzilla.wikimedia.org/show_bug.cgi?id=47426.
 			//id: state.wrappedObjectId,
-			target: { wt: tplTgtWT },
+			target: { wt: tplTgtWT, url: state.resolvedStaticTarget },
 			params: dict
 		})));
 	}
