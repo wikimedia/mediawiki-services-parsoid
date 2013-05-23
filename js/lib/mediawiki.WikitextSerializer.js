@@ -1738,18 +1738,18 @@ WSP.tagHandlers = {
 		},
 		sepnls: {
 			before: function(node, otherNode) {
-				var nodeName = otherNode.nodeName.toLowerCase();
+				var otherNodeName = otherNode.nodeName.toLowerCase();
 				if( node.parentNode === otherNode &&
-						isListElementName(nodeName) || nodeName in {td:1, body:1} )
+						isListElementName(otherNodeName) || otherNodeName in {td:1, body:1} )
 				{
-					if (nodeName in {td:1, body:1}) {
+					if (otherNodeName in {td:1, body:1}) {
 						return {min: 0, max: 1};
 					} else {
 						return {min: 0, max: 0};
 					}
 				} else if (otherNode === node.previousSibling &&
 						// p-p transition
-						nodeName === 'p' ||
+						otherNodeName === 'p' ||
 						// Treat text/p similar to p/p transition
 						// XXX: also check if parent node and first sibling
 						// serializes(|d) to single line.
@@ -1757,12 +1757,12 @@ WSP.tagHandlers = {
 						// needed in that case. Example:
 						// <div>foo</div> a
 						// b
-						((nodeName === '#text' &&
+						((otherNodeName === '#text' &&
 						  otherNode === DU.previousNonSepSibling(node) &&
 						  // FIXME HACK: Avoid forcing two newlines if the
 						  // first line is a text node that ends up on the
 						  // same line as a block
-						  !( DU.isBlockNode(node.parentNode) ||
+						  !( ( DU.isBlockNode(node.parentNode) && node.parentNode.nodeName !== 'BODY') ||
 								otherNode.nodeValue.match(/\n(?!$)/)))))
 				{
 					return {min: 2, max: 2};
