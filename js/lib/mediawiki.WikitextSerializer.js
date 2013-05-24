@@ -1879,17 +1879,19 @@ WSP.tagHandlers = {
 			} else if ( property ) {
 				var switchType = property.match( /^mw\:PageProp\/(.*)$/ );
 				if ( switchType ) {
-					switchType = switchType[1];
-					if (switchType === 'categorydefaultsort') {
+					var out = switchType[1];
+					if (out === 'categorydefaultsort') {
 						if (node.data.parsoid.src) {
-							switchType = node.data.parsoid.src;
+							// Use content so that VE modifications are preserved
+							out = node.data.parsoid.src.replace(/^([^:]+:)(.*)$/, "$1" + content + "}}");
 						} else {
-							console.warn('defaultsort is missing source');
+							console.warn('defaultsort is missing source. Rendering as DEFAULTSORT magicword');
+							out = "{{DEFAULTSORT:" + content + "}}";
 						}
 					} else if ( node.data.parsoid.magicSrc ) {
-						switchType = node.data.parsoid.magicSrc;
+						out = node.data.parsoid.magicSrc;
 					}
-					cb(switchType, node);
+					cb(out, node);
 				}
 			} else {
 				state.serializer._htmlElementHandler(node, state, cb);
