@@ -799,18 +799,6 @@ WSP.figureHandler = function(node, state, cb) {
 	}
 
 	// Captions dont start on a new line
-	//
-	// So, even though the figure might be in a sol-state, serialize the
-	// caption in a no-sol state and restore old state.  This is required
-	// to prevent spurious wikitext escaping for this example:
-	//
-	// [[File:foo.jpg|thumb| bar]] ==> [[File:foo.jpg|thumb|<nowiki> bar</nowiki>]]
-	//
-	// In sol state, text " bar" should be nowiki escaped to prevent it from
-	// parsing to an indent-pre.  But, not in figure captions.
-
-	// XXX: don't use serializeChildrenToString here as that messes up the
-	// global separator state?
 	var captionSrc;
 	captionSrc = state.serializeChildrenToString(caption, this.wteHandlers.aHandler, false);
 
@@ -1165,8 +1153,7 @@ WSP.linkHandler = function(node, state, cb) {
 										Util.decodeURI( target.value ) ||
 									// normalize with underscores for comparison with href
 									env.normalizeTitle( linkData.content.string ) ===
-										Util.decodeURI( linkData.href ) ||
-									linkData.href === linkData.content.string ) &&
+										Util.decodeURI( linkData.href )) &&
 								// but preserve non-minimal piped links
 								! ( ! target.modified &&
 										( dp.stx === 'piped' || dp.pipetrick ) ),
@@ -1183,8 +1170,6 @@ WSP.linkHandler = function(node, state, cb) {
 						env.normalizeTitle(
 							Util.stripPipeTrickChars(Util.decodeURI(linkData.href))) ===
 							env.normalizeTitle(linkData.content.string)
-						// XXX: try more pairs similar to the canUseSimple
-						// test above?
 					),
 				// Only preserve pipe trick instances across edits, but don't
 				// introduce new ones.
@@ -1196,17 +1181,16 @@ WSP.linkHandler = function(node, state, cb) {
 
 			if ( canUseSimple ) {
 				// Simple case
-				if ( ! target.modified ) {
-					cb( escapes.prefix + linkData.prefix +
-							'[[' + target.value + ']]' + linkData.tail + escapes.tail, node );
-					return;
+				var linkTarget;
+				if (!target.modified) {
+					linkTarget = target.value;
 				} else {
-					contentSrc = escapeWikiLinkContentString(linkData.content.string, state);
-
-					cb( escapes.prefix + linkData.prefix + '[[' + contentSrc + ']]' +
-							linkData.tail + escapes.tail, node );
-					return;
+					linkTarget = escapeWikiLinkContentString(linkData.content.string, state);
 				}
+
+				cb( escapes.prefix + linkData.prefix + '[[' + linkTarget + ']]' +
+						linkData.tail + escapes.tail, node );
+				return;
 			} else {
 
 				// First get the content source
@@ -3046,7 +3030,7 @@ WSP._serializeNode = function( node, state, cb) {
 			// to every node of a subtree (rather than an indication that some node
 			// in the subtree is modified).
 			if (state.selserMode && !state.inModifiedContent) {
-				// To serialize from source, we need 2 things of the node:
+				// To serialize from source, we need 3 things of the node:
 				// -- it should not have a diff marker
 				// -- it should have valid, usable DSR
 				// -- it should have a non-zero length DSR
