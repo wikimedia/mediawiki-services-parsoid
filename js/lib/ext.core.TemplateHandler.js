@@ -343,7 +343,6 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 		} else {
 			newCB = cb;
 		}
-		state.tokenTarget = target;
 		this.parserFunctions[target](state.token, this.manager.frame, newCB, pfAttribs);
 		return;
 	}
@@ -413,7 +412,6 @@ TemplateHandler.prototype._processTemplateAndTitle = function( state, frame, cb,
 			);
 
 	pipeline.setFrame( this.manager.frame, tplArgs.name, tplArgs.attribs );
-	state.tokenTarget = tplArgs.name;
 
 	// Hook up the inputPipeline output events to our handlers
 	pipeline.addListener( 'chunk', this._onChunk.bind ( this, state, cb ) );
