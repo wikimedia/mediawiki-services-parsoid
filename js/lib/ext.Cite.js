@@ -341,7 +341,12 @@ References.prototype.extractRefFromNode = function(node) {
 			'class': 'reference',
 			'data-mw': JSON.stringify({
 				'name': 'ref',
-				'body': { 'html': node.getAttribute("content") }
+				'body': { 'html': node.getAttribute("content") },
+				'attrs': {
+					// Dont emit empty keys
+					'group': group || undefined,
+					'name': refName || undefined
+				}
 			}),
 			'id': ref.linkbacks[ref.linkbacks.length - 1],
 			'rel': 'dc:references',
@@ -394,6 +399,11 @@ References.prototype.insertReferencesIntoDOM = function(refsNode) {
 		DU.addAttributes(ol, {
 			'about': about,
 			'class': 'references',
+			// SSS FIXME: data-mw for references is missing.
+			// We'll have to output data-mw.body.extsrc in
+			// scenarios where original wikitext was of the form:
+			// "<references> lot of refs here </references>"
+			// Ex: See [[en:Barack Obama]]
 			'typeof': 'mw:Object/Ext/References'
 		});
 		ol.data = refsNode.data;

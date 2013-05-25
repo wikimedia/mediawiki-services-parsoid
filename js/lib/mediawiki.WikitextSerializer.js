@@ -2259,6 +2259,52 @@ WSP._buildTemplateWT = function(state, srcParts) {
 	return buf.join('');
 };
 
+WSP._buildExtensionWT = function(state, node, dataMW) {
+	var extName = dataMW.name,
+		srcParts = ["<", extName];
+
+	// Serialize extension attributes in normalized form as:
+	// key='value'
+	var attrs = dataMW.attrs || {},
+		extTok = new pd.TagTk(extName, Object.keys(attrs).map(function(k) {
+			return new pd.KV(k, attrs[k]);
+		})),
+		about = node.getAttribute('about'),
+		type = node.getAttribute('typeof'),
+		attrStr;
+
+	if (about) {
+		extTok.addAttribute('about', about);
+	}
+	if (type) {
+		extTok.addAttribute('typeof', type);
+	}
+	attrStr = this._serializeAttributes(state, extTok);
+
+	if (attrStr) {
+		srcParts.push(' ');
+		srcParts.push(attrStr);
+	}
+
+	// Serialize body
+	if (dataMW.body === null) {
+		srcParts.push(" />");
+	} else {
+		srcParts.push(">");
+		if (dataMW.body.html) {
+			var wts = new WikitextSerializer({env: state.env});
+			srcParts.push(wts.serializeDOM(Util.parseHTML(dataMW.body.html).body));
+		} else if (dataMW.body.extsrc) {
+			srcParts.push(dataMW.body.extsrc);
+		} else {
+			console.error("ERROR: extension src unavailable for: " + node.outerHTML);
+		}
+		srcParts = srcParts.concat(["</", extName, ">"]);
+	}
+
+	return srcParts.join('');
+};
+
 WSP.skipOverEncapsulatedContent = function(node) {
 	var about = node.getAttribute('about');
 	if (!about) {
@@ -2297,14 +2343,17 @@ WSP._getDOMHandler = function(node, state, cb) {
 			// Source-based template/extension round-tripping for now
 			return {
 				handle: function () {
-					// In RT-testing mode, there will not be any edits to tpls.
-					// So, use original source to eliminate spurious diffs showing
-					// up in RT testing results.
-					var src;
-					if (state.rtTesting || nodeTypeOf.match(/mw:Object\/Ext/)) {
+					// In RT-testing mode, there will not be any edits to tpls/extensions.
+					// So, use original source to eliminate spurious diffs showing up
+					// in RT testing results.
+					var src, dataMW;
+					if (state.rtTesting) {
 						src = dp.src;
+					} else if (nodeTypeOf.match(/mw:Object\/Ext/)) {
+						dataMW = JSON.parse(node.getAttribute("data-mw"));
+						src = !dataMW ? dp.src : state.serializer._buildExtensionWT(state, node, dataMW);
 					} else {
-						var dataMW = JSON.parse(node.getAttribute("data-mw"));
+						dataMW = JSON.parse(node.getAttribute("data-mw"));
 						if (dataMW) {
 							src = state.serializer._buildTemplateWT(state, dataMW.parts || [{ template: dataMW }]);
 						} else {
