@@ -821,6 +821,10 @@ ParserFunctions.prototype.pf_namespacee = function ( token, frame, cb, args ) {
 	var target = args[0].k;
 	cb( { tokens: [target.split(':').pop() || 'Main'] } );
 };
+ParserFunctions.prototype.pf_namespacenumber = function ( token, frame, cb, args ) {
+	var target = args[0].k.split(':').pop();
+	cb( { tokens: [this.env.conf.wiki.namespaceIds[target]] } );
+};
 ParserFunctions.prototype.pf_pagename = function ( token, frame, cb, args ) {
 	cb( { tokens: [this.env.page.name || ''] } );
 };
