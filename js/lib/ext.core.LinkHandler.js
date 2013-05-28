@@ -709,7 +709,9 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 			info = image.imageinfo[0];
 		} else {
 			image = data.pages[ns + ':' + filename];
-			if (image.missing !== undefined) {
+			// SSS FIXME: image.missing doesn't seem to be very useful.
+			// It is often "" even both for missing images as well as valid images.
+			if (!image.imageinfo) {
 				// FIXME gwicke: Handle missing images properly!!
 				cb ({tokens: [new SelfclosingTagTk('meta',
 							[new KV('typeof', 'mw:Placeholder')], token.dataAttribs)]});
