@@ -85,12 +85,9 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 	//		' args: ' + JSON.stringify( this.manager.args ));
 
 	// magic word variables can be mistaken for templates
-	var translatedMagicWordKVs = this.checkForMagicWordVariable(token.attribs[0].k);
-	if (translatedMagicWordKVs) {
-		var metaToken = new defines.SelfclosingTagTk('meta',
-											 translatedMagicWordKVs,
-											 Util.clone(token.dataAttribs));
-		cb({ tokens: [metaToken] });
+	var magicWord = this.checkForMagicWordVariable(token);
+	if (magicWord) {
+		cb({ tokens: [magicWord] });
 		return;
 	}
 
@@ -181,23 +178,87 @@ TemplateHandler.prototype._parserFunctionsWrapper = function(state, cb, ret) {
  * Check if token is a magic word masquerading as a template
  * - currently only DEFAULTSORT is considered
  */
-TemplateHandler.prototype.checkForMagicWordVariable = function (magicWord) {
-	if (magicWord.constructor !== String) {
-		// maybe we should try to convert to string, but for now we only care for DEFAULTSORT
-		return null;
+TemplateHandler.prototype.checkForMagicWordVariable = function(tplToken) {
+	// Deal with the following scenarios:
+	//
+	// 1. Normal string:        {{DEFAULTSORT:foo}}
+	// 2. String with entities: {{DEFAULTSORT:"foo"bar}}
+	// 3. Templated key:        {{DEFAULTSORT:{{foo}}bar}}
+
+	var property, key, propAndKey, keyToks,
+		magicWord = tplToken.attribs[0].k;
+
+	if (magicWord.constructor === String) {
+		// Scenario 1. above -- common case
+		propAndKey = magicWord.match(/^([^:]+:)(.*)$/);
+		if (propAndKey) {
+			property = propAndKey[1];
+			key = propAndKey[2];
+		}
+	} else if (magicWord.constructor === Array) {
+		// Scenario 2. or 3. above -- uncommon case
+
+		property = magicWord[0];
+		if (!property || property.constructor !== String) {
+			// FIXME: We don't know if this is a magic word at this point.
+			// Ex: {{ {{echo|DEFAULTSORT}}:foo }}
+			//     {{ {{echo|lc}}:foo }}
+			// This requires more info from the preprocessor than
+			// we have currently. This will be handled at a later point.
+			return null;
+		}
+
+		propAndKey = property.match(/^([^:]+:)(.*)$/);
+		if (propAndKey) {
+			property = propAndKey[1];
+			key = propAndKey[2];
+		}
+
+		keyToks = [key].concat(magicWord.slice(1));
 	}
 
-	var propAndKey = magicWord.match(/^([^:]+:)(.*)$/);
-	if (propAndKey) {
-		var prop = propAndKey[1].trim(),
-			key = propAndKey[2].trim();
-
-		if (this.manager.env.conf.wiki.magicWords[prop] === 'defaultsort' && key.length > 0) {
-			return [
-				new KV('property', 'mw:PageProp/categorydefaultsort'),
-				new KV('content', key)
-		   ];
+	// TODO gwicke: factor out generic magic word (and parser function) round-tripping logic!
+	if (property && this.manager.env.conf.wiki.magicWords[property.trim()] === 'defaultsort') {
+		var templatedKey = false;
+		if (keyToks) {
+			// Check if any part of the key is templated
+			for (var i = 0, n = keyToks.length; i < n; i++) {
+				if (Util.isTemplateToken(keyToks[i])) {
+					templatedKey = true;
+					break;
+				}
+			}
+			key = Util.tokensToString(keyToks);
 		}
+
+		var metaToken = new defines.SelfclosingTagTk(
+				'meta',
+				[new KV('property', 'mw:PageProp/categorydefaultsort')],
+				Util.clone(tplToken.dataAttribs)
+			);
+
+		if (templatedKey) {
+			// No shadowing if templated
+			//
+			// SSS FIXME: post-tpl-expansion, WS won't be trimmed. How do we handle this?
+			metaToken.addAttribute("content", keyToks);
+		} else {
+			// Leading/trailing WS should be stripped
+			key = key.trim();
+
+			var src = (tplToken.dataAttribs || {}).src;
+			if (src) {
+				// If the token has original wikitext, shadow the sort-key
+				var origKey = src.replace(/[^:]+:/, '');
+				metaToken.addNormalizedAttribute("content", key, origKey);
+			} else {
+				// If not, this token came from an extension/template
+				// in which case, dont bother with shadowing since the token
+				// will never be edited directly.
+				metaToken.addAttribute("content", key);
+			}
+		}
+		return metaToken;
 	}
 
 	return null;

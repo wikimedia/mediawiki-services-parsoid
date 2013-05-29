@@ -2105,7 +2105,27 @@ WSP.tagHandlers = {
 				content = node.getAttribute('content'),
 				property = node.getAttribute('property');
 
-			if ( type ) {
+			// Check for property before type so that page properties with templated attrs
+			// roundtrip properly.  Ex: {{DEFAULTSORT:{{echo|foo}} }}
+			if ( property ) {
+				var switchType = property.match( /^mw\:PageProp\/(.*)$/ );
+				if ( switchType ) {
+					var out = switchType[1];
+					if (out === 'categorydefaultsort') {
+						if (node.data.parsoid.src) {
+							// Use content so that VE modifications are preserved
+							var contentInfo = DU.getAttributeShadowInfo(node, "content", state.tplAttrs);
+							out = node.data.parsoid.src.replace(/^([^:]+:)(.*)$/, "$1" + contentInfo.value + "}}");
+						} else {
+							console.warn('defaultsort is missing source. Rendering as DEFAULTSORT magicword');
+							out = "{{DEFAULTSORT:" + content + "}}";
+						}
+					} else if ( node.data.parsoid.magicSrc ) {
+						out = node.data.parsoid.magicSrc;
+					}
+					cb(out, node);
+				}
+			} else if ( type ) {
 				switch ( type ) {
 					case 'mw:tag':
 							 // we use this currently for nowiki and co
@@ -2144,23 +2164,6 @@ WSP.tagHandlers = {
 					default:
 							 state.serializer._htmlElementHandler(node, state, cb);
 							 break;
-				}
-			} else if ( property ) {
-				var switchType = property.match( /^mw\:PageProp\/(.*)$/ );
-				if ( switchType ) {
-					var out = switchType[1];
-					if (out === 'categorydefaultsort') {
-						if (node.data.parsoid.src) {
-							// Use content so that VE modifications are preserved
-							out = node.data.parsoid.src.replace(/^([^:]+:)(.*)$/, "$1" + content + "}}");
-						} else {
-							console.warn('defaultsort is missing source. Rendering as DEFAULTSORT magicword');
-							out = "{{DEFAULTSORT:" + content + "}}";
-						}
-					} else if ( node.data.parsoid.magicSrc ) {
-						out = node.data.parsoid.magicSrc;
-					}
-					cb(out, node);
 				}
 			} else {
 				state.serializer._htmlElementHandler(node, state, cb);

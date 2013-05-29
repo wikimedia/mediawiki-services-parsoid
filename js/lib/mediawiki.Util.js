@@ -245,6 +245,10 @@ var Util = {
 		}
 	},
 
+	isTemplateToken: function(token) {
+		return token && token.constructor === pd.SelfclosingTagTk && token.name === 'template';
+	},
+
 	isTableTag: function(token) {
 		var tc = token.constructor;
 		return (tc === pd.TagTk || tc === pd.EndTagTk) &&
