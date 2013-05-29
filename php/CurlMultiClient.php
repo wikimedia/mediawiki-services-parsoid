@@ -1,6 +1,8 @@
 <?php
+
 /**
  * A simple parallel CURL client helper class
+ * @TODO: name this ParsoidCurlMultiClient or move to core
  */
 class CurlMultiClient {
 
@@ -10,10 +12,10 @@ class CurlMultiClient {
 	 * @static
 	 * @returns array default options
 	 */
-	public static function getDefaultOptions () {
+	public static function getDefaultOptions() {
 		return array(
-			CURLOPT_HEADER=>0,
-			CURLOPT_RETURNTRANSFER=>1
+			CURLOPT_HEADER => 0,
+			CURLOPT_RETURNTRANSFER => 1
 		);
 	}
 
@@ -23,11 +25,11 @@ class CurlMultiClient {
 	 *
 	 * @static
 	 * @param $requests array requests, each with an url and an optional
-	 *	'headers' member:
-	 *		  array(
-	 *			'url' => 'http://server.com/foo',
-	 *			'headers' => array( 'X-Foo: Bar' )
-	 *		  )
+	 * 	'headers' member:
+	 * 		  array(
+	 * 			'url' => 'http://server.com/foo',
+	 * 			'headers' => array( 'X-Foo: Bar' )
+	 * 		  )
 	 * @param $options array curl options used for each request, default
 	 * {CurlMultiClient::getDefaultOptions}.
 	 * @returns array An array of arrays containing 'error' and 'data'
@@ -35,45 +37,44 @@ class CurlMultiClient {
 	 * errors, the error member will be null and data will contain the
 	 * response data as a string.
 	 */
-	public static function request($requests, $options=""){
-
-
-		if( !count( $requests ) ) return false;
+	public static function request( $requests, array $options = null ) {
+		if ( !count( $requests ) ) {
+			return array();
+		}
 
 		$handles = array();
 
-		if( !$options ) // add default options
+		if ( $options === null ) { // add default options
 			$options = CurlMultiClient::getDefaultOptions();
+		}
 
 		// add curl options to each handle
-		foreach( $requests as $k => $row ){
+		foreach ( $requests as $k => $row ) {
 			$handle = curl_init();
-			$options[CURLOPT_URL] = $row['url'];
-			wfDebug("adding url: " . $row['url']);
-			if ( array_key_exists( 'headers', $row ) ) {
-				$options[CURLOPT_HTTPHEADER] = $row['headers'];
-			} else if ( array_key_exists( CURLOPT_HTTPHEADER, $options ) ) {
-				unset( $options[CURLOPT_HTTPHEADER] );
+			$reqOptions = array( CURLOPT_URL => $row['url'] ) + $options;
+			wfDebug( "adding url: " . $row['url'] );
+			if ( isset( $row['headers'] ) ) {
+				$reqOptions[CURLOPT_HTTPHEADER] = $row['headers'];
 			}
-			curl_setopt_array($handle, $options);
+			curl_setopt_array( $handle, $reqOptions );
 
 			$handles[$k] = $handle;
 		}
 
 		$mh = curl_multi_init();
 
-		foreach( $handles as $handle ){
-			curl_multi_add_handle($mh,$handle);
+		foreach ( $handles as $handle ) {
+			curl_multi_add_handle( $mh, $handle );
 		}
 
 		$running_handles = null;
 		//execute the handles
 		do {
-			$status_cme = curl_multi_exec($mh, $running_handles);
+			$status_cme = curl_multi_exec( $mh, $running_handles );
 		} while ( $status_cme == CURLM_CALL_MULTI_PERFORM );
 
 		while ( $running_handles && $status_cme == CURLM_OK ) {
-			if ( curl_multi_select($mh) != -1 ) {
+			if ( curl_multi_select( $mh ) != -1 ) {
 				do {
 					$status_cme = curl_multi_exec( $mh, $running_handles );
 				} while ( $status_cme == CURLM_CALL_MULTI_PERFORM );
@@ -81,14 +82,14 @@ class CurlMultiClient {
 		}
 
 		$res = array();
-		foreach( $requests as $k => $row ){
+		foreach ( $requests as $k => $row ) {
 			$res[$k] = array();
 			$res[$k]['error'] = curl_error( $handles[$k] );
-			if( !empty( $res[$k]['error'] ) ) {
-				$res[$k]['data']  = null;
+			if ( strlen( $res[$k]['error'] ) ) {
+				$res[$k]['data'] = null;
 			} else {
 				$res[$k]['error'] = null;
-				$res[$k]['data']  = curl_multi_getcontent( $handles[$k] );  // get results
+				$res[$k]['data'] = curl_multi_getcontent( $handles[$k] );  // get results
 			}
 
 			// close current handler
@@ -99,4 +100,5 @@ class CurlMultiClient {
 		#wfDebug(serialize($res));
 		return $res; // return response
 	}
+
 }

@@ -1,18 +1,18 @@
 <?php
+
 /**
  * Basic cache invalidation for Parsoid
  */
-
 if ( !defined( 'MEDIAWIKI' ) ) {
 	echo "Parsoid extension\n";
 	exit( 1 );
 }
 
-
 /**
  * Class containing basic setup functions.
  */
 class ParsoidSetup {
+
 	/**
 	 * Register hook handlers.
 	 * This function must NOT depend on any config vars.
@@ -22,7 +22,7 @@ class ParsoidSetup {
 	public static function setUnconditionalHooks() {
 		global $wgHooks, $wgAutoloadClasses, $wgJobClasses;
 
-		$dir = dirname( __FILE__ );
+		$dir = __DIR__;
 
 		# Set up class autoloading
 		$wgAutoloadClasses['ParsoidHooks'] = "$dir/Parsoid.hooks.php";
@@ -44,8 +44,8 @@ class ParsoidSetup {
 		# File upload
 		$wgHooks['FileUpload'][] = 'ParsoidHooks::onFileUpload';
 	}
-}
 
+}
 
 # Load hooks that are always set
 ParsoidSetup::setUnconditionalHooks();

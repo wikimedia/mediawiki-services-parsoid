@@ -1,10 +1,13 @@
 <?php
+
 /**
  * HTML cache refreshing and -invalidation job for the Parsoid varnish caches.
  * See
  * http://www.mediawiki.org/wiki/Parsoid/Minimal_performance_strategy_for_July_release
+ * @TODO: eventually extend some generic backlink job base class in core
  */
 class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
+
 	/**
 	 * Construct a job
 	 * @param $title Title: the title linked to
@@ -12,7 +15,7 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 	 * @param $id Integer: job id
 	 */
 	function __construct( $title, $params, $id = 0 ) {
-		wfDebug("ParsoidCacheUpdateJob.__construct\n");
+		wfDebug( "ParsoidCacheUpdateJob.__construct\n" );
 		global $wgUpdateRowsPerJob;
 
 		Job::__construct( 'ParsoidCacheUpdateJob', $title, $params, $id );
@@ -56,16 +59,17 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 	 * @param bool $prev use previous revision id if true
 	 * @return string an absolute URL for the article on the given server
 	 */
-	protected function getParsoidURL( $title, $server, $prev = false ) {
+	protected function getParsoidURL( Title $title, $server, $prev = false ) {
 		global $wgLanguageCode;
 
-		$oldid = $prev ? $title->getPreviousRevisionID($title->getLatestRevID())
-								: $title->getLatestRevID();
+		$oldid = $prev
+			? $title->getPreviousRevisionID( $title->getLatestRevID() )
+			: $title->getLatestRevID();
 
+		// Construct Parsoid web service URL
 		return 'http://' . $server . '/' . $wgLanguageCode . '/' .
 			$title->getPrefixedDBkey() . '?oldid=' . $oldid;
 	}
-
 
 	/**
 	 * Invalidate a single title object after an edit. Send headers that let
@@ -74,19 +78,19 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 	 */
 	protected function invalidateTitle( $title ) {
 		global $wgParsoidCacheServers;
-		if( !isset( $wgParsoidCacheServers ) ) {
-			$wgParsoidCacheServers = array( 'localhost' );
+		if ( !isset( $wgParsoidCacheServers ) ) {
+			$wgParsoidCacheServers = array( 'localhost' ); // @FIXME: test code?
 		}
 
 		# First request the new version
 		$parsoidInfo = array();
-		$parsoidInfo['cacheID'] = $title->getPreviousRevisionID($title->getLatestRevID());
+		$parsoidInfo['cacheID'] = $title->getPreviousRevisionID( $title->getLatestRevID() );
 		$parsoidInfo['changedTitle'] = $this->title->getPrefixedDBkey();
 
-		$requests = array ();
+		$requests = array();
 		foreach ( $wgParsoidCacheServers as $server ) {
 			$requests[] = array(
-				'url' => $this->getParsoidURL( $title, $server ),
+				'url'     => $this->getParsoidURL( $title, $server ),
 				'headers' => array(
 					'X-Parsoid: ' . json_encode( $parsoidInfo ),
 					// Force implicit cache refresh similar to
@@ -95,15 +99,16 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 				)
 			);
 		};
-		wfDebug("ParsoidCacheUpdateJob::invalidateTitle: " .
-			serialize($requests) . "\n");
+		wfDebug( "ParsoidCacheUpdateJob::invalidateTitle: " . serialize( $requests ) . "\n" );
 		CurlMultiClient::request( $requests );
+		// @TODO: maybe call $this->setLastError() if something went wrong?
 
 		# And now purge the previous revision so that we make efficient use of
 		# the Varnish cache space without relying on LRU. Since the URL
 		# differs we can't use implicit refresh.
-		$requests = array ();
+		$requests = array();
 		foreach ( $wgParsoidCacheServers as $server ) {
+			// @TODO: this triggers a getPreviousRevisionID() query per server
 			$requests[] = array(
 				'url' => $this->getParsoidURL( $title, $server, true )
 			);
@@ -111,6 +116,7 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 		$options = CurlMultiClient::getDefaultOptions();
 		$options[CURLOPT_CUSTOMREQUEST] = "PURGE";
 		CurlMultiClient::request( $requests, $options );
+		// @TODO: maybe call $this->setLastError() if something went wrong?
 	}
 
 	/**
@@ -121,10 +127,9 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 	 */
 	protected function invalidateTitles( $titleArray ) {
 		global $wgParsoidCacheServers, $wgLanguageCode;
-		if( !isset( $wgParsoidCacheServers ) ) {
+		if ( !isset( $wgParsoidCacheServers ) ) {
 			$wgParsoidCacheServers = array( 'localhost' );
 		}
-
 
 		# Re-render
 		$parsoidInfo = array();
@@ -146,7 +151,7 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 				$parsoidInfo['cacheID'] = $title->getLatestRevID();
 
 				$requests[] = array(
-					'url' => $url,
+					'url'     => $url,
 					'headers' => array(
 						'X-Parsoid: ' . json_encode( $parsoidInfo ),
 						// Force implicit cache refresh similar to
@@ -159,32 +164,34 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 
 		// Now send off all those update requests
 		CurlMultiClient::request( $requests );
+		// @TODO: maybe call $this->setLastError() if something went wrong?
 
-		wfDebug('ParsoidCacheUpdateJob::invalidateTitles update: ' .
-			serialize($requests) . "\n" );
+		wfDebug( 'ParsoidCacheUpdateJob::invalidateTitles update: ' .
+			serialize( $requests ) . "\n" );
 
 		/*
-		# PURGE
-		# Not needed with implicit updates (see above)
-		# Build an array of purge requests
-		$requests = array();
-		foreach ( $wgParsoidCacheServers as $server ) {
-			foreach ( $titleArray as $title ) {
-				$url = $this->getParsoidURL( $title, $server, false );
+		  # PURGE
+		  # Not needed with implicit updates (see above)
+		  # Build an array of purge requests
+		  $requests = array();
+		  foreach ( $wgParsoidCacheServers as $server ) {
+		  foreach ( $titleArray as $title ) {
+		  $url = $this->getParsoidURL( $title, $server, false );
 
-				$requests[] = array(
-					'url' => $url
-				);
-			}
-		}
+		  $requests[] = array(
+		  'url' => $url
+		  );
+		  }
+		  }
 
-		$options = CurlMultiClient::getDefaultOptions();
-		$options[CURLOPT_CUSTOMREQUEST] = "PURGE";
-		// Now send off all those purge requests
-		CurlMultiClient::request( $requests, $options );
+		  $options = CurlMultiClient::getDefaultOptions();
+		  $options[CURLOPT_CUSTOMREQUEST] = "PURGE";
+		  // Now send off all those purge requests
+		  CurlMultiClient::request( $requests, $options );
 
-		wfDebug('ParsoidCacheUpdateJob::invalidateTitles purge: ' .
-			serialize($requests) . "\n" );
+		  wfDebug('ParsoidCacheUpdateJob::invalidateTitles purge: ' .
+		  serialize($requests) . "\n" );
 		 */
 	}
+
 }

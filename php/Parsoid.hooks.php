@@ -4,15 +4,17 @@
  * Hooks for events that should trigger Parsoid cache updates.
  */
 class ParsoidHooks {
+
 	/**
 	 * Schedule an async update job in the job queue. The params passed here
 	 * are empty. They are dynamically created in ParsoidCacheUpdateJob
 	 * depending on title namespace etc.
+	 *
+	 * @param Title $title
+	 * @param string $action (@TODO: unused)
 	 */
-	private static function updateTitle ( $title, $action ) {
-		$jobs = array();
-		$jobs[] = new ParsoidCacheUpdateJob( $title, array() );
-		Job::batchInsert( $jobs );
+	private static function updateTitle( Title $title, $action ) {
+		JobQueueGroup::singleton()->push( new ParsoidCacheUpdateJob( $title, array() ) );
 	}
 
 	/**
@@ -23,9 +25,9 @@ class ParsoidHooks {
 	 * @param bool $changed
 	 * @return bool
 	 */
-	public static function onArticleEditUpdates ( &$article, &$editInfo, $changed ) {
+	public static function onArticleEditUpdates( $article, $editInfo, $changed ) {
 		if ( $changed ) {
-			ParsoidHooks::updateTitle( $article->getTitle(), 'edit' );
+			self::updateTitle( $article->getTitle(), 'edit' );
 		}
 		return true;
 	}
@@ -39,17 +41,16 @@ class ParsoidHooks {
 	 * @param int $id the page id
 	 * @return bool
 	 */
-	public static function onArticleDeleteComplete ( &$article, User &$user, $reason, $id )
-	{
-		ParsoidHooks::updateTitle( $article->getTitle(), 'delete' );
+	public static function onArticleDeleteComplete( $article, User $user, $reason, $id ) {
+		self::updateTitle( $article->getTitle(), 'delete' );
 		return true;
 	}
 
 	/**
 	 * Callback for article undeletion. See specials/SpecialUndelete.php.
 	 */
-	public static function onArticleUndelete ( $title, $created, $comment ) {
-		ParsoidHooks::updateTitle( $title, 'edit' );
+	public static function onArticleUndelete( Title $title, $created, $comment ) {
+		self::updateTitle( $title, 'edit' );
 		return true;
 	}
 
@@ -57,24 +58,24 @@ class ParsoidHooks {
 	 * Callback for article revision changes. See
 	 * revisiondelete/RevisionDelete.php.
 	 */
-	public static function onArticleRevisionVisibilitySet ( &$title ) {
+	public static function onArticleRevisionVisibilitySet( Title $title ) {
 		# We treat all visibility update as deletions for now. That is safe,
 		# as it will always clear the cache. VE requests might be slow after a
 		# restore, but they will return the correct result.
-		ParsoidHooks::updateTitle( $title, 'delete' );
+		self::updateTitle( $title, 'delete' );
 		return true;
 	}
 
 	/**
 	 * Title move callback. See Title.php.
 	 */
-	public static function onTitleMoveComplete ( Title &$title, Title &$newtitle,
-			User &$user, $oldid, $newid )
-	{
+	public static function onTitleMoveComplete(
+		Title $title, Title $newtitle, User $user, $oldid, $newid
+	) {
 		# Simply update both old and new title. ParsoidCacheUpdateJob will
-		# do the right thing for both.
-		ParsoidHooks::updateTitle( $title, $oldid, 'delete' );
-		ParsoidHooks::updateTitle( $newtitle, $newid, 'edit' );
+		# do the right thing for both. @FIXME: this passes extra parameters
+		self::updateTitle( $title, 'delete', $oldid );
+		self::updateTitle( $newtitle, 'edit', $newid );
 		return true;
 	}
 
@@ -89,10 +90,8 @@ class ParsoidHooks {
 	 * data.  Those edits tend to happen not long after an upload, at which
 	 * point the image is likely not used in many pages.
 	 */
-	public static function onFileUpload ( $file ) {
-		$title = $file->getTitle();
-		ParsoidHooks::updateTitle( $title, 'file' );
+	public static function onFileUpload( File $file ) {
+		self::updateTitle( $file->getTitle(), 'file' );
 		return true;
 	}
-
 }
