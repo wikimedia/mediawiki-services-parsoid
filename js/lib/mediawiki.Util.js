@@ -901,6 +901,16 @@ var Util = {
 			(cp >= 0x10000 && cp <= 0x10ffff);
 	},
 
+	normalizeExtOptions: function(options) {
+		// Normalize whitespace in extension attribute values
+		// Mimics Sanitizer::decodeTagAttributes from the PHP parser
+		for (var i = 0, n = options.length; i < n; i++) {
+			var o = options[i];
+			o.v = o.v.trim().replace(/(\s+)/g, ' ');
+		}
+		return options;
+	},
+
 	debug_pp: function() {
 		var out = [arguments[0]];
 		for ( var i = 2; i < arguments.length; i++) {
