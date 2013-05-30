@@ -2574,7 +2574,7 @@ WSP._buildExtensionWT = function(state, node, dataMW) {
 	}
 
 	// Serialize body
-	if (dataMW.body === null) {
+	if (!dataMW.body) {
 		srcParts.push(" />");
 	} else {
 		srcParts.push(">");

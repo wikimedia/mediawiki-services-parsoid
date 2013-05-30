@@ -328,14 +328,17 @@ References.prototype.extractRefFromNode = function(node) {
 	// Add ref-index linkback
 	if (!skipLinkback) {
 		var doc = node.ownerDocument,
-			span = doc.createElement('span');
+			span = doc.createElement('span'),
+			content = node.getAttribute("content");
 
 		DU.addAttributes(span, {
 			'about': about,
 			'class': 'reference',
 			'data-mw': JSON.stringify({
 				'name': 'ref',
-				'body': { 'html': node.getAttribute("content") },
+				// Dont set body if this is a reused reference
+				// like <ref name='..' /> with empty content.
+				'body': content ? { 'html': content } : undefined,
 				'attrs': {
 					// Dont emit empty keys
 					'group': group || undefined,
@@ -407,7 +410,6 @@ References.prototype.insertReferencesIntoDOM = function(refsNode) {
  * Native Parsoid implementation of the Cite extension
  * that ties together <ref> and <references>
  */
-
 var Cite = function() {
 	this.ref = new Ref(this);
 	this.references = new References(this);
