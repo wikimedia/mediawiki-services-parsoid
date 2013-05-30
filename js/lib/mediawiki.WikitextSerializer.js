@@ -2688,17 +2688,6 @@ WSP._getDOMHandler = function(node, state, cb) {
 			};
 		}
 	}
-	if (nodeName === 'span' && nodeTypeOf === 'mw:Image') {
-		// Hack: forward this span to DOM-based link handler until the span
-		// handler is fully DOM-based.
-
-		// Fake regular link attributes
-		// Set rel in addition to typeof
-		node.setAttribute('rel', 'mw:Image');
-		// And set an empty href, so that
-		node.setAttribute('href', '');
-		return self.tagHandlers.a || null;
-	}
 
 	if (dp.stx === 'html' ||
 			( node.getAttribute('data-parsoid') === null &&
