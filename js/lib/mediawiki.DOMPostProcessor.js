@@ -2479,9 +2479,9 @@ function generateReferences(refsExt, node) {
 		var nextChild = child.nextSibling;
 		if (DU.isElt(child)) {
 			var typeOf = child.getAttribute('typeof');
-			if (typeOf === 'mw:Extension/ref/Marker') {
+			if ((/\bmw:Extension\/ref\/Marker\b/).test(typeOf)) {
 				refsExt.extractRefFromNode(child);
-			} else if (typeOf === 'mw:Extension/references/Marker') {
+			} else if ((/\bmw:Extension\/references\/Marker\b/).test(typeOf)) {
 				refsExt.insertReferencesIntoDOM(child);
 			} else if (child.childNodes.length > 0) {
 				generateReferences(refsExt, child);

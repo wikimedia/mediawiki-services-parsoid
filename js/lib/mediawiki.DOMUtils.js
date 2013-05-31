@@ -722,7 +722,7 @@ var DOMUtils = {
 				if (node.nodeType === node.ELEMENT_NODE) {
 					var typeOf = node.getAttribute('typeof'),
 						about = node.getAttribute('about');
-					if (/\b(?:mw:(?:Transclusion\b|Extension\/)/
+					if (/\b(?:mw:(?:Transclusion\b|Extension\/))/
 							.test(typeOf) && about)
 					{
 						DOMUtils.loadDataParsoid(node);
