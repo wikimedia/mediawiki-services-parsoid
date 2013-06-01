@@ -40,7 +40,6 @@ if (module === require.main) {
 		},
 		'color': {
 			description: 'Highlight matched substring using color. Use --no-color to disable.  Default is "auto".',
-			'boolean': true,
 			'default': 'auto'
 		}
 	} ).argv;
