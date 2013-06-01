@@ -269,7 +269,6 @@ ParserTests.prototype.getOpts = function () {
 		},
 		'color': {
 			description: 'Enable color output Ex: --no-color',
-			'boolean': true,
 			'default': 'auto'
 		},
 		'debug': {
