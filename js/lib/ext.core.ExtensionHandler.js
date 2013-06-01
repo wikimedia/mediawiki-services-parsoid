@@ -94,6 +94,21 @@ ExtensionHandler.prototype.fetchExpandedExtension = function ( title, text, pare
 };
 
 ExtensionHandler.prototype.onExtension = function ( token, frame, cb ) {
+	function normalizeExtOptions(options) {
+		// Normalize whitespace in extension attribute values
+		// Mimics Sanitizer::decodeTagAttributes from the PHP parser
+		//
+		// Expects all values to have been fully expanded to string
+		for (var i = 0, n = options.length; i < n; i++) {
+			var o = options[i];
+			// SSS FIXME: This wont normalize options in all cases.
+			if (o.v.constructor === String) {
+				o.v = o.v.trim().replace(/(\s+)/g, ' ');
+			}
+		}
+		return options;
+	}
+
 	var extensionName = token.getAttribute('name'),
 	    nativeHandler = this.nativeExtHandlers[extensionName],
 		// TODO: use something order/quoting etc independent instead of src
@@ -101,6 +116,26 @@ ExtensionHandler.prototype.onExtension = function ( token, frame, cb ) {
 		cachedExpansion = this.manager.env.extensionCache[cacheKey];
 	if ( nativeHandler ) {
 		// No caching for native extensions for now.
+		token = token.clone();
+		token.setAttribute('options', normalizeExtOptions(token.getAttribute('options')));
+
+		// SSS FIXME: We seem to have a problem on our hands here.
+		//
+		// AttributeExpander runs after ExtensionHandler which means
+		// the native handlers will not receive fully expanded tokens.
+		//
+		// In the case of Cite.ref and Cite.references, this is not an issue
+		// since the final processing takes place in the DOM PP phase,
+		// by which time the marker tokens would have had everything expanded.
+		// But, this may not be true for other exensions.
+		//
+		// So, we wont be able to robustly support templated ext. attributes
+		// without a fix for this since attribute values might be ext-generated
+		// and ext-attribute values might be templated.
+		//
+		// The fix might require breaking this cycle by expliclitly-expanding
+		// ext-attribute-values here in a new pipeline.  TO BE DONE.
+
 		nativeHandler(token, cb);
 	} else if ( cachedExpansion ) {
 		//console.log('cache hit for', JSON.stringify(cacheKey.substr(0, 50)));
