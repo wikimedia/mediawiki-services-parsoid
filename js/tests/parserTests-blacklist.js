@@ -2649,6 +2649,9 @@ add("selser", "Image with multiple captions -- only last one is accepted [[1]]")
 add("selser", "Image with multiple captions -- only last one is accepted [[[4]]]");
 add("selser", "Image with multiple captions -- only last one is accepted [[2]]");
 add("selser", "Image with multiple captions -- only last one is accepted [[[1]]]");
+add("selser", "Image caption containing another image [[3,4,3],3,[0,4,0]]");
+add("selser", "Image caption containing another image [[3,0]]");
+add("selser", "Image caption containing another image [[3,1,4],0]");
 add("selser", "BUG 561: {{/Subpage}} [[0]]");
 add("selser", "BUG 561: {{/Subpage}} [2]");
 add("selser", "BUG 561: {{/Subpage}} [4]");
