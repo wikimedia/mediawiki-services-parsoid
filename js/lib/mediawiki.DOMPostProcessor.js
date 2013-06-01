@@ -149,15 +149,25 @@ DOMTraverser.prototype.traverse = function ( node ) {
 		} else {
 			if ( result === undefined ) {
 				// handle children
-				if ( child.parentNode !== null &&
-						DU.isElt(child) &&
-						child.childNodes.length > 0 )
-				{
-					this.traverse( child );
+				if (child.parentNode === null) {
+					// TODO gwicke: Throw an exception and pinpoint the faulty
+					// handler.
+					console.error('DOMPostProcessor.traverse: null parentNode! ' +
+							'Bug in handlers on ' + child.outerHTML);
+					child = nextChild;
+				} else {
+					if ( DU.isElt(child) &&
+							child.childNodes.length > 0 )
+					{
+						this.traverse( child );
+					}
+					child = child.nextSibling;
 				}
+			} else {
+				// Move on to the next child, as determined before running
+				// handlers.
+				child = nextChild;
 			}
-			// Move on to the next child
-			child = nextChild;
 		}
 	}
 };
@@ -2625,7 +2635,7 @@ function handleLinkNeighbours( env, node ) {
 		}
 	}
 
-	if ( trail && trail.content ) {
+	if ( trail && trail.content && trail.content.length ) {
 		for ( ix = 0; ix < trail.content.length; ix++ ) {
 			node.appendChild( trail.content[ix] );
 		}
@@ -2636,8 +2646,9 @@ function handleLinkNeighbours( env, node ) {
 				dp.dsr[3] += trail.src.length;
 			}
 		}
+		// indicate that the node's tail siblings have been consumed
+		return node;
 	}
-	return node.nextSibling; // indicate that node's siblings have been mutated
 }
 
 /**
