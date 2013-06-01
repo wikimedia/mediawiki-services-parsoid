@@ -1502,7 +1502,7 @@ xmlish_tag =
                     new KV('name', tagName),
                     new KV('about', "#" + pegArgs.env.newObjectId()),
                     new KV('source', dp.src),
-                    new KV('options', t2.attribs)
+                    new KV('options', Util.normalizeExtOptions(t2.attribs))
                 ], dp);
             } else {
                 // If not a known installed extension, parse content as wikitext.

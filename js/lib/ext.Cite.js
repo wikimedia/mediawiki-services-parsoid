@@ -257,11 +257,6 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 		group = Util.tokensToString(group);
 	}
 
-	if ( group ) {
-		// have a String, strip whitespace
-		group = group.replace(/^\s*(.*)\s$/, '$1');
-	}
-
 	// Point invalid / empty groups to null
 	if ( ! group ) {
 		group = null;
