@@ -115,16 +115,38 @@ DOMTraverser.prototype.callHandlers = function ( node ) {
 		if ( this.handlers[ix].name === null ||
 				this.handlers[ix].name === name ) {
 			result = this.handlers[ix].run( node );
-			if ( result || result === false ) {
+			if ( result !== true ) {
+				if ( result === undefined ) {
+					console.error('DOMPostProcessor.traverse: undefined return! ' +
+							'Bug in ' + this.handlers[ix].run +
+							' when handling ' + node.outerHTML);
+				}
+
 				// abort processing for this node
 				return result;
 			}
+
+			// Sanity check for broken handlers
+			if (node.parentNode === null) {
+				console.error('DOMPostProcessor.traverse: null parentNode! ' +
+						'Bug in ' + this.handlers[ix].run +
+						' when handling ' + node.outerHTML);
+				return node;
+			}
 		}
 	}
+	return true;
 };
 
 /**
  * Traverse the DOM and fire the handlers that are registered
+ *
+ * Handlers can return
+ * - the next node to process
+ *   - aborts processing for current node, continues with returned node
+ *   - can also be null, so .nextSibling works even on last child
+ * - true
+ *   - continue regular processing on current node
  */
 DOMTraverser.prototype.traverse = function ( node ) {
 	if (node.nodeType === node.DOCUMENT_NODE) {
@@ -132,42 +154,25 @@ DOMTraverser.prototype.traverse = function ( node ) {
 		node = node.body;
 	}
 
-	var nextChild, child = node.firstChild;
+	var workNode = node.firstChild;
 	var result;
 
-	while ( child !== null ) {
-		nextChild = child.nextSibling;
-		result = this.callHandlers( child );
+	while ( workNode !== null ) {
+		// Call the handlers on this workNode
+		result = this.callHandlers( workNode );
 
-		// Handlers can return
-		// - the next node to process (aborts processing for current node)
-		// - false for the next node (aborts processing for current node)
-		// - undefined / no return (continue processing for current node)
-		if ( result ) {
-			// Continue to work on the returned node
-			child = result;
+		if ( result !== true ) {
+			// Something changed.
+			// Continue to work on the returned node, if not null.
+			workNode = result;
 		} else {
-			if ( result === undefined ) {
-				// handle children
-				if (child.parentNode === null) {
-					// TODO gwicke: Throw an exception and pinpoint the faulty
-					// handler.
-					console.error('DOMPostProcessor.traverse: null parentNode! ' +
-							'Bug in handlers on ' + child.outerHTML);
-					child = nextChild;
-				} else {
-					if ( DU.isElt(child) &&
-							child.childNodes.length > 0 )
-					{
-						this.traverse( child );
-					}
-					child = child.nextSibling;
-				}
-			} else {
-				// Move on to the next child, as determined before running
-				// handlers.
-				child = nextChild;
+			// the 'continue processing' case
+			if ( DU.isElt(workNode) &&
+					workNode.childNodes.length > 0 )
+			{
+				this.traverse( workNode );
 			}
+			workNode = workNode.nextSibling;
 		}
 	}
 };
@@ -2377,9 +2382,12 @@ function stripMarkerMetas(node) {
 		metaType.match(/\bmw:(StartTag|EndTag|Extension\/(?:ref|references)\/Marker|TSRMarker)\/?[^\s]*\b/) &&
 		!node.getAttribute("property"))
 	{
+		var nextNode = node.nextSibling;
 		deleteNode(node);
 		// stop the traversal, since this node is no longer in the DOM.
-		return false;
+		return nextNode;
+	} else {
+		return true;
 	}
 }
 
@@ -2416,7 +2424,7 @@ function unpackDOMFragments(node) {
 			if (!html) {
 				// Most likely a multi-part template
 				console.error('no html!');
-				return;
+				return true;
 			}
 			dummyNode.innerHTML = node.data.parsoid.html;
 
@@ -2481,6 +2489,7 @@ function unpackDOMFragments(node) {
 			return nextNode;
 		}
 	}
+	return true;
 }
 
 function generateReferences(refsExt, node) {
@@ -2615,7 +2624,7 @@ findAndHandleNeighbour = function( env, goForward, regex, node, baseAbout ) {
  */
 function handleLinkNeighbours( env, node ) {
 	if ( node.getAttribute( 'rel' ) !== 'mw:WikiLink' ) {
-		return;
+		return true;
 	}
 
 	var ix, prefix = getLinkPrefix( env, node ),
@@ -2648,6 +2657,8 @@ function handleLinkNeighbours( env, node ) {
 		}
 		// indicate that the node's tail siblings have been consumed
 		return node;
+	} else {
+		return true;
 	}
 }
 
@@ -2661,6 +2672,7 @@ function handleLinkNeighbours( env, node ) {
  */
 function migrateDataParsoid( node ) {
 	DU.loadDataParsoid( node );
+	return true;
 }
 
 /**
@@ -2672,6 +2684,7 @@ saveDataParsoid = function( node ) {
 	if ( node.nodeType === node.ELEMENT_NODE && node.data ) {
 		DU.saveDataAttribs( node );
 	}
+	return true;
 };
 
 /**
