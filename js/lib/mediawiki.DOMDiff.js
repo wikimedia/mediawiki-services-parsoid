@@ -45,10 +45,6 @@ DDP.diff = function ( node ) {
 var ignoreAttributes = {
 	// Do our own full diff for now, so ignore data-ve-changed info.
 	'data-ve-changed': 1,
-	// SSS FIXME: parsoidTests.js adds this flag on a node when nothing in the
-	// subtree actually changes.  So, ignoring this attribute in effect,
-	// ignores the parser tests change.
-	'data-parsoid-changed': 1,
 	// SSS: Don't ignore data-parsoid because in VE, sometimes wrappers get
 	// moved around without their content which occasionally leads to incorrect
 	// DSR being used by selser.  Hard to describe a reduced test case here.

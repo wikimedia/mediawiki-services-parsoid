@@ -437,6 +437,7 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
 	try {
 		this.env.page.dom = item.cachedHTML || null;
 		if ( mode === 'selser' ) {
+			// console.warn("--> selsering: " + content.outerHTML);
 			this.env.setPageSrcInfo( item.input );
 			if ( options.changesin && item.changes === undefined ) {
 				// A changesin option was passed, so set the changes to 0,
@@ -473,14 +474,14 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
  * @param {Array} change Candidate change
  * @returns {boolean}
  */
-ParserTests.prototype.doesChangeExist = function ( changes, change ) {
-	if ( !changes || changes.constructor !== Array ) {
+ParserTests.prototype.isDuplicateChangeTree = function ( allChanges, change ) {
+	if ( !allChanges || allChanges.constructor !== Array ) {
 		return false;
 	}
 
 	var i;
-	for ( i = 0; i < changes.length; i++ ) {
-		if ( Util.deepEquals( changes[i], change ) ) {
+	for ( i = 0; i < allChanges.length; i++ ) {
+		if ( Util.deepEquals( allChanges[i], change ) ) {
 			return true;
 		}
 	}
@@ -499,68 +500,86 @@ ParserTests.prototype.doesChangeExist = function ( changes, change ) {
  * @param {Error} cb.err
  * @param {Node} cb.document
  */
-ParserTests.prototype.makeChanges = function ( item, content, changelist, cb ) {
+ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) {
+	// Helper function for getting a random string
+	function randomString() {
+		return random().toString(36).slice(2);
+	}
+
+	function insertNewNode(n) {
+		// Insert a text node, if not in a fosterable position.
+		// If in foster position, enter a comment.
+		// In either case, dom-diff should register a new node
+		var str = randomString(), ownerDoc = n.ownerDocument;
+		n.parentNode.insertBefore(
+			DOMUtils.isFosterablePosition(n) ?
+				ownerDoc.createComment(str) :
+				ownerDoc.createTextNode(str),
+			n);
+	}
+
+	function removeNode(n) {
+		n.parentNode.removeChild(n);
+	}
+
+	function applyChangesInternal(node, changes) {
+		var nodes = Util.clone(node.childNodes);
+
+		for ( var i = 0; i < changes.length; i++ ) {
+			var child = nodes[i],
+				change = changes[i];
+
+			if ( change && change.constructor === Array ) {
+				applyChangesInternal( child, change );
+			} else if ( child && child.setAttribute ) {
+				switch ( change ) {
+					// No change
+					case 0:
+						break;
+
+					// Change node wrapper
+					// (sufficient to insert a random attr)
+					case 1:
+						child.setAttribute( 'data-foobar', randomString() );
+						break;
+
+					// Insert new node before child
+					case 2:
+						insertNewNode(child);
+						break;
+
+					// Delete tree rooted at child
+					case 3:
+						removeNode(child);
+						break;
+
+					// Change tree rooted at child
+					case 4:
+						insertNewNode(child);
+						removeNode(child);
+						break;
+				}
+			}
+		}
+	}
+
 	// Seed the random-number generator based on the item title
 	var random = new Alea( (item.seed || '') + (item.title || '') );
 
-	cb = cb || function () {};
-	var initContent = content;
+	// Keep the changes in the item object in case of --changesout
+	item.changes = item.changes || changelist;
 
 	if ( content.nodeType === content.DOCUMENT_NODE ) {
 		content = content.body;
 	}
 
-	// Keep the changes in the item object in case of --changesout
-	item.changes = item.changes || changelist;
-
-	var changes = [
-		'content',
-		'rebuilt',
-		'childrenRemoved',
-		'attributes',
-		'annotations'
-	];
-
-	// Helper function for getting a random change marker
-	function getRandomChange() {
-		var o = {};
-		o[changes[Math.floor( random() * changes.length )]] = 1;
-		return o;
+	if (item.changes !== 0) {
+		applyChangesInternal(content, item.changes);
 	}
 
-	var node, change, nodes = Util.clone(content.childNodes);
-	for ( var i = 0; i < changelist.length; i++ ) {
-		node = nodes[i];
-		change = changelist[i];
-		if ( node && change && change.constructor === Array ) {
-			this.makeChanges( item, node, change );
-		} else if ( node && node.setAttribute && DOMUtils.isNodeEditable( this.env, node ) ) {
-			switch ( change ) {
-				case 1:
-					node.setAttribute(
-						'data-parsoid-changed',
-						JSON.stringify( getRandomChange() ) );
-					break;
-				case 4:
-					// One day we'll use this to change a node, but for now
-					// it can bleed over into the "new" case.
-				case 2:
-					node.setAttribute(
-						'data-parsoid-changed',
-						JSON.stringify( { 'new': 1 } ) );
-					break;
-				case 3:
-					// Delete this node!
-					node.parentNode.removeChild( node );
-					break;
-				default:
-					// Do nothing
-					break;
-			}
-		}
+	if (cb) {
+		cb( null, content );
 	}
-
-	cb( null, initContent );
 };
 
 /**
@@ -578,67 +597,123 @@ ParserTests.prototype.makeChanges = function ( item, content, changelist, cb ) {
  * @param {Array} cb.changelist
  */
 ParserTests.prototype.generateChanges = function ( options, nonRandomChanges, item, content, cb ) {
-	// Seed the random-number generator based on the item title
-	var random = new Alea( (item.seed || '') + (item.title || '') );
 
-	// This function won't actually change anything, but it will add change
-	// markers to random elements.
-	var child, i, changeObj, node, changelist = [], numAttempts = 0;
+	var self = this,
+		random = new Alea( (item.seed || '') + (item.title || '') );
+
+	/**
+	 * If no node in the DOM subtree rooted at 'node' is editable in the VE,
+	 * this function should return false.
+	 *
+	 * Currently true for template and extension content.
+	 */
+	function domSubtreeIsEditable(env, node) {
+		return !DOMUtils.isTplElementNode(env, node);
+	}
+
+	/**
+	 * Even if a DOM subtree might be editable in the VE,
+	 * certain nodes in the DOM might not be directly editable.
+	 *
+	 * Currently, this restriction is only applied to DOMs generated for images.
+	 * Possibly, there are other candidates.
+	 */
+	function nodeIsUneditable(node) {
+		// Text and comment nodes are always editable
+		if (!DOMUtils.isElt(node)) {
+			return false;
+		}
+
+		// - Meta tag providing info about tpl-affected attrs is uneditable.
+		//
+		//   SSS FIXME: This is not very useful right now because sometimes,
+		//   these meta-tags are not siblings with the element that it applies to.
+		//   So, you can still end up deleting the meta-tag (by deleting its parent)
+		//   and losing this property.  See example below.  The best fix for this is
+		//   to hoist all these kind of meta tags into <head>, start, or end of doc.
+		//   Then, we don't even have to check for editability of these nodes here.
+		//
+		//   Ex:
+		//   ...
+		//   <td><meta about="#mwt2" property="mw:objectAttrVal#style" ...>..</td>
+		//   <td about="#mwt2" typeof="mw:ExpandedAttrs/Transclusion" ...>..</td>
+		//   ...
+		if ((/\bmw:objectAttr/).test(node.getAttribute('property'))) {
+			return true;
+		}
+
+		// - Image wrapper is an uneditable image elt.
+		// - Any node nested in an image elt that is not a fig-caption
+		//   is an uneditable image elt.
+		return (/\bmw:Image\b/).test(node.getAttribute('typeof')) ||
+			(
+				node.nodeName !== 'FIGCAPTION' &&
+				node.parentNode &&
+				node.parentNode.nodeName !== 'BODY' &&
+				nodeIsUneditable(node.parentNode)
+			);
+	}
+
+	function hasChangeMarkers(list) {
+		// If all recorded changes are 0, then nothing has been modified
+		for (var i = 0, n = list.length; i < n; i++) {
+			var c = list[i];
+			if ((c.constructor === Array && hasChangeMarkers(c)) || c > 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	function genChangesInternal(item, node) {
+		// Seed the random-number generator based on the item title
+		var changelist = [],
+			children = node.childNodes;
+
+		for (var i = 0, n = children.length; i < n; i++) {
+			var child = children[i],
+				changeType = 0;
+
+			if ( domSubtreeIsEditable( self.env, child ) ) {
+				if ( nodeIsUneditable(child) || random() < 0.5 ) {
+					changeType = genChangesInternal(
+						// ensure the subtree has a seed
+						{ seed: ''+random.uint32() },
+						child );
+				} else {
+					if ( !child.setAttribute ) {
+						// Text or comment node -- valid changes: 2, 3, 4
+						// since we cannot set attributes on these
+						changeType = Math.floor( random() * 3 ) + 2;
+					} else {
+						changeType = Math.floor( random() * 4 ) + 1;
+					}
+				}
+			}
+
+			changelist.push( changeType );
+		}
+
+		return hasChangeMarkers(changelist) ? changelist : 0;
+	}
 
 	if ( content.nodeType === content.DOCUMENT_NODE ) {
 		content = content.body;
 	}
 
-	var setChange = function ( err, nc, childChanges ) {
-		if ( childChanges && childChanges.length ) {
-			changeObj = childChanges;
-		} else {
-			changeObj = 0;
-		}
-	};
+	var changeTree = nonRandomChanges;
+	if (!changeTree) {
+		var numAttempts = 0;
+		do {
+			numAttempts++;
+			changeTree = genChangesInternal(item, content);
+		} while (
+			numAttempts < 1000 &&
+			(changeTree.length === 0 || self.isDuplicateChangeTree( item.selserChangeTrees, changeTree ))
+		);
+	}
 
-	do {
-		node = content.cloneNode( true );
-		changelist = [];
-
-		for ( i = 0; i < node.childNodes.length; i++ ) {
-			child = node.childNodes[i];
-
-			if ( !child.setAttribute ) {
-				if ( nonRandomChanges === undefined ) {
-					changelist.push( 0 );
-				}
-				// This is probably a text node or comment node or something,
-				// so we'll skip it in favor of something a little more
-				// interesting.
-				continue;
-			}
-
-			if ( nonRandomChanges === null) {
-				if ( DOMUtils.isNodeEditable( this.env, child ) ) {
-					if ( random() < 0.5 ) {
-						changeObj = Math.floor( random() * 4 ) + 1;
-					} else {
-						this.generateChanges( options, null,
-						                      // ensure the subtree has a seed
-						                      { seed: ''+random.uint32() },
-						                      child, setChange );
-					}
-				} else {
-					changeObj = 0;
-				}
-
-				changelist.push( changeObj );
-			} else {
-				changelist = nonRandomChanges;
-				break;
-			}
-		}
-	} while ( nonRandomChanges === undefined &&
-		this.doesChangeExist( item.otherChanges, changelist ) &&
-		++numAttempts < 1000 );
-
-	cb( null, content, changelist );
+	cb( null, content, changeTree );
 };
 
 ParserTests.prototype.convertWt2Html = function( mode, prefix, variant, wikitext, processHtmlCB ) {
@@ -824,7 +899,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 		}
 
 		testTasks.push( this.generateChanges.bind( this, options, item.changes, item ) );
-		testTasks.push( this.makeChanges.bind( this, item ) );
+		testTasks.push( this.applyChanges.bind( this, item ) );
 
 		// Save the modified DOM so we can re-test it later
 		testTasks.push( function ( doc, cb ) {
@@ -1454,22 +1529,33 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 	var tasks = [];
 	for ( var i = 0; i < modes.length; i++ ) {
 		if ( modes[i] === 'selser' && options.numchanges ) {
-			if ( !item.changes ) {
-				item.changes = new Array( options.numchanges );
+			if ( !item.selserChangeTrees ) {
+				item.selserChangeTrees = new Array( options.numchanges );
 			}
 
-			for ( var j = 0; j < item.changes.length; j++ ) {
+			var done = false;
+			for ( var j = 0; j < item.selserChangeTrees.length; j++ ) {
 				// we create the function in the loop but are careful to
 				// bind loop variables i and j at function creation time
 				/* jshint loopfunc: true */
 				tasks.push( function ( modeIndex, changesIndex, cb ) {
+					if (done) {
+						process.nextTick( cb );
+					} else {
 						var newitem = Util.clone( item );
 						newitem.seed = changesIndex + '';
-						newitem.changes = item.changes[changesIndex];
-						newitem.otherChanges = item.changes;
+						newitem.changes = item.selserChangeTrees[changesIndex];
 						this.processTest( newitem, options, modes[modeIndex], function () {
-							if ( !this.doesChangeExist( item.changes, newitem.changes ) ) {
-								item.changes[changesIndex] = Util.clone( newitem.changes );
+							// No short-circuiting if we have changesin file passed in.
+							// Process all change trees specified in that file.
+							if (!options.changesin) {
+								if ( this.isDuplicateChangeTree( item.selserChangeTrees, newitem.changes ) ) {
+									// Once we get a duplicate change tree, we can no longer
+									// generate and run new tests.  So, be done now!
+									done = true;
+								} else {
+									item.selserChangeTrees[changesIndex] = newitem.changes;
+								}
 							}
 
 							// Push the caches forward!
@@ -1479,6 +1565,7 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 
 							process.nextTick( cb );
 						}.bind( this ) );
+					}
 				}.bind( this, i, j ) );
 			}
 		} else {
@@ -1523,7 +1610,7 @@ ParserTests.prototype.processCase = function ( i, options ) {
 						process.nextTick( nextCallback );
 						break;
 					}
-					item.changes = ( this.changes || {} )[item.title];
+					item.selserChangeTrees = ( this.changes || {} )[item.title];
 					// Add comments to following test.
 					item.comments = item.comments || this.comments;
 					this.comments = [];
@@ -1583,15 +1670,13 @@ ParserTests.prototype.processCase = function ( i, options ) {
 			var changes, allChanges = {};
 			for ( var ci = 0; ci < cases.length; ci++ ) {
 				if ( cases[ci].type === 'test' ) {
-					changes = cases[ci].changes || [];
-
-					for ( var cci = 0; cci < changes.length; cci++ ) {
-						if ( !changes[cci] || changes[cci].constructor !== Array ) {
-							changes.splice( cci, 1 );
-							cci--;
+					var changeTrees = cases[ci].selserChangeTrees || [];
+					for (var j = 0, n = changeTrees.length; j < n; j++) {
+						if (changeTrees[j] === undefined) {
+							break;
 						}
 					}
-					allChanges[cases[ci].title] = changes;
+					allChanges[cases[ci].title] = changeTrees.splice(0, j);
 				}
 			}
 			allChanges._numchanges = options.numchanges;

@@ -434,19 +434,6 @@ var DOMUtils = {
 		}
 	},
 
-	/**
-	 * This method should return "true" for a node that can be edited in the
-	 * VisualEditor extension. We're using this to basically ignore changes on
-	 * things that can't have changed, because nothing could possibly have changed
-	 * them.
-	 *
-	 * For now, template/extension content is not editable.
-	 * TODO: Add anything else that is not covered here.
-	 */
-	isNodeEditable: function(env, someNode) {
-		return !this.isTplElementNode(env, someNode);
-	},
-
 	convertDOMtoTokens: function(tokBuf, node) {
 		function domAttrsToTagAttrs(attrs) {
 			var out = [];

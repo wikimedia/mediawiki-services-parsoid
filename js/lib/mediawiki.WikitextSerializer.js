@@ -2391,8 +2391,11 @@ WSP._serializeAttributes = function (state, token) {
 	if (hasExpandedAttrs(tokType)) {
 		tplAttrState = state.tplAttrs[token.getAttribute("about")];
 		if (!tplAttrState) {
-			console.warn("state.tplAttrs: " + JSON.stringify(state.tplAttrs));
-			console.warn("about: " + JSON.stringify(token.getAttribute("about")));
+			console.error("ERROR: Missing info about tpl-affected attribute");
+			console.error("-> about: " + JSON.stringify(token.getAttribute("about")));
+			console.error("-> token: " + JSON.stringify(token));
+			// Reset to default so we dont crash
+			tplAttrState = { kvs: {}, ks: {}, vs: {} };
 		}
 	}
 
