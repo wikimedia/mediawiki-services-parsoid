@@ -86,6 +86,9 @@ var MWParserEnvironment = function ( parsoidConfig, wikiConfig ) {
 	// Global extension tag expansion cache (templates, parser functions etc)
 	// Key: Full extension source (including tags)
 	this.extensionCache = {};
+	// Global image expansion cache
+	// Key: Full image source
+	this.imageCache = {};
 
 	if ( !parsoidConfig ) {
 		// Global things, per-parser

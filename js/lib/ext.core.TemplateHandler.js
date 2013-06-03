@@ -55,16 +55,9 @@ TemplateHandler.prototype.encapsulateExpansionHTML = function(extToken, expansio
 		about = this.manager.env.newObjectId();
 	// Assign the HTML fragment to the data-parsoid.html on the first
 	// wrapper token.
-	// FIXME: figure out why template encapsulation sometimes uses the wrapper
-	// data-parsoid, and sometimes that of the first wrapped element!
 	toks[0].dataAttribs.html = expansion.html;
 	// Add the DOMFragment type so that we get unwrapped later
 	toks[0].setAttribute('typeof', 'mw:DOMFragment');
-
-	// FIXME: figure out why template encapsulation sometimes uses the wrapper
-	// data-parsoid, and sometimes that of the first wrapped element!
-	toks[0].dataAttribs.html = expansion.html;
-	//console.log(expansion.html, toks);
 
 	// Add the about to all wrapper tokens
 	toks.forEach(function(tok) {
