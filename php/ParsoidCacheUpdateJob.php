@@ -68,7 +68,7 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 
 		// Construct Parsoid web service URL
 		return 'http://' . $server . '/' . $wgLanguageCode . '/' .
-			$title->getPrefixedDBkey() . '?oldid=' . $oldid;
+			wfUrlencode( $title->getPrefixedDBkey() ) . '?oldid=' . $oldid;
 	}
 
 	/**
