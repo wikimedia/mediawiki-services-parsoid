@@ -67,7 +67,7 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 			: $title->getLatestRevID();
 
 		// Construct Parsoid web service URL
-		return 'http://' . $server . '/' . $wgLanguageCode . '/' .
+		return $server . '/' . $wgLanguageCode . '/' .
 			wfUrlencode( $title->getPrefixedDBkey() ) . '?oldid=' . $oldid;
 	}
 
@@ -78,9 +78,6 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 	 */
 	protected function invalidateTitle( $title ) {
 		global $wgParsoidCacheServers;
-		if ( !isset( $wgParsoidCacheServers ) ) {
-			$wgParsoidCacheServers = array( 'localhost' ); // @FIXME: test code?
-		}
 
 		# First request the new version
 		$parsoidInfo = array();

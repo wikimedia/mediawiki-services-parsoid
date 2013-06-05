@@ -14,6 +14,13 @@ class ParsoidHooks {
 	 * @param string $action (@TODO: unused)
 	 */
 	private static function updateTitle( Title $title, $action ) {
+		global $wgParsoidSkipRatio;
+		if ( $wgParsoidSkipRatio != 0
+			&& ( rand() / getrandmax() ) < $wgParsoidSkipRatio )
+		{
+			// skip this update
+			return;
+		}
 		JobQueueGroup::singleton()->push( new ParsoidCacheUpdateJob( $title, array() ) );
 	}
 
