@@ -378,29 +378,35 @@ References.prototype.extractRefFromNode = function(node) {
 
 References.prototype.insertReferencesIntoDOM = function(refsNode) {
 	var group = refsNode.getAttribute("group") || '',
-		refGroup = this.refGroups[group];
+		about = refsNode.getAttribute('about'),
+		src = refsNode.data.parsoid.src,
+		// Extract ext-source for <references>..</references> usage
+		body = src.replace(/<references[^>]*\/?>(.*)?/, "$1").replace("</references>" , "").trim(),
+		refGroup = this.refGroups[group],
+		ol = refsNode.ownerDocument.createElement('ol');
 
-	if (refGroup && refGroup.refs.length > 0) {
-		var ol = refsNode.ownerDocument.createElement('ol'),
-			about = refsNode.getAttribute('about');
-
-		DU.addAttributes(ol, {
-			'about': about,
-			'class': 'references',
-			// SSS FIXME: data-mw for references is missing.
+	DU.addAttributes(ol, {
+		'about': about,
+		'class': 'references',
+		'data-mw': JSON.stringify({
+			'name': 'references',
 			// We'll have to output data-mw.body.extsrc in
 			// scenarios where original wikitext was of the form:
 			// "<references> lot of refs here </references>"
 			// Ex: See [[en:Barack Obama]]
-			'typeof': 'mw:Extension/references'
-		});
-		ol.data = refsNode.data;
+			'body': body.length > 0 ? { 'extsrc': body } : undefined,
+			'attrs': {
+				// Dont emit empty keys
+				'group': group || undefined
+			}
+		}),
+		'typeof': 'mw:Extension/references'
+	});
+	ol.data = refsNode.data;
+	if (refGroup) {
 		refGroup.refs.map(refGroup.renderLine.bind(refGroup, ol));
-		refsNode.parentNode.replaceChild(ol, refsNode);
-	} else {
-		// Not a valid references tag -- convert it to a placeholder tag that will rt as is.
-		refsNode.setAttribute('typeof', 'mw:Placeholder');
 	}
+	refsNode.parentNode.replaceChild(ol, refsNode);
 
 	// reset
 	this.reset(group);

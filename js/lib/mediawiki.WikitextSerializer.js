@@ -2584,7 +2584,7 @@ WSP._buildExtensionWT = function(state, node, dataMW) {
 		srcParts.push(" />");
 	} else {
 		srcParts.push(">");
-		if (dataMW.body.html !== null) {
+		if (typeof dataMW.body.html === 'string') {
 			var wts = new WikitextSerializer({env: state.env});
 			srcParts.push(wts.serializeDOM(Util.parseHTML(dataMW.body.html).body));
 		} else if (dataMW.body.extsrc) {
