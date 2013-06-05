@@ -20,12 +20,12 @@ var fs = require('fs'),
 	crypto = require('crypto');
 
 var downloadUrl = {
-	host: 'gerrit.wikimedia.org',
-	path: '/r/gitweb?p=mediawiki/core.git;a=blob_plain;hb=HEAD;f=tests/parser/parserTests.txt'
+	host: 'git.wikimedia.org',
+	path: '/raw/mediawiki%2Fcore.git/COMMIT-SHA/tests%2Fparser%2FparserTests.txt'
 };
 var historyUrl = {
 	host: downloadUrl.host,
-	path: '/r/gitweb?p=mediawiki/core.git;a=history;hb=HEAD;f=tests/parser/parserTests.txt'
+	path: '/history/mediawiki%2Fcore.git/HEAD/tests%2Fparser%2FparserTests.txt'
 };
 var target_name = __dirname+"/parserTests.txt";
 
@@ -44,7 +44,7 @@ var fetch = function(url, target_name, gitCommit, cb) {
 	if (gitCommit) {
 		url = {
 			host: url.host,
-			path: url.path.replace(/;hb=[^;]+;/, ';hb='+gitCommit+';')
+			path: url.path.replace(/COMMIT-SHA/, gitCommit)
 		};
 	}
 	https.get(url, function(result) {
@@ -97,11 +97,10 @@ var forceUpdate = function() {
 
 	// now look for the most recent commit
 	findMostRecentCommit = function(html) {
-		// remove everything before <table class="history">
-		html = html.replace(/^[^]*<table\s[^>]*class="history"[^>]*>/, '');
+		// remove everything before <table class="pretty">
+		html = html.replace(/^[^]*<table\s*class=\\"pretty\\">/, '');
 		// now find the first link to this file with a specific hash
-		var m = /[?;]a=blob;f=tests\/parser\/parserTests.txt;hb=([0-9a-f]+)/.
-			exec(html);
+		var m = /core.git\/([0-9a-f]+)\/tests%2Fparser%2FparserTests.txt/.exec(html);
 		var gitCommit = m ? m[1] : "HEAD";
 		downloadCommit(gitCommit);
 	};
