@@ -242,7 +242,7 @@ TemplateHandler.prototype.checkForMagicWordVariable = function(tplToken) {
 			var src = (tplToken.dataAttribs || {}).src;
 			if (src) {
 				// If the token has original wikitext, shadow the sort-key
-				var origKey = src.replace(/[^:]+:/, '');
+				var origKey = src.replace(/[^:]+:/, '').replace(/}}$/, '');
 				metaToken.addNormalizedAttribute("content", key, origKey);
 			} else {
 				// If not, this token came from an extension/template
