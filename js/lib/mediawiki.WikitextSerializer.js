@@ -909,6 +909,13 @@ var getLinkRoundTripData = function( env, node, state ) {
 	// Now get the target from rt data
 	rtData.target = DU.getAttributeShadowInfo(node, 'href', tplAttrs);
 
+	// Check if the link content has been modified
+	DU.loadDataAttrib(node, "parsoid-diff", {});
+	var changes = node.data['parsoid-diff'].diff || [];
+	if (changes.indexOf('subtree-changed') !== -1) {
+		rtData.contentModified = true;
+	}
+
 	// Get the content string or tokens
 	var contentParts;
 	if (node.childNodes.length >= 1 && DU.allChildrenAreText(node)) {
@@ -1440,8 +1447,7 @@ WSP.linkHandler = function(node, state, cb) {
 									env.normalizeTitle( linkData.content.string ) ===
 										Util.decodeURI( linkData.href )) &&
 								// but preserve non-minimal piped links
-								! ( ! target.modified &&
-										( dp.stx === 'piped' || dp.pipetrick ) ),
+								( target.modified || linkData.contentModified || ( dp.stx !== 'piped' && !dp.pipetrick ) ),
 				canUsePipeTrick = linkData.content.string !== undefined &&
 					linkData.type !== 'mw:WikiLink/Category' &&
 					(
