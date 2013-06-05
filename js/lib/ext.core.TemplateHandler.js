@@ -292,11 +292,22 @@ TemplateHandler.prototype.resolveTemplateTarget = function ( state, targetToks )
 	// strip subst for now.
 	target = target.replace( /^(safe)?subst:/, '' );
 
-	// Check if we have a parser function
-	var prefix = target.split(':', 1)[0].trim();
-	var lowerPrefix = prefix.toLowerCase();
-	var translatedPrefix = env.conf.wiki.magicWords[prefix] || env.conf.wiki.magicWords[lowerPrefix] || lowerPrefix;
-	if ( translatedPrefix && 'pf_' + translatedPrefix in this.parserFunctions ) {
+	// Check if we have a parser function.
+	//
+	// Unalias to canonical form and look in config.functionHooks
+	var pieces = target.split(':'),
+		prefix = pieces[0].trim(),
+		lowerPrefix = prefix.toLowerCase(),
+		magicWordAlias = env.conf.wiki.magicWords[prefix] || env.conf.wiki.magicWords[lowerPrefix],
+		translatedPrefix = magicWordAlias || lowerPrefix || '';
+
+	// The check for pieces.length > 1 is require to distinguish between
+	// {{lc:FOO}} and {{lc|FOO}}.  The latter is a template transclusion
+	// even though the target (=lc) matches a registered parser-function name.
+	if ((magicWordAlias && this.parserFunctions['pf_' + magicWordAlias]) ||
+		(pieces.length > 1 && (translatedPrefix[0] === '#' || env.conf.wiki.functionHooks[translatedPrefix])))
+	{
+		state.parserFunctionName = translatedPrefix;
 		return {
 			isPF: true,
 			prefix: prefix,
@@ -323,7 +334,9 @@ TemplateHandler.prototype.resolveTemplateTarget = function ( state, targetToks )
 
 		// Resolve a possibly relative link
 		target = env.resolveTitle(target, namespaceId);
-		state.resolvedStaticTarget = target;
+
+		// data-mw.target.href should be a url
+		state.resolvedTemplateTarget = Util.sanitizeTitleURI(env.page.relativeLinkPrefix + target);
 
 		return { isPF: false, target: target };
 	} else {
@@ -405,8 +418,21 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 	// and each member (key/value) into object with .tokens(), .dom() and
 	// .wikitext() methods (subclass of Array)
 
+	var res;
 	target = resolvedTgt.target;
 	if ( resolvedTgt.isPF ) {
+		// FIXME: Parsoid may not have implemented the parser function natively
+		// Emit an error message, but encapsulate it so it roundtrips back.
+		if (!this.parserFunctions[target]) {
+			res = [ "Parser function implementation for " + target + " missing in Parsoid." ];
+			if (this.options.wrapTemplates) {
+				res = this.addEncapsulationInfo(state, res);
+				res.push(this.getEncapsulationInfoEndTag(state));
+			}
+			cb( { tokens: res } );
+			return;
+		}
+
 		var pfAttribs = new defines.Params( attribs );
 		pfAttribs[0] = new KV( resolvedTgt.pfArg, [] );
 		env.dp( 'entering prefix', target, state.token  );
@@ -423,7 +449,7 @@ TemplateHandler.prototype._expandTemplate = function ( state, frame, cb, attribs
 	var checkRes = this.manager.frame.loopAndDepthCheck( target, env.conf.parsoid.maxDepth );
 	if( checkRes ) {
 		// Loop detected or depth limit exceeded, abort!
-		var res = [
+		res = [
 				checkRes,
 				new TagTk( 'a', [{k: 'href', v: target}] ),
 				target,
@@ -571,8 +597,12 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 	if (state.recordArgDict) {
 		// Get the arg dict
 		var argDict = this.getArgDict(state);
-		// Add in the resolved static target, if available
-		argDict.target.url = state.resolvedStaticTarget;
+
+		// Add in tpl-target/pf-name info
+		// Only one of these will be set.
+		argDict.target['function'] = state.parserFunctionName;
+		argDict.target.href = state.resolvedTemplateTarget;
+
 		// Use a data-attribute to prevent the sanitizer from stripping this
 		// attribute before it reaches the DOM pass where it is needed.
 		attrs.push(new KV("data-mw-arginfo", JSON.stringify(argDict)));

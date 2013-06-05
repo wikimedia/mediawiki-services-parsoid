@@ -227,6 +227,8 @@ function WikiConfig( resultConf, prefix, uri ) {
 			conf.extensionTags[ext.replace( /(^<|>$)/g, '' ).toLowerCase()] = true;
 		}
 	}
+
+	conf.functionHooks = Util.arrayToHash(resultConf.functionhooks || []);
 }
 
 WikiConfig.prototype = {
@@ -314,6 +316,11 @@ WikiConfig.prototype = {
 	extensionTags: null,
 
 	/**
+	 * @property {Object/null} functionHooks Function hooks on this wiki, indexed by their normalized form
+	 */
+	functionHooks: null,
+
+	/**
 	 * @property {Array/null} interpolatedList List of magic words that are interpolated, i.e., they have $1 in their aliases.
 	 * @private
 	 */
@@ -352,6 +359,7 @@ WikiConfig.prototype = {
 		this.mwRegexps = {};
 		this.specialPages = {};
 		this.extensionTags = {};
+		this.functionHooks = {};
 		this.interpolatedList = [];
 		this.interpolatedAliases = {};
 		this._protocols = {};

@@ -583,6 +583,7 @@ var ConfigRequest = function ( confSource, env ) {
 			'namespaces',
 			'namespacealiases',
 			'magicwords',
+			'functionhooks',
 			'extensiontags',
 			'general',
 			'interwikimap',
