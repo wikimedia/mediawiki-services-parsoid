@@ -39,7 +39,7 @@ var DOMUtils = {
 			}
 			node.setAttribute('typeof', types.join(''));
 		} else {
-			node.setAttribute(type);
+			node.setAttribute('typeof', type);
 		}
 	},
 
@@ -676,6 +676,12 @@ var DOMUtils = {
 	 *				html: 'html2',
 	 *				nodes: [<node1>, <node2>]
 	 *			}
+	 *     },
+	 *     images: {
+	 *         'key3': {
+	 *				html: 'html3',
+	 *				nodes: [<node1>, <node2>]
+	 *			}
 	 *     }
 	 * }
 	 */
@@ -684,7 +690,8 @@ var DOMUtils = {
 			expansion,
 			expansions = {
 				transclusions: {},
-				extensions: {}
+				extensions: {},
+				images: {}
 			};
 
 		function getAboutSiblings(node, about) {
@@ -709,8 +716,9 @@ var DOMUtils = {
 				if (node.nodeType === node.ELEMENT_NODE) {
 					var typeOf = node.getAttribute('typeof'),
 						about = node.getAttribute('about');
-					if (/\b(?:mw:(?:Transclusion\b|Extension\/))/
-							.test(typeOf) && about)
+					if ((/\b(?:mw:(?:Transclusion\b|Extension\/))/
+								.test(typeOf) && about) ||
+							/\b(?:mw:Image(?:\b|\/))/.test(typeOf))
 					{
 						DOMUtils.loadDataParsoid(node);
 						nodes = getAboutSiblings(node, about);
@@ -718,9 +726,15 @@ var DOMUtils = {
 						if (/\bmw:Transclusion\b/.test(typeOf)) {
 							expAccum = expansions.transclusions;
 							key = node.data.parsoid.src;
-						} else {
+						} else if (/\bmw:Extension\//.test(typeOf)) {
 							expAccum = expansions.extensions;
 							key = node.data.parsoid.src;
+						} else {
+							expAccum = expansions.images;
+							// XXX gwicke: use proper key that is not
+							// source-based? This also needs to work for
+							// transclusion output.
+							key = node.data.parsoid.cacheKey;
 						}
 
 						if (key) {

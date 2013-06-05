@@ -14,7 +14,8 @@ var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	sanitizerLib = require( './ext.core.Sanitizer.js' ),
 	Sanitizer = sanitizerLib.Sanitizer,
 	SanitizerConstants = sanitizerLib.SanitizerConstants,
-	defines = require('./mediawiki.parser.defines.js');
+	defines = require('./mediawiki.parser.defines.js'),
+	DU = require('./mediawiki.DOMUtils.js').DOMUtils;
 // define some constructor shortcuts
 var KV = defines.KV,
     TagTk = defines.TagTk,
@@ -720,8 +721,11 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 			info = image.imageinfo[0];
 		}
 
-		// We can roundtrip this now!
+		// We can roundtrip this now, but still need a good cache key. Use the
+		// source for now.
+		dataAttribs.cacheKey = dataAttribs.src;
 		dataAttribs.src = undefined;
+
 
 		// But we need some extra information!
 		dataAttribs.img = {};
@@ -831,6 +835,22 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 		tokens.push( containerClose );
 
 		cb( { tokens: tokens } );
+	}
+
+	// First check if we have a cached copy of this image expansion, and
+	// avoid any further processing if we have a cache hit.
+	var cachedImage = this.manager.env.imageCache[token.dataAttribs.src];
+	if (cachedImage) {
+		// Use the cached result.
+		// mw:DOMFragment wrapping is simplified as we know that we are
+		// dealing with a single subtree rooted either at a figure or a span.
+		var wrapperTokens = DU.getWrapperTokens(cachedImage.nodes),
+			firstWrapperToken = wrapperTokens[0];
+		DU.addTypeOf(firstWrapperToken, 'mw:DOMFragment');
+		firstWrapperToken.dataAttribs.html = cachedImage.html;
+		//console.log('cache hit for ' + token.dataAttribs.src);
+		cb( {tokens: wrapperTokens} );
+		return;
 	}
 
 	var env = this.manager.env,
