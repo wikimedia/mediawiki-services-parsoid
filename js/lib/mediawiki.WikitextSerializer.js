@@ -1240,12 +1240,16 @@ WSP.handleImage = function ( node, state, cb ) {
 		}
 	}
 
-	if ( valign !== undefined ) {
-		opts.splice( valignPos, 0, {
-			ck: valign,
-			ak: mwAliases['img_' + valign]
-		} );
-	}
+	// FIXME gwicke: This is a temporary round-trip fix for
+	// https://bugzilla.wikimedia.org/show_bug.cgi?id=49221
+	// TODO: Fix this properly by setting the option key to halign / valign
+	// and the value to the aliased value.
+	//if ( valign !== undefined ) {
+	//	opts.splice( valignPos, 0, {
+	//		ck: valign,
+	//		ak: mwAliases['img_' + valign]
+	//	} );
+	//}
 
 	currentOpt = {};
 	switch ( rel ) {
