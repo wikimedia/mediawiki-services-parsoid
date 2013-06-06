@@ -805,9 +805,11 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 			container.addAttribute( 'class', wrapperClasses.join( ' ' ) );
 		}
 
-		if (wrapperStyles.length) {
-			container.addAttribute( 'style', wrapperStyles.join( ' ' ) );
-		}
+		// FIXME gwicke: We don't really want to add inline styles, as people
+		// will start to depend on them otherwise.
+		//if (wrapperStyles.length) {
+		//	container.addAttribute( 'style', wrapperStyles.join( ' ' ) );
+		//}
 
 		container.addAttribute( 'typeof', rdfaType );
 
