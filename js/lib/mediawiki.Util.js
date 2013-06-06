@@ -891,7 +891,7 @@ var Util = {
 	},
 
 	extractExtBody: function(extName, extTagSrc) {
-		var re = "<" + extName + "[^>]*/?>([\\s\\S]*)?";
+		var re = "<" + extName + "[^>]*/?>([\\s\\S]*)";
 		return extTagSrc.replace(new RegExp(re), function() {
 			return arguments[1].replace(new RegExp("</" + extName + ">"), "");
 		});
