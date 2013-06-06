@@ -1002,7 +1002,7 @@ WSP.handleOpt = function ( node, opt, optName, optVal, state, cb ) {
 		imgdp = DU.getDataParsoid( imgnode ),
 		imgdata = imgdp.img || {},
 		imgwidth = imgdata.w,
-		capNode = node.getElementsByClassName( 'mw-figcaption' )[0];
+		capNode = node.getElementsByTagName( 'figcaption' )[0];
 
 	switch ( opt ) {
 		case '':
