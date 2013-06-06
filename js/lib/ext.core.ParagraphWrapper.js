@@ -279,21 +279,7 @@ ParagraphWrapper.prototype.onAny = function ( token, frame ) {
 					names[token.name];
 		};
 
-	if (tc === defines.InternalTk) {
-		// Unwrap the internal token so paragraph-wrapping considers
-		// fully expanded content from extensions in the context of
-		// current p-wrapping state.
-		var buf = [],
-			wrappedTks = token.getAttribute("tokens"),
-			n = wrappedTks.length;
-		for (var j = 0; j < n; j++) {
-			var ret = this.onAny(wrappedTks[j], frame);
-			if (ret.tokens) {
-				buf = buf.concat(ret.tokens);
-			}
-		}
-		return { tokens: buf };
-	} else if (tc === TagTk && token.name === 'pre') {
+	if (tc === TagTk && token.name === 'pre') {
 		if (this.hasOpenHTMLPTag) {
 			// No pre-tokens inside html-p-tags -- replace it with a ' '
 			this.currLine.tokens.push(' ');

@@ -743,32 +743,6 @@ EOFTk.prototype = {
 	}
 };
 
-/* -------------------- InternalTk ----------------------
- * An internal token to pass around collections of tokens
- * and letting handlers take action on the entire collection
- * en masse -- for example, not processing them and passing
- * them through unchanged.
- * ------------------------------------------------------ */
-function InternalTk( attribs, dataAttribs ) {
-	this.name = "Internal";
-	this.attribs = attribs || [];
-	this.dataAttribs = dataAttribs || {};
-}
-
-InternalTk.prototype = {};
-
-InternalTk.prototype.constructor = InternalTk;
-
-InternalTk.prototype.toJSON = function () {
-	return $.extend( { type: 'InternalTk' }, this );
-};
-
-InternalTk.prototype.defaultToString = function(t) {
-	return JSON.stringify(this);
-};
-
-// add in generic token methods
-$.extend( InternalTk.prototype, genericTokenMethods );
 
 /* -------------------- Params -------------------- */
 /**
@@ -957,7 +931,6 @@ ParserValue.prototype.get = function( options, cb ) {
 if (typeof module === "object") {
 	module.exports = {
 		TagTk: TagTk,
-		InternalTk: InternalTk,
 		EndTagTk: EndTagTk,
 		SelfclosingTagTk: SelfclosingTagTk,
 		NlTk: NlTk,

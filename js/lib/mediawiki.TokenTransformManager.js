@@ -80,8 +80,7 @@ TokenTransformManager.tkConstructorToTkTypeMap = {
 	"EOFTk" : "end",
 	"TagTk" : "tag",
 	"EndTagTk" : "tag",
-	"SelfclosingTagTk" : "tag",
-	"InternalTk" : "internal"
+	"SelfclosingTagTk" : "tag"
 };
 
 // Inherit from EventEmitter

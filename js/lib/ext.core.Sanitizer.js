@@ -662,10 +662,6 @@ Sanitizer.prototype.onAnchor = function ( token ) {
  * attribute in the DOM).
  */
 Sanitizer.prototype.onAny = function ( token ) {
-	if (token.constructor === defines.InternalTk) {
-		return { token: token };
-	}
-
 	// XXX: validate token type according to whitelist and convert non-ok ones
 	// back to text.
 
