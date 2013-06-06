@@ -433,7 +433,7 @@ function getWrapperInfo( oHash, isInline, isFloat ) {
 				wrapperClasses.push( 'mw-valign-top' );
 				break;
 
-			case 'text-top':
+			case 'text_top':
 				wrapperClasses.push( 'mw-valign-text-top' );
 				break;
 
@@ -441,7 +441,7 @@ function getWrapperInfo( oHash, isInline, isFloat ) {
 				wrapperClasses.push( 'mw-valign-bottom' );
 				break;
 
-			case 'text-bottom':
+			case 'text_bottom':
 				wrapperClasses.push( 'mw-valign-text-bottom' );
 				break;
 		}
