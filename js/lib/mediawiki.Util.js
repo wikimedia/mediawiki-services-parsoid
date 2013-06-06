@@ -890,6 +890,13 @@ var Util = {
 		return h;
 	},
 
+	extractExtBody: function(extName, extTagSrc) {
+		var re = "<" + extName + "[^>]*/?>([\\s\\S]*)?";
+		return extTagSrc.replace(new RegExp(re), function() {
+			return arguments[1].replace(new RegExp("</" + extName + ">"), "");
+		});
+	},
+
 	// Returns the utf8 encoding of the code point
 	codepointToUtf8: function(cp) {
 		return unescape(encodeURIComponent(cp));

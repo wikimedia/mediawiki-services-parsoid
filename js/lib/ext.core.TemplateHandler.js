@@ -747,8 +747,7 @@ TemplateHandler.prototype._onDocument = function(state, cb, doc) {
 			src: state.token.dataAttribs.src
 		}
 	));
-	firstNode.setAttribute('data-mw',
-			JSON.stringify(this.getArgDict(state)));
+	firstNode.setAttribute('data-mw', JSON.stringify(this.getArgDict(state)));
 
 	function outerHTML (n) {
 		return n.outerHTML;
@@ -767,8 +766,8 @@ TemplateHandler.prototype._onDocument = function(state, cb, doc) {
 };
 
 /**
- * Get the public data-mw structure that exposes the template name and
- * -parameters
+ * Get the public data-mw structure that exposes the template name and parameters
+ * ExtensionHandler provides its own getArgDict function
  */
 TemplateHandler.prototype.getArgDict = function (state) {
 	var src = this.manager.env.page.src,
@@ -795,7 +794,6 @@ TemplateHandler.prototype.getArgDict = function (state) {
 		} else {
 			dict[params[i].k] = params[i].v;
 		}
-
 	}
 
 	var tplTgtSrcOffsets = params[0].srcOffsets;
@@ -808,11 +806,7 @@ TemplateHandler.prototype.getArgDict = function (state) {
 			// https://bugzilla.wikimedia.org/show_bug.cgi?id=47426.
 			//id: state.wrappedObjectId,
 			target: { wt: tplTgtWT },
-				params: dict
-		};
-	} else {
-		return {
-			'attrs': dict
+			params: dict
 		};
 	}
 };

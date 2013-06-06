@@ -909,10 +909,14 @@ Sanitizer.prototype.sanitizeTagAttrs = function(newToken, attrs) {
 			continue;
 		}
 
-		// Allow any attribute beginning with "data-", if in HTML5 mode
-		if (!(html5Mode && k.match(/^data-/i)) && wlist[k] !== true) {
-			newAttrs[k] = [null, origV, origK];
-			continue;
+		// SSS FIXME: Temporary hack to let wrapped extension tags through
+		// so that they can be unwrapped.
+		if (k !== 'typeof') {
+			// Allow any attribute beginning with "data-", if in HTML5 mode
+			if (!(html5Mode && k.match(/^data-/i)) && wlist[k] !== true) {
+				newAttrs[k] = [null, origV, origK];
+				continue;
+			}
 		}
 
 		// Strip javascript "expression" from stylesheets.
