@@ -40,6 +40,21 @@ coreutil.inherits(ExtensionHandler, TemplateHandler);
 ExtensionHandler.prototype.rank = 1.11;
 
 /**
+ * Get the public data-mw structure that exposes the extension name, args, and body
+ */
+ExtensionHandler.prototype.getArgDict = function (state) {
+	var extToken = state.token,
+		extName = state.token.getAttribute("name"),
+		extSrc = state.token.getAttribute("source");
+
+	return {
+		name: extName,
+		attrs: Util.KVtoHash(extToken.getAttribute("options")),
+		body: { extsrc: Util.extractExtBody(extName, extSrc) }
+	};
+};
+
+/**
  * Parse the extension HTML content.
  *
  * TODO gwicke: Use DOMFragment instead of converting back to tokens for
@@ -51,7 +66,6 @@ ExtensionHandler.prototype.parseExtensionHTML = function(extToken, cb, err, html
 	var doc = Util.parseHTML(html),
 		topNodes = doc.body.childNodes,
 		toks = [];
-
 
 	var state = { token: extToken };
 	if (this.options.wrapTemplates) {
