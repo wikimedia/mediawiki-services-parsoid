@@ -858,8 +858,7 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 	var env = this.manager.env,
 		// distinguish media types
 		// if image: parse options
-		rdfaAttrs = buildLinkAttrs(token.attribs, true, null, null ),
-		content = rdfaAttrs.content;
+		content = buildLinkAttrs(token.attribs, true, null, null ).content;
 
 	// extract options
 	// TODO gwicke: abstract out!
@@ -1081,16 +1080,16 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 		tagAttrs = [
 			new KV( 'src', href ),
 			new KV( 'alt', href.split('/').last() ),
-			new KV('rel', 'mw:externalImage')
+			new KV( 'rel', 'mw:externalImage' )
 		];
 
 		// combine with existing rdfa attrs
 		tagAttrs = buildLinkAttrs(token.attribs, false, null, tagAttrs).attribs;
-		dataAttribs.stx = "urllink";
 		cb( { tokens: [ new SelfclosingTagTk('img', tagAttrs, dataAttribs) ] } );
 	} else {
 		tagAttrs = [
 			new KV( 'rel', 'mw:ExtLink/URL' )
+			// href is set explicitly below
 		];
 
 		// combine with existing rdfa attrs
@@ -1103,6 +1102,8 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 			// Since we messed with the text of the link, we need
 			// to preserve the original in the RT data. Or else.
 			builtTag.addNormalizedAttribute( 'href', txt, origTxt );
+		} else {
+			builtTag.addAttribute( 'href', token.getAttribute('href') );
 		}
 
 		cb( {
@@ -1178,6 +1179,7 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 
 		newAttrs = [
 			new KV('rel', rdfaType)
+			// href is set explicitly below
 		];
 		// combine with existing rdfa attrs
 		newAttrs = buildLinkAttrs(token.attribs, false, null, newAttrs).attribs;
@@ -1198,6 +1200,8 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 			var tsr0a = dataAttribs.tsr[0] + 1,
 				tsr1a = dataAttribs.targetOff - (token.getAttribute('spaces') || '').length;
 			aStart.addNormalizedAttribute( 'href', href, env.page.src.substring(tsr0a, tsr1a) );
+		} else {
+			aStart.addAttribute( 'href', href );
 		}
 		cb( {
 			tokens: [aStart].concat(content, [new EndTagTk('a')])
