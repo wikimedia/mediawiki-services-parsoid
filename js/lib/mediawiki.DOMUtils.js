@@ -37,7 +37,7 @@ var DOMUtils = {
 				// not in type set yet, so add it.
 				types.push(type);
 			}
-			node.setAttribute('typeof', types.join(''));
+			node.setAttribute('typeof', types.join(' '));
 		} else {
 			node.setAttribute('typeof', type);
 		}

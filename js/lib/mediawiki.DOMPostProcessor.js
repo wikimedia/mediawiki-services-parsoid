@@ -2392,7 +2392,8 @@ function stripMarkerMetas(node) {
 }
 
 /**
- * Unpack DOM fragments that were injected in the token pipeline.
+ * DOMTraverser handler that unpacks DOM fragments which were injected in the
+ * token pipeline.
  */
 function unpackDOMFragments(node) {
 	if (node.nodeType === node.ELEMENT_NODE) {
@@ -2406,6 +2407,7 @@ function unpackDOMFragments(node) {
 				// later if the children are block-level.
 				dummyName = parentNode.nodeName !== 'P' ? parentNode.nodeName : 'div',
 				dummyNode = node.ownerDocument.createElement(dummyName);
+
 			if (!node.data || !node.data.parsoid) {
 				// FIXME gwicke: This normally happens on Fragment content
 				// inside other Fragment content. Print out some info about
@@ -2420,13 +2422,23 @@ function unpackDOMFragments(node) {
 				}
 				DU.loadDataParsoid(node);
 			}
+
 			var html = node.data.parsoid.html;
 			if (!html) {
-				// Most likely a multi-part template
-				console.error('no html!');
+				// Most likely a multi-part template with an extension in its
+				// output (possibly passed in as a parameter).
+				//
+				// Example:
+				// echo '{{echo|<math>1+1</math>}}' | node parse --extensions math
+				//
+				// Simply remove the mw:DOMFragment typeof for now, as the
+				// entire content will still be encapsulated as a
+				// mw:Transclusion.
+				//console.error('no html!', node.data.parsoid);
+				DU.removeTypeOf(node, 'mw:DOMFragment');
 				return true;
 			}
-			dummyNode.innerHTML = node.data.parsoid.html;
+			dummyNode.innerHTML = html;
 
 			// get rid of the wrapper sibling (simplifies logic below)
 			var sibling = node.nextSibling;
@@ -2472,6 +2484,15 @@ function unpackDOMFragments(node) {
 				console.log(node.data.parsoid, dummyNode.outerHTML);
 			}
 			firstChild.data.parsoid.dsr = node.data.parsoid.dsr;
+
+			// FIXME: Deal with the case where the DOMFragment node is also a
+			// transclusion. OTOH, dp.html should not be available in that case,
+			// which would cause us to exit early from this method (see
+			// above).
+			//console.log(typeOf);
+			//if (/\bmw:Transclusion\b/.test(typeOf)) {
+			//	DU.addTypeOf(firstChild, 'mw:Transclusion');
+			//}
 
 			// Move the old content nodes over from the dummyNode
 			while (firstChild) {

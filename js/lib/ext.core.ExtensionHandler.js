@@ -68,18 +68,12 @@ ExtensionHandler.prototype.parseExtensionHTML = function(extToken, cb, err, html
 		toks = [];
 
 	var state = { token: extToken };
-	if (this.options.wrapTemplates) {
-		state.wrapperType = 'mw:Extension/' + extToken.getAttribute('name');
-		state.wrappedObjectId = this.manager.env.newObjectId();
-		// DOMFragment-based encapsulation.
-		this._onDocument(state, cb, doc);
-	} else {
-		for (var i = 0, n = topNodes.length; i < n; i++) {
-			toks = DOMUtils.convertDOMtoTokens(toks, topNodes[i]);
-		}
 
-		cb({ tokens: [new defines.InternalTk([new KV('tokens', toks)])] });
-	}
+	// We are always wrapping extensions with the DOMFragment mechanism.
+	state.wrapperType = 'mw:Extension/' + extToken.getAttribute('name');
+	state.wrappedObjectId = this.manager.env.newObjectId();
+	// DOMFragment-based encapsulation.
+	this._onDocument(state, cb, doc);
 };
 
 /**
