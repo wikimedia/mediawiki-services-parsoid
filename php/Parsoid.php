@@ -95,7 +95,7 @@ class ParsoidSetup {
 		# Article edit/create
 		$wgHooks['ArticleEditUpdates'][] = 'ParsoidHooks::onArticleEditUpdates';
 		# Article delete/restore
-		$wgHooks['ArticleDeleteComplete'][] = 'ParsoidHooks::onArticleDelete';
+		$wgHooks['ArticleDeleteComplete'][] = 'ParsoidHooks::onArticleDeleteComplete';
 		$wgHooks['ArticleUndelete'][] = 'ParsoidHooks::onArticleUndelete';
 		# Revision delete/restore
 		$wgHooks['ArticleRevisionVisibilitySet'][] = 'ParsoidHooks::onRevisionDelete';
