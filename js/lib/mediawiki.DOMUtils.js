@@ -436,24 +436,28 @@ var DOMUtils = {
 
 	convertDOMtoTokens: function(tokBuf, node) {
 		function domAttrsToTagAttrs(attrs) {
-			var out = [];
+			var out = [], dp;
 			for (var i = 0, n = attrs.length; i < n; i++) {
 				var a = attrs.item(i);
-				out.push(new KV(a.name, a.value));
+				if (a.name === "data-parsoid") {
+					dp = JSON.parse(a.value);
+				} else {
+					out.push(new KV(a.name, a.value));
+				}
 			}
-			return out;
+			return { attrs: out, dataAttrs: dp };
 		}
 
 		switch(node.nodeType) {
 			case Node.ELEMENT_NODE:
 				var nodeName = node.nodeName.toLowerCase(),
 					children = node.childNodes,
-					tagAttrs = domAttrsToTagAttrs(node.attributes);
+					attrInfo = domAttrsToTagAttrs(node.attributes);
 
 				if (Util.isVoidElement(nodeName)) {
-					tokBuf.push(new pd.SelfclosingTagTk(nodeName, tagAttrs));
+					tokBuf.push(new pd.SelfclosingTagTk(nodeName, attrInfo.attrs, attrInfo.dataAttrs));
 				} else {
-					tokBuf.push(new pd.TagTk(nodeName, tagAttrs));
+					tokBuf.push(new pd.TagTk(nodeName, attrInfo.attrs, attrInfo.dataAttrs));
 					for (var i = 0, n = children.length; i < n; i++) {
 						tokBuf = this.convertDOMtoTokens(tokBuf, children[i]);
 					}

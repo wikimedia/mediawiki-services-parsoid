@@ -726,7 +726,7 @@ Sanitizer.prototype.onAny = function ( token ) {
 				}
 			}
 
-			// Sanitize attribues
+			// Sanitize attributes
 			if (token.constructor === TagTk) {
 				this.sanitizeTagAttrs(newToken, attribs);
 			}
