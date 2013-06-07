@@ -2705,13 +2705,15 @@ WSP._getDOMHandler = function(node, state, cb) {
 		}
 	}
 
+	// If parent node is a list or table tag in html-syntax, then serialize
+	// new elements in html-syntax rather than wiki-syntax.
 	if (dp.stx === 'html' ||
-			( node.getAttribute('data-parsoid') === null &&
-			  // SSS FIXME: if we get to the root, it wont have a parent
-			  // But, why are we getting to the root?
-			  nodeName !== 'meta' && node.parentNode &&
-			  node.parentNode.data &&
-			  node.parentNode.data.parsoid.stx === 'html' ) )
+		(DU.isNewElt(node) && node.parentNode &&
+		node.parentNode.data && node.parentNode.data.parsoid.stx === 'html' &&
+		((DU.isList(node.parentNode) && DU.isListElt(node)) ||
+		 (node.parentNode.nodeName in {TABLE:1, TBODY:1, TH:1, TR:1} &&
+		  node.nodeName in {TBODY:1, CAPTION:1, TH:1, TR:1, TD:1}))
+		))
 	{
 		return {handle: self._htmlElementHandler.bind(self)};
 	} else if (self.tagHandlers[nodeName]) {
@@ -2726,7 +2728,6 @@ WSP._getDOMHandler = function(node, state, cb) {
 		return {handle: self._htmlElementHandler.bind(self)};
 	}
 };
-
 
 /**
  * Serialize the content of a text node

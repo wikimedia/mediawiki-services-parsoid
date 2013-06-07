@@ -135,8 +135,8 @@ var DOMUtils = {
 		try {
 			return JSON.parse(attVal);
 		} catch(e) {
-			console.warn('ERROR: Could not decode attribute ' +
-					name + ' on node ' + n);
+			console.warn('ERROR: Could not decode attribute-val ' + attVal +
+					' for ' + name + ' on node ' + n.outerHTML);
 			return defaultVal !== undefined ? defaultVal : {};
 		}
 	},
@@ -303,6 +303,10 @@ var DOMUtils = {
 
 	hasLiteralHTMLMarker: function(dp) {
 		return dp.stx === 'html';
+	},
+
+	isNewElt: function(n) {
+		return n.getAttribute('data-parsoid') === null;
 	},
 
 	isLiteralHTMLNode: function(n) {
