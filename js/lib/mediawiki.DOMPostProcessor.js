@@ -2703,6 +2703,9 @@ function migrateDataParsoid( node ) {
  */
 saveDataParsoid = function( node ) {
 	if ( node.nodeType === node.ELEMENT_NODE && node.data ) {
+		if (node.data.parsoid && node.data.parsoid.tsr) {
+			node.data.parsoid.tsr = undefined;
+		}
 		DU.saveDataAttribs( node );
 	}
 	return true;
