@@ -134,8 +134,12 @@ ApiRequest.prototype._requestCB = function (error, response, body) {
 	} else if (response.statusCode === 200) {
 		this._handleBody( null, body );
 	} else {
-		console.log( body );
-		console.warn( 'non-200 response: ' + response.statusCode );
+		if (response.statusCode === 412) {
+			console.warn('No cache hit for ' + this.title);
+		} else {
+			console.warn( 'non-200 response: ' + response.statusCode );
+			console.log( body );
+		}
 		error = new DoesNotExistError( this.reqType + ' failure for ' + this.title );
 		this._handleBody( error, '{}' );
 	}
