@@ -72,12 +72,19 @@ p.prototype.startTagTitle = function(name, attributes) {
 }
 
 p.prototype.startTagStyle = function(name, attributes) {
-	if(this.tree.head_pointer && this.parser.phaseName == 'inHead') {
-		var element = this.tree.createElement(name, attributes);
-		this.appendToHead(element);
-		this.tree.open_elements.push(element);
+	if (this.tree.insert_from_table) {
+		// SSS FIXME: html5 library assumes that the style tag
+		// only shows up in head and doesn't check if it needs
+		// to be fostered.  So, we are patching the html5 lib.
+		this.tree.insert_element_from_table(name, attributes);
 	} else {
-		this.tree.insert_element(name, attributes);
+		if(this.tree.head_pointer && this.parser.phaseName == 'inHead') {
+			var element = this.tree.createElement(name, attributes);
+			this.appendToHead(element);
+			this.tree.open_elements.push(element);
+		} else {
+			this.tree.insert_element(name, attributes);
+		}
 	}
 	this.parser.tokenizer.content_model = HTML5.Models.CDATA;
 }
@@ -95,24 +102,42 @@ p.prototype.startTagNoScript = function(name, attributes) {
 }
 
 p.prototype.startTagScript = function(name, attributes) {
-	// XXX Inner HTML case may be wrong
-	var element = this.tree.createElement(name, attributes);
-	//element.flags.push('parser-inserted');
-	if(this.tree.head_pointer && this.parser.phaseName == 'inHead') {
-		this.appendToHead(element);
+	if (this.tree.insert_from_table) {
+		// SSS FIXME: html5 library assumes that the style tag
+		// only shows up in head and doesn't check if it needs
+		// to be fostered.  So, we are patching the html5 lib.
+		this.tree.insert_element_from_table(name, attributes);
 	} else {
-		this.tree.open_elements.last().appendChild(element);
+		// XXX Inner HTML case may be wrong
+		var element = this.tree.createElement(name, attributes);
+		//element.flags.push('parser-inserted');
+		if(this.tree.head_pointer && this.parser.phaseName == 'inHead') {
+			this.appendToHead(element);
+		} else {
+			this.tree.open_elements.last().appendChild(element);
+		}
 	}
 	this.tree.open_elements.push(element);
 	this.parser.tokenizer.content_model = HTML5.Models.SCRIPT_CDATA;
 }
 
 p.prototype.startTagBaseLinkMeta = function(name, attributes) {
-	var element = this.tree.createElement(name, attributes);
-	if(this.tree.head_pointer && this.parser.phaseName == 'inHead') {
-		this.appendToHead(element);
+	// SSS FIXME: html5 library assumes that base,link,meta
+	// tags only show up in head and doesn't check if they need
+	// to be fostered.  So, we are patching the html5 lib.
+	//
+	// Right now, Parsoid exploits this bug for meta tags.
+	// So, till Parsoid is fixed to not rely on this bug,
+	// we'll continue to not to foster meta tags out of tables.
+	if (name !== 'meta' && this.tree.insert_from_table) {
+		this.tree.insert_element_from_table(name, attributes);
 	} else {
-		this.tree.open_elements.last().appendChild(element);
+		var element = this.tree.createElement(name, attributes);
+		if(this.tree.head_pointer && this.parser.phaseName == 'inHead') {
+			this.appendToHead(element);
+		} else {
+			this.tree.open_elements.last().appendChild(element);
+		}
 	}
 }
 
