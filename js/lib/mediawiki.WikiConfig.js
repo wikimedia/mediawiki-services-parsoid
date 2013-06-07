@@ -161,7 +161,12 @@ function WikiConfig( resultConf, prefix, uri ) {
 			regexResult += '$';
 		}
 
-		return new RegExp( regexResult );
+		try {
+			return new RegExp( regexResult );
+		} catch (e) {
+			console.error(e);
+			return null;
+		}
 	}
 
 	// Get the general information and use it for article, upload, and image
