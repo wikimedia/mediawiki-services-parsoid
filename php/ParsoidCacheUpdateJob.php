@@ -60,14 +60,14 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 	 * @return string an absolute URL for the article on the given server
 	 */
 	protected function getParsoidURL( Title $title, $server, $prev = false ) {
-		global $wgLanguageCode;
+		global $wgParsoidWikiPrefix;
 
 		$oldid = $prev
 			? $title->getPreviousRevisionID( $title->getLatestRevID() )
 			: $title->getLatestRevID();
 
 		// Construct Parsoid web service URL
-		return $server . '/' . $wgLanguageCode . '/' .
+		return $server . '/' . $wgParsoidWikiPrefix . '/' .
 			wfUrlencode( $title->getPrefixedDBkey() ) . '?oldid=' . $oldid;
 	}
 

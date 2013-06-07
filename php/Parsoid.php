@@ -64,7 +64,7 @@ class ParsoidSetup {
 	 * @return void
 	 */
 	protected static function setupDefaultConfig() {
-		global $wgParsoidCacheServers, $wgParsoidSkipRatio;
+		global $wgParsoidCacheServers, $wgParsoidSkipRatio, $wgDBname;
 
 		/**
 		 * An array of Varnish caches in front of Parsoid to keep up to date.
@@ -75,6 +75,12 @@ class ParsoidSetup {
 		 * 'https://127.0.0.1:8080'
 		 */
 		$wgParsoidCacheServers = array( 'http://localhost' );
+
+		/**
+		 * The wiki prefix sent to Parsoid. You can add these with
+		 * parsoidConfig.setInterwiki in the Parsoid localsettings.js.
+		 */
+		$wgParsoidWikiPrefix = $wgDBname;
 
 		/**
 		 * The portion of update requests to skip for basic load shedding. A
