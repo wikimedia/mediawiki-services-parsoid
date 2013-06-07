@@ -98,7 +98,7 @@ class ParsoidSetup {
 		$wgHooks['ArticleDeleteComplete'][] = 'ParsoidHooks::onArticleDeleteComplete';
 		$wgHooks['ArticleUndelete'][] = 'ParsoidHooks::onArticleUndelete';
 		# Revision delete/restore
-		$wgHooks['ArticleRevisionVisibilitySet'][] = 'ParsoidHooks::onRevisionDelete';
+		$wgHooks['ArticleRevisionVisibilitySet'][] = 'ParsoidHooks::onArticleRevisionVisibilitySet';
 		# Article move
 		$wgHooks['TitleMoveComplete'][] = 'ParsoidHooks::onTitleMoveComplete';
 		# File upload
