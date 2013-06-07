@@ -10,7 +10,9 @@
 var WikitextSerializer = require( './mediawiki.WikitextSerializer.js' ).WikitextSerializer,
 	Util = require( './mediawiki.Util.js' ).Util,
 	ParserPipelineFactory = require('./mediawiki.parser.js').ParserPipelineFactory,
-	DOMDiff = require('./mediawiki.DOMDiff.js').DOMDiff;
+	DOMDiff = require('./mediawiki.DOMDiff.js').DOMDiff,
+	ParsoidCacheRequest = require('./mediawiki.ApiRequest.js').ParsoidCacheRequest,
+	async = require('async');
 
 /**
  * @class
@@ -143,8 +145,7 @@ SSP.parseOriginalSource = function ( doc, cb, finalcb, err, src ) {
 	// Parse the wikitext src to the original DOM, and pass that on to
 	// doSerializeDOM
 	parserPipeline.once( 'document', function ( origDoc ) {
-		// XXX: need to get body with .tree.document.childNodes[0].childNodes[1] ?
-		var body = origDoc.firstChild.childNodes[1];
+		var body = origDoc.body;
 		self.env.page.dom = body;
 		//console.log('calling doSerializeDOM');
 		//console.log(body.outerHTML);
@@ -166,6 +167,7 @@ SSP.parseOriginalSource = function ( doc, cb, finalcb, err, src ) {
  * @param {Function} finalcb The callback fired on completion of the serialization.
  */
 SSP.serializeDOM = function ( doc, cb, finalcb ) {
+	var self = this;
 	if ( this.env.page.dom || this.env.page.domdiff ) {
 		this.doSerializeDOM(null, doc, cb, finalcb);
 	} else if ( this.env.page.src ) {
@@ -173,9 +175,39 @@ SSP.serializeDOM = function ( doc, cb, finalcb ) {
 		this.parseOriginalSource( doc, cb, finalcb, null, this.env.page.src );
 	} else if (this.env.page.id) {
 		// Start by getting the old text of this page
-		Util.getPageSrc( this.env, this.env.page.name,
-				this.parseOriginalSource.bind(this, doc, cb, finalcb),
-				this.env.page.id || null );
+		if (this.env.conf.parsoidCacheURI) {
+			var cacheRequest = new ParsoidCacheRequest(this.env,
+					this.env.page.meta.title, this.env.page.id);
+			// Fetch the page source and previous revison's DOM in parallel
+			async.parallel(
+					[
+						Util.getPageSrc( this.env, this.env.page.name,
+							this.env.page.id || null),
+						cacheRequest.once.bind(cacheRequest, 'src')
+					], function (err, results) {
+						if (err) {
+							console.error('Error while fetchin page source or original DOM!');
+						} else {
+							// no error.
+
+							// set the page source
+							this.env.setPageSrcInfo(results[0]);
+
+							// and the original dom
+							this.env.page.dom = results[1].body;
+						}
+
+						// Selective serialization if there was no error, full
+						// serialization if there was one.
+						self.doSerializeDOM(null, doc, cb, finalcb);
+					}
+			);
+
+		} else {
+			Util.getPageSrc( this.env, this.env.page.name,
+					this.env.page.id || null,
+					this.parseOriginalSource.bind(this, doc, cb, finalcb) );
+		}
 	} else {
 		this.doSerializeDOM(null, doc, cb, finalcb);
 	}

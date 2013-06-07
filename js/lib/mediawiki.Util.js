@@ -1388,7 +1388,7 @@ Util.parse = function ( env, cb, err, src, expansions ) {
 };
 
 
-Util.getPageSrc = function ( env, title, cb, oldid ) {
+Util.getPageSrc = function ( env, title, oldid, cb ) {
 	title = env.resolveTitle( title, '' );
 	var pageRequest = new TemplateRequest( env, title, oldid );
 	pageRequest.once( 'src', function(err, page) {
