@@ -27,6 +27,9 @@ function ParsoidConfig( localSettings, options ) {
 	var wplist = wikipedias.split( '|' );
 	for ( var ix = 0; ix < wplist.length; ix++ ) {
 		this.interwikiMap[wplist[ix]] = 'http://' + wplist[ix] + '.wikipedia.org/w/api.php';
+		// Also add an alias that follows the Wikimedia db name convention
+		// (enwiki, dewiki etc).
+		this.interwikiMap[wplist[ix] + 'wiki'] = 'http://' + wplist[ix] + '.wikipedia.org/w/api.php';
 	}
 
 	// Add mediawiki.org too
