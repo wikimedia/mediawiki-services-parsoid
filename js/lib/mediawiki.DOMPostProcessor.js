@@ -1058,10 +1058,47 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 		}
 	}
 
-	function findToplevelEnclosingRange(nestingInfo, rId) {
+	function findToplevelEnclosingRange(nestingInfo, startId) {
 		// Walk up the implicit nesting tree to the find the
 		// top-level range within which rId is nested.
+		//
+		// Detect cycles and return the smallest id for all
+		// elements in the cycle.
+		//
+		// Cycles can show up because of > 2 identical ranges (some of which
+		// might be flipped ranges because of foster parenting scenarios)
+
+		function findCycle(start, edges) {
+			var visited = {},
+				elt = start;
+			while (!visited[elt]) {
+				visited[elt] = true;
+				elt = edges[elt];
+			}
+			return Object.keys(visited);
+		}
+
+		var visitedIds = {},
+			rId = startId;
 		while (nestingInfo[rId]) {
+			if (visitedIds[rId]) {
+				// We have a cycle -- find members of the cycle and return
+				// the smallest id in the cycle.
+				//
+				// NOTE: Cannot use members of visitedIds to detect cycles
+				// since it can contain elements outside the cycle.
+				var cycle = findCycle(rId, nestingInfo),
+					minId = Math.min.apply(null, cycle),
+					// minId is a number, rId, startId are strings
+					minId = minId.toString();
+
+				// console.warn("Found cycle: " + JSON.stringify(cycle) + "; Min id: " + minId);
+
+				// The smallest element will contain all the other elements.
+				// So, minId itself should return null
+				return (minId === startId) ? null : minId;
+			}
+			visitedIds[rId] = true;
 			rId = nestingInfo[rId];
 		}
 		return rId;
@@ -1147,11 +1184,6 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 					// 'r' is nested for sure
 					// Record a range in which 'r' is nested in.
 					nestedRangesMap[r.id] = Object.keys(n.data.tmp_tplRanges)[0];
-					if (nestedRangesMap[r.id] === r.id) {
-						console.error("BUG! BUG! range " + r.id + " is being reported as nested in itself!");
-						console.error("Clearing the flag to eliminate possibility of infinite loops, but output might be corrupt.");
-						nestedRangesMap[r.id] = null;
-					}
 					break;
 				} else {
 					// n === r.start
@@ -1161,6 +1193,9 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 					// compute their intersection.  If this intersection has
 					// another tpl range besides r itself, we have a winner!
 					//
+					// Array A - B functionality that Ruby has would have simplified
+					// this code!
+					//
 					// The code below does the above check efficiently.
 					var s_tpls = r.start.data.tmp_tplRanges,
 						e_tpls = r.end.data.tmp_tplRanges,
@@ -1168,21 +1203,8 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 						foundIntersection = false;
 
 					for (var j = 0; j < s_keys.length; j++) {
-
-						// Because of fostered of end-tags, a range's end and start
-						// tags might be flipped (r.flipped).  In such a scenario,
-						// two ranges A and B might have exactly identical ranges.
-						//
-						//   A = {start: e1, end: e2}
-						//   B = {start: e2, end: e1} where B is the flipped range.
-						//
-						// Hence we also need an additional check to make sure
-						// nestedRangesMap[other] !== r.id.  Without this check,
-						// we will record that A is nested in B and B is nested in A
-						// which will introduce a loop in findToplevelEnclosingRange!
-
 						var other = s_keys[j];
-						if (other !== r.id && e_tpls[other] && nestedRangesMap[other] !== r.id) {
+						if (other !== r.id && e_tpls[other]) {
 							foundIntersection = true;
 							// Record a range in which 'r' is nested in.
 							nestedRangesMap[r.id] = other;
@@ -1241,25 +1263,27 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 		}
 		*/
 
+		var enclosingRangeId = null;
 		if (nestedRangesMap[r.id]) {
-			// console.warn("--nested--");
+			// console.warn("--possibly nested--");
+			enclosingRangeId = findToplevelEnclosingRange(nestedRangesMap, r.id);
+		}
 
-			// Nested -- ignore
+		if (nestedRangesMap[r.id] && enclosingRangeId) {
+			// console.warn("--nested--");
+			// Nested -- ignore r
 			startTagToStrip = r.startElem;
 			endTagToRemove = r.endElem;
-
 			if (argInfo) {
-				var containingRangeId = findToplevelEnclosingRange(nestedRangesMap, r.id);
-
-				// 'r' is nested in 'containingRange' at the top-level
-				// So, containingRange gets r's argInfo
-				if (!compoundTpls[containingRangeId]) {
-					compoundTpls[containingRangeId] = [];
+				// 'r' is nested in 'enclosingRange' at the top-level
+				// So, enclosingRange gets r's argInfo
+				if (!compoundTpls[enclosingRangeId]) {
+					compoundTpls[enclosingRangeId] = [];
 				}
-				recordTemplateInfo(compoundTpls, containingRangeId, r, argInfo);
+				recordTemplateInfo(compoundTpls, enclosingRangeId, r, argInfo);
 			}
 		} else if (prev && !r.flipped && r.start === prev.end) {
-			// console.warn("--overlapped--");
+			// /console.warn("--overlapped--");
 
 			// Overlapping ranges.
 			// r is the regular kind
