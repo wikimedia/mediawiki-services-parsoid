@@ -162,7 +162,7 @@ function WikiConfig( resultConf, prefix, uri ) {
 		}
 
 		try {
-			console.warn('new regexp for ' + prefix + ': ' + regexResult);
+			//console.warn('new regexp for ' + prefix + ': ' + regexResult);
 			return new RegExp( regexResult );
 		} catch (e) {
 			console.error(e);
