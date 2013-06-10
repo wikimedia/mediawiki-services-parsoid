@@ -2315,7 +2315,7 @@ function dumpDomWithDataAttribs( root ) {
 	function cloneData(node, clone) {
 		var d = node.data;
 		if (d && d.constructor === Object && (Object.keys(d.parsoid).length > 0)) {
-			clone.data = d;
+			clone.data = Util.clone(d);
 			saveDataParsoid( clone );
 		}
 
