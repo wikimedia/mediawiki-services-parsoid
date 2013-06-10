@@ -606,8 +606,6 @@ app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 		var oldid = null;
 		if ( req.query.oldid ) {
 			oldid = req.query.oldid;
-		}
-		if ( req.query.cache ) {
 			res.setHeader('Cache-Control', 's-maxage=2592000');
 		}
 		if (env.conf.parsoid.allowCORS) {
