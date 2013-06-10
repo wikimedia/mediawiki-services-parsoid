@@ -1088,9 +1088,9 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 				// NOTE: Cannot use members of visitedIds to detect cycles
 				// since it can contain elements outside the cycle.
 				var cycle = findCycle(rId, nestingInfo),
-					minId = Math.min.apply(null, cycle),
-					// minId is a number, rId, startId are strings
-					minId = minId.toString();
+					minId = Math.min.apply(null, cycle);
+				// minId is a number, rId, startId are strings
+				minId = minId.toString();
 
 				// console.warn("Found cycle: " + JSON.stringify(cycle) + "; Min id: " + minId);
 

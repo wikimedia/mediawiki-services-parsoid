@@ -302,25 +302,6 @@ TemplateRequest.prototype._handleJSON = function ( error, data ) {
 		}
 	}
 
-	// check for #REDIRECT
-	var redirMatch = src.match( /[\r\n\s]*#\s*redirect\s*\[\[([^\]]+)\]\]/i );
-	if ( redirMatch ) {
-		title = redirMatch[1];
-		var url = this.env.conf.parsoid.apiURI + '?' +
-				qs.stringify( {
-					format: 'json',
-					action: 'query',
-					prop: 'revisions',
-					rvprop: PARSOID_RVPROP,
-					titles: title
-				} );
-		//'?format=json&action=query&prop=revisions&rvprop=content&titles=' + title;
-		this.requestOptions.url = url;
-		this.title = title;
-		this.request( this.requestOptions, this._requestCB.bind(this) );
-		return;
-	}
-
 	//console.warn( 'Page ' + this.title + ': got ' + JSON.stringify(metadata) );
 	this.env.tp( 'Retrieved ' + this.title, metadata );
 
