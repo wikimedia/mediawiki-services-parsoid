@@ -1,5 +1,5 @@
 Full list of authors, by number of lines in revision
-fd57d9a56c67e2c150782f9564b34f17c70442ec Feb 26 2013:
+76b343ffd39034301303dc01b5b75c528f37d157 Jun 10 2013:
 
 [ Authors from older revisions may not show up in
   newer revisions -- so continue to add names to
@@ -8,30 +8,36 @@ fd57d9a56c67e2c150782f9564b34f17c70442ec Feb 26 2013:
 Gabriel Wicke <gwicke@wikimedia.org>
 Subramanya Sastry <ssastry@wikimedia.org>
 Mark Holmquist <mtraceur@member.fsf.org>
-Adam Wight <awight@wikimedia.org>
 C. Scott Ananian <cscott@cscott.net>
+Robert Smith <rsmith@wikimedia.org>
+Adam Wight <awight@wikimedia.org>
 Catrope <roan@wikimedia.org>
 Brion Vibber <brion@wikimedia.org>
 plancalculus <jan@monoid-it.de>
 Jeff Evans <wayne.mokane+github@gmail.com>
+Marc Ordinas i Llopis <mail@marcoil.org>
 Siebrand Mazeland <s.mazeland@xs4all.nl>
+Aaron Schulz <aschulz@wikimedia.org>
 Antoine Musso <hashar@free.fr>
 Luke Welling <lwelling@wikimedia.org>
 Neil Kandalgaonkar <neilk@brevity.org>
 Trevor Parscal <trevor@wikimedia.org>
 Timo Tijhof <ttijhof@wikimedia.org>
+Inez Korczyński <inez@wikia-inc.com>
 Molly White <molly.white5@gmail.com>
 Audrey Tang (au) <audreyt@audreyt.org>
+Reedy <reedy@wikimedia.org>
 MZMcBride <w@mzmcbride.com>
 Ori Livneh <ori.livneh@gmail.com>
-Inez Korczyński <inez@wikia-inc.com>
+Adam Baso <abaso@wikimedia.org>
 
 A version of this list can be regenerated with the following one-liner:
 
-git ls-tree -r HEAD|cut -f 2|grep -E '\.(js|cc|h|cpp|hpp|c|txt|sh)$' | grep -v -E 'scripts|html5'   |xargs -n1 git blame --line-porcelain|grep -e "^author "|sort|uniq -c|sort -nr
+git ls-tree -r HEAD|cut -f 2|grep -E '\.(js|cc|h|cpp|hpp|c|txt|sh|php)$' | grep -v -E 'scripts|html5'   |xargs -n1 git blame --line-porcelain|grep -e "^author "|sort|uniq -c|sort -nr
 
 Same for mail adresses:
 
-git ls-tree -r HEAD|cut -f 2|grep -E '\.(js|cc|h|cpp|hpp|c|txt|sh)$' | grep -v -E 'scripts|html5'   |xargs -n1 git blame --line-porcelain|grep -e "^author-mail "|sort|uniq -c|sort -nr
+git ls-tree -r HEAD|cut -f 2|grep -E '\.(js|cc|h|cpp|hpp|c|txt|sh|php)$' | grep -v -E 'scripts|html5'   |xargs -n1 git blame --line-porcelain|grep -e "^author-mail "|sort|uniq -c|sort -nr
 
 Please see git blame for per-file information.
+
