@@ -2640,43 +2640,52 @@ WSP._getDOMHandler = function(node, state, cb) {
 		typeOf = node.getAttribute( 'typeof' ) || '';
 
 	// XXX: Convert into separate handlers?
-	if ( dp.src !== undefined ) {
-		//console.log(node.parentNode.outerHTML);
-		if (/\bmw:(?:Transclusion\b|Param\b|Extension\/[^\s]+)/.test(typeOf)) {
-			// Source-based template/extension round-tripping for now
-			return {
-				handle: function () {
-					// In RT-testing mode, there will not be any edits to tpls/extensions.
-					// So, use original source to eliminate spurious diffs showing up
-					// in RT testing results.
-					var src, dataMW;
-					if (state.rtTesting) {
-						src = dp.src;
-					} else if (/mw:Extension\//.test(typeOf)) {
-						dataMW = JSON.parse(node.getAttribute("data-mw"));
-						src = !dataMW ? dp.src : state.serializer._buildExtensionWT(state, node, dataMW);
+	if (/\bmw:(?:Transclusion\b|Param\b|Extension\/[^\s]+)/.test(typeOf)) {
+		return {
+			handle: function () {
+				// In RT-testing mode, there will not be any edits to tpls/extensions.
+				// So, use original source to eliminate spurious diffs showing up
+				// in RT testing results.
+				var src, dataMW;
+				if (state.rtTesting && dp.src !== undefined) {
+					src = dp.src;
+				} else if (/mw:Extension\//.test(typeOf)) {
+					dataMW = JSON.parse(node.getAttribute("data-mw"));
+					src = !dataMW ? dp.src : state.serializer._buildExtensionWT(state, node, dataMW);
+				} else {
+					dataMW = JSON.parse(node.getAttribute("data-mw"));
+					if (dataMW) {
+						src = state.serializer._buildTemplateWT(state, dataMW.parts || [{ template: dataMW }]);
 					} else {
-						dataMW = JSON.parse(node.getAttribute("data-mw"));
-						if (dataMW) {
-							src = state.serializer._buildTemplateWT(state, dataMW.parts || [{ template: dataMW }]);
-						} else {
-							console.error("ERROR: No data-mw for: " + node.outerHTML);
-							src = dp.src;
-						}
+						console.error("ERROR: No data-mw for: " + node.outerHTML);
+						src = dp.src;
 					}
+				}
+
+				if (src) {
 					self.emitWikitext(src, state, cb, node);
 					return self.skipOverEncapsulatedContent(node);
-				},
-				sepnls: {
-					// XXX: This is questionable, as the template can expand
-					// to newlines too. Which default should we pick for new
-					// content? We don't really want to make separator
-					// newlines in HTML significant for the semantics of the
-					// template content.
-					before: id({min:0, max:2})
+				} else {
+					console.error("ERROR: No handler for: " + node.outerHTML);
+					console.error("Serializing as HTML.");
+					return self._htmlElementHandler(node, state);
 				}
-			};
-		} else if (typeOf === "mw:Placeholder" ||
+			},
+			sepnls: {
+				// XXX: This is questionable, as the template can expand
+				// to newlines too. Which default should we pick for new
+				// content? We don't really want to make separator
+				// newlines in HTML significant for the semantics of the
+				// template content.
+				before: id({min:0, max:2})
+			}
+		};
+	}
+
+	if ( dp.src !== undefined ) {
+		// Source-based template/extension round-tripping for now
+		//console.log(node.parentNode.outerHTML);
+		if (typeOf === "mw:Placeholder" ||
 				(typeOf === "mw:Nowiki" && node.textContent === dp.src )) {
 			// implement generic src round-tripping:
 			// return src, and drop the generated content
