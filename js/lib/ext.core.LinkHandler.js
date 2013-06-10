@@ -712,7 +712,18 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 			image = data.pages[ns + ':' + filename];
 			// SSS FIXME: image.missing doesn't seem to be very useful.
 			// It is often "" even both for missing images as well as valid images.
-			if (!image.imageinfo) {
+			//
+			// FIXME gwicke: Make sure our filename is never of the form
+			// 'File:foo.png|Some caption', as is the case for example in
+			// [[:de:Portal:Thüringen]]. The href is likely templated where
+			// the expansion includes the pipe and caption. We don't currently
+			// handle that case and pass the full string including the pipe to
+			// the API. The API in turn interprets the pipe as two separate
+			// titles and returns two results for each side of the pipe. The
+			// full 'filename' does not match any of them, so image is then
+			// undefined here. So for now (as a workaround) check if we
+			// actually have an image to work with instead of crashing.
+			if (!image || !image.imageinfo) {
 				// FIXME gwicke: Handle missing images properly!!
 				cb ({tokens: [new SelfclosingTagTk('meta',
 							[new KV('typeof', 'mw:Placeholder')], token.dataAttribs)]});
