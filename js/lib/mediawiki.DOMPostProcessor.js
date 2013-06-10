@@ -2134,25 +2134,28 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 					etWidth = dp.tagWidths[1];
 					delete dp.tagWidths;
 				}
-			} else if ((cTypeOf === "mw:Placeholder" || cTypeOf === "mw:Entity") && ce !== null && dp.src) {
+			} else if (cTypeOf === "mw:Entity" && ce !== null && dp.src) {
 				cs = ce - dp.src.length;
 			} else {
-				// Non-meta tags
 				var tagWidths, newDsr, ccs, cce;
-
-				if (tsr && !dp.autoInsertedStart) {
-					cs = tsr[0];
-					if (tsrSpansTagDOM(child, dp)) {
-						if (!ce || tsr[1] > ce) {
-							ce = tsr[1];
-							propagateRight = true;
+				if (cTypeOf === "mw:Placeholder" && dp.src) {
+					cs = ce - dp.src.length;
+				} else {
+					// Non-meta tags
+					if (tsr && !dp.autoInsertedStart) {
+						cs = tsr[0];
+						if (tsrSpansTagDOM(child, dp)) {
+							if (!ce || tsr[1] > ce) {
+								ce = tsr[1];
+								propagateRight = true;
+							}
+						} else {
+							stWidth = tsr[1] - tsr[0];
 						}
-					} else {
-						stWidth = tsr[1] - tsr[0];
+						if (traceDSR) { console.warn("TSR: " + JSON.stringify(tsr) + "; cs: " + cs + "; ce: " + ce); }
+					} else if (s && child.previousSibling === null) {
+						cs = s;
 					}
-					if (traceDSR) { console.warn("TSR: " + JSON.stringify(tsr) + "; cs: " + cs + "; ce: " + ce); }
-				} else if (s && child.previousSibling === null) {
-					cs = s;
 				}
 
 				// Compute width of opening/closing tags for this dom node
@@ -2167,7 +2170,6 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 					etWidth = 0;
 				}
 
-				// Process DOM subtree rooted at child
 				ccs = cs !== null && stWidth !== null ? cs + stWidth : null;
 				cce = ce !== null && etWidth !== null ? ce - etWidth : null;
 				if (traceDSR) {
@@ -2316,7 +2318,7 @@ function dumpDomWithDataAttribs( root ) {
 		var d = node.data;
 		if (d && d.constructor === Object && (Object.keys(d.parsoid).length > 0)) {
 			clone.data = Util.clone(d);
-			saveDataParsoid( clone );
+			saveDataParsoid( clone, true );
 		}
 
 		node = node.firstChild;
@@ -2725,9 +2727,9 @@ function migrateDataParsoid( node ) {
  *
  * Save the data-parsoid attributes on each node.
  */
-saveDataParsoid = function( node ) {
+saveDataParsoid = function( node, debugDump ) {
 	if ( node.nodeType === node.ELEMENT_NODE && node.data ) {
-		if (node.data.parsoid && node.data.parsoid.tsr) {
+		if (!debugDump && node.data.parsoid && node.data.parsoid.tsr) {
 			node.data.parsoid.tsr = undefined;
 		}
 		DU.saveDataAttribs( node );
