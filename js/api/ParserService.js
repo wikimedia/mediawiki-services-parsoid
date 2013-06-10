@@ -602,7 +602,7 @@ app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 		req.connection.setTimeout(900 * 1000);
 
 		var st = new Date();
-		console.log('starting parsing of ' + target);
+		console.log('starting parsing of ' + prefix + ':' + target);
 		var oldid = null;
 		if ( req.query.oldid ) {
 			oldid = req.query.oldid;
@@ -621,11 +621,13 @@ app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 		tpr.once('src', parse.bind( null, env, req, res, function ( req, res, src, doc ) {
 			res.end(Util.serializeNode(doc.documentElement));
 			var et = new Date();
-			console.warn("completed parsing of " + target + " in " + (et - st) + " ms");
+			console.warn("completed parsing of " + prefix +
+				':' + target + " in " + (et - st) + " ms");
 		}));
 	};
 
-	getParserServiceEnv( res, req.params[0], req.params[1], cb );
+	var prefix = req.params[0];
+	getParserServiceEnv( res, prefix, req.params[1], cb );
 } );
 
 // Regular article serialization using POST
