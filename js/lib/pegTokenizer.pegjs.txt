@@ -702,17 +702,17 @@ h = & "=" // guard, to make sure '='+ will match.
      c:inlineline
      e:'='+
      endTPos:({ return pos; })
-     spc:(sp:space+ { return sp.join(''); } / comment)*
+     spc:(spaces / comment)*
      &eolf
      {
         stops.dec('h');
         var level = Math.min( s.length, e.length );
         level = Math.min( 6, level );
         // convert surplus equals into text
-        if(s.length > level) {
+        if (s.length > level) {
             s = s.join('');
             var extras1 = s.substr(0, s.length - level);
-            if(c[0].constructor === String) {
+            if (c[0].constructor === String) {
                 c[0] = extras1 + c[0];
             } else {
                 c.unshift( extras1 );
@@ -1315,7 +1315,7 @@ pre_tag_name =
 // FIXME: fix tag end position
 pre_indent_in_tags
   = & { return stops.inc('pre'); }
-  	space+ // XXX: capture space for round-tripping
+  	spaces // XXX: capture space for round-tripping
     "<" pre_tag_name
     attribs:generic_attribute*
     ">"
