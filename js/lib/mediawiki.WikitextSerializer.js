@@ -2668,7 +2668,7 @@ WSP._getDOMHandler = function(node, state, cb) {
 				} else {
 					console.error("ERROR: No handler for: " + node.outerHTML);
 					console.error("Serializing as HTML.");
-					return self._htmlElementHandler(node, state);
+					return self._htmlElementHandler(node, state, cb);
 				}
 			},
 			sepnls: {
