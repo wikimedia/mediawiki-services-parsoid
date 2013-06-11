@@ -655,6 +655,7 @@ add("html2html", "Bug 4781, 5267: %26 in bracketed URL");
 add("html2html", "Bug 4781, 5267: %28, %29 in bracketed URL");
 add("html2html", "External link containing double-single-quotes with no space separating the url from text in italics");
 add("html2html", "Brackets in urls");
+add("html2html", "IPv6 urls (bug 21261)");
 add("html2html", "Unclosed and unmatched quotes (parsoid)");
 add("html2html", "Table security: embedded pipes (http://lists.wikimedia.org/mailman/htdig/wikitech-l/2006-April/022293.html)");
 add("html2html", "Indented table markup mixed with indented pre content (proposed in bug 6200)");

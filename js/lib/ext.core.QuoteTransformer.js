@@ -8,6 +8,7 @@ var Util = require('./mediawiki.Util.js').Util,
 // define some constructor shortcuts
 var NlTk = defines.NlTk,
     TagTk = defines.TagTk,
+    SelfclosingTagTk = defines.SelfclosingTagTk,
     EndTagTk = defines.EndTagTk;
 
 function QuoteTransformer ( dispatcher ) {
@@ -200,7 +201,8 @@ QuoteTransformer.prototype.onNewLine = function (  token, frame, prevToken ) {
 						}
 					}
 				} else if ( ( ctxPrevToken.constructor === NlTk ||
-								ctxPrevToken.constructor === TagTk ) &&
+								ctxPrevToken.constructor === TagTk ||
+								ctxPrevToken.constructor === SelfclosingTagTk ) &&
 								firstmultiletterword === -1 ) {
 					// This is an approximation, as the original doQuotes
 					// operates on the source and just looks at space vs.
