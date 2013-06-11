@@ -493,7 +493,8 @@ function ParsoidCacheRequest ( env, title, oldid ) {
 		oldid: oldid
 	};
 	var url = env.conf.parsoid.parsoidCacheURI +
-			env.conf.wiki.iwp + '/' + title.replace(/ /g, '_');
+			env.conf.wiki.iwp + '/' + title.replace(/ /g, '_') +
+			'?' + qs.stringify( apiargs );
 
 	console.log(url);
 
@@ -502,7 +503,6 @@ function ParsoidCacheRequest ( env, title, oldid ) {
 	this.requestOptions = {
 		// Use GET so that our request is cacheable
 		method: 'GET',
-		form: apiargs, // The API arguments
 		followRedirect: false,
 		url: url,
 		timeout: 16 * 1000, // 16 seconds
