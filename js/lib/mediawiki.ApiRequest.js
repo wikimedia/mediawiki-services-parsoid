@@ -482,8 +482,12 @@ PHPParseRequest.prototype._handleJSON = function ( error, data ) {
  * @param {string} title The title of the page to use as context
  * @param {oldid} oldid The oldid to request
  */
-function ParsoidCacheRequest ( env, title, oldid ) {
+function ParsoidCacheRequest ( env, title, oldid, options ) {
 	ApiRequest.call(this, env, title);
+
+	if (!options) {
+		options = {};
+	}
 
 	this.oldid = oldid;
 	this.queueKey = title + '?oldid=' + oldid;
@@ -509,14 +513,15 @@ function ParsoidCacheRequest ( env, title, oldid ) {
 		headers: {
 			'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:9.0.1) ' +
 							'Gecko/20100101 Firefox/9.0.1 Iceweasel/9.0.1',
-			'Connection': 'close',
-			// Request a reply only from cache.
-			// TODO: support only-if-cached in varnish, possibly with VCL
-			// somewhat inspired by
-			// https://www.varnish-cache.org/trac/wiki/VCLExampleEnableForceRefresh
-			'Cache-control': 'only-if-cached'
+			'Connection': 'close'
 		}
 	};
+
+	if (!options.evenIfNotCached) {
+		// Request a reply only from cache.
+		this.requestOptions.headers['Cache-control'] = 'only-if-cached';
+	}
+
 
 	// Start the request
 	this.request( this.requestOptions, this._requestCB.bind(this) );

@@ -177,7 +177,7 @@ SSP.serializeDOM = function ( doc, cb, finalcb ) {
 		// Start by getting the old text of this page
 		if (this.env.conf.parsoidCacheURI) {
 			var cacheRequest = new ParsoidCacheRequest(this.env,
-					this.env.page.meta.title, this.env.page.id);
+					this.env.page.meta.title, this.env.page.id, {evenIfNotCached: true});
 			// Fetch the page source and previous revison's DOM in parallel
 			async.parallel(
 					[
