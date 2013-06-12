@@ -28,26 +28,13 @@ function writeFiles ( bugfileName, data ) {
 
 		val = data[key];
 
-		// Make diff readable by adding a charset meta
-		if (fileName === 'diff') {
-			val = "<html><head><meta charset='utf-8'></head><body>" + val + "</body></html>";
-		}
-		if (fileName === 'originalHtml') {
-			// Strip everything upto <body> and after </body> tag
-			val = val.replace(/^.*<body[^<>]*>|<\/body>.*$/g, '');
-		}
-
 		if (fileName === 'editedHtml') {
-			// SSS NOTE: Right now, editedHtml comes with these
-			// tags stripped out and this is a NOP which is why we are
-			// stripped this from originalHtml.  However, by adding
-			// the stripping on the edited HTML, we don't have to worry
-			// about tweaking the code if VE changed what it emitted.
-			//
-			// Strip everything upto <body> and after </body> tag
-			val = val.replace(/^.*<body[^<>]*>|<\/body>.*$/g, '');
 			// Apply smart quoting to minimize diff
 			val = Util.compressHTML(val);
+		} else if (fileName === 'diff' || fileName === 'message') {
+			// Make diff/message readable by adding a charset meta
+			// so we dont have to rely on browser default being utf-8
+			val = "<html><head><meta charset='utf-8'></head><body>" + val + "</body></html>";
 		}
 
 		fs.writeFileSync(dirName + "/" + fileName, val);
