@@ -173,7 +173,7 @@ SSP.serializeDOM = function ( doc, cb, finalcb ) {
 	} else if ( this.env.page.src ) {
 		// Have the src, only parse the src to the dom
 		this.parseOriginalSource( doc, cb, finalcb, null, this.env.page.src );
-	} else if (this.env.page.id) {
+	} else if (this.env.page.id && this.env.page.id !== '0') {
 		// Start by getting the old text of this page
 		if (this.env.conf.parsoidCacheURI) {
 			var cacheRequest = new ParsoidCacheRequest(this.env,
