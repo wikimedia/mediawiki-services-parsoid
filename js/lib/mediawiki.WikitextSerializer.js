@@ -213,7 +213,6 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
 
 		var tc = t.constructor;
 		if (tc === pd.SelfclosingTagTk) {
-
 			// Ignore extlink tokens without valid urls
 			if (t.name === 'extlink' && !this.urlParser.tokenizeURL(t.getAttribute("href"))) {
 				continue;
@@ -753,8 +752,13 @@ WSP.escapeTplArgWT = function(state, arg) {
 			case pd.NlTk:
 			case pd.Comment:
 			case pd.SelfclosingTagTk:
+				var tkSrc = arg.substring(da.tsr[0], da.tsr[1]);
+				// Replace pipe by an entity
+				if (t.name === 'extlink' || t.name === 'urllink') {
+					tkSrc = tkSrc.replace(/\|/g, '&#124;');
+				}
 				if (openTags.length === 0) {
-					buf.push(arg.substring(da.tsr[0], da.tsr[1]));
+					buf.push(tkSrc);
 					offset = da.tsr[1];
 				}
 				break;

@@ -756,7 +756,7 @@ behavior_switch
   = '__' behavior:behavior_text '__'
 {
     return [
-        new TagTk(
+        new SelfclosingTagTk(
             'behavior-switch',
             [new KV('word', '__' + behavior + '__')],
             {
@@ -781,7 +781,7 @@ autolink
 
 urllink
   = target:url {
-      return [ new TagTk( 'urllink', [new KV('href', target)], { tsr: [pos0, pos] } ) ];
+      return [ new SelfclosingTagTk( 'urllink', [new KV('href', target)], { tsr: [pos0, pos] } ) ];
   }
 
 extlink
@@ -1194,7 +1194,7 @@ link_end = "]]"
  * bolds/italics and MediaWiki's special heuristics for apostrophes, which are
  * all not context free. */
 quote = "''" x:"'"* {
-    var res = new TagTk( 'mw-quote', [], { tsr: [pos0, pos] } ); // Will be consumed in token transforms
+    var res = new SelfclosingTagTk( 'mw-quote', [], { tsr: [pos0, pos] } ); // Will be consumed in token transforms
     res.value = "''" + x.join('');
     return res;
 }
