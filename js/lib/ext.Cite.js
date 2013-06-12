@@ -211,9 +211,6 @@ RefGroup.prototype.renderLine = function(refsList, ref) {
 		});
 		a.appendChild(arrow);
 		span.appendChild(a);
-
-		// Space between span-wrapper and content node
-		li.insertBefore(ownerDoc.createTextNode(' '), contentNode);
 	} else {
 		span.appendChild(arrow);
 		$.each(ref.linkbacks, function(i, linkback) {
@@ -227,6 +224,9 @@ RefGroup.prototype.renderLine = function(refsList, ref) {
 			span.appendChild(a);
 		});
 	}
+
+	// Space before content node
+	li.insertBefore(ownerDoc.createTextNode(' '), contentNode);
 
 	// Add it to the ref list
 	refsList.appendChild(li);
