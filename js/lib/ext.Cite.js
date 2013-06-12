@@ -139,9 +139,12 @@ function RefGroup(group) {
 }
 
 RefGroup.prototype.add = function(refName, about, skipLinkback) {
+	// NOTE: prefix name with "ref:" before using it as a property key
+	// This is to avoid overwriting predefined keys like 'constructor'
+
 	var ref;
-	if (refName && this.indexByName[refName]) {
-		ref = this.indexByName[refName];
+	if (refName && this.indexByName["ref:" + refName]) {
+		ref = this.indexByName["ref:" + refName];
 	} else {
 		var n = this.refs.length,
 			refKey = (1+n) + '';
@@ -163,7 +166,7 @@ RefGroup.prototype.add = function(refName, about, skipLinkback) {
 		};
 		this.refs[n] = ref;
 		if (refName) {
-			this.indexByName[refName] = ref;
+			this.indexByName["ref:" + refName] = ref;
 		}
 	}
 
@@ -235,8 +238,11 @@ function References(cite) {
 }
 
 References.prototype.reset = function(group) {
+	// NOTE: prefix name with "refgroup:" before using it as a property key
+	// This is to avoid overwriting predefined keys like 'constructor'
+
 	if (group) {
-		this.refGroups[group] = undefined;
+		this.refGroups["refgroup:" + group] = undefined;
 	} else {
 		this.refGroups = {};
 	}
@@ -310,19 +316,22 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 };
 
 References.prototype.extractRefFromNode = function(node) {
-	function newRefGroup(refGroups, group) {
+	// NOTE: prefix name with "refgroup:" before using it as a property key
+	// This is to avoid overwriting predefined keys like 'constructor'
+	function getRefGroup(refGroups, group) {
 		group = group || '';
-		if (!refGroups[group]) {
-			refGroups[group] = new RefGroup(group);
+		var key = "refgroup:" + group;
+		if (!refGroups[key]) {
+			refGroups[key] = new RefGroup(group);
 		}
-		return refGroups[group];
+		return refGroups[key];
 	}
 
 	var group = node.getAttribute("group"),
 		refName = node.getAttribute("name"),
 		about = node.getAttribute("about"),
 		skipLinkback = node.getAttribute("skiplinkback") === "1",
-		refGroup = this.refGroups[group] || newRefGroup(this.refGroups, group),
+		refGroup = getRefGroup(this.refGroups, group),
 		ref = refGroup.add(refName, about, skipLinkback);
 
 	// Add ref-index linkback
