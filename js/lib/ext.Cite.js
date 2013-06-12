@@ -142,9 +142,9 @@ RefGroup.prototype.add = function(refName, about, skipLinkback) {
 	// NOTE: prefix name with "ref:" before using it as a property key
 	// This is to avoid overwriting predefined keys like 'constructor'
 
-	var ref;
-	if (refName && this.indexByName["ref:" + refName]) {
-		ref = this.indexByName["ref:" + refName];
+	var ref, indexKey = "ref:" + refName;
+	if (refName && this.indexByName[indexKey]) {
+		ref = this.indexByName[indexKey];
 	} else {
 		var n = this.refs.length,
 			refKey = (1+n) + '';
@@ -166,7 +166,7 @@ RefGroup.prototype.add = function(refName, about, skipLinkback) {
 		};
 		this.refs[n] = ref;
 		if (refName) {
-			this.indexByName["ref:" + refName] = ref;
+			this.indexByName[indexKey] = ref;
 		}
 	}
 
@@ -232,17 +232,29 @@ RefGroup.prototype.renderLine = function(refsList, ref) {
 	refsList.appendChild(li);
 };
 
+// NOTE: prefix name with "refgroup:" before using it as a property key
+// This is to avoid overwriting predefined keys like 'constructor'
+function setRefGroup(refGroups, groupName, group) {
+	refGroups["refgroup:" + groupName] = group;
+}
+
+function getRefGroup(refGroups, groupName, allocIfMissing) {
+	groupName = groupName || '';
+	var key = "refgroup:" + groupName;
+	if (!refGroups[key] && allocIfMissing) {
+		setRefGroup(refGroups, groupName, new RefGroup(groupName));
+	}
+	return refGroups[key];
+}
+
 function References(cite) {
 	this.cite = cite;
 	this.reset();
 }
 
 References.prototype.reset = function(group) {
-	// NOTE: prefix name with "refgroup:" before using it as a property key
-	// This is to avoid overwriting predefined keys like 'constructor'
-
 	if (group) {
-		this.refGroups["refgroup:" + group] = undefined;
+		setRefGroup(this.refGroups, group, undefined);
 	} else {
 		this.refGroups = {};
 	}
@@ -316,22 +328,12 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 };
 
 References.prototype.extractRefFromNode = function(node) {
-	// NOTE: prefix name with "refgroup:" before using it as a property key
-	// This is to avoid overwriting predefined keys like 'constructor'
-	function getRefGroup(refGroups, group) {
-		group = group || '';
-		var key = "refgroup:" + group;
-		if (!refGroups[key]) {
-			refGroups[key] = new RefGroup(group);
-		}
-		return refGroups[key];
-	}
 
 	var group = node.getAttribute("group"),
 		refName = node.getAttribute("name"),
 		about = node.getAttribute("about"),
 		skipLinkback = node.getAttribute("skiplinkback") === "1",
-		refGroup = getRefGroup(this.refGroups, group),
+		refGroup = getRefGroup(this.refGroups, group, true),
 		ref = refGroup.add(refName, about, skipLinkback);
 
 	// Add ref-index linkback
@@ -391,7 +393,7 @@ References.prototype.insertReferencesIntoDOM = function(refsNode) {
 		src = refsNode.getAttribute('source'),
 		// Extract ext-source for <references>..</references> usage
 		body = Util.extractExtBody("references", src).trim(),
-		refGroup = this.refGroups[group],
+		refGroup = getRefGroup(this.refGroups, group),
 		ol = refsNode.ownerDocument.createElement('ol');
 
 	DU.addAttributes(ol, {
