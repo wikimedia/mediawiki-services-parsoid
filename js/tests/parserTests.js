@@ -1461,7 +1461,14 @@ ParserTests.prototype.main = function ( options ) {
 			console.error( e.stack );
 			process.exit(1);
 		};
+
 		this.env.conf.parsoid.editMode = options.editMode;
+
+		// Enable <ref> and <references> tags since we want to
+		// test Parsoid's native implementation of these tags.
+		this.env.conf.wiki.addExtensionTag("ref");
+		this.env.conf.wiki.addExtensionTag("references");
+
 		Util.setDebuggingFlags( this.env.conf.parsoid, options );
 		options.modes = [];
 		if ( options.wt2html ) {
