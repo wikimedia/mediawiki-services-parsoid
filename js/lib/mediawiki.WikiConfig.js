@@ -58,6 +58,9 @@ function WikiConfig( resultConf, prefix, uri ) {
 		}
 	}
 
+	// add in a parsoid pseudo-namespace
+
+
 	var aliases = resultConf.namespacealiases;
 	for ( var ax = 0; ax < aliases.length; ax++ ) {
 		conf.namespaceIds[aliases[ax]['*']] = aliases[ax].id;

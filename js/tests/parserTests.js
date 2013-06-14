@@ -523,6 +523,12 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 	}
 
 	function applyChangesInternal(node, changes) {
+		if (!node) {
+			// FIXME: Generate change assignments dynamically
+			console.error('ERROR: no node in applyChangesInternal, ' +
+					'HTML structure likely changed');
+			return;
+		}
 		var nodes = Util.clone(node.childNodes);
 
 		for ( var i = 0; i < changes.length; i++ ) {

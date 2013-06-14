@@ -1465,14 +1465,13 @@ Util.stripPipeTrickChars = function ( target ) {
 /**
  * @method decodeEntity
  *
- * Decode a HTML entity, and return either the decoded char or the original
- * text if it turned out not to be a valid entity.
+ * Decode HTML5 entities in text.
  *
- * @param {string} entity
+ * @param {string} text
  * @returns {string}
  */
-Util.decodeEntity = function ( entity ) {
-    return entities.decodeHTML5(entity);
+Util.decodeEntities = function ( text ) {
+    return entities.decodeHTML5(text);
 };
 
 
@@ -1489,7 +1488,7 @@ Util.escapeEntities = function ( text ) {
 	// but that would encode *all* ampersands, where we apparently just want
 	// to encode ampersands that precede valid entities.
 	return text.replace(/&[#0-9a-zA-Z]+;/g, function(match) {
-		var decodedChar = Util.decodeEntity(match);
+		var decodedChar = Util.decodeEntities(match);
 		if ( decodedChar !== match ) {
 			// Escape the and
 			return '&amp;' + match.substr(1);

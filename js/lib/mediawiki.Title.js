@@ -37,6 +37,7 @@ function Title ( key, ns, nskey, env ) {
  * @static
  *
  * Take text, e.g. from a wikilink, and make a Title object from it.
+ * Somewhat superseded by TemplateHandler.getWikiLinkTargetInfo.
  *
  * @param {MWParserEnvironment} env
  * @param {string} text The prefixed text.

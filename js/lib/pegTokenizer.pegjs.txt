@@ -431,13 +431,28 @@ start
  * WikitextContent::getRedirectTarget()
  */
 redirect
-  = rw:redirect_word sp:space_or_newline* c:( ":" space_or_newline* )?
-    wl:wikilink {
+  = rw:redirect_word 
+    sp:space_or_newline* 
+    c:( ":" space_or_newline* )?
+    link:(wl:wikilink { return wl[0]; })
+{
+    // Set the wikilink's tsr to be zero length. That token is synthetic and
+    // the full tsr range is used by the redirect token. Anything with a zero
+    // width will never be serialized using selser, which is what we want here
+    // as there is no source for it.
+    link.dataAttribs.tsr[0] = link.dataAttribs.tsr[1];
+
     if (sp) { rw += sp.join(''); }
     if (c) { rw += c[0] + c[1].join(''); }
-    wl[0].addAttribute( 'redirect', rw );
-    wl[0].dataAttribs.tsr[0] -= rw.length;
-    return wl;
+    // Build a redirect token
+    var redirect = new SelfclosingTagTk('mw:redirect', 
+            [Util.lookupKV(link.attribs,'href')], 
+            {
+                src: rw,
+                tsr: [pos0, pos],
+                linkTk: link
+            });
+    return redirect;
 }
 
 /* The 'redirect' magic word.
@@ -2166,7 +2181,7 @@ urltext = ( t:[^'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:\]} &=]+ { return t.join(''); 
 htmlentity = "&" c:[#0-9a-zA-Z]+ ";" {
     //return "&" + c.join('') + ";";
     var m = "&" + c.join('') + ";",
-        cc = Util.decodeEntity(m);
+        cc = Util.decodeEntities(m);
     return [
         new TagTk('span', [new KV('typeof', 'mw:Entity')], { src: m, srcContent: cc, tsr: [pos0, pos0] } ),
         cc,

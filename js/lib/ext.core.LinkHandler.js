@@ -25,7 +25,10 @@ var KV = defines.KV,
 
 function WikiLinkHandler( manager, options ) {
 	this.manager = manager;
-	this.manager.addTransform( this.onWikiLink.bind( this ), "WikiLinkHandler:onWikiLink", this.rank, 'tag', 'wikilink' );
+	// Handle redirects first as they can emit additonal link tokens
+	this.manager.addTransform( this.onRedirect.bind( this ), "WikiLinkHandler:onRedirect", this.rank, 'tag', 'mw:redirect' );
+	// Now handle regular wikilinks.
+	this.manager.addTransform( this.onWikiLink.bind( this ), "WikiLinkHandler:onWikiLink", this.rank + 0.001, 'tag', 'wikilink' );
 	// create a new peg parser for image options..
 	if ( !this.urlParser ) {
 		// Actually the regular tokenizer, but we'll call it with the
@@ -36,9 +39,171 @@ function WikiLinkHandler( manager, options ) {
 
 WikiLinkHandler.prototype.rank = 1.15; // after AttributeExpander
 
+/**
+ * Normalize and analyze a wikilink target.
+ *
+ * Returns an object containing
+ * - href: the expanded target string
+ * - hrefSrc: the original target wikitext
+ * - title: a title object *or*
+ *   language: an interwikiInfo object *or*
+ *   interwiki: an interwikiInfo object
+ * - fromColonEscapedText: target was colon-escaped ([[:en:foo]])
+ * - prefix: the original namespace or language/interwiki prefix without a
+ *   colon escape
+ *
+ * @returns {Object} The target info
+ */
+WikiLinkHandler.prototype.getWikiLinkTargetInfo = function (token) {
+	var hrefInfo = Util.lookupKV( token.attribs, 'href' ),
+		info = {
+			href: Util.tokensToString(hrefInfo.v),
+			hrefSrc: hrefInfo.vsrc
+		},
+		env = this.manager.env,
+		href = info.href;
+
+	if (/^:/.test(info.href)) {
+		info.fromColonEscapedText = true;
+		// remove the colon escape
+		info.href = info.href.substr(1);
+		href = info.href;
+	}
+
+	var nsPrefix = href.split( ':', 1 )[0];
+	href = env.normalizeTitle( href, false, true );
+	if ( nsPrefix && nsPrefix !== href ) {
+		info.prefix = nsPrefix;
+		var interwikiInfo = env.conf.wiki.interwikiMap[nsPrefix.toLowerCase()
+														.replace( ' ', '_' )],
+			// check for interwiki / language links
+			ns = env.conf.wiki.canonicalNamespaces[ nsPrefix.toLowerCase()
+														.replace( ' ', '_' ) ];
+		//console.warn( JSON.stringify( [ nsText, ns ] ) );
+		if ( interwikiInfo ) {
+			// interwiki or language link
+			if (info.fromColonEscapedText || interwikiInfo.language === undefined ) {
+				info.interwiki = interwikiInfo;
+				info.href = info.href.substr( nsPrefix.length + 1 );
+			} else {
+				info.language = interwikiInfo;
+				info.href = info.href.substr( nsPrefix.length + 1 );
+			}
+		} else if ( ns !== undefined ) {
+			// FIXME: percent-decode first, then entity-decode!
+			info.title = new Title( Util.decodeURI(href.substr( nsPrefix.length + 1 )),
+					ns, nsPrefix, env );
+		} else {
+			info.title = new Title( Util.decodeURI(href), 0, '', env );
+		}
+	} else if ( /^(\#|\/|\.\.\/)/.test( href ) ) {
+		// If the link is relative, use the page's namespace.
+		info.title = new Title( Util.decodeURI(href), env.page.meta.ns, '', env );
+	} else {
+		info.title = new Title( Util.decodeURI(href), 0, '', env );
+	}
+
+	return info;
+};
+
+/**
+ * Handle mw:redirect tokens.
+ */
+WikiLinkHandler.prototype.onRedirect = function ( token, frame, cb ) {
+	var rlink = new SelfclosingTagTk( 'link', [],
+			Util.clone( token.dataAttribs ) ),
+		wikiLinkTk = rlink.dataAttribs.linkTk,
+		target = this.getWikiLinkTargetInfo(token);
+
+	// Remove the nested wikiLinkTk token
+	rlink.dataAttribs.linkTk = undefined;
+
+	rlink.addAttribute( 'rel', 'mw:PageProp/redirect' );
+
+	rlink.addNormalizedAttribute( 'href', target.title.makeLink(), target.src );
+
+	var tokens = [rlink];
+	if (target.title && target.title.ns.isCategory() && !target.title.fromColonEscapedText) {
+		// Add the category link token back into the token stream. This means
+		// that this is both a redirect and a category link.
+		//
+		// Also, this won't round-trip without selser. Instead it will
+		// duplicate [[Category:Foo]] on each round-trip. As these
+		// redirects should really be to [[:Category:Foo]] these cases
+		// should be rare enough to not add much noise in rt testing.
+		tokens.push(wikiLinkTk);
+	}
+	cb ({ tokens: tokens });
+};
+
+
+
+/**
+ * Handle a mw:WikiLink token.
+ */
+WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
+
+	var j, maybeContent, about, possibleTags, property, newType,
+		hrefkv, strContent, saniContent, env = this.manager.env,
+		// move out
+		attribs = token.attribs,
+		redirect = Util.lookup( attribs, 'redirect' ),
+		target = this.getWikiLinkTargetInfo(token);
+
+	// First check if the expanded href contains a pipe.
+	if (/[|]/.test(target.href)) {
+		// It does. This 'href' was templated and also returned other
+		// parameters separated by a pipe. We don't have any sane way to
+		// handle such a construct currently, so prevent people from editing
+		// it.
+		// TODO: add useful debugging info for editors ('if you would like to
+		// make this content editable, then fix template X..')
+		// TODO: also check other parameters for pipes!
+		cb ({tokens: [new SelfclosingTagTk('meta',
+					[new KV('typeof', 'mw:Placeholder')], token.dataAttribs)]});
+		return;
+	}
+
+	// Ok, it looks like we have a sane href. Figure out which handler to use.
+	var handler = this.getWikiLinkHandler(token, target);
+	// and call it.
+	handler(token, frame, cb, target);
+};
+
+/**
+ * Figure out which handler to use to render a given WikiLink token. Override
+ * this method to add new handlers or swap out existing handlers based on the
+ * target structure.
+ */
+WikiLinkHandler.prototype.getWikiLinkHandler = function (token, target) {
+	var title = target.title;
+	if ( title ) {
+		if (!target.fromColonEscapedText) {
+			if (title.ns.isFile()) {
+				// Render as a file.
+				return this.renderFile.bind(this);
+			} else if (title.ns.isCategory()) {
+				// Render as a category membership.
+				return this.renderCategory.bind(this);
+			}
+		}
+		// Colon-escaped or non-file/category links. Render as plain wiki
+		// links.
+		return this.renderWikiLink.bind(this);
+
+	// language and interwiki links
+	} else if (target.interwiki) {
+		return this.renderInterwikiLink.bind(this);
+	} else if (target.language) {
+		return this.renderLanguageLink.bind(this);
+	}
+
+	// Neither a title, nor a language or interwiki. Should not happen.
+};
+
 /* ------------------------------------------------------------
  * This (overloaded) function does three different things:
- * - Extracts link text from attrs (when k === "").
+ * - Extracts link text from attrs (when k === "mw:maybeContent").
  *   As a performance micro-opt, only does if asked to (getLinkText)
  * - Updates existing rdfa type with an additional rdf-type,
  *   if one is provided (rdfaType)
@@ -49,11 +214,10 @@ function buildLinkAttrs(attrs, getLinkText, rdfaType, linkAttrs) {
 		linkText = [],
 		about;
 
-	// In one pass through the attribute array,
-	// fetch about, typeof, and linkText
+	// In one pass through the attribute array, fetch about, typeof, and
+	// linkText
 	//
-	// about && typeof are usually at the end of the array
-	// if at all present
+	// about && typeof are usually at the end of the array if at all present
 	for ( var i = 0, l = attrs.length; i < l; i++ ) {
 		var kv = attrs[i],
 			k  = kv.k,
@@ -90,207 +254,169 @@ function buildLinkAttrs(attrs, getLinkText, rdfaType, linkAttrs) {
 	};
 }
 
-function splitLink( link ) {
-	var match = link.match(/^(:)?([^:]+):(.*)$/);
-	if ( match ) {
-		return {
-			colonEscape: match[1],
-			interwikiPrefix: match[2],
-			article: match[3]
-		};
-	} else {
-		return null;
-	}
-}
-
-function interwikiContent( token ) {
-	// maybeContent is not set for links with pipetrick
-	var kv = Util.lookupKV( token.attribs, 'mw:maybeContent' ),
-		href = Util.tokensToString( Util.lookupKV( token.attribs, 'href' ).v );
-	if ( token.dataAttribs.pipetrick ) {
-		return href.substring( href.indexOf( ':' ) + 1 );
-	} else if ( kv !== null ) {
-		return  Util.tokensToString( kv.v );
-	} else {
-		return href.replace( /^:/, '' );
-	}
-}
-
-// SSS FIXME: the attr called content should probably be called link-text?
-
-WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
-
-	var j, maybeContent, about, possibleTags, property, newType,
-		hrefkv, strContent, saniContent, env = this.manager.env,
+/**
+ * Generic wiki link attribute setup on a passed-in new token based on the
+ * wikilink token and target. As a side effect, this method also extracts the
+ * link content tokens and returns them.
+ *
+ * @returns {Array} Content tokens
+ */
+WikiLinkHandler.prototype.addLinkAttributesAndGetContent = function (newTk, token, target) {
+	//console.warn( 'title: ' + JSON.stringify( title ) );
+	var title = target.title,
 		attribs = token.attribs,
-		redirect = Util.lookup( attribs, 'redirect' ),
-		hrefSrc = Util.lookupKV( token.attribs, 'href' ).vsrc,
-		target = Util.lookup( attribs, 'href' ),
-		href = Util.tokensToString( target ),
-		title = Title.fromPrefixedText( env, Util.decodeURI( href ) );
+		newAttrData = buildLinkAttrs(attribs, true, null, [new KV('rel', 'mw:WikiLink')]),
+		content = newAttrData.content;
+	// Set attribs and dataAttribs
+	newTk.attribs = newAttrData.attribs;
+	newTk.dataAttribs = Util.clone(token.dataAttribs);
 
-	if ( title.ns.isFile() && !redirect ) {
-		// renderFile - asynchronous
-		this.renderFile( token, frame, cb, href, title);
+	newTk.dataAttribs.src = undefined; // clear src string since we can serialize this
+
+	// Note: Link tails are handled on the DOM in handleLinkNeighbours, so no
+	// need to handle them here.
+	if ( content.length > 0 ) {
+		var out = [];
+		// re-join content bits
+		for ( var i = 0, l = content.length; i < l ; i++ ) {
+			out = out.concat( content[i].v );
+			if ( i < l - 1 ) {
+				out.push( '|' );
+			}
+		}
+		newTk.dataAttribs.stx = 'piped';
+		content = out;
 	} else {
-		//console.warn( 'title: ' + JSON.stringify( title ) );
-		var newAttrs = buildLinkAttrs(attribs, true, null, [new KV('rel', 'mw:WikiLink')]);
-		var content = newAttrs.content;
-		var obj = new TagTk( 'a', newAttrs.attribs, Util.clone(token.dataAttribs));
-		obj.dataAttribs.src = undefined; // clear src string since we can serialize this
-		obj.addNormalizedAttribute( 'href', title.makeLink(), hrefSrc );
-		//console.warn('content: ' + JSON.stringify( content, null, 2 ) );
-
-		// XXX: handle trail
-		if ( content.length > 0 ) {
-			var out = [];
-			for ( var i = 0, l = content.length; i < l ; i++ ) {
-				out = out.concat( content[i].v );
-				if ( i < l - 1 ) {
-					out.push( '|' );
-				}
-			}
-			obj.dataAttribs.stx = 'piped';
-			content = out;
-		} else {
-			var morecontent = Util.decodeURI(href);
-			obj.dataAttribs.stx = 'simple';
-			if ( obj.dataAttribs.pipetrick ) {
-				morecontent = Util.stripPipeTrickChars(morecontent);
-			}
-
-			// Strip leading colon
-			morecontent = morecontent.replace(/^:/, '');
-
-			content = [ morecontent ];
+		var morecontent = Util.decodeURI(target.href);
+		newTk.dataAttribs.stx = 'simple';
+		if ( token.dataAttribs.pipetrick ) {
+			morecontent = Util.stripPipeTrickChars(morecontent);
 		}
 
-		var tokens = [];
+		// Strip leading colon
+		morecontent = morecontent.replace(/^:/, '');
 
-		if ( redirect ) {
-			var rlink = new SelfclosingTagTk( 'link', [],
-											  Util.clone( obj.dataAttribs ) );
-			rlink.dataAttribs.src = redirect;
-			if ( obj.dataAttribs.stx !== 'simple' ) {
-				rlink.dataAttribs.content = Util.tokensToString( content );
-			}
-			rlink.addAttribute( 'rel', 'mw:PageProp/redirect' );
-			rlink.addAttribute( 'href', Util.lookupKV( obj.attribs, 'href' ).v);
-
-			tokens.push( rlink );
-		}
-		if ( title.ns.isCategory() && ! href.match(/^:/) ) {
-			// We let this get handled earlier as a normal wikilink, but we need
-			// to add in a few extras.
-			obj = new SelfclosingTagTk('link', obj.attribs, obj.dataAttribs);
-
-			// Change the rel to be mw:WikiLink/Category
-			Util.lookupKV( obj.attribs, 'rel' ).v += '/Category';
-
-			strContent = Util.tokensToString( content );
-			saniContent = Util.sanitizeTitleURI( strContent ).replace( /#/g, '%23' );
-
-			// Change the href to include the sort key, if any
-			if ( strContent && strContent !== '' && strContent !== href ) {
-				hrefkv = Util.lookupKV( obj.attribs, 'href' );
-				hrefkv.v += '#';
-				hrefkv.v += saniContent;
-			}
-
-			// For '#REDIRECT [[Category:Foo]] we've already "used up" our
-			// tsr on the #REDIRECT part.  Use a zero-width DSR here to
-			// note that this part is synthetic and to disable selser.
-			//
-			// Also, this won't round-trip without selser. Instead it will
-			// duplicate [[Category:Foo]] on each round-trip. As these
-			// redirects should really be to [[:Category:Foo]] these cases
-			// should be rare enough to not add much noise in rt testing.
-			if ( redirect ) { delete obj.dataAttribs.tsr; }
-
-			tokens.push( obj );
-
-			// Deal with sort keys generated via templates/extensions
-			var producerInfo = Util.lookupKV( token.attribs, 'mw:valAffected' );
-			if (producerInfo) {
-				// Ensure that the link has about set
-				about = Util.lookup( obj.attribs, 'about' );
-				if (!about) {
-					about = this.manager.env.newAboutId();
-					obj.addAttribute("about", about);
-				}
-
-				// Update typeof
-				obj.addSpaceSeparatedAttribute("typeof",
-					"mw:ExpandedAttrs/" + producerInfo.v[0].match(/mw:(.*)/)[1]);
-
-				// Update producer meta-token and add it to the token stream
-				var metaToken = producerInfo.v[1];
-				metaToken.addAttribute("about", about);
-				var propKV = Util.lookupKV(metaToken.attribs, "property");
-				propKV.v = propKV.v.replace(/mw:maybeContent/, 'mw:sortKey'); // keep it clean
-				tokens.push(metaToken);
-			}
-
-		} else if ( !redirect ) {
-			var linkParts = splitLink( href );
-
-			if ( linkParts !== null &&
-			     env.conf.wiki.interwikiMap[linkParts.interwikiPrefix] !== undefined ) {
-				// The prefix is listed in the interwiki map
-
-				var interwikiInfo = env.conf.wiki.interwikiMap[linkParts.interwikiPrefix];
-
-				// We set an absolute link to the article in the other wiki/language
-				var absHref = interwikiInfo.url.replace( "$1", linkParts.article );
-				obj.addNormalizedAttribute('href', absHref, hrefSrc);
-
-				if ( interwikiInfo.language !== undefined &&
-				     linkParts.colonEscape === undefined ) {
-					// It is a language link and does not start with a colon
-
-					obj.dataAttribs.src = token.getWTSource( env );
-					obj = new SelfclosingTagTk('link', obj.attribs, obj.dataAttribs);
-
-					// Change the rel to be mw:WikiLink/Language
-					Util.lookupKV( obj.attribs, 'rel' ).v += '/Language';
-				} else {
-					// It is a non-language interwiki link or a language link
-					// that starts with a colon
-
-					// Change the rel to be mw:WikiLink/Interwiki
-					Util.lookupKV( obj.attribs, 'rel' ).v += '/Interwiki';
-				}
-
-				tokens.push( obj );
-
-				if ( interwikiInfo.language !== undefined &&
-				     linkParts.colonEscape === undefined )  {
-					/* jshint noempty: false */
-					/* done! */
-				} else {
-					tokens = tokens.concat( interwikiContent( token ),
-											[new EndTagTk( 'a' )] );
-				}
-			} else {
-				for ( j = 0; j < content.length; j++ ) {
-					if ( content[j].constructor !== String ) {
-						property = Util.lookup( content[j].attribs, 'property' );
-						if ( property && property.constructor === String &&
-						     // SSS FIXME: Is this check correct?
-						     property.match( /mw\:objectAttr(Val|Key)\#mw\:maybeContent/ ) ) {
-							content.splice( j, 1 );
-						}
-					}
-				}
-
-				tokens = [obj].concat( content, [ new EndTagTk( 'a' ) ] );
-			}
-		}
-		cb( {
-			tokens: tokens
-		} );
+		content = [ morecontent ];
 	}
+	return content;
 };
+
+/**
+ * Render a plain wiki link.
+ */
+WikiLinkHandler.prototype.renderWikiLink = function (token, frame, cb, target) {
+	var tokens = [],
+		newTk = new TagTk('a'),
+		content = this.addLinkAttributesAndGetContent(newTk, token, target);
+
+	newTk.addNormalizedAttribute( 'href', target.title.makeLink(), target.hrefSrc );
+
+	tokens.push( newTk );
+	tokens = tokens.concat(content, [new EndTagTk('a')]);
+
+	cb({tokens: tokens});
+};
+
+/**
+ * Render a category 'link'. Categories are really page properties, and are
+ * normally rendered in a box at the bottom of an article.
+ */
+WikiLinkHandler.prototype.renderCategory = function (token, frame, cb, target) {
+
+	var tokens = [],
+		newTk = new SelfclosingTagTk('link'),
+		content = this.addLinkAttributesAndGetContent(newTk, token, target);
+
+	// Change the rel to be mw:WikiLink / Category
+	Util.lookupKV( newTk.attribs, 'rel' ).v += '/Category';
+
+	var strContent = Util.tokensToString( content ),
+		saniContent = Util.sanitizeTitleURI( strContent ).replace( /#/g, '%23' );
+	newTk.addNormalizedAttribute( 'href', target.title.makeLink(), target.hrefSrc );
+	// Change the href to include the sort key, if any (but don't update the
+	// rt info)
+	if ( strContent && strContent !== '' && strContent !== target.href ) {
+		var hrefkv = Util.lookupKV( newTk.attribs, 'href' );
+		hrefkv.v += '#';
+		hrefkv.v += saniContent;
+	}
+
+	tokens.push( newTk );
+
+	// Deal with sort keys generated via templates/extensions
+	var producerInfo = Util.lookupKV( token.attribs, 'mw:valAffected' );
+	if (producerInfo) {
+		// Ensure that the link has about set
+		var about = Util.lookup( newTk.attribs, 'about' );
+		if (!about) {
+			about = this.manager.env.newAboutId();
+			newTk.addAttribute("about", about);
+		}
+
+		// Update typeof
+		newTk.addSpaceSeparatedAttribute("typeof",
+				"mw:ExpandedAttrs/" + producerInfo.v[0].match(/mw:(.*)/)[1]);
+
+		// Update producer meta-token and add it to the token stream
+		var metaToken = producerInfo.v[1];
+		metaToken.addAttribute("about", about);
+		var propKV = Util.lookupKV(metaToken.attribs, "property");
+		propKV.v = propKV.v.replace(/mw:maybeContent/, 'mw:sortKey'); // keep it clean
+		tokens.push(metaToken);
+	}
+	cb({tokens: tokens});
+};
+
+
+/**
+ * Render a language link. Those normally appear in the list of alternate
+ * languages for an article in the sidebar, so are really a page property.
+ */
+WikiLinkHandler.prototype.renderLanguageLink = function (token, frame, cb, target) {
+	// The prefix is listed in the interwiki map
+
+	var newTk = new SelfclosingTagTk('link', [], token.dataAttribs),
+		content = this.addLinkAttributesAndGetContent(newTk, token, target);
+
+	// We set an absolute link to the article in the other wiki/language
+	var absHref = target.language.url.replace( "$1", target.href );
+	newTk.addNormalizedAttribute('href', absHref, target.hrefSrc);
+
+	// Change the rel to be mw:WikiLink/Language
+	Util.lookupKV( newTk.attribs, 'rel' ).v = 'mw:WikiLink/Language';
+
+	cb({tokens: [newTk]});
+};
+
+/**
+ * Render an interwiki link.
+ */
+WikiLinkHandler.prototype.renderInterwikiLink = function (token, frame, cb, target) {
+	// The prefix is listed in the interwiki map
+
+	var tokens = [],
+		newTk = new TagTk('a', [], token.dataAttribs),
+		content = this.addLinkAttributesAndGetContent(newTk, token, target);
+
+	// We set an absolute link to the article in the other wiki/language
+	var absHref = target.interwiki.url.replace( "$1", target.href );
+	newTk.addNormalizedAttribute('href', absHref, target.hrefSrc);
+
+	// Change the rel to be mw:WikiLink/Interwiki
+	Util.lookupKV( newTk.attribs, 'rel' ).v = 'mw:WikiLink/Interwiki';
+
+	tokens.push( newTk );
+
+	// If this is a simple link, include the prefix in the link text
+	if (newTk.dataAttribs.stx === 'simple' && !newTk.dataAttribs.pipetrick) {
+		content.unshift(target.prefix + ':');
+	}
+
+	tokens = tokens.concat( content,
+			[new EndTagTk( 'a' )] );
+	cb({tokens: tokens});
+};
+
 
 /**
  * Handle the dimensions for an image
@@ -525,7 +651,16 @@ function closeUnclosedBlockTags(tokens) {
 	return tokens;
 }
 
-WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, title ) {
+/**
+ * Render a file. This can be an image, a sound, a PDF etc.
+ *
+ * FIXME: move all these nested functions out so that the data flow becomes
+ * clearer.
+ */
+WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
+{
+	var fileName = target.href,
+		title = target.title;
 	/**
 	 * Determine the name of an option
 	 * Returns an object of form

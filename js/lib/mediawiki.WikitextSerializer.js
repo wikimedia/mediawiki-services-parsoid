@@ -1441,34 +1441,56 @@ WSP.linkHandler = function(node, state, cb) {
 				}
 			}
 
-			// figure out if we need a piped or simple link
-			var canUseSimple =  // Would need to pipe for any non-string content
-								linkData.content.string !== undefined &&
-								// See if the (normalized) content matches the
-								// target, either shadowed or actual.
-								(	linkData.content.string === target.value ||
-									linkData.content.string === linkData.href ||
-									// normalize without underscores for comparison with target.value
-									env.normalizeTitle( linkData.content.string, true ) ===
-										Util.decodeURI( target.value ) ||
-									// normalize with underscores for comparison with href
-									env.normalizeTitle( linkData.content.string ) ===
-										Util.decodeURI( linkData.href )) &&
-								// but preserve non-minimal piped links
-								( target.modified || linkData.contentModified || ( dp.stx !== 'piped' && !dp.pipetrick ) ),
-				canUsePipeTrick = linkData.content.string !== undefined &&
+				// Strip colon escapes from the original target as that is
+				// stripped when deriving the content string.
+			var strippedTargetValue = target.value.replace(/^:/, ''),
+				// Just a convenient shortcut. The string value of the
+				// content, if it is plain text.
+				contentString = linkData.content.string,
+
+				// figure out if we need a piped or simple link
+				canUseSimple =
+					// Would need to pipe for any non-string content
+					contentString !== undefined &&
+					// See if the (normalized) content matches the
+					// target, either shadowed or actual.
+					(	contentString ===
+							Util.decodeURI(Util.decodeEntities(strippedTargetValue)) ||
+						contentString === linkData.href ||
+						// normalize without underscores for
+						// comparison with target.value and strip
+						// any colon escape
+						env.normalizeTitle( contentString, true ) ===
+						Util.decodeURI( strippedTargetValue ) ||
+						// normalize with underscores for comparison with href
+						env.normalizeTitle( contentString ) ===
+						Util.decodeURI( linkData.href )
+					) &&
+					// but preserve non-minimal piped links
+					( target.modified || linkData.contentModified ||
+						( dp.stx !== 'piped' && !dp.pipetrick ) ),
+
+				canUsePipeTrick =
+					linkData.type === 'mw:WikiLink/Language' ||
+					contentString !== undefined &&
 					linkData.type !== 'mw:WikiLink/Category' &&
 					(
-						Util.stripPipeTrickChars(target.value) ===
-							linkData.content.string ||
+						Util.stripPipeTrickChars(strippedTargetValue) ===
+							contentString ||
 						Util.stripPipeTrickChars(linkData.href) ===
-							linkData.content.string ||
+							contentString ||
 						env.normalizeTitle(Util.stripPipeTrickChars(
-								Util.decodeURI(target.value))) ===
-							env.normalizeTitle(linkData.content.string) ||
+								Util.decodeURI(strippedTargetValue))) ===
+							env.normalizeTitle(contentString) ||
 						env.normalizeTitle(
 							Util.stripPipeTrickChars(Util.decodeURI(linkData.href))) ===
-							env.normalizeTitle(linkData.content.string)
+							env.normalizeTitle(contentString) ||
+						// Interwiki links with pipetrick have their prefix
+						// stripped, so compare against a stripped version
+						( linkData.type === 'mw:WikiLink/Interwiki' &&
+						  dp.pipetrick &&
+						  env.normalizeTitle( contentString ) ===
+							target.value.replace(/^:?[a-zA-Z]+:/, '') )
 					),
 				// Only preserve pipe trick instances across edits, but don't
 				// introduce new ones.
