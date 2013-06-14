@@ -34,11 +34,6 @@ var SelectiveSerializer = function ( options ) {
 
 	this.wts = options.wts || new WikitextSerializer( options );
 
-	// The output wikitext collector
-	this.wtChunks = [];
-
-	this.serializeID = null;
-
 	// Debug options
 	this.trace = this.env.conf.parsoid.debug || (
 		this.env.conf.parsoid.traceFlags &&
@@ -75,8 +70,6 @@ var SSP = SelectiveSerializer.prototype;
  */
 SSP.doSerializeDOM = function ( err, doc, cb, finalcb ) {
 	var self = this;
-	// gwicke: This does not seem to be needed any more?
-	//Util.stripFirstParagraph( doc );
 
 	if ( err || (!this.env.page.dom && !this.env.page.domdiff) || !this.env.page.src) {
 		// If there's no old source, fall back to non-selective serialization.
@@ -94,7 +87,7 @@ SSP.doSerializeDOM = function ( err, doc, cb, finalcb ) {
 			// new DiffToSelserConverter(this.env, doc).convert();
 
 			if ( this.trace || ( this.env.conf.parsoid.dumpFlags &&
-						this.env.conf.parsoid.dumpFlags.indexOf( 'dom:post-dom-diff' ) !== -1) )
+				this.env.conf.parsoid.dumpFlags.indexOf( 'dom:post-dom-diff' ) !== -1) )
 			{
 				console.log( '----- DOM after running DOMDiff -----' );
 				console.log( doc.outerHTML );
@@ -104,14 +97,11 @@ SSP.doSerializeDOM = function ( err, doc, cb, finalcb ) {
 			this.wts.serializeDOM(
 					doc,
 					function(res) {
-						self.debug_pp("SS-res: ", JSON.stringify(res));
-						self.wtChunks.push(res);
+						self.debug_pp(JSON.stringify(res));
+						cb(res);
 					},
-					function () {
-						//console.log( 'chunks', self.wtChunks );
-						cb( self.wtChunks.join( '' ) );
-						finalcb();
-					}, true);
+					finalcb,
+					true);
 		} else {
 			// Nothing was modified, just re-use the original source
 			cb( this.env.page.src );

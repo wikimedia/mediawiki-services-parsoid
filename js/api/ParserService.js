@@ -63,13 +63,13 @@ var interwikiRE;
  * The global parsoid configuration object.
  * @property {ParsoidConfig}
  */
-var parsoidConfig = new ParsoidConfig( localSettings, null ),
+var parsoidConfig = new ParsoidConfig( localSettings, null );
 
 /**
  * The serializer to use for the web requests.
  * @property {Function} Serializer
  */
-	Serializer = parsoidConfig.useSelser ? SelectiveSerializer : WikitextSerializer;
+var Serializer = parsoidConfig.useSelser ? SelectiveSerializer : WikitextSerializer;
 
 /**
  * Get the interwiki regexp.
@@ -634,30 +634,26 @@ app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function ( req, res 
 	var cb = function ( env ) {
 		var doc, oldid = req.body.oldid || null;
 		env.page.id = oldid;
+
 		res.setHeader('Content-Type', 'text/x-mediawiki; charset=UTF-8');
 
 		try {
 			doc = Util.parseHTML(req.body.content);
 		} catch ( e ) {
 			console.log( 'There was an error in the HTML5 parser! Sending it back to the editor.' );
-			console.error( e.stack );
-			res.send( e.stack, 500 );
+			env.errCB(e);
 			return;
 		}
 
-
 		try {
-			// FIXME: Fetch oldid source and pass it in.
+			var out = [];
 			new Serializer( { env: env, oldid: env.page.id } ).serializeDOM(
-			// The below can be uncommented to turn on selective serialization on the main API service.
-			// This is not currently advisable. It's not working perfectly.
-			//new SelectiveSerializer( { env: env, oldid: oldid } ).serializeDOM(
 				doc.body,
 				function ( chunk ) {
-					res.write( chunk );
+					out.push(chunk);
 				}, function () {
-					// XXX TODO FIXME BBQ There should be an error callback in SelSer.
-					res.end( '' );
+					res.write( out.join('') );
+					res.end('');
 				} );
 		} catch ( e ) {
 			env.errCB( e );
