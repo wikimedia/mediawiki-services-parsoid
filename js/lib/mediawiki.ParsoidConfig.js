@@ -81,7 +81,10 @@ ParsoidConfig.prototype.setInterwiki = function ( prefix, wgScript ) {
 ParsoidConfig.prototype.removeInterwiki = function ( prefix ) {
 	delete this.interwikiMap[prefix];
 	this.interwikiRegexp = this.interwikiRegexp.replace(
-		new RegExp( '\\|' + prefix + '\\|' ), '|' );
+		new RegExp( '(^|\\|)' + prefix + '(\\||$)' ), function() {
+			return arguments[0] === ("|" + prefix + "|") ? "|" : '';
+		}
+	);
 };
 
 /**

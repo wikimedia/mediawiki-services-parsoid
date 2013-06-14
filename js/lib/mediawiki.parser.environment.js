@@ -281,36 +281,52 @@ MWParserEnvironment.getParserEnv = function ( parsoidConfig, wikiConfig, prefix,
  * @param {Error} cb.err
  */
 MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
-	// This is sometimes a URI, sometimes a prefix.
-	var confSource,
-		uri = this.conf.parsoid.interwikiMap[prefix] ||
-			this.conf.parsoid.interwikiMap.en;
-	this.conf.parsoid.apiURI = uri;
 
-	if ( !this.conf.parsoid.fetchConfig ) {
-		// Use the name of a cache file as the source of the config.
-		confSource = './baseconfig/' + prefix + '.json';
-	} else {
-		confSource = uri;
+	function setupWikiConfig(env, apiURI, error, config) {
+		if ( error === null ) {
+			env.conf.wiki = new WikiConfig( config, prefix, apiURI );
+			env.confCache[prefix] = env.conf.wiki;
+		}
+
+		cb( error );
 	}
 
-	if ( this.confCache[prefix || ''] ) {
-		this.conf.wiki = this.confCache[prefix || ''];
-		cb( null );
-	} else {
-		var confRequest = new ConfigRequest( confSource, this );
-		confRequest.on( 'src', function ( error, resultConf ) {
-			var thisuri = confSource;
-			if ( !this.conf.parsoid.fetchConfig && uri ) {
-				thisuri = uri;
-			}
-			if ( error === null ) {
-				this.conf.wiki = new WikiConfig( resultConf, prefix, thisuri );
-				this.confCache[prefix || ''] = this.conf.wiki;
-			}
+	if (!prefix) {
+		console.error("ERROR: No prefix provided!");
+		cb(new Error("Wiki prefix not provided"));
+		return;
+	}
 
-			cb( error );
-		}.bind( this ) );
+	var uri = this.conf.parsoid.interwikiMap[prefix];
+	if (!uri) {
+		// SSS: Ugh! Looks like parser tests use a prefix
+		// that is not part of the interwikiMap -- so we
+		// cannot crash with an error.  Hence defaulting
+		// to enwiki api which is quite odd.  Does the
+		// interwikiMap need updating or is this use-case
+		// valid outside of parserTests??
+		console.error("ERROR: Did not find api uri for " + prefix + "; defaulting to en");
+		uri = this.conf.parsoid.interwikiMap.en;
+	}
+
+	this.conf.parsoid.apiURI = uri;
+
+	if ( this.confCache[prefix] ) {
+		this.conf.wiki = this.confCache[prefix];
+		cb( null );
+	} else if ( this.conf.parsoid.fetchConfig ) {
+		var confRequest = new ConfigRequest( uri, this );
+		confRequest.on( 'src', setupWikiConfig.bind(null, this, uri));
+	} else {
+		// Load the config from cached config on disk
+		var localConfigFile = './baseconfig/' + prefix + '.json',
+			localConfig = require(localConfigFile);
+
+		if (localConfig && localConfig.query) {
+			setupWikiConfig(this, uri, null, localConfig.query);
+		} else {
+			cb(new Error("Could not read valid config from file: " + localConfigFile));
+		}
 	}
 };
 

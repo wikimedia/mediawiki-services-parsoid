@@ -550,20 +550,11 @@ ParsoidCacheRequest.prototype._handleBody = function ( error, body ) {
  * A request for the wiki's configuration variables.
  *
  * @constructor
- * @param {string} confSource The API URI to use for fetching, or a filename
+ * @param {string} apiURI The API URI to use for fetching
  * @param {MWParserEnvironment} env
  */
-var ConfigRequest = function ( confSource, env ) {
+var ConfigRequest = function ( apiURI, env ) {
 	ApiRequest.call( this, env, null );
-
-	if ( !env.conf.parsoid.fetchConfig ) {
-		// Hack! Configured to use local configurations, probably for
-		// parserTests. Fetch the cached versions and use those.
-		// The confSource will be a filename in this case.
-		var localConf = require( confSource );
-		this._handleJSON( null, localConf );
-		return;
-	}
 
 	var metas = [
 			'siteinfo'
@@ -588,18 +579,15 @@ var ConfigRequest = function ( confSource, env ) {
 			siprop: siprops.join( '|' )
 		};
 
-	if ( !confSource ) {
+	if ( !apiURI ) {
 		this._requestCB( new Error( 'There was no base URI for the API we tried to use.' ) );
 		return;
 	}
 
-	var url = confSource + '?' +
-		qs.stringify( apiargs );
-
 	this.requestOptions = {
 		method: 'GET',
 		followRedirect: true,
-		url: url,
+		url: apiURI + '?' + qs.stringify( apiargs ),
 		timeout: 40 * 1000,
 		headers: {
 			'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:9.0.1) ' +
