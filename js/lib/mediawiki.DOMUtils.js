@@ -310,7 +310,9 @@ var DOMUtils = {
 	},
 
 	isLiteralHTMLNode: function(n) {
-		return this.hasLiteralHTMLMarker(this.getDataParsoid(n));
+		return (n &&
+			this.isElt(n) &&
+			this.hasLiteralHTMLMarker(this.getDataParsoid(n)));
 	},
 
 	isIndentPre: function(n) {
@@ -862,6 +864,16 @@ var DOMUtils = {
 		tokens[0].removeAttribute('typeof');
 
 		return tokens;
+	},
+
+	/* Compute, when possible, the wikitext source for a node in
+	 * an environment env. Returns null if the source cannot be
+	 * extracted.
+	 */
+	getWTSource: function ( env, node ) {
+		var data = node.data.parsoid,
+		    dsr = (undefined !== data) ? data.dsr : null;
+		return dsr ? env.page.src.substring(dsr[0], dsr[1]) : null;
 	}
 };
 

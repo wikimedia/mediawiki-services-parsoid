@@ -2541,7 +2541,31 @@ WSP._serializeAttributes = function (state, token) {
 	return out.join(' ');
 };
 
+WSP._handleLIHackIfApplicable = function (node, cb) {
+	var liHackSrc = node.data.parsoid.liHackSrc,
+	    prev = DU.previousNonSepSibling(node);
+
+	// If we are dealing with an LI hack, then we must ensure that
+	// we are dealing with either
+	//
+	//   1. A node with no previous sibling inside of a list.
+	//
+	//   2. A node whose previous sibling is a list element.
+	if (liHackSrc !== undefined &&
+	    ((prev === null && DU.isList(node.parentNode)) ||        // Case 1
+	     (prev !== null && DU.isListElt(prev)))) {               // Case 2
+		cb(liHackSrc, node);
+	}
+};
+
 WSP._htmlElementHandler = function (node, state, cb) {
+	// Wikitext supports the following list syntax:
+	//
+	//    * <li class="a"> hello world
+	//
+	// The "LI Hack" gives support for this syntax, and we need to
+	// specially reconstruct the above from a single <li> tag.
+	this._handleLIHackIfApplicable(node, cb);
 
 	emitStartTag(this._serializeHTMLTag(state, DU.mkTagTk(node)),
 			node, state, cb);
