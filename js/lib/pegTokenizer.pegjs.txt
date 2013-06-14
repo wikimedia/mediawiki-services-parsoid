@@ -1394,7 +1394,7 @@ xmlish_tag =
             if (t.constructor === TagTk) {
                 var tsr0 = dp.tsr[0],
                     restOfInput = input.substring(tsr0),
-                    tagContent = restOfInput.match(new RegExp("^(.|\n)*?(</\\s*" + tagName + ">)", "m")),
+                    tagContent = restOfInput.match(new RegExp("^(.|\n)*?(</\\s*" + tagName + ">)", "mi")),
                     extSrc = null,
                     tagWidths = null;
 
