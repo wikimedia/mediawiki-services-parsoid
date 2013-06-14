@@ -6,6 +6,9 @@ var baseConfig = require( './baseconfig/en.json' ).query,
 	Util = require( './mediawiki.Util.js' ).Util,
 	request = require( 'request' );
 
+// Make sure our base config is never modified
+Util.deepFreeze(baseConfig);
+
 // escape 'special' characters in a regexp, returning a regexp which matches
 // the string exactly
 var re_escape = function(s) {
@@ -504,7 +507,8 @@ WikiConfig.prototype = {
 		delete this.extensionTags[tagName];
 	}
 };
-Object.freeze(WikiConfig.prototype.canonicalNamespaces);
+// Make sure the prototype is never modified
+Util.deepFreeze(WikiConfig.prototype);
 
 if ( typeof module === 'object' ) {
 	module.exports.WikiConfig = WikiConfig;
