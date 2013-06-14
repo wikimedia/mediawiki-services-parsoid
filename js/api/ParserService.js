@@ -366,7 +366,8 @@ var getParserServiceEnv = function ( res, iwp, pageName, cb ) {
 		env.errCB = function ( e ) {
 			var errmsg = e.stack || e.toString();
 			var code = e.code || 500;
-			console.error( errmsg );
+			console.error( 'ERROR in ' + pageName + ':\n' + e.message);
+			console.error("Stack trace: " + errmsg);
 			res.send( errmsg, code );
 			// Force a clean restart of this worker
 			process.exit(1);
@@ -644,10 +645,6 @@ app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function ( req, res 
 			return;
 		}
 
-		env.errCB = function ( e ) {
-			console.error( e.stack );
-			res.send( e.stack, 500 );
-		};
 
 		try {
 			// FIXME: Fetch oldid source and pass it in.
