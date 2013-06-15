@@ -20,14 +20,17 @@ function processExtSource(manager, extToken, opts) {
 		tagWidths = extToken.dataAttribs.tagWidths,
 		content = extSrc.substring(tagWidths[0], extSrc.length - tagWidths[1]);
 
+	// FIXME: SSS: This stripping maybe be unecessary after all.
+	//
 	// FIXME: Should this be specific to the extension
+	//
 	// or is it okay to do this unconditionally for all?
 	// Right now, this code is run only for ref and references,
 	// so not a real problem, but if this is used on other extensions,
 	// requires addressing.
 	//
-	// Strip white-space only lines
-	var wsMatch = content.match(/^((?:\s*\n)?)((?:.|\n)*)$/),
+	// Strip all leading white-space
+	var wsMatch = content.match(/^(\s*)((?:.|\n)*)$/),
 		leadingWS = wsMatch[1];
 
 	// Update content to normalized form
@@ -43,10 +46,7 @@ function processExtSource(manager, extToken, opts) {
 		var pipeline = manager.pipeFactory.getPipeline(
 			opts.pipelineType,
 			Util.extendProps({}, opts.pipelineOpts, {
-				wrapTemplates: true,
-				// SSS FIXME: Doesn't seem right.
-				// Should this be the default in all cases?
-				inBlockToken: true
+				wrapTemplates: true
 			})
 		);
 
@@ -91,6 +91,11 @@ Ref.prototype.reset = function() { };
  * Handle ref tokens
  */
 Ref.prototype.handleRef = function ( manager, pipelineOpts, refTok, cb ) {
+	// Nested <ref> tags are not supported
+	if (pipelineOpts.extTag === "ref") {
+		cb({ tokens: [refTok.getAttribute("source")] });
+		return;
+	}
 
 	var inReferencesExt = pipelineOpts.extTag === "references",
 		refOpts = $.extend({ name: null, group: null }, Util.KVtoHash(refTok.getAttribute("options"))),
@@ -191,12 +196,7 @@ RefGroup.prototype.renderLine = function(refsList, ref) {
 	});
 	li.innerHTML = ref.content;
 
-	// If ref-content has block nodes, wrap it in a div, else in a span
-	var contentNode = ownerDoc.createElement(DU.hasBlockContent(li) ? 'div' : 'span');
-
-	// Move all children from li to contentNode
-	DU.migrateChildren(li, contentNode);
-	li.appendChild(contentNode);
+	var contentNode = li.firstChild;
 
 	// 'mw:referencedBy' span wrapper
 	var span = ownerDoc.createElement('span');

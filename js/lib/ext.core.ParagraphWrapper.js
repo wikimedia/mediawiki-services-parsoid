@@ -19,7 +19,10 @@ var KV = defines.KV,
 
 function ParagraphWrapper ( manager, options ) {
 	this.options = options;
-	this.register( manager );
+	// Disable p-wrapper in <ref> tags
+	if (options.extTag !== "ref") {
+		this.register( manager );
+	}
 	this.trace = manager.env.conf.parsoid.debug ||
 		(manager.env.conf.parsoid.traceFlags &&
 		(manager.env.conf.parsoid.traceFlags.indexOf("p-wrap") !== -1));
