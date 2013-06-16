@@ -2659,10 +2659,7 @@ WSP._getDOMHandler = function(node, state, cb) {
 				var src, dataMW;
 				if (state.rtTesting && dp.src !== undefined) {
 					src = dp.src;
-				} else if (/mw:Extension\//.test(typeOf)) {
-					dataMW = JSON.parse(node.getAttribute("data-mw"));
-					src = !dataMW ? dp.src : state.serializer._buildExtensionWT(state, node, dataMW);
-				} else {
+				} else if (/\bmw:(Transclusion\b|Param\b)/.test(typeOf)) {
 					dataMW = JSON.parse(node.getAttribute("data-mw"));
 					if (dataMW) {
 						src = state.serializer._buildTemplateWT(state, dataMW.parts || [{ template: dataMW }]);
@@ -2670,6 +2667,11 @@ WSP._getDOMHandler = function(node, state, cb) {
 						console.error("ERROR: No data-mw for: " + node.outerHTML);
 						src = dp.src;
 					}
+				} else if (/\bmw:Extension\//.test(typeOf)) {
+					dataMW = JSON.parse(node.getAttribute("data-mw"));
+					src = !dataMW ? dp.src : state.serializer._buildExtensionWT(state, node, dataMW);
+				} else {
+					console.error("ERROR: Should not have come here!");
 				}
 
 				if (src) {
