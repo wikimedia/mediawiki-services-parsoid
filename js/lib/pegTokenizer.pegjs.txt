@@ -1500,7 +1500,7 @@ xmlish_tag =
                 ret = new SelfclosingTagTk('extension', [
                     new KV('typeof', 'mw:Extension'),
                     new KV('name', tagName),
-                    new KV('about', "#" + pegArgs.env.newObjectId()),
+                    new KV('about', pegArgs.env.newAboutId()),
                     new KV('source', dp.src),
                     new KV('options', t2.attribs)
                 ], dp);

@@ -210,7 +210,7 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 				// Ensure that the link has about set
 				about = Util.lookup( obj.attribs, 'about' );
 				if (!about) {
-					about = "#" + this.manager.env.newObjectId();
+					about = this.manager.env.newAboutId();
 					obj.addAttribute("about", about);
 				}
 

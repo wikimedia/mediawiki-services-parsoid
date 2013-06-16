@@ -99,7 +99,7 @@ Ref.prototype.handleRef = function ( manager, pipelineOpts, refTok, cb ) {
 
 	var inReferencesExt = pipelineOpts.extTag === "references",
 		refOpts = $.extend({ name: null, group: null }, Util.KVtoHash(refTok.getAttribute("options"))),
-		about = inReferencesExt ? '' : "#" + manager.env.newObjectId(),
+		about = inReferencesExt ? '' : manager.env.newAboutId(),
 		finalCB = function(toks, content) {
 			// Marker meta with ref content
 			var da = Util.clone(refTok.dataAttribs);
@@ -288,7 +288,7 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 
 		marker.dataAttribs.stx = undefined;
 		DU.addAttributes(marker, {
-			'about': '#' + manager.env.newObjectId(),
+			'about': manager.env.newAboutId(),
 			'group': group,
 			'typeof': 'mw:Extension/references/Marker'
 		});

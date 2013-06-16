@@ -488,6 +488,10 @@ MWParserEnvironment.prototype.newObjectId = function () {
 	return "mwt" + this.generateUID();
 };
 
+MWParserEnvironment.prototype.newAboutId = function () {
+	return "#" + this.newObjectId();
+};
+
 MWParserEnvironment.prototype.stripIdPrefix = function(aboutId) {
 	return aboutId.replace(/^#?mwt/, '');
 };

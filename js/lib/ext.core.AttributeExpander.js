@@ -306,7 +306,7 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 			var tokenId = token.getAttribute( 'about' );
 
 			if ( !tokenId ) {
-				tokenId = "#" + this.manager.env.newObjectId();
+				tokenId = this.manager.env.newAboutId();
 				token.addAttribute("about", tokenId);
 				var objType;
 				var producerObjTypeMatch = producerObjType.match(

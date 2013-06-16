@@ -52,7 +52,7 @@ TemplateHandler.prototype.register = function ( manager ) {
  */
 TemplateHandler.prototype.encapsulateExpansionHTML = function(extToken, expansion) {
 	var toks = DU.getWrapperTokens(expansion.nodes),
-		about = this.manager.env.newObjectId();
+		about = this.manager.env.newAboutId();
 	// Assign the HTML fragment to the data-parsoid.html on the first
 	// wrapper token.
 	toks[0].dataAttribs.html = expansion.html;
