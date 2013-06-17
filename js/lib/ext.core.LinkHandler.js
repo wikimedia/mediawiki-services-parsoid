@@ -200,6 +200,11 @@ WikiLinkHandler.prototype.onWikiLink = function ( token, frame, cb ) {
 			// For '#REDIRECT [[Category:Foo]] we've already "used up" our
 			// tsr on the #REDIRECT part.  Use a zero-width DSR here to
 			// note that this part is synthetic and to disable selser.
+			//
+			// Also, this won't round-trip without selser. Instead it will
+			// duplicate [[Category:Foo]] on each round-trip. As these
+			// redirects should really be to [[:Category:Foo]] these cases
+			// should be rare enough to not add much noise in rt testing.
 			if ( redirect ) { delete obj.dataAttribs.tsr; }
 
 			tokens.push( obj );
