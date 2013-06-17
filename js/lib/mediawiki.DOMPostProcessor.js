@@ -2503,13 +2503,15 @@ function unpackDOMFragments(node) {
 				}
 			}
 
-			// Transfer the new dsr
+			// Transfer the new dsr -- just dsr[0] and dsr[1] since tag-widths
+			// will be incorrect for reuse of template expansions
 			var firstChild = dummyNode.firstChild;
 			DU.loadDataParsoid(firstChild);
 			if (!firstChild.data.parsoid) {
 				console.log(node.data.parsoid, dummyNode.outerHTML);
 			}
-			firstChild.data.parsoid.dsr = node.data.parsoid.dsr;
+			var dsr = node.data.parsoid.dsr;
+			firstChild.data.parsoid.dsr = [dsr[0], dsr[1]];
 
 			// FIXME: Deal with the case where the DOMFragment node is also a
 			// transclusion. OTOH, dp.html should not be available in that case,

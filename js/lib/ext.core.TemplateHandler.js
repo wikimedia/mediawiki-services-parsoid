@@ -50,11 +50,11 @@ TemplateHandler.prototype.register = function ( manager ) {
  * wrapper that is later unpacked in the DOMPostProcessor. Used both for
  * transclusion and extension content.
  */
-TemplateHandler.prototype.encapsulateExpansionHTML = function(extToken, expansion) {
+TemplateHandler.prototype.encapsulateExpansionHTML = function(token, expansion) {
 	var toks = DU.getWrapperTokens(expansion.nodes),
 		about = this.manager.env.newAboutId();
-	// Assign the HTML fragment to the data-parsoid.html on the first
-	// wrapper token.
+
+	// Assign the HTML fragment to the data-parsoid.html on the first wrapper token.
 	toks[0].dataAttribs.html = expansion.html;
 	// Add the DOMFragment type so that we get unwrapped later
 	toks[0].setAttribute('typeof', 'mw:DOMFragment');
@@ -63,6 +63,13 @@ TemplateHandler.prototype.encapsulateExpansionHTML = function(extToken, expansio
 	toks.forEach(function(tok) {
 		tok.setAttribute('about', about);
 	});
+
+	// Transfer tsr to the first token
+	var tokenTsr = token.dataAttribs ? token.dataAttribs.tsr : null;
+	if (tokenTsr) {
+		toks[0].dataAttribs.tsr = tokenTsr;
+	}
+
 	return toks;
 };
 
