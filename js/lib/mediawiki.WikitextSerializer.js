@@ -2195,9 +2195,15 @@ WSP.tagHandlers = {
 				}
 			},
 			before: function(node, otherNode) {
-				var type = node.getAttribute('typeof');
+				var type = node.getAttribute( 'typeof' ) || node.getAttribute( 'property' );
 				if (type && type.match(/mw:Includes\//)) {
 					return {max:0};
+				} else if ( type && type.match( /mw:PageProp\/categorydefaultsort/ ) ) {
+					if ( otherNode.nodeName.toLowerCase() === 'p' ) {
+						return { min: 2 };
+					} else {
+						return { min: 1 };
+					}
 				} else {
 					return {};
 				}
