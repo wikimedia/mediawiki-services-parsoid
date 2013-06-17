@@ -512,7 +512,7 @@ MWParserEnvironment.prototype.isParsoidObjectId = function(aboutId) {
  */
 MWParserEnvironment.prototype.errCB = function ( error ) {
 	console.log( 'ERROR in ' + this.page.name + ':\n' + error.message);
-	console.log("stack trace: " + error.stack);
+	console.log("Stack trace: " + error.stack);
 	process.exit( 1 );
 };
 
