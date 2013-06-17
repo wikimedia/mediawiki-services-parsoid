@@ -2510,8 +2510,12 @@ function unpackDOMFragments(node) {
 			if (!firstChild.data.parsoid) {
 				console.log(node.data.parsoid, dummyNode.outerHTML);
 			}
+
 			var dsr = node.data.parsoid.dsr;
-			firstChild.data.parsoid.dsr = [dsr[0], dsr[1]];
+			// FIXME: Not sure why this would be missing
+			if (dsr) {
+				firstChild.data.parsoid.dsr = [dsr[0], dsr[1]];
+			}
 
 			// FIXME: Deal with the case where the DOMFragment node is also a
 			// transclusion. OTOH, dp.html should not be available in that case,
