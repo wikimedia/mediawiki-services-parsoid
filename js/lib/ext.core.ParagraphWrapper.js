@@ -186,9 +186,7 @@ ParagraphWrapper.prototype.processPendingNLs = function (isBlockToken) {
 				// Preserve nls for pretty-printing and dsr reliability
 
 				// 3. Insert <p><br></p> sections
-				// FIXME: Mark this as a placeholder for now until the
-				// editor handles this properly
-				resToks.push(new TagTk( 'p', [new KV('typeof', 'mw:Placeholder')] ));
+				resToks.push(new TagTk( 'p' ));
 				resToks.push(new SelfclosingTagTk('br'));
 				resToks.push(nlTk);
 				if (newLineCount > 3) {
