@@ -17,17 +17,18 @@ if (cluster.isMaster) {
     cluster.fork();
   }
 
-  cluster.on('death', function(worker) {
-    if(!worker.suicide) {
-      console.log('worker ' + worker.pid + ' died, restarting.');
-      // restart worker
+  cluster.on('exit', function(worker, code, signal) {
+    if (!worker.suicide) {
+      var exitCode = worker.process.exitCode;
+      console.log('worker', worker.process.pid,
+                  'died ('+exitCode+'), restarting.');
       cluster.fork();
     }
   });
+
   process.on('SIGTERM', function() {
     console.log('master shutting down, killing workers');
     var workers = cluster.workers;
-    if (!workers) { throw new Error("Force killing node 0.6.x"); }
     Object.keys(workers).forEach(function(id) {
         console.log('Killing worker ' + id);
         workers[id].destroy();
