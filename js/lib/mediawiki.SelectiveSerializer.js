@@ -186,7 +186,7 @@ SSP.serializeDOM = function ( doc, cb, finalcb ) {
 							// And the original dom. results[1] is an array
 							// with the html and the content type. Ignore the
 							// content type here.
-							self.env.page.dom = Util.parseHTML(results[1][0]);
+							self.env.page.dom = Util.parseHTML(results[1][0]).body;
 						}
 
 						// Selective serialization if there was no error, full
