@@ -175,26 +175,28 @@ SSP.serializeDOM = function ( doc, cb, finalcb ) {
 		this.parseOriginalSource( doc, cb, finalcb, null, this.env.page.src );
 	} else if (this.env.page.id && this.env.page.id !== '0') {
 		// Start by getting the old text of this page
-		if (this.env.conf.parsoidCacheURI) {
+		if (this.env.conf.parsoid.parsoidCacheURI) {
 			var cacheRequest = new ParsoidCacheRequest(this.env,
-					this.env.page.meta.title, this.env.page.id, {evenIfNotCached: true});
+					this.env.page.name, this.env.page.id, {evenIfNotCached: true});
 			// Fetch the page source and previous revison's DOM in parallel
 			async.parallel(
 					[
-						Util.getPageSrc( this.env, this.env.page.name,
+						Util.getPageSrc.bind(Util, this.env, this.env.page.name,
 							this.env.page.id || null),
 						cacheRequest.once.bind(cacheRequest, 'src')
 					], function (err, results) {
 						if (err) {
-							console.error('Error while fetchin page source or original DOM!');
+							console.error('Error while fetching page source or original DOM!');
 						} else {
 							// no error.
 
-							// set the page source
-							this.env.setPageSrcInfo(results[0]);
+							// Set the page source.
+							self.env.setPageSrcInfo(results[0]);
 
-							// and the original dom
-							this.env.page.dom = results[1].body;
+							// And the original dom. results[1] is an array
+							// with the html and the content type. Ignore the
+							// content type here.
+							self.env.page.dom = Util.parseHTML(results[1][0]);
 						}
 
 						// Selective serialization if there was no error, full
