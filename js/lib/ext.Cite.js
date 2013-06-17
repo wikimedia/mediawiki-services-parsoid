@@ -334,18 +334,18 @@ References.prototype.extractRefFromNode = function(node) {
 		about = node.getAttribute("about"),
 		skipLinkback = node.getAttribute("skiplinkback") === "1",
 		refGroup = getRefGroup(this.refGroups, group, true),
-		ref = refGroup.add(refName, about, skipLinkback);
+		ref = refGroup.add(refName, about, skipLinkback),
+		nodeType = (node.getAttribute("typeof") || '').replace(/mw:Extension\/ref\/Marker/, '');
 
 	// Add ref-index linkback
 	if (!skipLinkback) {
 		var doc = node.ownerDocument,
 			span = doc.createElement('span'),
-			content = node.getAttribute("content");
+			content = node.getAttribute("content"),
+			dataMW = node.getAttribute('data-mw');
 
-		DU.addAttributes(span, {
-			'about': about,
-			'class': 'reference',
-			'data-mw': JSON.stringify({
+		if (!dataMW) {
+			dataMW = JSON.stringify({
 				'name': 'ref',
 				// Dont set body if this is a reused reference
 				// like <ref name='..' /> with empty content.
@@ -355,11 +355,18 @@ References.prototype.extractRefFromNode = function(node) {
 					'group': group || undefined,
 					'name': refName || undefined
 				}
-			}),
+			});
+		}
+
+		DU.addAttributes(span, {
+			'about': about,
+			'class': 'reference',
+			'data-mw': dataMW,
 			'id': ref.linkbacks[ref.linkbacks.length - 1],
 			'rel': 'dc:references',
-			'typeof': 'mw:Extension/ref'
+			'typeof': nodeType
 		});
+		DU.addTypeOf(span, "mw:Extension/ref");
 		span.data = {
 			parsoid: {
 				src: node.data.parsoid.src,
@@ -394,12 +401,12 @@ References.prototype.insertReferencesIntoDOM = function(refsNode) {
 		// Extract ext-source for <references>..</references> usage
 		body = Util.extractExtBody("references", src).trim(),
 		refGroup = getRefGroup(this.refGroups, group),
-		ol = refsNode.ownerDocument.createElement('ol');
+		ol = refsNode.ownerDocument.createElement('ol'),
+		nodeType = (refsNode.getAttribute("typeof") || '').replace(/mw:Extension\/references\/Marker/, '');
 
-	DU.addAttributes(ol, {
-		'about': about,
-		'class': 'references',
-		'data-mw': JSON.stringify({
+	var dataMW = refsNode.getAttribute('data-mw');
+	if (!dataMW) {
+		dataMW = JSON.stringify({
 			'name': 'references',
 			// We'll have to output data-mw.body.extsrc in
 			// scenarios where original wikitext was of the form:
@@ -410,9 +417,16 @@ References.prototype.insertReferencesIntoDOM = function(refsNode) {
 				// Dont emit empty keys
 				'group': group || undefined
 			}
-		}),
-		'typeof': 'mw:Extension/references'
+		});
+	}
+
+	DU.addAttributes(ol, {
+		'about': about,
+		'class': 'references',
+		'data-mw': dataMW,
+		'typeof': nodeType
 	});
+	DU.addTypeOf(ol, "mw:Extension/references");
 	ol.data = refsNode.data;
 	if (refGroup) {
 		refGroup.refs.map(refGroup.renderLine.bind(refGroup, ol));
