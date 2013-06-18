@@ -2697,7 +2697,7 @@ WSP._getDOMHandler = function(node, state, cb) {
 	if ( dp.src !== undefined ) {
 		// Source-based template/extension round-tripping for now
 		//console.log(node.parentNode.outerHTML);
-		if (typeOf === "mw:Placeholder" ||
+		if (/^mw:Placeholder(\/\w*)?$/.test(typeOf) ||
 				(typeOf === "mw:Nowiki" && node.textContent === dp.src )) {
 			// implement generic src round-tripping:
 			// return src, and drop the generated content

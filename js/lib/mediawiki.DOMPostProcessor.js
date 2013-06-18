@@ -1689,7 +1689,7 @@ function findBuilderCorrectedTags(document, env) {
 			**/
 
 			placeHolder = node.ownerDocument.createElement('meta'),
-			placeHolder.setAttribute('typeof', 'mw:Placeholder');
+			placeHolder.setAttribute('typeof', 'mw:Placeholder/StrippedTag');
 			placeHolder.data = { parsoid: { src: src } };
 
 			// Insert the placeHolder
@@ -2121,7 +2121,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 						cs = tsr[0];
 						ce = tsr[1];
 					}
-				} else if (cTypeOf === "mw:Placeholder" && ce !== null && dp.src) {
+				} else if (/^mw:Placeholder(\/\w*)?$/.test(cTypeOf) && ce !== null && dp.src) {
 					cs = ce - dp.src.length;
 				} else {
 					var property = child.getAttribute("property");
@@ -2138,7 +2138,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 				cs = ce - dp.src.length;
 			} else {
 				var tagWidths, newDsr, ccs, cce;
-				if (cTypeOf === "mw:Placeholder" && dp.src) {
+				if (/^mw:Placeholder(\/\w*)?$/.test(cTypeOf) && dp.src) {
 					cs = ce - dp.src.length;
 				} else {
 					// Non-meta tags
@@ -2394,7 +2394,7 @@ function encapsulateTemplateOutput( document, env ) {
 	}
 }
 
-function stripMarkerMetas(node) {
+function stripMarkerMetas(editMode, node) {
 	// Sometimes a non-tpl meta node might get the mw:Transclusion typeof
 	// element attached to it. So, check the property to make sure it is not
 	// of those metas before deleting it.
@@ -2405,9 +2405,10 @@ function stripMarkerMetas(node) {
 	var metaType = node.getAttribute("typeof");
 	if (metaType &&
 		// TODO: Use /Start for all Transclusion / Param markers!
-		metaType.match(/\bmw:(StartTag|EndTag|Extension\/(?:ref|references)\/Marker|TSRMarker)\/?[^\s]*\b/) &&
-		!node.getAttribute("property"))
-	{
+		(metaType.match(/\bmw:(StartTag|EndTag|Extension\/(?:ref|references)\/Marker|TSRMarker)\/?[^\s]*\b/) &&
+		!node.getAttribute("property")) ||
+		(editMode && metaType === "mw:Placeholder/StrippedTag")
+	) {
 		var nextNode = node.nextSibling;
 		deleteNode(node);
 		// stop the traversal, since this node is no longer in the DOM.
@@ -2781,7 +2782,6 @@ function DOMPostProcessor(env, options) {
 		this.processors.push(encapsulateTemplateOutput);
 	}
 
-
 	// DOM traverser for passes that can be combined and will run at the end
 	// 1. Link prefixes and suffixes
 	// 2. Strip marker metas -- removes left over marker metas (ex: metas
@@ -2797,7 +2797,7 @@ function DOMPostProcessor(env, options) {
 				env.conf.parsoid.nativeExtensions.cite.references));
 
 	var dataParsoidSaver = new DOMTraverser();
-	dataParsoidSaver.addHandler( 'meta', stripMarkerMetas );
+	dataParsoidSaver.addHandler( 'meta', stripMarkerMetas.bind(null, env.conf.parsoid.editMode) );
 	dataParsoidSaver.addHandler( null, saveDataParsoid );
 	this.processors.push(dataParsoidSaver.traverse.bind(dataParsoidSaver));
 }
