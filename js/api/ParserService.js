@@ -427,7 +427,7 @@ app.get(/\/_html\/(.*)/, function ( req, res ) {
 		res.end('');
 	};
 
-	getParserServiceEnv( res, null, req.params[0], cb );
+	getParserServiceEnv( res, parsoidConfig.defaultWiki, req.params[0], cb );
 } );
 
 app.post(/\/_html\/(.*)/, function ( req, res ) {
@@ -462,7 +462,7 @@ app.get(/\/_wikitext\/(.*)/, function ( req, res ) {
 		res.end('');
 	};
 
-	getParserServiceEnv( res, null, req.params[0], cb );
+	getParserServiceEnv( res, parsoidConfig.defaultWiki, req.params[0], cb );
 } );
 
 app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
