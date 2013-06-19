@@ -867,7 +867,10 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 		DU.addTypeOf(firstWrapperToken, 'mw:DOMFragment');
 		firstWrapperToken.dataAttribs.html = cachedImage.html;
 
-		// Transfer tsr to the first token
+		// Transfer tsr to the first token, and capture delta between them.
+		// tsr will NOT be missing here on the wrapper token since image expansions
+		// only from the top-level page are reused.
+		firstWrapperToken.dataAttribs.tsrDelta = token.dataAttribs.tsr[0] - firstWrapperToken.dataAttribs.tsr[0];
 		firstWrapperToken.dataAttribs.tsr = token.dataAttribs.tsr;
 
 		//console.log('cache hit for ' + token.dataAttribs.src);

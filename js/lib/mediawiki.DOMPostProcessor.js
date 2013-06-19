@@ -2418,6 +2418,23 @@ function stripMarkerMetas(editMode, node) {
 	}
 }
 
+function addDeltaToDSR(node, delta) {
+	// Add 'delta' to dsr[0] and dsr[1] for nodes in the subtree
+	// node's dsr has already been updated
+	var child = node.firstChild;
+	while (child) {
+		if (DU.isElt(child)) {
+			DU.loadDataParsoid(child);
+			if (child.data.parsoid.dsr) {
+				child.data.parsoid.dsr[0] += delta;
+				child.data.parsoid.dsr[1] += delta;
+			}
+			addDeltaToDSR(child, delta);
+		}
+		child = child.nextSibling;
+	}
+}
+
 /**
  * DOMTraverser handler that unpacks DOM fragments which were injected in the
  * token pipeline.
@@ -2450,7 +2467,8 @@ function unpackDOMFragments(node) {
 				DU.loadDataParsoid(node);
 			}
 
-			var html = node.data.parsoid.html;
+			var html = node.data.parsoid.html,
+				tsrDelta = node.data.parsoid.tsrDelta;
 			if (!html) {
 				// Most likely a multi-part template with an extension in its
 				// output (possibly passed in as a parameter).
@@ -2515,10 +2533,16 @@ function unpackDOMFragments(node) {
 			var dsr = node.data.parsoid.dsr;
 			// FIXME: Not sure why this would be missing
 			if (dsr) {
-				if (/\bmw:(Transclusion|Extension)\b/.test(firstChild.getAttribute("typeof"))) {
+				var type = firstChild.getAttribute("typeof");
+				if (/\bmw:(Transclusion|Extension)\b/.test(type)) {
 					firstChild.data.parsoid.dsr = [dsr[0], dsr[1]];
 				} else { // non-transcluded images
 					firstChild.data.parsoid.dsr = [dsr[0], dsr[1], 2, 2];
+					// Reused image -- update dsr by tsrDelta on all
+					// descendents of 'firstChild' which is the <figure> tag
+					if (tsrDelta) {
+						addDeltaToDSR(firstChild, tsrDelta);
+					}
 				}
 			}
 
