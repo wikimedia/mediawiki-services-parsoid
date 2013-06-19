@@ -2515,7 +2515,11 @@ function unpackDOMFragments(node) {
 			var dsr = node.data.parsoid.dsr;
 			// FIXME: Not sure why this would be missing
 			if (dsr) {
-				firstChild.data.parsoid.dsr = [dsr[0], dsr[1]];
+				if (/\bmw:(Transclusion|Extension)\b/.test(firstChild.getAttribute("typeof"))) {
+					firstChild.data.parsoid.dsr = [dsr[0], dsr[1]];
+				} else { // non-transcluded images
+					firstChild.data.parsoid.dsr = [dsr[0], dsr[1], 2, 2];
+				}
 			}
 
 			// FIXME: Deal with the case where the DOMFragment node is also a

@@ -866,6 +866,10 @@ WikiLinkHandler.prototype.renderFile = function ( token, frame, cb, fileName, ti
 			firstWrapperToken = wrapperTokens[0];
 		DU.addTypeOf(firstWrapperToken, 'mw:DOMFragment');
 		firstWrapperToken.dataAttribs.html = cachedImage.html;
+
+		// Transfer tsr to the first token
+		firstWrapperToken.dataAttribs.tsr = token.dataAttribs.tsr;
+
 		//console.log('cache hit for ' + token.dataAttribs.src);
 		cb( {tokens: wrapperTokens} );
 		return;
