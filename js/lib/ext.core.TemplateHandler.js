@@ -542,7 +542,33 @@ TemplateHandler.prototype._startTokenPipeline = function( state, frame, cb, tplA
 	//console.log( "---------------------------------");
 	//console.log( src );
 
-	// HACK! Needed to support nested <refs>s in #tag:ref
+	/* -----------------------------------------------------------------
+	 * HACK! Bypass the "text/mediawiki" pipeline for "{{#tag:ref|...}}"
+	 *
+	 * We have to do this to support <ref> tags in #tag:ref (which is
+	 * effectively nested ref tags). See Bug 49555 for additional details.
+	 *
+	 * Consider this wikitext: "{{#tag:ref|X <ref>foo</ref> Y}}"
+	 * The PHP preprocessor returns "<ref>X <ref>foo</ref> Y</ref>"
+	 *
+	 * If we pass this through the regular pipeline, the tokenizer
+	 * will parse this into 2 tokens:
+	 * [ <extension name="ref" source="<ref>X <ref>foo</ref>" />,
+	 *   " Y &lt/ref&gt;" ]
+	 * which is absolutely not what we want!
+	 *
+	 * Since we know this can be a nested-ref token and has to parse
+	 * into a single extension-token, we do the work of the tokenizer
+	 * and convert it to an ext-token ourselves.
+	 *
+	 * Since this is a single ext-token, we know it wouldn't have been
+	 * processed by any other handlers in stage 1 or stage 2 except
+	 * template encapsulation which we directly handle below.
+	 *
+	 * So, this hack effectively bypasses the normal stage 1 and stage 2
+	 * pipeline processing and shortcircuits it below with exactly the
+	 * tokens we want.
+	 * ----------------------------------------------------------------- */
 	var tplName = (state.token.attribs[0].k || '');
 	var inTagRef = tplName.constructor === String && tplName.toLowerCase() === "#tag:ref";
 	if (inTagRef) {
