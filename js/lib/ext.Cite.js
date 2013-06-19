@@ -92,7 +92,7 @@ Ref.prototype.reset = function() { };
  */
 Ref.prototype.handleRef = function ( manager, pipelineOpts, refTok, cb ) {
 	// Nested <ref> tags are not supported
-	if (pipelineOpts.extTag === "ref") {
+	if (!pipelineOpts.inTagRef && pipelineOpts.extTag === "ref" && pipelineOpts.wrapTemplates) {
 		cb({ tokens: [refTok.getAttribute("source")] });
 		return;
 	}
@@ -123,6 +123,7 @@ Ref.prototype.handleRef = function ( manager, pipelineOpts, refTok, cb ) {
 		// Full pipeline for processing ref-content
 		pipelineType: 'text/x-mediawiki/full',
 		pipelineOpts: {
+			inTagRef: refTok.getAttribute("inTagRef"),
 			extTag: "ref"
 		},
 		res: [],

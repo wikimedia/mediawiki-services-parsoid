@@ -542,6 +542,44 @@ TemplateHandler.prototype._startTokenPipeline = function( state, frame, cb, tplA
 	//console.log( "---------------------------------");
 	//console.log( src );
 
+	// HACK! Needed to support nested <refs>s in #tag:ref
+	var tplName = (state.token.attribs[0].k || '');
+	var inTagRef = tplName.constructor === String && tplName.toLowerCase() === "#tag:ref";
+	if (inTagRef) {
+		// Do not set data attribs here since _onChunk will strip tsr
+		// from this ext token -- which we don't want stripped
+		var extToken = new SelfclosingTagTk('extension',
+			[
+				new KV('inTagRef', '1'),
+				new KV('typeof', 'mw:Extension'),
+				new KV('name', 'ref'),
+				new KV('about', "#" + this.manager.env.newObjectId()),
+				new KV('source', src),
+				new KV('options', state.token.attribs.slice(2))
+			]
+		);
+
+		// Run normal tpl encapsulation on it
+		this._onChunk(state, function(ret) {
+			var toks = ret.tokens, n = toks.length;
+			for (var i = 0; i < n; i++) {
+				// Find the tag and set dataAttribs on it
+				if (toks[i].constructor === SelfclosingTagTk &&
+					toks[i].getAttribute('inTagRef'))
+				{
+					var dp = Util.clone(state.token.dataAttribs),
+						matchInfo = src.match(/^(<ref[^<>]*>).*(<\/ref>)/i);
+
+					dp.tagWidths = [matchInfo[1].length,matchInfo[2].length];
+					toks[i].dataAttribs = dp;
+				}
+			}
+			cb(ret);
+			this._onEnd(state, cb);
+		}.bind(this), [extToken]);
+		return;
+	}
+
 	// Get a nested transformation pipeline for the input type. The input
 	// pipeline includes the tokenizer, synchronous stage-1 transforms for
 	// 'text/wiki' input and asynchronous stage-2 transforms).
@@ -553,8 +591,8 @@ TemplateHandler.prototype._startTokenPipeline = function( state, frame, cb, tplA
 		extTag: this.options.extTag
 	};
 	var pipeline = this.manager.pipeFactory.getPipeline(
-				type || 'text/x-mediawiki', pipelineOpts
-			);
+		type || 'text/x-mediawiki', pipelineOpts
+	);
 
 	pipeline.setFrame( this.manager.frame, tplArgs.name, tplArgs.attribs );
 
