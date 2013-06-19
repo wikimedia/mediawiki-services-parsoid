@@ -1168,7 +1168,7 @@ WSP.handleImage = function ( node, state, cb ) {
 		dmw = DU.getDataMw( node ),
 		opts = dp.optList || [],
 		wrapNode = node.firstChild,
-		capNode = node.getElementsByClassName( 'mw-figcaption' )[0];
+		capNode = node.getElementsByTagName( 'figcaption' )[0];
 
 	if (null === wrapNode) {
 		console.error( "WARNING: In WSP.handleImage, the following node has no children:" );

@@ -816,7 +816,6 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 		var	dims, image, info, containerName, container, containerClose,
 			dataAttribs,
 			rdfaType = 'mw:Image',
-			captionClass = [ 'mw-figcaption' ],
 			iContainerName = hasImageLink ? 'a' : 'span',
 			ns = data.imgns,
 			innerContain = new TagTk( iContainerName, [] ),
@@ -978,9 +977,7 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 			} ) );
 		} else if ( caption !== undefined ) {
 			tokens = tokens.concat( [
-				new TagTk( 'figcaption', [
-					new KV( 'class', captionClass.join( ' ' ) )
-				] ),
+				new TagTk( 'figcaption' ),
 				caption,
 				new EndTagTk( 'figcaption' )
 			] );
