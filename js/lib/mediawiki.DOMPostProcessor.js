@@ -2426,8 +2426,21 @@ function addDeltaToDSR(node, delta) {
 		if (DU.isElt(child)) {
 			DU.loadDataParsoid(child);
 			if (child.data.parsoid.dsr) {
-				child.data.parsoid.dsr[0] += delta;
-				child.data.parsoid.dsr[1] += delta;
+				// SSS FIXME: We've exploited partial DSR information
+				// in propagating DSR values across the DOM.  But, worth
+				// revisiting at some point to see if we want to change this
+				// so that either both or no value is present to eliminate these
+				// kind of checks.
+				//
+				// Currently, it can happen that one or the other
+				// value can be null.  So, we should try to udpate
+				// the dsr value in such a scenario.
+				if (typeof(child.data.parsoid.dsr[0]) === 'number') {
+					child.data.parsoid.dsr[0] += delta;
+				}
+				if (typeof(child.data.parsoid.dsr[1]) === 'number') {
+					child.data.parsoid.dsr[1] += delta;
+				}
 			}
 			addDeltaToDSR(child, delta);
 		}
