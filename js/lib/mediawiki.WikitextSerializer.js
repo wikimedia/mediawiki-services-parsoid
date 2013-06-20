@@ -107,13 +107,13 @@ function precedingSeparatorTxt(n, rtTestMode) {
 	// IEW drastically would be when the user explicitly requests it
 	// (Ex: pretty-printing of raw source code).
 	//
-	// For now, we are going to be conservative and are NOT going
-	// to assume that IEW is preserved by HTML clients.  Hence, in
-	// non-RT-testing mode, we bail early.
-
-	if (!rtTestMode) {
-		return null;
-	}
+	// For now, we are going to exploit this.  This information is
+	// only used to extrapolate DSR values and extract a separator
+	// string from source, and is only used locally.  In addition,
+	// the extracted text is verified for being a valid separator.
+	//
+	// So, at worst, this can create a local dirty diff around separators
+	// and at best, it gets us a clean diff.
 
 	var buf = [], orig = n;
 	while (n) {
