@@ -596,8 +596,12 @@ TemplateHandler.prototype._startTokenPipeline = function( state, frame, cb, tplA
 					var dp = Util.clone(state.token.dataAttribs),
 						matchInfo = src.match(/^(<ref[^<>]*>).*(<\/ref>)/i);
 
-					dp.tagWidths = [matchInfo[1].length,matchInfo[2].length];
-					toks[i].dataAttribs = dp;
+					if (matchInfo) {
+						dp.tagWidths = [matchInfo[1].length,matchInfo[2].length];
+						toks[i].dataAttribs = dp;
+					} else {
+						console.error("ERROR: no matchInfo in nested ref handling!");
+					}
 				}
 			}
 			cb(ret);
