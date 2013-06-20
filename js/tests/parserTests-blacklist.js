@@ -1973,21 +1973,16 @@ add("html2wt", "Improperly nested inline or quotes tags with whitespace in betwe
 
 // Blacklist for selser
 add("selser", "Paragraphs with extra newline spacing [[2],0,1,0,2,0,[3],0,3,[3]]");
-add("selser", "Paragraphs with extra newline spacing [[3],4,0,2,[3,0],3,3,4,0,1]");
 add("selser", "Paragraphs with newline spacing with comment lines in between [3,0,3,0,0,0,[4],4,3,2,4,0,0,0,0,1,4,0,0,2,2,4,0,4,3,0,2,4,0,2,0,[4],0,0,0,2,0,3,0,0,2,3,3,0]");
 add("selser", "Paragraphs with newline spacing with comment lines in between [0,2,[4,2,3],4,3,2,0,0,2,4,4,2,0,0,4,3,0,4,0,0,0,4,4,2,2,0,2,0,4,1,0,[4],0,4,3,3,4,4,0,0,3,2,3,0]");
 add("selser", "Paragraphs with newline spacing with comment lines in between [0,0,2,0,0,3,0,0,0,0,0,4,0,0,4,[2],0,0,0,2,0,0,0,1,0,0,0,2,0,0,0,3,0,0,0,[2,0],3,0,3,0,4,2,3,3]");
 add("selser", "Paragraphs with newline spacing with comment lines in between [1,0,[2,0,0],4,2,4,0,3,0,0,4,[3],3,2,0,1,0,3,0,2,0,0,4,2,4,2,0,[3],2,4,2,0,2,4,0,2,0,1,4,4,0,[0,4,2,0],4,0]");
 add("selser", "Paragraphs with newline spacing with comment lines in between [0,0,[3,0,2],0,0,0,0,0,3,2,3,[3],4,0,4,3,3,2,3,[4],0,0,3,0,3,0,2,4,0,0,0,[3],0,3,3,2,3,0,0,[3],0,0,0,3]");
 add("selser", "Paragraphs with newline spacing with non-empty white-space lines in between [0,3,[4],3,0,3,0,3,2,0,2,3,0]");
-add("selser", "Paragraphs with newline spacing with non-empty white-space lines in between [0,3,[4],3,0,2,0,4,[2],0,[4,0],2,0]");
 add("selser", "Paragraphs with newline spacing with non-empty white-space lines in between [0,2,3,0,[3],0,0,0,4,0,[0,4],4,4]");
-add("selser", "Paragraphs with newline spacing with non-empty white-space lines in between [1,4,3,0,2,0,0,0,[2],0,[2,2],0,0]");
 add("selser", "Paragraphs with newline spacing with non-empty white-space lines in between [3,2,4,4,0,0,0,4,[4],0,2,3,2]");
-add("selser", "Paragraphs with newline spacing with non-empty mixed comment and white-space lines in between [1,4,[0,3,0],0,0,2,2,0,2,2,0,3,0,0,2,3,0,0,4,4,2,1,0,4,2,0,4,4,4,2,0,[4,4],0,0]");
 add("selser", "Paragraphs with newline spacing with non-empty mixed comment and white-space lines in between [0,3,[0,4,2],3,1,0,1,0,0,4,2,3,0,2,0,1,0,0,3,0,3,[3],2,2,0,3,0,3,3,2,4,0,0,4]");
 add("selser", "Paragraphs with newline spacing with non-empty mixed comment and white-space lines in between [0,0,[0,0,3],0,0,0,[3],0,0,0,0,[4],2,0,2,[4],0,4,0,2,0,[2],4,1,0,0,3,3,4,0,0,2,0,0]");
-add("selser", "Paragraphs with newline spacing with non-empty mixed comment and white-space lines in between [0,3,4,3,0,0,[4],0,0,3,0,2,0,0,0,[3],3,4,2,4,4,2,3,4,0,[2],0,0,0,0,0,[2,0],4,2]");
 add("selser", "Paragraphs with newline spacing with non-empty mixed comment and white-space lines in between [0,0,[2,0,3],4,0,4,2,3,0,3,0,1,0,0,3,0,0,0,3,0,3,0,0,3,0,3,0,3,3,0,0,0,3,2]");
 add("selser", "Extra newlines: More paragraphs with indented comment [1,0,4,0,2]");
 add("selser", "Extra newlines: More paragraphs with indented comment [[2],3,4,2,2]");
@@ -2166,8 +2161,6 @@ add("selser", "Comment semantics: unclosed comment at end 0");
 add("selser", "Comment semantics: unclosed comment at end [3]");
 add("selser", "Comment semantics: unclosed comment at end [4]");
 add("selser", "Comment semantics: unclosed comment at end [2]");
-add("selser", "Multiple lines without block tags [0,4,1,0,3,0,4]");
-add("selser", "Multiple lines without block tags [[3],3,1,4,0,0,2]");
 add("selser", "<nowiki> inside <pre> (bug 13238) [4,2,2,0,0]");
 add("selser", "<nowiki> inside <pre> (bug 13238) [0,0,4,0,[[4],0,2,4]]");
 add("selser", "<nowiki> inside <pre> (bug 13238) [3,0,3,3,2]");
@@ -2838,7 +2831,6 @@ add("selser", "pre-save transform: Signature expansion [[0,3,3,0,[4,3,4],3,[3,4,
 add("selser", "pre-save transform: Signature expansion [[1,3,[3,0,3,0],0,4,0,3]]");
 add("selser", "pre-save transform: Signature expansion in nowiki tags (bug 93) [[3],3,2,0,0,3,0,[4,3,2],0,2,4,0,0,[0,0,0,4,0,0,0,0],0,0]");
 add("selser", "pre-save transform: Signature expansion in nowiki tags (bug 93) [2,0,4,2,3,1,3,3,0,[0,[4],0],0,0,0,[0,2,0,1,2,0,0,0],0,0]");
-add("selser", "pre-save transform: Signature expansion in nowiki tags (bug 93) [2,3,[2],0,0,1,0,[2,0,3],0,[0,1,0],0,0,0,[0,0,0,2,4,0,0,4],2,[0,4,0]]");
 add("selser", "pre-save transform: Signature expansion in nowiki tags (bug 93) [0,3,1,0,3,2,2,[1,4,3],0,[4,[4],0],2,[0,3],3,4,4,2]");
 add("selser", "pre-save transform: Signature expansion in nowiki tags (bug 93) [4,2,4,2,4,0,0,1,0,[0,1,1],0,[0,3],2,3,2,2]");
 add("selser", "pre-save transform: Signature expansion in nowiki tags (bug 93) [1,3,3,3,0,0,0,[0,3,0],0,[0,2,0],0,2,2,2,4,4]");
