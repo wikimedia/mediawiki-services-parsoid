@@ -594,19 +594,10 @@ TemplateHandler.prototype._startTokenPipeline = function( state, frame, cb, tplA
 					toks[i].getAttribute('inTagRef'))
 				{
 					var dp = Util.clone(state.token.dataAttribs),
-						matchInfo = src.match(/^(<ref[^<>]*>).*(<\/ref>)/i);
+						matchInfo = src.match(/^(<ref[^<>]*>)[^]*(<\/ref>)$/i);
 
-					if (matchInfo) {
-						dp.tagWidths = [matchInfo[1].length,matchInfo[2].length];
-						toks[i].dataAttribs = dp;
-					} else {
-						// FIXME: fix this properly!!
-						// See
-						// https://bugzilla.wikimedia.org/show_bug.cgi?id=49916
-						dp.tagWidths = [0,0];
-						toks[i].dataAttribs = dp;
-						console.error("ERROR: no matchInfo in nested ref handling!");
-					}
+					dp.tagWidths = [matchInfo[1].length,matchInfo[2].length];
+					toks[i].dataAttribs = dp;
 				}
 			}
 			cb(ret);
