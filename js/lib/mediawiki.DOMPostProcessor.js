@@ -2498,10 +2498,12 @@ function cleanUpLIHack(env, node) {
 		var nodeDSR     = node.data.parsoid.dsr,
 		    prevNodeDSR = prevNode.data.parsoid.dsr;
 
-		node.data.parsoid.dsr = [ prevNodeDSR[0],
-					  nodeDSR[1],
-					  nodeDSR[2] + prevNodeDSR[1] - prevNodeDSR[0],
-					  nodeDSR[3] ];
+		if (nodeDSR && prevNodeDSR) {
+			node.data.parsoid.dsr = [ prevNodeDSR[0],
+						  nodeDSR[1],
+						  nodeDSR[2] + prevNodeDSR[1] - prevNodeDSR[0],
+						  nodeDSR[3] ];
+		}
 
 		// Delete the duplicated <li> node.
 		deleteNode(prevNode);
