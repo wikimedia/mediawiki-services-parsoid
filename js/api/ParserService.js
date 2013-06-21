@@ -366,7 +366,7 @@ var getParserServiceEnv = function ( res, iwp, pageName, cb ) {
 		env.errCB = function ( e ) {
 			var errmsg = e.stack || e.toString();
 			var code = e.code || 500;
-			console.error( 'ERROR in ' + pageName + ':\n' + e.message);
+			console.error( 'ERROR in ' + iwp + ':' + pageName + ':\n' + e.message);
 			console.error("Stack trace: " + errmsg);
 			res.send( errmsg, code );
 			// Force a clean restart of this worker
