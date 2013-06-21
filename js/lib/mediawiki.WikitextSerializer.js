@@ -2586,7 +2586,8 @@ WSP._buildTemplateWT = function(state, srcParts) {
 		serializer = this;
 	srcParts.map(function(part) {
 		var tpl = part.template;
-		if (tpl) {
+		if (tpl) { // transclusion: tpl or parser function
+			var isTpl = typeof(tpl.target.href) === 'string';
 			buf.push("{{");
 
 			// tpl target
@@ -2603,7 +2604,9 @@ WSP._buildTemplateWT = function(state, srcParts) {
 					if (k === (i+1).toString()) {
 						argBuf.push(v);
 					} else {
-						argBuf.push(k + "=" + v);
+						var kStr = k + (isTpl && !k.match(/\s$/) ? ' ' : ''),
+							vStr = (isTpl && !v.match(/^\s/) ? ' ' : '') + v;
+						argBuf.push(kStr + "=" + vStr);
 					}
 				}
 				buf.push("|");
