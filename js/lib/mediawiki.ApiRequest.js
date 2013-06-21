@@ -327,7 +327,14 @@ TemplateRequest.prototype._handleJSON = function ( error, data ) {
 function PreprocessorRequest ( env, title, text ) {
 	ApiRequest.call(this, env, title);
 
+	// Temporary debugging hack for
+	// https://bugzilla.wikimedia.org/show_bug.cgi?id=49411
+	// Double-check the returned content language
+	text += '|{{CONTENTLANGUAGE}}';
+
 	this.text = text;
+
+
 	this.queueKey = text;
 	this.reqType = "Template Expansion";
 
@@ -378,8 +385,24 @@ PreprocessorRequest.prototype._handleJSON = function ( error, data ) {
 	try {
 		src = data.expandtemplates['*'];
 
+		// Split off the contentlang debugging hack and check the language
+		var bits = src.match(/^([^]*)\|([a-z-]+)$/);
+		if (bits) {
+			src = bits[1];
+			var lang = bits[2];
+			if (lang !== this.env.conf.wiki.iwp) {
+				var conf = this.env.conf;
+				console.error( 'ERROR: Invalid expandtemplates API response!! ' +
+						'parsoid.apiURI: ' + conf.parsoid.apiURI +
+						'wiki.apiURI: ' + conf.wiki.apiURI +
+						'wiki.iwp: ' + conf.wiki.iwp +
+						'returned lang: ' + lang );
+			}
+		}
+
 		//console.warn( 'Page ' + title + ': got ' + src );
 		this.env.tp( 'Expanded ', this.text, src );
+
 
 		// Add the source to the cache
 		this.env.pageCache[this.text] = src;
