@@ -329,6 +329,8 @@ TemplateRequest.prototype._handleJSON = function ( error, data ) {
 function PreprocessorRequest ( env, title, text ) {
 	ApiRequest.call(this, env, title);
 
+	this.queueKey = text;
+
 	// Temporary debugging hack for
 	// https://bugzilla.wikimedia.org/show_bug.cgi?id=49411
 	// Double-check the returned content language
@@ -337,7 +339,6 @@ function PreprocessorRequest ( env, title, text ) {
 	this.text = text;
 
 
-	this.queueKey = text;
 	this.reqType = "Template Expansion";
 
 	var apiargs = {
