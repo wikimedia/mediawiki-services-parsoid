@@ -219,7 +219,7 @@ function TemplateRequest ( env, title, oldid ) {
 		apiargs.revids = oldid;
 		delete apiargs.titles;
 	}
-	var url = env.conf.parsoid.apiURI + '?' +
+	var url = env.conf.wiki.apiURI + '?' +
 		qs.stringify( apiargs );
 		//'?format=json&action=query&prop=revisions&rvprop=content&titles=' + title;
 
@@ -347,7 +347,7 @@ function PreprocessorRequest ( env, title, text ) {
 		title: title,
 		text: text
 	};
-	var url = env.conf.parsoid.apiURI;
+	var url = env.conf.wiki.apiURI;
 
 	this.requestOptions = {
 		// Use POST since we are passing a bit of source, and GET has a very
@@ -388,6 +388,8 @@ PreprocessorRequest.prototype._handleJSON = function ( error, data ) {
 		src = data.expandtemplates['*'];
 
 		// Split off the contentlang debugging hack and check the language
+		// TODO: remove when
+		// https://bugzilla.wikimedia.org/show_bug.cgi?id=49411 is fixed!
 		var bits = src.match(/^([^]*)\|([a-z-]+)$/);
 		if (bits) {
 			src = bits[1];
@@ -444,7 +446,7 @@ function PHPParseRequest ( env, title, text ) {
 		text: text,
 		disablepp: 'true'
 	};
-	var url = env.conf.parsoid.apiURI;
+	var url = env.conf.wiki.apiURI;
 
 	this.requestOptions = {
 		// Use POST since we are passing a bit of source, and GET has a very
