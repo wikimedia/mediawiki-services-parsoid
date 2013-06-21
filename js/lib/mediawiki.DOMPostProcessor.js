@@ -1028,7 +1028,8 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 		}
 
 		if (!done) {
-			tcStart.data.parsoid = Util.clone( seDP );
+			tcStart.data.parsoid.dsr = Util.clone( seDP.dsr );
+			tcStart.data.parsoid.src = seDP.src;
 		}
 	}
 
