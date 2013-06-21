@@ -10,6 +10,9 @@ var request = require('request'),
 var PARSOID_RVPROP = ('content|ids|timestamp|user|userid|size|sha1|'+
 					  'contentmodel|comment');
 
+var userAgent = 'Mozilla/5.0 (X11; Linux x86_64; rv:9.0.1) ' +
+							'Gecko/20100101 Firefox/9.0.1 Parsoid/0.1';
+
 /**
  * @class
  * @extends Error
@@ -226,8 +229,7 @@ function TemplateRequest ( env, title, oldid ) {
 		url: url,
 		timeout: 40 * 1000, // 40 seconds
 		headers: {
-			'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:9.0.1) ' +
-							'Gecko/20100101 Firefox/9.0.1 Iceweasel/9.0.1',
+			'User-Agent': userAgent,
 			'Connection': 'close'
 
 		}
@@ -356,8 +358,7 @@ function PreprocessorRequest ( env, title, text ) {
 		url: url,
 		timeout: 16 * 1000, // 16 seconds
 		headers: {
-			'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:9.0.1) ' +
-							'Gecko/20100101 Firefox/9.0.1 Iceweasel/9.0.1',
+			'User-Agent': userAgent,
 			'Connection': 'close'
 		}
 	};
@@ -454,8 +455,7 @@ function PHPParseRequest ( env, title, text ) {
 		url: url,
 		timeout: 16 * 1000, // 16 seconds
 		headers: {
-			'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:9.0.1) ' +
-							'Gecko/20100101 Firefox/9.0.1 Iceweasel/9.0.1',
+			'User-Agent': userAgent,
 			'Connection': 'close'
 		}
 	};
@@ -534,8 +534,7 @@ function ParsoidCacheRequest ( env, title, oldid, options ) {
 		url: url,
 		timeout: 16 * 1000, // 16 seconds
 		headers: {
-			'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:9.0.1) ' +
-							'Gecko/20100101 Firefox/9.0.1 Iceweasel/9.0.1',
+			'User-Agent': userAgent,
 			'Connection': 'close'
 		}
 	};
@@ -613,8 +612,7 @@ var ConfigRequest = function ( apiURI, env ) {
 		url: apiURI + '?' + qs.stringify( apiargs ),
 		timeout: 40 * 1000,
 		headers: {
-			'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:9.0.1) ' +
-				'Gecko/20100101 Firefox/9.0.1 Iceweasel/9.0.1',
+			'User-Agent': userAgent,
 			'Connection': 'close'
 		}
 	};
@@ -703,8 +701,7 @@ function ImageInfoRequest( env, filename, dims ) {
 		url: url,
 		timeout: 40 * 1000,
 		headers: {
-			'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:9.0.1) ' +
-				'Gecko/20100101 Firefox/9.0.1 Iceweasel/9.0.1',
+			'User-Agent': userAgent,
 			'Connection': 'close'
 		}
 	};
