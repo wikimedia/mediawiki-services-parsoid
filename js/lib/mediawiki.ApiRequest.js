@@ -392,7 +392,7 @@ PreprocessorRequest.prototype._handleJSON = function ( error, data ) {
 		if (bits) {
 			src = bits[1];
 			var lang = bits[2];
-			if (lang !== this.env.conf.wiki.iwp) {
+			if (lang !== this.env.conf.wiki.lang) {
 				var conf = this.env.conf;
 				console.error( 'ERROR: Invalid expandtemplates API response!! ' +
 						'parsoid.apiURI: ' + conf.parsoid.apiURI +

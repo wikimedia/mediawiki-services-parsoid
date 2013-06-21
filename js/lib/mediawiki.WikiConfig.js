@@ -41,6 +41,9 @@ function WikiConfig( resultConf, prefix, uri ) {
 	}
 	var general = resultConf.general;
 
+	// The language
+	this.lang = general.lang;
+
 	var names = resultConf.namespaces;
 	var nkeys = Object.keys( names );
 	for ( var nx = 0; nx < nkeys.length; nx++ ) {
