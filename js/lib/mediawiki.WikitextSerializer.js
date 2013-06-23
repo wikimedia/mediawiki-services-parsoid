@@ -571,7 +571,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 	// Quick check for the common case (useful to kill a majority of requests)
 	//
 	// Pure white-space or text without wt-special chars need not be analyzed
-	if (!fullCheckNeeded && !text.match(/^[ \t][^\s]+|[<>\[\]\-\+\|'!=#\*:;~{}]/)) {
+	if (!fullCheckNeeded && !text.match(/(^|\n)[ \t]+[^\s]+|[<>\[\]\-\+\|'!=#\*:;~{}]/)) {
 		// console.warn("---EWT:F1---");
 		return text;
 	}
@@ -602,7 +602,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 		// Test 1: '', [], <> need escaping wherever they occur
 		//         = needs escaping in end-of-line context
 		// Test 2: {|, |}, ||, |-, |+,  , *#:;, ----, =*= need escaping only in SOL context.
-		if (!sol && !text.match(/''|[<>]|\[.*\]|\]|(=(\n|$))/)) {
+		if (!sol && !text.match(/''|[<>]|\[.*\]|\]|(=[ \t]*(\n|$))/)) {
 			// It is not necessary to test for an unmatched opening bracket ([)
 			// as long as we always escape an unmatched closing bracket (]).
 			// console.warn("---EWT:F4---");
@@ -611,7 +611,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 
 		// Quick checks when on a newline
 		// + can only occur as "|+" and - can only occur as "|-" or ----
-		if (sol && !text.match(/^[ \t#*:;=]|[<\[\]>\|'!]|\-\-\-\-/)) {
+		if (sol && !text.match(/(^|\n)[ \t#*:;=]|[<\[\]>\|'!]|\-\-\-\-/)) {
 			// console.warn("---EWT:F5---");
 			return text;
 		}
@@ -620,7 +620,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 	// SSS FIXME: pre-escaping is currently broken since the front-end parser
 	// eliminated pre-tokens in the tokenizer and moved to a stream handler.
 	// So, we always conservatively escape text with ' ' in sol posn.
-	if (sol && text.match(/(^ |\n )[^\s]+/)) {
+	if (sol && text.match(/(^|\n)[ \t]+[^\s]+/)) {
 		// console.warn("---EWT:F6---");
 		return escapedText(text);
 	}
@@ -637,9 +637,44 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 		// console.warn("---EWT:DBG1---");
 		return escapedText(text);
 	} else if (state.onSOL) {
-		if (text.match(/^=+[^=]+=+$/)) {
-			// console.warn("---EWT:DBG2---");
+		if (text.match(/(^|\n)=+[^\n=]+=+[ \t]*\n/)) {
+			// console.warn("---EWT:DBG2a---");
 			return escapedText(text);
+		} else if (text.match(/(^|\n)=+[^\n=]+=+[ \t]*$/)) {
+			/* ---------------------------------------------------------------
+			 * '$' is only specific to 'text' and not the entire line.
+			 * So, verify that there is no other non-sep element on the
+			 * current line before escaping this text.
+			 *
+			 * This will still lead to conservative nowiki escaping in
+			 * certain scenarios because the current-line may extend
+			 * beyond state.currLine.firstNode.parentNode (ex: the p-tag
+			 * in the example below).
+			 *
+			 * Ex: "<p>=a=</p><div>b</div>"
+			 *
+			 * However, such examples should hopefully be rare (it will be
+			 * rare if VE and other clients insert a newline after p-tags).
+			 *
+			 * However, it is not sufficient to just check that nonSepSibling
+			 * is null below. Consider "=a= <!--c--> \nb". For this example,
+			 *
+			 *   text: "=a= "
+			 *   state.currLine.firstNode: #TEXT("=a= ")
+			 *   nonSepsibling: #TEXT(" \nb")
+			 *
+			 * Hence the need for the more complex check below.
+			 * --------------------------------------------------------------- */
+			var nonSepSibling = DU.nextNonSepSibling(state.currLine.firstNode);
+			if (!nonSepSibling ||
+				DU.isText(nonSepSibling) && nonSepSibling.nodeValue.match(/^\s*\n/))
+			{
+				// console.warn("---EWT:DBG2b---");
+				return escapedText(text);
+			} else {
+				// console.warn("---EWT:DBG2c---");
+				return text;
+			}
 		} else {
 			// console.warn("---EWT:DBG3---");
 			return text;
