@@ -750,7 +750,7 @@ WSP.escapeTplArgWT = function(state, arg) {
 				break;
 
 			case pd.NlTk:
-			case pd.Comment:
+			case pd.CommentTk:
 			case pd.SelfclosingTagTk:
 				var tkSrc = arg.substring(da.tsr[0], da.tsr[1]);
 				// Replace pipe by an entity
