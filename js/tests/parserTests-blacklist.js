@@ -241,7 +241,6 @@ add("wt2html", "Missing image with uploads disabled");
 add("wt2html", "Parsoid-specific image handling - thumbnail with halign, valign, and caption");
 add("wt2html", "Parsoid-specific image handling - thumbnail with specific size, halign, valign, and caption");
 add("wt2html", "Parsoid-specific image handling - framed image with specific size, halign, valign, and caption");
-add("wt2html", "Subpage noslash link");
 add("wt2html", "BUG 561: {{/Subpage}}");
 add("wt2html", "Simple category");
 add("wt2html", "PAGESINCATEGORY invalid title fatal (r33546 fix)");

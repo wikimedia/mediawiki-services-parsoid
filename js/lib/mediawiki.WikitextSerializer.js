@@ -1578,6 +1578,9 @@ WSP.linkHandler = function(node, state, cb) {
 					// target, either shadowed or actual.
 					(	contentString ===
 							Util.decodeURI(Util.decodeEntities(strippedTargetValue)) ||
+						// try wrapped in forward slashes in case they were stripped
+						('/' + contentString + '/') ===
+							Util.decodeURI(Util.decodeEntities(strippedTargetValue)) ||
 						contentString === linkData.href ||
 						// normalize without underscores for
 						// comparison with target.value and strip

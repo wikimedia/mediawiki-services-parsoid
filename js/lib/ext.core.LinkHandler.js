@@ -274,7 +274,8 @@ WikiLinkHandler.prototype.addLinkAttributesAndGetContent = function (newTk, toke
 	var title = target.title,
 		attribs = token.attribs,
 		newAttrData = buildLinkAttrs(attribs, true, null, [new KV('rel', 'mw:WikiLink')]),
-		content = newAttrData.content;
+		content = newAttrData.content,
+		env = this.manager.env;
 	// Set attribs and dataAttribs
 	newTk.attribs = newAttrData.attribs;
 	newTk.dataAttribs = Util.clone(token.dataAttribs);
@@ -303,6 +304,24 @@ WikiLinkHandler.prototype.addLinkAttributesAndGetContent = function (newTk, toke
 
 		// Strip leading colon
 		morecontent = morecontent.replace(/^:/, '');
+
+		// Try to match labeling in core
+		if ( env.page.meta.ns === undefined || env.conf.wiki.namespacesWithSubpages[ env.page.meta.ns ] ) {
+			var match = morecontent.match( /^\/(.*)\/$/ );
+			if ( match ) {
+				morecontent = match[1];
+			} else if ( /^\.\.\//.test( morecontent ) ) {
+				// If a there's a trailing slash, don't resolve title
+				// making sure the second to last character isn't a
+				// forward slash, for cases like: ../../////
+			  match = morecontent.match( /^(\.\.\/)+(.*[^/])\/$/ );
+				if ( match ) {
+					morecontent = match[2];
+				} else if ( env.page.meta.ns !== undefined ) {
+					morecontent = env.resolveTitle( morecontent, env.page.meta.ns );
+				}
+			}
+		}
 
 		content = [ morecontent ];
 	}
