@@ -797,14 +797,17 @@ function migrateTrailingNLs(elt, env) {
 		// - a sequence of comment and newline nodes that is preceded by
 		//   a non-migratable node (text node with non-white-space content
 		//   or an element node).
+		var foundNL = false;
 		while (n && (n.nodeType === Node.TEXT_NODE || n.nodeType === Node.COMMENT_NODE)) {
 			if (n.nodeType === Node.COMMENT_NODE) {
 				firstEltToMigrate = n;
 			} else {
 				if (n.data.match(/^\s*\n\s*$/)) {
+					foundNL = true;
 					firstEltToMigrate = n;
 					partialContent = false;
 				} else if (n.data.match(/\n$/)) {
+					foundNL = true;
 					firstEltToMigrate = n;
 					partialContent = true;
 					break;
@@ -816,7 +819,7 @@ function migrateTrailingNLs(elt, env) {
 			n = n.previousSibling;
 		}
 
-		if (firstEltToMigrate) {
+		if (firstEltToMigrate && foundNL) {
 			var eltParent = elt.parentNode,
 				insertPosition = elt.nextSibling;
 
