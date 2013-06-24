@@ -592,17 +592,18 @@ function getWrapperInfo( oHash, isInline, isFloat ) {
  * Abstract way to get the path for an image given an info object
  *
  * @private
- * @param {string} path Your best guess for the path
  * @param {Object} info
  * @param {string/null} info.thumburl The URL for a thumbnail
  * @param {string} info.url The base URL for the image
  */
-function getPath( path, info ) {
+function getPath( info ) {
+	var path;
 	if ( info.thumburl ) {
-		return info.thumburl;
+		path = info.thumburl;
 	} else if ( info.url ) {
-		return info.url;
+		path = info.url;
 	}
+	return path.replace(/^https?:\/\//, '//');
 }
 
 // It turns out that image captions can have unclosed block tags which
@@ -886,7 +887,7 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 		// Update some already-defined nonsense based on response
 		height = dims.h;
 		width = dims.w;
-		path = getPath( path, info );
+		path = getPath( info );
 
 		if ( oHash.alt ) {
 			img.addNormalizedAttribute( 'alt', oHash.alt, altBackup );
