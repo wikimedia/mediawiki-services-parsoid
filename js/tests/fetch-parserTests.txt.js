@@ -133,7 +133,11 @@ if (typeof module === 'object' && require.main !== module) {
 } else {
 	var argv = require('optimist').argv;
 	if (argv.force) {
-		forceUpdate();
+		console.error( "We now have our own copy of parserTests.txt, so fetching " +
+				"parserTests.txt is no longer needed." );
+		// Makes this a no-op and don't fail until Jenkins is updated.
+		process.exit(0);
+		//forceUpdate();
 	} else {
 		checkAndUpdate();
 	}

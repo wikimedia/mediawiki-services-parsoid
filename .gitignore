@@ -13,5 +13,4 @@ js/api/nohup.out
 js/api/npm-debug.log
 js/node_modules/
 js/tests/parserTests.cache
-js/tests/parserTests.txt
 js/doc
