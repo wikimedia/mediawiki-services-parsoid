@@ -1260,7 +1260,7 @@ WSP.handleImage = function ( node, state, cb ) {
 				}
 
 				currentOpt.ck = val;
-				currentOpt.ak = mwAliases['img_' + val];
+				currentOpt.ak = mwAliases['img_' + val][0];
 				break;
 
 			case 'mw-valign-top':
