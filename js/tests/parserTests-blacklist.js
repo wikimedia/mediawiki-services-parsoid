@@ -1961,7 +1961,6 @@ add("html2wt", "Ref: 10. Unclosed HTML tags should not leak out of ref-body");
 add("html2wt", "References: 2. references tag with group only outputs references from that group");
 add("html2wt", "References: 4. only referenced group should be cleared after processing references");
 add("html2wt", "References: 5. ref tags in references should be processed while ignoring all other content");
-add("html2wt", "Headings: 6a. Heading chars in SOL context (with trailing spaces)");
 add("html2wt", "Tables: 1b. No escaping needed");
 add("html2wt", "Tables: 1c. No escaping needed");
 add("html2wt", "Tables: 1d. No escaping needed");
