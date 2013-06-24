@@ -1668,7 +1668,8 @@ function buildHeadingHandler(headingWT) {
 		handle: function(node, state, cb) {
 			cb(headingWT, node);
 			if (node.childNodes.length) {
-				var headingHandler = state.serializer.wteHandlers.headingHandler.bind(state.serializer.wteHandlers, node);
+				var headingHandler = state.serializer
+					.wteHandlers.headingHandler.bind(state.serializer.wteHandlers, node);
 				state.serializeChildren(node, cb, headingHandler);
 			} else {
 				// Deal with empty headings
@@ -1677,7 +1678,14 @@ function buildHeadingHandler(headingWT) {
 			cb(headingWT, node);
 		},
 		sepnls: {
-			before: id({min:1, max:2}),
+			before: function (node, otherNode) {
+				if (DU.isNewElt(node) && DU.previousNonSepSibling(node)) {
+					// Default to two preceding newlines for new content
+					return {min:2, max:2};
+				} else {
+					return {min:1, max:2};
+				}
+			},
 			after: id({min:1, max:2})
 		}
 	};
