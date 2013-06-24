@@ -1168,8 +1168,10 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 	}
 
 	if ( oHash.format && oHash.format !== 'framed' ) {
-		constraints.height = constraints.height || 180;
-		constraints.width = constraints.width || 180;
+		if ( !constraints.height && !constraints.width ) {
+			constraints.height = 180;
+			constraints.width = 180;
+		}
 	}
 
 	var infoRequest = new ImageInfoRequest( env, filename, constraints );
