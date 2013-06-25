@@ -100,7 +100,7 @@ function isListElementName(name) {
 	return name in {li:1, dt:1, dd:1};
 }
 
-function precedingSeparatorTxt(n, rtTestMode) {
+function precedingSeparatorTxt(n) {
 	// Given the CSS white-space property and specifically,
 	// "pre" and "pre-line" values for this property, it seems that any
 	// sane HTML editor would have to preserve IEW in HTML documents
@@ -2729,9 +2729,7 @@ WSP._getDOMHandler = function(node, state, cb) {
 				// So, use original source to eliminate spurious diffs showing up
 				// in RT testing results.
 				var src, dataMW;
-				if (state.rtTesting && dp.src !== undefined) {
-					src = dp.src;
-				} else if (/\bmw:(Transclusion\b|Param\b)/.test(typeOf)) {
+				if (/\bmw:(Transclusion\b|Param\b)/.test(typeOf)) {
 					dataMW = JSON.parse(node.getAttribute("data-mw"));
 					if (dataMW) {
 						src = state.serializer._buildTemplateWT(state, dataMW.parts || [{ template: dataMW }]);
@@ -3303,7 +3301,7 @@ WSP.emitSeparator = function(state, cb, node) {
 				node.parentNode.data.parsoid.dsr &&
 				node.parentNode.data.parsoid.dsr[2] === 0)
 			{
-				var sepTxt = precedingSeparatorTxt(node, state.rtTesting);
+				var sepTxt = precedingSeparatorTxt(node);
 				if (sepTxt !== null) {
 					dsrB = node.parentNode.data.parsoid.dsr;
 					if (typeof(dsrB[0]) === 'number' && sepTxt.length > 0) {
