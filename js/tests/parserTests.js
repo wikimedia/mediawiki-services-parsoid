@@ -195,7 +195,7 @@ ParserTests.prototype.getOpts = function () {
 		},
 		'editMode': {
 			description: 'Test in edit-mode (changes some parse & serialization strategies)',
-			'default': false,
+			'default': true,
 			'boolean': true
 		},
 		'changesout': {
@@ -424,7 +424,7 @@ ParserTests.prototype.processArticle = function( item, cb ) {
 ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, processWikitextCB ) {
 	// SSS FIXME: SelSer clobbers this flag -- need a better fix for this.
 	// Maybe pass this as an option, or clone the entire environment.
-	this.env.conf.parsoid.editMode = false;
+	this.env.conf.parsoid.editMode = options.editMode;
 
 	// In some cases (which?) the full document is passed in, but we are
 	// interested in the body. So check if we got a document.

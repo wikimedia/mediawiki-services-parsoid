@@ -31,6 +31,7 @@ var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	Util = require('./mediawiki.Util.js').Util,
 	DU = require('./mediawiki.DOMUtils.js').DOMUtils,
 	pd = require('./mediawiki.parser.defines.js'),
+	Title = require('./mediawiki.Title.js').Title,
 	SanitizerConstants = require('./ext.core.Sanitizer.js').SanitizerConstants,
 	tagWhiteListHash;
 
@@ -1542,6 +1543,13 @@ WSP.linkHandler = function(node, state, cb) {
 					linkTarget = target.value;
 				} else {
 					linkTarget = escapeWikiLinkContentString(linkData.content.string, state);
+					var linkTitle = Title.fromPrefixedText(env, linkData.content.string);
+					if (linkTitle &&
+							(linkTitle.ns.isCategory() || linkTitle.ns.isFile()))
+					{
+						// Escape category and file links
+						linkTarget = ':' + linkTarget;
+					}
 				}
 
 				cb( escapes.prefix + linkData.prefix + '[[' + linkTarget + ']]' +
