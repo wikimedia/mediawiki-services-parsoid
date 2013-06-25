@@ -4544,6 +4544,69 @@ language=ln
 !! end
 
 ##
+## Redirects, Parsoid-only
+##
+!! test
+Simple redirect to page
+!! options
+parsoid
+!! input
+#REDIRECT [[Main Page]]
+!! result
+<link rel="mw:PageProp/redirect" href="./Main_Page">
+!! end
+
+!! test
+Redirect to category
+!! options
+parsoid=wt2html
+!! input
+#REDIRECT [[Category:Foo]]
+!! result
+<link rel="mw:PageProp/redirect" href="./Category:Foo"><link rel="mw:WikiLink/Category" href="./Category:Foo">
+!! end
+
+!! test
+Redirect to category page
+!! options
+parsoid=wt2html,html2html
+!! input
+#REDIRECT [[:Category:Foo]]
+!! result
+<p><a rel="mw:WikiLink" href="Category:Foo">Category:Foo</a></p>
+!! end
+
+!! test
+Redirect to image page
+!! options
+parsoid
+!! input
+#REDIRECT [[File:Wiki.png]]
+!! result
+<link rel="mw:PageProp/redirect" href="./File:Wiki.png">
+!! end
+
+!! test
+Redirect to language
+!! options
+parsoid
+!! input
+#REDIRECT [[en:File:Wiki.png]]
+!! result
+<link rel="mw:PageProp/redirect" href="File:Wiki.png">
+!! end
+
+!! test
+Redirect to interwiki
+!! options
+parsoid
+!! input
+#REDIRECT [[meatball:File:Wiki.png]]
+!! result
+<link rel="mw:PageProp/redirect" href="File:Wiki.png">
+!! end
+
+##
 ## XHTML tidiness
 ###
 

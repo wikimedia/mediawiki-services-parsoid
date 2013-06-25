@@ -120,7 +120,13 @@ WikiLinkHandler.prototype.onRedirect = function ( token, frame, cb ) {
 
 	rlink.addAttribute( 'rel', 'mw:PageProp/redirect' );
 
-	rlink.addNormalizedAttribute( 'href', target.title.makeLink(), target.hrefSrc );
+	var href;
+	if (target.title) {
+		href = target.title.makeLink();
+	} else {
+		href = target.href;
+	}
+	rlink.addNormalizedAttribute( 'href', href, target.hrefSrc );
 
 	var tokens = [rlink];
 	if (target.title && target.title.ns.isCategory() && !target.title.fromColonEscapedText) {
