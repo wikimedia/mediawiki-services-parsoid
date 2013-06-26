@@ -1243,7 +1243,7 @@ WSP.handleImage = function ( node, state, cb ) {
 				}
 
 				currentOpt.ck = val;
-				currentOpt.ak = mwAliases['img_' + val][0];
+				currentOpt.ak = mwAliases['img_' + val].last();
 				break;
 
 			case 'mw-valign-top':
@@ -1260,7 +1260,7 @@ WSP.handleImage = function ( node, state, cb ) {
 
 			case 'mw-image-border':
 				currentOpt.ck = 'border';
-				currentOpt.ak = mwAliases.img_border[0];
+				currentOpt.ak = mwAliases.img_border.last();
 				break;
 		}
 
@@ -1284,17 +1284,17 @@ WSP.handleImage = function ( node, state, cb ) {
 	switch ( rel ) {
 		case 'mw:Image/Thumb':
 			currentOpt.ck = 'thumbnail';
-			currentOpt.ak = mwAliases.img_thumbnail[0];
+			currentOpt.ak = mwAliases.img_thumbnail.last();
 			break;
 
 		case 'mw:Image/Frame':
 			currentOpt.ck = 'framed';
-			currentOpt.ak = mwAliases.img_framed[0];
+			currentOpt.ak = mwAliases.img_framed.last();
 			break;
 
 		case 'mw:Image/Frameless':
 			currentOpt.ck = 'frameless';
-			currentOpt.ak = mwAliases.img_frameless[0];
+			currentOpt.ak = mwAliases.img_frameless.last();
 			break;
 	}
 
@@ -1317,7 +1317,7 @@ WSP.handleImage = function ( node, state, cb ) {
 			opts.push( {
 				ck: 'height',
 				v: 'x' + htAttr,
-				ak: mwAliases.img_width[0]
+				ak: mwAliases.img_width.last()
 			} );
 		}
 
@@ -1327,7 +1327,7 @@ WSP.handleImage = function ( node, state, cb ) {
 			opts.push( {
 				ck: 'width',
 				v: wdAttr,
-				ak: mwAliases.img_width[0]
+				ak: mwAliases.img_width.last()
 			} );
 		}
 	}
