@@ -979,8 +979,8 @@ broken_template
   = v:( '{{{' / '}}}' / '{{' / '}}' )+
 {
     return [
-        new TagTk('span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: [pos0, pos], src: input.substring(pos0, pos) } )]
-            .concat(v, [new EndTagTk( 'span' ) ]);
+        new TagTk('span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: [pos0, pos0], src: input.substring(pos0, pos) } )]
+            .concat(v, [new EndTagTk( 'span', [], { tsr: [pos, pos] }) ]);
 }
 
 

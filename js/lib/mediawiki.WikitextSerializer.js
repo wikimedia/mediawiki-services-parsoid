@@ -745,11 +745,10 @@ WSP.escapeWikiText = function ( state, text, opts ) {
  *
  * This function makes a couple of assumptions:
  *
- * 1. Each arg's wikitext has balanced opening and closing tags.
- *    The code does make some attempt to deal with unclosed opening
- *    and closing tags, but this may not work accurately in all cases.
- *
- * 2. The tokenizer sets tsr on all non-string tokens.
+ * 1. The tokenizer sets tsr on all non-string tokens.
+ * 2. The tsr on TagTk and EndTagTk corresponds to the
+ *    width of the opening and closing wikitext tags and not
+ *    the entire DOM range they span in the end.
  */
 WSP.escapeTplArgWT = function(state, arg) {
 	function escapeStr(str, buf) {
@@ -763,58 +762,31 @@ WSP.escapeTplArgWT = function(state, arg) {
 	}
 
 	var tokens = this.tokenizeStr(state, arg, false);
-	var offset = 0, openTags = [], buf = [];
+	var buf = [];
 	for (var i = 0, n = tokens.length; i < n; i++) {
 		var t = tokens[i], da = t.dataAttribs;
 		switch (t.constructor) {
 			case pd.TagTk:
-				if (openTags.length === 0) {
-					offset = da.tsr[0];
-				}
-				openTags.push(t);
-				break;
-
 			case pd.EndTagTk:
-				if (openTags.length > 0) {
-					openTags.pop();
-				}
-				if (openTags.length === 0) {
-					var e = da.tsr[1];
-					buf.push(arg.substring(offset, e));
-					offset = e;
-				}
-				break;
-
 			case pd.NlTk:
 			case pd.CommentTk:
+				buf.push(arg.substring(da.tsr[0], da.tsr[1]));
+				break;
+
 			case pd.SelfclosingTagTk:
 				var tkSrc = arg.substring(da.tsr[0], da.tsr[1]);
 				// Replace pipe by an entity
 				if (t.name === 'extlink' || t.name === 'urllink') {
 					tkSrc = tkSrc.replace(/\|/g, '&#124;');
 				}
-				if (openTags.length === 0) {
-					buf.push(tkSrc);
-					offset = da.tsr[1];
-				}
+				buf.push(tkSrc);
 				break;
 
 			case String:
-				if (openTags.length === 0) {
-					escapeStr(t, buf);
-					offset += t.length;
-				}
+				escapeStr(t, buf);
 				break;
 
 			case pd.EOFTk:
-				// Deal with any unprocessed fragments (that should exist
-				// only if we have unbalanced opening/closing tags).
-				var str = arg.substring(offset, arg.length);
-				if (openTags.length === 0) {
-					buf.push(str);
-				} else {
-					escapeStr(str, buf);
-				}
 				break;
 		}
 	}
