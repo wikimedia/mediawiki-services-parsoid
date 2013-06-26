@@ -2641,7 +2641,8 @@ WSP._buildTemplateWT = function(node, state, srcParts) {
 			var argBuf = [],
 				keys = Object.keys(tpl.params),
 				// the original keys in order
-				origKeys = tpl.i !== undefined ? dp.keys[tpl.i] : [],
+				origKeys = dp.keys && tpl.i !== undefined ?
+								dp.keys[tpl.i] || [] : [],
 				n = keys.length;
 			if (n > 0) {
 				var numericIndex = 1,
