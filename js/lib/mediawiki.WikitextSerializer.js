@@ -780,10 +780,20 @@ WSP.escapeTplArgWT = function(state, arg) {
 			case pd.EndTagTk:
 			case pd.NlTk:
 			case pd.CommentTk:
+				if (!da.tsr) {
+					console.warn("ERROR: Missing tsr for: " + JSON.stringify(t));
+					console.warn("Arg : " + JSON.stringify(arg));
+					console.warn("Toks: " + JSON.stringify(tokens));
+				}
 				buf.push(arg.substring(da.tsr[0], da.tsr[1]));
 				break;
 
 			case pd.SelfclosingTagTk:
+				if (!da.tsr) {
+					console.warn("ERROR: Missing tsr for: " + JSON.stringify(t));
+					console.warn("Arg : " + JSON.stringify(arg));
+					console.warn("Toks: " + JSON.stringify(tokens));
+				}
 				var tkSrc = arg.substring(da.tsr[0], da.tsr[1]);
 				// Replace pipe by an entity
 				if (t.name === 'extlink' || t.name === 'urllink') {

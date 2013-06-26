@@ -1330,7 +1330,7 @@ pre_tag_name =
 // FIXME: fix tag end position
 pre_indent_in_tags
   = & { return stops.inc('pre'); }
-  	spaces // XXX: capture space for round-tripping
+    s:spaces // XXX: capture space for round-tripping
     "<" pre_tag_name
     attribs:generic_attribute*
     ">"
@@ -1603,14 +1603,12 @@ nowiki
       // console.warn('nowiki text');
       var nowiki = input.substring(nw0, pos);
       return [
-            new TagTk( 'span', [
-                new KV( 'typeof', 'mw:Placeholder' )
-            ], {
+            new TagTk( 'span', [ new KV( 'typeof', 'mw:Placeholder' ) ], {
                 src: nowiki,
-                tsr: [nw0, pos]
+                tsr: [nw0, nw0]
             } ),
             nowiki,
-            new EndTagTk( 'span' )
+            new EndTagTk( 'span', [], { tsr: [pos, pos] } )
       ];
     }
 
@@ -2139,9 +2137,9 @@ urltext = ( t:[^'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:\]} &=]+ { return t.join(''); 
           // XXX: This should be moved to a serializer
           / ' ' & ':' {
               return [
-                  new TagTk( 'span', [ new KV( 'typeof', 'mw:Placeholder' ) ], { src: ' ' } ),
+                  new TagTk( 'span', [ new KV( 'typeof', 'mw:Placeholder' ) ], { src: ' ', tsr: [pos0, pos0] } ),
                   "\u00a0",
-                  new EndTagTk( 'span' )
+                  new EndTagTk( 'span', [], { src: ' ', tsr: [pos, pos] } )
               ];
           }
           / t:text_char )+
