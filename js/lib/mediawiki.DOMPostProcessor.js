@@ -1108,7 +1108,7 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 		return rId;
 	}
 
-	function recordTemplateInfo(compoundTpls, compoundTplId, tpl, tplArgs) {
+	function recordTemplateInfo(compoundTpls, compoundTplId, tpl, argInfo) {
 		// Record template args info alongwith any intervening wikitext
 		// between templates part of the same compound structure
 		var tplArray = compoundTpls[compoundTplId],
@@ -1120,7 +1120,7 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 				tplArray.push({ wt: env.page.src.substring(prevTplInfo.dsr[1], dsr[0]) });
 			}
 		}
-		tplArray.push({ dsr: dsr, args: tplArgs });
+		tplArray.push({ dsr: dsr, args: argInfo.dict, keys: argInfo.keys });
 	}
 
 	var i, r, n, e;
@@ -1444,13 +1444,36 @@ function encapsulateTemplates( env, doc, tplRanges, tplArrays) {
 					tplArray.push({ wt: env.page.src.substring(lastTplInfo.dsr[1], dp1.dsr[1]) });
 				}
 
+				// Extract the key orders for the templates
+				/* jshint loopfunc: true */ // yes, this function is in a loop
+				var keyArrays = [],
+					pushKey = function(a) {
+						if(a.keys) {
+							keyArrays.push(a.keys);
+						}
+					};
+				tplArray.forEach(pushKey);
+
 				// Map the array of { dsr: .. , args: .. } objects to just the args property
 				/* jshint loopfunc: true */ // yes, this function is in a loop
-				tplArray = tplArray.map(function(a) { return a.wt ? a.wt : {template: a.args }; });
+				var infoIndex = 0;
+				tplArray = tplArray.map(function(a) {
+					if (a.wt) {
+						return a.wt;
+					} else {
+						// Remember the position of the transclusion relative
+						// to other transclusions. Should match the index of
+						// the corresponding private metadata in keyArrays
+						// above.
+						a.args.i = infoIndex++;
+						return {template: a.args};
+					}
+				});
 
 				// Output the data-mw obj.
 				var datamw = (tplArray.length === 1) ? tplArray[0].template : { parts: tplArray };
 				range.start.setAttribute("data-mw", JSON.stringify(datamw));
+				range.start.data.parsoid.keys = keyArrays;
 			}
 		} else {
 			console.warn("ERROR: Do not have necessary info. to RT Tpl: " + i);
