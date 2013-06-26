@@ -1176,6 +1176,15 @@ WSP.handleImage = function ( node, state, cb ) {
 
 	imgnode = wrapNode.getElementsByTagName( 'img' )[0];
 
+	if ( imgnode.hasAttribute( 'resource' ) ) {
+		filename = DU.getAttributeShadowInfo( imgnode, 'resource' );
+		if ( filename.modified || !filename.value ) {
+			filename = imgnode.getAttribute( 'resource' ).replace( /^(\.\.?\/)+/, '' );
+		} else {
+			filename = filename.value;
+		}
+	}
+
 	if (undefined === imgnode) {
 		console.error( "WARNING: In WSP.handleImage, node does not have any img elements:" );
 		console.error( node.outerHTML );
@@ -1211,7 +1220,7 @@ WSP.handleImage = function ( node, state, cb ) {
 			linkinfo = { modified: false };
 		}
 
-		if ( linkinfo.modified ) {
+		if ( linkinfo.modified && linkinfo.value !== filename ) {
 			opts.push( {
 				ck: 'link',
 				v: linkinfo.value,
@@ -1343,15 +1352,6 @@ WSP.handleImage = function ( node, state, cb ) {
 
 	if ( DU.hasClass( imgnode, 'mw-default-size' ) ) {
 		isDefaultSize = true;
-	}
-
-	if ( imgnode.hasAttribute( 'resource' ) ) {
-		filename = DU.getAttributeShadowInfo( imgnode, 'resource' );
-		if ( filename.modified || !filename.value ) {
-			filename = imgnode.getAttribute( 'resource' ).replace( /^(\.\.?\/)+/, '' );
-		} else {
-			filename = filename.value;
-		}
 	}
 
 	wikitext = '[[' + filename;
