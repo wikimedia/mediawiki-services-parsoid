@@ -552,6 +552,13 @@ var DOMUtils = {
 	},
 
 	/**
+	 * Check if an element is a HTML element.
+	 */
+	isHtmlElement: function (node) {
+		return Util.isHTMLElementName(node.nodeName);
+	},
+
+	/**
 	 * Get the first child element or non-IEW text node, ignoring
 	 * whitespace-only text nodes and comments.
 	 */
@@ -877,13 +884,6 @@ var DOMUtils = {
 	}
 };
 
-
-/**
- * Check if an element is a HTML element.
- */
-DOMUtils.isHtmlElement = function (node) {
-	return Util.isHTMLElementName(node.nodeName);
-};
 
 
 if (typeof module === "object") {

@@ -6,6 +6,8 @@
 
 var Util = require( './mediawiki.Util.js' ).Util,
 	DU = require( './mediawiki.DOMUtils.js').DOMUtils,
+	coreutil = require('util'),
+	ExtensionHandler = require('./ext.core.ExtensionHandler.js').ExtensionHandler,
 	defines = require('./mediawiki.parser.defines.js'),
 	$ = require( './fakejquery' );
 
@@ -253,6 +255,9 @@ function References(cite) {
 	this.reset();
 }
 
+// Inherit functionality from ExtensionHandler
+coreutil.inherits(References, ExtensionHandler);
+
 References.prototype.reset = function(group) {
 	if (group) {
 		setRefGroup(this.refGroups, group, undefined);
@@ -281,20 +286,39 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 		group = null;
 	}
 
-	// Emit a placeholder meta for the references token
-	// so that the dom post processor can generate and
-	// emit references at this point in the DOM.
-	var emitMarkerMeta = function() {
-		var marker = new SelfclosingTagTk('meta', refsTok.attribs, refsTok.dataAttribs);
+	// Emit a marker mw:DOMFragment for the references
+	// token so that the dom post processor can generate
+	// and emit references at this point in the DOM.
+	var emitReferencesFragment = function() {
+		var about = manager.env.newAboutId(),
+			type = refsTok.getAttribute('typeof');
+		var buf = [
+			"<ol class='references'",
+			" typeof='", "mw:Extension/references", "'",
+			" about='", about, "'",
+			"></ol>"
+		];
 
-		marker.dataAttribs.stx = undefined;
-		DU.addAttributes(marker, {
-			'about': manager.env.newAboutId(),
-			'group': group,
-			'typeof': 'mw:Extension/references/Marker'
-		});
-		cb({ tokens: [marker], async: false });
-	};
+		var wrapperDOM = Util.parseHTML(buf.join('')).body.childNodes;
+		wrapperDOM[0].setAttribute('source', refsTok.getAttribute('source'));
+		if (group) {
+			wrapperDOM[0].setAttribute('group', group);
+		}
+
+		var expansion = {
+			nodes: wrapperDOM,
+			html: wrapperDOM.map(function(n) { return n.outerHTML; }).join('')
+		};
+
+		// TemplateHandler wants a manager property
+		//
+		// FIXME: Seems silly -- maybe we should move encapsulateExpansionHTML
+		// into Util and pass env into it .. can avoid extending ExtensionHandler
+		// as well.
+		this.manager = manager;
+
+		cb({ tokens: this.encapsulateExpansionHTML(refsTok, expansion), async: false });
+	}.bind(this);
 
 	processExtSource(manager, refsTok, {
 		// Partial pipeline for processing ref-content
@@ -307,7 +331,7 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 		},
 		res: [],
 		parentCB: cb,
-		emptyContentCB: emitMarkerMeta,
+		emptyContentCB: emitReferencesFragment,
 		chunkCB: function(chunk) {
 			// Extract ref-content tokens and discard the rest
 			var res = [];
@@ -324,7 +348,7 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 			// Pass along the ref toks
 			cb({ tokens: res, async: true });
 		},
-		endCB: emitMarkerMeta
+		endCB: emitReferencesFragment
 	});
 };
 
@@ -401,9 +425,7 @@ References.prototype.insertReferencesIntoDOM = function(refsNode) {
 		src = refsNode.getAttribute('source'),
 		// Extract ext-source for <references>..</references> usage
 		body = Util.extractExtBody("references", src).trim(),
-		refGroup = getRefGroup(this.refGroups, group),
-		ol = refsNode.ownerDocument.createElement('ol'),
-		nodeType = (refsNode.getAttribute("typeof") || '').replace(/mw:Extension\/references\/Marker/, '');
+		refGroup = getRefGroup(this.refGroups, group);
 
 	var dataMW = refsNode.getAttribute('data-mw');
 	if (!dataMW) {
@@ -421,18 +443,12 @@ References.prototype.insertReferencesIntoDOM = function(refsNode) {
 		});
 	}
 
-	DU.addAttributes(ol, {
-		'about': about,
-		'class': 'references',
-		'data-mw': dataMW,
-		'typeof': nodeType
-	});
-	DU.addTypeOf(ol, "mw:Extension/references");
-	ol.data = refsNode.data;
+	refsNode.removeAttribute('source');
+	refsNode.setAttribute('data-mw', dataMW);
+
 	if (refGroup) {
-		refGroup.refs.map(refGroup.renderLine.bind(refGroup, ol));
+		refGroup.refs.map(refGroup.renderLine.bind(refGroup, refsNode));
 	}
-	refsNode.parentNode.replaceChild(ol, refsNode);
 
 	// reset
 	this.reset(group);
