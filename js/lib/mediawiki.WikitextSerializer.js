@@ -1105,6 +1105,14 @@ WSP.handleOpt = function ( node, opt, optName, optVal, state, cb ) {
 			}
 			break;
 
+		/* TODO: Cleanup - size, width and height should be combined into one option */
+		case 'size':
+			cb( optName.replace(
+				'$1',
+				optVal + 'x' + optVal
+			) );
+			break;
+
 		case 'width':
 			val = DU.getAttributeShadowInfo( imgnode, 'width' );
 
@@ -1153,6 +1161,17 @@ WSP.hasOpt = function ( opts, optName ) {
 		}
 	}
 	return false;
+};
+
+WSP.removeOpt = function ( opts, optName ) {
+	var ix;
+
+	for ( ix = 0; ix < opts.length; ix++ ) {
+		if ( opts[ix].ck === optName ) {
+			opts = opts.splice( ix, 1 );
+			return;
+		}
+	}
 };
 
 // XXX: This should probably be refactored. -rsmith
@@ -1341,22 +1360,19 @@ WSP.handleImage = function ( node, state, cb ) {
 		htAttr = imgnode.getAttribute( 'height' );
 		wdAttr = imgnode.getAttribute( 'width' );
 
-		if ( htAttr && !this.hasOpt( opts, 'height' ) ) {
+		// Detect image size change
+		if ( !dp.img.h || !dp.img.w || dp.img.h.toString() !== htAttr.toString() || dp.img.w.toString() !== wdAttr.toString() ) {
+			// If size of the image was changed handle it as a 'size' option and remove two other
+			// options - 'height' and 'width'.
+			this.removeOpt( opts, 'height' );
+			this.removeOpt( opts, 'width' );
+
 			dp.img.htset = true;
-
-			opts.push( {
-				ck: 'height',
-				v: 'x' + htAttr,
-				ak: mwAliases.img_width.last()
-			} );
-		}
-
-		if ( wdAttr && !this.hasOpt( opts, 'width' ) ) {
 			dp.img.wdset = true;
 
 			opts.push( {
-				ck: 'width',
-				v: wdAttr,
+				ck: 'size',
+				v: Math.max( htAttr, wdAttr ),
 				ak: mwAliases.img_width.last()
 			} );
 		}

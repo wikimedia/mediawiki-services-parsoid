@@ -100,12 +100,12 @@ var fnames = {
 
 			if ( twidth ) {
 				if ( theight === undefined || theight === null ) {
-					theight = Math.ceil( height * ( twidth / width ) );
+					theight = Math.round( height * twidth / width );
 				} else {
-					if ( Math.ceil( height * ( twidth / width ) ) > theight ) {
-						twidth = Math.ceil( width * ( theight / height ) );
+					if ( Math.round( height * twidth / width ) > theight ) {
+						twidth = Math.ceil( width * theight / height );
 					} else {
-						theight = Math.ceil( height * ( twidth / width ) );
+						theight = Math.round( height * twidth / width );
 					}
 				}
 

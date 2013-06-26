@@ -15808,6 +15808,15 @@ parsoid
 </p>
 !!end
 
+!! test
+Image: Modyfing size of an imge
+!! options
+parsoid=html2wt
+!! input
+[[Image:Wiki.png|230x230px]]
+!! result
+<p data-parsoid='{"dsr":[0,24,0,0]}'><span typeof="mw:Image" data-parsoid='{"optList":[{"ck":"width","ak":"100px"}],"cacheKey":"[[Image:Wiki.png|100px]]","img":{"h":115,"w":100,"wdset":true},"dsr":[0,24,null,null]}'><a href="./File:Wiki.png" data-parsoid='{"a":{"href":"./File:Wiki.png"}}'><img resource="./File:Wiki.png" src="//upload.wikimedia.org/wikipedia/en/thumb/b/bc/Wiki.png/100px-Wiki.png" height="230" width="200" data-parsoid='{"a":{"resource":"./File:Wiki.png"},"sa":{"resource":"Image:Wiki.png"}}'></a></span></p>
+!!end
 
 TODO:
 more images
