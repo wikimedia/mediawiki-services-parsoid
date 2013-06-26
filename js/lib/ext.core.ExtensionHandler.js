@@ -42,15 +42,17 @@ ExtensionHandler.prototype.rank = 1.11;
 /**
  * Get the public data-mw structure that exposes the extension name, args, and body
  */
-ExtensionHandler.prototype.getArgDict = function (state) {
+ExtensionHandler.prototype.getArgInfo = function (state) {
 	var extToken = state.token,
 		extName = state.token.getAttribute("name"),
 		extSrc = state.token.getAttribute("source");
 
 	return {
-		name: extName,
-		attrs: Util.KVtoHash(extToken.getAttribute("options")),
-		body: { extsrc: Util.extractExtBody(extName, extSrc) }
+		dict: {
+			name: extName,
+			attrs: Util.KVtoHash(extToken.getAttribute("options")),
+			body: { extsrc: Util.extractExtBody(extName, extSrc) }
+		}
 	};
 };
 

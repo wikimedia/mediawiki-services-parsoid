@@ -667,7 +667,8 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 
 	if (state.recordArgDict) {
 		// Get the arg dict
-		var argDict = this.getArgDict(state);
+		var argInfo = this.getArgInfo(state),
+			argDict = argInfo.dict;
 
 		// Add in tpl-target/pf-name info
 		// Only one of these will be set.
@@ -676,7 +677,7 @@ TemplateHandler.prototype.addEncapsulationInfo = function ( state, chunk ) {
 
 		// Use a data-attribute to prevent the sanitizer from stripping this
 		// attribute before it reaches the DOM pass where it is needed.
-		attrs.push(new KV("data-mw-arginfo", JSON.stringify(argDict)));
+		attrs.push(new KV("data-mw-arginfo", JSON.stringify(argInfo)));
 	}
 
 	if ( chunk.length ) {
@@ -812,13 +813,14 @@ TemplateHandler.prototype._onDocument = function(state, cb, doc) {
 
 	// Add the wrapper attributes to the first element
 	firstNode.setAttribute('typeof', state.wrapperType);
+	var argInfo = this.getArgInfo(state);
+	firstNode.setAttribute('data-mw', JSON.stringify(argInfo.dict));
 	firstNode.setAttribute('data-parsoid', JSON.stringify(
 		{
 			tsr: Util.clone(state.token.dataAttribs.tsr),
 			src: state.token.dataAttribs.src
 		}
 	));
-	firstNode.setAttribute('data-mw', JSON.stringify(this.getArgDict(state)));
 
 	function outerHTML (n) {
 		return n.outerHTML;
@@ -836,14 +838,16 @@ TemplateHandler.prototype._onDocument = function(state, cb, doc) {
 	cb({ tokens: toks });
 };
 
+
 /**
  * Get the public data-mw structure that exposes the template name and parameters
- * ExtensionHandler provides its own getArgDict function
+ * ExtensionHandler provides its own getArgInfo function
  */
-TemplateHandler.prototype.getArgDict = function (state) {
+TemplateHandler.prototype.getArgInfo = function (state) {
 	var src = this.manager.env.page.src,
 		params = state.token.attribs,
 		dict = {},
+		keys = [],
 		argIndex = 1;
 
 	// Use source offsets to extract arg-name and arg-value wikitext
@@ -861,9 +865,16 @@ TemplateHandler.prototype.getArgDict = function (state) {
 				name = src.substring(srcOffsets[0], srcOffsets[1]);
 			}
 
+			if (dict[name] === undefined) {
+				keys.push(name);
+			}
 			dict[name] = { wt: src.substring(srcOffsets[2], srcOffsets[3]) };
 		} else {
-			dict[params[i].k] = params[i].v;
+			name = params[i].k;
+			if (dict[name] === undefined) {
+				keys.push(name);
+			}
+			dict[name] = params[i].v;
 		}
 	}
 
@@ -871,13 +882,11 @@ TemplateHandler.prototype.getArgDict = function (state) {
 	if (tplTgtSrcOffsets) {
 		var tplTgtWT = src.substring(tplTgtSrcOffsets[0], tplTgtSrcOffsets[1]);
 		return {
-			// gwicke: Removed the non-deterministic id member for now as this
-			// makes the data-mw attribute non-deterministic across reparses.
-			// That in turn triggers diffs. See
-			// https://bugzilla.wikimedia.org/show_bug.cgi?id=47426.
-			//id: state.wrappedObjectId,
-			target: { wt: tplTgtWT },
-			params: dict
+			dict: {
+				target: { wt: tplTgtWT },
+				params: dict
+			},
+			keys: keys
 		};
 	}
 };

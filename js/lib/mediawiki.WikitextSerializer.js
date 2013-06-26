@@ -2624,7 +2624,7 @@ WSP._htmlElementHandler = function (node, state, cb) {
 			node, state, cb);
 };
 
-WSP._buildTemplateWT = function(state, srcParts) {
+WSP._buildTemplateWT = function(state, srcParts, dp) {
 	var buf = [],
 		serializer = this;
 	srcParts.map(function(part) {
@@ -2639,19 +2639,37 @@ WSP._buildTemplateWT = function(state, srcParts) {
 			// tpl args
 			var argBuf = [],
 				keys = Object.keys(tpl.params),
+				// the original keys in order
+				origKeys = tpl.i !== undefined ? dp.keys[tpl.i] : [],
 				n = keys.length;
 			if (n > 0) {
-				for (var i = 0; i < n; i++) {
-					var k = keys[i],
-						v = serializer.escapeTplArgWT(state, tpl.params[k].wt);
-					if (k === (i+1).toString()) {
-						argBuf.push(v);
-					} else {
-						var kStr = k + (isTpl && !k.match(/\s$/) ? ' ' : ''),
-							vStr = (isTpl && !v.match(/^\s/) ? ' ' : '') + v;
-						argBuf.push(kStr + "=" + vStr);
+				var numericIndex = 1,
+					pushArg = function (k) {
+						var v = serializer.escapeTplArgWT(state, tpl.params[k].wt);
+						if (k === numericIndex.toString()) {
+							numericIndex++;
+							argBuf.push(v);
+						} else {
+							var kStr = k + (isTpl && !k.match(/\s$/) ? ' ' : ''),
+								vStr = (isTpl && !v.match(/^\s/) ? ' ' : '') + v;
+							argBuf.push(kStr + "=" + vStr);
+						}
+					};
+
+				// first serialize out old parameters in order
+				origKeys.forEach(function(k) {
+					if (tpl.params[k] !== undefined) {
+						pushArg(k);
 					}
-				}
+				});
+				// then push out remaining parameters
+				keys.forEach(function(k) {
+					if (origKeys.indexOf(k) === -1) {
+						pushArg(k);
+					}
+				});
+
+				// Now append the parameters joined by pipes
 				buf.push("|");
 				buf.push(argBuf.join("|"));
 			}
@@ -2752,7 +2770,7 @@ WSP._getDOMHandler = function(node, state, cb) {
 				if (/\bmw:(Transclusion\b|Param\b)/.test(typeOf)) {
 					dataMW = JSON.parse(node.getAttribute("data-mw"));
 					if (dataMW) {
-						src = state.serializer._buildTemplateWT(state, dataMW.parts || [{ template: dataMW }]);
+						src = state.serializer._buildTemplateWT(state, dataMW.parts || [{ template: dataMW }], dp);
 					} else {
 						console.error("ERROR: No data-mw for: " + node.outerHTML);
 						src = dp.src;
