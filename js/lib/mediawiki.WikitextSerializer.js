@@ -748,9 +748,9 @@ WSP.escapeWikiText = function ( state, text, opts ) {
  * General strategy:
  *
  * Tokenize the arg wikitext.  Anything that parses as tags
- * are good and we need not bother with those.  Check for harmful
- * characters "[]{}|=" in any strings and escape those fragments
- * since these characters could change semantics of the entire
+ * are good and we need not bother with those. Check for harmful
+ * characters "[]{}|" or additonally '=' in positional parameters and escape
+ * those fragments since these characters could change semantics of the entire
  * template transclusion.
  *
  * This function makes a couple of assumptions:
@@ -760,14 +760,25 @@ WSP.escapeWikiText = function ( state, text, opts ) {
  *    width of the opening and closing wikitext tags and not
  *    the entire DOM range they span in the end.
  */
-WSP.escapeTplArgWT = function(state, arg) {
+WSP.escapeTplArgWT = function(state, arg, isPositional) {
 	function escapeStr(str, buf) {
-		if (str.match(/[\{\[\]\}\|\=]/)) {
-			buf.push("<nowiki>");
-			buf.push(str);
-			buf.push("</nowiki>");
+		if (isPositional) {
+			// Can't allow '=' in positional parameters
+			if (str.match(/[\{\[\]\}\|\=]/)) {
+				buf.push("<nowiki>");
+				buf.push(str);
+				buf.push("</nowiki>");
+			} else {
+				buf.push(str);
+			}
 		} else {
-			buf.push(str);
+			if (str.match(/[\{\[\]\}\|]/)) {
+				buf.push("<nowiki>");
+				buf.push(str);
+				buf.push("</nowiki>");
+			} else {
+				buf.push(str);
+			}
 		}
 	}
 
@@ -2647,11 +2658,15 @@ WSP._buildTemplateWT = function(node, state, srcParts) {
 			if (n > 0) {
 				var numericIndex = 1,
 					pushArg = function (k) {
-						var v = serializer.escapeTplArgWT(state, tpl.params[k].wt);
+						var v;
 						if (k === numericIndex.toString()) {
 							numericIndex++;
+							// Escape as positional parameter
+							v = serializer.escapeTplArgWT(state, tpl.params[k].wt, true);
 							argBuf.push(v);
 						} else {
+							// Escape as value only
+							v = serializer.escapeTplArgWT(state, tpl.params[k].wt, false);
 							var kStr = k,
 								vStr = v;
 
