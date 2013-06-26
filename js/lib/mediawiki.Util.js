@@ -217,9 +217,13 @@ var Util = {
 		return name === 'td' || name === 'th';
 	},
 
+	// We are currently treating <source> as an extension tag since this is widely
+	// used on wikipedias.  So, we dont want to treat this as a HTML tag => it cannot
+	// be a void element
+	//
 	// See http://www.whatwg.org/specs/web-apps/current-work/#void-elements
 	voidElements: { area: 1, base: 1, br: 1, col: 1, command: 1, embed: 1, hr: 1, img: 1,
-		input: 1, keygen: 1, link: 1, meta: 1, param: 1, source: 1, track: 1, wbr: 1 },
+		input: 1, keygen: 1, link: 1, meta: 1, param: 1, /* source: 1, */ track: 1, wbr: 1 },
 
 	/*
 	 * Determine if the tag is an empty HTML tag
