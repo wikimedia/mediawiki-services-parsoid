@@ -1445,14 +1445,13 @@ function encapsulateTemplates( env, doc, tplRanges, tplArrays) {
 				}
 
 				// Extract the key orders for the templates
+				var keyArrays = [];
 				/* jshint loopfunc: true */ // yes, this function is in a loop
-				var keyArrays = [],
-					pushKey = function(a) {
-						if(a.keys) {
-							keyArrays.push(a.keys);
-						}
-					};
-				tplArray.forEach(pushKey);
+				tplArray.forEach(function(a) {
+					if(a.keys) {
+						keyArrays.push(a.keys);
+					}
+				});
 
 				// Map the array of { dsr: .. , args: .. } objects to just the args property
 				/* jshint loopfunc: true */ // yes, this function is in a loop
