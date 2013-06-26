@@ -560,7 +560,6 @@ add("wt2wt", "External links: wiki links within external link (Bug 3695)");
 add("wt2wt", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid");
 add("wt2wt", "External link containing double-single-quotes in text embedded in italics (bug 4598 sanity check)");
 add("wt2wt", "External link containing double-single-quotes with no space separating the url from text in italics");
-add("wt2wt", "URL-encoding in URL functions (multiple parameters)");
 add("wt2wt", "Unclosed and unmatched quotes (parsoid)");
 add("wt2wt", "A table with captions with non-default spaced attributes and a table row");
 add("wt2wt", "Table td-cell syntax variations");
@@ -2665,9 +2664,6 @@ add("selser", "External link containing double-single-quotes with no space separ
 add("selser", "External link containing double-single-quotes with no space separating the url from text in italics [[[0,4],4,3]]");
 add("selser", "External link containing double-single-quotes with no space separating the url from text in italics [[4,0,3]]");
 add("selser", "External link containing double-single-quotes with no space separating the url from text in italics [[[1,2],2,4]]");
-add("selser", "URL-encoding in URL functions (multiple parameters) 0");
-add("selser", "URL-encoding in URL functions (multiple parameters) [2]");
-add("selser", "URL-encoding in URL functions (multiple parameters) [1]");
 add("selser", "Quotes [1,0,[4,2,4,4]]");
 add("selser", "Quotes [2,0,1]");
 add("selser", "Quotes [[4,0,2,0],0,1]");

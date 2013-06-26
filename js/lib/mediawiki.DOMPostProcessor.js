@@ -1464,7 +1464,10 @@ function encapsulateTemplates( env, doc, tplRanges, tplArrays) {
 						// to other transclusions. Should match the index of
 						// the corresponding private metadata in keyArrays
 						// above.
-						a.args.i = infoIndex++;
+						if (a.args) { // XXX: not sure why args can be undefined here
+							a.args.i = infoIndex;
+						}
+						infoIndex++;
 						return {template: a.args};
 					}
 				});
