@@ -1448,7 +1448,7 @@ function encapsulateTemplates( env, doc, tplRanges, tplArrays) {
 				var keyArrays = [];
 				/* jshint loopfunc: true */ // yes, this function is in a loop
 				tplArray.forEach(function(a) {
-					if(a.keys) {
+					if (a.keys) {
 						keyArrays.push(a.keys);
 					}
 				});
@@ -1697,29 +1697,9 @@ function findBuilderCorrectedTags(document, env) {
 		if ( src ) {
 			var placeHolder;
 
-			/**
-			 * SSS FIXME: We can do better with these checks and introducing
-			 * plain text instead of a placeholder.  However, in some cases,
-			 * it does introduce nowiki escaping if this src has leading spaces
-			 * that could be parsed as pres.
-			 *
-			 * A possibly fix for this is to wrap this in a span with a public
-			 * attribute that tells WTS that this doesn't need escaping which
-			 * would have to be cleared by VE if that text gets edited.
-			 *
-			 * Another fix would be for nowiki escaping to get smarter.
-			 *
-			 * But for now, leaving this note in place and using placeholders.
-			 *
-			if (opts.start && (name === 'tr' || name === 'td' || name === 'th')) {
-				placeHolder = node.ownerDocument.createTextNode(src);
-			} else {
-			}
-			**/
-
 			placeHolder = node.ownerDocument.createElement('meta'),
 			placeHolder.setAttribute('typeof', 'mw:Placeholder/StrippedTag');
-			placeHolder.data = { parsoid: { src: src } };
+			placeHolder.data = { parsoid: { src: src, name: name.toUpperCase() } };
 
 			// Insert the placeHolder
 			node.parentNode.insertBefore(placeHolder, node);
@@ -1909,7 +1889,7 @@ function findBuilderCorrectedTags(document, env) {
 // node  -- node to process
 // [s,e) -- if defined, start/end position of wikitext source that generated
 //          node's subtree
-function computeNodeDSR(env, node, s, e, traceDSR) {
+function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 
 	// TSR info on all these tags are only valid for the opening tag.
 	// (closing tags dont have attrs since tree-builder strips them
@@ -2058,6 +2038,23 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 		return [stWidth, etWidth];
 	}
 
+	function trace() {
+		if (traceDSR) {
+			Util.debug_pp.apply(Util, ['', ''].concat([].slice.apply(arguments)));
+		}
+	}
+
+	function traceNode(node, i, cs, ce) {
+		if (traceDSR) {
+			trace(
+				"-- Processing <", node.parentNode.nodeName, ":", i,
+				">=", DU.isElt(node) ? '' : (DU.isText(node) ? '#' : '!'),
+				DU.isElt(node) ? (node.nodeName === 'META' ? node.outerHTML : node.nodeName) : node.data,
+				" with [", cs, ",", ce, "]"
+			);
+		}
+	}
+
 	// No undefined values here onwards.
 	// NOTE: Never use !s, !e, !cs, !ce for testing for non-null
 	// because any of them could be zero.
@@ -2069,8 +2066,9 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 		e = null;
 	}
 
-	if (traceDSR) { console.warn("Received " + s + ", " + e + " for " + node.nodeName + " --"); }
+	trace("Received ", s, ", ", e, " for ", node.nodeName);
 
+	var correction;
 	var children = node.childNodes,
 		savedEndTagWidth = null,
 	    ce = e,
@@ -2078,31 +2076,66 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 		// if this node has no child content, then the start and end for
 		// the child dom are indeed identical.  Alternatively, we could
 		// explicitly code this check before everything and bypass this.
-		cs = ce;
+		cs = ce,
+		editMode = env.conf.parsoid.editMode;
 	for (var n = children.length, i = n-1; i >= 0; i--) {
 		var isMarkerTag = false,
 			child = children[i],
 		    cType = child.nodeType,
 			endTagWidth = null;
 		cs = null;
+
+		// In edit mode, StrippedTag marker tags will be removed and wont
+		// be around to miss in the filling gap.  So, absorb its width into
+		// the DSR of its previous sibling.
+		if (editMode) {
+			var next = child.nextSibling;
+			if (next) {
+				if (DU.isElt(next) && next.data.parsoid.src &&
+					/\bmw:Placeholder\/StrippedTag\b/.test(next.getAttribute("typeof")))
+				{
+					if (next.data.parsoid.name in {B:1, I:1} && child.nodeName in {B:1, I:1}) {
+						correction = next.data.parsoid.src.length;
+						ce += correction;
+						dsrCorrection = correction;
+					}
+				}
+			}
+		}
+
+		traceNode(child, i, cs, ce);
+
 		if (cType === Node.TEXT_NODE) {
-			if (traceDSR) { console.warn("-- Processing <" + node.nodeName + ":" + i + ">=#" + child.data + " with [" + cs + "," + ce + "]"); }
 			if (ce !== null) {
 				cs = ce - child.data.length - DU.indentPreDSRCorrection(child);
 			}
 		} else if (cType === Node.COMMENT_NODE) {
-			if (traceDSR) { console.warn("-- Processing <" + node.nodeName + ":" + i + ">=!" + child.data + " with [" + cs + "," + ce + "]"); }
 			if (ce !== null) {
 				cs = ce - child.data.length - 7; // 7 chars for "<!--" and "-->"
 			}
 		} else if (cType === Node.ELEMENT_NODE) {
-			if (traceDSR) { console.warn("-- Processing <" + node.nodeName + ":" + i + ">=" + child.nodeName + " with [" + cs + "," + ce + "]"); }
 			var cTypeOf = child.getAttribute("typeof"),
 				dp = DU.getDataParsoid( child ),
 				tsr = dp.tsr,
 				oldCE = tsr ? tsr[1] : null,
 				propagateRight = false,
 				stWidth = null, etWidth = null;
+
+			// In edit-mode, we are making dsr corrections to account for
+			// stripped tags (end tags usually).  When stripping happens,
+			// in most common use cases, a corresponding end tag is added
+			// back elsewhere in the DOM.
+			//
+			// So, when an autoInsertedEnd tag is encountered and a matching
+			// dsr-correction is found, make a 1-time correction in the
+			// other direction.
+			if (editMode && ce !== null && dp.autoInsertedEnd && child.nodeName in {B:1, I:1}) {
+				correction = (3 + child.nodeName.length);
+				if (correction === dsrCorrection) {
+					ce -= correction;
+					dsrCorrection = 0;
+				}
+			}
 
 			if (DU.hasNodeName(child, "meta")) {
 				// Unless they have been foster-parented,
@@ -2181,7 +2214,10 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 						} else {
 							stWidth = tsr[1] - tsr[0];
 						}
-						if (traceDSR) { console.warn("TSR: " + JSON.stringify(tsr) + "; cs: " + cs + "; ce: " + ce); }
+
+						if (traceDSR) {
+							trace("TSR: ", tsr, "; cs: ", cs, "; ce: ", ce);
+						}
 					} else if (s && child.previousSibling === null) {
 						cs = s;
 					}
@@ -2201,11 +2237,10 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 
 				ccs = cs !== null && stWidth !== null ? cs + stWidth : null;
 				cce = ce !== null && etWidth !== null ? ce - etWidth : null;
-				if (traceDSR) {
-					console.warn("Before recursion, [cs,ce]=" + cs + "," + ce +
-						"; [sw,ew]=" + stWidth + "," + etWidth +
-						"; [ccs,cce]=" + ccs + "," + cce);
-				}
+
+				trace("Before recursion, [cs,ce]=", cs, ",", ce,
+					"; [sw,ew]=", stWidth, ",", etWidth,
+					"; [ccs,cce]=", ccs + ",", cce);
 
 				/* -----------------------------------------------------------------
 				 * Process DOM rooted at 'child'.
@@ -2240,7 +2275,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 					 * ------------------------------------------------------------- */
 					newDsr = [ccs, cce];
 				} else {
-					newDsr = computeNodeDSR(env, child, ccs, cce, traceDSR);
+					newDsr = computeNodeDSR(env, child, ccs, cce, dsrCorrection, traceDSR);
 				}
 
 				// Min(child-dom-tree dsr[0] - tag-width, current dsr[0])
@@ -2260,7 +2295,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 			if (cs !== null || ce !== null) {
 				dp.dsr = [cs, ce, stWidth, etWidth];
 				if (traceDSR) {
-					console.warn("-- UPDATING; " + child.nodeName + " with [" + cs + "," + ce + "]; typeof: " + cTypeOf);
+					trace("-- UPDATING; ", child.nodeName, " with [", cs, ",", ce, "]; typeof: ", cTypeOf);
 					// Set up 'dbsrc' so we can debug this
 					dp.dbsrc = env.page.src.substring(cs, ce);
 				}
@@ -2293,7 +2328,7 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 
 						// Update and move right
 						if (traceDSR) {
-							console.warn("CHANGING ce.start of " + sibling.nodeName + " from " + siblingDP.dsr[0] + " to " + newCE);
+							trace("CHANGING ce.start of ", sibling.nodeName, " from ", siblingDP.dsr[0], " to ", newCE);
 							// debug info
 							if (siblingDP.dsr[1]) {
 								siblingDP.dbsrc = env.page.src.substring(newCE, siblingDP.dsr[1]);
@@ -2333,9 +2368,8 @@ function computeNodeDSR(env, node, s, e, traceDSR) {
 		console.warn("WARNING: DSR inconsistency: cs/s mismatch for node: " +
 			node.nodeName + " s: " + s + "; cs: " + cs);
 	}
-	if (traceDSR) {
-		console.warn("For " + node.nodeName + ", returning: " + cs + ", " + e);
-	}
+
+	trace("For ", node.nodeName, ", returning: ", cs, ", ", e);
 
 	return [cs, e];
 }
@@ -2382,7 +2416,7 @@ function computeDocDSR(root, env, options) {
 
 	// The actual computation buried in trace/debug stmts.
 	var body = root.body;
-	computeNodeDSR(env, body, startOffset, endOffset, traceDSR);
+	computeNodeDSR(env, body, startOffset, endOffset, 0, traceDSR);
 
 	var dp = DU.getDataParsoid( body );
 	dp.dsr = [startOffset, endOffset, 0, 0];

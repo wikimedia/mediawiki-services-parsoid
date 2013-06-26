@@ -926,7 +926,7 @@ var Util = {
 				out.push('undefined');
 			} else if (a.constructor === Boolean) {
 				out.push(a ? '1' : '0');
-			} else if (a.constructor !== String || a.match(/\n|^\s*$/)) {
+			} else if (a.constructor !== String || a.match(/\n|^\s+$/)) {
 				out.push(JSON.stringify(a));
 			} else {
 				out.push(a);
