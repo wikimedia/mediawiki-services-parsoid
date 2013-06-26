@@ -2624,9 +2624,10 @@ WSP._htmlElementHandler = function (node, state, cb) {
 			node, state, cb);
 };
 
-WSP._buildTemplateWT = function(state, srcParts, dp) {
+WSP._buildTemplateWT = function(node, state, srcParts) {
 	var buf = [],
-		serializer = this;
+		serializer = this,
+		dp = node.data.parsoid;
 	srcParts.map(function(part) {
 		var tpl = part.template;
 		if (tpl) { // transclusion: tpl or parser function
@@ -2650,8 +2651,28 @@ WSP._buildTemplateWT = function(state, srcParts, dp) {
 							numericIndex++;
 							argBuf.push(v);
 						} else {
-							var kStr = k + (isTpl && !k.match(/\s$/) ? ' ' : ''),
-								vStr = (isTpl && !v.match(/^\s/) ? ' ' : '') + v;
+							var kStr = k,
+								vStr = v;
+
+							if (isTpl) {
+								// Massage the space around the equal a bit for
+								// templates. Parser function values are not
+								// stripped the same way, so don't apply to those
+								// just yet.
+								if (DU.isNewElt(node)) {
+									// Default to ' = ' for new content
+									if (!/\s$/.test(k)) {
+										kStr = kStr + ' ';
+									}
+									if (!/^\s/.test(v)) {
+										vStr = ' ' + vStr;
+									}
+								} else if (k.match(/\s$/) && !v.match(/^\s/)) {
+									// Only prefix value with space if key
+									// ends with space too
+									vStr = ' ' + vStr;
+								}
+							}
 							argBuf.push(kStr + "=" + vStr);
 						}
 					};
@@ -2770,7 +2791,8 @@ WSP._getDOMHandler = function(node, state, cb) {
 				if (/\bmw:(Transclusion\b|Param\b)/.test(typeOf)) {
 					dataMW = JSON.parse(node.getAttribute("data-mw"));
 					if (dataMW) {
-						src = state.serializer._buildTemplateWT(state, dataMW.parts || [{ template: dataMW }], dp);
+						src = state.serializer._buildTemplateWT(node,
+								state, dataMW.parts || [{ template: dataMW }]);
 					} else {
 						console.error("ERROR: No data-mw for: " + node.outerHTML);
 						src = dp.src;
