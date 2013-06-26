@@ -2662,7 +2662,7 @@ function generateReferences(refsExt, node) {
 			var typeOf = child.getAttribute('typeof');
 			if ((/\bmw:Extension\/ref\/Marker\b/).test(typeOf)) {
 				refsExt.extractRefFromNode(child);
-			} else if ((/\bmw:Extension\/references\/Marker\b/).test(typeOf)) {
+			} else if ((/\bmw:Extension\/references\b/).test(typeOf)) {
 				refsExt.insertReferencesIntoDOM(child);
 			} else if (child.childNodes.length > 0) {
 				generateReferences(refsExt, child);
