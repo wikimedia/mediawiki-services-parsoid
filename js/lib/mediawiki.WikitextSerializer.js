@@ -592,6 +592,16 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 		return escapedText(text);
 	}
 
+	// Escape quotes that come after I/B nodes that can be reparsed
+	// differently since quote-parsing is context-sensitive.
+	if (text.match(/^'[^']/)) {
+		var prev = opts.node && opts.node.previousSibling ? opts.node.previousSibling.nodeName : '';
+		if (prev === 'I' || prev === 'B') {
+			// console.warn("---EWT:F3b---");
+			return escapedText(text);
+		}
+	}
+
 	var sol = state.onSOL && !state.inIndentPre && !state.inPHPBlock,
 		hasNewlines = text.match(/\n./),
 		hasTildes = text.match(/~{3,5}/);

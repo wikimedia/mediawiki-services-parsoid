@@ -15234,18 +15234,22 @@ parsoid
 ''<nowiki>'foo'</nowiki>''
 ''<nowiki>''foo''</nowiki>''
 ''<nowiki>'''foo'''</nowiki>''
+''foo''<nowiki>'s</nowiki>
 '''<nowiki>'foo'</nowiki>'''
 '''<nowiki>''foo''</nowiki>'''
 '''<nowiki>'''foo'''</nowiki>'''
 '''<nowiki>foo'</nowiki>''<nowiki>bar'</nowiki>''baz'''
+'''foo'''<nowiki>'s</nowiki>
 !! result
 <p><i>'foo'</i>
 <i>''foo''</i>
 <i>'''foo'''</i>
+<i>foo</i>'s
 <b>'foo'</b>
 <b>''foo''</b>
 <b>'''foo'''</b>
 <b>foo'<i>bar'</i>baz</b>
+<b>foo</b>'s
 </p>
 !! end
 
