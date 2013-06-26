@@ -1104,7 +1104,7 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 			} );
 
 			if ( optInfo.ck === 'width' ) {
-				var x, y, maybeSize = optInfo.v.match( /^(\d*)(?:x(\d+))?$/ );
+				var x, y, maybeSize = optInfo.v.match( /^(\d*)(?:x(\d+))?\s*$/ );
 				if ( maybeSize !== null ) {
 					x = maybeSize[1];
 					y = maybeSize[2];
