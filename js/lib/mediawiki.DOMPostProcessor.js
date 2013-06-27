@@ -2608,8 +2608,8 @@ function unpackDOMFragments(node) {
 
 			var html = node.data.parsoid.html,
 				tsrDelta = node.data.parsoid.tsrDelta;
-			if (!html) {
-				// Most likely a multi-part template with an extension in its
+			if (!html || /\bmw:Transclusion\b/.test(typeOf)) {
+				// Ex: A multi-part template with an extension in its
 				// output (possibly passed in as a parameter).
 				//
 				// Example:
@@ -2618,7 +2618,6 @@ function unpackDOMFragments(node) {
 				// Simply remove the mw:DOMFragment typeof for now, as the
 				// entire content will still be encapsulated as a
 				// mw:Transclusion.
-				//console.error('no html!', node.data.parsoid);
 				DU.removeTypeOf(node, 'mw:DOMFragment');
 				return true;
 			}
@@ -2684,15 +2683,6 @@ function unpackDOMFragments(node) {
 					}
 				}
 			}
-
-			// FIXME: Deal with the case where the DOMFragment node is also a
-			// transclusion. OTOH, dp.html should not be available in that case,
-			// which would cause us to exit early from this method (see
-			// above).
-			//console.log(typeOf);
-			//if (/\bmw:Transclusion\b/.test(typeOf)) {
-			//	DU.addTypeOf(firstChild, 'mw:Transclusion');
-			//}
 
 			// Move the old content nodes over from the dummyNode
 			while (firstChild) {
