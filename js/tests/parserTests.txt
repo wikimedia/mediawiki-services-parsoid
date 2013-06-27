@@ -8516,46 +8516,43 @@ Bar
 !! test
 Parsoid: Serialize link to category page with colon escape
 !! options
-parsoid=html2wt
+parsoid
 !! input
 
 [[:Category:Foo]]
 [[:Category:Foo|Bar]]
 !! result
 <p>
-<a href="Category:Foo" rel="mw:WikiLink">Category:Foo</a>
-<a href="Category:Foo" rel="mw:WikiLink">Bar</a>
+<a rel="mw:WikiLink" href="Category:Foo">Category:Foo</a>
+<a rel="mw:WikiLink" href="Category:Foo">Bar</a>
 </p>
 !! end
 
 !! test
 Parsoid: Serialize link to file page with colon escape
 !! options
-parsoid=html2wt
+parsoid
 !! input
 
 [[:File:Foo.png]]
 [[:File:Foo.png|Bar]]
 !! result
 <p>
-<a href="File:Foo.png" rel="mw:WikiLink">File:Foo.png</a>
-<a href="File:Foo.png" rel="mw:WikiLink">Bar</a>
+<a rel="mw:WikiLink" href="File:Foo.png">File:Foo.png</a>
+<a rel="mw:WikiLink" href="File:Foo.png">Bar</a>
 </p>
 !! end
 
 !! test
 Parsoid: Serialize a genuine category link without colon escape
 !! options
-parsoid=html2wt
+parsoid
 !! input
-
 [[Category:Foo]]
 [[Category:Foo|Bar]]
 !! result
-<p>
-<link href="Category:Foo" rel="mw:WikiLink/Category">
-<link href="Category:Foo#Bar" rel="mw:WikiLink/Category">
-</p>
+<link rel="mw:WikiLink/Category" href="Category:Foo">
+<link rel="mw:WikiLink/Category" href="Category:Foo#Bar">
 !! end
 
 ###
