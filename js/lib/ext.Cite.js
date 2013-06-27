@@ -299,11 +299,15 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 			"></ol>"
 		];
 
-		var wrapperDOM = Util.parseHTML(buf.join('')).body.childNodes;
-		wrapperDOM[0].setAttribute('source', refsTok.getAttribute('source'));
+		var wrapperDOM = Util.parseHTML(buf.join('')).body.childNodes,
+			ol = wrapperDOM[0];
+
+		var dp = DU.getJSONAttribute(ol, "data-parsoid", {});
+		dp.src = refsTok.getAttribute('source');
 		if (group) {
-			wrapperDOM[0].setAttribute('group', group);
+			dp.group = group;
 		}
+		DU.setJSONAttribute(ol, "data-parsoid", dp);
 
 		var expansion = {
 			nodes: wrapperDOM,
@@ -316,7 +320,6 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 		// into Util and pass env into it .. can avoid extending ExtensionHandler
 		// as well.
 		this.manager = manager;
-
 		cb({ tokens: this.encapsulateExpansionHTML(refsTok, expansion), async: false });
 	}.bind(this);
 
@@ -420,9 +423,9 @@ References.prototype.extractRefFromNode = function(node) {
 };
 
 References.prototype.insertReferencesIntoDOM = function(refsNode) {
-	var group = refsNode.getAttribute("group") || '',
-		about = refsNode.getAttribute('about'),
-		src = refsNode.getAttribute('source'),
+	var about = refsNode.getAttribute('about'),
+		group = refsNode.data.parsoid.group || '',
+		src = refsNode.data.parsoid.src || '', // fall back to '' so we don't crash
 		// Extract ext-source for <references>..</references> usage
 		body = Util.extractExtBody("references", src).trim(),
 		refGroup = getRefGroup(this.refGroups, group);
@@ -443,7 +446,6 @@ References.prototype.insertReferencesIntoDOM = function(refsNode) {
 		});
 	}
 
-	refsNode.removeAttribute('source');
 	refsNode.setAttribute('data-mw', dataMW);
 
 	if (refGroup) {

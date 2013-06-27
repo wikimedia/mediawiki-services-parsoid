@@ -2468,7 +2468,7 @@ function stripMarkerMetas(editMode, node) {
 	var metaType = node.getAttribute("typeof");
 	if (metaType &&
 		// TODO: Use /Start for all Transclusion / Param markers!
-		(metaType.match(/\bmw:(StartTag|EndTag|Extension\/(?:ref|references)\/Marker|TSRMarker)\/?[^\s]*\b/) &&
+		(metaType.match(/\bmw:(StartTag|EndTag|Extension\/ref\/Marker|TSRMarker)\/?[^\s]*\b/) &&
 		!node.getAttribute("property")) ||
 		(editMode && metaType === "mw:Placeholder/StrippedTag")
 	) {

@@ -14417,7 +14417,7 @@ B <ref group="b">bar</ref>
 <p>A <span about="#mwt2" class="reference" data-mw='{"name":"ref","body":{"html":"foo"},"attrs":{"group":"a"}}' id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref"><a href="#cite_note-1">[a 1]</a></span>
 B <span about="#mwt4" class="reference" data-mw='{"name":"ref","body":{"html":"bar"},"attrs":{"group":"b"}}' id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref"><a href="#cite_note-1">[b 1]</a></span></p>
 
-<ol about="#mwt6" class="references" data-mw='{"name":"references","attrs":{"group":"a"}}' typeof="mw:Extension/references" group="a"><li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1-0">↑</a></span> foo</li></ol>
+<ol about="#mwt6" class="references" data-mw='{"name":"references","attrs":{"group":"a"}}' typeof="mw:Extension/references"><li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1-0">↑</a></span> foo</li></ol>
 !!end
 
 !!test
@@ -14459,7 +14459,7 @@ C <ref>cfoo</ref>
 <p>A <span about="#mwt2" class="reference" data-mw='{"name":"ref","body":{"html":"afoo"},"attrs":{"group":"a"}}' id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref"><a href="#cite_note-1">[a 1]</a></span>
 B <span about="#mwt4" class="reference" data-mw='{"name":"ref","body":{"html":"bfoo"},"attrs":{}}' id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref" data-parsoid='{"src":"<ref>bfoo</ref>","dsr":[30,45,5,6]}'><a href="#cite_note-1">[1]</a></span></p>
 
-<ol about="#mwt6" class="references" data-mw='{"name":"references","attrs":{"group":"a"}}' typeof="mw:Extension/references" group="a"><li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1-0">↑</a></span> afoo</li></ol>
+<ol about="#mwt6" class="references" data-mw='{"name":"references","attrs":{"group":"a"}}' typeof="mw:Extension/references"><li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1-0">↑</a></span> afoo</li></ol>
 
 <p>C <span about="#mwt8" class="reference" data-mw='{"name":"ref","body":{"html":"cfoo"},"attrs":{}}' id="cite_ref-2-0" rel="dc:references" typeof="mw:Extension/ref"><a href="#cite_note-2">[2]</a></span></p>
 
