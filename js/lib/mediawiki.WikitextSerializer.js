@@ -45,6 +45,12 @@ function isValidDSR(dsr) {
 		typeof(dsr[1]) === 'number' && dsr[1] >= 0;
 }
 
+function hasValidTagWidths(dsr) {
+	return dsr &&
+		typeof(dsr[2]) === 'number' && dsr[2] >= 0 &&
+		typeof(dsr[3]) === 'number' && dsr[3] >= 0;
+}
+
 /**
  * Emit the start tag source when not round-trip testing, or when the node is
  * not marked with autoInsertedStart
@@ -832,14 +838,20 @@ WSP.figureHandler = function(node, state, cb) {
 	this.handleImage( node, state, cb );
 };
 
-WSP._serializeTableTag = function ( symbol, endSymbol, state, token ) {
-	var sAttribs = this._serializeAttributes(state, token);
-	if (sAttribs.length > 0) {
-		// IMPORTANT: 'endSymbol !== null' NOT 'endSymbol' since the '' string
-		// is a falsy value and we want to treat it as a truthy value.
-		return symbol + ' ' + sAttribs + (endSymbol !== null ? endSymbol : ' |');
+WSP._serializeTableTag = function ( symbol, endSymbol, state, node, wrapperUnmodified ) {
+	if (wrapperUnmodified) {
+		var dsr = node.data.parsoid.dsr;
+		return state.getOrigSrc(dsr[0], dsr[0]+dsr[2]);
 	} else {
-		return symbol + (endSymbol || '');
+		var token = DU.mkTagTk(node);
+		var sAttribs = this._serializeAttributes(state, token);
+		if (sAttribs.length > 0) {
+			// IMPORTANT: 'endSymbol !== null' NOT 'endSymbol' since the '' string
+			// is a falsy value and we want to treat it as a truthy value.
+			return symbol + ' ' + sAttribs + (endSymbol !== null ? endSymbol : ' |');
+		} else {
+			return symbol + (endSymbol || '');
+		}
 	}
 };
 
@@ -856,7 +868,13 @@ WSP._serializeTableElement = function ( symbol, endSymbol, state, node ) {
 	}
 };
 
-WSP._serializeHTMLTag = function ( state, token ) {
+WSP._serializeHTMLTag = function ( state, node, wrapperUnmodified ) {
+	if (wrapperUnmodified) {
+		var dsr = node.data.parsoid.dsr;
+		return state.getOrigSrc(dsr[0], dsr[0]+dsr[2]);
+	}
+
+	var token = DU.mkTagTk(node);
 	var da = token.dataAttribs;
 	if ( token.name === 'pre' ) {
 		// html-syntax pre is very similar to nowiki
@@ -881,7 +899,13 @@ WSP._serializeHTMLTag = function ( state, token ) {
 	}
 };
 
-WSP._serializeHTMLEndTag = function ( state, token ) {
+WSP._serializeHTMLEndTag = function ( state, node, wrapperUnmodified ) {
+	if (wrapperUnmodified) {
+		var dsr = node.data.parsoid.dsr;
+		return state.getOrigSrc(dsr[1]-dsr[3], dsr[1]);
+	}
+
+	var token = DU.mkEndTagTk(node);
 	if ( token.name === 'pre' ) {
 		state.inHTMLPre = false;
 	}
@@ -1978,9 +2002,9 @@ WSP.tagHandlers = {
 
 	// XXX: handle options
 	table: {
-		handle: function (node, state, cb) {
+		handle: function (node, state, cb, wrapperUnmodified) {
 			var wt = node.data.parsoid.startTagSrc || "{|";
-			cb(state.serializer._serializeTableTag(wt, '', state, DU.mkTagTk(node)), node);
+			cb(state.serializer._serializeTableTag(wt, '', state, node, wrapperUnmodified), node);
 			state.serializeChildren(node, cb);
 			emitEndTag(node.data.parsoid.endTagSrc || "|}", node, state, cb);
 		},
@@ -2005,13 +2029,13 @@ WSP.tagHandlers = {
 		}
 	},
 	tr: {
-		handle: function (node, state, cb) {
+		handle: function (node, state, cb, wrapperUnmodified) {
 			// If the token has 'startTagSrc' set, it means that the tr was present
 			// in the source wikitext and we emit it -- if not, we ignore it.
 			var dp = node.data.parsoid;
 			if (node.previousSibling || dp.startTagSrc) {
 				var res = state.serializer._serializeTableTag(dp.startTagSrc || "|-", '', state,
-							DU.mkTagTk(node) );
+							node, wrapperUnmodified );
 				emitStartTag(res, node, state, cb);
 			}
 			state.serializeChildren(node, cb);
@@ -2031,14 +2055,14 @@ WSP.tagHandlers = {
 		}
 	},
 	th: {
-		handle: function (node, state, cb) {
+		handle: function (node, state, cb, wrapperUnmodified) {
 			var dp = node.data.parsoid, res;
 			if ( dp.stx_v === 'row' ) {
 				res = state.serializer._serializeTableTag(dp.startTagSrc || "!!",
-							dp.attrSepSrc || null, state, DU.mkTagTk(node));
+							dp.attrSepSrc || null, state, node, wrapperUnmodified);
 			} else {
 				res = state.serializer._serializeTableTag(dp.startTagSrc || "!", dp.attrSepSrc || null,
-						state, DU.mkTagTk(node));
+						state, node, wrapperUnmodified);
 			}
 			emitStartTag(res, node, state, cb);
 			state.serializeChildren(node, cb, state.serializer.wteHandlers.thHandler);
@@ -2056,16 +2080,16 @@ WSP.tagHandlers = {
 		}
 	},
 	td: {
-		handle: function (node, state, cb) {
+		handle: function (node, state, cb, wrapperUnmodified) {
 			var dp = node.data.parsoid, res;
 			if ( dp.stx_v === 'row' ) {
 				res = state.serializer._serializeTableTag(dp.startTagSrc || "||",
-						dp.attrSepSrc || null, state, DU.mkTagTk(node));
+						dp.attrSepSrc || null, state, node, wrapperUnmodified);
 			} else {
 				// If the HTML for the first td is not enclosed in a tr-tag,
 				// we start a new line.  If not, tr will have taken care of it.
 				res = state.serializer._serializeTableTag(dp.startTagSrc || "|",
-						dp.attrSepSrc || null, state, DU.mkTagTk(node));
+						dp.attrSepSrc || null, state, node, wrapperUnmodified);
 
 			}
 			// FIXME: bad state hack!
@@ -2090,11 +2114,11 @@ WSP.tagHandlers = {
 		}
 	},
 	caption: {
-		handle: function (node, state, cb) {
+		handle: function (node, state, cb, wrapperUnmodified) {
 			var dp = node.data.parsoid;
 			// Serialize the tag itself
 			var res = state.serializer._serializeTableTag(
-					dp.startTagSrc || "|+", null, state, DU.mkTagTk(node));
+					dp.startTagSrc || "|+", null, state, node, wrapperUnmodified);
 			emitStartTag(res, node, state, cb);
 			state.serializeChildren(node, cb);
 		},
@@ -2630,7 +2654,7 @@ WSP._handleLIHackIfApplicable = function (node, cb) {
 	}
 };
 
-WSP._htmlElementHandler = function (node, state, cb) {
+WSP._htmlElementHandler = function (node, state, cb, wrapperUnmodified) {
 	// Wikitext supports the following list syntax:
 	//
 	//    * <li class="a"> hello world
@@ -2639,7 +2663,7 @@ WSP._htmlElementHandler = function (node, state, cb) {
 	// specially reconstruct the above from a single <li> tag.
 	this._handleLIHackIfApplicable(node, cb);
 
-	emitStartTag(this._serializeHTMLTag(state, DU.mkTagTk(node)),
+	emitStartTag(this._serializeHTMLTag(state, node, wrapperUnmodified),
 			node, state, cb);
 	if (node.childNodes.length) {
 		var inPHPBlock = state.inPHPBlock;
@@ -2649,7 +2673,7 @@ WSP._htmlElementHandler = function (node, state, cb) {
 		state.serializeChildren(node, cb);
 		state.inPHPBlock = inPHPBlock;
 	}
-	emitEndTag(this._serializeHTMLEndTag(state, DU.mkEndTagTk(node)),
+	emitEndTag(this._serializeHTMLEndTag(state, node, wrapperUnmodified),
 			node, state, cb);
 };
 
@@ -2859,7 +2883,6 @@ WSP._getDOMHandler = function(node, state, cb) {
 	}
 
 	if ( dp.src !== undefined ) {
-		// Source-based template/extension round-tripping for now
 		//console.log(node.parentNode.outerHTML);
 		if (/^mw:Placeholder(\/\w*)?$/.test(typeOf) ||
 				(typeOf === "mw:Nowiki" && node.textContent === dp.src )) {
@@ -3553,12 +3576,13 @@ WSP._serializeNode = function( node, state, cb) {
 						node,  domHandler);
 			}
 
-			var handled = false;
+			var handled = false, wrapperUnmodified = false;
 
 			// WTS should not be in a subtree with a modification flag that applies
 			// to every node of a subtree (rather than an indication that some node
 			// in the subtree is modified).
-			if (state.selserMode && !state.inModifiedContent) {
+			if (state.selserMode && !state.inModifiedContent &&
+				dp && isValidDSR(dp.dsr) && dp.dsr[1] > dp.dsr[0]) {
 				// To serialize from source, we need 3 things of the node:
 				// -- it should not have a diff marker
 				// -- it should have valid, usable DSR
@@ -3574,9 +3598,7 @@ WSP._serializeNode = function( node, state, cb) {
 				//
 				//  TO BE DONE
 				//
-				if (dp && isValidDSR(dp.dsr) &&
-					(dp.dsr[1] > dp.dsr[0]) &&
-					!DU.hasCurrentDiffMark(node, this.env)) {
+				if (!DU.hasCurrentDiffMark(node, this.env)) {
 					// Strip leading/trailing separators *ONLY IF* the previous/following
 					// node will go through non-selser serialization.
 					var src = state.getOrigSrc(dp.dsr[0], dp.dsr[1]),
@@ -3614,6 +3636,11 @@ WSP._serializeNode = function( node, state, cb) {
 					if (/\bmw:(?:Transclusion\b|Param\b|Extension\/[^\s]+)/.test(typeOf)) {
 						nextNode = this.skipOverEncapsulatedContent(node);
 					}
+				} else if (DU.onlySubtreeChanged(node, this.env) &&
+					hasValidTagWidths(dp.dsr) &&
+					!dp.autoInsertedStart && !dp.autoInsertedEnd)
+				{
+					wrapperUnmodified = true;
 				}
 			}
 
@@ -3627,7 +3654,7 @@ WSP._serializeNode = function( node, state, cb) {
 				if ( domHandler && domHandler.handle ) {
 					// DOM-based serialization
 					try {
-						nextNode = domHandler.handle(node, state, cb);
+						nextNode = domHandler.handle(node, state, cb, wrapperUnmodified);
 					} catch(e) {
 						console.error(e.stack || e.toString());
 						console.error(node.nodeName, domHandler);
@@ -3657,8 +3684,8 @@ WSP._serializeNode = function( node, state, cb) {
 				prev = this._getPrevSeparatorElement(node, state);
 				if (prev) {
 					this.updateSeparatorConstraints(state,
-							prev,  this._getDOMHandler(prev, state, cb),
-							node,  {});
+							prev, this._getDOMHandler(prev, state, cb),
+							node, {});
 				}
 				// regular serialization
 				this._serializeTextNode(node, state, cb );
