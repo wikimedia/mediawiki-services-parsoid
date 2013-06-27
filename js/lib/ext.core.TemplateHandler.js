@@ -64,10 +64,15 @@ TemplateHandler.prototype.encapsulateExpansionHTML = function(token, expansion) 
 		tok.setAttribute('about', about);
 	});
 
-	// Transfer tsr to the first token
+	// Transfer the tsr. The first token gets the full width, the following
+	// tokens zero width.
 	var tokenTsr = token.dataAttribs ? token.dataAttribs.tsr : null;
 	if (tokenTsr) {
 		toks[0].dataAttribs.tsr = tokenTsr;
+		var endTsr = [tokenTsr[1],tokenTsr[1]];
+		for (var i = 1; i < toks.length; i++) {
+			toks[i].dataAttribs.tsr = endTsr;
+		}
 	}
 
 	return toks;
