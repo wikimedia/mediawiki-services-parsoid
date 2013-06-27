@@ -2717,6 +2717,7 @@ function generateReferences(refsExt, node) {
 	var child = node.firstChild;
 	while (child !== null) {
 		var nextChild = child.nextSibling;
+		DU.loadDataParsoid(child);
 		if (DU.isElt(child)) {
 			var typeOf = child.getAttribute('typeof');
 			if ((/\bmw:Extension\/ref\/Marker\b/).test(typeOf)) {
