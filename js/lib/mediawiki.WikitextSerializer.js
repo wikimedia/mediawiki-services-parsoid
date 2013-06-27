@@ -1398,6 +1398,26 @@ WSP.handleImage = function ( node, state, cb ) {
 	cb( wikitext, node );
 };
 
+/**
+ * Add a colon escape to a wikilink target string if needed.
+ */
+WSP._addColonEscape = function (linkTarget, linkData) {
+	if (linkData.target.fromsrc) {
+		return linkTarget;
+	}
+	var linkTitle = Title.fromPrefixedText(this.env, linkTarget);
+	if (linkTitle &&
+			(linkTitle.ns.isCategory() || linkTitle.ns.isFile()) &&
+			linkData.type === 'mw:WikiLink' &&
+			!/^:/.test(linkTarget))
+	{
+		// Escape category and file links
+		return ':' + linkTarget;
+	} else {
+		return linkTarget;
+	}
+};
+
 // SSS FIXME: This doesn't deal with auto-inserted start/end tags.
 // To handle that, we have to split every 'return ...' statement into
 // openTagSrc = ...; endTagSrc = ...; and at the end of the function,
@@ -1537,22 +1557,18 @@ WSP.linkHandler = function(node, state, cb) {
 			//console.log(linkData.content.string, canUsePipeTrick);
 
 			// Get <nowiki/> escapes to protect against unwanted prefix / tail
-			var escapes = this.getLinkPrefixTailEscapes(node, env);
+			var escapes = this.getLinkPrefixTailEscapes(node, env),
+				linkTarget;
+
+
 
 			if ( canUseSimple ) {
 				// Simple case
-				var linkTarget;
 				if (!target.modified) {
 					linkTarget = target.value;
 				} else {
 					linkTarget = escapeWikiLinkContentString(linkData.content.string, state);
-					var linkTitle = Title.fromPrefixedText(env, linkData.content.string);
-					if (linkTitle &&
-							(linkTitle.ns.isCategory() || linkTitle.ns.isFile()))
-					{
-						// Escape category and file links
-						linkTarget = ':' + linkTarget;
-					}
+					linkTarget = this._addColonEscape(linkTarget, linkData);
 				}
 
 				cb( escapes.prefix + linkData.prefix + '[[' + linkTarget + ']]' +
@@ -1586,9 +1602,11 @@ WSP.linkHandler = function(node, state, cb) {
 					// Protect empty link content from PST pipe trick
 					contentSrc = '<nowiki/>';
 				}
+				linkTarget = linkData.target.value;
+				linkTarget = this._addColonEscape(linkTarget, linkData);
 
 				cb( escapes.prefix + linkData.prefix +
-						'[[' + linkData.target.value + '|' + contentSrc + ']]' +
+						'[[' + linkTarget + '|' + contentSrc + ']]' +
 						linkData.tail + escapes.tail, node );
 				return;
 			}

@@ -1354,9 +1354,9 @@ ParserTests.prototype.main = function ( options ) {
 		options.wt2wt = true;
 		options.wt2html = true;
 		options.html2html = true;
+		options.html2wt = true;
 		if ( booleanOption( options['rewrite-blacklist'] ) ) {
 			// turn on all modes by default for --rewrite-blacklist
-			options.html2wt = true;
 			options.selser = true;
 			// force use of the exhaustive changes file when creating blacklist.
 			options.changesin = BLACKLIST_CHANGESIN;
