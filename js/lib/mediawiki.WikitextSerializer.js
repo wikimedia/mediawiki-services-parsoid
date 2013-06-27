@@ -767,24 +767,21 @@ WSP.escapeWikiText = function ( state, text, opts ) {
  *    the entire DOM range they span in the end.
  */
 WSP.escapeTplArgWT = function(state, arg, isPositional) {
-	function escapeStr(str, buf) {
-		if (isPositional) {
-			// Can't allow '=' in positional parameters
-			if (str.match(/[\{\[\]\}\|\=]/)) {
-				buf.push("<nowiki>");
-				buf.push(str);
-				buf.push("</nowiki>");
-			} else {
-				buf.push(str);
-			}
+	function escapeStr(str, buf, pos) {
+		var bracketPairStrippedStr = str.replace(/\[([^\[\]]*)\]/g, '_$1_'),
+			genericMatch =
+			pos.start && /^{/.test(str) ||
+			pos.end && /}$/.test(str) ||
+			/{{|}}|[\[\]\|]/.test(bracketPairStrippedStr);
+		if (genericMatch ||
+				// Can't allow '=' in positional parameters
+				(isPositional && /[=]/.test(str)))
+		{
+			buf.push("<nowiki>");
+			buf.push(str);
+			buf.push("</nowiki>");
 		} else {
-			if (str.match(/[\{\[\]\}\|]/)) {
-				buf.push("<nowiki>");
-				buf.push(str);
-				buf.push("</nowiki>");
-			} else {
-				buf.push(str);
-			}
+			buf.push(str);
 		}
 	}
 
@@ -820,7 +817,11 @@ WSP.escapeTplArgWT = function(state, arg, isPositional) {
 				break;
 
 			case String:
-				escapeStr(t, buf);
+				var pos = {
+					atStart: i === 0,
+					atEnd: i === tokens.length - 1
+				};
+				escapeStr(t, buf, pos);
 				break;
 
 			case pd.EOFTk:
