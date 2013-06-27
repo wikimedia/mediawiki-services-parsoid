@@ -425,7 +425,7 @@ References.prototype.extractRefFromNode = function(node) {
 References.prototype.insertReferencesIntoDOM = function(refsNode) {
 	var about = refsNode.getAttribute('about'),
 		group = refsNode.data.parsoid.group || '',
-		src = refsNode.data.parsoid.src || '', // fall back to '' so we don't crash
+		src = refsNode.data.parsoid.src || '<references/>', // fall back so we don't crash
 		// Extract ext-source for <references>..</references> usage
 		body = Util.extractExtBody("references", src).trim(),
 		refGroup = getRefGroup(this.refGroups, group);
