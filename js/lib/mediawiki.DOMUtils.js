@@ -486,17 +486,6 @@ var DOMUtils = {
 		return tokBuf;
 	},
 
-	/**
-	 * Helper function to check for a change marker in data-ve-changed structure
-	 */
-	isModificationChangeMarker: function( dvec ) {
-		return dvec && (
-				dvec['new'] || dvec.attributes ||
-				dvec.content || dvec.annotations ||
-				dvec.childrenRemoved || dvec.rebuilt
-				);
-	},
-
 	currentDiffMark: function(node, env) {
 		if (!node || !this.isElt(node)) {
 			return false;
@@ -510,6 +499,11 @@ var DOMUtils = {
 
 	hasCurrentDiffMark: function(node, env) {
 		return this.currentDiffMark(node, env) !== null;
+	},
+
+	onlySubtreeChanged: function(node, env) {
+		var dmark = this.currentDiffMark(node, env);
+		return dmark && dmark.diff.length === 1 && dmark.diff[0] === 'subtree-changed';
 	},
 
 	hasInsertedOrModifiedDiffMark: function(node, env) {
