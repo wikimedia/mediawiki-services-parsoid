@@ -4543,6 +4543,21 @@ language=ln
 </p>
 !! end
 
+!! test
+Parsoid: handle constructor well
+!! options
+parsoid
+!! input
+[[constructor]]
+
+[[constructor:foo]]
+!! result
+<p data-parsoid="{&quot;dsr&quot;:[0,15,0,0]}"><a rel="mw:WikiLink" href="./Constructor" data-parsoid="{&quot;stx&quot;:&quot;simple&quot;,&quot;a&quot;:{&quot;href&quot;:&quot;./Constructor&quot;},&quot;sa&quot;:{&quot;href&quot;:&quot;constructor&quot;},&quot;dsr&quot;:[0,15,2,2]}">constructor</a></p>
+
+
+<p data-parsoid="{&quot;dsr&quot;:[17,36,0,0]}"><a rel="mw:WikiLink" href="./Foo" data-parsoid="{&quot;stx&quot;:&quot;simple&quot;,&quot;a&quot;:{&quot;href&quot;:&quot;./Foo&quot;},&quot;sa&quot;:{&quot;href&quot;:&quot;constructor:foo&quot;},&quot;dsr&quot;:[17,36,2,2]}">constructor:foo</a></p>
+!! end
+
 ##
 ## Redirects, Parsoid-only
 ##

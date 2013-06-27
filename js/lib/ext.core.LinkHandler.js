@@ -70,9 +70,10 @@ WikiLinkHandler.prototype.getWikiLinkTargetInfo = function (token) {
 		href = info.href;
 	}
 
-	var nsPrefix = href.split( ':', 1 )[0];
+	var hrefBits = href.match(/^([^:]+):(.+)$/);
 	href = env.normalizeTitle( href, false, true );
-	if ( nsPrefix && nsPrefix !== href ) {
+	if ( hrefBits ) {
+		var nsPrefix = hrefBits[1];
 		info.prefix = nsPrefix;
 		var interwikiInfo = env.conf.wiki.interwikiMap[nsPrefix.toLowerCase()
 														.replace( ' ', '_' )],
@@ -80,7 +81,8 @@ WikiLinkHandler.prototype.getWikiLinkTargetInfo = function (token) {
 			ns = env.conf.wiki.canonicalNamespaces[ nsPrefix.toLowerCase()
 														.replace( ' ', '_' ) ];
 		//console.warn( JSON.stringify( [ nsText, ns ] ) );
-		if ( interwikiInfo ) {
+		// also check for url to protect against [[constructor:foo]]
+		if ( interwikiInfo && interwikiInfo.url ) {
 			// interwiki or language link
 			if (info.fromColonEscapedText || interwikiInfo.language === undefined ) {
 				info.interwiki = interwikiInfo;
