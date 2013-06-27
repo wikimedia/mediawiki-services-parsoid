@@ -2698,10 +2698,10 @@ WSP._buildTemplateWT = function(node, state, srcParts) {
 									if (!/\s$/.test(k)) {
 										kStr = kStr + ' ';
 									}
-									if (!/^\s/.test(v)) {
+									if (vStr && !/^\s/.test(v)) {
 										vStr = ' ' + vStr;
 									}
-								} else if (k.match(/\s$/) && !v.match(/^\s/)) {
+								} else if (k.match(/\s$/) && vStr && !v.match(/^\s/)) {
 									// Only prefix value with space if key
 									// ends with space too
 									vStr = ' ' + vStr;
