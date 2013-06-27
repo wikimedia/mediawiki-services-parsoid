@@ -1515,6 +1515,17 @@ Templates: Strip whitespace from named parameters, but not positional ones
 
 !! end
 
+!! test
+Templates: Parsoid parameter escaping test 1
+!! options
+parsoid
+!! input
+{{echo|[foo]|{{echo|[bar]}}}}
+!! result
+<p about="#mwt1" typeof="mw:Transclusion"
+data-mw="{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;[foo]&quot;},&quot;2&quot;:{&quot;wt&quot;:&quot;{{echo|[bar]}}&quot;}},&quot;i&quot;:0}">[foo]</p>
+!! end
+
 ###
 ### Parsoid-centric tests for testing RT edge cases for pre
 ###
