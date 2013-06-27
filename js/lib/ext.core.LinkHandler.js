@@ -446,12 +446,10 @@ WikiLinkHandler.prototype.renderInterwikiLink = function (token, frame, cb, targ
 function handleDims( height, width, info, dataAttribs ) {
 	if ( info.height ) {
 		height = info.height;
-		dataAttribs.img.h = height;
 	}
 
 	if ( info.width ) {
 		width = info.width;
-		dataAttribs.img.w = width;
 	}
 
 	if ( info.thumburl && info.thumbheight ) {
@@ -461,7 +459,10 @@ function handleDims( height, width, info, dataAttribs ) {
 	if ( info.thumburl && info.thumbwidth ) {
 		width = info.thumbwidth;
 	}
-
+	// Keep final size of the image in dataAttribs so it can be used on the way back to compare with
+	// new size (width and height of img tag) to detect if image was resized.
+	dataAttribs.img.h = height;
+	dataAttribs.img.w = width;
 	return {
 		h: height,
 		w: width
