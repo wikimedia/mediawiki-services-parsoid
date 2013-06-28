@@ -1526,6 +1526,41 @@ parsoid
 data-mw="{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;[foo]&quot;},&quot;2&quot;:{&quot;wt&quot;:&quot;{{echo|[bar]}}&quot;}},&quot;i&quot;:0}">[foo]</p>
 !! end
 
+!! test
+Parsoid: Pipes in external links in template parameter
+!! options
+parsoid
+!! input
+{{echo|[{{echo|http://example.com}} link]}}
+!! result
+<p><a rel="mw:ExtLink" href="http://example.com" about="#mwt31" typeof="mw:Transclusion" data-mw="{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;[{{echo|http://example.com}} link]&quot;}},&quot;i&quot;:0}">link</a></p>
+!! end
+
+!! test
+Parsoid: pipe in transclusion parameter
+!! options
+parsoid
+!! input
+{{echo|http://foo.com/a&#124;b}}
+!! result
+<p><a rel="mw:ExtLink" href="http://foo.com/a|b" about="#mwt1"
+typeof="mw:Transclusion"
+data-mw='{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"http://foo.com/a|b"}},"i":0}'>http://foo.com/a|b</a></p>
+!! end
+
+!! test
+Parsoid: Pipe in external link target and content in template parameter
+!! options
+parsoid=html2wt,wt2wt
+!! input
+{{echo|[http://foo.com/a&#124;b a&#124;b]}}
+!! result
+<p><a rel="mw:ExtLink" href="http://foo.com/a|b" about="#mwt1"
+typeof="mw:Transclusion"
+data-mw='{"target":{"wt":"echo","href":"./Template:Echo"},
+"params":{"1":{"wt":"[http://foo.com/a|b a|b]"}},"i":0}'>a|b</a></p>
+!! end
+
 ###
 ### Parsoid-centric tests for testing RT edge cases for pre
 ###
