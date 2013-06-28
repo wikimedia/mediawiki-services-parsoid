@@ -593,6 +593,7 @@ add("wt2wt", "msgnw keyword");
 add("wt2wt", "2. includeonly in html attr value");
 add("wt2wt", "Templates: HTML Tag: 2. Generation of HTML attr. value");
 add("wt2wt", "Templates: HTML Tag: 3. Generation of HTML attr key and value");
+add("wt2wt", "Templates: HTML Tables: 5. Proper fostering of categories from inside");
 add("wt2wt", "Templates: Wiki Tables: 1b. Fostering of entire template content");
 add("wt2wt", "pre-save transform: nonexistent template");
 add("wt2wt", "pre-save transform: mixed tag case");
