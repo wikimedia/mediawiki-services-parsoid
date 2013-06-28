@@ -2386,6 +2386,29 @@ WSP.tagHandlers = {
 	figure: {
 		handle: function(node, state, cb) {
 			return state.serializer.figureHandler(node, state, cb);
+		},
+		sepnls: {
+			// TODO: Avoid code duplication
+			before: function (node) {
+				if (
+					DU.isNewElt(node) &&
+					node.parentNode &&
+					node.parentNode.nodeName === 'BODY'
+				) {
+					return { min: 1 };
+				}
+				return {};
+			},
+			after: function (node) {
+				if (
+					DU.isNewElt(node) &&
+					node.parentNode &&
+					node.parentNode.nodeName === 'BODY'
+				) {
+					return { min: 1 };
+				}
+				return {};
+			}
 		}
 	},
 	img: {
