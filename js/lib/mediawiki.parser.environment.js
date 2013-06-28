@@ -88,7 +88,7 @@ var MWParserEnvironment = function ( parsoidConfig, wikiConfig ) {
 	this.extensionCache = {};
 	// Global image expansion cache
 	// Key: Full image source
-	this.imageCache = {};
+	this.fileCache = {};
 
 	if ( !parsoidConfig ) {
 		// Global things, per-parser

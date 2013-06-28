@@ -1376,7 +1376,7 @@ Util.parse = function ( env, cb, err, src, expansions ) {
 		if (expansions) {
 			env.transclusionCache = expansions.transclusions;
 			env.extensionCache = expansions.extensions;
-			env.imageCache = expansions.images;
+			env.fileCache = expansions.files;
 		}
 
 		// Now go ahead with the actual parsing

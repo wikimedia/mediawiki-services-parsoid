@@ -999,15 +999,15 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 
 	// First check if we have a cached copy of this image expansion, and
 	// avoid any further processing if we have a cache hit.
-	var cachedImage = this.manager.env.imageCache[token.dataAttribs.src];
-	if (cachedImage) {
+	var cachedFile = this.manager.env.fileCache[token.dataAttribs.src];
+	if (cachedFile) {
 		// Use the cached result.
 		// mw:DOMFragment wrapping is simplified as we know that we are
 		// dealing with a single subtree rooted either at a figure or a span.
-		var wrapperTokens = DU.getWrapperTokens(cachedImage.nodes),
+		var wrapperTokens = DU.getWrapperTokens(cachedFile.nodes),
 			firstWrapperToken = wrapperTokens[0];
 		DU.addTypeOf(firstWrapperToken, 'mw:DOMFragment');
-		firstWrapperToken.dataAttribs.html = cachedImage.html;
+		firstWrapperToken.dataAttribs.html = cachedFile.html;
 
 		// Transfer tsr to the first token
 		firstWrapperToken.dataAttribs.tsr = token.dataAttribs.tsr;

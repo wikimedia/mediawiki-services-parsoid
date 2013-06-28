@@ -688,7 +688,7 @@ var DOMUtils = {
 	 *				nodes: [<node1>, <node2>]
 	 *			}
 	 *     },
-	 *     images: {
+	 *     files: {
 	 *         'key3': {
 	 *				html: 'html3',
 	 *				nodes: [<node1>, <node2>]
@@ -702,7 +702,7 @@ var DOMUtils = {
 			expansions = {
 				transclusions: {},
 				extensions: {},
-				images: {}
+				files: {}
 			};
 
 		function getAboutSiblings(node, about) {
@@ -741,7 +741,7 @@ var DOMUtils = {
 							expAccum = expansions.extensions;
 							key = node.data.parsoid.src;
 						} else {
-							expAccum = expansions.images;
+							expAccum = expansions.files;
 							// XXX gwicke: use proper key that is not
 							// source-based? This also needs to work for
 							// transclusion output.

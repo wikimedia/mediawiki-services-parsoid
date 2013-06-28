@@ -277,13 +277,13 @@ function handleCacheRequest (env, req, cb, err, src, cacheErr, cacheSrc) {
 	// Figure out what we can reuse
 	var parsoidHeader = JSON.parse(req.headers['x-parsoid'] || '{}');
 	if (parsoidHeader.cacheID) {
-		if (parsoidHeader.mode === 'templatelinks') {
+		if (parsoidHeader.mode === 'templates') {
 			// Transclusions need to be updated, so don't reuse them.
 			expansions.transclusions = undefined;
-		} /*else if (parsoidHeader.mode === 'files') {
-			// Files need to be refreshed
-			// TODO: actually handle files
-		} */
+		} else if (parsoidHeader.mode === 'files') {
+			// Files need to be updated, so don't reuse them.
+			expansions.files = undefined;
+		}
 	}
 
 	// pass those expansions into Util.parse to prime the caches.
