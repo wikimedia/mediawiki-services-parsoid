@@ -32,7 +32,7 @@ function processExtSource(manager, extToken, opts) {
 	// requires addressing.
 	//
 	// Strip all leading white-space
-	var wsMatch = content.match(/^(\s*)((?:.|\n)*)$/),
+	var wsMatch = content.match(/^(\s*)([^]*)$/),
 		leadingWS = wsMatch[1];
 
 	// Update content to normalized form
