@@ -1652,11 +1652,9 @@ WSP.linkHandler = function(node, state, cb) {
 				return;
 			}
 		} else if ( rel === 'mw:ExtLink' ) {
-			if ( target.modified ) {
-				// encodeURI only encodes spaces and the like
-				target.value = encodeURI(target.value);
-			}
-
+			// We expect modified hrefs to be percent-encoded already, so
+			// don't need to encode them here any more. Unmodified hrefs are
+			// just using the original encoding anyway.
 			cb( '[' + target.value + ' ' +
 				state.serializeChildrenToString(node, this.wteHandlers.aHandler, false) +
 				']', node );

@@ -3171,6 +3171,17 @@ Non-extlinks in brackets
 </p>
 !! end
 
+!! test
+Parsoid: Percent encoding in external links
+!! options
+parsoid
+!! input
+[https://github.com/search?l=&q=ResourceLoader+%40wikimedia Search]
+!! result
+<p><a rel="mw:ExtLink"
+href="https://github.com/search?l=&amp;q=ResourceLoader+%40wikimedia">Search</a></p>
+!! end
+
 ###
 ### Quotes
 ###
