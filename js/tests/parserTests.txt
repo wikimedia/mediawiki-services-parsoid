@@ -6698,6 +6698,20 @@ Templates: HTML Tables: 4f. Generating a single tag of a HTML table
 !!end
 
 !!test
+Templates: HTML Tables: 5. Proper fostering of categories from inside
+!!options
+parsoid=wt2html,wt2wt
+!!input
+<table>[[Category:foo1]]<tr><td>foo</td></tr></table>
+<!--Two categories (Bug 50330)-->
+<table>[[Category:bar1]][[Category:bar2]]<tr><td>foo</td></tr></table>
+!!result
+<link rel="mw:WikiLink/Category" href="./Category:Foo1"><table><tbody><tr><td>foo</td></tr></tbody></table>
+<!--Two categories (Bug 50330)-->
+<link rel="mw:WikiLink/Category" href="./Category:Bar1"><link rel="mw:WikiLink/Category" href="./Category:Bar2"><table><tbody><tr><td>foo</td></tr></tbody></table>
+!!end
+
+!!test
 Templates: Wiki Tables: 1a. Fostering of entire template content
 !!input
 {|

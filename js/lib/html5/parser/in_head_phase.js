@@ -77,6 +77,7 @@ p.prototype.startTagStyle = function(name, attributes) {
 		// only shows up in head and doesn't check if it needs
 		// to be fostered.  So, we are patching the html5 lib.
 		this.tree.insert_element_from_table(name, attributes);
+		this.tree.pop_element();
 	} else {
 		if(this.tree.head_pointer && this.parser.phaseName == 'inHead') {
 			var element = this.tree.createElement(name, attributes);
@@ -107,6 +108,7 @@ p.prototype.startTagScript = function(name, attributes) {
 		// only shows up in head and doesn't check if it needs
 		// to be fostered.  So, we are patching the html5 lib.
 		this.tree.insert_element_from_table(name, attributes);
+		this.tree.pop_element();
 	} else {
 		// XXX Inner HTML case may be wrong
 		var element = this.tree.createElement(name, attributes);
@@ -131,6 +133,7 @@ p.prototype.startTagBaseLinkMeta = function(name, attributes) {
 	// we'll continue to not to foster meta tags out of tables.
 	if (name !== 'meta' && this.tree.insert_from_table) {
 		this.tree.insert_element_from_table(name, attributes);
+		this.tree.pop_element();
 	} else {
 		var element = this.tree.createElement(name, attributes);
 		if(this.tree.head_pointer && this.parser.phaseName == 'inHead') {
