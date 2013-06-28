@@ -279,10 +279,10 @@ function handleCacheRequest (env, req, cb, err, src, cacheErr, cacheSrc) {
 	if (parsoidHeader.cacheID) {
 		if (parsoidHeader.mode === 'templates') {
 			// Transclusions need to be updated, so don't reuse them.
-			expansions.transclusions = undefined;
+			expansions.transclusions = {};
 		} else if (parsoidHeader.mode === 'files') {
 			// Files need to be updated, so don't reuse them.
-			expansions.files = undefined;
+			expansions.files = {};
 		}
 	}
 
