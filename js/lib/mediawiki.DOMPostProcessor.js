@@ -2578,7 +2578,7 @@ function cleanUpLIHack(env, node) {
  * DOMTraverser handler that unpacks DOM fragments which were injected in the
  * token pipeline.
  */
-function unpackDOMFragments(node) {
+function unpackDOMFragments(env, node) {
 	if (node.nodeType === node.ELEMENT_NODE) {
 		var typeOf = node.getAttribute('typeof'),
 			about = node.getAttribute('about'),
@@ -2682,6 +2682,8 @@ function unpackDOMFragments(node) {
 						addDeltaToDSR(firstChild, tsrDelta);
 					}
 				}
+			} else {
+				console.error( 'ERROR in ' + env.page.name + ': no DOMFragment wrapper dsr on ' + node.outerHTML );
 			}
 
 			// Move the old content nodes over from the dummyNode
@@ -2947,7 +2949,7 @@ function DOMPostProcessor(env, options) {
 	// 3. Unpack DOM fragments (reused transclusion and extension content)
 	var lastDOMHandler = new DOMTraverser();
 	lastDOMHandler.addHandler( 'a', handleLinkNeighbours.bind( null, env ) );
-	lastDOMHandler.addHandler( null, unpackDOMFragments );
+	lastDOMHandler.addHandler( null, unpackDOMFragments.bind(null, env) );
 	this.processors.push(lastDOMHandler.traverse.bind(lastDOMHandler));
 
 	// A pure DOM transformation
