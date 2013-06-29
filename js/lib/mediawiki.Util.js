@@ -1539,6 +1539,20 @@ Util.isHTMLElementName = function (name) {
 		html_old_names[name] === true;
 };
 
+/**
+ * Determine whether the protocol of a link is potentially valid. Use the
+ * environment's per-wiki config to do so.
+ */
+Util.isProtocolValid = function ( linkTarget, env ) {
+	var wikiConf = env.conf.wiki;
+	if ( typeof linkTarget === 'string' ) {
+		return wikiConf.hasValidProtocol( linkTarget );
+	} else {
+		return true;
+	}
+};
+
+
 if (typeof module === "object") {
 	module.exports.Util = Util;
 }

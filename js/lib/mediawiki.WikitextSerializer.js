@@ -809,7 +809,7 @@ WSP.escapeTplArgWT = function(state, arg, isPositional) {
 					console.warn("Toks: " + JSON.stringify(tokens));
 				}
 				var tkSrc = arg.substring(da.tsr[0], da.tsr[1]);
-				// Replace pipe by an entity
+				// Replace pipe by an entity. This is not completely safe.
 				if (t.name === 'extlink' || t.name === 'urllink') {
 					tkSrc = tkSrc.replace(/\|/g, '&#124;');
 				}
@@ -1643,7 +1643,7 @@ WSP.linkHandler = function(node, state, cb) {
 					// Protect empty link content from PST pipe trick
 					contentSrc = '<nowiki/>';
 				}
-				linkTarget = linkData.target.value;
+				linkTarget = target.value;
 				linkTarget = this._addColonEscape(linkTarget, linkData);
 
 				cb( escapes.prefix + linkData.prefix +
@@ -1652,20 +1652,37 @@ WSP.linkHandler = function(node, state, cb) {
 				return;
 			}
 		} else if ( rel === 'mw:ExtLink' ) {
-			// We expect modified hrefs to be percent-encoded already, so
-			// don't need to encode them here any more. Unmodified hrefs are
-			// just using the original encoding anyway.
-			cb( '[' + target.value + ' ' +
-				state.serializeChildrenToString(node, this.wteHandlers.aHandler, false) +
-				']', node );
+			// Get plain text content, if any
+			var contentStr = node.childNodes.length === 1 &&
+								node.firstChild.nodeType === node.TEXT_NODE &&
+								node.firstChild.nodeValue;
+			if ( contentStr &&
+					// Can we minimize this?
+					( target.value === contentStr  ||
+					node.getAttribute('href') === contentStr) &&
+					// But preserve non-minimal encoding
+					(target.modified || linkData.contentModified || dp.stx === 'url'))
+			{
+				// Serialize as URL link
+				cb(target.value, node);
+			} else {
+				// Fully serialize the content
+				contentStr = state.serializeChildrenToString(node,
+						this.wteHandlers.aHandler, false);
+
+				// We expect modified hrefs to be percent-encoded already, so
+				// don't need to encode them here any more. Unmodified hrefs are
+				// just using the original encoding anyway.
+				cb( '[' + target.value + ' ' + contentStr + ']', node );
+			}
+		} else if ( rel === 'mw:ExtLink/URL' ) {
+			cb( target.value, node );
 		} else if ( rel.match( /mw:ExtLink\/(?:ISBN|RFC|PMID)/ ) ) {
 			cb( node.firstChild.nodeValue, node );
-		} else if ( rel === 'mw:ExtLink/URL' ) {
-			cb( linkData.target.value, node );
 		} else if ( rel === 'mw:ExtLink/Numbered' ) {
 			// XXX: Use shadowed href? Storing serialized tokens in
 			// data-parsoid seems to be... wrong.
-			cb( '[' + Util.tokensToString(linkData.target.value) + ']', node);
+			cb( '[' + Util.tokensToString(target.value) + ']', node);
 		} else if ( rel.match( /\bmw:Image/ ) ) {
 			this.handleImage( node, state, cb );
 		} else {

@@ -1995,7 +1995,7 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 				} else {
 					return [2, 2];
 				}
-			} else if (aType === "mw:ExtLink" && dp.tsr) {
+			} else if (aType === "mw:ExtLink" && dp.tsr && dp.stx !== 'url') {
 				return [dp.targetOff - dp.tsr[0], 1];
 			} else {
 				return null;

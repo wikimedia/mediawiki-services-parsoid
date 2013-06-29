@@ -789,7 +789,8 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 						// Reset the optInfo since we're changing the nature of it
 						optInfo = undefined;
 						// Figure out the proper string to put here and break.
-						if ( tokenType === 'mw:ExtLink/URL' ) {
+						if ( tokenType === 'mw:ExtLink' &&
+								currentToken.dataAttribs.stx === 'url' ) {
 							// Add the URL
 							resultStr += tkHref;
 							// Tell our loop to skip to the end of this tag
@@ -1261,13 +1262,14 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 		cb( { tokens: [ new SelfclosingTagTk('img', tagAttrs, dataAttribs) ] } );
 	} else {
 		tagAttrs = [
-			new KV( 'rel', 'mw:ExtLink/URL' )
+			new KV( 'rel', 'mw:ExtLink' )
 			// href is set explicitly below
 		];
 
 		// combine with existing rdfa attrs
 		tagAttrs = buildLinkAttrs(token.attribs, false, null, tagAttrs).attribs;
 		builtTag = new TagTk( 'a', tagAttrs, dataAttribs );
+		dataAttribs.stx = 'url';
 
 		if (origTxt) {
 			// origTxt will be null for content from templates
@@ -1283,7 +1285,7 @@ ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {
 			tokens: [
 				builtTag,
 				txt,
-				new EndTagTk( 'a' )
+				new EndTagTk( 'a', [], {tsr: [dataAttribs.tsr[1], dataAttribs.tsr[1]]} )
 			]
 		} );
 	}
