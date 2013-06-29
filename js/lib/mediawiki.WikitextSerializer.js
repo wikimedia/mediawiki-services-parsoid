@@ -811,9 +811,20 @@ WSP.escapeTplArgWT = function(state, arg, isPositional) {
 				var tkSrc = arg.substring(da.tsr[0], da.tsr[1]);
 				// Replace pipe by an entity. This is not completely safe.
 				if (t.name === 'extlink' || t.name === 'urllink') {
-					tkSrc = tkSrc.replace(/\|/g, '&#124;');
+					var tkBits = tkSrc.split(/({{[^]*?}})/g),
+						res = [];
+					/* jshint loopfunc: true */ // yes, this function is in a loop
+					tkBits.forEach(function(bit) {
+						if (/^{{[^]+}}$/.test(bit)) {
+							res.push(bit);
+						} else {
+							res.push(bit.replace(/\|/g, '&#124;'));
+						}
+					});
+					buf.push(res.join(''));
+				} else {
+					buf.push(tkSrc);
 				}
-				buf.push(tkSrc);
 				break;
 
 			case String:
