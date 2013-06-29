@@ -40,12 +40,14 @@ var WT_TagWidths = {
 	"html"  : [0,0],
 	"head"  : [0,0],
 	"p"     : [0,0],
-	"ol"    : [0,0],
-	"ul"    : [0,0],
-	"dl"    : [0,0],
 	"meta"  : [0,0],
 	"tbody" : [0,0],
 	"pre"   : [1,0],
+	// For lists and elements,
+	// also see computeListEltWidth
+	"ol"    : [0,0],
+	"ul"    : [0,0],
+	"dl"    : [0,0],
 	"li"    : [1,0],
 	"dt"    : [1,0],
 	"dd"    : [1,0],
@@ -58,13 +60,14 @@ var WT_TagWidths = {
 	"hr"    : [4,0],
 	"table" : [2,2],
 	"tr"    : [2,0],
-	"b"     : [3,3],
-	"i"     : [2,2],
 	"td"    : [null,0],
 	"th"    : [null,0],
+	"b"     : [3,3],
+	"i"     : [2,2],
 	"br"    : [0,0],
 	"figure": [2,2]
-	// span, figure, caption, figcaption, br, a, i, b
+	// a-tag width computed by computeATagWidth
+	// what about span, figure, caption, figcaption?
 };
 
 /* ------------- utility functions on DOM nodes/Node attributes ------------ */
@@ -866,28 +869,6 @@ function migrateStartMetas( node, env ) {
 			node.parentNode.insertBefore(lastChild, node.nextSibling);
 		}
 	}
-
-/* ----------------------------------------------------------
- * SSS FIXME: A little too aggressive and incorrect.
- * There is another condition that will let us migrate this
- * meta-tag across not just the end-tag but also across the newline
- * To be investigated
- *
-	else if (lastChild.nodeType === Node.TEXT_NODE && lastChild.data.match(/^\n$/)) {
-		// Occasionally (sometimes non-deterministically),
-		// a stray newline messes with this meta-migration
-		// Work around it (and then investigate why it is happening).
-		//
-		// var data = lastChild.data;
-		lastChild = lastChild.previousSibling;
-		if (lastChild && DU.isTplStartMarkerMeta(lastChild)) {
-			// console.warn("migration (thwarted by: '" + data + "', len: " + data.length + "): " + lastChild.innerHTML);
-			var p = node.parentNode;
-			p.insertBefore(lastChild, node.nextSibling);
-		}
-	}
- *
- * ---------------------------------------------------------- */
 }
 
 /**
@@ -1050,7 +1031,7 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 	return range;
 }
 
-function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
+function findTopLevelNonOverlappingRanges(document, env, tplRanges) {
 	function stripStartMeta(meta) {
 		if (DU.hasNodeName(meta, 'meta')) {
 			deleteNode(meta);
@@ -1259,12 +1240,10 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 		}
 
 		/*
-		if (!nestedRangesMap[r.id]) {
-			console.warn("##############################################");
-			console.warn("range " + r.id + "; r-start-elem: " + r.startElem.outerHTML);
-			console.warn("range " + r.id + "; r-end-elem: " + r.endElem.outerHTML);
-			console.warn("-----------------------------");
-		}
+		console.warn("##############################################");
+		console.warn("range " + r.id + "; r-start-elem: " + r.startElem.outerHTML + "; DP: " + JSON.stringify(DU.getDataParsoid(r.startElem)));
+		console.warn("range " + r.id + "; r-end-elem: " + r.endElem.outerHTML + "; DP: " + JSON.stringify(DU.getDataParsoid(r.endElem)));
+		console.warn("-----------------------------");
 		*/
 
 		var enclosingRangeId = null;
@@ -1274,7 +1253,7 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 		}
 
 		if (nestedRangesMap[r.id] && enclosingRangeId) {
-			// console.warn("--nested--");
+			// console.warn("--nested in " + enclosingRangeId + "--");
 			// Nested -- ignore r
 			startTagToStrip = r.startElem;
 			endTagToRemove = r.endElem;
@@ -1287,7 +1266,7 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 				recordTemplateInfo(compoundTpls, enclosingRangeId, r, argInfo);
 			}
 		} else if (prev && !r.flipped && r.start === prev.end) {
-			// /console.warn("--overlapped--");
+			// console.warn("--overlapped--");
 
 			// Overlapping ranges.
 			// r is the regular kind
@@ -1334,10 +1313,7 @@ function findTopLevelNonOverlappingRanges(env, document, tplRanges) {
 	return { ranges: newRanges, tplArrays: compoundTpls };
 }
 
-/**
- * TODO: split in common ancestor algo, sibling splicing and -annotation / wrapping
- */
-function encapsulateTemplates( env, doc, tplRanges, tplArrays) {
+function encapsulateTemplates( doc, env, tplRanges, tplArrays) {
 	var i, numRanges = tplRanges.length;
 	for (i = 0; i < numRanges; i++) {
 		var span,
@@ -1478,7 +1454,7 @@ function encapsulateTemplates( env, doc, tplRanges, tplArrays) {
 				range.start.data.parsoid.keys = keyArrays;
 			}
 		} else {
-			console.warn("ERROR: Do not have necessary info. to RT Tpl: " + i);
+			console.warn("ERROR: Do not have necessary info. to encapsulate Tpl: " + i);
 			console.warn("Start Elt : " + startElem.outerHTML);
 			console.warn("End Elt   : " + range.endElem.innerHTML);
 			console.warn("Start DSR : " + JSON.stringify(dp1 || {}));
@@ -1536,7 +1512,7 @@ function findTableSibling( elem, about ) {
 /**
  * Recursive worker
  */
-function findWrappableTemplateRanges( root, tpls, doc, env ) {
+function findWrappableTemplateRanges( doc, env, root, tpls ) {
 	var tplRanges = [],
 	    elem = root.firstChild,
 		about, aboutRef;
@@ -1575,12 +1551,11 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 						if ( aboutRef.end ) {
 							// End marker was foster-parented.
 							// Found actual start tag.
-							console.warn( 'end marker was foster-parented' );
+							console.warn( 'end marker was foster-parented for ' + about);
 							tplRanges.push(getDOMRange( env, doc, elem, aboutRef.end, aboutRef.end ));
 						} else {
 							// should not happen!
-							console.warn( 'start found after content' );
-							//console.warn("about: " + about);
+							console.warn( 'start found after content for ' + about );
 							//console.warn("aboutRef.start " + elem.outerHTML);
 						}
 					} else {
@@ -1658,7 +1633,7 @@ function findWrappableTemplateRanges( root, tpls, doc, env ) {
 				}
 			} else {
 				about = elem.getAttribute('about');
-				tplRanges = tplRanges.concat(findWrappableTemplateRanges( elem, tpls, doc, env ));
+				tplRanges = tplRanges.concat(findWrappableTemplateRanges( doc, env, elem, tpls ));
 			}
 		}
 
@@ -2444,12 +2419,13 @@ function encapsulateTemplateOutput( document, env ) {
 		dumpDomWithDataAttribs( document );
 		console.warn("----------------------------");
 	}
-	// walk through document and look for tags with typeof="mw:Object*"
-	var tplRanges = findWrappableTemplateRanges( document.body, tpls, document, env );
+
+	var tplRanges = findWrappableTemplateRanges( document, env, document.body, tpls );
 	if (tplRanges.length > 0) {
-		tplRanges = findTopLevelNonOverlappingRanges(env, document, tplRanges);
-		encapsulateTemplates(env, document, tplRanges.ranges, tplRanges.tplArrays);
+		tplRanges = findTopLevelNonOverlappingRanges(document, env, tplRanges);
+		encapsulateTemplates(document, env, tplRanges.ranges, tplRanges.tplArrays);
 	}
+
 	if (psd.debug || (psd.dumpFlags && (psd.dumpFlags.indexOf("dom:post-encap") !== -1))) {
 		console.warn("------ DOM: post-encapsulation -------");
 		dumpDomWithDataAttribs( document );
@@ -2933,7 +2909,6 @@ function DOMPostProcessor(env, options) {
 		handlePres,
 		migrateTrailingNLs
 	];
-
 
 	if (options.wrapTemplates) {
 		// dsr computation and tpl encap are only relevant
