@@ -24,6 +24,7 @@
 
 	"node": true,
 
-	"nomen": false
+	"nomen": false,
+	"loopfunc": true
 	//"onevar": true
 }
