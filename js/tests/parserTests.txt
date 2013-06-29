@@ -3182,6 +3182,17 @@ parsoid
 href="https://github.com/search?l=&amp;q=ResourceLoader+%40wikimedia">Search</a></p>
 !! end
 
+!! test
+Parsoid: use url link syntax for links where the content is equal the link
+target
+!! options
+parsoid
+!! input
+http://example.com
+!! result
+<p><a rel="mw:ExtLink" href="http://example.com">http://example.com</a></p>
+!! end
+
 ###
 ### Quotes
 ###
