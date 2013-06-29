@@ -858,15 +858,17 @@ function migrateStartMetas( node, env ) {
 		c = sibling;
 	}
 
-	var lastChild = node.lastChild;
-	if (lastChild && DU.isTplStartMarkerMeta(lastChild)) {
-		// console.warn("migration: " + lastChild.innerHTML);
+	if (node.nodeName !== 'HTML') {
+		var lastChild = node.lastChild;
+		if (lastChild && DU.isTplStartMarkerMeta(lastChild)) {
+			// console.warn("migration: " + lastChild.outerHTML);
 
-		// We can migrate the meta-tag across this node's end-tag barrier only
-		// if that end-tag is zero-width.
-		var tagWidth = WT_TagWidths[node.nodeName.toLowerCase()];
-		if (tagWidth && tagWidth[1] === 0 && !DU.isLiteralHTMLNode(node)) {
-			node.parentNode.insertBefore(lastChild, node.nextSibling);
+			// We can migrate the meta-tag across this node's end-tag barrier only
+			// if that end-tag is zero-width.
+			var tagWidth = WT_TagWidths[node.nodeName.toLowerCase()];
+			if (tagWidth && tagWidth[1] === 0 && !DU.isLiteralHTMLNode(node)) {
+				node.parentNode.insertBefore(lastChild, node.nextSibling);
+			}
 		}
 	}
 }
