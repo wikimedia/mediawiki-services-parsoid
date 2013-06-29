@@ -2647,7 +2647,11 @@ function unpackDOMFragments(env, node) {
 			}
 
 			var dsr = node.data.parsoid.dsr;
-			// FIXME: Not sure why this would be missing
+			// There is currently no DSR for DOMFragments nested inside
+			// transclusion / extension content (extension inside template
+			// content etc).
+			// TODO: Make sure that is the only reason for not having a DSR
+			// here.
 			if (dsr) {
 				var type = firstChild.getAttribute("typeof");
 				if (/\bmw:(Transclusion|Extension)\b/.test(type)) {
@@ -2660,9 +2664,11 @@ function unpackDOMFragments(env, node) {
 						addDeltaToDSR(firstChild, tsrDelta);
 					}
 				}
-			} else {
-				console.error( 'ERROR in ' + env.page.name + ': no DOMFragment wrapper dsr on ' + node.outerHTML );
 			}
+			//else {
+			//	console.error( 'ERROR in ' + env.page.name +
+			//			': no DOMFragment wrapper dsr on ' + node.outerHTML );
+			//}
 
 			// Move the old content nodes over from the dummyNode
 			while (firstChild) {
