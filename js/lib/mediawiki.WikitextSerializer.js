@@ -1933,9 +1933,9 @@ function buildListHandler(firstChildNames) {
 		sepnls: {
 			before: function (node, otherNode) {
 				if (DU.isText(otherNode) && DU.isListElt(node.parentNode)) {
-					// DL nested inside a list item
+					// A list nested inside a list item
 					// <li> foo <dl> .. </dl></li>
-					return {min:0, max:1};
+					return {min:1, max:1};
 				} else {
 					return {min:1, max:2};
 				}
