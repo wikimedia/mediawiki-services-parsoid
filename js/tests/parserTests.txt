@@ -5271,6 +5271,22 @@ parsoid=wt2html,wt2wt
 </ul>
 !!end
 
+!! test
+Parsoid: Make sure nested lists are serialized on their own line even if HTML contains no newlines
+!! options
+parsoid
+!! input
+# foo
+## bar
+* foo
+** bar
+: foo
+:: bar
+!! result
+<ol><li> foo<ol><li> bar</li></ol></li></ol><ul><li> foo<ul><li> bar</li></ul></li></ul><dl><dd> foo<dl><dd> bar</dd></dl></dd></dl>
+!! end
+
+
 ###
 ### Magic Words
 ###
