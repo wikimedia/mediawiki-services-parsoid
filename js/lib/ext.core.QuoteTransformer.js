@@ -72,6 +72,12 @@ QuoteTransformer.prototype.onQuote = function ( token, frame, prevToken ) {
 	if ( ! this.isActive ) {
 		this.dispatcher.addTransform( this.onNewLine.bind(this), "QuoteTransformer:onNewLine",
 				this.quoteAndNewlineRank, 'newline' );
+		// Treat 'th' just the same as a newline
+		this.dispatcher.addTransform( this.onNewLine.bind(this), "QuoteTransformer:onNewLine",
+				this.quoteAndNewlineRank, 'tag', 'td' );
+		// Treat 'td' just the same as a newline
+		this.dispatcher.addTransform( this.onNewLine.bind(this), "QuoteTransformer:onNewLine",
+				this.quoteAndNewlineRank, 'tag', 'th' );
 		// Treat end-of-input just the same as a newline
 		this.dispatcher.addTransform( this.onNewLine.bind(this), "QuoteTransformer:onNewLine:end",
 				this.quoteAndNewlineRank, 'end' );

@@ -810,6 +810,23 @@ The ''[[Main Page]]'''s talk page.
 </p>
 !! end
 
+!! test
+Parsoid only: Quote balancing context should be restricted to td/th cells on the same wikitext line
+(Requires tidy for PHP parser output to be fixed up)
+!! options
+parsoid=wt2html,wt2wt
+!! input
+{|
+!''a!!''b
+|''a||''b
+|}
+!! result
+<table>
+<tbody><tr><th><i>a</i></th><th><i>b</i></th>
+<td><i>a</i></td><td><i>b</i></td></tr>
+</tbody></table>
+!! end
+
 ###
 ### Non-html5 tags
 ###
@@ -3343,7 +3360,7 @@ Plain ''italic'''s plain
 ###
 
 # This should not produce <table></table> as <table><tr><td></td></tr></table>
-# is the bare minimun required by the spec, see:
+# is the bare minimum required by the spec, see:
 # http://www.w3.org/TR/xhtml-modularization/dtd_module_defs.html#a_module_Basic_Tables
 !! test
 A table with no data. (php)

@@ -541,6 +541,7 @@ add("wt2wt", "Italics and bold: multiple quote sequences: (3,4,3) (parsoid)");
 add("wt2wt", "Italics and bold: other quote tests: (3,2,3,2)");
 add("wt2wt", "Italics and bold: other quote tests: (3,2,3,3) (parsoid)");
 add("wt2wt", "Italicized possessive");
+add("wt2wt", "Parsoid only: Quote balancing context should be restricted to td/th cells on the same wikitext line\n(Requires tidy for PHP parser output to be fixed up)");
 add("wt2wt", "Comment semantics: unclosed comment at end");
 add("wt2wt", "<nowiki> inside <pre> (bug 13238)");
 add("wt2wt", "<nowiki> and <pre> preference (first one wins)");
