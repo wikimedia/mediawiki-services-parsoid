@@ -2131,7 +2131,7 @@ urltext = ( t:[^'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:\]} &=]+ { return t.join(''); 
               return [
                   new TagTk( 'span', [ new KV( 'typeof', 'mw:Placeholder' ) ], { src: ' ', tsr: [pos0, pos0] } ),
                   "\u00a0",
-                  new EndTagTk( 'span', [], { src: ' ', tsr: [pos, pos] } )
+                  new EndTagTk( 'span', [], { tsr: [pos, pos] } )
               ];
           }
           / t:text_char )+

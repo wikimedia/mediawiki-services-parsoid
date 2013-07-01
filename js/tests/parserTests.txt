@@ -898,6 +898,16 @@ Entities inside <nowiki>
 </p>
 !! end
 
+!! test
+Entities inside template parameters
+!! options
+parsoid
+!! input
+{{echo|&ndash;}}
+!! result
+<p><span typeof="mw:Transclusion mw:Entity" data-mw='{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&amp;ndash;"}},"i":0}'>&ndash;</span>
+</p>
+!! end
 
 ###
 ### Comments
@@ -15901,7 +15911,7 @@ parsoid
 !!end
 
 !! test
-Image: Modyfing size of an imge
+Image: Modifying size of an imge
 !! options
 parsoid=html2wt
 !! input
