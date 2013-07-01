@@ -448,6 +448,11 @@ References.prototype.insertReferencesIntoDOM = function(refsNode) {
 
 	refsNode.setAttribute('data-mw', dataMW);
 
+	// Remove all children from the references node
+	while (refsNode.firstChild) {
+		refsNode.removeChild(refsNode.firstChild);
+	}
+
 	if (refGroup) {
 		refGroup.refs.map(refGroup.renderLine.bind(refGroup, refsNode));
 	}
