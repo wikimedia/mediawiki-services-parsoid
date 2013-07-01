@@ -3715,7 +3715,14 @@ WSP._serializeNode = function( node, state, cb) {
 					}
 				} else if (DU.onlySubtreeChanged(node, this.env) &&
 					hasValidTagWidths(dp.dsr) &&
-					!dp.autoInsertedStart && !dp.autoInsertedEnd)
+					// In general, we want to avoid nodes with auto-inserted start/end tags
+					// since dsr for them might not be entirely trustworthy. But, since wikitext
+					// does not have closing tags for tr/td/th in the first place, dsr for them
+					// can be trusted.
+					//
+					// SSS FIXME: I think this is only for b/i tags for which we do dsr fixups.
+					// It maybe okay to use this for other tags.
+					((!dp.autoInsertedStart && !dp.autoInsertedEnd) || (node.nodeName in {TR:1,TH:1,TD:1})))
 				{
 					wrapperUnmodified = true;
 				}
