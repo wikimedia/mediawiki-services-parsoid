@@ -3500,6 +3500,7 @@ add("selser", "Ignore pipe between table row attributes [[0,[[[3]],2,[4,0],0]]]"
 add("selser", "Ignore pipe between table row attributes [[4,2]]");
 add("selser", "Ignore pipe between table row attributes [[2,[0,0,2,2]]]");
 add("selser", "Ignore pipe between table row attributes [[2,[0,3,[0,[3]],2]]]");
+add("selser", "Ignore pipe between table row attributes [[3,[0,2,[0,1],3]]]");
 add("selser", "Ignore pipe between table row attributes [[3,2]]");
 add("selser", "Ignore pipe between table row attributes [[2,1]]");
 add("selser", "Ref: 3. spaces in ref-names should be ignored [[0,0,2,0,3,0]]");
