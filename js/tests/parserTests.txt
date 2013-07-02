@@ -3945,6 +3945,62 @@ parsoid
 <td>foo</td></tr></tbody></table>
 !! end
 
+!! test
+Implicit <td> after a |-
+(PHP parser relies on Tidy to add the missing <td> tags)
+!! options
+parsoid=wt2html,wt2wt
+!! input
+{|
+|-
+a
+|}
+!! result
+<table>
+<tr><td>a</td></tr>
+</table>
+!! end
+
+!! test
+Pres should be recognized in an explicit <td> context, but not in an implicit <td> context
+(PHP parser relies on Tidy to add the missing <td> tags)
+!! options
+parsoid=wt2html,wt2wt
+!! input
+{|
+|-
+|
+ a
+|-
+ b
+|}
+!! result
+<table>
+<tr>
+<td><pre>a</pre></td>
+<td> b</td>
+</tr>
+</table>
+!! end
+
+!! test
+Lists should be recognized in an implicit <td> context
+(PHP parser relies on Tidy to add the missing <td> tags)
+!! options
+parsoid=wt2html,wt2wt
+!! input
+{|
+|-
+*a
+|}
+!! result
+<table>
+<tr>
+<td><ul><li>a</li></ul></td>
+</tr>
+</table>
+!! end
+
 ###
 ### Internal links
 ###

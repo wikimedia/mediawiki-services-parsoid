@@ -882,11 +882,11 @@ isbn
 /* Default URL protocols in MediaWiki (see DefaultSettings). Normally
  * these can be configured dynamically. */
 
-url_protocol = 
-    & { return Util.isProtocolValid( input.substr( pos ), pegArgs.env ); } 
-    h:[a-zA-Z\/]+ c:':'? s:'//'? 
-{ 
-    return h.join( '' ) + c + s; 
+url_protocol =
+    & { return Util.isProtocolValid( input.substr( pos ), pegArgs.env ); }
+    h:[a-zA-Z\/]+ c:':'? s:'//'?
+{
+    return h.join( '' ) + c + s;
 }
 
 // javascript does not support unicode features..
@@ -1946,20 +1946,7 @@ table_row_tag
     a:generic_attribute*
     tagEndPos:({return pos;})
     // handle tables with missing table cells after a row
-    td:(
-        // Try to eat up *extra* spaces separately. This side-steps
-        // complications from start-of-line-transparent content that is not a
-        // newline (comments, noinclude etc) for now.
-        nls:optionalNewlines
-        ss:sol+
-        !( space* (pipe / [!+-]) )
-        tdt:table_data_tag
-        {
-            tdt[0].dataAttribs.autoInsertedStart = true;
-            tdt[0].dataAttribs.autoInsertedEnd = true;
-            return nls.concat(flattenIfArray(ss), tdt);
-        }
-    )?
+    td:implicit_table_data_tag?
     {
         // We rely on our tree builder to close the row as needed. This is
         // needed to support building tables from fragment templates with
@@ -1997,6 +1984,21 @@ table_data_tags
             da.startTagSrc = p;
         }
         return td.concat(tds);
+    }
+
+implicit_table_data_tag
+  = & sol // Implicit table data tag added only when content starts on a newline
+    !( sol+ (pipe / [!+-]) )
+    ! "}"
+    tagEndPos:({return pos;})
+    b:nested_block+
+    {
+        b = flattenIfArray(b);
+        var nlTok = b.shift();
+        var td = buildTableTokens("td", "|", '', [nlTok.dataAttribs.tsr[1], tagEndPos], pos, b);
+        td[0].dataAttribs.autoInsertedStart = true;
+        td[0].dataAttribs.autoInsertedEnd = true;
+        return [nlTok, td];
     }
 
 table_data_tag
@@ -2213,14 +2215,13 @@ end_of_word
 // compress surplus newlines into a meta tag, so that they don't trigger
 // paragraphs.
 optionalNewlines
-  = spc:(n:[\n\r\t ] &([\n\r]) { return n; })*
-{
-    if ( spc.length ) {
-        return [spc.join('')];
-    } else {
-        return [];
+  = spc:(n:[\n\r\t ] &([\n\r]) { return n; })* {
+        if ( spc.length ) {
+            return [spc.join('')];
+        } else {
+            return [];
+        }
     }
-}
 
 
 // Start of line
