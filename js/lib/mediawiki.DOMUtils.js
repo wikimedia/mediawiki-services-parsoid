@@ -672,6 +672,22 @@ var DOMUtils = {
 		}
 	},
 
+	getAboutSiblings: function(node, about) {
+		var nodes = [node];
+
+		node = node.nextSibling;
+		while (node && (
+				this.isElt(node) && node.getAttribute('about') === about ||
+				this.isFosterablePosition(node) && !this.isElt(node) && this.isIEW(node)
+			))
+		{
+			nodes.push(node);
+			node = node.nextSibling;
+		}
+
+		return nodes;
+	},
+
 	/**
 	 * Extract transclusion and extension expansions from a DOM, and return
 	 * them in a structure like this:
@@ -697,6 +713,8 @@ var DOMUtils = {
 	 * }
 	 */
 	extractExpansions: function (doc) {
+		var DU = this;
+
 		var node = doc.body,
 			expansion,
 			expansions = {
@@ -705,17 +723,6 @@ var DOMUtils = {
 				files: {}
 			};
 
-		function getAboutSiblings(node, about) {
-			var nodes = [node];
-			node = node.nextSibling;
-			while (node && node.nodeType === node.ELEMENT_NODE &&
-					node.getAttribute('about') === about)
-			{
-				nodes.push(node);
-				node = node.nextSibling;
-			}
-			return nodes;
-		}
 
 		function doExtractExpansions (node) {
 			var nodes, expAccum,
@@ -731,8 +738,8 @@ var DOMUtils = {
 								.test(typeOf) && about) ||
 							/\b(?:mw:Image(?:\b|\/))/.test(typeOf))
 					{
-						DOMUtils.loadDataParsoid(node);
-						nodes = getAboutSiblings(node, about);
+						DU.loadDataParsoid(node);
+						nodes = DU.getAboutSiblings(node, about);
 						var key;
 						if (/\bmw:Transclusion\b/.test(typeOf)) {
 							expAccum = expansions.transclusions;
@@ -817,6 +824,7 @@ var DOMUtils = {
 	 * mainly for transclusion and extension processing.
 	 */
 	getWrapperTokens: function ( nodes ) {
+		var DU = this;
 		function makeWrapperForNode ( node ) {
 			var workNode;
 			if (node.nodeType === node.ELEMENT_NODE && node.childNodes.length) {
@@ -837,7 +845,7 @@ var DOMUtils = {
 			}
 			var res = [];
 			// Now convert our node to tokens
-			DOMUtils.convertDOMtoTokens(res, workNode);
+			DU.convertDOMtoTokens(res, workNode);
 			return res;
 		}
 
@@ -846,7 +854,7 @@ var DOMUtils = {
 		// broken things up already when building the DOM for the first time.
 		//var hasBlockElement = false;
 		//for (var i = 0; i < nodes.length; i++) {
-		//	if (DOMUtils.hasBlockElementDescendant(nodes[i])) {
+		//	if (DU.hasBlockElementDescendant(nodes[i])) {
 		//		hasBlockElement = true;
 		//		break;
 		//	}

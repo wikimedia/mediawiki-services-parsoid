@@ -2890,12 +2890,7 @@ WSP.skipOverEncapsulatedContent = function(node) {
 		return node;
 	}
 
-	node = node.nextSibling;
-	while (node && DU.isElt(node) && about === node.getAttribute('about')) {
-		node = node.nextSibling;
-	}
-
-	return node;
+	return DU.getAboutSiblings(node, about).last().nextSibling;
 };
 
 /**

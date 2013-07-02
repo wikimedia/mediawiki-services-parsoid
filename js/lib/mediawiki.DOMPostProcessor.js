@@ -1329,13 +1329,19 @@ function encapsulateTemplates( doc, env, tplRanges, tplArrays) {
 			var next = n.nextSibling;
 
 			if ( n.nodeType === Node.TEXT_NODE || n.nodeType === Node.COMMENT_NODE ) {
-				span = doc.createElement( 'span' );
-				span.setAttribute( 'about', about );
-				// attach the new span to the DOM
-				n.parentNode.insertBefore( span, n );
-				// move the text node into the span
-				span.appendChild( n );
-				n = span;
+				// Dont add span-wrappers in fosterable positions
+				//
+				// NOTE: there cannot be any non-IEW text in fosterable position
+				// since the HTML tree builder would already have fostered it out.
+				if (!DU.isFosterablePosition(n)) {
+					span = doc.createElement( 'span' );
+					span.setAttribute( 'about', about );
+					// attach the new span to the DOM
+					n.parentNode.insertBefore( span, n );
+					// move the text node into the span
+					span.appendChild( n );
+					n = span;
+				}
 			} else if (n.nodeType === Node.ELEMENT_NODE) {
 				n.setAttribute( 'about', about );
 			}
