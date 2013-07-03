@@ -3976,10 +3976,10 @@ parsoid=wt2html,wt2wt
 |}
 !! result
 <table>
-<tr>
-<td><pre>a</pre></td>
-<td> b</td>
-</tr>
+<tbody>
+<tr><td><pre>a</pre></td></tr>
+<tr><td> b</td></tr>
+</tbody>
 </table>
 !! end
 

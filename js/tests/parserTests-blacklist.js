@@ -60,7 +60,6 @@ add("wt2html", "Definition Lists: Nesting: Test 3 (Parsoid only)");
 add("wt2html", "Bracketed external links with template-generated invalid target");
 add("wt2html", "Non-extlinks in brackets");
 add("wt2html", "Template-generated table cell attributes and cell content");
-add("wt2html", "Pres should be recognized in an explicit <td> context, but not in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags)");
 add("wt2html", "Link containing \"#<\" and \"#>\" % as a hex sequences- these are valid section anchors\nExample for such a section: == < ==");
 add("wt2html", "Link containing \"<#\" and \">#\" as a hex sequences");
 add("wt2html", "Link with double quotes in title part (literal) and alternate part (interpreted)");
