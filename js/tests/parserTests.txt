@@ -8439,6 +8439,21 @@ subpage title=[[Subpage test]]
 </p>
 !! end
 
+# TODO: make this PHP-parser compatible!
+!! test
+Relative subpage noslash link
+!! options
+parsoid=wt2wt,wt2html,html2html
+subpage title=[[Subpage test/1/2/3/4]]
+!!input
+[[../../subpage/]]
+
+[[../../subpage]]
+!! result
+<p><a rel="mw:WikiLink" href="Subpage_test/1/2/subpage/">subpage</a></p>
+<p><a rel="mw:WikiLink" href="Subpage_test/1/2/subpage">Subpage_test/1/2/subpage</a></p>
+!! end
+
 !! test
 Disabled subpages
 !! input

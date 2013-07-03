@@ -3,7 +3,8 @@
 var WikiConfig = require( './mediawiki.WikiConfig.js' ).WikiConfig,
 	ParsoidConfig = require( './mediawiki.ParsoidConfig.js' ).ParsoidConfig,
 	ConfigRequest = require( './mediawiki.ApiRequest.js' ).ConfigRequest,
-	$ = require( './fakejquery' );
+	$ = require( './fakejquery' ),
+	Title = require('./mediawiki.Title.js').Title;
 
 function Tracer(env) {
 	this.env = env;
@@ -69,7 +70,9 @@ var MWParserEnvironment = function ( parsoidConfig, wikiConfig ) {
 		relativeLinkPrefix: '',
 		id: null,
 		src: null,
-		dom: null
+		dom: null,
+		ns: null,
+		title: null // a full Title object
 	};
 
 	// Configuration
@@ -206,6 +209,11 @@ MWParserEnvironment.prototype.setPageSrcInfo = function ( src_or_metadata ) {
  * @param {string} pageName
  */
 MWParserEnvironment.prototype.setPageName = function ( pageName ) {
+	// Create a title from the pageName
+	var title = Title.fromPrefixedText(this, pageName);
+	this.page.ns = title.ns.id;
+	this.page.title = title;
+
 	this.page.name = pageName;
 	// Construct a relative link prefix depending on the number of slashes in
 	// pageName

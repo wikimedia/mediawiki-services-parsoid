@@ -306,7 +306,8 @@ WikiLinkHandler.prototype.addLinkAttributesAndGetContent = function (newTk, toke
 		morecontent = morecontent.replace(/^:/, '');
 
 		// Try to match labeling in core
-		if ( env.page.meta.ns === undefined || env.conf.wiki.namespacesWithSubpages[ env.page.meta.ns ] ) {
+		if ( env.page.ns !== undefined &&
+				env.conf.wiki.namespacesWithSubpages[ env.page.ns ] ) {
 			var match = morecontent.match( /^\/(.*)\/$/ );
 			if ( match ) {
 				morecontent = match[1];
@@ -314,11 +315,11 @@ WikiLinkHandler.prototype.addLinkAttributesAndGetContent = function (newTk, toke
 				// If a there's a trailing slash, don't resolve title
 				// making sure the second to last character isn't a
 				// forward slash, for cases like: ../../////
-			  match = morecontent.match( /^(\.\.\/)+(.*[^/])\/$/ );
+				match = morecontent.match( /^(\.\.\/)+(.*?)\/$/ );
 				if ( match ) {
 					morecontent = match[2];
-				} else if ( env.page.meta.ns !== undefined ) {
-					morecontent = env.resolveTitle( morecontent, env.page.meta.ns );
+				} else {
+					morecontent = env.resolveTitle( morecontent, env.page.ns );
 				}
 			}
 		}
