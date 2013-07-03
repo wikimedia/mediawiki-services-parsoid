@@ -70,6 +70,10 @@ WikiLinkHandler.prototype.getWikiLinkTargetInfo = function (token) {
 		href = info.href;
 	}
 
+	// strip ./ prefixes
+	href = href.replace(/^(?:\.\/)+/, '');
+	info.href = href;
+
 	var hrefBits = href.match(/^([^:]+):(.+)$/);
 	href = env.normalizeTitle( href, false, true );
 	if ( hrefBits ) {

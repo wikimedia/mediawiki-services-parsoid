@@ -8526,6 +8526,23 @@ subpage title=[[Subpage test/1/2/3/4]]
 <p><a rel="mw:WikiLink" href="Subpage_test/1/2/subpage">Subpage_test/1/2/subpage</a></p>
 !! end
 
+# TODO: make this PHP-parser compatible!
+!! test
+Parsoid: dot-slash prefixed wikilinks
+!! options
+parsoid=wt2wt,wt2html,html2html
+!!input
+[[./foo]]
+
+[[././bar]]
+
+[[././baz/]]
+!! result
+<p><a rel="mw:WikiLink" href="./Foo">foo</a></p>
+<p><a rel="mw:WikiLink" href="./Bar">bar</a></p>
+<p><a rel="mw:WikiLink" href="./Baz/">baz/</a></p>
+!! end
+
 !! test
 Disabled subpages
 !! input
