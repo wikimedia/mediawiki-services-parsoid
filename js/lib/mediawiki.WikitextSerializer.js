@@ -1587,6 +1587,15 @@ WSP.linkHandler = function(node, state, cb) {
 						// any colon escape
 						env.normalizeTitle( contentString, true ) ===
 						Util.decodeURI( strippedTargetValue ) ||
+						// Relative link
+						( env.conf.wiki.namespacesWithSubpages[ env.page.ns ] &&
+						  ( /^\.\.\/.*[^\/]$/.test(strippedTargetValue) &&
+						  env.resolveTitle(strippedTargetValue, env.page.ns) ===
+						  contentString ) ||
+						  ( /^\.\.\/.*?\/$/.test(strippedTargetValue) &&
+						  strippedTargetValue.replace(/^(?:\.\.\/)+(.*?)\/$/, '$1') ===
+						  contentString )
+						  ) ||
 						// normalize with underscores for comparison with href
 						env.normalizeTitle( contentString ) ===
 						Util.decodeURI( linkData.href )
@@ -1625,7 +1634,6 @@ WSP.linkHandler = function(node, state, cb) {
 			// Get <nowiki/> escapes to protect against unwanted prefix / tail
 			var escapes = this.getLinkPrefixTailEscapes(node, env),
 				linkTarget;
-
 
 
 			if ( canUseSimple ) {
