@@ -3465,7 +3465,9 @@ WSP.emitSeparator = function(state, cb, node) {
 				dsrA = prevNode.parentNode.data.parsoid.dsr;
 			} else if (prevNode.previousSibling &&
 					prevNode.previousSibling.nodeType === prevNode.ELEMENT_NODE &&
-					prevNode.previousSibling.data.parsoid.dsr)
+					prevNode.previousSibling.data.parsoid.dsr &&
+					// Don't extrapolate if the string was potentially changed
+					!DU.directChildrenChanged(node.parentNode, this.env))
 			{
 				var endDsr = prevNode.previousSibling.data.parsoid.dsr[1],
 					correction;

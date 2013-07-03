@@ -172,6 +172,7 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 
 	while ( baseNode && newNode ) {
 		debugOut(baseNode, newNode);
+		// shallow check first
 		if ( ! this.treeEquals(baseNode, newNode, false) ) {
 			this.debug("-- not equal --");
 			var origNode = newNode,
@@ -238,6 +239,9 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 					this.markNode(origNode, 'modified');
 				}
 			}
+
+			// Record the fact that direct children changed in the parent node
+			this.markNode(newParentNode, 'modified-children');
 
 			foundDiffOverall = true;
 		} else if (!DU.isTplElementNode(this.env, newNode)) {

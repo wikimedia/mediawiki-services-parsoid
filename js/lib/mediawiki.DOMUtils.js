@@ -506,6 +506,11 @@ var DOMUtils = {
 		return dmark && dmark.diff.length === 1 && dmark.diff[0] === 'subtree-changed';
 	},
 
+	directChildrenChanged: function(node, env) {
+		var dmark = this.currentDiffMark(node, env);
+		return dmark && dmark.diff.indexOf('children-changed') !== -1;
+	},
+
 	hasInsertedOrModifiedDiffMark: function(node, env) {
 		var diffMark = this.currentDiffMark(node, env);
 		return diffMark &&
