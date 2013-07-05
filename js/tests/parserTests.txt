@@ -16061,8 +16061,15 @@ parsoid
 </p>
 !!end
 
+# -----------------------------------------------------------------
+# The following section of tests are primarily to spec requirements
+# around serialization of new/edited content.
+#
+# All these tests are marked Parsoid html2wt and html2html only
+# ----------------------------------------------------------------
+
 !! test
-Image: Modifying size of an imge
+Image: Modifying size of an image
 !! options
 parsoid=html2wt
 !! input
@@ -16082,6 +16089,23 @@ parsoid=html2wt
 !! result
 <p>123</p><figure typeof="mw:Image/Thumb" class="mw-halign-right"><a href="./File:Wiki.png"><img src="http://192.168.142.128/mw/images/thumb/b/bc/Wiki.png/131px-Wiki.png" width="131" height="150" resource="./File:Wiki.png"></a></figure><p>456</p>
 !!end
+
+!! test
+Lists: Add space after bullets
+!! options
+parsoid=html2wt
+!! input
+
+* foo
+* bar
+* <span> baz</span>
+!! result
+<ul>
+<li>foo</li>
+<li> bar</li>
+<li><span> baz</span></li>
+</ul>
+!! end
 
 TODO:
 more images

@@ -1833,6 +1833,16 @@ WSP._getListBullets = function(node) {
 		dd: ':'
 	}, res = '';
 
+	// For new elements, for prettier wikitext serialization,
+	// emit a space after the last bullet (if required)
+	var space = '';
+	if (DU.isNewElt(node)) {
+		var fc = node.firstChild;
+		if (fc && (!DU.isText(fc) || !fc.nodeValue.match(/^\s/))) {
+			space = ' ';
+		}
+	}
+
 	while (node) {
 		var nodeName = node.nodeName.toLowerCase(),
 			dp = node.data.parsoid;
@@ -1846,7 +1856,7 @@ WSP._getListBullets = function(node) {
 		node = node.parentNode;
 	}
 
-	return res;
+	return res + space;
 };
 
 
