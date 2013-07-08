@@ -1053,7 +1053,7 @@ var normalizeOut = function ( out, parsoidOnly ) {
 		replace(/<span><\/span>/g, '').
 		replace(/(href=")(?:\.?\.\/)+/g, '$1').
 		// replace unnecessary URL escaping
-		replace(/ href="[^"]*"/g, decodeURIComponent).
+		replace(/ href="[^"]*"/g, Util.decodeURI).
 		// strip thumbnail size prefixes
 		replace(/(src="[^"]*?)\/thumb(\/[0-9a-f]\/[0-9a-f]{2}\/[^\/]+)\/[0-9]+px-[^"\/]+(?=")/g, '$1$2').
 		replace(/(<(table|tbody|tr|th|td|\/th|\/td)[^<>]*>)\s+/g, '$1');
@@ -1095,7 +1095,7 @@ var normalizeHTML = function ( source ) {
 			// parsoid always add a page name to lonely fragments
 			.replace(/href="#/g, 'href="Main Page#')
 			// replace unnecessary URL escaping
-			.replace(/ href="[^"]*"/g, decodeURIComponent)
+			.replace(/ href="[^"]*"/g, Util.decodeURI)
 			// strip empty spans
 			.replace(/<span><\/span>/g, '')
 			.replace(/(<(table|tbody|tr|th|td|\/th|\/td)[^<>]*>)\s+/g, '$1');
