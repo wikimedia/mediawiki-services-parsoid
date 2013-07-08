@@ -1033,14 +1033,14 @@ var getLinkRoundTripData = function( env, node, state ) {
 	return rtData;
 };
 
-function escapeWikiLinkContentString ( contentString, state ) {
+function escapeWikiLinkContentString ( contentString, state, contentNode ) {
 	// Wikitext-escape content.
 	//
 	// When processing link text, we are no longer in newline state
 	// since that will be preceded by "[[" or "[" text in target wikitext.
 	state.onSOL = false;
 	state.wteHandlerStack.push(state.serializer.wteHandlers.wikilinkHandler);
-	var res = state.serializer.escapeWikiText(state, contentString);
+	var res = state.serializer.escapeWikiText(state, contentString, { node: contentNode });
 	state.wteHandlerStack.pop();
 	return res;
 }
@@ -1641,7 +1641,7 @@ WSP.linkHandler = function(node, state, cb) {
 				if (!target.modified) {
 					linkTarget = target.value;
 				} else {
-					linkTarget = escapeWikiLinkContentString(linkData.content.string, state);
+					linkTarget = escapeWikiLinkContentString(linkData.content.string, state, linkData.contentNode);
 					linkTarget = this._addColonEscape(linkTarget, linkData);
 				}
 
@@ -1667,7 +1667,7 @@ WSP.linkHandler = function(node, state, cb) {
 						contentSrc = linkData.content.string;
 					} else {
 						contentSrc = escapeWikiLinkContentString(linkData.content.string || '',
-								state);
+								state, linkData.contentNode);
 					}
 				}
 
