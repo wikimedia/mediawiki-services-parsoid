@@ -2931,26 +2931,26 @@ function DOMPostProcessor(env, options) {
 		this.processors.push(encapsulateTemplateOutput);
 	}
 
-	// DOM traverser for passes that can be combined and will run at the end
 	// 1. Link prefixes and suffixes
-	// 2. Strip marker metas -- removes left over marker metas (ex: metas
-	//    nested in expanded tpl/extension output).
-	// 3. Unpack DOM fragments (reused transclusion and extension content)
-	var lastDOMHandler = new DOMTraverser();
-	lastDOMHandler.addHandler( 'a', handleLinkNeighbours.bind( null, env ) );
-	lastDOMHandler.addHandler( null, unpackDOMFragments.bind(null, env) );
-	this.processors.push(lastDOMHandler.traverse.bind(lastDOMHandler));
+	// 2. Unpack DOM fragments (reused transclusion and extension content)
+	var domVisitor1 = new DOMTraverser();
+	domVisitor1.addHandler( 'a', handleLinkNeighbours.bind( null, env ) );
+	domVisitor1.addHandler( null, unpackDOMFragments.bind(null, env) );
+	this.processors.push(domVisitor1.traverse.bind(domVisitor1));
 
 	// A pure DOM transformation
 	this.processors.push(generateReferences.bind(null,
 				env.conf.parsoid.nativeExtensions.cite.references));
 
-	var dataParsoidSaver = new DOMTraverser();
-
-	dataParsoidSaver.addHandler( 'meta', stripMarkerMetas.bind(null, env.conf.parsoid.editMode) );
-	dataParsoidSaver.addHandler( 'li', cleanUpLIHack.bind( null, env ) );
-	dataParsoidSaver.addHandler( null, saveDataParsoid );
-	this.processors.push(dataParsoidSaver.traverse.bind(dataParsoidSaver));
+	// 1. Strip marker metas -- removes left over marker metas (ex: metas
+	//    nested in expanded tpl/extension output).
+	// 2. Fix up DOM for li-hack.
+	// 3. Save data.parsoid into data-parsoid html attribute.
+	var domVisitor2 = new DOMTraverser();
+	domVisitor2.addHandler( 'meta', stripMarkerMetas.bind(null, env.conf.parsoid.editMode) );
+	domVisitor2.addHandler( 'li', cleanUpLIHack.bind( null, env ) );
+	domVisitor2.addHandler( null, saveDataParsoid );
+	this.processors.push(domVisitor2.traverse.bind(domVisitor2));
 }
 
 // Inherit from EventEmitter
