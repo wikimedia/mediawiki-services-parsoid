@@ -1543,6 +1543,17 @@ Templates: Strip whitespace from named parameters, but not positional ones
 !! end
 
 !! test
+Templates: Dont strip whitespace from whitespace/comment-only arguments
+!! input
+{{echo| }}
+{{echo|<!--cmt-->}}
+{{echo| <!--cmt--> }}
+!! result
+<p><br />
+</p>
+!! end
+
+!! test
 Templates: Parsoid parameter escaping test 1
 !! options
 parsoid
@@ -13477,7 +13488,7 @@ comment title=[[Main Page]]
 !! input
 pre-comment text /* External links */ removed bogus entries
 !! result
-pre-comment text - <a href="/wiki/Main_Page#External_links" title="Main Page">→</a>‎<span dir="auto"><span class="autocomment">External links: </span> removed bogus entries</span>
+pre-comment text <a href="/wiki/Main_Page#External_links" title="Main Page">→</a>‎<span dir="auto"><span class="autocomment">External links: </span> removed bogus entries</span>
 !!end
 
 !! test

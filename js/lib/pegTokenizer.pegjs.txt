@@ -980,7 +980,8 @@ template
   = "{{" nl_comment_space*
     target:template_param_value
     params:(nl_comment_space* "|"
-                r:( nl_comment_space* p:({return pos;}) &"|" { return new KV( '', '', [p,p,p,p]); } // empty argument
+                r:( p0:({return pos;}) v:nl_comment_space* p:({return pos;}) &"|"
+                    { return new KV( '', flattenIfArray(v), [p0,p0,p0,p]); } // empty argument
                     / p:template_param { return p; }
                   ) { return r; }
             )*

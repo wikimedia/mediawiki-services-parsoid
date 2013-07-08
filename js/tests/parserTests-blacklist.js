@@ -48,6 +48,7 @@ add("wt2html", "Templates: Indent-Pre: 1b. Templates that break a line should su
 add("wt2html", "Templates: Indent-Pre: 1e. Wrapping should be based on expanded content");
 add("wt2html", "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content");
 add("wt2html", "Templates: Strip whitespace from named parameters, but not positional ones");
+add("wt2html", "Templates: Dont strip whitespace from whitespace/comment-only arguments");
 add("wt2html", "1b. Indent-Pre and Comments");
 add("wt2html", "2a. Indent-Pre and tables");
 add("wt2html", "2b. Indent-Pre and tables");
@@ -711,6 +712,7 @@ add("html2html", "<pre> with forbidden attribute (bug 3202)");
 add("html2html", "<pre> with forbidden attribute values (bug 3202)");
 add("html2html", "<nowiki> inside <pre> (bug 13238)");
 add("html2html", "<nowiki> and <pre> preference (first one wins)");
+add("html2html", "Templates: Dont strip whitespace from whitespace/comment-only arguments");
 add("html2html", "3a. Indent-Pre and block tags (single-line html)");
 add("html2html", "4. Multiple spaces at start-of-line");
 add("html2html", "5. White-space in indent-pre\nNOTE: the white-space char on 2nd line is significant");
@@ -1227,6 +1229,7 @@ add("html2wt", "Templates: Indent-Pre: 1e. Wrapping should be based on expanded 
 add("html2wt", "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content");
 add("html2wt", "Templates: Single-line variant of parameter whitespace stripping test");
 add("html2wt", "Templates: Strip whitespace from named parameters, but not positional ones");
+add("html2wt", "Templates: Dont strip whitespace from whitespace/comment-only arguments");
 add("html2wt", "1a. Indent-Pre and Comments");
 add("html2wt", "1b. Indent-Pre and Comments");
 add("html2wt", "1c. Indent-Pre and Comments");
