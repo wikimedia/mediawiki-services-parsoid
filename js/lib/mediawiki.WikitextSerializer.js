@@ -210,7 +210,7 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
 
 		// Ignore non-whitelisted html tags
 		if (t.isHTMLTag()) {
-			if (/\bmw:Extension\//.test(t.getAttribute("typeof"))) {
+			if (/\bmw:Extension\b/.test(t.getAttribute("typeof"))) {
 				return true;
 			}
 			if (!tagWhiteList[t.name.toLowerCase()]) {

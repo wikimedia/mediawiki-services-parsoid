@@ -15684,6 +15684,15 @@ parsoid
 </p>
 !! end
 
+!! test
+4. extension tags
+!! input
+<nowiki><ref>foo</ref></nowiki>
+!! result
+<p>&lt;ref&gt;foo&lt;/ref&gt;
+</p>
+!! end
+
 #### --------------- Others ---------------
 !! test
 Escaping nowikis
