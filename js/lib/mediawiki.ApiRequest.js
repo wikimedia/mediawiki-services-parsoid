@@ -138,7 +138,7 @@ ApiRequest.prototype._requestCB = function (error, response, body) {
 		this._handleBody( null, body );
 	} else {
 		if (response.statusCode === 412) {
-			console.warn('No cache hit for ' + this.title);
+			console.warn('Cache MISS:', this.url);
 		} else {
 			console.warn( 'non-200 response: ' + response.statusCode );
 			console.log( body );
@@ -523,10 +523,10 @@ function ParsoidCacheRequest ( env, title, oldid, options ) {
 		oldid: oldid
 	};
 	var url = env.conf.parsoid.parsoidCacheURI +
-			env.conf.wiki.iwp + '/' + title.replace(/ /g, '_') +
+			env.conf.wiki.iwp + '/' + encodeURIComponent(title.replace(/ /g, '_')) +
 			'?' + qs.stringify( apiargs );
 
-	console.log(url);
+	//console.warn('Cache request:', url);
 
 
 	this.retries = 0;
