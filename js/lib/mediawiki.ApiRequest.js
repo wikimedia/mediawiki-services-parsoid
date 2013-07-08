@@ -482,7 +482,12 @@ PHPParseRequest.prototype._handleJSON = function ( error, data ) {
 	var parsedHtml = '';
 	try {
 		// Strip paragraph wrapper from the html
-		parsedHtml = data.parse.text['*'].replace(/(^<p>)|(<\/p>\s*$)/g, '');
+		parsedHtml = data.parse.text['*'];
+		// Strip two trailing newlines that action=parse adds after any
+		// extension output
+		parsedHtml = parsedHtml.replace(/\n\n$/, '');
+		// Also strip a paragraph wrapper, if any
+		parsedHtml = parsedHtml.replace(/(^<p>)|(<\/p>$)/g, '');
 		this.env.tp( 'Expanded ', this.text, parsedHtml );
 
 		// Add the source to the cache
