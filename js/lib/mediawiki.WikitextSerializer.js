@@ -793,7 +793,7 @@ WSP.escapeTplArgWT = function(state, arg, isPositional) {
 		// For mw:Entity spans, the opening and closing tags have 0 width
 		// and the enclosed content is the decoded entity. Hence the
 		// special case to serialize back the entity's source.
-		if (t.constructor === pd.TagTk && t.getAttribute("typeof") === "mw:Entity") {
+		if (t.constructor === pd.TagTk && /^mw:(Entity|Nowiki)$/.test(t.getAttribute("typeof"))) {
 			i += 2;
 			var endTag = tokens[i];
 			buf.push(arg.substring(da.tsr[0], endTag.dataAttribs.tsr[1]));

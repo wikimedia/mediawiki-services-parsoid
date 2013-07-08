@@ -1588,6 +1588,16 @@ data-mw='{"target":{"wt":"echo","href":"./Template:Echo"},
 "params":{"1":{"wt":"[http://foo.com/a|b a|b]"}},"i":0}'>a|b</a></p>
 !! end
 
+!! test
+Templates: Dont escape already nowiki-escaped text in template parameters
+!! options
+parsoid=html2wt,wt2wt
+!! input
+{{echo|foo<nowiki>|</nowiki>bar}}
+!! result
+<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo<nowiki>|</nowiki>bar"}},"i":0}'>foo<span typeof="mw:Nowiki" data-parsoid="{}">|</span>bar</p>
+!! end
+
 ###
 ### Parsoid-centric tests for testing RT edge cases for pre
 ###
