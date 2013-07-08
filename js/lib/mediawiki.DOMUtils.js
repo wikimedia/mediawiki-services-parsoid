@@ -189,6 +189,12 @@ var DOMUtils = {
 				modified: true,
 				fromsrc: false
 			};
+		} else if ( dp.sa === undefined ) {
+			return {
+				value: curVal,
+				modified: false,
+				fromsrc: false
+			};
 		} else {
 			return {
 				value: dp.sa[name],
