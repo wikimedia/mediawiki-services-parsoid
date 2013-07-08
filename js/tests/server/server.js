@@ -407,6 +407,7 @@ var fetchPage = function( commitHash, cutOffTimestamp, req, res ) {
 };
 
 var getTitle = function ( req, res ) {
+	req.connection.setTimeout(300 * 1000);
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 
 	// Select pages that were not claimed in the 10 minutes.
@@ -425,6 +426,7 @@ var statsScore = function(skipCount, failCount, errorCount) {
 };
 
 var receiveResults = function ( req, res ) {
+	req.connection.setTimeout(300 * 1000);
 	var title = decodeURIComponent( req.params[0] ),
 		result = req.body.results,
 		skipCount = result.match( /<skipped/g ),
