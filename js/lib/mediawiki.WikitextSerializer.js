@@ -539,9 +539,92 @@ WSP.initialState = {
 // Make sure the initialState is never modified
 Util.deepFreeze( WSP.initialState );
 
-function escapedText(text) {
-	var match = text.match(/^((?:.*?|[\r\n]+[^\r\n]|[~]{3,5})*?)((?:\r?\n)*)$/);
-	return ["<nowiki>", match[1], "</nowiki>", match[2]].join('');
+function escapedText(origText, fullWrap) {
+	// Full-wrapping is enabled in the following cases:
+	// * origText is a "small" string
+	// * origText has url triggers (RFC, ISBN, etc.)
+	// * is being escaped within context-specific handlers
+
+	var match = origText.match(/^((?:.*?|[\r\n]+[^\r\n]|[~]{3,5})*?)((?:\r?\n)*)$/),
+		text = match[1],
+		nls = match[2],
+		maxRunLength = 20;
+
+	if (fullWrap || text.length < maxRunLength) {
+		return ["<nowiki>", text, "</nowiki>", nls].join('');
+	} else {
+		// For now, only optimize "[[..]]", "{{..}}", "{{{..}}}" scenarios
+		// Splitting on white-space, "=", ' chars can split html tags
+		// in the middle and create ugly nowiki escaping output.
+		var pieces = text.split(/(\[\[|\]\]|\{\{\{|\{\{|\}\}\}|\}\})/g),
+			n = pieces.length,
+			buf = n === 1 ?  ["<nowiki>", text, "</nowiki>"] : [];
+
+		if (n > 1) {
+			var openTag = null,
+				openNowiki = false,
+				canBeClosed = false,
+				currentRunLength = 0,
+				closingWtTagMap = { "[[" : "]]", "{{" : "}}", "{{{": "}}}" };
+
+			for (var i = 0; i < n; i++) {
+				var p = pieces[i];
+				if (!openTag) {
+					if (p in closingWtTagMap) {
+						openTag = p;
+						canBeClosed = false;
+						if (!openNowiki) {
+							buf.push("<nowiki>");
+							openNowiki = true;
+						}
+					} else if (
+							// [..], <..>, '', ~~~~
+							p.match(/\[[^\[\]]\]|<[^<>]*>|''|~{3,5}/) ||
+							// If in SOL (previous piece ended in a \n), or after a \n,
+							// \s+ (indent-pre), = (headings), *#;: (lists), {| |}, |, ||, |-, |+, ! (tables)
+							p.match(/\n([ \t]+[^\s]+|[=:;#\*]|\s*(\{\||\|\}|\|[\|\-\+]?|!))/) ||
+							((i === 0 || pieces[i-1].match(/\n$/)) && p.match(/^([ \t]+[^\s]+|=:;#\*|\s*(\{\||\|\}|\|[\|\-\+]?|!))/))
+						)
+					{
+						canBeClosed = false;
+						if (!openNowiki) {
+							buf.push("<nowiki>");
+							openNowiki = true;
+						}
+					}
+				} else {
+					if (p === closingWtTagMap[openTag]) {
+						openTag = null;
+					}
+				}
+
+				if (canBeClosed && p.length > 0.2*maxRunLength) {
+					buf.push("</nowiki>");
+					openNowiki = false;
+					canBeClosed = false;
+					currentRunLength = 0;
+				}
+
+				buf.push(p);
+
+				// Push </nowiki> if:
+				// - we are in the middle of an open <nowiki>,
+				// - we are not in the middle of an open tag,
+				// - and will cross maxRunLength length on the next piece
+				currentRunLength += p.length;
+				if (!openTag && openNowiki && (i < n-1 && pieces[i+1].length + currentRunLength >= maxRunLength)) {
+					canBeClosed = true;
+				}
+			}
+
+			if (openNowiki) {
+				buf.push("</nowiki>");
+			}
+		}
+
+		buf.push(nls);
+		return buf.join('');
+	}
 }
 
 WSP.tokenizeStr = function(state, str, sol) {
@@ -587,7 +670,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 	var wteHandler = state.wteHandlerStack.last();
 	if (wteHandler && wteHandler(state, text, opts)) {
 		// console.warn("---EWT:F2---");
-		return escapedText(text);
+		return escapedText(text, true);
 	}
 
 	// Template and template-arg markers are escaped unconditionally!
@@ -595,7 +678,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 	// of whether we are in template arg context or not.
 	if (text.match(/\{\{\{|\{\{|\}\}\}|\}\}/)) {
 		// console.warn("---EWT:F3---");
-		return escapedText(text);
+		return escapedText(text, fullCheckNeeded);
 	}
 
 	// Escape quotes that come after I/B nodes that can be reparsed
@@ -604,7 +687,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 		var prev = opts.node && opts.node.previousSibling ? opts.node.previousSibling.nodeName : '';
 		if (prev === 'I' || prev === 'B') {
 			// console.warn("---EWT:F3b---");
-			return escapedText(text);
+			return escapedText(text, true);
 		}
 	}
 
@@ -639,7 +722,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 	// So, we always conservatively escape text with ' ' in sol posn.
 	if (sol && text.match(/(^|\n)[ \t]+[^\s]+/)) {
 		// console.warn("---EWT:F6---");
-		return escapedText(text);
+		return escapedText(text, fullCheckNeeded);
 	}
 
 	// escape nowiki tags
@@ -652,11 +735,11 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 	// hasWikitextTokens check
 	if (this.wteHandlers.hasWikitextTokens(state, sol, text) || hasTildes) {
 		// console.warn("---EWT:DBG1---");
-		return escapedText(text);
+		return escapedText(text, fullCheckNeeded);
 	} else if (state.onSOL) {
 		if (text.match(/(^|\n)=+[^\n=]+=+[ \t]*\n/)) {
 			// console.warn("---EWT:DBG2a---");
-			return escapedText(text);
+			return escapedText(text, fullCheckNeeded);
 		} else if (text.match(/(^|\n)=+[^\n=]+=+[ \t]*$/)) {
 			/* ---------------------------------------------------------------
 			 * '$' is only specific to 'text' and not the entire line.
@@ -687,7 +770,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 				DU.isText(nonSepSibling) && nonSepSibling.nodeValue.match(/^\s*\n/))
 			{
 				// console.warn("---EWT:DBG2b---");
-				return escapedText(text);
+				return escapedText(text, fullCheckNeeded);
 			} else {
 				// console.warn("---EWT:DBG2c---");
 				return text;
@@ -742,7 +825,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 				this.wteHandlers.hasWikitextTokens(state, sol, cl.text + text, true))
 		{
 			// console.warn("---EWT:DBG4---");
-			return escapedText(text);
+			return escapedText(text, fullCheckNeeded);
 		} else {
 			// console.warn("---EWT:DBG5---");
 			return text;
@@ -769,10 +852,9 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 WSP.escapeTplArgWT = function(state, arg, isPositional) {
 	function escapeStr(str, buf, pos) {
 		var bracketPairStrippedStr = str.replace(/\[([^\[\]]*)\]/g, '_$1_'),
-			genericMatch =
-				pos.start && /^{/.test(str) ||
-				pos.end && /}$/.test(str) ||
-				/{{|}}|[\[\]\|]/.test(bracketPairStrippedStr);
+			genericMatch = pos.start && /^\{/.test(str) ||
+				pos.end && /\}$/.test(str) ||
+				/\{\{|\}\}|[\[\]\|]/.test(bracketPairStrippedStr);
 		if (genericMatch ||
 				// Can't allow '=' in positional parameters
 				(isPositional && /[=]/.test(str)))
@@ -822,11 +904,11 @@ WSP.escapeTplArgWT = function(state, arg, isPositional) {
 				var tkSrc = arg.substring(da.tsr[0], da.tsr[1]);
 				// Replace pipe by an entity. This is not completely safe.
 				if (t.name === 'extlink' || t.name === 'urllink') {
-					var tkBits = tkSrc.split(/({{[^]*?}})/g),
+					var tkBits = tkSrc.split(/(\{\{[^]*?\}\})/g),
 						res = [];
 					/* jshint loopfunc: true */ // yes, this function is in a loop
 					tkBits.forEach(function(bit) {
-						if (/^{{[^]+}}$/.test(bit)) {
+						if (/^\{\{[^]+\}\}$/.test(bit)) {
 							res.push(bit);
 						} else {
 							res.push(bit.replace(/\|/g, '&#124;'));
