@@ -1079,9 +1079,9 @@ var normalizeHTML = function ( source ) {
 			// a few things we ignore for now..
 			//.replace(/\/wiki\/Main_Page/g, 'Main Page')
 			// do not expect a toc for now
-			.replace(/<table[^>]+?id="toc"[^>]*>.+?<\/table>/mg, '')
+			.replace(/<div[^>]+?id="toc"[^>]*><div id="toctitle">.+?<\/div>.+?<\/div>/mg, '')
 			// do not expect section editing for now
-			.replace(/<span[^>]+class="mw-headline"[^>]*>(.*?)<\/span> *(<span class="mw-editsection">\[.*?<\/span>)?/g, '$1')
+			.replace(/<span[^>]+class="mw-headline"[^>]*>(.*?)<\/span> *(<span class="mw-editsection"><span class="mw-editsection-bracket">\[<\/span>.*?<span class="mw-editsection-bracket">\]<\/span><\/span>)?/g, '$1')
 			// remove empty span tags
 			.replace(/<span><\/span>/g, '')
 			// general class and titles, typically on links
