@@ -1646,9 +1646,13 @@ generic_tag
     selfclose:"/"?
     ">" {
         name = name.join('');
-        var lcName = name.toLowerCase();
-        var isVoidElt = Util.isVoidElement( lcName ),
-            res = buildXMLTag(name, lcName, attribs, end, selfclose !== '' || isVoidElt, [pos0, pos]);
+        var lcName = name.toLowerCase(),
+            isVoidElt = Util.isVoidElement( lcName );
+        // Support </br>
+        if (lcName === 'br' && end) {
+            end = '';
+        }
+        var res = buildXMLTag(name, lcName, attribs, end, selfclose !== '' || isVoidElt, [pos0, pos]);
 
         // change up data-attribs in one scenario
         // void-elts that aren't self-closed ==> useful for accurate RT-ing

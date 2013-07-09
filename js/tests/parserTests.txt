@@ -4787,11 +4787,24 @@ parsoid
 
 !! test
 Broken br tag sanitization
+!! options
+php
 !! input
 </br>
 !! result
 <p>&lt;/br&gt;
 </p>
+!! end
+
+# TODO: Fix html2html mode (bug 51055)!
+!! test
+Parsoid: Broken br tag recognition
+!! options
+parsoid=wt2html
+!! input
+</br>
+!! result
+<p><br></p>
 !! end
 
 !! test
