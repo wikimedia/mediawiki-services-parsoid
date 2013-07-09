@@ -1103,7 +1103,7 @@ function findTopLevelNonOverlappingRanges(document, env, tplRanges) {
 				tplArray.push({ wt: env.page.src.substring(prevTplInfo.dsr[1], dsr[0]) });
 			}
 		}
-		tplArray.push({ dsr: dsr, args: argInfo.dict, keys: argInfo.keys });
+		tplArray.push({ dsr: dsr, args: argInfo.dict, paramInfos: argInfo.paramInfos });
 	}
 
 	var i, r, n, e;
@@ -1429,11 +1429,11 @@ function encapsulateTemplates( doc, env, tplRanges, tplArrays) {
 				}
 
 				// Extract the key orders for the templates
-				var keyArrays = [];
+				var paramInfoArrays = [];
 				/* jshint loopfunc: true */ // yes, this function is in a loop
 				tplArray.forEach(function(a) {
-					if (a.keys) {
-						keyArrays.push(a.keys);
+					if (a.paramInfos) {
+						paramInfoArrays.push(a.paramInfos);
 					}
 				});
 
@@ -1446,7 +1446,7 @@ function encapsulateTemplates( doc, env, tplRanges, tplArrays) {
 					} else {
 						// Remember the position of the transclusion relative
 						// to other transclusions. Should match the index of
-						// the corresponding private metadata in keyArrays
+						// the corresponding private metadata in paramInfoArrays
 						// above.
 						if (a.args) { // XXX: not sure why args can be undefined here
 							a.args.i = infoIndex;
@@ -1459,7 +1459,7 @@ function encapsulateTemplates( doc, env, tplRanges, tplArrays) {
 				// Output the data-mw obj.
 				var datamw = (tplArray.length === 1) ? tplArray[0].template : { parts: tplArray };
 				range.start.setAttribute("data-mw", JSON.stringify(datamw));
-				range.start.data.parsoid.keys = keyArrays;
+				range.start.data.parsoid.pi = paramInfoArrays;
 			}
 		} else {
 			console.warn("ERROR: Do not have necessary info. to encapsulate Tpl: " + i);

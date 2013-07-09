@@ -1032,8 +1032,8 @@ template_param
         kEndPos:({return pos;})
         optionalSpaceToken
         "="
-        optionalSpaceToken
         vStartPos:({return pos;})
+        optionalSpaceToken
         tpv:template_param_value? {
             return { kEndPos:kEndPos, vStartPos: vStartPos, value: tpv.tokens || [] };
         }

@@ -852,7 +852,7 @@ TemplateHandler.prototype.getArgInfo = function (state) {
 	var src = this.manager.env.page.src,
 		params = state.token.attribs,
 		dict = {},
-		keys = [],
+		paramInfos = [],
 		argIndex = 1;
 
 	// Use source offsets to extract arg-name and arg-value wikitext
@@ -861,26 +861,52 @@ TemplateHandler.prototype.getArgInfo = function (state) {
 	// Ignore params[0] -- that is the template name
 	for (var i = 1, n = params.length; i < n; i++) {
 		var srcOffsets = params[i].srcOffsets;
-		var name;
+		var kSrc, k, vSrc, v, paramInfo;
 		if (srcOffsets) {
-			if (srcOffsets[0] === srcOffsets[1]) {
-				name = argIndex.toString();
-				argIndex++;
-			} else {
-				name = src.substring(srcOffsets[0], srcOffsets[1]);
-			}
-
-			if (dict[name] === undefined) {
-				keys.push(name);
-			}
-			dict[name] = { wt: src.substring(srcOffsets[2], srcOffsets[3]) };
+			kSrc = src.substring(srcOffsets[0], srcOffsets[1]);
+			vSrc = src.substring(srcOffsets[2], srcOffsets[3]);
 		} else {
-			name = params[i].k;
-			if (dict[name] === undefined) {
-				keys.push(name);
-			}
-			dict[name] = params[i].v;
+			kSrc = params[i].k;
+			vSrc = params[i].v;
 		}
+
+		k = kSrc.trim();
+
+		// Number positional parameters
+		var isPositional;
+		if (k === '') {
+			isPositional = true;
+			k = argIndex.toString();
+			argIndex++;
+			// Only strip trailing space for positional parameters
+			v = vSrc.replace(/([^\s])\s+$/, '$1');
+		} else {
+			isPositional = false;
+			// strip ws from named parameter values
+			v = vSrc.trim();
+		}
+
+
+		if (dict[k] === undefined) {
+			paramInfo = {
+				k: k
+			};
+			// Preserve key and value space prefix / postfix, if any
+			var keySpaceMatch = kSrc.match(/^(\s*)[^]*?(\s*)$/),
+				valueSpaceMatch = vSrc.match(/^(\s*)[^]*?(\s*)$/);
+			if (keySpaceMatch[1] || keySpaceMatch[2] !== ' ' ||
+					// Leading space in positional parameters is part of the
+					// value, so don't need to remember it
+					(!isPositional && valueSpaceMatch[1] !== ' ') ||
+					valueSpaceMatch[2]) {
+				// Remember non-standard spacing
+				paramInfo.spc = [keySpaceMatch[1], keySpaceMatch[2],
+					valueSpaceMatch[1], valueSpaceMatch[2]];
+			}
+			paramInfos.push(paramInfo);
+		}
+
+		dict[k] = { wt: v };
 	}
 
 	var tplTgtSrcOffsets = params[0].srcOffsets;
@@ -891,7 +917,7 @@ TemplateHandler.prototype.getArgInfo = function (state) {
 				target: { wt: tplTgtWT },
 				params: dict
 			},
-			keys: keys
+			paramInfos: paramInfos
 		};
 	}
 };
