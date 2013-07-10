@@ -879,11 +879,20 @@ WSP.escapeTplArgWT = function(state, arg, isPositional) {
 		// For mw:Entity spans, the opening and closing tags have 0 width
 		// and the enclosed content is the decoded entity. Hence the
 		// special case to serialize back the entity's source.
-		if (t.constructor === pd.TagTk && /^mw:(Entity|Nowiki)$/.test(t.getAttribute("typeof"))) {
-			i += 2;
-			var endTag = tokens[i];
-			buf.push(arg.substring(da.tsr[0], endTag.dataAttribs.tsr[1]));
-			continue;
+		if (t.constructor === pd.TagTk) {
+			var type = t.getAttribute("typeof");
+			if (type === "mw:Entity") {
+				i += 2;
+				buf.push(arg.substring(da.tsr[0], tokens[i].dataAttribs.tsr[1]));
+				continue;
+			} else if (type === "mw:Nowiki") {
+				i++;
+				while (i < n && (tokens[i].constructor !== pd.EndTagTk || tokens[i].getAttribute("typeof") !== "mw:Nowiki")) {
+					i++;
+				}
+				buf.push(arg.substring(da.tsr[0], tokens[i].dataAttribs.tsr[1]));
+				continue;
+			}
 		}
 
 		switch (t.constructor) {
@@ -2905,10 +2914,12 @@ WSP._buildTemplateWT = function(node, state, srcParts) {
 							//spc = ['', ' ', ' ', ''];
 						//}
 
+						// NOTE: Escaping the "=" char in the regexp because JSHint
+						// complains that it can be confused by other developers.
+						// http://jslinterrors.com/a-regular-expression-literal-can-be-confused-with/
 						if (kSrc === numericIndex.toString() &&
-								// Use named serialization if the value
-								// contains a '='
-								!(isTpl && /=/.test(tpl.params[k].wt)))
+								// Use named serialization if the value contains a '='
+								!(isTpl && (/\=/).test(tpl.params[k].wt)))
 						{
 							numericIndex++;
 							// Escape as positional parameter
