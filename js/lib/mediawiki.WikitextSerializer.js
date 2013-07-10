@@ -2791,56 +2791,68 @@ WSP._buildTemplateWT = function(node, state, srcParts) {
 			// tpl args
 			var argBuf = [],
 				keys = Object.keys(tpl.params),
-				// the original keys in order
-				origKeys = dp.keys && tpl.i !== undefined ?
-								dp.keys[tpl.i] || [] : [],
+				// per-parameter info for pre-existing parameters
+				paramInfos = dp.pi && tpl.i !== undefined ?
+								dp.pi[tpl.i] || [] : [],
+				// extract the original keys in order
+				origKeys = paramInfos.map( function (paramInfo) {
+					return paramInfo.k;
+				}),
 				n = keys.length;
 			if (n > 0) {
 				var numericIndex = 1,
-					pushArg = function (k) {
-						var v;
-						if (k === numericIndex.toString()) {
+
+					pushArg = function (k, paramInfo) {
+						var v,
+							// Default to ' = ' spacing. Anything that matches
+							// this does not remember spc explicitly.
+							spc = ['', ' ', ' ', ''],
+							kSrc = k;
+						if (paramInfo) {
+							if (paramInfo.spc) {
+								spc = paramInfo.spc;
+							}
+							kSrc = spc[0] + k + spc[1];
+						} //else {
+							// TODO: match the space style of other
+							// parameters!
+							//spc = ['', ' ', ' ', ''];
+						//}
+
+						if (kSrc === numericIndex.toString()) {
 							numericIndex++;
 							// Escape as positional parameter
-							v = serializer.escapeTplArgWT(state, tpl.params[k].wt, true);
-							argBuf.push(v);
+							v = serializer.escapeTplArgWT(state,
+									// only strip trailing ws for positional
+									// parameters
+									tpl.params[k].wt.replace(/([^\s])\s*$/,'$1'), true);
+							// we leave out spc[2] as leading space is part of
+							// the value for positional parameters
+							if (paramInfo) {
+								argBuf.push(v + spc[3]);
+							} else {
+								argBuf.push(v + spc[3]);
+							}
+
 						} else {
 							// Escape as value only
-							v = serializer.escapeTplArgWT(state, tpl.params[k].wt, false);
-							var kStr = k,
-								vStr = v;
-
-							if (isTpl) {
-								// Massage the space around the equal a bit for
-								// templates. Parser function values are not
-								// stripped the same way, so don't apply to those
-								// just yet.
-								if (DU.isNewElt(node)) {
-									// Default to ' = ' for new content
-									if (!/\s$/.test(k)) {
-										kStr = kStr + ' ';
-									}
-									if (vStr && !/^\s/.test(v)) {
-										vStr = ' ' + vStr;
-									}
-								} else if (/\s$/.test(k) && !/^\s/.test(vStr)) {
-									// Only prefix value with space if key
-									// ends with space too
-									vStr = ' ' + vStr;
-								}
-							}
-							argBuf.push(kStr + "=" + vStr);
+							v = serializer.escapeTplArgWT(state,
+									tpl.params[k].wt.trim(), false);
+							argBuf.push(spc[0] + k + spc[1] + "=" + spc[2] + v + spc[3]);
 						}
 					};
 
 				// first serialize out old parameters in order
-				origKeys.forEach(function(k) {
+				paramInfos.forEach(function(paramInfo) {
+					var k = paramInfo.k;
 					if (tpl.params[k] !== undefined) {
-						pushArg(k);
+						pushArg(k, paramInfo);
 					}
 				});
-				// then push out remaining parameters
+				// then push out remaining (new) parameters
 				keys.forEach(function(k) {
+					// Don't allow whitespace in keys
+					k = k.trim();
 					if (origKeys.indexOf(k) === -1) {
 						pushArg(k);
 					}
