@@ -874,8 +874,23 @@ var DOMUtils = {
 		// First, get two tokens representing the start element
 		var tokens = makeWrapperForNode ( nodes[0] );
 
-		// If we have several sibling, also represent the last sibling.
-		if (nodes.length > 1) {
+		var needBlockWrapper = false;
+		if (!DU.isBlockNode(nodes[0]) && !DU.isBlockNode(nodes.last())) {
+			nodes.forEach(function(n) {
+				if (!needBlockWrapper && DU.hasBlockElementDescendant(n)) {
+					needBlockWrapper = true;
+				}
+			});
+		}
+
+		if (needBlockWrapper) {
+			// Create a block-level wrapper to suppress paragraph
+			// wrapping, as the fragment contains a block-level element
+			// somewhere further down the tree.
+			var blockPlaceholder = nodes[0].ownerDocument.createElement('hr');
+			tokens = tokens.concat(makeWrapperForNode(blockPlaceholder));
+		} else if (nodes.length > 1) {
+			// If we have several siblings, also represent the last sibling.
 			tokens = tokens.concat(makeWrapperForNode(nodes.last()));
 		}
 

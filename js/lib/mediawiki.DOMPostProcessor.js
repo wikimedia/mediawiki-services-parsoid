@@ -2617,32 +2617,6 @@ function unpackDOMFragments(env, node) {
 				deleteNode(sibling);
 			}
 
-			// Potentially undo paragraph wrapping.
-			if (parentNode.nodeName === 'P' &&
-					(parentNode.childNodes.length === 1 ||
-					 // This approximates the case where there are more nodes,
-					 // but those would normally not trigger a paragraph.
-					 // XXX gwicke: This can likely be improved!
-					 /^[ \t]*$/.test(parentNode.textContent)))
-			{
-				// check if the content has a blocklevel element
-				var hasBlock = DU.hasBlockElementDescendant(dummyNode);
-				//console.log(dummyNode.nodeName, hasBlock,
-				//		JSON.stringify(dummyNode.textContent),
-				//		dummyNode.innerHTML);
-				if (hasBlock || /^[ \t]*$/.test(dummyNode.textContent || '')) {
-					// Block-level elements are not wrapped into paragraphs,
-					// so fix it up here. Remove the parentNode and use its
-					// parent instead.
-					var newParent = parentNode.parentNode;
-					while (parentNode.firstChild) {
-						// move children up
-						newParent.insertBefore(parentNode.firstChild, parentNode);
-					}
-					deleteNode(parentNode);
-					parentNode = newParent;
-				}
-			}
 
 			// Transfer the new dsr -- just dsr[0] and dsr[1] since tag-widths
 			// will be incorrect for reuse of template expansions
