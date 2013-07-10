@@ -431,7 +431,7 @@ var SanitizerConstants = {
 				// address
 
 				// 8.2.4
-				// bdo
+				'bdo'        : common,
 
 				// 9.2.1
 				'em'         : common,
@@ -447,7 +447,7 @@ var SanitizerConstants = {
 
 				// 9.2.2
 				'blockquote' : common.concat( [ 'cite' ]),
-				// q
+				'q'          : common.concat( [ 'cite' ]),
 
 				// 9.2.3
 				'sub'        : common,
