@@ -1804,6 +1804,18 @@ b
 </pre>
 !! end
 
+!! test
+Parsoid: Serialize positional parameters with = in them as named parameter
+!! options
+parsoid=html2wt
+!! input
+{{echo|1 = f=oo}}
+!! result
+<p about="#mwt1" typeof="mw:Transclusion"
+data-mw='{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"f=oo"}},"i":0}'
+>foo</p>
+!! end
+
 ###
 ### HTML-pre (some to spec PHP parser behavior and some Parsoid-RT-centric)
 ###

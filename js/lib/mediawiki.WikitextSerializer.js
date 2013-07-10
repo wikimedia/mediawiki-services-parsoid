@@ -770,9 +770,9 @@ WSP.escapeTplArgWT = function(state, arg, isPositional) {
 	function escapeStr(str, buf, pos) {
 		var bracketPairStrippedStr = str.replace(/\[([^\[\]]*)\]/g, '_$1_'),
 			genericMatch =
-			pos.start && /^{/.test(str) ||
-			pos.end && /}$/.test(str) ||
-			/{{|}}|[\[\]\|]/.test(bracketPairStrippedStr);
+				pos.start && /^{/.test(str) ||
+				pos.end && /}$/.test(str) ||
+				/{{|}}|[\[\]\|]/.test(bracketPairStrippedStr);
 		if (genericMatch ||
 				// Can't allow '=' in positional parameters
 				(isPositional && /[=]/.test(str)))
@@ -2819,7 +2819,11 @@ WSP._buildTemplateWT = function(node, state, srcParts) {
 							//spc = ['', ' ', ' ', ''];
 						//}
 
-						if (kSrc === numericIndex.toString()) {
+						if (kSrc === numericIndex.toString() &&
+								// Use named serialization if the value
+								// contains a '='
+								!/=/.test(tpl.params[k].wt))
+						{
 							numericIndex++;
 							// Escape as positional parameter
 							v = serializer.escapeTplArgWT(state,
