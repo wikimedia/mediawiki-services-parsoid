@@ -2953,9 +2953,14 @@ WSP._buildTemplateWT = function(node, state, srcParts) {
 				// then push out remaining (new) parameters
 				keys.forEach(function(k) {
 					// Don't allow whitespace in keys
-					k = k.trim();
-					if (origKeys.indexOf(k) === -1) {
-						pushArg(k);
+
+					var strippedK = k.trim();
+					if (origKeys.indexOf(strippedK) === -1) {
+						if (strippedK !== k) {
+							// copy over
+							tpl.params[strippedK] = tpl.params[k];
+						}
+						pushArg(strippedK);
 					}
 				});
 
