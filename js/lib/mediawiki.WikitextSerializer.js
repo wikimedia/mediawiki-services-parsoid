@@ -2822,7 +2822,7 @@ WSP._buildTemplateWT = function(node, state, srcParts) {
 						if (kSrc === numericIndex.toString() &&
 								// Use named serialization if the value
 								// contains a '='
-								!/=/.test(tpl.params[k].wt))
+								!(isTpl && /=/.test(tpl.params[k].wt)))
 						{
 							numericIndex++;
 							// Escape as positional parameter
