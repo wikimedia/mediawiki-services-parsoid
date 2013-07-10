@@ -400,47 +400,51 @@ WSP.initialState = {
 	// state. Typically called by a DOM-based handler to continue handling its
 	// children.
 	serializeChildren: function(node, chunkCB, wtEscaper) {
-		// TODO gwicke: use nested WikitextSerializer instead?
-		var oldCB = this.chunkCB,
-			oldSep = this.sep,
-			children = node.childNodes,
-			child = children[0],
-			nextChild;
+		try {
+			// TODO gwicke: use nested WikitextSerializer instead?
+			var oldCB = this.chunkCB,
+				oldSep = this.sep,
+				children = node.childNodes,
+				child = children[0],
+				nextChild;
 
-		this.chunkCB = chunkCB;
+			this.chunkCB = chunkCB;
 
-		// SSS FIXME: Unsure if this is the right thing always
-		if (wtEscaper) {
-			this.wteHandlerStack.push(wtEscaper);
-		}
-
-		while (child) {
-			nextChild = this.serializer._serializeNode(child, this);
-			if (nextChild === node) {
-				// serialized all children
-				break;
-			} else if (nextChild === child) {
-				// advance the child
-				child = child.nextSibling;
-			} else {
-				//console.log('nextChild', nextChild && nextChild.outerHTML);
-				child = nextChild;
+			// SSS FIXME: Unsure if this is the right thing always
+			if (wtEscaper) {
+				this.wteHandlerStack.push(wtEscaper);
 			}
-		}
 
-		// Force out accumulated separator
-		if (oldSep === this.sep) {
-			if (children.length === 0) {
-				chunkCB('', node);
-			} else {
-				chunkCB('', children.last());
+			while (child) {
+				nextChild = this.serializer._serializeNode(child, this);
+				if (nextChild === node) {
+					// serialized all children
+					break;
+				} else if (nextChild === child) {
+					// advance the child
+					child = child.nextSibling;
+				} else {
+					//console.log('nextChild', nextChild && nextChild.outerHTML);
+					child = nextChild;
+				}
 			}
-		}
 
-		this.chunkCB = oldCB;
+			// Force out accumulated separator
+			if (oldSep === this.sep) {
+				if (children.length === 0) {
+					chunkCB('', node);
+				} else {
+					chunkCB('', children.last());
+				}
+			}
 
-		if (wtEscaper) {
-			this.wteHandlerStack.pop();
+			this.chunkCB = oldCB;
+
+			if (wtEscaper) {
+				this.wteHandlerStack.pop();
+			}
+		} catch (e) {
+			this.env.errCB(e);
 		}
 	},
 
