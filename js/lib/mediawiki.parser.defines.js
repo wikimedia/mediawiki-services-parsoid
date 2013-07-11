@@ -511,7 +511,7 @@ SelfclosingTagTk.prototype.multiTokenArgToString = function(key, arg, indent, in
 	}
 
 	return {present: present, str: str};
-},
+};
 
 /**
  * @method attrsToSTring

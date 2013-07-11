@@ -1365,7 +1365,7 @@ Util.diff = diff;
 Util.getParserPipeline = function ( env, type ) {
 	var ParserPipelineFactory = require( './mediawiki.parser.js' ).ParserPipelineFactory;
 	return ( new ParserPipelineFactory( env ) ).makePipeline( type );
-},
+};
 
 // XXX gwicke: move to a Parser object?
 Util.parse = function ( env, cb, err, src, expansions ) {

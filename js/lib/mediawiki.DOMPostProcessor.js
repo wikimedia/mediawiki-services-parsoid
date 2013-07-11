@@ -1549,7 +1549,7 @@ function findWrappableTemplateRanges( doc, env, root, tpls ) {
 			if (metaMatch && ( DU.getDataParsoid( elem ).tsr || type.match(/\/End\b/))) {
 				var metaType = metaMatch[1];
 
-				about = elem.getAttribute('about'),
+				about = elem.getAttribute('about');
 				aboutRef = tpls[about];
 				// Is this a start marker?
 				if (!metaType.match(/\/End\b/)) {
@@ -1680,7 +1680,7 @@ function findBuilderCorrectedTags(document, env) {
 		if ( src ) {
 			var placeHolder;
 
-			placeHolder = node.ownerDocument.createElement('meta'),
+			placeHolder = node.ownerDocument.createElement('meta');
 			placeHolder.setAttribute('typeof', 'mw:Placeholder/StrippedTag');
 			placeHolder.data = { parsoid: { src: src, name: name.toUpperCase() } };
 

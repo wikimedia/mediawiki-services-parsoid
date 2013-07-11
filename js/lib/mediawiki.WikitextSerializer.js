@@ -2758,9 +2758,9 @@ WSP._serializeAttributes = function (state, token) {
 			if (tplKV) {
 				out.push(tplKV);
 			} else {
-				tplK = tplAttrState.ks[k],
-				tplV = tplAttrState.vs[k],
-				vInfo = token.getAttributeShadowInfo(k),
+				tplK = tplAttrState.ks[k];
+				tplV = tplAttrState.vs[k];
+				vInfo = token.getAttributeShadowInfo(k);
 				v = vInfo.value;
 
 				// Deal with k/v's that were template-generated
@@ -3336,7 +3336,7 @@ WSP.extractTemplatedAttributes = function(node, state) {
 
 		while (child) {
 			// Get the next sibling first thing because we may delete this child
-			next = child.nextSibling, prev = child.previousSibling;
+			next = child.nextSibling; prev = child.previousSibling;
 			childIsPre = DU.hasNodeName(child, "pre");
 
 			// Descend and recurse
