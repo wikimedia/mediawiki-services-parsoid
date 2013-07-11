@@ -2,27 +2,56 @@
 ( function () {
 "use strict";
 
-var mysql = require( 'mysql' );
-var db = mysql.createConnection({
-	host     : 'localhost',
-	database : 'parsoid',
-	user     : 'parsoid',
-	password : 'parsoidpw',
-	multipleStatements : true
-});
-
-db.connect();
-
 var http = require( 'http' ),
 	express = require( 'express' ),
 	dbStack = [], dbFlag = false,
-	argv = require( 'optimist' ).argv,
 	// The maximum number of tries per article
 	maxTries = 6,
 	// The maximum number of fetch retries per article
 	maxFetchRetries = 6,
 	// "Random" estimate of how many pending pages we have in the db
 	pendingPagesEstimate = 500;
+
+// Command line options
+var argv = require( 'optimist' )
+	.options( 'h', {
+		alias: 'host',
+		'default': 'localhost',
+		describe: 'Hostname of the database server.'
+	} )
+	.options( 'P', {
+		alias: 'port',
+		'default': 3306,
+		describe: 'Port number to use for connection.'
+	} )
+	.options( 'D', {
+		alias: 'database',
+		'default': 'parsoid',
+		describe: 'Database to use.'
+	} )
+	.options( 'u', {
+		alias: 'user',
+		'default': 'parsoid',
+		describe: 'User for login.'
+	} )
+	.options( 'p', {
+		alias: 'password',
+		'default': 'parsoidpw',
+		describe: 'Password.'
+	} )
+	.argv;
+
+var mysql = require( 'mysql' );
+var db = mysql.createConnection({
+	host     : argv.host,
+	port     : argv.port,
+	database : argv.database,
+	user     : argv.user,
+	password : argv.password,
+	multipleStatements : true
+});
+
+db.connect();
 
 var counter = 0;
 
@@ -53,7 +82,7 @@ var dbGetTitleRandom =
 	'( claims.id IS NULL OR ' +
 	'( claims.has_errorless_result = 0 AND claims.num_tries <= ? AND claims.timestamp < ? ) ) ' +
 	'ORDER BY stats.score DESC, ' +
-	'claims.timestamp ASC, RANDOM() LIMIT 1';
+	'claims.timestamp ASC, RAND() LIMIT 1';
 
 var dbIncrementFetchErrorCount =
 	'UPDATE pages SET num_fetch_errors = num_fetch_errors + 1 WHERE title = ? AND prefix = ?';
@@ -62,7 +91,7 @@ var dbClearFetchErrorCount =
 	'UPDATE pages SET num_fetch_errors = 0 WHERE title = ? and prefix = ?';
 
 var dbInsertCommit =
-	'INSERT OR IGNORE INTO commits ( hash, timestamp ) ' +
+	'INSERT IGNORE INTO commits ( hash, timestamp ) ' +
 	'VALUES ( ?, ? )';
 
 var dbFindClaimByPageId =
@@ -388,57 +417,56 @@ var dbUpdateErrCB = function(title, prefix, hash, type, msg, err) {
 
 var titleCallback = function( req, res, retry, commitHash, cutOffTimestamp, err, row ) {
 	if ( err && !retry ) {
+		console.error( 'Error in titleCallback: ' + err.toString() );
 		res.send( 'Error! ' + err.toString(), 500 );
-	} else if ( err === null && row ) {
-		db.serialize( function () {
-			// SSS FIXME: what about error checks?
-			dbInsertCommit.run( [ commitHash, decodeURIComponent( req.query.ctime ) ] );
-			dbFindClaimByPageId.get( [ row[0].id, commitHash ], function ( err, claim ) {
-				if (claim) {
-					// Ignoring possible duplicate processing
-					// Increment the # of tries, update timestamp
-					dbUpdateClaim.run([Date.now(), claim.id],
-						dbUpdateErrCB.bind(null, row[0].title, row[0].prefix, commitHash, "claim", null));
+	} else if ( err === null && row && row.length > 0 ) {
+		// SSS FIXME: what about error checks?
+		db.query( dbInsertCommit, [ commitHash, decodeURIComponent( req.query.ctime ) ] );
+		db.query( dbFindClaimByPageId, [ row[0].id, commitHash ], function ( err, claim ) {
+			if ( claim && claim[0] ) {
+				// Ignoring possible duplicate processing
+				// Increment the # of tries, update timestamp
+				db.query( dbUpdateClaim, [Date.now(), claim[0].id],
+					dbUpdateErrCB.bind(null, row[0].title, row[0].prefix, commitHash, "claim", null));
 
-					if (claim.num_tries >= maxTries) {
-						// Too many failures.  Insert an error stats entry and retry fetch
-						console.log( ' CRASHER?', row[0].prefix + ':' + row[0].title );
-						var stats = [0, 0, 1, statsScore(0,0,1), claim.page_id, commitHash];
-						dbInsertClaimStats.run( stats, function ( err ) {
-							if (err) {
-								// Try updating the stats instead of inserting if we got an error
-								// Likely a sql constraint error
-								dbUpdateClaimStats.run(stats, function (err) {
-									dbUpdateErrCB( row[0].title, row[0].prefix, commitHash, 'stats', null, err );
-								});
-							}
-						} );
-						fetchPage(commitHash, cutOffTimestamp, req, res);
-					} else {
+				if (claim[0].num_tries >= maxTries) {
+					// Too many failures.  Insert an error stats entry and retry fetch
+					console.log( ' CRASHER?', row[0].prefix + ':' + row[0].title );
+					var stats = [0, 0, 1, statsScore(0,0,1), claim[0].page_id, commitHash];
+					db.query( dbInsertClaimStats, stats, function ( err ) {
+						if (err) {
+							// Try updating the stats instead of inserting if we got an error
+							// Likely a sql constraint error
+							db.query( dbUpdateClaimStats, stats, function (err) {
+								dbUpdateErrCB( row[0].title, row[0].prefix, commitHash, 'stats', null, err );
+							});
+						}
+					} );
+					fetchPage(commitHash, cutOffTimestamp, req, res);
+				} else {
+					console.log( ' ->', row[0].prefix + ':' + row[0].title );
+					res.send( { prefix: row[0].prefix, title: row[0].title } );
+				}
+			} else {
+				// Claim doesn't exist
+				db.query( dbInsertClaim, [ row[0].id, commitHash, Date.now() ], function(err) {
+					if (!err) {
 						console.log( ' ->', row[0].prefix + ':' + row[0].title );
 						res.send( { prefix: row[0].prefix, title: row[0].title } );
+					} else {
+						console.error(err);
+						console.error("Multiple clients trying to access the same title:", row[0].prefix + ':' + row[0].title );
+						// In the rare scenario that some other client snatched the
+						// title before us, get a new title (use the randomized ordering query)
+						db.query( dbGetTitleRandom, [ commitHash, maxFetchRetries, maxTries, cutOffTimestamp ],
+							titleCallback.bind( null, req, res, false, commitHash, cutOffTimestamp ) );
 					}
-				} else {
-					// Claim doesn't exist
-					dbInsertClaim.run( [ row[0].id, commitHash, Date.now() ], function(err) {
-						if (!err) {
-							console.log( ' ->', row[0].prefix + ':' + row[0].title );
-							res.send( { prefix: row[0].prefix, title: row[0].title } );
-						} else {
-							console.error(err);
-							console.error("Multiple clients trying to access the same title:", row[0].prefix + ':' + row[0].title );
-							// In the rare scenario that some other client snatched the
-							// title before us, get a new title (use the randomized ordering query)
-							dbGetTitleRandom.get( [ commitHash, maxFetchRetries, maxTries, cutOffTimestamp ],
-								titleCallback.bind( null, req, res, false, commitHash, cutOffTimestamp ) );
-						}
-					});
-				}
-			});
+				});
+			}
 		});
 	} else if ( retry ) {
 		// Try again with the slow DB search method
-		dbGetTitleRandom.get( [ commitHash, maxFetchRetries, maxTries, cutOffTimestamp ],
+		db.query( dbGetTitleRandom, [ commitHash, maxFetchRetries, maxTries, cutOffTimestamp ],
 			titleCallback.bind( null, req, res, false, commitHash, cutOffTimestamp ) );
 	} else {
 		res.send( 'no available titles that fit those constraints', 404 );
@@ -448,7 +476,7 @@ var titleCallback = function( req, res, retry, commitHash, cutOffTimestamp, err,
 var fetchPage = function( commitHash, cutOffTimestamp, req, res ) {
 	// This query picks a random page among the first 'pendingPagesEstimate' pages
 	var rowOffset = Math.floor(Math.random() * pendingPagesEstimate);
-	dbGetTitle.get([ commitHash, maxFetchRetries, maxTries, cutOffTimestamp, rowOffset ],
+	db.query( dbGetTitle, [ commitHash, maxFetchRetries, maxTries, cutOffTimestamp, rowOffset ],
 		titleCallback.bind( null, req, res, true, commitHash, cutOffTimestamp ) );
 };
 
@@ -515,9 +543,9 @@ var getTitle = function ( req, res ) {
 	//
 	// Hopefully, no page takes longer than 10 minutes to parse. :)
 
-	claimPage(req.query.commit, Date.now() - 600, req, res);
+	// claimPage(req.query.commit, Date.now() - 600, req, res);
 
-//	fetchPage(req.query.commit, Date.now() - 600, req, res);
+	fetchPage(req.query.commit, Date.now() - 600, req, res);
 };
 
 var statsScore = function(skipCount, failCount, errorCount) {
@@ -544,7 +572,7 @@ var receiveResults = function ( req, res ) {
 	//console.warn("got: " + JSON.stringify([title, commitHash, result, skipCount, failCount, errorCount]));
 	if ( errorCount > 0 && result.match( 'DoesNotExist' ) ) {
 		console.log( 'XX', prefix + ':' + title );
-		dbIncrementFetchErrorCount.run([title, prefix],
+		db.query( dbIncrementFetchErrorCount, [title, prefix],
 			dbUpdateErrCB.bind(null, title, prefix, commitHash, "page fetch error count", null));
 
 		// NOTE: the last db update may not have completed yet
@@ -552,39 +580,37 @@ var receiveResults = function ( req, res ) {
 		res.send( '', 200 );
 	} else {
 		db.query( dbFindClaimByTitle, [ title, prefix, commitHash ], function ( err, claim ) {
-			if (!err && claim) {
-				db.serialize( function () {
-					dbClearFetchErrorCount.run([title, prefix],
-						dbUpdateErrCB.bind(null, title, prefix, commitHash, "page fetch error count", null));
+			if ( !err && claim && claim.length > 0 ) {
+				db.query( dbClearFetchErrorCount, [title, prefix],
+					dbUpdateErrCB.bind(null, title, prefix, commitHash, "page fetch error count", null));
 
-					// Insert/update result and stats depending on whether this was
-					// the first try or a subsequent retry -- prevents duplicates
-					dbInsertResult.run([claim.id, result],
-						dbUpdateErrCB.bind(null, title, prefix, commitHash, "result", null));
+				// Insert/update result and stats depending on whether this was
+				// the first try or a subsequent retry -- prevents duplicates
+				db.query( dbInsertResult, [claim[0].id, result],
+					dbUpdateErrCB.bind(null, title, prefix, commitHash, "result", null));
 
-					var stats = [skipCount, failCount, errorCount, statsScore(skipCount,failCount,errorCount)];
-					dbInsertClaimStats.run(stats.concat([claim.page_id, commitHash]), function ( err ) {
-						if ( err ) {
-							dbUpdateErrCB( title, prefix, commitHash, 'stats', null, err );
-						} else {
-							dbUpdateLatestResult.run( commitHash, claim.page_id,
-								dbUpdateErrCB.bind(null, title, prefix, commitHash, 'latest result', null ) );
-						}
-					} );
+				var stats = [skipCount, failCount, errorCount, statsScore(skipCount,failCount,errorCount)];
+				db.query( dbInsertClaimStats, stats.concat([claim[0].page_id, commitHash]), function ( err ) {
+					if ( err ) {
+						dbUpdateErrCB( title, prefix, commitHash, 'stats', null, err );
+					} else {
+						db.query( dbUpdateLatestResult, [commitHash, claim[0].page_id],
+							dbUpdateErrCB.bind(null, title, prefix, commitHash, 'latest result', null ) );
+					}
+				} );
 
-					// Mark the claim as having a result. Used to be
-					// error-free result, but now we are using it to track if
-					// we have a result already.
-					dbUpdateClaimResult.run([claim.id],
-						dbUpdateErrCB.bind(null, title, prefix, commitHash, "claim result", null));
+				// Mark the claim as having a result. Used to be
+				// error-free result, but now we are using it to track if
+				// we have a result already.
+				db.query( dbUpdateClaimResult, [claim[0].id],
+					dbUpdateErrCB.bind(null, title, prefix, commitHash, "claim result", null));
 
 
-					console.log( '<- ', prefix + ':' + title, ':', skipCount, failCount,
-							errorCount, commitHash.substr(0,7) );
-					// NOTE: the last db update may not have completed yet
-					// For now, always sending HTTP 200 back to client.
-					res.send( '', 200 );
-				});
+				console.log( '<- ', prefix + ':' + title, ':', skipCount, failCount,
+						errorCount, commitHash.substr(0,7) );
+				// NOTE: the last db update may not have completed yet
+				// For now, always sending HTTP 200 back to client.
+				res.send( '', 200 );
 			} else {
 				var msg = "Did not find claim for title: " + prefix + ':' + title;
 				msg = err ? msg + "\n" + err.toString() : msg;
@@ -607,7 +633,7 @@ var indexLinkList = function () {
 };
 
 var statsWebInterface = function ( req, res ) {
-	var queryIt, prefix;
+	var query, queryParams, prefix;
 
 	var displayRow = function( res, label, val ) {
 			// round numeric data, but ignore others
@@ -625,20 +651,16 @@ var statsWebInterface = function ( req, res ) {
 
 	// Switch the query object based on the prefix
 	if ( prefix !== null ) {
-		queryIt = dbPerWikiStatsQuery.get.bind(
-			dbPerWikiStatsQuery,
-			[ -1, prefix, prefix, prefix, prefix,
-				prefix, prefix, prefix, prefix ]
-		);
+		query = dbPerWikiStatsQuery;
+		queryParams = [ -1, prefix, prefix, prefix, prefix,
+		                prefix, prefix, prefix, prefix ];
 	} else {
-		queryIt = dbStatsQuery.get.bind(
-			dbStatsQuery,
-			[ -1 ]
-		);
+		query = dbStatsQuery;
+		queryParams = [ -1 ];
 	}
 
 	// Fetch stats for commit
-	queryIt( function ( err, row ) {
+	db.query( query, queryParams, function ( err, row ) {
 		if ( err || !row ) {
 			var msg = "Stats query returned nothing!";
 			msg = err ? msg + "\n" + err.toString() : msg;
@@ -716,7 +738,7 @@ var failsWebInterface = function ( req, res ) {
 	var page = ( req.params[0] || 0 ) - 0,
 		offset = page * 40;
 
-	dbFailsQuery.all( [ offset ],
+	db.query( dbFailsQuery, [ offset ],
 		function ( err, rows ) {
 			var i, row;
 
@@ -754,15 +776,15 @@ var failsWebInterface = function ( req, res ) {
 						res.write( 'red' );
 					}
 
-					res.write( '"><a target="_blank" href="http://parsoid.wmflabs.org/_rt/' + row[0].prefix + '/' +
-						row[0].title + '">' +
-						row[0].prefix + ':' + row[0].title + '</a> | ' +
-						'<a target="_blank" href="http://localhost:8000/_rt/' + row[0].prefix + '/' + row[0].title +
+					res.write( '"><a target="_blank" href="http://parsoid.wmflabs.org/_rt/' + row.prefix + '/' +
+						row.title + '">' +
+						row.prefix + ':' + row.title + '</a> | ' +
+						'<a target="_blank" href="http://localhost:8000/_rt/' + row.prefix + '/' + row.title +
 						'">@lh</a> | ' +
-						'<a target="_blank" href="/latestresult/' + row[0].prefix + '/' + row[0].title + '">latest result</a>' +
+						'<a target="_blank" href="/latestresult/' + row.prefix + '/' + row.title + '">latest result</a>' +
 						'</td>' );
-					res.write( '<td>' + makeCommitLink( row[0].hash, row[0].title, row[0].prefix ) + '</td>' );
-					res.write( '<td>' + row[0].skips + '</td><td>' + row[0].fails + '</td><td>' + ( row[0].errors === null ? 0 : row[0].errors ) + '</td></tr>' );
+					res.write( '<td>' + makeCommitLink( row.hash, row.title, row.prefix ) + '</td>' );
+					res.write( '<td>' + row.skips + '</td><td>' + row.fails + '</td><td>' + ( row.errors === null ? 0 : row.errors ) + '</td></tr>' );
 				}
 				res.end( '</table></body></html>' );
 			}
@@ -771,21 +793,18 @@ var failsWebInterface = function ( req, res ) {
 };
 
 var resultsWebInterface = function ( req, res ) {
-	var queryIt,
+	var query, queryParams,
 		prefix = req.params[1] || null;
 
 	if ( prefix !== null ) {
-		queryIt = dbResultsPerWikiQuery.all.bind(
-			dbResultsPerWikiQuery,
-			[ prefix ]
-		);
+		query = dbResultsPerWikiQuery;
+		queryParams = [ prefix ];
 	} else {
-		queryIt = dbResultsQuery.all.bind(
-			dbResultsQuery
-		);
+		query = dbResultsQuery;
+		queryParams = [];
 	}
 
-	queryIt( function ( err, rows ) {
+	db.query( query, queryParams, function ( err, rows ) {
 		var i;
 		if ( err ) {
 			console.error( err );
@@ -828,14 +847,14 @@ var resultWebInterface = function( req, res ) {
 	var prefix = commit === null ? req.params[0] : req.params[1];
 
 	if ( commit !== null ) {
-		dbGetResultWithCommit.get( commit, title, prefix, resultWebCallback.bind( null, req, res ) );
+		db.query( dbGetResultWithCommit, [ commit, title, prefix ], resultWebCallback.bind( null, req, res ) );
 	} else {
-		dbGetOneResult.get( title, prefix, resultWebCallback.bind( null, req, res ) );
+		db.query( dbGetOneResult, [ title, prefix ], resultWebCallback.bind( null, req, res ) );
 	}
 };
 
 var GET_failedFetches = function( req, res ) {
-	dbFailedFetches.all( [maxFetchRetries], function ( err, rows ) {
+	db.query( dbFailedFetches, [maxFetchRetries], function ( err, rows ) {
 		if ( err ) {
 			console.error( err );
 			res.send( err.toString(), 500 );
@@ -865,7 +884,7 @@ var GET_failedFetches = function( req, res ) {
 };
 
 var GET_failsDistr = function( req, res ) {
-	dbFailsDistribution.all([-1], function ( err, rows ) {
+	db.query( dbFailsDistribution, [-1], function ( err, rows ) {
 		if ( err ) {
 			console.error( err );
 			res.send( err.toString(), 500 );
@@ -887,7 +906,7 @@ var GET_failsDistr = function( req, res ) {
 };
 
 var GET_skipsDistr = function( req, res ) {
-	dbSkipsDistribution.all([-1], function ( err, rows ) {
+	db.query( dbSkipsDistribution, [-1], function ( err, rows ) {
 		if ( err ) {
 			console.error( err );
 			res.send( err.toString(), 500 );
@@ -974,7 +993,7 @@ var GET_regressions = function( req, res ) {
 		urlPrefix = "/regressions/between/" + r1 + "/" + r2;
 		page = (req.params[2] || 0) - 0;
 		offset = page * 40;
-		dbNumRegressionsBetweenRevs.get([r2,r1], function(err, row) {
+		db.query( dbNumRegressionsBetweenRevs, [ r2, r1 ], function(err, row) {
 			if (err || !row) {
 				res.send( err.toString(), 500 );
 			} else {
@@ -982,7 +1001,7 @@ var GET_regressions = function( req, res ) {
 					header = "Total regressions between selected revisions: " +
 							row[0].numRegressions +
 							' | <a href="' + topfixesLink + '">topfixes</a>';
-				dbRegressionsBetweenRevs.all([r2, r1, offset ],
+				db.query( dbRegressionsBetweenRevs, [ r2, r1, offset ],
 					displayPageList.bind(null, res, urlPrefix, page, header));
 			}
 		});
@@ -990,7 +1009,7 @@ var GET_regressions = function( req, res ) {
 		urlPrefix = "/regressions";
 		page = ( req.params[0] || 0 ) - 0;
 		offset = page * 40;
-		dbRegressedPages.all([ offset ], displayPageList.bind(null, res, urlPrefix, page, null));
+		db.query( dbRegressedPages, [ offset ], displayPageList.bind(null, res, urlPrefix, page, null));
 	}
 };
 
@@ -1002,14 +1021,14 @@ var GET_topfixes = function( req, res ) {
 		urlPrefix = "/topfixes/between/" + r1 + "/" + r2;
 		page = (req.params[2] || 0) - 0;
 		offset = page * 40;
-		dbNumFixesBetweenRevs.get([r2,r1], function(err, row) {
+		db.query( dbNumFixesBetweenRevs, [ r2, r1 ], function(err, row) {
 			if (err || !row) {
 				res.send( err.toString(), 500 );
 			} else {
 				var regressionLink = "/regressions/between/" + r1 + "/" + r2,
 					header = "Total fixes between selected revisions: " + row[0].numFixes +
 						' | <a href="' + regressionLink + '">regressions</a>';
-				dbFixesBetweenRevs.all([r2, r1, offset ],
+				db.query( dbFixesBetweenRevs, [ r2, r1, offset ],
 					displayPageList.bind(null, res, urlPrefix, page, header));
 			}
 		});
@@ -1017,12 +1036,12 @@ var GET_topfixes = function( req, res ) {
 		urlPrefix = "/topfixes";
 		page = ( req.params[0] || 0 ) - 0;
 		offset = page * 40;
-		dbFixedPages.all([ offset ], displayPageList.bind(null, res, urlPrefix, page, null));
+		db.query( dbFixedPages, [ offset ], displayPageList.bind(null, res, urlPrefix, page, null));
 	}
 };
 
 var GET_commits = function( req, res ) {
-	dbCommits.all([-1], function ( err, rows ) {
+	db.query( dbCommits, [-1], function ( err, rows ) {
 		if ( err ) {
 			console.error( err );
 			res.send( err.toString(), 500 );
