@@ -6472,6 +6472,34 @@ Un-closed <includeonly>
 !! result
 !! end
 
+# TODO: test with DOM fragment reuse!
+!! test
+Parsoid: DOM fragment reuse
+!! options
+parsoid=wt2wt,wt2html
+!! input
+a{{echo|b<table></table>c}}d
+
+a{{echo|b
+<table></table>
+c}}d
+
+{{echo|a
+
+<table></table>
+
+b}}
+!! result
+a<span typeof="mw:Transclusion">b</span>
+<table></table><span>c</span>d
+<p typeof="mw:Transclusion">ab</p>
+<table></table>
+<p>cd</p>
+<p typeof="mw:Transclusion">a</p>
+<table></table>
+<p>b</p>
+!! end
+
 ###
 ### <includeonly> and <noinclude> in attributes
 ###
