@@ -4,9 +4,14 @@
  * HTML cache refreshing and -invalidation job for the Parsoid varnish caches.
  * See
  * http://www.mediawiki.org/wiki/Parsoid/Minimal_performance_strategy_for_July_release
- * @TODO: eventually extend some generic backlink job base class in core
+ * @TODO: This is mostly a copy of the HTMLCacheUpdate code. Eventually extend
+ * some generic backlink job base class in core
  */
-class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
+class ParsoidCacheUpdateJob extends Job {
+	/** @var BacklinkCache */
+	protected $blCache;
+
+	protected $rowsPerJob;
 
 	/**
 	 * Construct a job
@@ -15,13 +20,13 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 	 * @param $id Integer: job id
 	 */
 	function __construct( $title, $params, $id = 0 ) {
-		wfDebug( "ParsoidCacheUpdateJob.__construct\n" );
+		wfDebug( "ParsoidCacheUpdateJob.__construct " . $title . "\n" );
 		global $wgUpdateRowsPerJob;
 
 		Job::__construct( 'ParsoidCacheUpdateJob', $title, $params, $id );
 
 		# $this->rowsPerJob = $wgUpdateRowsPerJob;
-		# Parsoid re-parses will be slow, so set the number of titles per job
+		# Parsoid re-parses can be slow, so set the number of titles per job
 		# to 10 for now.
 		$this->rowsPerJob = 10;
 
@@ -49,6 +54,144 @@ class ParsoidCacheUpdateJob extends HTMLCacheUpdateJob {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Update all of the backlinks
+	 */
+	protected function doFullUpdate() {
+		global $wgParsoidMaxBacklinksInvalidate;
+
+		# Get an estimate of the number of rows from the BacklinkCache
+		$max = max( $this->rowsPerJob * 2, $wgParsoidMaxBacklinksInvalidate ) + 1;
+		$numRows = $this->blCache->getNumLinks( $this->params['table'], $max );
+		if ( $wgParsoidMaxBacklinksInvalidate !== false
+			&& $numRows > $wgParsoidMaxBacklinksInvalidate ) {
+			wfDebug( "Skipped HTML cache invalidation of {$this->title->getPrefixedText()}." );
+			return true;
+		}
+
+		if ( $numRows > $this->rowsPerJob * 2 ) {
+			# Do fast cached partition
+			$this->insertPartitionJobs();
+		} else {
+			# Get the links from the DB
+			$titleArray = $this->blCache->getLinks( $this->params['table'] );
+			# Check if the row count estimate was correct
+			if ( $titleArray->count() > $this->rowsPerJob * 2 ) {
+				# Not correct, do accurate partition
+				wfDebug( __METHOD__ . ": row count estimate was incorrect, repartitioning\n" );
+				$this->insertJobsFromTitles( $titleArray );
+			} else {
+				$this->invalidateTitles( $titleArray ); // just do the query
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Update some of the backlinks, defined by a page ID range
+	 */
+	protected function doPartialUpdate() {
+		$titleArray = $this->blCache->getLinks(
+			$this->params['table'], $this->params['start'], $this->params['end'] );
+		if ( $titleArray->count() <= $this->rowsPerJob * 2 ) {
+			# This partition is small enough, do the update
+			$this->invalidateTitles( $titleArray );
+		} else {
+			# Partitioning was excessively inaccurate. Divide the job further.
+			# This can occur when a large number of links are added in a short
+			# period of time, say by updating a heavily-used template.
+			$this->insertJobsFromTitles( $titleArray );
+		}
+		return true;
+	}
+
+	/**
+	 * Partition the current range given by $this->params['start'] and $this->params['end'],
+	 * using a pre-calculated title array which gives the links in that range.
+	 * Queue the resulting jobs.
+	 *
+	 * @param $titleArray array
+	 * @param $rootJobParams array
+	 * @return void
+	 */
+	protected function insertJobsFromTitles( $titleArray, $rootJobParams = array() ) {
+		// Carry over any "root job" information
+		$rootJobParams = $this->getRootJobParams();
+		# We make subpartitions in the sense that the start of the first job
+		# will be the start of the parent partition, and the end of the last
+		# job will be the end of the parent partition.
+		$jobs = array();
+		$start = $this->params['start']; # start of the current job
+		$numTitles = 0;
+		foreach ( $titleArray as $title ) {
+			$id = $title->getArticleID();
+			# $numTitles is now the number of titles in the current job not
+			# including the current ID
+			if ( $numTitles >= $this->rowsPerJob ) {
+				# Add a job up to but not including the current ID
+				$jobs[] = new ParsoidCacheUpdateJob( $this->title,
+					array(
+						'table' => $this->params['table'],
+						'start' => $start,
+						'end' => $id - 1
+					) + $rootJobParams // carry over information for de-duplication
+				);
+				$start = $id;
+				$numTitles = 0;
+			}
+			$numTitles++;
+		}
+		# Last job
+		$jobs[] = new ParsoidCacheUpdateJob( $this->title,
+			array(
+				'table' => $this->params['table'],
+				'start' => $start,
+				'end' => $this->params['end']
+			) + $rootJobParams // carry over information for de-duplication
+		);
+		wfDebug( __METHOD__ . ": repartitioning into " . count( $jobs ) . " jobs\n" );
+
+		if ( count( $jobs ) < 2 ) {
+			# I don't think this is possible at present, but handling this case
+			# makes the code a bit more robust against future code updates and
+			# avoids a potential infinite loop of repartitioning
+			wfDebug( __METHOD__ . ": repartitioning failed!\n" );
+			$this->invalidateTitles( $titleArray );
+		} else {
+			JobQueueGroup::singleton()->push( $jobs );
+		}
+	}
+
+
+	/**
+	 * @param $rootJobParams array
+	 * @return void
+	 */
+	protected function insertPartitionJobs( $rootJobParams = array() ) {
+		// Carry over any "root job" information
+		$rootJobParams = $this->getRootJobParams();
+
+		$batches = $this->blCache->partition( $this->params['table'], $this->rowsPerJob );
+		if ( !count( $batches ) ) {
+			return; // no jobs to insert
+		}
+
+		$jobs = array();
+		foreach ( $batches as $batch ) {
+			list( $start, $end ) = $batch;
+			$jobs[] = new ParsoidCacheUpdateJob( $this->title,
+				array(
+					'table' => $this->params['table'],
+					'start' => $start,
+					'end' => $end,
+				) + $rootJobParams // carry over information for de-duplication
+			);
+		}
+
+		JobQueueGroup::singleton()->push( $jobs );
 	}
 
 	/**

@@ -64,7 +64,8 @@ class ParsoidSetup {
 	 * @return void
 	 */
 	protected static function setupDefaultConfig() {
-		global $wgParsoidCacheServers, $wgParsoidSkipRatio, $wgDBname;
+		global $wgParsoidCacheServers, $wgParsoidSkipRatio, $wgDBname,
+			$wgParsoidMaxBacklinksInvalidate;
 
 		/**
 		 * An array of Varnish caches in front of Parsoid to keep up to date.
@@ -81,6 +82,11 @@ class ParsoidSetup {
 		 * parsoidConfig.setInterwiki in the Parsoid localsettings.js.
 		 */
 		$wgParsoidWikiPrefix = $wgDBname;
+
+		/**
+		 * The maximum number of backlinks (templates and files) to update.
+		 */
+		$wgParsoidMaxBacklinksInvalidate = false;
 
 		/**
 		 * The portion of update requests to skip for basic load shedding. A
