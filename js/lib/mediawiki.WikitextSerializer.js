@@ -2874,6 +2874,13 @@ WSP._buildTemplateWT = function(node, state, srcParts) {
 	var buf = [],
 		serializer = this,
 		dp = node.data.parsoid;
+
+	// Workaround for VE bug https://bugzilla.wikimedia.org/show_bug.cgi?id=51150
+	if (srcParts.length === 1 && srcParts[0].template &&
+			srcParts[0].template.i === undefined) {
+		srcParts[0].template.i = 0;
+	}
+
 	srcParts.map(function(part) {
 		var tpl = part.template;
 		if (tpl) { // transclusion: tpl or parser function
