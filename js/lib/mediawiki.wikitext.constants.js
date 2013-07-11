@@ -69,7 +69,7 @@ var WikitextConstants = {
 			// In case you were wondering, explicit <a .. > HTML is NOT allowed in wikitext.
 			// That is why the <a> tag is missing from the white-list.
 			'abbr',
-			'b', 'bdi', 'big', 'blockquote', 'br',
+			'b', 'bdi', 'bdo', 'big', 'blockquote', 'br',
 			'caption', 'center', 'cite', 'code',
 			'dd', 'del', 'dfn', 'div', 'dl', 'dt',
 			'em',
@@ -80,6 +80,7 @@ var WikitextConstants = {
 			'li',
 			'ol',
 			'p', 'pre',
+			'q',
 			'rb', 'rp', 'rt', 'ruby',
 			's', 'samp', 'small', 'span', 'strike', 'strong', 'sub', 'sup',
 			'table', 'td', 'th', 'tr', 'tt',
