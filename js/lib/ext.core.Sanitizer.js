@@ -615,7 +615,7 @@ Sanitizer.prototype.sanitizeHref = function ( href ) {
 		proto = bits[1];
 		host = bits[2];
 		path = bits[3];
-		if ( ! proto.match(this.constants.validProtocolsRE)) {
+		if ( ! proto.match(this.manager.env.conf.wiki.protocolRegex)) {
 			// invalid proto, disallow URL
 			return null;
 		}
