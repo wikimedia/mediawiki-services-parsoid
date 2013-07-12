@@ -21,14 +21,11 @@ class ParsoidCacheUpdateJob extends Job {
 	 */
 	function __construct( $title, $params, $id = 0 ) {
 		wfDebug( "ParsoidCacheUpdateJob.__construct " . $title . "\n" );
-		global $wgUpdateRowsPerJob;
+		global $wgParsoidCacheUpdateTitlesPerJob;
 
 		Job::__construct( 'ParsoidCacheUpdateJob', $title, $params, $id );
 
-		# $this->rowsPerJob = $wgUpdateRowsPerJob;
-		# Parsoid re-parses can be slow, so set the number of titles per job
-		# to 10 for now.
-		$this->rowsPerJob = 10;
+		$this->rowsPerJob = $wgParsoidCacheUpdateTitlesPerJob;
 
 		$this->blCache = $title->getBacklinkCache();
 	}

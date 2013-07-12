@@ -65,7 +65,7 @@ class ParsoidSetup {
 	 */
 	protected static function setupDefaultConfig() {
 		global $wgParsoidCacheServers, $wgParsoidSkipRatio, $wgDBname,
-			$wgParsoidMaxBacklinksInvalidate;
+			$wgParsoidCacheUpdateTitlesPerJob, $wgParsoidMaxBacklinksInvalidate;
 
 		/**
 		 * An array of Varnish caches in front of Parsoid to keep up to date.
@@ -87,6 +87,12 @@ class ParsoidSetup {
 		 * The maximum number of backlinks (templates and files) to update.
 		 */
 		$wgParsoidMaxBacklinksInvalidate = false;
+
+		/**
+		 * The maximum number of titles to process in a single
+		 * ParsoidCacheUpdateJob
+		 */
+		$wgParsoidCacheUpdateTitlesPerJob = 50;
 
 		/**
 		 * The portion of update requests to skip for basic load shedding. A
