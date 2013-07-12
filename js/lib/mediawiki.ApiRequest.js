@@ -348,7 +348,7 @@ function PreprocessorRequest ( env, title, text ) {
 		text: text
 	};
 	// Randomize the POST url so that we hit different Squids
-	var url = env.conf.wiki.apiURI + '?' + process.pid;
+	var url = env.conf.wiki.apiURI + '?random=' + process.pid;
 
 	this.requestOptions = {
 		// Use POST since we are passing a bit of source, and GET has a very
@@ -448,7 +448,7 @@ function PHPParseRequest ( env, title, text ) {
 		disablepp: 'true'
 	};
 	// Randomize the POST url so that we hit different Squids
-	var url = env.conf.wiki.apiURI + '?' + process.pid;
+	var url = env.conf.wiki.apiURI + '?random=' + process.pid;
 
 	this.requestOptions = {
 		// Use POST since we are passing a bit of source, and GET has a very
