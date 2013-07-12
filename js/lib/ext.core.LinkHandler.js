@@ -1253,10 +1253,24 @@ ExternalLinkHandler.prototype._imageExtensions = {
 };
 
 ExternalLinkHandler.prototype._hasImageLink = function ( href ) {
+	var allowedPrefixes = this.manager.env.conf.wiki.allowExternalImages;
 	var bits = href.split( '.' );
-	return bits.length > 1 &&
-		this._imageExtensions[ bits[bits.length - 1] ] &&
+	var hasImageExtension = bits.length > 1 &&
+		this._imageExtensions.hasOwnProperty( bits[bits.length - 1] ) &&
 		href.match( /^https?:\/\//i );
+	// Typical settings for mediawiki configuration variables
+	// $wgAllowExternalImages and $wgAllowExternalImagesFrom will
+	// result in values like these:
+	//  allowedPrefixes = undefined; // no external images
+	//  allowedPrefixes = [''];      // allow all external images
+	//  allowedPrefixes = ['http://127.0.0.1/', 'http://example.com'];
+	// Note that the values include the http:// or https:// protocol.
+	// See https://bugzilla.wikimedia.org/show_bug.cgi?id=51092
+	return hasImageExtension && (allowedPrefixes instanceof Array) &&
+		// true iff some prefix in the list matches href
+		allowedPrefixes.some(function(prefix) {
+			return href.indexOf(prefix) === 0;
+		});
 };
 
 ExternalLinkHandler.prototype.onUrlLink = function ( token, frame, cb ) {

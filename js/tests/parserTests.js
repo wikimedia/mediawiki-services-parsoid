@@ -819,6 +819,12 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 		} else {
 			this.env.conf.wiki.namespacesWithSubpages[0] = false;
 		}
+
+		this.env.conf.wiki.allowExternalImages = [ '' ]; // all allowed
+		if ( item.options.wgallowexternalimages !== undefined &&
+			 ! /^(1|true|)$/.test(item.options.wgallowexternalimages) ) {
+			this.env.conf.wiki.allowExternalImages = undefined;
+		}
 	}
 
 	item.extensions = extensions;
