@@ -448,6 +448,8 @@ function PHPParseRequest ( env, title, text ) {
 		disablepp: 'true'
 	};
 	// Randomize the POST url so that we hit different Squids
+	// TODO: cut out squids completely. See
+	// https://bugzilla.wikimedia.org/show_bug.cgi?id=51273
 	var url = env.conf.wiki.apiURI + '?random=' + process.pid;
 
 	this.requestOptions = {
