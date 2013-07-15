@@ -269,8 +269,8 @@ function getCacheKey(cacheType, options) {
 	if ( options.inBlockToken ) {
 		cacheType += '::inBlockToken';
 	}
-	if ( options.inTagRef ) {
-		cacheType += '::inTagRef';
+	if ( options.inTemplate ) {
+		cacheType += '::inTemplate';
 	}
 	if ( options.extTag ) {
 		cacheType += '::'+options.extTag;
