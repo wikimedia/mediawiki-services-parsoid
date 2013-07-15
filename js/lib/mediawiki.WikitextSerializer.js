@@ -3878,14 +3878,17 @@ WSP._serializeNode = function( node, state, cb) {
 			if ( !handled ) {
 				state.prevNodeUnmodified = state.currNodeUnmodified;
 				state.currNodeUnmodified = false;
-				if (state.selserMode && DU.hasInsertedOrModifiedDiffMark(node, this.env)) {
-					state.inModifiedContent = true;
-				}
 				// console.warn("USED NEW");
 				if ( domHandler && domHandler.handle ) {
 					// DOM-based serialization
 					try {
-						nextNode = domHandler.handle(node, state, cb, wrapperUnmodified);
+						if (state.selserMode && DU.hasInsertedOrModifiedDiffMark(node, this.env)) {
+							state.inModifiedContent = true;
+							nextNode = domHandler.handle(node, state, cb, wrapperUnmodified);
+							state.inModifiedContent = false;
+						} else {
+							nextNode = domHandler.handle(node, state, cb, wrapperUnmodified);
+						}
 					} catch(e) {
 						console.error(e.stack || e.toString());
 						console.error(node.nodeName, domHandler);
@@ -3895,7 +3898,6 @@ WSP._serializeNode = function( node, state, cb) {
 					// Used to be token-based serialization
 					console.error('No dom handler found for', node.outerHTML);
 				}
-				state.inModifiedContent = false;
 			}
 
 			// Update end separator constraints
