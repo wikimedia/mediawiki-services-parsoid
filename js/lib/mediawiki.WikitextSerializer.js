@@ -1144,14 +1144,20 @@ function escapeWikiLinkContentString ( contentString, state, contentNode ) {
  * Figure out if the link needs to be protected with <nowiki/> against
  * unwanted link prefix and -trail parsing.
  */
-WSP.getLinkPrefixTailEscapes = function (node, env) {
-	// Check if we need to escape against prefixes or tails
-	var prefixEscape = '', tailEscape = '';
+WSP.getLinkPrefixTailEscapes = function (linkData, node, env) {
 	// Check if we need to escape a link prefix
 	var escapes = {
 		prefix: '',
 		tail: ''
 	};
+
+	// Categories dont need prefix/suffix nowiki-escaping
+	if (linkData.type === 'mw:WikiLink/Category' ) {
+		return escapes;
+	}
+
+	// Check if we need to escape against prefixes or tails
+	var prefixEscape = '', tailEscape = '';
 	if (env.conf.wiki.linkPrefixRegex &&
 			node.previousSibling &&
 			// TODO: Also handle zero-width content here?
@@ -1727,9 +1733,8 @@ WSP.linkHandler = function(node, state, cb) {
 			//console.log(linkData.content.string, canUsePipeTrick);
 
 			// Get <nowiki/> escapes to protect against unwanted prefix / tail
-			var escapes = this.getLinkPrefixTailEscapes(node, env),
+			var escapes = this.getLinkPrefixTailEscapes(linkData, node, env),
 				linkTarget;
-
 
 			if ( canUseSimple ) {
 				// Simple case

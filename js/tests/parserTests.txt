@@ -8780,6 +8780,17 @@ parsoid
 !! end
 
 !! test
+Parsoid: Link prefix/suffixes aren't applied to category links
+!! options
+parsoid=wt2html,wt2wt,html2html
+language=is
+!! input
+x[[Category:Foo]]y
+!! result
+<p>x<link rel="mw:WikiLink/Category" href="Category:Foo">y</p>
+!! end
+
+!! test
 Parsoid: Serialize link to file page with colon escape
 !! options
 parsoid
