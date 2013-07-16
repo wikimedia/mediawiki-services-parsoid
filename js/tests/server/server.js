@@ -432,13 +432,21 @@ var titleCallback = function( req, res, retry, commitHash, cutOffTimestamp, err,
 				if (claim[0].num_tries >= maxTries) {
 					// Too many failures.  Insert an error stats entry and retry fetch
 					console.log( ' CRASHER?', row[0].prefix + ':' + row[0].title );
-					var stats = [0, 0, 1, statsScore(0,0,1), claim[0].page_id, commitHash];
+					var stats = [0, 0, 1, statsScore(0,0,1), row[0].id, commitHash];
 					db.query( dbInsertClaimStats, stats, function ( err ) {
-						if (err) {
+						if ( !err ) {
+							db.query( dbUpdateLatestResult, [commitHash, row[0].id],
+								dbUpdateErrCB.bind(null, row[0].title, row[0].prefix, commitHash, 'latest result', null ) );
+						} else {
 							// Try updating the stats instead of inserting if we got an error
 							// Likely a sql constraint error
 							db.query( dbUpdateClaimStats, stats, function (err) {
-								dbUpdateErrCB( row[0].title, row[0].prefix, commitHash, 'stats', null, err );
+								if ( !err ) {
+									db.query( dbUpdateLatestResult, [commitHash, row[0].id],
+										dbUpdateErrCB.bind(null, row[0].title, row[0].prefix, commitHash, 'latest result', null ) );
+								} else {
+									dbUpdateErrCB( row[0].title, row[0].prefix, commitHash, 'stats', null, err );
+								}
 							});
 						}
 					} );
@@ -831,7 +839,7 @@ var resultWebCallback = function( req, res, err, row ) {
 	if ( err ) {
 		console.error( err );
 		res.send( err.toString(), 500 );
-	} else if ( row ) {
+	} else if ( row && row.length > 0 ) {
 		res.setHeader( 'Content-Type', 'text/xml; charset=UTF-8' );
 		res.status( 200 );
 		res.write( '<?xml-stylesheet href="/static/result.css"?>\n' );
