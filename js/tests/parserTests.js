@@ -1360,6 +1360,11 @@ ParserTests.prototype.main = function ( options ) {
 			options.selser = true;
 			// force use of the exhaustive changes file when creating blacklist.
 			options.changesin = BLACKLIST_CHANGESIN;
+			// sanity checking (bug 51448 asks to be able to use --filter here)
+			if ( options.filter || options.maxtests ) {
+				console.error( "\nERROR> can't combine --rewrite-blacklist with --filter or --maxtests" );
+				process.exit( 1 );
+			}
 		}
 	}
 
