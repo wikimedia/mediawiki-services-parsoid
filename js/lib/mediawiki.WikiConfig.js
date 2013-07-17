@@ -217,6 +217,20 @@ function WikiConfig( resultConf, prefix, uri ) {
 		} else {
 			conf.caseSensitive = false;
 		}
+
+		if ( general.externalimages ) {
+			conf.allowExternalImages = general.externalimages;
+		}
+
+		if ( general.imagewhitelistenabled !== undefined ) {
+			conf.enableImageWhitelist = true;
+			// XXX we don't actually support the on-wiki whitelist (bug 51268)
+			// if we did, we would probably want to fetch and cache
+			//  MediaWiki:External image whitelist
+			// here (rather than do so on every parse)
+		} else {
+			conf.enableImageWhitelist = false;
+		}
 	}
 
 	if ( !conf.baseURI ) {
