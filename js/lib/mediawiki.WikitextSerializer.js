@@ -543,93 +543,135 @@ WSP.initialState = {
 // Make sure the initialState is never modified
 Util.deepFreeze( WSP.initialState );
 
-function escapedText(origText, fullWrap) {
-	// Full-wrapping is enabled in the following cases:
-	// * origText is a "small" string
-	// * origText has url triggers (RFC, ISBN, etc.)
-	// * is being escaped within context-specific handlers
+/* ----------------------------------------------------------------
+ * This function attempts to wrap smallest escapable units into
+ * nowikis (which can potentially add multiple nowiki pairs in a
+ * single string).  However, it does attempt to coalesce adjacent
+ * nowiki segments into a single nowiki wrapper.
+ *
+ * Full-wrapping is enabled in the following cases:
+ * - origText has url triggers (RFC, ISBN, etc.)
+ * - is being escaped within context-specific handlers
+ * ---------------------------------------------------------------- */
+WSP.escapedText = function(state, sol, origText, fullWrap) {
 
 	var match = origText.match(/^((?:.*?|[\r\n]+[^\r\n]|[~]{3,5})*?)((?:\r?\n)*)$/),
 		text = match[1],
 		nls = match[2],
-		maxRunLength = 20;
+		nowikisAdded = false;
 
-	if (fullWrap || text.length < maxRunLength) {
+	// console.warn("SOL: " + sol + "; text: " + text);
+
+	if (fullWrap) {
 		return ["<nowiki>", text, "</nowiki>", nls].join('');
 	} else {
-		// For now, only optimize "[[..]]", "{{..}}", "{{{..}}}" scenarios
-		// Splitting on white-space, "=", ' chars can split html tags
-		// in the middle and create ugly nowiki escaping output.
-		var pieces = text.split(/(\[\[|\]\]|\{\{\{|\{\{|\}\}\}|\}\})/g),
-			n = pieces.length,
-			buf = n === 1 ?  ["<nowiki>", text, "</nowiki>"] : [];
+		var buf = [],
+			inNowiki = false,
+			tokensWithoutClosingTag = Util.arrayToHash([
+				// These token types don't come with a closing tag
+				'listItem', 'td', 'tr'
+			]);
 
-		if (n > 1) {
-			var openTag = null,
-				openNowiki = false,
-				canBeClosed = false,
-				currentRunLength = 0,
-				closingWtTagMap = { "[[" : "]]", "{{" : "}}", "{{{": "}}}" };
+		// Tokenize string and pop EOFTk
+		var tokens = this.tokenizeStr(state, text, sol);
+		tokens.pop();
 
-			for (var i = 0; i < n; i++) {
-				var p = pieces[i];
-				if (!openTag) {
-					if (p in closingWtTagMap) {
-						openTag = p;
-						canBeClosed = false;
-						if (!openNowiki) {
-							buf.push("<nowiki>");
-							openNowiki = true;
-						}
-					} else if (
-							// [..], <..>, '', ~~~~
-							p.match(/\[[^\[\]]\]|<[^<>]*>|''|~{3,5}/) ||
-							// If in SOL (previous piece ended in a \n), or after a \n,
-							// \s+ (indent-pre), = (headings), *#;: (lists), {| |}, |, ||, |-, |+, ! (tables)
-							p.match(/\n([ \t]+[^\s]+|[=:;#\*]|\s*(\{\||\|\}|\|[\|\-\+]?|!))/) ||
-							((i === 0 || pieces[i-1].match(/\n$/)) && p.match(/^([ \t]+[^\s]+|=:;#\*|\s*(\{\||\|\}|\|[\|\-\+]?|!))/))
-						)
-					{
-						canBeClosed = false;
-						if (!openNowiki) {
-							buf.push("<nowiki>");
-							openNowiki = true;
-						}
-					}
-				} else {
-					if (p === closingWtTagMap[openTag]) {
-						openTag = null;
-					}
+		// Add nowikis intelligently
+		var smartNowikier = function(open, close, str, i, numToks) {
+			// Max length of string that gets "unnecessarily"
+			// sucked into a nowiki (15 is an arbitrary number)
+			var maxExcessWrapLength = 15;
+
+			// If we are being asked to close a nowiki
+			// without opening one, we open a nowiki.
+			//
+			// Ex: "</s>" will parse to an end-tag
+			if (open || (close && !inNowiki)) {
+				if (!inNowiki) {
+					buf.push("<nowiki>");
+					inNowiki = true;
+					nowikisAdded = true;
 				}
+			}
 
-				if (canBeClosed && p.length > 0.2*maxRunLength) {
+			buf.push(str);
+
+			if (close) {
+				if ((i < numToks-1 && tokens[i+1].constructor === String && tokens[i+1].length >= maxExcessWrapLength) ||
+				    (i === numToks-2 && tokens[i+1].constructor === String))
+				{
 					buf.push("</nowiki>");
-					openNowiki = false;
-					canBeClosed = false;
-					currentRunLength = 0;
-				}
-
-				buf.push(p);
-
-				// Push </nowiki> if:
-				// - we are in the middle of an open <nowiki>,
-				// - we are not in the middle of an open tag,
-				// - and will cross maxRunLength length on the next piece
-				currentRunLength += p.length;
-				if (!openTag && openNowiki && (i < n-1 && pieces[i+1].length + currentRunLength >= maxRunLength)) {
-					canBeClosed = true;
+					inNowiki = false;
 				}
 			}
+		};
 
-			if (openNowiki) {
-				buf.push("</nowiki>");
+		for (var i = 0, n = tokens.length; i < n; i++) {
+			var t = tokens[i],
+				tsr = (t.dataAttribs || {}).tsr;
+
+			// console.warn("SOL: " + sol + "; T[" + i + "]=" + JSON.stringify(t));
+
+			switch (t.constructor) {
+			case String:
+				if (t.length > 0) {
+					if (sol && t.match(/(^|\n)[ \t]/)) {
+						smartNowikier(true, true, t, i, n);
+					} else {
+						buf.push(t);
+					}
+					sol = false;
+				}
+				break;
+
+			case pd.NlTk:
+				buf.push(text.substring(tsr[0], tsr[1]));
+				sol = true;
+				break;
+
+			case pd.CommentTk:
+				// Comments are sol-transparent
+				buf.push(text.substring(tsr[0], tsr[1]));
+				break;
+
+			case pd.TagTk:
+				// Treat tokens with missing tags as self-closing tokens
+				// for the purpose of minimal nowiki escaping
+				var closeNowiki = tokensWithoutClosingTag[t.name];
+				smartNowikier(true, closeNowiki, text.substring(tsr[0], tsr[1]), i, n);
+				sol = false;
+				break;
+
+			case pd.EndTagTk:
+				smartNowikier(false, true, text.substring(tsr[0], tsr[1]), i, n);
+				sol = false;
+				break;
+
+			case pd.SelfclosingTagTk:
+				smartNowikier(true, true, text.substring(tsr[0], tsr[1]), i, n);
+				sol = false;
+				break;
 			}
+		}
+
+		// close any unclosed nowikis
+		if (inNowiki) {
+			buf.push("</nowiki>");
+		}
+
+		// Make sure nowiki is always added
+		// Ex: "foo]]" won't tokenize into tags at all
+		if (!nowikisAdded) {
+			buf = [];
+			buf.push("<nowiki>");
+			buf.push(text);
+			buf.push("</nowiki>");
 		}
 
 		buf.push(nls);
 		return buf.join('');
 	}
-}
+};
 
 WSP.tokenizeStr = function(state, str, sol) {
 	var p = new PegTokenizer( state.env ), tokens = [];
@@ -674,7 +716,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 	var wteHandler = state.wteHandlerStack.last();
 	if (wteHandler && wteHandler(state, text, opts)) {
 		// console.warn("---EWT:F2---");
-		return escapedText(text, true);
+		return this.escapedText(state, false, text, true);
 	}
 
 	// Template and template-arg markers are escaped unconditionally!
@@ -682,7 +724,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 	// of whether we are in template arg context or not.
 	if (text.match(/\{\{\{|\{\{|\}\}\}|\}\}/)) {
 		// console.warn("---EWT:F3---");
-		return escapedText(text, fullCheckNeeded);
+		return this.escapedText(state, false, text, fullCheckNeeded);
 	}
 
 	// Escape quotes that come after I/B nodes that can be reparsed
@@ -691,7 +733,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 		var prev = opts.node && opts.node.previousSibling ? opts.node.previousSibling.nodeName : '';
 		if (prev === 'I' || prev === 'B') {
 			// console.warn("---EWT:F3b---");
-			return escapedText(text, true);
+			return this.escapedText(state, false, text, true);
 		}
 	}
 
@@ -726,7 +768,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 	// So, we always conservatively escape text with ' ' in sol posn.
 	if (sol && text.match(/(^|\n)[ \t]+[^\s]+/)) {
 		// console.warn("---EWT:F6---");
-		return escapedText(text, fullCheckNeeded);
+		return this.escapedText(state, sol, text, fullCheckNeeded);
 	}
 
 	// escape nowiki tags
@@ -739,11 +781,11 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 	// hasWikitextTokens check
 	if (this.wteHandlers.hasWikitextTokens(state, sol, text) || hasTildes) {
 		// console.warn("---EWT:DBG1---");
-		return escapedText(text, fullCheckNeeded);
+		return this.escapedText(state, sol, text, fullCheckNeeded);
 	} else if (state.onSOL) {
 		if (text.match(/(^|\n)=+[^\n=]+=+[ \t]*\n/)) {
 			// console.warn("---EWT:DBG2a---");
-			return escapedText(text, fullCheckNeeded);
+			return this.escapedText(state, sol, text, fullCheckNeeded);
 		} else if (text.match(/(^|\n)=+[^\n=]+=+[ \t]*$/)) {
 			/* ---------------------------------------------------------------
 			 * '$' is only specific to 'text' and not the entire line.
@@ -774,7 +816,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 				DU.isText(nonSepSibling) && nonSepSibling.nodeValue.match(/^\s*\n/))
 			{
 				// console.warn("---EWT:DBG2b---");
-				return escapedText(text, fullCheckNeeded);
+				return this.escapedText(state, sol, text, fullCheckNeeded);
 			} else {
 				// console.warn("---EWT:DBG2c---");
 				return text;
@@ -829,7 +871,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 				this.wteHandlers.hasWikitextTokens(state, sol, cl.text + text, true))
 		{
 			// console.warn("---EWT:DBG4---");
-			return escapedText(text, fullCheckNeeded);
+			return this.escapedText(state, sol, text, fullCheckNeeded);
 		} else {
 			// console.warn("---EWT:DBG5---");
 			return text;

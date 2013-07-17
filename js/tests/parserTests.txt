@@ -14933,7 +14933,7 @@ Headings: 2. Outside heading nest on a single line <h1>foo</h1>*bar
 parsoid
 !! input
 =foo=
-<nowiki>*bar</nowiki>
+<nowiki>*</nowiki>bar
 
 =foo=
 =bar
@@ -15034,11 +15034,11 @@ parsoid
 !! input
 <nowiki>=a=</nowiki>
 
-<nowiki>=a= </nowiki>
+<nowiki>=a=</nowiki> 
 
-<nowiki>=a=	</nowiki>
+<nowiki>=a=</nowiki>	
 
-<nowiki>=a= 	</nowiki>
+<nowiki>=a=</nowiki> 	
 !! result
 <p>=a=</p>
 <p>=a= </p>
@@ -15079,8 +15079,8 @@ Headings: 6c. Heading chars in SOL context (leading newline break)
 !! options
 parsoid
 !! input
-<nowiki>a
-=b=</nowiki>
+a
+<nowiki>=b=</nowiki>
 !! result
 <p>a
 =b=</p>
@@ -15093,7 +15093,7 @@ parsoid
 !! input
 <!--c0--><nowiki>=a=</nowiki>
 <!--c1-->
-<nowiki>=a= </nowiki><!--c2-->	 <!--c3-->
+<nowiki>=a=</nowiki> <!--c2-->	 <!--c3-->
 !! result
 <p><!--c0-->=a=</p>
 <p><!--c1-->=a= <!--c2-->	 <!--c3--></p>
@@ -15123,9 +15123,9 @@ parsoid=html2wt
 !! test
 Lists: 0. Outside nests
 !! input
-<nowiki>*foo</nowiki>
+<nowiki>*</nowiki>foo
 
-<nowiki>#foo</nowiki>
+<nowiki>#</nowiki>foo
 !! result
 <p>*foo
 </p><p>#foo
@@ -15270,8 +15270,8 @@ parsoid
 !! test
 Lists: 7. Escape bullets in a multi-line context
 !! input
-<nowiki>a
-*b</nowiki>
+a
+<nowiki>*</nowiki>b
 !! result
 <p>a
 *b
@@ -15529,7 +15529,7 @@ Links 1. Quote marks in link text
 !! options
 parsoid
 !! input
-[[Foo|<nowiki>Foo''boo''</nowiki>]]
+[[Foo|Foo<nowiki>''boo''</nowiki>]]
 !! result
 <a rel="mw:WikiLink" href="Foo">Foo''boo''</a>
 !! end
@@ -15685,24 +15685,24 @@ bar <span><nowiki>[[foo]]</nowiki></span>
 !! options
 parsoid
 !! input
-<nowiki> a</nowiki>
+<nowiki> </nowiki>a
 
-<nowiki>  a</nowiki>
+<nowiki> </nowiki> a
 
-<nowiki>	a(tab)</nowiki>
+<nowiki>	</nowiki>a(tab)
 
-<nowiki> 	a</nowiki>
+<nowiki> </nowiki>	a
 <!--cmt-->
-<nowiki>  a</nowiki>
+<nowiki> </nowiki> a
 
-<nowiki>a
- b</nowiki>
+a
+<nowiki> </nowiki>b
 
-<nowiki>a
-	b</nowiki>
+a
+<nowiki>	</nowiki>b
 
-<nowiki>a
-	 b</nowiki>
+a
+<nowiki>	</nowiki> b
 !! result
 <p> a</p>
 <p>  a</p>
