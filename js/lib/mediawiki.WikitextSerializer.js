@@ -1137,6 +1137,8 @@ var getLinkRoundTripData = function( env, node, state ) {
 	rtData.target = DU.getAttributeShadowInfo(node, 'href', tplAttrs);
 
 	// Check if the link content has been modified
+	// FIXME: This will only work with selser of course. Hard to test without
+	// selser.
 	DU.loadDataAttrib(node, "parsoid-diff", {});
 	var changes = node.data['parsoid-diff'].diff || [];
 	if (changes.indexOf('subtree-changed') !== -1) {
@@ -1780,7 +1782,7 @@ WSP.linkHandler = function(node, state, cb) {
 
 			if ( canUseSimple ) {
 				// Simple case
-				if (!target.modified) {
+				if (!target.modified && !linkData.contentModified) {
 					linkTarget = target.value;
 				} else {
 					linkTarget = escapeWikiLinkContentString(linkData.content.string, state, linkData.contentNode);
