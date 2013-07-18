@@ -14735,9 +14735,10 @@ parsoid
 
 <references />
 !!result
-<p><span about="#mwt1" class="reference" data-mw='{"name":"ref","body":{"html":"foo &amp;lt;ref&amp;gt;bar"},"attrs":{}}' id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref"><a href="#cite_note-1">[1]</a></span> baz&lt;/ref&gt;</p>
+<span about="#mwt1" class="reference" data-mw="{&quot;name&quot;:&quot;ref&quot;,&quot;body&quot;:{&quot;html&quot;:&quot;foo &amp;lt;ref&amp;gt;bar&amp;lt;/ref&amp;gt; baz&quot;},&quot;attrs&quot;:{}}" id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref"><a href="#cite_note-1">[1]</a></span>
 
-<ol about="#mwt2" class="references" data-mw='{"name":"references","attrs":{}}' typeof="mw:Extension/references"><li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1-0">↑</a></span> foo &lt;ref&gt;bar</li></ol>
+<ol class="references" typeof="mw:Extension/references" about="#mwt2" data-mw="{&quot;name&quot;:&quot;references&quot;,&quot;attrs&quot;:{}}">
+<li about="#cite_note-1" id="cite_note-1" data-parsoid="{}"><span rel="mw:referencedBy"><a href="#cite_ref-1-0">↑</a></span> foo &lt;ref&gt;bar&lt;/ref&gt; baz</li></ol>
 !!end
 
 !!test

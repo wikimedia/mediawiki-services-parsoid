@@ -546,70 +546,7 @@ TemplateHandler.prototype._startTokenPipeline = function( state, frame, cb, tplA
 	//console.log( tplArgs.name );
 	//console.log( "---------------------------------");
 	//console.log( src );
-
-	/* -----------------------------------------------------------------
-	 * HACK! Bypass the "text/mediawiki" pipeline for "{{#tag:ref|...}}"
-	 *
-	 * We have to do this to support <ref> tags in #tag:ref (which is
-	 * effectively nested ref tags). See Bug 49555 for additional details.
-	 *
-	 * Consider this wikitext: "{{#tag:ref|X <ref>foo</ref> Y}}"
-	 * The PHP preprocessor returns "<ref>X <ref>foo</ref> Y</ref>"
-	 *
-	 * If we pass this through the regular pipeline, the tokenizer
-	 * will parse this into 2 tokens:
-	 * [ <extension name="ref" source="<ref>X <ref>foo</ref>" />,
-	 *   " Y &lt/ref&gt;" ]
-	 * which is absolutely not what we want!
-	 *
-	 * Since we know this can be a nested-ref token and has to parse
-	 * into a single extension-token, we do the work of the tokenizer
-	 * and convert it to an ext-token ourselves.
-	 *
-	 * Since this is a single ext-token, we know it wouldn't have been
-	 * processed by any other handlers in stage 1 or stage 2 except
-	 * template encapsulation which we directly handle below.
-	 *
-	 * So, this hack effectively bypasses the normal stage 1 and stage 2
-	 * pipeline processing and shortcircuits it below with exactly the
-	 * tokens we want.
-	 * ----------------------------------------------------------------- */
-	var tplName = (state.token.attribs[0].k || '');
-	var inTagRef = tplName.constructor === String && tplName.toLowerCase() === "#tag:ref";
-	if (inTagRef) {
-		// Do not set data attribs here since _onChunk will strip tsr
-		// from this ext token -- which we don't want stripped
-		var extToken = new SelfclosingTagTk('extension',
-			[
-				new KV('inTagRef', '1'),
-				new KV('typeof', 'mw:Extension'),
-				new KV('name', 'ref'),
-				new KV('about', "#" + this.manager.env.newObjectId()),
-				new KV('source', src),
-				new KV('options', state.token.attribs.slice(2))
-			]
-		);
-
-		// Run normal tpl encapsulation on it
-		this._onChunk(state, function(ret) {
-			var toks = ret.tokens, n = toks.length;
-			for (var i = 0; i < n; i++) {
-				// Find the tag and set dataAttribs on it
-				if (toks[i].constructor === SelfclosingTagTk &&
-					toks[i].getAttribute('inTagRef'))
-				{
-					var dp = Util.clone(state.token.dataAttribs),
-						matchInfo = src.match(/^(<ref[^<>]*>)[^]*(<\/ref>)$/i);
-
-					dp.tagWidths = [matchInfo[1].length,matchInfo[2].length];
-					toks[i].dataAttribs = dp;
-				}
-			}
-			cb(ret);
-			this._onEnd(state, cb);
-		}.bind(this), [extToken]);
-		return;
-	}
+	//console.log( "---------------------------------");
 
 	// Get a nested transformation pipeline for the input type. The input
 	// pipeline includes the tokenizer, synchronous stage-1 transforms for
@@ -617,6 +554,7 @@ TemplateHandler.prototype._startTokenPipeline = function( state, frame, cb, tplA
 	//
 	// NOTE: No template wrapping required for nested templates.
 	var pipelineOpts = {
+		inTemplate: true,
 		isInclude: true,
 		wrapTemplates: false,
 		extTag: this.options.extTag

@@ -1401,26 +1401,48 @@ xmlish_tag =
         if (t.constructor !== EndTagTk && !isHtmlTag) {
             if (t.constructor === TagTk) {
                 var tsr0 = dp.tsr[0],
+                    endTagRE = new RegExp("^(?:.|\n)*?(</\\s*" + tagName + ">)", "mi"),
                     restOfInput = input.substring(tsr0),
-                    tagContent = restOfInput.match(new RegExp("^(.|\n)*?(</\\s*" + tagName + ">)", "mi")),
+                    tagContent = restOfInput.match(endTagRE),
                     extSrc = null,
-                    tagWidths = null;
+                    tagWidths = null,
+                    endTagWidth = 0;
 
                 if (tagContent) {
                     extSrc = tagContent[0];
+                    endTagWidth = tagContent[1].length;
+
+                    if (tagName === 'ref') {
+                        // Support 1-level nesting of <ref> tags during tokenizing.
+                        // <ref> tags are the exception to the rule (no nesting of ext tags)
+                        //
+                        // Expand extSrc as long as there is a <ref> tag found in the
+                        // extension source body.
+                        var s = extSrc.substring(pos-tsr0);
+                        while (s && s.match(new RegExp("<" + tagName + "[^<>]*>"))) {
+                            tagContent = restOfInput.substring(extSrc.length).match(endTagRE);
+                            if (tagContent) {
+                                s = tagContent[0];
+                                endTagWidth = tagContent[1].length;
+                                extSrc += s;
+                            } else {
+                                s = null;
+                            }
+                        }
+                    }
                 } else if (isInstalledExt || isIncludeTag) {
                     extSrc = restOfInput;
                 }
 
                 if (extSrc) {
-                    tagWidths = [pos-tsr0, (tagContent ? tagContent[2].length : 0)];
+                    tagWidths = [pos-tsr0, endTagWidth];
                     var extContentLen = extSrc.length - tagWidths[0] - tagWidths[1];
 
                     // If the xml-tag is a known installed (not native) extension,
                     // skip the end-tag as well.
                     var skipLen = extContentLen;
-                    if (isInstalledExt && !isIncludeTag && tagContent) {
-                        skipLen += tagContent[2].length;
+                    if (isInstalledExt && !isIncludeTag) {
+                        skipLen += endTagWidth;
                     }
 
                     // Extension content source
