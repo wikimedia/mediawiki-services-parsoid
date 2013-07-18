@@ -1724,7 +1724,14 @@ generic_attribute
 
 generic_attribute_name
   = & { return stops.push( 'equal', true ); }
-  name:attribute_preprocessor_text_line
+    // quick sanity check before expensive attribute_preprocessor_text_line
+    // production. Try to parse on !+ for now, seems to happen in caption
+    // tokenization (TODO: try to get rid of those too)
+    &([a-zA-Z!+] / 
+            // Possibly a templated attribute
+            '{{' [^}]+ '}'  /
+            '<' ('noinclude' / 'onlyinclude' / 'includeonly')) 
+    name:attribute_preprocessor_text_line
     {
         stops.pop( 'equal' );
         //console.warn( 'generic attribute name: ' + pp( name ) );
@@ -1948,7 +1955,9 @@ table_caption_tag
 table_row_tag
   = //& { console.warn("table row enter @" + input.substr(pos, 30)); return true; }
     p:pipe dashes:"-"+
-    a:generic_attribute*
+    a:(generic_attribute / 
+            // Ignore pipes in tr attributes
+            space* c:'|' { return new KV(c, '') })*
     tagEndPos:({return pos;})
     // handle tables with missing table cells after a row
     td:implicit_table_data_tag?
