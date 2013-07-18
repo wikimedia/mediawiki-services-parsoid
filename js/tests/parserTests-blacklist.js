@@ -1337,6 +1337,7 @@ add("html2wt", "External links: newline forbidden in text (bug 6230 regression c
 add("html2wt", "External links: protocol-relative URL in brackets without text");
 add("html2wt", "External image");
 add("html2wt", "External image from https");
+add("html2wt", "External image (when not allowed)");
 add("html2wt", "Link to non-http image, no img tag");
 add("html2wt", "External links: terminating separator");
 add("html2wt", "External links: intervening separator");
