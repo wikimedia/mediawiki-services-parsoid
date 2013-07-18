@@ -5174,73 +5174,6 @@ Nested lists 8 (multiple nesting transitions)
 !! end
 
 !! test
-Unbalanced closing block tags break a list
-(Parsoid-only since php parser generates broken html -- relies on Tidy to fix up)
-!! options
-parsoid
-!! input
-<div>
-*a</div><div>
-*b</div>
-!! result
-<div>
-<ul><li>a
-</li></ul></div><div>
-<ul><li>b
-</li></ul></div>
-!! end
-
-!! test
-Unbalanced closing non-block tags don't break a list
-(Parsoid-only since php parser generates broken html -- relies on Tidy to fix up)
-!! options
-parsoid
-!! input
-<span>
-*a</span><span>
-*b</span>
-!! result
-<p><span></span>
-</p>
-<ul><li>a<span></span>
-</li><li>b
-</li></ul>
-!! end
-
-!! test
-Unclosed formatting tags that straddle lists are closed and reopened
-(Parsoid-only since php parser generates broken html -- relies on Tidy to fix up)
-!! options
-parsoid
-!! input
-# <s> a
-# b </s>
-!! result
-<ol><li> <s> a </s>
-</li><li> <s> b </s>
-</li></ol>
-!! end
-
-!!test
-List embedded in a non-block tag
-(Ugly Parsoid output -- worth fixing; Disabled for PHP parser since it relies on Tidy)
-!! options
-parsoid
-!!input
-<small>
-* foo
-</small>
-!!result
-<p><small></small></p>
-<small>
-<ul>
-<li> foo</li>
-</ul>
-</small>
-<p><small></small></p>
-!!end
-
-!! test
 List items are not parsed correctly following a <pre> block (bug 785)
 !! input
 * <pre>foo</pre>
@@ -5381,6 +5314,77 @@ parsoid
 <ol><li> foo<ol><li> bar</li></ol></li></ol><ul><li> foo<ul><li> bar</li></ul></li></ul><dl><dd> foo<dl><dd> bar</dd></dl></dd></dl>
 !! end
 
+# ------------------------------------------------------------------------
+# The next set of tests are about Parsoid's ability to handle badly nested
+# tags (parse, minimize scope of fixup, and roundtrip back)
+# ------------------------------------------------------------------------
+
+!! test
+Unbalanced closing block tags break a list
+(Parsoid-only since php parser generates broken html -- relies on Tidy to fix up)
+!! options
+parsoid
+!! input
+<div>
+*a</div><div>
+*b</div>
+!! result
+<div>
+<ul><li>a
+</li></ul></div><div>
+<ul><li>b
+</li></ul></div>
+!! end
+
+!! test
+Unbalanced closing non-block tags don't break a list
+(Parsoid-only since php parser generates broken html -- relies on Tidy to fix up)
+!! options
+parsoid
+!! input
+<span>
+*a</span><span>
+*b</span>
+!! result
+<p><span></span>
+</p>
+<ul><li>a<span></span>
+</li><li>b
+</li></ul>
+!! end
+
+!! test
+Unclosed formatting tags that straddle lists are closed and reopened
+(Parsoid-only since php parser generates broken html -- relies on Tidy to fix up)
+!! options
+parsoid
+!! input
+# <s> a
+# b </s>
+!! result
+<ol><li> <s> a </s>
+</li><li> <s> b </s>
+</li></ol>
+!! end
+
+!!test
+List embedded in a non-block tag
+(Ugly Parsoid output -- worth fixing; Disabled for PHP parser since it relies on Tidy)
+!! options
+parsoid
+!!input
+<small>
+* foo
+</small>
+!!result
+<p><small></small></p>
+<small>
+<ul>
+<li> foo</li>
+</ul>
+</small>
+<p><small></small></p>
+!!end
 
 ###
 ### Magic Words

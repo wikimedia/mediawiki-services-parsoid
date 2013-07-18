@@ -54,11 +54,6 @@ testWhiteList["Definition Lists: Weird Ones: Test 1"] = "<ul><li><ol><li><dl><dt
 // output.
 testWhiteList["Bug 2702: Mismatched <i>, <b> and <a> tags are invalid"] = "<p><i><a href=\"http://example.com\">text</a></i><a href=\"http://example.com\"><b>text</b></a><i>Something <a href=\"http://example.com\">in italic</a></i><i>Something <a href=\"http://example.com\">mixed</a></i><a href=\"http://example.com\"><b>, even bold</b></a><i><b>Now <a href=\"http://example.com\">both</a></b></i></p>";
 
-// The expected result for this test is really broken html.
-testWhiteList["Link containing double-single-quotes '' in text embedded in italics (bug 4598 sanity check)"] = "<p><i>Some <a rel=\"mw:WikiLink\" href=\"Link\" data-parsoid=\"{&quot;tsr&quot;:[7,44],&quot;contentPos&quot;:[13,42],&quot;src&quot;:&quot;[[Link|pretty ''italics'' and stuff]]&quot;}\">pretty </a></i><a rel=\"mw:WikiLink\" href=\"Link\" data-parsoid=\"{&quot;tsr&quot;:[7,44],&quot;contentPos&quot;:[13,42],&quot;src&quot;:&quot;[[Link|pretty ''italics'' and stuff]]&quot;}\">italics<i> and stuff</i></a><i>!</i></p>";
-
-testWhiteList["External link containing double-single-quotes in text embedded in italics (bug 4598 sanity check)"] = "<p><i>Some <a href=\"http://example.com/\">pretty </a></i><a href=\"http://example.com/\">italics<i> and stuff</i></a><i>!</i></p>";
-
 // This is a rare edge case, and the new behavior is arguably more consistent
 testWhiteList["5 quotes, code coverage +1 line"] = "<p><i><b></b></i></p>";
 

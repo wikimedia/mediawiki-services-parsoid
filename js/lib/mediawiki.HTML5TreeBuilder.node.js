@@ -32,6 +32,9 @@ FauxHTML5.TreeBuilder = function ( env ) {
 
 	this.env = env;
 	this.trace = env.conf.parsoid.debug || (env.conf.parsoid.traceFlags && (env.conf.parsoid.traceFlags.indexOf("html") !== -1));
+
+	// Assigned to start tags
+	this.tagId = 1;
 };
 
 // Inherit from EventEmitter
@@ -78,6 +81,7 @@ FauxHTML5.TreeBuilder.prototype.onEnd = function ( ) {
 	// XXX: more clean up to allow reuse.
 	this.parser.setup();
 	this.processToken(new TagTk( 'body' ));
+	this.tagId = 1; // Reset
 };
 
 FauxHTML5.TreeBuilder.prototype._att = function (maybeAttribs) {
@@ -99,17 +103,19 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 	var attribs = token.attribs || [],
 	    dataAttribs = token.dataAttribs;
 
-	if ( dataAttribs ) {
-		var dataMW = JSON.stringify( dataAttribs );
-		if ( dataMW !== '{}' ) {
-			attribs = attribs.concat([
-					{
-						// Mediawiki-specific round-trip / non-semantic information
-						k: 'data-parsoid',
-						v: dataMW
-					} ] );
-		}
+	// Always insert data-parsoid
+	if (!dataAttribs) {
+		dataAttribs = {};
 	}
+	// Assign tagid for open tags
+	if (token.constructor === TagTk && token.name !== 'body') {
+		dataAttribs.tagId = this.tagId++;
+	}
+
+	attribs = attribs.concat([ {
+		k: 'data-parsoid',
+		v: JSON.stringify(dataAttribs)
+	} ]);
 
 	if (this.trace) {
 		console.warn("T:html: " + JSON.stringify(token));
@@ -152,13 +158,11 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 		case TagTk:
 			tName = token.name;
 			this.emit('token', {type: 'StartTag', name: tName, data: this._att(attribs)});
-			if (dataAttribs && dataAttribs.tsr) {
-				attrs = [];
-				if ( this.trace ) { console.warn('inserting shadow meta for ' + tName); }
-				attrs.push({nodeName: "typeof", nodeValue: "mw:StartTag"});
-				attrs.push({nodeName: "data-stag", nodeValue: tName + ':' + dataAttribs.tsr});
-				this.emit('token', {type: 'StartTag', name: 'meta', data: attrs});
-			}
+			attrs = [];
+			if ( this.trace ) { console.warn('inserting shadow meta for ' + tName); }
+			attrs.push({nodeName: "typeof", nodeValue: "mw:StartTag"});
+			attrs.push({nodeName: "data-stag", nodeValue: tName + ':' + dataAttribs.tagId});
+			this.emit('token', {type: 'StartTag', name: 'meta', data: attrs});
 			break;
 		case SelfclosingTagTk:
 			tName = token.name;

@@ -24,6 +24,16 @@ var DOMUtils = {
 		return node && Util.isBlockTag(node.nodeName.toLowerCase());
 	},
 
+	// See http://www.w3.org/html/wg/drafts/html/master/syntax.html#formatting
+	formattingTagMap: Util.arrayToHash([
+		'A', 'B', 'BIG', 'CODE', 'EM', 'FONT', 'I', 'NOBR',
+		'S', 'SMALL', 'STRIKE', 'STRONG', 'TT', 'U'
+	]),
+
+	isFormattingElt: function(node) {
+		return this.isElt(node) && this.formattingTagMap[node.nodeName];
+	},
+
 	/**
 	 * Add a type to the typeof attribute. This method works for both tokens
 	 * and DOM nodes as it only relies on getAttribute and setAttribute, which
@@ -380,34 +390,6 @@ var DOMUtils = {
 			}
 		}
 
-		return false;
-	},
-
-	// This function tests if its end tag is outside a template.
-	endTagOutsideTemplate: function(node, dp) {
-		if (dp.tsr) {
-			return true;
-		}
-
-		var next = node.nextSibling;
-		if (next && this.isElt(next) && this.getDataParsoid(next).tsr) {
-			// If node's sibling has a valid tsr, then the sibling
-			// is outside a template, and since node's start tag itself
-			// is inside a template, this automatically implies that
-			// the end tag is outside a template as well.
-			return true;
-		}
-
-		// Descend into children -- walk backward
-		var children = node.childNodes;
-		for (var n = children.length, i = n-1; i >= 0; i--) {
-			var c = children[i];
-			if (this.isElt(c)) {
-				return this.endTagOutsideTemplate(c, this.getDataParsoid(c));
-			}
-		}
-
-		// We ran out of children to test
 		return false;
 	},
 
