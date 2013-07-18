@@ -128,7 +128,8 @@ var forceUpdate = function() {
 if (typeof module === 'object' && require.main !== module) {
 	module.exports = {
 		checkAndUpdate: checkAndUpdate,
-		isUpToDate: isUpToDate
+		isUpToDate: isUpToDate,
+		latestCommit: latestCommit
 	};
 } else {
 	var argv = require('optimist').argv;
