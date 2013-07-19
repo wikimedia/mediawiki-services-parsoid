@@ -772,7 +772,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 	}
 
 	// escape nowiki tags
-	text = text.replace(/<(\/?nowiki)>/g, '&lt;$1&gt;');
+	text = text.replace(/<(\/?nowiki\s*\/?\s*)>/gi, '&lt;$1&gt;');
 
 	// Use the tokenizer to see if we have any wikitext tokens
 	//

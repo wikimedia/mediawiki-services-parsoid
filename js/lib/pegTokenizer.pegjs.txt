@@ -1581,25 +1581,29 @@ nowiki_tag_name =
   }
 
 nowiki
-  = "<" nowiki_tag_name ">" nc:nowiki_content "</" nowiki_tag_name ">" {
+  = "<" nowiki_tag_name space* ">" 
+    startTagEndPos:({return pos;})  
+    nc:nowiki_content 
+    endTagStartPos:({return pos;})  
+    "</" nowiki_tag_name space* ">" {
         // console.warn( 'full nowiki return: ' + pp(nc));
         return [
             new TagTk( 'span',
                     [
                         {k: 'typeof', v: 'mw:Nowiki'}
                     ],
-                    { tsr: [pos0, pos0+8] } )
+                    { tsr: [pos0, startTagEndPos] } )
         ].concat( nc, [
                     new EndTagTk( 'span',
                     [
                         {k: 'typeof', v: 'mw:Nowiki'}
                     ],
-                    { tsr: [pos - 9, pos] })
+                    { tsr: [endTagStartPos, pos] })
                 ] );
     }
   // nowiki fallback: source-based round-tripping of <nowiki />.
   / nw0:({return pos;})
-    "<" nowiki_tag_name [ ]* "/>" {
+    "<" nowiki_tag_name space* "/" space* ">" {
       // console.warn('<nowiki/>');
       return [
           new SelfclosingTagTk('meta',
@@ -1614,7 +1618,7 @@ nowiki
   // of unbalanced nowiki tags that are treated as text.
   / ! { return stops.counters.pre > 0; }
     nw0:({return pos;})
-    "<" "/"? nowiki_tag_name [ ]* "/"? ">" {
+    "<" "/"? nowiki_tag_name space* "/"? space* ">" {
       // console.warn('nowiki text');
       var nowiki = input.substring(nw0, pos);
       return [
@@ -1642,7 +1646,7 @@ nowiki_content
                  //console.warn('nested pre in nowiki');
                  return ["<pre"].concat(p0, p1, [">"], p2, ["</pre>"]).join('');
                }
-           / (!pre_break !("</" nowiki_tag_name ">") c:(htmlentity / .) {
+           / (!pre_break !("</" nowiki_tag_name space* ">") c:(htmlentity / .) {
                //console.warn('nowiki: single char' + c);
                return c;
            })

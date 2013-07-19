@@ -7722,6 +7722,62 @@ But not inside includeonly
 <includeonly>{{subst:Foo}}</includeonly>
 !! end
 
+!! test
+Parsoid: Recognize nowiki with trailing space in tags
+!! options
+parsoid=wt2html
+!! input
+<nowiki ><div>[[foo]]</nowiki >
+
+a<nowiki / >b
+
+c<nowiki />d
+
+e<nowiki/ >f
+!! result
+<p><span typeof="mw:Nowiki">&lt;div&gt;[[foo]]</span></p>
+<p>ab</p>
+<p>cd</p>
+<p>ef</p>
+!! end
+
+!! test
+Parsoid: Recognize nowiki with odd capitalization
+!! options
+parsoid=wt2html
+!! input
+<noWikI ><div>[[foo]]</Nowiki >
+!! result
+<p><span typeof="mw:Nowiki">&lt;div&gt;[[foo]]</span></p>
+!! end
+
+
+!! test
+Parsoid: Escape nowiki with trailing space in tags
+!! options
+parsoid=html2wt
+!! input
+&lt;nowiki &gt; foo &lt;/nowiki &gt;
+
+a&lt;nowiki /&gt;b
+
+c&lt;nowiki/ &gt;d
+!! result
+<p>&lt;nowiki &gt; foo &lt/nowiki ></p>
+<p>a&lt;nowiki /&gt;b</p>
+<p>c&lt;nowiki/ &gt;d</p>
+!! end
+
+!! test
+Parsoid: Escape weird noWikI capitalizations
+!! options
+parsoid=html2wt
+!! input
+&lt;noWikI &gt; foo &lt;/NoWikI &gt;
+!! result
+<p>&lt;noWikI &gt; foo &lt/NoWikI ></p>
+!! end
+
 ###
 ### Message transform tests
 ###
