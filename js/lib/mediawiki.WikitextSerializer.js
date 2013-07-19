@@ -2834,6 +2834,10 @@ WSP._serializeAttributes = function (state, token) {
 					v = tplV;
 				}
 
+				// Remove encapsulation from protected attributes
+				// in pegTokenizer.pegjs.txt:generic_newline_attribute
+				k = k.replace( /^data-x-/i, '' );
+
 				if (v.length ) {
 					if (!vInfo.fromsrc) {
 						// Escape HTML entities

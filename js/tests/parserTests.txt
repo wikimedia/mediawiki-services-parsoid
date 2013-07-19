@@ -16328,6 +16328,17 @@ parsoid
 </p>
 !!end
 
+!!test
+Encapsulate protected attributes from wt
+!!options
+parsoid
+!!input
+<div typeof="mw:placeholder stuff" data-parsoid="weird" data-parsoid-other="no" about="time" rel="mw:true">foo</div>
+!!result
+<body><div data-x-typeof="mw:placeholder stuff" data-x-data-parsoid="weird" data-x-data-parsoid-other="no" data-x-about="time" data-x-rel="mw:true">foo</div>
+</body>
+!!end
+
 # -----------------------------------------------------------------
 # The following section of tests are primarily to spec requirements
 # around serialization of new/edited content.
