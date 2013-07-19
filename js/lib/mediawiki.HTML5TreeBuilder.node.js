@@ -8,7 +8,8 @@
 var events = require('events'),
 	$ = require( './fakejquery' ),
 	HTML5 = require('./html5/index'),
-	defines = require('./mediawiki.parser.defines.js');
+	defines = require('./mediawiki.parser.defines.js'),
+	Util = require('./mediawiki.Util.js').Util;
 // define some constructor shortcuts
 var CommentTk = defines.CommentTk,
     EOFTk = defines.EOFTk,
@@ -109,6 +110,9 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 	}
 	// Assign tagid for open tags
 	if (token.constructor === TagTk && token.name !== 'body') {
+		if (Object.isFrozen(dataAttribs)) {
+			dataAttribs = Util.clone(dataAttribs);
+		}
 		dataAttribs.tagId = this.tagId++;
 	}
 
