@@ -2101,7 +2101,6 @@ table_end_tag
  */
 single_cell_table_args
   = & { return stops.push('pipe', true); }
-    & could_be_attribute
     as:generic_attribute* s:space* p:pipe {
         stops.pop('pipe');
         //console.warn( 'tcargs' + JSON.stringify( as ) + " stops: " + pp(stops) );
