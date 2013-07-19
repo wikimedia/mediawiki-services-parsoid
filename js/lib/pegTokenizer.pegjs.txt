@@ -1690,6 +1690,17 @@ generic_tag
         return res;
     }
 
+could_be_attribute = 
+    // quick sanity check before expensive attribute_preprocessor_text_line
+    // production. Also try to parse on [|!+;] for now which seem to be common
+    // syntax errors in production that hidden by the PHP parser (by stripping
+    // the 'attributes').
+    space* ([a-zA-Z|!+;] / 
+            // Possibly a templated attribute
+            '{{' [^}]+ '}'  /
+            // comment or noincludes
+            '<' ('!--' / 'noinclude' / 'onlyinclude' / 'includeonly'))
+
 // A generic attribute that can span multiple lines.
 generic_newline_attribute
   = s:space_or_newline+
@@ -1750,15 +1761,6 @@ generic_attribute
 
 generic_attribute_name
   = & { return stops.push( 'equal', true ); }
-    // quick sanity check before expensive attribute_preprocessor_text_line
-    // production. Also try to parse on [|!+;] for now which seem to be common
-    // syntax errors in production that hidden by the PHP parser (by stripping
-    // the 'attributes').
-    &([a-zA-Z|!+;] / 
-            // Possibly a templated attribute
-            '{{' [^}]+ '}'  /
-            // comment or noincludes
-            '<' ('!--' / 'noinclude' / 'onlyinclude' / 'includeonly')) 
     name:attribute_preprocessor_text_line
     {
         stops.pop( 'equal' );
@@ -2099,6 +2101,7 @@ table_end_tag
  */
 single_cell_table_args
   = & { return stops.push('pipe', true); }
+    & could_be_attribute
     as:generic_attribute* s:space* p:pipe {
         stops.pop('pipe');
         //console.warn( 'tcargs' + JSON.stringify( as ) + " stops: " + pp(stops) );
@@ -2112,6 +2115,7 @@ single_cell_table_args
  */
 row_syntax_table_args
   = & { return stops.inc('tableCellArg'); }
+    & could_be_attribute
     as:generic_attribute* s:space* p:pipe !pipe {
         stops.dec('tableCellArg');
         //console.warn( 'tcargs' + JSON.stringify( as ) + " stops: " + pp(stops) );
