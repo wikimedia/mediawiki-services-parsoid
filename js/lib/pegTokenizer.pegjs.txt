@@ -1696,6 +1696,9 @@ could_be_attribute =
     // syntax errors in production that hidden by the PHP parser (by stripping
     // the 'attributes').
     space* ([a-zA-Z|!+;] / 
+            // Crude heuristic that just excludes attribute-less row-syntax
+            // table cells like this with simple (pipe-less) values: |a||b||c
+            [^\'\"\n|]+ '|' [^|\n] /
             // Possibly a templated attribute
             '{{' [^}]+ '}'  /
             // comment or noincludes
