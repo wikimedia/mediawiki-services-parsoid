@@ -1183,7 +1183,6 @@ add("html2html", "Gallery override link with WikiLink (bug 34852)");
 add("html2html", "Gallery override link with absolute external link (bug 34852)");
 add("html2html", "Gallery override link with malicious javascript (bug 34852)");
 add("html2html", "Gallery with invalid title as link (bug 43964)");
-add("html2html", "Ref: 6. indent-pres should not be output in ref-body");
 add("html2html", "Ref: 14. A nested ref-tag should be emitted as plain text");
 add("html2html", "Headings: 2. Outside heading nest on a single line <h1>foo</h1>*bar");
 add("html2html", "Headings: 6a. Heading chars in SOL context (with trailing spaces)");

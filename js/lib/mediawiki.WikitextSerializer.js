@@ -766,7 +766,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 	// SSS FIXME: pre-escaping is currently broken since the front-end parser
 	// eliminated pre-tokens in the tokenizer and moved to a stream handler.
 	// So, we always conservatively escape text with ' ' in sol posn.
-	if (sol && text.match(/(^|\n)[ \t]+[^\s]+/)) {
+	if (sol && !this.options.noPreNowikis && text.match(/(^|\n)[ \t]+[^\s]+/)) {
 		// console.warn("---EWT:F6---");
 		return this.escapedText(state, sol, text, fullCheckNeeded);
 	}
@@ -3066,7 +3066,12 @@ WSP._buildExtensionWT = function(state, node, dataMW) {
 	} else {
 		srcParts.push(">");
 		if (typeof dataMW.body.html === 'string') {
-			var wts = new WikitextSerializer({env: state.env});
+			var wts = new WikitextSerializer({
+				env: state.env,
+				// indent-pres are disabled in ref-bodies
+				// See ext.core.PreHandler.js
+				noPreNowikis: extName === 'ref'
+			});
 			srcParts.push(wts.serializeDOM(Util.parseHTML(dataMW.body.html).body));
 		} else if (dataMW.body.extsrc) {
 			srcParts.push(dataMW.body.extsrc);
