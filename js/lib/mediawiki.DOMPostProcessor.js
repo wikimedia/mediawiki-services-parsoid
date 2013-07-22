@@ -70,6 +70,68 @@ var WT_TagWidths = {
 	// what about span, figure, caption, figcaption?
 };
 
+/* ------------------------------------------------------------------------
+ * TSR = "Tag Source Range".  Start and end offsets giving the location
+ * where the tag showed up in the original source.
+ *
+ * DSR = "DOM Source Range".  [0] and [1] are open and end,
+ * [2] and [3] are widths of the container tag.
+ *
+ * TSR is set by the tokenizer. In most cases, it only applies to the
+ * specific tag (opening or closing).  However, for self-closing
+ * tags that the tokenizer generates, the TSR values applies to the entire
+ * DOM subtree (opening tag + content + closign tag).
+ *
+ * Ex: So [[foo]] will get tokenized to a SelfClosingTagTk(...) with a TSR
+ * value of [0,7].  The DSR algorithm will then use that info and assign
+ * the a-tag rooted at the <a href='...'>foo</a> DOM subtree a DSR value of
+ * [0,7,2,2], where 2 and 2 refer to the opening and closing tag widths.
+ * ------------------------------------------------------------------------ */
+
+
+var WT_tagsWithLimitedTSR = {
+	// TSR info on all these tags are only valid for the opening tag.
+	// (closing tags dont have attrs since tree-builder strips them
+	//  and adds meta-tags tracking the corresponding TSR)
+	//
+	// On other tags, a, hr, br, meta-marker tags, the tsr spans
+	// the entire DOM, not just the tag.
+	"b" : true,
+	"i" : true,
+	"h1" : true,
+	"h2" : true,
+	"h3" : true,
+	"h4" : true,
+	"h5" : true,
+	"ul" : true,
+	"ol" : true,
+	"dl" : true,
+	"li" : true,
+	"dt" : true,
+	"dd" : true,
+	"table" : true,
+	"caption" : true,
+	"tr" : true,
+	"td" : true,
+	"th" : true,
+	"hr" : true, // void element
+	"br" : true, // void element
+	"pre" : true
+};
+
+function tsrSpansTagDOM(n, parsoidData) {
+	// - tags known to have tag-specific tsr
+	// - html tags with 'stx' set
+	// - span tags with 'mw:Nowiki' type
+	var name = n.nodeName.toLowerCase();
+	return !(
+		WT_tagsWithLimitedTSR[name] ||
+		DU.hasLiteralHTMLMarker(parsoidData) ||
+		DU.isNodeOfType(n, 'span', 'mw:Nowiki')
+	);
+}
+
+
 /* ------------- utility functions on DOM nodes/Node attributes ------------ */
 
 // SSS FIXME: Should we convert some of these functions to properties
@@ -843,6 +905,85 @@ function migrateTrailingNLs(elt, env) {
 	}
 }
 
+/* ------------------------------------------------------------------------------------
+ * Non-IEW (inter-element-whitespace) can only be found in <td> <th> and <caption> tags
+ * in a table.  If found elsewhere within a table, such content will be moved out of
+ * the table and be "adopted" by the table's sibling ("foster parent").  The content
+ * that gets adopted is "fostered content".
+ *
+ * See http://dev.w3.org/html5/spec-LC/tree-construction.html#foster-parenting
+ * ------------------------------------------------------------------------------------ */
+function markFosteredContent(node, env) {
+	function findFosteredContent(table) {
+		var tableTagId = table.data.parsoid.tagId,
+			n = table.previousSibling,
+			initPos = table.data.parsoid.tsr ? table.data.parsoid.tsr[0] : null,
+			fosteredText = "",
+			nodeBuf = [],
+			tsrGap = 0;
+
+		while (n) {
+			if (DU.isElt(n)) {
+				if (typeof(n.data.parsoid.tagId) !== 'number' || n.data.parsoid.tagId < tableTagId) {
+					if (initPos && n.data.parsoid.tsr && tsrSpansTagDOM(n, n.data.parsoid)) {
+						var expectedGap = initPos - n.data.parsoid.tsr[1];
+						if (tsrGap !== expectedGap) {
+							/*
+							console.log("Fostered text/comments: " +
+								JSON.stringify(fosteredText.substring(expectedGap)));
+							*/
+							while (nodeBuf.length > 0) {
+								// Wrap each node in a span wrapper
+								var x = nodeBuf.pop();
+								var span = table.ownerDocument.createElement('span');
+								span.data = { parsoid: { fostered: true } };
+								x.parentNode.insertBefore(span, x);
+								span.appendChild(x);
+							}
+						}
+					} else {
+						/* jshint noempty: false */
+
+						// No clue if the text in fosteredText is really fostered content.
+						// If we ran this pass post-dsr-computation, we might be able to
+						// detect this in more scenarios. Something to consider.
+
+						/*
+						console.warn("initPos: " + initPos);
+						console.warn("have tsr: " + n.data.parsoid.tsr);
+						console.warn("spans tsr: " + (n.data.parsoid.tsr && tsrSpansTagDOM(n, n.data.parsoid)));
+						*/
+					}
+					// All good at this point
+					break;
+				} else {
+					n.data.parsoid.fostered = true;
+				}
+			} else {
+				var str = DU.isText(n) ? n.nodeValue : "<!--" + n.nodeValue + "-->";
+				tsrGap += str.length;
+				fosteredText = str + fosteredText;
+				nodeBuf.push(n);
+			}
+			n = n.previousSibling;
+		}
+	}
+
+	var c = node.firstChild;
+	while (c) {
+		var sibling = c.nextSibling;
+
+		if (DU.isElt(c) && c.nodeName === 'TABLE') {
+			findFosteredContent(c);
+		}
+
+		if (c.childNodes.length > 0) {
+			markFosteredContent(c, env);
+		}
+		c = sibling;
+	}
+}
+
 // If the last child of a node is a start-meta, simply
 // move it up and make it the parent's sibling.
 // This will move the start-meta closest to the content
@@ -1027,7 +1168,6 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 		if (!range.end.data) {
 			range.end.data = {};
 		}
-		range.end.data.tmp_fostered = true;
 	}
 
 	return range;
@@ -1400,7 +1540,7 @@ function encapsulateTemplates( doc, env, tplRanges, tplArrays) {
 				var endDsr = dp2.dsr[0];
 				if (DU.hasNodeName(tcEnd, 'table') &&
 					((endDsr !== null && endDsr < dp1.dsr[0]) ||
-					 (tcStart.data && tcStart.data.tmp_fostered)))
+					 (tcStart.data && tcStart.data.parsoid.fostered)))
 				{
 					dp1.dsr[0] = endDsr;
 				}
@@ -1480,27 +1620,6 @@ function encapsulateTemplates( doc, env, tplRanges, tplArrays) {
 		}
 
 		deleteNode(range.endElem);
-	}
-}
-
-function swallowTableIfNestedDSR(elt, tbl) {
-	var eltDP = DU.getDataParsoid( elt ),
-		eltDSR = eltDP.dsr,
-		tblDP = DU.getDataParsoid( tbl ),
-		tblTSR = tblDP.tsr;
-
-	// IMPORTANT: Do not use dsr to compare because the table may not
-	// have a valid dsr[1] (if the  table's end-tag is generated by
-	// a template transcluded into the table) always.  But it is
-	// sufficient to check against tsr[1] because the only way 'elt'
-	// could have a dsr[0] after the table-start-tag but show up before
-	// 'tbl' is if 'elt' got fostered out of the table.
-	if (eltDSR && tblTSR && eltDSR[0] >= tblTSR[1]) {
-		eltDP.dsr[0] = tblTSR[0];
-		eltDP.dsr[1] = null;
-		return true;
-	} else {
-		return false;
 	}
 }
 
@@ -1627,10 +1746,14 @@ function findWrappableTemplateRanges( doc, env, root, tpls ) {
 							tbl = tbl.nextSibling;
 						}
 
+						var dp = sm.parentNode.data.parsoid;
 						if (tbl &&
 							DU.hasNodeName(tbl, 'table') &&
-							swallowTableIfNestedDSR(sm.parentNode, tbl))
+							dp.fostered)
 						{
+							if (dp.tsr && dp.tsr[0] !== null && tbl.dsr[0] === null) {
+								tbl.dsr[0] = dp.tsr[0];
+							}
 							tbl.setAttribute('about', about); // set about on elem
 							ee = tbl;
 						}
@@ -1856,58 +1979,14 @@ function findAndFixBuilderCorrectedTags(document, env) {
 	findDeletedStartTagsAndDeleteEmptyTags(document.body);
 }
 
-// TSR = "Tag Source Range".  Start and end offsets giving the location
-// where the tag showed up in the original source.
-//
-// DSR = "DOM Source Range".  [0] and [1] are open and end,
-// [2] and [3] are widths of the container tag.
-// So [[foo]] will have DSR [0,7,2,2]
-
-// node  -- node to process
-// [s,e) -- if defined, start/end position of wikitext source that generated
-//          node's subtree
+/* ---------------------------------------------------------------------------
+ * Check the top of this file for a definition of what TSR and DSR is.
+ *
+ * node  -- node to process
+ * [s,e) -- if defined, start/end position of wikitext source that generated
+ *          node's subtree
+ * --------------------------------------------------------------------------- */
 function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
-
-	// TSR info on all these tags are only valid for the opening tag.
-	// (closing tags dont have attrs since tree-builder strips them
-	//  and adds meta-tags tracking the corresponding TSR)
-	//
-	// On other tags, a, hr, br, meta-marker tags, the tsr spans
-	// the entire DOM, not just the tag.
-	var WT_tagsWithLimitedTSR = {
-		"b" : true,
-		"i" : true,
-		"h1" : true,
-		"h2" : true,
-		"h3" : true,
-		"h4" : true,
-		"h5" : true,
-		"ul" : true,
-		"ol" : true,
-		"dl" : true,
-		"li" : true,
-		"dt" : true,
-		"dd" : true,
-		"table" : true,
-		"caption" : true,
-		"tr" : true,
-		"td" : true,
-		"th" : true,
-		"hr" : true, // void element
-		"br" : true, // void element
-		"pre" : true
-	};
-
-	function tsrSpansTagDOM(n, parsoidData) {
-		// - tags known to have tag-specific tsr
-		// - html tags with 'stx' set
-		// - span tags with 'mw:Nowiki' type
-		var name = n.nodeName.toLowerCase();
-		return !WT_tagsWithLimitedTSR[name] &&
-			!DU.hasLiteralHTMLMarker(parsoidData) &&
-			!DU.isNodeOfType(n, 'span', 'mw:Nowiki');
-	}
-
 	function computeListEltWidth(li, nodeName) {
 		if (!li.previousSibling && li.firstChild) {
 			var n = li.firstChild.nodeName.toLowerCase();
@@ -2059,12 +2138,14 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 		var isMarkerTag = false,
 			child = children[i],
 		    cType = child.nodeType,
-			endTagWidth = null;
+			endTagWidth = null,
+			fosteredNode = false;
 		cs = null;
 
 		// In edit mode, StrippedTag marker tags will be removed and wont
 		// be around to miss in the filling gap.  So, absorb its width into
-		// the DSR of its previous sibling.
+		// the DSR of its previous sibling.  Currently, this fix is only for
+		// B and I tags where the fix is clear-cut and obvious.
 		if (editMode) {
 			var next = child.nextSibling;
 			if (next) {
@@ -2098,6 +2179,8 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 				propagateRight = false,
 				stWidth = null, etWidth = null;
 
+			fosteredNode = dp.fostered;
+
 			// In edit-mode, we are making dsr corrections to account for
 			// stripped tags (end tags usually).  When stripping happens,
 			// in most common use cases, a corresponding end tag is added
@@ -2106,6 +2189,9 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 			// So, when an autoInsertedEnd tag is encountered and a matching
 			// dsr-correction is found, make a 1-time correction in the
 			// other direction.
+			//
+			// Currently, this fix is only for
+			// B and I tags where the fix is clear-cut and obvious.
 			if (editMode && ce !== null && dp.autoInsertedEnd && child.nodeName in {B:1, I:1}) {
 				correction = (3 + child.nodeName.length);
 				if (correction === dsrCorrection) {
@@ -2330,10 +2416,13 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 			node.removeChild(child); // No use for this marker tag after this
 		}
 
-		// ce for next child = cs of current child
-		ce = cs;
-		// end-tag width from marker meta tag
-		savedEndTagWidth = endTagWidth;
+		// Dont change state if we processed a fostered node
+		if (!fosteredNode) {
+			// ce for next child = cs of current child
+			ce = cs;
+			// end-tag width from marker meta tag
+			savedEndTagWidth = endTagWidth;
+		}
 	}
 
 	if (cs === undefined || cs === null) {
@@ -2855,10 +2944,18 @@ function migrateDataParsoid( node ) {
 saveDataParsoid = function( node, debugDump ) {
 	if ( node.nodeType === node.ELEMENT_NODE && node.data ) {
 		if (!debugDump) {
-			if (node.data.parsoid) {
-				node.data.parsoid.tagId = undefined;
-				if (node.data.parsoid.tsr) {
-					node.data.parsoid.tsr = undefined;
+			var dp = node.data.parsoid;
+			if (dp) {
+				dp.tagId = undefined;
+				if (dp.tsr) {
+					dp.tsr = undefined;
+				}
+
+				// Make dsr zero-range for fostered content
+				// to prevent selser from duplicating this content
+				// outside the table from where this came.
+				if (dp.fostered) {
+					dp.dsr[0] = dp.dsr[1];
 				}
 			}
 		}
@@ -2890,6 +2987,7 @@ function DOMPostProcessor(env, options) {
 	this.processors = [
 		dataParsoidLoader.traverse.bind( dataParsoidLoader ),
 		handleUnbalancedTableTags,
+		markFosteredContent,
 		migrateStartMetas,
 		//normalizeDocument,
 		findAndFixBuilderCorrectedTags,
