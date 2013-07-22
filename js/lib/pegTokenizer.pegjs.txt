@@ -831,7 +831,7 @@ autoref
     identifier = identifier.join('');
 
     var base_urls = {
-            'RFC'  : '//tools.ietfs.org/html/rfc%s',
+            'RFC'  : '//tools.ietf.org/html/rfc%s',
             'PMID' : '//www.ncbi.nlm.nih.gov/pubmed/%s?dopt=Abstract'
         },
         url = sprintf(base_urls[ref], identifier);
