@@ -188,9 +188,13 @@ WEHP.aHandler = function(state, text) {
 	return text.match(/\]$/);
 };
 
-WEHP.tdHandler = function(state, text) {
-	return text.match(/\|/) ||
-		(state.currLine.text === '' && text.match(/^[\-+]/) && !state.inWideTD);
+WEHP.tdHandler = function(state, text, opts) {
+	// As long as this is not a p-wrapped text node:
+	// * | in a td should be escaped
+	// * +- in SOL position for the first node on the current line should be escaped
+	return (!opts.node || opts.node.parentNode.nodeName !== 'P') &&
+		(text.match(/\|/)  ||
+		state.currLine.text === '' && text.match(/^[\-+]/) && !state.inWideTD);
 };
 
 WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {

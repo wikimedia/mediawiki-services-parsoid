@@ -15658,11 +15658,20 @@ parsoid
 |-
 |''foo''-bar
 |''foo''+bar
+|-
+|foo
+bar|baz
++bar
+-bar
 |}
 !! result
 <table><tbody>
 <tr><td>foo-bar</td><td>foo+bar</td></tr>
 <tr><td><i>foo</i>-bar</td><td><i>foo</i>+bar</td></tr>
+<tr><td>foo
+<p>bar|baz
++bar
+-bar</p></td></tr>
 </tbody></table>
 !! end
 
