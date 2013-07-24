@@ -494,7 +494,6 @@ add("wt2html", "Gallery with invalid title as link (bug 43964)");
 add("wt2html", "Language parser function");
 add("wt2html", "Special parser function");
 add("wt2html", "1. SOL-sensitive wikitext tokens as template-args");
-add("wt2html", "Ref: 9. unclosed comments should not leak out of ref-body");
 add("wt2html", "Headings: 2. Outside heading nest on a single line <h1>foo</h1>*bar");
 add("wt2html", "Headings: 6a. Heading chars in SOL context (with trailing spaces)");
 add("wt2html", "Headings: 6b. Heading chars in SOL context (with trailing newlines)");

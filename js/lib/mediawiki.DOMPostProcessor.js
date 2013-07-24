@@ -2442,12 +2442,12 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 
 var saveDataParsoid; // forward declaration
 
-function dumpDomWithDataAttribs( root ) {
+function dumpDomWithDataAttribs( options, root ) {
 	function cloneData(node, clone) {
 		var d = node.data;
 		if (d && d.constructor === Object && (Object.keys(d.parsoid).length > 0)) {
 			clone.data = Util.clone(d);
-			saveDataParsoid( clone, true );
+			saveDataParsoid( options, clone, true );
 		}
 
 		node = node.firstChild;
@@ -2473,7 +2473,7 @@ function computeDocDSR(root, env, options) {
 
 	if (psd.debug || (psd.dumpFlags && (psd.dumpFlags.indexOf("dom:pre-dsr") !== -1))) {
 		console.warn("------ DOM: pre-DSR -------");
-		dumpDomWithDataAttribs( root );
+		dumpDomWithDataAttribs( options, root );
 		console.warn("----------------------------");
 	}
 
@@ -2491,7 +2491,7 @@ function computeDocDSR(root, env, options) {
 
 	if (psd.debug || (psd.dumpFlags && (psd.dumpFlags.indexOf("dom:post-dsr") !== -1))) {
 		console.warn("------ DOM: post-DSR -------");
-		dumpDomWithDataAttribs( root );
+		dumpDomWithDataAttribs( options, root );
 		console.warn("----------------------------");
 	}
 }
@@ -2501,13 +2501,13 @@ function computeDocDSR(root, env, options) {
  * spans and adding RDFa attributes to all subtree roots according to
  * http://www.mediawiki.org/wiki/Parsoid/RDFa_vocabulary#Template_content
  */
-function encapsulateTemplateOutput( document, env ) {
+function encapsulateTemplateOutput( document, env, options ) {
 	var tpls = {};
 	var psd = env.conf.parsoid;
 
 	if (psd.debug || (psd.dumpFlags && (psd.dumpFlags.indexOf("dom:pre-encap") !== -1))) {
 		console.warn("------ DOM: pre-encapsulation -------");
-		dumpDomWithDataAttribs( document );
+		dumpDomWithDataAttribs( options, document );
 		console.warn("----------------------------");
 	}
 
@@ -2519,7 +2519,7 @@ function encapsulateTemplateOutput( document, env ) {
 
 	if (psd.debug || (psd.dumpFlags && (psd.dumpFlags.indexOf("dom:post-encap") !== -1))) {
 		console.warn("------ DOM: post-encapsulation -------");
-		dumpDomWithDataAttribs( document );
+		dumpDomWithDataAttribs( options, document );
 		console.warn("----------------------------");
 	}
 }
@@ -2941,12 +2941,25 @@ function migrateDataParsoid( node ) {
  *
  * Save the data-parsoid attributes on each node.
  */
-saveDataParsoid = function( node, debugDump ) {
+saveDataParsoid = function( options, node, debugDump ) {
 	if ( node.nodeType === node.ELEMENT_NODE && node.data ) {
 		if (!debugDump) {
 			var dp = node.data.parsoid;
 			if (dp) {
 				dp.tagId = undefined;
+
+				// Remove data-parsoid.src from templates and extensions that have
+				// valid data-mw and dsr.  This should reduce data-parsoid bloat.
+				//
+				// Transcluded nodes will not have dp.tsr set and dont need dp.src either
+				if (/\bmw:(Transclusion|Extension)\b/.test(node.getAttribute("typeof")) &&
+					(!dp.tsr ||
+					node.getAttribute("data-mw") && dp.dsr && dp.dsr[0] && dp.dsr[1]))
+				{
+					dp.src = undefined;
+				}
+
+				// Remove tsr
 				if (dp.tsr) {
 					dp.tsr = undefined;
 				}
@@ -3020,7 +3033,7 @@ function DOMPostProcessor(env, options) {
 	var domVisitor2 = new DOMTraverser();
 	domVisitor2.addHandler( 'meta', stripMarkerMetas.bind(null, env.conf.parsoid.editMode) );
 	domVisitor2.addHandler( 'li', cleanUpLIHack.bind( null, env ) );
-	domVisitor2.addHandler( null, saveDataParsoid );
+	domVisitor2.addHandler( null, saveDataParsoid.bind(null, this.options) );
 	this.processors.push(domVisitor2.traverse.bind(domVisitor2));
 }
 

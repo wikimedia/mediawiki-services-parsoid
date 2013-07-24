@@ -3128,9 +3128,6 @@ WSP._getDOMHandler = function(node, state, cb) {
 	if (/\bmw:(?:Transclusion\b|Param\b|Extension\/[^\s]+)/.test(typeOf)) {
 		return {
 			handle: function () {
-				// In RT-testing mode, there will not be any edits to tpls/extensions.
-				// So, use original source to eliminate spurious diffs showing up
-				// in RT testing results.
 				var src, dataMW;
 				if (/\bmw:(Transclusion\b|Param\b)/.test(typeOf)) {
 					dataMW = JSON.parse(node.getAttribute("data-mw"));
@@ -3148,7 +3145,17 @@ WSP._getDOMHandler = function(node, state, cb) {
 					console.error("ERROR: Should not have come here!");
 				}
 
-				if (src) {
+				// FIXME: Just adding this here temporarily till we go in and
+				// clean this up and strip this out if we can verify that data-mw
+				// is going to be present always when necessary and indicate that
+				// a missing data-mw is either a parser bug or a client error.
+				//
+				// Fallback: should be exercised only in exceptional situations.
+				if (src === undefined && state.env.page.src && isValidDSR(dp.dsr)) {
+					src = state.getOrigSrc(dp.dsr[0], dp.dsr[1]);
+				}
+
+				if (src !== undefined) {
 					self.emitWikitext(src, state, cb, node);
 					return self.skipOverEncapsulatedContent(node);
 				} else {
