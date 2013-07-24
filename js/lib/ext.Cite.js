@@ -102,7 +102,7 @@ Ref.prototype.handleRef = function ( manager, pipelineOpts, refTok, cb ) {
 
 	var inReferencesExt = pipelineOpts.extTag === "references",
 		refOpts = $.extend({ name: null, group: null }, Util.KVtoHash(refTok.getAttribute("options"))),
-		about = inReferencesExt ? '' : manager.env.newAboutId(),
+		about = manager.env.newAboutId(),
 		finalCB = function(toks, content) {
 			// Marker meta with ref content
 			var da = Util.clone(refTok.dataAttribs);
@@ -264,6 +264,21 @@ References.prototype.reset = function(group) {
 		setRefGroup(this.refGroups, group, undefined);
 	} else {
 		this.refGroups = {};
+		/* -----------------------------------------------------------------
+		 * Map: references-about-id --> HTML of any nested refs
+		 *
+		 * Ex: Given this wikitext:
+		 *
+		 *   <references> <ref>foo</ref> </references>
+		 *   <references> <ref>bar</ref> </references>
+		 *
+		 * during processing, each of the references tag gets an about-id
+		 * assigned to it.  The ref-tags nested inside it have a data-attribute
+		 * with the references about-id.  When processing the ref-tokens and
+		 * generating the HTML, we then collect the HTML for each nested
+		 * ref-token and add it to this map by about-id.
+		 * ----------------------------------------------------------------- */
+		this.nestedRefsHTMLMap = {};
 	}
 };
 
@@ -287,16 +302,19 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 		group = null;
 	}
 
+	// Assign an about id and intialize the nested refs html
+	var referencesId = manager.env.newAboutId();
+	this.nestedRefsHTMLMap[referencesId] = ["\n"];
+
 	// Emit a marker mw:DOMFragment for the references
 	// token so that the dom post processor can generate
 	// and emit references at this point in the DOM.
 	var emitReferencesFragment = function() {
-		var about = manager.env.newAboutId(),
-			type = refsTok.getAttribute('typeof');
+		var type = refsTok.getAttribute('typeof');
 		var buf = [
 			"<ol class='references'",
 			" typeof='", "mw:Extension/references", "'",
-			" about='", about, "'",
+			" about='", referencesId, "'",
 			"></ol>"
 		];
 
@@ -308,6 +326,7 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 		if (group) {
 			dp.group = group;
 		}
+
 		DU.setJSONAttribute(ol, "data-parsoid", dp);
 
 		var expansion = {
@@ -321,7 +340,7 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 		// into Util and pass env into it .. can avoid extending ExtensionHandler
 		// as well.
 		this.manager = manager;
-		cb({ tokens: this.encapsulateExpansionHTML(refsTok, expansion), async: false });
+		cb({ tokens: this.encapsulateExpansionHTML(refsTok, expansion, referencesId), async: false });
 	}.bind(this);
 
 	processExtSource(manager, refsTok, {
@@ -345,6 +364,7 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 					t.name === 'meta' &&
 					/^mw:Extension\/ref\/Marker$/.test(t.getAttribute('typeof')))
 				{
+					t.setAttribute("references-id", referencesId);
 					res.push(t);
 				}
 			}
@@ -357,7 +377,6 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 };
 
 References.prototype.extractRefFromNode = function(node) {
-
 	var group = node.getAttribute("group"),
 		refName = node.getAttribute("name"),
 		about = node.getAttribute("about"),
@@ -367,52 +386,55 @@ References.prototype.extractRefFromNode = function(node) {
 		nodeType = (node.getAttribute("typeof") || '').replace(/mw:Extension\/ref\/Marker/, '');
 
 	// Add ref-index linkback
-	if (!skipLinkback) {
-		var doc = node.ownerDocument,
-			span = doc.createElement('span'),
-			content = node.getAttribute("content"),
-			dataMW = node.getAttribute('data-mw');
+	var doc = node.ownerDocument,
+		span = doc.createElement('span'),
+		content = node.getAttribute("content"),
+		dataMW = node.getAttribute('data-mw');
 
-		if (!dataMW) {
-			dataMW = JSON.stringify({
-				'name': 'ref',
-				// Dont set body if this is a reused reference
-				// like <ref name='..' /> with empty content.
-				'body': content ? { 'html': content } : undefined,
-				'attrs': {
-					// Dont emit empty keys
-					'group': group || undefined,
-					'name': refName || undefined
-				}
-			});
-		}
-
-		DU.addAttributes(span, {
-			'about': about,
-			'class': 'reference',
-			'data-mw': dataMW,
-			'id': ref.linkbacks[ref.linkbacks.length - 1],
-			'rel': 'dc:references',
-			'typeof': nodeType
-		});
-		DU.addTypeOf(span, "mw:Extension/ref");
-		span.data = {
-			parsoid: {
-				src: node.data.parsoid.src,
-				dsr: node.data.parsoid.dsr
+	if (!dataMW) {
+		dataMW = JSON.stringify({
+			'name': 'ref',
+			// Dont set body if this is a reused reference
+			// like <ref name='..' /> with empty content.
+			'body': content ? { 'html': content } : undefined,
+			'attrs': {
+				// Dont emit empty keys
+				'group': group || undefined,
+				'name': refName || undefined
 			}
-		};
+		});
+	}
 
+	DU.addAttributes(span, {
+		'about': about,
+		'class': 'reference',
+		'data-mw': dataMW,
+		'id': skipLinkback ? undefined : ref.linkbacks[ref.linkbacks.length - 1],
+		'rel': 'dc:references',
+		'typeof': nodeType
+	});
+	DU.addTypeOf(span, "mw:Extension/ref");
+	span.data = {
+		parsoid: {
+			src: node.data.parsoid.src,
+			dsr: node.data.parsoid.dsr
+		}
+	};
+
+	// refIndex-a
+	var refIndex = doc.createElement('a');
+	refIndex.setAttribute('href', '#' + ref.target);
+	refIndex.appendChild(doc.createTextNode(
+		'[' + ((group === '') ? '' : group + ' ') + ref.groupIndex + ']'
+	));
+	span.appendChild(refIndex);
+
+	if (!skipLinkback) {
 		// refIndex-span
 		node.parentNode.insertBefore(span, node);
-
-		// refIndex-a
-		var refIndex = doc.createElement('a');
-		refIndex.setAttribute('href', '#' + ref.target);
-		refIndex.appendChild(doc.createTextNode(
-			'[' + ((group === '') ? '' : group + ' ') + ref.groupIndex + ']'
-		));
-		span.appendChild(refIndex);
+	} else {
+		var referencesAboutId = node.getAttribute("references-id");
+		this.nestedRefsHTMLMap[referencesAboutId].push(span.outerHTML, "\n");
 	}
 
 	// This effectively ignores content from later references with the same name.
@@ -433,13 +455,21 @@ References.prototype.insertReferencesIntoDOM = function(refsNode) {
 
 	var dataMW = refsNode.getAttribute('data-mw');
 	if (!dataMW) {
+		var datamwBody;
+		// We'll have to output data-mw.body.extsrc in
+		// scenarios where original wikitext was of the form:
+		// "<references> lot of refs here </references>"
+		// Ex: See [[en:Barack Obama]]
+		if (body.length > 0) {
+			datamwBody = {
+				'extsrc': body,
+				'html': this.nestedRefsHTMLMap[about].join('')
+			};
+		}
+
 		dataMW = JSON.stringify({
 			'name': 'references',
-			// We'll have to output data-mw.body.extsrc in
-			// scenarios where original wikitext was of the form:
-			// "<references> lot of refs here </references>"
-			// Ex: See [[en:Barack Obama]]
-			'body': body.length > 0 ? { 'extsrc': body } : undefined,
+			'body': datamwBody,
 			'attrs': {
 				// Dont emit empty keys
 				'group': group || undefined
@@ -471,9 +501,9 @@ var Cite = function() {
 	this.references = new References(this);
 };
 
-Cite.prototype.resetState = function(group) {
+Cite.prototype.resetState = function() {
 	this.ref.reset();
-	this.references.reset(group);
+	this.references.reset();
 };
 
 if (typeof module === "object") {

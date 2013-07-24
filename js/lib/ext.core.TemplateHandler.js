@@ -50,9 +50,9 @@ TemplateHandler.prototype.register = function ( manager ) {
  * wrapper that is later unpacked in the DOMPostProcessor. Used both for
  * transclusion and extension content.
  */
-TemplateHandler.prototype.encapsulateExpansionHTML = function(token, expansion) {
+TemplateHandler.prototype.encapsulateExpansionHTML = function(token, expansion, aboutId) {
 	var toks = DU.getWrapperTokens(expansion.nodes),
-		about = this.manager.env.newAboutId();
+		about = aboutId || this.manager.env.newAboutId();
 
 	// Assign the HTML fragment to the data-parsoid.html on the first wrapper token.
 	toks[0].dataAttribs.html = expansion.html;

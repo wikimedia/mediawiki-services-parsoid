@@ -15019,7 +15019,7 @@ This should just get lost.
 <p>A <span about="#mwt2" class="reference" data-mw='{"name":"ref","attrs":{"name":"a"}}' id="cite_ref-a-1-0" rel="dc:references" typeof="mw:Extension/ref"><a href="#cite_note-a-1">[1]</a></span>
 B <span about="#mwt4" class="reference" data-mw='{"name":"ref","body":{"html":"bar"},"attrs":{"name":"b"}}' id="cite_ref-b-2-0" rel="dc:references" typeof="mw:Extension/ref"><a href="#cite_note-b-2">[2]</a></span></p>
 
-<ol about="#mwt7" class="references" data-mw='{"name":"references","body":{"extsrc":"<ref name=\"a\">foo</ref>\nThis should just get lost."},"attrs":{}}' typeof="mw:Extension/references"><li about="#cite_note-a-1" id="cite_note-a-1"><span rel="mw:referencedBy"><a href="#cite_ref-a-1-0">↑</a></span> foo</li><li about="#cite_note-b-2" id="cite_note-b-2"><span rel="mw:referencedBy"><a href="#cite_ref-b-2-0">↑</a></span> bar</li></ol>
+<ol class="references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","body":{"extsrc":"<ref name=\"a\">foo</ref>\nThis should just get lost.","html":"<span about=\"#mwt8\" class=\"reference\" data-mw=\"{&amp;quot;name&amp;quot;:&amp;quot;ref&amp;quot;,&amp;quot;body&amp;quot;:{&amp;quot;html&amp;quot;:&amp;quot;foo&amp;quot;},&amp;quot;attrs&amp;quot;:{&amp;quot;name&amp;quot;:&amp;quot;a&amp;quot;}}\" rel=\"dc:references\" typeof=\"mw:Extension/ref\"><a href=\"#cite_note-a-1\">[1]</a></span>"},"attrs":{}}'><li about="#cite_note-a-1" id="cite_note-a-1"><span rel="mw:referencedBy"><a href="#cite_ref-a-1-0">↑</a></span> foo</li><li about="#cite_note-b-2" id="cite_note-b-2"><span rel="mw:referencedBy"><a href="#cite_ref-b-2-0">↑</a></span> bar</li></ol>
 !!end
 
 !!test
