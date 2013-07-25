@@ -2175,9 +2175,10 @@ urltext = ( t:[^'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:\]} &=]+ { return t.join(''); 
           / htmlentity
           // Convert trailing space into &nbsp;
           // XXX: This should be moved to a serializer
+          // This is a hack to force a whitespace display before the colon
           / ' ' & ':' {
               return [
-                  new TagTk( 'span', [ new KV( 'typeof', 'mw:Placeholder' ) ], { src: ' ', tsr: [pos0, pos0] } ),
+                  new TagTk( 'span', [ new KV( 'typeof', 'mw:Placeholder' ) ], { src: ' ', tsr: [pos0, pos0], isDisplayHack: true } ),
                   "\u00a0",
                   new EndTagTk( 'span', [], { tsr: [pos, pos] } )
               ];

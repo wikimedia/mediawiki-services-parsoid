@@ -208,6 +208,8 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
 	for (var i = 0, n = tokens.length; i < n; i++) {
 		var t = tokens[i];
 
+		// console.warn("T: " + JSON.stringify(t));
+
 		// Ignore non-whitelisted html tags
 		if (t.isHTMLTag()) {
 			if (/\bmw:Extension\b/.test(t.getAttribute("typeof"))) {
@@ -247,6 +249,14 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
 			}
 			// Ignore heading tokens
 			if (t.name.match(/^h\d$/)) {
+				continue;
+			}
+			// Ignore display-hack placeholders -- they dont need nowiki escaping
+			// They are added as a display-hack by the tokenizer (and we should probably
+			// find a better solution than that if one exists).
+			if (t.getAttribute('typeof') === 'mw:Placeholder' && t.dataAttribs.isDisplayHack) {
+				// Skip over the entity and the end-tag as well
+				i += 2;
 				continue;
 			}
 
