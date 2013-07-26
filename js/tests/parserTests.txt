@@ -15786,16 +15786,24 @@ parsoid
 #### --------------------------------------
 !! test
 1. Quotes inside <b> and <i>
+!! options
+parsoid=html2wt,wt2wt
 !! input
 ''<nowiki>'foo'</nowiki>''
 ''<nowiki>''foo''</nowiki>''
 ''<nowiki>'''foo'''</nowiki>''
-''foo''<nowiki>'s</nowiki>
+''foo''<nowiki/>'s
 '''<nowiki>'foo'</nowiki>'''
 '''<nowiki>''foo''</nowiki>'''
 '''<nowiki>'''foo'''</nowiki>'''
 '''<nowiki>foo'</nowiki>''<nowiki>bar'</nowiki>''baz'''
-'''foo'''<nowiki>'s</nowiki>
+'''foo'''<nowiki/>'s
+'''foo''
+''foo''<nowiki/>'
+'<nowiki/>''foo''<nowiki/>'
+''''foo'''
+'''foo'''<nowiki/>'
+'<nowiki/>'''foo'''<nowiki/>'
 !! result
 <p><i>'foo'</i>
 <i>''foo''</i>
@@ -15806,7 +15814,12 @@ parsoid
 <b>'''foo'''</b>
 <b>foo'<i>bar'</i>baz</b>
 <b>foo</b>'s
-</p>
+'<i>foo</i>
+<i>foo</i>'
+'<i>foo</i>'
+'<b>foo</b>
+<b>foo</b>'
+'<b>foo</b>'</p>
 !! end
 
 !! test

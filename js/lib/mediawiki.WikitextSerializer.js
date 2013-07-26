@@ -741,16 +741,6 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 		return this.escapedText(state, false, text, fullCheckNeeded);
 	}
 
-	// Escape quotes that come after I/B nodes that can be reparsed
-	// differently since quote-parsing is context-sensitive.
-	if (text.match(/^'[^']/)) {
-		var prev = opts.node && opts.node.previousSibling ? opts.node.previousSibling.nodeName : '';
-		if (prev === 'I' || prev === 'B') {
-			// console.warn("---EWT:F3b---");
-			return this.escapedText(state, false, text, true);
-		}
-	}
-
 	var sol = state.onSOL && !state.inIndentPre && !state.inPHPBlock,
 		hasNewlines = text.match(/\n./),
 		hasTildes = text.match(/~{3,5}/);
@@ -2019,14 +2009,13 @@ WSP._getListBullets = function(node) {
 
 
 /**
- * Bold/italic helper: Determine if an element was preceded by a
- * bold/italic combination
+ * Bold/italic helper: Get a preceding quote/italic element or a '-char
  */
-WSP._hasPrecedingQuoteElements = function(node, state) {
+WSP._getPrecedingQuoteElement = function(node, state) {
 	if (!state.sep.lastSourceNode) {
 		// A separator was emitted before some other non-empty wikitext
 		// string, which means that we can't be directly preceded by quotes.
-		return false;
+		return null;
 	}
 	// Move up first until we have a sibling
 	while (node && !node.previousSibling) {
@@ -2035,23 +2024,51 @@ WSP._hasPrecedingQuoteElements = function(node, state) {
 	if (node) {
 		node = node.previousSibling;
 	}
+
+	if (node && DU.isText(node) && node.nodeValue.match(/'$/)) {
+		return node;
+	}
+
 	// Now move down the lastChilds to see if there are any italics / bolds
-	while(node && node.nodeType === node.ELEMENT_NODE) {
-		if (node.nodeName in {I:1, B:1} &&
-				node.lastChild && node.lastChild.nodeName in {I:1, B:1}) {
-			if (state.sep.lastSourceNode === node) {
-				return true;
-			} else {
-				return false;
+	while (node && DU.isElt(node)) {
+		if (node.nodeName in {I:1, B:1} && node.lastChild) {
+			if (node.lastChild.nodeName in {I:1, B:1} ||
+				DU.isText(node.lastChild) && node.lastChild.nodeValue.match(/'$/))
+			{
+				return state.sep.lastSourceNode === node ? node.lastChild : null;
 			}
 		} else if (state.sep.lastSourceNode === node) {
 			// If a separator was already emitted, or an outstanding separator
 			// starts at another node that produced output, we are not
 			// directly preceded by quotes in the wikitext.
-			return false;
+			return null;
 		}
 		node = node.lastChild;
 	}
+	return null;
+};
+
+WSP._quoteTextFollows = function(node, state) {
+	// Move up first until we have a sibling
+	while (node && !node.nextSibling) {
+		node = node.parentNode;
+	}
+	if (node) {
+		node = node.nextSibling;
+	}
+
+	if (node && DU.isText(node) && node.nodeValue[0] === "'") {
+		return true;
+	}
+
+	// Now move down the firstChilds
+	while (node && node.nodeName in {I:1, B:1} && node.firstChild) {
+		if (DU.isText(node.firstChild) && node.firstChild.nodeValue.match(/'$/)) {
+			return true;
+		}
+		node = node.firstChild;
+	}
+
 	return false;
 };
 
@@ -2697,22 +2714,32 @@ WSP.tagHandlers = {
 	},
 	b:  {
 		handle: function(node, state, cb) {
-			if (state.serializer._hasPrecedingQuoteElements(node, state)) {
+			var q1 = state.serializer._getPrecedingQuoteElement(node, state);
+			var q2 = state.serializer._quoteTextFollows(node, state);
+			if (q1 && (q2 || DU.isElt(q1))) {
 				emitStartTag('<nowiki/>', node, state, cb);
 			}
 			emitStartTag("'''", node, state, cb);
 			state.serializeChildren(node, cb, state.serializer.wteHandlers.quoteHandler);
 			emitEndTag("'''", node, state, cb);
+			if (q2) {
+				emitEndTag('<nowiki/>', node, state, cb);
+			}
 		}
 	},
 	i:  {
 		handle: function(node, state, cb) {
-			if (state.serializer._hasPrecedingQuoteElements(node, state)) {
+			var q1 = state.serializer._getPrecedingQuoteElement(node, state);
+			var q2 = state.serializer._quoteTextFollows(node, state);
+			if (q1 && (q2 || DU.isElt(q1))) {
 				emitStartTag('<nowiki/>', node, state, cb);
 			}
 			emitStartTag("''", node, state, cb);
 			state.serializeChildren(node, cb, state.serializer.wteHandlers.quoteHandler);
 			emitEndTag("''", node, state, cb);
+			if (q2) {
+				emitEndTag('<nowiki/>', node, state, cb);
+			}
 		}
 	},
 	a:  {
