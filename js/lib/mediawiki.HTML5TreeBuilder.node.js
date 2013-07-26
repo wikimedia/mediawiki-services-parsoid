@@ -6,6 +6,7 @@
  * or .body(). */
 
 var events = require('events'),
+	util = require('util'),
 	$ = require( './fakejquery' ),
 	HTML5 = require('./html5/index'),
 	defines = require('./mediawiki.parser.defines.js'),
@@ -22,6 +23,8 @@ var FauxHTML5 = {};
 
 
 FauxHTML5.TreeBuilder = function ( env ) {
+	events.EventEmitter.call(this);
+
 	// The parser we are going to emit our tokens to
 	this.parser = new HTML5.Parser();
 
@@ -39,8 +42,7 @@ FauxHTML5.TreeBuilder = function ( env ) {
 };
 
 // Inherit from EventEmitter
-FauxHTML5.TreeBuilder.prototype = new events.EventEmitter();
-FauxHTML5.TreeBuilder.prototype.constructor = FauxHTML5.TreeBuilder;
+util.inherits(FauxHTML5.TreeBuilder, events.EventEmitter);
 
 /**
  * Register for (token) 'chunk' and 'end' events from a token emitter,

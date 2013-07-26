@@ -925,7 +925,7 @@ TemplateHandler.prototype.fetchExpandedTpl = function ( title, text, Processor, 
 			env.requestQueue[text] = new Processor( env, title, text );
 		}
 		// append request, process in document order
-		env.requestQueue[text].listeners( 'src' ).push( cb );
+		env.requestQueue[text].once( 'src', cb );
 
 		parentCB ( { async: true } );
 	}

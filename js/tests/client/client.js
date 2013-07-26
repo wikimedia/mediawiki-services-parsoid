@@ -143,6 +143,7 @@ var postResult = function( err, result, prefix, title, finalCB, cb ) {
 					cb( 'start' );
 				}
 			} );
+			res.resume();
 		} );
 
 		req.write( result, 'utf8' );

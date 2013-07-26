@@ -12,9 +12,11 @@ var PEG = require('pegjs'),
 	path = require('path'),
 	LRU = require("lru-cache"),
 	fs = require('fs'),
-	events = require('events');
+	events = require('events'),
+	util = require('util');
 
 function PegTokenizer( env, options ) {
+	events.EventEmitter.call(this);
 	this.env = env;
 	this.options = options || {};
 	this.offsets = {};
@@ -25,8 +27,7 @@ function PegTokenizer( env, options ) {
 }
 
 // Inherit from EventEmitter
-PegTokenizer.prototype = new events.EventEmitter();
-PegTokenizer.prototype.constructor = PegTokenizer;
+util.inherits(PegTokenizer, events.EventEmitter);
 
 PegTokenizer.src = false;
 

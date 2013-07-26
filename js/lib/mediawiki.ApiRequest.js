@@ -371,8 +371,6 @@ function PreprocessorRequest ( env, title, text ) {
 
 
 // Inherit from ApiRequest
-//PreprocessorRequest.prototype = new ApiRequest();
-//PreprocessorRequest.prototype.constructor = PreprocessorRequest;
 util.inherits( PreprocessorRequest, ApiRequest );
 
 /**

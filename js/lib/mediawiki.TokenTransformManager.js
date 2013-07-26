@@ -18,6 +18,7 @@
 var events = require('events'),
 	LRU = require("lru-cache"),
 	crypto = require('crypto'),
+	util = require('util'),
 	Util = require('./mediawiki.Util.js').Util,
 	defines = require('./mediawiki.parser.defines.js');
 // define some constructor shortcuts
@@ -63,8 +64,10 @@ function verifyTokensIntegrity(ret, nullOkay) {
  * its only argument.
  */
 function TokenTransformManager( env, options, pipeFactory, phaseEndRank, attributeType ) {
-	// Separate the constructor, so that we can call it from subclasses.
-	this._construct();
+	events.EventEmitter.call(this);
+	this.defaultTransformers = [];	// any transforms
+	this.tokenTransformers   = {};	// non-any transforms
+	this.cachedTransformers  = {};	// merged any + non-any transforms
 }
 
 function tokenTransformersKey(tkType, tagName) {
@@ -84,14 +87,7 @@ TokenTransformManager.tkConstructorToTkTypeMap = {
 };
 
 // Inherit from EventEmitter
-TokenTransformManager.prototype = new events.EventEmitter();
-TokenTransformManager.prototype.constructor = TokenTransformManager;
-
-TokenTransformManager.prototype._construct = function () {
-	this.defaultTransformers = [];	// any transforms
-	this.tokenTransformers   = {};	// non-any transforms
-	this.cachedTransformers  = {};	// merged any + non-any transforms
-};
+util.inherits(TokenTransformManager, events.EventEmitter);
 
 /**
  * Register to a token source, normally the tokenizer.
@@ -259,6 +255,7 @@ var auid = 0;
  * @param {string} attributeType
  */
 function AsyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, attributeType ) {
+	TokenTransformManager.call(this);
 	this.uid = auid++; // useful for debugging
 	this.env = env;
 	this.options = options;
@@ -268,12 +265,10 @@ function AsyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, a
 	this.setFrame( null, null, [] );
 	this.debug = env.conf.parsoid.debug;
 	this.trace = env.conf.parsoid.traceFlags && (env.conf.parsoid.traceFlags.indexOf("async:" + phaseEndRank) !== -1);
-	this._construct();
 }
 
 // Inherit from TokenTransformManager, and thus also from EventEmitter.
-AsyncTokenTransformManager.prototype = new TokenTransformManager();
-AsyncTokenTransformManager.prototype.constructor = AsyncTokenTransformManager;
+util.inherits(AsyncTokenTransformManager, TokenTransformManager);
 
 // Reset state between uses
 AsyncTokenTransformManager.prototype.reset = function() {
@@ -825,18 +820,17 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
  * @param {string} attributeType
  */
 function SyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, attributeType ) {
+	TokenTransformManager.call(this);
 	this.env = env;
 	this.options = options;
 	this.pipeFactory = pipeFactory;
 	this.phaseEndRank = phaseEndRank;
 	this.attributeType = attributeType;
 	this.trace = env.conf.parsoid.traceFlags && (env.conf.parsoid.traceFlags.indexOf("sync:" + phaseEndRank) !== -1);
-	this._construct();
 }
 
 // Inherit from TokenTransformManager, and thus also from EventEmitter.
-SyncTokenTransformManager.prototype = new TokenTransformManager();
-SyncTokenTransformManager.prototype.constructor = SyncTokenTransformManager;
+util.inherits(SyncTokenTransformManager, TokenTransformManager);
 
 /**
  * @method

@@ -5,17 +5,17 @@
 
 var dumpReader = require('./dumpReader.js'),
 	events = require('events'),
+	util = require('util'),
 	optimist = require('optimist'),
 	Util = require( '../lib/mediawiki.Util.js' ).Util;
 
 function DumpGrepper ( regexp ) {
 	// inherit from EventEmitter
-	//events.EventEmitter.call(this);
+	events.EventEmitter.call(this);
 	this.re = regexp;
 }
 
-DumpGrepper.prototype = new events.EventEmitter();
-DumpGrepper.prototype.constructor = DumpGrepper;
+util.inherits(DumpGrepper, events.EventEmitter);
 
 DumpGrepper.prototype.grepRev = function ( revision, onlyFirst ) {
 	var result = this.re.exec( revision.text ),

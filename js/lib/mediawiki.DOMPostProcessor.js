@@ -3,6 +3,7 @@
 "use strict";
 
 var events = require('events'),
+	util = require('util'),
 	Util = require('./mediawiki.Util.js').Util,
 	DU = require('./mediawiki.DOMUtils.js').DOMUtils,
 	Node = require('./mediawiki.wikitext.constants.js').Node,
@@ -2989,6 +2990,7 @@ function appendMeta(document, attrs) {
 }
 
 function DOMPostProcessor(env, options) {
+	events.EventEmitter.call(this);
 	this.env = env;
 	this.options = options;
 
@@ -3038,8 +3040,7 @@ function DOMPostProcessor(env, options) {
 }
 
 // Inherit from EventEmitter
-DOMPostProcessor.prototype = new events.EventEmitter();
-DOMPostProcessor.prototype.constructor = DOMPostProcessor;
+util.inherits(DOMPostProcessor, events.EventEmitter);
 
 DOMPostProcessor.prototype.setSourceOffsets = function(start, end) {
 	this.options.sourceOffsets = [start, end];

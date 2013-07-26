@@ -527,8 +527,6 @@ WikiConfig.prototype = {
 		delete this.extensionTags[tagName];
 	}
 };
-// Make sure the prototype is never modified
-Util.deepFreeze(WikiConfig.prototype);
 
 if ( typeof module === 'object' ) {
 	module.exports.WikiConfig = WikiConfig;
