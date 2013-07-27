@@ -1715,6 +1715,14 @@ generic_newline_attribute
 {
     //console.warn('generic_newline_attribute: ' + pp( name ))
     var res;
+
+    // Encapsulate protected attributes.
+    if ( typeof name === "string" ) {
+        name = name.replace(
+            /^(about|data-parsoid.*|data-x.*|property|rel|typeof)$/i,
+            "data-x-$1" );
+    }
+
     if ( valueData !== '' ) {
         var value = valueData.value;
         res = new KV( name, value );
