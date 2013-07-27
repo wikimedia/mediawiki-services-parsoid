@@ -15957,6 +15957,18 @@ Escaping nowikis
 <p>&lt;nowiki&gt;foo&lt;/nowiki&gt;
 </p>
 !! end
+
+## The quote-char in the input is necessary for triggering the bug
+!! test
+(Bug 52035) Nowiki-escaping should not get tripped by " :" in text
+!! options
+parsoid=wt2wt,html2wt
+!! input
+foo's bar :
+!! result
+<p>foo's bar :</p>
+!! end
+
 !! test
 
 Tag-like HTML structures are passed through as text
