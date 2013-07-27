@@ -95,6 +95,10 @@ function dumpFlags() {
 			'default': true,
 			'boolean': true
 		},
+		'normalize': {
+			description: 'Normalize the output as parserTests would do. Use --normalize for PHP tests, and --normalize=parsoid for parsoid-only tests',
+			'default': false
+		},
 		'debug': {
 			description: 'Debug mode',
 			'boolean': true,
@@ -277,7 +281,15 @@ function dumpFlags() {
                         stdout.write(wt);
                     } else {
                         parserPipeline.on('document', function(document) {
-                            stdout.write( Util.serializeNode(document.body) );
+							var out;
+							if ( argv.normalize ) {
+								out = Util.normalizeOut
+									(document.body.innerHTML,
+									 (argv.normalize==='parsoid') );
+							} else {
+								out = Util.serializeNode(document.body);
+							}
+                            stdout.write( out );
                         });
                         parserPipeline.processToplevelDoc(wt);
                     }
@@ -292,7 +304,13 @@ function dumpFlags() {
                         }
                     };
                     if (argv.wt2html) {
-                        res = Util.serializeNode(document.body);
+						if ( argv.normalize ) {
+							res = Util.normalizeOut
+								(document.body.innerHTML,
+								 (argv.normalize==='parsoid') );
+						} else {
+							res = Util.serializeNode(document.body);
+						}
                         finishCb(true);
                     } else {
                         res = '';
