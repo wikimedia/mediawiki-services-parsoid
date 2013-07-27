@@ -2967,7 +2967,7 @@ saveDataParsoid = function( options, node, debugDump ) {
 				// Make dsr zero-range for fostered content
 				// to prevent selser from duplicating this content
 				// outside the table from where this came.
-				if (dp.fostered) {
+				if (dp.fostered && dp.dsr) {
 					dp.dsr[0] = dp.dsr[1];
 				}
 			}
