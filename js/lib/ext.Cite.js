@@ -304,7 +304,6 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 
 	// Assign an about id and intialize the nested refs html
 	var referencesId = manager.env.newAboutId();
-	this.nestedRefsHTMLMap[referencesId] = ["\n"];
 
 	// Emit a marker mw:DOMFragment for the references
 	// token so that the dom post processor can generate
@@ -434,6 +433,10 @@ References.prototype.extractRefFromNode = function(node) {
 		node.parentNode.insertBefore(span, node);
 	} else {
 		var referencesAboutId = node.getAttribute("references-id");
+		// Init
+		if (!this.nestedRefsHTMLMap[referencesAboutId]) {
+			this.nestedRefsHTMLMap[referencesAboutId] = ["\n"];
+		}
 		this.nestedRefsHTMLMap[referencesAboutId].push(span.outerHTML, "\n");
 	}
 
@@ -463,7 +466,7 @@ References.prototype.insertReferencesIntoDOM = function(refsNode) {
 		if (body.length > 0) {
 			datamwBody = {
 				'extsrc': body,
-				'html': this.nestedRefsHTMLMap[about].join('')
+				'html': (this.nestedRefsHTMLMap[about] || []).join('')
 			};
 		}
 
