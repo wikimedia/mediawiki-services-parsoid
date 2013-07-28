@@ -34,7 +34,7 @@ FauxHTML5.TreeBuilder = function ( env ) {
 	this.env = env;
 	this.trace = env.conf.parsoid.debug || (env.conf.parsoid.traceFlags && (env.conf.parsoid.traceFlags.indexOf("html") !== -1));
 
-	// Assigned to start tags
+	// Assigned to start/self-closing tags
 	this.tagId = 1;
 };
 
@@ -108,8 +108,11 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 	if (!dataAttribs) {
 		dataAttribs = {};
 	}
-	// Assign tagid for open tags
-	if (token.constructor === TagTk && token.name !== 'body') {
+
+	// Assign tagid to open/self-closing tags
+	if ((token.constructor === TagTk || token.constructor === SelfclosingTagTk) &&
+		token.name !== 'body')
+	{
 		if (Object.isFrozen(dataAttribs)) {
 			dataAttribs = Util.clone(dataAttribs);
 		}
