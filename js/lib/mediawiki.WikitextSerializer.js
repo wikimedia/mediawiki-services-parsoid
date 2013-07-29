@@ -2007,7 +2007,6 @@ WSP._getListBullets = function(node) {
 	return res + space;
 };
 
-
 /**
  * Bold/italic helper: Get a preceding quote/italic element or a '-char
  */
@@ -2017,6 +2016,12 @@ WSP._getPrecedingQuoteElement = function(node, state) {
 		// string, which means that we can't be directly preceded by quotes.
 		return null;
 	}
+
+	var prev = node.previousSibling;
+	if (prev && DU.isText(prev) && prev.nodeValue.match(/'$/)) {
+		return prev;
+	}
+
 	// Move up first until we have a sibling
 	while (node && !node.previousSibling) {
 		node = node.parentNode;
@@ -2025,18 +2030,12 @@ WSP._getPrecedingQuoteElement = function(node, state) {
 		node = node.previousSibling;
 	}
 
-	if (node && DU.isText(node) && node.nodeValue.match(/'$/)) {
-		return node;
-	}
-
 	// Now move down the lastChilds to see if there are any italics / bolds
 	while (node && DU.isElt(node)) {
-		if (node.nodeName in {I:1, B:1} && node.lastChild) {
-			if (node.lastChild.nodeName in {I:1, B:1} ||
-				DU.isText(node.lastChild) && node.lastChild.nodeValue.match(/'$/))
-			{
-				return state.sep.lastSourceNode === node ? node.lastChild : null;
-			}
+		if (node.nodeName in {I:1, B:1} &&
+			node.lastChild && node.lastChild.nodeName in {I:1, B:1})
+		{
+			return state.sep.lastSourceNode === node ? node.lastChild : null;
 		} else if (state.sep.lastSourceNode === node) {
 			// If a separator was already emitted, or an outstanding separator
 			// starts at another node that produced output, we are not
@@ -2049,27 +2048,8 @@ WSP._getPrecedingQuoteElement = function(node, state) {
 };
 
 WSP._quoteTextFollows = function(node, state) {
-	// Move up first until we have a sibling
-	while (node && !node.nextSibling) {
-		node = node.parentNode;
-	}
-	if (node) {
-		node = node.nextSibling;
-	}
-
-	if (node && DU.isText(node) && node.nodeValue[0] === "'") {
-		return true;
-	}
-
-	// Now move down the firstChilds
-	while (node && node.nodeName in {I:1, B:1} && node.firstChild) {
-		if (DU.isText(node.firstChild) && node.firstChild.nodeValue.match(/'$/)) {
-			return true;
-		}
-		node = node.firstChild;
-	}
-
-	return false;
+	var next = node.nextSibling;
+	return next && DU.isText(next) && next.nodeValue[0] === "'";
 };
 
 function wtEOL(node, otherNode) {

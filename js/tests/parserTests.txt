@@ -15806,6 +15806,7 @@ parsoid
 #### 1. Quotes inside <b> and <i>
 #### 2. Link fragments separated by <i> and <b> tags
 #### 3. Link fragments inside <i> and <b>
+#### 4. No escaping needed
 #### --------------------------------------
 !! test
 1. Quotes inside <b> and <i>
@@ -15858,7 +15859,7 @@ parsoid=html2wt,wt2wt
 !! end
 
 !! test
-2. Link fragments inside <i> and <b>
+3. Link fragments inside <i> and <b>
 (FIXME: Escaping one or both of [[ and ]] is also acceptable --
  this is one of the shortcomings of this format)
 !! input
@@ -15868,6 +15869,17 @@ parsoid=html2wt,wt2wt
 !! result
 <p><i>[[foo</i>]]
 </p><p><b>[[foo</b>]]
+</p>
+!! end
+
+!! test
+4. No escaping needed
+!! input
+'<span>''bar''</span>'
+'<span>'''bar'''</span>'
+!! result
+<p>'<span><i>bar</i></span>'
+'<span><b>bar</b></span>'
 </p>
 !! end
 
