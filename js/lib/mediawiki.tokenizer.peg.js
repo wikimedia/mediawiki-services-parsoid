@@ -14,10 +14,11 @@ var PEG = require('pegjs'),
 	fs = require('fs'),
 	events = require('events');
 
-function PegTokenizer( env, canCache ) {
+function PegTokenizer( env, options ) {
 	this.env = env;
-	this.canCache = canCache;
-	this.options = {};
+	this.options = options || {};
+	this.offsets = {};
+	this.canCache = this.options.canCache;
 	if ( this.canCache ) {
 		this.cacheAccum = { chunks: [] };
 	}
@@ -43,8 +44,8 @@ PegTokenizer.prototype.process = function( text, cacheKey ) {
  * Set start and end offsets of the source that generated this DOM
  */
 PegTokenizer.prototype.setSourceOffsets = function(start, end) {
-	this.options.startOffset = start;
-	this.options.endOffset = end;
+	this.offsets.startOffset = start;
+	this.offsets.endOffset = end;
 };
 
 /*
@@ -140,7 +141,7 @@ PegTokenizer.prototype._processText = function( text, fullParse, cacheKey ) {
 	}
 
 	// Kick it off!
-	var srcOffset = this.options.startOffset || 0;
+	var srcOffset = this.offsets.startOffset || 0;
 	var args = { cb: chunkCB, pegTokenizer: this, srcOffset: srcOffset, env: this.env };
 	if (fullParse) {
 		if ( ! this.env.conf.parsoid.debug ) {
@@ -205,8 +206,8 @@ PegTokenizer.prototype.onEnd = function ( ) {
 	}
 
 	// Reset source offsets
-	this.options.startOffset = undefined;
-	this.options.endOffset = undefined;
+	this.offsets.startOffset = undefined;
+	this.offsets.endOffset = undefined;
 
 	this.emit('end');
 };
@@ -223,7 +224,7 @@ PegTokenizer.prototype.tokenize = function( text, production ) {
 			retToks = this.tokenizer.tokenize(text, production, {
 				cb: function(r) { toks = toks.concat(r); },
 				pegTokenizer: this,
-				srcOffset: this.options.startOffset || 0,
+				srcOffset: this.offsets.startOffset || 0,
 				env: this.env
 			});
 
