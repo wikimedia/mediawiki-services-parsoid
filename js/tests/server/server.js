@@ -2,18 +2,20 @@
 ( function () {
 "use strict";
 
-var http = require( 'http' ),
-	express = require( 'express' ),
-	dbStack = [], dbFlag = false,
+var express = require( 'express' ),
+	optimist = require( 'optimist' ),
 	// The maximum number of tries per article
 	maxTries = 6,
 	// The maximum number of fetch retries per article
-	maxFetchRetries = 6,
-	// "Random" estimate of how many pending pages we have in the db
-	pendingPagesEstimate = 500;
+	maxFetchRetries = 6;
 
 // Command line options
-var argv = require( 'optimist' )
+var argv = optimist.usage( 'Usage: $0 [connection parameters]' )
+	.boolean( 'help' )
+	.options( 'help', {
+		'default': false,
+		describe: "Show usage information."
+	} )
 	.options( 'h', {
 		alias: 'host',
 		'default': 'localhost',
@@ -39,7 +41,18 @@ var argv = require( 'optimist' )
 		'default': 'parsoidpw',
 		describe: 'Password.'
 	} )
+	.boolean( 'd' )
+	.options( 'd', {
+		alias: 'debug',
+		'default': false,
+		describe: "Output MySQL debug."
+	} )
 	.argv;
+
+if ( argv.help ) {
+	optimist.showHelp();
+	process.exit( 0 );
+}
 
 var mysql = require( 'mysql' );
 var db = mysql.createConnection({
@@ -48,148 +61,83 @@ var db = mysql.createConnection({
 	database : argv.database,
 	user     : argv.user,
 	password : argv.password,
-	multipleStatements : true
-});
+	multipleStatements : true,
+	debug    : argv.debug
+} );
 
-db.connect();
+var queues = require( 'mysql-queues' );
+queues( db, argv.debug );
 
-var counter = 0;
+// Try connecting to the database.
+process.on( 'exit', function() {
+	db.end();
+} );
+db.connect( function( err ) {
+	if ( err ) {
+		console.error( "Unable to connect to database, error: " + err.toString() );
+		process.exit( 1 );
+	}
+} );
 
 // ----------------- The queries --------------
 var dbGetTitle =
-	'SELECT pages.id, pages.title, pages.prefix ' +
+	'SELECT id, title, prefix, claim_hash, claim_num_tries ' +
 	'FROM pages ' +
-	'LEFT JOIN claims ON pages.id = claims.page_id AND claims.commit_hash = ? ' +
-	'LEFT JOIN stats ON stats.id = pages.latest_result ' +
 	'WHERE num_fetch_errors < ? AND ' +
-	'( claims.id IS NULL OR ' +
-	'( claims.has_errorless_result = 0 AND claims.num_tries <= ? AND claims.timestamp < ? ) ) ' +
-	'ORDER BY stats.score DESC, ' +
-	'claims.timestamp ASC LIMIT 1 OFFSET ? ';
-
-var dbFindTitleForClaim =
-	'SELECT pages.id, pages.title, pages.prefix ' +
-	'FROM pages, claims ' +
-	'WHERE pages.id = ? AND pages.id = claims.page_id AND ' +
-	'claims.commit_hash= ?';
-
-var dbGetTitleRandom =
-	'SELECT pages.id, pages.title, pages.prefix ' +
-	'FROM pages ' +
-	'LEFT JOIN claims ON pages.id = claims.page_id AND claims.commit_hash = ? ' +
-	'LEFT JOIN stats ON stats.id = pages.latest_result ' +
-	'WHERE num_fetch_errors < ? AND ' +
-	'( claims.id IS NULL OR ' +
-	'( claims.has_errorless_result = 0 AND claims.num_tries <= ? AND claims.timestamp < ? ) ) ' +
-	'ORDER BY stats.score DESC, ' +
-	'claims.timestamp ASC, RAND() LIMIT 1';
+	'( claim_hash != ? OR ' +
+		'( claim_num_tries <= ? AND claim_timestamp < ? ) ) ' +
+	'ORDER BY claim_num_tries DESC, latest_score DESC, ' +
+	'claim_timestamp ASC LIMIT 1';
 
 var dbIncrementFetchErrorCount =
 	'UPDATE pages SET num_fetch_errors = num_fetch_errors + 1 WHERE title = ? AND prefix = ?';
-
-var dbClearFetchErrorCount =
-	'UPDATE pages SET num_fetch_errors = 0 WHERE title = ? and prefix = ?';
 
 var dbInsertCommit =
 	'INSERT IGNORE INTO commits ( hash, timestamp ) ' +
 	'VALUES ( ?, ? )';
 
-var dbFindClaimByPageId =
-	'SELECT claims.id, claims.num_tries FROM claims ' +
-	'WHERE claims.page_id = ? AND claims.commit_hash = ?';
-
-var dbFindClaimByTitle =
-	'SELECT claims.id, claims.num_tries, claims.page_id FROM claims ' +
-	'JOIN pages ON pages.id = claims.page_id AND pages.title = ? AND pages.prefix = ? ' +
-	'WHERE claims.commit_hash = ? AND claims.has_errorless_result = 0';
-
-var dbInsertClaim =
-	'INSERT INTO claims ( page_id, commit_hash, timestamp ) ' +
-	'VALUES ( ?, ?, ? )';
-
-var dbTryInsertClaim =
-	'INSERT INTO claims ( page_id, commit_hash, timestamp ) ' +
-	'VALUES ( ( ' +
-	'SELECT pages.id ' +
+var dbFindPageByClaimHash =
+	'SELECT id ' +
 	'FROM pages ' +
-	'LEFT JOIN claims ON pages.id = claims.page_id AND claims.commit_hash = ? ' +
-	'LEFT JOIN stats ON stats.id = pages.latest_result ' +
-	'WHERE num_fetch_errors < ? AND ' +
-	'( claims.id IS NULL OR ' +
-	'( claims.has_errorless_result = 0 AND claims.num_tries <= ? AND claims.timestamp < ? ) ) ' +
-	'ORDER BY stats.score DESC, ' +
-	'claims.timestamp ASC LIMIT 1 ' +
-	' ), ?, ? )';
+	'WHERE title = ? AND prefix = ? AND claim_hash = ?';
 
-var dbTryUpdateClaim =
-	// the ids look redundant, but this is intended to atomically succeed, or fail if already recently reclaimed
-	'UPDATE claims SET timestamp = ?, num_tries = num_tries + 1 WHERE id = ? AND id = (' +
-	'SELECT pages.id ' +
-	'FROM pages ' +
-	'LEFT JOIN claims ON pages.id = claims.page_id AND claims.commit_hash = ? ' +
-	'LEFT JOIN stats ON stats.id = pages.latest_result ' +
-	'WHERE num_fetch_errors < ? AND ' +
-	'( claims.id IS NULL OR ' +
-	'( claims.has_errorless_result = 0 AND claims.num_tries <= ? AND claims.timestamp < ? ) ) ' +
-	'ORDER BY stats.score DESC, ' +
-	'claims.timestamp ASC LIMIT 1)';
-
-var dbUpdateClaim =
-	'UPDATE claims SET timestamp = ?, num_tries = num_tries + 1 WHERE id = ?';
-
-var dbUpdateClaimResult =
-	'UPDATE claims SET has_errorless_result = 1 WHERE id = ?';
-
-var dbFindStatRow =
-	'SELECT id FROM stats WHERE page_id = ? AND commit_hash = ?';
+var dbUpdatePageClaim =
+	'UPDATE pages SET claim_hash = ?, claim_timestamp = ?, claim_num_tries = claim_num_tries + 1 ' +
+	'WHERE id = ?';
 
 var dbInsertResult =
-	'INSERT INTO results ( claim_id, result ) ' +
-	'VALUES ( ?, ? )';
+	'INSERT INTO results ( page_id, commit_hash, result ) ' +
+	'VALUES ( ?, ?, ? ) ' +
+	'ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID( id ), ' +
+		'result = VALUES( result )';
 
-var dbUpdateResult =
-	'UPDATE results SET result = ? WHERE claim_id = ?';
-
-var dbInsertClaimStats =
+var dbInsertStats =
 	'INSERT INTO stats ' +
 	'( skips, fails, errors, score, page_id, commit_hash ) ' +
-	'VALUES ( ?, ?, ?, ?, ?, ? ) ';
+	'VALUES ( ?, ?, ?, ?, ?, ? ) ' +
+	'ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID( id ), ' +
+		'skips = VALUES( skips ), fails = VALUES( fails ), ' +
+		'errors = VALUES( errors ), score = VALUES( score )';
 
-var dbUpdateClaimStats =
-	'UPDATE stats ' +
-	'SET skips = ?, fails = ?, errors = ?, score = ? ' +
-	'WHERE page_id = ? AND commit_hash = ?';
-
-var dbUpdateLatestResult =
+var dbUpdatePageLatestResults =
 	'UPDATE pages ' +
-	'SET latest_result = ( SELECT id from stats ' +
-    'WHERE stats.commit_hash = ? AND page_id = pages.id ) ' +
+	'SET latest_stat = ?, latest_score = ?, latest_result = ?, ' +
+	'claim_timestamp = NULL, claim_num_tries = 0 ' +
     'WHERE id = ?';
 
-var dbLatestCommitHash =
-	'SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1';
-
-var dbSecondLastCommitHash =
-	'SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1 OFFSET 1';
-
-// IMPORTANT: node-sqlite3 library has a bug where it seems to cache
-// invalid results when a prepared statement has no variables.
-// Without this dummy variable as a workaround for the caching bug,
-// stats query always fails after the first invocation.  So, if you
-// do upgrade the library, please test before removing this workaround.
 var dbStatsQuery =
-	'SELECT ? AS cache_bug_workaround, ' +
+	'SELECT ' +
 	'(select hash from commits order by timestamp desc limit 1) as maxhash, ' +
 	'(select count(*) from stats where stats.commit_hash = ' +
 		'(select hash from commits order by timestamp desc limit 1)) as maxresults, ' +
 	'(select avg(stats.errors) from stats join pages on ' +
-		'pages.latest_result = stats.id) as avgerrors, ' +
+		'pages.latest_stat = stats.id) as avgerrors, ' +
 	'(select avg(stats.fails) from stats join pages on ' +
-		'pages.latest_result = stats.id) as avgfails, ' +
+		'pages.latest_stat = stats.id) as avgfails, ' +
 	'(select avg(stats.skips) from stats join pages on ' +
-		'pages.latest_result = stats.id) as avgskips, ' +
+		'pages.latest_stat = stats.id) as avgskips, ' +
 	'(select avg(stats.score) from stats join pages on ' +
-		'pages.latest_result = stats.id) as avgscore, ' +
+		'pages.latest_stat = stats.id) as avgscore, ' +
 	'count(*) AS total, ' +
 	'count(CASE WHEN stats.errors=0 THEN 1 ELSE NULL END) AS no_errors, ' +
 	'count(CASE WHEN stats.errors=0 AND stats.fails=0 '+
@@ -215,23 +163,23 @@ var dbStatsQuery =
 	'AND s2.commit_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1 OFFSET 1 ) ' +
 	'AND s1.score < s2.score ) as numfixes '  +
 
-	'FROM pages JOIN stats on pages.latest_result = stats.id';
+	'FROM pages JOIN stats on pages.latest_stat = stats.id';
 
 var dbPerWikiStatsQuery =
-	'SELECT ? AS cache_bug_workaround, ' +
+	'SELECT ' +
 	'(select hash from commits order by timestamp desc limit 1) as maxhash, ' +
 	'(select count(*) from stats join pages on stats.page_id = pages.id ' +
 		'where stats.commit_hash = ' +
 		'(select hash from commits order by timestamp desc limit 1) ' +
 		'and pages.prefix = ?) as maxresults, ' +
 	'(select avg(stats.errors) from stats join pages on ' +
-		'pages.latest_result = stats.id where pages.prefix = ?) as avgerrors, ' +
+		'pages.latest_stat = stats.id where pages.prefix = ?) as avgerrors, ' +
 	'(select avg(stats.fails) from stats join pages on ' +
-		'pages.latest_result = stats.id where pages.prefix = ?) as avgfails, ' +
+		'pages.latest_stat = stats.id where pages.prefix = ?) as avgfails, ' +
 	'(select avg(stats.skips) from stats join pages on ' +
-		'pages.latest_result = stats.id where pages.prefix = ?) as avgskips, ' +
+		'pages.latest_stat = stats.id where pages.prefix = ?) as avgskips, ' +
 	'(select avg(stats.score) from stats join pages on ' +
-		'pages.latest_result = stats.id where pages.prefix = ?) as avgscore, ' +
+		'pages.latest_stat = stats.id where pages.prefix = ?) as avgscore, ' +
 	'count(*) AS total, ' +
 	'count(CASE WHEN stats.errors=0 THEN 1 ELSE NULL END) AS no_errors, ' +
 	'count(CASE WHEN stats.errors=0 AND stats.fails=0 '+
@@ -259,7 +207,7 @@ var dbPerWikiStatsQuery =
 	'AND pages.prefix = ? ' +
 	'AND s1.score < s2.score ) as numfixes ' +
 
-	'FROM pages JOIN stats on pages.latest_result = stats.id WHERE pages.prefix = ?';
+	'FROM pages JOIN stats on pages.latest_stat = stats.id WHERE pages.prefix = ?';
 
 var dbFailsQuery =
 	'SELECT pages.title, pages.prefix, commits.hash, stats.errors, stats.fails, stats.skips ' +
@@ -274,18 +222,15 @@ var dbFailsQuery =
 
 var dbGetOneResult =
 	'SELECT result FROM results ' +
-	'JOIN claims ON results.claim_id = claims.id ' +
-	'JOIN commits ON claims.commit_hash = commits.hash ' +
-	'JOIN pages ON pages.id = claims.page_id ' +
+	'JOIN commits ON results.commit_hash = commits.hash ' +
+	'JOIN pages ON pages.id = results.page_id ' +
 	'WHERE pages.title = ? AND pages.prefix = ? ' +
 	'ORDER BY commits.timestamp DESC LIMIT 1' ;
 
 var dbGetResultWithCommit =
     'SELECT result FROM results ' +
-    'JOIN claims ON results.claim_id = claims.id ' +
-    'AND claims.commit_hash = ? ' +
-    'JOIN pages ON pages.id = claims.page_id ' +
-    'WHERE pages.title = ? AND pages.prefix = ?';
+    'JOIN pages ON pages.id = results.page_id ' +
+    'WHERE results.commit_hash = ? AND pages.title = ? AND pages.prefix = ?';
 
 var dbFailedFetches =
 	'SELECT title, prefix FROM pages WHERE num_fetch_errors >= ?';
@@ -315,19 +260,19 @@ var dbFixedPages =
 	'LIMIT 40 OFFSET ?';
 
 var dbFailsDistribution =
-	'SELECT ? AS caching_bug_workaround, fails, count(*) AS num_pages ' +
+	'SELECT fails, count(*) AS num_pages ' +
 	'FROM stats ' +
-	'JOIN pages ON pages.latest_result = stats.id ' +
+	'JOIN pages ON pages.latest_stat = stats.id ' +
 	'GROUP by fails';
 
 var dbSkipsDistribution =
-	'SELECT ? AS caching_bug_workaround, skips, count(*) AS num_pages ' +
+	'SELECT skips, count(*) AS num_pages ' +
 	'FROM stats ' +
-	'JOIN pages ON pages.latest_result = stats.id ' +
+	'JOIN pages ON pages.latest_stat = stats.id ' +
 	'GROUP by skips';
 
 var dbCommits =
-	'SELECT ? AS caching_bug_workaround, hash, timestamp, ' +
+	'SELECT hash, timestamp, ' +
 	//// get the number of fixes column
 	//	'(SELECT count(*) ' +
 	//	'FROM pages ' +
@@ -383,163 +328,76 @@ var dbNumRegressionsBetweenRevs =
 	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
 	'WHERE s1.commit_hash = ? AND s2.commit_hash = ? AND s1.score > s2.score ';
 
-var dbNumRegressionsBetweenLastTwoRevs =
-	'SELECT count(*) as numRegressions ' +
-	'FROM pages ' +
-	'JOIN stats AS s1 ON s1.page_id = pages.id ' +
-	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
-	'WHERE s1.commit_hash = (SELECT hash ' +
-	                        'FROM commits ORDER BY timestamp DESC LIMIT 1 ) ' +
-        'AND s2.commit_hash = (SELECT hash ' +
-                              'FROM commits ORDER BY timestamp DESC LIMIT 1 OFFSET 1) ' +
-        'AND s1.score > s2.score ';
-
 var dbResultsQuery =
-	'SELECT result FROM results'
-;
+	'SELECT result FROM results';
 
 var dbResultsPerWikiQuery =
 	'SELECT result FROM results ' +
-	'JOIN claims ON claims.id = results.claim_id ' +
-	'JOIN pages ON pages.id = claims.page_id ' +
-	'WHERE pages.prefix = ?'
-;
+	'JOIN pages ON pages.id = results.page_id ' +
+	'WHERE pages.prefix = ?';
 
-var dbUpdateErrCB = function(title, prefix, hash, type, msg, err) {
-	if (err) {
-		console.error("Error inserting/updating", type, "for page:", prefix + ':' + title, "and hash:", hash);
-		if (msg) {
-			console.error(msg);
+var transUpdateCB = function( title, prefix, hash, type, res, trans, success_cb, err, result ) {
+	if ( err ) {
+		trans.rollback();
+		var msg = "Error inserting/updating " + type + " for page: " +  prefix + ':' + title + " and hash: " + hash;
+		console.error( msg );
+		if ( res ) {
+			res.send( msg, 500 );
 		}
-		console.error("ERR:", err);
+	} else if ( success_cb ) {
+		success_cb( result );
 	}
 };
-
-var titleCallback = function( req, res, retry, commitHash, cutOffTimestamp, err, row ) {
-	if ( err && !retry ) {
-		console.error( 'Error in titleCallback: ' + err.toString() );
-		res.send( 'Error! ' + err.toString(), 500 );
-	} else if ( err === null && row && row.length > 0 ) {
-		// SSS FIXME: what about error checks?
-		db.query( dbInsertCommit, [ commitHash, decodeURIComponent( req.query.ctime ) ] );
-		db.query( dbFindClaimByPageId, [ row[0].id, commitHash ], function ( err, claim ) {
-			if ( claim && claim[0] ) {
-				// Ignoring possible duplicate processing
-				// Increment the # of tries, update timestamp
-				db.query( dbUpdateClaim, [Date.now(), claim[0].id],
-					dbUpdateErrCB.bind(null, row[0].title, row[0].prefix, commitHash, "claim", null));
-
-				if (claim[0].num_tries >= maxTries) {
-					// Too many failures.  Insert an error stats entry and retry fetch
-					console.log( ' CRASHER?', row[0].prefix + ':' + row[0].title );
-					var stats = [0, 0, 1, statsScore(0,0,1), row[0].id, commitHash];
-					db.query( dbInsertClaimStats, stats, function ( err ) {
-						if ( !err ) {
-							db.query( dbUpdateLatestResult, [commitHash, row[0].id],
-								dbUpdateErrCB.bind(null, row[0].title, row[0].prefix, commitHash, 'latest result', null ) );
-						} else {
-							// Try updating the stats instead of inserting if we got an error
-							// Likely a sql constraint error
-							db.query( dbUpdateClaimStats, stats, function (err) {
-								if ( !err ) {
-									db.query( dbUpdateLatestResult, [commitHash, row[0].id],
-										dbUpdateErrCB.bind(null, row[0].title, row[0].prefix, commitHash, 'latest result', null ) );
-								} else {
-									dbUpdateErrCB( row[0].title, row[0].prefix, commitHash, 'stats', null, err );
-								}
-							});
-						}
-					} );
-					fetchPage(commitHash, cutOffTimestamp, req, res);
-				} else {
-					console.log( ' ->', row[0].prefix + ':' + row[0].title );
-					res.send( { prefix: row[0].prefix, title: row[0].title } );
-				}
-			} else {
-				// Claim doesn't exist
-				db.query( dbInsertClaim, [ row[0].id, commitHash, Date.now() ], function(err) {
-					if (!err) {
-						console.log( ' ->', row[0].prefix + ':' + row[0].title );
-						res.send( { prefix: row[0].prefix, title: row[0].title } );
-					} else {
-						console.error(err);
-						console.error("Multiple clients trying to access the same title:", row[0].prefix + ':' + row[0].title );
-						// In the rare scenario that some other client snatched the
-						// title before us, get a new title (use the randomized ordering query)
-						db.query( dbGetTitleRandom, [ commitHash, maxFetchRetries, maxTries, cutOffTimestamp ],
-							titleCallback.bind( null, req, res, false, commitHash, cutOffTimestamp ) );
-					}
-				});
-			}
-		});
-	} else if ( retry ) {
-		// Try again with the slow DB search method
-		db.query( dbGetTitleRandom, [ commitHash, maxFetchRetries, maxTries, cutOffTimestamp ],
-			titleCallback.bind( null, req, res, false, commitHash, cutOffTimestamp ) );
-	} else {
-		res.send( 'no available titles that fit those constraints', 404 );
-	}
-};
-
-var fetchPage = function( commitHash, cutOffTimestamp, req, res ) {
-	// This query picks a random page among the first 'pendingPagesEstimate' pages
-	var rowOffset = Math.floor(Math.random() * pendingPagesEstimate);
-	db.query( dbGetTitle, [ commitHash, maxFetchRetries, maxTries, cutOffTimestamp, rowOffset ],
-		titleCallback.bind( null, req, res, true, commitHash, cutOffTimestamp ) );
-};
-
 
 var claimPage = function( commitHash, cutOffTimestamp, req, res ) {
-	// rather than getting a title then trying to claim it, atomically claim then fetch the matching title
-/*
-	db.query(
-		'start transaction;' +
-		"insert into pages(title) values ('Foo30');" +
-		"insert into pages(title) values ('Foo31');" +
-		"insert into pages(title) values ('Foo26');" +
-		'COMMIT; '
-		, [], function(err) { db.query('rollback', [], function(err){}); if( err ) console.error( err ); } );
-*/
-	db.query( 'START TRANSACTION;', [], function( err ) {
+	var trans = db.startTransaction();
+
+	trans.query( dbGetTitle, [ maxFetchRetries, commitHash, maxTries, cutOffTimestamp ], function( err, rows ) {
 		if ( err ) {
-			console.error( err );
-		}
-	} );
-	db.query( dbGetTitle, [ commitHash, maxFetchRetries, maxTries, cutOffTimestamp, 0 ], function( err, row ) {
-		if ( err ) {
-			console.error( err );
-			console.error( "Failed fetching row to update (" + [ cutOffTimestamp, commitHash, maxFetchRetries, maxTries, Date.now() ] + ')' );
+			trans.rollback( function() {
+				console.error( 'Error getting next title: ' + err.toString() );
+				res.send( "Error: " + err.toString(), 500 );
+			} );
+		} else if ( !rows || rows.length === 0 ) {
+			// Couldn't find any page to test, just tell the client to wait.
+			trans.rollback( function() {
+				res.send( 'No available titles that fit the constraints.', 404 );
+			} );
 		} else {
-			console.log(row[0].title);
-			var targetID = row[0].id;
-			console.log( 'Trying insert of ' + targetID + ' with ' + [ Date.now(), targetID ]);
-			db.query( dbInsertClaim, [ targetID, commitHash, Date.now() ], function(err) {
-				if ( err ) {
-					db.query( 'ROLLBACK;', [], function(err){});
-					console.error( err );
-					console.error( "Failed updating with (" + [ Date.now(), targetID ] + ')' );
-				} else {
-					db.query( 'COMMIT;', [], function(err){});
-					console.log( 'Update succeeded.  Get detail ' + [targetID, commitHash ] );
+			// Found a title to process.
+			var page = rows[0];
 
-					// success get the updated id and fetch the detail to match
-					db.query( dbFindTitleForClaim, [ targetID, commitHash ], function( err, row ) {
-						console.log("XXXX" +  err + row );
-						if ( !err ) {
-							console.log( row );
-							console.log( ' ->', row[0].prefix + ':' + row[0].title + ' (updated)' );
-							res.send( { prefix: row[0].prefix, title: row[0].title } );
-						} else {
-							console.error( err );
-							console.error( "Failed getting the title to match the update " + this.lastID );
-						}
-					});
-				}
-			});
+			// Check if the selected title has arrived at the maximum number of
+			// tries, which means we need to mark it as an error.
+			if ( page.claim_hash && page.claim_num_tries === maxTries ) {
+				// Too many failures, insert an error in stats and retry fetch.
+				console.log( ' CRASHER?', page.prefix + ':' + page.title );
+				var score = statsScore( 0, 0, 1 );
+				var stats = [ 0, 0, 1, score, page.id, commitHash ];
+				trans.query( dbInsertStats, stats,
+					transUpdateCB.bind( null, page.title, page.prefix, commitHash, "stats", res, trans, function( insertedStat ) {
+						trans.query( dbUpdatePageLatestResults, [ insertedStat.insertId, score, null, page.id ],
+							transUpdateCB.bind( null, page.title, page.prefix, commitHash, "latest_result", res, trans, function() {
+								trans.commit( function() {
+									// After the error has been committed, go around
+									// again to get a different title.
+									claimPage( commitHash, cutOffTimestamp, req, res );
+								} );
+						} ) );
+					} ) );
+			} else {
+				// No outstanding claim with too many tries, so update with this hash.
+				trans.query( dbUpdatePageClaim, [ commitHash, new Date(), page.id ],
+					transUpdateCB.bind( null, page.title, page.prefix, commitHash, "dbUpdatePageClaim", res, trans, function() {
+						trans.commit( function() {
+							console.log( ' ->', page.prefix + ':' + page.title, 'num_tries: ' + page.claim_num_tries.toString() );
+							res.send( { prefix: page.prefix, title: page.title },  200);
+						} );
+					} ) );
+			}
 		}
-	});
+	} ).execute();
 };
-
 
 var getTitle = function ( req, res ) {
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
@@ -551,9 +409,7 @@ var getTitle = function ( req, res ) {
 	//
 	// Hopefully, no page takes longer than 10 minutes to parse. :)
 
-	// claimPage(req.query.commit, Date.now() - 600, req, res);
-
-	fetchPage(req.query.commit, Date.now() - 600, req, res);
+	claimPage( req.query.commit, new Date( Date.now() - ( 600 * 1000 ) ), req, res );
 };
 
 var statsScore = function(skipCount, failCount, errorCount) {
@@ -569,6 +425,7 @@ var receiveResults = function ( req, res ) {
 		failCount = result.match( /<failure/g ),
 		errorCount = result.match( /<error/g );
 	var prefix = req.params[1];
+	var commitHash = req.body.commit;
 
 	skipCount = skipCount ? skipCount.length : 0;
 	failCount = failCount ? failCount.length : 0;
@@ -576,55 +433,63 @@ var receiveResults = function ( req, res ) {
 
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 
-	var commitHash = req.body.commit;
+	// Keep record of the commit, ignore if already there.
+	db.query( dbInsertCommit, [ commitHash, new Date() ], function ( err ) {
+		if ( err ) {
+			console.error( "Error inserting commit " + commitHash );
+		}
+	});
+
+	var trans = db.startTransaction();
 	//console.warn("got: " + JSON.stringify([title, commitHash, result, skipCount, failCount, errorCount]));
 	if ( errorCount > 0 && result.match( 'DoesNotExist' ) ) {
+		// Page fetch error, increment the fetch error count so, when it goes over
+		/// maxFetchRetries, it won't be considered for tests again.
 		console.log( 'XX', prefix + ':' + title );
-		db.query( dbIncrementFetchErrorCount, [title, prefix],
-			dbUpdateErrCB.bind(null, title, prefix, commitHash, "page fetch error count", null));
-
-		// NOTE: the last db update may not have completed yet
-		// For now, always sending HTTP 200 back to client.
-		res.send( '', 200 );
-	} else {
-		db.query( dbFindClaimByTitle, [ title, prefix, commitHash ], function ( err, claim ) {
-			if ( !err && claim && claim.length > 0 ) {
-				db.query( dbClearFetchErrorCount, [title, prefix],
-					dbUpdateErrCB.bind(null, title, prefix, commitHash, "page fetch error count", null));
-
-				// Insert/update result and stats depending on whether this was
-				// the first try or a subsequent retry -- prevents duplicates
-				db.query( dbInsertResult, [claim[0].id, result],
-					dbUpdateErrCB.bind(null, title, prefix, commitHash, "result", null));
-
-				var stats = [skipCount, failCount, errorCount, statsScore(skipCount,failCount,errorCount)];
-				db.query( dbInsertClaimStats, stats.concat([claim[0].page_id, commitHash]), function ( err ) {
-					if ( err ) {
-						dbUpdateErrCB( title, prefix, commitHash, 'stats', null, err );
-					} else {
-						db.query( dbUpdateLatestResult, [commitHash, claim[0].page_id],
-							dbUpdateErrCB.bind(null, title, prefix, commitHash, 'latest result', null ) );
-					}
-				} );
-
-				// Mark the claim as having a result. Used to be
-				// error-free result, but now we are using it to track if
-				// we have a result already.
-				db.query( dbUpdateClaimResult, [claim[0].id],
-					dbUpdateErrCB.bind(null, title, prefix, commitHash, "claim result", null));
-
-
-				console.log( '<- ', prefix + ':' + title, ':', skipCount, failCount,
-						errorCount, commitHash.substr(0,7) );
-				// NOTE: the last db update may not have completed yet
-				// For now, always sending HTTP 200 back to client.
+		trans.query( dbIncrementFetchErrorCount, [title, prefix],
+			transUpdateCB.bind( null, title, prefix, commitHash, "page fetch error count", res, trans, null ) )
+			.commit( function( err ) {
+				if ( err ) {
+					console.error( "Error incrementing fetch count: " + err.toString() );
+				}
 				res.send( '', 200 );
+			} );
+
+	} else {
+		trans.query( dbFindPageByClaimHash, [ title, prefix, commitHash ], function ( err, pages ) {
+			if ( !err && pages && pages.length === 1 ) {
+				// Found the correct page, fill the details up
+				var page = pages[0];
+
+				var score = statsScore( skipCount, failCount, errorCount );
+				var latest_resultId = 0,
+					latest_statId = 0;
+				// Insert the result
+				trans.query( dbInsertResult, [ page.id, commitHash, result ],
+					transUpdateCB.bind( null, title, prefix, commitHash, "result", res, trans, function( insertedResult ) {
+						latest_resultId = insertedResult.insertId;
+						// Insert the stats
+						trans.query( dbInsertStats, [ skipCount, failCount, errorCount, score, page.id, commitHash ],
+							transUpdateCB.bind( null, title, prefix, commitHash, "stats", res, trans, function( insertedStat ) {
+								latest_statId = insertedStat.insertId;
+
+								// And now update the page with the latest info
+								trans.query( dbUpdatePageLatestResults, [ latest_statId, score, latest_resultId, page.id ],
+									transUpdateCB.bind( null, title, prefix, commitHash, "latest result", res, trans, function() {
+										trans.commit( function() {
+											console.log( '<- ', prefix + ':' + title, ':', skipCount, failCount,
+												errorCount, commitHash.substr(0,7) );
+											res.send('', 200);
+										});
+									} ) );
+							} ) );
+					} ) );
 			} else {
-				var msg = "Did not find claim for title: " + prefix + ':' + title;
-				msg = err ? msg + "\n" + err.toString() : msg;
-				res.send(msg, 500);
+				trans.rollback( function() {
+					res.send( "Did not find claim for title: " + prefix + ':' + title, 500);
+				} );
 			}
-		} );
+		} ).execute();
 	}
 };
 
@@ -660,11 +525,11 @@ var statsWebInterface = function ( req, res ) {
 	// Switch the query object based on the prefix
 	if ( prefix !== null ) {
 		query = dbPerWikiStatsQuery;
-		queryParams = [ -1, prefix, prefix, prefix, prefix,
+		queryParams = [ prefix, prefix, prefix, prefix,
 		                prefix, prefix, prefix, prefix ];
 	} else {
 		query = dbStatsQuery;
-		queryParams = [ -1 ];
+		queryParams = null;
 	}
 
 	// Fetch stats for commit
@@ -892,7 +757,7 @@ var GET_failedFetches = function( req, res ) {
 };
 
 var GET_failsDistr = function( req, res ) {
-	db.query( dbFailsDistribution, [-1], function ( err, rows ) {
+	db.query( dbFailsDistribution, null, function ( err, rows ) {
 		if ( err ) {
 			console.error( err );
 			res.send( err.toString(), 500 );
@@ -914,7 +779,7 @@ var GET_failsDistr = function( req, res ) {
 };
 
 var GET_skipsDistr = function( req, res ) {
-	db.query( dbSkipsDistribution, [-1], function ( err, rows ) {
+	db.query( dbSkipsDistribution, null, function ( err, rows ) {
 		if ( err ) {
 			console.error( err );
 			res.send( err.toString(), 500 );
@@ -1049,7 +914,7 @@ var GET_topfixes = function( req, res ) {
 };
 
 var GET_commits = function( req, res ) {
-	db.query( dbCommits, [-1], function ( err, rows ) {
+	db.query( dbCommits, null, function ( err, rows ) {
 		if ( err ) {
 			console.error( err );
 			res.send( err.toString(), 500 );
