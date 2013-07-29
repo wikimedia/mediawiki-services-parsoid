@@ -1651,6 +1651,14 @@ ParserTests.prototype.processCase = function ( i, options ) {
 							item.options.parsoid = [ item.options.parsoid ];
 						}
 
+						// Avoid filtering out the selser test
+						if ( options.selser &&
+							item.options.parsoid.indexOf( "selser" ) < 0 &&
+							item.options.parsoid.indexOf( "wt2wt" ) >= 0
+						) {
+							item.options.parsoid.push( "selser" );
+						}
+
 						targetModes = targetModes.filter(function(mode) {
 							return item.options.parsoid.indexOf( mode ) >= 0;
 						});
