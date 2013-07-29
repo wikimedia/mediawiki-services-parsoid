@@ -5,3 +5,9 @@
 
 # ISBN links with at least two line breaks (https://bugzilla.wikimedia.org/show_bug.cgi?id=29025)
 (?:(?:RFC|PMID)[ \t\n\r\f]*(?:[\n\f\r][ \t\n\r\f]*){2,}([0-9]+)|ISBN[ \t\n\r\f]*(?:[\n\f\r][ \t\n\r\f]*){2,}(\b(?:97[89][ -]?)?(?:[0-9][ -]?){9}[0-9Xx]\b))
+
+# Template:Table_cell_templates in enwiki
+{{\s*(?:rh|rh2|yes|Ya|no|Na|coming soon|bad|eliminated|Site active|Site inactive|good|yes2|won|no2|nom|sho|TBA|partial|yes-No|okay|some|any|n/a|BLACK|dunno|Unknown|Depends|Included|dropped|terminated|beta|table-experimental|free|nonfree|proprietary|needs|incorrect|no result|pending|nightly|release-candidate|[?]|unofficial|usually|rarely|sometimes|draw)\s*(?:[|]|}})
+
+# cases which aren't the simple '| {{yes}}' case.
+[^ \t|]\s*{{\s*(?:rh|rh2|yes|Ya|no|Na|coming soon|bad|eliminated|Site active|Site inactive|good|yes2|won|no2|nom|sho|TBA|partial|yes-No|okay|some|any|n/a|BLACK|dunno|Unknown|Depends|Included|dropped|terminated|beta|table-experimental|free|nonfree|proprietary|needs|incorrect|no result|pending|nightly|release-candidate|[?]|unofficial|usually|rarely|sometimes|draw)\s*(?:[|]|}})
