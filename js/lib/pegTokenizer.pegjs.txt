@@ -34,6 +34,7 @@
     //};
 
     var Util = require('./mediawiki.Util.js').Util;
+    var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer;
 
     // import defines and define some constructor shortcuts
     var defines = require('./mediawiki.parser.defines.js'),
@@ -448,8 +449,9 @@ redirect
 redirect_word = sp:[ \t\n\r\0\x0b]* rw:((!space_or_newline ![:\[] c:.{return c;})+)
 {
     rw = rw.join('');
-    if ( pegArgs.env.conf.wiki.getMagicWordMatcher( 'redirect' ).test( rw ) )
+    if ( pegArgs.env.conf.wiki.getMagicWordMatcher( 'redirect' ).test( rw ) ) {
         return sp.join('') + rw;
+    }
     return null;
 }
 
