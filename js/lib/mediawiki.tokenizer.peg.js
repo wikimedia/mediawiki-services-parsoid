@@ -216,17 +216,20 @@ PegTokenizer.prototype.onEnd = function ( ) {
  * Tokenize via a production passed in as an arg.
  * The text is tokenized synchronously in one shot.
  */
-PegTokenizer.prototype.tokenize = function( text, production ) {
+PegTokenizer.prototype.tokenize = function( text, production, args ) {
 	try {
 		// Some productions use callbacks: start, tlb, toplevelblock.
 		// All other productions return tokens directly.
-		var toks = [],
-			retToks = this.tokenizer.tokenize(text, production, {
+		var toks = [];
+		if (!args) {
+			args = {
 				cb: function(r) { toks = toks.concat(r); },
 				pegTokenizer: this,
 				srcOffset: this.offsets.startOffset || 0,
 				env: this.env
-			});
+			};
+		}
+		var retToks = this.tokenizer.tokenize(text, production, args);
 
 		if (retToks.constructor === Array && retToks.length > 0) {
 			toks = toks.concat(retToks);
