@@ -769,7 +769,7 @@ function handlePres(document, env) {
 function migrateTrailingNLs(elt, env) {
 
 	// We can migrate a newline out of a node if one of the following is true:
-	// (1) The ends a line in wikitext (=> not a literal html tag)
+	// (1) The node ends a line in wikitext (=> not a literal html tag)
 	// (2) The node has an auto-closed end-tag (wikitext-generated or literal html tag)
 	// (3) It is the rightmost node in the DOM subtree rooted at a node
 	//     that ends a line in wikitext
@@ -1835,8 +1835,7 @@ function findAndFixBuilderCorrectedTags(document, env) {
 	// 1. Finds start-tag marker metas that dont have a corresponding start tag
 	//    and adds placeholder metas for the purposes of round-tripping.
 	// 2. Deletes any useless end-tag marker metas
-	// 3. Deletes empty nodes that is entirely builder inserted (both start/end)
-	function findDeletedStartTagsAndDeleteEmptyTags(node) {
+	function findDeletedStartTags(node) {
 		// handle unmatched mw:StartTag meta tags
 		var c = node.firstChild;
 		while (c !== null) {
@@ -1864,10 +1863,8 @@ function findAndFixBuilderCorrectedTags(document, env) {
 						// other brittle DOM passes working on the DOM.
 						deleteNode(c);
 					}
-				} else if (c.childNodes.length === 0 && dp.autoInsertedStart && dp.autoInsertedEnd) {
-					deleteNode(c);
 				} else {
-					findDeletedStartTagsAndDeleteEmptyTags(c);
+					findDeletedStartTags(c);
 				}
 			}
 			c = sibling;
@@ -1977,7 +1974,7 @@ function findAndFixBuilderCorrectedTags(document, env) {
 	}
 
 	findAutoInsertedTags(document.body);
-	findDeletedStartTagsAndDeleteEmptyTags(document.body);
+	findDeletedStartTags(document.body);
 }
 
 /* ---------------------------------------------------------------------------
@@ -2441,14 +2438,19 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 	return [cs, e];
 }
 
-var saveDataParsoid; // forward declaration
+function saveDataParsoid( options, node) {
+	if ( node.nodeType === node.ELEMENT_NODE && node.data ) {
+		DU.saveDataAttribs( node );
+	}
+	return true;
+}
 
 function dumpDomWithDataAttribs( options, root ) {
 	function cloneData(node, clone) {
 		var d = node.data;
 		if (d && d.constructor === Object && (Object.keys(d.parsoid).length > 0)) {
 			clone.data = Util.clone(d);
-			saveDataParsoid( options, clone, true );
+			saveDataParsoid( options, clone );
 		}
 
 		node = node.firstChild;
@@ -2940,43 +2942,48 @@ function migrateDataParsoid( node ) {
 /**
  * @method
  *
- * Save the data-parsoid attributes on each node.
+ * Perform some final cleaup and save data-parsoid attributes on each node.
  */
-saveDataParsoid = function( options, node, debugDump ) {
+function cleanupAndSaveDataParsoid( options, node ) {
 	if ( node.nodeType === node.ELEMENT_NODE && node.data ) {
-		if (!debugDump) {
-			var dp = node.data.parsoid;
-			if (dp) {
-				dp.tagId = undefined;
+		var dp = node.data.parsoid;
+		if (dp) {
+			// Delete empty auto-inserted elements
+			var next = node.nextSibling;
+			if (node.childNodes.length === 0 && dp.autoInsertedStart && dp.autoInsertedEnd) {
+				deleteNode(node);
+				return next;
+			}
 
-				// Remove data-parsoid.src from templates and extensions that have
-				// valid data-mw and dsr.  This should reduce data-parsoid bloat.
-				//
-				// Transcluded nodes will not have dp.tsr set and dont need dp.src either
-				if (/\bmw:(Transclusion|Extension)\b/.test(node.getAttribute("typeof")) &&
-					(!dp.tsr ||
-					node.getAttribute("data-mw") && dp.dsr && dp.dsr[0] && dp.dsr[1]))
-				{
-					dp.src = undefined;
-				}
+			dp.tagId = undefined;
 
-				// Remove tsr
-				if (dp.tsr) {
-					dp.tsr = undefined;
-				}
+			// Remove data-parsoid.src from templates and extensions that have
+			// valid data-mw and dsr.  This should reduce data-parsoid bloat.
+			//
+			// Transcluded nodes will not have dp.tsr set and dont need dp.src either
+			if (/\bmw:(Transclusion|Extension)\b/.test(node.getAttribute("typeof")) &&
+				(!dp.tsr ||
+				node.getAttribute("data-mw") && dp.dsr && dp.dsr[0] && dp.dsr[1]))
+			{
+				dp.src = undefined;
+			}
 
-				// Make dsr zero-range for fostered content
-				// to prevent selser from duplicating this content
-				// outside the table from where this came.
-				if (dp.fostered && dp.dsr) {
-					dp.dsr[0] = dp.dsr[1];
-				}
+			// Remove tsr
+			if (dp.tsr) {
+				dp.tsr = undefined;
+			}
+
+			// Make dsr zero-range for fostered content
+			// to prevent selser from duplicating this content
+			// outside the table from where this came.
+			if (dp.fostered && dp.dsr) {
+				dp.dsr[0] = dp.dsr[1];
 			}
 		}
 		DU.saveDataAttribs( node );
 	}
 	return true;
-};
+}
 
 /**
  * @method
@@ -3035,7 +3042,7 @@ function DOMPostProcessor(env, options) {
 	var domVisitor2 = new DOMTraverser();
 	domVisitor2.addHandler( 'meta', stripMarkerMetas.bind(null, env.conf.parsoid.editMode) );
 	domVisitor2.addHandler( 'li', cleanUpLIHack.bind( null, env ) );
-	domVisitor2.addHandler( null, saveDataParsoid.bind(null, this.options) );
+	domVisitor2.addHandler( null, cleanupAndSaveDataParsoid.bind(null, this.options) );
 	this.processors.push(domVisitor2.traverse.bind(domVisitor2));
 }
 

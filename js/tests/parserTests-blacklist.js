@@ -689,6 +689,7 @@ add("wt2wt", "Parsoid-only: Table with broken attribute value quoting on consecu
 add("wt2wt", "RT-ed inter-element separators should be valid separators");
 add("wt2wt", "Trailing newlines in a deep dom-subtree that ends a wikitext line should be migrated out\n(Parsoid-only since PHP parser relies on Tidy for correct output)");
 add("wt2wt", "Empty TD followed by TD with tpl-generated attribute");
+add("wt2wt", "Empty TR followed by a template-generated TR\n(Parsoid-specific since PHP parser doesn't handle this mixed tbl-wikitext)");
 add("wt2wt", "Empty TR followed by mixed-ws-comment line should RT correctly");
 add("wt2wt", "Improperly nested inline or quotes tags with whitespace in between");
 
@@ -3903,6 +3904,17 @@ add("selser", "Empty TD followed by TD with tpl-generated attribute [[2,[[2,2,2,
 add("selser", "Empty TD followed by TD with tpl-generated attribute [[4,[[0,0,4,0],0]]]");
 add("selser", "Empty TD followed by TD with tpl-generated attribute [[4,1]]");
 add("selser", "Indented table with an empty td [2,[3,[[0,0,0,2],4]]]");
+add("selser", "Empty TR followed by a template-generated TR\n(Parsoid-specific since PHP parser doesn't handle this mixed tbl-wikitext) [[3,2]]");
+add("selser", "Empty TR followed by a template-generated TR\n(Parsoid-specific since PHP parser doesn't handle this mixed tbl-wikitext) [[0,[2,0,3]]]");
+add("selser", "Empty TR followed by a template-generated TR\n(Parsoid-specific since PHP parser doesn't handle this mixed tbl-wikitext) [[4,1]]");
+add("selser", "Empty TR followed by a template-generated TR\n(Parsoid-specific since PHP parser doesn't handle this mixed tbl-wikitext) [[4,[[4],0,0]]]");
+add("selser", "Empty TR followed by a template-generated TR\n(Parsoid-specific since PHP parser doesn't handle this mixed tbl-wikitext) [2]");
+add("selser", "Empty TR followed by a template-generated TR\n(Parsoid-specific since PHP parser doesn't handle this mixed tbl-wikitext) [[3,[[2],0,0]]]");
+add("selser", "Empty TR followed by a template-generated TR\n(Parsoid-specific since PHP parser doesn't handle this mixed tbl-wikitext) [[3,[0,0,3]]]");
+add("selser", "Empty TR followed by a template-generated TR\n(Parsoid-specific since PHP parser doesn't handle this mixed tbl-wikitext) [[0,[0,0,2]]]");
+add("selser", "Empty TR followed by a template-generated TR\n(Parsoid-specific since PHP parser doesn't handle this mixed tbl-wikitext) [1]");
+add("selser", "Empty TR followed by a template-generated TR\n(Parsoid-specific since PHP parser doesn't handle this mixed tbl-wikitext) [[0,2]]");
+add("selser", "Empty TR followed by a template-generated TR\n(Parsoid-specific since PHP parser doesn't handle this mixed tbl-wikitext) [[0,[0,0,4]]]");
 add("selser", "Empty TR followed by mixed-ws-comment line should RT correctly [2]");
 add("selser", "Empty TR followed by mixed-ws-comment line should RT correctly [[0,[2,2,2,0]]]");
 add("selser", "Empty TR followed by mixed-ws-comment line should RT correctly [[0,1]]");
