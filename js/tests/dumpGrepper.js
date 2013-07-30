@@ -17,11 +17,12 @@ function DumpGrepper ( regexp ) {
 DumpGrepper.prototype = new events.EventEmitter();
 DumpGrepper.prototype.constructor = DumpGrepper;
 
-DumpGrepper.prototype.grepRev = function ( revision ) {
+DumpGrepper.prototype.grepRev = function ( revision, onlyFirst ) {
 	var result = this.re.exec( revision.text ),
 		matches = [];
 	while ( result ) {
 		matches.push( result );
+		if ( onlyFirst ) { break; }
 		result = this.re.exec( revision.text );
 	}
 	if ( matches.length ) {
@@ -41,6 +42,11 @@ if (module === require.main) {
 		'color': {
 			description: 'Highlight matched substring using color. Use --no-color to disable.  Default is "auto".',
 			'default': 'auto'
+		},
+		'l': {
+			description: 'Suppress  normal  output;  instead  print the name of each article from which output would normally have been  printed.',
+			'boolean': true,
+			'default': false
 		}
 	} ).argv;
 
@@ -56,6 +62,7 @@ if (module === require.main) {
 	}
 
 	var re = new RegExp( argv._[0], flags );
+	var onlyFirst = Util.booleanOption( argv.l );
 
 	var reader = new dumpReader.DumpReader(),
 		grepper = new DumpGrepper( re ),
@@ -66,11 +73,15 @@ if (module === require.main) {
 
 	reader.on( 'revision', function ( revision ) {
 		stats.revisions++;
-		grepper.grepRev( revision );
+		grepper.grepRev( revision, onlyFirst );
 	} );
 
 	grepper.on( 'match', function ( revision, matches ) {
 		stats.matches++;
+		if ( Util.booleanOption( argv.l ) ) {
+			console.log( revision.page.title );
+			return;
+		}
 		for ( var i = 0, l = matches.length; i < l; i++ ) {
 			console.log( '== Match: [[' + revision.page.title + ']] ==' );
 			var m = matches[i];
@@ -84,11 +95,11 @@ if (module === require.main) {
 
 	process.stdin.on ( 'end' , function() {
 		// Print some stats
-		console.log( '################################################' );
-		console.log( 'Total revisions: ' + stats.revisions );
-		console.log( 'Total matches: ' + stats.matches );
-		console.log( 'Ratio: ' + (stats.matches / stats.revisions * 100) + '%' );
-		console.log( '################################################' );
+		console.warn( '################################################' );
+		console.warn( 'Total revisions: ' + stats.revisions );
+		console.warn( 'Total matches: ' + stats.matches );
+		console.warn( 'Ratio: ' + (stats.matches / stats.revisions * 100) + '%' );
+		console.warn( '################################################' );
 	} );
 
 	process.stdin.on('data', reader.push.bind(reader) );
