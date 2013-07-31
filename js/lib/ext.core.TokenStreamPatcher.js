@@ -13,6 +13,7 @@
 var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	Util = require('./mediawiki.Util.js').Util,
 	defines = require('./mediawiki.parser.defines.js');
+
 // define some constructor shortcuts
 var CommentTk = defines.CommentTk,
     TagTk = defines.TagTk,
@@ -21,7 +22,7 @@ var CommentTk = defines.CommentTk,
 
 function TokenStreamPatcher( manager, options ) {
 	this.manager = manager;
-	this.tokenizer = new PegTokenizer();
+	this.tokenizer = new PegTokenizer(this.manager.env);
 
 	manager.addTransform(this.onNewline.bind(this),
 		"TokenStreamPatcher:onNewline", this.nlRank, 'newline');
@@ -37,20 +38,29 @@ TokenStreamPatcher.prototype.nlRank   = 2.001;
 TokenStreamPatcher.prototype.anyRank  = 2.002;
 TokenStreamPatcher.prototype.endRank  = 2.003;
 
+TokenStreamPatcher.prototype.updateBuf = function() {
+	if (this.buf.length === 0) {
+		this.buf.sol = this.sol;
+		this.buf.srcOffset = this.srcOffset;
+	}
+};
+
 TokenStreamPatcher.prototype.reset = function() {
 	this.inNowiki = false;
 	this.sol = true;
-	this.srcOffset = null;
+	this.srcOffset = 0;
 	this.buf = [];
+	this.updateBuf();
 };
 
-TokenStreamPatcher.prototype.onNewline = function(token, manager) {
+TokenStreamPatcher.prototype.onNewline = function(token) {
 	this.sol = true;
 	this.srcOffset = (token.dataAttribs.tsr || [null,null])[1];
+	this.updateBuf();
 	return {tokens: [token]};
 };
 
-TokenStreamPatcher.prototype.onEnd = function(token, manager) {
+TokenStreamPatcher.prototype.onEnd = function(token) {
 	this.reset();
 	return {tokens: [token]};
 };
@@ -61,7 +71,7 @@ TokenStreamPatcher.prototype.clearSOL = function() {
 	this.sol = false;
 };
 
-TokenStreamPatcher.prototype.onAny = function(token, manager) {
+TokenStreamPatcher.prototype.onAny = function(token) {
 	// console.warn("T: " + JSON.stringify(token));
 	var tokens = [token];
 	switch (token.constructor) {

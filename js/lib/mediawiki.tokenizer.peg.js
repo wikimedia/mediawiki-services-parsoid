@@ -14,10 +14,11 @@ var PEG = require('pegjs'),
 	fs = require('fs'),
 	events = require('events');
 
-function PegTokenizer( env, canCache ) {
+function PegTokenizer( env, options ) {
 	this.env = env;
-	this.canCache = canCache;
-	this.options = {};
+	this.options = options || {};
+	this.offsets = {};
+	this.canCache = this.options.canCache;
 	if ( this.canCache ) {
 		this.cacheAccum = { chunks: [] };
 	}
@@ -43,8 +44,8 @@ PegTokenizer.prototype.process = function( text, cacheKey ) {
  * Set start and end offsets of the source that generated this DOM
  */
 PegTokenizer.prototype.setSourceOffsets = function(start, end) {
-	this.options.startOffset = start;
-	this.options.endOffset = end;
+	this.offsets.startOffset = start;
+	this.offsets.endOffset = end;
 };
 
 /*
@@ -140,7 +141,7 @@ PegTokenizer.prototype._processText = function( text, fullParse, cacheKey ) {
 	}
 
 	// Kick it off!
-	var srcOffset = this.options.startOffset || 0;
+	var srcOffset = this.offsets.startOffset || 0;
 	var args = { cb: chunkCB, pegTokenizer: this, srcOffset: srcOffset, env: this.env };
 	if (fullParse) {
 		if ( ! this.env.conf.parsoid.debug ) {
@@ -205,8 +206,8 @@ PegTokenizer.prototype.onEnd = function ( ) {
 	}
 
 	// Reset source offsets
-	this.options.startOffset = undefined;
-	this.options.endOffset = undefined;
+	this.offsets.startOffset = undefined;
+	this.offsets.endOffset = undefined;
 
 	this.emit('end');
 };
@@ -215,17 +216,20 @@ PegTokenizer.prototype.onEnd = function ( ) {
  * Tokenize via a production passed in as an arg.
  * The text is tokenized synchronously in one shot.
  */
-PegTokenizer.prototype.tokenize = function( text, production ) {
+PegTokenizer.prototype.tokenize = function( text, production, args ) {
 	try {
 		// Some productions use callbacks: start, tlb, toplevelblock.
 		// All other productions return tokens directly.
-		var toks = [],
-			retToks = this.tokenizer.tokenize(text, production, {
+		var toks = [];
+		if (!args) {
+			args = {
 				cb: function(r) { toks = toks.concat(r); },
 				pegTokenizer: this,
-				srcOffset: this.options.startOffset || 0,
+				srcOffset: this.offsets.startOffset || 0,
 				env: this.env
-			});
+			};
+		}
+		var retToks = this.tokenizer.tokenize(text, production, args);
 
 		if (retToks.constructor === Array && retToks.length > 0) {
 			toks = toks.concat(retToks);
