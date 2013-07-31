@@ -185,6 +185,7 @@ var dbUpdatePageLatestResults =
 var dbStatsQuery =
 	'SELECT ' +
 	'(select hash from commits order by timestamp desc limit 1) as maxhash, ' +
+	'(select hash from commits order by timestamp desc limit 1 offset 1) as secondhash, ' +
 	'(select count(*) from stats where stats.commit_hash = ' +
 		'(select hash from commits order by timestamp desc limit 1)) as maxresults, ' +
 	'(select avg(stats.errors) from stats join pages on ' +
@@ -225,6 +226,7 @@ var dbStatsQuery =
 var dbPerWikiStatsQuery =
 	'SELECT ' +
 	'(select hash from commits order by timestamp desc limit 1) as maxhash, ' +
+	'(select hash from commits order by timestamp desc limit 1 offset 1) as secondhash, ' +
 	'(select count(*) from stats join pages on stats.page_id = pages.id ' +
 		'where stats.commit_hash = ' +
 		'(select hash from commits order by timestamp desc limit 1) ' +
@@ -291,30 +293,6 @@ var dbGetResultWithCommit =
 
 var dbFailedFetches =
 	'SELECT title, prefix FROM pages WHERE num_fetch_errors >= ?';
-
-var dbRegressedPages =
-	'SELECT pages.title, pages.prefix, ' +
-	's1.commit_hash AS new_commit, s1.errors AS new_errors, s1.fails AS new_fails, s1.skips AS new_skips, ' +
-	's2.commit_hash AS old_commit, s2.errors AS old_errors, s2.fails AS old_fails, s2.skips AS old_skips ' +
-	'FROM pages ' +
-	'JOIN stats AS s1 ON s1.id = pages.latest_result ' +
-	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
-	'WHERE s2.id != s1.id AND s1.score > s2.score ' +
-	'GROUP BY pages.id ' + // picks a "random" past hash from which we regressed
-	'ORDER BY s1.score - s2.score DESC ' +
-	'LIMIT 40 OFFSET ?';
-
-var dbFixedPages =
-	'SELECT pages.title, pages.prefix, ' +
-	's1.commit_hash AS new_commit, s1.errors AS new_errors, s1.fails AS new_fails, s1.skips AS new_skips, ' +
-	's2.commit_hash AS old_commit, s2.errors AS old_errors, s2.fails AS old_fails, s2.skips AS old_skips ' +
-	'FROM pages ' +
-	'JOIN stats AS s1 ON s1.id = pages.latest_result ' +
-	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
-	'WHERE s2.id != s1.id AND s1.score < s2.score ' +
-	'GROUP BY pages.id ' + // picks a "random" past hash from which we regressed
-	'ORDER BY s1.score - s2.score ASC ' +
-	'LIMIT 40 OFFSET ?';
 
 var dbFailsDistribution =
 	'SELECT fails, count(*) AS num_pages ' +
@@ -553,8 +531,6 @@ var receiveResults = function ( req, res ) {
 var indexLinkList = function () {
 	return '<p>More details:</p>\n<ul>' +
 		'<li><a href="/topfails">Results by title</a></li>\n' +
-		'<li><a href="/regressions">Top regressions</a></li>\n' +
-		'<li><a href="/topfixes">Top fixes</a></li>\n' +
 		'<li><a href="/failedFetches">Non-existing test pages</a></li>\n' +
 		'<li><a href="/failsDistr">Histogram of failures</a></li>\n' +
 		'<li><a href="/skipsDistr">Histogram of skips</a></li>\n' +
@@ -640,8 +616,14 @@ var statsWebInterface = function ( req, res ) {
 			res.write( '<table><tbody>');
 			displayRow(res, "Git SHA1", row[0].maxhash);
 			displayRow(res, "Test Results", row[0].maxresults);
-			displayRow(res, "Regressions", numRegressions);
-			displayRow(res, "Fixes", numFixes);
+			displayRow(res, "Regressions",
+			           '<a href="/regressions/between/' + row[0].secondhash + '/' +
+			           row[0].maxhash + '">' +
+			           numRegressions + '</a>');
+			displayRow(res, "Fixes",
+			           '<a href="/topfixes/between/' + row[0].secondhash + '/' +
+			           row[0].maxhash + '">' +
+			           numFixes + '</a>');
 			res.write( '</tbody></table></p>' );
 
 			res.write( '<p>Averages (over the latest results):' );
@@ -917,57 +899,43 @@ var displayPageList = function(res, urlPrefix, page, header, err, rows) {
 
 var GET_regressions = function( req, res ) {
 	var page, offset, urlPrefix;
-	if (req.params.length > 1) {
-		var r1 = req.params[0];
-		var r2 = req.params[1];
-		urlPrefix = "/regressions/between/" + r1 + "/" + r2;
-		page = (req.params[2] || 0) - 0;
-		offset = page * 40;
-		db.query( dbNumRegressionsBetweenRevs, [ r2, r1 ], function(err, row) {
-			if (err || !row) {
-				res.send( err.toString(), 500 );
-			} else {
-				var topfixesLink = "/topfixes/between/" + r1 + "/" + r2,
-					header = "Total regressions between selected revisions: " +
-							row[0].numRegressions +
-							' | <a href="' + topfixesLink + '">topfixes</a>';
-				db.query( dbRegressionsBetweenRevs, [ r2, r1, offset ],
-					displayPageList.bind(null, res, urlPrefix, page, header));
-			}
-		});
-	} else {
-		urlPrefix = "/regressions";
-		page = ( req.params[0] || 0 ) - 0;
-		offset = page * 40;
-		db.query( dbRegressedPages, [ offset ], displayPageList.bind(null, res, urlPrefix, page, null));
-	}
+	var r1 = req.params[0];
+	var r2 = req.params[1];
+	urlPrefix = "/regressions/between/" + r1 + "/" + r2;
+	page = (req.params[2] || 0) - 0;
+	offset = page * 40;
+	db.query( dbNumRegressionsBetweenRevs, [ r2, r1 ], function(err, row) {
+		if (err || !row) {
+			res.send( err.toString(), 500 );
+		} else {
+			var topfixesLink = "/topfixes/between/" + r1 + "/" + r2,
+				header = "Total regressions between selected revisions: " +
+						row[0].numRegressions +
+						' | <a href="' + topfixesLink + '">topfixes</a>';
+			db.query( dbRegressionsBetweenRevs, [ r2, r1, offset ],
+				displayPageList.bind(null, res, urlPrefix, page, header));
+		}
+	});
 };
 
 var GET_topfixes = function( req, res ) {
 	var page, offset, urlPrefix;
-	if (req.params.length > 1) {
-		var r1 = req.params[0];
-		var r2 = req.params[1];
-		urlPrefix = "/topfixes/between/" + r1 + "/" + r2;
-		page = (req.params[2] || 0) - 0;
-		offset = page * 40;
-		db.query( dbNumFixesBetweenRevs, [ r2, r1 ], function(err, row) {
-			if (err || !row) {
-				res.send( err.toString(), 500 );
-			} else {
-				var regressionLink = "/regressions/between/" + r1 + "/" + r2,
-					header = "Total fixes between selected revisions: " + row[0].numFixes +
-						' | <a href="' + regressionLink + '">regressions</a>';
-				db.query( dbFixesBetweenRevs, [ r2, r1, offset ],
-					displayPageList.bind(null, res, urlPrefix, page, header));
-			}
-		});
-	} else {
-		urlPrefix = "/topfixes";
-		page = ( req.params[0] || 0 ) - 0;
-		offset = page * 40;
-		db.query( dbFixedPages, [ offset ], displayPageList.bind(null, res, urlPrefix, page, null));
-	}
+	var r1 = req.params[0];
+	var r2 = req.params[1];
+	urlPrefix = "/topfixes/between/" + r1 + "/" + r2;
+	page = (req.params[2] || 0) - 0;
+	offset = page * 40;
+	db.query( dbNumFixesBetweenRevs, [ r2, r1 ], function(err, row) {
+		if (err || !row) {
+			res.send( err.toString(), 500 );
+		} else {
+			var regressionLink = "/regressions/between/" + r1 + "/" + r2,
+				header = "Total fixes between selected revisions: " + row[0].numFixes +
+					' | <a href="' + regressionLink + '">regressions</a>';
+			db.query( dbFixesBetweenRevs, [ r2, r1, offset ],
+				displayPageList.bind(null, res, urlPrefix, page, header));
+		}
+	});
 };
 
 var GET_commits = function( req, res ) {
@@ -1038,14 +1006,10 @@ app.get( /^\/stats(\/([^\/]+))?$/, statsWebInterface );
 // Failed fetches
 app.get( /^\/failedFetches$/, GET_failedFetches );
 
-// Regressions -- 0th and later pages
-app.get( /^\/regressions$/, GET_regressions );
-app.get( /^\/regressions\/(\d+)$/, GET_regressions );
+// Regressions between two revisions.
 app.get( /^\/regressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_regressions );
 
-// Topfixes -- 0th and later pages
-app.get( /^\/topfixes$/, GET_topfixes );
-app.get( /^\/topfixes\/(\d+)$/, GET_topfixes );
+// Topfixes between two revisions.
 app.get( /^\/topfixes\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_topfixes );
 
 // Distribution of fails
