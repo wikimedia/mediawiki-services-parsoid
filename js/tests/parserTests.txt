@@ -121,6 +121,19 @@ Template:table_attribs
 !! endarticle
 
 !! article
+Template:table_cells
+!! text
+{{table_attribs}} || Bar || Baz
+!! endarticle
+
+!! article
+Template:image_attribs
+!! text
+<noinclude>
+[[File:foobar.jpg|</noinclude>right|Caption text<noinclude>]]</noinclude>
+!! endarticle
+
+!! article
 A?b
 !! text
 Weirdo titles!
@@ -3851,6 +3864,36 @@ Template-generated table cell attributes and cell content
 <table>
 <tr>
 <td style="color: red"> Foo
+</td></tr></table>
+
+!! end
+
+!! test
+Template-generated table cell attributes and cell content (2)
+!! input
+{|
+|align=center {{table_attribs}}
+|}
+!! result
+<table>
+<tr>
+<td align="center" style="color: red"> Foo
+</td></tr></table>
+
+!! end
+
+!! test
+Template-generated table cell attributes and cell content (3)
+!! input
+{|
+|align=center {{table_cells}}
+|}
+!! result
+<table>
+<tr>
+<td align="center" style="color: red"> Foo </td>
+<td> Bar </td>
+<td> Baz
 </td></tr></table>
 
 !! end
@@ -7924,6 +7967,15 @@ Image with caption
 Image with empty attribute
 !! input
 [[Image:foobar.jpg|right||Caption text]]
+!! result
+<div class="floatright"><a href="/wiki/File:Foobar.jpg" class="image" title="Caption text"><img alt="Caption text" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a></div>
+
+!! end
+
+!! test
+Image with attributes from template.
+!! input
+[[Image:foobar.jpg|{{image_attribs}}]]
 !! result
 <div class="floatright"><a href="/wiki/File:Foobar.jpg" class="image" title="Caption text"><img alt="Caption text" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a></div>
 
