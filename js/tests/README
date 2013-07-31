@@ -27,11 +27,13 @@ Enjoy!
 In 'js/tests/server/', to install the necessary packages, run
 	$ npm install
 
-You'll need a pre-created MySQL database. You can view the connection options
-and their default values with
+You'll need a pre-created MySQL database. Then, copy server.settings.js.example
+to server.settings.js and in that file edit the connection parameters. You can
+also override the settings with command line options, to see them and their
+default values run
 	$ node server --help
 
-Then, to populate the database with the initial data, run
+To populate the database with initial data, run
 
 	$ mysql [connection parameters] < sql/create_everything.mysql
 	$ node importJson --prefix=en titles.example.en.json
@@ -45,9 +47,12 @@ test the handling of non-existent articles, you might want to also do:
 
 Now start the server:
 
-	$ node server pages.db
+	$ node server
 
-And in separate windows, as many as you want:
+== Running the round-trip test clients ==
+
+In js/tests/client, copy config.example.js to config.js and edit it to your
+taste. In separate windows, as many as you want:
 
 	$ node js/tests/client/client.js
 

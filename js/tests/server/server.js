@@ -3,50 +3,74 @@
 "use strict";
 
 var express = require( 'express' ),
-	optimist = require( 'optimist' ),
-	// The maximum number of tries per article
-	maxTries = 6,
-	// The maximum number of fetch retries per article
-	maxFetchRetries = 6;
+	optimist = require( 'optimist' );
+
+// Default options
+var defaults = {
+	'host': 'localhost',
+	'port': 3306,
+	'database': 'parsoid',
+	'user': 'parsoid',
+	'password': 'parsoidpw',
+	'debug': false,
+	'fetches': 6,
+	'tries': 6,
+	'cutofftime': 600
+};
+
+// Settings file
+var settings;
+try {
+	settings = require( './server.settings.js' );
+} catch ( e ) {
+	settings = {};
+}
 
 // Command line options
 var argv = optimist.usage( 'Usage: $0 [connection parameters]' )
-	.boolean( 'help' )
 	.options( 'help', {
+		'boolean': true,
 		'default': false,
 		describe: "Show usage information."
 	} )
 	.options( 'h', {
 		alias: 'host',
-		'default': 'localhost',
 		describe: 'Hostname of the database server.'
 	} )
 	.options( 'P', {
 		alias: 'port',
-		'default': 3306,
 		describe: 'Port number to use for connection.'
 	} )
 	.options( 'D', {
 		alias: 'database',
-		'default': 'parsoid',
 		describe: 'Database to use.'
 	} )
 	.options( 'u', {
 		alias: 'user',
-		'default': 'parsoid',
-		describe: 'User for login.'
+		describe: 'User for MySQL login.'
 	} )
 	.options( 'p', {
 		alias: 'password',
-		'default': 'parsoidpw',
 		describe: 'Password.'
 	} )
-	.boolean( 'd' )
 	.options( 'd', {
 		alias: 'debug',
-		'default': false,
-		describe: "Output MySQL debug."
+		'boolean': true,
+		describe: "Output MySQL debug data."
 	} )
+	.options( 'f', {
+		alias: 'fetches',
+		describe: "Number of times to try fetching a page."
+	} )
+	.options( 't', {
+		alias: 'tries',
+		describe: "Number of times an article will be sent for testing " +
+			"before it's considered an error."
+	} )
+	.options( 'c', {
+		alias: 'cutofftime',
+		describe: "Time in seconds to wait for a test result."
+	})
 	.argv;
 
 if ( argv.help ) {
@@ -54,19 +78,52 @@ if ( argv.help ) {
 	process.exit( 0 );
 }
 
+var getOption = function( opt ) {
+	var value;
+
+	// Check possible options in this order: command line, settings file, defaults.
+	if ( argv.hasOwnProperty( opt ) ) {
+		value = argv[ opt ];
+	} else if ( settings.hasOwnProperty( opt ) ) {
+		value = settings[ opt ];
+	} else if ( defaults.hasOwnProperty( opt ) ) {
+		value = defaults[ opt ];
+	} else {
+		return undefined;
+	}
+
+	// Check the boolean options, 'false' and 'no' should be treated as false.
+	// Copied from mediawiki.Util.js.
+	if ( opt === 'debug' ) {
+		if ( ( typeof value ) === 'string' &&
+		     /^(no|false)$/i.test( value ) ) {
+			return false;
+		}
+	}
+	return value;
+};
+
+var // The maximum number of tries per article
+	maxTries = getOption( 'tries' ),
+	// The maximum number of fetch retries per article
+	maxFetchRetries = getOption( 'fetches' ),
+	// The time to wait before considering a test has failed
+	cutOffTime = getOption( 'cutofftime' ),
+	debug = getOption( 'debug' );
+
 var mysql = require( 'mysql' );
 var db = mysql.createConnection({
-	host     : argv.host,
-	port     : argv.port,
-	database : argv.database,
-	user     : argv.user,
-	password : argv.password,
+	host     : getOption( 'host' ),
+	port     : getOption( 'port' ),
+	database : getOption( 'database' ),
+	user     : getOption( 'user' ),
+	password : getOption( 'password'),
 	multipleStatements : true,
-	debug    : argv.debug
+	debug    : debug
 } );
 
 var queues = require( 'mysql-queues' );
-queues( db, argv.debug );
+queues( db, debug );
 
 // Try connecting to the database.
 process.on( 'exit', function() {
@@ -409,7 +466,7 @@ var getTitle = function ( req, res ) {
 	//
 	// Hopefully, no page takes longer than 10 minutes to parse. :)
 
-	claimPage( req.query.commit, new Date( Date.now() - ( 600 * 1000 ) ), req, res );
+	claimPage( req.query.commit, new Date( Date.now() - ( cutOffTime * 1000 ) ), req, res );
 };
 
 var statsScore = function(skipCount, failCount, errorCount) {

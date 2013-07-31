@@ -4,8 +4,27 @@
  * A utility for reading in a JSON-y list of articles to the database.
  */
 
-var opts = require( 'optimist' )
-	.usage( 'Usage: ./importJson.js titles.example.json' )
+var optimist = require( 'optimist' );
+
+// Default options
+var defaults = {
+	'host': 'localhost',
+	'port': 3306,
+	'database': 'parsoid',
+	'user': 'parsoid',
+	'password': 'parsoidpw'
+};
+
+// Settings file
+var settings;
+try {
+	settings = require( './server.settings.js' );
+} catch ( e ) {
+	settings = {};
+}
+
+// Command line options
+var argv = optimist.usage( 'Usage: ./importJson.js titles.example.json' )
 	.options( 'help', {
 			description: 'Show this message',
 			'boolean': true,
@@ -18,39 +37,52 @@ var opts = require( 'optimist' )
 	} )
 	.options( 'h', {
 		alias: 'host',
-		'default': 'localhost',
 		describe: 'Hostname of the database server.'
 	} )
 	.options( 'P', {
 		alias: 'port',
-		'default': 3306,
 		describe: 'Port number to use for connection.'
 	} )
 	.options( 'D', {
 		alias: 'database',
-		'default': 'parsoid',
 		describe: 'Database to use.'
 	} )
 	.options( 'u', {
 		alias: 'user',
-		'default': 'parsoid',
 		describe: 'User for login.'
 	} )
 	.options( 'p', {
 		alias: 'password',
-		'default': 'parsoidpw',
 		describe: 'Password.'
 	} )
 	.demand( 1 )
 	.argv;
 
+if ( argv.help ) {
+	optimist.showHelp();
+	process.exit( 0 );
+}
+
+var getOption = function( opt ) {
+	// Check possible options in this order: command line, settings file, defaults.
+	if ( argv.hasOwnProperty( opt ) ) {
+		return argv[ opt ];
+	} else if ( settings.hasOwnProperty( opt ) ) {
+		return settings[ opt ];
+	} else if ( defaults.hasOwnProperty( opt ) ) {
+		return defaults[ opt ];
+	} else {
+		return undefined;
+	}
+};
+
 var mysql = require( 'mysql' );
 var db = mysql.createConnection({
-	host     : opts.host,
-	port     : opts.port,
-	database : opts.database,
-	user     : opts.user,
-	password : opts.password,
+	host     : getOption( 'host' ),
+	port     : getOption( 'port' ),
+	database : getOption( 'database' ),
+	user     : getOption( 'user' ),
+	password : getOption( 'password' ),
 	multipleStatements : true
 });
 
@@ -95,11 +127,11 @@ db.connect( function ( err ) {
 	if ( err ) {
 		console.error( err );
 	} else {
-		filepath = opts._[0];
+		filepath = argv._[0];
 		if ( !filepath.match( /^\// ) ) {
 			filepath = './' + filepath;
 		}
-		loadJSON( filepath, opts );
+		loadJSON( filepath, argv );
 		db.end();
 	}
 } );
