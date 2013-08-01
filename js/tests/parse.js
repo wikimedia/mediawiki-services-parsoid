@@ -16,7 +16,7 @@ function traceUsage() {
 	var buf = [];
 	buf.push("Tracing");
 	buf.push("-------");
-	buf.push("- Without any flags, enables a light high-level tracing (not as useful anymore)");
+	buf.push("- Without any flags, enables a light high-level tracing (DEPRECATED and not as useful anymore)");
 	buf.push("- With one or more comma-separated flags, traces those specific phases");
 	buf.push("- Supported flags:");
 	buf.push("  * sync:1    : shows tokens flowing through the post-tokenizer Sync Token Transform Manager");
@@ -44,6 +44,7 @@ function dumpFlags() {
 	buf.push("- Dumps state at different points of execution");
 	buf.push("- DOM dumps are always doc.outerHTML");
 	buf.push("- Supported flags:");
+	buf.push("  * tplsrc            : dumps preprocessed template source that will be tokenized");
 	buf.push("  * dom:post-builder  : dumps DOM returned by HTML builder");
 	buf.push("  * dom:pre-dsr       : dumps DOM prior to computing DSR");
 	buf.push("  * dom:post-dsr      : dumps DOM after computing DSR");

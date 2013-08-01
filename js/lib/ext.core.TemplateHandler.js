@@ -542,11 +542,14 @@ TemplateHandler.prototype._startTokenPipeline = function( state, frame, cb, tplA
 		//this.manager.env.errCB(err);
 	}
 
-	//console.log( "=================================");
-	//console.log( tplArgs.name );
-	//console.log( "---------------------------------");
-	//console.log( src );
-	//console.log( "---------------------------------");
+	var pConf = this.manager.env.conf.parsoid;
+	if (pConf.dumpFlags && pConf.dumpFlags.indexOf("tplsrc") !== -1) {
+		console.log( "=================================");
+		console.log( tplArgs.name );
+		console.log( "---------------------------------");
+		console.log( src );
+		console.log( "---------------------------------");
+	}
 
 	// Get a nested transformation pipeline for the input type. The input
 	// pipeline includes the tokenizer, synchronous stage-1 transforms for
