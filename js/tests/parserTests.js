@@ -197,7 +197,7 @@ ParserTests.prototype.getOpts = function () {
 		},
 		'numchanges': {
 			description: 'Make multiple different changes to the DOM, run a selser test for each one.',
-			'default': 1,
+			'default': 20,
 			'boolean': false
 		},
 		'cache': {
@@ -1184,7 +1184,7 @@ ParserTests.prototype.printResult = function ( title, time, comments, iopts, exp
 
 	// don't report selser fails when nothing was changed or it's a dup
 	if ( mode === 'selser' && ( item.changes === 0 || item.duplicateChange ) ) {
-		fail = false;
+		return;
 	}
 
 	if ( fail ) {

@@ -2842,6 +2842,8 @@ add("selser", "Table security: embedded pipes (http://lists.wikimedia.org/mailma
 add("selser", "Table security: embedded pipes (http://lists.wikimedia.org/mailman/htdig/wikitech-l/2006-April/022293.html) [2]");
 add("selser", "Template-generated table cell attributes and cell content [[2,[2,0]]]");
 add("selser", "Template-generated table cell attributes and cell content [[0,[2,4]]]");
+add("selser", "Template-generated table cell attributes and cell content (2) [[2,[2,2]]]");
+add("selser", "Template-generated table cell attributes and cell content (3) [[3,[2,0]]]");
 add("selser", "Table attributes with empty value [2]");
 add("selser", "Table attributes with empty value [[3,[[[3]],0]]]");
 add("selser", "Table attributes with empty value [1]");
