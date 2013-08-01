@@ -28,9 +28,6 @@ var fs = require('fs'),
 	optimist = require('optimist');
 var booleanOption = Util.booleanOption; // shortcut
 
-// exhaustive changesin file to use with selser blacklist
-var BLACKLIST_CHANGESIN = __dirname + "/selser.changes.json";
-
 // Run a mock API in the background so we can request things from it
 var forkedAPI = fork( __dirname + '/mockAPI.js', [], { silent: true } );
 
@@ -156,7 +153,7 @@ var prettyPrintIOptions = function(iopts) {
  */
 ParserTests.prototype.getOpts = function () {
 	var default_args = ["Default tests-file: " + this.parser_tests_file,
-	                    "Default options   : --wt2html --wt2wt --html2html --whitelist --color=auto"];
+	                    "Default options   : --wt2html --wt2wt --html2html --html2wt --whitelist --blacklist --color=auto"];
 
 	return optimist.usage( 'Usage: $0 [options] [tests-file]\n\n' + default_args.join("\n"), {
 		'help': {
@@ -197,14 +194,6 @@ ParserTests.prototype.getOpts = function () {
 			description: 'Test in edit-mode (changes some parse & serialization strategies)',
 			'default': true,
 			'boolean': true
-		},
-		'changesout': {
-			description: 'Output file for randomly-generated changes (only works if --selser is enabled too)',
-			'default': null
-		},
-		'changesin': {
-			description: 'Way to pass in non-random changes for tests. Use --changesout to generate a useful file for this purpose.',
-			'default': null
 		},
 		'numchanges': {
 			description: 'Make multiple different changes to the DOM, run a selser test for each one.',
@@ -439,11 +428,6 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
 		if ( mode === 'selser' ) {
 			// console.warn("--> selsering: " + content.outerHTML);
 			this.env.setPageSrcInfo( item.input );
-			if ( options.changesin && item.changes === undefined ) {
-				// A changesin option was passed, so set the changes to 0,
-				// so we don't try to regenerate the changes.
-				item.changes = 0;
-			}
 		} else if (booleanOption(options.use_source) && startsAtWikitext ) {
 			this.env.setPageSrcInfo( item.input );
 		} else {
@@ -470,7 +454,7 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
  * For a selser test, check if a change we could make has already been tested in this round.
  * Used for generating unique tests.
  *
- * @param {Array} changes Already-tried changes
+ * @param {Array} allChanges Already-tried changes
  * @param {Array} change Candidate change
  * @returns {boolean}
  */
@@ -572,8 +556,9 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 	// Seed the random-number generator based on the item title
 	var random = new Alea( (item.seed || '') + (item.title || '') );
 
-	// Keep the changes in the item object in case of --changesout
-	item.changes = item.changes || changelist;
+	// Keep the changes in the item object
+	// to check for duplicates after the waterfall
+	item.changes = changelist;
 
 	if ( content.nodeType === content.DOCUMENT_NODE ) {
 		content = content.body;
@@ -594,7 +579,6 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
  * Generate a change object for a document, so we can apply it during a selser test.
  *
  * @param {Object} options
- * @param {Object/null} nonRandomChanges Passed in changes, i.e., don't generate random changes.
  * @param {Object} item
  * @param {Node} content
  * @param {Function} cb
@@ -602,7 +586,7 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
  * @param {Node} cb.content
  * @param {Array} cb.changelist
  */
-ParserTests.prototype.generateChanges = function ( options, nonRandomChanges, item, content, cb ) {
+ParserTests.prototype.generateChanges = function( options, item, content, cb ) {
 
 	var self = this,
 		random = new Alea( (item.seed || '') + (item.title || '') );
@@ -707,16 +691,18 @@ ParserTests.prototype.generateChanges = function ( options, nonRandomChanges, it
 		content = content.body;
 	}
 
-	var changeTree = nonRandomChanges;
-	if (!changeTree) {
-		var numAttempts = 0;
-		do {
-			numAttempts++;
-			changeTree = genChangesInternal(item, content);
-		} while (
-			numAttempts < 1000 &&
-			(changeTree.length === 0 || self.isDuplicateChangeTree( item.selserChangeTrees, changeTree ))
-		);
+	var changeTree, numAttempts = 0;
+	do {
+		numAttempts++;
+		changeTree = genChangesInternal(item, content);
+	} while (
+		numAttempts < 1000 &&
+		(changeTree.length === 0 || self.isDuplicateChangeTree( item.selserChangeTrees, changeTree ))
+	);
+
+	if ( numAttempts === 1000 ) {
+		// couldn't generate a change ... marking as such
+		item.duplicateChange = true;
 	}
 
 	cb( null, content, changeTree );
@@ -905,12 +891,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 
 	// Generate and make changes for the selser test mode
 	if ( mode === 'selser' ) {
-		if ( item.changes === undefined ) {
-			// Make sure we set this to the *right* falsy value.
-			item.changes = null;
-		}
-
-		testTasks.push( this.generateChanges.bind( this, options, item.changes, item ) );
+		testTasks.push( this.generateChanges.bind( this, options, item ) );
 		testTasks.push( this.applyChanges.bind( this, item ) );
 
 		// Save the modified DOM so we can re-test it later
@@ -1201,6 +1182,11 @@ ParserTests.prototype.printResult = function ( title, time, comments, iopts, exp
 		item.wt2wtResult = actual.raw;
 	}
 
+	// don't report selser fails when nothing was changed or it's a dup
+	if ( mode === 'selser' && ( item.changes === 0 || item.duplicateChange ) ) {
+		fail = false;
+	}
+
 	if ( fail ) {
 		options.reportFailure( title, comments, iopts, options,
 		                       actual, expected, expectFail,
@@ -1364,8 +1350,6 @@ ParserTests.prototype.main = function ( options ) {
 		if ( booleanOption( options['rewrite-blacklist'] ) ) {
 			// turn on all modes by default for --rewrite-blacklist
 			options.selser = true;
-			// force use of the exhaustive changes file when creating blacklist.
-			options.changesin = BLACKLIST_CHANGESIN;
 			// sanity checking (bug 51448 asks to be able to use --filter here)
 			if ( options.filter || options.maxtests ) {
 				console.error( "\nERROR> can't combine --rewrite-blacklist with --filter or --maxtests" );
@@ -1509,26 +1493,6 @@ ParserTests.prototype.main = function ( options ) {
 			this.parserPipeline = Util.getParserPipeline(this.env, 'text/x-mediawiki/full');
 		}
 
-		if ( booleanOption( options.blacklist ) && options.selser ) {
-			if ( options.changesin &&
-			     path.resolve( options.changesin ) ===
-			     path.resolve( BLACKLIST_CHANGESIN ) ) {
-				/* okay, everything's consistent. */
-				/* jshint noempty: false */
-			} else {
-				console.error( "Turning off blacklist because custom "+
-				               "changesin files is being used." );
-				options.blacklist = false;
-			}
-		}
-		if ( options.changesin ) {
-			this.changes = JSON.parse(
-				fs.readFileSync( options.changesin, 'utf-8' ) );
-			if ( this.changes._numchanges ) {
-				options.numchanges = true;
-			}
-		}
-
 		options.reportStart();
 		this.env.pageCache = this.articles;
 		this.comments = [];
@@ -1553,9 +1517,7 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 	var tasks = [];
 	for ( var i = 0; i < modes.length; i++ ) {
 		if ( modes[i] === 'selser' && options.numchanges ) {
-			if ( !item.selserChangeTrees ) {
-				item.selserChangeTrees = new Array( options.numchanges );
-			}
+			item.selserChangeTrees = new Array( options.numchanges );
 
 			var done = false;
 			for ( var j = 0; j < item.selserChangeTrees.length; j++ ) {
@@ -1568,18 +1530,13 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 					} else {
 						var newitem = Util.clone( item );
 						newitem.seed = changesIndex + '';
-						newitem.changes = item.selserChangeTrees[changesIndex];
 						this.processTest( newitem, options, modes[modeIndex], function () {
-							// No short-circuiting if we have changesin file passed in.
-							// Process all change trees specified in that file.
-							if (!options.changesin) {
-								if ( this.isDuplicateChangeTree( item.selserChangeTrees, newitem.changes ) ) {
-									// Once we get a duplicate change tree, we can no longer
-									// generate and run new tests.  So, be done now!
-									done = true;
-								} else {
-									item.selserChangeTrees[changesIndex] = newitem.changes;
-								}
+							if ( this.isDuplicateChangeTree( item.selserChangeTrees, newitem.changes ) ) {
+								// Once we get a duplicate change tree, we can no longer
+								// generate and run new tests.  So, be done now!
+								done = true;
+							} else {
+								item.selserChangeTrees[changesIndex] = newitem.changes;
 							}
 
 							// Push the caches forward!
@@ -1634,7 +1591,6 @@ ParserTests.prototype.processCase = function ( i, options ) {
 						process.nextTick( nextCallback );
 						break;
 					}
-					item.selserChangeTrees = ( this.changes || {} )[item.title];
 					// Add comments to following test.
 					item.comments = item.comments || this.comments;
 					this.comments = [];
@@ -1696,31 +1652,6 @@ ParserTests.prototype.processCase = function ( i, options ) {
 			process.nextTick( nextCallback );
 		}
 	} else {
-		// We're done testing, first need to add the test changes to an output
-		// file if it was specified.
-		if ( options.changesout !== null && options.selser ) {
-			var changes, allChanges = {};
-			for ( var ci = 0; ci < cases.length; ci++ ) {
-				if ( cases[ci].type === 'test' ) {
-					var changeTrees = cases[ci].selserChangeTrees || [];
-					for (var j = 0, n = changeTrees.length; j < n; j++) {
-						if (changeTrees[j] === undefined) {
-							break;
-						}
-					}
-					allChanges[cases[ci].title] = changeTrees.splice(0, j);
-				}
-			}
-			allChanges._numchanges = options.numchanges;
-
-			fs.writeFileSync(
-				options.changesout,
-				JSON.stringify( allChanges, null, 1 )
-					.replace( /\n */g, '\n' )
-					.replace( /\n\]/g, ']' )
-					.replace( /,\n([^"])/g, ',$1' )
-					.replace( /[\n ]*(\[)[\n ]*/g, '$1' ) );
-		}
 
 		// Kill the forked API, so we'll exit correctly.
 		forkedAPI.kill();
