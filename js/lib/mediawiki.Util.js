@@ -259,18 +259,25 @@ var Util = {
 			['table','tbody','caption','th','tr','td'].indexOf(token.name) !== -1;
 	},
 
+	isSolTransparentLinkTag: function(token) {
+		var tc = token.constructor;
+		return (tc === pd.SelfclosingTagTk || tc === pd.TagTk || tc === pd.EndTagTk) &&
+			token.name === 'link' &&
+			/mw:(WikiLink\/Category|PageProp\/redirect)/.test(token.getAttribute('rel'));
+	},
+
 	isSolTransparent: function(token) {
 		var tc = token.constructor;
 		if (tc === String) {
-			if (token.match(/[^\s]/)) {
-				return false;
-			}
+			return token.match(/^\s*$/);
+		} else if (this.isSolTransparentLinkTag(token)) {
+			return true;
 		} else if (tc !== pd.CommentTk &&
 		           (tc !== pd.SelfclosingTagTk || token.name !== 'meta')) {
 			return false;
 		}
 
-		// BUG 47854: Treat all mw:Ext/* tokens as non-SOL.
+		// BUG 47854: Treat all mw:Extension/* tokens as non-SOL.
 		if (token.name === 'meta' && /\bmw:Extension\//.test(token.getAttribute('typeof'))) {
 			return false;
 		} else {

@@ -217,7 +217,7 @@ WEHP.hasWikitextTokens = function ( state, onNewline, options, text, linksOnly )
 		// Ignore non-whitelisted html tags
 		if (t.isHTMLTag()) {
 			if (/\bmw:Extension\b/.test(t.getAttribute("typeof")) &&
-				(options.extName !== 'ref' || t.getAttribute("name") !== 'ref'))
+				options.extName !== t.getAttribute("name"))
 			{
 				return true;
 			}

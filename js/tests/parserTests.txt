@@ -1863,6 +1863,29 @@ b
 </p>
 !! end
 
+!! test
+7a. Indent-pre and category links
+!! options
+parsoid=wt2html,wt2wt
+!! input
+ [[Category:foo]] <!-- No pre-wrapping -->
+{{echo| [[Category:foo]]}} <!-- No pre-wrapping -->
+!! result
+  <span typeof="mw:Transclusion"> </span> 
+!! end
+
+!! test
+7b. Indent-pre and category links
+!! options
+parsoid=wt2html,wt2wt
+!! input
+ [[Category:foo]] a
+ [[Category:foo]] {{echo|b}}
+!! result
+<pre> a <span typeof="mw:Transclusion">b</span>
+</pre>
+!! end
+
 ###
 ### HTML-pre (some to spec PHP parser behavior and some Parsoid-RT-centric)
 ###
@@ -14998,7 +15021,7 @@ parsoid
 
 <references />
 !!result
-<span about="#mwt1" class="reference" data-mw="{&quot;name&quot;:&quot;ref&quot;,&quot;body&quot;:{&quot;html&quot;:&quot;foo &amp;lt;ref&amp;gt;bar&amp;lt;/ref&amp;gt; baz&quot;},&quot;attrs&quot;:{}}" id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref"><a href="#cite_note-1">[1]</a></span>
+<p><span about="#mwt1" class="reference" data-mw="{&quot;name&quot;:&quot;ref&quot;,&quot;body&quot;:{&quot;html&quot;:&quot;foo &amp;lt;ref&amp;gt;bar&amp;lt;/ref&amp;gt; baz&quot;},&quot;attrs&quot;:{}}" id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref"><a href="#cite_note-1">[1]</a></span></p>
 
 <ol class="references" typeof="mw:Extension/references" about="#mwt2" data-mw="{&quot;name&quot;:&quot;references&quot;,&quot;attrs&quot;:{}}">
 <li about="#cite_note-1" id="cite_note-1" data-parsoid="{}"><span rel="mw:referencedBy"><a href="#cite_ref-1-0">↑</a></span> foo &lt;ref&gt;bar&lt;/ref&gt; baz</li></ol>
