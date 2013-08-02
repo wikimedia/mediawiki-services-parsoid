@@ -7,7 +7,7 @@
  */
 
 exports.setup = function( parsoidConfig ) {
-	// The URL here is supposed to be your MediaWiki installation root
+	// The URL here is supposed to be your MediaWiki API endpoint
 	parsoidConfig.setInterwiki( 'localhost', 'http://localhost/w/api.php' );
 
 	// Enable debug mode (prints extra debugging messages)
