@@ -3109,15 +3109,6 @@ WSP._buildExtensionWT = function(state, node, dataMW) {
 	return srcParts.join('');
 };
 
-WSP.skipOverEncapsulatedContent = function(node) {
-	var about = node.getAttribute('about');
-	if (!about) {
-		return node;
-	}
-
-	return DU.getAboutSiblings(node, about).last().nextSibling;
-};
-
 /**
  * Get a DOM-based handler for an element node
  */
@@ -3168,7 +3159,7 @@ WSP._getDOMHandler = function(node, state, cb) {
 
 				if (src !== undefined) {
 					self.emitWikitext(src, state, cb, node);
-					return self.skipOverEncapsulatedContent(node);
+					return DU.skipOverEncapsulatedContent(node);
 				} else {
 					console.error("ERROR: No handler for: " + node.outerHTML);
 					console.error("Serializing as HTML.");
@@ -3944,7 +3935,7 @@ WSP._serializeNode = function( node, state, cb) {
 					// Skip over encapsulated content since it has already been serialized
 					var typeOf = node.getAttribute( 'typeof' ) || '';
 					if (/\bmw:(?:Transclusion\b|Param\b|Extension\/[^\s]+)/.test(typeOf)) {
-						nextNode = this.skipOverEncapsulatedContent(node);
+						nextNode = DU.skipOverEncapsulatedContent(node);
 					}
 				} else if (DU.onlySubtreeChanged(node, this.env) &&
 					hasValidTagWidths(dp.dsr) &&

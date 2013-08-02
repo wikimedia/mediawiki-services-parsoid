@@ -231,31 +231,48 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 				if (origNode.nodeName === baseNode.nodeName) {
 					// Identical wrapper-type, but modified.
 					// Mark as modified, and recurse.
+					this.debug("--found diff: modified-wrapper--");
 					this.markNode(origNode, 'modified-wrapper');
-					this.doDOMDiff(baseNode, origNode);
+					if (!DU.isTplElementNode(this.env, baseNode) && !DU.isTplElementNode(this.env, origNode)) {
+						// Dont recurse into template-like-content
+						this.doDOMDiff(baseNode, origNode);
+					}
 				} else {
 					// Mark the sub-tree as modified since
 					// we have two entirely different nodes here
+					this.debug("--found diff: modified--");
 					this.markNode(origNode, 'modified');
 				}
 			}
 
 			// Record the fact that direct children changed in the parent node
+			this.debug("--found diff: modified-children--");
 			this.markNode(newParentNode, 'modified-children');
 
 			foundDiffOverall = true;
-		} else if (!DU.isTplElementNode(this.env, newNode)) {
+		} else if (!DU.isTplElementNode(this.env, baseNode) && !DU.isTplElementNode(this.env, newNode)) {
+			this.debug("--equal: recursing--");
 			// Recursively diff subtrees if not template-like content
 			var subtreeDiffers = this.doDOMDiff(baseNode, newNode);
 			if (subtreeDiffers) {
+				this.debug("--found diff: subtree-changed--");
 				this.markNode(newNode, 'subtree-changed');
 			}
 			foundDiffOverall = subtreeDiffers || foundDiffOverall;
 		}
 
-		// And move on to the next pair
-		baseNode = baseNode.nextSibling;
-		newNode = newNode.nextSibling;
+		// And move on to the next pair (skipping over template HTML)
+		if (DU.isTplElementNode(this.env, baseNode)) {
+			baseNode = DU.skipOverEncapsulatedContent(baseNode);
+		} else {
+			baseNode = baseNode.nextSibling;
+		}
+
+		if (DU.isTplElementNode(this.env, newNode)) {
+			newNode = DU.skipOverEncapsulatedContent(newNode);
+		} else {
+			newNode = newNode.nextSibling;
+		}
 	}
 
 	// mark extra new nodes as modified
