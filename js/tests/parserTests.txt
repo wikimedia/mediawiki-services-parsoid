@@ -1675,6 +1675,20 @@ c
 !!end
 
 !!test
+1d. Indent-Pre and Comments
+(Pre-handler currently cannot distinguish between comment/ws order and normalizes them to [comment,ws] order)
+!!input
+<!--a--> a
+
+ <!--b-->b
+!!result
+<pre> b
+</pre>
+<pre> b
+</pre>
+!!end
+
+!!test
 2a. Indent-Pre and tables
 !!input
  {|
@@ -1824,6 +1838,30 @@ NOTE: the white-space char on 2nd line is significant
 
 b
 </pre>
+!! end
+
+!! test
+6. Pre-blocks should extend across lines with leading WS even when there is no wrappable content
+!! input
+ a
+ 
+ <!-- continue -->
+ b
+
+ c
+ 
+d
+!! result
+<pre>a
+ 
+b
+</pre>
+<pre>c
+
+</pre>
+<p>d
+</p>
+
 !! end
 
 ###
