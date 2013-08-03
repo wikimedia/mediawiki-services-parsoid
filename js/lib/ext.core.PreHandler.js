@@ -47,7 +47,8 @@
  + --------------+-----------------+---------------+--------------------------+
  | MULTILINE_PRE | --- nl      --> | SOL           | gen-pre                  |
  | MULTILINE_PRE | --- eof     --> | SOL           | gen-pre                  |
- | MULTILINE_PRE | --- ws      --> | PRE           | pop saved nl token (##)  |
+ | MULTILINE_PRE | --- ws      --> | PRE_COLLECT   | pop saved nl token (##)  |
+ |               |                 |               | TOKS = SOL-TR-TOKS + tok |
  | MULTILINE_PRE | --- sol-tr  --> | MULTILINE_PRE | SOL-TR-TOKS << tok       |
  | MULTILINE_PRE | --- any     --> | IGNORE        | gen-pre                  |
  + --------------+-----------------+---------------+--------------------------+
@@ -180,13 +181,13 @@ PreHandler.prototype.processPre = function(token) {
 		ret.push(new EndTagTk('pre'));
 	}
 
-	this.popLastNL(ret);
-
 	// emit multiline-pre WS token
 	if (this.multiLinePreWSToken) {
 		ret.push(this.multiLinePreWSToken);
 		this.multiLinePreWSToken = null;
 	}
+
+	this.popLastNL(ret);
 
 	// sol-transparent toks
 	ret = ret.concat(this.solTransparentTokens);
@@ -373,6 +374,9 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 					ret = this.processPre(token);
 					this.moveToIgnoreState();
 				} else {
+					// discard pre/multiline-pre ws tokens that got us here
+					this.preWSToken = null;
+					this.multiLinePreWSToken = null;
 					// nothing to do .. keep collecting!
 					this.tokens.push(token);
 				}
@@ -381,13 +385,16 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 			case PreHandler.STATE_MULTILINE_PRE:
 				if ((tc === String) && token.match(/^\s/)) {
 					this.popLastNL(this.tokens);
-					this.state = PreHandler.STATE_PRE;
+					this.state = PreHandler.STATE_PRE_COLLECT;
+
+					// Pop buffered sol-transparent tokens
+					this.tokens = this.tokens.concat(this.solTransparentTokens);
+					this.solTransparentTokens = [];
 
 					// check if token is single-space or more
 					this.multiLinePreWSToken = token[0];
 					if (!token.match(/^\s$/)) {
-						// Treat everything after the first space
-						// as a new token
+						// Treat everything after the first space as a new token
 						this.onAny(token.slice(1), manager, cb);
 					}
 				} else if (Util.isSolTransparent(token)) { // continue watching
