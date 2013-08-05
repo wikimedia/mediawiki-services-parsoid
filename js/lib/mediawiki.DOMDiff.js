@@ -246,8 +246,8 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 			}
 
 			// Record the fact that direct children changed in the parent node
-			this.debug("--found diff: modified-children--");
-			this.markNode(newParentNode, 'modified-children');
+			this.debug("--found diff: children-changed--");
+			this.markNode(newParentNode, 'children-changed');
 
 			foundDiffOverall = true;
 		} else if (!DU.isTplElementNode(this.env, baseNode) && !DU.isTplElementNode(this.env, newNode)) {

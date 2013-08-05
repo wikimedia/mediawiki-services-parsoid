@@ -3657,7 +3657,7 @@ WSP.emitSeparator = function(state, cb, node) {
 		dsrA, dsrB;
 
 	if (src && node && prevNode) {
-		if (prevNode && !DU.isElt(prevNode)) {
+		if (!DU.isElt(prevNode)) {
 			// Check if this is the last child of a zero-width element, and use
 			// that for dsr purposes instead. Typical case: text in p.
 			if (!prevNode.nextSibling &&
@@ -3695,7 +3695,10 @@ WSP.emitSeparator = function(state, cb, node) {
 			dsrA = prevNode.data.parsoid.dsr;
 		}
 
-		if (node && !DU.isElt(node)) {
+		if (!dsrA) {
+			/* jshint noempty: false */
+			// nothing to do -- no reason to compute dsrB if dsrA is null
+		} else if (!DU.isElt(node)) {
 			// If this is the child of a zero-width element
 			// and is only preceded by separator elements, we
 			// can use the parent for dsr after correcting the dsr
@@ -3745,10 +3748,6 @@ WSP.emitSeparator = function(state, cb, node) {
 			}
 		}
 
-		// Do not use '!== null' checks on dsr elts since it appears that they can
-		// sometimes be NaN/undefined because of arithmetic done above.  This then
-		// leads to the 'dsr backwards' error.
-		//
 		// FIXME: Maybe we shouldn't set dsr in the dsr pass if both aren't valid?
 		if (isValidDSR(dsrA) && isValidDSR(dsrB)) {
 			//console.log(prevNode.data.parsoid.dsr, node.data.parsoid.dsr);
