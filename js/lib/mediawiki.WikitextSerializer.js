@@ -443,15 +443,6 @@ WSP.initialState = {
 				}
 			}
 
-			// Force out accumulated separator
-			if (oldSep === this.sep) {
-				if (children.length === 0) {
-					chunkCB('', node);
-				} else {
-					chunkCB('', children.last());
-				}
-			}
-
 			this.chunkCB = oldCB;
 
 			if (wtEscaper) {
@@ -3807,19 +3798,12 @@ WSP.emitSeparator = function(state, cb, node) {
 		!isValidSep(sep) ||
 		(state.sep.src && state.sep.src !== sep))
 	{
-		if (state.sep.constraints) {
+		if (state.sep.constraints || state.sep.src) {
 			// TODO: set modified flag if start or end node (but not both) are
 			// modified / new so that the selser can use the separator
 			sep = this.makeSeparator(state.sep.src || '',
 						origNode,
-						state.sep.constraints,
-						state);
-		} else if (state.sep.src) {
-			//sep = state.sep.src;
-			// Strip whitespace from the last line
-			sep = this.makeSeparator(state.sep.src,
-						origNode,
-						{a:{},b:{}, max:0},
+						state.sep.constraints || {a:{},b:{}, max:0},
 						state);
 		} else {
 			sep = undefined;
