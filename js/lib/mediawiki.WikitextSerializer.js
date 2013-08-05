@@ -197,7 +197,7 @@ WEHP.tdHandler = function(state, text, opts) {
 		state.currLine.text === '' && text.match(/^[\-+]/) && !state.inWideTD);
 };
 
-WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
+WEHP.hasWikitextTokens = function ( state, onNewline, options, text, linksOnly ) {
 	// console.warn("---EWT:DBG0---");
 	// console.warn("---HWT---:onl:" + onNewline + ":" + text);
 	// tokenize the text
@@ -216,7 +216,9 @@ WEHP.hasWikitextTokens = function ( state, onNewline, text, linksOnly ) {
 
 		// Ignore non-whitelisted html tags
 		if (t.isHTMLTag()) {
-			if (/\bmw:Extension\b/.test(t.getAttribute("typeof"))) {
+			if (/\bmw:Extension\b/.test(t.getAttribute("typeof")) &&
+				(options.extName !== 'ref' || t.getAttribute("name") !== 'ref'))
+			{
 				return true;
 			}
 			if (!tagWhiteList[t.name.toLowerCase()]) {
@@ -758,10 +760,11 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 		}
 	}
 
-	// SSS FIXME: pre-escaping is currently broken since the front-end parser
-	// eliminated pre-tokens in the tokenizer and moved to a stream handler.
-	// So, we always conservatively escape text with ' ' in sol posn.
-	if (sol && !this.options.noPreNowikis && text.match(/(^|\n)[ \t]+[^\s]+/)) {
+	// The front-end parser eliminated pre-tokens in the tokenizer
+	// and moved them to a stream handler. So, we always conservatively
+	// escape text with ' ' in sol posn with one caveat
+	// * indent-pres are disabled in ref-bodies (See ext.core.PreHandler.js)
+	if (sol && (this.options.extName !== 'ref') && text.match(/(^|\n)[ \t]+[^\s]+/)) {
 		// console.warn("---EWT:F6---");
 		return this.escapedText(state, sol, text, fullCheckNeeded);
 	}
@@ -774,7 +777,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 	// Ignores headings & entities -- headings have additional
 	// EOL matching requirements which are not captured by the
 	// hasWikitextTokens check
-	if (this.wteHandlers.hasWikitextTokens(state, sol, text) || hasTildes) {
+	if (this.wteHandlers.hasWikitextTokens(state, sol, this.options, text) || hasTildes) {
 		// console.warn("---EWT:DBG1---");
 		return this.escapedText(state, sol, text, fullCheckNeeded);
 	} else if (state.onSOL) {
@@ -863,7 +866,7 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 		// See http://jslinterrors.com/a-regular-expression-literal-can-be-confused-with/
 		if (cl.hasOpenHeadingChar && opts.isLastChild && text.match(/\=$/) ||
 		    cl.hasOpenBrackets && text.match(/^[^\[]*\]/) &&
-				this.wteHandlers.hasWikitextTokens(state, sol, cl.text + text, true))
+				this.wteHandlers.hasWikitextTokens(state, sol, this.options, cl.text + text, true))
 		{
 			// console.warn("---EWT:DBG4---");
 			return this.escapedText(state, sol, text, fullCheckNeeded);
@@ -3084,9 +3087,7 @@ WSP._buildExtensionWT = function(state, node, dataMW) {
 		if (typeof dataMW.body.html === 'string') {
 			var wts = new WikitextSerializer({
 				env: state.env,
-				// indent-pres are disabled in ref-bodies
-				// See ext.core.PreHandler.js
-				noPreNowikis: extName === 'ref'
+				extName: extName
 			});
 			srcParts.push(wts.serializeDOM(Util.parseHTML(dataMW.body.html).body));
 		} else if (dataMW.body.extsrc) {
