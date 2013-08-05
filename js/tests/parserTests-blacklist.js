@@ -49,7 +49,6 @@ add("wt2html", "Templates: Indent-Pre: 1e. Wrapping should be based on expanded 
 add("wt2html", "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content");
 add("wt2html", "Templates: Strip whitespace from named parameters, but not positional ones");
 add("wt2html", "Templates: Dont strip whitespace from whitespace/comment-only arguments");
-add("wt2html", "1d. Indent-Pre and Comments\n(Pre-handler currently cannot distinguish between comment/ws order and normalizes them to [comment,ws] order)");
 add("wt2html", "2a. Indent-Pre and tables");
 add("wt2html", "2b. Indent-Pre and tables");
 add("wt2html", "2c. Indent-Pre and tables (bug 42252)");

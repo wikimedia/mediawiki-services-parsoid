@@ -1682,9 +1682,9 @@ c
 
  <!--b-->b
 !!result
-<pre> b
+<pre>a
 </pre>
-<pre> b
+<pre>b
 </pre>
 !!end
 
@@ -1853,7 +1853,7 @@ b
 d
 !! result
 <pre>a
- 
+
 b
 </pre>
 <pre>c
@@ -1861,7 +1861,6 @@ b
 </pre>
 <p>d
 </p>
-
 !! end
 
 ###
