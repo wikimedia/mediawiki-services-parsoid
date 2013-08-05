@@ -1,6 +1,24 @@
 // This file is used to run a stub API that mimicks the MediaWiki interface
 // for the purposes of testing extension expansion.
 var express = require('express');
+var crypto = require('crypto');
+
+// configuration to match PHP parserTests
+var IMAGE_BASE_URL = 'http://example.com/images';
+var IMAGE_DESC_URL = IMAGE_BASE_URL;
+//IMAGE_BASE_URL='http://upload.wikimedia.org/wikipedia/commons';
+//IMAGE_DESC_URL='http://commons.wikimedia.org/wiki';
+var FILE_PROPS = {
+	'Foobar.jpg': {
+		size: 7881, width: 1941, height: 220, bits: 8, mime: 'image/jpeg'
+	},
+	'Thumb.png': {
+		size: 22589, width: 135, height: 135, bits: 8, mime: 'image/png'
+	},
+	'Foobar.svg': {
+		size: 12345, width: 240, height: 180, bits: 24, mime: 'image/svg+xml'
+	}
+};
 
 /* -------------------- web app access points below --------------------- */
 
@@ -68,20 +86,24 @@ var fnames = {
 		query: function ( body, cb ) {
 			var filename = body.titles,
 				normPagename = pnames[filename] || filename,
-				normFilename = fnames[filename] || filename,
-				baseurl = 'http://upload.wikimedia.org/wikipedia/commons/3/3a/' + normFilename,
-				height = 220,
-				width = 1941,
+				normFilename = fnames[filename] || filename;
+			var props = FILE_PROPS[normFilename] || Object.create(null);
+			var md5 = crypto.createHash('md5').update(normFilename).
+				digest('hex');
+			var md5prefix = md5[0] + '/' + md5[0] + md5[1] + '/';
+			var baseurl = IMAGE_BASE_URL + '/' + md5prefix + normFilename,
+				height = props.height || 220,
+				width = props.width || 1941,
 				twidth = body.iiurlwidth,
 				theight = body.iiurlheight,
-				turl = baseurl,
-				durl = 'http://commons.wikimedia.org/wiki/' + normFilename,
+				turl = IMAGE_BASE_URL + '/thumb/' + md5prefix + normFilename,
+				durl = IMAGE_DESC_URL + '/' + normFilename,
 				imageinfo = {
 					pageid: 1,
 					ns: 6,
 					title: normPagename,
 					imageinfo: [ {
-						size: 12345,
+						size: props.size || 12345,
 						height: height,
 						width: width,
 						url: baseurl,

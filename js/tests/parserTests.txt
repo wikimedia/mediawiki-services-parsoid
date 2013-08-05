@@ -8603,7 +8603,7 @@ parsoid
 <p>
 <span class="mw-default-size" typeof="mw:Image">
 <a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" height="220" width="1941">
+<img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941">
 </a>
 </span>
 </p>
@@ -8619,7 +8619,7 @@ parsoid
 <p>
 <span class="mw-default-size" typeof="mw:Image">
 <span>
-<img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" height="220" width="1941">
+<img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941">
 </span>
 </span>
 </p>
@@ -8635,7 +8635,7 @@ parsoid
 <p>
 <span class="mw-default-size" typeof="mw:Image">
 <a href="Main_Page">
-<img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" height="220" width="1941">
+<img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941">
 </a>
 </span>
 </p>
@@ -8651,7 +8651,7 @@ parsoid
 <p>
 <span class="mw-valign-middle" typeof="mw:Image">
 <a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50">
+<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50">
 </a>
 </span>
 </p>
@@ -8667,7 +8667,7 @@ parsoid
 <p>
 <span class="mw-valign-baseline" typeof="mw:Image" data-mw="{&quot;caption&quot;:&quot;caption&quot;}">
 <a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg/89px-Foobar.jpg" height="10" width="89">
+<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/89px-Foobar.jpg" height="10" width="89">
 </a>
 </span>
 </p>
@@ -8683,7 +8683,7 @@ parsoid
 <p>
 <span class="mw-image-border" typeof="mw:Image" data-mw="{&quot;caption&quot;:&quot;caption&quot;}">
 <a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50">
+<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50">
 </a>
 </span>
 </p>
@@ -8698,7 +8698,7 @@ parsoid
 !! result
 <figure class="mw-default-size mw-halign-left mw-valign-baseline" typeof="mw:Image/Thumb">
 <a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg/180px-Foobar.jpg" height="21" width="180" />
+<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" height="21" width="180" />
 </a>
 <figcaption>caption content</figcaption>
 </figure>
@@ -8713,7 +8713,7 @@ parsoid
 !! result
 <figure class="mw-halign-right mw-valign-middle" typeof="mw:Image/Thumb">
 <a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50" />
+<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50" />
 </a>
 <figcaption>caption</figcaption>
 </figure>
@@ -8728,7 +8728,7 @@ parsoid
 !! result
 <figure typeof="mw:Image/Frame">
 <a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg/442px-Foobar.jpg" height="50" width="442" />
+<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/442px-Foobar.jpg" height="50" width="442" />
 </a>
 <figcaption>caption</figcaption>
 </figure>
@@ -8743,7 +8743,7 @@ parsoid
 !! result
 <figure class="mw-halign-left mw-valign-baseline" typeof="mw:Image/Frame">
 <a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg/442px-Foobar.jpg" height="50" width="442" />
+<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/442px-Foobar.jpg" height="50" width="442" />
 </a>
 <figcaption>caption</figcaption>
 </figure>
@@ -8759,7 +8759,7 @@ parsoid
 <p>
 <span class="mw-image-border" typeof="mw:Image/Frameless" data-mw="{&quot;caption&quot;:&quot;caption&quot;}">
 <a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg/442px-Foobar.jpg" height="50" width="442" />
+<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/442px-Foobar.jpg" height="50" width="442" />
 </a>
 </p>
 !! end
@@ -8774,7 +8774,7 @@ parsoid
 #<p>
 #<span typeof="mw:Image">
 #<a class="mw-default-size" href="Image:Foobar.jpg">
-#<img alt="Foobar.jpg" class="mw-default-size" src="http://upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" height="220" width="1941">
+#<img alt="Foobar.jpg" class="mw-default-size" src="http://example.com/images/3/3a/Foobar.jpg" height="220" width="1941">
 #</a>
 #<span>abc</span>
 #</span>
