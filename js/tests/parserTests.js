@@ -708,12 +708,10 @@ ParserTests.prototype.generateChanges = function( options, item, content, cb ) {
 	cb( null, content, changeTree );
 };
 
-ParserTests.prototype.convertWt2Html = function( mode, prefix, variant, wikitext, processHtmlCB ) {
+ParserTests.prototype.convertWt2Html = function( mode, wikitext, processHtmlCB ) {
 /**
  * @method
  * @param {string} mode
- * @param {string} prefix
- * @param {string} variant
  * @param {string} wikitext
  * @param {Function} processHtmlCB
  * @param {Error/null} processHtmlCB.err
@@ -731,28 +729,7 @@ ParserTests.prototype.convertWt2Html = function( mode, prefix, variant, wikitext
 		processHtmlCB( e );
 	}
 	this.env.setPageSrcInfo( wikitext );
-	this.env.switchToConfig( prefix, function( err ) {
-		if ( err ) {
-			processHtmlCB( err );
-		} else {
-			// TODO: set language variant
-			// adjust config to match that used for PHP tests
-			// see core/tests/parser/parserTest.inc:setupGlobals() for
-			// full set of config normalizations done.
-			this.env.conf.wiki.fakeTimestamp = 123;
-			this.env.conf.wiki.timezoneOffset = 0; // force utc for parsertests
-			this.env.conf.wiki.server = 'http://example.org';
-			this.env.conf.wiki.wgScriptPath = '/';
-			this.env.conf.wiki.script = '/index.php';
-			this.env.conf.wiki.articlePath = '/wiki/$1';
-			// this has been updated in the live wikis, but the parser tests
-			// expect the old value (as set in parserTest.inc:setupDatabase())
-			this.env.conf.wiki.interwikiMap.meatball.url =
-				'http://www.usemod.com/cgi-bin/mb.pl?$1';
-			// convert this wikitext!
-			this.parserPipeline.processToplevelDoc( wikitext );
-		}
-	}.bind(this));
+	this.parserPipeline.processToplevelDoc( wikitext );
 };
 
 /**
@@ -777,16 +754,9 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 
 	item.time = {};
 
-	var i, variant,
-		extensions = [],
-		prefix = 'en';
+	var i, extensions = [];
 
 	if ( item.options ) {
-		if ( item.options.language !== undefined ) {
-			prefix = item.options.language;
-		}
-
-		variant = (item.options || {}).variant;
 
 		if ( item.options.extensions !== undefined ) {
 			extensions = item.options.extensions.split( ' ' );
@@ -869,7 +839,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 	// First conversion stage
 	if ( startsAtWikitext ) {
 		if ( item.cachedHTML === null ) {
-			testTasks.push( this.convertWt2Html.bind( this, mode, prefix, variant, item.input ) );
+			testTasks.push( this.convertWt2Html.bind( this, mode, item.input ) );
 		} else {
 			testTasks.push( function ( cb ) {
 				cb( null, item.cachedHTML.cloneNode( true ) );
@@ -905,7 +875,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 	if ( mode === 'wt2wt' || mode === 'selser' ) {
 		testTasks.push( this.convertHtml2Wt.bind( this, options, mode, item ) );
 	} else if ( mode === 'html2html' ) {
-		testTasks.push( this.convertWt2Html.bind( this, mode, prefix, variant ) );
+		testTasks.push( this.convertWt2Html.bind( this, mode ) );
 	}
 
 	// Processing stage
@@ -1478,11 +1448,11 @@ ParserTests.prototype.main = function ( options ) {
 		if ( options.wt2wt ) {
 			options.modes.push( 'wt2wt' );
 		}
-		if ( options.html2html ) {
-			options.modes.push( 'html2html' );
-		}
 		if ( options.html2wt ) {
 			options.modes.push( 'html2wt' );
+		}
+		if ( options.html2html ) {
+			options.modes.push( 'html2html' );
 		}
 		if ( options.selser ) {
 			options.modes.push( 'selser' );
@@ -1621,7 +1591,33 @@ ParserTests.prototype.processCase = function ( i, options ) {
 					}
 
 					if ( targetModes.length ) {
-						async.series( this.buildTasks( item, targetModes, options ), nextCallback );
+
+						// Honor language option in parserTests.txt
+						var prefix = item.options.language || "en";
+						this.env.switchToConfig( prefix, function( err ) {
+							if ( err ) {
+								return this.env.errCB( err );
+							}
+
+							// TODO: set language variant
+							// adjust config to match that used for PHP tests
+							// see core/tests/parser/parserTest.inc:setupGlobals() for
+							// full set of config normalizations done.
+							this.env.conf.wiki.fakeTimestamp = 123;
+							this.env.conf.wiki.timezoneOffset = 0; // force utc for parsertests
+							this.env.conf.wiki.server = 'http://example.org';
+							this.env.conf.wiki.wgScriptPath = '/';
+							this.env.conf.wiki.script = '/index.php';
+							this.env.conf.wiki.articlePath = '/wiki/$1';
+							// this has been updated in the live wikis, but the parser tests
+							// expect the old value (as set in parserTest.inc:setupDatabase())
+							this.env.conf.wiki.interwikiMap.meatball.url =
+								'http://www.usemod.com/cgi-bin/mb.pl?$1';
+
+							async.series( this.buildTasks( item, targetModes, options ),
+								nextCallback );
+						}.bind( this ) );
+
 					} else {
 						process.nextTick( nextCallback );
 					}
