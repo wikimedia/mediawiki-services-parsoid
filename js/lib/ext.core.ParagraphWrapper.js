@@ -271,15 +271,7 @@ ParagraphWrapper.prototype.onAny = function ( token, frame ) {
 		console.warn("T:p-wrap:any: " + JSON.stringify(token));
 	}
 
-	var res,
-		tc = token.constructor,
-		isNamedTagToken = function ( token, names ) {
-			return ( token.constructor === TagTk ||
-					token.constructor === SelfclosingTagTk ||
-					token.constructor === EndTagTk ) &&
-					names[token.name];
-		};
-
+	var res, tc = token.constructor;
 	if (tc === TagTk && token.name === 'pre') {
 		if (this.hasOpenHTMLPTag) {
 			// No pre-tokens inside html-p-tags -- replace it with a ' '
@@ -325,10 +317,7 @@ ParagraphWrapper.prototype.onAny = function ( token, frame ) {
 			this.nlWsTokens.push(token);
 			return {};
 		}
-	} else if (isNamedTagToken(token, {'link':1}) ||
-			// TODO: narrow this down a bit more to take typeof into account
-			(tc === SelfclosingTagTk && token.name === 'meta' && token.dataAttribs.stx !== 'html'))
-	{
+	} else if (tc !== String && Util.isSolTransparent(token)) {
 		if (this.newLineCount === 0) {
 			this.currLine.tokens.push(token);
 			// Safe to push these out since we have no pending newlines to trip us up.
