@@ -4844,11 +4844,61 @@ parsoid
 !! end
 
 !! test
+Optional colon in #REDIRECT
+!! options
+# the colon is archaic syntax.  we support it for wt2html, but we
+# don't care that it roundtrips back to the modern syntax.
+parsoid=wt2html,html2html
+!! input
+#REDIRECT:[[Main Page]]
+!! result
+<link rel="mw:PageProp/redirect" href="./Main_Page">
+!! end
+
+!! test
+Whitespace in #REDIRECT with optional colon
+!! options
+# the colon and gratuitous whitespace is archaic syntax.  we support
+# it for wt2html, but we don't care that it roundtrips back to the
+# modern syntax (without extra whitespace)
+parsoid=wt2html,html2html
+!! input
+ 
+ #REDIRECT 
+: 
+[[Main Page]]
+!! result
+<link rel="mw:PageProp/redirect" href="./Main_Page">
+!! end
+
+!! test
+Piped link in #REDIRECT
+!! options
+# content after piped link is ignored.  we support this syntax,
+# but don't care that the piped link is lost when we roundtrip this.
+parsoid=wt2html
+!! input
+#REDIRECT [[Main Page|bar]]
+!! result
+<link rel="mw:PageProp/redirect" href="./Main_Page">
+!! end
+
+!! test
 Redirect to category
 !! options
 parsoid=wt2html
 !! input
 #REDIRECT [[Category:Foo]]
+!! result
+<link rel="mw:PageProp/redirect" href="./Category:Foo"><link rel="mw:WikiLink/Category" href="./Category:Foo">
+!! end
+
+!! test
+Redirect to category with URL encoding
+!! options
+parsoid=wt2html
+!! input
+#REDIRECT [[Category%3AFoo]]
 !! result
 <link rel="mw:PageProp/redirect" href="./Category:Foo"><link rel="mw:WikiLink/Category" href="./Category:Foo">
 !! end
@@ -4864,11 +4914,21 @@ parsoid=wt2html,html2html
 !! end
 
 !! test
-Redirect to image page
+Redirect to image page (1)
 !! options
 parsoid
 !! input
 #REDIRECT [[File:Wiki.png]]
+!! result
+<link rel="mw:PageProp/redirect" href="./File:Wiki.png">
+!! end
+
+!! test
+Redirect to image page (2)
+!! options
+parsoid
+!! input
+#REDIRECT [[Image:Wiki.png]]
 !! result
 <link rel="mw:PageProp/redirect" href="./File:Wiki.png">
 !! end
@@ -4891,6 +4951,17 @@ parsoid
 #REDIRECT [[meatball:File:Wiki.png]]
 !! result
 <link rel="mw:PageProp/redirect" href="File:Wiki.png">
+!! end
+
+!! test
+Non-English #REDIRECT
+!! options
+parsoid
+language=is
+!! input
+#TILVÍSUN [[Main Page]]
+!! result
+<link rel="mw:PageProp/redirect" href="./Main_Page">
 !! end
 
 ##

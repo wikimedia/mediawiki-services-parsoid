@@ -1163,7 +1163,7 @@ var getLinkRoundTripData = function( env, node, state ) {
 	} else if ( /^mw:PageProp\/redirect$/.test( rtData.type ) ) {
 		rtData.tail = '';
 		rtData.prefix = dp.src ||
-			( ( env.conf.wiki.mwAliases.redirect || '#REDIRECT' ) + ' ' );
+			( ( env.conf.wiki.mwAliases.redirect[0] || '#REDIRECT' ) + ' ' );
 		rtData.content.string = dp.content || (dp.sa && dp.sa.href) || href;
 	}
 
