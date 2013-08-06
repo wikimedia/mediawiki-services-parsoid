@@ -1199,7 +1199,6 @@ WSP.getLinkPrefixTailEscapes = function (linkData, node, env) {
 	}
 
 	// Check if we need to escape against prefixes or tails
-	var prefixEscape = '', tailEscape = '';
 	if (env.conf.wiki.linkPrefixRegex &&
 			node.previousSibling &&
 			// TODO: Also handle zero-width content here?
