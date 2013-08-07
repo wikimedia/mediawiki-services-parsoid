@@ -32,8 +32,8 @@ function WikiLinkHandler( manager, options ) {
 	// create a new peg parser for image options..
 	if ( !this.urlParser ) {
 		// Actually the regular tokenizer, but we'll call it with the
-		// img_options production only.
-		WikiLinkHandler.prototype.urlParser = new PegTokenizer();
+		// url production only.
+		WikiLinkHandler.prototype.urlParser = new PegTokenizer( this.manager.env );
 	}
 }
 
@@ -695,6 +695,7 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 {
 	var fileName = target.href,
 		title = target.title;
+	var urlParser = this.urlParser;
 	/**
 	 * Determine the name of an option
 	 * Returns an object of form
@@ -930,10 +931,15 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 		img.addAttribute( 'src', path );
 
 		if ( hasImageLink ) {
-			if ( oHash.link !== undefined ) {
-				linkTitle = Title.fromPrefixedText( env, oHash.link );
+			if ( oHash.link && urlParser.tokenizeURL( oHash.link )) {
+				// an external link!
+				innerContain.addAttribute( 'href', oHash.link );
+			} else {
+				if ( oHash.link !== undefined ) {
+					linkTitle = Title.fromPrefixedText( env, oHash.link );
+				}
+				innerContain.addNormalizedAttribute( 'href', linkTitle.makeLink(), oHash.link );
 			}
-			innerContain.addNormalizedAttribute( 'href', linkTitle.makeLink(), oHash.link );
 		}
 
 		if ( height ) {
@@ -1234,7 +1240,7 @@ function ExternalLinkHandler( manager, options ) {
 	// create a new peg parser for image options..
 	if ( !this.urlParser ) {
 		// Actually the regular tokenizer, but we'll call it with the
-		// img_options production only.
+		// url production only.
 		ExternalLinkHandler.prototype.urlParser = new PegTokenizer( this.manager.env );
 	}
 	this._reset();

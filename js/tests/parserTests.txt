@@ -8327,7 +8327,7 @@ parsoid
 !! input
 [[File:Foobar.jpg|link=http://example.com/]]
 !! result
-<p><span class="mw-default-size" typeof="mw:Image"><a href="http://example.com"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a></span></p>
+<p><span class="mw-default-size" typeof="mw:Image"><a href="http://example.com/"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a></span></p>
 !! end
 
 !! test
@@ -8349,7 +8349,7 @@ parsoid
 !! input
 [[File:Foobar.jpg|link=//example.com/]]
 !! result
-<p><span class="mw-default-size" typeof="mw:Image"><a href="//example.com"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a></span></p>
+<p><span class="mw-default-size" typeof="mw:Image"><a href="//example.com/"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a></span></p>
 !! end
 
 !! test
@@ -8456,7 +8456,7 @@ parsoid
 !! input
 [[File:Foobar.jpg|link=http://example.com/|Title]]
 !! result
-<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"Title"}'><a href="http://example.com"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a></span></p>
+<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"Title"}'><a href="http://example.com/"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a></span></p>
 !! end
 
 !! test
