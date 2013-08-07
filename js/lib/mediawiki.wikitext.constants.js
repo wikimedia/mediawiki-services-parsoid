@@ -84,7 +84,7 @@ var WikitextConstants = {
 			'rb', 'rp', 'rt', 'ruby',
 			's', 'samp', 'small', 'span', 'strike', 'strong', 'sub', 'sup',
 			'table', 'td', 'th', 'tr', 'tt',
-			'u', 'ul'
+			'u', 'ul', 'wbr'
 		]
 	}
 };

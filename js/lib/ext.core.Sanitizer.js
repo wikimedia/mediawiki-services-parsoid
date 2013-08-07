@@ -548,7 +548,8 @@ var SanitizerConstants = {
 				'figcaption' : common,
 
 				// HTML 5 section 4.6
-				'bdi' : common
+				'bdi' : common,
+				'wbr' : [ 'id', 'class', 'title', 'style' ]
 			};
 		}
 
