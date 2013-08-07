@@ -110,7 +110,7 @@ function makeTplAffectedMeta( contentType, key, val ) {
  * Generic attribute expansion handler.
  *
  * @constructor
- * @param {Object} manager The manager for this stage of the parse.
+ * @param {TokenTransformManager} manager The manager for this stage of the parse.
  * @param {Object} options Any options for the expander.
  */
 function AttributeExpander ( manager, options ) {

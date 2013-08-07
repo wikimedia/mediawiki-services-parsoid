@@ -708,7 +708,6 @@ ParserTests.prototype.generateChanges = function( options, item, content, cb ) {
 	cb( null, content, changeTree );
 };
 
-ParserTests.prototype.convertWt2Html = function( mode, wikitext, processHtmlCB ) {
 /**
  * @method
  * @param {string} mode
@@ -717,6 +716,7 @@ ParserTests.prototype.convertWt2Html = function( mode, wikitext, processHtmlCB )
  * @param {Error/null} processHtmlCB.err
  * @param {Node/null} processHtmlCB.doc
  */
+ParserTests.prototype.convertWt2Html = function( mode, wikitext, processHtmlCB ) {
 	try {
 		this.parserPipeline.once( 'document', function ( doc ) {
 			// processHtmlCB can be asynchronous, so deep-clone

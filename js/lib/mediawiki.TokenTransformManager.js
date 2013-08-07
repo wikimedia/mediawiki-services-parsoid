@@ -60,8 +60,11 @@ function verifyTokensIntegrity(ret, nullOkay) {
  *
  * @class
  * @constructor
- * @param {Function} callback, a callback function accepting a token list as
- * its only argument.
+ * @param {MWParserEnvironment} env
+ * @param {Object} options
+ * @param {ParserPipelineFactory} pipeFactory
+ * @param {number} phaseEndRank
+ * @param {string} attributeType
  */
 function TokenTransformManager( env, options, pipeFactory, phaseEndRank, attributeType ) {
 	events.EventEmitter.call(this);
@@ -120,9 +123,16 @@ TokenTransformManager.prototype._cmpTransformations = function ( a, b ) {
  * Add a transform registration.
  *
  * @method
- * @param {Function} transform.
+ * @param {Function} transformation
+ *   @param {Token} transformation.token
+ *   @param {Object} transformation.frame
+ *   @param {Function} transformation.cb
+ *     @param {Object} transformation.cb.result
+ *       @param {Token[]} transformation.cb.result.tokens
+ *   @param {Object} transformation.return
+ *     @param {Token[]} transformation.return.tokens
  * @param {string} Debug string to identify the transformer in a trace.
- * @param {Number} rank, [0,3) with [0,1) in-order on input token stream,
+ * @param {number} rank, [0,3) with [0,1) in-order on input token stream,
  * [1,2) out-of-order and [2,3) in-order on output token stream
  * @param {string} type, one of 'tag', 'text', 'newline', 'comment', 'end',
  * 'martian' (unknown token), 'any' (any token, matched before other matches).
@@ -247,12 +257,7 @@ var auid = 0;
  *     { tokens: [tokens] }: fully expanded, tokens will be reprocessed
  *
  * @class
- * @constructor
- * @param {MWParserEnvironment} env
- * @param {Object} options
- * @param {ParserPipelineFactory} pipeFactory
- * @param {number} phaseEndRank
- * @param {string} attributeType
+ * @extends TokenTransformManager
  */
 function AsyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, attributeType ) {
 	TokenTransformManager.call(this);
@@ -270,7 +275,11 @@ function AsyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, a
 // Inherit from TokenTransformManager, and thus also from EventEmitter.
 util.inherits(AsyncTokenTransformManager, TokenTransformManager);
 
-// Reset state between uses
+/**
+ * @method
+ *
+ * Reset state between uses
+ */
 AsyncTokenTransformManager.prototype.reset = function() {
 	this.tailAccumulator = null;
 	this.tokenCB = this.emitChunk.bind( this );
@@ -812,12 +821,7 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
  * Subclass for phase 3, in-order and synchronous processing.
  *
  * @class
- * @constructor
- * @param {MWParserEnvironment} env
- * @param {Object} options
- * @param {ParserPipelineFactory} pipeFactory
- * @param {Number} phaseEndRank
- * @param {string} attributeType
+ * @extends TokenTransformManager
  */
 function SyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, attributeType ) {
 	TokenTransformManager.call(this);
@@ -978,7 +982,7 @@ SyncTokenTransformManager.prototype.onEndEvent = function () {
  *
  * @class
  * @constructor
- * @param {AsyncTokenTransformManager} manager
+ * @param {TokenTransformManager} manager
  * @param {Object} options
  * @param {Function} callback
  * @param {Array} callback.attributes
@@ -1165,7 +1169,7 @@ var tid = 0;
  * @class
  * @private
  * @constructor
- * @param {Object} manager
+ * @param {TokenTransformManager} manager
  * @param {Function} parentCB The callback to call after we've finished accumulating.
  */
 TokenAccumulator = function( manager, parentCB ) {
