@@ -675,9 +675,9 @@ var Util = {
 	KVtoHash: function ( kvs ) {
 		if ( ! kvs ) {
 			console.warn( "Invalid kvs!: " + JSON.stringify( kvs, null, 2 ) );
-			return {};
+			return Object.create(null);
 		}
-		var res = {};
+		var res = Object.create(null);
 		for ( var i = 0, l = kvs.length; i < l; i++ ) {
 			var kv = kvs[i],
 				key = this.tokensToString( kv.k ).trim();
@@ -893,12 +893,25 @@ var Util = {
         }
     },
 
+	// Return a hash mapping all of the given elements of `a` to `true`.
+	// The result hash is created with `Object.create(null)`, so it doesn't
+	// inherit extra properties (like `hasOwnProperty`) from `Object`.
 	arrayToHash: function(a) {
-		var h = {};
+		var h = Object.create(null); // No inherited methods
 		for (var i = 0, n = a.length; i < n; i++) {
 			h[a[i]] = true;
 		}
 		return h;
+	},
+
+	// Return a hash with the same own properties as `h`.
+	// The result hash is created with `Object.create(null)`, so it doesn't
+	// inherit extra properties (like `hasOwnProperty`) from `Object`, nor
+	// will it include any inherited properties from `h`.
+	safeHash: function(h) {
+		var r = Object.create(null);
+		Object.keys(h).forEach(function(k) { r[k] = h[k]; });
+		return r;
 	},
 
 	extractExtBody: function(extName, extTagSrc) {
