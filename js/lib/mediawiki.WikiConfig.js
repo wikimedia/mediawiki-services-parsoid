@@ -3,11 +3,12 @@
  */
 
 var baseConfig = require( './baseconfig/en.json' ).query,
+	JSUtils = require('./jsutils.js').JSUtils,
 	Util = require( './mediawiki.Util.js' ).Util,
 	request = require( 'request' );
 
 // Make sure our base config is never modified
-Util.deepFreeze(baseConfig);
+JSUtils.deepFreeze(baseConfig);
 
 // escape 'special' characters in a regexp, returning a regexp which matches
 // the string exactly
@@ -257,7 +258,7 @@ function WikiConfig( resultConf, prefix, uri ) {
 		}
 	}
 
-	conf.functionHooks = Util.arrayToHash(resultConf.functionhooks || []);
+	conf.functionHooks = JSUtils.arrayToHash(resultConf.functionhooks || []);
 }
 
 WikiConfig.prototype = {

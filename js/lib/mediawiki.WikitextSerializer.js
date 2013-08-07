@@ -27,13 +27,13 @@
 require('./core-upgrade.js');
 var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	wtConsts = require('./mediawiki.wikitext.constants.js'),
-	WikitextConstants = wtConsts.WikitextConstants,
+	Consts = wtConsts.WikitextConstants,
+	JSUtils = require('./jsutils.js').JSUtils,
 	Util = require('./mediawiki.Util.js').Util,
 	DU = require('./mediawiki.DOMUtils.js').DOMUtils,
 	pd = require('./mediawiki.parser.defines.js'),
 	Title = require('./mediawiki.Title.js').Title,
-	SanitizerConstants = require('./ext.core.Sanitizer.js').SanitizerConstants,
-	tagWhiteListHash;
+	SanitizerConstants = require('./ext.core.Sanitizer.js').SanitizerConstants;
 
 function isValidSep(sep) {
 	return sep.match(/^(\s|<!--([^\-]|-(?!->))*-->)*$/);
@@ -81,14 +81,6 @@ function commentWT(comment) {
 	return '<!--' + comment.replace(/-->/, '--&gt;') + '-->';
 }
 
-// SSS FIXME: Can be set up as part of an init routine
-function getTagWhiteList() {
-	if (!tagWhiteListHash) {
-		tagWhiteListHash = Util.arrayToHash(WikitextConstants.Sanitizer.TagWhiteList);
-	}
-	return tagWhiteListHash;
-}
-
 function isHtmlBlockTag(name) {
 	return name === 'body' || Util.isBlockTag(name);
 }
@@ -100,10 +92,6 @@ function isTd(token) {
 function isListItem(token) {
 	return token && token.constructor === pd.TagTk &&
 		['li', 'dt', 'dd'].indexOf(token.name) !== -1;
-}
-
-function isListElementName(name) {
-	return name in {li:1, dt:1, dd:1};
 }
 
 function precedingSeparatorTxt(n) {
@@ -207,7 +195,6 @@ WEHP.hasWikitextTokens = function ( state, onNewline, options, text, linksOnly )
 
 	// If the token stream has a pd.TagTk, pd.SelfclosingTagTk, pd.EndTagTk or pd.CommentTk
 	// then this text needs escaping!
-	var tagWhiteList = getTagWhiteList();
 	var numEntities = 0;
 	for (var i = 0, n = tokens.length; i < n; i++) {
 		var t = tokens[i];
@@ -221,7 +208,7 @@ WEHP.hasWikitextTokens = function ( state, onNewline, options, text, linksOnly )
 			{
 				return true;
 			}
-			if (!tagWhiteList[t.name.toLowerCase()]) {
+			if (!(t.name.toUpperCase() in Consts.Sanitizer.TagWhiteList)) {
 				continue;
 			}
 		}
@@ -548,7 +535,7 @@ WSP.initialState = {
 };
 
 // Make sure the initialState is never modified
-Util.deepFreeze( WSP.initialState );
+JSUtils.deepFreeze( WSP.initialState );
 
 /* ----------------------------------------------------------------
  * This function attempts to wrap smallest escapable units into
@@ -574,7 +561,7 @@ WSP.escapedText = function(state, sol, origText, fullWrap) {
 	} else {
 		var buf = [],
 			inNowiki = false,
-			tokensWithoutClosingTag = Util.arrayToHash([
+			tokensWithoutClosingTag = JSUtils.arrayToHash([
 				// These token types don't come with a closing tag
 				'listItem', 'td', 'tr'
 			]);
@@ -2025,9 +2012,7 @@ WSP._getPrecedingQuoteElement = function(node, state) {
 
 	// Now move down the lastChilds to see if there are any italics / bolds
 	while (node && DU.isElt(node)) {
-		if (node.nodeName in {I:1, B:1} &&
-			node.lastChild && node.lastChild.nodeName in {I:1, B:1})
-		{
+		if (DU.isQuoteElt(node) && DU.isQuoteElt(node.lastChild)) {
 			return state.sep.lastSourceNode === node ? node.lastChild : null;
 		} else if (state.sep.lastSourceNode === node) {
 			// If a separator was already emitted, or an outstanding separator
@@ -2068,17 +2053,17 @@ function wtListEOL(node, otherNode) {
 		otherNode.data.parsoid.stx === 'html' || otherNode.data.parsoid.src)
 	{
 		return {min:0, max:2};
-	} else if (nextSibling === otherNode && DU.isListOrListElt(otherNode)) {
+	} else if (nextSibling === otherNode && DU.isListOrListItem(otherNode)) {
 		if (DU.isList(node) && otherNode.nodeName === node.nodeName) {
 			// Adjacent lists of same type need extra newline
 			return {min: 2, max:2};
-		} else if (DU.isListElt(node) || node.parentNode.nodeName in {LI:1, DD:1}) {
+		} else if (DU.isListItem(node) || node.parentNode.nodeName in {LI:1, DD:1}) {
 			// Top-level list
 			return {min:1, max:1};
 		} else {
 			return {min:1, max:2};
 		}
-	} else if (otherNode.nodeName in {'UL':1, 'OL':1, 'DL':1}) {
+	} else if (DU.isList(otherNode)) {
 		// last child in ul/ol (the list element is our parent), defer
 		// separator constraints to the list.
 		return {};
@@ -2122,7 +2107,7 @@ function buildListHandler(firstChildNames) {
 				// about the node and its context so that leading pre-inducing WS
 				// can be stripped
 
-				if (DU.isText(otherNode) && DU.isListElt(node.parentNode)) {
+				if (DU.isText(otherNode) && DU.isListItem(node.parentNode)) {
 					// A list nested inside a list item
 					// <li> foo <dl> .. </dl></li>
 					return {min:1, max:1};
@@ -2372,18 +2357,22 @@ WSP.tagHandlers = {
 		},
 		sepnls: {
 			before: function(node, otherNode) {
-				var otherNodeName = otherNode.nodeName.toLowerCase();
-				if( node.parentNode === otherNode &&
-						isListElementName(otherNodeName) || otherNodeName in {td:1, body:1} )
+				var otherNodeName = otherNode.nodeName,
+					tdOrBody = JSUtils.arrayToHash(['TD', 'BODY']);
+				if (node.parentNode === otherNode &&
+					DU.isListItem(otherNodeName) || otherNodeName in tdOrBody)
 				{
-					if (otherNodeName in {td:1, body:1}) {
+					if (otherNodeName in tdOrBody) {
 						return {min: 0, max: 1};
 					} else {
 						return {min: 0, max: 0};
 					}
 				} else if (otherNode === node.previousSibling &&
 						// p-p transition
-						otherNodeName === 'p' ||
+						otherNodeName === 'P' ||
+						// SSS FIXME: Accidentally discovered that this check is buggy
+						// Will investigate in a different patch
+						//
 						// Treat text/p similar to p/p transition
 						// XXX: also check if parent node and first sibling
 						// serializes(|d) to single line.
@@ -2391,7 +2380,7 @@ WSP.tagHandlers = {
 						// needed in that case. Example:
 						// <div>foo</div> a
 						// b
-						((otherNodeName === '#text' &&
+						((DU.isText(otherNode) &&
 						  otherNode === DU.previousNonSepSibling(node) &&
 						  // FIXME HACK: Avoid forcing two newlines if the
 						  // first line is a text node that ends up on the
@@ -2919,7 +2908,7 @@ WSP._handleLIHackIfApplicable = function (node, cb) {
 	//   2. A node whose previous sibling is a list element.
 	if (liHackSrc !== undefined &&
 	    ((prev === null && DU.isList(node.parentNode)) ||        // Case 1
-	     (prev !== null && DU.isListElt(prev)))) {               // Case 2
+	     (prev !== null && DU.isListItem(prev)))) {              // Case 2
 		cb(liHackSrc, node);
 	}
 };
@@ -3214,7 +3203,7 @@ WSP._getDOMHandler = function(node, state, cb) {
 	if (dp.stx === 'html' ||
 		(DU.isNewElt(node) && node.parentNode &&
 		node.parentNode.data && node.parentNode.data.parsoid.stx === 'html' &&
-		((DU.isList(node.parentNode) && DU.isListElt(node)) ||
+		((DU.isList(node.parentNode) && DU.isListItem(node)) ||
 		 (node.parentNode.nodeName in {TABLE:1, TBODY:1, TH:1, TR:1} &&
 		  node.nodeName in {TBODY:1, CAPTION:1, TH:1, TR:1, TD:1}))
 		))
@@ -3552,11 +3541,9 @@ WSP.makeSeparator = function(sep, node, nlConstraints, state) {
 	// we should find the "next" (at this and and ancestor levels), the non-sep
 	// sibling and check if that node is one of these types.
 	//
-	// FIXME: Should this be moved to wikitext.constants.js or some such?
-	var preSafeTags = {'BR':1, 'TABLE':1, 'TBODY':1, 'CAPTION':1, 'TR':1, 'TD':1, 'TH':1},
 		// SSS FIXME: how is it that parentNode can be null??  is body getting here?
-	    parentName = node.parentNode && node.parentNode.nodeName;
-	if (nlConstraints.min > 0 && !(node.nodeName in preSafeTags)) {
+	var parentName = node.parentNode && node.parentNode.nodeName;
+	if (nlConstraints.min > 0 && !(node.nodeName in Consts.PreSafeTags)) {
 		sep = sep.replace(/[^\n>]+(<!--(?:[^\-]|-(?!->))*-->[^\n]*)?$/g, '$1');
 	}
 	this.trace('makeSeparator', sep, origSep, minNls, sepNlCount, nlConstraints);

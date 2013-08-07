@@ -6,7 +6,9 @@
 
 require('./core-upgrade.js');
 var Util = require('./mediawiki.Util.js').Util,
-	Node = require('./mediawiki.wikitext.constants.js').Node,
+	wtc = require('./mediawiki.wikitext.constants.js'),
+	Consts = wtc.WikitextConstants,
+	Node = wtc.Node,
 	pd = require('./mediawiki.parser.defines.js');
 
 // define some constructor shortcuts
@@ -25,14 +27,12 @@ var DOMUtils = {
 		return node && Util.isBlockTag(node.nodeName.toLowerCase());
 	},
 
-	// See http://www.w3.org/html/wg/drafts/html/master/syntax.html#formatting
-	formattingTagMap: Util.arrayToHash([
-		'A', 'B', 'BIG', 'CODE', 'EM', 'FONT', 'I', 'NOBR',
-		'S', 'SMALL', 'STRIKE', 'STRONG', 'TT', 'U'
-	]),
-
 	isFormattingElt: function(node) {
-		return this.isElt(node) && this.formattingTagMap[node.nodeName];
+		return node && node.nodeName in Consts.HTML.FormattingTags;
+	},
+
+	isQuoteElt: function(node) {
+		return node && node.nodeName in Consts.WTQuoteTags;
 	},
 
 	/**
@@ -341,15 +341,15 @@ var DOMUtils = {
 	},
 
 	isList: function(n) {
-		return n && n.nodeName in {OL:1, UL:1, DL:1};
+		return n && n.nodeName in Consts.HTML.ListTags;
 	},
 
-	isListElt: function(n) {
-		return n && n.nodeName in {LI:1, DD:1, DT:1};
+	isListItem: function(n) {
+		return n && n.nodeName in Consts.HTML.ListItemTags;
 	},
 
-	isListOrListElt: function(n) {
-		return n && n.nodeName in {OL:1, UL:1, DL:1, LI:1, DT:1, DD:1};
+	isListOrListItem: function(n) {
+		return this.isList(n) || this.isListItem(n);
 	},
 
 	getPrecedingElementSibling: function(node) {

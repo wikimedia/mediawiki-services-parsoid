@@ -10,7 +10,8 @@ var domino = require( './domino' ),
 	$ = require( './fakejquery' ),
 	jsDiff = require( 'diff' ),
 	entities = require( 'entities' ),
-	TemplateRequest = require( './mediawiki.ApiRequest.js' ).TemplateRequest;
+	TemplateRequest = require( './mediawiki.ApiRequest.js' ).TemplateRequest,
+	Consts = require('./mediawiki.wikitext.constants.js').WikitextConstants;
 
 /** WORKAROUND HACK to entities package, using domino. */
 // see https://github.com/fb55/node-entities/issues/8
@@ -120,125 +121,38 @@ var Util = {
 	},
 
 	/**
-	 * Determine if a tag name is block-level or not
-	 *
-	 * @method
-	 * @param {string} name: Lower-case tag name
-	 * @returns {boolean}
-	 */
+	* Determine if a tag is block-level or not
+	*/
 	isBlockTag: function ( name ) {
-		switch ( name ) {
-			case 'div':
-			case 'p':
-			// tables
-			case 'table':
-			case 'tbody':
-			case 'thead':
-			case 'tfoot':
-			case 'caption':
-			case 'th':
-			case 'tr':
-			case 'td':
-			// lists
-			case 'ul':
-			case 'ol':
-			case 'li':
-			case 'dl':
-			case 'dt':
-			case 'dd':
-			// HTML5 heading content
-			case 'h1':
-			case 'h2':
-			case 'h3':
-			case 'h4':
-			case 'h5':
-			case 'h6':
-			case 'hgroup':
-			// HTML5 sectioning content
-			case 'article':
-			case 'aside':
-			case 'body':
-			case 'nav':
-			case 'section':
-			case 'footer':
-			case 'header':
-			case 'figure':
-			case 'figcaption':
-			case 'fieldset':
-			case 'details':
-			case 'blockquote':
-			// other
-			case 'hr':
-			case 'button':
-			case 'canvas':
-			case 'center':
-			case 'col':
-			case 'colgroup':
-			case 'embed':
-			case 'map':
-			case 'object':
-			case 'pre':
-			case 'progress':
-			case 'video':
-				return true;
-			default:
-				return false;
-		}
-	},
-
-	// In the PHP parser, these block tags open block-tag scope
-	// See doBlockLevels in the PHP parser (includes/parser/Parser.php)
-	tagOpensBlockScope: function(name) {
-		switch ( name ) {
-			case 'p':
-			case 'table':
-			case 'tr':
-			case 'ul':
-			case 'ol':
-			case 'li':
-			case 'dl':
-			case 'h1':
-			case 'h2':
-			case 'h3':
-			case 'h4':
-			case 'h5':
-			case 'h6':
-			case 'blockquote':
-			case 'pre':
-				return true;
-			default:
-				return false;
-		}
-	},
-
-	// In the PHP parser, these block tags close block-tag scope
-	// See doBlockLevels in the PHP parser (includes/parser/Parser.php)
-	tagClosesBlockScope: function(name) {
-		return name === 'td' || name === 'th';
-	},
-
-	// We are currently treating <source> as an extension tag since this is widely
-	// used on wikipedias.  So, we dont want to treat this as a HTML tag => it cannot
-	// be a void element
-	//
-	// See http://www.whatwg.org/specs/web-apps/current-work/#void-elements
-	voidElements: { area: 1, base: 1, br: 1, col: 1, command: 1, embed: 1, hr: 1, img: 1,
-		input: 1, keygen: 1, link: 1, meta: 1, param: 1, /* source: 1, */ track: 1, wbr: 1 },
-
-	/*
-	 * Determine if the tag is an empty HTML tag
-	 */
-	isVoidElement: function ( name ) {
-		return this.voidElements[name] || false;
+		return name.toUpperCase() in Consts.HTML.BlockTags;
 	},
 
 	/**
-	 * Determine if a token is block-level or not
-	 *
-	 * @method
-	 * @param {Token} token
-	 * @returns {boolean}
+	 * In the PHP parser, these block tags open block-tag scope
+	 * See doBlockLevels in the PHP parser (includes/parser/Parser.php)
 	 */
+	tagOpensBlockScope: function(name) {
+		return name.toUpperCase() in Consts.BlockScopeOpenTags;
+	},
+
+	/**
+	 * In the PHP parser, these block tags close block-tag scope
+	 * See doBlockLevels in the PHP parser (includes/parser/Parser.php)
+	 */
+	tagClosesBlockScope: function(name) {
+		return name.toUpperCase() in Consts.BlockScopeCloseTags;
+	},
+
+	/**
+	 *Determine if the named tag is void (can not have content).
+	 */
+	isVoidElement: function ( name ) {
+		return name.toUpperCase() in Consts.HTML.VoidTags;
+	},
+
+	/**
+	* Determine if a token is block-level or not
+	*/
 	isBlockToken: function ( token ) {
 		if ( token.constructor === pd.TagTk ||
 		     token.constructor === pd.EndTagTk ||
@@ -256,7 +170,7 @@ var Util = {
 	isTableTag: function(token) {
 		var tc = token.constructor;
 		return (tc === pd.TagTk || tc === pd.EndTagTk) &&
-			['table','tbody','caption','th','tr','td'].indexOf(token.name) !== -1;
+			token.name.toUpperCase() in Consts.HTML.TableTags;
 	},
 
 	isSolTransparentLinkTag: function(token) {
@@ -541,34 +455,6 @@ var Util = {
 			}
 		} else {
 			return obj;
-		}
-	},
-
-	// Deep-freeze an object
-	// See
-	// https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/freeze
-	deepFreeze: function (o) {
-		if ( o === undefined ) {
-			return;
-		} else if ( ! (o instanceof Object) ) {
-			//console.log( o );
-			//console.trace();
-			return;
-		} else if ( Object.isFrozen(o) ) {
-			return;
-		}
-
-		Object.freeze(o); // First freeze the object.
-		for (var propKey in o) {
-			var prop = o[propKey];
-			if (!o.hasOwnProperty(propKey) || !(prop instanceof Object) || Object.isFrozen(prop)) {
-				// If the object is on the prototype, not an object, or is already frozen,
-				// skip it. Note that this might leave an unfrozen reference somewhere in the
-				// object if there is an already frozen object containing an unfrozen object.
-				continue;
-			}
-
-			this.deepFreeze(prop); // Recursively call deepFreeze.
 		}
 	},
 
@@ -892,27 +778,6 @@ var Util = {
             return prefix;
         }
     },
-
-	// Return a hash mapping all of the given elements of `a` to `true`.
-	// The result hash is created with `Object.create(null)`, so it doesn't
-	// inherit extra properties (like `hasOwnProperty`) from `Object`.
-	arrayToHash: function(a) {
-		var h = Object.create(null); // No inherited methods
-		for (var i = 0, n = a.length; i < n; i++) {
-			h[a[i]] = true;
-		}
-		return h;
-	},
-
-	// Return a hash with the same own properties as `h`.
-	// The result hash is created with `Object.create(null)`, so it doesn't
-	// inherit extra properties (like `hasOwnProperty`) from `Object`, nor
-	// will it include any inherited properties from `h`.
-	safeHash: function(h) {
-		var r = Object.create(null);
-		Object.keys(h).forEach(function(k) { r[k] = h[k]; });
-		return r;
-	},
 
 	extractExtBody: function(extName, extTagSrc) {
 		var re = "<" + extName + "[^>]*/?>([\\s\\S]*)";
@@ -1412,7 +1277,6 @@ Util.parse = function ( env, cb, err, src, expansions ) {
 	}
 };
 
-
 Util.getPageSrc = function ( env, title, oldid, cb ) {
 	title = env.resolveTitle( title, '' );
 	var pageRequest = new TemplateRequest( env, title, oldid );
@@ -1524,40 +1388,9 @@ Util.escapeEntities = function ( text ) {
 	});
 };
 
-// From http://www.w3.org/TR/html5-diff/#obsolete-elements
-// SSS FIXME: basefont is missing here, but looks like the PHP parser
-// does not support it anyway and treats it as plain text.  So, skipping
-// this one in Parsoid as well.
-var html_old_names = Util.arrayToHash([
-	"strike", "big", "center", "font", "tt"
-]);
-
-// The list of HTML5 tags, mainly used for the identification of *non*-html
-// tags. Non-html tags terminate otherwise tag-eating productions (see list
-// below) in order to support potential extension tags.
-var html5_tag_names = Util.arrayToHash([
-	"a", "abbr", "address", "area", "article",
-	"aside", "audio", "b", "base", "bdi", "bdo", "blockquote",
-	"body", "br", "button", "canvas", "caption", "cite", "code",
-	"col", "colgroup", "command", "data", "datalist", "dd", "del",
-	"details", "dfn", "div", "dl", "dt", "em", "embed", "fieldset",
-	"figcaption", "figure", "footer", "form",
-	"h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup",
-	"hr", "html", "i", "iframe", "img", "input", "ins", "kbd", "keygen",
-	"label", "legend", "li", "link", "map", "mark", "menu", "meta",
-	"meter", "nav", "noscript", "object", "ol", "optgroup", "option",
-	"output", "p", "param", "pre", "progress", "q", "rp", "rt",
-	"ruby", "s", "samp", "script", "section", "select", "small",
-	// "source", Support the deprecated <source> alias for syntaxhighlight
-	"span", "strong", "style", "sub", "summary", "sup",
-	"table", "tbody", "td", "textarea", "tfoot", "th", "thead", "time",
-	"title", "tr", "track", "u", "ul", "var", "video", "wbr"
-]);
-
 Util.isHTMLElementName = function (name) {
-	name = name.toLowerCase();
-	return html5_tag_names[name] === true ||
-		html_old_names[name] === true;
+	name = name.toUpperCase();
+	return name in Consts.HTML.HTML5Tags || name in Consts.HTML.OlderHTMLTags;
 };
 
 /**
@@ -1572,7 +1405,6 @@ Util.isProtocolValid = function ( linkTarget, env ) {
 		return true;
 	}
 };
-
 
 if (typeof module === "object") {
 	module.exports.Util = Util;

@@ -34,6 +34,7 @@
     //};
 
     var Util = require('./mediawiki.Util.js').Util;
+    var JSUtils = require('./jsutils.js').JSUtils;
     var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer;
 
     // import defines and define some constructor shortcuts
@@ -316,17 +317,19 @@
     // Current extension/include tag being parsed.
     var currExtTag = null;
 
-    var includeTags = Util.arrayToHash([
+    var includeTags = JSUtils.arrayToHash([
         "includeonly", "noinclude", "onlyinclude"
     ]);
 
     // text start position
     var textStart = 0;
 
+    // SSS FIXME: Can we use WikitextConstants.HTML.BlockTags??
+    //
     // Define block-level tags in JS, so we can use toLowerCase to match tags
     // case-independently. This would be quite ugly (and possibly slower) if
     // done manually in the grammar.
-    var block_names = Util.arrayToHash([
+    var block_names = JSUtils.arrayToHash([
         "p", "table", "td", "tr", "ul", "ol", "li",
         "dl", "dt", "dd", "div", "center", "blockquote"
     ]);

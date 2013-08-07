@@ -19,8 +19,10 @@ var events = require('events'),
 	LRU = require("lru-cache"),
 	crypto = require('crypto'),
 	util = require('util'),
+	JSUtils = require('./jsutils.js').JSUtils,
 	Util = require('./mediawiki.Util.js').Util,
 	defines = require('./mediawiki.parser.defines.js');
+
 // define some constructor shortcuts
 var KV = defines.KV,
     EOFTk = defines.EOFTk,
@@ -29,7 +31,6 @@ var KV = defines.KV,
 
 // forward declarations
 var TokenAccumulator, Frame, ExpansionCache;
-
 
 function verifyTokensIntegrity(ret, nullOkay) {
 	// FIXME: Where is this coming from?
@@ -1578,10 +1579,9 @@ ExpansionCache.prototype.set = function ( frame, options, value ) {
 
 ExpansionCache.prototype.get = function ( frame, options ) {
 	var cachedTokens = this._cache.get( this.makeKey( frame, options ) );
-	Util.deepFreeze(cachedTokens);
+	JSUtils.deepFreeze(cachedTokens);
 	return cachedTokens;
 };
-
 
 if (typeof module === "object") {
 	module.exports.AsyncTokenTransformManager = AsyncTokenTransformManager;

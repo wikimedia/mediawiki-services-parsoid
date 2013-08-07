@@ -4,9 +4,12 @@
 
 var events = require('events'),
 	util = require('util'),
+	JSUtils = require('./jsutils.js').JSUtils,
 	Util = require('./mediawiki.Util.js').Util,
 	DU = require('./mediawiki.DOMUtils.js').DOMUtils,
-	Node = require('./mediawiki.wikitext.constants.js').Node,
+	wtc = require('./mediawiki.wikitext.constants.js'),
+	Consts = wtc.WikitextConstants,
+	Node = wtc.Node,
 	domino = require('./domino');
 
 // map from mediawiki metadata names to RDFa property names
@@ -779,12 +782,12 @@ function migrateTrailingNLs(elt, env) {
 		//
 		// SSS FIXME: Given condition 2, we may not need to check th/td anymore
 		// (if we can rely on auto inserted start/end tags being present always).
-		var nodesToMigrateFrom = Util.arrayToHash([
-			"th", "td", "tr", "li", "dd", "ol", "ul", "dl", "caption", "p"
+		var nodesToMigrateFrom = JSUtils.arrayToHash([
+			"TH", "TD", "TR", "LI", "DD", "OL", "UL", "DL", "CAPTION", "P"
 		]);
 
 		function nodeEndsLineInWT(node) {
-			return nodesToMigrateFrom[node.nodeName.toLowerCase()] && !DU.isLiteralHTMLNode(node);
+			return node.nodeName in nodesToMigrateFrom && !DU.isLiteralHTMLNode(node);
 		}
 
 		return node && (
@@ -2150,7 +2153,9 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 				if (DU.isElt(next) && next.data.parsoid.src &&
 					/\bmw:Placeholder\/StrippedTag\b/.test(next.getAttribute("typeof")))
 				{
-					if (next.data.parsoid.name in {B:1, I:1} && child.nodeName in {B:1, I:1}) {
+					if (next.data.parsoid.name in Consts.WTQuoteTags &&
+						child.nodeName in Consts.WTQuoteTags)
+					{
 						correction = next.data.parsoid.src.length;
 						ce += correction;
 						dsrCorrection = correction;
@@ -2190,7 +2195,7 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 			//
 			// Currently, this fix is only for
 			// B and I tags where the fix is clear-cut and obvious.
-			if (editMode && ce !== null && dp.autoInsertedEnd && child.nodeName in {B:1, I:1}) {
+			if (editMode && ce !== null && dp.autoInsertedEnd && DU.isQuoteElt(child)) {
 				correction = (3 + child.nodeName.length);
 				if (correction === dsrCorrection) {
 					ce -= correction;

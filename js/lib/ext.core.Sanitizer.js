@@ -10,9 +10,11 @@
 "use strict";
 
 require('./mediawiki.parser.defines.js');
-var WikitextConstants = require('./mediawiki.wikitext.constants.js').WikitextConstants;
-var Util = require('./mediawiki.Util.js').Util,
-    defines = require('./mediawiki.parser.defines.js');
+var JSUtils = require('./jsutils.js').JSUtils,
+	Util = require('./mediawiki.Util.js').Util,
+    defines = require('./mediawiki.parser.defines.js'),
+	WikitextConstants = require('./mediawiki.wikitext.constants.js').WikitextConstants;
+
 // define some constructor shortcuts
 var TagTk = defines.TagTk,
     SelfclosingTagTk = defines.SelfclosingTagTk,
@@ -557,7 +559,6 @@ var SanitizerConstants = {
 		// self-closing version might be legal.
 		this.noEndTagHash = { br: 1 };
 
-		this.tagWhiteListHash = Util.arrayToHash(WikitextConstants.Sanitizer.TagWhiteList);
 		this.validProtocolsRE = new RegExp("^(" + this.validUrlProtocols.join('|') + ")$", "i" );
 		//|/?[^/])[^\\s]+$");
 		this.cssDecodeRE = computeCSSDecodeRegexp();
@@ -569,7 +570,7 @@ var SanitizerConstants = {
 SanitizerConstants.setDerivedConstants();
 
 // Freeze it blocking all accidental changes
-Util.deepFreeze(SanitizerConstants);
+JSUtils.deepFreeze(SanitizerConstants);
 
 /**
  * @class
@@ -587,7 +588,7 @@ function Sanitizer ( manager ) {
 Sanitizer.prototype.getAttrWhiteList = function(tag) {
 	var awlCache = this.attrWhiteListCache;
 	if (!awlCache[tag]) {
-		awlCache[tag] = Util.arrayToHash(this.constants.attrWhiteList[tag] || []);
+		awlCache[tag] = JSUtils.arrayToHash(this.constants.attrWhiteList[tag] || []);
 	}
 
 	return awlCache[tag];
@@ -668,11 +669,10 @@ Sanitizer.prototype.onAny = function ( token ) {
 
 	var i,l,k,v,kv;
 	var attribs = token.attribs;
-	var tagWLHash = this.constants.tagWhiteListHash,
-		noEndTagHash = this.constants.noEndTagHash;
+	var noEndTagHash = this.constants.noEndTagHash;
 
 	if (token.isHTMLTag && token.isHTMLTag() &&
-			( tagWLHash[token.name] !== true ||
+			(!( token.name.toUpperCase() in WikitextConstants.Sanitizer.TagWhiteList ) ||
 			  ( token.constructor === EndTagTk && noEndTagHash[token.name] )
 			)
 		)
