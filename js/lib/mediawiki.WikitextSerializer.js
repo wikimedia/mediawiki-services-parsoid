@@ -2056,12 +2056,16 @@ function wtEOL(node, otherNode) {
 }
 
 function wtListEOL(node, otherNode) {
-	var nextSibling = DU.nextNonSepSibling(node);
-	//console.log(nextSibling && nextSibling.nodeName);
-	if (!DU.isElt(otherNode)) {
+	if (otherNode.nodeName === 'BODY' ||
+		!DU.isElt(otherNode) ||
+		DU.isEncapsulatedElt(otherNode))
+	{
 		return {min:0, max:2};
-	} else if (nextSibling === otherNode &&
-			(otherNode.data.parsoid.stx === 'html' || otherNode.data.parsoid.src))
+	}
+
+	var nextSibling = DU.nextNonSepSibling(node);
+	if (nextSibling === otherNode &&
+		otherNode.data.parsoid.stx === 'html' || otherNode.data.parsoid.src)
 	{
 		return {min:0, max:2};
 	} else if (nextSibling === otherNode && DU.isListOrListElt(otherNode)) {
@@ -2074,14 +2078,10 @@ function wtListEOL(node, otherNode) {
 		} else {
 			return {min:1, max:2};
 		}
-	} else if (otherNode.nodeType === node.ELEMENT_NODE &&
-			otherNode.nodeName in {'UL':1, 'OL':1, 'DL':1}) {
+	} else if (otherNode.nodeName in {'UL':1, 'OL':1, 'DL':1}) {
 		// last child in ul/ol (the list element is our parent), defer
 		// separator constraints to the list.
 		return {};
-	} else if (otherNode.nodeType === node.ELEMENT_NODE &&
-			otherNode.nodeName === 'BODY') {
-		return {min:0, max:2};
 	} else {
 		return {min:1, max:2};
 	}
@@ -2112,6 +2112,16 @@ function buildListHandler(firstChildNames) {
 		},
 		sepnls: {
 			before: function (node, otherNode) {
+				// SSS FIXME: Thoughts about a fix (abandoned in this patch)
+				//
+				// Checking for otherNode.nodeName === 'BODY' and returning
+				// {min:0, max:0} should eliminate the annoying leading newline
+				// bug in parser tests, but it seems to cause other niggling issues
+				// <ul> <li>foo</li></ul> serializes to " *foo" which is buggy.
+				// So, we may need another constraint/flag/test in makeSeparator
+				// about the node and its context so that leading pre-inducing WS
+				// can be stripped
+
 				if (DU.isText(otherNode) && DU.isListElt(node.parentNode)) {
 					// A list nested inside a list item
 					// <li> foo <dl> .. </dl></li>
@@ -3541,6 +3551,8 @@ WSP.makeSeparator = function(sep, node, nlConstraints, state) {
 	// at a nested level rather than just 'node'.  If 'node' is an IEW/comment,
 	// we should find the "next" (at this and and ancestor levels), the non-sep
 	// sibling and check if that node is one of these types.
+	//
+	// FIXME: Should this be moved to wikitext.constants.js or some such?
 	var preSafeTags = {'BR':1, 'TABLE':1, 'TBODY':1, 'CAPTION':1, 'TR':1, 'TD':1, 'TH':1},
 		// SSS FIXME: how is it that parentNode can be null??  is body getting here?
 	    parentName = node.parentNode && node.parentNode.nodeName;

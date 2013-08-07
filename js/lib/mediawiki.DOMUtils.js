@@ -414,6 +414,10 @@ var DOMUtils = {
 		}
 	},
 
+	isEncapsulatedElt: function(node) {
+		return (/\bmw:(?:Transclusion\b|Param\b|Extension\/[^\s]+)/).test(node.getAttribute('typeof'));
+	},
+
 	// Check if node is an ELEMENT node belongs to a template/extension.
 	//
 	// NOTE: Use with caution. This technique works reliably for the

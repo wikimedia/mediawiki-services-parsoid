@@ -139,6 +139,12 @@ A?b
 Weirdo titles!
 !! endarticle
 
+!!article
+Template:Bullet
+!!text
+* Bar
+!!endarticle
+
 ###
 ### Basic tests
 ###
@@ -5501,6 +5507,18 @@ parsoid
 :: bar
 !! result
 <ol><li> foo<ol><li> bar</li></ol></li></ol><ul><li> foo<ul><li> bar</li></ul></li></ul><dl><dd> foo<dl><dd> bar</dd></dl></dd></dl>
+!! end
+
+!! test
+Parsoid: Test of whitespace serialization with Templated bullets
+!! options
+parsoid
+!! input
+* {{bullet}}
+!! result
+<ul>
+<li> </li><li about="#mwt1" typeof="mw:Transclusion" data-mw='{"target":{"wt":"bullet","href":"./Template:Bullet"},"params":{},"i":0}'> Bar</li>
+</ul>
 !! end
 
 # ------------------------------------------------------------------------
@@ -13564,12 +13582,6 @@ language=sr
 </p>
 !!end
 
-!!article
-Template:Bullet
-!!text
-* Bar
-!!endarticle
-
 !! test
 Bug 529: Uncovered bullet
 !! input
@@ -16757,6 +16769,10 @@ parsoid=html2wt
 <p>123</p><figure typeof="mw:Image/Thumb" class="mw-halign-right"><a href="./File:Wiki.png"><img src="http://192.168.142.128/mw/images/thumb/b/bc/Wiki.png/131px-Wiki.png" width="131" height="150" resource="./File:Wiki.png"></a></figure><p>456</p>
 !!end
 
+# Wacky -- the leading newline in input is required because
+# that is what the serializer emits. To be fixed. Not fixing
+# the test because this test is required to test serialization of
+# new content and preferred whitespace style.
 !! test
 Lists: Add space after bullets
 !! options
