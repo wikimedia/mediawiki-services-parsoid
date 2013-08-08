@@ -2981,7 +2981,10 @@ function cleanupAndSaveDataParsoid( options, node ) {
 			// Make dsr zero-range for fostered content
 			// to prevent selser from duplicating this content
 			// outside the table from where this came.
-			if (dp.fostered && dp.dsr) {
+			//
+			// But, do not zero it out if the node has template encapsulation
+			// information.  That will be disastrous (see bug 52638, 52488).
+			if (dp.fostered && dp.dsr && !DU.isEncapsulatedElt(node)) {
 				dp.dsr[0] = dp.dsr[1];
 			}
 		}
