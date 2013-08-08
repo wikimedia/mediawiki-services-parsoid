@@ -1371,7 +1371,7 @@ pre
         stops.dec('pre');
         // return nowiki tags as well?
         return [ new TagTk( 'pre', attribs, { stx: 'html', tsr: [pos0, endpos] } ) ]
-                    .concat(flatten_stringlist(ts), [ new EndTagTk( 'pre', [], { tsr: [pos - 6, pos] } ) ]);
+                    .concat(flatten_stringlist(ts), [ new EndTagTk( 'pre', [], { stx: 'html', tsr: [pos - 6, pos] } ) ]);
     }
   / "</" pre_tag_name ">" { stops.dec('pre'); return "</pre>"; }
   / & { return stops.dec('pre'); }

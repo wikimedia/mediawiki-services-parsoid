@@ -169,6 +169,12 @@ TokenTransformManager.prototype.addTransform = function ( transformation, debug_
 		if (!tArray) {
 			tArray = this.tokenTransformers[key] = [];
 		}
+
+		// assure no duplicate transformers
+		console.assert( tArray.every(function ( tr ) {
+			return tr.rank !== t.rank;
+		}) );
+
 		tArray.push(t);
 		tArray.sort(this._cmpTransformations);
 
