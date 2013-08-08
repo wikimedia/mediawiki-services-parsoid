@@ -39,6 +39,11 @@ if (module === require.main) {
 			'boolean': true,
 			'default': false
 		},
+		'm': {
+			description: 'Treat ^ and $ as matching beginning/end of *each* line, instead of beginning/end of entire article',
+			'boolean': true,
+			'default': false
+		},
 		'color': {
 			description: 'Highlight matched substring using color. Use --no-color to disable.  Default is "auto".',
 			'default': 'auto'
@@ -59,6 +64,9 @@ if (module === require.main) {
 	var flags = 'g';
 	if( Util.booleanOption( argv.i ) ) {
 		flags += 'i';
+	}
+	if( Util.booleanOption( argv.m ) ) {
+		flags += 'm';
 	}
 
 	var re = new RegExp( argv._[0], flags );

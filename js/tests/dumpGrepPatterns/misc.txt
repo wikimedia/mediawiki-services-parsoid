@@ -11,3 +11,8 @@
 
 # cases which aren't the simple '| {{yes}}' case.
 [^ \t|]\s*{{\s*(?:rh|rh2|yes|Ya|no|Na|coming soon|bad|eliminated|Site active|Site inactive|good|yes2|won|no2|nom|sho|TBA|partial|yes-No|okay|some|any|n/a|BLACK|dunno|Unknown|Depends|Included|dropped|terminated|beta|table-experimental|free|nonfree|proprietary|needs|incorrect|no result|pending|nightly|release-candidate|[?]|unofficial|usually|rarely|sometimes|draw)\s*(?:[|]|}})
+
+# blank lines with more than one comment (bug 41756)
+^([ ]*<!--((?!-->).)*-->){2,}[ ]*$      (use with -m option)
+# more precise version, avoid those surrounded by newlines
+[^\n]\n([ ]*<!--((?!-->).)*-->){2,}[ ]*\n(?!\n)
