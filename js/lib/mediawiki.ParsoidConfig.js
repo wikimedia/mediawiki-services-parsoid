@@ -22,6 +22,7 @@ var wikipedias = "en|de|fr|nl|it|pl|es|ru|ja|pt|zh|sv|vi|uk|ca|no|fi|cs|hu|ko|fa
  * @param {Object} options Any options we want to set over the defaults. Will not overwrite things set by the localSettings.setup function. See the class properties for more information.
  */
 function ParsoidConfig( localSettings, options ) {
+	var self = this;
 	this.interwikiMap = {};
 
 	var wplist = wikipedias.split( '|' );
@@ -29,7 +30,11 @@ function ParsoidConfig( localSettings, options ) {
 		this.interwikiMap[wplist[ix]] = 'http://' + wplist[ix] + '.wikipedia.org/w/api.php';
 		// Also add an alias that follows the Wikimedia db name convention
 		// (enwiki, dewiki etc).
-		this.interwikiMap[wplist[ix] + 'wiki'] = 'http://' + wplist[ix] + '.wikipedia.org/w/api.php';
+		['pedia', 'voyage', 'books', 'quote'].forEach(function(suffix) {
+			var dbName = wplist[ix] + 'wiki' + (suffix === 'pedia' ? '' : suffix);
+			self.interwikiMap[dbName] = 'http://' + wplist[ix] + '.wiki' +
+				suffix + '.org/w/api.php';
+		});
 	}
 
 	// Add mediawiki.org too
