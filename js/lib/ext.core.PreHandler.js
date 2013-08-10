@@ -32,10 +32,9 @@
  | SOL           | --- sol-tr  --> | SOL           | TOKS << tok              |
  | SOL           | --- other   --> | IGNORE        | purge                    |
  + --------------+-----------------+---------------+--------------------------+
- | PRE           | --- nl      --> | SOL           | purge   if |TOKS| == 0   |
- |               |                 |               | gen-pre if |TOKS| > 0 (#)|
- | PRE           |  html-blk tag   | IGNORE        | purge   if |TOKS| == 0   |
- |               |  wt-table tag   |               | gen-pre if |TOKS| > 0 (#)|
+ | PRE           | --- nl      --> | SOL           | purge                    |
+ | PRE           |  html-blk tag   | IGNORE        | purge                    |
+ |               |  wt-table tag   |               |                          |
  | PRE           | --- eof     --> | SOL           | purge                    |
  | PRE           | --- sol-tr  --> | PRE           | SOL-TR-TOKS << tok       |
  | PRE           | --- other   --> | PRE_COLLECT   | TOKS = SOL-TR-TOKS + tok |
@@ -55,13 +54,6 @@
  | IGNORE        | --- nl      --> | SOL           | purge                    |
  | IGNORE        | --- eof     --> | SOL           | purge                    |
  + --------------+-----------------+---------------+--------------------------+
-
- # In PRE-state, |TOKS| > 0 only if we got here from MULTILINE_PRE.  In addition,
-   we are guaranteed that they will not all be whitespace/sol-transparent tokens
-   since the transition path would have been:
-      SOL -> PRE -> PRE_COLLECT -> MULTILINE_PRE -> PRE
-   and the transition from PRE -> PRE_COLLECT adds a non-ws/non-sol-tr token
-   to TOKS.
 
  ## In these states, check if the whitespace token is a single space or has
    additional chars (white-space or non-whitespace) -- if yes, slice it off
@@ -227,13 +219,7 @@ PreHandler.prototype.onNewline = function (token, manager, cb) {
 			break;
 
 		case PreHandler.STATE_PRE:
-			if (this.tokens.length > 0) {
-				// we got here from a multiline-pre
-				ret = this.processPre(token);
-			} else {
-				// we will never get here from a multiline-pre
-				ret = this.getResultAndReset(token);
-			}
+			ret = this.getResultAndReset(token);
 			this.preTSR = initPreTSR(token);
 			this.state = PreHandler.STATE_SOL;
 			break;
@@ -350,13 +336,7 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 				} else if (Util.isTableTag(token) ||
 					(token.isHTMLTag() && Util.isBlockTag(token.name)))
 				{
-					if (this.tokens.length > 0) {
-						// we got here from a multiline-pre
-						ret = this.processPre(token);
-					} else {
-						// we can never get here from a multiline-pre
-						ret = this.getResultAndReset(token);
-					}
+					ret = this.getResultAndReset(token);
 					this.moveToIgnoreState();
 				} else {
 					this.tokens = this.tokens.concat(this.solTransparentTokens);
