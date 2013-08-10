@@ -1881,17 +1881,14 @@ li = bullets:list_char+
  */
 hacky_dl_uses = bullets:":"+
                c:table_lines
+               s:space* // Do we really need to RT this?
                &eolf
 {
-    if ( c === '' ) {
-        c = [];
-    }
     // Leave bullets as an array -- list handler expects this
     var li = new TagTk( 'listItem', [], { tsr: [pos0, pos0 + bullets.length] }  );
     li.bullets = bullets;
-    return [ li, c ];
+    return flattenIfArray([li, c || [], s || []]);
 }
-
 
 dtdd
   = bullets:(!(";" !list_char) lc:list_char { return lc; })*
