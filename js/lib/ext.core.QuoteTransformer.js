@@ -254,8 +254,10 @@ QuoteTransformer.prototype.onNewLine = function (  token, frame, prevToken ) {
 	// prepare for next line
 	this.reset();
 
-	// remove 'end', 'newline' and 'any' registrations
+	// remove registrations
 	this.dispatcher.removeTransform( this.quoteAndNewlineRank, 'end' );
+	this.dispatcher.removeTransform( this.quoteAndNewlineRank, 'tag', 'td' );
+	this.dispatcher.removeTransform( this.quoteAndNewlineRank, 'tag', 'th' );
 	this.dispatcher.removeTransform( this.quoteAndNewlineRank, 'newline' );
 	this.dispatcher.removeTransform( this.anyRank, 'any' );
 	//console.warn( 'res:' + JSON.stringify( res, null, 2 ));
