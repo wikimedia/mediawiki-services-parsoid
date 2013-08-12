@@ -102,7 +102,7 @@ ParagraphWrapper.prototype.resetCurrLine = function(atEOL) {
 	this.currLine = {
 		tokens: [],
 		isNewline: atEOL,
-		commentCount: 0,
+		hasComments: false,
 		hasBlockToken: false,
 		hasWrappableTokens: false
 	};
@@ -123,12 +123,11 @@ ParagraphWrapper.prototype.onNewLineOrEOF = function (  token, frame, cb ) {
 	}
 
 	// PHP parser ignores (= strips out during preprocessing) lines with
-	// a single comment and other white-space. This flag checks if we are
-	// on such a line.
-	var emptyLineWithSingleComment =
+	// a comment and other white-space. This flag checks if we are on such a line.
+	var emptyLineWithComments =
 		l.isNewline &&
 		!l.hasWrappableTokens &&
-		l.commentCount === 1;
+		l.hasComments;
 
 	// this.nonNlTokens += this.currLine.tokens
 	this.nonNlTokens = this.nonNlTokens.concat(l.tokens);
@@ -144,9 +143,9 @@ ParagraphWrapper.prototype.onNewLineOrEOF = function (  token, frame, cb ) {
 		this.hasOpenHTMLPTag = false;
 		this.reset();
 		return { tokens: res };
-	} else if (emptyLineWithSingleComment) {
+	} else if (emptyLineWithComments) {
 		// 1. Dont increment newline count on "empty" lines with
-		//    a single comment -- see comment above
+		//    one or more comments -- see comment above
 		//
 		// 2. Convert the NlTk to a String-representation so that
 		//    it doesn't get processed by discardOneNlTk -- this
@@ -303,7 +302,7 @@ ParagraphWrapper.prototype.onAny = function ( token, frame ) {
 		return { tokens: [token] };
 	} else if ((tc === String && token.match( /^[\t ]*$/)) || tc === CommentTk) {
 		if (tc === CommentTk) {
-			this.currLine.commentCount++;
+			this.currLine.hasComments = true;
 		}
 
 		if (this.newLineCount === 0) {
