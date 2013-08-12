@@ -1636,66 +1636,82 @@ Templates: Indent-Pre: 1f: Wrapping should be based on expanded content
 </pre>
 !!end
 
+#--------------------------------------------------------------------
+# Transclusion parameter whitespace stripping tests
+# Behavior is different for positional and named parameters
+#--------------------------------------------------------------------
 !! test
-Templates: Single-line variant of parameter whitespace stripping test
+Templates: Strip leading and trailing whitespace from named-param values
 !! input
-{{echo| a}}
+{{echo|1= a }}
 
-{{echo|1= a}}
-
-{{echo|{{echo| a}}}}
-
-{{echo|1={{echo| a}}}}
-!! result
-<pre>a
-</pre>
-<p>a
-</p>
-<pre>a
-</pre>
-<p>a
-</p>
-!! end
-
-!! test
-Templates: Strip whitespace from named parameters, but not positional ones
-!! input
-{{echo|
- foo}}
-
-{{echo|
-* foo}}
+{{echo|1= {{echo|b}} }}
 
 {{echo| 1 =
- foo}}
+ c }}
 
 {{echo| 1 =
-* foo}}
+* d
+}}
 !! result
-<pre>foo
-</pre>
-<p><br />
+<p>a
+</p><p>b
+</p><p>c
 </p>
-<ul><li> foo
-</li></ul>
-<p>foo
-</p>
-<ul><li> foo
+<ul><li> d
 </li></ul>
 
 !! end
 
 !! test
-Templates: Dont strip whitespace from whitespace/comment-only arguments
+Templates: Don't strip whitespace from positional-param values (PHP parser)
+!! options
 !! input
-{{echo| }}
-{{echo|<!--cmt-->}}
-{{echo| <!--cmt--> }}
+{{echo|a }}
+
+{{echo|{{echo|b}} }}
+
+{{echo| c 
+}}
+
+{{echo| {{echo|d}}
+}}
+
+{{echo|
+ e}}
+
+{{echo|
+* f}}
+
+{{echo|
+ }}g
 !! result
+<p>a 
+</p><p>b  
+</p>
+<pre>c 
+</pre>
 <p><br />
 </p>
+<pre>d 
+</pre>
+<p><br />
+</p>
+<pre>e
+</pre>
+<p><br />
+</p>
+<ul><li> f
+</li></ul>
+<p><br />
+</p>
+<pre>g
+</pre>
 !! end
 
+#--------------------------------------------------------------------
+# Transclusion parameter escaping tests
+#--------------------------------------------------------------------
 !! test
 Templates: Parsoid parameter escaping test 1
 !! options
