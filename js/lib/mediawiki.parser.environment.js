@@ -28,7 +28,7 @@ Tracer.prototype = {
 		}
 
 		if (this.env.conf.parsoid.trace) {
-			if (token.constructor === String) {
+			if (token.constructor === String || token.constructor === Number) {
 				console.warn("T: '" + token + "'");
 			} else  {
 				console.warn("T: " + token.toString(compact));
