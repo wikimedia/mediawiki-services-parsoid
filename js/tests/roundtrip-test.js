@@ -3,6 +3,7 @@
 
 var jsDiff = require( 'diff' ),
 	optimist = require( 'optimist' ),
+	domino = require( 'domino' ),
 
 	Util = require( '../lib/mediawiki.Util.js' ).Util,
 	WikitextSerializer = require( '../lib/mediawiki.WikitextSerializer.js').WikitextSerializer,
@@ -364,6 +365,10 @@ var doubleRoundtripDiff = function ( env, offsets, body, out, cb ) {
 
 var roundTripDiff = function ( env, document, cb ) {
 	var out, diff, offsetPairs;
+
+	// Re-parse the HTML to uncover foster-parenting issues
+	document = domino.createDocument(document.outerHTML);
+
 
 	try {
 		out = new WikitextSerializer( { env: env } ).serializeDOM(document.body);
