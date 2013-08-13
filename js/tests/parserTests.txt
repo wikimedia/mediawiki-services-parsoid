@@ -2345,6 +2345,19 @@ should be left alone
 should be left alone
 </p>
 !! end
+
+# Bug 52473
+!! test
+Definition Lists: Hacky use to indent tables (WS-insensitive)
+!! options
+parsoid
+!! input
+: {|
+|a
+|} 
+!! result
+<dl><dd> <table><tr><td>a</td></tr></table> </dd></dl>
+!! end
 ## The PHP parser treats : items (dd) without a corresponding ; item (dt)
 ## as an empty dt item.  It also ignores all but the last ";" when followed
 ## by ":" later on.  So, ";" are not ignored in ";;;t3" but are ignored  in
