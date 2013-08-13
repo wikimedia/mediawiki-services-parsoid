@@ -33,7 +33,6 @@ var add = function(testtype, title) {
 // ### DO NOT REMOVE THIS LINE ### (start of automatically-generated section)
 
 // Blacklist for wt2html
-add("wt2html", "Paragraphs with newline spacing with comment lines in between");
 add("wt2html", "Paragraphs with newline spacing with non-empty white-space lines in between");
 add("wt2html", "Paragraphs with newline spacing with non-empty mixed comment and white-space lines in between");
 add("wt2html", "Extra newlines: More paragraphs with indented comment");
@@ -2189,15 +2188,22 @@ add("html2wt", "Improperly nested inline or quotes tags with whitespace in betwe
 
 // Blacklist for selser
 add("selser", "Paragraphs with extra newline spacing [[2],0,1,0,2,0,[3],0,3,[3]]");
-add("selser", "Paragraphs with newline spacing with comment lines in between [4,3,3,0,3,2,0,4,0,0,0,0,0,2,0,1,0,0,0,0,2,3,0,4,0,3,0,[2],0,2,0,[3],0,0,0,2,0,0,0,0,3,1,0,2,2,4,2,2,2,1,3,[3],4,4,2,0]");
-add("selser", "Paragraphs with newline spacing with comment lines in between [0,0,3,2,0,2,1,0,0,0,4,4,2,2,0,1,0,4,0,4,2,0,3,3,4,3,3,1,0,0,2,1,0,0,4,3,0,0,3,0,0,3,0,0,0,0,3,4,0,4,0,0,0,2,3,0]");
-add("selser", "Paragraphs with newline spacing with comment lines in between [0,0,[3,0,0],2,0,2,2,2,3,0,4,[2],3,2,2,1,3,2,0,2,2,0,3,[3],3,3,2,[4],2,3,0,[4],0,3,2,3,0,0,3,0,0,3,3,0,0,0,0,2,0,0,0,4,4,[3,0,4,3],4,0]");
+add("selser", "Paragraphs with newline spacing with comment lines in between [4,4,[4,3,0],0,0,2,0,4,2,3,[3,4,3,3,3,4,3],3,0,2,0,0,4,3,4,0,2,3,0,0,0,2,4,3,4,0,[2],2,0,0,[0,2],0,4,3,4,0,2,4,1]");
+add("selser", "Paragraphs with newline spacing with comment lines in between [4,3,3,0,3,2,[0,4,0,0],0,0,0,[3,0,2,0,0,0,0],2,2,0,4,0,4,0,[2],0,2,0,[3],0,0,0,2,0,0,0,0,3,2,0,2,2,3,2,2,2,1,3,0]");
+add("selser", "Paragraphs with newline spacing with comment lines in between [1,2,3,0,0,2,[3,3,0,0],2,0,0,[4,0,4,0,0,4,3],4,0,3,1,3,4,0,[3],0,0,2,2,3,0,0,[2],0,3,0,[3],2,0,0,2,0,0,4,3,0,4,2,0]");
+add("selser", "Paragraphs with newline spacing with comment lines in between [2,0,[2,0,0],0,4,3,1,0,2,0,3,2,4,4,4,2,3,4,0,2,3,4,0,0,0,0,0,3,1,0,4,2,2,2,[0,3],0,4,0,4,0,4,2,0]");
+add("selser", "Paragraphs with newline spacing with comment lines in between [0,0,2,0,0,3,0,0,4,0,[4,0,2,0,0,0,3],0,0,0,1,0,0,0,2,0,0,0,3,0,0,0,[2],0,2,0,3,0,0,4,2,3,3,2,0,4,2,0,2]");
+add("selser", "Paragraphs with newline spacing with comment lines in between [0,0,[2,2,3],0,3,3,0,0,2,4,[0,0,3,2,2,0,2],2,3,4,1,4,0,0,[3],0,2,4,2,2,4,4,0,0,0,0,2,0,2,2,1,3,1,3,4,2,2,0,0]");
+add("selser", "Paragraphs with newline spacing with comment lines in between [0,0,[3,0,2],0,0,0,[0,0,3,2],3,0,3,3,0,3,3,3,2,3,0,4,0,0,3,0,3,0,2,4,0,0,0,[3],0,3,3,2,3,0,0,[3],0,0,0,3]");
+add("selser", "Paragraphs with newline spacing with comment lines in between [0,3,3,2,4,0,3,2,4,3,[0,3,4,0,0,2,0],4,0,0,1,0,0,2,2,3,0,3,0,0,3,0,4,3,2,2,4,4,4,0,3,2,0,0,4,0,0,0,0]");
 add("selser", "Paragraphs with newline spacing with non-empty white-space lines in between [0,3,[4],3,0,3,0,3,2,0,2,3,0]");
 add("selser", "Paragraphs with newline spacing with non-empty white-space lines in between [0,2,3,0,[3],0,0,0,4,0,[0,4],4,4]");
 add("selser", "Paragraphs with newline spacing with non-empty white-space lines in between [3,2,4,4,0,0,0,4,[4],0,2,3,2]");
-add("selser", "Paragraphs with newline spacing with non-empty mixed comment and white-space lines in between [0,3,[0,4,2],3,1,0,1,0,0,4,2,3,0,2,0,1,0,0,3,0,3,[3],2,2,0,3,0,3,3,2,4,0,0,4]");
-add("selser", "Paragraphs with newline spacing with non-empty mixed comment and white-space lines in between [0,0,[0,0,3],0,0,0,[3],0,0,0,0,[4],2,0,2,[4],0,4,0,2,0,[2],4,1,0,0,3,3,4,0,0,2,0,0]");
-add("selser", "Paragraphs with newline spacing with non-empty mixed comment and white-space lines in between [0,0,[2,0,3],4,0,4,2,3,0,3,0,1,0,0,3,0,0,0,3,0,3,0,0,3,0,3,0,3,3,0,0,0,3,2]");
+add("selser", "Paragraphs with newline spacing with non-empty mixed comment and white-space lines in between [3,2,[0,0,3],0,0,0,1,0,3,0,2,0,0,0,3,0,3,4,2,3,[2],0,0,4,2,0,2,3,0]");
+add("selser", "Paragraphs with newline spacing with non-empty mixed comment and white-space lines in between [4,3,[4,2,4],3,3,3,[4,0,0,4],2,0,3,1,0,0,0,3,0,[2],0,0,3,3,0,0,0,3,3,[0,4],0,3]");
+add("selser", "Paragraphs with newline spacing with non-empty mixed comment and white-space lines in between [0,3,4,3,0,0,[4,0,0,3],0,2,0,0,0,3,3,4,2,4,4,2,3,4,0,0,2,0,0,0,0,2]");
+add("selser", "Paragraphs with newline spacing with non-empty mixed comment and white-space lines in between [0,0,[2,0,3],4,0,4,2,3,0,3,[2],0,0,3,0,0,0,3,0,3,0,0,3,0,3,0,2,3,0]");
+add("selser", "Paragraphs with newline spacing with non-empty mixed comment and white-space lines in between [0,0,2,0,0,3,4,0,0,0,1,3,0,0,3,3,[4],0,2,2,0,2,2,0,0,4,2,3,4]");
 add("selser", "Extra newlines: More paragraphs with indented comment [1,0,4,0,2]");
 add("selser", "Extra newlines: More paragraphs with indented comment [[2],3,4,2,2]");
 add("selser", "Extra newlines: More paragraphs with indented comment [0,3,0,4,2]");
