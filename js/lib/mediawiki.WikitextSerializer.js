@@ -2360,7 +2360,7 @@ WSP.tagHandlers = {
 				var otherNodeName = otherNode.nodeName,
 					tdOrBody = JSUtils.arrayToHash(['TD', 'BODY']);
 				if (node.parentNode === otherNode &&
-					DU.isListItem(otherNodeName) || otherNodeName in tdOrBody)
+					DU.isListItem(otherNode) || otherNodeName in tdOrBody)
 				{
 					if (otherNodeName in tdOrBody) {
 						return {min: 0, max: 1};

@@ -17177,6 +17177,23 @@ parsoid=html2wt
 # the test because this test is required to test serialization of
 # new content and preferred whitespace style.
 !! test
+Lists: Serialize correctly even when list content is wrapped in p-tags (like VE does)
+!! options
+parsoid=html2wt
+!! input
+
+* foo
+!! result
+<ul>
+<li><p>foo</p></li>
+</ul>
+!! end
+
+# Wacky -- the leading newline in input is required because
+# that is what the serializer emits. To be fixed. Not fixing
+# the test because this test is required to test serialization of
+# new content and preferred whitespace style.
+!! test
 Lists: Add space after bullets
 !! options
 parsoid=html2wt
