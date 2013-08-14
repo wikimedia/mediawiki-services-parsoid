@@ -292,9 +292,11 @@ ParagraphWrapper.prototype.onAny = function ( token, frame ) {
 			// No pre-tokens inside html-p-tags -- swallow it.
 			return {};
 		} else {
-			this.manager.addTransform(this.onNewLineOrEOF.bind(this),
-				"ParagraphWrapper:onNewLine", this.newlineRank, 'newline');
-			this.inPre = false;
+			if ( this.inPre ) {
+				this.manager.addTransform(this.onNewLineOrEOF.bind(this),
+					"ParagraphWrapper:onNewLine", this.newlineRank, 'newline');
+				this.inPre = false;
+			}
 			this.currLine.hasBlockToken = true;
 			return { tokens: [token] };
 		}

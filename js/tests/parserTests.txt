@@ -17143,6 +17143,19 @@ parsoid
 </body>
 !!end
 
+## Currently the p-wrapper is fragile in how adds / removes transformations.
+## Having nested or stray pre tags results in the attempt to add duplicates,
+## causing an assertion fail. This test tries to prevent that situation.
+!!test
+Ensure ParagraphWrapper can deal with stray closing pre tags
+!!options
+parsoid=wt2html
+!!input
+plain text</pre>
+!!result
+plain text
+!!end
+
 # -----------------------------------------------------------------
 # The following section of tests are primarily to spec requirements
 # around serialization of new/edited content.
