@@ -88,22 +88,28 @@ ApiRequest.prototype.request = function( options, callback ) {
 ApiRequest.prototype._processListeners = function ( error, src ) {
 	// Process only a few callbacks in each event loop iteration to
 	// reduce memory usage.
-	var self = this,
-		listeners = this.listeners( 'src' );
+	var self = this;
 
 	var processSome = function () {
-		// XXX: experiment a bit with the number of callbacks per
-		// iteration!
-		var maxIters = Math.min(1, listeners.length);
+			// listeners() returns a copy (slice) of the listeners array in
+			// 0.10. Get a new copy including new additions before processing
+			// each batch.
+		var listeners = self.listeners( 'src' ),
+			// XXX: experiment a bit with the number of callbacks per
+			// iteration!
+			maxIters = Math.min(1, listeners.length);
 		for ( var it = 0; it < maxIters; it++ ) {
 			var nextListener = listeners.shift();
 
 			// We only retrieve text/x-mediawiki source currently.
+			// We expect these listeners to remove themselves when being
+			// called- always add them with once().
 			nextListener.call( self, error || null, src, 'text/x-mediawiki' );
 		}
 		if ( listeners.length ) {
 			process.nextTick( processSome );
 		}
+
 	};
 
 	process.nextTick( processSome );

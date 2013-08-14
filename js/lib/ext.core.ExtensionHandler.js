@@ -97,7 +97,7 @@ ExtensionHandler.prototype.fetchExpandedExtension = function ( title, text, pare
 			env.requestQueue[text] = new PHPParseRequest( env, title, text );
 		}
 		// append request, process in document order
-		env.requestQueue[text].listeners( 'src' ).push( cb );
+		env.requestQueue[text].once( 'src', cb );
 
 		parentCB ( { async: true } );
 	}
