@@ -291,15 +291,17 @@ var checkIfSignificant = function ( env, offsets, src, body, out, cb, document )
 		var res = findDsr( body, offset[0] || {}, src.length);
 		origOut = res ? res.nodes : [];
 		for ( k = 0; k < origOut.length; k++ ) {
-			origOrigHTML += origOut[k].outerHTML;
+			// node need not be an element always!
+			origOrigHTML += Util.serializeNode(origOut[k], true);
 		}
 		origHTML = Util.formatHTML( Util.normalizeOut( origOrigHTML ) );
 
 		// console.warn("--new--");
-		res = findDsr( document.firstChild.childNodes[1], offset[1] || {}, out.length);
+		res = findDsr( document.body, offset[1] || {}, out.length);
 		newOut = res ? res.nodes : [];
 		for ( k = 0; k < newOut.length; k++ ) {
-			origNewHTML += newOut[k].outerHTML;
+			// node need not be an element always!
+			origNewHTML += Util.serializeNode(newOut[k], true);
 		}
 		newHTML = Util.formatHTML( Util.normalizeOut( origNewHTML ) );
 
@@ -367,8 +369,8 @@ var roundTripDiff = function ( env, document, cb ) {
 	var out, diff, offsetPairs;
 
 	// Re-parse the HTML to uncover foster-parenting issues
+	var origBody = document.body;
 	document = domino.createDocument(document.outerHTML);
-
 
 	try {
 		out = new WikitextSerializer( { env: env } ).serializeDOM(document.body);
@@ -376,7 +378,7 @@ var roundTripDiff = function ( env, document, cb ) {
 		offsetPairs = Util.convertDiffToOffsetPairs( diff );
 
 		if ( diff.length > 0 ) {
-			doubleRoundtripDiff( env, offsetPairs, document.body, out, cb );
+			doubleRoundtripDiff( env, offsetPairs, origBody, out, cb );
 		} else {
 			cb( null, env, [] );
 		}

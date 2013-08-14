@@ -1046,7 +1046,7 @@ compressHTML = function(html) {
  * @param {Node} doc
  * @returns {string}
  */
-serializeNode = function (doc) {
+serializeNode = function (doc, dontCompress) {
 	// use domino's outerHTML, as specified by
 	// http://domparsing.spec.whatwg.org/#outerhtml
 	var html = doc.outerHTML;
@@ -1071,7 +1071,8 @@ serializeNode = function (doc) {
 		fictional.appendChild(doc.cloneNode());
 		html = fictional.innerHTML;
 	}
-	return compressHTML(html);
+
+	return dontCompress ? html : compressHTML(html);
 },
 
 /**
