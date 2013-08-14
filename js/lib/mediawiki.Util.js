@@ -821,36 +821,6 @@ var Util = {
 	}
 };
 
-/**
- * @method
- *
- * Utility function for stripping useless paragraphs from the beginning of a list item,
- * because they get appended by VisualEditor sometimes.
- */
-Util.stripFirstParagraph = function ( node ) {
-	var thisnode, hasAttrs, dataParsoid, attrs, exemptAttrs = 0;
-	for ( var i = 0; i < node.childNodes.length; i++ ) {
-		thisnode = node.childNodes[i];
-		exemptAttrs += Util.getJSONAttribute( thisnode, 'data-ve-changed' ) ? 1 : 0;
-		exemptAttrs += Util.getJSONAttribute( thisnode, 'data-parsoid-changed' ) ? 1 : 0;
-		dataParsoid = Util.getJSONAttribute( thisnode, 'data-parsoid' );
-		exemptAttrs += dataParsoid ? 1 : 0;
-		attrs = thisnode.attributes;
-		hasAttrs = ( attrs && attrs.length && attrs.length - exemptAttrs ) > 0;
-		if ( ( node.tagName || '' ).toLowerCase() === 'li' && i < 1 && !hasAttrs &&
-				( !dataParsoid || !dataParsoid.stx || dataParsoid.stx !== 'html' ) &&
-				( thisnode.tagName || '' ).toLowerCase() === 'p' ) {
-			for ( var j = 0; j < thisnode.childNodes.length; j++ ) {
-				node.insertBefore( thisnode.childNodes[j].cloneNode(), thisnode );
-			}
-			node.removeChild( thisnode );
-			i--;
-		} else {
-			Util.stripFirstParagraph( thisnode );
-		}
-	}
-};
-
 // FIXME: There is also a DOMUtils.getJSONAttribute. Consolidate
 Util.getJSONAttribute = function ( node, attr, fallback ) {
     fallback = fallback || null;
