@@ -879,14 +879,27 @@ var displayPageList = function(res, urlPrefix, page, header, err, rows) {
 		res.write('</p>');
 
 		res.write('<table>');
-		res.write('<tr><th>Title</th><th>New Commit</th><th>Errors|Fails|Skips</th><th>Old Commit</th><th>Errors|Fails|Skips</th></tr>' );
+		res.write('<tr><th></th><th>Title</th><th>New Commit</th><th>Errors|Fails|Skips</th><th>Old Commit</th><th>Errors|Fails|Skips</th></tr>' );
 
 		for (var i = 0; i < rows.length; i++ ) {
 			var r = rows[i];
-			res.write('<tr>');
-			res.write('<td class="title"><a href="http://parsoid.wmflabs.org/_rt/' +
+			res.write( '<tr><td style="padding-left: 0.4em; border-left: 5px solid ' );
+			if ( r.new_skips === 0 && r.new_fails === 0 && r.new_errors === 0 ) {
+				res.write( 'green' );
+			} else if ( r.new_errors > 0 || r.new_fails > 0 ) {
+				res.write( 'red' );
+			} else {
+				res.write( 'orange' );
+			}
+
+			res.write('"><td class="title"><a href="http://parsoid.wmflabs.org/_rt/' +
 					r.prefix + '/' + r.title.replace(/"/g, '&quot;') +
-					'">' + r.prefix + ':' + r.title + '</a></td>');
+					'">' + r.prefix + ':' + r.title + '</a> | ' +
+					'<a target="_blank" href="http://localhost:8000/_rt/' +
+					r.prefix + '/' + r.title + '">@lh</a> | ' +
+					'<a target="_blank" href="/latestresult/' +
+					r.prefix + '/' + r.title + '">latest result</a>' +
+					'</td>' );
 			res.write('<td>' + makeCommitLink( r.new_commit, r.title, r.prefix ) + '</td>');
 			res.write('<td>' + r.new_errors + "|" + r.new_fails + "|" + r.new_skips + '</td>');
 			res.write('<td>' + makeCommitLink( r.old_commit, r.title, r.prefix ) + '</td>');
