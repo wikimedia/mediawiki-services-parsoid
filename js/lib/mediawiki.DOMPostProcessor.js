@@ -2949,7 +2949,7 @@ function migrateDataParsoid( node ) {
  *
  * Perform some final cleaup and save data-parsoid attributes on each node.
  */
-function cleanupAndSaveDataParsoid( options, node ) {
+function cleanupAndSaveDataParsoid( node ) {
 	if ( node.nodeType === node.ELEMENT_NODE && node.data ) {
 		var dp = node.data.parsoid;
 		if (dp) {
@@ -3050,7 +3050,7 @@ function DOMPostProcessor(env, options) {
 	var domVisitor2 = new DOMTraverser();
 	domVisitor2.addHandler( 'meta', stripMarkerMetas.bind(null, env.conf.parsoid.editMode) );
 	domVisitor2.addHandler( 'li', cleanUpLIHack.bind( null, env ) );
-	domVisitor2.addHandler( null, cleanupAndSaveDataParsoid.bind(null, this.options) );
+	domVisitor2.addHandler( null, cleanupAndSaveDataParsoid );
 	this.processors.push(domVisitor2.traverse.bind(domVisitor2));
 }
 
@@ -3078,6 +3078,10 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 			env.errCB(e);
 		}
 	}
+
+	// DOMTraverser only processes document.body.childNodes
+	// So, this is a hacky patch to set data-parsoid on document.body
+	cleanupAndSaveDataParsoid(document.body);
 
 	// add mw: RDFa prefix to top level
 	document.documentElement.setAttribute('prefix',
