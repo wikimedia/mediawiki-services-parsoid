@@ -9,6 +9,7 @@
 		"./doc.basicTypes.js",
 		"./lib/core-upgrade.js",
 		"./lib/ext.core.AttributeExpander.js",
+		"./lib/ext.core.BehaviorSwitchHandler.js",
 		"./lib/ext.core.LinkHandler.js",
 		"./lib/ext.core.ParserFunctions.js",
 		"./lib/ext.core.Sanitizer.js",
