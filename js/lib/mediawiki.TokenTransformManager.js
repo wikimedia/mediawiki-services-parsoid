@@ -173,7 +173,7 @@ TokenTransformManager.prototype.addTransform = function ( transformation, debug_
 		// assure no duplicate transformers
 		console.assert( tArray.every(function ( tr ) {
 			return tr.rank !== t.rank;
-		}), "Trying to add a duplicate transformer: " + JSON.stringify(t) );
+		}), "Trying to add a duplicate transformer: " + t.name );
 
 		tArray.push(t);
 		tArray.sort(this._cmpTransformations);
