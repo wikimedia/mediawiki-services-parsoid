@@ -6,6 +6,7 @@ var jsDiff = require( 'diff' ),
 	domino = require( 'domino' ),
 
 	Util = require( '../lib/mediawiki.Util.js' ).Util,
+	DU = require( '../lib/mediawiki.DOMUtils.js' ).DOMUtils,
 	WikitextSerializer = require( '../lib/mediawiki.WikitextSerializer.js').WikitextSerializer,
 	TemplateRequest = require( '../lib/mediawiki.ApiRequest.js' ).TemplateRequest,
 	ParsoidConfig = require( '../lib/mediawiki.ParsoidConfig' ).ParsoidConfig,
@@ -100,23 +101,21 @@ var xmlCallback = function ( env, err, results ) {
 	return output;
 };
 
-var findDsr = function (root, targetRange, sourceLen) {
+var findMatchingNodes = function (root, targetRange, sourceLen) {
 	var currentOffset = null, wasWaiting = false, waitingForEndMatch = false;
 
 	function walkDOM(element) {
-		var j, matchedChildren, childAttribs, attribs, start, end,
-			elements = [], precedingNodes = [];
-
-		attribs = element.getAttribute( 'data-parsoid' );
-		if ( attribs ) {
-			attribs = JSON.parse( attribs );
-		} else {
-			attribs = {};
-		}
+		var elements = [],
+			precedingNodes = [],
+			attribs = DU.getJSONAttribute(element, 'data-parsoid');
 
 		if ( attribs.dsr && attribs.dsr.length ) {
-			start = attribs.dsr[0] || 0;
-			end = attribs.dsr[1] || sourceLen - 1;
+			var start = attribs.dsr[0] || 0,
+				end = attribs.dsr[1] || sourceLen - 1;
+
+			if ( (targetRange.end - 1) < start  || targetRange.start > (end - 1) ) {
+				return null;
+			}
 
 			if ( waitingForEndMatch ) {
 				if ( end >= targetRange.end ) {
@@ -129,23 +128,22 @@ var findDsr = function (root, targetRange, sourceLen) {
 				return { done: true, nodes: [element] };
 			} else if ( targetRange.start === start ) {
 				waitingForEndMatch = true;
-			}
-
-			if ( (targetRange.end - 1) < start ) {
-				return null;
-			} else if ( targetRange.start > (end - 1) ) {
-				return null;
+				if (end < targetRange.end) {
+					// No need to walk children
+					return { done: false, nodes: [element] };
+				}
+			} else if (start > targetRange.start && end < targetRange.end) {
+				// No need to walk children
+				return { done: false, nodes: [element] };
 			}
 		}
 
-		var children = element.childNodes;
-		for ( j = 0; j < children.length; j++ ) {
-			var c = children[j];
-
+		var c = element.firstChild;
+		while (c) {
 			wasWaiting = waitingForEndMatch;
-			if ( c.nodeType === c.ELEMENT_NODE ) {
+			if ( DU.isElt(c) ) {
 				var res = walkDOM(c);
-				matchedChildren = res ? res.nodes : null;
+				var matchedChildren = res ? res.nodes : null;
 				if ( matchedChildren ) {
 					if ( !currentOffset && attribs.dsr && (attribs.dsr[0] !== null) ) {
 						var elesOnOffset = [];
@@ -167,8 +165,8 @@ var findDsr = function (root, targetRange, sourceLen) {
 					}
 
 					// Check if there's only one child, and make sure it's a node with getAttribute
-					if ( matchedChildren.length === 1 && matchedChildren[0].nodeType === c.ELEMENT_NODE ) {
-						childAttribs = matchedChildren[0].getAttribute( 'data-parsoid' );
+					if ( matchedChildren.length === 1 && DU.isElt(matchedChildren[0]) ) {
+						var childAttribs = matchedChildren[0].getAttribute( 'data-parsoid' );
 						if ( childAttribs ) {
 							childAttribs = JSON.parse( childAttribs );
 							if ( childAttribs.dsr && childAttribs.dsr[1]) {
@@ -217,10 +215,18 @@ var findDsr = function (root, targetRange, sourceLen) {
 			if ( wasWaiting && !waitingForEndMatch ) {
 				break;
 			}
+
+			// Skip over encapsulated content
+			var typeOf = DU.isElt(c) ? c.getAttribute( 'typeof' ) || '' : '';
+			if (/\bmw:(?:Transclusion\b|Param\b|Extension\/[^\s]+)/.test(typeOf)) {
+				c = DU.skipOverEncapsulatedContent(c);
+			} else {
+				c = c.nextSibling;
+			}
 		}
 
 		var numElements = elements.length;
-		var numChildren = children.length;
+		var numChildren = element.childNodes.length;
 		if (numElements === 0) {
 			return null;
 		} else if ( numElements < numChildren ) {
@@ -288,22 +294,26 @@ var checkIfSignificant = function ( env, offsets, src, body, out, cb, document )
 			offset[0].start--;
 		}
 		// console.warn("--orig--");
-		var res = findDsr( body, offset[0] || {}, src.length);
+		var res = findMatchingNodes( body, offset[0] || {}, src.length);
 		origOut = res ? res.nodes : [];
 		for ( k = 0; k < origOut.length; k++ ) {
 			// node need not be an element always!
 			origOrigHTML += Util.serializeNode(origOut[k], true);
 		}
 		origHTML = Util.formatHTML( Util.normalizeOut( origOrigHTML ) );
+		// console.warn("# nodes: " + origOut.length);
+		// console.warn("html: " + origHTML);
 
 		// console.warn("--new--");
-		res = findDsr( document.body, offset[1] || {}, out.length);
+		res = findMatchingNodes( document.body, offset[1] || {}, out.length);
 		newOut = res ? res.nodes : [];
 		for ( k = 0; k < newOut.length; k++ ) {
 			// node need not be an element always!
 			origNewHTML += Util.serializeNode(newOut[k], true);
 		}
 		newHTML = Util.formatHTML( Util.normalizeOut( origNewHTML ) );
+		// console.warn("# nodes: " + newOut.length);
+		// console.warn("html: " + newHTML);
 
 		// compute wt diffs
 		var wt1 = src.substring( offset[0].start, offset[0].end );
