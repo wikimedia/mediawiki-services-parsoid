@@ -19,6 +19,7 @@
 
 // global includes
 var express = require('express'),
+	domino = require( 'domino' ),
 	jsDiff = require('diff'),
 	childProc = require('child_process'),
 	spawn = childProc.spawn,
@@ -256,6 +257,9 @@ var roundTripDiff = function ( req, res, env, document ) {
 				'[[:mw:Talk:Parsoid/Todo]]</a></h2>\n<hr>');
 		res.end('\n</body></html>');
 	};
+
+	// Re-parse the HTML to uncover foster-parenting issues
+	document = domino.createDocument(document.outerHTML);
 
 	// Always use the regular serializer for round-trip diff tests
 	// since these will never have any edits for selser to do any work.
