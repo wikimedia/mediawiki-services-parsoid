@@ -2969,50 +2969,45 @@ WSP._buildTemplateWT = function(node, state, srcParts) {
 				n = keys.length;
 			if (n > 0) {
 				var numericIndex = 1,
-
 					pushArg = function (k, paramInfo) {
-						var v,
+						if (!paramInfo) {
+							paramInfo = {};
+						}
+
+						var v = tpl.params[k].wt,
 							// Default to ' = ' spacing. Anything that matches
 							// this does not remember spc explicitly.
 							spc = ['', ' ', ' ', ''],
-							kSrc = k;
-						if (paramInfo) {
-							if (paramInfo.spc) {
-								spc = paramInfo.spc;
-							}
-							kSrc = spc[0] + k + spc[1];
-						} //else {
-							// TODO: match the space style of other
-							// parameters!
-							//spc = ['', ' ', ' ', ''];
-						//}
+							serializeAsNamed = false;
 
 						// NOTE: Escaping the "=" char in the regexp because JSHint
 						// complains that it can be confused by other developers.
 						// http://jslinterrors.com/a-regular-expression-literal-can-be-confused-with/
-						if (kSrc === numericIndex.toString() &&
-								// Use named serialization if the value contains a '='
-								!(isTpl && (/\=/).test(tpl.params[k].wt)))
+
+						// Use named serialization if the value contains a '='
+						if (paramInfo.named || k !== numericIndex.toString() ||
+							isTpl && (/\=/).test(v))
 						{
+							serializeAsNamed = true;
+						}
+
+						if (paramInfo.spc) {
+							spc = paramInfo.spc;
+						} //else {
+							// TODO: match the space style of other/ parameters!
+							//spc = ['', ' ', ' ', ''];
+						//}
+
+						if (serializeAsNamed) {
+							// Escape as value only
+							// Trim WS
+							v = serializer.escapeTplArgWT(state, v.trim(), false);
+							argBuf.push(spc[0] + k + spc[1] + "=" + spc[2] + v + spc[3]);
+						} else {
 							numericIndex++;
 							// Escape as positional parameter
-							v = serializer.escapeTplArgWT(state,
-									// only strip trailing ws for positional
-									// parameters
-									tpl.params[k].wt.replace(/([^\s])\s*$/,'$1'), true);
-							// we leave out spc[2] as leading space is part of
-							// the value for positional parameters
-							if (paramInfo) {
-								argBuf.push(v + spc[3]);
-							} else {
-								argBuf.push(v + spc[3]);
-							}
-
-						} else {
-							// Escape as value only
-							v = serializer.escapeTplArgWT(state,
-									tpl.params[k].wt.trim(), false);
-							argBuf.push(spc[0] + k + spc[1] + "=" + spc[2] + v + spc[3]);
+							// No WS trimming
+							argBuf.push(serializer.escapeTplArgWT(state, v, true));
 						}
 					};
 

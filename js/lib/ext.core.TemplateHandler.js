@@ -812,6 +812,7 @@ TemplateHandler.prototype.getArgInfo = function (state) {
 		}
 
 		k = kSrc.trim();
+		v = vSrc;
 
 		// Number positional parameters
 		var isPositional;
@@ -819,31 +820,46 @@ TemplateHandler.prototype.getArgInfo = function (state) {
 			isPositional = true;
 			k = argIndex.toString();
 			argIndex++;
-			// Only strip trailing space for positional parameters
-			v = vSrc.replace(/([^\s])\s+$/, '$1');
 		} else {
 			isPositional = false;
 			// strip ws from named parameter values
-			v = vSrc.trim();
+			v = v.trim();
 		}
-
 
 		if (dict[k] === undefined) {
 			paramInfo = {
 				k: k
 			};
-			// Preserve key and value space prefix / postfix, if any
+
 			var keySpaceMatch = kSrc.match(/^(\s*)[^]*?(\s*)$/),
-				valueSpaceMatch = vSrc.match(/^(\s*)[^]*?(\s*)$/);
-			if (keySpaceMatch[1] || keySpaceMatch[2] !== ' ' ||
-					// Leading space in positional parameters is part of the
-					// value, so don't need to remember it
-					(!isPositional && valueSpaceMatch[1] !== ' ') ||
-					valueSpaceMatch[2]) {
-				// Remember non-standard spacing
-				paramInfo.spc = [keySpaceMatch[1], keySpaceMatch[2],
-					valueSpaceMatch[1], valueSpaceMatch[2]];
+				valueSpaceMatch;
+
+			if (isPositional) {
+				valueSpaceMatch = ['', '', ''];
+			} else {
+				paramInfo.named = true;
+				valueSpaceMatch = v ? vSrc.match(/^(\s*)[^]*?(\s*)$/) : ['', '', vSrc];
 			}
+
+			// Preserve key and value space prefix / postfix, if any.
+			// " = " is the default spacing used by the serializer,
+			// ==> a single space need not be recorded hence the !== ' ' check
+			//
+			// PHP parser does not strip whitespace around positional
+			// params and neither will we.
+			if (keySpaceMatch[1] ||
+				keySpaceMatch[2] !== ' ' ||
+				(!isPositional && valueSpaceMatch[1] !== ' ') ||
+				valueSpaceMatch[2])
+			{
+				// Remember non-standard spacing
+				paramInfo.spc = [
+					keySpaceMatch[1], keySpaceMatch[2],
+					isPositional ? '' : valueSpaceMatch[1],
+					valueSpaceMatch[2]
+				];
+			}
+
 			paramInfos.push(paramInfo);
 		}
 
