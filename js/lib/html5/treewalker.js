@@ -1,5 +1,6 @@
 var HTML5 = require('../html5');
 var events = require('events');
+var util = require('util');
 
 function error(msg) {
 	return {type: 'SerializeError', data: msg};
@@ -50,8 +51,9 @@ function _(str) {
 	return str;
 }
 
-HTML5.TreeWalker = function(document, dest) {
-	if(dest instanceof Function) this.addListener('token', dest);
+HTML5.TreeWalker = function (document, dest) {
+	events.EventEmitter.call(this);
+	if (dest instanceof Function) this.addListener('token', dest);
 	walk(document, this);
 };
 
@@ -93,4 +95,4 @@ function walk(node, dest) {
 	}
 }		
 
-HTML5.TreeWalker.prototype = new events.EventEmitter;
+util.inherits(HTML5.TreeWalker, events.EventEmitter);

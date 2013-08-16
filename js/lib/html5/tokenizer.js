@@ -1,18 +1,14 @@
 require('../core-upgrade');
 var HTML5 = require('../html5');
 var events = require('events');
+var util = require('util');
 var Buffer = require('./buffer').Buffer;
 var Models = HTML5.Models;
 
-function keys(h) {
-	var r = [];
-	for(var k in h) {
-		r.push(k);
-	}
-	return r;
-}
+var ENTITY_KEYS = Object.keys(HTML5.ENTITIES);
 
-var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
+var Tokenizer = HTML5.Tokenizer = function HTML5Tokenizer(input, document, tree) {
+	events.EventEmitter.call(this);
 	var state;
 	var buffer = new Buffer();
 	var escapeFlag = false;
@@ -20,101 +16,105 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 	var current_token = null;
 	var script_buffer = null;
 	var content_model = Models.PCDATA;
+	var source;
 
 	function data_state(buffer) {
-		var c = buffer.char()
-		if(c !== HTML5.EOF && (content_model == Models.CDATA || content_model == Models.RCDATA || content_model == Models.SCRIPT_CDATA)) {
+		var c = buffer.char();
+		if (c !== HTML5.EOF && (content_model == Models.CDATA || content_model == Models.RCDATA || content_model == Models.SCRIPT_CDATA)) {
 			lastFourChars += c;
-			if(lastFourChars.length >= 4) {
-				lastFourChars = lastFourChars.substr(-4)
+			if (lastFourChars.length >= 4) {
+				lastFourChars = lastFourChars.substr(-4);
 			}
 		}
 
 		if (content_model == Models.SCRIPT_CDATA) {
-			if (script_buffer == null) {
+			if (script_buffer === null) {
 				script_buffer = '';
 			}
 		}
 
-		if(c === HTML5.EOF) {
+		if (c === HTML5.EOF) {
 			emitToken(HTML5.EOF_TOK);
 			buffer.commit();
 			return false;
-		} else if(c === '\0' && (content_model == Models.SCRIPT_CDATA || content_model == Models.PLAINTEXT || content_model == Models.RAWTEXT || content_model == Models.RCDATA)) {
+		} else if (c === '\0' && (content_model == Models.SCRIPT_CDATA || content_model == Models.PLAINTEXT || content_model == Models.RAWTEXT || content_model == Models.RCDATA)) {
 			emitToken({type: 'Characters', data: "\ufffd"});
 			buffer.commit();
-		} else if(c == '&' && (content_model == Models.PCDATA || content_model == Models.RCDATA) && !escapeFlag) {
+		} else if (c == '&' && (content_model == Models.PCDATA || content_model == Models.RCDATA) && !escapeFlag) {
 			newState(entity_data_state);
-		} else if(c == '-' && (content_model == Models.CDATA || content_model == Models.RCDATA || content_model == Models.SCRIPT_CDATA) && !escapeFlag && lastFourChars == '<!--') {
+		} else if (c == '-' && (content_model == Models.CDATA || content_model == Models.RCDATA || content_model == Models.SCRIPT_CDATA) && !escapeFlag && lastFourChars == '<!--') {
 			escapeFlag = true;
 			emitToken({type: 'Characters', data: c});
 			buffer.commit();
-		} else if(c == '<' && !escapeFlag && (content_model == Models.PCDATA || content_model == Models.RCDATA || content_model == Models.CDATA || content_model == Models.SCRIPT_CDATA)) {
+		} else if (c == '<' && !escapeFlag && (content_model == Models.PCDATA || content_model == Models.RCDATA || content_model == Models.CDATA || content_model == Models.SCRIPT_CDATA)) {
 			newState(tag_open_state);
-		} else if(c == '>' && escapeFlag && (content_model == Models.CDATA || content_model == Models.RCDATA || content_model == Models.SCRIPT_CDATA) && lastFourChars.match(/-->$/)) {
+		} else if (c == '>' && escapeFlag && (content_model == Models.CDATA || content_model == Models.RCDATA || content_model == Models.SCRIPT_CDATA) && lastFourChars.match(/-->$/)) {
 			escapeFlag = false;
 			emitToken({type: 'Characters', data: c});
 			buffer.commit();
-		} else if(HTML5.SPACE_CHARACTERS_R.test(c)) {
+		} else if (HTML5.SPACE_CHARACTERS_R.test(c)) {
 			emitToken({type: 'SpaceCharacters', data: c + buffer.matchWhile(HTML5.SPACE_CHARACTERS)});
 			buffer.commit();
 		} else {
 			var o = buffer.matchUntil("[&<>-]");
-			if(o !== HTML5.EOF) {
+			if (o !== HTML5.EOF) {
 				c = c + o;
 			}
 			emitToken({type: 'Characters', data: c});
-			lastFourChars += c
-			lastFourChars = lastFourChars.slice(-4)
+			lastFourChars += c;
+			lastFourChars = lastFourChars.slice(-4);
 			buffer.commit();
 		}
 		return true;
-	};
+	}
 
 	var entity_data_state = function entity_data_state(buffer) {
 		var entity = consume_entity(buffer);
-		if(entity) {
+		if (entity) {
 			emitToken({type: 'Characters', data: entity});
 		} else {
 			emitToken({type: 'Characters', data: '&'});
 		}
 		newState(data_state);
 		return true;
-	}
+	};
 
 	this.tokenize = function() {
-		if(this.pump) this.pump();
-	}
+		if (this.pump) this.pump();
+	};
 
 	var emitToken = function emitToken(tok) { 
 		tok = normalize_token(tok);
 		if (content_model == Models.SCRIPT_CDATA && (tok.type == 'Characters' || tok.type == 'SpaceCharacters') && !buffer.eof) {
-			HTML5.debug('tokenizer.addScriptData', tok)
+			HTML5.debug('tokenizer.addScriptData', tok);
 			script_buffer += tok.data;
 		} else {
-			HTML5.debug('tokenizer.token', tok)
+			HTML5.debug('tokenizer.token', tok);
 			this.emit('token', tok);
 		}
 	}.bind(this);
 
-	function consume_entity(buffer, from_attr) {
+	function consume_entity(buffer, allowed_char, from_attr) {
 		var char = null;
 		var chars = buffer.char();
-		if(chars === HTML5.EOF) return false;
-		if(chars.match(HTML5.SPACE_CHARACTERS) || chars == '<' || chars == '&') {
+		var c;
+		if (chars === HTML5.EOF) return false;
+		if (chars.match(HTML5.SPACE_CHARACTERS) || chars == '<' || chars == '&'
+			|| (allowed_char && allowed_char == chars)) {
 			buffer.unget(chars);
-		} else if(chars[0] == '#') { // Maybe a numeric entity
-			var c = buffer.shift(2);
-			if(c === HTML5.EOF) {
+		} else if (chars[0] == '#') { // Maybe a numeric entity
+			c = buffer.shift(2);
+			if (c === HTML5.EOF) {
+				parse_error("expected-numeric-entity-but-got-eof");
 				buffer.unget(chars);
 				return false;
 			}
 			chars += c;
-			if(chars[1] && chars[1].toLowerCase() == 'x' && HTML5.HEX_DIGITS_R.test(chars[2])) {
+			if (chars[1] && chars[1].toLowerCase() == 'x' && HTML5.HEX_DIGITS_R.test(chars[2])) {
 				// Hex entity
 				buffer.unget(chars[2]);
 				char = consume_numeric_entity(buffer, true);
-			} else if(chars[1] && HTML5.DIGITS_R.test(chars[1])) {
+			} else if (chars[1] && HTML5.DIGITS_R.test(chars[1])) {
 				// Decimal entity
 				buffer.unget(chars.slice(1));
 				char = consume_numeric_entity(buffer, false);
@@ -124,19 +124,18 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 				parse_error("expected-numeric-entity");
 			}
 		} else {
-			var filteredEntityList = keys(HTML5.ENTITIES).filter(function(e) {
+			var filteredEntityList = ENTITY_KEYS.filter(function(e) {
 				return e[0] == chars[0];
 			});
 			var entityName = null;
+			var matches = function(e) {
+				return e.indexOf(chars) === 0;
+			};
 			while(true) {
-				if(filteredEntityList.some(function(e) {
-					return e.indexOf(chars) == 0;
-				})) {
-					filteredEntityList = filteredEntityList.filter(function(e) {
-						return e.indexOf(chars) == 0;
-					});
-					var c = buffer.char();
-					if(c !== HTML5.EOF) {
+				if (filteredEntityList.some(matches)) {
+					filteredEntityList = filteredEntityList.filter(matches);
+					c = buffer.char();
+					if (c !== HTML5.EOF) {
 						chars += c;
 					} else {
 						break;
@@ -145,20 +144,22 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 					break;
 				}
 
-				if(HTML5.ENTITIES[chars]) {
+				if (HTML5.ENTITIES[chars]) {
 					entityName = chars;
-					if(entityName[entityName.length - 1] == ';') break;
+					if (entityName[entityName.length - 1] == ';') break;
 				}
 			} 
 
-			if(entityName) {
-				char = HTML5.ENTITIES[entityName];
-
-				if(entityName[entityName.length - 1] != ';' && this.from_attribute && (HTML5.ASCII_LETTERS_R.test(chars.substr(entityName.length, 1) || HTML5.DIGITS.test(chars.substr(entityName.length, 1))))) {
+			if (entityName) {
+				if (entityName[entityName.length - 1] != ';') {
+					parse_error("named-entity-without-semicolon");
+				}
+				if (entityName[entityName.length - 1] != ';' && from_attr && (HTML5.ASCII_LETTERS_R.test(chars.substr(entityName.length, 1)) || HTML5.DIGITS_R.test(chars.substr(entityName.length, 1)) || chars.substr(entityName.length, 1) == '=')) {
 					buffer.unget(chars);
 					char = '&';
 				} else {
 					buffer.unget(chars.slice(entityName.length));
+					char = HTML5.ENTITIES[entityName];
 				}
 			} else {
 				parse_error("expected-named-entity");
@@ -206,25 +207,32 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 			case 0x9E: return 0x017E; // LATIN SMALL LETTER Z WITH CARON
 			case 0x9F: return 0x0178; // LATIN CAPITAL LETTER Y WITH DIAERESIS
 			default:
-				if((c >= 0xD800 && c <= 0xDFFF) || c >= 0x10FFFF) { /// @todo. The spec says > 0x10FFFF, not >=. Section 8.2.4.69.
+				if ((c >= 0xD800 && c <= 0xDFFF) || c >= 0x10FFFF) { /// @todo. The spec says > 0x10FFFF, not >=. Section 8.2.4.69.
 					return 0xFFFD;
-				} else if((c >= 0x0001 && c <= 0x0008) || (c >= 0x000E && c <= 0x001F) || (c >= 0x007F && c <= 0x009F) || (c >= 0xFDD0 && c <= 0xFDEF) 
-						|| c == 0x000B || c == 0xFFFE || c == 0x1FFFE || c == 0x2FFFFE || c == 0x2FFFF || c == 0x3FFFE || c == 0x3FFFF || c == 0x4FFFE || c == 0x4FFFF
-						|| c == 0x5FFFE || c == 0x5FFFF || c == 0x6FFFE || c == 0x6FFFF || c == 0x7FFFE || c == 0x7FFFF || c == 0x8FFFE || c == 0x8FFFF
-						|| c == 0x9FFFE || c == 0x9FFFF || c == 0xAFFFE || c == 0xAFFFF || c == 0xBFFFE || c == 0xBFFFF || c == 0xCFFFE || c == 0xCFFFF
-						|| c == 0xDFFFE || c == 0xDFFFF || c == 0xEFFFE || c == 0xEFFFF || c == 0xFFFFE || c == 0xFFFFF || c == 0x10FFFE || c == 0x10FFFF) { 
+				} else if ((c >= 0x0001 && c <= 0x0008) || (c >= 0x000E && c <= 0x001F) ||
+					(c >= 0x007F && c <= 0x009F) || (c >= 0xFDD0 && c <= 0xFDEF) ||
+					c == 0x000B || c == 0xFFFE || c == 0x1FFFE || c == 0x2FFFFE ||
+					c == 0x2FFFF || c == 0x3FFFE || c == 0x3FFFF || c == 0x4FFFE ||
+					c == 0x4FFFF || c == 0x5FFFE || c == 0x5FFFF || c == 0x6FFFE ||
+					c == 0x6FFFF || c == 0x7FFFE || c == 0x7FFFF || c == 0x8FFFE ||
+					c == 0x8FFFF || c == 0x9FFFE || c == 0x9FFFF || c == 0xAFFFE ||
+					c == 0xAFFFF || c == 0xBFFFE || c == 0xBFFFF || c == 0xCFFFE ||
+					c == 0xCFFFF || c == 0xDFFFE || c == 0xDFFFF || c == 0xEFFFE ||
+					c == 0xEFFFF || c == 0xFFFFE || c == 0xFFFFF || c == 0x10FFFE ||
+					c == 0x10FFFF) {
 					return c;
 				}
 		}
-	};
+	}
 
 	function consume_numeric_entity(buffer, hex) {
-		if(hex) {
-			var allowed = HTML5.HEX_DIGITS_R;
-			var radix = 16;
+		var allowed, radix;
+		if (hex) {
+			allowed = HTML5.HEX_DIGITS_R;
+			radix = 16;
 		} else {
-			var allowed = HTML5.DIGITS_R;
-			var radix = 10;
+			allowed = HTML5.DIGITS_R;
+			radix = 10;
 		}
 
 		var chars = '';
@@ -237,20 +245,20 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 
 		var charAsInt = parseInt(chars, radix);
 
-		var replacement;
-		if(replacement = replaceEntityNumbers(charAsInt)) {
-			parse_error("invalid-numeric-entity-replaced", {old: charAsInt, new: replacement});
+		var replacement = replaceEntityNumbers(charAsInt);
+		if (replacement) {
+			parse_error("invalid-numeric-entity-replaced");
 			charAsInt = replacement;
 		}
 
 		var char = String.fromCharCode(charAsInt);
-		/*if(charAsInt <= 0x10FFFF && !(charAsInt >= 0xD800 && charAsInt <= 0xDFFF)) {
+		/*if (charAsInt <= 0x10FFFF && !(charAsInt >= 0xD800 && charAsInt <= 0xDFFF)) {
 		} else {
 			char = String.fromCharCode(0xFFFD);
 			parse_error("cant-convert-numeric-entity");
 		} */
 
-		if(c !== ';') {
+		if (c !== ';') {
 			parse_error("numeric-entity-without-semicolon");
 			buffer.unget(c);
 		} 
@@ -258,29 +266,18 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 		return char;
 	}
 
-	function process_entity_in_attribute(buffer) {
-		var entity = consume_entity(buffer);
-		if(entity) {
+	function process_entity_in_attribute(buffer, allowed_char) {
+		var entity = consume_entity(buffer, allowed_char, true);
+		if (entity) {
 			current_token.data.last().nodeValue += entity;
 		} else {
 			current_token.data.last().nodeValue += '&';
 		}
 	}
 
-	function process_solidus_in_tag(buffer) {
-		var data = buffer.peek(1);
-		if(current_token.type == 'StartTag' && data == '>') {
-			current_token.type = 'EmptyTag';
-			return true;
-		} else {
-			parse_error("incorrectly-placed-solidus");
-			return false;
-		}
-	}
-
 	function tag_open_state(buffer) {
 		var data = buffer.char();
-		if(content_model == Models.PCDATA) {
+		if (content_model == Models.PCDATA) {
 			if (data === HTML5.EOF) {
 				parse_error("bare-less-than-sign-at-eof");
 				emitToken({type: 'Characters', data: '<'});
@@ -288,7 +285,7 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 			} else if (data !== HTML5.EOF && HTML5.ASCII_LETTERS_R.test(data)) {
 				current_token = {type: 'StartTag', name: data, data: []};
 				newState(tag_name_state);
-			} else if(data == '!') {
+			} else if (data == '!') {
 				newState(markup_declaration_open_state);
 			} else if (data == '/') {
 				newState(close_tag_open_state);
@@ -323,41 +320,41 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 				newState(data_state);
 			}
 		}
-		return true
+		return true;
 	}
 
 	function close_tag_open_state(buffer) {
-		if(content_model == Models.RCDATA || content_model == Models.CDATA || content_model == Models.SCRIPT_CDATA) {
+		if (content_model == Models.RCDATA || content_model == Models.CDATA || content_model == Models.SCRIPT_CDATA) {
 			var chars = '';
-			if(current_token) {
+			if (current_token) {
 				for(var i = 0; i <= current_token.name.length; i++) {
 					var c = buffer.char();
-					if(c === HTML5.EOF) break;
+					if (c === HTML5.EOF) break;
 					chars += c;
 				}
 				buffer.unget(chars);
 			}
 
-			if(current_token
-				&& current_token.name.toLowerCase() == chars.slice(0, current_token.name.length).toLowerCase()
-				&& (chars.length > current_token.name.length ? new RegExp('[' + HTML5.SPACE_CHARACTERS_IN + '></\0]').test(chars.substr(-1)) : true)
+			if (current_token &&
+				current_token.name.toLowerCase() == chars.slice(0, current_token.name.length).toLowerCase() &&
+				(chars.length > current_token.name.length ? new RegExp('[' + HTML5.SPACE_CHARACTERS_IN + '></\0]').test(chars.substr(-1)) : true)
 			) {
 				content_model = Models.PCDATA;
 			} else {
 				emitToken({type: 'Characters', data: '</'});
 				newState(data_state);
-				return true
+				return true;
 			}
 		}
 
-		var data = buffer.char()
-		if (data === HTML5.EOF) { 
+		var data = buffer.char();
+		if (data === HTML5.EOF) {
 			parse_error("expected-closing-tag-but-got-eof");
 			emitToken({type: 'Characters', data: '</'});
 			buffer.unget(data);
 			newState(data_state);
 		} else if (HTML5.ASCII_LETTERS_R.test(data)) {
-			current_token = {type: 'EndTag', name: data, data: []}
+			current_token = {type: 'EndTag', name: data, data: []};
 			newState(tag_name_state);
 		} else if (data == '>') {
 			parse_error("expected-closing-tag-but-got-right-bracket");
@@ -372,24 +369,25 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 
 	function tag_name_state(buffer) {
 		var data = buffer.char();
-		if(data === HTML5.EOF) {
+		if (data === HTML5.EOF) {
 			parse_error('eof-in-tag-name');
-			emit_current_token();
-		} else if(HTML5.SPACE_CHARACTERS_R.test(data)) {
+			buffer.unget(data);
+			newState(data_state);
+		} else if (HTML5.SPACE_CHARACTERS_R.test(data)) {
 			newState(before_attribute_name_state);
-		} else if(HTML5.ASCII_LETTERS_R.test(data)) {
-			var c = buffer.matchWhile(HTML5.ASCII_LETTERS)
-			if(c !== HTML5.EOF) {
-				current_token.name += data + c
+		} else if (HTML5.ASCII_LETTERS_R.test(data)) {
+			var c = buffer.matchWhile(HTML5.ASCII_LETTERS);
+			if (c !== HTML5.EOF) {
+				current_token.name += data + c;
 			} else {
-				current_token.name += data
-				buffer.unget(c)
+				parse_error('eof-in-tag-name');
+				current_token.name += data;
+				buffer.unget(c);
 				newState(data_state);
 			}
-		} else if(data == '>') {
+		} else if (data == '>') {
 			emit_current_token();
-		} else if(data == '/') {
-			process_solidus_in_tag(buffer)
+		} else if (data == '/') {
 			newState(self_closing_tag_state);
 		} else { 
 			current_token.name += data;
@@ -404,16 +402,16 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 		if (data === HTML5.EOF) {
 			parse_error("expected-attribute-name-but-got-eof");
 			emit_current_token();
-		} else if(HTML5.SPACE_CHARACTERS_R.test(data)) {
+		} else if (HTML5.SPACE_CHARACTERS_R.test(data)) {
 			buffer.matchWhile(HTML5.SPACE_CHARACTERS);
 		} else if (HTML5.ASCII_LETTERS_R.test(data)) {
 			current_token.data.push({nodeName: data, nodeValue: ""});
 			newState(attribute_name_state);
-		} else if(data == '>') {
+		} else if (data == '>') {
 			emit_current_token();
-		} else if(data == '/') {
+		} else if (data == '/') {
 			newState(self_closing_tag_state);
-		} else if(data == "'" || data == '"' || data == '=') {
+		} else if (data == "'" || data == '"' || data == '=' || data == '<') {
 			parse_error("invalid-character-in-attribute-name");
 			current_token.data.push({nodeName: data, nodeValue: ""});
 			newState(attribute_name_state);
@@ -428,27 +426,25 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 		var data = buffer.shift(1);
 		var leavingThisState = true;
 		var emitToken = false;
-		if(data === HTML5.EOF) {
+		if (data === HTML5.EOF) {
 			parse_error("eof-in-attribute-name");
 			newState(data_state);
 			emitToken = true;
-		} else if(data == '=') {
+		} else if (data == '=') {
 			newState(before_attribute_value_state);
-		} else if(HTML5.ASCII_LETTERS_R.test(data)) {
+		} else if (HTML5.ASCII_LETTERS_R.test(data)) {
 			current_token.data.last().nodeName += data + buffer.matchWhile(HTML5.ASCII_LETTERS);
 			leavingThisState = false;
-		} else if(data == '>') {
+		} else if (data == '>') {
 			// XXX If we emit here the attributes are converted to a dict
 			// without being checked and when the code below runs we error
 			// because data is a dict not a list
 			emitToken = true;
-		} else if(HTML5.SPACE_CHARACTERS_R.test(data)) {
+		} else if (HTML5.SPACE_CHARACTERS_R.test(data)) {
 			newState(after_attribute_name_state);
-		} else if(data == '/') {
-			if(!process_solidus_in_tag(buffer)) {
-				newState(before_attribute_name_state);
-			}
-		} else if(data == "'" || data == '"') {
+		} else if (data == '/') {
+			newState(self_closing_tag_state);
+		} else if (data == "'" || data == '"') {
 			parse_error("invalid-character-in-attribute-name");
 			current_token.data.last().nodeName += data;
 			leavingThisState = false;
@@ -457,43 +453,44 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 			leavingThisState = false;
 		}
 
-		if(leavingThisState) {
+		if (leavingThisState) {
 			// Attributes are not dropped at this stage. That happens when the
 			// start tag token is emitted so values can still be safely appended
 			// to attributes, but we do want to report the parse error in time.
-			if(this.lowercase_attr_name) {
-				current_token.data.last().nodeName = current_token.data.last().nodeName.toLowerCase();
-			}
-			for (var k in current_token.data.slice(0, -1)) {
-				// FIXME this is a fucking mess.
-				if(current_token.data.slice(-1)[0] == current_token.data.slice(0, -1)[k].name) {
+			var attributes = current_token.data;
+			for (var k in attributes.slice(0, -1)) {
+				if (attributes.last().nodeName == attributes[k].nodeName) {
 					parse_error("duplicate-attribute");
 					break; // Don't emit more than one of these errors
 				}
 			}
-			if(emitToken) emit_current_token();
+			if (emitToken) emit_current_token();
 		} else {
-			buffer.commit()
+			buffer.commit();
 		}
 		return true;
 	}
 
 	function after_attribute_name_state(buffer) {
 		var data = buffer.shift(1);
-		if(data === HTML5.EOF) {
+		if (data === HTML5.EOF) {
 			parse_error("expected-end-of-tag-but-got-eof");
 			emit_current_token();
-		} else if(HTML5.SPACE_CHARACTERS_R.test(data)) {
+		} else if (HTML5.SPACE_CHARACTERS_R.test(data)) {
 			buffer.matchWhile(HTML5.SPACE_CHARACTERS);
-		} else if(data == '=') {
+		} else if (data == '=') {
 			newState(before_attribute_value_state);
-		} else if(data == '>') {
+		} else if (data == '>') {
 			emit_current_token();
-		} else if(HTML5.ASCII_LETTERS_R.test(data)) {
+		} else if (HTML5.ASCII_LETTERS_R.test(data)) {
 			current_token.data.push({nodeName: data, nodeValue: ""});
 			newState(attribute_name_state);
-		} else if(data == '/') {
+		} else if (data == '/') {
 			newState(self_closing_tag_state);
+		} else if (data == "'" || data == '"' || data == '<') {
+			parse_error("invalid-character-after-attribute-name");
+			current_token.data.push({nodeName: data, nodeValue: ""});
+			newState(attribute_name_state);
 		} else {
 			current_token.data.push({nodeName: data, nodeValue: ""});
 			newState(attribute_name_state);
@@ -503,27 +500,28 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 
 	function before_attribute_value_state(buffer) {
 		var data = buffer.shift(1);
-		if(data === HTML5.EOF) {
+		if (data === HTML5.EOF) {
 			parse_error("expected-attribute-value-but-got-eof");
 			emit_current_token();
 			newState(attribute_value_unquoted_state);
-		} else if(HTML5.SPACE_CHARACTERS_R.test(data)) {
+		} else if (HTML5.SPACE_CHARACTERS_R.test(data)) {
 			buffer.matchWhile(HTML5.SPACE_CHARACTERS);
-		} else if(data == '"') {
+		} else if (data == '"') {
 			newState(attribute_value_double_quoted_state);
-		} else if(data == '&') {
+		} else if (data == '&') {
 			newState(attribute_value_unquoted_state);
 			buffer.unget(data);
-		} else if(data == "'") {
+		} else if (data == "'") {
 			newState(attribute_value_single_quoted_state);
-		} else if(data == '>') {
+		} else if (data == '>') {
+			parse_error("expected-attribute-value-but-got-right-bracket");
 			emit_current_token();
-		} else if(data == '=') {
-			parse_error("equals-in-unquoted-attribute-value");
+		} else if (data == '=' || data == '<' || data == '`') {
+			parse_error("unexpected-character-in-unquoted-attribute-value");
 			current_token.data.last().nodeValue += data;
 			newState(attribute_value_unquoted_state);
 		} else {
-			current_token.data.last().nodeValue += data
+			current_token.data.last().nodeValue += data;
 			newState(attribute_value_unquoted_state);
 		}
 
@@ -532,16 +530,16 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 
 	function attribute_value_double_quoted_state(buffer) {
 		var data = buffer.shift(1);
-		if(data === HTML5.EOF) {
+		if (data === HTML5.EOF) {
 			parse_error("eof-in-attribute-value-double-quote");
 			newState(data_state);
-		} else if(data == '"') {
+		} else if (data == '"') {
 			newState(after_attribute_value_state);
-		} else if(data == '&') {
-			process_entity_in_attribute(buffer);
+		} else if (data == '&') {
+			process_entity_in_attribute(buffer, '"');
 		} else {
 			var s = buffer.matchUntil('["&]');
-			if(s !== HTML5.EOF) data = data + s;
+			if (s !== HTML5.EOF) data = data + s;
 			current_token.data.last().nodeValue += data;
 		}
 		return true;
@@ -549,13 +547,13 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 
 	function attribute_value_single_quoted_state(buffer) {
 		var data = buffer.shift(1);
-		if(data === HTML5.EOF) {
+		if (data === HTML5.EOF) {
 			parse_error("eof-in-attribute-value-single-quote");
 			emit_current_token();
-		} else if(data == "'") {
+		} else if (data == "'") {
 			newState(after_attribute_value_state);
-		} else if(data == '&') {
-			process_entity_in_attribute(buffer);
+		} else if (data == '&') {
+			process_entity_in_attribute(buffer, "'");
 		} else {
 			current_token.data.last().nodeValue += data + buffer.matchUntil("['&]");
 		}
@@ -564,48 +562,49 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 
 	function attribute_value_unquoted_state(buffer) {
 		var data = buffer.shift(1);
-		if(data === HTML5.EOF) {
-			parse_error("eof-in-attribute-value-no-quotes");
+		if (data === HTML5.EOF) {
+			parse_error("eof-after-attribute-value");
 			buffer.commit();
 			emit_current_token();
-		} else if(HTML5.SPACE_CHARACTERS_R.test(data)) {
+		} else if (HTML5.SPACE_CHARACTERS_R.test(data)) {
 			newState(before_attribute_name_state);
-		} else if(data == '&') {
-			process_entity_in_attribute(buffer);
-		} else if(data == '>') {
+		} else if (data == '&') {
+			process_entity_in_attribute(buffer, '>');
+		} else if (data == '>') {
 			emit_current_token();
-		} else if(data == '"' || data == "'" || data == '=') {
+		} else if (data == '"' || data == "'" || data == '=' || data == '`' || data == '<') {
 			parse_error("unexpected-character-in-unquoted-attribute-value");
 			current_token.data.last().nodeValue += data;
+			buffer.commit();
 		} else {
-			var o = buffer.matchUntil("["+ HTML5.SPACE_CHARACTERS_IN + '&<>' +"]")
-			if(o === HTML5.EOF) {
+			var o = buffer.matchUntil("["+ HTML5.SPACE_CHARACTERS_IN + '&<>"\'=`' +"]");
+			if (o === HTML5.EOF) {
 				parse_error("eof-in-attribute-value-no-quotes");
 				emit_current_token();
 			}
 			// Commit here since this state is re-enterable and its outcome won't change with more data.
 			buffer.commit();
-			current_token.data.last().nodeValue += data + o
+			current_token.data.last().nodeValue += data + o;
 		}
 		return true;
 	}
 
 	function after_attribute_value_state(buffer) {
 		var data = buffer.shift(1);
-		if(data === HTML5.EOF) {
-			parse_error( "unexpected-EOF-after-attribute-value");
+		if (data === HTML5.EOF) {
+			parse_error("eof-after-attribute-value");
 			emit_current_token();
 			buffer.unget(data);
 			newState(data_state);
-		} else if(HTML5.SPACE_CHARACTERS_R.test(data)) {
+		} else if (HTML5.SPACE_CHARACTERS_R.test(data)) {
 			newState(before_attribute_name_state);
-		} else if(data == '>') {
+		} else if (data == '>') {
 			emit_current_token();
 			newState(data_state);
-		} else if(data == '/') {
+		} else if (data == '/') {
 			newState(self_closing_tag_state);
 		} else {
-			emitToken({type: 'ParseError', data: "unexpected-character-after-attribute-value"});
+			parse_error("unexpected-character-after-attribute-value");
 			buffer.unget(data);
 			newState(before_attribute_name_state);
 		}
@@ -614,16 +613,16 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 
 	function self_closing_tag_state(buffer) {
 		var c = buffer.shift(1);
-		if(c === HTML5.EOF) {
-			parse_error("eof-in-tag-name");
+		if (c === HTML5.EOF) {
+			parse_error("unexpected-eof-after-solidus-in-tag");
 			buffer.unget(c);
 			newState(data_state);
-		} else if(c == '>') {
+		} else if (c == '>') {
 			current_token.self_closing = true; 
 			emit_current_token();
 			newState(data_state);
 		} else {
-			parse_error("expected-self-closing-tag");
+			parse_error("unexpected-character-after-solidus-in-tag");
 			buffer.unget(c);
 			newState(before_attribute_name_state);
 		}
@@ -632,11 +631,11 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 
 	function bogus_comment_state(buffer) {
 		var s = buffer.matchUntil('>');
-		if(s === HTML5.EOF) {
-			s = ''
+		if (s === HTML5.EOF) {
+			s = '';
 		}
 		var tok = {type: 'Comment', data: s};
-		buffer.char()
+		buffer.char();
 		emitToken(tok);
 		newState(data_state);
 		return true;
@@ -644,12 +643,12 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 
 	function markup_declaration_open_state(buffer) {
 		var chars = buffer.shift(2);
-		if(chars === '--') {
+		if (chars === '--') {
 			current_token = {type: 'Comment', data: ''};
 			newState(comment_start_state);
 		} else {
 			var newchars = buffer.shift(5);
-			if(newchars === HTML5.EOF || chars === HTML5.EOF) {
+			if (newchars === HTML5.EOF || chars === HTML5.EOF) {
 				parse_error("expected-dashes-or-doctype");
 				newState(bogus_comment_state);
 				buffer.unget(chars);
@@ -657,9 +656,11 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 			}
 
 			chars += newchars;
-			if(chars.toUpperCase() == 'DOCTYPE') {
+			if (chars.toUpperCase() == 'DOCTYPE') {
 				current_token = {type: 'Doctype', name: '', publicId: null, systemId: null, correct: true};
 				newState(doctype_state);
+			} else if (tree.open_elements.last() && tree.open_elements.last().namespace && chars == '[CDATA[') {
+				newState(cdata_section_state);
 			} else {
 				parse_error("expected-dashes-or-doctype");
 				buffer.unget(chars);
@@ -669,16 +670,29 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 		return true;
 	}
 
+	function cdata_section_state(buffer) {
+		var data = buffer.matchUntil(/\]\]>/);
+		var slice;
+		if (/\]\]>$/.match(data)) {
+			slice = 4;
+		} else {
+			slice = 0;
+		}
+
+		emitToken({type: 'Characters', data: data.slice(0, data.length - slice)});
+		newState(data_state);
+	}
+
 	function comment_start_state(buffer) {
 		var data = buffer.shift(1);
-		if(data === HTML5.EOF) {
+		if (data === HTML5.EOF) {
 			parse_error("eof-in-comment");
 			emitToken(current_token);
 			newState(data_state);
-		} else if(data == '-') {
+		} else if (data == '-') {
 			newState(comment_start_dash_state);
-		} else if(data == '>') {
-			parse_error("incorrect comment");
+		} else if (data == '>') {
+			parse_error("incorrect-comment");
 			emitToken(current_token);
 			newState(data_state);
 		} else {
@@ -690,19 +704,19 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 
 	function comment_start_dash_state(buffer) {
 		var data = buffer.shift(1);
-		if(data === HTML5.EOF) {
+		if (data === HTML5.EOF) {
 			parse_error("eof-in-comment");
 			emitToken(current_token);
 			newState(data_state);
-		} else if(data == '-') {
+		} else if (data == '-') {
 			newState(comment_end_state);
-		} else if(data == '>') {
+		} else if (data == '>') {
 			parse_error("incorrect-comment");
 			emitToken(current_token);
 			newState(data_state);
 		} else {
 			var s = buffer.matchUntil('-');
-			if(s !== HTML5.EOF) data = data + s;
+			if (s !== HTML5.EOF) data = data + s;
 			current_token.data += '-' + data;
 			newState(comment_state);
 		}
@@ -711,11 +725,11 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 
 	function comment_state(buffer) {
 		var data = buffer.shift(1);
-		if(data === HTML5.EOF) {
+		if (data === HTML5.EOF) {
 			parse_error("eof-in-comment");
 			emitToken(current_token);
 			newState(data_state);
-		} else if(data == '-') {
+		} else if (data == '-') {
 			newState(comment_end_dash_state);
 		} else {
 			current_token.data += data + buffer.matchUntil('-');
@@ -729,7 +743,7 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 			parse_error("eof-in-comment-end-dash");
 			emitToken(current_token);
 			newState(data_state);
-		} else if(data == '-') {
+		} else if (data == '-') {
 			newState(comment_end_state);
 		} else {
 			current_token.data += '-' + data + buffer.matchUntil('-');
@@ -747,10 +761,13 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 			parse_error("eof-in-comment-double-dash");
 			emitToken(current_token);
 			newState(data_state);
-		} else if(data == '>') {
+		} else if (data == '>') {
 			emitToken(current_token);
 			newState(data_state);
-		} else if(data == '-') {
+		} else if (data == '!') {
+			parse_error("unexpected-bang-after-double-dash-in-comment");
+			newState(comment_end_bang_state);
+		} else if (data == '-') {
 			parse_error("unexpected-dash-after-double-dash-in-comment");
 			current_token.data += data;
 		} else {
@@ -762,9 +779,33 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 		return true;
 	}
 
+	function comment_end_bang_state(buffer) {
+		var data = buffer.shift(1);
+		if (data === HTML5.EOF) {
+			parse_error("eof-in-comment-end-bang-state");
+			emitToken(current_token);
+			newState(data_state);
+		} else if (data == '>') {
+			emitToken(current_token);
+			newState(data_state);
+		} else if (data == '-') {
+			current_token.data += '--!';
+			newState(comment_end_dash_state);
+		} else {
+			current_token.data += '--!' + data;
+			newState(comment_state);
+		}
+		return true;
+	}
+
 	function doctype_state(buffer) {
 		var data = buffer.shift(1);
-		if(HTML5.SPACE_CHARACTERS_R.test(data)) {
+		if (data === HTML5.EOF) {
+			parse_error("expected-doctype-name-but-got-eof");
+			current_token.correct = false;
+			emit_current_token();
+			newState(data_state);
+		} else if (HTML5.SPACE_CHARACTERS_R.test(data)) {
 			newState(before_doctype_name_state);
 		} else {
 			parse_error("need-space-after-doctype");
@@ -776,49 +817,358 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 
 	function before_doctype_name_state(buffer) {
 		var data = buffer.shift(1);
-		if(data === HTML5.EOF) {
+		if (data === HTML5.EOF) {
 			parse_error("expected-doctype-name-but-got-eof");
 			current_token.correct = false;
 			emit_current_token();
 			newState(data_state);
-		} else if(HTML5.SPACE_CHARACTERS_R.test(data)) {
-		} else if(data == '>') {
+		} else if (HTML5.SPACE_CHARACTERS_R.test(data)) {
+			// pass
+		} else if (data == '>') {
 			parse_error("expected-doctype-name-but-got-right-bracket");
 			current_token.correct = false;
 			emit_current_token();
 			newState(data_state);
 		} else {
+			if (HTML5.ASCII_LETTERS_R.test(data))
+				data = data.toLowerCase();
 			current_token.name = data;
 			newState(doctype_name_state);
 		}
-		return true
+		return true;
 	}
 
 	function doctype_name_state(buffer) {
 		var data = buffer.shift(1);
-		if(data === HTML5.EOF) {
+		if (data === HTML5.EOF) {
+			current_token.correct = false;
+			buffer.unget(data);
+			parse_error("eof-in-doctype-name");
+			emit_current_token();
+			newState(data_state);
+		} else if (HTML5.SPACE_CHARACTERS_R.test(data)) {
+			newState(after_doctype_name_state);
+		} else if (data == '>') {
+			emit_current_token();
+			newState(data_state);
+		} else {
+			if (HTML5.ASCII_LETTERS_R.test(data))
+				data = data.toLowerCase();
+			current_token.name += data;
+			buffer.commit();
+		}
+		return true;
+	}
+
+	function after_doctype_name_state(buffer) {
+		var data = buffer.shift(1);
+		if (data === HTML5.EOF) {
 			current_token.correct = false;
 			buffer.unget(data);
 			parse_error("eof-in-doctype");
 			emit_current_token();
 			newState(data_state);
-		} else if(HTML5.SPACE_CHARACTERS_R.test(data)) {
-			newState(bogus_doctype_state);
-		} else if(data == '>') {
+		} else if (HTML5.SPACE_CHARACTERS_R.test(data)) {
+			// pass
+		} else if (data == '>') {
 			emit_current_token();
 			newState(data_state);
 		} else {
-			current_token.name += data;
+			if (['p', 'P'].indexOf(data) > -1) {
+				var expected = [['u', 'U'], ['b', 'B'], ['l', 'L'], ['i', 'I'], ['c', 'C']];
+				var matched = expected.every(function(expected){
+					data = buffer.shift(1);
+					return expected.indexOf(data) > -1;
+				});
+				if (matched) {
+					newState(after_doctype_public_keyword_state);
+					return true;
+				}
+			} else if (['s', 'S'].indexOf(data) > -1) {
+				var expected = [['y', 'Y'], ['s', 'S'], ['t', 'T'], ['e', 'E'], ['m', 'M']];
+				var matched = expected.every(function(expected){
+					data = buffer.shift(1);
+					return expected.indexOf(data) > -1;
+				});
+				if (matched) {
+					newState(after_doctype_system_keyword_state);
+					return true;
+				}
+			}
+
+			// All the characters read before the current 'data' will be
+			// [a-zA-Z], so they're garbage in the bogus doctype and can be
+			// discarded; only the latest character might be '>' or EOF
+			// and needs to be ungetted
+			buffer.unget(data);
+			current_token.correct = false;
+
+			if (data === HTML5.EOF) {
+				parse_error("eof-in-doctype");
+				emit_current_token();
+				newState(data_state);
+			} else {
+				parse_error("expected-space-or-right-bracket-in-doctype", {data: data});
+				newState(bogus_doctype_state);
+			}
+		}
+		return true;
+	}
+
+	function after_doctype_public_keyword_state(buffer) {
+		var data = buffer.shift(1);
+		if (data === HTML5.EOF) {
+			parse_error("eof-in-doctype");
+			current_token.correct = false;
+			emit_current_token();
+			newState(data_state);
+		} else if (HTML5.SPACE_CHARACTERS_R.test(data)) {
+			newState(before_doctype_public_identifier_state);
+		} else if (data == "'" || data == '"') {
+			parse_error("unexpected-char-in-doctype");
+			buffer.unget(data);
+			newState(before_doctype_public_identifier_state);
+		} else {
+			buffer.unget(data);
+			newState(before_doctype_public_identifier_state);
+		}
+	}
+
+	function before_doctype_public_identifier_state(buffer) {
+		var data = buffer.shift(1);
+		if (data === HTML5.EOF) {
+			parse_error("eof-in-doctype");
+			current_token.correct = false;
+			emit_current_token();
+			newState(data_state);
+		} else if (HTML5.SPACE_CHARACTERS_R.test(data)) {
+			// pass
+		} else if (data == '"') {
+			current_token.publicId = '';
+			newState(doctype_public_identifier_double_quoted_state);
+		} else if (data == "'") {
+			current_token.publicId = '';
+			newState(doctype_public_identifier_single_quoted_state);
+		} else if (data == '>') {
+			parse_error("unexpected-end-of-doctype");
+			current_token.correct = false;
+			emit_current_token();
+			newState(data_state);
+		} else {
+			parse_error("unexpected-char-in-doctype");
+			current_token.correct = false;
+			newState(bogus_doctype_state);
+		}
+		return true;
+	}
+
+	function doctype_public_identifier_double_quoted_state(buffer) {
+		var data = buffer.char();
+		if (data === HTML5.EOF) {
+			parse_error("eof-in-doctype");
+			current_token.correct = false;
+			emit_current_token();
+			newState(data_state);
+		} else if (data == '"') {
+			newState(after_doctype_public_identifier_state);
+		} else if (data == '>') {
+			parse_error("unexpected-end-of-doctype");
+			current_token.correct = false;
+			emit_current_token();
+			newState(data_state);
+		} else {
+			current_token.publicId += data;
+		}
+		return true;
+	}
+
+	function doctype_public_identifier_single_quoted_state(buffer) {
+		var data = buffer.char();
+		if (data === HTML5.EOF) {
+			parse_error("eof-in-doctype");
+			current_token.correct = false;
+			emit_current_token();
+			newState(data_state);
+		} else if (data == "'") {
+			newState(after_doctype_public_identifier_state);
+		} else if (data == '>') {
+			parse_error("unexpected-end-of-doctype");
+			current_token.correct = false;
+			emit_current_token();
+			newState(data_state);
+		} else {
+			current_token.publicId += data;
+		}
+		return true;
+	}
+
+	function after_doctype_public_identifier_state(buffer) {
+		var data = buffer.shift(1);
+		if (data === HTML5.EOF) {
+			parse_error("eof-in-doctype");
+			current_token.correct = false;
+			emit_current_token();
+			newState(data_state);
+		} else if (HTML5.SPACE_CHARACTERS_R.test(data)) {
+			newState(between_doctype_public_and_system_identifiers_state);
+		} else if (data == '>') {
+			emit_current_token();
+			newState(data_state);
+		} else if (data == '"') {
+			parse_error("unexpected-char-in-doctype");
+			current_token.systemId = '';
+			newState(doctype_system_identifier_double_quoted_state);
+		} else if (data == "'") {
+			parse_error("unexpected-char-in-doctype");
+			current_token.systemId = '';
+			newState(doctype_system_identifier_single_quoted_state);
+		} else {
+			parse_error("unexpected-char-in-doctype");
+			current_token.correct = false;
+			newState(bogus_doctype_state);
+		}
+		return true;
+	}
+
+	function between_doctype_public_and_system_identifiers_state(buffer) {
+		var data = buffer.shift(1);
+		if (data === HTML5.EOF) {
+			parse_error("eof-in-doctype");
+			current_token.correct = false;
+			emit_current_token();
+			newState(data_state);
+		} else if (HTML5.SPACE_CHARACTERS_R.test(data)) {
+			// pass
+		} else if (data == '>') {
+			emit_current_token();
+			newState(data_state);
+		} else if (data == '"') {
+			current_token.systemId = '';
+			newState(doctype_system_identifier_double_quoted_state);
+		} else if (data == "'") {
+			current_token.systemId = '';
+			newState(doctype_system_identifier_single_quoted_state);
+		} else {
+			parse_error("unexpected-char-in-doctype");
+			current_token.correct = false;
+			newState(bogus_doctype_state);
+		}
+		return true;
+	}
+
+	function after_doctype_system_keyword_state(buffer) {
+		var data = buffer.shift(1);
+		if (data === HTML5.EOF) {
+			parse_error("eof-in-doctype");
+			current_token.correct = false;
+			emit_current_token();
+			newState(data_state);
+		} else if (HTML5.SPACE_CHARACTERS_R.test(data)) {
+			newState(before_doctype_system_identifier_state);
+		} else if (data == "'" || data == '"') {
+			parse_error("unexpected-char-in-doctype");
+			buffer.unget(data);
+			newState(before_doctype_system_identifier_state);
+		} else {
+			buffer.unget(data);
+			newState(before_doctype_system_identifier_state);
+		}
+	}
+
+	function before_doctype_system_identifier_state(buffer) {
+		var data = buffer.shift(1);
+		if (data === HTML5.EOF) {
+			parse_error("eof-in-doctype");
+			current_token.correct = false;
+			emit_current_token();
+			newState(data_state);
+		} else if (HTML5.SPACE_CHARACTERS_R.test(data)) {
+			// pass
+		} else if (data == '"') {
+			current_token.systemId = '';
+			newState(doctype_system_identifier_double_quoted_state);
+		} else if (data == "'") {
+			current_token.systemId = '';
+			newState(doctype_system_identifier_single_quoted_state);
+		} else if (data == '>') {
+			parse_error("unexpected-end-of-doctype");
+			current_token.correct = false;
+			emit_current_token();
+			newState(data_state);
+		} else {
+			parse_error("unexpected-char-in-doctype");
+			current_token.correct = false;
+			newState(bogus_doctype_state);
+		}
+		return true;
+	}
+
+	function doctype_system_identifier_double_quoted_state(buffer) {
+		var data = buffer.char();
+		if (data === HTML5.EOF) {
+			parse_error("eof-in-doctype");
+			current_token.correct = false;
+			emit_current_token();
+			newState(data_state);
+		} else if (data == '"') {
+			newState(after_doctype_system_identifier_state);
+		} else if (data == '>') {
+			parse_error("unexpected-end-of-doctype");
+			current_token.correct = false;
+			emit_current_token();
+			newState(data_state);
+		} else {
+			current_token.systemId += data;
+		}
+		return true;
+	}
+
+	function doctype_system_identifier_single_quoted_state(buffer) {
+		var data = buffer.char();
+		if (data === HTML5.EOF) {
+			parse_error("eof-in-doctype");
+			current_token.correct = false;
+			emit_current_token();
+			newState(data_state);
+		} else if (data == "'") {
+			newState(after_doctype_system_identifier_state);
+		} else if (data == '>') {
+			parse_error("unexpected-end-of-doctype");
+			current_token.correct = false;
+			emit_current_token();
+			newState(data_state);
+		} else {
+			current_token.systemId += data;
+		}
+		return true;
+	}
+
+	function after_doctype_system_identifier_state(buffer) {
+		var data = buffer.shift(1);
+		if (data === HTML5.EOF) {
+			parse_error("eof-in-doctype");
+			current_token.correct = false;
+			emit_current_token();
+			newState(data_state);
+		} else if (HTML5.SPACE_CHARACTERS_R.test(data)) {
+			// pass
+		} else if (data == '>') {
+			emit_current_token();
+			newState(data_state);
+		} else {
+			parse_error("unexpected-char-in-doctype");
+			newState(bogus_doctype_state);
 		}
 		return true;
 	}
 
 	function bogus_doctype_state(buffer) {
 		var data = buffer.shift(1);
-		current_token.correct = false;
-		if(data === HTML5.EOF) {
-			throw(new Error("Unimplemented!"))
-		} else if(data == '>') {
+		if (data === HTML5.EOF) {
+			buffer.unget(data);
+			emit_current_token();
+			newState(data_state);
+		} else if (data == '>') {
 			emit_current_token();
 			newState(data_state);
 		}
@@ -826,42 +1176,26 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 	}
 
 	function parse_error(message, context) {
-		emitToken({type: 'ParseError', data: message});
+		emitToken({type: 'ParseError', data: message, datavars: context});
 		HTML5.debug('tokenizer.parseError', message, context);
 	}
 
 	function emit_current_token() {
-		var tok = current_token;
-		switch(tok.type) {
-		case 'StartTag':
-		case 'EndTag':
-		case 'EmptyTag':
-			if(tok.type == 'EndTag' && tok.self_closing) {
-				parse_error('self-closing-end-tag');
-			}
-			break;
-		}
-		if (current_token.name.toLowerCase() == "script" && tok.type == 'EndTag' && script_buffer) {
+		var token = current_token;
+		if (token.name.toLowerCase() == "script" && token.type == 'EndTag' && script_buffer) {
 			emitToken({ type: 'Characters', data: script_buffer });
 			script_buffer = null;
 		}
-		emitToken(tok);
+		emitToken(token);
 		newState(data_state);
 	}
 
 	function normalize_token(token) {
-		if(token.type == 'EmptyTag') {
-			if(HTML5.VOID_ELEMENTS.indexOf(token.name) == -1) {
-				parse_error('incorrectly-placed-solidus');
-			}
-			token.type = 'StartTag';
-		}
-
-		if(token.type == 'StartTag') {
+		if (token.type == 'StartTag') {
 			token.name = token.name.toLowerCase();
-			if(token.data.length != 0) {
+			if (token.data.length !== 0) {
 				var data = {};
-				// reverse so that the first value for each key wins
+				// the first value for each key wins
 				token.data.reverse();
 				token.data.forEach(function(e) {
 					data[e.nodeName.toLowerCase()] = e.nodeValue;
@@ -870,56 +1204,64 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 				for(var k in data) {
 					token.data.push({nodeName: k, nodeValue: data[k]});
 				}
-				// now restore the original attribute order
+				// restore original attribute order
 				token.data.reverse();
 			}
-		} else if(token.type == 'EndTag') {
-			if(token.data.length != 0) parse_error('attributes-in-end-tag');
+			if (token.self_closing && HTML5.VOID_ELEMENTS.indexOf(token.name) == -1) {
+				parse_error('non-void-element-with-trailing-solidus', {name: token.name});
+			}
+		} else if (token.type == 'EndTag') {
 			token.name = token.name.toLowerCase();
+			if (token.self_closing) {
+				parse_error('self-closing-flag-on-end-tag');
+			}
+			if (token.data.length !== 0) {
+				parse_error('attributes-in-end-tag');
+			}
 		}
 
 		return token;
 	}
 
-	if(typeof input === 'undefined') throw(new Error("No input given"));
-	var content_model;
-	this.document = document;
-	this.__defineSetter__('content_model', function(model) {
-		HTML5.debug('tokenizer.content_model=', model)
-		content_model = model
-	})
-	this.__defineGetter__('content_model', function() {
-		return content_model
-	})
+	if (typeof input === 'undefined') throw(new Error("No input given"));
+	Object.defineProperty(this, 'content_model', {
+		set: function(model) {
+			HTML5.debug('tokenizer.content_model=', model);
+			content_model = model;
+		},
+		get: function() {
+			return content_model;
+		}
+	});
 	function newState(newstate) {
-		HTML5.debug('tokenizer.state=', newstate.name)
+		HTML5.debug('tokenizer.state=', newstate.name);
 		state = newstate;
 		buffer.commit();
 	}
 
 	newState(data_state);
 
-	if(input instanceof events.EventEmitter) {
+	if (input instanceof events.EventEmitter) {
 		source = input;
 		this.pump = null;
 	} else {
-		var source = new events.EventEmitter();
+		source = new events.EventEmitter();
 		this.pump = function() {
 			source.emit('data', input);
 			source.emit('end');
-		}
+		};
 	}
 	
 	source.addListener('data', function(data) {
-		if(typeof data !== 'string') data = data.toString();
+		if (typeof data !== 'string') data = data.toString();
 		buffer.append(data);
 		try {
 			while(state(buffer));
 		} catch(e) {
-			if(e != HTML5.DRAIN) {
+			if (e != HTML5.DRAIN) {
 				throw(e);
 			} else {
-				HTML5.debug('tokenizer.drain', 'Drain')
+				HTML5.debug('tokenizer.drain', 'Drain');
 				buffer.undo();
 			}
 		}
@@ -930,6 +1272,6 @@ var t = HTML5.Tokenizer = function HTML5Tokenizer(input, document) {
 		this.emit('end');
 	}.bind(this));
 
-}
+};
 
-t.prototype = new events.EventEmitter;
+util.inherits(Tokenizer, events.EventEmitter);
