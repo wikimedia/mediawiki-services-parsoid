@@ -180,6 +180,39 @@ var WikitextConstants = {
 			'INPUT', 'KEYGEN', 'LINK', 'META', 'PARAM', /* 'SOURCE', */
 			'TRACK', 'WBR'
 		])
+	},
+
+	// Known wikitext tag widths -- these are known statically
+	// but other widths are computed or updated based on actual wikitext usage
+	WT_TagWidths: {
+		"body"  : [0,0],
+		"html"  : [0,0],
+		"head"  : [0,0],
+		"p"     : [0,0],
+		"meta"  : [0,0],
+		"tbody" : [0,0],
+		"pre"   : [1,0],
+		"ol"    : [0,0],
+		"ul"    : [0,0],
+		"dl"    : [0,0],
+		"li"    : [1,0],
+		"dt"    : [1,0],
+		"dd"    : [1,0],
+		"h1"    : [1,1],
+		"h2"    : [2,2],
+		"h3"    : [3,3],
+		"h4"    : [4,4],
+		"h5"    : [5,5],
+		"h6"    : [6,6],
+		"hr"    : [4,0],
+		"table" : [2,2],
+		"tr"    : [2,0],
+		"td"    : [null,0],
+		"th"    : [null,0],
+		"b"     : [3,3],
+		"i"     : [2,2],
+		"br"    : [0,0],
+		"figure": [2,2]
 	}
 };
 
@@ -189,30 +222,9 @@ Object.keys(WikitextConstants.Image.PrefixOptions).forEach(function(k) {
 	WikitextConstants.Image.PrefixOptionsReverseMap[v] = k;
 });
 
-// Quick HACK: define Node constants locally and export it
-// for use in other files.
-//
-// https://developer.mozilla.org/en/nodeType
-var Node = {
-	ELEMENT_NODE: 1,
-	ATTRIBUTE_NODE: 2,
-	TEXT_NODE: 3,
-	CDATA_SECTION_NODE: 4,
-	ENTITY_REFERENCE_NODE: 5,
-	ENTITY_NODE: 6,
-	PROCESSING_INSTRUCTION_NODE: 7,
-	COMMENT_NODE: 8,
-	DOCUMENT_NODE: 9,
-	DOCUMENT_TYPE_NODE: 10,
-	DOCUMENT_FRAGMENT_NODE: 11,
-	NOTATION_NODE: 12
-};
-
 // Freeze constants to prevent accidental changes
 JSUtils.deepFreeze(WikitextConstants);
-JSUtils.deepFreeze(Node);
 
 if (typeof module === "object") {
 	module.exports.WikitextConstants = WikitextConstants;
-	module.exports.Node = Node;
 }

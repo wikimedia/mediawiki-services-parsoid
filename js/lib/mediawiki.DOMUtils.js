@@ -6,9 +6,7 @@
 
 require('./core-upgrade.js');
 var Util = require('./mediawiki.Util.js').Util,
-	wtc = require('./mediawiki.wikitext.constants.js'),
-	Consts = wtc.WikitextConstants,
-	Node = wtc.Node,
+	Consts = require('./mediawiki.wikitext.constants.js').WikitextConstants,
 	pd = require('./mediawiki.parser.defines.js');
 
 // define some constructor shortcuts
@@ -27,7 +25,7 @@ var DOMUtils = {
 	 * @param {Node} node
 	 */
 	isElt: function(node) {
-		return node.nodeType === Node.ELEMENT_NODE;
+		return node.nodeType === node.ELEMENT_NODE;
 	},
 
 	/**
@@ -36,7 +34,7 @@ var DOMUtils = {
 	 * @param {Node} node
 	 */
 	isText: function(node) {
-		return node.nodeType === Node.TEXT_NODE;
+		return node.nodeType === node.TEXT_NODE;
 	},
 
 	/**
@@ -104,7 +102,7 @@ var DOMUtils = {
 	 * @param {Mixed} defaultVal What to use if there is no JSON attribute by that name.
 	 */
 	loadDataAttrib: function(node, name, defaultVal) {
-		if ( node.nodeType !== node.ELEMENT_NODE ) {
+		if ( !this.isElt(node) ) {
 			return;
 		}
 
@@ -121,7 +119,7 @@ var DOMUtils = {
 	 * Save all node.data.* structures to data attributes
 	 */
 	saveDataAttribs: function(node) {
-		if ( node.nodeType !== node.ELEMENT_NODE ) {
+		if ( !this.isElt(node) ) {
 			return;
 		}
 
@@ -180,7 +178,7 @@ var DOMUtils = {
 	 * @param {Mixed} defaultVal What should be returned if we fail to find a valid JSON structure
 	 */
 	getJSONAttribute: function(node, name, defaultVal) {
-		if ( node.nodeType !== node.ELEMENT_NODE ) {
+		if ( !this.isElt(node) ) {
 			return defaultVal !== undefined ? defaultVal : {};
 		}
 
@@ -222,8 +220,7 @@ var DOMUtils = {
 	 */
 	getAttributeShadowInfo: function ( node, name, tplAttrs ) {
 		this.getDataParsoid( node );
-		if ( node.nodeType !== node.ELEMENT_NODE ||
-				!node.data || !node.data.parsoid ) {
+		if ( !this.isElt(node) || !node.data || !node.data.parsoid ) {
 			return node.getAttribute( name );
 		}
 		var curVal = node.getAttribute(name),
@@ -509,7 +506,7 @@ var DOMUtils = {
 	getPrecedingElementSibling: function(node) {
 		var sibling = node.previousSibling;
 		while (sibling) {
-			if (sibling.nodeType === node.ELEMENT_NODE) {
+			if (this.isElt(sibling)) {
 				return sibling;
 			}
 			sibling = node.previousSibling;
@@ -538,7 +535,7 @@ var DOMUtils = {
 		var children = node.childNodes;
 		for (var i = 0, n = children.length; i < n; i++) {
 			var child = children[i];
-			if (child.nodeType === child.ELEMENT_NODE &&
+			if (this.isElt(child) &&
 					// Is a block-level node
 					( this.isBlockNode(child) ||
 					  // or has a block-level child or grandchild or..
@@ -620,7 +617,7 @@ var DOMUtils = {
 		}
 
 		switch(node.nodeType) {
-			case Node.ELEMENT_NODE:
+			case node.ELEMENT_NODE:
 				var nodeName = node.nodeName.toLowerCase(),
 					children = node.childNodes,
 					attrInfo = domAttrsToTagAttrs(node.attributes);
@@ -636,11 +633,11 @@ var DOMUtils = {
 				}
 				break;
 
-			case Node.TEXT_NODE:
+			case node.TEXT_NODE:
 				tokBuf = tokBuf.concat(Util.newlinesToNlTks(node.nodeValue));
 				break;
 
-			case Node.COMMENT_NODE:
+			case node.COMMENT_NODE:
 				tokBuf.push(new pd.CommentTk(node.nodeValue));
 				break;
 
@@ -761,8 +758,8 @@ var DOMUtils = {
 	 */
 	allChildrenAreText: function (node) {
 		var child = node.firstChild;
-		while(child) {
-			if(child.nodeType !== node.TEXT_NODE) {
+		while (child) {
+			if (!this.isText(child)) {
 				return false;
 			}
 			child = child.nextSibling;
@@ -832,7 +829,7 @@ var DOMUtils = {
 	 * @param {string} someClass
 	 */
 	hasClass: function ( ele, someClass ) {
-		if ( !ele || ele.nodeType !== ele.ELEMENT_NODE ) {
+		if ( !ele || !this.isElt(ele) ) {
 			return false;
 		}
 
@@ -1122,10 +1119,61 @@ var DOMUtils = {
 		var data = node.data.parsoid,
 		    dsr = (undefined !== data) ? data.dsr : null;
 		return dsr ? env.page.src.substring(dsr[0], dsr[1]) : null;
+	},
+
+	deleteNode: function(node) {
+		if ( node.parentNode ) {
+			node.parentNode.removeChild(node);
+		} else {
+			console.warn('ERROR: Null parentNode in deleteNode');
+			console.trace();
+		}
+	},
+
+	// For an explanation of what TSR is, see dom.computeDSR.js
+	//
+	// TSR info on all these tags are only valid for the opening tag.
+	// (closing tags dont have attrs since tree-builder strips them
+	//  and adds meta-tags tracking the corresponding TSR)
+	//
+	// On other tags, a, hr, br, meta-marker tags, the tsr spans
+	// the entire DOM, not just the tag.
+	WT_tagsWithLimitedTSR: {
+		"b" : true,
+		"i" : true,
+		"h1" : true,
+		"h2" : true,
+		"h3" : true,
+		"h4" : true,
+		"h5" : true,
+		"ul" : true,
+		"ol" : true,
+		"dl" : true,
+		"li" : true,
+		"dt" : true,
+		"dd" : true,
+		"table" : true,
+		"caption" : true,
+		"tr" : true,
+		"td" : true,
+		"th" : true,
+		"hr" : true, // void element
+		"br" : true, // void element
+		"pre" : true
+	},
+
+	tsrSpansTagDOM: function(n, parsoidData) {
+		// - tags known to have tag-specific tsr
+		// - html tags with 'stx' set
+		// - span tags with 'mw:Nowiki' type
+		var name = n.nodeName.toLowerCase();
+		return !(
+			this.WT_tagsWithLimitedTSR[name] ||
+			this.hasLiteralHTMLMarker(parsoidData) ||
+			this.isNodeOfType(n, 'span', 'mw:Nowiki')
+		);
 	}
 };
-
-
 
 if (typeof module === "object") {
 	module.exports.DOMUtils = DOMUtils;
