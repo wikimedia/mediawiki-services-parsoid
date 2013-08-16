@@ -22,7 +22,8 @@ var domino = require('./domino'),
 	migrateTrailingNLs = require('./dom.migrateTrailingNLs.js').migrateTrailingNLs,
 	stripMarkerMetas = CleanUp.stripMarkerMetas,
 	unpackDOMFragments = require('./dom.t.unpackDOMFragments.js').unpackDOMFragments,
-	wrapTemplates = require('./dom.wrapTemplates.js').wrapTemplates;
+	wrapTemplates = require('./dom.wrapTemplates.js').wrapTemplates,
+	TDFixups = require('./dom.t.TDFixups.js');
 
 // map from mediawiki metadata names to RDFa property names
 var metadataMap = {
@@ -142,6 +143,7 @@ function DOMPostProcessor(env, options) {
 	var domVisitor2 = new DOMTraverser();
 	domVisitor2.addHandler( 'meta', stripMarkerMetas.bind(null, env.conf.parsoid.editMode) );
 	domVisitor2.addHandler( 'li', handleLIHack.bind( null, env ) );
+	domVisitor2.addHandler( 'td', TDFixups.stripDoubleTDs.bind( null, env ) );
 	domVisitor2.addHandler( null, cleanupAndSaveDataParsoid );
 	this.processors.push(domVisitor2.traverse.bind(domVisitor2));
 }

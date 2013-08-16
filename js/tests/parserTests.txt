@@ -4321,22 +4321,18 @@ Parsoid: Default to a newline after tables in new content (bug 51219)
 parsoid=html2wt
 !! input
 {|
-|-
 |foo
 |}
 <nowiki> </nowiki>bar
 {|
-|-
 |baz
 |}
 '''quux'''
 !! result
 <table><tbody>
-<tr>
-<td>foo</td></tr></tbody></table> bar
+<tr><td>foo</td></tr></tbody></table> bar
 <table><tbody>
-<tr>
-<td>baz</td></tr></tbody></table><b>quux</b>
+<tr><td>baz</td></tr></tbody></table><b>quux</b>
 !! end
 
 ###
@@ -7190,6 +7186,32 @@ a<span typeof="mw:Transclusion">b</span>
 <p typeof="mw:Transclusion">a</p>
 <table></table>
 <p>b</p>
+!! end
+
+!! test
+Parsoid: Merge double tds (bug 50603)
+!! options
+parsoid=wt2html,wt2wt
+!! input
+{|
+|{{echo|{{!}} foo}}
+|}
+!! result
+<table>
+<tbody><td about="#mwt1" typeof="mw:Transclusion">foo</td></tr></tbody></table>
+!! end
+
+!! test
+Parsoid: Merge double tds, html2wt (bug 50603)
+!! options
+parsoid=html2wt
+!! input
+{|
+|{{echo|{{!}}foo}}
+|}
+!! result
+<table>
+<tbody><td about="#mwt1" typeof="mw:Transclusion" data-mw='{"i":0,"parts":["|",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"{{!}}foo"}},"i":0}}]}'>foo</td></tr></tbody></table>
 !! end
 
 ###
@@ -16481,7 +16503,6 @@ Tables: 4a. Escape -
 parsoid
 !! input
 {|
-|-
 !-bar
 |-
 |<nowiki>-bar</nowiki>
@@ -16499,7 +16520,6 @@ Tables: 4b. Escape +
 parsoid
 !! input
 {|
-|-
 !+bar
 |-
 |<nowiki>+bar</nowiki>
@@ -16517,7 +16537,6 @@ Tables: 4c. No escaping needed
 parsoid
 !! input
 {|
-|-
 |foo-bar
 |foo+bar
 |-

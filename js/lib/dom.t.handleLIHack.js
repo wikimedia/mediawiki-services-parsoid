@@ -20,25 +20,11 @@ var DU = require('./mediawiki.DOMUtils.js').DOMUtils;
 function handleLIHack(env, node) {
 	var prevNode = node.previousSibling;
 
-	/* Does `node` contain nothing or just non-newline whitespace? */
-	function nodeEssentiallyEmpty(node) {
-		var childNodes = node.childNodes;
-		if (0 === childNodes.length) {
-			return true;
-		} else if (childNodes.length > 1) {
-			return false;
-		} else {
-			var child = childNodes[0];
-			return (child.nodeName === "#text" &&
-				/^[ \t]*$/.test(child.nodeValue));
-		}
-	}
-
 	if (DU.isLiteralHTMLNode(node) &&
 	    prevNode !== null &&
 	    prevNode.nodeName === 'LI' &&
 	    !DU.isLiteralHTMLNode(prevNode) &&
-	    nodeEssentiallyEmpty(prevNode)) {
+	    DU.nodeEssentiallyEmpty(prevNode)) {
 		// We have to store the extra information in order to
 		// reconstruct the original source for roundtripping.
 		node.data.parsoid.liHackSrc = DU.getWTSource(env, prevNode);

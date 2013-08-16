@@ -2259,7 +2259,8 @@ WSP.tagHandlers = {
 			// If the token has 'startTagSrc' set, it means that the tr was present
 			// in the source wikitext and we emit it -- if not, we ignore it.
 			var dp = node.data.parsoid;
-			if (node.previousSibling || dp.startTagSrc) {
+			// ignore comments and ws
+			if (DU.previousNonSepSibling(node) || dp.startTagSrc) {
 				var res = state.serializer._serializeTableTag(dp.startTagSrc || "|-", '', state,
 							node, wrapperUnmodified );
 				emitStartTag(res, node, state, cb);

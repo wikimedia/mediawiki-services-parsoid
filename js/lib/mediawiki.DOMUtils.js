@@ -768,6 +768,22 @@ var DOMUtils = {
 	},
 
 	/**
+	 * Does `node` contain nothing or just non-newline whitespace?
+	 */
+	nodeEssentiallyEmpty: function (node) {
+		var childNodes = node.childNodes;
+		if (0 === childNodes.length) {
+			return true;
+		} else if (childNodes.length > 1) {
+			return false;
+		} else {
+			var child = childNodes[0];
+			return (child.nodeName === "#text" &&
+				/^[ \t]*$/.test(child.nodeValue));
+		}
+	},
+
+	/**
 	 * Make a span element to wrap some bare text.
 	 *
 	 * @param {TextNode} node
