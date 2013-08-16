@@ -4285,6 +4285,52 @@ parsoid=wt2html,wt2wt
 </table>
 !! end
 
+!! test
+Parsoid: Round-trip tables directly followed by content (bug 51219)
+!! options
+parsoid=wt2html,wt2wt
+!! input
+{|
+|foo
+|} bar
+
+{|
+|baz
+|}<b>quux</b>
+!! result
+<table><tbody>
+<tr>
+<td>foo</td></tr></tbody></table> bar
+<table>
+<tbody>
+<tr>
+<td>baz</td></tr></tbody></table><b>quux</b>
+!! end
+
+!! test
+Parsoid: Default to a newline after tables in new content (bug 51219)
+!! options
+parsoid=html2wt
+!! input
+{|
+|-
+|foo
+|}
+<nowiki> </nowiki>bar
+{|
+|-
+|baz
+|}
+'''quux'''
+!! result
+<table><tbody>
+<tr>
+<td>foo</td></tr></tbody></table> bar
+<table><tbody>
+<tr>
+<td>baz</td></tr></tbody></table><b>quux</b>
+!! end
+
 ###
 ### Internal links
 ###
