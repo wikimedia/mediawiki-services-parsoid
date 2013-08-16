@@ -51,7 +51,7 @@ add("wt2html", "Templates: Indent-Pre: 1a. Templates that break a line should su
 add("wt2html", "Templates: Indent-Pre: 1b. Templates that break a line should suppress <pre>");
 add("wt2html", "Templates: Indent-Pre: 1e. Wrapping should be based on expanded content");
 add("wt2html", "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content");
-add("wt2html", "Templates: Don't strip whitespace from positional-param values (PHP parser)");
+add("wt2html", "Templates: Don't strip whitespace from positional-param values");
 add("wt2html", "2a. Indent-Pre and tables");
 add("wt2html", "2b. Indent-Pre and tables");
 add("wt2html", "2c. Indent-Pre and tables (bug 42252)");
@@ -1286,7 +1286,7 @@ add("html2wt", "Templates: Indent-Pre: 1d: Wrapping should be based on expanded 
 add("html2wt", "Templates: Indent-Pre: 1e. Wrapping should be based on expanded content");
 add("html2wt", "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content");
 add("html2wt", "Templates: Strip leading and trailing whitespace from named-param values");
-add("html2wt", "Templates: Don't strip whitespace from positional-param values (PHP parser)");
+add("html2wt", "Templates: Don't strip whitespace from positional-param values");
 add("html2wt", "1a. Indent-Pre and Comments");
 add("html2wt", "1b. Indent-Pre and Comments");
 add("html2wt", "1c. Indent-Pre and Comments");

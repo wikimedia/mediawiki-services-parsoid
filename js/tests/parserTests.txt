@@ -1664,7 +1664,7 @@ Templates: Strip leading and trailing whitespace from named-param values
 !! end
 
 !! test
-Templates: Don't strip whitespace from positional-param values (PHP parser)
+Templates: Don't strip whitespace from positional-param values
 !! options
 !! input
 {{echo|a }}
@@ -1687,13 +1687,13 @@ Templates: Don't strip whitespace from positional-param values (PHP parser)
  }}g
 !! result
 <p>a 
-</p><p>b  
+</p><p>b 
 </p>
 <pre>c 
 </pre>
 <p><br />
 </p>
-<pre>d 
+<pre>d
 </pre>
 <p><br />
 </p>
