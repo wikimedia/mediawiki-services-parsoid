@@ -2235,7 +2235,15 @@ WSP.tagHandlers = {
 					return {min:1, max:2};
 				}
 			},
-			after: id({min:1, max:2}),
+			after: function (node, otherNode) {
+				if (DU.isNewElt(node) ||
+						(DU.isElt(otherNode) && DU.isNewElt(otherNode)))
+				{
+					return {min:1, max:2};
+				} else {
+					return {min:0, max:2};
+				}
+			},
 			firstChild: id({min:1, max:2}),
 			lastChild: id({min:1})
 		}
