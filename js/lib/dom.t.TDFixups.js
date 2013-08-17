@@ -35,6 +35,7 @@ function stripDoubleTDs (env, node) {
 		// XXX: use data.mw for data-mw as well!
 		var dataMW = DU.getJSONAttribute(nextNode, 'data-mw'),
 			nodeSrc = DU.getWTSource(env, node);
+
 		if (!dataMW.parts) {
 			dataMW.parts = [
 				nodeSrc,
@@ -52,7 +53,7 @@ function stripDoubleTDs (env, node) {
 			dataMW.target = undefined;
 			dataMW.params = undefined;
 		} else {
-			dataMW.unshift(nodeSrc);
+			dataMW.parts.unshift(nodeSrc);
 		}
 		DU.setJSONAttribute(nextNode, 'data-mw', dataMW);
 
