@@ -736,13 +736,15 @@ function findWrappableTemplateRanges( doc, env, root, tpls ) {
 							tbl = tbl.nextSibling;
 						}
 
-						var dp = sm.parentNode.data.parsoid;
+						var dp = DU.getDataParsoid(sm.parentNode);
 						if (tbl &&
 							DU.hasNodeName(tbl, 'table') &&
 							dp.fostered)
 						{
-							if (dp.tsr && dp.tsr[0] !== null && tbl.dsr[0] === null) {
-								tbl.dsr[0] = dp.tsr[0];
+							var tblDP = DU.getDataParsoid(tbl);
+							if (dp.tsr && dp.tsr[0] !== null && tblDP.dsr[0] === null)
+							{
+								tblDP.dsr[0] = dp.tsr[0];
 							}
 							tbl.setAttribute('about', about); // set about on elem
 							ee = tbl;
