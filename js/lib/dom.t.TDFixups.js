@@ -11,13 +11,11 @@ function stripDoubleTDs (env, node) {
 	var nextNode = node.nextSibling;
 
 	if (!DU.isLiteralHTMLNode(node) &&
-		// FIXME: will not be set within template content!
-		node.data.parsoid.autoInsertedEnd === true &&
 		nextNode !== null &&
 	    nextNode.nodeName === 'TD' &&
 	    !DU.isLiteralHTMLNode(nextNode) &&
-		// FIXME: will not be set within template content!
-		DU.isTplElementNode(env, nextNode) &&
+		// FIXME: will not be set for nested templates
+		DU.isEncapsulatedElt(nextNode) &&
 	    DU.nodeEssentiallyEmpty(node))
 	{
 		// Update the dsr. Since we are coalescing the first
