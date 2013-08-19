@@ -64,8 +64,6 @@ add("wt2html", "Definition Lists: Nesting: Test 3 (Parsoid only)");
 add("wt2html", "Bracketed external links with template-generated invalid target");
 add("wt2html", "External link containing double-single-quotes in text embedded in italics (bug 4598 sanity check)");
 add("wt2html", "Non-extlinks in brackets");
-add("wt2html", "Template-generated table cell attributes and cell content");
-add("wt2html", "Template-generated table cell attributes and cell content (2)");
 add("wt2html", "Template-generated table cell attributes and cell content (3)");
 add("wt2html", "Link containing \"#<\" and \"#>\" % as a hex sequences- these are valid section anchors\nExample for such a section: == < ==");
 add("wt2html", "Link containing \"<#\" and \">#\" as a hex sequences");

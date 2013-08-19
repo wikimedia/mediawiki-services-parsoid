@@ -95,6 +95,20 @@ var DOMUtils = {
 	},
 
 	/**
+	 * Test if a node matches a given typeof.
+	 */
+	hasTypeOf: function(node, type) {
+		if (!node.getAttribute) {
+			return false;
+		}
+		var typeOfs = node.getAttribute('typeof');
+		if (!typeOfs) {
+			return false;
+		}
+		return typeOfs.split(' ').indexOf(type) !== -1;
+	},
+
+	/**
 	 * Decode a JSON object into the data member of DOM nodes
 	 *
 	 * @param {Node} node

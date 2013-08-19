@@ -579,11 +579,32 @@ JSUtils.deepFreeze(SanitizerConstants);
  * @param {TokenTransformManager} manager The manager for this part of the pipeline.
  */
 function Sanitizer ( manager ) {
+	// FIXME: would be good to make the sanitizer independent of the manager
+	// so that it can be used separately. See
+	// https://bugzilla.wikimedia.org/show_bug.cgi?id=52941
 	this.manager = manager;
 	this.register( manager );
 	this.constants = SanitizerConstants;
 	this.attrWhiteListCache = {};
 }
+
+/**
+ * Utility function: Sanitize an array of tokens. Not used in normal token
+ * pipelines. The only caller is currently in dom.t.TDFixups.js.
+ *
+ * TODO: Move to Util / generalize when working on bug 52941?
+ */
+Sanitizer.prototype.sanitizeTokens = function (tokens) {
+	var res = [],
+		sanitizer = this;
+	tokens.forEach(function(token) {
+		if(token.name && token.name === 'a') {
+			token = sanitizer.onAnchor(token).token;
+		}
+		res.push(sanitizer.onAny(token).token);
+	});
+	return res;
+};
 
 Sanitizer.prototype.getAttrWhiteList = function(tag) {
 	var awlCache = this.attrWhiteListCache;

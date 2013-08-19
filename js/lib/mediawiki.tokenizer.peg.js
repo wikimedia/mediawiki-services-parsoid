@@ -256,6 +256,13 @@ PegTokenizer.prototype.processImageOptions = function( text ) {
 	return this.tokenize(text, 'img_options');
 };
 
+/**
+ * Tokenize table cell attributes
+ */
+PegTokenizer.prototype.tokenizeTableCellAttributes = function( text ) {
+	return this.tokenize(text, "single_cell_table_args");
+};
+
 /*
  * Inline breaks, flag-enabled production which detects end positions for
  * active higher-level productions in inline and other nested productions.
