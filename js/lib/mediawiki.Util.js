@@ -1,5 +1,5 @@
-/*
- * This file contains general utilities for token transforms
+/**
+ * This file contains general utilities for token transforms.
  */
 /* jshint nonstandard:true */ // define 'unescape'
 
@@ -13,7 +13,7 @@ var domino = require( './domino' ),
 	TemplateRequest = require( './mediawiki.ApiRequest.js' ).TemplateRequest,
 	Consts = require('./mediawiki.wikitext.constants.js').WikitextConstants;
 
-/** WORKAROUND HACK to entities package, using domino. */
+/* WORKAROUND HACK to entities package, using domino. */
 // see https://github.com/fb55/node-entities/issues/8
 if ( /^0.2.[01]$/.test( require( 'entities/package.json' ).version ) ) {
 	entities.decodeHTML5 = function(data) {

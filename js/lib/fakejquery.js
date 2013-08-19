@@ -1,6 +1,7 @@
 "use strict";
 /* jshint eqnull:true, eqeqeq:false, asi:true, curly:false */
-/* minimalist jquery which just defines the tiny bits parsoid uses */
+
+/** Minimalist jquery which just defines the tiny bits parsoid uses. */
 /* based on zepto.js, which explains why the code conventions don't
  * match the rest of parsoid. */
   var $ = module.exports = {};

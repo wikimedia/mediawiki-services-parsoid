@@ -950,7 +950,7 @@ TemplateHandler.prototype.fetchExpandedTpl = function ( title, text, Processor, 
 	}
 };
 
-/*********************** Template argument expansion *******************/
+/* ********************** Template argument expansion ****************** */
 
 /**
  * Expand template arguments with tokens from the containing frame.
