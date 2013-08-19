@@ -880,16 +880,46 @@ WSP.escapeWikiText = function ( state, text, opts ) {
  *    width of the opening and closing wikitext tags and not
  *    the entire DOM range they span in the end.
  */
-WSP.escapeTplArgWT = function(state, arg, isPositional) {
+WSP.escapeTplArgWT = function(state, arg, opts) {
+	var serializeAsNamed = opts.serializeAsNamed;
+
 	function escapeStr(str, buf, pos) {
 		var bracketPairStrippedStr = str.replace(/\[([^\[\]]*)\]/g, '_$1_'),
 			genericMatch = pos.start && /^\{/.test(str) ||
 				pos.end && /\}$/.test(str) ||
 				/\{\{|\}\}|[\[\]\|]/.test(bracketPairStrippedStr);
-		if (genericMatch ||
-				// Can't allow '=' in positional parameters
-				(isPositional && /[=]/.test(str)))
-		{
+
+		// '=' is not allowed in positional parameters.  We can either
+		// nowiki escape it or convert the named parameter into a
+		// positional param to avoid the escaping.
+		if (opts.isTemplate && !serializeAsNamed && /[=]/.test(str)) {
+			// In certain situations, it is better to add a nowiki escape
+			// rather than convert this to a named param.
+			//
+			// Ex: Consider: {{funky-tpl|a|b|c|d|e|f|g|h}}
+			//
+			// If an editor changes 'a' to 'f=oo' and we convert it to
+			// a named param 1=f=oo, we are effectively converting all
+			// the later params into named params as well and we get
+			// {{funky-tpl|1=f=oo|2=b|3=c|...|8=h}} instead of
+			// {{funky-tpl|<nowiki>f=oo</nowiki>|b|c|...|h}}
+			//
+			// The latter is better in this case. This is a real problem
+			// in production.
+			//
+			// For now, we use a simple heuristic below and can be
+			// refined later, if necessary
+			//
+			// 1. Either there were no original positional args
+			// 2. Or, only the last positional arg uses '='
+			if (opts.numPositionalArgs === 0 ||
+				opts.numPositionalArgs === opts.argIndex)
+			{
+				serializeAsNamed = true;
+			}
+		}
+
+		if (genericMatch || (!serializeAsNamed && /[=]/.test(str))) {
 			buf.push("<nowiki>");
 			buf.push(str);
 			buf.push("</nowiki>");
@@ -973,7 +1003,7 @@ WSP.escapeTplArgWT = function(state, arg, isPositional) {
 		}
 	}
 
-	return buf.join('');
+	return { serializeAsNamed: serializeAsNamed, v: buf.join('') };
 };
 
 /**
@@ -2946,6 +2976,17 @@ WSP._htmlElementHandler = function (node, state, cb, wrapperUnmodified) {
 };
 
 WSP._buildTemplateWT = function(node, state, srcParts) {
+	function countPositionalArgs(tpl, paramInfos) {
+		var res = 0;
+		paramInfos.forEach(function(paramInfo) {
+			var k = paramInfo.k;
+			if (tpl.params[k] !== undefined && !paramInfo.named) {
+				res++;
+			}
+		});
+		return res;
+	}
+
 	var buf = [],
 		serializer = this,
 		dp = node.data.parsoid;
@@ -2978,6 +3019,7 @@ WSP._buildTemplateWT = function(node, state, srcParts) {
 				n = keys.length;
 			if (n > 0) {
 				var numericIndex = 1,
+					numPositionalArgs = countPositionalArgs(tpl, paramInfos),
 					pushArg = function (k, paramInfo) {
 						if (!paramInfo) {
 							paramInfo = {};
@@ -2987,17 +3029,15 @@ WSP._buildTemplateWT = function(node, state, srcParts) {
 							// Default to ' = ' spacing. Anything that matches
 							// this does not remember spc explicitly.
 							spc = ['', ' ', ' ', ''],
-							serializeAsNamed = false;
+							opts = {
+								serializeAsNamed: false,
+								isTemplate: isTpl,
+								numPositionalArgs: numPositionalArgs,
+								argIndex: numericIndex
+							};
 
-						// NOTE: Escaping the "=" char in the regexp because JSHint
-						// complains that it can be confused by other developers.
-						// http://jslinterrors.com/a-regular-expression-literal-can-be-confused-with/
-
-						// Use named serialization if the value contains a '='
-						if (paramInfo.named || k !== numericIndex.toString() ||
-							isTpl && (/\=/).test(v))
-						{
-							serializeAsNamed = true;
+						if (paramInfo.named || k !== numericIndex.toString()) {
+							opts.serializeAsNamed = true;
 						}
 
 						if (paramInfo.spc) {
@@ -3006,17 +3046,16 @@ WSP._buildTemplateWT = function(node, state, srcParts) {
 							// TODO: match the space style of other/ parameters!
 							//spc = ['', ' ', ' ', ''];
 						//}
-
-						if (serializeAsNamed) {
+						var res = serializer.escapeTplArgWT(state, v, opts);
+						if (res.serializeAsNamed) {
 							// Escape as value only
 							// Trim WS
-							v = serializer.escapeTplArgWT(state, v.trim(), false);
-							argBuf.push(spc[0] + k + spc[1] + "=" + spc[2] + v + spc[3]);
+							argBuf.push(spc[0] + k + spc[1] + "=" + spc[2] + res.v.trim() + spc[3]);
 						} else {
 							numericIndex++;
 							// Escape as positional parameter
 							// No WS trimming
-							argBuf.push(serializer.escapeTplArgWT(state, v, true));
+							argBuf.push(res.v);
 						}
 					};
 

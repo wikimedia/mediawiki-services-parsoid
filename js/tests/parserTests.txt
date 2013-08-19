@@ -1766,6 +1766,17 @@ parsoid=html2wt,wt2wt
 </p>
 !! end
 
+## Bug 52824
+!! test
+Templates: '=' char in nested transclusions should not trigger nowiki escapes or conversion to named param
+!! options
+parsoid=html2wt,wt2wt
+!! input
+{{echo|{{echo|1=bar}}}}
+!! result
+<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"{{echo|1=bar}}"}},"i":0}'>bar</p>
+!! end
+
 ###
 ### Parsoid-centric tests for testing RT edge cases for pre
 ###
@@ -17349,9 +17360,15 @@ Parsoid: Serialize positional parameters with = in them as named parameter
 parsoid=html2wt
 !! input
 {{echo|1 = f=oo}}
+
+{{echo|1 = f=oo|2 = bar}}
 !! result
 <p about="#mwt1" typeof="mw:Transclusion"
 data-mw='{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"f=oo"}},"i":0}'
+>foo</p>
+
+<p about="#mwt1" typeof="mw:Transclusion"
+data-mw='{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"f=oo"}, "2":{"wt":"bar"}},"i":0}'
 >foo</p>
 !! end
 
