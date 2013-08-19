@@ -21,13 +21,12 @@ QuoteTransformer.prototype.quoteAndNewlineRank = 2.1;
 QuoteTransformer.prototype.anyRank = 2.101; // Just after regular quote and newline
 
 QuoteTransformer.prototype.reset = function ( ) {
-	// A chunk starts with a token context around a quote token and is
-	// (optionally) followed by non-quote tokens. The quote token and its
-	// context is later replaced with the actual tag token for italic or bold.
-	this.currentChunk = [];
-	// List of chunks, each starting with a (potentially) bold or italic token
-	// and followed by plain tokens.
+	// Chunks alternate between quote tokens and sequences of non-quote
+	// tokens.  The quote tokens are later replaced with the actual tag
+	// token for italic or bold.  The first chunk is a non-quote chunk.
 	this.chunks = [];
+	// The current chunk we're accumulating into.
+	this.currentChunk = [];
 	// References to chunks in which the first token context / quote token
 	// should be converted to italic or bold tokens.
 	this.italics = [];
@@ -49,7 +48,6 @@ QuoteTransformer.prototype.register = function ( dispatcher ) {
 QuoteTransformer.prototype._startNewChunk = function ( ) {
 	this.chunks.push( this.currentChunk );
 	this.currentChunk = [];
-	this.currentChunk.pos = this.chunks.length - 1;
 };
 
 // Handle QUOTE tags. These are collected in italic/bold lists depending on
@@ -57,17 +55,7 @@ QuoteTransformer.prototype._startNewChunk = function ( ) {
 // appropriate tag tokens is deferred until the next NEWLINE token triggers
 // onNewLine.
 QuoteTransformer.prototype.onQuote = function ( token, frame, prevToken ) {
-	var qlen = token.value.length,
-		ctx = {
-			token: token,
-			frame: frame,
-			prevToken: prevToken
-		},
-		ctx2 = {
-			frame: frame,
-			prevToken: prevToken
-		},
-		tsr;
+	var qlen = token.value.length;
 
 	if ( ! this.isActive ) {
 		this.dispatcher.addTransform( this.onNewLine.bind(this), "QuoteTransformer:onNewLine",
@@ -84,78 +72,16 @@ QuoteTransformer.prototype.onQuote = function ( token, frame, prevToken ) {
 		// register for any token if not yet active
 		this.dispatcher.addTransform( this.onAny.bind(this), "QuoteTransformer:onAny", this.anyRank, 'any' );
 		this.isActive = true;
+		// add initial context to chunks (we'll get rid of it later)
+		this.currentChunk.push( prevToken ? prevToken : '' );
 	}
 
-	this._startNewChunk();
-
-	switch (qlen) {
-		case 2:
-			this.currentChunk.push(ctx);
-			this.italics.push(this.currentChunk);
-			break;
-		case 3:
-			this.currentChunk.push(ctx);
-			this.bolds.push(this.currentChunk);
-			break;
-		case 4:
-			this.currentChunk.push( "'" );
+	if (qlen===2 || qlen===3 || qlen===5) {
 			this._startNewChunk();
-			this.currentChunk.push(ctx);
-			this.bolds.push(this.currentChunk);
-			break;
-		case 5:
-			// The order of italic vs. bold does not matter. Those are
-			// processed in a fixed order, and any nesting issues are fixed up
-			// by the HTML 5 tree builder. This does not always result in the
-			// prettiest result, but at least it is always correct and very
-			// convenient.
-
-			tsr = ctx.token.dataAttribs ? ctx.token.dataAttribs.tsr : null;
-			if ( tsr ) {
-				ctx.token = ctx.token.clone();
-				ctx.token.dataAttribs.tsr = [tsr[0], tsr[0] + 2];
-			}
-			this.currentChunk.push(ctx);
-			this.italics.push(this.currentChunk);
-
-			// Now for the bold..
+			this.currentChunk.push( token );
 			this._startNewChunk();
-			ctx2.token = {
-				attribs: ctx.token.attribs
-			};
-			if ( tsr ) {
-				// Get the correct tsr range for the bold
-				ctx2.token.dataAttribs = { tsr: [tsr[1] - 3, tsr[1]] };
-			}
-			this.currentChunk.push(ctx2);
-			this.bolds.push(this.currentChunk);
-			break;
-		default: // longer than 5, only use the last 5 ticks
-			var newvalue = token.value.substr(0, qlen - 5 );
-			tsr = ctx.token.dataAttribs ? ctx.token.dataAttribs.tsr : null;
-			// update tsr for italic token
-			if ( tsr ) {
-				ctx.token = ctx.token.clone();
-				ctx.token.dataAttribs.tsr = [tsr[0] + qlen - 5, tsr[1] - 3];
-			}
-
-			this.currentChunk.push ( newvalue );
-			this._startNewChunk();
-			this.currentChunk.push(ctx);
-			this.italics.push(this.currentChunk);
-
-			// Now for the bold..
-			this._startNewChunk();
-			ctx2.token = {
-				attribs: ctx.token.attribs
-			};
-			if ( tsr ) {
-				// Get the correct tsr range for the bold
-				ctx2.token.dataAttribs = { tsr: [tsr[1] - 3, tsr[1]] };
-			}
-			this.currentChunk.push(ctx2);
-			this.bolds.push(this.currentChunk);
-			break;
+	} else {
+		console.assert(false, "should be transformed by tokenizer");
 	}
 
 	return {};
@@ -170,51 +96,57 @@ QuoteTransformer.prototype.onAny = function ( token, frame, prevToken ) {
 // Handle NEWLINE tokens, which trigger the actual quote analysis on the
 // collected quote tokens so far.
 QuoteTransformer.prototype.onNewLine = function (  token, frame, prevToken ) {
-	var res;
+	var res, qlen, i;
 
 	if( ! this.isActive ) {
 		// Nothing to do, quick abort.
 		return { token: token };
 	}
-
 	//token.rank = this.quoteAndNewlineRank;
 
-	//console.warn('chunks: ' + JSON.stringify( this.chunks, null, 2 ) );
+	// count number of bold and italics
+	var numbold = 0, numitalics = 0;
+	for (i = 1; i < this.chunks.length; i += 2) {
+		console.assert(this.chunks[i].length===1); // quote token
+		qlen = this.chunks[i][0].value.length;
+		if (qlen===2 || qlen===5) { numitalics++; }
+		if (qlen===3 || qlen===5) { numbold++; }
+	}
 
-	//console.warn("onNewLine: " + this.italics.length + 'i/b' + this.bolds.length);
 	// balance out tokens, convert placeholders into tags
-	if (this.italics.length % 2 && this.bolds.length % 2) {
+	if ( (numitalics % 2 === 1) && (numbold % 2 === 1) ) {
 		var firstsingleletterword = -1,
 			firstmultiletterword = -1,
 			firstspace = -1;
-		for (var j = 0; j < this.bolds.length; j++) {
-			var ctx = this.bolds[j][0];
-			var ctxPrevToken = ctx.prevToken;
-			//console.warn("balancing!" + JSON.stringify(ctxPrevToken, null, 2));
-			if (ctxPrevToken) {
-				if (ctxPrevToken.constructor === String) {
-					var lastchar = ctxPrevToken[ctxPrevToken.length - 1],
-						secondtolastchar = ctxPrevToken[ctxPrevToken.length - 2];
-					if (lastchar === ' ' && firstspace === -1) {
-						firstspace = j;
-					} else if (lastchar !== ' ') {
-						if ( secondtolastchar === ' ' &&
-								firstsingleletterword === -1)
-						{
-							firstsingleletterword = j;
-						} else if ( firstmultiletterword === -1) {
-							firstmultiletterword = j;
-						}
-					}
-				} else if ( ( ctxPrevToken.constructor === NlTk ||
-								ctxPrevToken.constructor === TagTk ||
-								ctxPrevToken.constructor === SelfclosingTagTk ) &&
-								firstmultiletterword === -1 ) {
-					// This is an approximation, as the original doQuotes
-					// operates on the source and just looks at space vs.
-					// non-space. At least some tags are thus recognized as
-					// words in the original implementation.
-					firstmultiletterword = j;
+		for (i = 1; i < this.chunks.length; i += 2) {
+			// only look at bold tags
+			if (this.chunks[i][0].value.length !== 3) { continue; }
+			// find the first previous token which is text
+			// (this is an approximation, since the wikitext algorithm looks
+			// at the raw unparsed source here)
+			var prevChunk = this.chunks[i-1], ctxPrevToken = '';
+			for (var j = prevChunk.length - 1;
+				 ctxPrevToken.length < 2 && j >= 0;
+				 j--) {
+				if (prevChunk[j].constructor === String) {
+					ctxPrevToken = prevChunk[j] + ctxPrevToken;
+				}
+			}
+			//console.warn("balancing! " + ctxPrevToken);
+			var lastchar = ctxPrevToken[ctxPrevToken.length - 1],
+			secondtolastchar = ctxPrevToken[ctxPrevToken.length - 2];
+			if (lastchar === ' ' && firstspace === -1) {
+				firstspace = i;
+			} else if (lastchar !== ' ') {
+				if ( secondtolastchar === ' ' &&
+					 firstsingleletterword === -1)
+				{
+					firstsingleletterword = i;
+					// if firstsingleletterword is set, we don't need
+					// to look at the options options, so we can bail early
+					break;
+				} else if ( firstmultiletterword === -1) {
+					firstmultiletterword = i;
 				}
 			}
 		}
@@ -229,27 +161,102 @@ QuoteTransformer.prototype.onNewLine = function (  token, frame, prevToken ) {
 			this.convertBold(firstmultiletterword);
 		} else if (firstspace > -1) {
 			this.convertBold(firstspace);
-		} else if ( !this.bolds[0][0].prevToken ) {
-			// In this block, there is no previous token for the first bold,
-			// because the bold token is the first thing in the stream.
-			// In that case, we need to treat that as being the first space,
-			// basically, because the start of the string is basically a
-			// start-of-word.
-			this.convertBold( 0 );
+		} else {
+			// (notice that it is possible for all three to be -1 if, for
+			// example, there is only one pentuple-apostrophe in the line)
+			// In this case, do no balancing.
+			/* jshint noempty: false */
 		}
 	}
 
-	this.quotesToTags( this.italics, 'i' );
-	this.quotesToTags( this.bolds, 'b' );
-
-	this.currentChunk.push( token );
-	this._startNewChunk();
-
-	//console.warn('chunks: ' + JSON.stringify( this.chunks, null, 2 ) );
+	// this is the same state machine as the php parser uses.
+	var lastboth = -1, state = '';
+	for (i = 1; i < this.chunks.length; i += 2) {
+		console.assert(this.chunks[i].length === 1);
+		qlen = this.chunks[i][0].value.length;
+		if (qlen === 2) {
+			if (state === 'i') {
+				this.quoteToTag(i, [new EndTagTk( 'i' )]);
+				state = '';
+			} else if (state === 'bi') {
+				this.quoteToTag(i, [new EndTagTk( 'i' )]);
+				state = 'b';
+			} else if (state === 'ib') {
+				// annoying!
+				this.quoteToTag(i, [new EndTagTk( 'b' ), new EndTagTk( 'i' ),
+									new TagTk( 'b' )], "bogus two");
+				state = 'b';
+			} else if (state === 'both') {
+				this.quoteToTag(lastboth, [new TagTk( 'b' ), new TagTk( 'i' )]);
+				this.quoteToTag(i, [new EndTagTk( 'i' )]);
+				state = 'b';
+			} else { // state can be 'b' or ''
+				this.quoteToTag(i, [new TagTk( 'i' )]);
+				state += 'i';
+			}
+		} else if (qlen === 3) {
+			if (state === 'b') {
+				this.quoteToTag(i, [new EndTagTk( 'b' )]);
+				state = '';
+			} else if (state === 'ib') {
+				this.quoteToTag(i, [new EndTagTk( 'b' )]);
+				state = 'i';
+			} else if (state === 'bi') {
+				// annoying!
+				this.quoteToTag(i, [new EndTagTk( 'i' ), new EndTagTk( 'b' ),
+									new TagTk( 'i' )], "bogus two");
+				state = 'i';
+			} else if (state === 'both') {
+				this.quoteToTag(lastboth, [new TagTk( 'i' ), new TagTk( 'b' )]);
+				this.quoteToTag(i, [new EndTagTk( 'b' )]);
+				state = 'i';
+			} else { // state can be 'i' or ''
+				this.quoteToTag(i, [new TagTk( 'b' )]);
+				state += 'b';
+			}
+		} else if (qlen === 5) {
+			if (state === 'b') {
+				this.quoteToTag(i, [new EndTagTk( 'b' ), new TagTk( 'i' )]);
+				state = 'i';
+			} else if (state === 'i') {
+				this.quoteToTag(i, [new EndTagTk( 'i' ), new TagTk( 'b' )]);
+				state = 'b';
+			} else if (state === 'bi') {
+				this.quoteToTag(i, [new EndTagTk( 'i' ), new EndTagTk( 'b' )]);
+				state = '';
+			} else if (state === 'ib') {
+				this.quoteToTag(i, [new EndTagTk( 'b' ), new EndTagTk( 'i' )]);
+				state = '';
+			} else if (state === 'both') {
+				this.quoteToTag(lastboth, [new TagTk( 'i' ), new TagTk( 'b' )]);
+				this.quoteToTag(i, [new EndTagTk( 'b' ), new EndTagTk( 'i' )]);
+				state = '';
+			} else { // state == ''
+				lastboth = i;
+				state = 'both';
+			}
+		}
+	}
+	// now close all remaining tags.  notice that order is important.
+	if ( state === 'both' ) {
+		this.quoteToTag(lastboth, [new TagTk( 'b' ), new TagTk( 'i' )]);
+		state = 'bi';
+	}
+	if ( state === 'b' || state === 'ib' ) {
+		this.currentChunk.push( new EndTagTk( 'b', [], {autoInsertedEnd:1} ) );
+	}
+	if ( state === 'i' || state === 'bi' || state === 'ib' ) {
+		this.currentChunk.push( new EndTagTk( 'i', [], {autoInsertedEnd:1} ) );
+	}
+	if ( state === 'bi' ) {
+		this.currentChunk.push( new EndTagTk( 'b', [], {autoInsertedEnd:1} ) );
+	}
 
 	// return all collected tokens including the newline
+	this.currentChunk.push( token );
+	this._startNewChunk();
+	this.chunks[0].shift(); // remove 'prevToken' before first quote.
 	res = { tokens: Array.prototype.concat.apply([], this.chunks) };
-
 
 	// prepare for next line
 	this.reset();
@@ -268,67 +275,44 @@ QuoteTransformer.prototype.onNewLine = function (  token, frame, prevToken ) {
 // Convert a bold token to italic to balance an uneven number of both bold and
 // italic tags. In the process, one quote needs to be converted back to text.
 QuoteTransformer.prototype.convertBold = function ( i ) {
-	var chunk = this.bolds[i],
-		textToken = "'";
-	if ( chunk.pos ) {
-		this.chunks[chunk.pos].push( textToken );
-	} else {
-		// prepend another chunk
-		this.chunks.unshift( [ textToken ] );
+	// this should be a bold tag.
+	console.assert(i > 0 && this.chunks[i].length===1 &&
+				   this.chunks[i][0].value.length === 3);
+	// we're going to convert it to a single plain text ' plus an italic tag
+	this.chunks[i-1].push( "'" );
+	var oldbold = this.chunks[i][0];
+	var tsr = oldbold.dataAttribs ? oldbold.dataAttribs.tsr : null;
+	if ( tsr ) {
+		tsr = [ tsr[0]+1, tsr[1] ];
 	}
-
-	// delete from bolds
-	this.bolds.splice(i, 1);
-
-	this.italics.push(chunk);
-	this.italics.sort(function(a,b) { return a.pos - b.pos; } );
+	var newbold = new SelfclosingTagTk( 'mw-quote', [], { tsr: tsr });
+	newbold.value = "''"; // italic!
+	this.chunks[i] = [ newbold ];
 };
 
 // Convert italics/bolds into tags
-QuoteTransformer.prototype.quotesToTags = function ( chunks, name ) {
-	var toggle = true,
-		t,
-		j,
-		newToken,
-		nameToWidth = {
-			b: 3,
-			i: 2
-		};
-
-	for (j = 0; j < chunks.length; j++) {
-		//console.warn( 'quotesToTags ' + name + ': ' + JSON.stringify( chunks, null, 2 ) );
-		t = chunks[j][0].token;
-		//console.warn( 'quotesToTags t: ' + JSON.stringify( t, null, 2));
-
-		if(toggle) {
-			newToken = new TagTk( name, t.attribs,
-					// Mark last element as auto-closed
-					j === chunks.length - 1 ? { autoInsertedEnd: 1 } : {} );
-		} else {
-			newToken = new EndTagTk( name, t.attribs, {} );
+QuoteTransformer.prototype.quoteToTag = function( chunk, tags, ignoreBogusTwo ){
+	console.assert(this.chunks[chunk].length === 1);
+	var result = [];
+	var oldtag = this.chunks[chunk][0];
+	// make tsr
+	var tsr = oldtag.dataAttribs ? oldtag.dataAttribs.tsr : null;
+	var startpos = tsr ? tsr[0] : null, endpos = tsr ? tsr[1] : null;
+	for (var i=0; i<tags.length; i++) {
+		if (tsr) {
+			if ( ( i===0 || i===2) && ignoreBogusTwo ) {
+				tags[i].dataAttribs.tsr = [ startpos, startpos ];
+			} else if (tags[i].name === 'b') {
+				tags[i].dataAttribs.tsr = [ startpos, startpos + 3 ];
+			} else if (tags[i].name === 'i') {
+				tags[i].dataAttribs.tsr = [ startpos, startpos + 2 ];
+			} else { console.assert(false); }
+			startpos = tags[i].dataAttribs.tsr[1];
 		}
-		if (t.dataAttribs && t.dataAttribs.tsr) {
-			var tsr = t.dataAttribs.tsr,
-				len = tsr[1] - tsr[0];
-			// Verify if we the tsr value is accurate
-			// SSS FIXME: We could potentially adjust tsr based on length
-			// but dont know yet whether to fix tsr[0] or tsr[1]
-			if (len === nameToWidth[name]) {
-				newToken.dataAttribs.tsr = Util.clone(tsr);
-			} else {
-				// we generally use the last quotes, so adjust the tsr to that
-				newToken.dataAttribs.tsr = [tsr[1] - nameToWidth[name], tsr[1]];
-			}
-		}
-
-		chunks[j][0] = newToken;
-
-		toggle = !toggle;
+		result.push(tags[i]);
 	}
-	if (!toggle) {
-		// Add end tag
-		this.currentChunk.push( new EndTagTk( name ) );
-	}
+	if (tsr) { console.assert(startpos === endpos, startpos, endpos); }
+	this.chunks[chunk] = result;
 };
 
 if (typeof module === "object") {
