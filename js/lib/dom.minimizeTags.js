@@ -218,32 +218,25 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 	// - (lcs: U,  paths: [U, US])
 	// - (lcs: B,  paths: [B])
 	// - (lcs: I,  paths: [I])
-	// XXX FIXME XXX
-	// when parsoid tackles
-	// http://ar.wikipedia.org/w/index.php?title=%D9%82%D8%A7%D9%84%D8%A8:%D8%A3%D8%AD%D9%88%D8%A7%D8%B6_%D8%B9%D9%85%D8%A7%D9%86&oldid=9394524
-	// it ends up invoking split_into_disjoint_sublists(JS Array[10203])
-	// which then recursively invokes itself, tries to put 10203 frames
-	// on the stack, runs out of call stack space and crashes.
-	// We've turned off the minimizeInlineTags pass for now (see bug 42803)
-	// but if we turn it back on, we need to rewrite this function to
-	// remove the recursion and use an explicit stack. [CSA]
 	function split_into_disjoint_sublists(P) {
-		var p    = P.shift();
-		var lcs  = p.path;
-		var curr = [p];
+		var p    = P[0];
+		var curr = { paths: [p], lcs: p.path };
+		var ret  = [];
 
-		for (var i = 0, n = P.length; i < n; i++) {
-			p = P.shift();
-			var new_lcs = common_path(lcs, p.path);
+		for (var i = 1, n = P.length; i < n; i++) {
+			p = P[i];
+			var new_lcs = common_path(curr.lcs, p.path);
 			if (new_lcs.length === 0) {
-				P.unshift(p);
-				return [{lcs: lcs, paths: curr}].concat(split_into_disjoint_sublists(P));
+				ret.push(curr);
+				curr = { paths: [p], lcs: p.path };
+			} else {
+				curr.lcs = new_lcs;
+				curr.paths.push(p);
 			}
-			lcs = new_lcs;
-			curr.push(p);
 		}
 
-		return [{lcs: lcs, paths: curr}];
+		ret.push(curr);
+		return ret;
 	}
 
 	// Init
