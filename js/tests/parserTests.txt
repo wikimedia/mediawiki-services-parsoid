@@ -7214,6 +7214,23 @@ parsoid=html2wt
 <tbody><td about="#mwt1" typeof="mw:Transclusion" data-mw='{"i":0,"parts":["|",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"{{!}}foo"}},"i":0}}]}'>foo</td></tr></tbody></table>
 !! end
 
+!! test
+Parsoid: Merge double tds in nested transclusion content (bug 50603)
+!! options
+parsoid=wt2html,wt2wt
+!! input
+{{echo|<div>}}
+{|
+|{{echo|{{!}} foo}}
+|}
+{{echo|</div>}}
+!! result
+<div typeof="mw:Transclusion">
+<table>
+<tbody><td>foo</td></tr></tbody></table>
+</div>
+!! end
+
 ###
 ### <includeonly> and <noinclude> in attributes
 ###

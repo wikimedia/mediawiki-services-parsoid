@@ -14,9 +14,12 @@ function stripDoubleTDs (env, node) {
 		nextNode !== null &&
 	    nextNode.nodeName === 'TD' &&
 	    !DU.isLiteralHTMLNode(nextNode) &&
-		// FIXME: will not be set for nested templates
-		DU.isEncapsulatedElt(nextNode) &&
-	    DU.nodeEssentiallyEmpty(node))
+		DU.nodeEssentiallyEmpty(node) &&
+		(// FIXME: will not be set for nested templates
+		 DU.isEncapsulatedElt(nextNode) ||
+		 // Hacky work-around for nested templates
+		 /^{{.*?}}$/.test(nextNode.data.parsoid.src))
+	    )
 	{
 		// Update the dsr. Since we are coalescing the first
 		// node with the second (or, more precisely, deleting
