@@ -1,5 +1,5 @@
 "use strict";
-/*
+/**
  * Simple link handler. Registers after template expansions, as an
  * asynchronous transform.
  *

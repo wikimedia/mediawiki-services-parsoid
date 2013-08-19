@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * General DOM utilities
+ * General DOM utilities.
  */
 
 require('./core-upgrade.js');

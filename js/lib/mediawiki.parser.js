@@ -158,9 +158,9 @@ ParserPipelineFactory.prototype.recipes = {
 		// Build a tree out of the fully processed token stream
 		[ TreeBuilder, [] ],
 
-		/**
-		* Final processing on the HTML DOM.
-		*/
+		/*
+		 * Final processing on the HTML DOM.
+		 */
 
 		/* Generic DOM transformer.
 		* This currently performs minor tree-dependent clean up like wrapping
@@ -320,7 +320,7 @@ ParserPipelineFactory.prototype.returnPipeline = function ( type, pipe ) {
 };
 
 
-/******************** ParserPipeline ****************************/
+/* ******************* ParserPipeline *************************** */
 
 /**
  * Wrap some stages into a pipeline. The last member of the pipeline is
