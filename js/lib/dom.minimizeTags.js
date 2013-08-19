@@ -1,5 +1,6 @@
 "use strict";
 
+require('./core-upgrade.js');
 var DU = require('./mediawiki.DOMUtils.js').DOMUtils;
 
 function minimizeInlineTags(root, rewriteable_nodes) {
@@ -7,10 +8,6 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 
 	function printPath(p) {
 		return p.map(function(n) { return n.nodeName; }).join('|');
-	}
-
-	function tail(a) {
-		return a[a.length-1];
 	}
 
 	function remove_all_children(node) {
@@ -58,14 +55,17 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 		var P = [];
 		for (var i = 0; i < n; i++) {
 			var s = children[i];
-			if (DU.isElt(s)) {
+			if (DU.isElt(s) && DU.isEncapsulatedElt(s)) {
+				// Dont descend into template generated content
+				P.push({path: [], orig_parent: node, children: [s]});
+			} else if (DU.isElt(s)) {
 				var p = longest_linear_path(s);
 				if (p.length === 0) {
 					rewrite(s);
 					// console.log("Pushed EMPTY with orig_parent: " + node.nodeName);
 					P.push({path: [], orig_parent: node, children: [s]});
 				} else {
-					var p_tail = tail(p);
+					var p_tail = p.last();
 
 					// console.log("llp: " + printPath(p));
 
@@ -96,10 +96,15 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 
 	function longest_linear_path(node) {
 		var children, path = [];
-		while (DU.isElt(node)) {
+
+		// Do not cross into templates and block tags
+		while (DU.isElt(node) &&
+			!DU.isBlockTag(node.nodeName) &&
+			!DU.isEncapsulatedElt(node))
+		{
 			path.push(node);
 			children = node.childNodes;
-			if ((children.length === 0) || (children.length > 1)) {
+			if (children.length !== 1) {
 				return path;
 			}
 			node = children[0];
@@ -128,9 +133,11 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 				var prev = lcs[0];
 				for (var k = 1, lcs_len = lcs.length; k < lcs_len; k++) {
 					var curr = lcs[k];
-					// SSS FIXME: this add/remove can be optimized
 					// console.log("adding " + curr.nodeName + " to " + prev.nodeName);
-					remove_all_children(prev);
+
+					// prev will have exactly one child
+					// -- remove that child and make curr its child
+					prev.removeChild(prev.firstChild);
 					prev.appendChild(curr);
 					prev = curr;
 				}
@@ -149,16 +156,16 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 				// (b) we have a non-empty path ==> attach the children to the end of the path
 				var p        = paths[0].path;
 				var children = paths[0].children;
-				if (p.length > 0) {
-					var p_tail = tail(p);
+				if (p.length === 0) {
+					add_children(parent_node, children);
+				} else {
+					var p_tail = p.last();
 					remove_all_children(p_tail);
 					add_children(p_tail, children);
-				} else {
-					add_children(parent_node, children);
 				}
 			} else {
 				// Process the sublist
-				rewrite_paths(tail(lcs), strip_lcs(paths, lcs));
+				rewrite_paths(lcs.last(), strip_lcs(paths, lcs));
 			}
 
 			// console.log("done with this sublist");
@@ -166,6 +173,9 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 		// console.log("--done all sublists--");
 	}
 
+	// SSS FIXME: Check attributes between paths here
+	// - if data-parsoid.stx.html, all attributes should match
+	// - if not data-parsoid.stx.html, can only match with non-html tags
 	function common_path(old, new_path) {
 		var hash = {};
 		for (var i = 0, n = new_path.length; i < n; i++) {
