@@ -20,7 +20,7 @@ var domino = require('./domino'),
 	markTreeBuilderFixups = require('./dom.markTreeBuilderFixups.js').markTreeBuilderFixups,
 	migrateStartMetas = require('./dom.migrateStartMetas.js').migrateStartMetas,
 	migrateTrailingNLs = require('./dom.migrateTrailingNLs.js').migrateTrailingNLs,
-	stripDoubleTDs = require('./dom.t.TDFixups.js').stripDoubleTDs,
+	TableFixups = require('./dom.t.TableFixups.js'),
 	stripMarkerMetas = CleanUp.stripMarkerMetas,
 	unpackDOMFragments = require('./dom.t.unpackDOMFragments.js').unpackDOMFragments,
 	wrapTemplates = require('./dom.wrapTemplates.js').wrapTemplates;
@@ -136,14 +136,18 @@ function DOMPostProcessor(env, options) {
 	this.processors.push(generateRefs.bind(null,
 				env.conf.parsoid.nativeExtensions.cite.references));
 
+	var domVisitor2 = new DOMTraverser(),
+		tableFixer = new TableFixups.TableFixups(env);
 	// 1. Strip marker metas -- removes left over marker metas (ex: metas
 	//    nested in expanded tpl/extension output).
-	// 2. Fix up DOM for li-hack.
-	// 3. Save data.parsoid into data-parsoid html attribute.
-	var domVisitor2 = new DOMTraverser();
 	domVisitor2.addHandler( 'meta', stripMarkerMetas.bind(null, env.conf.parsoid.editMode) );
+	// 2. Fix up DOM for li-hack.
 	domVisitor2.addHandler( 'li', handleLIHack.bind( null, env ) );
-	domVisitor2.addHandler( 'td', stripDoubleTDs.bind( null, env ) );
+	// 3. Fix up issues from templated table cells and table cell attributes
+	domVisitor2.addHandler( 'td', tableFixer.stripDoubleTDs.bind( tableFixer, env ) );
+	domVisitor2.addHandler( 'td', tableFixer.reparseTemplatedAttributes.bind( tableFixer, env ) );
+	domVisitor2.addHandler( 'th', tableFixer.reparseTemplatedAttributes.bind( tableFixer, env ) );
+	// 4. Save data.parsoid into data-parsoid html attribute.
 	domVisitor2.addHandler( null, cleanupAndSaveDataParsoid );
 	this.processors.push(domVisitor2.traverse.bind(domVisitor2));
 }

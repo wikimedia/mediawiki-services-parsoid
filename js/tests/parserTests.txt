@@ -4061,10 +4061,13 @@ Template-generated table cell attributes and cell content
 !! input
 {|
 |{{table_attribs}}
+| {{table_attribs}}
 |}
 !! result
 <table>
 <tr>
+<td style="color: red"> Foo
+</td>
 <td style="color: red"> Foo
 </td></tr></table>
 
