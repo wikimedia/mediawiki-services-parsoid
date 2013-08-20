@@ -5,6 +5,10 @@ var DU = require('./mediawiki.DOMUtils.js').DOMUtils;
 function minimizeInlineTags(root, rewriteable_nodes) {
 	var rewriteable_node_map = null;
 
+	function printPath(p) {
+		return p.map(function(n) { return n.nodeName; }).join('|');
+	}
+
 	function tail(a) {
 		return a[a.length-1];
 	}
@@ -24,7 +28,7 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 	function init() {
 		rewriteable_node_map = {};
 		for (var i = 0, n = rewriteable_nodes.length; i < n; i++) {
-			rewriteable_node_map[rewriteable_nodes[i].toLowerCase()] = true;
+			rewriteable_node_map[rewriteable_nodes[i].toUpperCase()] = true;
 		}
 	}
 
@@ -63,7 +67,7 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 				} else {
 					var p_tail = tail(p);
 
-					// console.log("llp: " + p);
+					// console.log("llp: " + printPath(p));
 
 					// process subtree (depth-first)
 					rewrite(p_tail);
@@ -75,7 +79,7 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 						new_children.push(child_nodes[j]);
 					}
 
-					// console.log("Pushed: " + p + ", tail: " + p_tail.nodeName + "; new_children: " + new_children.length);
+					// console.log("Pushed: " + printPath(p) + ", tail: " + p_tail.nodeName + "; new_children: " + new_children.length);
 					P.push({path: p, orig_parent: p_tail, children: new_children});
 				}
 			} else {
@@ -120,7 +124,7 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 
 			if (lcs.length > 0) {
 				// Connect up LCS
-				// console.log("LCS: " + lcs);
+				// console.log("LCS: " + printPath(lcs));
 				var prev = lcs[0];
 				for (var k = 1, lcs_len = lcs.length; k < lcs_len; k++) {
 					var curr = lcs[k];
@@ -137,7 +141,7 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 
 			var paths     = s.paths;
 			var num_paths = paths.length;
-			// console.log("sublist: lcs: " + lcs + ", #paths: " + num_paths);
+			// console.log("sublist: lcs: " + printPath(lcs) + ", #paths: " + num_paths);
 			if (num_paths === 1) {
 				// Nothing more to do!  Stitch things up
 				// two possible scenarios:
@@ -165,7 +169,7 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 	function common_path(old, new_path) {
 		var hash = {};
 		for (var i = 0, n = new_path.length; i < n; i++) {
-			var e = new_path[i].nodeName.toLowerCase();
+			var e = new_path[i].nodeName;
 			if (is_rewriteable_node(e)) {
 				hash[e] = new_path[i];
 			}
@@ -173,7 +177,7 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 
 		var cp = [];
 		for (i = 0, n = old.length; i < n; i++) {
-			var hit = hash[old[i].nodeName.toLowerCase()];
+			var hit = hash[old[i].nodeName];
 			// Add old path element always.  This effectively picks elements from the leftmost path.
 			if (hit) {
 				cp.push(old[i]);
@@ -190,22 +194,27 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 		// Ex: <b><i><b>BIB</b></i></b> will
 		// Fix this to be more robust
 
+		// console.log("Orig paths:\n-> " + paths.map(function(p) { return printPath(p.path); }).join("\n-> "));
+		// console.log("Stripping " + printPath(lcs));
+
 		var lcs_map = {};
 		for (var i = 0, n = lcs.length; i < n; i++) {
-			lcs_map[lcs[i]] = true;
+			lcs_map[lcs[i].nodeName] = true;
 		}
 
 		for (i = 0, n = paths.length; i < n; i++) {
 			var p = paths[i].path;
 			for (var j = 0, l = p.length; j < l; j++) {
 				// remove matching element
-				if (lcs_map[p[j]]) {
+				if (lcs_map[p[j].nodeName]) {
 					p.splice(j, 1);
 					l--;
 					j--;
 				}
 			}
 		}
+
+		// console.log("Stripped paths:\n-> " + paths.map(function(p) { return printPath(p.path); }).join("\n-> "));
 
 		return paths;
 	}
