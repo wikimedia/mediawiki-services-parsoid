@@ -1207,9 +1207,23 @@ link_end = "]]"
  * bolds/italics and MediaWiki's special heuristics for apostrophes, which are
  * all not context free. */
 quote = "''" x:"'"* {
-    var res = new SelfclosingTagTk( 'mw-quote', [], { tsr: [pos0, pos] } ); // Will be consumed in token transforms
-    res.value = "''" + x.join('');
-    return res;
+    // sequences of four or more than five quotes are assumed to start
+    // with some number of plain-text apostrophes.
+    var quotes = "''" + x.join(''), plainticks = 0, result = [];
+    if (quotes.length === 4) {
+        plainticks = 1;
+    } else if (quotes.length > 5) {
+        plainticks = quotes.length - 5;
+    }
+    if (plainticks > 0) {
+        result.push(quotes.substring(0, plainticks));
+    }
+    // mw-quote token Will be consumed in token transforms
+    var mwq = new SelfclosingTagTk( 'mw-quote', [],
+        { tsr: [pos0 + plainticks, pos] } );
+    mwq.value = quotes.substring(plainticks);
+    result.push(mwq);
+    return result;
 }
 
 
