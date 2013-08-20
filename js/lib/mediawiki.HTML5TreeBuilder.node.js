@@ -7,10 +7,12 @@
 
 var events = require('events'),
 	util = require('util'),
-	$ = require( './fakejquery' ),
+	$ = require('./fakejquery'),
 	HTML5 = require('./html5/index'),
+	domino = require('./domino'),
 	defines = require('./mediawiki.parser.defines.js'),
 	Util = require('./mediawiki.Util.js').Util;
+
 // define some constructor shortcuts
 var CommentTk = defines.CommentTk,
     EOFTk = defines.EOFTk,
@@ -26,10 +28,15 @@ FauxHTML5.TreeBuilder = function ( env ) {
 	events.EventEmitter.call(this);
 
 	// The parser we are going to emit our tokens to
-	this.parser = new HTML5.Parser();
+	this.parser = new HTML5.Parser({
+		document: domino.createDocument( '<html></html>' )
+	});
 
 	// Sets up the parser
-	this.parser.parse(this);
+	this.parser.tokenizer = this;
+	this.addListener( 'token', this.parser.do_token.bind( this.parser ) );
+	this.addListener( 'end', this.parser.emit.bind( this.parser, 'end') );
+	this.parser.setup();
 
 	// implicitly start a new document
 	this.processToken(new TagTk( 'body' ));

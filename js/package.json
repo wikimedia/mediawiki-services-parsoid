@@ -15,7 +15,8 @@
 		"pegjs": "0.7.x",
 		"lru-cache": "1.x.x",
 		"async": "0.x.x",
-		"express": "2.5.x"
+		"express": "2.5.x",
+		"html5-entities": "~0.5.0"
 	},
 	"devDependencies": {
 		"colors": "0.x.x",

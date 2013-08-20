@@ -1,14 +1,6 @@
 var HTML5 = require('../html5');
 var events = require('events');
 
-function keys(o) {
-	var r = [];
-	for(var k in o) {
-		r.push(k);
-	}
-	return r;
-}
-
 function hescape(s) {
       return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 }
@@ -60,7 +52,22 @@ HTML5.serialize = function(src, target, override) {
 	var escape_rcdata = false;
 	var w = new HTML5.TreeWalker(src, function(tok) {
 		if(tok.type == "Doctype") {
-			doctype = "<!DOCTYPE " + tok.name + ">";
+			doctype = "<!DOCTYPE " + tok.name;
+			if (token.publicId)
+				doctype += ' PUBLIC "' + token.publicId + '"';
+			else if (token.systemId)
+				doctype += " SYSTEM";
+			if (token.systemId) {
+				if (token.systemId.search('"') >= 0) {
+					if (token.systemId.search("'") >= 0)
+						serialize_error("System identifer contains both single and double quote characters");
+					var quote_char = "'";
+				} else {
+					var quote_char = '"';
+				}
+				doctype += " " + quote_char + token.systemId + quote_char;
+			}
+			doctype += ">";
 			dest.emit('data', doctype);
 		} else if(tok.type == 'Characters' || tok.type == 'SpaceCharacters') {
 			if(in_cdata || tok.type == 'SpaceCharacters') {

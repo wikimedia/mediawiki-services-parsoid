@@ -40,7 +40,7 @@ b.prototype.copyAttributeToElement = function(element, attribute) {
 			}
 		} catch(e) {
 			HTML5.debug('treebuilder.copyAttributes',
-						"Can't set attribute", name, value, e);
+				"Can't set attribute", name, value, e);
 		}
 	}
 }
@@ -48,7 +48,9 @@ b.prototype.copyAttributeToElement = function(element, attribute) {
 b.prototype.createElement = function (name, attributes, namespace) {
 	var el;
     try {
-        el = this.document.createElement(name);
+        // el = (this.document._elementBuilders[name.toLowerCase()] || this.document._defaultElementBuilder)(this.document, name);
+        el = this.document.createElement( name );
+        el._created = true;
     } catch(e) {
         console.log("Can't create element '"+ name + "' (" + e + ") Using a div for now. FIXME!")
 		el = this.document.createElement('div');
@@ -68,6 +70,20 @@ HTML5.debug('treebuilder.copyAttributes', attributes[i]);
         }
     }
     return el;
+}
+
+b.prototype.insert_root = function(name, attributes, namespace) {
+	var root = this.document.documentElement;
+	if (root) {
+		if (root.tagName != 'HTML')
+			HTML5.debug('parser.before_html_phase', 'Non-HTML root element!');
+		while (root.childNodes.length >= 1)
+			root.removeChild(root.firstChild);
+	} else {
+		root = this.createElement(name, attributes, namespace);
+		this.document.appendChild(root);
+	}
+	this.open_elements.push(root);
 }
 
 b.prototype.insert_element = function(name, attributes, namespace) {
@@ -284,7 +300,8 @@ b.prototype.create_structure_elements = function(container) {
 	this.html_pointer = this.document.getElementsByTagName('html')[0]
 	if(!this.html_pointer) {
 		this.html_pointer = this.createElement('html');
-		this.document.appendChild(this.html_pointer);
+
+		(this.document.documentElement||this.document).appendChild(this.html_pointer);
 	}
 	if(container == 'html') return;
 	if(!this.head_pointer) {
