@@ -82,9 +82,9 @@ WikiLinkHandler.prototype.getWikiLinkTargetInfo = function (token) {
 		var interwikiInfo = env.conf.wiki.interwikiMap[nsPrefix.toLowerCase()
 														.replace( ' ', '_' )],
 			// check for interwiki / language links
-			ns = env.conf.wiki.canonicalNamespaces[ nsPrefix.toLowerCase()
+			ns = env.conf.wiki.namespaceIds[ nsPrefix.toLowerCase()
 														.replace( ' ', '_' ) ];
-		//console.warn( JSON.stringify( [ nsText, ns ] ) );
+		//console.warn( nsPrefix, ns, env.conf.wiki.namespaceIds );
 		// also check for url to protect against [[constructor:foo]]
 		if ( interwikiInfo && interwikiInfo.url ) {
 			// interwiki or language link

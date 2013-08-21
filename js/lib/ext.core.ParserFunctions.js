@@ -781,12 +781,13 @@ ParserFunctions.prototype.pf_protectionlevel = function ( token, frame, cb, args
 	cb( { tokens: [''] } );
 };
 ParserFunctions.prototype.pf_ns = function ( token, frame, cb, args ) {
-	var nsid, target = args[0].k, env = this.env;
+	var nsid, target = args[0].k, env = this.env,
+		normalizedTarget = target.toLowerCase().replace(' ', '_');
 
-	if ( env.conf.wiki.namespaceIds[target.toLowerCase()] ) {
-		nsid = env.conf.wiki.namespaceIds[target.toLowerCase()];
-	} else if ( env.conf.wiki.canonicalNamespaces[target.toLowerCase()] ) {
-		nsid = env.conf.wiki.canonicalNamespaces[target.toLowerCase()];
+	if ( env.conf.wiki.namespaceIds[normalizedTarget] ) {
+		nsid = env.conf.wiki.namespaceIds[normalizedTarget];
+	} else if ( env.conf.wiki.canonicalNamespaces[normalizedTarget] ) {
+		nsid = env.conf.wiki.canonicalNamespaces[normalizedTarget];
 	}
 
 	if ( nsid !== undefined && env.conf.wiki.namespaceNames[nsid] ) {

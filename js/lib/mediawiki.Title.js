@@ -47,8 +47,7 @@ Title.fromPrefixedText = function ( env, text ) {
 	text = env.normalizeTitle( text );
 	var nsText = text.split( ':', 1 )[0];
 	if ( nsText && nsText !== text ) {
-		var _ns = new Namespace( 0, env );
-		var ns = _ns.namespaceIds[ nsText.toLowerCase().replace( ' ', '_' ) ];
+		var ns = env.conf.wiki.namespaceIds[ nsText.toLowerCase().replace( ' ', '_' ) ];
 		//console.warn( JSON.stringify( [ nsText, ns ] ) );
 		if ( ns !== undefined ) {
 			return new Title( text.substr( nsText.length + 1 ), ns, nsText, env );
@@ -117,27 +116,8 @@ Title.prototype.getPrefixedText = function () {
  * @param {MWParserEnvironment} env
  */
 Namespace = function( id, env ) {
-	var ids = env.conf.wiki.namespaceIds;
-	var names = env.conf.wiki.namespaceNames;
+	this.env = env;
 	this.id = Number( id );
-	this.namespaceIds = env.conf.wiki.canonicalNamespaces;
-	this.canonicalNamespaces = env.conf.wiki.canonicalNamespaces;
-
-	if ( ids ) {
-		for ( var ix in ids ) {
-		if ( ids.hasOwnProperty( ix ) ) {
-			this.namespaceIds[ix.toLowerCase()] = ids[ix];
-			}
-		}
-	}
-
-	this.namespaceNames = ( names ) ? names : {
-		'6': 'File',
-		'-2': 'Media',
-		'-1': 'Special',
-		'0': '',
-		'14': 'Category'
-	};
 };
 
 /**
@@ -148,7 +128,7 @@ Namespace = function( id, env ) {
  * @returns {boolean}
  */
 Namespace.prototype.isFile = function ( ) {
-	return this.id === this.canonicalNamespaces.file;
+	return this.id === this.env.conf.wiki.canonicalNamespaces.file;
 };
 
 /**
@@ -159,7 +139,7 @@ Namespace.prototype.isFile = function ( ) {
  * @returns {boolean}
  */
 Namespace.prototype.isCategory = function ( ) {
-	return this.id === this.canonicalNamespaces.category;
+	return this.id === this.env.conf.wiki.canonicalNamespaces.category;
 };
 
 /**
@@ -170,7 +150,7 @@ Namespace.prototype.isCategory = function ( ) {
  * @returns {string/undefined}
  */
 Namespace.prototype.getDefaultName = function ( ) {
-	return this.namespaceNames[this.id.toString()];
+	return this.env.conf.wiki.namespaceNames[this.id.toString()];
 };
 
 if (typeof module === "object") {

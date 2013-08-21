@@ -332,7 +332,7 @@ TemplateHandler.prototype.resolveTemplateTarget = function ( state, targetToks )
 	// Apply more stringent standards for template targets.
 	if (isConvertibleToString(targetToks)) {
 		// We can use the stringified target tokens
-		var namespaceId = env.conf.wiki.namespaceIds[lowerPrefix];
+		var namespaceId = env.conf.wiki.namespaceIds[lowerPrefix.replace(' ', '_')];
 
 		// TODO: Should we assume Template here?
 		if ( prefix === target ) {
