@@ -27,10 +27,9 @@ QuoteTransformer.prototype.reset = function ( ) {
 	this.chunks = [];
 	// The current chunk we're accumulating into.
 	this.currentChunk = [];
-	// References to chunks in which the first token context / quote token
-	// should be converted to italic or bold tokens.
-	this.italics = [];
-	this.bolds = [];
+	// last italic / last bold open tag seen.  Used to add autoInserted flags
+	// where necessary.
+	this.last = Object.create(null);
 
 	this.isActive = false;
 };
@@ -243,13 +242,16 @@ QuoteTransformer.prototype.onNewLine = function (  token, frame, prevToken ) {
 		state = 'bi';
 	}
 	if ( state === 'b' || state === 'ib' ) {
-		this.currentChunk.push( new EndTagTk( 'b', [], {autoInsertedEnd:1} ) );
+		this.currentChunk.push( new EndTagTk( 'b' ) );
+		this.last.b.dataAttribs.autoInsertedEnd = 1;
 	}
 	if ( state === 'i' || state === 'bi' || state === 'ib' ) {
-		this.currentChunk.push( new EndTagTk( 'i', [], {autoInsertedEnd:1} ) );
+		this.currentChunk.push( new EndTagTk( 'i' ) );
+		this.last.i.dataAttribs.autoInsertedEnd = 1;
 	}
 	if ( state === 'bi' ) {
-		this.currentChunk.push( new EndTagTk( 'b', [], {autoInsertedEnd:1} ) );
+		this.currentChunk.push( new EndTagTk( 'b' ) );
+		this.last.b.dataAttribs.autoInsertedEnd = 1;
 	}
 
 	// return all collected tokens including the newline
@@ -300,15 +302,19 @@ QuoteTransformer.prototype.quoteToTag = function( chunk, tags, ignoreBogusTwo ){
 	var startpos = tsr ? tsr[0] : null, endpos = tsr ? tsr[1] : null;
 	for (var i=0; i<tags.length; i++) {
 		if (tsr) {
-			if ( ( i===0 || i===2) && ignoreBogusTwo ) {
-				tags[i].dataAttribs.tsr = [ startpos, startpos ];
+			if ( i===0 && ignoreBogusTwo ) {
+				this.last[tags[i].name].dataAttribs.autoInsertedEnd = 1;
+			} else if ( i === 2 && ignoreBogusTwo ) {
+				tags[i].dataAttribs.autoInsertedStart = 1;
 			} else if (tags[i].name === 'b') {
 				tags[i].dataAttribs.tsr = [ startpos, startpos + 3 ];
+				startpos = tags[i].dataAttribs.tsr[1];
 			} else if (tags[i].name === 'i') {
 				tags[i].dataAttribs.tsr = [ startpos, startpos + 2 ];
+				startpos = tags[i].dataAttribs.tsr[1];
 			} else { console.assert(false); }
-			startpos = tags[i].dataAttribs.tsr[1];
 		}
+		this.last[tags[i].name] = (tags[i].constructor === EndTagTk) ? null : tags[i];
 		result.push(tags[i]);
 	}
 	if (tsr) { console.assert(startpos === endpos, startpos, endpos); }
