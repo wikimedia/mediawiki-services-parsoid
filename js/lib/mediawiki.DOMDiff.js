@@ -55,44 +55,6 @@ var ignoreAttributes = {
 };
 
 /**
- * Attribute equality test
- */
-DDP.attribsEquals = function(nodeA, nodeB) {
-	function arrayToHash(attrs) {
-		var h = {}, count = 0;
-		for (var i = 0, n = attrs.length; i < n; i++) {
-			var a = attrs.item(i);
-			if (!ignoreAttributes[a.name]) {
-				count++;
-				h[a.name] = a.value;
-			}
-		}
-
-		return { h: h, count: count };
-	}
-
-	var xA = arrayToHash(nodeA.attributes),
-		xB = arrayToHash(nodeB.attributes);
-
-	if (xA.count !== xB.count) {
-		return false;
-	}
-
-	var hA = xA.h, keysA = Object.keys(hA).sort(),
-		hB = xB.h, keysB = Object.keys(hB).sort();
-
-	for (var i = 0; i < xA.count; i++) {
-		var k = keysA[i];
-		if (k !== keysB[i] || hA[k] !== hB[k]) {
-			return false;
-		}
-	}
-
-	return true;
-};
-
-
-/**
  * Test if two DOM nodes are equal without testing subtrees
  */
 DDP.treeEquals = function (nodeA, nodeB, deep) {
@@ -109,7 +71,7 @@ DDP.treeEquals = function (nodeA, nodeB, deep) {
 		return nodeA.nodeValue === nodeB.nodeValue;
 	} else if (nodeA.nodeType === nodeA.ELEMENT_NODE) {
 		// Compare node name and attribute length
-		if (nodeA.nodeName !== nodeB.nodeName || !this.attribsEquals(nodeA, nodeB)) {
+		if (nodeA.nodeName !== nodeB.nodeName || !DU.attribsEquals(nodeA, nodeB, ignoreAttributes)) {
 			return false;
 		}
 

@@ -55,6 +55,47 @@ var DOMUtils = {
 	},
 
 	/**
+	 * Attribute equality test
+	 */
+	attribsEquals: function(nodeA, nodeB, ignoreAttributes) {
+		if (!ignoreAttributes) {
+			ignoreAttributes = Object.create(null);
+		}
+
+		function arrayToHash(attrs) {
+			var h = {}, count = 0;
+			for (var i = 0, n = attrs.length; i < n; i++) {
+				var a = attrs.item(i);
+				if (!ignoreAttributes[a.name]) {
+					count++;
+					h[a.name] = a.value;
+				}
+			}
+
+			return { h: h, count: count };
+		}
+
+		var xA = arrayToHash(nodeA.attributes),
+			xB = arrayToHash(nodeB.attributes);
+
+		if (xA.count !== xB.count) {
+			return false;
+		}
+
+		var hA = xA.h, keysA = Object.keys(hA).sort(),
+			hB = xB.h, keysB = Object.keys(hB).sort();
+
+		for (var i = 0; i < xA.count; i++) {
+			var k = keysA[i];
+			if (k !== keysB[i] || hA[k] !== hB[k]) {
+				return false;
+			}
+		}
+
+		return true;
+	},
+
+	/**
 	 * Add a type to the typeof attribute. This method works for both tokens
 	 * and DOM nodes as it only relies on getAttribute and setAttribute, which
 	 * are defined for both.
@@ -590,7 +631,7 @@ var DOMUtils = {
 	},
 
 	isEncapsulatedElt: function(node) {
-		return (/\bmw:(?:Transclusion\b|Param\b|Extension\/[^\s]+)/).test(node.getAttribute('typeof'));
+		return this.isElt(node) && (/\bmw:(?:Transclusion\b|Param\b|Extension\/[^\s]+)/).test(node.getAttribute('typeof'));
 	},
 
 	/**
@@ -885,11 +926,8 @@ var DOMUtils = {
 	},
 
 	migrateChildren: function(from, to) {
-		var child = from.firstChild;
-		while (child) {
-			var next = child.nextSibling;
-			to.appendChild(child);
-			child = next;
+		while (from.firstChild) {
+			to.appendChild(from.firstChild);
 		}
 	},
 
