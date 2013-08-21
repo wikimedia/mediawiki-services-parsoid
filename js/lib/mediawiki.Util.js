@@ -707,16 +707,19 @@ var Util = {
 
 	sanitizeTitleURI: function ( title ) {
 		var bits = title.split('#'),
-			anchor = null;
+			anchor = null,
+			sanitize = function(s) {
+				return s.replace( /[%? \[\]#|]/g, function ( m ) {
+					return encodeURIComponent( m );
+				} );
+			};
 		if ( bits.length > 1 ) {
 			anchor = bits[bits.length - 1];
 			title = title.substring(0, title.length - anchor.length - 1);
 		}
-		title = title.replace( /[%? \[\]#|]/g, function ( m ) {
-			return encodeURIComponent( m );
-		} );
+		title = sanitize(title);
 		if ( anchor !== null ) {
-			title += '#' + anchor;
+			title += '#' + sanitize(anchor);
 		}
 		return title;
 	},
