@@ -176,6 +176,12 @@ var dbInsertStats =
 		'skips = VALUES( skips ), fails = VALUES( fails ), ' +
 		'errors = VALUES( errors ), score = VALUES( score )';
 
+var dbInsertPerfStatsStart =
+	'INSERT INTO perfstats ' +
+	'( page_id, commit_hash, type, value ) VALUES ';
+var dbInsertPerfStatsEnd =
+	' ON DUPLICATE KEY UPDATE value = VALUES( value )';
+
 var dbUpdatePageLatestResults =
 	'UPDATE pages ' +
 	'SET latest_stat = ?, latest_score = ?, latest_result = ?, ' +
@@ -329,7 +335,7 @@ var dbCommits =
 
 var dbFixesBetweenRevs =
 	'SELECT pages.title, pages.prefix, ' +
-	's1.commit_hash AS new_commit, s1.errors AS new_errors, s1.fails AS new_fails, s1.skips AS new_skips, ' +
+	's1.commit_hash AS new_commit, s1.errors AS errors, s1.fails AS fails, s1.skips AS skips, ' +
 	's2.commit_hash AS old_commit, s2.errors AS old_errors, s2.fails AS old_fails, s2.skips AS old_skips ' +
 	'FROM pages ' +
 	'JOIN stats AS s1 ON s1.page_id = pages.id ' +
@@ -347,7 +353,7 @@ var dbNumFixesBetweenRevs =
 
 var dbRegressionsBetweenRevs =
 	'SELECT pages.title, pages.prefix, ' +
-	's1.commit_hash AS new_commit, s1.errors AS new_errors, s1.fails AS new_fails, s1.skips AS new_skips, ' +
+	's1.commit_hash AS new_commit, s1.errors AS errors, s1.fails AS fails, s1.skips AS skips, ' +
 	's2.commit_hash AS old_commit, s2.errors AS old_errors, s2.fails AS old_fails, s2.skips AS old_skips ' +
 	'FROM pages ' +
 	'JOIN stats AS s1 ON s1.page_id = pages.id ' +
@@ -370,6 +376,17 @@ var dbResultsPerWikiQuery =
 	'SELECT result FROM results ' +
 	'JOIN pages ON pages.id = results.page_id ' +
 	'WHERE pages.prefix = ?';
+var dbPerfStatsTypes =
+	'SELECT DISTINCT type FROM perfstats';
+
+var dbPagePerfStatsStart =
+	'SELECT prefix, title, ';
+
+var dbPagePerfStatsEnd =
+	' FROM pages JOIN perfstats ON pages.id = perfstats.page_id ' +
+	'WHERE perfstats.commit_hash = ' +
+		'(SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1) ' +
+	'GROUP BY pages.id LIMIT 40 OFFSET ';
 
 var transUpdateCB = function( title, prefix, hash, type, res, trans, success_cb, err, result ) {
 	if ( err ) {
@@ -453,6 +470,37 @@ var statsScore = function(skipCount, failCount, errorCount) {
 	return errorCount*1000000+failCount*1000+skipCount;
 };
 
+var parsePerfStats = function( text ) {
+	var regexp = /<perfstat[\s]+type="([\w\:]+)"[\s]*>([\d]+)/g;
+	var perfstats = [];
+	for ( var match = regexp.exec( text ); match !== null; match = regexp.exec( text ) ) {
+		perfstats.push( { type: match[ 1 ], value: match[ 2 ] } );
+	}
+	return perfstats;
+};
+
+var insertPerfStats = function( db, pageId, commitHash, perfstats, cb ) {
+	// If empty, just go along
+	if ( !perfstats || perfstats.length === 0 ) {
+		if ( cb ) {
+			return cb( null, null );
+		}
+	}
+	// Build the query to insert all the results in one go:
+	var dbStmt = dbInsertPerfStatsStart;
+	for ( var i = 0; i < perfstats.length; i++ ) {
+		if ( i !== 0 ) {
+			dbStmt += ", ";
+		}
+		dbStmt += "( " + pageId.toString() + ", '" + commitHash + "', '" +
+			perfstats[i].type + "', " + perfstats[i].value + ' )';
+	}
+	dbStmt += dbInsertPerfStatsEnd;
+
+	// Make the query using the db arg, which could be a transaction
+	db.query( dbStmt, null, cb );
+};
+
 var receiveResults = function ( req, res ) {
 	var title = decodeURIComponent( req.params[0] ),
 		result = req.body.results,
@@ -461,6 +509,7 @@ var receiveResults = function ( req, res ) {
 		errorCount = result.match( /<error/g );
 	var prefix = req.params[1];
 	var commitHash = req.body.commit;
+	var perfstats = parsePerfStats( result );
 
 	skipCount = skipCount ? skipCount.length : 0;
 	failCount = failCount ? failCount.length : 0;
@@ -514,8 +563,12 @@ var receiveResults = function ( req, res ) {
 										trans.commit( function() {
 											console.log( '<- ', prefix + ':' + title, ':', skipCount, failCount,
 												errorCount, commitHash.substr(0,7) );
+											// Insert the performance stats, ignoring errors for now
+											insertPerfStats( db, page.id, commitHash, perfstats, null );
+
+											// Maybe the perfstats aren't committed yet, but it shouldn't be a problem
 											res.send('', 200);
-										});
+										} );
 									} ) );
 							} ) );
 					} ) );
@@ -535,9 +588,115 @@ var indexLinkList = function () {
 		'<li><a href="/failsDistr">Histogram of failures</a></li>\n' +
 		'<li><a href="/skipsDistr">Histogram of skips</a></li>\n' +
 		'<li><a href="/commits">List of all tested commits</a></li>\n' +
+		'<li><a href="/perfstats">Performance stats of last commit</a></li>\n' +
 		'</ul>';
 };
 
+var displayPerfStat = function( type, value ) {
+	var text;
+	if ( type.match( /^time/ ) ) {
+		// Show time in seconds
+		value = Math.round( (value / 1000) * 100 ) / 100;
+		text = value.toString() + "s";
+	} else if ( type.match( /^size/ ) ) {
+		// Show sizes in KiB
+		value = Math.round( value / 1024 );
+		text = value.toString() + "KiB";
+	} else {
+		// Other values go as they are
+		text = value.toString();
+	}
+	return text;
+};
+
+var displayPageTitle = function( res, row ) {
+	// If this info is available, we can display the small color bar at
+	// the start of each row.
+	var showColor = row.hasOwnProperty( 'skips' ) &&
+		row.hasOwnProperty( 'fails' ) &&
+		row.hasOwnProperty( 'errors' );
+
+	res.write( '<td class="title"' );
+	if ( showColor ) {
+		res.write( ' style="border-left: 5px solid ' );
+		if ( row.skips === 0 && row.fails === 0 && row.errors === 0 ) {
+			res.write( 'green' );
+		} else if ( row.errors > 0 || row.fails > 0 ) {
+			res.write( 'red' );
+		} else {
+			res.write( 'orange' );
+		}
+		res.write( '">' );
+	} else {
+		res.write( '>' );
+	}
+
+	res.write( '<a href="http://parsoid.wmflabs.org/_rt/' +
+		row.prefix + '/' + row.title.replace( /"/g, '&quot;' ) + '">' +
+		row.prefix + ':' + row.title + '</a> | ' +
+		'<a target="_blank" href="http://localhost:8000/_rt/' + row.prefix + '/' + row.title +
+		'">@lh</a> | ' +
+		'<a target="_blank" href="/latestresult/' + row.prefix + '/' + row.title + '">latest result</a>' +
+		'</td>' );
+};
+
+var displayPageList = function( res, urlPrefix, page, header, displayTableHeaders, displayRow, err, rows ) {
+	console.log( "GET " + urlPrefix + "/" + page );
+	if ( err ) {
+		res.send( err.toString(), 500 );
+	} else if ( !rows || rows.length <= 0 ) {
+		res.send( "No entries found", 404 );
+	} else {
+		res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
+		res.status( 200 );
+		res.write( '<html>') ;
+		res.write( '<head><style type="text/css">' );
+		res.write( 'th { padding: 0 10px }' );
+		res.write( 'td { text-align: center; }' );
+		res.write( 'td.title { text-align: left; padding-left: 0.4em; }' );
+		res.write( '</style></head>' );
+		res.write( '<body>' );
+
+		if (header) {
+			res.write( "<b>" + header + "</b>" );
+		}
+
+		res.write( '<p>' );
+		if ( page > 0 ) {
+			res.write( '<a href="' + urlPrefix + "/" + ( page - 1 ) + '">Previous</a> | ' );
+		} else {
+			res.write( 'Previous | ' );
+		}
+		if ( rows.length === 40 ) {
+			res.write('<a href="' + urlPrefix + "/" + ( page + 1 ) + '">Next</a>');
+		}
+		res.write( '</p>' );
+
+		res.write( '<table><tr><th>Title</th>' );
+		if ( typeof( displayTableHeaders ) === 'function' ) {
+			displayTableHeaders( res );
+		} else {
+			res.write( displayTableHeaders );
+		}
+		res.write( '</tr>' );
+
+		for ( var i = 0; i < rows.length; i++ ) {
+			var row = rows[ i ];
+			res.write( '<tr>' );
+			displayPageTitle( res, row );
+			if ( typeof( displayRow ) === 'function' ) {
+				displayRow( res, row );
+			} else {
+				for ( var p in row ) {
+					res.write( '<td>' + row[p] + '</td>' );
+				}
+			}
+			res.write( '</tr>' );
+		}
+
+		res.end( '</table></body></html>' );
+	}
+};
 var statsWebInterface = function ( req, res ) {
 	var query, queryParams, prefix;
 
@@ -641,67 +800,17 @@ var statsWebInterface = function ( req, res ) {
 };
 
 var failsWebInterface = function ( req, res ) {
-	if ( req.params[0] ) {
-		console.log( 'GET /topfails/' + req.params[0] );
-	} else {
-		console.log( 'GET /topfails' );
-	}
-
 	var page = ( req.params[0] || 0 ) - 0,
 		offset = page * 40;
 
+	var failsTableHeader = '<th>Commit</th><th>Syntactic diffs</th><th>Semantic diffs</th><th>Errors</th></tr>';
+	var displayFailsRow = function( res, row ) {
+		res.write( '<td>' + makeCommitLink( row.hash, row.title, row.prefix ) + '</td>' );
+		res.write( '<td>' + row.skips + '</td><td>' + row.fails + '</td><td>' + ( row.errors === null ? 0 : row.errors ) + '</td></tr>' );
+	};
 	db.query( dbFailsQuery, [ offset ],
-		function ( err, rows ) {
-			var i, row;
-
-			if ( err ) {
-				res.send( err.toString(), 500 );
-			} else if ( rows.length <= 0 ) {
-				res.send( 'No entries found', 404 );
-			} else {
-				res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
-				res.status( 200 );
-				res.write( '<html><body>' );
-
-				res.write( '<p>' );
-				if ( page > 0 ) {
-					res.write( '<a href="/topfails/' + ( page - 1 ) + '">Previous</a> | ' );
-				} else {
-					res.write( 'Previous | ' );
-				}
-				res.write( '<a href="/topfails/' + ( page + 1 ) + '">Next</a>' );
-				res.write( '</p>' );
-
-				res.write( '<table><tr><th>Title</th><th>Commit</th><th>Syntactic diffs</th><th>Semantic diffs</th><th>Errors</th></tr>' );
-
-				for ( i = 0; i < rows.length; i++ ) {
-					res.write( '<tr><td style="padding-left: 0.4em; border-left: 5px solid ' );
-					row = rows[i];
-
-					if ( row['stats.skips'] === 0 && row['stats.fails'] === 0 && row['stats.errors'] === 0 ) {
-						res.write( 'green' );
-					} else if ( row['stats.errors'] > 0 ) {
-						res.write( 'red' );
-					} else if ( row['stats.fails'] === 0 ) {
-						res.write( 'orange' );
-					} else {
-						res.write( 'red' );
-					}
-
-					res.write( '"><a target="_blank" href="http://parsoid.wmflabs.org/_rt/' + row.prefix + '/' +
-						row.title + '">' +
-						row.prefix + ':' + row.title + '</a> | ' +
-						'<a target="_blank" href="http://localhost:8000/_rt/' + row.prefix + '/' + row.title +
-						'">@lh</a> | ' +
-						'<a target="_blank" href="/latestresult/' + row.prefix + '/' + row.title + '">latest result</a>' +
-						'</td>' );
-					res.write( '<td>' + makeCommitLink( row.hash, row.title, row.prefix ) + '</td>' );
-					res.write( '<td>' + row.skips + '</td><td>' + row.fails + '</td><td>' + ( row.errors === null ? 0 : row.errors ) + '</td></tr>' );
-				}
-				res.end( '</table></body></html>' );
-			}
-		}
-	);
+		displayPageList.bind( null, res, '/topfails', page, "Results by title", failsTableHeader,
+			displayFailsRow ) );
 };
 
 var resultsWebInterface = function ( req, res ) {
@@ -846,69 +955,15 @@ var makeCommitLink = function( commit, title, prefix ) {
 		'</a>';
 };
 
-var displayPageList = function(res, urlPrefix, page, header, err, rows) {
-	console.log( 'GET ' + urlPrefix + "/" + page );
-	if ( err ) {
-		res.send( err.toString(), 500 );
-	} else if ( !rows || rows.length <= 0 ) {
-		res.send( 'No entries found', 404 );
-	} else {
-		res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
-		res.status( 200 );
-		res.write('<html>');
-		res.write('<head><style type="text/css">');
-		res.write('th { padding: 0 10px }');
-		res.write('td { text-align: center; }');
-		res.write('td.title { text-align: left; }');
-		res.write('</style></head>');
-		res.write('<body>');
-
-		if (header) {
-			res.write("<b>" + header + "</b>");
-		}
-
-		res.write('<p>');
-		if ( page > 0 ) {
-			res.write( '<a href="' + urlPrefix + "/" + ( page - 1 ) + '">Previous</a> | ' );
-		} else {
-			res.write( 'Previous | ' );
-		}
-		if (rows.length === 40) {
-			res.write('<a href="' + urlPrefix + "/" + ( page + 1 ) + '">Next</a>');
-		}
-		res.write('</p>');
-
-		res.write('<table>');
-		res.write('<tr><th></th><th>Title</th><th>New Commit</th><th>Errors|Fails|Skips</th><th>Old Commit</th><th>Errors|Fails|Skips</th></tr>' );
-
-		for (var i = 0; i < rows.length; i++ ) {
-			var r = rows[i];
-			res.write( '<tr><td style="padding-left: 0.4em; border-left: 5px solid ' );
-			if ( r.new_skips === 0 && r.new_fails === 0 && r.new_errors === 0 ) {
-				res.write( 'green' );
-			} else if ( r.new_errors > 0 || r.new_fails > 0 ) {
-				res.write( 'red' );
-			} else {
-				res.write( 'orange' );
-			}
-
-			res.write('"><td class="title"><a href="http://parsoid.wmflabs.org/_rt/' +
-					r.prefix + '/' + r.title.replace(/"/g, '&quot;') +
-					'">' + r.prefix + ':' + r.title + '</a> | ' +
-					'<a target="_blank" href="http://localhost:8000/_rt/' +
-					r.prefix + '/' + r.title + '">@lh</a> | ' +
-					'<a target="_blank" href="/latestresult/' +
-					r.prefix + '/' + r.title + '">latest result</a>' +
-					'</td>' );
-			res.write('<td>' + makeCommitLink( r.new_commit, r.title, r.prefix ) + '</td>');
-			res.write('<td>' + r.new_errors + "|" + r.new_fails + "|" + r.new_skips + '</td>');
-			res.write('<td>' + makeCommitLink( r.old_commit, r.title, r.prefix ) + '</td>');
-			res.write('<td>' + r.old_errors + "|" + r.old_fails + "|" + r.old_skips + '</td>');
-			res.write('</tr>');
-		}
-		res.end( '</table></body></html>' );
-	}
+var displayRegressionRow = function( res, r ) {
+	res.write( '<td>' + makeCommitLink( r.new_commit, r.title, r.prefix ) + '</td>' );
+	res.write( '<td>' + r.errors + "|" + r.fails + "|" + r.skips + '</td>' );
+	res.write( '<td>' + makeCommitLink( r.old_commit, r.title, r.prefix ) + '</td>' );
+	res.write( '<td>' + r.old_errors + "|" + r.old_fails + "|" + r.old_skips + '</td>' );
 };
+
+var regressionsHeader =
+	'<th>New Commit</th><th>Errors|Fails|Skips</th><th>Old Commit</th><th>Errors|Fails|Skips</th>';
 
 var GET_regressions = function( req, res ) {
 	var page, offset, urlPrefix;
@@ -926,7 +981,8 @@ var GET_regressions = function( req, res ) {
 						row[0].numRegressions +
 						' | <a href="' + topfixesLink + '">topfixes</a>';
 			db.query( dbRegressionsBetweenRevs, [ r2, r1, offset ],
-				displayPageList.bind(null, res, urlPrefix, page, header));
+				displayPageList.bind( null, res, urlPrefix, page, header,
+					regressionsHeader, displayRegressionRow ));
 		}
 	});
 };
@@ -946,7 +1002,8 @@ var GET_topfixes = function( req, res ) {
 				header = "Total fixes between selected revisions: " + row[0].numFixes +
 					' | <a href="' + regressionLink + '">regressions</a>';
 			db.query( dbFixesBetweenRevs, [ r2, r1, offset ],
-				displayPageList.bind(null, res, urlPrefix, page, header));
+				displayPageList.bind( null, res, urlPrefix, page, header,
+					regressionsHeader, displayRegressionRow ));
 		}
 	});
 };
@@ -984,6 +1041,52 @@ var GET_commits = function( req, res ) {
 				res.write('</tr>');
 			}
 			res.end('</table></body></html>' );
+		}
+	} );
+};
+
+var GET_perfStats = function( req, res ) {
+	var page = ( req.params[0] || 0 ) - 0,
+		offset = page * 40;
+
+	// As MySQL doesn't support PIVOT, we need to get all the perfstats types
+	// first so we can get then as columns afterwards
+	db.query( dbPerfStatsTypes, null, function( err, types ) {
+		if ( err ) {
+			res.send( err.toString(), 500 );
+		} else if ( !types || types.length === 0 ) {
+			res.send( "No performance stats found", 404);
+		} else {
+
+			var displayPerfStatRow = function( res, r ) {
+				for ( var j = 0; j < types.length; j++ ) {
+					var type = types[ j ].type;
+					res.write( '<td>' + displayPerfStat( type, r[ type ] ) + '</td>' );
+				}
+			};
+
+			// Sort the profile types by name
+			types.sort( function( a, b ) {
+				if ( a.type < b.type ) { return -1; }
+				if ( a.type > b.type ) { return 1; }
+				return 0;
+			} );
+
+			// Create the query to retrieve the stats per page
+			var perfStatsHeader = '';
+			var dbStmt = dbPagePerfStatsStart;
+			for( var t = 0; t < types.length; t++ ) {
+				if ( t !== 0 ) {
+					dbStmt += ", ";
+				}
+				dbStmt += "SUM( IF( TYPE='" + types[ t ].type +
+					"', value, NULL ) ) AS '" + types[ t ].type + "'";
+				perfStatsHeader += '<th>' + types[ t ].type + '</th>';
+			}
+			dbStmt += dbPagePerfStatsEnd + offset.toString();
+			db.query( dbStmt, null,
+				displayPageList.bind( null, res, "/perfstats", page, "Performance stats",
+					perfStatsHeader, displayPerfStatRow ) );
 		}
 	} );
 };
@@ -1030,6 +1133,9 @@ app.get( /^\/failsDistr$/, GET_failsDistr );
 
 // Distribution of fails
 app.get( /^\/skipsDistr$/, GET_skipsDistr );
+// Performance stats
+app.get( /^\/perfstats\/(\d+)$/, GET_perfStats );
+app.get( /^\/perfstats$/, GET_perfStats );
 
 // List of all commits
 app.use( '/commits', GET_commits );

@@ -39,3 +39,11 @@ CREATE TABLE stats (
 	score INTEGER NOT NULL DEFAULT 0
 );
 CREATE UNIQUE INDEX stats_page_commit_idx ON stats ( page_id, commit_hash );
+
+CREATE TABLE perfstats (
+	page_id INTEGER NOT NULL,
+	commit_hash CHAR( 40 ) NOT NULL,
+	type CHAR( 30 ) NOT NULL,
+	PRIMARY KEY( page_id, commit_hash, type ),
+	value INTEGER NOT NULL
+);
