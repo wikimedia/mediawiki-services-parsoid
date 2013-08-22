@@ -35,10 +35,11 @@ function cleanupAndSaveDataParsoid( node ) {
 		if (dp) {
 			// Delete empty auto-inserted elements
 			var next = node.nextSibling;
-			if ((node.childNodes.length === 0 ||
-						node.childNodes.length === 1 && /^\s*$/.test(node.textContent)) &&
-					dp.autoInsertedStart && dp.autoInsertedEnd) {
-				if (node.childNodes.length === 1) {
+			if (dp.autoInsertedStart && dp.autoInsertedEnd &&
+				(node.childNodes.length === 0 ||
+				node.childNodes.length === 1 && !DU.isElt(node.firstChild) && /^\s*$/.test(node.textContent)))
+			{
+				if (node.firstChild) {
 					// migrate the ws out
 					node.parentNode.insertBefore(node.firstChild, node);
 				}
