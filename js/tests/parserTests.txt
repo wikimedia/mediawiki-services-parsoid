@@ -5013,6 +5013,19 @@ language=ln
 !! end
 
 !! test
+Parsoid bug 53221: Wikilinks should be properly entity-escaped
+!! options
+parsoid=html2wt
+!! input
+He&amp;nbsp;llo [[Foo|He&amp;nbsp;llo]]
+
+He&amp;nbsp;llo [[He&amp;nbsp;llo]]
+!!result
+<p>He&amp;nbsp;llo <a href="Foo" rel="mw:WikiLink">He&amp;nbsp;llo</a></p>
+<p>He&amp;nbsp;llo <a href="He&amp;nbsp;llo" rel="mw:WikiLink">He&amp;nbsp;llo</a></p>
+!! end
+
+!! test
 Parsoid: handle constructor well
 !! options
 parsoid

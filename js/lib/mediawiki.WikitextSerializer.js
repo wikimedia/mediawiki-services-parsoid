@@ -1188,6 +1188,9 @@ var getLinkRoundTripData = function( env, node, state ) {
 };
 
 function escapeWikiLinkContentString ( contentString, state, contentNode ) {
+	// First, entity-escape the content.
+	contentString = Util.escapeEntities(contentString);
+
 	// Wikitext-escape content.
 	//
 	// When processing link text, we are no longer in newline state
@@ -1799,7 +1802,8 @@ WSP.linkHandler = function(node, state, cb) {
 				if (!target.modified && !linkData.contentModified) {
 					linkTarget = target.value;
 				} else {
-					linkTarget = escapeWikiLinkContentString(linkData.content.string, state, linkData.contentNode);
+					linkTarget = escapeWikiLinkContentString(linkData.content.string,
+							state, linkData.contentNode);
 					linkTarget = this._addColonEscape(linkTarget, linkData);
 				}
 
