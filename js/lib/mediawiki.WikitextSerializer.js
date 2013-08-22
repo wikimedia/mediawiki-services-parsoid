@@ -33,6 +33,7 @@ var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	DU = require('./mediawiki.DOMUtils.js').DOMUtils,
 	pd = require('./mediawiki.parser.defines.js'),
 	Title = require('./mediawiki.Title.js').Title,
+	minimizeWTQuoteTags = require('./dom.minimizeWTQuoteTags.js').minimizeWTQuoteTags,
 	SanitizerConstants = require('./ext.core.Sanitizer.js').SanitizerConstants;
 
 function isValidSep(sep) {
@@ -4083,6 +4084,9 @@ WSP.serializeDOM = function( body, chunkCB, finalCB, selserMode ) {
 
 		// collect tpl attr tags
 		this.extractTemplatedAttributes(body, state);
+
+		// Minimize I/B tags
+		minimizeWTQuoteTags(body);
 
 		// Don't serialize the DOM if debugging is disabled
 		if (this.debugging) {

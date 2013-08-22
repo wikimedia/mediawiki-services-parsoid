@@ -17345,6 +17345,74 @@ data-mw='{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"f
 >foo</p>
 !! end
 
+#-----------------------------
+# I/B quote minimization tests
+#-----------------------------
+
+!! test
+1. I/B qoute minimization: wikitext-only tags should be combined
+!! options
+parsoid=html2wt
+!! input
+''AB''
+
+'''AB'''
+
+''A'''B'''''
+
+'''A''B'''''
+
+'''A''BC''D'''
+!! result
+<p><i>A</i><i>B</i></p>
+<p><b>A</b><b>B</b></p>
+<p><i>A</i><b><i>B</i></b></p>
+<p><b>A</b><i><b>B</b></i></p>
+<p><b>A</b><i><b>B</b><b>C</b></i><b>D</b></p>
+!! end
+
+!! test
+2. I/B qoute minimization: wikitext and html tags should not be combined
+!! options
+parsoid=html2wt
+!! input
+''A''<i>B</i>
+
+''A'''''<i>B</i>'''
+!! result
+<p><i>A</i><i data-parsoid='{"stx":"html"}'>B</i></p>
+<p><i>A</i><b><i data-parsoid='{"stx":"html"}'>B</i></b></p>
+!! end
+
+!! test
+3. I/B qoute minimization: templated content stops minimization
+!! options
+parsoid=html2wt
+!! input
+''A''{{echo|''B''}}
+
+''A''{{echo|'''''B'''''}}
+!! result
+<p><i>A</i><i about="#mwt1" typeof="mw:Transclusion" data-mw='{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&#39;&#39;B&#39;&#39;"}},"i":0}'>B</i>
+<p><i>A</i><b about="#mwt1" typeof="mw:Transclusion" data-mw='{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&#39;&#39;&#39;&#39;&#39;B&#39;&#39;&#39;&#39;&#39;"}},"i":0}'><i>B</i></b>
+!! end
+
+!! test
+4. I/B qoute minimization: new content should be mimimized with adjacent old content
+!! options
+parsoid=html2wt
+!! input
+''AB''
+
+'''AB'''
+
+''A'''B'''''
+!! result
+<p><i>A</i><i data-parsoid='{}'>B</i></p>
+<p><b data-parsoid='{}'>A</b><b>B</b></p>
+<p><i>A</i><b data-parsoid='{}'><i data-parsoid='{}'>B</i></b></p>
+!! end
+
 # -----------------------------------------------------------------
 # End of section for Parsoid-only html2wt tests for serialization
 # of new content
