@@ -227,12 +227,17 @@ ParagraphWrapper.prototype.processPendingNLs = function (isBlockToken) {
 
 ParagraphWrapper.prototype.onAny = function ( token, frame ) {
 	function updateTableContext(tblTags, token) {
-		function popTags(tblTags, tokenName, altTag1, altTag2) {
-			while (tblTags.length > 0) {
-				var topTag = tblTags.pop();
-				if (topTag === tokenName || topTag === altTag1 || topTag === altTag2) {
-					break;
-				}
+		// popUntil: pop anything until one of the tag in this array is found.
+		//           Pass null to disable.
+		// popThen: after a stop is reached (or popUntil was null), continue
+		//			popping as long as the elements in this array match. Pass
+		//			null to disable.
+		function popTags(tblTags, popUntil, popThen) {
+			while (popUntil && tblTags.length > 0 && popUntil.indexOf(tblTags.last()) === -1) {
+				tblTags.pop();
+			}
+			while (popThen && tblTags.length > 0 && popThen.indexOf(tblTags.last()) !== -1) {
+				tblTags.pop();
 			}
 		}
 
@@ -243,23 +248,24 @@ ParagraphWrapper.prototype.onAny = function ( token, frame ) {
 			} else {
 				switch (tokenName) {
 				case "table":
-					// Pop till we match
-					popTags(tblTags, tokenName);
+					// Pop a table scope
+					popTags(tblTags, ["table"], ["table"]);
 					break;
 				case "tbody":
-					// Pop till we match
-					popTags(tblTags, tokenName, "table");
+					// Pop to the nearest table
+					popTags(tblTags, ["table"], null);
 					break;
 				case "tr":
-					// Pop till we match
-					popTags(tblTags, tokenName, "table", "tbody");
+				case "thead":
+				case "tfoot":
+				case "caption":
+					// Pop to tbody or table, whichever is nearer
+					popTags(tblTags, ["tbody", "table"], null);
 					break;
 				case "td":
 				case "th":
-					// Pop just the topmost tag if it matches the token
-					if (tblTags.last() === token.name) {
-						tblTags.pop();
-					}
+					// Pop to tr or (if that fails) to tbody or table.
+					popTags(tblTags, ["tr", "tbody", "table"], null);
 					break;
 				}
 			}
