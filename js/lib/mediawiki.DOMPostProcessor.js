@@ -110,8 +110,8 @@ function DOMPostProcessor(env, options) {
 	// Common post processing
 	this.processors = [
 		dataParsoidLoader.traverse.bind( dataParsoidLoader ),
-		handleUnbalancedTables,
 		markFosteredContent,
+		handleUnbalancedTables,
 		migrateStartMetas,
 		markTreeBuilderFixups,
 		handlePres,

@@ -173,6 +173,16 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			break;
 		case TagTk:
 			tName = token.name;
+			if ( tName === "table" ) {
+				if ( this.trace ) {
+					console.warn('inserting foster box meta');
+				}
+				this.emit('token', {
+					type: 'StartTag',
+					name: 'meta',
+					data: [ { nodeName: "typeof", nodeValue: "mw:FosterBox" } ]
+				});
+			}
 			this.emit('token', {type: 'StartTag', name: tName, data: this._att(attribs)});
 			attrs = [];
 			if ( this.trace ) { console.warn('inserting shadow meta for ' + tName); }
