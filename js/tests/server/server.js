@@ -480,11 +480,12 @@ var parsePerfStats = function( text ) {
 };
 
 var insertPerfStats = function( db, pageId, commitHash, perfstats, cb ) {
-	// If empty, just go along
+	// If empty, just return
 	if ( !perfstats || perfstats.length === 0 ) {
 		if ( cb ) {
 			return cb( null, null );
 		}
+		return;
 	}
 	// Build the query to insert all the results in one go:
 	var dbStmt = dbInsertPerfStatsStart;
