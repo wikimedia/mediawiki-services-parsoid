@@ -14,6 +14,9 @@ js/api/nohup.out
 js/api/npm-debug.log
 js/node_modules/
 js/tests/parserTests.cache
+js/tests/client/config.js
+js/tests/server/node_modules
+js/tests/server/server.settings.js
 js/doc
 js/tests/server/pages.db
 js/tests/client/config.js

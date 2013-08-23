@@ -1,0 +1,49 @@
+-- Run this sql file on your database file before you do anything else
+
+CREATE TABLE commits (
+	hash CHAR( 40 ) NOT NULL PRIMARY KEY,
+	`timestamp` TIMESTAMP NOT NULL
+);
+
+CREATE TABLE pages (
+	id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	title TEXT NOT NULL,
+	prefix CHAR( 2 ) NOT NULL DEFAULT 'en',
+	num_fetch_errors INTEGER NOT NULL DEFAULT 0,
+	latest_score INTEGER NOT NULL DEFAULT 0,
+	latest_stat INTEGER NULL,
+	latest_result INTEGER NULL,
+	claim_hash CHAR( 40 ) NOT NULL DEFAULT '',
+	claim_timestamp TIMESTAMP NULL,
+	claim_num_tries INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX title_idx ON pages ( title ( 50 ) );
+CREATE INDEX latest_tries_score_idx ON pages ( claim_num_tries, latest_score );
+CREATE UNIQUE INDEX title_prefix_idx ON pages ( title ( 50 ), prefix );
+
+CREATE TABLE results (
+	id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	page_id INTEGER NOT NULL,
+	commit_hash CHAR( 40 ) NOT NULL,
+	result TEXT NOT NULL
+);
+CREATE UNIQUE INDEX results_page_commit_idx ON results ( page_id, commit_hash );
+
+CREATE TABLE stats (
+	id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	page_id INTEGER NOT NULL,
+	commit_hash CHAR( 40 ) NOT NULL,
+	skips INTEGER NOT NULL DEFAULT 0,
+	fails INTEGER NOT NULL DEFAULT 0,
+	errors INTEGER NOT NULL DEFAULT 0,
+	score INTEGER NOT NULL DEFAULT 0
+);
+CREATE UNIQUE INDEX stats_page_commit_idx ON stats ( page_id, commit_hash );
+
+CREATE TABLE perfstats (
+	page_id INTEGER NOT NULL,
+	commit_hash CHAR( 40 ) NOT NULL,
+	type CHAR( 30 ) NOT NULL,
+	PRIMARY KEY( page_id, commit_hash, type ),
+	value INTEGER NOT NULL
+);

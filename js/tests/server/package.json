@@ -7,7 +7,8 @@
 		"optimist": "0.x.x",
 		"querystring": "0.x.x",
 		"path": "0.x.x",
-		"sqlite3": "2.x.x",
+		"mysql": "2.x.x",
+		"mysql-queues": "1.x.x",
 		"express": "2.5.x"
 	},
 	"main": "server.js"

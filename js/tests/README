@@ -1,5 +1,6 @@
-Please see https://www.mediawiki.org/wiki/Parsoid for some information on how
-to get started with these tests and the current parser architecture.
+Please see [the Parsoid project page](https://www.mediawiki.org/wiki/Parsoid)
+for some information on how to get started with these tests and the current
+parser architecture.
 
 Install dependencies and run tests:
 
@@ -23,24 +24,35 @@ Enjoy!
 
 == Running the round-trip test server ==
 
-Set up the server.  In `js/tests/server/`
+In 'js/tests/server/', to install the necessary packages, run
+	$ npm install
 
-	$ npm install   # or 'npm install sqlite3' from js/
-	$ sqlite3 pages.db < sql/create_everything.sql
+You'll need a pre-created MySQL database. Then, copy server.settings.js.example
+to server.settings.js and in that file edit the connection parameters. You can
+also override the settings with command line options, to see them and their
+default values run
+	$ node server --help
+
+To populate the database with initial data, run
+
+	$ mysql [connection parameters] < sql/create_everything.mysql
 	$ node importJson --prefix=en titles.example.en.json
 	$ node importJson --prefix=es titles.example.es.json
 
-To test the handling of non-existent articles, you might want to also do:
+The script importJson.js takes the same connection parameters as server.js. To
+test the handling of non-existent articles, you might want to also do:
 
 	$ node importJson --prefix=en titles.example.bogus.json
 	$ node importJson --prefix=es titles.example.bogus.json
-	$ # you might also want to lower maxFetchRetries in server.js
 
-Now start the server.  Again, in `js/tests/server`:
+Now start the server:
 
-	$ node server pages.db
+	$ node server
 
-In separate window:
+== Running the round-trip test clients ==
+
+In js/tests/client, copy config.example.js to config.js and edit it to your
+taste. In separate windows, as many as you want:
 
 	$ node js/tests/client/client.js
 
