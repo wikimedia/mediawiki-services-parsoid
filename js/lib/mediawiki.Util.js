@@ -195,8 +195,14 @@ var Util = {
 		if (token.name === 'meta' && /\bmw:Extension\//.test(token.getAttribute('typeof'))) {
 			return false;
 		} else {
-			return true;
+			return token.dataAttribs.stx !== 'html';
 		}
+	},
+
+	isEmptyLineMetaToken: function(token) {
+		return token.constructor === pd.SelfclosingTagTk &&
+			token.name === "meta" &&
+			token.getAttribute("typeof") === "mw:EmptyLine";
 	},
 
 	/*
@@ -888,15 +894,16 @@ var normalizeOut = function ( out, parsoidOnly ) {
 	if (!/[^<]*(<\w+(\s+[^\0-\cZ\s"'>\/=]+(="[^"]*")?)*\/?>[^<]*)*/.test(out)) {
 		throw new Error("normalizeOut input is not in standard serialized form");
 	}
-	out = normalizeNewlines( out );
 	if ( !parsoidOnly ) {
+		// Strip comment-and-ws-only lines that PHP parser strips out
+		out = out.replace(/\n[ \t]*<!--([^-]|-(?!->))*-->([ \t]|<!--([^-]|-(?!->))*-->)*\n/g, '\n');
 		// ignore troublesome attributes
-		out = out.
+		out = normalizeNewlines( out ).
 			// remove <span typeof="....">....</span>
 			replace(/<span(?:[^>]*) typeof="mw:(?:Placeholder|Nowiki|Transclusion|Entity)"(?: [^\0-\cZ\s\"\'>\/=]+(?:="[^"]*")?)*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1').
 			replace(/ (data-mw|data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content|title|class)="[^\"]*"/g, '');
 	} else {
-		out = out.
+		out = normalizeNewlines( out ).
 			// remove <span typeof="mw:Placeholder">....</span>
 			replace(/<span(?: [^>]+)* typeof="mw:Placeholder"(?: [^\0-\cZ\s\"\'>\/=]+(?:="[^"]*")?)*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1').
 			// unnecessary attributes, we don't need to check these

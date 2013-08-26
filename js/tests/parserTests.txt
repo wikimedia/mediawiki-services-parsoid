@@ -17269,10 +17269,10 @@ parsoid
 !!result
 <table>
 <tbody>
+<tr></tr>
+ <!--c-->
 <tr>
-<td> <!--c--></td></tr>
-<tr>
-<td><!--c--> <!--d--></td></tr>
+<!--c--> </tr><!--d-->
 </tbody></table>
 
 !!end

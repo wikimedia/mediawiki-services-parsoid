@@ -685,6 +685,11 @@ Sanitizer.prototype.onAnchor = function ( token ) {
  * attribute in the DOM).
  */
 Sanitizer.prototype.onAny = function ( token ) {
+	// Pass through a transparent line meta-token
+	if (Util.isEmptyLineMetaToken(token)) {
+		return { token: token };
+	}
+
 	// XXX: validate token type according to whitelist and convert non-ok ones
 	// back to text.
 

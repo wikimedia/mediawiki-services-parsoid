@@ -587,7 +587,7 @@ function encapsulateTemplates( doc, env, tplRanges, tplArrays) {
 				});
 
 				// Output the data-mw obj.
-				var datamw = (tplArray.length === 1) ? tplArray[0].template : { parts: tplArray };
+				var datamw = { parts: tplArray };
 				range.start.setAttribute("data-mw", JSON.stringify(datamw));
 				range.start.data.parsoid.pi = paramInfoArrays;
 			}

@@ -192,6 +192,13 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			break;
 		case SelfclosingTagTk:
 			tName = token.name;
+
+			// Re-expand an empty-line meta-token into its constituent comment + WS tokens
+			if (Util.isEmptyLineMetaToken(token)) {
+				this.onChunk(dataAttribs.tokens);
+				break;
+			}
+
 			this.emit('token', {type: 'StartTag', name: tName, data: this._att(attribs)});
 			if ( HTML5.VOID_ELEMENTS.indexOf( tName ) < 0 ) {
 				// VOID_ELEMENTS are automagically treated as self-closing by

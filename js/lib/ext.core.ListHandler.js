@@ -269,16 +269,18 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 		// same list item types and same nesting level
 		itemToken = this.currListFrame.endtags.pop();
 		this.currListFrame.endtags.push(new EndTagTk( itemToken.name ));
-		res = [
-			itemToken,
-			// this list item gets all the bullets since this is
-			// a list item at the same level
-			//
-			// **a
-			// **b
-			this.currListFrame.nlTk || '',
-			new TagTk( itemToken.name, [], makeDP( 0, bn.length ) )
-		];
+		res = [ itemToken ].concat(
+			this.currListFrame.solTokens,
+			[
+				// this list item gets all the bullets since this is
+				// a list item at the same level
+				//
+				// **a
+				// **b
+				this.currListFrame.nlTk || '',
+				new TagTk( itemToken.name, [], makeDP( 0, bn.length ) )
+			]
+		);
 	} else {
 		var prefixCorrection = 0;
 		var tokens = [];
@@ -298,6 +300,7 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 			 * ------------------------------------------------ */
 
 			tokens = this.popTags(bs.length - prefixLen - 1);
+			tokens = this.currListFrame.solTokens.concat(tokens);
 			var newName = this.bulletCharsMap[bn[prefixLen]].item;
 			var endTag = this.currListFrame.endtags.pop();
 			this.currListFrame.endtags.push(new EndTagTk( newName ));
@@ -330,6 +333,7 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 				console.warn("    -> reduced nesting");
 			}
 			tokens = tokens.concat( this.popTags(bs.length - prefixLen) );
+			tokens = this.currListFrame.solTokens.concat(tokens);
 			if (this.currListFrame.nlTk) {
 				tokens.push(this.currListFrame.nlTk);
 			}
@@ -398,7 +402,6 @@ ListHandler.prototype.doListItem = function ( bs, bn, token ) {
 	}
 
 	// clear out sol-tokens
-	res = this.currListFrame.solTokens.concat(res);
 	res.rank = this.anyRank + 0.01;
 	this.currListFrame.solTokens = [];
 	this.currListFrame.nlTk = null;
