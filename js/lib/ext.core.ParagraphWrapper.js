@@ -102,7 +102,6 @@ ParagraphWrapper.prototype.resetCurrLine = function(atEOL) {
 	this.currLine = {
 		tokens: [],
 		isNewline: atEOL,
-		hasComments: false,
 		hasBlockToken: false,
 		hasWrappableTokens: false
 	};
@@ -122,13 +121,6 @@ ParagraphWrapper.prototype.onNewLineOrEOF = function (  token, frame, cb ) {
 		this.hasOpenPTag = true;
 	}
 
-	// PHP parser ignores (= strips out during preprocessing) lines with
-	// a comment and other white-space. This flag checks if we are on such a line.
-	var emptyLineWithComments =
-		l.isNewline &&
-		!l.hasWrappableTokens &&
-		l.hasComments;
-
 	// this.nonNlTokens += this.currLine.tokens
 	this.nonNlTokens = this.nonNlTokens.concat(l.tokens);
 
@@ -143,16 +135,6 @@ ParagraphWrapper.prototype.onNewLineOrEOF = function (  token, frame, cb ) {
 		this.hasOpenHTMLPTag = false;
 		this.reset();
 		return { tokens: res };
-	} else if (emptyLineWithComments) {
-		// 1. Dont increment newline count on "empty" lines with
-		//    one or more comments -- see comment above
-		//
-		// 2. Convert the NlTk to a String-representation so that
-		//    it doesn't get processed by discardOneNlTk -- this
-		//    newline needs to be emitted (so it gets RTed) without
-		//    being processed for p-wrapping.
-		this.nlWsTokens.push("\n");
-		return {};
 	} else {
 		this.newLineCount++;
 		this.nlWsTokens.push(token);
@@ -308,11 +290,10 @@ ParagraphWrapper.prototype.onAny = function ( token, frame ) {
 		}
 	} else if (tc === EOFTk || this.inPre) {
 		return { tokens: [token] };
-	} else if ((tc === String && token.match( /^[\t ]*$/)) || tc === CommentTk) {
-		if (tc === CommentTk) {
-			this.currLine.hasComments = true;
-		}
-
+	} else if (tc === CommentTk ||
+		tc === String && token.match(/^[\t ]*$/) ||
+		Util.isEmptyLineMetaToken(token))
+	{
 		if (this.newLineCount === 0) {
 			this.currLine.tokens.push(token);
 			// Since we have no pending newlines to trip us up,
