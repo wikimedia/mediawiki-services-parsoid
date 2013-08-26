@@ -66,29 +66,14 @@ TableFixups.prototype.stripDoubleTDs = function (env, node) {
 		}
 
 		// Now update data-mw
-		// XXX: use data.mw for data-mw as well!
+		// XXX: use data.mw instead, see
+		// https://bugzilla.wikimedia.org/show_bug.cgi?id=53109
 		var dataMW = DU.getJSONAttribute(nextNode, 'data-mw'),
 			nodeSrc = DU.getWTSource(env, node);
-
 		if (!dataMW.parts) {
-			dataMW.parts = [
-				nodeSrc,
-				{
-					// XXX: Should we always use parts or at least the
-					// template wrapper? This will need to be updated whenever
-					// we change the template info.
-					template: {
-						target: dataMW.target,
-						params: dataMW.params,
-						i: 0
-					}
-				}
-			];
-			dataMW.target = undefined;
-			dataMW.params = undefined;
-		} else {
-			dataMW.parts.unshift(nodeSrc);
+			dataMW.parts = [];
 		}
+		dataMW.parts.unshift(nodeSrc);
 		DU.setJSONAttribute(nextNode, 'data-mw', dataMW);
 
 		// Delete the duplicated <td> node.
@@ -257,22 +242,7 @@ TableFixups.prototype.reparseTemplatedAttributes = function (env, node) {
 				node.setAttribute('typeof', transclusionNode.getAttribute('typeof'));
 				node.setAttribute('about', transclusionNode.getAttribute('about'));
 				var dataMW = DU.getJSONAttribute(transclusionNode, 'data-mw'),
-					// FIXME:
-					parts = dataMW.parts ||
-						// XXX: Should we always use parts or at least the
-						// template wrapper? This will need to be updated whenever
-						// we change the template info.
-						[
-						{
-							template: {
-								target: dataMW.target,
-								params: dataMW.params,
-								i: 0
-							}
-						}
-				];
-
-				// Construct a new data-mw
+					parts = dataMW.parts;
 				// Get the td and content source up to the transclusion start
 				parts.unshift(env.page.src.substring(
 							node.data.parsoid.dsr[0],
