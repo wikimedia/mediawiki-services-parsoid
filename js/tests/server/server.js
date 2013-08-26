@@ -119,6 +119,7 @@ var db = mysql.createConnection({
 	user     : getOption( 'user' ),
 	password : getOption( 'password'),
 	multipleStatements : true,
+	charset  : 'UTF8_BIN',
 	debug    : debug
 } );
 

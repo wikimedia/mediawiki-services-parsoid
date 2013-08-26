@@ -83,6 +83,7 @@ var db = mysql.createConnection({
 	database : getOption( 'database' ),
 	user     : getOption( 'user' ),
 	password : getOption( 'password' ),
+	charset  : 'UTF8_BIN',
 	multipleStatements : true
 });
 
