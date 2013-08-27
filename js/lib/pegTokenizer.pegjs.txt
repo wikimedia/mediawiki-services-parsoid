@@ -2342,11 +2342,12 @@ normal_sol
     }
 
 empty_line_with_comments
-  = sp:sol_prefix c:(space* comment (space / comment)* newline)+ {
+  = sp:sol_prefix p:({return pos;}) c:(space* comment (space / comment)* newline)+ {
         return [
             sp,
             new SelfclosingTagTk("meta", [new KV('typeof', 'mw:EmptyLine')], {
-                tokens: flattenIfArray(c)
+                tokens: flattenIfArray(c),
+                tsr: [p, pos]
             })
         ];
     }
