@@ -178,6 +178,7 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 		editMode = env.conf.parsoid.editMode;
 	for (var n = children.length, i = n-1; i >= 0; i--) {
 		var isMarkerTag = false,
+			origCE = ce,
 			child = children[i],
 		    cType = child.nodeType,
 			endTagWidth = null,
@@ -461,7 +462,9 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 		}
 
 		// Dont change state if we processed a fostered node
-		if (!fosteredNode) {
+		if (fosteredNode) {
+			ce = origCE;
+		} else {
 			// ce for next child = cs of current child
 			ce = cs;
 			// end-tag width from marker meta tag
