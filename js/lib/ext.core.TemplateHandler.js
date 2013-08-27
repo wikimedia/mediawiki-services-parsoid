@@ -968,7 +968,7 @@ TemplateHandler.prototype.onTemplateArg = function (token, frame, cb) {
 		// so that this chunk can be RT-ed en-masse.
 		var tplHandler = this;
 		newCB = function(res) {
-			var toks = res.tokens;
+			var toks = Util.stripEOFTkfromTokens(res.tokens);
 			var state = {
 				token: token,
 				wrapperType: "mw:Param",
@@ -981,16 +981,17 @@ TemplateHandler.prototype.onTemplateArg = function (token, frame, cb) {
 	} else {
 		newCB = cb;
 	}
-	this.fetchArg(attribs[0].k, this.lookupArg.bind(this, args, attribs, newCB));
+	this.fetchArg(attribs[0].k, this.lookupArg.bind(this, args, attribs, newCB, cb), cb);
 };
 
-TemplateHandler.prototype.fetchArg = function(arg, argCB) {
+TemplateHandler.prototype.fetchArg = function(arg, argCB, asyncCB) {
 	if (arg.constructor === String) {
 		argCB({tokens: [arg]});
 	} else {
 		this.manager.frame.expand(arg, {
 			wrapTemplates: false,
 			type: "tokens/x-mediawiki/expanded",
+			asyncCB: asyncCB,
 			cb: function(tokens) {
 				argCB({tokens: Util.stripEOFTkfromTokens(tokens)});
 			}
@@ -998,7 +999,7 @@ TemplateHandler.prototype.fetchArg = function(arg, argCB) {
 	}
 };
 
-TemplateHandler.prototype.lookupArg = function(args, attribs, cb, ret) {
+TemplateHandler.prototype.lookupArg = function(args, attribs, cb, asyncCB, ret) {
 	var toks    = ret.tokens;
 	var argName = toks.constructor === String ? toks : Util.tokensToString(toks).trim();
 	var res     = args.dict[argName];
@@ -1011,14 +1012,14 @@ TemplateHandler.prototype.lookupArg = function(args, attribs, cb, ret) {
 		} else {
 			res.get({
 				type: 'tokens/x-mediawiki/expanded',
-				asyncCB: cb,
+				asyncCB: asyncCB,
 				cb: (args.namedArgs[argName] ?
 						function(res) { cb( {tokens: Util.tokenTrim(res)} ); } :
 						function(res) { cb( {tokens: res} ); })
 			});
 		}
 	} else if (attribs.length > 1 ) {
-		this.fetchArg(attribs[1].v, cb);
+		this.fetchArg(attribs[1].v, cb, asyncCB);
 	} else {
 		//console.warn('no default for ' + argName + JSON.stringify( attribs ));
 		cb({ tokens: [ '{{{' + argName + '}}}' ] });
