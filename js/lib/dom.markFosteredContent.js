@@ -29,6 +29,7 @@ function markFosteredContent( node, env ) {
 					span.data = { parsoid: { fostered: true } };
 					sibling.parentNode.insertBefore( span, sibling );
 					span.appendChild( sibling );
+					sibling = span;
 				}
 				sibling = sibling.nextSibling;
 			}

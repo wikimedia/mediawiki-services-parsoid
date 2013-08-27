@@ -17329,6 +17329,19 @@ plain text</pre>
 plain text
 !!end
 
+!!test
+Ensure fostered text content is wrapped in spans
+!!options
+parsoid=wt2html
+!!input
+<table>hi</table><table>ho</table>
+!!result
+<span>hi</span>
+<table></table>
+<span>ho</span>
+<table></table>
+!!end
+
 # -----------------------------------------------------------------
 # The following section of tests are primarily to spec requirements
 # around serialization of new/edited content.
