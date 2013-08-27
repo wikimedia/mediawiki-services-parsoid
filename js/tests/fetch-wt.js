@@ -73,12 +73,12 @@ var opts = optimist.usage( usage, {
 		'boolean': false,
 		'default': 'en'
 	},
-	'title': {
-		description: 'Page title to fetch',
+	'revid': {
+		description: 'Page revision to fetch',
 		'boolean': false
 	},
-	'rev': {
-		description: 'Page revision to fetch',
+	'title': {
+		description: 'Page title to fetch (only if revid is not present)',
 		'boolean': false
 	},
 	'help': {
@@ -106,10 +106,18 @@ if (argv.title && argv.revid) {
 }
 
 if (argv.help || error) {
-	optimist.showHelp();
 	if (error) {
+		// Make the error standout in the output
+		var buf = ["-------"];
+		for (var i = 0; i < error.length; i++) {
+			buf.push("-");
+		}
+		buf = buf.join('');
+		console.error(buf);
 		console.error('ERROR:', error);
+		console.error(buf);
 	}
+	optimist.showHelp();
 	return;
 }
 
