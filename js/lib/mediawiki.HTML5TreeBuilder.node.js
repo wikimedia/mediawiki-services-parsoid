@@ -44,8 +44,8 @@ FauxHTML5.TreeBuilder = function ( env ) {
 	this.env = env;
 	this.trace = env.conf.parsoid.debug || (env.conf.parsoid.traceFlags && (env.conf.parsoid.traceFlags.indexOf("html") !== -1));
 
-	// Assigned to start/self-closing tags
-	this.tagId = 1;
+	// Reset variable state
+	this.resetState();
 };
 
 // Inherit from EventEmitter
@@ -60,7 +60,24 @@ FauxHTML5.TreeBuilder.prototype.addListenersOn = function ( emitter ) {
 	emitter.addListener('end', this.onEnd.bind( this ) );
 };
 
+FauxHTML5.TreeBuilder.prototype.resetState = function () {
+	// Assigned to start/self-closing tags
+	this.tagId = 1;
+
+	// Reset the parser
+	this.parser.setup();
+	this.processToken(new TagTk( 'body' ));
+
+	this.needsReset = false;
+};
+
 FauxHTML5.TreeBuilder.prototype.onChunk = function ( tokens ) {
+
+	// Makes sure the state is also reset for sub-pipelines
+	if (this.needsReset) {
+		this.resetState();
+	}
+
 	var n = tokens.length;
 	if (n === 0) {
 		return;
@@ -88,10 +105,8 @@ FauxHTML5.TreeBuilder.prototype.onEnd = function ( ) {
 
 	this.emit( 'document', document );
 
-	// XXX: more clean up to allow reuse.
-	this.parser.setup();
-	this.processToken(new TagTk( 'body' ));
-	this.tagId = 1; // Reset
+	// Make sure the state is also reset for sub-pipelines
+	this.needsReset = true;
 };
 
 FauxHTML5.TreeBuilder.prototype._att = function (maybeAttribs) {

@@ -455,9 +455,9 @@ var fetch = function ( page, cb, options ) {
 							if ( !err ) {
 								env.profile.size.htmlgzip = buf.length;
 							}
+							env.profile.time.total_timer = new Date();
+							roundTripDiff( env, doc, cb );
 						});
-						env.profile.time.total_timer = new Date();
-						roundTripDiff( env, doc, cb );
 					}
 				}, err, env.page.src );
 			}
