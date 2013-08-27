@@ -168,8 +168,52 @@ QuoteTransformer.prototype.onNewLine = function (  token, frame, prevToken ) {
 		}
 	}
 
-	// this is the same state machine as the php parser uses.
-	var lastboth = -1, state = '';
+	// convert the quote tokens into tags
+	this.convertQuotesToTags();
+
+	// return all collected tokens including the newline
+	this.currentChunk.push( token );
+	this._startNewChunk();
+	this.chunks[0].shift(); // remove 'prevToken' before first quote.
+	res = { tokens: Array.prototype.concat.apply([], this.chunks) };
+
+	// prepare for next line
+	this.reset();
+
+	// remove registrations
+	this.dispatcher.removeTransform( this.quoteAndNewlineRank, 'end' );
+	this.dispatcher.removeTransform( this.quoteAndNewlineRank, 'tag', 'td' );
+	this.dispatcher.removeTransform( this.quoteAndNewlineRank, 'tag', 'th' );
+	this.dispatcher.removeTransform( this.quoteAndNewlineRank, 'newline' );
+	this.dispatcher.removeTransform( this.anyRank, 'any' );
+	//console.warn( 'res:' + JSON.stringify( res, null, 2 ));
+
+	return res;
+};
+
+// Convert a bold token to italic to balance an uneven number of both bold and
+// italic tags. In the process, one quote needs to be converted back to text.
+QuoteTransformer.prototype.convertBold = function ( i ) {
+	// this should be a bold tag.
+	console.assert(i > 0 && this.chunks[i].length===1 &&
+				   this.chunks[i][0].value.length === 3);
+	// we're going to convert it to a single plain text ' plus an italic tag
+	this.chunks[i-1].push( "'" );
+	var oldbold = this.chunks[i][0];
+	var tsr = oldbold.dataAttribs ? oldbold.dataAttribs.tsr : null;
+	if ( tsr ) {
+		tsr = [ tsr[0]+1, tsr[1] ];
+	}
+	var newbold = new SelfclosingTagTk( 'mw-quote', [], { tsr: tsr });
+	newbold.value = "''"; // italic!
+	this.chunks[i] = [ newbold ];
+};
+
+// Convert quote tokens to tags, using the same state machine as the
+// PHP parser uses.
+QuoteTransformer.prototype.convertQuotesToTags = function() {
+
+	var lastboth = -1, state = '', i, qlen;
 	for (i = 1; i < this.chunks.length; i += 2) {
 		console.assert(this.chunks[i].length === 1);
 		qlen = this.chunks[i][0].value.length;
@@ -236,6 +280,7 @@ QuoteTransformer.prototype.onNewLine = function (  token, frame, prevToken ) {
 			}
 		}
 	}
+
 	// now close all remaining tags.  notice that order is important.
 	if ( state === 'both' ) {
 		this.quoteToTag(lastboth, [new TagTk( 'b' ), new TagTk( 'i' )]);
@@ -253,43 +298,6 @@ QuoteTransformer.prototype.onNewLine = function (  token, frame, prevToken ) {
 		this.currentChunk.push( new EndTagTk( 'b' ) );
 		this.last.b.dataAttribs.autoInsertedEnd = 1;
 	}
-
-	// return all collected tokens including the newline
-	this.currentChunk.push( token );
-	this._startNewChunk();
-	this.chunks[0].shift(); // remove 'prevToken' before first quote.
-	res = { tokens: Array.prototype.concat.apply([], this.chunks) };
-
-	// prepare for next line
-	this.reset();
-
-	// remove registrations
-	this.dispatcher.removeTransform( this.quoteAndNewlineRank, 'end' );
-	this.dispatcher.removeTransform( this.quoteAndNewlineRank, 'tag', 'td' );
-	this.dispatcher.removeTransform( this.quoteAndNewlineRank, 'tag', 'th' );
-	this.dispatcher.removeTransform( this.quoteAndNewlineRank, 'newline' );
-	this.dispatcher.removeTransform( this.anyRank, 'any' );
-	//console.warn( 'res:' + JSON.stringify( res, null, 2 ));
-
-	return res;
-};
-
-// Convert a bold token to italic to balance an uneven number of both bold and
-// italic tags. In the process, one quote needs to be converted back to text.
-QuoteTransformer.prototype.convertBold = function ( i ) {
-	// this should be a bold tag.
-	console.assert(i > 0 && this.chunks[i].length===1 &&
-				   this.chunks[i][0].value.length === 3);
-	// we're going to convert it to a single plain text ' plus an italic tag
-	this.chunks[i-1].push( "'" );
-	var oldbold = this.chunks[i][0];
-	var tsr = oldbold.dataAttribs ? oldbold.dataAttribs.tsr : null;
-	if ( tsr ) {
-		tsr = [ tsr[0]+1, tsr[1] ];
-	}
-	var newbold = new SelfclosingTagTk( 'mw-quote', [], { tsr: tsr });
-	newbold.value = "''"; // italic!
-	this.chunks[i] = [ newbold ];
 };
 
 // Convert italics/bolds into tags
