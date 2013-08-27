@@ -229,6 +229,12 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 		document.documentElement.setAttribute(
 			'about', mwrPrefix + 'revision/' + m.rev_revid );
 	}
+	// Set the parsoid version
+	appendToHead( document, 'meta',
+			{
+				'property': 'mw:parsoidVersion',
+				'content': env.conf.parsoid.version.toString()
+			});
 	var wikiPageUrl = env.conf.wiki.baseURI + env.page.name;
 	appendToHead( document, 'link',
 	              { rel: 'dc:isVersionOf', href: wikiPageUrl } );
