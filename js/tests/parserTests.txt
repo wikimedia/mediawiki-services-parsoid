@@ -5011,6 +5011,12 @@ Interwiki link with fragment (bug 2130)
 </p>
 !! end
 
+
+###
+### Interlanguage links
+### Language links (so that searching for '### language' matches..)
+###
+
 !! test
 Interlanguage link
 !! input
@@ -5096,9 +5102,30 @@ parsoid
 <p data-parsoid="{&quot;dsr&quot;:[17,36,0,0]}"><a rel="mw:WikiLink" href="./Foo" data-parsoid="{&quot;stx&quot;:&quot;simple&quot;,&quot;a&quot;:{&quot;href&quot;:&quot;./Foo&quot;},&quot;sa&quot;:{&quot;href&quot;:&quot;constructor:foo&quot;},&quot;dsr&quot;:[17,36,2,2]}">constructor:foo</a></p>
 !! end
 
-##
-## Redirects, Parsoid-only
-##
+!! test
+Parsoid: recognize interlanguage links without a target page
+!! options
+parsoid
+!! input
+[[ko:]]
+!! result
+<p>
+<link rel="mw:WikiLink/Language" href="http://ko.wikipedia.org/wiki/"></p>
+!! end
+
+!! test
+Parsoid: recognize interwiki links without a target page
+!! options
+parsoid
+!! input
+[[:ko:]]
+!! result
+<p><a rel="mw:WikiLink/Interwiki" href="http://ko.wikipedia.org/wiki/">ko:</a></p>
+!! end
+
+###
+### Redirects, Parsoid-only
+###
 !! test
 Simple redirect to page
 !! options
