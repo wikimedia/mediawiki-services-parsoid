@@ -34,9 +34,6 @@ FauxHTML5.TreeBuilder = function ( env ) {
 
 	// Sets up the parser
 	this.parser.tokenizer = this;
-	this.addListener( 'token', this.parser.do_token.bind( this.parser ) );
-	this.addListener( 'end', this.parser.emit.bind( this.parser, 'end') );
-	this.parser.setup();
 
 	// implicitly start a new document
 	this.processToken(new TagTk( 'body' ));
@@ -65,6 +62,8 @@ FauxHTML5.TreeBuilder.prototype.resetState = function () {
 	this.tagId = 1;
 
 	// Reset the parser
+	this.removeAllListeners( "token" );
+	this.removeAllListeners( "end" );
 	this.parser.setup();
 	this.processToken(new TagTk( 'body' ));
 
