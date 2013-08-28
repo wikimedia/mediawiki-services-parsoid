@@ -1240,7 +1240,12 @@ var DOMUtils = {
 			this.hasLiteralHTMLMarker(parsoidData) ||
 			this.isNodeOfType(n, 'span', 'mw:Nowiki')
 		);
+	},
+
+	isComment: function( node ) {
+		return this.hasNodeName( node, "#comment" );
 	}
+
 };
 
 if (typeof module === "object") {

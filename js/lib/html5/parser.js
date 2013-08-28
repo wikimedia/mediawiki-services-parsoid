@@ -1008,17 +1008,8 @@ var Parser = HTML5.Parser = function HTML5Parser(options) {
 	};
 
 	phases.inHead.startTagMeta = function(name, attributes) {
-		// Right now, Parsoid exploits this bug for meta tags.
-		// So, till Parsoid is fixed to not rely on this bug,
-		// we'll continue to not to foster meta tags out of tables.
-		var element = tree.createElement(name, attributes);
-		if (tree.head_pointer && parser.phaseName == 'inHead') {
-			this.appendToHead(element);
-		} else {
-			tree.open_elements.last().appendChild(element);
-		}
-		// tree.insert_element(name, attributes);
-		// tree.open_elements.pop();
+		tree.insert_element(name, attributes);
+		tree.open_elements.pop();
 		// @todo process charset attributes
 	};
 

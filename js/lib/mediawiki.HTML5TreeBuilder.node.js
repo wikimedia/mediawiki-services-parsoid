@@ -151,7 +151,7 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 		console.warn("T:html: " + JSON.stringify(token));
 	}
 
-	var tName, attrs,
+	var tName, attrs, tTypeOf,
 		self = this,
 		isNotPrecededByPre = function () {
 			return  ! self.lastToken ||
@@ -202,7 +202,10 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			if ( this.trace ) { console.warn('inserting shadow meta for ' + tName); }
 			attrs.push({nodeName: "typeof", nodeValue: "mw:StartTag"});
 			attrs.push({nodeName: "data-stag", nodeValue: tName + ':' + dataAttribs.tagId});
-			this.emit('token', {type: 'StartTag', name: 'meta', data: attrs});
+			this.emit('token', { type: 'Comment', data: JSON.stringify({
+				"@type": "mw:shadow",
+				attrs: attrs
+			}) });
 			break;
 		case SelfclosingTagTk:
 			tName = token.name;
@@ -210,6 +213,16 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			// Re-expand an empty-line meta-token into its constituent comment + WS tokens
 			if (Util.isEmptyLineMetaToken(token)) {
 				this.onChunk(dataAttribs.tokens);
+				break;
+			}
+
+			// Convert mw metas to comments to avoid fostering.
+			tTypeOf = token.getAttribute( "typeof" );
+			if ( tName === "meta" && tTypeOf && tTypeOf.match( /^mw:/ ) ) {
+				this.emit( "token", { type: "Comment", data: JSON.stringify({
+					"@type": tTypeOf,
+					attrs: this._att( attribs )
+				}) });
 				break;
 			}
 
@@ -228,7 +241,10 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			attrs = this._att(attribs);
 			attrs.push({nodeName: "typeof", nodeValue: "mw:EndTag"});
 			attrs.push({nodeName: "data-etag", nodeValue: tName});
-			this.emit('token', {type: 'StartTag', name: 'meta', data: attrs});
+			this.emit('token', {type: 'Comment', data: JSON.stringify({
+				"@type": "mw:shadow",
+				attrs: attrs
+			}) });
 			break;
 		case CommentTk:
 			this.emit('token', {type: 'Comment', data: token.value});

@@ -83,9 +83,37 @@ if (testDom.body.getAttribute('somerandomstring') === '') {
 /**
  * Migrate data-parsoid attributes into a property on each DOM node. We'll
  * migrate them back in the final DOM traversal.
+ *
+ * Various mw metas are converted to comments before the tree build to
+ * avoid fostering. Piggy-backing the reconversion here to avoid excess
+ * DOM traversals.
  */
-function migrateDataParsoid( node ) {
+function prepareDOM( node ) {
 	DU.loadDataParsoid( node );
+
+	if ( DU.isComment( node ) && /^\{.*\}$/.test( node.data ) ) {
+
+		var data, type;
+		try {
+			data = JSON.parse( node.data );
+			type = data["@type"];
+		} catch (e) {
+			// not a valid json attribute, do nothing
+			return true;
+		}
+
+		if ( /^mw:/.test( type ) ) {
+			var meta = node.ownerDocument.createElement( "meta" );
+			data.attrs.forEach(function ( attr ) {
+				meta.setAttribute( attr.nodeName, attr.nodeValue );
+			});
+			node.parentNode.insertBefore( meta, node );
+			DU.deleteNode( node );
+			return meta;
+		}
+
+	}
+
 	return true;
 }
 
@@ -105,7 +133,7 @@ function DOMPostProcessor(env, options) {
 
 	// DOM traverser that runs before the in-order DOM handlers.
 	var dataParsoidLoader = new DOMTraverser();
-	dataParsoidLoader.addHandler( null, migrateDataParsoid );
+	dataParsoidLoader.addHandler( null, prepareDOM );
 
 	// Common post processing
 	this.processors = [
