@@ -143,6 +143,12 @@ ParsoidConfig.prototype.fetchConfig = true;
  */
 ParsoidConfig.prototype.editMode = true;
 
+/**
+ * @property {number} Parsoid DOM format version
+ * See https://bugzilla.wikimedia.org/show_bug.cgi?id=52937
+ */
+ParsoidConfig.prototype.version = 0;
+
 if (typeof module === "object") {
 	module.exports.ParsoidConfig = ParsoidConfig;
 }
