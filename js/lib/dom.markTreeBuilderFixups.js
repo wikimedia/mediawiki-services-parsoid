@@ -1,6 +1,7 @@
 "use strict";
 
-var DU = require('./mediawiki.DOMUtils.js').DOMUtils,
+var Consts = require('./mediawiki.wikitext.constants.js').WikitextConstants,
+	DU = require('./mediawiki.DOMUtils.js').DOMUtils,
 	Util = require('./mediawiki.Util.js').Util;
 
 function markTreeBuilderFixups(document, env) {
@@ -173,6 +174,18 @@ function markTreeBuilderFixups(document, env) {
 						} else {
 							//console.log('autoInsertedStart:', c.outerHTML);
 							dp.autoInsertedStart = true;
+						}
+					} else {
+						// If the tag-id is missing, this is clearly a sign that the
+						// start tag was inserted by the builder
+						dp.autoInsertedStart = true;
+
+						// If the start was auto-inserted and it does not have a
+						// closing-tag in wikitext, clearly the end-tag came from
+						// a literal HTML end tag (ex: </tr>) from the source.
+						var wtTagWidth = Consts.WT_TagWidths[cNodeName];
+						if (wtTagWidth && wtTagWidth[1] === 0) {
+							dp.stx = 'html';
 						}
 					}
 				} else if (cNodeName === 'meta') {

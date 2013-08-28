@@ -5876,6 +5876,23 @@ parsoid
 <p><small></small></p>
 !!end
 
+!! test
+Table with missing opening <tr> tag
+!! options
+parsoid=wt2html,wt2wt
+!! input
+<table>
+<td>foo</td>
+</tr>
+</table>
+!! result
+<table>
+<tr>
+<td>foo</td>
+</tr>
+</table>
+!! end
+
 ###
 ### Magic Words
 ###
