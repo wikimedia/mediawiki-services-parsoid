@@ -645,7 +645,7 @@ var Util = {
 		return tokens;
 	},
 
-	// Strip 'end' tokens and trailing newlines
+	// Strip EOFTk token from token chunk
 	stripEOFTkfromTokens: function ( tokens ) {
 		// this.dp( 'stripping end or whitespace tokens' );
 		if ( tokens.constructor !== Array ) {
@@ -654,24 +654,33 @@ var Util = {
 		if ( ! tokens.length ) {
 			return tokens;
 		}
-		// Strip 'end' tokens and trailing newlines
-		var l = tokens[tokens.length - 1];
-		if ( l &&
-		     ( l.constructor === pd.EOFTk ||
-		       l.constructor === pd.NlTk ||
-				( l.constructor === String && l.match( /^\s+$/ ) ) ) ) {
-			var origTokens = tokens;
-			tokens = origTokens.slice();
-			tokens.rank = origTokens.rank;
-			while ( tokens.length &&
-			        (( l.constructor === pd.EOFTk  ||
-			           l.constructor === pd.NlTk )  ||
-			         ( l.constructor === String && l.match( /^\s+$/ ) ) ) )
-			{
-				// this.dp( 'stripping end or whitespace tokens' );
-				tokens.pop();
-				l = tokens[tokens.length - 1];
-			}
+		// Strip 'end' token
+		if ( tokens.length && tokens.last().constructor === pd.EOFTk ) {
+			var rank = tokens.rank;
+			tokens = tokens.slice(0,-1);
+			tokens.rank = rank;
+		}
+
+		return tokens;
+	},
+
+	// Strip NlTk and ws-only trailing text tokens. Used to be part of
+	// stripEOFTkfromTokens, but unclear if this is still needed.
+	// TODO: remove this if this is not needed any more!
+	stripTrailingNewlinesFromTokens: function (tokens) {
+		var token = tokens.last(),
+			lastMatches = function(toks) {
+				var lastTok = toks.last();
+				return lastTok && (
+						lastTok.constructor === pd.NlTk ||
+						lastTok.constructor === String && /^\s+$/.test(token));
+			};
+		if (lastMatches) {
+			tokens = tokens.slice();
+		}
+		while (lastMatches)
+		{
+			tokens.pop();
 		}
 		return tokens;
 	},
