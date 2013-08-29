@@ -16,7 +16,6 @@
 "use strict";
 
 var events = require('events'),
-	LRU = require("lru-cache"),
 	crypto = require('crypto'),
 	util = require('util'),
 	JSUtils = require('./jsutils.js').JSUtils,
@@ -30,7 +29,7 @@ var KV = defines.KV,
     ParserValue = defines.ParserValue;
 
 // forward declarations
-var TokenAccumulator, Frame, ExpansionCache;
+var TokenAccumulator, Frame;
 
 function verifyTokensIntegrity(ret, nullOkay) {
 	// FIXME: Where is this coming from?
@@ -580,7 +579,7 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 					JSON.stringify( token ) );
 		}
 
-		if (this.trace) {
+		if (this.trace || this.debug) {
 			console.warn("A" + this.phaseEndRank + "-" + this.uid + ": " + JSON.stringify(token));
 		} else {
 			// SSS FIXME: with individual stage tracing, this overall generic tracing
@@ -949,7 +948,6 @@ SyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 	}
 
 	localAccum.rank = this.phaseEndRank;
-	localAccum.cache = tokens.cache;
 	this.env.dp( 'SyncTokenTransformManager.onChunk: emitting ', localAccum );
 	this.env.tracer.endPass("onChunk (Sync:" + this.attributeType + ")");
 	this.emit( 'chunk', localAccum );
@@ -1323,30 +1321,13 @@ Frame = function( title, manager, args, parentFrame ) {
 	this.title = title;
 	this.manager = manager;
 	this.args = new Params( args );
-	// Cache key fragment for expansion cache
-	// FIXME: We are hashing the unexpanded args here. To keep things correct,
-	// we thus need to assume that the parent frame can affect the argument
-	// value. It would be more efficient to use the fully expanded args for
-	// the cache key instead, as this would allow sharing of all expansions of
-	// a template with identical expanded parameters independent of its
-	// containing frame.
-	var MD5 = function(text) {
-		return crypto.createHash('md5').update(text).digest('hex');
-	};
-	if ( args._cacheKey === undefined ) {
-		args._cacheKey = MD5( JSON.stringify( args ) );
-	}
 
 	if ( parentFrame ) {
 		this.parentFrame = parentFrame;
 		this.depth = parentFrame.depth + 1;
-		// FIXME: Since our args are unexpanded, the expanded value might
-		// depend on the parent frame.
-		this._cacheKey = MD5( parentFrame._cacheKey + args._cacheKey );
 	} else {
 		this.parentFrame = null;
 		this.depth = 0;
-		this._cacheKey = args._cacheKey;
 	}
 };
 
@@ -1366,7 +1347,7 @@ Frame.prototype.newChild = function ( title, manager, args ) {
 Frame.prototype.expand = function ( chunk, options ) {
 	var outType = options.type || 'text/x-mediawiki/expanded';
 	var cb = options.cb || console.warn( JSON.stringify( options ) );
-	this.manager.env.dp( 'Frame.expand', this._cacheKey, chunk );
+	this.manager.env.dp( 'Frame.expand', chunk );
 
 	if ( chunk.constructor === String ) {
 		// Plain text remains text. Nothing to do.
@@ -1383,31 +1364,12 @@ Frame.prototype.expand = function ( chunk, options ) {
 
 	// We are now dealing with an Array of tokens. See if the chunk is
 	// a source chunk with a cache attached.
-	var maybeCached;
 	if ( ! chunk.length ) {
-		// nothing to do, simulate a cache hit..
-		maybeCached = chunk;
-	} else if ( chunk.cache === undefined ) {
-		// add a cache to the chunk
-		// If frozen, it has not yet been cloned.
-		// If not frozen, it has been cloned before getting here.
-		if (Object.isFrozen(chunk)) {
-			chunk = Util.clone(chunk);
-		}
-		Object.defineProperty( chunk, 'cache',
-				// XXX: play with cache size!
-				{ value: new ExpansionCache( 5 ), enumerable: false } );
-	} else {
-		// try to retrieve cached expansion
-		maybeCached = chunk.cache.get( this, options );
-		// XXX: disable caching of error messages!
-	}
-	if ( maybeCached ) {
-		this.manager.env.dp( 'got cache', this.title, this._cacheKey, maybeCached );
-		return cb( maybeCached );
+		// nothing to do
+		return cb( chunk );
 	}
 
-	// not cached, actually have to do some work.
+	// actually have to do some work.
 	if ( outType === 'text/x-mediawiki/expanded' ) {
 		// Simply wrap normal expansion ;)
 		// XXX: Integrate this into the pipeline setup?
@@ -1416,8 +1378,6 @@ Frame.prototype.expand = function ( chunk, options ) {
 			origCB = cb;
 		cb = function( resChunk ) {
 			var res = Util.tokensToString( resChunk );
-			// cache the result
-			chunk.cache.set( self, options, res );
 			origCB( res );
 		};
 	}
@@ -1447,7 +1407,7 @@ Frame.prototype.expand = function ( chunk, options ) {
 		pipeline.setFrame( this, null );
 		// In the name of interface simplicity, we accumulate all emitted
 		// chunks in a single accumulator.
-		var eventState = { cache: chunk.cache, options: options, accum: [], cb: cb };
+		var eventState = { options: options, accum: [], cb: cb };
 		pipeline.addListener( 'chunk',
 				this.onThunkEvent.bind( this, eventState, true ) );
 		pipeline.addListener( 'end',
@@ -1476,15 +1436,9 @@ Object.freeze(Frame.prototype._eofTkList[0]);
 Frame.prototype.onThunkEvent = function ( state, notYetDone, ret ) {
 	if ( notYetDone ) {
 		state.accum = state.accum.concat(Util.stripEOFTkfromTokens( ret ) );
-		this.manager.env.dp( 'Frame.onThunkEvent accum:', this._cacheKey, state.accum );
+		this.manager.env.dp( 'Frame.onThunkEvent accum:', state.accum );
 	} else {
-		this.manager.env.dp( 'Frame.onThunkEvent:', this._cacheKey, state.accum );
-		state.cache.set( this, state.options, state.accum );
-		// Add cache to accum too
-		if ( ! Object.isFrozen( state.accum ) ) {
-			Object.defineProperty( state.accum, 'cache',
-					{ value: state.cache, enumerable: false } );
-		}
+		this.manager.env.dp( 'Frame.onThunkEvent:', state.accum );
 		state.cb ( state.accum );
 	}
 };
@@ -1559,35 +1513,6 @@ Frame.prototype._getID = function( options ) {
 	}
 };
 
-/**
- * @class
- * @private
- *
- * A specialized expansion cache, normally associated with a chunk of tokens.
- */
-ExpansionCache = function( n ) {
-	this._cache = new LRU( n );
-};
-
-ExpansionCache.prototype.makeKey = function ( frame, options ) {
-	//console.warn( frame._cacheKey );
-	return frame._cacheKey + options.type ;
-};
-
-ExpansionCache.prototype.set = function ( frame, options, value ) {
-	//if ( frame.title !== null ) {
-		//console.log( 'setting cache for ' + frame.title +
-		//		' ' + this.makeKey( frame, options ) +
-		//		' to: ' + JSON.stringify( value ) );
-		return this._cache.set( this.makeKey( frame, options ), value );
-	//}
-};
-
-ExpansionCache.prototype.get = function ( frame, options ) {
-	var cachedTokens = this._cache.get( this.makeKey( frame, options ) );
-	JSUtils.deepFreeze(cachedTokens);
-	return cachedTokens;
-};
 
 if (typeof module === "object") {
 	module.exports.AsyncTokenTransformManager = AsyncTokenTransformManager;
