@@ -183,8 +183,9 @@ function markTreeBuilderFixups(document, env) {
 						// If the start was auto-inserted and it does not have a
 						// closing-tag in wikitext, clearly the end-tag came from
 						// a literal HTML end tag (ex: </tr>) from the source.
+						// But, ignore HTML tags that dont have wikitext tags at all.
 						var wtTagWidth = Consts.WT_TagWidths[cNodeName];
-						if (wtTagWidth && wtTagWidth[1] === 0) {
+						if (wtTagWidth && wtTagWidth[0] !== 0 && wtTagWidth[1] === 0) {
 							dp.stx = 'html';
 						}
 					}
