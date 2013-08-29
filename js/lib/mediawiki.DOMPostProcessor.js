@@ -105,7 +105,7 @@ function prepareDOM( node ) {
 		if ( /^mw:/.test( type ) ) {
 			var meta = node.ownerDocument.createElement( "meta" );
 			data.attrs.forEach(function ( attr ) {
-				meta.setAttribute( attr.nodeName, attr.nodeValue );
+				meta.setAttribute( attr.name, attr.value );
 			});
 			node.parentNode.insertBefore( meta, node );
 			DU.deleteNode( node );
