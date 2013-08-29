@@ -767,7 +767,13 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 			// Strip the [[]] markers.
 			var title = item.options.title.replace( /^\[\[|\]\]$/g, '' );
 			title = this.env.normalizeTitle( title, true );
+			// This sets the page name as well as the relative link prefix
+			// for the rest of the parse.
 			this.env.setPageName( title );
+		} else {
+			// Since we are reusing the 'env' object, set it to Main Page
+			// so that relative link prefix is back to "./"
+			this.env.setPageName( "Main Page" );
 		}
 
 		if ( item.options.subpage !== undefined ) {
