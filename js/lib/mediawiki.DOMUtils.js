@@ -958,6 +958,11 @@ var DOMUtils = {
 			node = node.nextSibling;
 		}
 
+		// Remove already consumed trailing IEW, if any
+		while (nodes.length && this.isIEW(nodes.last())) {
+			nodes.pop();
+		}
+
 		return nodes;
 	},
 
