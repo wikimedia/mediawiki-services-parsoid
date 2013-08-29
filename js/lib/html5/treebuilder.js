@@ -22,25 +22,15 @@ b.prototype.copyAttributeToElement = function(element, attribute) {
 			at.namespace = attribute.namespace;
 		}
 	} else {
-		var name, value, namespace;
 		try {
-			if ('namespaceURI' in attribute) { // DOM 4
-				name = attribute.name;
-				value = attribute.value;
-				namespace = attribute.namespaceURI;
-			} else { // token
-				name = attribute.nodeName;
-				value = attribute.nodeValue;
-				namespace = attribute.namespace;
-			}
-			if (namespace) {
-				element.setAttributeNS(namespace, name, value);
+			if ('namespaceURI' in attribute) {
+				element.setAttributeNS(attribute.namespaceURI, attribute.name, attribute.value);
 			} else {
-				element.setAttribute(name, value);
+				element.setAttribute(attribute.name, attribute.value);
 			}
 		} catch(e) {
 			HTML5.debug('treebuilder.copyAttributes',
-				"Can't set attribute", name, value, e);
+				"Can't set attribute", attribute.name, attribute.value, e);
 		}
 	}
 }

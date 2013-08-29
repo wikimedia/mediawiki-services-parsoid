@@ -113,7 +113,7 @@ FauxHTML5.TreeBuilder.prototype._att = function (maybeAttribs) {
 	if ( maybeAttribs && $.isArray( maybeAttribs ) ) {
 		for(var i = 0, length = maybeAttribs.length; i < length; i++) {
 			var att = maybeAttribs[i];
-			atts.push({nodeName: att.k, nodeValue: att.v});
+			atts.push({name: att.k, value: att.v});
 		}
 	}
 	return atts;
@@ -194,14 +194,14 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 				this.emit('token', {
 					type: 'StartTag',
 					name: 'meta',
-					data: [ { nodeName: "typeof", nodeValue: "mw:FosterBox" } ]
+					data: [ { name: "typeof", value: "mw:FosterBox" } ]
 				});
 			}
 			this.emit('token', {type: 'StartTag', name: tName, data: this._att(attribs)});
 			attrs = [];
 			if ( this.trace ) { console.warn('inserting shadow meta for ' + tName); }
-			attrs.push({nodeName: "typeof", nodeValue: "mw:StartTag"});
-			attrs.push({nodeName: "data-stag", nodeValue: tName + ':' + dataAttribs.tagId});
+			attrs.push({name: "typeof", value: "mw:StartTag"});
+			attrs.push({name: "data-stag", value: tName + ':' + dataAttribs.tagId});
 			this.emit('token', { type: 'Comment', data: JSON.stringify({
 				"@type": "mw:shadow",
 				attrs: attrs
@@ -239,8 +239,8 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 
 			if ( this.trace ) { console.warn('inserting shadow meta for ' + tName); }
 			attrs = this._att(attribs);
-			attrs.push({nodeName: "typeof", nodeValue: "mw:EndTag"});
-			attrs.push({nodeName: "data-etag", nodeValue: tName});
+			attrs.push({name: "typeof", value: "mw:EndTag"});
+			attrs.push({name: "data-etag", value: tName});
 			this.emit('token', {type: 'Comment', data: JSON.stringify({
 				"@type": "mw:shadow",
 				attrs: attrs
