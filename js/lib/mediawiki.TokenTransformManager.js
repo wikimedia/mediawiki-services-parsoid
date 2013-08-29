@@ -327,7 +327,7 @@ AsyncTokenTransformManager.prototype.setFrame = function ( parentFrame, title, a
  * @param {Object} ret The chunk we're returning from the transform.
  */
 AsyncTokenTransformManager.prototype.emitChunk = function( ret ) {
-	this.env.dp( 'emitChunk', ret );
+	this.env.dp( 'AsyncTokenTransformManager.emitChunk', ret );
 
 	function checkForEOFTkErrors(ttm, ret, atEnd) {
 		if ( ttm.frame.depth === 0 &&
