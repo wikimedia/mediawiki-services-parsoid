@@ -977,7 +977,11 @@ var DOMUtils = {
 	 */
 	skipOverEncapsulatedContent: function(node) {
 		var about = node.getAttribute('about');
-		return this.getAboutSiblings(node, about).last().nextSibling;
+		if (about) {
+			return this.getAboutSiblings(node, about).last().nextSibling;
+		} else {
+			return node.nextSibling;
+		}
 	},
 
 	/**
