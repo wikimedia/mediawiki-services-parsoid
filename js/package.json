@@ -16,7 +16,8 @@
 		"lru-cache": "1.x.x",
 		"async": "0.x.x",
 		"express": "2.5.x",
-		"html5-entities": "~0.5.0"
+		"html5-entities": "~0.5.0",
+		"html5": "git://github.com/aredridel/html5.git#197dca4206d84953962258774934f1991c8c2e4d"
 	},
 	"devDependencies": {
 		"colors": "0.x.x",
