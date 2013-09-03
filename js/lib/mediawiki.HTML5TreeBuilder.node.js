@@ -8,7 +8,7 @@
 var events = require('events'),
 	util = require('util'),
 	$ = require('./fakejquery'),
-	HTML5 = require('./html5/index'),
+	HTML5 = require('html5'),
 	domino = require('./domino'),
 	defines = require('./mediawiki.parser.defines.js'),
 	Util = require('./mediawiki.Util.js').Util;
