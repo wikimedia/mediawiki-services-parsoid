@@ -82,7 +82,6 @@ var MWParserEnvironment = function ( parsoidConfig, wikiConfig ) {
 	// TODO gwicke: probably not that useful any more as this is per-request
 	// and the PHP preprocessor eliminates template source hits
 	this.pageCache = {};
-	this.uid = 1;
 	// Global transclusion expansion cache (templates, parser functions etc)
 	// Key: Full transclusion source
 	this.transclusionCache = {};
@@ -106,7 +105,7 @@ var MWParserEnvironment = function ( parsoidConfig, wikiConfig ) {
 	this.conf.wiki = wikiConfig;
 	this.conf.parsoid = parsoidConfig;
 
-	this.setPageName( this.page.name );
+	this.reset( this.page.name );
 
 	// Tracing object
 	this.tracer = new Tracer(this);
@@ -204,15 +203,16 @@ MWParserEnvironment.prototype.setPageSrcInfo = function ( src_or_metadata ) {
 /**
  * @method
  *
- * Set the name of the page we're parsing.
+ * Reset the environment for the page
  *
  * @param {string} pageName
  */
-MWParserEnvironment.prototype.setPageName = function ( pageName ) {
+MWParserEnvironment.prototype.reset = function ( pageName ) {
 	// Create a title from the pageName
 	var title = Title.fromPrefixedText(this, pageName);
 	this.page.ns = title.ns.id;
 	this.page.title = title;
+	this.initUID();
 
 	this.page.name = pageName;
 	// Construct a relative link prefix depending on the number of slashes in
@@ -271,7 +271,7 @@ MWParserEnvironment.getParserEnv = function ( parsoidConfig, wikiConfig, prefix,
 	var env = new MWParserEnvironment( parsoidConfig, wikiConfig );
 
 	if ( pageName ) {
-		env.setPageName( pageName );
+		env.reset( pageName );
 	}
 
 	// Get that wiki's config
@@ -478,6 +478,10 @@ MWParserEnvironment.prototype.tp = function ( ) {
 			console.warn( arguments[0] );
 		}
 	}
+};
+
+MWParserEnvironment.prototype.initUID = function() {
+	this.uid = 1;
 };
 
 /**

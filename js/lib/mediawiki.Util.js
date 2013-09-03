@@ -917,7 +917,7 @@ var normalizeOut = function ( out, parsoidOnly ) {
 			replace(/<span(?: [^>]+)* typeof="mw:Placeholder"(?: [^\0-\cZ\s\"\'>\/=]+(?:="[^"]*")?)*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1').
 			// unnecessary attributes, we don't need to check these
 			// style is in there because we should only check classes.
-			replace(/ (data-mw|data-parsoid|prefix|about|rev|datatype|inlist|vocab|content|style)="[^\"]*"/g, '').
+			replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|vocab|content|style)="[^\"]*"/g, '').
 			replace(/<\/?(?:meta|link)(?: [^\0-\cZ\s"'>\/=]+(?:="[^"]*")?)*\/?>/g, '');
 	}
 	return out.

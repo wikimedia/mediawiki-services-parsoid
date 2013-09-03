@@ -769,11 +769,11 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 			title = this.env.normalizeTitle( title, true );
 			// This sets the page name as well as the relative link prefix
 			// for the rest of the parse.
-			this.env.setPageName( title );
+			this.env.reset( title );
 		} else {
 			// Since we are reusing the 'env' object, set it to Main Page
 			// so that relative link prefix is back to "./"
-			this.env.setPageName( "Main Page" );
+			this.env.reset( "Main Page" );
 		}
 
 		if ( item.options.subpage !== undefined ) {
