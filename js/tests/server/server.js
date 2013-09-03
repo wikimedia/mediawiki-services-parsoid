@@ -506,7 +506,7 @@ var insertPerfStats = function( db, pageId, commitHash, perfstats, cb ) {
 
 var receiveResults = function ( req, res ) {
 	req.connection.setTimeout(300 * 1000);
-	var title = decodeURIComponent( req.params[0] ),
+	var title = req.params[ 0 ],
 		result = req.body.results,
 		skipCount = result.match( /<skipped/g ),
 		failCount = result.match( /<failure/g ),
