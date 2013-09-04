@@ -1,12 +1,9 @@
 #!/usr/bin/env node
 /*
- * Initial parser tests runner for experimental JS parser
+ * Parsoid test runner
  *
- * This pulls all the parserTests.txt items and runs them through the JS
- * parser and JS HTML renderer.
+ * This pulls all the parserTests.txt items and runs them through Parsoid.
  */
-
-(function() {
 
 /**
  * @class ParserTestModule
@@ -1897,5 +1894,3 @@ if ( popts && popts.xml ) {
 }
 
 ptests.main( popts );
-
-} )();
