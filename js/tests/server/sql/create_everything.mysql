@@ -25,7 +25,7 @@ CREATE TABLE results (
 	id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	page_id INTEGER NOT NULL,
 	commit_hash CHAR( 40 ) NOT NULL,
-	result TEXT NOT NULL
+	result MEDIUMTEXT NOT NULL
 ) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;
 CREATE UNIQUE INDEX results_page_commit_idx ON results ( page_id, commit_hash );
 

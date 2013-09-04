@@ -57,39 +57,47 @@ var plainCallback = function ( env, err, results ) {
 	return output;
 };
 
+var encodeXmlEntities = function( str ) {
+	return str.replace( /&/g, '&amp;' )
+			  .replace( /</g, '&lt;' )
+			  .replace( />/g, '&gt;' )
+			  .replace( /"/g, '&quot;' )
+			  .replace( /'/g, '&apos;' );
+};
+
 var xmlCallback = function ( env, err, results ) {
 	var i, result;
-	var prefix = ( env && env.wiki && env.wiki.iwp ) || '';
+	var prefix = ( env && env.conf && env.conf.wiki && env.conf.wiki.iwp ) || '';
 	var title = ( env && env.page && env.page.name ) || '';
 
-	var output = '<testsuite name="Roundtrip article ' + Util.encodeXml( prefix + ':' + title ) + '">';
+	var output = '<testsuite name="Roundtrip article ' + encodeXmlEntities( prefix + ':' + title ) + '">';
 
 	if ( err ) {
 		output += '<testcase name="entire article"><error type="parserFailedToFinish">';
-		output += Util.encodeXml( err.stack || err.toString() );
+		output += encodeXmlEntities( err.stack || err.toString() );
 		output += '</error></testcase>';
 	} else {
 
 		for ( i = 0; i < results.length; i++ ) {
 			result = results[i];
 
-			output += '<testcase name="' + Util.encodeXml( prefix + ':' + title ) + ' character ' + result.offset[0].start + '">';
+			output += '<testcase name="' + encodeXmlEntities( prefix + ':' + title ) + ' character ' + result.offset[0].start + '">';
 
 			if ( result.type === 'fail' ) {
 				output += '<failure type="significantHtmlDiff">\n';
 
 				output += '<diff class="wt">\n';
-				output += Util.encodeXml( result.wtDiff );
+				output += encodeXmlEntities( result.wtDiff );
 				output += '\n</diff>\n';
 
 				output += '<diff class="html">\n';
-				output += Util.encodeXml( result.htmlDiff );
+				output += encodeXmlEntities( result.htmlDiff );
 				output += '\n</diff>\n';
 
 				output += '</failure>\n';
 			} else {
 				output += '<skipped type="insignificantWikitextDiff">\n';
-				output += Util.encodeXml( result.wtDiff );
+				output += encodeXmlEntities( result.wtDiff );
 				output += '\n</skipped>\n';
 			}
 
@@ -407,6 +415,7 @@ var roundTripDiff = function ( env, document, cb ) {
 		// Finish the total time now
 		if ( env.profile && env.profile.time ) {
 			env.profile.time.total += new Date() - env.profile.time.total_timer;
+			delete( env.profile.time.total_timer );
 		}
 		diff = jsDiff.diffLines( out, env.page.src );
 		offsetPairs = Util.convertDiffToOffsetPairs( diff );
