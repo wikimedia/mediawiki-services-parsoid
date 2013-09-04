@@ -918,7 +918,7 @@ Sanitizer.prototype.isParsoidAttr = function(k, v) {
 	//    unconditionally discard the entire attribute or process it further.
 	//    That further processing will catch and discard any dangerous
 	//    strings in the rest of the attribute
-	return k === "typeof" && /\bmw:.+?\b/.test(v) ||
+	return k === "typeof" && /(?:^|\s)mw:.+?(?=$|\s)/.test(v) ||
 		k === "about" && /^#mwt\d+$/.test(v);
 };
 

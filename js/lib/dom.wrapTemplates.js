@@ -170,7 +170,7 @@ function findTopLevelNonOverlappingRanges(document, env, tplRanges) {
 		} else {
 			// Remove mw:* from the typeof
 			var type = meta.getAttribute("typeof");
-			type = type.replace(/\bmw:[^\/]*(\/[^\s]+|\b)/, '');
+			type = type.replace(/(?:^|\s)mw:[^\/]*(\/[^\s]+|(?=$|\s))/g, '');
 			meta.setAttribute("typeof", type);
 		}
 	}
@@ -605,7 +605,7 @@ function encapsulateTemplates( doc, env, tplRanges, tplArrays) {
 		// However, tcStart (= range.start), even if a meta, need not be
 		// a marker meta added for the template.
 		if (DU.hasNodeName(startElem, "meta") &&
-				/\bmw:(:?Transclusion|Param)\b/.test(startElem.getAttribute('typeof'))) {
+				/(?:^|\s)mw:(:?Transclusion|Param)(?=$|\s)/.test(startElem.getAttribute('typeof'))) {
 			DU.deleteNode(startElem);
 		}
 
@@ -642,7 +642,7 @@ function findWrappableTemplateRanges( doc, env, root, tpls ) {
 		if ( DU.isElt(elem) ) {
 			var type = elem.getAttribute( 'typeof' ),
 				// SSS FIXME: This regexp differs from that in isTplMetaType
-				metaMatch = type ? type.match( /\b(mw:(?:Transclusion|Param)(\/[^\s]+)?)\b/ ) : null;
+				metaMatch = type ? type.match( /(?:^|\s)(mw:(?:Transclusion|Param)(\/[^\s]+)?)(?=$|\s)/ ) : null;
 
 			// Ignore templates without tsr.
 			//
@@ -655,13 +655,13 @@ function findWrappableTemplateRanges( doc, env, root, tpls ) {
 			// on end-meta-tags.
 			//
 			// Ex: "<ref>{{echo|bar}}<!--bad-></ref>"
-			if (metaMatch && ( DU.getDataParsoid( elem ).tsr || type.match(/\/End\b/))) {
+			if (metaMatch && ( DU.getDataParsoid( elem ).tsr || /\/End(?=$|\s)/.test(type))) {
 				var metaType = metaMatch[1];
 
 				about = elem.getAttribute('about');
 				aboutRef = tpls[about];
 				// Is this a start marker?
-				if (!metaType.match(/\/End\b/)) {
+				if (!/\/End(?=$|\s)/.test(metaType)) {
 					if ( aboutRef ) {
 						aboutRef.start = elem;
 						// content or end marker existed already

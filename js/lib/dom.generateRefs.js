@@ -9,9 +9,9 @@ function generateRefs(refsExt, node) {
 		DU.loadDataParsoid(child);
 		if (DU.isElt(child)) {
 			var typeOf = child.getAttribute('typeof');
-			if ((/\bmw:Extension\/ref\/Marker\b/).test(typeOf)) {
+			if ((/(?:^|\s)mw:Extension\/ref\/Marker(?=$|\s)/).test(typeOf)) {
 				refsExt.extractRefFromNode(child);
-			} else if ((/\bmw:Extension\/references\b/).test(typeOf)) {
+			} else if ((/(?:^|\s)mw:Extension\/references(?=$|\s)/).test(typeOf)) {
 				refsExt.insertReferencesIntoDOM(child);
 			} else if (child.childNodes.length > 0) {
 				generateRefs(refsExt, child);

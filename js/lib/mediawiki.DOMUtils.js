@@ -287,7 +287,7 @@ var DOMUtils = {
 			var type = node.getAttribute('typeof'),
 				about = node.getAttribute('about') || '',
 				tplAttrState = tplAttrs[about];
-			if (type && type.match(/\bmw:ExpandedAttrs\/[^\s]+/) &&
+			if (type && /(?:^|\s)mw:ExpandedAttrs\/[^\s]+/.test(type) &&
 					tplAttrState &&
 					tplAttrState.vs[name] )
 			{
@@ -455,7 +455,7 @@ var DOMUtils = {
 	 * @param {string} nType
 	 */
 	isTplMetaType: function(nType)  {
-		return nType && nType.match(/\bmw:Transclusion(\/[^\s]+)*\b/);
+		return (/(?:^|\s)mw:Transclusion(\/[^\s]+)*(?=$|\s)/).test(nType);
 	},
 
 	/**
@@ -465,7 +465,7 @@ var DOMUtils = {
 	 * @param {string} nType
 	 */
 	isExpandedAttrsMetaType: function(nType) {
-		return nType && nType.match(/\bmw:ExpandedAttrs(\/[^\s]+)*\b/);
+		return (/(?:^|\s)mw:ExpandedAttrs(\/[^\s]+)*(?=$|\s)/).test(nType);
 	},
 
 	/**
@@ -484,8 +484,8 @@ var DOMUtils = {
 	isTplStartMarkerMeta: function(node)  {
 		if (this.hasNodeName(node, "meta")) {
 			var t = node.getAttribute("typeof");
-			var tMatch = t && t.match(/\bmw:Transclusion(\/[^\s]+)*\b/);
-			return tMatch && !t.match(/\/End\b/);
+			var tMatch = /(?:^|\s)mw:Transclusion(\/[^\s]+)*(?=$|\s)/.test(t);
+			return tMatch && !/\/End(?=$|\s)/.test(t);
 		} else {
 			return false;
 		}
@@ -500,7 +500,7 @@ var DOMUtils = {
 	isTplEndMarkerMeta: function(n)  {
 		if (this.hasNodeName(n, "meta")) {
 			var t = n.getAttribute("typeof");
-			return t && t.match(/\bmw:Transclusion(\/[^\s]+)*\/End\b/);
+			return (/(?:^|\s)mw:Transclusion(\/[^\s]+)*\/End(?=$|\s)/).test(t);
 		} else {
 			return false;
 		}
@@ -631,7 +631,7 @@ var DOMUtils = {
 	},
 
 	isEncapsulatedElt: function(node) {
-		return this.isElt(node) && (/\bmw:(?:Transclusion\b|Param\b|Extension\/[^\s]+)/).test(node.getAttribute('typeof'));
+		return this.isElt(node) && (/(?:^|\s)mw:(?:Transclusion(?=$|\s)|Param(?=$|\s)|Extension\/[^\s]+)/).test(node.getAttribute('typeof'));
 	},
 
 	/**
@@ -906,11 +906,7 @@ var DOMUtils = {
 
 		var classes = ele.getAttribute( 'class' );
 
-		if ( classes && classes.match( new RegExp( '\\b' + someClass + '\\b' ) ) ) {
-			return true;
-		} else {
-			return false;
-		}
+		return new RegExp( '(?:^|\\s)' + someClass + '(?=$|\\s)' ).test(classes);
 	},
 
 	hasBlockContent: function(node) {
@@ -1032,17 +1028,17 @@ var DOMUtils = {
 				if (node.nodeType === node.ELEMENT_NODE) {
 					var typeOf = node.getAttribute('typeof'),
 						about = node.getAttribute('about');
-					if ((/\b(?:mw:(?:Transclusion\b|Extension\/))/
+					if ((/(?:^|\s)(?:mw:(?:Transclusion(?=$|\s)|Extension\/))/
 								.test(typeOf) && about) ||
-							/\b(?:mw:Image(?:\b|\/))/.test(typeOf))
+							/(?:^|\s)(?:mw:Image(?:(?=$|\s)|\/))/.test(typeOf))
 					{
 						DU.loadDataParsoid(node);
 						nodes = DU.getAboutSiblings(node, about);
 						var key;
-						if (/\bmw:Transclusion\b/.test(typeOf)) {
+						if (/(?:^|\s)mw:Transclusion(?=$|\s)/.test(typeOf)) {
 							expAccum = expansions.transclusions;
 							key = node.data.parsoid.src;
-						} else if (/\bmw:Extension\//.test(typeOf)) {
+						} else if (/(?:^|\s)mw:Extension\//.test(typeOf)) {
 							expAccum = expansions.extensions;
 							key = node.data.parsoid.src;
 						} else {

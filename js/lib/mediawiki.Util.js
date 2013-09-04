@@ -192,7 +192,7 @@ var Util = {
 		}
 
 		// BUG 47854: Treat all mw:Extension/* tokens as non-SOL.
-		if (token.name === 'meta' && /\bmw:Extension\//.test(token.getAttribute('typeof'))) {
+		if (token.name === 'meta' && /(?:^|\s)mw:Extension\//.test(token.getAttribute('typeof'))) {
 			return false;
 		} else {
 			return token.dataAttribs.stx !== 'html';
@@ -906,18 +906,23 @@ var normalizeOut = function ( out, parsoidOnly ) {
 	if ( !parsoidOnly ) {
 		// Strip comment-and-ws-only lines that PHP parser strips out
 		out = out.replace(/\n[ \t]*<!--([^-]|-(?!->))*-->([ \t]|<!--([^-]|-(?!->))*-->)*\n/g, '\n');
-		// ignore troublesome attributes
+		// Ignore troublesome attributes.
+		// Strip JSON attributes like data-mw and data-parsoid early so that
+		// comment stripping in normalizeNewlines does not match unbalanced
+		// comments in wikitext source.
+		out = out.replace(/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content|title|class)="[^\"]*"/g, '');
 		out = normalizeNewlines( out ).
 			// remove <span typeof="....">....</span>
 			replace(/<span(?:[^>]*) typeof="mw:(?:Placeholder|Nowiki|Transclusion|Entity)"(?: [^\0-\cZ\s\"\'>\/=]+(?:="[^"]*")?)*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1').
-			replace(/ (data-mw|data-parsoid|typeof|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content|title|class)="[^\"]*"/g, '');
+			// strip typeof last
+			replace(/ typeof="[^\"]*"/g, '');
 	} else {
+		// unnecessary attributes, we don't need to check these
+		// style is in there because we should only check classes.
+		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|vocab|content|style)="[^\"]*"/g, '');
 		out = normalizeNewlines( out ).
 			// remove <span typeof="mw:Placeholder">....</span>
 			replace(/<span(?: [^>]+)* typeof="mw:Placeholder"(?: [^\0-\cZ\s\"\'>\/=]+(?:="[^"]*")?)*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1').
-			// unnecessary attributes, we don't need to check these
-			// style is in there because we should only check classes.
-			replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|vocab|content|style)="[^\"]*"/g, '').
 			replace(/<\/?(?:meta|link)(?: [^\0-\cZ\s"'>\/=]+(?:="[^"]*")?)*\/?>/g, '');
 	}
 	return out.
