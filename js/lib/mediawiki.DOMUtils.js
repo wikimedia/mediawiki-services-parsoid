@@ -944,6 +944,10 @@ var DOMUtils = {
 	getAboutSiblings: function(node, about) {
 		var nodes = [node];
 
+		if (!about) {
+			return nodes;
+		}
+
 		node = node.nextSibling;
 		while (node && (
 				this.isElt(node) && node.getAttribute('about') === about ||
@@ -1034,6 +1038,7 @@ var DOMUtils = {
 					{
 						DU.loadDataParsoid(node);
 						nodes = DU.getAboutSiblings(node, about);
+
 						var key;
 						if (/(?:^|\s)mw:Transclusion(?=$|\s)/.test(typeOf)) {
 							expAccum = expansions.transclusions;
@@ -1048,6 +1053,7 @@ var DOMUtils = {
 							// transclusion output.
 							key = node.data.parsoid.cacheKey;
 						}
+						//console.log(key);
 
 						if (key) {
 							expAccum[key] = {
