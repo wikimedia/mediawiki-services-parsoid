@@ -41,7 +41,7 @@ function unpackDOMFragments(env, node) {
 		var typeOf = node.getAttribute('typeof'),
 			about = node.getAttribute('about'),
 			lastNode = node;
-		if (/\bmw:DOMFragment\b/.test(typeOf)) {
+		if (/(?:^|\s)mw:DOMFragment(?=$|\s)/.test(typeOf)) {
 			// Replace this node and possibly a sibling with node.dp.html
 			var parentNode = node.parentNode,
 				// Use a div rather than a p, as the p might be stripped out
@@ -66,7 +66,7 @@ function unpackDOMFragments(env, node) {
 
 			var html = node.data.parsoid.html,
 				tsrDelta = node.data.parsoid.tsrDelta;
-			if (!html || /\bmw:Transclusion\b/.test(typeOf)) {
+			if (!html || /(?:^|\s)mw:Transclusion(?=$|\s)/.test(typeOf)) {
 				// Ex: A multi-part template with an extension in its
 				// output (possibly passed in as a parameter).
 				//
@@ -108,7 +108,7 @@ function unpackDOMFragments(env, node) {
 			// here.
 			if (dsr) {
 				var type = firstChild.getAttribute("typeof");
-				if (/\bmw:(Transclusion|Extension)\b/.test(type)) {
+				if (/(?:^|\s)mw:(Transclusion|Extension)(?=$|\s)/.test(type)) {
 					firstChild.data.parsoid.dsr = [dsr[0], dsr[1]];
 				} else { // non-transcluded images
 					firstChild.data.parsoid.dsr = [dsr[0], dsr[1], 2, 2];

@@ -204,7 +204,7 @@ WEHP.hasWikitextTokens = function ( state, onNewline, options, text, linksOnly )
 
 		// Ignore non-whitelisted html tags
 		if (t.isHTMLTag()) {
-			if (/\bmw:Extension\b/.test(t.getAttribute("typeof")) &&
+			if (/(?:^|\s)mw:Extension(?=$|\s)/.test(t.getAttribute("typeof")) &&
 				options.extName !== t.getAttribute("name"))
 			{
 				return true;
@@ -696,13 +696,13 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 	 * ----------------------------------------------------------------- */
 
 	// SSS FIXME: Move this somewhere else
-	var urlTriggers = /\b(RFC|ISBN|PMID)\b/;
-	var fullCheckNeeded = text.match(urlTriggers);
+	var urlTriggers = /(?:^|\s)(RFC|ISBN|PMID)(?=$|\s)/;
+	var fullCheckNeeded = urlTriggers.test(text);
 
 	// Quick check for the common case (useful to kill a majority of requests)
 	//
 	// Pure white-space or text without wt-special chars need not be analyzed
-	if (!fullCheckNeeded && !text.match(/(^|\n)[ \t]+[^\s]+|[<>\[\]\-\+\|'!=#\*:;~{}]/)) {
+	if (!fullCheckNeeded && !/(^|\n)[ \t]+[^\s]+|[<>\[\]\-\+\|'!=#\*:;~{}]/.test(text)) {
 		// console.warn("---EWT:F1---");
 		return text;
 	}
@@ -1138,9 +1138,9 @@ var getLinkRoundTripData = function( env, node, state ) {
 	// Figure out the type of the link
 	var rel = node.getAttribute('rel');
 	if ( rel ) {
-		var typeMatch = rel.match( /\bmw:[^\b]+/ );
+		var typeMatch = rel.match( /(?:^|\s)(mw:[^\s]+)/ );
 		if ( typeMatch ) {
-			rtData.type = typeMatch[0];
+			rtData.type = typeMatch[1];
 		}
 	}
 
@@ -1293,7 +1293,7 @@ WSP.handleOpt = function ( node, opt, optName, optVal, state, cb ) {
 				val = val.value;
 			}
 
-			if ( rel.match( /\bmw:Image\/Frame\b/ ) && val > 1 ) {
+			if ( /(?:^|\s)mw:Image\/Frame(?=$|\s)/.test(rel) && val > 1 ) {
 				val = 1;
 			}
 
@@ -1879,7 +1879,7 @@ WSP.linkHandler = function(node, state, cb) {
 			// XXX: Use shadowed href? Storing serialized tokens in
 			// data-parsoid seems to be... wrong.
 			cb( '[' + Util.tokensToString(target.value) + ']', node);
-		} else if ( rel.match( /\bmw:Image/ ) ) {
+		} else if ( /(?:^|\s)mw:Image/.test(rel) ) {
 			this.handleImage( node, state, cb );
 		} else {
 			// Unknown rel was set
@@ -2622,7 +2622,7 @@ WSP.tagHandlers = {
 						}
 					}
 					emitEndTag('</nowiki>', node, state, cb);
-				} else if ( type.match( /\bmw\:Image(\/(Frame|Frameless|Thumb))?/ ) ) {
+				} else if ( /(?:^|\s)mw\:Image(\/(Frame|Frameless|Thumb))?/.test(type) ) {
 					state.serializer.handleImage( node, state, cb );
 				}
 			} else {
@@ -2771,7 +2771,7 @@ WSP.tagHandlers = {
 		sepnls: {
 			before: function (node, otherNode) {
 				var type = node.getAttribute('rel');
-				if (/\bmw:WikiLink\/Category\b/.test(type) &&
+				if (/(?:^|\s)mw:WikiLink\/Category(?=$|\s)/.test(type) &&
 						!node.getAttribute('data-parsoid')) {
 					// Fresh category link: Serialize on its own line
 					return {min: 1};
@@ -2781,7 +2781,7 @@ WSP.tagHandlers = {
 			},
 			after: function (node, otherNode) {
 				var type = node.getAttribute('rel');
-				if (/\bmw:WikiLink\/Category\b/.test(type) &&
+				if (/(?:^|\s)mw:WikiLink\/Category(?=$|\s)/.test(type) &&
 						!node.getAttribute('data-parsoid') &&
 						otherNode.nodeName !== 'BODY')
 				{
@@ -2816,7 +2816,7 @@ WSP.tagHandlers = {
 
 WSP._serializeAttributes = function (state, token) {
 	function hasExpandedAttrs(tokType) {
-		return tokType && tokType.match(/\bmw:ExpandedAttrs\/[^\s]+/);
+		return (/(?:^|\s)mw:ExpandedAttrs\/[^\s]+/).test(tokType);
 	}
 
 	var tplAttrState = { kvs: {}, ks: {}, vs: {} },
@@ -3165,11 +3165,11 @@ WSP._getDOMHandler = function(node, state, cb) {
 		typeOf = node.getAttribute( 'typeof' ) || '';
 
 	// XXX: Convert into separate handlers?
-	if (/\bmw:(?:Transclusion\b|Param\b|Extension\/[^\s]+)/.test(typeOf)) {
+	if (/(?:^|\s)mw:(?:Transclusion(?=$|\s)|Param(?=$|\s)|Extension\/[^\s]+)/.test(typeOf)) {
 		return {
 			handle: function () {
 				var src, dataMW;
-				if (/\bmw:(Transclusion\b|Param\b)/.test(typeOf)) {
+				if (/(?:^|\s)mw:(Transclusion(?=$|\s)|Param(?=$|\s))/.test(typeOf)) {
 					dataMW = JSON.parse(node.getAttribute("data-mw"));
 					if (dataMW) {
 						src = state.serializer._buildTemplateWT(node,
@@ -3178,7 +3178,7 @@ WSP._getDOMHandler = function(node, state, cb) {
 						console.error("ERROR: No data-mw for: " + node.outerHTML);
 						src = dp.src;
 					}
-				} else if (/\bmw:Extension\//.test(typeOf)) {
+				} else if (/(?:^|\s)mw:Extension\//.test(typeOf)) {
 					dataMW = JSON.parse(node.getAttribute("data-mw"));
 					src = !dataMW ? dp.src : state.serializer._buildExtensionWT(state, node, dataMW);
 				} else {
@@ -3964,7 +3964,7 @@ WSP._serializeNode = function( node, state, cb) {
 
 					// Skip over encapsulated content since it has already been serialized
 					var typeOf = node.getAttribute( 'typeof' ) || '';
-					if (/\bmw:(?:Transclusion\b|Param\b|Extension\/[^\s]+)/.test(typeOf)) {
+					if (/(?:^|\s)mw:(?:Transclusion(?=$|\s)|Param(?=$|\s)|Extension\/[^\s]+)/.test(typeOf)) {
 						nextNode = DU.skipOverEncapsulatedContent(node);
 					}
 				} else if (DU.onlySubtreeChanged(node, this.env) &&

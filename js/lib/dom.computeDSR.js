@@ -193,7 +193,7 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 			var next = child.nextSibling;
 			if (next) {
 				if (DU.isElt(next) && next.data.parsoid.src &&
-					/\bmw:Placeholder\/StrippedTag\b/.test(next.getAttribute("typeof")))
+					/(?:^|\s)mw:Placeholder\/StrippedTag(?=$|\s)/.test(next.getAttribute("typeof")))
 				{
 					if (next.data.parsoid.name in Consts.WTQuoteTags &&
 						child.nodeName in Consts.WTQuoteTags)

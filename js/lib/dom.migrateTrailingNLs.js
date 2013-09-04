@@ -80,7 +80,7 @@ function migrateTrailingNLs(elt, env) {
 				break;
 			}
 
-			if (type && (DU.isTplMetaType(type) || type.match(/\b(mw:Includes|mw:Extension\/)/))) {
+			if (type && (DU.isTplMetaType(type) || type.match(/(?:^|\s)(mw:Includes|mw:Extension\/)/))) {
 				break;
 			}
 

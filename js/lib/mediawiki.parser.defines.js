@@ -160,7 +160,7 @@ var genericTokenMethods = {
 			var type = Util.lookup(this.attribs, 'typeof'),
 				about = Util.lookup(this.attribs, 'about'),
 				tplAttrState = tplAttrs[about];
-			if (type && type.match(/\bmw:ExpandedAttrs\/[^\s]+/) &&
+			if (/(?:^|\s)mw:ExpandedAttrs\/[^\s]+/.test(type) &&
 					tplAttrState &&
 					tplAttrState.vs[name] )
 			{
