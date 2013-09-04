@@ -83,8 +83,8 @@ function unpackDOMFragments(env, node) {
 
 			// get rid of the wrapper sibling (simplifies logic below)
 			var sibling = node.nextSibling;
-			if (sibling && DU.isElt(sibling) &&
-					sibling.getAttribute('about') === node.getAttribute('about'))
+			if (about !== null && sibling && DU.isElt(sibling) &&
+					sibling.getAttribute('about') === about)
 			{
 				// remove optional second element added by wrapper tokens
 				lastNode = sibling;
@@ -128,7 +128,9 @@ function unpackDOMFragments(env, node) {
 			while (firstChild) {
 				// Transfer the about attribute so that it is still unique in
 				// the page
-				firstChild.setAttribute('about', about);
+				if (about !== null) {
+					firstChild.setAttribute('about', about);
+				}
 				// Load data-parsoid for all children
 				DU.loadDataParsoid(firstChild);
 				parentNode.insertBefore(firstChild, node);
