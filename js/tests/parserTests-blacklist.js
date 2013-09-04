@@ -545,7 +545,6 @@ add("wt2wt", "Parsoid only: Quote balancing context should be restricted to td/t
 add("wt2wt", "Non-word characters don't terminate tag names (bug 17663, 40670, 52022)");
 add("wt2wt", "Bare pipe character (bug 52363)");
 add("wt2wt", "Comment semantics: unclosed comment at end");
-add("wt2wt", "Multiple lines without block tags");
 add("wt2wt", "Tabs don't trigger preformatted text");
 add("wt2wt", "<nowiki> inside <pre> (bug 13238)");
 add("wt2wt", "<nowiki> and <pre> preference (first one wins)");
@@ -696,7 +695,6 @@ add("wt2wt", "Table with broken attribute value quoting");
 add("wt2wt", "Table with broken attribute value quoting on consecutive lines");
 add("wt2wt", "Parsoid-only: Table with broken attribute value quoting on consecutive lines");
 add("wt2wt", "RT-ed inter-element separators should be valid separators");
-add("wt2wt", "Trailing newlines in a deep dom-subtree that ends a wikitext line should be migrated out\n(Parsoid-only since PHP parser relies on Tidy for correct output)");
 add("wt2wt", "Empty TD followed by TD with tpl-generated attribute");
 add("wt2wt", "Improperly nested inline or quotes tags with whitespace in between");
 
@@ -2423,8 +2421,6 @@ add("selser", "Non-word characters don't terminate tag names (bug 17663, 40670, 
 add("selser", "Comment semantics: unclosed comment at end [3]");
 add("selser", "Comment semantics: unclosed comment at end [4]");
 add("selser", "Comment semantics: unclosed comment at end [2]");
-add("selser", "Multiple lines without block tags [0,4,1,0,3,0,4]");
-add("selser", "Multiple lines without block tags [[3],3,1,4,0,0,2]");
 add("selser", "Tabs don't trigger preformatted text [4,[3]]");
 add("selser", "Tabs don't trigger preformatted text [3,2]");
 add("selser", "Tabs don't trigger preformatted text [4,2]");
@@ -3066,6 +3062,7 @@ add("selser", "Unbalanced closing non-block tags don't break a list\n(Parsoid-on
 add("selser", "Unbalanced closing non-block tags don't break a list\n(Parsoid-only since php parser generates broken html -- relies on Tidy to fix up) [1,0,2]");
 add("selser", "Unbalanced closing non-block tags don't break a list\n(Parsoid-only since php parser generates broken html -- relies on Tidy to fix up) [0,0,[4,3,[4]]]");
 add("selser", "Unbalanced closing non-block tags don't break a list\n(Parsoid-only since php parser generates broken html -- relies on Tidy to fix up) [0,3,1]");
+add("selser", "List embedded in a non-block tag\n(Ugly Parsoid output -- worth fixing; Disabled for PHP parser since it relies on Tidy) [2,4,4,0]");
 add("selser", "Magic Word: {{CURRENTMONTH1}} [[4]]");
 add("selser", "Magic Word: {{CURRENTMONTH1}} [[2]]");
 add("selser", "Magic Word: {{CURRENTMONTH1}} [[3]]");
@@ -3877,14 +3874,6 @@ add("selser", "RT-ed inter-element separators should be valid separators [0,[2,[
 add("selser", "RT-ed inter-element separators should be valid separators [2,[0,[[2],0]]]");
 add("selser", "RT-ed inter-element separators should be valid separators [0,2]");
 add("selser", "RT-ed inter-element separators should be valid separators [4,1]");
-add("selser", "Trailing newlines in a deep dom-subtree that ends a wikitext line should be migrated out\n(Parsoid-only since PHP parser relies on Tidy for correct output) [1,0,[0,2]]");
-add("selser", "Trailing newlines in a deep dom-subtree that ends a wikitext line should be migrated out\n(Parsoid-only since PHP parser relies on Tidy for correct output) [[0,1],0,2]");
-add("selser", "Trailing newlines in a deep dom-subtree that ends a wikitext line should be migrated out\n(Parsoid-only since PHP parser relies on Tidy for correct output) [[2,[[[[2,[2]]]],0]],0,[0,[[3],3]]]");
-add("selser", "Trailing newlines in a deep dom-subtree that ends a wikitext line should be migrated out\n(Parsoid-only since PHP parser relies on Tidy for correct output) [[3,[2,3]],0,4]");
-add("selser", "Trailing newlines in a deep dom-subtree that ends a wikitext line should be migrated out\n(Parsoid-only since PHP parser relies on Tidy for correct output) [2,0,[0,2]]");
-add("selser", "Trailing newlines in a deep dom-subtree that ends a wikitext line should be migrated out\n(Parsoid-only since PHP parser relies on Tidy for correct output) [2,0,[4,4]]");
-add("selser", "Trailing newlines in a deep dom-subtree that ends a wikitext line should be migrated out\n(Parsoid-only since PHP parser relies on Tidy for correct output) [2,0,[2,4]]");
-add("selser", "Trailing newlines in a deep dom-subtree that ends a wikitext line should be migrated out\n(Parsoid-only since PHP parser relies on Tidy for correct output) [[0,[2,0]],4,1]");
 add("selser", "Empty TD followed by TD with tpl-generated attribute [1]");
 add("selser", "Empty TD followed by TD with tpl-generated attribute [2]");
 add("selser", "Empty TD followed by TD with tpl-generated attribute [[0,[[2,0,0,0],0]]]");
