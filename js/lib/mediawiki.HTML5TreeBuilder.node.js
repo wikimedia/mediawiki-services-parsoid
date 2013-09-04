@@ -68,6 +68,7 @@ FauxHTML5.TreeBuilder.prototype.resetState = function () {
 	this.processToken(new TagTk( 'body' ));
 
 	this.needsReset = false;
+	this.inTransclusion = false;
 };
 
 FauxHTML5.TreeBuilder.prototype.onChunk = function ( tokens ) {
@@ -132,6 +133,13 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 		dataAttribs = {};
 	}
 
+	if ( this.inTransclusion ) {
+		if ( Object.isFrozen( dataAttribs ) ) {
+			dataAttribs = Util.clone( dataAttribs );
+		}
+		dataAttribs.inTransclusion = true;
+	}
+
 	// Assign tagid to open/self-closing tags
 	if ((token.constructor === TagTk || token.constructor === SelfclosingTagTk) &&
 		token.name !== 'body')
@@ -174,6 +182,18 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 				// Emit the newline as Characters token to prevent it from
 				// being eaten by the treebuilder when preceded by a pre.
 				this.emit('token', {type: 'Characters', data: token});
+
+				if ( this.inTransclusion ) {
+					if ( this.trace ) {
+						console.warn('inserting shadow transclusion meta');
+					}
+					this.emit('token', {
+						type: 'StartTag',
+						name: 'meta',
+						data: [ { name: "typeof", value: "mw:TransclusionShadow" } ]
+					});
+				}
+
 			}
 			break;
 		case NlTk:
@@ -219,6 +239,12 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			// Convert mw metas to comments to avoid fostering.
 			tTypeOf = token.getAttribute( "typeof" );
 			if ( tName === "meta" && tTypeOf && tTypeOf.match( /^mw:/ ) ) {
+
+				// transclusions state
+				if ( tTypeOf.match( /^mw:Transclusion/ ) ) {
+					this.inTransclusion = /^mw:Transclusion$/.test( tTypeOf );
+				}
+
 				this.emit( "token", { type: "Comment", data: JSON.stringify({
 					"@type": tTypeOf,
 					attrs: this._att( attribs )

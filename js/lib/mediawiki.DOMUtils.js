@@ -894,6 +894,15 @@ var DOMUtils = {
 	},
 
 	/**
+	 * Create a new DOM node with attributes
+	 */
+	createNodeWithAttributes: function ( document, type, attrs ) {
+		var node = document.createElement( type );
+		this.addAttributes(node, attrs);
+		return node;
+	},
+
+	/**
 	 * Return `true` iff the element has a `class` attribute containing
 	 * `someClass` (among other space-separated classes).
 	 * @param {Element} ele

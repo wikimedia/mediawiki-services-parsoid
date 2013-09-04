@@ -12,8 +12,17 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 
 	// Detect empty content
 	if (startElemIsMeta && startElem.nextSibling === endElem) {
-		var emptySpan = doc.createElement('span');
-		startElem.parentNode.insertBefore(emptySpan, endElem);
+		// Adding spans in a fosterable position will result
+		// in breaking skipOverEncapsulatedContent in rt.
+		// If the metas are in a fosterable position and
+		// content is empty, it's usually an indication that
+		// the content was fostered out anyways and spans aren't
+		// necessary. A {{blank}} template in a fosterable
+		// position probably won't be handled properly though.
+		if ( !DU.isFosterablePosition( endElem ) ) {
+			var emptySpan = doc.createElement('span');
+			startElem.parentNode.insertBefore(emptySpan, endElem);
+		}
 	}
 
 	var startAncestors = DU.pathToRoot(startElem);
