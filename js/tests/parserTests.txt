@@ -17481,6 +17481,31 @@ data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},
 >foo</p>
 !! end
 
+!! test
+Parsoid: Correctly serialize block-node children when they are a combination of text and p-nodes
+!! options
+parsoid=html2wt
+!! input
+<div>a
+b
+</div>
+<div>a
+b
+</div>
+<div>
+a
+
+b
+</div>
+!! result
+<div>a<p>b</p></div>
+<div>a
+<p>b</p></div>
+<div>
+a
+<p>b</p></div>
+!! end
+
 #-----------------------------
 # I/B quote minimization tests
 #-----------------------------

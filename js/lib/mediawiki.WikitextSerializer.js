@@ -2155,6 +2155,20 @@ function buildListHandler(firstChildNames) {
 	};
 }
 
+/* currentNode is being processed and line has information
+ * about the wikitext line emitted so far. This function checks
+ * if the DOM has a block node emitted on this line till currentNode */
+function currWikitextLineHasBlockNode(line, currentNode) {
+	var n = line.firstNode;
+	while (n && n !== currentNode) {
+		if (DU.isBlockNode(n)) {
+			return true;
+		}
+		n = n.nextSibling;
+	}
+	return false;
+}
+
 WSP.tagHandlers = {
 	dl: buildListHandler({DT:1, DD:1}),
 	ul: buildListHandler({LI:1}),
@@ -2400,7 +2414,8 @@ WSP.tagHandlers = {
 			state.serializeChildren(node, cb, null);
 		},
 		sepnls: {
-			before: function(node, otherNode) {
+			before: function(node, otherNode, state) {
+
 				var otherNodeName = otherNode.nodeName,
 					tdOrBody = JSUtils.arrayToHash(['TD', 'BODY']);
 				if (node.parentNode === otherNode &&
@@ -2411,36 +2426,34 @@ WSP.tagHandlers = {
 					} else {
 						return {min: 0, max: 0};
 					}
-				} else if (otherNode === node.previousSibling &&
-						// p-p transition
-						otherNodeName === 'P' ||
-						// SSS FIXME: Accidentally discovered that this check is buggy
-						// Will investigate in a different patch
-						//
-						// Treat text/p similar to p/p transition
-						// XXX: also check if parent node and first sibling
-						// serializes(|d) to single line.
-						// Only a single line is
-						// needed in that case. Example:
-						// <div>foo</div> a
-						// b
-						((DU.isText(otherNode) &&
-						  otherNode === DU.previousNonSepSibling(node) &&
-						  // FIXME HACK: Avoid forcing two newlines if the
-						  // first line is a text node that ends up on the
-						  // same line as a block
-						  !( ( DU.isBlockNode(node.parentNode) && node.parentNode.nodeName !== 'BODY') ||
-								otherNode.nodeValue.match(/\n(?!$)/)))))
-				{
+				} else if (
+					otherNode === node.previousSibling &&
+					// p-p transition
+					otherNodeName === 'P' ||
+					// Treat text/p similar to p/p transition
+					(
+						DU.isText(otherNode) &&
+						otherNode === DU.previousNonSepSibling(node) &&
+						!currWikitextLineHasBlockNode(state.currLine, otherNode)
+					)
+				) {
 					return {min: 2, max: 2};
 				} else {
 					return {min: 1, max: 2};
 				}
 			},
 			after: function(node, otherNode) {
-				return !(node.lastChild && node.lastChild.nodeName === 'BR') &&
-					otherNode.nodeName === 'P'/* || otherNode.nodeType === node.TEXT_NODE*/ ?
-					{min: 2, max: 2} : {min: 0, max: 2};
+				if (!(node.lastChild && node.lastChild.nodeName === 'BR') &&
+					otherNode.nodeName === 'P') /* || otherNode.nodeType === node.TEXT_NODE*/
+				{
+					return {min: 2, max: 2};
+				} else {
+					// When the other node is a block-node, we want it
+					// to be on a different line from the implicit-wikitext-p-tag
+					// because the p-wrapper in the parser will suppress a html-p-tag
+					// if it sees the block tag on the same line as a text-node.
+					return {min: DU.isBlockNode(otherNode) ? 1 : 0, max: 2};
+				}
 			}
 		}
 	},
@@ -3468,10 +3481,10 @@ WSP.extractTemplatedAttributes = function(node, state) {
  * Collects, checks and integrates separator newline requirements to a sinple
  * min, max structure.
  */
-WSP.getSepNlConstraints = function(nodeA, sepNlsHandlerA, nodeB, sepNlsHandlerB) {
+WSP.getSepNlConstraints = function(state, nodeA, sepNlsHandlerA, nodeB, sepNlsHandlerB) {
 	var nlConstraints = { a:{}, b:{} };
 	if (sepNlsHandlerA) {
-		nlConstraints.a = sepNlsHandlerA(nodeA, nodeB);
+		nlConstraints.a = sepNlsHandlerA(nodeA, nodeB, state);
 		nlConstraints.min = nlConstraints.a.min;
 		nlConstraints.max = nlConstraints.a.max;
 	} else {
@@ -3481,7 +3494,7 @@ WSP.getSepNlConstraints = function(nodeA, sepNlsHandlerA, nodeB, sepNlsHandlerB)
 	}
 
 	if (sepNlsHandlerB) {
-		nlConstraints.b = sepNlsHandlerB(nodeB, nodeA);
+		nlConstraints.b = sepNlsHandlerB(nodeB, nodeA, state);
 		var cb = nlConstraints.b;
 
 		// now figure out if this conflicts with the nlConstraints so far
@@ -3649,19 +3662,19 @@ WSP.updateSeparatorConstraints = function( state, nodeA, handlerA, nodeB, handle
 		sepHandlerB = handlerB && handlerB.sepnls || {};
 	if ( nodeA.nextSibling === nodeB ) {
 		// sibling separator
-		nlConstraints = this.getSepNlConstraints(nodeA, sepHandlerA.after,
+		nlConstraints = this.getSepNlConstraints(state, nodeA, sepHandlerA.after,
 											nodeB, sepHandlerB.before);
 	} else if ( nodeB.parentNode === nodeA || dir === 'prev' ) {
 		// parent-child separator, nodeA parent of nodeB
-		nlConstraints = this.getSepNlConstraints(nodeA, sepHandlerA.firstChild,
+		nlConstraints = this.getSepNlConstraints(state, nodeA, sepHandlerA.firstChild,
 											nodeB, sepHandlerB.before);
 	} else if ( nodeA.parentNode === nodeB || dir === 'next') {
 		// parent-child separator, nodeB parent of nodeA
-		nlConstraints = this.getSepNlConstraints(nodeA, sepHandlerA.after,
+		nlConstraints = this.getSepNlConstraints(state, nodeA, sepHandlerA.after,
 											nodeB, sepHandlerB.lastChild);
 	} else {
 		// sibling separator
-		nlConstraints = this.getSepNlConstraints(nodeA, sepHandlerA.after,
+		nlConstraints = this.getSepNlConstraints(state, nodeA, sepHandlerA.after,
 											nodeB, sepHandlerB.before);
 	}
 
