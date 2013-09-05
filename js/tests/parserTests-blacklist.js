@@ -1278,6 +1278,7 @@ add("html2wt", "Templates: Indent-Pre: 1e. Wrapping should be based on expanded 
 add("html2wt", "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content");
 add("html2wt", "Templates: Strip leading and trailing whitespace from named-param values");
 add("html2wt", "Templates: Don't strip whitespace from positional-param values");
+add("html2wt", "Templates: Handle empty comment-and-ws-only lines correctly");
 add("html2wt", "1a. Indent-Pre and Comments");
 add("html2wt", "1b. Indent-Pre and Comments");
 add("html2wt", "1c. Indent-Pre and Comments");

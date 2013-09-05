@@ -1685,7 +1685,6 @@ Templates: Strip leading and trailing whitespace from named-param values
 
 !! test
 Templates: Don't strip whitespace from positional-param values
-!! options
 !! input
 {{echo|a }}
 
@@ -1727,6 +1726,19 @@ Templates: Don't strip whitespace from positional-param values
 </p>
 <pre>g
 </pre>
+!! end
+
+!! test
+Templates: Handle empty comment-and-ws-only lines correctly
+!! input
+{{echo|foo
+<!--should be ignored-->
+ <!--should be ignored as well-->
+bar}}
+!! result
+<p>foo
+bar
+</p>
 !! end
 
 #--------------------------------------------------------------------
@@ -17471,14 +17483,20 @@ parsoid=html2wt
 {{echo|1 = f=oo}}
 
 {{echo|1 = f=oo|2 = bar}}
+
+<!--Orig params with data-parsoid has heuristics for handling = chars-->
+<!--FIXME: But maybe the heuristic needs fixing to apply to new params as well-->
+{{echo|<nowiki>f=oo</nowiki>|bar}}
 !! result
 <p about="#mwt1" typeof="mw:Transclusion"
-data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"f=oo"}},"i":0}}]}'
->foo</p>
+data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"f=oo"}},"i":0}}]}'>foo</p>
 
 <p about="#mwt1" typeof="mw:Transclusion"
-data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"f=oo"}, "2":{"wt":"bar"}},"i":0}}]}'
->foo</p>
+data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"f=oo"}, "2":{"wt":"bar"}},"i":0}}]}'>foo</p>
+
+<!--Orig params with data-parsoid has heuristics for handling = chars-->
+<!--FIXME: But maybe the heuristic needs fixing to apply to new params as well-->
+<p data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]},{"k":"2","spc":["","","",""]}]]}' about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"f=oo"},"2":{"wt":"bar"}},"i":0}}]}'>foo</p>
 !! end
 
 !! test
