@@ -135,11 +135,12 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 		var done = false;
 		var tcDP = DU.getDataParsoid( tcStart );
 		var seDP = DU.getDataParsoid( startElem );
-		if (tcDP && seDP && tcDP.dsr && seDP.dsr && tcDP.dsr[1] > seDP.dsr[1]) {
-			// Since TSRs on template content tokens are cleared by the
-			// template handler, all computed dsr values for template content
-			// is always inferred from top-level content values and is safe.
-			// So, do not overwrite a bigger end-dsr value.
+
+		// Since TSRs on template content tokens are cleared by the
+		// template handler, all computed dsr values for template content
+		// is always inferred from top-level content values and is safe.
+		// So, do not overwrite a bigger end-dsr value.
+		if (seDP.dsr && (tcDP.dsr && tcDP.dsr[1] > seDP.dsr[1])) {
 			tcDP.dsr[0] = seDP.dsr[0];
 			done = true;
 		}
@@ -519,6 +520,10 @@ function encapsulateTemplates( doc, env, tplRanges, tplArrays) {
 		var dp1 = DU.getDataParsoid( tcStart ),
 			dp2 = DU.getDataParsoid( tcEnd ),
 			done = false;
+		/*
+		console.warn("dp1: " + JSON.stringify(dp1));
+		console.warn("dp2: " + JSON.stringify(dp2));
+		*/
 		if (dp1.dsr) {
 			if (dp2.dsr) {
 				// Case 1. above
@@ -529,12 +534,13 @@ function encapsulateTemplates( doc, env, tplRanges, tplArrays) {
 				// Case 2. above
 				var endDsr = dp2.dsr[0];
 				if (DU.hasNodeName(tcEnd, 'table') &&
-					((endDsr !== null && endDsr < dp1.dsr[0]) ||
-					 (tcStart.data && tcStart.data.parsoid.fostered)))
+					endDsr !== null &&
+					(endDsr < dp1.dsr[0] || tcStart.data && tcStart.data.parsoid.fostered))
 				{
 					dp1.dsr[0] = endDsr;
 				}
 			}
+
 
 			// Check if now have a useable range on dp1
 			if (dp1.dsr[0] !== null && dp1.dsr[1] !== null) {
