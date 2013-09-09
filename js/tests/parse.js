@@ -315,9 +315,13 @@ function dumpFlags() {
                         finishCb(true);
                     } else {
                         res = '';
-                        serializer.serializeDOM( document.body, function ( chunk ) {
-                            res += chunk;
-                        }, finishCb );
+                        serializer.serializeDOM(
+							Util.parseHTML(Util.serializeNode(document, true)).body,
+							function ( chunk ) {
+								res += chunk;
+							},
+							finishCb
+						);
                     }
                 });
 
