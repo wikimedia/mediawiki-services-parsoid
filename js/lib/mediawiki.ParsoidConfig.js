@@ -30,7 +30,7 @@ function ParsoidConfig( localSettings, options ) {
 		this.interwikiMap[wplist[ix]] = 'http://' + wplist[ix] + '.wikipedia.org/w/api.php';
 		// Also add an alias that follows the Wikimedia db name convention
 		// (enwiki, dewiki etc).
-		['pedia', 'voyage', 'books', 'quote'].forEach(function(suffix) {
+		['pedia', 'voyage', 'books', 'source', 'quote'].forEach(function(suffix) {
 			var dbName = wplist[ix] + 'wiki' + (suffix === 'pedia' ? '' : suffix);
 			self.interwikiMap[dbName] = 'http://' + wplist[ix] + '.wiki' +
 				suffix + '.org/w/api.php';
