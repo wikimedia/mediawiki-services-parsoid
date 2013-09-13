@@ -87,6 +87,21 @@ var fnames = {
 			var filename = body.titles,
 				normPagename = pnames[filename] || filename,
 				normFilename = fnames[filename] || filename;
+			if(!(normFilename in FILE_PROPS )) {
+				cb( null, {
+					'query': {
+						'pages': {
+							'-1': {
+								'ns': 6,
+								'title': filename,
+								'missing': '',
+								'imagerepository': ''
+							}
+						}
+					}
+				} );
+				return;
+			}
 			var props = FILE_PROPS[normFilename] || Object.create(null);
 			var md5 = crypto.createHash('md5').update(normFilename).
 				digest('hex');
