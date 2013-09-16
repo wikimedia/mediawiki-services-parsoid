@@ -615,8 +615,6 @@ add("wt2wt", "pre-save transform: mixed tag case");
 add("wt2wt", "pre-save transform: Signature expansion");
 add("wt2wt", "pre-save transform: Signature expansion in nowiki tags (bug 93)");
 add("wt2wt", "Image with multiple captions -- only last one is accepted (parsoid)");
-add("wt2wt", "SVG thumbnails with language de");
-add("wt2wt", "SVG thumbnails with invalid language code");
 add("wt2wt", "BUG 561: {{/Subpage}}");
 add("wt2wt", "Handling of sections up to level 6 and beyond");
 add("wt2wt", "div with single-quoted attribute");
@@ -671,7 +669,6 @@ add("wt2wt", "Case insensitivity of parser functions for non-ASCII characters (b
 add("wt2wt", "Free external link invading image caption");
 add("wt2wt", "preload: check that it doesn't try to do tricks");
 add("wt2wt", "HTML5 data attributes");
-add("wt2wt", "percent-encoding and + signs in internal links (Bug 26410)");
 add("wt2wt", "Bug 19052 U+3000 IDEOGRAPHIC SPACE should terminate bracketed external links");
 add("wt2wt", "Bug31490 Turkish: ucfırst (with a dotless i)");
 add("wt2wt", "Bug31490 ucfırst (with a dotless i) with English language");
@@ -3579,8 +3576,6 @@ add("selser", "percent-encoding and + signs in internal links (Bug 26410) [[4,2,
 add("selser", "percent-encoding and + signs in internal links (Bug 26410) [[4,0,[3],0,0,0,4,2,1,0,3,0,[4],4,4,0,0,0,2,0,3]]");
 add("selser", "percent-encoding and + signs in internal links (Bug 26410) [[2,0,0,0,0,0,[3],0,3,4,3,0,0,4,1,4,0,4,[4],0,1]]");
 add("selser", "percent-encoding and + signs in internal links (Bug 26410) [[[2],0,3,0,1,0,0,0,1,0,0,2,0,0,0,0,0,0,0,4,[3]]]");
-add("selser", "percent-encoding and + signs in internal links (Bug 26410) [1]");
-add("selser", "percent-encoding and + signs in internal links (Bug 26410) [2]");
 add("selser", "percent-encoding and + signs in internal links (Bug 26410) [[4,0,0,4,0,4,2,0,[3],0,0,0,[4],3,0,4,0,2,4,2,4]]");
 add("selser", "percent-encoding and + signs in internal links (Bug 26410) [[1,0,2,0,0,0,[3],4,0,2,[3],0,3,4,1,4,0,4,[2],0,2]]");
 add("selser", "percent-encoding and + signs in internal links (Bug 26410) [[1,2,[2],0,4,2,[3],0,1,0,[2],0,1,4,[3],2,0,0,[2],0,1]]");
