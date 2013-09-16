@@ -380,14 +380,25 @@ var dbResultsPerWikiQuery =
 var dbPerfStatsTypes =
 	'SELECT DISTINCT type FROM perfstats';
 
-var dbPagePerfStatsStart =
+var dbLastPerfStatsStart =
 	'SELECT prefix, title, ';
 
-var dbPagePerfStatsEnd =
+var dbLastPerfStatsEnd =
 	' FROM pages JOIN perfstats ON pages.id = perfstats.page_id ' +
 	'WHERE perfstats.commit_hash = ' +
 		'(SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1) ' +
-	'GROUP BY pages.id LIMIT 40 OFFSET ';
+	'GROUP BY pages.id ';
+
+var dbPagePerfStatsStart =
+	'SELECT commits.hash, commits.timestamp, ';
+
+var dbPagePerfStatsEnd =
+	' FROM (perfstats JOIN pages ON perfstats.page_id = pages.id) ' +
+	'JOIN commits ON perfstats.commit_hash = commits.hash ' +
+	'WHERE pages.prefix = ? AND pages.title = ? ' +
+	'GROUP BY commits.hash ' +
+	'ORDER BY commits.timestamp ASC ' +
+	'LIMIT 0, ?';
 
 var transUpdateCB = function( title, prefix, hash, type, res, trans, success_cb, err, result ) {
 	if ( err ) {
@@ -597,19 +608,20 @@ var indexLinkList = function () {
 };
 
 var displayPerfStat = function( type, value ) {
-	var text;
+	var text = '<span title="' + value.toString() + '">';
 	if ( type.match( /^time/ ) ) {
 		// Show time in seconds
 		value = Math.round( (value / 1000) * 100 ) / 100;
-		text = value.toString() + "s";
+		text += value.toString() + "s";
 	} else if ( type.match( /^size/ ) ) {
 		// Show sizes in KiB
 		value = Math.round( value / 1024 );
-		text = value.toString() + "KiB";
+		text += value.toString() + "KiB";
 	} else {
 		// Other values go as they are
-		text = value.toString();
+		text += value.toString();
 	}
+	text += '</span>';
 	return text;
 };
 
@@ -635,17 +647,20 @@ var displayPageTitle = function( res, row ) {
 		res.write( '>' );
 	}
 
+	var prefix = encodeURIComponent( row.prefix ),
+		title = encodeURIComponent( row.title );
 	res.write( '<a href="http://parsoid.wmflabs.org/_rt/' +
-		row.prefix + '/' + row.title.replace( /"/g, '&quot;' ) + '">' +
+		prefix + '/' + title + '">' +
 		row.prefix + ':' + row.title + '</a> | ' +
-		'<a target="_blank" href="http://localhost:8000/_rt/' + row.prefix + '/' + row.title +
+		'<a target="_blank" href="http://localhost:8000/_rt/' + prefix + '/' + title +
 		'">@lh</a> | ' +
-		'<a target="_blank" href="/latestresult/' + row.prefix + '/' + row.title + '">latest result</a>' +
+		'<a target="_blank" href="/latestresult/' + prefix + '/' + title + '">latest result</a>' +
+		' | <a href="/pageperfstats/' + prefix + '/' + title + '">perf</a>' +
 		'</td>' );
 };
 
-var displayPageList = function( res, urlPrefix, page, header, displayTableHeaders, displayRow, err, rows ) {
-	console.log( "GET " + urlPrefix + "/" + page );
+var displayPageList = function( res, urlPrefix, urlSuffix, page, header, displayTableHeaders, displayRow, err, rows ) {
+	console.log( "GET " + urlPrefix + "/" + page + urlSuffix );
 	if ( err ) {
 		res.send( err.toString(), 500 );
 	} else if ( !rows || rows.length <= 0 ) {
@@ -667,12 +682,12 @@ var displayPageList = function( res, urlPrefix, page, header, displayTableHeader
 
 		res.write( '<p>' );
 		if ( page > 0 ) {
-			res.write( '<a href="' + urlPrefix + "/" + ( page - 1 ) + '">Previous</a> | ' );
+			res.write( '<a href="' + urlPrefix + "/" + ( page - 1 ) + urlSuffix + '">Previous</a> | ' );
 		} else {
 			res.write( 'Previous | ' );
 		}
 		if ( rows.length === 40 ) {
-			res.write('<a href="' + urlPrefix + "/" + ( page + 1 ) + '">Next</a>');
+			res.write('<a href="' + urlPrefix + "/" + ( page + 1 ) + urlSuffix + '">Next</a>');
 		}
 		res.write( '</p>' );
 
@@ -813,7 +828,7 @@ var failsWebInterface = function ( req, res ) {
 		res.write( '<td>' + row.skips + '</td><td>' + row.fails + '</td><td>' + ( row.errors === null ? 0 : row.errors ) + '</td></tr>' );
 	};
 	db.query( dbFailsQuery, [ offset ],
-		displayPageList.bind( null, res, '/topfails', page, "Results by title", failsTableHeader,
+		displayPageList.bind( null, res, '/topfails', '', page, "Results by title", failsTableHeader,
 			displayFailsRow ) );
 };
 
@@ -985,7 +1000,7 @@ var GET_regressions = function( req, res ) {
 						row[0].numRegressions +
 						' | <a href="' + topfixesLink + '">topfixes</a>';
 			db.query( dbRegressionsBetweenRevs, [ r2, r1, offset ],
-				displayPageList.bind( null, res, urlPrefix, page, header,
+				displayPageList.bind( null, res, urlPrefix, '', page, header,
 					regressionsHeader, displayRegressionRow ));
 		}
 	});
@@ -1006,7 +1021,7 @@ var GET_topfixes = function( req, res ) {
 				header = "Total fixes between selected revisions: " + row[0].numFixes +
 					' | <a href="' + regressionLink + '">regressions</a>';
 			db.query( dbFixesBetweenRevs, [ r2, r1, offset ],
-				displayPageList.bind( null, res, urlPrefix, page, header,
+				displayPageList.bind( null, res, urlPrefix, '', page, header,
 					regressionsHeader, displayRegressionRow ));
 		}
 	});
@@ -1049,48 +1064,134 @@ var GET_commits = function( req, res ) {
 	} );
 };
 
-var GET_perfStats = function( req, res ) {
-	var page = ( req.params[0] || 0 ) - 0,
-		offset = page * 40;
-
+var perfStatsTypes = function( cb ) {
 	// As MySQL doesn't support PIVOT, we need to get all the perfstats types
 	// first so we can get then as columns afterwards
-	db.query( dbPerfStatsTypes, null, function( err, types ) {
+	db.query( dbPerfStatsTypes, null, function( err, rows ) {
+		if ( err ) {
+			cb( err, null );
+		} else if ( !rows || rows.length === 0 ) {
+			cb( "No performance stats found", null );
+		} else {
+			var types = [];
+			for ( var i = 0; i < rows.length; i++ ) {
+				types.push( rows[i].type );
+			}
+
+			// Sort the profile types by name
+			types.sort();
+
+			cb( null, types );
+		}
+	} );
+};
+
+var GET_perfStats = function( req, res ) {
+	var page = ( req.params[0] || 0 ) - 0,
+		offset = page * 40,
+		orderBy = 'prefix ASC, title ASC',
+		urlSuffix = '';
+
+	if ( req.query.orderby ) {
+		orderBy = mysql.escapeId( req.query.orderby ) + ' DESC';
+		urlSuffix = '?orderby=' + req.query.orderby;
+	}
+
+	perfStatsTypes( function( err, types ) {
 		if ( err ) {
 			res.send( err.toString(), 500 );
-		} else if ( !types || types.length === 0 ) {
-			res.send( "No performance stats found", 404);
 		} else {
 
 			var displayPerfStatRow = function( res, r ) {
 				for ( var j = 0; j < types.length; j++ ) {
-					var type = types[ j ].type;
+					var type = types[ j ];
 					res.write( '<td>' + displayPerfStat( type, r[ type ] ) + '</td>' );
 				}
 			};
 
-			// Sort the profile types by name
-			types.sort( function( a, b ) {
-				if ( a.type < b.type ) { return -1; }
-				if ( a.type > b.type ) { return 1; }
-				return 0;
-			} );
-
 			// Create the query to retrieve the stats per page
 			var perfStatsHeader = '';
-			var dbStmt = dbPagePerfStatsStart;
+			var dbStmt = dbLastPerfStatsStart;
 			for( var t = 0; t < types.length; t++ ) {
 				if ( t !== 0 ) {
 					dbStmt += ", ";
 				}
-				dbStmt += "SUM( IF( TYPE='" + types[ t ].type +
-					"', value, NULL ) ) AS '" + types[ t ].type + "'";
-				perfStatsHeader += '<th>' + types[ t ].type + '</th>';
+				dbStmt += "SUM( IF( TYPE='" + types[ t ] +
+					"', value, NULL ) ) AS '" + types[ t ] + "'";
+				perfStatsHeader += '<th><a href="/perfstats?orderby=' +
+					types[ t ] + '">' +
+					types[ t ] + '</th>';
 			}
-			dbStmt += dbPagePerfStatsEnd + offset.toString();
+			dbStmt += dbLastPerfStatsEnd;
+			dbStmt += 'ORDER BY ' + orderBy;
+			dbStmt += ' LIMIT 40 OFFSET ' + offset.toString();
+
 			db.query( dbStmt, null,
-				displayPageList.bind( null, res, "/perfstats", page, "Performance stats",
-					perfStatsHeader, displayPerfStatRow ) );
+				displayPageList.bind( null, res, "/perfstats", urlSuffix, page,
+				"Performance stats", perfStatsHeader, displayPerfStatRow ) );
+		}
+	} );
+};
+
+var GET_pagePerfStats = function( req, res ) {
+	if ( req.params.length < 2 ) {
+		res.send( "No title given.", 500 );
+	}
+
+	var prefix = req.params[0],
+		title = req.params[1];
+
+	perfStatsTypes( function( err, types ) {
+		if ( err ) {
+			res.send( err.toString(), 500 );
+		} else {
+			var dbStmt = dbPagePerfStatsStart;
+			for ( var t = 0; t < types.length; t++ ) {
+				if ( t !== 0 ) {
+					dbStmt += ", ";
+				}
+
+				dbStmt += "SUM( IF( type='" + types[t] +
+					"', value, NULL ) ) AS '" + types[ t ] + "'";
+			}
+			dbStmt += dbPagePerfStatsEnd;
+
+			// Get maximum the last 10 commits.
+			db.query( dbStmt, [ prefix, title, 10 ], function( err, rows ) {
+				if ( err ) {
+					res.send( err.toString(), 500 );
+				} else if ( !rows || rows.length === 0 ) {
+					res.send( "No performance results found for page.", 404 );
+				} else {
+					res.status( 200 );
+					res.write( '<html>') ;
+					res.write( '<head><style type="text/css">' );
+					res.write( 'th { padding: 0 10px }' );
+					res.write( 'td { text-align: center; }' );
+					res.write( 'td.title { text-align: left; padding-left: 0.4em; }' );
+					res.write( '</style></head>' );
+					res.write( '<body>' );
+					res.write( '<b>Performance results for ' + prefix + ':' + title + '</b><p/>' );
+					res.write( '<table><tr><th>Commit</th>' );
+					for ( t = 0; t < types.length; t++ ) {
+						res.write( '<th>' + types[t] + '</th>' );
+					}
+					res.write( '</tr>' );
+
+					for ( var r = 0; r < rows.length; r++ ) {
+						var row = rows[r];
+						res.write( '<tr><td class="title"><span title="' +
+							row.timestamp.toString() + '">' + row.hash +
+							'</span></td>' );
+						for ( t = 0; t < types.length; t++ ) {
+							res.write( '<td>' + displayPerfStat( types[ t ], row[ types[ t ] ] ) + '</td>' );
+						}
+						res.write( '</tr>' );
+					}
+
+					res.end( '</table></body></html' );
+				}
+			} );
 		}
 	} );
 };
@@ -1140,6 +1241,7 @@ app.get( /^\/skipsDistr$/, GET_skipsDistr );
 // Performance stats
 app.get( /^\/perfstats\/(\d+)$/, GET_perfStats );
 app.get( /^\/perfstats$/, GET_perfStats );
+app.get( /^\/pageperfstats\/([^\/]+)\/(.*)$/, GET_pagePerfStats );
 
 // List of all commits
 app.use( '/commits', GET_commits );
