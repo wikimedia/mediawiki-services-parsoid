@@ -211,11 +211,14 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 				if ( this.trace ) {
 					console.warn('inserting foster box meta');
 				}
-				this.emit('token', {
-					type: 'StartTag',
-					name: 'meta',
-					data: [ { name: "typeof", value: "mw:FosterBox" } ]
-				});
+				attrs = [{ name: "typeof", value: "mw:FosterBox" }];
+				if ( this.inTransclusion ) {
+					attrs.push({
+						name: "data-parsoid",
+						value: JSON.stringify({ inTransclusion: true })
+					});
+				}
+				this.emit('token', { type: 'StartTag', name: 'meta', data: attrs });
 			}
 			this.emit('token', {type: 'StartTag', name: tName, data: this._att(attribs)});
 			attrs = [];

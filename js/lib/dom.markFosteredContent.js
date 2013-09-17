@@ -38,6 +38,12 @@ function removeTransclusionShadows( node ) {
 // inserts metas around the fosterbox and table
 function insertTransclusionMetas( env, fosterBox, table ) {
 
+	// skip if foster box itself is in transclusion
+	// avoid unnecessary insertions and case where table doesn't have tsr info
+	if ( fosterBox.data.parsoid.inTransclusion ) {
+		return;
+	}
+
 	// find tsr[1] and end-boundary
 	var tsr1, sibling = table.nextSibling;
 	while ( sibling ) {
