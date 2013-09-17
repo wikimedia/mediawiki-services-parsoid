@@ -10,8 +10,9 @@ var request = require('request'),
 var PARSOID_RVPROP = ('content|ids|timestamp|user|userid|size|sha1|'+
 					  'contentmodel|comment');
 
-var userAgent = 'Mozilla/5.0 (X11; Linux x86_64; rv:9.0.1) ' +
-							'Gecko/20100101 Firefox/9.0.1 Parsoid/0.1';
+//var userAgent = 'Mozilla/5.0 (X11; Linux x86_64; rv:9.0.1) ' +
+//							'Gecko/20100101 Firefox/9.0.1 Parsoid/0.1';
+var userAgent = 'Parsoid/0.1';
 
 /**
  * @class
