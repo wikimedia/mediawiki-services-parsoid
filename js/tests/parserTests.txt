@@ -17019,6 +17019,29 @@ a
 	 b</p>
 !! end
 
+#### --------------- Behavior Switches --------------------
+!! test
+1. Valid behavior switches should be escaped
+!! options
+parsoid=html2wt
+!! input
+<nowiki>__TOC__</nowiki>
+!! result
+__TOC__
+!! end
+
+!! test
+2. Invalid behavior switches should not be escaped
+!! options
+parsoid=html2wt
+!! input
+__TOO__
+__|__
+!! result
+__TOO__
+__|__
+!! end
+
 #### --------------- HTML tags ---------------
 #### 1. a tags
 #### 2. other tags

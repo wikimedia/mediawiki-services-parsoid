@@ -187,8 +187,10 @@ WEHP.tdHandler = function(state, text, opts) {
 };
 
 WEHP.hasWikitextTokens = function ( state, onNewline, options, text, linksOnly ) {
-	// console.warn("---EWT:DBG0---");
-	// console.warn("---HWT---:onl:" + onNewline + ":" + text);
+	if (this.traceWTE) {
+		console.warn("WTE-tokenize: nl:" + onNewline + ":text=" + JSON.stringify(text));
+	}
+
 	// tokenize the text
 
 	var sol = onNewline && !(state.inIndentPre || state.inPPHPBlock);
@@ -200,7 +202,9 @@ WEHP.hasWikitextTokens = function ( state, onNewline, options, text, linksOnly )
 	for (var i = 0, n = tokens.length; i < n; i++) {
 		var t = tokens[i];
 
-		// console.warn("T: " + JSON.stringify(t));
+		if (this.traceWTE) {
+			console.warn("T: " + JSON.stringify(t));
+		}
 
 		// Ignore non-whitelisted html tags
 		if (t.isHTMLTag()) {
@@ -223,6 +227,11 @@ WEHP.hasWikitextTokens = function ( state, onNewline, options, text, linksOnly )
 
 			// Ignore url links
 			if (t.name === 'urllink') {
+				continue;
+			}
+
+			// Ignore invalid behavior-switch tokens
+			if (t.name === 'behavior-switch' && !state.env.conf.wiki.isMagicWord(t.attribs[0].v)) {
 				continue;
 			}
 
@@ -296,6 +305,9 @@ function WikitextSerializer( options ) {
 	this.debugging = this.env.conf.parsoid.traceFlags &&
 		(this.env.conf.parsoid.traceFlags.indexOf("wts") !== -1);
 
+	this.traceWTE = this.env.conf.parsoid.traceFlags &&
+		(this.env.conf.parsoid.traceFlags.indexOf("wt-escape") !== -1);
+
 	if ( this.env.conf.parsoid.debug || this.debugging ) {
 		WikitextSerializer.prototype.debug_pp = function () {
 			Util.debug_pp.apply(Util, arguments);
@@ -316,6 +328,7 @@ function WikitextSerializer( options ) {
 
 	// New wt escaping handler
 	this.wteHandlers = new WikitextEscapeHandlers();
+	this.wteHandlers.traceWTE = this.traceWTE;
 }
 
 var WSP = WikitextSerializer.prototype;
@@ -688,8 +701,10 @@ WSP.tokenizeStr = function(state, str, sol) {
 };
 
 WSP.escapeWikiText = function ( state, text, opts ) {
-	// console.warn("---EWT:ALL1---");
-    // console.warn("t: " + text);
+	if (this.traceWTE) {
+		console.warn("EWT: " + JSON.stringify(text));
+	}
+
 	/* -----------------------------------------------------------------
 	 * General strategy: If a substring requires escaping, we can escape
 	 * the entire string without further analysis of the rest of the string.
@@ -702,15 +717,19 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 	// Quick check for the common case (useful to kill a majority of requests)
 	//
 	// Pure white-space or text without wt-special chars need not be analyzed
-	if (!fullCheckNeeded && !/(^|\n)[ \t]+[^\s]+|[<>\[\]\-\+\|'!=#\*:;~{}]/.test(text)) {
-		// console.warn("---EWT:F1---");
+	if (!fullCheckNeeded && !/(^|\n)[ \t]+[^\s]+|[<>\[\]\-\+\|'!=#\*:;~{}]|__[^_]*__/.test(text)) {
+		if (this.traceWTE) {
+			console.warn("---No-checks needed---");
+		}
 		return text;
 	}
 
 	// Context-specific escape handler
 	var wteHandler = state.wteHandlerStack.last();
 	if (wteHandler && wteHandler(state, text, opts)) {
-		// console.warn("---EWT:F2---");
+		if (this.traceWTE) {
+			console.warn("---Context-specific escape handler---");
+		}
 		return this.escapedText(state, false, text, true);
 	}
 
@@ -718,7 +737,9 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 	// Conditional escaping requires matching brace pairs and knowledge
 	// of whether we are in template arg context or not.
 	if (text.match(/\{\{\{|\{\{|\}\}\}|\}\}/)) {
-		// console.warn("---EWT:F3---");
+		if (this.traceWTE) {
+			console.warn("---Unconditional: transclusion chars---");
+		}
 		return this.escapedText(state, false, text, fullCheckNeeded);
 	}
 
@@ -736,14 +757,18 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 		if (!sol && !text.match(/''|[<>]|\[.*\]|\]|(=[ \t]*(\n|$))/)) {
 			// It is not necessary to test for an unmatched opening bracket ([)
 			// as long as we always escape an unmatched closing bracket (]).
-			// console.warn("---EWT:F4---");
+			if (this.traceWTE) {
+				console.warn("---Not-SOL and safe---");
+			}
 			return text;
 		}
 
 		// Quick checks when on a newline
 		// + can only occur as "|+" and - can only occur as "|-" or ----
-		if (sol && !text.match(/(^|\n)[ \t#*:;=]|[<\[\]>\|'!]|\-\-\-\-/)) {
-			// console.warn("---EWT:F5---");
+		if (sol && !text.match(/(^|\n)[ \t#*:;=]|[<\[\]>\|'!]|\-\-\-\-|__[^_]*__/)) {
+			if (this.traceWTE) {
+				console.warn("---SOL and safe---");
+			}
 			return text;
 		}
 	}
@@ -753,7 +778,9 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 	// escape text with ' ' in sol posn with one caveat
 	// * indent-pres are disabled in ref-bodies (See ext.core.PreHandler.js)
 	if (sol && (this.options.extName !== 'ref') && text.match(/(^|\n)[ \t]+[^\s]+/)) {
-		// console.warn("---EWT:F6---");
+		if (this.traceWTE) {
+			console.warn("---SOL and pre---");
+		}
 		return this.escapedText(state, sol, text, fullCheckNeeded);
 	}
 
@@ -766,11 +793,15 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 	// EOL matching requirements which are not captured by the
 	// hasWikitextTokens check
 	if (this.wteHandlers.hasWikitextTokens(state, sol, this.options, text) || hasTildes) {
-		// console.warn("---EWT:DBG1---");
+		if (this.traceWTE) {
+			console.warn("---Found WT tokens---");
+		}
 		return this.escapedText(state, sol, text, fullCheckNeeded);
 	} else if (state.onSOL) {
 		if (text.match(/(^|\n)=+[^\n=]+=+[ \t]*\n/)) {
-			// console.warn("---EWT:DBG2a---");
+			if (this.traceWTE) {
+				console.warn("---SOL: heading (easy test)---");
+			}
 			return this.escapedText(state, sol, text, fullCheckNeeded);
 		} else if (text.match(/(^|\n)=+[^\n=]+=+[ \t]*$/)) {
 			/* ---------------------------------------------------------------
@@ -801,14 +832,20 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 			if (!nonSepSibling ||
 				DU.isText(nonSepSibling) && nonSepSibling.nodeValue.match(/^\s*\n/))
 			{
-				// console.warn("---EWT:DBG2b---");
+				if (this.traceWTE) {
+					console.warn("---SOL: heading (complex single-line test)---");
+				}
 				return this.escapedText(state, sol, text, fullCheckNeeded);
 			} else {
-				// console.warn("---EWT:DBG2c---");
+				if (this.traceWTE) {
+					console.warn("---SOL: no-heading (complex single-line test)---");
+				}
 				return text;
 			}
 		} else {
-			// console.warn("---EWT:DBG3---");
+			if (this.traceWTE) {
+				console.warn("---SOL: no-heading---");
+			}
 			return text;
 		}
 	} else {
@@ -856,10 +893,14 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 		    cl.hasOpenBrackets && text.match(/^[^\[]*\]/) &&
 				this.wteHandlers.hasWikitextTokens(state, sol, this.options, cl.text + text, true))
 		{
-			// console.warn("---EWT:DBG4---");
+			if (this.traceWTE) {
+				console.warn("---Wikilink chars: complex single-line test---");
+			}
 			return this.escapedText(state, sol, text, fullCheckNeeded);
 		} else {
-			// console.warn("---EWT:DBG5---");
+			if (this.traceWTE) {
+				console.warn("---All good!---");
+			}
 			return text;
 		}
 	}

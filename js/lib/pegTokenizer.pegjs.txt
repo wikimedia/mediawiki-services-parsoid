@@ -399,9 +399,15 @@
      * current expression can return an empty list (true).
      */
     var emitChunk = function (tokens) {
+        if (pegArgs.pegTokenizer.traceTokens === undefined) {
+            var psdConf = pegArgs.pegTokenizer.env.conf.parsoid;
+            pegArgs.pegTokenizer.traceTokens = psdConf.debug || psdConf.traceFlags && psdConf.traceFlags.indexOf("peg-tokens") !== -1;
+        }
         // shift tsr of all tokens by offset
         Util.shiftTokenTSR(tokens, pegArgs.srcOffset);
-        // console.warn("TOKS: " + JSON.stringify(tokens));
+        if (pegArgs.pegTokenizer.traceTokens) {
+            console.warn("TOKS: " + JSON.stringify(tokens));
+        }
         pegArgs.cb(tokens);
     };
 }

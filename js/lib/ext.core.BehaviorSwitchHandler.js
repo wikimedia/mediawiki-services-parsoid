@@ -65,15 +65,8 @@ BehaviorSwitchPreprocessor.prototype.rank = 0.05;
  * See {@link TokenTransformManager#addTransform}'s transformation parameter
  */
 BehaviorSwitchPreprocessor.prototype.onBehaviorSwitch = function ( token, manager, cb ) {
-	var metaToken, switchType, env = this.manager.env,
-		magicWord = token.attribs[0].v;
-
-	switchType = magicWord.toLowerCase();
-
-	var actualType = env.conf.wiki.magicWords[magicWord] ||
-		env.conf.wiki.magicWords[switchType];
-
-	if ( actualType ) {
+	var magicWord = token.attribs[0].v;
+	if ( this.manager.env.conf.wiki.isMagicWord(magicWord) ) {
 		token.dataAttribs.magicSrc = magicWord;
 		return {
 			tokens: [ token ]

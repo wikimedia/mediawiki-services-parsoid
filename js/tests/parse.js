@@ -19,6 +19,7 @@ function traceUsage() {
 	buf.push("- Without any flags, enables a light high-level tracing (DEPRECATED and not as useful anymore)");
 	buf.push("- With one or more comma-separated flags, traces those specific phases");
 	buf.push("- Supported flags:");
+	buf.push("  * peg-tokens: shows tokens emitted by tokenizer");
 	buf.push("  * sync:1    : shows tokens flowing through the post-tokenizer Sync Token Transform Manager");
 	buf.push("  * async:2   : shows tokens flowing through the Async Token Transform Manager");
 	buf.push("  * sync:3    : shows tokens flowing through the post-expansion Sync Token Transform Manager");
@@ -30,6 +31,7 @@ function traceUsage() {
 	buf.push("  * dsr       : shows dsr computation on the DOM");
 	buf.push("  * wts       : trace actions of the regular wikitext serializer");
 	buf.push("  * selser    : trace actions of the selective serializer\n");
+	buf.push("  * wt-escape : debug wikitext-escaping\n");
 	buf.push("--debug enables tracing of all the above phases except Token Transform Managers\n");
 	buf.push("Examples:");
 	buf.push("$ node parse --trace pre,p-wrap,html < foo");
