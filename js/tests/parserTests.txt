@@ -17484,6 +17484,23 @@ parsoid=wt2html
 !!end
 
 !!test
+Encapsulation properly handles null DSR information from foster box
+!!options
+parsoid=wt2html,wt2wt
+!!input
+{{echo|<table>foo<tr><td>bar</td></tr></table>}}
+!!result
+<span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;
+<table>foo
+<tr>
+<td>bar</td></tr></table>&quot;}},&quot;i&quot;:0}}]}">foo</span>
+<table>
+<tbody>
+<tr>
+<td>bar</td></tr></tbody></table>
+!!end
+
+!!test
 1. Encapsulate foster-parented transclusion content
 !!options
 parsoid=wt2wt,wt2html
