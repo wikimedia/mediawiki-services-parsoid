@@ -2139,9 +2139,9 @@ parsoid=wt2html,wt2wt
  [[Category:foo]] <!-- No pre-wrapping -->
 {{echo| [[Category:foo]]}} <!-- No pre-wrapping -->
 !! result
- <link rel="mw:WikiLink/Category" href="./Category:Foo"> <!-- No pre-wrapping -->
+ <link rel="mw:PageProp/Category" href="./Category:Foo"> <!-- No pre-wrapping -->
 <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":" [[Category:foo]]"}},"i":0}}]}'> </span>
-<link rel="mw:WikiLink/Category" href="./Category:Foo" about="#mwt1"> <!-- No pre-wrapping -->
+<link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1"> <!-- No pre-wrapping -->
 !! end
 
 !! test
@@ -2153,9 +2153,9 @@ parsoid=wt2html,wt2wt
  [[Category:foo]] {{echo|b}}
 !! result
 <pre>
-<link rel="mw:WikiLink/Category" href="./Category:Foo"> a
+<link rel="mw:PageProp/Category" href="./Category:Foo"> a
 
-<link rel="mw:WikiLink/Category" href="./Category:Foo"> <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"b"}},"i":0}}]}'>b</span></pre>
+<link rel="mw:PageProp/Category" href="./Category:Foo"> <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"b"}},"i":0}}]}'>b</span></pre>
 !! end
 
 ###
@@ -5272,7 +5272,7 @@ parsoid
 [[ko:]]
 !! result
 <p>
-<link rel="mw:WikiLink/Language" href="http://ko.wikipedia.org/wiki/"></p>
+<link rel="mw:PageProp/Language" href="http://ko.wikipedia.org/wiki/"></p>
 !! end
 
 !! test
@@ -5282,7 +5282,7 @@ parsoid
 !! input
 [[:ko:]]
 !! result
-<p><a rel="mw:WikiLink/Interwiki" href="http://ko.wikipedia.org/wiki/">ko:</a></p>
+<p><a rel="mw:ExtLink" href="//ko.wikipedia.org/wiki/">ko:</a></p>
 !! end
 
 ###
@@ -5345,7 +5345,7 @@ parsoid=wt2html
 !! input
 #REDIRECT [[Category:Foo]]
 !! result
-<link rel="mw:PageProp/redirect" href="./Category:Foo"><link rel="mw:WikiLink/Category" href="./Category:Foo">
+<link rel="mw:PageProp/redirect" href="./Category:Foo"><link rel="mw:PageProp/Category" href="./Category:Foo">
 !! end
 
 !! test
@@ -5355,7 +5355,7 @@ parsoid=wt2html
 !! input
 #REDIRECT [[Category%3AFoo]]
 !! result
-<link rel="mw:PageProp/redirect" href="./Category:Foo"><link rel="mw:WikiLink/Category" href="./Category:Foo">
+<link rel="mw:PageProp/redirect" href="./Category:Foo"><link rel="mw:PageProp/Category" href="./Category:Foo">
 !! end
 
 !! test
@@ -7910,9 +7910,9 @@ parsoid=wt2html,wt2wt
 <!--Two categories (Bug 50330)-->
 <table>[[Category:bar1]][[Category:bar2]]<tr><td>foo</td></tr></table>
 !!result
-<link rel="mw:WikiLink/Category" href="./Category:Foo1"><table><tbody><tr><td>foo</td></tr></tbody></table>
+<link rel="mw:PageProp/Category" href="./Category:Foo1"><table><tbody><tr><td>foo</td></tr></tbody></table>
 <!--Two categories (Bug 50330)-->
-<link rel="mw:WikiLink/Category" href="./Category:Bar1"><link rel="mw:WikiLink/Category" href="./Category:Bar2"><table><tbody><tr><td>foo</td></tr></tbody></table>
+<link rel="mw:PageProp/Category" href="./Category:Bar1"><link rel="mw:PageProp/Category" href="./Category:Bar2"><table><tbody><tr><td>foo</td></tr></tbody></table>
 !!end
 
 !!test
@@ -10057,7 +10057,7 @@ language=is
 !! input
 x[[Category:Foo]]y
 !! result
-<p>x<link rel="mw:WikiLink/Category" href="Category:Foo">y</p>
+<p>x<link rel="mw:PageProp/Category" href="Category:Foo">y</p>
 !! end
 
 !! test
@@ -10083,8 +10083,8 @@ parsoid
 [[Category:Foo]]
 [[Category:Foo|Bar]]
 !! result
-<link rel="mw:WikiLink/Category" href="Category:Foo">
-<link rel="mw:WikiLink/Category" href="Category:Foo#Bar">
+<link rel="mw:PageProp/Category" href="Category:Foo">
+<link rel="mw:PageProp/Category" href="Category:Foo#Bar">
 !! end
 
 ###

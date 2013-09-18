@@ -368,8 +368,8 @@ WikiLinkHandler.prototype.renderCategory = function (token, frame, cb, target) {
 
 	var env = this.manager.env;
 
-	// Change the rel to be mw:WikiLink / Category
-	Util.lookupKV( newTk.attribs, 'rel' ).v += '/Category';
+	// Change the rel to be mw:PageProp/Category
+	Util.lookupKV( newTk.attribs, 'rel' ).v = 'mw:PageProp/Category';
 
 	var strContent = Util.tokensToString( content ),
 		saniContent = Util.sanitizeTitleURI( strContent ).replace( /#/g, '%23' );
@@ -426,8 +426,8 @@ WikiLinkHandler.prototype.renderLanguageLink = function (token, frame, cb, targe
 	var absHref = target.language.url.replace( "$1", target.href );
 	newTk.addNormalizedAttribute('href', absHref, target.hrefSrc);
 
-	// Change the rel to be mw:WikiLink/Language
-	Util.lookupKV( newTk.attribs, 'rel' ).v = 'mw:WikiLink/Language';
+	// Change the rel to be mw:PageProp/Language
+	Util.lookupKV( newTk.attribs, 'rel' ).v = 'mw:PageProp/Language';
 
 	cb({tokens: [newTk]});
 };
@@ -446,8 +446,8 @@ WikiLinkHandler.prototype.renderInterwikiLink = function (token, frame, cb, targ
 	var absHref = target.interwiki.url.replace( "$1", target.href );
 	newTk.addNormalizedAttribute('href', absHref, target.hrefSrc);
 
-	// Change the rel to be mw:WikiLink/Interwiki
-	Util.lookupKV( newTk.attribs, 'rel' ).v = 'mw:WikiLink/Interwiki';
+	// Change the rel to be mw:ExtLink
+	Util.lookupKV( newTk.attribs, 'rel' ).v = 'mw:ExtLink';
 
 	tokens.push( newTk );
 
@@ -1303,9 +1303,9 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 
 	var dataAttribs = Util.clone(token.dataAttribs);
 	var rdfaType = token.getAttribute('typeof'),
-		magLinkRe = /(?:^|\s)(mw:ExtLink\/(?:ISBN|RFC|PMID))(?=$|\s)/;
+		magLinkRe = /(?:^|\s)(mw:(?:Ext|Wiki)Link\/(?:ISBN|RFC|PMID))(?=$|\s)/;
 	if ( rdfaType && magLinkRe.test(rdfaType) ) {
-		if ( /(?:^|\s)mw:ExtLink\/ISBN/.test(rdfaType) ) {
+		if ( /(?:^|\s)mw:WikiLink\/ISBN/.test(rdfaType) ) {
 			title = Title.fromPrefixedText( env, href );
 			newAttrs = [
 				new KV('href', title.makeLink()),
@@ -1314,9 +1314,10 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 		} else {
 			newAttrs = [
 				new KV('href', href),
-				new KV('rel', rdfaType.match( magLinkRe )[1] )
+				new KV('rel', 'mw:ExtLink' )
 			];
 		}
+		token.removeAttribute('typeof');
 
 		// SSS FIXME: Right now, Parsoid does not support templating
 		// of ISBN attributes.  So, "ISBN {{echo|1234567890}}" will not
@@ -1333,11 +1334,7 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 		} );
 	} else if ( this.urlParser.tokenizeURL( href )) {
 		rdfaType = 'mw:ExtLink';
-		if ( ! content.length ) {
-			content = ['[' + this.linkCount + ']'];
-			this.linkCount++;
-			rdfaType = 'mw:ExtLink/Numbered';
-		} else if ( content.length === 1 &&
+		if ( content.length === 1 &&
 				content[0].constructor === String &&
 				this.urlParser.tokenizeURL( content[0] ) &&
 				this._hasImageLink( content[0] ) )

@@ -171,7 +171,7 @@ var Util = {
 		var tc = token.constructor;
 		return (tc === pd.SelfclosingTagTk || tc === pd.TagTk || tc === pd.EndTagTk) &&
 			token.name === 'link' &&
-			/mw:(WikiLink\/Category|PageProp\/redirect)/.test(token.getAttribute('rel'));
+			/mw:PageProp\/(?:Category|redirect)/.test(token.getAttribute('rel'));
 	},
 
 	isSolTransparent: function(token) {
@@ -927,7 +927,6 @@ Util.getJSONAttribute = function ( node, attr, fallback ) {
     }
 };
 
-
 ( function ( Util ) {
 
 var convertDiffToOffsetPairs = function ( diff ) {
@@ -1206,6 +1205,14 @@ Util.isProtocolValid = function ( linkTarget, env ) {
 		return true;
 	}
 };
+
+/**
+ * Escape special regexp characters in a string used to build a regexp
+ */
+Util.escapeRegExp = function(s) {
+	return s.replace(/[\^\\$*+?.()|{}\[\]\/]/g, '\\$&');
+};
+
 
 if (typeof module === "object") {
 	module.exports.Util = Util;

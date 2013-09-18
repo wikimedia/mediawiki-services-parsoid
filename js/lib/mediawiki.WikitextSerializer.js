@@ -1319,7 +1319,7 @@ WSP.getLinkPrefixTailEscapes = function (linkData, node, env) {
 	};
 
 	// Categories dont need prefix/suffix nowiki-escaping
-	if (linkData.type === 'mw:WikiLink/Category' ) {
+	if (linkData.type === 'mw:PageProp/Category' ) {
 		return escapes;
 	}
 
@@ -1765,17 +1765,54 @@ WSP.linkHandler = function(node, state, cb) {
 	if ( linkData.type !== null && linkData.target.value !== null  ) {
 		// We have a type and target info
 
-		var target = linkData.target;
+		// Temporary backwards-compatibility for types
+		if (linkData.type === 'mw:WikiLink/Category') {
+			linkData.type = 'mw:PageProp/Category';
+		} else if (linkData.type === 'mw:WikiLink/Language') {
+			linkData.type = 'mw:PageProp/Language';
+		} else if (/^mw:ExtLink\//.test(linkData.type)) {
+			linkData.type = 'mw:ExtLink';
+		}
 
-		if (/^mw:WikiLink(\/(Category|Language|Interwiki))?$/.test( linkData.type ) ||
-		    /^mw:PageProp\/redirect$/.test( linkData.type ) ) {
+		var target = linkData.target,
+			href = node.getAttribute('href') || '';
+		if (/mw.ExtLink/.test(linkData.type)) {
+			var targetVal = target.fromsrc || true ? target.value : Util.decodeURI(target.value);
+			// Check if the href matches any of our interwiki URL patterns
+				var interWikiMatch = env.conf.wiki.InterWikiMatcher.match(href);
+			if (interWikiMatch) {
+				//console.log(interWikiMatch);
+				// External link that is really an interwiki link. Convert it.
+				linkData.type = 'mw:WikiLink';
+				linkData.isInterwiki = true;
+				var oldPrefix = target.value.match(/^(:?[^:]+):/);
+				if (oldPrefix &&
+						oldPrefix[1].toLowerCase() === interWikiMatch[0].toLowerCase())
+				{
+					// Reuse old prefix capitalization
+					if (Util.decodeEntities(target.value.substr(oldPrefix[1].length+1)) !== interWikiMatch[1])
+					{
+						// Modified, update target.value.
+						target.value = oldPrefix[1] + ':' + interWikiMatch[1];
+					}
+					// Else: preserve old encoding
+					//console.log(oldPrefix[1], interWikiMatch);
+				} else {
+					target.value = interWikiMatch.join(':');
+				}
+			}
+		}
+
+		if (/^mw:WikiLink$/.test( linkData.type ) ||
+		    /^mw:PageProp\/(?:redirect|Category|Language)$/.test( linkData.type ) ) {
 			// Decode any link that did not come from the source
 			if (! target.fromsrc) {
 				target.value = Util.decodeURI(target.value);
 			}
 
 			// Special-case handling for category links
-			if ( linkData.type === 'mw:WikiLink/Category' ) {
+			if ( linkData.type === 'mw:WikiLink/Category' ||
+					linkData.type === 'mw:PageProp/Category' ) {
 				// Split target and sort key
 				var targetParts = target.value.match( /^([^#]*)#(.*)/ );
 				if ( targetParts ) {
@@ -1815,7 +1852,7 @@ WSP.linkHandler = function(node, state, cb) {
 						linkData.content.fromsrc = true;
 					}
 				//}
-			} else if ( linkData.type === 'mw:WikiLink/Language' ) {
+			} else if ( linkData.type === 'mw:PageProp/Language' ) {
 				// Fix up the the content string
 				// TODO: see if linkData can be cleaner!
 				if (linkData.content.string === undefined) {
@@ -1865,9 +1902,9 @@ WSP.linkHandler = function(node, state, cb) {
 						( dp.stx !== 'piped' && !dp.pipetrick ) ),
 
 				canUsePipeTrick =
-					linkData.type === 'mw:WikiLink/Language' ||
+					linkData.type === 'mw:PageProp/Language' ||
 					contentString !== undefined &&
-					linkData.type !== 'mw:WikiLink/Category' &&
+					linkData.type !== 'mw:PageProp/Category' &&
 					(
 						Util.stripPipeTrickChars(strippedTargetValue) ===
 							contentString ||
@@ -1881,7 +1918,7 @@ WSP.linkHandler = function(node, state, cb) {
 							env.normalizeTitle(contentString) ||
 						// Interwiki links with pipetrick have their prefix
 						// stripped, so compare against a stripped version
-						( linkData.type === 'mw:WikiLink/Interwiki' &&
+						( linkData.isInterwiki &&
 						  dp.pipetrick &&
 						  env.normalizeTitle( contentString ) ===
 							target.value.replace(/^:?[a-zA-Z]+:/, '') )
@@ -1932,7 +1969,7 @@ WSP.linkHandler = function(node, state, cb) {
 				}
 
 				if ( contentSrc === '' && ! willUsePipeTrick &&
-						linkData.type !== 'mw:WikiLink/Category' ) {
+						linkData.type !== 'mw:PageProp/Category' ) {
 					// Protect empty link content from PST pipe trick
 					contentSrc = '<nowiki/>';
 				}
@@ -1944,11 +1981,12 @@ WSP.linkHandler = function(node, state, cb) {
 						linkData.tail + escapes.tail, node );
 				return;
 			}
-		} else if ( rel === 'mw:ExtLink' ) {
+		} else if ( rel === 'mw:ExtLink' || rel === 'mw:ExtLink/Numbered' ) {
 			// Get plain text content, if any
 			var contentStr = node.childNodes.length === 1 &&
 								node.firstChild.nodeType === node.TEXT_NODE &&
 								node.firstChild.nodeValue;
+			// First check if we can serialize as an URL link
 			if ( contentStr &&
 					// Can we minimize this?
 					( target.value === contentStr  ||
@@ -1959,23 +1997,39 @@ WSP.linkHandler = function(node, state, cb) {
 				// Serialize as URL link
 				cb(target.value, node);
 			} else {
+				// TODO: match vs. interwikis too
+				var extLinkResourceMatch = env.conf.wiki.ExtResourceURLPatternMatcher
+												.match(href);
 				// Fully serialize the content
 				contentStr = state.serializeChildrenToString(node,
 						this.wteHandlers.aHandler, false);
 
-				// We expect modified hrefs to be percent-encoded already, so
-				// don't need to encode them here any more. Unmodified hrefs are
-				// just using the original encoding anyway.
-				cb( '[' + target.value + ' ' + contentStr + ']', node );
+				// First check for RFC/PMID links. We rely on selser to
+				// preserve non-minimal forms.
+				if (extLinkResourceMatch && contentStr === extLinkResourceMatch.join(' ')) {
+					// link target matches and link text is RFC 1234 or
+					// PMID 1234: Serialize to that
+					cb( extLinkResourceMatch.join(' '), node );
+				// There is an interwiki for RFCs, but strangely none for
+				// PMIDs.
+				} else if (!contentStr) {
+					// serialize as auto-numbered external link
+					// [http://example.com]
+					cb( '[' + target.value + ']', node);
+				} else {
+
+					// We expect modified hrefs to be percent-encoded already, so
+					// don't need to encode them here any more. Unmodified hrefs are
+					// just using the original encoding anyway.
+					cb( '[' + target.value + ' ' + contentStr + ']', node );
+				}
 			}
-		} else if ( rel === 'mw:ExtLink/URL' ) {
-			cb( target.value, node );
-		} else if ( rel.match( /mw:ExtLink\/(?:ISBN|RFC|PMID)/ ) ) {
+		} else if ( rel.match( /mw:ExtLink\/(?:RFC|PMID)/ ) ||
+					/mw:(?:Wiki|Ext)Link\/ISBN/.test(rel) ) {
+			// FIXME: Handle RFC/PMID in generic ExtLink handler by matching prefixes!
+			// FIXME: Handle ISBN in generic WikiLink handler by looking for
+			// Special:BookSources!
 			cb( node.firstChild.nodeValue, node );
-		} else if ( rel === 'mw:ExtLink/Numbered' ) {
-			// XXX: Use shadowed href? Storing serialized tokens in
-			// data-parsoid seems to be... wrong.
-			cb( '[' + Util.tokensToString(target.value) + ']', node);
 		} else if ( /(?:^|\s)mw:Image/.test(rel) ) {
 			this.handleImage( node, state, cb );
 		} else {
@@ -2011,8 +2065,8 @@ WSP.linkHandler = function(node, state, cb) {
 			this._htmlElementHandler(node, state, cb);
 		} else {
 			// encodeURI only encodes spaces and the like
-			var href = encodeURI(node.getAttribute('href'));
-			cb( '[' + href + ' ' +
+			var hrefStr = encodeURI(node.getAttribute('href'));
+			cb( '[' + hrefStr + ' ' +
 				state.serializeChildrenToString(node, this.wteHandlers.aHandler, false) +
 				']', node );
 		}
@@ -2880,7 +2934,7 @@ WSP.tagHandlers = {
 		sepnls: {
 			before: function (node, otherNode) {
 				var type = node.getAttribute('rel');
-				if (/(?:^|\s)mw:WikiLink\/Category(?=$|\s)/.test(type) &&
+				if (/(?:^|\s)mw:PageProp\/Category(?=$|\s)/.test(type) &&
 						!node.getAttribute('data-parsoid')) {
 					// Fresh category link: Serialize on its own line
 					return {min: 1};
@@ -2890,7 +2944,7 @@ WSP.tagHandlers = {
 			},
 			after: function (node, otherNode) {
 				var type = node.getAttribute('rel');
-				if (/(?:^|\s)mw:WikiLink\/Category(?=$|\s)/.test(type) &&
+				if (/(?:^|\s)mw:PageProp\/Category(?=$|\s)/.test(type) &&
 						!node.getAttribute('data-parsoid') &&
 						otherNode.nodeName !== 'BODY')
 				{

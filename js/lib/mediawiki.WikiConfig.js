@@ -10,11 +10,6 @@ var baseConfig = require( './baseconfig/en.json' ).query,
 // Make sure our base config is never modified
 JSUtils.deepFreeze(baseConfig);
 
-// escape 'special' characters in a regexp, returning a regexp which matches
-// the string exactly
-var re_escape = function(s) {
-	return s.replace(/[\^\\$*+?.()|{}\[\]]/g, '\\$&');
-};
 
 /**
  * @class
@@ -28,7 +23,8 @@ var re_escape = function(s) {
  */
 function WikiConfig( resultConf, prefix, uri ) {
 	var nsid,
-		name;
+		name,
+		conf = this;
 
 
 	// Mapping from canonical namespace name to id
@@ -132,7 +128,7 @@ function WikiConfig( resultConf, prefix, uri ) {
 		if (!this.interwikiMap[entry.code]) {
 			this.interwikiMap[entry.code] = {
 				prefix: entry.code,
-				url: 'http://' + entry.code + '.wikipedia.org/wiki/$1',
+				url: '//' + entry.code + '.wikipedia.org/wiki/$1',
 				language: entry['*']
 			};
 		} else if (!this.interwikiMap[entry.code].language) {
@@ -141,6 +137,48 @@ function WikiConfig( resultConf, prefix, uri ) {
 			this.interwikiMap[entry.code].language = entry['*'];
 		}
 	}
+
+	this.InterWikiMatcher = (function () {
+		var keys = Object.keys(conf.interwikiMap),
+			patterns = [];
+		keys.forEach(function(key) {
+			patterns.push(
+				// Avoid regexp escaping on placeholder
+				Util.escapeRegExp(
+					conf.interwikiMap[key].url.replace('$1', '%1')
+				)
+				// Now convert placeholder to group match
+				.replace('%1', '(.*?)')
+			);
+		});
+		var reString = '^(?:' + patterns.join('|') + ')$',
+			regExp = new RegExp(reString);
+		var match = function (s) {
+			var matches = s.match(regExp);
+			if (matches) {
+				var groups = matches.slice(1);
+				for (var i=0; i<groups.length; i++) {
+					if (groups[i] !== undefined) {
+						// The prefix: 'en', 'de' etc
+						var key = keys[i];
+						if (conf.interwikiMap[key].language) {
+							// Escape language interwikis with a colon
+							key = ':' + key;
+						}
+						return [
+							key,
+							groups[i]
+						];
+					}
+				}
+			}
+			return false;
+		};
+		return {
+			match: match
+		};
+	})();
+
 
 	// "mw" here refers to "magicwords", not "mediawiki"
 	var mws = resultConf.magicwords;
@@ -186,7 +224,7 @@ function WikiConfig( resultConf, prefix, uri ) {
 		}
 		this._mwRegexps[mw.name] =
 			new RegExp( '^(' +
-			            this.mwAliases[mw.name].map(re_escape).join('|') +
+			            this.mwAliases[mw.name].map(Util.escapeRegExp).join('|') +
 			            ')$',
 			            mw['case-sensitive'] === '' ? '' : 'i' );
 	}
@@ -430,6 +468,55 @@ WikiConfig.prototype.replaceInterpolatedMagicWord = function ( alias, value ) {
 	return alias.replace( /\$1/, value );
 };
 
+
+
+// Default RFC/PMID resource URL patterns
+WikiConfig.prototype.ExtResourceURLPatterns = {
+	'RFC'  : '//tools.ietf.org/html/rfc%s',
+	'PMID' : '//www.ncbi.nlm.nih.gov/pubmed/%s?dopt=Abstract'
+};
+
+/**
+ * Matcher for RFC/PMID URL patterns, returning the type and number. The match
+ * method takes a string and returns false on no match or a tuple like this on match:
+ * ['RFC', '12345']
+ */
+WikiConfig.prototype.ExtResourceURLPatternMatcher = (function () {
+	var keys = Object.keys(WikiConfig.prototype.ExtResourceURLPatterns),
+		patterns = [];
+	keys.forEach(function(key) {
+		patterns.push(
+			Util.escapeRegExp(WikiConfig.prototype.ExtResourceURLPatterns[key])
+			.replace('%s', '(\\w+)')
+		);
+	});
+	var reString = '^(?:' + patterns.join('|') + ')$',
+		regExp = new RegExp(reString);
+	var match = function (s) {
+		var matches = s.match(regExp);
+		if (matches) {
+			var groups = matches.slice(1);
+			for (var i=0; i<groups.length; i++) {
+				if (groups[i] !== undefined) {
+					return [
+						// The key: 'PMID', 'RFC' etc
+						keys[i],
+						groups[i]
+					];
+				}
+			}
+		}
+		return false;
+	};
+	return {
+		match: match
+	};
+})();
+
+/**
+ * Matcher for interwiki prefixes.
+ */
+
 /**
  * @param {string} potentialLink
  */
@@ -459,6 +546,7 @@ WikiConfig.prototype.isExtensionTag = function ( potentialTag ) {
 WikiConfig.prototype.addExtensionTag = function ( newTag ) {
 	this.extensionTags[newTag] = true;
 };
+
 
 /**
  * @param {string} tagName

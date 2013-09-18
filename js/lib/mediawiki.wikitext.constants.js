@@ -219,6 +219,7 @@ var WikitextConstants = {
 	}
 };
 
+
 // Fill in reverse map of prefix options.
 WikitextConstants.Image.PrefixOptions.forEach(function(v, k) {
 	WikitextConstants.Image.PrefixOptionsReverseMap.set(v, k);
