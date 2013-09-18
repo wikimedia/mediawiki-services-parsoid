@@ -17,7 +17,7 @@
 		"async": "0.x.x",
 		"express": "2.5.x",
 		"html5-entities": "~0.5.0",
-		"html5": "git://github.com/aredridel/html5.git#052ac530a2a422353067edb66c2fec86878e2340"
+		"html5": "0.3.15"
 	},
 	"devDependencies": {
 		"colors": "0.x.x",
