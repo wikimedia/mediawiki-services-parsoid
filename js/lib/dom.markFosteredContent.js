@@ -38,38 +38,26 @@ function removeTransclusionShadows( node ) {
 // inserts metas around the fosterbox and table
 function insertTransclusionMetas( env, fosterBox, table ) {
 
-	// find tsr[1] and end-boundary
-	var tsr1, sibling = table.nextSibling;
-	while ( sibling ) {
-		if ( sibling.data.parsoid.tsr ) {
-			tsr1 = sibling.data.parsoid.tsr[ 1 ];
-			break;
-		}
-		sibling = sibling.nextSibling;
-	}
-	if ( typeof tsr1 !== "number" ) {
-		tsr1 = table.parentNode.data.parsoid.tsr[ 1 ];
-	}
-
-	// get a new about id
 	var aboutId = env.newAboutId();
 
-	//  create start-meta and insert
+    // You might be asking yourself, why is table.data.parsoid.tsr[1] always
+	// present? The earlier implementation searched the table's siblings for
+	// their tsr[0]. However, encapsulation doesn't happen when the foster box,
+	// and thus the table, are in the transclusion.
 	var s = DU.createNodeWithAttributes( fosterBox.ownerDocument, "meta", {
 		"about": aboutId,
 		"id": aboutId.substring( 1 ),
 		"typeof": "mw:Transclusion",
-		"data-parsoid": JSON.stringify({
-			"tsr": [ table.data.parsoid.tsr[ 0 ], tsr1 ]
-		})
+		"data-parsoid": JSON.stringify({ "tsr": table.data.parsoid.tsr })
 	});
 	fosterBox.parentNode.insertBefore( s, fosterBox );
 
-	// create end-meta, find insertion-point, and insert
 	var e = DU.createNodeWithAttributes( table.ownerDocument, "meta", {
 		"about": aboutId,
 		"typeof": "mw:Transclusion/End"
 	});
+
+	var sibling = table.nextSibling;
 
 	// skip table end mw:shadow
 	if ( sibling && DU.isMarkerMeta( sibling, "mw:EndTag" ) ) {
