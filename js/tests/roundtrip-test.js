@@ -408,7 +408,7 @@ var roundTripDiff = function ( env, document, cb ) {
 		env.profile.time.serialize = new Date();
 		out = new WikitextSerializer( { env: env } ).serializeDOM(document.body);
 		env.profile.time.serialize = new Date() - env.profile.time.serialize;
-		env.profile.size.domserialized = out.length;
+		env.profile.size.wikitext = out.length;
 
 		// Finish the total time now
 		if ( env.profile && env.profile.time ) {

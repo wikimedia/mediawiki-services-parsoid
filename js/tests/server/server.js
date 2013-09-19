@@ -397,7 +397,7 @@ var dbPagePerfStatsEnd =
 	'JOIN commits ON perfstats.commit_hash = commits.hash ' +
 	'WHERE pages.prefix = ? AND pages.title = ? ' +
 	'GROUP BY commits.hash ' +
-	'ORDER BY commits.timestamp ASC ' +
+	'ORDER BY commits.timestamp DESC ' +
 	'LIMIT 0, ?';
 
 var transUpdateCB = function( title, prefix, hash, type, res, trans, success_cb, err, result ) {
@@ -608,6 +608,11 @@ var indexLinkList = function () {
 };
 
 var displayPerfStat = function( type, value ) {
+	// Protect against not-present perfstats, i.e. when adding new ones.
+	if ( value === null ) {
+		return '';
+	}
+
 	var text = '<span title="' + value.toString() + '">';
 	if ( type.match( /^time/ ) ) {
 		// Show time in seconds
@@ -1178,11 +1183,13 @@ var GET_pagePerfStats = function( req, res ) {
 					}
 					res.write( '</tr>' );
 
-					for ( var r = 0; r < rows.length; r++ ) {
+					// Show the results in order of timestamp.
+					for ( var r = rows.length - 1; r >= 0; r-- ) {
 						var row = rows[r];
 						res.write( '<tr><td class="title"><span title="' +
-							row.timestamp.toString() + '">' + row.hash +
-							'</span></td>' );
+							row.timestamp.toString() + '">' +
+							'<a href="/result/' + row.hash + '/' + prefix + '/' + title + '">' +
+							row.hash + '</a>' + '</span></td>' );
 						for ( t = 0; t < types.length; t++ ) {
 							res.write( '<td>' + displayPerfStat( types[ t ], row[ types[ t ] ] ) + '</td>' );
 						}
