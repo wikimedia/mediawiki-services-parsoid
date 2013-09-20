@@ -455,7 +455,7 @@ WSP.initialState = {
 		if (sep && sep.match(/\n/)) {
 			this.onSOL = true;
 		}
-		if (this.debugging) {
+		if (this.serializer.debugging) {
 			console.log(debugPrefix, JSON.stringify(sep));
 		}
 	},
@@ -3946,24 +3946,28 @@ WSP._serializeNode = function( node, state, cb) {
 					// Strip leading/trailing separators *ONLY IF* the previous/following
 					// node will go through non-selser serialization.
 					var src = state.getOrigSrc(dp.dsr[0], dp.dsr[1]),
+						out = src,
 						stripLeading = !DU.isIndentPre(node) && DU.hasCurrentDiffMark(node.previousSibling, this.env),
 						stripTrailing = DU.hasCurrentDiffMark(node.nextSibling, this.env),
-						leadingSepMatch = stripLeading ? src.match(/^((?:\s|<!--([^\-]|-(?!->))*-->)+)/) : null,
-						trailingSepMatch = stripTrailing ? src.match(/((?:\s|<!--([^\-]|-(?!->))*-->)+)$/) : null,
-						out = src,
 						newSep = '',
 						offset = 0;
 
-					if (leadingSepMatch) {
-						state.sep.src = (state.sep.src || '') + leadingSepMatch[0];
-						offset = leadingSepMatch[0].length;
-						out = out.substring(offset);
-						dp.dsr[0] += offset;
+					if (stripLeading) {
+						var leadingSepMatch = out.match(/^((?:\s|<!--([^\-]|-(?!->))*-->)+)/);
+						if (leadingSepMatch) {
+							state.sep.src = (state.sep.src || '') + leadingSepMatch[0];
+							offset = leadingSepMatch[0].length;
+							out = out.substring(offset);
+							dp.dsr[0] += offset;
+						}
 					}
-					if (trailingSepMatch) {
-						newSep = trailingSepMatch[0];
-						out = out.substring(0, trailingSepMatch.index - offset);
-						dp.dsr[1] -= trailingSepMatch.index;
+					if (stripTrailing) {
+						var trailingSepMatch = out.match(/((?:\s|<!--([^\-]|-(?!->))*-->)+)$/);
+						if (trailingSepMatch) {
+							newSep = trailingSepMatch[0];
+							out = out.substring(0, trailingSepMatch.index);
+							dp.dsr[1] -= trailingSepMatch.index;
+						}
 					}
 
 					state.currNodeUnmodified = true;
@@ -4032,6 +4036,10 @@ WSP._serializeNode = function( node, state, cb) {
 
 			break;
 		case node.TEXT_NODE:
+			if (state.selserMode) {
+				this.trace("TEXT: ", node.nodeValue);
+			}
+
 			if (!this.handleSeparatorText(node, state)) {
 				// Text is not just whitespace
 				prev = this._getPrevSeparatorElement(node, state);
@@ -4052,6 +4060,10 @@ WSP._serializeNode = function( node, state, cb) {
 			}
 			break;
 		case node.COMMENT_NODE:
+			if (state.selserMode) {
+				this.trace("COMMENT: ", node.nodeValue);
+			}
+
 			// delay the newline creation until after the comment
 			if (!this.handleSeparatorText(node, state)) {
 				cb(commentWT(node.nodeValue), node);
