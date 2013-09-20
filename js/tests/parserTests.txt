@@ -1390,11 +1390,21 @@ Bug 52763: Preformatted in <blockquote>
 !! input
 <blockquote>
  Blah
+{|
+|
+ indented cell (no pre-wrapping!)
+|}
 </blockquote>
 !! result
 <blockquote>
 <p> Blah
 </p>
+<table>
+<tr>
+<td>
+<p> indented cell (no pre-wrapping!)
+</p>
+</td></tr></table>
 </blockquote>
 
 !! end
@@ -1860,7 +1870,7 @@ data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},
 !! end
 
 !! test
-Templates: Dont escape already nowiki-escaped text in template parameters
+Templates: Don't escape already nowiki-escaped text in template parameters
 !! options
 parsoid=html2wt,wt2wt
 !! input
@@ -17720,6 +17730,63 @@ parsoid=html2wt
 <ul>
 <li><p>foo</p></li>
 </ul>
+!! end
+
+!! test
+Don't strip leading whitespace when handling indent-pre suppressing tags
+!! options
+parsoid=html2wt
+!! input
+{|
+  | indented row
+|}
+<blockquote>
+ '''This is very bold of you!'''
+
+{|
+|
+ indented cell (no pre-wrapping!)
+|}
+</blockquote>
+foo
+ <div>bar</div>
+!! result
+<table>
+  <tr><td> indented row</td></tr>
+</table>
+<blockquote><p>
+ <b>This is very bold of you!</b>
+</p>
+<table><tr><td>
+ indented cell (no pre-wrapping!)
+</td></tr></table>
+</blockquote>
+<p>foo</p>
+ <div>bar</div>
+!! end
+
+!! test
+Strip leading whitespace when handling indent-pre inducing tags
+!! options
+parsoid=html2wt
+!! input
+foo
+<span>bar</span>
+
+<span>foo2
+</span>bar2
+
+<div>foo</div>
+<span>bar</span>
+!! result
+<p>foo</p>
+ <span>bar</span>
+
+<span>foo2
+ </span>bar2
+
+<div>foo</div>
+ <span>bar</span>
 !! end
 
 # Wacky -- the leading newline in input is required because

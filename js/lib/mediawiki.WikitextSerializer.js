@@ -3574,7 +3574,7 @@ WSP.getSepNlConstraints = function(state, nodeA, sepNlsHandlerA, nodeB, sepNlsHa
  * Create a separator given a (potentially empty) separator text and newline
  * constraints
  */
-WSP.makeSeparator = function(sep, node, nlConstraints, state) {
+WSP.makeSeparator = function(sep, nlConstraints, state) {
 	var origSep = sep;
 
 		// TODO: Move to Util?
@@ -3634,21 +3634,74 @@ WSP.makeSeparator = function(sep, node, nlConstraints, state) {
 	//	sep.replace(/^([^\n<]*<!--(?:[^\-]|-(?!->))*-->)?[^\n<]+/g, '$1');
 	//}
 
-	// Strip non-nl ws from last line, but preserve comments
-	// This avoids triggering indent-pres.
+	// SSS FIXME: 'nlConstraints.min > 0' only applies to nodes that have native wikitext
+	// equivalents. For HTML nodes that will be serialized as HTML tags, we have to check
+	// for indent-pre safety always. This is currently not handled by the code below and
+	// will require other fixes to handle arbitrary HTML. To be done later! See example
+	// below that fails.
 	//
-	// 'node' has min-nl constraint, but we dont know that 'node' is pre-safe.
-	// SSS FIXME: The check for 'node.nodeName in preSafeTags' should be possible
-	// at a nested level rather than just 'node'.  If 'node' is an IEW/comment,
-	// we should find the "next" (at this and and ancestor levels), the non-sep
-	// sibling and check if that node is one of these types.
-	//
-		// SSS FIXME: how is it that parentNode can be null??  is body getting here?
-	var parentName = node.parentNode && node.parentNode.nodeName;
-	if (nlConstraints.min > 0 && !Consts.PreSafeTags.has( node.nodeName )) {
-		sep = sep.replace(/[^\n>]+(<!--(?:[^\-]|-(?!->))*-->[^\n]*)?$/g, '$1');
+	// Ex: "<div>foo</div>\n <span>bar</span>"
+	if (nlConstraints.min > 0 && sep.match(/[^\n<>]+(<!--(?:[^\-]|-(?!->))*-->[^\n]*)?$/g)) {
+		// 'sep' is the separator before 'nodeB' and it has leading spaces on a newline.
+		// We have to decide whether that leading space will trigger indent-pres in wikitext.
+		// The decision depends on where this separator will be emitted relative
+		// to 'nodeA' and 'nodeB'.
+
+		var isIndentPreSafe = false,
+			constraintInfo = nlConstraints.constraintInfo || {};
+
+		// Example of sibling sepType scenario:
+		// <p>foo</p>
+		//  <span>bar</span>
+		// The span will be wrapped in an indent-pre if the leading space
+		// is not stripped since span is not a block tag
+		//
+		// Example of child-parent sepType scenario:
+		// <span>foo
+		//  </span>bar
+		// The " </span>bar" will be wrapped in an indent-pre if the
+		// leading space is not stripped since span is not a block tag
+		if ((constraintInfo.sepType === 'sibling' ||
+			constraintInfo.sepType === 'child-parent') &&
+			Util.isBlockTag(constraintInfo.nodeB.nodeName))
+		{
+			isIndentPreSafe = true;
+		} else if (constraintInfo.sepType === 'parent-child') {
+			// Separator between parent node and child node
+			var node = constraintInfo.nodeA;
+
+			// Walk up past zero-wikitext width ancestors
+			while (Consts.ZeroWidthWikitextTags.has(node.nodeName)) {
+				node = node.parentNode;
+			}
+
+			// Deal with weak/strong indent-pre suppressing tags
+			if (Consts.WeakIndentPreSuppressingTags.has(node.nodeName)) {
+				isIndentPreSafe = true;
+			} else {
+				// Strong indent-pre suppressing tags suppress indent-pres
+				// in entire DOM subtree rooted at that node
+				while (node.nodeName !== 'BODY') {
+					if (Consts.StrongIndentPreSuppressingTags.has(node.nodeName)) {
+						isIndentPreSafe = true;
+					}
+					node = node.parentNode;
+				}
+			}
+		}
+
+		if (!isIndentPreSafe) {
+			// Strip non-nl ws from last line, but preserve comments.
+			// This avoids triggering indent-pres.
+			sep = sep.replace(/[^\n>]+(<!--(?:[^\-]|-(?!->))*-->[^\n]*)?$/g, '$1');
+		}
 	}
-	this.trace('makeSeparator', sep, origSep, minNls, sepNlCount, nlConstraints);
+
+	if (this.debugging) {
+		var constraints = nlConstraints;
+		constraints.constraintInfo = undefined;
+		this.trace('makeSeparator', sep, origSep, minNls, sepNlCount, constraints);
+	}
 
 	return sep;
 };
@@ -3697,24 +3750,29 @@ WSP.mergeConstraints = function (oldConstraints, newConstraints) {
  *	}
  * }
  */
-WSP.updateSeparatorConstraints = function( state, nodeA, handlerA, nodeB, handlerB, dir) {
+WSP.updateSeparatorConstraints = function( state, nodeA, handlerA, nodeB, handlerB) {
 	var nlConstraints,
 		sepHandlerA = handlerA && handlerA.sepnls || {},
-		sepHandlerB = handlerB && handlerB.sepnls || {};
+		sepHandlerB = handlerB && handlerB.sepnls || {},
+		sepType = null;
 	if ( nodeA.nextSibling === nodeB ) {
 		// sibling separator
+		sepType = "sibling";
 		nlConstraints = this.getSepNlConstraints(state, nodeA, sepHandlerA.after,
 											nodeB, sepHandlerB.before);
-	} else if ( nodeB.parentNode === nodeA || dir === 'prev' ) {
+	} else if ( nodeB.parentNode === nodeA ) {
+		sepType = "parent-child";
 		// parent-child separator, nodeA parent of nodeB
 		nlConstraints = this.getSepNlConstraints(state, nodeA, sepHandlerA.firstChild,
 											nodeB, sepHandlerB.before);
-	} else if ( nodeA.parentNode === nodeB || dir === 'next') {
+	} else if ( nodeA.parentNode === nodeB ) {
+		sepType = "child-parent";
 		// parent-child separator, nodeB parent of nodeA
 		nlConstraints = this.getSepNlConstraints(state, nodeA, sepHandlerA.after,
 											nodeB, sepHandlerB.lastChild);
 	} else {
 		// sibling separator
+		sepType = "sibling";
 		nlConstraints = this.getSepNlConstraints(state, nodeA, sepHandlerA.after,
 											nodeB, sepHandlerB.before);
 	}
@@ -3725,6 +3783,7 @@ WSP.updateSeparatorConstraints = function( state, nodeA, handlerA, nodeB, handle
 
 	if (this.debugging) {
 		this.trace('hSep', nodeA.nodeName, nodeB.nodeName,
+				sepType,
 				nlConstraints,
 				(nodeA.outerHTML || nodeA.nodeValue || '').substr(0,40),
 				(nodeB.outerHTML || nodeB.nodeValue || '').substr(0,40)
@@ -3741,6 +3800,13 @@ WSP.updateSeparatorConstraints = function( state, nodeA, handlerA, nodeB, handle
 		state.sep.constraints = nlConstraints;
 		//state.sep.lastSourceNode = state.sep.lastSourceNode || nodeA;
 	}
+
+	state.sep.constraints.constraintInfo = {
+		sepType: sepType,
+		nodeA: nodeA,
+		nodeB: nodeB
+	};
+
 	//console.log('nlConstraints', state.sep.constraints);
 };
 
@@ -3902,7 +3968,6 @@ WSP.emitSeparator = function(state, cb, node) {
 			// TODO: set modified flag if start or end node (but not both) are
 			// modified / new so that the selser can use the separator
 			sep = this.makeSeparator(state.sep.src || '',
-						origNode,
 						state.sep.constraints || {a:{},b:{}, max:0},
 						state);
 		} else {
@@ -4012,6 +4077,23 @@ WSP._serializeNode = function( node, state, cb) {
 					}
 
 					state.currNodeUnmodified = true;
+
+					// If this HTML node will disappear in wikitext because of zero width,
+					// then the separator constraints will carry over to the node's children.
+					//
+					// Since we dont recurse into 'node' in selser mode, we update the
+					// separator constraintInfo to apply to 'node' and its first child.
+					//
+					// We could clear constraintInfo altogether which would be correct (but
+					// could normalize separators and introduce dirty diffs unnecessarily).
+					if (Consts.ZeroWidthWikitextTags.has(node.nodeName) &&
+						node.childNodes.length > 0 &&
+						state.sep.constraints.constraintInfo.sepType === 'sibling')
+					{
+						state.sep.constraints.constraintInfo.sepType = 'parent-child';
+						state.sep.constraints.constraintInfo.nodeA = node;
+						state.sep.constraints.constraintInfo.nodeB = node.firstChild;
+					}
 
 					// console.warn("USED ORIG");
 					this.trace("ORIG-src:", src, '; out:', out);
