@@ -17774,7 +17774,7 @@ a
 #-----------------------------
 
 !! test
-1. I/B qoute minimization: wikitext-only tags should be combined
+1. I/B quote minimization: wikitext-only tags should be combined
 !! options
 parsoid=html2wt
 !! input
@@ -17787,16 +17787,25 @@ parsoid=html2wt
 '''A''B'''''
 
 '''A''BC''D'''
+
+'''''AB'''''
+
+'''''AB'''''
+
+'''''AB'''''
 !! result
 <p><i>A</i><i>B</i></p>
 <p><b>A</b><b>B</b></p>
 <p><i>A</i><b><i>B</i></b></p>
 <p><b>A</b><i><b>B</b></i></p>
 <p><b>A</b><i><b>B</b><b>C</b></i><b>D</b></p>
+<p><i><b>A</b></i><i><b>B</b></i></p>
+<p><i><b>A</b></i><b><i>B</i></b></p>
+<p><b><i>A</i></b><i><b>B</b></i></p>
 !! end
 
 !! test
-2. I/B qoute minimization: wikitext and html tags should not be combined
+2. I/B quote minimization: wikitext and html tags should not be combined
 !! options
 parsoid=html2wt
 !! input
@@ -17809,7 +17818,7 @@ parsoid=html2wt
 !! end
 
 !! test
-3. I/B qoute minimization: templated content stops minimization
+3. I/B quote minimization: templated content stops minimization
 !! options
 parsoid=html2wt
 !! input
@@ -17822,7 +17831,7 @@ parsoid=html2wt
 !! end
 
 !! test
-4. I/B qoute minimization: new content should be mimimized with adjacent old content
+4. I/B quote minimization: new content should be mimimized with adjacent old content
 !! options
 parsoid=html2wt
 !! input

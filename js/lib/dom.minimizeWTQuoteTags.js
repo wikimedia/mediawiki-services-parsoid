@@ -21,9 +21,9 @@ function mergable(a, b) {
  * Can a and b be combined into a single node
  * if we swap a and a.firstChild?
  *
- * FIXME: Better name than combinable?
+ * For example: a='<b><i>x</i></b>' b='<i>y</i>' => '<i><b>x</b>y</i>'
  */
-function combinable(a, b) {
+function swappable(a, b) {
 	return a.childNodes.length === 1 &&
 		similar(a, a.firstChild) &&
 		mergable(a.firstChild, b);
@@ -60,26 +60,28 @@ function swap(a, b) {
  * 2. <i>A</i><b><i>X</i></b><b><i>Y</i></b><i>Z</i>
  *    ==> <i>A<b>XY</b>Z</i>
  */
-function minimizeTags(node, rewriteablePair) {
+function minimizeTags(node, rewriteablePair, recurse) {
 	if (DU.isEncapsulatedElt(node) || !node.firstChild) {
 		return;
 	}
 
-	var a = node.firstChild, b,
-		min_a = true;
+	// minimize the children of `node`.  if `recurse` is true we're going to
+	// recurse to ensure the children are also minimized.  if `recurse` is
+	// false we can assume the children are already minimized.
+	var a = node.firstChild, b;
+
+	if (DU.isElt(a) && recurse) {
+		minimizeTags(a, rewriteablePair, true);
+	}
 
 	while (a) {
-		if (DU.isElt(a) && min_a) {
-			minimizeTags(a, rewriteablePair);
-		}
-
 		b = a.nextSibling;
 		if (!b) {
 			break;
 		}
 
-		if (DU.isElt(b)) {
-			minimizeTags(b, rewriteablePair);
+		if (DU.isElt(b) && recurse) {
+			minimizeTags(b, rewriteablePair, true);
 		}
 
 		// If 'a' and 'b' make a rewriteable tag-pair and neither of them
@@ -87,20 +89,25 @@ function minimizeTags(node, rewriteablePair) {
 		if (rewriteablePair(a, b) && !DU.isEncapsulatedElt(a) && !DU.isEncapsulatedElt(b)) {
 			if (mergable(a, b)) {
 				a = merge(a, b);
-				min_a = true;
-			} else if (combinable(a, b)) {
+				// the new a's children have new siblings.  so let's look
+				// at a again.  but the children themselves haven't changed,
+				// so we don't need to recurse.
+				minimizeTags(a, rewriteablePair, false);
+			} else if (swappable(a, b)) {
 				a = merge(swap(a, a.firstChild), b);
-				min_a = true;
-			} else if (combinable(b, a)) {
+				// again, a has new children, but the grandkids have already
+				// been minimized.
+				minimizeTags(a, rewriteablePair, false);
+			} else if (swappable(b, a)) {
 				a = merge(a, swap(b, b.firstChild));
-				min_a = true;
+				// again, a has new children, but the grandkids have already
+				// been minimized.
+				minimizeTags(a, rewriteablePair, false);
 			} else {
 				a = b;
-				min_a = false;
 			}
 		} else {
 			a = b;
-			min_a = false;
 		}
 	}
 
@@ -118,8 +125,7 @@ function minimizeWTQuoteTags(node) {
 			return a.nodeName in Consts.WTQuoteTags &&
 				b.nodeName in Consts.WTQuoteTags &&
 				(DU.isNewElt(a) || DU.isNewElt(b));
-		}
-	);
+		}, true);
 }
 
 if (typeof module === "object") {
