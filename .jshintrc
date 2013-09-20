@@ -2,6 +2,8 @@
 	"predef": [
 		"ve",
 
+		"setImmediate",
+
 		"QUnit"
 	],
 

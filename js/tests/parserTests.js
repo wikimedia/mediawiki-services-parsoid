@@ -11,6 +11,8 @@
  * @singleton
  */
 
+require('../lib/core-upgrade.js');
+
 var fs = require('fs'),
 	path = require('path'),
 	colors = require('colors'),
@@ -1561,7 +1563,7 @@ ParserTests.prototype.processCase = function ( i, options ) {
 						// Skip test whose title does not match --filter
 						// or which is disabled or php-only
 						this.comments = [];
-						process.nextTick( nextCallback );
+						setImmediate( nextCallback );
 						break;
 					}
 					// Add comments to following test.
@@ -1622,13 +1624,13 @@ ParserTests.prototype.processCase = function ( i, options ) {
 						}.bind( this ) );
 
 					} else {
-						process.nextTick( nextCallback );
+						setImmediate( nextCallback );
 					}
 
 					break;
 				case 'comment':
 					this.comments.push( item.comment );
-					process.nextTick( nextCallback );
+					setImmediate( nextCallback );
 					break;
 				case 'hooks':
 					var hooks = item.text.split(/\n/), self = this;
@@ -1637,18 +1639,18 @@ ParserTests.prototype.processCase = function ( i, options ) {
 							JSON.stringify(hook) );
 						self.env.conf.wiki.addExtensionTag( hook );
 					});
-					process.nextTick( nextCallback );
+					setImmediate( nextCallback );
 					break;
 				case 'functionhooks':
 					console.warn('parserTests: Unhandled functionhook ' + JSON.stringify( item ) );
 					break;
 				default:
 					this.comments = [];
-					process.nextTick( nextCallback );
+					setImmediate( nextCallback );
 					break;
 			}
 		} else {
-			process.nextTick( nextCallback );
+			setImmediate( nextCallback );
 		}
 	} else {
 
