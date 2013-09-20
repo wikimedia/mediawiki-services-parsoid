@@ -66,12 +66,11 @@ function minimizeTags(node, rewriteablePair) {
 	}
 
 	var a = node.firstChild, b,
-		min_a = true, min_b = true;
+		min_a = true;
 
 	while (a) {
 		if (DU.isElt(a) && min_a) {
 			minimizeTags(a, rewriteablePair);
-			min_a = false;
 		}
 
 		b = a.nextSibling;
@@ -79,9 +78,8 @@ function minimizeTags(node, rewriteablePair) {
 			break;
 		}
 
-		if (DU.isElt(b) && min_b) {
+		if (DU.isElt(b)) {
 			minimizeTags(b, rewriteablePair);
-			min_b = false;
 		}
 
 		// If 'a' and 'b' make a rewriteable tag-pair and neither of them
@@ -93,18 +91,16 @@ function minimizeTags(node, rewriteablePair) {
 			} else if (combinable(a, b)) {
 				a = merge(swap(a, a.firstChild), b);
 				min_a = true;
-				min_b = true;
 			} else if (combinable(b, a)) {
 				a = merge(a, swap(b, b.firstChild));
 				min_a = true;
-				min_b = true;
 			} else {
 				a = b;
-				min_b = true;
+				min_a = false;
 			}
 		} else {
 			a = b;
-			min_b = true;
+			min_a = false;
 		}
 	}
 
