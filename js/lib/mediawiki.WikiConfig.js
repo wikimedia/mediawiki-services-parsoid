@@ -328,7 +328,6 @@ function WikiConfig( resultConf, prefix, uri ) {
 	this.functionHooks = JSUtils.arrayToHash(resultConf.functionhooks || []);
 }
 
-
 /**
  * @method
  *
@@ -339,6 +338,13 @@ function WikiConfig( resultConf, prefix, uri ) {
  */
 WikiConfig.prototype.getMagicWordIdFromAlias = function ( alias ) {
 	return this.magicWords[alias] || null;
+};
+
+/**
+ * Check if a string is a recognized magic word
+ */
+WikiConfig.prototype.isMagicWord = function ( word ) {
+	return this.magicWords[word] || this.magicWords[word.toLowerCase()];
 };
 
 /**
