@@ -116,8 +116,13 @@ function markFosteredContent( node, env ) {
 
 		} else if ( DU.isMarkerMeta( c, "mw:TransclusionShadow" ) ) {
 			DU.deleteNode( c );
-		} else if ( c.childNodes.length > 0 ) {
-			markFosteredContent( c, env );
+		} else if ( DU.isElt( c ) ) {
+			if ( c.data && c.data.parsoid ) {
+				delete c.data.parsoid.inTransclusion;
+			}
+			if ( c.childNodes.length > 0 ) {
+				markFosteredContent( c, env );
+			}
 		}
 
 		c = sibling;
