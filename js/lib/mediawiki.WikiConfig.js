@@ -325,7 +325,7 @@ function WikiConfig( resultConf, prefix, uri ) {
 	}
 
 	// Function hooks on this wiki, indexed by their normalized form
-	this.functionHooks = JSUtils.arrayToHash(resultConf.functionhooks || []);
+	this.functionHooks = JSUtils.arrayToSet(resultConf.functionhooks || []);
 }
 
 /**
@@ -365,10 +365,10 @@ WikiConfig.prototype.getMagicWordMatcher = function ( id ) {
  *
  * Get a matcher function for fetching values out of interpolated magic words, i.e. those with $1 in their aliases.
  *
- * @param {string} optionsList The list of options you want to check for (e.g. the list of all interpolated image options)
+ * @param {Map} optionsMap The map of options you want to check for (e.g. the map of all interpolated image options)
  * @returns {Function}
  */
-WikiConfig.prototype.getMagicPatternMatcher = function ( optionsList ) {
+WikiConfig.prototype.getMagicPatternMatcher = function ( optionsMap ) {
 	var ix, mwlist, aliases, regex, regexString = '',
 		getInterpolatedMagicWord = function ( text, useRegex, useMwList ) {
 			var ix, alias, value, canonical,
@@ -398,16 +398,18 @@ WikiConfig.prototype.getMagicPatternMatcher = function ( optionsList ) {
 
 
 	mwlist = [];
-	for ( ix = 0; ix < optionsList.length; ix++ ) {
-		if ( ix > 0 ) {
+	var first = true;
+	optionsMap.forEach(function( value, option ) {
+		if ( !first ) {
 			regexString += '|';
 		}
-		aliases = this._interpolatedMagicWordAliases[optionsList[ix]];
+		first = false;
+		aliases = this._interpolatedMagicWordAliases[option];
 		regexString += aliases.join( '|' )
 			.replace( /((?:^|\|)(?:[^\$]|\$[^1])*)($|\|)/g, '$1$$1$2' )
 			.replace( /\$1/g, '(.*)' );
 		mwlist = mwlist.concat( aliases );
-	}
+	}.bind( this ));
 	regex = new RegExp( regexString );
 
 	return function ( text ) {

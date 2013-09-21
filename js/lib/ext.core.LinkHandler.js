@@ -725,10 +725,10 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 			// 'imgOption' is the key we'd put in oHash; it names the 'group'
 			// for the option, and doesn't have an img_ prefix.
 
-			imgOption = WikitextConstants.Image.SimpleOptions[canonicalOption],
+			imgOption = WikitextConstants.Image.SimpleOptions.get( canonicalOption ),
 			bits = getOption( optStr.trim() ),
 			normalizedBit0 = bits ? bits.k.trim().toLowerCase() : null,
-			key = bits ? WikitextConstants.Image.PrefixOptions[normalizedBit0] : null;
+			key = bits ? WikitextConstants.Image.PrefixOptions.get(normalizedBit0) : null;
 
 		if (imgOption && key === null) {
 			return {
@@ -1067,8 +1067,7 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 	var i, l, kv, captionSrc, linkSrc, caption, captionOffset, altBackup,
 		// option hash, both keys and values normalized
 		oHash = { height: null, width: null },
-		validOptions = Object.keys( WikitextConstants.Image.PrefixOptions ),
-		getOption = env.conf.wiki.getMagicPatternMatcher( validOptions );
+		getOption = env.conf.wiki.getMagicPatternMatcher( WikitextConstants.Image.PrefixOptions );
 
 	token.dataAttribs.optList = [];
 

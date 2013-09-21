@@ -23,7 +23,8 @@ var domino = require('./domino'),
 	TableFixups = require('./dom.t.TableFixups.js'),
 	stripMarkerMetas = CleanUp.stripMarkerMetas,
 	unpackDOMFragments = require('./dom.t.unpackDOMFragments.js').unpackDOMFragments,
-	wrapTemplates = require('./dom.wrapTemplates.js').wrapTemplates;
+	wrapTemplates = require('./dom.wrapTemplates.js').wrapTemplates,
+	es6 = require('harmony-collections');
 
 // map from mediawiki metadata names to RDFa property names
 var metadataMap = {
@@ -46,13 +47,13 @@ var metadataMap = {
 	rev_timestamp: {
 		property: 'dc:modified',
 		content: function(m) {
-			return new Date(m.rev_timestamp).toISOString();
+			return new Date(m.get('rev_timestamp')).toISOString();
 		}
 	},
 	// user is not stable (but userid is)
 	rev_user:      {
 		about: function(m) {
-			return 'mwr:user/' + m.rev_userid;
+			return 'mwr:user/' + m.get('rev_userid');
 		},
 		property: 'dc:title',
 		content: '%s'
@@ -227,24 +228,25 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 	// add <head> content based on page meta data:
 
 	// collect all the page meta data (including revision metadata) in 1 object
-	var m = Object.create( null );
+	var m = new es6.Map();
 	Object.keys( env.page.meta || {} ).forEach(function( k ) {
-		m[k] = env.page.meta[k];
+		m.set( k, env.page.meta[k] );
 	});
-	Object.keys( m.revision || {} ).forEach(function( k ) {
-		m['rev_'+k] = m.revision[k];
+	var rev = m.get( 'revision' );
+	Object.keys( rev || {} ).forEach(function( k ) {
+		m.set( 'rev_' + k, rev[k] );
 	});
 	// use the metadataMap to turn collected data into <meta> and <link> tags.
-	Object.keys( m ).forEach(function( f ) {
+	m.forEach(function( g, f ) {
 		var mdm = metadataMap[f];
-		if ( m[f]===null || m[f]===undefined || !mdm ) { return; }
+		if ( !m.has(f) || m.get(f) === null || !mdm ) { return; }
 		// generate proper attributes for the <meta> or <link> tag
 		var attrs = Object.create( null );
 		Object.keys( mdm ).forEach(function( k ) {
 			// evaluate a function, or perform sprintf-style formatting, or
 			// use string directly, depending on value in metadataMap
 			var v = ( typeof(mdm[k])==='function' ) ? mdm[k]( m ) :
-				mdm[k].indexOf('%') >= 0 ? util.format( mdm[k], m[f] ) :
+				mdm[k].indexOf('%') >= 0 ? util.format( mdm[k], m.get(f) ) :
 				mdm[k];
 			attrs[k] = v;
 		});
@@ -253,9 +255,9 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 		              ( attrs.resource || attrs.href ) ? 'link' : 'meta',
 		              attrs );
 	});
-	if (m.rev_revid) {
+	if ( m.has('rev_revid') ) {
 		document.documentElement.setAttribute(
-			'about', mwrPrefix + 'revision/' + m.rev_revid );
+			'about', mwrPrefix + 'revision/' + m.get('rev_revid') );
 	}
 	// Set the parsoid version
 	appendToHead( document, 'meta',

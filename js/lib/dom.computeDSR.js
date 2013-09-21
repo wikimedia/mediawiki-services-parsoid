@@ -195,8 +195,8 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 				if (DU.isElt(next) && next.data.parsoid.src &&
 					/(?:^|\s)mw:Placeholder\/StrippedTag(?=$|\s)/.test(next.getAttribute("typeof")))
 				{
-					if (next.data.parsoid.name in Consts.WTQuoteTags &&
-						child.nodeName in Consts.WTQuoteTags)
+					if (Consts.WTQuoteTags.has( next.data.parsoid.name ) &&
+						Consts.WTQuoteTags.has( child.nodeName ))
 					{
 						correction = next.data.parsoid.src.length;
 						ce += correction;

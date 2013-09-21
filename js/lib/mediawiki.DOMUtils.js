@@ -47,11 +47,11 @@ var DOMUtils = {
 	},
 
 	isFormattingElt: function(node) {
-		return node && node.nodeName in Consts.HTML.FormattingTags;
+		return node && Consts.HTML.FormattingTags.has( node.nodeName );
 	},
 
 	isQuoteElt: function(node) {
-		return node && node.nodeName in Consts.WTQuoteTags;
+		return node && Consts.WTQuoteTags.has( node.nodeName );
 	},
 
 	/**
@@ -539,15 +539,15 @@ var DOMUtils = {
 	},
 
 	isFosterablePosition: function(n) {
-		return n && n.parentNode.nodeName in {TABLE:1, TBODY:1, TR:1};
+		return n && Consts.HTML.FosterablePosition.has( n.parentNode.nodeName );
 	},
 
 	isList: function(n) {
-		return n && n.nodeName in Consts.HTML.ListTags;
+		return n && Consts.HTML.ListTags.has( n.nodeName );
 	},
 
 	isListItem: function(n) {
-		return n && n.nodeName in Consts.HTML.ListItemTags;
+		return n && Consts.HTML.ListItemTags.has( n.nodeName );
 	},
 
 	isListOrListItem: function(n) {

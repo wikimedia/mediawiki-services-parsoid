@@ -317,7 +317,7 @@
     // Current extension/include tag being parsed.
     var currExtTag = null;
 
-    var includeTags = JSUtils.arrayToHash([
+    var includeTags = JSUtils.arrayToSet([
         "includeonly", "noinclude", "onlyinclude"
     ]);
 
@@ -329,7 +329,7 @@
     // Define block-level tags in JS, so we can use toLowerCase to match tags
     // case-independently. This would be quite ugly (and possibly slower) if
     // done manually in the grammar.
-    var block_names = JSUtils.arrayToHash([
+    var block_names = JSUtils.arrayToSet([
         "p", "table", "td", "tr", "ul", "ol", "li",
         "dl", "dt", "dd", "div", "center", "blockquote"
     ]);
@@ -1417,7 +1417,7 @@ xmlish_tag =
             dp = t.dataAttribs,
             isHtmlTag = Util.isHTMLElementName(tagName),
             isInstalledExt = pegArgs.env.conf.wiki.isExtensionTag(tagName),
-            isIncludeTag = includeTags[tagName] === true;
+            isIncludeTag = includeTags.has(tagName);
 
         if (!isHtmlTag && !isInstalledExt && !isIncludeTag) {
             return Util.newlinesToNlTks(input.substring(dp.tsr[0], dp.tsr[1]), dp.tsr[0]);
@@ -1864,7 +1864,7 @@ block_tag
     selfclose:"/"?
     ">" {
         var lcName = name.toLowerCase();
-        if (block_names[lcName] === true) {
+        if (block_names.has(lcName)) {
             return [buildXMLTag(name, lcName, attribs, end, selfclose, [pos0, pos])];
         } else {
             // abort match if tag is not block-level

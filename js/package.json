@@ -17,7 +17,8 @@
 		"async": "0.x.x",
 		"express": "2.5.x",
 		"html5-entities": "~0.5.0",
-		"html5": "0.3.15"
+		"html5": "0.3.15",
+		"harmony-collections": "git://github.com/Benvie/harmony-collections.git#e02bb492c275753cbee66a05b002cd57db3d80a7"
 	},
 	"devDependencies": {
 		"colors": "0.x.x",
