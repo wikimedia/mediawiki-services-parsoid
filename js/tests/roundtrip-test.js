@@ -484,7 +484,7 @@ var fetch = function ( page, cb, options ) {
 	}
 	parsoidConfig.editMode = Util.booleanOption( options.editMode );
 
-	MWParserEnvironment.getParserEnv( parsoidConfig, null, prefix, page, envCb );
+	MWParserEnvironment.getParserEnv( parsoidConfig, null, prefix, page, null, envCb );
 };
 
 var cbCombinator = function ( formatter, cb, err, env, text ) {

@@ -239,6 +239,7 @@ function TemplateRequest ( env, title, oldid ) {
 		timeout: 40 * 1000, // 40 seconds
 		headers: {
 			'User-Agent': userAgent,
+			'Cookie': env.cookie,
 			'Connection': 'close'
 
 		}
@@ -370,6 +371,7 @@ function PreprocessorRequest ( env, title, text ) {
 		timeout: 16 * 1000, // 16 seconds
 		headers: {
 			'User-Agent': userAgent,
+			'Cookie': env.cookie,
 			'Connection': 'close'
 		}
 	};
@@ -470,6 +472,7 @@ function PHPParseRequest ( env, title, text ) {
 		timeout: 16 * 1000, // 16 seconds
 		headers: {
 			'User-Agent': userAgent,
+			'Cookie': env.cookie,
 			'Connection': 'close'
 		}
 	};
@@ -554,6 +557,7 @@ function ParsoidCacheRequest ( env, title, oldid, options ) {
 		timeout: 16 * 1000, // 16 seconds
 		headers: {
 			'User-Agent': userAgent,
+			'Cookie': env.cookie,
 			'Connection': 'close'
 		}
 	};
@@ -632,6 +636,7 @@ var ConfigRequest = function ( apiURI, env ) {
 		timeout: 40 * 1000,
 		headers: {
 			'User-Agent': userAgent,
+			'Cookie': env.cookie,
 			'Connection': 'close'
 		}
 	};
@@ -721,6 +726,7 @@ function ImageInfoRequest( env, filename, dims ) {
 		timeout: 40 * 1000,
 		headers: {
 			'User-Agent': userAgent,
+			'Cookie': env.cookie,
 			'Connection': 'close'
 		}
 	};

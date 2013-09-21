@@ -215,7 +215,7 @@ function dumpFlags() {
 	}
 	parsoidConfig.fetchConfig = Util.booleanOption( argv.fetchConfig );
 
-	ParserEnv.getParserEnv( parsoidConfig, null, prefix, argv.pagename || null, function ( err, env ) {
+	ParserEnv.getParserEnv( parsoidConfig, null, prefix, argv.pagename || null, null, function ( err, env ) {
 		if ( err !== null ) {
 			console.error( err.toString() );
 			process.exit( 1 );

@@ -75,6 +75,9 @@ var MWParserEnvironment = function ( parsoidConfig, wikiConfig ) {
 		title: null // a full Title object
 	};
 
+	// A passed-in cookie, if any
+	this.cookie = null;
+
 	// Configuration
 	this.conf = {};
 
@@ -260,7 +263,7 @@ MWParserEnvironment.prototype.setVariable = function( varname, value, options ) 
  * @param {Error} cb.err
  * @param {MWParserEnvironment} cb.env The finished environment object
  */
-MWParserEnvironment.getParserEnv = function ( parsoidConfig, wikiConfig, prefix, pageName, cb ) {
+MWParserEnvironment.getParserEnv = function ( parsoidConfig, wikiConfig, prefix, pageName, cookie, cb ) {
 	if ( !parsoidConfig ) {
 		parsoidConfig = new ParsoidConfig();
 		parsoidConfig.setInterwiki( 'mw', 'http://www.mediawiki.org/w/api.php' );
@@ -271,6 +274,7 @@ MWParserEnvironment.getParserEnv = function ( parsoidConfig, wikiConfig, prefix,
 	}
 
 	var env = new MWParserEnvironment( parsoidConfig, wikiConfig );
+	env.cookie = cookie;
 
 	if ( pageName ) {
 		env.reset( pageName );

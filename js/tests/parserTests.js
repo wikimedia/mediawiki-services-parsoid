@@ -1478,7 +1478,7 @@ ParserTests.prototype.main = function ( options ) {
 	}
 
 	// Create a new parser environment
-	MWParserEnvironment.getParserEnv( parsoidConfig, null, 'en', null, function ( err, env ) {
+	MWParserEnvironment.getParserEnv( parsoidConfig, null, 'en', null, null, function ( err, env ) {
 		// For posterity: err will never be non-null here, because we expect the WikiConfig
 		// to be basically empty, since the parserTests environment is very bare.
 		this.env = env;
