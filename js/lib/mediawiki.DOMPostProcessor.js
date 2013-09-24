@@ -207,8 +207,7 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 	}
 
 	// DOMTraverser only processes document.body.childNodes
-	// So, this is a hacky patch to set data-parsoid on document.body
-	cleanupAndSaveDataParsoid(document.body);
+	DU.saveDataAttribs(document.body);
 
 	// add <head> element if it was missing
 	if (!document.head) {

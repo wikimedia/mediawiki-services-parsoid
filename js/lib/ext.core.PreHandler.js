@@ -87,8 +87,7 @@ function PreHandler( manager, options ) {
 	this.debug = env.conf.parsoid.debug || (env.conf.parsoid.traceFlags && (env.conf.parsoid.traceFlags.indexOf("pre_debug") !== -1));
 	this.trace = this.debug || (env.conf.parsoid.traceFlags && (env.conf.parsoid.traceFlags.indexOf("pre") !== -1));
 
-	// <pre> seems to be disabled in <ref> tags
-	if (options.extTag !== "ref") {
+	if (!options.noPre) {
 		this.manager.addTransform(this.onNewline.bind(this),
 			"PreHandler:onNewline", this.nlRank, 'newline');
 		this.manager.addTransform(this.onEnd.bind(this),

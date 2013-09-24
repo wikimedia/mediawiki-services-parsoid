@@ -30,7 +30,7 @@ testWhiteList["Definition Lists: Weird Ones: Test 1"] = "<ul><li><ol><li><dl><dt
 // Italic/link nesting is changed in this test, but the rendered result is the
 // same. Currently the result is actually an improvement over the MediaWiki
 // output.
-testWhiteList["Bug 2702: Mismatched <i>, <b> and <a> tags are invalid"] = "<p><i><a href=\"http://example.com\">text</a></i><a href=\"http://example.com\"><b>text</b></a><i>Something <a href=\"http://example.com\">in italic</a></i><i>Something <a href=\"http://example.com\">mixed</a></i><a href=\"http://example.com\"><b>, even bold</b></a><i><b>Now <a href=\"http://example.com\">both</a></b></i></p>";
+testWhiteList["Bug 2702: Mismatched <i>, <b> and <a> tags are invalid"] = "<p><i><a href=\"http://example.com\">text<i></i></a></i><a href=\"http://example.com\"><b>text</b></a><b></b><i>Something <a href=\"http://example.com\">in italic<i></i></a></i><i>Something <a href=\"http://example.com\">mixed<b><i>, even bold</i></b></a>'</i><b><i>Now <a href=\"http://example.com\">both<b><i></i></b></a></i></b></p>";
 
 // empty table tags / with only a caption are legal in HTML5.
 testWhiteList["A table with no data."] = "<table></table>";

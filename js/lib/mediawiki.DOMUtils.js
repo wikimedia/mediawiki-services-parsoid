@@ -930,9 +930,65 @@ var DOMUtils = {
 		return false;
 	},
 
-	migrateChildren: function(from, to) {
+	/**
+	 * Check if the dom-subtree rooted at node has an element with tag name 'tagName'
+	 * The root node is not checked
+	 */
+	treeHasElement: function(node, tagName) {
+		node = node.firstChild;
+		while (node) {
+			if (this.isElt(node)) {
+				if (node.nodeName === tagName || this.treeHasElement(node, tagName)) {
+					return true;
+				}
+			}
+			node = node.nextSibling;
+		}
+
+		return false;
+	},
+
+	/**
+	 * Move 'from'.childNodes to 'to' adding them before 'beforeNode'
+	 * If 'beforeNode' is null, the nodes are appended at the end.
+	 */
+	migrateChildren: function(from, to, beforeNode) {
+		if (beforeNode === undefined) {
+			beforeNode = null;
+		}
 		while (from.firstChild) {
-			to.appendChild(from.firstChild);
+			to.insertBefore(from.firstChild, beforeNode);
+		}
+	},
+
+	/**
+	 * Move 'from'.childNodes to 'to' adding them before 'beforeNode'
+	 * 'from' and 'to' belong to different documents.
+	 *
+	 * If 'beforeNode' is null, the nodes are appended at the end.
+	 */
+	migrateChildrenBetweenDocs: function(from, to, beforeNode) {
+		// FIXME: For some reason, the 'deep' equivalent of this function
+		// is optional and domino does not support it.
+		function importNode(destDoc, n) {
+			var newN = destDoc.importNode(n);
+			n = n.firstChild;
+			while (n) {
+				newN.appendChild(importNode(destDoc, n));
+				n = n.nextSibling;
+			}
+			return newN;
+		}
+
+		if (beforeNode === undefined) {
+			beforeNode = null;
+		}
+
+		var n = from.firstChild,
+			destDoc = to.ownerDocument;
+		while (n) {
+			to.insertBefore(importNode(destDoc, n), beforeNode);
+			n = n.nextSibling;
 		}
 	},
 
@@ -1104,6 +1160,8 @@ var DOMUtils = {
 			textCommentAccum.forEach( function(n) {
 				span.appendChild(n);
 			});
+			// FIXME: Should not be done unconditionally
+			span.setAttribute("data-parsoid", JSON.stringify({wrapper: true}));
 			out.push(span);
 			textCommentAccum = [];
 		}
@@ -1198,6 +1256,97 @@ var DOMUtils = {
 		return tokens;
 	},
 
+	isDOMFragmentWrapper: function(node) {
+		var DU = this;
+
+		function hasRightType(node) {
+			return (/(?:^|\s)mw:DOMFragment(?=$|\s)/).test(node.getAttribute("typeof"));
+		}
+
+		function previousSiblingIsWrapper(sibling, about) {
+			return sibling &&
+				DU.isElt(sibling) &&
+				about === sibling.getAttribute("about") &&
+				hasRightType(sibling);
+		}
+
+		if (!DU.isElt(node)) {
+			return false;
+		}
+
+		var about = node.getAttribute("about");
+		return about && (
+			hasRightType(node) ||
+			previousSiblingIsWrapper(node.previousSibling, about)
+		);
+
+	},
+
+	encapsulateExpansionHTML: function(env, token, expansion, aboutId) {
+		// Get placeholder tokens to get our subdom through the token processing
+		// stages. These will be finally unwrapped on the DOM.
+		var toks = this.getWrapperTokens(expansion.nodes),
+			about = aboutId || env.newAboutId();
+
+		// Assign the HTML fragment to the data-parsoid.html on the first wrapper token.
+		toks[0].dataAttribs.html = expansion.html;
+		// Add the DOMFragment type so that we get unwrapped later
+		toks[0].setAttribute('typeof', 'mw:DOMFragment');
+
+		// Add the about to all wrapper tokens
+		toks.forEach(function(tok) {
+			tok.setAttribute('about', about);
+		});
+
+		// Transfer the tsr. The first token gets the full width, the following
+		// tokens zero width.
+		var tokenTsr = token.dataAttribs ? token.dataAttribs.tsr : null;
+		if (tokenTsr) {
+			toks[0].dataAttribs.tsr = tokenTsr;
+			var endTsr = [tokenTsr[1],tokenTsr[1]];
+			for (var i = 1; i < toks.length; i++) {
+				toks[i].dataAttribs.tsr = endTsr;
+			}
+		}
+
+		return toks;
+	},
+
+	/**
+	 * Convert a HTML5 DOM into a mw:DOMFragment and generate appropriate
+	 * tokens to insert into the token stream for further processing.
+	 *
+	 * The DOMPostProcessor will unpack the fragment and insert the HTML
+	 * back into the DOM.
+	 */
+	buildDOMFragmentForTokenStream: function(token, docOrHTML, env, addAttrsCB, aboutId) {
+		var doc = docOrHTML.constructor === String ? Util.parseHTML(docOrHTML) : docOrHTML;
+		var nodes = doc.body.childNodes;
+
+		if (nodes.length === 0) {
+			// RT extensions expanding to nothing.
+			nodes = [doc.createElement('link')];
+		}
+
+		// Wrap bare text nodes into spans
+		nodes = this.addSpanWrappers(nodes);
+
+		if (addAttrsCB) {
+			addAttrsCB(nodes[0]);
+		}
+
+		// Get placeholder tokens to get our subdom through the token processing
+		// stages. These will be finally unwrapped on the DOM.
+		return this.encapsulateExpansionHTML(
+			env,
+			token,
+			{
+				nodes: nodes,
+				html: nodes.map(function(n) { return n.outerHTML; }).join('')
+			},
+			aboutId);
+	},
+
 	/**
 	 * Compute, when possible, the wikitext source for a node in
 	 * an environment env. Returns null if the source cannot be
@@ -1226,6 +1375,9 @@ var DOMUtils = {
 	//
 	// On other tags, a, hr, br, meta-marker tags, the tsr spans
 	// the entire DOM, not just the tag.
+	//
+	// This code is not in mediawiki.wikitext.constants.js because this
+	// information is Parsoid-implementation-specific.
 	WT_tagsWithLimitedTSR: {
 		"b" : true,
 		"i" : true,

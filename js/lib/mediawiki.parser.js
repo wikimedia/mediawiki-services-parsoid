@@ -36,6 +36,7 @@ var $ = require('./fakejquery'),
 	BehaviorSwitch = require('./ext.core.BehaviorSwitchHandler.js'),
 	BehaviorSwitchHandler = BehaviorSwitch.BehaviorSwitchHandler,
 	BehaviorSwitchPreprocessor = BehaviorSwitch.BehaviorSwitchPreprocessor,
+	DOMFragmentBuilder = require('./ext.core.DOMFragmentBuilder.js').DOMFragmentBuilder,
 	TreeBuilder = require('./mediawiki.HTML5TreeBuilder.node.js').FauxHTML5.TreeBuilder,
 	DOMPostProcessor = require('./mediawiki.DOMPostProcessor.js').DOMPostProcessor;
 
@@ -117,9 +118,14 @@ ParserPipelineFactory.prototype.recipes = {
 				// more convenient after attribute expansion
 				WikiLinkHandler,	// 1.15
 
-				ExternalLinkHandler // 1.15
+				ExternalLinkHandler, // 1.15
 				/* ExtensionHandler2, */ // using expanded args
 				// Finally expand attributes to plain text
+
+				// This converts dom-fragment-token tokens all the way to DOM
+				// and wraps them in DOMFragment wrapper tokens which will then
+				// get unpacked into the DOM by a dom-fragment unpacker.
+				DOMFragmentBuilder       // 1.99
 			]
 		]
 	],
@@ -162,11 +168,11 @@ ParserPipelineFactory.prototype.recipes = {
 		 * Final processing on the HTML DOM.
 		 */
 
-		/* Generic DOM transformer.
-		* This currently performs minor tree-dependent clean up like wrapping
-		* plain text in paragraphs. For HTML output, it would also be configured
-		* to perform more aggressive nesting cleanup.
-		*/
+		/*
+		 * Generic DOM transformer.
+		 * This performs a lot of post-processing of the DOM
+		 * (Template wrapping, broken wikitext/html detection, etc.)
+		 */
 		[ DOMPostProcessor, [] ]
 	]
 };
@@ -186,6 +192,10 @@ ParserPipelineFactory.prototype.defaultOptions = function(options) {
 	// default: wrap templates
 	if (options.wrapTemplates === undefined) {
 		options.wrapTemplates = true;
+	}
+
+	if (options.cacheType === undefined) {
+		options.cacheType = null;
 	}
 
 	return options;
@@ -239,7 +249,7 @@ ParserPipelineFactory.prototype.makePipeline = function( type, options ) {
 				// Create (and implicitly register) transforms
 				var transforms = stageData[2];
 				for ( var j = 0; j < transforms.length; j++ ) {
-					var t = new transforms[j](stage , options);
+					var t = new transforms[j](stage, options);
 					stage.transformers.push(t);
 				}
 			}
@@ -253,6 +263,7 @@ ParserPipelineFactory.prototype.makePipeline = function( type, options ) {
 	}
 	//console.warn( 'stages' + stages + JSON.stringify( stages ) );
 	return new ParserPipeline(
+		type,
 		stages,
 		options.cacheType ? this.returnPipeline.bind( this, options.cacheType ) : null,
 		this.env
@@ -268,6 +279,9 @@ function getCacheKey(cacheType, options) {
 	}
 	if ( options.inBlockToken ) {
 		cacheType += '::inBlockToken';
+	}
+	if ( options.noPre ) {
+		cacheType += '::noPre';
 	}
 	if ( options.inTemplate ) {
 		cacheType += '::inTemplate';
@@ -327,11 +341,18 @@ ParserPipelineFactory.prototype.returnPipeline = function ( type, pipe ) {
  * supposed to emit events, while the first is supposed to support a process()
  * method that sets the pipeline in motion.
  */
-ParserPipeline = function( stages, returnToCacheCB, env ) {
+var globalPipelineId = 0;
+ParserPipeline = function( type, stages, returnToCacheCB, env ) {
+	this.uid = globalPipelineId++;
+	this.pipeLineType = type;
 	this.stages = stages;
 	this.first = stages[0];
 	this.last = stages.last();
 	this.env = env;
+
+	// Debugging aid
+	var id = this.uid;
+	this.stages.forEach(function(stage) { stage.pipelineId = id; });
 
 	if ( returnToCacheCB ) {
 		var self = this;
@@ -391,6 +412,7 @@ ParserPipeline.prototype._applyToStage = function(fn, args) {
 ParserPipeline.prototype.resetState = function() {
 	this._applyToStage("resetState", []);
 };
+
 
 /**
  * Set source offsets for the source that this pipeline will process

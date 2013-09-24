@@ -173,7 +173,7 @@ function getDOMRange( env, doc, startElem, endMeta, endElem ) {
 	return range;
 }
 
-function findTopLevelNonOverlappingRanges(document, env, tplRanges) {
+function findTopLevelNonOverlappingRanges(document, env, docRoot, tplRanges) {
 	function stripStartMeta(meta) {
 		if (DU.hasNodeName(meta, 'meta')) {
 			DU.deleteNode(meta);
@@ -292,18 +292,17 @@ function findTopLevelNonOverlappingRanges(document, env, tplRanges) {
 		}
 	}
 
-	// For each range r:(s, e), walk up from s --> root and if if any of
+	// For each range r:(s, e), walk up from s --> docRoot and if if any of
 	// these nodes have tpl-ranges (besides r itself) assigned to them,
 	// then r is nested in those other templates and can be ignored.
 	var nestedRangesMap = {};
-	var docBody = document.body;
 	for (i = 0; i < numRanges; i++) {
 		r = tplRanges[i];
 		n = r.start;
 
 		// console.warn("Range: " + r.id);
 
-		while (n !== docBody) {
+		while (n !== docRoot) {
 			if (n.data && n.data.tmp_tplRanges) {
 				if (n !== r.start) {
 					// console.warn("1. nested; n_tpls: " + Object.keys(n.data.tmp_tplRanges));
@@ -781,6 +780,13 @@ function findWrappableTemplateRanges( doc, env, root, tpls ) {
 	return tplRanges;
 }
 
+function wrapTemplatesInTree(document, env, node) {
+	var tplRanges = findWrappableTemplateRanges( document, env, node, {} );
+	if (tplRanges.length > 0) {
+		tplRanges = findTopLevelNonOverlappingRanges(document, env, node, tplRanges);
+		encapsulateTemplates(document, env, tplRanges.ranges, tplRanges.tplArrays);
+	}
+}
 
 /**
  * Encapsulate template-affected DOM structures by wrapping text nodes into
@@ -788,7 +794,6 @@ function findWrappableTemplateRanges( doc, env, root, tpls ) {
  * http://www.mediawiki.org/wiki/Parsoid/RDFa_vocabulary#Template_content
  */
 function wrapTemplates( document, env, options ) {
-	var tpls = {};
 	var psd = env.conf.parsoid;
 
 	if (psd.debug || (psd.dumpFlags && (psd.dumpFlags.indexOf("dom:pre-encap") !== -1))) {
@@ -797,11 +802,7 @@ function wrapTemplates( document, env, options ) {
 		console.warn("----------------------------");
 	}
 
-	var tplRanges = findWrappableTemplateRanges( document, env, document.body, tpls );
-	if (tplRanges.length > 0) {
-		tplRanges = findTopLevelNonOverlappingRanges(document, env, tplRanges);
-		encapsulateTemplates(document, env, tplRanges.ranges, tplRanges.tplArrays);
-	}
+	wrapTemplatesInTree(document, env, document.body);
 
 	if (psd.debug || (psd.dumpFlags && (psd.dumpFlags.indexOf("dom:post-encap") !== -1))) {
 		console.warn("------ DOM: post-encapsulation -------");
@@ -812,4 +813,5 @@ function wrapTemplates( document, env, options ) {
 
 if (typeof module === "object") {
 	module.exports.wrapTemplates = wrapTemplates;
+	module.exports.wrapTemplatesInTree = wrapTemplatesInTree;
 }

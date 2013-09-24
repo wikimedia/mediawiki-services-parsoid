@@ -20,9 +20,15 @@ var CommentTk = defines.CommentTk,
     SelfclosingTagTk = defines.SelfclosingTagTk,
     EndTagTk = defines.EndTagTk;
 
+var gid = 0;
+
 function TokenStreamPatcher( manager, options ) {
 	this.manager = manager;
 	this.tokenizer = new PegTokenizer(this.manager.env);
+	this.uid = gid++;
+
+	var flags = this.manager.env.conf.parsoid.traceFlags;
+	this.trace = this.debug || (flags && (flags.indexOf("tsp") !== -1));
 
 	manager.addTransform(this.onNewline.bind(this),
 		"TokenStreamPatcher:onNewline", this.nlRank, 'newline');
@@ -62,7 +68,9 @@ TokenStreamPatcher.prototype.clearSOL = function() {
 };
 
 TokenStreamPatcher.prototype.onAny = function(token) {
-	// console.warn("T: " + JSON.stringify(token));
+	if (this.trace) {
+		console.warn("T[" + this.uid + "]: " + JSON.stringify(token));
+	}
 
 	var tokens = [token];
 	switch (token.constructor) {

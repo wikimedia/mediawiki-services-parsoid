@@ -46,39 +46,6 @@ TemplateHandler.prototype.register = function ( manager ) {
 };
 
 /**
- * Encapsulate an expansion DOM fragment with a generic mw:DOMFragment
- * wrapper that is later unpacked in the DOMPostProcessor. Used both for
- * transclusion and extension content.
- */
-TemplateHandler.prototype.encapsulateExpansionHTML = function(token, expansion, aboutId) {
-	var toks = DU.getWrapperTokens(expansion.nodes),
-		about = aboutId || this.manager.env.newAboutId();
-
-	// Assign the HTML fragment to the data-parsoid.html on the first wrapper token.
-	toks[0].dataAttribs.html = expansion.html;
-	// Add the DOMFragment type so that we get unwrapped later
-	toks[0].setAttribute('typeof', 'mw:DOMFragment');
-
-	// Add the about to all wrapper tokens
-	toks.forEach(function(tok) {
-		tok.setAttribute('about', about);
-	});
-
-	// Transfer the tsr. The first token gets the full width, the following
-	// tokens zero width.
-	var tokenTsr = token.dataAttribs ? token.dataAttribs.tsr : null;
-	if (tokenTsr) {
-		toks[0].dataAttribs.tsr = tokenTsr;
-		var endTsr = [tokenTsr[1],tokenTsr[1]];
-		for (var i = 1; i < toks.length; i++) {
-			toks[i].dataAttribs.tsr = endTsr;
-		}
-	}
-
-	return toks;
-};
-
-/**
  * Main template token handler
  *
  * Expands target and arguments (both keys and values) and either directly
@@ -96,11 +63,12 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 		return;
 	}
 
+	var env = this.manager.env;
 	var state = { token: token };
 	if (this.options.wrapTemplates) {
 		state.wrapperType = 'mw:Transclusion';
 		state.recordArgDict = true;
-		state.wrappedObjectId = this.manager.env.newObjectId();
+		state.wrappedObjectId = env.newObjectId();
 		state.emittedFirstChunk = false;
 
 		// Uncomment to use DOM-based template expansion
@@ -116,8 +84,8 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 		state.srcCB = this._startTokenPipeline;
 	}
 
-	if ( this.manager.env.conf.parsoid.usePHPPreProcessor &&
-			this.manager.env.conf.parsoid.apiURI !== null ) {
+	if ( env.conf.parsoid.usePHPPreProcessor &&
+			env.conf.parsoid.apiURI !== null ) {
 		if ( this.options.wrapTemplates ) {
 			// Use MediaWiki's action=expandtemplates preprocessor
 			// We'll never get to frame depth beyond 1 in this scenario
@@ -136,15 +104,15 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 					{ name: templateName, attribs: [], cacheKey: text });
 			// Check if we have an expansion for this template in the cache
 			// already
-			if (this.manager.env.transclusionCache[text]) {
+			if (env.transclusionCache[text]) {
 				// cache hit: reuse the expansion DOM
 				//console.log('cache hit for', JSON.stringify(text.substr(0, 50)));
-				var expansion = this.manager.env.transclusionCache[text],
-					toks = this.encapsulateExpansionHTML(token, expansion);
+				var expansion = env.transclusionCache[text],
+					toks = DU.encapsulateExpansionHTML(env, token, expansion);
 
 				cb({ tokens: toks });
 			} else {
-				this.fetchExpandedTpl( this.manager.env.page.name || '',
+				this.fetchExpandedTpl( env.page.name || '',
 						text, PreprocessorRequest, cb, srcHandler);
 			}
 		} else {
@@ -739,44 +707,31 @@ TemplateHandler.prototype._onEnd = function( state, cb ) {
  */
 TemplateHandler.prototype._onDocument = function(state, cb, doc) {
 	//console.log('_onDocument:', doc.body.outerHTML.substr(0, 100));
-	var nodes = doc.body.childNodes;
 
-	if (nodes.length === 0) {
-		// RT extensions expanding to nothing.
-		nodes = [doc.createElement('link')];
-	}
-	// Wrap blank text nodes into spans
-	nodes = DU.addSpanWrappers(nodes);
-
-	var firstNode = nodes[0];
-
-	// Add the wrapper attributes to the first element
-	firstNode.setAttribute('typeof', state.wrapperType);
-	var argInfo = this.getArgInfo(state);
-	firstNode.setAttribute('data-mw', JSON.stringify(argInfo.dict));
-	firstNode.setAttribute('data-parsoid', JSON.stringify(
-		{
-			tsr: Util.clone(state.token.dataAttribs.tsr),
-			src: state.token.dataAttribs.src
-		}
-	));
-
-	function outerHTML (n) {
-		return n.outerHTML;
-	}
-	var expansion = {
-		nodes: nodes,
-		html: nodes.map(outerHTML).join('')
+	var argDict = this.getArgInfo(state).dict;
+	var addWrapperAttrs = function(firstNode) {
+		// Adds the wrapper attributes to the first element
+		firstNode.setAttribute('typeof', state.wrapperType);
+		firstNode.setAttribute('data-mw', JSON.stringify(argDict));
+		firstNode.setAttribute('data-parsoid', JSON.stringify(
+			{
+				tsr: Util.clone(state.token.dataAttribs.tsr),
+				src: state.token.dataAttribs.src
+			}
+		));
 	};
-	// Get placeholder tokens to get our subdom through the token processing
-	// stages. These will be finally unwrapped on the DOM.
-	var toks = this.encapsulateExpansionHTML(state.token, expansion);
+
+	var toks = DU.buildDOMFragmentForTokenStream(
+		state.token,
+		doc,
+		this.manager.env,
+		addWrapperAttrs
+	);
 
 	//console.log('toks', JSON.stringify(toks, null, 2));
 	// All done for this template, so perform a callback without async: set.
 	cb({ tokens: toks });
 };
-
 
 /**
  * Get the public data-mw structure that exposes the template name and parameters

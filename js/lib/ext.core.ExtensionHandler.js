@@ -3,7 +3,7 @@
 var TemplateHandler = require('./ext.core.TemplateHandler.js').TemplateHandler,
 	coreutil = require('util'),
 	Util = require('./mediawiki.Util.js').Util,
-	DOMUtils = require('./mediawiki.DOMUtils.js').DOMUtils,
+	DU = require('./mediawiki.DOMUtils.js').DOMUtils,
 	PHPParseRequest = require('./mediawiki.ApiRequest.js').PHPParseRequest,
 	defines = require('./mediawiki.parser.defines.js');
 // define some constructor shortcuts
@@ -119,11 +119,12 @@ ExtensionHandler.prototype.onExtension = function ( token, frame, cb ) {
 		return options;
 	}
 
-	var extensionName = token.getAttribute('name'),
+	var env = this.manager.env,
+		extensionName = token.getAttribute('name'),
 	    nativeHandler = this.nativeExtHandlers[extensionName],
 		// TODO: use something order/quoting etc independent instead of src
 		cacheKey = token.dataAttribs.src,
-		cachedExpansion = this.manager.env.extensionCache[cacheKey];
+		cachedExpansion = env.extensionCache[cacheKey];
 	if ( nativeHandler ) {
 		// No caching for native extensions for now.
 		token = token.clone();
@@ -150,10 +151,10 @@ ExtensionHandler.prototype.onExtension = function ( token, frame, cb ) {
 	} else if ( cachedExpansion ) {
 		//console.log('cache hit for', JSON.stringify(cacheKey.substr(0, 50)));
 		// cache hit. Reuse extension expansion.
-		var toks = this.encapsulateExpansionHTML(token, cachedExpansion);
+		var toks = DU.encapsulateExpansionHTML(env, token, cachedExpansion);
 		cb({ tokens: toks });
-	} else if ( this.manager.env.conf.parsoid.expandExtensions &&
-			this.manager.env.conf.parsoid.usePHPPreProcessor )
+	} else if ( env.conf.parsoid.expandExtensions &&
+			env.conf.parsoid.usePHPPreProcessor )
 	{
 		// Use MediaWiki's action=parse preprocessor
 		this.fetchExpandedExtension(

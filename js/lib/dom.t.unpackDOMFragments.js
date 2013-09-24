@@ -1,6 +1,25 @@
 "use strict";
 
-var DU = require('./mediawiki.DOMUtils.js').DOMUtils;
+var DU = require('./mediawiki.DOMUtils.js').DOMUtils,
+	Util = require('./mediawiki.Util.js').Util,
+	Consts = require('./mediawiki.wikitext.constants.js').WikitextConstants,
+	computeNodeDSR = require('./dom.computeDSR.js').computeNodeDSR,
+	wrapTemplatesInTree = require('./dom.wrapTemplates.js').wrapTemplatesInTree;
+
+function hasBadNesting(targetNode, fragmentNode) {
+	// SSS FIXME: This is not entirely correct. This is only
+	// looking for nesting of identical tags. But, HTML tree building
+	// has lot more restrictions on nesting. It seems the simplest way
+	// to get all the rules right is to (serialize + reparse).
+	function isNestableElement(nodeName) {
+		return nodeName === 'SPAN' ||
+			nodeName === 'DIV' ||
+			Consts.HTML.FormattingTags.has(nodeName);
+	}
+
+	return isNestableElement(targetNode.nodeName) &&
+		DU.treeHasElement(fragmentNode, targetNode.nodeName);
+}
 
 function addDeltaToDSR(node, delta) {
 	// Add 'delta' to dsr[0] and dsr[1] for nodes in the subtree
@@ -33,9 +52,9 @@ function addDeltaToDSR(node, delta) {
 }
 
 /**
- * DOMTraverser handler that unpacks DOM fragments which were injected in the
- * token pipeline.
- */
+* DOMTraverser handler that unpacks DOM fragments which were injected in the
+* token pipeline.
+*/
 function unpackDOMFragments(env, node) {
 	if (DU.isElt(node)) {
 		var typeOf = node.getAttribute('typeof'),
@@ -43,11 +62,8 @@ function unpackDOMFragments(env, node) {
 			lastNode = node;
 		if (/(?:^|\s)mw:DOMFragment(?=$|\s)/.test(typeOf)) {
 			// Replace this node and possibly a sibling with node.dp.html
-			var parentNode = node.parentNode,
-				// Use a div rather than a p, as the p might be stripped out
-				// later if the children are block-level.
-				dummyName = parentNode.nodeName !== 'P' ? parentNode.nodeName : 'div',
-				dummyNode = node.ownerDocument.createElement(dummyName);
+			var fragmentParent = node.parentNode,
+				dummyNode = node.ownerDocument.createElement(fragmentParent.nodeName);
 
 			if (!node.data || !node.data.parsoid) {
 				// FIXME gwicke: This normally happens on Fragment content
@@ -64,8 +80,7 @@ function unpackDOMFragments(env, node) {
 				DU.loadDataParsoid(node);
 			}
 
-			var html = node.data.parsoid.html,
-				tsrDelta = node.data.parsoid.tsrDelta;
+			var html = node.data.parsoid.html;
 			if (!html || /(?:^|\s)mw:Transclusion(?=$|\s)/.test(typeOf)) {
 				// Ex: A multi-part template with an extension in its
 				// output (possibly passed in as a parameter).
@@ -79,6 +94,7 @@ function unpackDOMFragments(env, node) {
 				DU.removeTypeOf(node, 'mw:DOMFragment');
 				return true;
 			}
+
 			dummyNode.innerHTML = html;
 
 			// get rid of the wrapper sibling (simplifies logic below)
@@ -91,54 +107,87 @@ function unpackDOMFragments(env, node) {
 				DU.deleteNode(sibling);
 			}
 
+			var contentNode = dummyNode.firstChild;
+			var haveOrigType = contentNode.getAttribute("typeof") !== null;
 
-			// Transfer the new dsr -- just dsr[0] and dsr[1] since tag-widths
-			// will be incorrect for reuse of template expansions
-			var firstChild = dummyNode.firstChild;
-			DU.loadDataParsoid(firstChild);
-			if (!firstChild.data.parsoid) {
-				console.log(node.data.parsoid, dummyNode.outerHTML);
-			}
-
-			var dsr = node.data.parsoid.dsr;
+			// Update DSR
+			//
 			// There is currently no DSR for DOMFragments nested inside
 			// transclusion / extension content (extension inside template
 			// content etc).
-			// TODO: Make sure that is the only reason for not having a DSR
-			// here.
+			// TODO: Make sure that is the only reason for not having a DSR here.
+			var dsr = node.data.parsoid.dsr;
 			if (dsr) {
-				var type = firstChild.getAttribute("typeof");
+				// Load data-parsoid attr so we can use firstChild.data.parsoid
+				DU.loadDataParsoid(contentNode);
+				if (!contentNode.data.parsoid) {
+					console.log(node.data.parsoid, dummyNode.outerHTML);
+				}
+
+				var type = contentNode.getAttribute("typeof");
 				if (/(?:^|\s)mw:(Transclusion|Extension)(?=$|\s)/.test(type)) {
-					firstChild.data.parsoid.dsr = [dsr[0], dsr[1]];
+					contentNode.data.parsoid.dsr = [dsr[0], dsr[1]];
 				} else { // non-transcluded images
-					firstChild.data.parsoid.dsr = [dsr[0], dsr[1], 2, 2];
+					contentNode.data.parsoid.dsr = [dsr[0], dsr[1], 2, 2];
 					// Reused image -- update dsr by tsrDelta on all
 					// descendents of 'firstChild' which is the <figure> tag
+					var tsrDelta = node.data.parsoid.tsrDelta;
 					if (tsrDelta) {
-						addDeltaToDSR(firstChild, tsrDelta);
+						addDeltaToDSR(contentNode, tsrDelta);
 					}
 				}
-			}
-			//else {
-			//	console.error( 'ERROR in ' + env.page.name +
-			//			': no DOMFragment wrapper dsr on ' + node.outerHTML );
-			//}
 
-			// Move the old content nodes over from the dummyNode
-			while (firstChild) {
-				// Transfer the about attribute so that it is still unique in
-				// the page
-				if (about !== null) {
-					firstChild.setAttribute('about', about);
-				}
-				// Load data-parsoid for all children
-				DU.loadDataParsoid(firstChild);
-				parentNode.insertBefore(firstChild, node);
-				firstChild = dummyNode.firstChild;
 			}
-			// And delete the placeholder node
+
+			// Set about and drop wrapper-spans
+			var n = dummyNode.firstChild;
+			while (n) {
+				var next = n.nextSibling;
+
+				// Transfer the about attribute so that it is still unique in the page
+				if (haveOrigType && about !== null) {
+					n.setAttribute('about', about);
+				}
+
+				// Discard unnecessary span wrappers
+				DU.loadDataParsoid(n);
+				if (n.data.parsoid.wrapper && !haveOrigType && !n.getAttribute("typeof")) {
+					DU.migrateChildren(n, n.parentNode, n);
+					DU.deleteNode(n);
+				}
+
+				n = next;
+			}
+
 			var nextNode = node.nextSibling;
-			DU.deleteNode(node);
+			if (hasBadNesting(fragmentParent, dummyNode)) {
+				/*------------------------------------------------------------------------
+				 * Say fragmentParent has child nodes  c1, c2, N, c3, etc.
+				 *
+				 * doc1: ... fragmentParent -> [c1, c2, N=mw:DOMFragment, c3, ...] ...
+				 *
+				 * If fragmentParent is an A-tag and N:domfragment has an A-tag, we have a problem.
+				 *
+				 * 1. Transform: [fragmentParent: [c1, c2, "#unique-hash-code", c3, ..]]
+				 * 2. str = fragmentParent.outerHTML.replace(#unique-hash-code, N.domFragment.html)
+				 * 3. ParseHTML(str) to get
+				 *    doc2: [BODY: [fragmentParent: [c1, c2, ...], A-nested, c3, ...]]
+				 * 4. Replace doc1:fragmentParent with doc2:body.childNodes
+				 * ----------------------------------------------------------------------- */
+				var timestamp = (new Date()).toString();
+				fragmentParent.replaceChild(node.ownerDocument.createTextNode(timestamp), node);
+
+				var newDoc = Util.parseHTML(fragmentParent.outerHTML.replace(timestamp, dummyNode.innerHTML));
+				DU.migrateChildrenBetweenDocs(newDoc.body, fragmentParent.parentNode, fragmentParent);
+
+				// fragmentParent itself is useless now
+				DU.deleteNode(fragmentParent);
+			} else {
+				// Move the content nodes over and delete the placeholder node
+				DU.migrateChildren(dummyNode, fragmentParent, node);
+				DU.deleteNode(node);
+			}
+
 			return nextNode;
 		}
 	}

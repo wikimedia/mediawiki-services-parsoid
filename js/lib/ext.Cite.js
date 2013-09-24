@@ -7,7 +7,6 @@
 var Util = require( './mediawiki.Util.js' ).Util,
 	DU = require( './mediawiki.DOMUtils.js').DOMUtils,
 	coreutil = require('util'),
-	ExtensionHandler = require('./ext.core.ExtensionHandler.js').ExtensionHandler,
 	defines = require('./mediawiki.parser.defines.js'),
 	$ = require( './fakejquery' );
 
@@ -115,6 +114,7 @@ Ref.prototype.handleRef = function ( manager, pipelineOpts, refTok, cb ) {
 		pipelineType: 'text/x-mediawiki/full',
 		pipelineOpts: {
 			inTemplate: pipelineOpts.inTemplate,
+			noPre: true,
 			extTag: "ref"
 		},
 		res: [],
@@ -244,9 +244,6 @@ function References(cite) {
 	this.reset();
 }
 
-// Inherit functionality from ExtensionHandler
-coreutil.inherits(References, ExtensionHandler);
-
 References.prototype.reset = function(group) {
 	if (group) {
 		setRefGroup(this.refGroups, group, undefined);
@@ -304,30 +301,25 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 			" about='", referencesId, "'",
 			"></ol>"
 		];
-
-		var wrapperDOM = Util.parseHTML(buf.join('')).body.childNodes,
-			ol = wrapperDOM[0];
-
-		var dp = DU.getJSONAttribute(ol, "data-parsoid", {});
-		dp.src = refsTok.getAttribute('source');
-		if (group) {
-			dp.group = group;
-		}
-
-		DU.setJSONAttribute(ol, "data-parsoid", dp);
-
-		var expansion = {
-			nodes: wrapperDOM,
-			html: wrapperDOM.map(function(n) { return n.outerHTML; }).join('')
+		var olProcessor = function(ol) {
+			var dp = DU.getJSONAttribute(ol, "data-parsoid", {});
+			dp.src = refsTok.getAttribute('source');
+			if (group) {
+				dp.group = group;
+			}
+			DU.setJSONAttribute(ol, "data-parsoid", dp);
 		};
 
-		// TemplateHandler wants a manager property
-		//
-		// FIXME: Seems silly -- maybe we should move encapsulateExpansionHTML
-		// into Util and pass env into it .. can avoid extending ExtensionHandler
-		// as well.
-		this.manager = manager;
-		cb({ tokens: this.encapsulateExpansionHTML(refsTok, expansion, referencesId), async: false });
+		cb({
+			tokens: DU.buildDOMFragmentForTokenStream(
+				refsTok,
+				buf.join(''),
+				manager.env,
+				olProcessor,
+				referencesId
+			),
+			async:false
+		});
 	}.bind(this);
 
 	processExtSource(manager, refsTok, {
