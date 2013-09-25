@@ -206,7 +206,7 @@ var refineDiff = function ( diff ) {
 	return out;
 };
 
-var roundTripDiff = function ( req, res, env, document ) {
+var roundTripDiff = function ( selser, req, res, env, document ) {
 	var patch;
 	var out = [];
 
@@ -261,12 +261,17 @@ var roundTripDiff = function ( req, res, env, document ) {
 	// Re-parse the HTML to uncover foster-parenting issues
 	document = domino.createDocument(document.outerHTML);
 
-	// Always use the regular serializer for round-trip diff tests
-	// since these will never have any edits for selser to do any work.
-	new WikitextSerializer({env: env}).serializeDOM( document.body,
-				function ( chunk ) {
-					out.push(chunk);
-				}, finalCB );
+	if ( selser ) {
+		new SelectiveSerializer( {env: env}).serializeDOM( document.body,
+			function ( chunk ) {
+				out.push(chunk);
+			}, finalCB );
+	} else {
+		new WikitextSerializer({env: env}).serializeDOM( document.body,
+			function ( chunk ) {
+				out.push(chunk);
+			}, finalCB );
+	}
 };
 
 function handleCacheRequest (env, req, cb, err, src, cacheErr, cacheSrc) {
@@ -527,7 +532,7 @@ app.get( new RegExp('/_rt/(' + getInterwikiRE() + ')/(.*)'), function(req, res) 
 			oldid = req.query.oldid;
 		}
 		var tpr = new TemplateRequest( env, target, oldid );
-		tpr.once('src', parse.bind( tpr, env, req, res, roundTripDiff ));
+		tpr.once('src', parse.bind( tpr, env, req, res, roundTripDiff.bind( null, false ) ));
 	};
 
 	getParserServiceEnv( res, req.params[0], req.params[1], cb );
@@ -542,7 +547,7 @@ app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)') , function(req, re
 			return;
 		}
 
-		var target = env.page.title;
+		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
 		console.log('starting parsing of ' + target);
 		var oldid = null;
@@ -554,13 +559,40 @@ app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)') , function(req, re
 				// strip newlines from the html
 				var html = document.innerHTML.replace(/[\r\n]/g, ''),
 					newDocument = Util.parseHTML(html);
-				roundTripDiff( req, res, src, newDocument );
+				roundTripDiff( false, req, res, src, newDocument );
 			};
 
 		tpr.once('src', parse.bind( tpr, env, req, res, cb ));
 	};
 
 	getParserServiceEnv( res, req.params[0], req.params[1], cb );
+});
+
+// Round-trip article testing with selser over re-parsed HTML.
+app.get( new RegExp('/_rtselser/(' + getInterwikiRE() + ')/(.*)') , function (req, res) {
+	var envCb = function ( env ) {
+		if ( env.page.name === 'favicon.ico' ) {
+			res.send( 'no favicon yet..', 404 );
+			return;
+		}
+
+		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
+
+		console.log( 'starting parsing of ' + target );
+		var oldid = null;
+		if ( req.query.oldid ) {
+			oldid = req.query.oldid;
+		}
+		var tpr = new TemplateRequest( env, target, oldid ),
+			tprCb = function ( req, res, src, document ) {
+				var newDocument = Util.parseHTML( document.innerHTML );
+				roundTripDiff( true, req, res, src, newDocument );
+			};
+
+		tpr.once( 'src', parse.bind( tpr, env, req, res, tprCb ) );
+	};
+
+	getParserServiceEnv( res, req.params[0], req.params[1], envCb );
 });
 
 // Form-based round-tripping for manual testing
@@ -579,7 +611,7 @@ app.post(/\/_rtform\/(.*)/, function ( req, res ) {
 	var cb = function ( env ) {
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 		// we don't care about \r, and normalize everything to \n
-		parse( env, req, res, roundTripDiff, null, {
+		parse( env, req, res, roundTripDiff.bind( null, false ), null, {
 			revision: { '*': req.body.content.replace(/\r/g, '') }
 		});
 	};
