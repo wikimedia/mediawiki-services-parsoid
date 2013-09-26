@@ -1,5 +1,5 @@
 Full list of authors, by number of lines in revision
-76b343ffd39034301303dc01b5b75c528f37d157 Jun 10 2013:
+0f8c6223801408375e8b9de3d9f0fb565a78e9f4 Sep 25 2013:
 
 [ Authors from older revisions may not show up in
   newer revisions -- so continue to add names to
@@ -11,16 +11,18 @@ Mark Holmquist <mtraceur@member.fsf.org>
 C. Scott Ananian <cscott@cscott.net>
 Robert Smith <rsmith@wikimedia.org>
 Adam Wight <awight@wikimedia.org>
+Marc Ordinas i Llopis <marcoil@wikimedia.org>
+Arlo Breault <abreault@wikimedia.org>
 Catrope <roan@wikimedia.org>
 Brion Vibber <brion@wikimedia.org>
 plancalculus <jan@monoid-it.de>
 Jeff Evans <wayne.mokane+github@gmail.com>
-Marc Ordinas i Llopis <mail@marcoil.org>
 Siebrand Mazeland <s.mazeland@xs4all.nl>
 Aaron Schulz <aschulz@wikimedia.org>
 Antoine Musso <hashar@free.fr>
 Luke Welling <lwelling@wikimedia.org>
-Neil Kandalgaonkar <neilk@brevity.org>
+Neil Kandalgaonkar <neilk@wikimedia.org>
+Antoine Musso <hashar@wikimedia.org>
 Trevor Parscal <trevor@wikimedia.org>
 Timo Tijhof <ttijhof@wikimedia.org>
 Inez Korczyński <inez@wikia-inc.com>
@@ -30,14 +32,10 @@ Reedy <reedy@wikimedia.org>
 MZMcBride <w@mzmcbride.com>
 Ori Livneh <ori.livneh@gmail.com>
 Adam Baso <abaso@wikimedia.org>
+YuviPanda <yuvipanda@gmail.com>
 
 A version of this list can be regenerated with the following one-liner:
 
-git ls-tree -r HEAD|cut -f 2|grep -E '\.(js|cc|h|cpp|hpp|c|txt|sh|php)$' | grep -v -E 'scripts|html5'   |xargs -n1 git blame --line-porcelain|grep -e "^author "|sort|uniq -c|sort -nr
-
-Same for mail adresses:
-
-git ls-tree -r HEAD|cut -f 2|grep -E '\.(js|cc|h|cpp|hpp|c|txt|sh|php)$' | grep -v -E 'scripts|html5'   |xargs -n1 git blame --line-porcelain|grep -e "^author-mail "|sort|uniq -c|sort -nr
+git ls-tree -r HEAD | cut -f 2 | grep -E '\.(js|cc|h|cpp|hpp|c|txt|sh|php)$' | grep -v -E 'scripts|html5' | xargs -n1 git blame --line-porcelain | sed -ne '/^author /{ s/^author //; h }' -e '/^author-mail /{ s/^author-mail //; H; g; y/\n/ /; p }' | sort | uniq -c | sort -nr | sed -e 's/^[ ]*[1-9][0-9]* //'
 
 Please see git blame for per-file information.
-
