@@ -502,25 +502,23 @@ TemplateHandler.prototype._startDocumentPipeline = function( state, frame, cb, t
 		src = '';
 		//this.manager.env.errCB(err);
 	}
-	// Pipeline for processing ext-content
-	var pipeline = this.manager.pipeFactory.getPipeline(
-			// Full pipeline all the way to DOM
-			'text/x-mediawiki/full',
-			{
-				isInclude: true,
-				// we *might* be able to get away without this if we transfer
-				// more than just the about when unwrapping
-				wrapTemplates: false,
-				// suppress paragraphs
-				// Should this be the default in all cases?
-				inBlockToken: true
-			});
-	pipeline.setFrame( this.manager.frame, tplArgs.name, tplArgs.attribs );
-	state.tokenTarget = tplArgs.name;
 
-	pipeline.addListener('document', this._onDocument.bind(this, state, cb));
 	this.manager.env.dp( 'TemplateHandler._startDocumentPipeline', tplArgs.name, tplArgs.attribs );
-	pipeline.process ( src, tplArgs.cacheKey );
+	Util.processContentInPipeline(this.manager, src,  {
+		// Full pipeline all the way to DOM
+		pipelineType: 'text/x-mediawiki/full',
+		pipelineOpts: {
+			isInclude: true,
+			// we *might* be able to get away without this if we transfer
+			// more than just the about when unwrapping
+			wrapTemplates: false,
+			// suppress paragraphs
+			// Should this be the default in all cases?
+			inBlockToken: true
+		},
+		tplArgs: tplArgs,
+		documentCB: this._onDocument.bind(this, state, cb)
+	});
 };
 
 /**
@@ -551,29 +549,24 @@ TemplateHandler.prototype._startTokenPipeline = function( state, frame, cb, tplA
 		console.log( "---------------------------------");
 	}
 
+	this.manager.env.dp( 'TemplateHandler._startTokenPipeline', tplArgs.name, tplArgs.attribs );
+
 	// Get a nested transformation pipeline for the input type. The input
 	// pipeline includes the tokenizer, synchronous stage-1 transforms for
 	// 'text/wiki' input and asynchronous stage-2 transforms).
-	//
-	// NOTE: No template wrapping required for nested templates.
-	var pipelineOpts = {
-		inTemplate: true,
-		isInclude: true,
-		wrapTemplates: false,
-		extTag: this.options.extTag
-	};
-	var pipeline = this.manager.pipeFactory.getPipeline(
-		type || 'text/x-mediawiki', pipelineOpts
-	);
-
-	pipeline.setFrame( this.manager.frame, tplArgs.name, tplArgs.attribs );
-
-	// Hook up the inputPipeline output events to our handlers
-	pipeline.addListener( 'chunk', this._onChunk.bind ( this, state, cb ) );
-	pipeline.addListener( 'end', this._onEnd.bind ( this, state, cb ) );
-	// Feed the pipeline. XXX: Support different formats.
-	this.manager.env.dp( 'TemplateHandler._startTokenPipeline', tplArgs.name, tplArgs.attribs );
-	pipeline.process ( src, tplArgs.cacheKey );
+	Util.processContentInPipeline(this.manager, src, {
+		pipelineType: type || 'text/x-mediawiki',
+		pipelineOpts: {
+			inTemplate: true,
+			isInclude: true,
+			// NOTE: No template wrapping required for nested templates.
+			wrapTemplates: false,
+			extTag: this.options.extTag
+		},
+		tplArgs: tplArgs,
+		chunkCB: this._onChunk.bind ( this, state, cb ),
+		endCB: this._onEnd.bind ( this, state, cb )
+	});
 };
 
 TemplateHandler.prototype.addAboutToTableElements = function ( state, tokens ) {

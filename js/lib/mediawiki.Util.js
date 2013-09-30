@@ -797,6 +797,38 @@ var Util = {
         }
     },
 
+	processContentInPipeline: function(manager, content, opts) {
+		// Build a pipeline
+		var pipeline = manager.pipeFactory.getPipeline(
+			opts.pipelineType,
+			opts.pipelineOpts
+		);
+
+		// Set frame if necessary
+		if (opts.tplArgs) {
+			pipeline.setFrame(manager.frame, opts.tplArgs.name, opts.tplArgs.attribs);
+		}
+
+		// Set source offsets for this pipeline's content
+		if (opts.srcOffsets) {
+			pipeline.setSourceOffsets(opts.srcOffsets[0], opts.srcOffsets[1]);
+		}
+
+		// Set up provided callbacks
+		if (opts.chunkCB) {
+			pipeline.addListener('chunk', opts.chunkCB);
+		}
+		if (opts.endCB) {
+			pipeline.addListener('end', opts.endCB);
+		}
+		if (opts.documentCB) {
+			pipeline.addListener('document', opts.documentCB);
+		}
+
+		// Off the starting block ... ready, set, go!
+		pipeline.process(content, opts.tplArgs ? opts.tplArgs.cacheKey : undefined);
+	},
+
 	extractExtBody: function(extName, extTagSrc) {
 		var re = "<" + extName + "[^>]*/?>([\\s\\S]*)";
 		return extTagSrc.replace(new RegExp(re, "mi"), function() {
