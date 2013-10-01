@@ -13,6 +13,7 @@ var Util = require( './mediawiki.Util.js' ).Util,
 
 // define some constructor shortcuts
 var	KV = defines.KV,
+    EOFTk = defines.EOFTk,
     SelfclosingTagTk = defines.SelfclosingTagTk;
 
 // FIXME: Move out to some common helper file?
@@ -44,31 +45,18 @@ function processExtSource(manager, extToken, opts) {
 		// Pass an async signal since the ext-content is not processed completely.
 		opts.parentCB({tokens: opts.res, async: true});
 
-		// Pipeline for processing ext-content
-		var pipeline = manager.pipeFactory.getPipeline(
-			opts.pipelineType,
-			Util.extendProps({}, opts.pipelineOpts, {
-				wrapTemplates: true
-			})
-		);
+		// Wrap templates always
+		opts.pipelineOpts = Util.extendProps({}, opts.pipelineOpts, { wrapTemplates: true });
 
-		// Set source offsets for this pipeline's content
 		var tsr = extToken.dataAttribs.tsr;
-		pipeline.setSourceOffsets(tsr[0]+tagWidths[0]+leadingWS.length, tsr[1]-tagWidths[1]);
+		opts.srcOffsets = [ tsr[0]+tagWidths[0]+leadingWS.length, tsr[1]-tagWidths[1] ];
 
-		// Set up provided callbacks
-		if (opts.chunkCB) {
-			pipeline.addListener('chunk', opts.chunkCB);
-		}
-		if (opts.endCB) {
-			pipeline.addListener('end', opts.endCB);
-		}
-		if (opts.documentCB) {
-			pipeline.addListener('document', opts.documentCB);
-		}
-
-		// Off the starting block ... ready, set, go!
-		pipeline.process(content);
+		// Process ref content
+		Util.processContentInPipeline(
+			manager,
+			content.concat([new EOFTk()]),
+			opts
+		);
 	}
 }
 
