@@ -976,20 +976,29 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 		actual, expected, expectFail, failure_only, mode, error, item ) {
 	this.stats.failedTests++;
 	this.stats.modes[mode].failedTests++;
-	this.stats.modes[mode].failList.push(title);
+	this.stats.modes[mode].failList.push({
+		title: title,
+		raw: actual.raw
+	});
 
 	var extTitle = ( title + ( mode ? ( ' (' + mode + ')' ) : '' ) ).
 		replace('\n', ' ');
 
+	var blacklisted = false;
 	if ( booleanOption( options.blacklist ) && expectFail ) {
-		if ( !booleanOption( options.quiet ) ) {
-			console.log( 'EXPECTED FAIL'.red + ': ' + extTitle.yellow );
+		// compare with remembered output
+		if ( mode === 'selser' && testBlackList[title].raw !== actual.raw ) {
+			blacklisted = true;
+		} else {
+			if ( !booleanOption( options.quiet ) ) {
+				console.log( 'EXPECTED FAIL'.red + ': ' + extTitle.yellow );
+			}
+			return;
 		}
-		return;
-	} else {
-		this.stats.failedTestsUnexpected++;
-		this.stats.modes[mode].failedTestsUnexpected++;
 	}
+
+	this.stats.failedTestsUnexpected++;
+	this.stats.modes[mode].failedTestsUnexpected++;
 
 	if ( !failure_only ) {
 		console.log( '=====================================================' );
@@ -998,6 +1007,9 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 	console.log( 'UNEXPECTED FAIL'.red.inverse + ': ' + extTitle.yellow );
 
 	if ( mode === 'selser' ) {
+		if ( blacklisted ) {
+			console.log( 'Blacklisted, but the output changed!'.red + '');
+		}
 		if ( item.wt2wtPassed ) {
 			console.log( 'Even worse, the non-selser wt2wt test passed!'.red + '');
 		} else if ( actual && item.wt2wtResult !== actual.raw ) {
@@ -1142,6 +1154,8 @@ ParserTests.prototype.printWhitelistEntry = function ( title, raw ) {
 };
 
 /**
+ * @param {Function} reportFailure
+ * @param {Function} reportSuccess
  * @param {string} title
  * @param {Object} time
  * @param {number} time.start
@@ -1152,8 +1166,11 @@ ParserTests.prototype.printWhitelistEntry = function ( title, raw ) {
  * @param {Object} actual
  * @param {Object} options
  * @param {string} mode
+ * @param {Object} item
+ * @param {Function} pre
+ * @param {Function} post
  */
-ParserTests.prototype.printResult = function ( title, time, comments, iopts, expected, actual, options, mode, item ) {
+function printResult( reportFailure, reportSuccess, title, time, comments, iopts, expected, actual, options, mode, item, pre, post ) {
 	var quick = booleanOption( options.quick );
 	var parsoidOnly = (iopts.parsoid !== undefined);
 
@@ -1162,7 +1179,8 @@ ParserTests.prototype.printResult = function ( title, time, comments, iopts, exp
 	}
 
 	var whitelist = false;
-	var expectFail = (testBlackList[title] || []).indexOf(mode) >= 0;
+	var tb = testBlackList[title];
+	var expectFail = ( tb ? tb.modes : [] ).indexOf( mode ) >= 0;
 	var fail = ( expected.normal !== actual.normal );
 
 	if ( fail &&
@@ -1183,15 +1201,20 @@ ParserTests.prototype.printResult = function ( title, time, comments, iopts, exp
 		return;
 	}
 
-	if ( fail ) {
-		options.reportFailure( title, comments, iopts, options,
-		                       actual, expected, expectFail,
-		                       quick, mode, null, item );
-	} else {
-		options.reportSuccess( title, options, mode, !expectFail,
-		                       whitelist, item );
+	if ( typeof pre === 'function' ) {
+		pre( mode, title, time );
 	}
-};
+
+	if ( fail ) {
+		reportFailure( title, comments, iopts, options, actual, expected, expectFail, quick, mode, null, item );
+	} else {
+		reportSuccess( title, options, mode, !expectFail, whitelist, item );
+	}
+
+	if ( typeof post === 'function' ) {
+		post( mode );
+	}
+}
 
 /**
  * @param {Object} item
@@ -1385,8 +1408,8 @@ ParserTests.prototype.main = function ( options ) {
 
 	if ( typeof options.reportResult !== 'function' ) {
 		// default result reporting is standard out,
-		// see ParserTests::printResult for documentation of the default.
-		options.reportResult = this.printResult.bind( this );
+		// see printResult for documentation of the default.
+		options.reportResult = printResult.bind( this, options.reportFailure, options.reportSuccess );
 	}
 
 	if ( typeof options.getDiff !== 'function' ) {
@@ -1693,9 +1716,13 @@ ParserTests.prototype.processCase = function ( i, options ) {
 			contents += '(start of automatically-generated section)\n';
 			modes.forEach(function(mode) {
 				contents += '\n// Blacklist for '+mode+'\n';
-				this.stats.modes[mode].failList.forEach(function(title) {
+				this.stats.modes[mode].failList.forEach(function(fail) {
 					contents += 'add('+JSON.stringify(mode)+', '+
-						JSON.stringify(title)+');\n';
+						JSON.stringify(fail.title);
+					if ( mode === "selser" ) {
+						contents += ', '+JSON.stringify(fail.raw);
+					}
+					contents += ');\n';
 				});
 				contents += '\n';
 			}.bind(this));
@@ -1850,58 +1877,35 @@ var xmlFuncs = (function () {
 	 *
 	 * Print the result of a test in XML.
 	 *
-	 * @inheritdoc ParserTests#printResult
+	 * @inheritdoc printResult
 	 */
-	reportResultXML = function ( title, time, comments, iopts, expected, actual, options, mode, item ) {
-		var timeTotal, testcaseEle;
-		var quick = booleanOption( options.quick );
-		var parsoidOnly = (iopts.parsoid !== undefined);
+	reportResultXML = function () {
 
-		if ( mode === 'selser' ) {
-			title += ' ' + JSON.stringify( item.changes );
-		}
+		function pre( mode, title, time ) {
+			var testcaseEle;
+			testcaseEle = '<testcase name="' + Util.encodeXml( title ) + '" ';
+			testcaseEle += 'assertions="1" ';
 
-		var whitelist = false;
-		var expectFail = (testBlackList[title] || []).indexOf(mode) >= 0;
-		var fail = ( expected.normal !== actual.normal );
-
-		if ( fail &&
-		     booleanOption( options.whitelist ) &&
-		     title in testWhiteList &&
-		     Util.normalizeOut( testWhiteList[title], parsoidOnly ) ===  actual.normal ) {
-			whitelist = true;
-			fail = false;
-		}
-
-		if ( mode === 'wt2wt' ) {
-			item.wt2wtPassed = !fail;
-			item.wt2wtResult = actual.raw;
-		}
-
-		testcaseEle = '<testcase name="' + Util.encodeXml( title ) + '" ';
-		testcaseEle += 'assertions="1" ';
-
-		if ( time && time.end && time.start ) {
-			timeTotal = time.end - time.start;
-			if ( !isNaN( timeTotal ) ) {
-				testcaseEle += 'time="' + ( ( time.end - time.start ) / 1000.0 ) + '"';
+			var timeTotal;
+			if ( time && time.end && time.start ) {
+				timeTotal = time.end - time.start;
+				if ( !isNaN( timeTotal ) ) {
+					testcaseEle += 'time="' + ( ( time.end - time.start ) / 1000.0 ) + '"';
+				}
 			}
+
+			testcaseEle += '>';
+			results[mode] += testcaseEle;
 		}
 
-		testcaseEle += '>';
-
-		results[mode] += testcaseEle;
-
-		if ( fail ) {
-			reportFailureXML( title, comments, iopts, options,
-			                  actual, expected, expectFail,
-			                  quick, mode, null, item );
-		} else {
-			reportSuccessXML( title, options, mode, !expectFail,
-			                  whitelist, item );
+		function post( mode ) {
+			results[mode] += '</testcase>\n';
 		}
 
-		results[mode] += '</testcase>\n';
+		var args = Array.prototype.slice.call( arguments );
+		args = [ reportFailureXML, reportSuccessXML ].concat( args, pre, post );
+		printResult.apply( this, args );
+
 	};
 
 	return {

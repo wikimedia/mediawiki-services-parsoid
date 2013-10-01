@@ -10,7 +10,7 @@
 // differences between the PHP and Parsoid parsers in one place (albeit
 // one gigantic hard-to-read file, but still).
 // So please don't add new entries here, except for experimental stuff
-// (selser?) which we're not sure we want to document/upstream.
+// which we're not sure we want to document/upstream.
 // Known-broken-but-we'll-fix-it stuff goes in parserTests-blacklist.js
 
 var testWhiteList = {};
