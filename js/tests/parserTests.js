@@ -184,6 +184,11 @@ ParserTests.prototype.getOpts = function () {
 			'default': false,
 			'boolean': true
 		},
+		'changetree': {
+			description: 'Changes to apply to parsed HTML to generate new HTML to be serialized (useful with selser)',
+			'default': null,
+			'boolean': false
+		},
 		'use_source': {
 			description: 'Use original source in wt2wt tests',
 			'boolean': true,
@@ -567,6 +572,16 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 		applyChangesInternal(content, item.changes);
 	}
 
+	if (this.env.conf.parsoid.dumpFlags &&
+		this.env.conf.parsoid.dumpFlags.indexOf("dom:post-changes") !== -1)
+	{
+		console.warn("-------------------------");
+		console.warn("Change tree: " + JSON.stringify(item.changes));
+		console.warn("-------------------------");
+		console.warn("DOM with changes applied: " + content.outerHTML);
+		console.warn("-------------------------");
+	}
+
 	if (cb) {
 		cb( null, content );
 	}
@@ -866,7 +881,13 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 
 	// Generate and make changes for the selser test mode
 	if ( mode === 'selser' ) {
-		testTasks.push( this.generateChanges.bind( this, options, item ) );
+		if ( options.changetree ) {
+			testTasks.push( function(content, cb) {
+				cb( null, content, JSON.parse(options.changetree) );
+			} );
+		} else {
+			testTasks.push( this.generateChanges.bind( this, options, item ) );
+		}
 		testTasks.push( this.applyChanges.bind( this, item ) );
 
 		// Save the modified DOM so we can re-test it later
@@ -1313,6 +1334,11 @@ ParserTests.prototype.reportSummary = function ( stats ) {
 ParserTests.prototype.main = function ( options ) {
 	if ( options.help ) {
 		optimist.showHelp();
+		console.error("Additional dump options specific to parserTests script:");
+		console.error("* dom:post-changes  : Dumps DOM after applying selser changetree\n");
+		console.error("Examples");
+		console.error("$ node parserTests --selser --filter '...' --dump dom:post-changes");
+		console.error("$ node parserTests --selser --filter '...' --changetree '...' --dump dom:post-changes\n");
 		process.exit( 0 );
 	}
 	Util.setColorFlags( options );
@@ -1491,7 +1517,7 @@ ParserTests.prototype.reportStartOfTests = function () {
 ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 	var tasks = [];
 	for ( var i = 0; i < modes.length; i++ ) {
-		if ( modes[i] === 'selser' && options.numchanges ) {
+		if ( modes[i] === 'selser' && options.numchanges && !options.changetree ) {
 			item.selserChangeTrees = new Array( options.numchanges );
 
 			var done = false;
