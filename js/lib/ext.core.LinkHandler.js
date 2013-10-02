@@ -84,9 +84,13 @@ WikiLinkHandler.prototype.getWikiLinkTargetInfo = function (token) {
 			// check for interwiki / language links
 			ns = env.conf.wiki.namespaceIds[ nsPrefix.toLowerCase()
 														.replace( ' ', '_' ) ];
-		//console.warn( nsPrefix, ns, env.conf.wiki.namespaceIds );
+		// console.warn( nsPrefix, ns, interwikiInfo );
 		// also check for url to protect against [[constructor:foo]]
-		if ( interwikiInfo && interwikiInfo.url ) {
+		if ( ns !== undefined ) {
+			// FIXME: percent-decode first, then entity-decode!
+			info.title = new Title( Util.decodeURI(href.substr( nsPrefix.length + 1 )),
+					ns, nsPrefix, env );
+		} else if ( interwikiInfo && interwikiInfo.url ) {
 			// interwiki or language link
 			if (info.fromColonEscapedText || interwikiInfo.language === undefined ) {
 				info.interwiki = interwikiInfo;
@@ -95,10 +99,6 @@ WikiLinkHandler.prototype.getWikiLinkTargetInfo = function (token) {
 				info.language = interwikiInfo;
 				info.href = info.href.substr( nsPrefix.length + 1 );
 			}
-		} else if ( ns !== undefined ) {
-			// FIXME: percent-decode first, then entity-decode!
-			info.title = new Title( Util.decodeURI(href.substr( nsPrefix.length + 1 )),
-					ns, nsPrefix, env );
 		} else {
 			info.title = new Title( Util.decodeURI(href), 0, '', env );
 		}
