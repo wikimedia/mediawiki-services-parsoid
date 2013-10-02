@@ -1667,6 +1667,10 @@ ParserTests.prototype.processCase = function ( i, options ) {
 							// expect the old value (as set in parserTest.inc:setupDatabase())
 							this.env.conf.wiki.interwikiMap.meatball.url =
 								'http://www.usemod.com/cgi-bin/mb.pl?$1';
+							// Add 'MemoryAlpha' namespace (bug 51680)
+							this.env.conf.wiki.namespaceNames['100'] = 'MemoryAlpha';
+							this.env.conf.wiki.namespaceIds.memoryalpha =
+								this.env.conf.wiki.canonicalNamespaces.memoryalpha = 100;
 
 							async.series( this.buildTasks( item, targetModes, options ),
 								nextCallback );
