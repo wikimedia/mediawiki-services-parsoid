@@ -3,26 +3,23 @@
  * Over time, more functions can be migrated out of various other files here.
  */
 
+var es6 = require('harmony-collections');
+
 var JSUtils = {
-	// Return a hash mapping all of the given elements of `a` to `true`.
-	// The result hash is created with `Object.create(null)`, so it doesn't
-	// inherit extra properties (like `hasOwnProperty`) from `Object`.
-	arrayToHash: function(a) {
-		var h = Object.create(null); // No inherited methods
+	// This should probably be taken care of by the Set constructor
+	// but doesn't seem to be implemented correctly anywhere.
+	arrayToSet: function(a) {
+		var s = new es6.Set();
 		for (var i = 0, n = a.length; i < n; i++) {
-			h[a[i]] = true;
+			s.add(a[i]);
 		}
-		return h;
+		return s;
 	},
 
-	// Return a hash with the same own properties as `h`.
-	// The result hash is created with `Object.create(null)`, so it doesn't
-	// inherit extra properties (like `hasOwnProperty`) from `Object`, nor
-	// will it include any inherited properties from `h`.
-	safeHash: function(h) {
-		var r = Object.create(null);
-		Object.keys(h).forEach(function(k) { r[k] = h[k]; });
-		return r;
+	mapObject: function(h) {
+		var m = new es6.Map();
+		Object.keys(h).forEach(function(k) { m.set(k, h[k]); });
+		return m;
 	},
 
 	// Deep-freeze an object

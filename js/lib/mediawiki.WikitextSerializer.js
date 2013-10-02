@@ -213,7 +213,7 @@ WEHP.hasWikitextTokens = function ( state, onNewline, options, text, linksOnly )
 			{
 				return true;
 			}
-			if (!(t.name.toUpperCase() in Consts.Sanitizer.TagWhiteList)) {
+			if (!Consts.Sanitizer.TagWhiteList.has( t.name.toUpperCase() )) {
 				continue;
 			}
 		}
@@ -278,7 +278,7 @@ WEHP.hasWikitextTokens = function ( state, onNewline, options, text, linksOnly )
 			}
 
 			// </br>!
-			if (SanitizerConstants.noEndTagHash[t.name.toLowerCase()]) {
+			if (SanitizerConstants.noEndTagSet.has( t.name.toLowerCase() )) {
 				continue;
 			}
 
@@ -575,7 +575,7 @@ WSP.escapedText = function(state, sol, origText, fullWrap) {
 	} else {
 		var buf = [],
 			inNowiki = false,
-			tokensWithoutClosingTag = JSUtils.arrayToHash([
+			tokensWithoutClosingTag = JSUtils.arrayToSet([
 				// These token types don't come with a closing tag
 				'listItem', 'td', 'tr'
 			]);
@@ -645,7 +645,7 @@ WSP.escapedText = function(state, sol, origText, fullWrap) {
 			case pd.TagTk:
 				// Treat tokens with missing tags as self-closing tokens
 				// for the purpose of minimal nowiki escaping
-				var closeNowiki = tokensWithoutClosingTag[t.name];
+				var closeNowiki = tokensWithoutClosingTag.has(t.name);
 				smartNowikier(true, closeNowiki, text.substring(tsr[0], tsr[1]), i, n);
 				sol = false;
 				break;
@@ -2458,11 +2458,11 @@ WSP.tagHandlers = {
 			before: function(node, otherNode, state) {
 
 				var otherNodeName = otherNode.nodeName,
-					tdOrBody = JSUtils.arrayToHash(['TD', 'BODY']);
+					tdOrBody = JSUtils.arrayToSet(['TD', 'BODY']);
 				if (node.parentNode === otherNode &&
-					DU.isListItem(otherNode) || otherNodeName in tdOrBody)
+					DU.isListItem(otherNode) || tdOrBody.has(otherNodeName))
 				{
-					if (otherNodeName in tdOrBody) {
+					if (tdOrBody.has(otherNodeName)) {
 						return {min: 0, max: 1};
 					} else {
 						return {min: 0, max: 0};
@@ -3645,7 +3645,7 @@ WSP.makeSeparator = function(sep, node, nlConstraints, state) {
 	//
 		// SSS FIXME: how is it that parentNode can be null??  is body getting here?
 	var parentName = node.parentNode && node.parentNode.nodeName;
-	if (nlConstraints.min > 0 && !(node.nodeName in Consts.PreSafeTags)) {
+	if (nlConstraints.min > 0 && !Consts.PreSafeTags.has( node.nodeName )) {
 		sep = sep.replace(/[^\n>]+(<!--(?:[^\-]|-(?!->))*-->[^\n]*)?$/g, '$1');
 	}
 	this.trace('makeSeparator', sep, origSep, minNls, sepNlCount, nlConstraints);

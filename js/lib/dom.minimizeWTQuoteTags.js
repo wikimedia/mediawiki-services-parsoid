@@ -122,8 +122,8 @@ function minimizeWTQuoteTags(node) {
 			//   FIXME: What if neither is new, but one of them is modified?
 			//   Do we want to minimize and introduce a dirty diff?
 			// - neither is an encapsulated elt
-			return a.nodeName in Consts.WTQuoteTags &&
-				b.nodeName in Consts.WTQuoteTags &&
+			return Consts.WTQuoteTags.has( a.nodeName ) &&
+				Consts.WTQuoteTags.has( b.nodeName ) &&
 				(DU.isNewElt(a) || DU.isNewElt(b));
 		}, true);
 }

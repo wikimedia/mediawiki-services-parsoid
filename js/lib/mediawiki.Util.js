@@ -124,7 +124,7 @@ var Util = {
 	* Determine if a tag is block-level or not
 	*/
 	isBlockTag: function ( name ) {
-		return name.toUpperCase() in Consts.HTML.BlockTags;
+		return Consts.HTML.BlockTags.has( name.toUpperCase() );
 	},
 
 	/**
@@ -132,7 +132,7 @@ var Util = {
 	 * See doBlockLevels in the PHP parser (includes/parser/Parser.php)
 	 */
 	tagOpensBlockScope: function(name) {
-		return name.toUpperCase() in Consts.BlockScopeOpenTags;
+		return Consts.BlockScopeOpenTags.has( name.toUpperCase() );
 	},
 
 	/**
@@ -140,14 +140,14 @@ var Util = {
 	 * See doBlockLevels in the PHP parser (includes/parser/Parser.php)
 	 */
 	tagClosesBlockScope: function(name) {
-		return name.toUpperCase() in Consts.BlockScopeCloseTags;
+		return Consts.BlockScopeCloseTags.has( name.toUpperCase() );
 	},
 
 	/**
 	 *Determine if the named tag is void (can not have content).
 	 */
 	isVoidElement: function ( name ) {
-		return name.toUpperCase() in Consts.HTML.VoidTags;
+		return Consts.HTML.VoidTags.has( name.toUpperCase() );
 	},
 
 	/**
@@ -170,7 +170,7 @@ var Util = {
 	isTableTag: function(token) {
 		var tc = token.constructor;
 		return (tc === pd.TagTk || tc === pd.EndTagTk) &&
-			token.name.toUpperCase() in Consts.HTML.TableTags;
+			Consts.HTML.TableTags.has( token.name.toUpperCase() );
 	},
 
 	isSolTransparentLinkTag: function(token) {
@@ -1417,7 +1417,7 @@ Util.escapeEntities = function ( text ) {
 
 Util.isHTMLElementName = function (name) {
 	name = name.toUpperCase();
-	return name in Consts.HTML.HTML5Tags || name in Consts.HTML.OlderHTMLTags;
+	return Consts.HTML.HTML5Tags.has( name ) || Consts.HTML.OlderHTMLTags.has( name );
 };
 
 /**

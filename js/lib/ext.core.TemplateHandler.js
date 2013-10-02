@@ -317,7 +317,7 @@ TemplateHandler.prototype.resolveTemplateTarget = function ( state, targetToks )
 	// {{lc:FOO}} and {{lc|FOO}}.  The latter is a template transclusion
 	// even though the target (=lc) matches a registered parser-function name.
 	if ((magicWordAlias && this.parserFunctions['pf_' + magicWordAlias]) ||
-		(pieces.length > 1 && (translatedPrefix[0] === '#' || env.conf.wiki.functionHooks[translatedPrefix])))
+		(pieces.length > 1 && (translatedPrefix[0] === '#' || env.conf.wiki.functionHooks.has(translatedPrefix))))
 	{
 		state.parserFunctionName = translatedPrefix;
 		return {
