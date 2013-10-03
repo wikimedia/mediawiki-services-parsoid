@@ -987,7 +987,7 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 	var blacklisted = false;
 	if ( booleanOption( options.blacklist ) && expectFail ) {
 		// compare with remembered output
-		if ( mode === 'selser' && testBlackList[title].raw !== actual.raw ) {
+		if ( mode === 'selser' && !options.changetree && testBlackList[title].raw !== actual.raw ) {
 			blacklisted = true;
 		} else {
 			if ( !booleanOption( options.quiet ) ) {
