@@ -4634,6 +4634,35 @@ Link to namespaces
 </p>
 !! end
 
+!! article
+MemoryAlpha:AlphaTest
+!! text
+This is an article in the MemoryAlpha namespace
+(which shadows the memoryalpha interwiki link).
+!! endarticle
+
+!! test
+Namespace takes precedence over interwiki link (bug 51680)
+!! input
+[[MemoryAlpha:AlphaTest]]
+!! result
+<p><a href="/wiki/MemoryAlpha:AlphaTest" title="MemoryAlpha:AlphaTest">MemoryAlpha:AlphaTest</a>
+</p>
+!! end
+
+# The previous test doesn't work correctly in html2*, due to not recognizing the
+# link as an internal one. This one checks for the correct behavior.
+!! test
+Link to namespace preferred over interwiki with correct rel attribute
+!! options
+parsoid=html2wt,html2html
+!! input
+[[MemoryAlpha:AlphaTest]]
+!! result
+<p><a rel="mw:WikiLink" href="./MemoryAlpha:AlphaTest">MemoryAlpha:AlphaTest</a>
+</p>
+!! end
+
 !! test
 Piped link to namespace
 !! input
