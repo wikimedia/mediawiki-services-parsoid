@@ -18,6 +18,7 @@ var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	DU = require('./mediawiki.DOMUtils.js').DOMUtils;
 // define some constructor shortcuts
 var KV = defines.KV,
+    EOFTk = defines.EOFTk,
     TagTk = defines.TagTk,
     SelfclosingTagTk = defines.SelfclosingTagTk,
     EndTagTk = defines.EndTagTk,
@@ -242,6 +243,8 @@ function buildLinkAttrs(attrs, getLinkText, rdfaType, linkAttrs) {
 				rdfaType = rdfaType ? rdfaType + " " + v : v;
 			} else if (k.trim() === "about") {
 				about = v;
+			} else if (k.trim() === "data-mw") {
+				newAttrs.push(kv);
 			}
 		}
 	}
@@ -359,10 +362,11 @@ WikiLinkHandler.prototype.renderWikiLink = function (token, frame, cb, target) {
  * normally rendered in a box at the bottom of an article.
  */
 WikiLinkHandler.prototype.renderCategory = function (token, frame, cb, target) {
-
 	var tokens = [],
 		newTk = new SelfclosingTagTk('link'),
 		content = this.addLinkAttributesAndGetContent(newTk, token, target);
+
+	var env = this.manager.env;
 
 	// Change the rel to be mw:WikiLink / Category
 	Util.lookupKV( newTk.attribs, 'rel' ).v += '/Category';
@@ -379,30 +383,34 @@ WikiLinkHandler.prototype.renderCategory = function (token, frame, cb, target) {
 
 	tokens.push( newTk );
 
-	// Deal with sort keys generated via templates/extensions
-	var producerInfo = Util.lookupKV( token.attribs, 'mw:valAffected' );
-	if (producerInfo) {
-		// Ensure that the link has about set
-		var about = Util.lookup( newTk.attribs, 'about' );
-		if (!about) {
-			about = this.manager.env.newAboutId();
-			newTk.addAttribute("about", about);
-		}
+	if (content.length === 1) {
+		cb({tokens: tokens});
+	} else {
+		// Deal with sort keys that come from generated content (transclusions, etc.)
+		cb( { async: true } );
+		Util.processAttributeToDOM(
+			this.manager,
+			content,
+			function(dom) {
+				var sortKeyInfo = [ {"txt": "mw:sortKey"}, {"html": dom.body.innerHTML} ],
+					dataMW = newTk.getAttribute("data-mw");
+				if (dataMW) {
+					dataMW = JSON.parse(dataMW);
+					dataMW.attribs.push(sortKeyInfo);
+				} else {
+					dataMW = { attribs: [sortKeyInfo] };
+				}
 
-		// Update typeof
-		newTk.addSpaceSeparatedAttribute("typeof",
-				"mw:ExpandedAttrs/" + producerInfo.v[0].match(/mw:(.*)/)[1]);
+				// Mark token as having expanded attrs
+				newTk.addAttribute("about", env.newAboutId());
+				newTk.addSpaceSeparatedAttribute("typeof", "mw:ExpandedAttrs");
+				newTk.addAttribute("data-mw", JSON.stringify(dataMW));
 
-		// Update producer meta-token and add it to the token stream
-		var metaToken = producerInfo.v[1];
-		metaToken.addAttribute("about", about);
-		var propKV = Util.lookupKV(metaToken.attribs, "property");
-		propKV.v = propKV.v.replace(/mw:maybeContent/, 'mw:sortKey'); // keep it clean
-		tokens.push(metaToken);
+				cb( { tokens: tokens } );
+			}
+		);
 	}
-	cb({tokens: tokens});
 };
-
 
 /**
  * Render a language link. Those normally appear in the list of alternate
@@ -432,7 +440,7 @@ WikiLinkHandler.prototype.renderInterwikiLink = function (token, frame, cb, targ
 
 	var tokens = [],
 		newTk = new TagTk('a', [], token.dataAttribs),
-		content = this.addLinkAttributesAndGetContent(newTk, token, target);
+		content = this.addLinkAttributesAndGetContent(newTk, token, target, true);
 
 	// We set an absolute link to the article in the other wiki/language
 	var absHref = target.interwiki.url.replace( "$1", target.href );

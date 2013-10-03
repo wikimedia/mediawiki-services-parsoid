@@ -681,6 +681,69 @@ WSP.escapedText = function(state, sol, origText, fullWrap) {
 	}
 };
 
+WSP.serializeHTML = function(opts, html) {
+	return (new WikitextSerializer(opts)).serializeDOM(DU.parseHTML(html).body);
+};
+
+WSP.getAttributeKey = function(node, key) {
+	var dataMW = node.getAttribute("data-mw");
+	if (dataMW) {
+		dataMW = JSON.parse(dataMW);
+		var tplAttrs = dataMW.attribs;
+		if (tplAttrs) {
+			// If this attribute's key is generated content,
+			// serialize HTML back to generator wikitext.
+			for (var i = 0; i < tplAttrs.length; i++) {
+				if (tplAttrs[i][0].txt === key && tplAttrs[i][0].html) {
+					return this.serializeHTML({ env: this.env, onSOL: false }, tplAttrs[i][0].html);
+				}
+			}
+		}
+	}
+
+	return key;
+};
+
+WSP.getAttributeValue = function(node, key, value) {
+	var dataMW = node.getAttribute("data-mw");
+	if (dataMW) {
+		dataMW = JSON.parse(dataMW);
+		var tplAttrs = dataMW.attribs;
+		if (tplAttrs) {
+			// If this attribute's value is generated content,
+			// serialize HTML back to generator wikitext.
+			for (var i = 0; i < tplAttrs.length; i++) {
+				if (tplAttrs[i][0].txt === key && tplAttrs[i][1].html) {
+					return this.serializeHTML({ env: this.env, onSOL: false }, tplAttrs[i][1].html);
+				}
+			}
+		}
+	}
+
+	return value;
+};
+
+// Temporarily, keep this working with old-style meta tags
+// so we dont have to purge the cache. But, on cache purge,
+// we can ditch oldStyleTplAttrs and all support for it.
+WSP.serializedAttrVal = function(node, name, oldStyleTplAttrs) {
+	DU.getDataParsoid( node );
+	if ( !DU.isElt(node) || !node.data || !node.data.parsoid ) {
+		return node.getAttribute( name );
+	}
+
+	var v = this.getAttributeValue(node, name, null);
+	if (v) {
+		return {
+			value: v,
+			modified: false,
+			fromsrc: true
+		};
+	} else {
+		return DU.getAttributeShadowInfo(node, name, oldStyleTplAttrs);
+	}
+};
+
 WSP.tokenizeStr = function(state, str, sol) {
 	var p = new PegTokenizer( state.env ), tokens = [];
 	p.on('chunk', function ( chunk ) {
@@ -1061,7 +1124,7 @@ WSP._serializeTableTag = function ( symbol, endSymbol, state, node, wrapperUnmod
 		return state.getOrigSrc(dsr[0], dsr[0]+dsr[2]);
 	} else {
 		var token = DU.mkTagTk(node);
-		var sAttribs = this._serializeAttributes(state, token);
+		var sAttribs = this._serializeAttributes(state, node, token);
 		if (sAttribs.length > 0) {
 			// IMPORTANT: 'endSymbol !== null' NOT 'endSymbol' since the '' string
 			// is a falsy value and we want to treat it as a truthy value.
@@ -1075,7 +1138,7 @@ WSP._serializeTableTag = function ( symbol, endSymbol, state, node, wrapperUnmod
 WSP._serializeTableElement = function ( symbol, endSymbol, state, node ) {
 	var token = DU.mkTagTk(node);
 
-	var sAttribs = this._serializeAttributes(state, token);
+	var sAttribs = this._serializeAttributes(state, node, token);
 	if (sAttribs.length > 0) {
 		// IMPORTANT: 'endSymbol !== null' NOT 'endSymbol' since the '' string
 		// is a falsy value and we want to treat it as a truthy value.
@@ -1107,7 +1170,7 @@ WSP._serializeHTMLTag = function ( state, node, wrapperUnmodified ) {
 		close = ' /';
 	}
 
-	var sAttribs = this._serializeAttributes(state, token),
+	var sAttribs = this._serializeAttributes(state, node, token),
 		tokenName = da.srcTagName || token.name;
 	if (sAttribs.length > 0) {
 		return '<' + tokenName + ' ' + sAttribs + close + '>';
@@ -1191,7 +1254,7 @@ var getLinkRoundTripData = function( env, node, state ) {
 	rtData.href = href.replace( /^(\.\.?\/)+/, '' );
 
 	// Now get the target from rt data
-	rtData.target = DU.getAttributeShadowInfo(node, 'href', tplAttrs);
+	rtData.target = state.serializer.serializedAttrVal(node, 'href', tplAttrs);
 
 	// Check if the link content has been modified
 	// FIXME: This will only work with selser of course. Hard to test without
@@ -1327,7 +1390,7 @@ WSP.handleOpt = function ( node, opt, optName, optVal, state, cb ) {
 			break;
 
 		case 'upright':
-			val = DU.getAttributeShadowInfo( imgnode, 'width' );
+			val = this.serializedAttrVal( imgnode, 'width' );
 			if ( val.modified ) {
 				val = imgnode.getAttribute( 'width' ) / imgwidth;
 			} else {
@@ -1346,7 +1409,7 @@ WSP.handleOpt = function ( node, opt, optName, optVal, state, cb ) {
 				cb( optName.replace( '$1', '' ) );
 			} else {
 				if ( optVal === null ) {
-					val = DU.getAttributeShadowInfo( imgnode.parentNode, 'href' );
+					val = this.serializedAttrVal( imgnode.parentNode, 'href' );
 					val = val.value.replace( /^(\.\.?\/)+/, '' );
 				} else {
 					val = optVal;
@@ -1365,14 +1428,14 @@ WSP.handleOpt = function ( node, opt, optName, optVal, state, cb ) {
 			break;
 
 		case 'width':
-			val = DU.getAttributeShadowInfo( imgnode, 'width' );
+			val = this.serializedAttrVal( imgnode, 'width' );
 
 			if ( dp.img.htset ) {
 				// The height was shadowed, which means we actually had a
 				// specified height. Return XxY.
 				cb( optName.replace(
 					'$1',
-					val.value + 'x' + DU.getAttributeShadowInfo( imgnode, 'height' ).value
+					val.value + 'x' + this.serializedAttrVal( imgnode, 'height' ).value
 				) );
 				break;
 			}
@@ -1386,12 +1449,12 @@ WSP.handleOpt = function ( node, opt, optName, optVal, state, cb ) {
 				break;
 			}
 
-			val = DU.getAttributeShadowInfo( imgnode, 'height' );
+			val = this.serializedAttrVal( imgnode, 'height' );
 			cb( optName.replace( '$1', val.value ) );
 			break;
 
 		case 'alt':
-			val = DU.getAttributeShadowInfo( imgnode, 'alt' );
+			val = this.serializedAttrVal( imgnode, 'alt' );
 	                // XXX FIXME: If the value does not come from
 	                // source, then we may need to escape
 	                // it.  -rsmith
@@ -1468,7 +1531,7 @@ WSP.handleImage = function ( node, state, cb ) {
 	imgnode = wrapNode.getElementsByTagName( 'img' )[0];
 
 	if ( imgnode.hasAttribute( 'resource' ) ) {
-		filename = DU.getAttributeShadowInfo( imgnode, 'resource' );
+		filename = this.serializedAttrVal( imgnode, 'resource' );
 		if ( filename.modified || !filename.value ) {
 			filename = imgnode.getAttribute( 'resource' ).replace( /^(\.\.?\/)+/, '' );
 		} else {
@@ -1497,7 +1560,7 @@ WSP.handleImage = function ( node, state, cb ) {
 		} );
 	} else if ( wrapName === 'a' && !this.hasOpt( opts, 'link' ) ) {
 		if ( wrapdp && wrapdp.sa && wrapdp.sa.href ) {
-			linkinfo = DU.getAttributeShadowInfo( wrapNode, 'href' );
+			linkinfo = this.serializedAttrVal( wrapNode, 'href' );
 
 			if ( linkinfo.modified || !linkinfo.value ) {
 				linkinfo.value = wrapNode.getAttribute( 'href' ).replace( /^(\.\.?\/)+/, '' );
@@ -1685,11 +1748,6 @@ WSP._addColonEscape = function (linkTarget, linkData) {
 	}
 };
 
-// SSS FIXME: This doesn't deal with auto-inserted start/end tags.
-// To handle that, we have to split every 'return ...' statement into
-// openTagSrc = ...; endTagSrc = ...; and at the end of the function,
-// check for autoInsertedStart and autoInsertedEnd attributes and
-// supress openTagSrc or endTagSrc appropriately.
 WSP.linkHandler = function(node, state, cb) {
 	// TODO: handle internal/external links etc using RDFa and dataAttribs
 	// Also convert unannotated html links without advanced attributes to
@@ -1732,10 +1790,8 @@ WSP.linkHandler = function(node, state, cb) {
 								.replace( /%20/g, ' '),
 							dp );
 					linkData.content.string = contentParts.contentString;
-					dp.tail = contentParts.tail;
-					linkData.tail = contentParts.tail;
-					dp.prefix = contentParts.prefix;
-					linkData.prefix = contentParts.prefix;
+					dp.tail = linkData.tail = contentParts.tail;
+					dp.prefix = linkData.prefix = contentParts.prefix;
 				} else if ( dp.pipetrick ) {
 					// Handle empty sort key, which is not encoded as fragment
 					// in the LinkHandler
@@ -1745,11 +1801,11 @@ WSP.linkHandler = function(node, state, cb) {
 				}
 
 				// Special-case handling for template-affected sort keys
-				// FIXME: sort keys cannot be modified yet, but if they are we
-				// need to fully shadow the sort key.
+				// FIXME: sort keys cannot be modified yet, but if they are,
+				// we need to fully shadow the sort key.
 				//if ( ! target.modified ) {
 					// The target and source key was not modified
-					var sortKeySrc = DU.getAttributeShadowInfo(node, 'mw:sortKey', state.tplAttrs);
+					var sortKeySrc = this.serializedAttrVal(node, 'mw:sortKey', state.tplAttrs);
 					if ( sortKeySrc.value !== null ) {
 						linkData.contentNode = undefined;
 						linkData.content.string = sortKeySrc.value;
@@ -1961,12 +2017,6 @@ WSP.linkHandler = function(node, state, cb) {
 				']', node );
 		}
 	}
-
-	//if ( rtinfo.type === 'wikilink' ) {
-	//	return '[[' + rtinfo.target + ']]';
-	//} else {
-	//	// external link
-	//	return '[' + rtinfo.
 };
 
 WSP.genContentSpanTypes = {
@@ -2566,7 +2616,7 @@ WSP.tagHandlers = {
 					if (out === 'categorydefaultsort') {
 						if (node.data.parsoid.src) {
 							// Use content so that VE modifications are preserved
-							var contentInfo = DU.getAttributeShadowInfo(node, "content", state.tplAttrs);
+							var contentInfo = state.serializer.serializedAttrVal(node, "content", state.tplAttrs);
 							out = node.data.parsoid.src.replace(/^([^:]+:)(.*)$/, "$1" + contentInfo.value + "}}");
 						} else {
 							console.warn('defaultsort is missing source. Rendering as DEFAULTSORT magicword');
@@ -2868,7 +2918,7 @@ WSP.tagHandlers = {
 	}
 };
 
-WSP._serializeAttributes = function (state, token) {
+WSP._serializeAttributes = function (state, node, token) {
 	function hasExpandedAttrs(tokType) {
 		return (/(?:^|\s)mw:ExpandedAttrs\/[^\s]+/).test(tokType);
 	}
@@ -2891,11 +2941,15 @@ WSP._serializeAttributes = function (state, token) {
 	}
 
 	var out = [],
+		// Strip Parsoid generated values
+		keysWithParsoidValues = {
+			'about': /^#mwt\d+$/,
+			'typeof': /(^|\s)mw:[^\s]+/g
+		},
 		ignoreKeys = {
-			about: 1, // FIXME: only strip if value starts with #mw?
-			'typeof': 1, // similar: only strip values with mw: prefix
-			// The following should be filtered out earlier, but we ignore
-			// them here too just to make sure.
+			'data-mw': 1,
+			// The following should be filtered out earlier,
+			// but we ignore them here too just to make sure.
 			'data-parsoid': 1,
 			'data-ve-changed': 1,
 			'data-parsoid-changed': 1,
@@ -2908,12 +2962,25 @@ WSP._serializeAttributes = function (state, token) {
 		kv = attribs[i];
 		k = kv.k;
 
-		// Ignore about and typeof if they are template-related
+		// Unconditionally ignore
 		if (ignoreKeys[k]) {
 			continue;
 		}
 
-		if (k.length) {
+		// Strip Parsoid-values
+		//
+		// FIXME: Given that we are currently escaping about/typeof keys
+		// that show up in wikitext, we could unconditionally strip these
+		// away right now.
+		if (keysWithParsoidValues[k] && kv.v.match(keysWithParsoidValues[k])) {
+			v = kv.v.replace(keysWithParsoidValues[k], '');
+			if (v) {
+				out.push(k + '=' + '"' + v + '"');
+			}
+			continue;
+		}
+
+		if (k.length > 0) {
 			tplKV = tplAttrState.kvs[k];
 			if (tplKV) {
 				out.push(tplKV);
@@ -2926,9 +2993,14 @@ WSP._serializeAttributes = function (state, token) {
 				// Deal with k/v's that were template-generated
 				if (tplK) {
 					k = tplK;
+				} else {
+					k = this.getAttributeKey(node, k);
 				}
-				if (tplV){
+
+				if (tplV) {
 					v = tplV;
+				} else {
+					v = this.getAttributeValue(node, k, v);
 				}
 
 				// Remove encapsulation from protected attributes
@@ -3172,7 +3244,7 @@ WSP._buildExtensionWT = function(state, node, dataMW) {
 	if (type) {
 		extTok.addAttribute('typeof', type);
 	}
-	attrStr = this._serializeAttributes(state, extTok);
+	attrStr = this._serializeAttributes(state, node, extTok);
 
 	if (attrStr) {
 		srcParts.push(' ');

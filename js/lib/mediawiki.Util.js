@@ -844,6 +844,21 @@ var Util = {
 		pipeline.process(content, opts.tplArgs ? opts.tplArgs.cacheKey : undefined);
 	},
 
+	processAttributeToDOM: function(manager, content, cb) {
+		this.processContentInPipeline(
+			manager,
+			content.concat([new pd.EOFTk()]), {
+				pipelineType: "tokens/x-mediawiki/expanded",
+				pipelineOpts: {
+					inBlockToken: true,
+					noPre: true,
+					wrapTemplates: true
+				},
+				documentCB: cb
+			}
+		);
+	},
+
 	extractExtBody: function(extName, extTagSrc) {
 		var re = "<" + extName + "[^>]*/?>([\\s\\S]*)";
 		return extTagSrc.replace(new RegExp(re, "mi"), function() {
