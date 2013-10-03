@@ -29,8 +29,9 @@ var WikitextSerializer = require( './mediawiki.WikitextSerializer.js' ).Wikitext
  */
 var SelectiveSerializer = function ( options ) {
 	// Set edit mode
-	this.env = options.env || { conf : { parsoid : {} } };
+	this.env = options.env || { conf : { parsoid : {} }, performance : {} };
 	this.env.conf.parsoid.editMode = true;
+	this.env.performance.selser = true;
 
 	this.wts = options.wts || new WikitextSerializer( options );
 
@@ -179,6 +180,7 @@ SSP.serializeDOM = function ( doc, cb, finalcb ) {
 							console.error('Error while fetching page source or original DOM!');
 						} else {
 							// no error.
+							self.env.performance['selser-cache-hit'] = true;
 
 							// Set the page source.
 							self.env.setPageSrcInfo(results[0]);

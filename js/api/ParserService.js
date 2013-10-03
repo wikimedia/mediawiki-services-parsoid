@@ -638,7 +638,6 @@ app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 		// Set the timeout to 900 seconds..
 		req.connection.setTimeout(900 * 1000);
 
-		var st = new Date();
 		console.log('starting parsing of ' + prefix + ':' + target);
 		var oldid = null;
 		if ( req.query.oldid ) {
@@ -654,10 +653,11 @@ app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 
 		var tpr = new TemplateRequest( env, target, oldid );
 		tpr.once('src', parse.bind( null, env, req, res, function ( req, res, src, doc ) {
-			res.end(Util.serializeNode(doc.documentElement));
-			var et = new Date();
+			var out = Util.serializeNode(doc.documentElement);
+			res.setHeader('X-Parsoid-Performance', env.getPerformanceHeader());
+			res.end(out);
 			console.warn("completed parsing of " + prefix +
-				':' + target + " in " + (et - st) + " ms");
+				':' + target + " in " + env.performance.duration + " ms");
 		}));
 	};
 
@@ -688,6 +688,7 @@ app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function ( req, res 
 				function ( chunk ) {
 					out.push(chunk);
 				}, function () {
+					res.setHeader('X-Parsoid-Performance', env.getPerformanceHeader());
 					res.write( out.join('') );
 					res.end('');
 				} );

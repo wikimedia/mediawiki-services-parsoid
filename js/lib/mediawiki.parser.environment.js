@@ -104,6 +104,7 @@ var MWParserEnvironment = function ( parsoidConfig, wikiConfig ) {
 
 	this.conf.wiki = wikiConfig;
 	this.conf.parsoid = parsoidConfig;
+	this.performance = {};
 
 	this.reset( this.page.name );
 
@@ -231,6 +232,7 @@ MWParserEnvironment.prototype.reset = function ( pageName ) {
 		// protocols.
 		this.page.relativeLinkPrefix = './';
 	}
+	this.performance.start = new Date().getTime();
 };
 
 MWParserEnvironment.prototype.getVariable = function( varname, options ) {
@@ -278,6 +280,23 @@ MWParserEnvironment.getParserEnv = function ( parsoidConfig, wikiConfig, prefix,
 	env.switchToConfig( prefix, function ( err ) {
 		cb( err, env );
 	} );
+};
+
+/**
+ * Build a string representing a set of parameters, suitable for use
+ * as the value of an HTTP header. Performs no escaping.
+ * @returns {string}
+ */
+MWParserEnvironment.prototype.getPerformanceHeader = function () {
+	var p = this.performance;
+
+	if ( p.start && !p.duration ) {
+		p.duration = ( new Date().getTime() ) - p.start;
+	}
+
+	return Object.keys( p ).sort().map( function ( k ) {
+		return [ k, p[k] ].join( '=' );
+	} ).join( '; ' );
 };
 
 /**
