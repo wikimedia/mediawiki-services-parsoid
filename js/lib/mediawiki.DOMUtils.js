@@ -197,6 +197,9 @@ var DOMUtils = {
 	 */
 	loadDataParsoid: function(node) {
 		this.loadDataAttrib(node, 'parsoid', {});
+		if (this.isElt(node) && !node.data.parsoid.tmp) {
+			node.data.parsoid.tmp = {};
+		}
 	},
 
 	getDataParsoid: function ( n ) {
@@ -1160,8 +1163,7 @@ var DOMUtils = {
 			textCommentAccum.forEach( function(n) {
 				span.appendChild(n);
 			});
-			// FIXME: Should not be done unconditionally
-			span.setAttribute("data-parsoid", JSON.stringify({wrapper: true}));
+			span.setAttribute("data-parsoid", JSON.stringify({tmp: { wrapper: true }}));
 			out.push(span);
 			textCommentAccum = [];
 		}

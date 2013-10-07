@@ -60,10 +60,13 @@ function cleanupAndSaveDataParsoid( node ) {
 				dp.src = undefined;
 			}
 
-			// Remove tsr if requested
+			// Remove tsr
 			if (dp.tsr) {
 				dp.tsr = undefined;
 			}
+
+			// Remove temporary information
+			dp.tmp = undefined;
 
 			// Make dsr zero-range for fostered content
 			// to prevent selser from duplicating this content

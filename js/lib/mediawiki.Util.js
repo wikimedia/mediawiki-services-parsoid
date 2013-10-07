@@ -173,6 +173,10 @@ var Util = {
 			Consts.HTML.TableTags.has( token.name.toUpperCase() );
 	},
 
+	hasParsoidTypeOf: function(typeOf) {
+		return (/(^|\s)mw:[^\s]+/).test(typeOf);
+	},
+
 	isSolTransparentLinkTag: function(token) {
 		var tc = token.constructor;
 		return (tc === pd.SelfclosingTagTk || tc === pd.TagTk || tc === pd.EndTagTk) &&

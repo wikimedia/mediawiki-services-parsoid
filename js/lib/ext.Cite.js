@@ -22,14 +22,13 @@ function processExtSource(manager, extToken, opts) {
 		tagWidths = extToken.dataAttribs.tagWidths,
 		content = extSrc.substring(tagWidths[0], extSrc.length - tagWidths[1]);
 
-	// FIXME: SSS: This stripping maybe be unecessary after all.
-	//
 	// FIXME: Should this be specific to the extension
-	//
-	// or is it okay to do this unconditionally for all?
+	// Or is it okay to do this unconditionally for all?
 	// Right now, this code is run only for ref and references,
 	// so not a real problem, but if this is used on other extensions,
 	// requires addressing.
+	//
+	// FIXME: SSS: This stripping maybe be unecessary after all.
 	//
 	// Strip all leading white-space
 	var wsMatch = content.match(/^(\s*)([^]*)$/),
@@ -51,11 +50,7 @@ function processExtSource(manager, extToken, opts) {
 		opts.srcOffsets = [ tsr[0]+tagWidths[0]+leadingWS.length, tsr[1]-tagWidths[1] ];
 
 		// Process ref content
-		Util.processContentInPipeline(
-			manager,
-			content.concat([new EOFTk()]),
-			opts
-		);
+		Util.processContentInPipeline( manager, content, opts );
 	}
 }
 

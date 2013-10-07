@@ -107,8 +107,8 @@ function unpackDOMFragments(env, node) {
 				DU.deleteNode(sibling);
 			}
 
-			var contentNode = dummyNode.firstChild;
-			var haveOrigType = contentNode.getAttribute("typeof") !== null;
+			var contentNode = dummyNode.firstChild,
+				haveOrigType = Util.hasParsoidTypeOf(contentNode.getAttribute("typeof"));
 
 			// Update DSR
 			//
@@ -151,7 +151,9 @@ function unpackDOMFragments(env, node) {
 
 				// Discard unnecessary span wrappers
 				DU.loadDataParsoid(n);
-				if (n.data.parsoid.wrapper && !haveOrigType && !n.getAttribute("typeof")) {
+				if (n.data.parsoid.tmp.wrapper &&
+					!haveOrigType && !n.getAttribute("typeof"))
+				{
 					DU.migrateChildren(n, n.parentNode, n);
 					DU.deleteNode(n);
 				}
