@@ -382,6 +382,11 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 					 * content.
 					 * ------------------------------------------------------------- */
 					newDsr = [ccs, cce];
+				} else if (DU.isDOMFragmentWrapper(child)) {
+					// Eliminate artificial cs/s mismatch warnings since this is
+					// just a wrapper token with the right DSR but without any
+					// nested subtree that could account for the DSR span.
+					newDsr = [ccs, cce];
 				} else {
 					newDsr = computeNodeDSR(env, child, ccs, cce, dsrCorrection, traceDSR);
 				}
@@ -519,4 +524,5 @@ function computeDSR(root, env, options) {
 
 if (typeof module === "object") {
 	module.exports.computeDSR = computeDSR;
+	module.exports.computeNodeDSR = computeNodeDSR;
 }

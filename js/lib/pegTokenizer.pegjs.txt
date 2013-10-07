@@ -822,15 +822,16 @@ extlink
             //    linkCount++;
             //}
             //console.warn( 'extlink text: ' + pp( text ) );
-            var dataAttribs = { targetOff: targetOff };
-            dataAttribs.tsr = [pos0, pos];
             return [
                 new SelfclosingTagTk( 'extlink', [
                     new KV('href', target),
                     new KV('mw:content', content),
                     new KV('spaces', sp.join(''))
-                ],
-                dataAttribs)
+                ], {
+                    targetOff: targetOff,
+                    tsr: [pos0, pos],
+                    contentOffsets: [targetOff, pos-1]
+                })
             ];
         }
       / "[" & { return stops.pop('extlink'); }
@@ -1120,14 +1121,14 @@ template_param_text
 
 wikilink_content
   = lcs:( pipe startPos:({ return pos; }) lt:link_text? {
-        var maybeContent = new KV( 'mw:maybeContent', lt );
+        var maybeContent = new KV( 'mw:maybeContent', lt, [startPos, pos] );
         maybeContent.vsrc = input.substring( startPos, pos );
         return maybeContent;
     } ) + {
         if ( lcs.length === 1 && lcs[0].v === '' ) {
-            return { pos: [pos0, pos], content: [], pipetrick: true };
+            return { content: [], pipetrick: true };
         } else {
-            return { pos: [pos0, pos], content: lcs };
+            return { content: lcs };
         }
     }
 
@@ -1143,28 +1144,23 @@ wikilink
     "]]"
   {
       if ( lcontent === '' ) {
-          lcontent = { pos: [pos0, pos], content: [] };
+          lcontent = { content: [] };
       }
+      //console.warn('lcontent: ' + JSON.stringify( lcontent, null, 2 ) );
+
       var obj = new SelfclosingTagTk( 'wikilink' ),
           textTokens = [],
           hrefKV = new KV('href', target);
       hrefKV.vsrc = input.substring(pos0+2, tpos);
-      obj.attribs.push(hrefKV);
-      obj.dataAttribs = {
-          tsr: [pos0, pos],
-          src: input.substring( pos0, pos )
-      };
-      if ( lcontent.pipetrick ) {
-          obj.dataAttribs.pipetrick = lcontent.pipetrick;
-      }
       // XXX: Point to object with path, revision and input information
       //obj.source = input;
-
-      //console.warn('lcontent: ' + JSON.stringify( lcontent, null, 2 ) );
-      // Deal with content. XXX: Properly support pipe-trick etc
-
+      obj.attribs.push(hrefKV);
       obj.attribs = obj.attribs.concat( lcontent.content );
-      //console.warn( "XXX:" + pp([obj].concat(textTokens, [new EndTagTk( 'a' )])) );
+      obj.dataAttribs = {
+          tsr: [pos0, pos],
+          src: input.substring( pos0, pos ),
+          pipetrick: lcontent.pipetrick
+      };
       return [obj];
   }
 

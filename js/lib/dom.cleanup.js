@@ -60,7 +60,7 @@ function cleanupAndSaveDataParsoid( node ) {
 				dp.src = undefined;
 			}
 
-			// Remove tsr
+			// Remove tsr if requested
 			if (dp.tsr) {
 				dp.tsr = undefined;
 			}

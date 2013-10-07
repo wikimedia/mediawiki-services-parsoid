@@ -23,6 +23,7 @@ function traceUsage() {
 	buf.push("  * sync:1    : shows tokens flowing through the post-tokenizer Sync Token Transform Manager");
 	buf.push("  * async:2   : shows tokens flowing through the Async Token Transform Manager");
 	buf.push("  * sync:3    : shows tokens flowing through the post-expansion Sync Token Transform Manager");
+	buf.push("  * tsp       : shows tokens flowing through the TokenStreamPatcher (useful to see in-order token stream)");
 	buf.push("  * list      : shows actions of the list handler");
 	buf.push("  * pre       : shows actions of the pre handler");
 	buf.push("  * pre_debug : shows actions of the pre handler + tokens returned from it");
@@ -51,6 +52,7 @@ function dumpFlags() {
 	buf.push("  * dom:pre-dsr       : dumps DOM prior to computing DSR");
 	buf.push("  * dom:post-dsr      : dumps DOM after computing DSR");
 	buf.push("  * dom:pre-encap     : dumps DOM before template encapsulation");
+	buf.push("  * dom:post-encap    : dumps DOM after template encapsulation");
 	buf.push("  * dom:post-dom-diff : in selective serialization, dumps DOM after running dom diff\n");
 	buf.push("--debug dumps state at these different stages\n");
 	buf.push("Examples:");

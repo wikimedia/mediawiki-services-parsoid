@@ -829,8 +829,10 @@ AsyncTokenTransformManager.prototype.maybeSyncReturn = function ( s, cbs, ret ) 
  * @class
  * @extends TokenTransformManager
  */
+var suid = 0;
 function SyncTokenTransformManager ( env, options, pipeFactory, phaseEndRank, attributeType ) {
 	TokenTransformManager.call(this);
+	this.uid = suid++; // useful for debugging
 	this.env = env;
 	this.options = options;
 	this.pipeFactory = pipeFactory;
@@ -894,7 +896,7 @@ SyncTokenTransformManager.prototype.onChunk = function ( tokens ) {
 		}
 
 		if (this.trace) {
-			console.warn("S" + this.phaseEndRank + ": " + JSON.stringify(token));
+			console.warn("S" + this.phaseEndRank + "-" + this.uid + ": " + JSON.stringify(token));
 		} else {
 			// SSS FIXME: with individual stage tracing, this overall generic tracing
 			// is becoming less and less useful now.  Do a cleanup one of these days.

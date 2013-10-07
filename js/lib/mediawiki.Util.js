@@ -704,6 +704,27 @@ var Util = {
 		return out;
 	},
 
+	/**
+	 * Creates a dom-fragment-token for processing 'content' (an array of tokens)
+	 * in its own subpipeline all the way to DOM. These tokens will be processed
+	 * by their own handler (DOMFragmentBuilder) in the last stage of the async
+	 * pipeline.
+	 *
+	 * srcOffsets should always be provided to process top-level page content in a
+	 * subpipeline. Without it, DSR computation and template wrapping cannot be done
+	 * in the subpipeline. While unpackDOMFragment can do this on unwrapping, that can
+	 * be a bit fragile and makes dom-fragments a leaky abstraction by leaking subpipeline
+	 * processing nto the top-level pipeline.
+	 */
+	getDOMFragmentToken: function(content, srcOffsets, opts) {
+		return new pd.SelfclosingTagTk('mw:dom-fragment-token', [
+			new pd.KV('contextTok', opts.token),
+			new pd.KV('content', content),
+			new pd.KV('noPre',  opts.noPre || false),
+			new pd.KV('srcOffsets', srcOffsets)
+		]);
+	},
+
 	// Does this need separate UI/content inputs?
 	formatNum: function( num ) {
 		return num + '';

@@ -223,11 +223,10 @@ WikiLinkHandler.prototype.getWikiLinkHandler = function (token, target) {
  * ------------------------------------------------------------ */
 function buildLinkAttrs(attrs, getLinkText, rdfaType, linkAttrs) {
 	var newAttrs = [],
-		linkText = [],
+		linkTextKVs = [],
 		about;
 
-	// In one pass through the attribute array, fetch about, typeof, and
-	// linkText
+	// In one pass through the attribute array, fetch about, typeof, and linkText
 	//
 	// about && typeof are usually at the end of the array if at all present
 	for ( var i = 0, l = attrs.length; i < l; i++ ) {
@@ -237,7 +236,7 @@ function buildLinkAttrs(attrs, getLinkText, rdfaType, linkAttrs) {
 
 		// link-text attrs have the key "maybeContent"
 		if (getLinkText && k === "mw:maybeContent") {
-			linkText.push(kv);
+			linkTextKVs.push(kv);
 		} else if (k.constructor === String && k) {
 			if (k.trim() === "typeof") {
 				rdfaType = rdfaType ? rdfaType + " " + v : v;
@@ -261,7 +260,7 @@ function buildLinkAttrs(attrs, getLinkText, rdfaType, linkAttrs) {
 
 	return {
 		attribs: newAttrs,
-		content: linkText,
+		contentKVs: linkTextKVs,
 		hasRdfaType: rdfaType !== null
 	};
 }
@@ -273,35 +272,45 @@ function buildLinkAttrs(attrs, getLinkText, rdfaType, linkAttrs) {
  *
  * @returns {Array} Content tokens
  */
-WikiLinkHandler.prototype.addLinkAttributesAndGetContent = function (newTk, token, target) {
+WikiLinkHandler.prototype.addLinkAttributesAndGetContent = function (newTk, token, target, buildDOMFragment) {
 	//console.warn( 'title: ' + JSON.stringify( title ) );
 	var title = target.title,
 		attribs = token.attribs,
+		dataAttribs = token.dataAttribs,
 		newAttrData = buildLinkAttrs(attribs, true, null, [new KV('rel', 'mw:WikiLink')]),
-		content = newAttrData.content,
+		content = newAttrData.contentKVs,
 		env = this.manager.env;
+
 	// Set attribs and dataAttribs
 	newTk.attribs = newAttrData.attribs;
-	newTk.dataAttribs = Util.clone(token.dataAttribs);
-
+	newTk.dataAttribs = Util.clone(dataAttribs);
 	newTk.dataAttribs.src = undefined; // clear src string since we can serialize this
 
 	// Note: Link tails are handled on the DOM in handleLinkNeighbours, so no
 	// need to handle them here.
 	if ( content.length > 0 ) {
+		newTk.dataAttribs.stx = 'piped';
 		var out = [];
 		// re-join content bits
 		for ( var i = 0, l = content.length; i < l ; i++ ) {
-			out = out.concat( content[i].v );
+			var toks = content[i].v;
+			out = out.concat(toks);
 			if ( i < l - 1 ) {
 				out.push( '|' );
 			}
 		}
-		newTk.dataAttribs.stx = 'piped';
-		content = out;
+
+		if (buildDOMFragment) {
+			// content = [part 0, .. part l-1]
+			// offsets = [start(part-0), end(part l-1)]
+			var offsets = dataAttribs.tsr ? [content[0].srcOffsets[0], content[l-1].srcOffsets[1]] : null;
+			content = Util.getDOMFragmentToken(out, offsets, {noPre: true, token: token});
+		} else {
+			content = out;
+		}
 	} else {
-		var morecontent = Util.decodeURI(target.href);
 		newTk.dataAttribs.stx = 'simple';
+		var morecontent = Util.decodeURI(target.href);
 		if ( token.dataAttribs.pipetrick ) {
 			morecontent = Util.stripPipeTrickChars(morecontent);
 		}
@@ -337,16 +346,12 @@ WikiLinkHandler.prototype.addLinkAttributesAndGetContent = function (newTk, toke
  * Render a plain wiki link.
  */
 WikiLinkHandler.prototype.renderWikiLink = function (token, frame, cb, target) {
-	var tokens = [],
-		newTk = new TagTk('a'),
-		content = this.addLinkAttributesAndGetContent(newTk, token, target);
+	var newTk = new TagTk('a'),
+		content = this.addLinkAttributesAndGetContent(newTk, token, target, true);
 
 	newTk.addNormalizedAttribute( 'href', target.title.makeLink(), target.hrefSrc );
 
-	tokens.push( newTk );
-	tokens = tokens.concat(content, [new EndTagTk('a')]);
-
-	cb({tokens: tokens});
+	cb({tokens: [newTk].concat(content, [new EndTagTk('a')])});
 };
 
 /**
@@ -365,8 +370,7 @@ WikiLinkHandler.prototype.renderCategory = function (token, frame, cb, target) {
 	var strContent = Util.tokensToString( content ),
 		saniContent = Util.sanitizeTitleURI( strContent ).replace( /#/g, '%23' );
 	newTk.addNormalizedAttribute( 'href', target.title.makeLink(), target.hrefSrc );
-	// Change the href to include the sort key, if any (but don't update the
-	// rt info)
+	// Change the href to include the sort key, if any (but don't update the rt info)
 	if ( strContent && strContent !== '' && strContent !== target.href ) {
 		var hrefkv = Util.lookupKV( newTk.attribs, 'href' );
 		hrefkv.v += '#';
@@ -639,52 +643,6 @@ function getPath( info ) {
 	return path.replace(/^https?:\/\//, '//');
 }
 
-// It turns out that image captions can have unclosed block tags which
-// then messes up the entire DOM and wraps the reset of the page into
-// the image caption which is wrong and also screws up the RTing in
-// turn.  So, we forcibly close all unclosed block tags by treating
-// the caption as a well-nested DOM context.
-//
-// TODO: Actually build a real DOM so that inlines etc are
-// encapsulated too. This would need to apply phase 3 token
-// transforms, as the caption as an attribute is already expanded to
-// phase 2.
-function closeUnclosedBlockTags(tokens) {
-	var i, j, n, t,
-		// Store the index of a token in the 'tokens' array
-		// rather than the token itself.
-		openBlockTagStack = [];
-
-	for (i = 0, n = tokens.length; i < n; i++) {
-		t = tokens[i];
-		if (Util.isBlockToken(t)) {
-			if (t.constructor === TagTk) {
-				openBlockTagStack.push(i);
-			} else if (t.constructor === EndTagTk && openBlockTagStack.length > 0) {
-				if (tokens[openBlockTagStack.last()].name === t.name) {
-					openBlockTagStack.pop();
-				}
-			}
-		}
-	}
-
-	n = openBlockTagStack.length;
-	if (n > 0) {
-		if (Object.isFrozen(tokens)) {
-			tokens = tokens.slice();
-		}
-		for (i = 0; i < n; i++) {
-			j = openBlockTagStack.pop();
-			t = tokens[j].clone();
-			t.dataAttribs.autoInsertedEnd = true;
-			tokens[j] = t;
-			tokens.push(new EndTagTk(t.name));
-		}
-	}
-
-	return tokens;
-}
-
 /**
  * Render a file. This can be an image, a sound, a PDF etc.
  *
@@ -694,7 +652,9 @@ function closeUnclosedBlockTags(tokens) {
 WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 {
 	var fileName = target.href,
-		title = target.title;
+		title = target.title,
+		caption, captionSrcOffsets;
+
 	var urlParser = this.urlParser;
 	/**
 	 * Determine the name of an option
@@ -769,7 +729,7 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 	 */
 	function stringifyOptionTokens( tstream, prefix ) {
 		var i, currentToken, tokenType, tkHref, nextResult,
-			skipToEndOf,
+			optInfo, skipToEndOf,
 			resultStr = '';
 
 		prefix = prefix || '';
@@ -885,9 +845,6 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 			info = image.imageinfo[0];
 		} else {
 			image = data.pages[ns + ':' + filename];
-			// SSS FIXME: image.missing doesn't seem to be very useful.
-			// It is often "" even both for missing images as well as valid images.
-			//
 			// FIXME gwicke: Make sure our filename is never of the form
 			// 'File:foo.png|Some caption', as is the case for example in
 			// [[:de:Portal:Thüringen]]. The href is likely templated where
@@ -970,8 +927,8 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 				}
 			}
 
-			if ( caption !== undefined ) {
-				caption = closeUnclosedBlockTags( caption );
+			if (caption) {
+				caption = Util.getDOMFragmentToken(caption, captionSrcOffsets, {noPre: true, token: token});
 			}
 		}
 
@@ -1043,6 +1000,8 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 		// Transfer tsr to the first token
 		firstWrapperToken.dataAttribs.tsr = token.dataAttribs.tsr;
 
+		// SSS FIXME: This could be deleted
+		//
 		// Capture the delta between the old/new wikitext start posn.
 		// 'tsr' values are stripped in the original DOM and won't be
 		// present.  Since dsr[0] is identical to tsr[0] in this case,
@@ -1060,11 +1019,11 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 	var env = this.manager.env,
 		// distinguish media types
 		// if image: parse options
-		content = buildLinkAttrs(token.attribs, true, null, null ).content;
+		content = buildLinkAttrs(token.attribs, true, null, null ).contentKVs;
 
 	// extract options
 	// TODO gwicke: abstract out!
-	var i, l, kv, captionSrc, linkSrc, caption, captionOffset, altBackup,
+	var i, l, kv, captionInfo, captionSrc, linkSrc, captionOffset, altBackup,
 		// option hash, both keys and values normalized
 		oHash = { height: null, width: null },
 		getOption = env.conf.wiki.getMagicPatternMatcher( WikitextConstants.Image.PrefixOptions );
@@ -1077,13 +1036,8 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 			oText = Util.tokensToString( oContent.v, true );
 		//console.log( JSON.stringify( oText, null, 2 ) );
 
-		optInfo = undefined;
-
 		if ( oText === '' ) {
-			token.dataAttribs.optList.push( {
-				ck: '',
-				ak: ''
-			} );
+			token.dataAttribs.optList.push( { ck: '', ak: '' } );
 			continue;
 		}
 
@@ -1097,23 +1051,26 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 		}
 
 		if ( oText.constructor === String ) {
-			if ( optInfo === undefined ) {
-				optInfo = getOptionInfo( oText );
-			}
+			optInfo = getOptionInfo( oText );
 		}
 
 		// For the values of the caption and options, see
-		// getOptionInfo's documentation above
+		// getOptionInfo's documentation above.
+		//
+		// FIXME: If there are multiple captions, this code always
+		// picks the last entry. Is this the spec? If so, explicit
+		// document it here. If not, fix the code.
 		if ( oText.constructor !== String || optInfo === null ) {
 			// No valid option found!?
 			// Record for RT-ing
-			caption = {
+			captionInfo = {
 				v: oContent.v,
 				ak: oText
 			};
 			// So we know where to put it in the array at the end
 			captionOffset = token.dataAttribs.optList.length;
 			captionSrc = oContent.vsrc;
+			captionSrcOffsets = oContent.srcOffsets;
 			continue;
 		}
 
@@ -1156,12 +1113,12 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 	}
 
 	// Add the caption if there is one
-	if ( caption ) {
+	if ( captionInfo ) {
 		token.dataAttribs.optList.splice( captionOffset, 0, {
 			ck: 'caption',
-			ak: caption.ak
+			ak: captionInfo.ak
 		} );
-		caption = caption.v;
+		caption = captionInfo.v;
 	}
 
 	//var contentPos = token.dataAttribs.contentPos;
@@ -1422,6 +1379,9 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 		} else {
 			aStart.addAttribute( 'href', href );
 		}
+
+		content = Util.getDOMFragmentToken(content, dataAttribs.tsr ? dataAttribs.contentOffsets : null, {noPre: true, token: token});
+
 		cb( {
 			tokens: [aStart].concat(content, [new EndTagTk('a')])
 		} );

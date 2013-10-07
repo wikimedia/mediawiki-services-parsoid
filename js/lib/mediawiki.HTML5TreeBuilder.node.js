@@ -23,9 +23,12 @@ var CommentTk = defines.CommentTk,
 
 var FauxHTML5 = {};
 
+var gid = 0;
 
 FauxHTML5.TreeBuilder = function ( env ) {
 	events.EventEmitter.call(this);
+
+	this.uid = gid++;
 
 	// The parser we are going to emit our tokens to
 	this.parser = new HTML5.Parser({
@@ -83,14 +86,14 @@ FauxHTML5.TreeBuilder.prototype.onChunk = function ( tokens ) {
 		return;
 	}
 
-	if (this.trace) { console.warn("---- <chunk> ----"); }
+	if (this.trace) { console.warn("---- HTML-" + this.uid + ":<chunk> ----"); }
 
 	this.env.dp( 'chunk: ' + JSON.stringify( tokens, null, 2 ) );
 	for (var i = 0; i < n; i++) {
 		this.processToken(tokens[i]);
 	}
 
-	if (this.trace) { console.warn("---- </chunk> ----"); }
+	if (this.trace) { console.warn("---- HTML-" + this.uid + ":</chunk> ----"); }
 };
 
 FauxHTML5.TreeBuilder.prototype.onEnd = function ( ) {
