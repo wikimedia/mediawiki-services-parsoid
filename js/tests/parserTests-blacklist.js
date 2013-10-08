@@ -1763,6 +1763,8 @@ add("html2wt", "Parsoid-specific image handling - thumbnail with specific size, 
 add("html2wt", "Parsoid-specific image handling - framed image with specific size and caption");
 add("html2wt", "Parsoid-specific image handling - framed image with specific size, halign, valign, and caption");
 add("html2wt", "Parsoid-specific image handling - frameless image with specific size, border, and caption");
+add("html2wt", "Caption with a template in it");
+add("html2wt", "Caption with unbalanced tags in it");
 add("html2wt", "Subpage link");
 add("html2wt", "Subpage noslash link");
 add("html2wt", "Disabled subpages");

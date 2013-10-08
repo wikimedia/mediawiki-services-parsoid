@@ -9729,6 +9729,30 @@ parsoid
 #</span>
 #</p>
 
+!! test
+Caption with a template in it
+!! options
+parsoid
+!! input
+[[Image:Foobar.jpg|thumb|200px|This caption has a {{echo|transclusion}} in it.]]
+!! result
+<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" height="23" width="200"></a><figcaption>This caption has a <span about="#mwt1" typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;transclusion&quot;}},&quot;i&quot;:0}}]}">transclusion</span> in it.</figcaption></figure>
+!! end
+
+!! test
+Caption with unbalanced tags in it
+!! options
+parsoid
+!! input
+foo
+[[Image:Foobar.jpg|thumb|200px|This caption has a <center>unbalanced tag in it.]]
+bar
+!! result
+<p>foo</p>
+<figure typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="23" width="200"></a><figcaption>This caption has a <center>unbalanced tag in it.</center></figcaption></figure>
+<p>bar</p>
+!! end
+
 
 ###
 ### Subpages

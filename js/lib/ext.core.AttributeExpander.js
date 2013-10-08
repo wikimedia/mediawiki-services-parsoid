@@ -138,10 +138,10 @@ AttributeExpander.prototype.rank = 1.12;
  */
 AttributeExpander.prototype.onToken = function ( token, frame, cb ) {
 	// console.warn( 'AttributeExpander.onToken: ', JSON.stringify( token ) );
-	if ( (token.constructor === TagTk ||
-			token.constructor === SelfclosingTagTk) &&
-				token.attribs &&
-				token.attribs.length ) {
+	if ( (token.constructor === TagTk || token.constructor === SelfclosingTagTk) &&
+		// Do not process dom-fragment tokens: a separate handler deals with them.
+		token.name !== 'mw:dom-fragment-token' &&
+		token.attribs && token.attribs.length ) {
 		var atm = new AttributeTransformManager(
 					this.manager,
 					{ wrapTemplates: this.options.wrapTemplates },
