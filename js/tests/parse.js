@@ -184,6 +184,16 @@ function dumpFlags() {
 			description: 'List of valid extensions - of form foo,bar,baz',
 			'boolean': false,
 			'default': ''
+		},
+		'dp': {
+			description: 'Output data-parsoid JSON',
+			'boolean': true,
+			'default': false
+		},
+		'dpin': {
+			description: 'Input data-parsoid JSON',
+			'boolean': false,
+			'default': ''
 		}
 	});
 
@@ -233,6 +243,10 @@ function dumpFlags() {
 
 		Util.setDebuggingFlags( env.conf.parsoid, argv );
 
+		if ( argv.dp ) {
+			env.conf.parsoid.storeDataParsoid = true;
+		}
+
 		var i, validExtensions;
 
 		if ( validExtensions !== '' ) {
@@ -277,7 +291,9 @@ function dumpFlags() {
             if (argv.html2wt || argv.html2html) {
                 var doc = DU.parseHTML(input.replace(/\r/g, '')),
                     wt = '';
-
+				if ( argv.dpin.length > 0 ) {
+					DU.applyDataParsoid( doc, JSON.parse( argv.dpin ) );
+				}
                 serializer.serializeDOM( doc.body, function ( chunk ) {
                     wt += chunk;
                 }, function () {
@@ -310,6 +326,9 @@ function dumpFlags() {
                         }
                     };
                     if (argv.wt2html) {
+						if ( argv.dp ) {
+							console.log( JSON.stringify( document.data.parsoid ) );
+						}
 						if ( argv.normalize ) {
 							res = Util.normalizeOut
 								(DU.serializeNode(document.body),
@@ -320,6 +339,9 @@ function dumpFlags() {
                         finishCb(true);
                     } else {
                         res = '';
+						if ( argv.dp ) {
+							DU.applyDataParsoid( document, document.data.parsoid );
+						}
                         serializer.serializeDOM(
 							DU.parseHTML(DU.serializeNode(document, true)).body,
 							function ( chunk ) {

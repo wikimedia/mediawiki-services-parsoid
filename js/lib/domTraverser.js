@@ -70,13 +70,13 @@ DOMTraverser.prototype.callHandlers = function ( node ) {
  *   - continue regular processing on current node
  */
 DOMTraverser.prototype.traverse = function ( node ) {
+	var result, workNode;
 	if (node.nodeType === node.DOCUMENT_NODE) {
 		// skip to body
-		node = node.body;
+		workNode = node.body;
+	} else {
+		workNode = node.firstChild;
 	}
-
-	var workNode = node.firstChild;
-	var result;
 
 	while ( workNode !== null ) {
 		// Call the handlers on this workNode

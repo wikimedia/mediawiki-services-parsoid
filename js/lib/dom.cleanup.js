@@ -29,7 +29,7 @@ function stripMarkerMetas(editMode, node) {
 /**
  * Perform some final cleaup and save data-parsoid attributes on each node.
  */
-function cleanupAndSaveDataParsoid( node ) {
+function cleanupAndSaveDataParsoid( env, node ) {
 	if ( DU.isElt(node) && node.data ) {
 		var dp = node.data.parsoid;
 		if (dp) {
@@ -76,6 +76,10 @@ function cleanupAndSaveDataParsoid( node ) {
 			// information.  That will be disastrous (see bug 52638, 52488).
 			if (dp.fostered && dp.dsr && !DU.isFirstEncapsulationWrapperNode(node)) {
 				dp.dsr[0] = dp.dsr[1];
+			}
+
+			if ( env.conf.parsoid.storeDataParsoid ) {
+				DU.storeDataParsoid( node, dp );
 			}
 		}
 		DU.saveDataAttribs( node );

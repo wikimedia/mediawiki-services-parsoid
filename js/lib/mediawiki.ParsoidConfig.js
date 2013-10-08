@@ -149,6 +149,11 @@ ParsoidConfig.prototype.editMode = true;
  */
 ParsoidConfig.prototype.version = 0;
 
+/**
+ * @property {boolean} storeDataParsoid
+ */
+ParsoidConfig.prototype.storeDataParsoid = false;
+
 if (typeof module === "object") {
 	module.exports.ParsoidConfig = ParsoidConfig;
 }

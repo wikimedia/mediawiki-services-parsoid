@@ -82,8 +82,8 @@ if (testDom.body.getAttribute('somerandomstring') === '') {
 }
 
 /**
- * Migrate data-parsoid attributes into a property on each DOM node. We'll
- * migrate them back in the final DOM traversal.
+ * Migrate data-parsoid attributes into a property on each DOM node.
+ * We may migrate them back in the final DOM traversal.
  *
  * Various mw metas are converted to comments before the tree build to
  * avoid fostering. Piggy-backing the reconversion here to avoid excess
@@ -91,6 +91,10 @@ if (testDom.body.getAttribute('somerandomstring') === '') {
  */
 function prepareDOM( node ) {
 	DU.loadDataParsoid( node );
+
+	if ( DU.isElt( node ) ) {
+		node.removeAttribute( "data-parsoid" );
+	}
 
 	if ( DU.isComment( node ) && /^\{[^]+\}$/.test( node.data ) ) {
 
@@ -181,7 +185,7 @@ function DOMPostProcessor(env, options) {
 	domVisitor2.addHandler( 'td', tableFixer.reparseTemplatedAttributes.bind( tableFixer, env ) );
 	domVisitor2.addHandler( 'th', tableFixer.reparseTemplatedAttributes.bind( tableFixer, env ) );
 	// 4. Save data.parsoid into data-parsoid html attribute.
-	domVisitor2.addHandler( null, cleanupAndSaveDataParsoid );
+	domVisitor2.addHandler( null, cleanupAndSaveDataParsoid.bind( null, env ) );
 	this.processors.push(domVisitor2.traverse.bind(domVisitor2));
 }
 
@@ -202,6 +206,16 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 		console.warn("--------------------------------");
 	}
 
+	// holder for data-parsoid
+	if ( psd.storeDataParsoid ) {
+		document.data = {
+			parsoid: {
+				counter: -1,
+				ids: {}
+			}
+		};
+	}
+
 	for (var i = 0; i < this.processors.length; i++) {
 		try {
 			this.processors[i](document, this.env, this.options);
@@ -209,10 +223,6 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 			env.errCB(e);
 		}
 	}
-
-	// DOMTraverser only processes document.body.childNodes
-	document.body.data.parsoid.tmp = undefined;
-	DU.saveDataAttribs(document.body);
 
 	// add <head> element if it was missing
 	if (!document.head) {

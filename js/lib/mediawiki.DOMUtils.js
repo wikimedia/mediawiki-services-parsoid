@@ -8,6 +8,7 @@ require('./core-upgrade.js');
 var domino = require( './domino' ),
 	entities = require( 'entities' ),
 	Util = require('./mediawiki.Util.js').Util,
+	JSUtils = require('./jsutils').JSUtils,
 	Consts = require('./mediawiki.wikitext.constants.js').WikitextConstants,
 	pd = require('./mediawiki.parser.defines.js'),
 	XMLSerializer = require('./XMLSerializer');
@@ -1489,6 +1490,40 @@ var DOMUtils = {
 
 	isComment: function( node ) {
 		return this.hasNodeName( node, "#comment" );
+	},
+
+	// Applies a data-parsoid JSON structure to the document.
+	// Removes the generated ids from each elements,
+	// and adds back the data-parsoid attributes.
+	applyDataParsoid: function ( document, dp ) {
+		Object.keys( dp.ids ).forEach(function ( key ) {
+			var el = document.getElementById( key );
+			if ( el ) {
+				this.setJSONAttribute( el, 'data-parsoid', dp.ids[key] );
+				if ( /^mw[\w-]{2,}$/.test( key ) ) {
+					el.removeAttribute( 'id' );
+				}
+			}
+		}.bind( this ));
+	},
+
+	// Removes the data-parsoid attribute from a node,
+	// and migrates the data to the document's JSON store.
+	// Generates a unique id with the following format:
+	//   mw<base64-encoded counter>
+	// but attempts to keep user defined ids.
+	storeDataParsoid: function ( node, dp ) {
+		var uid = node.id;
+		var document = node.ownerDocument;
+		if ( !uid ) {
+			do {
+				document.data.parsoid.counter += 1;
+				uid = "mw" + JSUtils.counterToBase64( document.data.parsoid.counter );
+			} while ( document.getElementById( uid ) );
+			node.setAttribute( "id", uid );
+		}
+		document.data.parsoid.ids[uid] = dp;
+		delete node.data.parsoid;
 	}
 
 };

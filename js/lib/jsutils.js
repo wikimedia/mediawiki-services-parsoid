@@ -47,7 +47,25 @@ var JSUtils = {
 
 			this.deepFreeze(prop); // Recursively call deepFreeze.
 		}
+	},
+
+	// Convert a counter to a Base64 encoded string.
+	// Padding is stripped. \,+ are replaced with _,- respectively.
+	// Warning: Max integer is 2^31 - 1 for bitwise operations.
+	counterToBase64: function ( n ) {
+		/* jshint bitwise: false */
+		var arr = [];
+		do {
+			arr.unshift( n & 0xff );
+			n >>= 8;
+		} while ( n > 0 );
+		return ( new Buffer( arr ) )
+			.toString( "base64" )
+			.replace( /=/g, "" )
+			.replace( /\//g, "_" )
+			.replace( /\+/g, "-" );
 	}
+
 };
 
 if (typeof module === "object") {
