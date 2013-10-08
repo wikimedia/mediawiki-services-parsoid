@@ -70,16 +70,24 @@ class CurlMultiClient {
 		$running_handles = null;
 		//execute the handles
 		do {
-			$status_cme = curl_multi_exec( $mh, $running_handles );
-		} while ( $status_cme == CURLM_CALL_MULTI_PERFORM );
+			do {
+				// perform work as long as there is any
+				$status_cme = curl_multi_exec( $mh, $running_handles );
+			} while ( $status_cme == CURLM_CALL_MULTI_PERFORM );
+			if ( $running_handles > 0 ) {
+				// wait for more work to become available
+				$select_status = curl_multi_select( $mh, 10 );
+				if ( $select_status == -1 ) {
+					// Wait for 10 ms, somewhat similar to the suggestion at
+					// http://curl.haxx.se/libcurl/c/curl_multi_fdset.html
+					// We pick a smaller value as we are typically hitting
+					// fast internal services so status changes are more
+					// likely.
+					usleep(10000);
+				}
 
-		while ( $running_handles && $status_cme == CURLM_OK ) {
-			if ( curl_multi_select( $mh ) != -1 ) {
-				do {
-					$status_cme = curl_multi_exec( $mh, $running_handles );
-				} while ( $status_cme == CURLM_CALL_MULTI_PERFORM );
 			}
-		}
+		} while ( $running_handles && $status_cme == CURLM_OK );
 
 		$res = array();
 		foreach ( $requests as $k => $row ) {
