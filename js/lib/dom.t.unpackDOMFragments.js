@@ -107,8 +107,7 @@ function unpackDOMFragments(env, node) {
 				DU.deleteNode(sibling);
 			}
 
-			var contentNode = dummyNode.firstChild,
-				haveOrigType = Util.hasParsoidTypeOf(contentNode.getAttribute("typeof"));
+			var contentNode = dummyNode.firstChild;
 
 			// Update DSR
 			//
@@ -139,23 +138,32 @@ function unpackDOMFragments(env, node) {
 
 			}
 
-			// Set about and drop wrapper-spans
-			var n = dummyNode.firstChild;
+			var isForeignContent = node.data.parsoid.tmp.isForeignContent,
+				aboutIdMap = {},
+				n = dummyNode.firstChild;
 			while (n) {
-				var next = n.nextSibling;
+				var next = n.nextSibling,
+					nAbout = n.getAttribute("about");
 
-				// Transfer the about attribute so that it is still unique in the page
-				if (haveOrigType && about !== null) {
-					n.setAttribute('about', about);
-				}
-
-				// Discard unnecessary span wrappers
-				DU.loadDataParsoid(n);
-				if (n.data.parsoid.tmp.wrapper &&
-					!haveOrigType && !n.getAttribute("typeof"))
-				{
-					DU.migrateChildren(n, n.parentNode, n);
-					DU.deleteNode(n);
+				if (isForeignContent && nAbout) {
+					// Replace old about-id with new about-id that is
+					// unique to the global page environment object
+					var newAbout = aboutIdMap[nAbout];
+					if (!newAbout) {
+						newAbout = env.newAboutId();
+						aboutIdMap[nAbout] = newAbout;
+					}
+					n.setAttribute("about", newAbout);
+				} else {
+					// Discard unnecessary span wrappers.
+					//
+					// If the node has an about-id on it, it is part of
+					// transclusion or other generated content and is required.
+					DU.loadDataParsoid(n);
+					if (n.data.parsoid.tmp.wrapper && !nAbout) {
+						DU.migrateChildren(n, n.parentNode, n);
+						DU.deleteNode(n);
+					}
 				}
 
 				n = next;

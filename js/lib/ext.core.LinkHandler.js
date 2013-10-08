@@ -987,21 +987,13 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 
 	// First check if we have a cached copy of this image expansion, and
 	// avoid any further processing if we have a cache hit.
-	var cachedFile = this.manager.env.fileCache[token.dataAttribs.src];
+	var env = this.manager.env,
+		cachedFile = env.fileCache[token.dataAttribs.src];
 	if (cachedFile) {
-		// Use the cached result.
-		// mw:DOMFragment wrapping is simplified as we know that we are
-		// dealing with a single subtree rooted either at a figure or a span.
-		var wrapperTokens = DU.getWrapperTokens(cachedFile.nodes),
+		var opts = { isForeignContent: true, noAboutId: true },
+			wrapperTokens = DU.encapsulateExpansionHTML(env, token, cachedFile, opts),
 			firstWrapperToken = wrapperTokens[0];
-		DU.addTypeOf(firstWrapperToken, 'mw:DOMFragment');
-		firstWrapperToken.dataAttribs.html = cachedFile.html;
 
-		// Transfer tsr to the first token
-		firstWrapperToken.dataAttribs.tsr = token.dataAttribs.tsr;
-
-		// SSS FIXME: This could be deleted
-		//
 		// Capture the delta between the old/new wikitext start posn.
 		// 'tsr' values are stripped in the original DOM and won't be
 		// present.  Since dsr[0] is identical to tsr[0] in this case,
@@ -1016,10 +1008,9 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 		return;
 	}
 
-	var env = this.manager.env,
-		// distinguish media types
-		// if image: parse options
-		content = buildLinkAttrs(token.attribs, true, null, null ).contentKVs;
+	// distinguish media types
+	// if image: parse options
+	var content = buildLinkAttrs(token.attribs, true, null, null ).contentKVs;
 
 	// extract options
 	// TODO gwicke: abstract out!

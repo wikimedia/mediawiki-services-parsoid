@@ -5096,6 +5096,16 @@ Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved
 </p>
 !! end
 
+!! test
+Parsoid: Scoped parsing should handle mixed transclusions and plain text
+!! options
+parsoid
+!! input
+[[Foo|{{echo|a}} b {{echo|c}}]]
+!! result
+<p data-parsoid='{"dsr":[0,20,0,0]}'><a rel="mw:WikiLink" href="Foo"><span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a"}},"i":0}}]}'>a</span> b <span about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"c"}},"i":0}}]}'>c</span></a></p>
+!! end
+
 ###
 ### Interwiki links (see maintenance/interwiki.sql)
 ###

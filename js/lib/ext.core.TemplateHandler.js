@@ -108,7 +108,8 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 				// cache hit: reuse the expansion DOM
 				//console.log('cache hit for', JSON.stringify(text.substr(0, 50)));
 				var expansion = env.transclusionCache[text],
-					toks = DU.encapsulateExpansionHTML(env, token, expansion);
+					opts = {isForeignContent: true },
+					toks = DU.encapsulateExpansionHTML(env, token, expansion, opts);
 
 				cb({ tokens: toks });
 			} else {

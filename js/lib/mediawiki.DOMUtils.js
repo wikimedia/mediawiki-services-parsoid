@@ -1091,10 +1091,7 @@ var DOMUtils = {
 
 
 		function doExtractExpansions (node) {
-			var nodes, expAccum,
-				outerHTML = function (n) {
-					return n.outerHTML;
-				};
+			var nodes, expAccum;
 
 			while (node) {
 				if (node.nodeType === node.ELEMENT_NODE) {
@@ -1126,7 +1123,9 @@ var DOMUtils = {
 						if (key) {
 							expAccum[key] = {
 								nodes: nodes,
-								html: nodes.map(outerHTML).join('')
+								html: nodes.map(function(node) {
+									return node.outerHTML;
+								}).join('')
 							};
 						}
 						node = nodes.last();
@@ -1284,27 +1283,43 @@ var DOMUtils = {
 
 	},
 
-	encapsulateExpansionHTML: function(env, token, expansion, aboutId) {
+	encapsulateExpansionHTML: function(env, token, expansion, opts) {
+		opts = opts || {};
+
 		// Get placeholder tokens to get our subdom through the token processing
 		// stages. These will be finally unwrapped on the DOM.
 		var toks = this.getWrapperTokens(expansion.nodes),
-			about = aboutId || env.newAboutId();
+			firstWrapperToken = toks[0];
 
+		// Add the DOMFragment type so that we get unwrapped later.
+		firstWrapperToken.setAttribute('typeof', 'mw:DOMFragment');
 		// Assign the HTML fragment to the data-parsoid.html on the first wrapper token.
-		toks[0].dataAttribs.html = expansion.html;
-		// Add the DOMFragment type so that we get unwrapped later
-		toks[0].setAttribute('typeof', 'mw:DOMFragment');
+		firstWrapperToken.dataAttribs.html = expansion.html;
 
-		// Add the about to all wrapper tokens
-		toks.forEach(function(tok) {
-			tok.setAttribute('about', about);
-		});
+		// Set foreign content flag.
+		if (opts.isForeignContent) {
+			if (!firstWrapperToken.dataAttribs.tmp) {
+				firstWrapperToken.dataAttribs.tmp = {};
+			}
+			firstWrapperToken.dataAttribs.tmp.isForeignContent = true;
+		}
 
-		// Transfer the tsr. The first token gets the full width, the following
-		// tokens zero width.
+		// Add about to all wrapper tokens, if necessary.
+		var about = opts.aboutId;
+		if (!about && !opts.noAboutId) {
+			about = env.newAboutId();
+		}
+		if (about) {
+			toks.forEach(function(tok) {
+				tok.setAttribute('about', about);
+			});
+		}
+
+		// Transfer the tsr.
+		// The first token gets the full width, the following tokens zero width.
 		var tokenTsr = token.dataAttribs ? token.dataAttribs.tsr : null;
 		if (tokenTsr) {
-			toks[0].dataAttribs.tsr = tokenTsr;
+			firstWrapperToken.dataAttribs.tsr = tokenTsr;
 			var endTsr = [tokenTsr[1],tokenTsr[1]];
 			for (var i = 1; i < toks.length; i++) {
 				toks[i].dataAttribs.tsr = endTsr;
@@ -1346,7 +1361,8 @@ var DOMUtils = {
 				nodes: nodes,
 				html: nodes.map(function(n) { return n.outerHTML; }).join('')
 			},
-			aboutId);
+			{ aboutId: aboutId }
+		);
 	},
 
 	/**
