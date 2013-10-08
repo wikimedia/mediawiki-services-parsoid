@@ -29,7 +29,11 @@ class ParsoidSetup {
 		$wgAutoloadClasses['ParsoidCacheUpdateJob'] = "$dir/ParsoidCacheUpdateJob.php";
 		$wgAutoloadClasses['CurlMultiClient'] = "$dir/CurlMultiClient.php";
 
-		# Add the ParsoidCacheUpdateJob to the job classes so it can be de-serialized
+		# Add the parsoid job types
+		$wgJobClasses['ParsoidCacheUpdateJobOnEdit'] = 'ParsoidCacheUpdateJob';
+		$wgJobClasses['ParsoidCacheUpdateJobOnDependencyChange'] = 'ParsoidCacheUpdateJob';
+		# Old type for transition
+		# @TODO: remove when old jobs are drained
 		$wgJobClasses['ParsoidCacheUpdateJob'] = 'ParsoidCacheUpdateJob';
 
 		$wgExtensionCredits['other'][] = array(
