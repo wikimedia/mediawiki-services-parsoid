@@ -1451,8 +1451,8 @@ xmlish_tag =
                             }
                         }
                     }
-                } else if (isInstalledExt || isIncludeTag) {
-                    extSrc = restOfInput;
+                } else {
+                    return t;
                 }
 
                 if (extSrc) {
@@ -2395,8 +2395,13 @@ include_limits =
      if (incl === "noinclude" || incl === "onlyinclude" || incl === "includeonly") {
          var dp = {tsr: [pos0, pos]},
              restOfInput = input.substring(pos0),
-             tagContent = restOfInput.match(new RegExp("^(.|\n)*?(</\\s*" + incl + ">)", "m")),
-             tagWidths = [pos-pos0, (tagContent ? tagContent[2].length : 0)],
+             tagContent = restOfInput.match(new RegExp("^(.|\n)*?(</\\s*" + incl + ">)", "m"));
+
+         if (!tagContent) {
+            return null;
+         }
+
+         var tagWidths = [pos-pos0, (tagContent ? tagContent[2].length : 0)],
              inclSrc = tagContent ? tagContent[0] : restOfInput,
              inclContentLen = inclSrc.length - tagWidths[0] - tagWidths[1],
              skipLen = inclContentLen;
