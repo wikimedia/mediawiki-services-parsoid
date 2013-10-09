@@ -11,7 +11,10 @@ var domino = require( './domino' ),
 	jsDiff = require( 'diff' ),
 	entities = require( 'entities' ),
 	TemplateRequest = require( './mediawiki.ApiRequest.js' ).TemplateRequest,
-	Consts = require('./mediawiki.wikitext.constants.js').WikitextConstants;
+	Consts = require('./mediawiki.wikitext.constants.js').WikitextConstants,
+	XMLSerializer = require('./XMLSerializer');
+
+var XMLSerializer = new XMLSerializer();
 
 /* WORKAROUND HACK to entities package, using domino. */
 // see https://github.com/fb55/node-entities/issues/8
@@ -1075,49 +1078,11 @@ parseHTML = function ( html ) {
 	return domino.createDocument(html);
 },
 
-/**
- * @method compressHTML
- *
- * Compress an HTML string by applying some smart quoting
- *
- * @param {string} html
- * @returns {string}
- */
-compressHTML = function(html) {
-	// now compress our output (and make it more readable) by using
-	// "smart quoting" of attribute values -- using single-quotes
-	// where the contents have a lot of double quotes.
-	// since the output of outerHTML is specified strictly, we know
-	// this regexp is safe. See:
-	// http://www.whatwg.org/specs/web-apps/current-work/multipage/the-end.html
-	// http://www.whatwg.org/specs/web-apps/current-work/multipage/syntax.html
-	var smart_quote = function(match, name, equals, value) {
-		if (!equals) { return match; }
-		var decoded = entities.decodeHTML5(value);
-		// try re-encoding with single-quotes escaped
-		var encoded = decoded.replace(/[&'\u00A0]/g, function(c) {
-			switch(c) {
-			case '&': return '&amp;';
-			case "'": return '&#39;';
-			case '\u00A0': return '&nbsp;';
-			}
-		});
-		if (encoded.length >= value.length) { return match; /* no change */ }
-		return ' '+name+"='"+encoded+"'";
-	};
-	var process_attr_list = function(match, tag, attrs) {
-		attrs = attrs.replace(/ ([^\0-\cZ\s"'>\/=]+)(="([^"]*)")?/g,
-		                      smart_quote);
-		return tag + attrs + '>';
-	};
-	return html.replace(/(<\w+)((?: [^\0-\cZ\s"'>\/=]+(?:="[^"]*")?)+)>/g,
-	                    process_attr_list);
-},
 
 /**
  * @method serializeNode
  *
- * Serialize a HTML document.
+ * Serialize a HTML document to XHTML
  * The output is identical to standard DOM serialization, as given by
  * http://www.whatwg.org/specs/web-apps/current-work/multipage/the-end.html#serializing-html-fragments
  * except that we may quote attributes with single quotes, *only* where that would
@@ -1128,32 +1093,21 @@ compressHTML = function(html) {
  * @returns {string}
  */
 serializeNode = function (doc, dontCompress) {
-	// use domino's outerHTML, as specified by
-	// http://domparsing.spec.whatwg.org/#outerhtml
-	var html = doc.outerHTML;
-	// technically, dom doesn't define outerHTML on a Document; that's
-	// just a convenience API defined by domino.  We can handle a
-	// more-standard DOM implementation, too.
-	if (doc.nodeName==='#document' && !html) {
-		html = doc.documentElement.outerHTML;
+	var html,
+		options = {
+			smartQuote: !dontCompress
+		};
+	if (doc.nodeName==='#document') {
+		html = XMLSerializer.serializeToString(doc.documentElement, options);
+	} else {
+		html = XMLSerializer.serializeToString(doc, options);
 	}
 	// ensure there's a doctype for documents
-	if (html &&
-	    (doc.nodeName === '#document' || /^html$/i.test(doc.nodeName)) &&
-	    ! /^\s*<!doctype/i.test(html)) {
+	if (doc.nodeName === '#document' || /^html$/i.test(doc.nodeName)) {
 		html = '<!DOCTYPE html>\n' + html;
 	}
-	if (!html) {
-		// fall back to definition of outerHTML, for comments, etc:
-		// "return the result of running the HTML fragment
-		// serialization algorithm on a fictional node whose only child is
-		// the context object"
-		var fictional = doc.ownerDocument.createElement('p');
-		fictional.appendChild(doc.cloneNode());
-		html = fictional.innerHTML;
-	}
 
-	return dontCompress ? html : compressHTML(html);
+	return html;
 },
 
 /**
@@ -1171,7 +1125,6 @@ encodeXml = function ( string ) {
 // FIXME gwicke: define this directly
 Util.encodeXml = encodeXml;
 Util.parseHTML = parseHTML;
-Util.compressHTML = compressHTML;
 Util.serializeNode = serializeNode;
 Util.normalizeHTML = normalizeHTML;
 Util.normalizeOut = normalizeOut;
