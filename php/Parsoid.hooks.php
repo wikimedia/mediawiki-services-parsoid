@@ -6,6 +6,27 @@
 class ParsoidHooks {
 
 	/**
+	 * Get the job parameters for a given title, job type and table name.
+	 *
+	 * @param Title $title
+	 * @param string $type the job type (OnEdit or OnDependencyChange)
+	 * @param string $table (optional for OnDependencyChange, templatelinks or
+	 * imagelinks)
+	 * @return Array
+	 */
+	private static function getJobParams( Title $title, $type, $table = null ) {
+		$params = array( 'type' => $type );
+		if ( $type == 'OnDependencyChange' ) {
+			$params['table'] = $table;
+			return $params + Job::newRootJobParams(
+				"ParsoidCacheUpdateJob{$type}:{$title->getPrefixedText()}");
+		} else {
+			return $params;
+		}
+	}
+
+
+	/**
 	 * Schedule an async update job in the job queue. The params passed here
 	 * are empty. They are dynamically created in ParsoidCacheUpdateJob
 	 * depending on title namespace etc.
@@ -21,7 +42,25 @@ class ParsoidHooks {
 			// skip this update
 			return;
 		}
-		JobQueueGroup::singleton()->push( new ParsoidCacheUpdateJob( $title, array() ) );
+
+		if ( $title->getNamespace() == NS_FILE ) {
+			// File. For now we assume the actual image or file has
+			// changed, not just the description page.
+			$params = self::getJobParams( $title, 'OnDependencyChange', 'imagelinks' );
+			$job = new ParsoidCacheUpdateJob( $title, $params );
+			JobQueueGroup::singleton()->push( $job );
+			JobQueueGroup::singleton()->deduplicateRootJob( $job );
+		} else {
+			// Push one job for the page itself
+			$params = self::getJobParams( $title, 'OnEdit' );
+			JobQueueGroup::singleton()->push( new ParsoidCacheUpdateJob( $title, $params ) );
+
+			// and one for pages transcluding this page.
+			$params = self::getJobParams( $title, 'OnDependencyChange', 'templatelinks' );
+			$job = new ParsoidCacheUpdateJob( $title, $params );
+			JobQueueGroup::singleton()->push( $job );
+			JobQueueGroup::singleton()->deduplicateRootJob( $job );
+		}
 	}
 
 	/**

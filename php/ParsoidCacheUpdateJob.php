@@ -23,32 +23,38 @@ class ParsoidCacheUpdateJob extends Job {
 		wfDebug( "ParsoidCacheUpdateJob.__construct " . $title . "\n" );
 		global $wgParsoidCacheUpdateTitlesPerJob;
 
-		Job::__construct( 'ParsoidCacheUpdateJob', $title, $params, $id );
+		// Map old jobs to new 'OnEdit' jobs
+		if ( ! isset( $params['type'] ) ) {
+			$params['type'] = 'OnEdit';
+		}
+		parent::__construct( 'ParsoidCacheUpdateJob' . $params['type'],
+			$title, $params, $id );
 
 		$this->rowsPerJob = $wgParsoidCacheUpdateTitlesPerJob;
 
 		$this->blCache = $title->getBacklinkCache();
+
+		if ( $params['type'] == 'OnEdit' ) {
+			// Simple duplicate removal for single-title jobs. Other jobs are
+			// deduplicated with root job parameters.
+			$this->removeDuplicates = true;
+		}
 	}
 
 	public function run() {
-		if ( isset( $this->params['start'] ) && isset( $this->params['end'] ) ) {
-			# This is a child job working on a sub-range of a large number of
-			# titles.
-			return $this->doPartialUpdate();
-		} else {
-			# The root job.
-			if ( $this->title->getNamespace() == NS_FILE ) {
-				# File. For now we assume the actual image or file has
-				# changed, not just the description page.
-				$this->params['table'] = 'imagelinks';
-				$this->doFullUpdate();
-			} else {
-				# Not a file: Refresh the Parsoid cache for the page itself
-				$this->invalidateTitle( $this->title );
-				# and refresh expansions in pages transcluding this page.
-				$this->params['table'] = 'templatelinks';
+		if ( isset( $this->params['table'] ) ) {
+			if ( isset( $this->params['start'] ) && isset( $this->params['end'] ) ) {
+				# This is a child job working on a sub-range of a large number of
+				# titles.
+				$this->doPartialUpdate();
+			} else  {
+				# Update all pages depending on this resource (transclusion or
+				# file)
 				$this->doFullUpdate();
 			}
+		} else {
+			# Refresh the Parsoid cache for the page itself
+			$this->invalidateTitle( $this->title );
 		}
 		return true;
 	}
@@ -133,7 +139,8 @@ class ParsoidCacheUpdateJob extends Job {
 					array(
 						'table' => $this->params['table'],
 						'start' => $start,
-						'end' => $id - 1
+						'end' => $id - 1,
+						'type' => 'OnDependencyChange'
 					) + $rootJobParams // carry over information for de-duplication
 				);
 				$start = $id;
@@ -146,7 +153,8 @@ class ParsoidCacheUpdateJob extends Job {
 			array(
 				'table' => $this->params['table'],
 				'start' => $start,
-				'end' => $this->params['end']
+				'end' => $this->params['end'],
+				'type' => 'OnDependencyChange'
 			) + $rootJobParams // carry over information for de-duplication
 		);
 		wfDebug( __METHOD__ . ": repartitioning into " . count( $jobs ) . " jobs\n" );
@@ -184,6 +192,7 @@ class ParsoidCacheUpdateJob extends Job {
 					'table' => $this->params['table'],
 					'start' => $start,
 					'end' => $end,
+					'type' => 'OnDependencyChange'
 				) + $rootJobParams // carry over information for de-duplication
 			);
 		}
@@ -202,9 +211,9 @@ class ParsoidCacheUpdateJob extends Job {
 	protected function getParsoidURL( Title $title, $server, $prev = false ) {
 		global $wgParsoidWikiPrefix;
 
-		$oldid = $prev
-			? $title->getPreviousRevisionID( $title->getLatestRevID() )
-			: $title->getLatestRevID();
+		$oldid = $prev ?
+			$title->getPreviousRevisionID( $title->getLatestRevID() ) :
+			$title->getLatestRevID();
 
 		// Construct Parsoid web service URL
 		return $server . '/' . $wgParsoidWikiPrefix . '/' .
