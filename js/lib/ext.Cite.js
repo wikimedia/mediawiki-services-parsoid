@@ -116,7 +116,7 @@ Ref.prototype.handleRef = function ( manager, pipelineOpts, refTok, cb ) {
 		parentCB: cb,
 		emptyContentCB: finalCB,
 		documentCB: function(refContentDoc) {
-			finalCB([], refContentDoc.body.innerHTML);
+			finalCB([], DU.serializeChildren(refContentDoc.body));
 		}
 	});
 };
@@ -412,7 +412,7 @@ References.prototype.extractRefFromNode = function(node) {
 		if (!this.nestedRefsHTMLMap[referencesAboutId]) {
 			this.nestedRefsHTMLMap[referencesAboutId] = ["\n"];
 		}
-		this.nestedRefsHTMLMap[referencesAboutId].push(span.outerHTML, "\n");
+		this.nestedRefsHTMLMap[referencesAboutId].push(DU.serializeNode(span), "\n");
 	}
 
 	// This effectively ignores content from later references with the same name.

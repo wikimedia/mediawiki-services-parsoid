@@ -3189,7 +3189,7 @@ WSP._buildExtensionWT = function(state, node, dataMW) {
 				env: state.env,
 				extName: extName
 			});
-			srcParts.push(wts.serializeDOM(Util.parseHTML(dataMW.body.html).body));
+			srcParts.push(wts.serializeDOM(DU.parseHTML(dataMW.body.html).body));
 		} else if (dataMW.body.extsrc) {
 			srcParts.push(dataMW.body.extsrc);
 		} else {

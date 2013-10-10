@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 var DOMDiff = require('../lib/mediawiki.DOMDiff.js').DOMDiff,
 	Util = require('../lib/mediawiki.Util.js').Util,
+	DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils,
 	optimist = require('optimist'),
 	fs = require('fs');
 
@@ -53,8 +54,8 @@ var dummyEnv = {
 };
 
 var dd = new DOMDiff(dummyEnv),
-	oldDOM = Util.parseHTML(oldhtml),
-	newDOM = Util.parseHTML(newhtml);
+	oldDOM = DU.parseHTML(oldhtml),
+	newDOM = DU.parseHTML(newhtml);
 
 dd.doDOMDiff(oldDOM, newDOM);
 if ( !Util.booleanOption( argv.quiet ) ) {

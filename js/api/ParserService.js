@@ -226,7 +226,7 @@ var roundTripDiff = function ( selser, req, res, env, document ) {
 		var headNodes = document.firstChild.firstChild.childNodes;
 		for (i = 0; i < headNodes.length; i++) {
 			if (headNodes[i].nodeName.toLowerCase() === 'base') {
-				res.write(Util.serializeNode(headNodes[i]));
+				res.write(DU.serializeNode(headNodes[i]));
 				break;
 			}
 		}
@@ -234,7 +234,7 @@ var roundTripDiff = function ( selser, req, res, env, document ) {
 		res.write( '<h2>Wikitext parsed to HTML DOM</h2><hr>\n' );
 		var bodyNodes = document.body.childNodes;
 		for (i = 0; i < bodyNodes.length; i++) {
-			res.write(Util.serializeNode(bodyNodes[i]));
+			res.write(DU.serializeNode(bodyNodes[i]));
 		}
 		res.write('\n<hr>');
 		res.write( '<h2>HTML DOM converted back to Wikitext</h2><hr>\n' );
@@ -281,7 +281,7 @@ function handleCacheRequest (env, req, cb, err, src, cacheErr, cacheSrc) {
 		return;
 	}
 	// Extract transclusion and extension content from the DOM
-	var expansions = DU.extractExpansions(Util.parseHTML(cacheSrc));
+	var expansions = DU.extractExpansions(DU.parseHTML(cacheSrc));
 
 	// Figure out what we can reuse
 	var parsoidHeader = JSON.parse(req.headers['x-parsoid'] || '{}');
@@ -442,7 +442,7 @@ app.get(/\/_html\/(.*)/, function ( req, res ) {
 app.post(/\/_html\/(.*)/, function ( req, res ) {
 	var cb = function ( env ) {
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-		var doc = Util.parseHTML(req.body.content.replace(/\r/g, ''));
+		var doc = DU.parseHTML(req.body.content.replace(/\r/g, ''));
 		res.write('<pre style="background-color: #efefef">');
 		// Always use the non-selective serializer for this mode
 		new WikitextSerializer({env: env}).serializeDOM(
@@ -481,10 +481,10 @@ app.post(/\/_wikitext\/(.*)/, function ( req, res ) {
 			src = req.body.content.replace(/\r/g, '');
 		parser.on('document', function ( document ) {
 			if (req.body.format==='html') {
-				res.write(Util.serializeNode(document));
+				res.write(DU.serializeNode(document));
 			} else {
 				res.write('<pre style="white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; white-space: -o-pre-wrap; word-wrap: break-word;">');
-				res.write(htmlSpecialChars(document.body.innerHTML));
+				res.write(htmlSpecialChars(DU.serializeNode(document.body)));
 				res.write('</pre>');
 				res.write('<hr/>');
 				res.write(document.body.innerHTML);
@@ -558,7 +558,7 @@ app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)') , function(req, re
 			cb = function ( req, res, src, document ) {
 				// strip newlines from the html
 				var html = document.innerHTML.replace(/[\r\n]/g, ''),
-					newDocument = Util.parseHTML(html);
+					newDocument = DU.parseHTML(html);
 				roundTripDiff( false, req, res, src, newDocument );
 			};
 
@@ -585,7 +585,7 @@ app.get( new RegExp('/_rtselser/(' + getInterwikiRE() + ')/(.*)') , function (re
 		}
 		var tpr = new TemplateRequest( env, target, oldid ),
 			tprCb = function ( req, res, src, document ) {
-				var newDocument = Util.parseHTML( document.innerHTML );
+				var newDocument = DU.parseHTML( DU.serializeNode(document) );
 				roundTripDiff( true, req, res, src, newDocument );
 			};
 
@@ -653,7 +653,7 @@ app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function(req, res) {
 
 		var tpr = new TemplateRequest( env, target, oldid );
 		tpr.once('src', parse.bind( null, env, req, res, function ( req, res, src, doc ) {
-			var out = Util.serializeNode(doc.documentElement);
+			var out = DU.serializeNode(doc.documentElement);
 			res.setHeader('X-Parsoid-Performance', env.getPerformanceHeader());
 			res.end(out);
 			console.warn("completed parsing of " + prefix +
@@ -674,7 +674,7 @@ app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), function ( req, res 
 		res.setHeader('Content-Type', 'text/x-mediawiki; charset=UTF-8');
 
 		try {
-			doc = Util.parseHTML(req.body.content);
+			doc = DU.parseHTML(req.body.content);
 		} catch ( e ) {
 			console.log( 'There was an error in the HTML5 parser! Sending it back to the editor.' );
 			env.errCB(e);

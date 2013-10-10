@@ -17,6 +17,7 @@ var fs = require('fs'),
 	path = require('path'),
 	colors = require('colors'),
 	Util = require( '../lib/mediawiki.Util.js' ).Util,
+	DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils,
 	childProc = require('child_process'),
 	fork = childProc.fork,
 	DOMUtils = require( '../lib/mediawiki.DOMUtils.js' ).DOMUtils,
@@ -351,7 +352,7 @@ ParserTests.prototype.getTests = function ( argv ) {
 	if( cache_file_digest === sha1 ) {
 		// cache file match our digest.
 		// Return contained object after removing first line (CACHE: <sha1>)
-		return JSON.parse( cache_content.replace( /.*\n/, '' ) );
+		return JSON.parse( cache_content.replace( /^.*\n/, '' ) );
 	} else {
 		// Write new file cache, content preprended with current digest
 		console.error( "Cache file either not present or outdated" );
@@ -835,7 +836,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 	if ( startsAtHtml ) {
 		if ( item.cachedSourceHTML === null ) {
 			testTasks.push( function ( cb ) {
-				cb( null, Util.parseHTML(item.result).body );
+				cb( null, DU.parseHTML(item.result).body );
 			} );
 		} else {
 			testTasks.push( function ( cb ) {
@@ -926,7 +927,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 ParserTests.prototype.processParsedHTML = function( item, options, mode, doc, cb ) {
 	item.time.end = Date.now();
 	// Check the result vs. the expected result.
-	this.checkHTML( item, doc.innerHTML, options, mode );
+	this.checkHTML( item, DU.serializeChildren(doc), options, mode );
 
 	// Now schedule the next test, if any
 	process.nextTick( cb );
@@ -1093,7 +1094,7 @@ ParserTests.prototype.printSuccess = function ( title, options, mode, expectSucc
  * Print the actual and expected outputs.
  *
  * Side effect: Both objects will, after this, have 'formattedRaw' and 'formattedNormal' properties,
- * which are the result of calling Util.formatHTML() on the 'raw' and 'normal' properties.
+ * which are the result of calling DU.formatHTML() on the 'raw' and 'normal' properties.
  *
  * @param {Object} actual
  * @param {string} actual.raw
@@ -1108,19 +1109,19 @@ ParserTests.prototype.printSuccess = function ( title, options, mode, expectSucc
  */
 ParserTests.prototype.getActualExpected = function ( actual, expected, getDiff ) {
 	var returnStr = '';
-	expected.formattedRaw = expected.isWT ? expected.raw : Util.formatHTML( expected.raw );
+	expected.formattedRaw = expected.isWT ? expected.raw : DU.formatHTML( expected.raw );
 	returnStr += 'RAW EXPECTED'.cyan + ':';
 	returnStr += expected.formattedRaw + '\n';
 
-	actual.formattedRaw = actual.isWT ? actual.raw : Util.formatHTML( actual.raw );
+	actual.formattedRaw = actual.isWT ? actual.raw : DU.formatHTML( actual.raw );
 	returnStr += 'RAW RENDERED'.cyan + ':';
 	returnStr += actual.formattedRaw + '\n';
 
-	expected.formattedNormal = expected.isWT ? expected.normal : Util.formatHTML( expected.normal );
+	expected.formattedNormal = expected.isWT ? expected.normal : DU.formatHTML( expected.normal );
 	returnStr += 'NORMALIZED EXPECTED'.magenta + ':';
 	returnStr += expected.formattedNormal + '\n';
 
-	actual.formattedNormal = actual.isWT ? actual.normal : Util.formatHTML( actual.normal );
+	actual.formattedNormal = actual.isWT ? actual.normal : DU.formatHTML( actual.normal );
 	returnStr += 'NORMALIZED RENDERED'.magenta + ':';
 	returnStr += actual.formattedNormal + '\n';
 
@@ -1186,7 +1187,7 @@ function printResult( reportFailure, reportSuccess, title, time, comments, iopts
 	if ( fail &&
 	     booleanOption( options.whitelist ) &&
 	     title in testWhiteList &&
-	     Util.normalizeOut( testWhiteList[title], parsoidOnly ) ===  actual.normal ) {
+	     DU.normalizeOut( testWhiteList[title], parsoidOnly ) ===  actual.normal ) {
 		whitelist = true;
 		fail = false;
 	}
@@ -1225,14 +1226,14 @@ ParserTests.prototype.checkHTML = function ( item, out, options, mode ) {
 	var normalizedOut, normalizedExpected;
 	var parsoidOnly = (item.options.parsoid !== undefined);
 
-	normalizedOut = Util.normalizeOut( out, parsoidOnly );
+	normalizedOut = DU.normalizeOut( out, parsoidOnly );
 
 	if ( item.cachedNormalizedHTML === null ) {
 		if ( parsoidOnly ) {
-			var normalDOM = Util.parseHTML( item.result ).body.innerHTML;
-			normalizedExpected = Util.normalizeOut( normalDOM, parsoidOnly );
+			var normalDOM = DU.serializeChildren(DU.parseHTML( item.result ).body);
+			normalizedExpected = DU.normalizeOut( normalDOM, parsoidOnly );
 		} else {
-			normalizedExpected = Util.normalizeHTML( item.result );
+			normalizedExpected = DU.normalizeHTML( item.result );
 		}
 		item.cachedNormalizedHTML = normalizedExpected;
 	} else {
@@ -1779,7 +1780,7 @@ var xmlFuncs = (function () {
 	 * Get the actual and expected outputs encoded for XML output.
 	 *
 	 * Side effect: Both objects will, after this, have 'formattedRaw' and 'formattedNormal' properties,
-	 * which are the result of calling Util.formatHTML() on the 'raw' and 'normal' properties.
+	 * which are the result of calling DU.formatHTML() on the 'raw' and 'normal' properties.
 	 *
 	 * @inheritdoc ParserTests#getActualExpected.
 	 *
@@ -1788,25 +1789,25 @@ var xmlFuncs = (function () {
 	getActualExpectedXML = function ( actual, expected, getDiff ) {
 		var returnStr = '';
 
-		expected.formattedRaw = Util.formatHTML( expected.raw );
-		actual.formattedRaw = Util.formatHTML( actual.raw );
-		expected.formattedNormal = Util.formatHTML( expected.normal );
-		actual.formattedNormal = Util.formatHTML( actual.normal );
+		expected.formattedRaw = DU.formatHTML( expected.raw );
+		actual.formattedRaw = DU.formatHTML( actual.raw );
+		expected.formattedNormal = DU.formatHTML( expected.normal );
+		actual.formattedNormal = DU.formatHTML( actual.normal );
 
 		returnStr += 'RAW EXPECTED:\n';
-		returnStr += Util.encodeXml( expected.formattedRaw ) + '\n\n';
+		returnStr += DU.encodeXml( expected.formattedRaw ) + '\n\n';
 
 		returnStr += 'RAW RENDERED:\n';
-		returnStr += Util.encodeXml( actual.formattedRaw ) + '\n\n';
+		returnStr += DU.encodeXml( actual.formattedRaw ) + '\n\n';
 
 		returnStr += 'NORMALIZED EXPECTED:\n';
-		returnStr += Util.encodeXml( expected.formattedNormal ) + '\n\n';
+		returnStr += DU.encodeXml( expected.formattedNormal ) + '\n\n';
 
 		returnStr += 'NORMALIZED RENDERED:\n';
-		returnStr += Util.encodeXml( actual.formattedNormal ) + '\n\n';
+		returnStr += DU.encodeXml( actual.formattedNormal ) + '\n\n';
 
 		returnStr += 'DIFF:\n';
-		returnStr += Util.encodeXml ( getDiff( actual, expected, false ) );
+		returnStr += DU.encodeXml ( getDiff( actual, expected, false ) );
 
 		return returnStr;
 	},
@@ -1887,7 +1888,7 @@ var xmlFuncs = (function () {
 
 		function pre( mode, title, time ) {
 			var testcaseEle;
-			testcaseEle = '<testcase name="' + Util.encodeXml( title ) + '" ';
+			testcaseEle = '<testcase name="' + DU.encodeXml( title ) + '" ';
 			testcaseEle += 'assertions="1" ';
 
 			var timeTotal;

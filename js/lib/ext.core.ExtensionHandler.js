@@ -65,7 +65,7 @@ ExtensionHandler.prototype.getArgInfo = function (state) {
  */
 ExtensionHandler.prototype.parseExtensionHTML = function(extToken, cb, err, html) {
 	// document -> html -> body -> children
-	var doc = Util.parseHTML(html),
+	var doc = DU.parseHTML(html),
 		topNodes = doc.body.childNodes,
 		toks = [];
 

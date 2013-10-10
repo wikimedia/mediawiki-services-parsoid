@@ -187,7 +187,7 @@ function unpackDOMFragments(env, node) {
 				var timestamp = (new Date()).toString();
 				fragmentParent.replaceChild(node.ownerDocument.createTextNode(timestamp), node);
 
-				var newDoc = Util.parseHTML(fragmentParent.outerHTML.replace(timestamp, dummyNode.innerHTML));
+				var newDoc = DU.parseHTML(fragmentParent.outerHTML.replace(timestamp, dummyNode.innerHTML));
 				DU.migrateChildrenBetweenDocs(newDoc.body, fragmentParent.parentNode, fragmentParent);
 
 				// fragmentParent itself is useless now

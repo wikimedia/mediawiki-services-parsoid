@@ -140,7 +140,14 @@ function serializeToString(node, buf, options){
 function XMLSerializer(){}
 XMLSerializer.prototype.serializeToString = function(node, options){
 	var buf = [];
-	serializeToString(node, buf, options);
+	if (options.innerXML) {
+		var children = node.childNodes;
+		for (var i = 0; i < children.length; i++) {
+			serializeToString(children[i], buf, options);
+		}
+	} else {
+		serializeToString(node, buf, options);
+	}
 	return buf.join('');
 };
 

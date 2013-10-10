@@ -108,10 +108,10 @@ var xmlCallback = function ( env, err, results ) {
 		output += '<perfstats>\n';
 		for ( var type in env.profile ) {
 			for ( var prop in env.profile[ type ] ) {
-				output += '<perfstat type="' + Util.encodeXml( type ) + ':';
-				output += Util.encodeXml( prop );
+				output += '<perfstat type="' + DU.encodeXml( type ) + ':';
+				output += DU.encodeXml( prop );
 				output += '">';
-				output += Util.encodeXml( env.profile[ type ][ prop ].toString() );
+				output += DU.encodeXml( env.profile[ type ][ prop ].toString() );
 				output += '</perfstat>\n';
 			}
 		}
@@ -321,9 +321,9 @@ var checkIfSignificant = function ( env, offsets, src, body, out, cb, document )
 		origOut = res ? res.nodes : [];
 		for ( k = 0; k < origOut.length; k++ ) {
 			// node need not be an element always!
-			origOrigHTML += Util.serializeNode(origOut[k], true);
+			origOrigHTML += DU.serializeNode(origOut[k], {smartQuote: false});
 		}
-		origHTML = Util.formatHTML( Util.normalizeOut( origOrigHTML ) );
+		origHTML = DU.formatHTML( DU.normalizeOut( origOrigHTML ) );
 		// console.warn("# nodes: " + origOut.length);
 		// console.warn("html: " + origHTML);
 
@@ -332,9 +332,9 @@ var checkIfSignificant = function ( env, offsets, src, body, out, cb, document )
 		newOut = res ? res.nodes : [];
 		for ( k = 0; k < newOut.length; k++ ) {
 			// node need not be an element always!
-			origNewHTML += Util.serializeNode(newOut[k], true);
+			origNewHTML += DU.serializeNode(newOut[k], {smartQuote: false});
 		}
-		newHTML = Util.formatHTML( Util.normalizeOut( origNewHTML ) );
+		newHTML = DU.formatHTML( DU.normalizeOut( origNewHTML ) );
 		// console.warn("# nodes: " + newOut.length);
 		// console.warn("html: " + newHTML);
 
@@ -403,7 +403,7 @@ var roundTripDiff = function ( env, document, cb ) {
 
 	// Re-parse the HTML to uncover foster-parenting issues
 	var origBody = document.body;
-	document = domino.createDocument(document.outerHTML);
+	document = domino.createDocument(DU.serializeNode(document));
 	try {
 		env.profile.time.serialize = new Date();
 		out = new WikitextSerializer( { env: env } ).serializeDOM(document.body);
