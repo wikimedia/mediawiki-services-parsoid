@@ -1,4 +1,5 @@
 "use strict";
+require('./core-upgrade');
 /* -------------------------------------------------------------------
  * The WikitextConstant structure holds "global constants" that
  * capture properties about wikitext markup.
@@ -9,8 +10,7 @@
  * about Wikitext itself.  For now, this is barebones and sparse.
  * ------------------------------------------------------------------- */
 
-var JSUtils = require('./jsutils').JSUtils,
-	es6 = require('harmony-collections');
+var JSUtils = require('./jsutils').JSUtils;
 
 var WikitextConstants = {
 	// Valid image options:
@@ -30,7 +30,7 @@ var WikitextConstants = {
 			'img_manualthumb': 'manualthumb'
 		}),
 		/* filled in below, based on PrefixOptions */
-		PrefixOptionsReverseMap: new es6.Map(),
+		PrefixOptionsReverseMap: new Map(),
 		SimpleOptions: JSUtils.mapObject({
 			// halign
 			'img_left'   : 'halign',

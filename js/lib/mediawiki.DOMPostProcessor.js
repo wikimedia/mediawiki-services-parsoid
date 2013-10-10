@@ -1,6 +1,7 @@
 /* Perform post-processing steps on an already-built HTML DOM. */
 
 "use strict";
+require('./core-upgrade');
 
 var domino = require('./domino'),
 	events = require('events'),
@@ -23,8 +24,7 @@ var domino = require('./domino'),
 	TableFixups = require('./dom.t.TableFixups.js'),
 	stripMarkerMetas = CleanUp.stripMarkerMetas,
 	unpackDOMFragments = require('./dom.t.unpackDOMFragments.js').unpackDOMFragments,
-	wrapTemplates = require('./dom.wrapTemplates.js').wrapTemplates,
-	es6 = require('harmony-collections');
+	wrapTemplates = require('./dom.wrapTemplates.js').wrapTemplates;
 
 // map from mediawiki metadata names to RDFa property names
 var metadataMap = {
@@ -227,7 +227,7 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 	// add <head> content based on page meta data:
 
 	// collect all the page meta data (including revision metadata) in 1 object
-	var m = new es6.Map();
+	var m = new Map();
 	Object.keys( env.page.meta || {} ).forEach(function( k ) {
 		m.set( k, env.page.meta[k] );
 	});

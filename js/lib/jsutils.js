@@ -3,13 +3,13 @@
  * Over time, more functions can be migrated out of various other files here.
  */
 
-var es6 = require('harmony-collections');
+require('./core-upgrade');
 
 var JSUtils = {
 	// This should probably be taken care of by the Set constructor
 	// but doesn't seem to be implemented correctly anywhere.
 	arrayToSet: function(a) {
-		var s = new es6.Set();
+		var s = new Set();
 		for (var i = 0, n = a.length; i < n; i++) {
 			s.add(a[i]);
 		}
@@ -17,7 +17,7 @@ var JSUtils = {
 	},
 
 	mapObject: function(h) {
-		var m = new es6.Map();
+		var m = new Map();
 		Object.keys(h).forEach(function(k) { m.set(k, h[k]); });
 		return m;
 	},
