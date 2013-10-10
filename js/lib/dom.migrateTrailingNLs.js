@@ -3,6 +3,21 @@
 var DU = require('./mediawiki.DOMUtils.js').DOMUtils,
 	JSUtils = require('./jsutils.js').JSUtils;
 
+
+// These nodes either end a line in wikitext (tr, li, dd, ol, ul, dl, caption,
+// p) or have implicit closing tags that can leak newlines to those that end a
+// line (th, td)
+//
+// SSS FIXME: Given condition 2, we may not need to check th/td anymore
+// (if we can rely on auto inserted start/end tags being present always).
+var nodesToMigrateFrom = JSUtils.arrayToSet([
+	"TH", "TD", "TR", "LI", "DD", "OL", "UL", "DL", "CAPTION", "P"
+]);
+
+function nodeEndsLineInWT(node) {
+	return nodesToMigrateFrom.has( node.nodeName ) && !DU.isLiteralHTMLNode( node );
+}
+
 function migrateTrailingNLs(elt, env) {
 
 	// We can migrate a newline out of a node if one of the following is true:
@@ -11,19 +26,6 @@ function migrateTrailingNLs(elt, env) {
 	// (3) It is the rightmost node in the DOM subtree rooted at a node
 	//     that ends a line in wikitext
 	function canMigrateNLOutOfNode(node) {
-		// These nodes either end a line in wikitext (tr, li, dd, ol, ul, dl, caption, p)
-		// or have implicit closing tags that can leak newlines to those that end a line (th, td)
-		//
-		// SSS FIXME: Given condition 2, we may not need to check th/td anymore
-		// (if we can rely on auto inserted start/end tags being present always).
-		var nodesToMigrateFrom = JSUtils.arrayToSet([
-			"TH", "TD", "TR", "LI", "DD", "OL", "UL", "DL", "CAPTION", "P"
-		]);
-
-		function nodeEndsLineInWT(node) {
-			return nodesToMigrateFrom.has( node.nodeName ) && !DU.isLiteralHTMLNode( node );
-		}
-
 		return node && (
 			nodeEndsLineInWT(node) ||
 			(DU.isElt(node) && DU.getDataParsoid( node ).autoInsertedEnd) ||
