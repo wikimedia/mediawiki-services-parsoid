@@ -68,20 +68,26 @@ DOMFragmentBuilder.prototype.buildDOMFragment = function(scopeToken, frame, cb) 
 		// Source offsets of content
 		var srcOffsets = scopeToken.getAttribute("srcOffsets");
 
-		var pipeline = this.manager.pipeFactory.getPipeline("tokens/x-mediawiki/expanded", {
-			inBlockToken: true,
-			noPre: scopeToken.getAttribute('noPre'),
-			// Without source offsets for the content, it is not possible to compute DSR
-			// and template wrapping in content. So, users of mw:dom-fragment-token should
-			// always set offsets on content that comes from the top-level document.
-			wrapTemplates: !!srcOffsets
-		});
-
-		if (srcOffsets) {
-			pipeline.setSourceOffsets(srcOffsets[0], srcOffsets[1]);
-		}
-		pipeline.addListener('document', this.wrapDOMFragment.bind(this, cb, scopeToken));
-		pipeline.process(content.concat([new EOFTk()]));
+		// Process tokens
+		Util.processContentInPipeline(
+			this.manager,
+			// Append EOF
+			content.concat([new EOFTk()]),
+			{
+				pipelineType: "tokens/x-mediawiki/expanded",
+				pipelineOpts: {
+					inBlockToken: true,
+					noPre: scopeToken.getAttribute('noPre'),
+					// Without source offsets for the content, it isn't possible to
+					// compute DSR and template wrapping in content. So, users of
+					// mw:dom-fragment-token should always set offsets on content
+					// that comes from the top-level document.
+					wrapTemplates: !!srcOffsets
+				},
+				srcOffsets: srcOffsets,
+				documentCB: this.wrapDOMFragment.bind(this, cb, scopeToken)
+			}
+		);
 	}
 };
 
