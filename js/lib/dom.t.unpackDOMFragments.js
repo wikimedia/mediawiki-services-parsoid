@@ -11,13 +11,19 @@ function hasBadNesting(targetNode, fragmentNode) {
 	// looking for nesting of identical tags. But, HTML tree building
 	// has lot more restrictions on nesting. It seems the simplest way
 	// to get all the rules right is to (serialize + reparse).
+
 	function isNestableElement(nodeName) {
-		return nodeName === 'SPAN' ||
+		// Special case for 'A' because it is considered a formatting elt
+		// but it cannot really be nested. In any case, we need a real
+		// solution to this problem rather than this hacky soln. that works
+		// for a subset of dom-fragment unpacking scenarios.
+		return nodeName !== 'A' && (
+			nodeName === 'SPAN' ||
 			nodeName === 'DIV' ||
-			Consts.HTML.FormattingTags.has(nodeName);
+			Consts.HTML.FormattingTags.has(nodeName));
 	}
 
-	return isNestableElement(targetNode.nodeName) &&
+	return !isNestableElement(targetNode.nodeName) &&
 		DU.treeHasElement(fragmentNode, targetNode.nodeName);
 }
 
@@ -223,6 +229,10 @@ function unpackDOMFragments(env, node) {
 
 				var newDoc = DU.parseHTML(fragmentParent.outerHTML.replace(timestamp, dummyNode.innerHTML));
 				DU.migrateChildrenBetweenDocs(newDoc.body, fragmentParent.parentNode, fragmentParent);
+
+				// Set nextNode to the previous-sibling of former fragmentParent (which will get deleted)
+				// This will ensure that all nodes will get handled
+				nextNode = fragmentParent.previousSibling;
 
 				// fragmentParent itself is useless now
 				DU.deleteNode(fragmentParent);
