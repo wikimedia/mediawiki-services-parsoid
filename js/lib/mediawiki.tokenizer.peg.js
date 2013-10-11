@@ -8,6 +8,8 @@
  */
 "use strict";
 
+require('./core-upgrade.js');
+
 var PEG = require('pegjs'),
 	path = require('path'),
 	LRU = require("lru-cache"),
@@ -180,7 +182,7 @@ PegTokenizer.prototype.tokenizeAsync = function( text, srcOffset, cb ) {
 		this.onEnd();
 	} else {
 		// Schedule parse of next chunk
-		process.nextTick(function() {
+		setImmediate(function() {
 			// console.warn("new input: " + JSON.stringify(ret.newInput));
 			// console.warn("offset   : " + ret.newOffset);
 			pegTokenizer.tokenizeAsync(ret.newInput, ret.newOffset, cb);
