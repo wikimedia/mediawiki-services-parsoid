@@ -2701,7 +2701,7 @@ WSP.tagHandlers = {
 	span: {
 		handle: function(node, state, cb) {
 			var type = node.getAttribute('typeof');
-			if (type && type in state.serializer.genContentSpanTypes) {
+			if (type && state.serializer.genContentSpanTypes[type]) {
 				if (type === 'mw:Nowiki') {
 					cb('<nowiki>', node);
 					if (node.childNodes.length === 1 && node.firstChild.nodeName === 'PRE') {
@@ -2728,7 +2728,12 @@ WSP.tagHandlers = {
 					emitEndTag('</nowiki>', node, state, cb);
 				} else if ( /(?:^|\s)mw\:Image(\/(Frame|Frameless|Thumb))?/.test(type) ) {
 					state.serializer.handleImage( node, state, cb );
+				} else if ( /(?:^|\s)mw\:Entity/.test(type) && node.childNodes.length === 1 ) {
+					// handle a new mw:Entity (not handled by selser) by
+					// serializing its children
+					state.serializeChildren(node, cb);
 				}
+
 			} else {
 				// Fall back to plain HTML serialization for spans created
 				// by the editor
