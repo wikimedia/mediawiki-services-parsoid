@@ -20,6 +20,8 @@
 
 "use strict";
 
+require('./core-upgrade.js');
+
 var async = require('async');
 var Util = require('./mediawiki.Util.js').Util;
 var defines = require('./mediawiki.parser.defines.js');
@@ -187,7 +189,7 @@ ParserFunctions.prototype._switchLookupFallback = function ( frame, kvs, key, di
 					// and using it, but have to bind lots of args -- lazy today.
 					/* jshint loopfunc: true */
 					cb: function( i, val ) {
-						process.nextTick(
+						setImmediate(
 							self._switchLookupFallback.bind( self, frame,
 								kvs.slice(i+1), key, dict, cb, val )
 						);
