@@ -17937,6 +17937,16 @@ parsoid=html2wt
 <p><i>A</i><b data-parsoid='{}'><i data-parsoid='{}'>B</i></b></p>
 !! end
 
+!!test
+5. Bug 54262: New entities
+!! options
+parsoid=html2wt
+!! input
+foo
+!! result
+<span typeof="mw:Entity">foo</span>
+!! end
+
 # -----------------------------------------------------------------
 # End of section for Parsoid-only html2wt tests for serialization
 # of new content
