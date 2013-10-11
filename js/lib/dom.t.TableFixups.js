@@ -49,7 +49,7 @@ TableFixups.prototype.stripDoubleTDs = function (env, node) {
 	    !DU.isLiteralHTMLNode(nextNode) &&
 		DU.nodeEssentiallyEmpty(node) &&
 		(// FIXME: will not be set for nested templates
-		 DU.isEncapsulatedElt(nextNode) ||
+		 DU.isFirstEncapsulationWrapperNode(nextNode) ||
 		 // Hacky work-around for nested templates
 		 /^{{.*?}}$/.test(nextNode.data.parsoid.src))
 	    )
@@ -92,7 +92,7 @@ TableFixups.prototype.stripDoubleTDs = function (env, node) {
 TableFixups.prototype.hasOnlyOneTransclusionChild = function (node) {
 	var n = 0;
 	node.childNodes.forEach(function(n) {
-		if(DU.isElt(n) && DU.isEncapsulatedElt(n)) {
+		if (DU.isFirstEncapsulationWrapperNode(n)) {
 			n++;
 		}
 		if (n > 1) {

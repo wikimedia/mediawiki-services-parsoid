@@ -51,6 +51,28 @@ function addDeltaToDSR(node, delta) {
 	}
 }
 
+function fixAbouts(env, node, aboutIdMap) {
+	var c = node.firstChild;
+	while (c) {
+		if (DU.isElt(c)) {
+			var cAbout = c.getAttribute("about");
+			if (cAbout) {
+				// Update about
+				var newAbout = aboutIdMap.get(cAbout);
+				if (!newAbout) {
+					newAbout = env.newAboutId();
+					aboutIdMap.set(cAbout, newAbout);
+				}
+				c.setAttribute("about", newAbout);
+			}
+
+			fixAbouts(env, c, aboutIdMap);
+		}
+
+		c = c.nextSibling;
+	}
+}
+
 /**
 * DOMTraverser handler that unpacks DOM fragments which were injected in the
 * token pipeline.
@@ -138,35 +160,47 @@ function unpackDOMFragments(env, node) {
 
 			}
 
-			var isForeignContent = node.data.parsoid.tmp.isForeignContent,
-				aboutIdMap = {},
+			var n;
+			if (node.data.parsoid.tmp.isForeignContent) {
+				// Foreign Content = Transclusion and Extension content
+				//
+				// Set about-id always to ensure the unwrapped node
+				// is recognized as encapsulated content as well.
 				n = dummyNode.firstChild;
-			while (n) {
-				var next = n.nextSibling,
-					nAbout = n.getAttribute("about");
-
-				if (isForeignContent && nAbout) {
-					// Replace old about-id with new about-id that is
-					// unique to the global page environment object
-					var newAbout = aboutIdMap[nAbout];
-					if (!newAbout) {
-						newAbout = env.newAboutId();
-						aboutIdMap[nAbout] = newAbout;
+				while (n) {
+					if (DU.isElt(n)) {
+						n.setAttribute("about", about);
 					}
-					n.setAttribute("about", newAbout);
-				} else {
-					// Discard unnecessary span wrappers.
-					//
-					// If the node has an about-id on it, it is part of
-					// transclusion or other generated content and is required.
-					DU.loadDataParsoid(n);
-					if (n.data.parsoid.tmp.wrapper && !nAbout) {
-						DU.migrateChildren(n, n.parentNode, n);
-						DU.deleteNode(n);
-					}
+					n = n.nextSibling;
 				}
+			} else {
+				// Replace old about-id with new about-id that is
+				// unique to the global page environment object.
+				//
+				// <figure>s are reused from cache. Note that figure captions
+				// can contain multiple independent transclusions. Each one
+				// of those individual transclusions should get a new unique
+				// about id. Hence a need for an aboutIdMap and the need to
+				// walk the entire tree.
 
-				n = next;
+				fixAbouts(env, dummyNode, new Map());
+
+				// Discard unnecessary span wrappers
+				n = dummyNode.firstChild;
+				while (n) {
+					var next = n.nextSibling;
+
+					// Preserve wrappers that have an about id
+					if (DU.isElt(n) && !n.getAttribute(about)) {
+						DU.loadDataParsoid(n);
+						if (n.data.parsoid.tmp.wrapper) {
+							DU.migrateChildren(n, n.parentNode, n);
+							DU.deleteNode(n);
+						}
+					}
+
+					n = next;
+				}
 			}
 
 			var nextNode = node.nextSibling;

@@ -74,7 +74,7 @@ function cleanupAndSaveDataParsoid( node ) {
 			//
 			// But, do not zero it out if the node has template encapsulation
 			// information.  That will be disastrous (see bug 52638, 52488).
-			if (dp.fostered && dp.dsr && !DU.isEncapsulatedElt(node)) {
+			if (dp.fostered && dp.dsr && !DU.isFirstEncapsulationWrapperNode(node)) {
 				dp.dsr[0] = dp.dsr[1];
 			}
 		}

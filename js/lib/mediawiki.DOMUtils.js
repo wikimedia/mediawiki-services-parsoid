@@ -636,10 +636,6 @@ var DOMUtils = {
 		}
 	},
 
-	isEncapsulatedElt: function(node) {
-		return this.isElt(node) && (/(?:^|\s)mw:(?:Transclusion(?=$|\s)|Param(?=$|\s)|Extension\/[^\s]+)/).test(node.getAttribute('typeof'));
-	},
-
 	/**
 	 * Check if node is an ELEMENT node belongs to a template/extension.
 	 *
@@ -999,6 +995,46 @@ var DOMUtils = {
 	},
 
 	/**
+	 * Is node the first wrapper element of encapsulated content?
+	 */
+	isFirstEncapsulationWrapperNode: function(node) {
+		return this.isElt(node) && (/(?:^|\s)mw:(?:Transclusion(?=$|\s)|Param(?=$|\s)|Extension\/[^\s]+)/).test(node.getAttribute('typeof'));
+	},
+
+	/**
+	 * Is node an encapsulation wrapper elt?
+	 *
+	 * All root-level nodes of generated content are considered
+	 * encapsulation wrappers and share an about-id.
+	 */
+	isEncapsulationWrapper: function(node) {
+		// True if it has an encapsulation type or while walking backwards
+		// over elts with identical about ids, we run into a node with an
+		// encapsulation type.
+		function hasRightType(n) {
+			return (/(?:^|\s)mw:(?:Transclusion(?=$|\s)|Param(?=$|\s)|Extension\/[^\s]+)/).test(n.getAttribute("typeof"));
+		}
+
+		if (!this.isElt(node)) {
+			return false;
+		}
+
+		var about = node.getAttribute('about');
+		if (!about) {
+			return false;
+		}
+
+		while (!hasRightType(node)) {
+			node = node.previousSibling;
+			if (!node || !this.isElt(node) || node.getAttribute('about') !== about) {
+				return false;
+			}
+		}
+
+		return node !== null;
+	},
+
+	/**
 	 * Gets all siblings that follow 'node' that have an 'about' as
 	 * their about id.
 	 *
@@ -1339,7 +1375,7 @@ var DOMUtils = {
 	 * The DOMPostProcessor will unpack the fragment and insert the HTML
 	 * back into the DOM.
 	 */
-	buildDOMFragmentForTokenStream: function(token, docOrHTML, env, addAttrsCB, aboutId) {
+	buildDOMFragmentForTokenStream: function(token, docOrHTML, env, addAttrsCB, opts) {
 		var doc = docOrHTML.constructor === String ? this.parseHTML(docOrHTML) : docOrHTML;
 		var nodes = doc.body.childNodes;
 
@@ -1364,7 +1400,7 @@ var DOMUtils = {
 				nodes: nodes,
 				html: nodes.map(function(n) { return n.outerHTML; }).join('')
 			},
-			{ aboutId: aboutId }
+			opts
 		);
 	},
 

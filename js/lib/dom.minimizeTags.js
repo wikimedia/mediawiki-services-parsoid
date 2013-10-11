@@ -55,7 +55,7 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 		var P = [];
 		for (var i = 0; i < n; i++) {
 			var s = children[i];
-			if (DU.isElt(s) && DU.isEncapsulatedElt(s)) {
+			if (DU.isFirstEncapsulationWrapperNode(s)) {
 				// Dont descend into template generated content
 				P.push({path: [], orig_parent: node, children: [s]});
 			} else if (DU.isElt(s)) {
@@ -100,7 +100,7 @@ function minimizeInlineTags(root, rewriteable_nodes) {
 		// Do not cross into templates and block tags
 		while (DU.isElt(node) &&
 			!DU.isBlockTag(node.nodeName) &&
-			!DU.isEncapsulatedElt(node))
+			!DU.isFirstEncapsulationWrapperNode(node))
 		{
 			path.push(node);
 			children = node.childNodes;

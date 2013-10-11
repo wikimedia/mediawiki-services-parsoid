@@ -998,7 +998,7 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 	var env = this.manager.env,
 		cachedFile = env.fileCache[token.dataAttribs.src];
 	if (cachedFile) {
-		var opts = { isForeignContent: true, noAboutId: true },
+		var opts = { noAboutId: true },
 			wrapperTokens = DU.encapsulateExpansionHTML(env, token, cachedFile, opts),
 			firstWrapperToken = wrapperTokens[0];
 

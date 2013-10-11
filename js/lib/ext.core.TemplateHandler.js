@@ -108,7 +108,7 @@ TemplateHandler.prototype.onTemplate = function ( token, frame, cb ) {
 				// cache hit: reuse the expansion DOM
 				//console.log('cache hit for', JSON.stringify(text.substr(0, 50)));
 				var expansion = env.transclusionCache[text],
-					opts = {isForeignContent: true },
+					opts = { isForeignContent: true },
 					toks = DU.encapsulateExpansionHTML(env, token, expansion, opts);
 
 				cb({ tokens: toks });
@@ -726,7 +726,8 @@ TemplateHandler.prototype._onDocument = function(state, cb, doc) {
 		state.token,
 		doc,
 		this.manager.env,
-		addWrapperAttrs
+		addWrapperAttrs,
+		{ isForeignContent: true }
 	);
 
 	//console.log('toks', JSON.stringify(toks, null, 2));

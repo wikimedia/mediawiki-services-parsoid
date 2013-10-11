@@ -306,14 +306,14 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 		};
 
 		cb({
+			async: false,
 			tokens: DU.buildDOMFragmentForTokenStream(
 				refsTok,
 				buf.join(''),
 				manager.env,
 				olProcessor,
-				referencesId
-			),
-			async:false
+				{ aboutId: referencesId, isForeignContent: true }
+			)
 		});
 	}.bind(this);
 

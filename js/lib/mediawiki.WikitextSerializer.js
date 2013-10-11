@@ -2169,7 +2169,7 @@ function wtEOL(node, otherNode) {
 function wtListEOL(node, otherNode) {
 	if (otherNode.nodeName === 'BODY' ||
 		!DU.isElt(otherNode) ||
-		DU.isEncapsulatedElt(otherNode))
+		DU.isFirstEncapsulationWrapperNode(otherNode))
 	{
 		return {min:0, max:2};
 	}
