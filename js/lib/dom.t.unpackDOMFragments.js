@@ -79,6 +79,19 @@ function fixAbouts(env, node, aboutIdMap) {
 	}
 }
 
+function makeChildrenEncapWrappers(node, about) {
+	DU.addSpanWrappers(node.childNodes);
+
+	var c = node.firstChild;
+	while (c) {
+		// FIXME: This unconditionally sets about on children
+		// This is currently safe since all of them are nested
+		// inside a transclusion, but do we need future-proofing?
+		c.setAttribute("about", about);
+		c = c.nextSibling;
+	}
+}
+
 /**
 * DOMTraverser handler that unpacks DOM fragments which were injected in the
 * token pipeline.
@@ -226,6 +239,20 @@ function unpackDOMFragments(env, node) {
 				 * ----------------------------------------------------------------------- */
 				var timestamp = (new Date()).toString();
 				fragmentParent.replaceChild(node.ownerDocument.createTextNode(timestamp), node);
+
+				// If fragmentParent has an about, it presumably is nested inside a template
+				// Post fixup, its children will surface to the encapsulation wrapper level.
+				// So, we have to fix them up so they dont break the encapsulation.
+				//
+				// Ex: {{echo|[[Foo|This is [[bad]], very bad]]}}
+				//
+				// In this example, the <a> corresponding to Foo is fragmentParent and has an about
+				// dummyNode is the DOM corresponding to "This is [[bad]], very bad". Post-fixup
+				// [[bad], very bad are at encapsulation level and need about ids.
+				about = fragmentParent.getAttribute("about");
+				if (about !== null) {
+					makeChildrenEncapWrappers(dummyNode, about);
+				}
 
 				var newDoc = DU.parseHTML(fragmentParent.outerHTML.replace(timestamp, dummyNode.innerHTML));
 				DU.migrateChildrenBetweenDocs(newDoc.body, fragmentParent.parentNode, fragmentParent);
