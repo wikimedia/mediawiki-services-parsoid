@@ -1206,7 +1206,17 @@ var DOMUtils = {
 			textCommentAccum = [];
 		}
 
-		nodes.forEach( function(node) {
+		// Build a real array out of nodes.
+		//
+		// Operating directly on DOM child-nodes array
+		// and manipulating them by adding span wrappers
+		// changes the traversal itself
+		var nodeBuf = [];
+		for (var i = 0; i < nodes.length; i++) {
+			nodeBuf.push(nodes[i]);
+		}
+
+		nodeBuf.forEach(function(node) {
 			if (node.nodeType === node.TEXT_NODE ||
 				node.nodeType === node.COMMENT_NODE) {
 				textCommentAccum.push(node);
