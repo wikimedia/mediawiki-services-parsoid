@@ -1,5 +1,7 @@
 "use strict";
 
+require('./core-upgrade.js');
+
 var request = require('request'),
 	$ = require( './fakejquery' ),
 	qs = require('querystring'),
@@ -108,12 +110,12 @@ ApiRequest.prototype._processListeners = function ( error, src ) {
 			nextListener.call( self, error || null, src, 'text/x-mediawiki' );
 		}
 		if ( listeners.length ) {
-			process.nextTick( processSome );
+			setImmediate( processSome );
 		}
 
 	};
 
-	process.nextTick( processSome );
+	setImmediate( processSome );
 };
 
 /**

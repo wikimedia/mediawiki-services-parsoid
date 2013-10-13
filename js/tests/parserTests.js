@@ -399,7 +399,7 @@ ParserTests.prototype.processArticle = function( item, cb ) {
 	var norm = this.env.normalizeTitle(item.title);
 	//console.log( 'processArticle ' + norm );
 	this.articles[norm] = item.text;
-	process.nextTick( cb );
+	setImmediate( cb );
 };
 
 /**
@@ -821,7 +821,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 			this.env.conf.wiki.removeExtensionTag( extensions[i] );
 		}
 
-		process.nextTick( endCb );
+		setImmediate( endCb );
 	}.bind( this );
 
 	var testTasks = [];
@@ -930,7 +930,7 @@ ParserTests.prototype.processParsedHTML = function( item, options, mode, doc, cb
 	this.checkHTML( item, DU.serializeChildren(doc), options, mode );
 
 	// Now schedule the next test, if any
-	process.nextTick( cb );
+	setImmediate( cb );
 };
 
 /**
@@ -958,7 +958,7 @@ ParserTests.prototype.processSerializedWT = function ( item, options, mode, wiki
 	this.checkWikitext( item, wikitext, options, mode );
 
 	// Now schedule the next test, if any
-	process.nextTick( cb );
+	setImmediate( cb );
 };
 
 /**
@@ -1551,7 +1551,7 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 				/* jshint loopfunc: true */
 				tasks.push( function ( modeIndex, changesIndex, cb ) {
 					if (done) {
-						process.nextTick( cb );
+						setImmediate( cb );
 					} else {
 						var newitem = Util.clone( item );
 						newitem.seed = changesIndex + '';
@@ -1569,7 +1569,7 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 							item.cachedNormalizedHTML = newitem.cachedNormalizedHTML;
 							item.cachedResultHTML = newitem.cachedResultHTML;
 
-							process.nextTick( cb );
+							setImmediate( cb );
 						}.bind( this ) );
 					}
 				}.bind( this, i, j ) );
