@@ -145,7 +145,7 @@ var dbGetTitle =
 	'( claim_hash != ? OR ' +
 		'( claim_num_tries <= ? AND claim_timestamp < ? ) ) ' +
 	'ORDER BY claim_num_tries DESC, latest_score DESC, ' +
-	'claim_timestamp ASC LIMIT 1';
+	'claim_timestamp ASC LIMIT ?,1';
 
 var dbIncrementFetchErrorCount =
 	'UPDATE pages SET num_fetch_errors = num_fetch_errors + 1 WHERE title = ? AND prefix = ?';
@@ -414,9 +414,13 @@ var transUpdateCB = function( title, prefix, hash, type, res, trans, success_cb,
 };
 
 var claimPage = function( commitHash, cutOffTimestamp, req, res ) {
-	var trans = db.startTransaction();
+	var trans = db.startTransaction(),
+		// reduce contention with a random offset
+		randOffset = Math.floor(Math.random() * 20);
 
-	trans.query( dbGetTitle, [ maxFetchRetries, commitHash, maxTries, cutOffTimestamp ], function( err, rows ) {
+	trans.query( dbGetTitle,
+			[ maxFetchRetries, commitHash, maxTries, cutOffTimestamp, randOffset ],
+			function( err, rows ) {
 		if ( err ) {
 			trans.rollback( function() {
 				console.error( 'Error getting next title: ' + err.toString() );
