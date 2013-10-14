@@ -13,14 +13,10 @@ function hasBadNesting(targetNode, fragmentNode) {
 	// to get all the rules right is to (serialize + reparse).
 
 	function isNestableElement(nodeName) {
-		// Special case for 'A' because it is considered a formatting elt
-		// but it cannot really be nested. In any case, we need a real
-		// solution to this problem rather than this hacky soln. that works
-		// for a subset of dom-fragment unpacking scenarios.
-		return nodeName !== 'A' && (
-			nodeName === 'SPAN' ||
-			nodeName === 'DIV' ||
-			Consts.HTML.FormattingTags.has(nodeName));
+		// A-tags cannot ever be nested inside each other at any level.
+		// This is the one scenario we definitely have to handle right now.
+		// We need a generic robust solution for other nesting scenarios.
+		return nodeName !== 'A';
 	}
 
 	return !isNestableElement(targetNode.nodeName) &&
