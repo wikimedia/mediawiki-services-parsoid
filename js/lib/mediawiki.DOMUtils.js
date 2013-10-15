@@ -1244,8 +1244,14 @@ var DOMUtils = {
 		function makeWrapperForNode ( node ) {
 			var workNode;
 			if (node.nodeType === node.ELEMENT_NODE && node.childNodes.length) {
-				// create a copy of the node without children
-				workNode = node.ownerDocument.createElement(node.nodeName);
+				// Create a copy of the node without children
+				// Do not use 'A' as a wrapper node because it could
+				// end up getting nested inside another 'A' and the DOM
+				// structure can change where the wrapper tokens are not
+				// longer siblings.
+				// Ex: "[http://foo.com Bad nesting [[Here]]].
+				var wrapperName = (node.nodeName === 'A') ? 'SPAN' : node.nodeName;
+				workNode = node.ownerDocument.createElement(wrapperName);
 				// copy over attributes
 				for (var i = 0; i < node.attributes.length; i++) {
 					var attribute = node.attributes.item(i);

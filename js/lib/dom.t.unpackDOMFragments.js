@@ -114,6 +114,8 @@ function unpackDOMFragments(env, node) {
 						workNode.getAttribute('typeof') + '|';
 					workNode = workNode.parentNode;
 				}
+				// SSS FIXME: Missing debug statment here?
+				// 'out' is not being used.
 				DU.loadDataParsoid(node);
 			}
 
