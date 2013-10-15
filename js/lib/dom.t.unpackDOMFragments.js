@@ -4,9 +4,10 @@ var DU = require('./mediawiki.DOMUtils.js').DOMUtils,
 	Util = require('./mediawiki.Util.js').Util,
 	Consts = require('./mediawiki.wikitext.constants.js').WikitextConstants,
 	computeNodeDSR = require('./dom.computeDSR.js').computeNodeDSR,
+	DOMTraverser = require('./domTraverser.js').DOMTraverser,
 	wrapTemplatesInTree = require('./dom.wrapTemplates.js').wrapTemplatesInTree;
 
-function hasBadNesting(targetNode, fragmentNode) {
+function hasBadNesting(targetNode, fragment) {
 	// SSS FIXME: This is not entirely correct. This is only
 	// looking for nesting of identical tags. But, HTML tree building
 	// has lot more restrictions on nesting. It seems the simplest way
@@ -20,7 +21,70 @@ function hasBadNesting(targetNode, fragmentNode) {
 	}
 
 	return !isNestableElement(targetNode.nodeName) &&
-		DU.treeHasElement(fragmentNode, targetNode.nodeName);
+		DU.treeHasElement(fragment, targetNode.nodeName);
+}
+
+function fixUpMisnestedTagDSR(targetNode, fragment) {
+	// Currently, this only deals with A-tags
+	if (targetNode.nodeName !== 'A') {
+		return;
+	}
+
+	// Walk the fragment till you find an 'A' tag and
+	// zero out DSR width for all tags from that point on.
+	// This also requires adding span wrappers around
+	// bare text from that point on.
+
+	// QUICK FIX: Add wrappers unconditionally and strip unneeded ones
+	// Since this scenario should be rare in practice, I am going to
+	// go with this simple solution.
+	DU.addSpanWrappers(fragment.childNodes);
+
+	var resetDSR = false,
+		currOffset = 0,
+		dsrFixer = new DOMTraverser();
+	dsrFixer.addHandler(null, function(node) {
+		if (DU.isElt(node)) {
+			if (node.nodeName === 'A') {
+				resetDSR = true;
+			}
+
+			DU.loadDataParsoid(node);
+			if (resetDSR) {
+				if (node.data.parsoid.dsr && node.data.parsoid.dsr[0]) {
+					currOffset = node.data.parsoid.dsr[1] = node.data.parsoid.dsr[0];
+				} else {
+					node.data.parsoid.dsr = [currOffset, currOffset];
+				}
+				node.data.parsoid.misnested = true;
+				DU.setDataParsoid(node, node.data.parsoid);
+			} else if (node.data.parsoid.tmp.wrapper) {
+				// Unnecessary wrapper added above -- strip it.
+				var next = node.nextSibling;
+				DU.migrateChildren(node, node.parentNode, node);
+				DU.deleteNode(node);
+				return next;
+			}
+		}
+
+		return true;
+	});
+	dsrFixer.traverse(fragment);
+
+	// Since targetNode will get re-organized, save data.parsoid
+	var dsrSaver = new DOMTraverser(),
+		saveHandler = function(node) {
+			if (DU.isElt(node) && node.data.parsoid.dsr) {
+				DU.setDataParsoid(node, node.data.parsoid);
+			}
+
+			return true;
+		};
+	dsrSaver.addHandler(null, saveHandler);
+	dsrSaver.traverse(targetNode);
+	// Explicitly run on 'targetNode' since DOMTraverser always
+	// processes children of node passed in, not the node itself
+	saveHandler(targetNode);
 }
 
 function addDeltaToDSR(node, delta) {
@@ -223,16 +287,21 @@ function unpackDOMFragments(env, node) {
 			var nextNode = node.nextSibling;
 			if (hasBadNesting(fragmentParent, dummyNode)) {
 				/*------------------------------------------------------------------------
-				 * Say fragmentParent has child nodes  c1, c2, N, c3, etc.
+				 * If fragmentParent is an A element and the fragment contains another
+				 * A element, we have an invalid nesting of A elements and needs fixing up
 				 *
-				 * doc1: ... fragmentParent -> [c1, c2, N=mw:DOMFragment, c3, ...] ...
+				 * doc1: ... fragmentParent -> [... dummyNode=mw:DOMFragment, ...] ...
 				 *
-				 * If fragmentParent is an A-tag and N:domfragment has an A-tag, we have a problem.
+				 * 1. Change doc1:fragmentParent -> [... "#unique-hash-code", ...] by replacing
+				 *    node with the "#unique-hash-code" text string
 				 *
-				 * 1. Transform: [fragmentParent: [c1, c2, "#unique-hash-code", c3, ..]]
-				 * 2. str = fragmentParent.outerHTML.replace(#unique-hash-code, N.domFragment.html)
+				 * 2. str = fragmentParent.outerHTML.replace(#unique-hash-code, dummyNode.innerHTML)
+				 *    We now have a HTML string with the bad nesting. We will now use the HTML5
+				 *    parser to parse this HTML string and give us the fixed up DOM
+				 *
 				 * 3. ParseHTML(str) to get
-				 *    doc2: [BODY: [fragmentParent: [c1, c2, ...], A-nested, c3, ...]]
+				 *    doc2: [BODY -> [[fragmentParent -> [...], nested-A-tag-from-dummyNode, ...]]]
+				 *
 				 * 4. Replace doc1:fragmentParent with doc2:body.childNodes
 				 * ----------------------------------------------------------------------- */
 				var timestamp = (new Date()).toString();
@@ -242,7 +311,7 @@ function unpackDOMFragments(env, node) {
 				// Post fixup, its children will surface to the encapsulation wrapper level.
 				// So, we have to fix them up so they dont break the encapsulation.
 				//
-				// Ex: {{echo|[[Foo|This is [[bad]], very bad]]}}
+				// Ex: {{echo|[http://foo.com This is [[bad]], very bad]}}
 				//
 				// In this example, the <a> corresponding to Foo is fragmentParent and has an about
 				// dummyNode is the DOM corresponding to "This is [[bad]], very bad". Post-fixup
@@ -252,6 +321,14 @@ function unpackDOMFragments(env, node) {
 					makeChildrenEncapWrappers(dummyNode, about);
 				}
 
+				// 1. Set zero-dsr width on all elements that will get split
+				//    in dummyNode's tree to prevent selser-based corruption
+				//    on edits to a page that contains badly nested tags.
+				// 2. Save data-parsoid on fragmentParent since it will be
+				//    modified below and we want data.parsoid preserved.
+				fixUpMisnestedTagDSR(fragmentParent, dummyNode);
+
+				// We rely on HTML5 parser to fixup the bad nesting (see big comment above)
 				var newDoc = DU.parseHTML(fragmentParent.outerHTML.replace(timestamp, dummyNode.innerHTML));
 				DU.migrateChildrenBetweenDocs(newDoc.body, fragmentParent.parentNode, fragmentParent);
 
