@@ -3393,11 +3393,23 @@ External links: link text with spaces
 
 !! test
 External links: wiki links within external link (Bug 3695)
+!! options
+php
 !! input
 [http://example.com [[wikilink]] embedded in ext link]
 !! result
 <p><a rel="nofollow" class="external text" href="http://example.com"></a><a href="/index.php?title=Wikilink&amp;action=edit&amp;redlink=1" class="new" title="Wikilink (page does not exist)">wikilink</a><a rel="nofollow" class="external text" href="http://example.com"> embedded in ext link</a>
 </p>
+!! end
+
+!! test
+Parsoid: External links: wiki links within external link (Bug 3695)
+!! options
+parsoid
+!! input
+[http://example.com [[wikilink]] embedded in ext link]
+!! result
+<p><a rel="mw:ExtLink" href="http://example.com"></a><a rel="mw:WikiLink" href="./Wikilink">wikilink</a><span> embedded in ext link</span></p>
 !! end
 
 !! test
@@ -3544,11 +3556,23 @@ External link containing double-single-quotes in text embedded in italics (bug 4
 
 !! test
 External link containing double-single-quotes with no space separating the url from text in italics
+!! options
+php
 !! input
 [http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm''La muerte de Casagemas'' (1901) en el sitio de [[Museo Picasso (París)|Museo Picasso]].]
 !! result
 <p><a rel="nofollow" class="external text" href="http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm"><i>La muerte de Casagemas</i> (1901) en el sitio de <a href="/index.php?title=Museo_Picasso_(Par%C3%ADs)&amp;action=edit&amp;redlink=1" class="new" title="Museo Picasso (París) (page does not exist)">Museo Picasso</a>.</a>
 </p>
+!! end
+
+!! test
+Parsoid:External link containing double-single-quotes with no space separating the url from text in italics
+!! options
+parsoid
+!! input
+[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm''La muerte de Casagemas'' (1901) en el sitio de [[Museo Picasso (París)|Museo Picasso]].]
+!! result
+<p><a rel="mw:ExtLink" href="http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm"><i>La muerte de Casagemas</i> (1901) en el sitio de </a><a rel="mw:WikiLink" href="./Museo_Picasso_(París)">Museo Picasso</a><span>.</span></p>
 !! end
 
 !! test

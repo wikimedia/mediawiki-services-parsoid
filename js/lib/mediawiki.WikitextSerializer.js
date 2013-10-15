@@ -4044,7 +4044,7 @@ WSP._serializeNode = function( node, state, cb) {
 			// to every node of a subtree (rather than an indication that some node
 			// in the subtree is modified).
 			if (state.selserMode && !state.inModifiedContent &&
-				dp && isValidDSR(dp.dsr) && (dp.dsr[1] > dp.dsr[0] || dp.fostered)) {
+				dp && isValidDSR(dp.dsr) && (dp.dsr[1] > dp.dsr[0] || dp.fostered || dp.misnested)) {
 				// To serialize from source, we need 3 things of the node:
 				// -- it should not have a diff marker
 				// -- it should have valid, usable DSR
