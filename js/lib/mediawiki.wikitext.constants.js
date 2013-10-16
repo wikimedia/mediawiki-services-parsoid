@@ -91,8 +91,30 @@ var WikitextConstants = {
 	// These wikitext tags are composed with quote-chars
 	WTQuoteTags: JSUtils.arrayToSet(['I', 'B']),
 
-	// Whitespace in these elements does not lead to indent-pre
-	PreSafeTags: JSUtils.arrayToSet(['BR', 'TABLE', 'TBODY', 'CAPTION', 'TR', 'TD', 'TH']),
+	// Leading whitespace on new lines in these elements does not lead to indent-pre
+	// This only applies to immediate children (while skipping past zero-wikitext tags)
+	// (Ex: content in table-cells induce indent pres)
+	WeakIndentPreSuppressingTags: JSUtils.arrayToSet([
+		'TABLE', 'TBODY', 'TR'
+	]),
+
+	// Leading whitespace on new lines in these elements does not lead to indent-pre
+	// This applies to all nested content in these tags.
+	// Ex: content in table-cells nested in blocktags do not induce indent pres
+	//
+	// These tags should match $openmatch regexp in doBlockLevels:
+	// $openmatch = preg_match( '/(?:<table|<blockquote|<h1|<h2|<h3|<h4|<h5|<h6|<pre|<tr|<p|<ul|<ol|<dl|<li|<\\/tr|<\\/td|<\\/th)/iS', $t )
+	//
+	// PHP parser handling is line-based. Our handling is DOM-children based.
+	// So, there might edge cases where behavior will be different.
+	//
+	// FIXME: <ref> extension tag is another such -- is it possible to fold them
+	// into this setup so we can get rid of the 'noPre' hack in token transformers?
+	StrongIndentPreSuppressingTags: JSUtils.arrayToSet([
+		'BLOCKQUOTE', 'PRE',
+		'H1', 'H2', 'H3', 'H4', 'H5', 'H6',
+		'UL', 'OL', 'DL', 'LI'
+	]),
 
 	// In the PHP parser, these block tags open block-tag scope
 	// See doBlockLevels in the PHP parser (includes/parser/Parser.php)
@@ -216,7 +238,11 @@ var WikitextConstants = {
 		"i"     : [2,2],
 		"br"    : [0,0],
 		"figure": [2,2]
-	}
+	},
+
+	// HTML tags whose wikitext equivalents are zero-width.
+	// This information is derived from WT_TagWidths and set below.
+	ZeroWidthWikitextTags: null
 };
 
 
@@ -224,6 +250,20 @@ var WikitextConstants = {
 WikitextConstants.Image.PrefixOptions.forEach(function(v, k) {
 	WikitextConstants.Image.PrefixOptionsReverseMap.set(v, k);
 });
+
+// Derived information from 'WT_TagWidths'
+var zeroWidthTags = [];
+Object.keys(WikitextConstants.WT_TagWidths).forEach(function(tag) {
+	// This special case can be fixed by maybe removing them WT_TagWidths.
+	// They may no longer be necessary -- to be investigated in another patch.
+	if (tag !== 'html' && tag !== 'head' && tag !== 'body') {
+		var widths = WikitextConstants.WT_TagWidths[tag];
+		if (widths[0] === 0 && widths[1] === 0) {
+			zeroWidthTags.push(tag.toUpperCase());
+		}
+	}
+});
+WikitextConstants.ZeroWidthWikitextTags = JSUtils.arrayToSet(zeroWidthTags);
 
 // Freeze constants to prevent accidental changes
 JSUtils.deepFreeze(WikitextConstants);
