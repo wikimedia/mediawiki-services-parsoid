@@ -40,7 +40,7 @@ DOMFragmentBuilder.prototype.subpipelineUnnecessary = function(toks, contextTok)
 		// But, for other context-toks, we back out. FIXME: Can be smarter and
 		// detect proper template nesting, but, that can be a later enhancement
 		// when dom-scope-tokens are used in other contexts.
-		if (contextTok.name !== 'wikilink' && contextTok.name !== 'extlink' &&
+		if (contextTok && contextTok.name !== 'wikilink' && contextTok.name !== 'extlink' &&
 			tc === SelfclosingTagTk &&
 			t.name === 'meta' && t.getAttribute("typeof") === "mw:Transclusion")
 		{

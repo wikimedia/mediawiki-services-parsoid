@@ -708,9 +708,19 @@ var Util = {
 	 * subpipeline. Without it, DSR computation and template wrapping cannot be done
 	 * in the subpipeline. While unpackDOMFragment can do this on unwrapping, that can
 	 * be a bit fragile and makes dom-fragments a leaky abstraction by leaking subpipeline
-	 * processing nto the top-level pipeline.
+	 * processing into the top-level pipeline.
+	 *
+	 * @param {Token[]} content    The array of tokens to process
+	 * @param {int[]}   srcOffsets Wikitext source offsets (start/end) of these tokens
+	 * @param {Object}  opts       Parsing options (optional)
+	 *                             opts.contextTok: The token that generated the content
+	 *                             opts.noPre: Suppress indent-pres in content
 	 */
 	getDOMFragmentToken: function(content, srcOffsets, opts) {
+		if (!opts) {
+			opts = {};
+		}
+
 		return new pd.SelfclosingTagTk('mw:dom-fragment-token', [
 			new pd.KV('contextTok', opts.token),
 			new pd.KV('content', content),
