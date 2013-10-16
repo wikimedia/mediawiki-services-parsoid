@@ -170,6 +170,8 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 						// and might be used as <div {{GetStyle}}>foo</div> to
 						// generate: <div style='color:red;'>foo</div>.
 						//
+						// Real use case: Template {{ligne grise}} on frwp.
+						//
 						// To support this, we utilize the following hack.
 						// If we got a string of the form "k=v" and our orig-v
 						// was empty, then, we split the template content around
@@ -178,10 +180,6 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 							kStr = (kArr.constructor === String) ? kArr : kArr[0],
 							m    = kStr.match(/([^=]+)=['"]?([^'"]*)['"]?$/);
 
-						// SSS FIXME: Do we continue to support this?
-						// If yes, how do we represent this in data-mw format?
-						// If no, we need to figure to if there are templates
-						// with this use-case, and how common that is.
 						if (m) {
 							newK = m[1];
 							if (kArr.constructor === String) {
@@ -190,10 +188,18 @@ AttributeExpander.prototype._returnAttributes = function ( token, cb, newAttrs )
 								kArr[0] = m[2];
 								newA.v = kArr;
 							}
+
+							// Represent this in data-mw by assigning the entire
+							// templated string to the key's HTML and blanking
+							// the value's HTML. Other way round should work as well.
+							tmpDataMW.set(newK, {
+								k: { "txt": newK, "html": newA.k },
+								v: { "html": [] }
+							});
 						}
 					}
 
-					if (updatedK.hasGeneratedContent) {
+					if (updatedK.hasGeneratedContent && !tmpDataMW.get(newK)) {
 						// newK can be an array
 						if (newK.constructor !== String) {
 							var key = Util.tokensToString(newK);

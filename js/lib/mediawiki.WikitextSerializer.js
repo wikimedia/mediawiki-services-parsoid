@@ -713,7 +713,7 @@ WSP.getAttributeValue = function(node, key, value) {
 			// If this attribute's value is generated content,
 			// serialize HTML back to generator wikitext.
 			for (var i = 0; i < tplAttrs.length; i++) {
-				if (tplAttrs[i][0].txt === key && tplAttrs[i][1].html) {
+				if (tplAttrs[i][0].txt === key && tplAttrs[i][1].html !== null) {
 					return this.serializeHTML({ env: this.env, onSOL: false }, tplAttrs[i][1].html);
 				}
 			}
@@ -3005,7 +3005,10 @@ WSP._serializeAttributes = function (state, node, token) {
 				if (tplV) {
 					v = tplV;
 				} else {
-					v = this.getAttributeValue(node, k, v);
+					// Pass in kv.k, not k since k can potentially
+					// be original wikitext source for 'k' rather than
+					// the string value of the key.
+					v = this.getAttributeValue(node, kv.k, v);
 				}
 
 				// Remove encapsulation from protected attributes
