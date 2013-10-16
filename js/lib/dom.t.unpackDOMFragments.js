@@ -272,7 +272,7 @@ function unpackDOMFragments(env, node) {
 					var next = n.nextSibling;
 
 					// Preserve wrappers that have an about id
-					if (DU.isElt(n) && !n.getAttribute(about)) {
+					if (DU.isElt(n) && !n.getAttribute('about')) {
 						DU.loadDataParsoid(n);
 						if (n.data.parsoid.tmp.wrapper) {
 							DU.migrateChildren(n, n.parentNode, n);
