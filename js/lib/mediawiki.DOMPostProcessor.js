@@ -207,6 +207,7 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 	}
 
 	// DOMTraverser only processes document.body.childNodes
+	document.body.data.parsoid.tmp = undefined;
 	DU.saveDataAttribs(document.body);
 
 	// add <head> element if it was missing
