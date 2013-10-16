@@ -87,7 +87,7 @@ function markFosteredContent( node, env ) {
 		if ( DU.isMarkerMeta( c, "mw:FosterBox" ) ) {
 
 			// mark as fostered until we hit the table
-			while ( !DU.isElt( sibling ) || !DU.hasNodeName( sibling, "table" ) ) {
+			while ( sibling && ( !DU.isElt( sibling ) || !DU.hasNodeName( sibling, "table" ) ) ) {
 				next = sibling.nextSibling;
 				if ( DU.isElt( sibling ) ) {
 					sibling.data.parsoid.fostered = true;

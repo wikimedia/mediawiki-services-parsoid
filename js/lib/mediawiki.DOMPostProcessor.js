@@ -106,7 +106,11 @@ function prepareDOM( node ) {
 		if ( /^mw:/.test( type ) ) {
 			var meta = node.ownerDocument.createElement( "meta" );
 			data.attrs.forEach(function ( attr ) {
-				meta.setAttribute( attr.name, attr.value );
+				try {
+					meta.setAttribute( attr.name, attr.value );
+				} catch(e) {
+					console.error('WARNING: prepareDOM: Dropped invalid attribute ' + attr);
+				}
 			});
 			node.parentNode.insertBefore( meta, node );
 			DU.deleteNode( node );
