@@ -103,11 +103,12 @@ function markFosteredContent( node, env ) {
 				sibling = next;
 			}
 
+			// we should be able to reach the table from the fosterbox
+			console.assert( sibling && DU.isElt( sibling ) && DU.hasNodeName( sibling, "table" ), "Table isn't a sibling. Something's amiss!" );
+
 			// we have fostered transclusions
 			// wrap the whole thing in a transclusion
-			// But, skip if foster box itself is in transclusion
-			// avoid unnecessary insertions and case where table doesn't have tsr info
-			if ( fosteredTransclusions && !c.data.parsoid.inTransclusion ) {
+			if ( fosteredTransclusions ) {
 				insertTransclusionMetas( env, c, sibling );
 			}
 

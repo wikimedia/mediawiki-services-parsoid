@@ -211,17 +211,20 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 		case TagTk:
 			tName = token.name;
 			if ( tName === "table" ) {
-				if ( this.trace ) {
-					console.warn('inserting foster box meta');
-				}
-				attrs = [{ name: "typeof", value: "mw:FosterBox" }];
-				if ( this.inTransclusion ) {
-					attrs.push({
-						name: "data-parsoid",
-						value: JSON.stringify({ inTransclusion: true })
+				// Don't add foster box in transclusion
+				// Avoids unnecessary insertions, the case where a table
+				// doesn't have tsr info, and the messy unbalanced table case,
+				// like the navbox
+				if ( !this.inTransclusion ) {
+					if ( this.trace ) {
+						console.warn('inserting foster box meta');
+					}
+					this.emit('token', {
+						type: 'StartTag',
+						name: 'meta',
+						data: [ { name: "typeof", value: "mw:FosterBox" } ]
 					});
 				}
-				this.emit('token', { type: 'StartTag', name: 'meta', data: attrs });
 			}
 			this.emit('token', {type: 'StartTag', name: tName, data: this._att(attribs)});
 			attrs = [];
