@@ -749,10 +749,14 @@ Sanitizer.prototype.onAny = function ( token ) {
 			}
 
 			// Sanitize attributes
-			if (token.constructor === TagTk) {
+			if (token.constructor === TagTk || token.constructor === SelfclosingTagTk) {
 				this.sanitizeTagAttrs(newToken, attribs);
+			} else {
+				// EndTagTk, drop attributes
+				newToken.attribs = [];
 			}
 
+			//console.log('SanitizerEnd', token, newToken);
 			token = newToken;
 		}
 	}
@@ -917,7 +921,7 @@ Sanitizer.prototype.isParsoidAttr = function(k, v) {
 	//    unconditionally discard the entire attribute or process it further.
 	//    That further processing will catch and discard any dangerous
 	//    strings in the rest of the attribute
-	return k === "typeof" && /(?:^|\s)mw:.+?(?=$|\s)/.test(v) ||
+	return (/^(?:typeof|property|rel)$/).test(k) && /(?:^|\s)mw:.+?(?=$|\s)/.test(v) ||
 		k === "about" && /^#mwt\d+$/.test(v);
 };
 
