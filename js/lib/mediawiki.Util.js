@@ -269,6 +269,12 @@ var Util = {
 						da.targetOff += offset;
 					}
 
+					// content offsets for ext-links
+					if (offset && da.contentOffsets) {
+						da.contentOffsets[0] += offset;
+						da.contentOffsets[1] += offset;
+					}
+
 					//  Process attributes
 					if (t.attribs) {
 						for (var j = 0, m = t.attribs.length; j < m; j++) {
