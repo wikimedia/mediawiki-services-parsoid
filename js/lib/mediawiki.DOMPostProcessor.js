@@ -109,7 +109,7 @@ function prepareDOM( node ) {
 				try {
 					meta.setAttribute( attr.name, attr.value );
 				} catch(e) {
-					console.error('WARNING: prepareDOM: Dropped invalid attribute ' + attr);
+					console.error( 'WARNING: prepareDOM: Dropped invalid attribute ' + attr.name );
 				}
 			});
 			node.parentNode.insertBefore( meta, node );
