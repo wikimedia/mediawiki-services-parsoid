@@ -7,7 +7,6 @@
 
 var events = require('events'),
 	util = require('util'),
-	$ = require('./fakejquery'),
 	HTML5 = require('html5'),
 	domino = require('./domino'),
 	defines = require('./mediawiki.parser.defines.js'),
@@ -113,14 +112,12 @@ FauxHTML5.TreeBuilder.prototype.onEnd = function ( ) {
 };
 
 FauxHTML5.TreeBuilder.prototype._att = function (maybeAttribs) {
-	var atts = [];
-	if ( maybeAttribs && $.isArray( maybeAttribs ) ) {
-		for(var i = 0, length = maybeAttribs.length; i < length; i++) {
-			var att = maybeAttribs[i];
-			atts.push({name: att.k, value: att.v});
-		}
+	if ( Array.isArray( maybeAttribs ) ) {
+		return maybeAttribs.map(function ( attr ) {
+			return { name: attr.k, value: attr.v };
+		});
 	}
-	return atts;
+	return [];
 };
 
 // Adapt the token format to internal HTML tree builder format, call the actual
@@ -153,9 +150,10 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 		dataAttribs.tagId = this.tagId++;
 	}
 
+	var dpString = JSON.stringify(dataAttribs);
 	attribs = attribs.concat([ {
 		k: 'data-parsoid',
-		v: JSON.stringify(dataAttribs)
+		v: dpString
 	} ]);
 
 	if (this.trace) {
@@ -273,9 +271,11 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			this.emit('token', {type: 'EndTag', name: tName});
 
 			if ( this.trace ) { console.warn('inserting shadow meta for ' + tName); }
-			attrs = this._att(attribs);
-			attrs.push({name: "typeof", value: "mw:EndTag"});
-			attrs.push({name: "data-etag", value: tName});
+			attrs = [
+				{ name: "data-parsoid", value: dpString },
+				{ name: "typeof", value: "mw:EndTag" },
+				{ name: "data-etag", value: tName }
+			];
 			this.emit('token', {type: 'Comment', data: JSON.stringify({
 				"@type": "mw:shadow",
 				attrs: attrs

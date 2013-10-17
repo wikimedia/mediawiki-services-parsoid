@@ -319,7 +319,7 @@ var Util = {
 	tokensToString: function ( tokens, strict ) {
 		var out = [];
 		// XXX: quick hack, track down non-array sources later!
-		if ( ! $.isArray( tokens ) ) {
+		if ( !Array.isArray( tokens ) ) {
 			tokens = [ tokens ];
 		}
 		for ( var i = 0, l = tokens.length; i < l; i++ ) {

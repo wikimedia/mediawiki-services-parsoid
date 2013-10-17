@@ -25,7 +25,7 @@
     //    // flatten sub-arrays
     //    for(var i = 0, length = e.length; i < length; i++) {
     //        var ei = e[i];
-    //        if ($.isArray(ei))
+    //        if ( Array.isArray( ei ) )
     //            es = es.concat(flatten(ei));
     //        else
     //            es.push(ei);
