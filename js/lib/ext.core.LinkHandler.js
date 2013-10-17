@@ -448,6 +448,8 @@ WikiLinkHandler.prototype.renderInterwikiLink = function (token, frame, cb, targ
 
 	// Change the rel to be mw:ExtLink
 	Util.lookupKV( newTk.attribs, 'rel' ).v = 'mw:ExtLink';
+	// Remember that this was using wikitext syntax though
+	newTk.dataAttribs.isIW = true;
 
 	tokens.push( newTk );
 

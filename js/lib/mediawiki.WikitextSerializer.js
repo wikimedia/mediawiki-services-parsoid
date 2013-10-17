@@ -1780,7 +1780,7 @@ WSP.linkHandler = function(node, state, cb) {
 			var targetVal = target.fromsrc || true ? target.value : Util.decodeURI(target.value);
 			// Check if the href matches any of our interwiki URL patterns
 				var interWikiMatch = env.conf.wiki.InterWikiMatcher.match(href);
-			if (interWikiMatch) {
+			if (interWikiMatch && (dp.isIW || target.modified || linkData.contentModified)) {
 				//console.log(interWikiMatch);
 				// External link that is really an interwiki link. Convert it.
 				linkData.type = 'mw:WikiLink';
