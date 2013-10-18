@@ -90,14 +90,18 @@ Ref.prototype.handleRef = function ( manager, pipelineOpts, refTok, cb ) {
 			var da = Util.clone(refTok.dataAttribs);
 			// Clear stx='html' so that sanitizer doesn't barf
 			da.stx = undefined;
+			if (!da.tmp) {
+				da.tmp = {};
+			}
+
+			da.tmp.group = refOpts.group || '';
+			da.tmp.name = refOpts.name || '';
+			da.tmp.content = content || '';
+			da.tmp.skiplinkback = inReferencesExt ? 1 : 0;
 
 			toks.push(new SelfclosingTagTk( 'meta', [
 						new KV('typeof', 'mw:Extension/ref/Marker'),
-						new KV('about', about),
-						new KV('group', refOpts.group || ''),
-						new KV('name', refOpts.name || ''),
-						new KV('content', content || ''),
-						new KV('skiplinkback', inReferencesExt ? 1 : 0)
+						new KV('about', about)
 						], da));
 
 			// All done!
@@ -338,7 +342,11 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 					t.name === 'meta' &&
 					/^mw:Extension\/ref\/Marker$/.test(t.getAttribute('typeof')))
 				{
-					t.setAttribute("references-id", referencesId);
+					var da = t.dataAttribs;
+					if (!da.tmp) {
+						da.tmp = {};
+					}
+					da.tmp['references-id'] = referencesId;
 					res.push(t);
 				}
 			}
@@ -351,10 +359,11 @@ References.prototype.handleReferences = function ( manager, pipelineOpts, refsTo
 };
 
 References.prototype.extractRefFromNode = function(node) {
-	var group = node.getAttribute("group"),
-		refName = node.getAttribute("name"),
+	var dp = node.data.parsoid,
+		group = dp.tmp.group,
+		refName = dp.tmp.name,
 		about = node.getAttribute("about"),
-		skipLinkback = node.getAttribute("skiplinkback") === "1",
+		skipLinkback = dp.tmp.skiplinkback,
 		refGroup = getRefGroup(this.refGroups, group, true),
 		ref = refGroup.add(refName, about, skipLinkback),
 		nodeType = (node.getAttribute("typeof") || '').replace(/mw:Extension\/ref\/Marker/, '');
@@ -362,7 +371,7 @@ References.prototype.extractRefFromNode = function(node) {
 	// Add ref-index linkback
 	var doc = node.ownerDocument,
 		span = doc.createElement('span'),
-		content = node.getAttribute("content"),
+		content = dp.tmp.content,
 		dataMW = node.getAttribute('data-mw');
 
 	if (!dataMW) {
@@ -407,7 +416,7 @@ References.prototype.extractRefFromNode = function(node) {
 		// refIndex-span
 		node.parentNode.insertBefore(span, node);
 	} else {
-		var referencesAboutId = node.getAttribute("references-id");
+		var referencesAboutId = dp.tmp["references-id"];
 		// Init
 		if (!this.nestedRefsHTMLMap[referencesAboutId]) {
 			this.nestedRefsHTMLMap[referencesAboutId] = ["\n"];
@@ -419,7 +428,7 @@ References.prototype.extractRefFromNode = function(node) {
 	// The implicit assumption is that that all those identically named refs. are
 	// of the form <ref name='foo' />
 	if (!ref.content) {
-		ref.content = node.getAttribute("content");
+		ref.content = dp.tmp.content;
 	}
 };
 
