@@ -150,10 +150,9 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 		dataAttribs.tagId = this.tagId++;
 	}
 
-	var dpString = JSON.stringify(dataAttribs);
 	attribs = attribs.concat([ {
 		k: 'data-parsoid',
-		v: dpString
+		v: JSON.stringify(dataAttribs)
 	} ]);
 
 	if (this.trace) {
@@ -269,13 +268,10 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 		case EndTagTk:
 			tName = token.name;
 			this.emit('token', {type: 'EndTag', name: tName});
-
 			if ( this.trace ) { console.warn('inserting shadow meta for ' + tName); }
-			attrs = [
-				{ name: "data-parsoid", value: dpString },
-				{ name: "typeof", value: "mw:EndTag" },
-				{ name: "data-etag", value: tName }
-			];
+			attrs = this._att( attribs );
+			attrs.push({ name: "typeof", value: "mw:EndTag" });
+			attrs.push({ name: "data-etag", value: tName });
 			this.emit('token', {type: 'Comment', data: JSON.stringify({
 				"@type": "mw:shadow",
 				attrs: attrs
