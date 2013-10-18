@@ -1787,7 +1787,13 @@ WSP.linkHandler = function(node, state, cb) {
 				linkData.isInterwiki = true;
 				var oldPrefix = target.value.match(/^(:?[^:]+):/);
 				if (oldPrefix &&
-						oldPrefix[1].toLowerCase() === interWikiMatch[0].toLowerCase())
+						oldPrefix[1].toLowerCase() === interWikiMatch[0].toLowerCase() ||
+						// Check if the old prefix mapped to the same URL as
+						// the new one. Use the old one if that's the case.
+						// Example: [[w:Foo]] vs. [[:en:Foo]]
+						(env.conf.wiki.interwikiMap[oldPrefix[1].toLowerCase()] || {}).url ===
+						(env.conf.wiki.interwikiMap[interWikiMatch[0].replace(/^:/, '')] || {}).url
+						)
 				{
 					// Reuse old prefix capitalization
 					if (Util.decodeEntities(target.value.substr(oldPrefix[1].length+1)) !== interWikiMatch[1])

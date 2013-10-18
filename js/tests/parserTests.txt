@@ -5183,6 +5183,22 @@ Interwiki link with fragment (bug 2130)
 </p>
 !! end
 
+# Ideally the wikipedia: prefix here should be proto-relative too
+!! test
+Different interwiki prefixes mapping to the same URL
+!! options
+parsoid
+!! input
+[[wikipedia:Foo]]
+
+[[:en:Foo]]
+!! result
+<p data-parsoid='{"dsr":[0,17,0,0]}'><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":"wikipedia:Foo"},"isIW":true,"dsr":[0,17,null,1]}'>wikipedia:Foo</a></p>
+
+
+<p data-parsoid='{"dsr":[19,30,0,0]}'><a rel="mw:ExtLink" href="//en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"simple","a":{"href":"//en.wikipedia.org/wiki/Foo"},"sa":{"href":":en:Foo"},"isIW":true,"dsr":[19,30,null,1]}'>en:Foo</a></p>
+!! end
+
 
 ###
 ### Interlanguage links
