@@ -92,7 +92,7 @@ if (testDom.body.getAttribute('somerandomstring') === '') {
 function prepareDOM( node ) {
 	DU.loadDataParsoid( node );
 
-	if ( DU.isComment( node ) && /^\{.*\}$/.test( node.data ) ) {
+	if ( DU.isComment( node ) && /^\{[^]+\}$/.test( node.data ) ) {
 
 		var data, type;
 		try {
