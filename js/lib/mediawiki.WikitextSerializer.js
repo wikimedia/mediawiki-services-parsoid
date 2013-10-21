@@ -3790,6 +3790,13 @@ WSP.makeSeparator = function(sep, nlConstraints, state) {
 		var isIndentPreSafe = false,
 			constraintInfo = nlConstraints.constraintInfo || {};
 
+		// Special case for <br> nodes
+		if ((constraintInfo.sepType === 'sibling' ||
+			 constraintInfo.sepType === 'parent-child') &&
+			constraintInfo.nodeB.nodeName === 'BR')
+		{
+			isIndentPreSafe = true;
+		}
 		// Example of sibling sepType scenario:
 		// <p>foo</p>
 		//  <span>bar</span>
@@ -3801,7 +3808,7 @@ WSP.makeSeparator = function(sep, nlConstraints, state) {
 		//  </span>bar
 		// The " </span>bar" will be wrapped in an indent-pre if the
 		// leading space is not stripped since span is not a block tag
-		if ((constraintInfo.sepType === 'sibling' ||
+		else if ((constraintInfo.sepType === 'sibling' ||
 			constraintInfo.sepType === 'child-parent') &&
 			Util.isBlockTag(constraintInfo.nodeB.nodeName))
 		{

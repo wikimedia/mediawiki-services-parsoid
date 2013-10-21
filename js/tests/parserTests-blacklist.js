@@ -2187,7 +2187,6 @@ add("selser", "Paragraphs with newline spacing with non-empty mixed comment and 
 add("selser", "Paragraphs with newline spacing with non-empty mixed comment and white-space lines in between [0,0,2,0,0,3,4,0,0,0,1,3,0,0,3,3,[4],0,2,2,0,2,2,0,0,4,2,3,4]", "----\n7olsh4jwmsbmaemi\n\na\n <!--foo-->\nb\n----\nfjw5y0q50lwstt9\n----\na\n \n<!--foo-->\n <!--bar-->\nb\njwhdk8g1hmj6pqfr\n----\na\n \n <!--foo-->\n <!--bar-->\n pik29nchxdo647vi\n\nb\nac7itfndip9tqpvi");
 add("selser", "Extra newlines: More paragraphs with indented comment [1,0,4,0,2]", "a\n\n   <!--boo-->\n1y1i1on0frr1wcdi\n\nb");
 add("selser", "Extra newlines: More paragraphs with indented comment [[2],3,4,2,2]", "a\n\n   <!--boo-->\nby86nk60sg36jemi\n\nb");
-add("selser", "Extra newlines: More paragraphs with indented comment [3,4,0,2,0]", "\n\n   <!--boo-->\nb");
 add("selser", "Extra newlines: More paragraphs with indented comment [0,3,0,4,2]", "a\n\n   <!--boo-->\n8ycptp4m6awi2j4i\n\nb");
 add("selser", "Italics and possessives (1) [1]", "obtained by ''[[Lunar Prospector]]'''s gamma-ray spectrometer");
 add("selser", "Italics and possessives (1) [2]", "mylboba6mj3v7vi\n\nobtained by ''[[Lunar Prospector]]'''s gamma-ray spectrometer");
