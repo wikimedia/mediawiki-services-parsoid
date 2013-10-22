@@ -3075,14 +3075,17 @@ WSP._serializeAttributes = function (state, node, token) {
 				// in pegTokenizer.pegjs.txt:generic_newline_attribute
 				k = k.replace( /^data-x-/i, '' );
 
-				if (v.length ) {
+				if (v.length > 0) {
 					if (!vInfo.fromsrc) {
 						// Escape HTML entities
 						v = Util.escapeEntities(v);
 					}
 					out.push(k + '=' + '"' + v.replace( /"/g, '&quot;' ) + '"');
-				} else {
+				} else if (k.match(/[{<]/)) {
+					// Templated, <*include*>, or <ext-tag> generated
 					out.push(k);
+				} else {
+					out.push(k + '=""');
 				}
 			}
 		} else if ( kv.v.length ) {
