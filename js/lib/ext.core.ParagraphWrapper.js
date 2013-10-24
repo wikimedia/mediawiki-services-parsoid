@@ -187,16 +187,14 @@ ParagraphWrapper.prototype.processPendingNLs = function (isBlockToken) {
 		if (newLineCount === 2) {
 			this.closeOpenPTag(resToks);
 			resToks.push(this.discardOneNlTk(resToks));
-			nlTk = this.discardOneNlTk(resToks);
-			resToks.push(nlTk);
+			resToks.push(this.discardOneNlTk(resToks));
 		}
 	}
 
 	if (isBlockToken) {
 		if (newLineCount === 1){
 			this.closeOpenPTag(resToks);
-			nlTk = this.discardOneNlTk(resToks);
-			resToks.push(nlTk);
+			resToks.push(this.discardOneNlTk(resToks));
 		} else {
 			this.closeOpenPTag(resToks);
 		}
