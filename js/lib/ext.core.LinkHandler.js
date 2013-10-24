@@ -1169,9 +1169,18 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 		}
 	}
 
-	var infoRequest = new ImageInfoRequest( env, filename, constraints );
+	var queueKey = filename + JSON.stringify( constraints );
 
-	infoRequest.on( 'src', handleResponse.bind( null, linkTitle ) );
+	if ( queueKey in env.pageCache ) {
+		handleResponse( linkTitle, null, env.pageCache[ queueKey ] );
+		return;
+	}
+
+	if ( !(queueKey in env.requestQueue) ) {
+		env.requestQueue[ queueKey ] = new ImageInfoRequest( env, filename, constraints );
+	}
+
+	env.requestQueue[ queueKey ].once( 'src', handleResponse.bind( null, linkTitle ) );
 	cb( { async: true } );
 };
 

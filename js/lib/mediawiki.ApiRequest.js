@@ -2,6 +2,9 @@
 
 require('./core-upgrade.js');
 
+// many concurrent connections to the same host
+require('http').globalAgent.maxSockets = 15;
+
 var request = require('request'),
 	$ = require( './fakejquery' ),
 	qs = require('querystring'),
@@ -682,6 +685,7 @@ ConfigRequest.prototype._handleJSON = function ( error, data ) {
 function ImageInfoRequest( env, filename, dims ) {
 	ApiRequest.call( this, env, null );
 	this.env = env;
+	this.queueKey = filename + JSON.stringify( dims );
 
 	var ix,
 		conf = env.conf.wiki,
@@ -770,6 +774,7 @@ ImageInfoRequest.prototype._handleJSON = function ( error, data ) {
 
 		data.query.pages = newpages;
 		data.query.imgns = this.ns;
+		this.env.pageCache[ this.queueKey ] = data.query;
 		this._processListeners( null, data.query );
 	} else if ( data && data.error ) {
 		if ( data.error.code === 'readapidenied' ) {
