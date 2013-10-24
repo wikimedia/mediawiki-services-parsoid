@@ -2997,6 +2997,7 @@ add("selser", "Nested lists 7 (skip initial nesting levels) [[[1]]]", "** foo");
 add("selser", "Nested lists 7 (skip initial nesting levels) [[[[[2]]]]]", "**9q6447gwwogh9f6r\n* foo");
 add("selser", "Nested lists 7 (skip initial nesting levels) [[[2]]]", "*tg28w4nd7g0kke29\n** foo");
 add("selser", "Nested lists 7 (skip initial nesting levels) [[[[[1]]]]]", "* foo");
+add("selser", "2. Lists with start-of-line-transparent tokens before bullets: Template close [0,0,2]", "*foo {{echo|bar\n}}9uqf8ew08p2b7qfr\n*baz");
 add("selser", "List interrupted by empty line or heading [[1],0,[1],2,3,0,0]", "* foo\n\n* bar\n\n* Another list item");
 add("selser", "List interrupted by empty line or heading [[[4]],4,[[1]],0,[3],2,2]", "* foo\n\n* bar\n== A heading ==\n1xzetsjere75jyvi\n* Another list item");
 add("selser", "Test the li-hack\n(Cannot test this with PHP parser since it relies on Tidy for the hack) [1,2,[3,2,[3],0]]", "* foo\n* <li>li-hack\n* {{echo|<li>templated li-hack}}\n* <!--foo--> <li> unsupported li-hack with preceding comments\n\n<ul>\n6gpem64rni3yds4i<li><li>not a li-hack\n</li>\n</ul>");

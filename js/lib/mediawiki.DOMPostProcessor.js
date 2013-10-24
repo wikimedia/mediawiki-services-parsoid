@@ -19,7 +19,7 @@ var domino = require('./domino'),
 	handleUnbalancedTables = require('./dom.handleUnbalancedTables.js').handleUnbalancedTables,
 	markFosteredContent = require('./dom.markFosteredContent.js').markFosteredContent,
 	markTreeBuilderFixups = require('./dom.markTreeBuilderFixups.js').markTreeBuilderFixups,
-	migrateStartMetas = require('./dom.migrateStartMetas.js').migrateStartMetas,
+	migrateTemplateMarkerMetas = require('./dom.migrateTemplateMarkerMetas.js').migrateTemplateMarkerMetas,
 	migrateTrailingNLs = require('./dom.migrateTrailingNLs.js').migrateTrailingNLs,
 	TableFixups = require('./dom.t.TableFixups.js'),
 	stripMarkerMetas = CleanUp.stripMarkerMetas,
@@ -150,7 +150,10 @@ function DOMPostProcessor(env, options) {
 		markFosteredContent,
 		handleUnbalancedTables,
 		markTreeBuilderFixups,
-		migrateStartMetas,
+		// Run this after 'markTreeBuilderFixups' because the mw:StartTag
+		// and mw:EndTag metas would otherwise interfere with the
+		// firstChild/lastChild check that this pass does.
+		migrateTemplateMarkerMetas,
 		handlePres,
 		migrateTrailingNLs
 	];
