@@ -467,6 +467,10 @@ References.prototype.insertReferencesIntoDOM = function(refsNode) {
 	refsNode.setAttribute('data-mw', dataMW);
 
 	// Remove all children from the references node
+	//
+	// Ex: When {{Reflist}} is reused from the cache, it comes with
+	// a bunch of references as well. We have to remove all those cached
+	// references before generating fresh references.
 	while (refsNode.firstChild) {
 		refsNode.removeChild(refsNode.firstChild);
 	}
