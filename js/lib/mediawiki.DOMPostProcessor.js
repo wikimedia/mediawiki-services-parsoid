@@ -145,8 +145,8 @@ function DOMPostProcessor(env, options) {
 		dataParsoidLoader.traverse.bind( dataParsoidLoader ),
 		markFosteredContent,
 		handleUnbalancedTables,
-		migrateStartMetas,
 		markTreeBuilderFixups,
+		migrateStartMetas,
 		handlePres,
 		migrateTrailingNLs
 	];

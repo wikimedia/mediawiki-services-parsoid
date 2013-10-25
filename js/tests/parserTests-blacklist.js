@@ -3499,6 +3499,13 @@ add("selser", "Template with explicit namespace in language variants [[2]]", "{{
 add("selser", "Basic test for template parameter in language variants [[4]]", "{{парамтест|param=foo}}");
 add("selser", "Basic test for template parameter in language variants [[3]]", "{{парамтест|param=foo}}");
 add("selser", "Basic test for template parameter in language variants [[2]]", "{{парамтест|param=foo}}");
+add("selser", "Bug 529: Uncovered bullet leaving empty list, normally removed by tidy [[1,0]]", "****** Foo \n{{bullet}}");
+add("selser", "Bug 529: Uncovered bullet leaving empty list, normally removed by tidy [[[[[[1]]]],0]]", "**** Foo \n{{bullet}}");
+add("selser", "Bug 529: Uncovered bullet leaving empty list, normally removed by tidy [[[[[[[[1]]]]]],0]]", "*** Foo \n{{bullet}}");
+add("selser", "Bug 529: Uncovered bullet leaving empty list, normally removed by tidy [[[2],0]]", "*vkl4nqq6z9kvs4i\n****** Foo \n{{bullet}}");
+add("selser", "Bug 529: Uncovered bullet leaving empty list, normally removed by tidy [[[1],0]]", "****** Foo \n{{bullet}}");
+add("selser", "Bug 529: Uncovered bullet leaving empty list, normally removed by tidy [[[[1]],0]]", "***** Foo \n{{bullet}}");
+add("selser", "Bug 529: Uncovered bullet leaving empty list, normally removed by tidy [[[[2]],0]]", "**y0slrsmmchjxxbt9\n****** Foo \n{{bullet}}");
 add("selser", "Case insensitivity of parser functions for non-ASCII characters (bug 8143) [[4]]", "{{PRVNÍVELKÉ:ěščř}}\n{{prvnívelké:ěščř}}\n{{PRVNÍMALÉ:ěščř}}\n{{prvnímalé:ěščř}}\n{{MALÁ:ěščř}}\n{{malá:ěščř}}\n{{VELKÁ:ěščř}}\n{{velká:ěščř}}");
 add("selser", "Case insensitivity of parser functions for non-ASCII characters (bug 8143) [[3]]", "{{PRVNÍVELKÉ:ěščř}}\n{{prvnívelké:ěščř}}\n{{PRVNÍMALÉ:ěščř}}\n{{prvnímalé:ěščř}}\n{{MALÁ:ěščř}}\n{{malá:ěščř}}\n{{VELKÁ:ěščř}}\n{{velká:ěščř}}");
 add("selser", "Case insensitivity of parser functions for non-ASCII characters (bug 8143) [[2]]", "{{PRVNÍVELKÉ:ěščř}}\n{{prvnívelké:ěščř}}\n{{PRVNÍMALÉ:ěščř}}\n{{prvnímalé:ěščř}}\n{{MALÁ:ěščř}}\n{{malá:ěščř}}\n{{VELKÁ:ěščř}}\n{{velká:ěščř}}");
