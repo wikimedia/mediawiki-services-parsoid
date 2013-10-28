@@ -325,12 +325,12 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 	} else {
 		switch (this.state) {
 			case PreHandler.STATE_SOL:
-				if ((tc === String) && token.match(/^\s/) && !this.inPre) {
+				if ((tc === String) && token.match(/^ /) && !this.inPre) {
 					ret = this.tokens;
 					this.tokens = [];
 					this.preWSToken = token[0];
 					this.state = PreHandler.STATE_PRE;
-					if (!token.match(/^\s$/)) {
+					if (!token.match(/^ $/)) {
 						// Treat everything after the first space
 						// as a new token
 						this.onAny(token.slice(1), manager, cb);
@@ -379,7 +379,7 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 				break;
 
 			case PreHandler.STATE_MULTILINE_PRE:
-				if ((tc === String) && token.match(/^\s/)) {
+				if ((tc === String) && token.match(/^ /)) {
 					this.popLastNL(this.tokens);
 					this.state = PreHandler.STATE_PRE_COLLECT;
 
@@ -389,7 +389,7 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 
 					// check if token is single-space or more
 					this.multiLinePreWSToken = token[0];
-					if (!token.match(/^\s$/)) {
+					if (!token.match(/^ $/)) {
 						// Treat everything after the first space as a new token
 						this.onAny(token.slice(1), manager, cb);
 					}
