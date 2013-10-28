@@ -256,7 +256,9 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 	// use the metadataMap to turn collected data into <meta> and <link> tags.
 	m.forEach(function( g, f ) {
 		var mdm = metadataMap[f];
-		if ( !m.has(f) || m.get(f) === null || !mdm ) { return; }
+		if ( !m.has(f) || m.get(f) === null || m.get(f) === undefined || !mdm ) {
+			return;
+		}
 		// generate proper attributes for the <meta> or <link> tag
 		var attrs = Object.create( null );
 		Object.keys( mdm ).forEach(function( k ) {
