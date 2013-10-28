@@ -708,7 +708,6 @@ add("html2html", "Italics and bold: other quote tests: (3,2,3,2)");
 add("html2html", "Italicized possessive");
 add("html2html", "nowiki 3");
 add("html2html", "Preformatted text");
-add("html2html", "Tabs don't trigger preformatted text");
 add("html2html", "<pre> with <nowiki> inside (compatibility with 1.6 and earlier)");
 add("html2html", "Bug 52763: Preformatted in <blockquote>");
 add("html2html", "<pre> with attributes (bug 3202)");

@@ -1359,7 +1359,8 @@ pre_indent_in_tags
   }
   / & { return stops.dec('pre'); }
 
-pre_indent_line = space l:inlineline {
+// Don't recognize tabs
+pre_indent_line = " " l:inlineline {
     //console.warn( JSON.stringify( [s, l] ) );
     return [' '].concat(l);
 }
