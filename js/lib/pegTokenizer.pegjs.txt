@@ -573,6 +573,10 @@ block
  */
 nested_block = !inline_breaks b:block { return b; }
 
+nested_block_line = bs:(!sol !inline_breaks b:block { return b; })* { 
+    return flattenIfArray(bs); 
+}
+
 /*
  * The same, but suitable for use inside a table construct.
  * Doesn't match table_heading_tag, table_row_tag, table_data_tag,
@@ -679,15 +683,17 @@ inline_breaks
         return null !== pegArgs.pegTokenizer.inline_breaks( input, pos, stops );
       }
 
+pre_start = "<" pre_tag_name (' '* [^>]*)? ">"
+
 inline
-  = c:(urltext / (! inline_breaks (inline_element / . )))+ {
+  = c:(urltext / (! inline_breaks !pre_start (inline_element / . )))+ {
       //console.warn('inline out:' + pp(c));
       return flatten_stringlist( c );
 }
 
 
 inlineline
-  = c:(urltext / ! inline_breaks (inline_element / [^\r\n]))+ {
+  = c:(urltext / ! inline_breaks !pre_start (inline_element / [^\r\n]))+ {
       //console.warn('inlineline out:' + pp(c) + input.substr(pos0, pos));
       return flatten_stringlist( c );
 }
@@ -713,7 +719,7 @@ h = & "=" // guard, to make sure '='+ will match.
     r:(
      s:'='+ // moved in here to make s accessible to inner action
      & { return stops.inc('h'); }
-     c:inlineline
+     c:nested_block_line
      e:'='+
      endTPos:({ return pos; })
      spc:(spaces / comment)*
@@ -1349,7 +1355,7 @@ pre_indent_in_tags
     "<" pre_tag_name
     attribs:generic_attribute*
     ">"
-    l:inlineline
+    l:nested_block_line
     ls:(sol pre_indent_line)*
     "</" pre_tag_name ">"
   {
@@ -1361,7 +1367,7 @@ pre_indent_in_tags
   / & { return stops.dec('pre'); }
 
 // Don't recognize tabs
-pre_indent_line = " " l:inlineline {
+pre_indent_line = " " l:nested_block_line {
     //console.warn( JSON.stringify( [s, l] ) );
     return [' '].concat(l);
 }
@@ -1384,7 +1390,7 @@ pre
     ts:(    newlineToken
                 / (htmlentity / [^&<]+)+
                 / nowiki
-                / !("</" pre_tag_name ">") t2:(htmlentity / .) { return t2; })+
+                / !("</" pre_tag_name ">") t2:(htmlentity / .) { return t2; })*
     ("</" pre_tag_name ">" / eof) {
         stops.dec('pre');
         // return nowiki tags as well?
@@ -1877,7 +1883,7 @@ block_tag
 lists = (dtdd / hacky_dl_uses / li) (sol (dtdd / hacky_dl_uses / li))*
 
 li = bullets:list_char+
-     c:inlineline?
+     c:nested_block_line
      &eolf
 {
     if ( c === '' ) {
@@ -1912,12 +1918,12 @@ dtdd
   = bullets:(!(";" !list_char) lc:list_char { return lc; })*
     ";"
     & {return stops.inc('colon');}
-    c:inlineline
+    c:nested_block_line
     cpos:(":" { return pos; })
     // Fortunately dtdds cannot be nested, so we can simply set the flag
     // back to 0 to disable it.
     & { stops.counters.colon = 0; return true;}
-    d:inlineline?
+    d:nested_block_line?
     &eolf {
         // Leave bullets as an array -- list handler expects this
         var li1 = new TagTk( 'listItem', [], { tsr: [pos0, pos0 + bullets.length] } );
@@ -2578,7 +2584,7 @@ attribute_preprocessor_text_line
                 directive
               // Eat insane tags-inside-attributes. Example:
               // <hiddentext>generated with.. </hiddentext>
-              / &generic_tag inlineline
+              / &generic_tag nested_block_line
               / !(space_or_newline / [\[>]) c:. {
                     //console.warn( 'aptl: ' + pp(c) );
                     return c;

@@ -1560,6 +1560,25 @@ Entities inside <pre>
 </p>
 !! end
 
+!! test
+Empty pre; pre inside other HTML tags (bug 54946)
+!! input
+a
+
+<div><pre>
+foo
+</pre></div>
+<pre></pre>
+!! result
+<p>a
+</p>
+<div><pre>
+foo
+</pre></div>
+<pre></pre>
+
+!! end
+
 !!test
 Templates: Indent-Pre: 1a. Templates that break a line should suppress <pre>
 !!input
