@@ -98,13 +98,13 @@ var htmlSpecialChars = function ( s ) {
  *
  * @method
  * @param {Response} res The response object from our routing function.
+ * @param {string} action Path to post
+ * @param {string} name Name of textarea
  * @param {string} content The content we should put in the textarea
  */
-var textarea = function ( res, content ) {
-	res.write('<form method=POST><textarea name="content" cols=90 rows=9>');
-	res.write( ( content &&
-					htmlSpecialChars( content) ) ||
-			'');
+var textarea = function ( res, action, name, content ) {
+	res.write('<form method=POST action="' + action + '"><textarea name="' + name + '" cols=90 rows=9>');
+	res.write( ( content && htmlSpecialChars( content) ) || '' );
 	res.write('</textarea><br><input type="submit"></form>');
 };
 
@@ -457,76 +457,24 @@ app.post( /^\/_bugs\//, function ( req, res ) {
 	res.end( );
 });
 
+function action( res ) {
+	return [ "", res.locals.iwp, res.locals.pageName ].join( "/" );
+}
+
 // Form-based HTML DOM -> wikitext interface for manual testing
 app.get(/\/_html\/(.*)/, defaultParams, parserEnvMw, function ( req, res ) {
 	res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
 	res.write( "Your HTML DOM:" );
-	textarea( res );
+	textarea( res, action( res ), "html" );
 	res.end();
-});
-
-app.post(/\/_html\/(.*)/, defaultParams, parserEnvMw, function ( req, res ) {
-	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-	var doc = DU.parseHTML(req.body.content.replace(/\r/g, ''));
-	res.write('<pre style="background-color: #efefef">');
-	// Always use the non-selective serializer for this mode
-	new WikitextSerializer({ env: res.locals.env }).serializeDOM(
-		doc.body,
-		function( c ) {
-			res.write( htmlSpecialChars( c ) );
-		},
-		function() {
-			res.write('</pre>');
-			res.write( "<hr>Your HTML DOM:" );
-			textarea( res, req.body.content.replace(/\r/g, '') );
-			res.end();
-		}
-	);
 });
 
 // Form-based wikitext -> HTML DOM interface for manual testing
 app.get(/\/_wikitext\/(.*)/, defaultParams, parserEnvMw, function ( req, res ) {
 	res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
 	res.write( "Your wikitext:" );
-	textarea( res );
+	textarea( res, action( res ), "wt" );
 	res.end();
-});
-
-app.post(/\/_wikitext\/(.*)/, defaultParams, parserEnvMw, function ( req, res ) {
-	var env = res.locals.env;
-	res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
-	var parser = Util.getParserPipeline(env, 'text/x-mediawiki/full'),
-		src = req.body.content.replace(/\r/g, '');
-	parser.on('document', function ( document ) {
-		if (req.body.format==='html') {
-			res.write(DU.serializeNode(document));
-		} else {
-			res.write('<pre style="white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; white-space: -o-pre-wrap; word-wrap: break-word;">');
-			res.write(htmlSpecialChars(DU.serializeNode(document.body)));
-			res.write('</pre>');
-			res.write('<hr/>');
-			res.write(document.body.innerHTML);
-			res.write('<hr style="clear:both;"/>Your wikitext:');
-			textarea( res, src );
-		}
-		res.end();
-	});
-	if (env.conf.parsoid.allowCORS) {
-		// allow cross-domain requests (CORS) so that parsoid service
-		// can be used by third-party sites
-		res.setHeader('Access-Control-Allow-Origin',
-					  env.conf.parsoid.allowCORS);
-	}
-	try {
-		console.log('starting parsing of ' + req.params[0]);
-		// FIXME: This does not handle includes or templates correctly
-		env.setPageSrcInfo( src );
-		parser.processToplevelDoc( src );
-	} catch (e) {
-		res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
-		console.error( e.stack || e.toString() );
-		res.send( e.stack || e.toString(), 500 );
-	}
 });
 
 // Round-trip article testing
@@ -605,7 +553,7 @@ app.get( new RegExp('/_rtselser/(' + getInterwikiRE() + ')/(.*)'), interParams, 
 app.get(/\/_rtform\/(.*)/, defaultParams, parserEnvMw, function ( req, res ) {
 	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 	res.write( "Your wikitext:" );
-	textarea( res );
+	textarea( res, "/_rtform/" + res.locals.pageName , "content" );
 	res.end();
 });
 
@@ -618,10 +566,104 @@ app.post(/\/_rtform\/(.*)/, defaultParams, parserEnvMw, function ( req, res ) {
 	});
 });
 
-// Regular article parsing
-app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), interParams, parserEnvMw, function(req, res) {
+function html2wt( req, res, html ) {
 	var env = res.locals.env;
-	var prefix = req.params[0];
+	env.page.id = req.body.oldid || null;
+
+	var doc;
+	try {
+		doc = DU.parseHTML( html.replace( /\r/g, '' ) );
+	} catch ( e ) {
+		console.log( 'There was an error in the HTML5 parser! Sending it back to the editor.' );
+		env.errCB( e );
+		return;
+	}
+
+	try {
+		var out = [];
+		new Serializer( { env: env, oldid: env.page.id } ).serializeDOM(
+			doc.body,
+			function ( chunk ) {
+				out.push( chunk );
+			}, function () {
+				res.setHeader( 'Content-Type', 'text/x-mediawiki; charset=UTF-8' );
+				res.setHeader( 'X-Parsoid-Performance', env.getPerformanceHeader() );
+				res.end( out.join( '' ) );
+			} );
+	} catch ( e ) {
+		env.errCB( e );
+	}
+}
+
+function wt2html( req, res, wt ) {
+	var env = res.locals.env;
+	var prefix = res.locals.iwp;
+	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
+
+	// Set the timeout to 900 seconds..
+	req.connection.setTimeout( 900 * 1000 );
+
+	console.log( 'starting parsing of ' + prefix + ':' + target );
+
+	if ( env.conf.parsoid.allowCORS ) {
+		// allow cross-domain requests (CORS) so that parsoid service
+		// can be used by third-party sites
+		res.setHeader( 'Access-Control-Allow-Origin',
+					   env.conf.parsoid.allowCORS );
+	}
+
+	var tmpCb, oldid = null;
+	if ( wt ) {
+		wt = wt.replace( /\r/g, '' );
+		tmpCb = function ( err, src_and_metadata ) {
+			if ( err ) {
+				env.errCB( err );
+				return;
+			}
+
+			var parser = Util.getParserPipeline( env, 'text/x-mediawiki/full' );
+			parser.on( 'document', function ( document ) {
+				res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
+				sendRes( req.body.body ? document.body : document );
+			});
+
+			// Set the source
+			env.setPageSrcInfo( src_and_metadata );
+
+			try {
+				parser.processToplevelDoc( wt );
+			} catch ( e ) {
+				env.errCB( e );
+				return;
+			}
+		};
+	} else {
+		if ( req.query.oldid && !req.headers.cookie ) {
+			oldid = req.query.oldid;
+			res.setHeader( 'Cache-Control', 's-maxage=2592000' );
+		} else {
+			// Don't cache requests with a session or no oldid
+			res.setHeader( 'Cache-Control', 'private,no-cache,s-maxage=0' );
+		}
+		tmpCb =  parse.bind( null, env, req, res, function ( req, res, src, doc ) {
+			sendRes( doc.documentElement );
+		});
+	}
+
+	var tpr = new TemplateRequest( env, target, oldid );
+	tpr.once( 'src', tmpCb );
+
+	function sendRes( doc ) {
+		var out = DU.serializeNode( doc );
+		res.setHeader( 'X-Parsoid-Performance', env.getPerformanceHeader() );
+		res.end( out );
+		console.warn( "completed parsing of " + prefix + ':' + target + " in " + env.performance.duration + " ms" );
+	}
+}
+
+// Regular article parsing
+app.get( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), interParams, parserEnvMw, function(req, res) {
+	var env = res.locals.env;
 
 	// TODO gwicke: re-enable this when actually using Varnish
 	//if (/only-if-cached/.test(req.headers['cache-control'])) {
@@ -635,70 +677,21 @@ app.get(new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), interParams, parserEnv
 		return;
 	}
 
-	//console.log(req.headers);
-
-	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
-
-	// Set the timeout to 900 seconds..
-	req.connection.setTimeout(900 * 1000);
-
-	console.log('starting parsing of ' + prefix + ':' + target);
-	var oldid = null;
-	if ( req.query.oldid && !req.headers.cookie ) {
-		oldid = req.query.oldid;
-		res.setHeader('Cache-Control', 's-maxage=2592000');
-	} else {
-		// Don't cache requests with a session or no oldid
-		res.setHeader('Cache-Control', 'private,no-cache,s-maxage=0');
-	}
-	if (env.conf.parsoid.allowCORS) {
-		// allow cross-domain requests (CORS) so that parsoid service
-		// can be used by third-party sites
-		res.setHeader('Access-Control-Allow-Origin',
-					  env.conf.parsoid.allowCORS);
-	}
-
-	var tpr = new TemplateRequest( env, target, oldid );
-	tpr.once('src', parse.bind( null, env, req, res, function ( req, res, src, doc ) {
-		var out = DU.serializeNode(doc.documentElement);
-		res.setHeader('X-Parsoid-Performance', env.getPerformanceHeader());
-		res.end(out);
-		console.warn("completed parsing of " + prefix +
-			':' + target + " in " + env.performance.duration + " ms");
-	}));
+	wt2html( req, res );
 });
 
 // Regular article serialization using POST
 app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), interParams, parserEnvMw, function ( req, res ) {
-	var env = res.locals.env;
-	var doc, oldid = req.body.oldid || null;
-	env.page.id = oldid;
 
-	res.setHeader('Content-Type', 'text/x-mediawiki; charset=UTF-8');
-
-	try {
-		doc = DU.parseHTML(req.body.content);
-	} catch ( e ) {
-		console.log( 'There was an error in the HTML5 parser! Sending it back to the editor.' );
-		env.errCB(e);
-		return;
+	// parse html or wt
+	if ( req.body.wt ) {
+		wt2html( req, res, req.body.wt );
+	} else {
+		html2wt( req, res, req.body.html ? req.body.html : req.body.content );
 	}
 
-	try {
-		var out = [];
-		new Serializer( { env: env, oldid: env.page.id } ).serializeDOM(
-			doc.body,
-			function ( chunk ) {
-				out.push(chunk);
-			}, function () {
-				res.setHeader('X-Parsoid-Performance', env.getPerformanceHeader());
-				res.write( out.join('') );
-				res.end('');
-			} );
-	} catch ( e ) {
-		env.errCB( e );
-	}
 });
+
 
 /**
  * Continuous integration end points
