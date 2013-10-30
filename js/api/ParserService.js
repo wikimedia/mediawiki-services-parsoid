@@ -418,7 +418,7 @@ function parserEnvMw( req, res, next ) {
 			next( e );
 		};
 		if ( err ) {
-			return env.errCb( err );
+			return env.errCB( err );
 		}
 		res.locals.env = env;
 		next();
