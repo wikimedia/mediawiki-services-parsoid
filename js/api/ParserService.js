@@ -24,7 +24,8 @@ var express = require('express'),
 	childProc = require('child_process'),
 	spawn = childProc.spawn,
 	cluster = require('cluster'),
-	fs = require('fs');
+	fs = require('fs'),
+	path = require('path');
 
 // local includes
 var mp = '../lib/';
@@ -347,6 +348,10 @@ var parse = function ( env, req, res, cb, err, src_and_metadata ) {
 /* -------------------- web app access points below --------------------- */
 
 var app = express.createServer();
+
+// favicon
+app.use(express.favicon(path.join(__dirname, "favicon.ico")));
+
 // Increase the form field size limit from the 2M default.
 app.use(express.bodyParser({maxFieldsSize: 15 * 1024 * 1024}));
 
@@ -624,6 +629,9 @@ function wt2html( req, res, wt ) {
 			var parser = Util.getParserPipeline( env, 'text/x-mediawiki/full' );
 			parser.on( 'document', function ( document ) {
 				res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
+				// Don't cache requests when wt is set in case somebody uses
+				// GET for wikitext parsing
+				res.setHeader( 'Cache-Control', 'private,no-cache,s-maxage=0' );
 				sendRes( req.body.body ? document.body : document );
 			});
 
@@ -641,13 +649,26 @@ function wt2html( req, res, wt ) {
 		if ( req.query.oldid && !req.headers.cookie ) {
 			oldid = req.query.oldid;
 			res.setHeader( 'Cache-Control', 's-maxage=2592000' );
+			tmpCb = parse.bind( null, env, req, res, function ( req, res, src, doc ) {
+				sendRes( doc.documentElement );
+			});
 		} else {
 			// Don't cache requests with a session or no oldid
 			res.setHeader( 'Cache-Control', 'private,no-cache,s-maxage=0' );
+			tmpCb = function ( err, src_and_metadata ) {
+				if ( err ) {
+					env.errCB( err );
+					return;
+				}
+
+				// Set the source
+				env.setPageSrcInfo( src_and_metadata );
+
+				// Redirect to oldid
+				res.redirect( req.path + "?oldid=" + env.page.meta.revision.revid );
+				console.warn( "redirected " + prefix + ':' + target + " to revision " + env.page.meta.revision.revid );
+			};
 		}
-		tmpCb =  parse.bind( null, env, req, res, function ( req, res, src, doc ) {
-			sendRes( doc.documentElement );
-		});
 	}
 
 	var tpr = new TemplateRequest( env, target, oldid );
@@ -671,11 +692,6 @@ app.get( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), interParams, parserEn
 	//		404 );
 	//	return;
 	//}
-
-	if ( env.page.name === 'favicon.ico' ) {
-		res.send( 'no favicon yet..', 404 );
-		return;
-	}
 
 	wt2html( req, res );
 });
