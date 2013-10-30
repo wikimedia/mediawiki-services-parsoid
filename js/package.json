@@ -15,7 +15,7 @@
 		"pegjs": "0.7.x",
 		"lru-cache": "1.x.x",
 		"async": "0.x.x",
-		"express": "2.5.x",
+		"express": ">=3.0.0",
 		"html5-entities": "~0.5.0",
 		"html5": "0.3.15",
 		"es6-shim": "git+https://github.com/paulmillr/es6-shim#7dc668687c3a89ed9e7b6d6c6369f0ba8ebf8731"
