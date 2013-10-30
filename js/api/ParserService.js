@@ -646,9 +646,13 @@ function wt2html( req, res, wt ) {
 			}
 		};
 	} else {
-		if ( req.query.oldid && !req.headers.cookie ) {
+		if ( req.query.oldid ) {
 			oldid = req.query.oldid;
-			res.setHeader( 'Cache-Control', 's-maxage=2592000' );
+			if ( !req.headers.cookie ) {
+				res.setHeader( 'Cache-Control', 's-maxage=2592000' );
+			} else {
+				res.setHeader( 'Cache-Control', 'private,no-cache,s-maxage=0' );
+			}
 			tmpCb = parse.bind( null, env, req, res, function ( req, res, src, doc ) {
 				sendRes( doc.documentElement );
 			});
