@@ -651,13 +651,14 @@ function wt2html( req, res, wt ) {
 			if ( !req.headers.cookie ) {
 				res.setHeader( 'Cache-Control', 's-maxage=2592000' );
 			} else {
+				// Don't cache requests with a session
 				res.setHeader( 'Cache-Control', 'private,no-cache,s-maxage=0' );
 			}
 			tmpCb = parse.bind( null, env, req, res, function ( req, res, src, doc ) {
 				sendRes( doc.documentElement );
 			});
 		} else {
-			// Don't cache requests with a session or no oldid
+			// Don't cache requests with no oldid
 			res.setHeader( 'Cache-Control', 'private,no-cache,s-maxage=0' );
 			tmpCb = function ( err, src_and_metadata ) {
 				if ( err ) {

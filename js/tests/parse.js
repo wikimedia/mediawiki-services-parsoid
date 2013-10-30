@@ -8,6 +8,7 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 	ParsoidConfig = require( '../lib/mediawiki.ParsoidConfig.js' ).ParsoidConfig,
 	WikitextSerializer = require('../lib/mediawiki.WikitextSerializer.js').WikitextSerializer,
 	SelectiveSerializer = require( '../lib/mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
+	TemplateRequest = require('../lib/mediawiki.ApiRequest.js').TemplateRequest,
 	Util = require('../lib/mediawiki.Util.js').Util,
 	DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils,
 	optimist = require('optimist'),
@@ -150,10 +151,10 @@ function dumpFlags() {
 			'boolean': true,
 			'default': true
 		},
-		'pagename': {
-			description: 'The page name, returned for {{PAGENAME}}.',
+		'page': {
+			description: 'The page name, returned for {{PAGENAME}}. If no input is given (ie. empty/stdin closed), it downloads and parses the page.',
 			'boolean': false,
-			'default': 'Main page'
+			'default': 'Main_Page'
 		},
 		'oldtext': {
 			description: 'The old page text for a selective-serialization (see --selser)',
@@ -225,7 +226,7 @@ function dumpFlags() {
 	}
 	parsoidConfig.fetchConfig = Util.booleanOption( argv.fetchConfig );
 
-	ParserEnv.getParserEnv( parsoidConfig, null, prefix, argv.pagename || null, null, function ( err, env ) {
+	ParserEnv.getParserEnv( parsoidConfig, null, prefix, argv.page || null, null, function ( err, env ) {
 		if ( err !== null ) {
 			console.error( err.toString() );
 			process.exit( 1 );
@@ -287,6 +288,28 @@ function dumpFlags() {
 
 		// process input
         var processInput = function() {
+
+			// parse page
+			if ( inputChunks.length === 0 ) {
+				var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
+				var tpr = new TemplateRequest( env, target );
+				tpr.once( 'src', function ( err, src_and_metadata ) {
+					if ( err ) {
+						console.error( err.toString() );
+						process.exit( 1 );
+					}
+					env.setPageSrcInfo( src_and_metadata );
+					Util.parse( env, function ( src, err, doc ) {
+						if ( err ) {
+							console.error( err.toString() );
+							process.exit( 1 );
+						}
+						stdout.write( DU.serializeNode( doc.documentElement ) );
+					}, null, env.page.src );
+				});
+				return;
+			}
+
             var input = inputChunks.join('');
             if (argv.html2wt || argv.html2html) {
                 var doc = DU.parseHTML(input.replace(/\r/g, '')),
