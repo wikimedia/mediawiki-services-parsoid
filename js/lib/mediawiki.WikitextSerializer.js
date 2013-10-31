@@ -3420,6 +3420,8 @@ WSP._getDOMHandler = function(node, state, cb) {
 			// return src, and drop the generated content
 			return {
 				handle: function() {
+					// FIXME: Should this also check for tabs and plain space chars
+					// interspersed with newlines?
 					if (dp.src.match(/^\n+$/)) {
 						state.sep.src = (state.sep.src || '') + dp.src;
 					} else {
@@ -3720,7 +3722,7 @@ WSP.getSepNlConstraints = function(state, nodeA, sepNlsHandlerA, nodeB, sepNlsHa
 WSP.makeSeparator = function(sep, nlConstraints, state) {
 	var origSep = sep;
 
-		// TODO: Move to Util?
+	// TODO: Move to Util?
 	var commentRe = '<!--(?:[^-]|-(?!->))*-->',
 		// Split on comment/ws-only lines, consuming subsequent newlines since
 		// those lines are ignored by the PHP parser
@@ -3729,7 +3731,8 @@ WSP.makeSeparator = function(sep, nlConstraints, state) {
 		splitRe = new RegExp(splitReString),
 		sepMatch = sep.split(splitRe).join('').match(/\n/g),
 		sepNlCount = sepMatch && sepMatch.length || 0,
-		minNls = nlConstraints.min || 0;
+		minNls = nlConstraints.min || 0,
+		constraintInfo = nlConstraints.constraintInfo || {};
 
 	if (state.atStartOfOutput && ! nlConstraints.a.min && minNls > 0) {
 		// Skip first newline as we are in start-of-line context
@@ -3738,8 +3741,32 @@ WSP.makeSeparator = function(sep, nlConstraints, state) {
 
 	if (minNls > 0 && sepNlCount < minNls) {
 		// Append newlines
+		var nlBuf = [];
 		for (var i = 0; i < (minNls - sepNlCount); i++) {
-			sep += '\n';
+			nlBuf.push('\n');
+		}
+
+		// In a parent-child separator scenario where the the first
+		// child is not an element, that element could have contributed
+		// to the separator. In that case, the newlines should be prepended
+		// because they usually correspond to the parent's constraints,
+		// and the separator was plucked from the child.
+		//
+		// FIXME: In reality, this is more complicated since the separator
+		// might have been combined from the parent's previous sibling and
+		// from parent's first child, and the newlines should be spliced
+		// in between. But, we dont really track that scenario carefully
+		// enough to implement that. So, this is just the next best scenario.
+		//
+		// The most common case seem to be situations like this:
+		//
+		// echo "a<p><!--c-->b</p>" | node parse --html2wt
+		if (constraintInfo.sepType === 'parent-child' &&
+			!DU.isElt(constraintInfo.nodeA.firstChild))
+		{
+			sep = nlBuf.join('') + sep;
+		} else {
+			sep = sep + nlBuf.join('');
 		}
 	} else if (nlConstraints.max !== undefined && sepNlCount > nlConstraints.max) {
 		// Strip some newlines outside of comments
@@ -3768,15 +3795,6 @@ WSP.makeSeparator = function(sep, nlConstraints, state) {
 		sep = newBits.join('');
 	}
 
-	// XXX: Disabled for now- most line-based block elements move comments
-	// outside the DOM element, and still expect the comment to end up on
-	// the same line. Trailing spaces on a line don't trigger pres, so
-	// leave them in too in the interest of wt2wt round-tripping.
-	//if (nlConstraints.a.min) {
-	//	// Strip leading non-nl ws up to the first newline, but keep comments
-	//	sep.replace(/^([^\n<]*<!--(?:[^\-]|-(?!->))*-->)?[^\n<]+/g, '$1');
-	//}
-
 	// SSS FIXME: 'nlConstraints.min > 0' only applies to nodes that have native wikitext
 	// equivalents. For HTML nodes that will be serialized as HTML tags, we have to check
 	// for indent-pre safety always. This is currently not handled by the code below and
@@ -3784,14 +3802,13 @@ WSP.makeSeparator = function(sep, nlConstraints, state) {
 	// below that fails.
 	//
 	// Ex: "<div>foo</div>\n <span>bar</span>"
-	if (nlConstraints.min > 0 && sep.match(/[^\n<>]+(<!--(?:[^\-]|-(?!->))*-->[^\n]*)?$/g)) {
+	if (nlConstraints.min > 0 && sep.match(/ +(<!--(?:[^\-]|-(?!->))*-->[^\n]*)?$/g)) {
 		// 'sep' is the separator before 'nodeB' and it has leading spaces on a newline.
 		// We have to decide whether that leading space will trigger indent-pres in wikitext.
 		// The decision depends on where this separator will be emitted relative
 		// to 'nodeA' and 'nodeB'.
 
-		var isIndentPreSafe = false,
-			constraintInfo = nlConstraints.constraintInfo || {};
+		var isIndentPreSafe = false;
 
 		// Special case for <br> nodes
 		if ((constraintInfo.sepType === 'sibling' ||
@@ -3843,7 +3860,7 @@ WSP.makeSeparator = function(sep, nlConstraints, state) {
 		if (!isIndentPreSafe) {
 			// Strip non-nl ws from last line, but preserve comments.
 			// This avoids triggering indent-pres.
-			sep = sep.replace(/[^\n>]+(<!--(?:[^\-]|-(?!->))*-->[^\n]*)?$/g, '$1');
+			sep = sep.replace(/ +(<!--(?:[^\-]|-(?!->))*-->[^\n]*)?$/g, '$1');
 		}
 	}
 
@@ -4130,7 +4147,7 @@ WSP.emitSeparator = function(state, cb, node) {
 	}
 };
 
-WSP._getPrevSeparatorElement = function (node, state) {
+WSP._getPrevSeparatorElement = function (node) {
 	return DU.previousNonSepSibling(node) || node.parentNode;
 };
 
@@ -4168,8 +4185,8 @@ WSP._serializeNode = function( node, state, cb) {
 			dp.dsr = dp.dsr || [];
 
 			// Update separator constraints
-			prev = this._getPrevSeparatorElement(node, state);
 			var domHandler = this._getDOMHandler(node, state, cb);
+			prev = this._getPrevSeparatorElement(node);
 			if (prev) {
 				this.updateSeparatorConstraints(state,
 						prev,  this._getDOMHandler(prev, state, cb),
@@ -4199,34 +4216,8 @@ WSP._serializeNode = function( node, state, cb) {
 				//  TO BE DONE
 				//
 				if (!DU.hasCurrentDiffMark(node, this.env)) {
-					// Strip leading/trailing separators *ONLY IF* the previous/following
-					// node will go through non-selser serialization.
-					var src = state.getOrigSrc(dp.dsr[0], dp.dsr[1]),
-						out = src,
-						stripLeading = !DU.isIndentPre(node) && DU.hasCurrentDiffMark(node.previousSibling, this.env),
-						stripTrailing = DU.hasCurrentDiffMark(node.nextSibling, this.env),
-						newSep = '',
-						offset = 0;
-
-					if (stripLeading) {
-						var leadingSepMatch = out.match(/^((?:\s|<!--([^\-]|-(?!->))*-->)+)/);
-						if (leadingSepMatch) {
-							state.sep.src = (state.sep.src || '') + leadingSepMatch[0];
-							offset = leadingSepMatch[0].length;
-							out = out.substring(offset);
-							dp.dsr[0] += offset;
-						}
-					}
-					if (stripTrailing) {
-						var trailingSepMatch = out.match(/((?:\s|<!--([^\-]|-(?!->))*-->)+)$/);
-						if (trailingSepMatch) {
-							newSep = trailingSepMatch[0];
-							out = out.substring(0, trailingSepMatch.index);
-							dp.dsr[1] -= trailingSepMatch.index;
-						}
-					}
-
 					state.currNodeUnmodified = true;
+					handled = true;
 
 					// If this HTML node will disappear in wikitext because of zero width,
 					// then the separator constraints will carry over to the node's children.
@@ -4245,12 +4236,11 @@ WSP._serializeNode = function( node, state, cb) {
 						state.sep.constraints.constraintInfo.nodeB = node.firstChild;
 					}
 
-					// console.warn("USED ORIG");
-					this.trace("ORIG-src:", src, '; out:', out);
-					cb(out, node);
-					handled = true;
+					var out = state.getOrigSrc(dp.dsr[0], dp.dsr[1]);
 
-					state.sep.src = (state.sep.src || '') + newSep;
+					// console.warn("USED ORIG");
+					this.trace("ORIG-src:", out);
+					cb(out, node);
 
 					// Skip over encapsulated content since it has already been serialized
 					var typeOf = node.getAttribute( 'typeof' ) || '';
@@ -4298,24 +4288,25 @@ WSP._serializeNode = function( node, state, cb) {
 			}
 
 			// Update end separator constraints
-			if (node && node.nodeType === node.ELEMENT_NODE) {
-				next = this._getNextSeparatorElement(node);
-				if (next) {
-					this.updateSeparatorConstraints(state,
-							node, domHandler,
-							next, this._getDOMHandler(next, state, cb));
-				}
+			next = this._getNextSeparatorElement(node);
+			if (next) {
+				this.updateSeparatorConstraints(state,
+						node, domHandler,
+						next, this._getDOMHandler(next, state, cb));
 			}
 
 			break;
 		case node.TEXT_NODE:
+			state.prevNodeUnmodified = state.currNodeUnmodified;
+			state.currNodeUnmodified = false;
+
 			if (state.selserMode) {
 				this.trace("TEXT: ", node.nodeValue);
 			}
 
 			if (!this.handleSeparatorText(node, state)) {
 				// Text is not just whitespace
-				prev = this._getPrevSeparatorElement(node, state);
+				prev = this._getPrevSeparatorElement(node);
 				if (prev) {
 					this.updateSeparatorConstraints(state,
 							prev, this._getDOMHandler(prev, state, cb),
@@ -4333,6 +4324,9 @@ WSP._serializeNode = function( node, state, cb) {
 			}
 			break;
 		case node.COMMENT_NODE:
+			state.prevNodeUnmodified = state.currNodeUnmodified;
+			state.currNodeUnmodified = false;
+
 			if (state.selserMode) {
 				this.trace("COMMENT: ", node.nodeValue);
 			}

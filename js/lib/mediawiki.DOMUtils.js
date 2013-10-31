@@ -708,7 +708,7 @@ var DOMUtils = {
 
 	currentDiffMark: function(node, env) {
 		if (!node || !this.isElt(node)) {
-			return false;
+			return null;
 		}
 		if ( !( node.data && node.data["parsoid-diff"] ) ) {
 			this.loadDataAttrib(node, "parsoid-diff");
@@ -754,8 +754,10 @@ var DOMUtils = {
 	setDiffMark: function(node, env, change) {
 		var dpd = this.getJSONAttribute(node, 'data-parsoid-diff', null);
 		if (dpd !== null && dpd.id === env.page.id) {
-			// Diff is up to date, append this change
-			dpd.diff.push(change);
+			// Diff is up to date, append this change if it doesn't already exist
+			if (dpd.diff.indexOf(change) === -1) {
+				dpd.diff.push(change);
+			}
 		} else {
 			// Was an old diff entry or no diff at all, reset
 			dpd = {

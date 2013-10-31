@@ -16481,8 +16481,8 @@ Headings: 6d. Heading chars in SOL context (with interspersed comments)
 parsoid
 !! input
 <!--c0--><nowiki>=a=</nowiki>
-<!--c1-->
-<nowiki>=a=</nowiki> <!--c2-->	 <!--c3-->
+
+<!--c1--><nowiki>=a=</nowiki> <!--c2-->	 <!--c3-->
 !! result
 <p><!--c0-->=a=</p>
 <p><!--c1-->=a= <!--c2-->	 <!--c3--></p>
