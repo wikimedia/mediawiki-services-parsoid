@@ -160,9 +160,17 @@ WEHP.liHandler = function(liNode, state, text, opts) {
 	}
 };
 
-WEHP.quoteHandler = function(state, text) {
+WEHP.quoteHandler = function(state, text, opts) {
 	// SSS FIXME: Can be refined
-	return text.match(/^'|'$/);
+	if (text.match(/'$/)) {
+		var next = opts.node.nextSibling;
+		return next === null || Consts.WTQuoteTags.has(next.nodeName);
+	} else if (text.match(/^'/)) {
+		var prev = opts.node.previousSibling;
+		return prev === null || Consts.WTQuoteTags.has(prev.nodeName);
+	}
+
+	return false;
 };
 
 WEHP.thHandler = function(state, text) {

@@ -17017,6 +17017,8 @@ parsoid=html2wt,wt2wt
 ''''foo'''
 '''foo'''<nowiki/>'
 '<nowiki/>'''foo'''<nowiki/>'
+''fools'<span> errand</span>''
+''<span>fool</span>'s errand''
 !! result
 <p><i>'foo'</i>
 <i>''foo''</i>
@@ -17033,6 +17035,8 @@ parsoid=html2wt,wt2wt
 '<b>foo</b>
 <b>foo</b>'
 '<b>foo</b>'</p>
+<i>fools'<span> errand</span></i>
+<i><span>fool</span>'s errand</i>
 !! end
 
 !! test
