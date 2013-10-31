@@ -55,7 +55,7 @@ if (opts.help || opts._.length !== 2) {
 }
 
 // Ok, let's do this thing!
-var mwpath = opts._[0];
+var mwpath = path.resolve(opts._[0]);
 var branch = opts._[1];
 var oldhash = fetcher.latestCommit;
 
