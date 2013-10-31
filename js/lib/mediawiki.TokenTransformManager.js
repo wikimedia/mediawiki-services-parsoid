@@ -1489,9 +1489,10 @@ Frame.prototype.newParserValue = function ( source, options ) {
 	// options.type to specify source type
 	// options.phase to specify source expansion stage
 	if ( source.constructor === String ) {
-		/* jshint -W053 */
+		/*jshint -W053 */
 		// we need to make a non-primitive string in order to add properties
 		source = new String( source );
+		/*jshint +W053 */
 		source.get = this._getID;
 		return source;
 	} else {

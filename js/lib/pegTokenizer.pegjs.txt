@@ -519,9 +519,10 @@ tlb
         b = flattenIfArray(b);
         var bs = b[0];
         if ( bs.constructor === String && bs.attribs === undefined ) {
-            /* jshint -W053 */
+            /*jshint -W053 */
             // we need to make a non-primitive string in order to add properties
             b[0] = new String( bs );
+            /*jshint +W053 */
             bs = b[0];
         }
         if (bs.dataAttribs === undefined) {
