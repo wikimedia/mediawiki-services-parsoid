@@ -562,16 +562,31 @@ var DOMUtils = {
 	},
 
 	/**
-	 * Get the node's previous sibling that is an element, or else
-	 * return `null` if there is no such sibling element.
+	 * Get the first preceding sibling of 'node' that is an element,
+	 * or return `null` if there is no such sibling element.
 	 */
-	getPrecedingElementSibling: function(node) {
+	getPrevElementSibling: function(node) {
 		var sibling = node.previousSibling;
 		while (sibling) {
 			if (this.isElt(sibling)) {
 				return sibling;
 			}
-			sibling = node.previousSibling;
+			sibling = sibling.previousSibling;
+		}
+		return null;
+	},
+
+	/**
+	 * Get the first succeeding sibling of 'node' that is an element,
+	 * or return `null` if there is no such sibling element.
+	 */
+	getNextElementSibling: function(node) {
+		var sibling = node.nextSibling;
+		while (sibling) {
+			if (this.isElt(sibling)) {
+				return sibling;
+			}
+			sibling = sibling.nextSibling;
 		}
 		return null;
 	},

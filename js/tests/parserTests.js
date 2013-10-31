@@ -499,12 +499,45 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 		// Insert a text node, if not in a fosterable position.
 		// If in foster position, enter a comment.
 		// In either case, dom-diff should register a new node
-		var str = randomString(), ownerDoc = n.ownerDocument;
-		n.parentNode.insertBefore(
-			DOMUtils.isFosterablePosition(n) ?
-				ownerDoc.createComment(str) :
-				ownerDoc.createTextNode(str),
-			n);
+		var str = randomString(),
+			ownerDoc = n.ownerDocument,
+			wrapperName,
+			newNode;
+
+		// For these container nodes, it would be buggy
+		// to insert text nodes as children
+		switch (n.parentNode.nodeName) {
+			case 'OL':
+			case 'UL': wrapperName = 'LI'; break;
+			case 'DL': wrapperName = 'DD'; break;
+
+			case 'TR':
+				var prev = DU.getPrevElementSibling(n);
+				if (prev) {
+					// TH or TD
+					wrapperName = prev.nodeName;
+				} else {
+					var next = DU.getNextElementSibling(n);
+					if (next) {
+						// TH or TD
+						wrapperName = next.nodeName;
+					} else {
+						wrapperName = 'TD';
+					}
+				}
+				break;
+		}
+
+		if (wrapperName) {
+			newNode = ownerDoc.createElement(wrapperName);
+			newNode.appendChild(ownerDoc.createTextNode(str));
+		} else if (DOMUtils.isFosterablePosition(n)) {
+			newNode = ownerDoc.createComment(str);
+		} else {
+			newNode = ownerDoc.createTextNode(str);
+		}
+
+		n.parentNode.insertBefore(newNode, n);
 	}
 
 	function removeNode(n) {
