@@ -347,12 +347,18 @@ var parse = function ( env, req, res, cb, err, src_and_metadata ) {
 
 /* -------------------- web app access points below --------------------- */
 
-var app = express.createServer();
+var app = express();
 
 // favicon
 app.use(express.favicon(path.join(__dirname, "favicon.ico")));
+//
+// Support gzip / deflate transfer-encoding
+app.use(express.compress());
 
 // Increase the form field size limit from the 2M default.
+// This throws deprecation warnings from connect. Need to investigate
+// alternatives- maybe ditch connect completely and go for plain node http
+// instead?
 app.use(express.bodyParser({maxFieldsSize: 15 * 1024 * 1024}));
 
 app.get('/', function(req, res){
@@ -714,47 +720,8 @@ app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), interParams, parserE
 });
 
 
-/**
- * Continuous integration end points
- *
- * No longer used currently, as our testing now happens on the central Jenkins
- * server.
- */
-app.get( /\/_ci\/refs\/changes\/(\d+)\/(\d+)\/(\d+)/, function ( req, res ) {
-	var gerritChange = 'refs/changes/' + req.params[0] + '/' + req.params[1] + '/' + req.params[2];
-	var testSh = spawn( './testGerritChange.sh', [ gerritChange ], {
-		cwd: '.'
-	} );
-
-	res.setHeader('Content-Type', 'text/xml; charset=UTF-8');
-
-	testSh.stdout.on( 'data', function ( data ) {
-		res.write( data );
-	} );
-
-	testSh.on( 'exit', function () {
-		res.end( '' );
-	} );
-} );
-
-app.get( /\/_ci\/master/, function ( req, res ) {
-	var testSh = spawn( './testGerritMaster.sh', [], {
-		cwd: '.'
-	} );
-
-	res.setHeader('Content-Type', 'text/xml; charset=UTF-8');
-
-	testSh.stdout.on( 'data', function ( data ) {
-		res.write( data );
-	} );
-
-	testSh.on( 'exit', function () {
-		res.end( '' );
-	} );
-} );
-
 app.use( express.static( __dirname + '/scripts' ) );
-app.use( express.limit( '15mb' ) );
+app.disable('x-powered-by');
 
 console.log( ' - ' + instanceName + ' ready' );
 
