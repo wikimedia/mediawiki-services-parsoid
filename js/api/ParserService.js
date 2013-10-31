@@ -19,13 +19,14 @@
 
 // global includes
 var express = require('express'),
-	domino = require( 'domino' ),
+	domino = require('domino'),
 	jsDiff = require('diff'),
 	childProc = require('child_process'),
 	spawn = childProc.spawn,
 	cluster = require('cluster'),
 	fs = require('fs'),
-	path = require('path');
+	path = require('path'),
+	util = require('util');
 
 // local includes
 var mp = '../lib/';
@@ -221,6 +222,7 @@ var roundTripDiff = function ( selser, req, res, env, document ) {
 			res.send( out, 500 );
 			return;
 		}
+		res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
 		res.write('<html><head>\n');
 		res.write('<script type="text/javascript" src="/jquery.js"></script><script type="text/javascript" src="/scrolling.js"></script><style>ins { background: #ff9191; text-decoration: none; } del { background: #99ff7e; text-decoration: none }; </style>\n');
 		// Emit base href so all relative urls resolve properly
@@ -275,10 +277,18 @@ var roundTripDiff = function ( selser, req, res, env, document ) {
 	}
 };
 
-function handleCacheRequest (env, req, cb, err, src, cacheErr, cacheSrc) {
-	if (cacheErr) {
+function handleCacheRequest( env, req, res, cb, src, cacheErr, cacheSrc ) {
+	var errorHandlingCB = function ( src, err, doc ) {
+		if ( err ) {
+			env.errCB( err, true );
+			return;
+		}
+		cb( req, res, src, doc );
+	};
+
+	if ( cacheErr ) {
 		// No luck with the cache request, just proceed as normal.
-		Util.parse(env, cb, err, src);
+		Util.parse(env, errorHandlingCB, null, src);
 		return;
 	}
 	// Extract transclusion and extension content from the DOM
@@ -298,24 +308,14 @@ function handleCacheRequest (env, req, cb, err, src, cacheErr, cacheSrc) {
 
 	// pass those expansions into Util.parse to prime the caches.
 	//console.log('expansions:', expansions);
-	Util.parse(env, cb, null, src, expansions);
+	Util.parse(env, errorHandlingCB, null, src, expansions);
 }
 
 var parse = function ( env, req, res, cb, err, src_and_metadata ) {
-	var newCb = function ( src, err, doc ) {
-		if ( err !== null ) {
-			if ( !err.code ) {
-				err.code = 500;
-			}
-			console.error( err.stack || err.toString() );
-			res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
-			res.send( err.stack || err.toString(), err.code );
-			return;
-		} else {
-			res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-			cb( req, res, src, doc );
-		}
-	};
+	if ( err ) {
+		env.errCB( err, true );
+		return;
+	}
 
 	// Set the source
 	env.setPageSrcInfo( src_and_metadata );
@@ -324,7 +324,7 @@ var parse = function ( env, req, res, cb, err, src_and_metadata ) {
 	// env.page.meta.revision.parentid has the predecessor oldid
 
 	// See if we can reuse transclusion or extension expansions.
-	if (!err && env.conf.parsoid.parsoidCacheURI &&
+	if (env.conf.parsoid.parsoidCacheURI &&
 			// And don't parse twice for recursive parsoid requests
 			! req.headers['x-parsoid-request'])
 	{
@@ -339,9 +339,9 @@ var parse = function ( env, req, res, cb, err, src_and_metadata ) {
 			cacheRequest = new libtr.ParsoidCacheRequest(env,
 				env.page.meta.title, cacheID);
 		cacheRequest.once('src',
-				handleCacheRequest.bind(null, env, req, newCb, err, env.page.src));
+				handleCacheRequest.bind(null, env, req, res, cb, env.page.src));
 	} else {
-		handleCacheRequest(env, req, newCb, err, env.page.src, "Recursive request", null);
+		handleCacheRequest(env, req, res, cb, env.page.src, "Recursive request", null);
 	}
 };
 
@@ -374,23 +374,31 @@ app.get('/', function(req, res){
 	res.end('</body></html>');
 });
 
-function ParserError( msg, stack, code ) {
-	Error.call( this, msg );
+function EnvError( message, stack, code, restart ) {
+	this.message = message;
 	this.stack = stack;
 	this.code = code;
+	this.restart = restart;
 }
 
+util.inherits( EnvError, Error );
+EnvError.prototype.name = "EnvError";
+
 function errorHandler( err, req, res, next ) {
-	if ( !(err instanceof ParserError) ) {
+	if ( !(err instanceof EnvError) ) {
 		return next( err );
 	}
 
-	console.error( 'ERROR in ' + res.locals.iwp + ':' + res.locals.pageName + ':\n' + err.message );
-	console.error( "Stack trace: " + err.stack );
+	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 	res.send( err.stack, err.code );
 
-	// Force a clean restart of this worker
-	process.exit( 1 );
+	console.error( 'ERROR in ' + res.locals.iwp + ':' + res.locals.pageName );
+	console.error( 'Stack trace: ' + err.stack );
+
+	if ( err.restart ) {
+		// Force a clean restart of this worker
+		process.exit( 1 );
+	}
 }
 
 app.use( errorHandler );
@@ -409,11 +417,12 @@ function interParams( req, res, next ) {
 
 function parserEnvMw( req, res, next ) {
 	MWParserEnvironment.getParserEnv( parsoidConfig, null, res.locals.iwp, res.locals.pageName, req.headers.cookie, function ( err, env ) {
-		env.errCB = function ( e ) {
-			e = new ParserError(
+		env.errCB = function ( e, dontRestart ) {
+			e = new EnvError(
 				e.message,
 				e.stack || e.toString(),
-				e.code || 500
+				e.code || 500,
+				!dontRestart  // default to restarting
 			);
 			next( e );
 		};
@@ -485,16 +494,11 @@ app.get(/\/_wikitext\/(.*)/, defaultParams, parserEnvMw, function ( req, res ) {
 // Round-trip article testing
 app.get( new RegExp('/_rt/(' + getInterwikiRE() + ')/(.*)'), interParams, parserEnvMw, function(req, res) {
 	var env = res.locals.env;
-	req.connection.setTimeout(300 * 1000);
-
-	if ( env.page.name === 'favicon.ico' ) {
-		res.send( 'no favicon yet..', 404 );
-		return;
-	}
-
 	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
+	req.connection.setTimeout(300 * 1000);
 	console.log('starting parsing of ' + target);
+
 	var oldid = null;
 	if ( req.query.oldid ) {
 		oldid = req.query.oldid;
@@ -507,11 +511,6 @@ app.get( new RegExp('/_rt/(' + getInterwikiRE() + ')/(.*)'), interParams, parser
 // simulation
 app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)'), interParams, parserEnvMw, function(req, res) {
 	var env = res.locals.env;
-	if ( env.page.name === 'favicon.ico' ) {
-		res.send( 'no favicon yet..', 404 );
-		return;
-	}
-
 	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
 	console.log('starting parsing of ' + target);
@@ -533,11 +532,6 @@ app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)'), interParams, pars
 // Round-trip article testing with selser over re-parsed HTML.
 app.get( new RegExp('/_rtselser/(' + getInterwikiRE() + ')/(.*)'), interParams, parserEnvMw, function (req, res) {
 	var env = res.locals.env;
-	if ( env.page.name === 'favicon.ico' ) {
-		res.send( 'no favicon yet..', 404 );
-		return;
-	}
-
 	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
 	console.log( 'starting parsing of ' + target );
@@ -620,20 +614,25 @@ function wt2html( req, res, wt ) {
 	var tmpCb, oldid = null;
 	if ( wt ) {
 		wt = wt.replace( /\r/g, '' );
+
+		// clear default page name
+		if ( !res.locals.pageName ) {
+			env.page.name = '';
+		}
+
+		var parser = Util.getParserPipeline( env, 'text/x-mediawiki/full' );
+		parser.on( 'document', function ( document ) {
+			// Don't cache requests when wt is set in case somebody uses
+			// GET for wikitext parsing
+			res.setHeader( 'Cache-Control', 'private,no-cache,s-maxage=0' );
+			sendRes( req.body.body ? document.body : document );
+		});
+
 		tmpCb = function ( err, src_and_metadata ) {
 			if ( err ) {
-				env.errCB( err );
+				env.errCB( err, true );
 				return;
 			}
-
-			var parser = Util.getParserPipeline( env, 'text/x-mediawiki/full' );
-			parser.on( 'document', function ( document ) {
-				res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
-				// Don't cache requests when wt is set in case somebody uses
-				// GET for wikitext parsing
-				res.setHeader( 'Cache-Control', 'private,no-cache,s-maxage=0' );
-				sendRes( req.body.body ? document.body : document );
-			});
 
 			// Set the source
 			env.setPageSrcInfo( src_and_metadata );
@@ -641,10 +640,17 @@ function wt2html( req, res, wt ) {
 			try {
 				parser.processToplevelDoc( wt );
 			} catch ( e ) {
-				env.errCB( e );
+				env.errCB( e, true );
 				return;
 			}
 		};
+
+		if ( !res.locals.pageName ) {
+			// no pageName supplied; don't fetch the page source
+			tmpCb( null, wt );
+			return;
+		}
+
 	} else {
 		if ( req.query.oldid ) {
 			oldid = req.query.oldid;
@@ -662,7 +668,7 @@ function wt2html( req, res, wt ) {
 			res.setHeader( 'Cache-Control', 'private,no-cache,s-maxage=0' );
 			tmpCb = function ( err, src_and_metadata ) {
 				if ( err ) {
-					env.errCB( err );
+					env.errCB( err, true );
 					return;
 				}
 
@@ -670,7 +676,11 @@ function wt2html( req, res, wt ) {
 				env.setPageSrcInfo( src_and_metadata );
 
 				// Redirect to oldid
-				res.redirect( req.path + "?oldid=" + env.page.meta.revision.revid );
+				var url = [ "", prefix,
+					encodeURIComponent( target ) +
+					"?oldid=" + env.page.meta.revision.revid
+				].join( "/" );
+				res.redirect( url );
 				console.warn( "redirected " + prefix + ':' + target + " to revision " + env.page.meta.revision.revid );
 			};
 		}
@@ -682,6 +692,7 @@ function wt2html( req, res, wt ) {
 	function sendRes( doc ) {
 		var out = DU.serializeNode( doc );
 		res.setHeader( 'X-Parsoid-Performance', env.getPerformanceHeader() );
+		res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
 		res.end( out );
 		console.warn( "completed parsing of " + prefix + ':' + target + " in " + env.performance.duration + " ms" );
 	}
@@ -689,8 +700,6 @@ function wt2html( req, res, wt ) {
 
 // Regular article parsing
 app.get( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), interParams, parserEnvMw, function(req, res) {
-	var env = res.locals.env;
-
 	// TODO gwicke: re-enable this when actually using Varnish
 	//if (/only-if-cached/.test(req.headers['cache-control'])) {
 	//	res.send( 'Clearly not cached since this request reached Parsoid. Please fix Varnish.',
@@ -703,14 +712,12 @@ app.get( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), interParams, parserEn
 
 // Regular article serialization using POST
 app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), interParams, parserEnvMw, function ( req, res ) {
-
 	// parse html or wt
 	if ( req.body.wt ) {
 		wt2html( req, res, req.body.wt );
 	} else {
-		html2wt( req, res, req.body.html ? req.body.html : req.body.content );
+		html2wt( req, res, req.body.html || req.body.content || '' );
 	}
-
 });
 
 
