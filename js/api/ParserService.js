@@ -19,6 +19,7 @@
 
 // global includes
 var express = require('express'),
+	busboy = require('connect-busboy'),
 	domino = require( 'domino' ),
 	jsDiff = require('diff'),
 	childProc = require('child_process'),
@@ -104,7 +105,7 @@ var htmlSpecialChars = function ( s ) {
  * @param {string} content The content we should put in the textarea
  */
 var textarea = function ( res, action, name, content ) {
-	res.write('<form method=POST action="' + action + '"><textarea name="' + name + '" cols=90 rows=9>');
+	res.write('<form method=POST action="' + action + '" enctype="multipart/form-data"><textarea name="' + name + '" cols=90 rows=9>');
 	res.write( ( content && htmlSpecialChars( content) ) || '' );
 	res.write('</textarea><br><input type="submit"></form>');
 };
@@ -351,15 +352,29 @@ var app = express();
 
 // favicon
 app.use(express.favicon(path.join(__dirname, "favicon.ico")));
-//
+
 // Support gzip / deflate transfer-encoding
 app.use(express.compress());
 
-// Increase the form field size limit from the 2M default.
-// This throws deprecation warnings from connect. Need to investigate
-// alternatives- maybe ditch connect completely and go for plain node http
-// instead?
-app.use(express.bodyParser({maxFieldsSize: 15 * 1024 * 1024}));
+// Support multipart/form-data parsing
+app.use(busboy({
+	immediate: true,
+	// Increase the form field size limit from the 1M default.
+	limits: { fieldSize: 15 * 1024 * 1024 }
+}));
+
+app.use(function (req, res, next) {
+	if ( !req.busboy ) {
+		return next();
+	}
+	req.body = req.body || {};
+	req.busboy.on('field', function ( field, val ) {
+		req.body[field] = val;
+	});
+	req.busboy.on('end', function () {
+		next();
+	});
+});
 
 app.get('/', function(req, res){
 	res.write('<html><body>\n');

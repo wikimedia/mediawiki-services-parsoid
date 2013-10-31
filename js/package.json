@@ -18,7 +18,8 @@
 		"express": ">=3.0.0",
 		"html5-entities": "~0.5.0",
 		"html5": "0.3.15",
-		"es6-shim": "git+https://github.com/paulmillr/es6-shim#7dc668687c3a89ed9e7b6d6c6369f0ba8ebf8731"
+		"es6-shim": "git+https://github.com/paulmillr/es6-shim#7dc668687c3a89ed9e7b6d6c6369f0ba8ebf8731",
+		"connect-busboy": "0.0.1"
 	},
 	"devDependencies": {
 		"colors": "0.x.x",
