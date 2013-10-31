@@ -15,7 +15,8 @@ var defaults = {
 	'debug': false,
 	'fetches': 6,
 	'tries': 6,
-	'cutofftime': 600
+	'cutofftime': 600,
+	'batch': 50
 };
 
 // Settings file
@@ -70,7 +71,11 @@ var argv = optimist.usage( 'Usage: $0 [connection parameters]' )
 	.options( 'c', {
 		alias: 'cutofftime',
 		describe: "Time in seconds to wait for a test result."
-	})
+	} )
+	.options( 'b', {
+		alias: 'batch',
+		describe: "Number of titles to fetch from database in one batch."
+	} )
 	.argv;
 
 if ( argv.help ) {
@@ -109,6 +114,8 @@ var // The maximum number of tries per article
 	maxFetchRetries = getOption( 'fetches' ),
 	// The time to wait before considering a test has failed
 	cutOffTime = getOption( 'cutofftime' ),
+	// The number of pages to fetch at once
+	batchSize = getOption( 'batch' ),
 	debug = getOption( 'debug' );
 
 var mysql = require( 'mysql' );
@@ -143,25 +150,31 @@ var dbGetTitle =
 	'FROM pages ' +
 	'WHERE num_fetch_errors < ? AND ' +
 	'( claim_hash != ? OR ' +
-		'( claim_num_tries <= ? AND claim_timestamp < ? ) ) ' +
+		'( claim_num_tries < ? AND claim_timestamp < ? ) ) ' +
 	'ORDER BY claim_num_tries DESC, latest_score DESC, ' +
-	'claim_timestamp ASC LIMIT ?,1';
+	'claim_timestamp ASC LIMIT ? ' +
+	// Stop other transactions from reading until we finish this one.
+	'FOR UPDATE';
 
 var dbIncrementFetchErrorCount =
-	'UPDATE pages SET num_fetch_errors = num_fetch_errors + 1 WHERE title = ? AND prefix = ?';
+	'UPDATE pages SET ' +
+		'claim_hash = ?, ' +
+		'num_fetch_errors = num_fetch_errors + 1, ' +
+		'claim_num_tries = 0 ' +
+		'WHERE title = ? AND prefix = ?';
 
 var dbInsertCommit =
 	'INSERT IGNORE INTO commits ( hash, timestamp ) ' +
 	'VALUES ( ?, ? )';
 
-var dbFindPageByClaimHash =
+var dbFindPage =
 	'SELECT id ' +
 	'FROM pages ' +
-	'WHERE title = ? AND prefix = ? AND claim_hash = ?';
+	'WHERE title = ? AND prefix = ?';
 
-var dbUpdatePageClaim =
+var dbUpdatePageClaims =
 	'UPDATE pages SET claim_hash = ?, claim_timestamp = ?, claim_num_tries = claim_num_tries + 1 ' +
-	'WHERE id = ?';
+	'WHERE id IN ( ? )';
 
 var dbInsertResult =
 	'INSERT INTO results ( page_id, commit_hash, result ) ' +
@@ -186,7 +199,7 @@ var dbInsertPerfStatsEnd =
 var dbUpdatePageLatestResults =
 	'UPDATE pages ' +
 	'SET latest_stat = ?, latest_score = ?, latest_result = ?, ' +
-	'claim_timestamp = NULL, claim_num_tries = 0 ' +
+	'claim_hash = ?, claim_timestamp = NULL, claim_num_tries = 0 ' +
     'WHERE id = ?';
 
 var dbStatsQuery =
@@ -226,7 +239,13 @@ var dbStatsQuery =
         'JOIN stats AS s2 ON s2.page_id = pages.id ' +
         'WHERE s1.commit_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1 ) ' +
 	'AND s2.commit_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1 OFFSET 1 ) ' +
-	'AND s1.score < s2.score ) as numfixes '  +
+	'AND s1.score < s2.score ) as numfixes, '  +
+	// Get latest commit crashers
+	'(SELECT count(*) ' +
+		'FROM pages ' +
+		'WHERE claim_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1) ' +
+			'AND claim_num_tries >= ? ' +
+			'AND claim_timestamp < ?) AS crashers ' +
 
 	'FROM pages JOIN stats on pages.latest_stat = stats.id';
 
@@ -271,7 +290,13 @@ var dbPerWikiStatsQuery =
         'WHERE s1.commit_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1 ) ' +
 	'AND s2.commit_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1 OFFSET 1 ) ' +
 	'AND pages.prefix = ? ' +
-	'AND s1.score < s2.score ) as numfixes ' +
+	'AND s1.score < s2.score ) as numfixes, ' +
+	// Get latest commit crashers
+	'(SELECT count(*) ' +
+		'FROM pages WHERE prefix = ? ' +
+			'AND claim_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1) ' +
+			'AND claim_num_tries >= ? ' +
+			'AND claim_timestamp < ?) AS crashers ' +
 
 	'FROM pages JOIN stats on pages.latest_stat = stats.id WHERE pages.prefix = ?';
 
@@ -300,6 +325,13 @@ var dbGetResultWithCommit =
 
 var dbFailedFetches =
 	'SELECT title, prefix FROM pages WHERE num_fetch_errors >= ?';
+
+var dbCrashers =
+	'SELECT pages.title, pages.prefix, pages.claim_hash, commits.timestamp ' +
+		'FROM pages JOIN commits ON (pages.claim_hash = commits.hash) ' +
+		'WHERE claim_num_tries >= ? ' +
+		'AND claim_timestamp < ? ' +
+		'ORDER BY commits.timestamp DESC';
 
 var dbFailsDistribution =
 	'SELECT fails, count(*) AS num_pages ' +
@@ -400,85 +432,101 @@ var dbPagePerfStatsEnd =
 	'ORDER BY commits.timestamp DESC ' +
 	'LIMIT 0, ?';
 
-var transUpdateCB = function( title, prefix, hash, type, res, trans, success_cb, err, result ) {
+var transFetchCB = function( msg, trans, failCb, successCb, err, result ) {
 	if ( err ) {
-		trans.rollback();
-		var msg = "Error inserting/updating " + type + " for page: " +  prefix + ':' + title + " and hash: " + hash;
-		console.error( msg );
-		if ( res ) {
-			res.send( msg, 500 );
-		}
-	} else if ( success_cb ) {
-		success_cb( result );
+		trans.rollback( function () {
+			if ( failCb ) {
+				failCb ( msg? msg + err.toString() : err, result );
+			}
+		} );
+	} else if ( successCb ) {
+		successCb( result );
 	}
 };
 
-var claimPage = function( commitHash, cutOffTimestamp, req, res ) {
-	var trans = db.startTransaction(),
-		// reduce contention with a random offset
-		randOffset = Math.floor(Math.random() * 20);
+var fetchPages = function( commitHash, cutOffTimestamp, cb ) {
+	var trans = db.startTransaction();
 
 	trans.query( dbGetTitle,
-			[ maxFetchRetries, commitHash, maxTries, cutOffTimestamp, randOffset ],
-			function( err, rows ) {
-		if ( err ) {
-			trans.rollback( function() {
-				console.error( 'Error getting next title: ' + err.toString() );
-				res.send( "Error: " + err.toString(), 500 );
-			} );
-		} else if ( !rows || rows.length === 0 ) {
-			// Couldn't find any page to test, just tell the client to wait.
-			trans.rollback( function() {
-				res.send( 'No available titles that fit the constraints.', 404 );
-			} );
-		} else {
-			// Found a title to process.
-			var page = rows[0];
+			[ maxFetchRetries, commitHash, maxTries, cutOffTimestamp, batchSize ],
+			transFetchCB.bind( null, "Error getting next titles", trans, cb, function ( rows ) {
 
-			// Check if the selected title has arrived at the maximum number of
-			// tries, which means we need to mark it as an error.
-			if ( page.claim_hash && page.claim_num_tries === maxTries ) {
-				// Too many failures, insert an error in stats and retry fetch.
-				console.log( ' CRASHER?', page.prefix + ':' + page.title );
-				var score = statsScore( 0, 0, 1 );
-				var stats = [ 0, 0, 1, score, page.id, commitHash ];
-				trans.query( dbInsertStats, stats,
-					transUpdateCB.bind( null, page.title, page.prefix, commitHash, "stats", res, trans, function( insertedStat ) {
-						trans.query( dbUpdatePageLatestResults, [ insertedStat.insertId, score, null, page.id ],
-							transUpdateCB.bind( null, page.title, page.prefix, commitHash, "latest_result", res, trans, function() {
-								trans.commit( function() {
-									// After the error has been committed, go around
-									// again to get a different title.
-									claimPage( commitHash, cutOffTimestamp, req, res );
-								} );
-						} ) );
-					} ) );
-			} else {
-				// No outstanding claim with too many tries, so update with this hash.
-				trans.query( dbUpdatePageClaim, [ commitHash, new Date(), page.id ],
-					transUpdateCB.bind( null, page.title, page.prefix, commitHash, "dbUpdatePageClaim", res, trans, function() {
-						trans.commit( function() {
-							console.log( ' ->', page.prefix + ':' + page.title, 'num_tries: ' + page.claim_num_tries.toString() );
-							res.send( { prefix: page.prefix, title: page.title },  200);
-						} );
-					} ) );
+		if ( !rows || rows.length === 0 ) {
+			trans.commit( cb.bind( null, null, rows ) );
+		} else {
+			// Process the rows: Weed out the crashers.
+			var pages = [];
+			var pageIds = [];
+			for ( var i = 0; i < rows.length; i++ ) {
+				var row = rows[i];
+				pageIds.push( row.id );
+				pages.push( { prefix: row.prefix, title: row.title } );
 			}
+
+			trans.query( dbUpdatePageClaims, [ commitHash, new Date(), pageIds ],
+				transFetchCB.bind( null, "Error updating claims", trans, cb, function () {
+					trans.commit( cb.bind( null, null, pages ));
+				} ) );
 		}
-	} ).execute();
+	} ) ).execute();
 };
 
+var fetchedPages = [];
+var lastFetchedCommit = null;
+var lastFetchedDate = new Date(0);
+
 var getTitle = function ( req, res ) {
+	var commitHash = req.query.commit;
+
 	req.connection.setTimeout(300 * 1000);
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 
-	// Select pages that were not claimed in the 10 minutes.
-	// If we didn't get a result from a client 10 minutes after
-	// it got a rt claim on a page, something is wrong with the client
-	// or with parsing the page.
-	//
-	// Hopefully, no page takes longer than 10 minutes to parse. :)
+	// Keep record of the commit, ignore if already there.
+	db.query( dbInsertCommit, [ commitHash, new Date() ], function ( err ) {
+		if ( err ) {
+			console.error( "Error inserting commit " + commitHash );
+		}
+	});
 
-	claimPage( req.query.commit, new Date( Date.now() - ( cutOffTime * 1000 ) ), req, res );
+	var fetchCb = function ( err, pages ) {
+		if ( err ) {
+			res.send( "Error: " + err.toString(), 500 );
+			return;
+		}
+
+		if ( pages ) {
+			// Append the new pages to the already fetched ones, in case there's
+			// a parallel request.
+			fetchedPages = fetchedPages.concat( pages );
+		}
+		if ( fetchedPages.length === 0 ) {
+			res.send( 'No available titles that fit the constraints.', 404 );
+		} else {
+			var page = fetchedPages.pop();
+
+			console.log( ' ->', page.prefix + ':' + page.title );
+			res.send( page, 200 );
+		}
+	};
+
+	// Look if there's a title available in the already fetched ones.
+	// Ensure that we load a batch when the commit has changed.
+	if ( fetchedPages.length === 0 ||
+	     commitHash !== lastFetchedCommit ||
+	     ( lastFetchedDate.getTime() + ( cutOffTime * 1000 ) ) < Date.now() ) {
+		// Select pages that were not claimed in the 10 minutes.
+		// If we didn't get a result from a client 10 minutes after
+		// it got a rt claim on a page, something is wrong with the client
+		// or with parsing the page.
+		//
+		// Hopefully, no page takes longer than 10 minutes to parse. :)
+
+		lastFetchedCommit = commitHash;
+		lastFetchedDate = new Date();
+		fetchPages( commitHash, new Date( Date.now() - ( cutOffTime * 1000 ) ), fetchCb );
+	} else {
+		fetchCb();
+	}
 };
 
 var statsScore = function(skipCount, failCount, errorCount) {
@@ -494,6 +542,19 @@ var parsePerfStats = function( text ) {
 		perfstats.push( { type: match[ 1 ], value: match[ 2 ] } );
 	}
 	return perfstats;
+};
+
+var transUpdateCB = function( title, prefix, hash, type, res, trans, success_cb, err, result ) {
+	if ( err ) {
+		trans.rollback();
+		var msg = "Error inserting/updating " + type + " for page: " +  prefix + ':' + title + " and hash: " + hash;
+		console.error( msg );
+		if ( res ) {
+			res.send( msg, 500 );
+		}
+	} else if ( success_cb ) {
+		success_cb( result );
+	}
 };
 
 var insertPerfStats = function( db, pageId, commitHash, perfstats, cb ) {
@@ -536,20 +597,13 @@ var receiveResults = function ( req, res ) {
 
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 
-	// Keep record of the commit, ignore if already there.
-	db.query( dbInsertCommit, [ commitHash, new Date() ], function ( err ) {
-		if ( err ) {
-			console.error( "Error inserting commit " + commitHash );
-		}
-	});
-
 	var trans = db.startTransaction();
 	//console.warn("got: " + JSON.stringify([title, commitHash, result, skipCount, failCount, errorCount]));
 	if ( errorCount > 0 && result.match( 'DoesNotExist' ) ) {
 		// Page fetch error, increment the fetch error count so, when it goes over
 		/// maxFetchRetries, it won't be considered for tests again.
 		console.log( 'XX', prefix + ':' + title );
-		trans.query( dbIncrementFetchErrorCount, [title, prefix],
+		trans.query( dbIncrementFetchErrorCount, [commitHash, title, prefix],
 			transUpdateCB.bind( null, title, prefix, commitHash, "page fetch error count", res, trans, null ) )
 			.commit( function( err ) {
 				if ( err ) {
@@ -559,7 +613,7 @@ var receiveResults = function ( req, res ) {
 			} );
 
 	} else {
-		trans.query( dbFindPageByClaimHash, [ title, prefix, commitHash ], function ( err, pages ) {
+		trans.query( dbFindPage, [ title, prefix ], function ( err, pages ) {
 			if ( !err && pages && pages.length === 1 ) {
 				// Found the correct page, fill the details up
 				var page = pages[0];
@@ -577,7 +631,7 @@ var receiveResults = function ( req, res ) {
 								latest_statId = insertedStat.insertId;
 
 								// And now update the page with the latest info
-								trans.query( dbUpdatePageLatestResults, [ latest_statId, score, latest_resultId, page.id ],
+								trans.query( dbUpdatePageLatestResults, [ latest_statId, score, latest_resultId, commitHash, page.id ],
 									transUpdateCB.bind( null, title, prefix, commitHash, "latest result", res, trans, function() {
 										trans.commit( function() {
 											console.log( '<- ', prefix + ':' + title, ':', skipCount, failCount,
@@ -727,6 +781,7 @@ var displayPageList = function( res, urlPrefix, urlSuffix, page, header, display
 };
 var statsWebInterface = function ( req, res ) {
 	var query, queryParams, prefix;
+	var cutoffDate = new Date( Date.now() - ( cutOffTime * 1000 ) );
 
 	var displayRow = function( res, label, val ) {
 			// round numeric data, but ignore others
@@ -746,10 +801,11 @@ var statsWebInterface = function ( req, res ) {
 	if ( prefix !== null ) {
 		query = dbPerWikiStatsQuery;
 		queryParams = [ prefix, prefix, prefix, prefix,
-		                prefix, prefix, prefix, prefix ];
+		                prefix, prefix, prefix, prefix,
+		                prefix, maxTries, cutoffDate ];
 	} else {
 		query = dbStatsQuery;
-		queryParams = null;
+		queryParams = [ maxTries, cutoffDate ];
 	}
 
 	// Fetch stats for commit
@@ -778,7 +834,7 @@ var statsWebInterface = function ( req, res ) {
 				tests +
 				'</b> articles, of which <ul><li><b>' +
 				noErrors +
-				'%</b> parsed without crashes </li><li><b>' +
+				'%</b> parsed without errors </li><li><b>' +
 				syntacticDiffs +
 				'%</b> round-tripped without semantic differences, and </li><li><b>' +
 				perfects +
@@ -803,6 +859,8 @@ var statsWebInterface = function ( req, res ) {
 			res.write( '<table><tbody>');
 			displayRow(res, "Git SHA1", row[0].maxhash);
 			displayRow(res, "Test Results", row[0].maxresults);
+			displayRow( res, "Crashers",
+			           '<a href="/crashers">' + row[0].crashers + '</a>' );
 			displayRow(res, "Regressions",
 			           '<a href="/regressions/between/' + row[0].secondhash + '/' +
 			           row[0].maxhash + '">' +
@@ -928,6 +986,40 @@ var GET_failedFetches = function( req, res ) {
 				res.write( '</ul>');
 			}
 			res.end('</body></html>' );
+		}
+	} );
+};
+
+var GET_crashers = function( req, res ) {
+	var cutoffDate = new Date( Date.now() - ( cutOffTime * 1000 ) );
+	db.query( dbCrashers, [ maxTries, cutoffDate ], function ( err, rows ) {
+		if ( err ) {
+			console.error( err );
+			res.send( err.toString(), 500 );
+		} else {
+			var n = rows.length;
+			res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
+			res.status( 200 );
+			res.write( '<html><body>' );
+			if (n === 0) {
+				res.write( 'No titles crash the testers!  All\'s well with the world!' );
+			} else {
+				res.write( '<h1> The following ' + n + ' titles crash the testers' +
+				          ' at least ' + maxTries + ' times</h1>' );
+				res.write( '<ul>' );
+				for ( var i = 0; i < n; i++ ) {
+					var prefix = rows[i].prefix,
+						title = rows[i].title;
+					var url = prefix + '.wikipedia.org/wiki/' + title;
+					var name = prefix + ':' + title;
+					var commitHash = rows[i].claim_hash;
+					res.write( '<li>' + commitHash + ': <a href="http://' +
+							  encodeURI(url).replace('&', '&amp;') + '">' +
+							  name.replace('&', '&amp;') + '</a></li>\n' );
+				}
+				res.write( '</ul>' );
+			}
+			res.end( '</body></html>' );
 		}
 	} );
 };
@@ -1237,6 +1329,9 @@ app.get( /^\/stats(\/([^\/]+))?$/, statsWebInterface );
 
 // Failed fetches
 app.get( /^\/failedFetches$/, GET_failedFetches );
+
+// Crashers
+app.get( /^\/crashers$/, GET_crashers );
 
 // Regressions between two revisions.
 app.get( /^\/regressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_regressions );
