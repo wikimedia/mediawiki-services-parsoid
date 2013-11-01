@@ -179,15 +179,6 @@ function markTreeBuilderFixups(document, env) {
 						// If the tag-id is missing, this is clearly a sign that the
 						// start tag was inserted by the builder
 						dp.autoInsertedStart = true;
-
-						// If the start was auto-inserted and it does not have a
-						// closing-tag in wikitext, clearly the end-tag came from
-						// a literal HTML end tag (ex: </tr>) from the source.
-						// But, ignore HTML tags that dont have wikitext tags at all.
-						var wtTagWidth = Consts.WT_TagWidths[cNodeName];
-						if (wtTagWidth && wtTagWidth[0] !== 0 && wtTagWidth[1] === 0) {
-							dp.stx = 'html';
-						}
 					}
 				} else if (cNodeName === 'meta') {
 					var type = c.getAttribute('typeof');
@@ -202,6 +193,9 @@ function markTreeBuilderFixups(document, env) {
 							//console.log('autoinsertedEnd', c.innerHTML, c.parentNode.innerHTML);
 							// console.warn("expected.nodeName: " + expectedName + "; sibling.nodeName: " + sibling.nodeName);
 							addPlaceholderMeta(c, dp, expectedName, {end: true});
+						} else if (c.data.parsoid.stx) {
+							// transfer stx
+							sibling.data.parsoid.stx = c.data.parsoid.stx;
 						}
 					} else {
 						// Jump over this meta tag, but preserve it

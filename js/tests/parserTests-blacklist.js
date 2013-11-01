@@ -2718,7 +2718,7 @@ add("selser", "Table td-cell syntax variations [1]", "{| data-foobar=\"ripzux1o6
 add("selser", "Table td-cell syntax variations [[3,[2,0]]]", "{|\n<!--aerzm44cpngynwmi-->| foo bar foo | baz\n| foo bar foo || baz\n| style='color:red;' | baz\n| style='color:red;' || baz\n|}");
 add("selser", "Table td-cell syntax variations [[2,1]]", "{|\n| foo bar foo | baz\n| foo bar foo || baz\n| style='color:red;' | baz\n| style='color:red;' || baz\n|}");
 add("selser", "Table td-cell syntax variations [[0,[[1,0,[4],2,2,[4],0,[3],0],0]]]", "{|\n| data-foobar=\"wbzm28qubtb4vx6r\" foo bar | baz\n| foo bar foo <!--bop4r1vr91itfbt9-->|| baz\n| style='color:red;' | baz\n| style='color:red;' || baz\n|}");
-add("selser", "Table td-cell syntax variations [[4,[[2,0,2,[3],4,0,3,[3],1],2]]]", "{|\n\n<!--mz3xyunmkehwu3di-->| foo bar foo | baz\n<!--w4c4887c9phnnrk9-->| foo bar foo || baz\n| style='color:red;' | baz\n| style='color:red;' || data-foobar=\"l0hmwng5zji9hpvi\" | baz\n|}");
+add("selser", "Table td-cell syntax variations [[4,[[2,0,2,[3],4,0,3,[3],1],2]]]", "{|\n<!--mz3xyunmkehwu3di-->| foo bar foo | baz\n<!--w4c4887c9phnnrk9-->| foo bar foo || baz\n| style='color:red;' | baz\n| style='color:red;' || data-foobar=\"l0hmwng5zji9hpvi\" | baz\n|}");
 add("selser", "Table td-cell syntax variations [[0,[[4,0,0,1,0,0,0,4,4],0]]]", "{|\n<!--juve1nh5fs4kuik9-->\n| foo bar foo || data-foobar=\"v00hdvjl3int57b9\" | baz\n| style='color:red;' | baz\n<!--6x3dng4d2qehfr--><!--eow57cf1pgmn29-->\n|}");
 add("selser", "Table td-cell syntax variations [[0,[1,4]]]", "{|\n| foo bar foo | baz\n| foo bar foo || baz\n| style='color:red;' | baz\n| style='color:red;' || baz\n|}");
 add("selser", "Table td-cell syntax variations [[0,[[1,4,0,2,2,0,4,0,0],3]]]", "{|\n| data-foobar=\"yapr5vvoeskk2o6r\" foo bar | baz\n| foo bar foo <!--n59kxzdkg0dg3nmi-->|| baz\n| style='color:red;' | baz\n| style='color:red;' || baz\n|}");
@@ -2735,7 +2735,7 @@ add("selser", "Allow +/- in 2nd and later cells in a row, in 1st cell when td-at
 add("selser", "Allow +/- in 2nd and later cells in a row, in 1st cell when td-attrs are present, or in 1st cell when there is a space between \"|\" and +/-  [[2,[[3,[2],4,3],2,[4,2,0,0,2,3,4,2],0,2,0]]]", "{|\n|-\n|style='color:red;'|+1\n\n|-\n<!--c52xl586woob6gvi-->| 1 || 2 || 3\n<!--pd4he20jr8vndn29--><!--o18agxlnddmo0f6r-->||-3\n<!--30jx2ubwvoi7wrk9-->|-\n| +1\n| -1\n|}");
 add("selser", "Table rowspan [[3,2]]", "{| border=\"1\"\n<!--dw212cp9esif6r-->| Cell 1, row 1\n|rowspan=2| Cell 2, row 1 (and 2)\n| Cell 3, row 1\n|-\n| Cell 1, row 2\n| Cell 3, row 2\n|}");
 add("selser", "Table rowspan [[0,1]]", "{| border=\"1\"\n| Cell 1, row 1\n|rowspan=2| Cell 2, row 1 (and 2)\n| Cell 3, row 1\n|-\n| Cell 1, row 2\n| Cell 3, row 2\n|}");
-add("selser", "Table rowspan [[2,[[2,0,3,0,4],0,[0,0,0,3],2]]]", "{| border=1\n\n<!--hf5z89mzkeh77gb9-->| Cell 1, row 1\n\n<!--4j3mbmbko7gmn29-->\n|-\n| Cell 1, row 2\n\n|}");
+add("selser", "Table rowspan [[2,[[2,0,3,0,4],0,[0,0,0,3],2]]]", "{| border=1\n<!--hf5z89mzkeh77gb9-->| Cell 1, row 1\n\n<!--4j3mbmbko7gmn29-->\n|-\n| Cell 1, row 2\n\n|}");
 add("selser", "Table rowspan [2]", "xb37vwsdil6gk3xr\n{| border=1\n| Cell 1, row 1\n|rowspan=2| Cell 2, row 1 (and 2)\n| Cell 3, row 1\n|-\n| Cell 1, row 2\n| Cell 3, row 2\n|}");
 add("selser", "Table rowspan [1]", "{| border=\"1\" data-foobar=\"xgpmrwgiugpbvs4i\"\n| Cell 1, row 1\n|rowspan=2| Cell 2, row 1 (and 2)\n| Cell 3, row 1\n|-\n| Cell 1, row 2\n| Cell 3, row 2\n|}");
 add("selser", "Table rowspan [[0,[1,0,2,0]]]", "{| border=1\n| Cell 1, row 1\n|rowspan=2| Cell 2, row 1 (and 2)\n| Cell 3, row 1\n<!--esqo19m7kv620529-->|-\n| Cell 1, row 2\n| Cell 3, row 2\n|}");
@@ -2761,7 +2761,7 @@ add("selser", "Nested table [[3,[1,4]]]", "{| border=1\n| &alpha;\n|\n{| bgcolor
 add("selser", "Nested table [[0,[[1,2,[3,4],0,4],2]]]", "{| border=1\n| data-foobar=\"rvxj3ybmjcl680k9\" | &alpha;\n|\nhk2lwgso9gvz33di\n<!--nqxaiu7b5cngsyvi-->\n|}");
 add("selser", "Nested table [[0,[1,2]]]", "{| border=1\n| &alpha;\n|\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n|table\n|}\n|the original table again\n|}");
 add("selser", "Nested table [[0,1]]", "{| border=\"1\"\n| &alpha;\n|\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n|table\n|}\n|the original table again\n|}");
-add("selser", "Nested table [[0,[[2,0,[4,[0,[0,0,[0,3],2]]],0,0],4]]]", "{| border=1\n\n<!--2cpkww5viwe45cdi-->| &alpha;\n|\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n\n|}\n|the original table again\n|}");
+add("selser", "Nested table [[0,[[2,0,[4,[0,[0,0,[0,3],2]]],0,0],4]]]", "{| border=1\n<!--2cpkww5viwe45cdi-->| &alpha;\n|\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n\n|}\n|the original table again\n|}");
 add("selser", "Invalid attributes in table cell (bug 1830) [1]", "{| data-foobar=\"qjn3d6di3vcuwhfr\"\n|Cell:|broken\n|}");
 add("selser", "Invalid attributes in table cell (bug 1830) [[4,1]]", "{|\n|Cell:|broken\n|}");
 add("selser", "Invalid attributes in table cell (bug 1830) [2]", "ihzdqjdk01bp4x6r\n{|\n|Cell:|broken\n|}");
@@ -2770,7 +2770,7 @@ add("selser", "Invalid attributes in table cell (bug 1830) [[2,[1,0]]]", "{|\n|C
 add("selser", "Invalid attributes in table cell (bug 1830) [[0,1]]", "{|\n|Cell:|broken\n|}");
 add("selser", "Invalid attributes in table cell (bug 1830) [[0,[2,0]]]", "{|\n<!--j29v67hfrufmvx6r-->|Cell:|broken\n|}");
 add("selser", "Invalid attributes in table cell (bug 1830) [[2,1]]", "{|\n|Cell:|broken\n|}");
-add("selser", "Invalid attributes in table cell (bug 1830) [[3,[[2],0]]]", "{|\n\n<!--otq3btd8klf2yb9-->|Cell:|broken\n|}");
+add("selser", "Invalid attributes in table cell (bug 1830) [[3,[[2],0]]]", "{|\n<!--otq3btd8klf2yb9-->|Cell:|broken\n|}");
 add("selser", "Invalid attributes in table cell (bug 1830) [[0,[1,3]]]", "{|\n|Cell:|broken\n|}");
 add("selser", "Table security: embedded pipes (http://lists.wikimedia.org/mailman/htdig/wikitech-l/2006-April/022293.html) [2]", "m6gbpp8vyjozjjor\n{|\n| |[ftp://|x||]\" onmouseover=\"alert(document.cookie)\">test");
 add("selser", "Table attributes with empty value [2]", "ypqzbga8qxeqm2t9\n{|\n| style=| hello\n|}");
@@ -3238,7 +3238,7 @@ add("selser", "Table attribute legitimate extension [[0,1]]", "{|\n!+ style=\"<n
 add("selser", "Table attribute legitimate extension [[0,[1,4]]]", "{|\n!+ style=\"<nowiki>color:blue</nowiki>\"| status\n|}");
 add("selser", "Table attribute legitimate extension [2]", "ttlfw8y9so9wwmi\n{|\n!+ style=\"<nowiki>color:blue</nowiki>\"| status\n|}");
 add("selser", "Table attribute legitimate extension [[3,2]]", "{|\n<!--aj1x9jx74cjif6r-->!+ style=\"<nowiki>color:blue</nowiki>\"| status\n|}");
-add("selser", "Table attribute legitimate extension [[2,[[2],0]]]", "{|\n\n<!--drpses0bnhtzkt9-->!+ style=\"<nowiki>color:blue</nowiki>\"| status\n|}");
+add("selser", "Table attribute legitimate extension [[2,[[2],0]]]", "{|\n<!--drpses0bnhtzkt9-->!+ style=\"<nowiki>color:blue</nowiki>\"| status\n|}");
 add("selser", "Table attribute legitimate extension [1]", "{| data-foobar=\"ub4bg317e10v0a4i\"\n!+ style=\"<nowiki>color:blue</nowiki>\"| status\n|}");
 add("selser", "Table attribute legitimate extension [[0,[[[2]],2]]]", "{|\n!+ style=\"<nowiki>color:blue</nowiki>\"| status\n|}");
 add("selser", "Table attribute legitimate extension [[2,[1,4]]]", "{|\n!+ style=\"<nowiki>color:blue</nowiki>\"| status\n|}");
@@ -3719,8 +3719,8 @@ add("selser", "Table with broken attribute value quoting [[0,[[[2]],0]]]", "{|\n
 add("selser", "Table with broken attribute value quoting [[0,1]]", "{|\n| title=\"Hello world|Foo\n|}");
 add("selser", "Table with broken attribute value quoting [[3,[[[3]],3]]]", "{|\n| title=\"Hello world|Foo\n|}");
 add("selser", "Table with broken attribute value quoting [1]", "{| data-foobar=\"pa0vp357jvr0ms4i\"\n| title=\"Hello world|Foo\n|}");
-add("selser", "Table with broken attribute value quoting [[0,[[2],0]]]", "{|\n\n<!--wf125xn56rhsq0k9-->| title=\"Hello world|Foo\n|}");
-add("selser", "Table with broken attribute value quoting [[0,[[2],2]]]", "{|\n\n<!--cp6e2iwuotkjra4i-->| title=\"Hello world|Foo\n|}");
+add("selser", "Table with broken attribute value quoting [[0,[[2],0]]]", "{|\n<!--wf125xn56rhsq0k9-->| title=\"Hello world|Foo\n|}");
+add("selser", "Table with broken attribute value quoting [[0,[[2],2]]]", "{|\n<!--cp6e2iwuotkjra4i-->| title=\"Hello world|Foo\n|}");
 add("selser", "Table with broken attribute value quoting on consecutive lines [[3,1]]", "{|\n| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
 add("selser", "Table with broken attribute value quoting on consecutive lines [[3,2]]", "{|\n<!--e45oiux5ebmg3nmi-->| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
 add("selser", "Table with broken attribute value quoting on consecutive lines [1]", "{| data-foobar=\"r285ew8on06yldi\"\n| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
@@ -3734,7 +3734,7 @@ add("selser", "Table with broken attribute value quoting on consecutive lines [[
 add("selser", "Table with broken attribute value quoting on consecutive lines [[4,[[[3],0,0],0]]]", "{|\n| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
 add("selser", "Table with broken attribute value quoting on consecutive lines [[4,[[1,0,0],0]]]", "{|\n| title=\"Hello world\" data-foobar=\"nejaqckt9hmbcsor\" |Foo\n| style=\"color:red|Bar\n|}");
 add("selser", "Table with broken attribute value quoting on consecutive lines [[4,2]]", "{|\n<!--7wm4bxgh5f0w9udi-->| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
-add("selser", "Table with broken attribute value quoting on consecutive lines [[0,[[2,0,3],3]]]", "{|\n\n<!--fk1rjyjbpej6ecdi-->| title=\"Hello world|Foo\n\n|}");
+add("selser", "Table with broken attribute value quoting on consecutive lines [[0,[[2,0,3],3]]]", "{|\n<!--fk1rjyjbpej6ecdi-->| title=\"Hello world|Foo\n\n|}");
 add("selser", "Parsoid-only: Table with broken attribute value quoting on consecutive lines [[0,[2,0]]]", "{|\n<!--65b6dlogs124kj4i-->| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
 add("selser", "Parsoid-only: Table with broken attribute value quoting on consecutive lines [[0,[[[3],2,4],0]]]", "{|\n| title=\"Hello world|Foo\n<!--b1qbp0ow2dszto6r-->\n|}");
 add("selser", "Parsoid-only: Table with broken attribute value quoting on consecutive lines [1]", "{| data-foobar=\"xgsbz2z4izlg14i\"\n| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");

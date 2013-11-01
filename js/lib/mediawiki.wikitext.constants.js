@@ -231,7 +231,7 @@ var WikitextConstants = {
 		"h6"    : [6,6],
 		"hr"    : [4,0],
 		"table" : [2,2],
-		"tr"    : [2,0],
+		"tr"    : [null,0],
 		"td"    : [null,0],
 		"th"    : [null,0],
 		"b"     : [3,3],
