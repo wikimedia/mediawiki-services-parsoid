@@ -909,7 +909,7 @@ Sanitizer.prototype.escapeId = function(id, options) {
 // SSS FIXME: There is a test in mediawiki.environment.js that doles out
 // and tests about ids. There are probably some tests in mediawiki.Util.js
 // as well. We should move all these kind of tests somewhere else.
-Sanitizer.prototype.isParsoidAttr = function(k, v) {
+Sanitizer.prototype.isParsoidAttr = function(k, v, attrs) {
 	// NOTES:
 	// 1. Currently the tokenizer unconditionally escapes typeof and about
 	//    attributes from wikitxt to data-x-typeof and data-x-about. So,
@@ -922,7 +922,8 @@ Sanitizer.prototype.isParsoidAttr = function(k, v) {
 	//    That further processing will catch and discard any dangerous
 	//    strings in the rest of the attribute
 	return (/^(?:typeof|property|rel)$/).test(k) && /(?:^|\s)mw:.+?(?=$|\s)/.test(v) ||
-		k === "about" && /^#mwt\d+$/.test(v);
+		k === "about" && /^#mwt\d+$/.test(v) ||
+		k === "content" && /(?:^|\s)mw:.+?(?=$|\s)/.test(Util.lookup(attrs, 'property'));
 };
 
 Sanitizer.prototype.sanitizeTagAttrs = function(newToken, attrs) {
@@ -943,7 +944,7 @@ Sanitizer.prototype.sanitizeTagAttrs = function(newToken, attrs) {
 			origK = a.ksrc || k,
 			v = a.v,
 			origV = a.vsrc || v,
-			psdAttr = this.isParsoidAttr(k, v);
+			psdAttr = this.isParsoidAttr(k, v, attrs);
 
 		//console.warn('k = ' + k + '; v = ' + v);
 
