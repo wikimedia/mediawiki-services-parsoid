@@ -10132,6 +10132,16 @@ parsoid
 <link rel="mw:PageProp/Category" href="Category:Foo#Bar">
 !! end
 
+!! test
+Parsoid: Defaultsort
+!! options
+parsoid
+!! input
+{{DEFAULTSORT:Foo}}
+!! result
+<meta property="mw:PageProp/categorydefaultsort" content="Foo"/>
+!! end
+
 ###
 ### Inter-language links
 ###
