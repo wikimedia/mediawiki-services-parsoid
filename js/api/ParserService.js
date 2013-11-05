@@ -354,7 +354,7 @@ var app = express();
 app.use(express.favicon(path.join(__dirname, "favicon.ico")));
 
 // Support gzip / deflate transfer-encoding
-app.use(express.compress());
+//app.use(express.compress());
 
 // Support multipart/form-data parsing
 app.use(busboy({
