@@ -225,7 +225,7 @@ var roundTripDiff = function ( selser, req, res, env, document ) {
 		res.write('<html><head>\n');
 		res.write('<script type="text/javascript" src="/jquery.js"></script><script type="text/javascript" src="/scrolling.js"></script><style>ins { background: #ff9191; text-decoration: none; } del { background: #99ff7e; text-decoration: none }; </style>\n');
 		// Emit base href so all relative urls resolve properly
-		var headNodes = document.firstChild.firstChild.childNodes;
+		var headNodes = document.body.firstChild.childNodes;
 		for (i = 0; i < headNodes.length; i++) {
 			if (headNodes[i].nodeName.toLowerCase() === 'base') {
 				res.write(DU.serializeNode(headNodes[i]));
