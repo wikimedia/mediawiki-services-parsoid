@@ -9,7 +9,6 @@
 
 var fs = require( 'fs' ),
 	optimist = require( 'optimist' ),
-
 	TemplateRequest = require( '../lib/mediawiki.ApiRequest.js' ).TemplateRequest,
 	ParsoidConfig = require( '../lib/mediawiki.ParsoidConfig' ).ParsoidConfig,
 	MWParserEnvironment = require( '../lib/mediawiki.parser.environment.js' ).MWParserEnvironment;
@@ -58,7 +57,7 @@ var fetch = function ( page, revid, cb, options ) {
 		parsoidConfig.setInterwiki( 'customwiki', options.apiURL );
 	}
 
-	MWParserEnvironment.getParserEnv( parsoidConfig, null, prefix, page, envCb );
+	MWParserEnvironment.getParserEnv( parsoidConfig, null, prefix, page, null, envCb );
 };
 
 var usage = 'Usage: $0 [options] <page-title or rev-id>\n' +
