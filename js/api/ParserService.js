@@ -348,33 +348,13 @@ var parse = function ( env, req, res, cb, err, src_and_metadata ) {
 
 /* -------------------- web app access points below --------------------- */
 
-var app = express();
+var app = express.createServer();
 
 // favicon
 app.use(express.favicon(path.join(__dirname, "favicon.ico")));
 
-// Support gzip / deflate transfer-encoding
-//app.use(express.compress());
-
-// Support multipart/form-data parsing
-app.use(busboy({
-	immediate: true,
-	// Increase the form field size limit from the 1M default.
-	limits: { fieldSize: 15 * 1024 * 1024 }
-}));
-
-app.use(function (req, res, next) {
-	if ( !req.busboy ) {
-		return next();
-	}
-	req.body = req.body || {};
-	req.busboy.on('field', function ( field, val ) {
-		req.body[field] = val;
-	});
-	req.busboy.on('end', function () {
-		next();
-	});
-});
+// Increase the form field size limit from the 2M default.
+app.use(express.bodyParser({maxFieldsSize: 15 * 1024 * 1024}));
 
 app.get('/', function(req, res){
 	res.write('<html><body>\n');
@@ -735,8 +715,47 @@ app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), interParams, parserE
 });
 
 
+/**
+ * Continuous integration end points
+ *
+ * No longer used currently, as our testing now happens on the central Jenkins
+ * server.
+ */
+app.get( /\/_ci\/refs\/changes\/(\d+)\/(\d+)\/(\d+)/, function ( req, res ) {
+	var gerritChange = 'refs/changes/' + req.params[0] + '/' + req.params[1] + '/' + req.params[2];
+	var testSh = spawn( './testGerritChange.sh', [ gerritChange ], {
+		cwd: '.'
+	} );
+
+	res.setHeader('Content-Type', 'text/xml; charset=UTF-8');
+
+	testSh.stdout.on( 'data', function ( data ) {
+		res.write( data );
+	} );
+
+	testSh.on( 'exit', function () {
+		res.end( '' );
+	} );
+} );
+
+app.get( /\/_ci\/master/, function ( req, res ) {
+	var testSh = spawn( './testGerritMaster.sh', [], {
+		cwd: '.'
+	} );
+
+	res.setHeader('Content-Type', 'text/xml; charset=UTF-8');
+
+	testSh.stdout.on( 'data', function ( data ) {
+		res.write( data );
+	} );
+
+	testSh.on( 'exit', function () {
+		res.end( '' );
+	} );
+} );
+
 app.use( express.static( __dirname + '/scripts' ) );
-app.disable('x-powered-by');
+app.use( express.limit( '15mb' ) );
 
 console.log( ' - ' + instanceName + ' ready' );
 
