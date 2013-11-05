@@ -19,7 +19,6 @@
 
 // global includes
 var express = require('express'),
-	busboy = require('connect-busboy'),
 	domino = require( 'domino' ),
 	jsDiff = require('diff'),
 	childProc = require('child_process'),
@@ -105,7 +104,7 @@ var htmlSpecialChars = function ( s ) {
  * @param {string} content The content we should put in the textarea
  */
 var textarea = function ( res, action, name, content ) {
-	res.write('<form method=POST action="' + action + '" enctype="multipart/form-data"><textarea name="' + name + '" cols=90 rows=9>');
+	res.write('<form method=POST action="' + action + '"><textarea name="' + name + '" cols=90 rows=9>');
 	res.write( ( content && htmlSpecialChars( content) ) || '' );
 	res.write('</textarea><br><input type="submit"></form>');
 };
