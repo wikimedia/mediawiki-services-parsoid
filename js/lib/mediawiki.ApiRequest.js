@@ -557,7 +557,7 @@ function ParsoidCacheRequest ( env, title, oldid, options ) {
 		method: 'GET',
 		followRedirect: false,
 		url: url,
-		timeout: 16 * 1000, // 16 seconds
+		timeout: 60 * 1000, // 60 seconds: less than 100s VE timeout so we still finish
 		headers: {
 			'User-Agent': userAgent,
 			'Cookie': env.cookie,
