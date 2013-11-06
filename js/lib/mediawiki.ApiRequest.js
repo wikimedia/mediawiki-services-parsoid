@@ -561,7 +561,8 @@ function ParsoidCacheRequest ( env, title, oldid, options ) {
 		headers: {
 			'User-Agent': userAgent,
 			'Cookie': env.cookie,
-			'Connection': 'close'
+			'Connection': 'close',
+			'x-parsoid-request': 'cache'
 		}
 	};
 

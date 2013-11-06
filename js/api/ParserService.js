@@ -325,8 +325,8 @@ var parse = function ( env, req, res, cb, err, src_and_metadata ) {
 
 	// See if we can reuse transclusion or extension expansions.
 	if (!err && env.conf.parsoid.parsoidCacheURI &&
-			// Don't enter an infinite request loop.
-			! /only-if-cached/.test(req.headers['cache-control']))
+			// And don't parse twice for recursive parsoid requests
+			! req.headers['x-parsoid-request'])
 	{
 		// Try to retrieve a cached copy of the content so that we can recycle
 		// template and / or extension expansions.
