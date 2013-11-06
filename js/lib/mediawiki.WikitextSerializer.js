@@ -4247,7 +4247,7 @@ WSP._serializeNode = function( node, state, cb) {
 					var out = state.getOrigSrc(dp.dsr[0], dp.dsr[1]);
 
 					// console.warn("USED ORIG");
-					this.trace("ORIG-src:", out);
+					this.trace("ORIG-src with DSR[", dp.dsr[0], dp.dsr[1], "]", out);
 					cb(out, node);
 
 					// Skip over encapsulated content since it has already been serialized

@@ -67,35 +67,10 @@ function migrateTrailingNLs(elt, env) {
 			partialContent = false,
 			n = elt.lastChild;
 
-		// We can migrate trailing newline-containing separators
-		// across meta tags as long as the metas:
-		// - are not literal html metas (found in wikitext)
-		// - are not mw:PageProp (cannot cross page-property boundary
-		// - are not mw:Includes/* (cannot cross <*include*> boundary)
-		// - are not ext/tpl start/end markers (cannot cross ext/tpl boundary)
-		// - are not ext placeholder markers (cannot cross ext boundaries)
-		while (n && DU.hasNodeName(n, "meta") && !DU.isLiteralHTMLNode(n)) {
-			var prop = n.getAttribute("property"),
-			    type = n.getAttribute("typeof");
-
-			if (prop && prop.match(/mw:PageProp/)) {
-				break;
-			}
-
-			if (type && (DU.isTplMetaType(type) || type.match(/(?:^|\s)(mw:Includes|mw:Extension\/)/))) {
-				break;
-			}
-
+		// We can migrate trailing newlines across nodes that have zero-wikitext-width.
+		while (n && DU.isElt(n) && hasZeroWidthWT(n)) {
 			migrationBarrier = n;
 			n = n.previousSibling;
-		}
-
-		// We can migrate trailing newlines across nodes that have zero-wikitext-width.
-		if (n && !DU.hasNodeName(n, "meta")) {
-			while (n && DU.isElt(n) && hasZeroWidthWT(n)) {
-				migrationBarrier = n;
-				n = n.previousSibling;
-			}
 		}
 
 		// Find nodes that need to be migrated out:
