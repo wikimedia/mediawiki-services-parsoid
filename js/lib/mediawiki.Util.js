@@ -36,7 +36,17 @@ var Util = {
 	setDebuggingFlags: function(obj, opts) {
 		obj.debug = Util.booleanOption( opts.debug );
 		obj.trace = (opts.trace === true);
-		obj.traceFlags = opts.trace && opts.trace !== true ? opts.trace.split(",") : null;
+		
+		if (opts.trace && opts.trace !== true) {
+			obj.traceFlags = opts.trace.split(",");
+			if (obj.traceFlags.indexOf("selser") !== -1 &&
+					obj.traceFlags.indexOf("wts") === -1) {
+				obj.traceFlags.push("wts");
+			}
+		} else {
+			obj.traceFlags = null;
+		}
+
 		obj.dumpFlags = opts.dump ? opts.dump.split(",") : null;
 
 		return obj;
