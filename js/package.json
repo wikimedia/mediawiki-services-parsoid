@@ -29,5 +29,9 @@
 		"start": "node api/server.js",
 		"pretest": "node tests/fetch-parserTests.txt.js",
 		"test": "node tests/parserTests.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://gerrit.wikimedia.org/r/p/mediawiki/extensions/Parsoid.git"
 	}
 }
