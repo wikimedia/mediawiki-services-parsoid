@@ -448,7 +448,7 @@ WikiConfig.prototype.getMagicPatternMatcher = function ( optionsMap ) {
 			.replace( /\$1/g, '(.*)' );
 		mwlist = mwlist.concat( aliases );
 	}.bind( this ));
-	regex = new RegExp( regexString );
+	regex = new RegExp( '^(?:' + regexString + ')$' );
 
 	return function ( text ) {
 		return getInterpolatedMagicWord( text, regex, mwlist );
