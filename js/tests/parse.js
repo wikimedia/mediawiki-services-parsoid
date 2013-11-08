@@ -208,6 +208,12 @@ function dumpFlags() {
 		return;
 	}
 
+	// Because selser builds on html2wt serialization,
+	// the html2wt flag should be automatically set when selser is set. 
+	if (argv.selser) {
+		argv.html2wt = true;
+	}
+
 	// Default conversion mode
 	if (!argv.html2wt && !argv.wt2wt && !argv.html2html) {
 		argv.wt2html = true;
