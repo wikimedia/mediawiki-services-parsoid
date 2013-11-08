@@ -78,7 +78,7 @@ class CurlMultiClient {
 				// perform work as long as there is any
 				$status_cme = curl_multi_exec( $mh, $active );
 			} while ( $status_cme == CURLM_CALL_MULTI_PERFORM );
-			if ( $active > 0 && status_cme === CURLM_OK ) {
+			if ( $active > 0 && $status_cme === CURLM_OK ) {
 				// wait for more work to become available
 				if ( curl_multi_select( $mh, 10 ) ) {
 					// Wait for 5 ms, somewhat similar to the suggestion at
@@ -89,7 +89,7 @@ class CurlMultiClient {
 					usleep(5000);
 				}
 			}
-		} while ( $running_handles && $status_cme == CURLM_OK );
+		} while ( $active && $status_cme == CURLM_OK );
 
 		$res = array();
 		foreach ( $requests as $k => $row ) {
