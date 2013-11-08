@@ -137,7 +137,7 @@ SSP.parseOriginalSource = function ( doc, cb, finalcb, err, src ) {
 	// Parse the wikitext src to the original DOM, and pass that on to
 	// doSerializeDOM
 	parserPipeline.once( 'document', function ( origDoc ) {
-		var body = origDoc.body;
+		var body = DU.parseHTML( DU.serializeNode(origDoc) ).body;
 		self.env.page.dom = body;
 		//console.log('calling doSerializeDOM');
 		//console.log(body.outerHTML);
