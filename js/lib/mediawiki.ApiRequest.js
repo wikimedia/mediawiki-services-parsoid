@@ -547,6 +547,7 @@ function ParsoidCacheRequest ( env, title, oldid, options ) {
 	var url = env.conf.parsoid.parsoidCacheURI +
 			env.conf.wiki.iwp + '/' + encodeURIComponent(title.replace(/ /g, '_')) +
 			'?' + qs.stringify( apiargs );
+	this.url = url;
 
 	//console.warn('Cache request:', url);
 
