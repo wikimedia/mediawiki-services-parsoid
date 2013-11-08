@@ -46,17 +46,16 @@ class ParsoidCacheUpdateJob extends Job {
 			if ( isset( $this->params['start'] ) && isset( $this->params['end'] ) ) {
 				# This is a child job working on a sub-range of a large number of
 				# titles.
-				$this->doPartialUpdate();
+				return $this->doPartialUpdate();
 			} else  {
 				# Update all pages depending on this resource (transclusion or
 				# file)
-				$this->doFullUpdate();
+				return $this->doFullUpdate();
 			}
 		} else {
 			# Refresh the Parsoid cache for the page itself
-			$this->invalidateTitle( $this->title );
+			return $this->invalidateTitle( $this->title );
 		}
-		return true;
 	}
 
 	/**
@@ -86,7 +85,7 @@ class ParsoidCacheUpdateJob extends Job {
 				wfDebug( __METHOD__ . ": row count estimate was incorrect, repartitioning\n" );
 				$this->insertJobsFromTitles( $titleArray );
 			} else {
-				$this->invalidateTitles( $titleArray ); // just do the query
+				return $this->invalidateTitles( $titleArray ); // just do the query
 			}
 		}
 
@@ -101,14 +100,14 @@ class ParsoidCacheUpdateJob extends Job {
 			$this->params['table'], $this->params['start'], $this->params['end'] );
 		if ( $titleArray->count() <= $this->rowsPerJob * 2 ) {
 			# This partition is small enough, do the update
-			$this->invalidateTitles( $titleArray );
+			return $this->invalidateTitles( $titleArray );
 		} else {
 			# Partitioning was excessively inaccurate. Divide the job further.
 			# This can occur when a large number of links are added in a short
 			# period of time, say by updating a heavily-used template.
 			$this->insertJobsFromTitles( $titleArray );
+			return true;
 		}
-		return true;
 	}
 
 	/**
@@ -221,6 +220,21 @@ class ParsoidCacheUpdateJob extends Job {
 	}
 
 	/**
+	 * Check an array of CurlMultiClient results for errors, and setLastError
+	 * if there are any.
+	 * @param $results CurlMultiClient result array
+	 */
+	protected function checkCurlResults( $results ) {
+		foreach( $results as $k => $result ) {
+			if ($results[$k]['error'] != null) {
+				$this->setLastError($results[$k]['error']);
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Invalidate a single title object after an edit. Send headers that let
 	 * Parsoid reuse transclusion and extension expansions.
 	 * @param $title Title
@@ -246,8 +260,7 @@ class ParsoidCacheUpdateJob extends Job {
 			);
 		};
 		wfDebug( "ParsoidCacheUpdateJob::invalidateTitle: " . serialize( $requests ) . "\n" );
-		CurlMultiClient::request( $requests );
-		// @TODO: maybe call $this->setLastError() if something went wrong?
+		$this->checkCurlResults( CurlMultiClient::request( $requests ) );
 
 		# And now purge the previous revision so that we make efficient use of
 		# the Varnish cache space without relying on LRU. Since the URL
@@ -261,9 +274,10 @@ class ParsoidCacheUpdateJob extends Job {
 		};
 		$options = CurlMultiClient::getDefaultOptions();
 		$options[CURLOPT_CUSTOMREQUEST] = "PURGE";
-		CurlMultiClient::request( $requests, $options );
-		// @TODO: maybe call $this->setLastError() if something went wrong?
+		$this->checkCurlResults( CurlMultiClient::request( $requests, $options ) );
+		return $this->getLastError() == null;
 	}
+
 
 	/**
 	 * Invalidate an array (or iterator) of Title objects, right now. Send
@@ -309,11 +323,12 @@ class ParsoidCacheUpdateJob extends Job {
 		}
 
 		// Now send off all those update requests
-		CurlMultiClient::request( $requests );
-		// @TODO: maybe call $this->setLastError() if something went wrong?
+		$this->checkCurlResults( CurlMultiClient::request( $requests ) );
 
 		wfDebug( 'ParsoidCacheUpdateJob::invalidateTitles update: ' .
 			serialize( $requests ) . "\n" );
+
+		return $this->getLastError() == null;
 
 		/*
 		  # PURGE
