@@ -884,7 +884,12 @@ var Util = {
 
 	// Returns the utf8 encoding of the code point
 	codepointToUtf8: function(cp) {
-		return unescape(encodeURIComponent(cp));
+		try {
+			return String.fromCharCode(cp);
+		} catch (e) {
+			// Return a tofu?
+			return cp.toString();
+		}
 	},
 
 	// Returns true if a given Unicode codepoint is a valid character in XML.
