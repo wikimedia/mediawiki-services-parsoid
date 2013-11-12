@@ -2158,7 +2158,6 @@ add("html2wt", "Lists: 5. No unnecessary escapes");
 add("html2wt", "Tables: 1b. No escaping needed");
 add("html2wt", "Tables: 1c. No escaping needed");
 add("html2wt", "Tables: 1d. No escaping needed");
-add("html2wt", "Tables: 4d. No escaping needed");
 add("html2wt", "Links 2. WikiLinks: Escapes needed");
 add("html2wt", "1. Leading whitespace in SOL context should be escaped");
 add("html2wt", "HTML tag with 'unnecessary' entity encoding in attributes");

@@ -129,11 +129,27 @@ function precedingSeparatorTxt(n) {
 	return buf.join('');
 }
 
-var WikitextEscapeHandlers = function() { };
+// Empty constructor
+var WikitextEscapeHandlers = function() {};
 
 var WEHP = WikitextEscapeHandlers.prototype;
 
 WEHP.urlParser = new PegTokenizer();
+
+WEHP.isFirstContentNode = function(node) {
+	// Conservative but safe
+	if (!node) {
+		return true;
+	}
+
+	// Skip deleted-node markers
+	var prev = node.previousSibling;
+	while (prev && DU.isMarkerMeta(prev, "mw:DiffMarker")) {
+		prev = prev.previousSibling;
+	}
+
+	return prev === null;
+};
 
 WEHP.headingHandler = function(headingNode, state, text, opts) {
 	// Only "=" at the extremities trigger escaping
@@ -150,10 +166,11 @@ WEHP.headingHandler = function(headingNode, state, text, opts) {
 };
 
 WEHP.liHandler = function(liNode, state, text, opts) {
-	// Only bullets at the beginning of the list trigger escaping
+	// For <dt> nodes, ":" anywhere trigger nowiki
+	// For first nodes of <li>'s, bullets in sol posn trigger escaping
 	if (liNode.nodeName === 'DT' && /:/.test(text)) {
 		return true;
-	} else if (state.currLine.text === '' && opts.node === liNode.firstChild) {
+	} else if (state.currLine.text === '' && this.isFirstContentNode(opts.node)) {
 		return text.match(/^[#\*:;]/);
 	} else {
 		return false;
@@ -185,13 +202,21 @@ WEHP.aHandler = function(state, text) {
 	return text.match(/\]$/);
 };
 
-WEHP.tdHandler = function(state, text, opts) {
-	// As long as this is not a p-wrapped text node:
+WEHP.tdHandler = function(tdNode, state, text, opts) {
+	// If 'text' is on the same wikitext line as the "|" corresponding
+	// to the <td>,
 	// * | in a td should be escaped
 	// * +- in SOL position for the first node on the current line should be escaped
-	return (!opts.node || opts.node.parentNode.nodeName !== 'P') &&
-		(text.match(/\|/)  ||
-		state.currLine.text === '' && text.match(/^[\-+]/) && !state.inWideTD);
+	return (!opts.node || state.currLine.firstNode === tdNode) &&
+		text.match(/\|/) || (
+			!state.inWideTD &&
+			state.currLine.text === '' &&
+			// Has to be the first content node in the <td>.
+			// In <td><a ..>..</a>-foo</td>, even though "-foo" meets the other conditions,
+			// we don't need to escape it.
+			this.isFirstContentNode(opts.node) &&
+			text.match(/^[\-+]/)
+		);
 };
 
 WEHP.hasWikitextTokens = function ( state, onNewline, options, text, linksOnly ) {
@@ -2532,7 +2557,8 @@ WSP.tagHandlers = {
 				state.inWideTD = true;
 			}
 			emitStartTag(res, node, state, cb);
-			state.serializeChildren(node, cb, state.serializer.wteHandlers.tdHandler);
+			state.serializeChildren(node, cb,
+				state.serializer.wteHandlers.tdHandler.bind(state.serializer.wteHandlers, node));
 			// FIXME: bad state hack!
 			state.inWideTD = undefined;
 		},

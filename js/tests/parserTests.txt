@@ -17263,6 +17263,8 @@ parsoid
 *''foo''*bar
 
 *[[Foo]]: bar
+
+*[[Foo]]*bar
 !! result
 <ul>
 <li>foo*bar
@@ -17274,6 +17276,10 @@ parsoid
 </ul>
 <ul>
 <li><a rel="mw:WikiLink" href="Foo">Foo</a>: bar
+</li>
+</ul>
+<ul>
+<li><a rel="mw:WikiLink" href="Foo">Foo</a>*bar
 </li>
 </ul>
 !!end
@@ -17419,14 +17425,18 @@ Tables: 1d. No escaping needed
 !! test
 Tables: 2a. Nested in td
 !! options
-parsoid
+parsoid=html2wt
 !! input
 {|
 |<nowiki>foo|bar</nowiki>
+|-
+|x<div><nowiki>a|b</nowiki></div>
 |}
 !! result
 <table><tbody><tr>
-<td><span typeof="mw:Nowiki">foo|bar</span></td></tr></tbody></table>
+<td>foo|bar</td></tr>
+<tr><td>x<div>a|b</div></td>
+</tbody></table>
 !! end
 
 !! test
@@ -17549,6 +17559,9 @@ parsoid
 bar|baz
 +bar
 -bar
+|-
+|x
+<div>a|b</div>
 |}
 !! result
 <table><tbody>
@@ -17558,32 +17571,27 @@ bar|baz
 <p>bar|baz
 +bar
 -bar</p></td></tr>
+<tr><td>x
+<div>a|b</div></td>
 </tbody></table>
 !! end
-
-### SSS FIXME: Disabled right now because accurate html2wt
-### on this snippet requires data-parsoid flags that we've
-### stripped out of these tests.  We should scheme how we
-### we want to handle these kind of tests that require
-### data-parsoid flags for accurate html2wt serialization
 
 !! test
 Tables: 4d. No escaping needed
 !! options
-disabled
+parsoid
 !! input
 {|
+|[[Foo]]-bar
 ||+1
 ||-2
 |}
 !! result
 <table>
-<tr>
-<td>+1
-</td>
-<td>-2
-</td></tr></table>
-
+<tbody><tr><td><a rel="mw:WikiLink" href="./Foo">Foo</a>-bar</td>
+<td data-parsoid='{"startTagSrc":"|","attrSepSrc":"|"}'>+1</td>
+<td data-parsoid='{"startTagSrc":"|","attrSepSrc":"|"}'>-2</td></tr>
+</tbody></table>
 !! end
 
 #### --------------- Links ----------------
