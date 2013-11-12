@@ -9413,6 +9413,36 @@ parsoid
 !! end
 
 !! test
+Image with caption, bug 53312 #1 (parsoid)
+!! options
+parsoid
+!! input
+[[File:Foobar.jpg|right|Caption page stuff]]
+!! result
+<figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a><figcaption>Caption page stuff</figcaption></figure>
+!! end
+
+!! test
+Image with caption, bug 53312 #2 (parsoid)
+!! options
+parsoid
+!! input
+[[File:Foobar.jpg|right|Caption page=]]
+!! result
+<figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a><figcaption>Caption page=</figcaption></figure>
+!! end
+
+!! test
+Image with caption, bug 53312 #3 (parsoid)
+!! options
+parsoid
+!! input
+[[File:Foobar.jpg|right|Caption page=stuff]]
+!! result
+<figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a><figcaption>Caption page=stuff</figcaption></figure>
+!! end
+
+!! test
 Image with empty attribute (php)
 !! options
 php
