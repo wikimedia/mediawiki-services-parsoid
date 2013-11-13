@@ -1947,6 +1947,17 @@ parsoid=html2wt,wt2wt
 <p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"{{echo|1=bar}}"}},"i":0}}]}'>bar</p>
 !! end
 
+## Bug 56733
+!! test
+Templates parameters with special tokenizing behavior dont get modified because of arg escaping
+!! options
+parsoid
+!! input
+{{echo|a : b}}
+!! result
+<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a : b"}},"i":0}}]}'>a<span typeof="mw:Placeholder" data-parsoid='{"isDisplayHack":true}'> </span>: b</p>
+!! end
+
 ###
 ### Parsoid-centric tests for testing RT edge cases for pre
 ###
