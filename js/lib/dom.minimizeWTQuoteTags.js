@@ -2,14 +2,15 @@
 
 require('./core-upgrade.js');
 var DU = require('./mediawiki.DOMUtils.js').DOMUtils,
-	Consts = require('./mediawiki.wikitext.constants.js').WikitextConstants;
+	Consts = require('./mediawiki.wikitext.constants.js').WikitextConstants,
+	JSUtils = require('./jsutils.js').JSUtils;
 
 function similar(a, b) {
 	var isHtml_a = DU.isLiteralHTMLNode(a),
 		isHtml_b = DU.isLiteralHTMLNode(b);
 
 	return (!isHtml_a && !isHtml_b) ||
-		(isHtml_a && isHtml_b && DU.attribsEquals(a, b, {'data-parsoid' : 1}));
+		(isHtml_a && isHtml_b && DU.attribsEquals(a, b, JSUtils.arrayToSet(['data-parsoid'])));
 }
 
 /** Can a and b be merged into a single node? */

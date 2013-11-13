@@ -1,4 +1,5 @@
-var DU = require('./mediawiki.DOMUtils.js').DOMUtils;
+var DU = require('./mediawiki.DOMUtils.js').DOMUtils,
+	JSUtils = require('./jsutils.js').JSUtils;
 
 /**
  * A DOM diff helper class
@@ -11,6 +12,10 @@ function DOMDiff ( env ) {
 	this.debugging = env.conf.parsoid.debug ||
 		(env.conf.parsoid.traceFlags && env.conf.parsoid.traceFlags.indexOf('selser') !== -1);
 	this.debug = this.debugging ? console.log : function(){};
+
+	this.specializedAttribHandlers = JSUtils.mapObject({
+		'data-mw': this.dataMWEquals.bind(this)
+	});
 }
 
 var DDP = DOMDiff.prototype;
@@ -42,16 +47,75 @@ DDP.diff = function ( node ) {
 
 // These attributes are ignored for equality purposes if they are added to a
 // node.
-var ignoreAttributes = {
+var ignoreAttributes = JSUtils.arrayToSet([
 	// Do our own full diff for now, so ignore data-ve-changed info.
-	'data-ve-changed': 1,
+	'data-ve-changed',
 	// SSS: Don't ignore data-parsoid because in VE, sometimes wrappers get
 	// moved around without their content which occasionally leads to incorrect
 	// DSR being used by selser.  Hard to describe a reduced test case here.
 	// Discovered via: /mnt/bugs/2013-05-01T09:43:14.960Z-Reverse_innovation
 	// 'data-parsoid': 1,
-	'data-parsoid-diff': 1,
-	'about': 1
+	'data-parsoid-diff',
+	'about'
+]);
+
+/**
+ * Test if two data-mw objects are identical
+ * - independent of order of attributes in data-mw
+ * - html attributes are parsed to DOM and recursively compared
+ */
+DDP.dataMWEquals = function(dmw1, dmw2) {
+	var keys1 = Object.keys(dmw1),
+		keys2 = Object.keys(dmw2);
+
+	// Some quick checks
+	if (keys1.length !== keys2.length) {
+		return false;
+	} else if (keys1.length === 0) {
+		return true;
+	}
+
+	// Sort keys so we can traverse array and compare keys
+	keys1.sort();
+	keys2.sort();
+	for (var i = 0; i < keys1.length; i++) {
+		var k1 = keys1[i],
+			k2 = keys2[i];
+
+		if (k1 !== k2) {
+			return false;
+		}
+
+		var v1 = dmw1[k1],
+			v2 = dmw2[k1];
+
+		// Deal with null, undefined (and 0, '')
+		// since they cannot be inspected
+		if (!v1 || !v2) {
+			if (v1 !== v2) {
+				return false;
+			}
+		} else if (v1.constructor !== v2.constructor) {
+			return false;
+		} else if (k1 === 'html') {
+			// For 'html' attributes, parse string and recursively compare DOM
+			if (v1 !== v2 && !this.treeEquals(DU.parseHTML(v1).body, DU.parseHTML(v2).body, true)) {
+				return false;
+			}
+		} else if (v1.constructor === Object || v1.constructor === Array) {
+			// For 'array' and 'object' attributes, recursively apply dataMWEquals
+			if (!this.dataMWEquals(v1, v2)) {
+				return false;
+			}
+		} else if (v1 !== v2) {
+			return false;
+		}
+
+		// Phew! survived this key
+	}
+
+	// Phew! survived all checks -- identical objects
+	return true;
 };
 
 /**
@@ -71,7 +135,9 @@ DDP.treeEquals = function (nodeA, nodeB, deep) {
 		return nodeA.nodeValue === nodeB.nodeValue;
 	} else if (nodeA.nodeType === nodeA.ELEMENT_NODE) {
 		// Compare node name and attribute length
-		if (nodeA.nodeName !== nodeB.nodeName || !DU.attribsEquals(nodeA, nodeB, ignoreAttributes)) {
+		if (nodeA.nodeName !== nodeB.nodeName ||
+			!DU.attribsEquals(nodeA, nodeB, ignoreAttributes, this.specializedAttribHandlers))
+		{
 			return false;
 		}
 

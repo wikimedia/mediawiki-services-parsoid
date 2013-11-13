@@ -36,7 +36,7 @@ var Util = {
 	setDebuggingFlags: function(obj, opts) {
 		obj.debug = Util.booleanOption( opts.debug );
 		obj.trace = (opts.trace === true);
-		
+
 		if (opts.trace && opts.trace !== true) {
 			obj.traceFlags = opts.trace.split(",");
 			if (obj.traceFlags.indexOf("selser") !== -1 &&

@@ -60,17 +60,21 @@ var DOMUtils = {
 
 	/**
 	 * Attribute equality test
+	 * @param {Node} nodeA
+	 * @param {Node} nodeB
+	 * @param {ignoreableAttribs} Set of attributes that should be ignored
+	 * @param {specializedAttribHandlers} Map of attributes with specialized equals handlers
 	 */
-	attribsEquals: function(nodeA, nodeB, ignoreAttributes) {
-		if (!ignoreAttributes) {
-			ignoreAttributes = Object.create(null);
+	attribsEquals: function(nodeA, nodeB, ignoreableAttribs, specializedAttribHandlers) {
+		if (!ignoreableAttribs) {
+			ignoreableAttribs = new Set();
 		}
 
 		function arrayToHash(attrs) {
 			var h = {}, count = 0;
 			for (var i = 0, n = attrs.length; i < n; i++) {
 				var a = attrs.item(i);
-				if (!ignoreAttributes[a.name]) {
+				if (!ignoreableAttribs.has(a.name)) {
 					count++;
 					h[a.name] = a.value;
 				}
@@ -89,10 +93,26 @@ var DOMUtils = {
 		var hA = xA.h, keysA = Object.keys(hA).sort(),
 			hB = xB.h, keysB = Object.keys(hB).sort();
 
+		if (!specializedAttribHandlers) {
+			specializedAttribHandlers = new Map();
+		}
+
 		for (var i = 0; i < xA.count; i++) {
 			var k = keysA[i];
-			if (k !== keysB[i] || hA[k] !== hB[k]) {
+			if (k !== keysB[i]) {
 				return false;
+			}
+
+			if (hA[k] !== hB[k]) {
+				// Use a specialized compare function, if provided
+				var attribEquals = specializedAttribHandlers.get(k);
+				if (attribEquals) {
+					if (!hA[k] || !hB[k] || !attribEquals(JSON.parse(hA[k]), JSON.parse(hB[k]))) {
+						return false;
+					}
+				} else {
+					return false;
+				}
 			}
 		}
 
