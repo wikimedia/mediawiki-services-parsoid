@@ -47,7 +47,7 @@ ParserError.prototype = Error.prototype;
  */
 function AccessDeniedError( message ) {
 	this.name = 'AccessDeniedError';
-	this.message = message || 'Your wiki requires a logged-in account to access the API. Parsoid will not work for this wiki!';
+	this.message = message || 'Your wiki requires a logged-in account to access the API.';
 	this.code = 401;
 }
 AccessDeniedError.prototype = Error.prototype;
