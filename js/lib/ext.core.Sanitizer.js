@@ -380,10 +380,10 @@ var SanitizerConstants = {
 			var backslash = '\\\\';
 			return new RegExp(backslash +
 				"(?:" +
-					"(" + nl + ") |" + // 1. Line continuation
-					"([0-9A-Fa-f]{1,6})" + space+ "? |" + // 2. character number
-					"(.) |" + // 3. backslash cancelling special meaning
-					"() |" + // 4. backslash at end of string
+					"(" + nl + ")|" + // 1. Line continuation
+					"([0-9A-Fa-f]{1,6})" + space + "?|" + // 2. character number
+					"(.)|" + // 3. backslash cancelling special meaning
+					"()$" + // 4. backslash at end of string
 				")");
 		}
 
@@ -837,12 +837,12 @@ Sanitizer.prototype.checkCss = function (text) {
 	text = this.decodeCharReferences(text);
 	text = text.replace(this.constants.cssDecodeRE, function() {
 				var c;
-				if (arguments[1] !== '' ) {
+				if (arguments[1] !== undefined ) {
 					// Line continuation
 					return '';
-				} else if (arguments[2] !== '' ) {
+				} else if (arguments[2] !== undefined ) {
 					c = Util.codepointToUtf8(parseInt(arguments[2], 16));
-				} else if (arguments[3] !== '' ) {
+				} else if (arguments[3] !== undefined ) {
 					c = arguments[3];
 				} else {
 					c = '\\';
