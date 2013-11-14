@@ -1511,7 +1511,7 @@ ParserTests.prototype.main = function ( options ) {
 	}
 
 	// Create a new parser environment
-	MWParserEnvironment.getParserEnv( parsoidConfig, null, 'en', null, null, function ( err, env ) {
+	MWParserEnvironment.getParserEnv( parsoidConfig, null, 'enwiki', null, null, function ( err, env ) {
 		// For posterity: err will never be non-null here, because we expect the WikiConfig
 		// to be basically empty, since the parserTests environment is very bare.
 		this.env = env;
@@ -1681,7 +1681,11 @@ ParserTests.prototype.processCase = function ( i, options ) {
 					if ( targetModes.length ) {
 
 						// Honor language option in parserTests.txt
-						var prefix = item.options.language || "en";
+						var prefix = item.options.language || 'enwiki';
+						if (!/wiki/.test(prefix)) {
+							// Convert to our enwiki.. format
+							prefix = prefix + 'wiki';
+						}
 						this.env.switchToConfig( prefix, function( err ) {
 							if ( err ) {
 								return this.env.errCB( err );

@@ -472,7 +472,7 @@ var fetch = function ( page, cb, options ) {
 		} );
 	};
 
-	var prefix = options.prefix || 'en';
+	var prefix = options.prefix || 'enwiki';
 
 	if ( options.apiURL ) {
 		prefix = 'customwiki';
@@ -519,7 +519,7 @@ if ( !module.parent ) {
 			'default': false
 		},
 		'prefix': {
-			description: 'Which wiki prefix to use; e.g. "en" for English wikipedia, "es" for Spanish, "mw" for mediawiki.org',
+			description: 'Which wiki prefix to use; e.g. "enwiki" for English wikipedia, "eswiki" for Spanish, "mediawikiwiki" for mediawiki.org',
 			'boolean': false,
 			'default': ''
 		},

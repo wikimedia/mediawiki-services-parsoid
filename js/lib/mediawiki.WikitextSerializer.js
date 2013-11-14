@@ -1895,7 +1895,7 @@ WSP.linkHandler = function(node, state, cb) {
 				// Fix up the the content string
 				// TODO: see if linkData can be cleaner!
 				if (linkData.content.string === undefined) {
-					linkData.content.string = target.value;
+					linkData.content.string = Util.decodeURI(Util.decodeEntities(target.value));
 				}
 			}
 

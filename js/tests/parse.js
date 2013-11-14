@@ -127,9 +127,9 @@ function dumpFlags() {
 			'default': 40
 		},
 		'prefix': {
-			description: 'Which wiki prefix to use; e.g. "en" for English wikipedia, "es" for Spanish, "mw" for mediawiki.org',
+			description: 'Which wiki prefix to use; e.g. "enwiki" for English wikipedia, "eswiki" for Spanish, "mediawikiwiki" for mediawiki.org',
 			'boolean': false,
-			'default': 'en'
+			'default': 'enwiki'
 		},
 		'apiURL': {
 			description: 'http path to remote API, e.g. http://en.wikipedia.org/w/api.php',
@@ -209,7 +209,7 @@ function dumpFlags() {
 	}
 
 	// Because selser builds on html2wt serialization,
-	// the html2wt flag should be automatically set when selser is set. 
+	// the html2wt flag should be automatically set when selser is set.
 	if (argv.selser) {
 		argv.html2wt = true;
 	}

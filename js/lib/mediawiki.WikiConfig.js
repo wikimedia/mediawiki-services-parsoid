@@ -2,7 +2,7 @@
  * Per-wiki config library for interfacing with MediaWiki.
  */
 
-var baseConfig = require( './baseconfig/en.json' ).query,
+var baseConfig = require( './baseconfig/enwiki.json' ).query,
 	JSUtils = require('./jsutils.js').JSUtils,
 	Util = require( './mediawiki.Util.js' ).Util,
 	request = require( 'request' );
@@ -159,7 +159,7 @@ function WikiConfig( resultConf, prefix, uri ) {
 				var groups = matches.slice(1);
 				for (var i=0; i<groups.length; i++) {
 					if (groups[i] !== undefined) {
-						// The prefix: 'en', 'de' etc
+						// The interwiki prefix: 'en', 'de' etc
 						var key = keys[i];
 						if (conf.interwikiMap[key].language) {
 							// Escape language interwikis with a colon

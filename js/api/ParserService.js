@@ -345,6 +345,23 @@ var parse = function ( env, req, res, cb, err, src_and_metadata ) {
 	}
 };
 
+
+/**
+ * Send a redirect response with optional code and a relative URL
+ *
+ * This is not strictly HTTP spec conformant, but works in most clients. More
+ * importantly, it works both behind proxies and on the internal network.
+ */
+function relativeRedirect(res, path, code) {
+	if (!code) {
+		code = 302; // moved temporarily
+	}
+	res.writeHead(code, {
+			'Location': path
+	});
+	res.end();
+}
+
 /* -------------------- web app access points below --------------------- */
 
 var app = express.createServer();
@@ -360,12 +377,12 @@ app.get('/', function(req, res){
 	res.write('<h3>Welcome to the alpha test web service for the ' +
 		'<a href="http://www.mediawiki.org/wiki/Parsoid">Parsoid project</a>.</h3>\n');
 	res.write( '<p>Usage: <ul><li>GET /title for the DOM. ' +
-		'Example: <strong><a href="/en/Main_Page">Main Page</a></strong></li>\n');
+		'Example: <strong><a href="/enwiki/Main_Page">Main Page</a></strong></li>\n');
 	res.write('<li>POST a DOM as parameter "content" to /title for the wikitext</li>\n');
 	res.write('</ul>\n');
 	res.write('<p>There are also some tools for experiments:\n<ul>\n');
 	res.write('<li>Round-trip test pages from the English Wikipedia: ' +
-		'<strong><a href="/_rt/en/Help:Magic">/_rt/Help:Magic</a></strong></li>\n');
+		'<strong><a href="/_rt/enwiki/Help:Magic">/_rt/Help:Magic</a></strong></li>\n');
 	res.write('<li><strong><a href="/_rtform/">WikiText -&gt; HTML DOM -&gt; WikiText round-trip form</a></strong></li>\n');
 	res.write('<li><strong><a href="/_wikitext/">WikiText -&gt; HTML DOM form</a></strong></li>\n');
 	res.write('<li><strong><a href="/_html/">HTML DOM -&gt; WikiText form</a></strong></li>\n');
@@ -443,9 +460,9 @@ app.get(/^\/robots.txt$/, function ( req, res ) {
 app.get( new RegExp( '^/((?:_rt|_rtve)/)?(' + getInterwikiRE() +
 				'):(.*)$' ), function ( req, res ) {
 	if ( req.params[0] ) {
-		res.redirect(  '/' + req.params[0] + req.params[1] + '/' + req.params[2]);
+		relativeRedirect( res,  '/' + req.params[0] + req.params[1] + '/' + req.params[2], 301);
 	} else {
-		res.redirect( '/' + req.params[1] + '/' + req.params[2]);
+		relativeRedirect( res, '/' + req.params[1] + '/' + req.params[2], 301);
 	}
 	res.end( );
 });
@@ -674,13 +691,13 @@ function wt2html( req, res, wt ) {
 
 				// Set the source
 				env.setPageSrcInfo( src_and_metadata );
+				var url = [ "", prefix,
+							encodeURIComponent( target ) +
+							"?oldid=" + env.page.meta.revision.revid
+						].join( "/" );
 
 				// Redirect to oldid
-				var url = [ "", prefix,
-					encodeURIComponent( target ) +
-					"?oldid=" + env.page.meta.revision.revid
-				].join( "/" );
-				res.redirect( url );
+				relativeRedirect( res, url );
 				console.warn( "redirected " + prefix + ':' + target + " to revision " + env.page.meta.revision.revid );
 			};
 		}

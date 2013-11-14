@@ -27,9 +27,8 @@ function ParsoidConfig( localSettings, options ) {
 
 	var wplist = wikipedias.split( '|' );
 	for ( var ix = 0; ix < wplist.length; ix++ ) {
-		this.interwikiMap[wplist[ix]] = 'http://' + wplist[ix] + '.wikipedia.org/w/api.php';
-		// Also add an alias that follows the Wikimedia db name convention
-		// (enwiki, dewiki etc).
+		// Set up aliases that follow the Wikimedia db name convention
+		// (enwiki, dewiki, enwikivoyage etc).
 		['pedia', 'voyage', 'books', 'source', 'quote'].forEach(function(suffix) {
 			var dbName = wplist[ix] + 'wiki' + (suffix === 'pedia' ? '' : suffix);
 			self.interwikiMap[dbName] = 'http://' + wplist[ix] + '.wiki' +
@@ -38,7 +37,7 @@ function ParsoidConfig( localSettings, options ) {
 	}
 
 	// Add mediawiki.org too
-	this.interwikiMap.mw = 'http://www.mediawiki.org/w/api.php';
+	this.interwikiMap.mediawikiwiki = 'http://www.mediawiki.org/w/api.php';
 
 	// Add localhost too
 	this.interwikiMap.localhost = 'http://localhost/wiki/api.php';
@@ -130,7 +129,7 @@ ParsoidConfig.prototype.usePHPPreProcessor = true;
 /**
  * @property {string} defaultWiki The wiki we should use for template, page, and configuration requests. We set this as a default because a configuration file (e.g. the API service's localsettings) might set this, but we will still use the appropriate wiki when requests come in for a different prefix.
  */
-ParsoidConfig.prototype.defaultWiki = 'en';
+ParsoidConfig.prototype.defaultWiki = 'enwiki';
 
 /**
  * @property {boolean} useSelser Whether to use selective serialization when serializing a DOM to Wikitext. This amounts to not serializing bits of the page that aren't marked as having changed, and requires some way of getting the original text of the page. See #SelectiveSerializer in lib/mediawiki.SelectiveSerializer.js
