@@ -8,7 +8,7 @@ CREATE TABLE commits (
 CREATE TABLE pages (
 	id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	title TEXT NOT NULL,
-	prefix CHAR( 2 ) NOT NULL DEFAULT 'en',
+	prefix CHAR( 24 ) NOT NULL DEFAULT 'enwiki',
 	num_fetch_errors INTEGER NOT NULL DEFAULT 0,
 	latest_score INTEGER NOT NULL DEFAULT 0,
 	latest_stat INTEGER NULL,
