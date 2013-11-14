@@ -1076,7 +1076,7 @@ WSP.escapeTplArgWT = function(state, arg, opts) {
 		// special case to serialize back the entity's source.
 		if (t.constructor === pd.TagTk) {
 			var type = t.getAttribute("typeof");
-			if (type === "mw:Entity") {
+			if (type === "mw:Entity" || type === "mw:Placeholder") {
 				i += 2;
 				buf.push(arg.substring(da.tsr[0], tokens[i].dataAttribs.tsr[1]));
 				continue;
