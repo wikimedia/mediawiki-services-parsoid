@@ -977,7 +977,7 @@ var GET_failedFetches = function( req, res ) {
 				res.write('<ul>');
 				for (var i = 0; i < n; i++) {
 					var prefix = rows[i].prefix, title = rows[i].title;
-					var url = prefix + '.wikipedia.org/wiki/' + title;
+					var url = prefix.replace( /wiki$/, '' ) + '.wikipedia.org/wiki/' + title;
 					var name = prefix + ':' + title;
 					res.write('<li><a href="http://' +
 							  encodeURI(url).replace('&', '&amp;') + '">' +
@@ -1010,7 +1010,7 @@ var GET_crashers = function( req, res ) {
 				for ( var i = 0; i < n; i++ ) {
 					var prefix = rows[i].prefix,
 						title = rows[i].title;
-					var url = prefix + '.wikipedia.org/wiki/' + title;
+					var url = prefix.replace( /wiki$/, '' ) + '.wikipedia.org/wiki/' + title;
 					var name = prefix + ':' + title;
 					var commitHash = rows[i].claim_hash;
 					res.write( '<li>' + commitHash + ': <a href="http://' +
