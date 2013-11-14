@@ -66,7 +66,7 @@ Tracer.prototype = {
 var MWParserEnvironment = function ( parsoidConfig, wikiConfig ) {
 	// page information
 	this.page = {
-		name: 'Main page',
+		name: 'Main Page',
 		relativeLinkPrefix: '',
 		id: null,
 		src: null,
