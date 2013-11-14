@@ -2974,7 +2974,7 @@ WSP.tagHandlers = {
 		sepnls: {
 			before: function (node, otherNode) {
 				var type = node.getAttribute('rel');
-				if (/(?:^|\s)mw:PageProp\/Category(?=$|\s)/.test(type) &&
+				if (/(?:^|\s)mw:(PageProp|WikiLink)\/Category(?=$|\s)/.test(type) &&
 						!node.getAttribute('data-parsoid')) {
 					// Fresh category link: Serialize on its own line
 					return {min: 1};
@@ -2984,7 +2984,7 @@ WSP.tagHandlers = {
 			},
 			after: function (node, otherNode) {
 				var type = node.getAttribute('rel');
-				if (/(?:^|\s)mw:PageProp\/Category(?=$|\s)/.test(type) &&
+				if (/(?:^|\s)mw:(PageProp|WikiLink)\/Category(?=$|\s)/.test(type) &&
 						!node.getAttribute('data-parsoid') &&
 						otherNode.nodeName !== 'BODY')
 				{
