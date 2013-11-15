@@ -200,18 +200,22 @@ function WikiConfig( resultConf, prefix, uri ) {
 	// List of magic word aliases with $1 in their names, indexed by canonical name.
 	this._interpolatedMagicWordAliases = {};
 
-	for ( var mwx = 0; mwx < mws.length; mwx++ ) {
-		mw = mws[mwx];
+	for ( var j = 0; j < mws.length; j++ ) {
+		mw = mws[j];
 		aliases = mw.aliases;
 		if ( aliases.length > 0 ) {
 			this.mwAliases[mw.name] = [];
 			this._interpolatedMagicWordAliases[mw.name] = [];
 		}
-		for ( var mwax = 0; mwax < aliases.length; mwax++ ) {
-			var alias = aliases[mwax];
+		for ( var k = 0; k < aliases.length; k++ ) {
+			var alias = aliases[k];
+
+			this.mwAliases[mw.name].push( alias );
 			if ( mw['case-sensitive'] !== '' ) {
 				alias = alias.toLowerCase();
+				this.mwAliases[mw.name].push( alias );
 			}
+			this.magicWords[alias] = mw.name;
 
 			if ( alias.match( /\$1/ ) !== null ) {
 				// This is a named option. Add it to the array.
@@ -219,8 +223,6 @@ function WikiConfig( resultConf, prefix, uri ) {
 				this._interpolatedMagicWords.push( alias );
 				this._interpolatedMagicWordAliases[mw.name].push( alias );
 			}
-			this.magicWords[alias] = mw.name;
-			this.mwAliases[mw.name].push( alias );
 		}
 		this._mwRegexps[mw.name] =
 			new RegExp( '^(' +
@@ -379,10 +381,28 @@ WikiConfig.prototype.getMagicWordIdFromAlias = function ( alias ) {
 };
 
 /**
+ * Get canonical magicword name for the input word
+ *
+ * @param {string} word
+ * @returns {string}
+ */
+WikiConfig.prototype.magicWordCanonicalName = function ( word ) {
+	return this.magicWords[word] || this.magicWords[word.toLowerCase()] || null;
+};
+
+/**
  * Check if a string is a recognized magic word
  */
 WikiConfig.prototype.isMagicWord = function ( word ) {
-	return this.magicWords[word] || this.magicWords[word.toLowerCase()];
+	return this.magicWordCanonicalName(word) !== null;
+};
+
+/**
+ * Convert the internal canonical magic word name to the wikitext alias
+ */
+WikiConfig.prototype.getMagicWordWT = function(word) {
+	var aliases = this.mwAliases[word];
+	return (aliases && aliases.length > 0) ? aliases[0] : null;
 };
 
 /**
