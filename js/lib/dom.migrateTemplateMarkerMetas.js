@@ -33,7 +33,7 @@ function migrateTemplateMarkerMetas( node, env ) {
 
 			// We can migrate the meta-tag across this node's end-tag barrier only
 			// if that end-tag is zero-width.
-			tagWidth = Consts.WT_TagWidths[node.nodeName.toLowerCase()];
+			tagWidth = Consts.WT_TagWidths[node.nodeName];
 			if (tagWidth && tagWidth[0] === 0 && !DU.isLiteralHTMLNode(node)) {
 				node.parentNode.insertBefore(firstChild, node);
 			}
@@ -45,7 +45,7 @@ function migrateTemplateMarkerMetas( node, env ) {
 
 			// We can migrate the meta-tag across this node's end-tag barrier only
 			// if that end-tag is zero-width.
-			tagWidth = Consts.WT_TagWidths[node.nodeName.toLowerCase()];
+			tagWidth = Consts.WT_TagWidths[node.nodeName];
 			if (tagWidth && tagWidth[1] === 0 && !DU.isLiteralHTMLNode(node)) {
 				node.parentNode.insertBefore(lastChild, node.nextSibling);
 			}

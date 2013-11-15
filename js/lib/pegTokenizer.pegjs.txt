@@ -861,7 +861,7 @@ autoref
            new KV('mw:content', [ref, identifier].join(' ')),
            new KV( 'typeof', 'mw:ExtLink/' + ref )
         ],
-        {tsr: [pos0, pos]})
+        {stx: "protocol", tsr: [pos0, pos]})
     ];
 }
 
@@ -893,7 +893,7 @@ isbn
            new KV('mw:content', 'ISBN ' + isbn),
            new KV('typeof', 'mw:WikiLink/ISBN')
         ],
-        {tsr: [pos0, pos]})
+        {stx: "protocol", tsr: [pos0, pos]})
     ];
 }
 
