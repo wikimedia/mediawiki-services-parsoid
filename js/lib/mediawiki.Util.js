@@ -876,6 +876,7 @@ var Util = {
 			content.concat([new pd.EOFTk()]), {
 				pipelineType: "tokens/x-mediawiki/expanded",
 				pipelineOpts: {
+					attrExpansion: true,
 					inBlockToken: true,
 					noPre: true,
 					wrapTemplates: true
