@@ -227,7 +227,11 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			attrs = [];
 			if ( this.trace ) { console.warn('inserting shadow meta for ' + tName); }
 			attrs.push({name: "typeof", value: "mw:StartTag"});
-			attrs.push({name: "data-stag", value: tName + ':' + dataAttribs.tagId});
+			var stag = tName + ":" + dataAttribs.tagId;
+			if ( dataAttribs.tsr ) {
+				stag += ":" + dataAttribs.tsr.join( "," );
+			}
+			attrs.push({ name: "data-stag", value: stag });
 			this.emit('token', { type: 'Comment', data: JSON.stringify({
 				"@type": "mw:shadow",
 				attrs: attrs

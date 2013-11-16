@@ -76,7 +76,7 @@ function markTreeBuilderFixups(document, env) {
 					if (metaType === "mw:StartTag") {
 						var dataStag = c.getAttribute('data-stag'),
 							data = dataStag.split(":"),
-							stagTsr = data[1].split(","),
+							stagTsr = data[2] ? data[2].split(",") : null,
 							expectedName = data[0];
 						var prevSibling = c.previousSibling;
 						if (( prevSibling && prevSibling.nodeName.toLowerCase() !== expectedName ) ||
@@ -105,7 +105,7 @@ function markTreeBuilderFixups(document, env) {
 	// the HTML tree builder
 	function findAutoInsertedTags(node) {
 		var c = node.firstChild,
-			sibling, expectedName;
+			sibling, expectedName, reg;
 
 		while (c !== null) {
 
@@ -165,10 +165,12 @@ function markTreeBuilderFixups(document, env) {
 						}
 
 						expectedName = cNodeName + ":" + dp.tagId;
+						reg = new RegExp( "^" + expectedName + "(:.*)?$" );
+
 						if (fc &&
 							DU.isMarkerMeta(fc, "mw:StartTag") &&
-							fc.getAttribute('data-stag') === expectedName)
-						{
+							reg.test( fc.getAttribute('data-stag') )
+						) {
 							// Strip start-tag marker metas that has its matching node
 							DU.deleteNode(fc);
 						} else {
