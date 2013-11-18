@@ -38,6 +38,8 @@ function ParsoidConfig( localSettings, options ) {
 
 	// Add mediawiki.org too
 	this.interwikiMap.mediawikiwiki = 'http://www.mediawiki.org/w/api.php';
+	// Also commons
+	this.interwikiMap.commonswiki = 'http://commons.wikimedia.org/w/api.php';
 
 	// Add localhost too
 	this.interwikiMap.localhost = 'http://localhost/wiki/api.php';
