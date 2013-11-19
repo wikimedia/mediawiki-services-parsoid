@@ -2718,6 +2718,8 @@ WSP.tagHandlers = {
 						}
 					} else if ( node.data.parsoid.magicSrc ) {
 						out = node.data.parsoid.magicSrc;
+					} else {
+						out = state.env.conf.wiki.getMagicWordWT(switchType[1]) || '';
 					}
 					cb(out, node);
 				}

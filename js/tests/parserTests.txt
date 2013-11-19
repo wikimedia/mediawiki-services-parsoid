@@ -18741,14 +18741,48 @@ parsoid=html2wt
 <p><i>A</i><b data-parsoid='{}'><i data-parsoid='{}'>B</i></b></p>
 !! end
 
+#------------------------------------
+# End of I/B quote minimization tests
+#------------------------------------
+
 !!test
-5. Bug 54262: New entities
+Bug 54262: New entities
 !! options
 parsoid=html2wt
 !! input
 foo
 !! result
 <span typeof="mw:Entity">foo</span>
+!! end
+
+## Note that there is no wikitext output for 'unknownproperty' ##
+## Unknown magic words are silently dropped ##
+
+!! test
+Magic words
+!! options
+parsoid=html2wt
+!! input
+__TOC__
+__NOTOC__
+__FORCETOC__
+__INDEX__
+__NOINDEX__
+__NOGALLERY__
+__NOEDITSECTION__
+__NOTITLECONVERT__
+__NOCONTENTCONVERT__
+!! result
+<meta property='mw:PageProp/toc' />
+<meta property='mw:PageProp/notoc' />
+<meta property='mw:PageProp/forcetoc' />
+<meta property='mw:PageProp/index' />
+<meta property='mw:PageProp/noindex' />
+<meta property='mw:PageProp/nogallery' />
+<meta property='mw:PageProp/noeditsection' />
+<meta property='mw:PageProp/notitleconvert' />
+<meta property='mw:PageProp/nocontentconvert' />
+<meta property='mw:PageProp/unknownproperty' />
 !! end
 
 # -----------------------------------------------------------------
