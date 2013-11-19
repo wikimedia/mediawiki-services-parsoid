@@ -5,6 +5,25 @@ var Consts = require('./mediawiki.wikitext.constants.js').WikitextConstants,
 	Util = require('./mediawiki.Util.js').Util,
 	dumpDOM = require('./dom.dumper.js').dumpDOM;
 
+// Helper function to detect when an A-node uses [[..]] style wikilink syntax
+// mw:ExtLink rel-type is not sufficient anymore since [[..]] style links can
+// also be tagged ext-links
+function usesWikiLinkSyntax(aNode, dp) {
+	return aNode.getAttribute("rel") === "mw:WikiLink" ||
+		(dp.stx && dp.stx !== "url" && dp.stx !== "protocol");
+}
+
+function usesExtLinkSyntax(aNode, dp) {
+	return aNode.getAttribute("rel") === "mw:ExtLink" &&
+		(!dp.stx || (dp.stx !== "url" && dp.stx !== "protocol"));
+}
+
+function usesURLLinkSyntax(aNode, dp) {
+	return aNode.getAttribute("rel") === "mw:ExtLink" &&
+		dp.stx &&
+		(dp.stx === "url" || dp.stx === "protocol");
+}
+
 /* ------------------------------------------------------------------------
  * TSR = "Tag Source Range".  Start and end offsets giving the location
  * where the tag showed up in the original source.
@@ -79,8 +98,7 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 		if (!dp) {
 			return null;
 		} else {
-			var aType = node.getAttribute("rel");
-			if (aType === "mw:WikiLink" &&
+			if (usesWikiLinkSyntax(node, dp) &&
 				!DU.isExpandedAttrsMetaType(node.getAttribute("typeof")))
 			{
 				if (dp.stx === "piped") {
@@ -93,8 +111,10 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 				} else {
 					return [2, 2];
 				}
-			} else if (aType === "mw:ExtLink" && dp.tsr && dp.stx !== 'url') {
+			} else if (dp.tsr && usesExtLinkSyntax(node, dp)) {
 				return [dp.targetOff - dp.tsr[0], 1];
+			} else if (usesURLLinkSyntax(node, dp)) {
+				return [0, 0];
 			} else {
 				return null;
 			}
@@ -111,19 +131,19 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 				etWidth = widths[1];
 			}
 		} else {
-			var nodeName = node.nodeName.toLowerCase();
+			var nodeName = node.nodeName;
 			// 'tr' tags not in the original source have zero width
-			if (nodeName === 'tr' && !dp.startTagSrc) {
+			if (nodeName === 'TR' && !dp.startTagSrc) {
 				stWidth = 0;
 				etWidth = 0;
 			} else {
 				var wtTagWidth = Consts.WT_TagWidths[nodeName];
 				if (stWidth === null) {
 					// we didn't have a tsr to tell us how wide this tag was.
-					if (nodeName === 'a') {
+					if (nodeName === 'A') {
 						wtTagWidth = computeATagWidth(node, dp);
 						stWidth = wtTagWidth ? wtTagWidth[0] : null;
-					} else if (nodeName === 'li' || nodeName === 'dd') {
+					} else if (nodeName === 'LI' || nodeName === 'DD') {
 						stWidth = computeListEltWidth(node, nodeName);
 					} else if (wtTagWidth) {
 						stWidth = wtTagWidth[0];
@@ -364,13 +384,13 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 				 * we don't have to worry about the above decisions and checks.
 				 * ----------------------------------------------------------------- */
 
-				if (DU.hasNodeName(child, "a") &&
-					child.getAttribute("rel") === "mw:WikiLink" &&
+				if (child.nodeName === 'A' &&
+					usesWikiLinkSyntax(child, dp) &&
 					dp.stx !== "piped")
 				{
 					/* -------------------------------------------------------------
 					 * This check here eliminates artifical DSR mismatches on content
-					 * text of the a-node because of entity expansion, etc.
+					 * text of the A-node because of entity expansion, etc.
 					 *
 					 * Ex: [[7%25 solution]] will be rendered as:
 					 *    <a href=....>7% solution</a>
