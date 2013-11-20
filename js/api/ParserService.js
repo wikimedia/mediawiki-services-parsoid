@@ -624,7 +624,8 @@ function wt2html( req, res, wt ) {
 					   env.conf.parsoid.allowCORS );
 	}
 
-	var tmpCb, oldid = null;
+	var tmpCb,
+		oldid = req.query.oldid || null;
 	if ( wt ) {
 		wt = wt.replace( /\r/g, '' );
 
@@ -658,15 +659,14 @@ function wt2html( req, res, wt ) {
 			}
 		};
 
-		if ( !res.locals.pageName ) {
+		if ( !res.locals.pageName || !oldid ) {
 			// no pageName supplied; don't fetch the page source
 			tmpCb( null, wt );
 			return;
 		}
 
 	} else {
-		if ( req.query.oldid ) {
-			oldid = req.query.oldid;
+		if ( oldid ) {
 			if ( !req.headers.cookie ) {
 				res.setHeader( 'Cache-Control', 's-maxage=2592000' );
 			} else {
