@@ -133,6 +133,7 @@ init = function(handler, addAnyHandler) {
 		handler.manager.addTransform(handler.onAny.bind(handler),
 			"PreHandler:onAny", handler.anyRank, 'any');
 	}
+	handler.inPre = false;
 };
 
 PreHandler.prototype.moveToIgnoreState = function() {

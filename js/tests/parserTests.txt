@@ -1608,6 +1608,17 @@ foo
 
 !! end
 
+!! test
+HTML pre followed by indent-pre
+!! input
+<pre>foo</pre>
+ bar
+!! result
+<pre>foo</pre>
+<pre>bar
+</pre>
+!! end
+
 !!test
 Templates: Indent-Pre: 1a. Templates that break a line should suppress <pre>
 !!input
