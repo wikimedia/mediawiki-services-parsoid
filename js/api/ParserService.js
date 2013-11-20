@@ -374,20 +374,16 @@ app.use(express.bodyParser({maxFieldsSize: 15 * 1024 * 1024}));
 
 app.get('/', function(req, res){
 	res.write('<html><body>\n');
-	res.write('<h3>Welcome to the alpha test web service for the ' +
-		'<a href="http://www.mediawiki.org/wiki/Parsoid">Parsoid project</a>.</h3>\n');
-	res.write( '<p>Usage: <ul><li>GET /title for the DOM. ' +
-		'Example: <strong><a href="/enwiki/Main_Page">Main Page</a></strong></li>\n');
-	res.write('<li>POST a DOM as parameter "content" to /title for the wikitext</li>\n');
-	res.write('</ul>\n');
-	res.write('<p>There are also some tools for experiments:\n<ul>\n');
+	res.write('<h3>Welcome to the <a href="https://www.mediawiki.org/wiki/Parsoid">Parsoid</a> web service.</h3>\n');
+	res.write( '<p>See <a href="https://www.mediawiki.org/wiki/Parsoid#The_Parsoid_web_API">the API documentation on mediawiki.org</a>. ' );
+	res.write('<p>There are also some convenient tools for experiments. These are <em>not</em> part of the public API.\n<ul>\n');
 	res.write('<li>Round-trip test pages from the English Wikipedia: ' +
-		'<strong><a href="/_rt/enwiki/Help:Magic">/_rt/Help:Magic</a></strong></li>\n');
+		'<strong><a href="/_rt/mediawikiwiki/Parsoid">/_rt/Parsoid</a></strong></li>\n');
 	res.write('<li><strong><a href="/_rtform/">WikiText -&gt; HTML DOM -&gt; WikiText round-trip form</a></strong></li>\n');
 	res.write('<li><strong><a href="/_wikitext/">WikiText -&gt; HTML DOM form</a></strong></li>\n');
 	res.write('<li><strong><a href="/_html/">HTML DOM -&gt; WikiText form</a></strong></li>\n');
 	res.write('</ul>\n');
-	res.write('<p>We are currently focusing on round-tripping of basic formatting like inline/bold, headings, lists, tables and links. Templates, citations and thumbnails are not expected to round-trip properly yet. <strong>Please report issues you see at <a href="http://www.mediawiki.org/w/index.php?title=Talk:Parsoid/Todo&action=edit&section=new">:mw:Talk:Parsoid/Todo</a>. Thanks!</strong></p>\n');
+	res.write('\n');
 	res.end('</body></html>');
 });
 
