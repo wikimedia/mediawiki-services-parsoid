@@ -286,6 +286,9 @@ function getCacheKey(cacheType, options) {
 	if ( options.inTemplate ) {
 		cacheType += '::inTemplate';
 	}
+	if ( options.attrExpansion ) {
+		cacheType += '::attrExpansion';
+	}
 	if ( options.extTag ) {
 		cacheType += '::'+options.extTag;
 	}

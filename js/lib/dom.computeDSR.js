@@ -24,6 +24,33 @@ function usesURLLinkSyntax(aNode, dp) {
 		(dp.stx === "url" || dp.stx === "protocol");
 }
 
+function acceptableInconsistency(opts, node, cs, s) {
+	/**
+	 * 1. For wikitext URL links, suppress cs-s diff warnings because
+	 *    the diffs can come about because of various reasions since the
+	 *    canonicalized/decoded href will become the a-link text whose width
+	 *    will not match the tsr width of source wikitext
+	 *
+	 *    (a) urls with encoded chars (ex: 'http://example.com/?foo&#61;bar')
+	 *    (b) non-canonical spaces (ex: 'RFC  123' instead of 'RFC 123')
+	 *
+	 * 2. We currently dont have source offsets for attributes.
+	 *    So, we get a lot of spurious complaints about cs/s mismatch
+	 *    when DSR computation hit the <body> tag on this attribute.
+	 *    opts.attrExpansion tell us when we are processing an attribute
+	 *    and let us suppress the mismatch warning on the <body> tag.
+	 *
+	 * 3. Other scenarios .. to be added
+	 */
+	if (node.nodeName === 'A' && usesURLLinkSyntax(node, node.data.parsoid)) {
+		return true;
+	} else if (opts.attrExpansion && node.nodeName === 'BODY') {
+		return true;
+	} else {
+		return false;
+	}
+}
+
 /* ------------------------------------------------------------------------
  * TSR = "Tag Source Range".  Start and end offsets giving the location
  * where the tag showed up in the original source.
@@ -47,7 +74,7 @@ function usesURLLinkSyntax(aNode, dp) {
  * [s,e) -- if defined, start/end position of wikitext source that generated
  *          node's subtree
  * --------------------------------------------------------------------------- */
-function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
+function computeNodeDSR(env, node, s, e, dsrCorrection, opts) {
 	function computeListEltWidth(li, nodeName) {
 		if (!li.previousSibling && li.firstChild) {
 			var n = li.firstChild.nodeName.toLowerCase();
@@ -157,13 +184,13 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 	}
 
 	function trace() {
-		if (traceDSR) {
+		if (opts.traceDSR) {
 			Util.debug_pp.apply(Util, ['', ''].concat([].slice.apply(arguments)));
 		}
 	}
 
 	function traceNode(node, i, cs, ce) {
-		if (traceDSR) {
+		if (opts.traceDSR) {
 			trace(
 				"-- Processing <", node.parentNode.nodeName, ":", i,
 				">=", DU.isElt(node) ? '' : (DU.isText(node) ? '#' : '!'),
@@ -343,7 +370,7 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 							stWidth = tsr[1] - tsr[0];
 						}
 
-						if (traceDSR) {
+						if (opts.traceDSR) {
 							trace("TSR: ", tsr, "; cs: ", cs, "; ce: ", ce);
 						}
 					} else if (s && child.previousSibling === null) {
@@ -408,7 +435,7 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 					// nested subtree that could account for the DSR span.
 					newDsr = [ccs, cce];
 				} else {
-					newDsr = computeNodeDSR(env, child, ccs, cce, dsrCorrection, traceDSR);
+					newDsr = computeNodeDSR(env, child, ccs, cce, dsrCorrection, opts);
 				}
 
 				// Min(child-dom-tree dsr[0] - tag-width, current dsr[0])
@@ -427,7 +454,7 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 
 			if (cs !== null || ce !== null) {
 				dp.dsr = [cs, ce, stWidth, etWidth];
-				if (traceDSR) {
+				if (opts.traceDSR) {
 					trace("-- UPDATING; ", child.nodeName, " with [", cs, ",", ce, "]; typeof: ", cTypeOf);
 					// Set up 'dbsrc' so we can debug this
 					dp.dbsrc = env.page.src.substring(cs, ce);
@@ -460,7 +487,7 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 						}
 
 						// Update and move right
-						if (traceDSR) {
+						if (opts.traceDSR) {
 							trace("CHANGING ce.start of ", sibling.nodeName, " from ", siblingDP.dsr[0], " to ", newCE);
 							// debug info
 							if (siblingDP.dsr[1]) {
@@ -502,7 +529,7 @@ function computeNodeDSR(env, node, s, e, dsrCorrection, traceDSR) {
 	}
 
 	// Detect errors
-	if (s !== null && s !== undefined && cs !== s) {
+	if (s !== null && s !== undefined && cs !== s && !acceptableInconsistency(opts, node, cs, s)) {
 		console.warn("WARNING: DSR inconsistency: cs/s mismatch for node: " +
 			node.nodeName + " s: " + s + "; cs: " + cs);
 	}
@@ -527,8 +554,9 @@ function computeDSR(root, env, options) {
 	if (traceDSR) { console.warn("------- tracing DSR computation -------"); }
 
 	// The actual computation buried in trace/debug stmts.
-	var body = root.body;
-	computeNodeDSR(env, body, startOffset, endOffset, 0, traceDSR);
+	var body = root.body,
+		opts = { traceDSR: traceDSR, attrExpansion: options.attrExpansion };
+	computeNodeDSR(env, body, startOffset, endOffset, 0, opts);
 
 	var dp = DU.getDataParsoid( body );
 	dp.dsr = [startOffset, endOffset, 0, 0];
