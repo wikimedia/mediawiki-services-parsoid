@@ -16942,41 +16942,48 @@ parsoid
 
 !! test
 Headings: 1. Nested inside html
+(New headings and existing headings are handled differently)
 !! options
-parsoid
+parsoid=html2wt
 !! input
+= =foo= =
+
+== =foo= ==
+
+=== =foo= ===
+
 =<nowiki>=foo=</nowiki>=
-
 ==<nowiki>=foo=</nowiki>==
-
 ===<nowiki>=foo=</nowiki>===
-
 ====<nowiki>=foo=</nowiki>====
-
 =====<nowiki>=foo=</nowiki>=====
-
 ======<nowiki>=foo=</nowiki>======
+
 !! result
-<h1><span typeof="mw:Nowiki">=foo=</span></h1>
-<h2><span typeof="mw:Nowiki">=foo=</span></h2>
-<h3><span typeof="mw:Nowiki">=foo=</span></h3>
-<h4><span typeof="mw:Nowiki">=foo=</span></h4>
-<h5><span typeof="mw:Nowiki">=foo=</span></h5>
-<h6><span typeof="mw:Nowiki">=foo=</span></h6>
+<h1>=foo=</h1>
+<h2>=foo=</h2>
+<h3>=foo=</h3>
+
+<h1 data-parsoid='{}'>=foo=</h1>
+<h2 data-parsoid='{}'>=foo=</h2>
+<h3 data-parsoid='{}'>=foo=</h3>
+<h4 data-parsoid='{}'>=foo=</h4>
+<h5 data-parsoid='{}'>=foo=</h5>
+<h6 data-parsoid='{}'>=foo=</h6>
 !!end
 
 !! test
 Headings: 2. Outside heading nest on a single line <h1>foo</h1>*bar
 !! options
-parsoid
+parsoid=html2wt
 !! input
-=foo=
+= foo =
 <nowiki>*</nowiki>bar
 
-=foo=
+= foo =
 =bar
 
-=foo=
+= foo =
 <nowiki>=bar=</nowiki>
 !! result
 <h1>foo</h1>*bar
@@ -16987,9 +16994,9 @@ parsoid
 !! test
 Headings: 3. Nested inside html with wikitext split by html tags
 !! options
-parsoid
+parsoid=html2wt
 !! input
-=='''bold'''<nowiki>foo=</nowiki>=
+= ='''bold'''<nowiki>foo=</nowiki> =
 !! result
 <h1>=<b>bold</b><span typeof="mw:Nowiki">foo=</span></h1>
 !!end
@@ -16997,23 +17004,23 @@ parsoid
 !! test
 Headings: 4a. No escaping needed (testing just h1 and h2)
 !! options
-parsoid
+parsoid=html2wt
 !! input
-==foo=
+= =foo =
 
-=foo==
+= foo= =
 
 = =foo= =
 
-==foo= bar=
+= =foo= bar =
 
-===foo==
+== =foo ==
 
-==foo===
+== foo= ==
 
-=''=''foo==
+= ''=''foo= =
 
-=<nowiki>=</nowiki>=
+= <nowiki>=</nowiki> =
 !! result
 <h1>=foo</h1>
 <h1>foo=</h1>
@@ -17028,7 +17035,7 @@ parsoid
 !! test
 Headings: 4b. No escaping needed (inside p-tags)
 !! options
-parsoid
+parsoid=html2wt
 !! input
 ===
 =foo= x
@@ -18624,6 +18631,25 @@ parsoid=html2wt
 <li> bar</li>
 <li><span> baz</span></li>
 </ul>
+!! end
+
+!! test
+Headings: Add space before/after == (Bug 51744)
+!! options
+parsoid=html2wt
+!! input
+== foo ==
+
+== bar ==
+
+== baz ==
+
+== <span> baz</span> ==
+!! result
+<h2>foo</h2>
+<h2> bar</h2>
+<h2>baz </h2>
+<h2><span> baz</span></h2>
 !! end
 
 !! test

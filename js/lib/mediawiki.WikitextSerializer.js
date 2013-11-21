@@ -152,6 +152,12 @@ WEHP.isFirstContentNode = function(node) {
 };
 
 WEHP.headingHandler = function(headingNode, state, text, opts) {
+	// Since we are now adding space around '=' chars in new headings
+	// there is no need to escape '=' chars in text.
+	if (DU.isNewElt(headingNode)) {
+		return false;
+	}
+
 	// Only "=" at the extremities trigger escaping
 	if (opts.isLastChild && DU.isText(headingNode.firstChild)) {
 		var line = state.currLine.text;
@@ -2138,7 +2144,17 @@ function id(v) {
 function buildHeadingHandler(headingWT) {
 	return {
 		handle: function(node, state, cb) {
-			cb(headingWT, node);
+			// For new elements, for prettier wikitext serialization,
+			// emit a space after the last '=' char.
+			var space = '';
+			if (DU.isNewElt(node)) {
+				var fc = node.firstChild;
+				if (fc && (!DU.isText(fc) || !fc.nodeValue.match(/^\s/))) {
+					space = ' ';
+				}
+			}
+
+			cb(headingWT + space, node);
 			if (node.childNodes.length) {
 				var headingHandler = state.serializer
 					.wteHandlers.headingHandler.bind(state.serializer.wteHandlers, node);
@@ -2147,7 +2163,17 @@ function buildHeadingHandler(headingWT) {
 				// Deal with empty headings
 				cb('<nowiki/>', node);
 			}
-			cb(headingWT, node);
+
+			// For new elements, for prettier wikitext serialization,
+			// emit a space before the first '=' char.
+			space = '';
+			if (DU.isNewElt(node)) {
+				var lc = node.lastChild;
+				if (lc && (!DU.isText(lc) || !lc.nodeValue.match(/\s$/))) {
+					space = ' ';
+				}
+			}
+			cb(space + headingWT, node);
 		},
 		sepnls: {
 			before: function (node, otherNode) {
