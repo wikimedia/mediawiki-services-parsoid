@@ -42,7 +42,6 @@ add("wt2html", "Extra newlines between heading and content are swallowed");
 add("wt2html", "Non-word characters don't terminate tag names (bug 17663, 40670, 52022)");
 add("wt2html", "Bare pipe character (bug 52363)");
 add("wt2html", "Bare pipe character from a template (bug 52363)");
-add("wt2html", "Entities inside <nowiki>");
 add("wt2html", "Comment on its own line post-expand");
 add("wt2html", "Comment on its own line post-expand with non-significant whitespace");
 add("wt2html", "Bug 52763: Preformatted in <blockquote>");

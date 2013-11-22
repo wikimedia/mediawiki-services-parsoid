@@ -731,20 +731,29 @@ Sanitizer.prototype.onAny = function ( token ) {
 		if (attribs && attribs.length > 0) {
 			var newToken = token.clone();
 			attribs = newToken.attribs;
+
+			// is this an htmlpre?
+			var p = newToken.getAttribute( "property" );
+			var htmlpre = newToken.name === "pre" && p && p.match( /^mw:html$/ );
+
 			for (i = 0, l = attribs.length; i < l; i++ ) {
 				kv = attribs[i];
 				if ( kv.k.constructor !== String || kv.v.constructor !== String ) {
 					k = kv.k;
 					v = kv.v;
 
-					var newKV = Util.clone(kv);
-					if ( k.constructor === Array ) {
-						newKV.k = Util.tokensToString ( k );
+					// keep html-pre content tokens for later use
+					if ( !( htmlpre && k === "content" ) ) {
+						var newKV = Util.clone(kv);
+						if ( k.constructor === Array ) {
+							newKV.k = Util.tokensToString ( k );
+						}
+						if ( v.constructor === Array ) {
+							newKV.v = Util.tokensToString ( v );
+						}
+						attribs[i] = newKV;
 					}
-					if ( v.constructor === Array ) {
-						newKV.v = Util.tokensToString ( v );
-					}
-					attribs[i] = newKV;
+
 				}
 			}
 

@@ -28,7 +28,7 @@
  + --------------+-----------------+---------------+--------------------------+
  | SOL           | --- nl      --> | SOL           | purge                    |
  | SOL           | --- eof     --> | SOL           | purge                    |
- | SOL           | --- ws      --> | PRE|SOL       | save ws token|purge(#,##)|
+ | SOL           | --- ws      --> | PRE           | save whitespace token(##)|
  | SOL           | --- sol-tr  --> | SOL           | TOKS << tok              |
  | SOL           | --- other   --> | IGNORE        | purge                    |
  + --------------+-----------------+---------------+--------------------------+
@@ -55,10 +55,6 @@
  | IGNORE        | --- eof     --> | SOL           | purge                    |
  + --------------+-----------------+---------------+--------------------------+
 
- # We're being careful to avoid a situation where we generate a pre when we're
-   already inside a pre. If we've seen an open pre tag (marked as inPre), stay
-   in SOL and purge. Otherwise, save the whitespace token and transition to PRE.
-
  ## In these states, check if the whitespace token is a single space or has
    additional chars (white-space or non-whitespace) -- if yes, slice it off
    and pass it through the FSM
@@ -67,6 +63,7 @@
 
 var Util = require('./mediawiki.Util.js').Util,
     defines = require('./mediawiki.parser.defines.js');
+
 // define some constructor shortcuts
 var CommentTk = defines.CommentTk,
     EOFTk = defines.EOFTk,
@@ -133,7 +130,6 @@ init = function(handler, addAnyHandler) {
 		handler.manager.addTransform(handler.onAny.bind(handler),
 			"PreHandler:onAny", handler.anyRank, 'any');
 	}
-	handler.inPre = false;
 };
 
 PreHandler.prototype.moveToIgnoreState = function() {
@@ -260,8 +256,6 @@ PreHandler.prototype.onNewline = function (token, manager, cb) {
 };
 
 PreHandler.prototype.onEnd = function (token, manager, cb) {
-	this.inPre = false;
-
 	if (this.state !== PreHandler.STATE_IGNORE) {
 		console.error("!ERROR! Not IGNORE! Cannot get here: " + this.state + "; " + JSON.stringify(token));
 		init(this, false);
@@ -288,13 +282,6 @@ function getUpdatedPreTSR(tsr, token) {
 }
 
 PreHandler.prototype.onAny = function ( token, manager, cb ) {
-
-	if ( isPre( token, TagTk ) ) {
-		this.inPre = true;
-	} else if ( isPre( token, EndTagTk ) ) {
-		this.inPre = false;
-	}
-
 	if (this.trace) {
 		if (this.debug) { console.warn("----------"); }
 		console.warn("T:pre:any: " + PreHandler.STATE_STR[this.state] + " : " + JSON.stringify(token));
@@ -321,12 +308,11 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 		}
 
 		// reset for next use of this pipeline!
-		this.inPre = false;
 		init(this, false);
 	} else {
 		switch (this.state) {
 			case PreHandler.STATE_SOL:
-				if ((tc === String) && token.match(/^ /) && !this.inPre) {
+				if ((tc === String) && token.match(/^ /)) {
 					ret = this.tokens;
 					this.tokens = [];
 					this.preWSToken = token[0];

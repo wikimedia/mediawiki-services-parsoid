@@ -1709,6 +1709,7 @@ DOMUtils.normalizeHTML = function ( source ) {
  * @returns {string}
  */
 DOMUtils.normalizeOut = function ( out, parsoidOnly ) {
+	var last;
 	// TODO: Do not strip newlines in pre and nowiki blocks!
 	// NOTE that we use a slightly restricted regexp for "attribute"
 	//  which works for the output of DOM serialization.  For example,
@@ -1729,11 +1730,14 @@ DOMUtils.normalizeOut = function ( out, parsoidOnly ) {
 		out = out.replace(/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content|title|class)="[^\"]*"/g, '');
 		// single-quoted variant
 		out = out.replace(/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content|title|class)='[^\']*'/g, '');
-		out = normalizeNewlines( out ).
-			// remove <span typeof="....">....</span>
-			replace(/<span(?:[^>]*) typeof="mw:(?:Placeholder|Nowiki|Transclusion|Entity)"(?: [^\0-\cZ\s\"\'>\/=]+(?:="[^"]*")?)*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1').
-			// strip typeof last
-			replace(/ typeof="[^\"]*"/g, '');
+		out = normalizeNewlines( out );
+		// remove possibly nested <span typeof="....">....</span>
+		while ( last !== out ) {
+			last = out;
+			out = out.replace(/<span(?:[^>]*) typeof="mw:(?:Placeholder|Nowiki|Transclusion|Entity)"(?: [^\0-\cZ\s\"\'>\/=]+(?:="[^"]*")?)*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1');
+		}
+		// strip typeof last
+		out = out.replace(/ typeof="[^\"]*"/g, '');
 	} else {
 		// unnecessary attributes, we don't need to check these
 		// style is in there because we should only check classes.

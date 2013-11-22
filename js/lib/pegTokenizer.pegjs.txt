@@ -1394,8 +1394,18 @@ pre
     ("</" pre_tag_name ">" / eof) {
         stops.dec('pre');
         // return nowiki tags as well?
-        return [ new TagTk( 'pre', attribs, { stx: 'html', tsr: [pos0, endpos] } ) ]
-                    .concat(flatten_stringlist(ts), [ new EndTagTk( 'pre', [], { stx: 'html', tsr: [pos - 6, pos] } ) ]);
+
+		// Emit as SelfclosingTag in order to avoid the nested pre problem in
+		// the PreHandler.
+		attribs.push(new KV('property', 'mw:html'));
+		attribs.push(new KV('content', flatten_stringlist(ts)));
+		return [
+			new SelfclosingTagTk('pre', attribs, {
+				tsr: [pos0, pos],
+				endpos: endpos
+			})
+		];
+
     }
   / "</" pre_tag_name ">" { stops.dec('pre'); return "</pre>"; }
   / & { return stops.dec('pre'); }

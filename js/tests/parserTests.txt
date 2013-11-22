@@ -1620,6 +1620,16 @@ HTML pre followed by indent-pre
 !! end
 
 !!test
+Block tag pre
+!!options
+parsoid
+!!input
+<p><pre>foo</pre></p>
+!!result
+<p data-parsoid='{"stx":"html","autoInsertedEnd":true,"dsr":[0,3,3,0]}'></p><pre data-parsoid='{"stx":"html","dsr":[3,17,5,6]}'>foo</pre><p data-parsoid='{"autoInsertedStart":true,"stx":"html","dsr":[17,21,0,null]}'></p>
+!!end
+
+!!test
 Templates: Indent-Pre: 1a. Templates that break a line should suppress <pre>
 !!input
  {{echo|}}
