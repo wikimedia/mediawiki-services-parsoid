@@ -69,7 +69,8 @@ class ParsoidSetup {
 	 */
 	protected static function setupDefaultConfig() {
 		global $wgParsoidCacheServers, $wgParsoidSkipRatio, $wgDBname,
-			$wgParsoidCacheUpdateTitlesPerJob, $wgParsoidMaxBacklinksInvalidate;
+			$wgParsoidCacheUpdateTitlesPerJob, $wgParsoidMaxBacklinksInvalidate,
+			$wgParsoidWikiPrefix;
 
 		/**
 		 * An array of Varnish caches in front of Parsoid to keep up to date.
