@@ -11,7 +11,7 @@ var DU = require('./mediawiki.DOMUtils.js').DOMUtils,
 // SSS FIXME: Given condition 2, we may not need to check th/td anymore
 // (if we can rely on auto inserted start/end tags being present always).
 var nodesToMigrateFrom = JSUtils.arrayToSet([
-	"TH", "TD", "TR", "LI", "DD", "OL", "UL", "DL", "CAPTION", "P"
+	"PRE", "TH", "TD", "TR", "LI", "DD", "OL", "UL", "DL", "CAPTION", "P"
 ]);
 
 function nodeEndsLineInWT(node) {
@@ -48,10 +48,6 @@ function migrateTrailingNLs(elt, env) {
 		}
 
 		return c === null;
-	}
-
-	if (DU.hasNodeName(elt, "pre")) {
-		return;
 	}
 
 	// 1. Process DOM rooted at 'elt' first

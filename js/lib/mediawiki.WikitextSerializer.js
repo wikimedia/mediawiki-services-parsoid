@@ -2707,28 +2707,51 @@ WSP.tagHandlers = {
 				state.inIndentPre = true;
 				var content = state.serializeChildrenToString(node);
 
-				// Insert indentation
-				content = ' ' +
-					content.replace(/(\n(<!--(?:[^\-]|\-(?!\->))*\-\->)*)(?!$)/g, '$1 ' );
+			    // Strip (only the) trailing newline
+			    var trailingNL = content.match(/\n$/);
+			    content = content.replace(/\n$/, '');
 
-				// Strip trailing separators
-				//var trailingSep = content.match(/\s*$/);
-				//content = content.replace(/\s*$/, '');
+				// Insert indentation
+				content = ' ' + content.replace(/(\n(<!--(?:[^\-]|\-(?!\->))*\-\->)*)/g, '$1 ');
+
+				// But skip "empty lines" (lines with 1+ comment and optional whitespace)
+				// since empty-lines sail through all handlers without being affected.
+				// See empty_line_with_comments production in pegTokenizer.pegjs.txt
+				//
+				// We could use 'split' to split content into lines and selectively add
+				// indentation, but the code will get unnecessarily complex for questionable
+				// benefits. So, going this route for now.
+				content = content.replace(/(^|\n) ((?:[ \t]*<!--(?:[^\-]|\-(?!\->))*\-\->[ \t]*)+)(?=\n|$)/, '$1$2');
 
 				cb(content, node);
 
 				// Preserve separator source
-				//state.sep.src = trailingSep && trailingSep[0] || '';
-				state.sep.src = '';
+				state.sep.src = trailingNL && trailingNL[0] || '';
 			}
 			state.inIndentPre = false;
 		},
 		sepnls: {
 			before: function(node, otherNode) {
-				return node.data.parsoid.stx === 'html' ? {} : {min:1};
+				if (node.data.parsoid.stx === 'html') {
+					return {};
+				} else if (otherNode.nodeName === 'PRE' &&
+					otherNode.data.parsoid.stx !== 'html')
+				{
+					return {min:2};
+				} else {
+					return {min:1};
+				}
 			},
 			after: function(node, otherNode) {
-				return node.data.parsoid.stx === 'html' ? {} : {min:1};
+				if (node.data.parsoid.stx === 'html') {
+					return {};
+				} else if (otherNode.nodeName === 'PRE' &&
+					otherNode.data.parsoid.stx !== 'html')
+				{
+					return {min:2};
+				} else {
+					return {min:1};
+				}
 			}
 		}
 	},
@@ -2843,11 +2866,11 @@ WSP.tagHandlers = {
 						var child = node.firstChild;
 						while(child) {
 							if (DU.isElt(child)) {
-								if (child.nodeName === 'SPAN' &&
-										child.getAttribute('typeof') === 'mw:Entity')
-								{
-									state.serializer._serializeNode(child, state, cb);
-								} else if (DU.isMarkerMeta(child, "mw:DiffMarker")) {
+								/* jshint noempty: false */
+								if (DU.isMarkerMeta(child, "mw:DiffMarker")) {
+									// nothing to do
+								} else if (child.nodeName === 'SPAN' &&
+										child.getAttribute('typeof') === 'mw:Entity') {
 									state.serializer._serializeNode(child, state, cb);
 								} else {
 									cb(child.outerHTML, node);
@@ -3557,30 +3580,32 @@ WSP._serializeTextNode = function(node, state, cb) {
 	var newSepMatch = res.match(/\n\s*$/);
 	res = res.replace(/\n\s*$/, '');
 
-	// Don't strip two newlines for wikitext like this:
-	// <div>foo
-	//
-	// bar</div>
-	// The PHP parser won't create paragraphs on lines that also contain
-	// block-level tags.
-	if (node.parentNode.childNodes.length !== 1 ||
-			!DU.isBlockNode(node.parentNode) ||
-			//node.parentNode.data.parsoid.stx !== 'html' ||
-			doubleNewlineCount !== 1)
-	{
-		// Strip more than one consecutive newline
-		res = res.replace(/\n([ \t]*\n)+/g, '\n');
-	}
-	// Strip trailing newlines from text content
-	//if (node.nextSibling && node.nextSibling.nodeType === node.ELEMENT_NODE) {
-	//	res = res.replace(/\n$/, ' ');
-	//} else {
-	//	res = res.replace(/\n$/, '');
-	//}
+	if (!state.inIndentPre) {
+		// Don't strip two newlines for wikitext like this:
+		// <div>foo
+		//
+		// bar</div>
+		// The PHP parser won't create paragraphs on lines that also contain
+		// block-level tags.
+		if (node.parentNode.childNodes.length !== 1 ||
+				!DU.isBlockNode(node.parentNode) ||
+				//node.parentNode.data.parsoid.stx !== 'html' ||
+				doubleNewlineCount !== 1)
+		{
+			// Strip more than one consecutive newline
+			res = res.replace(/\n([ \t]*\n)+/g, '\n');
+		}
+		// Strip trailing newlines from text content
+		//if (node.nextSibling && node.nextSibling.nodeType === node.ELEMENT_NODE) {
+		//	res = res.replace(/\n$/, ' ');
+		//} else {
+		//	res = res.replace(/\n$/, '');
+		//}
 
-	// Strip leading newlines. They are already added to the separator source
-	// in handleSeparatorText.
-	res = res.replace(/^\n/, '');
+		// Strip leading newlines. They are already added to the separator source
+		// in handleSeparatorText.
+		res = res.replace(/^\n/, '');
+	}
 
 	// Always escape entities
 	res = Util.escapeEntities(res);
@@ -3668,7 +3693,7 @@ WSP._getDOMRTInfo = function( node ) {
  * XXX: Support separator-transparent elements!
  */
 WSP.handleSeparatorText = function ( node, state ) {
-	if (DU.isText(node)) {
+	if (!state.inIndentPre && DU.isText(node)) {
 		if (node.nodeValue.match(/^\s*$/)) {
 			state.sep.src = (state.sep.src || '') + node.nodeValue;
 			//if (!state.sep.lastSourceNode) {
@@ -4087,7 +4112,11 @@ WSP.emitSeparator = function(state, cb, node) {
 				dsrA = prevNode.parentNode.data.parsoid.dsr;
 			} else if (prevNode.previousSibling &&
 					prevNode.previousSibling.nodeType === prevNode.ELEMENT_NODE &&
+					// FIXME: Not sure why we need this check because data-parsoid
+					// is loaded on all nodes. mw:Diffmarker maybe? But, if so, why?
+					// Should be fixed.
 					prevNode.previousSibling.data &&
+					prevNode.previousSibling.data.parsoid &&
 					prevNode.previousSibling.data.parsoid.dsr &&
 					// Don't extrapolate if the string was potentially changed
 					// or we didn't diff (selser disabled)
@@ -4386,9 +4415,7 @@ WSP._serializeNode = function( node, state, cb) {
 			state.prevNodeUnmodified = state.currNodeUnmodified;
 			state.currNodeUnmodified = false;
 
-			if (state.selserMode) {
-				this.trace("TEXT: ", node.nodeValue);
-			}
+			this.trace("TEXT: ", node.nodeValue);
 
 			if (!this.handleSeparatorText(node, state)) {
 				// Text is not just whitespace
@@ -4413,9 +4440,7 @@ WSP._serializeNode = function( node, state, cb) {
 			state.prevNodeUnmodified = state.currNodeUnmodified;
 			state.currNodeUnmodified = false;
 
-			if (state.selserMode) {
-				this.trace("COMMENT: ", node.nodeValue);
-			}
+			this.trace("COMMENT: ", node.nodeValue);
 
 			// delay the newline creation until after the comment
 			if (!this.handleSeparatorText(node, state)) {

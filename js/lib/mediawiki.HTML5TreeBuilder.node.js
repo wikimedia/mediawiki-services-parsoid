@@ -299,10 +299,10 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 		case EndTagTk:
 			tName = token.name;
 			this.emit('token', {type: 'EndTag', name: tName});
-			attrs = this._att( attribs );
-			attrs.push({ name: "typeof", value: "mw:EndTag" });
-			attrs.push({ name: "data-etag", value: tName });
 			if (dataAttribs && !dataAttribs.autoInsertedEnd) {
+				attrs = this._att( attribs );
+				attrs.push({ name: "typeof", value: "mw:EndTag" });
+				attrs.push({ name: "data-etag", value: tName });
 				if ( this.trace ) { console.warn('inserting shadow meta for ' + tName); }
 				this.emit('token', {type: 'Comment', data: JSON.stringify({
 					"@type": "mw:shadow",

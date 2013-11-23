@@ -2213,11 +2213,11 @@ foo
 
 !!end
 
+## NOTE: the leading white-space chars on empty line are significant
 !! test
-5. White-space in indent-pre
-NOTE: the white-space char on 2nd line is significant
+5a. White-space in indent-pre
 !! input
- a<br/>
+ a<br />
  
  b
 !! result
@@ -2226,6 +2226,27 @@ NOTE: the white-space char on 2nd line is significant
 b
 </pre>
 !! end
+
+## NOTE: the leading white-space chars on empty line are significant
+!! test
+5b. White-space in indent-pre
+!! input
+ a
+ 
+ b
+ 
+ 
+ c
+!! result
+<pre>a
+
+b
+
+
+c
+</pre>
+!! end
+
 
 !! test
 6. Pre-blocks should extend across lines with leading WS even when there is no wrappable content
@@ -18912,6 +18933,38 @@ __NOCONTENTCONVERT__
 <meta property='mw:PageProp/notitleconvert' />
 <meta property='mw:PageProp/nocontentconvert' />
 <meta property='mw:PageProp/unknownproperty' />
+!! end
+
+!! test
+Consecutive <pre>s should not get merged
+!! options
+parsoid=html2wt,html2html
+!! input
+ a
+
+ b
+
+ c
+
+ d
+
+ e
+ 
+
+ 
+ f
+!! result
+<pre>a</pre><pre>b</pre>
+
+<pre>c
+</pre><pre>
+d</pre>
+
+<pre>e
+
+</pre><pre>
+
+f</pre>
 !! end
 
 !! test

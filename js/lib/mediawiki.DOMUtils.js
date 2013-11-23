@@ -646,6 +646,20 @@ var DOMUtils = {
 	},
 
 	/**
+	 * Check if node is a text-node and has a leading newline.
+	 */
+	nodeHasLeadingNL: function(node) {
+		return node && this.isText(node) && node.nodeValue.match(/^\n/);
+	},
+
+	/**
+	 * Check if node is a text-node and has a trailing newline.
+	 */
+	nodeHasTrailingNL: function(node) {
+		return node && this.isText(node) && node.nodeValue.match(/\n$/);
+	},
+
+	/**
 	 * Find how much offset is necessary for the DSR of an
 	 * indent-originated pre tag.
 	 *
