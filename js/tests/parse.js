@@ -227,10 +227,8 @@ function dumpFlags() {
 
 	var parsoidConfig = new ParsoidConfig( null, { defaultWiki: prefix } );
 
-	if ( argv.apiURL ) {
-		parsoidConfig.setInterwiki( 'customwiki', argv.apiURL );
-	}
-	parsoidConfig.fetchConfig = Util.booleanOption( argv.fetchConfig );
+	Util.setTemplatingAndProcessingFlags( parsoidConfig, argv );
+	Util.setDebuggingFlags( parsoidConfig, argv );
 
 	ParserEnv.getParserEnv( parsoidConfig, null, prefix, argv.page || null, null, function ( err, env ) {
 		if ( err !== null ) {
@@ -241,17 +239,6 @@ function dumpFlags() {
 		// fetch templates from enwiki by default.
 		if ( argv.wgScriptPath ) {
 			env.conf.wiki.wgScriptPath = argv.wgScriptPath;
-		}
-
-		env.conf.parsoid.fetchTemplates = Util.booleanOption( argv.fetchTemplates );
-		env.conf.parsoid.usePHPPreProcessor = env.conf.parsoid.fetchTemplates && Util.booleanOption( argv.usephppreprocessor );
-		env.conf.parsoid.maxDepth = argv.maxdepth || env.conf.parsoid.maxDepth;
-		env.conf.parsoid.editMode = Util.booleanOption( argv.editMode );
-
-		Util.setDebuggingFlags( env.conf.parsoid, argv );
-
-		if ( argv.dp ) {
-			env.conf.parsoid.storeDataParsoid = true;
 		}
 
 		var i, validExtensions;
