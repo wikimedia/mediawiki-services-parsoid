@@ -551,6 +551,8 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 					'HTML structure likely changed');
 			return;
 		}
+
+		// Clone the array since it could be modified below
 		var nodes = Util.clone(node.childNodes);
 
 		for ( var i = 0; i < changes.length; i++ ) {
@@ -559,7 +561,7 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 
 			if ( change && change.constructor === Array ) {
 				applyChangesInternal( child, change );
-			} else if ( child && child.setAttribute ) {
+			} else {
 				switch ( change ) {
 					// No change
 					case 0:
@@ -568,7 +570,11 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 					// Change node wrapper
 					// (sufficient to insert a random attr)
 					case 1:
-						child.setAttribute( 'data-foobar', randomString() );
+						if (DU.isElt(child)) {
+							child.setAttribute( 'data-foobar', randomString() );
+						} else {
+							console.error("Buggy changetree. changetype 1 (modify attribute) cannot be applied on text/comment nodes.");
+						}
 						break;
 
 					// Insert new node before child
@@ -602,6 +608,14 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 		content = content.body;
 	}
 
+	if (this.env.conf.parsoid.dumpFlags &&
+		this.env.conf.parsoid.dumpFlags.indexOf("dom:post-changes") !== -1)
+	{
+		console.warn("-------------------------");
+		console.warn("Original DOM: " + content.outerHTML);
+		console.warn("-------------------------");
+	}
+
 	if (item.changes !== 0) {
 		applyChangesInternal(content, item.changes);
 	}
@@ -609,7 +623,6 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 	if (this.env.conf.parsoid.dumpFlags &&
 		this.env.conf.parsoid.dumpFlags.indexOf("dom:post-changes") !== -1)
 	{
-		console.warn("-------------------------");
 		console.warn("Change tree: " + JSON.stringify(item.changes));
 		console.warn("-------------------------");
 		console.warn("DOM with changes applied: " + content.outerHTML);
@@ -706,9 +719,10 @@ ParserTests.prototype.generateChanges = function( options, item, content, cb ) {
 	function genChangesInternal(item, node) {
 		// Seed the random-number generator based on the item title
 		var changelist = [],
-			children = node.childNodes;
+			children = node.childNodes,
+			n = children.length;
 
-		for (var i = 0, n = children.length; i < n; i++) {
+		for (var i = 0; i < n; i++) {
 			var child = children[i],
 				changeType = 0;
 
