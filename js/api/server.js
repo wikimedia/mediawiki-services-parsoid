@@ -25,16 +25,21 @@ if (cluster.isMaster) {
 		}
 	});
 
-	process.on('SIGTERM', function() {
+	var shutdown_master = function() {
 		console.log('master shutting down, killing workers');
 		var workers = cluster.workers;
 		Object.keys(workers).forEach(function(id) {
 			console.log('Killing worker ' + id);
 			workers[id].destroy();
 		});
-		console.log('Done killing workers, bye');
+		console.log('Done killing workers');
+		console.log('Exiting master');
 		process.exit(1);
-	});
+	};
+
+	process.on('SIGINT', shutdown_master);
+	process.on('SIGTERM', shutdown_master);
+
 } else {
 	// Worker.
 	process.on('SIGTERM', function() {
