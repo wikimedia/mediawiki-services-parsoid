@@ -18778,21 +18778,26 @@ parsoid=html2wt
 <p>123</p><figure typeof="mw:Image/Thumb" class="mw-halign-right"><a href="./File:Wiki.png"><img src="http://192.168.142.128/mw/images/thumb/b/bc/Wiki.png/131px-Wiki.png" width="131" height="150" resource="./File:Wiki.png"></a></figure><p>456</p>
 !!end
 
-# Wacky -- the leading newline in input is required because
-# that is what the serializer emits. To be fixed. Not fixing
-# the test because this test is required to test serialization of
-# new content and preferred whitespace style.
 !! test
 Lists: Serialize correctly even when list content is wrapped in p-tags (like VE does)
 !! options
 parsoid=html2wt
 !! input
-
 * foo
 !! result
 <ul>
 <li><p>foo</p></li>
 </ul>
+!! end
+
+!! test
+Lists: Serialize correctly even when list tags has unneeded whitespace between tags
+!! options
+parsoid=html2wt
+!! input
+* foo
+!! result
+<ul> <li>foo</li></ul>
 !! end
 
 !! test
@@ -18841,6 +18846,10 @@ foo
 
 <div>foo</div>
 <span>bar</span>
+
+<div>
+<span>foo</span>
+</div>
 !! result
 <p>foo</p>
  <span>bar</span>
@@ -18850,18 +18859,17 @@ foo
 
 <div>foo</div>
  <span>bar</span>
+
+<div>
+ <span>foo</span>
+</div>
 !! end
 
-# Wacky -- the leading newline in input is required because
-# that is what the serializer emits. To be fixed. Not fixing
-# the test because this test is required to test serialization of
-# new content and preferred whitespace style.
 !! test
 Lists: Add space after bullets
 !! options
 parsoid=html2wt
 !! input
-
 * foo
 * bar
 * <span> baz</span>
