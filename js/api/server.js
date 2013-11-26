@@ -36,7 +36,7 @@ if (cluster.isMaster) {
 		});
 		console.log('Done killing workers');
 		console.log('Exiting master');
-		process.exit(1);
+		process.exit(0);
 	};
 
 	process.on('SIGINT', shutdown_master);
@@ -46,7 +46,7 @@ if (cluster.isMaster) {
 	// Worker.
 	process.on('SIGTERM', function() {
 		console.log('Worker shutting down');
-		process.exit(1);
+		process.exit(0);
 	});
 
 	// Enable heap dumps in /tmp on kill -USR2.
