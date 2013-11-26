@@ -1316,18 +1316,14 @@ ExternalLinkHandler.prototype.onExtLink = function ( token, manager, cb ) {
 	var rdfaType = token.getAttribute('typeof'),
 		magLinkRe = /(?:^|\s)(mw:(?:Ext|Wiki)Link\/(?:ISBN|RFC|PMID))(?=$|\s)/;
 	if ( rdfaType && magLinkRe.test(rdfaType) ) {
-		if ( /(?:^|\s)mw:WikiLink\/ISBN/.test(rdfaType) ) {
-			title = Title.fromPrefixedText( env, href );
-			newAttrs = [
-				new KV('href', title.makeLink()),
-				new KV('rel', rdfaType.match( magLinkRe )[1] )
-			];
-		} else {
-			newAttrs = [
-				new KV('href', href),
-				new KV('rel', 'mw:ExtLink' )
-			];
+		var newHref = href;
+		if ( /(?:^|\s)mw:(Ext|Wiki)Link\/ISBN/.test(rdfaType) ) {
+			newHref = env.page.relativeLinkPrefix + href;
 		}
+		newAttrs = [
+			new KV('href', newHref),
+			new KV('rel', 'mw:ExtLink' )
+		];
 		token.removeAttribute('typeof');
 
 		// SSS FIXME: Right now, Parsoid does not support templating

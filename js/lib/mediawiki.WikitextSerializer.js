@@ -2043,12 +2043,19 @@ WSP.linkHandler = function(node, state, cb) {
 				contentStr = state.serializeChildrenToString(node,
 						this.wteHandlers.aHandler, false);
 
-				// First check for RFC/PMID links. We rely on selser to
+				// First check for ISBN/RFC/PMID links. We rely on selser to
 				// preserve non-minimal forms.
-				if (extLinkResourceMatch && contentStr === extLinkResourceMatch.join(' ')) {
-					// link target matches and link text is RFC 1234 or
-					// PMID 1234: Serialize to that
-					cb( extLinkResourceMatch.join(' '), node );
+				if (extLinkResourceMatch) {
+					var protocol = extLinkResourceMatch[0],
+						contentMatcher = env.conf.wiki.ExtResourceContentMatchers[protocol];
+
+					// Link target matches. Verify if the content-string is in canonical
+					// form so that the link can be serialized back to canonical form
+					if (contentMatcher(extLinkResourceMatch, contentStr)) {
+						cb( contentStr, node );
+					} else {
+						cb( '[' + target.value + ' ' + contentStr + ']', node );
+					}
 				// There is an interwiki for RFCs, but strangely none for
 				// PMIDs.
 				} else if (!contentStr) {
