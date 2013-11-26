@@ -16863,9 +16863,9 @@ References: 6. <references /> from a transclusion
 !!options
 parsoid
 !!input
-{{echo|<references />}}
+<ref>Foo</ref> {{echo|<references />}}
 !!result
-<ol class="references" about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"<references />"}},"i":0}}]}'></ol>
+<span about="#mwt3" class="reference" data-mw='{"name":"ref","body":{"html":"Foo"},"attrs":{}}' id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref"><a href="#cite_note-1">[1]</a></span> <ol class="references" typeof="mw:Extension/references mw:Transclusion" about="#mwt4" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;references />"}},"i":0}}]}'><li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1-0">↑</a></span> Foo</li></ol>
 !!end
 
 !! test
