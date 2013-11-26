@@ -11,6 +11,8 @@ if (cluster.isMaster) {
 	// get some degree of parallelism even on single-core systems. A single
 	// long-running request would otherwise hold up all concurrent short requests.
 	var numCPUs = require('os').cpus().length + 3;
+	console.log('master(' + process.pid + ') initializing ' +
+				numCPUs + ' workers');
 	// Fork workers.
 	for (var i = 0; i < numCPUs; i++) {
 		cluster.fork();
