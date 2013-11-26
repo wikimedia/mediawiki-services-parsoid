@@ -492,8 +492,24 @@ WikiConfig.prototype.replaceInterpolatedMagicWord = function ( alias, value ) {
 
 // Default RFC/PMID resource URL patterns
 WikiConfig.prototype.ExtResourceURLPatterns = {
-	'RFC'  : '//tools.ietf.org/html/rfc%s',
-	'PMID' : '//www.ncbi.nlm.nih.gov/pubmed/%s?dopt=Abstract'
+	// SSS FIXME: ISBN url checker has to verify that the number is 10/13 digits long
+	// We are punting on that right now which can lead to broken HTML serialization for
+	// invalid ISBN urls. For now, we "trust" clients to do the right thing.
+	'ISBN' : {
+		// SSS FIXME: Working around JSHint complaints about bad escapements
+		prefix: "(?:(?:./)|(?:../)+)".replace(".", "\\.").replace("/", "\\\/"),
+		re: 'Special:BookSources/%d'
+	},
+	'RFC'  : { re: '//tools.ietf.org/html/rfc%s' },
+	'PMID' : { re: '//www.ncbi.nlm.nih.gov/pubmed/%s?dopt=Abstract' }
+};
+
+WikiConfig.prototype.ExtResourceContentMatchers = {
+	'ISBN' : function(hrefWT, content) {
+		return hrefWT.join('') === content.replace(/[\- ]/g, '');
+	},
+	'RFC'  : function(hrefWT, content) { return hrefWT.join(' ') === content; },
+	'PMID' : function(hrefWT, content) { return hrefWT.join(' ') === content; }
 };
 
 /**
@@ -504,14 +520,14 @@ WikiConfig.prototype.ExtResourceURLPatterns = {
 WikiConfig.prototype.ExtResourceURLPatternMatcher = (function () {
 	var keys = Object.keys(WikiConfig.prototype.ExtResourceURLPatterns),
 		patterns = [];
+
 	keys.forEach(function(key) {
-		patterns.push(
-			Util.escapeRegExp(WikiConfig.prototype.ExtResourceURLPatterns[key])
-			.replace('%s', '(\\w+)')
-		);
+		var reOpts = WikiConfig.prototype.ExtResourceURLPatterns[key];
+		var re = Util.escapeRegExp(reOpts.re).replace('%s', '(\\w+)').replace('%d', '(\\d+)');
+		patterns.push("^(?:" + (reOpts.prefix || "") + re + ")$");
 	});
-	var reString = '^(?:' + patterns.join('|') + ')$',
-		regExp = new RegExp(reString);
+
+	var regExp = new RegExp(patterns.join('|'));
 	var match = function (s) {
 		var matches = s.match(regExp);
 		if (matches) {

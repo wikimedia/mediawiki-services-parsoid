@@ -891,7 +891,7 @@ isbn
         new SelfclosingTagTk( 'extlink', [
            new KV('href', 'Special:BookSources/' + isbncode),
            new KV('mw:content', 'ISBN ' + isbn),
-           new KV('typeof', 'mw:WikiLink/ISBN')
+           new KV('typeof', 'mw:ExtLink/ISBN')
         ],
         {stx: "protocol", tsr: [pos0, pos]})
     ];
