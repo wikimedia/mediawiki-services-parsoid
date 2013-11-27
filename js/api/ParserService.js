@@ -372,6 +372,9 @@ app.use(express.favicon(path.join(__dirname, "favicon.ico")));
 // Increase the form field size limit from the 2M default.
 app.use(express.bodyParser({maxFieldsSize: 15 * 1024 * 1024}));
 
+// Support gzip / deflate transfer-encoding
+app.use(express.compress());
+
 app.get('/', function(req, res){
 	res.write('<html><body>\n');
 	res.write('<h3>Welcome to the <a href="https://www.mediawiki.org/wiki/Parsoid">Parsoid</a> web service.</h3>\n');
