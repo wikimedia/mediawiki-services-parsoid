@@ -1341,40 +1341,40 @@ function escapeWikiLinkContentString ( contentString, state, contentNode ) {
 }
 
 /**
- * Figure out if the link needs to be protected with <nowiki/> against
- * unwanted link prefix and -trail parsing.
+ * Check if textNode follows/precedes a link that requires
+ * <nowiki/> escaping to prevent unwanted link prefix/trail parsing.
  */
-WSP.getLinkPrefixTailEscapes = function (linkData, node, env) {
-	// Check if we need to escape a link prefix
-	var escapes = {
-		prefix: '',
-		tail: ''
-	};
+WSP.getLinkPrefixTailEscapes = function (textNode, env) {
+	var node,
+		escapes = {
+			prefix: '',
+			tail: ''
+		};
 
-	// Categories dont need prefix/suffix nowiki-escaping
-	if (linkData.type === 'mw:PageProp/Category' ) {
-		return escapes;
-	}
-
-	// Check if we need to escape against prefixes or tails
-	if (env.conf.wiki.linkPrefixRegex &&
-			node.previousSibling &&
-			// TODO: Also handle zero-width content here?
-			node.previousSibling.nodeType === node.TEXT_NODE &&
-			env.conf.wiki.linkPrefixRegex.test(node.previousSibling.nodeValue))
-	{
-		escapes.prefix = '<nowiki/>';
-	}
-
-	// Check if we need to escape a link trail
 	if (env.conf.wiki.linkTrailRegex &&
-			node.nextSibling &&
-			// TODO: Also handle zero-width content here?
-			node.nextSibling.nodeType === node.TEXT_NODE &&
-			env.conf.wiki.linkTrailRegex.test(node.nextSibling.nodeValue))
+		!textNode.nodeValue.match(/^\s/) &&
+		env.conf.wiki.linkTrailRegex.test(textNode.nodeValue))
 	{
-		escapes.tail = '<nowiki/>';
+		node = textNode.previousSibling;
+		if (node && DU.isElt(node) && node.nodeName === 'A' &&
+			/mw:WikiLink/.test(node.getAttribute("rel")))
+		{
+			escapes.tail = '<nowiki/>';
+		}
 	}
+
+	if (env.conf.wiki.linkPrefixRegex &&
+		!textNode.nodeValue.match(/\s$/) &&
+		env.conf.wiki.linkPrefixRegex.test(textNode.nodeValue))
+	{
+		node = textNode.nextSibling;
+		if (node && DU.isElt(node) && node.nodeName === 'A' &&
+			/mw:WikiLink/.test(node.getAttribute("rel")))
+		{
+			escapes.prefix = '<nowiki/>';
+		}
+	}
+
 	return escapes;
 };
 
@@ -1967,9 +1967,7 @@ WSP.linkHandler = function(node, state, cb) {
 				willUsePipeTrick = canUsePipeTrick && dp.pipetrick;
 			//console.log(linkData.content.string, canUsePipeTrick);
 
-			// Get <nowiki/> escapes to protect against unwanted prefix / tail
-			var escapes = this.getLinkPrefixTailEscapes(linkData, node, env),
-				linkTarget;
+			var linkTarget;
 
 			if ( canUseSimple ) {
 				// Simple case
@@ -1981,8 +1979,7 @@ WSP.linkHandler = function(node, state, cb) {
 					linkTarget = this._addColonEscape(linkTarget, linkData);
 				}
 
-				cb( escapes.prefix + linkData.prefix + '[[' + linkTarget + ']]' +
-						linkData.tail + escapes.tail, node );
+				cb( linkData.prefix + '[[' + linkTarget + ']]' + linkData.tail, node );
 				return;
 			} else {
 
@@ -2015,9 +2012,8 @@ WSP.linkHandler = function(node, state, cb) {
 				linkTarget = target.value;
 				linkTarget = this._addColonEscape(linkTarget, linkData);
 
-				cb( escapes.prefix + linkData.prefix +
-						'[[' + linkTarget + '|' + contentSrc + ']]' +
-						linkData.tail + escapes.tail, node );
+				cb( linkData.prefix + '[[' + linkTarget + '|' + contentSrc + ']]' +
+						linkData.tail, node );
 				return;
 			}
 		} else if ( rel === 'mw:ExtLink' || rel === 'mw:ExtLink/Numbered' ) {
@@ -3553,11 +3549,21 @@ WSP._serializeTextNode = function(node, state, cb) {
 	// Always escape entities
 	res = Util.escapeEntities(res);
 
+	var escapes = this.getLinkPrefixTailEscapes(node, state.env);
+	if (escapes.tail) {
+		cb(escapes.tail, node);
+	}
+
 	// If not in nowiki and pre context, escape wikitext
 	// XXX refactor: Handle this with escape handlers instead!
 	state.escapeText = !state.inNoWiki && !state.inHTMLPre;
-
 	cb(res, node);
+	state.escapeText = false;
+
+	if (escapes.prefix) {
+		cb(escapes.prefix, node);
+	}
+
 	//console.log('text', JSON.stringify(res));
 
 	// Move trailing newlines into the next separator
