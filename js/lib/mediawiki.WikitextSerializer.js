@@ -3776,7 +3776,7 @@ WSP.makeSeparator = function(sep, nlConstraints, state) {
 		// Split on comment/ws-only lines, consuming subsequent newlines since
 		// those lines are ignored by the PHP parser
 		// Ignore lines with ws and a single comment in them
-		splitReString = '(?:\n[ \t]*?' + commentRe + '[ \t]*?(?=\n))+|' + commentRe,
+		splitReString = '(?:\n(?:[ \t]*?' + commentRe + '[ \t]*?)+(?=\n))+|' + commentRe,
 		splitRe = new RegExp(splitReString),
 		sepMatch = sep.split(splitRe).join('').match(/\n/g),
 		sepNlCount = sepMatch && sepMatch.length || 0,
