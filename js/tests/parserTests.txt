@@ -5518,6 +5518,23 @@ parsoid
 <p data-parsoid='{"dsr":[19,30,0,0]}'><a rel="mw:ExtLink" href="//en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"simple","a":{"href":"//en.wikipedia.org/wiki/Foo"},"sa":{"href":":en:Foo"},"isIW":true,"dsr":[19,30,null,1]}'>en:Foo</a></p>
 !! end
 
+!! test
+Interwiki links that cannot be represented in wiki syntax
+!! options
+parsoid
+!! input
+[[meatball:ok]]
+[[meatball:ok#foo|ok with fragment]]
+[http://de.wikipedia.org/wiki/Foo?action=history has query]
+[http://de.wikipedia.org/wiki/#foo is just fragment]
+
+!! result
+<p><a rel="mw:ExtLink" href="http://www.usemod.com/cgi-bin/mb.pl?ok">meatball:ok</a>
+<a rel="mw:ExtLink" href="http://www.usemod.com/cgi-bin/mb.pl?ok#foo">ok with fragment</a>
+<a rel="mw:ExtLink" href="http://de.wikipedia.org/wiki/Foo?action=history">has query</a>
+<a rel="mw:ExtLink" href="http://de.wikipedia.org/wiki/#foo">is just fragment</a></p>
+!! end
+
 
 ###
 ### Interlanguage links

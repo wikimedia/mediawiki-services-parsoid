@@ -1813,7 +1813,13 @@ WSP.linkHandler = function(node, state, cb) {
 			var targetVal = target.fromsrc || true ? target.value : Util.decodeURI(target.value);
 			// Check if the href matches any of our interwiki URL patterns
 				var interWikiMatch = env.conf.wiki.InterWikiMatcher.match(href);
-			if (interWikiMatch && (dp.isIW || target.modified || linkData.contentModified)) {
+			if (interWikiMatch &&
+					// Remaining target
+					// 1) is not just a fragment id (#foo), and
+					// 2) does not contain a query string.
+					// Both are not supported by wikitext syntax.
+					!/^#|\?/.test(interWikiMatch[1]) &&
+					(dp.isIW || target.modified || linkData.contentModified)) {
 				//console.log(interWikiMatch);
 				// External link that is really an interwiki link. Convert it.
 				linkData.type = 'mw:WikiLink';
@@ -2016,7 +2022,7 @@ WSP.linkHandler = function(node, state, cb) {
 						linkData.tail, node );
 				return;
 			}
-		} else if ( rel === 'mw:ExtLink' || rel === 'mw:ExtLink/Numbered' ) {
+		} else if ( linkData.type === 'mw:ExtLink' ) {
 			// Get plain text content, if any
 			var contentStr = node.childNodes.length === 1 &&
 								node.firstChild.nodeType === node.TEXT_NODE &&
@@ -2066,13 +2072,13 @@ WSP.linkHandler = function(node, state, cb) {
 					cb( '[' + target.value + ' ' + contentStr + ']', node );
 				}
 			}
-		} else if ( rel.match( /mw:ExtLink\/(?:RFC|PMID)/ ) ||
+		} else if ( linkData.type.match( /mw:ExtLink\/(?:RFC|PMID)/ ) ||
 					/mw:(?:Wiki|Ext)Link\/ISBN/.test(rel) ) {
 			// FIXME: Handle RFC/PMID in generic ExtLink handler by matching prefixes!
 			// FIXME: Handle ISBN in generic WikiLink handler by looking for
 			// Special:BookSources!
 			cb( node.firstChild.nodeValue, node );
-		} else if ( /(?:^|\s)mw:Image/.test(rel) ) {
+		} else if ( /(?:^|\s)mw:Image/.test(linkData.type) ) {
 			this.handleImage( node, state, cb );
 		} else {
 			// Unknown rel was set
