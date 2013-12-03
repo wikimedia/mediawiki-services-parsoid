@@ -504,12 +504,21 @@ WikiConfig.prototype.ExtResourceURLPatterns = {
 	'PMID' : { re: '//www.ncbi.nlm.nih.gov/pubmed/%s?dopt=Abstract' }
 };
 
-WikiConfig.prototype.ExtResourceContentMatchers = {
-	'ISBN' : function(hrefWT, content) {
-		return hrefWT.join('') === content.replace(/[\- ]/g, '');
+WikiConfig.prototype.ExtResourceSerializer = {
+	'ISBN' : function(hrefWT, href, content) {
+		if (hrefWT.join('') === content.replace(/[\- ]/g, '')) {
+			return content;
+		} else {
+			href = href.replace(/^\.\//, ''); // strip "./" prefix
+			return '[[' + href + '|' + content + ']]';
+		}
 	},
-	'RFC'  : function(hrefWT, content) { return hrefWT.join(' ') === content; },
-	'PMID' : function(hrefWT, content) { return hrefWT.join(' ') === content; }
+	'RFC'  : function(hrefWT, href, content) {
+		return hrefWT.join(' ') === content ? content : '[' + href + ' ' + content + ']';
+	},
+	'PMID' : function(hrefWT, href, content) {
+		return hrefWT.join(' ') === content ? content : '[' + href + ' ' + content + ']';
+	}
 };
 
 /**

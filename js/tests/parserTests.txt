@@ -18839,6 +18839,36 @@ __NOCONTENTCONVERT__
 <meta property='mw:PageProp/unknownproperty' />
 !! end
 
+!! test
+Edited ISBN links not serializable as ISBN links should serialize as wikilinks
+!! options
+parsoid=html2wt
+!! input
+[[Special:BookSources/1234567890|ISBN 1234567895]]
+!! result
+<a rel="mw:ExtLink" href="./Special:BookSources/1234567890">ISBN 1234567895</a>
+!! end
+
+!! test
+Edited RFC links not serializable as RFC links should serialize as extlinks
+!! options
+parsoid=html2wt
+!! input
+[//tools.ietf.org/html/rfc123 New RFC]
+!! result
+<a href="//tools.ietf.org/html/rfc123" rel="mw:ExtLink">New RFC</a>
+!! end
+
+!! test
+Edited PMID links not serializable as PMID links should serialize as extlinks
+!! options
+parsoid=html2wt
+!! input
+[//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract New PMID]
+!! result
+<a href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract" rel="mw:ExtLink">New PMID</a>
+!! end
+
 # -----------------------------------------------------------------
 # End of section for Parsoid-only html2wt tests for serialization
 # of new content
