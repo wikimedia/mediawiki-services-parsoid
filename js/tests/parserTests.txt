@@ -1336,6 +1336,22 @@ b
 
 !! end
 
+## PHP parser emits output which is broken
+!! test
+Unclosed HTML p-tags should be handled properly
+!! options
+parsoid
+!! input
+<div><p>foo</div>
+a
+
+b
+!! result
+<div data-parsoid='{"stx":"html"}'><p data-parsoid='{"stx":"html", "autoInsertedEnd":true}'>foo</p></div>
+<p>a</p>
+<p>b</p>
+!! end
+
 ###
 ### Preformatted text
 ###

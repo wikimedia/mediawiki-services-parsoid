@@ -339,6 +339,13 @@ ParagraphWrapper.prototype.onAny = function ( token, frame ) {
 		}
 		res = this.processPendingNLs(isBlockToken);
 
+		// Close any open HTML P-tag at a block-token boundary
+		if (isBlockToken && this.hasOpenHTMLPTag) {
+			// This is an auto-inserted end-tag
+			this.currLine.tokens.push(new EndTagTk('p', [], {autoInsertedEnd:true}));
+			this.hasOpenHTMLPTag = false;
+		}
+
 		// Partial DOM-building!  What a headache
 		// This is necessary to avoid introducing fosterable tags inside the table.
 		updateTableContext(this.tableTags, token);
