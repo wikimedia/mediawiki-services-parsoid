@@ -261,10 +261,15 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 				var endpos = dataAttribs.endpos;
 				delete dataAttribs.endpos;
 				var tsr = dataAttribs.tsr;
-				dataAttribs.tsr = [ tsr[0], tsr[0] + endpos ];
+				if (tsr) {
+					dataAttribs.tsr = [ tsr[0], tsr[0] + endpos ];
+				}
 				dataAttribs.stx = 'html';
 				toks.unshift( new TagTk( 'pre', attribs, dataAttribs ) );
-				dataAttribs = { stx: 'html', tsr: [ tsr[1] - 6, tsr[1] ] };
+				dataAttribs = { stx: 'html'};
+				if (tsr) {
+					dataAttribs.tsr = [ tsr[1] - 6, tsr[1] ];
+				}
 				toks.push( new EndTagTk( 'pre', [], dataAttribs ) );
 				this.onChunk( toks );
 				break;
