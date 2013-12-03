@@ -163,6 +163,9 @@ DDP.treeEquals = function (nodeA, nodeB, deep) {
 	}
 };
 
+function nextNonTemplateSibling(env, node) {
+	return DU.isTplElementNode(env, node) ? DU.skipOverEncapsulatedContent(node) : node.nextSibling;
+}
 
 /**
  * Diff two DOM trees by comparing them node-by-node
@@ -229,7 +232,7 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 						newNode = lookaheadNode;
 						break;
 					}
-					lookaheadNode = lookaheadNode.nextSibling;
+					lookaheadNode = nextNonTemplateSibling(this.env, lookaheadNode);
 				}
 			}
 
@@ -243,15 +246,13 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 						this.treeEquals(lookaheadNode, newNode, true))
 					{
 						this.debug("--found diff: deleted--");
-						// TODO: treat skipped-over nodes as deleted
-						// insertModificationMarker
-						//console.log('inserting deletion mark before ' + newNode.outerHTML);
+						// mark skipped-over nodes as deleted
 						this.markNode(newNode, 'deleted');
 						baseNode = lookaheadNode;
 						foundDiff = true;
 						break;
 					}
-					lookaheadNode = lookaheadNode.nextSibling;
+					lookaheadNode = nextNonTemplateSibling(this.env, lookaheadNode);
 				}
 			}
 
@@ -270,6 +271,12 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 					// we have two entirely different nodes here
 					this.debug("--found diff: modified--");
 					this.markNode(origNode, 'modified');
+
+					// If the two subtree are drastically different, clearly,
+					// there were deletions in the new subtree before 'origNode'.
+					// Add a deletion marker since this is important for accurate
+					// separator handling in selser.
+					this.markNode(origNode, 'deleted');
 				}
 			}
 
@@ -279,7 +286,7 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 
 			foundDiffOverall = true;
 		} else if (!DU.isTplElementNode(this.env, baseNode) && !DU.isTplElementNode(this.env, newNode)) {
-			this.debug("--equal: recursing--");
+			this.debug("--shallow equal: recursing--");
 			// Recursively diff subtrees if not template-like content
 			var subtreeDiffers = this.doDOMDiff(baseNode, newNode);
 			if (subtreeDiffers) {
@@ -290,16 +297,9 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 		}
 
 		// And move on to the next pair (skipping over template HTML)
-		if (DU.isTplElementNode(this.env, baseNode)) {
-			baseNode = DU.skipOverEncapsulatedContent(baseNode);
-		} else {
-			baseNode = baseNode.nextSibling;
-		}
-
-		if (DU.isTplElementNode(this.env, newNode)) {
-			newNode = DU.skipOverEncapsulatedContent(newNode);
-		} else {
-			newNode = newNode.nextSibling;
+		if (baseNode && newNode) {
+			baseNode = nextNonTemplateSibling(this.env, baseNode);
+			newNode = nextNonTemplateSibling(this.env, newNode);
 		}
 	}
 
@@ -308,7 +308,7 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 		this.debug("--found trailing new node: inserted--");
 		this.markNode(newNode, 'inserted');
 		foundDiffOverall = true;
-		newNode = newNode.nextSibling;
+		newNode = nextNonTemplateSibling(this.env, newNode);
 	}
 
 	// If there are extra base nodes, something was deleted. Mark the parent as
