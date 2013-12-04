@@ -1764,6 +1764,15 @@ Templates: Indent-Pre: 1f: Wrapping should be based on expanded content
 </pre>
 !!end
 
+!! test
+Things that look like <pre> tags aren't treated as such
+!! input
+Barack Obama <President> of the United States
+!! result
+<p>Barack Obama &lt;President&gt; of the United States
+</p>
+!! end
+
 # TODO / maybe: fix wt2wt for this
 !! test
 Parsoid: Don't paragraph-wrap fosterable content
