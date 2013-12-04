@@ -132,7 +132,7 @@ ApiRequest.prototype._requestCB = function (error, response, body) {
 	//console.warn( 'response for ' + title + ' :' + body + ':' );
 	var self = this;
 
-	if(error) {
+	if (error) {
 		this.env.tp('WARNING: RETRY:', error, this.queueKey);
 		if ( this.retries ) {
 			this.retries--;
@@ -142,7 +142,7 @@ ApiRequest.prototype._requestCB = function (error, response, body) {
 			this.request( this.requestOptions, this._requestCB.bind(this) );
 			return;
 		} else {
-			var dnee = new DoesNotExistError( this.reqType + ' failure for ' + this.title );
+			var dnee = new DoesNotExistError( this.reqType + ' failure for ' + this.title + ' : ' + error );
 			//this.emit('src', dnee, dnee.toString(), 'text/x-mediawiki');
 			this._handleBody( dnee, '{}' );
 		}
@@ -155,7 +155,7 @@ ApiRequest.prototype._requestCB = function (error, response, body) {
 			console.warn( 'non-200 response: ' + response.statusCode );
 			console.log( body );
 		}
-		error = new DoesNotExistError( this.reqType + ' failure for ' + this.title );
+		error = new DoesNotExistError( this.reqType + ' failure for ' + this.title);
 		this._handleBody( error, '{}' );
 	}
 
