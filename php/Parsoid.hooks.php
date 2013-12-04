@@ -18,6 +18,7 @@ class ParsoidHooks {
 		$params = array( 'type' => $type );
 		if ( $type == 'OnDependencyChange' ) {
 			$params['table'] = $table;
+			$params['recursive'] = true;
 			return $params + Job::newRootJobParams(
 				"ParsoidCacheUpdateJob{$type}:{$title->getPrefixedText()}");
 		} else {

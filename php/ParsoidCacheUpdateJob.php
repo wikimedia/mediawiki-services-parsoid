@@ -2,37 +2,25 @@
 
 /**
  * HTML cache refreshing and -invalidation job for the Parsoid varnish caches.
+ *
+ * This job comes in a few variants:
+ *   - a) Recursive jobs to purge caches for backlink pages for a given title.
+ *        They have have (type:OnDependencyChange,recursive:true,table:<table>) set.
+ *   - b) Jobs to purge caches for a set of titles (the job title is ignored).
+ *	      They have have (type:OnDependencyChange,pages:(<page ID>:(<namespace>,<title>),...) set.
+ *   - c) Jobs to purge caches for a single page (the job title)
+ *        They have (type:OnEdit) set.
+ *
  * See
  * http://www.mediawiki.org/wiki/Parsoid/Minimal_performance_strategy_for_July_release
- * @TODO: This is mostly a copy of the HTMLCacheUpdate code. Eventually extend
- * some generic backlink job base class in core
  */
 class ParsoidCacheUpdateJob extends Job {
-	/** @var BacklinkCache */
-	protected $blCache;
-
-	protected $rowsPerJob;
-
-	/**
-	 * Construct a job
-	 * @param $title Title: the title linked to
-	 * @param array $params job parameters (table, start and end page_ids)
-	 * @param $id Integer: job id
-	 */
 	function __construct( $title, $params, $id = 0 ) {
-		wfDebug( "ParsoidCacheUpdateJob.__construct " . $title . "\n" );
-		global $wgParsoidCacheUpdateTitlesPerJob;
-
 		// Map old jobs to new 'OnEdit' jobs
-		if ( ! isset( $params['type'] ) ) {
-			$params['type'] = 'OnEdit';
+		if ( !isset( $params['type'] ) ) {
+			$params['type'] = 'OnEdit'; // b/c
 		}
-		parent::__construct( 'ParsoidCacheUpdateJob' . $params['type'],
-			$title, $params, $id );
-
-		$this->rowsPerJob = $wgParsoidCacheUpdateTitlesPerJob;
-
-		$this->blCache = $title->getBacklinkCache();
+		parent::__construct( 'ParsoidCacheUpdateJob' . $params['type'], $title, $params, $id );
 
 		if ( $params['type'] == 'OnEdit' ) {
 			// Simple duplicate removal for single-title jobs. Other jobs are
@@ -41,162 +29,74 @@ class ParsoidCacheUpdateJob extends Job {
 		}
 	}
 
-	public function run() {
-		if ( isset( $this->params['table'] ) ) {
-			if ( isset( $this->params['start'] ) && isset( $this->params['end'] ) ) {
-				# This is a child job working on a sub-range of a large number of
-				# titles.
-				return $this->doPartialUpdate();
-			} else  {
-				# Update all pages depending on this resource (transclusion or
-				# file)
-				return $this->doFullUpdate();
+	function run() {
+		global $wgParsoidCacheUpdateTitlesPerJob, $wgUpdateRowsPerJob, $wgMaxBacklinksInvalidate;
+
+		if ( $this->params['type'] === 'OnEdit' ) {
+			$this->invalidateTitle( $this->title );
+		} elseif ( $this->params['type'] === 'OnDependencyChange' ) {
+			static $expected = array( 'recursive', 'pages' ); // new jobs have one of these
+
+			$oldRangeJob = false;
+			if ( !array_intersect( array_keys( $this->params ), $expected ) ) {
+				// B/C for older job params formats that lack these fields:
+				// a) base jobs with just ("table") and b) range jobs with ("table","start","end")
+				if ( isset( $this->params['start'] ) && isset( $this->params['end'] ) ) {
+					$oldRangeJob = true;
+				} else {
+					$this->params['recursive'] = true; // base job
+				}
 			}
-		} else {
-			# Refresh the Parsoid cache for the page itself
-			return $this->invalidateTitle( $this->title );
-		}
-	}
 
-	/**
-	 * Update all of the backlinks
-	 */
-	protected function doFullUpdate() {
-		global $wgParsoidMaxBacklinksInvalidate;
+			// Job to purge all (or a range of) backlink pages for a page
+			if ( !empty( $this->params['recursive'] ) ) {
+				// @TODO: try to use delayed jobs if possible?
+				if ( !isset( $this->params['range'] ) && $wgMaxBacklinksInvalidate !== false ) {
+					$numRows = $this->title->getBacklinkCache()->getNumLinks(
+						$this->params['table'], $wgMaxBacklinksInvalidate );
+					if ( $numRows > $wgMaxBacklinksInvalidate ) {
+						return true;
+					}
+				}
+				// Convert this into some title-batch jobs and possibly a
+				// recursive ParsoidCacheUpdateJob job for the rest of the backlinks
+				$jobs = BacklinkJobUtils::partitionBacklinkJob(
+					$this,
+					$wgUpdateRowsPerJob,
+					$wgParsoidCacheUpdateTitlesPerJob, // jobs-per-title
+					// Carry over information for de-duplication
+					array( 'params' =>
+						array( 'type' => 'OnDependencyChange' ) + $this->getRootJobParams() )
+				);
+				JobQueueGroup::singleton()->push( $jobs );
+			// Job to purge pages for for a set of titles
+			} elseif ( isset( $this->params['pages'] ) ) {
+				$this->invalidateTitles( $this->params['pages'] );
+			// B/C for job to purge a range of backlink pages for a given page
+			} elseif ( $oldRangeJob ) {
+				$titleArray = $this->title->getBacklinkCache()->getLinks(
+					$this->params['table'], $this->params['start'], $this->params['end'] );
 
-		# Get an estimate of the number of rows from the BacklinkCache
-		$max = max( $this->rowsPerJob * 2, $wgParsoidMaxBacklinksInvalidate ) + 1;
-		$numRows = $this->blCache->getNumLinks( $this->params['table'], $max );
-		if ( $wgParsoidMaxBacklinksInvalidate !== false
-			&& $numRows > $wgParsoidMaxBacklinksInvalidate ) {
-			wfDebug( "Skipped HTML cache invalidation of {$this->title->getPrefixedText()}." );
-			return true;
-		}
+				$pages = array(); // same format BacklinkJobUtils uses
+				foreach ( $titleArray as $tl ) {
+					$pages[$tl->getArticleId()] = array( $tl->getNamespace(), $tl->getDbKey() );
+				}
 
-		if ( $numRows > $this->rowsPerJob * 2 ) {
-			# Do fast cached partition
-			$this->insertPartitionJobs();
-		} else {
-			# Get the links from the DB
-			$titleArray = $this->blCache->getLinks( $this->params['table'] );
-			# Check if the row count estimate was correct
-			if ( $titleArray->count() > $this->rowsPerJob * 2 ) {
-				# Not correct, do accurate partition
-				wfDebug( __METHOD__ . ": row count estimate was incorrect, repartitioning\n" );
-				$this->insertJobsFromTitles( $titleArray );
-			} else {
-				return $this->invalidateTitles( $titleArray ); // just do the query
+				$jobs = array();
+				foreach ( array_chunk( $wgParsoidCacheUpdateTitlesPerJob, $pages ) as $pageChunk ) {
+					$jobs[] = new ParsoidCacheUpdateJob( $this->title,
+						array(
+							'type'  => 'OnDependencyChange',
+							'table' => $this->table,
+							'pages' => $pageChunk
+						) + $this->getRootJobParams() // carry over information for de-duplication
+					);
+				}
+				JobQueueGroup::singleton()->push( $jobs );
 			}
 		}
 
 		return true;
-	}
-
-	/**
-	 * Update some of the backlinks, defined by a page ID range
-	 */
-	protected function doPartialUpdate() {
-		$titleArray = $this->blCache->getLinks(
-			$this->params['table'], $this->params['start'], $this->params['end'] );
-		if ( $titleArray->count() <= $this->rowsPerJob * 2 ) {
-			# This partition is small enough, do the update
-			return $this->invalidateTitles( $titleArray );
-		} else {
-			# Partitioning was excessively inaccurate. Divide the job further.
-			# This can occur when a large number of links are added in a short
-			# period of time, say by updating a heavily-used template.
-			$this->insertJobsFromTitles( $titleArray );
-			return true;
-		}
-	}
-
-	/**
-	 * Partition the current range given by $this->params['start'] and $this->params['end'],
-	 * using a pre-calculated title array which gives the links in that range.
-	 * Queue the resulting jobs.
-	 *
-	 * @param $titleArray array
-	 * @param $rootJobParams array
-	 * @return void
-	 */
-	protected function insertJobsFromTitles( $titleArray, $rootJobParams = array() ) {
-		// Carry over any "root job" information
-		$rootJobParams = $this->getRootJobParams();
-		# We make subpartitions in the sense that the start of the first job
-		# will be the start of the parent partition, and the end of the last
-		# job will be the end of the parent partition.
-		$jobs = array();
-		$start = $this->params['start']; # start of the current job
-		$numTitles = 0;
-		foreach ( $titleArray as $title ) {
-			$id = $title->getArticleID();
-			# $numTitles is now the number of titles in the current job not
-			# including the current ID
-			if ( $numTitles >= $this->rowsPerJob ) {
-				# Add a job up to but not including the current ID
-				$jobs[] = new ParsoidCacheUpdateJob( $this->title,
-					array(
-						'table' => $this->params['table'],
-						'start' => $start,
-						'end' => $id - 1,
-						'type' => 'OnDependencyChange'
-					) + $rootJobParams // carry over information for de-duplication
-				);
-				$start = $id;
-				$numTitles = 0;
-			}
-			$numTitles++;
-		}
-		# Last job
-		$jobs[] = new ParsoidCacheUpdateJob( $this->title,
-			array(
-				'table' => $this->params['table'],
-				'start' => $start,
-				'end' => $this->params['end'],
-				'type' => 'OnDependencyChange'
-			) + $rootJobParams // carry over information for de-duplication
-		);
-		wfDebug( __METHOD__ . ": repartitioning into " . count( $jobs ) . " jobs\n" );
-
-		if ( count( $jobs ) < 2 ) {
-			# I don't think this is possible at present, but handling this case
-			# makes the code a bit more robust against future code updates and
-			# avoids a potential infinite loop of repartitioning
-			wfDebug( __METHOD__ . ": repartitioning failed!\n" );
-			$this->invalidateTitles( $titleArray );
-		} else {
-			JobQueueGroup::singleton()->push( $jobs );
-		}
-	}
-
-
-	/**
-	 * @param $rootJobParams array
-	 * @return void
-	 */
-	protected function insertPartitionJobs( $rootJobParams = array() ) {
-		// Carry over any "root job" information
-		$rootJobParams = $this->getRootJobParams();
-
-		$batches = $this->blCache->partition( $this->params['table'], $this->rowsPerJob );
-		if ( !count( $batches ) ) {
-			return; // no jobs to insert
-		}
-
-		$jobs = array();
-		foreach ( $batches as $batch ) {
-			list( $start, $end ) = $batch;
-			$jobs[] = new ParsoidCacheUpdateJob( $this->title,
-				array(
-					'table' => $this->params['table'],
-					'start' => $start,
-					'end' => $end,
-					'type' => 'OnDependencyChange'
-				) + $rootJobParams // carry over information for de-duplication
-			);
-		}
-
-		JobQueueGroup::singleton()->push( $jobs );
 	}
 
 	/**
@@ -239,7 +139,7 @@ class ParsoidCacheUpdateJob extends Job {
 	 * Parsoid reuse transclusion and extension expansions.
 	 * @param $title Title
 	 */
-	protected function invalidateTitle( $title ) {
+	protected function invalidateTitle( Title $title ) {
 		global $wgParsoidCacheServers;
 
 		# First request the new version
@@ -258,7 +158,7 @@ class ParsoidCacheUpdateJob extends Job {
 					'Cache-control: no-cache'
 				)
 			);
-		};
+		}
 		wfDebug( "ParsoidCacheUpdateJob::invalidateTitle: " . serialize( $requests ) . "\n" );
 		$this->checkCurlResults( CurlMultiClient::request( $requests ) );
 
@@ -271,7 +171,7 @@ class ParsoidCacheUpdateJob extends Job {
 			$requests[] = array(
 				'url' => $this->getParsoidURL( $title, $server, true )
 			);
-		};
+		}
 		$options = CurlMultiClient::getDefaultOptions();
 		$options[CURLOPT_CUSTOMREQUEST] = "PURGE";
 		$this->checkCurlResults( CurlMultiClient::request( $requests, $options ) );
@@ -283,10 +183,11 @@ class ParsoidCacheUpdateJob extends Job {
 	 * Invalidate an array (or iterator) of Title objects, right now. Send
 	 * headers that signal Parsoid which of transclusions or extensions need
 	 * to be updated.
-	 * @param $titleArray array
+	 * @param $pages array (page ID => (namespace, DB key)) mapping
 	 */
-	protected function invalidateTitles( $titleArray ) {
+	protected function invalidateTitles( array $pages ) {
 		global $wgParsoidCacheServers, $wgLanguageCode;
+
 		if ( !isset( $wgParsoidCacheServers ) ) {
 			$wgParsoidCacheServers = array( 'localhost' );
 		}
@@ -302,7 +203,8 @@ class ParsoidCacheUpdateJob extends Job {
 		# Build an array of update requests
 		$requests = array();
 		foreach ( $wgParsoidCacheServers as $server ) {
-			foreach ( $titleArray as $title ) {
+			foreach ( $pages as $id => $nsDbKey ) {
+				$title = Title::makeTitle( $nsDbKey[0], $nsDbKey[1] );
 				# TODO, but low prio: if getLatestRevID returns 0, only purge title (deletion).
 				# Low prio because VE would normally refuse to load the page
 				# anyway, and no private info is exposed.
@@ -329,30 +231,5 @@ class ParsoidCacheUpdateJob extends Job {
 			serialize( $requests ) . "\n" );
 
 		return $this->getLastError() == null;
-
-		/*
-		  # PURGE
-		  # Not needed with implicit updates (see above)
-		  # Build an array of purge requests
-		  $requests = array();
-		  foreach ( $wgParsoidCacheServers as $server ) {
-		  foreach ( $titleArray as $title ) {
-		  $url = $this->getParsoidURL( $title, $server, false );
-
-		  $requests[] = array(
-		  'url' => $url
-		  );
-		  }
-		  }
-
-		  $options = CurlMultiClient::getDefaultOptions();
-		  $options[CURLOPT_CUSTOMREQUEST] = "PURGE";
-		  // Now send off all those purge requests
-		  CurlMultiClient::request( $requests, $options );
-
-		  wfDebug('ParsoidCacheUpdateJob::invalidateTitles purge: ' .
-		  serialize($requests) . "\n" );
-		 */
 	}
-
 }
