@@ -1833,7 +1833,7 @@ WSP.linkHandler = function(node, state, cb) {
 					// 1) is not just a fragment id (#foo), and
 					// 2) does not contain a query string.
 					// Both are not supported by wikitext syntax.
-					!/^#|\?/.test(interWikiMatch[1]) &&
+					!/^#|\?./.test(interWikiMatch[1]) &&
 					(dp.isIW || target.modified || linkData.contentModified)) {
 				//console.log(interWikiMatch);
 				// External link that is really an interwiki link. Convert it.
