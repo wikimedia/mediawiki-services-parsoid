@@ -11365,6 +11365,20 @@ I always thought &xacute; was a cute letter.
 </p>
 !! end
 
+# TODO: generalize to PHP parser?
+!! test
+HTML5 tags
+!! options
+parsoid
+!! input
+<data value="5">five</data>
+<time datetime="2000-01-01T00:00Z">The new millenium started</time>
+<mark>This highlighted text</mark>
+!! result
+<p><data value="5">five</data>
+<time datetime="2000-01-01T00:00Z">The new millenium started</time>
+<mark>This highlighted text</mark></p>
+!! end
 
 ###
 ### Nesting tests (see bug 41545, 50604, 51081)

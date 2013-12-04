@@ -551,7 +551,12 @@ var SanitizerConstants = {
 
 				// HTML 5 section 4.6
 				'bdi' : common,
-				'wbr' : [ 'id', 'class', 'title', 'style' ]
+				'wbr' : [ 'id', 'class', 'title', 'style' ],
+
+				// HTML5 elements, defined by http://www.whatwg.org/html/
+				'data': common.concat(['value']),
+				'time': common.concat(['datetime']),
+				'mark': common
 			};
 		}
 
