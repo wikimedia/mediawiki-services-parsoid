@@ -34,7 +34,7 @@ function stripMetaTags( tokens, wrapTemplates ) {
 		if ([TagTk, SelfclosingTagTk].indexOf(token.constructor) !== -1) {
 			// Strip all meta tags.
 			if (wrapTemplates) {
-				if (inInclude) {
+				if (inInclude && token.dataAttribs.src) {
 					wikitext.push(token.dataAttribs.src);
 				}
 
@@ -46,7 +46,9 @@ function stripMetaTags( tokens, wrapTemplates ) {
 						inTpl = typeMatch[1].match(/Transclusion|Param|Extension/);
 						inInclude = !inTpl;
 						hasGeneratedContent = true;
-						wikitext.push(token.dataAttribs.src);
+						if (token.dataAttribs.src) {
+							wikitext.push(token.dataAttribs.src);
+						}
 					} else {
 						inTpl = false;
 						inInclude = false;
