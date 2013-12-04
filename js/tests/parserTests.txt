@@ -8067,6 +8067,30 @@ parsoid
 </p>
 !!end
 
+!!test
+4. includeonly in table attributes
+!!input
+{|
+|- <noinclude>
+|-
+|a
+</noinclude>
+|- <includeonly>
+|-
+|b
+</includeonly>
+|}
+!!result
+<table>
+
+
+<tr>
+<td>a
+</td></tr>
+</table>
+
+!!end
+
 ###
 ### Testing parsing of templates where a template arg
 ### has the same name as the template itself.
