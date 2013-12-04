@@ -1361,7 +1361,12 @@ WSP.getLinkPrefixTailEscapes = function (textNode, env) {
 		!textNode.nodeValue.match(/^\s/) &&
 		env.conf.wiki.linkTrailRegex.test(textNode.nodeValue))
 	{
+		// Skip past deletion markers
 		node = textNode.previousSibling;
+		while (node && DU.isMarkerMeta(node, "mw:DiffMarker")) {
+			node = node.previousSibling;
+		}
+
 		if (node && DU.isElt(node) && node.nodeName === 'A' &&
 			/mw:WikiLink/.test(node.getAttribute("rel")))
 		{
@@ -1373,7 +1378,11 @@ WSP.getLinkPrefixTailEscapes = function (textNode, env) {
 		!textNode.nodeValue.match(/\s$/) &&
 		env.conf.wiki.linkPrefixRegex.test(textNode.nodeValue))
 	{
+		// Skip past deletion markers
 		node = textNode.nextSibling;
+		while (node && DU.isMarkerMeta(node, "mw:DiffMarker")) {
+			node = node.nextSibling;
+		}
 		if (node && DU.isElt(node) && node.nodeName === 'A' &&
 			/mw:WikiLink/.test(node.getAttribute("rel")))
 		{
@@ -2838,6 +2847,8 @@ WSP.tagHandlers = {
 										child.getAttribute('typeof') === 'mw:Entity')
 								{
 									state.serializer._serializeNode(child, state, cb);
+								} else if (DU.isMarkerMeta(child, "mw:DiffMarker")) {
+									state.serializer._serializeNode(child, state, cb);
 								} else {
 									cb(child.outerHTML, node);
 								}
@@ -4076,6 +4087,7 @@ WSP.emitSeparator = function(state, cb, node) {
 				dsrA = prevNode.parentNode.data.parsoid.dsr;
 			} else if (prevNode.previousSibling &&
 					prevNode.previousSibling.nodeType === prevNode.ELEMENT_NODE &&
+					prevNode.previousSibling.data &&
 					prevNode.previousSibling.data.parsoid.dsr &&
 					// Don't extrapolate if the string was potentially changed
 					// or we didn't diff (selser disabled)
