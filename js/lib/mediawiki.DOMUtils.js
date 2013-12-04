@@ -722,7 +722,12 @@ var DOMUtils = {
 					for (var i = 0, n = children.length; i < n; i++) {
 						tokBuf = this.convertDOMtoTokens(tokBuf, children[i]);
 					}
-					tokBuf.push(new pd.EndTagTk(nodeName));
+					var endTag = new pd.EndTagTk(nodeName);
+					// Keep stx parity
+					if (this.isLiteralHTMLNode(node)) {
+						endTag.dataAttribs = { 'stx': 'html'};
+					}
+					tokBuf.push(endTag);
 				}
 				break;
 

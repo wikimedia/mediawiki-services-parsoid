@@ -133,6 +133,9 @@ ParagraphWrapper.prototype.onNewLineOrEOF = function (  token, frame, cb ) {
 		this.hasOpenPTag = false;
 		this.hasOpenHTMLPTag = false;
 		this.reset();
+		if (this.trace) {
+			console.warn("  p-wrap:RET: " + JSON.stringify(res));
+		}
 		return { tokens: res };
 	} else {
 		this.newLineCount++;
