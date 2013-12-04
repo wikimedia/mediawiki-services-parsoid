@@ -157,6 +157,7 @@ add("wt2html", "Bug 6563: Edit link generation for section suppressed by <includ
 add("wt2html", "Bug 6563: Section extraction for section suppressed by <includeonly>");
 add("wt2html", "Un-closed <includeonly>");
 add("wt2html", "2. includeonly in html attr value");
+add("wt2html", "4. includeonly in table attributes");
 add("wt2html", "Templates: HTML Tag: 2. Generation of HTML attr. value");
 add("wt2html", "Templates: HTML Tag: 3. Generation of HTML attr key and value");
 add("wt2html", "Templates: Wiki Tables: 1a. Fostering of entire template content");
@@ -1623,6 +1624,7 @@ add("html2wt", "0. includeonly around the entire attribute");
 add("html2wt", "1. includeonly in html attr key");
 add("html2wt", "2. includeonly in html attr value");
 add("html2wt", "3. includeonly in part of an attr value");
+add("html2wt", "4. includeonly in table attributes");
 add("html2wt", "Templates: Template Name/Arg clash: 1. Use of positional param");
 add("html2wt", "Templates: Template Name/Arg clash: 2. Use of named param");
 add("html2wt", "Templates: Template Name/Arg clash: 3. Use of named param with empty input");
