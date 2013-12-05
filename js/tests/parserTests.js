@@ -696,7 +696,8 @@ ParserTests.prototype.generateChanges = function( options, item, content, cb ) {
 		// - Image wrapper is an uneditable image elt.
 		// - Any node nested in an image elt that is not a fig-caption
 		//   is an uneditable image elt.
-		return (/\bmw:Image\b/).test(node.getAttribute('typeof')) ||
+		// - Entity spans are uneditable as well
+		return (/\bmw:(Image|Entity)\b/).test(node.getAttribute('typeof')) ||
 			(
 				node.nodeName !== 'FIGCAPTION' &&
 				node.parentNode &&
