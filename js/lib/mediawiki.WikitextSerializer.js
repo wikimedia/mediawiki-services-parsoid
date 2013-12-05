@@ -2319,7 +2319,9 @@ function wtListEOL(node, otherNode) {
 		} else {
 			return {min:1, max:2};
 		}
-	} else if (DU.isList(otherNode)) {
+	} else if (DU.isList(otherNode) ||
+			(DU.isElt(otherNode) && otherNode.data.parsoid.stx === 'html'))
+	{
 		// last child in ul/ol (the list element is our parent), defer
 		// separator constraints to the list.
 		return {};
@@ -2406,8 +2408,8 @@ WSP.tagHandlers = {
 		},
 		sepnls: {
 			before: function (node, otherNode) {
-				if (otherNode === node.parentNode &&
-						otherNode.nodeName in {UL:1, OL:1})
+				if ((otherNode === node.parentNode && otherNode.nodeName in {UL:1, OL:1}) ||
+					(DU.isElt(otherNode) && otherNode.data.parsoid.stx === 'html'))
 				{
 					return {}; //{min:0, max:1};
 				} else {
@@ -2651,7 +2653,7 @@ WSP.tagHandlers = {
 				} else if (
 					otherNode === node.previousSibling &&
 					// p-p transition
-					otherNodeName === 'P' ||
+					(otherNodeName === 'P' && otherNode.data.parsoid.stx !== 'html') ||
 					// Treat text/p similar to p/p transition
 					(
 						DU.isText(otherNode) &&
@@ -2666,7 +2668,7 @@ WSP.tagHandlers = {
 			},
 			after: function(node, otherNode) {
 				if (!(node.lastChild && node.lastChild.nodeName === 'BR') &&
-					otherNode.nodeName === 'P') /* || otherNode.nodeType === node.TEXT_NODE*/
+					otherNode.nodeName === 'P' && otherNode.data.parsoid.stx !== 'html') /* || otherNode.nodeType === node.TEXT_NODE*/
 				{
 					return {min: 2, max: 2};
 				} else {
