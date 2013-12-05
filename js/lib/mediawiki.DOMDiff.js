@@ -199,9 +199,11 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 	var baseNode = baseParentNode.firstChild,
 		newNode = newParentNode.firstChild,
 		lookaheadNode = null,
-		foundDiffOverall = false;
+		foundDiffOverall = false,
+		dontAdvanceNewNode = false;
 
 	while ( baseNode && newNode ) {
+		dontAdvanceNewNode = false;
 		debugOut(baseNode, newNode);
 		// shallow check first
 		if ( ! this.treeEquals(baseNode, newNode, false) ) {
@@ -277,6 +279,9 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 					// Add a deletion marker since this is important for accurate
 					// separator handling in selser.
 					this.markNode(origNode, 'deleted');
+
+					// We now want to compare current newNode with the next baseNode.
+					dontAdvanceNewNode = true;
 				}
 			}
 
@@ -299,7 +304,9 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 		// And move on to the next pair (skipping over template HTML)
 		if (baseNode && newNode) {
 			baseNode = nextNonTemplateSibling(this.env, baseNode);
-			newNode = nextNonTemplateSibling(this.env, newNode);
+			if (!dontAdvanceNewNode) {
+				newNode = nextNonTemplateSibling(this.env, newNode);
+			}
 		}
 	}
 
