@@ -129,6 +129,47 @@ function precedingSeparatorTxt(n) {
 	return buf.join('');
 }
 
+// ignore the cases where the serializer adds newlines not present in the dom
+function startsOnANewLine( node ) {
+	var name = node.nodeName.toUpperCase();
+	return Consts.BlockScopeOpenTags.has( name ) &&
+		!DU.isLiteralHTMLNode( node ) &&
+		name !== "BLOCKQUOTE";
+}
+
+// look ahead on current line for block content
+function hasBlocksOnLine( node, first ) {
+
+	// special case for firstNode:
+	// we're at sol so ignore possible \n at first char
+	if ( first ) {
+		if ( node.textContent.substring( 1 ).match( /\n/ ) ) {
+			return false;
+		}
+		node = node.nextSibling;
+	}
+
+	while ( node ) {
+		if ( DU.isElt( node ) ) {
+			if ( DU.isBlockNode( node ) ) {
+				return !startsOnANewLine( node );
+			}
+			if ( node.childNodes.length > 0 ) {
+				if ( hasBlocksOnLine( node.firstChild, false ) ) {
+					return true;
+				}
+			}
+		} else {
+			if ( node.textContent.match( /\n/ ) ) {
+				return false;
+			}
+		}
+		node = node.nextSibling;
+	}
+	return false;
+
+}
+
 // Empty constructor
 var WikitextEscapeHandlers = function() {};
 
@@ -864,13 +905,20 @@ WSP.escapeWikiText = function ( state, text, opts ) {
 
 	// The front-end parser eliminated pre-tokens in the tokenizer
 	// and moved them to a stream handler. So, we always conservatively
-	// escape text with ' ' in sol posn with one caveat
+	// escape text with ' ' in sol posn with two caveats
 	// * indent-pres are disabled in ref-bodies (See ext.core.PreHandler.js)
-	if (sol && (this.options.extName !== 'ref') && text.match(/(^|\n) +[^\s]+/)) {
+	// * and when the current line has block tokens
+	if ( sol &&
+		 this.options.extName !== 'ref' &&
+		 text.match(/(^|\n) +[^\s]+/) &&
+		 !hasBlocksOnLine( state.currLine.firstNode, true )
+	) {
+
 		if (this.traceWTE) {
 			console.warn("---SOL and pre---");
 		}
 		return this.escapedText(state, sol, text, fullCheckNeeded);
+
 	}
 
 	// escape nowiki tags

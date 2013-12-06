@@ -41,7 +41,7 @@
  + --------------+-----------------+---------------+--------------------------+
  | PRE_COLLECT   | --- nl      --> | MULTILINE_PRE | save nl token            |
  | PRE_COLLECT   | --- eof     --> | SOL           | gen-pre                  |
- | PRE_COLLECT   | --- blk tag --> | IGNORE        | gen-pre                  |
+ | PRE_COLLECT   | --- blk tag --> | IGNORE        | gen-pre/purge (#)        |
  | PRE_COLLECT   | --- any     --> | PRE_COLLECT   | TOKS << tok              |
  + --------------+-----------------+---------------+--------------------------+
  | MULTILINE_PRE | --- nl      --> | SOL           | gen-pre                  |
@@ -54,6 +54,9 @@
  | IGNORE        | --- nl      --> | SOL           | purge                    |
  | IGNORE        | --- eof     --> | SOL           | purge                    |
  + --------------+-----------------+---------------+--------------------------+
+
+ # If we've collected any tokens from previous lines, generate a pre. This
+   line gets purged.
 
  ## In these states, check if the whitespace token is a single space or has
    additional chars (white-space or non-whitespace) -- if yes, slice it off
@@ -69,7 +72,8 @@ var CommentTk = defines.CommentTk,
     EOFTk = defines.EOFTk,
     TagTk = defines.TagTk,
     SelfclosingTagTk = defines.SelfclosingTagTk,
-    EndTagTk = defines.EndTagTk;
+    EndTagTk = defines.EndTagTk,
+    KV = defines.KV;
 
 var init; // forward declaration.
 
@@ -123,6 +127,7 @@ init = function(handler, addAnyHandler) {
 	// preceding newline to initialize this.
 	handler.preTSR = 0;
 	handler.tokens = [];
+	handler.preCollectCurrentLine = [];
 	handler.preWSToken = null;
 	handler.multiLinePreWSToken = null;
 	handler.solTransparentTokens = [];
@@ -142,6 +147,37 @@ PreHandler.prototype.popLastNL = function(ret) {
 		ret.push(this.lastNlTk);
 		this.lastNlTk = null;
 	}
+};
+
+PreHandler.prototype.resetPreCollectCurrentLine = function () {
+	this.tokens = this.tokens.concat( this.preCollectCurrentLine );
+	this.preCollectCurrentLine = [];
+};
+
+PreHandler.prototype.encounteredBlockWhileCollecting = function ( token ) {
+	var ret = [];
+	var mlp = null;
+
+	// we remove any possible multiline ws token here and save it because
+	// otherwise the propressPre below would add it in the wrong place
+	if ( this.multiLinePreWSToken ) {
+		mlp = this.multiLinePreWSToken;
+		this.multiLinePreWSToken = null;
+	}
+
+	if ( this.tokens.length > 0 ) {
+		ret = this.processPre( null ).slice(0, -1);  // drop the null token
+	}
+
+	if ( this.preWSToken || mlp ) {
+		ret.push( this.preWSToken || mlp );
+		this.preWSToken = null;
+	}
+
+	this.resetPreCollectCurrentLine();
+	ret = ret.concat( this.getResultAndReset( token ) );
+	ret.rank = this.skipRank;
+	return ret;
 };
 
 PreHandler.prototype.getResultAndReset = function(token) {
@@ -173,7 +209,7 @@ PreHandler.prototype.processPre = function(token) {
 		if (this.preTSR !== -1) {
 			da = { tsr: [this.preTSR, this.preTSR+1] };
 		}
-		ret = [ new TagTk('pre', [], da) ].concat(ret).concat(this.tokens);
+		ret = [ new TagTk('pre', [], da) ].concat( this.tokens );
 		ret.push(new EndTagTk('pre'));
 	}
 
@@ -229,11 +265,14 @@ PreHandler.prototype.onNewline = function (token, manager, cb) {
 			break;
 
 		case PreHandler.STATE_PRE_COLLECT:
+			this.resetPreCollectCurrentLine();
 			this.lastNlTk = token;
 			this.state = PreHandler.STATE_MULTILINE_PRE;
 			break;
 
 		case PreHandler.STATE_MULTILINE_PRE:
+			this.preWSToken = null;
+			this.multiLinePreWSToken = null;
 			ret = this.processPre(token);
 			this.preTSR = initPreTSR(token);
 			this.state = PreHandler.STATE_SOL;
@@ -303,6 +342,9 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 
 			case PreHandler.STATE_PRE_COLLECT:
 			case PreHandler.STATE_MULTILINE_PRE:
+				this.preWSToken = null;
+				this.multiLinePreWSToken = null;
+				this.resetPreCollectCurrentLine();
 				ret = this.processPre(token);
 				break;
 		}
@@ -342,26 +384,19 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 					ret = this.getResultAndReset(token);
 					this.moveToIgnoreState();
 				} else {
-					this.tokens = this.tokens.concat(this.solTransparentTokens);
-					this.tokens.push(token);
+					this.preCollectCurrentLine = this.solTransparentTokens.concat( token );
 					this.solTransparentTokens = [];
-					// discard pre/multiline-pre ws tokens that got us here
-					this.preWSToken = null;
-					this.multiLinePreWSToken = null;
 					this.state = PreHandler.STATE_PRE_COLLECT;
 				}
 				break;
 
 			case PreHandler.STATE_PRE_COLLECT:
 				if (token.isHTMLTag && token.isHTMLTag() && Util.isBlockTag(token.name)) {
-					ret = this.processPre(token);
+					ret = this.encounteredBlockWhileCollecting( token );
 					this.moveToIgnoreState();
 				} else {
-					// discard pre/multiline-pre ws tokens that got us here
-					this.preWSToken = null;
-					this.multiLinePreWSToken = null;
 					// nothing to do .. keep collecting!
-					this.tokens.push(token);
+					this.preCollectCurrentLine.push( token );
 				}
 				break;
 
@@ -369,6 +404,7 @@ PreHandler.prototype.onAny = function ( token, manager, cb ) {
 				if ((tc === String) && token.match(/^ /)) {
 					this.popLastNL(this.tokens);
 					this.state = PreHandler.STATE_PRE_COLLECT;
+					this.preWSToken = null;
 
 					// Pop buffered sol-transparent tokens
 					this.tokens = this.tokens.concat(this.solTransparentTokens);

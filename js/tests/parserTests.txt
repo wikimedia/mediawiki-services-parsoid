@@ -2118,16 +2118,28 @@ c
 !!test
 3a. Indent-Pre and block tags (single-line html)
 !!input
- <p> foo </p>
- <div> foo </div>
- <blockquote> foo </blockquote>
+ a <p> foo </p>
+ b <div> foo </div>
+ c <blockquote> foo </blockquote>
  <span> foo </span>
 !!result
- <p> foo </p>
- <div> foo </div>
- <blockquote> foo </blockquote>
+ a <p> foo </p>
+ b <div> foo </div>
+ c <blockquote> foo </blockquote>
 <pre><span> foo </span>
 </pre>
+!!end
+
+!!test
+3c. Indent-Pre and block tags (multi-line html)
+!!input
+ a <span>foo</span>
+ b <div> foo </div>
+!!result
+<pre>a <span>foo</span>
+</pre>
+ b <div> foo </div>
+
 !!end
 
 !!test
@@ -4929,6 +4941,18 @@ parsoid=html2wt
 <tr><td>foo</td></tr></tbody></table> bar
 <table><tbody>
 <tr><td>baz</td></tr></tbody></table><b>quux</b>
+!! end
+
+!! test
+Parsoid: newline inducing block nodes don't suppress <nowiki>
+!! options
+parsoid=html2wt
+!! input
+<nowiki> </nowiki>a
+
+= foo =
+!! result
+ a<h1>foo</h1>
 !! end
 
 ###
