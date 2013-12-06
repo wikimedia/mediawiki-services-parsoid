@@ -150,7 +150,7 @@ ApiRequest.prototype._requestCB = function (error, response, body) {
 		this._handleBody( null, body );
 	} else {
 		if (response.statusCode === 412) {
-			console.warn('Cache MISS:', this.url);
+			console.warn('Cache MISS:', this.uri);
 		} else {
 			console.warn( 'non-200 response: ' + response.statusCode );
 			console.log( body );
@@ -231,15 +231,16 @@ function TemplateRequest ( env, title, oldid ) {
 		apiargs.revids = oldid;
 		delete apiargs.titles;
 	}
-	var url = env.conf.wiki.apiURI + '?' +
+	var uri = env.conf.wiki.apiURI + '?' +
 		qs.stringify( apiargs );
 		//'?format=json&action=query&prop=revisions&rvprop=content&titles=' + title;
 
 	this.requestOptions = {
 		method: 'GET',
 		followRedirect: true,
-		url: url,
+		uri: uri,
 		timeout: 40 * 1000, // 40 seconds
+		proxy: env.conf.parsoid.apiProxyURI,
 		headers: {
 			'User-Agent': userAgent,
 			'Cookie': env.cookie,
@@ -360,8 +361,7 @@ function PreprocessorRequest ( env, title, text ) {
 		title: title,
 		text: text
 	};
-	// Randomize the POST url so that we hit different Squids
-	var url = env.conf.wiki.apiURI + '?random=' + process.pid;
+	var uri = env.conf.wiki.apiURI;
 
 	this.requestOptions = {
 		// Use POST since we are passing a bit of source, and GET has a very
@@ -370,8 +370,9 @@ function PreprocessorRequest ( env, title, text ) {
 		method: 'POST',
 		form: apiargs, // The API arguments
 		followRedirect: true,
-		url: url,
+		uri: uri,
 		timeout: 16 * 1000, // 16 seconds
+		proxy: env.conf.parsoid.apiProxyURI,
 		headers: {
 			'User-Agent': userAgent,
 			'Cookie': env.cookie,
@@ -459,10 +460,7 @@ function PHPParseRequest ( env, title, text ) {
 		text: text,
 		disablepp: 'true'
 	};
-	// Randomize the POST url so that we hit different Squids
-	// TODO: cut out squids completely. See
-	// https://bugzilla.wikimedia.org/show_bug.cgi?id=51273
-	var url = env.conf.wiki.apiURI + '?random=' + process.pid;
+	var uri = env.conf.wiki.apiURI;
 
 	this.requestOptions = {
 		// Use POST since we are passing a bit of source, and GET has a very
@@ -471,8 +469,9 @@ function PHPParseRequest ( env, title, text ) {
 		method: 'POST',
 		form: apiargs, // The API arguments
 		followRedirect: true,
-		url: url,
+		uri: uri,
 		timeout: 16 * 1000, // 16 seconds
+		proxy: env.conf.parsoid.apiProxyURI,
 		headers: {
 			'User-Agent': userAgent,
 			'Cookie': env.cookie,
@@ -544,12 +543,12 @@ function ParsoidCacheRequest ( env, title, oldid, options ) {
 	var apiargs = {
 		oldid: oldid
 	};
-	var url = env.conf.parsoid.parsoidCacheURI +
+	var uri = env.conf.parsoid.parsoidCacheURI +
 			env.conf.wiki.iwp + '/' + encodeURIComponent(title.replace(/ /g, '_')) +
 			'?' + qs.stringify( apiargs );
-	this.url = url;
+	this.uri = uri;
 
-	//console.warn('Cache request:', url);
+	//console.warn('Cache request:', uri);
 
 
 	this.retries = 0;
@@ -557,8 +556,9 @@ function ParsoidCacheRequest ( env, title, oldid, options ) {
 		// Use GET so that our request is cacheable
 		method: 'GET',
 		followRedirect: false,
-		url: url,
+		uri: uri,
 		timeout: 60 * 1000, // 60 seconds: less than 100s VE timeout so we still finish
+		proxy: env.conf.parsoid.apiProxyURI,
 		headers: {
 			'User-Agent': userAgent,
 			'Connection': 'close',
@@ -641,8 +641,9 @@ var ConfigRequest = function ( apiURI, env ) {
 	this.requestOptions = {
 		method: 'GET',
 		followRedirect: true,
-		url: apiURI + '?' + qs.stringify( apiargs ),
+		uri: apiURI + '?' + qs.stringify( apiargs ),
 		timeout: 40 * 1000,
+		proxy: env.conf.parsoid.apiProxyURI,
 		headers: {
 			'User-Agent': userAgent,
 			'Cookie': env.cookie,
@@ -695,7 +696,7 @@ function ImageInfoRequest( env, filename, dims ) {
 
 	var ix,
 		conf = env.conf.wiki,
-		url = conf.apiURI + '?',
+		uri = conf.apiURI + '?',
 		filenames = [ filename ],
 		imgnsid = conf.canonicalNamespaces.image,
 		imgns = conf.namespaceNames[imgnsid],
@@ -727,13 +728,14 @@ function ImageInfoRequest( env, filename, dims ) {
 		}
 	}
 
-	url += qs.stringify( apiArgs );
+	uri += qs.stringify( apiArgs );
 
 	this.requestOptions = {
 		method: 'GET',
 		followRedirect: true,
-		url: url,
+		uri: uri,
 		timeout: 40 * 1000,
+		proxy: env.conf.parsoid.apiProxyURI,
 		headers: {
 			'User-Agent': userAgent,
 			'Cookie': env.cookie,

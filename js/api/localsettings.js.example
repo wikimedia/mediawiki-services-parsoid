@@ -10,6 +10,9 @@ exports.setup = function( parsoidConfig ) {
 	// The URL here is supposed to be your MediaWiki API endpoint
 	parsoidConfig.setInterwiki( 'localhost', 'http://localhost/w/api.php' );
 
+	// a proxy to connect to the API endpoints
+	// parsoidConfig.apiProxyURI = 'http://proxy.example.org:8080/';
+
 	// Enable debug mode (prints extra debugging messages)
 	// parsoidConfig.debug = true;
 
