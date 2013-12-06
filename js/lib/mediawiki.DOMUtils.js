@@ -294,37 +294,18 @@ var DOMUtils = {
 	 *
 	 * @param {Node} node
 	 * @param {string} name
-	 * @param {Object} tplAttrs
 	 * @returns {Object}
 	 *   @returns {Mixed} return.value
 	 *   @returns {boolean} return.modified If the value of the attribute changed since we parsed the wikitext
 	 *   @returns {boolean} return.fromsrc Whether we got the value from source-based roundtripping
 	 */
-	getAttributeShadowInfo: function ( node, name, tplAttrs ) {
+	getAttributeShadowInfo: function ( node, name ) {
 		this.getDataParsoid( node );
 		if ( !this.isElt(node) || !node.data || !node.data.parsoid ) {
 			return node.getAttribute( name );
 		}
 		var curVal = node.getAttribute(name),
 			dp = node.data.parsoid;
-
-		// If tplAttrs is truish, check if this attribute was
-		// template-generated. Return that value if set.
-		if ( tplAttrs ) {
-			var type = node.getAttribute('typeof'),
-				about = node.getAttribute('about') || '',
-				tplAttrState = tplAttrs[about];
-			if (type && /(?:^|\s)mw:ExpandedAttrs\/[^\s]+/.test(type) &&
-					tplAttrState &&
-					tplAttrState.vs[name] )
-			{
-				return {
-					value: tplAttrState.vs[name],
-					modified: false,
-					fromsrc: true
-				};
-			}
-		}
 
 		// Not the case, continue regular round-trip information.
 		if ( dp.a === undefined ) {

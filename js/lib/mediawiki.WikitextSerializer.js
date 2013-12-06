@@ -399,10 +399,6 @@ var WSP = WikitextSerializer.prototype;
  *    Stack of wikitext escaping handlers -- these handlers are responsible
  *    for smart escaping when the surrounding wikitext context is known.
  *
- * tplAttrs
- *    Tag attributes that came from templates in source wikitext -- these
- *    are collected upfront from the DOM from mw-marked nodes.
- *
  * currLine
  *    This object is used by the wikitext escaping algorithm -- represents
  *    a "single line" of output wikitext as represented by a block node in
@@ -424,7 +420,6 @@ WSP.initialState = {
 	inIndentPre: false,
 	inPHPBlock: false,
 	wteHandlerStack: [],
-	tplAttrs: {},
 	// XXX: replace with output buffering per line
 	currLine: {
 		text: '',
@@ -757,10 +752,7 @@ WSP.getAttributeValue = function(node, key, value) {
 	return value;
 };
 
-// Temporarily, keep this working with old-style meta tags
-// so we dont have to purge the cache. But, on cache purge,
-// we can ditch oldStyleTplAttrs and all support for it.
-WSP.serializedAttrVal = function(node, name, oldStyleTplAttrs) {
+WSP.serializedAttrVal = function(node, name) {
 	DU.getDataParsoid( node );
 	if ( !DU.isElt(node) || !node.data || !node.data.parsoid ) {
 		return node.getAttribute( name );
@@ -774,7 +766,7 @@ WSP.serializedAttrVal = function(node, name, oldStyleTplAttrs) {
 			fromsrc: true
 		};
 	} else {
-		return DU.getAttributeShadowInfo(node, name, oldStyleTplAttrs);
+		return DU.getAttributeShadowInfo(node, name);
 	}
 };
 
@@ -1263,8 +1255,7 @@ var splitLinkContentString = function (contentString, dp, target) {
 
 // Helper function for getting RT data from the tokens
 var getLinkRoundTripData = function( env, node, state ) {
-	var tplAttrs = state.tplAttrs,
-	    dp = node.data.parsoid;
+	var dp = node.data.parsoid;
 	var rtData = {
 		type: null,
 		target: null, // filled in below
@@ -1288,7 +1279,7 @@ var getLinkRoundTripData = function( env, node, state ) {
 	rtData.href = href.replace( /^(\.\.?\/)+/, '' );
 
 	// Now get the target from rt data
-	rtData.target = state.serializer.serializedAttrVal(node, 'href', tplAttrs);
+	rtData.target = state.serializer.serializedAttrVal(node, 'href', {});
 
 	// Check if the link content has been modified
 	// FIXME: This will only work with selser of course. Hard to test without
@@ -1890,7 +1881,7 @@ WSP.linkHandler = function(node, state, cb) {
 				// we need to fully shadow the sort key.
 				//if ( ! target.modified ) {
 					// The target and source key was not modified
-					var sortKeySrc = this.serializedAttrVal(node, 'mw:sortKey', state.tplAttrs);
+					var sortKeySrc = this.serializedAttrVal(node, 'mw:sortKey', {});
 					if ( sortKeySrc.value !== null ) {
 						linkData.contentNode = undefined;
 						linkData.content.string = sortKeySrc.value;
@@ -2761,7 +2752,7 @@ WSP.tagHandlers = {
 					if (out === 'categorydefaultsort') {
 						if (node.data.parsoid.src) {
 							// Use content so that VE modifications are preserved
-							var contentInfo = state.serializer.serializedAttrVal(node, "content", state.tplAttrs);
+							var contentInfo = state.serializer.serializedAttrVal(node, "content", {});
 							out = node.data.parsoid.src.replace(/^([^:]+:)(.*)$/, "$1" + contentInfo.value + "}}");
 						} else {
 							console.warn('defaultsort is missing source. Rendering as DEFAULTSORT magicword');
@@ -3077,22 +3068,8 @@ WSP._serializeAttributes = function (state, node, token) {
 		return (/(?:^|\s)mw:ExpandedAttrs\/[^\s]+/).test(tokType);
 	}
 
-	var tplAttrState = { kvs: {}, ks: {}, vs: {} },
-	    tokType = token.getAttribute("typeof"),
+	var tokType = token.getAttribute("typeof"),
 		attribs = token.attribs;
-
-	// Check if this token has attributes that have been
-	// expanded from templates or extensions
-	if (hasExpandedAttrs(tokType)) {
-		tplAttrState = state.tplAttrs[token.getAttribute("about")];
-		if (!tplAttrState) {
-			console.error("ERROR: Missing info about tpl-affected attribute");
-			console.error("-> about: " + JSON.stringify(token.getAttribute("about")));
-			console.error("-> token: " + JSON.stringify(token));
-			// Reset to default so we dont crash
-			tplAttrState = { kvs: {}, ks: {}, vs: {} };
-		}
-	}
 
 	var out = [],
 		// Strip Parsoid generated values
@@ -3135,47 +3112,32 @@ WSP._serializeAttributes = function (state, node, token) {
 		}
 
 		if (k.length > 0) {
-			tplKV = tplAttrState.kvs[k];
-			if (tplKV) {
-				out.push(tplKV);
+			vInfo = token.getAttributeShadowInfo(k);
+			v = vInfo.value;
+
+			// Deal with k/v's that were template-generated
+			k = this.getAttributeKey(node, k);
+
+			// Pass in kv.k, not k since k can potentially
+			// be original wikitext source for 'k' rather than
+			// the string value of the key.
+			v = this.getAttributeValue(node, kv.k, v);
+
+			// Remove encapsulation from protected attributes
+			// in pegTokenizer.pegjs.txt:generic_newline_attribute
+			k = k.replace( /^data-x-/i, '' );
+
+			if (v.length > 0) {
+				if (!vInfo.fromsrc) {
+					// Escape HTML entities
+					v = Util.escapeEntities(v);
+				}
+				out.push(k + '=' + '"' + v.replace( /"/g, '&quot;' ) + '"');
+			} else if (k.match(/[{<]/)) {
+				// Templated, <*include*>, or <ext-tag> generated
+				out.push(k);
 			} else {
-				tplK = tplAttrState.ks[k];
-				tplV = tplAttrState.vs[k];
-				vInfo = token.getAttributeShadowInfo(k);
-				v = vInfo.value;
-
-				// Deal with k/v's that were template-generated
-				if (tplK) {
-					k = tplK;
-				} else {
-					k = this.getAttributeKey(node, k);
-				}
-
-				if (tplV) {
-					v = tplV;
-				} else {
-					// Pass in kv.k, not k since k can potentially
-					// be original wikitext source for 'k' rather than
-					// the string value of the key.
-					v = this.getAttributeValue(node, kv.k, v);
-				}
-
-				// Remove encapsulation from protected attributes
-				// in pegTokenizer.pegjs.txt:generic_newline_attribute
-				k = k.replace( /^data-x-/i, '' );
-
-				if (v.length > 0) {
-					if (!vInfo.fromsrc) {
-						// Escape HTML entities
-						v = Util.escapeEntities(v);
-					}
-					out.push(k + '=' + '"' + v.replace( /"/g, '&quot;' ) + '"');
-				} else if (k.match(/[{<]/)) {
-					// Templated, <*include*>, or <ext-tag> generated
-					out.push(k);
-				} else {
-					out.push(k + '=""');
-				}
+				out.push(k + '=""');
 			}
 		} else if ( kv.v.length ) {
 			// not very likely..
@@ -3198,21 +3160,8 @@ WSP._serializeAttributes = function (state, node, token) {
 			k = aKeys[i];
 			// Attrib not present -- sanitized away!
 			if (!Util.lookupKV(attribs, k)) {
-				// Deal with k/v's that were template-generated
-				// and then sanitized away!
-				tplK = tplAttrState.ks[k];
-				if (tplK) {
-					k = tplK;
-				}
-
 				v = dataAttribs.sa[k];
 				if (v) {
-					tplV = tplAttrState.vs[k];
-
-					if (tplV){
-						v = tplV;
-					}
-
 					out.push(k + '=' + '"' + v.replace( /"/g, '&quot;' ) + '"');
 				} else {
 					// at least preserve the key
@@ -3713,54 +3662,6 @@ WSP.handleSeparatorText = function ( node, state ) {
 	}
 };
 
-
-/**
- * Update state with the set of templated attributes.
- */
-WSP.extractTemplatedAttributes = function(node, state) {
-	if (node.nodeName.toLowerCase() === "meta") {
-		var prop = node.getAttribute("property");
-		if (prop && prop.match(/mw:objectAttr/)) {
-			var templateId = node.getAttribute("about") || '';
-			var src  = this._getDOMRTInfo(node).src;
-			if (!state.tplAttrs[templateId]) {
-				state.tplAttrs[templateId] = { kvs: {}, ks: {}, vs: {} };
-			}
-
-			// prop is one of:
-			// "mw:ObjectAttr#foo"    -- "foo=blah" came from a template
-			// "mw:objectAttrKey#foo" -- "foo" came from a template
-			// "mw:objectAttrVal#foo  -- "blah" (foo's value) came from a template
-			var pieces = prop.split("#");
-			var attr   = pieces[1];
-
-			if (pieces[0] === "mw:objectAttr") {
-				state.tplAttrs[templateId].kvs[attr] = src;
-			} else if (pieces[0] === "mw:objectAttrKey") {
-				state.tplAttrs[templateId].ks[attr] = src;
-			} else {
-				state.tplAttrs[templateId].vs[attr] = src;
-			}
-
-			// Remove it from the DOM
-			//node.parentNode.removeChild(node);
-		}
-	} else {
-		var child = node.firstChild;
-		var next, prev, childIsPre;
-
-		while (child) {
-			// Get the next sibling first thing because we may delete this child
-			next = child.nextSibling; prev = child.previousSibling;
-			childIsPre = DU.hasNodeName(child, "pre");
-
-			// Descend and recurse
-			this.extractTemplatedAttributes(child, state);
-
-			child = next;
-		}
-	}
-};
 
 /**
  * Helper for updateSeparatorConstraints
@@ -4479,9 +4380,6 @@ WSP.serializeDOM = function( body, chunkCB, finalCB, selserMode ) {
 		// Normalize the DOM (coalesces adjacent text body)
 		// FIXME: Disabled as this strips empty comments (<!---->).
 		//body.normalize();
-
-		// collect tpl attr tags
-		this.extractTemplatedAttributes(body, state);
 
 		// Minimize I/B tags
 		minimizeWTQuoteTags(body);
