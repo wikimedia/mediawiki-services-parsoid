@@ -801,7 +801,21 @@ autolink
 
 urllink
   = target:url {
-      return [ new SelfclosingTagTk( 'urllink', [new KV('href', target)], { tsr: [pos0, pos] } ) ];
+      // Special case handling for trailing parentheses: remove from link if
+      // there is no opening parenthesis in the link
+      var unmatchedParenthesis = '';
+      if (!/[(]/.test(target) && /[)]$/.test(target)) {
+          target = target.substr(0, target.length - 1);
+          unmatchedParenthesis = ')';
+          pos--;
+      }
+
+      var res = [ new SelfclosingTagTk( 'urllink', [new KV('href', target)], { tsr: [pos0, pos] } ) ];
+      //if (unmatchedParenthesis) {
+      //    // convert the parenthesis back to text
+      //    res.push(unmatchedParenthesis);
+      //}
+      return res;
   }
 
 extlink

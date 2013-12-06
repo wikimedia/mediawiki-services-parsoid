@@ -4032,6 +4032,70 @@ http://example.com
 <p><a rel="mw:ExtLink" href="http://example.com">http://example.com</a></p>
 !! end
 
+!! test
+Parenthesis in external links, especially URL links
+!! options
+php
+!! input 
+http://example.com)
+
+http://example.com/test)
+
+http://example.com/(test)
+
+http://example.com/((test)
+
+(http://example.com/(test))
+
+(http://example.com/(test)))))
+
+http://example.com/a)b
+
+[http://example.com) foo]
+!! result
+<p><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>)
+</p><p><a rel="nofollow" class="external free" href="http://example.com/test">http://example.com/test</a>)
+</p><p><a rel="nofollow" class="external free" href="http://example.com/(test)">http://example.com/(test)</a>
+</p><p><a rel="nofollow" class="external free" href="http://example.com/((test)">http://example.com/((test)</a>
+</p><p>(<a rel="nofollow" class="external free" href="http://example.com/(test))">http://example.com/(test))</a>
+</p><p>(<a rel="nofollow" class="external free" href="http://example.com/(test)))))">http://example.com/(test)))))</a>
+</p><p><a rel="nofollow" class="external free" href="http://example.com/a)b">http://example.com/a)b</a>
+</p><p><a rel="nofollow" class="external text" href="http://example.com)">foo</a>
+</p>
+!! end
+
+!! test
+Parenthesis in external links, especially URL links (Parsoid)
+!! options
+parsoid
+!! input 
+http://example.com)
+
+http://example.com/test)
+
+http://example.com/(test)
+
+http://example.com/((test)
+
+(http://example.com/(test))
+
+(http://example.com/(test)))))
+
+http://example.com/a)b
+
+[http://example.com) foo]
+!! result
+<p><a rel="mw:ExtLink" href="http://example.com">http://example.com</a>)</p>
+<p><a rel="mw:ExtLink" href="http://example.com/test">http://example.com/test</a>)</p>
+<p><a rel="mw:ExtLink" href="http://example.com/(test)">http://example.com/(test)</a></p>
+<p><a rel="mw:ExtLink" href="http://example.com/((test)">http://example.com/((test)</a></p>
+<p>(<a rel="mw:ExtLink" href="http://example.com/(test))">http://example.com/(test))</a></p>
+<p>(<a rel="mw:ExtLink" href="http://example.com/(test)))))">http://example.com/(test)))))</a></p>
+<p><a rel="mw:ExtLink" href="http://example.com/a)b">http://example.com/a)b</a></p>
+<p><a rel="mw:ExtLink" href="http://example.com)">foo</a></p>
+!! end
+
+
 ###
 ### Quotes
 ###
