@@ -2810,22 +2810,12 @@ WSP.tagHandlers = {
 			}
 		},
 		sepnls: {
-			// FIXME: really suppress newlines after these metas. Currently
-			// conflicts are resolved in favor of the newer constraint.
-			after: function(node, otherNode) {
-				var type = node.getAttribute('typeof');
-				if (type && type.match(/mw:Includes\//)) {
-					return {max:0};
-				} else {
-					return {};
-				}
-			},
 			before: function(node, otherNode) {
 				var type = node.getAttribute( 'typeof' ) || node.getAttribute( 'property' );
-				if (type && type.match(/mw:Includes\//)) {
-					return {max:0};
-				} else if ( type && type.match( /mw:PageProp\/categorydefaultsort/ ) ) {
-					if ( otherNode.nodeName.toLowerCase() === 'p' ) {
+				if ( type && type.match( /mw:PageProp\/categorydefaultsort/ ) ) {
+					if ( otherNode.nodeName === 'P' && otherNode.data.parsoid.stx !== 'html' ) {
+						// Since defaultsort is outside the p-tag, we need 2 newlines
+						// to ensure that it go back into the p-tag when parsed.
 						return { min: 2 };
 					} else {
 						return { min: 1 };
@@ -2833,6 +2823,10 @@ WSP.tagHandlers = {
 				} else {
 					return {};
 				}
+			},
+			after: function(node, otherNode) {
+				// No diffs
+				return {};
 			}
 		}
 	},
