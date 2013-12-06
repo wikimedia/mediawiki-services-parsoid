@@ -323,6 +323,14 @@ DDP.doDOMDiff = function ( baseParentNode, newParentNode ) {
 	if (baseNode) {
 		this.debug("--found trailing base nodes: deleted--");
 		this.markNode(newParentNode, 'deleted-child');
+		// SSS FIXME: WTS checks for zero children in a few places
+		// That code would have to be upgraded if we emit mw:DiffMarker
+		// in this scenario. So, bailing out in this one case for now.
+		if (newParentNode.childNodes.length > 0) {
+			var meta = newParentNode.ownerDocument.createElement('meta');
+			meta.setAttribute('typeof', 'mw:DiffMarker');
+			newParentNode.appendChild(meta);
+		}
 		foundDiffOverall = true;
 	}
 

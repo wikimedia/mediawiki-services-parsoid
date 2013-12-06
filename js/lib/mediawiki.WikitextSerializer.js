@@ -143,12 +143,7 @@ WEHP.isFirstContentNode = function(node) {
 	}
 
 	// Skip deleted-node markers
-	var prev = node.previousSibling;
-	while (prev && DU.isMarkerMeta(prev, "mw:DiffMarker")) {
-		prev = prev.previousSibling;
-	}
-
-	return prev === null;
+	return DU.previousNonDeletedSibling(node) === null;
 };
 
 WEHP.headingHandler = function(headingNode, state, text, opts) {
@@ -186,10 +181,10 @@ WEHP.liHandler = function(liNode, state, text, opts) {
 WEHP.quoteHandler = function(state, text, opts) {
 	// SSS FIXME: Can be refined
 	if (text.match(/'$/)) {
-		var next = opts.node.nextSibling;
+		var next = DU.nextNonDeletedSibling(opts.node);
 		return next === null || Consts.WTQuoteTags.has(next.nodeName);
 	} else if (text.match(/^'/)) {
-		var prev = opts.node.previousSibling;
+		var prev = DU.previousNonDeletedSibling(opts.node);
 		return prev === null || Consts.WTQuoteTags.has(prev.nodeName);
 	}
 
@@ -536,7 +531,7 @@ WSP.initialState = {
 		// Escape 'res' if necessary
 		var origRes = res;
 		if (this.escapeText) {
-			res = this.serializer.escapeWikiText(this, res, { node: node, isLastChild: !node.nextSibling } );
+			res = this.serializer.escapeWikiText(this, res, { node: node, isLastChild: DU.nextNonDeletedSibling(node) === null } );
 			this.escapeText = false;
 		}
 
@@ -1362,11 +1357,7 @@ WSP.getLinkPrefixTailEscapes = function (textNode, env) {
 		env.conf.wiki.linkTrailRegex.test(textNode.nodeValue))
 	{
 		// Skip past deletion markers
-		node = textNode.previousSibling;
-		while (node && DU.isMarkerMeta(node, "mw:DiffMarker")) {
-			node = node.previousSibling;
-		}
-
+		node = DU.previousNonDeletedSibling(textNode);
 		if (node && DU.isElt(node) && node.nodeName === 'A' &&
 			/mw:WikiLink/.test(node.getAttribute("rel")))
 		{
@@ -1379,10 +1370,7 @@ WSP.getLinkPrefixTailEscapes = function (textNode, env) {
 		env.conf.wiki.linkPrefixRegex.test(textNode.nodeValue))
 	{
 		// Skip past deletion markers
-		node = textNode.nextSibling;
-		while (node && DU.isMarkerMeta(node, "mw:DiffMarker")) {
-			node = node.nextSibling;
-		}
+		node = DU.nextNonDeletedSibling(textNode);
 		if (node && DU.isElt(node) && node.nodeName === 'A' &&
 			/mw:WikiLink/.test(node.getAttribute("rel")))
 		{
@@ -1562,7 +1550,7 @@ WSP.handleImage = function ( node, state, cb ) {
 		return;
 	}
 
-	while ( wrapNode.nodeType !== wrapNode.ELEMENT_NODE ) {
+	while ( !DU.isElt(wrapNode) ) {
 		wrapNode = wrapNode.nextSibling;
 	}
 
@@ -2253,15 +2241,16 @@ WSP._getPrecedingQuoteElement = function(node, state) {
 		return null;
 	}
 
-	var prev = node.previousSibling;
+	var prev = DU.previousNonDeletedSibling(node);
 	if (prev && DU.isText(prev) && prev.nodeValue.match(/'$/)) {
 		return prev;
 	}
 
 	// Move up first until we have a sibling
-	while (node && !node.previousSibling) {
+	while (node && !DU.previousNonDeletedSibling(node)) {
 		node = node.parentNode;
 	}
+
 	if (node) {
 		node = node.previousSibling;
 	}
@@ -2282,7 +2271,7 @@ WSP._getPrecedingQuoteElement = function(node, state) {
 };
 
 WSP._quoteTextFollows = function(node, state) {
-	var next = node.nextSibling;
+	var next = DU.nextNonDeletedSibling(node);
 	return next && DU.isText(next) && next.nodeValue[0] === "'";
 };
 
@@ -2541,7 +2530,7 @@ WSP.tagHandlers = {
 		},
 		sepnls: {
 			before: function(node, othernode) {
-				if (!node.previousSibling && !node.data.parsoid.startTagSrc) {
+				if (!DU.previousNonDeletedSibling(node) && !node.data.parsoid.startTagSrc) {
 					// first line
 					return {min:0, max:2};
 				} else {
@@ -2651,7 +2640,7 @@ WSP.tagHandlers = {
 						return {min: 0, max: 0};
 					}
 				} else if (
-					otherNode === node.previousSibling &&
+					otherNode === DU.previousNonDeletedSibling(node) &&
 					// p-p transition
 					(otherNodeName === 'P' && otherNode.data.parsoid.stx !== 'html') ||
 					// Treat text/p similar to p/p transition

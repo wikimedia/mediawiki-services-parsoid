@@ -867,13 +867,31 @@ var DOMUtils = {
 		return next;
 	},
 
+	// Skip deleted-node markers
+	nextNonDeletedSibling: function(node) {
+		node = node.nextSibling;
+		while (node && this.isMarkerMeta(node, "mw:DiffMarker")) {
+			node = node.nextSibling;
+		}
+		return node;
+	},
+
+	// Skip deleted-node markers
+	previousNonDeletedSibling: function(node) {
+		node = node.previousSibling;
+		while (node && this.isMarkerMeta(node, "mw:DiffMarker")) {
+			node = node.previousSibling;
+		}
+		return node;
+	},
+
 	/**
 	 * Are all children of this node text nodes?
 	 */
 	allChildrenAreText: function (node) {
 		var child = node.firstChild;
 		while (child) {
-			if (!this.isText(child)) {
+			if (!this.isMarkerMeta(child, "mw:DiffMarker") && !this.isText(child)) {
 				return false;
 			}
 			child = child.nextSibling;
