@@ -243,11 +243,14 @@ function TemplateRequest ( env, title, oldid ) {
 		proxy: env.conf.parsoid.apiProxyURI,
 		headers: {
 			'User-Agent': userAgent,
-			'Cookie': env.cookie,
 			'Connection': 'close'
 
 		}
 	};
+	if (env.cookie) {
+		// Forward the cookie if set
+		this.requestOptions.headers.Cookie = env.cookie;
+	}
 
 	// Start the request
 	this.request( this.requestOptions, this._requestCB.bind(this) );
@@ -375,10 +378,14 @@ function PreprocessorRequest ( env, title, text ) {
 		proxy: env.conf.parsoid.apiProxyURI,
 		headers: {
 			'User-Agent': userAgent,
-			'Cookie': env.cookie,
 			'Connection': 'close'
 		}
 	};
+
+	if (env.cookie) {
+		// Forward the cookie if set
+		this.requestOptions.headers.Cookie = env.cookie;
+	}
 
 	// Start the request
 	this.request( this.requestOptions, this._requestCB.bind(this) );
@@ -474,10 +481,14 @@ function PHPParseRequest ( env, title, text ) {
 		proxy: env.conf.parsoid.apiProxyURI,
 		headers: {
 			'User-Agent': userAgent,
-			'Cookie': env.cookie,
 			'Connection': 'close'
 		}
 	};
+
+	if (env.cookie) {
+		// Forward the cookie if set
+		this.requestOptions.headers.Cookie = env.cookie;
+	}
 
 	// Start the request
 	this.request( this.requestOptions, this._requestCB.bind(this) );
@@ -646,10 +657,15 @@ var ConfigRequest = function ( apiURI, env ) {
 		proxy: env.conf.parsoid.apiProxyURI,
 		headers: {
 			'User-Agent': userAgent,
-			'Cookie': env.cookie,
 			'Connection': 'close'
 		}
 	};
+
+	if (env.cookie) {
+		// Forward the cookie if set
+		this.requestOptions.headers.Cookie = env.cookie;
+	}
+
 
 	this.request( this.requestOptions, this._requestCB.bind( this ) );
 };
@@ -738,10 +754,13 @@ function ImageInfoRequest( env, filename, dims ) {
 		proxy: env.conf.parsoid.apiProxyURI,
 		headers: {
 			'User-Agent': userAgent,
-			'Cookie': env.cookie,
 			'Connection': 'close'
 		}
 	};
+	if (env.cookie) {
+		// Forward the cookie if set
+		this.requestOptions.headers.Cookie = env.cookie;
+	}
 
 	this.request( this.requestOptions, this._requestCB.bind( this ) );
 }
