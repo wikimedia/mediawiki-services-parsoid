@@ -25,16 +25,24 @@ function ParsoidConfig( localSettings, options ) {
 	var self = this;
 	this.interwikiMap = {};
 
-	var wplist = wikipedias.split( '|' );
-	for ( var ix = 0; ix < wplist.length; ix++ ) {
-		// Set up aliases that follow the Wikimedia db name convention
-		// (enwiki, dewiki, enwikivoyage etc).
-		['pedia', 'voyage', 'books', 'source', 'quote'].forEach(function(suffix) {
-			var dbName = wplist[ix] + 'wiki' + (suffix === 'pedia' ? '' : suffix);
-			self.interwikiMap[dbName] = 'http://' + wplist[ix] + '.wiki' +
+	// XXX: move to prototype to avoid reconstructing this for each request?
+	wikipedias.split( '|' ).forEach(function(lang) {
+		// Wikipedia
+		self.interwikiMap[lang + 'wiki'] = 'http://' + lang +
+				'.wikipedia.org/w/api.php';
+
+		// Wiktionary
+		self.interwikiMap[lang + 'wiktionary'] = 'http://' + lang +
+				'.wiktionary.org/w/api.php';
+
+		// Wikivoyage, Wikibooks, Wikisource, Wikiquote all follow the same
+		// pattern
+		['voyage', 'books', 'source', 'quote'].forEach(function(suffix) {
+			var dbName = lang + 'wiki' + suffix;
+			self.interwikiMap[dbName] = 'http://' + lang + '.wiki' +
 				suffix + '.org/w/api.php';
 		});
-	}
+	});
 
 	// Add mediawiki.org too
 	this.interwikiMap.mediawikiwiki = 'http://www.mediawiki.org/w/api.php';
