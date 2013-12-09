@@ -847,8 +847,8 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 				imageinfo: [
 					{
 						url: './Special:FilePath/' + filename,
-						width: 200,
-						height: 200
+						width: 220,
+						height: 220
 					}
 				]
 			};
@@ -1144,7 +1144,7 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 	var width = null, height = null;
 	// local 'width' and 'height' vars will be strings (or null)
 	if ( oHash.height === null && oHash.width === null ) {
-		width = '200';
+		width = '220';
 	} else {
 		width = oHash.width;
 		height = oHash.height;
