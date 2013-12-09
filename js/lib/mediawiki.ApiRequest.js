@@ -558,7 +558,6 @@ function ParsoidCacheRequest ( env, title, oldid, options ) {
 		followRedirect: false,
 		uri: uri,
 		timeout: 60 * 1000, // 60 seconds: less than 100s VE timeout so we still finish
-		proxy: env.conf.parsoid.apiProxyURI,
 		headers: {
 			'User-Agent': userAgent,
 			'Connection': 'close',
