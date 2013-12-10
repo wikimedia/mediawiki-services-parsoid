@@ -422,6 +422,7 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
 
 	// In some cases (which?) the full document is passed in, but we are
 	// interested in the body. So check if we got a document.
+
 	var content = doc.nodeType === doc.DOCUMENT_NODE ? doc.body : doc,
 		serializer = (mode === 'selser') ? new SelectiveSerializer({env: this.env})
 										: new WikitextSerializer({env: this.env}),
@@ -429,7 +430,7 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
 		self = this,
 		startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser';
 	try {
-		this.env.page.dom = item.cachedHTML || null;
+		this.env.page.dom = item.cachedHTMLStr ? DU.parseHTML(item.cachedHTMLStr).body : null;
 		if ( mode === 'selser' ) {
 			// console.warn("--> selsering: " + content.outerHTML);
 			this.env.setPageSrcInfo( item.input );
@@ -880,53 +881,34 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 		endsAtWikitext = mode === 'wt2wt' || mode === 'selser' || mode === 'html2wt',
 		endsAtHtml = mode === 'wt2html' || mode === 'html2html';
 
-	// Source preparation stage
+	// Source preparation + caching stage 0
+	// save the result of the first stage so we can maybe skip it later
 	if ( startsAtHtml ) {
-		if ( item.cachedSourceHTML === null ) {
-			testTasks.push( function ( cb ) {
-				cb( null, DU.parseHTML(item.result).body );
-			} );
-		} else {
-			testTasks.push( function ( cb ) {
-				cb( null, item.cachedSourceHTML.cloneNode( true ) );
-			} );
-		}
-	}
-
-	// Caching stage 0 - save the result of the first stage so we can maybe skip it later
-	if ( startsAtHtml ) {
-		testTasks.push( function ( result, cb ) {
-			if ( startsAtHtml && item.cachedSourceHTML === null ) {
-				// Cache source HTML
-				item.cachedSourceHTML = result.cloneNode( true );
-			}
-
+		testTasks.push( function ( cb ) {
+			var result = DU.parseHTML(item.result).body;
+			// Cache source HTML
 			cb( null, result );
 		} );
 	}
 
 	// First conversion stage
 	if ( startsAtWikitext ) {
-		if ( item.cachedHTML === null ) {
+		if ( item.cachedHTMLStr === null ) {
 			testTasks.push( this.convertWt2Html.bind( this, mode, item.input ) );
+			// Caching stage 1 - save the result of the first two stages so we can maybe skip them later
+			testTasks.push( function ( result, cb ) {
+				// Cache parsed HTML
+				item.cachedHTMLStr = DU.serializeNode(result);
+				cb( null, result );
+			} );
 		} else {
 			testTasks.push( function ( cb ) {
-				cb( null, item.cachedHTML.cloneNode( true ) );
+				cb( null, DU.parseHTML(item.cachedHTMLStr) );
 			} );
 		}
 	} else if ( startsAtHtml ) {
 		testTasks.push(	this.convertHtml2Wt.bind( this, options, mode, item	) );
 	}
-
-	// Caching stage 1 - save the result of the first two stages so we can maybe skip them later
-	testTasks.push( function ( result, cb ) {
-		if ( startsAtWikitext && item.cachedHTML === null ) {
-			// Cache parsed HTML
-			item.cachedHTML = result.cloneNode( true );
-		}
-
-		cb( null, result );
-	} );
 
 	// Generate and make changes for the selser test mode
 	if ( mode === 'selser' ) {
@@ -940,9 +922,18 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 		testTasks.push( this.applyChanges.bind( this, item ) );
 
 		// Save the modified DOM so we can re-test it later
+		// Always serialize to string and reparse before passing to selser/wt2wt
 		testTasks.push( function ( doc, cb ) {
-			item.changedHTML = doc.cloneNode( true );
+			item.changedHTMLStr = DU.serializeNode(doc);
+			doc = DU.parseHTML(item.changedHTMLStr).body;
 			cb( null, doc );
+		} );
+	}
+
+	// Always serialize DOM to string and reparse before passing to wt2wt
+	if (mode === 'wt2wt') {
+		testTasks.push( function ( doc, cb ) {
+			cb( null, DU.parseHTML(DU.serializeNode(doc)).body);
 		} );
 	}
 
@@ -993,7 +984,7 @@ ParserTests.prototype.processSerializedWT = function ( item, options, mode, wiki
 	item.time.end = Date.now();
 
 	if ( mode === 'selser' ) {
-		this.convertHtml2Wt( options, 'wt2wt', item, item.changedHTML.cloneNode( true ), function ( err, wt ) {
+		this.convertHtml2Wt( options, 'wt2wt', item, DU.parseHTML(item.changedHTMLStr), function ( err, wt ) {
 			if ( err === null ) {
 				item.resultWT = wt;
 			} else {
@@ -1613,9 +1604,8 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 							}
 
 							// Push the caches forward!
-							item.cachedHTML = newitem.cachedHTML;
+							item.cachedHTMLStr = newitem.cachedHTMLStr;
 							item.cachedNormalizedHTML = newitem.cachedNormalizedHTML;
-							item.cachedResultHTML = newitem.cachedResultHTML;
 
 							setImmediate( cb );
 						}.bind( this ) );
@@ -1642,9 +1632,8 @@ ParserTests.prototype.processCase = function ( i, options ) {
 		if (!item.options) { item.options = {}; }
 		// Reset the cached results for the new case.
 		// All test modes happen in a single run of processCase.
-		item.cachedHTML = null;
+		item.cachedHTMLStr = null;
 		item.cachedNormalizedHTML = null;
-		item.cachedSourceHTML = null;
 
 		//console.log( 'processCase ' + i + JSON.stringify( item )  );
 		if ( typeof item === 'object' ) {

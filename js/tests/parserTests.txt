@@ -16953,7 +16953,7 @@ parsoid
 A <ref group="a">foo</ref>
 B <ref group="b">bar</ref>
 
-<references group='a' />
+<references group="a" />
 !!result
 <p>A <span about="#mwt2" class="reference" data-mw='{"name":"ref","body":{"html":"foo"},"attrs":{"group":"a"}}' id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref"><a href="#cite_note-1">[a 1]</a></span>
 B <span about="#mwt4" class="reference" data-mw='{"name":"ref","body":{"html":"bar"},"attrs":{"group":"b"}}' id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref"><a href="#cite_note-1">[b 1]</a></span></p>
@@ -16994,7 +16994,7 @@ parsoid
 A <ref group="a">afoo</ref>
 B <ref>bfoo</ref>
 
-<references group="a"/>
+<references group="a" />
 
 C <ref>cfoo</ref>
 
