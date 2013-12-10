@@ -2663,53 +2663,32 @@ WSP.tagHandlers = {
 	},
 	pre: {
 		handle: function(node, state, cb) {
-			if (node.data.parsoid.stx === 'html') {
-				// Handle html-pres specially
-				// 1. If the node has a leading newline, add one like it (logic copied from VE)
-				// 2. If not, and it has a data-parsoid strippedNL flag, add it back.
-				// This patched DOM will serialize html-pres correctly.
+			// Handle indent pre
 
-				var lostLine = '', fc = node.firstChild;
-				if (DU.isText(fc)) {
-					var m = fc.nodeValue.match(/^\r\n|\r|\n/);
-					lostLine = m && m[0] || '';
-				}
+			// XXX: Use a pre escaper?
+			state.inIndentPre = true;
+			var content = state.serializeChildrenToString(node);
 
-				var shadowedNL = node.data.parsoid.strippedNL;
-				if (!lostLine && shadowedNL) {
-					lostLine = shadowedNL;
-				}
-				cb('<pre>' + lostLine +
-						// escape embedded </pre>
-						node.innerHTML.replace(/<\/pre( [^>]*)>/g, '&lt;/pre$1&gt'), node);
-			} else {
-				// Handle indent pre
+			// Strip (only the) trailing newline
+			var trailingNL = content.match(/\n$/);
+			content = content.replace(/\n$/, '');
 
-				// XXX: Use a pre escaper?
-				state.inIndentPre = true;
-				var content = state.serializeChildrenToString(node);
+			// Insert indentation
+			content = ' ' + content.replace(/(\n(<!--(?:[^\-]|\-(?!\->))*\-\->)*)/g, '$1 ');
 
-			    // Strip (only the) trailing newline
-			    var trailingNL = content.match(/\n$/);
-			    content = content.replace(/\n$/, '');
+			// But skip "empty lines" (lines with 1+ comment and optional whitespace)
+			// since empty-lines sail through all handlers without being affected.
+			// See empty_line_with_comments production in pegTokenizer.pegjs.txt
+			//
+			// We could use 'split' to split content into lines and selectively add
+			// indentation, but the code will get unnecessarily complex for questionable
+			// benefits. So, going this route for now.
+			content = content.replace(/(^|\n) ((?:[ \t]*<!--(?:[^\-]|\-(?!\->))*\-\->[ \t]*)+)(?=\n|$)/, '$1$2');
 
-				// Insert indentation
-				content = ' ' + content.replace(/(\n(<!--(?:[^\-]|\-(?!\->))*\-\->)*)/g, '$1 ');
+			cb(content, node);
 
-				// But skip "empty lines" (lines with 1+ comment and optional whitespace)
-				// since empty-lines sail through all handlers without being affected.
-				// See empty_line_with_comments production in pegTokenizer.pegjs.txt
-				//
-				// We could use 'split' to split content into lines and selectively add
-				// indentation, but the code will get unnecessarily complex for questionable
-				// benefits. So, going this route for now.
-				content = content.replace(/(^|\n) ((?:[ \t]*<!--(?:[^\-]|\-(?!\->))*\-\->[ \t]*)+)(?=\n|$)/, '$1$2');
-
-				cb(content, node);
-
-				// Preserve separator source
-				state.sep.src = trailingNL && trailingNL[0] || '';
-			}
+			// Preserve separator source
+			state.sep.src = trailingNL && trailingNL[0] || '';
 			state.inIndentPre = false;
 		},
 		sepnls: {
@@ -3202,6 +3181,27 @@ WSP._htmlElementHandler = function (node, state, cb, wrapperUnmodified) {
 		if (Util.tagOpensBlockScope(node.nodeName.toLowerCase())) {
 			state.inPHPBlock = true;
 		}
+
+		if (node.nodeName === 'PRE') {
+			// Handle html-pres specially
+			// 1. If the node has a leading newline, add one like it (logic copied from VE)
+			// 2. If not, and it has a data-parsoid strippedNL flag, add it back.
+			// This patched DOM will serialize html-pres correctly.
+
+			var lostLine = '', fc = node.firstChild;
+			if (fc && DU.isText(fc)) {
+				var m = fc.nodeValue.match(/^\r\n|\r|\n/);
+				lostLine = m && m[0] || '';
+			}
+
+			var shadowedNL = node.data.parsoid.strippedNL;
+			if (!lostLine && shadowedNL) {
+				lostLine = shadowedNL;
+			}
+
+			cb(lostLine, node);
+		}
+
 		state.serializeChildren(node, cb);
 		state.inPHPBlock = inPHPBlock;
 	}

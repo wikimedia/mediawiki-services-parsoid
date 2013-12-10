@@ -881,12 +881,10 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 		endsAtWikitext = mode === 'wt2wt' || mode === 'selser' || mode === 'html2wt',
 		endsAtHtml = mode === 'wt2html' || mode === 'html2html';
 
-	// Source preparation + caching stage 0
-	// save the result of the first stage so we can maybe skip it later
+	// Source preparation
 	if ( startsAtHtml ) {
 		testTasks.push( function ( cb ) {
 			var result = DU.parseHTML(item.result).body;
-			// Cache source HTML
 			cb( null, result );
 		} );
 	}
