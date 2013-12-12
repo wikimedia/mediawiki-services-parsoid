@@ -803,18 +803,22 @@ urllink
   = target:url {
       // Special case handling for trailing parentheses: remove from link if
       // there is no opening parenthesis in the link
-      var unmatchedParenthesis = '';
-      if (!/[(]/.test(target) && /[)]$/.test(target)) {
-          target = target.substr(0, target.length - 1);
-          unmatchedParenthesis = ')';
-          pos--;
-      }
-
+      if ( target.constructor === Array ) {
+	      var end = target[target.length - 1];
+	      if ( !/[(]/.test( target[0] ) &&
+	           end.constructor === String &&
+	           /[)]$/.test( end )
+	      ) {
+	          target.pop();
+	          pos--;
+	      }
+      } else {
+	      if (!/[(]/.test(target) && /[)]$/.test(target)) {
+	          target = target.substr(0, target.length - 1);
+	          pos--;
+	      }
+	  }
       var res = [ new SelfclosingTagTk( 'urllink', [new KV('href', target)], { tsr: [pos0, pos] } ) ];
-      //if (unmatchedParenthesis) {
-      //    // convert the parenthesis back to text
-      //    res.push(unmatchedParenthesis);
-      //}
       return res;
   }
 
