@@ -683,7 +683,7 @@ inline_breaks
         return null !== pegArgs.pegTokenizer.inline_breaks( input, pos, stops );
       }
 
-pre_start = "<" pre_tag_name (' '+ [^>]*)? ">"
+pre_start = "<" pre_tag_name generic_newline_attribute* ">"
 
 inline
   = c:(urltext / (! inline_breaks !pre_start (inline_element / . )))+ {
