@@ -304,6 +304,22 @@ MWParserEnvironment.prototype.getPerformanceHeader = function () {
 };
 
 /**
+ * Figure out the proxy URI to use for API requests for a given wiki
+ */
+MWParserEnvironment.prototype.getAPIProxyURI = function (prefix) {
+	var apiProxyURI = this.conf.parsoid.apiProxyURIs[prefix];
+	if (apiProxyURI === undefined) {
+		// No specific api proxy set. Fall back to generic API proxy.
+		apiProxyURI = this.conf.parsoid.defaultAPIProxyURI;
+	} else if (apiProxyURI === null) {
+		// Explicitly disable the proxy if null was set for this prefix
+		apiProxyURI = undefined;
+	}
+	return apiProxyURI;
+};
+
+
+/**
  * Function that switches to a different configuration for a different wiki.
  * Caches all configs so we only need to get each one once (if we do it right)
  *
@@ -315,8 +331,9 @@ MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
 
 	function setupWikiConfig(env, apiURI, error, config) {
 		if ( error === null ) {
-			env.conf.wiki = new WikiConfig( config, prefix, apiURI );
+			env.conf.wiki = new WikiConfig( config, prefix, apiURI, env.getAPIProxyURI(prefix) );
 			env.confCache[prefix] = env.conf.wiki;
+
 		}
 
 		cb( error );
@@ -346,7 +363,9 @@ MWParserEnvironment.prototype.switchToConfig = function ( prefix, cb ) {
 		this.conf.wiki = this.confCache[prefix];
 		cb( null );
 	} else if ( this.conf.parsoid.fetchConfig ) {
-		var confRequest = new ConfigRequest( uri, this );
+
+		var apiProxyURI = this.getAPIProxyURI(prefix),
+			confRequest = new ConfigRequest( uri, this, apiProxyURI );
 		confRequest.on( 'src', setupWikiConfig.bind(null, this, uri));
 	} else {
 		// Load the config from cached config on disk

@@ -19,9 +19,12 @@ JSUtils.deepFreeze(baseConfig);
  * @constructor
  * @param {Object} resultConf The configuration object from a MediaWiki API request. See the #ConfigRequest class in lib/mediawiki.ApiRequest.js for information about how we get this object. If null, we use the contents of lib/mediawiki.BaseConfig.json instead.
  * @param {string} prefix The interwiki prefix this config will represent. Will be used for caching elsewhere in the code.
- * @param {string} uri The URI that represents this wiki's API endpoint. Usually ends in api.php.
+ * @param {string} apiURI The URI that represents this wiki's API endpoint. Usually ends in api.php.
+ * @param {string} apiProxyURI (optional) The URI of a proxy that should be
+ * used to access apiURI, or null to explicitly disable proxying for this
+ * wiki.
  */
-function WikiConfig( resultConf, prefix, uri ) {
+function WikiConfig( resultConf, prefix, apiURI, apiProxyURI ) {
 	var nsid,
 		name,
 		conf = this;
@@ -59,7 +62,10 @@ function WikiConfig( resultConf, prefix, uri ) {
 	this.iwp = prefix;
 
 	// The URI for api.php on this wiki.
-	this.apiURI = uri || null;
+	this.apiURI = apiURI || null;
+
+	// The proxy to use for this wiki.
+	this.apiProxyURI = apiProxyURI;
 
 	if ( resultConf === null ) {
 		// Use the default JSON that we've already loaded above.

@@ -240,11 +240,10 @@ function TemplateRequest ( env, title, oldid ) {
 		followRedirect: true,
 		uri: uri,
 		timeout: 40 * 1000, // 40 seconds
-		proxy: env.conf.parsoid.apiProxyURI,
+		proxy: env.conf.wiki.apiProxyURI,
 		headers: {
 			'User-Agent': userAgent,
 			'Connection': 'close'
-
 		}
 	};
 	if (env.cookie) {
@@ -375,7 +374,7 @@ function PreprocessorRequest ( env, title, text ) {
 		followRedirect: true,
 		uri: uri,
 		timeout: 16 * 1000, // 16 seconds
-		proxy: env.conf.parsoid.apiProxyURI,
+		proxy: env.conf.wiki.apiProxyURI,
 		headers: {
 			'User-Agent': userAgent,
 			'Connection': 'close'
@@ -478,7 +477,7 @@ function PHPParseRequest ( env, title, text ) {
 		followRedirect: true,
 		uri: uri,
 		timeout: 16 * 1000, // 16 seconds
-		proxy: env.conf.parsoid.apiProxyURI,
+		proxy: env.conf.wiki.apiProxyURI,
 		headers: {
 			'User-Agent': userAgent,
 			'Connection': 'close'
@@ -616,8 +615,10 @@ ParsoidCacheRequest.prototype._handleBody = function ( error, body ) {
  * @constructor
  * @param {string} apiURI The API URI to use for fetching
  * @param {MWParserEnvironment} env
+ * @param {string} apiProxyURI (optional) The proxy URI to use for the
+ * ConfigRequest
  */
-var ConfigRequest = function ( apiURI, env ) {
+var ConfigRequest = function ( apiURI, env, apiProxyURI ) {
 	ApiRequest.call( this, env, null );
 
 	var metas = [
@@ -653,7 +654,7 @@ var ConfigRequest = function ( apiURI, env ) {
 		followRedirect: true,
 		uri: apiURI + '?' + qs.stringify( apiargs ),
 		timeout: 40 * 1000,
-		proxy: env.conf.parsoid.apiProxyURI,
+		proxy: apiProxyURI,
 		headers: {
 			'User-Agent': userAgent,
 			'Connection': 'close'
@@ -750,7 +751,7 @@ function ImageInfoRequest( env, filename, dims ) {
 		followRedirect: true,
 		uri: uri,
 		timeout: 40 * 1000,
-		proxy: env.conf.parsoid.apiProxyURI,
+		proxy: env.conf.wiki.apiProxyURI,
 		headers: {
 			'User-Agent': userAgent,
 			'Connection': 'close'
