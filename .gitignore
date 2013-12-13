@@ -6,19 +6,16 @@
 .deploy
 
 
-cpp/build
-cpp/contrib/
+api/localsettings.js
+api/nohup.out
+api/npm-debug.log
+node_modules/
+tests/parserTests.cache
+tests/client/config.js
+tests/server/node_modules
+tests/server/server.settings.js
+doc
+tests/server/pages.db
+tests/client/config.js
 
-js/api/localsettings.js
-js/api/nohup.out
-js/api/npm-debug.log
-js/node_modules/
-js/tests/parserTests.cache
-js/tests/client/config.js
-js/tests/server/node_modules
-js/tests/server/server.settings.js
-js/doc
-js/tests/server/pages.db
-js/tests/client/config.js
-
-js/contrib/
+contrib/

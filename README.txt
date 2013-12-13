@@ -1,9 +1,25 @@
-Parsoid implements a bidirectional wikitext parser and interpreter. It
-converts and interprets wikitext into an annotated HTML DOM, which can then be
-edited with HTML editor tools such as the Visual Editor (see
-http://www.mediawiki.org/wiki/VisualEditor). It also provides the conversion
-of a (possibly modified) HTML DOM back to wikitext.
+A combined Mediawiki and html parser in JavaScript running on node.js. Please
+see (https://www.mediawiki.org/wiki/Future/Parser_development) for an overview
+of the current implementation, and instructions on running the tests.
 
-For more information about this project, check out the wiki:
+You might need to set the NODE_PATH environment variable,
+  export NODE_PATH="node_modules"
 
-	* http://www.mediawiki.org/wiki/Parsoid
+Download the dependencies:
+  npm install
+
+Run tests:
+  npm test
+
+Configure your Parsoid web service:
+
+ cd Parsoid/js/api
+ cp localsettings.js.example localsettings.js
+ // Tweak localsettings.js
+
+Run the webservice:
+
+ cd Parsoid/js
+ npm start
+
+More details are available at https://www.mediawiki.org/wiki/Parsoid/Setup
