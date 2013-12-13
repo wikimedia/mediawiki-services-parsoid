@@ -65,8 +65,10 @@ class ParsoidCacheUpdateJob extends Job {
 					$wgUpdateRowsPerJob,
 					$wgParsoidCacheUpdateTitlesPerJob, // jobs-per-title
 					// Carry over information for de-duplication
-					array( 'params' =>
-						array( 'type' => 'OnDependencyChange' ) + $this->getRootJobParams() )
+					array(
+						'params' => $this->getRootJobParams() + array(
+							'table' => $this->params['table'], 'type' => 'OnDependencyChange' )
+					)
 				);
 				JobQueueGroup::singleton()->push( $jobs );
 			// Job to purge pages for for a set of titles

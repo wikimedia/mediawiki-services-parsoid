@@ -7,11 +7,20 @@
  */
 
 exports.setup = function( parsoidConfig ) {
-	// The URL here is supposed to be your MediaWiki API endpoint
+	// The URL of your MediaWiki API endpoint
+        //
+        // We pre-define wikipedias as 'enwiki', 'dewiki' etc. Similarly for
+        // other projects: 'enwiktionary', 'enwikiquote', 'enwikibooks',
+        // 'enwikivoyage' etc.
+        //
+        // Optionally, you can also pass in a proxy specific to this prefix
+        // (overrides defaultAPIProxyURI), or null to disable proxying for
+        // this end point.
 	parsoidConfig.setInterwiki( 'localhost', 'http://localhost/w/api.php' );
 
-	// a proxy to connect to the API endpoints
-	// parsoidConfig.apiProxyURI = 'http://proxy.example.org:8080/';
+        // A default proxy to connect to the API endpoints. Default: undefined
+        // (no proxying). Overridden by per-wiki proxy config in setInterwiki.
+	// parsoidConfig.defaultAPIProxyURI = 'http://proxy.example.org:8080';
 
 	// Enable debug mode (prints extra debugging messages)
 	// parsoidConfig.debug = true;
@@ -25,4 +34,5 @@ exports.setup = function( parsoidConfig ) {
 	// allow cross-domain requests to the API (default disallowed)
 	//parsoidConfig.allowCORS = '*';
 };
+
 
