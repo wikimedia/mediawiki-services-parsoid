@@ -25,6 +25,12 @@ function ParsoidConfig( localSettings, options ) {
 	var self = this;
 	this.interwikiMap = {};
 
+	// 'enwiki' etc for per-wiki proxy. Used by setInterwiki.
+	this.apiProxyURIs = {};
+
+	// The default api proxy, overridden by apiProxyURIs entries
+	this.defaultAPIProxyURI = undefined;
+
 	// XXX: move to prototype to avoid reconstructing this for each request?
 	wikipedias.split( '|' ).forEach(function(lang) {
 		// Wikipedia
@@ -76,10 +82,17 @@ function ParsoidConfig( localSettings, options ) {
  * Set an interwiki prefix.
  *
  * @param {string} prefix
- * @param {string} wgScript The URL to the wiki's api.php.
+ * @param {string} apiURI The URL to the wiki's api.php.
+ * @param {string} apiProxyURI The URL of a proxy to use for API requests, or
+ * null to explicitly disable API request proxying for this wiki. Will fall
+ * back to ParsoidConfig.defaultAPIProxyURI if undefined (default value).
  */
-ParsoidConfig.prototype.setInterwiki = function ( prefix, wgScript ) {
-	this.interwikiMap[prefix] = wgScript;
+ParsoidConfig.prototype.setInterwiki = function ( prefix, apiURI, apiProxyURI ) {
+	this.interwikiMap[prefix] = apiURI;
+	if (apiProxyURI !== undefined) {
+		this.apiProxyURIs[prefix] = apiProxyURI;
+	}
+
 	if ( this.interwikiRegexp.match( '\\|' + prefix + '\\|' ) === null ) {
 		this.interwikiRegexp += '|' + prefix;
 	}
