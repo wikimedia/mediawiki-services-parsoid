@@ -127,9 +127,9 @@ function dumpFlags() {
 			'default': 40
 		},
 		'prefix': {
-			description: 'Which wiki prefix to use; e.g. "en" for English wikipedia, "es" for Spanish, "mw" for mediawiki.org',
+			description: 'Which wiki prefix to use; e.g. "enwiki" for English wikipedia, "eswiki" for Spanish, "mediawikiwiki" for mediawiki.org',
 			'boolean': false,
-			'default': 'en'
+			'default': 'enwiki'
 		},
 		'apiURL': {
 			description: 'http path to remote API, e.g. http://en.wikipedia.org/w/api.php',
@@ -209,7 +209,7 @@ function dumpFlags() {
 	}
 
 	// Because selser builds on html2wt serialization,
-	// the html2wt flag should be automatically set when selser is set. 
+	// the html2wt flag should be automatically set when selser is set.
 	if (argv.selser) {
 		argv.html2wt = true;
 	}
@@ -227,10 +227,8 @@ function dumpFlags() {
 
 	var parsoidConfig = new ParsoidConfig( null, { defaultWiki: prefix } );
 
-	if ( argv.apiURL ) {
-		parsoidConfig.setInterwiki( 'customwiki', argv.apiURL );
-	}
-	parsoidConfig.fetchConfig = Util.booleanOption( argv.fetchConfig );
+	Util.setTemplatingAndProcessingFlags( parsoidConfig, argv );
+	Util.setDebuggingFlags( parsoidConfig, argv );
 
 	ParserEnv.getParserEnv( parsoidConfig, null, prefix, argv.page || null, null, function ( err, env ) {
 		if ( err !== null ) {
@@ -241,17 +239,6 @@ function dumpFlags() {
 		// fetch templates from enwiki by default.
 		if ( argv.wgScriptPath ) {
 			env.conf.wiki.wgScriptPath = argv.wgScriptPath;
-		}
-
-		env.conf.parsoid.fetchTemplates = Util.booleanOption( argv.fetchTemplates );
-		env.conf.parsoid.usePHPPreProcessor = env.conf.parsoid.fetchTemplates && Util.booleanOption( argv.usephppreprocessor );
-		env.conf.parsoid.maxDepth = argv.maxdepth || env.conf.parsoid.maxDepth;
-		env.conf.parsoid.editMode = Util.booleanOption( argv.editMode );
-
-		Util.setDebuggingFlags( env.conf.parsoid, argv );
-
-		if ( argv.dp ) {
-			env.conf.parsoid.storeDataParsoid = true;
 		}
 
 		var i, validExtensions;

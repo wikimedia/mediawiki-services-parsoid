@@ -36,14 +36,14 @@ default values run
 To populate the database with initial data, run
 
 	$ mysql [connection parameters] < sql/create_everything.mysql
-	$ node importJson --prefix=en titles.example.en.json
-	$ node importJson --prefix=es titles.example.es.json
+	$ node importJson --prefix=enwiki titles.example.en.json
+	$ node importJson --prefix=eswiki titles.example.es.json
 
 The script importJson.js takes the same connection parameters as server.js. To
 test the handling of non-existent articles, you might want to also do:
 
-	$ node importJson --prefix=en titles.example.bogus.json
-	$ node importJson --prefix=es titles.example.bogus.json
+	$ node importJson --prefix=enwiki titles.example.bogus.json
+	$ node importJson --prefix=eswiki titles.example.bogus.json
 
 Now start the server:
 

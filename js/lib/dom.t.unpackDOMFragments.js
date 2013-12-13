@@ -184,18 +184,15 @@ function unpackDOMFragments(env, node) {
 			}
 
 			var html = node.data.parsoid.html;
-			if (!html || /(?:^|\s)mw:Transclusion(?=$|\s)/.test(typeOf)) {
-				// Ex: A multi-part template with an extension in its
-				// output (possibly passed in as a parameter).
-				//
-				// Example:
-				// echo '{{echo|<math>1+1</math>}}' | node parse --extensions math
-				//
-				// Simply remove the mw:DOMFragment typeof for now, as the
-				// entire content will still be encapsulated as a
-				// mw:Transclusion.
-				DU.removeTypeOf(node, 'mw:DOMFragment');
-				return true;
+			if (!html) {
+				// Not sure why this would happen at all -- raising fatal exception
+				// to see what code paths are causing this
+				console.error("Parsing page: " + env.page.name);
+				console.error("Missing data.parsoid.html for dom-fragment: " + node.outerHTML);
+				console.trace();
+				throw new Error("Missing data.parsoid.html in DOMFragment unpacking");
+				// DU.removeTypeOf(node, 'mw:DOMFragment');
+				// return true;
 			}
 
 			dummyNode.innerHTML = html;
@@ -211,6 +208,12 @@ function unpackDOMFragments(env, node) {
 			}
 
 			var contentNode = dummyNode.firstChild;
+
+			// Transfer mw:Transclusion typeof
+			if (/(?:^|\s)mw:Transclusion(?=$|\s)/.test(typeOf)) {
+				contentNode.setAttribute("data-mw", node.getAttribute("data-mw"));
+				DU.addTypeOf(contentNode, "mw:Transclusion");
+			}
 
 			// Update DSR
 			//

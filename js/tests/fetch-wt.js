@@ -68,9 +68,9 @@ var opts = optimist.usage( usage, {
 		description: "Write page to given file"
 	},
 	'prefix': {
-		description: 'Which wiki prefix to use; e.g. "en" for English wikipedia, "es" for Spanish, "mw" for mediawiki.org',
+		description: 'Which wiki prefix to use; e.g. "enwiki" for English wikipedia, "eswiki" for Spanish, "mediawikiwiki" for mediawiki.org',
 		'boolean': false,
-		'default': 'en'
+		'default': 'enwiki'
 	},
 	'revid': {
 		description: 'Page revision to fetch',

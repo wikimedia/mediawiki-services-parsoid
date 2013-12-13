@@ -294,37 +294,18 @@ var DOMUtils = {
 	 *
 	 * @param {Node} node
 	 * @param {string} name
-	 * @param {Object} tplAttrs
 	 * @returns {Object}
 	 *   @returns {Mixed} return.value
 	 *   @returns {boolean} return.modified If the value of the attribute changed since we parsed the wikitext
 	 *   @returns {boolean} return.fromsrc Whether we got the value from source-based roundtripping
 	 */
-	getAttributeShadowInfo: function ( node, name, tplAttrs ) {
+	getAttributeShadowInfo: function ( node, name ) {
 		this.getDataParsoid( node );
 		if ( !this.isElt(node) || !node.data || !node.data.parsoid ) {
 			return node.getAttribute( name );
 		}
 		var curVal = node.getAttribute(name),
 			dp = node.data.parsoid;
-
-		// If tplAttrs is truish, check if this attribute was
-		// template-generated. Return that value if set.
-		if ( tplAttrs ) {
-			var type = node.getAttribute('typeof'),
-				about = node.getAttribute('about') || '',
-				tplAttrState = tplAttrs[about];
-			if (type && /(?:^|\s)mw:ExpandedAttrs\/[^\s]+/.test(type) &&
-					tplAttrState &&
-					tplAttrState.vs[name] )
-			{
-				return {
-					value: tplAttrState.vs[name],
-					modified: false,
-					fromsrc: true
-				};
-			}
-		}
 
 		// Not the case, continue regular round-trip information.
 		if ( dp.a === undefined ) {
@@ -646,6 +627,20 @@ var DOMUtils = {
 	},
 
 	/**
+	 * Check if node is a text-node and has a leading newline.
+	 */
+	nodeHasLeadingNL: function(node) {
+		return node && this.isText(node) && node.nodeValue.match(/^\n/);
+	},
+
+	/**
+	 * Check if node is a text-node and has a trailing newline.
+	 */
+	nodeHasTrailingNL: function(node) {
+		return node && this.isText(node) && node.nodeValue.match(/\n$/);
+	},
+
+	/**
 	 * Find how much offset is necessary for the DSR of an
 	 * indent-originated pre tag.
 	 *
@@ -722,7 +717,12 @@ var DOMUtils = {
 					for (var i = 0, n = children.length; i < n; i++) {
 						tokBuf = this.convertDOMtoTokens(tokBuf, children[i]);
 					}
-					tokBuf.push(new pd.EndTagTk(nodeName));
+					var endTag = new pd.EndTagTk(nodeName);
+					// Keep stx parity
+					if (this.isLiteralHTMLNode(node)) {
+						endTag.dataAttribs = { 'stx': 'html'};
+					}
+					tokBuf.push(endTag);
 				}
 				break;
 
@@ -848,13 +848,31 @@ var DOMUtils = {
 		return next;
 	},
 
+	// Skip deleted-node markers
+	nextNonDeletedSibling: function(node) {
+		node = node.nextSibling;
+		while (node && this.isMarkerMeta(node, "mw:DiffMarker")) {
+			node = node.nextSibling;
+		}
+		return node;
+	},
+
+	// Skip deleted-node markers
+	previousNonDeletedSibling: function(node) {
+		node = node.previousSibling;
+		while (node && this.isMarkerMeta(node, "mw:DiffMarker")) {
+			node = node.previousSibling;
+		}
+		return node;
+	},
+
 	/**
 	 * Are all children of this node text nodes?
 	 */
 	allChildrenAreText: function (node) {
 		var child = node.firstChild;
 		while (child) {
-			if (!this.isText(child)) {
+			if (!this.isMarkerMeta(child, "mw:DiffMarker") && !this.isText(child)) {
 				return false;
 			}
 			child = child.nextSibling;
@@ -1709,6 +1727,7 @@ DOMUtils.normalizeHTML = function ( source ) {
  * @returns {string}
  */
 DOMUtils.normalizeOut = function ( out, parsoidOnly ) {
+	var last;
 	// TODO: Do not strip newlines in pre and nowiki blocks!
 	// NOTE that we use a slightly restricted regexp for "attribute"
 	//  which works for the output of DOM serialization.  For example,
@@ -1729,11 +1748,14 @@ DOMUtils.normalizeOut = function ( out, parsoidOnly ) {
 		out = out.replace(/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content|title|class)="[^\"]*"/g, '');
 		// single-quoted variant
 		out = out.replace(/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content|title|class)='[^\']*'/g, '');
-		out = normalizeNewlines( out ).
-			// remove <span typeof="....">....</span>
-			replace(/<span(?:[^>]*) typeof="mw:(?:Placeholder|Nowiki|Transclusion|Entity)"(?: [^\0-\cZ\s\"\'>\/=]+(?:="[^"]*")?)*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1').
-			// strip typeof last
-			replace(/ typeof="[^\"]*"/g, '');
+		out = normalizeNewlines( out );
+		// remove possibly nested <span typeof="....">....</span>
+		while ( last !== out ) {
+			last = out;
+			out = out.replace(/<span(?:[^>]*) typeof="mw:(?:Placeholder|Nowiki|Transclusion|Entity)"(?: [^\0-\cZ\s\"\'>\/=]+(?:="[^"]*")?)*>((?:[^<]+|(?!<\/span).)*)<\/span>/g, '$1');
+		}
+		// strip typeof last
+		out = out.replace(/ typeof="[^\"]*"/g, '');
 	} else {
 		// unnecessary attributes, we don't need to check these
 		// style is in there because we should only check classes.

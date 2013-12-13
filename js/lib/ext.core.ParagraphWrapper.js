@@ -94,7 +94,6 @@ ParagraphWrapper.prototype.closeOpenPTag = function(out) {
 	if (this.hasOpenPTag) {
 		out.push(new EndTagTk('p'));
 		this.hasOpenPTag = false;
-		this.hasOpenHTMLPTag = false;
 	}
 };
 
@@ -116,7 +115,7 @@ ParagraphWrapper.prototype.onNewLineOrEOF = function (  token, frame, cb ) {
 	// If we dont have an open p-tag, and this line didn't have a block token,
 	// start a p-tag
 	var l = this.currLine;
-	if (!this.hasOpenPTag && !l.hasBlockToken && l.hasWrappableTokens) {
+	if (!this.hasOpenPTag && !this.hasOpenHTMLPTag && !l.hasBlockToken && l.hasWrappableTokens) {
 		l.tokens.unshift(new TagTk('p'));
 		this.hasOpenPTag = true;
 	}
@@ -134,6 +133,9 @@ ParagraphWrapper.prototype.onNewLineOrEOF = function (  token, frame, cb ) {
 		this.hasOpenPTag = false;
 		this.hasOpenHTMLPTag = false;
 		this.reset();
+		if (this.trace) {
+			console.warn("  p-wrap:RET: " + JSON.stringify(res));
+		}
 		return { tokens: res };
 	} else {
 		this.newLineCount++;
@@ -205,53 +207,53 @@ ParagraphWrapper.prototype.processPendingNLs = function (isBlockToken) {
 	return resToks;
 };
 
-ParagraphWrapper.prototype.onAny = function ( token, frame ) {
-	function updateTableContext(tblTags, token) {
-		// popUntil: pop anything until one of the tag in this array is found.
-		//           Pass null to disable.
-		// popThen: after a stop is reached (or popUntil was null), continue
-		//			popping as long as the elements in this array match. Pass
-		//			null to disable.
-		function popTags(tblTags, popUntil, popThen) {
-			while (popUntil && tblTags.length > 0 && popUntil.indexOf(tblTags.last()) === -1) {
-				tblTags.pop();
-			}
-			while (popThen && tblTags.length > 0 && popThen.indexOf(tblTags.last()) !== -1) {
-				tblTags.pop();
-			}
-		}
+// popUntil: pop anything until one of the tag in this array is found.
+//           Pass null to disable.
+// popThen: after a stop is reached (or popUntil was null), continue
+//			popping as long as the elements in this array match. Pass
+//			null to disable.
+function popTags(tblTags, popUntil, popThen) {
+	while (popUntil && tblTags.length > 0 && popUntil.indexOf(tblTags.last()) === -1) {
+		tblTags.pop();
+	}
+	while (popThen && tblTags.length > 0 && popThen.indexOf(tblTags.last()) !== -1) {
+		tblTags.pop();
+	}
+}
 
-		if (Util.isTableTag(token)) {
-			var tokenName = token.name;
-			if (tc === TagTk) {
-				tblTags.push(tokenName);
-			} else {
-				switch (tokenName) {
-				case "table":
-					// Pop a table scope
-					popTags(tblTags, ["table"], ["table"]);
-					break;
-				case "tbody":
-					// Pop to the nearest table
-					popTags(tblTags, ["table"], null);
-					break;
-				case "tr":
-				case "thead":
-				case "tfoot":
-				case "caption":
-					// Pop to tbody or table, whichever is nearer
-					popTags(tblTags, ["tbody", "table"], null);
-					break;
-				case "td":
-				case "th":
-					// Pop to tr or (if that fails) to tbody or table.
-					popTags(tblTags, ["tr", "tbody", "table"], null);
-					break;
-				}
+function updateTableContext(tblTags, token) {
+	if (Util.isTableTag(token)) {
+		var tokenName = token.name;
+		if (token.constructor === TagTk) {
+			tblTags.push(tokenName);
+		} else {
+			switch (tokenName) {
+			case "table":
+				// Pop a table scope
+				popTags(tblTags, ["table"], ["table"]);
+				break;
+			case "tbody":
+				// Pop to the nearest table
+				popTags(tblTags, ["table"], null);
+				break;
+			case "tr":
+			case "thead":
+			case "tfoot":
+			case "caption":
+				// Pop to tbody or table, whichever is nearer
+				popTags(tblTags, ["tbody", "table"], null);
+				break;
+			case "td":
+			case "th":
+				// Pop to tr or (if that fails) to tbody or table.
+				popTags(tblTags, ["tr", "tbody", "table"], null);
+				break;
 			}
 		}
 	}
+}
 
+ParagraphWrapper.prototype.onAny = function ( token, frame ) {
 	if (this.trace) {
 		console.warn("T:p-wrap:any: " + JSON.stringify(token));
 	}
@@ -331,7 +333,6 @@ ParagraphWrapper.prototype.onAny = function ( token, frame ) {
 		// reset everthing
 		this.resetCurrLine();
 		this.hasOpenHTMLPTag = false;
-		this.hasOpenPTag = false;
 
 		return { tokens: this._getTokensAndReset(res) };
 	} else {
@@ -340,6 +341,13 @@ ParagraphWrapper.prototype.onAny = function ( token, frame ) {
 			this.currLine.hasBlockToken = true;
 		}
 		res = this.processPendingNLs(isBlockToken);
+
+		// Close any open HTML P-tag at a block-token boundary
+		if (isBlockToken && this.hasOpenHTMLPTag) {
+			// This is an auto-inserted end-tag
+			this.currLine.tokens.push(new EndTagTk('p', [], {autoInsertedEnd:true}));
+			this.hasOpenHTMLPTag = false;
+		}
 
 		// Partial DOM-building!  What a headache
 		// This is necessary to avoid introducing fosterable tags inside the table.
@@ -351,7 +359,6 @@ ParagraphWrapper.prototype.onAny = function ( token, frame ) {
 				this.closeOpenPTag(this.currLine.tokens);
 			}
 			this.hasOpenHTMLPTag = true;
-			this.hasOpenPTag = true;
 		}
 
 		this.currLine.tokens.push(token);

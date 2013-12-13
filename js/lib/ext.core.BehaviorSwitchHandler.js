@@ -28,16 +28,14 @@ BehaviorSwitchHandler.prototype.rank = 2.14;
  * See {@link TokenTransformManager#addTransform}'s transformation parameter
  */
 BehaviorSwitchHandler.prototype.onBehaviorSwitch = function ( token, manager, cb ) {
-	var metaToken, magicWord = token.attribs[0].v,
+	var metaToken,
 		env = this.manager.env,
-		switchType = magicWord.toLowerCase(),
-		actualType = env.conf.wiki.magicWords[magicWord] ||
-			env.conf.wiki.magicWords[switchType];
+		magicWord = env.conf.wiki.magicWordCanonicalName(token.attribs[0].v);
 
-	env.setVariable( actualType, true );
+	env.setVariable( magicWord, true );
 
 	metaToken = new SelfclosingTagTk( 'meta',
-		[ new KV( 'property', 'mw:PageProp/' + actualType ) ],
+		[ new KV( 'property', 'mw:PageProp/' + magicWord ) ],
 		Util.clone( token.dataAttribs ) );
 
 	return { tokens: [ metaToken ] };

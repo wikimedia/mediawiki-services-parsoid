@@ -292,7 +292,7 @@ DOMPostProcessor.prototype.doPostProcess = function ( document ) {
 		// this is a workaround for a bug in domino 1.0.9
 		appendToHead( document, 'title' );
 	}
-	document.title = env.page.meta.title;
+	document.title = env.page.meta.title || '';
 
 	// Hack: Add a base href element to the head element of the HTML DOM so
 	// that our relative links resolve fine when the DOM is viewed directly

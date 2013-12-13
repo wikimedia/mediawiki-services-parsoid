@@ -7,12 +7,48 @@
 var cluster = require('cluster');
 
 if (cluster.isMaster) {
-	// Start a few more workers than there are cpus visible to the OS, so that we
-	// get some degree of parallelism even on single-core systems. A single
-	// long-running request would otherwise hold up all concurrent short requests.
-	var numCPUs = require('os').cpus().length + 3;
+
+	// process arguments
+	var opts = require( "optimist" )
+		.usage( "Usage: $0 [-h|-v] [--param[=val]]" )
+		.default({
+
+			// Start a few more workers than there are cpus visible to the OS, 
+			// so that we get some degree of parallelism even on single-core
+			// systems. A single long-running request would otherwise hold up
+			// all concurrent short requests.
+			c: require( "os" ).cpus().length + 3,
+
+			v: false,
+			h: false
+
+		})
+		.boolean( [ "h", "v" ] )
+		.alias( "h", "help" )
+		.alias( "v", "version" )
+		.alias( "c", "children" );
+
+	var argv = opts.argv,
+		fs = require( "fs" ),
+		path = require( "path" ),
+		meta = require( path.join( __dirname, "../package.json" ) );
+
+	// help
+	if ( argv.h ) {
+		opts.showHelp();
+		process.exit( 0 );
+	}
+
+	// version
+	if ( argv.v ) {
+		console.log( meta.name + " " + meta.version );
+		process.exit( 0 );
+	}
+
 	// Fork workers.
-	for (var i = 0; i < numCPUs; i++) {
+	console.log('master(' + process.pid + ') initializing ' +
+				argv.c + ' workers');
+	for (var i = 0; i < argv.c; i++) {
 		cluster.fork();
 	}
 
@@ -25,21 +61,26 @@ if (cluster.isMaster) {
 		}
 	});
 
-	process.on('SIGTERM', function() {
+	var shutdown_master = function() {
 		console.log('master shutting down, killing workers');
 		var workers = cluster.workers;
 		Object.keys(workers).forEach(function(id) {
 			console.log('Killing worker ' + id);
 			workers[id].destroy();
 		});
-		console.log('Done killing workers, bye');
-		process.exit(1);
-	});
+		console.log('Done killing workers');
+		console.log('Exiting master');
+		process.exit(0);
+	};
+
+	process.on('SIGINT', shutdown_master);
+	process.on('SIGTERM', shutdown_master);
+
 } else {
 	// Worker.
 	process.on('SIGTERM', function() {
 		console.log('Worker shutting down');
-		process.exit(1);
+		process.exit(0);
 	});
 
 	// Enable heap dumps in /tmp on kill -USR2.

@@ -202,6 +202,11 @@ var dbUpdatePageLatestResults =
 	'claim_hash = ?, claim_timestamp = NULL, claim_num_tries = 0 ' +
     'WHERE id = ?';
 
+var dbUpdateCrashersClearTries =
+	'UPDATE pages ' +
+	'SET claim_num_tries = 0 ' +
+	'WHERE claim_hash != ? AND claim_num_tries >= ?';
+
 var dbStatsQuery =
 	'SELECT ' +
 	'(select hash from commits order by timestamp desc limit 1) as maxhash, ' +
@@ -460,7 +465,7 @@ var fetchPages = function( commitHash, cutOffTimestamp, cb ) {
 			for ( var i = 0; i < rows.length; i++ ) {
 				var row = rows[i];
 				pageIds.push( row.id );
-				pages.push( { prefix: row.prefix, title: row.title } );
+				pages.push( { id: row.id, prefix: row.prefix, title: row.title } );
 			}
 
 			trans.query( dbUpdatePageClaims, [ commitHash, new Date(), pageIds ],
@@ -481,12 +486,20 @@ var getTitle = function ( req, res ) {
 	req.connection.setTimeout(300 * 1000);
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 
-	// Keep record of the commit, ignore if already there.
-	db.query( dbInsertCommit, [ commitHash, new Date() ], function ( err ) {
-		if ( err ) {
-			console.error( "Error inserting commit " + commitHash );
-		}
-	});
+	// Keep record of the commit, ignore if already there. We use a transaction
+	// to make sure we don't start fetching pages until we've done this.
+	if ( commitHash !== lastFetchedCommit ) {
+		var trans = db.startTransaction();
+		trans.query( dbInsertCommit, [ commitHash, new Date() ], function ( err, commitInsertResult ) {
+			if ( err ) {
+				console.error( "Error inserting commit " + commitHash );
+			} else if ( commitInsertResult.affectedRows > 0 ) {
+				// If this is a new commit, we need to clear the number of times a
+				// crasher page has been sent out so that each title gets retested
+				trans.query( dbUpdateCrashersClearTries, [ commitHash, maxTries ] );
+			}
+		} ).commit();
+	}
 
 	var fetchCb = function ( err, pages ) {
 		if ( err ) {
@@ -495,9 +508,16 @@ var getTitle = function ( req, res ) {
 		}
 
 		if ( pages ) {
+			// Get the pages that aren't already fetched, to guard against the
+			// case of clients not finishing the whole batch in the cutoff time
+			var newPages = pages.filter( function( p ) {
+				return fetchedPages.every( function ( f ) {
+					return f.id !== p.id;
+				} );
+			} );
 			// Append the new pages to the already fetched ones, in case there's
 			// a parallel request.
-			fetchedPages = fetchedPages.concat( pages );
+			fetchedPages = fetchedPages.concat( newPages );
 		}
 		if ( fetchedPages.length === 0 ) {
 			res.send( 'No available titles that fit the constraints.', 404 );
@@ -977,7 +997,7 @@ var GET_failedFetches = function( req, res ) {
 				res.write('<ul>');
 				for (var i = 0; i < n; i++) {
 					var prefix = rows[i].prefix, title = rows[i].title;
-					var url = prefix + '.wikipedia.org/wiki/' + title;
+					var url = prefix.replace( /wiki$/, '' ) + '.wikipedia.org/wiki/' + title;
 					var name = prefix + ':' + title;
 					res.write('<li><a href="http://' +
 							  encodeURI(url).replace('&', '&amp;') + '">' +
@@ -1010,7 +1030,7 @@ var GET_crashers = function( req, res ) {
 				for ( var i = 0; i < n; i++ ) {
 					var prefix = rows[i].prefix,
 						title = rows[i].title;
-					var url = prefix + '.wikipedia.org/wiki/' + title;
+					var url = prefix.replace( /wiki$/, '' ) + '.wikipedia.org/wiki/' + title;
 					var name = prefix + ':' + title;
 					var commitHash = rows[i].claim_hash;
 					res.write( '<li>' + commitHash + ': <a href="http://' +

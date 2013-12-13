@@ -54,7 +54,7 @@ Title.fromPrefixedText = function ( env, text ) {
 		} else {
 			return new Title( text, 0, '', env );
 		}
-	} else if ( /^(\#|\/|\.\.\/)/.test( text ) ) {
+	} else if ( env.page.meta && /^(\#|\/|\.\.\/)/.test( text ) ) {
 		// If the link is relative, use the page's namespace.
 		return new Title( text, env.page.meta.ns, '', env );
 	} else {

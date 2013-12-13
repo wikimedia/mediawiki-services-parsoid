@@ -55,6 +55,44 @@ var Util = {
 	/**
 	 * @method
 	 *
+	 * Sets templating and processing flags on an object, 
+	 * based on an options object.
+	 *
+	 * @param {Object} obj The object to modify.
+	 * @param {Object} opts The options object to use for setting the debug flags.
+	 * @returns {Object} The modified object.
+	 */
+
+	setTemplatingAndProcessingFlags: function(obj, opts) {
+
+		if (opts.fetchTemplates) {
+			obj.fetchTemplates = Util.booleanOption( opts.fetchTemplates );
+		}
+
+		if (opts.usephppreprocessor) {
+			obj.usePHPPreProcessor = obj.fetchTemplates && Util.booleanOption( opts.usephppreprocessor );
+		}
+
+		if (opts.maxDepth) {
+			obj.maxDepth = opts.maxdepth || obj.maxDepth;
+		}
+
+		if ( opts.dp ) {
+			obj.storeDataParsoid = true;
+		}
+
+		if ( opts.apiURL ) {
+			obj.setInterwiki( 'customwiki', opts.apiURL );
+		}
+
+		obj.editMode = Util.booleanOption( opts.editMode );
+
+		return obj;
+	},
+
+	/**
+	 * @method
+	 *
 	 * Parse a boolean option returned by the optimist package.
 	 * The strings 'false' and 'no' are also treated as false values.
 	 * This allows --debug=no and --debug=false to mean the same as
@@ -876,6 +914,7 @@ var Util = {
 			content.concat([new pd.EOFTk()]), {
 				pipelineType: "tokens/x-mediawiki/expanded",
 				pipelineOpts: {
+					attrExpansion: true,
 					inBlockToken: true,
 					noPre: true,
 					wrapTemplates: true
@@ -894,7 +933,12 @@ var Util = {
 
 	// Returns the utf8 encoding of the code point
 	codepointToUtf8: function(cp) {
-		return unescape(encodeURIComponent(cp));
+		try {
+			return String.fromCharCode(cp);
+		} catch (e) {
+			// Return a tofu?
+			return cp.toString();
+		}
 	},
 
 	// Returns true if a given Unicode codepoint is a valid character in XML.

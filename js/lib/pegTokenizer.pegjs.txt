@@ -683,7 +683,7 @@ inline_breaks
         return null !== pegArgs.pegTokenizer.inline_breaks( input, pos, stops );
       }
 
-pre_start = "<" pre_tag_name (' '* [^>]*)? ">"
+pre_start = "<" pre_tag_name (' '+ [^>]*)? ">"
 
 inline
   = c:(urltext / (! inline_breaks !pre_start (inline_element / . )))+ {
@@ -801,7 +801,25 @@ autolink
 
 urllink
   = target:url {
-      return [ new SelfclosingTagTk( 'urllink', [new KV('href', target)], { tsr: [pos0, pos] } ) ];
+      // Special case handling for trailing parentheses: remove from link if
+      // there is no opening parenthesis in the link
+      if ( target.constructor === Array ) {
+	      var end = target[target.length - 1];
+	      if ( !/[(]/.test( target[0] ) &&
+	           end.constructor === String &&
+	           /[)]$/.test( end )
+	      ) {
+	          target.pop();
+	          pos--;
+	      }
+      } else {
+	      if (!/[(]/.test(target) && /[)]$/.test(target)) {
+	          target = target.substr(0, target.length - 1);
+	          pos--;
+	      }
+	  }
+      var res = [ new SelfclosingTagTk( 'urllink', [new KV('href', target)], { tsr: [pos0, pos] } ) ];
+      return res;
   }
 
 extlink
@@ -861,7 +879,7 @@ autoref
            new KV('mw:content', [ref, identifier].join(' ')),
            new KV( 'typeof', 'mw:ExtLink/' + ref )
         ],
-        {tsr: [pos0, pos]})
+        {stx: "protocol", tsr: [pos0, pos]})
     ];
 }
 
@@ -891,9 +909,9 @@ isbn
         new SelfclosingTagTk( 'extlink', [
            new KV('href', 'Special:BookSources/' + isbncode),
            new KV('mw:content', 'ISBN ' + isbn),
-           new KV('typeof', 'mw:WikiLink/ISBN')
+           new KV('typeof', 'mw:ExtLink/ISBN')
         ],
-        {tsr: [pos0, pos]})
+        {stx: "protocol", tsr: [pos0, pos]})
     ];
 }
 
@@ -1384,6 +1402,7 @@ pre
   = & { return stops.inc('pre'); }
     "<" pre_tag_name
     attribs:generic_attribute*
+    space*
     endpos:(">" { return pos; })
     // MediaWiki <pre> is special in that it converts all pre content to plain
     // text.
@@ -1394,8 +1413,18 @@ pre
     ("</" pre_tag_name ">" / eof) {
         stops.dec('pre');
         // return nowiki tags as well?
-        return [ new TagTk( 'pre', attribs, { stx: 'html', tsr: [pos0, endpos] } ) ]
-                    .concat(flatten_stringlist(ts), [ new EndTagTk( 'pre', [], { stx: 'html', tsr: [pos - 6, pos] } ) ]);
+
+		// Emit as SelfclosingTag in order to avoid the nested pre problem in
+		// the PreHandler.
+		attribs.push(new KV('property', 'mw:html'));
+		attribs.push(new KV('content', flatten_stringlist(ts)));
+		return [
+			new SelfclosingTagTk('pre', attribs, {
+				tsr: [pos0, pos],
+				endpos: endpos
+			})
+		];
+
     }
   / "</" pre_tag_name ">" { stops.dec('pre'); return "</pre>"; }
   / & { return stops.dec('pre'); }

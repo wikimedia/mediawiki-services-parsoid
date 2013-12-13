@@ -159,7 +159,7 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 		console.warn("T:html: " + JSON.stringify(token));
 	}
 
-	var tName, attrs, tTypeOf,
+	var tName, attrs, tTypeOf, tProperty,
 		self = this,
 		isNotPrecededByPre = function () {
 			return  ! self.lastToken ||
@@ -227,7 +227,11 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 			attrs = [];
 			if ( this.trace ) { console.warn('inserting shadow meta for ' + tName); }
 			attrs.push({name: "typeof", value: "mw:StartTag"});
-			attrs.push({name: "data-stag", value: tName + ':' + dataAttribs.tagId});
+			var stag = tName + ":" + dataAttribs.tagId;
+			if ( dataAttribs.tsr ) {
+				stag += ":" + dataAttribs.tsr.join( "," );
+			}
+			attrs.push({ name: "data-stag", value: stag });
 			this.emit('token', { type: 'Comment', data: JSON.stringify({
 				"@type": "mw:shadow",
 				attrs: attrs
@@ -242,15 +246,42 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 				break;
 			}
 
+			tProperty = token.getAttribute( "property" );
+			if ( tName === "pre" && tProperty && tProperty.match( /^mw:html$/ ) ) {
+				// Unpack pre tags.
+				var toks;
+				attribs = attribs.filter(function( attr ) {
+					if ( attr.k === "content" ) {
+						toks = attr.v;
+						return false;
+					} else {
+						return attr.k !== "property";
+					}
+				});
+				var endpos = dataAttribs.endpos;
+				delete dataAttribs.endpos;
+				var tsr = dataAttribs.tsr;
+				if (tsr) {
+					dataAttribs.tsr = [ tsr[0], tsr[0] + endpos ];
+				}
+				dataAttribs.stx = 'html';
+				toks.unshift( new TagTk( 'pre', attribs, dataAttribs ) );
+				dataAttribs = { stx: 'html'};
+				if (tsr) {
+					dataAttribs.tsr = [ tsr[1] - 6, tsr[1] ];
+				}
+				toks.push( new EndTagTk( 'pre', [], dataAttribs ) );
+				this.onChunk( toks );
+				break;
+			}
+
 			// Convert mw metas to comments to avoid fostering.
 			tTypeOf = token.getAttribute( "typeof" );
 			if ( tName === "meta" && tTypeOf && tTypeOf.match( /^mw:/ ) ) {
-
 				// transclusions state
 				if ( tTypeOf.match( /^mw:Transclusion/ ) ) {
 					this.inTransclusion = /^mw:Transclusion$/.test( tTypeOf );
 				}
-
 				this.emit( "token", { type: "Comment", data: JSON.stringify({
 					"@type": tTypeOf,
 					attrs: this._att( attribs )
@@ -268,14 +299,16 @@ FauxHTML5.TreeBuilder.prototype.processToken = function (token) {
 		case EndTagTk:
 			tName = token.name;
 			this.emit('token', {type: 'EndTag', name: tName});
-			if ( this.trace ) { console.warn('inserting shadow meta for ' + tName); }
-			attrs = this._att( attribs );
-			attrs.push({ name: "typeof", value: "mw:EndTag" });
-			attrs.push({ name: "data-etag", value: tName });
-			this.emit('token', {type: 'Comment', data: JSON.stringify({
-				"@type": "mw:shadow",
-				attrs: attrs
-			}) });
+			if (dataAttribs && !dataAttribs.autoInsertedEnd) {
+				attrs = this._att( attribs );
+				attrs.push({ name: "typeof", value: "mw:EndTag" });
+				attrs.push({ name: "data-etag", value: tName });
+				if ( this.trace ) { console.warn('inserting shadow meta for ' + tName); }
+				this.emit('token', {type: 'Comment', data: JSON.stringify({
+					"@type": "mw:shadow",
+					attrs: attrs
+				}) });
+			}
 			break;
 		case CommentTk:
 			this.emit('token', {type: 'Comment', data: token.value});

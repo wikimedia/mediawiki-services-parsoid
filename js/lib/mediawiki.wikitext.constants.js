@@ -71,19 +71,20 @@ var WikitextConstants = {
 			'ABBR',
 			'B', 'BDI', 'BDO', 'BIG', 'BLOCKQUOTE', 'BR',
 			'CAPTION', 'CENTER', 'CITE', 'CODE',
-			'DD', 'DEL', 'DFN', 'DIV', 'DL', 'DT',
+			'DATA', 'DD', 'DEL', 'DFN', 'DIV', 'DL', 'DT',
 			'EM',
 			'FONT',
 			'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'HR',
 			'I', 'INS',
 			'KBD',
 			'LI',
+			'MARK',
 			'OL',
 			'P', 'PRE',
 			'Q',
 			'RB', 'RP', 'RT', 'RUBY',
 			'S', 'SAMP', 'SMALL', 'SPAN', 'STRIKE', 'STRONG', 'SUB', 'SUP',
-			'TABLE', 'TD', 'TH', 'TR', 'TT',
+			'TABLE', 'TD', 'TH', 'TIME', 'TR', 'TT',
 			'U', 'UL', 'WBR'
 		])
 	},
@@ -210,34 +211,34 @@ var WikitextConstants = {
 	// Known wikitext tag widths -- these are known statically
 	// but other widths are computed or updated based on actual wikitext usage
 	WT_TagWidths: {
-		"body"  : [0,0],
-		"html"  : [0,0],
-		"head"  : [0,0],
-		"p"     : [0,0],
-		"meta"  : [0,0],
-		"tbody" : [0,0],
-		"pre"   : [1,0],
-		"ol"    : [0,0],
-		"ul"    : [0,0],
-		"dl"    : [0,0],
-		"li"    : [1,0],
-		"dt"    : [1,0],
-		"dd"    : [1,0],
-		"h1"    : [1,1],
-		"h2"    : [2,2],
-		"h3"    : [3,3],
-		"h4"    : [4,4],
-		"h5"    : [5,5],
-		"h6"    : [6,6],
-		"hr"    : [4,0],
-		"table" : [2,2],
-		"tr"    : [null,0],
-		"td"    : [null,0],
-		"th"    : [null,0],
-		"b"     : [3,3],
-		"i"     : [2,2],
-		"br"    : [0,0],
-		"figure": [2,2]
+		"BODY"  : [0,0],
+		"HTML"  : [0,0],
+		"HEAD"  : [0,0],
+		"P"     : [0,0],
+		"META"  : [0,0],
+		"TBODY" : [0,0],
+		"PRE"   : [1,0],
+		"OL"    : [0,0],
+		"UL"    : [0,0],
+		"DL"    : [0,0],
+		"LI"    : [1,0],
+		"DT"    : [1,0],
+		"DD"    : [1,0],
+		"H1"    : [1,1],
+		"H2"    : [2,2],
+		"H3"    : [3,3],
+		"H4"    : [4,4],
+		"H5"    : [5,5],
+		"H6"    : [6,6],
+		"HR"    : [4,0],
+		"TABLE" : [2,2],
+		"TR"    : [null,0],
+		"TD"    : [null,0],
+		"TH"    : [null,0],
+		"B"     : [3,3],
+		"I"     : [2,2],
+		"BR"    : [0,0],
+		"FIGURE": [2,2]
 	},
 
 	// HTML tags whose wikitext equivalents are zero-width.
@@ -256,10 +257,10 @@ var zeroWidthTags = [];
 Object.keys(WikitextConstants.WT_TagWidths).forEach(function(tag) {
 	// This special case can be fixed by maybe removing them WT_TagWidths.
 	// They may no longer be necessary -- to be investigated in another patch.
-	if (tag !== 'html' && tag !== 'head' && tag !== 'body') {
+	if (tag !== 'HTML' && tag !== 'HEAD' && tag !== 'BODY') {
 		var widths = WikitextConstants.WT_TagWidths[tag];
 		if (widths[0] === 0 && widths[1] === 0) {
-			zeroWidthTags.push(tag.toUpperCase());
+			zeroWidthTags.push(tag);
 		}
 	}
 });

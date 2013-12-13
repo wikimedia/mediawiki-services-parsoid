@@ -440,7 +440,6 @@ var fetch = function ( page, cb, options ) {
 			return;
 		}
 		env.profile = { time: { total: 0, total_timer: new Date() }, size: {} };
-		Util.setDebuggingFlags( env.conf.parsoid, options );
 
 		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 		var tpr = new TemplateRequest( env, target, null );
@@ -472,7 +471,7 @@ var fetch = function ( page, cb, options ) {
 		} );
 	};
 
-	var prefix = options.prefix || 'en';
+	var prefix = options.prefix || 'enwiki';
 
 	if ( options.apiURL ) {
 		prefix = 'customwiki';
@@ -480,10 +479,8 @@ var fetch = function ( page, cb, options ) {
 
 	var parsoidConfig = new ParsoidConfig( options, { defaultWiki: prefix } );
 
-	if ( options.apiURL ) {
-		parsoidConfig.setInterwiki( 'customwiki', options.apiURL );
-	}
-	parsoidConfig.editMode = Util.booleanOption( options.editMode );
+	Util.setTemplatingAndProcessingFlags( parsoidConfig, options );
+	Util.setDebuggingFlags( parsoidConfig, options );
 
 	MWParserEnvironment.getParserEnv( parsoidConfig, null, prefix, page, null, envCb );
 };
@@ -519,7 +516,7 @@ if ( !module.parent ) {
 			'default': false
 		},
 		'prefix': {
-			description: 'Which wiki prefix to use; e.g. "en" for English wikipedia, "es" for Spanish, "mw" for mediawiki.org',
+			description: 'Which wiki prefix to use; e.g. "enwiki" for English wikipedia, "eswiki" for Spanish, "mediawikiwiki" for mediawiki.org',
 			'boolean': false,
 			'default': ''
 		},

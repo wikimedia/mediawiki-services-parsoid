@@ -144,33 +144,14 @@ var genericTokenMethods = {
 	 * context to be set to a token.
 	 *
 	 * @param {string} name
-	 * @param {Array} tplAttrs The list of expanded attributes.
 	 * @returns {Object} Information about the shadow info attached to this attribute.
 	 * @returns {Mixed} return.value
 	 * @returns {boolean} return.modified Whether the attribute was changed between parsing and now.
 	 * @returns {boolean} return.fromsrc Whether we needed to get the source of the attribute to round-trip it.
 	 */
-	getAttributeShadowInfo: function ( name, tplAttrs ) {
+	getAttributeShadowInfo: function ( name ) {
 		var Util = require('./mediawiki.Util.js').Util; // (circular dep)
 		var curVal = Util.lookup( this.attribs, name );
-
-		// If tplAttrs is truish, check if this attribute was
-		// template-generated. Return that value if set.
-		if ( tplAttrs ) {
-			var type = Util.lookup(this.attribs, 'typeof'),
-				about = Util.lookup(this.attribs, 'about'),
-				tplAttrState = tplAttrs[about];
-			if (/(?:^|\s)mw:ExpandedAttrs\/[^\s]+/.test(type) &&
-					tplAttrState &&
-					tplAttrState.vs[name] )
-			{
-				return {
-					value: tplAttrState.vs[name],
-					modified: false,
-					fromsrc: true
-				};
-			}
-		}
 
 		// Not the case, continue regular round-trip information.
 		if ( this.dataAttribs.a === undefined ) {

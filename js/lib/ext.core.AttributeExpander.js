@@ -23,21 +23,16 @@ var KV = defines.KV,
  * ---------------------------------------------------------- */
 function stripMetaTags( tokens, wrapTemplates ) {
 	var isPushed, buf = [],
-		wikitext = [],
 		hasGeneratedContent = false,
 		inTpl = false,
 		inInclude = false;
 
 	for (var i = 0, l = tokens.length; i < l; i++) {
 		var token = tokens[i];
-		isPushed = false;
 		if ([TagTk, SelfclosingTagTk].indexOf(token.constructor) !== -1) {
+			isPushed = false;
 			// Strip all meta tags.
 			if (wrapTemplates) {
-				if (inInclude) {
-					wikitext.push(token.dataAttribs.src);
-				}
-
 				// If we are in wrap-template mode, extract info from the meta-tag
 				var t = token.getAttribute("typeof");
 				var typeMatch = t && t.match(/(mw:(Transclusion|Param|Extension|Includes\/)(.*)?$)/);
@@ -46,7 +41,6 @@ function stripMetaTags( tokens, wrapTemplates ) {
 						inTpl = typeMatch[1].match(/Transclusion|Param|Extension/);
 						inInclude = !inTpl;
 						hasGeneratedContent = true;
-						wikitext.push(token.dataAttribs.src);
 					} else {
 						inTpl = false;
 						inInclude = false;
@@ -62,21 +56,11 @@ function stripMetaTags( tokens, wrapTemplates ) {
 				buf.push(token);
 			}
 		} else {
-			// Assumes that non-template tokens are always text.
-			// In turn, based on assumption that HTML attribute values
-			// cannot contain any HTML (SSS FIXME: Isn't this true?)
-			if (!inTpl) {
-				wikitext.push(token);
-			}
 			buf.push(token);
 		}
 	}
 
-	return {
-		hasGeneratedContent: hasGeneratedContent,
-		wikitext: Util.tokensToString(wikitext),
-		value: buf
-	};
+	return { hasGeneratedContent: hasGeneratedContent, value: buf };
 }
 
 /**

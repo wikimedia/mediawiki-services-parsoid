@@ -380,10 +380,10 @@ var SanitizerConstants = {
 			var backslash = '\\\\';
 			return new RegExp(backslash +
 				"(?:" +
-					"(" + nl + ") |" + // 1. Line continuation
-					"([0-9A-Fa-f]{1,6})" + space+ "? |" + // 2. character number
-					"(.) |" + // 3. backslash cancelling special meaning
-					"() |" + // 4. backslash at end of string
+					"(" + nl + ")|" + // 1. Line continuation
+					"([0-9A-Fa-f]{1,6})" + space + "?|" + // 2. character number
+					"(.)|" + // 3. backslash cancelling special meaning
+					"()$" + // 4. backslash at end of string
 				")");
 		}
 
@@ -551,7 +551,12 @@ var SanitizerConstants = {
 
 				// HTML 5 section 4.6
 				'bdi' : common,
-				'wbr' : [ 'id', 'class', 'title', 'style' ]
+				'wbr' : [ 'id', 'class', 'title', 'style' ],
+
+				// HTML5 elements, defined by http://www.whatwg.org/html/
+				'data': common.concat(['value']),
+				'time': common.concat(['datetime']),
+				'mark': common
 			};
 		}
 
@@ -731,20 +736,29 @@ Sanitizer.prototype.onAny = function ( token ) {
 		if (attribs && attribs.length > 0) {
 			var newToken = token.clone();
 			attribs = newToken.attribs;
+
+			// is this an htmlpre?
+			var p = newToken.getAttribute( "property" );
+			var htmlpre = newToken.name === "pre" && p && p.match( /^mw:html$/ );
+
 			for (i = 0, l = attribs.length; i < l; i++ ) {
 				kv = attribs[i];
 				if ( kv.k.constructor !== String || kv.v.constructor !== String ) {
 					k = kv.k;
 					v = kv.v;
 
-					var newKV = Util.clone(kv);
-					if ( k.constructor === Array ) {
-						newKV.k = Util.tokensToString ( k );
+					// keep html-pre content tokens for later use
+					if ( !( htmlpre && k === "content" ) ) {
+						var newKV = Util.clone(kv);
+						if ( k.constructor === Array ) {
+							newKV.k = Util.tokensToString ( k );
+						}
+						if ( v.constructor === Array ) {
+							newKV.v = Util.tokensToString ( v );
+						}
+						attribs[i] = newKV;
 					}
-					if ( v.constructor === Array ) {
-						newKV.v = Util.tokensToString ( v );
-					}
-					attribs[i] = newKV;
+
 				}
 			}
 
@@ -837,12 +851,12 @@ Sanitizer.prototype.checkCss = function (text) {
 	text = this.decodeCharReferences(text);
 	text = text.replace(this.constants.cssDecodeRE, function() {
 				var c;
-				if (arguments[1] !== '' ) {
+				if (arguments[1] !== undefined ) {
 					// Line continuation
 					return '';
-				} else if (arguments[2] !== '' ) {
+				} else if (arguments[2] !== undefined ) {
 					c = Util.codepointToUtf8(parseInt(arguments[2], 16));
-				} else if (arguments[3] !== '' ) {
+				} else if (arguments[3] !== undefined ) {
 					c = arguments[3];
 				} else {
 					c = '\\';
@@ -940,8 +954,8 @@ Sanitizer.prototype.sanitizeTagAttrs = function(newToken, attrs) {
 	var n = attrs.length;
 	for (var i = 0; i < n; i++) {
 		var a = attrs[i],
-			k = a.k,
-			origK = a.ksrc || k,
+			origK = a.ksrc || a.k,
+			k = a.k.toLowerCase(),
 			v = a.v,
 			origV = a.vsrc || v,
 			psdAttr = this.isParsoidAttr(k, v, attrs);

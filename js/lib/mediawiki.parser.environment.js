@@ -66,7 +66,7 @@ Tracer.prototype = {
 var MWParserEnvironment = function ( parsoidConfig, wikiConfig ) {
 	// page information
 	this.page = {
-		name: 'Main page',
+		name: 'Main_Page',
 		relativeLinkPrefix: '',
 		id: null,
 		src: null,
@@ -266,7 +266,7 @@ MWParserEnvironment.prototype.setVariable = function( varname, value, options ) 
 MWParserEnvironment.getParserEnv = function ( parsoidConfig, wikiConfig, prefix, pageName, cookie, cb ) {
 	if ( !parsoidConfig ) {
 		parsoidConfig = new ParsoidConfig();
-		parsoidConfig.setInterwiki( 'mw', 'http://www.mediawiki.org/w/api.php' );
+		parsoidConfig.setInterwiki( 'mediawikiwiki', 'http://www.mediawiki.org/w/api.php' );
 	}
 
 	if ( !wikiConfig ) {

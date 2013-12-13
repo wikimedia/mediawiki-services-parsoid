@@ -443,6 +443,72 @@ AsyncTokenTransformManager.prototype.onEndEvent = function () {
 // all instances of the Async TTM.
 AsyncTokenTransformManager.prototype._counter = 0;
 
+function AccumChain(ttm, parentCB) {
+	this.ttm = ttm;
+	this.firstAccum = null;
+	this.accum = null;
+	this.next = null;
+	this.maybeAsyncCB = null;
+	this.numNodes = 0;
+	this.debugId = 0;
+
+	// Shared accum-chain state accessible to synchronous transforms in maybeSyncReturn
+	this.state = {
+		// Indicates we are still in the transformTokens loop
+		transforming: true,
+		// debug id for this expansion
+		c: 'c-' + AsyncTokenTransformManager.prototype._counter++
+	};
+
+	this.init(parentCB);
+}
+
+AccumChain.prototype = {
+	makeNextAccum: function(cb) {
+		var cbs = { };
+		var maybeAsyncCB = this.ttm.maybeSyncReturn.bind( this.ttm, this.state, cbs );
+
+		// The new accumulator is never used unless we hit async mode.
+		// Even though maybeAsyncCB references newAccum via cbs.parentCB,
+		// that code path is exercised only when async mode is entered,
+		// so we are all good on that front.
+		var newAccum = new TokenAccumulator( this.ttm, cb );
+		// 'newAccum' will receive tokens from a child pipeline/cb
+		cbs.parentCB = newAccum.receiveToksFromChild.bind(newAccum);
+		cbs.self = maybeAsyncCB;
+
+		return { accum: newAccum, cb: maybeAsyncCB };
+	},
+	init: function(parentCB) {
+		// Local accum for synchronously returned fully processed tokens
+		// Make localAccum compatible with receiveToksFromSibling
+		var localAccum = [];
+		localAccum.receiveToksFromSibling = function() { return parentCB; };
+
+		this.firstAccum = localAccum;
+		this.accum = localAccum;
+		var nextAccumAndCB = this.makeNextAccum( parentCB );
+		this.next = nextAccumAndCB.accum;
+		this.maybeAsyncCB = nextAccumAndCB.cb;
+		this.numNodes = 1;
+	},
+	initRes: function() {
+		this.state.res = {};
+	},
+	addNode: function() {
+		// console.warn("--> ATT-" + this.ttm.uid + " new link in chain");
+		this.accum = this.next;
+		// 'accum' will receive toks from the 'next' node that will be created
+		var nextAccumAndCB = this.makeNextAccum( this.accum.receiveToksFromSibling.bind(this.accum) );
+		this.next = nextAccumAndCB.accum;
+		this.maybeAsyncCB = nextAccumAndCB.cb;
+		this.numNodes++;
+	},
+	push: function(tok) {
+		this.accum.push(tok);
+	}
+};
+
 /**
  * Run asynchronous transformations. This is the big workhorse where
  * templates, images, links and other async expansions (see the transform
@@ -464,69 +530,8 @@ AsyncTokenTransformManager.prototype.transformTokens = function ( tokens, parent
 
 	//console.warn('AsyncTokenTransformManager.transformTokens: ' + JSON.stringify(tokens) );
 
-	var accumChain = {
-		ttm: null,
-		firstAccum: null,
-		accum: null,
-		next: null,
-		maybeAsyncCB: null,
-		numNodes: 0,
-		debugId: 0,
-		// Shared accum-chain state accessible to synchronous transforms in maybeSyncReturn
-		state: {
-			// Indicates we are still in the transformTokens loop
-			transforming: true,
-			// debug id for this expansion
-			c: 'c-' + AsyncTokenTransformManager.prototype._counter++
-		},
-		makeNextAccum: function(cb) {
-			var cbs = { };
-			var maybeAsyncCB = this.ttm.maybeSyncReturn.bind( this.ttm, this.state, cbs );
-
-			// The new accumulator is never used unless we hit async mode.
-			// Even though maybeAsyncCB references newAccum via cbs.parentCB,
-			// that code path is exercised only when async mode is entered,
-			// so we are all good on that front.
-			var newAccum = new TokenAccumulator( this.ttm, cb );
-			// 'newAccum' will receive tokens from a child pipeline/cb
-			cbs.parentCB = newAccum.receiveToksFromChild.bind(newAccum);
-			cbs.self = maybeAsyncCB;
-
-			return { accum: newAccum, cb: maybeAsyncCB };
-		},
-		init: function(ttm) {
-			// Local accum for synchronously returned fully processed tokens
-			// Make localAccum compatible with receiveToksFromSibling
-			var localAccum = [];
-			localAccum.receiveToksFromSibling = function() { return parentCB; };
-
-			this.ttm = ttm;
-			this.firstAccum = localAccum;
-			this.accum = localAccum;
-			var nextAccumAndCB = this.makeNextAccum( parentCB );
-			this.next = nextAccumAndCB.accum;
-			this.maybeAsyncCB = nextAccumAndCB.cb;
-			this.numNodes = 1;
-		},
-		initRes: function() {
-			this.state.res = {};
-		},
-		addNode: function() {
-			// console.warn("--> ATT-" + this.ttm.uid + " new link in chain");
-			this.accum = this.next;
-			// 'accum' will receive toks from the 'next' node that will be created
-			var nextAccumAndCB = this.makeNextAccum( this.accum.receiveToksFromSibling.bind(this.accum) );
-			this.next = nextAccumAndCB.accum;
-			this.maybeAsyncCB = nextAccumAndCB.cb;
-			this.numNodes++;
-		},
-		push: function(tok) {
-			this.accum.push(tok);
-		}
-	};
-
-	// Init
-	accumChain.init(this);
+	// New accumulator chain
+	var accumChain = new AccumChain(this, parentCB);
 
 	// Stack of token arrays to process
 	// Initialize to the token array that was passed in

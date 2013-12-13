@@ -2,7 +2,7 @@
  * Per-wiki config library for interfacing with MediaWiki.
  */
 
-var baseConfig = require( './baseconfig/en.json' ).query,
+var baseConfig = require( './baseconfig/enwiki.json' ).query,
 	JSUtils = require('./jsutils.js').JSUtils,
 	Util = require( './mediawiki.Util.js' ).Util,
 	request = require( 'request' );
@@ -159,7 +159,7 @@ function WikiConfig( resultConf, prefix, uri ) {
 				var groups = matches.slice(1);
 				for (var i=0; i<groups.length; i++) {
 					if (groups[i] !== undefined) {
-						// The prefix: 'en', 'de' etc
+						// The interwiki prefix: 'en', 'de' etc
 						var key = keys[i];
 						if (conf.interwikiMap[key].language) {
 							// Escape language interwikis with a colon
@@ -200,18 +200,22 @@ function WikiConfig( resultConf, prefix, uri ) {
 	// List of magic word aliases with $1 in their names, indexed by canonical name.
 	this._interpolatedMagicWordAliases = {};
 
-	for ( var mwx = 0; mwx < mws.length; mwx++ ) {
-		mw = mws[mwx];
+	for ( var j = 0; j < mws.length; j++ ) {
+		mw = mws[j];
 		aliases = mw.aliases;
 		if ( aliases.length > 0 ) {
 			this.mwAliases[mw.name] = [];
 			this._interpolatedMagicWordAliases[mw.name] = [];
 		}
-		for ( var mwax = 0; mwax < aliases.length; mwax++ ) {
-			var alias = aliases[mwax];
+		for ( var k = 0; k < aliases.length; k++ ) {
+			var alias = aliases[k];
+
+			this.mwAliases[mw.name].push( alias );
 			if ( mw['case-sensitive'] !== '' ) {
 				alias = alias.toLowerCase();
+				this.mwAliases[mw.name].push( alias );
 			}
+			this.magicWords[alias] = mw.name;
 
 			if ( alias.match( /\$1/ ) !== null ) {
 				// This is a named option. Add it to the array.
@@ -219,8 +223,6 @@ function WikiConfig( resultConf, prefix, uri ) {
 				this._interpolatedMagicWords.push( alias );
 				this._interpolatedMagicWordAliases[mw.name].push( alias );
 			}
-			this.magicWords[alias] = mw.name;
-			this.mwAliases[mw.name].push( alias );
 		}
 		this._mwRegexps[mw.name] =
 			new RegExp( '^(' +
@@ -379,10 +381,28 @@ WikiConfig.prototype.getMagicWordIdFromAlias = function ( alias ) {
 };
 
 /**
+ * Get canonical magicword name for the input word
+ *
+ * @param {string} word
+ * @returns {string}
+ */
+WikiConfig.prototype.magicWordCanonicalName = function ( word ) {
+	return this.magicWords[word] || this.magicWords[word.toLowerCase()] || null;
+};
+
+/**
  * Check if a string is a recognized magic word
  */
 WikiConfig.prototype.isMagicWord = function ( word ) {
-	return this.magicWords[word] || this.magicWords[word.toLowerCase()];
+	return this.magicWordCanonicalName(word) !== null;
+};
+
+/**
+ * Convert the internal canonical magic word name to the wikitext alias
+ */
+WikiConfig.prototype.getMagicWordWT = function(word) {
+	var aliases = this.mwAliases[word];
+	return (aliases && aliases.length > 0) ? aliases[0] : null;
 };
 
 /**
@@ -472,8 +492,33 @@ WikiConfig.prototype.replaceInterpolatedMagicWord = function ( alias, value ) {
 
 // Default RFC/PMID resource URL patterns
 WikiConfig.prototype.ExtResourceURLPatterns = {
-	'RFC'  : '//tools.ietf.org/html/rfc%s',
-	'PMID' : '//www.ncbi.nlm.nih.gov/pubmed/%s?dopt=Abstract'
+	// SSS FIXME: ISBN url checker has to verify that the number is 10/13 digits long
+	// We are punting on that right now which can lead to broken HTML serialization for
+	// invalid ISBN urls. For now, we "trust" clients to do the right thing.
+	'ISBN' : {
+		// SSS FIXME: Working around JSHint complaints about bad escapements
+		prefix: "(?:(?:./)|(?:../)+)".replace(".", "\\.").replace("/", "\\\/"),
+		re: 'Special:BookSources/%d'
+	},
+	'RFC'  : { re: '//tools.ietf.org/html/rfc%s' },
+	'PMID' : { re: '//www.ncbi.nlm.nih.gov/pubmed/%s?dopt=Abstract' }
+};
+
+WikiConfig.prototype.ExtResourceSerializer = {
+	'ISBN' : function(hrefWT, href, content) {
+		if (hrefWT.join('') === content.replace(/[\- ]/g, '')) {
+			return content;
+		} else {
+			href = href.replace(/^\.\//, ''); // strip "./" prefix
+			return '[[' + href + '|' + content + ']]';
+		}
+	},
+	'RFC'  : function(hrefWT, href, content) {
+		return hrefWT.join(' ') === content ? content : '[' + href + ' ' + content + ']';
+	},
+	'PMID' : function(hrefWT, href, content) {
+		return hrefWT.join(' ') === content ? content : '[' + href + ' ' + content + ']';
+	}
 };
 
 /**
@@ -484,14 +529,14 @@ WikiConfig.prototype.ExtResourceURLPatterns = {
 WikiConfig.prototype.ExtResourceURLPatternMatcher = (function () {
 	var keys = Object.keys(WikiConfig.prototype.ExtResourceURLPatterns),
 		patterns = [];
+
 	keys.forEach(function(key) {
-		patterns.push(
-			Util.escapeRegExp(WikiConfig.prototype.ExtResourceURLPatterns[key])
-			.replace('%s', '(\\w+)')
-		);
+		var reOpts = WikiConfig.prototype.ExtResourceURLPatterns[key];
+		var re = Util.escapeRegExp(reOpts.re).replace('%s', '(\\w+)').replace('%d', '(\\d+)');
+		patterns.push("^(?:" + (reOpts.prefix || "") + re + ")$");
 	});
-	var reString = '^(?:' + patterns.join('|') + ')$',
-		regExp = new RegExp(reString);
+
+	var regExp = new RegExp(patterns.join('|'));
 	var match = function (s) {
 		var matches = s.match(regExp);
 		if (matches) {
