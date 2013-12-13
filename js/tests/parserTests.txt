@@ -916,24 +916,33 @@ Non-html5 tags should be accepted
 !! test
 Non-word characters don't terminate tag names (bug 17663, 40670, 52022)
 !! input
-<b→> doesn't work! </b>
+<b→> doesn't work! </b→>
 
-<bä> doesn't work! </b>
+<bä> doesn't work! </bä>
 
-<boo> works fine </b>
-
-<s.foo>foo</s>
+<boo> works fine </boo>
 
 <s.foo>s.foo</s.foo>
 
 <sub-ID#1>
 !! result
-<p>&lt;b→&gt; doesn't work! &lt;/b&gt;
-</p><p>&lt;bä&gt; doesn't work! &lt;/b&gt;
-</p><p>&lt;boo&gt; works fine &lt;/b&gt;
-</p><p>&lt;s.foo&gt;foo&lt;/s&gt;
+<p>&lt;b→&gt; doesn't work! &lt;/b→&gt;
+</p><p>&lt;bä&gt; doesn't work! &lt;/bä&gt;
+</p><p>&lt;boo&gt; works fine &lt;/boo&gt;
 </p><p>&lt;s.foo&gt;s.foo&lt;/s.foo&gt;
 </p><p>&lt;sub-ID#1&gt;
+</p>
+!! end
+
+!! test
+Isolated close tags should be treated as literal text (bug 52760)
+!! input
+</b>
+
+<s.foo>s</s>
+!! result
+<p>&lt;/b&gt;
+</p><p>&lt;s.foo&gt;s&lt;/s&gt;
 </p>
 !! end
 
