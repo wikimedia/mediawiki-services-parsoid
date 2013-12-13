@@ -1773,6 +1773,16 @@ Barack Obama <President> of the United States
 </p>
 !! end
 
+!! test
+Parsoid: handle pre with space after attribute
+!! options
+parsoid=wt2html
+!! input
+<pre style="width:50%;" >{{echo|foo}}</pre>
+!! result
+<pre style="width:50%;">{{echo|foo}}</pre>
+!! end
+
 # TODO / maybe: fix wt2wt for this
 !! test
 Parsoid: Don't paragraph-wrap fosterable content

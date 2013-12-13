@@ -683,7 +683,7 @@ inline_breaks
         return null !== pegArgs.pegTokenizer.inline_breaks( input, pos, stops );
       }
 
-pre_start = "<" pre_tag_name generic_newline_attribute* ">"
+pre_start = "<" pre_tag_name (' '+ [^>]*)? ">"
 
 inline
   = c:(urltext / (! inline_breaks !pre_start (inline_element / . )))+ {
@@ -1402,6 +1402,7 @@ pre
   = & { return stops.inc('pre'); }
     "<" pre_tag_name
     attribs:generic_attribute*
+    space*
     endpos:(">" { return pos; })
     // MediaWiki <pre> is special in that it converts all pre content to plain
     // text.
