@@ -408,7 +408,12 @@ function errorHandler( err, req, res, next ) {
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 	res.send( err.stack, err.code );
 
-	console.error( 'ERROR in ' + res.locals.iwp + ':' + res.locals.pageName );
+	var location = 'ERROR in ' + res.locals.iwp + ':' + res.locals.pageName;
+	if ( req.query && req.query.oldid ) {
+		 location += ' with oldid: ' + req.query.oldid;
+	}
+
+	console.error( location );
 	console.error( 'Stack trace: ' + err.stack );
 
 	if ( err.restart ) {
