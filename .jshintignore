@@ -1,6 +1,4 @@
-js/lib/html5
-js/node_modules
-js/api/scripts/jquery.js
-js/doc
-js/tests/server/node_modules
-js/contrib/node_modules
+node_modules
+api/scripts/jquery.js
+doc
+tests/server/node_modules
