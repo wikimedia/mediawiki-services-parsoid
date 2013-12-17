@@ -2,13 +2,14 @@
 "use strict";
 
 var jsDiff = require( 'diff' ),
+	request = require( 'request' ),
 	optimist = require( 'optimist' ),
 	domino = require( 'domino' ),
+	url = require( 'url' ),
 	zlib = require( 'zlib' ),
 
 	Util = require( '../lib/mediawiki.Util.js' ).Util,
 	DU = require( '../lib/mediawiki.DOMUtils.js' ).DOMUtils,
-	WikitextSerializer = require( '../lib/mediawiki.WikitextSerializer.js').WikitextSerializer,
 	TemplateRequest = require( '../lib/mediawiki.ApiRequest.js' ).TemplateRequest,
 	ParsoidConfig = require( '../lib/mediawiki.ParsoidConfig' ).ParsoidConfig,
 	MWParserEnvironment = require( '../lib/mediawiki.parser.environment.js' ).MWParserEnvironment;
@@ -398,28 +399,66 @@ var doubleRoundtripDiff = function ( env, offsets, body, out, cb ) {
 	}
 };
 
-var roundTripDiff = function ( env, document, cb ) {
-	var out, diff, offsetPairs;
+var parsoidPost = function ( env, parsoidURL, prefix, title, text, oldid, cb ) {
+	var data = {};
+	if ( oldid ) {
+		data.oldid = oldid;
+		data.html = text;
+	} else {
+		data.wt = text;
+	}
 
-	// Re-parse the HTML to uncover foster-parenting issues
-	var origBody = document.body;
-	document = domino.createDocument(DU.serializeNode(document));
-	try {
-		env.profile.time.serialize = new Date();
-		out = new WikitextSerializer( { env: env } ).serializeDOM(document.body);
-		env.profile.time.serialize = new Date() - env.profile.time.serialize;
-		env.profile.size.wikitext = out.length;
+	var options = {
+		url: url.parse( url.resolve( parsoidURL, prefix + '/' + title ) ),
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+		},
+		encoding: 'utf8',
+		form: data
+	};
 
-		// Finish the total time now
-		if ( env.profile && env.profile.time ) {
-			env.profile.time.total += new Date() - env.profile.time.total_timer;
-			delete( env.profile.time.total_timer );
+	var req = request( options, function( err, res, body ) {
+		if ( err || res.statusCode !== 200 ) {
+			cb( err, null );
+		} else {
+			if ( env.profile ) {
+				// Record the time it's taken to parse
+				var timePrefix = oldid ? 'html2wt' : 'wt2html';
+				if ( res.headers[ 'x-parsoid-performance' ] ) {
+					env.profile.time[ timePrefix ] =
+						parseInt( res.headers[ 'x-parsoid-performance' ].
+							match( /duration=((\d)+);/ )[1], 10 );
+				}
+				// Record the sizes
+				var sizePrefix = oldid ? 'wt' : 'html';
+				env.profile.size[ sizePrefix + 'raw' ] =
+					body.length;
+				// Compress to record the gzipped size
+				zlib.gzip( res.body, function( err, gzippedbuf ) {
+					if ( !err ) {
+						env.profile.size[ sizePrefix + 'gzip' ] =
+							gzippedbuf.length;
+					}
+					cb( null, body );
+				} );
+			} else {
+				cb( null, body );
+			}
 		}
+	} );
+};
+
+var roundTripDiff = function ( env, html, out, cb ) {
+	var diff, offsetPairs;
+
+	try {
 		diff = jsDiff.diffLines( out, env.page.src );
 		offsetPairs = Util.convertDiffToOffsetPairs( diff );
 
 		if ( diff.length > 0 ) {
-			doubleRoundtripDiff( env, offsetPairs, origBody, out, cb );
+			var body = domino.createDocument( html ).body;
+			doubleRoundtripDiff( env, offsetPairs, body, out, cb );
 		} else {
 			cb( null, env, [] );
 		}
@@ -430,6 +469,11 @@ var roundTripDiff = function ( env, document, cb ) {
 
 var fetch = function ( page, cb, options ) {
 	cb = typeof cb === 'function' ? cb : function () {};
+	var prefix = options.prefix || 'enwiki';
+
+	if ( options.apiURL ) {
+		prefix = 'customwiki';
+	}
 
 	var envCb = function ( err, env ) {
 		env.errCB = function ( error ) {
@@ -449,33 +493,31 @@ var fetch = function ( page, cb, options ) {
 				cb( err, env, [] );
 			} else {
 				env.setPageSrcInfo( src_and_metadata );
-				env.profile.time.parse = new Date();
-				Util.parse( env, function ( src, err, doc ) {
-					env.profile.time.parse = new Date() - env.profile.time.parse;
-					if ( err ) {
-						cb( err, env, [] );
-					} else {
-						// Pause the total time while we compute these sizes
-						env.profile.time.total += new Date() - env.profile.time.total_timer;
-						env.profile.size.htmlraw = doc.outerHTML.length;
-						zlib.gzip( doc.outerHTML, function( err, buf ) {
-							if ( !err ) {
-								env.profile.size.htmlgzip = buf.length;
-							}
-							env.profile.time.total_timer = new Date();
-							roundTripDiff( env, doc, cb );
-						});
-					}
-				}, err, env.page.src );
+				// First, fetch the HTML for the requested page's wikitext
+				parsoidPost( env, options.parsoidURL, prefix, page,
+					env.page.src, null, function ( err, htmlBody ) {
+						if ( err ) {
+							cb( err, env, [] );
+						} else {
+							// And now, request the wikitext for the obtained HTML
+							parsoidPost( env, options.parsoidURL, prefix, page,
+								htmlBody, src_and_metadata.revision.revid, function ( err, wtBody ) {
+									if ( err ) {
+										cb( err, env, [] );
+									} else {
+										// Finish the total time now
+										if ( env.profile && env.profile.time ) {
+											env.profile.time.total += new Date() - env.profile.time.total_timer;
+											delete( env.profile.time.total_timer );
+										}
+										roundTripDiff( env, htmlBody, wtBody, cb );
+									}
+								} );
+						}
+				} );
 			}
 		} );
 	};
-
-	var prefix = options.prefix || 'enwiki';
-
-	if ( options.apiURL ) {
-		prefix = 'customwiki';
-	}
 
 	var parsoidConfig = new ParsoidConfig( options, { defaultWiki: prefix } );
 
@@ -498,6 +540,7 @@ var consoleOut = function ( err, output ) {
 		process.exit( 1 );
 	} else {
 		console.log( output );
+		process.exit( 0 );
 	}
 };
 
@@ -549,6 +592,10 @@ if ( !module.parent ) {
 			description: 'Dump state (see below for supported dump flags)',
 			'boolean': false,
 			'default': ""
+		},
+		'parsoidURL': {
+			description: 'The URL for the Parsoid API',
+			'boolean': false
 		}
 	});
 
@@ -560,6 +607,13 @@ if ( !module.parent ) {
 		callback = cbCombinator.bind( null,
 		                              Util.booleanOption( argv.xml ) ?
 		                              xmlCallback : plainCallback, consoleOut );
+		if ( !argv.parsoidURL ) {
+			// Start our own Parsoid server
+			// TODO: This will not be necessary once we have a top-level testing
+			// script that takes care of setting everything up.
+			var apiServer = require( './apiServer.js' );
+			argv.parsoidURL = apiServer.startParsoidServer();
+		}
 		fetch( title, callback, argv );
 	} else {
 		opts.showHelp();
