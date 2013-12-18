@@ -17920,9 +17920,16 @@ parsoid
 !! input
 [http://google.com <nowiki>[google]</nowiki>]
 [http://google.com <nowiki>google]</nowiki>]
+
+<nowiki>[http://google.com]</nowiki>
+
+<nowiki>[http://google.com google]</nowiki>
+
 !! result
-<a href="http://google.com" rel="mw:ExtLink">[google]</a>
-<a href="http://google.com" rel="mw:ExtLink">google]</a>
+<p><a href="http://google.com" rel="mw:ExtLink">[google]</a>
+<a href="http://google.com" rel="mw:ExtLink">google]</a></p>
+<p>[http://google.com]</p>
+<p>[http://google.com google]</p>
 !! end
 
 !! test
