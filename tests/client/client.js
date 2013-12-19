@@ -7,12 +7,14 @@
 var http = require( 'http' ),
 	qs = require( 'querystring' ),
 	exec = require( 'child_process' ).exec,
+	apiServer = require( '../apiServer.js' ),
 
 	commit, ctime,
 	lastCommit, lastCommitTime, lastCommitCheck,
 	repoPath = __dirname,
 
 	config = require( process.argv[2] || './config.js' ),
+	parsoidURL = config.parsoidURL,
 	rtTest = require( '../roundtrip-test.js' );
 
 var getTitle = function( cb ) {
@@ -78,7 +80,8 @@ var runTest = function( cb, prefix, title ) {
 		rtTest.fetch( title, callback, {
 			setup: config.setup,
 			prefix: prefix,
-			editMode: false
+			editMode: false,
+			parsoidURL: parsoidURL
 		} );
 	} catch ( err ) {
 		// Log it to console (for gabriel to watch scroll by)
@@ -192,6 +195,11 @@ if ( typeof module === 'object' ) {
 }
 
 if ( module && !module.parent ) {
+	if ( !config.parsoidURL ) {
+		// If no Parsoid server was passed, start our own
+		parsoidURL = apiServer.startParsoidServer();
+	}
+
 	getGitCommit( function ( commitHash, commitTime ) {
 		commit = commitHash;
 		ctime = commitTime;

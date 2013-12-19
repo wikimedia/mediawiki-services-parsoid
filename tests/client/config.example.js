@@ -30,7 +30,10 @@ if ( typeof module === 'object' ) {
 
 			// Insert the interwiki prefix for a localhost wiki
 			parsoidConfig.setInterwiki( 'localhost', 'http://localhost/wiki/api.php' );
-		}
+		},
+
+		// The parsoid API to use. If null, create our own server
+		parsoidURL: null
 	};
 }
 
