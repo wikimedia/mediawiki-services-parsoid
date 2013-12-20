@@ -146,6 +146,12 @@ Template:Bullet
 * Bar
 !!endarticle
 
+!!article
+Template:OpenTable
+!!text
+{|
+!!endarticle
+
 ###
 ### Basic tests
 ###
@@ -18747,6 +18753,25 @@ parsoid=wt2wt,wt2html
 <tbody>
 <tr>
 <td>b</td></tr></tbody></table>
+!!end
+
+!!test
+Table in fosterable position
+!!options
+parsoid=wt2html,wt2wt
+!!input
+{{OpenTable}}
+<div>
+{|
+|}
+</div>
+|}
+!!result
+<div about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"OpenTable","href":"./Template:OpenTable"},"params":{},"i":0}},"\n&lt;div>"]}' data-parsoid='{"stx":"html","autoInsertedEnd":true,"dsr":[0,19,null,null],"src":"{{OpenTable}}\n&lt;div>","pi":[[]]}'></div><span about="#mwt1" data-parsoid="{}">
+</span>
+<table about="#mwt1" data-parsoid='{"autoInsertedEnd":true,"dsr":[null,19,2,0]}'></table>
+
+<table data-parsoid='{"dsr":[20,24,2,2]}'></table>
 !!end
 
 # -----------------------------------------------------------------

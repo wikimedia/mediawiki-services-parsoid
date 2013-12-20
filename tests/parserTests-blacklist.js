@@ -682,6 +682,7 @@ add("wt2wt", "Parsoid-only: Table with broken attribute value quoting on consecu
 add("wt2wt", "RT-ed inter-element separators should be valid separators");
 add("wt2wt", "Empty TD followed by TD with tpl-generated attribute");
 add("wt2wt", "Improperly nested inline or quotes tags with whitespace in between");
+add("wt2wt", "Table in fosterable position");
 
 
 // Blacklist for html2html
