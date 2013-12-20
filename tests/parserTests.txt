@@ -10477,10 +10477,57 @@ Parsoid-specific image handling - simple image with size and middle alignment
 !! options
 parsoid
 !! input
+[[File:Foobar.jpg|middle|50px]]
+!! result
+<p><span class="mw-valign-middle" typeof="mw:Image">
+<a href="File:Foobar.jpg">
+<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50">
+</a>
+</span>
+</p>
+!! end
+
+!! test
+Parsoid-specific image handling - simple image with size, middle alignment,
+non-standard namespace alias
+!! options
+parsoid=wt2wt,wt2html,html2html
+!! input
+[[Image:Foobar.jpg|middle|50px]]
+!! result
+<p><span class="mw-valign-middle" typeof="mw:Image">
+<a href="File:Foobar.jpg">
+<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50">
+</a>
+</span>
+</p>
+!! end
+
+!! test
+Parsoid-specific image handling - simple image with size and middle alignment
+(existing content)
+!! options
+parsoid
+!! input
+[[File:Foobar.jpg|50px|middle]]
+!! result
+<p><span class="mw-valign-middle" typeof="mw:Image"
+data-parsoid='{"optList":[{"ck":"width","ak":"50px"},{"ck":"middle","ak":"middle"}]}'>
+<a href="File:Foobar.jpg">
+<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50"
+data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"6"},"sa":{"resource":"File:Foobar.jpg","height":""}}'>
+</a></span></p>
+!! end
+
+!! test
+Parsoid-specific image handling - simple image with size and middle alignment
+and non-standard namespace name
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! input
 [[Image:Foobar.jpg|50px|middle]]
 !! result
-<p>
-<span class="mw-valign-middle" typeof="mw:Image">
+<p><span class="mw-valign-middle" typeof="mw:Image">
 <a href="File:Foobar.jpg">
 <img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50">
 </a>
@@ -10493,15 +10540,13 @@ Parsoid-specific image handling - simple image with both sizes, a baseline align
 !! options
 parsoid
 !! input
-[[Image:Foobar.jpg|500x10px|baseline|caption]]
+[[File:Foobar.jpg|500x10px|baseline|caption]]
 !! result
-<p>
-<span class="mw-valign-baseline" typeof="mw:Image" data-mw="{&quot;caption&quot;:&quot;caption&quot;}">
+<p><span class="mw-valign-baseline" typeof="mw:Image" data-mw='{"caption":"caption"}' data-parsoid='{"optList":[{"ck":"width","ak":"500x10px"},{"ck":"baseline","ak":"baseline"},{"ck":"caption","ak":"caption"}]}'>
 <a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/89px-Foobar.jpg" height="10" width="89">
+<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/89px-Foobar.jpg" height="10" width="89" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","width":"89"},"sa":{"resource":"File:Foobar.jpg","width":"500"}}'>
 </a>
-</span>
-</p>
+</span></p>
 !! end
 
 !! test
@@ -10509,15 +10554,12 @@ Parsoid-specific image handling - simple image with border and size spec
 !! options
 parsoid
 !! input
-[[Image:Foobar.jpg|50px|border|caption]]
+[[File:Foobar.jpg|50px|border|caption]]
 !! result
-<p>
-<span class="mw-image-border" typeof="mw:Image" data-mw="{&quot;caption&quot;:&quot;caption&quot;}">
+<p><span class="mw-image-border" typeof="mw:Image" data-mw='{"caption":"caption"}' data-parsoid='{"optList":[{"ck":"width","ak":"50px"},{"ck":"border","ak":"border"},{"ck":"caption","ak":"caption"}]}'>
 <a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50">
-</a>
-</span>
-</p>
+<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"6"},"sa":{"resource":"File:Foobar.jpg","height":""}}'>
+</a></span></p>
 !! end
 
 !! test
@@ -10525,11 +10567,27 @@ Parsoid-specific image handling - thumbnail with halign, valign, and caption
 !! options
 parsoid
 !! input
-[[Image:Foobar.jpg|thumb|left|baseline|caption content]]
+[[File:Foobar.jpg|left|baseline|thumb|caption content]]
 !! result
 <figure class="mw-default-size mw-halign-left mw-valign-baseline" typeof="mw:Image/Thumb">
 <a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" height="21" width="180" />
+<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" height="20" width="180" />
+</a>
+<figcaption>caption content</figcaption>
+</figure>
+!! end
+
+!! test
+Parsoid-specific image handling - thumbnail with halign, valign, and caption
+(existing content)
+!! options
+parsoid
+!! input
+[[File:Foobar.jpg|thumb|left|baseline|caption content]]
+!! result
+<figure class="mw-default-size mw-halign-left mw-valign-baseline" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"left","ak":"left"},{"ck":"baseline","ak":"baseline"},{"ck":"caption","ak":"caption content"}]}'>
+<a href="File:Foobar.jpg">
+<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" height="20" width="180" />
 </a>
 <figcaption>caption content</figcaption>
 </figure>
@@ -10540,7 +10598,7 @@ Parsoid-specific image handling - thumbnail with specific size, halign, valign, 
 !! options
 parsoid
 !! input
-[[Image:Foobar.jpg|thumb|50x50px|right|middle|caption]]
+[[Image:Foobar.jpg|right|middle|thumb|50x50px|caption]]
 !! result
 <figure class="mw-halign-right mw-valign-middle" typeof="mw:Image/Thumb">
 <a href="File:Foobar.jpg">
@@ -10551,13 +10609,45 @@ parsoid
 !! end
 
 !! test
+Parsoid-specific image handling - thumbnail with specific size, halign,
+valign, and caption (existing content)
+!! options
+parsoid
+!! input
+[[File:Foobar.jpg|thumb|50x50px|right|middle|caption]]
+!! result
+<figure class="mw-halign-right mw-valign-middle" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"width","ak":"50x50px"},{"ck":"right","ak":"right"},{"ck":"middle","ak":"middle"},{"ck":"caption","ak":"caption"}]}'>
+<a href="File:Foobar.jpg">
+<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"6"},"sa":{"resource":"File:Foobar.jpg","height":"50"}}'/>
+</a>
+<figcaption>caption</figcaption>
+</figure>
+!! end
+
+!! test
 Parsoid-specific image handling - framed image with specific size and caption
 !! options
 parsoid
 !! input
-[[Image:Foobar.jpg|500x50px|frame|caption]]
+[[Image:Foobar.jpg|frame|500x50px|caption]]
 !! result
 <figure typeof="mw:Image/Frame">
+<a href="File:Foobar.jpg">
+<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/442px-Foobar.jpg" height="50" width="442" />
+</a>
+<figcaption>caption</figcaption>
+</figure>
+!! end
+
+!! test
+Parsoid-specific image handling - framed image with specific size and caption
+(existing content)
+!! options
+parsoid
+!! input
+[[File:Foobar.jpg|442x50px|frame|caption]]
+!! result
+<figure typeof="mw:Image/Frame" data-parsoid='{"optList":[{"ck":"width","ak":"442x50px"},{"ck":"framed","ak":"frame"},{"ck":"caption","ak":"caption"}]}'>
 <a href="File:Foobar.jpg">
 <img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/442px-Foobar.jpg" height="50" width="442" />
 </a>
@@ -10570,9 +10660,26 @@ Parsoid-specific image handling - framed image with specific size, halign, valig
 !! options
 parsoid
 !! input
-[[Image:Foobar.jpg|500x50px|frame|left|baseline|caption]]
+[[Image:Foobar.jpg|left|baseline|frame|500x50px|caption]]
 !! result
 <figure class="mw-halign-left mw-valign-baseline" typeof="mw:Image/Frame">
+<a href="File:Foobar.jpg">
+<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/442px-Foobar.jpg" height="50" width="442" />
+</a>
+<figcaption>caption</figcaption>
+</figure>
+!! end
+
+!! test
+Parsoid-specific image handling - framed image with specific size, halign,
+valign, and caption (existing content)
+!! options
+parsoid
+!! input
+[[File:Foobar.jpg|442x50px|frame|left|baseline|caption]]
+!! result
+<figure class="mw-halign-left mw-valign-baseline" typeof="mw:Image/Frame"
+data-parsoid='{"optList":[{"ck":"width","ak":"442x50px"},{"ck":"framed","ak":"frame"},{"ck":"left","ak":"left"},{"ck":"baseline","ak":"baseline"},{"ck":"caption","ak":"caption"}]}'>
 <a href="File:Foobar.jpg">
 <img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/442px-Foobar.jpg" height="50" width="442" />
 </a>
@@ -10585,38 +10692,33 @@ Parsoid-specific image handling - frameless image with specific size, border, an
 !! options
 parsoid
 !! input
-[[Image:Foobar.jpg|frameless|500x50px|border|caption]]
+[[File:Foobar.jpg|frameless|442x50px|border|caption]]
 !! result
-<p>
-<span class="mw-image-border" typeof="mw:Image/Frameless" data-mw="{&quot;caption&quot;:&quot;caption&quot;}">
+<p><span class="mw-image-border" typeof="mw:Image/Frameless" data-mw='{"caption":"caption"}' data-parsoid='{"optList":[{"ck":"frameless","ak":"frameless"},{"ck":"width","ak":"442x50px"},{"ck":"border","ak":"border"},{"ck":"caption","ak":"caption"}]}'>
 <a href="File:Foobar.jpg">
 <img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/442px-Foobar.jpg" height="50" width="442" />
-</a>
-</p>
+</a></span></p>
 !! end
 
-#!! test
-#Parsoid-specific image handling - simple image with a formatted caption
-#!! options
-#parsoid
-#!! input
-#[[Image:Foobar.jpg|<table><tr><td>a</td><td>b</td></tr><tr><td>c</td></tr></table>]]
-#!! result
-#<p>
-#<span typeof="mw:Image">
-#<a class="mw-default-size" href="Image:Foobar.jpg">
-#<img alt="Foobar.jpg" class="mw-default-size" src="http://example.com/images/3/3a/Foobar.jpg" height="220" width="1941">
-#</a>
-#<span>abc</span>
-#</span>
-#</p>
+!! test
+Parsoid-specific image handling - simple image with a formatted caption
+!! options
+parsoid
+!! input
+[[File:Foobar.jpg|<table><tr><td>a</td><td>b</td></tr><tr><td>c</td></tr></table>]]
+!! result
+<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"&lt;table>&lt;tr>&lt;td>a&lt;/td>&lt;td>b&lt;/td>&lt;/tr>&lt;tr>&lt;td>c&lt;/td>&lt;/tr>&lt;/table>"}'>
+<a href="File:Foobar.jpg">
+<img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941">
+</a></span></p>
+!! end
 
 !! test
 Parsoid-specific image handling - caption with a template in it
 !! options
 parsoid
 !! input
-[[File:Foobar.jpg|thumb|200x200px|This caption has a {{echo|transclusion}} in it.]]
+[[File:Foobar.jpg|thumb|200x23px|This caption has a {{echo|transclusion}} in it.]]
 !! result
 <figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" height="23" width="200"></a><figcaption>This caption has a <span about="#mwt1" typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;transclusion&quot;}},&quot;i&quot;:0}}]}">transclusion</span> in it.</figcaption></figure>
 !! end
@@ -10633,6 +10735,26 @@ bar
 <p>foo</p>
 <figure typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="23" width="200"></a><figcaption>This caption has a <center>unbalanced tag in it.</center></figcaption></figure>
 <p>bar</p>
+!! end
+
+!! test
+Parsoid-specific image handling - empty caption
+!! options
+parsoid
+!! input
+[[File:Foobar.jpg|thumb|]]
+!! result
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="20" width="180"/></a><figcaption></figcaption></figure>
+!! end
+
+!! test
+Parsoid-specific image handling - whitespace caption
+!! options
+parsoid
+!! input
+[[File:Foobar.jpg|thumb| ]]
+!! result
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="20" width="180"/></a><figcaption> </figcaption></figure>
 !! end
 
 
@@ -19045,17 +19167,102 @@ parsoid=wt2html,wt2wt
 # ----------------------------------------------------------------
 
 !! test
-Image: Modifying size of an image
+Image: Modifying size of an image (1)
 !! options
 parsoid=html2wt
 !! input
-[[Image:Wiki.png|230x230px]]
+[[Image:Wiki.png|200x230px]]
 !! result
-<p data-parsoid='{"dsr":[0,24,0,0]}'><span typeof="mw:Image" data-parsoid='{"optList":[{"ck":"width","ak":"100px"}],"cacheKey":"[[Image:Wiki.png|100px]]","img":{"h":115,"w":100,"wdset":true},"dsr":[0,24,null,null]}'><a href="./File:Wiki.png" data-parsoid='{"a":{"href":"./File:Wiki.png"}}'><img resource="./File:Wiki.png" src="//upload.wikimedia.org/wikipedia/en/thumb/b/bc/Wiki.png/100px-Wiki.png" height="230" width="200" data-parsoid='{"a":{"resource":"./File:Wiki.png"},"sa":{"resource":"Image:Wiki.png"}}'></a></span></p>
+<p data-parsoid='{"dsr":[0,24,0,0]}'><span typeof="mw:Image" data-parsoid='{"optList":[{"ck":"width","ak":"100px"}],"cacheKey":"[[Image:Wiki.png|100px]]","img":{},"dsr":[0,24,null,null]}'><a href="./File:Wiki.png" data-parsoid='{"a":{"href":"./File:Wiki.png"}}'><img resource="./File:Wiki.png" src="//upload.wikimedia.org/wikipedia/en/thumb/b/bc/Wiki.png/100px-Wiki.png" height="230" width="200" data-parsoid='{"a":{"resource":"./File:Wiki.png","height":"115"},"sa":{"resource":"Image:Wiki.png","height":""}}'/></a></span></p>
 !!end
 
 !! test
-Image: New block level image should have \n before and after
+Image: Modifying size of an image (2)
+!! options
+parsoid=html2wt
+!! input
+[[Image:Wiki.png|230px]]
+!! result
+<p data-parsoid='{"dsr":[0,24,0,0]}'><span typeof="mw:Image" data-parsoid='{"optList":[{"ck":"width","ak":"100px"}],"cacheKey":"[[Image:Wiki.png|100px]]","img":{},"dsr":[0,24,null,null]}'><a href="./File:Wiki.png" data-parsoid='{"a":{"href":"./File:Wiki.png"}}'><img resource="./File:Wiki.png" src="//upload.wikimedia.org/wikipedia/en/thumb/b/bc/Wiki.png/100px-Wiki.png" height="230" data-parsoid='{"a":{"resource":"./File:Wiki.png","height":"115"},"sa":{"resource":"Image:Wiki.png","height":""}}'/></a></span></p>
+!!end
+
+# note that the data-parsoid value conflicts with the figure's class
+!! test
+Image: Modifying alignment of an image (bug 48665)
+!! options
+parsoid=html2wt
+!! input
+[[Image:Wiki.png|thumb|caption|right]]
+!! result
+<figure class="mw-default-size mw-halign-right" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"left","ak":"left"},{"ck":"caption","ak":"caption"}],"cacheKey":"[[Image:Wiki.png|thumb|left|caption]]","img":{"h":155,"w":135},"dsr":[0,37,2,2]}'><a href="./File:Wiki.png" data-parsoid='{"a":{"href":"./File:Wiki.png"},"dsr":[2,null,null,null]}'><img resource="./File:Wiki.png" src="//upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png" height="155" width="135" data-parsoid='{"a":{"resource":"./File:Wiki.png"},"sa":{"resource":"Image:Wiki.png"}}'/></a><figcaption data-parsoid='{"dsr":[null,35,null,null]}'>caption</figcaption></figure>
+!! end
+
+!! test
+Image: Modifying valign of an image (bug 49221)
+!! options
+parsoid=html2wt
+!! input
+[[File:Example.jpg|20px|text-top]]
+!! result
+<p data-parsoid='{"dsr":[0,29,0,0]}'><span class="mw-valign-text-top" typeof="mw:Image" data-parsoid='{"optList":[{"ck":"width","ak":"20px"},{"ck":"top","ak":"top"}],"cacheKey":"[[File:Example.jpg|20px|top]]","img":{},"dsr":[0,29,null,null]}'><a href="./File:Example.jpg" data-parsoid='{"a":{"href":"./File:Example.jpg"}}'><img resource="./File:Example.jpg" src="//upload.wikimedia.org/wikipedia/en/thumb/a/a9/Example.jpg/20px-Example.jpg" height="22" width="20" data-parsoid='{"a":{"resource":"./File:Example.jpg","height":"22"},"sa":{"resource":"File:Example.jpg","height":""}}'/></a></span></p>
+!! end
+
+!! test
+Image: Modifying alt attribute of an image (bug 56400)
+!! options
+parsoid=html2wt
+!! input
+[[File:Foobar.jpg|thumb|some caption|alt=some alternate edited text]]
+!! result
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"some caption"},{"ck":"alt","ak":"alt=some alternate text"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img alt="some alternate edited text" resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="20" width="180" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"20","width":"180"},"sa":{"resource":"File:Foobar.jpg","height":"","width":""}}'/></a><figcaption>some caption</figcaption></figure>
+!!end
+
+!! test
+Image: Modifying caption of an image
+!! options
+parsoid=html2wt
+!! input
+[[Image:Foobar.jpg|thumb|caption]]
+!! result
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":" caption "}],"cacheKey":"[[Image:Foobar.jpg|thumb| caption ]]"}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg/180px-Foobar.jpg" height="20" width="180" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"21","width":"180"},"sa":{"resource":"Image:Foobar.jpg","height":"","width":""}}'/></a><figcaption>caption</figcaption></figure>
+!!end
+
+!! test
+Image: empty alt attribute (bug 48924)
+!! options
+parsoid
+!! input
+[[File:Foobar.jpg|thumb|alt=|bar]]
+!! result
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"alt","ak":"alt="},{"ck":"caption","ak":"bar"}]}'><a href="./File:Foobar.jpg"><img alt="" resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" height="20" width="180" data-parsoid='{"a":{"alt":"","resource":"./File:Foobar.jpg","height":"20","width":"180"},"sa":{"alt":"alt=","resource":"File:Foobar.jpg","height":"","width":""}}'/></a><figcaption>bar</figcaption></figure>
+!! end
+
+#!! test
+#Image: new attributes should be serialized in wiki's language for RTL languages (bug 51852)
+#!! options
+#parsoid=html2wt
+#language=ar
+#!! input
+#[[Imagen:Foobar.jpg|derecha|miniaturadeimagen]]
+#!! result
+#<figure class="mw-default-size mw-halign-right" typeof="mw:Image/Thumb"><a href="Imagen:Foobar.jpg"><img resource="./Imagen:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="20" width="180"/></a></figure>
+#!! end
+
+!! test
+Image: Block level image should have \n before and after
+!! options
+parsoid
+!! input
+123
+[[File:Foobar.jpg|right|thumb|150x150px]]
+456
+!! result
+<p>123</p><figure typeof="mw:Image/Thumb" class="mw-halign-right"><a href="./File:Foobar.png"><img src="http://192.168.142.128/mw/images/thumb/b/bc/Foobar.png/131px-Foobar.png" width="131" height="150" resource="./File:Foobar.png" data-parsoid='{"a":{"resource":"./File:Foobar.png","width":"131"},"sa":{"resource":"File:Foobar.png","width":"150"}}'></a></figure><p>456</p>
+!!end
+
+!! test
+Image: New block level image should have \n before and after (existing
+content)
 !! options
 parsoid=html2wt
 !! input
