@@ -3519,6 +3519,14 @@ add("selser", "Improperly nested inline or quotes tags with whitespace in betwee
 add("selser", "Improperly nested inline or quotes tags with whitespace in between [[3,4,4,0,2]]", "zspuuqxabmtmlsorhu9yn80lmnm6lxr''' ''x'''f278nrkbehwu3di ''");
 add("selser", "Improperly nested inline or quotes tags with whitespace in between [[[0,3],[3],0,3,0]]", "<span> </span></s>\n ''");
 add("selser", "Improperly nested inline or quotes tags with whitespace in between [[[2,1],[3],3,[0,3],0]]", "<span>i9p8te7ufdmquxr <s data-foobar=\"xoximjgruc95dn29\">x</span></s>''' ''' ''");
+add("selser", "Table in fosterable position [0,0,0,2,2,4]", "{{OpenTable}}\n<div>qpfxie05vckxogvi\nbgbvgcgj6168ncdi\n{|\n|}u99ofuiwcow29");
+add("selser", "Table in fosterable position [0,0,0,3,0,0]", "{{OpenTable}}\n<div>\n{|\n|}\n");
+add("selser", "Table in fosterable position [0,0,0,4,0,0]", "{{OpenTable}}\n<div>ldfafjjtesev1jor\n{|\n|}\n");
+add("selser", "Table in fosterable position [0,0,0,0,2,0]", "{{OpenTable}}\n<div>\ncyhvqas8caexw29\n{|\n|}\n");
+add("selser", "Table in fosterable position [0,0,0,3,0,4]", "{{OpenTable}}\n<div>\n{|\n|}u2bsav8tzstkpgb9");
+add("selser", "Table in fosterable position [0,0,0,0,2,2]", "{{OpenTable}}\n<div>\n39me682giz035wmi\n{|\n|}gixyz93ers9bpgb9\n");
+add("selser", "Table in fosterable position [0,0,0,4,2,2]", "{{OpenTable}}\n<div>t23qilvsvybbuik967ubnpsvxdovquxr\n{|\n|}rxquspx5b7hw7b9\n");
+add("selser", "Table in fosterable position [0,0,0,0,0,4]", "{{OpenTable}}\n<div>\n{|\n|}1qfvrifsyaurf6r");
 
 // ### DO NOT REMOVE THIS LINE ### (end of automatically-generated section)
 

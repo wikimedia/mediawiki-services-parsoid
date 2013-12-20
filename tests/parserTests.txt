@@ -18771,7 +18771,8 @@ parsoid=wt2html,wt2wt
 </span>
 <table about="#mwt1" data-parsoid='{"autoInsertedEnd":true,"dsr":[null,19,2,0]}'></table>
 
-<table data-parsoid='{"dsr":[20,24,2,2]}'></table>
+<table data-parsoid='{"dsr":[20,25,2,2]}'>
+</table>
 !!end
 
 # -----------------------------------------------------------------
