@@ -1717,7 +1717,7 @@
       "time": "2013-04-25T19:43:23Z",
       "misermode": "",
       "maxuploadsize": 524288000,
-	  "linkprefixcharset": "\u00e1\u00c1\u00f0\u00d0\u00e9\u00c9\u00ed\u00cd\u00f3\u00d3\u00fa\u00da\u00fd\u00dd\u00fe\u00de\u00e6\u00c6\u00f6\u00d6A-Za-z\u2013-"
+      "linkprefixcharset": "\u00e1\u00c1\u00f0\u00d0\u00e9\u00c9\u00ed\u00cd\u00f3\u00d3\u00fa\u00da\u00fd\u00dd\u00fe\u00de\u00e6\u00c6\u00f6\u00d6A-Za-z\u2013-"
     },
     "interwikimap": [
       {

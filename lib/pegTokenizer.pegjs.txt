@@ -1340,7 +1340,7 @@ img_link
 }
 
 img_attribute
-  = k:( 'page' / 'alt' / 'thumbnail' / 'thumb' ) '=' t:preprocessor_text? {
+  = k:( 'page' / 'alt' / 'lang' / 'thumbnail' / 'thumb' ) '=' t:preprocessor_text? {
       return new KV( k, t );
   }
 
