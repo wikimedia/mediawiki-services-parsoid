@@ -155,11 +155,7 @@ ParserTests.prototype.getOpts = function () {
 	var default_args = ["Default tests-file: " + this.parser_tests_file,
 	                    "Default options   : --wt2html --wt2wt --html2html --html2wt --whitelist --blacklist --color=auto"];
 
-	return optimist.usage( 'Usage: $0 [options] [tests-file]\n\n' + default_args.join("\n"), {
-		'help': {
-			description: 'Show this help message',
-			alias: 'h'
-		},
+	return optimist.usage( 'Usage: $0 [options] [tests-file]\n\n' + default_args.join("\n"), Util.addStandardOptions({
 		'wt2html': {
 			description: 'Wikitext -> HTML(DOM)',
 			'default': false,
@@ -194,11 +190,6 @@ ParserTests.prototype.getOpts = function () {
 			description: 'Use original source in wt2wt tests',
 			'boolean': true,
 			'default': true
-		},
-		'editMode': {
-			description: 'Test in edit-mode (changes some parse & serialization strategies)',
-			'default': true,
-			'boolean': true
 		},
 		'numchanges': {
 			description: 'Make multiple different changes to the DOM, run a selser test for each one.',
@@ -261,25 +252,6 @@ ParserTests.prototype.getOpts = function () {
 			'default': false,
 			'boolean': true
 		},
-		'color': {
-			description: 'Enable color output Ex: --no-color',
-			'default': 'auto'
-		},
-		'debug': {
-			description: 'Print debugging information',
-			'default': false,
-			'boolean': true
-		},
-		'trace [optional-flags]': {
-			description: 'Same trace options as "parse.js" (See: node parse --help)',
-			'default': false,
-			'boolean': true
-		},
-		'dump <flags>': {
-			description: 'Same dump options as "parse.js" (See: node parse --help)',
-			'boolean': false,
-			'default': ""
-		},
 		'exit-zero': {
 			description: "Don't exit with nonzero status if failures are found.",
 			'default': false,
@@ -290,7 +262,12 @@ ParserTests.prototype.getOpts = function () {
 			'default': false,
 			'boolean': true
 		}
-	}).check( function(argv) {
+	},{
+		// override defaults for standard options
+		fetchTemplates: false,
+		usephppreprocessor: false,
+		fetchConfig: false
+	})).check( function(argv) {
 		if( argv.filter === true ) {
 			throw "--filter need an argument";
 		}
@@ -1501,13 +1478,11 @@ ParserTests.prototype.main = function ( options ) {
 		}
 	}
 
-	options.fetchTemplates = false;
-	options.usePHPPreProcessor = false;
 	options.expandExtensions = true;
-	options.fetchConfig = false;
 
 	var i, key, parsoidConfig = new ParsoidConfig( null, options ),
 		iwmap = Object.keys( parsoidConfig.interwikiMap );
+	Util.setTemplatingAndProcessingFlags( parsoidConfig, options );
 
 	for ( i = 0; i < iwmap.length; i++ ) {
 		key = iwmap[i];

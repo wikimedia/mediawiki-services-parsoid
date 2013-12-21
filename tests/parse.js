@@ -14,64 +14,9 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 	optimist = require('optimist'),
 	fs = require('fs');
 
-function traceUsage() {
-	var buf = [];
-	buf.push("Tracing");
-	buf.push("-------");
-	buf.push("- Without any flags, enables a light high-level tracing (DEPRECATED and not as useful anymore)");
-	buf.push("- With one or more comma-separated flags, traces those specific phases");
-	buf.push("- Supported flags:");
-	buf.push("  * peg-tokens: shows tokens emitted by tokenizer");
-	buf.push("  * sync:1    : shows tokens flowing through the post-tokenizer Sync Token Transform Manager");
-	buf.push("  * async:2   : shows tokens flowing through the Async Token Transform Manager");
-	buf.push("  * sync:3    : shows tokens flowing through the post-expansion Sync Token Transform Manager");
-	buf.push("  * tsp       : shows tokens flowing through the TokenStreamPatcher (useful to see in-order token stream)");
-	buf.push("  * list      : shows actions of the list handler");
-	buf.push("  * pre       : shows actions of the pre handler");
-	buf.push("  * pre_debug : shows actions of the pre handler + tokens returned from it");
-	buf.push("  * p-wrap    : shows actions of the paragraph wrapper");
-	buf.push("  * html      : shows tokens that are sent to the HTML tree builder");
-	buf.push("  * dsr       : shows dsr computation on the DOM");
-	buf.push("  * wts       : trace actions of the regular wikitext serializer");
-	buf.push("  * selser    : trace actions of the selective serializer\n");
-	buf.push("  * wt-escape : debug wikitext-escaping\n");
-	buf.push("--debug enables tracing of all the above phases except Token Transform Managers\n");
-	buf.push("Examples:");
-	buf.push("$ node parse --trace pre,p-wrap,html < foo");
-	buf.push("$ node parse --trace sync:3,dsr < foo");
-	return buf.join('\n');
-}
-
-function dumpFlags() {
-	var buf = [];
-	buf.push("Dumping state");
-	buf.push("-------------");
-	buf.push("- Dumps state at different points of execution");
-	buf.push("- DOM dumps are always doc.outerHTML");
-	buf.push("- Supported flags:");
-	buf.push("  * tplsrc            : dumps preprocessed template source that will be tokenized");
-	buf.push("  * dom:post-builder  : dumps DOM returned by HTML builder");
-	buf.push("  * dom:pre-dsr       : dumps DOM prior to computing DSR");
-	buf.push("  * dom:post-dsr      : dumps DOM after computing DSR");
-	buf.push("  * dom:pre-encap     : dumps DOM before template encapsulation");
-	buf.push("  * dom:post-encap    : dumps DOM after template encapsulation");
-	buf.push("  * dom:post-dom-diff : in selective serialization, dumps DOM after running dom diff\n");
-	buf.push("--debug dumps state at these different stages\n");
-	buf.push("Examples:");
-	buf.push("$ node parse --dump dom:post-builder,dom:pre-dsr,dom:pre-encap < foo");
-	buf.push("$ node parse --trace html --dump dom:pre-encap < foo");
-	buf.push("\n");
-	return buf.join('\n');
-}
-
 ( function() {
 	var default_mode_str = "Default conversion mode : --wt2html";
-	var opts = optimist.usage( 'Usage: echo wikitext | $0 [options]\n\n' +default_mode_str, {
-		'help': {
-			description: 'Show this message',
-			'boolean': true,
-			'default': false
-		},
+	var opts = optimist.usage( 'Usage: echo wikitext | $0 [options]\n\n' + default_mode_str, Util.addStandardOptions({
 		'wt2html': {
 			description: 'Wikitext -> HTML',
 			'boolean': true,
@@ -97,59 +42,13 @@ function dumpFlags() {
 			'boolean': true,
 			'default': false
 		},
-		'editMode': {
-			description: 'Test in edit-mode (changes some parse & serialization strategies)',
-			'default': true,
-			'boolean': true
-		},
 		'normalize': {
 			description: 'Normalize the output as parserTests would do. Use --normalize for PHP tests, and --normalize=parsoid for parsoid-only tests',
 			'default': false
 		},
-		'debug': {
-			description: 'Debug mode',
-			'boolean': true,
-			'default': false
-		},
-		'trace [optional-flags]': {
-			description: 'Trace tokens (see below for supported trace options)',
-			'boolean': true,
-			'default': false
-		},
-		'dump <flags>': {
-			description: 'Dump state (see below for supported dump flags)',
-			'boolean': false,
-			'default': ""
-		},
-		'maxdepth': {
-			description: 'Maximum expansion depth',
-			'boolean': false,
-			'default': 40
-		},
 		'prefix': {
 			description: 'Which wiki prefix to use; e.g. "enwiki" for English wikipedia, "eswiki" for Spanish, "mediawikiwiki" for mediawiki.org',
-			'boolean': false,
 			'default': 'enwiki'
-		},
-		'apiURL': {
-			description: 'http path to remote API, e.g. http://en.wikipedia.org/w/api.php',
-			'boolean': false,
-			'default': null
-		},
-		'fetchConfig': {
-			description: 'Whether to fetch the wiki config from the server or use our local copy',
-			'boolean': true,
-			'default': true
-		},
-		'fetchTemplates': {
-			description: 'Whether to fetch included templates recursively',
-			'boolean': true,
-			'default': true
-		},
-		'usephppreprocessor': {
-			description: 'Whether to use the PHP preprocessor to expand templates and extensions',
-			'boolean': true,
-			'default': true
 		},
 		'page': {
 			description: 'The page name, returned for {{PAGENAME}}. If no input is given (ie. empty/stdin closed), it downloads and parses the page.',
@@ -186,25 +85,17 @@ function dumpFlags() {
 			'boolean': false,
 			'default': ''
 		},
-		'dp': {
-			description: 'Output data-parsoid JSON',
-			'boolean': true,
-			'default': false
-		},
 		'dpin': {
 			description: 'Input data-parsoid JSON',
 			'boolean': false,
 			'default': ''
 		}
-	} );
+	}));
 
 	var argv = opts.argv;
 
 	if ( Util.booleanOption( argv.help ) ) {
 		optimist.showHelp();
-		console.error(traceUsage());
-		console.error("\n");
-		console.error(dumpFlags());
 		return;
 	}
 

@@ -552,7 +552,7 @@ if ( typeof module === 'object' ) {
 }
 
 if ( !module.parent ) {
-	var opts = optimist.usage( 'Usage: $0 [options] <page-title> \n\n', {
+	var opts = optimist.usage( 'Usage: $0 [options] <page-title> \n\n', Util.addStandardOptions({
 		'xml': {
 			description: 'Use xml callback',
 			'boolean': true,
@@ -560,44 +560,15 @@ if ( !module.parent ) {
 		},
 		'prefix': {
 			description: 'Which wiki prefix to use; e.g. "enwiki" for English wikipedia, "eswiki" for Spanish, "mediawikiwiki" for mediawiki.org',
-			'boolean': false,
 			'default': ''
-		},
-		'apiURL': {
-			description: 'http path to remote API, e.g. http://en.wikipedia.org/w/api.php',
-			'boolean': false,
-			'default': null
-		},
-		'help': {
-			description: 'Show this message',
-			'boolean': true,
-			'default': false
-		},
-		'editMode': {
-			description: 'Test in edit-mode (changes some parse & serialization strategies)',
-			'default': false, // suppress noise by default
-			'boolean': true
-		},
-		'debug': {
-			description: 'Debug mode',
-			'boolean': true,
-			'default': false
-		},
-		'trace [optional-flags]': {
-			description: 'Trace tokens (see below for supported trace options)',
-			'boolean': true,
-			'default': false
-		},
-		'dump <flags>': {
-			description: 'Dump state (see below for supported dump flags)',
-			'boolean': false,
-			'default': ""
 		},
 		'parsoidURL': {
 			description: 'The URL for the Parsoid API',
-			'boolean': false
 		}
-	});
+	}, {
+		// defaults for standard options
+		editMode: false // suppress noise by default
+	}));
 
 	var callback;
 	var argv = opts.argv;
@@ -625,7 +596,6 @@ if ( !module.parent ) {
 		}
 	} else {
 		opts.showHelp();
-		console.error( 'Run "node parse --help" for supported trace and dump flags');
 	}
 
 }
