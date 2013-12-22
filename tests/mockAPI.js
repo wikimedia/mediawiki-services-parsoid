@@ -36,11 +36,17 @@ function sanitizeHTMLAttribute( text ) {
 
 var fnames = {
 		'Image:Foobar.jpg': 'Foobar.jpg',
-		'File:Foobar.jpg': 'Foobar.jpg'
+		'File:Foobar.jpg': 'Foobar.jpg',
+		'Image:Foobar.svg': 'Foobar.svg',
+		'File:Foobar.svg': 'Foobar.svg',
+		'Image:Thumb.png': 'Thumb.png',
+		'File:Thumb.png': 'Thumb.png'
 	},
 
 	pnames = {
-		'Image:Foobar.jpg': 'File:Foobar.jpg'
+		'Image:Foobar.jpg': 'File:Foobar.jpg',
+		'Image:Foobar.svg': 'File:Foobar.svg',
+		'Image:Thumb.png': 'File:Thumb.png'
 	},
 
 	formatters = {

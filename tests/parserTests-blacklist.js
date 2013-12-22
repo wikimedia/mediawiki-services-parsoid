@@ -604,6 +604,8 @@ add("wt2wt", "pre-save transform: nonexistent template");
 add("wt2wt", "pre-save transform: mixed tag case");
 add("wt2wt", "pre-save transform: Signature expansion");
 add("wt2wt", "Image with multiple captions -- only last one is accepted (parsoid)");
+add("wt2wt", "SVG thumbnails with language de");
+add("wt2wt", "SVG thumbnails with invalid language code");
 add("wt2wt", "BUG 561: {{/Subpage}}");
 add("wt2wt", "Handling of sections up to level 6 and beyond");
 add("wt2wt", "div with single-quoted attribute");
@@ -1762,8 +1764,6 @@ add("html2wt", "Parsoid-specific image handling - thumbnail with specific size, 
 add("html2wt", "Parsoid-specific image handling - framed image with specific size and caption");
 add("html2wt", "Parsoid-specific image handling - framed image with specific size, halign, valign, and caption");
 add("html2wt", "Parsoid-specific image handling - frameless image with specific size, border, and caption");
-add("html2wt", "Caption with a template in it");
-add("html2wt", "Caption with unbalanced tags in it");
 add("html2wt", "Subpage link");
 add("html2wt", "Subpage noslash link");
 add("html2wt", "Disabled subpages");
