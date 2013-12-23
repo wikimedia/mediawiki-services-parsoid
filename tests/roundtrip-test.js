@@ -409,7 +409,7 @@ var parsoidPost = function ( env, parsoidURL, prefix, title, text, oldid, cb ) {
 	}
 
 	var options = {
-		uri: url.parse( url.resolve( parsoidURL, prefix + '/' + title ) ).href,
+		uri: parsoidURL + '/' + prefix + '/' + encodeURI(title),
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
@@ -617,6 +617,10 @@ if ( !module.parent ) {
 				fetch( title, callback, argv );
 			} );
 		} else {
+			// make sure parsoidURL ends on /
+			if (!/\/$/.test(argv.parsoidURL)) {
+				argv.parsoidURL += '/';
+			}
 			fetch( title, callback, argv );
 		}
 	} else {
