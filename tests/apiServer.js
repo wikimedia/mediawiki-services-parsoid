@@ -42,8 +42,8 @@ var startParsoidServer = function ( cb, port ) {
 		startParsoidServer();
 	} );
 
-	// Wait 2 seconds to make sure it has had time to start
-	setTimeout( cb, 2000, serverURL );
+	// Wait 6 seconds to make sure it has had time to start
+	setTimeout( cb, 6000, serverURL );
 };
 
 var stopParsoidServer = function () {
