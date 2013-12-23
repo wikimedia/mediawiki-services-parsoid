@@ -10,4 +10,4 @@
 # So, you will want to pipe both stdout and stderr through less.
 # You can copy this commandline to omit "--trace selser" if you dont want the verbose output.
 
-node parserTests --selser --dump dom:post-changes --no-blacklist --trace selser --filter "$1" --changetree "$2"
+node $(dirname $0)/parserTests --selser --dump dom:post-changes --no-blacklist --trace selser --filter "$1" --changetree "$2"
