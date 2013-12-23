@@ -409,7 +409,7 @@ var parsoidPost = function ( env, parsoidURL, prefix, title, text, oldid, cb ) {
 	}
 
 	var options = {
-		url: url.parse( url.resolve( parsoidURL, prefix + '/' + title ) ),
+		uri: url.parse( url.resolve( parsoidURL, prefix + '/' + title ) ).href,
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
