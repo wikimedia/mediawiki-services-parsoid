@@ -195,14 +195,19 @@ if ( typeof module === 'object' ) {
 }
 
 if ( module && !module.parent ) {
-	if ( !config.parsoidURL ) {
-		// If no Parsoid server was passed, start our own
-		parsoidURL = apiServer.startParsoidServer();
-	}
-
-	getGitCommit( function ( commitHash, commitTime ) {
+	var getGitCommitCb = function ( commitHash, commitTime ) {
 		commit = commitHash;
 		ctime = commitTime;
 		callbackOmnibus('start');
-	} );
+	};
+
+	if ( !config.parsoidURL ) {
+		// If no Parsoid server was passed, start our own
+		parsoidURL = apiServer.startParsoidServer( function( url ) {
+			parsoidURL = url;
+			getGitCommit( getGitCommitCb );
+		} );
+	} else {
+		getGitCommit( getGitCommitCb );
+	}
 }

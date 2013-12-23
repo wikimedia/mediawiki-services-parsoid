@@ -612,9 +612,13 @@ if ( !module.parent ) {
 			// TODO: This will not be necessary once we have a top-level testing
 			// script that takes care of setting everything up.
 			var apiServer = require( './apiServer.js' );
-			argv.parsoidURL = apiServer.startParsoidServer();
+			apiServer.startParsoidServer( function( url ) {
+				argv.parsoidURL = url;
+				fetch( title, callback, argv );
+			} );
+		} else {
+			fetch( title, callback, argv );
 		}
-		fetch( title, callback, argv );
 	} else {
 		opts.showHelp();
 		console.error( 'Run "node parse --help" for supported trace and dump flags');

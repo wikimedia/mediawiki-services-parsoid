@@ -9,14 +9,16 @@ var child_process = require( 'child_process' );
 var forkedServer;
 
 /**
- * Starts a Parsoid server on passed port or a random port if none passed,
- * @return The URL of the created server
+ * Starts a Parsoid server on passed port or a random port if none passed.
+ * The callback will get the URL of the started server.
  */
-var startParsoidServer = function ( port ) {
+var startParsoidServer = function ( cb, port ) {
 	if ( !port ) {
 		port = 9000 + Math.floor( Math.random() * 100 );
 	}
 
+	var serverURL = 'http://localhost:' + port.toString() + '/';
+	console.log( "Starting Parsoid server at", serverURL );
 	forkedServer = child_process.fork( __dirname + '/../api/server.js',
 		[ '-c', '1' ], { env:
 			{
@@ -40,7 +42,8 @@ var startParsoidServer = function ( port ) {
 		startParsoidServer();
 	} );
 
-	return 'http://localhost:' + port.toString() + '/';
+	// Wait 2 seconds to make sure it has had time to start
+	setTimeout( cb, 2000, serverURL );
 };
 
 var stopParsoidServer = function () {
