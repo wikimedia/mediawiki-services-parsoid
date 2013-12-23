@@ -22,7 +22,7 @@ var http = require( 'http' ),
 
 var getTitle = function( cb ) {
 	var requestOptions = {
-		uri: config.server.host + ':' +
+		uri: 'http://' + config.server.host + ':' +
 			config.server.port + '/title?commit=' + commit + '&ctime=' + encodeURIComponent( ctime ),
 		method: 'GET'
 	},
