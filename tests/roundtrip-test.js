@@ -418,7 +418,7 @@ var parsoidPost = function ( env, parsoidURL, prefix, title, text, oldid, cb ) {
 		form: data
 	};
 
-	var req = request( options, function( err, res, body ) {
+	Util.retryingHTTPRequest( 10, options, function( err, res, body ) {
 		if ( err || res.statusCode !== 200 ) {
 			cb( err, null );
 		} else {

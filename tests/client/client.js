@@ -5,9 +5,11 @@
  */
 
 var http = require( 'http' ),
+	request = require('request'),
 	qs = require( 'querystring' ),
 	exec = require( 'child_process' ).exec,
 	apiServer = require( '../apiServer.js' ),
+	Util = require('../../lib/mediawiki.Util.js').Util,
 
 	commit, ctime,
 	lastCommit, lastCommitTime, lastCommitCheck,
@@ -17,43 +19,37 @@ var http = require( 'http' ),
 	parsoidURL = config.parsoidURL,
 	rtTest = require( '../roundtrip-test.js' );
 
+
 var getTitle = function( cb ) {
 	var requestOptions = {
-		host: config.server.host,
-		port: config.server.port,
-		path: '/title?commit=' + commit + '&ctime=' + encodeURIComponent( ctime ),
+		uri: config.server.host + ':' +
+			config.server.port + '/title?commit=' + commit + '&ctime=' + encodeURIComponent( ctime ),
 		method: 'GET'
+	},
+	retries = 10;
+
+	var callback = function ( error, response, body ) {
+		if (error) {
+			setTimeout( function () { cb( 'start' ); }, 15000 );
+		}
+
+		var resp;
+		switch ( response.statusCode ) {
+			case 200:
+				resp = JSON.parse( body );
+				cb( 'runTest', resp.prefix, resp.title );
+				break;
+			case 404:
+				console.log( 'The server doesn\'t have any work for us right now, waiting half a minute....' );
+				setTimeout( function () { cb( 'start' ); }, 30000 );
+				break;
+			default:
+				console.log( 'There was some error (' + response.statusCode + '), but that is fine. Waiting 15 seconds to resume....' );
+				setTimeout( function () { cb( 'start' ); }, 15000 );
+		}
 	};
 
-	var callback = function ( res ) {
-		var data = [];
-
-		res.setEncoding( 'utf8' );
-		res.on( 'data', function ( chunk ) {
-			if(res.statusCode === 200) {
-				data.push( chunk );
-			}
-		} );
-
-		res.on( 'end', function () {
-			var resp;
-			switch ( res.statusCode ) {
-				case 200:
-					resp = JSON.parse( data.join( '' ) );
-					cb( 'runTest', resp.prefix, resp.title );
-					break;
-				case 404:
-					console.log( 'The server doesn\'t have any work for us right now, waiting half a minute....' );
-					setTimeout( function () { cb( 'start' ); }, 30000 );
-					break;
-				default:
-					console.log( 'There was some error (' + res.statusCode + '), but that is fine. Waiting 15 seconds to resume....' );
-					setTimeout( function () { cb( 'start' ); }, 15000 );
-			}
-		} );
-	};
-
-	http.get( requestOptions, callback );
+	Util.retryingHTTPRequest(10, requestOptions, callback );
 };
 
 var runTest = function( cb, prefix, title ) {
