@@ -2669,7 +2669,7 @@ add("selser", "Nested table [[0,2]]", "{| border=\"1\"\n<!--262ep7u743gqr529-->|
 add("selser", "Nested table [2]", "y38000xvz4vg3nmi\n{| border=1\n| &alpha;\n|\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n|table\n|}\n|the original table again\n|}");
 add("selser", "Nested table [1]", "{| border=\"1\" data-foobar=\"z21mjbodw38lg14i\"\n| &alpha;\n|\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n|table\n|}\n|the original table again\n|}");
 add("selser", "Nested table [[3,2]]", "{| border=\"1\"<!--55yjgfqukkv5cdi-->\n| &alpha;\n|\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n|table\n|}\n|the original table again\n|}");
-add("selser", "Nested table [[0,[[[4,[3]],4,[0,[0,4]],0,0],0]]]", "{| border=1\n|nnqydx4felt2zkt9\n|krzzwsokfqen4s4i\n|\n{| bgcolor=\"#ABCDEF\" border=\"2\"<!--crl4tbkmgl9xusor-->|}\n|the original table again\n|}");
+add("selser", "Nested table [[0,[[[4,[3]],4,[0,[0,4]],0,0],0]]]", "{| border=1\n|nnqydx4felt2zkt9\n|krzzwsokfqen4s4i\n|\n{| bgcolor=\"#ABCDEF\" border=\"2\"\n<!--crl4tbkmgl9xusor-->|}\n|the original table again\n|}");
 add("selser", "Nested table [[0,[[1,2,[3,4],0,4],2]]]", "{| border=1\n| data-foobar=\"rvxj3ybmjcl680k9\" | &alpha;\n|hk2lwgso9gvz33di\n|nqxaiu7b5cngsyvi\n|ymx715n666j62yb9<!--qegrhh8kob76i529-->\n|}");
 add("selser", "Nested table [[0,[1,2]]]", "{| border=1\n| &alpha;\n|\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n|table\n|}\n|the original table again<!--4p9ui8hhwjy5vcxr-->\n|}");
 add("selser", "Nested table [[0,1]]", "{| border=\"1\"\n| &alpha;\n|\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n|table\n|}\n|the original table again\n|}");
@@ -3142,7 +3142,7 @@ add("selser", "Fuzz testing: Parser22 [[1],4,2]", "http://===r:::https://bptlivv
 add("selser", "Fuzz testing: Parser22 [3,0,0]", "\n{|");
 add("selser", "Fuzz testing: Parser22 [1,0,2]", "http://===r:::https://b\n\n3ql477um4peyu8fr\n{|");
 add("selser", "Fuzz testing: Parser24 [[0,2,0],3,2]", "{{{g6r38jevgd37hkt9|\n<u class=\"|\" {{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx--><noinclude>}}}}>\n<br style=\"onmouseover='alert(document.cookie);' \" />7yitay7jtsjdcxr\n{|\n{{{|\n<u CLASS=\n| {{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx--><noinclude>}}}} >\n<br style=\"onmouseover='alert(document.cookie);' \" />\n\nMOVE YOUR MOUSE CURSOR OVER THIS TEXT\n|");
-add("selser", "Fuzz testing: Parser24 [[[4],3,0],0,[0,3]]", "<nowiki>aosym28xh3ibpgb9</nowiki><u class=\"|\" {{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx--><noinclude>}}}}>\n<br style=\"onmouseover='alert(document.cookie);' \" />{||}");
+add("selser", "Fuzz testing: Parser24 [[[4],3,0],0,[0,3]]", "<nowiki>aosym28xh3ibpgb9</nowiki><u class=\"|\" {{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx--><noinclude>}}}}>\n<br style=\"onmouseover='alert(document.cookie);' \" />{|\n\n|}");
 add("selser", "Fuzz testing: Parser24 [[4,0,0],0,[4,[1]]]", "11sr1z4igrvpwrk9|\n<u class=\"|\" {{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx--><noinclude>}}}}>\n<br style=\"onmouseover='alert(document.cookie);' \" />{|<!--smnv2ch56iy919k9-->\n||}");
 add("selser", "Fuzz testing: Parser24 [3,2,4]", "u39lbr4wb5ptlnmi\n\nng2zinxre265hfr");
 add("selser", "Fuzz testing: Parser24 [[[3],0,0],2,3]", "<nowiki></nowiki>|\n<u class=\"|\" {{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx--><noinclude>}}}}>\n<br style=\"onmouseover='alert(document.cookie);' \" />aruqvd6sv8bvgqfr\n\n\n");
@@ -3483,13 +3483,13 @@ add("selser", "Parsoid-only: Table with broken attribute value quoting on consec
 add("selser", "Parsoid-only: Table with broken attribute value quoting on consecutive lines [[0,2]]", "{|\n<!--10pgp40wu8035wmi-->| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
 add("selser", "Parsoid-only: Table with broken attribute value quoting on consecutive lines [[0,[1,0]]]", "{|\n| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
 add("selser", "RT-ed inter-element separators should be valid separators [1,1]", "[[foo]]\n{| data-foobar=\"0p92gdvzuuwhfr\"\n|- [[foo]]\n|}");
-add("selser", "RT-ed inter-element separators should be valid separators [0,[0,3]]", "\n{||}");
+add("selser", "RT-ed inter-element separators should be valid separators [0,[0,3]]", "\n{|\n|}");
 add("selser", "RT-ed inter-element separators should be valid separators [0,3]", "");
 add("selser", "RT-ed inter-element separators should be valid separators [0,4]", "<nowiki/>gjz7iewwasq3erk9");
 add("selser", "RT-ed inter-element separators should be valid separators [0,1]", "\n{| data-foobar=\"662vco2tyo8q6w29\"\n|- [[foo]]\n|}");
 add("selser", "RT-ed inter-element separators should be valid separators [1,2]", "[[foo]]80gcqjar6qrggb9\n{|\n|- [[foo]]\n|}");
 add("selser", "RT-ed inter-element separators should be valid separators [0,[0,[4,0]]]", "\n{|\n<!--j8hwklray6ekx1or-->\n|}");
-add("selser", "RT-ed inter-element separators should be valid separators [0,[3,4]]", "\n{|<!--illxemer9nrpy14i-->|}");
+add("selser", "RT-ed inter-element separators should be valid separators [0,[3,4]]", "\n{|<!--illxemer9nrpy14i-->\n|}");
 add("selser", "RT-ed inter-element separators should be valid separators [0,[2,[0,3]]]", "\n{|<!--io6h5rgsuyjh5mi-->\n|- \n|}");
 add("selser", "RT-ed inter-element separators should be valid separators [2,[0,[[2],0]]]", "qyiayk5wxhn9izfr\n{|\n|-\n|l16uj38p26eqm2t9 \n|}");
 add("selser", "RT-ed inter-element separators should be valid separators [0,2]", "<nowiki/>a467voa6hewdygb9\n{|\n|- [[foo]]\n|}");
@@ -3519,14 +3519,6 @@ add("selser", "Improperly nested inline or quotes tags with whitespace in betwee
 add("selser", "Improperly nested inline or quotes tags with whitespace in between [[3,4,4,0,2]]", "zspuuqxabmtmlsorhu9yn80lmnm6lxr''' ''x'''f278nrkbehwu3di ''");
 add("selser", "Improperly nested inline or quotes tags with whitespace in between [[[0,3],[3],0,3,0]]", "<span> </span></s>\n ''");
 add("selser", "Improperly nested inline or quotes tags with whitespace in between [[[2,1],[3],3,[0,3],0]]", "<span>i9p8te7ufdmquxr <s data-foobar=\"xoximjgruc95dn29\">x</span></s>''' ''' ''");
-add("selser", "Table in fosterable position [0,0,0,2,2,4]", "{{OpenTable}}\n<div>qpfxie05vckxogvi\nbgbvgcgj6168ncdi\n{|\n|}u99ofuiwcow29");
-add("selser", "Table in fosterable position [0,0,0,3,0,0]", "{{OpenTable}}\n<div>\n{|\n|}\n");
-add("selser", "Table in fosterable position [0,0,0,4,0,0]", "{{OpenTable}}\n<div>ldfafjjtesev1jor\n{|\n|}\n");
-add("selser", "Table in fosterable position [0,0,0,0,2,0]", "{{OpenTable}}\n<div>\ncyhvqas8caexw29\n{|\n|}\n");
-add("selser", "Table in fosterable position [0,0,0,3,0,4]", "{{OpenTable}}\n<div>\n{|\n|}u2bsav8tzstkpgb9");
-add("selser", "Table in fosterable position [0,0,0,0,2,2]", "{{OpenTable}}\n<div>\n39me682giz035wmi\n{|\n|}gixyz93ers9bpgb9\n");
-add("selser", "Table in fosterable position [0,0,0,4,2,2]", "{{OpenTable}}\n<div>t23qilvsvybbuik967ubnpsvxdovquxr\n{|\n|}rxquspx5b7hw7b9\n");
-add("selser", "Table in fosterable position [0,0,0,0,0,4]", "{{OpenTable}}\n<div>\n{|\n|}1qfvrifsyaurf6r");
 
 // ### DO NOT REMOVE THIS LINE ### (end of automatically-generated section)
 

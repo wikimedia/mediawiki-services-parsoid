@@ -4259,14 +4259,27 @@ php
 !! input
 {||}
 !! result
+
 !! end
+
 # Parsoid team replies: empty table tags are legal in HTML5
 !! test
 A table with no data. (parsoid)
 !! options
-parsoid
+parsoid=wt2html
 !! input
 {||}
+!! result
+<table></table>
+!! end
+
+!! test
+A table with no data (take 2) (parsoid)
+!! options
+parsoid
+!! input
+{|
+|}
 !! result
 <table></table>
 !! end
