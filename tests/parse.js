@@ -66,7 +66,7 @@ function dumpFlags() {
 
 ( function() {
 	var default_mode_str = "Default conversion mode : --wt2html";
-	var opts = optimist.usage( 'Usage: echo wikitext | $0 [options]\n\n' + default_mode_str, {
+	var opts = optimist.usage( 'Usage: echo wikitext | $0 [options]\n\n' +default_mode_str, {
 		'help': {
 			description: 'Show this message',
 			'boolean': true,
@@ -176,11 +176,11 @@ function dumpFlags() {
 			'boolean': false,
 			'default': null
 		},
-        'inputfile': {
-            description: 'File containing input as an alternative to stdin',
-            'boolean': false,
-            'default': false
-        },
+		'inputfile': {
+			description: 'File containing input as an alternative to stdin',
+			'boolean': false,
+			'default': false
+		},
 		'extensions': {
 			description: 'List of valid extensions - of form foo,bar,baz',
 			'boolean': false,
@@ -196,7 +196,7 @@ function dumpFlags() {
 			'boolean': false,
 			'default': ''
 		}
-	});
+	} );
 
 	var argv = opts.argv;
 
@@ -210,12 +210,12 @@ function dumpFlags() {
 
 	// Because selser builds on html2wt serialization,
 	// the html2wt flag should be automatically set when selser is set.
-	if (argv.selser) {
+	if ( argv.selser ) {
 		argv.html2wt = true;
 	}
 
 	// Default conversion mode
-	if (!argv.html2wt && !argv.wt2wt && !argv.html2html) {
+	if ( !argv.html2wt && !argv.wt2wt && !argv.html2html ) {
 		argv.wt2html = true;
 	}
 
@@ -241,7 +241,8 @@ function dumpFlags() {
 			env.conf.wiki.wgScriptPath = argv.wgScriptPath;
 		}
 
-		var i, validExtensions;
+		var i,
+				validExtensions;
 
 		if ( validExtensions !== '' ) {
 			validExtensions = argv.extensions.split( ',' );
@@ -253,11 +254,13 @@ function dumpFlags() {
 
 		// Init parsers, serializers, etc.
 		var parserPipeline,
-			serializer;
-		if (!argv.html2wt) {
+				serializer;
+
+		if ( !argv.html2wt ) {
 			parserPipeline = Util.getParserPipeline(env, 'text/x-mediawiki/full');
 		}
-		if (!argv.wt2html) {
+
+		if ( !argv.wt2html ) {
 			if ( argv.oldtextfile ) {
 				argv.oldtext = fs.readFileSync(argv.oldtextfile, 'utf8');
 			}
@@ -280,11 +283,12 @@ function dumpFlags() {
 			inputChunks = [];
 
 		// process input
-        var processInput = function() {
+		var processInput = function() {
 
 			// parse page
 			if ( inputChunks.length === 0 ) {
-				var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
+				var target = env.resolveTitle( env.normalizeTitle( env.page.name ),
+																			'' );
 				var tpr = new TemplateRequest( env, target );
 				tpr.once( 'src', function ( err, src_and_metadata ) {
 					if ( err ) {
@@ -299,96 +303,95 @@ function dumpFlags() {
 						}
 						stdout.write( DU.serializeNode( doc.documentElement ) );
 					}, null, env.page.src );
-				});
+				} );
 				return;
 			}
 
-            var input = inputChunks.join('');
-            if (argv.html2wt || argv.html2html) {
-                var doc = DU.parseHTML(input.replace(/\r/g, '')),
-                    wt = '';
+			var input = inputChunks.join('');
+			if ( argv.html2wt || argv.html2html ) {
+				var doc = DU.parseHTML( input.replace(/\r/g, '') ),
+					wt = '';
 				if ( argv.dpin.length > 0 ) {
 					DU.applyDataParsoid( doc, JSON.parse( argv.dpin ) );
 				}
-                serializer.serializeDOM( doc.body, function ( chunk ) {
-                    wt += chunk;
-                }, function () {
-                    env.setPageSrcInfo( wt );
-                    if (argv.html2wt) {
-// add a trailing newline for shell user's benefit
-                        stdout.write(wt);
-                    } else {
-                        parserPipeline.on('document', function(document) {
+				serializer.serializeDOM( doc.body, function ( chunk ) {
+					wt += chunk;
+				}, function () {
+					env.setPageSrcInfo( wt );
+					if ( argv.html2wt ) {
+						// add a trailing newline for shell user's benefit
+						stdout.write(wt);
+					} else {
+						parserPipeline.on( 'document', function(document) {
 							var out;
 							if ( argv.normalize ) {
 								out = Util.normalizeOut
-									(DU.serializeNode(document.body),
-									 (argv.normalize==='parsoid') );
+									( DU.serializeNode( document.body ),
+										( argv.normalize==='parsoid' ) );
 							} else {
-								out = DU.serializeNode(document.body);
+								out = DU.serializeNode( document.body );
 							}
-                            stdout.write( out );
-                        });
-                        parserPipeline.processToplevelDoc(wt);
-                    }
 
-                } );
-            } else {
-                parserPipeline.on('document', function ( document ) {
-                    var res, finishCb = function (trailingNL) {
-                        stdout.write( res );
-                        if (trailingNL && process.stdout.isTTY) {
-                            stdout.write("\n");
-                        }
-                    };
-                    if (argv.wt2html) {
+							stdout.write( out );
+						} );
+						parserPipeline.processToplevelDoc(wt);
+					}
+				} );
+			} else {
+				parserPipeline.on( 'document', function ( document ) {
+					var res,
+						finishCb = function ( trailingNL ) {
+							stdout.write( res );
+							if (trailingNL && process.stdout.isTTY) {
+								stdout.write("\n");
+							}
+						};
+					if ( argv.wt2html ) {
 						if ( argv.dp ) {
 							console.log( JSON.stringify( document.data.parsoid ) );
 						}
 						if ( argv.normalize ) {
 							res = Util.normalizeOut
-								(DU.serializeNode(document.body),
-								 (argv.normalize==='parsoid') );
+								(DU.serializeNode( document.body ),
+									( argv.normalize==='parsoid' ) );
 						} else {
-							res = DU.serializeNode(document.body);
+							res = DU.serializeNode( document.body );
 						}
-                        finishCb(true);
-                    } else {
-                        res = '';
+						finishCb( true );
+					} else {
+						res = '';
 						if ( argv.dp ) {
 							DU.applyDataParsoid( document, document.data.parsoid );
 						}
-                        serializer.serializeDOM(
-							DU.parseHTML(DU.serializeNode(document, true)).body,
-							function ( chunk ) {
-								res += chunk;
-							},
-							finishCb
+						serializer.serializeDOM(
+							DU.parseHTML( DU.serializeNode( document, true ) ).body,
+								function ( chunk ) {
+									res += chunk;
+								},
+								finishCb
 						);
-                    }
-                });
+					}
+				} );
 
-// Kick off the pipeline by feeding the input into the parser pipeline
-                env.setPageSrcInfo( input );
-                parserPipeline.processToplevelDoc( env.page.src );
-            }
-        };
+				// Kick off the pipeline by feeding the input into the parser pipeline
+				env.setPageSrcInfo( input );
+				parserPipeline.processToplevelDoc( env.page.src );
+			}
+		};
 
-
-        if (argv.inputfile) {
-            //read input from the file, then process
-            var fileContents = fs.readFileSync(argv.inputfile, 'utf8');
-            inputChunks.push(fileContents);
-            processInput();
-        }
-        else {
-            // collect input
-            stdin.resume();
-            stdin.setEncoding('utf8');
-            stdin.on( 'data', function( chunk ) {
-                inputChunks.push( chunk );
-            } );
-            stdin.on( 'end', processInput );
-        }
+		if (argv.inputfile) {
+			//read input from the file, then process
+			var fileContents = fs.readFileSync( argv.inputfile, 'utf8' );
+			inputChunks.push( fileContents );
+			processInput();
+		} else {
+			// collect input
+			stdin.resume();
+			stdin.setEncoding('utf8');
+			stdin.on( 'data', function( chunk ) {
+				inputChunks.push( chunk );
+			} );
+			stdin.on( 'end', processInput );
+		}
 	} );
 } )();
