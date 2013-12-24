@@ -1185,7 +1185,13 @@ var GET_commits = function( req, res ) {
 	} );
 };
 
+var cachedPerfStatsTypes;
+
 var perfStatsTypes = function( cb ) {
+
+	if (cachedPerfStatsTypes) {
+		return cb(null, cachedPerfStatsTypes);
+	}
 	// As MySQL doesn't support PIVOT, we need to get all the perfstats types
 	// first so we can get then as columns afterwards
 	db.query( dbPerfStatsTypes, null, function( err, rows ) {
@@ -1201,6 +1207,7 @@ var perfStatsTypes = function( cb ) {
 
 			// Sort the profile types by name
 			types.sort();
+			cachedPerfStatsTypes = types;
 
 			cb( null, types );
 		}
