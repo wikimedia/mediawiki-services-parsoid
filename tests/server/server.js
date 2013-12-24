@@ -1336,6 +1336,11 @@ var coordApp = express.createServer();
 app.use( express.bodyParser() );
 coordApp.use( express.bodyParser() );
 
+// robots.txt: no indexing.
+app.get(/^\/robots.txt$/, function ( req, res ) {
+	res.end( "User-agent: *\nDisallow: /\n" );
+});
+
 // Main interface
 app.get( /^\/results(\/([^\/]+))?$/, resultsWebInterface );
 
