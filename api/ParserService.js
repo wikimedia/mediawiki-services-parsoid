@@ -26,15 +26,21 @@ var express = require('express'),
 	cluster = require('cluster'),
 	fs = require('fs'),
 	path = require('path'),
-	util = require('util');
+	util = require('util'),
+	optimist = require( 'optimist' );
 
 // local includes
 var mp = '../lib/';
 
+var argv = optimist.options( 'config', {
+	'default': __dirname + '/localsettings.js',
+	describe: "Configuration file to use."
+} ).argv;
+
 var lsp, localSettings;
 
 try {
-	lsp = __dirname + '/localsettings.js';
+	var lsp = path.resolve( process.cwd(), argv.config );
 	localSettings = require( lsp );
 } catch ( e ) {
 	// Build a skeleton localSettings to prevent errors later.

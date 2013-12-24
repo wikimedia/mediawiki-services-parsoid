@@ -4,7 +4,8 @@
  * Manages a Parsoid server for testing.
  */
 
-var child_process = require( 'child_process' );
+var child_process = require( 'child_process' ),
+	path = require( 'path' );
 
 var forkedServer;
 
@@ -20,7 +21,9 @@ var startParsoidServer = function ( cb, port ) {
 	var serverURL = 'http://localhost:' + port.toString() + '/';
 	console.log( "Starting Parsoid server at", serverURL );
 	forkedServer = child_process.fork( __dirname + '/../api/server.js',
-		[ '-c', '1' ], { env:
+		[ '-c', '1',
+			'--config', path.resolve( __dirname, './test.localsettings.js' ) ],
+		{ env:
 			{
 				VCAP_APP_PORT: port,
 				NODE_PATH: process.env.NODE_PATH
