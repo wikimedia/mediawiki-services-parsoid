@@ -20,6 +20,7 @@
 // global includes
 var express = require('express'),
 	domino = require('domino'),
+	// memwatch = require('memwatch'),
 	jsDiff = require('diff'),
 	childProc = require('child_process'),
 	spawn = childProc.spawn,
@@ -594,6 +595,7 @@ app.post(/\/_rtform\/(.*)/, defaultParams, parserEnvMw, function ( req, res ) {
 
 function html2wt( req, res, html ) {
 	var env = res.locals.env;
+	res.locals.env = {};
 	env.page.id = req.body.oldid || null;
 
 	var html2wtCb = function () {
@@ -601,8 +603,9 @@ function html2wt( req, res, html ) {
 		try {
 			doc = DU.parseHTML( html.replace( /\r/g, '' ) );
 		} catch ( e ) {
-			console.log( 'There was an error in the HTML5 parser! Sending it back to the editor.' );
+			console.log( 'There was an error in the HTML5 parser!' );
 			env.errCB( e );
+			res.end();
 			return;
 		}
 
@@ -616,9 +619,11 @@ function html2wt( req, res, html ) {
 					res.setHeader( 'Content-Type', 'text/x-mediawiki; charset=UTF-8' );
 					res.setHeader( 'X-Parsoid-Performance', env.getPerformanceHeader() );
 					res.end( out.join( '' ) );
+					res.locals = {};
 				} );
 		} catch ( e ) {
 			env.errCB( e );
+			res.end();
 		}
 	};
 
@@ -640,11 +645,12 @@ function html2wt( req, res, html ) {
 
 function wt2html( req, res, wt ) {
 	var env = res.locals.env;
+	res.locals.env = {};
 	var prefix = res.locals.iwp;
 	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
-	// Set the timeout to 900 seconds..
-	req.connection.setTimeout( 900 * 1000 );
+	// Set the timeout to 600 seconds..
+	req.connection.setTimeout( 600 * 1000 );
 
 	console.log( 'starting parsing of ' + prefix + ':' + target );
 
@@ -666,7 +672,7 @@ function wt2html( req, res, wt ) {
 		}
 
 		var parser = Util.getParserPipeline( env, 'text/x-mediawiki/full' );
-		parser.on( 'document', function ( document ) {
+		parser.once( 'document', function ( document ) {
 			// Don't cache requests when wt is set in case somebody uses
 			// GET for wikitext parsing
 			res.setHeader( 'Cache-Control', 'private,no-cache,s-maxage=0' );
@@ -686,6 +692,7 @@ function wt2html( req, res, wt ) {
 				parser.processToplevelDoc( wt );
 			} catch ( e ) {
 				env.errCB( e, true );
+				res.end();
 				return;
 			}
 		};
@@ -713,6 +720,7 @@ function wt2html( req, res, wt ) {
 			tmpCb = function ( err, src_and_metadata ) {
 				if ( err ) {
 					env.errCB( err, true );
+					res.end();
 					return;
 				}
 
@@ -764,45 +772,6 @@ app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), interParams, parserE
 	}
 });
 
-
-/**
- * Continuous integration end points
- *
- * No longer used currently, as our testing now happens on the central Jenkins
- * server.
- */
-app.get( /\/_ci\/refs\/changes\/(\d+)\/(\d+)\/(\d+)/, function ( req, res ) {
-	var gerritChange = 'refs/changes/' + req.params[0] + '/' + req.params[1] + '/' + req.params[2];
-	var testSh = spawn( './testGerritChange.sh', [ gerritChange ], {
-		cwd: '.'
-	} );
-
-	res.setHeader('Content-Type', 'text/xml; charset=UTF-8');
-
-	testSh.stdout.on( 'data', function ( data ) {
-		res.write( data );
-	} );
-
-	testSh.on( 'exit', function () {
-		res.end( '' );
-	} );
-} );
-
-app.get( /\/_ci\/master/, function ( req, res ) {
-	var testSh = spawn( './testGerritMaster.sh', [], {
-		cwd: '.'
-	} );
-
-	res.setHeader('Content-Type', 'text/xml; charset=UTF-8');
-
-	testSh.stdout.on( 'data', function ( data ) {
-		res.write( data );
-	} );
-
-	testSh.on( 'exit', function () {
-		res.end( '' );
-	} );
-} );
 
 app.use( express.static( __dirname + '/scripts' ) );
 app.use( express.limit( '15mb' ) );
