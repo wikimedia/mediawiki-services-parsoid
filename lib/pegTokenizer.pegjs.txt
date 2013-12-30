@@ -1460,7 +1460,7 @@ xmlish_tag =
         if (t.constructor !== EndTagTk && !isHtmlTag) {
             if (t.constructor === TagTk) {
                 var tsr0 = dp.tsr[0],
-                    endTagRE = new RegExp("^(?:.|\n)*?(</\\s*" + tagName + ">)", "mi"),
+                    endTagRE = new RegExp("^(?:.|\n)*?(</\\s*" + tagName + "\\s*>)", "mi"),
                     restOfInput = input.substring(tsr0),
                     tagContent = restOfInput.match(endTagRE),
                     extSrc = null,
@@ -1728,7 +1728,7 @@ generic_tag
   = "<"
     end:"/"? name:[0-9a-zA-Z]+
     attribs:generic_newline_attribute*
-    space_or_newline*
+    space_or_newline* // No need to preserve this -- canonicalize on RT via dirty diff
     selfclose:"/"?
     ">" {
         name = name.join('');
@@ -2433,7 +2433,7 @@ include_limits =
      if (incl === "noinclude" || incl === "onlyinclude" || incl === "includeonly") {
          var dp = {tsr: [pos0, pos]},
              restOfInput = input.substring(pos0),
-             tagContent = restOfInput.match(new RegExp("^(.|\n)*?(</\\s*" + incl + ">)", "m"));
+             tagContent = restOfInput.match(new RegExp("^(.|\n)*?(</\\s*" + incl + "\\s*>)", "m"));
 
          if (!tagContent) {
             return null;
