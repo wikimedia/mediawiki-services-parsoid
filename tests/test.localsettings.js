@@ -21,4 +21,7 @@ exports.setup = function( parsoidConfig ) {
 
 	// Set editMode to false for round-trip testing
 	parsoidConfig.editMode = false;
+
+	// Fetch the wikitext for a page before doing html2wt
+	parsoidConfig.fetchWT = true;
 };

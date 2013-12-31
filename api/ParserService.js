@@ -596,28 +596,45 @@ function html2wt( req, res, html ) {
 	var env = res.locals.env;
 	env.page.id = req.body.oldid || null;
 
-	var doc;
-	try {
-		doc = DU.parseHTML( html.replace( /\r/g, '' ) );
-	} catch ( e ) {
-		console.log( 'There was an error in the HTML5 parser! Sending it back to the editor.' );
-		env.errCB( e );
-		return;
-	}
+	var html2wtCb = function () {
+		var doc;
+		try {
+			doc = DU.parseHTML( html.replace( /\r/g, '' ) );
+		} catch ( e ) {
+			console.log( 'There was an error in the HTML5 parser! Sending it back to the editor.' );
+			env.errCB( e );
+			return;
+		}
 
-	try {
-		var out = [];
-		new Serializer( { env: env, oldid: env.page.id } ).serializeDOM(
-			doc.body,
-			function ( chunk ) {
-				out.push( chunk );
-			}, function () {
-				res.setHeader( 'Content-Type', 'text/x-mediawiki; charset=UTF-8' );
-				res.setHeader( 'X-Parsoid-Performance', env.getPerformanceHeader() );
-				res.end( out.join( '' ) );
-			} );
-	} catch ( e ) {
-		env.errCB( e );
+		try {
+			var out = [];
+			new Serializer( { env: env, oldid: env.page.id } ).serializeDOM(
+				doc.body,
+				function ( chunk ) {
+					out.push( chunk );
+				}, function () {
+					res.setHeader( 'Content-Type', 'text/x-mediawiki; charset=UTF-8' );
+					res.setHeader( 'X-Parsoid-Performance', env.getPerformanceHeader() );
+					res.end( out.join( '' ) );
+				} );
+		} catch ( e ) {
+			env.errCB( e );
+		}
+	};
+
+	if ( env.conf.parsoid.fetchWT ) {
+		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
+		var tpr = new TemplateRequest( env, target, env.page.id );
+		tpr.once( 'src', function ( err, src_and_metadata ) {
+			if ( err ) {
+				console.log( 'There was an error fetching the original wikitext for', target );
+			} else {
+				env.setPageSrcInfo( src_and_metadata );
+			}
+			html2wtCb();
+		} );
+	} else {
+		html2wtCb();
 	}
 }
 
