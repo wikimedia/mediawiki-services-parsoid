@@ -708,8 +708,9 @@ inline_element
     / & '{' tplarg_or_template_or_broken
     / & '}' broken_template
     /// & '{' ( tplarg / template )
-     // Eat three opening brackets as text.
-    / '[[[' { return '[[['; }
+     // Eat three opening brackets as text, but handle '[[[[' differently
+     // so, that '[[[[Foo]]]]' parses as '[[<a..>Foo</a>]]'
+    / (!'[' / sol) '[[[' !'[' { return '[[['; }
     / & '[' ( wikilink / extlink / autolink )
     / & "'" quote
 
