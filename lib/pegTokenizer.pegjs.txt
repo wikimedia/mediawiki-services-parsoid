@@ -682,17 +682,22 @@ inline_breaks
 pre_start = "<" pre_tag_name (' '+ [^>]*)? ">"
 
 inline
-  = c:(urltext / (! inline_breaks !pre_start (inline_element / . )))+ {
+  = c:(urltext / (!inline_breaks !pre_start (inline_element / . )))+ {
       //console.warn('inline out:' + pp(c));
       return flatten_stringlist( c );
-}
+  }
 
+link_text_inline
+  = c:(urltext / (!inline_breaks !pre_start (inline_element / '[' text_char+ ']' / . )))+ {
+      //console.warn('inline out:' + pp(c));
+      return flatten_stringlist( c );
+  }
 
 inlineline
-  = c:(urltext / ! inline_breaks !pre_start (inline_element / [^\r\n]))+ {
+  = c:(urltext / !inline_breaks !pre_start (inline_element / [^\r\n]))+ {
       //console.warn('inlineline out:' + pp(c) + input.substr(pos0, pos));
       return flatten_stringlist( c );
-}
+  }
 
 inline_element
   = //& { dp('inline_element enter' + input.substr(pos, 10)); return true; }
@@ -1187,10 +1192,10 @@ wikilink
 
 link_text
   = & { return stops.inc('linkdesc'); }
-    h:inline
+    h:link_text_inline
     // 'equal' syntaxFlag is set for links in template parameters. Consume the
     // '=' here.
-    hs:( '=' inline?)?
+    hs:( '=' link_text_inline?)?
     {
         //console.warn('link_text' + pp(h) + pp(hs));
         stops.dec('linkdesc');

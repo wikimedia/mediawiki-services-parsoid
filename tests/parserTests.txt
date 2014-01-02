@@ -5136,6 +5136,17 @@ Piped link with 3 brackets
 !! end
 
 !! test
+Piped link with extlink-like text
+!! input
+[[Main Page|[bar]]]
+[[Main Page|This is a [bar]]]
+!! result
+<p><a href="/wiki/Main_Page" title="Main Page">[bar]</a>
+<a href="/wiki/Main_Page" title="Main Page">This is a [bar]</a>
+</p>
+!! end
+
+!! test
 Link with multiple pipes
 !! input
 [[Main Page|The|Main|Page]]
