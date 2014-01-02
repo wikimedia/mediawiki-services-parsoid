@@ -2284,6 +2284,18 @@ c
 </pre>
 !! end
 
+!! test
+5c. White-space in indent-pre
+!! input
+ ''a''
+  ''b''
+   ''c''
+!! result
+<pre><i>a</i>
+ <i>b</i>
+  <i>c</i>
+</pre>
+!! end
 
 !! test
 6. Pre-blocks should extend across lines with leading WS even when there is no wrappable content
