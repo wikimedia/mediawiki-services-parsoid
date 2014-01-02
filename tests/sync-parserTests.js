@@ -22,8 +22,8 @@
      ... time passes, eventually your patch is merged to core ...
 
    $ cd $PARSOID
-   $ js/tests/fetch-parserTests.txt.js --force
-   $ git commit -m "Sync parserTests" js/tests/fetch-parserTests.txt.js
+   $ tests/fetch-parserTests.txt.js --force
+   $ git commit -m "Sync parserTests" tests/fetch-parserTests.txt.js
    $ git review
 
   Simple, right?
