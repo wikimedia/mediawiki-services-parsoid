@@ -11640,6 +11640,15 @@ parsoid
 <mark>This highlighted text</mark></p>
 !! end
 
+!! test
+HTML tag with leading space is parsed as text
+!! input
+< div>foo< /div>
+!! result
+<p>&lt; div&gt;foo&lt; /div&gt;
+</p>
+!! end
+
 ###
 ### Nesting tests (see bug 41545, 50604, 51081)
 ###
