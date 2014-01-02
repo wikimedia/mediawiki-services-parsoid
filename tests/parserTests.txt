@@ -18161,6 +18161,7 @@ __|__
 #### 1. a tags
 #### 2. other tags
 #### 3. multi-line html tag
+#### 4. extension tags
 #### -----------------------------------------
 !! test
 1. a tags
@@ -18200,8 +18201,14 @@ parsoid
 4. extension tags
 !! input
 <nowiki><ref>foo</ref></nowiki>
+
+<nowiki><ref>bar</nowiki>
+
+baz<nowiki></ref></nowiki>
 !! result
 <p>&lt;ref&gt;foo&lt;/ref&gt;
+</p><p>&lt;ref&gt;bar
+</p><p>baz&lt;/ref&gt;
 </p>
 !! end
 
