@@ -5174,9 +5174,18 @@ Link with HTML entity in suffix / tail
 !! test
 Link with 3 brackets
 !! input
-[[[main page]]]
+[[[Main Page]]]
 !! result
-<p>[[[main page]]]
+<p>[[[Main Page]]]
+</p>
+!! end
+
+!! test
+Link with 4 brackets
+!! input
+[[[[Main Page]]]]
+!! result
+<p>[[<a href="/wiki/Main_Page" title="Main Page">Main Page</a>]]
 </p>
 !! end
 
