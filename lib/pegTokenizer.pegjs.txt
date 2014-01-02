@@ -2016,10 +2016,14 @@ table_line
 
 table_start_tag
   = b:"{" p:pipe
-    ta:generic_attribute*
+    ta:(ga:generic_attribute 
+        // ok to normalize away stray |} on rt (see bug 57360)
+        (space* table_end_tag)? {return ga;}
+        )*
+    // ok to normalize away stray |} on rt (see bug 57360)
+    space* table_end_tag?
     space*
     tsEndPos:({return pos;})
-    te:table_end_tag? // can occur somewhere in the middle of the line too
     {
         var tblStart = new TagTk( 'table', [], { tsr: [pos0, tsEndPos] } );
         if (p !== "|") {
@@ -2032,11 +2036,7 @@ table_start_tag
             tblStart.attribs = ta;
         }
 
-        var toks = [tblStart];
-        if ( te ) {
-            toks = toks.concat( te );
-        }
-        return toks;
+        return [tblStart];
     }
 
 table_caption_tag

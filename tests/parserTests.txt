@@ -4283,6 +4283,48 @@ parsoid=wt2html
 {||}
 !! result
 <table></table>
+
+!! end
+
+!! test
+A table with stray table end tags on start tag line (wt2html)
+!! options
+parsoid=wt2html
+!! input
+{|style="color: red;"|}
+
+{|style="color: red;" |}
+|foo
+|}
+
+{|style="color: red;"|} id="foo"
+|foo
+|}
+
+{|style="color: red;" |} id="foo"
+|foo
+|}
+!! result
+<table style="color: red;"></table>
+
+<table style="color: red;">
+<tbody><tr>
+<td>foo</td>
+</tr></tbody>
+</table>
+
+<table style="color: red;" id="foo">
+<tbody><tr>
+<td>foo</td>
+</tr></tbody>
+</table>
+
+<table style="color: red;" id="foo">
+<tbody><tr>
+<td>foo</td>
+</tr></tbody>
+</table>
+
 !! end
 
 !! test
