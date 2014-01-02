@@ -17075,6 +17075,22 @@ B1 <span about="#mwt7" class="reference" data-mw='{"name":"ref","attrs":{"name":
 </ol>
 !!end
 
+## We don't bother wt2wt-ing non-standard whitespace
+!!test
+Ref: 16. Tokenizer should accept non-standard whitespace in <ref> and </ref> tags
+!!options
+parsoid=wt2html
+!!input
+A <ref >foo</ref >
+
+<references />
+!!result
+<p>A <span class="reference" data-mw='{"name":"ref","body":{"html":"foo"},"attrs":{}}' id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref"><a href="#cite_note-1">[1]</a></span></p>
+
+<ol class="references" typeof="mw:Extension/references" data-mw='{"name":"references","attrs":{}}'>
+<li id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1-0">↑</a></span> foo</li></ol>
+!!end
+
 !!test
 References: 1. references tag without any refs should be handled properly
 !!options
