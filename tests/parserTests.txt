@@ -7592,6 +7592,27 @@ Template with invalid target containing unclosed tag
 </p>
 !! end
 
+!! test
+Template with invalid target containing wikilink (php)
+!! options
+php
+!! input
+{{[[Main Page]]}}
+!! result
+<p>{{<a href="/wiki/Main_Page" title="Main Page">Main Page</a>}}
+</p>
+!! end
+
+!! test
+Template with invalid target containing wikilink (parsoid)
+!! options
+parsoid
+!! input
+{{[[Main Page]]}}
+!! result
+<p><span typeof="mw:Transclusion" about="#mwt1" data-mw='{"parts":[{"template":{"target":{"wt":"[[Main Page]]"},"params":{},"i":0}}]}'>{{</span><a rel="mw:WikiLink" href="./Main_Page" about="#mwt1">Main Page</a><span about="#mwt1">}}</span></p>
+!! end
+
 !! article
 Template:test
 !! text
