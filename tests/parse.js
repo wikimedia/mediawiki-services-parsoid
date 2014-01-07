@@ -322,7 +322,7 @@ function dumpFlags() {
 						// add a trailing newline for shell user's benefit
 						stdout.write(wt);
 					} else {
-						parserPipeline.on( 'document', function(document) {
+						parserPipeline.once( 'document', function(document) {
 							var out;
 							if ( argv.normalize ) {
 								out = Util.normalizeOut
@@ -338,7 +338,7 @@ function dumpFlags() {
 					}
 				} );
 			} else {
-				parserPipeline.on( 'document', function ( document ) {
+				parserPipeline.once( 'document', function ( document ) {
 					var res,
 						finishCb = function ( trailingNL ) {
 							stdout.write( res );
