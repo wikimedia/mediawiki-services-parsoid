@@ -2,3 +2,4 @@ node_modules
 api/scripts/jquery.js
 doc
 tests/server/node_modules
+tests/parserTests-blacklist.js

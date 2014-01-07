@@ -1738,9 +1738,7 @@ ParserTests.prototype.processCase = function ( i, options ) {
 				this.stats.modes[mode].failList.forEach(function(fail) {
 					contents += 'add('+JSON.stringify(mode)+', '+
 						JSON.stringify(fail.title);
-					if ( mode === "selser" ) {
-						contents += ', '+JSON.stringify(fail.raw);
-					}
+					contents += ', '+JSON.stringify(fail.raw);
 					contents += ');\n';
 				});
 				contents += '\n';
