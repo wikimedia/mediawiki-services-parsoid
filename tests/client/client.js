@@ -197,6 +197,17 @@ if ( module && !module.parent ) {
 		callbackOmnibus('start');
 	};
 
+    // Enable heap dumps in /tmp on kill -USR2.
+    // See https://github.com/bnoordhuis/node-heapdump/
+    // For node 0.6/0.8: npm install heapdump@0.1.0
+    // For 0.10: npm install heapdump
+    process.on('SIGUSR2', function() {
+        var heapdump = require('heapdump');
+        console.error('SIGUSR2 received! Writing snapshot.');
+        process.chdir('/tmp');
+        heapdump.writeSnapshot();
+    });
+
 	if ( !config.parsoidURL ) {
 		// If no Parsoid server was passed, start our own
 		parsoidURL = apiServer.startParsoidServer( function( url ) {
