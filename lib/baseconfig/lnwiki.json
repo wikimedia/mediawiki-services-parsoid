@@ -1522,7 +1522,8 @@
       "server": "http://localhost",
       "wikiid": "my_wiki",
       "time": "2013-03-05T21:41:50Z",
-      "maxuploadsize": 104857600
+      "maxuploadsize": 104857600,
+	  "linkprefixcharset": "a-zA-Z\\x{80}-\\x{10ffff}"
     },
     "interwikimap": [
       {
@@ -3682,10 +3683,6 @@
       {
         "name": "linktrail",
         "missing": ""
-      },
-      {
-        "name": "linkprefix",
-        "*": "/^(.*?)([a-zA-Z\\x80-\\xff]+)$/sD"
       }
     ]
   }
