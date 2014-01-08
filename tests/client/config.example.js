@@ -21,16 +21,8 @@ if ( typeof module === 'object' ) {
 
 		interwiki: 'en',
 
-		setup: function ( parsoidConfig ) {
-			// Whether to use the PHP preprocessor to expand templates and the like
-			parsoidConfig.usePHPPreProcessor = true;
-
-			// The interwiki prefix you want to use (see mediawiki.parser.environment.js for more information)
-			parsoidConfig.defaultWiki = 'en';
-
-			// Insert the interwiki prefix for a localhost wiki
-			parsoidConfig.setInterwiki( 'localhost', 'http://localhost/wiki/api.php' );
-		},
+		// By default, use the same configuration as the testing Parsoid server.
+		setup: require( '../test.localsettings.js').setup,
 
 		// The parsoid API to use. If null, create our own server
 		parsoidURL: null
