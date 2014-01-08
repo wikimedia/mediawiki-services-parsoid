@@ -19216,6 +19216,16 @@ parsoid=wt2html,wt2wt
 </table>
 !!end
 
+!!test
+Support <object> element with .data attribute
+!!options
+parsoid=html2wt
+!!input
+<object data="test.swf"></object>
+!!result
+<object data="test.swf"></object>
+!!end
+
 # -----------------------------------------------------------------
 # The following section of tests are primarily to spec requirements
 # around serialization of new/edited content.
