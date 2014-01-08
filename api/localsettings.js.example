@@ -29,7 +29,7 @@ exports.setup = function( parsoidConfig ) {
 	//parsoidConfig.usePHPPreProcessor = false;
 
 	// Use selective serialization (default false)
-	//parsoidConfig.useSelser = true;
+	parsoidConfig.useSelser = true;
 
 	// allow cross-domain requests to the API (default disallowed)
 	//parsoidConfig.allowCORS = '*';
