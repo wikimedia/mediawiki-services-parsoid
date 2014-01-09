@@ -519,10 +519,14 @@ var fetch = function ( page, cb, options ) {
 		} );
 	};
 
-	var parsoidConfig = new ParsoidConfig( options, { defaultWiki: prefix } );
-
-	Util.setTemplatingAndProcessingFlags( parsoidConfig, options );
-	Util.setDebuggingFlags( parsoidConfig, options );
+	// options are ParsoidConfig options if module.parent, otherwise they
+	// are CLI options (so use the Util.set* helpers to process them)
+	var parsoidConfig = new ParsoidConfig( module.parent ? options : null, { defaultWiki: prefix } );
+	if (!module.parent) {
+		// only process CLI flags if we're running as a CLI program.
+		Util.setTemplatingAndProcessingFlags( parsoidConfig, options );
+		Util.setDebuggingFlags( parsoidConfig, options );
+	}
 
 	MWParserEnvironment.getParserEnv( parsoidConfig, null, prefix, page, null, envCb );
 };
