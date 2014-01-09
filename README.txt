@@ -13,13 +13,12 @@ Run tests:
 
 Configure your Parsoid web service:
 
- cd Parsoid/js/api
+ cd api
  cp localsettings.js.example localsettings.js
  // Tweak localsettings.js
 
 Run the webservice:
 
- cd Parsoid/js
  npm start
 
 More details are available at https://www.mediawiki.org/wiki/Parsoid/Setup

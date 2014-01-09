@@ -24,7 +24,7 @@ Enjoy!
 
 == Running the round-trip test server ==
 
-In 'js/tests/server/', to install the necessary packages, run
+In 'tests/server/', to install the necessary packages, run
 	$ npm install
 
 You'll need a pre-created MySQL database. Then, copy server.settings.js.example
@@ -54,6 +54,6 @@ Now start the server:
 In js/tests/client, copy config.example.js to config.js and edit it to your
 taste. In separate windows, as many as you want:
 
-	$ node js/tests/client/client.js
+	$ node tests/client/client.js
 
 Then take a look at [the statistics](http://localhost:8001/).

@@ -15,7 +15,7 @@ We use MediaWiki's core parser test suite rather than writing our own. This
 sets a very high bar for our success, but it also means that we can ensure
 totally correct behavior if the tests are passing.
 
-To fetch the test suite, go to the `js/tests/` directory and run this:
+To fetch the test suite, go to the `tests/` directory and run this:
 
 ```
 $ node fetch-parserTests.txt.js
@@ -34,7 +34,7 @@ and set it up on your local git repository.
 Once you have an account, setting up a gerrit remote is pretty simple:
 
 ```
-$ git remote add gerrit ssh://<YOUR-USERNAME>@gerrit.wikimedia.org:29418/mediawiki/extensions/Parsoid.git
+$ git remote add gerrit ssh://<YOUR-USERNAME>@gerrit.wikimedia.org:29418/mediawiki/services/parsoid
 ```
 
 Be sure to replace the `<YOUR-USERNAME>` bit with your username on Gerrit -
@@ -65,7 +65,7 @@ There are four major things you should test before you submit a change:
 
 ### parserTests.js
 
-To run the parser tests, go to the `js/tests/` directory, and run:
+To run the parser tests, go to the `tests/` directory, and run:
 
 ```
 $ ./runtests.sh
@@ -80,7 +80,7 @@ $ ./runtests.sh -c
 ```
 
 in this directory before you start working - it will commit the changes to a
-git repository in `js/tests/results/` that will then be used to diff the test
+git repository in `tests/results/` that will then be used to diff the test
 results from the next test run.
 
 If you prefer to run the parser tests on your own, something like
@@ -101,7 +101,7 @@ need to make sure it runs properly after your changes. Run something like
 $ echo "''Non'''-trivial'' wikitext''' [[with links]] {{echo|and templates}} | node parse --wt2wt
 ```
 
-from the `js/tests/` directory. That command should test a sufficient number
+from the `tests/` directory. That command should test a sufficient number
 of the parser's - and serializer's - features that we can be confident in a
 positive result.
 

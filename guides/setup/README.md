@@ -28,12 +28,12 @@ one you need to use as you read this guide.
 To get the code, you'll need to clone our git repository. Run this command:
 
 ```
-$ git checkout https://gerrit.wikimedia.org/r/p/mediawiki/extensions/Parsoid.git
+$ git checkout https://gerrit.wikimedia.org/r/p/mediawiki/services/parsoid
 ```
 
 ## Installing node.js dependencies
 
-Now that you have the code, you can run npm to get all of the necessary dependencies. Get into the `js/` directory of the Parsoid repository - if you ran the above command verbatim you can just run `cd Parsoid/js` - and run:
+Now that you have the code, you can run npm to get all of the necessary dependencies. From the main directory of the Parsoid repository, run:
 
 ```
 $ npm install
@@ -43,26 +43,26 @@ $ npm install
 
 The API is the main reason you might want to run Parsoid, because VisualEditor
 uses it to do a lot of backend work. To run the API in a terminal, go to the
-`js/api/` directory in the Parsoid repository and run the following:
+`api/` directory in the Parsoid repository and run the following:
 
 ```
 $ node server
 ```
 
-There is also, in the `js/api/` directory, a nice runserver.sh script that will
+There is also, in the `api/` directory, a nice runserver.sh script that will
 perhaps be useful to someone running the API as a more permanent service. The
 script was originally written for Wikimedia's internal purposes, but it could
 be useful anywhere if it was tweaked a little bit.
 
 Note that if you want to enable any options, or change any settings, you will
-need to copy the example `localsettings.js` file from the `js/api/` directory
+need to copy the example `localsettings.js` file from the `api/` directory
 and use it to define any of your desired options.
 
 ## Running the basic parse tool
 
 If you aren't looking to run an API service, or VisualEditor, or if you just
 want to test Parsoid's capabilities, you can use our simple parse.js script.
-This time, go to the `js/tests/` directory in the Parsoid repository and do
+This time, go to the `tests/` directory in the Parsoid repository and do
 something like:
 
 ```
