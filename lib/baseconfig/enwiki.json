@@ -604,6 +604,13 @@
         "case-sensitive": ""
       },
       {
+        "name": "img_lang",
+        "aliases": [
+          "lang=$1"
+        ],
+        "case-sensitive": ""
+      },
+      {
         "name": "img_page",
         "aliases": [
           "page=$1",
@@ -1313,7 +1320,7 @@
       "wikiid": "my_wiki",
       "time": "2013-03-05T21:40:32Z",
       "maxuploadsize": 104857600,
-	  "linkprefixcharset": ""
+      "linkprefixcharset": ""
     },
     "interwikimap": [
       {
