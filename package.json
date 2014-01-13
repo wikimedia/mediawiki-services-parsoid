@@ -5,10 +5,7 @@
 	"dependencies": {
 		"alea": "~0.0.9",
 		"entities": "~0.2.2",
-		"events": "~0.5.0",
 		"request": "~2.27.0",
-		"querystring": "~0.2.0",
-		"path": "~0.4.9",
 		"optimist": "~0.6.0",
 		"domino": "~1.0.13",
 		"pegjs": "~0.7.0",
