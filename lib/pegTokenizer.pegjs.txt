@@ -687,12 +687,6 @@ inline
       return flatten_stringlist( c );
   }
 
-link_text_inline
-  = c:(urltext / (!inline_breaks !pre_start (inline_element / '[' text_char+ ']' / . )))+ {
-      //console.warn('inline out:' + pp(c));
-      return flatten_stringlist( c );
-  }
-
 inlineline
   = c:(urltext / !inline_breaks !pre_start (inline_element / [^\r\n]))+ {
       //console.warn('inlineline out:' + pp(c) + input.substr(pos0, pos));
@@ -1191,12 +1185,20 @@ wikilink
       return [obj];
   }
 
+// This production is identical to the 'inline' fragment except
+// that tables are allowed inside image captions.
+link_text_fragment
+  = c:((sol table_lines) / urltext / (!inline_breaks !pre_start (inline_element / '[' text_char+ ']' / . )))+ {
+      //console.warn('inline out:' + pp(c));
+      return flatten_stringlist( c );
+  }
+
 link_text
   = & { return stops.inc('linkdesc'); }
-    h:link_text_inline
+    h:link_text_fragment
     // 'equal' syntaxFlag is set for links in template parameters. Consume the
     // '=' here.
-    hs:( '=' link_text_inline?)?
+    hs:( '=' link_text_fragment?)?
     {
         //console.warn('link_text' + pp(h) + pp(hs));
         stops.dec('linkdesc');
@@ -1215,7 +1217,7 @@ link_option
     // '=' here.
     hs:( '=' inline)?
     {
-        //console.warn('link_text' + pp(h) + pp(hs));
+        //console.warn('link_option' + pp(h) + pp(hs));
         stops.pop('pipe');
         stops.dec('linkdesc');
         if( hs !== '' ) {

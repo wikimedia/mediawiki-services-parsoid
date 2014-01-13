@@ -10391,6 +10391,45 @@ Parsoid: Image caption containing leading space
 !!end
 
 !! test
+Image caption containing a table (php)
+!! options
+php
+!! input
+[[Image:Foobar.jpg|thumb|200px|This is an example image thumbnail caption with a table
+{|
+! Foo !! Bar
+|-
+| Foo1 || Bar1
+|}
+and some more text.]]
+!! result
+<div class="thumb tright"><div class="thumbinner" style="width:202px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" width="200" height="23" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/400px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>This is an example image thumbnail caption with a table <table> <tr> <th> Foo </th> <th> Bar </th></tr> <tr> <td> Foo1 </td> <td> Bar1 </td></tr></table> and some more text.</div></div></div>
+
+!!end
+
+!! test
+Image caption containing a table (parsoid)
+!! options
+parsoid
+!! input
+[[Image:Foobar.jpg|thumb|200px|This is an example image thumbnail caption with a table
+{|
+! Foo !! Bar
+|-
+| Foo1 || Bar1
+|}
+and some more text.]]
+!! result
+<figure typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="23" width="200"/></a><figcaption>This is an example image thumbnail caption with a table
+<table>
+<tbody>
+<tr><th>Foo </th><th>Bar</th></tr>
+<tr>
+<td>Foo1 </td>
+<td>Bar1</td></tr></tbody></table>and some more text.</figcaption></figure>
+!! end
+
+!! test
 Bug 3090: External links other than http: in image captions
 !! input
 [[Image:Foobar.jpg|thumb|200px|This caption has [irc://example.net irc] and [https://example.com Secure] ext links in it.]]
