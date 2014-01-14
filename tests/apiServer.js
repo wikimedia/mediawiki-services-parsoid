@@ -21,7 +21,7 @@ var startParsoidServer = function ( cb, port ) {
 	var serverURL = 'http://localhost:' + port.toString() + '/';
 	console.log( "Starting Parsoid server at", serverURL );
 	forkedServer = child_process.fork( __dirname + '/../api/server.js',
-		[ '-c', '1',
+		[ '--num-workers', '1',
 			'--config', path.resolve( __dirname, './test.localsettings.js' ) ],
 		{ env:
 			{

@@ -1,23 +1,36 @@
 #!/usr/bin/env node
 /**
- * A very basic cluster-based server runner. Restarts failed workers, but does
- * not much else right now.
+ * Cluster-based Parsoid web service runner. Implements
+ * https://www.mediawiki.org/wiki/Parsoid#The_Parsoid_web_API
+ *
+ * Local configuration:
+ *
+ * To configure locally, add localsettings.js to this directory and export a setup function.
+ *
+ * example:
+ *	exports.setup = function( config, env ) {
+ *		env.setInterwiki( 'localhost', 'http://localhost/wiki' );
+ *	};
+ *
+ * Alternatively, specify a --config file explicitly. See --help for other
+ * options.
+ *
+ * See https://www.mediawiki.org/wiki/Parsoid/Setup for more instructions.
  */
 
-var cluster = require('cluster');
-
-if (cluster.isMaster) {
-
+var cluster = require('cluster'),
+	path = require('path'),
 	// process arguments
-	var opts = require( "optimist" )
+	opts = require( "optimist" )
 		.usage( "Usage: $0 [-h|-v] [--param[=val]]" )
 		.default({
 
-			// Start a few more workers than there are cpus visible to the OS, 
+			// Start a few more workers than there are cpus visible to the OS,
 			// so that we get some degree of parallelism even on single-core
 			// systems. A single long-running request would otherwise hold up
 			// all concurrent short requests.
-			c: require( "os" ).cpus().length + 3,
+			n: require( "os" ).cpus().length + 3,
+			c: __dirname + '/localsettings.js',
 
 			v: false,
 			h: false
@@ -26,10 +39,12 @@ if (cluster.isMaster) {
 		.boolean( [ "h", "v" ] )
 		.alias( "h", "help" )
 		.alias( "v", "version" )
-		.alias( "c", "children" );
+		.alias( "c", "config" )
+		.alias( "n", "num-workers" ),
+	argv = opts.argv;
 
-	var argv = opts.argv,
-		fs = require( "fs" ),
+if (cluster.isMaster) {
+	var fs = require( "fs" ),
 		path = require( "path" ),
 		meta = require( path.join( __dirname, "../package.json" ) );
 
@@ -47,8 +62,8 @@ if (cluster.isMaster) {
 
 	// Fork workers.
 	console.log('master(' + process.pid + ') initializing ' +
-				argv.c + ' workers');
-	for (var i = 0; i < argv.c; i++) {
+				argv.n + ' workers');
+	for (var i = 0; i < argv.n; i++) {
 		cluster.fork();
 	}
 
@@ -94,8 +109,15 @@ if (cluster.isMaster) {
 		heapdump.writeSnapshot();
 	});
 
-	var app = require('./ParserService.js');
-	// when running on appfog.com the listen port for the app
-	// is passed in an environment variable.  Most users can ignore this!
-	app.listen(process.env.VCAP_APP_PORT || 8000);
+	var ParsoidService = require('./ParsoidService.js').ParsoidService,
+		app;
+
+	try {
+		var lsp = path.resolve( process.cwd(), argv.c );
+		app = new ParsoidService(require( lsp ));
+	} catch ( e ) {
+		console.error(e);
+		// Build a skeleton localSettings to prevent errors later.
+		app = new ParsoidService({setup: function ( conf ) {}});
+	}
 }
