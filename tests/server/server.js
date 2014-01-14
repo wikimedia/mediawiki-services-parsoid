@@ -371,6 +371,9 @@ var dbCommits =
 	'FROM commits c1 ' +
 	'ORDER BY timestamp DESC';
 
+var dbCommitHashes =
+	'SELECT hash FROM commits ORDER BY timestamp DESC';
+
 var dbFixesBetweenRevs =
 	'SELECT pages.title, pages.prefix, ' +
 	's1.commit_hash AS new_commit, s1.errors AS errors, s1.fails AS fails, s1.skips AS skips, ' +
@@ -479,17 +482,37 @@ var fetchPages = function( commitHash, cutOffTimestamp, cb ) {
 var fetchedPages = [];
 var lastFetchedCommit = null;
 var lastFetchedDate = new Date(0);
+var knownCommits;
 
 var getTitle = function ( req, res ) {
 	var commitHash = req.query.commit;
+	var commitDate = new Date( req.query.ctime );
+	var knownCommit = knownCommits && knownCommits[ commitHash ];
 
 	req.connection.setTimeout(300 * 1000);
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 
-	// Keep record of the commit, ignore if already there. We use a transaction
-	// to make sure we don't start fetching pages until we've done this.
-	if ( commitHash !== lastFetchedCommit ) {
+	// Keep track of known commits so we can discard clients still on older
+	// versions. If we don't know about the commit, then record it
+	// Use a transaction to make sure we don't start fetching pages until
+	// we've done this
+	if ( !knownCommit ) {
 		var trans = db.startTransaction();
+		if ( !knownCommits ) {
+			knownCommits = {};
+			trans.query( dbCommitHashes, null, function ( err, resCommitHashes ) {
+				if ( err ) {
+					console.log( "Error fetching known commits", err );
+				} else {
+					resCommitHashes.forEach( function ( v ) {
+						knownCommits[ v.hash ] = commitDate;
+					} );
+				}
+				} );
+		}
+
+		// New commit, record it
+		knownCommits[ commitHash ] = commitDate;
 		trans.query( dbInsertCommit, [ commitHash, new Date() ], function ( err, commitInsertResult ) {
 			if ( err ) {
 				console.error( "Error inserting commit " + commitHash );
@@ -498,7 +521,15 @@ var getTitle = function ( req, res ) {
 				// crasher page has been sent out so that each title gets retested
 				trans.query( dbUpdateCrashersClearTries, [ commitHash, maxTries ] );
 			}
-		} ).commit();
+		} );
+
+		trans.commit();
+	}
+	if ( knownCommit && commitHash !== lastFetchedCommit ) {
+		// It's an old commit, tell the client so it can restart.
+		// HTTP status code 426 Update Required
+		res.send( "Old commit", 426 );
+		return;
 	}
 
 	var fetchCb = function ( err, pages ) {

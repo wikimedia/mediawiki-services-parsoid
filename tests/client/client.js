@@ -43,6 +43,10 @@ var getTitle = function( cb ) {
 				console.log( 'The server doesn\'t have any work for us right now, waiting half a minute....' );
 				setTimeout( function () { cb( 'start' ); }, 30000 );
 				break;
+			case 426:
+				console.log( "Update required, exiting." );
+				process.exit( 0 );
+				break;
 			default:
 				console.log( 'There was some error (' + response.statusCode + '), but that is fine. Waiting 15 seconds to resume....' );
 				setTimeout( function () { cb( 'start' ); }, 15000 );
