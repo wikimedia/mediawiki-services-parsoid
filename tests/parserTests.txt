@@ -18314,15 +18314,17 @@ Links 2. WikiLinks: Escapes needed
 !! options
 parsoid
 !! input
-[[Foo|<nowiki>[Foobar]</nowiki>]]
+[[Foo|[Foobar]]]
 [[Foo|<nowiki>Foobar]</nowiki>]]
 [[Foo|x [Foobar] x]]
-[[Foo|<nowiki>x [http://google.com g] x</nowiki>]]
+[[Foo|x <nowiki>[http://google.com g]</nowiki> x]]
 [[Foo|<nowiki>[[Bar]]</nowiki>]]
 [[Foo|<nowiki>x [[Bar]] x</nowiki>]]
 [[Foo|<nowiki>|Bar</nowiki>]]
 [[Foo|<nowiki>]]bar</nowiki>]]
 [[Foo|<nowiki>[[bar</nowiki>]]
+[[Foo|<nowiki>x [[ y</nowiki>]]
+[[Foo|<nowiki>x ]] y</nowiki>]]
 [[Foo|<nowiki>x ]] y [[ z</nowiki>]]
 !! result
 <a href="Foo" rel="mw:WikiLink">[Foobar]</a>
@@ -18334,6 +18336,8 @@ parsoid
 <a href="Foo" rel="mw:WikiLink">|Bar</a>
 <a href="Foo" rel="mw:WikiLink">]]bar</a>
 <a href="Foo" rel="mw:WikiLink">[[bar</a>
+<a href="Foo" rel="mw:WikiLink">x [[ y</a>
+<a href="Foo" rel="mw:WikiLink">x ]] y</a>
 <a href="Foo" rel="mw:WikiLink">x ]] y [[ z</a>
 !! end
 
