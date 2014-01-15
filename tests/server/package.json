@@ -9,7 +9,8 @@
 		"path": "0.x.x",
 		"mysql": "2.x.x",
 		"mysql-queues": "1.x.x",
-		"express": "2.5.x"
+		"express": "2.5.x",
+		"hbs": "2.4.0"
 	},
 	"main": "server.js"
 }
