@@ -9910,9 +9910,9 @@ Image with width attribute at different positions (parsoid)
 !! options
 parsoid
 !! input
-[[File:Foobar.jpg|200px|right|Caption]]
-[[File:Foobar.jpg|right|200px|Caption]]
-[[File:Foobar.jpg|right|Caption|200px]]
+[[File:Foobar.jpg|200x200px|right|Caption]]
+[[File:Foobar.jpg|right|200x200px|Caption]]
+[[File:Foobar.jpg|right|Caption|200x200px]]
 !! result
 <figure class="mw-halign-right" typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" height="23" width="200"></a><figcaption>Caption</figcaption></figure>
 <figure class="mw-halign-right" typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" height="23" width="200"></a><figcaption>Caption</figcaption></figure>
@@ -10550,12 +10550,7 @@ parsoid
 !! input
 [[File:Foobar.jpg|50px|middle]]
 !! result
-<p><span class="mw-valign-middle" typeof="mw:Image"
-data-parsoid='{"optList":[{"ck":"width","ak":"50px"},{"ck":"middle","ak":"middle"}]}'>
-<a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50"
-data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"6"},"sa":{"resource":"File:Foobar.jpg","height":""}}'>
-</a></span></p>
+<p><span class="mw-valign-middle" typeof="mw:Image" data-parsoid='{"optList":[{"ck":"width","ak":"50px"},{"ck":"middle","ak":"middle"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"6","width":"50"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></span></p>
 !! end
 
 !! test
@@ -10581,11 +10576,7 @@ parsoid
 !! input
 [[File:Foobar.jpg|500x10px|baseline|caption]]
 !! result
-<p><span class="mw-valign-baseline" typeof="mw:Image" data-mw='{"caption":"caption"}' data-parsoid='{"optList":[{"ck":"width","ak":"500x10px"},{"ck":"baseline","ak":"baseline"},{"ck":"caption","ak":"caption"}]}'>
-<a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/89px-Foobar.jpg" height="10" width="89" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","width":"89"},"sa":{"resource":"File:Foobar.jpg","width":"500"}}'>
-</a>
-</span></p>
+<p><span class="mw-valign-baseline" typeof="mw:Image" data-mw='{"caption":"caption"}' data-parsoid='{"optList":[{"ck":"width","ak":"500x10px"},{"ck":"baseline","ak":"baseline"},{"ck":"caption","ak":"caption"}],"size":"500x10"}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/89px-Foobar.jpg" height="10" width="89" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"10","width":"89"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></span></p>
 !! end
 
 !! test
@@ -10595,10 +10586,7 @@ parsoid
 !! input
 [[File:Foobar.jpg|50px|border|caption]]
 !! result
-<p><span class="mw-image-border" typeof="mw:Image" data-mw='{"caption":"caption"}' data-parsoid='{"optList":[{"ck":"width","ak":"50px"},{"ck":"border","ak":"border"},{"ck":"caption","ak":"caption"}]}'>
-<a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"6"},"sa":{"resource":"File:Foobar.jpg","height":""}}'>
-</a></span></p>
+<p><span class="mw-image-border" typeof="mw:Image" data-mw='{"caption":"caption"}' data-parsoid='{"optList":[{"ck":"width","ak":"50px"},{"ck":"border","ak":"border"},{"ck":"caption","ak":"caption"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"6","width":"50"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></span></p>
 !! end
 
 !! test
@@ -10624,12 +10612,7 @@ parsoid
 !! input
 [[File:Foobar.jpg|thumb|left|baseline|caption content]]
 !! result
-<figure class="mw-default-size mw-halign-left mw-valign-baseline" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"left","ak":"left"},{"ck":"baseline","ak":"baseline"},{"ck":"caption","ak":"caption content"}]}'>
-<a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" height="20" width="180" />
-</a>
-<figcaption>caption content</figcaption>
-</figure>
+<figure class="mw-default-size mw-halign-left mw-valign-baseline" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"left","ak":"left"},{"ck":"baseline","ak":"baseline"},{"ck":"caption","ak":"caption content"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" height="20" width="180" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"20","width":"180"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption>caption content</figcaption></figure>
 !! end
 
 !! test
@@ -10655,12 +10638,7 @@ parsoid
 !! input
 [[File:Foobar.jpg|thumb|50x50px|right|middle|caption]]
 !! result
-<figure class="mw-halign-right mw-valign-middle" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"width","ak":"50x50px"},{"ck":"right","ak":"right"},{"ck":"middle","ak":"middle"},{"ck":"caption","ak":"caption"}]}'>
-<a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"6"},"sa":{"resource":"File:Foobar.jpg","height":"50"}}'/>
-</a>
-<figcaption>caption</figcaption>
-</figure>
+<figure class="mw-halign-right mw-valign-middle" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"width","ak":"50x50px"},{"ck":"right","ak":"right"},{"ck":"middle","ak":"middle"},{"ck":"caption","ak":"caption"}],"size":"50x50"}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"6","width":"50"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
@@ -10686,12 +10664,7 @@ parsoid
 !! input
 [[File:Foobar.jpg|442x50px|frame|caption]]
 !! result
-<figure typeof="mw:Image/Frame" data-parsoid='{"optList":[{"ck":"width","ak":"442x50px"},{"ck":"framed","ak":"frame"},{"ck":"caption","ak":"caption"}]}'>
-<a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/442px-Foobar.jpg" height="50" width="442" />
-</a>
-<figcaption>caption</figcaption>
-</figure>
+<figure typeof="mw:Image/Frame" data-parsoid='{"optList":[{"ck":"width","ak":"442x50px"},{"ck":"framed","ak":"frame"},{"ck":"caption","ak":"caption"}],"size":"442x50"}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/442px-Foobar.jpg" height="50" width="442" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"50","width":"442"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
@@ -10717,13 +10690,7 @@ parsoid
 !! input
 [[File:Foobar.jpg|442x50px|frame|left|baseline|caption]]
 !! result
-<figure class="mw-halign-left mw-valign-baseline" typeof="mw:Image/Frame"
-data-parsoid='{"optList":[{"ck":"width","ak":"442x50px"},{"ck":"framed","ak":"frame"},{"ck":"left","ak":"left"},{"ck":"baseline","ak":"baseline"},{"ck":"caption","ak":"caption"}]}'>
-<a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/442px-Foobar.jpg" height="50" width="442" />
-</a>
-<figcaption>caption</figcaption>
-</figure>
+<figure class="mw-halign-left mw-valign-baseline" typeof="mw:Image/Frame" data-parsoid='{"optList":[{"ck":"width","ak":"442x50px"},{"ck":"framed","ak":"frame"},{"ck":"left","ak":"left"},{"ck":"baseline","ak":"baseline"},{"ck":"caption","ak":"caption"}],"size":"442x50"}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/442px-Foobar.jpg" height="50" width="442" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"50","width":"442"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
@@ -10733,10 +10700,7 @@ parsoid
 !! input
 [[File:Foobar.jpg|frameless|442x50px|border|caption]]
 !! result
-<p><span class="mw-image-border" typeof="mw:Image/Frameless" data-mw='{"caption":"caption"}' data-parsoid='{"optList":[{"ck":"frameless","ak":"frameless"},{"ck":"width","ak":"442x50px"},{"ck":"border","ak":"border"},{"ck":"caption","ak":"caption"}]}'>
-<a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/442px-Foobar.jpg" height="50" width="442" />
-</a></span></p>
+<p><span class="mw-image-border" typeof="mw:Image/Frameless" data-mw='{"caption":"caption"}' data-parsoid='{"optList":[{"ck":"frameless","ak":"frameless"},{"ck":"width","ak":"442x50px"},{"ck":"border","ak":"border"},{"ck":"caption","ak":"caption"}],"size":"442x50"}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/442px-Foobar.jpg" height="50" width="442" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"50","width":"442"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></span></p>
 !! end
 
 !! test
@@ -19228,9 +19192,9 @@ Image: Modifying size of an image (1)
 !! options
 parsoid=html2wt
 !! input
-[[Image:Wiki.png|200x230px]]
+[[Image:Foobar.jpg|200x200px]]
 !! result
-<p data-parsoid='{"dsr":[0,24,0,0]}'><span typeof="mw:Image" data-parsoid='{"optList":[{"ck":"width","ak":"100px"}],"cacheKey":"[[Image:Wiki.png|100px]]","img":{},"dsr":[0,24,null,null]}'><a href="./File:Wiki.png" data-parsoid='{"a":{"href":"./File:Wiki.png"}}'><img resource="./File:Wiki.png" src="//upload.wikimedia.org/wikipedia/en/thumb/b/bc/Wiki.png/100px-Wiki.png" height="230" width="200" data-parsoid='{"a":{"resource":"./File:Wiki.png","height":"115"},"sa":{"resource":"Image:Wiki.png","height":""}}'/></a></span></p>
+<p><span typeof="mw:Image" data-parsoid='{"optList":[{"ck":"width","ak":"230x230px"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/230px-Foobar.jpg" height="22" width="200" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"26","width":"230"},"sa":{"resource":"Image:Foobar.jpg"}}'/></a></span></p>
 !!end
 
 !! test
@@ -19238,9 +19202,9 @@ Image: Modifying size of an image (2)
 !! options
 parsoid=html2wt
 !! input
-[[Image:Wiki.png|230px]]
+[[Image:Foobar.jpg|500x500px]]
 !! result
-<p data-parsoid='{"dsr":[0,24,0,0]}'><span typeof="mw:Image" data-parsoid='{"optList":[{"ck":"width","ak":"100px"}],"cacheKey":"[[Image:Wiki.png|100px]]","img":{},"dsr":[0,24,null,null]}'><a href="./File:Wiki.png" data-parsoid='{"a":{"href":"./File:Wiki.png"}}'><img resource="./File:Wiki.png" src="//upload.wikimedia.org/wikipedia/en/thumb/b/bc/Wiki.png/100px-Wiki.png" height="230" data-parsoid='{"a":{"resource":"./File:Wiki.png","height":"115"},"sa":{"resource":"Image:Wiki.png","height":""}}'/></a></span></p>
+<p><span typeof="mw:Image" data-parsoid='{"optList":[{"ck":"width","ak":"230x230px"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/230px-Foobar.jpg" height="100" width="500" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"26","width":"230"},"sa":{"resource":"Image:Foobar.jpg"}}'/></a></span></p>
 !!end
 
 # note that the data-parsoid value conflicts with the figure's class
@@ -19249,9 +19213,9 @@ Image: Modifying alignment of an image (bug 48665)
 !! options
 parsoid=html2wt
 !! input
-[[Image:Wiki.png|thumb|caption|right]]
+[[Image:Foobar.jpg|thumb|caption|left]]
 !! result
-<figure class="mw-default-size mw-halign-right" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"left","ak":"left"},{"ck":"caption","ak":"caption"}],"cacheKey":"[[Image:Wiki.png|thumb|left|caption]]","img":{"h":155,"w":135},"dsr":[0,37,2,2]}'><a href="./File:Wiki.png" data-parsoid='{"a":{"href":"./File:Wiki.png"},"dsr":[2,null,null,null]}'><img resource="./File:Wiki.png" src="//upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png" height="155" width="135" data-parsoid='{"a":{"resource":"./File:Wiki.png"},"sa":{"resource":"Image:Wiki.png"}}'/></a><figcaption data-parsoid='{"dsr":[null,35,null,null]}'>caption</figcaption></figure>
+<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"caption"},{"ck":"right","ak":"right"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" height="20" width="180" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"20","width":"180"},"sa":{"resource":"Image:Foobar.jpg"}}'/></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
@@ -19259,9 +19223,9 @@ Image: Modifying valign of an image (bug 49221)
 !! options
 parsoid=html2wt
 !! input
-[[File:Example.jpg|20px|text-top]]
+[[File:Foobar.jpg|20px|text-top]]
 !! result
-<p data-parsoid='{"dsr":[0,29,0,0]}'><span class="mw-valign-text-top" typeof="mw:Image" data-parsoid='{"optList":[{"ck":"width","ak":"20px"},{"ck":"top","ak":"top"}],"cacheKey":"[[File:Example.jpg|20px|top]]","img":{},"dsr":[0,29,null,null]}'><a href="./File:Example.jpg" data-parsoid='{"a":{"href":"./File:Example.jpg"}}'><img resource="./File:Example.jpg" src="//upload.wikimedia.org/wikipedia/en/thumb/a/a9/Example.jpg/20px-Example.jpg" height="22" width="20" data-parsoid='{"a":{"resource":"./File:Example.jpg","height":"22"},"sa":{"resource":"File:Example.jpg","height":""}}'/></a></span></p>
+<p><span class="mw-valign-text-top" typeof="mw:Image" data-parsoid='{"optList":[{"ck":"width","ak":"20px"},{"ck":"text_top","ak":"text-top"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/20px-Foobar.jpg" height="2" width="20" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"2","width":"20"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></span></p>
 !! end
 
 !! test
@@ -19271,7 +19235,7 @@ parsoid=html2wt
 !! input
 [[File:Foobar.jpg|thumb|some caption|alt=some alternate edited text]]
 !! result
-<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"some caption"},{"ck":"alt","ak":"alt=some alternate text"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img alt="some alternate edited text" resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="20" width="180" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"20","width":"180"},"sa":{"resource":"File:Foobar.jpg","height":"","width":""}}'/></a><figcaption>some caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"some caption"},{"ck":"alt","ak":"alt=some alternate text"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img alt="some alternate edited text" resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" height="20" width="180" data-parsoid='{"a":{"alt":"some alternate edited text","resource":"./File:Foobar.jpg","height":"20","width":"180"},"sa":{"alt":"alt=some alternate edited text","resource":"File:Foobar.jpg"}}'/></a><figcaption>some caption</figcaption></figure>
 !!end
 
 !! test
@@ -19279,9 +19243,9 @@ Image: Modifying caption of an image
 !! options
 parsoid=html2wt
 !! input
-[[Image:Foobar.jpg|thumb|caption]]
+[[Image:Foobar.jpg|thumb|new caption]]
 !! result
-<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":" caption "}],"cacheKey":"[[Image:Foobar.jpg|thumb| caption ]]"}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg/180px-Foobar.jpg" height="20" width="180" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"21","width":"180"},"sa":{"resource":"Image:Foobar.jpg","height":"","width":""}}'/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"original caption"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" height="20" width="180" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"20","width":"180"},"sa":{"resource":"Image:Foobar.jpg"}}'/></a><figcaption>new caption</figcaption></figure>
 !!end
 
 !! test
@@ -19291,7 +19255,7 @@ parsoid
 !! input
 [[File:Foobar.jpg|thumb|alt=|bar]]
 !! result
-<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"alt","ak":"alt="},{"ck":"caption","ak":"bar"}]}'><a href="./File:Foobar.jpg"><img alt="" resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" height="20" width="180" data-parsoid='{"a":{"alt":"","resource":"./File:Foobar.jpg","height":"20","width":"180"},"sa":{"alt":"alt=","resource":"File:Foobar.jpg","height":"","width":""}}'/></a><figcaption>bar</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"alt","ak":"alt="},{"ck":"caption","ak":"bar"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img alt="" resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" height="20" width="180" data-parsoid='{"a":{"alt":"","resource":"./File:Foobar.jpg","height":"20","width":"180"},"sa":{"alt":"alt=","resource":"File:Foobar.jpg"}}'/></a><figcaption>bar</figcaption></figure>
 !! end
 
 #!! test
