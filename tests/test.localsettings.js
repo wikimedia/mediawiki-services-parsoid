@@ -5,6 +5,7 @@
  *
  * Also see the file ParserService.js for more information.
  */
+"use strict";
 
 exports.setup = function( parsoidConfig ) {
 	// The URL here is supposed to be your MediaWiki installation root

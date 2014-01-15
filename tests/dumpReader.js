@@ -1,3 +1,5 @@
+"use strict";
+
 var events = require('events'),
 	util = require('util'),
 	libxml = require('libxmljs'); // npm install libxmljs

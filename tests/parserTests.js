@@ -4,6 +4,7 @@
  *
  * This pulls all the parserTests.txt items and runs them through Parsoid.
  */
+"use strict";
 
 /**
  * @class ParserTestModule
@@ -1672,15 +1673,18 @@ ParserTests.prototype.processCase = function ( i, options ) {
 							// adjust config to match that used for PHP tests
 							// see core/tests/parser/parserTest.inc:setupGlobals() for
 							// full set of config normalizations done.
-							this.env.conf.wiki.fakeTimestamp = 123;
-							this.env.conf.wiki.timezoneOffset = 0; // force utc for parsertests
-							this.env.conf.wiki.server = 'http://example.org';
-							this.env.conf.wiki.wgScriptPath = '/';
-							this.env.conf.wiki.script = '/index.php';
-							this.env.conf.wiki.articlePath = '/wiki/$1';
+							var wikiConf = this.env.conf.wiki;
+							wikiConf.fakeTimestamp = 123;
+							wikiConf.timezoneOffset = 0; // force utc for parsertests
+							wikiConf.server = 'http://example.org';
+							wikiConf.wgScriptPath = '/';
+							wikiConf.script = '/index.php';
+							wikiConf.articlePath = '/wiki/$1';
 							// this has been updated in the live wikis, but the parser tests
 							// expect the old value (as set in parserTest.inc:setupDatabase())
-							this.env.conf.wiki.interwikiMap.meatball.url =
+							wikiConf.interwikiMap.meatball =
+								Util.clone(wikiConf.interwikiMap.meatball);
+							wikiConf.interwikiMap.meatball.url =
 								'http://www.usemod.com/cgi-bin/mb.pl?$1';
 							// Add 'MemoryAlpha' namespace (bug 51680)
 							this.env.conf.wiki.namespaceNames['100'] = 'MemoryAlpha';

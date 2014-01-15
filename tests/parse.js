@@ -3,6 +3,7 @@
  * Command line parse utility.
  * Read from STDIN, write to STDOUT.
  */
+"use strict";
 
 var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnvironment,
 	ParsoidConfig = require( '../lib/mediawiki.ParsoidConfig.js' ).ParsoidConfig,

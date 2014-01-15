@@ -3,6 +3,7 @@
 /**
  * Split up a bug report JSON file into a bunch of files
  */
+"use strict";
 
 var fs = require('fs'),
 	Util = require( '../lib/mediawiki.Util.js' ).Util;

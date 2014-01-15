@@ -1,6 +1,7 @@
 /*
  * Simple Parsoid web service.
  */
+"use strict";
 
 /**
  * @class ParserServiceModule

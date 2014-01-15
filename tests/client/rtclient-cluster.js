@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+"use strict";
 
 var cluster = require( 'cluster' ),
 	path = require( 'path' );

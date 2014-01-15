@@ -2,6 +2,7 @@
 /**
  * A simple dump grepper based on the DumpReader module.
  */
+"use strict";
 
 var dumpReader = require('./dumpReader.js'),
 	events = require('events'),

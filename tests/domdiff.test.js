@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+"use strict";
 var DOMDiff = require('../lib/mediawiki.DOMDiff.js').DOMDiff,
 	Util = require('../lib/mediawiki.Util.js').Util,
 	DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils,

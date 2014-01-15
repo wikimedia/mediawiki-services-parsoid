@@ -3,6 +3,7 @@
  *
  * Copy this file to config.js and change the values as needed.
  */
+"use strict";
 
 ( function () {
 

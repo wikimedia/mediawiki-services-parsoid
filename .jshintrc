@@ -19,7 +19,7 @@
 	"nonew": true,
 	"regexp": false,
 	"undef": true,
-	"strict": false,
+	"strict": true,
 	"trailing": true,
 
 	"smarttabs": true,

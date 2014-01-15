@@ -1,3 +1,5 @@
+"use strict";
+
 /* jshint browser:true, jquery:true */
 ( function ( $ ) {
 	$( document ).ready( function () {

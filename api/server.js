@@ -17,6 +17,7 @@
  *
  * See https://www.mediawiki.org/wiki/Parsoid/Setup for more instructions.
  */
+"use strict";
 
 var cluster = require('cluster'),
 	path = require('path'),
