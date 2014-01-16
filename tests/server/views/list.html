@@ -1,0 +1,15 @@
+{{#if alt}}
+	<h1>{{heading}}</h1>
+{{else}}
+	<h1>{{heading}}</h1>
+	<ul>
+		{{#each items}}
+			<li>
+				{{#if description}}
+					{{description}}:
+				{{/if}}
+				<a href='{{formatUrl url}}'>{{linkName}}</a>
+			</li>
+		{{/each}}
+	</ul>
+{{/if}}

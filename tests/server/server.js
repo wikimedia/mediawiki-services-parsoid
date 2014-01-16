@@ -1026,29 +1026,30 @@ var GET_crashers = function( req, res ) {
 			console.error( err );
 			res.send( err.toString(), 500 );
 		} else {
-			var n = rows.length;
-			res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
 			res.status( 200 );
-			res.write( '<html><body>' );
-			if (n === 0) {
-				res.write( 'No titles crash the testers!  All\'s well with the world!' );
-			} else {
-				res.write( '<h1> The following ' + n + ' titles crash the testers' +
-				          ' at least ' + maxTries + ' times</h1>' );
-				res.write( '<ul>' );
-				for ( var i = 0; i < n; i++ ) {
-					var prefix = rows[i].prefix,
-						title = rows[i].title;
-					var url = prefix.replace( /wiki$/, '' ) + '.wikipedia.org/wiki/' + title;
-					var name = prefix + ':' + title;
-					var commitHash = rows[i].claim_hash;
-					res.write( '<li>' + commitHash + ': <a href="http://' +
-							  encodeURI(url).replace('&', '&amp;') + '">' +
-							  name.replace('&', '&amp;') + '</a></li>\n' );
-				}
-				res.write( '</ul>' );
+			var n = rows.length;
+			var pageData = [];
+			for (var i = 0; i < n; i++) {
+				var prefix = rows[i].prefix,
+					title = rows[i].title;
+				pageData.push({
+					description: rows[i].claim_hash,
+					url: prefix.replace( /wiki$/, '' ) + '.wikipedia.org/wiki/' + title,
+					linkName: prefix + ':' + title
+				});
 			}
-			res.end( '</body></html>' );
+			var heading = n === 0 ? 'No titles crash the testers! All\'s well with the world!' :
+				'The following ' + n + ' titles crash the testers at least ' +
+				maxTries + ' times ';
+			var data = {
+				alt: n === 0,
+				heading: heading,
+				items: pageData
+			};
+			hbs.registerHelper('formatUrl', function (url) {
+				return 'http://' + encodeURI(url).replace('&', '&amp;');
+			});
+			res.render('list.html', data);
 		}
 	} );
 };
