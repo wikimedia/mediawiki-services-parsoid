@@ -29,7 +29,7 @@ var getTitle = function( cb ) {
 	retries = 10;
 
 	var callback = function ( error, response, body ) {
-		if (error) {
+		if (error || !response) {
 			setTimeout( function () { cb( 'start' ); }, 15000 );
 		}
 
