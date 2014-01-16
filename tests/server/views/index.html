@@ -1,0 +1,77 @@
+<p>
+	We have run roundtrip-tests on <b>{{results.tests}}</b> articles, of which
+</p>
+<ul>
+	<li><b>{{results.noErrors}}%</b> parsed without errors,</li>
+	</li><b>{{results.syntacticDiffs}}%</b> round-tripped without semantic differences, and</li>
+	<li><b>{{results.perfects}}%</b> round-tripped with no character differences at all.</li>
+</ul>
+<p></p>
+
+<table>
+	<tbody>
+		<tr height="60px">
+			<td width="{{graphWidths.perfect}}" style="background:green"
+				title="Perfect / no diffs"></td>
+			<td width="{{graphWidths.syntacticDiff}}" style="background:yellow"
+				title="Syntactic diffs"></td>
+			<td width="{{graphWidths.semanticDiff}}" style="background:red"
+				title="Semantic diffs"></td>
+		</tr>
+	</tbody>
+</table>
+
+<p>
+	Latest revision:
+	<table>
+		<tbody>
+		{{#each latestRevision}}
+		<tr style="font-weight:bold">
+			<td style="padding-left:20px">
+				{{description}}
+				{{#if ../prefix}}
+					({{../../prefix}})
+				{{/if}}
+			</td>
+			<td style="padding-left:20px; text-align:right">
+			{{#if url}}
+				<a href='{{url}}'>
+			{{/if}}
+			{{round value}}
+			{{#if url}}
+				</a>
+			{{/if}}
+			</td>
+		</tr>
+		{{/each}}
+		</tbody>
+	</table>
+</p>
+
+<p>
+	Averages (over the latest results):
+	<table>
+		<tbody>
+			{{#each averages}}
+			<tr style="font-weight:bold">
+				<td style="padding-left:20px">
+					{{description}}
+					{{#if ../prefix}}
+						({{../../prefix}})
+					{{/if}}
+				</td>
+				<td style="padding-left:20px; text-align:right">{{round value}}</td>
+	  		</tr>
+			{{/each}}
+		</tbody>
+	</table>
+</p>
+
+<p>More details:</p>
+<ul>
+	{{#each pages}}
+		<li>
+			<a href="{{url}}">{{title}}</a>
+		</li>
+	{{/each}}
+</ul>

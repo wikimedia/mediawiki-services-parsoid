@@ -3,7 +3,8 @@
 "use strict";
 
 var express = require( 'express' ),
-	optimist = require( 'optimist' );
+	optimist = require( 'optimist' ),
+	hbs = require( 'hbs' );
 
 // Default options
 var defaults = {
@@ -705,16 +706,14 @@ var receiveResults = function ( req, res ) {
 	}
 };
 
-var indexLinkList = function () {
-	return '<p>More details:</p>\n<ul>' +
-		'<li><a href="/topfails">Results by title</a></li>\n' +
-		'<li><a href="/failedFetches">Non-existing test pages</a></li>\n' +
-		'<li><a href="/failsDistr">Histogram of failures</a></li>\n' +
-		'<li><a href="/skipsDistr">Histogram of skips</a></li>\n' +
-		'<li><a href="/commits">List of all tested commits</a></li>\n' +
-		'<li><a href="/perfstats">Performance stats of last commit</a></li>\n' +
-		'</ul>';
-};
+var pageListData = [
+	{ url: '/topfails', title: 'Results by title' },
+	{ url: '/failedFetches', title: 'Non-existing test pages' },
+	{ url:  '/failsDistr', title: 'Histogram of failures' },
+	{ url: '/skipsDistr', title: 'Histogram of skips' },
+	{ url: '/commits', title: 'List of all tested commits' },
+	{ url: '/perfstats', title: 'Performance stats of last commit' }
+];
 
 var displayPerfStat = function( type, value ) {
 	// Protect against not-present perfstats, i.e. when adding new ones.
@@ -830,30 +829,18 @@ var displayPageList = function( res, urlPrefix, urlSuffix, page, header, display
 		res.end( '</table></body></html>' );
 	}
 };
+
 var statsWebInterface = function ( req, res ) {
-	var query, queryParams, prefix;
+	var query, queryParams;
 	var cutoffDate = new Date( Date.now() - ( cutOffTime * 1000 ) );
-
-	var displayRow = function( res, label, val ) {
-			// round numeric data, but ignore others
-			if( !isNaN( Math.round( val * 100 ) / 100 ) ) {
-				val = Math.round( val * 100 ) / 100;
-			}
-			res.write( '<tr style="font-weight:bold"><td style="padding-left:20px;">' + label );
-			if ( prefix !== null ) {
-				res.write( ' (' + prefix + ')' );
-			}
-			res.write( '</td><td style="padding-left:20px; text-align:right">' + val + '</td></tr>' );
-	};
-
-	prefix = req.params[1] || null;
+	var prefix = req.params[1] || null;
 
 	// Switch the query object based on the prefix
 	if ( prefix !== null ) {
 		query = dbPerWikiStatsQuery;
 		queryParams = [ prefix, prefix, prefix, prefix,
-		                prefix, prefix, prefix, prefix,
-		                prefix, maxTries, cutoffDate ];
+						prefix, prefix, prefix, prefix,
+						prefix, maxTries, cutoffDate ];
 	} else {
 		query = dbStatsQuery;
 		queryParams = [ maxTries, cutoffDate ];
@@ -867,9 +854,7 @@ var statsWebInterface = function ( req, res ) {
 			console.error("Error: " + msg);
 			res.send( msg, 500 );
 		} else {
-			res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
 			res.status( 200 );
-			res.write( '<html><body>' );
 
 			var tests = row[0].total,
 			errorLess = row[0].no_errors,
@@ -881,57 +866,50 @@ var statsWebInterface = function ( req, res ) {
 			syntacticDiffs = Math.round( 100 * 100 *
 				( row[0].no_fails / ( tests || 1 ) ) ) / 100;
 
-			res.write( '<p>We have run roundtrip-tests on <b>' +
-				tests +
-				'</b> articles, of which <ul><li><b>' +
-				noErrors +
-				'%</b> parsed without errors </li><li><b>' +
-				syntacticDiffs +
-				'%</b> round-tripped without semantic differences, and </li><li><b>' +
-				perfects +
-				'%</b> round-tripped with no character differences at all.</li>' +
-				'</ul></p>' );
+		var width = 800;
 
-			var width = 800;
+		var data = {
+			prefix: prefix,
+			results: {
+				tests: tests,
+				noErrors: noErrors,
+				syntacticDiffs: syntacticDiffs,
+				perfects: perfects
+			},
+			graphWidths: {
+				perfect: width * perfects / 100 || 0,
+				syntacticDiff: width * ( syntacticDiffs - perfects ) / 100 || 0,
+				semanticDiff: width * ( 100 - syntacticDiffs ) / 100 || 0
+			},
+			latestRevision: [
+				{ description: 'Git SHA1', value: row[0].maxhash },
+				{ description: 'Test Results', value: row[0].maxresults },
+				{ description: 'Crashers', value: row[0].crashers,
+					url: '/crashers' },
+				{ description: 'Regressions', value: numRegressions,
+					url: '/regressions/between/' + row[0].maxhash },
+				{ description: 'Fixes', value: numFixes,
+					url: '/topfixes/between/' + row[0].secondhash + '/' + row[0].maxhash },
+			],
+			averages: [
+				{ description: 'Errors', value: row[0].avgerrors },
+				{ description: 'Fails', value: row[0].avgfails },
+				{ description: 'Skips', value: row[0].avgskips },
+				{ description: 'Score', value: row[0].avgscore }
+			],
+			pages: pageListData
+		};
 
-			res.write( '<table><tr height=60px>');
-			res.write( '<td width=' +
-					( width * perfects / 100 || 0 ) +
-					'px style="background:green" title="Perfect / no diffs"></td>' );
-			res.write( '<td width=' +
-					( width * ( syntacticDiffs - perfects ) / 100 || 0 ) +
-					'px style="background:yellow" title="Syntactic diffs"></td>' );
-			res.write( '<td width=' +
-					( width * ( 100 - syntacticDiffs ) / 100 || 0 ) +
-					'px style="background:red" title="Semantic diffs"></td>' );
-			res.write( '</tr></table>' );
+		// round numeric data, but ignore others
+		hbs.registerHelper('round', function (val) {
+			if ( isNaN(val) ) {
+				return val;
+			} else {
+				return Math.round( val * 100 ) / 100;
+			}
+		});
 
-			res.write( '<p>Latest revision:' );
-			res.write( '<table><tbody>');
-			displayRow(res, "Git SHA1", row[0].maxhash);
-			displayRow(res, "Test Results", row[0].maxresults);
-			displayRow( res, "Crashers",
-			           '<a href="/crashers">' + row[0].crashers + '</a>' );
-			displayRow(res, "Regressions",
-			           '<a href="/regressions/between/' + row[0].secondhash + '/' +
-			           row[0].maxhash + '">' +
-			           numRegressions + '</a>');
-			displayRow(res, "Fixes",
-			           '<a href="/topfixes/between/' + row[0].secondhash + '/' +
-			           row[0].maxhash + '">' +
-			           numFixes + '</a>');
-			res.write( '</tbody></table></p>' );
-
-			res.write( '<p>Averages (over the latest results):' );
-			res.write( '<table><tbody>');
-			displayRow(res, "Errors", row[0].avgerrors);
-			displayRow(res, "Fails", row[0].avgfails);
-			displayRow(res, "Skips", row[0].avgskips);
-			displayRow(res, "Score", row[0].avgscore);
-			res.write( '</tbody></table></p>' );
-			res.write( indexLinkList() );
-
-			res.end( '</body></html>' );
+		res.render('index.html', data);
 		}
 	});
 };
@@ -1359,6 +1337,12 @@ var GET_pagePerfStats = function( req, res ) {
 
 // Make an app
 var app = express.createServer();
+
+// Configure for Handlebars
+app.configure(function(){
+	app.set('view engine', 'html');
+	app.register('html', require('hbs'));
+});
 
 // Make the coordinator app
 var coordApp = express.createServer();
