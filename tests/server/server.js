@@ -995,26 +995,28 @@ var GET_failedFetches = function( req, res ) {
 			console.error( err );
 			res.send( err.toString(), 500 );
 		} else {
-			var n = rows.length;
-			res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
 			res.status( 200 );
-			res.write( '<html><body>' );
-			if (n === 0) {
-				res.write('No titles returning 404!  All\'s well with the world!');
-			} else {
-				res.write('<h1> The following ' + n + ' titles return 404</h1>');
-				res.write('<ul>');
-				for (var i = 0; i < n; i++) {
-					var prefix = rows[i].prefix, title = rows[i].title;
-					var url = prefix.replace( /wiki$/, '' ) + '.wikipedia.org/wiki/' + title;
-					var name = prefix + ':' + title;
-					res.write('<li><a href="http://' +
-							  encodeURI(url).replace('&', '&amp;') + '">' +
-							  name.replace('&', '&amp;') + '</a></li>\n');
-				}
-				res.write( '</ul>');
+			var n = rows.length;
+			var pageData = [];
+			for (var i = 0; i < n; i++) {
+				var prefix = rows[i].prefix, title = rows[i].title;
+				var name = prefix + ':' + title;
+				pageData.push({
+					url: prefix.replace( /wiki$/, '' ) + '.wikipedia.org/wiki/' + title,
+					linkName: name.replace('&', '&amp;')
+				});
 			}
-			res.end('</body></html>' );
+			var heading = n === 0 ? 'No titles returning 404!  All\'s well with the world!' :
+				'The following ' + n + ' titles return 404';
+			var data = {
+				alt: n === 0,
+				heading: heading,
+				items: pageData
+			};
+			hbs.registerHelper('formatUrl', function (url) {
+				return 'http://' + encodeURI(url).replace('&', '&amp;');
+			});
+			res.render('list.html', data);
 		}
 	} );
 };
