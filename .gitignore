@@ -9,7 +9,6 @@
 api/localsettings.js
 api/nohup.out
 api/npm-debug.log
-node_modules/
 tests/parserTests.cache
 tests/client/config.js
 tests/server/node_modules
@@ -19,3 +18,4 @@ tests/server/pages.db
 tests/client/config.js
 
 contrib/
+node_modules
