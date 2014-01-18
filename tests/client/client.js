@@ -6,6 +6,7 @@
 
 var http = require( 'http' ),
 	request = require('request'),
+	cluster = require('cluster'),
 	qs = require( 'querystring' ),
 	exec = require( 'child_process' ).exec,
 	apiServer = require( '../apiServer.js' ),
@@ -45,7 +46,15 @@ var getTitle = function( cb ) {
 				break;
 			case 426:
 				console.log( "Update required, exiting." );
-				process.exit( 0 );
+				// Signal our voluntary suicide to the parent if running as a
+				// cluster worker, so that it does not restart this client.
+				// Without this, the code is never actually updated as a newly
+				// forked client will still run the old code.
+				if (cluster.worker) {
+					cluster.worker.kill();
+				} else {
+					process.exit( 0 );
+				}
 				break;
 			default:
 				console.log( 'There was some error (' + response.statusCode + '), but that is fine. Waiting 15 seconds to resume....' );
