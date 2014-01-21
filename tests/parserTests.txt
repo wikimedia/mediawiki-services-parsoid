@@ -5890,6 +5890,16 @@ parsoid
 <p><a rel="mw:ExtLink" href="//ko.wikipedia.org/wiki/">ko:</a></p>
 !! end
 
+!! test
+Parsoid: Bug #45209, handle interwiki links pointing to the current wiki as plain wiki links
+!! options
+parsoid
+!! input
+[[en:Foo]]
+!! result
+<p><a rel="mw:WikiLink" href="./Foo" data-parsoid='{"stx":"simple","a":{"href":"./Foo"},"sa":{"href":"en:Foo"}}'>Foo</a></p>
+!! end
+
 ###
 ### Redirects, Parsoid-only
 ###
