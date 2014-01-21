@@ -1084,18 +1084,18 @@ var GET_skipsDistr = function( req, res ) {
 			console.error( err );
 			res.send( err.toString(), 500 );
 		} else {
-			var n = rows.length;
-			res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
 			res.status( 200 );
-			res.write( '<html><body>' );
-			res.write('<h1> Distribution of syntactic errors </h1>');
-			res.write('<table><tbody>');
-			res.write('<tr><th># errors</th><th># pages</th></tr>');
+			var n = rows.length;
+			var intervalData = [];
 			for (var i = 0; i < n; i++) {
 				var r = rows[i];
-				res.write('<tr><td>' + r.skips + '</td><td>' + r.num_pages + '</td></tr>');
+				intervalData.push({errors: r.skips, pages: r.num_pages});
 			}
-			res.end('</table></body></html>' );
+			var data = {
+				heading: 'Distribution of syntactic errors',
+				interval: intervalData
+			};
+			res.render('histogram.html', data);
 		}
 	} );
 };
