@@ -48,9 +48,6 @@ var mp = '../lib/',
 	SelectiveSerializer = require( mp + 'mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
 	ParsoidConfig = require( mp + 'mediawiki.ParsoidConfig' ).ParsoidConfig;
 
-// For now most modules only need this for $.extend and $.each :)
-var $ = require(mp + 'fakejquery');
-
 // Our code...
 
 /**
@@ -121,7 +118,7 @@ function ParserTests () {
 var prettyPrintIOptions = function(iopts) {
 	if (!iopts) { return ''; }
 	var ppValue = function(v) {
-		if ($.isArray(v)) {
+		if (Array.isArray(v)) {
 			return v.map(ppValue).join(',');
 		}
 		if (/^\[\[[^\]]*\]\]$/.test(v) ||
@@ -805,7 +802,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 		}
 
 		if ( item.options.title !== undefined &&
-		     !$.isArray(item.options.title) ) {
+		     !Array.isArray(item.options.title) ) {
 			// Strip the [[]] markers.
 			var title = item.options.title.replace( /^\[\[|\]\]$/g, '' );
 			title = this.env.normalizeTitle( title, true );
@@ -994,7 +991,7 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 	this.stats.modes[mode].failedTests++;
 	this.stats.modes[mode].failList.push({
 		title: title,
-		raw: actual.raw
+		raw: actual ? actual.raw : null
 	});
 
 	var extTitle = ( title + ( mode ? ( ' (' + mode + ')' ) : '' ) ).
