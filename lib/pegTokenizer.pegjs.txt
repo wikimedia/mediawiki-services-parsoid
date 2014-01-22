@@ -51,13 +51,13 @@
     var flattenIfArray = function(e) {
         function internal_flatten(e, res) {
             // Don't bother flattening if we dont have an array
-            if (e.constructor !== Array) {
+            if ( !Array.isArray(e) ) {
                 return e;
             }
 
             for (var i = 0, l = e.length; i < l; i++) {
                 var v = e[i];
-                if (v.constructor === Array ) {
+                if ( Array.isArray(v) ) {
                     // Change in assumption from a shallow array to a nested array.
                     if (res === null) { res = e.slice(0, i); }
                     internal_flatten(v, res);
@@ -515,7 +515,7 @@ tlb
     // Add source offsets for round-tripping. XXX: Add these not just for
     // toplevelblocks!
     var tokens;
-    if (b.constructor === Array && b.length ) {
+      if ( Array.isArray(b) && b.length ) {
         b = flattenIfArray(b);
         var bs = b[0];
         if ( bs.constructor === String && bs.attribs === undefined ) {
@@ -799,7 +799,7 @@ urllink
   = target:url {
       // Special case handling for trailing parentheses: remove from link if
       // there is no opening parenthesis in the link
-      if ( target.constructor === Array ) {
+      if ( Array.isArray(target) ) {
 	      var end = target[target.length - 1];
 	      if ( !/[(]/.test( target[0] ) &&
 	           end.constructor === String &&
@@ -1578,7 +1578,7 @@ xmlish_tag =
             currExtTag.dataAttribs.skipLen === 0) ? true : null;
       }
     ) {
-        if (t2.constructor === Array) {
+        if ( Array.isArray(t2) ) {
             return t2;
         }
 
@@ -1792,7 +1792,7 @@ generic_newline_attribute
     } else {
         res = new KV( name, '' );
     }
-    if ( name.constructor === Array ) {
+    if ( Array.isArray(name) ) {
         res.ksrc = input.substring( namePos0, namePos );
     }
     return res;
@@ -1818,7 +1818,7 @@ generic_attribute
     } else {
         res = new KV( name, '' );
     }
-    if ( name.constructor === Array ) {
+    if ( Array.isArray(name) ) {
         res.ksrc = input.substring( namePos0, namePos );
     }
     return res;

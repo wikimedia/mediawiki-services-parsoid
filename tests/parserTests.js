@@ -440,7 +440,7 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
  * @returns {boolean}
  */
 ParserTests.prototype.isDuplicateChangeTree = function ( allChanges, change ) {
-	if ( !allChanges || allChanges.constructor !== Array ) {
+	if ( !Array.isArray(allChanges) ) {
 		return false;
 	}
 
@@ -535,7 +535,7 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 			var child = nodes[i],
 				change = changes[i];
 
-			if ( change && change.constructor === Array ) {
+			if ( Array.isArray(change) ) {
 				applyChangesInternal( child, change );
 			} else {
 				switch ( change ) {
@@ -684,13 +684,9 @@ ParserTests.prototype.generateChanges = function( options, item, content, cb ) {
 
 	function hasChangeMarkers(list) {
 		// If all recorded changes are 0, then nothing has been modified
-		for (var i = 0, n = list.length; i < n; i++) {
-			var c = list[i];
-			if ((c.constructor === Array && hasChangeMarkers(c)) || c > 0) {
-				return true;
-			}
-		}
-		return false;
+		return list.some(function(c) {
+			return Array.isArray(c) ? hasChangeMarkers(c) : (c > 0);
+		});
 	}
 
 	function genChangesInternal(item, node) {
@@ -1635,7 +1631,7 @@ ParserTests.prototype.processCase = function ( i, options ) {
 						//    parsoid                         ""
 						//    parsoid=wt2html              "wt2html"
 						//    parsoid=wt2html,wt2wt    ["wt2html","wt2wt"]
-						if ( item.options.parsoid.constructor !== Array ) {
+						if ( !Array.isArray(item.options.parsoid) ) {
 							// make a string into a 1-item array
 							item.options.parsoid = [ item.options.parsoid ];
 						}
