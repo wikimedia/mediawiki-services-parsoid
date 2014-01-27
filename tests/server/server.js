@@ -738,95 +738,76 @@ var displayPerfStat = function( type, value ) {
 	return text;
 };
 
-var displayPageTitle = function( res, row ) {
-	// If this info is available, we can display the small color bar at
-	// the start of each row.
-	var showColor = row.hasOwnProperty( 'skips' ) &&
+hbs.registerHelper('formatPerfStat', function (type, value) {
+	if ( type.match( /^time/ ) ) {
+		// Show time in seconds
+		value = Math.round( (value / 1000) * 100 ) / 100;
+		return value.toString() + "s";
+	} else if ( type.match( /^size/ ) ) {
+		// Show sizes in KiB
+		value = Math.round( value / 1024 );
+		return value.toString() + "KiB";
+	} else {
+		// Other values go as they are
+		return value.toString();
+	}
+});
+
+var pageStatus = function(row) {
+	var hasStatus = row.hasOwnProperty( 'skips' ) &&
 		row.hasOwnProperty( 'fails' ) &&
 		row.hasOwnProperty( 'errors' );
 
-	res.write( '<td class="title"' );
-	if ( showColor ) {
-		res.write( ' style="border-left: 5px solid ' );
+	if (hasStatus) {
 		if ( row.skips === 0 && row.fails === 0 && row.errors === 0 ) {
-			res.write( 'green' );
+			return 'perfect';
 		} else if ( row.errors > 0 || row.fails > 0 ) {
-			res.write( 'red' );
+			return 'fail';
 		} else {
-			res.write( 'orange' );
+			return 'skip';
 		}
-		res.write( '">' );
-	} else {
-		res.write( '>' );
 	}
-
-	var prefix = encodeURIComponent( row.prefix ),
-		title = encodeURIComponent( row.title );
-	res.write( '<a href="http://parsoid.wmflabs.org/_rt/' +
-		prefix + '/' + title + '">' +
-		row.prefix + ':' + row.title + '</a> | ' +
-		'<a target="_blank" href="http://localhost:8000/_rt/' + prefix + '/' + title +
-		'">@lh</a> | ' +
-		'<a target="_blank" href="/latestresult/' + prefix + '/' + title + '">latest result</a>' +
-		' | <a href="/pageperfstats/' + prefix + '/' + title + '">perf</a>' +
-		'</td>' );
+	return null;
 };
 
-var displayPageList = function( res, urlPrefix, urlSuffix, page, header, displayTableHeaders, displayRow, err, rows ) {
-	console.log( "GET " + urlPrefix + "/" + page + urlSuffix );
+var pageTitleData = function(row){
+	var prefix = encodeURIComponent( row.prefix ),
+	title = encodeURIComponent( row.title );
+	return {
+		title: row.prefix + ':' + row.title,
+		titleUrl: 'http://parsoid.wmflabs.org/_rt/' + prefix + '/' + title,
+		lh: 'http://localhost:8000/_rt/' + prefix + '/' + title,
+		latest: '/latestresult/' + prefix + '/' + title,
+		perf: '/pageperfstats/' + prefix + '/' + title
+	};
+};
+
+var displayPageList = function(res, data, makeRow, err, rows){
+	console.log( "GET " + data.urlPrefix + "/" + data.page + data.urlSuffix );
 	if ( err ) {
 		res.send( err.toString(), 500 );
 	} else if ( !rows || rows.length <= 0 ) {
 		res.send( "No entries found", 404 );
 	} else {
-		res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
-		res.status( 200 );
-		res.write( '<html>') ;
-		res.write( '<head><style type="text/css">' );
-		res.write( 'th { padding: 0 10px }' );
-		res.write( 'td { text-align: center; }' );
-		res.write( 'td.title { text-align: left; padding-left: 0.4em; }' );
-		res.write( '</style></head>' );
-		res.write( '<body>' );
-
-		if (header) {
-			res.write( "<b>" + header + "</b>" );
+		var tableRows = [];
+		for (var i = 0; i < rows.length; i++) {
+			var row = rows[i];
+			var tableRow = {status: pageStatus(row), tableData: makeRow(row)};
+			tableRows.push(tableRow);
 		}
 
-		res.write( '<p>' );
-		if ( page > 0 ) {
-			res.write( '<a href="' + urlPrefix + "/" + ( page - 1 ) + urlSuffix + '">Previous</a> | ' );
-		} else {
-			res.write( 'Previous | ' );
-		}
-		if ( rows.length === 40 ) {
-			res.write('<a href="' + urlPrefix + "/" + ( page + 1 ) + urlSuffix + '">Next</a>');
-		}
-		res.write( '</p>' );
+		var tableData = data;
+		tableData.row = tableRows;
+		tableData.prev = data.page > 0;
+		tableData.next = rows.length === 40;
 
-		res.write( '<table><tr><th>Title</th>' );
-		if ( typeof( displayTableHeaders ) === 'function' ) {
-			displayTableHeaders( res );
-		} else {
-			res.write( displayTableHeaders );
-		}
-		res.write( '</tr>' );
-
-		for ( var i = 0; i < rows.length; i++ ) {
-			var row = rows[ i ];
-			res.write( '<tr>' );
-			displayPageTitle( res, row );
-			if ( typeof( displayRow ) === 'function' ) {
-				displayRow( res, row );
-			} else {
-				for ( var p in row ) {
-					res.write( '<td>' + row[p] + '</td>' );
-				}
-			}
-			res.write( '</tr>' );
-		}
-
-		res.end( '</table></body></html>' );
+		hbs.registerHelper('prevUrl', function (urlPrefix, urlSuffix, page) {
+			return urlPrefix + "/" + ( page - 1 ) + urlSuffix;
+		});
+		hbs.registerHelper('nextUrl', function (urlPrefix, urlSuffix, page) {
+			return urlPrefix + "/" + ( page + 1 ) + urlSuffix;
+		});
+		res.render('table.html', tableData);
 	}
 };
 
@@ -887,7 +868,7 @@ var statsWebInterface = function ( req, res ) {
 				{ description: 'Crashers', value: row[0].crashers,
 					url: '/crashers' },
 				{ description: 'Regressions', value: numRegressions,
-					url: '/regressions/between/' + row[0].maxhash },
+					url: '/regressions/between/' + row[0].secondhash + '/' + row[0].maxhash },
 				{ description: 'Fixes', value: numFixes,
 					url: '/topfixes/between/' + row[0].secondhash + '/' + row[0].maxhash },
 			],
@@ -918,14 +899,25 @@ var failsWebInterface = function ( req, res ) {
 	var page = ( req.params[0] || 0 ) - 0,
 		offset = page * 40;
 
-	var failsTableHeader = '<th>Commit</th><th>Syntactic diffs</th><th>Semantic diffs</th><th>Errors</th></tr>';
-	var displayFailsRow = function( res, row ) {
-		res.write( '<td>' + makeCommitLink( row.hash, row.title, row.prefix ) + '</td>' );
-		res.write( '<td>' + row.skips + '</td><td>' + row.fails + '</td><td>' + ( row.errors === null ? 0 : row.errors ) + '</td></tr>' );
+	var makeFailsRow = function(row) {
+		return [
+			pageTitleData(row),
+			commitLinkData(row.hash, row.title, row.prefix),
+			row.skips,
+			row.fails,
+			row.errors === null ? 0 : row.errors
+		];
+	};
+
+	var data = {
+		page: page,
+		urlPrefix: '/topfails',
+		urlSuffix: '',
+		heading: 'Results by title',
+		header: ['Title', 'Commit', 'Syntactic diffs', 'Semantic diffs', 'Errors']
 	};
 	db.query( dbFailsQuery, [ offset ],
-		displayPageList.bind( null, res, '/topfails', '', page, "Results by title", failsTableHeader,
-			displayFailsRow ) );
+		displayPageList.bind( null, res, data, makeFailsRow ) );
 };
 
 var resultsWebInterface = function ( req, res ) {
@@ -1100,62 +1092,68 @@ var GET_skipsDistr = function( req, res ) {
 	} );
 };
 
-var makeCommitLink = function( commit, title, prefix ) {
-	return '<a href="/result/' +
-		commit + '/' + prefix + '/' + title +
-		'">' + commit.substr( 0, 7 ) +
-		'</a>';
+var commitLinkData = function(commit, title, prefix) {
+	return {
+		url: '/result/' + commit + '/' + prefix + '/' + title,
+		name: commit.substr( 0, 7 )
+	};
 };
 
-var displayRegressionRow = function( res, r ) {
-	res.write( '<td>' + makeCommitLink( r.new_commit, r.title, r.prefix ) + '</td>' );
-	res.write( '<td>' + r.errors + "|" + r.fails + "|" + r.skips + '</td>' );
-	res.write( '<td>' + makeCommitLink( r.old_commit, r.title, r.prefix ) + '</td>' );
-	res.write( '<td>' + r.old_errors + "|" + r.old_fails + "|" + r.old_skips + '</td>' );
+var makeRegressionRow = function(row) {
+	return [
+		pageTitleData(row),
+		commitLinkData(row.new_commit, row.title, row.prefix),
+		row.errors + "|" + row.fails + "|" + row.skips,
+		commitLinkData(row.old_commit, row.title, row.prefix),
+		row.old_errors + "|" + row.old_fails + "|" + row.old_skips
+	];
 };
 
-var regressionsHeader =
-	'<th>New Commit</th><th>Errors|Fails|Skips</th><th>Old Commit</th><th>Errors|Fails|Skips</th>';
+var regressionsHeaderData = ['Title', 'New Commit', 'Errors|Fails|Skips', 'Old Commit', 'Errors|Fails|Skips'];
 
 var GET_regressions = function( req, res ) {
-	var page, offset, urlPrefix;
 	var r1 = req.params[0];
 	var r2 = req.params[1];
-	urlPrefix = "/regressions/between/" + r1 + "/" + r2;
-	page = (req.params[2] || 0) - 0;
-	offset = page * 40;
+	var page = (req.params[2] || 0) - 0;
+	var offset = page * 40;
 	db.query( dbNumRegressionsBetweenRevs, [ r2, r1 ], function(err, row) {
 		if (err || !row) {
 			res.send( err.toString(), 500 );
 		} else {
-			var topfixesLink = "/topfixes/between/" + r1 + "/" + r2,
-				header = "Total regressions between selected revisions: " +
-						row[0].numRegressions +
-						' | <a href="' + topfixesLink + '">topfixes</a>';
+			var data = {
+				page: page,
+				urlPrefix: '/regressions/between/' + r1 + '/' + r2,
+				urlSuffix: '',
+				heading: "Total regressions between selected revisions: " +
+					row[0].numRegressions,
+				headingLink: {url: '/topfixes/between/' + r1 + '/' + r2, name: 'topfixes'},
+				header: regressionsHeaderData
+			};
 			db.query( dbRegressionsBetweenRevs, [ r2, r1, offset ],
-				displayPageList.bind( null, res, urlPrefix, '', page, header,
-					regressionsHeader, displayRegressionRow ));
+				displayPageList.bind( null, res, data, makeRegressionRow ));
 		}
 	});
 };
 
 var GET_topfixes = function( req, res ) {
-	var page, offset, urlPrefix;
 	var r1 = req.params[0];
 	var r2 = req.params[1];
-	urlPrefix = "/topfixes/between/" + r1 + "/" + r2;
-	page = (req.params[2] || 0) - 0;
-	offset = page * 40;
+	var page = (req.params[2] || 0) - 0;
+	var offset = page * 40;
 	db.query( dbNumFixesBetweenRevs, [ r2, r1 ], function(err, row) {
 		if (err || !row) {
 			res.send( err.toString(), 500 );
 		} else {
-			var regressionLink = "/regressions/between/" + r1 + "/" + r2,
-				header = "Total fixes between selected revisions: " + row[0].numFixes +
-					' | <a href="' + regressionLink + '">regressions</a>';
+			var data = {
+				page: page,
+				urlPrefix: '/topfixes/between/' + r1 + '/' + r2,
+				urlSuffix: '',
+				heading: 'Total fixes between selected revisions: ' + row[0].numFixes,
+				headingLink: {url: "/regressions/between/" + r1 + "/" + r2, name: 'regressions'},
+				header: regressionsHeaderData
+			};
 			db.query( dbFixesBetweenRevs, [ r2, r1, offset ],
-				displayPageList.bind( null, res, urlPrefix, '', page, header,
-					regressionsHeader, displayRegressionRow ));
+				displayPageList.bind( null, res, data, makeRegressionRow ));
 		}
 	});
 };
@@ -1242,15 +1240,19 @@ var GET_perfStats = function( req, res ) {
 			res.send( err.toString(), 500 );
 		} else {
 
-			var displayPerfStatRow = function( res, r ) {
-				for ( var j = 0; j < types.length; j++ ) {
-					var type = types[ j ];
-					res.write( '<td>' + displayPerfStat( type, r[ type ] ) + '</td>' );
+			var makePerfStatRow = function(row) {
+				var result = [pageTitleData(row)];
+				for (var j = 0; j < types.length; j++) {
+					var type = types[j];
+					var rowData = row[type] === null ? '' :
+						{type: type, value: row[type]};
+					result.push(rowData);
 				}
+				return result;
 			};
 
 			// Create the query to retrieve the stats per page
-			var perfStatsHeader = '';
+			var perfStatsHeader = ['Title'];
 			var dbStmt = dbLastPerfStatsStart;
 			for( var t = 0; t < types.length; t++ ) {
 				if ( t !== 0 ) {
@@ -1258,17 +1260,25 @@ var GET_perfStats = function( req, res ) {
 				}
 				dbStmt += "SUM( IF( TYPE='" + types[ t ] +
 					"', value, NULL ) ) AS '" + types[ t ] + "'";
-				perfStatsHeader += '<th><a href="/perfstats?orderby=' +
-					types[ t ] + '">' +
-					types[ t ] + '</th>';
+				perfStatsHeader.push({
+					url: '/perfstats?orderby=' + types[t],
+					name: types[t]
+				});
 			}
 			dbStmt += dbLastPerfStatsEnd;
 			dbStmt += 'ORDER BY ' + orderBy;
 			dbStmt += ' LIMIT 40 OFFSET ' + offset.toString();
 
+			var data = {
+				page: page,
+				urlPrefix: '/perfstats',
+				urlSuffix: urlSuffix,
+				heading: 'Performance stats',
+				header: perfStatsHeader
+			};
+
 			db.query( dbStmt, null,
-				displayPageList.bind( null, res, "/perfstats", urlSuffix, page,
-				"Performance stats", perfStatsHeader, displayPerfStatRow ) );
+				displayPageList.bind( null, res, data, makePerfStatRow ) );
 		}
 	} );
 };
@@ -1346,6 +1356,9 @@ app.configure(function(){
 	app.set('view engine', 'html');
 	app.register('html', require('hbs'));
 });
+
+// Declare static directory
+app.use("/static", express.static(__dirname + "/static"));
 
 // Make the coordinator app
 var coordApp = express.createServer();
