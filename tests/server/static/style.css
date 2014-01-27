@@ -1,0 +1,24 @@
+.results th {
+	padding: 0 10px;
+}
+
+.results td {
+	text-align: center;
+}
+
+.results td.title {
+	text-align: left;
+	padding-left: 0.4em;
+}
+
+.results tr[status='perfect'] td.title {
+	border-left: 5px solid green;
+}
+
+.results tr[status='skip'] td.title {
+	border-left: 5px solid orange;
+}
+
+.results tr[status='fail'] td.title { /* has fails and/or errors */
+	border-left: 5px solid red;
+}

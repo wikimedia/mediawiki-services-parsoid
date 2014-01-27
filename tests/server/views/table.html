@@ -1,0 +1,57 @@
+<b>
+	{{heading}}
+	{{#if headingLink}}
+		| <a href='{{headingLink.url}}'>{{headingLink.name}}</a>
+	{{/if}}
+</b>
+
+<p>
+	{{#if prev}}
+		<a href={{prevUrl urlPrefix urlSuffix page}}>Previous</a> |
+	{{else}}
+		Previous |
+	{{/if}}
+	{{#if next}}
+		<a href={{nextUrl urlPrefix urlSuffix page}}>Next</a>
+	{{/if}}
+</p>
+
+<table class='results'>
+	<tbody>
+		<tr>
+			{{#each header}}
+				<th><b>
+					{{#if url}}
+						<a href='{{url}}'>{{name}}</a>
+					{{else}}
+						{{this}}
+					{{/if}}
+				</b></th>
+			{{/each}}
+		</tr>
+		{{#each row}}
+			<tr {{#if status}}status='{{status}}'{{/if}}>
+				{{#each tableData}}
+					{{#if title}}
+						<td class='title'>
+							<a href='{{titleUrl}}'>{{title}}</a> |
+							<a target='_blank' href='{{lh}}'>@lh</a> |
+							<a target='_blank' href='{{latest}}'>latest result</a> |
+							<a href='{{perf}}'>perf</a>
+						</td>
+					{{else}}
+						{{#if url}}
+							<td><a href='{{url}}'>{{name}}</a></td>
+						{{else}}
+							{{#if type}}
+								<td><span title='{{value}}'>{{formatPerfStat type value}}</span></td>
+							{{else}}
+								<td>{{this}}</td>
+							{{/if}}
+						{{/if}}
+					{{/if}}
+				{{/each}}
+			</tr>
+		{{/each}}
+	</tbody>
+</table>
