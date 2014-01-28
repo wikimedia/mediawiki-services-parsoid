@@ -1164,33 +1164,29 @@ var GET_commits = function( req, res ) {
 			console.error( err );
 			res.send( err.toString(), 500 );
 		} else {
-			var n = rows.length;
-			res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
 			res.status( 200 );
-			res.write( '<html><body>' );
-			res.write('<h1> List of all commits </h1>');
-			res.write('<table><tbody>');
-			res.write('<tr><th>Commit hash</th><th>Timestamp</th>' +
-				  //'<th>Regressions</th><th>Fixes</th>' +
-				  '<th>Tests</th>' +
-				  '<th>-</th><th>+</th></tr>');
+			var n = rows.length;
+			var tableRows = [];
 			for (var i = 0; i < n; i++) {
-				var r = rows[i];
-				res.write('<tr><td>' + r.hash + '</td><td>' + r.timestamp + '</td>');
-				//res.write('<td>' + r.numregressions + '</td>');
-				//res.write('<td>' + r.numfixes + '</td>');
-				res.write('<td>' + r.numtests + '</td>');
+				var row = rows[i];
+				var tableRow = [row.hash, row.timestamp, row.numtests];
 				if ( i + 1 < n ) {
-					res.write('<td><a href="/regressions/between/' + rows[i+1].hash +
-						'/' + r.hash + '"><b>-</b></a></td>' );
-					res.write('<td><a href="/topfixes/between/' + rows[i+1].hash +
-						'/' + r.hash + '"><b>+</b></a></td>' );
-				} else {
-					res.write('<td></td><td></td>');
+					tableRow.push({
+						url: '/regressions/between/' + rows[i+1].hash + '/' + row.hash,
+						name: '-'},
+						{url: '/topfixes/between/' + rows[i+1].hash + '/' + row.hash,
+						name: '+'
+					});
 				}
-				res.write('</tr>');
+				tableRows.push(tableRow);
 			}
-			res.end('</table></body></html>' );
+			var data = {
+				heading: 'List of all commits',
+				header: ['Commit hash', 'Timestamp', 'Tests', '-', '+'],
+				row: tableRows
+			};
+
+			res.render('commits.html', data);
 		}
 	} );
 };
