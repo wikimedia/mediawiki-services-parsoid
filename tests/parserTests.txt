@@ -7520,6 +7520,16 @@ hi+world%3F%21
 </p>
 !! end
 
+!! test
+Magic Word: prioritize type info over data-parsoid
+!! options
+parsoid=html2wt
+!! input
+__FORCETOC__
+!! result
+<meta property="mw:PageProp/forcetoc" data-parsoid='{"src":"__NOTOC__","magicSrc":"__NOTOC__","dsr":[0,9,null,null]}'/>
+!! end
+
 ###
 ### Magic links
 ###
