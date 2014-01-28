@@ -9954,7 +9954,28 @@ parsoid=wt2html
 !! end
 
 !! test
-Image with attributes from template (php)
+1. Image with individual attributes from templates
+!! options
+parsoid
+!! input
+[[File:Foobar.jpg|thumb|{{echo|137px}}|This is a caption]]
+!! result
+<figure typeof="mw:Image/Thumb mw:ExpandedAttrs" data-mw='{"attribs":[["thumbnail",{"html":"thumb"}],["width",{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;137px&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\" data-parsoid=\"{&amp;quot;dsr&amp;quot;:[24,38,null,null],&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]]}\">137px&lt;/span>"}]]}'><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="16" width="137"/></a><figcaption>This is a caption</figcaption></figure>
+!! end
+
+!! test
+2. Image with individual attributes from templates
+!! options
+parsoid
+!! input
+[[File:Foobar.jpg|{{echo|thumb}}|{{echo|137px}}|This is a caption]]
+!! result
+<figure typeof="mw:Image/Thumb mw:ExpandedAttrs" data-mw='{"attribs":[["thumbnail",{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;thumb&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\" data-parsoid=\"{&amp;quot;dsr&amp;quot;:[18,32,null,null],&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]]}\">thumb&lt;/span>"}],["width",{"html":"&lt;span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;137px&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\" data-parsoid=\"{&amp;quot;dsr&amp;quot;:[33,47,null,null],&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]]}\">137px&lt;/span>"}]]}'><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="16" width="137"/></a><figcaption>This is a caption</figcaption></figure>
+!! end
+
+
+!! test
+Image with multiple attributes from the same template (php)
 !! options
 php
 !! input
@@ -9964,14 +9985,16 @@ php
 
 !! end
 
+## Parsoid does not provide editing support for images where templates produce multiple image attributes.
+## To signal this, we add a 'mw:Placeholder' type to such images. This could change in the future.
 !! test
-Image with attributes from template (parsoid)
+Image with multiple attributes from the same template (parsoid)
 !! options
 parsoid
 !! input
 [[File:Foobar.jpg|{{image_attribs}}]]
 !! result
-<figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a><figcaption>Caption text</figcaption></figure>
+<figure class="mw-default-size mw-halign-right" typeof="mw:Image mw:Placeholder"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a><figcaption>Caption text</figcaption></figure>
 !! end
 
 !! test
