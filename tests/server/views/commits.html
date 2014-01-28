@@ -1,0 +1,23 @@
+<h1>{{heading}}</h1>
+<table>
+	<tbody>
+		<tr>
+			{{#each header}}
+				<th>{{this}}</th>
+			{{/each}}
+		</tr>
+		{{#each row}}
+			<tr>
+				{{#each this}}
+					<td>
+						{{#if url}}
+							<a href='{{url}}'><b>{{name}}</b></a>
+						{{else}}
+							{{this}}
+						{{/if}}
+					</td>
+				{{/each}}
+			</tr>
+		{{/each}}
+	</tbody>
+</table>
