@@ -715,29 +715,6 @@ var pageListData = [
 	{ url: '/perfstats', title: 'Performance stats of last commit' }
 ];
 
-var displayPerfStat = function( type, value ) {
-	// Protect against not-present perfstats, i.e. when adding new ones.
-	if ( value === null ) {
-		return '';
-	}
-
-	var text = '<span title="' + value.toString() + '">';
-	if ( type.match( /^time/ ) ) {
-		// Show time in seconds
-		value = Math.round( (value / 1000) * 100 ) / 100;
-		text += value.toString() + "s";
-	} else if ( type.match( /^size/ ) ) {
-		// Show sizes in KiB
-		value = Math.round( value / 1024 );
-		text += value.toString() + "KiB";
-	} else {
-		// Other values go as they are
-		text += value.toString();
-	}
-	text += '</span>';
-	return text;
-};
-
 hbs.registerHelper('formatPerfStat', function (type, value) {
 	if ( type.match( /^time/ ) ) {
 		// Show time in seconds
@@ -797,6 +774,7 @@ var displayPageList = function(res, data, makeRow, err, rows){
 		}
 
 		var tableData = data;
+		tableData.paginate = true;
 		tableData.row = tableRows;
 		tableData.prev = data.page > 0;
 		tableData.next = rows.length === 40;
@@ -1241,7 +1219,7 @@ var GET_perfStats = function( req, res ) {
 				for (var j = 0; j < types.length; j++) {
 					var type = types[j];
 					var rowData = row[type] === null ? '' :
-						{type: type, value: row[type]};
+						{type: type, value: row[type], info: row[type]};
 					result.push(rowData);
 				}
 				return result;
@@ -1310,34 +1288,34 @@ var GET_pagePerfStats = function( req, res ) {
 					res.send( "No performance results found for page.", 404 );
 				} else {
 					res.status( 200 );
-					res.write( '<html>') ;
-					res.write( '<head><style type="text/css">' );
-					res.write( 'th { padding: 0 10px }' );
-					res.write( 'td { text-align: center; }' );
-					res.write( 'td.title { text-align: left; padding-left: 0.4em; }' );
-					res.write( '</style></head>' );
-					res.write( '<body>' );
-					res.write( '<b>Performance results for ' + prefix + ':' + title + '</b><p/>' );
-					res.write( '<table><tr><th>Commit</th>' );
+					var tableHeaders = ['Commit'];
 					for ( t = 0; t < types.length; t++ ) {
-						res.write( '<th>' + types[t] + '</th>' );
+						tableHeaders.push(types[t]);
 					}
-					res.write( '</tr>' );
 
 					// Show the results in order of timestamp.
+					var tableRows = [];
 					for ( var r = rows.length - 1; r >= 0; r-- ) {
 						var row = rows[r];
-						res.write( '<tr><td class="title"><span title="' +
-							row.timestamp.toString() + '">' +
-							'<a href="/result/' + row.hash + '/' + prefix + '/' + title + '">' +
-							row.hash + '</a>' + '</span></td>' );
+						var tableRow = [{
+							url: '/result/' + row.hash + '/' + prefix + '/' + title,
+							name: row.hash,
+							info: row.timestamp.toString()
+						}];
 						for ( t = 0; t < types.length; t++ ) {
-							res.write( '<td>' + displayPerfStat( types[ t ], row[ types[ t ] ] ) + '</td>' );
+							var rowData = row[types[t]] === null ? '' :
+								{type: types[t], value: row[types[t]], info: row[types[t]]};
+							tableRow.push(rowData);
 						}
-						res.write( '</tr>' );
+						tableRows.push({tableData: tableRow});
 					}
 
-					res.end( '</table></body></html' );
+					var data = {
+						heading: 'Performance results for ' + prefix + ':' + title,
+						header: tableHeaders,
+						row: tableRows
+					};
+					res.render('table.html', data);
 				}
 			} );
 		}
