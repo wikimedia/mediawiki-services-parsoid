@@ -1,3 +1,35 @@
+/* Main stats page */
+
+.overview tr {
+	font-weight: bold
+}
+
+.overview td {
+	padding-left: 20px
+}
+
+.overview td + td {
+	text-align: right
+}
+
+#graph tr {
+	height: 60px;
+}
+
+#graph td[title='Perfect / no diffs'] {
+	background: green
+}
+
+#graph td[title='Syntactic diffs'] {
+	background: yellow
+}
+
+#graph td[title='Semantic diffs'] {
+	background: red
+}
+
+/* results table views */
+
 .results th {
 	padding: 0 10px;
 }
