@@ -1493,6 +1493,18 @@ xmlish_tag =
                         }
                     }
                 } else {
+                    // We accept unclosed references tags,
+                    // as does the PHP parser. They will normalize
+                    // to self-closed in a round trip.
+                    if ( tagName === 'references' ) {
+                        dp.src = input.substring(dp.tsr[0], dp.tsr[1]);
+                        dp.origInput = input;
+                        dp.extLikeTag = true;
+                        dp.isInstalledExt = isInstalledExt;
+                        dp.isIncludeTag = isIncludeTag;
+                        dp.tagWidths = [dp.tsr[1] - dp.tsr[0], 0];
+                        dp.skipLen = 0;
+                    }
                     return t;
                 }
 

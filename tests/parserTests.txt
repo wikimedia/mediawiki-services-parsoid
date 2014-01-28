@@ -17537,6 +17537,24 @@ B <span about="#mwt4" class="reference" data-mw='{"name":"ref","attrs":{"name":"
 </ol>
 !! end
 
+# This test is wt2html only because we're permitting the serializer to produce
+# dirty diffs, normalizing the unclosed references to the self-closed version.
+!! test
+Generate references for unclosed references tag
+!! options
+parsoid=wt2html
+!! input
+a<ref>foo</ref>
+
+<references>
+!! result
+<p data-parsoid='{}'>a<span about="#mwt2" class="reference" data-mw='{"name":"ref","body":{"html":"foo"},"attrs":{}}' id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref" data-parsoid='{"src":"&lt;ref>foo&lt;/ref>"}'><a href="#cite_note-1" data-parsoid="{}">[1]</a></span></p>
+
+
+<ol class="references" typeof="mw:Extension/references" about="#mwt4" data-parsoid='{"src":"&lt;references>"}' data-mw='{"name":"references","attrs":{}}'>
+<li about="#cite_note-1" id="cite_note-1" data-parsoid="{}"><span rel="mw:referencedBy" data-parsoid="{}"><a href="#cite_ref-1-0" data-parsoid="{}">↑</a></span> foo</li></ol>
+!! end
+
 #### ----------------------------------------------------------------
 #### The following section of tests are primarily to test
 #### wikitext escaping capabilities of Parsoid.  Given that
