@@ -1486,12 +1486,10 @@ add("html2wt", "Double interlanguage link, with prefix links (bug 8897)", "Blah 
 add("html2wt", "Parsoid-specific test: Wikilinks with &nbsp; should RT properly", "<a href=\"/index.php?title=WW_II&action=edit&redlink=1\" class=\"new\" title=\"WW II (lonkásá  ezalí tɛ̂)\">WW II</a>\n");
 add("html2wt", "Parsoid: recognize interlanguage links without a target page", "\n[[http://ko.wikipedia.org/wiki/]]\n");
 add("html2wt", "Parsoid: recognize interwiki links without a target page", "[[ko:]]\n");
-add("html2wt", "Simple redirect to page", "#REDIRECT [[./Main_Page]]");
-add("html2wt", "Redirect to image page (1)", "#REDIRECT [[./File:Wiki.png]]");
-add("html2wt", "Redirect to image page (2)", "#REDIRECT [[./File:Wiki.png]]");
+add("html2wt", "Redirect to image page (2)", "#REDIRECT [[File:Wiki.png]]");
 add("html2wt", "Redirect to language", "#REDIRECT [[File:Wiki.png]]");
 add("html2wt", "Redirect to interwiki", "#REDIRECT [[File:Wiki.png]]");
-add("html2wt", "Non-English #REDIRECT", "#tilvísun [[./Main_Page]]");
+add("html2wt", "Non-English #REDIRECT", "#tilvísun [[Main Page]]");
 add("html2wt", "<br> to <br />", "1\n2\n3\n");
 add("html2wt", "Incorrecly removing closing slashes from correctly formed XHTML", "\n");
 add("html2wt", "Failing to transform badly formed HTML into correct XHTML", "\n\n\n");
