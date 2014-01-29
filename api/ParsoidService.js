@@ -752,10 +752,17 @@ function ParsoidService(options) {
 	app.use( express.static( __dirname + '/scripts' ) );
 	app.use( express.limit( '15mb' ) );
 
+	// Get host and port from the environment, if available
+	var port = process.env.PARSOID_PORT || 8000;
+	var host = process.env.PARSOID_HOST;  // default bind all
 
 	// when running on appfog.com the listen port for the app
 	// is passed in an environment variable.  Most users can ignore this!
-	app.listen(process.env.VCAP_APP_PORT || 8000);
+	if ( process.env.VCAP_APP_PORT ) {
+		port = process.env.VCAP_APP_PORT;
+	}
+
+	app.listen( port, host );
 
 	console.log( ' - ' + instanceName + ' ready' );
 }
