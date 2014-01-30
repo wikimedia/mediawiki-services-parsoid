@@ -391,7 +391,7 @@ function ParsoidService(options) {
 		res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 		res.send( err.stack, err.code );
 
-		var location = 'ERROR in ' + res.locals.iwp + ':' + res.locals.pageName;
+		var location = 'ERROR in ' + res.local('iwp') + ':' + res.local('pageName');
 		if ( req.query && req.query.oldid ) {
 			 location += ' with oldid: ' + req.query.oldid;
 		}
@@ -408,19 +408,20 @@ function ParsoidService(options) {
 	app.use( errorHandler );
 
 	function defaultParams( req, res, next ) {
-		res.locals.iwp = parsoidConfig.defaultWiki || '';
-		res.locals.pageName = req.params[0];
+		res.local('iwp', parsoidConfig.defaultWiki || '');
+		res.local('pageName', req.params[0]);
 		next();
 	}
 
 	function interParams( req, res, next ) {
-		res.locals.iwp = req.params[0];
-		res.locals.pageName = req.params[1];
+		res.local('iwp', req.params[0]);
+		res.local('pageName', req.params[1]);
 		next();
 	}
 
 	function parserEnvMw( req, res, next ) {
-		MWParserEnvironment.getParserEnv( parsoidConfig, null, res.locals.iwp, res.locals.pageName, req.headers.cookie, function ( err, env ) {
+		MWParserEnvironment.getParserEnv( parsoidConfig, null, res.local('iwp'),
+			res.local('pageName'), req.headers.cookie, function ( err, env ) {
 			env.errCB = function ( e, dontRestart ) {
 				e = new EnvError(
 					e.message,
@@ -433,7 +434,7 @@ function ParsoidService(options) {
 			if ( err ) {
 				return env.errCB( err );
 			}
-			res.locals.env = env;
+			res.local('env', env);
 			next();
 		});
 	}
@@ -476,7 +477,7 @@ function ParsoidService(options) {
 	});
 
 	function action( res ) {
-		return [ "", res.locals.iwp, res.locals.pageName ].join( "/" );
+		return [ "", res.local('iwp'), res.local('pageName') ].join( "/" );
 	}
 
 	// Form-based HTML DOM -> wikitext interface for manual testing
@@ -497,7 +498,7 @@ function ParsoidService(options) {
 
 	// Round-trip article testing
 	app.get( new RegExp('/_rt/(' + getInterwikiRE() + ')/(.*)'), interParams, parserEnvMw, function(req, res) {
-		var env = res.locals.env;
+		var env = res.local('env');
 		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
 		req.connection.setTimeout(300 * 1000);
@@ -514,7 +515,7 @@ function ParsoidService(options) {
 	// Round-trip article testing with newline stripping for editor-created HTML
 	// simulation
 	app.get( new RegExp('/_rtve/(' + getInterwikiRE() + ')/(.*)'), interParams, parserEnvMw, function(req, res) {
-		var env = res.locals.env;
+		var env = res.local('env');
 		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
 		console.log('starting parsing of ' + target);
@@ -535,7 +536,7 @@ function ParsoidService(options) {
 
 	// Round-trip article testing with selser over re-parsed HTML.
 	app.get( new RegExp('/_rtselser/(' + getInterwikiRE() + ')/(.*)'), interParams, parserEnvMw, function (req, res) {
-		var env = res.locals.env;
+		var env = res.local('env');
 		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
 		console.log( 'starting parsing of ' + target );
@@ -556,12 +557,12 @@ function ParsoidService(options) {
 	app.get(/\/_rtform\/(.*)/, defaultParams, parserEnvMw, function ( req, res ) {
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 		res.write( "Your wikitext:" );
-		textarea( res, "/_rtform/" + res.locals.pageName , "content" );
+		textarea( res, "/_rtform/" + res.local('pageName') , "content" );
 		res.end();
 	});
 
 	app.post(/\/_rtform\/(.*)/, defaultParams, parserEnvMw, function ( req, res ) {
-		var env = res.locals.env;
+		var env = res.local('env');
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 		// we don't care about \r, and normalize everything to \n
 		parse( env, req, res, roundTripDiff.bind( null, false ), null, {
@@ -570,8 +571,7 @@ function ParsoidService(options) {
 	});
 
 	function html2wt( req, res, html ) {
-		var env = res.locals.env;
-		res.locals.env = {};
+		var env = res.local('env');
 		env.page.id = req.body.oldid || null;
 
 		var html2wtCb = function () {
@@ -595,7 +595,6 @@ function ParsoidService(options) {
 						res.setHeader( 'Content-Type', 'text/x-mediawiki; charset=UTF-8' );
 						res.setHeader( 'X-Parsoid-Performance', env.getPerformanceHeader() );
 						res.end( out.join( '' ) );
-						res.locals = {};
 					} );
 			} catch ( e ) {
 				env.errCB( e );
@@ -620,9 +619,8 @@ function ParsoidService(options) {
 	}
 
 	function wt2html( req, res, wt ) {
-		var env = res.locals.env;
-		res.locals.env = {};
-		var prefix = res.locals.iwp;
+		var env = res.local('env');
+		var prefix = res.local('iwp');
 		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
 		// Set the timeout to 600 seconds..
@@ -643,7 +641,7 @@ function ParsoidService(options) {
 			wt = wt.replace( /\r/g, '' );
 
 			// clear default page name
-			if ( !res.locals.pageName ) {
+			if ( !res.local('pageName') ) {
 				env.page.name = '';
 			}
 
@@ -673,7 +671,7 @@ function ParsoidService(options) {
 				}
 			};
 
-			if ( !res.locals.pageName || !oldid ) {
+			if ( !res.local('pageName') || !oldid ) {
 				// no pageName supplied; don't fetch the page source
 				tmpCb( null, wt );
 				return;
@@ -728,13 +726,6 @@ function ParsoidService(options) {
 
 	// Regular article parsing
 	app.get( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), interParams, parserEnvMw, function(req, res) {
-		// TODO gwicke: re-enable this when actually using Varnish
-		//if (/only-if-cached/.test(req.headers['cache-control'])) {
-		//	res.send( 'Clearly not cached since this request reached Parsoid. Please fix Varnish.',
-		//		404 );
-		//	return;
-		//}
-
 		wt2html( req, res );
 	});
 
