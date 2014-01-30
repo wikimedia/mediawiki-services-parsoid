@@ -883,12 +883,12 @@ isbn
   = 'ISBN' space_or_newline+
     head:[0-9]
     digits:(d:( c:[- ] &[0-9] { return c; } / [0-9] ) { return d; } )+
-    tail:'X'?
+    tail:('-X')?
     end_of_word
 {
     // TODO: round-trip non-decimals too!
     var isbn = [head, digits.join(''), tail].join(''),
-        isbncode = isbn.replace(/[^\d]/g, '');
+        isbncode = isbn.replace(/[^\dX]/g, '');
 
     // ISBNs can only be 10 or 13 chars long
     if ([10, 13].indexOf(isbncode.length) === -1) {

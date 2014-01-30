@@ -14630,6 +14630,15 @@ ISBN ISBN 1234567890
 !! end
 
 !! test
+ISBN with an X
+!! input
+ISBN 3-462-04561-X
+!! result
+<p><a href="/wiki/Special:BookSources/346204561X" class="internal mw-magiclink-isbn">ISBN 3-462-04561-X</a>
+</p>
+!! end
+
+!! test
 Bug 22905: <abbr> followed by ISBN followed by </a>
 !! input
 <abbr>(fr)</abbr> ISBN 2753300917 [http://www.example.com example.com]

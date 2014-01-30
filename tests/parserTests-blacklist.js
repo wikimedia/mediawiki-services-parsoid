@@ -1083,6 +1083,7 @@ add("html2html", "Gallery (with namespace-less filenames)", "\t\t* <div style=\"
 add("html2html", "__FORCETOC__ override", "\n");
 add("html2html", "ISBN code coverage", "<p data-parsoid='{\"dsr\":[0,61,0,0]}'>[/wiki/Special:BookSources/9780123456 <a href=\"./Special:BookSources/9780123456\" rel=\"mw:ExtLink\" data-parsoid='{\"stx\":\"protocol\",\"dsr\":[38,56,0,0]}'>ISBN 978-0-1234-56</a>] 789</p>\n");
 add("html2html", "Double ISBN", "<p data-parsoid='{\"dsr\":[0,59,0,0]}'>ISBN [/wiki/Special:BookSources/1234567890 <a href=\"./Special:BookSources/1234567890\" rel=\"mw:ExtLink\" data-parsoid='{\"stx\":\"protocol\",\"dsr\":[43,58,0,0]}'>ISBN 1234567890</a>]</p>\n");
+add("html2html", "ISBN with an X", "<p data-parsoid='{\"dsr\":[0,57,0,0]}'>[/wiki/Special:BookSources/346204561X <a href=\"./Special:BookSources/346204561X\" rel=\"mw:ExtLink\" data-parsoid='{\"stx\":\"protocol\",\"dsr\":[38,56,0,0]}'>ISBN 3-462-04561-X</a>]</p>\n");
 add("html2html", "Bug 22905: <abbr> followed by ISBN followed by </a>", "<p data-parsoid='{\"dsr\":[0,109,0,0]}'><abbr data-parsoid='{\"stx\":\"html\",\"dsr\":[0,17,6,7]}'>(fr)</abbr> [/wiki/Special:BookSources/2753300917 <a href=\"./Special:BookSources/2753300917\" rel=\"mw:ExtLink\" data-parsoid='{\"stx\":\"protocol\",\"dsr\":[56,71,0,0]}'>ISBN 2753300917</a>] <a rel=\"mw:ExtLink\" href=\"http://www.example.com\" data-parsoid='{\"targetOff\":97,\"contentOffsets\":[97,108],\"dsr\":[73,109,24,1]}'>example.com</a></p>\n");
 add("html2html", "Double RFC with a wiki link", "<p data-parsoid='{\"dsr\":[0,142,0,0]}'>RFC &lt;a href=\"/index.php?title=RFC_1234&amp;action=edit&amp;redlink=1\" class=\"new\" title=\"RFC 1234 (page does not exist)\"><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[113,138,8,9]}'>RFC 1234</span>&lt;/a></p>\n");
 add("html2html", "Centre-aligned image", "<div class=\"center\" data-parsoid='{\"stx\":\"html\",\"dsr\":[0,79,20,6]}'><div class=\"floatnone\" data-parsoid='{\"stx\":\"html\",\"dsr\":[20,73,23,6]}'>[/wiki/File:Foobar.jpg ]</div></div>\n");
@@ -1982,6 +1983,7 @@ add("html2wt", "HTML Hex character encoding mixed case", "îî\n");
 add("html2wt", "__FORCETOC__ override", "\n");
 add("html2wt", "ISBN code coverage", "[/wiki/Special:BookSources/9780123456 ISBN 978-0-1234-56] 789\n");
 add("html2wt", "Double ISBN", "ISBN [/wiki/Special:BookSources/1234567890 ISBN 1234567890]\n");
+add("html2wt", "ISBN with an X", "[/wiki/Special:BookSources/346204561X ISBN 3-462-04561-X]\n");
 add("html2wt", "Bug 22905: <abbr> followed by ISBN followed by </a>", "<abbr>(fr)</abbr> [/wiki/Special:BookSources/2753300917 ISBN 2753300917] [http://www.example.com example.com]\n");
 add("html2wt", "Double RFC", "RFC [//tools.ietf.org/html/rfc1234 RFC 1234]\n");
 add("html2wt", "Double RFC with a wiki link", "RFC <a href=\"/index.php?title=RFC_1234&action=edit&redlink=1\" class=\"new\" title=\"RFC 1234 (page does not exist)\"><nowiki>RFC 1234</nowiki></a>\n");
