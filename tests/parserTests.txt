@@ -7537,7 +7537,18 @@ parsoid=html2wt
 !! input
 __FORCETOC__
 !! result
-<meta property="mw:PageProp/forcetoc" data-parsoid='{"src":"__NOTOC__","magicSrc":"__NOTOC__","dsr":[0,9,null,null]}'/>
+<meta property="mw:PageProp/forcetoc" data-parsoid='{"src":"__NOTOC__","magicSrc":"__NOTOC__"}'/>
+!! end
+
+!! test
+Magic Word: rt non-english wikis
+!! options
+parsoid=wt2wt
+language=de
+!! input
+__NOEDITSECTION__
+!! result
+<meta property="mw:PageProp/noeditsection" data-parsoid='{"src":"__NOEDITSECTION__","magicSrc":"__NOEDITSECTION__"}'/>
 !! end
 
 ###
