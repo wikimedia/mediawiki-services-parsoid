@@ -2232,6 +2232,23 @@ foo
 !!end
 
 !!test
+Render paragraphs when indent-pre is suppressed in blocklevels
+!!input
+<blockquote>
+ foo
+
+ bar
+</blockquote>
+!! result
+<blockquote>
+<p> foo
+</p><p> bar
+</p>
+</blockquote>
+
+!!end
+
+!!test
 4. Multiple spaces at start-of-line
 !!input
     <p> foo </p>
