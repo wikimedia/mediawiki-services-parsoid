@@ -25,7 +25,8 @@ var startParsoidServer = function ( cb, port ) {
 			'--config', path.resolve( __dirname, './test.localsettings.js' ) ],
 		{ env:
 			{
-				VCAP_APP_PORT: port,
+				PARSOID_PORT: port,
+				PARSOID_HOST: "localhost",
 				NODE_PATH: process.env.NODE_PATH
 			}
 		} );
