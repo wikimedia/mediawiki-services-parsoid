@@ -26,7 +26,7 @@ var startParsoidServer = function ( cb, port ) {
 		{ env:
 			{
 				PARSOID_PORT: port,
-				PARSOID_HOST: "localhost",
+				PARSOID_INTERFACE: "localhost",
 				NODE_PATH: process.env.NODE_PATH
 			}
 		} );

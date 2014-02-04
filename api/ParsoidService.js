@@ -745,7 +745,7 @@ function ParsoidService(options) {
 
 	// Get host and port from the environment, if available
 	var port = process.env.PARSOID_PORT || 8000;
-	var host = process.env.PARSOID_HOST;  // default bind all
+	var host = process.env.PARSOID_INTERFACE;  // default bind all
 
 	// when running on appfog.com the listen port for the app
 	// is passed in an environment variable.  Most users can ignore this!
