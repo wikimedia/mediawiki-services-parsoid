@@ -663,12 +663,6 @@ br = s:optionalSpaceToken &newline {
  */
 inline_breaks
   = & [=|!}{:\r\n\]<]
-    //& {
-    //    // Important hack: disable caching for this production, as the default
-    //    // cache key does not take into account flag states!
-    //    cacheKey += 'foo';
-    //    return true;
-    //}
     & {
         //console.warn('ilbf: ' + input.substr(pos, 5) );
         //if ( null !== pegArgs.parser.inline_breaks( input, pos, stops ) ) {
