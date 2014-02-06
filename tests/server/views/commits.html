@@ -2,22 +2,22 @@
 <table>
 	<tbody>
 		<tr>
-			{{#each header}}
+			{{~#each header~}}
 				<th>{{this}}</th>
-			{{/each}}
+			{{~/each~}}
 		</tr>
-		{{#each row}}
+		{{~#each row~}}
 			<tr>
-				{{#each this}}
+				{{~#each this~}}
 					<td>
-						{{#if url}}
+						{{~#if url~}}
 							<a href='{{url}}'><b>{{name}}</b></a>
-						{{else}}
+						{{~else~}}
 							{{this}}
-						{{/if}}
+						{{~/if~}}
 					</td>
-				{{/each}}
+				{{~/each~}}
 			</tr>
-		{{/each}}
+		{{~/each~}}
 	</tbody>
 </table>

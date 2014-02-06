@@ -4,7 +4,7 @@
 
 var express = require( 'express' ),
 	optimist = require( 'optimist' ),
-	hbs = require( 'hbs' );
+	hbs = require( 'handlebars' );
 
 // Default options
 var defaults = {
@@ -1327,8 +1327,8 @@ var app = express.createServer();
 
 // Configure for Handlebars
 app.configure(function(){
-	app.set('view engine', 'html');
-	app.register('html', require('hbs'));
+	app.set('view engine', 'handlebars');
+	app.register('.html', require('handlebars'));
 });
 
 // Declare static directory

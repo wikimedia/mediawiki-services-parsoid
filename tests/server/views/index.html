@@ -6,7 +6,6 @@
 	</li><b>{{results.syntacticDiffs}}%</b> round-tripped without semantic differences, and</li>
 	<li><b>{{results.perfects}}%</b> round-tripped with no character differences at all.</li>
 </ul>
-<p></p>
 
 <table id='graph'>
 	<tbody>
@@ -20,55 +19,57 @@
 
 <p>
 	Latest revision:
-	<table class='overview'>
-		<tbody>
-		{{#each latestRevision}}
-		<tr>
-			<td>
-				{{description}}
-				{{#if ../prefix}}
-					({{../../prefix}})
-				{{/if}}
-			</td>
-			<td>
-			{{#if url}}
-				<a href='{{url}}'>
-			{{/if}}
-			{{round value}}
-			{{#if url}}
-				</a>
-			{{/if}}
-			</td>
-		</tr>
-		{{/each}}
-		</tbody>
-	</table>
 </p>
+<table class='overview'>
+	<tbody>
+	{{~#each latestRevision~}}
+	<tr>
+		<td>
+			{{~description~}}
+			{{~#if ../prefix~}}
+				({{../../prefix}})
+			{{~/if~}}
+		</td>
+		<td>
+		{{~#if url~}}
+			<a href='{{url}}'>
+		{{~/if~}}
+		{{round value}}
+		{{~#if url~}}
+			</a>
+		{{~/if~}}
+		</td>
+	</tr>
+	{{~/each~}}
+	</tbody>
+</table>
+
 
 <p>
 	Averages (over the latest results):
-	<table class='overview'>
-		<tbody>
-			{{#each averages}}
-			<tr>
-				<td>
-					{{description}}
-					{{#if ../prefix}}
-						({{../../prefix}})
-					{{/if}}
-				</td>
-				<td>{{round value}}</td>
-	  		</tr>
-			{{/each}}
-		</tbody>
-	</table>
 </p>
+<table class='overview'>
+	<tbody>
+		{{~#each averages~}}
+		<tr>
+			<td>
+				{{~description~}}
+				{{~#if ../prefix~}}
+					({{../../prefix}})
+				{{~/if~}}
+			</td>
+			<td>{{round value}}</td>
+		</tr>
+		{{~/each~}}
+	</tbody>
+</table>
+
 
 <p>More details:</p>
 <ul>
-	{{#each pages}}
+	{{~#each pages~}}
 		<li>
 			<a href="{{url}}">{{title}}</a>
 		</li>
-	{{/each}}
+	{{~/each~}}
 </ul>

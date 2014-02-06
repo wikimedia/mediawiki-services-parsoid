@@ -1,15 +1,15 @@
-{{#if alt}}
+{{~#if alt~}}
 	<h1>{{heading}}</h1>
-{{else}}
+{{~else~}}
 	<h1>{{heading}}</h1>
 	<ul>
-		{{#each items}}
+		{{~#each items~}}
 			<li>
-				{{#if description}}
+				{{~#if description~}}
 					{{description}}:
-				{{/if}}
+				{{~/if~}}
 				<a href='{{formatUrl url}}'>{{linkName}}</a>
 			</li>
-		{{/each}}
+		{{~/each~}}
 	</ul>
-{{/if}}
+{{~/if~}}

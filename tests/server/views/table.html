@@ -1,63 +1,67 @@
 <b>
 	{{heading}}
-	{{#if headingLink}}
+	{{~#if headingLink~}}
 		| <a href='{{headingLink.url}}'>{{headingLink.name}}</a>
-	{{/if}}
+	{{~/if~}}
 </b>
 
-{{#if paginate}}
+{{~#if paginate~}}
 	<p>
-		{{#if prev}}
+		{{~#if prev~}}
 			<a href={{prevUrl urlPrefix urlSuffix page}}>Previous</a> |
-		{{else}}
+		{{~else~}}
 			Previous |
-		{{/if}}
-		{{#if next}}
+		{{~/if~}}
+		{{~#if next~}}
 			<a href={{nextUrl urlPrefix urlSuffix page}}>Next</a>
-		{{/if}}
+		{{~/if~}}
 	</p>
-{{/if}}
+{{~/if~}}
 
 <p>
 	<table class='results'>
 		<tbody>
 			<tr>
-				{{#each header}}
+				{{~#each header~}}
 					<th><b>
-						{{#if url}}
+						{{~#if url~}}
 							<a href='{{url}}'>{{name}}</a>
-						{{else}}
+						{{~else~}}
 							{{this}}
-						{{/if}}
+						{{~/if~}}
 					</b></th>
-				{{/each}}
+				{{~/each~}}
 			</tr>
-			{{#each row}}
+			{{~#each row~}}
 				<tr {{#if status}}status='{{status}}'{{/if}}>
-					{{#each tableData}}
+					{{~#each tableData~}}
 						<td {{#unless @index}}class='title'{{/unless}}>
-							{{#if info}}<span title='{{info}}'>{{/if}}
-								{{#if title}}
-									<a href='{{titleUrl}}'>{{title}}</a> |
-									<a target='_blank' href='{{lh}}'>@lh</a> |
-									<a target='_blank' href='{{latest}}'>latest result</a> |
-									<a href='{{perf}}'>perf</a>
-								{{else}}
-									{{#if url}}
-										<a href='{{url}}'>{{name}}</a>
-									{{else}}
-										{{#if type}}
-											{{formatPerfStat type value}}
-										{{else}}
-											{{this}}
-										{{/if}}
-									{{/if}}
-								{{/if}}
-							{{#if info}}</span>{{/if}}
+							{{~#if info~}}
+								<span title='{{info}}'>
+							{{~/if~}}
+							{{~#if title~}}
+								<a href='{{titleUrl}}'>{{title}}</a> |
+								<a target='_blank' href='{{lh}}'>@lh</a> |
+								<a target='_blank' href='{{latest}}'>latest result</a> |
+								<a href='{{perf}}'>perf</a>
+							{{~else~}}
+								{{~#if url~}}
+									<a href='{{url}}'>{{name}}</a>
+								{{~else~}}
+									{{~#if type~}}
+										{{formatPerfStat type value}}
+									{{~else~}}
+										{{this}}
+									{{~/if~}}
+								{{~/if~}}
+							{{~/if~}}
+							{{~#if info~}}
+								</span>
+							{{~/if~}}
 						</td>
-					{{/each}}
+					{{~/each~}}
 				</tr>
-			{{/each}}
+			{{~/each~}}
 		</tbody>
 	</table>
 </p>
