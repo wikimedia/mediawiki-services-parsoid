@@ -388,8 +388,13 @@ function ParsoidService(options) {
 			return next( err );
 		}
 
-		res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
-		res.send( err.stack, err.code );
+		if ( err.restart ) {
+			// Force a clean restart of this worker
+			// after response is sent
+			res.on('finish', function () {
+				process.exit( 1 );
+			});
+		}
 
 		var location = 'ERROR in ' + res.local('iwp') + ':' + res.local('pageName');
 		if ( req.query && req.query.oldid ) {
@@ -399,10 +404,8 @@ function ParsoidService(options) {
 		console.error( location );
 		console.error( 'Stack trace: ' + err.stack );
 
-		if ( err.restart ) {
-			// Force a clean restart of this worker
-			process.exit( 1 );
-		}
+		res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
+		res.send( err.stack, err.code );
 	}
 
 	app.use( errorHandler );
