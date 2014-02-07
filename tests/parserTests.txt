@@ -7581,6 +7581,18 @@ __FORCETOC__
 !! end
 
 !! test
+Magic Word: serialize on separate line (parsoid)
+!! options
+parsoid=wt2wt,html2wt
+!! input
+foo
+__NOTOC__
+bar
+!! result
+foo<meta property="mw:PageProp/notoc"/>bar
+!! end
+
+!! test
 Magic Word: rt non-english wikis
 !! options
 parsoid=wt2wt
