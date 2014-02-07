@@ -5625,6 +5625,16 @@ language=kaa
 </p>
 !! end
 
+!! test
+Interaction of linktrail and template encapsulation
+!! options
+parsoid
+!! input
+{{echo|[[Foo]]}}l
+!! result
+<p><a rel="mw:WikiLink" href="Foo" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[Foo]]"}},"i":0}},"l"]}'>Fool</a></p>
+!! end
+
 !! article
 Söfnuður
 !! text
