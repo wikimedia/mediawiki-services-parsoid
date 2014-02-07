@@ -19765,6 +19765,16 @@ parsoid=html2wt
 <a href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract" rel="mw:ExtLink">New PMID</a>
 !! end
 
+!! test
+Edited Redirect link should emit a non-piped wikitext link
+!! options
+parsoid=html2wt
+!! input
+#REDIRECT [[Bar]]
+!! result
+<link rel="mw:PageProp/redirect" href="Bar" data-parsoid='{"src":"#REDIRECT ","a":{"href":"./Foo"},"sa":{"href":"Foo"}}'>
+!! end
+
 # -----------------------------------------------------------------
 # End of section for Parsoid-only html2wt tests for serialization
 # of new content
