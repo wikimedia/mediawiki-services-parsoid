@@ -1159,7 +1159,7 @@ wikilink
     ! url
     //target:link_target
     // XXX: disallow pipe!
-    target:wikilink_preprocessor_text
+    target:wikilink_preprocessor_text?
     tpos:({return pos;})
     lcontent:wikilink_content?
     "]]"
@@ -1168,6 +1168,12 @@ wikilink
           lcontent = { content: [] };
       }
       //console.warn('lcontent: ' + JSON.stringify( lcontent, null, 2 ) );
+
+      if ( target === '' ){
+        var src = input.substring(pos0, pos);
+        return [src];
+      }
+
 
       var obj = new SelfclosingTagTk( 'wikilink' ),
           textTokens = [],
