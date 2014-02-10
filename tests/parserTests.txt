@@ -5931,13 +5931,26 @@ parsoid
 ### Redirects, Parsoid-only
 ###
 !! test
-Simple redirect to page
+1. Simple redirect to page
 !! options
 parsoid
 !! input
 #REDIRECT [[Main Page]]
 !! result
 <link rel="mw:PageProp/redirect" href="./Main_Page">
+!! end
+
+# Only wt2html and html2html since "Main_Page" will serialize to "Main Page"
+!! test
+2. Other redirect variants
+!! options
+parsoid=wt2html,wt2wt
+!! input
+#REDIRECT [[Main_Page]]
+#REDIRECT [[<nowiki>[[Bar]]</nowiki>]]
+!! result
+<link rel="mw:PageProp/redirect" href="./Main_Page">
+<link rel="mw:PageProp/redirect" href="./%5B%5BBar%5D%5D">
 !! end
 
 !! test
