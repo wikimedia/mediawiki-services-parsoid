@@ -114,11 +114,16 @@ var getGitCommit = function( cb ) {
 		lastCommitCheck = now;
 		exec( 'git log --max-count=1 --pretty=format:"%H %ci"', { cwd: repoPath }, function ( err, data ) {
 			var cobj = data.match( /^([^ ]+) (.*)$/ );
-			lastCommit = cobj[1];
-			// convert the timestamp to UTC
-			lastCommitTime = new Date(cobj[2]).toISOString();
-			//console.log( 'New commit: ', cobj[1], lastCommitTime );
-			cb( cobj[1], lastCommitTime );
+			if (!cobj) {
+				console.log("Error, couldn't find the current commit");
+				cb(null, null);
+			} else {
+				lastCommit = cobj[1];
+				// convert the timestamp to UTC
+				lastCommitTime = new Date(cobj[2]).toISOString();
+				//console.log( 'New commit: ', cobj[1], lastCommitTime );
+				cb(cobj[1], lastCommitTime);
+			}
 		} );
 	} else {
 		cb( lastCommit, lastCommitTime );
@@ -127,6 +132,11 @@ var getGitCommit = function( cb ) {
 
 var postResult = function( err, result, prefix, title, finalCB, cb ) {
 	getGitCommit( function ( newCommit, newTime ) {
+		if (!newCommit) {
+			console.log("Exiting, couldn't find the current commit");
+			process.exit(1);
+		}
+
 		if ( err ) {
 			result =
 				'<error type="' + err.name + '">' +
