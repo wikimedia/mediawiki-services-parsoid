@@ -1521,7 +1521,7 @@ ParserTests.prototype.main = function ( options ) {
 
 		// Create parsers, serializers, ..
 		if ( options.html2html || options.wt2wt || options.wt2html || options.selser ) {
-			this.parserPipeline = Util.getParserPipeline(this.env, 'text/x-mediawiki/full');
+			this.parserPipeline = this.env.pipelineFactory.getPipeline('text/x-mediawiki/full');
 		}
 
 		options.reportStart();

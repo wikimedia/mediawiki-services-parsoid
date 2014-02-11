@@ -647,7 +647,7 @@ function ParsoidService(options) {
 				env.page.name = '';
 			}
 
-			var parser = Util.getParserPipeline( env, 'text/x-mediawiki/full' );
+			var parser = env.pipelineFactory.getPipeline('text/x-mediawiki/full');
 			parser.once( 'document', function ( document ) {
 				// Don't cache requests when wt is set in case somebody uses
 				// GET for wikitext parsing
