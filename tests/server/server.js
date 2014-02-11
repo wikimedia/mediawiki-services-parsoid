@@ -1147,22 +1147,29 @@ var GET_commits = function( req, res ) {
 			var tableRows = [];
 			for (var i = 0; i < n; i++) {
 				var row = rows[i];
-				var tableRow = [row.hash, row.timestamp, row.numtests];
+				var tableRow = {hash: row.hash, timestamp: row.timestamp, numtests: row.numtests};
 				if ( i + 1 < n ) {
-					tableRow.push({
-						url: '/regressions/between/' + rows[i+1].hash + '/' + row.hash,
-						name: '-'},
-						{url: '/topfixes/between/' + rows[i+1].hash + '/' + row.hash,
-						name: '+'
-					});
+					tableRow.regUrl = '/regressions/between/' + rows[i+1].hash + '/' + row.hash;
+					tableRow.fixUrl = '/topfixes/between/' + rows[i+1].hash + '/' + row.hash;
 				}
 				tableRows.push(tableRow);
 			}
 			var data = {
-				heading: 'List of all commits',
+				latest: rows[n-1].timestamp.toString().slice(4,15),
 				header: ['Commit hash', 'Timestamp', 'Tests', '-', '+'],
 				row: tableRows
 			};
+
+			hbs.registerHelper('formatHash', function(hash){
+				return hash.slice(0,10);
+			});
+			hbs.registerHelper('formatDate', function(timestamp){
+				return timestamp.toString().slice(4,21);
+			});
+			hbs.registerHelper('formatNumber', function(n){
+				var string = n.toString();
+				return string.replace(/\B(?=(...)+(?!.))/g, ",");
+			});
 
 			res.render('commits.html', data);
 		}

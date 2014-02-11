@@ -1,23 +1,35 @@
-<h1>{{heading}}</h1>
-<table>
-	<tbody>
-		<tr>
-			{{~#each header~}}
-				<th>{{this}}</th>
-			{{~/each~}}
-		</tr>
+<h1 class='heading'>Revisions since {{latest}}</h1>
+
+<div id='content'>
+	<p>
+		Compare selected revisions:
+		<a class='compare-reg'>Regressions</a>
+		<a class='compare-fix'>Fixes</a>
+	</p>
+
+	<table class='revisions'>
 		{{~#each row~}}
 			<tr>
-				{{~#each this~}}
-					<td>
-						{{~#if url~}}
-							<a href='{{url}}'><b>{{name}}</b></a>
-						{{~else~}}
-							{{this}}
-						{{~/if~}}
-					</td>
-				{{~/each~}}
+				<td class='buttons'>
+					<input type='radio' name='old' value='{{~hash~}}'>
+					<input type='radio' name='new' value='{{~hash~}}'>
+				</td>
+				<td>
+					{{#if regUrl}}<a href='{{regUrl}}' title='regressions from previous revision'>-</a>{{/if}}
+				</td>
+				<td>
+					{{#if fixUrl}}<a href='{{fixUrl}}' title='fixes of previous revision'>+</a>{{/if}}
+				</td>
+				<td class='hash' title='{{hash}}'>{{formatHash hash}}</td>
+				<td class='date' title='{{timestamp}}'>{{formatDate timestamp}}</td>
+				<td>{{formatNumber numtests}} tests</td>
 			</tr>
 		{{~/each~}}
-	</tbody>
-</table>
+	</table>
+
+	<p>
+		Compare selected revisions:
+		<a class='compare-reg'>Regressions</a>
+		<a class='compare-fix'>Fixes</a>
+	</p>
+</div>

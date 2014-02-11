@@ -1,3 +1,17 @@
+/* General */
+
+.heading {
+	font-weight: normal;
+	font-size: 1.6em;
+	font-family: sans-serif;
+	border-bottom: 1px solid #aaa;
+}
+
+#content {
+	font-family: sans-serif;
+	margin-left: 10%;
+}
+
 /* Main stats page */
 
 .overview tr {
@@ -53,4 +67,41 @@
 
 .results tr[status='fail'] td.title { /* has fails and/or errors */
 	border-left: 5px solid red;
+}
+
+/* Commits List */
+
+
+
+.compare-reg {
+	padding: 5px;
+}
+
+.hash {
+	font-family: monospace;
+	font-size: 1.2em;
+	padding: 5px;
+}
+
+.date {
+	color: black;
+}
+
+.revisions {
+	border: 1px solid #e2eaee;
+	border-collapse: collapse;
+	color: gray;
+}
+
+.revisions td {
+	border-bottom: 1px solid #e2eaee;
+	padding-left: 5px;
+}
+
+.revisions td+td+td+td {
+	padding-right: 30px
+}
+
+.revisions tr:last-child td {
+    border-bottom: none;
 }
