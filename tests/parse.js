@@ -217,9 +217,10 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 						parserPipeline.once( 'document', function(document) {
 							var out;
 							if ( argv.normalize ) {
-								out = Util.normalizeOut
-									( DU.serializeNode( document.body ),
-										( argv.normalize==='parsoid' ) );
+								out = DU.normalizeOut(
+									DU.serializeNode( document.body ),
+									( argv.normalize==='parsoid' )
+								);
 							} else {
 								out = DU.serializeNode( document.body );
 							}
@@ -243,9 +244,10 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 							console.log( JSON.stringify( document.data.parsoid ) );
 						}
 						if ( argv.normalize ) {
-							res = Util.normalizeOut
-								(DU.serializeNode( document.body ),
-									( argv.normalize==='parsoid' ) );
+							res = DU.normalizeOut(
+								DU.serializeNode( document.body ),
+								( argv.normalize==='parsoid' )
+							);
 						} else {
 							res = DU.serializeNode( document.body );
 						}
