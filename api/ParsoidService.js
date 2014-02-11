@@ -584,7 +584,6 @@ function ParsoidService(options) {
 			} catch ( e ) {
 				console.log( 'There was an error in the HTML5 parser!' );
 				env.errCB( e );
-				res.end();
 				return;
 			}
 
@@ -601,7 +600,7 @@ function ParsoidService(options) {
 					} );
 			} catch ( e ) {
 				env.errCB( e );
-				res.end();
+				return;
 			}
 		};
 
@@ -669,7 +668,6 @@ function ParsoidService(options) {
 					parser.processToplevelDoc( wt );
 				} catch ( e ) {
 					env.errCB( e, true );
-					res.end();
 					return;
 				}
 			};
@@ -697,7 +695,6 @@ function ParsoidService(options) {
 				tmpCb = function ( err, src_and_metadata ) {
 					if ( err ) {
 						env.errCB( err, true );
-						res.end();
 						return;
 					}
 
