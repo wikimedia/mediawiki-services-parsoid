@@ -388,24 +388,29 @@ function ParsoidService(options) {
 			return next( err );
 		}
 
-		if ( err.restart ) {
-			// Force a clean restart of this worker
-			// after response is sent
+		var restart = err.restart;
+		try {
+			var location = 'ERROR in ' + res.local('iwp') + ':' + res.local('pageName');
+			if ( req.query && req.query.oldid ) {
+				 location += ' with oldid: ' + req.query.oldid;
+			}
+
+			console.error( location );
+			console.error( 'Stack trace: ' + err.stack );
+
+			res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
+			res.send( err.stack, err.code );
+			res.end();
+		} catch (e) {
+			// Don't recurse and unconditionally exit.
+			restart = true;
+		}
+
+		if (restart) {
 			res.on('finish', function () {
 				process.exit( 1 );
 			});
 		}
-
-		var location = 'ERROR in ' + res.local('iwp') + ':' + res.local('pageName');
-		if ( req.query && req.query.oldid ) {
-			 location += ' with oldid: ' + req.query.oldid;
-		}
-
-		console.error( location );
-		console.error( 'Stack trace: ' + err.stack );
-
-		res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
-		res.send( err.stack, err.code );
 	}
 
 	app.use( errorHandler );
@@ -667,7 +672,7 @@ function ParsoidService(options) {
 				try {
 					parser.processToplevelDoc( wt );
 				} catch ( e ) {
-					env.errCB( e, true );
+					env.errCB( e );
 					return;
 				}
 			};
@@ -717,10 +722,14 @@ function ParsoidService(options) {
 
 		function sendRes( doc ) {
 			var out = DU.serializeNode( doc );
-			res.setHeader( 'X-Parsoid-Performance', env.getPerformanceHeader() );
-			res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
-			res.end( out );
-			console.warn( "completed parsing of " + prefix + ':' + target + " in " + env.performance.duration + " ms" );
+			try {
+				res.setHeader( 'X-Parsoid-Performance', env.getPerformanceHeader() );
+				res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
+				res.end( out );
+				console.warn( "completed parsing of " + prefix + ':' + target + " in " + env.performance.duration + " ms" );
+			} catch ( e ) {
+				console.warn(e);
+			}
 		}
 	}
 
