@@ -9879,6 +9879,31 @@ parsoid
 !! end
 
 !! test
+Allow empty links in image captions (Bug 60753) (parsoid)
+!! options
+parsoid
+!!input
+[[File:Foobar.jpg|thumb|Caption [[Link1]]
+[[]]
+[[Link2]]
+]]
+!! result
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"Caption [[Link1]]\n[[]]\n[[Link2]]\n"}],"dsr":[0,59,2,2]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"},"dsr":[2,null,null,null]}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" height="25" width="220" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption data-parsoid='{"dsr":[null,57,null,null]}'>Caption <a rel="mw:WikiLink" href="./Link1" data-parsoid='{"stx":"simple","a":{"href":"./Link1"},"sa":{"href":"Link1"},"dsr":[32,41,2,2]}'>Link1</a>
+[[]]
+<a rel="mw:WikiLink" href="./Link2" data-parsoid='{"stx":"simple","a":{"href":"./Link2"},"sa":{"href":"Link2"},"dsr":[47,56,2,2]}'>Link2</a>
+</figcaption></figure>
+!! end
+
+!! test
+Link with empty target
+!! input
+[[]]
+!! result
+<p>[[]]
+</p>
+!! end
+
+!! test
 Image with empty attribute (php)
 !! options
 php
