@@ -373,48 +373,6 @@ function ParsoidService(options) {
 		res.end('</body></html>');
 	});
 
-	function EnvError( message, stack, code, restart ) {
-		this.message = message;
-		this.stack = stack;
-		this.code = code;
-		this.restart = restart;
-	}
-
-	util.inherits( EnvError, Error );
-	EnvError.prototype.name = "EnvError";
-
-	function errorHandler( err, req, res, next ) {
-		if ( !(err instanceof EnvError) ) {
-			return next( err );
-		}
-
-		var restart = err.restart;
-		try {
-			var location = 'ERROR in ' + res.local('iwp') + ':' + res.local('pageName');
-			if ( req.query && req.query.oldid ) {
-				 location += ' with oldid: ' + req.query.oldid;
-			}
-
-			console.error( location );
-			console.error( 'Stack trace: ' + err.stack );
-
-			res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
-			res.send( err.stack, err.code );
-			res.end();
-		} catch (e) {
-			// Don't recurse and unconditionally exit.
-			restart = true;
-		}
-
-		if (restart) {
-			res.on('finish', function () {
-				process.exit( 1 );
-			});
-		}
-	}
-
-	app.use( errorHandler );
-
 	function defaultParams( req, res, next ) {
 		res.local('iwp', parsoidConfig.defaultWiki || '');
 		res.local('pageName', req.params[0]);
@@ -430,41 +388,37 @@ function ParsoidService(options) {
 	function parserEnvMw( req, res, next ) {
 		MWParserEnvironment.getParserEnv( parsoidConfig, null, res.local('iwp'),
 			res.local('pageName'), req.headers.cookie, function ( err, env ) {
-			env.errCB = function ( e, dontRestart ) {
-				e = new EnvError(
-					e.message,
-					e.stack || e.toString(),
-					e.code || 500,
-					!dontRestart  // default to restarting
-				);
-					var restart = e.restart;
-					try {
-						var location = 'ERROR in ' + res.local('iwp') + ':' + res.local('pageName');
-						if ( req.query && req.query.oldid ) {
-							location += ' with oldid: ' + req.query.oldid;
-						}
+			var errCB = function ( e, dontRestart ) {
 
-						console.error( location );
-						console.error( 'Stack trace: ' + e.stack );
+				if ( !dontRestart ) {  // default to restarting
+					res.on('finish', function () {
+						process.exit( 1 );
+					});
+				}
 
-						res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
-						res.send( e.stack, e.code );
-						res.end();
-					} catch (e) {
-						// Don't recurse and unconditionally exit.
-						restart = true;
+				try {
+					var location = 'ERROR in ' + res.local('iwp') + ':' + res.local('pageName');
+					if ( req.query && req.query.oldid ) {
+						location += ' with oldid: ' + req.query.oldid;
 					}
 
-					if (restart) {
-						res.on('finish', function () {
-							process.exit( 1 );
-						});
-					}
+					console.error( location );
+					console.error( 'Stack trace: ' + e.stack );
+
+					res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
+					res.send( e.stack || e, e.code || 500 );
+				} catch (e) {
+					console.warn( e );
+				}
 
 			};
+
 			if ( err ) {
-				return env.errCB( err );
+				return errCB( err );
+			} else {
+				env.errCB = errCB;
 			}
+
 			res.local('env', env);
 			next();
 		});
