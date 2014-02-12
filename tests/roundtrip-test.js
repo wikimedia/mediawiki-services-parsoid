@@ -419,8 +419,10 @@ var parsoidPost = function ( env, parsoidURL, prefix, title, text, oldid, cb ) {
 	};
 
 	Util.retryingHTTPRequest( 10, options, function( err, res, body ) {
-		if ( err || res.statusCode !== 200 ) {
+		if (err) {
 			cb( err, null );
+		} else if (res.statusCode !== 200) {
+			cb(res.body, null);
 		} else {
 			if ( env.profile ) {
 				// Record the time it's taken to parse
