@@ -437,7 +437,30 @@ function ParsoidService(options) {
 					e.code || 500,
 					!dontRestart  // default to restarting
 				);
-				next( e );
+					var restart = e.restart;
+					try {
+						var location = 'ERROR in ' + res.local('iwp') + ':' + res.local('pageName');
+						if ( req.query && req.query.oldid ) {
+							location += ' with oldid: ' + req.query.oldid;
+						}
+
+						console.error( location );
+						console.error( 'Stack trace: ' + e.stack );
+
+						res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
+						res.send( e.stack, e.code );
+						res.end();
+					} catch (e) {
+						// Don't recurse and unconditionally exit.
+						restart = true;
+					}
+
+					if (restart) {
+						res.on('finish', function () {
+							process.exit( 1 );
+						});
+					}
+
 			};
 			if ( err ) {
 				return env.errCB( err );
