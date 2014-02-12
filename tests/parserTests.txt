@@ -5626,13 +5626,33 @@ language=kaa
 !! end
 
 !! test
-Interaction of linktrail and template encapsulation
+1. Interaction of linktrail and template encapsulation
 !! options
 parsoid
 !! input
 {{echo|[[Foo]]}}l
 !! result
 <p><a rel="mw:WikiLink" href="Foo" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[Foo]]"}},"i":0}},"l"]}'>Fool</a></p>
+!! end
+
+!! test
+2. Interaction of linktrail and template encapsulation
+!! options
+parsoid
+!! input
+{{echo|Some [[Fool]]}}s
+!! result
+<p data-parsoid='{}'><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"Some [[Fool]]"}},"i":0}},"s"]}' data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}'>Some </span><a rel="mw:WikiLink" href="./Fool" about="#mwt1" data-parsoid='{"stx":"simple","a":{"href":"./Fool"},"sa":{"href":"Fool"},"tail":"s"}'>Fools</a></p>
+!! end
+
+!! test
+3. Interaction of linktrail and template encapsulation
+!! options
+parsoid
+!! input
+{{echo|Some [[Fool]]s are '''bold and foolish'''}}
+!! result
+<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"Some [[Fool]]s are &#39;&#39;&#39;bold and foolish&#39;&#39;&#39;"}},"i":0}}]}' data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}'>Some <a rel="mw:WikiLink" href="./Fool" data-parsoid='{"stx":"simple","a":{"href":"./Fool"},"sa":{"href":"Fool"},"tail":"s"}'>Fools</a> are <b data-parsoid="{}">bold and foolish</b></p>
 !! end
 
 !! article

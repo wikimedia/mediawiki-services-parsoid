@@ -2783,6 +2783,7 @@ add("selser", "BUG 2: [[page|http://url/]] should link to page, not http://url/ 
 add("selser", "BUG 2: [[page|http://url/]] should link to page, not http://url/ [[0,[3]]]", "[[Main Page|http://url/]][http://url/]\n");
 add("selser", "BUG 2: [[page|http://url/]] should link to page, not http://url/ [[1,0]]", "[[Main Page|<nowiki/>]]\n");
 add("selser", "BUG 2: [[page|http://url/]] should link to page, not http://url/ [[2,3]]", "cu9gzpv2drkke29[[Main Page|http://url/]]\n");
+add("selser", "2. Interaction of linktrail and template encapsulation [1]", "{{echo|Some [[Fool]]}}\n");
 add("selser", "Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved [3,2,[[4,2]],3,4,3,2]", "lvdwytxnetye3ik9\n\n[[Foo|luagnevfg92otj4ike5xfi2sk2zkt9''bar'']]3id2voxy1r3pu8frd5k1quqvir1wcdi\n\n[http://wp.org   ''foo'']");
 add("selser", "Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved [0,3,1,0,1,0,1]", "[[Foo|  bar]]\n\n[[Foo|  ''bar'']]\n\n[http://wp.org   foo]\n\n[http://wp.org   ''foo'']");
 add("selser", "Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved [[[2]],0,[[2,3]],3,4,4,0]", "[[Foo|f4xtfb3f5g0hpvi  bar]]\n\n[[Foo|g3c5aopr8zdxi529  ]]3w868b74qvakbj4iztyz2eochwefjemi\n\n[http://wp.org   ''foo'']");
