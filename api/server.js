@@ -44,7 +44,7 @@ var cluster = require('cluster'),
 		.alias( "n", "num-workers" ),
 	argv = opts.argv;
 
-if (cluster.isMaster) {
+if (cluster.isMaster && argv.n > 0) {
 	var fs = require( "fs" ),
 		path = require( "path" ),
 		meta = require( path.join( __dirname, "../package.json" ) );
