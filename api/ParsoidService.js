@@ -398,15 +398,16 @@ function ParsoidService(options) {
 
 				try {
 					var location = 'ERROR in ' + res.local('iwp') + ':' + res.local('pageName');
+					var stack = e.stack || e.toString();
 					if ( req.query && req.query.oldid ) {
 						location += ' with oldid: ' + req.query.oldid;
 					}
 
 					console.error( location );
-					console.error( 'Stack trace: ' + e.stack );
+					console.error( 'Stack trace: ' + stack );
 
 					res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
-					res.send( e.stack || e, e.code || 500 );
+					res.send( stack, e.code || 500 );
 				} catch (e) {
 					console.warn( e );
 				}
