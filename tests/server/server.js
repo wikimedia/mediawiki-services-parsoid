@@ -706,6 +706,19 @@ var receiveResults = function ( req, res ) {
 	}
 };
 
+// block helper to reference js files in page head.
+// options.fn is a function taking the present context and returning a string
+// (whatever is between {{#jsFiles}} and {{/jsFiles}} in a template).
+// This string becomes the value of a 'javascripts' key added to the context, to be
+// rendered as html where {{{javascripts}}} appears in layout.html.
+hbs.registerHelper('jsFiles', function(options){
+	if (!this.javascripts) {
+		this.javascripts = {};
+	}
+	this.javascripts = options.fn(this);
+	return null;
+});
+
 var pageListData = [
 	{ url: '/topfails', title: 'Results by title' },
 	{ url: '/failedFetches', title: 'Non-existing test pages' },
@@ -1395,8 +1408,6 @@ app.get( /^\/pageperfstats\/([^\/]+)\/(.*)$/, GET_pagePerfStats );
 
 // List of all commits
 app.use( '/commits', GET_commits );
-
-app.use( '/static', express.static( __dirname + '/static' ) );
 
 // Clients will GET this path if they want to run a test
 coordApp.get( /^\/title$/, getTitle );
