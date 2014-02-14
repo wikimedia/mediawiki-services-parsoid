@@ -15,11 +15,11 @@ var express = require('express'),
 	// memwatch = require('memwatch'),
 	jsDiff = require('diff'),
 	childProc = require('child_process'),
-	spawn = childProc.spawn,
 	cluster = require('cluster'),
 	fs = require('fs'),
 	path = require('path'),
-	util = require('util');
+	util = require('util'),
+	pkg = require('../package.json');
 
 // local includes
 var mp = '../lib/';
@@ -441,27 +441,6 @@ function ParsoidService(options) {
 		res.end( );
 	});
 
-	// Bug report posts
-	app.post( /^\/_bugs\//, function ( req, res ) {
-		console.log( '_bugs', req.body.data );
-		try {
-			var data = JSON.parse( req.body.data ),
-				filename = '/mnt/bugs/' +
-					new Date().toISOString() +
-					'-' + encodeURIComponent(data.title);
-			console.log( filename, data );
-			fs.writeFile(filename, req.body.data, function(err) {
-				if(err) {
-					console.error(err);
-				} else {
-					console.log("The file " + filename + " was saved!");
-				}
-			});
-		} catch ( e ) {
-		}
-		res.end( );
-	});
-
 	function action( res ) {
 		return [ "", res.local('iwp'), res.local('pageName') ].join( "/" );
 	}
@@ -733,6 +712,34 @@ function ParsoidService(options) {
 		}
 	});
 
+	var version = {
+		name: pkg.name,
+		version: pkg.version
+	};
+
+	function gitVersion( cb ) {
+		fs.exists( path.join( __dirname, '/../.git' ), function ( exists ) {
+			if ( !exists ) {
+				cb();
+				return;
+			}
+			childProc.exec(
+				'git rev-parse HEAD',
+				function ( error, stdout, stderr ) {
+					if ( !error ) {
+						version.sha = stdout.slice(0, -1);
+					}
+					cb();
+			});
+		});
+	}
+
+	/**
+	* Return Parsoid version based on package.json + git sha1 if available
+	*/
+	app.get( "/_version", function ( req, res ) {
+		res.json( version );
+	});
 
 	app.use( express.static( __dirname + '/scripts' ) );
 	app.use( express.limit( '15mb' ) );
@@ -742,9 +749,11 @@ function ParsoidService(options) {
 	var port = process.env.VCAP_APP_PORT || process.env.PORT || 8000;
 	var host = process.env.INTERFACE;  // default bind all
 
-	app.listen( port, host );
+	gitVersion( function () {
+		app.listen( port, host );
+		console.log( ' - ' + instanceName + ' ready' );
+	});
 
-	console.log( ' - ' + instanceName + ' ready' );
 }
 
 module.exports = {

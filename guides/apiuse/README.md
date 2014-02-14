@@ -43,11 +43,13 @@ content member to wikitext, and return that. You can use this to do basic
 round-tripping of existing, potentially modified versions of existing
 wiki pages.
 
-## /_bugs/
+## /_version/
 
-### POST
+### GET
 
-If you POST to the /_bugs/ URI, you'll be able to report a bug to the system
-administrators running the instance of Parsoid that you're accessing. You
-might use this to allow users to submit Parsoid bug reports, or even to report
-bugs you expose through your use of the Parsoid service automatically.
+Yield JSON object of the daemon name and version from package.json. If running
+from a git repository, it would add the sha of the HEAD commit (git rev-parse
+HEAD). Example:
+
+    $ curl http://localhost:8000/_version
+    {"name":"mediawiki-parsoid","version":"0.0.1","sha":"63a778a1ffc1e9bd0dbb3a7571fe40bfb0a6d699"}
