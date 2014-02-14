@@ -149,7 +149,7 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 				serializer;
 
 		if ( !argv.html2wt ) {
-			parserPipeline = Util.getParserPipeline(env, 'text/x-mediawiki/full');
+			parserPipeline = env.pipelineFactory.getPipeline( 'text/x-mediawiki/full');
 		}
 
 		if ( !argv.wt2html ) {
