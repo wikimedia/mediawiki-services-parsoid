@@ -79,14 +79,10 @@ if (cluster.isMaster && argv.n > 0) {
 
 	var shutdown_master = function() {
 		console.log('master shutting down, killing workers');
-		var workers = cluster.workers;
-		Object.keys(workers).forEach(function(id) {
-			console.log('Killing worker ' + id);
-			workers[id].destroy();
+		cluster.disconnect(function() {
+			console.log('Exiting master');
+			process.exit(0);
 		});
-		console.log('Done killing workers');
-		console.log('Exiting master');
-		process.exit(0);
 	};
 
 	process.on('SIGINT', shutdown_master);
@@ -95,7 +91,7 @@ if (cluster.isMaster && argv.n > 0) {
 } else {
 	// Worker.
 	process.on('SIGTERM', function() {
-		console.log('Worker shutting down');
+		console.log('Worker ' + process.pid + ' shutting down');
 		process.exit(0);
 	});
 
