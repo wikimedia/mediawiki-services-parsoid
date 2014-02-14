@@ -5826,6 +5826,15 @@ parsoid
 <a rel="mw:ExtLink" href="http://de.wikipedia.org/wiki/#foo">is just fragment</a></p>
 !! end
 
+!! test
+Interwiki links: trail
+!! options
+parsoid
+!! input
+[[wikipedia:Foo|Ba]]r
+!! result
+<p data-parsoid='{}'><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"piped","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":"wikipedia:Foo"},"isIW":true,"tail":"r"}'>Bar</a></p>
+!! end
 
 ###
 ### Interlanguage links
