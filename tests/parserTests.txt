@@ -6103,6 +6103,17 @@ language=is
 <link rel="mw:PageProp/redirect" href="./Main_Page">
 !! end
 
+!! test
+New redirect
+!! options
+parsoid=html2wt
+!! input
+Foo
+#REDIRECT [[Foo]]
+!! result
+<p>Foo<link rel="mw:PageProp/redirect" href="./Foo"></p>
+!! end
+
 ##
 ## XHTML tidiness
 ###
