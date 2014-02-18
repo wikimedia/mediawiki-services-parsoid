@@ -310,6 +310,7 @@ app.post( '/api.php', function ( req, res ) {
 
 module.exports = app;
 
-console.log( 'Mock MediaWiki API starting....' );
-app.listen( 7001 );
+var port = process.env.PORT || 7001;
+console.log( 'Mock MediaWiki API starting.... listening to ' + port);
+app.listen(port);
 console.log( 'Started.' );

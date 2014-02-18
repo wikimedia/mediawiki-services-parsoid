@@ -26,19 +26,8 @@ var fs = require('fs'),
 	PEG = require('pegjs'),
 	Alea = require('alea'),
 	// Handle options/arguments with optimist module
-	optimist = require('optimist');
-var booleanOption = Util.booleanOption; // shortcut
-
-// Run a mock API in the background so we can request things from it
-var forkedAPI = fork( __dirname + '/mockAPI.js', [], { silent: true } );
-
-process.on( 'exit', function () {
-	forkedAPI.kill();
-} );
-
-// track files imported / required
-var fileDependencies = [];
-var parserTestsUpToDate = true;
+	optimist = require('optimist'),
+	apiServer = require( './apiServer.js' );
 
 // Fetch up some of our wacky parser bits...
 
@@ -47,6 +36,15 @@ var mp = '../lib/',
 	WikitextSerializer = require(mp + 'mediawiki.WikitextSerializer.js').WikitextSerializer,
 	SelectiveSerializer = require( mp + 'mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
 	ParsoidConfig = require( mp + 'mediawiki.ParsoidConfig' ).ParsoidConfig;
+
+var booleanOption = Util.booleanOption; // shortcut
+
+// Run a mock API in the background so we can request things from it
+var mockAPIServer, mockAPIServerURL;
+
+// track files imported / required
+var fileDependencies = [];
+var parserTestsUpToDate = true;
 
 // Our code...
 
@@ -1480,7 +1478,7 @@ ParserTests.prototype.main = function ( options ) {
 
 	for ( i = 0; i < iwmap.length; i++ ) {
 		key = iwmap[i];
-		parsoidConfig.interwikiMap[key] = 'http://localhost:7001/api.php';
+		parsoidConfig.interwikiMap[key] = mockAPIServerURL;
 	}
 
 	// Create a new parser environment
@@ -1720,7 +1718,8 @@ ParserTests.prototype.processCase = function ( i, options ) {
 	} else {
 
 		// Kill the forked API, so we'll exit correctly.
-		forkedAPI.kill();
+		// SSS: Is this still required in this new version?
+		mockAPIServer.kill();
 
 		// update the blacklist, if requested
 		if (booleanOption( options['rewrite-blacklist'] )) {
@@ -1759,9 +1758,6 @@ ParserTests.prototype.processCase = function ( i, options ) {
 		process.exit(failures ? 2 : 0); // exit status 1 == uncaught exception
 	}
 };
-
-// Construct the ParserTests object and run the parser tests
-var ptests = new ParserTests(), popts = ptests.getOpts();
 
 // Note: Wrapping the XML output stuff in its own private world
 // so it can have private counters and the like
@@ -1931,6 +1927,10 @@ var xmlFuncs = (function () {
 	};
 })();
 
+// Construct the ParserTests object and run the parser tests
+var ptests = new ParserTests();
+var popts  = ptests.getOpts();
+
 if ( popts && popts.xml ) {
 	popts.reportResult = xmlFuncs.reportResult;
 	popts.reportStart = xmlFuncs.reportStart;
@@ -1939,4 +1939,9 @@ if ( popts && popts.xml ) {
 	colors.mode = 'none';
 }
 
-ptests.main( popts );
+// Start the mock api server and kick off parser tests
+apiServer.startMockAPIServer({quiet: popts.quiet, defaultPort: 7001 }, function(url, server) {
+	mockAPIServerURL = url;
+	mockAPIServer = server;
+	ptests.main(popts);
+});
