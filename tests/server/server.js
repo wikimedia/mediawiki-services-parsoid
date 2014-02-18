@@ -411,6 +411,52 @@ var dbNumRegressionsBetweenRevs =
 	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
 	'WHERE s1.commit_hash = ? AND s2.commit_hash = ? AND s1.score > s2.score ';
 
+var dbNumOneDiffRegressionsBetweenRevs =
+	'SELECT count(*) AS numFlaggedRegressions ' +
+	'FROM pages ' +
+	'JOIN stats AS s1 ON s1.page_id = pages.id ' +
+	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
+	'WHERE s1.commit_hash = ? AND s2.commit_hash = ? AND s1.score > s2.score ' +
+		'AND s2.fails = 0 AND s2.skips = 0 ' +
+		'AND s1.fails = ? AND s1.skips = ? ';
+
+var dbOneDiffRegressionsBetweenRevs =
+	'SELECT pages.title, pages.prefix, ' +
+	's1.commit_hash AS new_commit, ' +
+	's2.commit_hash AS old_commit ' +
+	'FROM pages ' +
+	'JOIN stats AS s1 ON s1.page_id = pages.id ' +
+	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
+	'WHERE s1.commit_hash = ? AND s2.commit_hash = ? AND s1.score > s2.score ' +
+		'AND s2.fails = 0 AND s2.skips = 0 ' +
+		'AND s1.fails = ? AND s1.skips = ? ' +
+	'ORDER BY s1.score - s2.score DESC ' +
+	'LIMIT 40 OFFSET ?';
+
+var dbNumNewFailsRegressionsBetweenRevs =
+	'SELECT count(*) AS numFlaggedRegressions ' +
+	'FROM pages ' +
+	'JOIN stats AS s1 ON s1.page_id = pages.id ' +
+	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
+	'WHERE s1.commit_hash = ? AND s2.commit_hash = ? AND s1.score > s2.score ' +
+		'AND s2.fails = 0 AND s1.fails > 0 ' +
+		// exclude cases introducing exactly one skip/fail to a perfect
+		'AND (s1.skips > 0 OR s1.fails <> 1 OR s2.skips > 0)';
+
+var dbNewFailsRegressionsBetweenRevs =
+	'SELECT pages.title, pages.prefix, ' +
+	's1.commit_hash AS new_commit, s1.errors AS errors, s1.fails AS fails, s1.skips AS skips, ' +
+	's2.commit_hash AS old_commit, s2.errors AS old_errors, s2.fails AS old_fails, s2.skips AS old_skips ' +
+	'FROM pages ' +
+	'JOIN stats AS s1 ON s1.page_id = pages.id ' +
+	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
+	'WHERE s1.commit_hash = ? AND s2.commit_hash = ? AND s1.score > s2.score ' +
+		'AND s2.fails = 0 AND s1.fails > 0 ' +
+		// exclude cases introducing exactly one skip/fail to a perfect
+		'AND (s1.skips > 0 OR s1.fails <> 1 OR s2.skips > 0) ' +
+	'ORDER BY s1.score - s2.score DESC ' +
+	'LIMIT 40 OFFSET ?';
+
 var dbResultsQuery =
 	'SELECT result FROM results';
 
@@ -858,10 +904,21 @@ var statsWebInterface = function ( req, res ) {
 				{ description: 'Test Results', value: row[0].maxresults },
 				{ description: 'Crashers', value: row[0].crashers,
 					url: '/crashers' },
-				{ description: 'Regressions', value: numRegressions,
-					url: '/regressions/between/' + row[0].secondhash + '/' + row[0].maxhash },
 				{ description: 'Fixes', value: numFixes,
 					url: '/topfixes/between/' + row[0].secondhash + '/' + row[0].maxhash },
+				{ description: 'Regressions', value: numRegressions,
+					url: '/regressions/between/' + row[0].secondhash + '/' + row[0].maxhash }
+			],
+			flaggedReg: [
+				{ description: 'one fail',
+					info: 'one new semantic diff, previously perfect',
+					url: 'onefailregressions/between/' + row[0].secondhash + '/' + row[0].maxhash },
+				{ description: 'one skip',
+					info: 'one new syntactic diff, previously perfect',
+					url: 'oneskipregressions/between/' + row[0].secondhash + '/' + row[0].maxhash },
+				{ description: 'other new fails',
+					info: 'other cases with semantic diffs, previously only syntactic diffs',
+					url: 'newfailsregressions/between/' + row[0].secondhash + '/' + row[0].maxhash }
 			],
 			averages: [
 				{ description: 'Errors', value: row[0].avgerrors },
@@ -1100,6 +1157,14 @@ var makeRegressionRow = function(row) {
 	];
 };
 
+var makeOneDiffRegressionRow = function(row) {
+	return [
+		pageTitleData(row),
+		commitLinkData(row.new_commit, row.title, row.prefix),
+		commitLinkData(row.old_commit, row.title, row.prefix),
+	];
+};
+
 var regressionsHeaderData = ['Title', 'New Commit', 'Errors|Fails|Skips', 'Old Commit', 'Errors|Fails|Skips'];
 
 var GET_regressions = function( req, res ) {
@@ -1117,7 +1182,7 @@ var GET_regressions = function( req, res ) {
 				urlSuffix: '',
 				heading: "Total regressions between selected revisions: " +
 					row[0].numRegressions,
-				headingLink: {url: '/topfixes/between/' + r1 + '/' + r2, name: 'topfixes'},
+				headingLink: [{url: '/topfixes/between/' + r1 + '/' + r2, name: 'topfixes'}],
 				header: regressionsHeaderData
 			};
 			db.query( dbRegressionsBetweenRevs, [ r2, r1, offset ],
@@ -1125,6 +1190,81 @@ var GET_regressions = function( req, res ) {
 		}
 	});
 };
+
+var GET_newFailsRegressions = function(req, res) {
+	var r1 = req.params[0];
+	var r2 = req.params[1];
+	var page = (req.params[2] || 0) - 0;
+	var offset = page * 40;
+	db.query(dbNumNewFailsRegressionsBetweenRevs, [r2, r1], function(err, row) {
+		if (err || !row) {
+			res.send(err.toString(), 500);
+		} else {
+			var data = {
+				page: page,
+				urlPrefix: '/regressions/between/' + r1 + '/' + r2,
+				urlSuffix: '',
+				heading: 'Flagged regressions between selected revisions: ' +
+					row[0].numFlaggedRegressions,
+				subheading: 'New Commit: semantic diffs | Old Commit: only syntactic diffs',
+				headingLink: [
+					{name: 'one fail regressions',
+						info: 'one new semantic diff, previously perfect',
+						url: '/onefailregressions/between/' + r1 + '/' + r2},
+					{name: 'one skip regressions',
+						info: 'one new syntactic diff, previously perfect',
+						url: '/oneskipregressions/between/' + r1 + '/' + r2}
+				],
+				header: regressionsHeaderData
+			};
+			db.query(dbNewFailsRegressionsBetweenRevs, [r2, r1, offset],
+				displayPageList.bind(null, res, data, makeRegressionRow));
+		}
+	});
+};
+
+var displayOneDiffRegressions = function(numFails, numSkips, subheading, headingLinkData, req, res){
+	var r1 = req.params[0];
+	var r2 = req.params[1];
+	var page = (req.params[2] || 0) - 0;
+	var offset = page * 40;
+	db.query (dbNumOneDiffRegressionsBetweenRevs, [r2, r1, numFails, numSkips], function(err, row) {
+		if (err || !row) {
+			res.send(err.toString(), 500);
+		} else {
+			var headingLink = [
+				{name: headingLinkData[0],
+					info: headingLinkData[1],
+					url: '/' + headingLinkData[2] + 'regressions/between/' + r1 + '/' + r2},
+				{name: 'other new fails',
+					info: 'other cases with semantic diffs, previously only syntactic diffs',
+					url: '/newfailsregressions/between/' + r1 + '/' + r2}
+			];
+			var data = {
+				page: page,
+				urlPrefix: '/regressions/between/' + r1 + '/' + r2,
+				urlSuffix: '',
+				heading: 'Flagged regressions between selected revisions: ' +
+					row[0].numFlaggedRegressions,
+				subheading: subheading,
+				headingLink: headingLink,
+				header: ['Title', 'New Commit', 'Old Commit']
+			};
+			db.query(dbOneDiffRegressionsBetweenRevs, [r2, r1, numFails, numSkips, offset],
+				displayPageList.bind(null, res, data, makeOneDiffRegressionRow));
+		}
+	});
+};
+
+var GET_oneFailRegressions = displayOneDiffRegressions.bind(
+	null, 1, 0, 'New Commit: one semantic diff | Old Commit: perfect',
+	['one skip regressions', 'one new syntactic diff, previously perfect', 'oneskip']
+);
+
+var GET_oneSkipRegressions = displayOneDiffRegressions.bind(
+	null, 0, 1, 'New Commit: one syntactic diff | Old Commit: perfect',
+	['one fail regressions', 'one new semantic diff, previously perfect', 'onefail']
+);
 
 var GET_topfixes = function( req, res ) {
 	var r1 = req.params[0];
@@ -1140,7 +1280,7 @@ var GET_topfixes = function( req, res ) {
 				urlPrefix: '/topfixes/between/' + r1 + '/' + r2,
 				urlSuffix: '',
 				heading: 'Total fixes between selected revisions: ' + row[0].numFixes,
-				headingLink: {url: "/regressions/between/" + r1 + "/" + r2, name: 'regressions'},
+				headingLink: [{url: "/regressions/between/" + r1 + "/" + r2, name: 'regressions'}],
 				header: regressionsHeaderData
 			};
 			db.query( dbFixesBetweenRevs, [ r2, r1, offset ],
@@ -1393,6 +1533,15 @@ app.get( /^\/crashers$/, GET_crashers );
 // Regressions between two revisions.
 app.get( /^\/regressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_regressions );
 
+// Regressions between two revisions that introduce one semantic error to a perfect page.
+app.get(/^\/onefailregressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_oneFailRegressions );
+
+// Regressions between two revisions that introduce one syntactic error to a perfect page.
+app.get(/^\/oneskipregressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_oneSkipRegressions );
+
+// Regressions between two revisions that introduce senantic errors (previously only syntactic diffs).
+app.get(/^\/newfailsregressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_newFailsRegressions );
+
 // Topfixes between two revisions.
 app.get( /^\/topfixes\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_topfixes );
 
@@ -1407,7 +1556,7 @@ app.get( /^\/perfstats$/, GET_perfStats );
 app.get( /^\/pageperfstats\/([^\/]+)\/(.*)$/, GET_pagePerfStats );
 
 // List of all commits
-app.use( '/commits', GET_commits );
+app.get( '/commits', GET_commits );
 
 // Clients will GET this path if they want to run a test
 coordApp.get( /^\/title$/, getTitle );
