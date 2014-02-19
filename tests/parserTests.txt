@@ -10088,6 +10088,31 @@ parsoid
 <figure class="mw-halign-right" typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" height="23" width="200"></a><figcaption>Caption</figcaption></figure>
 !! end
 
+# a sad bit of backward-compatibility
+!! test
+Image with size specified with pxpx (bug 13500, 51628) (php)
+!! options
+php
+!! input
+[[File:Foobar.jpg|20pxpx]]
+[[File:Foobar.jpg|200x20pxpx]]
+!! result
+<p><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/20px-Foobar.jpg" width="20" height="2" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/30px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/40px-Foobar.jpg 2x" /></a>
+<a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/177px-Foobar.jpg" width="177" height="20" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/265px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/353px-Foobar.jpg 2x" /></a>
+</p>
+!! end
+
+!! test
+Image with size specified with pxpx (bug 13500, 51628) (parsoid)
+!! options
+parsoid=wt2html,wt2wt
+!! input
+[[File:Foobar.jpg|20pxpx]]
+[[File:Foobar.jpg|200x20pxpx]]
+!! result
+<p><span typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="2" width="20"/></a></span><span typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="20" width="177"/></a></span></p>
+!! end
+
 !! test
 Image with link parameter, wiki target (php)
 !! options
