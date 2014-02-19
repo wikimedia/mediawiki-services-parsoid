@@ -1696,28 +1696,17 @@ ParserTests.prototype.processCase = function ( i, options, err ) {
 					item.comments = item.comments || this.comments;
 					this.comments = [];
 
-					if ( item.options.parsoid ) {
-						// pegjs parser handles item options as follows:
-						//   item option         value of item.options.parsoid
-						//    <none>                      undefined
-						//    parsoid                         ""
-						//    parsoid=wt2html              "wt2html"
-						//    parsoid=wt2html,wt2wt    ["wt2html","wt2wt"]
-						if ( !Array.isArray(item.options.parsoid) ) {
-							// make a string into a 1-item array
-							item.options.parsoid = [ item.options.parsoid ];
-						}
-
+					if ( item.options.parsoid && item.options.parsoid.modes ) {
 						// Avoid filtering out the selser test
 						if ( options.selser &&
-							item.options.parsoid.indexOf( "selser" ) < 0 &&
-							item.options.parsoid.indexOf( "wt2wt" ) >= 0
+							item.options.parsoid.modes.indexOf( "selser" ) < 0 &&
+							item.options.parsoid.modes.indexOf( "wt2wt" ) >= 0
 						) {
-							item.options.parsoid.push( "selser" );
+							item.options.parsoid.modes.push( "selser" );
 						}
 
 						targetModes = targetModes.filter(function(mode) {
-							return item.options.parsoid.indexOf( mode ) >= 0;
+							return item.options.parsoid.modes.indexOf( mode ) >= 0;
 						});
 					}
 

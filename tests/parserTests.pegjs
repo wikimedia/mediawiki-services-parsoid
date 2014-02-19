@@ -111,7 +111,28 @@ test =
         var section = sections[i];
         test[section.name] = section.text;
     }
-	return test;
+    // pegjs parser handles item options as follows:
+    //   item option             value of item.options.parsoid
+    //    <none>                          undefined
+    //    parsoid                             ""
+    //    parsoid=wt2html                  "wt2html"
+    //    parsoid=wt2html,wt2wt        ["wt2html","wt2wt"]
+    //    parsoid={"modes":["wt2wt"]}    {modes:['wt2wt']}
+
+    // treat 'parsoid=xxx,yyy' in options section as shorthand for
+    // 'parsoid={modes:["xxx","yyy"]}'
+    if ( test.options && test.options.parsoid ) {
+        if (test.options.parsoid === '') {
+            test.options.parsoid = {};
+        }
+        if (typeof test.options.parsoid === 'string') {
+            test.options.parsoid = [ test.options.parsoid ];
+        }
+        if (Array.isArray(test.options.parsoid)) {
+            test.options.parsoid = { modes: test.options.parsoid };
+        }
+    }
+    return test;
 }
 
 section =
