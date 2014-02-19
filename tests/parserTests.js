@@ -1940,7 +1940,7 @@ if ( popts && popts.xml ) {
 }
 
 // Start the mock api server and kick off parser tests
-apiServer.startMockAPIServer({quiet: popts.quiet, defaultPort: 7001 }, function(url, server) {
+apiServer.startMockAPIServer({quiet: popts.quiet, port: 7001 }, function(url, server) {
 	mockAPIServerURL = url;
 	mockAPIServer = server;
 	ptests.main(popts);

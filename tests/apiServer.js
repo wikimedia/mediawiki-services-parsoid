@@ -24,7 +24,7 @@ var startServer = function ( opts, cb, port ) {
 
 	// For now, we always assume that retries are due to port conflicts
 	if (!port || opts.retrying) {
-		port = opts.port + Math.floor( Math.random() * 100 );
+		port = opts.portBase + Math.floor( Math.random() * 100 );
 	}
 
 	forkedServerURL = 'http://' + opts.iface + ':' + port.toString() + opts.urlPath;
@@ -96,7 +96,7 @@ var stopServer = function () {
 var parsoidServerOpts = {
 	serverName: "Parsoid",
 	iface: "localhost",
-	port: 9000,
+	portBase: 9000,
 	urlPath: "/",
 	filePath: "/../api/server.js",
 	serverArgv: [
@@ -108,13 +108,13 @@ var parsoidServerOpts = {
 
 var startParsoidServer = function (opts, cb) {
 	opts = !opts ? parsoidServerOpts : Util.extendProps(opts, parsoidServerOpts);
-	startServer(opts, cb, opts.defaultPort);
+	startServer(opts, cb, opts.port);
 };
 
 var mockAPIServerOpts = {
 	serverName: "Mock API",
 	iface: "localhost",
-	port: 7000,
+	portBase: 7000,
 	urlPath: "/api.php",
 	filePath: "/../tests/mockAPI.js",
 	serverArgv: [],
@@ -123,7 +123,7 @@ var mockAPIServerOpts = {
 
 var startMockAPIServer = function (opts, cb) {
 	opts = !opts ? mockAPIServerOpts : Util.extendProps(opts, mockAPIServerOpts);
-	startServer(opts, cb, opts.defaultPort);
+	startServer(opts, cb, opts.port);
 };
 
 module.exports = {

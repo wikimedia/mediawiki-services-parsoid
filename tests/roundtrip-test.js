@@ -589,7 +589,7 @@ if ( !module.parent ) {
 			// TODO: This will not be necessary once we have a top-level testing
 			// script that takes care of setting everything up.
 			var apiServer = require( './apiServer.js' );
-			apiServer.startParsoidServer({quiet: true, defaultPort:9000}, function( url ) {
+			apiServer.startParsoidServer({quiet: true}, function( url ) {
 				argv.parsoidURL = url;
 				fetch( title, callback, argv );
 			} );
