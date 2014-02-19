@@ -233,7 +233,7 @@ if ( module && !module.parent ) {
 
 	if ( !config.parsoidURL ) {
 		// If no Parsoid server was passed, start our own
-		parsoidURL = apiServer.startParsoidServer( function( url ) {
+		parsoidURL = apiServer.startParsoidServer( {quiet: true, defaultPort:9000}, function( url ) {
 			parsoidURL = url;
 			getGitCommit( getGitCommitCb );
 		} );
