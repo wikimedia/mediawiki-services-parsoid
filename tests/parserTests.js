@@ -755,6 +755,56 @@ ParserTests.prototype.generateChanges = function( options, item, content, cb ) {
 	cb( null, content, changeTree );
 };
 
+ParserTests.prototype.applyManualChanges = function( document, changes, cb ) {
+	var err = null;
+	// changes are specified using jquery methods.
+	//  [x,y,z...] becomes $(x)[y](z....)
+	// that is, ['fig', 'attr', 'width', '120'] is interpreted as
+	//   $('fig').attr('width', '120')
+	var jquery = {
+		attr: function(name, val) {
+			this.setAttribute(name, val);
+		},
+		removeAttr: function(name) {
+			this.removeAttribute(name);
+		},
+		removeClass: function(c) {
+			this.classList.remove(c);
+		},
+		addClass: function(c) {
+			this.classList.add(c);
+		},
+		text: function(t) {
+			this.textContent = t;
+		}
+	};
+
+	changes.forEach(function(change) {
+		if (err) { return; }
+		if (change.length < 2) {
+			err = new Error('bad change: '+change);
+			return;
+		}
+		// use document.querySelectorAll as a poor man's $(...)
+		var els = document.querySelectorAll(change[0]);
+		if (!els.length) {
+			err = new Error(change[0]+' did not match any elements: ' +
+							document.outerHTML);
+			return;
+		}
+		var fun = jquery[change[1]];
+		if (!fun) {
+			err = new Error('bad mutator function: '+change[1]);
+			return;
+		}
+		Array.prototype.forEach.call(els, function(el) {
+			fun.apply(el, change.slice(2));
+		});
+	});
+	if (err) { console.log(err.toString().red); }
+	cb(err, document);
+};
+
 /**
  * @method
  * @param {string} mode
@@ -906,6 +956,12 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 		testTasks.push( function ( doc, cb ) {
 			cb( null, DU.parseHTML(DU.serializeNode(doc)).body);
 		} );
+		// handle a 'changes' option if present.
+		if (item.options.parsoid && item.options.parsoid.changes) {
+			testTasks.push( function( doc, cb ) {
+				this.applyManualChanges(doc, item.options.parsoid.changes, cb);
+			}.bind(this));
+		}
 	}
 
 	// Roundtrip stage
@@ -1293,21 +1349,26 @@ ParserTests.prototype.checkHTML = function ( item, out, options, mode ) {
  * @param {Object} options
  */
 ParserTests.prototype.checkWikitext = function ( item, out, options, mode ) {
+	var item_wikitext = item.wikitext;
 	out = out.replace(new RegExp('<!--' + staticRandomString + '-->', 'g'), '');
 	if ( mode === 'selser' && item.resultWT !== null && item.changes !== 5 ) {
-		item.wikitext = item.resultWT;
+		item_wikitext = item.resultWT;
+	}
+	if ( mode === 'wt2wt' &&
+		 item.options.parsoid && item.options.parsoid.changes ) {
+		item_wikitext = item['wikitext/edited'];
 	}
 
 	var normalizedExpected,
 		toWikiText = mode === 'html2wt' || mode === 'wt2wt' || mode === 'selser';
 	// FIXME: normalization not in place yet
-	normalizedExpected = toWikiText ? item.wikitext.replace(/\n+$/, '') : item.wikitext;
+	normalizedExpected = toWikiText ? item_wikitext.replace(/\n+$/, '') : item_wikitext;
 
 	// FIXME: normalization not in place yet
 	var normalizedOut = toWikiText ? out.replace(/\n+$/, '') : out;
 
-	var input = mode === 'html2wt' ? item.html : item.wikitext;
-	var expected = { isWT: true, normal: normalizedExpected, raw: item.wikitext };
+	var input = mode === 'html2wt' ? item.html : item_wikitext;
+	var expected = { isWT: true, normal: normalizedExpected, raw: item_wikitext };
 	var actual = { isWT: true, normal: normalizedOut, raw: out, input: input };
 
 	return options.reportResult( item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item );
@@ -1667,6 +1728,8 @@ ParserTests.prototype.processCase = function ( i, options, err ) {
 		// html/* and html/parsoid should be treated as html.
 		if ( 'html/*' in item ) { item.html = item['html/*']; }
 		if ( 'html/parsoid' in item ) { item.html = item['html/parsoid']; }
+		// ensure that test is not skipped if it has a wikitext/edited section
+		if ( 'wikitext/edited' in item) { item.html = true; }
 
 		// Reset the cached results for the new case.
 		// All test modes happen in a single run of processCase.

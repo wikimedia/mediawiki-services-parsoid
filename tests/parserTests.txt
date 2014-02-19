@@ -19406,62 +19406,95 @@ parsoid=html2wt
 !! test
 Image: Modifying size of an image (1)
 !! options
-parsoid=html2wt
+parsoid={
+  "modes": ["wt2wt"],
+  "changes": [
+    ["img[height]", "attr", "height", "22"],
+    ["img[width]", "attr", "width", "200"]
+  ]
+}
 !! wikitext
+[[Image:Foobar.jpg|230x230px]]
+!! wikitext/edited
 [[Image:Foobar.jpg|200x200px]]
-!! html
-<p><span typeof="mw:Image" data-parsoid='{"optList":[{"ck":"width","ak":"230x230px"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/230px-Foobar.jpg" height="22" width="200" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"26","width":"230"},"sa":{"resource":"Image:Foobar.jpg"}}'/></a></span></p>
 !!end
 
 !! test
 Image: Modifying size of an image (2)
 !! options
-parsoid=html2wt
+parsoid={
+  "modes": ["wt2wt"],
+  "changes": [
+    ["img[height]", "attr", "height", "100"],
+    ["img[width]", "attr", "width", "500"]
+  ]
+}
 !! wikitext
+[[Image:Foobar.jpg|230x230px]]
+!! wikitext/edited
 [[Image:Foobar.jpg|500x500px]]
-!! html
-<p><span typeof="mw:Image" data-parsoid='{"optList":[{"ck":"width","ak":"230x230px"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/230px-Foobar.jpg" height="100" width="500" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"26","width":"230"},"sa":{"resource":"Image:Foobar.jpg"}}'/></a></span></p>
 !!end
 
-# note that the data-parsoid value conflicts with the figure's class
 !! test
 Image: Modifying alignment of an image (bug 48665)
 !! options
-parsoid=html2wt
+parsoid={
+  "modes": ["wt2wt"],
+  "changes": [
+    ["figure[class]", "removeClass", "mw-halign-right"],
+    ["figure[class]", "addClass", "mw-halign-left"]
+  ]
+}
 !! wikitext
+[[Image:Foobar.jpg|thumb|caption|right]]
+!! wikitext/edited
 [[Image:Foobar.jpg|thumb|caption|left]]
-!! html
-<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"caption"},{"ck":"right","ak":"right"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" height="20" width="180" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"20","width":"180"},"sa":{"resource":"Image:Foobar.jpg"}}'/></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
 Image: Modifying valign of an image (bug 49221)
 !! options
-parsoid=html2wt
+parsoid={
+  "modes": ["wt2wt"],
+  "changes": [
+    ["*[typeof=\"mw:Image\"]", "removeClass", "mw-valign-middle"],
+    ["*[typeof=\"mw:Image\"]", "addClass", "mw-valign-text-top"]
+  ]
+}
 !! wikitext
+[[File:Foobar.jpg|20px|middle]]
+!! wikitext/edited
 [[File:Foobar.jpg|20px|text-top]]
-!! html
-<p><span class="mw-valign-text-top" typeof="mw:Image" data-parsoid='{"optList":[{"ck":"width","ak":"20px"},{"ck":"text_top","ak":"text-top"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/20px-Foobar.jpg" height="2" width="20" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"2","width":"20"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></span></p>
 !! end
 
 !! test
 Image: Modifying alt attribute of an image (bug 56400)
 !! options
-parsoid=html2wt
+parsoid={
+  "modes": ["wt2wt"],
+  "changes": [
+    ["img[alt]", "attr", "alt", "some alternate edited text"]
+  ]
+}
 !! wikitext
+[[File:Foobar.jpg|thumb|some caption|alt=some alternate text]]
+!! wikitext/edited
 [[File:Foobar.jpg|thumb|some caption|alt=some alternate edited text]]
-!! html
-<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"some caption"},{"ck":"alt","ak":"alt=some alternate text"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img alt="some alternate edited text" resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" height="20" width="180" data-parsoid='{"a":{"alt":"some alternate edited text","resource":"./File:Foobar.jpg","height":"20","width":"180"},"sa":{"alt":"alt=some alternate edited text","resource":"File:Foobar.jpg"}}'/></a><figcaption>some caption</figcaption></figure>
 !!end
 
 !! test
 Image: Modifying caption of an image
 !! options
-parsoid=html2wt
+parsoid={
+  "modes": ["wt2wt"],
+  "changes": [
+    ["figcaption", "text", "new caption"]
+  ]
+}
 !! wikitext
+[[Image:Foobar.jpg|thumb|original caption]]
+!! wikitext/edited
 [[Image:Foobar.jpg|thumb|new caption]]
-!! html
-<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"original caption"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" height="20" width="180" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"20","width":"180"},"sa":{"resource":"Image:Foobar.jpg"}}'/></a><figcaption>new caption</figcaption></figure>
 !!end
 
 !! test
