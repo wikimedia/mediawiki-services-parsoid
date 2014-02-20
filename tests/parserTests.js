@@ -119,19 +119,14 @@ var prettyPrintIOptions = function(iopts) {
 		if (Array.isArray(v)) {
 			return v.map(ppValue).join(',');
 		}
+		if (typeof v !== 'string') {
+			return JSON.stringify(v);
+		}
 		if (/^\[\[[^\]]*\]\]$/.test(v) ||
 		    /^[-\w]+$/.test(v)) {
 			return v;
 		}
-		// the current PHP grammar doesn't provide for any way of
-		// including the " character in a value, other than escaping
-		// it using the [[ ... foo ... ]] syntax.  If we see a
-		// double-quote in a value at this point, it means that
-		// they've added some new fancy quoting scheme that we should
-		// be handling here.  (Of course parserTests.pegjs probably
-		// broke first.)
-		console.assert(v.indexOf('"') < 0);
-		return '"'+v+'"';
+		return JSON.stringify(v);
 	};
 	return Object.keys(iopts).map(function(k) {
 		if (iopts[k]==='') { return k; }

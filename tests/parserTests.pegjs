@@ -154,6 +154,7 @@ option_list = o:an_option [ \t\n]+ rest:option_list?
 //   foo=bar
 //   foo="bar baz"
 //   foo=[[bar baz]]
+//   foo={...json...}
 //   foo=bar,"baz quux",[[bat]]
 an_option = k:option_name v:option_value?
 {
@@ -180,21 +181,32 @@ option_value_list = v:an_option_value
     return result;
 }
 
-an_option_value = link_target_value / quoted_value / plain_value
+an_option_value = v:(link_target_value / quoted_value / plain_value / json_value)
+{
+    if (v[0]==='\"' || v[0]==='{') { // } is needed to make pegjs happy
+        return JSON.parse(v);
+    }
+    return v;
+}
 
 link_target_value = v:("[[" (c:[^\]]* { return c.join(''); }) "]]")
 {
     return v.join('');
 }
 
-quoted_value = [\"] v:[^\"]* [\"]
+quoted_value = [\"] v:( [^\\\"] / ("\\" c:. { return "\\"+c; } ) )* [\"]
+{
+    return '\"' + v.join('') + '\"';
+}
+
+plain_value = v:[^ \t\n\"\'\[\]=,!\{]+
 {
     return v.join('');
 }
 
-plain_value = v:[^ \t\n\"\'\[\]=,!]+
+json_value = "{" v:( [^\"\{\}] / quoted_value / json_value )* "}"
 {
-    return v.join('');
+    return "{" + v.join('') + "}";
 }
 
 /* the : is for a stray one, not sure it should be there */
