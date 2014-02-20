@@ -560,6 +560,13 @@ function ParsoidService(options) {
 		var env = res.local('env');
 		env.page.id = req.body.oldid || null;
 
+		if ( env.conf.parsoid.allowCORS ) {
+			// allow cross-domain requests (CORS) so that parsoid service
+			// can be used by third-party sites
+			res.setHeader( 'Access-Control-Allow-Origin',
+						   env.conf.parsoid.allowCORS );
+		}
+
 		var html2wtCb = function () {
 			var doc;
 			try {
