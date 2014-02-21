@@ -2231,6 +2231,44 @@ foo
 
 !!end
 
+!! test
+Leading pipes outside of tables
+!! options
+parsoid
+!! input
+| foo
+!! result
+<p>| foo</p>
+!! end
+
+!! test
+Leading pipes outside of tables 2
+!! options
+parsoid
+!! input
+a
+| foo
+b
+!! result
+<p>a
+| foo
+b</p>
+!! end
+
+!! test
+Leading pipes outside of tables 3
+!! options
+parsoid
+!! input
+a
+| class="foo bar" | baz
+b
+!! result
+<p>a
+| class="foo bar" | baz
+b</p>
+!! end
+
 !!test
 Render paragraphs when indent-pre is suppressed in blocklevels
 !!input
@@ -9025,8 +9063,8 @@ parsoid
 <tbody>
 <tr>
 <td>foo</td></tr></tbody></table><span about="#mwt1">
-</span><span about="#mwt1">bar</span><span about="#mwt1">
-</span>
+</span><span about="#mwt1">|bar</span><span about="#mwt1">
+|}</span>
 !!end
 
 !!test
