@@ -804,14 +804,23 @@ function ParsoidService(options) {
 	app.get( "/_version", function ( req, res ) {
 		res.json( version );
 	});
-
-	app.use( express.static( __dirname + '/scripts' ) );
+	
+    app.use( express.static( __dirname + '/scripts' ) );
 	app.use( express.limit( '15mb' ) );
 
 	// Get host and port from the environment, if available
 	// VCAP_APP_PORT is for appfog.com support
 	var port = process.env.VCAP_APP_PORT || process.env.PORT || 8000;
 	var host = process.env.INTERFACE;  // default bind all
+
+	app.on( 'error', function( err ) {
+		if ( err.errno === "EADDRINUSE" ) {
+			console.error( "Port %d is already in use. Exiting.", port );
+			cluster.worker.disconnect();
+		} else {
+			console.error( err.message );
+		}
+	});
 
 	gitVersion( function () {
 		app.listen( port, host );
