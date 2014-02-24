@@ -1,9 +1,15 @@
 <b>
 	{{heading}}
 	{{~#if headingLink~}}
-		| <a href='{{headingLink.url}}'>{{headingLink.name}}</a>
+		{{~#each headingLink~}}
+			&nbsp;| <a href='{{url}}' {{#if info}}title='{{info}}'{{/if}}>{{name}}</a>
+		{{~/each~}}
 	{{~/if~}}
 </b>
+
+{{~#if subheading~}}
+	<br/>{{subheading}}
+{{~/if~}}
 
 {{~#if paginate~}}
 	<p>

@@ -3,7 +3,7 @@
 </p>
 <ul>
 	<li><b>{{results.noErrors}}%</b> parsed without errors,</li>
-	</li><b>{{results.syntacticDiffs}}%</b> round-tripped without semantic differences, and</li>
+	<li><b>{{results.syntacticDiffs}}%</b> round-tripped without semantic differences, and</li>
 	<li><b>{{results.perfects}}%</b> round-tripped with no character differences at all.</li>
 </ul>
 
@@ -41,13 +41,20 @@
 		</td>
 	</tr>
 	{{~/each~}}
+	<tr>
+		<td></td>
+		<td>
+			Flagged Regressions: &nbsp; {{~#each flaggedReg~}}
+				{{~#if @index~}}&nbsp;|&nbsp;{{~/if~}}
+				<a title = '{{info}}' href='{{url}}'>{{~description~}}</a>
+			{{~/each~}}
+		</td>
+	</tr>
 	</tbody>
 </table>
 
+<p>Averages (over the latest results):</p>
 
-<p>
-	Averages (over the latest results):
-</p>
 <table class='overview'>
 	<tbody>
 		{{~#each averages~}}
@@ -63,7 +70,6 @@
 		{{~/each~}}
 	</tbody>
 </table>
-
 
 <p>More details:</p>
 <ul>

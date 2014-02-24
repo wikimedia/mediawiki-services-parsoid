@@ -26,6 +26,10 @@
 	text-align: right
 }
 
+#flagged-reg {
+	display: inline-block;
+}
+
 #graph tr {
 	height: 60px;
 }
@@ -71,8 +75,6 @@
 
 /* Commits List */
 
-
-
 .compare-reg {
 	padding: 5px;
 }
@@ -103,5 +105,5 @@
 }
 
 .revisions tr:last-child td {
-    border-bottom: none;
+	border-bottom: none;
 }
