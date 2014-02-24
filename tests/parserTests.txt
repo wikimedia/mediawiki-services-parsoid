@@ -10060,6 +10060,54 @@ parsoid
 !! end
 
 !! test
+Image with multiple widths -- use last (php)
+!! options
+php
+!! input
+[[File:Foobar.jpg|200px|300px|caption]]
+!! result
+<p><a href="/wiki/File:Foobar.jpg" class="image" title="caption"><img alt="caption" src="http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg" width="300" height="34" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/450px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/600px-Foobar.jpg 2x" /></a>
+</p>
+!! end
+
+!! test
+Image with multiple widths -- use last (parsoid)
+!! options
+parsoid
+!! input
+[[File:Foobar.jpg|200px|300px|caption]]
+!! result
+<p><span typeof="mw:Image" data-mw='{"caption":"caption"}'><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="34" width="300"/></a></span></p>
+!! end
+
+!! test
+Image with multiple alignments -- use first (bug 48664) (php)
+!! options
+php
+!! input
+[[File:Foobar.jpg|thumb|left|right|center|caption]]
+
+[[File:Foobar.jpg|middle|text-top|caption]]
+!! result
+<div class="thumb tleft"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>caption</div></div></div>
+<p><a href="/wiki/File:Foobar.jpg" class="image" title="caption"><img alt="caption" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" style="vertical-align: middle" /></a>
+</p>
+!! end
+
+!! test
+Image with multiple alignments -- use first (bug 48664) (parsoid)
+!! options
+parsoid
+!! input
+[[File:Foobar.jpg|thumb|left|right|center|caption]]
+
+[[File:Foobar.jpg|middle|text-top|caption]]
+!! result
+<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+<p><span class="mw-default-size mw-valign-middle" typeof="mw:Image" data-mw='{"caption":"caption"}'><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></span></p>
+!! end
+
+!! test
 Image with width attribute at different positions (php)
 !! options
 php
