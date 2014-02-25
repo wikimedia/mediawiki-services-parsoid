@@ -199,6 +199,8 @@ function ParsoidService(options) {
 			var i;
 			// XXX TODO FIXME BBQ There should be an error callback in SelSer.
 			out = out.join('');
+			// Strip selser trigger comment
+			out = out.replace(/<!--rtSelserEditTestComment-->\n$/, '');
 			if ( out === undefined ) {
 				console.log( 'Serializer error!' );
 				out = "An error occured in the WikitextSerializer, please check the log for information";
@@ -511,7 +513,9 @@ function ParsoidService(options) {
 		}
 		var tpr = new TemplateRequest( env, target, oldid ),
 			tprCb = function ( req, res, src, document ) {
-				var newDocument = DU.parseHTML( DU.serializeNode(document) );
+				var newDocument = DU.parseHTML( DU.serializeNode(document) ),
+					newNode = newDocument.createComment('rtSelserEditTestComment');
+				newDocument.body.appendChild(newNode);
 				roundTripDiff( true, req, res, src, newDocument );
 			};
 
