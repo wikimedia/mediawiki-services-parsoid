@@ -200,7 +200,7 @@ function ParsoidService(options) {
 			// XXX TODO FIXME BBQ There should be an error callback in SelSer.
 			out = out.join('');
 			// Strip selser trigger comment
-			out = out.replace(/<!--rtSelserEditTestComment-->\n$/, '');
+			out = out.replace(/<!--rtSelserEditTestComment-->\n*$/, '');
 			if ( out === undefined ) {
 				console.log( 'Serializer error!' );
 				out = "An error occured in the WikitextSerializer, please check the log for information";
