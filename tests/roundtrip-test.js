@@ -64,12 +64,18 @@ var encodeXmlEntities = function( str ) {
 			  .replace( />/g, '&gt;' );
 };
 
+function encodeAttribute (str) {
+	return encodeXmlEntities(str)
+		.replace(/"/g, '&quot;');
+}
+
+
 var xmlCallback = function ( env, err, results ) {
 	var i, result;
 	var prefix = ( env && env.conf && env.conf.wiki && env.conf.wiki.iwp ) || '';
 	var title = ( env && env.page && env.page.name ) || '';
 
-	var output = '<testsuite name="Roundtrip article ' + encodeXmlEntities( prefix + ':' + title ) + '">';
+	var output = '<testsuite name="Roundtrip article ' + encodeAttribute( prefix + ':' + title ) + '">';
 
 	if ( err ) {
 		output += '<testcase name="entire article"><error type="parserFailedToFinish">';
@@ -80,7 +86,7 @@ var xmlCallback = function ( env, err, results ) {
 		for ( i = 0; i < results.length; i++ ) {
 			result = results[i];
 
-			output += '<testcase name="' + encodeXmlEntities( prefix + ':' + title ) + ' character ' + result.offset[0].start + '">';
+			output += '<testcase name="' + encodeAttribute( prefix + ':' + title ) + ' character ' + result.offset[0].start + '">';
 
 			if ( result.type === 'fail' ) {
 				output += '<failure type="significantHtmlDiff">\n';
