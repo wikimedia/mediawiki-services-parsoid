@@ -2156,7 +2156,7 @@ c
 !!end
 
 !!test
-3c. Indent-Pre and block tags (multi-line html)
+3b. Indent-Pre and block tags (multi-line html)
 !!input
  a <span>foo</span>
  b <div> foo </div>
@@ -2168,7 +2168,7 @@ c
 !!end
 
 !!test
-3b. Indent-Pre and block tags (pre-content on separate line)
+3c. Indent-Pre and block tags (pre-content on separate line)
 !!input
 <p>
  foo
@@ -2228,6 +2228,23 @@ foo
 <ul><li>
   foo
 </li></ul>
+
+!!end
+
+!!test
+4. Indent-Pre and extension tags
+!!input
+ a <gallery>
+File:foobar.jpg
+</gallery>
+!!result
+ a <ul class="gallery mw-gallery-traditional">
+		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" width="120" height="14" /></a></div></div>
+			<div class="gallerytext">
+			</div>
+		</div></li>
+</ul>
 
 !!end
 
