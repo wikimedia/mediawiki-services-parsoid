@@ -2029,16 +2029,13 @@ table_line
   / table_caption_tag
   / table_end_tag)
 
+
 table_start_tag
   = b:"{" p:pipe
-    ta:(ga:generic_attribute 
-        // ok to normalize away stray |} on rt (see bug 57360)
-        (space* table_end_tag)? {return ga;}
-        )*
     // ok to normalize away stray |} on rt (see bug 57360)
-    space* table_end_tag?
-    space*
-    tsEndPos:({return pos;})
+    & { return stops.push('table', false); }
+    ta:(generic_attribute)*
+    tsEndPos:({stops.pop('table'); return pos;})
     {
         var tblStart = new TagTk( 'table', [], { tsr: [pos0, tsEndPos] } );
         if (p !== "|") {
@@ -2067,8 +2064,9 @@ table_caption_tag
 table_row_tag
   = //& { console.warn("table row enter @" + input.substr(pos, 30)); return true; }
     p:pipe dashes:"-"+
+    & { return stops.push('table', false); }
     a:(generic_attribute)*
-    tagEndPos:({return pos;})
+    tagEndPos:({stops.pop('table'); return pos;})
     // handle tables with missing table cells after a row
     td:implicit_table_data_tag?
     {

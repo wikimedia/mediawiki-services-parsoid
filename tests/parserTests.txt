@@ -18600,6 +18600,21 @@ parsoid
 </tbody></table>
 !! end
 
+!! test
+Tables: Digest broken attributes on table and tr tag
+!! options
+parsoid=wt2html
+!! input
+{| || |} ++
+|- || || ++ --
+|}
+!! result
+<table>
+<tbody>
+<tr></tr>
+</tbody></table>
+!! end
+
 #### --------------- Links ----------------
 #### 1. Quote marks in link text
 #### 2. Wikilinks: Escapes needed
@@ -19339,10 +19354,10 @@ parsoid=wt2html
 !!options
 parsoid=wt2html,wt2wt
 !!input
-{|
-|- || ||
-| a
-|}
+<table>
+<tr> || ||
+<td> a
+</table>
 !!result
 <span> || ||</span>
 <table>
