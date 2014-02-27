@@ -446,6 +446,9 @@ ParserTests.prototype.isDuplicateChangeTree = function ( allChanges, change ) {
 	return false;
 };
 
+// Random string used as selser comment content
+var staticRandomString = "ahseeyooxooZ8Oon0boh";
+
 /**
  * @method
  *
@@ -561,6 +564,7 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 						insertNewNode(child);
 						removeNode(child);
 						break;
+
 				}
 			}
 		}
@@ -585,7 +589,13 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 		console.warn("-------------------------");
 	}
 
-	if (item.changes !== 0) {
+	if (item.changes === 5) {
+		// Hack so that we can work on the parent node rather than just the
+		// children: Append a comment with known content. This is later
+		// stripped from the output, and the result is compared to the
+		// original wikitext rather than the non-selser wt2wt result.
+		content.appendChild(content.ownerDocument.createComment(staticRandomString));
+	} else if (item.changes !== 0) {
 		applyChangesInternal(content, item.changes);
 	}
 
@@ -878,6 +888,10 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 			testTasks.push( function(content, cb) {
 				cb( null, content, JSON.parse(options.changetree) );
 			} );
+		} else if (item.changetree) {
+			testTasks.push( function(content, cb) {
+				cb( null, content, item.changetree );
+			} );
 		} else {
 			testTasks.push( this.generateChanges.bind( this, options, item ) );
 		}
@@ -943,23 +957,36 @@ ParserTests.prototype.processParsedHTML = function( item, options, mode, doc, cb
  * @param {Function} cb
  */
 ParserTests.prototype.processSerializedWT = function ( item, options, mode, wikitext, cb ) {
+	var self = this;
 	item.time.end = Date.now();
 
 	if ( mode === 'selser' ) {
-		this.convertHtml2Wt( options, 'wt2wt', item, DU.parseHTML(item.changedHTMLStr), function ( err, wt ) {
-			if ( err === null ) {
-				item.resultWT = wt;
-			} else {
-				item.resultWT = item.input;
-			}
-		} );
-	}
+		if (item.changetree === 5) {
+			item.resultWT = item.input;
+		} else {
+			this.convertHtml2Wt( options, 'wt2wt', item, DU.parseHTML(item.changedHTMLStr), function ( err, wt ) {
+				if ( err === null ) {
+					item.resultWT = wt;
+				} else {
+					item.resultWT = item.input;
+				}
+				// Check the result vs. the expected result.
+				self.checkWikitext( item, wikitext, options, mode );
 
+				// Now schedule the next test, if any
+				setImmediate( cb );
+			} );
+			// Async processing
+			return;
+		}
+	}
+	// Sync processing
 	// Check the result vs. the expected result.
-	this.checkWikitext( item, wikitext, options, mode );
+	self.checkWikitext( item, wikitext, options, mode );
 
 	// Now schedule the next test, if any
 	setImmediate( cb );
+
 };
 
 /**
@@ -1254,7 +1281,8 @@ ParserTests.prototype.checkHTML = function ( item, out, options, mode ) {
  * @param {Object} options
  */
 ParserTests.prototype.checkWikitext = function ( item, out, options, mode ) {
-	if ( mode === 'selser' && item.resultWT !== null ) {
+	out = out.replace(new RegExp('<!--' + staticRandomString + '-->', 'g'), '');
+	if ( mode === 'selser' && item.resultWT !== null && item.changes !== 5 ) {
 		item.input = item.resultWT;
 	}
 
@@ -1535,13 +1563,34 @@ ParserTests.prototype.reportStartOfTests = function () {
 };
 
 /**
+ * FIXME: clean up this mess!
+ * - generate all changes at once (generateChanges should return a tree
+ *   really) rather than going to all these lengths of interleaving change
+ *   generation with tests
+ * - set up the changes in item directly rather than juggling around with
+ *   indexes etc
+ * - indicate whether to compare to wt2wt or the original input
+ * - maybe make a full selser test one method that uses others rather than the
+ *   current chain of methods that sometimes do something for selser
+ *
  * @method
  */
 ParserTests.prototype.buildTasks = function ( item, modes, options ) {
-	var tasks = [];
+	var tasks = [],
+		self = this;
 	for ( var i = 0; i < modes.length; i++ ) {
 		if ( modes[i] === 'selser' && options.numchanges && !options.changetree ) {
 			item.selserChangeTrees = new Array( options.numchanges );
+			var newitem;
+
+			// Prepend a selser test that appends a comment to the root node
+			tasks.push( function ( cb ) {
+				newitem = Util.clone(item);
+				newitem.changetree = 5;
+				self.processTest( newitem, options, 'selser', function() {
+					setImmediate(cb);
+				});
+			});
 
 			var done = false;
 			for ( var j = 0; j < item.selserChangeTrees.length; j++ ) {
@@ -1552,7 +1601,7 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 					if (done) {
 						setImmediate( cb );
 					} else {
-						var newitem = Util.clone( item );
+						newitem = Util.clone( item );
 						newitem.seed = changesIndex + '';
 						this.processTest( newitem, options, modes[modeIndex], function () {
 							if ( this.isDuplicateChangeTree( item.selserChangeTrees, newitem.changes ) ) {
