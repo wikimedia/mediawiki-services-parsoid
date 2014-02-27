@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 
-var jsDiff = require( 'diff' ),
-	request = require( 'request' ),
+var	request = require( 'request' ),
 	optimist = require( 'optimist' ),
 	domino = require( 'domino' ),
 	url = require( 'url' ),
@@ -461,7 +460,7 @@ var roundTripDiff = function ( env, html, out, cb ) {
 	var diff, offsetPairs;
 
 	try {
-		diff = jsDiff.diffLines( out, env.page.src );
+		diff = Util.diffLines(out, env.page.src);
 		offsetPairs = Util.convertDiffToOffsetPairs( diff );
 
 		if ( diff.length > 0 ) {
