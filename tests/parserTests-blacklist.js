@@ -698,6 +698,7 @@ add("wt2wt", "Parsoid-only: Table with broken attribute value quoting on consecu
 add("wt2wt", "RT-ed inter-element separators should be valid separators", "[[foo]]\n{|\n|- \n|}");
 add("wt2wt", "Empty TD followed by TD with tpl-generated attribute", "{|\n|-\n|\n| {{echo|style='color:red'}} |foo\n|}");
 add("wt2wt", "Improperly nested inline or quotes tags with whitespace in between", "<span> <s>x</span> </s>\n''' ''x'''''<nowiki/>'' ''\n");
+add("wt2wt", "2. Ensure fostered text content is wrapped in spans (traps regressions around fostered marker on the span getting lost)", "<nowiki> || ||</nowiki>\n{|\n|-\n| a\n|}");
 add("wt2wt", "Table in fosterable position", "{{OpenTable}}\n<div>\n{|\n|}\n");
 add("wt2wt", "Images: upright option is ignored on inline and frame images (parsoid)", "[[File:Foobar.jpg|500x500px|caption]]\n");
 
@@ -3605,6 +3606,19 @@ add("selser", "Improperly nested inline or quotes tags with whitespace in betwee
 add("selser", "Improperly nested inline or quotes tags with whitespace in between [[3,4,4,0,2]]", "zspuuqxabmtmlsorhu9yn80lmnm6lxr''' ''x'''f278nrkbehwu3di ''");
 add("selser", "Improperly nested inline or quotes tags with whitespace in between [[[0,3],[3],0,3,0]]", "<span> </span></s>\n ''");
 add("selser", "Improperly nested inline or quotes tags with whitespace in between [[[2,1],[3],3,[0,3],0]]", "<span>i9p8te7ufdmquxr <s data-foobar=\"xoximjgruc95dn29\">x</span></s>''' ''' ''");
+add("selser", "2. Ensure fostered text content is wrapped in spans (traps regressions around fostered marker on the span getting lost) [0,0,[0,3]]", "\n{|\n|}");
+add("selser", "2. Ensure fostered text content is wrapped in spans (traps regressions around fostered marker on the span getting lost) [0,3,[3,[3,0]]]", "\n{|\n|}");
+add("selser", "2. Ensure fostered text content is wrapped in spans (traps regressions around fostered marker on the span getting lost) [[4],2,[0,2]]", "1cqp1we3vbyv6lxraa9lqxou81if6r\n{|\n<!--ikdnmfgo6wimgqfr-->|- || ||\n| a\n|}");
+add("selser", "2. Ensure fostered text content is wrapped in spans (traps regressions around fostered marker on the span getting lost) [0,0,[0,[4,4]]]", "\n{|\n<!--eppdx87on0dd9529--><!--rsvnvzp8z32nvcxr-->|}");
+add("selser", "2. Ensure fostered text content is wrapped in spans (traps regressions around fostered marker on the span getting lost) [[2],2,2]", "15phixjatjn0cnmi || ||ncg67wf6jpaxlxr\nlseqic7t5okr19k9\n{|\n|- || ||\n| a\n|}");
+add("selser", "2. Ensure fostered text content is wrapped in spans (traps regressions around fostered marker on the span getting lost) [0,0,[0,2]]", "\n{|\n<!--619ferqsrkmiy66r-->|- || ||\n| a\n|}");
+add("selser", "2. Ensure fostered text content is wrapped in spans (traps regressions around fostered marker on the span getting lost) [2,2,[0,[0,4]]]", "zayftnru704wjyvigy9c4jt9nejt6gvi\n{|\n|- || ||\n| a<!--og9puq3hpok49529-->\n|}");
+add("selser", "2. Ensure fostered text content is wrapped in spans (traps regressions around fostered marker on the span getting lost) [2,0,[4,[1,0]]]", "v4428ruthukxogvi\n{|<!--hzr601xnttricnmi-->\n|- data-foobar=\"942nki4ty9gxecdi\"\n| a\n|}");
+add("selser", "2. Ensure fostered text content is wrapped in spans (traps regressions around fostered marker on the span getting lost) [0,0,[0,1]]", "\n{|\n|- || ||\n| a\n|}");
+add("selser", "2. Ensure fostered text content is wrapped in spans (traps regressions around fostered marker on the span getting lost) [4,0,2]", "k40mf30abvwe9udi\nwyf7ovw7gd7h9f6r\n{|\n|- || ||\n| a\n|}");
+add("selser", "2. Ensure fostered text content is wrapped in spans (traps regressions around fostered marker on the span getting lost) [1,0,[3,0]]", "<nowiki> || ||</nowiki>\n{|\n|- || ||\n| a\n|}");
+add("selser", "2. Ensure fostered text content is wrapped in spans (traps regressions around fostered marker on the span getting lost) [0,0,[3,[[4],3]]]", "\n{|\n|-\n|5idqtjfqctgiizfr\n|}");
+add("selser", "2. Ensure fostered text content is wrapped in spans (traps regressions around fostered marker on the span getting lost) [0,0,2]", "\n3ufvfgjc3tinewmi\n{|\n|- || ||\n| a\n|}");
 add("selser", "Image: Block level image should have \\n before and after [2,4,0,2,0]", "pgawtyr28podpldi\n\n123d7ykse27vjyh9f6r[[File:Foobar.jpg|right|thumb|150x150px]]vfwkah17bjbmaemi\n456");
 add("selser", "Images: upright option is ignored on inline and frame images (parsoid) [1]", "[[File:Foobar.jpg|500x500px|upright=0.5|caption]]");
 add("selser", "Images: upright option is ignored on inline and frame images (parsoid) [2]", "4fdy0jykdjqncdi\n\n[[File:Foobar.jpg|500x500px|upright=0.5|caption]]");

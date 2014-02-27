@@ -19322,7 +19322,7 @@ plain text
 !!end
 
 !!test
-Ensure fostered text content is wrapped in spans
+1. Ensure fostered text content is wrapped in spans
 !!options
 parsoid=wt2html
 !!input
@@ -19332,6 +19332,24 @@ parsoid=wt2html
 <table></table>
 <span>ho</span>
 <table></table>
+!!end
+
+!!test
+2. Ensure fostered text content is wrapped in spans (traps regressions around fostered marker on the span getting lost)
+!!options
+parsoid=wt2html,wt2wt
+!!input
+{|
+|- || ||
+| a
+|}
+!!result
+<span> || ||</span>
+<table>
+<tbody>
+<tr>
+<td> a</td></tr>
+</tbody></table>
 !!end
 
 !!test
