@@ -598,7 +598,7 @@ var getTitle = function ( req, res ) {
 			fetchedPages = fetchedPages.concat( newPages );
 		}
 		if ( fetchedPages.length === 0 ) {
-			res.send( 'No available titles that fit the constraints.', 404 );
+			res.send( 'No available titles that fit the constraints.', 200 );
 		} else {
 			var page = fetchedPages.pop();
 
@@ -712,7 +712,7 @@ var receiveResults = function ( req, res ) {
 
 	} else {
 		trans.query( dbFindPage, [ title, prefix ], function ( err, pages ) {
-			if ( !err && pages && pages.length === 1 ) {
+			if ( !err && pages.length === 1 ) {
 				// Found the correct page, fill the details up
 				var page = pages[0];
 
@@ -745,7 +745,11 @@ var receiveResults = function ( req, res ) {
 					} ) );
 			} else {
 				trans.rollback( function() {
-					res.send( "Did not find claim for title: " + prefix + ':' + title, 500);
+					if (err) {
+						res.send(err.toString(), 500);
+					} else {
+						res.send( "Did not find claim for title: " + prefix + ':' + title, 200);
+					}
 				} );
 			}
 		} ).execute();
@@ -822,22 +826,23 @@ var displayPageList = function(res, data, makeRow, err, rows){
 	console.log( "GET " + data.urlPrefix + "/" + data.page + data.urlSuffix );
 	if ( err ) {
 		res.send( err.toString(), 500 );
-	} else if ( !rows || rows.length <= 0 ) {
-		res.send( "No entries found", 404 );
 	} else {
-		var tableRows = [];
-		for (var i = 0; i < rows.length; i++) {
-			var row = rows[i];
-			var tableRow = {status: pageStatus(row), tableData: makeRow(row)};
-			tableRows.push(tableRow);
-		}
-
+		res.status( 200 );
 		var tableData = data;
-		tableData.paginate = true;
-		tableData.row = tableRows;
-		tableData.prev = data.page > 0;
-		tableData.next = rows.length === 40;
-
+		if (rows.length === 0) {
+			tableData.header = undefined;
+		} else {
+			var tableRows = [];
+			for (var i = 0; i < rows.length; i++) {
+				var row = rows[i];
+				var tableRow = {status: pageStatus(row), tableData: makeRow(row)};
+				tableRows.push(tableRow);
+			}
+			tableData.paginate = true;
+			tableData.row = tableRows;
+			tableData.prev = data.page > 0;
+			tableData.next = rows.length === 40;
+		}
 		hbs.registerHelper('prevUrl', function (urlPrefix, urlSuffix, page) {
 			return urlPrefix + "/" + ( page - 1 ) + urlSuffix;
 		});
@@ -866,11 +871,8 @@ var statsWebInterface = function ( req, res ) {
 
 	// Fetch stats for commit
 	db.query( query, queryParams, function ( err, row ) {
-		if ( err || !row ) {
-			var msg = "Stats query returned nothing!";
-			msg = err ? msg + "\n" + err.toString() : msg;
-			console.error("Error: " + msg);
-			res.send( msg, 500 );
+		if ( err ) {
+			res.send( err.toString(), 500 );
 		} else {
 			res.status( 200 );
 
@@ -986,17 +988,12 @@ var resultsWebInterface = function ( req, res ) {
 			console.error( err );
 			res.send( err.toString(), 500 );
 		} else {
-			if ( rows.length === 0 ) {
-				res.send( '', 404 );
-			} else {
 				res.setHeader( 'Content-Type', 'text/xml; charset=UTF-8' );
 				res.status( 200 );
 				res.write( '<?xml-stylesheet href="/static/result.css"?>\n' );
 				res.write( '<testsuite>' );
 				for ( i = 0; i < rows.length; i++ ) {
 					res.write( rows[i].result );
-				}
-
 				res.end( '</testsuite>' );
 			}
 		}
@@ -1013,7 +1010,7 @@ var resultWebCallback = function( req, res, err, row ) {
 		res.write( '<?xml-stylesheet href="/static/result.css"?>\n' );
 		res.end( row[0].result );
 	} else {
-		res.send( 'no results for that page at the requested revision', 404 );
+		res.send( 'no results for that page at the requested revision', 200 );
 	}
 };
 
@@ -1173,7 +1170,7 @@ var GET_regressions = function( req, res ) {
 	var page = (req.params[2] || 0) - 0;
 	var offset = page * 40;
 	db.query( dbNumRegressionsBetweenRevs, [ r2, r1 ], function(err, row) {
-		if (err || !row) {
+		if (err) {
 			res.send( err.toString(), 500 );
 		} else {
 			var data = {
@@ -1197,7 +1194,7 @@ var GET_newFailsRegressions = function(req, res) {
 	var page = (req.params[2] || 0) - 0;
 	var offset = page * 40;
 	db.query(dbNumNewFailsRegressionsBetweenRevs, [r2, r1], function(err, row) {
-		if (err || !row) {
+		if (err) {
 			res.send(err.toString(), 500);
 		} else {
 			var data = {
@@ -1229,7 +1226,7 @@ var displayOneDiffRegressions = function(numFails, numSkips, subheading, heading
 	var page = (req.params[2] || 0) - 0;
 	var offset = page * 40;
 	db.query (dbNumOneDiffRegressionsBetweenRevs, [r2, r1, numFails, numSkips], function(err, row) {
-		if (err || !row) {
+		if (err) {
 			res.send(err.toString(), 500);
 		} else {
 			var headingLink = [
@@ -1272,7 +1269,7 @@ var GET_topfixes = function( req, res ) {
 	var page = (req.params[2] || 0) - 0;
 	var offset = page * 40;
 	db.query( dbNumFixesBetweenRevs, [ r2, r1 ], function(err, row) {
-		if (err || !row) {
+		if (err) {
 			res.send( err.toString(), 500 );
 		} else {
 			var data = {
@@ -1419,7 +1416,7 @@ var GET_perfStats = function( req, res ) {
 
 var GET_pagePerfStats = function( req, res ) {
 	if ( req.params.length < 2 ) {
-		res.send( "No title given.", 500 );
+		res.send( "No title given.", 404 );
 	}
 
 	var prefix = req.params[0],
@@ -1445,7 +1442,7 @@ var GET_pagePerfStats = function( req, res ) {
 				if ( err ) {
 					res.send( err.toString(), 500 );
 				} else if ( !rows || rows.length === 0 ) {
-					res.send( "No performance results found for page.", 404 );
+					res.send( "No performance results found for page.", 200 );
 				} else {
 					res.status( 200 );
 					var tableHeaders = ['Commit'];
