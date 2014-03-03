@@ -375,15 +375,9 @@ function ParsoidService(options) {
 		res.end('</body></html>');
 	});
 
-	function defaultParams( req, res, next ) {
-		res.local('iwp', parsoidConfig.defaultWiki || '');
-		res.local('pageName', req.params[0]);
-		next();
-	}
-
 	function interParams( req, res, next ) {
-		res.local('iwp', req.params[0]);
-		res.local('pageName', req.params[1]);
+		res.local('iwp', req.params[0] || parsoidConfig.defaultWiki || '');
+		res.local('pageName', req.params[1] || '');
 		next();
 	}
 
@@ -448,7 +442,7 @@ function ParsoidService(options) {
 	}
 
 	// Form-based HTML DOM -> wikitext interface for manual testing
-	app.get(/\/_html\/(.*)/, defaultParams, parserEnvMw, function ( req, res ) {
+	app.get( new RegExp('/_html/(?:(' + getInterwikiRE() + ')/(.*))?'), interParams, parserEnvMw, function ( req, res ) {
 		res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
 		res.write( "Your HTML DOM:" );
 		textarea( res, action( res ), "html" );
@@ -456,7 +450,7 @@ function ParsoidService(options) {
 	});
 
 	// Form-based wikitext -> HTML DOM interface for manual testing
-	app.get(/\/_wikitext\/(.*)/, defaultParams, parserEnvMw, function ( req, res ) {
+	app.get( new RegExp('/_wikitext/(?:(' + getInterwikiRE() + ')/(.*))?'), interParams, parserEnvMw, function ( req, res ) {
 		res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
 		res.write( "Your wikitext:" );
 		textarea( res, action( res ), "wt" );
@@ -464,7 +458,7 @@ function ParsoidService(options) {
 	});
 
 	// Round-trip article testing
-	app.get( new RegExp('/_rt/(' + getInterwikiRE() + ')/(.*)'), interParams, parserEnvMw, function(req, res) {
+	app.get( new RegExp('/_rt/(?:(' + getInterwikiRE() + ')/(.*))?'), interParams, parserEnvMw, function(req, res) {
 		var env = res.local('env');
 		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
@@ -523,14 +517,14 @@ function ParsoidService(options) {
 	});
 
 	// Form-based round-tripping for manual testing
-	app.get(/\/_rtform\/(.*)/, defaultParams, parserEnvMw, function ( req, res ) {
+	app.get( new RegExp('/_rtform/(?:(' + getInterwikiRE() + ')/(.*))?'), interParams, parserEnvMw, function ( req, res ) {
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 		res.write( "Your wikitext:" );
-		textarea( res, "/_rtform/" + res.local('pageName') , "content" );
+		textarea( res, '/_rtform/' + action(res) , "content" );
 		res.end();
 	});
 
-	app.post(/\/_rtform\/(.*)/, defaultParams, parserEnvMw, function ( req, res ) {
+	app.post( new RegExp('/_rtform/(?:(' + getInterwikiRE() + ')/(.*))?'), interParams, parserEnvMw, function ( req, res ) {
 		var env = res.local('env');
 		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 		// we don't care about \r, and normalize everything to \n
