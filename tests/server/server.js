@@ -598,7 +598,9 @@ var getTitle = function ( req, res ) {
 			fetchedPages = fetchedPages.concat( newPages );
 		}
 		if ( fetchedPages.length === 0 ) {
-			res.send( 'No available titles that fit the constraints.', 200 );
+			// Send 404 to indicate no pages available now, clients depend on
+			// this.
+			res.send( 'No available titles that fit the constraints.', 404 );
 		} else {
 			var page = fetchedPages.pop();
 
