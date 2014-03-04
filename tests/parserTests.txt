@@ -18122,26 +18122,20 @@ References: 7. Multiple references tags (one without and one with nested refs) s
 parsoid
 !! input
 A <ref>foo bar for a</ref>
-B <ref name="b" />
+B <ref group="X" name="b" />
 
 <references />
 
-<references>
+<references group="X">
 <ref name="b">foo</ref>
 </references>
 !! result
-<p>A <span about="#mwt2" class="reference" data-mw='{"name":"ref","body":{"html":"foo bar for a"},"attrs":{}}' id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref" data-parsoid='{"src":"&lt;ref>foo bar for a&lt;/ref>"}'><a href="#cite_note-1">[1]</a></span>
-B <span about="#mwt4" class="reference" data-mw='{"name":"ref","attrs":{"name":"b"}}' id="cite_ref-b-2-0" rel="dc:references" typeof="mw:Extension/ref" data-parsoid='{"src":"&lt;ref name=\"b\" />"}'><a href="#cite_note-b-2">[2]</a></span></p>
+<p>A <span about="#mwt2" class="reference" data-mw='{"name":"ref","body":{"html":"foo bar for a"},"attrs":{}}' id="cite_ref-2-0" rel="dc:references" typeof="mw:Extension/ref" data-parsoid='{"src":"&lt;ref>foo bar for a&lt;/ref>"}'><a href="#cite_note-2" data-parsoid="{}">[2]</a></span>
+B <span about="#mwt4" class="reference" data-mw='{"name":"ref","attrs":{"group":"X","name":"b"}}' id="cite_ref-b-3-0" rel="dc:references" typeof="mw:Extension/ref" data-parsoid='{"src":"&lt;ref name=\"b\" group=\"X\" />"}'><a href="#cite_note-b-3" data-parsoid="{}">[X 1]</a></span></p>
 
+<ol class="references" typeof="mw:Extension/references" about="#mwt6" data-parsoid='{"src":"&lt;references />"}' data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-b-1" id="cite_note-b-1" data-parsoid="{}"><span rel="mw:referencedBy" data-parsoid="{}">↑</span> foo</li><li about="#cite_note-2" id="cite_note-2" data-parsoid="{}"><span rel="mw:referencedBy" data-parsoid="{}"><a href="#cite_ref-2-0" data-parsoid="{}">↑</a></span> foo bar for a</li></ol>
 
-<ol class="references" typeof="mw:Extension/references" about="#mwt6" data-parsoid='{"src":"&lt;references />"}' data-mw='{"name":"references","attrs":{}}'>
-<li about="#cite_note-1" id="cite_note-1" data-parsoid="{}"><span rel="mw:referencedBy"><a href="#cite_ref-1-0">↑</a></span> foo bar for a</li>
-<li about="#cite_note-b-2" id="cite_note-b-2" data-parsoid="{}"><span rel="mw:referencedBy"><a href="#cite_ref-b-2-0">↑</a></span> </li></ol>
-
-
-<ol class="references" typeof="mw:Extension/references" about="#mwt8" data-parsoid='{"src":"&lt;references>\n&lt;ref name=\"b\">foo&lt;/ref>\n&lt;/references>"}' data-mw='{"name":"references","body":{"extsrc":"&lt;ref name=\"b\">foo&lt;/ref>","html":"\n&lt;span about=\"#mwt10\" class=\"reference\" data-mw=&#39;{\"name\":\"ref\",\"body\":{\"html\":\"foo\"},\"attrs\":{\"name\":\"b\"}}&#39; rel=\"dc:references\" typeof=\"mw:Extension/ref\">&lt;a href=\"#cite_note-b-3\">[1]&lt;/a>&lt;/span>\n"},"attrs":{}}'>
-<li about="#cite_note-b-3" id="cite_note-b-3" data-parsoid="{}"><span rel="mw:referencedBy">↑</span> foo</li>
-</ol>
+<ol class="references" typeof="mw:Extension/references" about="#mwt8" data-parsoid='{"src":"&lt;references group=\"X\">\n&lt;ref name=\"b\">foo&lt;/ref>\n&lt;/references>","group":"X"}' data-mw='{"name":"references","body":{"extsrc":"&lt;ref name=\"b\">foo&lt;/ref>","html":"\n&lt;span about=\"#mwt10\" class=\"reference\" data-mw=&#39;{\"name\":\"ref\",\"body\":{\"html\":\"foo\"},\"attrs\":{\"name\":\"b\"}}&#39; rel=\"dc:references\" typeof=\"mw:Extension/ref\">&lt;a href=\"#cite_note-b-1\">[1]&lt;/a>&lt;/span>\n"},"attrs":{"group":"X"}}'><li about="#cite_note-b-3" id="cite_note-b-3" data-parsoid="{}"><span rel="mw:referencedBy" data-parsoid="{}"><a href="#cite_ref-b-3-0" data-parsoid="{}">↑</a></span> </li></ol>
 !! end
 
 # This test is wt2html only because we're permitting the serializer to produce
