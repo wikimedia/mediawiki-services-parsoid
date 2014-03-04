@@ -1147,22 +1147,22 @@ var commitLinkData = function(commit, title, prefix) {
 var makeRegressionRow = function(row) {
 	return [
 		pageTitleData(row),
-		commitLinkData(row.new_commit, row.title, row.prefix),
-		row.errors + "|" + row.fails + "|" + row.skips,
 		commitLinkData(row.old_commit, row.title, row.prefix),
-		row.old_errors + "|" + row.old_fails + "|" + row.old_skips
+		row.old_errors + "|" + row.old_fails + "|" + row.old_skips,
+		commitLinkData(row.new_commit, row.title, row.prefix),
+		row.errors + "|" + row.fails + "|" + row.skips
 	];
 };
 
 var makeOneDiffRegressionRow = function(row) {
 	return [
 		pageTitleData(row),
-		commitLinkData(row.new_commit, row.title, row.prefix),
 		commitLinkData(row.old_commit, row.title, row.prefix),
+		commitLinkData(row.new_commit, row.title, row.prefix)
 	];
 };
 
-var regressionsHeaderData = ['Title', 'New Commit', 'Errors|Fails|Skips', 'Old Commit', 'Errors|Fails|Skips'];
+var regressionsHeaderData = ['Title', 'Old Commit', 'Errors|Fails|Skips', 'New Commit', 'Errors|Fails|Skips'];
 
 var GET_regressions = function( req, res ) {
 	var r1 = req.params[0];
@@ -1203,7 +1203,7 @@ var GET_newFailsRegressions = function(req, res) {
 				urlSuffix: '',
 				heading: 'Flagged regressions between selected revisions: ' +
 					row[0].numFlaggedRegressions,
-				subheading: 'New Commit: semantic diffs | Old Commit: only syntactic diffs',
+				subheading: 'Old Commit: only syntactic diffs | New Commit: semantic diffs',
 				headingLink: [
 					{name: 'one fail regressions',
 						info: 'one new semantic diff, previously perfect',
@@ -1245,7 +1245,7 @@ var displayOneDiffRegressions = function(numFails, numSkips, subheading, heading
 					row[0].numFlaggedRegressions,
 				subheading: subheading,
 				headingLink: headingLink,
-				header: ['Title', 'New Commit', 'Old Commit']
+				header: ['Title', 'Old Commit', 'New Commit']
 			};
 			db.query(dbOneDiffRegressionsBetweenRevs, [r2, r1, numFails, numSkips, offset],
 				displayPageList.bind(null, res, data, makeOneDiffRegressionRow));
@@ -1254,12 +1254,12 @@ var displayOneDiffRegressions = function(numFails, numSkips, subheading, heading
 };
 
 var GET_oneFailRegressions = displayOneDiffRegressions.bind(
-	null, 1, 0, 'New Commit: one semantic diff | Old Commit: perfect',
+	null, 1, 0, 'Old Commit: perfect | New Commit: one semantic diff',
 	['one skip regressions', 'one new syntactic diff, previously perfect', 'oneskip']
 );
 
 var GET_oneSkipRegressions = displayOneDiffRegressions.bind(
-	null, 0, 1, 'New Commit: one syntactic diff | Old Commit: perfect',
+	null, 0, 1, 'Old Commit: perfect | New Commit: one syntactic diff',
 	['one fail regressions', 'one new semantic diff, previously perfect', 'onefail']
 );
 
