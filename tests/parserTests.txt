@@ -12592,7 +12592,7 @@ MSIE CSS safety test: comment in expression
 !! end
 
 !! test
-CSS safety test: vertical tab
+CSS safety test (all browsers): vertical tab (bug 55332 / CVE-2013-4567)
 !! input
 <p style="font-size: 100px; background-image:url\b(https://www.google.com/images/srpr/logo6w.png)">A</p>
 !! result
@@ -12601,7 +12601,7 @@ CSS safety test: vertical tab
 !! end
 
 !! test
-MSIE CSS safety test: Fullwidth
+MSIE 6 CSS safety test: Fullwidth (bug 55332)
 !! input
 <p style="font-size: 100px; color: ｅｘｐｒｅｓｓｉｏｎ((title='XSSed'),'red')">A</p>
 <div style="top:ＥＸＰＲＥＳＳＩＯＮ(alert())">B</div>
@@ -12612,7 +12612,7 @@ MSIE CSS safety test: Fullwidth
 !! end
 
 !! test
-MSIE CSS safety test: IPA extensions
+MSIE 6 CSS safety test: IPA extensions (bug 55332)
 !! input
 <div style="background-image:uʀʟ(javascript:alert())">A</div>
 <p style="font-size: 100px; color: expʀessɪoɴ((title='XSSed'),'red')">B</p>
@@ -12623,7 +12623,7 @@ MSIE CSS safety test: IPA extensions
 !! end
 
 !! test
-MSIE CSS safety test: sup/sub script
+MSIE 6 CSS safety test: sup/sub script (bug 55332)
 !! input
 <div style="background-image:url⁽javascript:alert())">A</div>
 <div style="background-image:url₍javascript:alert())">B</div>
@@ -12636,7 +12636,18 @@ MSIE CSS safety test: sup/sub script
 !! end
 
 !! test
-MSIE CSS safety test: Repetition markers
+Opera -o-link CSS
+!! input
+<div
+title="&#100;&#97;&#116;&#97;&#58;&#116;&#101;&#120;&#116;&#47;&#104;&#116;&#109;&#108;&#44;&#60;&#105;&#109;&#103;&#32;&#115;&#114;&#99;&#61;&#49;&#32;&#111;&#110;&#101;&#114;&#114;&#111;&#114;&#61;&#97;&#108;&#101;&#114;&#116;&#40;&#49;&#41;&#62;"
+style="-o-link:attr(title);-o-link-source:current">X</div>
+!! result
+<div title="data:text/html,&lt;img src=1 onerror=alert(1)&gt;" style="/* insecure input */">X</div>
+
+!! end
+
+!! test
+MSIE 6 CSS safety test: Repetition markers (bug 55332)
 !! input
 <p style="font-size: 100px; color: expres〱ion((title='XSSed'),'red')">A</p>
 <p style="font-size: 100px; color: expresゝion((title='XSSed'),'red')">B</p>
@@ -13627,7 +13638,7 @@ Special page transclusion
 !! input
 {{Special:Prefixindex/Xyzzyx}}
 !! result
-<table id="mw-prefixindex-list-table"><tr><td><a href="/wiki/Xyzzyx" title="Xyzzyx">Xyzzyx</a></td></tr></table>
+<table class="mw-prefixindex-list-table"><tr><td><a href="/wiki/Xyzzyx" title="Xyzzyx">Xyzzyx</a></td></tr></table>
 
 !! end
 
@@ -13638,8 +13649,8 @@ Special page transclusion twice (bug 5021)
 {{Special:Prefixindex/Xyzzyx}}
 {{Special:Prefixindex/Xyzzyx}}
 !! result
-<table id="mw-prefixindex-list-table"><tr><td><a href="/wiki/Xyzzyx" title="Xyzzyx">Xyzzyx</a></td></tr></table>
-<table id="mw-prefixindex-list-table"><tr><td><a href="/wiki/Xyzzyx" title="Xyzzyx">Xyzzyx</a></td></tr></table>
+<table class="mw-prefixindex-list-table"><tr><td><a href="/wiki/Xyzzyx" title="Xyzzyx">Xyzzyx</a></td></tr></table>
+<table class="mw-prefixindex-list-table"><tr><td><a href="/wiki/Xyzzyx" title="Xyzzyx">Xyzzyx</a></td></tr></table>
 
 !! end
 
@@ -17168,6 +17179,19 @@ language=be-tarask
 !! result
 <p>123 456,78
 123456.78
+</p>
+!! end
+
+!! test
+Wrong option for formatNum (bug 56199)
+!! input
+{{formatnum:1,234.56|Random}}
+{{formatnum:1,234.56|EVERYTHING}}
+{{formatnum:1234.56|any argument that has the string 'NOSEP'}}
+!! result
+<p>1,234.56
+1,234.56
+1,234.56
 </p>
 !! end
 
