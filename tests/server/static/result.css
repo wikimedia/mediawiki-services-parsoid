@@ -4,11 +4,11 @@ failure, error {
     display: block;
     border-left: 7px solid red;
 }
+
 skipped {
     font-family: monospace;
     white-space: pre;
     display: block;
-    /* orange border */
     border-left: 7px solid yellow;
 }
 
@@ -20,8 +20,63 @@ testcase {
 testcase:before {
     font-size: 70%;
     font-weight: bold;
-    color: grey;
+    color: gray;
     margin-left: 8px;
     content: attr(name) ":";
 }
 
+/* For result comparison views (flag changed skips/fails) */
+
+FlagNewTestcases:before {
+    padding-top: 8px;
+    padding-left: 8px;
+    margin-bottom: 8px;
+    display: block;
+    font-size: 1.2em;
+    border-bottom: 1px solid #aaa;
+    content: "Diffs in commit " attr(newCommit) " (flagged if new since older " attr(oldCommit) ")";
+    font-family: sans-serif;
+}
+
+FlagOldTestcases:before {
+    padding-top: 8px;
+    padding-left: 8px;
+    margin-bottom: 8px;
+    display: block;
+    font-size: 1.2em;
+    border-bottom: 1px solid #aaa;
+    content: "Diffs in commit " attr(oldCommit) " (flagged if no longer in newer " attr(newCommit) ")";
+    font-family: sans-serif;
+}
+
+testcase[status='new'] skipped:before {
+    background: yellow;
+    font-size: 70%;
+    content: 'New Syntactic Diff ';
+    font-family: sans-serif;
+    padding: 2px;
+}
+
+testcase[status='new'] failure:before {
+    background: red;
+    font-size: 70%;
+    content: 'New Semantic Diff ';
+    font-family: sans-serif;
+    padding: 2px;
+}
+
+testcase[status='old'] skipped:before {
+    background-color: rgba(255,255,0,0.2);
+    font-size: 70%;
+    content: 'Not in newer revision ';
+    font-family: sans-serif;
+    padding: 2px;
+}
+
+testcase[status='old'] failure:before {
+    background-color: rgba(255,0,0,0.2);
+    font-size: 70%;
+    content: 'Not in newer revision ';
+    font-family: sans-serif;
+    padding: 2px;
+}

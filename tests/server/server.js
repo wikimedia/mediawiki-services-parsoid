@@ -4,7 +4,8 @@
 
 var express = require( 'express' ),
 	optimist = require( 'optimist' ),
-	hbs = require( 'handlebars' );
+	hbs = require( 'handlebars' ),
+	Diff = require('./diff.js').Diff;
 
 // Default options
 var defaults = {
@@ -328,6 +329,14 @@ var dbGetResultWithCommit =
     'SELECT result FROM results ' +
     'JOIN pages ON pages.id = results.page_id ' +
     'WHERE results.commit_hash = ? AND pages.title = ? AND pages.prefix = ?';
+
+var dbGetTwoResults =
+	'SELECT result FROM results ' +
+	'JOIN commits ON results.commit_hash = commits.hash ' +
+	'JOIN pages ON pages.id = results.page_id ' +
+	'WHERE pages.title = ? AND pages.prefix = ? ' +
+	'AND (commits.hash = ? OR commits.hash = ?) ' +
+	'ORDER BY commits.timestamp';
 
 var dbFailedFetches =
 	'SELECT title, prefix FROM pages WHERE num_fetch_errors >= ?';
@@ -941,7 +950,6 @@ var statsWebInterface = function ( req, res ) {
 				return Math.round( val * 100 ) / 100;
 			}
 		});
-
 		res.render('index.html', data);
 		}
 	});
@@ -1026,6 +1034,46 @@ var resultWebInterface = function( req, res ) {
 	} else {
 		db.query( dbGetOneResult, [ title, prefix ], resultWebCallback.bind( null, req, res ) );
 	}
+};
+
+var diffResultWebCallback = function(req, res, flag, err, row) {
+	if ( err ) {
+		console.error( err );
+		res.send( err.toString(), 500 );
+	} else if (row.length === 2) {
+		var oldCommit = req.params[0].slice(0,10);
+		var newCommit = req.params[1].slice(0,10);
+		var oldResult = row[0].result;
+		var newResult = row[1].result;
+		var flagResult = Diff.resultFlagged(oldResult, newResult, oldCommit, newCommit, flag);
+		res.setHeader( 'Content-Type', 'text/xml; charset=UTF-8' );
+		res.status(200);
+		res.write( '<?xml-stylesheet href="/static/result.css"?>\n' );
+		res.end(flagResult);
+	} else {
+		var commit = flag === '+' ? req.params[1] : req.params[0];
+		res.redirect('/result/' + commit + '/' + req.params[2] + '/' + req.params[3]);
+	}
+};
+
+var resultFlagNewWebInterface = function(req, res) {
+	var oldCommit = req.params[0];
+	var newCommit = req.params[1];
+	var prefix = req.params[2];
+	var title = req.params[3];
+
+	db.query(dbGetTwoResults, [ title, prefix, oldCommit, newCommit ],
+		diffResultWebCallback.bind(null, req, res, '+'));
+};
+
+var resultFlagOldWebInterface = function(req, res) {
+	var oldCommit = req.params[0];
+	var newCommit = req.params[1];
+	var prefix = req.params[2];
+	var title = req.params[3];
+
+	db.query(dbGetTwoResults, [ title, prefix, oldCommit, newCommit ],
+		diffResultWebCallback.bind(null, req, res, '-'));
 };
 
 var GET_failedFetches = function( req, res ) {
@@ -1146,12 +1194,26 @@ var commitLinkData = function(commit, title, prefix) {
 	};
 };
 
+var newCommitLinkData = function(oldCommit, newCommit, title, prefix) {
+	return {
+		url: '/resultFlagNew/' + oldCommit + '/' + newCommit + '/' + prefix + '/' + title,
+		name: newCommit.substr(0,7)
+	};
+};
+
+var oldCommitLinkData = function(oldCommit, newCommit, title, prefix) {
+	return {
+		url: '/resultFlagOld/' + oldCommit + '/' + newCommit + '/' + prefix + '/' + title,
+		name: oldCommit.substr(0,7)
+	};
+};
+
 var makeRegressionRow = function(row) {
 	return [
 		pageTitleData(row),
-		commitLinkData(row.old_commit, row.title, row.prefix),
+		oldCommitLinkData(row.old_commit, row.new_commit, row.title, row.prefix),
 		row.old_errors + "|" + row.old_fails + "|" + row.old_skips,
-		commitLinkData(row.new_commit, row.title, row.prefix),
+		newCommitLinkData(row.old_commit, row.new_commit, row.title, row.prefix),
 		row.errors + "|" + row.fails + "|" + row.skips
 	];
 };
@@ -1159,8 +1221,8 @@ var makeRegressionRow = function(row) {
 var makeOneDiffRegressionRow = function(row) {
 	return [
 		pageTitleData(row),
-		commitLinkData(row.old_commit, row.title, row.prefix),
-		commitLinkData(row.new_commit, row.title, row.prefix)
+		oldCommitLinkData(row.old_commit, row.new_commit, row.title, row.prefix),
+		newCommitLinkData(row.old_commit, row.new_commit, row.title, row.prefix)
 	];
 };
 
@@ -1513,6 +1575,12 @@ app.get( /^\/latestresult\/([^\/]+)\/(.*)$/, resultWebInterface );
 
 // Results for a title on any commit
 app.get( /^\/result\/([a-f0-9]*)\/([^\/]+)\/(.*)$/, resultWebInterface );
+
+// Results for a title on a commit, flag skips/fails new since older commit
+app.get( /^\/resultFlagNew\/([a-f0-9]*)\/([a-f0-9]*)\/([^\/]+)\/(.*)$/, resultFlagNewWebInterface );
+
+// Results for a title on a commit, flag skips/fails no longer in newer commit
+app.get( /^\/resultFlagOld\/([a-f0-9]*)\/([a-f0-9]*)\/([^\/]+)\/(.*)$/, resultFlagOldWebInterface );
 
 // List of failures sorted by severity
 app.get( /^\/topfails\/(\d+)$/, failsWebInterface );
