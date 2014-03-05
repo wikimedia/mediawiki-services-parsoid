@@ -10398,7 +10398,7 @@ parsoid
 !! end
 
 !! test
-Thumbnail image with link parameter
+Thumbnail image with link parameter (php)
 !! options
 php
 !! input
@@ -10406,6 +10406,16 @@ php
 !! result
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="http://example.com/"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>Title</div></div></div>
 
+!! end
+
+!! test
+Thumbnail image with link parameter (parsoid)
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! input
+[[File:Foobar.jpg|thumb|link=http://example.com/|Title]]
+!! result
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="http://example.com/"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>Title</figcaption></figure>
 !! end
 
 !! test
@@ -10464,7 +10474,9 @@ php
 !! end
 
 !! test
-Image with frame and link
+Image with frame and link (php)
+!! options
+php
 !! input
 [[Image:Foobar.jpg|frame|left|This is a test image [[Main Page]]]]
 !! result
@@ -10473,7 +10485,19 @@ Image with frame and link
 !! end
 
 !! test
-Image with frame and link and explicit alt
+Image with frame and link (parsoid)
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! input
+[[File:Foobar.jpg|frame|left|This is a test image [[Main Page]]]]
+!! result
+<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Frame"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a><figcaption>This is a test image <a rel="mw:WikiLink" href="Main_Page">Main Page</a></figcaption></figure>
+!! end
+
+!! test
+Image with frame and link and explicit alt (php)
+!! options
+php
 !! input
 [[Image:Foobar.jpg|frame|left|This is a test image [[Main Page]]|alt=Altitude]]
 !! result
@@ -10482,7 +10506,19 @@ Image with frame and link and explicit alt
 !! end
 
 !! test
-Image with wiki markup in implicit alt
+Image with frame and link and explicit alt (parsoid)
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! input
+[[File:Foobar.jpg|frame|left|This is a test image [[Main Page]]|alt=Altitude]]
+!! result
+<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Frame"><a href="File:Foobar.jpg"><img alt="Altitude" resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a><figcaption>This is a test image <a rel="mw:WikiLink" href="Main_Page">Main Page</a></figcaption></figure>
+!! end
+
+!! test
+Image with wiki markup in implicit alt (php)
+!! options
+php
 !! input
 [[Image:Foobar.jpg|testing '''bold''' in alt]]
 !! result
@@ -10491,12 +10527,13 @@ Image with wiki markup in implicit alt
 !! end
 
 !! test
-Image with wiki markup in explicit alt
+Image with wiki markup in explicit alt (parsoid)
+!! options
+parsoid=wt2html,wt2wt,html2html
 !! input
-[[Image:Foobar.jpg|alt=testing '''bold''' in alt]]
+[[File:Foobar.jpg|alt=testing '''bold''' in alt]]
 !! result
-<p><a href="/wiki/File:Foobar.jpg" class="image"><img alt="testing bold in alt" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
-</p>
+<p><span class="mw-default-size" typeof="mw:Image"><a href="File:Foobar.jpg"><img alt="testing bold in alt" resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></span></p>
 !! end
 
 !! test
@@ -10520,7 +10557,9 @@ bug 18784  Link to non-existent image page with caption should use caption as li
 !! end
 
 !! test
-Frameless image caption with a free URL
+Frameless image caption with a free URL (php)
+!! options
+php
 !! input
 [[Image:foobar.jpg|http://example.com]]
 !! result
@@ -10529,7 +10568,19 @@ Frameless image caption with a free URL
 !! end
 
 !! test
-Thumbnail image caption with a free URL
+Frameless image caption with a free URL (parsoid)
+!! options
+parsoid
+!! input
+[[File:Foobar.jpg|http://example.com]]
+!! result
+<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"http://example.com"}'><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></span></p>
+!! end
+
+!! test
+Thumbnail image caption with a free URL (php)
+!! options
+php
 !! input
 [[Image:foobar.jpg|thumb|http://example.com]]
 !! result
@@ -10538,12 +10589,34 @@ Thumbnail image caption with a free URL
 !! end
 
 !! test
-Thumbnail image caption with a free URL and explicit alt
+Thumbnail image caption with a free URL (parsoid)
+!! options
+parsoid
+!! input
+[[File:Foobar.jpg|thumb|http://example.com]]
+!! result
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption><a rel="mw:ExtLink" href="http://example.com">http://example.com</a></figcaption></figure>
+!! end
+
+!! test
+Thumbnail image caption with a free URL and explicit alt (php)
+!! options
+php
 !! input
 [[Image:foobar.jpg|thumb|http://example.com|alt=Alteration]]
 !! result
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Alteration" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a></div></div></div>
 
+!! end
+
+!! test
+Thumbnail image caption with a free URL and explicit alt (parsoid)
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! input
+[[File:Foobar.jpg|thumb|http://example.com|alt=Alteration]]
+!! result
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img alt="Alteration" resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption><a rel="mw:ExtLink" href="http://example.com">http://example.com</a></figcaption></figure>
 !! end
 
 !! test
