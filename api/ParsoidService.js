@@ -45,6 +45,67 @@ function ParsoidService(options) {
 
 	var interwikiRE;
 
+
+/**
+	 * Check response object to see if headers were sent. 
+	 *
+	 * @method
+	 * @param {Response} res The response object from our routing function.
+	 * @property {Function} Serializer
+	 */
+	function headersSent (res) {
+	  return res.headersSent // node 0.10+
+	             || res.headerSent; // connect on node 0.8;
+	}
+
+/**
+	 * Set header, but only if response hasn't been sent.
+	 *
+	 * @method
+	 * @param {MWParserEnvironment} env
+	 * @param {Response} res The response object from our routing function.
+	 * @property {Function} Serializer
+	 */
+	function setHeader (res, env) {
+		if (headersSent(res)) {
+			return;
+		} else {
+			res.setHeader.apply(res, Array.prototype.slice.call(arguments, 2));
+		}
+	}
+
+	/**
+	 * End response, but only if response hasn't been sent.
+	 *
+	 * @method
+	 * @param {MWParserEnvironment} env
+	 * @param {Response} res The response object from our routing function.
+	 * @property {Function} Serializer
+	 */
+	function endResponse (res, env) {
+		if (headersSent(res)) {
+			return;
+		} else {
+			res.end.apply(res, Array.prototype.slice.call(arguments, 2));
+		}
+	}
+
+	/**
+	 * Send response, but only if response hasn't been sent.
+	 *
+	 * @method
+	 * @param {MWParserEnvironment} env
+	 * @param {Response} res The response object from our routing function.
+	 * @property {Function} Serializer
+	 */
+	function sendResponse (res, env) {
+		if (headersSent(res)) {
+			return;
+		} else {
+			res.send.apply(res, Array.prototype.slice.call(arguments, 2));
+		}
+	}
+
 	/**
 	 * The global parsoid configuration object.
 	 * @property {ParsoidConfig}
@@ -202,12 +263,10 @@ function ParsoidService(options) {
 			// Strip selser trigger comment
 			out = out.replace(/<!--rtSelserEditTestComment-->\n*$/, '');
 			if ( out === undefined ) {
-				console.log( 'Serializer error!' );
-				out = "An error occured in the WikitextSerializer, please check the log for information";
-				res.send( out, 500 );
+				env.log("fatal/request", "An error occured in the WikitextSerializer");
 				return;
 			}
-			res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
+			setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8' );
 			res.write('<html><head>\n');
 			res.write('<script type="text/javascript" src="/jquery.js"></script><script type="text/javascript" src="/scrolling.js"></script><style>ins { background: #ff9191; text-decoration: none; } del { background: #99ff7e; text-decoration: none }; </style>\n');
 			// Emit base href so all relative urls resolve properly
@@ -243,7 +302,7 @@ function ParsoidService(options) {
 					'Report a parser issue in this page</a> at ' +
 					'<a href="http://www.mediawiki.org/wiki/Talk:Parsoid/Todo">'+
 					'[[:mw:Talk:Parsoid/Todo]]</a></h2>\n<hr>');
-			res.end('\n</body></html>');
+			endResponse(res, env, '\n</body></html>');
 		};
 
 		// Re-parse the HTML to uncover foster-parenting issues
@@ -265,7 +324,7 @@ function ParsoidService(options) {
 	function handleCacheRequest( env, req, res, cb, src, cacheErr, cacheSrc ) {
 		var errorHandlingCB = function ( src, err, doc ) {
 			if ( err ) {
-				env.errCB( err, true );
+				env.log("fatal/request", err);
 				return;
 			}
 			cb( req, res, src, doc );
@@ -298,7 +357,7 @@ function ParsoidService(options) {
 
 	var parse = function ( env, req, res, cb, err, src_and_metadata ) {
 		if ( err ) {
-			env.errCB( err, true );
+			env.log("fatal/request", err);
 			return;
 		}
 
@@ -334,17 +393,23 @@ function ParsoidService(options) {
 	/**
 	 * Send a redirect response with optional code and a relative URL
 	 *
+	 * (Returns if a response has already been sent.)
 	 * This is not strictly HTTP spec conformant, but works in most clients. More
 	 * importantly, it works both behind proxies and on the internal network.
 	 */
-	function relativeRedirect(res, path, code) {
-		if (!code) {
-			code = 302; // moved temporarily
+	function relativeRedirect(obj) {
+		if (!obj.code) {
+			obj.code = 302; // moved temporarily
 		}
-		res.writeHead(code, {
-				'Location': path
-		});
-		res.end();
+
+		if (obj.res && headersSent(obj.res) ) {
+			return;
+		} else {
+			obj.res.writeHead(obj.code, {
+				'Location': obj.path
+			});
+			obj.res.end();
+		}
 	}
 
 	/* -------------------- web app access points below --------------------- */
@@ -382,59 +447,67 @@ function ParsoidService(options) {
 	}
 
 	function parserEnvMw( req, res, next ) {
-		MWParserEnvironment.getParserEnv( parsoidConfig, null, res.local('iwp'),
-			res.local('pageName'), req.headers.cookie, function ( err, env ) {
-			var errCB = function ( e, dontRestart ) {
+		MWParserEnvironment.getParserEnv( parsoidConfig, null, res.local('iwp'), res.local('pageName'), req.headers.cookie, function ( err, env ) {
 
-				if ( !dontRestart ) {  // default to restarting
-					res.on('finish', function () {
-						process.exit( 1 );
-					});
-				}
-
-				try {
-					var location = 'ERROR in ' + res.local('iwp') + ':' + res.local('pageName');
-					var stack = e.stack || e.toString();
-					if ( req.query && req.query.oldid ) {
-						location += ' with oldid: ' + req.query.oldid;
+			function generateErrCBMessage (obj) {
+				var messageString = "";
+				if (obj.constructor.name === "Error") {
+					messageString += obj.message;
+					messageString += 'ERROR in ' + res.local('iwp') + ':' + res.local('pageName');
+					messageString += "\n" + obj.stack;
+				} else {
+					if (obj.msg) {
+						messageString += obj.msg;
 					}
-
-					console.error( location );
-					console.error( 'Stack trace: ' + stack );
-
-					res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
-					res.send( stack, e.code || 500 );
-				} catch (e) {
-					console.warn( e );
+					if (obj.location) {
+						messageString += "\n" + obj.location;
+					}
+					if (obj.stack) {
+						messageString += "\n" + obj.stack;
+					}
 				}
-
-			};
-
-			if ( err ) {
-				return errCB( err );
-			} else {
-				env.errCB = errCB;
+				return messageString;
 			}
 
-			res.local('env', env);
+			function errCB ( res, env, obj, callback ) {
+				try {
+					if (headersSent(res)) {
+						return;
+					} else {
+						var messageString = generateErrCBMessage(obj);
+						setHeader(res, env, 'Content-Type', 'text/plain; charset=UTF-8' );
+						sendResponse(res, env, messageString, obj.code || 500);
+						res.on('finish', callback);
+					}
+				} catch (e) {
+					return;
+				}
+			}
+
+			if ( err ) {
+				return errCB(res, null, err);
+			}
+
+			env.logger.registerBackend(/fatal(\/.*)?/, errCB.bind(this, res, env));
+			res.local("env", env);
 			next();
 		});
 	}
 
 	// robots.txt: no indexing.
 	app.get(/^\/robots.txt$/, function ( req, res ) {
-		res.end( "User-agent: *\nDisallow: /\n" );
+		res.end("User-agent: *\nDisallow: /\n" );
 	});
 
 	// Redirects for old-style URL compatibility
 	app.get( new RegExp( '^/((?:_rt|_rtve)/)?(' + getInterwikiRE() +
 					'):(.*)$' ), function ( req, res ) {
 		if ( req.params[0] ) {
-			relativeRedirect( res,  '/' + req.params[0] + req.params[1] + '/' + req.params[2], 301);
+			relativeRedirect({"path" : '/' + req.params[0] + req.params[1] + '/' + req.params[2], "res" : res, "code" : 301});
 		} else {
-			relativeRedirect( res, '/' + req.params[1] + '/' + req.params[2], 301);
+			relativeRedirect({"path" : '/' + req.params[1] + '/' + req.params[2], "res" : res, "code": 301});
 		}
-		res.end( );
+		res.end();
 	});
 
 	function action( res ) {
@@ -443,18 +516,20 @@ function ParsoidService(options) {
 
 	// Form-based HTML DOM -> wikitext interface for manual testing
 	app.get( new RegExp('/_html/(?:(' + getInterwikiRE() + ')/(.*))?'), interParams, parserEnvMw, function ( req, res ) {
-		res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
+		var env = res.local('env');
+		setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8' );
 		res.write( "Your HTML DOM:" );
 		textarea( res, action( res ), "html" );
-		res.end();
+		endResponse(res, env );
 	});
 
 	// Form-based wikitext -> HTML DOM interface for manual testing
 	app.get( new RegExp('/_wikitext/(?:(' + getInterwikiRE() + ')/(.*))?'), interParams, parserEnvMw, function ( req, res ) {
-		res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
+		var env = res.local('env');
+		setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8' );
 		res.write( "Your wikitext:" );
 		textarea( res, action( res ), "wt" );
-		res.end();
+		endResponse(res, env );
 	});
 
 	// Round-trip article testing
@@ -518,15 +593,16 @@ function ParsoidService(options) {
 
 	// Form-based round-tripping for manual testing
 	app.get( new RegExp('/_rtform/(?:(' + getInterwikiRE() + ')/(.*))?'), interParams, parserEnvMw, function ( req, res ) {
-		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+		var env = res.local('env');
+		setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8');
 		res.write( "Your wikitext:" );
-		textarea( res, '/_rtform/' + action(res) , "content" );
-		res.end();
+		textarea( res, "/_rtform/" + res.local('pageName') , "content" );
+		endResponse(res, env );
 	});
 
 	app.post( new RegExp('/_rtform/(?:(' + getInterwikiRE() + ')/(.*))?'), interParams, parserEnvMw, function ( req, res ) {
 		var env = res.local('env');
-		res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+		setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8');
 		// we don't care about \r, and normalize everything to \n
 		parse( env, req, res, roundTripDiff.bind( null, false ), null, {
 			revision: { '*': req.body.content.replace(/\r/g, '') }
@@ -540,7 +616,7 @@ function ParsoidService(options) {
 		if ( env.conf.parsoid.allowCORS ) {
 			// allow cross-domain requests (CORS) so that parsoid service
 			// can be used by third-party sites
-			res.setHeader( 'Access-Control-Allow-Origin',
+			setHeader(res, env, 'Access-Control-Allow-Origin',
 						   env.conf.parsoid.allowCORS );
 		}
 
@@ -549,8 +625,7 @@ function ParsoidService(options) {
 			try {
 				doc = DU.parseHTML( html.replace( /\r/g, '' ) );
 			} catch ( e ) {
-				console.log( 'There was an error in the HTML5 parser!' );
-				env.errCB( e );
+				env.log("fatal", e, "There was an error in the HTML5 parser!");
 				return;
 			}
 
@@ -561,12 +636,12 @@ function ParsoidService(options) {
 					function ( chunk ) {
 						out.push( chunk );
 					}, function () {
-						res.setHeader( 'Content-Type', 'text/x-mediawiki; charset=UTF-8' );
-						res.setHeader( 'X-Parsoid-Performance', env.getPerformanceHeader() );
-						res.end( out.join( '' ) );
+						setHeader(res, env, 'Content-Type', 'text/x-mediawiki; charset=UTF-8' );
+						setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader() );
+						endResponse(res, env,  out.join( '' ) );
 					} );
 			} catch ( e ) {
-				env.errCB( e );
+				env.log("fatal", e);
 				return;
 			}
 		};
@@ -576,7 +651,7 @@ function ParsoidService(options) {
 			var tpr = new TemplateRequest( env, target, env.page.id );
 			tpr.once( 'src', function ( err, src_and_metadata ) {
 				if ( err ) {
-					console.log( 'There was an error fetching the original wikitext for', target );
+					env.log("error", "There was an error fetching the original wikitext for", target, err);
 				} else {
 					env.setPageSrcInfo( src_and_metadata );
 				}
@@ -588,6 +663,7 @@ function ParsoidService(options) {
 	}
 
 	function wt2html( req, res, wt ) {
+
 		var env = res.local('env');
 		var prefix = res.local('iwp');
 		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
@@ -600,7 +676,7 @@ function ParsoidService(options) {
 		if ( env.conf.parsoid.allowCORS ) {
 			// allow cross-domain requests (CORS) so that parsoid service
 			// can be used by third-party sites
-			res.setHeader( 'Access-Control-Allow-Origin',
+			setHeader(res, env, 'Access-Control-Allow-Origin',
 						   env.conf.parsoid.allowCORS );
 		}
 
@@ -618,13 +694,13 @@ function ParsoidService(options) {
 			parser.once( 'document', function ( document ) {
 				// Don't cache requests when wt is set in case somebody uses
 				// GET for wikitext parsing
-				res.setHeader( 'Cache-Control', 'private,no-cache,s-maxage=0' );
+				setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0' );
 				sendRes( req.body.body ? document.body : document );
 			});
 
 			tmpCb = function ( err, src_and_metadata ) {
 				if ( err ) {
-					env.errCB( err, true );
+					env.log("fatal/request", err);
 					return;
 				}
 
@@ -634,7 +710,7 @@ function ParsoidService(options) {
 				try {
 					parser.processToplevelDoc( wt );
 				} catch ( e ) {
-					env.errCB( e );
+					env.log("fatal", e);
 					return;
 				}
 			};
@@ -648,20 +724,20 @@ function ParsoidService(options) {
 		} else {
 			if ( oldid ) {
 				if ( !req.headers.cookie ) {
-					res.setHeader( 'Cache-Control', 's-maxage=2592000' );
+					setHeader(res, env, 'Cache-Control', 's-maxage=2592000' );
 				} else {
 					// Don't cache requests with a session
-					res.setHeader( 'Cache-Control', 'private,no-cache,s-maxage=0' );
+					setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0' );
 				}
 				tmpCb = parse.bind( null, env, req, res, function ( req, res, src, doc ) {
 					sendRes( doc.documentElement );
 				});
 			} else {
 				// Don't cache requests with no oldid
-				res.setHeader( 'Cache-Control', 'private,no-cache,s-maxage=0' );
+				setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0' );
 				tmpCb = function ( err, src_and_metadata ) {
 					if ( err ) {
-						env.errCB( err, true );
+						env.log("fatal/request", err);
 						return;
 					}
 
@@ -673,8 +749,8 @@ function ParsoidService(options) {
 							].join( "/" );
 
 					// Redirect to oldid
-					relativeRedirect( res, url );
-					console.warn( "redirected " + prefix + ':' + target + " to revision " + env.page.meta.revision.revid );
+					relativeRedirect({"path" : url, "res" : res, "env" : env});
+					env.log("trace/request", "redirected", prefix, ":", target, "to revision", env.page.meta.revision.revid);
 				};
 			}
 		}
@@ -685,12 +761,12 @@ function ParsoidService(options) {
 		function sendRes( doc ) {
 			var out = DU.serializeNode( doc );
 			try {
-				res.setHeader( 'X-Parsoid-Performance', env.getPerformanceHeader() );
-				res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
-				res.end( out );
-				console.warn( "completed parsing of " + prefix + ':' + target + " in " + env.performance.duration + " ms" );
-			} catch ( e ) {
-				console.warn(e);
+				setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader() );
+				setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8' );
+				endResponse(res, env,  out );
+				env.log("trace/request", "completed parsing of", prefix, ":", target, "in", env.performance.duration, "ms");
+			} catch (e) {
+				env.log("fatal/request", e);
 			}
 		}
 	}
@@ -757,4 +833,3 @@ function ParsoidService(options) {
 module.exports = {
 	ParsoidService: ParsoidService
 };
-

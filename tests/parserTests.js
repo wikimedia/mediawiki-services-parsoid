@@ -278,7 +278,7 @@ ParserTests.prototype.getTests = function ( argv ) {
 	var fetcher = require(__dirname+"/fetch-parserTests.txt.js");
 	if (!fetcher.isUpToDate()) {
 		parserTestsUpToDate = false;
-		console.warn("WARNING: parserTests.txt not up-to-date with upstream.");
+		console.warn("warning", "ParserTests.txt not up-to-date with upstream.");
 	}
 
 	// Startup by loading .txt test file
@@ -287,7 +287,7 @@ ParserTests.prototype.getTests = function ( argv ) {
 		testFile = fs.readFileSync(this.testFileName, 'utf8');
 		fileDependencies.push( this.testFileName );
 	} catch (e) {
-		console.error( e );
+		this.env.log("error", e);
 	}
 	// parser grammar is also a dependency
 	fileDependencies.push( this.testParserFileName );
@@ -323,7 +323,7 @@ ParserTests.prototype.getTests = function ( argv ) {
 		return JSON.parse( cache_content.replace( /^.*\n/, '' ) );
 	} else {
 		// Write new file cache, content preprended with current digest
-		console.error( "Cache file either not present or outdated" );
+		this.env.log("error", "Cache file either not present or outdated");
 		var parse = this.parseTestCase( testFile );
 		if ( parse !== undefined ) {
 			fs.writeFileSync( cache_file_name,
@@ -348,7 +348,7 @@ ParserTests.prototype.parseTestCase = function ( content ) {
 	try {
 		return this.testParser.parse(content);
 	} catch (e) {
-		console.error(e);
+		this.env.log("error", e);
 	}
 	return undefined;
 };
@@ -415,7 +415,7 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
 			self.env.page.dom = null;
 		} );
 	} catch ( e ) {
-		console.error(e.stack);
+		this.env.log("error", e);
 		processWikitextCB( e, null );
 		this.env.setPageSrcInfo( null );
 		this.env.page.dom = null;
@@ -462,6 +462,9 @@ var staticRandomString = "ahseeyooxooZ8Oon0boh";
  * @param {Node} cb.document
  */
 ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) {
+
+	var self = this;
+
 	// Helper function for getting a random string
 	function randomString() {
 		return random().toString(36).slice(2);
@@ -519,8 +522,8 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 	function applyChangesInternal(node, changes) {
 		if (!node) {
 			// FIXME: Generate change assignments dynamically
-			console.error('ERROR: no node in applyChangesInternal, ' +
-					'HTML structure likely changed');
+			self.env.log("error", "no node in applyChangesInternal, ",
+					"HTML structure likely changed");
 			return;
 		}
 
@@ -545,7 +548,7 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 						if (DU.isElt(child)) {
 							child.setAttribute( 'data-foobar', randomString() );
 						} else {
-							console.error("Buggy changetree. changetype 1 (modify attribute) cannot be applied on text/comment nodes.");
+							self.env.log("error", "Buggy changetree. changetype 1 (modify attribute) cannot be applied on text/comment nodes.");
 						}
 						break;
 
@@ -778,15 +781,15 @@ ParserTests.prototype.convertWt2Html = function( mode, wikitext, processHtmlCB )
  */
 ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 	if ( !( 'title' in item ) ) {
-		console.error( item );
+		this.env.log("error", item);
 		throw new Error( 'Missing title from test case.' );
 	}
 	if ( !( 'input' in item ) ) {
-		console.error( item );
+		this.env.log("error", item);
 		throw new Error( 'Missing input from test case ' + item.title );
 	}
 	if ( !( 'result' in item ) ) {
-		console.error( item );
+		this.env.log("error", item);
 		throw new Error( 'Missing input from test case ' + item.title );
 	}
 
@@ -1066,8 +1069,7 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 		// The error object exists, which means
 		// there was an error! gwicke said it wouldn't happen, but handle
 		// it anyway, just in case.
-		console.log( '\nBECAUSE THERE WAS AN ERROR:\n'.red + '');
-		console.log( error.stack || error.toString() );
+		this.env.log("error", error);
 	}
 };
 
@@ -1370,10 +1372,10 @@ ParserTests.prototype.reportSummary = function ( stats ) {
 	// repeat warning about out-of-date parser tests (we might have missed
 	// in at the top) and describe what to do about it.
 	if (!parserTestsUpToDate) {
-		console.log( "==========================================================");
-		console.warn( "WARNING:".red +
-		              " parserTests.txt not up-to-date with upstream." );
-		console.warn ("         Run fetch-parserTests.txt.js to update." );
+		console.log("==========================================================");
+		console.warn("WARNING:".red +
+		              " parserTests.txt not up-to-date with upstream.");
+		console.warn("         Run fetch-parserTests.txt.js to update.");
 	}
 	console.log( "==========================================================");
 
@@ -1385,14 +1387,15 @@ ParserTests.prototype.reportSummary = function ( stats ) {
  * @param {Object} options
  */
 ParserTests.prototype.main = function ( options ) {
+
 	if ( options.help ) {
 		optimist.showHelp();
-		console.error("Additional dump options specific to parserTests script:");
-		console.error("* dom:post-changes  : Dumps DOM after applying selser changetree\n");
-		console.error("Examples");
-		console.error("$ node parserTests --selser --filter '...' --dump dom:post-changes");
-		console.error("$ node parserTests --selser --filter '...' --changetree '...' --dump dom:post-changes\n");
-		process.exit( 0 );
+		var errors = ["Additional dump options specific to parserTests script:"];
+		errors.push("* dom:post-changes  : Dumps DOM after applying selser changetree\n");
+		errors.push("Examples");
+		errors.push("$ node parserTests --selser --filter '...' --dump dom:post-changes");
+		errors.push("$ node parserTests --selser --filter '...' --changetree '...' --dump dom:post-changes\n");
+		this.env.log("fatal", errors);
 	}
 	Util.setColorFlags( options );
 
@@ -1406,7 +1409,7 @@ ParserTests.prototype.main = function ( options ) {
 			options.selser = true;
 			// sanity checking (bug 51448 asks to be able to use --filter here)
 			if ( options.filter || options.maxtests ) {
-				console.error( "\nERROR> can't combine --rewrite-blacklist with --filter or --maxtests" );
+				this.env.log("error", "can't combine --rewrite-blacklist with --filter or --maxtests");
 				process.exit( 1 );
 			}
 		}
@@ -1463,9 +1466,9 @@ ParserTests.prototype.main = function ( options ) {
 		try {
 			this.test_filter = new RegExp( options.filter );
 		} catch ( e ) {
-			console.error( '\nERROR> --filter was given an invalid regular expression.' );
-			console.error( 'ERROR> See below for JS engine error:\n' + e + '\n' );
-			process.exit( 1 );
+			var errors = ["--filter was given an invalid regular expression."];
+			errors.push("See below for JS engine error:\n" + e + "\n");
+			this.env.log("fatal", errors);
 		}
 	}
 
@@ -1480,14 +1483,14 @@ ParserTests.prototype.main = function ( options ) {
 		this.testParserFileName = __dirname + '/parserTests.pegjs';
 		this.testParser = PEG.buildParser( fs.readFileSync( this.testParserFileName, 'utf8' ) );
 	} catch ( e2 ) {
-		console.error( e2 );
+		this.env.log("error", e2);
 	}
 
 	this.cases = this.getTests( options ) || [];
 
 	if ( options.maxtests ) {
 		var n = Number( options.maxtests );
-		console.warn( 'maxtests:' + n );
+		this.env.log("warning", "maxtests:", n);
 		if ( n > 0 ) {
 			this.cases.length = n;
 		}
@@ -1504,16 +1507,12 @@ ParserTests.prototype.main = function ( options ) {
 		parsoidConfig.interwikiMap[key] = mockAPIServerURL;
 	}
 
+
 	// Create a new parser environment
 	MWParserEnvironment.getParserEnv( parsoidConfig, null, 'enwiki', null, null, function ( err, env ) {
 		// For posterity: err will never be non-null here, because we expect the WikiConfig
 		// to be basically empty, since the parserTests environment is very bare.
 		this.env = env;
-		this.env.errCB = function ( e ) {
-			console.warn("ERROR: " + e);
-			console.error( e.stack );
-			process.exit(1);
-		};
 
 		this.env.conf.parsoid.editMode = options.editMode;
 
@@ -1559,7 +1558,7 @@ ParserTests.prototype.main = function ( options ) {
  */
 ParserTests.prototype.reportStartOfTests = function () {
 	console.log( 'ParserTests running with node', process.version);
-	console.log( 'Initialisation complete. Now launching tests.' );
+	console.log( 'Initialization complete. Now launching tests.' );
 };
 
 /**
@@ -1701,7 +1700,7 @@ ParserTests.prototype.processCase = function ( i, options ) {
 						}
 						this.env.switchToConfig( prefix, function( err ) {
 							if ( err ) {
-								return this.env.errCB( err );
+								return this.env.log("fatal", err);
 							}
 
 							// TODO: set language variant
@@ -1742,14 +1741,13 @@ ParserTests.prototype.processCase = function ( i, options ) {
 				case 'hooks':
 					var hooks = item.text.split(/\n/), self = this;
 					hooks.forEach(function(hook) {
-						console.warn('parserTests: Adding extension hook ' +
-							JSON.stringify(hook) );
+						this.env.log("warning", "parserTests: Adding extension hook", JSON.stringify(hook));
 						self.env.conf.wiki.addExtensionTag( hook );
 					});
 					setImmediate( nextCallback );
 					break;
 				case 'functionhooks':
-					console.warn('parserTests: Unhandled functionhook ' + JSON.stringify( item ) );
+					this.env.log("warning", "parserTests: Unhandled functionhook", JSON.stringify(item));
 					break;
 				default:
 					this.comments = [];

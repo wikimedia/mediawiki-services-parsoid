@@ -124,8 +124,7 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 
 	ParserEnv.getParserEnv( parsoidConfig, null, prefix, argv.page || null, null, function ( err, env ) {
 		if ( err !== null ) {
-			console.error( err.toString() );
-			process.exit( 1 );
+			env.log("fatal", err);
 		}
 
 		// fetch templates from enwiki by default.
@@ -184,14 +183,12 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 				var tpr = new TemplateRequest( env, target );
 				tpr.once( 'src', function ( err, src_and_metadata ) {
 					if ( err ) {
-						console.error( err.toString() );
-						process.exit( 1 );
+						env.log("fatal", err);
 					}
 					env.setPageSrcInfo( src_and_metadata );
 					Util.parse( env, function ( src, err, doc ) {
 						if ( err ) {
-							console.error( err.toString() );
-							process.exit( 1 );
+							env.log("fatal", err);
 						}
 						stdout.write( DU.serializeNode( doc.documentElement ) );
 					}, null, env.page.src );
