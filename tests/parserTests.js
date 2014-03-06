@@ -1390,12 +1390,12 @@ ParserTests.prototype.main = function ( options ) {
 
 	if ( options.help ) {
 		optimist.showHelp();
-		var errors = ["Additional dump options specific to parserTests script:"];
-		errors.push("* dom:post-changes  : Dumps DOM after applying selser changetree\n");
-		errors.push("Examples");
-		errors.push("$ node parserTests --selser --filter '...' --dump dom:post-changes");
-		errors.push("$ node parserTests --selser --filter '...' --changetree '...' --dump dom:post-changes\n");
-		this.env.log("fatal", errors);
+		console.log("Additional dump options specific to parserTests script:");
+		console.log("* dom:post-changes  : Dumps DOM after applying selser changetree\n");
+		console.log("Examples");
+		console.log("$ node parserTests --selser --filter '...' --dump dom:post-changes");
+		console.log("$ node parserTests --selser --filter '...' --changetree '...' --dump dom:post-changes\n");
+		process.exit( 0 );
 	}
 	Util.setColorFlags( options );
 

@@ -47,18 +47,6 @@ function ParsoidService(options) {
 
 
 /**
-	 * Check response object to see if headers were sent. 
-	 *
-	 * @method
-	 * @param {Response} res The response object from our routing function.
-	 * @property {Function} Serializer
-	 */
-	function headersSent (res) {
-	  return res.headersSent // node 0.10+
-	             || res.headerSent; // connect on node 0.8;
-	}
-
-/**
 	 * Set header, but only if response hasn't been sent.
 	 *
 	 * @method
@@ -67,7 +55,7 @@ function ParsoidService(options) {
 	 * @property {Function} Serializer
 	 */
 	function setHeader (res, env) {
-		if (headersSent(res)) {
+		if (env.responseSent) {
 			return;
 		} else {
 			res.setHeader.apply(res, Array.prototype.slice.call(arguments, 2));
@@ -83,9 +71,10 @@ function ParsoidService(options) {
 	 * @property {Function} Serializer
 	 */
 	function endResponse (res, env) {
-		if (headersSent(res)) {
+		if (env.responseSent) {
 			return;
 		} else {
+			env.responseSent = true;
 			res.end.apply(res, Array.prototype.slice.call(arguments, 2));
 		}
 	}
@@ -99,9 +88,10 @@ function ParsoidService(options) {
 	 * @property {Function} Serializer
 	 */
 	function sendResponse (res, env) {
-		if (headersSent(res)) {
+		if (env.responseSent) {
 			return;
 		} else {
+			env.responseSent = true;
 			res.send.apply(res, Array.prototype.slice.call(arguments, 2));
 		}
 	}
@@ -397,18 +387,18 @@ function ParsoidService(options) {
 	 * This is not strictly HTTP spec conformant, but works in most clients. More
 	 * importantly, it works both behind proxies and on the internal network.
 	 */
-	function relativeRedirect(obj) {
-		if (!obj.code) {
-			obj.code = 302; // moved temporarily
+	function relativeRedirect(args) {
+		if (!args.code) {
+			args.code = 302; // moved temporarily
 		}
 
-		if (obj.res && headersSent(obj.res) ) {
+		if (args.res && args.env && args.env.responseSent ) {
 			return;
 		} else {
-			obj.res.writeHead(obj.code, {
-				'Location': obj.path
+			args.res.writeHead(args.code, {
+				'Location': args.path
 			});
-			obj.res.end();
+			args.res.end();
 		}
 	}
 
@@ -471,7 +461,7 @@ function ParsoidService(options) {
 
 			function errCB ( res, env, obj, callback ) {
 				try {
-					if (headersSent(res)) {
+					if (env.responseSent) {
 						return;
 					} else {
 						var messageString = generateErrCBMessage(obj);
