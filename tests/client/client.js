@@ -32,6 +32,7 @@ var getTitle = function( cb ) {
 	var callback = function ( error, response, body ) {
 		if (error || !response) {
 			setTimeout( function () { cb( 'start' ); }, 15000 );
+			return;
 		}
 
 		var resp;
