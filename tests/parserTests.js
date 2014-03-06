@@ -1514,6 +1514,10 @@ ParserTests.prototype.main = function ( options ) {
 		// to be basically empty, since the parserTests environment is very bare.
 		this.env = env;
 
+		if (booleanOption( options.quiet )) {
+			this.env.logger.changeLogLevels("fatal", "error");
+		}
+
 		this.env.conf.parsoid.editMode = options.editMode;
 
 		// Enable <ref> and <references> tags since we want to
