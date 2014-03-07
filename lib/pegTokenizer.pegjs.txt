@@ -399,15 +399,10 @@
      * current expression can return an empty list (true).
      */
     var emitChunk = function (tokens) {
-        if (pegArgs.pegTokenizer.traceTokens === undefined) {
-            var psdConf = pegArgs.pegTokenizer.env.conf.parsoid;
-            pegArgs.pegTokenizer.traceTokens = psdConf.debug || psdConf.traceFlags && psdConf.traceFlags.indexOf("peg-tokens") !== -1;
-        }
+        var env = pegArgs.pegTokenizer.env;
         // shift tsr of all tokens by offset
         Util.shiftTokenTSR(tokens, pegArgs.srcOffset);
-        if (pegArgs.pegTokenizer.traceTokens) {
-            console.warn("TOKS: " + JSON.stringify(tokens));
-        }
+        env.log("trace/peg-tokens", "TOKS: ", JSON.stringify(tokens));
         pegArgs.cb(tokens);
     };
 }
@@ -794,20 +789,20 @@ urllink
       // Special case handling for trailing parentheses: remove from link if
       // there is no opening parenthesis in the link
       if ( Array.isArray(target) ) {
-	      var end = target[target.length - 1];
-	      if ( !/[(]/.test( target[0] ) &&
-	           end.constructor === String &&
-	           /[)]$/.test( end )
-	      ) {
-	          target.pop();
-	          pos--;
-	      }
+          var end = target[target.length - 1];
+          if ( !/[(]/.test( target[0] ) &&
+               end.constructor === String &&
+               /[)]$/.test( end )
+          ) {
+              target.pop();
+              pos--;
+          }
       } else {
-	      if (!/[(]/.test(target) && /[)]$/.test(target)) {
-	          target = target.substr(0, target.length - 1);
-	          pos--;
-	      }
-	  }
+          if (!/[(]/.test(target) && /[)]$/.test(target)) {
+              target = target.substr(0, target.length - 1);
+              pos--;
+          }
+      }
       var res = [ new SelfclosingTagTk( 'urllink', [new KV('href', target)], { tsr: [pos0, pos] } ) ];
       return res;
   }
@@ -1418,16 +1413,16 @@ pre
         stops.dec('pre');
         // return nowiki tags as well?
 
-		// Emit as SelfclosingTag in order to avoid the nested pre problem in
-		// the PreHandler.
-		attribs.push(new KV('property', 'mw:html'));
-		attribs.push(new KV('content', flatten_stringlist(ts)));
-		return [
-			new SelfclosingTagTk('pre', attribs, {
-				tsr: [pos0, pos],
-				endpos: endpos
-			})
-		];
+        // Emit as SelfclosingTag in order to avoid the nested pre problem in
+        // the PreHandler.
+        attribs.push(new KV('property', 'mw:html'));
+        attribs.push(new KV('content', flatten_stringlist(ts)));
+        return [
+            new SelfclosingTagTk('pre', attribs, {
+                tsr: [pos0, pos],
+                endpos: endpos
+            })
+        ];
 
     }
   / "</" pre_tag_name ">" { stops.dec('pre'); return "</pre>"; }
@@ -2263,21 +2258,21 @@ urltext = ( t:[^'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:\]} &=]+ { return t.join(''); 
           / t:text_char )+
 
 /*
-	'//', // for protocol-relative URLs, but not in text!
-	'ftp://',
-	'git://',
-	'gopher://',
-	'http://',
-	'https://',
-	'irc://',
-	'ircs://',  // @bug 28503
-	'mailto:',
-	'mms://',
-	'news:',
-	'nntp://', // @bug 3808 RFC 1738
-	'svn://',
-	'telnet://', // Well if we're going to support the above.. -ævar
-	'worldwind://',
+    '//', // for protocol-relative URLs, but not in text!
+    'ftp://',
+    'git://',
+    'gopher://',
+    'http://',
+    'https://',
+    'irc://',
+    'ircs://',  // @bug 28503
+    'mailto:',
+    'mms://',
+    'news:',
+    'nntp://', // @bug 3808 RFC 1738
+    'svn://',
+    'telnet://', // Well if we're going to support the above.. -ævar
+    'worldwind://',
 */
 
 // Old version
