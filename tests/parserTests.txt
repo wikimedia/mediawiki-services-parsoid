@@ -18851,10 +18851,12 @@ parsoid=wt2html
 !! input
 {| || |} ++
 |- || || ++ --
+|- > [
 |}
 !! result
 <table>
 <tbody>
+<tr></tr>
 <tr></tr>
 </tbody></table>
 !! end
