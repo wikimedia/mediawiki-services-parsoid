@@ -1839,6 +1839,10 @@ generic_attribute
 //        return n.join('');
 //  }
 
+// Also eat these chars in a wikitext table or tr attribute name. They are
+// normally not matched by the attribute_preprocessor_text_line.
+broken_table_attribute_name_char = c:[ \t>\[] { return new KV(c, ''); }
+
 generic_attribute_name
   = & { return stops.push( 'equal', true ); }
     name:attribute_preprocessor_text_line
@@ -2029,7 +2033,7 @@ table_start_tag
   = b:"{" p:pipe
     // ok to normalize away stray |} on rt (see bug 57360)
     & { return stops.push('table', false); }
-    ta:(generic_attribute)*
+    ta:(generic_attribute / broken_table_attribute_name_char)*
     tsEndPos:({stops.pop('table'); return pos;})
     {
         var tblStart = new TagTk( 'table', [], { tsr: [pos0, tsEndPos] } );
@@ -2060,7 +2064,7 @@ table_row_tag
   = //& { console.warn("table row enter @" + input.substr(pos, 30)); return true; }
     p:pipe dashes:"-"+
     & { return stops.push('table', false); }
-    a:(generic_attribute)*
+    a:(generic_attribute / broken_table_attribute_name_char)*
     tagEndPos:({stops.pop('table'); return pos;})
     // handle tables with missing table cells after a row
     td:implicit_table_data_tag?
