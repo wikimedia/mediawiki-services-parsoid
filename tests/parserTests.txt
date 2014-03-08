@@ -20053,6 +20053,17 @@ parsoid=html2wt
 !! end
 
 !! test
+Lists: Dont insert newlines in a serialized list item.
+!! options
+parsoid=html2wt
+!! input
+* a<br>b
+* c
+!! result
+<ul><li>a<br>b</li><li>c</li></ul>
+!! end
+
+!! test
 Headings: Add space before/after == (Bug 51744)
 !! options
 parsoid=html2wt
