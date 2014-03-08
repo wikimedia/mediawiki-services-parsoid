@@ -143,15 +143,31 @@ var fnames = {
 					}
 				};
 
-			if ( twidth ) {
-				if ( theight === undefined || theight === null ) {
+			if ( twidth || theight ) {
+				if ( twidth && (theight === undefined || theight === null) ) {
+					// File::scaleHeight in PHP
 					theight = Math.round( height * twidth / width );
+				} else if ( theight && (twidth === undefined || twidth === null) ) {
+					// MediaHandler::fitBoxWidth in PHP
+					// This is crazy!
+					var idealWidth = width * theight / height;
+					var roundedUp = Math.ceil(idealWidth);
+					if (Math.round(roundedUp * height / width) > theight) {
+						twidth = Math.floor(idealWidth);
+					} else {
+						twidth = roundedUp;
+					}
 				} else {
 					if ( Math.round( height * twidth / width ) > theight ) {
 						twidth = Math.ceil( width * theight / height );
 					} else {
 						theight = Math.round( height * twidth / width );
 					}
+				}
+				if (twidth >= width || theight >= height) {
+					// the PHP api won't enlarge an image
+					twidth = width;
+					theight = height;
 				}
 
 				turl += '/' + twidth + 'px-' + normFilename;
