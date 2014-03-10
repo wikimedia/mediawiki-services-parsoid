@@ -11012,16 +11012,30 @@ and some more text.]]
 !! end
 
 !! test
-Bug 3090: External links other than http: in image captions
+Bug 3090: External links other than http: in image captions (php)
+!! options
+php
 !! input
-[[Image:Foobar.jpg|thumb|200px|This caption has [irc://example.net irc] and [https://example.com Secure] ext links in it.]]
+[[File:Foobar.jpg|thumb|200x200px|This caption has [irc://example.net irc] and [https://example.com Secure] ext links in it.]]
 !! result
 <div class="thumb tright"><div class="thumbinner" style="width:202px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" width="200" height="23" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/400px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>This caption has <a rel="nofollow" class="external text" href="irc://example.net">irc</a> and <a rel="nofollow" class="external text" href="https://example.com">Secure</a> ext links in it.</div></div></div>
 
 !! end
 
 !! test
-Custom class
+Bug 3090: External links other than http: in image captions (parsoid)
+!! options
+parsoid
+!! input
+[[File:Foobar.jpg|thumb|200x200px|This caption has [irc://example.net irc] and [https://example.com Secure] ext links in it.]]
+!! result
+<figure typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="23" width="200"/></a><figcaption>This caption has <a rel="mw:ExtLink" href="irc://example.net">irc</a> and <a rel="mw:ExtLink" href="https://example.com">Secure</a> ext links in it.</figcaption></figure>
+!! end
+
+!! test
+Custom class (php)
+!! options
+php
 !! input
 [[Image:foobar.jpg|a|class=b]]
 !! result
@@ -11030,8 +11044,19 @@ Custom class
 !! end
 
 !! test
-Localized image handling (1).
+Custom class (parsoid)
 !! options
+parsoid=wt2html,wt2wt,html2html
+!! input
+[[Image:foobar.jpg|a|class=b]]
+!! result
+<p><span class="mw-default-size b" typeof="mw:Image" data-mw='{"caption":"a"}'><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></span></p>
+!! end
+
+!! test
+Localized image handling (1). (php)
+!! options
+php
 language=es
 !! input
 [[Archivo:Foobar.jpg|izquierda|enlace=foo|caption]]
@@ -11041,8 +11066,20 @@ language=es
 !! end
 
 !! test
-Localized image handling (2).
+Localized image handling (1). (parsoid)
 !! options
+parsoid=wt2html,wt2wt,html2html
+language=es
+!! input
+[[Archivo:Foobar.jpg|izquierda|enlace=foo|caption]]
+!! result
+<figure class="mw-default-size mw-halign-left" typeof="mw:Image"><a href="./Foo"><img resource="./Archivo:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a><figcaption>caption</figcaption></figure>
+!! end
+
+!! test
+Localized image handling (2). (php)
+!! options
+php
 language=es
 !! input
 [[Archivo:Foobar.jpg|miniatura|izquierda|enlace=foo|caption]]
@@ -11052,12 +11089,35 @@ language=es
 !! end
 
 !! test
-"border", "frameless" and "class" attributes on an image.
+Localized image handling (2). (parsoid)
+!! options
+parsoid=wt2html,wt2wt,html2html
+language=es
+!! input
+[[Archivo:Foobar.jpg|miniatura|izquierda|enlace=foo|caption]]
+!! result
+<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb"><a href="./Foo"><img resource="./Archivo:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+!! end
+
+!! test
+"border", "frameless" and "class" attributes on an image. (php)
+!! options
+php
 !! input
 [[File:Foobar.jpg|frameless|border|class=extra|caption]]
 !! result
 <p><a href="/wiki/File:Foobar.jpg" class="image" title="caption"><img alt="caption" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="extra thumbborder" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>
 </p>
+!! end
+
+!! test
+"border", "frameless" and "class" attributes on an image. (parsoid)
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! input
+[[File:Foobar.jpg|frameless|border|class=extra|caption]]
+!! result
+<p><span class="mw-default-size mw-image-border extra" typeof="mw:Image/Frameless" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a></span></p>
 !! end
 
 !! article
