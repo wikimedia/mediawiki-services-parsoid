@@ -2985,6 +2985,11 @@ add("selser", "Image with multiple alignments -- use first (bug 48664) (parsoid)
 add("selser", "Image with multiple alignments -- use first (bug 48664) (parsoid) [[0,[4]],2,2]", "[[File:Foobar.jpg|thumb|left|vo8j28vfiirltyb9]]9d2sir45qh9tfbt9\ng9tdox9rrm6rms4i\n[[File:Foobar.jpg|middle|text-top|caption]]");
 add("selser", "Image with multiple alignments -- use first (bug 48664) (parsoid) [0,0,2]", "[[File:Foobar.jpg|thumb|left|right|center|caption]]\n\nlo58yoce1fzme7b9\n\n[[File:Foobar.jpg|middle|text-top|caption]]");
 add("selser", "Image with multiple alignments -- use first (bug 48664) (parsoid) [0,4,1]", "[[File:Foobar.jpg|thumb|left|right|center|caption]]zsm19b94ulhm2t9\n[[File:Foobar.jpg|middle|text-top|caption]]");
+add("selser", "Image: \"unspecified format\" and border enlarge (parsoid) [0,4,0]", "[[File:Foobar.jpg|2000px]]9d7knue8xw6irudi\n[[File:Foobar.jpg|border|2000px]]");
+add("selser", "Image: \"unspecified format\" and border enlarge (parsoid) [4,0,4]", "in06ht2orz281tt9\nvw9jb4qzschm2t9");
+add("selser", "Image: \"unspecified format\" and border enlarge (parsoid) [0,2,2]", "[[File:Foobar.jpg|2000px]]22bj2gqi0ai0y66r\n7vbsom1h1ucgzaor\n[[File:Foobar.jpg|border|2000px]]");
+add("selser", "Image: \"unspecified format\" and border reduce (parsoid) [0,4,2]", "[[File:Foobar.jpg|1000px]]7ll3axf52ny7gb9xy6g3nsluiyhkt9\n[[File:Foobar.jpg|border|1000px]]");
+add("selser", "Image: \"unspecified format\" and border reduce (parsoid) [0,4,0]", "[[File:Foobar.jpg|1000px]]zujc8nf4wu434n29\n[[File:Foobar.jpg|border|1000px]]");
 add("selser", "Image caption containing a table (parsoid) [[0,[0,3,0]]]", "[[Image:Foobar.jpg|thumb|200px|This is an example image thumbnail caption with a table\nand some more text.]]");
 add("selser", "Relative subpage noslash link [4,0,4]", "u4hge9fbsekd42t9\nunv6ssdm3pzxgvi");
 add("selser", "Relative subpage noslash link [2,4,[1]]", "nrb4v3liuj0mgqfr\n\n[[../../subpage/]]98uzbw2dte8nnrk9\n[[../../subpage]]");

@@ -10544,6 +10544,62 @@ parsoid=wt2html,wt2wt,html2html
 # 1. Thumbs & frameless always reduce, can't be enlarged
 # 2. Framed images ignore width; always render at default size.
 #    If given a height, they respect height but continue to ignore width.
+# 3. "Unspecified format" and border are the only types which can be
+#    enlarged.
+
+!! test
+Image: "unspecified format" and border enlarge (php)
+!! options
+php
+!! input
+[[File:Foobar.jpg|2000px]]
+
+[[File:Foobar.jpg|border|2000px]]
+!! result
+<p><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="2000" height="227" /></a>
+</p><p><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="2000" height="227" class="thumbborder" /></a>
+</p>
+!! end
+
+!! test
+Image: "unspecified format" and border enlarge (parsoid)
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! input
+[[File:Foobar.jpg|2000px]]
+
+[[File:Foobar.jpg|border|2000px]]
+!! result
+<p><span typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="227" width="2000"/></a></span></p>
+<p><span class="mw-image-border" typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="227" width="2000"/></a></span></p>
+!! end
+
+!! test
+Image: "unspecified format" and border reduce (php)
+!! options
+php
+!! input
+[[File:Foobar.jpg|1000px]]
+
+[[File:Foobar.jpg|border|1000px]]
+!! result
+<p><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/1000px-Foobar.jpg" width="1000" height="113" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/1500px-Foobar.jpg 1.5x, http://example.com/images/3/3a/Foobar.jpg 2x" /></a>
+</p><p><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/1000px-Foobar.jpg" width="1000" height="113" class="thumbborder" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/1500px-Foobar.jpg 1.5x, http://example.com/images/3/3a/Foobar.jpg 2x" /></a>
+</p>
+!! end
+
+!! test
+Image: "unspecified format" and border reduce (parsoid)
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! input
+[[File:Foobar.jpg|1000px]]
+
+[[File:Foobar.jpg|border|1000px]]
+!! result
+<p><span typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="113" width="1000"/></a></span></p>
+<p><span class="mw-image-border" typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="113" width="1000"/></a></span></p>
+!! end
 
 !! test
 Image: thumbs reduce (php)
