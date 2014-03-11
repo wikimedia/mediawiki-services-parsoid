@@ -11120,6 +11120,38 @@ parsoid=wt2html,wt2wt,html2html
 <p><span class="mw-default-size mw-image-border extra" typeof="mw:Image/Frameless" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a></span></p>
 !! end
 
+# Note that 'right' is the default alignment, despite the misspelled 'righ' below
+!! test
+Invalid image attributes (bug 62500) (php)
+!! options
+php
+!! input
+[[File:Foobar.jpg|thumb|float|left|caption]]
+
+[[File:Foobar.jpg|thumb|righ|caption]]
+
+[[File:Foobar.jpg|bogus1|thumb|bogus2|left|bogus3|caption]]
+!! result
+<div class="thumb tleft"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>caption</div></div></div>
+<div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>caption</div></div></div>
+<div class="thumb tleft"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>caption</div></div></div>
+
+!! end
+
+!! test
+Invalid image attributes (bug 62500) (parsoid)
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! input
+[[File:Foobar.jpg|thumb|float|left|caption]]
+
+[[File:Foobar.jpg|thumb|righ|caption]]
+
+[[File:Foobar.jpg|bogus1|thumb|bogus2|left|bogus3|caption]]
+!! result
+<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>caption</figcaption></figure><figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>caption</figcaption></figure><figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+!! end
+
 !! article
 File:Barfoo.jpg
 !! text
