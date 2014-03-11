@@ -401,9 +401,9 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
 		this.env.page.dom = item.cachedHTMLStr ? DU.parseHTML(item.cachedHTMLStr).body : null;
 		if ( mode === 'selser' ) {
 			// console.warn("--> selsering: " + content.outerHTML);
-			this.env.setPageSrcInfo( item.input );
+			this.env.setPageSrcInfo( item.wikitext );
 		} else if (booleanOption(options.use_source) && startsAtWikitext ) {
-			this.env.setPageSrcInfo( item.input );
+			this.env.setPageSrcInfo( item.wikitext );
 		} else {
 			this.env.setPageSrcInfo( null );
 		}
@@ -784,14 +784,6 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 		this.env.log("error", item);
 		throw new Error( 'Missing title from test case.' );
 	}
-	if ( !( 'input' in item ) ) {
-		this.env.log("error", item);
-		throw new Error( 'Missing input from test case ' + item.title );
-	}
-	if ( !( 'result' in item ) ) {
-		this.env.log("error", item);
-		throw new Error( 'Missing input from test case ' + item.title );
-	}
 
 	item.time = {};
 
@@ -861,7 +853,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 	// Source preparation
 	if ( startsAtHtml ) {
 		testTasks.push( function ( cb ) {
-			var result = DU.parseHTML(item.result).body;
+			var result = DU.parseHTML(item.html).body;
 			cb( null, result );
 		} );
 	}
@@ -869,7 +861,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 	// First conversion stage
 	if ( startsAtWikitext ) {
 		if ( item.cachedHTMLStr === null ) {
-			testTasks.push( this.convertWt2Html.bind( this, mode, item.input ) );
+			testTasks.push( this.convertWt2Html.bind( this, mode, item.wikitext ) );
 			// Caching stage 1 - save the result of the first two stages so we can maybe skip them later
 			testTasks.push( function ( result, cb ) {
 				// Cache parsed HTML
@@ -965,13 +957,13 @@ ParserTests.prototype.processSerializedWT = function ( item, options, mode, wiki
 
 	if ( mode === 'selser' ) {
 		if (item.changetree === 5) {
-			item.resultWT = item.input;
+			item.resultWT = item.wikitext;
 		} else {
 			this.convertHtml2Wt( options, 'wt2wt', item, DU.parseHTML(item.changedHTMLStr), function ( err, wt ) {
 				if ( err === null ) {
 					item.resultWT = wt;
 				} else {
-					item.resultWT = item.input;
+					item.resultWT = item.wikitext;
 				}
 				// Check the result vs. the expected result.
 				self.checkWikitext( item, wikitext, options, mode );
@@ -1203,7 +1195,8 @@ ParserTests.prototype.printWhitelistEntry = function ( title, raw ) {
  */
 function printResult( reportFailure, reportSuccess, title, time, comments, iopts, expected, actual, options, mode, item, pre, post ) {
 	var quick = booleanOption( options.quick );
-	var parsoidOnly = (iopts.parsoid !== undefined);
+	var parsoidOnly =
+		('html/parsoid' in item) || (iopts.parsoid !== undefined);
 
 	if ( mode === 'selser' ) {
 		title += ' ' + JSON.stringify( item.changes );
@@ -1254,24 +1247,25 @@ function printResult( reportFailure, reportSuccess, title, time, comments, iopts
  */
 ParserTests.prototype.checkHTML = function ( item, out, options, mode ) {
 	var normalizedOut, normalizedExpected;
-	var parsoidOnly = (item.options.parsoid !== undefined);
+	var parsoidOnly =
+		('html/parsoid' in item) || (item.options.parsoid !== undefined);
 
 	normalizedOut = DU.normalizeOut( out, parsoidOnly );
 
 	if ( item.cachedNormalizedHTML === null ) {
 		if ( parsoidOnly ) {
-			var normalDOM = DU.serializeChildren(DU.parseHTML( item.result ).body);
+			var normalDOM = DU.serializeChildren(DU.parseHTML( item.html ).body);
 			normalizedExpected = DU.normalizeOut( normalDOM, parsoidOnly );
 		} else {
-			normalizedExpected = DU.normalizeHTML( item.result );
+			normalizedExpected = DU.normalizeHTML( item.html );
 		}
 		item.cachedNormalizedHTML = normalizedExpected;
 	} else {
 		normalizedExpected = item.cachedNormalizedHTML;
 	}
 
-	var input = mode === 'html2html' ? item.result : item.input;
-	var expected = { normal: normalizedExpected, raw: item.result };
+	var input = mode === 'html2html' ? item.html : item.wikitext;
+	var expected = { normal: normalizedExpected, raw: item.html };
 	var actual = { normal: normalizedOut, raw: out, input: input };
 
 	options.reportResult( item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item );
@@ -1285,19 +1279,19 @@ ParserTests.prototype.checkHTML = function ( item, out, options, mode ) {
 ParserTests.prototype.checkWikitext = function ( item, out, options, mode ) {
 	out = out.replace(new RegExp('<!--' + staticRandomString + '-->', 'g'), '');
 	if ( mode === 'selser' && item.resultWT !== null && item.changes !== 5 ) {
-		item.input = item.resultWT;
+		item.wikitext = item.resultWT;
 	}
 
 	var normalizedExpected,
 		toWikiText = mode === 'html2wt' || mode === 'wt2wt' || mode === 'selser';
 	// FIXME: normalization not in place yet
-	normalizedExpected = toWikiText ? item.input.replace(/\n+$/, '') : item.input;
+	normalizedExpected = toWikiText ? item.wikitext.replace(/\n+$/, '') : item.wikitext;
 
 	// FIXME: normalization not in place yet
 	var normalizedOut = toWikiText ? out.replace(/\n+$/, '') : out;
 
-	var input = mode === 'html2wt' ? item.result : item.input;
-	var expected = { isWT: true, normal: normalizedExpected, raw: item.input };
+	var input = mode === 'html2wt' ? item.html : item.wikitext;
+	var expected = { isWT: true, normal: normalizedExpected, raw: item.wikitext };
 	var actual = { isWT: true, normal: normalizedOut, raw: out, input: input };
 
 	options.reportResult( item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item );
@@ -1641,7 +1635,21 @@ ParserTests.prototype.processCase = function ( i, options ) {
 
 	if ( i < this.cases.length ) {
 		item = this.cases[i];
+		if (typeof item === 'string') {
+			// this is a comment line in the file, ignore it.
+			return setImmediate(nextCallback);
+		}
+
 		if (!item.options) { item.options = {}; }
+
+		// backwards-compatibility aliases for section names.
+		if ( 'input' in item ) { item.wikitext = item.input; delete item.input; }
+		if ( 'result' in item ) { item.html = item.result; delete item.result; }
+
+		// html/* and html/parsoid should be treated as html.
+		if ( 'html/*' in item ) { item.html = item['html/*']; }
+		if ( 'html/parsoid' in item ) { item.html = item['html/parsoid']; }
+
 		// Reset the cached results for the new case.
 		// All test modes happen in a single run of processCase.
 		item.cachedHTMLStr = null;
@@ -1655,8 +1663,9 @@ ParserTests.prototype.processCase = function ( i, options ) {
 					this.processArticle( item, nextCallback );
 					break;
 				case 'test':
-					if( ('disabled' in item.options && !this.runDisabled) ||
-					    ('php' in item.options && !this.runPHP) ||
+					if( !('wikitext' in item && 'html' in item) ||
+						('disabled' in item.options && !this.runDisabled) ||
+						('php' in item.options && !('html/parsoid' in item || this.runPHP)) ||
 					    (this.test_filter &&
 					     -1 === item.title.search( this.test_filter ) ) ) {
 						// Skip test whose title does not match --filter

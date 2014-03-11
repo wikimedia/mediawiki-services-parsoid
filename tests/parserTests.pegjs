@@ -115,7 +115,7 @@ test =
 }
 
 section =
-    "!!" ws? (!"end") (!"options") name:(c:[a-zA-Z0-9]+ { return c.join(''); }) rest_of_line
+    "!!" ws? (!"end") (!"options") name:(c:[^ \t\r\n]+ { return c.join(''); }) rest_of_line
     text:text
 {
     return {
@@ -209,10 +209,9 @@ json_value = "{" v:( [^\"\{\}] / quoted_value / json_value )* "}"
     return "{" + v.join('') + "}";
 }
 
-/* the : is for a stray one, not sure it should be there */
 
 start_test =
-    "!!" ws? "test" ":"? ws? eol
+    "!!" ws? "test" ws? eol
 
 end_test =
     "!!" ws? "end" ws? eol
