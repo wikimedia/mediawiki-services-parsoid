@@ -1309,14 +1309,12 @@ b
 ## PHP parser emits output which is broken
 !! test
 Unclosed HTML p-tags should be handled properly
-!! options
-parsoid
 !! wikitext
 <div><p>foo</div>
 a
 
 b
-!! html
+!! html/parsoid
 <div data-parsoid='{"stx":"html"}'><p data-parsoid='{"stx":"html", "autoInsertedEnd":true}'>foo</p></div>
 <p>a</p>
 <p>b</p>
@@ -3793,22 +3791,12 @@ External links: link text with spaces
 
 !! test
 External links: wiki links within external link (Bug 3695)
-!! options
-php
 !! wikitext
 [http://example.com [[wikilink]] embedded in ext link]
-!! html
+!! html/php
 <p><a rel="nofollow" class="external text" href="http://example.com"></a><a href="/index.php?title=Wikilink&amp;action=edit&amp;redlink=1" class="new" title="Wikilink (page does not exist)">wikilink</a><a rel="nofollow" class="external text" href="http://example.com"> embedded in ext link</a>
 </p>
-!! end
-
-!! test
-Parsoid: External links: wiki links within external link (Bug 3695)
-!! options
-parsoid
-!! wikitext
-[http://example.com [[wikilink]] embedded in ext link]
-!! html
+!! html/parsoid
 <p><a rel="mw:ExtLink" href="http://example.com"></a><a rel="mw:WikiLink" href="./Wikilink">wikilink</a><span> embedded in ext link</span></p>
 !! end
 
@@ -3956,22 +3944,12 @@ External link containing double-single-quotes in text embedded in italics (bug 4
 
 !! test
 External link containing double-single-quotes with no space separating the url from text in italics
-!! options
-php
 !! wikitext
 [http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm''La muerte de Casagemas'' (1901) en el sitio de [[Museo Picasso (París)|Museo Picasso]].]
-!! html
+!! html/php
 <p><a rel="nofollow" class="external text" href="http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm"><i>La muerte de Casagemas</i> (1901) en el sitio de <a href="/index.php?title=Museo_Picasso_(Par%C3%ADs)&amp;action=edit&amp;redlink=1" class="new" title="Museo Picasso (París) (page does not exist)">Museo Picasso</a>.</a>
 </p>
-!! end
-
-!! test
-Parsoid:External link containing double-single-quotes with no space separating the url from text in italics
-!! options
-parsoid
-!! wikitext
-[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm''La muerte de Casagemas'' (1901) en el sitio de [[Museo Picasso (París)|Museo Picasso]].]
-!! html
+!! html/parsoid
 <p><a rel="mw:ExtLink" href="http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm"><i>La muerte de Casagemas</i> (1901) en el sitio de </a><a rel="mw:WikiLink" href="./Museo_Picasso_(París)">Museo Picasso</a><span>.</span></p>
 !! end
 
@@ -4057,31 +4035,30 @@ Non-extlinks in brackets
 !! end
 
 !! test
-Parsoid: Percent encoding in external links
-!! options
-parsoid
+Percent encoding in external links
 !! wikitext
 [https://github.com/search?l=&q=ResourceLoader+%40wikimedia Search]
-!! html
+!! html/php
+<p><a rel="nofollow" class="external text" href="https://github.com/search?l=&amp;q=ResourceLoader+%40wikimedia">Search</a>
+</p>
+!! html/parsoid
 <p><a rel="mw:ExtLink"
 href="https://github.com/search?l=&amp;q=ResourceLoader+%40wikimedia">Search</a></p>
 !! end
 
 !! test
-Parsoid: use url link syntax for links where the content is equal the link
-target
-!! options
-parsoid
+Use url link syntax for links where the content is equal the link target
 !! wikitext
 http://example.com
-!! html
+!! html/php
+<p><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>
+</p>
+!! html/parsoid
 <p><a rel="mw:ExtLink" href="http://example.com">http://example.com</a></p>
 !! end
 
 !! test
 Parenthesis in external links, especially URL links
-!! options
-php
 !! wikitext
 http://example.com)
 
@@ -4098,7 +4075,7 @@ http://example.com/((test)
 http://example.com/a)b
 
 [http://example.com) foo]
-!! html
+!! html/php
 <p><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>)
 </p><p><a rel="nofollow" class="external free" href="http://example.com/test">http://example.com/test</a>)
 </p><p><a rel="nofollow" class="external free" href="http://example.com/(test)">http://example.com/(test)</a>
@@ -4108,29 +4085,7 @@ http://example.com/a)b
 </p><p><a rel="nofollow" class="external free" href="http://example.com/a)b">http://example.com/a)b</a>
 </p><p><a rel="nofollow" class="external text" href="http://example.com)">foo</a>
 </p>
-!! end
-
-!! test
-Parenthesis in external links, especially URL links (Parsoid)
-!! options
-parsoid
-!! wikitext
-http://example.com)
-
-http://example.com/test)
-
-http://example.com/(test)
-
-http://example.com/((test)
-
-(http://example.com/(test))
-
-(http://example.com/(test)))))
-
-http://example.com/a)b
-
-[http://example.com) foo]
-!! html
+!! html/parsoid
 <p><a rel="mw:ExtLink" href="http://example.com">http://example.com</a>)</p>
 <p><a rel="mw:ExtLink" href="http://example.com/test">http://example.com/test</a>)</p>
 <p><a rel="mw:ExtLink" href="http://example.com/(test)">http://example.com/(test)</a></p>
@@ -4143,13 +4098,15 @@ http://example.com/a)b
 
 !! test
 Parenthesis in external links, w/ transclusion or comment
-!! options
-parsoid
 !! wikitext
 (http://example.com/{{echo|hi}})
 
 (http://example.com<!-- hi -->)
-!! html
+!! html/php
+<p>(<a rel="nofollow" class="external free" href="http://example.com/hi">http://example.com/hi</a>)
+</p><p>(<a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>)
+</p>
+!! html/parsoid
 <p>(<a data-mw='{"attribs":[[{"txt":"href"},{"html":"http://example.com/&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;hi&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\" data-parsoid=\"{&amp;quot;dsr&amp;quot;:[20,31,null,null],&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]]}\">hi&lt;/span>"}]]}' typeof="mw:ExpandedAttrs" about="#mwt2" rel="mw:ExtLink" href="http://example.com/hi" data-parsoid='{"stx":"url","a":{"href":"http://example.com/hi"},"sa":{"href":"http://example.com/{{echo|hi}}"}}'>http://example.com/hi</a>)</p>
 
 <p>(<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url","a":{"href":"http://example.com"},"sa":{"href":"http://example.com&lt;!-- hi -->"}}'>http://example.com</a>)</p>
@@ -4233,24 +4190,16 @@ Plain ''italic'''s plain
 # This should not produce <table></table> as <table><tr><td></td></tr></table>
 # is the bare minimum required by the spec, see:
 # http://www.w3.org/TR/xhtml-modularization/dtd_module_defs.html#a_module_Basic_Tables
-!! test
-A table with no data. (php)
-!! options
-php
-!! wikitext
-{||}
-!! html
-
-!! end
-
 # Parsoid team replies: empty table tags are legal in HTML5
 !! test
-A table with no data. (parsoid)
+A table with no data.
 !! options
 parsoid=wt2html
 !! wikitext
 {||}
-!! html
+!! html/php
+
+!! html/parsoid
 <table></table>
 
 !! end
@@ -4297,42 +4246,29 @@ parsoid=wt2html
 !! end
 
 !! test
-A table with no data (take 2) (parsoid)
-!! options
-parsoid
+A table with no data (take 2)
 !! wikitext
 {|
 |}
-!! html
+!! html/parsoid
 <table></table>
 !! end
 
 # A table with nothing but a caption is invalid XHTML, we might want to render
 # this as <p>caption</p>
+# Parsoid team replies: table with only a caption is legal in HTML5
 !! test
-A table with nothing but a caption (php)
-!! options
-php
+A table with nothing but a caption
 !! wikitext
 {|
 |+ caption
 |}
-!! html
+!! html/php
 <table>
 <caption> caption
 </caption><tr><td></td></tr></table>
 
-!! end
-# Parsoid team replies: table with only a caption is legal in HTML5
-!! test
-A table with nothing but a caption (parsoid)
-!! options
-parsoid
-!! wikitext
-{|
-|+ caption
-|}
-!! html
+!! html/parsoid
 <table><caption> caption</caption></table>
 !! end
 
@@ -4813,13 +4749,11 @@ Table with empty line following the start tag
 # the PHP parser. Parsoid implements the behavior below.
 !! test
 Table attributes with empty value
-!! options
-parsoid
 !! wikitext
 {|
 | style=| hello
 |}
-!! html
+!! html/parsoid
 <table>
 <tbody>
 <tr>
@@ -4889,15 +4823,13 @@ Table cell with a single comment
 # not parse this kind of table at all. The main focus for Parsoid is on
 # round-tripping, so this output is ok for now. TODO: revisit!
 !! test
-Wikitext table with html-syntax row (Parsoid)
-!! options
-parsoid
+Wikitext table with html-syntax row
 !! wikitext
 {|
 |-
 <td>foo</td>
 |}
-!! html
+!! html/parsoid
 <table>
 <tbody>
 <tr>
@@ -6081,11 +6013,9 @@ Foo
 
 !! test
 Broken br tag sanitization
-!! options
-php
 !! wikitext
 </br>
-!! html
+!! html/php
 <p>&lt;/br&gt;
 </p>
 !! end
@@ -6097,7 +6027,7 @@ Parsoid: Broken br tag recognition
 parsoid=wt2html
 !! wikitext
 </br>
-!! html
+!! html/parsoid
 <p><br></p>
 !! end
 
@@ -6759,13 +6689,11 @@ parsoid
 !! test
 Unbalanced closing block tags break a list
 (Parsoid-only since php parser generates broken html -- relies on Tidy to fix up)
-!! options
-parsoid
 !! wikitext
 <div>
 *a</div><div>
 *b</div>
-!! html
+!! html/parsoid
 <div>
 <ul>
 <li>a
@@ -6780,13 +6708,11 @@ parsoid
 !! test
 Unbalanced closing non-block tags don't break a list
 (Parsoid-only since php parser generates broken html -- relies on Tidy to fix up)
-!! options
-parsoid
 !! wikitext
 <span>
 *a</span><span>
 *b</span>
-!! html
+!! html/parsoid
 <p><span></span>
 </p>
 <ul>
@@ -6800,12 +6726,10 @@ parsoid
 !! test
 Unclosed formatting tags that straddle lists are closed and reopened
 (Parsoid-only since php parser generates broken html -- relies on Tidy to fix up)
-!! options
-parsoid
 !! wikitext
 # <s> a
 # b </s>
-!! html
+!! html/parsoid
 <ol>
 <li> <s> a </s>
 </li>
@@ -6817,13 +6741,11 @@ parsoid
 !!test
 List embedded in a non-block tag
 (Ugly Parsoid output -- worth fixing; Disabled for PHP parser since it relies on Tidy)
-!! options
-parsoid
 !! wikitext
 <small>
 * foo
 </small>
-!! html
+!! html/parsoid
 <p><small></small></p>
 <small>
 <ul>
@@ -6842,7 +6764,7 @@ parsoid=wt2html,wt2wt
 <td>foo</td>
 </tr>
 </table>
-!! html
+!! html/parsoid
 <table>
 <tr>
 <td>foo</td>
@@ -7666,23 +7588,13 @@ Template with invalid target containing unclosed tag
 !! end
 
 !! test
-Template with invalid target containing wikilink (php)
-!! options
-php
+Template with invalid target containing wikilink
 !! wikitext
 {{[[Main Page]]}}
-!! html
+!! html/php
 <p>{{<a href="/wiki/Main_Page" title="Main Page">Main Page</a>}}
 </p>
-!! end
-
-!! test
-Template with invalid target containing wikilink (parsoid)
-!! options
-parsoid
-!! wikitext
-{{[[Main Page]]}}
-!! html
+!! html/parsoid
 <p><span typeof="mw:Transclusion" about="#mwt1" data-mw='{"parts":[{"template":{"target":{"wt":"[[Main Page]]"},"params":{},"i":0}}]}'>{{</span><a rel="mw:WikiLink" href="./Main_Page" about="#mwt1">Main Page</a><span about="#mwt1">}}</span></p>
 !! end
 
@@ -8931,11 +8843,9 @@ Templates: Ugly nesting: 1. Quotes opened/closed across templates (echo)
 !!test
 Templates: Ugly nesting: 2. Quotes opened/closed across templates (echo_with_span)
 (PHP parser generates misnested html)
-!! options
-parsoid
 !! wikitext
 {{echo_with_span|''a}}{{echo_with_span|b''c''d}}{{echo_with_span|''e}}
-!! html
+!! html/parsoid
 <p><span about="#mwt1" typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo_with_span&quot;,&quot;href&quot;:&quot;./Template:Echo_with_span&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;''a&quot;}},&quot;i&quot;:0}}]}"><i>a</i></span><i about="#mwt2" typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo_with_span&quot;,&quot;href&quot;:&quot;./Template:Echo_with_span&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;b''c''d&quot;}},&quot;i&quot;:0}},{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo_with_span&quot;,&quot;href&quot;:&quot;./Template:Echo_with_span&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;''e&quot;}},&quot;i&quot;:1}}]}"><span>b</span></i><span about="#mwt2">c</span><i about="#mwt2">d<span></span></i><span about="#mwt2">e</span></p>
 !!end
 
@@ -15717,23 +15627,13 @@ bar
 !! end
 
 !!test
-Parsing of overlapping (improperly nested) inline html tags (PHP parser)
-!!options
-php
+Parsing of overlapping (improperly nested) inline html tags
 !! wikitext
 <span><s>x</span></s>
-!! html
+!! html/php
 <p><span><s>x&lt;/span&gt;</s></span>
 </p>
-!!end
-
-!!test
-Parsing of overlapping (improperly nested) inline html tags (Parsoid)
-!!options
-parsoid
-!! wikitext
-<span><s>x</span></s>
-!! html
+!! html/parsoid
 <p><span><s>x</s></span><s></s>
 </p>
 !!end
