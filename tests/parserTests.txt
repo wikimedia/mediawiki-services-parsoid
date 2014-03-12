@@ -15634,7 +15634,7 @@ Parsing of overlapping (improperly nested) inline html tags
 <p><span><s>x&lt;/span&gt;</s></span>
 </p>
 !! html/parsoid
-<p><span><s>x</s></span><s></s>
+<p><span><s>x</s></span>
 </p>
 !!end
 
