@@ -816,7 +816,7 @@ function ParsoidService(options) {
 	app.on( 'error', function( err ) {
 		if ( err.errno === "EADDRINUSE" ) {
 			console.error( "Port %d is already in use. Exiting.", port );
-			process.exit(1);
+			cluster.worker.disconnect();
 		} else {
 			console.error( err.message );
 		}

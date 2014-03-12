@@ -53,6 +53,7 @@ var startServer = function ( opts, cb, port ) {
 
 	// If it dies on its own, restart it
 	forkedServer.on( 'exit', function( ) {
+		console.warn('apiServer quit; retry with a different port');
 		forkedServer = null;
 		process.removeListener( 'exit', weDied );
 		opts.retrying = true;
