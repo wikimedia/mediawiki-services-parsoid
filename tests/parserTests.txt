@@ -2991,14 +2991,12 @@ Definition Lists: Nesting: Test 4
 ## bug in the PHP parser.  (Parsoid team thinks the PHP parser is
 ## wrong to close the <dl> after the <dt> containing the <ul>.)
 !! test
-Definition Lists: Mixed Lists: Test 1 (php)
-!! options
-php
+Definition Lists: Mixed Lists: Test 1
 !! wikitext
 :;* foo
 ::* bar
 :; baz
-!! html
+!! html/php
 <dl>
 <dd><dl>
 <dt><ul>
@@ -3016,16 +3014,7 @@ php
 </dd>
 </dl>
 
-!! end
-!! test
-Definition Lists: Mixed Lists: Test 1 (parsoid)
-!! options
-parsoid
-!! wikitext
-:;* foo
-::* bar
-:; baz
-!! html
+!! html/parsoid
 <dl>
 <dd><dl>
 <dt><ul>
@@ -3239,13 +3228,11 @@ Definition Lists: Mixed Lists: Test 10
 # still-open tags around until the nesting is complete.
 
 !! test
-Definition Lists: Mixed Lists: Test 11 (php)
-!! options
-php
+Definition Lists: Mixed Lists: Test 11
 !! wikitext
 *#*#;*;;foo :bar
 *#*#;boo :baz
-!! html
+!! html/php
 <ul>
 <li><ol>
 <li><ul>
@@ -3278,15 +3265,7 @@ php
 </li>
 </ul>
 
-!! end
-!! test
-Definition Lists: Mixed Lists: Test 11 (parsoid)
-!! options
-parsoid
-!! wikitext
-*#*#;*;;foo :bar
-*#*#;boo :baz
-!! html
+!! html/parsoid
 <ul>
 <li>
 <ol>
@@ -3318,12 +3297,10 @@ parsoid
 
 
 !! test
-Definition Lists: Weird Ones: Test 1 (php)
-!! options
-php
+Definition Lists: Weird Ones: Test 1
 !! wikitext
 *#;*::;; foo : bar (who uses this?)
-!! html
+!! html/php
 <ul>
 <li><ol>
 <li><dl>
@@ -3351,14 +3328,7 @@ php
 </li>
 </ul>
 
-!! end
-!! test
-Definition Lists: Weird Ones: Test 1 (parsoid)
-!! options
-parsoid
-!! wikitext
-*#;*::;; foo : bar (who uses this?)
-!! html
+!! html/parsoid
 <ul>
 <li>
 <ol>
