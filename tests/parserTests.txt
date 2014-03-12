@@ -10012,7 +10012,7 @@ php
 !! test
 Image with empty attribute (parsoid)
 !! options
-parsoid=wt2html
+parsoid=wt2html,wt2wt,html2html
 !! input
 [[File:Foobar.jpg|right||Caption text]]
 !! result
