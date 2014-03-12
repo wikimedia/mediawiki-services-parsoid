@@ -804,7 +804,7 @@ function ParsoidService(options) {
 	app.get( "/_version", function ( req, res ) {
 		res.json( version );
 	});
-	
+
     app.use( express.static( __dirname + '/scripts' ) );
 	app.use( express.limit( '15mb' ) );
 
@@ -816,7 +816,7 @@ function ParsoidService(options) {
 	app.on( 'error', function( err ) {
 		if ( err.errno === "EADDRINUSE" ) {
 			console.error( "Port %d is already in use. Exiting.", port );
-			cluster.worker.disconnect();
+			process.exit(1);
 		} else {
 			console.error( err.message );
 		}
