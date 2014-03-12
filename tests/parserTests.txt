@@ -537,24 +537,15 @@ Italics and bold: 2-quote opening sequence: (2,4)
 !!end
 
 
-!! test
-Italics and bold: 2-quote opening sequence: (2,5) (php)
-!! options
-php
-!! wikitext
-''foo'''''
-!! html
-<p><i>foo</i>
-</p>
-!!end
 # The PHP parser strips the empty tags out for giggles; parsoid doesn't.
 !! test
-Italics and bold: 2-quote opening sequence: (2,5) (parsoid)
-!! options
-parsoid
+Italics and bold: 2-quote opening sequence: (2,5)
 !! wikitext
 ''foo'''''
-!! html
+!! html/php
+<p><i>foo</i>
+</p>
+!! html/parsoid
 <p><i>foo</i><b></b>
 </p>
 !!end
@@ -594,24 +585,15 @@ Italics and bold: 3-quote opening sequence: (3,4)
 !!end
 
 
-!! test
-Italics and bold: 3-quote opening sequence: (3,5) (php)
-!! options
-php
-!! wikitext
-'''foo'''''
-!! html
-<p><b>foo</b>
-</p>
-!!end
 # The PHP parser strips the empty tags out for giggles; parsoid doesn't.
 !! test
-Italics and bold: 3-quote opening sequence: (3,5) (parsoid)
-!! options
-parsoid
+Italics and bold: 3-quote opening sequence: (3,5)
 !! wikitext
 '''foo'''''
-!! html
+!! html/php
+<p><b>foo</b>
+</p>
+!! html/parsoid
 <p><b>foo</b><i></i>
 </p>
 !!end
@@ -651,24 +633,15 @@ Italics and bold: 4-quote opening sequence: (4,4)
 !!end
 
 
-!! test
-Italics and bold: 4-quote opening sequence: (4,5) (php)
-!! options
-php
-!! wikitext
-''''foo'''''
-!! html
-<p>'<b>foo</b>
-</p>
-!!end
 # The PHP parser strips the empty tags out for giggles; parsoid doesn't.
 !! test
-Italics and bold: 4-quote opening sequence: (4,5) (parsoid)
-!! options
-parsoid
+Italics and bold: 4-quote opening sequence: (4,5)
 !! wikitext
 ''''foo'''''
-!! html
+!! html/php
+<p>'<b>foo</b>
+</p>
+!! html/parsoid
 <p>'<b>foo</b><i></i>
 </p>
 !!end
@@ -751,47 +724,29 @@ Italics and bold: multiple quote sequences: (2,4,4)
 !!end
 
 
-!! test
-Italics and bold: multiple quote sequences: (3,4,2) (php)
-!! options
-php
-!! wikitext
-'''foo''''bar''
-!! html
-<p><b>foo'</b>bar
-</p>
-!!end
 # The PHP parser strips the empty tags out for giggles; parsoid doesn't.
 !! test
-Italics and bold: multiple quote sequences: (3,4,2) (parsoid)
-!! options
-parsoid
+Italics and bold: multiple quote sequences: (3,4,2)
 !! wikitext
 '''foo''''bar''
-!! html
+!! html/php
+<p><b>foo'</b>bar
+</p>
+!! html/parsoid
 <p><b>foo'</b>bar<i></i>
 </p>
 !!end
 
 
-!! test
-Italics and bold: multiple quote sequences: (3,4,3) (php)
-!! options
-php
-!! wikitext
-'''foo''''bar'''
-!! html
-<p><b>foo'</b>bar
-</p>
-!!end
 # The PHP parser strips the empty tags out for giggles; parsoid doesn't.
 !! test
-Italics and bold: multiple quote sequences: (3,4,3) (parsoid)
-!! options
-parsoid
+Italics and bold: multiple quote sequences: (3,4,3)
 !! wikitext
 '''foo''''bar'''
-!! html
+!! html/php
+<p><b>foo'</b>bar
+</p>
+!! html/parsoid
 <p><b>foo'</b>bar<b></b>
 </p>
 !!end
@@ -4247,10 +4202,11 @@ Normal text. '''''Bold italic text.''''' Normal text.
 !! end
 
 
+# Parsoid inserts an empty bold tag pair at the end of the line, that the PHP
+# parser strips. The wikitext contains just the first half of the bold
+# quote pair.
 !! test
-Unclosed and unmatched quotes (php)
-!! options
-php
+Unclosed and unmatched quotes
 !! wikitext
 '''''Bold italic text '''with bold deactivated''' in between.'''''
 
@@ -4272,7 +4228,7 @@ Normal text.
 ''Tom'''s car is bigger than ''Susan'''s.
 
 Plain ''italic'''s plain
-!! html
+!! html/php
 <p><i><b>Bold italic text </b>with bold deactivated<b> in between.</b></i>
 </p><p><b><i>Bold italic text </i>with italic deactivated<i> in between.</i></b>
 </p><p><b>Bold text..</b>
@@ -4284,36 +4240,7 @@ Plain ''italic'''s plain
 </p><p><i>Tom<b>s car is bigger than </b></i><b>Susan</b>s.
 </p><p>Plain <i>italic'</i>s plain
 </p>
-!! end
-# Parsoid inserts an empty bold tag pair at the end of the line, that the PHP
-# parser strips. The wikitext contains just the first half of the bold
-# quote pair.
-!! test
-Unclosed and unmatched quotes (parsoid)
-!! options
-parsoid
-!! wikitext
-'''''Bold italic text '''with bold deactivated''' in between.'''''
-
-'''''Bold italic text ''with italic deactivated'' in between.'''''
-
-'''Bold text..
-
-..spanning two paragraphs (should not work).'''
-
-'''Bold tag left open
-
-''Italic tag left open
-
-Normal text.
-
-<!-- Unmatching number of opening, closing tags: -->
-'''This year''''s election ''should'' beat '''last year''''s.
-
-''Tom'''s car is bigger than ''Susan'''s.
-
-Plain ''italic'''s plain
-!! html
+!! html/parsoid
 <p><i><b>Bold italic text </b>with bold deactivated<b> in between.</b></i>
 </p><p><b><i>Bold italic text </i>with italic deactivated<i> in between.</i></b>
 </p><p><b>Bold text..</b>
@@ -14905,22 +14832,13 @@ Handling of &#x0A; in URLs
 
 !!end
 
-!! test
-5 quotes, code coverage +1 line (php)
-!! options
-php
-!! wikitext
-'''''
-!! html
-!! end
 # The PHP parser strips the empty tags out for giggles; parsoid doesn't.
 !! test
-5 quotes, code coverage +1 line (parsoid)
-!! options
-parsoid
+5 quotes, code coverage +1 line
 !! wikitext
 '''''
-!! html
+!! html/php
+!! html/parsoid
 <p><b><i></i></b></p>
 !! end
 
