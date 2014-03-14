@@ -39,7 +39,7 @@ var getTitle = function( cb ) {
 		switch ( response.statusCode ) {
 			case 200:
 				resp = JSON.parse( body );
-				cb( 'runTest', resp.prefix, resp.title );
+				cb( 'runTest', resp);
 				break;
 			case 404:
 				console.log( 'The server doesn\'t have any work for us right now, waiting half a minute....' );
@@ -66,10 +66,10 @@ var getTitle = function( cb ) {
 	Util.retryingHTTPRequest(10, requestOptions, callback );
 };
 
-var runTest = function( cb, prefix, title ) {
+var runTest = function( cb, test) {
 	var results, callback = rtTest.cbCombinator.bind( null, rtTest.xmlFormat, function ( err, results ) {
 		if ( err ) {
-			console.log( 'ERROR in ' + prefix + ':' + title + ':\n' + err + '\n' + err.stack);
+			console.log( 'ERROR in ' + test.prefix + ':' + test.title + ':\n' + err + '\n' + err.stack);
 			/*
 			 * If you're looking at the line below and thinking "Why in the
 			 * hell would they have done that, it causes unnecessary problems
@@ -80,28 +80,28 @@ var runTest = function( cb, prefix, title ) {
 			 * In sum, easier to die than to worry about having to reset any
 			 * broken application state.
 			 */
-			cb( 'postResult', err, results, prefix, title, function () { process.exit( 1 ); } );
+			cb( 'postResult', err, results, test, function () { process.exit( 1 ); } );
 		} else {
-			cb( 'postResult', err, results, prefix, title, null );
+			cb( 'postResult', err, results, test, null );
 		}
 	} );
 
 	try {
-		rtTest.fetch( title, callback, {
+		rtTest.fetch( test.title, callback, {
 			setup: config.setup,
-			prefix: prefix,
+			prefix: test.prefix,
 			editMode: false,
 			parsoidURL: parsoidURL
 		} );
 	} catch ( err ) {
 		// Log it to console (for gabriel to watch scroll by)
-		console.error( "ERROR in " + prefix + ':' + title + ': ' + err );
+		console.error( "ERROR in " + test.prefix + ':' + test.title + ': ' + err );
 
 		results = rtTest.xmlFormat( {
-			page: { name: title },
-			wiki: { iwp: prefix }
+			page: { name: test.title },
+			wiki: { iwp: test.prefix }
 		}, err );
-		cb( 'postResult', err, results, prefix, title, function() { process.exit( 1 ); } );
+		cb( 'postResult', err, results, test, function() { process.exit( 1 ); } );
 	}
 };
 
@@ -131,7 +131,7 @@ var getGitCommit = function( cb ) {
 	}
 };
 
-var postResult = function( err, result, prefix, title, finalCB, cb ) {
+var postResult = function( err, result, test, finalCB, cb ) {
 	getGitCommit( function ( newCommit, newTime ) {
 		if (!newCommit) {
 			console.log("Exiting, couldn't find the current commit");
@@ -145,7 +145,7 @@ var postResult = function( err, result, prefix, title, finalCB, cb ) {
 				'</error>';
 		}
 
-		result = qs.stringify( { results: result, commit: newCommit, ctime: newTime } );
+		result = qs.stringify( { results: result, commit: newCommit, ctime: newTime, test: JSON.stringify(test) } );
 
 		var requestOptions = {
 			host: config.server.host,
@@ -154,7 +154,7 @@ var postResult = function( err, result, prefix, title, finalCB, cb ) {
 				'Content-Type': 'application/x-www-form-urlencoded',
 				'Content-Length': result.length
 			},
-			path: '/result/' + encodeURIComponent( title ) + '/' + prefix,
+			path: '/result/' + encodeURIComponent( test.title ) + '/' + test.prefix,
 			method: 'POST'
 		};
 
@@ -176,18 +176,18 @@ var postResult = function( err, result, prefix, title, finalCB, cb ) {
 
 var callbackOmnibus = function(which) {
 	var args = Array.prototype.slice.call(arguments);
-	var prefix, title;
+	var test;
 	switch ( args.shift() ) {
 		case 'runTest':
-			prefix = args[0]; title = args[1];
-			console.log( 'Running a test on', prefix + ':' + title, '....' );
+			test = args[0];
+			console.log( 'Running a test on', test.prefix + ':' + test.title, '....' );
 			args.unshift( callbackOmnibus );
 			runTest.apply( null, args );
 			break;
 
 		case 'postResult':
-			prefix = args[2]; title = args[3];
-			console.log( 'Posting a result for', prefix + ':' + title, '....' );
+			test = args[2];
+			console.log( 'Posting a result for', test.prefix + ':' + test.title, '....' );
 			args.push( callbackOmnibus );
 			postResult.apply( null, args );
 			break;
