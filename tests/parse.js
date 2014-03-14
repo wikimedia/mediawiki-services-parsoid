@@ -136,20 +136,16 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 			env.conf.wiki.wgScriptPath = argv.wgScriptPath;
 		}
 
-		var i,
-				validExtensions;
-
+		var i, validExtensions;
 		if ( validExtensions !== '' ) {
 			validExtensions = argv.extensions.split( ',' );
-
 			for ( i = 0; i < validExtensions.length; i++ ) {
 				env.conf.wiki.addExtensionTag( validExtensions[i] );
 			}
 		}
 
 		// Init parsers, serializers, etc.
-		var parserPipeline,
-				serializer;
+		var parserPipeline, serializer;
 
 		if ( !argv.html2wt ) {
 			parserPipeline = env.pipelineFactory.getPipeline( 'text/x-mediawiki/full');

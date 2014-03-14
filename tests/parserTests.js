@@ -429,6 +429,7 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
 		} else {
 			this.env.setPageSrcInfo( null );
 		}
+
 		serializer.serializeDOM( content, function ( res ) {
 			wt += res;
 		}, function () {
