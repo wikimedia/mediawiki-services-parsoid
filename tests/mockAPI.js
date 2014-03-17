@@ -121,6 +121,7 @@ var fnames = {
 				theight = body.iiurlheight,
 				turl = IMAGE_BASE_URL + '/thumb/' + md5prefix + normFilename,
 				durl = IMAGE_DESC_URL + '/' + normFilename,
+				mediatype = (props.mime === 'image/svg+xml') ? 'DRAWING' : 'BITMAP',
 				imageinfo = {
 					pageid: 1,
 					ns: 6,
@@ -130,7 +131,8 @@ var fnames = {
 						height: height,
 						width: width,
 						url: baseurl,
-						descriptionurl: durl
+						descriptionurl: durl,
+						mediatype: mediatype
 					} ]
 				},
 				response = {

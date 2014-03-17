@@ -10154,7 +10154,8 @@ parsoid=wt2html,wt2wt,html2html
 # See https://www.mediawiki.org/wiki/Help:Images#Size_and_frame
 # and https://bugzilla.wikimedia.org/show_bug.cgi?id=62258
 # Foobar has actual size of 1941x220
-# 1. Thumbs & frameless always reduce, can't be enlarged
+# 1. Thumbs & frameless always reduce, can't be enlarged unless it's
+#    a scalable format.
 # 2. Framed images ignore width; always render at default size.
 #    If given a height, they respect height but continue to ignore width.
 # 3. "Unspecified format" and border are the only types which can be
@@ -10208,16 +10209,20 @@ parsoid=wt2html,wt2wt,html2html
 !! end
 
 !! test
-Image: thumbs can't be enlarged past original size
+Image: bitmap thumbs can't be enlarged past original size, but vector can.
 !! options
 parsoid=wt2html,wt2wt,html2html
 !! wikitext
 [[File:Foobar.jpg|thumb|2000px]]
+
+[[File:Foobar.svg|thumb|2000px]]
 !! html/php
 <div class="thumb tright"><div class="thumbinner" style="width:1943px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="thumbimage" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div></div></div></div>
+<div class="thumb tright"><div class="thumbinner" style="width:2002px;"><a href="/wiki/File:Foobar.svg" class="image"><img alt="Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/2000px-Foobar.svg.png" width="2000" height="1500" class="thumbimage" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/3000px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/4000px-Foobar.svg.png 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.svg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div></div></div></div>
 
 !! html/parsoid
 <figure typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></figure>
+<figure typeof="mw:Image/Thumb"><a href="File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/f/ff/Foobar.svg" height="1500" width="2000"/></a></figure>
 !! end
 
 !! test
@@ -10234,16 +10239,20 @@ parsoid=wt2html,wt2wt,html2html
 !! end
 
 !! test
-Image: frameless can't be enlarged past original size
+Image: bitmap frameless can't be enlarged past original size, but vector can
 !! options
 parsoid=wt2html,wt2wt,html2html
 !! wikitext
 [[File:Foobar.jpg|frameless|2000px]]
+
+[[File:Foobar.svg|frameless|2000px]]
 !! html/php
 <p><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
+</p><p><a href="/wiki/File:Foobar.svg" class="image"><img alt="Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/2000px-Foobar.svg.png" width="2000" height="1500" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/3000px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/4000px-Foobar.svg.png 2x" /></a>
 </p>
 !! html/parsoid
 <p><span typeof="mw:Image/Frameless"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></span></p>
+<p><span typeof="mw:Image/Frameless"><a href="File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/f/ff/Foobar.svg" height="1500" width="2000"/></a></span></p>
 !! end
 
 !! test

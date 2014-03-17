@@ -2973,6 +2973,10 @@ add("selser", "Image: \"unspecified format\" and border enlarge [0,2,2]", "[[Fil
 add("selser", "Image: \"unspecified format\" and border enlarge [2,4,0]", "qaqv6y33cvkotj4i\n\n[[File:Foobar.jpg|2000px]]gi0zfpza7j3mobt9\n[[File:Foobar.jpg|border|2000px]]");
 add("selser", "Image: \"unspecified format\" and border reduce [4,0,4]", "jt4mnz2j6a2lnmi\nrn5wwwa8whmvaemi");
 add("selser", "Image: \"unspecified format\" and border reduce [0,4,0]", "[[File:Foobar.jpg|1000px]]99hwp4im23fy9zfr\n[[File:Foobar.jpg|border|1000px]]");
+add("selser", "Image: bitmap frameless can't be enlarged past original size, but vector can [0,4,0]", "[[File:Foobar.jpg|frameless|2000px]]981srpxcaowp14i\n[[File:Foobar.svg|frameless|2000px]]");
+add("selser", "Image: bitmap frameless can't be enlarged past original size, but vector can [0,3,2]", "[[File:Foobar.jpg|frameless|2000px]]57aexadip6meu3di\n[[File:Foobar.svg|frameless|2000px]]");
+add("selser", "Image: bitmap frameless can't be enlarged past original size, but vector can [0,4,2]", "[[File:Foobar.jpg|frameless|2000px]]96a8zhjlmffg8pvimdxu7bdzi36m9529\n[[File:Foobar.svg|frameless|2000px]]");
+add("selser", "Image: bitmap frameless can't be enlarged past original size, but vector can [0,2,2]", "[[File:Foobar.jpg|frameless|2000px]]bppalaroia8257b9\n8nwk58vl6r24vx6r\n[[File:Foobar.svg|frameless|2000px]]");
 add("selser", "Relative subpage noslash link [4,0,4]", "u4hge9fbsekd42t9\nunv6ssdm3pzxgvi");
 add("selser", "Relative subpage noslash link [2,4,[1]]", "nrb4v3liuj0mgqfr\n\n[[../../subpage/]]98uzbw2dte8nnrk9\n[[../../subpage]]");
 add("selser", "Parsoid: dot-slash prefixed wikilinks [3,2,2,4,[2]]", "prj4exfja1ii19k9\nl48gp8hn5yu8fr\n\n[[././bar]]swsx7eap1y1ll3di\n6mw6ybuu6pzoxbt9[[././baz/]]");
