@@ -13,13 +13,13 @@
 var express = require('express'),
 	domino = require('domino'),
 	// memwatch = require('memwatch'),
-	jsDiff = require('diff'),
 	childProc = require('child_process'),
 	cluster = require('cluster'),
 	fs = require('fs'),
 	path = require('path'),
 	util = require('util'),
-	pkg = require('../package.json');
+	pkg = require('../package.json'),
+	Diff = require('../lib/mediawiki.Diff.js').Diff;
 
 // local includes
 var mp = '../lib/';
@@ -144,104 +144,6 @@ function ParsoidService(options) {
 		res.write('</textarea><br><input type="submit"></form>');
 	};
 
-	/**
-	 * Perform word-based diff on a line-based diff. The word-based algorithm is
-	 * practically unusable for inputs > 5k bytes, so we only perform it on the
-	 * output of the more efficient line-based diff.
-	 *
-	 * @method
-	 * @param {Array} diff The diff to refine
-	 * @returns {Array} The refined diff
-	 */
-	var refineDiff = function ( diff ) {
-		// Attempt to accumulate consecutive add-delete pairs
-		// with short text separating them (short = 2 chars right now)
-		//
-		// This is equivalent to the <b><i> ... </i></b> minimization
-		// to expand range of <b> and <i> tags, except there is no optimal
-		// solution except as determined by heuristics ("short text" = <= 2 chars).
-		function mergeConsecutiveSegments(wordDiffs) {
-			var n = wordDiffs.length,
-				currIns = null, currDel = null,
-				newDiffs = [];
-			for (var i = 0; i < n; i++) {
-				var d = wordDiffs[i],
-					dVal = d.value;
-				if (d.added) {
-					// Attempt to accumulate
-					if (currIns === null) {
-						currIns = d;
-					} else {
-						currIns.value = currIns.value + dVal;
-					}
-				} else if (d.removed) {
-					// Attempt to accumulate
-					if (currDel === null) {
-						currDel = d;
-					} else {
-						currDel.value = currDel.value + dVal;
-					}
-				} else if (((dVal.length < 4) || !dVal.match(/\s/)) && currIns && currDel) {
-					// Attempt to accumulate
-					currIns.value = currIns.value + dVal;
-					currDel.value = currDel.value + dVal;
-				} else {
-					// Accumulation ends. Purge!
-					if (currIns !== null) {
-						newDiffs.push(currIns);
-						currIns = null;
-					}
-					if (currDel !== null) {
-						newDiffs.push(currDel);
-						currDel = null;
-					}
-					newDiffs.push(d);
-				}
-			}
-
-			// Purge buffered diffs
-			if (currIns !== null) {
-				newDiffs.push(currIns);
-			}
-			if (currDel !== null) {
-				newDiffs.push(currDel);
-			}
-
-			return newDiffs;
-		}
-
-		var added = null,
-			out = [];
-		for ( var i = 0, l = diff.length; i < l; i++ ) {
-			var d = diff[i];
-			if ( d.added ) {
-				if ( added ) {
-					out.push( added );
-				}
-				added = d;
-			} else if ( d.removed ) {
-				if ( added ) {
-					var fineDiff = jsDiff.diffWords( d.value, added.value );
-					fineDiff = mergeConsecutiveSegments(fineDiff);
-					out.push.apply( out, fineDiff );
-					added = null;
-				} else {
-					out.push( d );
-				}
-			} else {
-				if ( added ) {
-					out.push( added );
-					added = null;
-				}
-				out.push(d);
-			}
-		}
-		if ( added ) {
-			out.push(added);
-		}
-		return out;
-	};
-
 	var roundTripDiff = function ( selser, req, res, env, document ) {
 		var patch;
 		var out = [];
@@ -280,7 +182,7 @@ function ParsoidService(options) {
 			var src = env.page.src.replace(/\n(?=\n)/g, '\n ');
 			out = out.replace(/\n(?=\n)/g, '\n ');
 			//console.log(JSON.stringify( jsDiff.diffLines( out, src ) ));
-			patch = jsDiff.convertChangesToXML( jsDiff.diffLines( src, out ) );
+			patch = Diff.convertChangesToXML( Diff.diffLines( src, out ) );
 			//patch = jsDiff.convertChangesToXML( refineDiff( jsDiff.diffLines( src, out ) ) );
 			res.write( '<pre>\n' + patch + '\n</pre>');
 			// Add a 'report issue' link
