@@ -1509,7 +1509,7 @@ ParserTests.prototype.main = function ( options ) {
 		this.env = env;
 
 		if (booleanOption( options.quiet )) {
-			this.env.logger.changeLogLevels("fatal", "error");
+			this.env.logger.changeLogTypes("fatal", "error");
 		}
 
 		this.env.conf.parsoid.editMode = options.editMode;

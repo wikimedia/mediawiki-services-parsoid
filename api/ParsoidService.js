@@ -341,37 +341,18 @@ function ParsoidService(options) {
 	function parserEnvMw( req, res, next ) {
 		MWParserEnvironment.getParserEnv( parsoidConfig, null, res.local('iwp'), res.local('pageName'), req.headers.cookie, function ( err, env ) {
 
-			function generateErrCBMessage (obj) {
-				var messageString = "";
-				if (obj.constructor.name === "Error") {
-					messageString += obj.message;
-					messageString += 'ERROR in ' + res.local('iwp') + ':' + res.local('pageName');
-					messageString += "\n" + obj.stack;
-				} else {
-					if (obj.msg) {
-						messageString += obj.msg;
-					}
-					if (obj.location) {
-						messageString += "\n" + obj.location;
-					}
-					if (obj.stack) {
-						messageString += "\n" + obj.stack;
-					}
-				}
-				return messageString;
-			}
-
-			function errCB ( res, env, obj, callback ) {
+			function errCB ( res, env, logData, callback ) {
 				try {
 					if (env.responseSent) {
+						callback();
 						return;
 					} else {
-						var messageString = generateErrCBMessage(obj);
 						setHeader(res, env, 'Content-Type', 'text/plain; charset=UTF-8' );
-						sendResponse(res, env, messageString, obj.code || 500);
+						sendResponse(res, env, logData.fullMsg(), logData.code || 500);
 						res.on('finish', callback);
 					}
 				} catch (e) {
+					callback();
 					return;
 				}
 			}
