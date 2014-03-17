@@ -12,6 +12,7 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 	TemplateRequest = require('../lib/mediawiki.ApiRequest.js').TemplateRequest,
 	Util = require('../lib/mediawiki.Util.js').Util,
 	DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils,
+	Logger = require('../lib/Logger.js').Logger,
 	optimist = require('optimist'),
 	fs = require('fs');
 
@@ -124,8 +125,11 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 
 	ParserEnv.getParserEnv( parsoidConfig, null, prefix, argv.page || null, null, function ( err, env ) {
 		if ( err !== null ) {
-			env.log("fatal", err);
+			console.error(err);
+			return;
 		}
+
+		env.setLogger(new Logger(env, { logLevels: ["fatal", "error", "warning"] }));
 
 		// fetch templates from enwiki by default.
 		if ( argv.wgScriptPath ) {

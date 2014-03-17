@@ -14,20 +14,21 @@
 
 require('../lib/core-upgrade.js');
 
-var fs = require('fs'),
-	path = require('path'),
+var apiServer = require( './apiServer.js' ),
+	async = require( 'async' ),
 	colors = require('colors'),
-	Util = require( '../lib/mediawiki.Util.js' ).Util,
-	DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils,
 	childProc = require('child_process'),
 	fork = childProc.fork,
-	DOMUtils = require( '../lib/mediawiki.DOMUtils.js' ).DOMUtils,
-	async = require( 'async' ),
-	PEG = require('pegjs'),
-	Alea = require('alea'),
+	fs = require('fs'),
+	path = require('path'),
 	// Handle options/arguments with optimist module
 	optimist = require('optimist'),
-	apiServer = require( './apiServer.js' );
+	Alea = require('alea'),
+	DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils,
+	DOMUtils = require( '../lib/mediawiki.DOMUtils.js' ).DOMUtils,
+	Logger = require('../lib/Logger.js').Logger,
+	PEG = require('pegjs'),
+	Util = require( '../lib/mediawiki.Util.js' ).Util;
 
 // Fetch up some of our wacky parser bits...
 
@@ -1508,8 +1509,8 @@ ParserTests.prototype.main = function ( options ) {
 		// to be basically empty, since the parserTests environment is very bare.
 		this.env = env;
 
-		if (booleanOption( options.quiet )) {
-			this.env.logger.changeLogTypes("fatal", "error");
+		if (!booleanOption( options.quiet )) {
+			env.setLogger(new Logger(env, { logLevels: ["fatal", "error", "warning"] }));
 		}
 
 		this.env.conf.parsoid.editMode = options.editMode;
