@@ -14691,6 +14691,14 @@ ISBN 3-462-04561-X
 !! end
 
 !! test
+ISBN with empty prefix (parsoid test)
+!! wikitext
+ISBN 1234567890
+!! html/parsoid
+<p><a href="Special:BookSources/1234567890" rel="mw:ExtLink">ISBN 1234567890</a></p>
+!! end
+
+!! test
 Bug 22905: <abbr> followed by ISBN followed by </a>
 !! wikitext
 <abbr>(fr)</abbr> ISBN 2753300917 [http://www.example.com example.com]
