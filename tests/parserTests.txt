@@ -10347,153 +10347,191 @@ SVG thumbnails with no language set
 !! options
 !! wikitext
 [[File:Foobar.svg|thumb|caption]]
-!! html
+!! html/php
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.svg" class="image"><img alt="" src="http://example.com/images/thumb/f/ff/Foobar.svg/180px-Foobar.svg.png" width="180" height="135" class="thumbimage" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/270px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/360px-Foobar.svg.png 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.svg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>caption</div></div></div>
 
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/f/ff/Foobar.svg" height="165" width="220"/></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
 SVG thumbnails with language de
 !! options
+parsoid=wt2html,wt2wt,html2html
 !! wikitext
 [[File:Foobar.svg|thumb|caption|lang=de]]
-!! html
+!! html/php
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/index.php?title=File:Foobar.svg&amp;lang=de" class="image"><img alt="" src="http://example.com/images/thumb/f/ff/Foobar.svg/langde-180px-Foobar.svg.png" width="180" height="135" class="thumbimage" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/langde-270px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/langde-360px-Foobar.svg.png 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.svg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>caption</div></div></div>
 
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/f/ff/Foobar.svg" lang="de" height="165" width="220"/></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
 SVG thumbnails with invalid language code
 !! options
+parsoid=wt2html,wt2wt,html2html
 !! wikitext
 [[File:Foobar.svg|thumb|caption|lang=invalid.language.code]]
-!! html
+!! html/php
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.svg" class="image"><img alt="" src="http://example.com/images/thumb/f/ff/Foobar.svg/180px-Foobar.svg.png" width="180" height="135" class="thumbimage" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/270px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/360px-Foobar.svg.png 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.svg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>lang=invalid.language.code</div></div></div>
 
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/f/ff/Foobar.svg" height="165" width="220"/></a><figcaption>lang=invalid.language.code</figcaption></figure>
 !! end
 
 !! test
 BUG 1887: A ISBN with a thumbnail
 !! wikitext
-[[Image:foobar.jpg|thumb|ISBN 1235467890]]
-!! html
+[[File:Foobar.jpg|thumb|ISBN 1235467890]]
+!! html/php
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div><a href="/wiki/Special:BookSources/1235467890" class="internal mw-magiclink-isbn">ISBN 1235467890</a></div></div></div>
 
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption><a href="Special:BookSources/1235467890" rel="mw:ExtLink">ISBN 1235467890</a></figcaption></figure>
 !! end
 
 !! test
 BUG 1887: A RFC with a thumbnail
 !! wikitext
-[[Image:foobar.jpg|thumb|This is RFC 12354]]
-!! html
+[[File:Foobar.jpg|thumb|This is RFC 12354]]
+!! html/php
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>This is <a class="external mw-magiclink-rfc" rel="nofollow" href="//tools.ietf.org/html/rfc12354">RFC 12354</a></div></div></div>
 
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>This is <a href="//tools.ietf.org/html/rfc12354" rel="mw:ExtLink">RFC 12354</a></figcaption></figure>
 !! end
 
 !! test
 BUG 1887: A mailto link with a thumbnail
 !! wikitext
-[[Image:foobar.jpg|thumb|Please mailto:nobody@example.com]]
-!! html
+[[File:Foobar.jpg|thumb|Please mailto:nobody@example.com]]
+!! html/php
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>Please <a rel="nofollow" class="external free" href="mailto:nobody@example.com">mailto:nobody@example.com</a></div></div></div>
 
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>Please <a rel="mw:ExtLink" href="mailto:nobody@example.com">mailto:nobody@example.com</a></figcaption></figure>
 !! end
 
 # Pending resolution to bug 368
 !! test
 BUG 648: Frameless image caption with a link
 !! wikitext
-[[Image:foobar.jpg|text with a [[link]] in it]]
-!! html
+[[File:Foobar.jpg|text with a [[link]] in it]]
+!! html/php
 <p><a href="/wiki/File:Foobar.jpg" class="image" title="text with a link in it"><img alt="text with a link in it" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
 </p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"text with a [[link]] in it"}'><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></span></p>
 !! end
 
 !! test
 BUG 648: Frameless image caption with a link (suffix)
 !! wikitext
-[[Image:foobar.jpg|text with a [[link]]foo in it]]
-!! html
+[[File:Foobar.jpg|text with a [[link]]foo in it]]
+!! html/php
 <p><a href="/wiki/File:Foobar.jpg" class="image" title="text with a linkfoo in it"><img alt="text with a linkfoo in it" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
 </p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"text with a [[link]]foo in it"}'><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></span></p>
 !! end
 
 !! test
 BUG 648: Frameless image caption with an interwiki link
 !! wikitext
-[[Image:foobar.jpg|text with a [[MeatBall:Link]] in it]]
-!! html
+[[File:Foobar.jpg|text with a [[MeatBall:Link]] in it]]
+!! html/php
 <p><a href="/wiki/File:Foobar.jpg" class="image" title="text with a MeatBall:Link in it"><img alt="text with a MeatBall:Link in it" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
 </p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"text with a [[MeatBall:Link]] in it"}'><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></span></p>
 !! end
 
 !! test
 BUG 648: Frameless image caption with a piped interwiki link
 !! wikitext
-[[Image:foobar.jpg|text with a [[MeatBall:Link|link]] in it]]
-!! html
+[[File:Foobar.jpg|text with a [[MeatBall:Link|link]] in it]]
+!! html/php
 <p><a href="/wiki/File:Foobar.jpg" class="image" title="text with a link in it"><img alt="text with a link in it" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
 </p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"text with a [[MeatBall:Link|link]] in it"}'><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></span></p>
 !! end
 
 !! test
 Escape HTML special chars in image alt text
 !! wikitext
-[[Image:foobar.jpg|& < > "]]
-!! html
+[[File:Foobar.jpg|& < > "]]
+!! html/php
 <p><a href="/wiki/File:Foobar.jpg" class="image" title="&amp; &lt; &gt; &quot;"><img alt="&amp; &lt; &gt; &quot;" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
 </p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"&amp; &lt; > \""}'><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></span></p>
 !! end
 
 !! test
 BUG 499: Alt text should have &#1234;, not &amp;1234;
 !! wikitext
-[[Image:foobar.jpg|&#9792;]]
-!! html
+[[File:Foobar.jpg|&#9792;]]
+!! html/php
 <p><a href="/wiki/File:Foobar.jpg" class="image" title="♀"><img alt="♀" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
 </p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"&amp;#9792;"}'><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></span></p>
 !! end
 
 !! test
 Broken image caption with link
+!! options
+parsoid=wt2html,wt2wt,html2html
 !! wikitext
 [[Image:Foobar.jpg|thumb|This is a broken caption. But [[Main Page|this]] is just an ordinary link.
-!! html
+!! html/php
 <p>[[Image:Foobar.jpg|thumb|This is a broken caption. But <a href="/wiki/Main_Page" title="Main Page">this</a> is just an ordinary link.
 </p>
+!! html/parsoid
+<p>[[Image:Foobar.jpg|thumb|This is a broken caption. But <a rel="mw:WikiLink" href="Main_Page">this</a> is just an ordinary link.</p>
 !! end
 
 !! test
 Image caption containing another image
 !! wikitext
-[[Image:Foobar.jpg|thumb|This is a caption with another [[Image:icon.png|image]] inside it!]]
-!! html
-<div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>This is a caption with another <a href="/index.php?title=Special:Upload&amp;wpDestFile=Icon.png" class="new" title="File:Icon.png">image</a> inside it!</div></div></div>
+[[File:Foobar.jpg|thumb|This is a caption with another [[File:Thumb.png|image]] inside it!]]
+!! html/php
+<div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>This is a caption with another <a href="/wiki/File:Thumb.png" class="image" title="image"><img alt="image" src="http://example.com/images/e/ea/Thumb.png" width="135" height="135" /></a> inside it!</div></div></div>
 
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>This is a caption with another <span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"image"}'><a href="File:Thumb.png"><img resource="./File:Thumb.png" src="//example.com/images/e/ea/Thumb.png" height="135" width="135"/></a></span> inside it!</figcaption></figure>
 !! end
 
 !! test
 Image caption containing a newline
 !! wikitext
-[[Image:Foobar.jpg|This
+[[File:Foobar.jpg|This
 *is some text]]
-!! html
+!! html/php
 <p><a href="/wiki/File:Foobar.jpg" class="image" title="This *is some text"><img alt="This *is some text" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
 </p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"This\n*is some text"}'><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></span></p>
 !!end
 
 !!test
-Parsoid: Image caption containing leading space
+Images: caption containing leading space
 (The leading space should not trigger nowiki escaping in wt2wt mode)
 !! wikitext
-[[Image:Foobar.jpg|thumb| bar]]
-!! html
+[[File:Foobar.jpg|thumb| bar]]
+!! html/php
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>bar</div></div></div>
 
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption> bar</figcaption></figure>
 !!end
 
 !! test
 Images: caption containing a table
+!! options
+parsoid=wt2html,wt2wt,html2html
 !! wikitext
 [[Image:Foobar.jpg|thumb|200px|This is an example image thumbnail caption with a table
 {|
