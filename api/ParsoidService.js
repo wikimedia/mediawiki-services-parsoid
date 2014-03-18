@@ -637,7 +637,8 @@ function ParsoidService(options) {
 				setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader() );
 				setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8' );
 				endResponse(res, env,  out );
-				env.log("trace/request", "completed parsing of", prefix, ":", target, "in", env.performance.duration, "ms");
+				env.log("trace/request", "completed parsing of", prefix + ":" + target, "in", env.performance.duration, "ms");
+				console.log( "completed parsing of", prefix + ":" + target, "in", env.performance.duration, "ms" );
 			} catch (e) {
 				env.log("fatal/request", e);
 			}
