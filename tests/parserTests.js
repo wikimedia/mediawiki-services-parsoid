@@ -253,6 +253,11 @@ ParserTests.prototype.getOpts = function () {
 			description: 'Print output in JUnit XML format.',
 			'default': false,
 			'boolean': true
+		},
+		'exit-unexpected': {
+			description: 'Exit after the first unexpected result',
+			'default': false,
+			'boolean': true
 		}
 	},{
 		// override defaults for standard options
@@ -840,7 +845,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 			this.env.conf.wiki.removeExtensionTag( extensions[i] );
 		}
 
-		setImmediate( endCb );
+		setImmediate(endCb, err);
 	}.bind( this );
 
 	var testTasks = [];
@@ -938,10 +943,10 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 ParserTests.prototype.processParsedHTML = function( item, options, mode, doc, cb ) {
 	item.time.end = Date.now();
 	// Check the result vs. the expected result.
-	this.checkHTML( item, DU.serializeChildren(doc), options, mode );
+	var checkPassed = this.checkHTML( item, DU.serializeChildren(doc), options, mode );
 
 	// Now schedule the next test, if any
-	setImmediate( cb );
+	setImmediate( cb, !checkPassed );
 };
 
 /**
@@ -953,7 +958,8 @@ ParserTests.prototype.processParsedHTML = function( item, options, mode, doc, cb
  * @param {Function} cb
  */
 ParserTests.prototype.processSerializedWT = function ( item, options, mode, wikitext, cb ) {
-	var self = this;
+	var self = this,
+		checkPassed;
 	item.time.end = Date.now();
 
 	if ( mode === 'selser' ) {
@@ -967,10 +973,10 @@ ParserTests.prototype.processSerializedWT = function ( item, options, mode, wiki
 					item.resultWT = item.wikitext;
 				}
 				// Check the result vs. the expected result.
-				self.checkWikitext( item, wikitext, options, mode );
+				var checkPassed = self.checkWikitext( item, wikitext, options, mode );
 
 				// Now schedule the next test, if any
-				setImmediate( cb );
+				setImmediate( cb, !checkPassed );
 			} );
 			// Async processing
 			return;
@@ -978,10 +984,10 @@ ParserTests.prototype.processSerializedWT = function ( item, options, mode, wiki
 	}
 	// Sync processing
 	// Check the result vs. the expected result.
-	self.checkWikitext( item, wikitext, options, mode );
+	checkPassed = self.checkWikitext( item, wikitext, options, mode );
 
 	// Now schedule the next test, if any
-	setImmediate( cb );
+	setImmediate( cb, !checkPassed );
 
 };
 
@@ -1018,7 +1024,7 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 			if ( !booleanOption( options.quiet ) ) {
 				console.log( 'EXPECTED FAIL'.red + ': ' + extTitle.yellow );
 			}
-			return;
+			return true;
 		}
 	}
 
@@ -1064,6 +1070,8 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 		// it anyway, just in case.
 		this.env.log("error", error);
 	}
+
+	return false;
 };
 
 /**
@@ -1092,7 +1100,7 @@ ParserTests.prototype.printSuccess = function ( title, options, mode, expectSucc
 		console.log( 'UNEXPECTED PASS'.green.inverse +
 					 (isWhitelist ? ' (whitelist)' : '') +
 					 ':' + extTitle.yellow);
-		return;
+		return false;
 	}
 	if( !quiet ) {
 		var outStr = 'EXPECTED PASS';
@@ -1109,6 +1117,7 @@ ParserTests.prototype.printSuccess = function ( title, options, mode, expectSucc
 			console.log( 'Even better, the non-selser wt2wt test failed!'.red + '');
 		}
 	}
+	return true;
 };
 
 /**
@@ -1207,6 +1216,8 @@ function printResult( reportFailure, reportSuccess, title, time, comments, iopts
 	var tb = testBlackList[title];
 	var expectFail = ( tb ? tb.modes : [] ).indexOf( mode ) >= 0;
 	var fail = ( expected.normal !== actual.normal );
+	// Return whether the test was as expected, independent of pass/fail
+	var asExpected;
 
 	if ( fail &&
 	     booleanOption( options.whitelist ) &&
@@ -1223,7 +1234,7 @@ function printResult( reportFailure, reportSuccess, title, time, comments, iopts
 
 	// don't report selser fails when nothing was changed or it's a dup
 	if ( mode === 'selser' && ( item.changes === 0 || item.duplicateChange ) ) {
-		return;
+		return true;
 	}
 
 	if ( typeof pre === 'function' ) {
@@ -1231,14 +1242,16 @@ function printResult( reportFailure, reportSuccess, title, time, comments, iopts
 	}
 
 	if ( fail ) {
-		reportFailure( title, comments, iopts, options, actual, expected, expectFail, quick, mode, null, item );
+		asExpected = reportFailure( title, comments, iopts, options, actual, expected, expectFail, quick, mode, null, item );
 	} else {
-		reportSuccess( title, options, mode, !expectFail, whitelist, item );
+		asExpected = reportSuccess( title, options, mode, !expectFail, whitelist, item );
 	}
 
 	if ( typeof post === 'function' ) {
 		post( mode );
 	}
+
+	return asExpected;
 }
 
 /**
@@ -1269,7 +1282,7 @@ ParserTests.prototype.checkHTML = function ( item, out, options, mode ) {
 	var expected = { normal: normalizedExpected, raw: item.html };
 	var actual = { normal: normalizedOut, raw: out, input: input };
 
-	options.reportResult( item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item );
+	return options.reportResult( item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item );
 };
 
 /**
@@ -1295,7 +1308,7 @@ ParserTests.prototype.checkWikitext = function ( item, out, options, mode ) {
 	var expected = { isWT: true, normal: normalizedExpected, raw: item.wikitext };
 	var actual = { isWT: true, normal: normalizedOut, raw: out, input: input };
 
-	options.reportResult( item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item );
+	return options.reportResult( item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item );
 };
 
 /**
@@ -1629,12 +1642,14 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 /**
  * @method
  */
-ParserTests.prototype.processCase = function ( i, options ) {
+ParserTests.prototype.processCase = function ( i, options, err ) {
 	var ix, item, cases = this.cases, targetModes = options.modes;
 
 	var nextCallback = this.processCase.bind( this, i + 1, options );
 
-	if ( i < this.cases.length ) {
+	var earlyExit = options['exit-unexpected'] && (typeof err !== 'undefined') && err;
+	if (i < this.cases.length &&
+	     !earlyExit) {
 		item = this.cases[i];
 		if (typeof item === 'string') {
 			// this is a comment line in the file, ignore it.
@@ -1972,6 +1987,8 @@ var xmlFuncs = (function () {
 		args = [ reportFailureXML, reportSuccessXML ].concat( args, pre, post );
 		printResult.apply( this, args );
 
+		// In xml, test all cases always
+		return true;
 	};
 
 	return {
