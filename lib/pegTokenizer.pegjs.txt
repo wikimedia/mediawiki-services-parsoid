@@ -33,8 +33,8 @@
     //    return es;
     //};
 
+    require('./core-upgrade');
     var Util = require('./mediawiki.Util.js').Util;
-    var JSUtils = require('./jsutils.js').JSUtils;
     var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer;
 
     // import defines and define some constructor shortcuts
@@ -317,7 +317,7 @@
     // Current extension/include tag being parsed.
     var currExtTag = null;
 
-    var includeTags = JSUtils.arrayToSet([
+    var includeTags = new Set([
         "includeonly", "noinclude", "onlyinclude"
     ]);
 
@@ -329,7 +329,7 @@
     // Define block-level tags in JS, so we can use toLowerCase to match tags
     // case-independently. This would be quite ugly (and possibly slower) if
     // done manually in the grammar.
-    var block_names = JSUtils.arrayToSet([
+    var block_names = new Set([
         "p", "table", "td", "tr", "ul", "ol", "li",
         "dl", "dt", "dd", "div", "center", "blockquote"
     ]);
