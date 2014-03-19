@@ -835,12 +835,6 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 
 	// Build a list of tasks for this test that will be passed to async.waterfall
 	var finishHandler = function ( err, res ) {
-		if ( err ) {
-			options.reportFailure( item.title, item.comments, item.options,
-			                       options, null, null, false,
-			                       true, mode, err, item );
-		}
-
 		for ( i = 0; i < extensions.length; i++ ) {
 			this.env.conf.wiki.removeExtensionTag( extensions[i] );
 		}
@@ -946,7 +940,10 @@ ParserTests.prototype.processParsedHTML = function( item, options, mode, doc, cb
 	var checkPassed = this.checkHTML( item, DU.serializeChildren(doc), options, mode );
 
 	// Now schedule the next test, if any
-	setImmediate( cb, !checkPassed );
+	// Only pass an error if --exit-unexpected was set and there was an error
+	// Otherwise, pass undefined so that async.waterfall continues
+	var err = (options['exit-unexpected'] && !checkPassed) ? true : undefined;
+	setImmediate( cb, err );
 };
 
 /**
@@ -959,7 +956,7 @@ ParserTests.prototype.processParsedHTML = function( item, options, mode, doc, cb
  */
 ParserTests.prototype.processSerializedWT = function ( item, options, mode, wikitext, cb ) {
 	var self = this,
-		checkPassed;
+		checkPassed, err;
 	item.time.end = Date.now();
 
 	if ( mode === 'selser' ) {
@@ -973,10 +970,13 @@ ParserTests.prototype.processSerializedWT = function ( item, options, mode, wiki
 					item.resultWT = item.wikitext;
 				}
 				// Check the result vs. the expected result.
-				var checkPassed = self.checkWikitext( item, wikitext, options, mode );
+				checkPassed = self.checkWikitext( item, wikitext, options, mode );
 
 				// Now schedule the next test, if any
-				setImmediate( cb, !checkPassed );
+				// Only pass an error if --exit-unexpected was set and there was an error
+				// Otherwise, pass undefined so that async.waterfall continues
+				err = (options['exit-unexpected'] && !checkPassed) ? true : undefined;
+				setImmediate( cb, err );
 			} );
 			// Async processing
 			return;
@@ -987,8 +987,10 @@ ParserTests.prototype.processSerializedWT = function ( item, options, mode, wiki
 	checkPassed = self.checkWikitext( item, wikitext, options, mode );
 
 	// Now schedule the next test, if any
-	setImmediate( cb, !checkPassed );
-
+	// Only pass an error if --exit-unexpected was set and there was an error
+	// Otherwise, pass undefined so that async.waterfall continues
+	err = (options['exit-unexpected'] && !checkPassed) ? true : undefined;
+	setImmediate( cb, err );
 };
 
 /**
@@ -1416,8 +1418,8 @@ ParserTests.prototype.main = function ( options ) {
 			// turn on all modes by default for --rewrite-blacklist
 			options.selser = true;
 			// sanity checking (bug 51448 asks to be able to use --filter here)
-			if ( options.filter || options.maxtests ) {
-				this.env.log("error", "can't combine --rewrite-blacklist with --filter or --maxtests");
+			if (options.filter || options.maxtests || options['exit-unexpected']) {
+				this.env.log("error", "can't combine --rewrite-blacklist with --filter, --maxtests or --exit-unexpected");
 				process.exit( 1 );
 			}
 		}
