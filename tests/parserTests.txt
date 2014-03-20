@@ -19435,6 +19435,24 @@ parsoid={
 [[Image:Foobar.jpg|500x500px]]
 !!end
 
+# Change in size is ignored so long as class='mw-default-size'
+!! test
+Image: Modifying size of an image (3)
+!! options
+parsoid={
+  "modes": ["wt2wt"],
+  "changes": [
+    ["figure[class]", "removeClass", "mw-default-size"],
+    ["figure img", "attr", "height", "19"],
+    ["figure img", "attr", "width", "170"]
+  ]
+}
+!! wikitext
+[[Image:Foobar.jpg|thumb]]
+!! wikitext/edited
+[[Image:Foobar.jpg|thumb|170x170px]]
+!!end
+
 !! test
 Image: Modifying alignment of an image (bug 48665)
 !! options
@@ -19449,6 +19467,21 @@ parsoid={
 [[Image:Foobar.jpg|thumb|caption|right]]
 !! wikitext/edited
 [[Image:Foobar.jpg|thumb|caption|left]]
+!! end
+
+!! test
+Image: Modifying mw-default-size of an frameless image (bug 62805)
+!! options
+parsoid={
+  "modes": ["wt2wt"],
+  "changes": [
+    ["figure.mw-default-size", "removeClass", "mw-default-size"]
+  ]
+}
+!! wikitext
+[[Image:Foobar.jpg|frameless|right]]
+!! wikitext/edited
+[[Image:Foobar.jpg|frameless|right|220x220px]]
 !! end
 
 !! test
