@@ -19601,6 +19601,48 @@ parsoid
 !!end
 
 !! test
+Image: from basic HTML (1)
+!! options
+parsoid=html2wt
+!! html/parsoid
+<span typeof="mw:Image">
+  <img src="File:Foobar.jpg" width=100 height=100 alt="Alt">
+</span>
+!! wikitext
+[[File:Foobar.jpg|link=|alt=Alt|100x100px]]
+!! end
+
+!! test
+Image: from basic HTML (2)
+!! options
+parsoid=html2wt
+!! html/parsoid
+<img src="File:Foobar.jpg" width=100 height=100 alt="Alt">
+!! wikitext
+[[File:Foobar.jpg|link=|alt=Alt|100x100px]]
+!! end
+
+!! test
+Image: from basic HTML (3)
+!! options
+parsoid=html2wt
+!! html/parsoid
+<a href="Main"><img src="File:Foobar.jpg" width=100 height=100 alt="Alt"></a>
+!! wikitext
+[[File:Foobar.jpg|link=Main|alt=Alt|100x100px]]
+!! end
+
+!! test
+Image: from basic HTML (4)
+!! options
+parsoid=html2wt
+!! html/parsoid
+<img src="File:Foobar.jpg">
+!! wikitext
+[[File:Foobar.jpg|link=]]
+!! end
+
+!! test
 Lists: Serialize correctly even when list content is wrapped in p-tags (like VE does)
 !! options
 parsoid=html2wt
