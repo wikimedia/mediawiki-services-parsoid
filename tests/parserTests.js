@@ -194,8 +194,11 @@ ParserTests.prototype.getOpts = function () {
 			'default': false
 		},
 		'filter': {
-			description: 'Only run tests whose descriptions which match given regex',
-			alias: 'regex'
+			description: 'Only run tests whose descriptions match given string'
+		},
+		'regex': {
+			description: 'Only run tests whose descriptions match given regex',
+			alias: ['regexp', 're']
 		},
 		'run-disabled': {
 			description: 'Run disabled tests',
@@ -266,7 +269,10 @@ ParserTests.prototype.getOpts = function () {
 		fetchConfig: false
 	})).check( function(argv) {
 		if( argv.filter === true ) {
-			throw "--filter need an argument";
+			throw "--filter needs an argument";
+		}
+		if( argv.regex === true ) {
+			throw "--regex needs an argument";
 		}
 	}).argv; // keep that
 };
@@ -1479,7 +1485,7 @@ ParserTests.prototype.main = function ( options ) {
 			// turn on all modes by default for --rewrite-blacklist
 			options.selser = true;
 			// sanity checking (bug 51448 asks to be able to use --filter here)
-			if (options.filter || options.maxtests || options['exit-unexpected']) {
+			if (options.filter || options.regex || options.maxtests || options['exit-unexpected']) {
 				this.env.log("error", "can't combine --rewrite-blacklist with --filter, --maxtests or --exit-unexpected");
 				process.exit( 1 );
 			}
@@ -1532,12 +1538,13 @@ ParserTests.prototype.main = function ( options ) {
 	// test case filtering
 	this.runDisabled = booleanOption(options['run-disabled']);
 	this.runPHP = booleanOption(options['run-php']);
-	this.test_filter = null;
-	if ( options.filter ) { // null is the 'default' by definition
+	this.test_filter = null; // null is the 'default' by definition
+	if ( options.filter || options.regex ) {
+		var pattern = options.regex || Util.escapeRegExp( options.filter );
 		try {
-			this.test_filter = new RegExp( options.filter );
+			this.test_filter = new RegExp( pattern );
 		} catch ( e ) {
-			var errors = ["--filter was given an invalid regular expression."];
+			var errors = ["--regex was given an invalid regular expression."];
 			errors.push("See below for JS engine error:\n" + e + "\n");
 			this.env.log("fatal", errors);
 		}
