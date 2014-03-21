@@ -1540,7 +1540,10 @@ ParserTests.prototype.main = function ( options ) {
 	this.runPHP = booleanOption(options['run-php']);
 	this.test_filter = null; // null is the 'default' by definition
 	if ( options.filter || options.regex ) {
-		var pattern = options.regex || Util.escapeRegExp( options.filter );
+		// NOTE: filter.toString() is required because a number-only arg
+		// shows up as a numeric type rather than a string.
+		// Ex: parserTests.js --filter 53221
+		var pattern = options.regex || Util.escapeRegExp( options.filter.toString() );
 		try {
 			this.test_filter = new RegExp( pattern );
 		} catch ( e ) {
