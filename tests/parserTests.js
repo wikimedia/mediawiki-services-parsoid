@@ -258,7 +258,12 @@ ParserTests.prototype.getOpts = function () {
 			'boolean': true
 		},
 		'exit-unexpected': {
-			description: 'Exit after the first unexpected result',
+			description: 'Exit after the first unexpected result.',
+			'default': false,
+			'boolean': true
+		},
+		'update-tests': {
+			description: 'Update parserTests.txt with results from wt2html fails.',
 			'default': false,
 			'boolean': true
 		}
@@ -1073,7 +1078,9 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 	this.stats.modes[mode].failedTests++;
 	this.stats.modes[mode].failList.push({
 		title: title,
-		raw: actual ? actual.raw : null
+		raw: actual ? actual.raw : null,
+		expected: expected ? expected.raw : null,
+		actualNormalized: actual ? actual.normal : null
 	});
 
 	var extTitle = ( title + ( mode ? ( ' (' + mode + ')' ) : '' ) ).
@@ -1878,6 +1885,19 @@ ParserTests.prototype.processCase = function ( i, options, err ) {
 			contents += '(end of automatically-generated section)';
 			contents += shell[2];
 			fs.writeFileSync(filename, contents, 'utf8');
+		}
+
+		// Write updated tests from failed ones
+		if (booleanOption(options['update-tests'])) {
+			var parserTestsFilename = __dirname + '/parserTests.txt';
+			var parserTests = fs.readFileSync(parserTestsFilename, 'utf8');
+			this.stats.modes.wt2html.failList.forEach(function (fail) {
+				var exp = new RegExp("(" + /!!\s*test\s*/.source +
+					Util.escapeRegExp(fail.title) + /[\s\S]*?(?!!!\s*end)/.source +
+					")(" + Util.escapeRegExp(fail.expected) + ")", "m");
+				parserTests = parserTests.replace(exp, "$1" + DU.formatHTML(fail.actualNormalized));
+			});
+			fs.writeFileSync(parserTestsFilename, parserTests, 'utf8');
 		}
 
 		// print out the summary
