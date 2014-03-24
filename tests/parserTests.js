@@ -266,6 +266,11 @@ ParserTests.prototype.getOpts = function () {
 			description: 'Update parserTests.txt with results from wt2html fails.',
 			'default': false,
 			'boolean': true
+		},
+		'update-unexpected': {
+			description: 'Update parserTests.txt with results from wt2html unexpected fails.',
+			'default': false,
+			'boolean': true
 		}
 	},{
 		// override defaults for standard options
@@ -1076,12 +1081,13 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 		actual, expected, expectFail, failure_only, mode, error, item ) {
 	this.stats.failedTests++;
 	this.stats.modes[mode].failedTests++;
-	this.stats.modes[mode].failList.push({
-		title: title,
-		raw: actual ? actual.raw : null,
-		expected: expected ? expected.raw : null,
-		actualNormalized: actual ? actual.normal : null
-	});
+	var fail = {
+			title: title,
+			raw: actual ? actual.raw : null,
+			expected: expected ? expected.raw : null,
+			actualNormalized: actual ? actual.normal : null
+		};
+	this.stats.modes[mode].failList.push(fail);
 
 	var extTitle = ( title + ( mode ? ( ' (' + mode + ')' ) : '' ) ).
 		replace('\n', ' ');
@@ -1101,6 +1107,7 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
 
 	this.stats.failedTestsUnexpected++;
 	this.stats.modes[mode].failedTestsUnexpected++;
+	fail.unexpected = true;
 
 	if ( !failure_only ) {
 		console.log( '=====================================================' );
@@ -1888,14 +1895,17 @@ ParserTests.prototype.processCase = function ( i, options, err ) {
 		}
 
 		// Write updated tests from failed ones
-		if (booleanOption(options['update-tests'])) {
+		if (booleanOption(options['update-tests']) ||
+		    booleanOption(options['update-unexpected'])) {
 			var parserTestsFilename = __dirname + '/parserTests.txt';
 			var parserTests = fs.readFileSync(parserTestsFilename, 'utf8');
 			this.stats.modes.wt2html.failList.forEach(function (fail) {
-				var exp = new RegExp("(" + /!!\s*test\s*/.source +
-					Util.escapeRegExp(fail.title) + /[\s\S]*?(?!!!\s*end)/.source +
-					")(" + Util.escapeRegExp(fail.expected) + ")", "m");
-				parserTests = parserTests.replace(exp, "$1" + DU.formatHTML(fail.actualNormalized));
+				if (booleanOption(options['update-tests'] || fail.unexpected)) {
+					var exp = new RegExp("(" + /!!\s*test\s*/.source +
+						Util.escapeRegExp(fail.title) + /[\s\S]*?(?!!!\s*end)/.source +
+						")(" + Util.escapeRegExp(fail.expected) + ")", "m");
+					parserTests = parserTests.replace(exp, "$1" + DU.formatHTML(fail.actualNormalized));
+				}
 			});
 			fs.writeFileSync(parserTestsFilename, parserTests, 'utf8');
 		}
