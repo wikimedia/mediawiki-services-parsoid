@@ -279,7 +279,7 @@ ParserTests.prototype.getOpts = function () {
 		if( argv.regex === true ) {
 			throw "--regex needs an argument";
 		}
-	}).argv; // keep that
+	}); // keep that
 };
 
 /**
@@ -1470,10 +1470,10 @@ ParserTests.prototype.reportSummary = function ( stats ) {
  * @method
  * @param {Object} options
  */
-ParserTests.prototype.main = function ( options ) {
+ParserTests.prototype.main = function ( options, popts ) {
 
 	if ( options.help ) {
-		optimist.showHelp();
+		popts.showHelp();
 		console.log("Additional dump options specific to parserTests script:");
 		console.log("* dom:post-changes  : Dumps DOM after applying selser changetree\n");
 		console.log("Examples");
@@ -2088,7 +2088,7 @@ var xmlFuncs = (function () {
 var ptests = new ParserTests();
 var popts  = ptests.getOpts();
 
-if ( popts && popts.xml ) {
+if ( popts.argv.xml ) {
 	popts.reportResult = xmlFuncs.reportResult;
 	popts.reportStart = xmlFuncs.reportStart;
 	popts.reportSummary = xmlFuncs.reportSummary;
@@ -2096,9 +2096,13 @@ if ( popts && popts.xml ) {
 	colors.mode = 'none';
 }
 
+if ( popts.argv.help ) {
+	ptests.main(popts.argv, popts);
+}
+
 // Start the mock api server and kick off parser tests
 apiServer.startMockAPIServer({quiet: popts.quiet, port: 7001 }, function(url, server) {
 	mockAPIServerURL = url;
 	mockAPIServer = server;
-	ptests.main(popts);
+	ptests.main(popts.argv, popts);
 });
