@@ -4,7 +4,7 @@
 	"version": "0.0.1",
 	"dependencies": {
 		"events": "0.x.x",
-		"optimist": "0.x.x",
+		"yargs": "~1.2.1",
 		"querystring": "0.x.x",
 		"path": "0.x.x",
 		"mysql": "2.x.x",

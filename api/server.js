@@ -22,7 +22,7 @@
 var cluster = require('cluster'),
 	path = require('path'),
 	// process arguments
-	opts = require( "optimist" )
+	opts = require( "yargs" )
 		.usage( "Usage: $0 [-h|-v] [--param[=val]]" )
 		.default({
 

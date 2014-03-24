@@ -4,7 +4,7 @@
  * A utility for reading in a JSON-y list of articles to the database.
  */
 
-var optimist = require( 'optimist' );
+var yargs = require( 'yargs' );
 
 // Default options
 var defaults = {
@@ -24,7 +24,7 @@ try {
 }
 
 // Command line options
-var argv = optimist.usage( 'Usage: ./importJson.js titles.example.json' )
+var opts = yargs.usage( 'Usage: ./importJson.js titles.example.json' )
 	.options( 'help', {
 			description: 'Show this message',
 			'boolean': true,
@@ -55,11 +55,11 @@ var argv = optimist.usage( 'Usage: ./importJson.js titles.example.json' )
 		alias: 'password',
 		describe: 'Password.'
 	} )
-	.demand( 1 )
-	.argv;
+	.demand( 1 );
+var argv = opts.argv;
 
 if ( argv.help ) {
-	optimist.showHelp();
+	opts.showHelp();
 	process.exit( 0 );
 }
 

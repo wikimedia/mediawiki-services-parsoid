@@ -13,12 +13,12 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 	Util = require('../lib/mediawiki.Util.js').Util,
 	DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils,
 	Logger = require('../lib/Logger.js').Logger,
-	optimist = require('optimist'),
+	yargs = require('yargs'),
 	fs = require('fs');
 
 ( function() {
 	var default_mode_str = "Default conversion mode : --wt2html";
-	var opts = optimist.usage( 'Usage: echo wikitext | $0 [options]\n\n' + default_mode_str, Util.addStandardOptions({
+	var opts = yargs.usage( 'Usage: echo wikitext | $0 [options]\n\n' + default_mode_str, Util.addStandardOptions({
 		'wt2html': {
 			description: 'Wikitext -> HTML',
 			'boolean': true,
@@ -97,7 +97,7 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 	var argv = opts.argv;
 
 	if ( Util.booleanOption( argv.help ) ) {
-		optimist.showHelp();
+		opts.showHelp();
 		return;
 	}
 

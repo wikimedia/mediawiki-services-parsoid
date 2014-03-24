@@ -2,7 +2,7 @@
 "use strict";
 
 var	request = require( 'request' ),
-	optimist = require( 'optimist' ),
+	yargs = require( 'yargs' ),
 	domino = require( 'domino' ),
 	url = require( 'url' ),
 	zlib = require( 'zlib' ),
@@ -563,7 +563,7 @@ if ( typeof module === 'object' ) {
 }
 
 if ( !module.parent ) {
-	var opts = optimist.usage( 'Usage: $0 [options] <page-title> \n\n', Util.addStandardOptions({
+	var opts = yargs.usage( 'Usage: $0 [options] <page-title> \n\n', Util.addStandardOptions({
 		'xml': {
 			description: 'Use xml callback',
 			'boolean': true,

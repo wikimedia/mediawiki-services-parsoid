@@ -4,7 +4,7 @@
 var cluster = require( 'cluster' ),
 	path = require( 'path' );
 
-var opts = require( 'optimist' )
+var opts = require( 'yargs' )
 	.default( {
 		// By default, start one rtclient + api server per core.
 		c: require( 'os' ).cpus().length

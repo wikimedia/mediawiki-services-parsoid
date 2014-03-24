@@ -21,8 +21,8 @@ var apiServer = require( './apiServer.js' ),
 	fork = childProc.fork,
 	fs = require('fs'),
 	path = require('path'),
-	// Handle options/arguments with optimist module
-	optimist = require('optimist'),
+	// Handle options/arguments with yargs module
+	yargs = require('yargs'),
 	Alea = require('alea'),
 	DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils,
 	DOMUtils = require( '../lib/mediawiki.DOMUtils.js' ).DOMUtils,
@@ -147,7 +147,7 @@ ParserTests.prototype.getOpts = function () {
 	var default_args = ["Default tests-file: " + this.parser_tests_file,
 	                    "Default options   : --wt2html --wt2wt --html2html --html2wt --whitelist --blacklist --color=auto"];
 
-	return optimist.usage( 'Usage: $0 [options] [tests-file]\n\n' + default_args.join("\n"), Util.addStandardOptions({
+	return yargs.usage( 'Usage: $0 [options] [tests-file]\n\n' + default_args.join("\n"), Util.addStandardOptions({
 		'wt2html': {
 			description: 'Wikitext -> HTML(DOM)',
 			'default': false,

@@ -31,7 +31,7 @@
 */
 
 var fetcher = require('./fetch-parserTests.txt.js');
-var optimist = require('optimist');
+var yargs = require('yargs');
 var child_process = require('child_process');
 var async = require('async');
 var path = require('path');
@@ -43,11 +43,12 @@ var strip = function(s) {
 
 // Option parsing and helpful messages.
 var usage = 'Usage: $0 <mediawiki checkout path> <branch name>';
-var opts = optimist.usage( usage, {
+var opts = yargs.usage( usage, {
 	'help': { description: 'Show this message' }
-}).argv;
-if (opts.help || opts._.length !== 2) {
-	optimist.showHelp();
+});
+var argv = opts.argv;
+if (argv.help || argv._.length !== 2) {
+	opts.showHelp();
 	var morehelp = fs.readFileSync(__filename, 'utf8');
 	morehelp = strip(morehelp.split(/== USAGE ==/, 2)[1]);
 	console.log(morehelp.replace(/^   /mg,''));
@@ -55,8 +56,8 @@ if (opts.help || opts._.length !== 2) {
 }
 
 // Ok, let's do this thing!
-var mwpath = path.resolve(opts._[0]);
-var branch = opts._[1];
+var mwpath = path.resolve(argv._[0]);
+var branch = argv._[1];
 var oldhash = fetcher.latestCommit;
 
 var mwexec = function(cmd) {

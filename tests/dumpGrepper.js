@@ -7,7 +7,7 @@
 var dumpReader = require('./dumpReader.js'),
 	events = require('events'),
 	util = require('util'),
-	optimist = require('optimist'),
+	yargs = require('yargs'),
 	Util = require( '../lib/mediawiki.Util.js' ).Util;
 
 function DumpGrepper ( regexp ) {
@@ -34,7 +34,7 @@ DumpGrepper.prototype.grepRev = function ( revision, onlyFirst ) {
 module.exports.DumpGrepper = DumpGrepper;
 
 if (module === require.main) {
-	var argv = optimist.usage( 'Usage: zcat dump.xml.gz | $0 <regexp>', {
+	var opts = yargs.usage( 'Usage: zcat dump.xml.gz | $0 <regexp>', {
 		'i': {
 			description: 'Case-insensitive matching',
 			'boolean': true,
@@ -54,10 +54,11 @@ if (module === require.main) {
 			'boolean': true,
 			'default': false
 		}
-	} ).argv;
+	} );
+	var argv = opts.argv;
 
 	if( argv.help ) {
-		optimist.showHelp();
+		opts.showHelp();
 		process.exit( 0 );
 	}
 	Util.setColorFlags( argv );

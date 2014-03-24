@@ -133,7 +133,7 @@ if (typeof module === 'object' && require.main !== module) {
 		latestCommit: latestCommit
 	};
 } else {
-	var argv = require('optimist').argv;
+	var argv = require('yargs').argv;
 	if (argv.force) {
 		console.error( "Note: We now have our own copy of parserTests.txt, so fetching\n" +
 				"parserTests.txt is normally no longer needed." );

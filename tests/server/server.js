@@ -3,7 +3,7 @@
 "use strict";
 
 var express = require( 'express' ),
-	optimist = require( 'optimist' ),
+	yargs = require( 'yargs' ),
 	hbs = require( 'handlebars' ),
 	Diff = require('./diff.js').Diff;
 
@@ -30,7 +30,7 @@ try {
 }
 
 // Command line options
-var argv = optimist.usage( 'Usage: $0 [connection parameters]' )
+var opts = yargs.usage( 'Usage: $0 [connection parameters]' )
 	.options( 'help', {
 		'boolean': true,
 		'default': false,
@@ -77,11 +77,11 @@ var argv = optimist.usage( 'Usage: $0 [connection parameters]' )
 	.options( 'b', {
 		alias: 'batch',
 		describe: "Number of titles to fetch from database in one batch."
-	} )
-	.argv;
+	} );
+var argv = opts.argv;
 
 if ( argv.help ) {
-	optimist.showHelp();
+	opts.showHelp();
 	process.exit( 0 );
 }
 

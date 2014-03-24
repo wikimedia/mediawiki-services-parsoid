@@ -8,7 +8,7 @@
  */
 
 var fs = require( 'fs' ),
-	optimist = require( 'optimist' ),
+	yargs = require( 'yargs' ),
 	TemplateRequest = require( '../lib/mediawiki.ApiRequest.js' ).TemplateRequest,
 	ParsoidConfig = require( '../lib/mediawiki.ParsoidConfig' ).ParsoidConfig,
 	MWParserEnvironment = require( '../lib/mediawiki.parser.environment.js' ).MWParserEnvironment;
@@ -63,7 +63,7 @@ var fetch = function ( page, revid, cb, options ) {
 var usage = 'Usage: $0 [options] <page-title or rev-id>\n' +
 	'If first argument is numeric, it is used as a rev id; otherwise it is\n' +
 	'used as a title.  Use the --title option for a numeric title.';
-var opts = optimist.usage( usage, {
+var opts = yargs.usage( usage, {
 	'output': {
 		description: "Write page to given file"
 	},
@@ -116,7 +116,7 @@ if (argv.help || error) {
 		console.error('ERROR:', error);
 		console.error(buf);
 	}
-	optimist.showHelp();
+	opts.showHelp();
 	return;
 }
 

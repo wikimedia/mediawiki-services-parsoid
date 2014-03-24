@@ -3,10 +3,10 @@
 var DOMDiff = require('../lib/mediawiki.DOMDiff.js').DOMDiff,
 	Util = require('../lib/mediawiki.Util.js').Util,
 	DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils,
-	optimist = require('optimist'),
+	yargs = require('yargs'),
 	fs = require('fs');
 
-var opts = optimist.usage("Usage: node $0 [options] [old-html-file new-html-file]\n\nProvide either inline html OR 2 files", {
+var opts = yargs.usage("Usage: node $0 [options] [old-html-file new-html-file]\n\nProvide either inline html OR 2 files", {
 		'help': {
 			description: 'Show this message',
 			'boolean': true,
@@ -44,7 +44,7 @@ if (!oldhtml && argv._[0]) {
 }
 
 if (Util.booleanOption( argv.help ) || !oldhtml || !newhtml) {
-	optimist.showHelp();
+	opts.showHelp();
 	return;
 }
 
