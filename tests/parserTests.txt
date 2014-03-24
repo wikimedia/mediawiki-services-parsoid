@@ -10505,7 +10505,7 @@ Image caption containing another image
 !! end
 
 !! test
-Image caption containing a newline
+Image: caption containing a newline
 !! wikitext
 [[File:Foobar.jpg|This
 *is some text]]
@@ -10517,7 +10517,7 @@ Image caption containing a newline
 !!end
 
 !!test
-Images: caption containing leading space
+Image: caption containing leading space
 (The leading space should not trigger nowiki escaping in wt2wt mode)
 !! wikitext
 [[File:Foobar.jpg|thumb| bar]]
@@ -10529,7 +10529,7 @@ Images: caption containing leading space
 !!end
 
 !! test
-Images: caption containing a table
+Image: caption containing a table
 !! options
 parsoid=wt2html,wt2wt,html2html
 !! wikitext
@@ -19579,7 +19579,7 @@ parsoid
 !!end
 
 !! test
-Images: upright option (parsoid)
+Image: upright option (parsoid)
 !! options
 parsoid
 !! wikitext
@@ -19591,7 +19591,7 @@ parsoid
 !!end
 
 !! test
-Images: upright option is ignored on inline and frame images (parsoid)
+Image: upright option is ignored on inline and frame images (parsoid)
 !! options
 parsoid
 !! wikitext
