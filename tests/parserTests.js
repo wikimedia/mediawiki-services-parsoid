@@ -25,7 +25,6 @@ var apiServer = require( './apiServer.js' ),
 	yargs = require('yargs'),
 	Alea = require('alea'),
 	DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils,
-	DOMUtils = require( '../lib/mediawiki.DOMUtils.js' ).DOMUtils,
 	Logger = require('../lib/Logger.js').Logger,
 	PEG = require('pegjs'),
 	Util = require( '../lib/mediawiki.Util.js' ).Util;
@@ -528,7 +527,7 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 		if (wrapperName) {
 			newNode = ownerDoc.createElement(wrapperName);
 			newNode.appendChild(ownerDoc.createTextNode(str));
-		} else if (DOMUtils.isFosterablePosition(n)) {
+		} else if (DU.isFosterablePosition(n)) {
 			newNode = ownerDoc.createComment(str);
 		} else {
 			newNode = ownerDoc.createTextNode(str);
@@ -663,7 +662,7 @@ ParserTests.prototype.generateChanges = function( options, item, content, cb ) {
 	 * Currently true for template and extension content.
 	 */
 	function domSubtreeIsEditable(env, node) {
-		return !DOMUtils.isTplElementNode(env, node);
+		return !DU.isTplElementNode(env, node);
 	}
 
 	/**
@@ -675,7 +674,7 @@ ParserTests.prototype.generateChanges = function( options, item, content, cb ) {
 	 */
 	function nodeIsUneditable(node) {
 		// Text and comment nodes are always editable
-		if (!DOMUtils.isElt(node)) {
+		if (!DU.isElt(node)) {
 			return false;
 		}
 
