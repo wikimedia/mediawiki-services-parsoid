@@ -11725,6 +11725,23 @@ __NOEDITSECTION__
 !! end
 
 !! test
+Single-line or multiline-comments can follow headings
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+==foo==<!---->
+==bar==<!--c1-->
+==baz==<!--
+c2
+c3-->
+!! html
+<h2><span class="mw-headline" id="foo">foo</span></h2>
+<h2><span class="mw-headline" id="bar">bar</span></h2>
+<h2><span class="mw-headline" id="baz">baz</span></h2>
+
+!! end
+
+!! test
 BUG 1219 URL next to image (broken)
 !! wikitext
 http://example.com[[Image:foobar.jpg]]
