@@ -27,7 +27,8 @@ var apiServer = require( './apiServer.js' ),
 	DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils,
 	Logger = require('../lib/Logger.js').Logger,
 	PEG = require('pegjs'),
-	Util = require( '../lib/mediawiki.Util.js' ).Util;
+	Util = require( '../lib/mediawiki.Util.js' ).Util,
+	Diff = require('../lib/mediawiki.Diff.js').Diff;
 
 // Fetch up some of our wacky parser bits...
 
@@ -1249,7 +1250,7 @@ ParserTests.prototype.getActualExpected = function ( actual, expected, getDiff )
 ParserTests.prototype.getDiff = function ( actual, expected ) {
 	// safe to always request color diff, because we set color mode='none'
 	// if colors are turned off.
-	return Util.diff( expected.formattedNormal, actual.formattedNormal, true );
+	return Diff.htmlDiff( expected.formattedNormal, actual.formattedNormal, true );
 };
 
 /**
