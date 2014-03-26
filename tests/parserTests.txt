@@ -19165,6 +19165,23 @@ parsoid
 
 !!end
 
+!! test
+New element inserted (without intervening newlines) after an old sol-transparent node should serialize correctly
+!! options
+parsoid=html2wt
+!! wikitext
+<includeonly>foo</includeonly>
+new para
+
+[[./Category:Foo]]
+
+= new heading =
+!! html
+<meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"src":"&lt;includeonly>foo&lt;/includeonly>"}'/><meta typeof="mw:Includes/IncludeOnly/End" data-parsoid='{"src":""}'/><p>new para</p>
+
+<link rel="mw:PageProp/Category" href="./Category:Foo" data-parsoid=''/><h1>new heading</h1>
+!! end
+
 ## PHP emits broken html for this, and since this is primarily
 ## a Parsoid serializer test, marking this Parsoid only
 !!test
@@ -19191,7 +19208,7 @@ parsoid
 </body>
 !!end
 
-## Currently the p-wrapper is fragile in how adds / removes transformations.
+## Currently the p-wrapper is fragile in how it adds / removes transformations.
 ## Having nested or stray pre tags results in the attempt to add duplicates,
 ## causing an assertion fail. This test tries to prevent that situation.
 !!test
