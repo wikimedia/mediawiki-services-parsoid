@@ -1901,7 +1901,7 @@ ParserTests.prototype.processCase = function ( i, options, err ) {
 			this.stats.modes.wt2html.failList.forEach(function (fail) {
 				if (booleanOption(options['update-tests'] || fail.unexpected)) {
 					var exp = new RegExp("(" + /!!\s*test\s*/.source +
-						Util.escapeRegExp(fail.title) + /[\s\S]*?(?!!!\s*end)/.source +
+						Util.escapeRegExp(fail.title) + /(?:(?!!!\s*end)[\s\S])*/.source +
 						")(" + Util.escapeRegExp(fail.expected) + ")", "m");
 					parserTests = parserTests.replace(exp, "$1" + DU.formatHTML(fail.actualNormalized));
 				}
