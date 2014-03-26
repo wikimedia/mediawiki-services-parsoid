@@ -11,7 +11,8 @@ var	request = require( 'request' ),
 	DU = require( '../lib/mediawiki.DOMUtils.js' ).DOMUtils,
 	TemplateRequest = require( '../lib/mediawiki.ApiRequest.js' ).TemplateRequest,
 	ParsoidConfig = require( '../lib/mediawiki.ParsoidConfig' ).ParsoidConfig,
-	MWParserEnvironment = require( '../lib/mediawiki.parser.environment.js' ).MWParserEnvironment;
+	MWParserEnvironment = require( '../lib/mediawiki.parser.environment.js' ).MWParserEnvironment,
+	Diff = require('../lib/mediawiki.Diff.js').Diff;
 
 var plainCallback = function ( env, err, results ) {
 	var i, result, output = '',
@@ -360,7 +361,7 @@ var checkIfSignificant = function ( env, offsets, src, body, out, cb, document )
 			].join('\n');
 		}.bind( this, offset );
 
-		diff = Util.diff( origHTML, newHTML, false, true, true );
+		diff = Diff.htmlDiff( origHTML, newHTML, false, true, true );
 
 
 		// No context by default
@@ -460,8 +461,8 @@ var roundTripDiff = function ( env, html, out, cb ) {
 	var diff, offsetPairs;
 
 	try {
-		diff = Util.diffLines(out, env.page.src);
-		offsetPairs = Util.convertDiffToOffsetPairs( diff );
+		diff = Diff.diffLines(out, env.page.src);
+		offsetPairs = Diff.convertDiffToOffsetPairs(diff);
 
 		if ( diff.length > 0 ) {
 			var body = domino.createDocument( html ).body;
