@@ -11288,22 +11288,117 @@ subpage title=[[Subpage test/1/2/3/4]]
 <p><a rel="mw:WikiLink" href="Subpage_test/1/2/subpage">Subpage_test/1/2/subpage</a></p>
 !! end
 
-# TODO: make this PHP-parser compatible!
 !! test
 Parsoid: dot-slash prefixed wikilinks
-!! options
-parsoid=wt2wt,wt2html,html2html
 !! wikitext
 [[./foo]]
 
 [[././bar]]
 
 [[././baz/]]
-!! html
-<p><a rel="mw:WikiLink" href="./Foo">foo</a></p>
-<p><a rel="mw:WikiLink" href="./Bar">bar</a></p>
-<p><a rel="mw:WikiLink" href="./Baz/">baz/</a></p>
+!! html/php
+<p>[[./foo]]
+</p><p>[[././bar]]
+</p><p>[[././baz/]]
+</p>
+!! html/parsoid
+<p>[[./foo]]
+</p><p>[[././bar]]
+</p><p>[[././baz/]]
+</p>
 !! end
+
+!! test
+Render invalid page names as plain text (bug 51090)
+!! wikitext
+[[../../foo|bar]]
+
+[[{{echo|../../foo}}|bar]]
+
+[[foo�|bar]]
+
+[[foo/.|bar]]
+
+[[{{echo|foo/.}}|bar]]
+
+[[foo/..|bar]]
+
+[[{{echo|foo/..}}|bar]]
+
+[[foo~~~bar]]
+
+[[{{echo|foo~~~~bar}}]]
+
+[[foo>bar]]
+
+[[{{echo|foo>bar}}]]
+
+[[foo[bar]]
+
+[[.]]
+
+[[..]]
+
+[[foo././bar]]
+
+[[{{echo|foo././bar}}]]
+
+[[{{echo|foo{bar}}]]
+
+[[{{echo|foo}bar}}]]
+
+[[{{echo|foo[bar}}]]
+
+[[{{echo|foo]bar}}]]
+
+[[{{echo|foo<bar}}]]
+!!html/php
+<p>[[../../foo|bar]]
+</p><p>[[../../foo|bar]]
+</p><p>[[foo�|bar]]
+</p><p>[[foo/.|bar]]
+</p><p>[[foo/.|bar]]
+</p><p>[[foo/..|bar]]
+</p><p>[[foo/..|bar]]
+</p><p>[[foo~~~bar]]
+</p><p>[[foo~~~~bar]]
+</p><p>[[foo&gt;bar]]
+</p><p>[[foo&gt;bar]]
+</p><p>[[foo[bar]]
+</p><p>[[.]]
+</p><p>[[..]]
+</p><p>[[foo././bar]]
+</p><p>[[foo././bar]]
+</p><p>[[foo{bar]]
+</p><p>[[foo}bar]]
+</p><p>[[foo[bar]]
+</p><p>[[foo]bar]]
+</p><p>[[foo&lt;bar]]
+</p>
+!!html/parsoid
+<p>[[../../foo|bar]]
+</p><p>[[../../foo|bar]]
+</p><p>[[foo�|bar]]
+</p><p>[[foo/.|bar]]
+</p><p>[[foo/.|bar]]
+</p><p>[[foo/..|bar]]
+</p><p>[[foo/..|bar]]
+</p><p>[[foo~~~bar]]
+</p><p>[[foo~~~~bar]]
+</p><p>[[foo>bar]]
+</p><p>[[foo>bar]]
+</p><p>[[foo[bar]]
+</p><p>[[.]]
+</p><p>[[..]]
+</p><p>[[foo././bar]]
+</p><p>[[foo././bar]]
+</p><p>[[foo{bar]]
+</p><p>[[foo}bar]]
+</p><p>[[foo[bar]]
+</p><p>[[foo]bar]]
+</p><p>[[foo&lt;bar]]
+</p>
+!!end
 
 !! test
 Disabled subpages
