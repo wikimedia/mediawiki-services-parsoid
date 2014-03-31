@@ -11146,11 +11146,31 @@ bar
 !! end
 
 !! test
-Parsoid-specific image handling - empty caption
+Parsoid-specific image handling - empty caption (1)
+!! options
+parsoid=wt2html,wt2wt
 !! wikitext
 [[File:Foobar.jpg|thumb|]]
 !! html/parsoid
 <figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption></figcaption></figure>
+!! end
+
+# empty captions don't get serialized unless we're in the "round trip" case
+!! test
+Parsoid-specific image handling - empty caption (2)
+!! options
+parsoid=html2wt
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb">
+  <a href="File:Foobar.jpg">
+    <img resource="./File:Foobar.jpg"
+         src="//example.com/images/3/3a/Foobar.jpg"
+         height="25" width="220"/>
+  </a>
+  <figcaption></figcaption>
+</figure>
+!! wikitext
+[[File:Foobar.jpg|thumb]]
 !! end
 
 !! test

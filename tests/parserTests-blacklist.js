@@ -2705,7 +2705,7 @@ add("selser", "Image with multiple alignments -- use first (bug 48664) [0,4,0]",
 add("selser", "Image with multiple alignments -- use first (bug 48664) [0,2,3]", "[[File:Foobar.jpg|thumb|left|right|center|caption]]25iocnqm2eu0izfr\n");
 add("selser", "Image with multiple alignments -- use first (bug 48664) [[0,[4]],4,2]", "[[File:Foobar.jpg|thumb|left|4cnye6r631ozjjor]]a62cc566xd23mcxrujyr2mw3pexez5mi\n[[File:Foobar.jpg|middle|text-top|caption]]");
 add("selser", "Image with multiple alignments -- use first (bug 48664) [[0,[4]],2,0]", "[[File:Foobar.jpg|thumb|left|1d73pbiga7sw0zfr]]jyzi04g7eks2a9k9\n\n[[File:Foobar.jpg|middle|text-top|caption]]");
-add("selser", "Image with multiple alignments -- use first (bug 48664) [[0,[3]],4,2]", "[[File:Foobar.jpg|thumb|left|]]l0ww7rewml7bvs4iqfuvsggl2zz1tt9\n[[File:Foobar.jpg|middle|text-top|caption]]");
+add("selser", "Image with multiple alignments -- use first (bug 48664) [[0,[3]],4,2]", "[[File:Foobar.jpg|thumb|left]]l0ww7rewml7bvs4iqfuvsggl2zz1tt9\n[[File:Foobar.jpg|middle|text-top|caption]]");
 add("selser", "Image with multiple alignments -- use first (bug 48664) [[0,[2]],2,0]", "[[File:Foobar.jpg|thumb|left|qag9g83ezkkpgb9caption]]pkx3d86y9jf3l3di\n\n[[File:Foobar.jpg|middle|text-top|caption]]");
 add("selser", "Image with multiple alignments -- use first (bug 48664) [[0,4],0,0]", "[[File:Foobar.jpg|thumb|left]]\n\n[[File:Foobar.jpg|middle|text-top|caption]]");
 add("selser", "Image with multiple alignments -- use first (bug 48664) [[0,2],2,0]", "[[File:Foobar.jpg|thumb|left|caption]]c3s2020lnbn5qaor\n\n[[File:Foobar.jpg|middle|text-top|caption]]");
