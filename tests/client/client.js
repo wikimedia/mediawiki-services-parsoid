@@ -90,7 +90,7 @@ var runTest = function( cb, test) {
 		rtTest.fetch( test.title, callback, {
 			setup: config.setup,
 			prefix: test.prefix,
-			editMode: false,
+			rtTestMode: true,
 			parsoidURL: parsoidURL
 		} );
 	} catch ( err ) {

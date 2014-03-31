@@ -20,8 +20,8 @@ exports.setup = function( parsoidConfig ) {
 	// allow cross-domain requests to the API (default disallowed)
 	//parsoidConfig.allowCORS = '*';
 
-	// Set editMode to false for round-trip testing
-	parsoidConfig.editMode = false;
+	// Set rtTestMode to true for round-trip testing
+	parsoidConfig.rtTestMode = true;
 
 	// Fetch the wikitext for a page before doing html2wt
 	parsoidConfig.fetchWT = true;

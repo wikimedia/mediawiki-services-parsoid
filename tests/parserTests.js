@@ -408,7 +408,7 @@ ParserTests.prototype.processArticle = function( item, cb ) {
 ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, processWikitextCB ) {
 	// SSS FIXME: SelSer clobbers this flag -- need a better fix for this.
 	// Maybe pass this as an option, or clone the entire environment.
-	this.env.conf.parsoid.editMode = options.editMode;
+	this.env.conf.parsoid.rtTestMode = options.rtTestMode;
 
 	// In some cases (which?) the full document is passed in, but we are
 	// interested in the body. So check if we got a document.
@@ -1613,7 +1613,7 @@ ParserTests.prototype.main = function ( options, popts ) {
 			env.setLogger(new Logger(env, { logLevels: ["fatal", "error", "warning"] }));
 		}
 
-		this.env.conf.parsoid.editMode = options.editMode;
+		this.env.conf.parsoid.rtTestMode = options.rtTestMode;
 
 		// Enable <ref> and <references> tags since we want to
 		// test Parsoid's native implementation of these tags.

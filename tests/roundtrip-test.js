@@ -579,7 +579,7 @@ if ( !module.parent ) {
 		}
 	}, {
 		// defaults for standard options
-		editMode: false // suppress noise by default
+		rtTestMode: true // suppress noise by default
 	}));
 
 	var callback;
