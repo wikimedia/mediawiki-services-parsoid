@@ -2279,7 +2279,7 @@ normal_sol
                   return [c];
               }
           }
-    )?
+    )*
     // Eat <*include*> section at start of line, so that start-of-line
     // syntax after it still matches
     ni:( niStart:({return pos;})

@@ -1435,6 +1435,22 @@ b
 </p>
 !! end
 
+!! test
+Multiple comments should still parse as SOL-transparent
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+<!--c1-->*a
+<!--c2--><!--c3--><!--c4-->*b
+!! html
+<ul>
+<li>a
+</li>
+<li>b
+</li>
+</ul>
+!! end
+
 ###
 ### paragraph wrapping tests
 ###
