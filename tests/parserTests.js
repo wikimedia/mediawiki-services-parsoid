@@ -309,7 +309,7 @@ ParserTests.prototype.getTests = function ( argv ) {
 		testFile = fs.readFileSync(this.testFileName, 'utf8');
 		fileDependencies.push( this.testFileName );
 	} catch (e) {
-		this.env.log("error", e);
+		console.error( e );
 	}
 	// parser grammar is also a dependency
 	fileDependencies.push( this.testParserFileName );
@@ -345,7 +345,7 @@ ParserTests.prototype.getTests = function ( argv ) {
 		return JSON.parse( cache_content.replace( /^.*\n/, '' ) );
 	} else {
 		// Write new file cache, content preprended with current digest
-		this.env.log("error", "Cache file either not present or outdated");
+		console.error( "Cache file either not present or outdated" );
 		var parse = this.parseTestCase( testFile );
 		if ( parse !== undefined ) {
 			fs.writeFileSync( cache_file_name,
@@ -370,7 +370,7 @@ ParserTests.prototype.parseTestCase = function ( content ) {
 	try {
 		return this.testParser.parse(content);
 	} catch (e) {
-		this.env.log("error", e);
+		console.error( e );
 	}
 	return undefined;
 };
@@ -1500,7 +1500,7 @@ ParserTests.prototype.main = function ( options, popts ) {
 			options.selser = true;
 			// sanity checking (bug 51448 asks to be able to use --filter here)
 			if (options.filter || options.regex || options.maxtests || options['exit-unexpected']) {
-				this.env.log("error", "can't combine --rewrite-blacklist with --filter, --maxtests or --exit-unexpected");
+				console.log("\nERROR> can't combine --rewrite-blacklist with --filter, --maxtests or --exit-unexpected");
 				process.exit( 1 );
 			}
 		}
@@ -1561,9 +1561,9 @@ ParserTests.prototype.main = function ( options, popts ) {
 		try {
 			this.test_filter = new RegExp( pattern );
 		} catch ( e ) {
-			var errors = ["--regex was given an invalid regular expression."];
-			errors.push("See below for JS engine error:\n" + e + "\n");
-			this.env.log("fatal", errors);
+			console.error( '\nERROR> --filter was given an invalid regular expression.' );
+			console.error( '\nERROR> See below for JS engine error:\n' + e + '\n' );
+			process.exit( 1 );
 		}
 	}
 
@@ -1578,14 +1578,14 @@ ParserTests.prototype.main = function ( options, popts ) {
 		this.testParserFileName = __dirname + '/parserTests.pegjs';
 		this.testParser = PEG.buildParser( fs.readFileSync( this.testParserFileName, 'utf8' ) );
 	} catch ( e2 ) {
-		this.env.log("error", e2);
+		console.log( e2 );
 	}
 
 	this.cases = this.getTests( options ) || [];
 
 	if ( options.maxtests ) {
 		var n = Number( options.maxtests );
-		this.env.log("warning", "maxtests:", n);
+		console.warn( 'maxtests:' + n );
 		if ( n > 0 ) {
 			this.cases.length = n;
 		}
