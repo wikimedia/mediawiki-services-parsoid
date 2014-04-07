@@ -5789,6 +5789,17 @@ language=kaa
 !! end
 
 !! test
+Link with multiple ":" in a subpage-supporting namespace (bug 63636)
+!! wikitext
+[[User:Foo/Test/63636:Bar|Test]]
+!! html/php
+<p><a href="/index.php?title=User:Foo/Test/63636:Bar&amp;action=edit&amp;redlink=1" class="new" title="User:Foo/Test/63636:Bar (page does not exist)">Test</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./User:Foo/Test/63636:Bar">Test</a></p>
+!! end
+
+!! test
 1. Interaction of linktrail and template encapsulation
 !! options
 parsoid
