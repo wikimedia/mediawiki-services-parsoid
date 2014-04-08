@@ -19,7 +19,8 @@ var express = require('express'),
 	path = require('path'),
 	util = require('util'),
 	pkg = require('../package.json'),
-	Diff = require('../lib/mediawiki.Diff.js').Diff;
+	Diff = require('../lib/mediawiki.Diff.js').Diff,
+	LogData = require('../lib/LogData.js').LogData;
 
 // local includes
 var mp = '../lib/';
@@ -343,22 +344,24 @@ function ParsoidService(options) {
 
 			function errCB ( res, env, logData, callback ) {
 				try {
-					if (env.responseSent) {
-						callback();
-						return;
-					} else {
+					if ( !env.responseSent ) {
 						setHeader(res, env, 'Content-Type', 'text/plain; charset=UTF-8' );
 						sendResponse(res, env, logData.fullMsg(), logData.code || 500);
-						res.on('finish', callback);
+						if ( typeof callback === 'function' ) {
+							res.on('finish', callback);
+						}
+						return;
 					}
 				} catch (e) {
+					console.log( e.stack );
+				}
+				if ( typeof callback === 'function' ) {
 					callback();
-					return;
 				}
 			}
 
 			if ( err ) {
-				return errCB(res, null, err);
+				return errCB(res, {}, new LogData(null, "error", err));
 			}
 
 			env.logger.registerBackend(/fatal(\/.*)?/, errCB.bind(this, res, env));
