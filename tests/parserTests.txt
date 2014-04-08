@@ -2257,6 +2257,28 @@ parsoid
 <p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a : b","html":"a&lt;span typeof=\"mw:Placeholder\" data-parsoid=\"{&amp;quot;src&amp;quot;:&amp;quot; &amp;quot;,&amp;quot;isDisplayHack&amp;quot;:true}\">&amp;nbsp;&lt;/span>: b"}},"i":0}}]}'>a : b</p>
 !! end
 
+## Bug 50587
+!! test
+Templates: Template parameters from html
+!! options
+parsoid=html2wt
+!! wikitext
+{{echo|{{echo|''foo''}}}}
+!! html/parsoid
+<p><i about="#mwt1" typeof="mw:Transclusion" data-mw='{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;html&quot;:&quot;&lt;i about=\&quot;#mwt2\&quot; typeof=\&quot;mw:Transclusion\&quot; data-mw=\&quot;{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;html&amp;quot;:&amp;quot;&amp;lt;i&amp;gt;foo&amp;lt;/i&amp;gt;&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\&quot;&gt;foo&lt;/i&gt;&quot;}},&quot;i&quot;:0}}]}'>foo</i></p>
+!! end
+
+## Bug 50587
+!! test
+Templates: Template parameters from html for parser function
+!! options
+parsoid=html2wt
+!! wikitext
+{{#formatdate:2009-03-24|mdy}}
+!! html/parsoid
+<p><span class="mw-formatted-date" title="2009-03-24" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#formatdate:2009-03-24","function":"#formatdate"},"params":{"1":{"html":"mdy"}},"i":0}}]}'>March 24, 2009</span></p>
+!! end
+
 ###
 ### Parsoid-centric tests for testing RT edge cases for pre
 ###
