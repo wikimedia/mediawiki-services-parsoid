@@ -5969,16 +5969,30 @@ Interwiki link with fragment (bug 2130)
 # Ideally the wikipedia: prefix here should be proto-relative too
 !! test
 Different interwiki prefixes mapping to the same URL
-!! options
-parsoid
 !! wikitext
+[[:en:Foo]]
+
+[[:en:Foo|Foo]]
+
 [[wikipedia:Foo]]
 
-[[:en:Foo]]
-!! html
+[[:wikipedia:Foo|Foo]]
+
+[[wikipedia:en:Foo]]
+
+[[:wikipedia:en:Foo]]
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="//en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"simple","a":{"href":"//en.wikipedia.org/wiki/Foo"},"sa":{"href":":en:Foo"},"isIW":true}'>en:Foo</a></p>
+
+<p><a rel="mw:ExtLink" href="//en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"piped","a":{"href":"//en.wikipedia.org/wiki/Foo"},"sa":{"href":":en:Foo"},"isIW":true}'>Foo</a></p>
+
 <p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":"wikipedia:Foo"},"isIW":true}'>wikipedia:Foo</a></p>
 
-<p><a rel="mw:ExtLink" href="//en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"simple","a":{"href":"//en.wikipedia.org/wiki/Foo"},"sa":{"href":":en:Foo"},"isIW":true}'>en:Foo</a></p>
+<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"piped","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":":wikipedia:Foo"},"isIW":true}'>Foo</a></p>
+
+<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/en:Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/en:Foo"},"sa":{"href":"wikipedia:en:Foo"},"isIW":true}'>wikipedia:en:Foo</a></p>
+
+<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/en:Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/en:Foo"},"sa":{"href":":wikipedia:en:Foo"},"isIW":true}'>wikipedia:en:Foo</a></p>
 !! end
 
 !! test
