@@ -2112,8 +2112,16 @@ if ( popts.argv.help ) {
 }
 
 // Start the mock api server and kick off parser tests
-apiServer.startMockAPIServer({quiet: popts.quiet, port: 7001 }, function(url, server) {
+apiServer.startMockAPIServer({ quiet: popts.quiet, port: 7001 }, function(url, server) {
 	mockAPIServerURL = url;
 	mockAPIServer = server;
 	ptests.main(popts.argv, popts);
 });
+
+function stopTests() {
+	apiServer.stopServer();
+	process.exit(0);
+}
+
+process.on('SIGINT', stopTests);
+process.on('SIGTERM', stopTests);
