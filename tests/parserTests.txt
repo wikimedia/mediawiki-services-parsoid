@@ -20322,6 +20322,16 @@ a
 <p>b</p></div>
 !! end
 
+!! test
+Substrings resembeling wikitext in hrefs should not get nowiki escapes
+!! options
+parsoid=html2wt
+!! wikitext
+[[Foo''bar''baz]]
+!! html
+<a rel="mw:WikiLink" href="./Foo''bar''baz">Foo''bar''baz</a>
+!! end
+
 #-----------------------------
 # I/B quote minimization tests
 #-----------------------------
