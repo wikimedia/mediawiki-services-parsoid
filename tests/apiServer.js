@@ -13,6 +13,12 @@ var child_process = require( 'child_process' ),
 var forkedServer;
 var forkedServerURL;
 
+var stopServer = function () {
+	if ( forkedServer ) {
+		forkedServer.kill();
+	}
+};
+
 /**
  * Starts a server on passed port or a random port if none passed.
  * The callback will get the URL of the started server.
@@ -44,23 +50,18 @@ var startServer = function ( opts, cb, port ) {
 		}
 	);
 
-	// If this process dies, kill our server
-	var weDied = function () {
-		forkedServer.removeListener( 'exit', startServer );
-		forkedServer.kill();
-	};
-	process.on( 'exit', weDied );
-
 	// If it dies on its own, restart it
 	forkedServer.on( 'exit', function( ) {
 		console.warn('apiServer quit; retry with a different port');
 		forkedServer = null;
-		process.removeListener( 'exit', weDied );
 		opts.retrying = true;
 		startServer(opts, cb);
 	} );
 
 	if (!opts.retrying) {
+		// If this process dies, kill our server
+		process.on( 'exit', stopServer );
+
 		// HACK HACK HACK!!
 		//
 		// It is possible that we get into this callback in the time
@@ -84,13 +85,6 @@ var startServer = function ( opts, cb, port ) {
 
 		// Wait 2 seconds to make sure it has had time to start
 		setTimeout(waitAndCB, 2000);
-	}
-};
-
-var stopServer = function () {
-	if ( forkedServer ) {
-		forkedServer.removeListener( 'exit', startServer );
-		forkedServer.kill();
 	}
 };
 

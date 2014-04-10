@@ -1867,10 +1867,6 @@ ParserTests.prototype.processCase = function ( i, options, err ) {
 		}
 	} else {
 
-		// Kill the forked API, so we'll exit correctly.
-		// SSS: Is this still required in this new version?
-		mockAPIServer.kill();
-
 		// update the blacklist, if requested
 		if (booleanOption( options['rewrite-blacklist'] )) {
 			var filename = __dirname+'/parserTests-blacklist.js';
@@ -2119,9 +2115,12 @@ apiServer.startMockAPIServer({ quiet: popts.quiet, port: 7001 }, function(url, s
 });
 
 function stopTests() {
-	apiServer.stopServer();
 	process.exit(0);
 }
 
 process.on('SIGINT', stopTests);
 process.on('SIGTERM', stopTests);
+process.on('uncaughtException', function (e) {
+	console.log(e.stack);
+	stopTests();
+});
