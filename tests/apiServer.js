@@ -20,6 +20,21 @@ var stopServer = function () {
 };
 
 /**
+ * Make sure the server is killed if the process exits.
+ */
+var exitOnProcessTerm = function (res) {
+	var stopAndExit = function () {
+		process.exit(res || 0);
+	};
+	process.on('SIGINT', stopAndExit);
+	process.on('SIGTERM', stopAndExit);
+	process.on('uncaughtException', function (e) {
+		console.log(e.stack);
+		stopAndExit();
+	});
+};
+
+/**
  * Starts a server on passed port or a random port if none passed.
  * The callback will get the URL of the started server.
  */
@@ -125,5 +140,6 @@ module.exports = {
 	startServer: startServer,
 	stopServer: stopServer,
 	startParsoidServer: startParsoidServer,
-	startMockAPIServer: startMockAPIServer
+	startMockAPIServer: startMockAPIServer,
+	exitOnProcessTerm: exitOnProcessTerm
 };

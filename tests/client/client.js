@@ -238,6 +238,7 @@ if ( module && !module.parent ) {
 			parsoidURL = url;
 			getGitCommit( getGitCommitCb );
 		} );
+		apiServer.exitOnProcessTerm();
 	} else {
 		getGitCommit( getGitCommitCb );
 	}

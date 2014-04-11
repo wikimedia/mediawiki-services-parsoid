@@ -2113,14 +2113,4 @@ apiServer.startMockAPIServer({ quiet: popts.quiet, port: 7001 }, function(url, s
 	mockAPIServer = server;
 	ptests.main(popts.argv, popts);
 });
-
-function stopTests() {
-	process.exit(0);
-}
-
-process.on('SIGINT', stopTests);
-process.on('SIGTERM', stopTests);
-process.on('uncaughtException', function (e) {
-	console.log(e.stack);
-	stopTests();
-});
+apiServer.exitOnProcessTerm();

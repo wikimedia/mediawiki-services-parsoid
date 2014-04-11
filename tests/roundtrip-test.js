@@ -599,6 +599,7 @@ if ( !module.parent ) {
 				argv.parsoidURL = url;
 				fetch( title, callback, argv );
 			} );
+			apiServer.exitOnProcessTerm();
 		} else {
 			// make sure parsoidURL ends on /
 			if (!/\/$/.test(argv.parsoidURL)) {
