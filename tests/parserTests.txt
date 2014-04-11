@@ -19829,6 +19829,17 @@ parsoid=wt2wt,wt2html
 !!end
 
 !!test
+9. Encapsulate foster-parented transclusion content
+!!options
+parsoid=wt2wt,wt2html
+!! wikitext
+<table>{{echo|hi</table>hello}}
+!! html
+<span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["&lt;table>",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"hi&lt;/table>hello"}},"i":0}}]}' data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true,"pi":[[{"k":"1","spc":["","","",""]}]]}'>hi</span>
+<table about="#mwt2" data-parsoid='{"stx":"html"}'></table><span about="#mwt2" data-parsoid="{}">hello</span>
+!!end
+
+!!test
 Table in fosterable position
 !!options
 parsoid=wt2html,wt2wt
