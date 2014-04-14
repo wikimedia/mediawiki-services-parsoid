@@ -18141,6 +18141,16 @@ B <span about="#mwt4" class="reference" data-mw='{"name":"ref","attrs":{"group":
 <ol class="references" typeof="mw:Extension/references" about="#mwt8" data-parsoid='{"src":"&lt;references group=\"X\">\n&lt;ref name=\"b\">foo&lt;/ref>\n&lt;/references>","group":"X"}' data-mw='{"name":"references","body":{"extsrc":"&lt;ref name=\"b\">foo&lt;/ref>","html":"\n&lt;span about=\"#mwt10\" class=\"reference\" data-mw=&#39;{\"name\":\"ref\",\"body\":{\"html\":\"foo\"},\"attrs\":{\"name\":\"b\"}}&#39; rel=\"dc:references\" typeof=\"mw:Extension/ref\">&lt;a href=\"#cite_note-b-1\">[1]&lt;/a>&lt;/span>\n"},"attrs":{"group":"X"}}'><li about="#cite_note-b-3" id="cite_note-b-3" data-parsoid="{}"><span rel="mw:referencedBy" data-parsoid="{}"><a href="#cite_ref-b-3-0" data-parsoid="{}">↑</a></span> </li></ol>
 !! end
 
+!! test
+Entities in ref name
+!! options
+parsoid
+!! wikitext
+<ref name="test &amp; me">hi</ref>
+!! html
+<p data-parsoid='{}'><span about="#mwt2" class="reference" data-mw='{"name":"ref","body":{"html":"hi"},"attrs":{"name":"test &amp; me"}}' id="cite_ref-test &amp; me-1-0" rel="dc:references" typeof="mw:Extension/ref" data-parsoid='{"src":"&lt;ref name=\"test &amp;amp; me\">hi&lt;/ref>"}'><a href="#cite_note-test &amp; me-1" data-parsoid="{}">[1]</a></span></p>
+!! end
+
 # This test is wt2html only because we're permitting the serializer to produce
 # dirty diffs, normalizing the unclosed references to the self-closed version.
 !! test

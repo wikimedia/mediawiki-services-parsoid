@@ -612,6 +612,7 @@ add("wt2wt", "Ref: 8. transclusion wikitext has lower precedence", "A <ref>foo {
 add("wt2wt", "Ref: 9. unclosed comments should not leak out of ref-body", "A <ref>foo <!----></ref> B C\n<references />");
 add("wt2wt", "Ref: 10. Unclosed HTML tags should not leak out of ref-body", "A <ref><b> foo </ref> B C\n\n<references />");
 add("wt2wt", "References: 5. ref tags in references should be processed while ignoring all other content", "A <ref name=\"a\" />\nB <ref name=\"b\">bar</ref>\n\n<references>\n<ref name=\"a\">foo</ref>\n</references>");
+add("wt2wt", "Entities in ref name", "<ref name=\"test & me\">hi</ref>\n");
 add("wt2wt", "Tables: 1d. No escaping needed", "foo");
 add("wt2wt", "HTML tag with broken attribute value quoting", "<span title=\"Hello world\">Foo</span>\n");
 add("wt2wt", "Parsoid-only: HTML tag with broken attribute value quoting", "<span title=\"Hello world\">Foo</span>\n");
@@ -2030,6 +2031,7 @@ add("html2wt", "Ref: 8. transclusion wikitext has lower precedence", "A <ref>foo
 add("html2wt", "Ref: 9. unclosed comments should not leak out of ref-body", "A <ref>foo <!----></ref> B C\n<references />");
 add("html2wt", "Ref: 10. Unclosed HTML tags should not leak out of ref-body", "A <ref><b> foo </ref> B C\n\n<references />");
 add("html2wt", "References: 5. ref tags in references should be processed while ignoring all other content", "A <ref name=\"a\" />\nB <ref name=\"b\">bar</ref>\n\n<references>\n<ref name=\"a\">foo</ref>\n</references>");
+add("html2wt", "Entities in ref name", "<ref name=\"test & me\">hi</ref>\n");
 add("html2wt", "Lists: 1. Nested inside html", "* <nowiki>*foo</nowiki>\n\n* <nowiki>#foo</nowiki>\n\n* <nowiki>:foo</nowiki>\n\n* <nowiki>;foo</nowiki>\n\n# <nowiki>*foo</nowiki>\n\n# <nowiki>#foo</nowiki>\n\n# <nowiki>:foo</nowiki>\n\n# <nowiki>;foo</nowiki>\n");
 add("html2wt", "Lists: 2. Inside definition lists", "\n; <nowiki>;foo</nowiki>\n\n; <nowiki>:foo</nowiki>\n\n; <nowiki>:foo</nowiki>\n: bar\n\n: <nowiki>:foo</nowiki>\n");
 add("html2wt", "Lists: 3. Only bullets at start of text should be escaped", "* <nowiki>*foo*bar</nowiki>\n\n* <nowiki>*foo</nowiki>''it''*bar\n");
@@ -3262,6 +3264,8 @@ add("selser", "References: 5. ref tags in references should be processed while i
 add("selser", "References: 5. ref tags in references should be processed while ignoring all other content [4,4,0]", "lfl5lazff7irizfrt2vlo1j32ipjsjor<references>\n<ref name=\"a\">foo</ref>\nThis should just get lost.\n</references>");
 add("selser", "References: 5. ref tags in references should be processed while ignoring all other content [3,4,0]", "nuwpe9pypyb3ayvi<references>\n<ref name=\"a\">foo</ref>\nThis should just get lost.\n</references>");
 add("selser", "References: 5. ref tags in references should be processed while ignoring all other content [0,2,0]", "A <ref name=\"a\" />\nB <ref name=\"b\">bar</ref>ky16pugtafywrk9\n\n<references>\n<ref name=\"a\">foo</ref>\nThis should just get lost.\n</references>");
+add("selser", "Entities in ref name [2]", "72oie2a08o69wwmi\n\n<ref name=\"test &amp; me\">hi</ref>");
+add("selser", "Entities in ref name [1]", "<ref name=\"test &amp; me\">hi</ref>");
 add("selser", "Headings: 0. Unnested [3,0,2,2,2]", "\ntbxmjsz5vmdbzkt9\n\n<nowiki> =foo= </nowiki>\n<!--cmt-->\n<nowiki>=foo=</nowiki>n9xfjr5l0k8adcxr\n5ni7wqha48kf0f6r\n=foo''a''<nowiki>=</nowiki>");
 add("selser", "Headings: 6a. Heading chars in SOL context (with trailing spaces) [2,0,2,4,[0,4],0,[[3],2]]", "rtisxhigxkr19k9\n\n<nowiki>=a=</nowiki>\n\ngkd54mgkipjsjor\n\n<nowiki>=a=</nowiki> 9at1sm4xa34vlsor\n<nowiki>=a=</nowiki>vxvickerp8ehfr\n\n<nowiki></nowiki>wjgkieb0et1n61or \t");
 add("selser", "Headings: 6a. Heading chars in SOL context (with trailing spaces) [[2],2,0,4,[[2],4],0,[[3],0]]", "0kn8q0rv3xh1714i<nowiki>=a=</nowiki>gq9lpt08jzpeewmi\n\n<nowiki>=a=</nowiki> xmpuw8oo3u6561or\n<nowiki>cv84az37ev3oko6r=a=</nowiki>r0yhf1wj4694fgvi\n\n<nowiki></nowiki> \t");
