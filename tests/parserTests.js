@@ -21,7 +21,6 @@ var apiServer = require( './apiServer.js' ),
 	fork = childProc.fork,
 	fs = require('fs'),
 	path = require('path'),
-	// Handle options/arguments with yargs module
 	yargs = require('yargs'),
 	Alea = require('alea'),
 	DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils,
@@ -147,7 +146,7 @@ ParserTests.prototype.getOpts = function () {
 	var default_args = ["Default tests-file: " + this.parser_tests_file,
 	                    "Default options   : --wt2html --wt2wt --html2html --html2wt --whitelist --blacklist --color=auto"];
 
-	return yargs.usage( 'Usage: $0 [options] [tests-file]\n\n' + default_args.join("\n"), Util.addStandardOptions({
+	var standardOpts = Util.addStandardOptions({
 		'wt2html': {
 			description: 'Wikitext -> HTML(DOM)',
 			'default': false,
@@ -277,14 +276,29 @@ ParserTests.prototype.getOpts = function () {
 		fetchTemplates: false,
 		usephppreprocessor: false,
 		fetchConfig: false
-	})).check( function(argv) {
+	});
+
+	return yargs.usage(
+		'Usage: $0 [options] [tests-file]\n\n' + default_args.join("\n"),
+		standardOpts
+	).check(function(argv, aliases) {
+		var knownArgs = Object.keys(aliases).reduce(function (prev, next) {
+			return prev.concat(aliases[next]);
+		}, ["_", "$0"].concat(Object.keys(standardOpts)));
+
+		Object.keys(argv).forEach(function (arg) {
+			if ( knownArgs.indexOf(arg) < 0 ) {
+				throw "Unknown argument: " + arg;
+			}
+		});
+
 		if( argv.filter === true ) {
 			throw "--filter needs an argument";
 		}
 		if( argv.regex === true ) {
 			throw "--regex needs an argument";
 		}
-	}); // keep that
+	});
 };
 
 /**
