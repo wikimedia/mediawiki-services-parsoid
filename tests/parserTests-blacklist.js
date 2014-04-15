@@ -1642,8 +1642,6 @@ add("html2wt", "Redirected image", "<a href=\"/wiki/File:Barfoo.jpg\" title=\"Fi
 add("html2wt", "Missing image with uploads disabled", "<a href=\"/wiki/File:Foobaz.jpg\" title=\"File:Foobaz.jpg\">File:Foobaz.jpg</a>\n");
 add("html2wt", "Parsoid-specific image handling - simple image with size and middle alignment", "[[File:Foobar.jpg|middle|50x50px]]\n");
 add("html2wt", "Parsoid-specific image handling - thumbnail with specific size, halign, valign, and caption", "[[File:Foobar.jpg|right|middle|thumb|50x50px|caption]]\n");
-add("html2wt", "Parsoid-specific image handling - framed image with specific size and caption", "[[File:Foobar.jpg|frame|50x50px|caption]]\n");
-add("html2wt", "Parsoid-specific image handling - framed image with specific size, halign, valign, and caption", "[[File:Foobar.jpg|left|baseline|frame|50x50px|caption]]\n");
 add("html2wt", "Parsoid-specific image handling - caption with a template in it", "[[File:Foobar.jpg|thumb|200x200px|This caption has a {{echo|transclusion}} in it.]]\n");
 add("html2wt", "Subpage link", "<a href=\"/wiki/Subpage_test/subpage\" title=\"Subpage test/subpage\">/subpage</a>\n");
 add("html2wt", "Subpage noslash link", "<a href=\"/wiki/Subpage_test/subpage\" title=\"Subpage test/subpage\">subpage</a>\n");
