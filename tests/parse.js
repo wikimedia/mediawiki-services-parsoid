@@ -17,8 +17,7 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 	fs = require('fs');
 
 ( function() {
-	var default_mode_str = "Default conversion mode : --wt2html";
-	var opts = yargs.usage( 'Usage: echo wikitext | $0 [options]\n\n' + default_mode_str, Util.addStandardOptions({
+	var standardOpts = Util.addStandardOptions({
 		'wt2html': {
 			description: 'Wikitext -> HTML',
 			'boolean': true,
@@ -92,7 +91,13 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 			'boolean': false,
 			'default': ''
 		}
-	}));
+	});
+
+	var default_mode_str = "Default conversion mode : --wt2html";
+	var opts = yargs.usage(
+		'Usage: echo wikitext | $0 [options]\n\n' + default_mode_str,
+		standardOpts
+	).check(Util.checkUnknownArgs.bind(null, standardOpts));
 
 	var argv = opts.argv;
 
@@ -144,13 +149,6 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 			}
 		}
 
-		// Init parsers, serializers, etc.
-		var parserPipeline, serializer;
-
-		if ( !argv.html2wt ) {
-			parserPipeline = env.pipelineFactory.getPipeline( 'text/x-mediawiki/full');
-		}
-
 		if ( !argv.wt2html ) {
 			if ( argv.oldtextfile ) {
 				argv.oldtext = fs.readFileSync(argv.oldtextfile, 'utf8');
@@ -162,121 +160,44 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 				env.page.domdiff = { isEmpty: false, dom: DU.parseHTML(fs.readFileSync(argv.domdiff, 'utf8')).body };
 			}
 			env.setPageSrcInfo( argv.oldtext || null );
-			if ( argv.selser ) {
-				serializer = new SelectiveSerializer( { env: env, oldid: null } );
-			} else {
-				serializer = new WikitextSerializer( { env: env } );
-			}
 		}
 
-		var stdin = process.stdin,
-			stdout = process.stdout,
-			inputChunks = [];
-
-		// process input
-		var processInput = function() {
-
-			// parse page
+		var inputChunks = [];
+		var processInput = function () {
+			// parse page if no input
 			if ( inputChunks.length === 0 ) {
-				var target = env.resolveTitle( env.normalizeTitle( env.page.name ),
-																			'' );
+				if ( argv.html2wt || argv.html2html ) {
+					env.log("fatal", "Pages start at wikitext.");
+				}
+				var target = env.resolveTitle(
+						env.normalizeTitle( env.page.name ), '' );
 				var tpr = new TemplateRequest( env, target );
 				tpr.once( 'src', function ( err, src_and_metadata ) {
 					if ( err ) {
 						env.log("fatal", err);
 					}
-					env.setPageSrcInfo( src_and_metadata );
-					Util.parse( env, function ( src, err, doc ) {
-						if ( err ) {
-							env.log("fatal", err);
-						}
-						stdout.write( DU.serializeNode( doc.documentElement ) );
-					}, null, env.page.src );
+					startsAtWikitext( env, src_and_metadata );
 				} );
 				return;
 			}
 
 			var input = inputChunks.join('');
 			if ( argv.html2wt || argv.html2html ) {
-				var doc = DU.parseHTML( input.replace(/\r/g, '') ),
-					wt = '';
-				if ( argv.dpin.length > 0 ) {
-					DU.applyDataParsoid( doc, JSON.parse( argv.dpin ) );
-				}
-				serializer.serializeDOM( doc.body, function ( chunk ) {
-					wt += chunk;
-				}, function () {
-					env.setPageSrcInfo( wt );
-					if ( argv.html2wt ) {
-						// add a trailing newline for shell user's benefit
-						stdout.write(wt);
-					} else {
-						parserPipeline.once( 'document', function(document) {
-							var out;
-							if ( argv.normalize ) {
-								out = DU.normalizeOut(
-									DU.serializeNode( document.body ),
-									( argv.normalize==='parsoid' )
-								);
-							} else {
-								out = DU.serializeNode( document.body );
-							}
-
-							stdout.write( out );
-						} );
-						parserPipeline.processToplevelDoc(wt);
-					}
-				} );
+				var dp = argv.dpin.length > 0 ? JSON.parse( argv.dpin ) : null;
+				startsAtHTML( env, input.replace(/\r/g, ''), dp );
 			} else {
-				parserPipeline.once( 'document', function ( document ) {
-					var res,
-						finishCb = function ( trailingNL ) {
-							stdout.write( res );
-							if (trailingNL && process.stdout.isTTY) {
-								stdout.write("\n");
-							}
-						};
-					if ( argv.wt2html ) {
-						if ( argv.dp ) {
-							console.log( JSON.stringify( document.data.parsoid ) );
-						}
-						if ( argv.normalize ) {
-							res = DU.normalizeOut(
-								DU.serializeNode( document.body ),
-								( argv.normalize==='parsoid' )
-							);
-						} else {
-							res = DU.serializeNode( document.body );
-						}
-						finishCb( true );
-					} else {
-						res = '';
-						if ( argv.dp ) {
-							DU.applyDataParsoid( document, document.data.parsoid );
-						}
-						serializer.serializeDOM(
-							DU.parseHTML( DU.serializeNode( document, true ) ).body,
-								function ( chunk ) {
-									res += chunk;
-								},
-								finishCb
-						);
-					}
-				} );
-
-				// Kick off the pipeline by feeding the input into the parser pipeline
-				env.setPageSrcInfo( input );
-				parserPipeline.processToplevelDoc( env.page.src );
+				startsAtWikitext( env, input );
 			}
 		};
 
-		if (argv.inputfile) {
+		if ( argv.inputfile ) {
 			//read input from the file, then process
 			var fileContents = fs.readFileSync( argv.inputfile, 'utf8' );
 			inputChunks.push( fileContents );
 			processInput();
 		} else {
 			// collect input
+			var stdin = process.stdin;
 			stdin.resume();
 			stdin.setEncoding('utf8');
 			stdin.on( 'data', function( chunk ) {
@@ -284,5 +205,61 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 			} );
 			stdin.on( 'end', processInput );
 		}
-	} );
-} )();
+	});
+
+	function addTrailingNL( trailingNL, out ) {
+		var stdout = process.stdout;
+		stdout.write(out);
+		if ( trailingNL && stdout.isTTY ) {
+			stdout.write("\n");
+		}
+	}
+
+	function startsAtHTML( env, input, dp ) {
+		var serializer;
+		if ( argv.selser ) {
+			serializer = new SelectiveSerializer({ env: env, oldid: null });
+		} else {
+			serializer = new WikitextSerializer({ env: env });
+		}
+		var doc = DU.parseHTML( input );
+		if ( dp ) {
+			DU.applyDataParsoid( doc, dp );
+		}
+		var out = '';
+		serializer.serializeDOM(doc.body, function ( chunk ) {
+			out += chunk;
+		}, function () {
+			if ( argv.html2wt || argv.wt2wt ) {
+				addTrailingNL( false, out );
+			} else {
+				startsAtWikitext( env, out );
+			}
+		});
+	}
+
+	function startsAtWikitext( env, input ) {
+		var parserPipeline = env.pipelineFactory.getPipeline(
+			'text/x-mediawiki/full');
+
+		parserPipeline.once('document', function ( document ) {
+			var out, dp;
+			if ( argv.wt2html || argv.html2html ) {
+				out = DU.serializeNode( document );
+				if ( argv.normalize ) {
+					out = DU.normalizeOut(out, (argv.normalize === 'parsoid'));
+				}
+				addTrailingNL( true, out );
+			} else {
+				out = DU.serializeNode( document.body, true );
+				dp = argv.dp ? DU.getDataParsoid( document ) : null;
+				startsAtHTML( env, out, dp );
+			}
+		});
+
+		// Kick off the pipeline by feeding the input into the parser pipeline
+		env.setPageSrcInfo( input );
+		parserPipeline.processToplevelDoc( env.page.src );
+	}
+
+})();

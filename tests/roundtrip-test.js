@@ -6,7 +6,6 @@ var	request = require( 'request' ),
 	domino = require( 'domino' ),
 	url = require( 'url' ),
 	zlib = require( 'zlib' ),
-
 	Util = require( '../lib/mediawiki.Util.js' ).Util,
 	DU = require( '../lib/mediawiki.DOMUtils.js' ).DOMUtils,
 	TemplateRequest = require( '../lib/mediawiki.ApiRequest.js' ).TemplateRequest,
@@ -564,7 +563,7 @@ if ( typeof module === 'object' ) {
 }
 
 if ( !module.parent ) {
-	var opts = yargs.usage( 'Usage: $0 [options] <page-title> \n\n', Util.addStandardOptions({
+	var standardOpts = Util.addStandardOptions({
 		'xml': {
 			description: 'Use xml callback',
 			'boolean': true,
@@ -580,7 +579,12 @@ if ( !module.parent ) {
 	}, {
 		// defaults for standard options
 		rtTestMode: true // suppress noise by default
-	}));
+	});
+
+	var opts = yargs.usage(
+		'Usage: $0 [options] <page-title> \n\n',
+		standardOpts
+	).check(Util.checkUnknownArgs.bind(null, standardOpts));
 
 	var callback;
 	var argv = opts.argv;
