@@ -1860,7 +1860,7 @@ li = bullets:list_char+
 hacky_dl_uses = bullets:":"+
                c:table_lines
                s:space* // Do we really need to RT this?
-               &eolf
+               &comment_space_eolf
 {
     // Leave bullets as an array -- list handler expects this
     var li = new TagTk( 'listItem', [], { tsr: [pos0, pos0 + bullets.length] }  );
@@ -2429,6 +2429,8 @@ newline = '\n' / '\r\n'
 newlineToken = newline { return [new NlTk([pos0, pos])]; }
 
 eolf = newline / eof
+
+comment_space_eolf = (space+ / comment)* (newline / eof)
 
 // 'Preprocessor' directive- higher-level things that can occur in otherwise
 // plain-text content.
