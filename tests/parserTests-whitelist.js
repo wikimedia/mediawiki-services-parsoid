@@ -63,33 +63,7 @@ testWhiteList["Fuzz testing: Parser22"] = "<p><a href=\"http://===r:::https://b\
 
 /* Misc sanitizer / HTML5 differences */
 
-// Single quotes are legal in HTML5 URIs. See
-// http://www.whatwg.org/specs/web-apps/current-work/multipage/urls.html#url-manipulation-and-creation
-testWhiteList["Link containing double-single-quotes '' (bug 4598)"] = "<p><a rel=\"mw:WikiLink\" href=\"Lista_d''e_paise_d''o_munno\" data-parsoid=\"{&quot;tsr&quot;:[0,31],&quot;contentPos&quot;:[0,31],&quot;src&quot;:&quot;[[Lista d''e paise d''o munno]]&quot;,&quot;bsp&quot;:[0,31],&quot;a&quot;:{&quot;href&quot;:&quot;Lista_d''e_paise_d''o_munno&quot;},&quot;sa&quot;:{&quot;href&quot;:&quot;Lista d''e paise d''o munno&quot;},&quot;stx&quot;:&quot;simple&quot;}\">Lista d''e paise d''o munno</a></p>";
-
-
 // Sanitizer
-// testWhiteList["Invalid attributes in table cell (bug 1830)"] = "<table><tbody><tr><td Cell:=\"\">broken</td></tr></tbody></table>";
-// testWhiteList["Table security: embedded pipes (http://lists.wikimedia.org/mailman/htdig/wikitech-l/2006-April/022293.html)"] = "<table><tbody><tr><td> |<a href=\"ftp://|x||\">[1]</a>\" onmouseover=\"alert(document.cookie)\"&gt;test</td></tr></tbody></table>";
-
-// We standardize on UTF8, so don't need to urlencode these chars any more.
-testWhiteList["External link containing double-single-quotes with no space separating the url from text in italics"] = "<p><a href=\"http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm\" rel=\"mw:ExtLink\" data-parsoid=\"{&quot;tsr&quot;:[0,146],&quot;bsp&quot;:[0,146]}\"><i>La muerte de Casagemas</i> (1901) en el sitio de </a><a rel=\"mw:WikiLink\" href=\"Museo_Picasso_(París)\" data-parsoid=\"{&quot;tsr&quot;:[105,144],&quot;src&quot;:&quot;[[Museo Picasso (París)|Museo Picasso]]&quot;,&quot;a&quot;:{&quot;href&quot;:&quot;Museo_Picasso_(París)&quot;},&quot;sa&quot;:{&quot;href&quot;:&quot;Museo Picasso (París)&quot;}}\">Museo Picasso</a>.</p>";
-
-testWhiteList["External links: wiki links within external link (Bug 3695)"] = "<p><a href=\"http://example.com\" rel=\"mw:ExtLink\" data-parsoid=\"{&quot;tsr&quot;:[0,54],&quot;bsp&quot;:[0,54]}\"></a><a rel=\"mw:WikiLink\" href=\"Wikilink\" data-parsoid=\"{&quot;tsr&quot;:[20,32],&quot;contentPos&quot;:[20,32],&quot;src&quot;:&quot;[[wikilink]]&quot;,&quot;a&quot;:{&quot;href&quot;:&quot;Wikilink&quot;},&quot;sa&quot;:{&quot;href&quot;:&quot;wikilink&quot;},&quot;stx&quot;:&quot;simple&quot;}\">wikilink</a> embedded in ext link</p>";
-
-// Most HTML entities are decoded in HTML output. That is fine, we are using UTF-8.
-testWhiteList["Brackets in urls"] = "<p data-parsoid=\"{&quot;dsr&quot;:[0,46]}\"><a rel=\"mw:ExtLink/URL\" href=\"http://example.com/index.php?foozoid%5B%5D=bar\" data-parsoid=\"{&quot;tsr&quot;:[0,46],&quot;dsr&quot;:[0,46]}\">http://example.com/index.php?foozoid%5B%5D=bar</a></p>\n\n<p data-parsoid=\"{&quot;dsr&quot;:[48,100]}\"><a rel=\"mw:ExtLink/URL\" href=\"http://example.com/index.php?foozoid[]=bar\" data-parsoid=\"{&quot;tsr&quot;:[48,100],&quot;a&quot;:{&quot;href&quot;:&quot;http://example.com/index.php?foozoid[]=bar&quot;},&quot;sa&quot;:{&quot;href&quot;:&quot;http://example.com/index.php?foozoid&amp;#x5B;&amp;#x5D;=bar&quot;},&quot;dsr&quot;:[48,100]}\">http://example.com/index.php?foozoid[]=bar</a></p>";
-testWhiteList["Table security: embedded pipes (http://lists.wikimedia.org/mailman/htdig/wikitech-l/2006-April/022293.html)"] = "<table data-parsoid=\"{&quot;tsr&quot;:[0,2],&quot;dsr&quot;:[0,63]}\">\n<tbody data-parsoid=\"{&quot;dsr&quot;:[3,61]}\"><tr data-parsoid=\"{&quot;dsr&quot;:[3,61]}\"><td data-parsoid=\"{&quot;tsr&quot;:[3,6],&quot;dsr&quot;:[3,15]}\">[<a rel=\"mw:ExtLink/URL\" href=\"ftp://|x\" data-parsoid=\"{&quot;tsr&quot;:[7,15],&quot;dsr&quot;:[7,15]}\">ftp://|x</a></td><td data-parsoid=\"{&quot;tsr&quot;:[15,17],&quot;stx_v&quot;:&quot;row&quot;,&quot;dsr&quot;:[15,61]}\">]\" onmouseover=\"alert(document.cookie)\"&gt;test</td></tr></tbody></table>";
-testWhiteList["Piped link to URL"] = "<p data-parsoid=\"{&quot;dsr&quot;:[0,60]}\">Piped link to URL: [<a rel=\"mw:ExtLink\" href=\"http://www.example.com|an\" data-parsoid=\"{&quot;targetOff&quot;:46,&quot;tsr&quot;:[20,59],&quot;dsr&quot;:[20,59]}\">example URL</a>]</p>";
-
-
-// This is valid, just confusing for humans. The reason for disallowing this
-// might be history by now. XXX: Check this!
-testWhiteList["Link containing % as a double hex sequence interpreted to hex sequence"] = "<p><a rel=\"mw:WikiLink\" href=\"7%2525_Solution\" data-parsoid=\"{&quot;tsr&quot;:[0,19],&quot;contentPos&quot;:[0,19],&quot;src&quot;:&quot;[[7%2525 Solution]]&quot;,&quot;bsp&quot;:[0,19],&quot;a&quot;:{&quot;href&quot;:&quot;7%2525_Solution&quot;},&quot;sa&quot;:{&quot;href&quot;:&quot;7%2525 Solution&quot;},&quot;stx&quot;:&quot;simple&quot;}\">7%25 Solution</a></p>";
-
-// This is a test for stripping IDN ignored characters out of a link. The expected result (apparently) is that the IDN character
-// should not be present in the text of the link. But Gabriel and Mark decided that that made very little sense. Hence, whitelist.
-testWhiteList["External links: IDN ignored character reference in hostname; strip it right off"] = "<p><a rel=\"mw:ExtLink/URL\" href=\"http://example.com/\">http://e\u200cxample.com/</a></p>";
 
 if (typeof module === "object") {
 	module.exports.testWhiteList = testWhiteList;
