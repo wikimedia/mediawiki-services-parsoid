@@ -516,6 +516,7 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 			case 'OL':
 			case 'UL': wrapperName = 'LI'; break;
 			case 'DL': wrapperName = 'DD'; break;
+			case 'BODY' : wrapperName = 'P'; break;
 
 			case 'TR':
 				var prev = DU.getPrevElementSibling(n);
