@@ -3062,6 +3062,18 @@ should be left alone
 should be left alone</p>
 !! end
 
+!! test
+Definition Lists: Hacky use to indent tables, with comment before table
+!! wikitext
+::<!-- foo -->{|
+|foo
+|}
+!! html/parsoid
+<dl><dd><dl><dd><!-- foo --><table><tr>
+<td>foo</td>
+</tr></table></dd></dl></dd></dl>
+!! end
+
 # Bug 52473
 !! test
 Definition Lists: Hacky use to indent tables (WS-insensitive)
