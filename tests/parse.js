@@ -134,8 +134,6 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 			return;
 		}
 
-		env.setLogger(new Logger(env,{ logLevels: ["error", "warning", "fatal"]}));
-
 		// fetch templates from enwiki by default.
 		if ( argv.wgScriptPath ) {
 			env.conf.wiki.wgScriptPath = argv.wgScriptPath;

@@ -1618,8 +1618,10 @@ ParserTests.prototype.main = function ( options, popts ) {
 		// to be basically empty, since the parserTests environment is very bare.
 		this.env = env;
 
-		if (!booleanOption( options.quiet )) {
-			env.setLogger(new Logger(env, { logLevels: ["fatal", "error", "warning"] }));
+		if (booleanOption( options.quiet )) {
+			var logger = new Logger(env);
+			parsoidConfig.registerLoggingBackends(["fatal", "error"], logger);
+			env.setLogger(logger);
 		}
 
 		this.env.conf.parsoid.rtTestMode = options.rtTestMode;
