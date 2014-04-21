@@ -8780,7 +8780,7 @@ parsoid
 !!end
 
 !!test
-Templates: Inline Text: 1. Multiple tmeplate uses
+Templates: Inline Text: 1. Multiple template uses
 !! wikitext
 {{echo|Foo}}bar{{echo|baz}}
 !! html
@@ -9295,6 +9295,18 @@ Templates: Ugly templates: 4. newline-only template parameter inconsistency
 </p>
 !! end
 
+# Bug 64017
+!! test
+Templates: Ugly templates: 5. Templates generating unclosed block tags in fosterable positions in tables
+!! wikitext
+{{echo|<table>}}
+{{echo|<div>foo}}
+{{echo|</table>}}
+!! html/parsoid
+<div about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;table>"}},"i":0}},"\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;div>foo"}},"i":1}},"\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;/table>"}},"i":2}}]}' data-parsoid='{"stx":"html","autoInsertedEnd":true,"pi":[[{"k":"1","spc":["","","",""]}],[{"k":"1","spc":["","","",""]}],[{"k":"1","spc":["","","",""]}]]}'>foo
+</div><table about="#mwt1" data-parsoid='{"stx":"html"}'>
+</table>
+!! end
 
 !!test
 Parser Functions: 1. Simple example

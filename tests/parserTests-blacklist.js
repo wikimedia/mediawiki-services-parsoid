@@ -1544,7 +1544,7 @@ add("html2wt", "Templates: 2. Inside a block tag", "<div>Foo</div>\n<blockquote>
 add("html2wt", "Templates: P-wrapping: 1a. Templates on consecutive lines", "Foo\nbar\n");
 add("html2wt", "Templates: P-wrapping: 1b. Templates on consecutive lines", "Foo\n\nbar\nbaz\n");
 add("html2wt", "Templates: P-wrapping: 1c. Templates on consecutive lines", "Foo\n\nbar <div>baz</div>\n");
-add("html2wt", "Templates: Inline Text: 1. Multiple tmeplate uses", "Foobarbaz\n");
+add("html2wt", "Templates: Inline Text: 1. Multiple template uses", "Foobarbaz\n");
 add("html2wt", "Templates: Inline Text: 2. Back-to-back template uses", "Foobar\n");
 add("html2wt", "Templates: Block Tags: 1. Multiple template uses", "<div>Foo</div><div>bar</div><div>baz</div>\n");
 add("html2wt", "Templates: Block Tags: 2. Back-to-back template uses", "<div>Foo</div><div>bar</div>\n");
