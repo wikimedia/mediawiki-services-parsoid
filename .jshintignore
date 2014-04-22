@@ -1,5 +1,5 @@
 node_modules
-api/scripts/jquery.js
+api/static/js/jquery.js
 tests/server/static/js/jquery-min.js
 doc
 tests/server/node_modules

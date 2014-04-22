@@ -12,6 +12,7 @@
 // global includes
 var express = require('express'),
 	domino = require('domino'),
+	hbs = require('handlebars'),
 	// memwatch = require('memwatch'),
 	childProc = require('child_process'),
 	cluster = require('cluster'),
@@ -43,8 +44,6 @@ function ParsoidService(options) {
 		ParsoidConfig = require( mp + 'mediawiki.ParsoidConfig' ).ParsoidConfig,
 		MWParserEnvironment = require( mp + 'mediawiki.parser.environment.js' ).MWParserEnvironment,
 		TemplateRequest = libtr.TemplateRequest;
-
-	var interwikiRE;
 
 
 /**
@@ -98,6 +97,19 @@ function ParsoidService(options) {
 	}
 
 	/**
+	 * Render response, but only if response hasn't been sent.
+	 */
+
+	function renderResponse(res, env) {
+		if (env.responseSent) {
+			return;
+		} else {
+			env.responseSent = true;
+			res.render.apply(res, Array.prototype.slice.call(arguments, 2));
+		}
+	}
+
+	/**
 	 * The global parsoid configuration object.
 	 * @property {ParsoidConfig}
 	 */
@@ -115,6 +127,7 @@ function ParsoidService(options) {
 	 * @method
 	 * @returns {RegExp} The regular expression that matches to all interwikis accepted by the API.
 	 */
+	var interwikiRE;
 	function getInterwikiRE() {
 		// this RE won't change -- so, cache it
 		if (!interwikiRE) {
@@ -130,88 +143,61 @@ function ParsoidService(options) {
 			.replace(/'/g,'&#039;');
 	};
 
-	/**
-	 * Send a form with a text area.
-	 *
-	 * @method
-	 * @param {Response} res The response object from our routing function.
-	 * @param {string} action Path to post
-	 * @param {string} name Name of textarea
-	 * @param {string} content The content we should put in the textarea
-	 */
-	var textarea = function ( res, action, name, content ) {
-		res.write('<form method=POST action="' + action + '"><textarea name="' + name + '" cols=90 rows=9>');
-		res.write( ( content && htmlSpecialChars( content) ) || '' );
-		res.write('</textarea><br><input type="submit"></form>');
-	};
-
 	var roundTripDiff = function ( selser, req, res, env, document ) {
-		var patch;
 		var out = [];
 
 		var finalCB =  function () {
 			var i;
-			// XXX TODO FIXME BBQ There should be an error callback in SelSer.
 			out = out.join('');
+
 			// Strip selser trigger comment
 			out = out.replace(/<!--rtSelserEditTestComment-->\n*$/, '');
-			if ( out === undefined ) {
-				env.log("fatal/request", "An error occured in the WikitextSerializer");
-				return;
-			}
-			setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8' );
-			res.write('<html><head>\n');
-			res.write('<script type="text/javascript" src="/jquery.js"></script><script type="text/javascript" src="/scrolling.js"></script><style>ins { background: #ff9191; text-decoration: none; } del { background: #99ff7e; text-decoration: none }; </style>\n');
+
 			// Emit base href so all relative urls resolve properly
-			var headNodes = document.body.firstChild.childNodes;
-			for (i = 0; i < headNodes.length; i++) {
-				if (headNodes[i].nodeName.toLowerCase() === 'base') {
-					res.write(DU.serializeNode(headNodes[i]));
+			var hNodes = document.body.firstChild.childNodes;
+			var headNodes = "";
+			for (i = 0; i < hNodes.length; i++) {
+				if (hNodes[i].nodeName.toLowerCase() === 'base') {
+					headNodes += DU.serializeNode(hNodes[i]);
 					break;
 				}
 			}
-			res.write('</head><body>\n');
-			res.write( '<h2>Wikitext parsed to HTML DOM</h2><hr>\n' );
-			var bodyNodes = document.body.childNodes;
-			for (i = 0; i < bodyNodes.length; i++) {
-				res.write(DU.serializeNode(bodyNodes[i]));
+
+			var bNodes = document.body.childNodes;
+			var bodyNodes = "";
+			for (i = 0; i < bNodes.length; i++) {
+				bodyNodes += DU.serializeNode(bNodes[i]);
 			}
-			res.write('\n<hr>');
-			res.write( '<h2>HTML DOM converted back to Wikitext</h2><hr>\n' );
-			res.write('<pre>' + htmlSpecialChars( out ) + '</pre><hr>\n');
-			res.write( '<h2>Diff between original Wikitext (green) and round-tripped wikitext (red)</h2><p>(use shift+alt+n and shift+alt+p to navigate forward and backward)<hr>\n' );
+
+			var htmlSpeChars = htmlSpecialChars(out);
+
 			var src = env.page.src.replace(/\n(?=\n)/g, '\n ');
 			out = out.replace(/\n(?=\n)/g, '\n ');
-			//console.log(JSON.stringify( jsDiff.diffLines( out, src ) ));
-			patch = Diff.convertChangesToXML( Diff.diffLines( src, out ) );
-			//patch = jsDiff.convertChangesToXML( refineDiff( jsDiff.diffLines( src, out ) ) );
-			res.write( '<pre>\n' + patch + '\n</pre>');
-			// Add a 'report issue' link
-			res.write('<hr>\n<h2>'+
-					'<a style="color: red" ' +
-					'href="http://www.mediawiki.org/w/index.php?title=Talk:Parsoid/Todo' +
-					'&amp;action=edit&amp;section=new&amp;preloadtitle=' +
-					'Issue%20on%20http://parsoid.wmflabs.org' + req.url + '">' +
-					'Report a parser issue in this page</a> at ' +
-					'<a href="http://www.mediawiki.org/wiki/Talk:Parsoid/Todo">'+
-					'[[:mw:Talk:Parsoid/Todo]]</a></h2>\n<hr>');
-			endResponse(res, env, '\n</body></html>');
+
+			var patch = Diff.convertChangesToXML( Diff.diffLines(src, out) );
+
+			setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
+
+			renderResponse(res, env, "roundtrip", {
+				headers: headNodes,
+				bodyNodes: bodyNodes,
+				htmlSpeChars: htmlSpeChars,
+				patch: patch,
+				reqUrl: req.url
+			});
+
+			env.log("info", "completed parsing in", env.performance.duration, "ms");
 		};
 
 		// Re-parse the HTML to uncover foster-parenting issues
 		document = domino.createDocument(document.outerHTML);
 
-		if ( selser ) {
-			new SelectiveSerializer( {env: env}).serializeDOM( document.body,
-				function ( chunk ) {
-					out.push(chunk);
-				}, finalCB );
-		} else {
-			new WikitextSerializer({env: env}).serializeDOM( document.body,
-				function ( chunk ) {
-					out.push(chunk);
-				}, finalCB );
-		}
+		var Serializer = selser ? SelectiveSerializer : WikitextSerializer;
+		new Serializer({ env: env }).serializeDOM(
+			document.body,
+			function( chunk ) { out.push(chunk); },
+			finalCB
+		);
 	};
 
 	function handleCacheRequest( env, req, res, cb, src, cacheErr, cacheSrc ) {
@@ -309,6 +295,19 @@ function ParsoidService(options) {
 
 	var app = express.createServer();
 
+	// view engine
+	app.set('views', path.join(__dirname, '/views'));
+	app.set('view engine', 'html');
+	app.register('html', hbs);
+
+	// block helper to reference js files in page head.
+	hbs.registerHelper('jsFiles', function(options){
+		this.javascripts = options.fn(this);
+	});
+
+	// serve static files
+	app.use("/static", express.static(path.join(__dirname, "/static")));
+
 	// favicon
 	app.use(express.favicon(path.join(__dirname, "favicon.ico")));
 
@@ -318,19 +317,11 @@ function ParsoidService(options) {
 	// Support gzip / deflate transfer-encoding
 	app.use(express.compress());
 
+	// limit upload file size
+	app.use(express.limit('15mb'));
+
 	app.get('/', function(req, res){
-		res.write('<html><body>\n');
-		res.write('<h3>Welcome to the <a href="https://www.mediawiki.org/wiki/Parsoid">Parsoid</a> web service.</h3>\n');
-		res.write( '<p>See <a href="https://www.mediawiki.org/wiki/Parsoid#The_Parsoid_web_API">the API documentation on mediawiki.org</a>. ' );
-		res.write('<p>There are also some convenient tools for experiments. These are <em>not</em> part of the public API.\n<ul>\n');
-		res.write('<li>Round-trip test pages from the English Wikipedia: ' +
-			'<strong><a href="/_rt/mediawikiwiki/Parsoid">/_rt/Parsoid</a></strong></li>\n');
-		res.write('<li><strong><a href="/_rtform/">WikiText -&gt; HTML DOM -&gt; WikiText round-trip form</a></strong></li>\n');
-		res.write('<li><strong><a href="/_wikitext/">WikiText -&gt; HTML DOM form</a></strong></li>\n');
-		res.write('<li><strong><a href="/_html/">HTML DOM -&gt; WikiText form</a></strong></li>\n');
-		res.write('</ul>\n');
-		res.write('\n');
-		res.end('</body></html>');
+		res.render('home');
 	});
 
 	function interParams( req, res, next ) {
@@ -393,19 +384,21 @@ function ParsoidService(options) {
 	// Form-based HTML DOM -> wikitext interface for manual testing
 	app.get( new RegExp('/_html/(?:(' + getInterwikiRE() + ')/(.*))?'), interParams, parserEnvMw, function ( req, res ) {
 		var env = res.local('env');
-		setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8' );
-		res.write( "Your HTML DOM:" );
-		textarea( res, action( res ), "html" );
-		endResponse(res, env );
+		renderResponse(res, env, "form", {
+			title: "Your HTML DOM:",
+			action: action(res),
+			name: "html"
+		});
 	});
 
 	// Form-based wikitext -> HTML DOM interface for manual testing
 	app.get( new RegExp('/_wikitext/(?:(' + getInterwikiRE() + ')/(.*))?'), interParams, parserEnvMw, function ( req, res ) {
 		var env = res.local('env');
-		setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8' );
-		res.write( "Your wikitext:" );
-		textarea( res, action( res ), "wt" );
-		endResponse(res, env );
+		renderResponse(res, env, "form", {
+			title: "Your wikitext:",
+			action: action(res),
+			name: "wt"
+		});
 	});
 
 	// Round-trip article testing
@@ -414,7 +407,7 @@ function ParsoidService(options) {
 		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
 		req.connection.setTimeout(300 * 1000);
-		console.log('starting parsing of ' + target);
+		env.log('info', 'starting parsing');
 
 		var oldid = null;
 		if ( req.query.oldid ) {
@@ -430,7 +423,7 @@ function ParsoidService(options) {
 		var env = res.local('env');
 		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
-		console.log('starting parsing of ' + target);
+		env.log('info', 'starting parsing');
 		var oldid = null;
 		if ( req.query.oldid ) {
 			oldid = req.query.oldid;
@@ -451,7 +444,7 @@ function ParsoidService(options) {
 		var env = res.local('env');
 		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
-		console.log( 'starting parsing of ' + target );
+		env.log('info', 'starting parsing');
 		var oldid = null;
 		if ( req.query.oldid ) {
 			oldid = req.query.oldid;
@@ -470,10 +463,11 @@ function ParsoidService(options) {
 	// Form-based round-tripping for manual testing
 	app.get( new RegExp('/_rtform/(?:(' + getInterwikiRE() + ')/(.*))?'), interParams, parserEnvMw, function ( req, res ) {
 		var env = res.local('env');
-		setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8');
-		res.write( "Your wikitext:" );
-		textarea( res, "/_rtform/" + res.local('pageName') , "content" );
-		endResponse(res, env );
+		renderResponse(res, env, "form", {
+			title: "Your wikitext:",
+			action: "/_rtform/" + res.local('pageName'),
+			name: "content"
+		});
 	});
 
 	app.post( new RegExp('/_rtform/(?:(' + getInterwikiRE() + ')/(.*))?'), interParams, parserEnvMw, function ( req, res ) {
@@ -547,7 +541,7 @@ function ParsoidService(options) {
 		// Set the timeout to 600 seconds..
 		req.connection.setTimeout( 600 * 1000 );
 
-		console.log( 'starting parsing of ' + prefix + ':' + target );
+		env.log('info', 'starting parsing');
 
 		if ( env.conf.parsoid.allowCORS ) {
 			// allow cross-domain requests (CORS) so that parsoid service
@@ -626,7 +620,7 @@ function ParsoidService(options) {
 
 					// Redirect to oldid
 					relativeRedirect({"path" : url, "res" : res, "env" : env});
-					env.log("trace/request", "redirected", prefix, ":", target, "to revision", env.page.meta.revision.revid);
+					env.log("info", "redirected to revision", env.page.meta.revision.revid);
 				};
 			}
 		}
@@ -637,11 +631,10 @@ function ParsoidService(options) {
 		function sendRes( doc ) {
 			var out = DU.serializeNode( doc );
 			try {
-				setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader() );
+				setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
 				setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8' );
 				endResponse(res, env,  out );
-				env.log("trace/request", "completed parsing of", prefix + ":" + target, "in", env.performance.duration, "ms");
-				console.log( "completed parsing of", prefix + ":" + target, "in", env.performance.duration, "ms" );
+				env.log("info", "completed parsing in", env.performance.duration, "ms");
 			} catch (e) {
 				env.log("fatal/request", e);
 			}
@@ -691,9 +684,6 @@ function ParsoidService(options) {
 	app.get( "/_version", function ( req, res ) {
 		res.json( version );
 	});
-
-    app.use( express.static( __dirname + '/scripts' ) );
-	app.use( express.limit( '15mb' ) );
 
 	// Get host and port from the environment, if available
 	// VCAP_APP_PORT is for appfog.com support

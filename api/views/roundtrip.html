@@ -1,0 +1,24 @@
+{{#jsFiles}}
+	<script src='/static/js/jquery.js'></script>
+	<script src='/static/js/scrolling.js'></script>
+{{/jsFiles}}
+
+<h2>Wikitext parsed to HTML DOM</h2>
+<hr>
+{{{bodyNodes}}}
+<hr>
+<h2>HTML DOM converted back to Wikitext</h2>
+<hr>
+<pre>
+{{{htmlSpeChars}}}
+</pre>
+<hr>
+<h2>Diff between original Wikitext (green) and round-tripped wikitext (red)</h2>
+<p>(use shift+alt+n and shift+alt+p to navigate forward and backward)</p>
+<hr>
+<pre>
+{{{patch}}}
+</pre>
+<hr>
+<h2><a class="red" href="http://www.mediawiki.org/w/index.php?title=Talk:Parsoid/Todo&action=edit&amp;section=new&amp;preloadtitle=Issue%20on%20http://parsoid.wmflabs.org{{reqUrl}}">Report a parser issue in this page</a> at <a href="http://www.mediawiki.org/wiki/Talk:Parsoid/Todo">[[:mw:Talk:Parsoid/Todo]]</a></h2>
+<hr>
