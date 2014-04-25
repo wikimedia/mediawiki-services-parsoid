@@ -9488,9 +9488,10 @@ Templates: Ugly templates: 4. newline-only template parameter inconsistency
 </p>
 !! end
 
-# Bug 64017
+# Bug 64017 -- ugly wikitext with fostered content generates two template ranges that
+# have a true overlap (T1-start - T2-start - T1-end - T2-end).
 !! test
-Templates: Ugly templates: 5. Templates generating unclosed block tags in fosterable positions in tables
+Templates: Ugly templates: 5. Template encapsulation test: Non-trivial overlap of template ranges is properly handled
 !! wikitext
 {{echo|<table>}}
 {{echo|<div>foo}}
@@ -9499,6 +9500,20 @@ Templates: Ugly templates: 5. Templates generating unclosed block tags in foster
 <div about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;table>"}},"i":0}},"\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;div>foo"}},"i":1}},"\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;/table>"}},"i":2}}]}' data-parsoid='{"stx":"html","autoInsertedEnd":true,"pi":[[{"k":"1","spc":["","","",""]}],[{"k":"1","spc":["","","",""]}],[{"k":"1","spc":["","","",""]}]]}'>foo
 </div><table about="#mwt1" data-parsoid='{"stx":"html"}'>
 </table>
+!! end
+
+# Bug 64017 -- ugly wikitext with fostered content generates two template ranges
+# that are "identical" and generate nesting cycles in the algorithm
+!! test
+Templates: Ugly templates: 6. Template encapsulation test: Cyclical nesting of template ranges is properly handled
+!! wikitext
+{{echo|<table><tr><td><table>}}
+{{echo|<div>}}
+{{echo|</div>}}
+!! html/parsoid
+<table about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;table>&lt;tr>&lt;td>&lt;table>"}},"i":0}},"\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;div>"}},"i":1}},"\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;/div>"}},"i":2}}]}' data-parsoid='{"stx":"html","autoInsertedEnd":true,"pi":[[{"k":"1","spc":["","","",""]}],[{"k":"1","spc":["","","",""]}],[{"k":"1","spc":["","","",""]}]]}'><tbody><tr data-parsoid='{"stx":"html"}'><td data-parsoid='{"stx":"html"}'><div data-parsoid='{"stx":"html"}'>
+</div><table about="#mwt1" data-parsoid='{"stx":"html"}'>
+</table></td></tr></tbody></table>
 !! end
 
 !!test
