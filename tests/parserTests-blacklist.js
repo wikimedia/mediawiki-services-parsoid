@@ -510,6 +510,7 @@ add("wt2wt", "Table attributes with empty value", "{|\n| style=\"\" | hello\n|}"
 add("wt2wt", "Implicit <td> after a |-\n(PHP parser relies on Tidy to add the missing <td> tags)", "{|\n|-\n|a\n|}");
 add("wt2wt", "Pres should be recognized in an explicit <td> context, but not in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags)", "{|\n|-\n|\n a\n|-\n| b\n|}");
 add("wt2wt", "Lists should be recognized in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags)", "{|\n|-\n|\n*a\n|}");
+add("wt2wt", "Piped link with multiple pipe characters in link text", "[[Main Page|<nowiki>|The|Main|Page|</nowiki>]]\n");
 add("wt2wt", "Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved", "[[Foo|  bar]]\n\n[[Foo|  ''bar'']]\n\n[http://wp.org foo]\n\n[http://wp.org ''foo'']\n");
 add("wt2wt", "Handling html with a div self-closing tag", "<div title=\"\" />\n<div title=\"\" />\n<div title/>\n<div title=\"bar\" />\n<div title=\"bar\" />\n<div title=\"bar/\">");
 add("wt2wt", "Handling html with a br self-closing tag", "<br title=\"\" />\n<br title=\"\" />\n<br title/>\n<br title=\"bar\" />\n<br title=\"bar\" />\n<br title=\"bar/\">\n");
@@ -662,6 +663,7 @@ add("html2html", "Plain link, capitalized", "<p data-parsoid='{\"dsr\":[0,57,0,0
 add("html2html", "Plain link, uncapitalized", "<p data-parsoid='{\"dsr\":[0,57,0,0]}'>&lt;a href=\"/wiki/Main_Page\" title=\"Main Page\">main Page&lt;/a></p>\n");
 add("html2html", "Piped link", "<p data-parsoid='{\"dsr\":[0,61,0,0]}'>&lt;a href=\"/wiki/Main_Page\" title=\"Main Page\">The Main Page&lt;/a></p>\n");
 add("html2html", "Piped link with comment in link text", "<p data-parsoid='{\"dsr\":[0,61,0,0]}'>&lt;a href=\"/wiki/Main_Page\" title=\"Main Page\">The Main Page&lt;/a></p>\n");
+add("html2html", "Piped link with multiple pipe characters in link text", "<p data-parsoid='{\"dsr\":[0,46,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Main_Page\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Main_Page\"},\"sa\":{\"href\":\"Main Page\"},\"dsr\":[0,46,12,2]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[12,44,8,9]}'>|The|Main|Page|</span></a></p>\n");
 add("html2html", "Broken link", "<p data-parsoid='{\"dsr\":[0,142,0,0]}'>&lt;a href=\"/index.php?title=Zigzagzogzagzig&amp;action=edit&amp;redlink=1\" class=\"new\" title=\"Zigzagzogzagzig (page does not exist)\">Zigzagzogzagzig&lt;/a></p>\n");
 add("html2html", "Broken link with fragment", "<p data-parsoid='{\"dsr\":[0,146,0,0]}'>&lt;a href=\"/index.php?title=Zigzagzogzagzig&amp;action=edit&amp;redlink=1\" class=\"new\" title=\"Zigzagzogzagzig (page does not exist)\">Zigzagzogzagzig#zug&lt;/a></p>\n");
 add("html2html", "Special page link with fragment", "<p data-parsoid='{\"dsr\":[0,89,0,0]}'>&lt;a href=\"/wiki/Special:Version#anchor\" title=\"Special:Version\">Special:Version#anchor&lt;/a></p>\n");
@@ -1252,6 +1254,7 @@ add("html2wt", "Plain link, capitalized", "<a href=\"/wiki/Main_Page\" title=\"M
 add("html2wt", "Plain link, uncapitalized", "<a href=\"/wiki/Main_Page\" title=\"Main Page\">main Page</a>\n");
 add("html2wt", "Piped link", "<a href=\"/wiki/Main_Page\" title=\"Main Page\">The Main Page</a>\n");
 add("html2wt", "Piped link with comment in link text", "<a href=\"/wiki/Main_Page\" title=\"Main Page\">The Main Page</a>\n");
+add("html2wt", "Piped link with multiple pipe characters in link text", "[[Main Page|<nowiki>|The|Main|Page|</nowiki>]]\n");
 add("html2wt", "Broken link", "<a href=\"/index.php?title=Zigzagzogzagzig&action=edit&redlink=1\" class=\"new\" title=\"Zigzagzogzagzig (page does not exist)\">Zigzagzogzagzig</a>\n");
 add("html2wt", "Broken link with fragment", "<a href=\"/index.php?title=Zigzagzogzagzig&action=edit&redlink=1\" class=\"new\" title=\"Zigzagzogzagzig (page does not exist)\">Zigzagzogzagzig#zug</a>\n");
 add("html2wt", "Special page link with fragment", "<a href=\"/wiki/Special:Version#anchor\" title=\"Special:Version\">Special:Version#anchor</a>\n");
@@ -2379,6 +2382,9 @@ add("selser", "Lists should be recognized in an implicit <td> context\n(PHP pars
 add("selser", "Lists should be recognized in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [[0,[1,0]]]", "{|\n|- data-foobar=\"4tar0o5zbocg14i\"\n*a\n|}");
 add("selser", "Lists should be recognized in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [[2,2]]", "{|<!--ig3znv7ij2n2vs4i-->\n<!--jtqzi8gbyg8ehfr-->|-\n*a\n|}");
 add("selser", "Lists should be recognized in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [[3,2]]", "{|<!--wsug5awvrhjgu8fr-->\n|-\n*a\n|}");
+add("selser", "Piped link with multiple pipe characters in link text [1]", "[[Main Page||The|Main|Page|]]");
+add("selser", "Piped link with multiple pipe characters in link text [2]", "i30rvug3leeqxgvi\n\n[[Main Page||The|Main|Page|]]");
+add("selser", "Piped link with multiple pipe characters in link text [[2]]", "1of1ixy9fexqd7vi[[Main Page||The|Main|Page|]]");
 add("selser", "2. Interaction of linktrail and template encapsulation [1]", "{{echo|Some [[Fool]]}}\n");
 add("selser", "Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved [3,2,[[4,2]],3,4,3,2]", "lvdwytxnetye3ik9\n\n[[Foo|luagnevfg92otj4ike5xfi2sk2zkt9''bar'']]\n\n3id2voxy1r3pu8fr\n\nd5k1quqvir1wcdi\n\n[http://wp.org   ''foo'']");
 add("selser", "Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved [0,3,1,0,1,0,1]", "[[Foo|  bar]]\n\n[[Foo|  ''bar'']]\n\n[http://wp.org   foo]\n\n[http://wp.org   ''foo'']");
