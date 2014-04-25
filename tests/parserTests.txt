@@ -5451,6 +5451,17 @@ Piped link with comment in link text
 !! end
 
 !! test
+Piped link with multiple pipe characters in link text
+!! wikitext
+[[Main Page||The|Main|Page|]]
+!! html/php
+<p><a href="/wiki/Main_Page" title="Main Page">|The|Main|Page|</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="Main_Page">|The|Main|Page|</a></p>
+!! end
+
+!! test
 Broken link
 !! wikitext
 [[Zigzagzogzagzig]]
