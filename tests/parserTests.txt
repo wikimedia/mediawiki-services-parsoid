@@ -18038,7 +18038,7 @@ Lead
 
 
 ###
-### Parsoids-specific tests
+### Parsoid-specific tests
 ### Parsoid-PHP parser incompatibilities
 ###
 !!test
@@ -18060,6 +18060,35 @@ parsoid=wt2html,wt2wt
 </span><dl about="#mwt3"><dd>a</dd>
 </dl>
 !!end
+
+#### -----------------------------------------------------------------
+#### Parsoid-specific functionality tests
+#### -----------------------------------------------------------------
+
+# Bug 63642: Formatting elt fixup is cleaned up.
+# We know wt2wt will fail, but we expect selser to pass.
+# Due to the nature of our testing, wt2wt and selser tests will enter the
+# blacklist and we'll catch selser regressions based on changes to the
+# blacklist entries for selser tests.
+!! test
+Bad treebuilder fixup of formatting elt is cleaned up
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{|
+|
+<small>
+[[Image:Foobar.jpg|right|Test]]
+</small>
+|}
+!! html/parsoid
+<table>
+<tbody><tr><td>
+<p><small></small></p>
+<figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a><figcaption><small>Test</small></figcaption></figure>
+<p></p></td></tr>
+</tbody></table>
+!! end
 
 #### ----------------------------------------------------------------
 #### Parsoid-only testing of Parsoid's impl of <ref> and <references>
