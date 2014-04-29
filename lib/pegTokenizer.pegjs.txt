@@ -304,16 +304,6 @@
     // cache the input length
     var inputLength = input.length;
 
-    // pseudo-production that matches at start of input
-    var isSOF = function (pos) {
-        return pos === 0;
-    };
-
-    // pseudo-production that matches at end of input
-    var isEOF = function (pos) {
-        return pos === inputLength;
-    };
-
     // Current extension/include tag being parsed.
     var currExtTag = null;
 
@@ -2455,9 +2445,11 @@ include_limits =
       return [inclTag].concat(inclContentToks);
   }
 
-sof = & { return isSOF(pos); } { return true; }
+// Start of file
+sof = & { return pos === 0; } { return true; }
 
-eof = & { return isEOF(pos); } { return true; }
+// End of file
+eof = & { return pos === input.length; } { return true; }
 
 newline = '\n' / '\r\n'
 
