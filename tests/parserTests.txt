@@ -4454,6 +4454,50 @@ Anchor containing a #. (bug 63430)
 <p><a rel="mw:WikiLink" href="./Main_Page#And%23Link">Main Page#And#Link</a></p>
 !! end
 
+# Note that parsoid does not munge anchor text; all non-space
+# characters are valid in HTML5 ids.
+!! test
+Anchor containing a #. (bug 63430)
+!! wikitext
+[[Main Page#And#Link]]
+!! html/php
+<p><a href="/wiki/Main_Page#And.23Link" title="Main Page">Main Page#And#Link</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Main_Page#And%23Link">Main Page#And#Link</a></p>
+!! end
+
+!! test
+External link containing a period in the anchor. (bug 63947)
+!! wikitext
+[//foo.org/bar#baz. bang]
+
+[//foo.org/bar. bang]
+!! html/php
+<p><a rel="nofollow" class="external text" href="//foo.org/bar#baz.">bang</a>
+</p><p><a rel="nofollow" class="external text" href="//foo.org/bar.">bang</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="//foo.org/bar#baz.">bang</a></p>
+<p><a rel="mw:ExtLink" href="//foo.org/bar.">bang</a></p>
+!! end
+
+!! test
+External link containing a single quote. (bug 63947)
+!! wikitext
+[//foo.org/bar'baz]
+
+[//foo.org/bar'baz bang]
+!! html/php
+<p><a rel="nofollow" class="external autonumber" href="//foo.org/bar'baz">[1]</a>
+</p><p><a rel="nofollow" class="external text" href="//foo.org/bar'baz">bang</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="//foo.org/bar'baz"></a></p>
+<p><a rel="mw:ExtLink" href="//foo.org/bar'baz">bang</a></p>
+!! end
+
+
 !! test
 External link containing a period in the anchor. (bug 63947)
 !! wikitext
@@ -7922,7 +7966,7 @@ Magic Word: {{NUMBEROFFILES}}
 !! wikitext
 {{NUMBEROFFILES}}
 !! html
-<p>4
+<p>5
 </p>
 !! end
 
@@ -15831,6 +15875,17 @@ Width-sized image (using px, with preceding whitespace - test regression from r3
 <p><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/640px-Foobar.jpg" width="640" height="73" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/960px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/1280px-Foobar.jpg 2x" /></a>
 </p>
 !!end
+
+!! test
+Image with page parameter
+!! options
+djvu
+!! wikitext
+[[File:LoremIpsum.djvu|page=2]]
+!! html
+<p><a href="/index.php?title=File:LoremIpsum.djvu&amp;page=2" class="image"><img alt="LoremIpsum.djvu" src="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-2480px-LoremIpsum.djvu.jpg" width="2480" height="3508" srcset="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-3720px-LoremIpsum.djvu.jpg 1.5x, http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-4960px-LoremIpsum.djvu.jpg 2x" /></a>
+</p>
+!! end
 
 !! test
 Another italics / bold test

@@ -19,6 +19,9 @@ var FILE_PROPS = {
 	},
 	'Foobar.svg': {
 		size: 12345, width: 240, height: 180, bits: 24, mime: 'image/svg+xml'
+	},
+	'LoremIpsum.djvu': {
+		size: 3249, width: 2480, height: 3508, bits: 8, mime: 'image/vnd.djvu'
 	}
 };
 
