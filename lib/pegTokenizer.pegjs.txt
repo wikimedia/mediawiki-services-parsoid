@@ -947,7 +947,7 @@ url
             / tplarg_or_template
             / ! ( "&" ( [lL][tT] / [gG][tT] ) ";" )
                 r:(
-                    htmlentity
+                    & "&" htmlentity
                   / [&%{]
                 ) { return r; }
          )+
@@ -2183,8 +2183,7 @@ text_char = [^'<~[{\n\r:\]}|!=]
 
 urltext = ( t:[^'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:\]} &=]+ { return t.join(''); }
           / & [/fFgGhHiImMnNsStTwWIPR] autolink
-          / & ('__') behavior_switch
-          / htmlentity
+          / & "&" htmlentity
           // Convert trailing space into &nbsp;
           // XXX: This should be moved to a serializer
           // This is a hack to force a whitespace display before the colon
@@ -2195,6 +2194,7 @@ urltext = ( t:[^'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:\]} &=]+ { return t.join(''); 
                   new EndTagTk( 'span', [], { tsr: [pos, pos] } )
               ];
           }
+          / & ('__') behavior_switch
           // / t:text_char 
           // Inline copy of text_char for performance, as about 96% of
           // text_char calls originate here.
@@ -2473,7 +2473,7 @@ directive
   = comment
   / nowiki
   / tplarg_or_template
-  / htmlentity
+  / & "&" htmlentity
   / include_limits
 
 // Plain text, but can contain templates, template arguments, comments etc-
