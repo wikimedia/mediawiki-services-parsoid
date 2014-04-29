@@ -307,10 +307,6 @@
     // Current extension/include tag being parsed.
     var currExtTag = null;
 
-    var includeTags = new Set([
-        "includeonly", "noinclude", "onlyinclude"
-    ]);
-
     // text start position
     var textStart = 0;
 
@@ -1374,7 +1370,9 @@ xmlish_tag =
             dp = t.dataAttribs,
             isHtmlTag = Util.isHTMLElementName(tagName),
             isInstalledExt = pegArgs.env.conf.wiki.isExtensionTag(tagName),
-            isIncludeTag = includeTags.has(tagName);
+            isIncludeTag = tagName === 'includeonly' 
+                            || tagName === 'noinclude'
+                            || tagName === 'onlyinclude';
 
         if (!isHtmlTag && !isInstalledExt && !isIncludeTag) {
             return Util.newlinesToNlTks(input.substring(dp.tsr[0], dp.tsr[1]), dp.tsr[0]);
