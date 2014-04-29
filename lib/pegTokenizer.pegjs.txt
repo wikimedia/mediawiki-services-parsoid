@@ -2195,7 +2195,12 @@ urltext = ( t:[^'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:\]} &=]+ { return t.join(''); 
                   new EndTagTk( 'span', [], { tsr: [pos, pos] } )
               ];
           }
-          / t:text_char )+
+          // / t:text_char 
+          // Inline copy of text_char for performance, as about 96% of
+          // text_char calls originate here.
+          // Keep in sync and/or remove after upgrading to pegjs 0.8 which
+          // inlines simple productions like these automatically.
+          / [^'<~[{\n\r:\]}|!=] )+
 
 /*
     '//', // for protocol-relative URLs, but not in text!
