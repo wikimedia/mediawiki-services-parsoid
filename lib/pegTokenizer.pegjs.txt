@@ -47,6 +47,8 @@
         CommentTk = defines.CommentTk,
         EOFTk = defines.EOFTk;
 
+    var inline_breaks = pegArgs.pegTokenizer.inline_breaks;
+
 
     var flattenIfArray = function(e) {
         function internal_flatten(e, res) {
@@ -81,12 +83,6 @@
         }
     };
 
-    var protocol_regexp = /^(?:\/\/|(?:ftp|git|gopher|https?|ircs?|mms|nntp|svn|telnet|worldwind)\:\/\/|(?:mailto|news)\:)/i; // mailto and news are special
-
-    var match_protocol = function ( string ) {
-        return string.match( protocol_regexp );
-    };
-
     var flatten_stringlist = function ( c ) {
         var out = [],
             text = '';
@@ -113,13 +109,13 @@
     };
 
     // Debug print with global switch
-    var dp = function ( msg ) {
-        if ( false ) {
-            console.warn(msg);
-        }
-    };
+    //var dp = function ( msg ) {
+    //    if ( false ) {
+    //        console.warn(msg);
+    //    }
+    //};
 
-    var pp = function ( s ) { return JSON.stringify(s, null, 2); };
+    //var pp = function ( s ) { return JSON.stringify(s, null, 2); };
 
     // Simple string formatting using '%s'
     var sprintf = function ( format ) {
@@ -127,41 +123,6 @@
         return format.replace(/%s/g, function () {
             return args.length ? args.shift() : '';
         });
-    };
-
-
-    /**
-     * Determine if a string represents a valid ISBN-10 or ISBN-13 identifier
-     *
-     * @static
-     * @method
-     * @param {string} isbn: The string to check
-     * @returns {Boolean}: True if valid ISBN, false otherwise.
-     */
-    var isValidISBN = function ( isbn ) {
-        var i = 0, checksum = 0;
-
-        isbn = isbn.toUpperCase().replace(/[^\dX]/g, '');
-        return [10, 13].indexOf(isbn.length) !== -1;
-
-        // XXX: The following code is short-circuited because it is stricter
-        // than the standard parser:
-
-        switch (isbn.length) {
-        case 10:
-            for (i = 0; i < 9; i++) {
-                checksum += parseInt(isbn[i], 10) * (10 - i);
-            }
-            checksum += '0123456789X'.indexOf(isbn[9]);
-            return (checksum % 11 === 0);
-        case 13:
-            for (i = 0; i < 13; i++) {
-                /* jshint bitwise:false */
-                checksum += parseInt(isbn[i], 10) * ((i & 1) ? 3 : 1);
-            }
-            return (checksum % 10 === 0) && (/^97[89]/.test(isbn));
-        }
-        return false;
     };
 
 
@@ -251,58 +212,27 @@
         this._updateStackKey();
     };
     SyntaxStops.prototype._updateCounterKey = function ( ) {
-        var counters = [];
+        var counters = '';
         for ( var k in this.counters ) {
             if ( this.counters[k] > 0 ) {
-                counters.push(k);
+                counters += 'c' + k;
             }
         }
-        this._counterKey = JSON.stringify(counters);
+        this._counterKey = counters;
         this.key = this._counterKey + this._stackKey;
     };
     SyntaxStops.prototype._updateStackKey = function ( ) {
-        var stackStops = [];
+        var stackStops = '';
         for ( var k in this.stacks ) {
             if ( this.onStack( k )  ) {
-                stackStops.push(k);
+                stackStops += 's' + k;
             }
         }
-        this._stackKey = JSON.stringify(stackStops);
+        this._stackKey = stackStops;
         this.key = this._counterKey + this._stackKey;
     };
 
     var stops = new SyntaxStops();
-
-    // Start position of top-level block
-    // Could also provide positions for lower-level blocks using a stack.
-    var blockStart = 0;
-
-    // Start position of generic tag production
-    var tagStartPos = 0;
-
-    // Stack of source positions
-    var posStack = {
-        positions: {},
-        push: function( key, pos ) {
-            if ( this.positions[key] === undefined ) {
-                this.positions[key] = [pos];
-            } else {
-                this.positions[key].push( pos );
-            }
-            return true;
-        },
-        pop: function( key, pos ) {
-            var pk = this.positions[key];
-            if ( pk === undefined || ! pk.length ) {
-                throw "Tried to pop unknown position for " + key;
-            } else {
-                return [ pk.pop(), pos ];
-            }
-        }
-    };
-
-    // cache the input length
-    var inputLength = input.length;
 
     // Current extension/include tag being parsed.
     var currExtTag = null;
@@ -461,7 +391,6 @@ toplevelblock =
 
         // Trick the tokenizer into ending parsing
         input = parsedInput;
-        inputLength = pos;
 
         // console.warn("Yield @pos: " + newOffset + "; input len: " + newInput.length);
 
@@ -499,22 +428,11 @@ tlb
       if ( Array.isArray(b) && b.length ) {
         b = flattenIfArray(b);
         var bs = b[0];
-        if ( bs.constructor === String && bs.attribs === undefined ) {
-            /*jshint -W053 */
-            // we need to make a non-primitive string in order to add properties
-            b[0] = new String( bs );
-            /*jshint +W053 */
-            bs = b[0];
-        }
-        if (bs.dataAttribs === undefined) {
+        if ( bs.constructor !== String && bs.dataAttribs === undefined) {
             bs.dataAttribs = {};
         }
         tokens = b;
-    } else if (b.constructor === String && b.attribs === undefined) {
-        b = new String( b );
-        if (b.dataAttribs === undefined) {
-            b.dataAttribs = {};
-        }
+    } else if (b.constructor === String) {
         tokens = [b];
     }
 
@@ -643,15 +561,14 @@ br = s:optionalSpaceToken &newline {
  * in nested inline productions.
  */
 inline_breaks
-  = & [=|!}{:\r\n\]<]
-    & {
+  = & {
         //console.warn('ilbf: ' + input.substr(pos, 5) );
         //if ( null !== pegArgs.parser.inline_breaks( input, pos, stops ) ) {
         //    console.warn('ilb break: ' + pp(input.substr(pos, 5)) );
         //} else {
         //    console.warn('ilb no break: ' + pp(input.substr(pos, 5)) );
         //}
-        return null !== pegArgs.pegTokenizer.inline_breaks( input, pos, stops );
+        return inline_breaks( input, pos, stops );
       }
 
 pre_start = "<" pre_tag_name (' '+ [^>]*)? ">"
@@ -663,16 +580,19 @@ inline
   }
 
 inlineline
-  = c:(urltext / !inline_breaks !pre_start (inline_element / [^\r\n]))+ {
+  = c:(urltext 
+          / !{ return inline_breaks( input, pos, stops ); } // inline_breaks 
+            !pre_start (inline_element / [^\r\n]))+ {
       //console.warn('inlineline out:' + pp(c) + input.substr(pos0, pos));
       return flatten_stringlist( c );
   }
 
 inline_element
   = //& { dp('inline_element enter' + input.substr(pos, 10)); return true; }
-      & '<' nowiki
-    / & '<' xmlish_tag
-    / & '<' comment
+    & '<' ( nowiki
+          / xmlish_tag
+          / comment
+          )
     /// & '{' ( & '{{{{{' template / tplarg / template )
     / & '{' tplarg_or_template_or_broken
     / & '}' broken_template
@@ -727,7 +647,7 @@ h = & "=" // guard, to make sure '='+ will match.
                         spc
                         ]);
       }
-    / & { /* dp('nomatch exit h'); */ stops.dec('h'); return false; } { return null; }
+    / & { stops.dec('h'); return false; } { return null; }
     ) { return r; }
 
 comment
@@ -768,37 +688,37 @@ behavior_text = text:( &( !'__' ) text_char )* {
 
 autolink
   = ! { return stops.onStack('extlink'); }
-    (urllink / autoref / isbn)
-
-urllink
-  = target:autourl {
-      // Special case handling for trailing parentheses: remove from link if
-      // there is no opening parenthesis in the link
-      if ( Array.isArray(target) ) {
-          var end = target[target.length - 1];
-          if ( !/[(]/.test( target[0] ) &&
-               end.constructor === String &&
-               /[)]$/.test( end )
-          ) {
-              target.pop();
-              pos--;
-          }
-      } else {
-          if (!/[(]/.test(target) && /[)]$/.test(target)) {
-              target = target.substr(0, target.length - 1);
-              pos--;
-          }
-      }
-      var res = [ new SelfclosingTagTk( 'urllink', [new KV('href', target)], { tsr: [pos0, pos] } ) ];
-      return res;
-  }
+    (
+      // urllink, inlined
+      target:autourl {
+        // Special case handling for trailing parentheses: remove from link if
+        // there is no opening parenthesis in the link
+        if ( Array.isArray(target) ) {
+            var end = target[target.length - 1];
+            if ( !/[(]/.test( target[0] ) &&
+                 end.constructor === String &&
+                 /[)]$/.test( end )
+            ) {
+                target.pop();
+                pos--;
+            }
+        } else {
+            if (!/[(]/.test(target) && /[)]$/.test(target)) {
+                target = target.substr(0, target.length - 1);
+                pos--;
+            }
+        }
+        var res = [ new SelfclosingTagTk( 'urllink', [new KV('href', target)], { tsr: [pos0, pos] } ) ];
+          return res;
+      } 
+    / autoref 
+    / isbn)
 
 extlink
   = ! { return stops.onStack('extlink'); } // extlink cannot be nested
     (
         "["
         & { return stops.push('extlink', true); }
-        //target:urllink
         target:extlink_preprocessor_text
         & { return Util.isProtocolValid( target, pegArgs.env ); }
         sp:( space / [\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000] )*
@@ -871,11 +791,6 @@ isbn
         return [ input.substring( pos0, pos ) ];
     }
 
-    // Don't validate in the tokenizer, since the PHP parser does not either.
-    //if (!isValidISBN(isbn)) {
-    //    return null;
-    //}
-
     return [
         new SelfclosingTagTk( 'extlink', [
            new KV('href', 'Special:BookSources/' + isbncode),
@@ -924,7 +839,7 @@ no_punctuation_char = [^ :\]\[\r\n"'<>\x00-\x20\x7f,.&%\u00A0\u1680\u180E\u2000-
 url
   = proto:url_protocol
     addr:( ipv6_address / ipv4_address )?
-    path:(  ( !inline_breaks
+    path:(  ( !{ return inline_breaks( input, pos, stops ); } // inline_breaks
               c:no_punctuation_char
               { return c; }
             )
@@ -945,7 +860,7 @@ url
 autourl
   = proto:url_protocol
     addr:( ipv6_address / ipv4_address )?
-    path:(  ( !inline_breaks
+    path:(  ( !{ return inline_breaks( input, pos, stops ); } // inline_breaks
               c:no_punctuation_char
               { return c; }
             )
@@ -1903,7 +1818,7 @@ dtdd
         return [ li1 ].concat( c, [ li2 ], d || '' );
     }
   // Fall-back case to clear the colon flag
-  / & { return true; } { stops.counters.colon = 0; return null; }
+  / & { stops.counters.colon = 0; return false; }
 
 
 list_char = [*#:;]
@@ -2211,17 +2126,6 @@ urltext = ( t:[^'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:\]} &=]+ { return t.join(''); 
 // Old version
 //text = t:[A-Za-z0-9,._ "?!\t-]+ { return t.join('') }
 
-// Experimental tweaked version: avoid expensive single-char substrings
-// This did not bring the expected performance boost, however.
-//text = [A-Za-z0-9,._ -] {
-//            textStart = pos;
-//
-//            var res = input.substr(textStart - 1, inputLength)
-//                        .match(/[A-Za-z0-9,._ -]+/)[0];
-//            pos = pos + (res.length - 1);
-//            return res;
-//       }
-
 htmlentity = "&" c:[#0-9a-zA-Z]+ ";" {
     //return "&" + c.join('') + ";";
     var m = "&" + c.join('') + ";",
@@ -2444,10 +2348,10 @@ include_limits =
   }
 
 // Start of file
-sof = & { return pos === 0; } { return true; }
+sof = & { return pos === 0; }
 
 // End of file
-eof = & { return pos === input.length; } { return true; }
+eof = & { return pos === input.length; }
 
 newline = '\n' / '\r\n'
 
