@@ -33,13 +33,13 @@
     //    return es;
     //};
 
-    require('./core-upgrade');
-    var Util = require('./mediawiki.Util.js').Util;
-    var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer;
+    var pegIncludes = pegArgs.pegIncludes,
+        Util = pegIncludes.Util,
+        PegTokenizer = pegIncludes.PegTokenizer,
+        defines = pegIncludes.defines;
 
-    // import defines and define some constructor shortcuts
-    var defines = require('./mediawiki.parser.defines.js'),
-        KV = defines.KV,
+    // define some constructor shortcuts
+    var KV = defines.KV,
         TagTk = defines.TagTk,
         SelfclosingTagTk = defines.SelfclosingTagTk,
         EndTagTk = defines.EndTagTk,
@@ -399,7 +399,7 @@
      * current expression can return an empty list (true).
      */
     var emitChunk = function (tokens) {
-        var env = pegArgs.pegTokenizer.env;
+        var env = pegArgs.env;
         // shift tsr of all tokens by offset
         Util.shiftTokenTSR(tokens, pegArgs.srcOffset);
         env.log("trace/peg", pegArgs.pegTokenizer.pipelineId, "---->  ", tokens);
