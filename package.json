@@ -1,5 +1,5 @@
 {
-	"name": "mediawiki-parsoid",
+	"name": "parsoid",
 	"description": "Mediawiki parser for the VisualEditor.",
 	"version": "0.0.1",
 	"dependencies": {
@@ -21,7 +21,9 @@
 		"diff": "~1.0.7",
 		"simplediff": "0.1.1"
 	},
-	"main": "mediawiki.parser.js",
+	"bin": {
+		"parse.js": "tests/parse.js"
+	},
 	"scripts": {
 		"start": "node api/server.js",
 		"test": "node tests/parserTests.js"
