@@ -37,4 +37,8 @@ exports.setup = function( parsoidConfig ) {
 	//parsoidConfig.allowCORS = false;
 	// restrict:
 	//parsoidConfig.allowCORS = 'some.domain.org';
+
+	// Allow override of port/interface:
+	//parsoidConfig.serverPort = 8000;
+	//parsoidConfig.serverInterface = '127.0.0.1';
 };
