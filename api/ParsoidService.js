@@ -541,8 +541,6 @@ function ParsoidService(options) {
 		// Set the timeout to 600 seconds..
 		req.connection.setTimeout( 600 * 1000 );
 
-		env.log('info', 'starting parsing');
-
 		if ( env.conf.parsoid.allowCORS ) {
 			// allow cross-domain requests (CORS) so that parsoid service
 			// can be used by third-party sites
@@ -554,6 +552,7 @@ function ParsoidService(options) {
 			oldid = req.query.oldid || null;
 		if ( wt ) {
 			wt = wt.replace( /\r/g, '' );
+			env.log('info', 'starting parsing');
 
 			// clear default page name
 			if ( !res.local('pageName') ) {
@@ -593,6 +592,8 @@ function ParsoidService(options) {
 
 		} else {
 			if ( oldid ) {
+				env.log('info', 'starting parsing');
+
 				if ( !req.headers.cookie ) {
 					setHeader(res, env, 'Cache-Control', 's-maxage=2592000' );
 				} else {
