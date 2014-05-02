@@ -2,7 +2,7 @@
 
 apt-get update
 apt-get install nodejs npm git build-essential
-npm install -g express html5 lru-cache jquery pegjs async jshashes
+npm install
 adduser --system --home /var/lib/parsoid parsoid
 cd /var/lib/parsoid
 git clone
