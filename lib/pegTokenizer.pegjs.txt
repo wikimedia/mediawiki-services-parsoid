@@ -68,6 +68,7 @@
                         res.push(v);
                     }
                 } else {
+                    //console.error('falsy', v, e);
                     if (res === null) { res = e.slice(0, i); }
                 }
             }
@@ -462,7 +463,7 @@ block
   = &sof r:redirect {return [r];} // has to be first alternative; otherwise gets parsed as a <ol>
     / block_lines
     / & '<' rs:( pre // tag variant can start anywhere
-            / comment &eolf
+            / c:comment &eolf { return c; }
             / nowiki
             // avoid a paragraph if we know that the line starts with a block tag
             / bt:block_tag { return [bt]; }
@@ -519,7 +520,7 @@ block_line
       ) {
           return st.concat(r);
       }
-  / ! { return stops.counters.nopre; } pre_indent
+  / ! { return stops.counters.nopre; } pi:pre_indent { return pi; }
   / pre
   / // Horizontal rules
     "----" d:"-"*
@@ -585,7 +586,7 @@ inline_breaks
 pre_start = "<" pre_tag_name (' '+ [^>]*)? ">"
 
 inline
-  = c:(urltext / (!inline_breaks !pre_start (inline_element / . )))+ {
+  = c:(urltext / (!inline_breaks !pre_start r:(inline_element / . ) { return r; }))+ {
       //console.warn('inline out:' + pp(c));
       return flatten_stringlist( c );
   }
@@ -593,7 +594,8 @@ inline
 inlineline
   = c:(urltext 
           / !{ return inline_breaks( input, peg$currPos, stops ); } // inline_breaks 
-            !pre_start (inline_element / [^\r\n]))+ {
+            !pre_start 
+            r:(inline_element / [^\r\n]) { return r; })+ {
       //console.warn('inlineline out:' + pp(c) + input.substr(peg$reportedPos, peg$currPos));
       return flatten_stringlist( c );
   }
@@ -699,7 +701,7 @@ behavior_text = text:( &( !'__' ) tc:text_char { return tc; } )* {
 
 autolink
   = ! { return stops.onStack('extlink'); }
-    (
+  r:(
       // urllink, inlined
       target:autourl {
         // Special case handling for trailing parentheses: remove from link if
@@ -723,11 +725,11 @@ autolink
           return res;
       } 
     / autoref 
-    / isbn)
+    / isbn) { return r; }
 
 extlink
   = ! { return stops.onStack('extlink'); } // extlink cannot be nested
-    (
+  r:(
         "["
         & { return stops.push('extlink', true); }
         target:extlink_preprocessor_text
@@ -761,8 +763,8 @@ extlink
                 })
             ];
         }
-      / "[" & { return stops.pop('extlink'); }
-    )
+      / br:"[" & { return stops.pop('extlink'); } { return br; }
+    ) { return r; }
 
 autoref
   = ref:('RFC' / 'PMID') space_or_newline+ identifier:[0-9]+
@@ -866,12 +868,13 @@ url
             / tplarg_or_template
             / ! ( "&" ( [lL][tT] / [gG][tT] ) ";" )
                 r:(
-                    & "&" htmlentity
+                    & "&" he:htmlentity { return he; }
                   / [&%{]
                 ) { return r; }
          )+
 {
-    return flatten_string( [proto, addr].concat( path ) );
+    proto += addr || '';
+    return flatten_string( [proto].concat( path ) );
 }
 
 // this is the somewhat-restricted production used in autolinks
@@ -892,7 +895,8 @@ autourl
                 ) { return r; }
          )+
 {
-    return flatten_string( [proto, addr].concat( path ) );
+    proto += addr || '';
+    return flatten_string( [proto].concat( path ) );
 }
 
 ipv4_address
@@ -948,7 +952,7 @@ template
     params:(nl_comment_space* "|"
                 r:( p0:({return peg$currPos;}) v:nl_comment_space* p:({return peg$currPos;}) &"|"
                     { return new KV( '', flattenIfArray(v), [p0,p0,p0,p]); } // empty argument
-                    / p:template_param { return p; }
+                    / template_param
                   ) { return r; }
             )*
     nl_comment_space*
@@ -974,7 +978,7 @@ tplarg
               '|' nl_comment_space*
                r:(
                     &'}}}' { return new KV( '', ''); }
-                    / p:template_param { return p; }
+                    / template_param
                ) { return r; }
            )*
     nl_comment_space*
@@ -1127,7 +1131,13 @@ wikilink
 // This production is identical to the 'inline' fragment except
 // that tables are allowed inside image captions.
 link_text_fragment
-  = c:((sol table_lines) / urltext / (!inline_breaks !pre_start (inline_element / '[' text_char+ ']' / . )))+ {
+  = c:((sol table_lines) / urltext 
+          / (!inline_breaks 
+              !pre_start 
+              r:( inline_element / '[' text_char+ ']' / . ) { 
+                  return r; 
+              })
+    )+ {
       //console.warn('inline out:' + pp(c));
       return flatten_stringlist( c );
   }
@@ -1839,7 +1849,7 @@ dtdd
         li2.bullets = bullets.slice();
         li2.bullets.push(":");
 
-        return [ li1 ].concat( c, [ li2 ], d || '' );
+        return [ li1 ].concat( c, [ li2 ], d || [] );
     }
   // Fall-back case to clear the colon flag
   / & { stops.counters.colon = 0; return false; }
@@ -2109,8 +2119,8 @@ text_char = [^'<~[{\n\r:\]}|!=]
  */
 
 urltext = ( t:[^'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:\]} &=]+ { return t.join(''); }
-          / & [/fFgGhHiImMnNsStTwWIPR] autolink
-          / & "&" htmlentity
+          / & [/fFgGhHiImMnNsStTwWIPR] al:autolink { return al; }
+          / & "&" he:htmlentity { return he; }
           // Convert trailing space into &nbsp;
           // XXX: This should be moved to a serializer
           // This is a hack to force a whitespace display before the colon
@@ -2121,7 +2131,7 @@ urltext = ( t:[^'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:\]} &=]+ { return t.join(''); 
                   new EndTagTk( 'span', [], { tsr: [peg$currPos, peg$currPos] } )
               ];
           }
-          / & ('__') behavior_switch
+          / & ('__') bs:behavior_switch { return bs; }
           // / t:text_char 
           // Inline copy of text_char for performance, as about 96% of
           // text_char calls originate here.
@@ -2193,7 +2203,7 @@ space_or_newline
  * the next character is not a word character.
  */
 end_of_word
-  = eof / ! [A-Za-z0-9_]
+  = eof / ! [A-Za-z0-9_] { return ''; }
 
 // Extra newlines followed by at least another newline. Usually used to
 // compress surplus newlines into a meta tag, so that they don't trigger
@@ -2392,7 +2402,7 @@ directive
   = comment
   / nowiki
   / tplarg_or_template
-  / & "&" htmlentity
+  / & "&" e:htmlentity { return e; }
   / include_limits
 
 // Plain text, but can contain templates, template arguments, comments etc-
@@ -2401,9 +2411,9 @@ directive
 // processed).
 preprocessor_text
   = r:( t:[^<~[{\n\r\t|!\]}{ &=]+ { return t.join(''); }
-  / !inline_breaks (
+  / !inline_breaks dt:(
       directive
-    / text_char )
+    / text_char ) { return dt; }
   )+ {
       // r will always be an array
       return flattenIfArray ( r );
@@ -2412,7 +2422,8 @@ preprocessor_text
 wikilink_preprocessor_text
   = r:( t:[^<[{\n\r\t|!\]}{ &]+ { return t.join(''); }
         // XXX gwicke: any more chars we need to allow here?
-        / !inline_breaks ( directive / !"]]" ( text_char / [!] ) )
+        / !inline_breaks wr:( directive / !"]]" c:( text_char / [!] ) { return c; } )
+        { return wr; }
     )+ {
       return flatten_stringlist ( r );
   }
@@ -2421,7 +2432,7 @@ extlink_preprocessor_text
   // added special separator character class inline: separates url from
   // description / text
   = r:( t:[^'<~[{\n\r|!\]}\t&="' \u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]+ { return t.join(''); }
-  / !inline_breaks ( directive / no_punctuation_char )
+  / !inline_breaks r:( directive / no_punctuation_char ) { return r; }
   /// urlencoded_char
   // !inline_breaks no_punctuation_char
   / s:[.:,] !(space / eolf) { return s; }
@@ -2435,10 +2446,10 @@ attribute_preprocessor_text
   = r:( ts:(!inline_breaks t:[^=<>{}\n\r&'"\t/ ] {return t;})+ { return ts.join(''); }
   / !inline_breaks
     ! '/>'
-    (
+    r:(
           directive
         / [&%/{}]
-    )
+    ) { return r; }
   )+
   {
       //console.warn('prep');
@@ -2447,27 +2458,27 @@ attribute_preprocessor_text
 
 attribute_preprocessor_text_single
   = r:( t:[^{}&'<]+ { return t.join(''); }
-  / !inline_breaks (
+  / !inline_breaks r:(
       directive
-    / [{}&<] )
+    / [{}&<] ) { return r; }
   )*
   {
       return flatten_string ( r );
   }
 attribute_preprocessor_text_single_broken
   = r:( t:[^{}&'<>|]+ { return t.join(''); }
-  / !inline_breaks (
+  / !inline_breaks r:(
       directive
-    / [{}&<] )
+    / [{}&<] ) { return r; }
   )*
   {
       return flatten_string ( r );
   }
 attribute_preprocessor_text_double
   = r:( t:[^{}&"<]+ { return t.join(''); }
-  / !inline_breaks (
+  / !inline_breaks r:(
       directive
-    / [{}&<] )
+    / [{}&<] ) { return r; }
   )*
   {
       //console.warn( 'double:' + pp(r) );
@@ -2475,9 +2486,9 @@ attribute_preprocessor_text_double
   }
 attribute_preprocessor_text_double_broken
   = r:( t:[^{}&"<>|]+ { return t.join(''); }
-  / !inline_breaks (
+  / !inline_breaks r:(
       directive
-    / [{}&<] )
+    / [{}&<] ) { return r; }
   )*
   {
       //console.warn( 'double:' + pp(r) );
@@ -2493,7 +2504,7 @@ attribute_preprocessor_text_line
                 directive
               // Eat insane tags-inside-attributes. Example:
               // <hiddentext>generated with.. </hiddentext>
-              / &generic_tag nested_block_line
+              / &generic_tag nb:nested_block_line { return nb; }
               / !(space_or_newline / [\[>]) c:. {
                     //console.warn( 'aptl: ' + pp(c) );
                     return c;
@@ -2507,33 +2518,33 @@ attribute_preprocessor_text_line
 
 attribute_preprocessor_text_single_line
   = r:( t:[^{}&'<|!]+ { return t.join(''); }
-  / !inline_breaks (
+  / !inline_breaks r:(
       directive
-    / ![\r\n] [{}&<] )
+    / ![\r\n] [{}&<] ) { return r; }
   )* {
       return flatten_string ( r );
   }
 attribute_preprocessor_text_single_line_broken
   = r:( t:[^{}&'<>|!]+ { return t.join(''); }
-  / !inline_breaks (
+  / !inline_breaks r:(
       directive
-    / ![\r\n] [{}&<] )
+    / ![\r\n] [{}&<] ) { return r; }
   )* {
       return flatten_string ( r );
   }
 attribute_preprocessor_text_double_line
   = r:( t:[^{}&"<|!]+ { return t.join(''); }
-  / !inline_breaks (
+  / !inline_breaks r:(
       directive
-    / ![\r\n] [{}&<] )
+    / ![\r\n] [{}&<] ) { return r; }
   )* {
       return flatten_string ( r );
   }
 attribute_preprocessor_text_double_line_broken
   = r:( t:[^{}&"<>|!]+ { return t.join(''); }
-  / !inline_breaks (
+  / !inline_breaks r:(
       directive
-    / ![\r\n] [{}&<] )
+    / ![\r\n] [{}&<] ) { return r; }
   )* {
       return flatten_string ( r );
   }
@@ -2541,7 +2552,7 @@ attribute_preprocessor_text_double_line_broken
 // Special-case support for those pipe templates
 pipe = "|" / "{{!}}"
 
-end_pipe = "|" ! "|" / "{{!}}" ! "{{!}}"
+end_pipe = p:"|" ! "|" { return p; } / p:"{{!}}" ! "{{!}}" { return p; }
 
 // SSS FIXME: what about |{{!}} and {{!}}|
 pipe_pipe = "||" / "{{!}}{{!}}"
