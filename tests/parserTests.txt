@@ -6407,6 +6407,17 @@ parsoid=wt2html,wt2wt
 !! end
 
 !! test
+Empty redirect
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+#REDIRECT [[]]
+!! html
+<ol>
+<li>REDIRECT [[]]</li></ol>
+!! end
+
+!! test
 Optional colon in #REDIRECT
 !! options
 # the colon is archaic syntax.  we support it for wt2html, but we
