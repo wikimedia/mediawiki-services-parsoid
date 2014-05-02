@@ -20235,6 +20235,21 @@ parsoid=wt2html,wt2wt
 </table>
 !!end
 
+# Parsoid only for bug 64747
+!! test
+Properly encapsulate empty-content transclusions in fosterable positions
+!! wikitext
+<table>
+{{#if:|
+<td>foo</td>
+}}
+</table>
+!! html/parsoid
+<table about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["&lt;table>\n",{"template":{"target":{"wt":"#if:","function":"#if"},"params":{"1":{"wt":"\n&lt;td>foo&lt;/td>\n"}},"i":0}},"\n&lt;/table>"]}' data-parsoid='{"stx":"html","pi":[[{"k":"1","spc":["","","",""]}]],"src":"&lt;table>\n{{#if:|\n&lt;td>foo&lt;/td>\n}}\n&lt;/table>"}'>
+
+</table>
+!! end
+
 !!test
 Support <object> element with .data attribute
 !!options
