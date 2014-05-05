@@ -574,6 +574,7 @@ add("wt2wt", "Bug 529: Uncovered bullet leaving empty list, normally removed by 
 add("wt2wt", "preload: check that it doesn't try to do tricks", "* <!-- Hello --> ''{{world}}'' {{<includeonly>subst:</includeonly>How are you}}{{{{{|safesubst:}}} #if:1|2|3}}");
 add("wt2wt", "Bug 19052 U+3000 IDEOGRAPHIC SPACE should terminate bracketed external links", "[http://www.example.org/ ideograms]\n");
 add("wt2wt", "Ignore pipe between table row attributes", "{|\n| quux\n|- id=\"foo\" style=\"color: red\" |\n| bar\n|}");
+add("wt2wt", "Bad treebuilder fixup of formatting elt is cleaned up", "{|\n|\n<small>\n[[Image:Foobar.jpg|right|Test]]\n\n|}");
 add("wt2wt", "Ref: 3. spaces in ref-names should be ignored", "A <ref name=\"x\">foo</ref>\nB <ref name=\"x\" />\nC <ref name=\"x\" />\n");
 add("wt2wt", "Ref: 5. body should accept generic wikitext", "A <ref>This is a '''[[bolded link]]''' and this is a {{echo|transclusion}}\n</ref>\n\n<references />");
 add("wt2wt", "Ref: 6. indent-pres should not be output in ref-body", "A <ref>foo\n bar\n baz\n</ref>\n\n<references />");
@@ -2872,6 +2873,15 @@ add("selser", "Ignore pipe between table row attributes [2]", "j703hesqpiv34n29\
 add("selser", "Ignore pipe between table row attributes [[2,2]]", "{|<!--gysjycu8q2maemi-->\n<!--rdn05ipccn7jsjor-->| quux\n|- id=foo | style='color: red'\n| bar\n|}");
 add("selser", "Ignore pipe between table row attributes [[4,2]]", "{|<!--zrj0ish0maolayvi--><!--1o8f2hvwotgzm2t9-->\n| quux\n|- id=foo | style='color: red'\n| bar\n|}");
 add("selser", "Ignore pipe between table row attributes [[3,2]]", "{|<!--x3a9rrvp5j98uxr-->\n| quux\n|- id=foo | style='color: red'\n| bar\n|}");
+add("selser", "Bad treebuilder fixup of formatting elt is cleaned up [[4,2]]", "{|<!--gn1lczzf2clkgldi--><!--sj45zgz3zoetgldi-->\n|\n<small>\n[[Image:Foobar.jpg|right|Test]]\n</small>\n|}");
+add("selser", "Bad treebuilder fixup of formatting elt is cleaned up [2]", "keebwlcmx4yxecdi\n{|\n|\n<small>\n[[Image:Foobar.jpg|right|Test]]\n</small>\n|}");
+add("selser", "Bad treebuilder fixup of formatting elt is cleaned up [1]", "{| data-foobar=\"n6n3ky5acvunmi\"\n|\n<small>\n[[Image:Foobar.jpg|right|Test]]\n</small>\n|}");
+add("selser", "Bad treebuilder fixup of formatting elt is cleaned up [[0,[[[4,0,4,[0,3],0,2]],4]]]", "{|\n|o1h396hpl7zdj9k9\n<small>hr00rscpueuerk9[[Image:Foobar.jpg|right]]\nnnzqv9qetemw8kt9\n\n</small><!--3n50lgdjaxwm6lxr-->\n|}");
+add("selser", "Bad treebuilder fixup of formatting elt is cleaned up [[3,[[2],0]]]", "{|\n|87ilau7u3bjiqkt9\n|\n<small>\n[[Image:Foobar.jpg|right|Test]]\n</small>\n|}");
+add("selser", "Bad treebuilder fixup of formatting elt is cleaned up [[0,[[2],0]]]", "{|\n|18ezfpaoid8zd7vi\n|\n<small>\n[[Image:Foobar.jpg|right|Test]]\n</small>\n|}");
+add("selser", "Bad treebuilder fixup of formatting elt is cleaned up [[0,1]]", "{|\n|\n<small>\n[[Image:Foobar.jpg|right|Test]]\n</small>\n|}");
+add("selser", "Bad treebuilder fixup of formatting elt is cleaned up [[2,2]]", "{|<!--8lgbn9j1u8wu3di-->\n<!--fw5c108igudf5hfr-->|\n<small>\n[[Image:Foobar.jpg|right|Test]]\n</small>\n|}");
+add("selser", "Bad treebuilder fixup of formatting elt is cleaned up [[0,[[[0,0,2,[0,[[4]]],0,0]],2]]]", "{|\n|\n<small>eudvbh1s9l51att9\n[[Image:Foobar.jpg|right|toacwados8bedn29]]\n</small><!--ltvomjx0whup7gb9-->\n|}");
 add("selser", "Ref: 3. spaces in ref-names should be ignored [[0,0,2,0,3,0]]", "A <ref name=\"x\">foo</ref>4e761xuztftlz0k9\nB <ref name=\" x \" /><ref name= x  />");
 add("selser", "Ref: 3. spaces in ref-names should be ignored [[0,0,4,0,2,0]]", "A <ref name=\"x\">foo</ref>3w7ovsl9a3fk1emi<ref name=\" x \" />0ge9uw9zjpk6s9k9\nC <ref name= x  />");
 add("selser", "Ref: 3. spaces in ref-names should be ignored [[0,0,3,0,0,0]]", "A <ref name=\"x\">foo</ref><ref name=\" x \" />\nC <ref name= x  />");
