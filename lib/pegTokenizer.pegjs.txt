@@ -943,7 +943,7 @@ broken_template
 {
     return [
         new TagTk('span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: [peg$reportedPos, peg$reportedPos], src: input.substring(peg$reportedPos, peg$currPos) } )]
-            .concat(v, [new EndTagTk( 'span', [], { tsr: [peg$currPos, peg$currPos] }) ]);
+            .concat(v, [new EndTagTk( 'span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: [peg$currPos, peg$currPos] }) ]);
 }
 
 
