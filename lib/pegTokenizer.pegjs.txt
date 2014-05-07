@@ -63,13 +63,12 @@
                     // Change in assumption from a shallow array to a nested array.
                     if (res === null) { res = e.slice(0, i); }
                     internal_flatten(v, res);
-                } else if (v) {
+                } else if ( v !== null && v !== undefined ) {
                     if (res !== null) {
                         res.push(v);
                     }
                 } else {
-                    //console.error('falsy', v, e);
-                    if (res === null) { res = e.slice(0, i); }
+                    options.env.log("fatal", "falsy", e);
                 }
             }
 
@@ -2521,7 +2520,7 @@ attribute_preprocessor_text_single_line
   = r:( t:[^{}&'<|!]+ { return t.join(''); }
   / !inline_breaks r:(
       directive
-    / ![\r\n] [{}&<] ) { return r; }
+    / ![\r\n] q:[{}&<] { return q; } ) { return r; }
   )* {
       return flatten_string ( r );
   }
@@ -2529,7 +2528,7 @@ attribute_preprocessor_text_single_line_broken
   = r:( t:[^{}&'<>|!]+ { return t.join(''); }
   / !inline_breaks r:(
       directive
-    / ![\r\n] [{}&<] ) { return r; }
+    / ![\r\n] q:[{}&<] { return q; } ) { return r; }
   )* {
       return flatten_string ( r );
   }
@@ -2537,7 +2536,7 @@ attribute_preprocessor_text_double_line
   = r:( t:[^{}&"<|!]+ { return t.join(''); }
   / !inline_breaks r:(
       directive
-    / ![\r\n] [{}&<] ) { return r; }
+    / ![\r\n] q:[{}&<] { return q; } ) { return r; }
   )* {
       return flatten_string ( r );
   }
@@ -2545,7 +2544,7 @@ attribute_preprocessor_text_double_line_broken
   = r:( t:[^{}&"<>|!]+ { return t.join(''); }
   / !inline_breaks r:(
       directive
-    / ![\r\n] [{}&<] ) { return r; }
+    / ![\r\n] q:[{}&<] { return q; } ) { return r; }
   )* {
       return flatten_string ( r );
   }
