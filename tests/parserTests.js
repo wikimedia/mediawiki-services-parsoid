@@ -1603,15 +1603,21 @@ ParserTests.prototype.main = function ( options, popts ) {
 
 	options.expandExtensions = true;
 
-	var i, key, parsoidConfig = new ParsoidConfig( null, options ),
+	var i, key,
+		parsoidConfig = new ParsoidConfig( null, options ),
 		iwmap = Object.keys( parsoidConfig.interwikiMap );
+
+	// Set tracing and debugging before the env. object is
+	// constructed since tracing backends are registered there.
+	// (except for the --quiet option where the backends are
+	// overridden here).
+	Util.setDebuggingFlags(parsoidConfig, options);
 	Util.setTemplatingAndProcessingFlags( parsoidConfig, options );
 
 	for ( i = 0; i < iwmap.length; i++ ) {
 		key = iwmap[i];
 		parsoidConfig.interwikiMap[key] = mockAPIServerURL;
 	}
-
 
 	// Create a new parser environment
 	MWParserEnvironment.getParserEnv( parsoidConfig, null, 'enwiki', null, null, function ( err, env ) {
@@ -1632,7 +1638,6 @@ ParserTests.prototype.main = function ( options, popts ) {
 		this.env.conf.wiki.addExtensionTag("ref");
 		this.env.conf.wiki.addExtensionTag("references");
 
-		Util.setDebuggingFlags( this.env.conf.parsoid, options );
 		options.modes = [];
 		if ( options.wt2html ) {
 			options.modes.push( 'wt2html' );
