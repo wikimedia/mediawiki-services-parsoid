@@ -349,6 +349,7 @@ redirect
     link:(wl:wikilink { return wl[0]; })
 {
     if (!link || link.constructor === String) {
+        peg$currPos = peg$reportedPos;
         return peg$FAILED;
     }
     // Set the wikilink's tsr to be zero length. That token is synthetic and
@@ -382,6 +383,7 @@ redirect_word = sp:[ \t\n\r\0\x0b]* rw:((!space_or_newline ![:\[] c:.{return c;}
     if ( options.env.conf.wiki.getMagicWordMatcher( 'redirect' ).test( rw ) ) {
         return sp.join('') + rw;
     }
+    peg$currPos = peg$reportedPos;
     return peg$FAILED;
 }
 
@@ -660,7 +662,7 @@ h = & "=" // guard, to make sure '='+ will match.
                         spc
                         ]);
       }
-    / & { stops.dec('h'); return false; } { return peg$FAILED; }
+    / & { stops.dec('h'); return false; }
     ) { return r; }
 
 comment
@@ -842,6 +844,7 @@ urlencoded_char = "%" c0:[0-9a-fA-F] c1:[0-9a-fA-F] {
     } catch ( e ) {
         // Reject the match, and allow other fall-back productions to have a
         // go at it.
+        peg$currPos = peg$reportedPos;
         return peg$FAILED;
     }
 }
@@ -1222,7 +1225,12 @@ pre_indent
 pre_tag_name =
   tag:[prePRE]+ {
       tag = tag.join('');
-      return tag.toLowerCase() === "pre" ? tag : peg$FAILED;
+      if (tag.toLowerCase() === "pre") {
+          return tag;
+      } else {
+          peg$currPos = peg$reportedPos;
+          return peg$FAILED;
+      }
   }
 
 // An indented pre block that is surrounded with pre tags. The pre tags are
@@ -1442,7 +1450,7 @@ xmlish_tag =
             dummyText[0] === dp.skipChar) {
             return true;
          } else {
-            peg$currPos -= dummyText.length;
+            peg$currPos = peg$reportedPos;
             return peg$FAILED;
          }
       }
@@ -1453,7 +1461,7 @@ xmlish_tag =
         // Ex: <ref />foo, <ref />#foo, <ref />_foo
         return (!currExtTag ||
             !currExtTag.dataAttribs.extLikeTag ||
-            currExtTag.dataAttribs.skipLen === 0) ? true : peg$FAILED;
+            currExtTag.dataAttribs.skipLen === 0);
       }
     ) {
         if ( Array.isArray(t2) ) {
@@ -1517,7 +1525,12 @@ xmlish_tag =
 nowiki_tag_name =
   tag:[nowikNOWIK]+ {
       tag = tag.join('');
-      return tag.toLowerCase() === "nowiki" ? tag : peg$FAILED;
+      if (tag.toLowerCase() === "nowiki") {
+          return tag;
+      } else {
+          peg$currPos = peg$reportedPos;
+          return peg$FAILED;
+      }
   }
 
 nowiki
@@ -1577,7 +1590,7 @@ nowiki
 //   <nowiki></pre></nowiki>
 pre_break = & "</pre>" {
     //console.log( stops.counters );
-    return stops.counters.pre > 0 || peg$FAILED;
+    return stops.counters.pre > 0 ? undefined : peg$FAILED;
 }
 
 nowiki_content
@@ -1788,6 +1801,7 @@ block_tag
             return [buildXMLTag(name, lcName, attribs, end, selfclose, [peg$reportedPos, peg$currPos])];
         } else {
             // abort match if tag is not block-level
+            peg$currPos = peg$reportedPos;
             return peg$FAILED;
         }
     }
@@ -2306,6 +2320,7 @@ include_limits =
          }
          return new EndTagTk(name, [], dp);
      } else {
+         peg$currPos = peg$reportedPos;
          return peg$FAILED;
      }
   }
@@ -2319,6 +2334,7 @@ include_limits =
              tagContent = restOfInput.match(new RegExp("^(.|\n)*?(</\\s*" + incl + "\\s*>)", "m"));
 
          if (!tagContent) {
+            peg$currPos = peg$reportedPos;
             return peg$FAILED;
          }
 
@@ -2351,12 +2367,13 @@ include_limits =
 
          return new TagTk(name, [], dp);
      } else {
+         peg$currPos = peg$reportedPos;
          return peg$FAILED;
      }
   }) dummyText:('#'+ / '_'+) {
       var dp = inclTag.dataAttribs;
       if (dummyText.length !== dp.skipLen || dummyText[0] !== dp.skipChar) {
-          peg$currPos -= dummyText.length;
+          peg$currPos = peg$reportedPos;
           return peg$FAILED;
       }
 
