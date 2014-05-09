@@ -8883,6 +8883,44 @@ parsoid
 !!end
 
 ###
+### Token Stream Patcher tests
+###
+### These tests won't always pass wt2wt and other modes because
+### on serialization, the table will be output on a new line.
+### For now, we are blacklisting them, and using this to test selser.
+###
+
+!!test
+1. Table tag in SOL posn. should get reparsed correctly with valid TSR
+!!options
+parsoid=wt2html,wt2wt
+!!wikitext
+{{echo|}}{| width = '100%'
+|foo
+|}
+!!html/parsoid
+<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":""}},"i":0}}]}'></span>
+<table width="100%">
+<tbody>
+<tr>
+<td>foo</td></tr></tbody></table>
+!!end
+
+!!test
+2. Table tag in SOL posn. should get reparsed correctly with valid TSR
+!!options
+parsoid=wt2html,wt2wt
+!!wikitext
+<includeonly>a</includeonly>{| {{{b}}}
+|c
+|}
+!!html/parsoid
+<meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"src":"&lt;includeonly>a&lt;/includeonly>"}'/><meta typeof="mw:Includes/IncludeOnly/End" data-parsoid='{"src":"&lt;/includeonly>"}'/><span typeof="mw:Param" about="#mwt1" id="mwt1" data-mw="{}">{{{b}}}</span><table about="#mwt1">
+<tbody><tr><td>c</td></tr>
+</tbody></table>
+!!end
+
+###
 ### Testing parsing of templates where a template arg
 ### has the same name as the template itself.
 ###
