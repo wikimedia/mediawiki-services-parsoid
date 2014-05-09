@@ -688,10 +688,10 @@ function ParsoidService(options) {
 
 	// Get host and port from the environment, if available
 	// VCAP_APP_PORT is for appfog.com support
-	var port = options.serverPort ||
+	var port = parsoidConfig.serverPort ||
 		process.env.VCAP_APP_PORT || process.env.PORT || 8000;
 	// default bind all
-	var host = options.serverInterface || process.env.INTERFACE;
+	var host = parsoidConfig.serverInterface || process.env.INTERFACE;
 
 	app.on( 'error', function( err ) {
 		if ( err.errno === "EADDRINUSE" ) {
@@ -704,7 +704,8 @@ function ParsoidService(options) {
 
 	gitVersion( function () {
 		app.listen( port, host );
-		console.log( ' - ' + instanceName + ' ready' );
+		console.log( ' - ' + instanceName + ' ready on ' +
+		             (host||'') + ':' + port );
 	});
 
 }
