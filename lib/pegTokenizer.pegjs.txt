@@ -785,7 +785,7 @@ autoref
            new KV('mw:content', [ref, identifier].join(' ')),
            new KV( 'typeof', 'mw:ExtLink/' + ref )
         ],
-        {stx: "protocol", tsr: [peg$reportedPos, peg$currPos]})
+        {stx: "magiclink", tsr: [peg$reportedPos, peg$currPos]})
     ];
 }
 
@@ -812,7 +812,7 @@ isbn
            new KV('mw:content', 'ISBN ' + isbn),
            new KV('typeof', 'mw:ExtLink/ISBN')
         ],
-        {stx: "protocol", tsr: [peg$reportedPos, peg$currPos]})
+        {stx: "magiclink", tsr: [peg$reportedPos, peg$currPos]})
     ];
 }
 

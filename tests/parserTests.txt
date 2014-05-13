@@ -19422,6 +19422,132 @@ parsoid
 <a href="http://google.com" rel="mw:ExtLink">[google</a>
 !! end
 
+!! test
+Links 6. Add <nowiki/>s between text-nodes and url-links when required (bug 64300)
+!! html/parsoid
+<p>x<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>y
+<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>?x
+<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>&amp;x
+<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>'x
+<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>,x
+<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>.x
+<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>;x
+<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>:x
+<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>;x
+<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>!x
+<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>=x
+<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>(x)
+<a rel="mw:ExtLink" href="http://example.com(x" data-parsoid='{"stx":"url"}'>http://example.com(x</a>)
+</p>
+!! wikitext
+x<nowiki/>http://example.com<nowiki/>y
+http://example.com<nowiki/>?x
+http://example.com<nowiki/>&x
+http://example.com<nowiki/>'x
+http://example.com<nowiki/>,x
+http://example.com<nowiki/>.x
+http://example.com<nowiki/>;x
+http://example.com<nowiki/>:x
+http://example.com<nowiki/>;x
+http://example.com<nowiki/>!x
+http://example.com<nowiki/>=x
+http://example.com<nowiki/>(x)
+http://example.com(x<nowiki/>)
+!! end
+
+!! test
+Links 7a. Don't add spurious <nowiki/>s between text-nodes and url-links (bug 64300)
+!! html/parsoid
+<p>x
+<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>
+y
+(<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>)
+"<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>"
+</p>
+!! wikitext
+x
+http://example.com
+y
+(http://example.com)
+"http://example.com"
+!! end
+
+## Parsoid currently fails wt2html on this one!
+!! test
+Links 7b. Don't add spurious <nowiki/>s between text-nodes and url-links (bug 64300)
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>.,;:!?</p>
+!! wikitext
+http://example.com.,;:!?
+!! end
+
+!! test
+Links 8. Add <nowiki/>s between text-nodes and RFC-links when required (bug 64300)
+!! html/parsoid
+<p><a href="//tools.ietf.org/html/rfc123" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>RFC 123</a>4</p>
+!! wikitext
+RFC 123<nowiki/>4
+!! end
+
+!! test
+Links 9. Don't add spurious <nowiki/>s between text-nodes and RFC-links (bug 64300)
+!! html/parsoid
+<p>x<a href="//tools.ietf.org/html/rfc123" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>RFC 123</a>y
+X<a href="//tools.ietf.org/html/rfc123" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>RFC 123</a>y
+<a href="//tools.ietf.org/html/rfc123" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>RFC 123</a>?foo
+<a href="//tools.ietf.org/html/rfc123" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>RFC 123</a>&amp;foo
+</p>
+!! wikitext
+xRFC 123y
+XRFC 123y
+RFC 123?foo
+RFC 123&foo
+!! end
+
+!! test
+Links 10. Add <nowiki/>s between text-nodes and PMID-links when required (bug 64300)
+!! html/parsoid
+<p><a href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>PMID 123</a>4
+!! wikitext
+PMID 123<nowiki/>4
+!! end
+
+!! test
+Links 11. Don't add spurious <nowiki/>s between text-nodes and PMID-links (bug 64300)
+!! html/parsoid
+<p>x<a href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>PMID 123</a>y
+X<a href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>PMID 123</a>y
+<a href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>PMID 123</a>?foo
+<a href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>PMID 123</a>&foo
+</p>
+!! wikitext
+xPMID 123y
+XPMID 123y
+PMID 123?foo
+PMID 123&foo
+!! end
+
+!! test
+Links 12. Add <nowiki/>s between text-nodes and ISBN-links when required (bug 64300)
+!! html/parsoid
+<p><a href="./Special:BookSources/1234567890" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a>1
+<a href="./Special:BookSources/1234567890" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a>x
+<a href="./Special:BookSources/1234567890" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a>b
+</p>
+!! wikitext
+ISBN 1234567890<nowiki/>1
+ISBN 1234567890<nowiki/>x
+ISBN 1234567890<nowiki/>b
+!! end
+
+!! test
+Links 12. Don't add spurious <nowiki/>s between text-nodes and ISBN-links (bug 64300)
+!! html/parsoid
+<p><a href="./Special:BookSources/1234567890" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a>'s
+!! wikitext
+ISBN 1234567890's
+!! end
+
 #### --------------- Quotes ---------------
 #### 1. Quotes inside <b> and <i>
 #### 2. Link fragments separated by <i> and <b> tags
