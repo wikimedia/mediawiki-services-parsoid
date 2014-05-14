@@ -1252,7 +1252,8 @@ parsoid
 !! wikitext
 {{echo|&ndash;}}
 !! html
-<p><span typeof="mw:Transclusion mw:Entity" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&amp;ndash;","html":"&lt;span typeof=\"mw:Entity\" data-parsoid=\"{&amp;quot;src&amp;quot;:&amp;quot;&amp;amp;ndash;&amp;quot;,&amp;quot;srcContent&amp;quot;:&amp;quot;–&amp;quot;}\">–&lt;/span>"}},"i":0}}]}'>&ndash;</span></p>
+<p><span typeof="mw:Transclusion mw:Entity" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&amp;ndash;"}},"i":0}}]}'>&ndash;</span>
+</p>
 !! end
 
 ###
@@ -2165,13 +2166,13 @@ Templates: Handle comments in the target
 
 {{<!-- should be ignored -->echo|foo}}
 !!html/parsoid
-<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo\n&lt;!-- should be ignored -->\n","href":"./Template:Echo"},"params":{"1":{"wt":"foo","html":"foo"}},"i":0}}]}'>foo</p>
+<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo\n&lt;!-- should be ignored -->\n","href":"./Template:Echo"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</p>
 
-<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo&lt;!-- should be ignored -->\n","href":"./Template:Echo"},"params":{"1":{"wt":"foo","html":"foo"}},"i":0}}]}'>foo</p>
+<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo&lt;!-- should be ignored -->\n","href":"./Template:Echo"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</p>
 
-<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo&lt;!-- should be ignored -->","href":"./Template:Echo"},"params":{"1":{"wt":"foo","html":"foo"}},"i":0}}]}'>foo</p>
+<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo&lt;!-- should be ignored -->","href":"./Template:Echo"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</p>
 
-<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo","html":"foo"}},"i":0}}]}'>foo</p>
+<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</p>
 !!end
 
 #--------------------------------------------------------------------
@@ -2184,7 +2185,8 @@ parsoid
 !! wikitext
 {{echo|[foo]|{{echo|[bar]}}}}
 !! html
-<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[foo]","html":"[foo]"},"2":{"wt":"{{echo|[bar]}}","html":"&lt;span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;[bar]&amp;quot;,&amp;quot;html&amp;quot;:&amp;quot;[bar]&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;srcOffsets&amp;quot;:[20,20,20,25],&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]]}\">[bar]&lt;/span>"}},"i":0}}]}'>[foo]</p>
+<p about="#mwt1" typeof="mw:Transclusion"
+data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[foo]"},"2":{"wt":"{{echo|[bar]}}"}},"i":0}}]}'>[foo]</p>
 !! end
 
 !! test
@@ -2194,7 +2196,7 @@ parsoid
 !! wikitext
 {{echo|[{{echo|http://example.com}} link]}}
 !! html
-<p><a rel="mw:ExtLink" href="http://example.com" about="#mwt31" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[{{echo|http://example.com}} link]","html":"&lt;a data-mw=\"{&amp;quot;attribs&amp;quot;:[[{&amp;quot;txt&amp;quot;:&amp;quot;href&amp;quot;},{&amp;quot;html&amp;quot;:&amp;quot;&lt;a rel=\\&amp;quot;mw:ExtLink\\&amp;quot; href=\\&amp;quot;http://example.com\\&amp;quot; about=\\&amp;quot;#mwt3\\&amp;quot; typeof=\\&amp;quot;mw:Transclusion\\&amp;quot; data-mw=\\&amp;quot;{&amp;amp;quot;parts&amp;amp;quot;:[{&amp;amp;quot;template&amp;amp;quot;:{&amp;amp;quot;target&amp;amp;quot;:{&amp;amp;quot;wt&amp;amp;quot;:&amp;amp;quot;echo&amp;amp;quot;,&amp;amp;quot;href&amp;amp;quot;:&amp;amp;quot;./Template:Echo&amp;amp;quot;},&amp;amp;quot;params&amp;amp;quot;:{&amp;amp;quot;1&amp;amp;quot;:{&amp;amp;quot;wt&amp;amp;quot;:&amp;amp;quot;http://example.com&amp;amp;quot;,&amp;amp;quot;html&amp;amp;quot;:&amp;amp;quot;&lt;a rel=\\\\&amp;amp;quot;mw:ExtLink\\\\&amp;amp;quot; href=\\\\&amp;amp;quot;http://example.com\\\\&amp;amp;quot; data-parsoid=\\\\&amp;amp;quot;{&amp;amp;amp;quot;stx&amp;amp;amp;quot;:&amp;amp;amp;quot;url&amp;amp;amp;quot;}\\\\&amp;amp;quot;>http://example.com&lt;/a>&amp;amp;quot;}},&amp;amp;quot;i&amp;amp;quot;:0}}]}\\&amp;quot; data-parsoid=\\&amp;quot;{&amp;amp;quot;stx&amp;amp;quot;:&amp;amp;quot;url&amp;amp;quot;,&amp;amp;quot;dsr&amp;amp;quot;:[8,35,null,null],&amp;amp;quot;pi&amp;amp;quot;:[[{&amp;amp;quot;k&amp;amp;quot;:&amp;amp;quot;1&amp;amp;quot;,&amp;amp;quot;srcOffsets&amp;amp;quot;:[15,15,15,33],&amp;amp;quot;spc&amp;amp;quot;:[&amp;amp;quot;&amp;amp;quot;,&amp;amp;quot;&amp;amp;quot;,&amp;amp;quot;&amp;amp;quot;,&amp;amp;quot;&amp;amp;quot;]}]]}\\&amp;quot;>http://example.com&lt;/a>&amp;quot;}]]}\" typeof=\"mw:ExpandedAttrs\" about=\"#mwt4\" rel=\"mw:ExtLink\" href=\"http://example.com\" data-parsoid=\"{&amp;quot;targetOff&amp;quot;:36,&amp;quot;contentOffsets&amp;quot;:[36,40],&amp;quot;a&amp;quot;:{&amp;quot;href&amp;quot;:&amp;quot;http://example.com&amp;quot;},&amp;quot;sa&amp;quot;:{&amp;quot;href&amp;quot;:&amp;quot;{{echo|http://example.com}}&amp;quot;}}\">link&lt;/a>"}},"i":0}}]}'>link</a></p>
+<p><a rel="mw:ExtLink" href="http://example.com" about="#mwt31" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[{{echo|http://example.com}} link]"}},"i":0}}]}'>link</a></p>
 !! end
 
 !! test
@@ -2204,7 +2206,9 @@ parsoid
 !! wikitext
 {{echo|http://foo.com/a&#124;b}}
 !! html
-<p><a rel="mw:ExtLink" href="http://foo.com/a|b" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"http://foo.com/a&amp;#124;b","html":"&lt;a rel=\"mw:ExtLink\" href=\"http://foo.com/a|b\" data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;url&amp;quot;,&amp;quot;a&amp;quot;:{&amp;quot;href&amp;quot;:&amp;quot;http://foo.com/a|b&amp;quot;},&amp;quot;sa&amp;quot;:{&amp;quot;href&amp;quot;:&amp;quot;http://foo.com/a&amp;amp;#124;b&amp;quot;}}\">http://foo.com/a|b&lt;/a>"}},"i":0}}]}'>http://foo.com/a|b</a></p>
+<p><a rel="mw:ExtLink" href="http://foo.com/a|b" about="#mwt1"
+typeof="mw:Transclusion"
+data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"http://foo.com/a&amp;#124;b"}},"i":0}}]}'>http://foo.com/a|b</a></p>
 !! end
 
 !! test
@@ -2254,29 +2258,7 @@ parsoid
 !! wikitext
 {{echo|a : b}}
 !! html
-<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a : b","html":"a&lt;span typeof=\"mw:Placeholder\" data-parsoid=\"{&amp;quot;src&amp;quot;:&amp;quot; &amp;quot;,&amp;quot;isDisplayHack&amp;quot;:true}\">&amp;nbsp;&lt;/span>: b"}},"i":0}}]}'>a : b</p>
-!! end
-
-## Bug 50587
-!! test
-Templates: Template parameters from html
-!! options
-parsoid=html2wt
-!! wikitext
-{{echo|{{echo|''foo''}}}}
-!! html/parsoid
-<p><i about="#mwt1" typeof="mw:Transclusion" data-mw='{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;html&quot;:&quot;&lt;i about=\&quot;#mwt2\&quot; typeof=\&quot;mw:Transclusion\&quot; data-mw=\&quot;{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;html&amp;quot;:&amp;quot;&amp;lt;i&amp;gt;foo&amp;lt;/i&amp;gt;&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\&quot;&gt;foo&lt;/i&gt;&quot;}},&quot;i&quot;:0}}]}'>foo</i></p>
-!! end
-
-## Bug 50587
-!! test
-Templates: Template parameters from html for parser function
-!! options
-parsoid=html2wt
-!! wikitext
-{{#formatdate:2009-03-24|mdy}}
-!! html/parsoid
-<p><span class="mw-formatted-date" title="2009-03-24" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#formatdate:2009-03-24","function":"#formatdate"},"params":{"1":{"html":"mdy"}},"i":0}}]}'>March 24, 2009</span></p>
+<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a : b"}},"i":0}}]}'>a<span typeof="mw:Placeholder" data-parsoid='{"isDisplayHack":true}'> </span>: b</p>
 !! end
 
 ###
@@ -2651,7 +2633,7 @@ parsoid=wt2html,wt2wt
 {{echo| [[Category:foo]]}} <!-- No pre-wrapping -->
 !! html
  <link rel="mw:PageProp/Category" href="./Category:Foo"> <!-- No pre-wrapping -->
-<span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":" [[Category:foo]]","html":" &lt;link rel=\"mw:PageProp/Category\" href=\"./Category:Foo\" data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;simple&amp;quot;,&amp;quot;a&amp;quot;:{&amp;quot;href&amp;quot;:&amp;quot;./Category:Foo&amp;quot;},&amp;quot;sa&amp;quot;:{&amp;quot;href&amp;quot;:&amp;quot;Category:foo&amp;quot;}}\">"}},"i":0}}]}'> </span>
+<span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":" [[Category:foo]]"}},"i":0}}]}'> </span>
 <link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1"> <!-- No pre-wrapping -->
 !! end
 
@@ -2666,7 +2648,7 @@ parsoid=wt2html,wt2wt
 <pre>
 <link rel="mw:PageProp/Category" href="./Category:Foo"> a
 
-<link rel="mw:PageProp/Category" href="./Category:Foo"> <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"b","html":"b"}},"i":0}}]}'>b</span></pre>
+<link rel="mw:PageProp/Category" href="./Category:Foo"> <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"b"}},"i":0}}]}'>b</span></pre>
 !! end
 
 ###
@@ -4580,7 +4562,7 @@ Parenthesis in external links, w/ transclusion or comment
 </p><p>(<a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>)
 </p>
 !! html/parsoid
-<p>(<a data-mw='{"attribs":[[{"txt":"href"},{"html":"http://example.com/&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;hi&amp;quot;,&amp;quot;html&amp;quot;:&amp;quot;hi&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;srcOffsets&amp;quot;:[27,27,27,29],&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]],&amp;quot;dsr&amp;quot;:[20,31,null,null]}\">hi&lt;/span>"}]]}' typeof="mw:ExpandedAttrs" about="#mwt2" rel="mw:ExtLink" href="http://example.com/hi" data-parsoid='{"stx":"url","a":{"href":"http://example.com/hi"},"sa":{"href":"http://example.com/{{echo|hi}}"}}'>http://example.com/hi</a>)</p>
+<p>(<a data-mw='{"attribs":[[{"txt":"href"},{"html":"http://example.com/&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;hi&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;srcOffsets&amp;quot;:[27,27,27,29],&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]],&amp;quot;dsr&amp;quot;:[20,31,null,null]}\">hi&lt;/span>"}]]}' typeof="mw:ExpandedAttrs" about="#mwt2" rel="mw:ExtLink" href="http://example.com/hi" data-parsoid='{"stx":"url","a":{"href":"http://example.com/hi"},"sa":{"href":"http://example.com/{{echo|hi}}"}}'>http://example.com/hi</a>)</p>
 <p>(<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url","a":{"href":"http://example.com"},"sa":{"href":"http://example.com&lt;!-- hi -->"}}'>http://example.com</a>)</p>
 !! end
 
@@ -6061,7 +6043,7 @@ parsoid
 !! wikitext
 {{echo|[[Foo]]}}l
 !! html
-<p><a rel="mw:WikiLink" href="Foo" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[Foo]]","html":"&lt;a rel=\"mw:WikiLink\" href=\"./Foo\" data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;simple&amp;quot;,&amp;quot;a&amp;quot;:{&amp;quot;href&amp;quot;:&amp;quot;./Foo&amp;quot;},&amp;quot;sa&amp;quot;:{&amp;quot;href&amp;quot;:&amp;quot;Foo&amp;quot;}}\">Foo&lt;/a>"}},"i":0}},"l"]}'>Fool</a></p>
+<p><a rel="mw:WikiLink" href="Foo" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[Foo]]"}},"i":0}},"l"]}'>Fool</a></p>
 !! end
 
 !! test
@@ -6071,7 +6053,7 @@ parsoid
 !! wikitext
 {{echo|Some [[Fool]]}}s
 !! html
-<p data-parsoid='{}'><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"Some [[Fool]]","html":"Some &lt;a rel=\"mw:WikiLink\" href=\"./Fool\" data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;simple&amp;quot;,&amp;quot;a&amp;quot;:{&amp;quot;href&amp;quot;:&amp;quot;./Fool&amp;quot;},&amp;quot;sa&amp;quot;:{&amp;quot;href&amp;quot;:&amp;quot;Fool&amp;quot;}}\">Fool&lt;/a>"}},"i":0}},"s"]}' data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}'>Some </span><a rel="mw:WikiLink" href="./Fool" about="#mwt1" data-parsoid='{"stx":"simple","a":{"href":"./Fool"},"sa":{"href":"Fool"},"tail":"s"}'>Fools</a></p>
+<p data-parsoid='{}'><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"Some [[Fool]]"}},"i":0}},"s"]}' data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}'>Some </span><a rel="mw:WikiLink" href="./Fool" about="#mwt1" data-parsoid='{"stx":"simple","a":{"href":"./Fool"},"sa":{"href":"Fool"},"tail":"s"}'>Fools</a></p>
 !! end
 
 !! test
@@ -6081,7 +6063,7 @@ parsoid
 !! wikitext
 {{echo|Some [[Fool]]s are '''bold and foolish'''}}
 !! html
-<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"Some [[Fool]]s are &#39;&#39;&#39;bold and foolish&#39;&#39;&#39;","html":"Some &lt;a rel=\"mw:WikiLink\" href=\"./Fool\" data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;simple&amp;quot;,&amp;quot;a&amp;quot;:{&amp;quot;href&amp;quot;:&amp;quot;./Fool&amp;quot;},&amp;quot;sa&amp;quot;:{&amp;quot;href&amp;quot;:&amp;quot;Fool&amp;quot;},&amp;quot;tail&amp;quot;:&amp;quot;s&amp;quot;}\">Fools&lt;/a> are &lt;b>bold and foolish&lt;/b>"}},"i":0}}]}' data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}'>Some <a rel="mw:WikiLink" href="./Fool" data-parsoid='{"stx":"simple","a":{"href":"./Fool"},"sa":{"href":"Fool"},"tail":"s"}'>Fools</a> are <b data-parsoid="{}">bold and foolish</b></p>
+<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"Some [[Fool]]s are &#39;&#39;&#39;bold and foolish&#39;&#39;&#39;"}},"i":0}}]}' data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}'>Some <a rel="mw:WikiLink" href="./Fool" data-parsoid='{"stx":"simple","a":{"href":"./Fool"},"sa":{"href":"Fool"},"tail":"s"}'>Fools</a> are <b data-parsoid="{}">bold and foolish</b></p>
 !! end
 
 !! article
@@ -6172,7 +6154,7 @@ parsoid
 !! wikitext
 [[Foo|{{echo|a}} b {{echo|c}}]]
 !! html
-<p><a rel="mw:WikiLink" href="Foo"><span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a","html":"a"}},"i":0}}]}'>a</span> b <span about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"c","html":"c"}},"i":0}}]}'>c</span></a></p>
+<p><a rel="mw:WikiLink" href="Foo"><span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a"}},"i":0}}]}'>a</span> b <span about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"c"}},"i":0}}]}'>c</span></a></p>
 !! end
 
 ###
@@ -8782,20 +8764,18 @@ c}}d
 b}}
 !! html
 a<span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"b
-<table></table>c","html":"b&lt;table data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;html&amp;quot;}\">&lt;/table>c"}},"i":0}}]}'>b</span>
+<table></table>c"}},"i":0}}]}'>b</span>
 <table about="#mwt1"></table><span about="#mwt1">c</span>d
 
 
-<p about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["a",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"b\n<table></table>\nc","html":"b\n&lt;table data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;html&amp;quot;}\">&lt;/table>\n&lt;p>c&lt;/p>"
-}},"i":0}},"d"]}'>ab</p><span about="#mwt2">
+<p about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["a",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"b\n<table></table>\nc"}},"i":0}},"d"]}'>ab</p><span about="#mwt2">
 </span>
 <table about="#mwt2"></table><span about="#mwt2">
 </span>
 <p about="#mwt2">cd</p>
 
 
-<p about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a\n\n<table></table>\n\nb","html":"a\n\n&lt;table data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;html&amp;quot;}\">&lt;/table>\n\n&lt;p>b&lt;/p>"
-}},"i":0}}]}'>a</p><span about="#mwt3">
+<p about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a\n\n<table></table>\n\nb"}},"i":0}}]}'>a</p><span about="#mwt3">
 
 </span>
 <table about="#mwt3"></table><span about="#mwt3">
@@ -8814,7 +8794,7 @@ parsoid
 |}
 !! html
 <table><tbody>
-<tr><td about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["|",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"{{!}} foo","html":"{{!}} foo"}},"i":0}}]}'> foo</td></tr>
+<tr><td about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["|",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"{{!}} foo"}},"i":0}}]}'> foo</td></tr>
 </tbody></table>
 !! end
 
@@ -8829,7 +8809,7 @@ parsoid
 |}
 {{echo|</div>}}
 !! html
-<div about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"<div>","html":"&lt;div data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;html&amp;quot;,&amp;quot;autoInsertedEnd&amp;quot;:true}\">&lt;/div>"}},"i":0}},"\n{|\n|",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"{{!}} foo","html":"{{!}} foo"}},"i":1}},"\n|}\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"</div>","html":""}},"i":2}}]}'>
+<div about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"<div>"}},"i":0}},"\n{|\n|",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"{{!}} foo"}},"i":1}},"\n|}\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"</div>"}},"i":2}}]}'>
 <table><tbody>
 <tr><td data-mw='{"parts":["|"]}'> foo</td></tr>
 </tbody></table>
@@ -9010,7 +8990,7 @@ parsoid
 !! html
 <!-- foo -->
 
-<p about="#mwt223" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"Bar","html":"Bar"}},"i":0}}]}'>Bar</p>
+<p about="#mwt223" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"Bar"}},"i":0}}]}'>Bar</p>
 !!end
 
 !!test
@@ -9416,7 +9396,7 @@ Templates: Ugly nesting: 2. Quotes opened/closed across templates (echo_with_spa
 !! wikitext
 {{echo_with_span|''a}}{{echo_with_span|b''c''d}}{{echo_with_span|''e}}
 !! html/parsoid
-<p><span about="#mwt1" typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo_with_span&quot;,&quot;href&quot;:&quot;./Template:Echo_with_span&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;''a&quot;,&quot;html&quot;:&quot;&lt;i data-parsoid=\&quot;{&amp;quot;autoInsertedEnd&amp;quot;:1}\&quot;>a&lt;/i>&quot;}},&quot;i&quot;:0}}]}"><i>a</i></span><i about="#mwt2" typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo_with_span&quot;,&quot;href&quot;:&quot;./Template:Echo_with_span&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;b''c''d&quot;,&quot;html&quot;:&quot;b&lt;i>c&lt;/i>d&quot;}},&quot;i&quot;:0}},{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo_with_span&quot;,&quot;href&quot;:&quot;./Template:Echo_with_span&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;''e&quot;,&quot;html&quot;:&quot;&lt;i data-parsoid=\&quot;{&amp;quot;autoInsertedEnd&amp;quot;:1}\&quot;>e&lt;/i>&quot;}},&quot;i&quot;:1}}]}"><span>b</span></i><span about="#mwt2">c</span><i about="#mwt2">d<span></span></i><span about="#mwt2">e</span></p>
+<p><span about="#mwt1" typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo_with_span&quot;,&quot;href&quot;:&quot;./Template:Echo_with_span&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;''a&quot;}},&quot;i&quot;:0}}]}"><i>a</i></span><i about="#mwt2" typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo_with_span&quot;,&quot;href&quot;:&quot;./Template:Echo_with_span&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;b''c''d&quot;}},&quot;i&quot;:0}},{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo_with_span&quot;,&quot;href&quot;:&quot;./Template:Echo_with_span&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;''e&quot;}},&quot;i&quot;:1}}]}"><span>b</span></i><span about="#mwt2">c</span><i about="#mwt2">d<span></span></i><span about="#mwt2">e</span></p>
 !!end
 
 !!test
@@ -9427,9 +9407,9 @@ parsoid=wt2html,wt2wt
 !! wikitext
 {{echo_with_div|''a}}{{echo_with_div|b''c''d}}{{echo_with_div|''e}}
 !! html
-<div about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo_with_div","href":"./Template:Echo_with_div"},"params":{"1":{"wt":"&#39;&#39;a","html":"&lt;i data-parsoid=\"{&amp;quot;autoInsertedEnd&amp;quot;:1}\">a&lt;/i>"}},"i":0}}]}'><i>a</i></div>
-<div typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo_with_div","href":"./Template:Echo_with_div"},"params":{"1":{"wt":"b&#39;&#39;c&#39;&#39;d","html":"b&lt;i>c&lt;/i>d"}},"i":0}}]}'><i>b</i>c<i>d</i></div>
-<div typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo_with_div","href":"./Template:Echo_with_div"},"params":{"1":{"wt":"&#39;&#39;e","html":"&lt;i data-parsoid=\"{&amp;quot;autoInsertedEnd&amp;quot;:1}\">e&lt;/i>"}},"i":0}}]}'>e</div>
+<div about="#mwt1" typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo_with_div&quot;,&quot;href&quot;:&quot;./Template:Echo_with_div&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;''a&quot;}},&quot;i&quot;:0}}]}"><i>a</i></div>
+<div about="#mwt2" typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo_with_div&quot;,&quot;href&quot;:&quot;./Template:Echo_with_div&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;b''c''d&quot;}},&quot;i&quot;:0}}]}"><i>b</i>c<i>d</i></div>
+<div about="#mwt3" typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo_with_div&quot;,&quot;href&quot;:&quot;./Template:Echo_with_div&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;''e&quot;}},&quot;i&quot;:0}}]}">e</div>
 !!end
 
 !!test
@@ -9487,7 +9467,7 @@ parsoid
   </tr>
 </table>
 !! html
-<table about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["<table>\n  <tr>\n    <td>\n    <table>\n      <tr>\n        <td>1. ",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo </table>","html":"foo "}},"i":0}},"</td>\n        <td> bar </td>\n        <td>2. ",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"baz </table>","html":"baz "}},"i":1}},"</td>\n      </tr>\n      <tr>\n        <td>abc</td>\n      </tr>\n    </table>\n    </td>\n  </tr>\n  <tr>\n    <td>xyz</td>\n  </tr>\n</table>"]}'>
+<table about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["<table>\n  <tr>\n    <td>\n    <table>\n      <tr>\n        <td>1. ",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo </table>"}},"i":0}},"</td>\n        <td> bar </td>\n        <td>2. ",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"baz </table>"}},"i":1}},"</td>\n      </tr>\n      <tr>\n        <td>abc</td>\n      </tr>\n    </table>\n    </td>\n  </tr>\n  <tr>\n    <td>xyz</td>\n  </tr>\n</table>"]}'>
   <tbody><tr>
     <td>
     <table>
@@ -9538,7 +9518,7 @@ Templates: Ugly templates: 5. Template encapsulation test: Non-trivial overlap o
 {{echo|<div>foo}}
 {{echo|</table>}}
 !! html/parsoid
-<div about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;table>","html":"&lt;table data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;html&amp;quot;,&amp;quot;autoInsertedEnd&amp;quot;:true}\">&lt;/table>"}},"i":0}},"\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;div>foo","html":"&lt;div data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;html&amp;quot;,&amp;quot;autoInsertedEnd&amp;quot;:true}\">foo&lt;/div>"}},"i":1}},"\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;/table>","html":""}},"i":2}}]}' data-parsoid='{"stx":"html","autoInsertedEnd":true,"pi":[[{"k":"1","spc":["","","",""]}],[{"k":"1","spc":["","","",""]}],[{"k":"1","spc":["","","",""]}]]}'>foo
+<div about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;table>"}},"i":0}},"\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;div>foo"}},"i":1}},"\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;/table>"}},"i":2}}]}' data-parsoid='{"stx":"html","autoInsertedEnd":true,"pi":[[{"k":"1","spc":["","","",""]}],[{"k":"1","spc":["","","",""]}],[{"k":"1","spc":["","","",""]}]]}'>foo
 </div><table about="#mwt1" data-parsoid='{"stx":"html"}'>
 </table>
 !! end
@@ -9552,7 +9532,7 @@ Templates: Ugly templates: 6. Template encapsulation test: Cyclical nesting of t
 {{echo|<div>}}
 {{echo|</div>}}
 !! html/parsoid
-<table about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;table>&lt;tr>&lt;td>&lt;table>","html":"&lt;table data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;html&amp;quot;,&amp;quot;autoInsertedEnd&amp;quot;:true}\">&lt;tbody data-parsoid=\"{&amp;quot;dsr&amp;quot;:[14,29,0,0]}\">&lt;tr data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;html&amp;quot;,&amp;quot;autoInsertedEnd&amp;quot;:true,&amp;quot;dsr&amp;quot;:[14,29,4,0]}\">&lt;td data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;html&amp;quot;,&amp;quot;autoInsertedEnd&amp;quot;:true,&amp;quot;dsr&amp;quot;:[18,29,4,0]}\">&lt;table data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;html&amp;quot;,&amp;quot;autoInsertedEnd&amp;quot;:true,&amp;quot;dsr&amp;quot;:[22,29,7,0]}\">&lt;/table>&lt;/td>&lt;/tr>&lt;/tbody>&lt;/table>"}},"i":0}},"\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;div>","html":"&lt;div data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;html&amp;quot;,&amp;quot;autoInsertedEnd&amp;quot;:true}\">&lt;/div>"}},"i":1}},"\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;/div>","html":""}},"i":2}}]}' data-parsoid='{"stx":"html","autoInsertedEnd":true,"pi":[[{"k":"1","spc":["","","",""]}],[{"k":"1","spc":["","","",""]}],[{"k":"1","spc":["","","",""]}]]}'><tbody><tr data-parsoid='{"stx":"html"}'><td data-parsoid='{"stx":"html"}'><div data-parsoid='{"stx":"html"}'>
+<table about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;table>&lt;tr>&lt;td>&lt;table>"}},"i":0}},"\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;div>"}},"i":1}},"\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;/div>"}},"i":2}}]}' data-parsoid='{"stx":"html","autoInsertedEnd":true,"pi":[[{"k":"1","spc":["","","",""]}],[{"k":"1","spc":["","","",""]}],[{"k":"1","spc":["","","",""]}]]}'><tbody><tr data-parsoid='{"stx":"html"}'><td data-parsoid='{"stx":"html"}'><div data-parsoid='{"stx":"html"}'>
 </div><table about="#mwt1" data-parsoid='{"stx":"html"}'>
 </table></td></tr></tbody></table>
 !! end
@@ -10391,7 +10371,7 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tright"><div class="thumbinner" style="width:139px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/137px-Foobar.jpg" width="137" height="16" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/206px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/274px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>This is a caption</div></div></div>
 
 !! html/parsoid
-<figure typeof="mw:Image/Thumb mw:ExpandedAttrs" data-mw='{"attribs":[["thumbnail",{"html":"thumb"}],["width",{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;137px&amp;quot;,&amp;quot;html&amp;quot;:&amp;quot;137px&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;srcOffsets&amp;quot;:[31,31,31,36],&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]],&amp;quot;dsr&amp;quot;:[24,38,null,null]}\">137px&lt;/span>"}]]}'><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="16" width="137"/></a><figcaption>This is a caption</figcaption></figure>
+<figure typeof="mw:Image/Thumb mw:ExpandedAttrs" data-mw='{"attribs":[["thumbnail",{"html":"thumb"}],["width",{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;137px&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;srcOffsets&amp;quot;:[31,31,31,36],&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]],&amp;quot;dsr&amp;quot;:[24,38,null,null]}\">137px&lt;/span>"}]]}'><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="16" width="137"/></a><figcaption>This is a caption</figcaption></figure>
 !! end
 
 !! test
@@ -10402,7 +10382,7 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tright"><div class="thumbinner" style="width:139px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/137px-Foobar.jpg" width="137" height="16" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/206px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/274px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>This is a caption</div></div></div>
 
 !! html/parsoid
-<figure typeof="mw:Image/Thumb mw:ExpandedAttrs" data-mw='{"attribs":[["thumbnail",{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;thumb&amp;quot;,&amp;quot;html&amp;quot;:&amp;quot;thumb&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;srcOffsets&amp;quot;:[25,25,25,30],&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]],&amp;quot;dsr&amp;quot;:[18,32,null,null]}\">thumb&lt;/span>"}],["width",{"html":"&lt;span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;137px&amp;quot;,&amp;quot;html&amp;quot;:&amp;quot;137px&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;srcOffsets&amp;quot;:[40,40,40,45],&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]],&amp;quot;dsr&amp;quot;:[33,47,null,null]}\">137px&lt;/span>"}]]}'><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="16" width="137"/></a><figcaption>This is a caption</figcaption></figure>
+<figure typeof="mw:Image/Thumb mw:ExpandedAttrs" data-mw='{"attribs":[["thumbnail",{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;thumb&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;srcOffsets&amp;quot;:[25,25,25,30],&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]],&amp;quot;dsr&amp;quot;:[18,32,null,null]}\">thumb&lt;/span>"}],["width",{"html":"&lt;span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;137px&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;srcOffsets&amp;quot;:[40,40,40,45],&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]],&amp;quot;dsr&amp;quot;:[33,47,null,null]}\">137px&lt;/span>"}]]}'><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="16" width="137"/></a><figcaption>This is a caption</figcaption></figure>
 !! end
 
 !! test
@@ -10413,7 +10393,7 @@ parsoid=wt2html,wt2wt,html2html
 <p><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" width="50" height="6" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/75px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/100px-Foobar.jpg 2x" /></a>
 </p>
 !! html/parsoid
-<p><span typeof="mw:Image mw:ExpandedAttrs" data-mw='{"attribs":[["width",{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;50px&amp;quot;,&amp;quot;html&amp;quot;:&amp;quot;50px&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;srcOffsets&amp;quot;:[25,25,25,29],&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]],&amp;quot;dsr&amp;quot;:[18,31,null,null]}\">50px&lt;/span>"}]]}'><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="6" width="50"/></a></span></p>
+<p><span typeof="mw:Image mw:ExpandedAttrs" data-mw='{"attribs":[["width",{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;50px&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;srcOffsets&amp;quot;:[25,25,25,29],&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]],&amp;quot;dsr&amp;quot;:[18,31,null,null]}\">50px&lt;/span>"}]]}'><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="6" width="50"/></a></span></p>
 !! end
 
 ## Parsoid does not provide editing support for images where templates produce multiple image attributes.
@@ -11508,7 +11488,7 @@ Parsoid-specific image handling - caption with a template in it
 !! wikitext
 [[File:Foobar.jpg|thumb|200x23px|This caption has a {{echo|transclusion}} in it.]]
 !! html/parsoid
-<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" height="23" width="200"></a><figcaption>This caption has a <span about="#mwt1" typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;transclusion&quot;,&quot;html&quot;:&quot;transclusion&quot;}},&quot;i&quot;:0}}]}">transclusion</span> in it.</figcaption></figure>
+<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" height="23" width="200"></a><figcaption>This caption has a <span about="#mwt1" typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;transclusion&quot;}},&quot;i&quot;:0}}]}">transclusion</span> in it.</figcaption></figure>
 !! end
 
 !! test
@@ -11690,7 +11670,7 @@ Render invalid page names as plain text (bug 51090)
 </p>
 !!html/parsoid
 <p>[[./../foo|bar]][[foo�|bar]][[foo/.|bar]][[foo/..|bar]][[foo~~~bar]][[foo>bar]][[foo[bar]][[.]][[..]][[foo././bar]]</p>
-<p>[[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"./../foo","html":"./../foo"}},"i":0}}]}'>./../foo</span>|bar]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo/.","html":"foo/."}},"i":0}}]}'>foo/.</span>|bar]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo/..","html":"foo/.."}},"i":0}}]}'>foo/..</span>|bar]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo~~~~bar","html":"foo~~~~bar"}},"i":0}}]}'>foo~~~~bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo>bar","html":"foo>bar"}},"i":0}}]}'>foo>bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo././bar","html":"foo././bar"}},"i":0}}]}'>foo././bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo{bar","html":"foo{bar"}},"i":0}}]}'>foo{bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo}bar","html":"foo}bar"}},"i":0}}]}'>foo}bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo[bar","html":"foo[bar"}},"i":0}}]}'>foo[bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo]bar","html":"foo]bar"}},"i":0}}]}'>foo]bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo&lt;bar","html":"foo&lt;bar"}},"i":0}}]}'>foo&lt;bar</span>]]</p>
+<p>[[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"./../foo"}},"i":0}}]}'>./../foo</span>|bar]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo/."}},"i":0}}]}'>foo/.</span>|bar]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo/.."}},"i":0}}]}'>foo/..</span>|bar]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo~~~~bar"}},"i":0}}]}'>foo~~~~bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo>bar"}},"i":0}}]}'>foo>bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo././bar"}},"i":0}}]}'>foo././bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo{bar"}},"i":0}}]}'>foo{bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo}bar"}},"i":0}}]}'>foo}bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo[bar"}},"i":0}}]}'>foo[bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo]bar"}},"i":0}}]}'>foo]bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo&lt;bar"}},"i":0}}]}'>foo&lt;bar</span>]]</p>
 !!end
 
 !! test
@@ -18188,9 +18168,12 @@ A <ref>
 
 <references />
 !! html
-<p>A <span class="reference" data-mw='{"name":"ref","body":{"html":"This is a &lt;b data-parsoid=&#39;{\"dsr\":[19,40,3,3]}&#39;>&lt;a rel=\"mw:WikiLink\" href=\"./Bolded_link\" data-parsoid=&#39;{\"stx\":\"simple\",\"a\":{\"href\":\"./Bolded_link\"},\"sa\":{\"href\":\"bolded link\"},\"dsr\":[22,37,2,2]}&#39;>bolded link&lt;/a>&lt;/b> and this is a &lt;span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"transclusion\",\"html\":\"transclusion\"}},\"i\":0}}]}&#39; data-parsoid=&#39;{\"pi\":[[{\"k\":\"1\",\"srcOffsets\":[62,62,62,74],\"spc\":[\"\",\"\",\"\",\"\"]}]],\"dsr\":[55,76,null,null]}&#39;>transclusion&lt;/span>\n"},"attrs":{}}' id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref"><a href="#cite_note-1">[1]</a></span></p>
-<ol class="references" typeof="mw:Extension/references" data-mw='{"name":"references","attrs":{}}'>
-<li id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1-0">↑</a></span> This is a <b><a rel="mw:WikiLink" href="Bolded_link">bolded link</a></b> and this is a <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"transclusion","html":"transclusion"}},"i":0}}]}'>transclusion</span></li></ol>
+<p>A <span about="#mwt2" class="reference" data-mw='{"name":"ref","body":{"html":"This is a &lt;b data-parsoid=&#39;{\"dsr\":[19,40,3,3]}&#39;>&lt;a rel=\"mw:WikiLink\" href=\"./Bolded_link\" data-parsoid=&#39;{\"stx\":\"simple\",\"a\":{\"href\":\"./Bolded_link\"},\"sa\":{\"href\":\"bolded link\"},\"dsr\":[22,37,2,2]}&#39;>bolded link&lt;/a>&lt;/b> and this is a &lt;span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"transclusion\"}},\"i\":0}}]}&#39; data-parsoid=&#39;{\"pi\":[[{\"k\":\"1\",\"srcOffsets\":[62,62,62,74],\"spc\":[\"\",\"\",\"\",\"\"]}]],\"dsr\":[55,76,null,null]}&#39;>transclusion&lt;/span>\n"},"attrs":{}}' id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref"><a href="#cite_note-1">[1]</a></span></p>
+
+<ol class="references" typeof="mw:Extension/references" about="#mwt4" data-mw='{"name":"references","attrs":{}}'>
+<li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1-0">↑</a></span> This is a <b><a rel="mw:WikiLink" href="./Bolded_link">bolded link</a></b> and this is a <span about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"transclusion"}},"i":0}}]}'>transclusion</span>
+</li>
+</ol>
 !!end
 
 !!test
@@ -18502,7 +18485,7 @@ parsoid
 !! wikitext
 <ref>Foo</ref> {{echo|<references />}}
 !! html
-<span about="#mwt3" class="reference" data-mw='{"name":"ref","body":{"html":"Foo"},"attrs":{}}' id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref"><a href="#cite_note-1">[1]</a></span> <ol class="references" typeof="mw:Extension/references mw:Transclusion" about="#mwt4" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;references />","html":"&lt;ol class=\"references\" typeof=\"mw:Extension/references\" about=\"#mwt7\" data-parsoid=\"{&amp;quot;src&amp;quot;:&amp;quot;&lt;references />&amp;quot;}\" data-mw=\"{&amp;quot;name&amp;quot;:&amp;quot;references&amp;quot;,&amp;quot;attrs&amp;quot;:{}}\">&lt;/ol>"}},"i":0}}]}'><li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1-0">↑</a></span> Foo</li></ol>
+<span about="#mwt3" class="reference" data-mw='{"name":"ref","body":{"html":"Foo"},"attrs":{}}' id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref"><a href="#cite_note-1">[1]</a></span> <ol class="references" typeof="mw:Extension/references mw:Transclusion" about="#mwt4" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;references />"}},"i":0}}]}'><li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1-0">↑</a></span> Foo</li></ol>
 !!end
 
 !! test
@@ -19950,7 +19933,7 @@ parsoid
 <table>
 <tbody>
 <tr></tr>
-<tr about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"<tr><td>foo</td></tr>","html":"foo"}},"i":0}}]}'>
+<tr about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"<tr><td>foo</td></tr>"}},"i":0}}]}'>
 <td>foo</td></tr>
 </tbody></table>
 !!end
@@ -20086,7 +20069,10 @@ parsoid=wt2html,wt2wt
 !! wikitext
 {{echo|<table>foo<tr><td>bar</td></tr></table>}}
 !! html
-<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;table>foo&lt;tr>&lt;td>bar&lt;/td>&lt;/tr>&lt;/table>","html":"&lt;span data-parsoid=\"{&amp;quot;fostered&amp;quot;:true,&amp;quot;autoInsertedEnd&amp;quot;:true,&amp;quot;autoInsertedStart&amp;quot;:true}\">foo&lt;/span>&lt;table data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;html&amp;quot;}\">&lt;tbody data-parsoid=\"{&amp;quot;dsr&amp;quot;:[14,38,0,0]}\">&lt;tr data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;html&amp;quot;,&amp;quot;dsr&amp;quot;:[17,38,4,5]}\">&lt;td data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;html&amp;quot;,&amp;quot;dsr&amp;quot;:[21,33,4,5]}\">bar&lt;/td>&lt;/tr>&lt;/tbody>&lt;/table>"}},"i":0}}]}'>foo</span>
+<span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;
+<table>foo
+<tr>
+<td>bar</td></tr></table>&quot;}},&quot;i&quot;:0}}]}">foo</span>
 <table>
 <tbody>
 <tr>
@@ -20100,7 +20086,10 @@ parsoid=wt2wt,wt2html
 !! wikitext
 <table>{{echo|foo<tr><td>bar</td></tr>}}</table>
 !! html
-<span typeof="mw:Transclusion" data-mw='{"parts":["&lt;table>",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo&lt;tr>&lt;td>bar&lt;/td>&lt;/tr>","html":"foobar"}},"i":0}},"&lt;/table>"]}'>foo</span>
+<span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;
+<table>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo
+<tr>
+<td>bar</td></tr>&quot;}},&quot;i&quot;:0}},&quot;</table>&quot;]}">foo</span>
 <table>
 <tbody>
 <tr>
@@ -20114,7 +20103,11 @@ parsoid=wt2wt,wt2html
 !! wikitext
 <table><div>{{echo|foo}}</div><tr><td>bar</td></tr></table>
 !! html
-<div typeof="mw:Transclusion" data-mw='{"parts":["&lt;table>&lt;div>",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo","html":"foo"}},"i":0}},"&lt;/div>&lt;tr>&lt;td>bar&lt;/td>&lt;/tr>&lt;/table>"]}'>foo</div>
+<div typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;
+<table>
+<div>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo&quot;}},&quot;i&quot;:0}},&quot;</div>
+<tr>
+<td>bar</td></tr></table>&quot;]}">foo</div>
 <table>
 <tbody>
 <tr>
@@ -20128,7 +20121,12 @@ parsoid=wt2wt,wt2html
 !! wikitext
 <table><div><p>{{echo|foo</p></div><tr><td>}}bar</td></tr></table>
 !! html
-<div typeof="mw:Transclusion" data-mw='{"parts":["&lt;table>&lt;div>&lt;p>",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo&lt;/p>&lt;/div>&lt;tr>&lt;td>","html":"foo&lt;p data-parsoid=\"{&amp;quot;autoInsertedStart&amp;quot;:true,&amp;quot;stx&amp;quot;:&amp;quot;html&amp;quot;}\">&lt;/p>"}},"i":0}},"bar&lt;/td>&lt;/tr>&lt;/table>"]}'>
+<div typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;
+<table>
+<div>
+<p>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo</p></div>
+<tr>
+<td>&quot;}},&quot;i&quot;:0}},&quot;bar</td></tr></table>&quot;]}">
 <p>foo</p></div>
 <table>
 <tbody>
@@ -20143,7 +20141,12 @@ parsoid=wt2wt,wt2html
 !! wikitext
 <table><div><p>{{echo|foo</p></div><tr><td>}}bar</td></tr></table>
 !! html
-<div typeof="mw:Transclusion" data-mw='{"parts":["&lt;table>&lt;div>&lt;p>",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo&lt;/p>&lt;/div>&lt;tr>&lt;td>","html":"foo&lt;p data-parsoid=\"{&amp;quot;autoInsertedStart&amp;quot;:true,&amp;quot;stx&amp;quot;:&amp;quot;html&amp;quot;}\">&lt;/p>"}},"i":0}},"bar&lt;/td>&lt;/tr>&lt;/table>"]}'>
+<div typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;
+<table>
+<div>
+<p>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo</p></div>
+<tr>
+<td>&quot;}},&quot;i&quot;:0}},&quot;bar</td></tr></table>&quot;]}">
 <p>foo</p></div>
 <table>
 <tbody>
@@ -20158,7 +20161,12 @@ parsoid=wt2wt,wt2html
 !! wikitext
 <table><tr><td><div><p>{{echo|foo</p></div></td>foo}}</tr></table>
 !! html
-<span typeof="mw:Transclusion" data-mw='{"parts":["&lt;table>&lt;tr>&lt;td>&lt;div>&lt;p>",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo&lt;/p>&lt;/div>&lt;/td>foo","html":"foo&lt;p data-parsoid=\"{&amp;quot;autoInsertedStart&amp;quot;:true,&amp;quot;stx&amp;quot;:&amp;quot;html&amp;quot;}\">&lt;/p>foo"}},"i":0}},"&lt;/tr>&lt;/table>"]}'>foo</span>
+<span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;
+<table>
+<tr>
+<td>
+<div>
+<p>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo</p></div></td>foo&quot;}},&quot;i&quot;:0}},&quot;</tr></table>&quot;]}">foo</span>
 <table>
 <tbody>
 <tr>
@@ -20174,7 +20182,12 @@ parsoid=wt2wt,wt2html
 !! wikitext
 <table><tr><td><div><p>{{echo|foo</p></div></td>foo</tr></table>}}<p>ok</p>
 !! html
-<span typeof="mw:Transclusion" data-mw='{"parts":["&lt;table>&lt;tr>&lt;td>&lt;div>&lt;p>",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo&lt;/p>&lt;/div>&lt;/td>foo&lt;/tr>&lt;/table>","html":"foo&lt;p data-parsoid=\"{&amp;quot;autoInsertedStart&amp;quot;:true,&amp;quot;stx&amp;quot;:&amp;quot;html&amp;quot;}\">&lt;/p>foo"}},"i":0}}]}'>foo</span>
+<span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;
+<table>
+<tr>
+<td>
+<div>
+<p>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo</p></div></td>foo</tr></table>&quot;}},&quot;i&quot;:0}}]}">foo</span>
 <table>
 <tbody>
 <tr>
@@ -20191,7 +20204,10 @@ parsoid=wt2wt,wt2html
 !! wikitext
 <table>{{echo|<p>foo</p>}}<td>bar</td></table>
 !! html
-<p typeof="mw:Transclusion" data-mw='{"parts":["&lt;table>",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;p>foo&lt;/p>","html":"&lt;p data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;html&amp;quot;}\">foo&lt;/p>"}},"i":0}},"&lt;td>bar&lt;/td>&lt;/table>"]}'>foo</p>
+<p typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;
+<table>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;
+<p>foo</p>&quot;}},&quot;i&quot;:0}},&quot;
+<td>bar</td></table>&quot;]}">foo</p>
 <table>
 <tbody>
 <tr>
@@ -20209,7 +20225,7 @@ parsoid=wt2wt,wt2html
 |b
 |}
 !! html
-<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a\n","html":"a\n"}},"i":0}}]}'>a</p><span typeof="mw:Transclusion" data-mw='{"parts":["{|",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"style":{"wt":"&#39;color:red&#39;","html":"&#39;color:red&#39;"}},"i":0}},"\n|-\n|b\n|}"]}'>{{{1}}}</span>
+<p typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;a\n&quot;}},&quot;i&quot;:0}}]}">a</p><span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;{|&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;style&quot;:{&quot;wt&quot;:&quot;'color:red'&quot;}},&quot;i&quot;:0}},&quot;\n|-\n|b\n|}&quot;]}">{{{1}}}</span>
 <table>
 <tbody>
 <tr>
@@ -20223,7 +20239,7 @@ parsoid=wt2wt,wt2html
 !! wikitext
 <table>{{echo|hi</table>hello}}
 !! html
-<span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["&lt;table>",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"hi&lt;/table>hello","html":"hihello"}},"i":0}}]}' data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true,"pi":[[{"k":"1","spc":["","","",""]}]]}'>hi</span>
+<span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["&lt;table>",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"hi&lt;/table>hello"}},"i":0}}]}' data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true,"pi":[[{"k":"1","spc":["","","",""]}]]}'>hi</span>
 <table about="#mwt2" data-parsoid='{"stx":"html"}'></table><span about="#mwt2" data-parsoid="{}">hello</span>
 !!end
 
@@ -20257,7 +20273,7 @@ Properly encapsulate empty-content transclusions in fosterable positions
 }}
 </table>
 !! html/parsoid
-<table about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["&lt;table>\n",{"template":{"target":{"wt":"#if:","function":"#if"},"params":{"1":{"wt":"\n&lt;td>foo&lt;/td>\n","html":"\nfoo\n"}},"i":0}},"\n&lt;/table>"]}' data-parsoid='{"stx":"html","pi":[[{"k":"1","spc":["","","",""]}]],"src":"&lt;table>\n{{#if:|\n&lt;td>foo&lt;/td>\n}}\n&lt;/table>"}'>
+<table about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["&lt;table>\n",{"template":{"target":{"wt":"#if:","function":"#if"},"params":{"1":{"wt":"\n&lt;td>foo&lt;/td>\n"}},"i":0}},"\n&lt;/table>"]}' data-parsoid='{"stx":"html","pi":[[{"k":"1","spc":["","","",""]}]],"src":"&lt;table>\n{{#if:|\n&lt;td>foo&lt;/td>\n}}\n&lt;/table>"}'>
 
 </table>
 !! end
