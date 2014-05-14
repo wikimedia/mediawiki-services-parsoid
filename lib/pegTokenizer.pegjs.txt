@@ -1624,12 +1624,15 @@ generic_tag
     attribs:generic_newline_attribute*
     space_or_newline* // No need to preserve this -- canonicalize on RT via dirty diff
     selfclose:"/"?
+    bad_ws:space* // No need to preserve this -- canonicalize on RT via dirty diff
     ">" {
         name = name.join('');
         var lcName = name.toLowerCase(),
             isVoidElt = Util.isVoidElement( lcName ) ? true : null;
         // Support </br>
+        var broken = false;
         if (lcName === 'br' && end) {
+            broken = true;
             end = null;
         }
 
@@ -1640,6 +1643,9 @@ generic_tag
         if (selfclose === null && isVoidElt) {
             delete res.dataAttribs.selfClose;
             res.dataAttribs.noClose = true;
+        }
+        if (broken || bad_ws.length > 0) {
+            res.dataAttribs.brokenHTMLTag = true;
         }
         return res;
     }

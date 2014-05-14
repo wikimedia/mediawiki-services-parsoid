@@ -6578,8 +6578,11 @@ Parsoid: Broken br tag recognition
 parsoid=wt2html
 !! wikitext
 </br>
+
+<br/ >
 !! html/parsoid
 <p><br></p>
+<p><br/></p>
 !! end
 
 !! test
