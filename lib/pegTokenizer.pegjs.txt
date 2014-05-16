@@ -405,7 +405,7 @@ extlink
           // before testing protocol.
           return Util.isProtocolValid(target.slice(0, -1), options.env);
         }
-        sp:$( space / [\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000] )*
+        sp:$( space / unispace )*
         targetOff:( "" { return endOffset(); })
         content:(
                 t1:(
@@ -437,7 +437,7 @@ extlink
     ) { return r; }
 
 autoref
-  = ref:('RFC' / 'PMID') space_or_newline+ identifier:$[0-9]+ end_of_word
+  = ref:('RFC' / 'PMID') sp:space_or_nbsp+ identifier:$[0-9]+ end_of_word
 {
     var base_urls = {
       'RFC': '//tools.ietf.org/html/rfc%s',
@@ -448,7 +448,7 @@ autoref
     return [
         new SelfclosingTagTk('extlink', [
            new KV('href', tu.sprintf(base_urls[ref], identifier)),
-           new KV('mw:content', [ref, identifier].join(' ')),
+           new KV('mw:content', tu.flattenString([ref, sp, identifier])),
            new KV('typeof', 'mw:ExtLink/' + ref),
         ],
         { stx: "magiclink", tsr: tsrOffsets() }),
@@ -456,30 +456,31 @@ autoref
 }
 
 isbn
-  = 'ISBN' space_or_newline+
-    head:[0-9]
-    digits:$([- ] &[0-9] / [0-9])+
-    tail:$([- ]? [xX])?
-    end_of_word
-{
-    // TODO: round-trip non-decimals too!
-    var isbn = [head, digits, tail].join('');
-    var isbncode = isbn.replace(/[^\dX]/ig, '');
-
-    // ISBNs can only be 10 or 13 chars long
-    if ([10, 13].indexOf(isbncode.length) === -1) {
-        // just return the string
-        return [ text() ];
-    }
-
-    return [
+  = 'ISBN' sp:space_or_nbsp+ isbn:(
+      [0-9]
+      (s:space_or_nbsp_or_dash &[0-9] { return s; } / [0-9])+
+      ((space_or_nbsp_or_dash / "") [xX] / "")
+    ) isbncode:(
+      end_of_word
+      {
+        // Convert isbn token-and-entity array to stripped string.
+        return tu.flattenStringlist(isbn).filter(function(e) {
+          return e.constructor === String;
+        }).join('').replace(/[^\dX]/ig, '').toUpperCase();
+      }
+    ) &{
+       // ISBNs can only be 10 or 13 digits long (with a specific format)
+       return isbncode.length === 10 ||
+             (isbncode.length === 13 && /^97[89]/.test(isbncode));
+    } {
+      return [
         new SelfclosingTagTk('extlink', [
-           new KV('href', 'Special:BookSources/' + isbncode.toUpperCase()),
-           new KV('mw:content', 'ISBN ' + isbn),
+           new KV('href', 'Special:BookSources/' + isbncode),
+           new KV('mw:content', tu.flattenString(['ISBN', sp, isbn])),
            new KV('typeof', 'mw:WikiLink/ISBN'),
         ],
         { stx: "magiclink", tsr: tsrOffsets() }),
-    ];
+      ];
 }
 
 
@@ -1878,6 +1879,23 @@ space_or_newline
  */
 end_of_word
   = eof / ![A-Za-z0-9_]
+
+// Unicode "separator, space" category.  It covers the \u0020 space as well
+// as \u3000 IDEOGRAPHIC SPACE (see bug 19052).  In PHP this is \p{Zs}.
+// Keep this up-to-date with the characters tagged ;Zs; in
+// http://www.unicode.org/Public/UNIDATA/UnicodeData.txt
+unispace = [ \u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]
+
+// Non-newline whitespace, including non-breaking spaces.  Used for magic links.
+space_or_nbsp
+  = space // includes \t
+  / unispace
+  / he:htmlentity &{ return Array.isArray(he) && /^\u00A0$/.test(he[1]); }
+    { return he; }
+
+// Used within ISBN magic links
+space_or_nbsp_or_dash
+  = space_or_nbsp / "-"
 
 // Extra newlines followed by at least another newline. Usually used to
 // compress surplus newlines into a meta tag, so that they don't trigger

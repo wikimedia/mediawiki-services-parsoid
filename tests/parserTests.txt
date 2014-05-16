@@ -9892,27 +9892,33 @@ __proto__
 Magic links: internal link to RFC (bug 479)
 !! wikitext
 [[RFC 123]]
-!! html
+!! html/php
 <p><a href="/index.php?title=RFC_123&amp;action=edit&amp;redlink=1" class="new" title="RFC 123 (page does not exist)">RFC 123</a>
 </p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./RFC_123" title="RFC 123">RFC 123</a></p>
 !! end
 
 !! test
 Magic links: RFC (bug 479)
 !! wikitext
 RFC 822
-!! html
+!! html/php
 <p><a class="external mw-magiclink-rfc" rel="nofollow" href="//tools.ietf.org/html/rfc822">RFC 822</a>
 </p>
+!! html/parsoid
+<p><a href="//tools.ietf.org/html/rfc822" rel="mw:ExtLink">RFC 822</a></p>
 !! end
 
 !! test
 Magic links: RFC (bug 65278)
 !! wikitext
 This is RFC 822 but thisRFC 822 is not RFC 822linked.
-!! html
+!! html/php
 <p>This is <a class="external mw-magiclink-rfc" rel="nofollow" href="//tools.ietf.org/html/rfc822">RFC 822</a> but thisRFC 822 is not RFC 822linked.
 </p>
+!! html/parsoid
+<p>This is <a href="//tools.ietf.org/html/rfc822" rel="mw:ExtLink">RFC 822</a> but thisRFC 822 is not RFC 822linked.</p>
 !! end
 
 !! test
@@ -9921,20 +9927,26 @@ Magic links: RFC (w/ non-newline whitespace, bug 28950/29025)
 RFC &nbsp;&#160;&#0160;&#xA0;&#Xa0; 822
 RFC
 822
-!! html
+!! html/php
 <p><a class="external mw-magiclink-rfc" rel="nofollow" href="//tools.ietf.org/html/rfc822">RFC 822</a>
 RFC
 822
 </p>
+!! html/parsoid
+<p><a href="//tools.ietf.org/html/rfc822" rel="mw:ExtLink">RFC <span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#0160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#xA0;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#Xa0;","srcContent":" "}'> </span> 822</a>
+RFC
+822</p>
 !! end
 
 !! test
 Magic links: ISBN (bug 1937)
 !! wikitext
 ISBN 0-306-40615-2
-!! html
+!! html/php
 <p><a href="/wiki/Special:BookSources/0306406152" class="internal mw-magiclink-isbn">ISBN 0-306-40615-2</a>
 </p>
+!! html/parsoid
+<p><a href="./Special:BookSources/0306406152" rel="mw:WikiLink">ISBN 0-306-40615-2</a></p>
 !! end
 
 !! test
@@ -9956,31 +9968,41 @@ ISBN
 9780316098113
 ISBN 978
 0316098113
-!! html
+!! html/php
 <p><a href="/wiki/Special:BookSources/9780316098113" class="internal mw-magiclink-isbn">ISBN 978 0 316 09811 3</a>
 ISBN
 9780316098113
 ISBN 978
 0316098113
 </p>
+!! html/parsoid
+<p><a href="./Special:BookSources/9780316098113" rel="mw:WikiLink">ISBN <span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#0160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#xA0;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#Xa0;","srcContent":" "}'> </span> 978<span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span>0<span typeof="mw:Entity" data-parsoid='{"src":"&amp;#160;","srcContent":" "}'> </span>316<span typeof="mw:Entity" data-parsoid='{"src":"&amp;#0160;","srcContent":" "}'> </span>09811<span typeof="mw:Entity" data-parsoid='{"src":"&amp;#xA0;","srcContent":" "}'> </span>3</a>
+ISBN
+9780316098113
+ISBN 978
+0316098113</p>
 !! end
 
 !! test
 Magic links: PMID incorrectly converts space to underscore
 !! wikitext
 PMID 1234
-!! html
+!! html/php
 <p><a class="external mw-magiclink-pmid" rel="nofollow" href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract">PMID 1234</a>
 </p>
+!! html/parsoid
+<p><a href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract" rel="mw:ExtLink">PMID 1234</a></p>
 !! end
 
 !! test
 Magic links: PMID (bug 65278)
 !! wikitext
 This is PMID 1234 but thisPMID 1234 is not PMID 1234linked.
-!! html
+!! html/php
 <p>This is <a class="external mw-magiclink-pmid" rel="nofollow" href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract">PMID 1234</a> but thisPMID 1234 is not PMID 1234linked.
 </p>
+!! html/parsoid
+<p>This is <a href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract" rel="mw:ExtLink">PMID 1234</a> but thisPMID 1234 is not PMID 1234linked.</p>
 !! end
 
 !! test
@@ -9989,11 +10011,15 @@ Magic links: PMID (w/ non-newline whitespace, bug 28950/29025)
 PMID &nbsp;&#160;&#0160;&#xA0;&#Xa0; 1234
 PMID
 1234
-!! html
+!! html/php
 <p><a class="external mw-magiclink-pmid" rel="nofollow" href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract">PMID 1234</a>
 PMID
 1234
 </p>
+!! html/parsoid
+<p><a href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract" rel="mw:ExtLink">PMID <span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#0160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#xA0;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#Xa0;","srcContent":" "}'> </span> 1234</a>
+PMID
+1234</p>
 !! end
 
 ###
