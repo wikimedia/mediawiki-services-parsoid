@@ -615,7 +615,7 @@ inline_element
      // Eat three opening brackets as text, but handle '[[[[' differently
      // so, that '[[[[Foo]]]]' parses as '[[<a..>Foo</a>]]'
     / (!'[' / sol) '[[[' !'[' { return '[[['; }
-    / & '[' r:( wikilink / extlink / autolink ) { return r; }
+    / & '[' r:( wikilink / extlink ) { return r; }
     / & "'" r:quote { return r; }
 
 /* Headings  */
