@@ -19464,15 +19464,21 @@ Links 7a. Don't add spurious <nowiki/>s between text-nodes and url-links (bug 64
 <p>x
 <a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>
 y
-(<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>)
 "<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>"
+(<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>)
+(<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>) foo
+<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>,
+<a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>, foo
 </p>
 !! wikitext
 x
 http://example.com
 y
-(http://example.com)
 "http://example.com"
+(http://example.com)
+(http://example.com) foo
+http://example.com,
+http://example.com, foo
 !! end
 
 ## Parsoid currently fails wt2html on this one!
