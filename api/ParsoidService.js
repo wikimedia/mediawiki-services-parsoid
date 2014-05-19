@@ -344,7 +344,8 @@ function ParsoidService(options) {
 						return;
 					}
 				} catch (e) {
-					console.log( e.stack );
+					console.log( e.stack || e );
+					res.end();
 				}
 				if ( typeof callback === 'function' ) {
 					callback();
