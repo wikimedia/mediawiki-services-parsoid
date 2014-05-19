@@ -1767,8 +1767,11 @@ ParserTests.prototype.processCase = function ( i, options, err ) {
 		if ( 'result' in item ) { item.html = item.result; delete item.result; }
 
 		// html/* and html/parsoid should be treated as html.
-		if ( 'html/*' in item ) { item.html = item['html/*']; }
-		if ( 'html/parsoid' in item ) { item.html = item['html/parsoid']; }
+		[ 'html/*', 'html/*+tidy', 'html+tidy', 'html/parsoid' ].forEach(function(alt) {
+			if (alt in item) {
+				item.html = item[alt];
+			}
+		});
 		// ensure that test is not skipped if it has a wikitext/edited section
 		if ( 'wikitext/edited' in item) { item.html = true; }
 
