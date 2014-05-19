@@ -18875,9 +18875,12 @@ Lists: 0. Outside nests
 <nowiki>*</nowiki>foo
 
 <nowiki>#</nowiki>foo
+
+<nowiki>;Foo:</nowiki>bar
 !! html
 <p>*foo
 </p><p>#foo
+</p><p>;Foo:bar
 </p>
 !!end
 

@@ -1862,9 +1862,12 @@ dtdd
     d:nested_block_line?
     &eolf {
         // Leave bullets as an array -- list handler expects this
-        var li1 = new TagTk( 'listItem', [], { tsr: [peg$reportedPos, peg$reportedPos + bullets.length] } );
+        // TSR: +1 for the leading ";"
+        var numBullets = bullets.length + 1;
+        var li1 = new TagTk( 'listItem', [], { tsr: [peg$reportedPos, peg$reportedPos + numBullets] } );
         li1.bullets = bullets.slice();
         li1.bullets.push(";");
+        // TSR: -1 for the intermediate ":"
         var li2 = new TagTk( 'listItem', [], { tsr: [cpos-1, cpos], stx: 'row' } );
         li2.bullets = bullets.slice();
         li2.bullets.push(":");
