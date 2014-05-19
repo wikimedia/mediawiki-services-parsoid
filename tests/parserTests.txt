@@ -5602,6 +5602,15 @@ Link to namespaces
 </p>
 !! end
 
+!! test
+Link with space in namespace
+!! wikitext
+[[User talk:Foo bar]]
+!! html
+<p><a href="/index.php?title=User_talk:Foo_bar&amp;action=edit&amp;redlink=1" class="new" title="User talk:Foo bar (page does not exist)">User talk:Foo bar</a>
+</p>
+!! end
+
 !! article
 MemoryAlpha:AlphaTest
 !! text
