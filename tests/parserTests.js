@@ -1841,12 +1841,67 @@ ParserTests.prototype.processCase = function ( i, options, err ) {
 							wikiConf.wgScriptPath = '/';
 							wikiConf.script = '/index.php';
 							wikiConf.articlePath = '/wiki/$1';
-							// this has been updated in the live wikis, but the parser tests
-							// expect the old value (as set in parserTest.inc:setupDatabase())
-							wikiConf.interwikiMap.meatball =
-								Util.clone(wikiConf.interwikiMap.meatball);
-							wikiConf.interwikiMap.meatball.url =
-								'http://www.usemod.com/cgi-bin/mb.pl?$1';
+							// Hard-code some interwiki prefixes, as is done
+							// in parserTest.inc:setupInterwikis()
+							var iwl = {
+								wikipedia: {
+									url: 'http://en.wikipedia.org/wiki/$1'
+								},
+								meatball: {
+									// this has been updated in the live wikis, but the parser tests
+									// expect the old value (as set in parserTest.inc:setupInterwikis())
+									url: 'http://www.usemod.com/cgi-bin/mb.pl?$1'
+								},
+								memoryalpha: {
+									url: 'http://www.memory-alpha.org/en/index.php/$1'
+								},
+								zh: {
+									prefix: 'zh',
+									url: 'http://zh.wikipedia.org/wiki/$1',
+									language: '\u4e2d\u6587',
+									protorel: true
+								},
+								es: {
+									prefix: 'es',
+									url: 'http://es.wikipedia.org/wiki/$1',
+									language: 'espa\u00f1ol',
+									protorel: true
+								},
+								fr: {
+									prefix: 'fr',
+									url: 'http://fr.wikipedia.org/wiki/$1',
+									language: 'fran\u00e7ais',
+									protorel: true
+								},
+								ru: {
+									prefix: 'ru',
+									url: 'http://ru.wikipedia.org/wiki/$1',
+									language: '\u0440\u0443\u0441\u0441\u043a\u0438\u0439',
+									protorel: true
+								},
+								// not in PHP setupInterwikis(), but needed
+								en: {
+									prefix: 'en',
+									url: 'http://en.wikipedia.org/wiki/$1',
+									language: 'English',
+									protorel: true
+								},
+								ko: {
+									prefix: 'ko',
+									url: 'http://ko.wikipedia.org/wiki/$1',
+									language: '\ud55c\uad6d\uc5b4',
+									protorel: true
+								}
+							};
+							Object.keys(iwl).forEach(function(key) {
+								wikiConf.interwikiMap[key] =
+									wikiConf.interwikiMap[key] ?
+									Util.clone(wikiConf.interwikiMap[key]) :
+									{};
+								Object.keys(iwl[key]).forEach(function(f) {
+									wikiConf.interwikiMap[key][f] = iwl[key][f];
+								});
+							});
 							// Add 'MemoryAlpha' namespace (bug 51680)
 							this.env.conf.wiki.namespaceNames['100'] = 'MemoryAlpha';
 							this.env.conf.wiki.namespaceIds.memoryalpha =
