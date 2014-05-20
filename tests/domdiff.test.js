@@ -3,6 +3,7 @@
 var DOMDiff = require('../lib/mediawiki.DOMDiff.js').DOMDiff,
 	Util = require('../lib/mediawiki.Util.js').Util,
 	DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils,
+	Logger = require('../lib/Logger.js').Logger,
 	yargs = require('yargs'),
 	fs = require('fs');
 
@@ -53,6 +54,14 @@ var dummyEnv = {
 	page: { id: null },
 	isParsoidObjectId: function() { return true; }
 };
+
+if (argv.debug) {
+	var logger = new Logger(dummyEnv);
+	logger.registerTracer(/^(trace|debug)(\/|$)/);
+	dummyEnv.log = logger.log.bind(logger);
+} else {
+	dummyEnv.log = function() {};
+}
 
 var dd = new DOMDiff(dummyEnv),
 	oldDOM = DU.parseHTML(oldhtml),
