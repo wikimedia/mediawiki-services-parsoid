@@ -6356,8 +6356,7 @@ parsoid
 !! wikitext
 [[ko:]]
 !! html
-<p>
-<link rel="mw:PageProp/Language" href="http://ko.wikipedia.org/wiki/"></p>
+<p><link rel="mw:PageProp/Language" href="http://ko.wikipedia.org/wiki/"></p>
 !! end
 
 !! test
