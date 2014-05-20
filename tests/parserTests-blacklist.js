@@ -703,7 +703,6 @@ add("html2html", "Inline interwiki link with empty title (bug 2372)", "<p data-p
 add("html2html", "Interwiki link encoding conversion (bug 1636)", "<ul data-parsoid='{\"dsr\":[0,255,0,0]}'><li data-parsoid='{\"dsr\":[0,127,1,0]}'> &lt;a href=\"http://en.wikipedia.org/wiki/ro:Olteni%C5%A3a\" class=\"extiw\" title=\"wikipedia:ro:Olteniţa\">Wikipedia:ro:Olteniţa&lt;/a></li>\n<li data-parsoid='{\"dsr\":[128,255,1,0]}'> &lt;a href=\"http://en.wikipedia.org/wiki/ro:Olteni%C5%A3a\" class=\"extiw\" title=\"wikipedia:ro:Olteniţa\">Wikipedia:ro:Olteniţa&lt;/a></li></ul>\n");
 add("html2html", "Interwiki link with fragment (bug 2130)", "<p data-parsoid='{\"dsr\":[0,136,0,0]}'>&lt;a href=\"http://www.usemod.com/cgi-bin/mb.pl?SoftSecurity#foo\" class=\"extiw\" title=\"meatball:SoftSecurity\">MeatBall:SoftSecurity#foo&lt;/a></p>\n");
 add("html2html", "Parsoid-specific test: Wikilinks with &nbsp; should RT properly", "<p data-parsoid='{\"dsr\":[0,111,0,0]}'>&lt;a href=\"/index.php?title=WW_II&amp;action=edit&amp;redlink=1\" class=\"new\" title=\"WW II (lonkásá  ezalí tɛ̂)\">WW II&lt;/a></p>\n");
-add("html2html", "Parsoid: recognize interlanguage links without a target page", "\n<p data-parsoid='{\"dsr\":[1,34,0,0]}'>[<a rel=\"mw:ExtLink\" href=\"http://ko.wikipedia.org/wiki/\" data-parsoid='{\"targetOff\":32,\"contentOffsets\":[32,32],\"dsr\":[2,33,30,1]}'></a>]</p>\n");
 add("html2html", "Parsoid: recognize interwiki links without a target page", "<p data-parsoid='{\"dsr\":[0,7,0,0]}'><link rel=\"mw:PageProp/Language\" href=\"//ko.wikipedia.org/wiki/\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"//ko.wikipedia.org/wiki/\"},\"sa\":{\"href\":\"ko:\"},\"dsr\":[0,7,null,null]}'/></p>\n");
 add("html2html", "<br> to <br />", "<p data-parsoid='{\"dsr\":[0,5,0,0]}'>1\n2\n3</p>\n");
 add("html2html", "Incorrecly removing closing slashes from correctly formed XHTML", "\n");
@@ -1302,7 +1301,6 @@ add("html2wt", "Double interlanguage link", "Blah blah blah\n");
 add("html2wt", "Interlanguage link, with prefix links", "Blah blah blah\n");
 add("html2wt", "Double interlanguage link, with prefix links (bug 8897)", "Blah blah blah\n");
 add("html2wt", "Parsoid-specific test: Wikilinks with &nbsp; should RT properly", "<a href=\"/index.php?title=WW_II&action=edit&redlink=1\" class=\"new\" title=\"WW II (lonkásá  ezalí tɛ̂)\">WW II</a>\n");
-add("html2wt", "Parsoid: recognize interlanguage links without a target page", "\n[[http://ko.wikipedia.org/wiki/]]\n");
 add("html2wt", "Parsoid: recognize interwiki links without a target page", "[[ko:]]\n");
 add("html2wt", "Redirect to image page (2)", "#REDIRECT [[File:Wiki.png]]");
 add("html2wt", "Redirect to language", "#REDIRECT [[File:Wiki.png]]");
