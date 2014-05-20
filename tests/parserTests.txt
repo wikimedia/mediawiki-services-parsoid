@@ -1992,8 +1992,10 @@ Templates: Indent-Pre: 1f: Wrapping should be based on expanded content
 Things that look like <pre> tags aren't treated as such
 !! wikitext
 Barack Obama <President> of the United States
+<President></President>
 !! html
 <p>Barack Obama &lt;President&gt; of the United States
+&lt;President&gt;&lt;/President&gt;
 </p>
 !! end
 

@@ -595,8 +595,8 @@ inline
 
 inlineline
   = c:(urltext 
-          / !{ return inline_breaks( input, peg$currPos, stops ); } // inline_breaks 
-            !pre_start 
+          / !{ return inline_breaks( input, peg$currPos, stops ); } // inline_breaks
+            !pre_start
             r:(inline_element / [^\r\n]) { return r; })+ {
       //console.warn('inlineline out:' + pp(c) + input.substr(peg$reportedPos, peg$currPos));
       return flatten_stringlist( c );
@@ -1233,6 +1233,11 @@ pre_tag_name =
       }
   }
 
+space_generic_attributes
+  = r:(space g:generic_attribute* { return g; })? {
+    return r === null ? [] : r;
+  }
+
 // An indented pre block that is surrounded with pre tags. The pre tags are
 // used directly.
 // XXX gwicke: check if the first line is not indented, and round-trip spaces;
@@ -1242,7 +1247,7 @@ pre_indent_in_tags
   = & { return stops.inc('pre'); }
     s:spaces // XXX: capture space for round-tripping
     "<" pre_tag_name
-    attribs:generic_attribute*
+    attribs:space_generic_attributes
     ">"
     l:nested_block_line
     ls:(sol pre_indent_line)*
@@ -1272,7 +1277,7 @@ pre_indent_line = " " l:nested_block_line {
 pre
   = & { return stops.inc('pre'); }
     "<" pre_tag_name
-    attribs:generic_attribute*
+    attribs:space_generic_attributes
     space*
     endpos:(">" { return peg$currPos; })
     // MediaWiki <pre> is special in that it converts all pre content to plain
