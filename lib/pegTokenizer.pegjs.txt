@@ -5,38 +5,13 @@
  * used where further processing on the token stream is needed.
  */
 {
-    /* Fixme: use static functions to separate module! Unfortunately, this
-     * does not work:
-     * var tu = require('./mediawiki.tokenizer.utils.js');
-     * console.warn(tu.flatten([]));
-     * Using exports in the module gets a bit further, but accesses to
-     * tu.flatten in productions still fail. Thus, I just moved the functions
-     * here until a solution is found:
-     */
-
-    /* Static utilities */
-
-    // Flatten a list of lists.
-    //var simple_flatten = function ( e ) {
-    //    // Fast single-level flatten:
-    //    //return [].concat.apply([], e);
-    //
-    //    var es = [];
-    //    // flatten sub-arrays
-    //    for(var i = 0, length = e.length; i < length; i++) {
-    //        var ei = e[i];
-    //        if ( Array.isArray( ei ) )
-    //            es = es.concat(flatten(ei));
-    //        else
-    //            es.push(ei);
-    //    };
-    //    return es;
-    //};
 
     var pegIncludes = options.pegIncludes,
         Util = pegIncludes.Util,
         PegTokenizer = pegIncludes.PegTokenizer,
-        defines = pegIncludes.defines;
+        defines = pegIncludes.defines,
+        constants = pegIncludes.constants,
+        tu = pegIncludes.tu;
 
     // define some constructor shortcuts
     var KV = defines.KV,
@@ -48,272 +23,13 @@
         EOFTk = defines.EOFTk;
 
     var inline_breaks = options.pegTokenizer.inline_breaks;
-
-
-    var flattenIfArray = function(e) {
-        function internal_flatten(e, res) {
-            // Don't bother flattening if we dont have an array
-            if ( !Array.isArray(e) ) {
-                return e;
-            }
-
-            for (var i = 0; i < e.length; i++) {
-                var v = e[i];
-                if ( Array.isArray(v) ) {
-                    // Change in assumption from a shallow array to a nested array.
-                    if (res === null) { res = e.slice(0, i); }
-                    internal_flatten(v, res);
-                } else if ( v !== null && v !== undefined ) {
-                    if (res !== null) {
-                        res.push(v);
-                    }
-                } else {
-                    options.env.log("fatal", "falsy", e);
-                }
-            }
-
-            if ( res ) {
-                e = res;
-            }
-            return e;
-        }
-
-        return internal_flatten(e, null);
-    };
-
-    var flatten_string = function ( c ) {
-        var out = flatten_stringlist( c );
-        if ( out.length === 1 && out[0].constructor === String ) {
-            return out[0];
-        } else {
-            return out;
-        }
-    };
-
-    var flatten_stringlist = function ( c ) {
-        var out = [],
-            text = '';
-        // c will always be an array
-        c = flattenIfArray(c);
-        for (var i = 0, l = c.length; i < l; i++) {
-            var ci = c[i];
-            if (ci.constructor === String) {
-                if(ci !== '') {
-                    text += ci;
-                }
-            } else {
-                if (text !== '') {
-                    out.push( text );
-                    text = '';
-                }
-                out.push(ci);
-            }
-        }
-        if (text !== '' ) {
-            out.push( text );
-        }
-        return out;
-    };
-
-    // Debug print with global switch
-    //var dp = function ( msg ) {
-    //    if ( false ) {
-    //        console.warn(msg);
-    //    }
-    //};
-
-    //var pp = function ( s ) { return JSON.stringify(s, null, 2); };
-
-    // Simple string formatting using '%s'
-    var sprintf = function ( format ) {
-        var args = Array.prototype.slice.call(arguments, 1);
-        return format.replace(/%s/g, function () {
-            return args.length ? args.shift() : '';
-        });
-    };
-
-
-    /**
-    * Get an attribute value and source, given a start and end position.  Returned object will have a 'value' property
-    * holding the value (first argument) and a 'valueSrc' property holding the raw value source
-    */
-    function get_attribute_value_and_source( attrVal, attrValPosStart, attrValPosEnd ) {
-        //console.log([attrVal, attrValPosStart, attrValPosEnd].join(", "));
-        return {
-            value: attrVal,
-            valueSrc: input.substring(attrValPosStart, attrValPosEnd)
-        };
-    }
-
-    /* End static utilities */
-
-    /*
-     * Flags for specific parse environments (inside tables, links etc). Flags
-     * trigger syntactic stops in the inline_breaks production, which
-     * terminates inline and attribute matches. Flags merely reduce the number
-     * of productions needed: The grammar is still context-free as the
-     * productions can just be unrolled for all combinations of environments
-     * at the cost of a much larger grammar.
-     */
-    function SyntaxStops () {
-        this.counters = {};
-        this.stacks = {};
-        this.key = '';
-        this._counterKey = '';
-        this._stackKey = '';
-    }
-    SyntaxStops.prototype.inc = function(flag) {
-        if (this.counters[flag] !== undefined) {
-            this.counters[flag]++;
-        } else {
-            this.counters[flag] = 1;
-        }
-        this._updateCounterKey();
-        return true;
-    };
-    SyntaxStops.prototype.dec = function(flag) {
-        if ( this.counters[flag] !== undefined ) {
-            this.counters[flag]--;
-        }
-        this._updateCounterKey();
-        return false;
-    };
-    SyntaxStops.prototype.onCount = function ( name ) {
-        return this.counters[name];
-    };
-
-    /**
-     * A stack for nested, but not cumulative syntactic stops.
-     * Example: '=' is allowed in values of template arguments, even if those
-     * are nested in attribute names.
-     */
-    SyntaxStops.prototype.push = function ( name, value ) {
-        if( this.stacks[name] === undefined ) {
-            this.stacks[name] = [value];
-        } else {
-            this.stacks[name].push( value );
-        }
-        this._updateStackKey();
-        return true;
-    };
-    SyntaxStops.prototype.pop = function ( name ) {
-        if( this.stacks[name] !== undefined ) {
-            this.stacks[name].pop();
-        } else {
-            throw "SyntaxStops.pop: unknown stop for " + name;
-        }
-        this._updateStackKey();
-        return false;
-    };
-    SyntaxStops.prototype.onStack = function ( name ) {
-        var stack = this.stacks[name];
-        if ( stack === undefined || stack.length === 0 ) {
-            return false;
-        } else {
-            return stack[stack.length - 1];
-        }
-    };
-
-    SyntaxStops.prototype._updateKey = function ( ) {
-        this._updateCounterKey();
-        this._updateStackKey();
-    };
-    SyntaxStops.prototype._updateCounterKey = function ( ) {
-        var counters = '';
-        for ( var k in this.counters ) {
-            if ( this.counters[k] > 0 ) {
-                counters += 'c' + k;
-            }
-        }
-        this._counterKey = counters;
-        this.key = this._counterKey + this._stackKey;
-    };
-    SyntaxStops.prototype._updateStackKey = function ( ) {
-        var stackStops = '';
-        for ( var k in this.stacks ) {
-            if ( this.onStack( k )  ) {
-                stackStops += 's' + k;
-            }
-        }
-        this._stackKey = stackStops;
-        this.key = this._counterKey + this._stackKey;
-    };
-
-    var stops = new SyntaxStops();
+    var stops = new tu.SyntaxStops();
 
     // Current extension/include tag being parsed.
     var currExtTag = null;
 
     // text start position
     var textStart = 0;
-
-    // SSS FIXME: Can we use WikitextConstants.HTML.BlockTags??
-    //
-    // Define block-level tags in JS, so we can use toLowerCase to match tags
-    // case-independently. This would be quite ugly (and possibly slower) if
-    // done manually in the grammar.
-    var block_names = new Set([
-        "p", "table", "td", "tr", "ul", "ol", "li",
-        "dl", "dt", "dd", "div", "center", "blockquote"
-    ]);
-
-
-    function buildXMLTag(name, lcName, attribs, endTag, selfClose, tsr) {
-        var tok, da = { tsr: tsr, stx: 'html' };
-
-        if (name !== lcName) {
-            da.srcTagName = name;
-        }
-
-        if ( endTag !== null) {
-            tok = new EndTagTk( lcName, attribs, da );
-        } else if ( selfClose !== null) {
-            da.selfClose = true;
-            tok = new SelfclosingTagTk( lcName, attribs, da );
-        } else {
-            tok = new TagTk( lcName, attribs, da  );
-        }
-
-        return tok;
-    }
-
-    function buildTableTokens(tagName, wtChar, attrInfo, tsr, endPos, content) {
-        var a, dp = {tsr: tsr};
-        if (!attrInfo) {
-            a = [];
-        } else {
-            a = attrInfo[0];
-            if ( a.length === 0 ) {
-                dp.startTagSrc = wtChar + attrInfo[1].join('');
-            }
-            if ((a.length === 0 && attrInfo[2]) || attrInfo[2] !== "|") {
-                // Variation from default
-                // 1. Separator present with an empty attribute block
-                // 2. Not "|"
-                dp.attrSepSrc = attrInfo[2];
-            }
-        }
-
-        var tokens = [new TagTk( tagName, a, dp )].concat( content );
-
-        // We rely on our tree builder to close the table cell (td/th) as needed.
-        // We cannot close the cell here because cell content can come from
-        // multiple parsing contexts and we cannot close the tag in the same
-        // parsing context in which the td was opened:
-        //   Ex: {{echo|{{!}}foo}}{{echo|bar}} has to output <td>foobar</td>
-        //
-        // But, add a marker meta-tag to capture tsr info.
-        // SSS FIXME: Unsure if this is actually helpful, but adding it in just in case.
-        // Can test later and strip it out if it doesn't make any diff to rting.
-        tokens.push(new SelfclosingTagTk('meta', [
-                        new KV('typeof', 'mw:TSRMarker'),
-                        new KV('data-tag', tagName)
-                    ], {
-                        tsr: [endPos, endPos]
-                    }));
-
-        return tokens;
-    }
 
     /*
      * Emit a chunk of tokens to our consumers.  Once this has been done, the
@@ -325,6 +41,7 @@
         options.env.log("trace/peg", options.pegTokenizer.pipelineId, "---->  ", tokens);
         options.cb(tokens);
     };
+
 }
 
 /*********************************************************
@@ -438,7 +155,7 @@ tlb
     // toplevelblocks!
     var tokens;
     if ( Array.isArray(b) && b.length ) {
-        b = flattenIfArray(b);
+        b = tu.flattenIfArray(b);
         var bs = b[0];
         if (bs && bs.constructor !== String && bs.dataAttribs === undefined) {
             bs.dataAttribs = {};
@@ -482,8 +199,8 @@ block
  */
 nested_block = !inline_breaks b:block { return b; }
 
-nested_block_line = bs:(!sol !inline_breaks b:block { return b; })* { 
-    return flattenIfArray(bs); 
+nested_block_line = bs:(!sol !inline_breaks b:block { return b; })* {
+    return tu.flattenIfArray(bs);
 }
 
 /*
@@ -590,7 +307,7 @@ pre_start = "<" pre_tag_name (' '+ [^>]*)? ">"
 inline
   = c:(urltext / (!inline_breaks !pre_start r:(inline_element / . ) { return r; }))+ {
       //console.warn('inline out:' + pp(c));
-      return flatten_stringlist( c );
+      return tu.flatten_stringlist( c );
   }
 
 inlineline
@@ -599,7 +316,7 @@ inlineline
             !pre_start
             r:(inline_element / [^\r\n]) { return r; })+ {
       //console.warn('inlineline out:' + pp(c) + input.substr(peg$reportedPos, peg$currPos));
-      return flatten_stringlist( c );
+      return tu.flatten_stringlist( c );
   }
 
 inline_element
@@ -694,7 +411,7 @@ behavior_switch
 }
 
 behavior_text = text:( &( !'__' ) tc:text_char { return tc; } )* {
-    return flatten_stringlist( text );
+    return tu.flatten_stringlist( text );
 }
 
 /**************************************************************
@@ -777,11 +494,11 @@ autoref
             'RFC'  : '//tools.ietf.org/html/rfc%s',
             'PMID' : '//www.ncbi.nlm.nih.gov/pubmed/%s?dopt=Abstract'
         },
-        url = sprintf(base_urls[ref], identifier);
+        url = tu.sprintf(base_urls[ref], identifier);
 
     return [
         new SelfclosingTagTk( 'extlink', [
-           new KV('href', sprintf(base_urls[ref], identifier)),
+           new KV('href', tu.sprintf(base_urls[ref], identifier)),
            new KV('mw:content', [ref, identifier].join(' ')),
            new KV( 'typeof', 'mw:ExtLink/' + ref )
         ],
@@ -877,7 +594,7 @@ url
          )+
 {
     proto += addr || '';
-    return flatten_string( [proto].concat( path ) );
+    return tu.flatten_string( [proto].concat( path ) );
 }
 
 // this is the somewhat-restricted production used in autolinks
@@ -899,21 +616,21 @@ autourl
          )+
 {
     proto += addr || '';
-    return flatten_string( [proto].concat( path ) );
+    return tu.flatten_string( [proto].concat( path ) );
 }
 
 ipv4_address
   = a:([0-9]* '.' [0-9]* '.' [0-9]* '.' [0-9]*)
 {
     // a will always be an array
-    return flattenIfArray( a ).join('');
+    return tu.flattenIfArray( a ).join('');
 }
 
 ipv6_address
   = a:('[' [0-9]* ':' [0-9]* ':' [0-9]* ':' [0-9]* ':' [0-9]* ':' [0-9]* ':' [0-9]* ']')
 {
     // a will always be an array
-    return flattenIfArray( a ).join('');
+    return tu.flattenIfArray( a ).join('');
 }
 
 
@@ -954,7 +671,7 @@ template
     target:template_param_value
     params:(nl_comment_space* "|"
                 r:( p0:({return peg$currPos;}) v:nl_comment_space* p:({return peg$currPos;}) &"|"
-                    { return new KV( '', flattenIfArray(v), [p0,p0,p0,p]); } // empty argument
+                    { return new KV( '', tu.flattenIfArray(v), [p0,p0,p0,p]); } // empty argument
                     / template_param
                   ) { return r; }
             )*
@@ -963,7 +680,7 @@ template
       // Insert target as first positional attribute, so that it can be
       // generically expanded. The TemplateHandler then needs to shift it out
       // again.
-      params.unshift( new KV(flattenIfArray( target.tokens ), '', target.srcOffsets) );
+      params.unshift( new KV(tu.flattenIfArray( target.tokens ), '', target.srcOffsets) );
       var obj = new SelfclosingTagTk( 'template', params, {tsr: [peg$reportedPos, peg$currPos], src: input.substring(peg$reportedPos, peg$currPos)} );
       //console.warn( 'tokenizer template ' + peg$currPos + );
       //console.warn('template @' + peg$currPos + '::' + input.substr(peg$currPos, 40) );
@@ -987,7 +704,7 @@ tplarg
     nl_comment_space*
     "}}}" {
       if (name) {
-        params.unshift( new KV( flattenIfArray(name.tokens), '', name.srcOffsets ) );
+        params.unshift( new KV( tu.flattenIfArray(name.tokens), '', name.srcOffsets ) );
       } else {
         params.unshift( new KV( '', '') );
       }
@@ -1014,12 +731,12 @@ template_param
       //console.warn( 'named template_param matched' + pp([name, value ]) );
       if ( val !== null ) {
           if ( val.value !== null ) {
-            return new KV( name, flattenIfArray( val.value ), [peg$reportedPos, val.kEndPos, val.vStartPos, peg$currPos] );
+            return new KV( name, tu.flattenIfArray( val.value ), [peg$reportedPos, val.kEndPos, val.vStartPos, peg$currPos] );
           } else {
-            return new KV(flattenIfArray( name ), '', [peg$reportedPos, val.kEndPos, val.vStartPos, peg$currPos] );
+            return new KV(tu.flattenIfArray( name ), '', [peg$reportedPos, val.kEndPos, val.vStartPos, peg$currPos] );
           }
       } else {
-        return new KV('', flattenIfArray(name), [peg$reportedPos, peg$reportedPos, peg$reportedPos, peg$currPos] );
+        return new KV('', tu.flattenIfArray(name), [peg$reportedPos, peg$reportedPos, peg$reportedPos, peg$currPos] );
       }
     }
   // empty parameter
@@ -1067,9 +784,9 @@ template_param_text
         stops.pop('pipe');
         stops.dec('template');
         //console.warn( 'tpt match: ' + pp (il) + " stops: " + pp(stops));
-        // il is guaranteed to be an array -- so, flattenIfArray will
+        // il is guaranteed to be an array -- so, tu.flattenIfArray will
         // always return an array
-        var r = flattenIfArray( il );
+        var r = tu.flattenIfArray( il );
         //console.warn('tpl param name' + peg$currPos + r[0] + '::' + input.substr(peg$currPos, 40) );
         if ( r.length === 1 && r[0].constructor === String ) {
             r = r[0];
@@ -1142,7 +859,7 @@ link_text_fragment
               })
     )+ {
       //console.warn('inline out:' + pp(c));
-      return flatten_stringlist( c );
+      return tu.flatten_stringlist( c );
   }
 
 link_text
@@ -1256,7 +973,7 @@ pre_indent_in_tags
     stops.dec('pre');
     var ret = [ new TagTk( 'pre', attribs, { tsr: [peg$reportedPos, peg$reportedPos] } ) ];
     // ls will always be an array
-    return ret.concat( l, flattenIfArray( ls ), [ new EndTagTk( 'pre' ) ] );
+    return ret.concat( l, tu.flattenIfArray( ls ), [ new EndTagTk( 'pre' ) ] );
   }
   / & { return stops.dec('pre'); }
 
@@ -1293,7 +1010,7 @@ pre
         // Emit as SelfclosingTag in order to avoid the nested pre problem in
         // the PreHandler.
         attribs.push(new KV('property', 'mw:html'));
-        attribs.push(new KV('content', flatten_stringlist(ts)));
+        attribs.push(new KV('content', tu.flatten_stringlist(ts)));
         return [
             new SelfclosingTagTk('pre', attribs, {
                 tsr: [peg$reportedPos, peg$currPos],
@@ -1611,7 +1328,7 @@ nowiki_content
        )* {
             // return nowiki tags as well?
             //console.warn('nowiki_content: return' + pp(ts));
-            return flatten_stringlist(ts);
+            return tu.flatten_stringlist(ts);
           }
 
 /* Generic XML-like tags
@@ -1641,7 +1358,7 @@ generic_tag
             end = null;
         }
 
-        var res = buildXMLTag(name, lcName, attribs, end, selfclose || isVoidElt, [peg$reportedPos, peg$currPos]);
+        var res = tu.buildXMLTag(name, lcName, attribs, end, selfclose || isVoidElt, [peg$reportedPos, peg$currPos]);
 
         // change up data-attribs in one scenario
         // void-elts that aren't self-closed ==> useful for accurate RT-ing
@@ -1763,36 +1480,36 @@ generic_attribute_value
 // Attribute value, quoted variants can span multiple lines.
 xml_att_value
   = "'" r:(valPos1:({return peg$currPos;}) t1:attribute_preprocessor_text_single? valPos2:({return peg$currPos;}) "'"
-            { return get_attribute_value_and_source(t1, valPos1, valPos2); }
+            { return tu.get_attribute_value_and_source(input, t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
         / valPos1:({return peg$currPos;}) t2:attribute_preprocessor_text_single_broken? valPos2:({return peg$currPos;}) &[|>]
-            { return get_attribute_value_and_source(t2, valPos1, valPos2); } )
+            { return tu.get_attribute_value_and_source(input, t2, valPos1, valPos2); } )
                 { return r; }
   / '"' r:(valPos1:({return peg$currPos;}) t1:attribute_preprocessor_text_double? valPos2:({return peg$currPos;}) '"'
-            { return get_attribute_value_and_source(t1, valPos1, valPos2); }
+            { return tu.get_attribute_value_and_source(input, t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
         / valPos1:({return peg$currPos;}) t2:attribute_preprocessor_text_double_broken? valPos2:({return peg$currPos;}) &[|>]
-            { return get_attribute_value_and_source(t2, valPos1, valPos2); } )
+            { return tu.get_attribute_value_and_source(input, t2, valPos1, valPos2); } )
                 { return r; }
   / valPos1:({return peg$currPos;}) t:attribute_preprocessor_text? valPos2:({return peg$currPos;})
-        { return get_attribute_value_and_source(t, valPos1, valPos2); }
+        { return tu.get_attribute_value_and_source(input, t, valPos1, valPos2); }
 
 // Attribute value, restricted to a single line.
 att_value
   = "'" r:(valPos1:({return peg$currPos;}) t1:attribute_preprocessor_text_single_line? valPos2:({return peg$currPos;}) "'"
-            { return get_attribute_value_and_source(t1, valPos1, valPos2); }
+            { return tu.get_attribute_value_and_source(input, t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
         / valPos1:({return peg$currPos;}) t2:attribute_preprocessor_text_single_line_broken? valPos2:({return peg$currPos;}) &[|>]
-            { return get_attribute_value_and_source(t2, valPos1, valPos2); } )
+            { return tu.get_attribute_value_and_source(input, t2, valPos1, valPos2); } )
                 { return r; }
   / '"' r:(valPos1:({return peg$currPos;}) t1:attribute_preprocessor_text_double_line? valPos2:({return peg$currPos;}) '"'
-            { return get_attribute_value_and_source(t1, valPos1, valPos2); }
+            { return tu.get_attribute_value_and_source(input, t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
         / valPos1:({return peg$currPos;}) t2:attribute_preprocessor_text_double_line_broken? valPos2:({return peg$currPos;}) &[|>]
-            { return get_attribute_value_and_source(t2, valPos1, valPos2); } )
+            { return tu.get_attribute_value_and_source(input, t2, valPos1, valPos2); } )
                 { return r; }
   / valPos1:({return peg$currPos;}) t:attribute_preprocessor_text_line? valPos2:({return peg$currPos;})
-        { return get_attribute_value_and_source(t, valPos1, valPos2); }
+        { return tu.get_attribute_value_and_source(input, t, valPos1, valPos2); }
 
 /*
  * A variant of generic_tag, but also checks if the tag name is a block-level
@@ -1808,8 +1525,10 @@ block_tag
     selfclose:"/"?
     ">" {
         var lcName = name.toLowerCase();
-        if (block_names.has(lcName)) {
-            return [buildXMLTag(name, lcName, attribs, end, selfclose, [peg$reportedPos, peg$currPos])];
+        if (lcName !== "pre" && lcName !== "hr" &&
+            constants.HTML.BlockTags.has(name.toUpperCase())
+        ) {
+            return [tu.buildXMLTag(name, lcName, attribs, end, selfclose, [peg$reportedPos, peg$currPos])];
         } else {
             // abort match if tag is not block-level
             peg$currPos = peg$reportedPos;
@@ -1852,7 +1571,7 @@ hacky_dl_uses = bullets:":"+
     // Leave bullets as an array -- list handler expects this
     var li = new TagTk( 'listItem', [], { tsr: [peg$reportedPos, peg$reportedPos + bullets.length] }  );
     li.bullets = bullets;
-    return flattenIfArray([li, c || [], s || []]);
+    return tu.flattenIfArray([li, c || [], s || []]);
 }
 
 dtdd
@@ -1956,7 +1675,7 @@ table_caption_tag
     args:single_cell_table_args?
     tagEndPos:({return peg$currPos;})
     c:nested_block_in_table* {
-        return buildTableTokens("caption", "|+", args, [peg$reportedPos, tagEndPos], peg$currPos, c)
+        return tu.buildTableTokens("caption", "|+", args, [peg$reportedPos, tagEndPos], peg$currPos, c)
             .concat([new EndTagTk('caption')]);
     }
 
@@ -2015,9 +1734,9 @@ implicit_table_data_tag
     tagEndPos:({return peg$currPos;})
     b:nested_block+
     {
-        b = flattenIfArray(b);
+        b = tu.flattenIfArray(b);
         var nlTok = b.shift();
-        var td = buildTableTokens("td", "|", '', [nlTok.dataAttribs.tsr[1], tagEndPos], peg$currPos, b);
+        var td = tu.buildTableTokens("td", "|", '', [nlTok.dataAttribs.tsr[1], tagEndPos], peg$currPos, b);
         td[0].dataAttribs.autoInsertedStart = true;
         td[0].dataAttribs.autoInsertedEnd = true;
         return [nlTok, td];
@@ -2032,7 +1751,7 @@ table_data_tag
     tagEndPos:({return peg$currPos;})
     td:nested_block_in_table*
     {
-        return buildTableTokens("td", "|", arg, [peg$reportedPos, tagEndPos], peg$currPos, td);
+        return tu.buildTableTokens("td", "|", arg, [peg$reportedPos, tagEndPos], peg$currPos, td);
     }
 
 table_heading_tags
@@ -2061,7 +1780,7 @@ table_heading_tag
     tagEndPos:({return peg$currPos;})
     c:nested_block_in_table* {
         //console.warn( 'table_heading_tag: ' + pp( [a, c] ) );
-        return buildTableTokens("th", "!", arg, [peg$reportedPos, tagEndPos], peg$currPos, c);
+        return tu.buildTableTokens("th", "!", arg, [peg$reportedPos, tagEndPos], peg$currPos, c);
     }
 
 table_end_tag
@@ -2297,7 +2016,7 @@ empty_line_with_comments
         return [
             sp,
             new SelfclosingTagTk("meta", [new KV('typeof', 'mw:EmptyLine')], {
-                tokens: flattenIfArray(c),
+                tokens: tu.flattenIfArray(c),
                 tsr: [p, peg$currPos]
             })
         ];
@@ -2447,7 +2166,7 @@ preprocessor_text
     / text_char ) { return dt; }
   )+ {
       // r will always be an array
-      return flattenIfArray ( r );
+      return tu.flattenIfArray( r );
   }
 
 wikilink_preprocessor_text
@@ -2456,7 +2175,7 @@ wikilink_preprocessor_text
         / !inline_breaks wr:( directive / !"]]" c:( text_char / [!] ) { return c; } )
         { return wr; }
     )+ {
-      return flatten_stringlist ( r );
+      return tu.flatten_stringlist( r );
   }
 
 extlink_preprocessor_text
@@ -2469,7 +2188,7 @@ extlink_preprocessor_text
   / s:[.:,] !(space / eolf) { return s; }
   / q:['] !([']) { return q; } // single quotes are ok, double quotes are bad
   / [&%|{] )+ {
-      return flatten_string ( r );
+      return tu.flatten_string( r );
   }
 
 // Attribute values with preprocessor support
@@ -2484,7 +2203,7 @@ attribute_preprocessor_text
   )+
   {
       //console.warn('prep');
-      return flatten_string ( r );
+      return tu.flatten_string( r );
   }
 
 attribute_preprocessor_text_single
@@ -2494,7 +2213,7 @@ attribute_preprocessor_text_single
     / [{}&<] ) { return r; }
   )*
   {
-      return flatten_string ( r );
+      return tu.flatten_string( r );
   }
 attribute_preprocessor_text_single_broken
   = r:( t:[^{}&'<>|]+ { return t.join(''); }
@@ -2503,7 +2222,7 @@ attribute_preprocessor_text_single_broken
     / [{}&<] ) { return r; }
   )*
   {
-      return flatten_string ( r );
+      return tu.flatten_string( r );
   }
 attribute_preprocessor_text_double
   = r:( t:[^{}&"<]+ { return t.join(''); }
@@ -2513,7 +2232,7 @@ attribute_preprocessor_text_double
   )*
   {
       //console.warn( 'double:' + pp(r) );
-      return flatten_string ( r );
+      return tu.flatten_string( r );
   }
 attribute_preprocessor_text_double_broken
   = r:( t:[^{}&"<>|]+ { return t.join(''); }
@@ -2523,7 +2242,7 @@ attribute_preprocessor_text_double_broken
   )*
   {
       //console.warn( 'double:' + pp(r) );
-      return flatten_string ( r );
+      return tu.flatten_string( r );
   }
 
 // Variants with the entire attribute on a single line
@@ -2544,7 +2263,7 @@ attribute_preprocessor_text_line
       )+
   {
       //console.warn('prep');
-      return flatten_string ( r );
+      return tu.flatten_string( r );
   }
 
 attribute_preprocessor_text_single_line
@@ -2553,7 +2272,7 @@ attribute_preprocessor_text_single_line
       directive
     / ![\r\n] q:[{}&<] { return q; } ) { return r; }
   )* {
-      return flatten_string ( r );
+      return tu.flatten_string( r );
   }
 attribute_preprocessor_text_single_line_broken
   = r:( t:[^{}&'<>|!]+ { return t.join(''); }
@@ -2561,7 +2280,7 @@ attribute_preprocessor_text_single_line_broken
       directive
     / ![\r\n] q:[{}&<] { return q; } ) { return r; }
   )* {
-      return flatten_string ( r );
+      return tu.flatten_string( r );
   }
 attribute_preprocessor_text_double_line
   = r:( t:[^{}&"<|!]+ { return t.join(''); }
@@ -2569,7 +2288,7 @@ attribute_preprocessor_text_double_line
       directive
     / ![\r\n] q:[{}&<] { return q; } ) { return r; }
   )* {
-      return flatten_string ( r );
+      return tu.flatten_string( r );
   }
 attribute_preprocessor_text_double_line_broken
   = r:( t:[^{}&"<>|!]+ { return t.join(''); }
@@ -2577,7 +2296,7 @@ attribute_preprocessor_text_double_line_broken
       directive
     / ![\r\n] q:[{}&<] { return q; } ) { return r; }
   )* {
-      return flatten_string ( r );
+      return tu.flatten_string( r );
   }
 
 // Special-case support for those pipe templates
