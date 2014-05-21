@@ -2691,6 +2691,23 @@ foo
 foo
 </pre>
 
+!! html/parsoid
+<pre data-parsoid='{"stx":"html"}'>foo</pre>
+
+<pre data-parsoid='{"stx":"html","strippedNL":"\n"}'>
+foo
+</pre>
+
+<pre data-parsoid='{"stx":"html"}'>
+
+foo
+</pre>
+
+<pre data-parsoid='{"stx":"html"}'>
+
+
+foo
+</pre>
 !!end
 
 !!test

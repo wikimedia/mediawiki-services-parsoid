@@ -628,7 +628,6 @@ add("html2html", "Leading pipes outside of tables", "| foo\n");
 add("html2html", "Leading pipes outside of tables 2", "<p data-parsoid='{\"dsr\":[1,2,0,0]}'>a</p>\n| foo\n<p data-parsoid='{\"dsr\":[9,10,0,0]}'>b</p>\n");
 add("html2html", "Leading pipes outside of tables 3", "<p data-parsoid='{\"dsr\":[1,2,0,0]}'>a</p>\n| class=\"foo bar\" | baz\n<p data-parsoid='{\"dsr\":[27,28,0,0]}'>b</p>\n");
 add("html2html", "4. Multiple spaces at start-of-line", "<p data-parsoid='{\"dsr\":[0,22,0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[0,18,8,9]}'> </span>foo </p>\n<pre data-parsoid='{\"dsr\":[23,30,1,0]}'>   foo</pre>\n\n<table data-parsoid='{\"dsr\":[32,43,2,2]}'>\n\n<tbody data-parsoid='{\"dsr\":[36,41,0,0]}'><tr data-parsoid='{\"autoInsertedEnd\":true,\"autoInsertedStart\":true,\"dsr\":[36,40,0,0]}'><td data-parsoid='{\"autoInsertedEnd\":true,\"dsr\":[36,40,1,0]}'>foo</td></tr>\n</tbody></table>\n");
-add("html2html", "HTML-pre: 1. embedded newlines", "<pre data-parsoid='{\"dsr\":[0,4,1,0]}'>foo</pre>\n\n<pre data-parsoid='{\"dsr\":[6,10,1,0]}'>foo</pre>\n\n <p data-parsoid='{\"dsr\":[13,13,0,0]}'><br data-parsoid='{\"dsr\":[13,13,0,0]}'/></p>\n<pre data-parsoid='{\"dsr\":[14,18,1,0]}'>foo</pre>\n\n <p data-parsoid='{\"dsr\":[21,21,0,0]}'><br data-parsoid='{\"dsr\":[21,21,0,0]}'/></p>\n \n<pre data-parsoid='{\"dsr\":[24,28,1,0]}'>foo</pre>\n");
 add("html2html", "HTML-pre: 3: other wikitext", "<pre data-parsoid='{\"dsr\":[0,71,1,0]}'>* foo\n<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[8,71,8,9]}'># bar\n = no-h =\n '' no-italic ''\n [[ NoLink ]]</span></pre>\n");
 add("html2html", "Definition list with no space", "\n<dl data-parsoid='{\"dsr\":[1,20,0,0]}'><dt data-parsoid='{\"dsr\":[1,7,1,0]}'> name</dt>\n<dd data-parsoid='{\"dsr\":[8,20,1,0]}'> Definition</dd></dl>\n");
 add("html2html", "Definition list with bracketed URL link", "\n<dl data-parsoid='{\"dsr\":[1,57,0,0]}'><dt data-parsoid='{\"dsr\":[1,36,1,0]}'> <a rel=\"mw:ExtLink\" href=\"http://www.example.com/\" data-parsoid='{\"targetOff\":28,\"contentOffsets\":[28,35],\"dsr\":[3,36,25,1]}'>Example</a></dt>\n<dd data-parsoid='{\"dsr\":[37,57,1,0]}'> Something about it</dd></dl>\n");
@@ -1152,7 +1151,6 @@ add("html2wt", "Render paragraphs when indent-pre is suppressed in blocklevels",
 add("html2wt", "4. Multiple spaces at start-of-line", "<nowiki> </nowiki>foo \n    foo\n\n{|\n\n|foo\n|}\n");
 add("html2wt", "5a. White-space in indent-pre", " a<br>\n \n \n b\n");
 add("html2wt", "6. Pre-blocks should extend across lines with leading WS even when there is no wrappable content", " a\n \n b\n\n c\n \n\nd\n");
-add("html2wt", "HTML-pre: 1. embedded newlines", " foo\n\n foo\n\n \n foo\n\n \n \n foo\n");
 add("html2wt", "HTML-pre: 2: indented text", "  foo\n");
 add("html2wt", "HTML-pre: 3: other wikitext", " * foo\n <nowiki># bar\n = no-h =\n '' no-italic ''\n [[ NoLink ]]</nowiki>\n");
 add("html2wt", "Simple definition", "\n; name \n: Definition\n");
