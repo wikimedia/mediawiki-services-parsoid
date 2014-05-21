@@ -670,10 +670,11 @@ ParserTests.prototype.generateChanges = function( options, item, content, cb ) {
 	 * If no node in the DOM subtree rooted at 'node' is editable in the VE,
 	 * this function should return false.
 	 *
-	 * Currently true for template and extension content.
+	 * Currently true for template and extension content, and for entities.
 	 */
 	function domSubtreeIsEditable(env, node) {
-		return !DU.isTplElementNode(env, node);
+		return !DU.isTplElementNode(env, node) &&
+			!(DU.isElt(node) && node.getAttribute("typeof") === "mw:Entity");
 	}
 
 	/**
