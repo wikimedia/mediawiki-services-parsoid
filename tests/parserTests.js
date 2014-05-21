@@ -637,9 +637,9 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 	if (this.env.conf.parsoid.dumpFlags &&
 		this.env.conf.parsoid.dumpFlags.indexOf("dom:post-changes") !== -1)
 	{
-		console.warn("Change tree: " + JSON.stringify(item.changes));
+		console.warn("Change tree : " + JSON.stringify(item.changes));
 		console.warn("-------------------------");
-		console.warn("DOM with changes applied: " + content.outerHTML);
+		console.warn("Edited DOM  : " + content.outerHTML);
 		console.warn("-------------------------");
 	}
 
