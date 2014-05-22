@@ -488,7 +488,6 @@ add("wt2wt", "Templates: Handle comments in the target", "{{echo\n<!-- should be
 add("wt2wt", "4. Indent-Pre and extension tags", " a <gallery>\n File:foobar.jpg\n </gallery>\n");
 add("wt2wt", "Leading pipes outside of tables 2", "a\n| foo\n\nb\n");
 add("wt2wt", "Leading pipes outside of tables 3", "a\n| class=\"foo bar\" | baz\n\nb\n");
-add("wt2wt", "HTML-pre: 1. embedded newlines", "<pre>foo</pre>\n\n<pre>\nfoo\n</pre>\n\n<pre>\nfoo\n</pre>\n\n<pre>\n\nfoo\n</pre>");
 add("wt2wt", "Definition lists: self-closed tag", ";one<br />two : two-line fun");
 add("wt2wt", "BUG 289: \">\"-token in bracketed URL", "[http://www.example.com/ <hello> stuff]\n");
 add("wt2wt", "BUG 289: literal \">\"-token in bracketed URL", "[http://www.example.com/ <b>html</b> stuff]\n");

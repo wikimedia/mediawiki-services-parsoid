@@ -428,7 +428,7 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
 		self = this,
 		startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser';
 	try {
-		this.env.page.dom = item.cachedHTMLStr ? DU.parseHTML(item.cachedHTMLStr).body : null;
+		this.env.page.dom = item.cachedDOM ? item.cachedDOM.body : null;
 		if ( mode === 'selser' ) {
 			// console.warn("--> selsering: " + content.outerHTML);
 			this.env.setPageSrcInfo( item.wikitext );
@@ -937,17 +937,29 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 
 	// First conversion stage
 	if ( startsAtWikitext ) {
-		if ( item.cachedHTMLStr === null ) {
+	    // Always serialize DOM to string and reparse before passing to wt2wt
+		if ( item.cachedDOM === null ) {
 			testTasks.push( this.convertWt2Html.bind( this, mode, item.wikitext ) );
-			// Caching stage 1 - save the result of the first two stages so we can maybe skip them later
+			// Caching stage 1 - save the result of the first two stages
+			// so we can maybe skip them later
 			testTasks.push( function ( result, cb ) {
 				// Cache parsed HTML
-				item.cachedHTMLStr = DU.serializeNode(result);
-				cb( null, result );
+				item.cachedDOM = DU.parseHTML(DU.serializeNode(result));
+
+				// - In wt2html mode, pass through original DOM
+				//   so that it is serialized just once.
+				// - In wt2wt and selser modes, pass through serialized and
+				//   reparsed DOM so that fostering/normalization effects
+				//   are reproduced.
+				if (mode === "wt2html") {
+					cb(null, result);
+				} else {
+					cb(null, item.cachedDOM.body.cloneNode(true));
+				}
 			} );
 		} else {
 			testTasks.push( function ( cb ) {
-				cb( null, DU.parseHTML(item.cachedHTMLStr) );
+				cb(null, item.cachedDOM.body.cloneNode(true));
 			} );
 		}
 	} else if ( startsAtHtml ) {
@@ -978,11 +990,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 		} );
 	}
 
-	// Always serialize DOM to string and reparse before passing to wt2wt
 	if (mode === 'wt2wt') {
-		testTasks.push( function ( doc, cb ) {
-			cb( null, DU.parseHTML(DU.serializeNode(doc)).body);
-		} );
 		// handle a 'changes' option if present.
 		if (item.options.parsoid && item.options.parsoid.changes) {
 			testTasks.push( function( doc, cb ) {
@@ -1729,7 +1737,7 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 							}
 
 							// Push the caches forward!
-							item.cachedHTMLStr = newitem.cachedHTMLStr;
+							item.cachedDOM = newitem.cachedDOM;
 							item.cachedNormalizedHTML = newitem.cachedNormalizedHTML;
 
 							setImmediate( cb );
@@ -1778,7 +1786,7 @@ ParserTests.prototype.processCase = function ( i, options, err ) {
 
 		// Reset the cached results for the new case.
 		// All test modes happen in a single run of processCase.
-		item.cachedHTMLStr = null;
+		item.cachedDOM = null;
 		item.cachedNormalizedHTML = null;
 
 		//console.log( 'processCase ' + i + JSON.stringify( item )  );
