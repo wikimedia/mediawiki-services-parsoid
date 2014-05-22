@@ -7779,7 +7779,7 @@ Magic Word: {{NUMBEROFFILES}}
 !! wikitext
 {{NUMBEROFFILES}}
 !! html
-<p>4
+<p>6
 </p>
 !! end
 
