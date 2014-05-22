@@ -1999,6 +1999,27 @@ Barack Obama <President> of the United States
 </p>
 !! end
 
+## PHP parser discards the "<pre " string
+!! test
+Handle broken pre-like tags (bug 64025)
+!! options
+parsoid=wt2html
+!! wikitext
+{{echo|<pre <pre>x</pre>}}
+
+<table><pre </table>
+!! html/php
+<pre>x</pre>
+<table><pre></pre></table>
+
+!! html/parsoid
+<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;pre &lt;pre>x&lt;/pre>"}},"i":0}}]}'>&lt;pre </span>
+<pre>x</pre>
+
+<span>&lt;pre </span>
+<table></table>
+!! end
+
 !! test
 Parsoid: handle pre with space after attribute
 !! options

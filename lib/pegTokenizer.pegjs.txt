@@ -175,7 +175,7 @@ tlb
     }
 
     // Emit tokens for this toplevelblock. This feeds a chunk to the parser pipeline.
-    if ( tokens) {
+    if ( tokens ) {
         emitChunk( tokens );
     }
 
@@ -1042,6 +1042,12 @@ pre
 
     }
   / "</" pre_tag_name ">" { stops.dec('pre'); return "</pre>"; }
+  // if this is still preish, emit as a string
+  // necessary to work with the pre_start lookaheads
+  / p:('<' pre_tag_name space*) {
+	  stops.dec('pre');
+	  return tu.flatten_stringlist(p);
+    }
   / & { return stops.dec('pre'); }
 
 /* -----------------------------------------------------------------------
