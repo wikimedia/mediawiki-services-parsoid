@@ -1975,9 +1975,7 @@ add("html2wt", "Image: upright option is ignored on inline and frame images (par
 
 // Blacklist for selser
 add("selser", "Extra newlines followed by heading [1,2,1,3,0,4,0,4,1,3,4]", "a\n\n40z1qdji2lfskyb9\n\n\n\n=b=\n9h4x5nzjh28rggb9\n\n[[a]]\n\nkup4bo01iztzkt9\n\n\n\nzlbbwe36wkrcnmi\n");
-add("selser", "Parsing an URL [[[3]],3,0]", "[[:fr:🍺|<nowiki/>]]<!-- EasterEgg we love beer, better be able be able to link to it -->\n");
 add("selser", "Parsing an URL [[[2]],2,0]", "[[:fr:🍺|blv27e9oigmpwrk9http://fr.wikipedia.org/wiki/🍺]]\n\n7vcz2sjoo733ow29\n<!-- EasterEgg we love beer, better be able be able to link to it -->");
-add("selser", "Parsing an URL [[[3]],2,4]", "[[:fr:🍺|<nowiki/>]]\n\n5j6cvz3yerd4pldi\n\nihkme7ay6re8kt9\n");
 add("selser", "Italics and possessives (1) [1]", "obtained by ''[[Lunar Prospector]]'''s gamma-ray spectrometer");
 add("selser", "Italics and possessives (1) [2]", "mylboba6mj3v7vi\n\nobtained by ''[[Lunar Prospector]]'''s gamma-ray spectrometer");
 add("selser", "Italics and possessives (1) [[2,2,3]]", "uqrnj4w22jqkhuxrobtained by abdihwdsev7ycik9''[[Lunar Prospector]]'''\n");
@@ -2618,7 +2616,6 @@ add("selser", "Handling of sections up to level 6 and beyond [0,0,4,0,4,0,0,0,4,
 add("selser", "Header with special characters (bug 25462) [1,2,2,0,3,4,0,4,[2],3,0,0,1,0,[3],0,0,2,4,0,1]", "The tooltips shall not show entities to the user (ie. be double escaped)\n\n8z7x1wcux3v26gvi\n\ns1o423l9ajg7gb9\n== text > text ==\n2whgc18x6v3d6lxr\n== text < text ==\nt5l87q61pf0z4cxr\n\n92ysy522qy28d7visection 2\n\n== text & text ==\nsection 3\n\n==<nowiki/>==\nsection 4\n\nozk2j78opgajdcxr\n\nw7mpykjqlaowp14i\n\nsection 5");
 add("selser", "Single-line or multiline-comments can follow headings [2,4,3,1,0,4,[2],3]", "u9j9ywtzcjbawcdi\n==foo==\ndrrd423rrk1vpldi\n==bar==\n<!--c1-->z66d0aderf9lik9\n==nxo7we9vvk70t3xrbaz==<!--\nc2\nc3-->");
 add("selser", "Bug 1186 news: in the middle of text [[[2]]]", "[[wikinews:Wikinews:Workplace|9el1tkd6tbne9udihttp://en.wikinews.org/wiki/Wikinews:Workplace]]");
-add("selser", "Bug 1186 news: in the middle of text [[[3]]]", "[[wikinews:Wikinews:Workplace|<nowiki/>]]");
 add("selser", "Bug 1186 news: in the middle of text [[[4]]]", "[[wikinews:Wikinews:Workplace|qalth4rrg9q6ko6r]]");
 add("selser", "div with single-quoted attribute [2]", "qu686umowmw8kt9\n<div id='rock'>HTML rocks</div>");
 add("selser", "div with unquoted attribute [2]", "pmr3ap5nlf7833di\n<div id=rock>HTML rocks</div>");
