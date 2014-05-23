@@ -2005,6 +2005,7 @@ add("selser", "Italicized possessive [[0,2,4]]", "The k6y9yuwwjka3v7vi''[[Main P
 add("selser", "Italicized possessive [[2,2,3]]", "7thn58qxaqg833diThe ohrojwfdf6jvpldi''[[Main Page]]'''\n");
 add("selser", "Italicized possessive [[3,2,0]]", "8c21she6jphc9pb9''[[Main Page]]'''s talk page.");
 add("selser", "Parsoid only: Quote balancing context should be restricted to td/th cells on the same wikitext line\n(Requires tidy for PHP parser output to be fixed up) [1]", "{| data-foobar=\"pl7el6nksli8uxr\"\n!''a!!''b\n|''a||''b\n|}");
+add("selser", "Parsoid only: Quote balancing context should be restricted to td/th cells on the same wikitext line\n(Requires tidy for PHP parser output to be fixed up) [[4,[[4,0,2,[1],0],4]]]", "{|<!--44rbogtlx8hncdi-->\n!5oylcgfssnfav2t9!!''b\n!qcinqswgq2r9t3xr\n|''a''||''b<!--b7ncx26rmqiu23xr-->\n|}");
 add("selser", "Parsoid only: Quote balancing context should be restricted to td/th cells on the same wikitext line\n(Requires tidy for PHP parser output to be fixed up) [[0,[[[4],2,2,[1],3],3]]]", "{|\n!1dfhixwwz1pjh5mi\n!prh1yloryheel8fr!!''b\n!bnbtnusotswwb3xr\n|''a''\n|}");
 add("selser", "Parsoid only: Quote balancing context should be restricted to td/th cells on the same wikitext line\n(Requires tidy for PHP parser output to be fixed up) [[0,[[0,[3],0,1,0],0]]]", "{|\n!''a!!\n| data-foobar=\"1gt3i3g1jbeghkt9\" |''a||''b\n|}");
 add("selser", "Parsoid only: Quote balancing context should be restricted to td/th cells on the same wikitext line\n(Requires tidy for PHP parser output to be fixed up) [[0,[[[2],2,0,3,4],3]]]", "{|\n!1wucy9fx99y3c8fr''a\n!n5303dc1uwkzw7b9!!''b\n!3q48ji1k3h74lsor\n|}");
@@ -2012,6 +2013,7 @@ add("selser", "Parsoid only: Quote balancing context should be restricted to td/
 add("selser", "Parsoid only: Quote balancing context should be restricted to td/th cells on the same wikitext line\n(Requires tidy for PHP parser output to be fixed up) [[0,[[4,2,3,0,2],0]]]", "{|\n!4hvneujbci0be29\n!dlmqv8ltd9lfpqfr!!''b\n|''a\n|1pz8cymf9xm9529||''b\n|}");
 add("selser", "Parsoid only: Quote balancing context should be restricted to td/th cells on the same wikitext line\n(Requires tidy for PHP parser output to be fixed up) [[0,[[1,2,0,1,[[2]]],0]]]", "{|\n! data-foobar=\"t5yzsleh3tprpb9\" |''a\n!39y1a3cg7nyrdx6r!!''b\n| data-foobar=\"e4eryq6zjlaexw29\" |''a||''ud4ocn5ppv3rf6rb''\n|}");
 add("selser", "Parsoid only: Quote balancing context should be restricted to td/th cells on the same wikitext line\n(Requires tidy for PHP parser output to be fixed up) [[0,[1,4]]]", "{|\n!''a!!''b\n|''a||''b<!--kstn821po5cgcik9-->\n|}");
+add("selser", "Parsoid only: Quote balancing context should be restricted to td/th cells on the same wikitext line\n(Requires tidy for PHP parser output to be fixed up) [[4,1]]", "{|<!--etpqkkwhhxhl4n29-->\n!''a!!''b\n|''a||''b\n|}");
 add("selser", "Isolated close tags should be treated as literal text (bug 52760) [2,0,2]", "z891efuj2rcnmi\n\n</b>\n\n9qly4qmk3ya7zaor\n\n<s.foo>s</s>");
 add("selser", "Isolated close tags should be treated as literal text (bug 52760) [0,0,[3]]", "</b>\n");
 add("selser", "Isolated close tags should be treated as literal text (bug 52760) [0,3,2]", "</b>\n\n042kzd02zerejyvi\n\n<s.foo>s</s>");
@@ -2113,11 +2115,8 @@ add("selser", "Definition Lists: Hacky use to indent tables [[[1]],0,[2]]", ":{|
 add("selser", "Definition Lists: Hacky use to indent tables [[[[2]]],0,0]", ":: 8vyka9uv140wwmi\n:{|\n|foo\n|bar\n|}\nthis text\nshould be left alone");
 add("selser", "Definition Lists: Hacky use to indent tables [[1],3,0]", ":{|\n|foo\n|bar\n|}\nthis text\nshould be left alone");
 add("selser", "Definition Lists: Hacky use to indent tables, with comments (bug 63979) [0,0,2,2,4]", "<!-- foo -->\nfdln2n8jwta6pqfr\n::{|\n|foo\n|bar\n|}<!-- bar -->\ny7158cfk5escq5mi\n\ng4unkrlrlf03sor\n");
-add("selser", "Definition Lists: Hacky use to indent tables, with comments (bug 63979) [3,0,[[2]],0,2]", "\n:r4knoonzsemi\n:{|\n|foo\n|bar\n|}<!-- bar -->\nm1ylow8k20ozuxr\n\nthis text\nshould be left alone");
 add("selser", "Definition Lists: Hacky use to indent tables, with comments (bug 63979) [2,2,2,4,2]", "vdckjjyh70ou5wmi\n\n<!-- foo -->5lh0sneax7vkuik9\n\nx4giy8cm27pq4cxr\n::{|\n|foo\n|bar\n|}<!-- bar -->\n336guoo8fk249529\n\nu2dght8belndygb9\n\nthis text\nshould be left alone");
-add("selser", "Definition Lists: Hacky use to indent tables, with comments (bug 63979) [3,0,[1],2,[3]]", "\n:{|\n|foo\n|bar\n|}<!-- bar -->\ngiynkmlm2vqp8pvi\n");
 add("selser", "Definition Lists: Hacky use to indent tables, with comments (bug 63979) [3,0,[[[2]]],0,[2]]", "\n:: wpfjo8soowpqr529\n:{|\n|foo\n|bar\n|}<!-- bar -->\nl7uxnt9yt0h5xw29this text\nshould be left alone");
-add("selser", "Definition Lists: Hacky use to indent tables, with comments (bug 63979) [3,0,[[1]],0,3]", "\n:{|\n|foo\n|bar\n|}<!-- bar -->\n");
 add("selser", "Definition Lists: Hacky use to indent tables, with comment before table [[1]]", ":<!-- foo -->{|\n|foo\n|}");
 add("selser", "Definition Lists: Hacky use to indent tables, with comment before table [[[2]]]", ":7cfvho5x3l3di\n:<!-- foo -->{|\n|foo\n|}");
 add("selser", "Definition Lists: Hacky use to indent tables, with comment before table [[[1]]]", ":<!-- foo -->{|\n|foo\n|}");
@@ -2126,7 +2125,6 @@ add("selser", "Definition Lists: Nesting: Multi-level (Parsoid only) [[[3,2],[3]
 add("selser", "Definition Lists: Nesting: Multi-level (Parsoid only) [[2,2,0,1]]", ": 30qwj9nju0widx6r\n;t1 \n: 9n4rno4f9st9be29:d1\n;t2 ::d2\n;;;t3 :::d3");
 add("selser", "Definition Lists: Nesting: Multi-level (Parsoid only) [[[4,1],[4],0,[2]]]", ";w3qyijm7oai9hpvi :mva9ar37ti3haor\n;0ia6286tbc6m9529\n;t2 ::d2\n;;;t3 :::d3");
 add("selser", "Definition Lists: Nesting: Test 2 (Parsoid only) [[[4],0,[2]]]", ";oy19o5rbcmzpvi\n:b58j1xlitzsn61or\n:d2");
-add("selser", "Definition Lists: Nesting: Test 2 (Parsoid only) [[3,0,[2]]]", "\n:8bd029fi89kvs4i\n:d2");
 add("selser", "Definition Lists: Nesting: Test 3 (Parsoid only) [[[[0,4,3]]]]", ";t1\n:: zdqna9olh5ixusor\n");
 add("selser", "Definition Lists: Nesting: Test 3 (Parsoid only) [[1]]", ";t1\n::::d2");
 add("selser", "Definition Lists: Nesting: Test 3 (Parsoid only) [[[2]]]", ":ttexzhp9gaz1714i\n;t1\n::::d2");
@@ -2236,7 +2234,7 @@ add("selser", "External links: wiki links within external link (Bug 3695) [[2,3,
 add("selser", "External links: wiki links within external link (Bug 3695) [[0,2,0]]", "[http://example.com [[wikilink]] embedded in ext link]pj9l2glwx6sf9a4i\n");
 add("selser", "External links: wiki links within external link (Bug 3695) [[0,4,0]]", "[http://example.com [[wikilink]] embedded in ext link]2zzejaf2y9nc23xr\n");
 add("selser", "External links: wiki links within external link (Bug 3695) [[3,2,0]]", "0uk611ztql8wu3di\n");
-add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [[3,0,[2],0,3,4,3,[0,[0,[1]],4],0,1]]", "\n[http://example.com 4n2162e1fd730udi'''text]'''rgd08hyitua0pb9''Something [http://example.com mixed''''', even bold''''']l55strlralri19k9''\n'''''Now [http://example.com both'''''<nowiki/>''''']'''''");
+add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [[3,0,[2],0,3,4,3,[0,[0,[1]],4],0,1]]", "\n[http://example.com 4n2162e1fd730udi'''text''']'''rgd08hyitua0pb9''Something [http://example.com mixed''''', even bold''''']l55strlralri19k9''\n'''''Now [http://example.com both'''''<nowiki/>''''']'''''");
 add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [1]", "''[http://example.com text'']\n[http://example.com '''text]'''\n''Something [http://example.com in italic'']\n''Something [http://example.com mixed''''', even bold]'''\n'''''Now [http://example.com both''''']");
 add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [2]", "ypjgrwin4revcxr\n\n''[http://example.com text'']\n[http://example.com '''text]'''\n''Something [http://example.com in italic'']\n''Something [http://example.com mixed''''', even bold]'''\n'''''Now [http://example.com both''''']");
 add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [[[[0,1]],0,3,1,4,1,3,[0,[0,[[3]]],3],4,3]]", "''[http://example.com text''<nowiki/>'']''\n'''<nowiki/>'''7qwqa9229ey7gb9''Something [http://example.com in italic'']''''Something [http://example.com mixed'''''<nowiki/>''''']''counvgra3151xlxr\n");
@@ -2252,7 +2250,7 @@ add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [[2,0,3,0,
 add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [[4,2,0,0,4,[2,[4,1]],0,1,2,1]]", "uypp3nxnupst6gvi5lixlomwktb4vx6r\n[http://example.com '''text]'''1euo2nqbj6mvx6r''s5ucqw1bludz33diSomething [http://example.com iqi27jd7nxoxyldi''<nowiki/>'']''\n''Something [http://example.com mixed''''', even bold]<nowiki>'</nowiki>''3rrma1jx3c70hpvi\n'''''Now [http://example.com both''''']'''");
 add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [[3,2,[4],0,0,1,2,3,4,[3]]]", "8co7ywkausb81tt9\n[http://example.com 85zbd3drbz8pk3xr]'''\n''Something [http://example.com in italic'']''kce2gq57vem9ggb9\ni16rg8p39nj6ecdi'''<nowiki/>'''");
 add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [[0,3,[4],2,0,[0,[0,1]],0,[3,[3,4],3],2,[[0,4]]]]", "''[http://example.com text''][http://example.com utcl2r0fq8lac3di]3qd60yxh5otakyb9'''\n''Something [http://example.com in italic''<nowiki/>'']''\n''[http://example.com dc0yjx5wecvaq0k9]''gbmw7avnratf0f6r\n'''''Now ozt1j409a2d42t9'''''");
-add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [[2,4,0,4,0,1,2,1,0,2]]", "pv9ge46otv86w29''[http://example.com text'']t24xqdq7y0la0pb9[http://example.com '''text]10amjvk8ra1nhfr\n''Something [http://example.com in italic'']''l4tfdpdshpqilik9\n''Something [http://example.com mixed''''', even bold]<nowiki>'</nowiki>''\nziz3awxqv8lu9pb9'''''Now [http://example.com both''''']");
+add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [[2,4,0,4,0,1,2,1,0,2]]", "pv9ge46otv86w29''[http://example.com text'']t24xqdq7y0la0pb9[http://example.com '''text]10amjvk8ra1nhfr\n''Something [http://example.com in italic''<nowiki/>'']''l4tfdpdshpqilik9\n''Something [http://example.com mixed''''', even bold]<nowiki>'</nowiki>''\nziz3awxqv8lu9pb9'''''Now [http://example.com both''''']");
 add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [[0,0,4,4,0,[3,4],0,[4,[4,0],0],2,3]]", "''[http://example.com text'']\nxh33ebkbpr639pb9ikqa3l7jkhrdlsor\n''h327flpc5pbsxlxr''\n''3icsd821v6de7b9[http://example.com 2cukbor10uanhfr''''', even bold]<nowiki>'</nowiki>''3cf3j98c7sfnipb9\n");
 add("selser", "External link containing double-single-quotes with no space separating the url from text in italics [[0,1,1]]", "[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm''La muerte de Casagemas'' (1901) en el sitio de [[Museo Picasso (París)|Museo Picasso]].][[Museo Picasso (París)|Museo Picasso]]<span data-foobar=\"w3fg9p5998n3tyb9\">.</span>\n");
 add("selser", "External link containing double-single-quotes with no space separating the url from text in italics [2]", "pl3umz8dotsdobt9\n\n[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm''La muerte de Casagemas'' (1901) en el sitio de [[Museo Picasso (París)|Museo Picasso]].]");
@@ -2280,7 +2278,7 @@ add("selser", "Unclosed and unmatched quotes [[1],4,[2],3,3,3,1,2,2,0,2,0,2,3,4,
 add("selser", "Unclosed and unmatched quotes [4,2,2,2,4,4,[0,1],0,1,2,2,0,3,0,0,0,[1,0,1,0,3,3],3,3,4,4]", "sxp631t0lu4pwrk9\n\nuiov8qw0vsegsyvi\n\ns5pdb3gqeq5pcik9\n\n'''''Bold italic text ''with italic deactivated'' in between.'''''\n\n0im0vx321sv2t9\n\nw84opzg7rvpwrk9\n\na10san19w6a8aor\n\n..spanning two paragraphs (should not work).'''<nowiki/>'''\n\n'''Bold tag left open'''\n\nzmakc4arcm78pvi\n\nskau1bd5191qncdi\n\n''Italic tag left open\n\n\n<!-- Unmatching number of opening, closing tags: -->'''<nowiki>This year'</nowiki>'''s election ''should'' beat \n\nfg0el0revo5el8fr\n\n29zcwcjdje0fi529\n");
 add("selser", "Unclosed and unmatched quotes [[[0,4,[2]]],4,[[3,0,1]],0,3,2,0,0,[[3]],3,3,3,0,0,0,0,3,0,[3,[4],0],0,2]", "'''''Bold italic text '''frylpuwwxz9kvs4i'''si2oklqrxelmobt9 in between.'''''\n\n4b0fwpx8i4yousor\n\n'''with italic deactivated'' in between.'''''\n\n4y74tj37ci7fogvi\n\n..spanning two paragraphs (should not work).'''\n\n'''<nowiki/>'''\n\nNormal text.\n\n<!-- Unmatching number of opening, closing tags: -->\n'''955t9gdexkbdfgvi'''s.\n\n7vsge66w9ew2ke29\n\nPlain ''italic'''s plain");
 add("selser", "Unclosed and unmatched quotes [[[[4],0,0]],0,1,0,2,4,[0,1],0,2,4,4,2,0,0,0,0,[[3],3,0,0,[3],3],0,2,2,3]", "'''''g25w0ee1muat6gvi'''with bold deactivated''' in between.'''''\n\n'''''Bold italic text ''with italic deactivated'' in between.'''''\n\n978osfsmlz9tfbt9\n\n'''Bold text..\n\n6va1z48gd8wipb9\n\n..spanning two paragraphs (should not work).'''<nowiki/>'''\n\npap02f80lg8yf1or\n\n'''Bold tag left open\n\nrc9woq2unjnhfr\n\nvwn5ww762sft7qfr\n\n4tvj8y1sqzg2e29\n\nNormal text.\n\n<!-- Unmatching number of opening, closing tags: -->\n'''<nowiki/>'''''should'' beat '''<nowiki/>'''\n\ngo0uih65ed841jor\n\n''Tom'''s car is bigger than ''Susan'''s.\n\ngxolomlzomtsatt9\n");
-add("selser", "Unclosed and unmatched quotes [[1],2,3,3,0,0,2,0,[[2]],0,[3],0,3,3,0,0,1,0,[3,0,4],4,3]", "'''''Bold italic text '''with bold deactivated''' in between.'''''\n\no48k8kitkr8dunmi\n\n'''Bold text..\n\njg529j0bl3c2qpvi\n\n..spanning two paragraphs (should not work).'''\n\n'''86igisuev2sjdcxrBold tag left open'''\n\n\n<!-- Unmatching number of opening, closing tags: -->'''This year''''s election ''should'' beat '''last year''''s.\n\nSusan'''9gtumj4ocnomvx6r\n\nprfakduhs9gousor\n");
+add("selser", "Unclosed and unmatched quotes [[1],2,3,3,0,0,2,0,[[2]],0,[3],0,3,3,0,0,1,0,[3,0,4],4,3]", "'''''Bold italic text '''with bold deactivated''' in between.'''''\n\no48k8kitkr8dunmi\n\n'''Bold text..\n\njg529j0bl3c2qpvi\n\n..spanning two paragraphs (should not work).'''\n\n'''86igisuev2sjdcxrBold tag left open'''\n\n\n<!-- Unmatching number of opening, closing tags: -->'''<nowiki>This year'</nowiki>'''s election ''should'' beat '''<nowiki>last year'</nowiki>'''s.\n\nSusan'''9gtumj4ocnomvx6r\n\nprfakduhs9gousor\n");
 add("selser", "Unclosed and unmatched quotes [2,0,[[2,2,[3]]],3,1,3,3,0,3,4,[[4]],2,4,4,2,0,3,0,1,2,[3,4,3]]", "pw5zq7ljhfy4aemi\n\n'''''Bold italic text '''with bold deactivated''' in between.'''''\n\n'''fbtby3wxdli0be29''Bold italic text ''hosaxi984a9n3ik9with italic deactivated''<nowiki/>'''''\n\n'''Bold text..'''\n\nc74033tc8r529\n\n''crya5qg6h10mgqfr''\n\n97y6epfwllsaif6r\n\nv4ny06vgjpvkuik9\n\npybvt95p8bzqia4i\n\nf4w0i3lwoafez5mi<!-- Unmatching number of opening, closing tags: -->\n\n''Tom'''s car is bigger than '''''<nowiki/>'''Susan'''s.\n\n35ggkj027wuerk9\n\n5akp3n5k0fk9y66r");
 add("selser", "Unclosed and unmatched quotes [2,0,[1],0,[2],0,[3,0],0,0,2,3,4,[2],2,0,3,[2,3,4,0,[4],0],0,3,3,[3,1,0]]", "z4argjbmeescq5mi\n\n'''''Bold italic text '''with bold deactivated''' in between.'''''\n\n'''''Bold italic text ''with italic deactivated'' in between.'''''\n\n947x1e69qode7b9'''Bold text..\n\n'''\n\n'''Bold tag left open\n\n3ki8ayg0o64xi529\n\n79eq5ijnx56rbe29\n\ndxlh1ogra88jv2t9Normal text.\n\nxi7td8h5z9pv6lxr\n\n<!-- Unmatching number of opening, closing tags: -->23dgn6ecyq281tt9'''<nowiki>This year'</nowiki>'''39sqeg7p7m0a4i beat '''oiu6lbk4gnrn3ik9'''s.\n\n''<nowiki>italic'</nowiki>''s plain");
 add("selser", "Unclosed and unmatched quotes [[2],0,4,3,[2],3,3,4,[[2]],0,0,2,3,4,0,0,4,2,[[3,[4]],2,0],3,2]", "4yw4wxjunjtw3ik9'''''Bold italic text '''with bold deactivated''' in between.'''''\n\nis7cyalf54su4n29\n\nmpbxmb8jpqlg14i'''Bold text..'''\n\nalbr13x2jt273nmi\n\n'''6g5d8o738wave7b9Bold tag left open'''\n\n''Italic tag left open\n\nteulxe8k1ma0dx6r\n\nxou6as0vzir7ldi\n<!-- Unmatching number of opening, closing tags: -->\nujbw98y12pxecdi\n\nis2fqvz346byy14i\n\n'''''kzqmouenkvz8semi'''''9tj86gikh3j1c3di'''Susan'''s.\n\ni4wvgq117adobt9\n\nPlain ''italic'''s plain");
@@ -2305,11 +2303,14 @@ add("selser", "A table with captions with non-default spaced attributes and a ta
 add("selser", "A table with captions with non-default spaced attributes and a table row [[0,0,0,1,4,3]]", "{|\n|+style=\"color: red;\"|caption2\n|+ style=\"color: red;\" data-foobar=\"4n9ju8e6u4ayk3xr\" | caption3<!--8vitqxcwje89f6r-->\n|}");
 add("selser", "A table with captions with non-default spaced attributes and a table row [[0,0,2,[3],3,[[0,4],0]]]", "{|\n|+style=\"color: red;\"|caption2<!--4865t93rr418aor-->\n|+ style=\"color: red;\" |\n|-\n|n2z1139bdvuc8fr\n|}");
 add("selser", "Table td-cell syntax variations [2]", "sbzhcg70xtq8semi\n{|\n| foo bar foo | baz\n| foo bar foo || baz\n| style='color:red;' | baz\n| style='color:red;' || baz\n|}");
+add("selser", "Table td-cell syntax variations [[4,[1,4]]]", "{|<!--27awwjo3287iudi-->\n| foo bar foo | baz\n| foo bar foo || baz\n| style='color:red;' | baz\n| style='color:red;' || baz<!--jkw3iop5lpcfpqfr-->\n|}");
 add("selser", "Table td-cell syntax variations [1]", "{| data-foobar=\"ripzux1o66crf6r\"\n| foo bar foo | baz\n| foo bar foo || baz\n| style='color:red;' | baz\n| style='color:red;' || baz\n|}");
+add("selser", "Table td-cell syntax variations [[4,[[2,0,2,[3],4,0,3,[3],1],2]]]", "{|<!--mz3xyunmkehwu3di-->\n|w4c4887c9phnnrk9\n| foo bar foo | baz\n|l0hmwng5zji9hpvi\n| foo bar foo ||\n|si4mhwzz7p919k9\n| style='color:red;' | baz\n||| data-foobar=\"kxxz57fxsgbq33di\" | baz<!--ekzrdkkb8xopf1or-->\n|}");
 add("selser", "Table td-cell syntax variations [[0,[[4,0,0,1,0,0,0,4,4],0]]]", "{|\n|juve1nh5fs4kuik9\n| foo bar foo || data-foobar=\"v00hdvjl3int57b9\" | baz\n| style='color:red;' | baz\n|6x3dng4d2qehfr\n|eow57cf1pgmn29\n|}");
 add("selser", "Table td-cell syntax variations [[0,[1,4]]]", "{|\n| foo bar foo | baz\n| foo bar foo || baz\n| style='color:red;' | baz\n| style='color:red;' || baz<!--tthr988c8d9ara4i-->\n|}");
 add("selser", "Table td-cell syntax variations [[0,[[1,4,0,2,2,0,4,0,0],3]]]", "{|\n| data-foobar=\"yapr5vvoeskk2o6r\" foo bar | baz\n|n59kxzdkg0dg3nmi\n| foo bar foo \n|3uyod7tniwfjemi|| baz\n|mksz2gze2hjjor\n| style='color:red;' | baz\n|2n7mgtwagfzuxr\n| style='color:red;' || baz\n|}");
 add("selser", "Table td-cell syntax variations [[0,2]]", "{|\n<!--uiyg1xnqf84u0udi-->| foo bar foo | baz\n| foo bar foo || baz\n| style='color:red;' | baz\n| style='color:red;' || baz\n|}");
+add("selser", "Allow +/- in 2nd and later cells in a row, in 1st cell when td-attrs are present, or in 1st cell when there is a space between \"|\" and +/-  [[4,[[0,0,4,3],4,[2,4,[2],[3],2,[3],[2],1],3,4,0]]]", "{|<!--ey69w1huzxhl4n29-->\n|-\n|style='color:red;'|+1\n|9tw49jdk0u5o2yb9<!--kx0w31z2r3eg66r-->\n|-\n|pql3wifv5zouhaor\n|b17pm8krfbqehfr||y5j51k4ijfzme7b9 2 ||\n|agfkr8szrrb5ipb9\n|||jzz1rvd4y3bit3xr+2 || data-foobar=\"hz9jkr87n7co9a4i\" |-3<!--uomsfojpwyi4quxr-->\n|}");
 add("selser", "Allow +/- in 2nd and later cells in a row, in 1st cell when td-attrs are present, or in 1st cell when there is a space between \"|\" and +/-  [1]", "{| data-foobar=\"qni1jj96d8ia4i\"\n|-\n|style='color:red;'|+1\n|style='color:blue;'|-1\n|-\n| 1 || 2 || 3\n| 1 ||+2 ||-3\n|-\n| +1\n| -1\n|}");
 add("selser", "Allow +/- in 2nd and later cells in a row, in 1st cell when td-attrs are present, or in 1st cell when there is a space between \"|\" and +/-  [2]", "pedhswzbj517zaor\n{|\n|-\n|style='color:red;'|+1\n|style='color:blue;'|-1\n|-\n| 1 || 2 || 3\n| 1 ||+2 ||-3\n|-\n| +1\n| -1\n|}");
 add("selser", "Allow +/- in 2nd and later cells in a row, in 1st cell when td-attrs are present, or in 1st cell when there is a space between \"|\" and +/-  [[0,1]]", "{|\n|-\n|style='color:red;'|+1\n|style='color:blue;'|-1\n|-\n| 1 || 2 || 3\n| 1 ||+2 ||-3\n|-\n| +1\n| -1\n|}");
@@ -2323,10 +2324,12 @@ add("selser", "Table rowspan [[0,[1,0,2,0]]]", "{| border=1\n| Cell 1, row 1\n|r
 add("selser", "Table rowspan [[2,2]]", "{| border=\"1\"<!--c9eo96nqfmjthuxr-->\n<!--mdmpc8uzbgoxn7b9-->| Cell 1, row 1\n|rowspan=2| Cell 2, row 1 (and 2)\n| Cell 3, row 1\n|-\n| Cell 1, row 2\n| Cell 3, row 2\n|}");
 add("selser", "Table rowspan [[0,[1,0,2,2]]]", "{| border=1\n| Cell 1, row 1\n|rowspan=2| Cell 2, row 1 (and 2)\n| Cell 3, row 1\n<!--f24m9zom9d2kpgb9-->|-\n| Cell 1, row 2\n| Cell 3, row 2<!--houk9s548i3pu8fr-->\n|}");
 add("selser", "Table rowspan [[0,[[4,0,4,0,1],0,1,2]]]", "{| border=1\n|aspxhnaofiqf47vi\n|73fyijt65nuerk9\n| data-foobar=\"t7trqii8bukp4x6r\" | Cell 3, row 1\n|- data-foobar=\"1pkfpcn5xq6t7qfr\"\n| Cell 1, row 2\n| Cell 3, row 2<!--sebb2ix3zzzadcxr-->\n|}");
+add("selser", "Table rowspan [[4,1]]", "{| border=\"1\"<!--df20a6ug11ao47vi-->\n| Cell 1, row 1\n|rowspan=2| Cell 2, row 1 (and 2)\n| Cell 3, row 1\n|-\n| Cell 1, row 2\n| Cell 3, row 2\n|}");
 add("selser", "Table rowspan [[0,[2,0,4,0]]]", "{| border=1\n<!--bz2zkuwgtbotj4i-->| Cell 1, row 1\n|rowspan=2| Cell 2, row 1 (and 2)\n| Cell 3, row 1\n<!--hynk9y1byaw6ogvi-->\n|}");
 add("selser", "Nested table [[0,[1,4]]]", "{| border=1\n| &alpha;\n|\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n|table\n|}\n|the original table again<!--t5nreiu3qsxuhaor-->\n|}");
 add("selser", "Nested table [[0,2]]", "{| border=\"1\"\n<!--262ep7u743gqr529-->| &alpha;\n|\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n|table\n|}\n|the original table again\n|}");
 add("selser", "Nested table [2]", "y38000xvz4vg3nmi\n{| border=1\n| &alpha;\n|\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n|table\n|}\n|the original table again\n|}");
+add("selser", "Nested table [[4,1]]", "{| border=\"1\"<!--21kjc55zx2tbuik9-->\n| &alpha;\n|\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n|table\n|}\n|the original table again\n|}");
 add("selser", "Nested table [1]", "{| border=\"1\" data-foobar=\"z21mjbodw38lg14i\"\n| &alpha;\n|\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n|table\n|}\n|the original table again\n|}");
 add("selser", "Nested table [[3,2]]", "{| border=\"1\"<!--55yjgfqukkv5cdi-->\n| &alpha;\n|\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n|table\n|}\n|the original table again\n|}");
 add("selser", "Nested table [[0,[[[4,0],0,4,2,1],3]]]", "{| border=1\n|nnqydx4felt2zkt9&alpha;\n|krzzwsokfqen4s4i\n|crl4tbkmgl9xusor\n| data-foobar=\"hezkv4q5eb9ms4i\" |the original table again\n|}");
@@ -2335,6 +2338,7 @@ add("selser", "Nested table [[0,[1,2]]]", "{| border=1\n| &alpha;\n|\n{| bgcolor
 add("selser", "Nested table [[0,1]]", "{| border=\"1\"\n| &alpha;\n|\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n|table\n|}\n|the original table again\n|}");
 add("selser", "Nested table [[0,[[2,0,[4,[0,[0,0,[0,3],2]]],0,0],4]]]", "{| border=1\n|2cpkww5viwe45cdi\n| &alpha;\n|v3oai1u8e0j2a9k9\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n<!--2mk619dun1ocrf6r-->\n|}\n|the original table again<!--0kibvfd08qudte29-->\n|}");
 add("selser", "Invalid attributes in table cell (bug 1830) [1]", "{| data-foobar=\"qjn3d6di3vcuwhfr\"\n|Cell:|broken\n|}");
+add("selser", "Invalid attributes in table cell (bug 1830) [[4,1]]", "{|<!--o94ty73s5301wcdi-->\n|Cell:|broken\n|}");
 add("selser", "Invalid attributes in table cell (bug 1830) [2]", "ihzdqjdk01bp4x6r\n{|\n|Cell:|broken\n|}");
 add("selser", "Invalid attributes in table cell (bug 1830) [[0,2]]", "{|\n<!--0d7j9j0jsmj9k9-->|Cell:|broken\n|}");
 add("selser", "Invalid attributes in table cell (bug 1830) [[0,1]]", "{|\n|Cell:|broken\n|}");
@@ -2348,6 +2352,7 @@ add("selser", "Table attributes with empty value [[3,2]]", "{|<!--ynuvr3yn3awqm2
 add("selser", "Table attributes with empty value [[2,0]]", "{|<!--sk8j61brrtua0pb9-->\n| style=| hello\n|}");
 add("selser", "Table attributes with empty value [[0,[1,2]]]", "{|\n| style=| hello<!--tehxphl52a2fyldi-->\n|}");
 add("selser", "Implicit <td> after a |-\n(PHP parser relies on Tidy to add the missing <td> tags) [1]", "{| data-foobar=\"urkrbb2r4vb49529\"\n|-\na\n|}");
+add("selser", "Implicit <td> after a |-\n(PHP parser relies on Tidy to add the missing <td> tags) [[4,1]]", "{|<!--6tca5pwj6b51m7vi-->\n|-\na\n|}");
 add("selser", "Implicit <td> after a |-\n(PHP parser relies on Tidy to add the missing <td> tags) [[0,2]]", "{|\n<!--5prxj1nrukmaemi-->|-\na\n|}");
 add("selser", "Implicit <td> after a |-\n(PHP parser relies on Tidy to add the missing <td> tags) [[0,[0,3]]]", "{|\n|-\na\n|}");
 add("selser", "Implicit <td> after a |-\n(PHP parser relies on Tidy to add the missing <td> tags) [2]", "zgc1dev7biseb3xr\n{|\n|-\na\n|}");
@@ -2358,11 +2363,13 @@ add("selser", "Pres should be recognized in an explicit <td> context, but not in
 add("selser", "Pres should be recognized in an explicit <td> context, but not in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [2]", "pn7gfz1i5krcnmi\n{|\n|-\n|\n a\n|-\n b\n|}");
 add("selser", "Pres should be recognized in an explicit <td> context, but not in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [[0,1]]", "{|\n|-\n|\n a\n|-\n b\n|}");
 add("selser", "Pres should be recognized in an explicit <td> context, but not in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [[0,[[3,2],4,0,0]]]", "{|\n|-\n|r6a7omc2hbw6d2t9\n|\n a<!--495ysxcpobeasjor-->\n|-\n b\n|}");
+add("selser", "Pres should be recognized in an explicit <td> context, but not in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [[4,1]]", "{|<!--qory4ujn4z8semi-->\n|-\n|\n a\n|-\n b\n|}");
 add("selser", "Pres should be recognized in an explicit <td> context, but not in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [[3,2]]", "{|<!--r0v4n4mpzav5nrk9-->\n|-\n|\n a\n|-\n b\n|}");
 add("selser", "Pres should be recognized in an explicit <td> context, but not in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [[0,[1,0,1,4]]]", "{|\n|- data-foobar=\"wy8n23n8dfclq5mi\"\n|\n a\n|- data-foobar=\"m7bfyabxcusxajor\"\n b<!--7goev4fxhdh4obt9-->\n|}");
 add("selser", "Pres should be recognized in an explicit <td> context, but not in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [[0,2]]", "{|\n<!--t17mx7k8dxi529-->|-\n|\n a\n|-\n b\n|}");
 add("selser", "Pres should be recognized in an explicit <td> context, but not in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [[0,[4,3,0,0]]]", "{|\n<!--l4ql5c2l9946xbt9-->|-\n b\n|}");
 add("selser", "Pres should be recognized in an explicit <td> context, but not in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [[4,2]]", "{|<!--ks41aelzdn6irudi--><!--uhis3hnwdwunb3xr-->\n|-\n|\n a\n|-\n b\n|}");
+add("selser", "Pres should be recognized in an explicit <td> context, but not in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [[0,[[4,1],4,1,0]]]", "{|\n|-\n|ectud6rx3cdf5hfr\n| data-foobar=\"c3h7cj2x5owuq5mi\" |\n a<!--c8utms0gqi2akyb9-->\n|- data-foobar=\"40kdvh903qjv2t9\"\n b\n|}");
 add("selser", "Lists should be recognized in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [[0,2]]", "{|\n<!--cc2or5qghdvd9529-->|-\n*a\n|}");
 add("selser", "Lists should be recognized in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [1]", "{| data-foobar=\"i7r6guo8owfry66r\"\n|-\n*a\n|}");
 add("selser", "Lists should be recognized in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [2]", "j2gcfu0ymh0ejyvi\n{|\n|-\n*a\n|}");
@@ -2370,6 +2377,7 @@ add("selser", "Lists should be recognized in an implicit <td> context\n(PHP pars
 add("selser", "Lists should be recognized in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [[0,[[2,0],0]]]", "{|\n|-\n|k009h0mllfnljtt9\n*a\n|}");
 add("selser", "Lists should be recognized in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [[0,[1,0]]]", "{|\n|- data-foobar=\"4tar0o5zbocg14i\"\n*a\n|}");
 add("selser", "Lists should be recognized in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [[2,2]]", "{|<!--ig3znv7ij2n2vs4i-->\n<!--jtqzi8gbyg8ehfr-->|-\n*a\n|}");
+add("selser", "Lists should be recognized in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [[4,[2,3]]]", "{|<!--aink9aerteyzxgvi--><!--mbjrk5mzl43u9pb9-->\n|-\n*a\n|}");
 add("selser", "Lists should be recognized in an implicit <td> context\n(PHP parser relies on Tidy to add the missing <td> tags) [[3,2]]", "{|<!--wsug5awvrhjgu8fr-->\n|-\n*a\n|}");
 add("selser", "Piped link with multiple pipe characters in link text [1]", "[[Main Page||The|Main|Page|]]");
 add("selser", "Piped link with multiple pipe characters in link text [2]", "i30rvug3leeqxgvi\n\n[[Main Page||The|Main|Page|]]");
@@ -2469,8 +2477,6 @@ add("selser", "Nested lists 7 (skip initial nesting levels) [[[[[2]]]]]", "**9q6
 add("selser", "Nested lists 7 (skip initial nesting levels) [[[2]]]", "*tg28w4nd7g0kke29\n** foo");
 add("selser", "Nested lists 7 (skip initial nesting levels) [[[[[1]]]]]", "* foo");
 add("selser", "2. Lists with start-of-line-transparent tokens before bullets: Template close [0,0,1]", "*foo {{echo|bar\n}}*baz");
-add("selser", "2. Lists with start-of-line-transparent tokens before bullets: Template close [0,0,[4]]", "*foo {{echo|bar\n}}872c4bi5ls6y9zfr");
-add("selser", "2. Lists with start-of-line-transparent tokens before bullets: Template close [0,0,[2]]", "*foo {{echo|bar\n}}5vvh1himj04o0f6r*baz");
 add("selser", "2. Lists with start-of-line-transparent tokens before bullets: Template close [0,0,2]", "*foo {{echo|bar\n}}\n9uqf8ew08p2b7qfr\n\n*baz");
 add("selser", "List interrupted by empty line or heading [[1],0,[1],2,3,0,0]", "* foo\n\n* bar\nxmkdz1mzo88e61or\n\n* Another list item");
 add("selser", "Test the li-hack\n(Cannot test this with PHP parser since it relies on Tidy for the hack) [1,2,[3,2,[3],0]]", "* foo\n* <li>li-hack\n* {{echo|<li>templated li-hack}}\n* <!--foo--> <li> unsupported li-hack with preceding comments\n6gpem64rni3yds4i\n\n<ul><li>krszh4s8vdl8r529</li><li><li></li>\n</ul>");
@@ -2595,6 +2601,7 @@ add("selser", "Render invalid page names as plain text (bug 51090) [2,0,[2,0,0,0
 add("selser", "Category / paragraph interactions [[0,3,2],0,2,4,[3,2,0],0,[2],3,0,[3],0,[3,3,4,1,4,2,3],0,3,4,0,4,3,0,0,2,0,0,0]", "Foo 83zrad4tpxxkcsor Bar\n\nysekf8brayr885mi\n\nFoo [[Category:Baz]]\nBar\n\nduknjpcnvnyzxgvi\n\nhroyapi5paqhncdi[[Category:Baz]]\nBar\n\nmsiv1cjc1q8e61orFoo\n[[Category:Baz]] \n\nljrvpzob03tedn29[[Category:Baz]]6bqrn9ug03npcik95jcarnywu55klnmi[[Category:Baz]]\n\nik3u2lqitfomkj4i[[Category:Baz]]\nn8wwykwa78f72e29\n\n[[Category:Baz]]\n9dl89xg0l57phkt9\n {{echo|[[Category:Baz]]}}\n[[Category:Baz]]");
 add("selser", "Category / paragraph interactions [4,0,0,0,[4,1,0],3,3,0,0,0,2,[2,0,0,1,3,0,0],0,1,3,0,2,0,2,0,0,0,4,2]", "y2ksxygpidn7y14i\n\nFoo [[Category:Baz]]\nBar\n\ntqcbbea7bmiy66r[[Category:Baz]]\nBar\n[[Category:Baz]] Bar\nc42dqedyb3u6usor\n\ndjmvd61k80kymn29Foo\n[[Category:Baz]]\n [[Category:Baz]][[Category:Baz]]\nBar\n\n[[Category:Baz]]\n[[Category:Baz]]\nvyv3u18bgs4z33di\n[[Category:Baz]]\ne98vfkx1eqld6lxr\n\n[[Category:Baz]]\n {{echo|[[Category:Baz]]}}\nviznyhgcd9muz0k9\n\nd830mwe1qg1oflxr[[Category:Baz]]");
 add("selser", "Category / paragraph interactions [1,0,1,0,1,0,1,0,0,0,2,[4,0,0,0,0,4,0],3,0,4,0,0,1,4,4,0,0,3,0]", "Foo [[Category:Baz]] Bar\n\nFoo [[Category:Baz]]\nBar\n\nFoo\n[[Category:Baz]]\nBar\n\nFoo\n[[Category:Baz]] Bar\nqyq2tw4tbcjfko6r\n\n8rsqjn6ahwoecdi[[Category:Baz]]\n [[Category:Baz]]\n7qub38k3od0od2t9\nBar\n\n[[Category:Baz]]\njml3cn3gxdt5ipb9[[Category:Baz]]\n[[Category:Baz]]\n7www48dkmtg74x6r\n\nfddlp7i37zwr8uxr\n {{echo|[[Category:Baz]]}}[[Category:Baz]]");
+add("selser", "Category / paragraph interactions [1,3,4,4,3,3,1,0,0,[3],0,[2,2,0,0,0,3,0],0,4,0,0,2,1,0,0,0,0,3,0]", "Foo [[Category:Baz]] Bar\n\n10mwgehifibgwrk9\n\no0nac2tpantjfw29\n\nFoo\n[[Category:Baz]] \n\ns8xrvt11irn97ldiFoo\nzhm5ka7id77am7vi[[Category:Baz]]\n[[Category:Baz]]\n\nBar\n\nzkdnn4uz7rqqia4i\n[[Category:Baz]]\nu1pavy2qsrm86w29\n[[Category:Baz]]\n\n[[Category:Baz]]\n {{echo|[[Category:Baz]]}}[[Category:Baz]]");
 add("selser", "Section headings with TOC [3,4,0,0,3,2,[3],3,0,4,3,3,0]", "px8b3ng5n4lpu8fr\n=== Subheadline 1 ===\np64mngpetwfm9529\n======<nowiki/>======\n\n== Headline 2 ==\nzvfwz386e7xbhuxr\n===Another headline===");
 add("selser", "Handling of sections up to level 6 and beyond [1,2,1,2,1,0,[3],2,2,4,[2],4,0,0,1,0,0,3,1]", "= Level 1 Heading=\n7e043zzvvtzf47vi\n== Level 2 Heading==\n0pp0pcwrmkakyb9\n=== Level 3 Heading===\n====<nowiki/>====\n253vnq49otg9zfr\n\nmncpvxste96vquxr\n===== Level 5 Heading=====\n91qmbb1e2vlpu8fr\n======ohqkkrlkoqi79zfr Level 6 Heading======\n6hv8gbhdqngn9udi\n======= Level 7 Heading=======\n======<nowiki>== Level 8 Heading==</nowiki>======\n========= Level 9 Heading=========\n======<nowiki>==== Level 10 Heading====</nowiki>======");
 add("selser", "Handling of sections up to level 6 and beyond [1,0,1,0,0,3,2,3,0,0,4,0,[4],0,1,0,0,4,0]", "= Level 1 Heading=\n== Level 2 Heading==\n=== Level 3 Heading===\n6fs6ykhv45nrk9\n==== Level 4 Heading====\n===== Level 5 Heading=====\njkvm1xjd1mw2vs4i\n======lrcthal0ujwnrk9======\n======<nowiki>== Level 8 Heading==</nowiki>======\n========= Level 9 Heading=========\n6uicqh73ey5bfbt9\n========== Level 10 Heading==========");
@@ -2626,6 +2633,7 @@ add("selser", "Table multiple attributes correction [2]", "youym9yoyb8adcxr\n{|\
 add("selser", "Table multiple attributes correction [1]", "{| data-foobar=\"z3k0ztwllao72e29\"\n!+ class=\"error\" class=\"awesome\"| status\n|}");
 add("selser", "Table multiple attributes correction [[0,2]]", "{|\n<!--659x00mqf8b8olxr-->!+ class=\"error\" class=\"awesome\"| status\n|}");
 add("selser", "Table multiple attributes correction [[0,[1,3]]]", "{|\n!+ class=\"error\" class=\"awesome\"| status\n|}");
+add("selser", "Table multiple attributes correction [[4,1]]", "{|<!--hp0nnumivla6ecdi-->\n!+ class=\"error\" class=\"awesome\"| status\n|}");
 add("selser", "Table multiple attributes correction [[3,2]]", "{|<!--42sj7fkd0anpzaor-->\n!+ class=\"error\" class=\"awesome\"| status\n|}");
 add("selser", "Table multiple attributes correction [[0,[2,0]]]", "{|\n<!--k6lgk37x5g0hpvi-->!+ class=\"error\" class=\"awesome\"| status\n|}");
 add("selser", "DIV IN UPPERCASE [2]", "qcqx475zv4c2fbt9\n<DIV ID=\"x\">HTML ROCKS</DIV>");
@@ -2660,6 +2668,8 @@ add("selser", "Table attribute legitimate extension [[0,[1,4]]]", "{|\n!+ style=
 add("selser", "Table attribute legitimate extension [2]", "ttlfw8y9so9wwmi\n{|\n!+ style=\"<nowiki>color:blue</nowiki>\"| status\n|}");
 add("selser", "Table attribute legitimate extension [[3,2]]", "{|<!--aj1x9jx74cjif6r-->\n!+ style=\"<nowiki>color:blue</nowiki>\"| status\n|}");
 add("selser", "Table attribute legitimate extension [1]", "{| data-foobar=\"ub4bg317e10v0a4i\"\n!+ style=\"<nowiki>color:blue</nowiki>\"| status\n|}");
+add("selser", "Table attribute safety [[4,1]]", "{|<!--12z3y8xniki96bt9-->\n!+ style=\"<nowiki>border-width:expression(0+alert(document.cookie))</nowiki>\"| status\n|}");
+add("selser", "Table attribute safety [[4,[0,2]]]", "{|<!--7gxbdcr5xko6r-->\n!+ style=\"<nowiki>border-width:expression(0+alert(document.cookie))</nowiki>\"| status<!--iq35z1foh53zncdi-->\n|}");
 add("selser", "Table attribute safety [[3,2]]", "{|<!--1bcrn3xejw7e3ik9-->\n!+ style=\"<nowiki>border-width:expression(0+alert(document.cookie))</nowiki>\"| status\n|}");
 add("selser", "Table attribute safety [1]", "{| data-foobar=\"na1gz9i5gxlgnwmi\"\n!+ style=\"<nowiki>border-width:expression(0+alert(document.cookie))</nowiki>\"| status\n|}");
 add("selser", "Table attribute safety [2]", "zwfo2kxs5fa5g66r\n{|\n!+ style=\"<nowiki>border-width:expression(0+alert(document.cookie))</nowiki>\"| status\n|}");
@@ -2692,7 +2702,7 @@ add("selser", "Fuzz testing: Parser13 [[0,1]]", "{|  \n| http://a||}");
 add("selser", "Fuzz testing: Parser13 [[0,2]]", "{|  \n<!--aox6m05qx79icnmi-->| http://a||}");
 add("selser", "Fuzz testing: Parser13 [[0,[1]]]", "{|  \n| http://a||}");
 add("selser", "Fuzz testing: Parser13 [[2,[[1]]]]", "{|  <!--k7dytmk4x4fpf1or-->\n| data-foobar=\"6eljtbwlg39dx6r\" http://a ||}");
-add("selser", "Fuzz testing: Parser13 [[4,[1]]]", "{|  <!--bc5lt7d97qcwhfr-->\n| http://a ||}");
+add("selser", "Fuzz testing: Parser13 [[4,[1]]]", "{|  <!--bc5lt7d97qcwhfr-->\n| http://a||}");
 add("selser", "Fuzz testing: Parser13 [[4,0]]", "{|  <!--bdcj5y141zcl3di-->\n| http://a||}");
 add("selser", "Fuzz testing: Parser13 [[2,0]]", "{|  <!--fk6xcjz25vc84cxr-->\n| http://a||}");
 add("selser", "Fuzz testing: Parser14-table [1,0,0]", "==a==\n{| STYLE=__TOC__");
@@ -2813,6 +2823,7 @@ add("selser", "Parsing of overlapping (improperly nested) inline html tags [2]",
 add("selser", "Don't break table handling if language converter markup is in the cell. [2]", "ixer2na9oirudi\n{|\n|-\n| -{R|B}-\n|}");
 add("selser", "Don't break table handling if language converter markup is in the cell. [[4,2]]", "{|<!--g1hlzg5fl3hrrudi--><!--x4cqrou87inyu8fr-->\n|-\n| -{R|B}-\n|}");
 add("selser", "Don't break table handling if language converter markup is in the cell. [1]", "{| data-foobar=\"ihw5lexd32uzncdi\"\n|-\n| -{R|B}-\n|}");
+add("selser", "Don't break table handling if language converter markup is in the cell. [[4,[[4,0],0]]]", "{|<!--nuhfaguqghc9pb9-->\n|-\n|9qyto9ifqjsxxbt9\n| -{R|B}-\n|}");
 add("selser", "Don't break table handling if language converter markup is in the cell. [[0,2]]", "{|\n<!--11c9cgnqpuys0pb9-->|-\n| -{R|B}-\n|}");
 add("selser", "Don't break table handling if language converter markup is in the cell. [[0,1]]", "{|\n|-\n| -{R|B}-\n|}");
 add("selser", "Bug 529: Uncovered bullet leaving empty list, normally removed by tidy [[[[[3]]],0]]", "**{{bullet}}");
@@ -2860,6 +2871,7 @@ add("selser", "Ignore pipe between table row attributes [[4,2]]", "{|<!--zrj0ish
 add("selser", "Ignore pipe between table row attributes [[3,2]]", "{|<!--x3a9rrvp5j98uxr-->\n| quux\n|- id=foo | style='color: red'\n| bar\n|}");
 add("selser", "Bad treebuilder fixup of formatting elt is cleaned up [[4,2]]", "{|<!--gn1lczzf2clkgldi--><!--sj45zgz3zoetgldi-->\n|\n<small>\n[[Image:Foobar.jpg|right|Test]]\n</small>\n|}");
 add("selser", "Bad treebuilder fixup of formatting elt is cleaned up [2]", "keebwlcmx4yxecdi\n{|\n|\n<small>\n[[Image:Foobar.jpg|right|Test]]\n</small>\n|}");
+add("selser", "Bad treebuilder fixup of formatting elt is cleaned up [[4,1]]", "{|<!--lm54mf3t63pd5cdi-->\n|\n<small>\n[[Image:Foobar.jpg|right|Test]]\n</small>\n|}");
 add("selser", "Bad treebuilder fixup of formatting elt is cleaned up [1]", "{| data-foobar=\"n6n3ky5acvunmi\"\n|\n<small>\n[[Image:Foobar.jpg|right|Test]]\n</small>\n|}");
 add("selser", "Bad treebuilder fixup of formatting elt is cleaned up [[0,[[[4,0,4,[0,3],0,2]],4]]]", "{|\n|o1h396hpl7zdj9k9\n<small>hr00rscpueuerk9[[Image:Foobar.jpg|right]]\nnnzqv9qetemw8kt9\n\n</small><!--3n50lgdjaxwm6lxr-->\n|}");
 add("selser", "Bad treebuilder fixup of formatting elt is cleaned up [[3,[[2],0]]]", "{|\n|87ilau7u3bjiqkt9\n|\n<small>\n[[Image:Foobar.jpg|right|Test]]\n</small>\n|}");
@@ -3012,6 +3024,7 @@ add("selser", "Parsoid-only: HTML tag with broken attribute value quoting [2]", 
 add("selser", "Parsoid-only: HTML tag with broken attribute value quoting [[2]]", "wqj1jgwdq3680k9<span title=\"Hello world>Foo</span>");
 add("selser", "Table with broken attribute value quoting [2]", "mr20rqhubuwstt9\n{|\n| title=\"Hello world|Foo\n|}");
 add("selser", "Table with broken attribute value quoting [[0,[2,0]]]", "{|\n<!--ntjtaez0pi0h33di-->| title=\"Hello world|Foo\n|}");
+add("selser", "Table with broken attribute value quoting [[4,1]]", "{|<!--aai5lsutuhht1emi-->\n| title=\"Hello world|Foo\n|}");
 add("selser", "Table with broken attribute value quoting [[0,1]]", "{|\n| title=\"Hello world|Foo\n|}");
 add("selser", "Table with broken attribute value quoting [1]", "{| data-foobar=\"pa0vp357jvr0ms4i\"\n| title=\"Hello world|Foo\n|}");
 add("selser", "Table with broken attribute value quoting [[0,[[2],0]]]", "{|\n|wf125xn56rhsq0k9\n| title=\"Hello world|Foo\n|}");
@@ -3021,11 +3034,14 @@ add("selser", "Table with broken attribute value quoting on consecutive lines [1
 add("selser", "Table with broken attribute value quoting on consecutive lines [[0,[1,0]]]", "{|\n| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
 add("selser", "Table with broken attribute value quoting on consecutive lines [2]", "g4iu5aji4bwqaor\n{|\n| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
 add("selser", "Table with broken attribute value quoting on consecutive lines [[0,1]]", "{|\n| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
+add("selser", "Table with broken attribute value quoting on consecutive lines [[4,[[[3],0,0],0]]]", "{|<!--xx6pmaat1ma0dx6r-->\n| title=\"Hello world\" |\n| style=\"color:red|Bar\n|}");
+add("selser", "Table with broken attribute value quoting on consecutive lines [[4,[[1,0,0],0]]]", "{|<!--nejaqckt9hmbcsor-->\n| title=\"Hello world\" data-foobar=\"bumvfdcvrbhme7b9\" |Foo\n| style=\"color:red|Bar\n|}");
 add("selser", "Table with broken attribute value quoting on consecutive lines [[4,2]]", "{|<!--7wm4bxgh5f0w9udi--><!--xv1dekuqzsiw9udi-->\n| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
 add("selser", "Table with broken attribute value quoting on consecutive lines [[0,[[2,0,3],3]]]", "{|\n|fk1rjyjbpej6ecdi\n| title=\"Hello world|Foo\n|}");
 add("selser", "Parsoid-only: Table with broken attribute value quoting on consecutive lines [[0,[2,0]]]", "{|\n<!--65b6dlogs124kj4i-->| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
 add("selser", "Parsoid-only: Table with broken attribute value quoting on consecutive lines [1]", "{| data-foobar=\"xgsbz2z4izlg14i\"\n| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
 add("selser", "Parsoid-only: Table with broken attribute value quoting on consecutive lines [2]", "wzsbqm5vh2pujtt9\n{|\n| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
+add("selser", "Parsoid-only: Table with broken attribute value quoting on consecutive lines [[4,[[3,0,2],0]]]", "{|<!--jwixqiu7bck57b9-->\n|m43mcklikp0newmi\n| style=\"color:red|Bar\n|}");
 add("selser", "Parsoid-only: Table with broken attribute value quoting on consecutive lines [[2,2]]", "{|<!--p7jjy5nnfa5g66r-->\n<!--e7dbmj924nwv1jor-->| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
 add("selser", "Parsoid-only: Table with broken attribute value quoting on consecutive lines [[0,2]]", "{|\n<!--10pgp40wu8035wmi-->| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
 add("selser", "Parsoid-only: Table with broken attribute value quoting on consecutive lines [[0,[1,0]]]", "{|\n| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
@@ -3035,6 +3051,7 @@ add("selser", "RT-ed inter-element separators should be valid separators [[0,[0,
 add("selser", "RT-ed inter-element separators should be valid separators [[0,[0,4]]]", "{|\n|- [[foo]]<!--t2u9971ezmj6pqfr-->\n|}");
 add("selser", "RT-ed inter-element separators should be valid separators [[0,1]]", "{|\n|- [[foo]]\n|}");
 add("selser", "RT-ed inter-element separators should be valid separators [2]", "zpuyqbdlibj1nhfr\n{|\n|- [[foo]]\n|}");
+add("selser", "RT-ed inter-element separators should be valid separators [[4,[0,2]]]", "{|<!--72wprvcrqcsxajor-->\n|- [[foo]]<!--fo1qvsdgv3xtuik9-->\n|}");
 add("selser", "RT-ed inter-element separators should be valid separators [[4,2]]", "{|<!--j8hwklray6ekx1or--><!--p7v1guykesl9pb9-->\n|- [[foo]]\n|}");
 add("selser", "RT-ed inter-element separators should be valid separators [[0,[2,4]]]", "{|\n<!--illxemer9nrpy14i-->|- [[foo]]<!--sxxrpf8t8m48ia4i-->\n|}");
 add("selser", "RT-ed inter-element separators should be valid separators [[0,[0,2]]]", "{|\n|- [[foo]]<!--qyiayk5wxhn9izfr-->\n|}");
@@ -3046,9 +3063,12 @@ add("selser", "Empty TD followed by TD with tpl-generated attribute [[0,[[0,4,0,
 add("selser", "Empty TD followed by TD with tpl-generated attribute [[0,[1,4]]]", "{|\n|- data-foobar=\"0532xsqruk32fbt9\"\n|\n|{{echo|style='color:red'}}|foo<!--tn18t2s8bb6b6gvi-->\n|}");
 add("selser", "Empty TD followed by TD with tpl-generated attribute [[0,2]]", "{|\n<!--anfn90dygsvbcsor-->|-\n|\n|{{echo|style='color:red'}}|foo\n|}");
 add("selser", "Empty TD followed by TD with tpl-generated attribute [[4,2]]", "{|<!--3z7wqf2lpjdlhaor--><!--c7w2sjrg7jozjjor-->\n|-\n|\n|{{echo|style='color:red'}}|foo\n|}");
+add("selser", "Empty TD followed by TD with tpl-generated attribute [[4,[2,0]]]", "{|<!--2bvfx9ybokmrhpvi--><!--gyubsw35fbeasjor-->\n|-\n|\n|{{echo|style='color:red'}}|foo\n|}");
 add("selser", "Empty TD followed by TD with tpl-generated attribute [[0,1]]", "{|\n|-\n|\n|{{echo|style='color:red'}}|foo\n|}");
 add("selser", "Empty TD followed by TD with tpl-generated attribute [[3,[[0,2,0,0],0]]]", "{|\n|-\n|t1833l938cq2rzfr\n|\n|{{echo|style='color:red'}}|foo\n|}");
 add("selser", "Empty TD followed by TD with tpl-generated attribute [[3,[[4,0,0,0],4]]]", "{|\n|-\n|9vflhnc8lefgk3xr\n|\n|{{echo|style='color:red'}}|foo<!--w612epsbwkf8yqfr-->\n|}");
+add("selser", "Empty TD followed by TD with tpl-generated attribute [[4,[[0,0,4,0],0]]]", "{|<!--rjnlnc8a6rvbo6r-->\n|-\n|\n|gmtx9nekb777rpb9\n|{{echo|style='color:red'}}|foo\n|}");
+add("selser", "Empty TD followed by TD with tpl-generated attribute [[4,1]]", "{|<!--sedhsf2n5lhoxbt9-->\n|-\n|\n|{{echo|style='color:red'}}|foo\n|}");
 add("selser", "Improperly nested inline or quotes tags with whitespace in between [[[0,2],2,0,1,2]]", "<span> aq2vwpb6wpqr529<s>x</span>hse4dnwv1jor </s>\n''' ''x'''4i8mmhfpdj84zpvi ''");
 add("selser", "Improperly nested inline or quotes tags with whitespace in between [1]", "<span> <s>x</span> </s>\n''' ''x''' ''");
 add("selser", "Improperly nested inline or quotes tags with whitespace in between [[0,1,2,[0,2],0]]", "<span> <s>x</span> </s>l1n5yssmn9q3q5mi\n''' 8n4q6nzuib68byb9''x''' ''");
