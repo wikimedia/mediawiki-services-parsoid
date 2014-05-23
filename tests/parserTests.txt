@@ -3859,6 +3859,20 @@ foo//example.com/Foo
 !! end
 
 !! test
+External links: with no contents
+!! wikitext
+[http://en.wikipedia.org/wiki/Foo]
+
+[[wikipedia:Foo|Bar]]
+
+[[wikipedia:Foo|<span>Bar</span>]]
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo"></a></p>
+<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo">Bar</a></p>
+<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo"><span>Bar</span></a></p>
+!! end
+
+!! test
 External image
 !! wikitext
 External image: http://meta.wikimedia.org/upload/f/f1/Ncwikicol.png
