@@ -2710,6 +2710,62 @@ foo
 </pre>
 !!end
 
+!! test
+HTML-pre: big spaces
+!! wikitext
+<pre>
+
+
+
+
+haha
+
+
+
+
+haha
+
+
+
+
+</pre>
+!! html
+<pre>
+
+
+
+
+haha
+
+
+
+
+haha
+
+
+
+
+</pre>
+
+!! html/parsoid
+<pre data-parsoid='{"stx":"html"}'>
+
+
+
+
+haha
+
+
+
+
+haha
+
+
+
+
+</pre>
+!! end
+
 !!test
 HTML-pre: 2: indented text
 !! wikitext

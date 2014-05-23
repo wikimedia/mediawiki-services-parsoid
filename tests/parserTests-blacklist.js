@@ -2088,6 +2088,7 @@ add("selser", "5a. White-space in indent-pre [[2,0,4]]", " d3ppdqvqzdxi529a<br /
 add("selser", "5a. White-space in indent-pre [[2,0,0]]", " 9blj98gpz0py14ia<br />\n \n \n b");
 add("selser", "5a. White-space in indent-pre [[0,2,0]]", " am3m3vd8oxzu84cxr<br />\n \n \n b");
 add("selser", "HTML-pre: 1. embedded newlines 5", "<pre>foo</pre>\n\n<pre>\nfoo\n</pre>\n\n<pre>\nfoo\n</pre>\n\n<pre>\n\nfoo\n</pre>");
+add("selser", "HTML-pre: big spaces 5", "<pre>\n\n\n\nhaha\n\n\n\n\nhaha\n\n\n\n\n</pre>");
 add("selser", "Definition lists: self-closed tag [2]", "x14l42v2vh392j4i\n;one<br/>two : two-line fun");
 add("selser", "Definition lists: self-closed tag [1]", ";one<br/>two : two-line fun");
 add("selser", "Definition lists: self-closed tag [[[4,2,4,0],[2]]]", ";hfmudey4je6u5wmi18aco6b1yahy3nmi<br/>199ekjza5e7phkt9 :b3ubf9dln2x7ds4i two-line fun");
