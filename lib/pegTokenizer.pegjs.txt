@@ -39,7 +39,21 @@
         // shift tsr of all tokens by offset
         Util.shiftTokenTSR(tokens, options.srcOffset);
         options.env.log("trace/peg", options.pegTokenizer.pipelineId, "---->  ", tokens);
-        options.cb(tokens);
+        // limit the size of individual chunks
+        var chunkLimit = 100000;
+        if (tokens.length > chunkLimit) {
+            var i = 0,
+                l = tokens.length;
+
+            while (i < l) {
+                //console.warn('emitting partial chunk', i);
+                options.cb(tokens.slice(i, i+chunkLimit));
+                i += chunkLimit;
+            }
+        } else {
+            //console.warn('emitting single chunk', tokens.length);
+            options.cb(tokens);
+        }
     };
 
 }
@@ -155,12 +169,7 @@ tlb
     // toplevelblocks!
     var tokens;
     if ( Array.isArray(b) && b.length ) {
-        b = tu.flattenIfArray(b);
-        var bs = b[0];
-        if (bs && bs.constructor !== String && bs.dataAttribs === undefined) {
-            bs.dataAttribs = {};
-        }
-        tokens = b;
+        tokens = tu.flattenIfArray(b);
     } else if (b && b.constructor === String) {
         tokens = [b];
     }
