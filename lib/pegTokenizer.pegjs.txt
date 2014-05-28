@@ -1372,7 +1372,7 @@ generic_tag
         // change up data-attribs in one scenario
         // void-elts that aren't self-closed ==> useful for accurate RT-ing
         if (selfclose === null && isVoidElt) {
-            delete res.dataAttribs.selfClose;
+            res.dataAttribs.selfClose = undefined;
             res.dataAttribs.noClose = true;
         }
         if (broken || bad_ws.length > 0) {
