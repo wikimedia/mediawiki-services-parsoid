@@ -679,6 +679,9 @@ tplarg_or_template
 tplarg_or_template_or_broken
     = tplarg_or_template / broken_template
 
+tplarg_or_template_or_bust
+	= (tplarg_or_template / .)+
+
 broken_template
   = v:( '{{{' / '}}}' / '{{' / '}}' )+
 {

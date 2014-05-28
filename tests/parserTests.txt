@@ -2248,6 +2248,16 @@ data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},
 !! end
 
 !! test
+Parsoid: Pipe in template with nested template in external link target in template parameter (seriously)
+!! options
+parsoid
+!! wikitext
+{{echo|[{{fullurl:{{FULLPAGENAME}}|action=edit}} bar]}}
+!! html
+<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[{{fullurl:{{FULLPAGENAME}}|action=edit}} bar]"}},"i":0}}]}'>[Main Page bar]</p>
+!! end
+
+!! test
 Templates: Don't escape already nowiki-escaped text in template parameters
 !! options
 parsoid=html2wt,wt2wt
