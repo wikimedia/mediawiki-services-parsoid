@@ -5517,6 +5517,24 @@ parsoid=wt2html,wt2wt
 <td>quux</td></tr></tbody></table>
 !! end
 
+
+!!test
+Parsoid: Recover better from broken table attributes
+!!options
+parsoid=wt2html
+!!wikitext
+{| class="foo
+| class="bar" |
+foo
+|}
+!!html/parsoid
+<table class="foo">
+<tr>
+<td class="bar">
+<p>foo</p></td></tr>
+</tbody></table>
+!!end
+
 ###
 ### Internal links
 ###
