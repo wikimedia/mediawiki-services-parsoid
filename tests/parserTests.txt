@@ -5500,6 +5500,23 @@ parsoid=html2wt
  a<h1>foo</h1>
 !! end
 
+!! test
+Parsoid: Row-syntax table headings followed by comment & table cells
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{|
+! foo || bar
+<!-- foo -->  || baz || quux
+|}
+!! html/parsoid
+<table>
+<tbody>
+<tr><th>foo </th><th>bar  </th>
+<td>baz </td>
+<td>quux</td></tr></tbody></table>
+!! end
+
 ###
 ### Internal links
 ###
