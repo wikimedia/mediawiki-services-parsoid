@@ -252,7 +252,13 @@ var dbStatsQuery =
 		'FROM pages ' +
 		'WHERE claim_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1) ' +
 			'AND claim_num_tries >= ? ' +
-			'AND claim_timestamp < ?) AS crashers ' +
+			'AND claim_timestamp < ?) AS crashers, ' +
+	// Get num of rt selser errors
+	'(SELECT count(*) ' +
+	  	'FROM pages ' +
+	  	'JOIN results ON pages.id = results.page_id ' +
+	  	'WHERE results.commit_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1) ' +
+	  		'AND results.result LIKE "%(selser)%") AS rtselsererrors ' +
 
 	'FROM pages JOIN stats on pages.latest_stat = stats.id';
 
@@ -303,7 +309,14 @@ var dbPerWikiStatsQuery =
 		'FROM pages WHERE prefix = ? ' +
 			'AND claim_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1) ' +
 			'AND claim_num_tries >= ? ' +
-			'AND claim_timestamp < ?) AS crashers ' +
+			'AND claim_timestamp < ?) AS crashers, ' +
+	// Get num of rt selser errors
+	'(SELECT count(*) ' +
+	  	'FROM pages ' +
+	  	'JOIN results ON pages.id = results.page_id ' +
+	  	'WHERE pages.prefix = ? ' +
+	  		'AND results.commit_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1 ) ' +
+	  		'AND results.result LIKE "%(selser)%" ) AS rtselsererrors ' +
 
 	'FROM pages JOIN stats on pages.latest_stat = stats.id WHERE pages.prefix = ?';
 
@@ -465,6 +478,19 @@ var dbNewFailsRegressionsBetweenRevs =
 		'AND (s1.skips > 0 OR s1.fails <> 1 OR s2.skips > 0) ' +
 	'ORDER BY s1.score - s2.score DESC ' +
 	'LIMIT 40 OFFSET ?';
+
+var dbPagesWithRTSelserErrors =
+	'SELECT pages.title, pages.prefix, commits.hash, stats.errors, stats.fails, stats.skips ' +
+	'FROM stats ' +
+	'JOIN pages ON stats.page_id = pages.id ' +
+	'JOIN commits ON stats.commit_hash = commits.hash ' +
+	'WHERE commits.hash = ? AND (SELECT count(*) FROM results WHERE ' +
+		'(results.page_id = pages.id) AND ' +
+		'(results.result LIKE "%(selser)%") AND ' +
+		'(results.commit_hash = commits.hash) ' +
+		') > 0 ' +
+	'ORDER BY stats.score DESC ' +
+	'LIMIT 40 OFFSET ?' ;
 
 var dbResultsQuery =
 	'SELECT result FROM results';
@@ -874,7 +900,8 @@ var statsWebInterface = function ( req, res ) {
 		query = dbPerWikiStatsQuery;
 		queryParams = [ prefix, prefix, prefix, prefix,
 						prefix, prefix, prefix, prefix,
-						prefix, maxTries, cutoffDate ];
+						maxTries, cutoffDate,
+						prefix, prefix ];
 	} else {
 		query = dbStatsQuery;
 		queryParams = [ maxTries, cutoffDate ];
@@ -920,7 +947,9 @@ var statsWebInterface = function ( req, res ) {
 				{ description: 'Fixes', value: numFixes,
 					url: '/topfixes/between/' + row[0].secondhash + '/' + row[0].maxhash },
 				{ description: 'Regressions', value: numRegressions,
-					url: '/regressions/between/' + row[0].secondhash + '/' + row[0].maxhash }
+					url: '/regressions/between/' + row[0].secondhash + '/' + row[0].maxhash },
+				{description: 'RT selser errors', value: row[0].rtselsererrors,
+					url: '/rtselsererrors/' + row[0].maxhash}
 			],
 			flaggedReg: [
 				{ description: 'one fail',
@@ -955,19 +984,19 @@ var statsWebInterface = function ( req, res ) {
 	});
 };
 
+var makeFailsRow = function(row) {
+	return [
+		pageTitleData(row),
+		commitLinkData(row.hash, row.title, row.prefix),
+		row.skips,
+		row.fails,
+		row.errors === null ? 0 : row.errors
+	];
+};
+
 var failsWebInterface = function ( req, res ) {
 	var page = ( req.params[0] || 0 ) - 0,
 		offset = page * 40;
-
-	var makeFailsRow = function(row) {
-		return [
-			pageTitleData(row),
-			commitLinkData(row.hash, row.title, row.prefix),
-			row.skips,
-			row.fails,
-			row.errors === null ? 0 : row.errors
-		];
-	};
 
 	var data = {
 		page: page,
@@ -1282,6 +1311,21 @@ var GET_newFailsRegressions = function(req, res) {
 				displayPageList.bind(null, res, data, makeRegressionRow));
 		}
 	});
+};
+
+var GET_rtselsererrors = function(req, res) {
+	var commit = req.params[0],
+		page = (req.params[1] || 0) - 0,
+		offset = page * 40,
+		data = {
+			page: page,
+			urlPrefix: '/rtselsererrors',
+			urlSuffix: '',
+			heading: 'Pages with rt selser errors',
+			header: ['Title', 'Commit', 'Syntactic diffs', 'Semantic diffs', 'Errors']
+		};
+	db.query(dbPagesWithRTSelserErrors, [commit, offset],
+		displayPageList.bind(null, res, data, makeFailsRow));
 };
 
 var displayOneDiffRegressions = function(numFails, numSkips, subheading, headingLinkData, req, res){
@@ -1608,6 +1652,9 @@ app.get(/^\/oneskipregressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_o
 
 // Regressions between two revisions that introduce senantic errors (previously only syntactic diffs).
 app.get(/^\/newfailsregressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_newFailsRegressions );
+
+// Pages with rt selser errors
+app.get(/^\/rtselsererrors\/([^\/]+)(?:\/(\d+))?$/, GET_rtselsererrors);
 
 // Topfixes between two revisions.
 app.get( /^\/topfixes\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_topfixes );
