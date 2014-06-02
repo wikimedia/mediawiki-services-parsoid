@@ -2406,6 +2406,32 @@ c
 !!end
 
 !!test
+2d. Indent-Pre and tables
+!! wikitext
+ a
+ {|
+ | b
+ |}
+!! html/php
+<pre>a
+</pre>
+<table>
+<tr>
+<td> b
+</td></tr></table>
+
+!! html/parsoid
+<pre>a</pre>
+ 
+<table>
+ 
+<tbody>
+<tr>
+<td> b</td></tr>
+ </tbody></table>
+!!end
+
+!!test
 3a. Indent-Pre and block tags (single-line html)
 !! wikitext
  a <p> foo </p>
