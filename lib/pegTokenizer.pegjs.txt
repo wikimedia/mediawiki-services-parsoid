@@ -960,7 +960,17 @@ quote = "''" x:"'"* {
 // cousins by having their contents parsed.
 pre_indent
   = pre_indent_in_tags
-  / pre_indent_line
+  / l:pre_indent_line
+    // keep consuming indented lines unless they start a table
+    ls:(s:sol
+        !(space* "{|")
+        pl:pre_indent_line {
+              return s.concat(pl);
+        }
+    )*
+  {
+      return l.concat(ls);
+  }
 
 pre_tag_name =
   tag:[prePRE]+ {

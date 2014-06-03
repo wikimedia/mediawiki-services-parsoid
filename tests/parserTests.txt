@@ -2432,6 +2432,31 @@ c
 !!end
 
 !!test
+2e. Indent-Pre and table-line syntax
+!! wikitext
+ a
+ | b
+ | c
+!! html/parsoid
+<pre>a
+| b
+| c</pre>
+!!end
+
+!!test
+2f. Indent-pre started by table-line syntax
+!! wikitext
+a
+ | b
+ | c
+!! html/parsoid
+<p>a</p>
+<pre>
+| b
+| c</pre>
+!!end
+
+!!test
 3a. Indent-Pre and block tags (single-line html)
 !! wikitext
  a <p> foo </p>
