@@ -20286,6 +20286,20 @@ Indented table with an empty td
 !!end
 
 !!test
+Indented block & table
+!! wikitext
+ <div>foo</div>
+ {|
+ |foo
+ |}
+!! html/parsoid
+ <div data-parsoid='{"stx":"html"}'>foo</div>
+ <table><tbody>
+ <tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td data-parsoid='{"autoInsertedEnd":true}'>foo</td></tr>
+ </tbody></table>
+!!end
+
+!!test
 Empty TR followed by a template-generated TR
 (Parsoid-specific since PHP parser doesn't handle this mixed tbl-wikitext)
 !!options

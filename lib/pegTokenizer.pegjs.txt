@@ -242,7 +242,7 @@ block_lines
     // eat an empty line before the block
     s2:(os:optionalSpaceToken so:sol { return os.concat(so); })?
     bl:block_line {
-        //console.warn( pp(s));
+        //console.warn( 'bl', JSON.stringify(bl, null, 2) );
         var s2_ = (s2 !== null) ? s2 : [];
         return s.concat(s2_, bl);
     }
