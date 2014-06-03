@@ -22,7 +22,7 @@
         CommentTk = defines.CommentTk,
         EOFTk = defines.EOFTk;
 
-    var inline_breaks = options.pegTokenizer.inline_breaks;
+    var inline_breaks = tu.inline_breaks;
     var stops = new tu.SyntaxStops();
 
     // Current extension/include tag being parsed.
