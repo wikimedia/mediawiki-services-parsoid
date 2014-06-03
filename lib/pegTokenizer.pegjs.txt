@@ -1826,12 +1826,15 @@ table_heading_tags
     }
 
 table_heading_tag
-  = arg:row_syntax_table_args?
+  = & { return stops.push('th', true); }
+    arg:row_syntax_table_args?
     tagEndPos:({return peg$currPos;})
     c:nested_block_in_table* {
+        stops.pop('th');
         //console.warn( 'table_heading_tag: ' + pp( [a, c] ) );
         return tu.buildTableTokens("th", "!", arg, [peg$reportedPos, tagEndPos], peg$currPos, c);
     }
+    / & { return stops.pop('th'); }
 
 table_end_tag
   = space* p:pipe b:"}" {
