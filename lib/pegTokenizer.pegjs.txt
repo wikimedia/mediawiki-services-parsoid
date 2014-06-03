@@ -74,8 +74,8 @@ start
  * WikitextContent::getRedirectTarget()
  */
 redirect
-  = rw:redirect_word 
-    sp:space_or_newline* 
+  = rw:redirect_word
+    sp:space_or_newline*
     c:( ":" space_or_newline* )?
     link:(wl:wikilink { return wl[0]; })
 {
@@ -92,8 +92,8 @@ redirect
     if (sp) { rw += sp.join(''); }
     if (c) { rw += c[0] + c[1].join(''); }
     // Build a redirect token
-    var redirect = new SelfclosingTagTk('mw:redirect', 
-            [Util.lookupKV(link.attribs,'href')], 
+    var redirect = new SelfclosingTagTk('mw:redirect',
+            [Util.lookupKV(link.attribs,'href')],
             {
                 src: rw,
                 tsr: [peg$reportedPos, peg$currPos],
@@ -219,7 +219,7 @@ nested_block_line = bs:(!sol !inline_breaks b:block { return b; })* {
  * table_start_tag (for nested tables).
  */
 nested_block_in_table
-  = 
+  =
     // avoid recursion via nested_block_in_table, as that can lead to stack
     // overflow in large tables
     // See https://bugzilla.wikimedia.org/show_bug.cgi?id=57670
@@ -333,7 +333,7 @@ inline
   }
 
 inlineline
-  = c:(urltext 
+  = c:(urltext
           / !{ return inline_breaks( input, peg$currPos, stops ); } // inline_breaks
             !pre_start
             r:(inline_element / [^\r\n]) { return r; })+ {
@@ -464,8 +464,8 @@ autolink
         }
         var res = [ new SelfclosingTagTk( 'urllink', [new KV('href', target)], { tsr: [peg$reportedPos, peg$currPos] } ) ];
           return res;
-      } 
-    / autoref 
+      }
+    / autoref
     / isbn) { return r; }
 
 extlink
@@ -1082,7 +1082,7 @@ xmlish_tag =
             dp = t.dataAttribs,
             isHtmlTag = Util.isHTMLElementName(tagName),
             isInstalledExt = options.env.conf.wiki.isExtensionTag(tagName),
-            isIncludeTag = tagName === 'includeonly' 
+            isIncludeTag = tagName === 'includeonly'
                             || tagName === 'noinclude'
                             || tagName === 'onlyinclude';
 
@@ -1416,7 +1416,7 @@ could_be_attribute =
     // production. Also try to parse on [|!+;] for now which seem to be common
     // syntax errors in production that hidden by the PHP parser (by stripping
     // the 'attributes').
-    space* ([a-zA-Z|!+;] / 
+    space* ([a-zA-Z|!+;] /
             // Crude heuristic that just excludes attribute-less row-syntax
             // table cells like this with simple (pipe-less) values: |a||b||c
             [^\'\"\n|]+ '|' [^|\n] /
@@ -1929,7 +1929,7 @@ urltext = ( t:[^'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:\]} &=]+ { return t.join(''); 
               ];
           }
           / & ('__') bs:behavior_switch { return bs; }
-          // / t:text_char 
+          // / t:text_char
           // Inline copy of text_char for performance, as about 96% of
           // text_char calls originate here.
           // Keep in sync and/or remove after upgrading to pegjs 0.8 which
