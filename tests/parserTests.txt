@@ -20445,21 +20445,21 @@ foo
 !! end
 
 !! test
-Strip leading whitespace when handling indent-pre inducing tags
+Nowiki-wrap leading whitespace when handling indent-pre inducing tags
 !! options
 parsoid=html2wt
 !! wikitext
 foo
-<span>bar</span>
+<nowiki> </nowiki><span>bar</span>
 
 <span>foo2
-</span>bar2
+<nowiki> </nowiki></span>bar2
 
 <div>foo</div>
-<span>bar</span>
+<nowiki> </nowiki><span>bar</span>
 
 <div>
-<span>foo</span>
+<nowiki> </nowiki><span>foo</span>
 </div>
 !! html
 <p>foo</p>
