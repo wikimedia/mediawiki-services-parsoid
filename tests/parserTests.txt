@@ -4502,32 +4502,6 @@ Bug 4781, 5267: %28, %29 in bracketed URL
 <p><a rel="mw:ExtLink" href="http://www.example.com/?title=Ben-Hur_%281959_film%29">link</a></p>
 !! end
 
-# Note that parsoid does not munge anchor text; all non-space
-# characters are valid in HTML5 ids.
-!! test
-Anchor containing a #. (bug 63430)
-!! wikitext
-[[Main Page#And#Link]]
-!! html/php
-<p><a href="/wiki/Main_Page#And.23Link" title="Main Page">Main Page#And#Link</a>
-</p>
-!! html/parsoid
-<p><a rel="mw:WikiLink" href="./Main_Page#And%23Link">Main Page#And#Link</a></p>
-!! end
-
-# Note that parsoid does not munge anchor text; all non-space
-# characters are valid in HTML5 ids.
-!! test
-Anchor containing a #. (bug 63430)
-!! wikitext
-[[Main Page#And#Link]]
-!! html/php
-<p><a href="/wiki/Main_Page#And.23Link" title="Main Page">Main Page#And#Link</a>
-</p>
-!! html/parsoid
-<p><a rel="mw:WikiLink" href="./Main_Page#And%23Link">Main Page#And#Link</a></p>
-!! end
-
 !! test
 External link containing a period in the anchor. (bug 63947)
 !! wikitext
@@ -5841,6 +5815,19 @@ Link with multiple pipes
 !! html
 <p><a href="/wiki/Main_Page" title="Main Page">The|Main|Page</a>
 </p>
+!! end
+
+# Note that parsoid does not munge anchor text; all non-space
+# characters are valid in HTML5 ids.
+!! test
+Anchor containing a #. (bug 63430)
+!! wikitext
+[[Main Page#And#Link]]
+!! html/php
+<p><a href="/wiki/Main_Page#And.23Link" title="Main Page">Main Page#And#Link</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Main_Page#And%23Link">Main Page#And#Link</a></p>
 !! end
 
 !! test
