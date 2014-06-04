@@ -2222,7 +2222,7 @@ preprocessor_text
 wikilink_preprocessor_text
   = r:( t:[^<[{\n\r\t|!\]}{ &]+ { return t.join(''); }
         // XXX gwicke: any more chars we need to allow here?
-        / !inline_breaks wr:( directive / !"]]" c:( text_char / [!] ) { return c; } )
+        / !inline_breaks wr:( directive / !"]]" c:( text_char / [!<] ) { return c; } )
         { return wr; }
     )+ {
       return tu.flatten_stringlist( r );
