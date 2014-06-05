@@ -1,0 +1,1 @@
+ALTER TABLE `stats` ADD `selser_errors` INTEGER NOT NULL DEFAULT '0';

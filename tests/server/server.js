@@ -186,11 +186,12 @@ var dbInsertResult =
 
 var dbInsertStats =
 	'INSERT INTO stats ' +
-	'( skips, fails, errors, score, page_id, commit_hash ) ' +
-	'VALUES ( ?, ?, ?, ?, ?, ? ) ' +
+	'( skips, fails, errors, selser_errors, score, page_id, commit_hash ) ' +
+	'VALUES ( ?, ?, ?, ?, ?, ?, ? ) ' +
 	'ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID( id ), ' +
 		'skips = VALUES( skips ), fails = VALUES( fails ), ' +
-		'errors = VALUES( errors ), score = VALUES( score )';
+		'errors = VALUES( errors ), selser_errors = VALUES(selser_errors), ' +
+		'score = VALUES( score )';
 
 var dbInsertPerfStatsStart =
 	'INSERT INTO perfstats ' +
@@ -255,10 +256,10 @@ var dbStatsQuery =
 			'AND claim_timestamp < ?) AS crashers, ' +
 	// Get num of rt selser errors
 	'(SELECT count(*) ' +
-	  	'FROM pages ' +
-	  	'JOIN results ON pages.id = results.page_id ' +
-	  	'WHERE results.commit_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1) ' +
-	  		'AND results.result LIKE "%(selser)%") AS rtselsererrors ' +
+		'FROM pages ' +
+		'JOIN stats ON pages.id = stats.page_id ' +
+		'WHERE stats.commit_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1) ' +
+			'AND stats.selser_errors > 0) AS rtselsererrors ' +
 
 	'FROM pages JOIN stats on pages.latest_stat = stats.id';
 
@@ -312,11 +313,11 @@ var dbPerWikiStatsQuery =
 			'AND claim_timestamp < ?) AS crashers, ' +
 	// Get num of rt selser errors
 	'(SELECT count(*) ' +
-	  	'FROM pages ' +
-	  	'JOIN results ON pages.id = results.page_id ' +
-	  	'WHERE pages.prefix = ? ' +
-	  		'AND results.commit_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1 ) ' +
-	  		'AND results.result LIKE "%(selser)%" ) AS rtselsererrors ' +
+		'FROM pages ' +
+		'JOIN stats ON pages.id = stats.page_id ' +
+		'WHERE pages.prefix = ? ' +
+			'AND stats.commit_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1 ) ' +
+			'AND stats.selser_errors > 0) AS rtselsererrors ' +
 
 	'FROM pages JOIN stats on pages.latest_stat = stats.id WHERE pages.prefix = ?';
 
@@ -480,17 +481,15 @@ var dbNewFailsRegressionsBetweenRevs =
 	'LIMIT 40 OFFSET ?';
 
 var dbPagesWithRTSelserErrors =
-	'SELECT pages.title, pages.prefix, commits.hash, stats.errors, stats.fails, stats.skips ' +
+	'SELECT pages.title, pages.prefix, commits.hash, ' +
+	'stats.errors, stats.fails, stats.skips, stats.selser_errors ' +
 	'FROM stats ' +
 	'JOIN pages ON stats.page_id = pages.id ' +
 	'JOIN commits ON stats.commit_hash = commits.hash ' +
-	'WHERE commits.hash = ? AND (SELECT count(*) FROM results WHERE ' +
-		'(results.page_id = pages.id) AND ' +
-		'(results.result LIKE "%(selser)%") AND ' +
-		'(results.commit_hash = commits.hash) ' +
-		') > 0 ' +
+	'WHERE commits.hash = ? AND ' +
+		'stats.selser_errors > 0 ' +
 	'ORDER BY stats.score DESC ' +
-	'LIMIT 40 OFFSET ?' ;
+	'LIMIT 40 OFFSET ?';
 
 var dbResultsQuery =
 	'SELECT result FROM results';
@@ -721,7 +720,8 @@ var receiveResults = function ( req, res ) {
 		result = req.body.results,
 		skipCount = result.match( /<skipped/g ),
 		failCount = result.match( /<failure/g ),
-		errorCount = result.match( /<error/g );
+		errorCount = result.match( /<error/g ),
+		selserErrorCount = 0;
 	var prefix = req.params[1];
 	var commitHash = req.body.commit;
 	var perfstats = parsePerfStats( result );
@@ -729,6 +729,12 @@ var receiveResults = function ( req, res ) {
 	skipCount = skipCount ? skipCount.length : 0;
 	failCount = failCount ? failCount.length : 0;
 	errorCount = errorCount ? errorCount.length : 0;
+	// Find the number of selser errors
+	var selserSuites = result.match(/<testsuite[^>]*\(selser\)[^>]*>[\s\S]*?<\/testsuite>/g);
+	for (var selserSuite in selserSuites) {
+		var matches = selserSuites[selserSuite].match(/<testcase/g);
+		selserErrorCount += matches ? matches.length : 0;
+	}
 
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 
@@ -761,7 +767,7 @@ var receiveResults = function ( req, res ) {
 					transUpdateCB.bind( null, title, prefix, commitHash, "result", res, trans, function( insertedResult ) {
 						latest_resultId = insertedResult.insertId;
 						// Insert the stats
-						trans.query( dbInsertStats, [ skipCount, failCount, errorCount, score, page.id, commitHash ],
+						trans.query( dbInsertStats, [ skipCount, failCount, errorCount, selserErrorCount, score, page.id, commitHash ],
 							transUpdateCB.bind( null, title, prefix, commitHash, "stats", res, trans, function( insertedStat ) {
 								latest_statId = insertedStat.insertId;
 
