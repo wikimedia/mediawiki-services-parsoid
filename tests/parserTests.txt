@@ -9171,7 +9171,7 @@ parsoid=wt2html,wt2wt
 |c
 |}
 !!html/parsoid
-<meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"src":"&lt;includeonly>a&lt;/includeonly>"}'/><meta typeof="mw:Includes/IncludeOnly/End" data-parsoid='{"src":"&lt;/includeonly>"}'/><span typeof="mw:Param" about="#mwt1" id="mwt1" data-mw="{}">{{{b}}}</span><table about="#mwt1">
+<meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"src":"&lt;includeonly>a&lt;/includeonly>"}'/><meta typeof="mw:Includes/IncludeOnly/End" data-parsoid='{"src":"&lt;/includeonly>"}'/><span data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true}'>{{{b}}}</span><table about="#mwt1" typeof="mw:Param" data-parsoid='{"a":{" ":null},"sa":{" ":""},"src":"{| {{{b}}}\n|c\n|}"}'>
 <tbody><tr><td>c</td></tr>
 </tbody></table>
 !!end
