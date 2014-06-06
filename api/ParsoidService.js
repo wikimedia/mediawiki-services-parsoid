@@ -76,6 +76,7 @@ function ParsoidService(options) {
 		} else {
 			env.responseSent = true;
 			res.end.apply(res, Array.prototype.slice.call(arguments, 2));
+			env.log("end/response");
 		}
 	}
 

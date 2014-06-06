@@ -41,4 +41,7 @@ exports.setup = function( parsoidConfig ) {
 	// Allow override of port/interface:
 	//parsoidConfig.serverPort = 8000;
 	//parsoidConfig.serverInterface = '127.0.0.1';
+
+	// The URL of your LintBridge API endpoint
+	//parsoidConfig.linterAPI = 'http://localhost:3000/add';
 };
