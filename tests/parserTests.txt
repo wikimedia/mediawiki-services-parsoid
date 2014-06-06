@@ -5106,6 +5106,18 @@ Accept "||" in table headings
 !! end
 
 !! test
+Accept "!!" in table data
+!! wikitext
+{|
+| Foo!! ||
+|}
+!! html/parsoid
+<table data-parsoid='{}'>
+<tbody data-parsoid='{}'><tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td data-parsoid='{"autoInsertedEnd":true}'> Foo!! </td><td data-parsoid='{"stx_v":"row","autoInsertedEnd":true}'></td></tr>
+</tbody></table>
+!! end
+
+!! test
 Accept "||" in indented table headings
 !! wikitext
 :{|
