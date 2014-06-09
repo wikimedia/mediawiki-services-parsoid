@@ -90,6 +90,11 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 			description: 'Input data-parsoid JSON',
 			'boolean': false,
 			'default': ''
+		},
+		'lint': {
+			description: 'Parse with linter enabled',
+			'boolean': true,
+			'default': false
 		}
 	});
 
@@ -252,6 +257,9 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 				out = DU.serializeNode( document.body, true );
 				dp = argv.dp ? DU.getDataParsoid( document ) : null;
 				startsAtHTML( env, out, dp );
+			}
+			if(argv.lint){
+				env.log("end/parse");
 			}
 		});
 
