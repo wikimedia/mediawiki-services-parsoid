@@ -23,7 +23,9 @@
 
    $ cd $PARSOID
    $ tests/fetch-parserTests.txt.js --force
-   $ git commit -m "Sync parserTests" tests/fetch-parserTests.txt.js
+   $ tests/parserTests.js --rewrite-blacklist
+   $ git add -u
+   $ git commit -m "Sync parserTests with core"
    $ git review
 
   Simple, right?
