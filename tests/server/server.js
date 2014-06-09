@@ -1325,13 +1325,30 @@ var GET_rtselsererrors = function(req, res) {
 		offset = page * 40,
 		data = {
 			page: page,
-			urlPrefix: '/rtselsererrors',
+			urlPrefix: '/rtselsererrors/' + commit,
 			urlSuffix: '',
 			heading: 'Pages with rt selser errors',
 			header: ['Title', 'Commit', 'Syntactic diffs', 'Semantic diffs', 'Errors']
 		};
+	var makeSelserErrorRow = function(row) {
+		var prefix = encodeURIComponent(row.prefix),
+			title = encodeURIComponent(row.title);
+		return [
+			{
+				title: row.prefix + ':' + row.title,
+				titleUrl: 'http://parsoid.wmflabs.org/_rtselser/' + prefix + '/' + title,
+				lh: 'http://localhost:8000/_rtselser/' + prefix + '/' + title,
+				latest: '/latestresult/' + prefix + '/' + title,
+				perf: '/pageperfstats/' + prefix + '/' + title
+			},
+			commitLinkData(row.hash, row.title, row.prefix),
+			row.skips,
+			row.fails,
+			row.errors === null ? 0 : row.errors
+		];
+	};
 	db.query(dbPagesWithRTSelserErrors, [commit, offset],
-		displayPageList.bind(null, res, data, makeFailsRow));
+		displayPageList.bind(null, res, data, makeSelserErrorRow));
 };
 
 var displayOneDiffRegressions = function(numFails, numSkips, subheading, headingLinkData, req, res){

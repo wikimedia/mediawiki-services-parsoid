@@ -25,6 +25,45 @@ testcase:before {
     content: attr(name) ":";
 }
 
+testsuite {
+    margin-bottom: 1em;
+    display: block;
+}
+
+testsuite:before {
+    font-size: 90%;
+    font-weight: bolder;
+    color: gray;
+    margin-left: 8px;
+    content: attr(name);
+}
+
+testsuites {
+    width: 100%;
+}
+
+perfstats {
+    display: block;
+    font-size: 70%;
+    color: gray;
+}
+
+perfstats:before {
+    content: "Performance stats:";
+}
+
+perfstat {
+    display: inline;
+}
+
+perfstat:before {
+    content: attr(type) " ";
+}
+
+perfstat:after {
+    content: "ms, ";
+}
+
 /* For result comparison views (flag changed skips/fails) */
 
 FlagNewTestcases:before {

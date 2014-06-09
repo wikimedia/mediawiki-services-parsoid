@@ -148,7 +148,7 @@ var xmlCallback = function ( env, err, results ) {
 		}
 		output += '</perfstats>\n';
 	}
-	output += '<testsuites/>';
+	output += '</testsuites>';
 
 	return output;
 };
@@ -428,7 +428,8 @@ var doubleRoundtripDiff = function ( env, offsets, body, out, cb ) {
 	}
 };
 
-var parsoidPost = function ( env, parsoidURL, prefix, title, text, oldid, profilePrefix, cb ) {
+var parsoidPost = function (env, parsoidURL, prefix, title, text, oldid,
+					recordSizes, profilePrefix, cb) {
 	var data = {};
 	if ( oldid ) {
 		data.oldid = oldid;
@@ -464,18 +465,23 @@ var parsoidPost = function ( env, parsoidURL, prefix, title, text, oldid, profil
 						parseInt( res.headers[ 'x-parsoid-performance' ].
 							match( /duration=((\d)+);/ )[1], 10 );
 				}
-				// Record the sizes
-				var sizePrefix = profilePrefix + (oldid ? 'wt' : 'html');
-				env.profile.size[ sizePrefix + 'raw' ] =
-					body.length;
-				// Compress to record the gzipped size
-				zlib.gzip( res.body, function( err, gzippedbuf ) {
-					if ( !err ) {
-						env.profile.size[ sizePrefix + 'gzip' ] =
-							gzippedbuf.length;
-					}
-					cb( null, body );
-				} );
+
+				if (recordSizes) {
+					// Record the sizes
+					var sizePrefix = profilePrefix + (oldid ? 'wt' : 'html');
+					env.profile.size[ sizePrefix + 'raw' ] =
+						body.length;
+					// Compress to record the gzipped size
+					zlib.gzip( res.body, function( err, gzippedbuf ) {
+						if ( !err ) {
+							env.profile.size[ sizePrefix + 'gzip' ] =
+								gzippedbuf.length;
+						}
+						cb( null, body );
+					} );
+				} else {
+					cb(null, body);
+				}
 			} else {
 				cb( null, body );
 			}
@@ -527,9 +533,10 @@ var fetch = function ( page, cb, options ) {
 				cb( err, env, [] );
 			} else {
 				// Shortcut for calling parsoidPost with common options
-				var parsoidPostShort = function (postBody, postOldId, postProfilePrefix, postCb) {
+				var parsoidPostShort = function (postBody, postOldId,
+						postRecordSizes, postProfilePrefix, postCb) {
 					parsoidPost(env, options.parsoidURL, prefix, page,
-						postBody, postOldId, postProfilePrefix,
+						postBody, postOldId, postRecordSizes, postProfilePrefix,
 						function (err, postResult) {
 							if (err) {
 								cb(err, env, []);
@@ -551,7 +558,7 @@ var fetch = function ( page, cb, options ) {
 							newNode = newDocument.createComment('rtSelserEditTestComment');
 						newDocument.body.appendChild(newNode);
 						parsoidPostShort(newDocument.body.innerHTML,
-							src_and_metadata.revision.revid, 'selser',
+							src_and_metadata.revision.revid, false, 'selser',
 							function (wtSelserBody) {
 								// Finish the total time now
 								if ( env.profile && env.profile.time ) {
@@ -576,10 +583,10 @@ var fetch = function ( page, cb, options ) {
 
 				env.setPageSrcInfo(src_and_metadata);
 				// First, fetch the HTML for the requested page's wikitext
-				parsoidPostShort(env.page.src, null, null, function (htmlBody) {
+				parsoidPostShort(env.page.src, null, true, null, function (htmlBody) {
 					// Now, request the wikitext for the obtained HTML
 					parsoidPostShort(htmlBody,
-						src_and_metadata.revision.revid, null,
+						src_and_metadata.revision.revid, true, null,
 						function (wtBody) {
 							roundTripDiff(env, htmlBody, wtBody,
 								rtSelserTest.bind(null, htmlBody));
