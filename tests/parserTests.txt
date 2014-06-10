@@ -1223,6 +1223,16 @@ parsoid
 </p>
 !! end
 
+!! test
+Properly escape nowiki when combined with other wiki markup
+!! options
+parsoid=html2wt
+!! wikitext
+<nowiki>* &lt;/nowiki&gt;</nowiki> tag
+!! html
+<p>* &lt;/nowiki&gt; tag</p>
+!! end
+
 ###
 ### Comments
 ###

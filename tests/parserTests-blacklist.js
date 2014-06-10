@@ -1124,7 +1124,7 @@ add("html2wt", "<pre> with forbidden attribute (bug 3202)", " Narrow screen good
 add("html2wt", "Entities inside <pre>", " <\n");
 add("html2wt", "<pre> with forbidden attribute values (bug 3202)", " Narrow screen goodies\n");
 add("html2wt", "<nowiki> inside <pre> (bug 13238)", " &lt;nowiki&gt;\n\n \n\n &lt;nowiki&gt;Foo&lt;/nowiki&gt;\n");
-add("html2wt", "<nowiki> and <pre> preference (first one wins)", " &lt;nowiki&gt;\n\n&lt;/nowiki&gt;\n</pre>\n\n<nowiki><pre>\n&lt;nowiki&gt;\n</pre>\n\n</pre></nowiki>\n");
+add("html2wt", "<nowiki> and <pre> preference (first one wins)", " &lt;nowiki&gt;\n\n&lt;/nowiki&gt;\n</pre>\n\n<nowiki><pre>\n<nowiki>\n</pre>\n\n</pre></nowiki>\n");
 add("html2wt", "</pre> inside nowiki", "</pre>\n");
 add("html2wt", "Empty pre; pre inside other HTML tags (bug 54946)", "a\n\n<div>\n foo\n</div>\n \n");
 add("html2wt", "HTML pre followed by indent-pre", " foo\n\n bar\n");
