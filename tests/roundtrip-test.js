@@ -409,9 +409,7 @@ var checkIfSignificant = function ( env, offsets, src, body, out, cb, document )
 	cb( null, env, results );
 };
 
-var doubleRoundtripDiff = function ( env, offsets, body, out, cb ) {
-	var src = env.page.src;
-
+var doubleRoundtripDiff = function ( env, offsets, src, body, out, cb ) {
 	if ( offsets.length > 0 ) {
 		env.setPageSrcInfo( out );
 		env.errCB = function ( error ) {
@@ -489,22 +487,44 @@ var parsoidPost = function (env, parsoidURL, prefix, title, text, oldid,
 	} );
 };
 
-var roundTripDiff = function ( env, html, out, cb ) {
+var roundTripDiff = function ( env, src, html, out, cb ) {
 	var diff, offsetPairs;
 
 	try {
-		diff = Diff.diffLines(out, env.page.src);
+		diff = Diff.diffLines(out, src);
 		offsetPairs = Diff.convertDiffToOffsetPairs(diff);
 
 		if ( diff.length > 0 ) {
 			var body = domino.createDocument( html ).body;
-			doubleRoundtripDiff( env, offsetPairs, body, out, cb );
+			doubleRoundtripDiff( env, offsetPairs, src, body, out, cb );
 		} else {
 			cb( null, env, [] );
 		}
 	} catch ( e ) {
 		cb( e, env, [] );
 	}
+};
+
+var selserRoundTripDiff = function (env, html, out, diffs, cb) {
+	var selserDiff, offsetPairs,
+		src = env.page.src.replace(/\n(?=\n)/g, '\n ');
+	// Remove the selser trigger comment
+	out = out.replace(/<!--rtSelserEditTestComment-->\n*$/, '');
+	out = out.replace(/\n(?=\n)/g, '\n ');
+
+	roundTripDiff(env, src, html, out, function (err, env, selserDiffs) {
+		if (err) {
+			cb(err, env, diffs);
+		} else {
+			for (var sD in selserDiffs) {
+				selserDiffs[sD].selser = true;
+			}
+			if (selserDiffs.length) {
+				diffs = diffs.concat(selserDiffs);
+			}
+			cb(null, env, diffs);
+		}
+	});
 };
 
 var fetch = function ( page, cb, options ) {
@@ -557,7 +577,7 @@ var fetch = function ( page, cb, options ) {
 						var newDocument = DU.parseHTML(origHTMLBody),
 							newNode = newDocument.createComment('rtSelserEditTestComment');
 						newDocument.body.appendChild(newNode);
-						parsoidPostShort(newDocument.body.innerHTML,
+						parsoidPostShort(newDocument.outerHTML,
 							src_and_metadata.revision.revid, false, 'selser',
 							function (wtSelserBody) {
 								// Finish the total time now
@@ -565,18 +585,7 @@ var fetch = function ( page, cb, options ) {
 									env.profile.time.total += new Date() - env.profile.time.total_timer;
 								}
 
-								// Remove the selser trigger comment
-								wtSelserBody = wtSelserBody.replace(/<!--rtSelserEditTestComment-->\n*$/, '');
-								roundTripDiff(env, origHTMLBody, wtSelserBody,
-									function (err, env, selserDiffs) {
-										for (var sD in selserDiffs) {
-											selserDiffs[sD].selser = true;
-										}
-										if (selserDiffs.length) {
-											rtDiffs = rtDiffs.concat(selserDiffs);
-										}
-										cb(null, env, rtDiffs);
-									});
+								selserRoundTripDiff(env, origHTMLBody, wtSelserBody, rtDiffs, cb);
 							});
 					}
 				};
@@ -588,7 +597,7 @@ var fetch = function ( page, cb, options ) {
 					parsoidPostShort(htmlBody,
 						src_and_metadata.revision.revid, true, null,
 						function (wtBody) {
-							roundTripDiff(env, htmlBody, wtBody,
+							roundTripDiff(env, env.page.src, htmlBody, wtBody,
 								rtSelserTest.bind(null, htmlBody));
 						});
 				});
