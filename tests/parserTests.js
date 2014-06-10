@@ -1636,7 +1636,7 @@ ParserTests.prototype.main = function ( options, popts ) {
 
 		if (booleanOption( options.quiet )) {
 			var logger = new Logger(env);
-			parsoidConfig.registerLoggingBackends(["fatal", "error"], logger);
+			Util.registerLoggingBackends(["fatal", "error"], logger, parsoidConfig);
 			env.setLogger(logger);
 		}
 
