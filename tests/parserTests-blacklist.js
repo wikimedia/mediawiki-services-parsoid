@@ -486,7 +486,7 @@ add("wt2wt", "<nowiki> inside <pre> (bug 13238)", "<pre>\n<nowiki>\n</pre>\n<pre
 add("wt2wt", "<nowiki> and <pre> preference (first one wins)", "<pre>\n<nowiki>\n</pre>\n</nowiki>\n</pre>\n\n<nowiki>\n<pre>\n&lt;nowiki&gt;\n</pre>\n</nowiki>\n</pre>\n");
 add("wt2wt", "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content", "{{echo| }}a\n\n{{echo|\n }}a\n\n{{echo|\n b}}\n\n{{echo|a\n }}b\n\n{{echo|a\n}}\n b\n");
 add("wt2wt", "Templates: Handle comments in the target", "{{echo\n<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->|foo}}\n\n{{echo|foo}}");
-add("wt2wt", "2f. Indent-pre started by table-line syntax", "a\n<nowiki> | b\n | c</nowiki>");
+add("wt2wt", "2f. Indent-pre started by table-line syntax", "a\n<nowiki> </nowiki><nowiki>| b\n | c</nowiki>");
 add("wt2wt", "4. Indent-Pre and extension tags", " a <gallery>\n File:foobar.jpg\n </gallery>\n");
 add("wt2wt", "Leading pipes outside of tables 2", "a\n| foo\n\nb\n");
 add("wt2wt", "Leading pipes outside of tables 3", "a\n| class=\"foo bar\" | baz\n\nb\n");
@@ -2071,13 +2071,12 @@ add("selser", "Templates: Handle comments in the target [0,4,0,4,0,4,0]", "{{ech
 add("selser", "Templates: Handle comments in the target [0,0,0,4,0,0,0]", "{{echo\n<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->\n|foo}}\n\npk398lfm3w1rwwmi\n\n{{echo<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->echo|foo}}");
 add("selser", "Templates: Handle comments in the target [0,3,0,3,0,0,0]", "{{echo\n<!-- should be ignored -->\n|foo}}{{echo<!-- should be ignored -->\n|foo}}{{echo<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->echo|foo}}");
 add("selser", "Templates: Handle comments in the target [0,0,0,0,0,4,0]", "{{echo\n<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->|foo}}\n\nhlr2vnanjhflayvi\n\n{{<!-- should be ignored -->echo|foo}}");
-add("selser", "2f. Indent-pre started by table-line syntax 5", "a\n<nowiki> | b\n | c</nowiki>");
+add("selser", "2f. Indent-pre started by table-line syntax 5", "a\n<nowiki> </nowiki><nowiki>| b\n | c</nowiki>");
 add("selser", "4. Indent-Pre and extension tags [2]", "z2q1uxsvdja9vn29\n a <gallery>\nFile:foobar.jpg\n</gallery>");
 add("selser", "Leading pipes outside of tables 2 [[3],0,1]", "\n| foo\nb");
 add("selser", "Leading pipes outside of tables 2 [2,0,1]", "u7zh29lm6ea8m2t9\n\na\n| foo\nb");
 add("selser", "Leading pipes outside of tables 3 [[3],0,0]", "\n| class=\"foo bar\" | baz\nb");
 add("selser", "Leading pipes outside of tables 3 [[2],0,1]", "2nvql11psqbyb9a\n| class=\"foo bar\" | baz\nb");
-add("selser", "4. Multiple spaces at start-of-line [2,0,0,2,0,2]", "jmxd0hb7sz1wnrk9\n    <p> foo </p>\n0gt21egv9rnyu8fr\n    foo\n\t3prwm5bws4d0lik9\n{|\n|foo\n|}");
 add("selser", "5a. White-space in indent-pre [[0,0,4]]", " a<br />\n 7tmueg6dyhqia4i");
 add("selser", "5a. White-space in indent-pre [1]", " a<br />\n \n \n b");
 add("selser", "5a. White-space in indent-pre [[3,0,0]]", " <br />\n \n \n b");
