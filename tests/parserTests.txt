@@ -19432,6 +19432,17 @@ a
 	 b</p>
 !! end
 
+!! test
+2. Leading whitespace in non-indent-pre contexts should not be escaped
+!! options
+parsoid
+!! wikitext
+foo <ref>''a''
+ b</ref>
+!! html
+<p>foo <span about="#mwt2" class="reference" data-mw='{"name":"ref","body":{"html":"&lt;i data-parsoid=&#39;{\"dsr\":[9,14,2,2]}&#39;>a&lt;/i>\n b"},"attrs":{}}' id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref"><a href="#cite_note-1">[1]</a></span></p>
+!! end
+
 #### --------------- Behavior Switches --------------------
 !! test
 1. Valid behavior switches should be escaped
