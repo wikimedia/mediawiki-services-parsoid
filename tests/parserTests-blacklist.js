@@ -2077,7 +2077,7 @@ add("selser", "Leading pipes outside of tables 2 [[3],0,1]", "\n| foo\nb");
 add("selser", "Leading pipes outside of tables 2 [2,0,1]", "u7zh29lm6ea8m2t9\n\na\n| foo\nb");
 add("selser", "Leading pipes outside of tables 3 [[3],0,0]", "\n| class=\"foo bar\" | baz\nb");
 add("selser", "Leading pipes outside of tables 3 [[2],0,1]", "2nvql11psqbyb9a\n| class=\"foo bar\" | baz\nb");
-add("selser", "4. Multiple spaces at start-of-line [2,0,0,2,0,2]", "jmxd0hb7sz1wnrk9\n<nowiki>    </nowiki><p> foo </p>\n0gt21egv9rnyu8fr\n    foo\n\t3prwm5bws4d0lik9\n{|\n|foo\n|}");
+add("selser", "4. Multiple spaces at start-of-line [2,0,0,2,0,2]", "jmxd0hb7sz1wnrk9\n    <p> foo </p>\n0gt21egv9rnyu8fr\n    foo\n\t3prwm5bws4d0lik9\n{|\n|foo\n|}");
 add("selser", "5a. White-space in indent-pre [[0,0,4]]", " a<br />\n 7tmueg6dyhqia4i");
 add("selser", "5a. White-space in indent-pre [1]", " a<br />\n \n \n b");
 add("selser", "5a. White-space in indent-pre [[3,0,0]]", " <br />\n \n \n b");
