@@ -43,5 +43,5 @@ exports.setup = function( parsoidConfig ) {
 	//parsoidConfig.serverInterface = '127.0.0.1';
 
 	// The URL of your LintBridge API endpoint
-	//parsoidConfig.linterAPI = 'http://localhost:3000/add';
+	//parsoidConfig.linterAPI = 'http://lintbridge.wmflabs.org/add';
 };
