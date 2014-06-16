@@ -19443,6 +19443,25 @@ foo <ref>''a''
 <p>foo <span about="#mwt2" class="reference" data-mw='{"name":"ref","body":{"html":"&lt;i data-parsoid=&#39;{\"dsr\":[9,14,2,2]}&#39;>a&lt;/i>\n b"},"attrs":{}}' id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref"><a href="#cite_note-1">[1]</a></span></p>
 !! end
 
+!! test
+3. Leading whitespace in indent-pre suppressing contexts should not be escaped
+!! options
+parsoid
+!! wikitext
+<blockquote>
+ a
+ <span>b</span>
+ c
+</blockquote>
+!! html
+<blockquote>
+<p>
+ a
+ <span>b</span>
+ c</p>
+</blockquote>
+!! end
+
 #### --------------- Behavior Switches --------------------
 !! test
 1. Valid behavior switches should be escaped
