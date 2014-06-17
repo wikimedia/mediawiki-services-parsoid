@@ -14,7 +14,8 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 	DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils,
 	Logger = require('../lib/Logger.js').Logger,
 	yargs = require('yargs'),
-	fs = require('fs');
+	fs = require('fs'),
+	path = require('path');
 
 ( function() {
 	var standardOpts = Util.addStandardOptions({
@@ -45,6 +46,10 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 		},
 		'normalize': {
 			description: 'Normalize the output as parserTests would do. Use --normalize for PHP tests, and --normalize=parsoid for parsoid-only tests',
+			'default': false
+		},
+		'config': {
+			description: "Path to a localsettings.js file.  Use --config w/ no argument to default to the server's localsettings.js",
 			'default': false
 		},
 		'prefix': {
@@ -128,7 +133,14 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 		prefix = 'customwiki';
 	}
 
-	var parsoidConfig = new ParsoidConfig( null, { defaultWiki: prefix } );
+	var local = null;
+	if ( Util.booleanOption( argv.config ) ) {
+		var p = ( typeof( argv.config ) === 'string' ) ?
+			path.resolve( '.', argv.config) :
+			path.resolve( __dirname, '../api/localsettings.js' );
+		local = require( p );
+	}
+	var parsoidConfig = new ParsoidConfig( local, { defaultWiki: prefix } );
 
 	Util.setTemplatingAndProcessingFlags( parsoidConfig, argv );
 	Util.setDebuggingFlags( parsoidConfig, argv );
