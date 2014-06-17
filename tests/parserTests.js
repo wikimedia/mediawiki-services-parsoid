@@ -1894,6 +1894,14 @@ ParserTests.prototype.processCase = function ( i, options, err ) {
 									language: '\u0440\u0443\u0441\u0441\u043a\u0438\u0439',
 									protorel: ''
 								},
+								mul: {
+									prefix: 'mul',
+									url: 'http://wikisource.org/wiki/$1',
+									extralanglink: '',
+									linktext: 'Multilingual',
+									sitename: 'WikiSource',
+									protorel: ''
+								},
 								// not in PHP setupInterwikis(), but needed
 								en: {
 									prefix: 'en',

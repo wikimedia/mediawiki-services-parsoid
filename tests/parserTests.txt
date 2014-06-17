@@ -6415,6 +6415,19 @@ Blah blah blah
 !! end
 
 !! test
+"Extra" interlanguage links (bug 32189 / gerrit 111390)
+!! wikitext
+Blah blah blah
+[[mul:Article]]
+!! html/php
+<p>Blah blah blah
+</p>
+!! html/parsoid
+<p>Blah blah blah
+<link rel="mw:PageProp/Language" title="Multilingual" href="//wikisource.org/wiki/Article"/></p>
+!! end
+
+!! test
 Parsoid-specific test: Wikilinks with &nbsp; should RT properly
 !! options
 language=ln
