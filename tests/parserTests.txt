@@ -19450,8 +19450,10 @@ foo <ref>''a''
 parsoid=html2wt
 !! wikitext
 <nowiki>__TOC__</nowiki>
+''<nowiki>__TOC__</nowiki>''
 !! html
 __TOC__
+<i>__TOC__</i>
 !! end
 
 !! test
