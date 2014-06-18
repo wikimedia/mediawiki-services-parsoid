@@ -2536,24 +2536,41 @@ File:foobar.jpg
 !!end
 
 !! test
-Table wikitext syntax outside wiki-tables
+Leading pipes outside of tables
+!! options
+parsoid
+!! wikitext
+| foo
+!! html
+<p>| foo</p>
+!! end
+
+!! test
+Leading pipes outside of tables 2
+!! options
+parsoid
 !! wikitext
 a
-! not a table heading
-|- not a table row
-| not a table cell
-| class="foo bar" | baz
+| foo
 b
-|}
 !! html
 <p>a
-! not a table heading
-|- not a table row
-| not a table cell
+| foo
+b</p>
+!! end
+
+!! test
+Leading pipes outside of tables 3
+!! options
+parsoid
+!! wikitext
+a
 | class="foo bar" | baz
 b
-|}
-</p>
+!! html
+<p>a
+| class="foo bar" | baz
+b</p>
 !! end
 
 !!test
