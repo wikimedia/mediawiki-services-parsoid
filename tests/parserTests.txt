@@ -19462,6 +19462,17 @@ parsoid
 </blockquote>
 !! end
 
+!! test
+4. Leading whitespace in indent-pre suppressing contexts should not be escaped
+!! options
+parsoid
+!! wikitext
+ [[File:Foobar.jpg|thumb|caption]]
+!! html
+!! html/parsoid
+ <figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+!! end
+
 #### --------------- Behavior Switches --------------------
 !! test
 1. Valid behavior switches should be escaped
