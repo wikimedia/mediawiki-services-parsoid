@@ -1791,7 +1791,7 @@ row_syntax_table_args
  * clarify this carefully!
  */
 
-text_char = [^-'<~[{\n\r:\]}|!=]
+text_char = [^-'<~[{\n\r:;\]}|!=]
 
 /* Legend
  * '    quotes (italic/bold)
@@ -1818,9 +1818,10 @@ text_char = [^-'<~[{\n\r:\]}|!=]
  * ]    end of link
  * }    end of parser func/transclusion/template arg
  * -    start of lang_variant -{ ... }-
+ * ;    separator in lang_variant
  */
 
-urltext = ( t:[^-'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:\]} &=]+ { return t.join(''); }
+urltext = ( t:[^-'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:;\]} &=]+ { return t.join(''); }
           / & [/fFgGhHiImMnNsStTwWIPR] al:autolink { return al; }
           / & "&" he:htmlentity { return he; }
           // Convert trailing space into &nbsp;
