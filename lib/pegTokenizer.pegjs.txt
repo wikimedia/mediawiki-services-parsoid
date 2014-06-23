@@ -2017,7 +2017,7 @@ optionalNewlines
         }
     }
 
-sol = empty_line_with_comments / normal_sol
+sol = (empty_line_with_comments / sol_prefix) sol_rest
 
 sol_prefix
   = newlineToken
@@ -2028,9 +2028,7 @@ sol_prefix
       return peg$currPos === 0 && options.pegTokenizer.savedSOL !== false;
   } { return []; }
 
-// Start of line
-normal_sol
-  = nl:sol_prefix
+sol_rest =
     // Eat multi-line comment, so that syntax after still matches as if it
     // was actually preceded by a newline
     cn:( c:comment n:newlineToken? {
@@ -2061,7 +2059,7 @@ normal_sol
             cn = [];
         }
 
-        return nl.concat(cn, niToken);
+        return cn.concat(niToken);
     }
 
 empty_line_with_comments

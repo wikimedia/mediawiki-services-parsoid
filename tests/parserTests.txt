@@ -5205,6 +5205,23 @@ Table cell with a single comment
 
 !! end
 
+!! test
+Table-cell after a comment-only-empty-line
+!! wikitext
+{|
+|a
+<!--c1-->
+<!--c2-->| b
+|}
+!! html/parsoid
+<table>
+<tbody><tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td data-parsoid='{"autoInsertedEnd":true}'>a</td>
+<!--c1-->
+<!--c2--><td data-parsoid='{"autoInsertedEnd":true}'> b</td></tr>
+</tbody></table>
+
+!! end
+
 # The expected HTML structure in this test is debatable. The PHP parser does
 # not parse this kind of table at all. The main focus for Parsoid is on
 # round-tripping, so this output is ok for now. TODO: revisit!
