@@ -1667,7 +1667,6 @@ table_lines
     (! inline_breaks / & '{{!}}' )
     r:(
         & { return stops.push('table', true); }
-        cs:(comment / space)*
         tl:table_line
         tls:(
             nls:optionalNewlines
@@ -1677,14 +1676,14 @@ table_lines
         {
             stops.pop('table');
             //console.warn('table_lines: ' + pp(tl.concat(tls)));
-            return cs.concat( tl, tls );
+            return tl.concat( tls );
         }
       / & { return stops.pop('table'); }
     ) { return r; }
 
 // This production assumes start-of-line position!
 table_line
-  = space* (table_start_tag
+  = (space / comment)* (table_start_tag
   / table_heading_tags
   / table_row_tag
   / table_data_tags

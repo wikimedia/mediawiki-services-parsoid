@@ -19892,6 +19892,20 @@ Indented block & table
  </tbody></table>
 !!end
 
+!! test
+Indent and comment before table row
+!! wikitext
+{|
+ <!--hi-->|-
+ | there
+|}
+!! html/parsoid
+<table data-parsoid='{}'>
+ <!--hi--><tbody data-parsoid='{}'><tr data-parsoid='{"startTagSrc":"|-","autoInsertedEnd":true}'>
+ <td data-parsoid='{"autoInsertedEnd":true}'> there</td></tr>
+</tbody></table>
+!! end
+
 !!test
 Empty TR followed by a template-generated TR
 (Parsoid-specific since PHP parser doesn't handle this mixed tbl-wikitext)
