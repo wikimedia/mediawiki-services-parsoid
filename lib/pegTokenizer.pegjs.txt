@@ -294,28 +294,8 @@ br = s:optionalSpaceToken &newline {
         );
 }
 
-/*
- * Syntax stops: Avoid eating significant tokens for higher-level productions
- * in nested inline productions.
- *
- * Repeated testing of flags is not terribly efficient. See new and faster
- * version below.
- */
-
-/*
- * Syntax stops: Avoid eating significant tokens for higher-level productions
- * in nested inline productions.
- */
 inline_breaks
-  = & {
-        //console.warn('ilbf: ' + input.substr(peg$currPos, 5) );
-        //if ( null !== options.parser.inline_breaks( input, peg$currPos, stops ) ) {
-        //    console.warn('ilb break: ' + pp(input.substr(peg$currPos, 5)) );
-        //} else {
-        //    console.warn('ilb no break: ' + pp(input.substr(peg$currPos, 5)) );
-        //}
-        return inline_breaks( input, peg$currPos, stops );
-      }
+  = & { return inline_breaks( input, peg$currPos, stops ); }
 
 pre_start = "<" pre_tag_name (' '+ [^>]*)? ">"
 
@@ -330,7 +310,6 @@ inlineline
           / !{ return inline_breaks( input, peg$currPos, stops ); } // inline_breaks
             !pre_start
             r:(inline_element / [^\r\n]) { return r; })+ {
-      //console.warn('inlineline out:' + pp(c) + input.substr(peg$reportedPos, peg$currPos));
       return tu.flatten_stringlist( c );
   }
 
@@ -670,10 +649,22 @@ tplarg_or_template
     / template
 
 tplarg_or_template_or_broken
-    = tplarg_or_template / broken_template
+    = ( & {
+      // Refuse to recurse beyond 40 levels. Default in the PHP parser
+      // is $wgMaxTemplateDepth = 40;
+      if ( stops.onCount('templatedepth') === undefined ||
+           stops.onCount('templatedepth') < 40
+      ) {
+          return stops.inc('templatedepth');
+      } else {
+          return false;
+      }
+    } r:( t:tplarg_or_template { stops.dec('templatedepth'); return t; }
+    / & { return stops.dec('templatedepth'); }
+    ) { return r; } ) / broken_template
 
 tplarg_or_template_or_bust
-	= (tplarg_or_template / .)+
+    = (tplarg_or_template / .)+
 
 broken_template
   = v:( '{{{' / '}}}' / '{{' / '}}' )+
