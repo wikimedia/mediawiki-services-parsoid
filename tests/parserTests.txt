@@ -1093,6 +1093,59 @@ Non-html5 tags should be accepted
 </p>
 !! end
 
+## a,rtc not permitted
+## i,b,br omitted
+!! test
+Text-level semantic html elements in wikitext
+!! wikitext
+<em>text</em>
+<strong>text</strong>
+<small>text</small>
+<s>text</s>
+<cite>text</cite>
+<q>text</q>
+<dfn>text</dfn>
+<abbr>text</abbr>
+<data>text</data>
+<time>text</time>
+<code>text</code>
+<var>text</var>
+<samp>text</samp>
+<kbd>text</kbd>
+<sub>text</sub>
+<u>text</u>
+<mark>text</mark>
+<ruby><rb>明日<rp>(</rp><rt>Ashita</rt><rp>)</rp></rb></ruby>
+<bdi>text</bdi>
+<bdo>text</bdo>
+<span>text</span>
+<wbr />
+!! html
+<p><em>text</em>
+<strong>text</strong>
+<small>text</small>
+<s>text</s>
+<cite>text</cite>
+<q>text</q>
+<dfn>text</dfn>
+<abbr>text</abbr>
+<data>text</data>
+<time>text</time>
+<code>text</code>
+<var>text</var>
+<samp>text</samp>
+<kbd>text</kbd>
+<sub>text</sub>
+<u>text</u>
+<mark>text</mark>
+<ruby><rb>明日<rp>(</rp><rt>Ashita</rt><rp>)</rp></rb></ruby>
+<bdi>text</bdi>
+<bdo>text</bdo>
+<span>text</span>
+<wbr />
+</p>
+!! end
+
 !! test
 Non-word characters don't terminate tag names (bug 17663, 40670, 52022)
 !! wikitext
