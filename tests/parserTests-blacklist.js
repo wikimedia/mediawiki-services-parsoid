@@ -529,7 +529,6 @@ add("wt2wt", "BUG 553: link with two variables in a piped link", "{|\n|[[{{{1}}}
 add("wt2wt", "Template with targets containing wikilinks", "<nowiki>{{</nowiki>[[foo]]<nowiki>}}</nowiki>\n\n<nowiki>{{</nowiki>[[{{echo|foo}}]]<nowiki>}}</nowiki>\n\n{{{{echo|[[foo}}]]}}\n");
 add("wt2wt", "2. includeonly in html attr value", "<span id=\"<noinclude>v1</noinclude><includeonly>v2</includeonly>\">bar</span>\n<span id=\"<noinclude>&quot;v1&quot;</noinclude><includeonly>&quot;v2&quot;</includeonly>\">bar</span>\n");
 add("wt2wt", "1. Table tag in SOL posn. should get reparsed correctly with valid TSR", "{{echo|}}\n{| width=\"100%\"\n|foo\n|}");
-add("wt2wt", "2. Table tag in SOL posn. should get reparsed correctly with valid TSR", "<includeonly>a</includeonly><nowiki>{{{b}}}</nowiki>{| {{{b}}}\n|c\n|}");
 add("wt2wt", "Templates: HTML Tag: 2. Generation of HTML attr. value", "<div style=\"{{echo|'color:red;'}}\">foo</div>");
 add("wt2wt", "Templates: HTML Tag: 3. Generation of HTML attr key and value", "<div {{echo|style}}=\"{{echo|'color:red;'}}\">foo</div>");
 add("wt2wt", "Templates: HTML Tables: 5. Proper fostering of categories from inside", "[[Category:foo1]]<table><tr><td>foo</td></tr></table>\n<!--Two categories (Bug 50330)-->\n[[Category:bar1]][[Category:bar2]]<table><tr><td>foo</td></tr></table>");
@@ -1446,6 +1445,7 @@ add("html2wt", "Bug 6563: Section extraction for section shown by <includeonly>"
 add("html2wt", "Bug 6563: Edit link generation for section suppressed by <includeonly>", "== <span class=\"mw-headline\" id=\"Section_1\">Section 1</span><span class=\"mw-editsection\"><span class=\"mw-editsection-bracket\">[</span><a href=\"/index.php?title=Parser_test&action=edit&section=1\" title=\"Edit section: Section 1\">edit</a><span class=\"mw-editsection-bracket\">]</span></span> ==\n");
 add("html2wt", "Bug 6563: Section extraction for section suppressed by <includeonly>", "<nowiki>==Section 1==</nowiki>");
 add("html2wt", "Un-closed <includeonly>", "");
+add("html2wt", "Includes and comments at SOL", "<!-- comment --><noinclude><!-- comment --></noinclude><!-- comment -->\n== hu ==\n\n<noinclude>\n\nsome\n</noinclude>\n\n* stuff\n* here\n\n=== here ===\n");
 add("html2wt", "0. includeonly around the entire attribute", "<span id=\"v2\">bar</span>\n");
 add("html2wt", "1. includeonly in html attr key", "<span id=\"foo\">bar</span>\n");
 add("html2wt", "2. includeonly in html attr value", "<span id=\"v1\">bar</span>\n<span id=\"v1\">bar</span>\n");
@@ -2599,9 +2599,6 @@ add("selser", "1. Table tag in SOL posn. should get reparsed correctly with vali
 add("selser", "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,[0,[4,0]]]", "{{echo|}}{| width = '100%'\n<!--u3at1qt3epfd2t9-->\n|}");
 add("selser", "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,[3,[1,0]]]", "{{echo|}}{| width=\"100%\"\n|foo\n|}");
 add("selser", "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,[0,[[1],4]]]", "{{echo|}}{| width = '100%'\n| data-foobar=\"pnyys77mkaxrms4i\" |foo<!--kok37wstwgbvs4i-->\n|}");
-add("selser", "2. Table tag in SOL posn. should get reparsed correctly with valid TSR [2,0,0,0]", "l0wdv1rndfrjxlxr<includeonly>a</includeonly>{| {{{b}}}\n|c\n|}");
-add("selser", "2. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,3,0,0]", "<includeonly>a</includeonly>{| {{{b}}}\n|c\n|}");
-add("selser", "2. Table tag in SOL posn. should get reparsed correctly with valid TSR [4,0,2,0]", "qt5z98s8n21vpldi\nyifs82rawr5asjor{| {{{b}}}\n|c\n|}");
 add("selser", "Templates: P-wrapping: 1d. Template preceded by comment-only line [2,0,0]", "i0wqqfgpkyjsjor\n<!-- foo -->\n{{echo|Bar}}");
 add("selser", "Templates: P-wrapping: 1d. Template preceded by comment-only line [2,3,0]", "5x3qqz5k5wl2qpvi\n\n<!-- foo -->{{echo|Bar}}");
 add("selser", "Templates: HTML Tables: 5. Proper fostering of categories from inside [0,4,3,3,0,0,3,1]", "\n00y7omltvljfko6r\n<table data-foobar=\"jmfnmukwsfko6r\"><tr><td>foo</td></tr></table>");

@@ -2016,7 +2016,13 @@ optionalNewlines
         }
     }
 
-sol = (empty_line_with_comments / sol_prefix) sol_rest
+sol = (empty_line_with_comments / sol_prefix) (comment / (
+        ( & { return stops.push("sol_il", true); }
+          i:include_limits
+          & { stops.pop("sol_il"); return true; }
+        ) { return i; }
+        / & { return stops.pop("sol_il"); }
+      ))*
 
 sol_prefix
   = newlineToken
@@ -2026,40 +2032,6 @@ sol_prefix
       // NOTE: Explicitly check for 'false' and not a falsy value
       return peg$currPos === 0 && options.pegTokenizer.savedSOL !== false;
   } { return []; }
-
-sol_rest =
-    // Eat multi-line comment, so that syntax after still matches as if it
-    // was actually preceded by a newline
-    cn:( c:comment n:newlineToken? {
-              if ( n !== null ) {
-                  return [c, n];
-              } else {
-                  return [c];
-              }
-          }
-    )*
-    // Eat <*include*> section at start of line, so that start-of-line
-    // syntax after it still matches
-    ni:( niStart:({return peg$currPos;})
-         s:space*
-        "<" c:"/"? t:include_limits
-        ">" {return [s.join(''), c, t, [niStart, peg$currPos]];} )?
-    {
-        var niToken = [];
-        if ( ni !== null ) {
-            if ( ni[1] === '/' ) {
-                niToken = [new EndTagTk( ni[2], [], { tsr: ni[3] } )];
-            } else {
-                niToken = [new TagTk( ni[2], [], { tsr: ni[3] } )];
-            }
-        }
-
-        if ( cn === null ) {
-            cn = [];
-        }
-
-        return cn.concat(niToken);
-    }
 
 empty_line_with_comments
   = sp:sol_prefix p:({return peg$currPos;}) c:(space* comment (space / comment)* newline)+ {
@@ -2155,14 +2127,32 @@ include_limits =
      }
   }) dummyText:('#'+ / '_'+) {
       var dp = inclTag.dataAttribs;
+
+      // Reset input
+      input = dp.origInput;
+
       if (dummyText.length !== dp.skipLen || dummyText[0] !== dp.skipChar) {
           peg$currPos = peg$reportedPos;
           return peg$FAILED;
       }
 
       // Tokenize include content in a new tokenizer
-      var inclContent = dp.src.substring(dp.tagWidths[0], dp.src.length - dp.tagWidths[1]),
-          inclContentToks = (new PegTokenizer(options.env)).tokenize(inclContent);
+      var inclContent = dp.src.substring(dp.tagWidths[0], dp.src.length - dp.tagWidths[1]);
+
+      // Preserve SOL where necessary (for onlyinclude and noinclude)
+      // Note that this only works because we encounter <*include*> tags in
+      // the toplevel content and we rely on the php preprocessor to expand
+      // templates, so we shouldn't ever be tokenizing inInclude.
+      // Last line should be empty (except for comments)
+      if ( inclTag.name.toLowerCase() !== "includeonly" && stops.onStack("sol_il") ) {
+          var last = inclContent.split("\n");
+          if ( !/^(<!--([^-]|-(?!->))*-->)*$/.test(last[last.length - 1]) ) {
+              peg$currPos = dp.tsr[0];
+              return peg$FAILED;
+          }
+      }
+
+      var inclContentToks = (new PegTokenizer(options.env)).tokenize(inclContent);
 
       if (dp.tagWidths[1] > 0) {
           inclContentToks = Util.stripEOFTkfromTokens(inclContentToks);
@@ -2170,9 +2160,6 @@ include_limits =
 
       // shift tsr
       Util.shiftTokenTSR(inclContentToks, dp.tsr[0] + dp.tagWidths[0]);
-
-      // Reset input
-      input = dp.origInput;
 
       // Clear temporary state
       dp.skipChar = undefined;

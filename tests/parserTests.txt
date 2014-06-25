@@ -8670,6 +8670,42 @@ Un-closed <includeonly>
 !! html
 !! end
 
+!! test
+Includes and comments at SOL
+!! wikitext
+<!-- comment --><noinclude><!-- comment --></noinclude><!-- comment -->== hu ==
+
+<noinclude>
+some
+</noinclude>* stuff
+* here
+
+<includeonly>can have stuff</includeonly>=== here ===
+
+!! html/php
+<h2><span class="mw-headline" id="hu">hu</span></h2>
+<p>some
+</p>
+<ul><li> stuff</li>
+<li> here</li></ul>
+<h3><span class="mw-headline" id="here">here</span></h3>
+
+!! html/parsoid
+<!-- comment --><meta typeof="mw:Includes/NoInclude" data-parsoid='{"src":"&lt;noinclude>"}'/><!-- comment --><meta typeof="mw:Includes/NoInclude/End" data-parsoid='{"src":"&lt;/noinclude>"}'/><!-- comment -->
+<h2 data-parsoid='{}'> hu </h2>
+
+<meta typeof="mw:Includes/NoInclude" data-parsoid='{"src":"&lt;noinclude>"}'/>
+
+<p data-parsoid='{}'>some</p>
+<meta typeof="mw:Includes/NoInclude/End" data-parsoid='{"src":"&lt;/noinclude>"}'/>
+<ul data-parsoid='{}'>
+<li data-parsoid='{}'> stuff</li>
+
+<li data-parsoid='{}'> here</li></ul>
+
+<h3 data-parsoid='{}'> here </h3>
+!! end
+
 # TODO: test with DOM fragment reuse!
 !! test
 Parsoid: DOM fragment reuse
@@ -8839,9 +8875,10 @@ parsoid=wt2html,wt2wt
 |c
 |}
 !!html/parsoid
-<meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"src":"&lt;includeonly>a&lt;/includeonly>"}'/><meta typeof="mw:Includes/IncludeOnly/End" data-parsoid='{"src":"&lt;/includeonly>"}'/><span data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true}'>{{{b}}}</span><table about="#mwt1" typeof="mw:Param" data-parsoid='{"a":{" ":null},"sa":{" ":""},"src":"{| {{{b}}}\n|c\n|}"}'>
+<meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"src":"&lt;includeonly>a&lt;/includeonly>"'/><meta typeof="mw:Includes/IncludeOnly/End" data-parsoid='{"src":""}'/><table about="#mwt2" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"{{{b}}}","html":"&lt;span about=\"#mwt1\" typeof=\"mw:Param\" data-parsoid=\"{&amp;quot;dsr&amp;quot;:[31,38,null,null],&amp;quot;src&amp;quot;:&amp;quot;{{{b}}}&amp;quot;}\">{{{b}}}&lt;/span>"},{"html":""}]]}' data-parsoid='{"a":{"{{{b}}}":null},"sa":{"{{{b}}}":""}}'>
 <tbody><tr><td>c</td></tr>
 </tbody></table>
+
 !!end
 
 ###
