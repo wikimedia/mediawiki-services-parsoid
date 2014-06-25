@@ -128,12 +128,11 @@ redirect_word = sp:[ \t\n\r\0\x0b]* rw:((!space_or_newline ![:\[] c:.{return c;}
  */
 toplevelblock =
   tlb save_sol_state {
-        var parsedInput = input.substring(0, peg$currPos),
-            newInput = input.substring(peg$currPos),
+        var newInput = input.substring(peg$currPos),
             newOffset = (options.srcOffset || 0) + peg$currPos;
 
         // Trick the tokenizer into ending parsing
-        input = parsedInput;
+        peg$currPos = input.length;
 
         // console.warn("Yield @pos: " + newOffset + "; input len: " + newInput.length);
 
