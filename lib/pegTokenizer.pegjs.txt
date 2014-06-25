@@ -2063,110 +2063,62 @@ nl_comment_space = newline / comment_space
  */
 
 include_limits =
-  "</" name:[0-9a-zA-Z]+ space_or_newline* ">" {
-     // End tag only
-     name = name.join('');
-     var incl = name.toLowerCase();
-     if (incl === "noinclude" || incl === "onlyinclude" || incl === "includeonly") {
-         var dp = {tsr: [peg$reportedPos, peg$currPos]};
-         // Record variant since tag is not in normalized lower case
-         if (name !== incl) {
-             dp.srcTagName = name;
-         }
-         return new EndTagTk(name, [], dp);
-     } else {
-         peg$currPos = peg$reportedPos;
-         return peg$FAILED;
-     }
-  }
-  / inclTag:("<" name:[0-9a-zA-Z]+ space_or_newline* ">" {
-     // Start tag only
-     name = name.join('');
-     var incl = name.toLowerCase();
-     if (incl === "noinclude" || incl === "onlyinclude" || incl === "includeonly") {
-         var dp = {tsr: [peg$reportedPos, peg$currPos]},
-             restOfInput = input.substring(peg$reportedPos),
-             tagContent = restOfInput.match(new RegExp("^(.|\n)*?(</\\s*" + incl + "\\s*>)", "m"));
+  "<" c:"/"? name:[0-9a-zA-Z]+ space_or_newline* ">" {
+    name = name.join('');
+    var incl = name.toLowerCase();
 
-         if (!tagContent) {
-            peg$currPos = peg$reportedPos;
-            return peg$FAILED;
-         }
+    if ( incl !== "noinclude" && incl !== "onlyinclude" && incl !== "includeonly" ) {
+      peg$currPos = peg$reportedPos;
+      return peg$FAILED;
+    }
 
-         var tagWidths = [peg$currPos-peg$reportedPos, (tagContent ? tagContent[2].length : 0)],
-             inclSrc = tagContent ? tagContent[0] : restOfInput,
-             inclContentLen = inclSrc.length - tagWidths[0] - tagWidths[1],
-             skipLen = inclContentLen;
+    var dp = { tsr: [peg$reportedPos, peg$currPos] };
 
-         dp.src = inclSrc;
-         dp.origInput = input;
+    // Record variant since tag is not in normalized lower case
+    if ( name !== incl ) {
+      dp.srcTagName = name;
+    }
 
-         // Replace incl-content with '#' or '_'
-         var skipChar = '#';
-         if (input.length >= peg$currPos+skipLen && input[peg$currPos+skipLen] === '#') {
-             skipChar = '_';
-         }
-         input = input.slice(0,peg$currPos) +
-             Util.charSequence('', skipChar, skipLen) +
-             input.slice(peg$currPos+skipLen);
+    // End tag only
+    if ( c ) {
+      return new EndTagTk(name, [], dp);
+    }
 
-         // Temporary state
-         dp.skipLen = skipLen;
-         dp.tagWidths = tagWidths;
-         dp.skipChar = skipChar;
+    var restOfInput = input.substring(peg$currPos),
+        tagContent = restOfInput.match(new RegExp("^([^]*?)(?:</\\s*" + incl + "\\s*>)", "m"));
 
-         // Record variant since tag is not in normalized lower case
-         if (name !== incl) {
-             dp.srcTagName = name;
-         }
+    // Start tag only
+    if ( !tagContent || !tagContent[1] ) {
+      return new TagTk(name, [], dp);
+    }
 
-         return new TagTk(name, [], dp);
-     } else {
-         peg$currPos = peg$reportedPos;
-         return peg$FAILED;
-     }
-  }) dummyText:('#'+ / '_'+) {
-      var dp = inclTag.dataAttribs;
+    // Get the content
+    var inclContent = tagContent[1];
 
-      // Reset input
-      input = dp.origInput;
-
-      if (dummyText.length !== dp.skipLen || dummyText[0] !== dp.skipChar) {
-          peg$currPos = peg$reportedPos;
-          return peg$FAILED;
+    // Preserve SOL where necessary (for onlyinclude and noinclude)
+    // Note that this only works because we encounter <*include*> tags in
+    // the toplevel content and we rely on the php preprocessor to expand
+    // templates, so we shouldn't ever be tokenizing inInclude.
+    // Last line should be empty (except for comments)
+    if ( incl !== "includeonly" && stops.onStack("sol_il") ) {
+      var last = inclContent.split("\n");
+      if ( !/^(<!--([^-]|-(?!->))*-->)*$/.test(last[last.length - 1]) ) {
+        peg$currPos = peg$reportedPos;
+        return peg$FAILED;
       }
+    }
 
-      // Tokenize include content in a new tokenizer
-      var inclContent = dp.src.substring(dp.tagWidths[0], dp.src.length - dp.tagWidths[1]);
+    // Tokenize include content in a new tokenizer
+    var inclContentToks = (new PegTokenizer(options.env)).tokenize(inclContent);
+    inclContentToks = Util.stripEOFTkfromTokens(inclContentToks);
 
-      // Preserve SOL where necessary (for onlyinclude and noinclude)
-      // Note that this only works because we encounter <*include*> tags in
-      // the toplevel content and we rely on the php preprocessor to expand
-      // templates, so we shouldn't ever be tokenizing inInclude.
-      // Last line should be empty (except for comments)
-      if ( inclTag.name.toLowerCase() !== "includeonly" && stops.onStack("sol_il") ) {
-          var last = inclContent.split("\n");
-          if ( !/^(<!--([^-]|-(?!->))*-->)*$/.test(last[last.length - 1]) ) {
-              peg$currPos = dp.tsr[0];
-              return peg$FAILED;
-          }
-      }
+    // Shift tsr
+    Util.shiftTokenTSR(inclContentToks, peg$currPos);
 
-      var inclContentToks = (new PegTokenizer(options.env)).tokenize(inclContent);
+    // Skip past content
+    peg$currPos += inclContent.length;
 
-      if (dp.tagWidths[1] > 0) {
-          inclContentToks = Util.stripEOFTkfromTokens(inclContentToks);
-      }
-
-      // shift tsr
-      Util.shiftTokenTSR(inclContentToks, dp.tsr[0] + dp.tagWidths[0]);
-
-      // Clear temporary state
-      dp.skipChar = undefined;
-      dp.skipLen = undefined;
-      dp.origInput = undefined;
-
-      return [inclTag].concat(inclContentToks);
+    return [new TagTk(name, [], dp)].concat(inclContentToks);
   }
 
 // Start of file
