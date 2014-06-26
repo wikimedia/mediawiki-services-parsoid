@@ -1868,38 +1868,38 @@ ParserTests.prototype.processCase = function ( i, options, err ) {
 									prefix: 'zh',
 									url: 'http://zh.wikipedia.org/wiki/$1',
 									language: '\u4e2d\u6587',
-									protorel: true
+									protorel: ''
 								},
 								es: {
 									prefix: 'es',
 									url: 'http://es.wikipedia.org/wiki/$1',
 									language: 'espa\u00f1ol',
-									protorel: true
+									protorel: ''
 								},
 								fr: {
 									prefix: 'fr',
 									url: 'http://fr.wikipedia.org/wiki/$1',
 									language: 'fran\u00e7ais',
-									protorel: true
+									protorel: ''
 								},
 								ru: {
 									prefix: 'ru',
 									url: 'http://ru.wikipedia.org/wiki/$1',
 									language: '\u0440\u0443\u0441\u0441\u043a\u0438\u0439',
-									protorel: true
+									protorel: ''
 								},
 								// not in PHP setupInterwikis(), but needed
 								en: {
 									prefix: 'en',
 									url: 'http://en.wikipedia.org/wiki/$1',
 									language: 'English',
-									protorel: true
+									protorel: ''
 								},
 								ko: {
 									prefix: 'ko',
 									url: 'http://ko.wikipedia.org/wiki/$1',
 									language: '\ud55c\uad6d\uc5b4',
-									protorel: true
+									protorel: ''
 								}
 							};
 							Object.keys(iwl).forEach(function(key) {
