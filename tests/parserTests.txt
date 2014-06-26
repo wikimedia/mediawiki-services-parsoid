@@ -6355,9 +6355,12 @@ Interlanguage link
 !! wikitext
 Blah blah blah
 [[zh:Chinese]]
-!! html
+!! html/php
 <p>Blah blah blah
 </p>
+!! html/parsoid
+<p>Blah blah blah
+<link rel="mw:PageProp/Language" href="//zh.wikipedia.org/wiki/Chinese"/></p>
 !! end
 
 !! test
@@ -6366,9 +6369,13 @@ Double interlanguage link
 Blah blah blah
 [[es:Spanish]]
 [[zh:Chinese]]
-!! html
+!! html/php
 <p>Blah blah blah
 </p>
+!! html/parsoid
+<p>Blah blah blah
+<link rel="mw:PageProp/Language" href="//es.wikipedia.org/wiki/Spanish"/>
+<link rel="mw:PageProp/Language" href="//zh.wikipedia.org/wiki/Chinese"/></p>
 !! end
 
 !! test
@@ -6378,9 +6385,12 @@ language=ln
 !! wikitext
 Blah blah blah
 [[zh:Chinese]]
-!! html
+!! html/php
 <p>Blah blah blah
 </p>
+!! html/parsoid
+<p>Blah blah blah
+<link rel="mw:PageProp/Language" href="//zh.wikipedia.org/wiki/Chinese"/></p>
 !! end
 
 !! test
@@ -6391,9 +6401,13 @@ language=ln
 Blah blah blah
 [[es:Spanish]]
 [[zh:Chinese]]
-!! html
+!! html/php
 <p>Blah blah blah
 </p>
+!! html/parsoid
+<p>Blah blah blah
+<link rel="mw:PageProp/Language" href="//es.wikipedia.org/wiki/Spanish"/>
+<link rel="mw:PageProp/Language" href="//zh.wikipedia.org/wiki/Chinese"/></p>
 !! end
 
 !! test
@@ -11902,15 +11916,19 @@ parsoid
 ### Inter-language links
 ###
 !! test
-Inter-language links
+Interlanguage links
 !! options
 ill
 !! wikitext
 [[es:Alimento]]
 [[fr:Nourriture]]
-[[zh:&#39135;&#21697;]]
-!! html
+[[zh:食品]]
+!! html/php
 es:Alimento fr:Nourriture zh:食品
+!! html/parsoid
+<p><link rel="mw:PageProp/Language" href="//es.wikipedia.org/wiki/Alimento"/>
+<link rel="mw:PageProp/Language" href="//fr.wikipedia.org/wiki/Nourriture"/>
+<link rel="mw:PageProp/Language" href="//zh.wikipedia.org/wiki/食品"/></p>
 !! end
 
 !! test
@@ -11922,8 +11940,13 @@ ill
 [[es:2]]
 [[fr:1]]
 [[fr:2]]
-!! html
+!! html/php
 es:1 fr:1
+!! html/parsoid
+<p><link rel="mw:PageProp/Language" href="//es.wikipedia.org/wiki/1"/>
+<link rel="mw:PageProp/Language" href="//es.wikipedia.org/wiki/2"/>
+<link rel="mw:PageProp/Language" href="//fr.wikipedia.org/wiki/1"/>
+<link rel="mw:PageProp/Language" href="//fr.wikipedia.org/wiki/2"/></p>
 !! end
 
 ###
