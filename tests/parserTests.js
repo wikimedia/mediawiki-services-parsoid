@@ -1433,6 +1433,9 @@ ParserTests.prototype.reportSummary = function ( stats ) {
 
 	console.log( "==========================================================");
 	console.log( "SUMMARY: ");
+	if (console.time && console.timeEnd) {
+		console.timeEnd('Execution time');
+	}
 
 	if( failTotalTests !== 0 ) {
 		for ( i = 0; i < modes.length; i++ ) {
@@ -1669,6 +1672,9 @@ ParserTests.prototype.main = function ( options, popts ) {
 			this.parserPipeline = this.env.pipelineFactory.getPipeline('text/x-mediawiki/full');
 		}
 
+		if (console.time && console.timeEnd) {
+			console.time('Execution time');
+		}
 		options.reportStart();
 		this.env.pageCache = this.articles;
 		this.comments = [];
