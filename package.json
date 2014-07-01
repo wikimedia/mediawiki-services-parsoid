@@ -17,8 +17,10 @@
 		"yargs": "~1.2.1"
 	},
 	"devDependencies": {
+		"chai": "~1.9.1",
 		"colors": "~0.6.2",
 		"diff": "~1.0.7",
+		"mocha": "~1.20.1",
 		"simplediff": "0.1.1"
 	},
 	"bin": {
@@ -26,7 +28,7 @@
 	},
 	"scripts": {
 		"start": "node api/server.js",
-		"test": "node tests/parserTests.js"
+		"test": "node tests/parserTests.js && mocha tests/mocha"
 	},
 	"repository": {
 		"type": "git",
