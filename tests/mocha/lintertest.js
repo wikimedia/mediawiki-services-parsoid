@@ -97,5 +97,14 @@ describe( 'Linter Tests', function() {
 				result[0].should.have.a.property("src", "|- foo\n|bar");
 			});
 		});
+		it( 'should lint  Bogus image options correctly', function() {
+			return parseWT( '[[file:a.jpg|foo|bar]]' ).then( function ( result ) {
+				result.should.have.length( 1 );
+				result[0].should.have.a.property( "type", "BogusImageOptions" );
+				result[0].should.have.a.property( "wiki", "enwiki" );
+				result[0].dsr.should.include.members( [ 0, 22, null, null ] );
+				result[0].should.have.a.property( "src", "[[file:a.jpg|foo|bar]]" );
+			});
+		});
 	});
 });
