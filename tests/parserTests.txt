@@ -2598,6 +2598,8 @@ a
 | class="foo bar" | baz
 b
 |}
+|-
+c
 !! html
 <p>a
 ! not a table heading
@@ -2606,6 +2608,8 @@ b
 | class="foo bar" | baz
 b
 |}
+|-
+c
 </p>
 !! end
 
