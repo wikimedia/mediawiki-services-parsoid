@@ -20414,6 +20414,17 @@ parsoid=html2wt
 # ----------------------------------------------------------------
 
 !! test
+Serialize interwiki links pointing to the current wiki as plain wiki links (bug 65869)
+!! options
+parsoid=html2wt
+language=es
+!! wikitext
+[[Foo]]
+!! html
+<p><a rel="mw:ExtLink" href="http://es.wikipedia.org/wiki/Foo">Foo</a></p>
+!! end
+
+!! test
 Image: Modifying size of an image (1)
 !! options
 parsoid={
