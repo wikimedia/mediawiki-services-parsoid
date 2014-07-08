@@ -19625,6 +19625,16 @@ parsoid
  <figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
 !! end
 
+!! test
+5. Nowiki escaping should account for indent-pres
+!! options
+parsoid=html2wt
+!! html
+<pre>==foo==</pre>
+!! wikitext
+ ==foo==
+!! end
+
 #### --------------- Behavior Switches --------------------
 !! test
 1. Valid behavior switches should be escaped
