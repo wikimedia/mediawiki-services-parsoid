@@ -61,6 +61,11 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 			'boolean': false,
 			'default': 'Main_Page'
 		},
+		'oldid': {
+			description: 'Oldid of the given page.',
+			'boolean': false,
+			'default': null
+		},
 		'oldtext': {
 			description: 'The old page text for a selective-serialization (see --selser)',
 			'boolean': false,
@@ -186,7 +191,7 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 				}
 				var target = env.resolveTitle(
 						env.normalizeTitle( env.page.name ), '' );
-				var tpr = new TemplateRequest( env, target );
+				var tpr = new TemplateRequest( env, target, argv.oldid );
 				tpr.once( 'src', function ( err, src_and_metadata ) {
 					if ( err ) {
 						env.log("fatal", err);
