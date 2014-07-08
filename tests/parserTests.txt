@@ -6123,6 +6123,16 @@ Link with multiple ":" in a subpage-supporting namespace (bug 63636)
 !! end
 
 !! test
+Purely hash wikilink
+!! options
+title=[[User:test/123]]
+!! wikitext
+[[#a|b]]
+!! html/parsoid
+<p data-parsoid='{}'><a rel="mw:WikiLink" href="../User:Test/123#a" data-parsoid='{"stx":"piped","a":{"href":"../User:Test/123#a"},"sa":{"href":"#a"}}'>b</a></p>
+!! end
+
+!! test
 1. Interaction of linktrail and template encapsulation
 !! options
 parsoid
