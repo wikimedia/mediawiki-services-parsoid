@@ -1804,7 +1804,7 @@ row_syntax_table_args
  * clarify this carefully!
  */
 
-text_char = [^'<~[{\n\r:\]}|!=]
+text_char = [^-'<~[{\n\r:\]}|!=]
 
 /* Legend
  * '    quotes (italic/bold)
@@ -1830,9 +1830,10 @@ text_char = [^'<~[{\n\r:\]}|!=]
  * :    separate definition in ; term : definition
  * ]    end of link
  * }    end of parser func/transclusion/template arg
+ * -    start of lang_variant -{ ... }-
  */
 
-urltext = ( t:[^'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:\]} &=]+ { return t.join(''); }
+urltext = ( t:[^-'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:\]} &=]+ { return t.join(''); }
           / & [/fFgGhHiImMnNsStTwWIPR] al:autolink { return al; }
           / & "&" he:htmlentity { return he; }
           // Convert trailing space into &nbsp;
@@ -1846,12 +1847,9 @@ urltext = ( t:[^'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:\]} &=]+ { return t.join(''); 
               ];
           }
           / & ('__') bs:behavior_switch { return bs; }
-          // / t:text_char
-          // Inline copy of text_char for performance, as about 96% of
-          // text_char calls originate here.
-          // Keep in sync and/or remove after upgrading to pegjs 0.8 which
-          // inlines simple productions like these automatically.
-          / [^'<~[{\n\r:\]}|!=] )+
+          // About 96% of text_char calls originate here.
+          // pegjs 0.8 inlines this simple production automatically.
+          / text_char )+
 
 /*
     '//', // for protocol-relative URLs, but not in text!
