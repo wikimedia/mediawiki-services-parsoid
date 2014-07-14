@@ -142,8 +142,7 @@ toplevelblock =
   }
 
 save_sol_state =
-    & sol { options.pegTokenizer.savedSOL = true; return true; }
-  / &     { options.pegTokenizer.savedSOL = false; return true; }
+  & (s:sol? { options.pegTokenizer.savedSOL = !!s; return true; })
 
 /*
  * A document (start production) is a sequence of toplevelblocks. Tokens are
@@ -158,8 +157,6 @@ tlb
     // [[:en:Barack Obama]], the difference is about 360M vs. 110M.
     peg$cache = {};
 
-    // Add source offsets for round-tripping. XXX: Add these not just for
-    // toplevelblocks!
     var tokens;
     if ( Array.isArray(b) && b.length ) {
         tokens = tu.flattenIfArray(b);
