@@ -147,13 +147,6 @@ save_sol_state =
  */
 tlb
   = !eof b:block {
-    // Clear the tokenizer's backtracking cache after matching each
-    // toplevelblock. There won't be any backtracking as a document is just a
-    // sequence of toplevelblocks, so the cache for previous toplevelblocks
-    // will never be needed. This frees up a lot of memory: In the case of
-    // [[:en:Barack Obama]], the difference is about 360M vs. 110M.
-    peg$cache = {};
-
     var tokens;
     if ( Array.isArray(b) && b.length ) {
         tokens = tu.flattenIfArray(b);
