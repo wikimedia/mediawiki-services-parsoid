@@ -398,7 +398,7 @@ behavior_switch
             [new KV('word', '__' + behavior + '__')],
             {
                 tsr: [peg$reportedPos, peg$currPos],
-                src: input.substring( peg$reportedPos, peg$currPos )
+                src: text()
             }
         )
     ];
@@ -514,7 +514,7 @@ isbn
     // ISBNs can only be 10 or 13 chars long
     if ([10, 13].indexOf(isbncode.length) === -1) {
         // just return the string
-        return [ input.substring( peg$reportedPos, peg$currPos ) ];
+        return [ text() ];
     }
 
     return [
@@ -670,7 +670,7 @@ broken_template
   = v:( '{{{' / '}}}' / '{{' / '}}' )+
 {
     return [
-        new TagTk('span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: [peg$reportedPos, peg$reportedPos], src: input.substring(peg$reportedPos, peg$currPos) } )]
+        new TagTk('span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: [peg$reportedPos, peg$reportedPos], src: text() } )]
             .concat(v, [new EndTagTk( 'span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: [peg$currPos, peg$currPos] }) ]);
 }
 
@@ -690,7 +690,7 @@ template
       // generically expanded. The TemplateHandler then needs to shift it out
       // again.
       params.unshift( new KV(tu.flattenIfArray( target.tokens ), '', target.srcOffsets) );
-      var obj = new SelfclosingTagTk( 'template', params, {tsr: [peg$reportedPos, peg$currPos], src: input.substring(peg$reportedPos, peg$currPos)} );
+      var obj = new SelfclosingTagTk( 'template', params, {tsr: [peg$reportedPos, peg$currPos], src: text()} );
       //console.warn( 'tokenizer template ' + peg$currPos + );
       //console.warn('template @' + peg$currPos + '::' + input.substr(peg$currPos, 40) );
       return obj;
@@ -717,7 +717,7 @@ tplarg
       } else {
         params.unshift( new KV( '', '') );
       }
-      var obj = new SelfclosingTagTk( 'templatearg', params, {tsr: [peg$reportedPos, peg$currPos], src: input.substring(peg$reportedPos, peg$currPos)} );
+      var obj = new SelfclosingTagTk( 'templatearg', params, {tsr: [peg$reportedPos, peg$currPos], src: text()} );
       //console.warn( 'tokenizer tplarg ' + JSON.stringify( obj, null, 2 ));
       //console.warn('template arg @' + peg$currPos + '::' + input.substr(peg$currPos, 40) );
       return obj;
@@ -836,7 +836,7 @@ wikilink
       //console.warn('lcontent: ' + JSON.stringify( lcontent, null, 2 ) );
 
       if ( target === null ){
-        var src = input.substring(peg$reportedPos, peg$currPos);
+        var src = text();
         return [src];
       }
 
@@ -851,7 +851,7 @@ wikilink
       obj.attribs = obj.attribs.concat( lcontent.content );
       obj.dataAttribs = {
           tsr: [peg$reportedPos, peg$currPos],
-          src: input.substring( peg$reportedPos, peg$currPos ),
+          src: text(),
           pipetrick: lcontent.pipetrick
       };
       return [obj];
