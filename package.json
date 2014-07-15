@@ -5,6 +5,7 @@
 	"dependencies": {
 		"alea": "~0.0.9",
 		"async": "~0.8.0",
+		"bunyan": "~0.23.1",
 		"domino": "~1.0.13",
 		"entities": "~1.1.1",
 		"es6-shim": "~0.10.0",
