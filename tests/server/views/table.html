@@ -46,10 +46,10 @@
 								<span title='{{info}}'>
 							{{~/if~}}
 							{{~#if title~}}
-								<a href='{{titleUrl}}'>{{title}}</a> |
-								<a target='_blank' href='{{lh}}'>@lh</a> |
-								<a target='_blank' href='{{latest}}'>latest result</a> |
-								<a href='{{perf}}'>perf</a>
+								<a href='{{latest}}'>{{title}}</a>
+								{{~#if remoteUrl~}}&nbsp;| <a target='_blank' href='{{remoteUrl}}'>@remote</a>{{~/if~}}
+								{{~#if lhUrl~}}&nbsp;| <a target='_blank' href='{{lhUrl}}'>@lh</a>{{~/if~}}
+								{{~#if perf~}}&nbsp;| <a href='{{perf}}'>perf</a>{{~/if~}}
 							{{~else~}}
 								{{~#if url~}}
 									<a href='{{url}}'>{{name}}</a>
