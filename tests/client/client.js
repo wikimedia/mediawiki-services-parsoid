@@ -151,8 +151,7 @@ var postResult = function( err, result, test, finalCB, cb ) {
 			host: config.server.host,
 			port: config.server.port,
 			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded',
-				'Content-Length': result.length
+				'Content-Type': 'application/x-www-form-urlencoded'
 			},
 			path: '/result/' + encodeURIComponent( test.title ) + '/' + test.prefix,
 			method: 'POST'
