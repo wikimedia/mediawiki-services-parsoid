@@ -6351,6 +6351,8 @@ Different interwiki prefixes mapping to the same URL
 [[wikipedia:en:Foo]]
 
 [[:wikipedia:en:Foo]]
+
+[[  wikiPEdia :Foo]]
 !! html/parsoid
 <p><a rel="mw:ExtLink" href="//en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"simple","a":{"href":"//en.wikipedia.org/wiki/Foo"},"sa":{"href":":en:Foo"},"isIW":true}'>en:Foo</a></p>
 
@@ -6363,6 +6365,8 @@ Different interwiki prefixes mapping to the same URL
 <p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/en:Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/en:Foo"},"sa":{"href":"wikipedia:en:Foo"},"isIW":true}'>wikipedia:en:Foo</a></p>
 
 <p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/en:Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/en:Foo"},"sa":{"href":":wikipedia:en:Foo"},"isIW":true}'>wikipedia:en:Foo</a></p>
+
+<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":"  wikiPEdia :Foo"},"isIW":true}'>  wikiPEdia :Foo</a></p>
 !! end
 
 !! test
@@ -6423,6 +6427,21 @@ Blah blah blah
 <p>Blah blah blah
 <link rel="mw:PageProp/Language" href="//es.wikipedia.org/wiki/Spanish"/>
 <link rel="mw:PageProp/Language" href="//zh.wikipedia.org/wiki/Chinese"/></p>
+!! end
+
+!! test
+Interlanguage link variations
+!! wikitext
+Blah blah blah
+[[   es :Spanish]]
+[[ ZH :Chinese]]
+!! html/php
+<p>Blah blah blah
+</p>
+!! html/parsoid
+<p>Blah blah blah
+<link rel="mw:PageProp/Language" href="//es.wikipedia.org/wiki/Spanish" data-parsoid='{"stx":"simple","a":{"href":"//es.wikipedia.org/wiki/Spanish"},"sa":{"href":"   es :Spanish"}}'/>
+<link rel="mw:PageProp/Language" href="//zh.wikipedia.org/wiki/Chinese" data-parsoid='{"stx":"simple","a":{"href":"//zh.wikipedia.org/wiki/Chinese"},"sa":{"href":" ZH :Chinese"}}'/>
 !! end
 
 !! test
