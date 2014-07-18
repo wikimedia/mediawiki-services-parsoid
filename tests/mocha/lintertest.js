@@ -88,5 +88,14 @@ describe( 'Linter Tests', function() {
 				result[0].should.have.a.property( "src", "foo" );
 			});
 		});
+		it('should lint ignored table attributes Correctly', function(done){
+			return parseWT( '{|\n|- foo\n|bar\n|}' ).done( function ( result ) {
+				result.should.have.length( 1 );
+				result[0].should.have.a.property("type", "ignored-table-attr");
+				result[0].should.have.a.property("wiki", "enwiki");
+				result[0].dsr.should.include.members([ 3, 14, 6, 0 ]);
+				result[0].should.have.a.property("src", "|- foo\n|bar");
+			});
+		});
 	});
 });
