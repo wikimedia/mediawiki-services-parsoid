@@ -8,6 +8,8 @@
  * to view them.
  */
 
+"use strict";
+
 module.exports = {
 	// Hostname of the database server.
 	host: "localhost",
@@ -22,7 +24,7 @@ module.exports = {
 	user: "parsoid",
 
 	// Password.
-	password: "parsoidpw",
+	password: "parsoid",
 
 	// Output MySQL debug data.
 	debug: false,
@@ -40,5 +42,22 @@ module.exports = {
 	cutofftime: 600,
 
 	// Number of titles to fetch from database in one batch.
-	batch: 50
+	batch: 50,
+
+	// (Optional) Remote server, if any, that will generate full results
+	resultServer: "http://parsoid.wmflabs.org/",
+
+	// (Optional) Localhost server, if any, for generating the same results
+	localhostServer: "http://localhost:8000/",
+
+	// (Optional)
+	generateTitleUrl: function(server, prefix, title) {
+		return server.replace(/\/$/, '') + "/_rt/" + prefix + "/" + title;
+	},
+
+	// (Optional)
+	// perfConfig: require('./server.perf_stats.js').perfConfig,
+
+	// (Optional)
+	// parsoidRTConfig: require('./server.parsoid_rt.js').parsoidRTConfig,
 };

@@ -5,7 +5,7 @@
 var express = require( 'express' ),
 	yargs = require( 'yargs' ),
 	hbs = require( 'handlebars' ),
-	Diff = require('./diff.js').Diff;
+	RH = require('./render.helpers.js').RenderHelpers;
 
 // Default options
 var defaults = {
@@ -18,16 +18,11 @@ var defaults = {
 	'fetches': 6,
 	'tries': 6,
 	'cutofftime': 600,
-	'batch': 50
+	'batch': 50,
+	generateTitleUrl: function(server, prefix, title) {
+		return server.replace(/\/$/, '') + "/_rt/" + prefix + "/" + title;
+	},
 };
-
-// Settings file
-var settings;
-try {
-	settings = require( './server.settings.js' );
-} catch ( e ) {
-	settings = {};
-}
 
 // Command line options
 var opts = yargs.usage( 'Usage: $0 [connection parameters]' )
@@ -84,6 +79,22 @@ if ( argv.help ) {
 	opts.showHelp();
 	process.exit( 0 );
 }
+
+// Settings file
+var settings;
+try {
+	settings = require( './server.settings.js' );
+} catch ( e ) {
+	console.error("Aborting! Exception reading ./server.settings.js: " + e);
+	return;
+}
+
+// SSS FIXME: Awkward, but does the job for now.
+// Helpers need settings
+RH.settings = settings;
+
+var perfConfig = settings.perfConfig,
+	parsoidRTConfig = settings.parsoidRTConfig;
 
 var getOption = function( opt ) {
 	var value;
@@ -192,12 +203,6 @@ var dbInsertStats =
 		'skips = VALUES( skips ), fails = VALUES( fails ), ' +
 		'errors = VALUES( errors ), selser_errors = VALUES(selser_errors), ' +
 		'score = VALUES( score )';
-
-var dbInsertPerfStatsStart =
-	'INSERT INTO perfstats ' +
-	'( page_id, commit_hash, type, value ) VALUES ';
-var dbInsertPerfStatsEnd =
-	' ON DUPLICATE KEY UPDATE value = VALUES( value )';
 
 var dbUpdatePageLatestResults =
 	'UPDATE pages ' +
@@ -344,14 +349,6 @@ var dbGetResultWithCommit =
     'JOIN pages ON pages.id = results.page_id ' +
     'WHERE results.commit_hash = ? AND pages.title = ? AND pages.prefix = ?';
 
-var dbGetTwoResults =
-	'SELECT result FROM results ' +
-	'JOIN commits ON results.commit_hash = commits.hash ' +
-	'JOIN pages ON pages.id = results.page_id ' +
-	'WHERE pages.title = ? AND pages.prefix = ? ' +
-	'AND (commits.hash = ? OR commits.hash = ?) ' +
-	'ORDER BY commits.timestamp';
-
 var dbFailedFetches =
 	'SELECT title, prefix FROM pages WHERE num_fetch_errors >= ?';
 
@@ -434,63 +431,6 @@ var dbNumRegressionsBetweenRevs =
 	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
 	'WHERE s1.commit_hash = ? AND s2.commit_hash = ? AND s1.score > s2.score ';
 
-var dbNumOneDiffRegressionsBetweenRevs =
-	'SELECT count(*) AS numFlaggedRegressions ' +
-	'FROM pages ' +
-	'JOIN stats AS s1 ON s1.page_id = pages.id ' +
-	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
-	'WHERE s1.commit_hash = ? AND s2.commit_hash = ? AND s1.score > s2.score ' +
-		'AND s2.fails = 0 AND s2.skips = 0 ' +
-		'AND s1.fails = ? AND s1.skips = ? ';
-
-var dbOneDiffRegressionsBetweenRevs =
-	'SELECT pages.title, pages.prefix, ' +
-	's1.commit_hash AS new_commit, ' +
-	's2.commit_hash AS old_commit ' +
-	'FROM pages ' +
-	'JOIN stats AS s1 ON s1.page_id = pages.id ' +
-	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
-	'WHERE s1.commit_hash = ? AND s2.commit_hash = ? AND s1.score > s2.score ' +
-		'AND s2.fails = 0 AND s2.skips = 0 ' +
-		'AND s1.fails = ? AND s1.skips = ? ' +
-	'ORDER BY s1.score - s2.score DESC ' +
-	'LIMIT 40 OFFSET ?';
-
-var dbNumNewFailsRegressionsBetweenRevs =
-	'SELECT count(*) AS numFlaggedRegressions ' +
-	'FROM pages ' +
-	'JOIN stats AS s1 ON s1.page_id = pages.id ' +
-	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
-	'WHERE s1.commit_hash = ? AND s2.commit_hash = ? AND s1.score > s2.score ' +
-		'AND s2.fails = 0 AND s1.fails > 0 ' +
-		// exclude cases introducing exactly one skip/fail to a perfect
-		'AND (s1.skips > 0 OR s1.fails <> 1 OR s2.skips > 0)';
-
-var dbNewFailsRegressionsBetweenRevs =
-	'SELECT pages.title, pages.prefix, ' +
-	's1.commit_hash AS new_commit, s1.errors AS errors, s1.fails AS fails, s1.skips AS skips, ' +
-	's2.commit_hash AS old_commit, s2.errors AS old_errors, s2.fails AS old_fails, s2.skips AS old_skips ' +
-	'FROM pages ' +
-	'JOIN stats AS s1 ON s1.page_id = pages.id ' +
-	'JOIN stats AS s2 ON s2.page_id = pages.id ' +
-	'WHERE s1.commit_hash = ? AND s2.commit_hash = ? AND s1.score > s2.score ' +
-		'AND s2.fails = 0 AND s1.fails > 0 ' +
-		// exclude cases introducing exactly one skip/fail to a perfect
-		'AND (s1.skips > 0 OR s1.fails <> 1 OR s2.skips > 0) ' +
-	'ORDER BY s1.score - s2.score DESC ' +
-	'LIMIT 40 OFFSET ?';
-
-var dbPagesWithRTSelserErrors =
-	'SELECT pages.title, pages.prefix, commits.hash, ' +
-	'stats.errors, stats.fails, stats.skips, stats.selser_errors ' +
-	'FROM stats ' +
-	'JOIN pages ON stats.page_id = pages.id ' +
-	'JOIN commits ON stats.commit_hash = commits.hash ' +
-	'WHERE commits.hash = ? AND ' +
-		'stats.selser_errors > 0 ' +
-	'ORDER BY stats.score DESC ' +
-	'LIMIT 40 OFFSET ?';
-
 var dbResultsQuery =
 	'SELECT result FROM results';
 
@@ -498,28 +438,6 @@ var dbResultsPerWikiQuery =
 	'SELECT result FROM results ' +
 	'JOIN pages ON pages.id = results.page_id ' +
 	'WHERE pages.prefix = ?';
-var dbPerfStatsTypes =
-	'SELECT DISTINCT type FROM perfstats';
-
-var dbLastPerfStatsStart =
-	'SELECT prefix, title, ';
-
-var dbLastPerfStatsEnd =
-	' FROM pages JOIN perfstats ON pages.id = perfstats.page_id ' +
-	'WHERE perfstats.commit_hash = ' +
-		'(SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1) ' +
-	'GROUP BY pages.id ';
-
-var dbPagePerfStatsStart =
-	'SELECT commits.hash, commits.timestamp, ';
-
-var dbPagePerfStatsEnd =
-	' FROM (perfstats JOIN pages ON perfstats.page_id = pages.id) ' +
-	'JOIN commits ON perfstats.commit_hash = commits.hash ' +
-	'WHERE pages.prefix = ? AND pages.title = ? ' +
-	'GROUP BY commits.hash ' +
-	'ORDER BY commits.timestamp DESC ' +
-	'LIMIT 0, ?';
 
 var transFetchCB = function( msg, trans, failCb, successCb, err, result ) {
 	if ( err ) {
@@ -669,20 +587,12 @@ var statsScore = function(skipCount, failCount, errorCount) {
 	return errorCount*1000000+failCount*1000+skipCount;
 };
 
-var parsePerfStats = function( text ) {
-	var regexp = /<perfstat[\s]+type="([\w\:]+)"[\s]*>([\d]+)/g;
-	var perfstats = [];
-	for ( var match = regexp.exec( text ); match !== null; match = regexp.exec( text ) ) {
-		perfstats.push( { type: match[ 1 ], value: match[ 2 ] } );
-	}
-	return perfstats;
-};
-
 var transUpdateCB = function( title, prefix, hash, type, res, trans, success_cb, err, result ) {
 	if ( err ) {
 		trans.rollback();
 		var msg = "Error inserting/updating " + type + " for page: " +  prefix + ':' + title + " and hash: " + hash;
 		console.error( msg );
+		console.error( err );
 		if ( res ) {
 			res.send( msg, 500 );
 		}
@@ -691,56 +601,46 @@ var transUpdateCB = function( title, prefix, hash, type, res, trans, success_cb,
 	}
 };
 
-var insertPerfStats = function( db, pageId, commitHash, perfstats, cb ) {
-	// If empty, just return
-	if ( !perfstats || perfstats.length === 0 ) {
-		if ( cb ) {
-			return cb( null, null );
-		}
-		return;
-	}
-	// Build the query to insert all the results in one go:
-	var dbStmt = dbInsertPerfStatsStart;
-	for ( var i = 0; i < perfstats.length; i++ ) {
-		if ( i !== 0 ) {
-			dbStmt += ", ";
-		}
-		dbStmt += "( " + pageId.toString() + ", '" + commitHash + "', '" +
-			perfstats[i].type + "', " + perfstats[i].value + ' )';
-	}
-	dbStmt += dbInsertPerfStatsEnd;
-
-	// Make the query using the db arg, which could be a transaction
-	db.query( dbStmt, null, cb );
-};
-
 var receiveResults = function ( req, res ) {
 	req.connection.setTimeout(300 * 1000);
-	var title = req.params[ 0 ],
-		result = req.body.results,
-		skipCount = result.match( /<skipped/g ),
-		failCount = result.match( /<failure/g ),
-		errorCount = result.match( /<error/g ),
-		selserErrorCount = 0;
-	var prefix = req.params[1];
-	var commitHash = req.body.commit;
-	var perfstats = parsePerfStats( result );
+	var title = req.params[0],
+		prefix = req.params[1],
+		commitHash = req.body.commit;
+	var result = req.body.results,
+		skipCount, failCount,
+		errorCount, dneError;
 
-	skipCount = skipCount ? skipCount.length : 0;
-	failCount = failCount ? failCount.length : 0;
-	errorCount = errorCount ? errorCount.length : 0;
-	// Find the number of selser errors
-	var selserSuites = result.match(/<testsuite[^>]*\(selser\)[^>]*>[\s\S]*?<\/testsuite>/g);
-	for (var selserSuite in selserSuites) {
-		var matches = selserSuites[selserSuite].match(/<testcase/g);
-		selserErrorCount += matches ? matches.length : 0;
+	var contentType = req.headers["content-type"],
+		resultString;
+	if (contentType.match(/application\/json/i)) {
+		// console.warn("application/json");
+		errorCount = result.err ? 1 : 0;
+		failCount = parseInt(result.fails || "0");
+		skipCount =parseInt(result.skips || "0");
+		resultString = JSON.stringify(result);
+	} else {
+		// console.warn("old xml junit style");
+		errorCount = result.match( /<error/g );
+		errorCount = errorCount ? errorCount.length : 0;
+		skipCount = result.match( /<skipped/g );
+		skipCount = skipCount ? skipCount.length : 0;
+		failCount = result.match( /<failure/g );
+		failCount = failCount ? failCount.length : 0;
+		dneError = result.match('DoesNotExist');
+		resultString = result;
 	}
+
+	// Find the number of selser errors
+	var selserErrorCount = parsoidRTConfig ? parsoidRTConfig.parseSelserStats(result) : 0;
+
+	// Get perf stats
+	var perfstats = perfConfig ? perfConfig.parsePerfStats(result) : null;
 
 	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
 
 	var trans = db.startTransaction();
-	//console.warn("got: " + JSON.stringify([title, commitHash, result, skipCount, failCount, errorCount]));
-	if ( errorCount > 0 && result.match( 'DoesNotExist' ) ) {
+	// console.warn("got: " + JSON.stringify([title, commitHash, result, skipCount, failCount, errorCount]));
+	if ( errorCount > 0 && dneError ) {
 		// Page fetch error, increment the fetch error count so, when it goes over
 		/// maxFetchRetries, it won't be considered for tests again.
 		console.log( 'XX', prefix + ':' + title );
@@ -763,7 +663,7 @@ var receiveResults = function ( req, res ) {
 				var latest_resultId = 0,
 					latest_statId = 0;
 				// Insert the result
-				trans.query( dbInsertResult, [ page.id, commitHash, result ],
+				trans.query( dbInsertResult, [ page.id, commitHash, resultString ],
 					transUpdateCB.bind( null, title, prefix, commitHash, "result", res, trans, function( insertedResult ) {
 						latest_resultId = insertedResult.insertId;
 						// Insert the stats
@@ -777,8 +677,11 @@ var receiveResults = function ( req, res ) {
 										trans.commit( function() {
 											console.log( '<- ', prefix + ':' + title, ':', skipCount, failCount,
 												errorCount, commitHash.substr(0,7) );
-											// Insert the performance stats, ignoring errors for now
-											insertPerfStats( db, page.id, commitHash, perfstats, null );
+
+											if (perfConfig) {
+												// Insert the performance stats, ignoring errors for now
+												perfConfig.insertPerfStats( db, page.id, commitHash, perfstats, null );
+											}
 
 											// Maybe the perfstats aren't committed yet, but it shouldn't be a problem
 											res.send('', 200);
@@ -815,11 +718,18 @@ hbs.registerHelper('jsFiles', function(options){
 var pageListData = [
 	{ url: '/topfails', title: 'Results by title' },
 	{ url: '/failedFetches', title: 'Non-existing test pages' },
-	{ url:  '/failsDistr', title: 'Histogram of failures' },
+	{ url: '/failsDistr', title: 'Histogram of failures' },
 	{ url: '/skipsDistr', title: 'Histogram of skips' },
-	{ url: '/commits', title: 'List of all tested commits' },
-	{ url: '/perfstats', title: 'Performance stats of last commit' }
+	{ url: '/commits', title: 'List of all tested commits' }
 ];
+
+if (perfConfig) {
+	perfConfig.updateIndexPageUrls(pageListData);
+}
+
+if (parsoidRTConfig) {
+	parsoidRTConfig.updateIndexPageUrls(pageListData);
+}
 
 hbs.registerHelper('formatPerfStat', function (type, value) {
 	if ( type.match( /^time/ ) ) {
@@ -835,66 +745,6 @@ hbs.registerHelper('formatPerfStat', function (type, value) {
 		return value.toString();
 	}
 });
-
-var pageStatus = function(row) {
-	var hasStatus = row.hasOwnProperty( 'skips' ) &&
-		row.hasOwnProperty( 'fails' ) &&
-		row.hasOwnProperty( 'errors' );
-
-	if (hasStatus) {
-		if ( row.skips === 0 && row.fails === 0 && row.errors === 0 ) {
-			return 'perfect';
-		} else if ( row.errors > 0 || row.fails > 0 ) {
-			return 'fail';
-		} else {
-			return 'skip';
-		}
-	}
-	return null;
-};
-
-var pageTitleData = function(row){
-	var prefix = encodeURIComponent( row.prefix ),
-	title = encodeURIComponent( row.title );
-	return {
-		title: row.prefix + ':' + row.title,
-		titleUrl: 'http://parsoid.wmflabs.org/_rt/' + prefix + '/' + title,
-		lh: 'http://localhost:8000/_rt/' + prefix + '/' + title,
-		latest: '/latestresult/' + prefix + '/' + title,
-		perf: '/pageperfstats/' + prefix + '/' + title
-	};
-};
-
-var displayPageList = function(res, data, makeRow, err, rows){
-	console.log( "GET " + data.urlPrefix + "/" + data.page + data.urlSuffix );
-	if ( err ) {
-		res.send( err.toString(), 500 );
-	} else {
-		res.status( 200 );
-		var tableData = data;
-		if (rows.length === 0) {
-			tableData.header = undefined;
-		} else {
-			var tableRows = [];
-			for (var i = 0; i < rows.length; i++) {
-				var row = rows[i];
-				var tableRow = {status: pageStatus(row), tableData: makeRow(row)};
-				tableRows.push(tableRow);
-			}
-			tableData.paginate = true;
-			tableData.row = tableRows;
-			tableData.prev = data.page > 0;
-			tableData.next = rows.length === 40;
-		}
-		hbs.registerHelper('prevUrl', function (urlPrefix, urlSuffix, page) {
-			return urlPrefix + "/" + ( page - 1 ) + urlSuffix;
-		});
-		hbs.registerHelper('nextUrl', function (urlPrefix, urlSuffix, page) {
-			return urlPrefix + "/" + ( page + 1 ) + urlSuffix;
-		});
-		res.render('table.html', tableData);
-	}
-};
 
 var statsWebInterface = function ( req, res ) {
 	var query, queryParams;
@@ -917,18 +767,20 @@ var statsWebInterface = function ( req, res ) {
 	db.query( query, queryParams, function ( err, row ) {
 		if ( err ) {
 			res.send( err.toString(), 500 );
-		} else {
-			res.status( 200 );
+			return;
+		}
 
-			var tests = row[0].total,
-			errorLess = row[0].no_errors,
-			skipLess = row[0].no_skips,
-			numRegressions = row[0].numregressions,
-			numFixes = row[0].numfixes,
-			noErrors = Math.round( 100 * 100 * errorLess / ( tests || 1 ) ) / 100,
-			perfects = Math.round( 100* 100 * skipLess / ( tests || 1 ) ) / 100,
-			syntacticDiffs = Math.round( 100 * 100 *
-				( row[0].no_fails / ( tests || 1 ) ) ) / 100;
+		res.status( 200 );
+
+		var tests = row[0].total,
+		errorLess = row[0].no_errors,
+		skipLess = row[0].no_skips,
+		numRegressions = row[0].numregressions,
+		numFixes = row[0].numfixes,
+		noErrors = Math.round( 100 * 100 * errorLess / ( tests || 1 ) ) / 100,
+		perfects = Math.round( 100* 100 * skipLess / ( tests || 1 ) ) / 100,
+		syntacticDiffs = Math.round( 100 * 100 *
+			( row[0].no_fails / ( tests || 1 ) ) ) / 100;
 
 		var width = 800;
 
@@ -954,19 +806,6 @@ var statsWebInterface = function ( req, res ) {
 					url: '/topfixes/between/' + row[0].secondhash + '/' + row[0].maxhash },
 				{ description: 'Regressions', value: numRegressions,
 					url: '/regressions/between/' + row[0].secondhash + '/' + row[0].maxhash },
-				{description: 'RT selser errors', value: row[0].rtselsererrors,
-					url: '/rtselsererrors/' + row[0].maxhash}
-			],
-			flaggedReg: [
-				{ description: 'one fail',
-					info: 'one new semantic diff, previously perfect',
-					url: 'onefailregressions/between/' + row[0].secondhash + '/' + row[0].maxhash },
-				{ description: 'one skip',
-					info: 'one new syntactic diff, previously perfect',
-					url: 'oneskipregressions/between/' + row[0].secondhash + '/' + row[0].maxhash },
-				{ description: 'other new fails',
-					info: 'other cases with semantic diffs, previously only syntactic diffs',
-					url: 'newfailsregressions/between/' + row[0].secondhash + '/' + row[0].maxhash }
 			],
 			averages: [
 				{ description: 'Errors', value: row[0].avgerrors },
@@ -977,23 +816,31 @@ var statsWebInterface = function ( req, res ) {
 			pages: pageListData
 		};
 
+		if (perfConfig) {
+			perfConfig.updateIndexData(data, row);
+		}
+
+		if (parsoidRTConfig) {
+			parsoidRTConfig.updateIndexData(data, row);
+		}
+
 		// round numeric data, but ignore others
 		hbs.registerHelper('round', function (val) {
-			if ( isNaN(val) ) {
-				return val;
-			} else {
-				return Math.round( val * 100 ) / 100;
-			}
-		});
+				if ( isNaN(val) ) {
+					return val;
+				} else {
+					return Math.round( val * 100 ) / 100;
+				}
+			});
+
 		res.render('index.html', data);
-		}
 	});
 };
 
 var makeFailsRow = function(row) {
 	return [
-		pageTitleData(row),
-		commitLinkData(row.hash, row.title, row.prefix),
+		RH.pageTitleData(row),
+		RH.commitLinkData(row.hash, row.title, row.prefix),
 		row.skips,
 		row.fails,
 		row.errors === null ? 0 : row.errors
@@ -1012,7 +859,7 @@ var failsWebInterface = function ( req, res ) {
 		header: ['Title', 'Commit', 'Syntactic diffs', 'Semantic diffs', 'Errors']
 	};
 	db.query( dbFailsQuery, [ offset ],
-		displayPageList.bind( null, res, data, makeFailsRow ) );
+		RH.displayPageList.bind( null, hbs, res, data, makeFailsRow ) );
 };
 
 var resultsWebInterface = function ( req, res ) {
@@ -1050,9 +897,11 @@ var resultWebCallback = function( req, res, err, row ) {
 		console.error( err );
 		res.send( err.toString(), 500 );
 	} else if ( row && row.length > 0 ) {
-		res.setHeader( 'Content-Type', 'text/xml; charset=UTF-8' );
-		res.status( 200 );
-		res.write( '<?xml-stylesheet href="/static/result.css"?>\n' );
+		if (row[0].result.match(/<testsuite/)) {
+			res.setHeader( 'Content-Type', 'text/xml; charset=UTF-8' );
+			res.status( 200 );
+			res.write( '<?xml-stylesheet href="/static/result.css"?>\n' );
+		}
 		res.end( row[0].result );
 	} else {
 		res.send( 'no results for that page at the requested revision', 200 );
@@ -1069,46 +918,6 @@ var resultWebInterface = function( req, res ) {
 	} else {
 		db.query( dbGetOneResult, [ title, prefix ], resultWebCallback.bind( null, req, res ) );
 	}
-};
-
-var diffResultWebCallback = function(req, res, flag, err, row) {
-	if ( err ) {
-		console.error( err );
-		res.send( err.toString(), 500 );
-	} else if (row.length === 2) {
-		var oldCommit = req.params[0].slice(0,10);
-		var newCommit = req.params[1].slice(0,10);
-		var oldResult = row[0].result;
-		var newResult = row[1].result;
-		var flagResult = Diff.resultFlagged(oldResult, newResult, oldCommit, newCommit, flag);
-		res.setHeader( 'Content-Type', 'text/xml; charset=UTF-8' );
-		res.status(200);
-		res.write( '<?xml-stylesheet href="/static/result.css"?>\n' );
-		res.end(flagResult);
-	} else {
-		var commit = flag === '+' ? req.params[1] : req.params[0];
-		res.redirect('/result/' + commit + '/' + req.params[2] + '/' + req.params[3]);
-	}
-};
-
-var resultFlagNewWebInterface = function(req, res) {
-	var oldCommit = req.params[0];
-	var newCommit = req.params[1];
-	var prefix = req.params[2];
-	var title = req.params[3];
-
-	db.query(dbGetTwoResults, [ title, prefix, oldCommit, newCommit ],
-		diffResultWebCallback.bind(null, req, res, '+'));
-};
-
-var resultFlagOldWebInterface = function(req, res) {
-	var oldCommit = req.params[0];
-	var newCommit = req.params[1];
-	var prefix = req.params[2];
-	var title = req.params[3];
-
-	db.query(dbGetTwoResults, [ title, prefix, oldCommit, newCommit ],
-		diffResultWebCallback.bind(null, req, res, '-'));
 };
 
 var GET_failedFetches = function( req, res ) {
@@ -1222,47 +1031,6 @@ var GET_skipsDistr = function( req, res ) {
 	} );
 };
 
-var commitLinkData = function(commit, title, prefix) {
-	return {
-		url: '/result/' + commit + '/' + prefix + '/' + title,
-		name: commit.substr( 0, 7 )
-	};
-};
-
-var newCommitLinkData = function(oldCommit, newCommit, title, prefix) {
-	return {
-		url: '/resultFlagNew/' + oldCommit + '/' + newCommit + '/' + prefix + '/' + title,
-		name: newCommit.substr(0,7)
-	};
-};
-
-var oldCommitLinkData = function(oldCommit, newCommit, title, prefix) {
-	return {
-		url: '/resultFlagOld/' + oldCommit + '/' + newCommit + '/' + prefix + '/' + title,
-		name: oldCommit.substr(0,7)
-	};
-};
-
-var makeRegressionRow = function(row) {
-	return [
-		pageTitleData(row),
-		oldCommitLinkData(row.old_commit, row.new_commit, row.title, row.prefix),
-		row.old_errors + "|" + row.old_fails + "|" + row.old_skips,
-		newCommitLinkData(row.old_commit, row.new_commit, row.title, row.prefix),
-		row.errors + "|" + row.fails + "|" + row.skips
-	];
-};
-
-var makeOneDiffRegressionRow = function(row) {
-	return [
-		pageTitleData(row),
-		oldCommitLinkData(row.old_commit, row.new_commit, row.title, row.prefix),
-		newCommitLinkData(row.old_commit, row.new_commit, row.title, row.prefix)
-	];
-};
-
-var regressionsHeaderData = ['Title', 'Old Commit', 'Errors|Fails|Skips', 'New Commit', 'Errors|Fails|Skips'];
-
 var GET_regressions = function( req, res ) {
 	var r1 = req.params[0];
 	var r2 = req.params[1];
@@ -1279,120 +1047,13 @@ var GET_regressions = function( req, res ) {
 				heading: "Total regressions between selected revisions: " +
 					row[0].numRegressions,
 				headingLink: [{url: '/topfixes/between/' + r1 + '/' + r2, name: 'topfixes'}],
-				header: regressionsHeaderData
+				header: RH.regressionsHeaderData
 			};
 			db.query( dbRegressionsBetweenRevs, [ r2, r1, offset ],
-				displayPageList.bind( null, res, data, makeRegressionRow ));
+				RH.displayPageList.bind( null, hbs, res, data, RH.makeRegressionRow ));
 		}
 	});
 };
-
-var GET_newFailsRegressions = function(req, res) {
-	var r1 = req.params[0];
-	var r2 = req.params[1];
-	var page = (req.params[2] || 0) - 0;
-	var offset = page * 40;
-	db.query(dbNumNewFailsRegressionsBetweenRevs, [r2, r1], function(err, row) {
-		if (err) {
-			res.send(err.toString(), 500);
-		} else {
-			var data = {
-				page: page,
-				urlPrefix: '/regressions/between/' + r1 + '/' + r2,
-				urlSuffix: '',
-				heading: 'Flagged regressions between selected revisions: ' +
-					row[0].numFlaggedRegressions,
-				subheading: 'Old Commit: only syntactic diffs | New Commit: semantic diffs',
-				headingLink: [
-					{name: 'one fail regressions',
-						info: 'one new semantic diff, previously perfect',
-						url: '/onefailregressions/between/' + r1 + '/' + r2},
-					{name: 'one skip regressions',
-						info: 'one new syntactic diff, previously perfect',
-						url: '/oneskipregressions/between/' + r1 + '/' + r2}
-				],
-				header: regressionsHeaderData
-			};
-			db.query(dbNewFailsRegressionsBetweenRevs, [r2, r1, offset],
-				displayPageList.bind(null, res, data, makeRegressionRow));
-		}
-	});
-};
-
-var GET_rtselsererrors = function(req, res) {
-	var commit = req.params[0],
-		page = (req.params[1] || 0) - 0,
-		offset = page * 40,
-		data = {
-			page: page,
-			urlPrefix: '/rtselsererrors/' + commit,
-			urlSuffix: '',
-			heading: 'Pages with rt selser errors',
-			header: ['Title', 'Commit', 'Syntactic diffs', 'Semantic diffs', 'Errors']
-		};
-	var makeSelserErrorRow = function(row) {
-		var prefix = encodeURIComponent(row.prefix),
-			title = encodeURIComponent(row.title);
-		return [
-			{
-				title: row.prefix + ':' + row.title,
-				titleUrl: 'http://parsoid.wmflabs.org/_rtselser/' + prefix + '/' + title,
-				lh: 'http://localhost:8000/_rtselser/' + prefix + '/' + title,
-				latest: '/latestresult/' + prefix + '/' + title,
-				perf: '/pageperfstats/' + prefix + '/' + title
-			},
-			commitLinkData(row.hash, row.title, row.prefix),
-			row.skips,
-			row.fails,
-			row.errors === null ? 0 : row.errors
-		];
-	};
-	db.query(dbPagesWithRTSelserErrors, [commit, offset],
-		displayPageList.bind(null, res, data, makeSelserErrorRow));
-};
-
-var displayOneDiffRegressions = function(numFails, numSkips, subheading, headingLinkData, req, res){
-	var r1 = req.params[0];
-	var r2 = req.params[1];
-	var page = (req.params[2] || 0) - 0;
-	var offset = page * 40;
-	db.query (dbNumOneDiffRegressionsBetweenRevs, [r2, r1, numFails, numSkips], function(err, row) {
-		if (err) {
-			res.send(err.toString(), 500);
-		} else {
-			var headingLink = [
-				{name: headingLinkData[0],
-					info: headingLinkData[1],
-					url: '/' + headingLinkData[2] + 'regressions/between/' + r1 + '/' + r2},
-				{name: 'other new fails',
-					info: 'other cases with semantic diffs, previously only syntactic diffs',
-					url: '/newfailsregressions/between/' + r1 + '/' + r2}
-			];
-			var data = {
-				page: page,
-				urlPrefix: '/regressions/between/' + r1 + '/' + r2,
-				urlSuffix: '',
-				heading: 'Flagged regressions between selected revisions: ' +
-					row[0].numFlaggedRegressions,
-				subheading: subheading,
-				headingLink: headingLink,
-				header: ['Title', 'Old Commit', 'New Commit']
-			};
-			db.query(dbOneDiffRegressionsBetweenRevs, [r2, r1, numFails, numSkips, offset],
-				displayPageList.bind(null, res, data, makeOneDiffRegressionRow));
-		}
-	});
-};
-
-var GET_oneFailRegressions = displayOneDiffRegressions.bind(
-	null, 1, 0, 'Old Commit: perfect | New Commit: one semantic diff',
-	['one skip regressions', 'one new syntactic diff, previously perfect', 'oneskip']
-);
-
-var GET_oneSkipRegressions = displayOneDiffRegressions.bind(
-	null, 0, 1, 'Old Commit: perfect | New Commit: one syntactic diff',
-	['one fail regressions', 'one new semantic diff, previously perfect', 'onefail']
-);
 
 var GET_topfixes = function( req, res ) {
 	var r1 = req.params[0];
@@ -1409,10 +1070,10 @@ var GET_topfixes = function( req, res ) {
 				urlSuffix: '',
 				heading: 'Total fixes between selected revisions: ' + row[0].numFixes,
 				headingLink: [{url: "/regressions/between/" + r1 + "/" + r2, name: 'regressions'}],
-				header: regressionsHeaderData
+				header: RH.regressionsHeaderData
 			};
 			db.query( dbFixesBetweenRevs, [ r2, r1, offset ],
-				displayPageList.bind( null, res, data, makeRegressionRow ));
+				RH.displayPageList.bind( null, hbs, res, data, RH.makeRegressionRow ));
 		}
 	});
 };
@@ -1457,159 +1118,6 @@ var GET_commits = function( req, res ) {
 	} );
 };
 
-var cachedPerfStatsTypes;
-
-var perfStatsTypes = function( cb ) {
-
-	if (cachedPerfStatsTypes) {
-		return cb(null, cachedPerfStatsTypes);
-	}
-	// As MySQL doesn't support PIVOT, we need to get all the perfstats types
-	// first so we can get then as columns afterwards
-	db.query( dbPerfStatsTypes, null, function( err, rows ) {
-		if ( err ) {
-			cb( err, null );
-		} else if ( !rows || rows.length === 0 ) {
-			cb( "No performance stats found", null );
-		} else {
-			var types = [];
-			for ( var i = 0; i < rows.length; i++ ) {
-				types.push( rows[i].type );
-			}
-
-			// Sort the profile types by name
-			types.sort();
-			cachedPerfStatsTypes = types;
-
-			cb( null, types );
-		}
-	} );
-};
-
-var GET_perfStats = function( req, res ) {
-	var page = ( req.params[0] || 0 ) - 0,
-		offset = page * 40,
-		orderBy = 'prefix ASC, title ASC',
-		urlSuffix = '';
-
-	if ( req.query.orderby ) {
-		orderBy = mysql.escapeId( req.query.orderby ) + ' DESC';
-		urlSuffix = '?orderby=' + req.query.orderby;
-	}
-
-	perfStatsTypes( function( err, types ) {
-		if ( err ) {
-			res.send( err.toString(), 500 );
-		} else {
-
-			var makePerfStatRow = function(row) {
-				var result = [pageTitleData(row)];
-				for (var j = 0; j < types.length; j++) {
-					var type = types[j];
-					var rowData = row[type] === null ? '' :
-						{type: type, value: row[type], info: row[type]};
-					result.push(rowData);
-				}
-				return result;
-			};
-
-			// Create the query to retrieve the stats per page
-			var perfStatsHeader = ['Title'];
-			var dbStmt = dbLastPerfStatsStart;
-			for( var t = 0; t < types.length; t++ ) {
-				if ( t !== 0 ) {
-					dbStmt += ", ";
-				}
-				dbStmt += "SUM( IF( TYPE='" + types[ t ] +
-					"', value, NULL ) ) AS '" + types[ t ] + "'";
-				perfStatsHeader.push({
-					url: '/perfstats?orderby=' + types[t],
-					name: types[t]
-				});
-			}
-			dbStmt += dbLastPerfStatsEnd;
-			dbStmt += 'ORDER BY ' + orderBy;
-			dbStmt += ' LIMIT 40 OFFSET ' + offset.toString();
-
-			var data = {
-				page: page,
-				urlPrefix: '/perfstats',
-				urlSuffix: urlSuffix,
-				heading: 'Performance stats',
-				header: perfStatsHeader
-			};
-
-			db.query( dbStmt, null,
-				displayPageList.bind( null, res, data, makePerfStatRow ) );
-		}
-	} );
-};
-
-var GET_pagePerfStats = function( req, res ) {
-	if ( req.params.length < 2 ) {
-		res.send( "No title given.", 404 );
-	}
-
-	var prefix = req.params[0],
-		title = req.params[1];
-
-	perfStatsTypes( function( err, types ) {
-		if ( err ) {
-			res.send( err.toString(), 500 );
-		} else {
-			var dbStmt = dbPagePerfStatsStart;
-			for ( var t = 0; t < types.length; t++ ) {
-				if ( t !== 0 ) {
-					dbStmt += ", ";
-				}
-
-				dbStmt += "SUM( IF( type='" + types[t] +
-					"', value, NULL ) ) AS '" + types[ t ] + "'";
-			}
-			dbStmt += dbPagePerfStatsEnd;
-
-			// Get maximum the last 10 commits.
-			db.query( dbStmt, [ prefix, title, 10 ], function( err, rows ) {
-				if ( err ) {
-					res.send( err.toString(), 500 );
-				} else if ( !rows || rows.length === 0 ) {
-					res.send( "No performance results found for page.", 200 );
-				} else {
-					res.status( 200 );
-					var tableHeaders = ['Commit'];
-					for ( t = 0; t < types.length; t++ ) {
-						tableHeaders.push(types[t]);
-					}
-
-					// Show the results in order of timestamp.
-					var tableRows = [];
-					for ( var r = rows.length - 1; r >= 0; r-- ) {
-						var row = rows[r];
-						var tableRow = [{
-							url: '/result/' + row.hash + '/' + prefix + '/' + title,
-							name: row.hash,
-							info: row.timestamp.toString()
-						}];
-						for ( t = 0; t < types.length; t++ ) {
-							var rowData = row[types[t]] === null ? '' :
-								{type: types[t], value: row[types[t]], info: row[types[t]]};
-							tableRow.push(rowData);
-						}
-						tableRows.push({tableData: tableRow});
-					}
-
-					var data = {
-						heading: 'Performance results for ' + prefix + ':' + title,
-						header: tableHeaders,
-						row: tableRows
-					};
-					res.render('table.html', data);
-				}
-			} );
-		}
-	} );
-};
-
 // Make an app
 var app = express.createServer();
 
@@ -1643,12 +1151,6 @@ app.get( /^\/latestresult\/([^\/]+)\/(.*)$/, resultWebInterface );
 // Results for a title on any commit
 app.get( /^\/result\/([a-f0-9]*)\/([^\/]+)\/(.*)$/, resultWebInterface );
 
-// Results for a title on a commit, flag skips/fails new since older commit
-app.get( /^\/resultFlagNew\/([a-f0-9]*)\/([a-f0-9]*)\/([^\/]+)\/(.*)$/, resultFlagNewWebInterface );
-
-// Results for a title on a commit, flag skips/fails no longer in newer commit
-app.get( /^\/resultFlagOld\/([a-f0-9]*)\/([a-f0-9]*)\/([^\/]+)\/(.*)$/, resultFlagOldWebInterface );
-
 // List of failures sorted by severity
 app.get( /^\/topfails\/(\d+)$/, failsWebInterface );
 // 0th page
@@ -1667,18 +1169,6 @@ app.get( /^\/crashers$/, GET_crashers );
 // Regressions between two revisions.
 app.get( /^\/regressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_regressions );
 
-// Regressions between two revisions that introduce one semantic error to a perfect page.
-app.get(/^\/onefailregressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_oneFailRegressions );
-
-// Regressions between two revisions that introduce one syntactic error to a perfect page.
-app.get(/^\/oneskipregressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_oneSkipRegressions );
-
-// Regressions between two revisions that introduce senantic errors (previously only syntactic diffs).
-app.get(/^\/newfailsregressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_newFailsRegressions );
-
-// Pages with rt selser errors
-app.get(/^\/rtselsererrors\/([^\/]+)(?:\/(\d+))?$/, GET_rtselsererrors);
-
 // Topfixes between two revisions.
 app.get( /^\/topfixes\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_topfixes );
 
@@ -1687,10 +1177,14 @@ app.get( /^\/failsDistr$/, GET_failsDistr );
 
 // Distribution of fails
 app.get( /^\/skipsDistr$/, GET_skipsDistr );
-// Performance stats
-app.get( /^\/perfstats\/(\d+)$/, GET_perfStats );
-app.get( /^\/perfstats$/, GET_perfStats );
-app.get( /^\/pageperfstats\/([^\/]+)\/(.*)$/, GET_pagePerfStats );
+
+if (parsoidRTConfig) {
+	parsoidRTConfig.setupEndpoints(settings, app, mysql, db, hbs);
+}
+
+if (perfConfig) {
+	perfConfig.setupEndpoints(settings, app, mysql, db, hbs);
+}
 
 // List of all commits
 app.get( '/commits', GET_commits );
