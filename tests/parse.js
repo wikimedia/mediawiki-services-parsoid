@@ -12,7 +12,6 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 	TemplateRequest = require('../lib/mediawiki.ApiRequest.js').TemplateRequest,
 	Util = require('../lib/mediawiki.Util.js').Util,
 	DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils,
-	Logger = require('../lib/Logger.js').Logger,
 	yargs = require('yargs'),
 	fs = require('fs'),
 	path = require('path');
