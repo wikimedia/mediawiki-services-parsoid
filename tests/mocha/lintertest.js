@@ -64,7 +64,7 @@ describe( 'Linter Tests', function() {
 		it( 'should lint stripped tags correctly', function() {
 			return parseWT( 'foo</div>' ).then( function ( result ) {
 				result.should.have.length( 1 );
-				result[0].should.have.a.property( "type", "strippedTag" );
+				result[0].should.have.a.property( "type", "stripped-tag" );
 				result[0].should.have.a.property( "wiki", "enwiki" );
 				result[0].dsr.should.include.members( [ 3, 9, null, null ] );
 				result[0].should.have.a.property( "src", "</div>" );
@@ -73,7 +73,7 @@ describe( 'Linter Tests', function() {
 		it( 'should lint obsolete tags correctly', function() {
 			return parseWT( '<big>foo</big>bar' ).then( function ( result ) {
 				result.should.have.length( 1 );
-				result[0].should.have.a.property( "type", "ObsoleteTag" );
+				result[0].should.have.a.property( "type", "obsolete-tag" );
 				result[0].should.have.a.property( "wiki", "enwiki" );
 				result[0].dsr.should.include.members( [ 0, 14, 5, 6 ] );
 				result[0].should.have.a.property( "src", "<big>foo</big>" );
@@ -88,8 +88,8 @@ describe( 'Linter Tests', function() {
 				result[0].should.have.a.property( "src", "foo" );
 			});
 		});
-		it('should lint ignored table attributes Correctly', function(done){
-			return parseWT( '{|\n|- foo\n|bar\n|}' ).done( function ( result ) {
+		it('should lint ignored table attributes Correctly', function(){
+			return parseWT( '{|\n|- foo\n|bar\n|}' ).then( function ( result ) {
 				result.should.have.length( 1 );
 				result[0].should.have.a.property("type", "ignored-table-attr");
 				result[0].should.have.a.property("wiki", "enwiki");
@@ -100,7 +100,7 @@ describe( 'Linter Tests', function() {
 		it( 'should lint  Bogus image options correctly', function() {
 			return parseWT( '[[file:a.jpg|foo|bar]]' ).then( function ( result ) {
 				result.should.have.length( 1 );
-				result[0].should.have.a.property( "type", "BogusImageOptions" );
+				result[0].should.have.a.property( "type", "bogus-image-options" );
 				result[0].should.have.a.property( "wiki", "enwiki" );
 				result[0].dsr.should.include.members( [ 0, 22, null, null ] );
 				result[0].should.have.a.property( "src", "[[file:a.jpg|foo|bar]]" );
