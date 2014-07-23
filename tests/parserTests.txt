@@ -9105,6 +9105,17 @@ Templates: Block Tags: 2. Back-to-back template uses
 
 !!end
 
+# This is an edge case relating to paragraph wrapping.
+!!test
+Templates: Correctly encapsulate templates producing </p> tag without a corresponding <p> tag
+!! wikitext
+{{echo|a
+b</p>}}
+!! html/parsoid
+<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a\nb&lt;/p>"}},"i":0}}]}'>a
+b</p><p></p>
+!!end
+
 !!test
 Templates: Links: 1. Simple example
 !! wikitext
