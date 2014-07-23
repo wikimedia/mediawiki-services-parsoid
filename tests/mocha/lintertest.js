@@ -61,6 +61,15 @@ describe( 'Linter Tests', function() {
 				result[0].should.have.a.property( "src", "<div>foo" );
 			});
 		});
+		it( 'should lint missing end tags found in transclusions correctly', function() {
+			return parseWT( '{{echo|<div>foo<p>bar</div>}}' ).then( function ( result ) {
+				result.should.have.length( 1 );
+				result[0].should.have.a.property( "type", "missing-end-tag" );
+				result[0].should.have.a.property( "wiki", "enwiki" );
+				result[0].dsr.should.include.members( [ 0, 29, null, null ] );
+				result[0].should.have.a.property( "src", "{{echo|<div>foo<p>bar</div>}}" );
+			});
+		});
 		it( 'should lint stripped tags correctly', function() {
 			return parseWT( 'foo</div>' ).then( function ( result ) {
 				result.should.have.length( 1 );
@@ -70,6 +79,15 @@ describe( 'Linter Tests', function() {
 				result[0].should.have.a.property( "src", "</div>" );
 			});
 		});
+		it( 'should lint stripped tags found in transclusions correctly', function() {
+			return parseWT( '{{echo|<div>foo</div></div>}}' ).then( function ( result ) {
+				result.should.have.length( 1 );
+				result[0].should.have.a.property( "type", "stripped-tag" );
+				result[0].should.have.a.property( "wiki", "enwiki" );
+				result[0].dsr.should.include.members( [ 0, 29, null, null ] );
+				result[0].should.have.a.property( "src", "{{echo|<div>foo</div></div>}}" );
+			});
+		});
 		it( 'should lint obsolete tags correctly', function() {
 			return parseWT( '<big>foo</big>bar' ).then( function ( result ) {
 				result.should.have.length( 1 );
@@ -77,6 +95,15 @@ describe( 'Linter Tests', function() {
 				result[0].should.have.a.property( "wiki", "enwiki" );
 				result[0].dsr.should.include.members( [ 0, 14, 5, 6 ] );
 				result[0].should.have.a.property( "src", "<big>foo</big>" );
+			});
+		});
+		it( 'should lint obsolete tags found in transclusions correctly', function() {
+			return parseWT( '{{echo|<div><big>foo</big></div>}}foo' ).then( function ( result ) {
+				result.should.have.length( 1 );
+				result[0].should.have.a.property( "type", "obsolete-tag" );
+				result[0].should.have.a.property( "wiki", "enwiki" );
+				result[0].dsr.should.include.members( [ 0, 34, null, null ] );
+				result[0].should.have.a.property( "src", "{{echo|<div><big>foo</big></div>}}" );
 			});
 		});
 		it( 'should lint fostered content correctly', function() {
@@ -97,13 +124,31 @@ describe( 'Linter Tests', function() {
 				result[0].should.have.a.property("src", "|- foo\n|bar");
 			});
 		});
-		it( 'should lint  Bogus image options correctly', function() {
+		it( 'should lint ignored table attributes found in transclusions correctly', function() {
+			return parseWT( '{{echo|\n{{{!}}\n{{!}}- foo\n{{!}} bar\n{{!}}}\n}}').then( function ( result ) {
+				result.should.have.length( 1 );
+				result[0].should.have.a.property( "type", "ignored-table-attr" );
+				result[0].should.have.a.property( "wiki", "enwiki" );
+				result[0].dsr.should.include.members( [ 0, 45, null, null] );
+				result[0].should.have.a.property( "src", "{{echo|\n{{{!}}\n{{!}}- foo\n{{!}} bar\n{{!}}}\n}}" );
+			});
+		});
+		it( 'should lint Bogus image options correctly', function() {
 			return parseWT( '[[file:a.jpg|foo|bar]]' ).then( function ( result ) {
 				result.should.have.length( 1 );
 				result[0].should.have.a.property( "type", "bogus-image-options" );
 				result[0].should.have.a.property( "wiki", "enwiki" );
 				result[0].dsr.should.include.members( [ 0, 22, null, null ] );
 				result[0].should.have.a.property( "src", "[[file:a.jpg|foo|bar]]" );
+			});
+		});
+		it( 'should lint Bogus image options found in transclusions correctly', function() {
+			return parseWT( '{{echo|[[file:a.jpg|foo|bar]]}}' ).then( function ( result ) {
+				result.should.have.length( 1 );
+				result[0].should.have.a.property( "type", "bogus-image-options" );
+				result[0].should.have.a.property( "wiki", "enwiki" );
+				result[0].dsr.should.include.members( [ 0, 31, null, null ] );
+				result[0].should.have.a.property( "src", "{{echo|[[file:a.jpg|foo|bar]]}}" );
 			});
 		});
 	});
