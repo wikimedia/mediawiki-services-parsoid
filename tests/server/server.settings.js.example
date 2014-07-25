@@ -44,6 +44,12 @@ module.exports = {
 	// Number of titles to fetch from database in one batch.
 	batch: 50,
 
+	// Ports for the webapp (for test results, regressions, etc)
+	// and the co-ordinator app (for clients requesting titles, posting results)
+	// Use non-conflicting ports here
+	webappPort: 8001,
+	coordPort: 8002,
+
 	// (Optional) Remote server, if any, that will generate full results
 	resultServer: "http://parsoid.wmflabs.org/",
 

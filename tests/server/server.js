@@ -1200,7 +1200,7 @@ coordApp.get( /^\/title$/, getTitle );
 coordApp.post( /^\/result\/([^\/]+)\/([^\/]+)/, receiveResults );
 
 // Start the app
-app.listen( 8001 );
-coordApp.listen( 8002 );
+app.listen( settings.webappPort || 8001 );
+coordApp.listen( settings.coordPort || 8002 );
 
 }() );
