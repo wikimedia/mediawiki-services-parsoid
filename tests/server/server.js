@@ -31,6 +31,10 @@ var opts = yargs.usage( 'Usage: $0 [connection parameters]' )
 		'default': false,
 		describe: "Show usage information."
 	} )
+	.options( 'config', {
+		describe: 'Configuration file for the server',
+		'default': './server.settings.js'
+	})
 	.options( 'h', {
 		alias: 'host',
 		describe: 'Hostname of the database server.'
@@ -83,9 +87,9 @@ if ( argv.help ) {
 // Settings file
 var settings;
 try {
-	settings = require( './server.settings.js' );
+	settings = require( argv.config );
 } catch ( e ) {
-	console.error("Aborting! Exception reading ./server.settings.js: " + e);
+	console.error("Aborting! Exception reading " + argv.config + ": " + e);
 	return;
 }
 
