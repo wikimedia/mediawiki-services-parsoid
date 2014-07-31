@@ -59,7 +59,7 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 		'page': {
 			description: 'The page name, returned for {{PAGENAME}}. If no input is given (ie. empty/stdin closed), it downloads and parses the page.',
 			'boolean': false,
-			'default': 'Main_Page'
+			'default': ParserEnv.prototype.defaultPageName
 		},
 		'oldid': {
 			description: 'Oldid of the given page.',
