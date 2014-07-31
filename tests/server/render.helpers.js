@@ -10,7 +10,7 @@ RenderHelpers.pageTitleData = function(row) {
 
 	var data = {
 		title: row.prefix + ':' + row.title,
-		latest: '/latestresult/' + prefix + '/' + title
+		latest: 'latestresult/' + prefix + '/' + title
 	};
 
 	if (settings.resultServer) {
@@ -34,21 +34,21 @@ RenderHelpers.pageTitleData = function(row) {
 
 RenderHelpers.commitLinkData = function(commit, title, prefix) {
 	return {
-		url: '/result/' + commit + '/' + prefix + '/' + title,
+		url: 'result/' + commit + '/' + prefix + '/' + title,
 		name: commit.substr( 0, 7 )
 	};
 };
 
 RenderHelpers.newCommitLinkData = function(oldCommit, newCommit, title, prefix) {
 	return {
-		url: '/resultFlagNew/' + oldCommit + '/' + newCommit + '/' + prefix + '/' + title,
+		url: 'resultFlagNew/' + oldCommit + '/' + newCommit + '/' + prefix + '/' + title,
 		name: newCommit.substr(0,7)
 	};
 };
 
 RenderHelpers.oldCommitLinkData = function(oldCommit, newCommit, title, prefix) {
 	return {
-		url: '/resultFlagOld/' + oldCommit + '/' + newCommit + '/' + prefix + '/' + title,
+		url: 'resultFlagOld/' + oldCommit + '/' + newCommit + '/' + prefix + '/' + title,
 		name: oldCommit.substr(0,7)
 	};
 };
@@ -104,10 +104,10 @@ RenderHelpers.displayPageList = function(hbs, res, data, makeRow, err, rows){
 			tableData.next = rows.length === 40;
 		}
 		hbs.registerHelper('prevUrl', function (urlPrefix, urlSuffix, page) {
-			return urlPrefix + "/" + ( page - 1 ) + urlSuffix;
+			return (urlPrefix ? urlPrefix + "/" : "") + ( page - 1 ) + urlSuffix;
 		});
 		hbs.registerHelper('nextUrl', function (urlPrefix, urlSuffix, page) {
-			return urlPrefix + "/" + ( page + 1 ) + urlSuffix;
+			return (urlPrefix ? urlPrefix + "/" : "") + ( page + 1 ) + urlSuffix;
 		});
 		res.render('table.html', tableData);
 	}
