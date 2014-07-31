@@ -720,11 +720,11 @@ hbs.registerHelper('jsFiles', function(options){
 });
 
 var pageListData = [
-	{ url: '/topfails', title: 'Results by title' },
-	{ url: '/failedFetches', title: 'Non-existing test pages' },
-	{ url: '/failsDistr', title: 'Histogram of failures' },
-	{ url: '/skipsDistr', title: 'Histogram of skips' },
-	{ url: '/commits', title: 'List of all tested commits' }
+	{ url: 'topfails', title: 'Results by title' },
+	{ url: 'failedFetches', title: 'Non-existing test pages' },
+	{ url: 'failsDistr', title: 'Histogram of failures' },
+	{ url: 'skipsDistr', title: 'Histogram of skips' },
+	{ url: 'commits', title: 'List of all tested commits' }
 ];
 
 if (perfConfig) {
@@ -805,11 +805,11 @@ var statsWebInterface = function ( req, res ) {
 				{ description: 'Git SHA1', value: row[0].maxhash },
 				{ description: 'Test Results', value: row[0].maxresults },
 				{ description: 'Crashers', value: row[0].crashers,
-					url: '/crashers' },
+					url: 'crashers' },
 				{ description: 'Fixes', value: numFixes,
-					url: '/topfixes/between/' + row[0].secondhash + '/' + row[0].maxhash },
+					url: 'topfixes/between/' + row[0].secondhash + '/' + row[0].maxhash },
 				{ description: 'Regressions', value: numRegressions,
-					url: '/regressions/between/' + row[0].secondhash + '/' + row[0].maxhash },
+					url: 'regressions/between/' + row[0].secondhash + '/' + row[0].maxhash },
 			],
 			averages: [
 				{ description: 'Errors', value: row[0].avgerrors },
@@ -857,7 +857,7 @@ var failsWebInterface = function ( req, res ) {
 
 	var data = {
 		page: page,
-		urlPrefix: '/topfails',
+		urlPrefix: 'topfails',
 		urlSuffix: '',
 		heading: 'Results by title',
 		header: ['Title', 'Commit', 'Syntactic diffs', 'Semantic diffs', 'Errors']
@@ -1046,11 +1046,11 @@ var GET_regressions = function( req, res ) {
 		} else {
 			var data = {
 				page: page,
-				urlPrefix: '/regressions/between/' + r1 + '/' + r2,
+				urlPrefix: 'regressions/between/' + r1 + '/' + r2,
 				urlSuffix: '',
 				heading: "Total regressions between selected revisions: " +
 					row[0].numRegressions,
-				headingLink: [{url: '/topfixes/between/' + r1 + '/' + r2, name: 'topfixes'}],
+				headingLink: [{url: 'topfixes/between/' + r1 + '/' + r2, name: 'topfixes'}],
 				header: RH.regressionsHeaderData
 			};
 			db.query( dbRegressionsBetweenRevs, [ r2, r1, offset ],
@@ -1070,7 +1070,7 @@ var GET_topfixes = function( req, res ) {
 		} else {
 			var data = {
 				page: page,
-				urlPrefix: '/topfixes/between/' + r1 + '/' + r2,
+				urlPrefix: 'topfixes/between/' + r1 + '/' + r2,
 				urlSuffix: '',
 				heading: 'Total fixes between selected revisions: ' + row[0].numFixes,
 				headingLink: [{url: "/regressions/between/" + r1 + "/" + r2, name: 'regressions'}],
@@ -1095,8 +1095,8 @@ var GET_commits = function( req, res ) {
 				var row = rows[i];
 				var tableRow = {hash: row.hash, timestamp: row.timestamp, numtests: row.numtests};
 				if ( i + 1 < n ) {
-					tableRow.regUrl = '/regressions/between/' + rows[i+1].hash + '/' + row.hash;
-					tableRow.fixUrl = '/topfixes/between/' + rows[i+1].hash + '/' + row.hash;
+					tableRow.regUrl = 'regressions/between/' + rows[i+1].hash + '/' + row.hash;
+					tableRow.fixUrl = 'topfixes/between/' + rows[i+1].hash + '/' + row.hash;
 				}
 				tableRows.push(tableRow);
 			}
