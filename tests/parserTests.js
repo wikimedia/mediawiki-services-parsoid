@@ -1617,7 +1617,7 @@ ParserTests.prototype.main = function ( options, popts ) {
 
 	var i, key,
 		parsoidConfig = new ParsoidConfig( null, options ),
-		iwmap = Object.keys( parsoidConfig.interwikiMap );
+		iwmap = parsoidConfig.interwikiMap.keys();
 
 	// Set tracing and debugging before the env. object is
 	// constructed since tracing backends are registered there.
@@ -1628,7 +1628,7 @@ ParserTests.prototype.main = function ( options, popts ) {
 
 	for ( i = 0; i < iwmap.length; i++ ) {
 		key = iwmap[i];
-		parsoidConfig.interwikiMap[key] = mockAPIServerURL;
+		parsoidConfig.interwikiMap.set(key, mockAPIServerURL);
 	}
 
 	// Create a new parser environment
@@ -1917,12 +1917,12 @@ ParserTests.prototype.processCase = function ( i, options, err ) {
 								}
 							};
 							Object.keys(iwl).forEach(function(key) {
-								wikiConf.interwikiMap[key] =
-									wikiConf.interwikiMap[key] ?
-									Util.clone(wikiConf.interwikiMap[key]) :
-									{};
+								wikiConf.interwikiMap.set(key,
+									wikiConf.interwikiMap.has(key) ?
+									Util.clone(wikiConf.interwikiMap.get(key)) :
+									{});
 								Object.keys(iwl[key]).forEach(function(f) {
-									wikiConf.interwikiMap[key][f] = iwl[key][f];
+									wikiConf.interwikiMap.get(key)[f] = iwl[key][f];
 								});
 							});
 							// Add 'MemoryAlpha' namespace (bug 51680)
