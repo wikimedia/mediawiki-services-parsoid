@@ -118,8 +118,8 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 				res.send( err.toString(), 500 );
 			} else {
 
-				var makePerfStatRow = function(row) {
-					var result = [RH.pageTitleData(row)];
+				var makePerfStatRow = function(urlPrefix, row) {
+					var result = [RH.pageTitleData(urlPrefix, row)];
 					for (var j = 0; j < types.length; j++) {
 						var type = types[j];
 						var rowData = row[type] === null ? '' :
@@ -147,9 +147,11 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 				dbStmt += 'ORDER BY ' + orderBy;
 				dbStmt += ' LIMIT 40 OFFSET ' + offset.toString();
 
+				var relativeUrlPrefix = (req.params[0] ? '../' : '');
 				var data = {
 					page: page,
-					urlPrefix: '/perfstats',
+					relativeUrlPrefix: relativeUrlPrefix,
+					urlPrefix: relativeUrlPrefix + 'perfstats',
 					urlSuffix: urlSuffix,
 					heading: 'Performance stats',
 					header: perfStatsHeader
