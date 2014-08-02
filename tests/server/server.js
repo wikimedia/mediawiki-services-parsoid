@@ -5,6 +5,7 @@
 var express = require( 'express' ),
 	yargs = require( 'yargs' ),
 	hbs = require( 'handlebars' ),
+	Diff = require('./diff.js').Diff,
 	RH = require('./render.helpers.js').RenderHelpers;
 
 // Default options
@@ -443,6 +444,14 @@ var dbResultsPerWikiQuery =
 	'JOIN pages ON pages.id = results.page_id ' +
 	'WHERE pages.prefix = ?';
 
+var dbGetTwoResults =
+	'SELECT result FROM results ' +
+	'JOIN commits ON results.commit_hash = commits.hash ' +
+	'JOIN pages ON pages.id = results.page_id ' +
+	'WHERE pages.title = ? AND pages.prefix = ? ' +
+	'AND (commits.hash = ? OR commits.hash = ?) ' +
+	'ORDER BY commits.timestamp';
+
 var transFetchCB = function( msg, trans, failCb, successCb, err, result ) {
 	if ( err ) {
 		trans.rollback( function () {
@@ -841,10 +850,10 @@ var statsWebInterface = function ( req, res ) {
 	});
 };
 
-var makeFailsRow = function(row) {
+var makeFailsRow = function(urlPrefix, row) {
 	return [
-		RH.pageTitleData(row),
-		RH.commitLinkData(row.hash, row.title, row.prefix),
+		RH.pageTitleData(urlPrefix, row),
+		RH.commitLinkData(urlPrefix, row.hash, row.title, row.prefix),
 		row.skips,
 		row.fails,
 		row.errors === null ? 0 : row.errors
@@ -853,11 +862,13 @@ var makeFailsRow = function(row) {
 
 var failsWebInterface = function ( req, res ) {
 	var page = ( req.params[0] || 0 ) - 0,
-		offset = page * 40;
+		offset = page * 40,
+		relativeUrlPrefix = (req.params[0] ? '../' : '');
 
 	var data = {
 		page: page,
-		urlPrefix: 'topfails',
+		relativeUrlPrefix: relativeUrlPrefix,
+		urlPrefix: relativeUrlPrefix + 'topfails',
 		urlSuffix: '',
 		heading: 'Results by title',
 		header: ['Title', 'Commit', 'Syntactic diffs', 'Semantic diffs', 'Errors']
@@ -1036,21 +1047,23 @@ var GET_skipsDistr = function( req, res ) {
 };
 
 var GET_regressions = function( req, res ) {
-	var r1 = req.params[0];
-	var r2 = req.params[1];
-	var page = (req.params[2] || 0) - 0;
-	var offset = page * 40;
+	var r1 = req.params[0],
+		r2 = req.params[1],
+		page = (req.params[2] || 0) - 0,
+		offset = page * 40,
+		relativeUrlPrefix = '../../../';
 	db.query( dbNumRegressionsBetweenRevs, [ r2, r1 ], function(err, row) {
 		if (err) {
 			res.send( err.toString(), 500 );
 		} else {
 			var data = {
 				page: page,
-				urlPrefix: 'regressions/between/' + r1 + '/' + r2,
+				relativeUrlPrefix: relativeUrlPrefix,
+				urlPrefix: relativeUrlPrefix + 'regressions/between/' + r1 + '/' + r2,
 				urlSuffix: '',
 				heading: "Total regressions between selected revisions: " +
 					row[0].numRegressions,
-				headingLink: [{url: 'topfixes/between/' + r1 + '/' + r2, name: 'topfixes'}],
+				headingLink: [{url: relativeUrlPrefix + 'topfixes/between/' + r1 + '/' + r2, name: 'topfixes'}],
 				header: RH.regressionsHeaderData
 			};
 			db.query( dbRegressionsBetweenRevs, [ r2, r1, offset ],
@@ -1060,20 +1073,22 @@ var GET_regressions = function( req, res ) {
 };
 
 var GET_topfixes = function( req, res ) {
-	var r1 = req.params[0];
-	var r2 = req.params[1];
-	var page = (req.params[2] || 0) - 0;
-	var offset = page * 40;
+	var r1 = req.params[0],
+		r2 = req.params[1],
+		page = (req.params[2] || 0) - 0,
+		offset = page * 40,
+		relativeUrlPrefix = '../../../';
 	db.query( dbNumFixesBetweenRevs, [ r2, r1 ], function(err, row) {
 		if (err) {
 			res.send( err.toString(), 500 );
 		} else {
 			var data = {
 				page: page,
-				urlPrefix: 'topfixes/between/' + r1 + '/' + r2,
+				relativeUrlPrefix: relativeUrlPrefix,
+				urlPrefix: relativeUrlPrefix + 'topfixes/between/' + r1 + '/' + r2,
 				urlSuffix: '',
 				heading: 'Total fixes between selected revisions: ' + row[0].numFixes,
-				headingLink: [{url: "/regressions/between/" + r1 + "/" + r2, name: 'regressions'}],
+				headingLink: [{url: relativeUrlPrefix + "regressions/between/" + r1 + "/" + r2, name: 'regressions'}],
 				header: RH.regressionsHeaderData
 			};
 			db.query( dbFixesBetweenRevs, [ r2, r1, offset ],
@@ -1120,6 +1135,46 @@ var GET_commits = function( req, res ) {
 			res.render('commits.html', data);
 		}
 	} );
+};
+
+var diffResultWebCallback = function(req, res, flag, err, row) {
+	if ( err ) {
+		console.error( err );
+		res.send( err.toString(), 500 );
+	} else if (row.length === 2) {
+		var oldCommit = req.params[0].slice(0,10);
+		var newCommit = req.params[1].slice(0,10);
+		var oldResult = row[0].result;
+		var newResult = row[1].result;
+		var flagResult = Diff.resultFlagged(oldResult, newResult, oldCommit, newCommit, flag);
+		res.setHeader( 'Content-Type', 'text/xml; charset=UTF-8' );
+		res.status(200);
+		res.write( '<?xml-stylesheet href="/static/result.css"?>\n' );
+		res.end(flagResult);
+	} else {
+		var commit = flag === '+' ? req.params[1] : req.params[0];
+		res.redirect('/result/' + commit + '/' + req.params[2] + '/' + req.params[3]);
+	}
+};
+
+var resultFlagNewWebInterface = function(req, res) {
+	var oldCommit = req.params[0];
+	var newCommit = req.params[1];
+	var prefix = req.params[2];
+	var title = req.params[3];
+
+	db.query(dbGetTwoResults, [ title, prefix, oldCommit, newCommit ],
+		diffResultWebCallback.bind(null, req, res, '+'));
+};
+
+var resultFlagOldWebInterface = function(req, res) {
+	var oldCommit = req.params[0];
+	var newCommit = req.params[1];
+	var prefix = req.params[2];
+	var title = req.params[3];
+
+	db.query(dbGetTwoResults, [ title, prefix, oldCommit, newCommit ],
+		diffResultWebCallback.bind(null, req, res, '-'));
 };
 
 // Make an app
@@ -1175,6 +1230,12 @@ app.get( /^\/regressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_regress
 
 // Topfixes between two revisions.
 app.get( /^\/topfixes\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_topfixes );
+
+// Results for a title on a commit, flag skips/fails new since older commit
+app.get( /^\/resultFlagNew\/([a-f0-9]*)\/([a-f0-9]*)\/([^\/]+)\/(.*)$/, resultFlagNewWebInterface );
+
+// Results for a title on a commit, flag skips/fails no longer in newer commit
+app.get( /^\/resultFlagOld\/([a-f0-9]*)\/([a-f0-9]*)\/([^\/]+)\/(.*)$/, resultFlagOldWebInterface );
 
 // Distribution of fails
 app.get( /^\/failsDistr$/, GET_failsDistr );

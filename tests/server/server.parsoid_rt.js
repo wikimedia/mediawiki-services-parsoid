@@ -1,7 +1,6 @@
 "use strict";
 
-var RH = require("./render.helpers.js").RenderHelpers,
-	Diff = require('./diff.js').Diff;
+var RH = require("./render.helpers.js").RenderHelpers;
 
 var dbPagesWithRTSelserErrors =
 	'SELECT pages.title, pages.prefix, commits.hash, ' +
@@ -60,17 +59,9 @@ var dbNewFailsRegressionsBetweenRevs =
 	'ORDER BY s1.score - s2.score DESC ' +
 	'LIMIT 40 OFFSET ?';
 
-var dbGetTwoResults =
-	'SELECT result FROM results ' +
-	'JOIN commits ON results.commit_hash = commits.hash ' +
-	'JOIN pages ON pages.id = results.page_id ' +
-	'WHERE pages.title = ? AND pages.prefix = ? ' +
-	'AND (commits.hash = ? OR commits.hash = ?) ' +
-	'ORDER BY commits.timestamp';
-
-var makeOneDiffRegressionRow = function(row) {
+var makeOneDiffRegressionRow = function(urlPrefix, row) {
 	return [
-		RH.pageTitleData(row),
+		RH.pageTitleData(urlPrefix, row),
 		RH.oldCommitLinkData(row.old_commit, row.new_commit, row.title, row.prefix),
 		RH.newCommitLinkData(row.old_commit, row.new_commit, row.title, row.prefix)
 	];
@@ -111,10 +102,11 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 	// SSS FIXME: this is awkward
 	RH.settings = settings;
 	var displayOneDiffRegressions = function(numFails, numSkips, subheading, headingLinkData, req, res) {
-		var r1 = req.params[0];
-		var r2 = req.params[1];
-		var page = (req.params[2] || 0) - 0;
-		var offset = page * 40;
+		var r1 = req.params[0],
+			r2 = req.params[1],
+			page = (req.params[2] || 0) - 0,
+			offset = page * 40,
+			relativeUrlPrefix = '../../../';
 		db.query (dbNumOneDiffRegressionsBetweenRevs, [r2, r1, numFails, numSkips], function(err, row) {
 			if (err) {
 				res.send(err.toString(), 500);
@@ -122,14 +114,15 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 				var headingLink = [
 					{name: headingLinkData[0],
 						info: headingLinkData[1],
-						url: '/' + headingLinkData[2] + 'regressions/between/' + r1 + '/' + r2},
+						url: relativeUrlPrefix + headingLinkData[2] + 'regressions/between/' + r1 + '/' + r2},
 					{name: 'other new fails',
 						info: 'other cases with semantic diffs, previously only syntactic diffs',
-						url: '/newfailsregressions/between/' + r1 + '/' + r2}
+						url: relativeUrlPrefix + 'newfailsregressions/between/' + r1 + '/' + r2}
 				];
 				var data = {
 					page: page,
-					urlPrefix: '/regressions/between/' + r1 + '/' + r2,
+					relativeUrlPrefix: relativeUrlPrefix,
+					urlPrefix: relativeUrlPrefix + 'regressions/between/' + r1 + '/' + r2,
 					urlSuffix: '',
 					heading: 'Flagged regressions between selected revisions: ' +
 						row[0].numFlaggedRegressions,
@@ -147,9 +140,11 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 		var commit = req.params[0],
 			page = (req.params[1] || 0) - 0,
 			offset = page * 40,
+			relativeUrlPrefix = (req.params[1] ? '../../' : '../'),
 			data = {
 				page: page,
-				urlPrefix: '/rtselsererrors/' + commit,
+				relativeUrlPrefix: relativeUrlPrefix,
+				urlPrefix: relativeUrlPrefix + 'rtselsererrors/' + commit,
 				urlSuffix: '',
 				heading: 'Pages with rt selser errors',
 				header: ['Title', 'Commit', 'Syntactic diffs', 'Semantic diffs', 'Errors']
@@ -160,8 +155,8 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 
 			var rowData = {
 				title: row.prefix + ':' + row.title,
-				latest: '/latestresult/' + prefix + '/' + title,
-				perf: '/pageperfstats/' + prefix + '/' + title
+				latest: 'latestresult/' + prefix + '/' + title,
+				perf: 'pageperfstats/' + prefix + '/' + title
 			};
 
 			if (RH.settings.resultServer) {
@@ -194,17 +189,19 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 	);
 
 	var GET_newFailsRegressions = function(req, res) {
-		var r1 = req.params[0];
-		var r2 = req.params[1];
-		var page = (req.params[2] || 0) - 0;
-		var offset = page * 40;
+		var r1 = req.params[0],
+			r2 = req.params[1],
+			page = (req.params[2] || 0) - 0,
+			offset = page * 40,
+			relativeUrlPrefix = '../../../';
 		db.query(dbNumNewFailsRegressionsBetweenRevs, [r2, r1], function(err, row) {
 			if (err) {
 				res.send(err.toString(), 500);
 			} else {
 				var data = {
 					page: page,
-					urlPrefix: '/regressions/between/' + r1 + '/' + r2,
+					relativeUrlPrefix: relativeUrlPrefix,
+					urlPrefix: relativeUrlPrefix + 'regressions/between/' + r1 + '/' + r2,
 					urlSuffix: '',
 					heading: 'Flagged regressions between selected revisions: ' +
 						row[0].numFlaggedRegressions,
@@ -212,10 +209,10 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 					headingLink: [
 						{name: 'one fail regressions',
 							info: 'one new semantic diff, previously perfect',
-							url: '/onefailregressions/between/' + r1 + '/' + r2},
+							url: relativeUrlPrefix + 'onefailregressions/between/' + r1 + '/' + r2},
 						{name: 'one skip regressions',
 							info: 'one new syntactic diff, previously perfect',
-							url: '/oneskipregressions/between/' + r1 + '/' + r2}
+							url: relativeUrlPrefix + 'oneskipregressions/between/' + r1 + '/' + r2}
 					],
 					header: RH.regressionsHeaderData
 				};
@@ -223,46 +220,6 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 					RH.displayPageList.bind(null, hbs, res, data, RH.makeRegressionRow));
 			}
 		});
-	};
-
-	var diffResultWebCallback = function(req, res, flag, err, row) {
-		if ( err ) {
-			console.error( err );
-			res.send( err.toString(), 500 );
-		} else if (row.length === 2) {
-			var oldCommit = req.params[0].slice(0,10);
-			var newCommit = req.params[1].slice(0,10);
-			var oldResult = row[0].result;
-			var newResult = row[1].result;
-			var flagResult = Diff.resultFlagged(oldResult, newResult, oldCommit, newCommit, flag);
-			res.setHeader( 'Content-Type', 'text/xml; charset=UTF-8' );
-			res.status(200);
-			res.write( '<?xml-stylesheet href="/static/result.css"?>\n' );
-			res.end(flagResult);
-		} else {
-			var commit = flag === '+' ? req.params[1] : req.params[0];
-			res.redirect('/result/' + commit + '/' + req.params[2] + '/' + req.params[3]);
-		}
-	};
-
-	var resultFlagNewWebInterface = function(req, res) {
-		var oldCommit = req.params[0];
-		var newCommit = req.params[1];
-		var prefix = req.params[2];
-		var title = req.params[3];
-
-		db.query(dbGetTwoResults, [ title, prefix, oldCommit, newCommit ],
-			diffResultWebCallback.bind(null, req, res, '+'));
-	};
-
-	var resultFlagOldWebInterface = function(req, res) {
-		var oldCommit = req.params[0];
-		var newCommit = req.params[1];
-		var prefix = req.params[2];
-		var title = req.params[3];
-
-		db.query(dbGetTwoResults, [ title, prefix, oldCommit, newCommit ],
-			diffResultWebCallback.bind(null, req, res, '-'));
 	};
 
 	// Regressions between two revisions that introduce one semantic error to a perfect page.
@@ -273,12 +230,6 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 
 	// Regressions between two revisions that introduce senantic errors (previously only syntactic diffs).
 	app.get(/^\/newfailsregressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_newFailsRegressions );
-
-	// Results for a title on a commit, flag skips/fails new since older commit
-	app.get( /^\/resultFlagNew\/([a-f0-9]*)\/([a-f0-9]*)\/([^\/]+)\/(.*)$/, resultFlagNewWebInterface );
-
-	// Results for a title on a commit, flag skips/fails no longer in newer commit
-	app.get( /^\/resultFlagOld\/([a-f0-9]*)\/([a-f0-9]*)\/([^\/]+)\/(.*)$/, resultFlagOldWebInterface );
 
 	// Pages with rt selser errors
 	app.get(/^\/rtselsererrors\/([^\/]+)(?:\/(\d+))?$/, GET_rtselsererrors);

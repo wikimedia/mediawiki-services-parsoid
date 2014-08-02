@@ -3,64 +3,64 @@
 var RenderHelpers = {};
 var RH = RenderHelpers;
 
-RenderHelpers.pageTitleData = function(row) {
+RenderHelpers.pageTitleData = function(urlPrefix, row) {
 	var settings = RH.settings;
-	var prefix = encodeURIComponent( row.prefix ),
+	var wiki = encodeURIComponent( row.prefix ),
 		title = encodeURIComponent( row.title );
 
 	var data = {
 		title: row.prefix + ':' + row.title,
-		latest: 'latestresult/' + prefix + '/' + title
+		latest: urlPrefix + 'latestresult/' + wiki + '/' + title
 	};
 
 	if (settings.resultServer) {
-		data.remoteUrl = settings.generateTitleUrl(settings.resultServer, prefix, title);
+		data.remoteUrl = settings.generateTitleUrl(settings.resultServer, wiki, title);
 	}
 
 	if (settings.localhostServer) {
-		data.lhUrl = settings.generateTitleUrl(settings.localhostServer, prefix, title);
+		data.lhUrl = settings.generateTitleUrl(settings.localhostServer, wiki, title);
 	}
 
 	// Let each of the "plugins" to do their thing
 	if (settings.perfConfig) {
-		settings.perfConfig.updateTitleData(data, prefix, title);
+		settings.perfConfig.updateTitleData(data, wiki, title);
 	}
 	if (settings.parsoidRTConfig) {
-		settings.parsoidRTConfig.updateTitleData(data, prefix, title);
+		settings.parsoidRTConfig.updateTitleData(data, wiki, title);
 	}
 
 	return data;
 };
 
-RenderHelpers.commitLinkData = function(commit, title, prefix) {
+RenderHelpers.commitLinkData = function(urlPrefix, commit, title, wiki) {
 	return {
-		url: 'result/' + commit + '/' + prefix + '/' + title,
+		url: urlPrefix + 'result/' + commit + '/' + wiki + '/' + title,
 		name: commit.substr( 0, 7 )
 	};
 };
 
-RenderHelpers.newCommitLinkData = function(oldCommit, newCommit, title, prefix) {
+RenderHelpers.newCommitLinkData = function(urlPrefix, oldCommit, newCommit, title, prefix) {
 	return {
-		url: 'resultFlagNew/' + oldCommit + '/' + newCommit + '/' + prefix + '/' + title,
+		url: urlPrefix + 'resultFlagNew/' + oldCommit + '/' + newCommit + '/' + prefix + '/' + title,
 		name: newCommit.substr(0,7)
 	};
 };
 
-RenderHelpers.oldCommitLinkData = function(oldCommit, newCommit, title, prefix) {
+RenderHelpers.oldCommitLinkData = function(urlPrefix, oldCommit, newCommit, title, prefix) {
 	return {
-		url: 'resultFlagOld/' + oldCommit + '/' + newCommit + '/' + prefix + '/' + title,
+		url: urlPrefix + 'resultFlagOld/' + oldCommit + '/' + newCommit + '/' + prefix + '/' + title,
 		name: oldCommit.substr(0,7)
 	};
 };
 
 RenderHelpers.regressionsHeaderData = ['Title', 'Old Commit', 'Errors|Fails|Skips', 'New Commit', 'Errors|Fails|Skips'];
 
-RenderHelpers.makeRegressionRow = function(row) {
+RenderHelpers.makeRegressionRow = function(urlPrefix, row) {
 	return [
-		RH.pageTitleData(row),
-		RH.oldCommitLinkData(row.old_commit, row.new_commit, row.title, row.prefix),
+		RH.pageTitleData(urlPrefix, row),
+		RH.oldCommitLinkData(urlPrefix, row.old_commit, row.new_commit, row.title, row.prefix),
 		row.old_errors + "|" + row.old_fails + "|" + row.old_skips,
-		RH.newCommitLinkData(row.old_commit, row.new_commit, row.title, row.prefix),
+		RH.newCommitLinkData(urlPrefix, row.old_commit, row.new_commit, row.title, row.prefix),
 		row.errors + "|" + row.fails + "|" + row.skips
 	];
 };
@@ -95,7 +95,7 @@ RenderHelpers.displayPageList = function(hbs, res, data, makeRow, err, rows){
 			var tableRows = [];
 			for (var i = 0; i < rows.length; i++) {
 				var row = rows[i];
-				var tableRow = {status: RH.pageStatus(row), tableData: makeRow(row)};
+				var tableRow = {status: RH.pageStatus(row), tableData: makeRow(data.relativeUrlPrefix, row)};
 				tableRows.push(tableRow);
 			}
 			tableData.paginate = true;
