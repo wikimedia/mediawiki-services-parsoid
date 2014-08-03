@@ -43,8 +43,8 @@ testWhiteList["A table with nothing but a caption"] = "<table><caption> caption<
 // The PHP parser strips the hash fragment for non-existent pages, but Parsoid does not.
 // TODO: implement link target detection in a DOM postprocessor or on the client
 // side.
-testWhiteList["Broken link with fragment"] = "<p><a rel=\"mw:WikiLink\" href=\"Zigzagzogzagzig#zug\" data-parsoid=\"{&quot;tsr&quot;:[0,23],&quot;src&quot;:&quot;[[Zigzagzogzagzig#zug]]&quot;,&quot;bsp&quot;:[0,23],&quot;stx&quot;:&quot;simple&quot;}\">Zigzagzogzagzig#zug</a></p>";
-testWhiteList["Nonexistent special page link with fragment"] = "<p><a rel=\"mw:WikiLink\" href=\"Special:ThisNameWillHopefullyNeverBeUsed#anchor\" data-parsoid=\"{&quot;tsr&quot;:[0,51],&quot;src&quot;:&quot;[[Special:ThisNameWillHopefullyNeverBeUsed#anchor]]&quot;,&quot;bsp&quot;:[0,51],&quot;stx&quot;:&quot;simple&quot;}\">Special:ThisNameWillHopefullyNeverBeUsed#anchor</a></p>";
+testWhiteList["Broken link with fragment"] = "<p><a rel=\"mw:WikiLink\" href=\"Zigzagzogzagzig#zug\" title=\"Zigzagzogzagzig\" data-parsoid=\"{&quot;tsr&quot;:[0,23],&quot;src&quot;:&quot;[[Zigzagzogzagzig#zug]]&quot;,&quot;bsp&quot;:[0,23],&quot;stx&quot;:&quot;simple&quot;}\">Zigzagzogzagzig#zug</a></p>";
+testWhiteList["Nonexistent special page link with fragment"] = "<p><a rel=\"mw:WikiLink\" href=\"Special:ThisNameWillHopefullyNeverBeUsed#anchor\" title=\"Special:ThisNameWillHopefullyNeverBeUsed\" data-parsoid=\"{&quot;tsr&quot;:[0,51],&quot;src&quot;:&quot;[[Special:ThisNameWillHopefullyNeverBeUsed#anchor]]&quot;,&quot;bsp&quot;:[0,51],&quot;stx&quot;:&quot;simple&quot;}\">Special:ThisNameWillHopefullyNeverBeUsed#anchor</a></p>";
 
 testWhiteList["Fuzz testing: Parser22"] = "<p><a href=\"http://===r:::https://b\">http://===r:::https://b</a></p><table></table>";
 
