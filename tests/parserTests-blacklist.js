@@ -531,6 +531,7 @@ add("wt2wt", "div with unquoted attribute", "<div id=\"rock\">HTML rocks</div>")
 add("wt2wt", "div with illegal double attributes", "<div id=\"b\">HTML rocks</div>");
 add("wt2wt", "div with empty attribute value, space before equals", "<div class=\"\">HTML rocks</div>");
 add("wt2wt", "div with multiple empty attribute values", "<div id=\"\" title=\"\">HTML rocks</div>");
+add("wt2wt", "table with multiple empty attribute values", "{| title=\"\" id=\"\"\n| hi\n|}");
 add("wt2wt", "div with empty attribute value, no space before equals", "<div class=\"\">HTML rocks</div>");
 add("wt2wt", "HTML multiple attributes correction", "<p class=\"awesome\">Awesome!</p>");
 add("wt2wt", "Table multiple attributes correction", "{|\n! class=\"awesome\" + | status\n|}");
@@ -1580,6 +1581,7 @@ add("html2wt", "div with unquoted attribute", "<div id=\"rock\">HTML rocks</div>
 add("html2wt", "div with illegal double attributes", "<div id=\"b\">HTML rocks</div>\n");
 add("html2wt", "div with empty attribute value, space before equals", "<div class=\"\">HTML rocks</div>\n");
 add("html2wt", "div with multiple empty attribute values", "<div id=\"\" title=\"\">HTML rocks</div>\n");
+add("html2wt", "table with multiple empty attribute values", "{| title=\"\" id=\"\"\n| hi\n|}\n");
 add("html2wt", "div with empty attribute value, no space before equals", "<div class=\"\">HTML rocks</div>\n");
 add("html2wt", "HTML multiple attributes correction", "Awesome!\n");
 add("html2wt", "Table multiple attributes correction", "{|\n\n! class=\"awesome\" | status\n|}\n");
@@ -2653,6 +2655,10 @@ add("selser", "div with unquoted attribute [2]", "pmr3ap5nlf7833di\n<div id=rock
 add("selser", "div with illegal double attributes [2]", "ux9aplu6dksdobt9\n<div id=\"a\" id=\"b\">HTML rocks</div>");
 add("selser", "div with empty attribute value, space before equals [2]", "atspk6wrqu2fbt9\n<div class =>HTML rocks</div>");
 add("selser", "div with multiple empty attribute values [2]", "p93h8sy5ajaif6r\n<div id= title=>HTML rocks</div>");
+add("selser", "table with multiple empty attribute values [[0,[3,0]]]", "{| title= id=\n\n|}");
+add("selser", "table with multiple empty attribute values [2]", "wwxmra6xzz146lxr\n{| title= id=\n| hi\n|}");
+add("selser", "table with multiple empty attribute values [[0,[1,2]]]", "{| title= id=\n| hi<!--brr78m9h7xyzm2t9-->\n|}");
+add("selser", "table with multiple empty attribute values [[0,[[2],4]]]", "{| title= id=\n|5ypmucf58060f6r\n| hi<!--uc3sgd94ff9u23xr-->\n|}");
 add("selser", "div with empty attribute value, no space before equals [2]", "mffj7knfxwtawcdi\n<div class=>HTML rocks</div>");
 add("selser", "HTML multiple attributes correction [2]", "w1pqe1dx8ko9lik9\n<p class=\"error\" class=\"awesome\">Awesome!</p>");
 add("selser", "Table multiple attributes correction [2]", "youym9yoyb8adcxr\n{|\n!+ class=\"error\" class=\"awesome\"| status\n|}");

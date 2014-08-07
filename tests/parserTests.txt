@@ -12649,6 +12649,20 @@ parsoid
 
 !! end
 
+!! test
+table with multiple empty attribute values
+!! options
+parsoid
+!! wikitext
+{| title= id=
+| hi
+|}
+!! html
+<table title="" id="">
+<tbody><tr><td> hi</td></tr>
+</tbody></table>
+!! end
+
 # The PHP parser escapes the opening brace to &#123; for some reason, so
 # disabled this test for it.
 !! test
