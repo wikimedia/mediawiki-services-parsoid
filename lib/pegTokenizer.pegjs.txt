@@ -654,7 +654,7 @@ tplarg_or_template_or_bust
     = (tplarg_or_template / .)+
 
 broken_template
-  = v:( '{{{' / '}}}' / '{{' / '}}' )+
+  = v:( '{{' space_or_newline+ '}}' / ( '{{{' / '}}}' / '{{' / '}}' )+ )
 {
     return [
         new TagTk('span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: [peg$reportedPos, peg$reportedPos], src: text() } )]
