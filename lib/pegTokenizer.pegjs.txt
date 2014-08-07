@@ -1404,7 +1404,7 @@ generic_attribute_name
 
 // A generic attribute, possibly spanning multiple lines.
 generic_attribute_newline_value
-  = "=" v:( space_or_newline* vv:xml_att_value { return vv; })? {
+  = "=" v:xml_att_value? {
       return v === null ? [] : v;
   }
 // A generic but single-line attribute.
@@ -1415,20 +1415,20 @@ generic_attribute_value
 
 // Attribute value, quoted variants can span multiple lines.
 xml_att_value
-  = "'" r:(valPos1:({return peg$currPos;}) t1:attribute_preprocessor_text_single? valPos2:({return peg$currPos;}) "'"
+  = space_or_newline* "'" r:(valPos1:({return peg$currPos;}) t1:attribute_preprocessor_text_single? valPos2:({return peg$currPos;}) "'"
             { return tu.get_attribute_value_and_source(input, t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
         / valPos1:({return peg$currPos;}) t2:attribute_preprocessor_text_single_broken? valPos2:({return peg$currPos;}) &[|>]
             { return tu.get_attribute_value_and_source(input, t2, valPos1, valPos2); } )
                 { return r; }
-  / '"' r:(valPos1:({return peg$currPos;}) t1:attribute_preprocessor_text_double? valPos2:({return peg$currPos;}) '"'
+  / space_or_newline* '"' r:(valPos1:({return peg$currPos;}) t1:attribute_preprocessor_text_double? valPos2:({return peg$currPos;}) '"'
             { return tu.get_attribute_value_and_source(input, t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
         / valPos1:({return peg$currPos;}) t2:attribute_preprocessor_text_double_broken? valPos2:({return peg$currPos;}) &[|>]
             { return tu.get_attribute_value_and_source(input, t2, valPos1, valPos2); } )
                 { return r; }
-  / valPos1:({return peg$currPos;}) t:attribute_preprocessor_text? valPos2:({return peg$currPos;})
-        { return tu.get_attribute_value_and_source(input, t, valPos1, valPos2); }
+  / valPos1:({return peg$currPos;}) t:(space_or_newline* q:attribute_preprocessor_text !"=" { return q; })? valPos2:({return peg$currPos;})
+        { return tu.get_attribute_value_and_source(input, t ? t : "", valPos1, valPos2); }
 
 // Attribute value, restricted to a single line.
 att_value

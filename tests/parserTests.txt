@@ -12638,6 +12638,17 @@ parsoid
 
 !! end
 
+!! test
+div with multiple empty attribute values
+!! options
+parsoid
+!! wikitext
+<div id= title=>HTML rocks</div>
+!! html
+<div id="" title="">HTML rocks</div>
+
+!! end
+
 # The PHP parser escapes the opening brace to &#123; for some reason, so
 # disabled this test for it.
 !! test
