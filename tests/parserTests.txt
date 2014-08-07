@@ -8153,6 +8153,14 @@ Template with invalid target containing wikilink
 <p><span typeof="mw:Transclusion" about="#mwt1" data-mw='{"parts":[{"template":{"target":{"wt":"[[Main Page]]"},"params":{},"i":0}}]}'>{{</span><a rel="mw:WikiLink" href="./Main_Page" about="#mwt1">Main Page</a><span about="#mwt1">}}</span></p>
 !! end
 
+!! test
+Template with just whitespace in it, bug #68421
+!! wikitext
+{{echo|{{ }}}}
+!! html/parsoid
+<p><span typeof="mw:Transclusion mw:Nowiki" about="#mwt1" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"{{ }}"}},"i":0}}]}'>{{ }}</span></p>
+!! end
+
 !! article
 Template:test
 !! text
