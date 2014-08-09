@@ -18845,8 +18845,8 @@ parsoid=wt2html,wt2wt
 <table>
 <tbody><tr><td>
 <p><small></small></p>
-<figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a><figcaption><small>Test</small></figcaption></figure>
-<p></p></td></tr>
+<small> <figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a><figcaption>Test</figcaption></figure></small>
+<p><small></small></p></td></tr>
 </tbody></table>
 !! end
 
