@@ -125,12 +125,26 @@ describe( 'Linter Tests', function() {
 			});
 		});
 		it( 'should lint ignored table attributes found in transclusions correctly', function() {
-			return parseWT( '{{echo|\n{{{!}}\n{{!}}- foo\n{{!}} bar\n{{!}}}\n}}').then( function ( result ) {
+			return parseWT( '{{echo|\n{{{!}}\n{{!}}- foo\n{{!}} bar\n{{!}}}\n}}' ).then( function ( result ) {
 				result.should.have.length( 1 );
 				result[0].should.have.a.property( "type", "ignored-table-attr" );
 				result[0].should.have.a.property( "wiki", "enwiki" );
 				result[0].dsr.should.include.members( [ 0, 45, null, null] );
 				result[0].should.have.a.property( "src", "{{echo|\n{{{!}}\n{{!}}- foo\n{{!}} bar\n{{!}}}\n}}" );
+			});
+		});
+		it( 'should not lint whitespaces as ignored table attributes', function() {
+			return parseWT( '{|\n|- \n| 1 ||style="text-align:left;"| p \n|}' ).then( function ( result ) {
+				result.should.have.length( 0 );
+			});
+		});
+		it( 'should lint as ignored table attributes', function() {
+			return parseWT( '{|\n|- <!--bad attr-->attr\n|bar\n|}' ).then( function ( result ) {
+				result.should.have.length( 1 );
+				result[0].should.have.a.property( "type", "ignored-table-attr" );
+				result[0].should.have.a.property( "wiki", "enwiki" );
+				result[0].dsr.should.include.members( [ 3, 30, 22, 0 ] );
+				result[0].should.have.a.property( "src", "|- <!--bad attr-->attr\n|bar" );
 			});
 		});
 		it( 'should lint Bogus image options correctly', function() {
