@@ -62,8 +62,8 @@ var dbNewFailsRegressionsBetweenRevs =
 var makeOneDiffRegressionRow = function(urlPrefix, row) {
 	return [
 		RH.pageTitleData(urlPrefix, row),
-		RH.oldCommitLinkData(row.old_commit, row.new_commit, row.title, row.prefix),
-		RH.newCommitLinkData(row.old_commit, row.new_commit, row.title, row.prefix)
+		RH.oldCommitLinkData(urlPrefix, row.old_commit, row.new_commit, row.title, row.prefix),
+		RH.newCommitLinkData(urlPrefix, row.old_commit, row.new_commit, row.title, row.prefix)
 	];
 };
 
@@ -112,9 +112,9 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 				res.send(err.toString(), 500);
 			} else {
 				var headingLink = [
-					{name: headingLinkData[0],
+					{name: headingLinkData[2],
 						info: headingLinkData[1],
-						url: relativeUrlPrefix + headingLinkData[2] + 'regressions/between/' + r1 + '/' + r2},
+						url: relativeUrlPrefix + headingLinkData[3] + 'regressions/between/' + r1 + '/' + r2},
 					{name: 'other new fails',
 						info: 'other cases with semantic diffs, previously only syntactic diffs',
 						url: relativeUrlPrefix + 'newfailsregressions/between/' + r1 + '/' + r2}
@@ -122,7 +122,7 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 				var data = {
 					page: page,
 					relativeUrlPrefix: relativeUrlPrefix,
-					urlPrefix: relativeUrlPrefix + 'regressions/between/' + r1 + '/' + r2,
+					urlPrefix: relativeUrlPrefix + headingLinkData[0] + 'regressions/between/' + r1 + '/' + r2,
 					urlSuffix: '',
 					heading: 'Flagged regressions between selected revisions: ' +
 						row[0].numFlaggedRegressions,
@@ -180,12 +180,12 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 
 	var GET_oneFailRegressions = displayOneDiffRegressions.bind(
 		null, 1, 0, 'Old Commit: perfect | New Commit: one semantic diff',
-		['one skip regressions', 'one new syntactic diff, previously perfect', 'oneskip']
+		['onefail', 'one new syntactic diff, previously perfect', 'one skip regressions', 'oneskip']
 	);
 
 	var GET_oneSkipRegressions = displayOneDiffRegressions.bind(
 		null, 0, 1, 'Old Commit: perfect | New Commit: one syntactic diff',
-		['one fail regressions', 'one new semantic diff, previously perfect', 'onefail']
+		['oneskip', 'one new semantic diff, previously perfect', 'one fail regressions', 'onefail']
 	);
 
 	var GET_newFailsRegressions = function(req, res) {
