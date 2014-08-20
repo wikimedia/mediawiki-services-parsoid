@@ -155,6 +155,28 @@ Template:OpenTable
 {|
 !!endarticle
 
+!!article
+Template:EmptyLITest
+!!text
+*a
+*
+*
+*b
+!!endarticle
+
+!!article
+Template:EmptyTRTest
+!!text
+{|
+|-
+|-
+|foo
+|-
+|-
+|bar
+|}
+!!endarticle
+
 ###
 ### Basic tests
 ###
@@ -19370,6 +19392,56 @@ foo
 !! html
 foo<ol class="references" typeof="mw:Extension/references" about="#mwt2" data-mw='{"name":"references","attrs":{}}'></ol>
 !! end
+
+#--------- Test stripping of empty nodes in template content ----------
+!!test
+Empty LI and TR nodes should be stripped from template content
+!!wikitext
+{{EmptyLITest}}
+{{EmptyTRTest}}
+!!html/parsoid
+<ul typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"EmptyLITest","href":"./Template:EmptyLITest"},"params":{},"i":0}}]}'>
+<li>a</li>
+<li>b</li>
+</ul>
+<table typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"EmptyTRTest","href":"./Template:EmptyTRTest"},"params":{},"i":0}}]}'>
+<tbody>
+<tr>
+<td>foo</td>
+</tr>
+<tr>
+<td>bar</td>
+</tr>
+</tbody>
+</table>
+!!end
+
+!!test
+Empty LI and TR nodes should not be stripped from top-level content
+!!wikitext
+* a
+*
+* b
+{|
+|-
+|-
+|foo
+|}
+!!html/parsoid
+<ul>
+<li> a</li>
+<li></li>
+<li> b</li>
+</ul>
+<table>
+<tbody>
+<tr></tr>
+<tr>
+<td>foo</td>
+</tr>
+</tbody>
+</table>
+!!end
 
 #### ----------------------------------------------------------------
 #### The following section of tests are primarily to test
