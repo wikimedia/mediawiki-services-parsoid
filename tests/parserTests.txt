@@ -1305,8 +1305,7 @@ parsoid
 !! wikitext
 {{echo|&ndash;}}
 !! html
-<p><span typeof="mw:Transclusion mw:Entity" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&amp;ndash;"}},"i":0}}]}'>&ndash;</span>
-</p>
+<p><span typeof="mw:Transclusion mw:Entity" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&amp;ndash;"}},"i":0}}]}'>&ndash;</span></p>
 !! end
 
 !! test
@@ -2076,10 +2075,10 @@ parsoid=wt2html
 <table><pre></pre></table>
 
 !! html/parsoid
-<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;pre &lt;pre>x&lt;/pre>"}},"i":0}}]}'>&lt;pre </span>
-<pre>x</pre>
+<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;pre &lt;pre>x&lt;/pre>"}},"i":0}}]}'>&lt;pre </span><pre>x</pre>
 
 <span>&lt;pre </span>
+
 <table></table>
 !! end
 
@@ -2479,12 +2478,8 @@ c
 
 !! html/parsoid
 <pre>a</pre>
- 
-<table>
- 
-<tbody>
-<tr>
-<td> b</td></tr>
+ <table>
+ <tbody><tr><td> b</td></tr>
  </tbody></table>
 !!end
 
@@ -2761,8 +2756,7 @@ parsoid=wt2html,wt2wt
 {{echo| [[Category:foo]]}} <!-- No pre-wrapping -->
 !! html
  <link rel="mw:PageProp/Category" href="./Category:Foo"> <!-- No pre-wrapping -->
-<span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":" [[Category:foo]]"}},"i":0}}]}'> </span>
-<link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1"> <!-- No pre-wrapping -->
+<span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":" [[Category:foo]]"}},"i":0}}]}'> </span><link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1"> <!-- No pre-wrapping -->
 !! end
 
 !! test
@@ -2775,7 +2769,6 @@ parsoid=wt2html,wt2wt
 !! html
 <pre>
 <link rel="mw:PageProp/Category" href="./Category:Foo"> a
-
 <link rel="mw:PageProp/Category" href="./Category:Foo"> <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"b"}},"i":0}}]}'>b</span></pre>
 !! end
 
@@ -5435,10 +5428,9 @@ parsoid=wt2html,wt2wt
 |}
 !! html/parsoid
 <table>
-<tbody>
-<tr><th>foo </th><th>bar  </th>
-<td>baz </td>
-<td>quux</td></tr></tbody></table>
+<tbody><tr><th> foo </th><th> bar
+<!-- foo -->  </th><td> baz </td><td> quux</td></tr>
+</tbody></table>
 !! end
 
 
@@ -6578,9 +6570,8 @@ parsoid=wt2html,wt2wt
 !! wikitext
 #REDIRECT [[Main_Page]]
 #REDIRECT [[<nowiki>[[Bar]]</nowiki>]]
-!! html
-<link rel="mw:PageProp/redirect" href="./Main_Page">
-<link rel="mw:PageProp/redirect" href="./%5B%5BBar%5D%5D">
+!! html/parsoid
+<link rel="mw:PageProp/redirect" href="./Main_Page"><link rel="mw:PageProp/redirect" href="./%5B%5BBar%5D%5D">
 !! end
 
 !! test
@@ -8783,19 +8774,15 @@ some
 <h3><span class="mw-headline" id="here">here</span></h3>
 
 !! html/parsoid
-<!-- comment --><meta typeof="mw:Includes/NoInclude" data-parsoid='{"src":"&lt;noinclude>"}'/><!-- comment --><meta typeof="mw:Includes/NoInclude/End" data-parsoid='{"src":"&lt;/noinclude>"}'/><!-- comment -->
-<h2 data-parsoid='{}'> hu </h2>
+<!-- comment --><meta typeof="mw:Includes/NoInclude" data-parsoid='{"src":"&lt;noinclude>"}'/><!-- comment --><meta typeof="mw:Includes/NoInclude/End" data-parsoid='{"src":"&lt;/noinclude>"}'/><!-- comment --><h2> hu </h2>
 
 <meta typeof="mw:Includes/NoInclude" data-parsoid='{"src":"&lt;noinclude>"}'/>
+<p>some</p>
+<meta typeof="mw:Includes/NoInclude/End" data-parsoid='{"src":"&lt;/noinclude>"}'/><ul><li> stuff</li>
+<li> here</li></ul>
 
-<p data-parsoid='{}'>some</p>
-<meta typeof="mw:Includes/NoInclude/End" data-parsoid='{"src":"&lt;/noinclude>"}'/>
-<ul data-parsoid='{}'>
-<li data-parsoid='{}'> stuff</li>
+<meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"src":"&lt;includeonly>can have stuff&lt;/includeonly>"}'/><meta typeof="mw:Includes/IncludeOnly/End" data-parsoid='{"src":""}'/><h3> here </h3>
 
-<li data-parsoid='{}'> here</li></ul>
-
-<h3 data-parsoid='{}'> here </h3>
 !! end
 
 # TODO: test with DOM fragment reuse!
@@ -8816,25 +8803,17 @@ c}}d
 
 b}}
 !! html
-a<span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"b
-<table></table>c"}},"i":0}}]}'>b</span>
-<table about="#mwt1"></table><span about="#mwt1">c</span>d
-
+a<span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"b<table></table>c"}},"i":0}}]}'>b</span><table about="#mwt1"></table><span about="#mwt1">c</span>d
 
 <p about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["a",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"b\n<table></table>\nc"}},"i":0}},"d"]}'>ab</p><span about="#mwt2">
-</span>
-<table about="#mwt2"></table><span about="#mwt2">
-</span>
-<p about="#mwt2">cd</p>
-
+</span><table about="#mwt2"></table><span about="#mwt2">
+</span><p about="#mwt2">cd</p>
 
 <p about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a\n\n<table></table>\n\nb"}},"i":0}}]}'>a</p><span about="#mwt3">
 
-</span>
-<table about="#mwt3"></table><span about="#mwt3">
+</span><table about="#mwt3"></table><span about="#mwt3">
 
-</span>
-<p about="#mwt3">b</p>
+</span><p about="#mwt3">b</p>
 !! end
 
 !! test
@@ -8951,11 +8930,9 @@ parsoid=wt2html,wt2wt
 |foo
 |}
 !!html/parsoid
-<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":""}},"i":0}}]}'></span>
-<table width="100%">
-<tbody>
-<tr>
-<td>foo</td></tr></tbody></table>
+<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":""}},"i":0}}]}'></span><table width="100%">
+<tbody><tr><td>foo</td></tr>
+</tbody></table>
 !!end
 
 !!test
@@ -10350,8 +10327,7 @@ parsoid=wt2html,wt2wt,html2html
 <p><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a></span>
-</p>
+<p><span class="mw-default-size" typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a></span></p>
 !! end
 
 !! test
@@ -10362,8 +10338,7 @@ Simple image (using File: namespace, now canonical)
 <p><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a></span>
-</p>
+<p><span class="mw-default-size" typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a></span></p>
 !! end
 
 !! test
@@ -10597,7 +10572,7 @@ parsoid=wt2html,wt2wt,html2html
 <a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/177px-Foobar.jpg" width="177" height="20" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/265px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/353px-Foobar.jpg 2x" /></a>
 </p>
 !! html/parsoid
-<p><span typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="2" width="20"/></a></span><span typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="20" width="177"/></a></span></p>
+<p><span typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="2" width="20"/></a></span> <span typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="20" width="177"/></a></span></p>
 !! end
 
 !! test
@@ -10878,7 +10853,9 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tright"><div class="thumbinner" style="width:1943px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="thumbimage" /></a>  <div class="thumbcaption">caption</div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Frame"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a><figcaption>caption</figcaption></figure><figure class="mw-default-size" typeof="mw:Image/Frame"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a><figcaption>caption</figcaption></figure><figure class="mw-default-size" typeof="mw:Image/Frame"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Frame"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Frame"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Frame"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
@@ -10895,7 +10872,9 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>caption</div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>caption</figcaption></figure><figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>caption</figcaption></figure><figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
 !! end
 
 ###################
@@ -11022,7 +11001,10 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tright"><div class="thumbinner" style="width:1943px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="thumbimage" /></a>  <div class="thumbcaption"></div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Frame"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></figure><figure typeof="mw:Image/Frame"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></figure><figure typeof="mw:Image/Frame"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></figure><figure typeof="mw:Image/Frame"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></figure>
+<figure class="mw-default-size" typeof="mw:Image/Frame"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></figure>
+<figure typeof="mw:Image/Frame"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></figure>
+<figure typeof="mw:Image/Frame"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></figure>
+<figure typeof="mw:Image/Frame"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></figure>
 !! end
 
 ###################
@@ -11381,7 +11363,9 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tleft"><div class="thumbinner" style="width:222px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>caption</div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>caption</figcaption></figure><figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>caption</figcaption></figure><figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! article
@@ -11422,12 +11406,7 @@ Parsoid-specific image handling - simple image with size and middle alignment
 !! wikitext
 [[File:Foobar.jpg|middle|50px]]
 !! html/parsoid
-<p><span class="mw-valign-middle" typeof="mw:Image">
-<a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50">
-</a>
-</span>
-</p>
+<p><span class="mw-valign-middle" typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50"></a></span></p>
 !! end
 
 !! test
@@ -11438,12 +11417,7 @@ parsoid=wt2wt,wt2html,html2html
 !! wikitext
 [[Image:Foobar.jpg|middle|50px]]
 !! html/parsoid
-<p><span class="mw-valign-middle" typeof="mw:Image">
-<a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50">
-</a>
-</span>
-</p>
+<p><span class="mw-valign-middle" typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50"></a></span></p>
 !! end
 
 !! test
@@ -11463,12 +11437,7 @@ parsoid=wt2html,wt2wt,html2html
 !! wikitext
 [[Image:Foobar.jpg|50px|middle]]
 !! html/parsoid
-<p><span class="mw-valign-middle" typeof="mw:Image">
-<a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50">
-</a>
-</span>
-</p>
+<p><span class="mw-valign-middle" typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50"></a></span></p>
 !! end
 
 !! test
@@ -11492,12 +11461,7 @@ Parsoid-specific image handling - thumbnail with halign, valign, and caption
 !! wikitext
 [[File:Foobar.jpg|left|baseline|thumb|caption content]]
 !! html/parsoid
-<figure class="mw-default-size mw-halign-left mw-valign-baseline" typeof="mw:Image/Thumb">
-<a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" height="25" width="220" />
-</a>
-<figcaption>caption content</figcaption>
-</figure>
+<figure class="mw-default-size mw-halign-left mw-valign-baseline" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" height="25" width="220" /></a><figcaption>caption content</figcaption></figure>
 !! end
 
 !! test
@@ -11514,12 +11478,7 @@ Parsoid-specific image handling - thumbnail with specific size, halign, valign, 
 !! wikitext
 [[Image:Foobar.jpg|right|middle|thumb|50x50px|caption]]
 !! html/parsoid
-<figure class="mw-halign-right mw-valign-middle" typeof="mw:Image/Thumb">
-<a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50" />
-</a>
-<figcaption>caption</figcaption>
-</figure>
+<figure class="mw-halign-right mw-valign-middle" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" height="6" width="50" /></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
@@ -11539,12 +11498,7 @@ parsoid=wt2html,wt2wt,html2html
 !! wikitext
 [[File:Foobar.jpg|frame|500x50px|caption]]
 !! html/parsoid
-<figure typeof="mw:Image/Frame">
-<a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941" />
-</a>
-<figcaption>caption</figcaption>
-</figure>
+<figure typeof="mw:Image/Frame"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941" /></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
@@ -11555,12 +11509,7 @@ parsoid=wt2html,wt2wt,html2html
 !! wikitext
 [[File:Foobar.jpg|left|baseline|frame|500x50px|caption]]
 !! html/parsoid
-<figure class="mw-halign-left mw-valign-baseline" typeof="mw:Image/Frame">
-<a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941" />
-</a>
-<figcaption>caption</figcaption>
-</figure>
+<figure class="mw-halign-left mw-valign-baseline" typeof="mw:Image/Frame"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941" /></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
@@ -11576,10 +11525,7 @@ Parsoid-specific image handling - simple image with a formatted caption
 !! wikitext
 [[File:Foobar.jpg|<table><tr><td>a</td><td>b</td></tr><tr><td>c</td></tr></table>]]
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"&lt;table>&lt;tr>&lt;td>a&lt;/td>&lt;td>b&lt;/td>&lt;/tr>&lt;tr>&lt;td>c&lt;/td>&lt;/tr>&lt;/table>"}'>
-<a href="File:Foobar.jpg">
-<img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941">
-</a></span></p>
+<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"&lt;table>&lt;tr>&lt;td>a&lt;/td>&lt;td>b&lt;/td>&lt;/tr>&lt;tr>&lt;td>c&lt;/td>&lt;/tr>&lt;/table>"}'><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a></span></p>
 !! end
 
 !! test
@@ -11768,8 +11714,28 @@ Render invalid page names as plain text (bug 51090)
 [[foo&lt;bar]]
 </p>
 !!html/parsoid
-<p>[[./../foo|bar]][[foo�|bar]][[foo/.|bar]][[foo/..|bar]][[foo~~~bar]][[foo>bar]][[foo[bar]][[.]][[..]][[foo././bar]]</p>
-<p>[[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"./../foo"}},"i":0}}]}'>./../foo</span>|bar]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo/."}},"i":0}}]}'>foo/.</span>|bar]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo/.."}},"i":0}}]}'>foo/..</span>|bar]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo~~~~bar"}},"i":0}}]}'>foo~~~~bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo>bar"}},"i":0}}]}'>foo>bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo././bar"}},"i":0}}]}'>foo././bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo{bar"}},"i":0}}]}'>foo{bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo}bar"}},"i":0}}]}'>foo}bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo[bar"}},"i":0}}]}'>foo[bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo]bar"}},"i":0}}]}'>foo]bar</span>]][[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo&lt;bar"}},"i":0}}]}'>foo&lt;bar</span>]]</p>
+<p>[[./../foo|bar]]
+[[foo�|bar]]
+[[foo/.|bar]]
+[[foo/..|bar]]
+[[foo~~~bar]]
+[[foo>bar]]
+[[foo[bar]]
+[[.]]
+[[..]]
+[[foo././bar]]</p>
+
+<p>[[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"./../foo"}},"i":0}}]}'>./../foo</span>|bar]]
+[[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo/."}},"i":0}}]}'>foo/.</span>|bar]]
+[[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo/.."}},"i":0}}]}'>foo/..</span>|bar]]
+[[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo~~~~bar"}},"i":0}}]}'>foo~~~~bar</span>]]
+[[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo>bar"}},"i":0}}]}'>foo>bar</span>]]
+[[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo././bar"}},"i":0}}]}'>foo././bar</span>]]
+[[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo{bar"}},"i":0}}]}'>foo{bar</span>]]
+[[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo}bar"}},"i":0}}]}'>foo}bar</span>]]
+[[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo[bar"}},"i":0}}]}'>foo[bar</span>]]
+[[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo]bar"}},"i":0}}]}'>foo]bar</span>]]
+[[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo&lt;bar"}},"i":0}}]}'>foo&lt;bar</span>]]</p>
 !!end
 
 !! test
@@ -13422,9 +13388,12 @@ Expansion of multi-line templates in attribute values (bug 6255 sanity check)
 !! wikitext
 <div style="background: 
 #00FF00">-</div>
-!! html
+!! html/php
 <div style="background: #00FF00">-</div>
 
+!! html/parsoid
+<div style="background: 
+#00FF00">-</div>
 !! end
 
 !! test
@@ -15959,7 +15928,7 @@ Definition list code coverage
 ; title   : def
 ; title : def
 ;title: def
-!! html
+!! html/php
 <dl><dt> title  &#160;</dt>
 <dd> def</dd>
 <dt> title&#160;</dt>
@@ -15967,6 +15936,10 @@ Definition list code coverage
 <dt>title</dt>
 <dd> def</dd></dl>
 
+!! html/parsoid
+<dl><dt> title  <span typeof="mw:Placeholder"> </span></dt><dd> def</dd>
+<dt> title<span typeof="mw:Placeholder"> </span></dt><dd> def</dd>
+<dt>title</dt><dd> def</dd></dl>
 !! end
 
 !! test
@@ -20325,11 +20298,9 @@ parsoid=wt2html,wt2wt
 <td> a
 </table>
 !! html
-<span> || ||</span>
-<table>
-<tbody>
-<tr>
-<td> a</td></tr>
+<span> || ||
+</span><table>
+<tbody><tr><td> a</td></tr>
 </tbody></table>
 !!end
 
@@ -20340,14 +20311,7 @@ parsoid=wt2html,wt2wt
 !! wikitext
 {{echo|<table>foo<tr><td>bar</td></tr></table>}}
 !! html
-<span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;
-<table>foo
-<tr>
-<td>bar</td></tr></table>&quot;}},&quot;i&quot;:0}}]}">foo</span>
-<table>
-<tbody>
-<tr>
-<td>bar</td></tr></tbody></table>
+<span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;<table>foo<tr><td>bar</td></tr></table>&quot;}},&quot;i&quot;:0}}]}">foo</span><table><tbody><tr><td>bar</td></tr></tbody></table>
 !!end
 
 !!test
@@ -20357,14 +20321,13 @@ parsoid=wt2wt,wt2html
 !! wikitext
 <table>{{echo|foo<tr><td>bar</td></tr>}}</table>
 !! html
-<span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;
-<table>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo
-<tr>
-<td>bar</td></tr>&quot;}},&quot;i&quot;:0}},&quot;</table>&quot;]}">foo</span>
-<table>
+<span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;<table>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo<tr><td>bar</td></tr>&quot;}},&quot;i&quot;:0}},&quot;</table>&quot;]}">foo</span><table>
 <tbody>
 <tr>
-<td>bar</td></tr></tbody></table>
+<td>bar</td>
+</tr>
+</tbody>
+</table>
 !!end
 
 !!test
@@ -20374,15 +20337,14 @@ parsoid=wt2wt,wt2html
 !! wikitext
 <table><div>{{echo|foo}}</div><tr><td>bar</td></tr></table>
 !! html
-<div typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;
-<table>
-<div>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo&quot;}},&quot;i&quot;:0}},&quot;</div>
-<tr>
-<td>bar</td></tr></table>&quot;]}">foo</div>
+<div typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;<table><div>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo&quot;}},&quot;i&quot;:0}},&quot;</div><tr><td>bar</td></tr></table>&quot;]}">foo</div>
 <table>
 <tbody>
 <tr>
-<td>bar</td></tr></tbody></table>
+<td>bar</td>
+</tr>
+</tbody>
+</table>
 !!end
 
 !!test
@@ -20392,17 +20354,16 @@ parsoid=wt2wt,wt2html
 !! wikitext
 <table><div><p>{{echo|foo</p></div><tr><td>}}bar</td></tr></table>
 !! html
-<div typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;
-<table>
-<div>
-<p>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo</p></div>
-<tr>
-<td>&quot;}},&quot;i&quot;:0}},&quot;bar</td></tr></table>&quot;]}">
-<p>foo</p></div>
+<div typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;<table><div><p>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo</p></div><tr><td>&quot;}},&quot;i&quot;:0}},&quot;bar</td></tr></table>&quot;]}">
+<p>foo</p>
+</div>
 <table>
 <tbody>
 <tr>
-<td>bar</td></tr></tbody></table>
+<td>bar</td>
+</tr>
+</tbody>
+</table>
 !!end
 
 !!test
@@ -20412,17 +20373,16 @@ parsoid=wt2wt,wt2html
 !! wikitext
 <table><div><p>{{echo|foo</p></div><tr><td>}}bar</td></tr></table>
 !! html
-<div typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;
-<table>
-<div>
-<p>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo</p></div>
-<tr>
-<td>&quot;}},&quot;i&quot;:0}},&quot;bar</td></tr></table>&quot;]}">
-<p>foo</p></div>
+<div typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;<table><div><p>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo</p></div><tr><td>&quot;}},&quot;i&quot;:0}},&quot;bar</td></tr></table>&quot;]}">
+<p>foo</p>
+</div>
 <table>
 <tbody>
 <tr>
-<td>bar</td></tr></tbody></table>
+<td>bar</td>
+</tr>
+</tbody>
+</table>
 !!end
 
 !!test
@@ -20432,18 +20392,18 @@ parsoid=wt2wt,wt2html
 !! wikitext
 <table><tr><td><div><p>{{echo|foo</p></div></td>foo}}</tr></table>
 !! html
-<span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;
-<table>
-<tr>
-<td>
-<div>
-<p>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo</p></div></td>foo&quot;}},&quot;i&quot;:0}},&quot;</tr></table>&quot;]}">foo</span>
+<span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;<table><tr><td><div><p>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo</p></div></td>foo&quot;}},&quot;i&quot;:0}},&quot;</tr></table>&quot;]}">foo</span>
 <table>
 <tbody>
 <tr>
 <td>
 <div>
-<p>foo</p></div></td></tr></tbody></table>
+<p>foo</p>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
 !!end
 
 !!test
@@ -20453,18 +20413,18 @@ parsoid=wt2wt,wt2html
 !! wikitext
 <table><tr><td><div><p>{{echo|foo</p></div></td>foo</tr></table>}}<p>ok</p>
 !! html
-<span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;
-<table>
-<tr>
-<td>
-<div>
-<p>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo</p></div></td>foo</tr></table>&quot;}},&quot;i&quot;:0}}]}">foo</span>
+<span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;<table><tr><td><div><p>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo</p></div></td>foo</tr></table>&quot;}},&quot;i&quot;:0}}]}">foo</span>
 <table>
 <tbody>
 <tr>
 <td>
 <div>
-<p>foo</p></div></td></tr></tbody></table>
+<p>foo</p>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
 <p>ok</p>
 !!end
 
@@ -20475,14 +20435,14 @@ parsoid=wt2wt,wt2html
 !! wikitext
 <table>{{echo|<p>foo</p>}}<td>bar</td></table>
 !! html
-<p typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;
-<table>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;
-<p>foo</p>&quot;}},&quot;i&quot;:0}},&quot;
-<td>bar</td></table>&quot;]}">foo</p>
+<p typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;<table>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;<p>foo</p>&quot;}},&quot;i&quot;:0}},&quot;<td>bar</td></table>&quot;]}">foo</p>
 <table>
 <tbody>
 <tr>
-<td>bar</td></tr></tbody></table>
+<td>bar</td>
+</tr>
+</tbody>
+</table>
 !!end
 
 !!test
@@ -20496,11 +20456,13 @@ parsoid=wt2wt,wt2html
 |b
 |}
 !! html
-<p typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;a\n&quot;}},&quot;i&quot;:0}}]}">a</p><span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;{|&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;style&quot;:{&quot;wt&quot;:&quot;'color:red'&quot;}},&quot;i&quot;:0}},&quot;\n|-\n|b\n|}&quot;]}">{{{1}}}</span>
-<table>
+<p typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;a\n&quot;}},&quot;i&quot;:0}}]}">a</p><span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;{|&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;style&quot;:{&quot;wt&quot;:&quot;'color:red'&quot;}},&quot;i&quot;:0}},&quot;\n|-\n|b\n|}&quot;]}">{{{1}}}</span><table>
 <tbody>
 <tr>
-<td>b</td></tr></tbody></table>
+<td>b</td>
+</tr>
+</tbody>
+</table>
 !!end
 
 !!test
@@ -20510,8 +20472,7 @@ parsoid=wt2wt,wt2html
 !! wikitext
 <table>{{echo|hi</table>hello}}
 !! html
-<span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["&lt;table>",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"hi&lt;/table>hello"}},"i":0}}]}' data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true,"pi":[[{"k":"1","spc":["","","",""]}]]}'>hi</span>
-<table about="#mwt2" data-parsoid='{"stx":"html"}'></table><span about="#mwt2" data-parsoid="{}">hello</span>
+<span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["&lt;table>",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"hi&lt;/table>hello"}},"i":0}}]}' data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true,"pi":[[{"k":"1","spc":["","","",""]}]]}'>hi</span><table about="#mwt2" data-parsoid='{"stx":"html"}'></table><span about="#mwt2" data-parsoid="{}">hello</span>
 !!end
 
 !!test
@@ -20761,7 +20722,9 @@ parsoid
 [[File:Foobar.jpg|thumb|upright=0.5|caption]]
 [[File:Foobar.jpg|thumb|500x500px|upright=0.5|caption]]
 !! html
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="19" width="170"/></a><figcaption>caption</figcaption></figure><figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="12" width="110"/></a><figcaption>caption</figcaption></figure><figure typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="57" width="500"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="19" width="170"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="12" width="110"/></a><figcaption>caption</figcaption></figure>
+<figure typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="57" width="500"/></a><figcaption>caption</figcaption></figure>
 !!end
 
 !! test

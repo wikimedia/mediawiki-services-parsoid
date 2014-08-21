@@ -265,9 +265,10 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 		parserPipeline.once('document', function ( document ) {
 			var out, dp;
 			if ( argv.wt2html || argv.html2html ) {
-				out = DU.serializeNode( document );
 				if ( argv.normalize ) {
-					out = DU.normalizeOut(out, (argv.normalize === 'parsoid'));
+				    out = DU.normalizeOut(document.body, (argv.normalize === 'parsoid'));
+				} else {
+				    out = DU.serializeNode( document );
 				}
 				addTrailingNL( true, out );
 			} else {

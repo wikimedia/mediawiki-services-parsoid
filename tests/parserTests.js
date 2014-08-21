@@ -1028,7 +1028,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 ParserTests.prototype.processParsedHTML = function( item, options, mode, doc, cb ) {
 	item.time.end = Date.now();
 	// Check the result vs. the expected result.
-	var checkPassed = this.checkHTML( item, DU.serializeChildren(doc), options, mode );
+	var checkPassed = this.checkHTML( item, doc, options, mode );
 
 	// Now schedule the next test, if any
 	// Only pass an error if --exit-unexpected was set and there was an error
@@ -1319,7 +1319,7 @@ function printResult( reportFailure, reportSuccess, title, time, comments, iopts
 	if ( fail &&
 	     booleanOption( options.whitelist ) &&
 	     title in testWhiteList &&
-	     DU.normalizeOut( testWhiteList[title], parsoidOnly ) ===  actual.normal ) {
+	     DU.normalizeOut( DU.parseHTML( testWhiteList[title] ).body, parsoidOnly ) ===  actual.normal ) {
 		whitelist = true;
 		fail = false;
 	}
@@ -1362,10 +1362,11 @@ ParserTests.prototype.checkHTML = function ( item, out, options, mode ) {
 		('html/parsoid' in item) || (item.options.parsoid !== undefined);
 
 	normalizedOut = DU.normalizeOut( out, parsoidOnly );
+	out = DU.serializeChildren(out);
 
 	if ( item.cachedNormalizedHTML === null ) {
 		if ( parsoidOnly ) {
-			var normalDOM = DU.serializeChildren(DU.parseHTML( item.html ).body);
+			var normalDOM = DU.parseHTML( item.html ).body;
 			normalizedExpected = DU.normalizeOut( normalDOM, parsoidOnly );
 		} else {
 			normalizedExpected = DU.normalizeHTML( item.html );
