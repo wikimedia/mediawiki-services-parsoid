@@ -1424,8 +1424,14 @@ xml_att_value
         / valPos1:({return peg$currPos;}) t2:attribute_preprocessor_text_double_broken? valPos2:({return peg$currPos;}) &[|>]
             { return tu.get_attribute_value_and_source(input, t2, valPos1, valPos2); } )
                 { return r; }
-  / valPos1:({return peg$currPos;}) t:(space_or_newline* q:attribute_preprocessor_text !"=" { return q; })? valPos2:({return peg$currPos;})
-        { return tu.get_attribute_value_and_source(input, t ? t : "", valPos1, valPos2); }
+  / space_or_newline* valPos1:({return peg$currPos;}) t:attribute_preprocessor_text? !"=" valPos2:({return peg$currPos;})
+        {   if ( t === null ) {
+                t = "";
+                // Reset the current parse position in order to reparse any
+                // captured spaces, which are needed to separate attributes.
+                peg$currPos = peg$reportedPos;
+            }
+            return tu.get_attribute_value_and_source(input, t, valPos1, valPos2); }
 
 // Attribute value, restricted to a single line.
 att_value
@@ -1441,8 +1447,14 @@ att_value
         / valPos1:({return peg$currPos;}) t2:attribute_preprocessor_text_double_line_broken? valPos2:({return peg$currPos;}) &[|>]
             { return tu.get_attribute_value_and_source(input, t2, valPos1, valPos2); } )
                 { return r; }
-  / valPos1:({return peg$currPos;}) t:(space* q:attribute_preprocessor_text_line !"=" { return q; })? valPos2:({return peg$currPos;})
-        { return tu.get_attribute_value_and_source(input, t ? t : "", valPos1, valPos2); }
+  / space* valPos1:({return peg$currPos;}) t:attribute_preprocessor_text_line? !"=" valPos2:({return peg$currPos;})
+        {   if ( t === null ) {
+                t = "";
+                // Reset the current parse position in order to reparse any
+                // captured spaces, which are needed to separate attributes.
+                peg$currPos = peg$reportedPos;
+            }
+            return tu.get_attribute_value_and_source(input, t ? t : "", valPos1, valPos2); }
 
 /*
  * A variant of generic_tag, but also checks if the tag name is a block-level
