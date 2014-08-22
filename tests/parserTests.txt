@@ -4006,8 +4006,8 @@ External links: with no contents
 </p>
 !! html/parsoid
 <p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo"></a></p>
-<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo">Bar</a></p>
-<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo"><span>Bar</span></a></p>
+<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" title="wikipedia:Foo">Bar</a></p>
+<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" title="wikipedia:Foo"><span>Bar</span></a></p>
 !! end
 
 !! test
@@ -6604,20 +6604,28 @@ Link with angle bracket after anchor
 
 !! test
 Inline interwiki link
+!! options
+parsoid=wt2html,wt2wt,html2html
 !! wikitext
 [[MeatBall:SoftSecurity]]
-!! html
+!! html/php
 <p><a href="http://www.usemod.com/cgi-bin/mb.pl?SoftSecurity" class="extiw" title="meatball:SoftSecurity">MeatBall:SoftSecurity</a>
 </p>
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="http://www.usemod.com/cgi-bin/mb.pl?SoftSecurity" title="meatball:SoftSecurity">MeatBall:SoftSecurity</a></p>
 !! end
 
 !! test
 Inline interwiki link with empty title (bug 2372)
+!! options
+parsoid=wt2html,wt2wt,html2html
 !! wikitext
 [[MeatBall:]]
-!! html
+!! html/php
 <p><a href="http://www.usemod.com/cgi-bin/mb.pl" class="extiw" title="meatball:">MeatBall:</a>
 </p>
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="http://www.usemod.com/cgi-bin/mb.pl?" title="meatball:">MeatBall:</a></p>
 !! end
 
 !! test
@@ -6646,6 +6654,10 @@ Interwiki link with fragment (bug 2130)
 !! end
 
 # Ideally the wikipedia: prefix here should be proto-relative too
+# [CSA]: this is kind of a bogus test, as the PHP parser test doesn't
+# define the 'en' prefix, and originally the test used 'wikipedia',
+# which isn't a localinterwiki prefix hence the links to the 'en:Foo'
+# article.
 !! test
 Different interwiki prefixes mapping to the same URL
 !! wikitext
@@ -6663,19 +6675,19 @@ Different interwiki prefixes mapping to the same URL
 
 [[  wikiPEdia :Foo]]
 !! html/parsoid
-<p><a rel="mw:ExtLink" href="//en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"simple","a":{"href":"//en.wikipedia.org/wiki/Foo"},"sa":{"href":":en:Foo"},"isIW":true}'>en:Foo</a></p>
+<p><a rel="mw:ExtLink" href="//en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"simple","a":{"href":"//en.wikipedia.org/wiki/Foo"},"sa":{"href":":en:Foo"},"isIW":true}' title="en:Foo">en:Foo</a></p>
 
-<p><a rel="mw:ExtLink" href="//en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"piped","a":{"href":"//en.wikipedia.org/wiki/Foo"},"sa":{"href":":en:Foo"},"isIW":true}'>Foo</a></p>
+<p><a rel="mw:ExtLink" href="//en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"piped","a":{"href":"//en.wikipedia.org/wiki/Foo"},"sa":{"href":":en:Foo"},"isIW":true}' title="en:Foo">Foo</a></p>
 
-<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":"wikipedia:Foo"},"isIW":true}'>wikipedia:Foo</a></p>
+<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":"wikipedia:Foo"},"isIW":true}' title="wikipedia:Foo">wikipedia:Foo</a></p>
 
-<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"piped","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":":wikipedia:Foo"},"isIW":true}'>Foo</a></p>
+<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"piped","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":":wikipedia:Foo"},"isIW":true}' title="wikipedia:Foo">Foo</a></p>
 
-<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/en:Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/en:Foo"},"sa":{"href":"wikipedia:en:Foo"},"isIW":true}'>wikipedia:en:Foo</a></p>
+<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/en:Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/en:Foo"},"sa":{"href":"wikipedia:en:Foo"},"isIW":true}' title="wikipedia:en:Foo">wikipedia:en:Foo</a></p>
 
-<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/en:Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/en:Foo"},"sa":{"href":":wikipedia:en:Foo"},"isIW":true}'>wikipedia:en:Foo</a></p>
+<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/en:Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/en:Foo"},"sa":{"href":":wikipedia:en:Foo"},"isIW":true}' title="wikipedia:en:Foo">wikipedia:en:Foo</a></p>
 
-<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":"  wikiPEdia :Foo"},"isIW":true}'>  wikiPEdia :Foo</a></p>
+<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":"  wikiPEdia :Foo"},"isIW":true}' title="wikipedia:Foo">  wikiPEdia :Foo</a></p>
 !! end
 
 !! test
@@ -6687,60 +6699,97 @@ Interwiki links that cannot be represented in wiki syntax
 [http://de.wikipedia.org/wiki/Foo?action=history has query]
 [http://de.wikipedia.org/wiki/#foo is just fragment]
 
+!! html/php
+<p><a href="http://www.usemod.com/cgi-bin/mb.pl?ok" class="extiw" title="meatball:ok">meatball:ok</a>
+<a href="http://www.usemod.com/cgi-bin/mb.pl?ok#foo" class="extiw" title="meatball:ok">ok with fragment</a>
+<a href="http://www.usemod.com/cgi-bin/mb.pl?ok_as_well%3F" class="extiw" title="meatball:ok as well?">ok ending with ? mark</a>
+<a rel="nofollow" class="external text" href="http://de.wikipedia.org/wiki/Foo?action=history">has query</a>
+<a rel="nofollow" class="external text" href="http://de.wikipedia.org/wiki/#foo">is just fragment</a>
+</p>
 !! html/parsoid
-<p><a rel="mw:ExtLink" href="http://www.usemod.com/cgi-bin/mb.pl?ok">meatball:ok</a>
-<a rel="mw:ExtLink" href="http://www.usemod.com/cgi-bin/mb.pl?ok#foo">ok with fragment</a>
-<a rel="mw:ExtLink" href="http://www.usemod.com/cgi-bin/mb.pl?ok_as_well?">ok ending with ? mark</a>
+<p><a rel="mw:ExtLink" href="http://www.usemod.com/cgi-bin/mb.pl?ok" title="meatball:ok">meatball:ok</a>
+<a rel="mw:ExtLink" href="http://www.usemod.com/cgi-bin/mb.pl?ok#foo" title="meatball:ok">ok with fragment</a>
+<a rel="mw:ExtLink" href="http://www.usemod.com/cgi-bin/mb.pl?ok_as_well?" title="meatball:ok as well?">ok ending with ? mark</a>
 <a rel="mw:ExtLink" href="http://de.wikipedia.org/wiki/Foo?action=history">has query</a>
 <a rel="mw:ExtLink" href="http://de.wikipedia.org/wiki/#foo">is just fragment</a></p>
 !! end
 
 !! test
 Interwiki links: trail
-!! options
-parsoid
 !! wikitext
 [[wikipedia:Foo|Ba]]r
-!! html
-<p data-parsoid='{}'><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"piped","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":"wikipedia:Foo"},"isIW":true,"tail":"r"}'>Bar</a></p>
+!! html/php
+<p><a href="http://en.wikipedia.org/wiki/Foo" class="extiw" title="wikipedia:Foo">Bar</a>
+</p>
+!! html/parsoid
+<p data-parsoid='{}'><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"piped","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":"wikipedia:Foo"},"isIW":true,"tail":"r"}' title="wikipedia:Foo">Bar</a></p>
 !! end
 
 !! test
 Local interwiki link
+!! options
+parsoid=wt2html,wt2wt,html2html
 !! wikitext
 [[local:Template:Foo]]
-!! html
+!! html/php
 <p><a href="/wiki/Template:Foo" title="Template:Foo">local:Template:Foo</a>
 </p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Template:Foo" title="Template:Foo">local:Template:Foo</a></p>
 !! end
 
+# Parsoid does not mark self-links, by design.
 !! test
 Local interwiki link: self-link to current page
 !! options
 title=[[Main Page]]
+parsoid=wt2html,wt2wt,html2html
 !! wikitext
 [[local:Main Page]]
-!! html
+!! html/php
 <p><strong class="selflink">local:Main Page</strong>
 </p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Main_Page" title="Main Page">local:Main Page</a></p>
 !! end
 
 !! test
 Local interwiki link: prefix only (bug 64167)
+!! options
+parsoid=wt2html,wt2wt,html2html
 !! wikitext
 [[local:]]
-!! html
+!! html/php
 <p><a href="/wiki/Main_Page" title="Main Page">local:</a>
 </p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Main_Page" title="Main Page">local:</a></p>
 !! end
 
 !! test
 Local interwiki link: with additional interwiki prefix (bug 61357)
+!! options
+parsoid=wt2html,wt2wt,html2html
 !! wikitext
 [[local:meatball:Hello]]
-!! html
+!! html/php
 <p><a href="http://www.usemod.com/cgi-bin/mb.pl?Hello" class="extiw" title="meatball:Hello">local:meatball:Hello</a>
 </p>
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="http://www.usemod.com/cgi-bin/mb.pl?Hello" title="meatball:Hello">local:meatball:Hello</a></p>
+!! end
+
+!! test
+Multiple local interwiki link prefixes
+!! wikitext
+[[local:local:local:local:mi:local:Foo]]
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! html/php
+<p><a href="/wiki/Foo" title="Foo">local:local:local:local:mi:local:Foo</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Foo" title="Foo">local:local:local:local:mi:local:Foo</a></p>
 !! end
 
 ###
@@ -6758,7 +6807,7 @@ Blah blah blah
 </p>
 !! html/parsoid
 <p>Blah blah blah
-<link rel="mw:PageProp/Language" href="//zh.wikipedia.org/wiki/Chinese"/></p>
+<link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/Chinese"/></p>
 !! end
 
 !! test
@@ -6773,7 +6822,7 @@ Blah blah blah
 </p>
 !! html/parsoid
 <p>Blah blah blah
-<link rel="mw:PageProp/Language" href="//zh.wikipedia.org/wiki/Chinese"/></p>
+<link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/Chinese"/></p>
 !! end
 
 !! test
@@ -6787,8 +6836,8 @@ Blah blah blah
 </p>
 !! html/parsoid
 <p>Blah blah blah
-<link rel="mw:PageProp/Language" href="//es.wikipedia.org/wiki/Spanish"/>
-<link rel="mw:PageProp/Language" href="//zh.wikipedia.org/wiki/Chinese"/></p>
+<link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Spanish"/>
+<link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/Chinese"/></p>
 !! end
 
 !! test
@@ -6802,8 +6851,8 @@ Blah blah blah
 </p>
 !! html/parsoid
 <p>Blah blah blah
-<link rel="mw:PageProp/Language" href="//es.wikipedia.org/wiki/Spanish" data-parsoid='{"stx":"simple","a":{"href":"//es.wikipedia.org/wiki/Spanish"},"sa":{"href":"   es :Spanish"}}'/>
-<link rel="mw:PageProp/Language" href="//zh.wikipedia.org/wiki/Chinese" data-parsoid='{"stx":"simple","a":{"href":"//zh.wikipedia.org/wiki/Chinese"},"sa":{"href":" ZH :Chinese"}}'/>
+<link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Spanish" data-parsoid='{"stx":"simple","a":{"href":"http://es.wikipedia.org/wiki/Spanish"},"sa":{"href":"   es :Spanish"}}'/>
+<link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/Chinese" data-parsoid='{"stx":"simple","a":{"href":"http://zh.wikipedia.org/wiki/Chinese"},"sa":{"href":" ZH :Chinese"}}'/>
 !! end
 
 !! test
@@ -6818,7 +6867,7 @@ Blah blah blah
 </p>
 !! html/parsoid
 <p>Blah blah blah
-<link rel="mw:PageProp/Language" href="//zh.wikipedia.org/wiki/Chinese"/></p>
+<link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/Chinese"/></p>
 !! end
 
 !! test
@@ -6834,8 +6883,8 @@ Blah blah blah
 </p>
 !! html/parsoid
 <p>Blah blah blah
-<link rel="mw:PageProp/Language" href="//es.wikipedia.org/wiki/Spanish"/>
-<link rel="mw:PageProp/Language" href="//zh.wikipedia.org/wiki/Chinese"/></p>
+<link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Spanish"/>
+<link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/Chinese"/></p>
 !! end
 
 !! test
@@ -6848,7 +6897,7 @@ Blah blah blah
 </p>
 !! html/parsoid
 <p>Blah blah blah
-<link rel="mw:PageProp/Language" title="Multilingual" href="//wikisource.org/wiki/Article"/></p>
+<link rel="mw:PageProp/Language" title="Multilingual" href="http://wikisource.org/wiki/Article"/></p>
 !! end
 
 !! test
@@ -6877,68 +6926,102 @@ He&amp;nbsp;llo [[He&amp;nbsp;llo]]
 
 !! test
 Parsoid: handle constructor well
-!! options
-parsoid
 !! wikitext
 [[constructor]]
 
 [[constructor:foo]]
-!! html
+!! html/php
+<p><a href="/index.php?title=Constructor&amp;action=edit&amp;redlink=1" class="new" title="Constructor (page does not exist)">constructor</a>
+</p><p><a href="/index.php?title=Constructor:foo&amp;action=edit&amp;redlink=1" class="new" title="Constructor:foo (page does not exist)">constructor:foo</a>
+</p>
+!! html/parsoid
 <p><a rel="mw:WikiLink" href="./Constructor" title="Constructor" data-parsoid="{&quot;stx&quot;:&quot;simple&quot;,&quot;a&quot;:{&quot;href&quot;:&quot;./Constructor&quot;},&quot;sa&quot;:{&quot;href&quot;:&quot;constructor&quot;}}">constructor</a></p>
 
 <p><a rel="mw:WikiLink" href="./Foo" title="Foo" data-parsoid="{&quot;stx&quot;:&quot;simple&quot;,&quot;a&quot;:{&quot;href&quot;:&quot;./Foo&quot;},&quot;sa&quot;:{&quot;href&quot;:&quot;constructor:foo&quot;}}">constructor:foo</a></p>
 !! end
 
+!! article
+ko:
+!! text
+Test.
+!! endarticle
+
+# Note that `ko` isn't a known interlanguage prefix
 !! test
 Parsoid: recognize interlanguage links without a target page
 !! options
-parsoid
+ill
 !! wikitext
+[[es:]]
+
 [[ko:]]
-!! html
-<p><link rel="mw:PageProp/Language" href="http://ko.wikipedia.org/wiki/"></p>
+!! html/php
+es:
+!! html/parsoid
+<p><link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/"/></p>
+
+<p><a rel="mw:WikiLink" href="./Ko:" title="Ko:">ko:</a></p>
 !! end
 
+# Note that `ko` isn't a known interwiki prefix
 !! test
 Parsoid: recognize interwiki links without a target page
 !! options
-parsoid
+parsoid=wt2html,wt2wt,html2html
 !! wikitext
+[[:es:]]
+
 [[:ko:]]
-!! html
-<p><a rel="mw:ExtLink" href="//ko.wikipedia.org/wiki/">ko:</a></p>
+!! html/php
+<p><a href="http://es.wikipedia.org/wiki/" class="extiw" title="es:">es:</a>
+</p><p><a href="/wiki/Ko:" title="Ko:">ko:</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="http://es.wikipedia.org/wiki/" title="es:">es:</a></p>
+<p><a rel="mw:WikiLink" href="./Ko:" title="Ko:">ko:</a></p>
 !! end
 
 !! test
-Parsoid: Bug #45209, handle interwiki links pointing to the current wiki as plain wiki links
-!! options
-parsoid
+Handle interwiki links pointing to the current wiki as plain wiki links (bug 45209)
 !! wikitext
-[[en:Foo]]
-!! html
-<p><a rel="mw:WikiLink" href="./Foo" title="Foo" data-parsoid='{"stx":"simple","a":{"href":"./Foo"},"sa":{"href":"en:Foo"}}'>Foo</a></p>
+[[mi:Foo]]
+!! html/php
+<p><a href="/wiki/Foo" title="Foo">mi:Foo</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Foo" title="Foo" data-parsoid='{"stx":"simple","a":{"href":"./Foo"},"sa":{"href":"mi:Foo"}}'>mi:Foo</a></p>
 !! end
 
 !! test
 Interlanguage link with preceding local interwiki link (bug 68085)
+!! options
+parsoid=wt2html,wt2wt,html2html
 !! wikitext
 Blah blah blah
 [[local:es:Spanish]]
-!! html
+!! html/php
 <p>Blah blah blah
 <a href="http://es.wikipedia.org/wiki/Spanish" class="extiw" title="es:Spanish">local:es:Spanish</a>
 </p>
+!! html/parsoid
+<p>Blah blah blah
+<a rel="mw:ExtLink" href="http://es.wikipedia.org/wiki/Spanish" title="es:Spanish">local:es:Spanish</a></p>
 !! end
 
 !! test
 Looks like an interlanguage link, but is actually a local interwiki
+!! options
+parsoid=wt2html,wt2wt,html2html
 !! wikitext
 Blah blah blah
 [[mi:Template:Foo]]
-!! html
+!! html/php
 <p>Blah blah blah
 <a href="/wiki/Template:Foo" title="Template:Foo">mi:Template:Foo</a>
 </p>
+!! html/parsoid
+<p>Blah blah blah
+<a rel="mw:WikiLink" href="Template:Foo" title="Template:Foo">mi:Template:Foo</a></p>
 !! end
 
 ###
@@ -12491,9 +12574,9 @@ ill
 !! html/php
 es:Alimento fr:Nourriture zh:食品
 !! html/parsoid
-<p><link rel="mw:PageProp/Language" href="//es.wikipedia.org/wiki/Alimento"/>
-<link rel="mw:PageProp/Language" href="//fr.wikipedia.org/wiki/Nourriture"/>
-<link rel="mw:PageProp/Language" href="//zh.wikipedia.org/wiki/食品"/></p>
+<p><link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Alimento"/>
+<link rel="mw:PageProp/Language" href="http://fr.wikipedia.org/wiki/Nourriture"/>
+<link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/食品"/></p>
 !! end
 
 !! test
@@ -12508,10 +12591,10 @@ ill
 !! html/php
 es:1 fr:1
 !! html/parsoid
-<p><link rel="mw:PageProp/Language" href="//es.wikipedia.org/wiki/1"/>
-<link rel="mw:PageProp/Language" href="//es.wikipedia.org/wiki/2"/>
-<link rel="mw:PageProp/Language" href="//fr.wikipedia.org/wiki/1"/>
-<link rel="mw:PageProp/Language" href="//fr.wikipedia.org/wiki/2"/></p>
+<p><link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/1"/>
+<link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/2"/>
+<link rel="mw:PageProp/Language" href="http://fr.wikipedia.org/wiki/1"/>
+<link rel="mw:PageProp/Language" href="http://fr.wikipedia.org/wiki/2"/></p>
 !! end
 
 ###
@@ -21128,15 +21211,15 @@ parsoid=html2wt
 # All these tests are marked Parsoid html2wt and html2html only
 # ----------------------------------------------------------------
 
+# 'mi' is a localinterwiki prefix as well as a language
 !! test
 Serialize interwiki links pointing to the current wiki as plain wiki links (bug 65869)
 !! options
 parsoid=html2wt
-language=es
 !! wikitext
 [[Foo]]
 !! html
-<p><a rel="mw:ExtLink" href="http://es.wikipedia.org/wiki/Foo">Foo</a></p>
+<p><a rel="mw:ExtLink" href="http://mi.wikipedia.org/wiki/Foo">Foo</a></p>
 !! end
 
 !! test
