@@ -20617,7 +20617,7 @@ Table with broken attribute value quoting on consecutive lines
 | title="Hello world|Foo
 | style="color:red|Bar
 |}
-!! html
+!! html/php
 <table>
 <tr>
 <td>Foo
@@ -20625,18 +20625,7 @@ Table with broken attribute value quoting on consecutive lines
 <td>Bar
 </td></tr></table>
 
-!! end
-
-!! test
-Parsoid-only: Table with broken attribute value quoting on consecutive lines
-!! options
-parsoid
-!! wikitext
-{|
-| title="Hello world|Foo
-| style="color:red|Bar
-|}
-!! html
+!! html/parsoid
 <table><tbody>
 <tr>
 <td title="Hello world">Foo

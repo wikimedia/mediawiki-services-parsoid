@@ -99,11 +99,8 @@ redirect
 /* The 'redirect' magic word.
  * The leading whitespace allowed is due to the PHP trim() function.
  */
-redirect_word = sp:[ \t\n\r\0\x0b]* rw:((!space_or_newline ![:\[] c:.{return c;})+)
+redirect_word = sp:[ \t\n\r\0\x0b]* rw:(!space_or_newline ![:\[] c:.{return c;})+
 {
-    if ( !rw ) {
-        rw = "";
-    }
     rw = rw.join('');
     if ( options.env.conf.wiki.getMagicWordMatcher( 'redirect' ).test( rw ) ) {
         return sp.join('') + rw;
@@ -1435,16 +1432,16 @@ xml_att_value
 
 // Attribute value, restricted to a single line.
 att_value
-  = space* "'" r:(valPos1:({return peg$currPos;}) t1:attribute_preprocessor_text_single_line? valPos2:({return peg$currPos;}) ("'" / &"\n")
+  = space* "'" r:(valPos1:({return peg$currPos;}) t1:attribute_preprocessor_text_single_line? valPos2:({return peg$currPos;}) "'"
             { return tu.get_attribute_value_and_source(input, t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
-        / valPos1:({return peg$currPos;}) t2:attribute_preprocessor_text_single_line_broken? valPos2:({return peg$currPos;}) &[|>]
+        / valPos1:({return peg$currPos;}) t2:attribute_preprocessor_text_single_line_broken? valPos2:({return peg$currPos;}) &[|>\n]
             { return tu.get_attribute_value_and_source(input, t2, valPos1, valPos2); } )
                 { return r; }
-  / space* '"' r:(valPos1:({return peg$currPos;}) t1:attribute_preprocessor_text_double_line? valPos2:({return peg$currPos;}) ('"' / &"\n")
+  / space* '"' r:(valPos1:({return peg$currPos;}) t1:attribute_preprocessor_text_double_line? valPos2:({return peg$currPos;}) '"'
             { return tu.get_attribute_value_and_source(input, t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
-        / valPos1:({return peg$currPos;}) t2:attribute_preprocessor_text_double_line_broken? valPos2:({return peg$currPos;}) &[|>]
+        / valPos1:({return peg$currPos;}) t2:attribute_preprocessor_text_double_line_broken? valPos2:({return peg$currPos;}) &[|>\n]
             { return tu.get_attribute_value_and_source(input, t2, valPos1, valPos2); } )
                 { return r; }
   / space* valPos1:({return peg$currPos;}) t:attribute_preprocessor_text_line? !"=" valPos2:({return peg$currPos;})
@@ -2045,20 +2042,6 @@ directive
   / & "&" e:htmlentity { return e; }
   / include_limits
 
-// Plain text, but can contain templates, template arguments, comments etc-
-// all stuff that is normally handled by the preprocessor
-// Returns either a list of tokens, or a plain string (if nothing is to be
-// processed).
-preprocessor_text
-  = r:( t:[^<~[{\n\r\t|!\]}{ &=]+ { return t.join(''); }
-  / !inline_breaks dt:(
-      directive
-    / text_char ) { return dt; }
-  )+ {
-      // r will always be an array
-      return tu.flattenIfArray( r );
-  }
-
 wikilink_preprocessor_text
   = r:( t:[^<[{\n\r\t|!\]}{ &]+ { return t.join(''); }
         // XXX gwicke: any more chars we need to allow here?
@@ -2105,6 +2088,7 @@ attribute_preprocessor_text_single
   {
       return tu.flatten_string( r );
   }
+
 attribute_preprocessor_text_single_broken
   = r:( t:[^{}&'<>|]+ { return t.join(''); }
   / !inline_breaks r:(
@@ -2114,6 +2098,7 @@ attribute_preprocessor_text_single_broken
   {
       return tu.flatten_string( r );
   }
+
 attribute_preprocessor_text_double
   = r:( t:[^{}&"<]+ { return t.join(''); }
   / !inline_breaks r:(
@@ -2124,6 +2109,7 @@ attribute_preprocessor_text_double
       //console.warn( 'double:' + pp(r) );
       return tu.flatten_string( r );
   }
+
 attribute_preprocessor_text_double_broken
   = r:( t:[^{}&"<>|]+ { return t.join(''); }
   / !inline_breaks r:(
@@ -2157,13 +2143,14 @@ attribute_preprocessor_text_line
   }
 
 attribute_preprocessor_text_single_line
-  = r:( t:[^{}&'<|!\n]+ { return t.join(''); }
+  = r:( t:[^{}&'<\n]+ { return t.join(''); }
   / !inline_breaks r:(
       directive
     / ![\r\n] q:[{}&<] { return q; } ) { return r; }
   )* {
       return tu.flatten_string( r );
   }
+
 attribute_preprocessor_text_single_line_broken
   = r:( t:[^{}&'<>|!\n]+ { return t.join(''); }
   / !inline_breaks r:(
@@ -2172,14 +2159,16 @@ attribute_preprocessor_text_single_line_broken
   )* {
       return tu.flatten_string( r );
   }
+
 attribute_preprocessor_text_double_line
-  = r:( t:[^{}&"<|!\n]+ { return t.join(''); }
+  = r:( t:[^{}&"<\n]+ { return t.join(''); }
   / !inline_breaks r:(
       directive
     / ![\r\n] q:[{}&<] { return q; } ) { return r; }
   )* {
       return tu.flatten_string( r );
   }
+
 attribute_preprocessor_text_double_line_broken
   = r:( t:[^{}&"<>|!\n]+ { return t.join(''); }
   / !inline_breaks r:(

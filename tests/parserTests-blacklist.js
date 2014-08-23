@@ -446,7 +446,6 @@ add("wt2html", "Links 5. ExtLinks: No escapes needed", "<p data-parsoid='{\"dsr\
 add("wt2html", "Links 7b. Don't add spurious <nowiki/>s between text-nodes and url-links (bug 64300)", "<p data-parsoid='{\"dsr\":[0,24,0,0]}'><a rel=\"mw:ExtLink\" href=\"http://example.com.,;:!?\" data-parsoid='{\"stx\":\"url\",\"dsr\":[0,24,0,0]}'>http://example.com.,;:!?</a></p>");
 add("wt2html", "1. Leading whitespace in SOL context should be escaped", "<p data-parsoid='{\"dsr\":[0,19,0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[0,18,8,9]}'> </span>a</p>\n\n<p data-parsoid='{\"dsr\":[21,41,0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[21,39,8,9]}'> </span> a</p>\n\n<p data-parsoid='{\"dsr\":[43,67,0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[43,61,8,9]}'>\t</span>a(tab)</p>\n\n<p data-parsoid='{\"dsr\":[69,121,0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[69,87,8,9]}'> </span>\ta\n<!--cmt-->\n<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[101,119,8,9]}'> </span> a</p>\n\n<p data-parsoid='{\"dsr\":[123,144,0,0]}'>a\n<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[125,143,8,9]}'> </span>b</p>\n\n<p data-parsoid='{\"dsr\":[146,167,0,0]}'>a\n<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[148,166,8,9]}'>\t</span>b</p>\n\n<p data-parsoid='{\"dsr\":[169,191,0,0]}'>a\n<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[171,189,8,9]}'>\t</span> b</p>");
 add("wt2html", "1. a tags", "<p data-parsoid='{\"dsr\":[0,38,0,0]}'>&lt;a href=\"http://google.com\">google&lt;/a></p>");
-add("wt2html", "Table with broken attribute value quoting on consecutive lines", "<table data-parsoid='{\"dsr\":[0,53,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,51,0,0]}'><tr data-parsoid='{\"autoInsertedEnd\":true,\"autoInsertedStart\":true,\"dsr\":[3,50,0,0]}'><td title=\"Hello world\" data-parsoid='{\"autoInsertedEnd\":true,\"dsr\":[3,27,21,0]}'>Foo</td>\n<td style=\"color:red\" data-parsoid='{\"autoInsertedEnd\":true,\"dsr\":[28,50,19,0]}'>Bar</td></tr>\n</tbody></table>");
 add("wt2html", "Parsoid-only: Don't wrap broken template tags in <nowiki> on wt2wt (Bug 42353)", "<p data-parsoid='{\"dsr\":[0,4,0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"src\":\"{{}}\",\"dsr\":[0,4,0,0]}'>{{}}</span></p>");
 add("wt2html", "Parsoid-only: Don't wrap broken template tags in <nowiki> on wt2wt (Bug 42353)", "<p data-parsoid='{\"dsr\":[0,4,0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"src\":\"}}{{\",\"dsr\":[0,4,0,0]}'>}}{{</span></p>");
 add("wt2html", "Empty table rows go away", "<table data-parsoid='{\"dsr\":[0,39,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,37,0,0]}'><tr data-parsoid='{\"autoInsertedEnd\":true,\"autoInsertedStart\":true,\"dsr\":[3,18,0,0]}'><td data-parsoid='{\"autoInsertedEnd\":true,\"dsr\":[3,10,1,0]}'> Hello</td>\n<td data-parsoid='{\"autoInsertedEnd\":true,\"dsr\":[11,18,1,0]}'> there</td></tr>\n<tr class=\"foo\" data-parsoid='{\"startTagSrc\":\"|-\",\"autoInsertedEnd\":true,\"dsr\":[19,33,14,0]}'></tr>\n<tr data-parsoid='{\"startTagSrc\":\"|-\",\"autoInsertedEnd\":true,\"dsr\":[34,36,2,0]}'></tr>\n</tbody></table>");
@@ -569,7 +568,6 @@ add("wt2wt", "HTML tag with broken attribute value quoting", "<span title=\"Hell
 add("wt2wt", "Parsoid-only: HTML tag with broken attribute value quoting", "<span title=\"Hello world\">Foo</span>\n");
 add("wt2wt", "Table with broken attribute value quoting", "{|\n| title=\"Hello world\" |Foo\n|}");
 add("wt2wt", "Table with broken attribute value quoting on consecutive lines", "{|\n| title=\"Hello world\" |Foo\n| style=\"color:red\" |Bar\n|}");
-add("wt2wt", "Parsoid-only: Table with broken attribute value quoting on consecutive lines", "{|\n| title=\"Hello world\" |Foo\n| style=\"color:red\" |Bar\n|}");
 add("wt2wt", "RT-ed inter-element separators should be valid separators", "{|\n|-   [ foo]]\n|}");
 add("wt2wt", "Empty TD followed by TD with tpl-generated attribute", "{|\n|-\n|\n| {{echo|style='color:red'}} |foo\n|}");
 add("wt2wt", "Improperly nested inline or quotes tags with whitespace in between", "<span> <s>x</span> </s>\n''' ''x'''''<nowiki/>'' ''\n");
@@ -1849,8 +1847,7 @@ add("html2wt", "HTML tag with 'unnecessary' entity encoding in attributes", "<sp
 add("html2wt", "HTML tag with broken attribute value quoting", "<span title=\"Hello world\">Foo</span>\n");
 add("html2wt", "Parsoid-only: HTML tag with broken attribute value quoting", "<span title=\"Hello world\">Foo</span>\n");
 add("html2wt", "Table with broken attribute value quoting", "{|\n\n| title=\"Hello world\" |Foo\n|}\n");
-add("html2wt", "Table with broken attribute value quoting on consecutive lines", "{|\n\n|Foo\n\n|Bar\n|}\n");
-add("html2wt", "Parsoid-only: Table with broken attribute value quoting on consecutive lines", "{|\n\n| title=\"Hello world\" |Foo\n| style=\"color: red\" |Bar\n|}\n");
+add("html2wt", "Table with broken attribute value quoting on consecutive lines", "{|\n\n| title=\"Hello world\" |Foo\n| style=\"color: red\" |Bar\n|}\n");
 add("html2wt", "Parsoid-only: Don't wrap broken template tags in <nowiki> on wt2wt (Bug 42353)", "<nowiki>{{}}</nowiki>");
 add("html2wt", "Parsoid-only: Don't wrap broken template tags in <nowiki> on wt2wt (Bug 42353)", "<nowiki>}}{{</nowiki>");
 add("html2wt", "Accept empty td cell attribute", "{|\n\n| align=\"center\" | foo \n|\n|}\n");
@@ -2975,13 +2972,6 @@ add("selser", "Table with broken attribute value quoting on consecutive lines [[
 add("selser", "Table with broken attribute value quoting on consecutive lines [[4,[[1,0,0],0]]]", "{|<!--nejaqckt9hmbcsor-->\n| title=\"Hello world\" data-foobar=\"bumvfdcvrbhme7b9\" |Foo\n| style=\"color:red|Bar\n|}");
 add("selser", "Table with broken attribute value quoting on consecutive lines [[4,2]]", "{|<!--7wm4bxgh5f0w9udi--><!--xv1dekuqzsiw9udi-->\n| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
 add("selser", "Table with broken attribute value quoting on consecutive lines [[0,[[2,0,3],3]]]", "{|\n|fk1rjyjbpej6ecdi\n| title=\"Hello world|Foo\n|}");
-add("selser", "Parsoid-only: Table with broken attribute value quoting on consecutive lines [[0,[2,0]]]", "{|\n<!--65b6dlogs124kj4i-->| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
-add("selser", "Parsoid-only: Table with broken attribute value quoting on consecutive lines [1]", "{| data-foobar=\"xgsbz2z4izlg14i\"\n| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
-add("selser", "Parsoid-only: Table with broken attribute value quoting on consecutive lines [2]", "wzsbqm5vh2pujtt9\n{|\n| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
-add("selser", "Parsoid-only: Table with broken attribute value quoting on consecutive lines [[4,[[3,0,2],0]]]", "{|<!--jwixqiu7bck57b9-->\n|m43mcklikp0newmi\n| style=\"color:red|Bar\n|}");
-add("selser", "Parsoid-only: Table with broken attribute value quoting on consecutive lines [[2,2]]", "{|<!--p7jjy5nnfa5g66r-->\n<!--e7dbmj924nwv1jor-->| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
-add("selser", "Parsoid-only: Table with broken attribute value quoting on consecutive lines [[0,2]]", "{|\n<!--10pgp40wu8035wmi-->| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
-add("selser", "Parsoid-only: Table with broken attribute value quoting on consecutive lines [[0,[1,0]]]", "{|\n| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
 add("selser", "RT-ed inter-element separators should be valid separators [1]", "{| data-foobar=\"pjc22ppvxsn3766r\"\n|- [[foo]]\n|}");
 add("selser", "RT-ed inter-element separators should be valid separators [[0,2]]", "{|\n<!--jqwe4sxcvdqxs9k9-->|- [[foo]]\n|}");
 add("selser", "RT-ed inter-element separators should be valid separators [[0,[0,3]]]", "{|\n|- [[foo]]\n|}");
