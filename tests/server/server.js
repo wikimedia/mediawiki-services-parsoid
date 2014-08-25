@@ -1052,6 +1052,7 @@ var GET_regressions = function( req, res ) {
 		page = (req.params[2] || 0) - 0,
 		offset = page * 40,
 		relativeUrlPrefix = '../../../';
+	relativeUrlPrefix = relativeUrlPrefix + (req.params[0] ? '../' : '');
 	db.query( dbNumRegressionsBetweenRevs, [ r2, r1 ], function(err, row) {
 		if (err) {
 			res.send( err.toString(), 500 );
@@ -1078,6 +1079,7 @@ var GET_topfixes = function( req, res ) {
 		page = (req.params[2] || 0) - 0,
 		offset = page * 40,
 		relativeUrlPrefix = '../../../';
+	relativeUrlPrefix = relativeUrlPrefix + (req.params[0] ? '../' : '');
 	db.query( dbNumFixesBetweenRevs, [ r2, r1 ], function(err, row) {
 		if (err) {
 			res.send( err.toString(), 500 );
