@@ -70,22 +70,30 @@ Diff.resultFlagged = function(oldString, newString, oldCommit, newCommit, flag) 
 	var status = flag === '+' ? 'new' : 'old';
 	var xmlWrapper = flag === '+' ? 'FlagNewTestcases' : 'FlagOldTestcases';
 	var testcases = flag === '+' ? newString.split(/(<\/testcase>)/) : oldString.split(/(<\/testcase>)/);
+	var result, pre, post;
 
-	var diff = diffResults(oldString, newString);
-	var statusArray = testcaseStatus(diff, flag);
-	var startTestcases = testcases[0].indexOf('<testcase');
-	var pre = testcases[0].slice(0, startTestcases);
-	var post = testcases[testcases.length - 1];
-	testcases[0] = testcases[0].slice(startTestcases);
+	if (testcases.length === 1) {
+		// No diffs!
+		result = testcases[0];
+		pre = post = "";
+	} else {
+		var diff = diffResults(oldString, newString);
+		var statusArray = testcaseStatus(diff, flag);
+		var startTestcases = testcases[0].indexOf('<testcase');
+		pre = testcases[0].slice(0, startTestcases);
+		post = testcases[testcases.length - 1];
+		testcases[0] = testcases[0].slice(startTestcases);
 
-	var results = [];
-	for (var i = 0, l = testcases.length - 1; i < l; i++) {
-		if (i%2 === 0 && statusArray[i/2]) {
-			testcases[i] = testcases[i].replace('<testcase', '<testcase status="' + status + '"');
+		var results = [];
+		for (var i = 0, l = testcases.length - 1; i < l; i++) {
+			if (i%2 === 0 && statusArray[i/2]) {
+				testcases[i] = testcases[i].replace('<testcase', '<testcase status="' + status + '"');
+			}
+			results.push(testcases[i]);
 		}
-		results.push(testcases[i]);
+		result = results.join('');
 	}
-	var result = results.join('');
+
 	return '<' + xmlWrapper  + ' oldCommit ="' + oldCommit + '" newCommit="' + newCommit + '" >' +
 		pre + result + post + '</' + xmlWrapper + '>';
 };
