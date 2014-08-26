@@ -1440,6 +1440,13 @@
         "aliases": [
           "WIKI"
         ]
+      },
+      {
+        "name": "!",
+        "aliases": [
+          "!"
+        ],
+        "case-sensitive": ""
       }
     ],
     "functionhooks": [

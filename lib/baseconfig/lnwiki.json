@@ -1417,6 +1417,13 @@
         "aliases": [
           "subcats"
         ]
+      },
+      {
+        "name": "!",
+        "aliases": [
+          "!"
+        ],
+        "case-sensitive": ""
       }
     ],
     "functionhooks": [

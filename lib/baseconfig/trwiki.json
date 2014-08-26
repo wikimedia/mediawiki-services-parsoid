@@ -1468,6 +1468,13 @@
         "aliases": [
           "noreplace"
         ]
+      },
+      {
+        "name": "!",
+        "aliases": [
+          "!"
+        ],
+        "case-sensitive": ""
       }
     ],
     "functionhooks": [

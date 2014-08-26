@@ -15902,6 +15902,17 @@ Special:Search page linking.
 !! end
 
 !! test
+{{!}} is a magic word
+!! wikitext
+{{!}} is a magic word there and {{!}} is still a magic word here
+!! html/php
+<p>| is a magic word there and | is still a magic word here
+</p>
+!! html/parsoid
+<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"!","href":"./Template:!"},"params":{},"i":0}}]}' data-parsoid='{"pi":[[]]}'>|</span> is a magic word there and <span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"!","href":"./Template:!"},"params":{},"i":0}}]}' data-parsoid='{"pi":[[]]}'>|</span> is still a magic word here</p>
+!! end
+
+!! test
 Say the magic word
 !! options
 title=[[Parser test]]

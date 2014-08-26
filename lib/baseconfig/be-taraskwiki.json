@@ -1360,6 +1360,13 @@
         "aliases": [
           "files"
         ]
+      },
+      {
+        "name": "!",
+        "aliases": [
+          "!"
+        ],
+        "case-sensitive": ""
       }
     ],
     "functionhooks": [
