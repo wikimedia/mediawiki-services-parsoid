@@ -6792,6 +6792,19 @@ parsoid=wt2html,wt2wt,html2html
 <p><a rel="mw:WikiLink" href="./Foo" title="Foo">local:local:local:local:mi:local:Foo</a></p>
 !! end
 
+!! test
+Piped wikilink with local interwiki link prefix
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[mi:Foo|Foo]]
+!! html/php
+<p><a href="/wiki/Foo" title="Foo">Foo</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Foo" title="Foo">Foo</a></p>
+!! end
+
 ###
 ### Interlanguage links
 ### Language links (so that searching for '### language' matches..)
