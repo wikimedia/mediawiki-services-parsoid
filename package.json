@@ -29,7 +29,7 @@
 	},
 	"scripts": {
 		"start": "node api/server.js",
-		"test": "node tests/parserTests.js && mocha tests/mocha"
+		"test": "node tests/parserTests.js && mocha --opts tests/mocha/mocha.opts tests/mocha"
 	},
 	"repository": {
 		"type": "git",
