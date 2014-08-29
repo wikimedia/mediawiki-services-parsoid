@@ -199,10 +199,7 @@ ParserTests.prototype.getOpts = function () {
 		},
 		'run-disabled': {
 			description: 'Run disabled tests',
-			// this defaults to true because historically parsoid-only tests
-			// were marked as 'disabled'.  Once these are all changed to
-			// 'parsoid', this default should be changed to false.
-			'default': true,
+			'default': false,
 			'boolean': true
 		},
 		'run-php': {
@@ -1806,9 +1803,10 @@ ParserTests.prototype.processCase = function ( i, options, err ) {
 				case 'test':
 					if( !('wikitext' in item && 'html' in item) ||
 						('disabled' in item.options && !this.runDisabled) ||
-						('php' in item.options && !('html/parsoid' in item || this.runPHP)) ||
-					    (this.test_filter &&
-					     -1 === item.title.search( this.test_filter ) ) ) {
+						('php' in item.options &&
+							!('html/parsoid' in item || this.runPHP)) ||
+						(this.test_filter &&
+							-1 === item.title.search( this.test_filter ) ) ) {
 						// Skip test whose title does not match --filter
 						// or which is disabled or php-only
 						this.comments = [];
