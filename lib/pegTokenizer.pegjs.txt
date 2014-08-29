@@ -360,16 +360,21 @@ h = & "=" // guard, to make sure '='+ will match.
     / & { stops.dec('h'); return false; }
     ) { return r; }
 
+
 comment
     ='<!--' c:comment_chars* ('-->' / eof)
     {
-        return [new CommentTk( c.join(''), { tsr: [peg$reportedPos, peg$currPos] } )];
+        var data = c.join('');
+        // Bug 58184: Browsers leniently accept --!> as a closing comment tag,
+        // which differs from the php+tidy combo. Suppress that behaviour at
+        // the cost of introducing a dirty diff. Selser should take care of it.
+        data = data.replace(/--!>/g, "--¡>");
+        return [new CommentTk( data, { tsr: [peg$reportedPos, peg$currPos] } )];
     }
 
 comment_chars
   = c:[^-] { return c; }
   / c:'-' !'->' { return c; }
-
 
 
 // Behavior switches. See https://www.mediawiki.org/wiki/Help:Magic_words#Behavior_switches

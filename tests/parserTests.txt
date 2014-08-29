@@ -1487,6 +1487,19 @@ Comment semantics: unclosed comment at end
 
 !! end
 
+# Bug 58184: document parsoid's behaviour
+!! test
+Suppress comment closing tag in lenient browsers
+!! options
+parsoid=wt2html,html2html
+!! wikitext
+<!-- Browsers--!> think this is closed -->
+!! html/php
+
+!! html/parsoid
+<!-- Browsers--¡> think this is closed -->
+!! end
+
 !! test
 Comment in template title
 !! wikitext
