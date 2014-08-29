@@ -513,8 +513,6 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 			case 'OL':
 			case 'UL': wrapperName = 'LI'; break;
 			case 'DL': wrapperName = 'DD'; break;
-			case 'BODY' : wrapperName = 'P'; break;
-
 			case 'TR':
 				var prev = DU.getPrevElementSibling(n);
 				if (prev) {
@@ -528,6 +526,12 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 					} else {
 						wrapperName = 'TD';
 					}
+				}
+				break;
+			case 'BODY' : wrapperName = 'P'; break;
+			default:
+				if (DU.isBlockNodeWithVisibleWT(n)) {
+					wrapperName = 'P';
 				}
 				break;
 		}
