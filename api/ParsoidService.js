@@ -3,6 +3,8 @@
  */
 "use strict";
 
+require('../lib/core-upgrade.js');
+
 /**
  * @class ParserServiceModule
  * @singleton
@@ -13,11 +15,11 @@
 var express = require('express'),
 	domino = require('domino'),
 	hbs = require('handlebars'),
-	// memwatch = require('memwatch'),
 	childProc = require('child_process'),
 	cluster = require('cluster'),
 	fs = require('fs'),
 	path = require('path'),
+	url = require('url'),
 	util = require('util'),
 	pkg = require('../package.json'),
 	Diff = require('../lib/mediawiki.Diff.js').Diff,
@@ -70,7 +72,7 @@ function ParsoidService(options) {
 	 * @param {Response} res The response object from our routing function.
 	 * @property {Function} Serializer
 	 */
-	function endResponse (res, env) {
+	function endResponse(res, env) {
 		if (env.responseSent) {
 			return;
 		} else {
@@ -88,7 +90,7 @@ function ParsoidService(options) {
 	 * @param {Response} res The response object from our routing function.
 	 * @property {Function} Serializer
 	 */
-	function sendResponse (res, env) {
+	function sendResponse(res, env) {
 		if (env.responseSent) {
 			return;
 		} else {
@@ -107,6 +109,15 @@ function ParsoidService(options) {
 		} else {
 			env.responseSent = true;
 			res.render.apply(res, Array.prototype.slice.call(arguments, 2));
+		}
+	}
+
+	function jsonResponse(res, env) {
+		if (env.responseSent) {
+			return;
+		} else {
+			env.responseSent = true;
+			res.json.apply(res, Array.prototype.slice.call(arguments, 2));
 		}
 	}
 
@@ -328,6 +339,7 @@ function ParsoidService(options) {
 	function interParams( req, res, next ) {
 		res.local('iwp', req.params[0] || parsoidConfig.defaultWiki || '');
 		res.local('pageName', req.params[1] || '');
+		res.local('oldid', req.query.oldid || null);
 		next();
 	}
 
@@ -534,10 +546,11 @@ function ParsoidService(options) {
 		}
 	}
 
-	function wt2html( req, res, wt ) {
-		var env = res.local('env');
-		var prefix = res.local('iwp');
-		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
+	function wt2html( req, res, wt, v2 ) {
+		var env = res.local('env'),
+			prefix = res.local('iwp'),
+			oldid = res.local('oldid'),
+			target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
 		// Set the timeout to 600 seconds..
 		req.connection.setTimeout( 600 * 1000 );
@@ -545,12 +558,10 @@ function ParsoidService(options) {
 		if ( env.conf.parsoid.allowCORS ) {
 			// allow cross-domain requests (CORS) so that parsoid service
 			// can be used by third-party sites
-			setHeader(res, env, 'Access-Control-Allow-Origin',
-						   env.conf.parsoid.allowCORS );
+			setHeader( res, env, 'Access-Control-Allow-Origin', env.conf.parsoid.allowCORS );
 		}
 
-		var tmpCb,
-			oldid = req.query.oldid || null;
+		var tmpCb;
 		if ( wt ) {
 			wt = wt.replace( /\r/g, '' );
 			env.log('info', 'starting parsing');
@@ -620,13 +631,26 @@ function ParsoidService(options) {
 
 					// Set the source
 					env.setPageSrcInfo( src_and_metadata );
-					var url = [ "", prefix,
-								encodeURIComponent( target ) +
-								"?oldid=" + env.page.meta.revision.revid
-							].join( "/" );
+					oldid = env.page.meta.revision.revid;
+
+					var path = "/";
+					if ( v2 ) {
+						path += [
+							"v2",
+							url.parse( env.conf.parsoid.interwikiMap.get( prefix ) ).host,
+							encodeURIComponent( target ),
+							v2.format,
+							oldid
+						].join("/");
+					} else {
+						path += [
+							prefix,
+							encodeURIComponent( target ) + "?oldid=" + oldid
+						].join("/");
+					}
 
 					// Redirect to oldid
-					relativeRedirect({"path" : url, "res" : res, "env" : env});
+					relativeRedirect({ "path": path, "res": res, "env": env });
 					env.log("info", "redirected to revision", env.page.meta.revision.revid);
 				};
 			}
@@ -636,11 +660,19 @@ function ParsoidService(options) {
 		tpr.once( 'src', tmpCb );
 
 		function sendRes( doc ) {
-			var out = DU.serializeNode( doc );
 			try {
 				setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
-				setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8' );
-				endResponse(res, env,  out );
+				if ( v2 && v2.format === "pagebundle" ) {
+					var dp = doc.ownerDocument.getElementById('mw-data-parsoid');
+					dp.parentNode.removeChild(dp);
+					jsonResponse(res, env, {
+						html: DU.serializeNode( doc ),
+						"data-parsoid": JSON.parse(dp.text)
+					});
+				} else {
+					setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8');
+					endResponse(res, env,  DU.serializeNode( doc ));
+				}
 				env.log("info", "completed parsing in", env.performance.duration, "ms");
 			} catch (e) {
 				env.log("fatal/request", e);
@@ -648,13 +680,48 @@ function ParsoidService(options) {
 		}
 	}
 
+	// Attempt to define a new version of the API
+	// /v2/{domain}/{title}/{format}/{revision}
+
+	var supportedFormats = new Set([ "pagebundle", "html" ]);
+
+	function v2Middle( req, res, next ) {
+		function errOut(err) {
+			// FIXME: provide more consistent error handling.
+			sendResponse( res, {}, err, 404 );
+		}
+
+		var iwp = parsoidConfig.reverseIWMap.get( req.params.domain );
+		if ( !iwp ) {
+			return errOut("Invalid domain.");
+		}
+		res.local('iwp', iwp);
+
+		res.local('format', req.params.format || "html");
+		if ( !supportedFormats.has( res.local('format') ) ) {
+			return errOut("Invalid format.");
+		}
+
+		res.local('pageName', req.params.title);
+		res.local('oldid', req.params.revision || null);
+		next();
+	}
+
+	app.get('/v2/:domain/:title/:format?/:revision?', v2Middle, parserEnvMw, function(req, res) {
+		var v2 = { format: res.local("format") };
+		if ( v2.format === "pagebundle" ) {
+			res.local('env').conf.parsoid.storeDataParsoid = true;
+		}
+		wt2html( req, res, null, v2 );
+	});
+
 	// Regular article parsing
-	app.get( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), interParams, parserEnvMw, function(req, res) {
+	app.get(new RegExp('/(' + getInterwikiRE() + ')/(.*)'), interParams, parserEnvMw, function(req, res) {
 		wt2html( req, res );
 	});
 
 	// Regular article serialization using POST
-	app.post( new RegExp( '/(' + getInterwikiRE() + ')/(.*)' ), interParams, parserEnvMw, function ( req, res ) {
+	app.post(new RegExp('/(' + getInterwikiRE() + ')/(.*)'), interParams, parserEnvMw, function(req, res) {
 		// parse html or wt
 		if ( req.body.wt ) {
 			wt2html( req, res, req.body.wt );
@@ -711,7 +778,7 @@ function ParsoidService(options) {
 	gitVersion( function () {
 		app.listen( port, host );
 		console.log( ' - ' + instanceName + ' ready on ' +
-		             (host||'') + ':' + port );
+			(host||'') + ':' + port );
 	});
 
 }
