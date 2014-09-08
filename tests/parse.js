@@ -273,9 +273,9 @@ process.on('SIGUSR2', function() {
 			var out, dp;
 			if ( argv.wt2html || argv.html2html ) {
 				if ( argv.normalize ) {
-				    out = DU.normalizeOut(document.body, (argv.normalize === 'parsoid'));
+					out = DU.normalizeOut(document.body, (argv.normalize === 'parsoid'));
 				} else {
-				    out = DU.serializeNode( document );
+					out = DU.serializeNode( document );
 				}
 				addTrailingNL( true, out );
 			} else {
