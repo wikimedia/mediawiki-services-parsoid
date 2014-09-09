@@ -57,7 +57,7 @@ var dummyEnv = {
 
 if (argv.debug) {
 	var logger = new Logger(dummyEnv);
-	logger.registerTracer(/^(trace|debug)(\/|$)/);
+	logger.registerBackend(/^(trace|debug)(\/|$)/, logger.getDefaultTracerBackend());
 	dummyEnv.log = logger.log.bind(logger);
 } else {
 	dummyEnv.log = function() {};
