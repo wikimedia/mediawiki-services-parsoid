@@ -10997,9 +10997,9 @@ thumbsize=220
 <div class="thumb tright"><div class="thumbinner" style="width:222px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>Caption <a href="/index.php?title=Link1&amp;action=edit&amp;redlink=1" class="new" title="Link1 (page does not exist)">Link1</a> [[]] <a href="/index.php?title=Link2&amp;action=edit&amp;redlink=1" class="new" title="Link2 (page does not exist)">Link2</a></div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"Caption [[Link1]]\n[[]]\n[[Link2]]\n"}],"dsr":[0,59,2,2]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"},"dsr":[2,null,null,null]}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" height="25" width="220" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption data-parsoid='{"dsr":[null,57,null,null]}'>Caption <a rel="mw:WikiLink" href="./Link1" title="Link1" data-parsoid='{"stx":"simple","a":{"href":"./Link1"},"sa":{"href":"Link1"},"dsr":[32,41,2,2]}'>Link1</a>
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"Caption [[Link1]]\n[[]]\n[[Link2]]\n"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" height="25" width="220" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption data-parsoid='{}'>Caption <a rel="mw:WikiLink" href="./Link1" title="Link1" data-parsoid='{"stx":"simple","a":{"href":"./Link1"},"sa":{"href":"Link1"}}'>Link1</a>
 [[]]
-<a rel="mw:WikiLink" href="./Link2" title="Link2" data-parsoid='{"stx":"simple","a":{"href":"./Link2"},"sa":{"href":"Link2"},"dsr":[47,56,2,2]}'>Link2</a>
+<a rel="mw:WikiLink" href="./Link2" title="Link2" data-parsoid='{"stx":"simple","a":{"href":"./Link2"},"sa":{"href":"Link2"}}'>Link2</a>
 </figcaption></figure>
 !! end
 
@@ -13231,15 +13231,14 @@ parsoid
 </tbody></table>
 !! end
 
-# The PHP parser escapes the opening brace to &#123; for some reason, so
-# disabled this test for it.
 !! test
 div with braces in attribute value
-!! options
-parsoid
 !! wikitext
 <div title="{}">Foo</div>
-!! html
+!! html/php
+<div title="&#123;}">Foo</div>
+
+!! html/parsoid
 <div title="{}">Foo</div>
 !! end
 
@@ -13248,17 +13247,19 @@ parsoid
 # 'div with empty attribute value, space before equals'), but strips the
 # attribute completely if the space is missing. We hope that not much content
 # depends on this, so are implementing the behavior below in Parsoid for
-# consistencies' sake. Disabled for the PHP parser. 
+# consistencies' sake.
 # FIXME: fix this behavior in the PHP parser?
 !! test
 div with empty attribute value, no space before equals
 !! options
-parsoid
+parsoid=wt2html,html2html
 !! wikitext
 <div class=>HTML rocks</div>
-!! html
-<div class="">HTML rocks</div>
+!! html/php
+<div>HTML rocks</div>
 
+!! html/parsoid
+<div class="">HTML rocks</div>
 !! end
 
 !! test
@@ -14279,16 +14280,19 @@ Sanitizer: Escaping of spaces, multibyte characters, colons & other stuff in id=
 </p>
 !! end
 
+# In HTML5, the restrictions are that id must contain at least one character,
+# and must not contain any space characters.
 !! test
 Sanitizer: Validating the contents of the id attribute (bug 4515)
 !! options
 disabled
 !! wikitext
-<br id=9 />
+<br id="" /><br id="a space" />
 !! html
-Something, but definitely not <br id="9" />...
+Something ...
 !! end
 
+# In HTML5, id must be unique amongst all the ids in the element's home subtree.
 !! test
 Sanitizer: Validating id attribute uniqueness (bug 4515, bug 6301)
 !! options
@@ -14394,29 +14398,36 @@ HTML bullet list, closed tags (bug 5497)
 <li>One</li>
 <li>Two</li>
 </ul>
-!! html
+!! html/php
 <ul>
 <li>One</li>
 <li>Two</li>
+</ul>
+
+!! html/parsoid
+<ul data-parsoid='{"stx":"html"}'>
+<li data-parsoid='{"stx":"html"}'>One</li>
+<li data-parsoid='{"stx":"html"}'>Two</li>
 </ul>
 
 !! end
 
 !! test
 HTML bullet list, unclosed tags (bug 5497)
-!! options
-disabled
 !! wikitext
 <ul>
 <li>One
 <li>Two
 </ul>
-!! html
+!! html/php+tidy
 <ul>
-<li>One
-</li>
-<li>Two
-</li>
+<li>One</li>
+<li>Two</li>
+</ul>
+!! html/parsoid
+<ul data-parsoid='{"stx":"html"}'>
+<li data-parsoid='{"stx":"html","autoInsertedEnd":true}'>One</li>
+<li data-parsoid='{"stx":"html","autoInsertedEnd":true}'>Two</li>
 </ul>
 
 !! end
@@ -14428,10 +14439,16 @@ HTML ordered list, closed tags (bug 5497)
 <li>One</li>
 <li>Two</li>
 </ol>
-!! html
+!! html/php
 <ol>
 <li>One</li>
 <li>Two</li>
+</ol>
+
+!! html/parsoid
+<ol data-parsoid='{"stx":"html"}'>
+<li data-parsoid='{"stx":"html"}'>One</li>
+<li data-parsoid='{"stx":"html"}'>Two</li>
 </ol>
 
 !! end
@@ -14439,18 +14456,20 @@ HTML ordered list, closed tags (bug 5497)
 !! test
 HTML ordered list, unclosed tags (bug 5497)
 !! options
-disabled
 !! wikitext
 <ol>
 <li>One
 <li>Two
 </ol>
-!! html
+!! html/php+tidy
 <ol>
-<li>One
-</li>
-<li>Two
-</li>
+<li>One</li>
+<li>Two</li>
+</ol>
+!! html/parsoid
+<ol data-parsoid='{"stx":"html"}'>
+<li data-parsoid='{"stx":"html","autoInsertedEnd":true}'>One</li>
+<li data-parsoid='{"stx":"html","autoInsertedEnd":true}'>Two</li>
 </ol>
 
 !! end
@@ -14482,8 +14501,6 @@ HTML nested bullet list, closed tags (bug 5497)
 
 !! test
 HTML nested bullet list, open tags (bug 5497)
-!! options
-disabled
 !! wikitext
 <ul>
 <li>One
@@ -14493,7 +14510,17 @@ disabled
 <li>Sub-two
 </ul>
 </ul>
-!! html
+!! html/php+tidy
+<ul>
+<li>One</li>
+<li>Two:
+<ul>
+<li>Sub-one</li>
+<li>Sub-two</li>
+</ul>
+</li>
+</ul>
+!! html/parsoid
 <ul>
 <li>One
 </li>
@@ -14536,8 +14563,6 @@ HTML nested ordered list, closed tags (bug 5497)
 
 !! test
 HTML nested ordered list, open tags (bug 5497)
-!! options
-disabled
 !! wikitext
 <ol>
 <li>One
@@ -14547,7 +14572,17 @@ disabled
 <li>Sub-two
 </ol>
 </ol>
-!! html
+!! html/php
+<ol>
+<li>One
+<li>Two:
+<ol>
+<li>Sub-one
+<li>Sub-two
+</ol>
+</ol>
+
+!! html/parsoid
 <ol>
 <li>One
 </li>
@@ -14823,7 +14858,7 @@ Fuzz testing: image with bogus manual thumbnail
 <div class="thumb tright"><div class="thumbinner" style="width:182px;">Error creating thumbnail:   <div class="thumbcaption"></div></div></div>
 
 !! html/parsoid
-<meta typeof="mw:Placeholder" data-parsoid='{"src":"[[Image:foobar.jpg|thumbnail= ]]","optList":[{"ck":"manualthumb","ak":"thumbnail= "}],"dsr":[0,32,null,null]}'/>
+<meta typeof="mw:Placeholder" data-parsoid='{"src":"[[Image:foobar.jpg|thumbnail= ]]","optList":[{"ck":"manualthumb","ak":"thumbnail= "}]}'/>
 !!end
 
 !! test
@@ -14901,15 +14936,19 @@ New wiki paragraph
 </p>
 !! end
 
+# FIXME: The current php output is documented
+# and desired output is the parsoid target.
 !! test
 Inline HTML vs wiki block nesting
-!! options
-disabled
 !! wikitext
 <b>Bold paragraph
 
 New wiki paragraph
-!! html
+!! html/php
+<p><b>Bold paragraph
+</p><p>New wiki paragraph</b>
+</p>
+!! html/parsoid
 <p><b>Bold paragraph</b>
 </p><p>New wiki paragraph
 </p>
@@ -16416,35 +16455,16 @@ Another italics / bold test
 </pre>
 !!end
 
-# Note the results may be incorrect, as parserTest output included this:
-# XML error: Mismatched tag at byte 6120:
-# ...<dd> </dt></dl> </dd...
+# FIXME: The php output seems broken. It's interleaving some open/close tags.
 !! test
 dt/dd/dl test
-!! options
-disabled
 !! wikitext
 :;;;::
-!! html
-<dl>
-<dd><dl>
-<dt><dl>
-<dt><dl>
-<dt><dl>
-<dd><dl>
-<dd>
-</dd>
-</dl>
-</dd>
-</dl>
-</dt>
-</dl>
-</dt>
-</dl>
-</dt>
-</dl>
-</dd>
-</dl>
+!! html/php
+<dl><dd><dl><dt><dl><dt><dl><dt><dl><dd><dl><dd></dt></dl></dd></dl></dd></dl></dd></dl></dd></dl></dd></dl>
+
+!! html/parsoid
+<dl><dd><dl><dt><dl><dt><dl><dt><dl><dd><dl><dd></dd></dl></dd></dl></dt></dl></dt></dl></dt></dl></dd></dl>
 
 !!end
 
@@ -17281,45 +17301,51 @@ language=sr variant=sr-ec
 </p>
 !! end
 
-# This test is currently broken in the PHP parser (bug 52661)
+# FIXME: This test is currently broken in the PHP parser (bug 52661)
 !! test
 Don't break image parsing if language converter markup is in the caption.
 !! options
 language=sr
-disabled
 !! wikitext
 [[File:Foobar.jpg|-{R|caption}-]]
-!! html
+!! html/parsoid
 <p><a href="/wiki/File:Foobar.jpg" class="image" title="caption"><img alt="caption" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
 </p>
 !! end
 
-# This test is currently broken in the PHP parser (bug 52661)
+# FIXME: This test is currently broken in the PHP parser (bug 52661)
 !! test
 Don't break list handling if language converter markup is in the item.
 !! options
 language=zh variant=zh-cn
-disabled
 !! wikitext
 ;-{zh-cn:AAA;zh-tw:BBB}-
-!! html
+!! html/php
+<dl><dt><span class="error">在手动语言转换规则中检测到错误</span></dd></dl>
+
+!! html/parsoid
 <dl><dt>AAA
 </dt></dl>
-
 !! end
 
-# This test is currently broken in the PHP parser (bug 52661)
+# FIXME: This test is currently broken in the PHP parser (bug 52661)
 !! test
 Don't break table handling if language converter markup is in the cell.
 !! options
 language=sr variant=sr-ec
-disabled
 !! wikitext
 {|
 |-
 | -{R|B}-
 |}
-!! html
+!! html/php
+<table>
+
+<tr>
+<td>Б}-
+</td></tr></table>
+
+!! html/parsoid
 <table>
 
 <tr>
@@ -17538,12 +17564,13 @@ Line two
 
 !! test
 Nesting tags, paragraphs on lines which begin with <div>
-!! options
-disabled
 !! wikitext
 <div></div><strong>A
 B</strong>
-!! html
+!! html/php+tidy
+<p><strong>A</strong></p>
+<p><strong>B</strong></p>
+!! html/parsoid
 <div></div>
 <p><strong>A
 B</strong>
@@ -17945,27 +17972,31 @@ comment
 <a href="/index.php?title=ABC3D%25_%2B%2B&amp;action=edit&amp;redlink=1" class="new" title="ABC3D% ++ (page does not exist)">ABC3D% ++</a> <a href="/index.php?title=ABC3D%25_%2B%2B&amp;action=edit&amp;redlink=1" class="new" title="ABC3D% ++ (page does not exist)">+%20</a>
 !! end
 
+# FIXME: Omitting the php sections here because of differences in the local and
+# jenkins output. But, more importantly, the Bad.jpg isn't being stripped,
+# which seems to be a problem with the testing infrastructure.
 !! test
 Bad images - basic functionality
-!! options
-disabled
 !! wikitext
 [[File:Bad.jpg]]
-!! html
+!! html/parsoid
+<meta typeof="mw:Placeholder" data-parsoid='{"src":"[[File:Bad.jpg]]","optList":[]}'/>
 !! end
 
+# FIXME: Same reasoning as above. The expected php is:
+#  <p>Foo bar
+#  </p><p>Bar foo
+#  </p>
 !! test
 Bad images - bug 16039: text after bad image disappears
-!! options
-disabled
 !! wikitext
 Foo bar
 [[File:Bad.jpg]]
 Bar foo
-!! html
+!! html/parsoid
 <p>Foo bar
-</p><p>Bar foo
-</p>
+<meta typeof="mw:Placeholder" data-parsoid='{"src":"[[File:Bad.jpg]]","optList":[]}'/>
+Bar foo</p>
 !! end
 
 !! test
@@ -18142,18 +18173,22 @@ preload
 
 !! test
 Play a bit with r67090 and bug 3158
-!! options
-disabled
 !! wikitext
 <div style="width:50% !important">&nbsp;</div>
 <div style="width:50%&nbsp;!important">&nbsp;</div>
 <div style="width:50%&#160;!important">&nbsp;</div>
 <div style="border : solid;">&nbsp;</div>
-!! html
-<div style="width:50% !important">&nbsp;</div>
-<div style="width:50% !important">&nbsp;</div>
-<div style="width:50% !important">&nbsp;</div>
-<div style="border&#160;: solid;">&nbsp;</div>
+!! html/php
+<div style="width:50% !important">&#160;</div>
+<div style="width:50% !important">&#160;</div>
+<div style="width:50% !important">&#160;</div>
+<div style="border&#160;: solid;">&#160;</div>
+
+!! html/parsoid
+<div style="width:50% !important" data-parsoid='{"stx":"html"}'><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span></div>
+<div style="width:50% !important" data-parsoid='{"stx":"html","a":{"style":"width:50% !important"},"sa":{"style":"width:50%&amp;nbsp;!important"}}'><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span></div>
+<div style="width:50% !important" data-parsoid='{"stx":"html","a":{"style":"width:50% !important"},"sa":{"style":"width:50%&amp;#160;!important"}}'><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span></div>
+<div style="border : solid;" data-parsoid='{"stx":"html"}'><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span></div>
 
 !! end
 
@@ -21418,9 +21453,9 @@ parsoid
 [[File:Foobar.jpg|right|thumb|150x150px]]
 456
 !! html
-<p data-parsoid='{"dsr":[0,3,0,0]}'>123</p>
-<figure class="mw-halign-right" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"right","ak":"right"},{"ck":"thumbnail","ak":"thumb"},{"ck":"width","ak":"150x150px"}],"dsr":[4,45,2,2]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"},"dsr":[6,43,null,null]}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/150px-Foobar.jpg" height="17" width="150" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"17","width":"150"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></figure>
-<p data-parsoid='{"dsr":[46,49,0,0]}'>456</p>
+<p data-parsoid='{}'>123</p>
+<figure class="mw-halign-right" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"right","ak":"right"},{"ck":"thumbnail","ak":"thumb"},{"ck":"width","ak":"150x150px"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/150px-Foobar.jpg" height="17" width="150" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"17","width":"150"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></figure>
+<p data-parsoid='{}'>456</p>
 !!end
 
 !! test
