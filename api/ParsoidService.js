@@ -601,6 +601,11 @@ function ParsoidService(options) {
 					// Don't cache requests with a session
 					setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0' );
 				}
+
+				// Indicate the MediaWiki revision in a header as well for
+				// ease of extraction in clients.
+				setHeader(res, env, 'content-revision-id', oldid);
+
 				tmpCb = parse.bind( null, env, req, res, function ( req, res, src, doc ) {
 					sendRes( doc.documentElement );
 				});
