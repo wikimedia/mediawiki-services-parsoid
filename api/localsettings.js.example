@@ -44,4 +44,8 @@ exports.setup = function( parsoidConfig ) {
 
 	// The URL of your LintBridge API endpoint
 	//parsoidConfig.linterAPI = 'http://lintbridge.wmflabs.org/add';
+
+	// Require SSL certificates to be valid (default true)
+	// Set to false when using self-signed SSL certificates
+	//parsoidConfig.strictSSL = false;
 };
