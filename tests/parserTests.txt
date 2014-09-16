@@ -12599,6 +12599,16 @@ parsoid
 !! end
 
 !! test
+Normalize hrefs properly before testing for invalid link targets (bug 70894)
+!! options
+parsoid=html2wt
+!! html
+<link rel="mw:PageProp/Category" href="./Category:Toxine_bactérienne"/>
+!! wikitext
+[[Category:Toxine bactérienne]]
+!! end
+
+!! test
 Parsoid: Defaultsort
 !! options
 parsoid
