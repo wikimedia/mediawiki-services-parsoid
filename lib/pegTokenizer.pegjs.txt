@@ -240,7 +240,7 @@ block_line
   = h
   / lists
   / st:optionalSpaceToken
-    r:( & [{}|!] tl:table_lines { return tl; }
+    r:( & [ <{}|!] tl:table_lines { return tl; }
       // tag-only lines should not trigger pre either
       / bts:(bt:block_tag stl:optionalSpaceToken { return bt.concat(stl); })+
         &eolf { return bts; }
@@ -858,14 +858,14 @@ wikilink
 // This production is identical to the 'inline' fragment except
 // that tables are allowed inside image captions.
 link_text_fragment
-  = c:((sol table_lines) / urltext
-          / (!inline_breaks
-              !pre_start
-              r:( inline_element / '[' text_char+ ']' / . ) {
-                  return r;
-              })
+  = c:((sol full_table_in_link_caption)
+       / urltext
+       / (!inline_breaks
+          !pre_start
+          r:( inline_element / '[' text_char+ ']' / . ) { return r; }
+         )
     )+ {
-      //console.warn('inline out:' + pp(c));
+      // console.warn('inline out:' + JSON.stringify(tu.flatten_stringlist(c)));
       return tu.flatten_stringlist( c );
   }
 
@@ -1520,14 +1520,14 @@ li = bullets:list_char+
  * Fürstenberg.
  */
 hacky_dl_uses = bullets:":"+
-               c:table_lines
+               tbl:(table_lines (sol table_lines)*)
                s:space* // Do we really need to RT this?
                &comment_space_eolf
 {
     // Leave bullets as an array -- list handler expects this
     var li = new TagTk( 'listItem', [], { tsr: [peg$reportedPos, peg$reportedPos + bullets.length] }  );
     li.bullets = bullets;
-    return tu.flattenIfArray([li, c || [], s || []]);
+    return tu.flattenIfArray([li, tbl || [], s || []]);
 }
 
 dtdd
@@ -1562,9 +1562,9 @@ list_char = [*#:;]
 
 
 
-/*********************************************************************
+/******************************************************************************
  * Tables
- *
+ * ------
  * Table productions are geared to support independent parsing of fragments in
  * templates (the common table start / row / table end use case). The tokens
  * produced by these fragments then match up to a table while building the
@@ -1573,45 +1573,98 @@ list_char = [*#:;]
  *
  * The separate table_lines production is faster than moving those productions
  * directly to block_lines.
- *********************************************************************/
+ *
+ * Notes about the full_table_in_link_caption production
+ * -----------------------------------------------------
+ * However, for link-tables, we have introduced a stricter parse wherein
+ * we require table-start and table-end tags to not come from a template.
+ * In addition, this new production doesn't accept fosterable-content in
+ * the table unlike the more lax (sol table_lines)+ production.
+ *
+ * This is the best we can do at this time since we cannot distinguish
+ * between table rows and image options entirely in the tokenizer.
+ *
+ * Consider the following examples:
+ *
+ * Example 1:
+ *
+ * [[Image:Foo.jpg|left|30px|Example 1
+ * {{This-template-returns-a-table-start-tag}}
+ * |foo
+ * {{This-template-returns-a-table-end-tag}}
+ * ]]
+ *
+ * Example 2:
+ *
+ * [[Image:Foo.jpg|left|30px|Example 1
+ * {{echo|a}}
+ * |foo
+ * {{echo|b}}
+ * ]]
+ *
+ * So, we cannot know a priori (without preprocessing or fully expanding
+ * all templates) if "|foo" in the two examples is a table cell or an image
+ * option. This is a limitation of our tokenizer-based approach compared to
+ * the preprocessing-based approach of the PHP parser.
+ *
+ * Given this limitation, we are okay forcing a full-table context in
+ * link captions (if necessary, we can relax the fosterable-content requirement
+ * but that is broken wikitext anyway, so we can force that edge-case wikitext
+ * to get fixed by rejecting it).
+ ******************************************************************************/
+
+full_table_in_link_caption
+  = // & { console.warn('enter full_table_in_link_caption: ' + input.substr(peg$currPos, 20)); return true; }
+    (! inline_breaks / & '{{!}}' )
+    r:(
+        & { return stops.push('table', true); }
+        tbl:(
+            table_start_tag optionalNewlines
+            (sol table_content_line optionalNewlines)*
+            sol table_end_tag)
+        {
+            stops.pop('table');
+            return tbl;
+        }
+      / & { return stops.pop('table'); }
+    ) { return r; }
 
 table_lines
-  = //& { console.warn('enter table_lines: ' + input.substr(peg$currPos, 20)); return true; }
+  = // & { console.warn('enter table_lines: ' + input.substr(peg$currPos, 20)); return true; }
     (! inline_breaks / & '{{!}}' )
     r:(
         & { return stops.push('table', true); }
         tl:table_line
-        tls:(
-            nls:optionalNewlines
-            s:sol
-            tl2:table_line { return nls.concat(s, tl2); }
-        )*
+        nls:optionalNewlines
         {
             stops.pop('table');
             //console.warn('table_lines: ' + pp(tl.concat(tls)));
-            return tl.concat( tls );
+            return tl.concat(nls);
         }
       / & { return stops.pop('table'); }
     ) { return r; }
 
 // This production assumes start-of-line position!
 table_line
-  = (space / comment)* (table_start_tag
-  / table_heading_tags
-  / table_row_tag
-  / table_data_tags
-  / table_caption_tag
-  / table_end_tag)
+  = table_start_tag
+  / table_content_line
+  / table_end_tag
 
+table_content_line = (space / comment)* (
+    table_heading_tags
+    / table_row_tag
+    / table_data_tags
+    / table_caption_tag
+  )
 
 table_start_tag
-  = b:"{" p:pipe
+  = sc:(space / comment)* startPos:({ return peg$currPos; }) b:"{" p:pipe
     // ok to normalize away stray |} on rt (see bug 57360)
     & { return stops.push('table', false); }
     ta:(generic_attribute / broken_table_attribute_name_char)*
     tsEndPos:({stops.pop('table'); return peg$currPos;})
     {
-        var tblStart = new TagTk( 'table', [], { tsr: [peg$reportedPos, tsEndPos] } );
+        var tblStart = new TagTk( 'table', [], { tsr: [startPos, tsEndPos] } );
         if (p !== "|") {
             // Variation form default
             // "<brace-char>"+p is triggering some bug in pegJS
@@ -1622,7 +1675,7 @@ table_start_tag
             tblStart.attribs = ta;
         }
 
-        return [tblStart];
+        return sc.concat([tblStart]);
     }
 
 table_caption_tag
@@ -1636,9 +1689,8 @@ table_caption_tag
             .concat([new EndTagTk('caption')]);
     }
 
-
 table_row_tag
-  = //& { console.warn("table row enter @" + input.substr(peg$currPos, 30)); return true; }
+  = // & { console.warn("table row enter @" + input.substr(peg$currPos, 30)); return true; }
     // avoid recursion via nested_block_in_table
     ! { return stops.onStack('tableDataBlock'); }
     p:pipe dashes:"-"+
@@ -1705,7 +1757,7 @@ implicit_table_data_tag
     }
 
 table_data_tag
-  = //& { dp("table_data enter, pos=" + peg$currPos + input.substr(peg$currPos,10)); return true; }
+  = // & { console.warn("table_data_tag enter @" + input.substr(peg$currPos, 30)); return true; }
     ! "}"
     arg:row_syntax_table_args?
     //& { console.warn("past attrib, pos=" + peg$currPos + input.substr(peg$currPos,10)); return true; }
@@ -1749,14 +1801,14 @@ table_heading_tag
     / & { return stops.pop('th'); }
 
 table_end_tag
-  = space* p:pipe b:"}" {
-      var tblEnd = new EndTagTk( 'table', [], { tsr: [peg$reportedPos, peg$currPos] } );
+  = sc:(space / comment)* startPos:({ return peg$currPos; }) p:pipe b:"}" {
+      var tblEnd = new EndTagTk( 'table', [], { tsr: [startPos, peg$currPos] } );
       if (p !== "|") {
           // p+"<brace-char>" is triggering some bug in pegJS
           // I cannot even use that expression in the comment!
           tblEnd.dataAttribs.endTagSrc = p+b;
       }
-      return [ tblEnd ];
+      return sc.concat([tblEnd]);
   }
 
 /**
