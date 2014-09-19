@@ -17,6 +17,13 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 	fs = require('fs'),
 	path = require('path');
 
+process.on('SIGUSR2', function() {
+	var heapdump = require('heapdump');
+	console.error('SIGUSR2 received! Writing snapshot.');
+	process.chdir('/tmp');
+	heapdump.writeSnapshot();
+});
+
 ( function() {
 	var standardOpts = Util.addStandardOptions({
 		'wt2html': {
