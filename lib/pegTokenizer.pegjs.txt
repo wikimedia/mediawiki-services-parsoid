@@ -144,6 +144,15 @@ save_sol_state =
  */
 tlb
   = !eof b:block {
+    // Clear the tokenizer's backtracking cache after matching each
+    // toplevelblock. There won't be any backtracking as a document is just a
+    // sequence of toplevelblocks, so the cache for previous toplevelblocks
+    // will never be needed.
+    var end = options.startOffset || 0;
+    for (var i = options.prevOffset || 0; i < end; i++) {
+        peg$cache[i] = undefined;
+    }
+
     var tokens;
     if ( Array.isArray(b) && b.length ) {
         tokens = tu.flattenIfArray(b);
@@ -2025,7 +2034,7 @@ include_limits =
   }
 
 // Start of file
-sof = & { return peg$currPos === options.startOffset; }
+sof = & { return peg$currPos === (options.startOffset || 0); }
 
 // End of file
 eof = & { return peg$currPos === input.length; }
