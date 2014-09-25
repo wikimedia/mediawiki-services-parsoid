@@ -18954,13 +18954,13 @@ parsoid=wt2html,wt2wt
 #### Parsoid-specific functionality tests
 #### -----------------------------------------------------------------
 
-# Bug 63642: Formatting elt fixup is cleaned up.
+# Bug 63642/66749: Formatting elt fixup around images is cleaned up.
 # We know wt2wt will fail, but we expect selser to pass.
 # Due to the nature of our testing, wt2wt and selser tests will enter the
 # blacklist and we'll catch selser regressions based on changes to the
 # blacklist entries for selser tests.
 !! test
-Bad treebuilder fixup of formatting elt is cleaned up
+1. Bad treebuilder fixup of formatting elt is cleaned up
 !! options
 parsoid=wt2html,wt2wt
 !! wikitext
@@ -18977,6 +18977,18 @@ parsoid=wt2html,wt2wt
 <small> <figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a><figcaption>Test</figcaption></figure></small>
 <p><small></small></p></td></tr>
 </tbody></table>
+!! end
+
+!! test
+2. Bad treebuilder fixup of formatting elt is cleaned up
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+'''foo[[File:Foobar.jpg|thumb|caption]]bar'''
+!! html/parsoid
+<p><b>foo</b></p>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption><b>caption</b></figcaption></figure>
+<p><b>bar</b></p>
 !! end
 
 #### ----------------------------------------------------------------
