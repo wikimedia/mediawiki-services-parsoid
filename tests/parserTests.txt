@@ -18984,9 +18984,10 @@ parsoid=wt2html,wt2wt
 !! html/parsoid
 <table>
 <tbody><tr><td>
-<p><small></small></p>
-<small> <figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a><figcaption>Test</figcaption></figure></small>
-<p><small></small></p></td></tr>
+<small>
+<figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"></a><figcaption>Test</figcaption></figure>
+</small>
+</td></tr>
 </tbody></table>
 !! end
 
@@ -18996,10 +18997,13 @@ parsoid=wt2html,wt2wt
 parsoid=wt2html,wt2wt
 !! wikitext
 '''foo[[File:Foobar.jpg|thumb|caption]]bar'''
+
+<small>[[Image:Foobar.jpg|right|300px]]</small>
 !! html/parsoid
 <p><b>foo</b></p>
 <figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="25" width="220"/></a><figcaption><b>caption</b></figcaption></figure>
 <p><b>bar</b></p>
+<small><figure class="mw-halign-right" typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="34" width="300"/></a></figure></small>
 !! end
 
 #### ----------------------------------------------------------------
