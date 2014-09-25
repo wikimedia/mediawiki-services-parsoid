@@ -177,6 +177,17 @@ Template:EmptyTRTest
 |}
 !!endarticle
 
+!!article
+Template:EmptyTRWithHTMLAttrTest
+!!text
+<table>
+<tr align="center"></tr>
+<tr><td>foo</td></tr>
+<tr align="center"></tr>
+<tr><td>bar</td></tr>
+</table>
+!!endarticle
+
 ###
 ### Basic tests
 ###
@@ -19475,6 +19486,19 @@ Empty LI and TR nodes should not be stripped from top-level content
 <td>foo</td>
 </tr>
 </tbody>
+</table>
+!!end
+
+!!test
+Empty TR nodes should not be stripped if they have any attributes set
+!!wikitext
+{{EmptyTRWithHTMLAttrTest}}
+!!html/parsoid
+<table typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"EmptyTRWithHTMLAttrTest","href":"./Template:EmptyTRWithHTMLAttrTest"},"params":{},"i":0}}]}'>
+<tr align="center"></tr>
+<tr><td>foo</td></tr>
+<tr align="center"></tr>
+<tr><td>bar</td></tr>
 </table>
 !!end
 
