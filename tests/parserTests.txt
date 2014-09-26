@@ -6884,8 +6884,8 @@ Blah blah blah
 <p>Blah blah blah
 </p>
 !! html/parsoid
-<p>Blah blah blah
-<link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/Chinese"/></p>
+<p>Blah blah blah</p>
+<link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/Chinese"/>
 !! end
 
 !! test
@@ -6899,8 +6899,8 @@ Blah blah blah
 <p>Blah blah blah
 </p>
 !! html/parsoid
-<p>Blah blah blah
-<link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/Chinese"/></p>
+<p>Blah blah blah</p>
+<link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/Chinese"/>
 !! end
 
 !! test
@@ -6913,9 +6913,9 @@ Blah blah blah
 <p>Blah blah blah
 </p>
 !! html/parsoid
-<p>Blah blah blah
+<p>Blah blah blah</p>
 <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Spanish"/>
-<link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/Chinese"/></p>
+<link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/Chinese"/>
 !! end
 
 !! test
@@ -6928,7 +6928,7 @@ Blah blah blah
 <p>Blah blah blah
 </p>
 !! html/parsoid
-<p>Blah blah blah
+<p>Blah blah blah</p>
 <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Spanish" data-parsoid='{"stx":"simple","a":{"href":"http://es.wikipedia.org/wiki/Spanish"},"sa":{"href":"   es :Spanish"}}'/>
 <link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/Chinese" data-parsoid='{"stx":"simple","a":{"href":"http://zh.wikipedia.org/wiki/Chinese"},"sa":{"href":" ZH :Chinese"}}'/>
 !! end
@@ -6944,8 +6944,8 @@ Blah blah blah
 <p>Blah blah blah
 </p>
 !! html/parsoid
-<p>Blah blah blah
-<link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/Chinese"/></p>
+<p>Blah blah blah</p>
+<link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/Chinese"/>
 !! end
 
 !! test
@@ -6960,9 +6960,9 @@ Blah blah blah
 <p>Blah blah blah
 </p>
 !! html/parsoid
-<p>Blah blah blah
+<p>Blah blah blah</p>
 <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Spanish"/>
-<link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/Chinese"/></p>
+<link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/Chinese"/>
 !! end
 
 !! test
@@ -6974,8 +6974,8 @@ Blah blah blah
 <p>Blah blah blah
 </p>
 !! html/parsoid
-<p>Blah blah blah
-<link rel="mw:PageProp/Language" title="Multilingual" href="http://wikisource.org/wiki/Article"/></p>
+<p>Blah blah blah</p>
+<link rel="mw:PageProp/Language" title="Multilingual" href="http://wikisource.org/wiki/Article"/>
 !! end
 
 !! test
@@ -7036,7 +7036,7 @@ ill
 !! html/php
 es:
 !! html/parsoid
-<p><link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/"/></p>
+<link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/"/>
 
 <p><a rel="mw:WikiLink" href="./Ko:" title="Ko:">ko:</a></p>
 !! end
@@ -12662,9 +12662,9 @@ ill
 !! html/php
 es:Alimento fr:Nourriture zh:食品
 !! html/parsoid
-<p><link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Alimento"/>
+<link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Alimento"/>
 <link rel="mw:PageProp/Language" href="http://fr.wikipedia.org/wiki/Nourriture"/>
-<link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/食品"/></p>
+<link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/食品"/>
 !! end
 
 !! test
@@ -12679,10 +12679,10 @@ ill
 !! html/php
 es:1 fr:1
 !! html/parsoid
-<p><link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/1"/>
+<link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/1"/>
 <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/2"/>
 <link rel="mw:PageProp/Language" href="http://fr.wikipedia.org/wiki/1"/>
-<link rel="mw:PageProp/Language" href="http://fr.wikipedia.org/wiki/2"/></p>
+<link rel="mw:PageProp/Language" href="http://fr.wikipedia.org/wiki/2"/>
 !! end
 
 ###
