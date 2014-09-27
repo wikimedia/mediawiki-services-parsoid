@@ -5204,8 +5204,8 @@ Accept "!!" in table data
 </td></tr></table>
 
 !! html/parsoid
-<table data-parsoid='{}'>
-<tbody data-parsoid='{}'><tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td data-parsoid='{"autoInsertedEnd":true}'> Foo!! </td><td data-parsoid='{"stx_v":"row","autoInsertedEnd":true}'></td></tr>
+<table>
+<tbody><tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td data-parsoid='{"autoInsertedEnd":true}'> Foo!! </td><td data-parsoid='{"stx_v":"row","autoInsertedEnd":true}'></td></tr>
 </tbody></table>
 !! end
 
@@ -6541,7 +6541,7 @@ title=[[User:test/123]]
 <p><a href="#a">b</a>
 </p>
 !! html/parsoid
-<p data-parsoid='{}'><a rel="mw:WikiLink" href="../User:Test/123#a" data-parsoid='{"stx":"piped","a":{"href":"../User:Test/123#a"},"sa":{"href":"#a"}}'>b</a></p>
+<p><a rel="mw:WikiLink" href="../User:Test/123#a" data-parsoid='{"stx":"piped","a":{"href":"../User:Test/123#a"},"sa":{"href":"#a"}}'>b</a></p>
 !! end
 
 !! test
@@ -6561,7 +6561,7 @@ parsoid
 !! wikitext
 {{echo|Some [[Fool]]}}s
 !! html
-<p data-parsoid='{}'><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"Some [[Fool]]"}},"i":0}},"s"]}' data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}'>Some </span><a rel="mw:WikiLink" href="./Fool" title="Fool" about="#mwt1" data-parsoid='{"stx":"simple","a":{"href":"./Fool"},"sa":{"href":"Fool"},"tail":"s"}'>Fools</a></p>
+<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"Some [[Fool]]"}},"i":0}},"s"]}' data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}'>Some </span><a rel="mw:WikiLink" href="./Fool" title="Fool" about="#mwt1" data-parsoid='{"stx":"simple","a":{"href":"./Fool"},"sa":{"href":"Fool"},"tail":"s"}'>Fools</a></p>
 !! end
 
 !! test
@@ -6571,7 +6571,7 @@ parsoid
 !! wikitext
 {{echo|Some [[Fool]]s are '''bold and foolish'''}}
 !! html
-<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"Some [[Fool]]s are &#39;&#39;&#39;bold and foolish&#39;&#39;&#39;"}},"i":0}}]}' data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}'>Some <a rel="mw:WikiLink" href="./Fool" title="Fool" data-parsoid='{"stx":"simple","a":{"href":"./Fool"},"sa":{"href":"Fool"},"tail":"s"}'>Fools</a> are <b data-parsoid="{}">bold and foolish</b></p>
+<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"Some [[Fool]]s are &#39;&#39;&#39;bold and foolish&#39;&#39;&#39;"}},"i":0}}]}' data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}'>Some <a rel="mw:WikiLink" href="./Fool" title="Fool" data-parsoid='{"stx":"simple","a":{"href":"./Fool"},"sa":{"href":"Fool"},"tail":"s"}'>Fools</a> are <b>bold and foolish</b></p>
 !! end
 
 !! article
@@ -6800,7 +6800,7 @@ Interwiki links: trail
 <p><a href="http://en.wikipedia.org/wiki/Foo" class="extiw" title="wikipedia:Foo">Bar</a>
 </p>
 !! html/parsoid
-<p data-parsoid='{}'><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"piped","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":"wikipedia:Foo"},"isIW":true,"tail":"r"}' title="wikipedia:Foo">Bar</a></p>
+<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"piped","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":"wikipedia:Foo"},"isIW":true,"tail":"r"}' title="wikipedia:Foo">Bar</a></p>
 !! end
 
 !! test
@@ -9409,13 +9409,13 @@ b}}
 !! html
 <p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["a",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"b&lt;table>&lt;/table>c"}},"i":0}},"d"]}' data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}'>ab</p><table about="#mwt1" data-parsoid='{"stx":"html"}'></table><p about="#mwt1">cd</p>
 
-<p about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["a",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"b\n&lt;table>&lt;/table>\nc"}},"i":0}},"d"]}' data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}'>ab</p><span about="#mwt2" data-parsoid="{}">
-</span><table about="#mwt2" data-parsoid='{"stx":"html"}'></table><span about="#mwt2" data-parsoid="{}">
+<p about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["a",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"b\n&lt;table>&lt;/table>\nc"}},"i":0}},"d"]}' data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}'>ab</p><span about="#mwt2">
+</span><table about="#mwt2" data-parsoid='{"stx":"html"}'></table><span about="#mwt2">
 </span><p about="#mwt2">cd</p>
 
-<p about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a\n\n&lt;table>&lt;/table>\n\nb"}},"i":0}}]}' data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}'>a</p><span about="#mwt3" data-parsoid="{}">
+<p about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a\n\n&lt;table>&lt;/table>\n\nb"}},"i":0}}]}' data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}'>a</p><span about="#mwt3">
 
-</span><table about="#mwt3" data-parsoid='{"stx":"html"}'></table><span about="#mwt3" data-parsoid="{}">
+</span><table about="#mwt3" data-parsoid='{"stx":"html"}'></table><span about="#mwt3">
 
 </span><p about="#mwt3">b</p>
 !! end
@@ -11050,7 +11050,7 @@ thumbsize=220
 <div class="thumb tright"><div class="thumbinner" style="width:222px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>Caption <a href="/index.php?title=Link1&amp;action=edit&amp;redlink=1" class="new" title="Link1 (page does not exist)">Link1</a> [[]] <a href="/index.php?title=Link2&amp;action=edit&amp;redlink=1" class="new" title="Link2 (page does not exist)">Link2</a></div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"Caption [[Link1]]\n[[]]\n[[Link2]]\n"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" height="25" width="220" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption data-parsoid='{}'>Caption <a rel="mw:WikiLink" href="./Link1" title="Link1" data-parsoid='{"stx":"simple","a":{"href":"./Link1"},"sa":{"href":"Link1"}}'>Link1</a>
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"Caption [[Link1]]\n[[]]\n[[Link2]]\n"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" height="25" width="220" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption>Caption <a rel="mw:WikiLink" href="./Link1" title="Link1" data-parsoid='{"stx":"simple","a":{"href":"./Link1"},"sa":{"href":"Link1"}}'>Link1</a>
 [[]]
 <a rel="mw:WikiLink" href="./Link2" title="Link2" data-parsoid='{"stx":"simple","a":{"href":"./Link2"},"sa":{"href":"Link2"}}'>Link2</a>
 </figcaption></figure>
@@ -19416,7 +19416,7 @@ parsoid
 !! wikitext
 <ref name="test &amp; me">hi</ref>
 !! html
-<p><span about="#mwt2" class="reference" id="cite_ref-test &amp; me-1-0" rel="dc:references" typeof="mw:Extension/ref" data-parsoid='{"src":"&lt;ref name=\"test &amp;amp; me\">hi&lt;/ref>"}' data-mw='{"name":"ref","body":{"html":"hi"},"attrs":{"name":"test &amp; me"}}'><a href="#cite_note-test &amp; me-1" data-parsoid="{}">[1]</a></span></p>
+<p><span about="#mwt2" class="reference" id="cite_ref-test &amp; me-1-0" rel="dc:references" typeof="mw:Extension/ref" data-parsoid='{"src":"&lt;ref name=\"test &amp;amp; me\">hi&lt;/ref>"}' data-mw='{"name":"ref","body":{"html":"hi"},"attrs":{"name":"test &amp; me"}}'><a href="#cite_note-test &amp; me-1">[1]</a></span></p>
 !! end
 
 # This test is wt2html only because we're permitting the serializer to produce
@@ -19555,9 +19555,9 @@ parsoid
 <p>=foo<i>a</i><span typeof="mw:Nowiki">=</span></p>
 !!end
 
+# New headings and existing headings are handled differently
 !! test
 Headings: 1. Nested inside html
-(New headings and existing headings are handled differently)
 !! options
 parsoid=html2wt
 !! wikitext
@@ -19579,12 +19579,12 @@ parsoid=html2wt
 <h2>=foo=</h2>
 <h3>=foo=</h3>
 
-<h1 data-parsoid='{}'>=foo=</h1>
-<h2 data-parsoid='{}'>=foo=</h2>
-<h3 data-parsoid='{}'>=foo=</h3>
-<h4 data-parsoid='{}'>=foo=</h4>
-<h5 data-parsoid='{}'>=foo=</h5>
-<h6 data-parsoid='{}'>=foo=</h6>
+<h1 data-parsoid=''>=foo=</h1>
+<h2 data-parsoid=''>=foo=</h2>
+<h3 data-parsoid=''>=foo=</h3>
+<h4 data-parsoid=''>=foo=</h4>
+<h5 data-parsoid=''>=foo=</h5>
+<h6 data-parsoid=''>=foo=</h6>
 !!end
 
 !! test
@@ -20479,10 +20479,10 @@ parsoid=html2wt,wt2wt
 </p>
 !! end
 
+# FIXME: Escaping one or both of [[ and ]] is also acceptable --
+#        this is one of the shortcomings of this format
 !! test
 3. Link fragments inside <i> and <b>
-(FIXME: Escaping one or both of [[ and ]] is also acceptable --
- this is one of the shortcomings of this format)
 !! wikitext
 ''[[foo''<nowiki>]]</nowiki>
 
@@ -20951,9 +20951,9 @@ RT-ed inter-element separators should be valid separators
 
 !!end
 
+# Parsoid-only since PHP parser relies on Tidy for correct output
 !!test
 Trailing newlines in a deep dom-subtree that ends a wikitext line should be migrated out
-(Parsoid-only since PHP parser relies on Tidy for correct output)
 !!options
 parsoid
 !! wikitext
@@ -21050,15 +21050,15 @@ Indent and comment before table row
 </td></tr></table>
 
 !! html/parsoid
-<table data-parsoid='{}'>
- <!--hi--><tbody data-parsoid='{}'><tr data-parsoid='{"startTagSrc":"|-","autoInsertedEnd":true}'>
+<table>
+ <!--hi--><tbody><tr data-parsoid='{"startTagSrc":"|-","autoInsertedEnd":true}'>
  <td data-parsoid='{"autoInsertedEnd":true}'> there</td></tr>
 </tbody></table>
 !! end
 
+# Parsoid-specific since PHP parser doesn't handle this mixed tbl-wikitext
 !!test
 Empty TR followed by a template-generated TR
-(Parsoid-specific since PHP parser doesn't handle this mixed tbl-wikitext)
 !!options
 parsoid
 !! wikitext
@@ -21365,7 +21365,7 @@ parsoid=wt2wt,wt2html
 !! wikitext
 <table>{{echo|hi</table>hello}}
 !! html
-<p about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["&lt;table>",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"hi&lt;/table>hello"}},"i":0}}]}' data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true,"pi":[[{"k":"1","spc":["","","",""]}]]}'>hi</p><table about="#mwt2" data-parsoid='{"stx":"html"}'></table><p about="#mwt2" data-parsoid="{}">hello</p>
+<p about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["&lt;table>",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"hi&lt;/table>hello"}},"i":0}}]}' data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true,"pi":[[{"k":"1","spc":["","","",""]}]]}'>hi</p><table about="#mwt2" data-parsoid='{"stx":"html"}'></table><p about="#mwt2">hello</p>
 !!end
 
 !!test
@@ -21380,7 +21380,7 @@ parsoid=wt2html,wt2wt
 </div>
 |}
 !! html
-<div about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"OpenTable","href":"./Template:OpenTable"},"params":{},"i":0}},"\n&lt;div>"]}' data-parsoid='{"stx":"html","autoInsertedEnd":true,"pi":[[]]}'></div><span about="#mwt1" data-parsoid="{}">
+<div about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"OpenTable","href":"./Template:OpenTable"},"params":{},"i":0}},"\n&lt;div>"]}' data-parsoid='{"stx":"html","autoInsertedEnd":true,"pi":[[]]}'></div><span about="#mwt1">
 </span>
 <table about="#mwt1" data-parsoid='{"autoInsertedEnd":true}'></table>
 
@@ -21592,8 +21592,7 @@ parsoid
 !!end
 
 !! test
-Image: New block level image should have \n before and after (existing
-content)
+Image: New block level image should have \n before and after (existing content)
 !! options
 parsoid
 !! wikitext
@@ -21936,9 +21935,9 @@ parsoid=html2wt
 
 ''A'''B'''''
 !! html
-<p><i>A</i><i data-parsoid='{}'>B</i></p>
-<p><b data-parsoid='{}'>A</b><b>B</b></p>
-<p><i>A</i><b data-parsoid='{}'><i data-parsoid='{}'>B</i></b></p>
+<p><i>A</i><i>B</i></p>
+<p><b>A</b><b>B</b></p>
+<p><i>A</i><b><i>B</i></b></p>
 !! end
 
 #------------------------------------
