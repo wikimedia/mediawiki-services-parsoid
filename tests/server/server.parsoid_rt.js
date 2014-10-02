@@ -1,6 +1,7 @@
 "use strict";
 
-var RH = require("./render.helpers.js").RenderHelpers;
+var RH = require("./render.helpers.js").RenderHelpers,
+	fs = require('fs');
 
 var dbPagesWithRTSelserErrors =
 	'SELECT pages.title, pages.prefix, commits.hash, ' +
@@ -233,6 +234,8 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 
 	// Pages with rt selser errors
 	app.get(/^\/rtselsererrors\/([^\/]+)(?:\/(\d+))?$/, GET_rtselsererrors);
+
+	hbs.registerPartial('summary', fs.readFileSync(__dirname + '/views/index-summary-rt.html', 'utf8'));
 }
 
 if (typeof module === "object") {
