@@ -1,6 +1,7 @@
 "use strict";
 
 require('es6-shim');
+require('prfun');
 
 var path = require('path'),
 	fs = require('fs'),
@@ -431,23 +432,6 @@ routes.robots = function ( req, res ) {
 	res.end("User-agent: *\nDisallow: /\n");
 };
 
-function gitVersion( cb ) {
-	fs.exists( path.join( __dirname, '/../.git' ), function ( exists ) {
-		if ( !exists ) {
-			cb();
-			return;
-		}
-		childProc.exec(
-			'git rev-parse HEAD',
-			function ( error, stdout, stderr ) {
-				if ( !error ) {
-					versionCache.sha = stdout.slice(0, -1);
-				}
-				cb();
-		});
-	});
-}
-
 // Return Parsoid version based on package.json + git sha1 if available
 var versionCache;
 routes.version = function( req, res ) {
@@ -458,7 +442,11 @@ routes.version = function( req, res ) {
 		name: pkg.name,
 		version: pkg.version
 	};
-	gitVersion(function() {
+	Promise.promisify(
+		childProc.exec, false, childProc
+	)( 'git rev-parse HEAD' ).then(function( stdout ) {
+		versionCache.sha = stdout.slice(0, -1);
+	}).finally(function() {
 		res.json( versionCache );
 	});
 };
