@@ -16,7 +16,7 @@ var path = require('path'),
 // relative includes
 var mp = '../lib/';
 
-var MWParserEnvironment = require( mp + 'mediawiki.parser.environment.js' ).MWParserEnvironment,
+var MWParserEnv = require( mp + 'mediawiki.parser.environment.js' ).MWParserEnvironment,
 	WikitextSerializer = require( mp + 'mediawiki.WikitextSerializer.js' ).WikitextSerializer,
 	SelectiveSerializer = require( mp + 'mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
 	LogData = require( mp + 'LogData.js' ).LogData,
@@ -42,6 +42,20 @@ var supportedFormats = new Set([ "pagebundle", "html" ]);
 function action( res ) {
 	return [ "", res.local('iwp'), res.local('pageName') ].join( "/" );
 }
+
+var errBack = function( res, env, logData, callback ) {
+	if ( !env.responseSent) {
+		return new Promise(function( resolve, reject ) {
+			apiUtils.setHeader( res, env, 'Content-Type', 'text/plain; charset=UTF-8' );
+			apiUtils.sendResponse( res, env, logData.fullMsg(), logData.code || 500 );
+			res.on( 'finish', resolve );
+		}).catch(function(e) {
+			console.log( e.stack || e );
+			res.end();
+		}).nodify(callback);
+	}
+	return Promise.resolve().nodify(callback);
+};
 
 var roundTripDiff = function( selser, req, res, env, document ) {
 	var out = [];
@@ -369,33 +383,18 @@ routes.interParams = function( req, res, next ) {
 };
 
 routes.parserEnvMw = function( req, res, next ) {
-	MWParserEnvironment.getParserEnv( parsoidConfig, null, res.local('iwp'), res.local('pageName'), req.headers.cookie, function ( err, env ) {
-		function errCB( res, env, logData, callback ) {
-			try {
-				if ( !env.responseSent ) {
-					apiUtils.setHeader(res, env, 'Content-Type', 'text/plain; charset=UTF-8' );
-					apiUtils.sendResponse(res, env, logData.fullMsg(), logData.code || 500);
-					if ( typeof callback === 'function' ) {
-						res.on('finish', callback);
-					}
-					return;
-				}
-			} catch (e) {
-				console.log( e.stack || e );
-				res.end();
-			}
-			if ( typeof callback === 'function' ) {
-				callback();
-			}
-		}
-
-		if ( err ) {
-			return errCB(res, {}, new LogData(null, "error", err));
-		}
-
-		env.logger.registerBackend(/fatal(\/.*)?/, errCB.bind(this, res, env));
-		res.local("env", env);
+	Promise.promisify( MWParserEnv.getParserEnv, false, MWParserEnv )(
+		parsoidConfig,
+		null,
+		res.local('iwp'),
+		res.local('pageName'),
+		req.headers.cookie
+	).then(function( env ) {
+		env.logger.registerBackend(/fatal(\/.*)?/, errBack.bind(this, res, env));
+		res.local('env', env);
 		next();
+	}).catch(function( err ) {
+		errBack( res, {}, new LogData(null, "error", err) );
 	});
 };
 
