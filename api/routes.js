@@ -20,7 +20,6 @@ var MWParserEnv = require( mp + 'mediawiki.parser.environment.js' ).MWParserEnvi
 	WikitextSerializer = require( mp + 'mediawiki.WikitextSerializer.js' ).WikitextSerializer,
 	SelectiveSerializer = require( mp + 'mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
 	LogData = require( mp + 'LogData.js' ).LogData,
-	Util = require( mp + 'mediawiki.Util.js' ).Util,
 	DU = require( mp + 'mediawiki.DOMUtils.js' ).DOMUtils,
 	ApiRequest = require( mp + 'mediawiki.ApiRequest.js' ),
 	Diff = require( mp + 'mediawiki.Diff.js' ).Diff;
@@ -43,33 +42,44 @@ function action( res ) {
 	return [ "", res.local('iwp'), res.local('pageName') ].join( "/" );
 }
 
-var errBack = function( res, env, logData, callback ) {
+var promiseTemplateReq = function( env, target, oldid ) {
+	return new Promise(function( resolve, reject ) {
+		var tpr = new TemplateRequest( env, target, oldid );
+		tpr.once('src', function( err, src_and_metadata ) {
+			if ( err ) {
+				reject( err );
+			} else {
+				resolve( src_and_metadata );
+			}
+		});
+	});
+};
+
+var errBack = function( env, req, res, logData, callback ) {
 	if ( !env.responseSent) {
 		return new Promise(function( resolve, reject ) {
 			apiUtils.setHeader( res, env, 'Content-Type', 'text/plain; charset=UTF-8' );
 			apiUtils.sendResponse( res, env, logData.fullMsg(), logData.code || 500 );
 			res.on( 'finish', resolve );
 		}).catch(function(e) {
-			console.log( e.stack || e );
+			console.error( e.stack || e );
 			res.end();
 		}).nodify(callback);
 	}
 	return Promise.resolve().nodify(callback);
 };
 
-var roundTripDiff = function( selser, req, res, env, document ) {
+var roundTripDiff = function( env, req, res, selser, doc ) {
 	var out = [];
 
 	// Re-parse the HTML to uncover foster-parenting issues
-	document = domino.createDocument(document.outerHTML);
+	doc = domino.createDocument( doc.outerHTML );
 
 	var Serializer = selser ? SelectiveSerializer : WikitextSerializer,
 		serializer = new Serializer({ env: env });
 
 	return Promise.promisify( serializer.serializeDOM, false, serializer )(
-		document.body,
-		function( chunk ) { out.push(chunk); },
-		false
+		doc.body, function( chunk ) { out.push(chunk); }, false
 	).then(function() {
 		var i;
 		out = out.join('');
@@ -78,7 +88,7 @@ var roundTripDiff = function( selser, req, res, env, document ) {
 		out = out.replace(/<!--rtSelserEditTestComment-->\n*$/, '');
 
 		// Emit base href so all relative urls resolve properly
-		var hNodes = document.body.firstChild.childNodes;
+		var hNodes = doc.body.firstChild.childNodes;
 		var headNodes = "";
 		for (i = 0; i < hNodes.length; i++) {
 			if (hNodes[i].nodeName.toLowerCase() === 'base') {
@@ -87,7 +97,7 @@ var roundTripDiff = function( selser, req, res, env, document ) {
 			}
 		}
 
-		var bNodes = document.body.childNodes;
+		var bNodes = doc.body.childNodes;
 		var bodyNodes = "";
 		for (i = 0; i < bNodes.length; i++) {
 			bodyNodes += DU.serializeNode(bNodes[i]);
@@ -116,72 +126,61 @@ var roundTripDiff = function( selser, req, res, env, document ) {
 	});
 };
 
-function handleCacheRequest( env, req, res, cb, src, cacheErr, cacheSrc ) {
-	var errorHandlingCB = function ( src, err, doc ) {
-		if ( err ) {
-			env.log("fatal/request", err);
-			return;
-		}
-		cb( req, res, src, doc );
-	};
-
-	if ( cacheErr ) {
-		// No luck with the cache request, just proceed as normal.
-		Util.parse(env, errorHandlingCB, null, src);
-		return;
-	}
-	// Extract transclusion and extension content from the DOM
-	var expansions = DU.extractExpansions(DU.parseHTML(cacheSrc));
-
-	// Figure out what we can reuse
-	var parsoidHeader = JSON.parse(req.headers['x-parsoid'] || '{}');
-	if (parsoidHeader.cacheID) {
-		if (parsoidHeader.mode === 'templates') {
-			// Transclusions need to be updated, so don't reuse them.
-			expansions.transclusions = {};
-		} else if (parsoidHeader.mode === 'files') {
-			// Files need to be updated, so don't reuse them.
-			expansions.files = {};
-		}
-	}
-
-	// pass those expansions into Util.parse to prime the caches.
-	//console.log('expansions:', expansions);
-	Util.parse(env, errorHandlingCB, null, src, expansions);
-}
-
-var parse = function ( env, req, res, cb, err, src_and_metadata ) {
-	if ( err ) {
-		env.log("fatal/request", err);
-		return;
-	}
-
+var parse = function( env, req, res, src_and_metadata ) {
 	// Set the source
 	env.setPageSrcInfo( src_and_metadata );
 
 	// Now env.page.meta.title has the canonical title, and
 	// env.page.meta.revision.parentid has the predecessor oldid
+	var meta = env.page.meta;
 
-	// See if we can reuse transclusion or extension expansions.
-	if (env.conf.parsoid.parsoidCacheURI &&
-			// And don't parse twice for recursive parsoid requests
-			! req.headers['x-parsoid-request'])
-	{
-		// Try to retrieve a cached copy of the content so that we can recycle
-		// template and / or extension expansions.
-		var parsoidHeader = JSON.parse(req.headers['x-parsoid'] || '{}'),
+	return new Promise(function( resolve, reject ) {
+		// See if we can reuse transclusion or extension expansions.
+		// And don't parse twice for recursive parsoid requests
+		if ( env.conf.parsoid.parsoidCacheURI && !req.headers['x-parsoid-request'] ) {
+			// Try to retrieve a cached copy of the content so that we can
+			// recycle template and / or extension expansions.
+			var parsoidHeader = JSON.parse(req.headers['x-parsoid'] || '{}');
+
 			// If we get a prevID passed in in X-Parsoid (from our PHP
 			// extension), use that explicitly. Otherwise default to the
 			// parentID.
-			cacheID = parsoidHeader.cacheID ||
-				env.page.meta.revision.parentid,
-			cacheRequest = new ParsoidCacheRequest(env,
-				env.page.meta.title, cacheID);
-		cacheRequest.once('src',
-				handleCacheRequest.bind(null, env, req, res, cb, env.page.src));
-	} else {
-		handleCacheRequest(env, req, res, cb, env.page.src, "Recursive request", null);
-	}
+			var cacheID = parsoidHeader.cacheID || meta.revision.parentid;
+
+			var cacheRequest = new ParsoidCacheRequest( env, meta.title, cacheID );
+			cacheRequest.once('src', function( err, src ) {
+				// No luck with the cache request, just proceed as normal.
+				resolve( err ? null : src );
+			});
+		} else {
+			resolve( null );
+		}
+	}).then(function( cacheSrc ) {
+		var expansions, pipeline = env.pipelineFactory;
+
+		if ( cacheSrc ) {
+			// Extract transclusion and extension content from the DOM
+			expansions = DU.extractExpansions( DU.parseHTML(cacheSrc) );
+
+			// Figure out what we can reuse
+			var parsoidHeader = JSON.parse( req.headers['x-parsoid'] || '{}' );
+			if ( parsoidHeader.cacheID ) {
+				if ( parsoidHeader.mode === 'templates' ) {
+					// Transclusions need to be updated, so don't reuse them.
+					expansions.transclusions = {};
+				} else if (parsoidHeader.mode === 'files') {
+					// Files need to be updated, so don't reuse them.
+					expansions.files = {};
+				}
+			}
+		}
+
+		return Promise.promisify( pipeline.parse, false, pipeline )(
+			env, env.page.src, expansions
+		);
+	}).catch(function(err) {
+		env.log("fatal/request", err);
+	});
 };
 
 function html2wt( req, res, html ) {
@@ -243,6 +242,26 @@ function wt2html( req, res, wt, v2 ) {
 		apiUtils.setHeader( res, env, 'Access-Control-Allow-Origin', env.conf.parsoid.allowCORS );
 	}
 
+	function sendRes( doc ) {
+		try {
+			apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
+			if ( v2 && v2.format === "pagebundle" ) {
+				var dp = doc.ownerDocument.getElementById('mw-data-parsoid');
+				dp.parentNode.removeChild(dp);
+				apiUtils.jsonResponse(res, env, {
+					html: DU.serializeNode( doc ),
+					"data-parsoid": JSON.parse(dp.text)
+				});
+			} else {
+				apiUtils.setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8');
+				apiUtils.endResponse(res, env,  DU.serializeNode( doc ));
+			}
+			env.log("info", "completed parsing in", env.performance.duration, "ms");
+		} catch (e) {
+			env.log("fatal/request", e);
+		}
+	}
+
 	var tmpCb;
 	if ( wt ) {
 		wt = wt.replace( /\r/g, '' );
@@ -254,33 +273,28 @@ function wt2html( req, res, wt, v2 ) {
 		}
 
 		var parser = env.pipelineFactory.getPipeline('text/x-mediawiki/full');
-		parser.once( 'document', function ( document ) {
+		parser.once('document', function( document ) {
 			// Don't cache requests when wt is set in case somebody uses
 			// GET for wikitext parsing
 			apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0' );
 			sendRes( req.body.body ? document.body : document );
 		});
 
-		tmpCb = function ( err, src_and_metadata ) {
-			if ( err ) {
-				env.log("fatal/request", err);
-				return;
-			}
-
+		tmpCb = function( src_and_metadata ) {
 			// Set the source
 			env.setPageSrcInfo( src_and_metadata );
 
 			try {
 				parser.processToplevelDoc( wt );
 			} catch ( e ) {
-				env.log("fatal", e);
+				env.log("fatal/request", e);
 				return;
 			}
 		};
 
 		if ( !res.local('pageName') || !oldid ) {
 			// no pageName supplied; don't fetch the page source
-			tmpCb( null, wt );
+			tmpCb( wt );
 			return;
 		}
 
@@ -299,18 +313,13 @@ function wt2html( req, res, wt, v2 ) {
 			// ease of extraction in clients.
 			apiUtils.setHeader(res, env, 'content-revision-id', oldid);
 
-			tmpCb = parse.bind( null, env, req, res, function ( req, res, src, doc ) {
-				sendRes( doc.documentElement );
-			});
+			tmpCb = function( src_and_metadata ) {
+				return parse( env, req, res, src_and_metadata ).then( sendRes );
+			};
 		} else {
 			// Don't cache requests with no oldid
 			apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0' );
-			tmpCb = function ( err, src_and_metadata ) {
-				if ( err ) {
-					env.log("fatal/request", err);
-					return;
-				}
-
+			tmpCb = function( src_and_metadata ) {
 				// Set the source
 				env.setPageSrcInfo( src_and_metadata );
 				oldid = env.page.meta.revision.revid;
@@ -342,28 +351,11 @@ function wt2html( req, res, wt, v2 ) {
 		}
 	}
 
-	var tpr = new TemplateRequest( env, target, oldid );
-	tpr.once( 'src', tmpCb );
-
-	function sendRes( doc ) {
-		try {
-			apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
-			if ( v2 && v2.format === "pagebundle" ) {
-				var dp = doc.ownerDocument.getElementById('mw-data-parsoid');
-				dp.parentNode.removeChild(dp);
-				apiUtils.jsonResponse(res, env, {
-					html: DU.serializeNode( doc ),
-					"data-parsoid": JSON.parse(dp.text)
-				});
-			} else {
-				apiUtils.setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8');
-				apiUtils.endResponse(res, env,  DU.serializeNode( doc ));
-			}
-			env.log("info", "completed parsing in", env.performance.duration, "ms");
-		} catch (e) {
-			env.log("fatal/request", e);
-		}
-	}
+	return promiseTemplateReq( env, target, oldid ).then(
+		tmpCb
+	).catch(function( err ) {
+		env.log("fatal/request", err);
+	});
 }
 
 // Middlewares
@@ -383,11 +375,11 @@ routes.parserEnvMw = function( req, res, next ) {
 		res.local('pageName'),
 		req.headers.cookie
 	).then(function( env ) {
-		env.logger.registerBackend(/fatal(\/.*)?/, errBack.bind(this, res, env));
+		env.logger.registerBackend(/fatal(\/.*)?/, errBack.bind(this, env, req, res));
 		res.local('env', env);
 		next();
 	}).catch(function( err ) {
-		errBack( res, {}, new LogData(null, "error", err) );
+		errBack( {}, req, res, new LogData(null, "error", err) );
 	});
 };
 
@@ -482,7 +474,7 @@ routes.wt2htmlForm = function( req, res ) {
 };
 
 // Round-trip article testing
-routes.roundtripTesting = function(req, res) {
+routes.roundtripTesting = function( req, res ) {
 	var env = res.local('env');
 	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
@@ -493,13 +485,19 @@ routes.roundtripTesting = function(req, res) {
 	if ( req.query.oldid ) {
 		oldid = req.query.oldid;
 	}
-	var tpr = new TemplateRequest( env, target, oldid );
-	tpr.once('src', parse.bind( tpr, env, req, res, roundTripDiff.bind( null, false ) ));
+
+	promiseTemplateReq( env, target, oldid ).then(
+		parse.bind( null, env, req, res )
+	).then(
+		roundTripDiff.bind( null, env, req, res, false )
+	).catch(function(err) {
+		env.log("fatal/request", err);
+	});
 };
 
 // Round-trip article testing with newline stripping for editor-created HTML
 // simulation
-routes.roundtripTestingNL = function(req, res) {
+routes.roundtripTestingNL = function( req, res ) {
 	var env = res.local('env');
 	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
@@ -508,19 +506,20 @@ routes.roundtripTestingNL = function(req, res) {
 	if ( req.query.oldid ) {
 		oldid = req.query.oldid;
 	}
-	var tpr = new TemplateRequest( env, target, oldid ),
-		cb = function ( req, res, src, document ) {
-			// strip newlines from the html
-			var html = document.innerHTML.replace(/[\r\n]/g, ''),
-				newDocument = DU.parseHTML(html);
-			roundTripDiff( false, req, res, src, newDocument );
-		};
 
-	tpr.once('src', parse.bind( tpr, env, req, res, cb ));
+	promiseTemplateReq( env, target, oldid ).then(
+		parse.bind( null, env, req, res )
+	).then(function( doc ) {
+		// strip newlines from the html
+		var html = doc.innerHTML.replace(/[\r\n]/g, '');
+		return roundTripDiff( env, req, res, false, DU.parseHTML(html) );
+	}).catch(function(err) {
+		env.log("fatal/request", err);
+	});
 };
 
 // Round-trip article testing with selser over re-parsed HTML.
-routes.roundtripSelser = function(req, res) {
+routes.roundtripSelser = function( req, res ) {
 	var env = res.local('env');
 	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
@@ -529,15 +528,17 @@ routes.roundtripSelser = function(req, res) {
 	if ( req.query.oldid ) {
 		oldid = req.query.oldid;
 	}
-	var tpr = new TemplateRequest( env, target, oldid ),
-		tprCb = function ( req, res, src, document ) {
-			var newDocument = DU.parseHTML( DU.serializeNode(document) ),
-				newNode = newDocument.createComment('rtSelserEditTestComment');
-			newDocument.body.appendChild(newNode);
-			roundTripDiff( true, req, res, src, newDocument );
-		};
 
-	tpr.once( 'src', parse.bind( tpr, env, req, res, tprCb ) );
+	promiseTemplateReq( env, target, oldid ).then(
+		parse.bind( null, env, req, res )
+	).then(function( doc ) {
+		doc = DU.parseHTML( DU.serializeNode(doc) );
+		var comment = doc.createComment('rtSelserEditTestComment');
+		doc.body.appendChild(comment);
+		return roundTripDiff( env, req, res, true, doc );
+	}).catch(function(err) {
+		env.log("fatal/request", err);
+	});
 };
 
 // Form-based round-tripping for manual testing
@@ -553,25 +554,29 @@ routes.get_rtForm = function( req, res ) {
 // Form-based round-tripping for manual testing
 routes.post_rtForm = function( req, res ) {
 	var env = res.local('env');
-	apiUtils.setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8');
 	// we don't care about \r, and normalize everything to \n
-	parse( env, req, res, roundTripDiff.bind( null, false ), null, {
+	parse( env, req, res, {
 		revision: { '*': req.body.content.replace(/\r/g, '') }
+	}).then(
+		roundTripDiff.bind( null, env, req, res, false )
+	).catch(function(err) {
+		env.log("fatal/request", err);
 	});
 };
 
 // Regular article parsing
-routes.wt2html = function(req, res) {
+routes.wt2html = function( req, res ) {
 	wt2html( req, res );
 };
 
 // Regular article serialization using POST
-routes.html2wt = function(req, res) {
+routes.html2wt = function( req, res ) {
+	var body = req.body;
 	// parse html or wt
 	if ( req.body.wt ) {
-		wt2html( req, res, req.body.wt );
+		wt2html( req, res, body.wt );
 	} else {
-		html2wt( req, res, req.body.html || req.body.content || '' );
+		html2wt( req, res, body.html || body.content || '' );
 	}
 };
 
@@ -580,7 +585,7 @@ routes.html2wt = function(req, res) {
 
 
 // Regular article parsing
-routes.v2_wt2html = function(req, res) {
+routes.v2_wt2html = function( req, res ) {
 	var v2 = { format: res.local("format") };
 	if ( v2.format === "pagebundle" ) {
 		res.local('env').conf.parsoid.storeDataParsoid = true;
