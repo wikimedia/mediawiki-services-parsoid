@@ -34,14 +34,6 @@ var routes = {};
 
 // Helpers
 
-var Serializer = parsoidConfig.useSelser ? SelectiveSerializer : WikitextSerializer;
-
-var supportedFormats = new Set([ "pagebundle", "html" ]);
-
-function action( res ) {
-	return [ "", res.local('iwp'), res.local('pageName') ].join( "/" );
-}
-
 var promiseTemplateReq = function( env, target, oldid ) {
 	return new Promise(function( resolve, reject ) {
 		var tpr = new TemplateRequest( env, target, oldid );
@@ -53,20 +45,6 @@ var promiseTemplateReq = function( env, target, oldid ) {
 			}
 		});
 	});
-};
-
-var errBack = function( env, req, res, logData, callback ) {
-	if ( !env.responseSent) {
-		return new Promise(function( resolve, reject ) {
-			apiUtils.setHeader( res, env, 'Content-Type', 'text/plain; charset=UTF-8' );
-			apiUtils.sendResponse( res, env, logData.fullMsg(), logData.code || 500 );
-			res.on( 'finish', resolve );
-		}).catch(function(e) {
-			console.error( e.stack || e );
-			res.end();
-		}).nodify(callback);
-	}
-	return Promise.resolve().nodify(callback);
 };
 
 var roundTripDiff = function( env, req, res, selser, doc ) {
@@ -211,8 +189,9 @@ var html2wt = function( req, res, html ) {
 			resolve();
 		});
 	}).then(function() {
-		var doc = DU.parseHTML( html.replace(/\r/g, '') );
-		var serializer = new Serializer({ env: env, oldid: env.page.id });
+		var doc = DU.parseHTML( html.replace(/\r/g, '') ),
+			Serializer = parsoidConfig.useSelser ? SelectiveSerializer : WikitextSerializer,
+			serializer = new Serializer({ env: env, oldid: env.page.id });
 		return Promise.promisify( serializer.serializeDOM, false, serializer )(
 			doc.body, function( chunk ) { out.push( chunk ); }, false
 		);
@@ -225,7 +204,7 @@ var html2wt = function( req, res, html ) {
 	});
 };
 
-function wt2html( req, res, wt, v2 ) {
+var wt2html = function( req, res, wt, v2 ) {
 	var env = res.local('env'),
 		prefix = res.local('iwp'),
 		oldid = res.local('oldid'),
@@ -337,7 +316,8 @@ function wt2html( req, res, wt, v2 ) {
 	return p.catch(function( err ) {
 		env.log("fatal/request", err);
 	});
-}
+};
+
 
 // Middlewares
 
@@ -349,6 +329,19 @@ routes.interParams = function( req, res, next ) {
 };
 
 routes.parserEnvMw = function( req, res, next ) {
+	function errBack( env, logData, callback ) {
+		if ( !env.responseSent ) {
+			return new Promise(function( resolve, reject ) {
+				apiUtils.setHeader( res, env, 'Content-Type', 'text/plain; charset=UTF-8' );
+				apiUtils.sendResponse( res, env, logData.fullMsg(), logData.code || 500 );
+				res.on( 'finish', resolve );
+			}).catch(function(e) {
+				console.error( e.stack || e );
+				res.end();
+			}).nodify(callback);
+		}
+		return Promise.resolve().nodify(callback);
+	}
 	Promise.promisify( MWParserEnv.getParserEnv, false, MWParserEnv )(
 		parsoidConfig,
 		null,
@@ -356,14 +349,15 @@ routes.parserEnvMw = function( req, res, next ) {
 		res.local('pageName'),
 		req.headers.cookie
 	).then(function( env ) {
-		env.logger.registerBackend(/fatal(\/.*)?/, errBack.bind(this, env, req, res));
+		env.logger.registerBackend(/fatal(\/.*)?/, errBack.bind(this, env));
 		res.local('env', env);
 		next();
 	}).catch(function( err ) {
-		errBack( {}, req, res, new LogData(null, "error", err) );
+		errBack( {}, new LogData(null, "error", err) );
 	});
 };
 
+var supportedFormats = new Set([ "pagebundle", "html" ]);
 routes.v2Middle = function( req, res, next ) {
 	function errOut(err) {
 		// FIXME: provide more consistent error handling.
@@ -439,7 +433,7 @@ routes.html2wtForm = function( req, res ) {
 	var env = res.local('env');
 	apiUtils.renderResponse(res, env, "form", {
 		title: "Your HTML DOM:",
-		action: action(res),
+		action: "/" + res.local('iwp') + "/" + res.local('pageName'),
 		name: "html"
 	});
 };
@@ -449,7 +443,7 @@ routes.wt2htmlForm = function( req, res ) {
 	var env = res.local('env');
 	apiUtils.renderResponse(res, env, "form", {
 		title: "Your wikitext:",
-		action: action(res),
+		action: "/" + res.local('iwp') + "/" + res.local('pageName'),
 		name: "wt"
 	});
 };
