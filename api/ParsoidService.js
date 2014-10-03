@@ -91,8 +91,8 @@ function ParsoidService(options) {
 	app.get(  re('/_rtselser/(' + iwRe + ')/(.*)'), i, p, routes.roundtripSelser );
 	app.get(  re('/_rtform/(?:(' + iwRe + ')/(.*))?'), i, p, routes.get_rtForm );
 	app.post( re('/_rtform/(?:(' + iwRe + ')/(.*))?'), i, p, routes.post_rtForm );
-	app.get(  re('/(' + iwRe + ')/(.*)'), i, p, routes.wt2html );
-	app.post( re('/(' + iwRe + ')/(.*)'), i, p, routes.html2wt );
+	app.get(  re('/(' + iwRe + ')/(.*)'), i, p, routes.get_article );
+	app.post( re('/(' + iwRe + ')/(.*)'), i, p, routes.post_article );
 
 	// Attempt to define a new version of the API
 	// /v2/{domain}/{title}/{format}/{revision}

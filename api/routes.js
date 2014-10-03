@@ -178,12 +178,12 @@ var parse = function( env, req, res, src_and_metadata ) {
 		return Promise.promisify( pipeline.parse, false, pipeline )(
 			env, env.page.src, expansions
 		);
-	}).catch(function(err) {
+	}).catch(function( err ) {
 		env.log("fatal/request", err);
 	});
 };
 
-function html2wt( req, res, html ) {
+var html2wt = function( req, res, html ) {
 	var env = res.local('env');
 	env.page.id = req.body.oldid || null;
 
@@ -194,38 +194,36 @@ function html2wt( req, res, html ) {
 					   env.conf.parsoid.allowCORS );
 	}
 
-	var html2wtCb = function () {
-		var doc, out = [];
-		return Promise.resolve().then(function() {
-			doc = DU.parseHTML( html.replace(/\r/g, '') );
-			var serializer = new Serializer({ env: env, oldid: env.page.id });
-			return Promise.promisify( serializer.serializeDOM, false, serializer )(
-				doc.body, function( chunk ) { out.push( chunk ); }, false
-			);
-		}).then(function() {
-			apiUtils.setHeader(res, env, 'Content-Type', 'text/x-mediawiki; charset=UTF-8' );
-			apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
-			apiUtils.endResponse(res, env, out.join(''));
-		}).catch(function(e) {
-			env.log("fatal/request", e);
-		});
-	};
-
-	if ( env.conf.parsoid.fetchWT ) {
-		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
+	var out = [];
+	return new Promise(function( resolve, reject ) {
+		if ( !env.conf.parsoid.fetchWT ) {
+			return resolve();
+		}
+		var target = env.resolveTitle( env.normalizeTitle(env.page.name), '' );
 		var tpr = new TemplateRequest( env, target, env.page.id );
-		tpr.once( 'src', function ( err, src_and_metadata ) {
+		tpr.once('src', function( err, src_and_metadata ) {
 			if ( err ) {
-				env.log("error", "There was an error fetching the original wikitext for", target, err);
+				env.log("error", "There was an error fetching " +
+						"the original wikitext for ", target, err);
 			} else {
 				env.setPageSrcInfo( src_and_metadata );
 			}
-			html2wtCb();
-		} );
-	} else {
-		html2wtCb();
-	}
-}
+			resolve();
+		});
+	}).then(function() {
+		var doc = DU.parseHTML( html.replace(/\r/g, '') );
+		var serializer = new Serializer({ env: env, oldid: env.page.id });
+		return Promise.promisify( serializer.serializeDOM, false, serializer )(
+			doc.body, function( chunk ) { out.push( chunk ); }, false
+		);
+	}).then(function() {
+		apiUtils.setHeader(res, env, 'Content-Type', 'text/x-mediawiki; charset=UTF-8');
+		apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
+		apiUtils.endResponse(res, env, out.join(''));
+	}).catch(function( err ) {
+		env.log("fatal/request", err);
+	});
+};
 
 function wt2html( req, res, wt, v2 ) {
 	var env = res.local('env'),
@@ -564,18 +562,18 @@ routes.post_rtForm = function( req, res ) {
 	});
 };
 
-// Regular article parsing
-routes.wt2html = function( req, res ) {
+routes.get_article = function( req, res ) {
+	// Regular article parsing
 	wt2html( req, res );
 };
 
-// Regular article serialization using POST
-routes.html2wt = function( req, res ) {
+routes.post_article = function( req, res ) {
 	var body = req.body;
-	// parse html or wt
 	if ( req.body.wt ) {
+		// Form-based article parsing
 		wt2html( req, res, body.wt );
 	} else {
+		// Regular and form-based article serialization
 		html2wt( req, res, body.html || body.content || '' );
 	}
 };
