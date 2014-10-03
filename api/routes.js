@@ -237,121 +237,104 @@ function wt2html( req, res, wt, v2 ) {
 	if ( env.conf.parsoid.allowCORS ) {
 		// allow cross-domain requests (CORS) so that parsoid service
 		// can be used by third-party sites
-		apiUtils.setHeader( res, env, 'Access-Control-Allow-Origin', env.conf.parsoid.allowCORS );
+		apiUtils.setHeader( res, env, 'Access-Control-Allow-Origin',
+							env.conf.parsoid.allowCORS );
 	}
 
 	function sendRes( doc ) {
-		try {
-			apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
-			if ( v2 && v2.format === "pagebundle" ) {
-				var dp = doc.ownerDocument.getElementById('mw-data-parsoid');
-				dp.parentNode.removeChild(dp);
-				apiUtils.jsonResponse(res, env, {
-					html: DU.serializeNode( doc ),
-					"data-parsoid": JSON.parse(dp.text)
-				});
-			} else {
-				apiUtils.setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8');
-				apiUtils.endResponse(res, env,  DU.serializeNode( doc ));
-			}
-			env.log("info", "completed parsing in", env.performance.duration, "ms");
-		} catch (e) {
-			env.log("fatal/request", e);
-		}
-	}
-
-	var tmpCb;
-	if ( wt ) {
-		wt = wt.replace( /\r/g, '' );
-		env.log('info', 'starting parsing');
-
-		// clear default page name
-		if ( !res.local('pageName') ) {
-			env.page.name = '';
-		}
-
-		var parser = env.pipelineFactory.getPipeline('text/x-mediawiki/full');
-		parser.once('document', function( document ) {
-			// Don't cache requests when wt is set in case somebody uses
-			// GET for wikitext parsing
-			apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0' );
-			sendRes( req.body.body ? document.body : document );
-		});
-
-		tmpCb = function( src_and_metadata ) {
-			// Set the source
-			env.setPageSrcInfo( src_and_metadata );
-
-			try {
-				parser.processToplevelDoc( wt );
-			} catch ( e ) {
-				env.log("fatal/request", e);
-				return;
-			}
-		};
-
-		if ( !res.local('pageName') || !oldid ) {
-			// no pageName supplied; don't fetch the page source
-			tmpCb( wt );
-			return;
-		}
-
-	} else {
-		if ( oldid ) {
-			env.log('info', 'starting parsing');
-
-			if ( !req.headers.cookie ) {
-				apiUtils.setHeader(res, env, 'Cache-Control', 's-maxage=2592000' );
-			} else {
-				// Don't cache requests with a session
-				apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0' );
-			}
-
-			// Indicate the MediaWiki revision in a header as well for
-			// ease of extraction in clients.
-			apiUtils.setHeader(res, env, 'content-revision-id', oldid);
-
-			tmpCb = function( src_and_metadata ) {
-				return parse( env, req, res, src_and_metadata ).then( sendRes );
-			};
+		apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
+		if ( v2 && v2.format === "pagebundle" ) {
+			var dp = doc.ownerDocument.getElementById('mw-data-parsoid');
+			dp.parentNode.removeChild(dp);
+			apiUtils.jsonResponse(res, env, {
+				html: DU.serializeNode( doc ),
+				"data-parsoid": JSON.parse(dp.text)
+			});
 		} else {
-			// Don't cache requests with no oldid
-			apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0' );
-			tmpCb = function( src_and_metadata ) {
-				// Set the source
-				env.setPageSrcInfo( src_and_metadata );
-				oldid = env.page.meta.revision.revid;
-
-				var path = "/";
-				if ( v2 ) {
-					path += [
-						"v2",
-						url.parse( env.conf.parsoid.interwikiMap.get( prefix ) ).host,
-						encodeURIComponent( target ),
-						v2.format,
-						oldid
-					].join("/");
-				} else {
-					path += [
-						prefix,
-						encodeURIComponent( target ) + "?oldid=" + oldid
-					].join("/");
-				}
-
-				// Redirect to oldid
-				apiUtils.relativeRedirect({
-					"path": path,
-					"res": res,
-					"env": env
-				});
-				env.log("info", "redirected to revision", env.page.meta.revision.revid);
-			};
+			apiUtils.setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8');
+			apiUtils.endResponse(res, env,  DU.serializeNode( doc ));
 		}
+		env.log("info", "completed parsing in", env.performance.duration, "ms");
 	}
 
-	return promiseTemplateReq( env, target, oldid ).then(
-		tmpCb
-	).catch(function( err ) {
+	function hasWt( wt ) {
+		env.log('info', 'starting parsing');
+		// Set the source
+		env.setPageSrcInfo( wt );
+		return new Promise(function( resolve, reject ) {
+			var parser = env.pipelineFactory.getPipeline('text/x-mediawiki/full');
+			parser.once('document', function( doc ) {
+				// Don't cache requests when wt is set in case somebody uses
+				// GET for wikitext parsing
+				apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0');
+				resolve( req.body.body ? doc.body : doc );
+			});
+			parser.processToplevelDoc( wt );
+		}).then( sendRes );
+	}
+
+	function hasHtmlAndOldid( src_and_metadata ) {
+		env.log('info', 'starting parsing');
+		if ( !req.headers.cookie ) {
+			apiUtils.setHeader(res, env, 'Cache-Control', 's-maxage=2592000');
+		} else {
+			// Don't cache requests with a session
+			apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0');
+		}
+		// Indicate the MediaWiki revision in a header as well for
+		// ease of extraction in clients.
+		apiUtils.setHeader(res, env, 'content-revision-id', oldid);
+		return parse( env, req, res, src_and_metadata ).then( sendRes );
+	}
+
+	function hasHtmlWithoutOldid( src_and_metadata ) {
+		// Don't cache requests with no oldid
+		apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0');
+		// Set the source
+		env.setPageSrcInfo( src_and_metadata );
+		oldid = env.page.meta.revision.revid;
+
+		var path = "/";
+		if ( v2 ) {
+			path += [
+				"v2",
+				url.parse( env.conf.parsoid.interwikiMap.get( prefix ) ).host,
+				encodeURIComponent( target ),
+				v2.format,
+				oldid
+			].join("/");
+		} else {
+			path += [
+				prefix,
+				encodeURIComponent( target ) + "?oldid=" + oldid
+			].join("/");
+		}
+
+		// Redirect to oldid
+		apiUtils.relativeRedirect({ "path": path, "res": res, "env": env });
+		env.log("info", "redirected to revision", env.page.meta.revision.revid);
+	}
+
+	var p;
+	if ( wt && (!res.local('pageName') || !oldid) ) {
+		// clear default page name
+		env.page.name = '';
+
+		// don't fetch the page source
+		p = Promise.resolve( wt.replace(/\r/g, '') );
+	} else {
+		p = promiseTemplateReq( env, target, oldid );
+	}
+
+	if ( wt ) {
+		p = p.then( hasWt );
+	} else if ( oldid ) {
+		p = p.then( hasHtmlAndOldid );
+	} else {
+		p = p.then( hasHtmlWithoutOldid );
+	}
+
+	return p.catch(function( err ) {
 		env.log("fatal/request", err);
 	});
 }
