@@ -67,7 +67,7 @@ var dd = new DOMDiff(dummyEnv),
 	oldDOM = DU.parseHTML(oldhtml),
 	newDOM = DU.parseHTML(newhtml);
 
-dd.doDOMDiff(oldDOM, newDOM);
+dd.doDOMDiff(oldDOM.body, newDOM.body);
 if ( !Util.booleanOption( argv.quiet ) ) {
 	console.warn("----- DIFF-marked DOM -----");
 }
