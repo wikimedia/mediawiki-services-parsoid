@@ -254,9 +254,12 @@ process.on('SIGUSR2', function() {
 			DU.applyDataParsoid( doc, dp );
 		}
 		var out = '';
-		serializer.serializeDOM(doc.body, function ( chunk ) {
+		serializer.serializeDOM(doc.body, function( chunk ) {
 			out += chunk;
-		}, function () {
+		}, false, function(err) {
+			if (err) {
+				env.log("fatal", err);
+			}
 			if ( argv.html2wt || argv.wt2wt ) {
 				addTrailingNL( false, out );
 			} else {

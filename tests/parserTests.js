@@ -437,7 +437,10 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
 
 		serializer.serializeDOM( content, function ( res ) {
 			wt += res;
-		}, function () {
+		}, false, function(err) {
+			if (err) {
+				self.env.log("fatal", err);
+			}
 			processWikitextCB( null, wt );
 			self.env.setPageSrcInfo( null );
 			self.env.page.dom = null;

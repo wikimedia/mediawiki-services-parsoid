@@ -60,7 +60,17 @@ var errBack = function( res, env, logData, callback ) {
 var roundTripDiff = function( selser, req, res, env, document ) {
 	var out = [];
 
-	var finalCB =  function () {
+	// Re-parse the HTML to uncover foster-parenting issues
+	document = domino.createDocument(document.outerHTML);
+
+	var Serializer = selser ? SelectiveSerializer : WikitextSerializer,
+		serializer = new Serializer({ env: env });
+
+	return Promise.promisify( serializer.serializeDOM, false, serializer )(
+		document.body,
+		function( chunk ) { out.push(chunk); },
+		false
+	).then(function() {
 		var i;
 		out = out.join('');
 
@@ -101,17 +111,9 @@ var roundTripDiff = function( selser, req, res, env, document ) {
 		});
 
 		env.log("info", "completed parsing in", env.performance.duration, "ms");
-	};
-
-	// Re-parse the HTML to uncover foster-parenting issues
-	document = domino.createDocument(document.outerHTML);
-
-	var Serializer = selser ? SelectiveSerializer : WikitextSerializer;
-	new Serializer({ env: env }).serializeDOM(
-		document.body,
-		function( chunk ) { out.push(chunk); },
-		finalCB
-	);
+	}).catch(function( err ) {
+		env.log("fatal/request", err);
+	});
 };
 
 function handleCacheRequest( env, req, res, cb, src, cacheErr, cacheSrc ) {
@@ -194,29 +196,20 @@ function html2wt( req, res, html ) {
 	}
 
 	var html2wtCb = function () {
-		var doc;
-		try {
-			doc = DU.parseHTML( html.replace( /\r/g, '' ) );
-		} catch ( e ) {
-			env.log("fatal", e, "There was an error in the HTML5 parser!");
-			return;
-		}
-
-		try {
-			var out = [];
-			new Serializer( { env: env, oldid: env.page.id } ).serializeDOM(
-				doc.body,
-				function ( chunk ) {
-					out.push( chunk );
-				}, function () {
-					apiUtils.setHeader(res, env, 'Content-Type', 'text/x-mediawiki; charset=UTF-8' );
-					apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader() );
-					apiUtils.endResponse(res, env,  out.join( '' ) );
-				} );
-		} catch ( e ) {
-			env.log("fatal", e);
-			return;
-		}
+		var doc, out = [];
+		return Promise.resolve().then(function() {
+			doc = DU.parseHTML( html.replace(/\r/g, '') );
+			var serializer = new Serializer({ env: env, oldid: env.page.id });
+			return Promise.promisify( serializer.serializeDOM, false, serializer )(
+				doc.body, function( chunk ) { out.push( chunk ); }, false
+			);
+		}).then(function() {
+			apiUtils.setHeader(res, env, 'Content-Type', 'text/x-mediawiki; charset=UTF-8' );
+			apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
+			apiUtils.endResponse(res, env, out.join(''));
+		}).catch(function(e) {
+			env.log("fatal/request", e);
+		});
 	};
 
 	if ( env.conf.parsoid.fetchWT ) {
