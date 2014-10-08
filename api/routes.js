@@ -220,18 +220,18 @@ var wt2html = function( req, res, wt, v2 ) {
 							env.conf.parsoid.allowCORS );
 	}
 
-	function sendRes( doc ) {
+	function sendRes( doc, justBody ) {
 		apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
 		if ( v2 && v2.format === "pagebundle" ) {
-			var dp = doc.ownerDocument.getElementById('mw-data-parsoid');
+			var dp = doc.getElementById('mw-data-parsoid');
 			dp.parentNode.removeChild(dp);
 			apiUtils.jsonResponse(res, env, {
-				html: DU.serializeNode( doc ),
+				html: DU.serializeNode( justBody ? doc.body : doc ),
 				"data-parsoid": JSON.parse(dp.text)
 			});
 		} else {
 			apiUtils.setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8');
-			apiUtils.endResponse(res, env,  DU.serializeNode( doc ));
+			apiUtils.endResponse(res, env,  DU.serializeNode( justBody ? doc.body : doc ));
 		}
 		env.log("info", "completed parsing in", env.performance.duration, "ms");
 	}
@@ -244,7 +244,8 @@ var wt2html = function( req, res, wt, v2 ) {
 				// Don't cache requests when wt is set in case somebody uses
 				// GET for wikitext parsing
 				apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0');
-				resolve( req.body.body ? doc.body : doc );
+				// "body" flag to return just the body
+				resolve( doc, !!req.body.body );
 			});
 			parser.processToplevelDoc( wt );
 		}).then( sendRes );
