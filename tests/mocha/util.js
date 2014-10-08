@@ -1,7 +1,10 @@
 /** Test cases for lib/mediawiki.Util.js */
 'use strict';
 /*global describe, it, Promise*/
+
 require("es6-shim");
+require("prfun");
+
 var should = require("chai").should();
 
 var MWParserEnvironment = require('../../lib/mediawiki.parser.environment.js' ).MWParserEnvironment,
@@ -18,10 +21,10 @@ describe( 'mediawiki.Util', function() {
 				MWParserEnvironment.getParserEnv( parsoidConfig, null, 'enwiki', 'Main_Page', null, function ( err, env ) {
 					if (err) { return reject(err); }
 					env.setPageSrcInfo(src);
-					Util.parse(env, function(src, err, doc) {
-						if (err) { return reject(err); }
-						resolve(doc);
-					}, null, src, expansions);
+					var pipeline = env.pipelineFactory;
+					Promise.promisify( pipeline.parse, false, pipeline )(
+						env, env.page.src, expansions
+					).then( resolve, reject );
 				});
 			});
 		};

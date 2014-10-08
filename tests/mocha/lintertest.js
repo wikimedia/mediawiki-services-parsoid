@@ -2,6 +2,8 @@
 /*global describe, it, Promise*/
 
 require("es6-shim");
+require("prfun");
+
 var should = require("chai").should();
 
 var MWParserEnvironment = require('../../lib/mediawiki.parser.environment.js' ).MWParserEnvironment,
@@ -14,14 +16,12 @@ describe( 'Linter Tests', function() {
 
 	var parse = function( wt, cb ) {
 		MWParserEnvironment.getParserEnv( parsoidConfig, null, 'enwiki', 'Main_Page', null, function ( err, env ) {
-
 			if ( err !== null ) {
 				console.error( err );
 				return cb( err );
 			}
 
-			var utilCB = function ( src, err, doc ) {
-
+			var utilCB = function( err, doc ) {
 				if ( err ) {
 					env.log( "error", err );
 					return cb( err );
@@ -30,7 +30,11 @@ describe( 'Linter Tests', function() {
 			};
 
 			env.setPageSrcInfo( wt );
-			Util.parse( env, utilCB, null, wt, null );
+
+			var pipeline = env.pipelineFactory;
+			Promise.promisify( pipeline.parse, false, pipeline )(
+				env, wt, null
+			).nodify( utilCB );
 		});
 	};
 
