@@ -41,7 +41,8 @@ var promiseTemplateReq = function( env, target, oldid ) {
 			if ( err ) {
 				reject( err );
 			} else {
-				resolve( src_and_metadata );
+				env.setPageSrcInfo( src_and_metadata );
+				resolve();
 			}
 		});
 	});
@@ -104,14 +105,9 @@ var roundTripDiff = function( env, req, res, selser, doc ) {
 	});
 };
 
-var parse = function( env, req, res, src_and_metadata ) {
-	// Set the source
-	env.setPageSrcInfo( src_and_metadata );
-
-	// Now env.page.meta.title has the canonical title, and
-	// env.page.meta.revision.parentid has the predecessor oldid
+var parse = function( env, req, res ) {
+	env.log('info', 'started parsing');
 	var meta = env.page.meta;
-
 	return new Promise(function( resolve, reject ) {
 		// See if we can reuse transclusion or extension expansions.
 		// And don't parse twice for recursive parsoid requests
@@ -210,6 +206,10 @@ var wt2html = function( req, res, wt, v2 ) {
 		oldid = res.local('oldid'),
 		target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
+	if ( wt ) {
+		wt = wt.replace(/\r/g, '');
+	}
+
 	// Set the timeout to 600 seconds..
 	req.connection.setTimeout( 600 * 1000 );
 
@@ -236,10 +236,8 @@ var wt2html = function( req, res, wt, v2 ) {
 		env.log("info", "completed parsing in", env.performance.duration, "ms");
 	}
 
-	function hasWt( wt ) {
-		env.log('info', 'starting parsing');
-		// Set the source
-		env.setPageSrcInfo( wt );
+	function parseWt() {
+		env.log('info', 'started parsing');
 		return new Promise(function( resolve, reject ) {
 			var parser = env.pipelineFactory.getPipeline('text/x-mediawiki/full');
 			parser.once('document', function( doc ) {
@@ -252,8 +250,7 @@ var wt2html = function( req, res, wt, v2 ) {
 		}).then( sendRes );
 	}
 
-	function hasHtmlAndOldid( src_and_metadata ) {
-		env.log('info', 'starting parsing');
+	function parsePageWithOldid() {
 		if ( !req.headers.cookie ) {
 			apiUtils.setHeader(res, env, 'Cache-Control', 's-maxage=2592000');
 		} else {
@@ -263,15 +260,15 @@ var wt2html = function( req, res, wt, v2 ) {
 		// Indicate the MediaWiki revision in a header as well for
 		// ease of extraction in clients.
 		apiUtils.setHeader(res, env, 'content-revision-id', oldid);
-		return parse( env, req, res, src_and_metadata ).then( sendRes );
+		return parse( env, req, res ).then( sendRes );
 	}
 
-	function hasHtmlWithoutOldid( src_and_metadata ) {
+	function redirectToOldid() {
 		// Don't cache requests with no oldid
 		apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0');
-		// Set the source
-		env.setPageSrcInfo( src_and_metadata );
+
 		oldid = env.page.meta.revision.revid;
+		env.log("info", "redirecting to revision", oldid);
 
 		var path = "/";
 		if ( v2 ) {
@@ -291,26 +288,25 @@ var wt2html = function( req, res, wt, v2 ) {
 
 		// Redirect to oldid
 		apiUtils.relativeRedirect({ "path": path, "res": res, "env": env });
-		env.log("info", "redirected to revision", env.page.meta.revision.revid);
 	}
 
 	var p;
 	if ( wt && (!res.local('pageName') || !oldid) ) {
 		// clear default page name
 		env.page.name = '';
-
 		// don't fetch the page source
-		p = Promise.resolve( wt.replace(/\r/g, '') );
+		env.setPageSrcInfo( wt );
+		p = Promise.resolve();
 	} else {
 		p = promiseTemplateReq( env, target, oldid );
 	}
 
 	if ( wt ) {
-		p = p.then( hasWt );
+		p = p.then( parseWt );
 	} else if ( oldid ) {
-		p = p.then( hasHtmlAndOldid );
+		p = p.then( parsePageWithOldid );
 	} else {
-		p = p.then( hasHtmlWithoutOldid );
+		p = p.then( redirectToOldid );
 	}
 
 	return p.catch(function( err ) {
@@ -454,7 +450,6 @@ routes.roundtripTesting = function( req, res ) {
 	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
 	req.connection.setTimeout(300 * 1000);
-	env.log('info', 'starting parsing');
 
 	var oldid = null;
 	if ( req.query.oldid ) {
@@ -476,7 +471,6 @@ routes.roundtripTestingNL = function( req, res ) {
 	var env = res.local('env');
 	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
-	env.log('info', 'starting parsing');
 	var oldid = null;
 	if ( req.query.oldid ) {
 		oldid = req.query.oldid;
@@ -498,7 +492,6 @@ routes.roundtripSelser = function( req, res ) {
 	var env = res.local('env');
 	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
-	env.log('info', 'starting parsing');
 	var oldid = null;
 	if ( req.query.oldid ) {
 		oldid = req.query.oldid;
@@ -530,9 +523,10 @@ routes.get_rtForm = function( req, res ) {
 routes.post_rtForm = function( req, res ) {
 	var env = res.local('env');
 	// we don't care about \r, and normalize everything to \n
-	parse( env, req, res, {
+	env.setPageSrcInfo({
 		revision: { '*': req.body.content.replace(/\r/g, '') }
-	}).then(
+	});
+	parse( env, req, res ).then(
 		roundTripDiff.bind( null, env, req, res, false )
 	).catch(function(err) {
 		env.log("fatal/request", err);
