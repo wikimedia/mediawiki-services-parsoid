@@ -238,6 +238,10 @@ var wt2html = function( req, res, wt, v2 ) {
 
 	function parseWt() {
 		env.log('info', 'started parsing');
+		if ( !res.local('pageName') ) {
+			// clear default page name
+			env.page.name = '';
+		}
 		return new Promise(function( resolve, reject ) {
 			var parser = env.pipelineFactory.getPipeline('text/x-mediawiki/full');
 			parser.once('document', function( doc ) {
@@ -293,8 +297,6 @@ var wt2html = function( req, res, wt, v2 ) {
 
 	var p;
 	if ( wt && (!res.local('pageName') || !oldid) ) {
-		// clear default page name
-		env.page.name = '';
 		// don't fetch the page source
 		env.setPageSrcInfo( wt );
 		p = Promise.resolve();
