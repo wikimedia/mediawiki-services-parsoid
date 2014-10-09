@@ -352,7 +352,9 @@ routes.parserEnvMw = function( req, res, next ) {
 		res.local('env', env);
 		next();
 	}).catch(function( err ) {
-		errBack( {}, new LogData(null, "error", err) );
+		// Workaround how logdata flatten works so that the error object is
+		// recursively flattened and a stack trace generated for this.
+		errBack( {}, new LogData("error", [ "error:", err, "path:", req.path ]) );
 	});
 };
 

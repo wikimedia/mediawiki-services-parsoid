@@ -3,7 +3,7 @@
 var DOMDiff = require('../lib/mediawiki.DOMDiff.js').DOMDiff,
 	Util = require('../lib/mediawiki.Util.js').Util,
 	DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils,
-	Logger = require('../lib/Logger.js').Logger,
+	ParsoidLogger = require('../lib/ParsoidLogger.js').ParsoidLogger,
 	yargs = require('yargs'),
 	fs = require('fs');
 
@@ -56,7 +56,7 @@ var dummyEnv = {
 };
 
 if (argv.debug) {
-	var logger = new Logger(dummyEnv);
+	var logger = new ParsoidLogger(dummyEnv);
 	logger.registerBackend(/^(trace|debug)(\/|$)/, logger.getDefaultTracerBackend());
 	dummyEnv.log = logger.log.bind(logger);
 } else {

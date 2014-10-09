@@ -24,7 +24,7 @@ var apiServer = require( './apiServer.js' ),
 	yargs = require('yargs'),
 	Alea = require('alea'),
 	DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils,
-	Logger = require('../lib/Logger.js').Logger,
+	ParsoidLogger = require('../lib/ParsoidLogger.js').ParsoidLogger,
 	PEG = require('pegjs'),
 	Util = require( '../lib/mediawiki.Util.js' ).Util,
 	Diff = require('../lib/mediawiki.Diff.js').Diff;
@@ -1643,8 +1643,8 @@ ParserTests.prototype.main = function ( options, popts ) {
 		this.env = env;
 
 		if (booleanOption( options.quiet )) {
-			var logger = new Logger(env);
-			Util.registerLoggingBackends(["fatal", "error"], logger, parsoidConfig);
+			var logger = new ParsoidLogger(env);
+			logger.registerLoggingBackends(["fatal", "error"], parsoidConfig);
 			env.setLogger(logger);
 		}
 
