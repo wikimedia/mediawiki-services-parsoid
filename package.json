@@ -30,7 +30,9 @@
 	},
 	"scripts": {
 		"start": "node api/server.js",
-		"test": "node tests/parserTests.js && mocha --opts tests/mocha/mocha.opts tests/mocha"
+		"parserTests": "node tests/parserTests.js",
+		"mocha": "mocha --opts tests/mocha/mocha.opts tests/mocha",
+		"test": "npm run parserTests && npm run mocha"
 	},
 	"repository": {
 		"type": "git",
