@@ -336,7 +336,7 @@ routes.parserEnvMw = function( req, res, next ) {
 				res.on( 'finish', resolve );
 			}).catch(function(e) {
 				console.error( e.stack || e );
-				res.end();
+				res.end( e.stack || e );
 			}).nodify(callback);
 		}
 		return Promise.resolve().nodify(callback);
