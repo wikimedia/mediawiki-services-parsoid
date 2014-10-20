@@ -248,7 +248,6 @@ var wt2html = function( req, res, wt, v2 ) {
 				// Don't cache requests when wt is set in case somebody uses
 				// GET for wikitext parsing
 				apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0');
-				// "body" flag to return just the body
 				resolve( doc );
 			});
 			parser.processToplevelDoc( wt );
@@ -324,6 +323,7 @@ routes.interParams = function( req, res, next ) {
 	res.local('iwp', req.params[0] || parsoidConfig.defaultWiki || '');
 	res.local('pageName', req.params[1] || '');
 	res.local('oldid', req.query.oldid || null);
+	// "body" flag to return just the body (instead of the entire HTML doc)
 	res.local('body', req.query.body || req.body.body);
 	next();
 };
