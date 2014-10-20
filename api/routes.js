@@ -220,18 +220,18 @@ var wt2html = function( req, res, wt, v2 ) {
 							env.conf.parsoid.allowCORS );
 	}
 
-	function sendRes( doc, justBody ) {
+	function sendRes(doc) {
 		apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
 		if ( v2 && v2.format === "pagebundle" ) {
 			var dp = doc.getElementById('mw-data-parsoid');
 			dp.parentNode.removeChild(dp);
 			apiUtils.jsonResponse(res, env, {
-				html: DU.serializeNode( justBody ? doc.body : doc ),
+				html: DU.serializeNode( res.local('body') ? doc.body : doc ),
 				"data-parsoid": JSON.parse(dp.text)
 			});
 		} else {
 			apiUtils.setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8');
-			apiUtils.endResponse(res, env,  DU.serializeNode( justBody ? doc.body : doc ));
+			apiUtils.endResponse(res, env,  DU.serializeNode( res.local('body') ? doc.body : doc ));
 		}
 		env.log("info", "completed parsing in", env.performance.duration, "ms");
 	}
@@ -249,7 +249,7 @@ var wt2html = function( req, res, wt, v2 ) {
 				// GET for wikitext parsing
 				apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0');
 				// "body" flag to return just the body
-				resolve( doc, !!req.body.body );
+				resolve( doc );
 			});
 			parser.processToplevelDoc( wt );
 		}).then( sendRes );
@@ -324,6 +324,7 @@ routes.interParams = function( req, res, next ) {
 	res.local('iwp', req.params[0] || parsoidConfig.defaultWiki || '');
 	res.local('pageName', req.params[1] || '');
 	res.local('oldid', req.query.oldid || null);
+	res.local('body', req.query.body || req.body.body);
 	next();
 };
 
