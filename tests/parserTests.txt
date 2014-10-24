@@ -1776,7 +1776,7 @@ b</div>
 ## of eager output of buffered tokens in the p-wrapper. But, I'm going to ignore
 ## them for now.
 !! test
-P-wrapping should leave sol-transparent tags outside p-tags where possible
+1. P-wrapping should leave sol-transparent tags outside p-tags where possible
 !! options
 parsoid=wt2html
 !! wikitext
@@ -1786,6 +1786,16 @@ a [[Category:A1]] [[Category:A2]]
 !! html/parsoid
 <p>a</p>
 <link href="Category:A1"/> <link href="Category:A2"/> <link href="Category:A3"/> <link href="Category:A4"/>
+!! end
+
+!! test
+2. P-wrapping should leave sol-transparent tags outside p-tags where possible
+!! options
+parsoid=wt2html
+!! wikitext
+[[Category:A1]]a
+!! html/parsoid
+<link href="Category:A1"/><p>a</p>
 !! end
 
 ###
