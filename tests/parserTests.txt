@@ -5440,6 +5440,9 @@ Template-generated table cell attributes and cell content
 {|
 |{{table_attribs}}
 | {{table_attribs}}
+| <!--foo--> <!--bar--> <!--baz--> {{table_attribs}}
+|align=center {{table_attribs}}
+| <!--foo--> align=center <!--bar--> {{table_attribs}}
 |}
 !! html
 <table>
@@ -5447,26 +5450,18 @@ Template-generated table cell attributes and cell content
 <td style="color: red"> Foo
 </td>
 <td style="color: red"> Foo
-</td></tr></table>
-
-!! end
-
-!! test
-Template-generated table cell attributes and cell content (2)
-!! wikitext
-{|
-|align=center {{table_attribs}}
-|}
-!! html
-<table>
-<tr>
+</td>
+<td style="color: red"> Foo
+</td>
+<td align="center" style="color: red"> Foo
+</td>
 <td align="center" style="color: red"> Foo
 </td></tr></table>
 
 !! end
 
 !! test
-Template-generated table cell attributes and cell content (3)
+Template-generated table cell attributes and cell content (2)
 !! wikitext
 {|
 |align=center {{table_cells}}
