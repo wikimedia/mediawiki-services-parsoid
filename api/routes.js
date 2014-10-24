@@ -8,6 +8,7 @@ var path = require('path'),
 	url = require('url'),
 	util = require('util'),
 	childProc = require('child_process'),
+	cluster = require('cluster'),
 	domino = require('domino'),
 	pkg = require('../package.json'),
 	apiUtils = require('./utils');
@@ -33,6 +34,26 @@ var routes = {};
 
 
 // Helpers
+
+var CPU_TIMEOUT = 5 * 60 * 1000;  // 5 minutes
+var cpuTimeout = function( p ) {
+	return new Promise(function( resolve, reject ) {
+		if ( cluster.isMaster ) {
+			return p.then( resolve, reject );
+		}
+		process.send({
+			type: "timeout",
+			timeout: CPU_TIMEOUT
+		});
+		p.then( function() {
+			process.send({
+				type: "timeout",
+				done: true
+			});
+			resolve.apply(this, arguments);
+		}, reject );
+	});
+};
 
 var promiseTemplateReq = function( env, target, oldid ) {
 	return new Promise(function( resolve, reject ) {
@@ -169,7 +190,7 @@ var html2wt = function( req, res, html ) {
 	}
 
 	var out = [];
-	return new Promise(function( resolve, reject ) {
+	var p = new Promise(function( resolve, reject ) {
 		if ( !env.conf.parsoid.fetchWT ) {
 			return resolve();
 		}
@@ -195,7 +216,8 @@ var html2wt = function( req, res, html ) {
 		apiUtils.setHeader(res, env, 'Content-Type', 'text/x-mediawiki; charset=UTF-8');
 		apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
 		apiUtils.endResponse(res, env, out.join(''));
-	}).catch(function( err ) {
+	});
+	return cpuTimeout(p).catch(function( err ) {
 		env.log("fatal/request", err);
 	});
 };
@@ -209,9 +231,6 @@ var wt2html = function( req, res, wt, v2 ) {
 	if ( wt ) {
 		wt = wt.replace(/\r/g, '');
 	}
-
-	// Set the timeout to 600 seconds..
-	req.connection.setTimeout( 600 * 1000 );
 
 	if ( env.conf.parsoid.allowCORS ) {
 		// allow cross-domain requests (CORS) so that parsoid service
@@ -311,7 +330,7 @@ var wt2html = function( req, res, wt, v2 ) {
 		p = p.then( redirectToOldid );
 	}
 
-	return p.catch(function( err ) {
+	return cpuTimeout(p).catch(function( err ) {
 		env.log("fatal/request", err);
 	});
 };
@@ -455,18 +474,17 @@ routes.roundtripTesting = function( req, res ) {
 	var env = res.local('env');
 	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
-	req.connection.setTimeout(300 * 1000);
-
 	var oldid = null;
 	if ( req.query.oldid ) {
 		oldid = req.query.oldid;
 	}
 
-	promiseTemplateReq( env, target, oldid ).then(
+	var p = promiseTemplateReq( env, target, oldid ).then(
 		parse.bind( null, env, req, res )
 	).then(
 		roundTripDiff.bind( null, env, req, res, false )
-	).catch(function(err) {
+	);
+	cpuTimeout(p).catch(function(err) {
 		env.log("fatal/request", err);
 	});
 };
@@ -482,13 +500,14 @@ routes.roundtripTestingNL = function( req, res ) {
 		oldid = req.query.oldid;
 	}
 
-	promiseTemplateReq( env, target, oldid ).then(
+	var p = promiseTemplateReq( env, target, oldid ).then(
 		parse.bind( null, env, req, res )
 	).then(function( doc ) {
 		// strip newlines from the html
 		var html = doc.innerHTML.replace(/[\r\n]/g, '');
 		return roundTripDiff( env, req, res, false, DU.parseHTML(html) );
-	}).catch(function(err) {
+	});
+	cpuTimeout(p).catch(function(err) {
 		env.log("fatal/request", err);
 	});
 };
@@ -503,14 +522,15 @@ routes.roundtripSelser = function( req, res ) {
 		oldid = req.query.oldid;
 	}
 
-	promiseTemplateReq( env, target, oldid ).then(
+	var p = promiseTemplateReq( env, target, oldid ).then(
 		parse.bind( null, env, req, res )
 	).then(function( doc ) {
 		doc = DU.parseHTML( DU.serializeNode(doc) );
 		var comment = doc.createComment('rtSelserEditTestComment');
 		doc.body.appendChild(comment);
 		return roundTripDiff( env, req, res, true, doc );
-	}).catch(function(err) {
+	});
+	cpuTimeout(p).catch(function(err) {
 		env.log("fatal/request", err);
 	});
 };
