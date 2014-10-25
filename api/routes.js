@@ -45,13 +45,16 @@ var cpuTimeout = function( p ) {
 			type: "timeout",
 			timeout: CPU_TIMEOUT
 		});
-		p.then( function() {
+		var self = this;
+		function done(cb) {
 			process.send({
 				type: "timeout",
 				done: true
 			});
-			resolve.apply(this, arguments);
-		}, reject );
+			var args = Array.prototype.slice.call(arguments, 1);
+			cb.apply(self, args);
+		}
+		p.then( done.bind(null, resolve), done.bind(null, reject) );
 	});
 };
 
