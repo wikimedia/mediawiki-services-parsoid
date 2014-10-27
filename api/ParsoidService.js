@@ -9,7 +9,9 @@ require('../lib/core-upgrade.js');
 var express = require('express'),
 	hbs = require('handlebars'),
 	cluster = require('cluster'),
-	path = require('path');
+	path = require('path'),
+	uuid = require('node-uuid').v4,
+	Buffer = require('buffer').Buffer;
 
 // relative includes
 var mp = '../lib/',
@@ -56,6 +58,14 @@ function ParsoidService(options) {
 
 	// limit upload file size
 	app.use(express.limit('15mb'));
+
+	// request ids
+	var buf = new Buffer(16);
+	app.use(function(req, res, next) {
+		uuid(null, buf);
+		res.local('reqId', buf.toString('hex'));
+		next();
+	});
 
 	// Catch errors
 	app.on('error', function( err ) {
