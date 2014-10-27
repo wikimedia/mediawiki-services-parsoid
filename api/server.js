@@ -68,10 +68,8 @@ if (cluster.isMaster && argv.n > 0) {
 		if ( pid ) {
 			timeouts.delete( pid );
 		}
-		if ( Object.keys(cluster.workers).length < argv.n ) {
-			var worker = cluster.fork();
-			worker.on('message', timeoutHandler.bind(null, worker));
-		}
+		var worker = cluster.fork();
+		worker.on('message', timeoutHandler.bind(null, worker));
 	};
 
 	// Kill cpu hogs
