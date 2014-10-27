@@ -19,8 +19,6 @@
  */
 "use strict";
 
-require('es6-shim');
-
 var cluster = require('cluster'),
 	path = require('path'),
 	// process arguments
@@ -63,43 +61,19 @@ if (cluster.isMaster && argv.n > 0) {
 		process.exit( 0 );
 	}
 
-	var timeoutHandler, timeouts = new Map();
-	var spawn = function( pid ) {
-		if ( pid ) {
-			timeouts.delete( pid );
-		}
-		var worker = cluster.fork();
-		worker.on('message', timeoutHandler.bind(null, worker));
-	};
-
-	// Kill cpu hogs
-	timeoutHandler = function( worker, msg ) {
-		if ( msg.type !== "timeout" ) { return; }
-		if ( msg.done ) {
-			clearTimeout( timeouts.get( worker.process.pid ) );
-			timeouts.delete( worker.process.pid );
-		} else if ( msg.timeout ) {
-			var pid = worker.process.pid;
-			timeouts.set(pid, setTimeout(function() {
-				console.log("Cpu timeout; killing worker %s.", pid);
-				worker.kill();
-				spawn( pid );
-			}, msg.timeout));
-		}
-	};
-
 	// Fork workers.
-	var worker;
-	console.log('master(%s) initializing %s workers', process.pid, argv.n);
+	console.log('master(' + process.pid + ') initializing ' +
+				argv.n + ' workers');
 	for (var i = 0; i < argv.n; i++) {
-		spawn();
+		cluster.fork();
 	}
 
 	cluster.on('exit', function(worker, code, signal) {
-		if ( !worker.suicide ) {
-			var pid = worker.process.pid;
-			console.log('worker %s died (%s), restarting.', pid, code);
-			spawn( pid );
+		if (!worker.suicide) {
+			var exitCode = worker.process.exitCode;
+			console.log('worker', worker.process.pid,
+				'died ('+exitCode+'), restarting.');
+			cluster.fork();
 		}
 	});
 
