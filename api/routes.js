@@ -36,20 +36,22 @@ var routes = {};
 // Helpers
 
 var CPU_TIMEOUT = 5 * 60 * 1000;  // 5 minutes
-var cpuTimeout = function( p ) {
+var cpuTimeout = function( p, res ) {
 	return new Promise(function( resolve, reject ) {
 		if ( cluster.isMaster ) {
 			return p.then( resolve, reject );
 		}
 		process.send({
 			type: "timeout",
-			timeout: CPU_TIMEOUT
+			timeout: CPU_TIMEOUT,
+			reqId: res.local("reqId")
 		});
 		var self = this;
 		function done(cb) {
 			process.send({
 				type: "timeout",
-				done: true
+				done: true,
+				reqId: res.local("reqId")
 			});
 			var args = Array.prototype.slice.call(arguments, 1);
 			cb.apply(self, args);
@@ -220,7 +222,7 @@ var html2wt = function( req, res, html ) {
 		apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
 		apiUtils.endResponse(res, env, out.join(''));
 	});
-	return cpuTimeout(p).catch(function( err ) {
+	return cpuTimeout(p, res).catch(function( err ) {
 		env.log("fatal/request", err);
 	});
 };
@@ -333,7 +335,7 @@ var wt2html = function( req, res, wt, v2 ) {
 		p = p.then( redirectToOldid );
 	}
 
-	return cpuTimeout(p).catch(function( err ) {
+	return cpuTimeout(p, res).catch(function( err ) {
 		env.log("fatal/request", err);
 	});
 };
@@ -487,7 +489,7 @@ routes.roundtripTesting = function( req, res ) {
 	).then(
 		roundTripDiff.bind( null, env, req, res, false )
 	);
-	cpuTimeout(p).catch(function(err) {
+	cpuTimeout(p, res).catch(function(err) {
 		env.log("fatal/request", err);
 	});
 };
@@ -510,7 +512,7 @@ routes.roundtripTestingNL = function( req, res ) {
 		var html = doc.innerHTML.replace(/[\r\n]/g, '');
 		return roundTripDiff( env, req, res, false, DU.parseHTML(html) );
 	});
-	cpuTimeout(p).catch(function(err) {
+	cpuTimeout(p, res).catch(function(err) {
 		env.log("fatal/request", err);
 	});
 };
@@ -533,7 +535,7 @@ routes.roundtripSelser = function( req, res ) {
 		doc.body.appendChild(comment);
 		return roundTripDiff( env, req, res, true, doc );
 	});
-	cpuTimeout(p).catch(function(err) {
+	cpuTimeout(p, res).catch(function(err) {
 		env.log("fatal/request", err);
 	});
 };

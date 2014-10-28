@@ -64,10 +64,7 @@ if (cluster.isMaster && argv.n > 0) {
 	}
 
 	var timeoutHandler, timeouts = new Map();
-	var spawn = function( pid ) {
-		if ( pid ) {
-			timeouts.delete( pid );
-		}
+	var spawn = function() {
 		if ( Object.keys(cluster.workers).length < argv.n ) {
 			var worker = cluster.fork();
 			worker.on('message', timeoutHandler.bind(null, worker));
@@ -78,14 +75,17 @@ if (cluster.isMaster && argv.n > 0) {
 	timeoutHandler = function( worker, msg ) {
 		if ( msg.type !== "timeout" ) { return; }
 		if ( msg.done ) {
-			clearTimeout( timeouts.get( worker.process.pid ) );
-			timeouts.delete( worker.process.pid );
+			clearTimeout( timeouts.get( msg.reqId ) );
+			timeouts.delete( msg.reqId );
 		} else if ( msg.timeout ) {
 			var pid = worker.process.pid;
-			timeouts.set(pid, setTimeout(function() {
-				console.log("Cpu timeout; killing worker %s.", pid);
-				worker.kill();
-				spawn( pid );
+			timeouts.set(msg.reqId, setTimeout(function() {
+				timeouts.delete( msg.reqId );
+				if ( worker.id in cluster.workers ) {
+					console.log("Cpu timeout; killing worker %s.", pid);
+					worker.kill();
+					spawn();
+				}
 			}, msg.timeout));
 		}
 	};
@@ -101,7 +101,7 @@ if (cluster.isMaster && argv.n > 0) {
 		if ( !worker.suicide ) {
 			var pid = worker.process.pid;
 			console.log('worker %s died (%s), restarting.', pid, code);
-			spawn( pid );
+			spawn();
 		}
 	});
 
