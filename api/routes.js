@@ -35,6 +35,16 @@ var routes = {};
 
 // Helpers
 
+// Should be less than the CPU_TIMEOUT
+var REQ_TIMEOUT = 4 * 60 * 1000;  // 4 minutes
+function timeoutResp( env, err ) {
+	if ( err instanceof Promise.TimeoutError ) {
+		err = new Error("Request timed out.");
+		err.stack = null;
+	}
+	env.log("fatal/request", err);
+}
+
 var CPU_TIMEOUT = 5 * 60 * 1000;  // 5 minutes
 var cpuTimeout = function( p, res ) {
 	return new Promise(function( resolve, reject ) {
@@ -72,6 +82,12 @@ var promiseTemplateReq = function( env, target, oldid ) {
 			}
 		});
 	});
+};
+
+var rtResponse = function( env, req, res, data ) {
+	apiUtils.setHeader( res, env, 'X-Parsoid-Performance', env.getPerformanceHeader() );
+	apiUtils.renderResponse( res, env, "roundtrip", data );
+	env.log( "info", "completed parsing in", env.performance.duration, "ms" );
 };
 
 var roundTripDiff = function( env, req, res, selser, doc ) {
@@ -115,19 +131,13 @@ var roundTripDiff = function( env, req, res, selser, doc ) {
 
 		var patch = Diff.convertChangesToXML( Diff.diffLines(src, out) );
 
-		apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
-
-		apiUtils.renderResponse(res, env, "roundtrip", {
+		return {
 			headers: headNodes,
 			bodyNodes: bodyNodes,
 			htmlSpeChars: htmlSpeChars,
 			patch: patch,
 			reqUrl: req.url
-		});
-
-		env.log("info", "completed parsing in", env.performance.duration, "ms");
-	}).catch(function( err ) {
-		env.log("fatal/request", err);
+		};
 	});
 };
 
@@ -178,8 +188,6 @@ var parse = function( env, req, res ) {
 		return Promise.promisify( pipeline.parse, false, pipeline )(
 			env, env.page.src, expansions
 		);
-	}).catch(function( err ) {
-		env.log("fatal/request", err);
 	});
 };
 
@@ -191,7 +199,7 @@ var html2wt = function( req, res, html ) {
 		// allow cross-domain requests (CORS) so that parsoid service
 		// can be used by third-party sites
 		apiUtils.setHeader(res, env, 'Access-Control-Allow-Origin',
-					   env.conf.parsoid.allowCORS );
+						   env.conf.parsoid.allowCORS );
 	}
 
 	var out = [];
@@ -217,14 +225,13 @@ var html2wt = function( req, res, html ) {
 		return Promise.promisify( serializer.serializeDOM, false, serializer )(
 			doc.body, function( chunk ) { out.push( chunk ); }, false
 		);
-	}).then(function() {
+	}).timeout( REQ_TIMEOUT ).then(function() {
 		apiUtils.setHeader(res, env, 'Content-Type', 'text/x-mediawiki; charset=UTF-8');
 		apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
 		apiUtils.endResponse(res, env, out.join(''));
 	});
-	return cpuTimeout(p, res).catch(function( err ) {
-		env.log("fatal/request", err);
-	});
+	return cpuTimeout( p, res )
+		.catch( timeoutResp.bind(null, env) );
 };
 
 var wt2html = function( req, res, wt, v2 ) {
@@ -275,20 +282,22 @@ var wt2html = function( req, res, wt, v2 ) {
 				resolve( doc );
 			});
 			parser.processToplevelDoc( wt );
-		}).then( sendRes );
+		});
 	}
 
 	function parsePageWithOldid() {
-		if ( !req.headers.cookie ) {
-			apiUtils.setHeader(res, env, 'Cache-Control', 's-maxage=2592000');
-		} else {
-			// Don't cache requests with a session
-			apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0');
-		}
-		// Indicate the MediaWiki revision in a header as well for
-		// ease of extraction in clients.
-		apiUtils.setHeader(res, env, 'content-revision-id', oldid);
-		return parse( env, req, res ).then( sendRes );
+		return parse( env, req, res ).then(function( doc ) {
+			if ( !req.headers.cookie ) {
+				apiUtils.setHeader(res, env, 'Cache-Control', 's-maxage=2592000');
+			} else {
+				// Don't cache requests with a session
+				apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0');
+			}
+			// Indicate the MediaWiki revision in a header as well for
+			// ease of extraction in clients.
+			apiUtils.setHeader(res, env, 'content-revision-id', oldid);
+			return doc;
+		});
 	}
 
 	function redirectToOldid() {
@@ -328,16 +337,19 @@ var wt2html = function( req, res, wt, v2 ) {
 	}
 
 	if ( wt ) {
-		p = p.then( parseWt );
+		p = p.then( parseWt )
+			.timeout( REQ_TIMEOUT )
+			.then(sendRes);
 	} else if ( oldid ) {
-		p = p.then( parsePageWithOldid );
+		p = p.then( parsePageWithOldid )
+			.timeout( REQ_TIMEOUT )
+			.then(sendRes);
 	} else {
 		p = p.then( redirectToOldid );
 	}
 
-	return cpuTimeout(p, res).catch(function( err ) {
-		env.log("fatal/request", err);
-	});
+	return cpuTimeout( p, res )
+		.catch( timeoutResp.bind(null, env) );
 };
 
 
@@ -488,10 +500,12 @@ routes.roundtripTesting = function( req, res ) {
 		parse.bind( null, env, req, res )
 	).then(
 		roundTripDiff.bind( null, env, req, res, false )
+	).timeout( REQ_TIMEOUT ).then(
+		rtResponse.bind( null, env, req, res )
 	);
-	cpuTimeout(p, res).catch(function(err) {
-		env.log("fatal/request", err);
-	});
+
+	cpuTimeout( p, res )
+		.catch( timeoutResp.bind(null, env) );
 };
 
 // Round-trip article testing with newline stripping for editor-created HTML
@@ -511,10 +525,12 @@ routes.roundtripTestingNL = function( req, res ) {
 		// strip newlines from the html
 		var html = doc.innerHTML.replace(/[\r\n]/g, '');
 		return roundTripDiff( env, req, res, false, DU.parseHTML(html) );
-	});
-	cpuTimeout(p, res).catch(function(err) {
-		env.log("fatal/request", err);
-	});
+	}).timeout( REQ_TIMEOUT ).then(
+		rtResponse.bind( null, env, req, res )
+	);
+
+	cpuTimeout( p, res )
+		.catch( timeoutResp.bind(null, env) );
 };
 
 // Round-trip article testing with selser over re-parsed HTML.
@@ -534,10 +550,12 @@ routes.roundtripSelser = function( req, res ) {
 		var comment = doc.createComment('rtSelserEditTestComment');
 		doc.body.appendChild(comment);
 		return roundTripDiff( env, req, res, true, doc );
-	});
-	cpuTimeout(p, res).catch(function(err) {
-		env.log("fatal/request", err);
-	});
+	}).timeout( REQ_TIMEOUT ).then(
+		rtResponse.bind( null, env, req, res )
+	);
+
+	cpuTimeout( p, res )
+		.catch( timeoutResp.bind(null, env) );
 };
 
 // Form-based round-tripping for manual testing
@@ -559,7 +577,7 @@ routes.post_rtForm = function( req, res ) {
 	});
 	parse( env, req, res ).then(
 		roundTripDiff.bind( null, env, req, res, false )
-	).catch(function(err) {
+	).then( rtResponse ).catch(function(err) {
 		env.log("fatal/request", err);
 	});
 };
