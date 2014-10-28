@@ -24,37 +24,49 @@ require('es6-shim');
 var cluster = require('cluster'),
 	path = require('path'),
 	util = require('util'),
-	fs = require('fs'),
-	// process arguments
-	opts = require( "yargs" )
-		.usage( "Usage: $0 [-h|-v] [--param[=val]]" )
-		.default({
+	fs = require('fs');
 
-			// Start a few more workers than there are cpus visible to the OS,
-			// so that we get some degree of parallelism even on single-core
-			// systems. A single long-running request would otherwise hold up
-			// all concurrent short requests.
-			n: require( "os" ).cpus().length + 3,
-			c: __dirname + '/localsettings.js',
+// process arguments
+var opts = require( "yargs" )
+	.usage( "Usage: $0 [-h|-v] [--param[=val]]" )
+	.default({
+		// Start a few more workers than there are cpus visible to the OS,
+		// so that we get some degree of parallelism even on single-core
+		// systems. A single long-running request would otherwise hold up
+		// all concurrent short requests.
+		n: require( "os" ).cpus().length + 3,
+		c: __dirname + '/localsettings.js',
+		v: false,
+		h: false
+	})
+	.boolean( [ "h", "v" ] )
+	.alias( "h", "help" )
+	.alias( "v", "version" )
+	.alias( "c", "config" )
+	.alias( "n", "num-workers" );
 
-			v: false,
-			h: false
+// Help
+var argv = opts.argv;
+if ( argv.h ) {
+	opts.showHelp();
+	process.exit( 0 );
+}
 
-		})
-		.boolean( [ "h", "v" ] )
-		.alias( "h", "help" )
-		.alias( "v", "version" )
-		.alias( "c", "config" )
-		.alias( "n", "num-workers" ),
-	argv = opts.argv;
-
+// Version
+var meta = require( path.join( __dirname, "../package.json" ) );
+if ( argv.v ) {
+	console.log( meta.name + " " + meta.version );
+	process.exit( 0 );
+}
 
 var ParsoidService = require("./ParsoidService.js").ParsoidService,
 	ParsoidConfig = require("../lib/mediawiki.ParsoidConfig").ParsoidConfig,
-	ParsoidLogger = require("../lib/ParsoidLogger.js").ParsoidLogger,
-	Logger = require("../lib/Logger.js").Logger;
+	Logger = require("../lib/Logger.js").Logger,
+	PLogger = require("../lib/ParsoidLogger.js"),
+	ParsoidLogger = PLogger.ParsoidLogger,
+	ParsoidLogData = PLogger.ParsoidLogData;
 
-// The global parsoid configuration object.
+// The global parsoid configuration object
 var lsp = path.resolve( process.cwd(), argv.c ), localSettings;
 try {
 	localSettings = require( lsp );
@@ -65,32 +77,29 @@ try {
 	);
 	process.exit( 1 );
 }
+
 var parsoidConfig = new ParsoidConfig( localSettings, null );
-
-
-if (cluster.isMaster && argv.n > 0) {
-
-	var meta = require( path.join( __dirname, "../package.json" ) );
-
-	// help
-	if ( argv.h ) {
-		opts.showHelp();
-		process.exit( 0 );
+var locationData = {
+	isMaster: cluster.isMaster,
+	toString: function() {
+		return util.format(
+			"[%s][%s]", this.isMaster ? "master" : "worker", process.pid
+		);
 	}
+};
 
-	// version
-	if ( argv.v ) {
-		console.log( meta.name + " " + meta.version );
-		process.exit( 0 );
-	}
+// Setup process logger
+var logger = new Logger();
+logger._createLogData = function( logType, logObject ) {
+	return new ParsoidLogData( logType, logObject, locationData );
+};
+logger._defaultBackend = ParsoidLogger.prototype._defaultBackend;
+ParsoidLogger.prototype.registerLoggingBackends.call(
+	logger, [ "fatal", "error", "warning", "info" ], ParsoidConfig
+);
 
-	// setup logger for master
-	var logger = new Logger();
-	ParsoidLogger.prototype.registerLoggingBackends.call(
-		logger,
-		[ "fatal", "error", "warning", "info" ],
-		ParsoidConfig
-	);
+if ( cluster.isMaster && argv.n > 0 ) {
+	// Master
 
 	var timeoutHandler, timeouts = new Map();
 	var spawn = function() {
@@ -119,9 +128,9 @@ if (cluster.isMaster && argv.n > 0) {
 		}
 	};
 
-	// Fork workers.
+	// Fork workers
 	var worker;
-	logger.log( "info", util.format( "master(%s) initializing %s workers", process.pid, argv.n ) );
+	logger.log( "info", util.format( "initializing %s workers", argv.n ) );
 	for (var i = 0; i < argv.n; i++) {
 		spawn();
 	}
@@ -135,9 +144,9 @@ if (cluster.isMaster && argv.n > 0) {
 	});
 
 	var shutdown_master = function() {
-		logger.log( "info", "master shutting down, killing workers" );
+		logger.log( "info", "shutting down, killing workers" );
 		cluster.disconnect(function() {
-			logger.log( "info", "Exiting master" );
+			logger.log( "info", "exiting" );
 			process.exit(0);
 		});
 	};
@@ -146,9 +155,10 @@ if (cluster.isMaster && argv.n > 0) {
 	process.on('SIGTERM', shutdown_master);
 
 } else {
-	// Worker.
+	// Worker
+
 	process.on('SIGTERM', function() {
-		console.log('Worker ' + process.pid + ' shutting down');
+		logger.log( "warning", "shutting down" );
 		process.exit(0);
 	});
 
@@ -158,10 +168,11 @@ if (cluster.isMaster && argv.n > 0) {
 	// For 0.10: npm install heapdump
 	process.on('SIGUSR2', function() {
 		var heapdump = require('heapdump');
-		console.error('SIGUSR2 received! Writing snapshot.');
+		logger.log( "warning", "SIGUSR2 received! Writing snapshot." );
 		process.chdir('/tmp');
 		heapdump.writeSnapshot();
 	});
 
-	var app = new ParsoidService( parsoidConfig );
+	var app = new ParsoidService( parsoidConfig, logger );
+
 }

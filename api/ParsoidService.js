@@ -10,17 +10,13 @@ var express = require('express'),
 	hbs = require('handlebars'),
 	cluster = require('cluster'),
 	path = require('path'),
+	util = require('util'),
 	uuid = require('node-uuid').v4,
 	Buffer = require('buffer').Buffer;
 
 
-function ParsoidService( parsoidConfig ) {
-
-	var instanceName = cluster.isWorker
-		? 'worker(' + process.pid + ')'
-		: 'master';
-
-	console.log( " - %s loading ...", instanceName );
+function ParsoidService( parsoidConfig, processLogger ) {
+	processLogger.log( "info", "loading ..." );
 
 	// Load routes
 	var routes = require('./routes')( parsoidConfig );
@@ -63,10 +59,10 @@ function ParsoidService( parsoidConfig ) {
 	// Catch errors
 	app.on('error', function( err ) {
 		if ( err.errno === "EADDRINUSE" ) {
-			console.error( "Port %d is already in use. Exiting.", port );
+			processLogger.log( "error", util.format( "Port %d is already in use. Exiting.", port ) );
 			cluster.worker.disconnect();
 		} else {
-			console.error( err.message );
+			processLogger.log( "error", err );
 		}
 	});
 
@@ -112,7 +108,7 @@ function ParsoidService( parsoidConfig ) {
 
 	app.listen( port, host );
 
-	console.log( " - %s ready on %s:%s", instanceName, host || "", port );
+	processLogger.log( "info", util.format( "ready on %s:%s", host || "", port ) );
 }
 
 module.exports = {
