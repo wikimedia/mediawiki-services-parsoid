@@ -13,21 +13,14 @@ var express = require('express'),
 	uuid = require('node-uuid').v4,
 	Buffer = require('buffer').Buffer;
 
-// relative includes
-var mp = '../lib/',
-	ParsoidConfig = require( mp + 'mediawiki.ParsoidConfig' ).ParsoidConfig;
 
-
-function ParsoidService(options) {
+function ParsoidService( parsoidConfig ) {
 
 	var instanceName = cluster.isWorker
 		? 'worker(' + process.pid + ')'
 		: 'master';
 
 	console.log( " - %s loading ...", instanceName );
-
-	// The global parsoid configuration object.
-	var parsoidConfig = new ParsoidConfig( options, null );
 
 	// Load routes
 	var routes = require('./routes')( parsoidConfig );

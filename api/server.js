@@ -23,6 +23,8 @@ require('es6-shim');
 
 var cluster = require('cluster'),
 	path = require('path'),
+	util = require('util'),
+	fs = require('fs'),
 	// process arguments
 	opts = require( "yargs" )
 		.usage( "Usage: $0 [-h|-v] [--param[=val]]" )
@@ -46,10 +48,29 @@ var cluster = require('cluster'),
 		.alias( "n", "num-workers" ),
 	argv = opts.argv;
 
+
+var ParsoidService = require("./ParsoidService.js").ParsoidService,
+	ParsoidConfig = require("../lib/mediawiki.ParsoidConfig").ParsoidConfig,
+	ParsoidLogger = require("../lib/ParsoidLogger.js").ParsoidLogger,
+	Logger = require("../lib/Logger.js").Logger;
+
+// The global parsoid configuration object.
+var lsp = path.resolve( process.cwd(), argv.c ), localSettings;
+try {
+	localSettings = require( lsp );
+} catch( e ) {
+	console.error(
+		"Cannot load local settings from %s. Please see: %s",
+		lsp, path.join( __dirname, "localsettings.js.example" )
+	);
+	process.exit( 1 );
+}
+var parsoidConfig = new ParsoidConfig( localSettings, null );
+
+
 if (cluster.isMaster && argv.n > 0) {
-	var fs = require( "fs" ),
-		path = require( "path" ),
-		meta = require( path.join( __dirname, "../package.json" ) );
+
+	var meta = require( path.join( __dirname, "../package.json" ) );
 
 	// help
 	if ( argv.h ) {
@@ -62,6 +83,14 @@ if (cluster.isMaster && argv.n > 0) {
 		console.log( meta.name + " " + meta.version );
 		process.exit( 0 );
 	}
+
+	// setup logger for master
+	var logger = new Logger();
+	ParsoidLogger.prototype.registerLoggingBackends.call(
+		logger,
+		[ "fatal", "error", "warning", "info" ],
+		ParsoidConfig
+	);
 
 	var timeoutHandler, timeouts = new Map();
 	var spawn = function() {
@@ -82,7 +111,7 @@ if (cluster.isMaster && argv.n > 0) {
 			timeouts.set(msg.reqId, setTimeout(function() {
 				timeouts.delete( msg.reqId );
 				if ( worker.id in cluster.workers ) {
-					console.log("Cpu timeout; killing worker %s.", pid);
+					logger.log( "warning", util.format( "Cpu timeout; killing worker %s.", pid ) );
 					worker.kill();
 					spawn();
 				}
@@ -92,7 +121,7 @@ if (cluster.isMaster && argv.n > 0) {
 
 	// Fork workers.
 	var worker;
-	console.log('master(%s) initializing %s workers', process.pid, argv.n);
+	logger.log( "info", util.format( "master(%s) initializing %s workers", process.pid, argv.n ) );
 	for (var i = 0; i < argv.n; i++) {
 		spawn();
 	}
@@ -100,15 +129,15 @@ if (cluster.isMaster && argv.n > 0) {
 	cluster.on('exit', function(worker, code, signal) {
 		if ( !worker.suicide ) {
 			var pid = worker.process.pid;
-			console.log('worker %s died (%s), restarting.', pid, code);
+			logger.log( "warning", util.format( "worker %s died (%s), restarting.", pid, code ) );
 			spawn();
 		}
 	});
 
 	var shutdown_master = function() {
-		console.log('master shutting down, killing workers');
+		logger.log( "info", "master shutting down, killing workers" );
 		cluster.disconnect(function() {
-			console.log('Exiting master');
+			logger.log( "info", "Exiting master" );
 			process.exit(0);
 		});
 	};
@@ -134,15 +163,5 @@ if (cluster.isMaster && argv.n > 0) {
 		heapdump.writeSnapshot();
 	});
 
-	var ParsoidService = require('./ParsoidService.js').ParsoidService,
-		app;
-
-	try {
-		var lsp = path.resolve( process.cwd(), argv.c );
-		app = new ParsoidService(require( lsp ));
-	} catch ( e ) {
-		console.error(e);
-		// Build a skeleton localSettings to prevent errors later.
-		app = new ParsoidService({setup: function ( conf ) {}});
-	}
+	var app = new ParsoidService( parsoidConfig );
 }
