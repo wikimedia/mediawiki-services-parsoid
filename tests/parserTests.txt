@@ -19405,6 +19405,22 @@ A <ref >foo</ref >
 !!end
 
 !!test
+Ref: 17. Generate valid HTML5 id/about attributes
+!!options
+parsoid
+!!wikitext
+<ref name="a b">foo</ref>
+
+<references />
+!!html
+<p><span class="reference" id="cite_ref-a_b-1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"html":"foo"},"attrs":{"name":"a b"}}'><a href="#cite_note-a_b-1">[1]</a></span>
+</p>
+
+<ol class="references" typeof="mw:Extension/references" data-mw='{"name":"references","attrs":{}}'>
+<li id="cite_note-a_b-1"><span rel="mw:referencedBy"><a href="#cite_ref-a_b-1-0">↑</a></span> foo</li>
+!!end
+
+!!test
 References: 1. references tag without any refs should be handled properly
 !!options
 parsoid
@@ -19541,7 +19557,7 @@ parsoid
 !! wikitext
 <ref name="test &amp; me">hi</ref>
 !! html
-<p><span about="#mwt2" class="reference" id="cite_ref-test &amp; me-1-0" rel="dc:references" typeof="mw:Extension/ref" data-parsoid='{"src":"&lt;ref name=\"test &amp;amp; me\">hi&lt;/ref>"}' data-mw='{"name":"ref","body":{"html":"hi"},"attrs":{"name":"test &amp; me"}}'><a href="#cite_note-test &amp; me-1">[1]</a></span></p>
+<p><span about="#mwt2" class="reference" id="cite_ref-test_&amp;_me-1-0" rel="dc:references" typeof="mw:Extension/ref" data-parsoid='{"src":"&lt;ref name=\"test &amp;amp; me\">hi&lt;/ref>"}' data-mw='{"name":"ref","body":{"html":"hi"},"attrs":{"name":"test &amp; me"}}'><a href="#cite_note-test_&amp;_me-1">[1]</a></span></p>
 !! end
 
 # This test is wt2html only because we're permitting the serializer to produce
@@ -21698,9 +21714,9 @@ parsoid
 #!! options
 #parsoid=html2wt
 #language=ar
-#!! input
+#!! wikitext
 #[[Imagen:Foobar.jpg|derecha|miniaturadeimagen]]
-#!! result
+#!! html
 #<figure class="mw-default-size mw-halign-right" typeof="mw:Image/Thumb"><a href="Imagen:Foobar.jpg"><img resource="./Imagen:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="20" width="180"/></a></figure>
 #!! end
 
