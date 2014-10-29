@@ -7,7 +7,7 @@ var path = require('path'),
 	fs = require('fs'),
 	url = require('url'),
 	util = require('util'),
-	childProc = require('child_process'),
+	child_process = require('child_process'),
 	cluster = require('cluster'),
 	domino = require('domino'),
 	pkg = require('../package.json'),
@@ -432,19 +432,26 @@ routes.robots = function ( req, res ) {
 // Return Parsoid version based on package.json + git sha1 if available
 var versionCache;
 routes.version = function( req, res ) {
-	if ( versionCache ) {
-		return res.json( versionCache );
+	if ( !versionCache ) {
+		versionCache = Promise.resolve({
+			name: pkg.name,
+			version: pkg.version
+		}).then(function( v ) {
+			return Promise.promisify(
+				child_process.execFile, ['stdout', 'stderr'], child_process
+			)( 'git', ['rev-parse','HEAD'], {
+				cwd: path.join(__dirname, '..')
+			}).then(function( out ) {
+				v.sha = out.stdout.slice(0, -1);
+				return v;
+			}, function( err ) {
+				/* ignore the error, maybe this isn't a git checkout */
+				return v;
+			});
+		});
 	}
-	versionCache = {
-		name: pkg.name,
-		version: pkg.version
-	};
-	Promise.promisify(
-		childProc.exec, false, childProc
-	)( 'git rev-parse HEAD' ).then(function( stdout ) {
-		versionCache.sha = stdout.slice(0, -1);
-	}).finally(function() {
-		res.json( versionCache );
+	return versionCache.then(function( v ) {
+		res.json( v );
 	});
 };
 
