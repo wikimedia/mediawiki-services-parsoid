@@ -48,7 +48,10 @@ function timeoutResp( env, err ) {
 var CPU_TIMEOUT = 5 * 60 * 1000;  // 5 minutes
 var cpuTimeout = function( p, res ) {
 	return new Promise(function( resolve, reject ) {
-		if ( cluster.isMaster ) {
+		if ( cluster.isMaster ||
+			// Disabled until production moves off of node v0.8.x
+			true
+		) {
 			return p.then( resolve, reject );
 		}
 		process.send({

@@ -80,11 +80,12 @@ try {
 
 var parsoidConfig = new ParsoidConfig( localSettings, null );
 var locationData = {
-	isMaster: cluster.isMaster,
+	process: {
+		name: cluster.isMaster ? "master" : "worker",
+		pid: process.pid
+	},
 	toString: function() {
-		return util.format(
-			"[%s][%s]", this.isMaster ? "master" : "worker", process.pid
-		);
+		return util.format( "[%s][%s]", this.process.name, this.process.pid );
 	}
 };
 
@@ -103,10 +104,8 @@ if ( cluster.isMaster && argv.n > 0 ) {
 
 	var timeoutHandler, timeouts = new Map();
 	var spawn = function() {
-		if ( Object.keys(cluster.workers).length < argv.n ) {
-			var worker = cluster.fork();
-			worker.on('message', timeoutHandler.bind(null, worker));
-		}
+		var worker = cluster.fork();
+		worker.on('message', timeoutHandler.bind(null, worker));
 	};
 
 	// Kill cpu hogs
