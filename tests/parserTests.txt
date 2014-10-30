@@ -2433,6 +2433,41 @@ Templates: Handle comments in the target
 <p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</p>
 !!end
 
+!! test
+Templates: Handle comments in parameter names (bug 67657)
+!! wikitext
+{{echo|1
+<!-- should be ignored -->
+=foo}}
+
+{{echo|
+<!-- should be ignored -->
+1 = foo}}
+
+{{echo|1<!-- should be ignored --> = foo}}
+
+{{echo|<!-- should be ignored -->1 = foo}}
+!!html/parsoid
+<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo","key":{"wt":"1\n&lt;!-- should be ignored -->"}}},"i":0}}]}'>foo</p>
+
+<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo","key":{"wt":"&lt;!-- should be ignored -->\n1"}}},"i":0}}]}'>foo</p>
+
+<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo","key":{"wt":"1&lt;!-- should be ignored -->"}}},"i":0}}]}'>foo</p>
+
+<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo","key":{"wt":"&lt;!-- should be ignored -->1"}}},"i":0}}]}'>foo</p>
+!!end
+
+!! test
+Templates: Other wikitext in parameter names (bug 67657)
+!! wikitext
+{{echo|''1''=foo}}
+!!html/parsoid
+<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"&#39;&#39;1&#39;&#39;":{"wt":"foo"}},"i":0}}]}'>{{{1}}}</p>
+!!html/php
+<p>{{{1}}}
+</p>
+!!end
+
 #--------------------------------------------------------------------
 # Transclusion parameter escaping tests
 #--------------------------------------------------------------------
