@@ -6350,7 +6350,7 @@ Link containing double-single-quotes '' in text embedded in italics (bug 4598 sa
 !! test
 Link with double quotes in title part (literal) and alternate part (interpreted)
 !! wikitext
-[[File:Denys Savchenko ''Pentecoste''.jpg]]
+[[File:Denys_Savchenko_''Pentecoste''.jpg]]
 
 [[''Pentecoste'']]
 
@@ -6364,7 +6364,7 @@ Link with double quotes in title part (literal) and alternate part (interpreted)
 </p><p><a href="/index.php?title=%27%27Pentecoste%27%27&amp;action=edit&amp;redlink=1" class="new" title="''Pentecoste'' (page does not exist)"><i>Pentecoste</i></a>
 </p>
 !! html/parsoid
-<meta typeof="mw:Placeholder"/>
+<p><span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"missing-image","message":"This image does not exist."}]}'><a href="./File:Denys_Savchenko_''Pentecoste''.jpg"><img resource="./File:Denys_Savchenko_''Pentecoste''.jpg" src="./Special:FilePath/Denys_Savchenko_''Pentecoste''.jpg" height="220" width="220"/></a></span></p>
 <p><a rel="mw:WikiLink" href="''Pentecoste''" title="''Pentecoste''">''Pentecoste''</a></p>
 <p><a rel="mw:WikiLink" href="''Pentecoste''" title="''Pentecoste''">Pentecoste</a></p>
 <p><a rel="mw:WikiLink" href="''Pentecoste''" title="''Pentecoste''"><i>Pentecoste</i></a></p>
@@ -6374,15 +6374,20 @@ Link with double quotes in title part (literal) and alternate part (interpreted)
 Broken image links with HTML captions (bug 39700)
 !! wikitext
 [[File:Nonexistent|<script></script>]]
-[[File:Nonexistent|100px|<script></script>]]
+[[File:Nonexistent|100x100px|<script></script>]]
 [[File:Nonexistent|&lt;]]
 [[File:Nonexistent|a<i>b</i>c]]
-!! html
+!! html/php
 <p><a href="/index.php?title=Special:Upload&amp;wpDestFile=Nonexistent" class="new" title="File:Nonexistent">&lt;script&gt;&lt;/script&gt;</a>
 <a href="/index.php?title=Special:Upload&amp;wpDestFile=Nonexistent" class="new" title="File:Nonexistent">&lt;script&gt;&lt;/script&gt;</a>
 <a href="/index.php?title=Special:Upload&amp;wpDestFile=Nonexistent" class="new" title="File:Nonexistent">&lt;</a>
 <a href="/index.php?title=Special:Upload&amp;wpDestFile=Nonexistent" class="new" title="File:Nonexistent">abc</a>
 </p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"missing-image","message":"This image does not exist."}],"caption":"&lt;script>&lt;/script>"}'><a href="./File:Nonexistent"><img resource="./File:Nonexistent" src="./Special:FilePath/Nonexistent" height="220" width="220"/></a></span>
+<span typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"missing-image","message":"This image does not exist."}],"caption":"&lt;script>&lt;/script>"}'><a href="./File:Nonexistent" data-parsoid='{"a":{"href":"./File:Nonexistent"},"sa":{}}'><img resource="./File:Nonexistent" src="./Special:FilePath/Nonexistent" height="100" width="100"/></a></span>
+<span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"missing-image","message":"This image does not exist."}],"caption":"&amp;lt;"}'><a href="./File:Nonexistent"><img resource="./File:Nonexistent" src="./Special:FilePath/Nonexistent" height="220" width="220"/></a></span>
+<span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"missing-image","message":"This image does not exist."}],"caption":"a&lt;i>b&lt;/i>c"}'><a href="./File:Nonexistent"><img resource="./File:Nonexistent" src="./Special:FilePath/Nonexistent" height="220" width="220"/></a></span></p>
 !! end
 
 !! test
@@ -9013,8 +9018,7 @@ Template with complex template as argument
 !! test
 Template with thumb image (with link in description)
 !! wikitext
-{{paramtest|
-  param =[[Image:noimage.png|thumb|[[no link|link]] [[no link|caption]]]]}}
+{{paramtest|param =[[Image:noimage.png|thumb|[[no link|link]] [[no link|caption]]]]}}
 !! html/php
 This is a test template with parameter <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/index.php?title=Special:Upload&amp;wpDestFile=Noimage.png" class="new" title="File:Noimage.png">File:Noimage.png</a>  <div class="thumbcaption"><a href="/index.php?title=No_link&amp;action=edit&amp;redlink=1" class="new" title="No link (page does not exist)">link</a> <a href="/index.php?title=No_link&amp;action=edit&amp;redlink=1" class="new" title="No link (page does not exist)">caption</a></div></div></div>
 
@@ -9025,6 +9029,8 @@ This is a test template with parameter <div class="thumb tright"><div class="thu
 <div class="thumbcaption"><a href="/index.php?title=No_link&amp;action=edit&amp;redlink=1" class="new" title="No link (page does not exist)">link</a> <a href="/index.php?title=No_link&amp;action=edit&amp;redlink=1" class="new" title="No link (page does not exist)">caption</a></div>
 </div>
 </div>
+!! html/parsoid
+<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"paramtest","href":"./Template:Paramtest"},"params":{"param":{"wt":"[[Image:noimage.png|thumb|[[no link|link]] [[no link|caption]]]]"}},"i":0}}]}'>This is a test template with parameter </p><figure class="mw-default-size" typeof="mw:Error mw:Image/Thumb" about="#mwt1" data-mw='{"errors":[{"key":"missing-image","message":"This image does not exist."}]}'><a href="./File:Noimage.png" ><img resource="./File:Noimage.png" src="./Special:FilePath/Noimage.png" height="220" width="220"/></a><figcaption><a rel="mw:WikiLink" href="./No_link" title="No link">link</a> <a rel="mw:WikiLink" href="./No_link" title="No link">caption</a></figcaption></figure>
 !! end
 
 !! article
@@ -12117,11 +12123,13 @@ File:Barfoo.jpg
 #REDIRECT [[File:Barfoo.jpg]]
 !! endarticle
 
+# FIXME: Parsoid should run this test -- but we'd need to teach the
+# mockAPI about the redirected Barfoo.jpg image.
 !! test
 Redirected image
 !! wikitext
 [[Image:Barfoo.jpg]]
-!! html
+!! html/php
 <p><a href="/wiki/File:Barfoo.jpg" title="File:Barfoo.jpg">File:Barfoo.jpg</a>
 </p>
 !! end
@@ -12131,10 +12139,12 @@ Missing image with uploads disabled
 !! options
 wgEnableUploads=0
 !! wikitext
-[[Image:Foobaz.jpg]]
-!! html
+[[File:Foobaz.jpg]]
+!! html/php
 <p><a href="/wiki/File:Foobaz.jpg" title="File:Foobaz.jpg">File:Foobaz.jpg</a>
 </p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"missing-image","message":"This image does not exist."}]}'><a href="File:Foobaz.jpg"><img resource="./File:Foobaz.jpg" src="./Special:FilePath/Foobaz.jpg" height="220" width="220"/></a></span></p>
 !! end
 
 # Parsoid-specific testing for images
@@ -13730,19 +13740,23 @@ Media link to nonexistent file (bug 1702)
 !! test
 Image link to nonexistent file (bug 1850 - good)
 !! wikitext
-[[Image:No such.jpg]]
-!! html
+[[File:No_such.jpg]]
+!! html/php
 <p><a href="/index.php?title=Special:Upload&amp;wpDestFile=No_such.jpg" class="new" title="File:No such.jpg">File:No such.jpg</a>
 </p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"missing-image","message":"This image does not exist."}]}'><a href="File:No_such.jpg"><img resource="./File:No_such.jpg" src="./Special:FilePath/No_such.jpg" height="220" width="220"/></a></span></p>
 !! end
 
 !! test
 :Image link to nonexistent file (bug 1850 - bad)
 !! wikitext
 [[:Image:No such.jpg]]
-!! html
+!! html/php
 <p><a href="/index.php?title=File:No_such.jpg&amp;action=edit&amp;redlink=1" class="new" title="File:No such.jpg (page does not exist)">Image:No such.jpg</a>
 </p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./File:No_such.jpg" title="File:No such.jpg">Image:No such.jpg</a></p>
 !! end
 
 
@@ -15101,7 +15115,7 @@ Fuzz testing: image with bogus manual thumbnail
 <div class="thumb tright"><div class="thumbinner" style="width:182px;">Error creating thumbnail:   <div class="thumbcaption"></div></div></div>
 
 !! html/parsoid
-<meta typeof="mw:Placeholder" data-parsoid='{"src":"[[Image:foobar.jpg|thumbnail= ]]","optList":[{"ck":"manualthumb","ak":"thumbnail= "}]}'/>
+<figure class="mw-default-size" typeof="mw:Error mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"manualthumb","ak":"thumbnail= "}],"dsr":[0,32,2,2]}' data-mw='{"errors":[{"key":"missing-thumbnail","message":"This thumbnail does not exist.","params":{"name":""}}],"thumb":""}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"},"sa":{},"dsr":[2,30,null,null]}'><img resource="./File:Foobar.jpg" src="./Special:FilePath/" height="220" width="220" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"220","width":"220"},"sa":{"resource":"Image:foobar.jpg"}}'/></a></figure>
 !!end
 
 !! test
@@ -18217,30 +18231,34 @@ comment
 <a href="/index.php?title=ABC3D%25_%2B%2B&amp;action=edit&amp;redlink=1" class="new" title="ABC3D% ++ (page does not exist)">ABC3D% ++</a> <a href="/index.php?title=ABC3D%25_%2B%2B&amp;action=edit&amp;redlink=1" class="new" title="ABC3D% ++ (page does not exist)">+%20</a>
 !! end
 
-# FIXME: Omitting the php sections here because of differences in the local and
-# jenkins output. But, more importantly, the Bad.jpg isn't being stripped,
-# which seems to be a problem with the testing infrastructure.
+# Parsoid doesn't support this yet: see bug 73581
+# but it *should* omit the 'src' attribute if the image is bad.
+# PHP side of tests was disabled in
+# mediawiki/core:6bd31e7d95161a6e88fa86df60871051da997c3c
+# because of issues in the PHP parserTests infrastructure
+# (but the output below is indeed what the PHP side emits)
 !! test
 Bad images - basic functionality
 !! wikitext
 [[File:Bad.jpg]]
+!! DISABLED/html/php
 !! html/parsoid
-<meta typeof="mw:Placeholder" data-parsoid='{"src":"[[File:Bad.jpg]]","optList":[]}'/>
+<p><span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"bad-image","message":"This image is blacklisted in this context."}]}'><a href="File:Bad.jpg"><img resource="./File:Bad.jpg" height="220" width="220"/></a></span></p>
 !! end
 
-# FIXME: Same reasoning as above. The expected php is:
-#  <p>Foo bar
-#  </p><p>Bar foo
-#  </p>
 !! test
 Bad images - bug 16039: text after bad image disappears
 !! wikitext
 Foo bar
 [[File:Bad.jpg]]
 Bar foo
+!! DISABLED/html/php
+<p>Foo bar
+</p><p>Bar foo
+</p>
 !! html/parsoid
 <p>Foo bar
-<meta typeof="mw:Placeholder" data-parsoid='{"src":"[[File:Bad.jpg]]","optList":[]}'/>
+<span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"bad-image","message":"This image is blacklisted in this context."}]}'><a href="File:Bad.jpg"><img resource="./File:Bad.jpg" height="220" width="220"/></a></span>
 Bar foo</p>
 !! end
 
@@ -18454,14 +18472,16 @@ percent-encoding and + signs in internal links (Bug 26410)
 !! wikitext
 [[User:+%]] [[Page+title%]]
 [[%+]] [[%+|%20]] [[%+ ]] [[%+r]]
-[[%]] [[+]] [[image:%+abc%39|foo|[[bar]]]]
+[[%]] [[+]] [[File:%+abc%39|foo|[[bar]]]]
 [[%33%45]] [[%33%45+]]
-!! html
+!! html/php
 <p><a href="/index.php?title=User:%2B%25&amp;action=edit&amp;redlink=1" class="new" title="User:+% (page does not exist)">User:+%</a> <a href="/index.php?title=Page%2Btitle%25&amp;action=edit&amp;redlink=1" class="new" title="Page+title% (page does not exist)">Page+title%</a>
 <a href="/index.php?title=%25%2B&amp;action=edit&amp;redlink=1" class="new" title="%+ (page does not exist)">%+</a> <a href="/index.php?title=%25%2B&amp;action=edit&amp;redlink=1" class="new" title="%+ (page does not exist)">%20</a> <a href="/index.php?title=%25%2B&amp;action=edit&amp;redlink=1" class="new" title="%+ (page does not exist)">%+ </a> <a href="/index.php?title=%25%2Br&amp;action=edit&amp;redlink=1" class="new" title="%+r (page does not exist)">%+r</a>
 <a href="/index.php?title=%25&amp;action=edit&amp;redlink=1" class="new" title="% (page does not exist)">%</a> <a href="/index.php?title=%2B&amp;action=edit&amp;redlink=1" class="new" title="+ (page does not exist)">+</a> <a href="/index.php?title=Special:Upload&amp;wpDestFile=%25%2Babc9" class="new" title="File:%+abc9">bar</a>
 <a href="/index.php?title=3E&amp;action=edit&amp;redlink=1" class="new" title="3E (page does not exist)">3E</a> <a href="/index.php?title=3E%2B&amp;action=edit&amp;redlink=1" class="new" title="3E+ (page does not exist)">3E+</a>
 </p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="User:+%" title="User:+%">User:+%</a> <a rel="mw:WikiLink" href="Page+title%" title="Page+title%">Page+title%</a> <a rel="mw:WikiLink" href="%+" title="%+">%+</a> <a rel="mw:WikiLink" href="%+" title="%+">%20</a> <a rel="mw:WikiLink" href="%+" title="%+">%+ </a> <a rel="mw:WikiLink" href="%+r" title="%+r">%+r</a> <a rel="mw:WikiLink" href="%" title="%">%</a> <a rel="mw:WikiLink" href="+" title="+">+</a> <span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"missing-image","message":"This image does not exist."}],"caption":"[[bar]]"}'><a href="File:%+abc9"><img resource="./File:%25+abc9" src="./Special:FilePath/%+abc9" height="220" width="220"/></a></span> <a rel="mw:WikiLink" href="3E" title="3E">3E</a> <a rel="mw:WikiLink" href="3E+" title="3E+">3E+</a></p>
 !! end
 
 !! test
@@ -18469,12 +18489,14 @@ Special characters in embedded file links (bug 27679)
 !! wikitext
 [[File:Contains & ampersand.jpg]]
 [[File:Does not exist.jpg|Title with & ampersand]]
-!! html
+!! html/php
 <p><a href="/index.php?title=Special:Upload&amp;wpDestFile=Contains_%26_ampersand.jpg" class="new" title="File:Contains &amp; ampersand.jpg">File:Contains &amp; ampersand.jpg</a>
 <a href="/index.php?title=Special:Upload&amp;wpDestFile=Does_not_exist.jpg" class="new" title="File:Does not exist.jpg">Title with &amp; ampersand</a>
 </p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"missing-image","message":"This image does not exist."}]}'><a href="File:Contains_&amp;_ampersand.jpg"><img resource="./File:Contains_&amp;_ampersand.jpg" src="./Special:FilePath/Contains_&amp;_ampersand.jpg" height="220" width="220"/></a></span>
+<span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"missing-image","message":"This image does not exist."}],"caption":"Title with &amp; ampersand"}'><a href="File:Does_not_exist.jpg"><img resource="./File:Does_not_exist.jpg" src="./Special:FilePath/Does_not_exist.jpg" height="220" width="220"/></a></span></p>
 !! end
-
 
 !! test
 Confirm that 'apos' named character reference doesn't make it to output (not legal in HTML 4)
@@ -21298,15 +21320,12 @@ parsoid
 
 !!test
 Multi-line image caption generated by templates with/without trailing newlines
-!!options
-parsoid
 !! wikitext
-[[File:foo.jpg|thumb|300px|foo\n{{echo|A}}\n{{echo|B}}\n{{echo|C}}]]
-[[File:foo.jpg|thumb|300px|foo\n{{echo|A}}\n{{echo|B}}\n{{echo|C}}\n\n]]
-!! html
-<div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/index.php?title=Special:Upload&amp;wpDestFile=Foo.jpg" class="new" title="File:Foo.jpg">File:Foo.jpg</a>  <div class="thumbcaption">foo\nA\nB\nC</div></div></div>
-<div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/index.php?title=Special:Upload&amp;wpDestFile=Foo.jpg" class="new" title="File:Foo.jpg">File:Foo.jpg</a>  <div class="thumbcaption">foo\nA\nB\nC\n\n</div></div></div>
-
+[[File:Foobar.jpg|thumb|300x300px|foo\n{{echo|A}}\n{{echo|B}}\n{{echo|C}}]]
+[[File:Foobar.jpg|thumb|300x300px|foo\n{{echo|A}}\n{{echo|B}}\n{{echo|C}}\n\n]]
+!! html/parsoid
+<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg" height="34" width="300"/></a><figcaption>foo\n<span about="#mwt9" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"A"}},"i":0}}]}'>A</span>\n<span about="#mwt10" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"B"}},"i":0}}]}'>B</span>\n<span about="#mwt11" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"C"}},"i":0}}]}'>C</span></figcaption></figure>
+<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg" height="34" width="300"/></a><figcaption>foo\n<span about="#mwt12" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"A"}},"i":0}}]}'>A</span>\n<span about="#mwt13" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"B"}},"i":0}}]}'>B</span>\n<span about="#mwt14" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"C"}},"i":0}}]}'>C</span>\n\n</figcaption></figure>
 !!end
 
 !! test
@@ -21847,25 +21866,23 @@ parsoid
 
 !! test
 Image: Block level image should have \n before and after
-!! options
-parsoid
 !! wikitext
 123
 [[File:Foobar.jpg|right|thumb|150x150px]]
 456
-!! html
-<p>123</p><figure typeof="mw:Image/Thumb" class="mw-halign-right"><a href="./File:Foobar.png"><img src="http://192.168.142.128/mw/images/thumb/b/bc/Foobar.png/131px-Foobar.png" width="131" height="150" resource="./File:Foobar.png" data-parsoid='{"a":{"resource":"./File:Foobar.png","width":"131"},"sa":{"resource":"File:Foobar.png","width":"150"}}'></a></figure><p>456</p>
+!! html/parsoid
+<p>123</p>
+<figure class="mw-halign-right" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="17" width="150"/></a></figure>
+<p>456</p>
 !!end
 
 !! test
 Image: New block level image should have \n before and after (existing content)
-!! options
-parsoid
 !! wikitext
 123
 [[File:Foobar.jpg|right|thumb|150x150px]]
 456
-!! html
+!! html/parsoid
 <p>123</p>
 <figure class="mw-halign-right" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"right","ak":"right"},{"ck":"thumbnail","ak":"thumb"},{"ck":"width","ak":"150x150px"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/150px-Foobar.jpg" height="17" width="150" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"17","width":"150"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></figure>
 <p>456</p>
