@@ -33,7 +33,7 @@
 	"scripts": {
 		"start": "node api/server.js",
 		"parserTests": "node tests/parserTests.js",
-		"mocha": "node_modules/mocha/bin/mocha --opts tests/mocha/mocha.opts tests/mocha",
+		"mocha": "mocha --opts tests/mocha/mocha.opts tests/mocha",
 		"test": "npm run parserTests && npm run mocha"
 	},
 	"repository": {
