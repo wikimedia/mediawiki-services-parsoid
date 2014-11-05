@@ -33,7 +33,7 @@
 	"scripts": {
 		"start": "node api/server.js",
 		"mocha": "mocha --opts tests/mocha/mocha.opts tests/mocha",
-		"parserTests": "node tests/parserTests.js --wt2html --wt2wt --html2wt --html2html --selser",
+		"parserTests": "node tests/parserTests.js --wt2html --wt2wt --html2wt --html2html --selser --no-color --quiet --blacklist",
 		"test": "npm run parserTests && npm run mocha"
 	},
 	"repository": {
