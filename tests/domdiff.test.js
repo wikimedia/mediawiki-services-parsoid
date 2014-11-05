@@ -50,7 +50,7 @@ if (Util.booleanOption( argv.help ) || !oldhtml || !newhtml) {
 }
 
 var dummyEnv = {
-	conf: { parsoid: { debug: Util.booleanOption( argv.debug ) } },
+	conf: { parsoid: { debug: Util.booleanOption( argv.debug ) }, wiki: {} },
 	page: { id: null },
 	isParsoidObjectId: function() { return true; }
 };
