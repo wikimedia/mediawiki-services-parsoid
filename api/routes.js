@@ -46,7 +46,15 @@ function timeoutResp( env, err ) {
 }
 
 var CPU_TIMEOUT = 5 * 60 * 1000;  // 5 minutes
+var makeDone = function( reqId ) {
+	// Create this function in an outer scope so that we don't inadvertently
+	// keep a reference to the promise here.
+	return function() {
+		process.send({ type: "timeout", done: true, reqId: reqId });
+	};
+};
 var cpuTimeout = function( p, res ) {
+	var reqId = res.local("reqId");
 	return new Promise(function( resolve, reject ) {
 		if ( cluster.isMaster ||
 			// Disabled until production moves off of node v0.8.x
@@ -54,22 +62,10 @@ var cpuTimeout = function( p, res ) {
 		) {
 			return p.then( resolve, reject );
 		}
-		process.send({
-			type: "timeout",
-			timeout: CPU_TIMEOUT,
-			reqId: res.local("reqId")
-		});
-		var self = this;
-		function done(cb) {
-			process.send({
-				type: "timeout",
-				done: true,
-				reqId: res.local("reqId")
-			});
-			var args = Array.prototype.slice.call(arguments, 1);
-			cb.apply(self, args);
-		}
-		p.then( done.bind(null, resolve), done.bind(null, reject) );
+		process.send({ type: "timeout", timeout: CPU_TIMEOUT, reqId: reqId });
+		var done = makeDone( reqId );
+		p.then( done, done );
+		p.then( resolve, reject );
 	});
 };
 
