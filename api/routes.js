@@ -33,7 +33,24 @@ module.exports = function( parsoidConfig ) {
 var routes = {};
 
 
-// Helpers
+/**
+ * Timeouts
+ *
+ * The request timeout is a simple node timer that should fire first and catch
+ * most cases where we have long running requests to optimize.
+ *
+ * The CPU timeout handles the case where a child process is starved in a CPU
+ * bound task for too long and doesn't give node a chance to fire the above
+ * timer. At the beginning of each request, the child sends a message to the
+ * cluster master containing a request id. If the master doesn't get a second
+ * message from the child with the corresponding id by CPU_TIMEOUT, it will
+ * send the SIGKILL signal to the child process.
+ *
+ * The above is susceptible false positives. Node spins one event loop, so
+ * multiple asynchronous requests will interfere with each others' timing.
+ *
+ * The CPU timeout is set to match the Varnish request timeout at 5 minutes.
+ */
 
 // Should be less than the CPU_TIMEOUT
 var REQ_TIMEOUT = 4 * 60 * 1000;  // 4 minutes
@@ -69,6 +86,8 @@ var cpuTimeout = function( p, res ) {
 		p.then( resolve, reject );
 	});
 };
+
+// Helpers
 
 var promiseTemplateReq = function( env, target, oldid ) {
 	return new Promise(function( resolve, reject ) {
