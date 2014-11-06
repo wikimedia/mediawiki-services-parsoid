@@ -53,13 +53,14 @@ var makeDone = function( reqId ) {
 		process.send({ type: "timeout", done: true, reqId: reqId });
 	};
 };
+
+// Cluster support was very experimental and missing methods in v0.8.x
+var sufficientNodeVersion = !/^v0\.[0-8]\./.test( process.version );
+
 var cpuTimeout = function( p, res ) {
 	var reqId = res.local("reqId");
 	return new Promise(function( resolve, reject ) {
-		if ( cluster.isMaster ||
-			// Disabled until production moves off of node v0.8.x
-			true
-		) {
+		if ( cluster.isMaster || !sufficientNodeVersion ) {
 			return p.then( resolve, reject );
 		}
 		process.send({ type: "timeout", timeout: CPU_TIMEOUT, reqId: reqId });
