@@ -1,8 +1,13 @@
 language: node_js
+
 node_js:
     - "0.8"
     - "0.10"
     - "0.11"
+
+before_install:
+    - NODE_VERSION=$(node -e 'console.log(process.version.replace(/[.][0-9]+$/, ""))')
+    - if [ "v0.8" = "$NODE_VERSION" ]; then npm install -g npm ; fi
 
 notifications:
   email:
