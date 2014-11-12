@@ -9,7 +9,7 @@
 
 exports.setup = function( parsoidConfig ) {
 	// The URL here is supposed to be your MediaWiki installation root
-	parsoidConfig.setInterwiki( 'localhost', 'http://localhost/w/api.php' );
+	parsoidConfig.setInterwiki( 'localhost', 'http://localhost:7001/api.php' );
 
 	// Use the PHP preprocessor to expand templates via the MW API (default true)
 	//parsoidConfig.usePHPPreProcessor = false;
