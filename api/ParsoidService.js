@@ -11,8 +11,7 @@ var express = require('express'),
 	cluster = require('cluster'),
 	path = require('path'),
 	util = require('util'),
-	uuid = require('node-uuid').v4,
-	Buffer = require('buffer').Buffer;
+	uuid = require('node-uuid').v4;
 
 
 function ParsoidService( parsoidConfig, processLogger ) {
