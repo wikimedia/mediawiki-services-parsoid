@@ -6,22 +6,40 @@
  * Uses port randomization to make sure we can use multiple servers concurrently.
  */
 
+require('es6-shim');
+
 var child_process = require( 'child_process' ),
 	Util = require('../lib/mediawiki.Util.js').Util,
 	path = require( 'path' );
 
-var forkedServer;
-var forkedServerURL;
+// Keep all started servers in a map indexed by the url
+var forkedServers = new Map(),
+	exiting = false;
 
-var stopServer = function () {
-	if ( forkedServer ) {
-		forkedServer.kill();
+var stopServer = function (url) {
+	var forkedServer = forkedServers.get(url);
+	if (forkedServer) {
+		// Prevent restart if we explicitly stop it
+		forkedServer.child.removeAllListeners('exit');
+		forkedServer.child.kill();
+		forkedServers.delete(url);
 	}
 };
 
+var stopAllServers = function () {
+	forkedServers.forEach(function (forkedServer, url) {
+		stopServer(url);
+	});
+};
+
 /**
- * Make sure the server is killed if the process exits.
+ * Make sure the servers are killed if the process exits.
  */
+process.on('exit', function() {
+		exiting = true;
+		stopAllServers();
+});
+
 var exitOnProcessTerm = function (res) {
 	var stopAndExit = function () {
 		process.exit(res || 0);
@@ -38,23 +56,30 @@ var exitOnProcessTerm = function (res) {
  * Starts a server on passed port or a random port if none passed.
  * The callback will get the URL of the started server.
  */
-var startServer = function ( opts, cb, port ) {
+var startServer = function ( opts, cb, retrying ) {
+	var url, forkedServer = {}, port;
 	if (!opts) {
 		throw "Please provide server options.";
 	}
+	forkedServer.opts = opts;
+	port = opts.port;
 
 	// For now, we always assume that retries are due to port conflicts
-	if (!port || opts.retrying) {
+	if (!port) {
 		port = opts.portBase + Math.floor( Math.random() * 100 );
 	}
 
-	forkedServerURL = 'http://' + opts.iface + ':' + port.toString() + opts.urlPath;
-
-	if (!opts.quiet) {
-		console.log( "Starting " + opts.serverName + " server at", forkedServerURL );
+	url = 'http://' + opts.iface + ':' + port.toString() + opts.urlPath;
+	if (opts.port && forkedServers.has(url)) {
+		// We already have a server there!
+		throw "There's already a server running at that port.";
 	}
 
-	forkedServer = child_process.fork(__dirname + opts.filePath,
+	if (!opts.quiet) {
+		console.log( "Starting %s server at %s", opts.serverName, url );
+	}
+
+	forkedServer.child = child_process.fork(__dirname + opts.filePath,
 		opts.serverArgv,
 		{
 			env: {
@@ -65,18 +90,21 @@ var startServer = function ( opts, cb, port ) {
 		}
 	);
 
-	// If it dies on its own, restart it
-	forkedServer.on( 'exit', function( ) {
-		console.warn('apiServer quit; retry with a different port');
-		forkedServer = null;
-		opts.retrying = true;
-		startServer(opts, cb);
-	} );
+	forkedServers.set(url, forkedServer);
 
-	if (!opts.retrying) {
-		// If this process dies, kill our server
-		process.on( 'exit', stopServer );
+	// If it dies on its own, restart it. The most common cause will be that the
+	// port was already in use, so if no port was specified then a new random
+	// one will be selected.
+	forkedServer.child.on('exit', function (exitUrl) {
+		if (exiting) {
+			return;
+		}
+		console.warn('Restarting server at', exitUrl);
+		forkedServers.delete(exitUrl);
+		startServer(opts, cb, true);
+	}.bind(null, url));
 
+	if (!retrying) {
 		// HACK HACK HACK!!
 		//
 		// It is possible that we get into this callback in the time
@@ -91,8 +119,8 @@ var startServer = function ( opts, cb, port ) {
 		// the server url. But, that is more work and it is unclear
 		// if we need it.
 		var waitAndCB = function() {
-			if (forkedServer) {
-				cb(forkedServerURL, forkedServer);
+			if (forkedServer.child) {
+				cb(url, forkedServer.child);
 			} else {
 				setTimeout(waitAndCB, 2000);
 			}
@@ -118,7 +146,7 @@ var parsoidServerOpts = {
 
 var startParsoidServer = function (opts, cb) {
 	opts = !opts ? parsoidServerOpts : Util.extendProps(opts, parsoidServerOpts);
-	startServer(opts, cb, opts.port);
+	startServer(opts, cb);
 };
 
 var mockAPIServerOpts = {
@@ -133,12 +161,13 @@ var mockAPIServerOpts = {
 
 var startMockAPIServer = function (opts, cb) {
 	opts = !opts ? mockAPIServerOpts : Util.extendProps(opts, mockAPIServerOpts);
-	startServer(opts, cb, opts.port);
+	startServer(opts, cb);
 };
 
 module.exports = {
 	startServer: startServer,
 	stopServer: stopServer,
+	stopAllServers: stopAllServers,
 	startParsoidServer: startParsoidServer,
 	startMockAPIServer: startMockAPIServer,
 	exitOnProcessTerm: exitOnProcessTerm

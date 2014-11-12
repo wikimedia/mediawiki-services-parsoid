@@ -156,10 +156,13 @@ if ( cluster.isMaster && argv.n > 0 ) {
 } else {
 	// Worker
 
-	process.on('SIGTERM', function() {
+	var shutdown_worker = function () {
 		logger.log( "warning", "shutting down" );
 		process.exit(0);
-	});
+	};
+
+	process.on('SIGTERM', shutdown_worker);
+	process.on('disconnect', shutdown_worker);
 
 	// Enable heap dumps in /tmp on kill -USR2.
 	// See https://github.com/bnoordhuis/node-heapdump/
