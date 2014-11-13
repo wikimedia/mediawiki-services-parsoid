@@ -94,7 +94,15 @@ var fnames = {
 			cb( null, { parse: { text: { '*': resultText } } } );
 		},
 
+		querySiteinfo: function( body, cb ) {
+			// TODO: Read which language should we use from somewhere.
+			cb( null, require('../lib/baseconfig/enwiki.json') );
+		},
+
 		query: function ( body, cb ) {
+			if (body.meta === 'siteinfo') {
+				return this.querySiteinfo( body, cb );
+			}
 			var filename = body.titles,
 				normPagename = pnames[filename] || filename,
 				normFilename = fnames[filename] || filename;
