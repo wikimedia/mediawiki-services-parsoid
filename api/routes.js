@@ -603,7 +603,9 @@ routes.post_rtForm = function( req, res ) {
 	});
 	parse( env, req, res ).then(
 		roundTripDiff.bind( null, env, req, res, false )
-	).then( rtResponse ).catch(function(err) {
+	).then(
+		rtResponse.bind( null, env, req, res )
+	).catch(function(err) {
 		env.log("fatal/request", err);
 	});
 };
