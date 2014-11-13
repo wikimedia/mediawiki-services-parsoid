@@ -96,7 +96,7 @@ logger._createLogData = function( logType, logObject ) {
 };
 logger._defaultBackend = ParsoidLogger.prototype._defaultBackend;
 ParsoidLogger.prototype.registerLoggingBackends.call(
-	logger, [ "fatal", "error", "warning", "info" ], ParsoidConfig
+	logger, [ "fatal", "error", "warning", "info" ], parsoidConfig
 );
 
 if ( cluster.isMaster && argv.n > 0 ) {
