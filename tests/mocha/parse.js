@@ -18,14 +18,18 @@ describe( 'ParserPipelineFactory', function() {
 
 	describe( 'parse()', function() {
 
-		var parse = function(src, page_name, expansions) {
+		var parse = function(src, options) {
+			options = options || {};
 			return new Promise(function(resolve, reject) {
-				MWParserEnvironment.getParserEnv( parsoidConfig, null, 'enwiki', page_name || 'Main_Page', null, function ( err, env ) {
+				MWParserEnvironment.getParserEnv( parsoidConfig, null, options.prefix || 'enwiki', options.page_name || 'Main_Page', null, function ( err, env ) {
 					if (err) { return reject(err); }
+					if (options.tweakEnv) {
+						env = options.tweakEnv(env) || env;
+					}
 					env.setPageSrcInfo(src);
 					var pipeline = env.pipelineFactory;
 					Promise.promisify( pipeline.parse, false, pipeline )(
-						env, env.page.src, expansions
+						env, env.page.src, options.expansions
 					).then( resolve, reject );
 				});
 			});
@@ -54,38 +58,139 @@ describe( 'ParserPipelineFactory', function() {
 			});
 		});
 
-		it('should handle page titles with embedded ?', function() {
-			return parse('[[Foo?/Bar]] [[File:Foo.jpg]]', 'A/B?/C').then(function(doc) {
-				var els;
-				els = doc.querySelectorAll('HEAD > BASE[href]');
-				els.length.should.equal(1);
-				var basehref = els[0].getAttribute('href');
-				// ensure base is a prototocol-relative url
-				basehref = basehref.replace(/^https?:/, '');
+		['no subpages', 'subpages'].forEach(function(desc, subpages) {
+			describe('should handle page titles with embedded ? ('+desc+')', function() {
+				var linktests = [{
+					wikitext: '[[Foo?/Bar]]',
+					href: '//en.wikipedia.org/wiki/Foo%3F/Bar',
+					linktext: 'Foo?/Bar'
+				},{
+					wikitext: '[[File:Foo.jpg]]',
+					href: '//en.wikipedia.org/wiki/File:Foo.jpg',
+					resource: '//en.wikipedia.org/wiki/File:Foo.jpg'
+				},{
+					wikitext: '[[../]]',
+					linktext: 'A/B?',
+					href: '//en.wikipedia.org/wiki/A/B%3F',
+					subpageOnly: true
+				},{
+					wikitext: '[[../../]]',
+					linktext: 'A',
+					href: '//en.wikipedia.org/wiki/A',
+					subpageOnly: true
+				},{
+					// See https://gerrit.wikimedia.org/r/173431
+					wikitext: '[[../..//]]',
+					linktext: 'A',
+					href: '//en.wikipedia.org/wiki/A',
+					subpageOnly: true
+				},{
+					wikitext: '[[/Child]]',
+					linktext: '/Child',
+					href: subpages ?
+						'//en.wikipedia.org/wiki/A/B%3F/C/Child' :
+						'//en.wikipedia.org/wiki//Child'
+				},{
+					wikitext: '[[/Child/]]',
+					linktext: subpages ? 'Child' : '/Child/',
+					href: subpages ?
+						// note: no trailing slash
+						'//en.wikipedia.org/wiki/A/B%3F/C/Child' :
+						// trailing slash here, when there's no subpage support
+						'//en.wikipedia.org/wiki//Child/'
+				},{
+					// See https://gerrit.wikimedia.org/r/173431
+					wikitext: '[[/Child//]]',
+					linktext: subpages ? 'Child' : '/Child//',
+					href: subpages ?
+						// note: no trailing slash
+						'//en.wikipedia.org/wiki/A/B%3F/C/Child' :
+						// trailing slash here, when there's no subpage support
+						'//en.wikipedia.org/wiki//Child//'
+				},{
+					wikitext: '[[../Sibling]]',
+					linktext: 'A/B?/Sibling',
+					href: '//en.wikipedia.org/wiki/A/B%3F/Sibling',
+					subpageOnly: true
+				},{
+					wikitext: '[[../Sibling/]]',
+					linktext: 'Sibling',
+					// note: no trailing slash
+					href: '//en.wikipedia.org/wiki/A/B%3F/Sibling',
+					subpageOnly: true
+				},{
+					// See https://gerrit.wikimedia.org/r/173431
+					wikitext: '[[../Sibling//]]',
+					linktext: 'Sibling',
+					// note: no trailing slash
+					href: '//en.wikipedia.org/wiki/A/B%3F/Sibling',
+					subpageOnly: true
+				},{
+					wikitext: '[[../../New/Cousin]]',
+					linktext: 'A/New/Cousin',
+					href: '//en.wikipedia.org/wiki/A/New/Cousin',
+					subpageOnly: true
+				},{
+					// up too far
+					wikitext: '[[../../../]]',
+					notALink: true
+				}];
+				linktests.forEach(function(test) {
+					it(test.wikitext, function() {
+						return parse(test.wikitext, {
+							page_name:'A/B?/C',
+							tweakEnv: function(env) {
+								Object.keys(env.conf.wiki.namespaceNames).forEach(function(id) {
+									env.conf.wiki.namespacesWithSubpages[id] = !!subpages;
+								});
+							}
+						}).then(function(doc) {
+							var els;
+							els = doc.querySelectorAll('HEAD > BASE[href]');
+							els.length.should.equal(1);
+							var basehref = els[0].getAttribute('href');
+							// ensure base is a prototocol-relative url
+							basehref = basehref.replace(/^https?:/, '');
 
-				// check wikilink
-				els = doc.querySelectorAll('A[rel="mw:WikiLink"][href]');
-				els.length.should.equal(1);
-				var ahref1 = els[0].getAttribute('href');
-				url.resolve(basehref, ahref1).should.equal(
-					'//en.wikipedia.org/wiki/Foo%3F/Bar'
-				);
+							// some of these are links only if subpage
+							// support is enabled
+							if (test.notALink || (test.subpageOnly && !subpages)) {
+								doc.querySelectorAll('A').length.should.equal(0);
+								els = doc.querySelectorAll('P');
+								els.length.should.equal(1);
+								els[0].textContent.should.equal(
+									test.wikitext
+								);
+								return;
+							}
 
-				// check image link
-				els = doc.querySelectorAll('*[typeof="mw:Image"] > A[href]');
-				els.length.should.equal(1);
-				var ahref2 = els[0].getAttribute('href');
-				url.resolve(basehref, ahref2).should.equal(
-					'//en.wikipedia.org/wiki/File:Foo.jpg'
-				);
+							// check wikilink
+							els = doc.querySelectorAll('A[href]');
+							els.length.should.equal(1);
+							var ahref = els[0].getAttribute('href');
+							url.resolve(basehref, ahref).should.equal(
+								test.href
+							);
 
-				// check image resource
-				els = doc.querySelectorAll('*[typeof="mw:Image"] IMG[resource]');
-				els.length.should.equal(1);
-				var ahref3 = els[0].getAttribute('resource');
-				url.resolve(basehref, ahref3).should.equal(
-					'//en.wikipedia.org/wiki/File:Foo.jpg'
-				);
+							// check link text
+							if (test.linktext) {
+								els[0].textContent.should.equal(
+									test.linktext
+								);
+							}
+
+							// check image resource
+							if (test.resource) {
+								els = doc.querySelectorAll('IMG[resource]');
+								els.length.should.equal(1);
+								var resource = els[0].getAttribute('resource');
+								url.resolve(basehref, resource).should.equal(
+									test.resource
+								);
+							}
+						});
+					});
+				});
 			});
 		});
 	});

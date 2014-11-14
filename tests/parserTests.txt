@@ -12373,7 +12373,12 @@ subpage title=[[Subpage test]]
 </p>
 !! end
 
-# TODO: make this PHP-parser compatible!
+!! article
+Subpage test/1/2/subpage
+!! text
+blah
+!! endarticle
+
 !! test
 Relative subpage noslash link
 !! options
@@ -12383,8 +12388,12 @@ subpage title=[[Subpage test/1/2/3/4]]
 [[../../subpage/]]
 
 [[../../subpage]]
-!! html
-<p><a rel="mw:WikiLink" href="Subpage_test/1/2/subpage/" title="Subpage test/1/2/subpage/">subpage</a></p>
+!! html/php
+<p><a href="/wiki/Subpage_test/1/2/subpage" title="Subpage test/1/2/subpage">subpage</a>
+</p><p><a href="/wiki/Subpage_test/1/2/subpage" title="Subpage test/1/2/subpage">Subpage test/1/2/subpage</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="Subpage_test/1/2/subpage" title="Subpage test/1/2/subpage">subpage</a></p>
 <p><a rel="mw:WikiLink" href="Subpage_test/1/2/subpage" title="Subpage test/1/2/subpage">Subpage_test/1/2/subpage</a></p>
 !! end
 
@@ -16792,7 +16801,7 @@ subpage title=[[Subpage test/L1/L2/L3]]
 !! wikitext
 [[../../////]]
 !! html
-<p><a href="/index.php?title=Subpage_test/L1////&amp;action=edit&amp;redlink=1" class="new" title="Subpage test/L1//// (page does not exist)">///</a>
+<p><a href="/index.php?title=Subpage_test/L1&amp;action=edit&amp;redlink=1" class="new" title="Subpage test/L1 (page does not exist)">Subpage test/L1</a>
 </p>
 !! end
 
