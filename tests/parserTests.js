@@ -2212,9 +2212,10 @@ if ( popts.argv.help ) {
 }
 
 // Start the mock api server and kick off parser tests
-apiServer.startMockAPIServer({ quiet: popts.quiet }, function(url, server) {
-	mockAPIServerURL = url;
-	mockAPIServer = server;
+apiServer.startMockAPIServer({ quiet: popts.quiet }, function( err, ret ) {
+	if ( err ) { throw err; }
+	mockAPIServerURL = ret.url;
+	mockAPIServer = ret.child;
 	ptests.main(popts.argv, popts);
 });
 apiServer.exitOnProcessTerm();

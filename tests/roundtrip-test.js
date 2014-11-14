@@ -678,8 +678,9 @@ if ( !module.parent ) {
 			// TODO: This will not be necessary once we have a top-level testing
 			// script that takes care of setting everything up.
 			var apiServer = require( './apiServer.js' );
-			apiServer.startParsoidServer({quiet: true}, function( url ) {
-				argv.parsoidURL = url;
+			apiServer.startParsoidServer({ quiet: true }, function( err, ret ) {
+				if ( err ) { throw err; }
+				argv.parsoidURL = ret.url;
 				fetch( title, callback, argv );
 			} );
 			apiServer.exitOnProcessTerm();

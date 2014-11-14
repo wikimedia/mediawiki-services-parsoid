@@ -7,22 +7,15 @@ var apiServer = require('../apiServer.js'),
 	domino = require('domino'),
 	should = require('chai').should();
 
-describe('Parsoid API', function () {
+describe('Parsoid API', function() {
 	var api;
-
-	before(function (done) {
-		new Promise(function (resolve, reject) {
-			// Start a mock MediaWiki API server
-			console.log("Starting mock api");
-			apiServer.startMockAPIServer({}, resolve);
-		}).then(function (mockUrl) {
-			console.log("starting parsoid");
-			apiServer.startParsoidServer({ mockUrl: mockUrl }, function (url) {
-					api = url;
-					done();
-				});
-		});
+	before(function() {
 		apiServer.exitOnProcessTerm();
+		return apiServer.startMockAPIServer({}).then(function( ret ) {
+			return apiServer.startParsoidServer({ mockUrl: ret.url });
+		}).then(function( ret ) {
+			api = ret.url;
+		});
 	});
 
 	it("converts simple wikitext to HTML", function (done) {

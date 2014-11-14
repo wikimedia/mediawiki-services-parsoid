@@ -233,10 +233,11 @@ if ( module && !module.parent ) {
 
 	if ( !config.parsoidURL ) {
 		// If no Parsoid server was passed, start our own
-		parsoidURL = apiServer.startParsoidServer( {quiet: true}, function( url ) {
-			parsoidURL = url;
+		apiServer.startParsoidServer({ quiet: true }, function( err, ret ) {
+			if ( err ) { throw err; }
+			parsoidURL = ret.url;
 			getGitCommit( getGitCommitCb );
-		} );
+		});
 		apiServer.exitOnProcessTerm();
 	} else {
 		getGitCommit( getGitCommitCb );

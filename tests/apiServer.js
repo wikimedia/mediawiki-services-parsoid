@@ -10,6 +10,7 @@ require('es6-shim');
 
 var child_process = require( 'child_process' ),
 	Util = require('../lib/mediawiki.Util.js').Util,
+	JSUtils = require('../lib/jsutils.js').JSUtils,
 	path = require( 'path' );
 
 // Keep all started servers in a map indexed by the url
@@ -56,7 +57,10 @@ var exitOnProcessTerm = function (res) {
  * Starts a server on passed port or a random port if none passed.
  * The callback will get the URL of the started server.
  */
-var startServer = function ( opts, cb, retrying ) {
+var startServer = function( opts, retrying, cb ) {
+	// Don't create callback chains when invoked recursively
+	if ( !cb || !cb.promise ) { cb = JSUtils.mkPromised( cb ); }
+
 	var url, forkedServer = {}, port;
 	if (!opts) {
 		throw "Please provide server options.";
@@ -72,7 +76,7 @@ var startServer = function ( opts, cb, retrying ) {
 	url = 'http://' + opts.iface + ':' + port.toString() + opts.urlPath;
 	if (opts.port && forkedServers.has(url)) {
 		// We already have a server there!
-		throw "There's already a server running at that port.";
+		return cb( "There's already a server running at that port." );
 	}
 
 	if (!opts.quiet) {
@@ -96,14 +100,14 @@ var startServer = function ( opts, cb, retrying ) {
 	// If it dies on its own, restart it. The most common cause will be that the
 	// port was already in use, so if no port was specified then a new random
 	// one will be selected.
-	forkedServer.child.on('exit', function (exitUrl) {
+	forkedServer.child.on('exit', function() {
 		if (exiting) {
 			return;
 		}
-		console.warn('Restarting server at', exitUrl);
-		forkedServers.delete(exitUrl);
-		startServer(opts, cb, true);
-	}.bind(null, url));
+		console.warn('Restarting server at', url);
+		forkedServers.delete(url);
+		startServer(opts, true, cb);
+	});
 
 	if (!retrying) {
 		// HACK HACK HACK!!
@@ -121,7 +125,7 @@ var startServer = function ( opts, cb, retrying ) {
 		// if we need it.
 		var waitAndCB = function() {
 			if (forkedServer.child) {
-				cb(url, forkedServer.child);
+				cb( null, { url: url, child: forkedServer.child } );
 			} else {
 				setTimeout(waitAndCB, 2000);
 			}
@@ -130,6 +134,8 @@ var startServer = function ( opts, cb, retrying ) {
 		// Wait 2 seconds to make sure it has had time to start
 		setTimeout(waitAndCB, 2000);
 	}
+
+	return cb.promise;
 };
 
 var parsoidServerOpts = {
@@ -147,7 +153,7 @@ var parsoidServerOpts = {
 
 var startParsoidServer = function (opts, cb) {
 	opts = !opts ? parsoidServerOpts : Util.extendProps(opts, parsoidServerOpts);
-	startServer(opts, cb);
+	return startServer(opts, false, cb);
 };
 
 var mockAPIServerOpts = {
@@ -162,7 +168,7 @@ var mockAPIServerOpts = {
 
 var startMockAPIServer = function (opts, cb) {
 	opts = !opts ? mockAPIServerOpts : Util.extendProps(opts, mockAPIServerOpts);
-	startServer(opts, cb);
+	return startServer(opts, false, cb);
 };
 
 module.exports = {
