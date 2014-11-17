@@ -112,12 +112,6 @@ Template:echo_with_div
 !! endarticle
 
 !! article
-Template:attr_str
-!! text
-{{{1}}}="{{{2}}}"
-!! endarticle
-
-!! article
 Template:table_attribs
 !! text
 <noinclude>
@@ -135,6 +129,15 @@ Template:image_attribs
 !! text
 <noinclude>
 [[File:foobar.jpg|</noinclude>right|Caption text<noinclude>]]</noinclude>
+!! endarticle
+
+## See T48811 for details
+!! article
+Template:mixed_attr_content_template
+!! text
+style="color:red;" title="T48811"
+|-
+|foo
 !! endarticle
 
 !! article
@@ -9277,15 +9280,6 @@ Template parameter as link source
 </p>
 !! end
 
-!!test
-Template-generated attribute string (k='v')
-!! wikitext
-<span {{attr_str|id|v1}}>bar</span>
-!! html
-<p><span id="v1">bar</span>
-</p>
-!!end
-
 !!article
 Template:paramtest2
 !! text
@@ -10128,6 +10122,9 @@ Templates: HTML Tag: 6. Generation of end piece of HTML attr value
 
 !!end
 
+# SSS FIXME: While it is great we added support for all this,
+# do we want to make this part of the spec? Maybe we want to
+# deprecate this kind of usage in the future?
 !!test
 Templates: HTML Tag: 7. Generation of partial attribute key string
 !! wikitext
@@ -10135,6 +10132,50 @@ Templates: HTML Tag: 7. Generation of partial attribute key string
 !! html
 <div style="color:red;">foo</div>
 
+!!end
+
+!! test
+Templates: HTML Tag: 8. Template-generated attribute (k=v)
+!! wikitext
+<div {{echo|1=id="v1"}}>bar</div>
+!! html
+<div id="v1">bar</div>
+
+!!end
+
+!! test
+Templates: HTML Tag: 9. Multiple template-generated attributes
+!! wikitext
+<div {{echo|1=id="v1" title="foo"}}>bar</div>
+!! html
+<div id="v1" title="foo">bar</div>
+
+!!end
+
+!! test
+Templates: Support for templates generating attributes and content
+!! wikitext
+{| {{mixed_attr_content_template}}
+|-
+|bar
+|}
+!! html/php
+<table style="color:red;" title="T48811">
+
+<tr>
+<td>foo
+</td></tr>
+<tr>
+<td>bar
+</td></tr></table>
+
+!! html/parsoid
+<table style="color:red;" title="T48811" about="#mwt1" typeof="mw:Transclusion mw:ExpandedAttrs" data-mw='{"parts":["{| ",{"template":{"target":{"wt":"mixed_attr_content_template","href":"./Template:Mixed_attr_content_template"},"params":{},"i":0}},"\n|-\n|bar\n|}"]}'>
+<tbody><tr>
+<td>foo</td></tr>
+<tr>
+<td>bar</td></tr>
+</tbody></table>
 !!end
 
 !!test
