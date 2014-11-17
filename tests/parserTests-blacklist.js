@@ -307,7 +307,6 @@ add("wt2html", "Width + Height sized image (using px) (height is ignored)", "<p 
 add("wt2html", "Width-sized image (using px, no following whitespace)", "<p data-parsoid='{\"dsr\":[0,26,0,0]}'><span typeof=\"mw:Image\" data-parsoid='{\"optList\":[{\"ck\":\"width\",\"ak\":\"640px\"}],\"dsr\":[0,26,null,null]}'><a href=\"./File:Foobar.jpg\" data-parsoid='{\"a\":{\"href\":\"./File:Foobar.jpg\"},\"sa\":{}}'><img resource=\"./File:Foobar.jpg\" src=\"//example.com/images/thumb/3/3a/Foobar.jpg/640px-Foobar.jpg\" height=\"73\" width=\"640\" data-parsoid='{\"a\":{\"resource\":\"./File:Foobar.jpg\",\"height\":\"73\",\"width\":\"640\"},\"sa\":{\"resource\":\"Image:foobar.jpg\"}}'/></a></span></p>");
 add("wt2html", "Width-sized image (using px, with following whitespace - test regression from r39467)", "<p data-parsoid='{\"dsr\":[0,27,0,0]}'><span typeof=\"mw:Image\" data-parsoid='{\"optList\":[{\"ck\":\"width\",\"ak\":\"640px \"}],\"dsr\":[0,27,null,null]}'><a href=\"./File:Foobar.jpg\" data-parsoid='{\"a\":{\"href\":\"./File:Foobar.jpg\"},\"sa\":{}}'><img resource=\"./File:Foobar.jpg\" src=\"//example.com/images/thumb/3/3a/Foobar.jpg/640px-Foobar.jpg\" height=\"73\" width=\"640\" data-parsoid='{\"a\":{\"resource\":\"./File:Foobar.jpg\",\"height\":\"73\",\"width\":\"640\"},\"sa\":{\"resource\":\"Image:foobar.jpg\"}}'/></a></span></p>");
 add("wt2html", "Width-sized image (using px, with preceding whitespace - test regression from r39467)", "<p data-parsoid='{\"dsr\":[0,27,0,0]}'><span typeof=\"mw:Image\" data-parsoid='{\"optList\":[{\"ck\":\"width\",\"ak\":\" 640px\"}],\"dsr\":[0,27,null,null]}'><a href=\"./File:Foobar.jpg\" data-parsoid='{\"a\":{\"href\":\"./File:Foobar.jpg\"},\"sa\":{}}'><img resource=\"./File:Foobar.jpg\" src=\"//example.com/images/thumb/3/3a/Foobar.jpg/640px-Foobar.jpg\" height=\"73\" width=\"640\" data-parsoid='{\"a\":{\"resource\":\"./File:Foobar.jpg\",\"height\":\"73\",\"width\":\"640\"},\"sa\":{\"resource\":\"Image:foobar.jpg\"}}'/></a></span></p>");
-add("wt2html", "Image with page parameter", "<meta typeof=\"mw:Placeholder\" data-parsoid='{\"src\":\"[[File:LoremIpsum.djvu|page=2]]\",\"optList\":[{\"ck\":\"page\",\"ak\":\"page=2\"}],\"dsr\":[0,31,null,null]}'/>");
 add("wt2html", "HTML with raw HTML ($wgRawHtml==true)", "<p data-parsoid='{\"dsr\":[0,39,0,0]}'>&lt;html>&lt;script>alert(1);&lt;/script>&lt;/html></p>");
 add("wt2html", "Parents of subpages, one level up, not named", "<p data-parsoid='{\"dsr\":[0,7,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Subpage_test/L1/L2\" title=\"Subpage test/L1/L2\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Subpage_test/L1/L2\"},\"sa\":{\"href\":\"../\"},\"dsr\":[0,7,2,2]}'>Subpage_test/L1/L2</a></p>");
 add("wt2html", "Parents of subpages, two levels up, without trailing slash or name.", "<p data-parsoid='{\"dsr\":[0,9,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Subpage_test/L1/L2/..\" title=\"Subpage test/L1/L2/..\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Subpage_test/L1/L2/..\"},\"sa\":{\"href\":\"../..\"},\"dsr\":[0,9,2,2]}'>Subpage_test/L1/L2/..</a></p>");
@@ -525,6 +524,7 @@ add("wt2wt", "Inline wiki vs wiki block nesting", "'''Bold paragraph'''\n\nNew w
 add("wt2wt", "Mixing markup for italics and bold", "'''<nowiki>bold'</nowiki>'''''bold''bolditalics'''''\n");
 add("wt2wt", "ISBN code coverage", "ISBN 978-0-1234-56&#x20;789\n");
 add("wt2wt", "RFC code coverage", "RFC 983&#x20;987\n");
+add("wt2wt", "Image with page parameter", "[[File:LoremIpsum.djvu]]\n");
 add("wt2wt", "Don't fall for the self-closing div", "<div>hello world</div>");
 add("wt2wt", "Parsing of overlapping (improperly nested) inline html tags", "<span><s>x</span>\n");
 add("wt2wt", "Don't break table handling if language converter markup is in the cell.", "{|\n|-\n| -{R |B}-\n|}");
@@ -838,7 +838,6 @@ add("html2html", "Width + Height sized image (using px) (height is ignored)", "<
 add("html2html", "Width-sized image (using px, no following whitespace)", "<p data-parsoid='{\"dsr\":[0,64,0,0]}'><img src=\"http://example.com/images/thumb/3/3a/Foobar.jpg/640px-Foobar.jpg\" alt=\"640px-Foobar.jpg\" rel=\"mw:externalImage\" data-parsoid='{\"dsr\":[0,64,null,null]}'/></p>\n");
 add("html2html", "Width-sized image (using px, with following whitespace - test regression from r39467)", "<p data-parsoid='{\"dsr\":[0,64,0,0]}'><img src=\"http://example.com/images/thumb/3/3a/Foobar.jpg/640px-Foobar.jpg\" alt=\"640px-Foobar.jpg\" rel=\"mw:externalImage\" data-parsoid='{\"dsr\":[0,64,null,null]}'/></p>\n");
 add("html2html", "Width-sized image (using px, with preceding whitespace - test regression from r39467)", "<p data-parsoid='{\"dsr\":[0,64,0,0]}'><img src=\"http://example.com/images/thumb/3/3a/Foobar.jpg/640px-Foobar.jpg\" alt=\"640px-Foobar.jpg\" rel=\"mw:externalImage\" data-parsoid='{\"dsr\":[0,64,null,null]}'/></p>\n");
-add("html2html", "Image with page parameter", "<p data-parsoid='{\"dsr\":[0,85,0,0]}'><img src=\"http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-2480px-LoremIpsum.djvu.jpg\" alt=\"page2-2480px-LoremIpsum.djvu.jpg\" rel=\"mw:externalImage\" data-parsoid='{\"dsr\":[0,85,null,null]}'/></p>\n");
 add("html2html", "HTML with raw HTML ($wgRawHtml==true)", "<p data-parsoid='{\"dsr\":[0,26,0,0]}'>&lt;script>alert(1);&lt;/script></p>\n");
 add("html2html", "Parents of subpages, one level up", "<p data-parsoid='{\"dsr\":[0,62,0,0]}'>[/index.php?title=Subpage_test/L1/L2&amp;action=edit&amp;redlink=1 L2]</p>\n");
 add("html2html", "Parents of subpages, one level up, not named", "<p data-parsoid='{\"dsr\":[0,78,0,0]}'>[/index.php?title=Subpage_test/L1/L2&amp;action=edit&amp;redlink=1 Subpage test/L1/L2]</p>\n");
@@ -1611,7 +1610,7 @@ add("html2wt", "Width + Height sized image (using px) (height is ignored)", "htt
 add("html2wt", "Width-sized image (using px, no following whitespace)", "http://example.com/images/thumb/3/3a/Foobar.jpg/640px-Foobar.jpg\n");
 add("html2wt", "Width-sized image (using px, with following whitespace - test regression from r39467)", "http://example.com/images/thumb/3/3a/Foobar.jpg/640px-Foobar.jpg\n");
 add("html2wt", "Width-sized image (using px, with preceding whitespace - test regression from r39467)", "http://example.com/images/thumb/3/3a/Foobar.jpg/640px-Foobar.jpg\n");
-add("html2wt", "Image with page parameter", "http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-2480px-LoremIpsum.djvu.jpg\n");
+add("html2wt", "Image with page parameter", "[[File:LoremIpsum.djvu]]\n");
 add("html2wt", "HTML with raw HTML ($wgRawHtml==true)", "<script>alert(1);</script>\n");
 add("html2wt", "Parents of subpages, one level up", "[/index.php?title=Subpage_test/L1/L2&action=edit&redlink=1 L2]\n");
 add("html2wt", "Parents of subpages, one level up, not named", "[/index.php?title=Subpage_test/L1/L2&action=edit&redlink=1 Subpage test/L1/L2]\n");
@@ -2657,6 +2656,8 @@ add("selser", "RFC code coverage [1]", "RFC   983&#x20;987");
 add("selser", "RFC code coverage [[0,0,3]]", "RFC   983&#x20;\n");
 add("selser", "RFC code coverage [[0,0,4]]", "RFC   983&#x20;ry0mhh5cy0fkzkt9");
 add("selser", "RFC code coverage [[2,0,2]]", "8rmi32979htfn7b9RFC   983&#x20;4i0lf243q1j4te29987");
+add("selser", "Image with page parameter [2]", "t1gktsrwi7iizfr\n\n[[File:LoremIpsum.djvu|page=2]]");
+add("selser", "Image with page parameter [1]", "[[File:LoremIpsum.djvu|page=2]]");
 add("selser", "Another italics / bold test [[2,[2],2]]", " <nowiki>g3zpq0w1ofyr2j4i'</nowiki>''hkokburf7jtyy14i ''wjduo01g6x39pb9x'");
 add("selser", "Another italics / bold test [[2,0,3]]", " <nowiki>jzlpwo82biroogvi'</nowiki>'' ''");
 add("selser", "dt/dd/dl test [[1]]", ";;;::");

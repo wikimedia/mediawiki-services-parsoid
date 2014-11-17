@@ -45,7 +45,8 @@ var fnames = {
 		'Image:Foobar.svg': 'Foobar.svg',
 		'File:Foobar.svg': 'Foobar.svg',
 		'Image:Thumb.png': 'Thumb.png',
-		'File:Thumb.png': 'Thumb.png'
+		'File:Thumb.png': 'Thumb.png',
+		'File:LoremIpsum.djvu': 'LoremIpsum.djvu'
 	},
 
 	pnames = {
