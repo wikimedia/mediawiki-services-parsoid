@@ -85,7 +85,8 @@ var startServer = function ( opts, cb, retrying ) {
 			env: {
 				PORT: port,
 				INTERFACE: opts.iface,
-				NODE_PATH: process.env.NODE_PATH
+				NODE_PATH: process.env.NODE_PATH,
+				PARSOID_MOCKAPI_URL: opts.mockUrl
 			}
 		}
 	);

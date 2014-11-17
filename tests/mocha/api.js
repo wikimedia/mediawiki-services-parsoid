@@ -14,10 +14,10 @@ describe('Parsoid API', function () {
 		new Promise(function (resolve, reject) {
 			// Start a mock MediaWiki API server
 			console.log("Starting mock api");
-			apiServer.startMockAPIServer({port: 7001}, resolve);
-		}).then(function () {
+			apiServer.startMockAPIServer({}, resolve);
+		}).then(function (mockUrl) {
 			console.log("starting parsoid");
-			apiServer.startParsoidServer(null, function (url) {
+			apiServer.startParsoidServer({ mockUrl: mockUrl }, function (url) {
 					api = url;
 					done();
 				});
