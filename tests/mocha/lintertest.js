@@ -1,8 +1,7 @@
-'use strict';
+/** Test cases for the linter */
+"use strict";
+require( '../../lib/core-upgrade.js' );
 /*global describe, it, Promise*/
-
-require("es6-shim");
-require("prfun");
 
 var should = require("chai").should();
 

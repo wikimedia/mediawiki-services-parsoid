@@ -4,9 +4,7 @@
  * Read from STDIN, write to STDOUT.
  */
 "use strict";
-
-require("es6-shim");
-require("prfun");
+require( '../lib/core-upgrade.js' );
 
 var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnvironment,
 	ParsoidConfig = require( '../lib/mediawiki.ParsoidConfig.js' ).ParsoidConfig,

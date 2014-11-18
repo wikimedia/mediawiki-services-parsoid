@@ -5,14 +5,13 @@
  * This pulls all the parserTests.txt items and runs them through Parsoid.
  */
 "use strict";
+require( '../lib/core-upgrade.js' );
 
 /**
  * @class ParserTestModule
  * @private
  * @singleton
  */
-
-require('../lib/core-upgrade.js');
 
 var apiServer = require( './apiServer.js' ),
 	async = require( 'async' ),

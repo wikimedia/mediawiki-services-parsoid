@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 "use strict";
+require( '../lib/core-upgrade.js' );
 
 var	request = require( 'request' ),
 	yargs = require( 'yargs' ),
