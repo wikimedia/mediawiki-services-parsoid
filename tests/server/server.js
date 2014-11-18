@@ -376,8 +376,9 @@ var dbSkipsDistribution =
 	'JOIN pages ON pages.latest_stat = stats.id ' +
 	'GROUP by skips';
 
+// Limit to 100 recent commits
 var dbCommits =
-	'SELECT hash, timestamp, ' +
+	'SELECT hash, timestamp ' +
 	//// get the number of fixes column
 	//	'(SELECT count(*) ' +
 	//	'FROM pages ' +
@@ -392,10 +393,11 @@ var dbCommits =
 	//		'JOIN stats AS s2 ON s2.page_id = pages.id ' +
 	//	'WHERE s1.commit_hash = (SELECT hash FROM commits c2 where c2.timestamp < c1.timestamp ORDER BY timestamp DESC LIMIT 1 ) ' +
 	//		'AND s2.commit_hash = c1.hash AND s1.score > s2.score) as numregressions, ' +
+	//
 	//// get the number of tests for this commit column
-		'(select count(*) from stats where stats.commit_hash = c1.hash) as numtests ' +
+	//	'(select count(*) from stats where stats.commit_hash = c1.hash) as numtests ' +
 	'FROM commits c1 ' +
-	'ORDER BY timestamp DESC';
+	'ORDER BY timestamp DESC LIMIT 100';
 
 var dbCommitHashes =
 	'SELECT hash FROM commits ORDER BY timestamp DESC';
@@ -1110,7 +1112,7 @@ var GET_commits = function( req, res ) {
 			var tableRows = [];
 			for (var i = 0; i < n; i++) {
 				var row = rows[i];
-				var tableRow = {hash: row.hash, timestamp: row.timestamp, numtests: row.numtests};
+				var tableRow = {hash: row.hash, timestamp: row.timestamp};
 				if ( i + 1 < n ) {
 					tableRow.regUrl = 'regressions/between/' + rows[i+1].hash + '/' + row.hash;
 					tableRow.fixUrl = 'topfixes/between/' + rows[i+1].hash + '/' + row.hash;
@@ -1118,6 +1120,7 @@ var GET_commits = function( req, res ) {
 				tableRows.push(tableRow);
 			}
 			var data = {
+				numCommits: n,
 				latest: rows[n-1].timestamp.toString().slice(4,15),
 				header: ['Commit hash', 'Timestamp', 'Tests', '-', '+'],
 				row: tableRows
@@ -1128,10 +1131,6 @@ var GET_commits = function( req, res ) {
 			});
 			hbs.registerHelper('formatDate', function(timestamp){
 				return timestamp.toString().slice(4,21);
-			});
-			hbs.registerHelper('formatNumber', function(n){
-				var string = n.toString();
-				return string.replace(/\B(?=(...)+(?!.))/g, ",");
 			});
 
 			res.render('commits.html', data);

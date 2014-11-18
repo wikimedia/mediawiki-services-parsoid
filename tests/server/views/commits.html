@@ -4,7 +4,7 @@
 	<script src='/static/js/app.js'></script>
 {{/jsFiles}}
 
-<h1 class='heading'>Revisions since {{latest}}</h1>
+<h1 class='heading'>Recent {{numCommits}} revisions since {{latest}}</h1>
 
 <div id='content'>
 	<p>
@@ -28,7 +28,6 @@
 				</td>
 				<td class='hash' title='{{hash}}'>{{formatHash hash}}</td>
 				<td class='date' title='{{timestamp}}'>{{formatDate timestamp}}</td>
-				<td>{{formatNumber numtests}} tests</td>
 			</tr>
 		{{~/each~}}
 	</table>
