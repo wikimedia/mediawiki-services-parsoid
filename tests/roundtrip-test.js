@@ -7,6 +7,7 @@ var	request = require( 'request' ),
 	domino = require( 'domino' ),
 	url = require( 'url' ),
 	zlib = require( 'zlib' ),
+	JSUtils = require( '../lib/jsutils.js' ).JSUtils,
 	Util = require( '../lib/mediawiki.Util.js' ).Util,
 	DU = require( '../lib/mediawiki.DOMUtils.js' ).DOMUtils,
 	TemplateRequest = require( '../lib/mediawiki.ApiRequest.js' ).TemplateRequest,
@@ -528,8 +529,9 @@ var selserRoundTripDiff = function (env, html, out, diffs, cb) {
 	});
 };
 
-var fetch = function ( page, cb, options ) {
-	cb = typeof cb === 'function' ? cb : function () {};
+// Returns a Promise for an { env, rtDiffs } object.  `cb` is optional.
+var fetch = function ( page, options, cb ) {
+	cb = JSUtils.mkPromised( cb, [ 'env', 'rtDiffs' ] );
 	var prefix = options.prefix || 'enwiki';
 
 	if ( options.apiURL ) {
@@ -616,6 +618,7 @@ var fetch = function ( page, cb, options ) {
 	}
 
 	MWParserEnvironment.getParserEnv( parsoidConfig, null, prefix, page, null, envCb );
+	return cb.promise;
 };
 
 var cbCombinator = function ( formatter, cb, err, env, text ) {
@@ -679,18 +682,17 @@ if ( !module.parent ) {
 			// TODO: This will not be necessary once we have a top-level testing
 			// script that takes care of setting everything up.
 			var apiServer = require( './apiServer.js' );
-			apiServer.startParsoidServer({ quiet: true }, function( err, ret ) {
-				if ( err ) { throw err; }
+			apiServer.startParsoidServer({ quiet: true }).then(function( ret ) {
 				argv.parsoidURL = ret.url;
-				fetch( title, callback, argv );
-			} );
+				fetch( title, argv, callback );
+			} ).done();
 			apiServer.exitOnProcessTerm();
 		} else {
 			// make sure parsoidURL ends on /
 			if (!/\/$/.test(argv.parsoidURL)) {
 				argv.parsoidURL += '/';
 			}
-			fetch( title, callback, argv );
+			fetch( title, argv, callback );
 		}
 	} else {
 		opts.showHelp();

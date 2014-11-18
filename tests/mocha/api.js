@@ -10,12 +10,13 @@ var apiServer = require('../apiServer.js'),
 describe('Parsoid API', function() {
 	var api;
 	before(function() {
-		apiServer.exitOnProcessTerm();
-		return apiServer.startMockAPIServer({}).then(function( ret ) {
+		var p = apiServer.startMockAPIServer({}).then(function( ret ) {
 			return apiServer.startParsoidServer({ mockUrl: ret.url });
 		}).then(function( ret ) {
 			api = ret.url;
 		});
+		apiServer.exitOnProcessTerm();
+		return p;
 	});
 
 	it("converts simple wikitext to HTML", function (done) {

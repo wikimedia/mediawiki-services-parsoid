@@ -13,6 +13,7 @@ var http = require( 'http' ),
 	exec = require( 'child_process' ).exec,
 	apiServer = require( '../apiServer.js' ),
 	Util = require('../../lib/mediawiki.Util.js').Util,
+	JSUtils = require('../../lib/jsutils.js').JSUtils,
 
 	commit, ctime,
 	lastCommit, lastCommitTime, lastCommitCheck,
@@ -109,33 +110,37 @@ var runTest = function( cb, test) {
 
 /**
  * Get the current git commit hash.
+ * The `cb` parameter is optional; return a promise for the result
+ * as an array: [lastCommit, lastCommitTime].
  */
 var getGitCommit = function( cb ) {
 	var now = Date.now();
+	cb = JSUtils.mkPromised( cb, true );
 
 	if ( !lastCommitCheck || ( now - lastCommitCheck ) > ( 5 * 60 * 1000 ) ) {
 		lastCommitCheck = now;
 		exec( 'git log --max-count=1 --pretty=format:"%H %ci"', { cwd: repoPath }, function ( err, data ) {
+			if ( err ) { return cb(err); }
 			var cobj = data.match( /^([^ ]+) (.*)$/ );
 			if (!cobj) {
-				console.log("Error, couldn't find the current commit");
-				cb(null, null);
+				return cb("Error, couldn't find the current commit", null, null);
 			} else {
 				lastCommit = cobj[1];
 				// convert the timestamp to UTC
 				lastCommitTime = new Date(cobj[2]).toISOString();
 				//console.log( 'New commit: ', cobj[1], lastCommitTime );
-				cb(cobj[1], lastCommitTime);
+				cb(null, cobj[1], lastCommitTime);
 			}
 		} );
 	} else {
-		cb( lastCommit, lastCommitTime );
+		cb( null, lastCommit, lastCommitTime );
 	}
+	return cb.promise;
 };
 
 var postResult = function( err, result, test, finalCB, cb ) {
-	getGitCommit( function ( newCommit, newTime ) {
-		if (!newCommit) {
+	getGitCommit( function ( err2, newCommit, newTime ) {
+		if (err2 || !newCommit) {
 			console.log("Exiting, couldn't find the current commit");
 			process.exit(1);
 		}
@@ -194,7 +199,11 @@ var callbackOmnibus = function(which) {
 			break;
 
 		case 'start':
-			getGitCommit( function ( latestCommit ) {
+			getGitCommit( function ( err, latestCommit ) {
+				if ( err ) {
+					console.log( "Couldn't find latest commit.", err );
+					process.exit( 1 );
+				}
 				if ( latestCommit !== commit ) {
 					console.log( 'Exiting because the commit hash changed' );
 					process.exit( 0 );
@@ -235,13 +244,12 @@ if ( module && !module.parent ) {
 
 	if ( !config.parsoidURL ) {
 		// If no Parsoid server was passed, start our own
-		apiServer.startParsoidServer({ quiet: true }, function( err, ret ) {
-			if ( err ) { throw err; }
+		apiServer.startParsoidServer({ quiet: true }).then(function( ret ) {
 			parsoidURL = ret.url;
-			getGitCommit( getGitCommitCb );
-		});
+			return getGitCommit().spread( getGitCommitCb );
+		}).done();
 		apiServer.exitOnProcessTerm();
 	} else {
-		getGitCommit( getGitCommitCb );
+		getGitCommit().spread( getGitCommitCb ).done();
 	}
 }
