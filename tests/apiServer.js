@@ -109,31 +109,12 @@ var startServer = function( opts, retrying, cb ) {
 		startServer(opts, true, cb);
 	});
 
-	if (!retrying) {
-		// HACK HACK HACK!!
-		//
-		// It is possible that we get into this callback in the time
-		// between when the server is started and when it exits because
-		// of port conflict. Since concurrent uses are expected to be
-		// somewhat uncommon, this is a simple enough solution that mostly
-		// works in a most of these concurrent uses.
-		//
-		// A real solution would be to implement an 'alive' endpoint
-		// or something that lets apiServer.js know that the server
-		// is up and running successfully and use that to pass back
-		// the server url. But, that is more work and it is unclear
-		// if we need it.
-		var waitAndCB = function() {
-			if (forkedServer.child) {
-				cb( null, { url: url, child: forkedServer.child } );
-			} else {
-				setTimeout(waitAndCB, 2000);
-			}
-		};
-
-		// Wait 2 seconds to make sure it has had time to start
-		setTimeout(waitAndCB, 2000);
-	}
+	forkedServer.child.on('message', function(m) {
+		if (m && m.type && m.type === 'startup' && cb) {
+			cb( null, { url: url, child: forkedServer.child } );
+			cb = null; // prevent invoking cb again on restart
+		}
+	});
 
 	return cb.promise;
 };

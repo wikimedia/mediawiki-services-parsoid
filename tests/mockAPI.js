@@ -341,5 +341,12 @@ module.exports = app;
 
 var port = process.env.PORT || 7001;
 console.log( 'Mock MediaWiki API starting.... listening to ' + port);
-app.listen(port);
-console.log( 'Started.' );
+app.listen(port, function() {
+	console.log( 'Started.' );
+	// let parent process know we've started up and are ready to go.
+	if (process.send) { process.send({ type: 'startup', port: port }); }
+});
+app.on('error', function(e) {
+	if (process.send) { process.send({ type: 'error', code: e.code }); }
+	console.log( 'Could not start up:', e );
+});

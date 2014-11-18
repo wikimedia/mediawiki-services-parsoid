@@ -110,6 +110,10 @@ if ( cluster.isMaster && argv.n > 0 ) {
 
 	// Kill cpu hogs
 	timeoutHandler = function( worker, msg ) {
+		if ( msg.type === 'startup' ) {
+			// relay startup messages to parent process
+			if (process.send) { process.send(msg); }
+		}
 		if ( msg.type !== "timeout" ) { return; }
 		if ( msg.done ) {
 			clearTimeout( timeouts.get( msg.reqId ) );

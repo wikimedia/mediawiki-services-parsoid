@@ -105,9 +105,13 @@ function ParsoidService( parsoidConfig, processLogger ) {
 	// default bind all
 	var host = parsoidConfig.serverInterface || process.env.INTERFACE;
 
-	app.listen( port, host );
-
-	processLogger.log( "info", util.format( "ready on %s:%s", host || "", port ) );
+	app.listen( port, host, function() {
+		processLogger.log( "info", util.format( "ready on %s:%s", host || "", port ) );
+		if (process.send) {
+			// let cluster master know we've started & are ready to go.
+			process.send({ type: 'startup', host: host, port: port });
+		}
+	} );
 }
 
 module.exports = {
