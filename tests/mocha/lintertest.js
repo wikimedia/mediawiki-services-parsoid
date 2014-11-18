@@ -10,42 +10,25 @@ var MWParserEnvironment = require('../../lib/mediawiki.parser.environment.js' ).
 	Util = require('../../lib/mediawiki.Util.js').Util,
 	ParsoidConfig = require('../../lib/mediawiki.ParsoidConfig' ).ParsoidConfig;
 
+var getParserEnv = Promise.promisify(MWParserEnvironment.getParserEnv, false, MWParserEnvironment);
+
 describe( 'Linter Tests', function() {
 	var parsoidConfig = new ParsoidConfig( null,  { defaultWiki: 'enwiki' } );
 	parsoidConfig.linting = true;
 
-	var parse = function( wt, cb ) {
-		MWParserEnvironment.getParserEnv( parsoidConfig, null, 'enwiki', 'Main_Page', null, function ( err, env ) {
-			if ( err !== null ) {
-				console.error( err );
-				return cb( err );
-			}
 
-			var utilCB = function( err, doc ) {
-				if ( err ) {
-					env.log( "error", err );
-					return cb( err );
-				}
-				cb( null, env.linter.buffer );
-			};
-
+	var parseWT = function( wt ) {
+		return getParserEnv( parsoidConfig, null, 'enwiki', 'Main_Page', null).then(function(env) {
 			env.setPageSrcInfo( wt );
 
 			var pipeline = env.pipelineFactory;
-			Promise.promisify( pipeline.parse, false, pipeline )(
+			return Promise.promisify( pipeline.parse, false, pipeline )(
 				env, wt, null
-			).nodify( utilCB );
-		});
-	};
-
-	var parseWT = function( wt ) {
-		return new Promise( function( resolve, reject ) {
-			parse( wt, function( err, result ) {
-				if ( err ) {
-					reject( err );
-				} else {
-					resolve( result );
-				}
+			).then(function(doc) {
+				return env.linter.buffer;
+			}, function(err) {
+				env.log( "error", err );
+				throw err;
 			});
 		});
 	};
