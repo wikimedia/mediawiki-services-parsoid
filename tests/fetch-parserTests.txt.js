@@ -3,6 +3,7 @@
  * Fetch new parserTests.txt from upstream mediawiki/core.
  */
 "use strict";
+require( '../lib/core-upgrade.js' );
 
 // UPDATE THESE when upstream mediawiki/core includes new parsoid-relevant tests
 // This ensures that our whitelist/blacklist is in sync.

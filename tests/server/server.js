@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-( function () {
 "use strict";
+require( '../../lib/core-upgrade.js' );
 
 var express = require( 'express' ),
 	yargs = require( 'yargs' ),
@@ -1264,5 +1264,3 @@ coordApp.post( /^\/result\/([^\/]+)\/([^\/]+)/, receiveResults );
 // Start the app
 app.listen( settings.webappPort || 8001 );
 coordApp.listen( settings.coordPort || 8002 );
-
-}() );

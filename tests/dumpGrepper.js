@@ -3,6 +3,7 @@
  * A simple dump grepper based on the DumpReader module.
  */
 "use strict";
+require( '../lib/core-upgrade.js' );
 
 var dumpReader = require('./dumpReader.js'),
 	events = require('events'),

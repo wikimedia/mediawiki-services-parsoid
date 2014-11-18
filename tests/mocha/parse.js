@@ -1,9 +1,7 @@
 /** Test cases for lib/mediawiki.Util.js */
-'use strict';
+"use strict";
+require( '../../lib/core-upgrade.js' );
 /*global describe, it, Promise*/
-
-require("es6-shim");
-require("prfun");
 
 var should = require("chai").should();
 

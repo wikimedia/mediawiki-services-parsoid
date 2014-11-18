@@ -1,6 +1,8 @@
+#!/usr/bin/env node
 // This file is used to run a stub API that mimicks the MediaWiki interface
 // for the purposes of testing extension expansion.
 "use strict";
+require( '../lib/core-upgrade.js' );
 
 var express = require('express');
 var crypto = require('crypto');

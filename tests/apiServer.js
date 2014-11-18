@@ -1,12 +1,10 @@
-#!/usr/bin/env node
 "use strict";
+require('../lib/core-upgrade.js');
 
 /**
  * Manages different servers for testing.
  * Uses port randomization to make sure we can use multiple servers concurrently.
  */
-
-require('es6-shim');
 
 var child_process = require( 'child_process' ),
 	Util = require('../lib/mediawiki.Util.js').Util,

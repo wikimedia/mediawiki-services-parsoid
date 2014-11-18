@@ -1,7 +1,5 @@
 "use strict";
-
-require('es6-shim');
-require('prfun');
+require( '../lib/core-upgrade.js' );
 
 var path = require('path'),
 	fs = require('fs'),

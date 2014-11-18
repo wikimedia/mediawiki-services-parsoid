@@ -18,8 +18,7 @@
  * See https://www.mediawiki.org/wiki/Parsoid/Setup for more instructions.
  */
 "use strict";
-
-require('es6-shim');
+require('../lib/core-upgrade.js');
 
 var cluster = require('cluster'),
 	path = require('path'),
