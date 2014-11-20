@@ -90,15 +90,15 @@ var runTest = function( cb, test) {
 	} );
 
 	try {
-		rtTest.fetch( test.title, callback, {
+		rtTest.fetch( test.title, {
 			setup: config.setup,
 			prefix: test.prefix,
 			rtTestMode: true,
 			parsoidURL: parsoidURL
-		} );
+		}, callback );
 	} catch ( err ) {
 		// Log it to console (for gabriel to watch scroll by)
-		console.error( "ERROR in " + test.prefix + ':' + test.title + ': ' + err );
+		console.error( "ERROR in " + test.prefix + ':' + test.title + ': ' + err + '\n' + err.stack);
 
 		results = rtTest.xmlFormat( {
 			page: { name: test.title },
