@@ -22322,6 +22322,16 @@ parsoid=html2wt
 <link rel="mw:PageProp/redirect" href="Bar" data-parsoid='{"src":"#REDIRECT ","a":{"href":"./Foo"},"sa":{"href":"Foo"}}'>
 !! end
 
+!! test
+T75121: Infer extension name from typeOf if data-mw is not present
+!! options
+parsoid=html2wt
+!! wikitext
+<foo />
+!! html
+<div typeOf="mw:Extension/foo"></div>
+!! end
+
 # -----------------------------------------------------------------
 # End of section for Parsoid-only html2wt tests for serialization
 # of new content
