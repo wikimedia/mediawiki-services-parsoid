@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// This file is used to run a stub API that mimicks the MediaWiki interface
+// This file is used to run a stub API that mimics the MediaWiki interface
 // for the purposes of testing extension expansion.
 "use strict";
 require( '../lib/core-upgrade.js' );
@@ -40,6 +40,25 @@ function sanitizeHTMLAttribute( text ) {
 		.replace( /</g, '&lt;' )
 		.replace( />/g, '&gt;' );
 }
+
+var main_page = {
+	"query": {
+		"pages": {
+			"1": {
+				"pageid": 1,
+				"ns": 0,
+				"title": "Main Page",
+				"revisions":[{
+					"revid": 1,
+					"parentid": 0,
+					"contentmodel": "wikitext",
+					"contentformat":"text/x-wiki",
+					"*": "<strong>MediaWiki has been successfully installed.</strong>\n\nConsult the [//meta.wikimedia.org/wiki/Help:Contents User's Guide] for information on using the wiki software.\n\n== Getting started ==\n* [//www.mediawiki.org/wiki/Special:MyLanguage/Manual:Configuration_settings Configuration settings list]\n* [//www.mediawiki.org/wiki/Special:MyLanguage/Manual:FAQ MediaWiki FAQ]\n* [https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce MediaWiki release mailing list]\n* [//www.mediawiki.org/wiki/Special:MyLanguage/Localisation#Translation_resources Localise MediaWiki for your language]"
+				}]
+			}
+		}
+	}
+};
 
 var fnames = {
 		'Image:Foobar.jpg': 'Foobar.jpg',
@@ -106,6 +125,12 @@ var fnames = {
 			if (body.meta === 'siteinfo') {
 				return this.querySiteinfo( body, cb );
 			}
+
+			if ( body.prop === "revisions" &&
+				 (body.revids === "1" || body.titles === "Main_Page") ) {
+				return cb( null , main_page );
+			}
+
 			var filename = body.titles,
 				normPagename = pnames[filename] || filename,
 				normFilename = fnames[filename] || filename;
@@ -308,12 +333,16 @@ app.get( new RegExp( '^/(' + actionRegex + ')' ), function ( req, res ) {
 function handleApiRequest( body, res ) {
 	var format = body.format,
 		action = body.action,
-		formatter = formatters[format];
+		formatter = formatters[format || "json"];
 
-	availableActions[action]( body, function ( err, data ) {
+	if ( !availableActions.hasOwnProperty( action ) ) {
+		return res.status(400).end("Unknown action.");
+	}
+
+	availableActions[action]( body, function( err, data ) {
 		if ( err === null ) {
 			res.setHeader( 'Content-Type', 'application/json' );
-			res.write( formatter( data ) );
+			res.write( formatter(data) );
 			res.end();
 		} else {
 			res.setHeader( 'Content-Type', 'text/plain' );
