@@ -115,6 +115,7 @@ var standardOpts = Util.addStandardOptions({
 		'default': false
 	}
 });
+exports.defaultOptions = yargs.options(standardOpts).parse([]);
 
 var startsAtWikitext;
 var startsAtHTML = function( argv, env, input, dp ) {
@@ -156,6 +157,9 @@ startsAtWikitext = function( argv, env, input ) {
 		if ( argv.wt2html || argv.html2html ) {
 			if ( argv.normalize ) {
 				out = DU.normalizeOut( doc.body, (argv.normalize === 'parsoid') );
+			} else if ( argv.document ) {
+				// used in Parsoid JS API, return document
+				out = doc;
 			} else {
 				out = DU.serializeNode( doc );
 			}
@@ -168,7 +172,7 @@ startsAtWikitext = function( argv, env, input ) {
 	});
 };
 
-var parse = exports.parse = function( argv, parsoidConfig, prefix ) {
+var parse = exports.parse = function( input, argv, parsoidConfig, prefix ) {
 	return getParserEnv( parsoidConfig, null, prefix, argv.page || null, null ).then(function( env ) {
 
 		// fetch templates from enwiki by default.
@@ -200,6 +204,10 @@ var parse = exports.parse = function( argv, parsoidConfig, prefix ) {
 				};
 			}
 			env.setPageSrcInfo( argv.oldtext || null );
+		}
+
+		if ( typeof( input ) === 'string' ) {
+			return { env: env, input: input };
 		}
 
 		if ( argv.inputfile ) {
@@ -255,15 +263,7 @@ var parse = exports.parse = function( argv, parsoidConfig, prefix ) {
 			return startsAtWikitext( argv, env, input );
 		}
 
-	}).then(function( res ) {
-
-		var stdout = process.stdout;
-		stdout.write( res.out );
-		if ( res.trailingNL && stdout.isTTY ) {
-			stdout.write( "\n" );
-		}
-
-	}).done();
+	});
 };
 
 if ( require.main === module ) {
@@ -310,6 +310,12 @@ if ( require.main === module ) {
 		var parsoidConfig = new ParsoidConfig( local, { defaultWiki: prefix } );
 		Util.setTemplatingAndProcessingFlags( parsoidConfig, argv );
 		Util.setDebuggingFlags( parsoidConfig, argv );
-		parse( argv, parsoidConfig, prefix );
+		return parse( null, argv, parsoidConfig, prefix ).then(function( res ) {
+			var stdout = process.stdout;
+			stdout.write( res.out );
+			if ( res.trailingNL && stdout.isTTY ) {
+				stdout.write( "\n" );
+			}
+		}).done();
 	}());
 }

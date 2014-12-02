@@ -28,6 +28,7 @@
 		"mocha": "~1.21.4",
 		"supertest": "0.14.0"
 	},
+	"main": "lib/index.js",
 	"bin": {
 		"parse.js": "tests/parse.js"
 	},
