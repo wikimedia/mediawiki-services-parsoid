@@ -632,7 +632,7 @@ routes.post_article = function( req, res ) {
 routes.v2_wt2html = function( req, res ) {
 	var v2 = { format: res.local("format") };
 	if ( v2.format === "pagebundle" ) {
-		res.local('env').conf.parsoid.storeDataParsoid = true;
+		res.local('env').storeDataParsoid = true;
 	}
 	wt2html( req, res, null, v2 );
 };
