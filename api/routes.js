@@ -304,11 +304,14 @@ var wt2html = function( req, res, wt, v2 ) {
 
 	function parsePageWithOldid() {
 		return parse( env, req, res ).then(function( doc ) {
-			if ( !req.headers.cookie ) {
-				apiUtils.setHeader(res, env, 'Cache-Control', 's-maxage=2592000');
-			} else {
-				// Don't cache requests with a session
+			if ( req.headers.cookie || v2 ) {
+				// Don't cache requests with a session.
+				// Also don't cache requests to the v2 entry point, as those
+				// are stored by RESTBase & will just dilute the Varnish cache
+				// in the meantime.
 				apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0');
+			} else {
+				apiUtils.setHeader(res, env, 'Cache-Control', 's-maxage=2592000');
 			}
 			// Indicate the MediaWiki revision in a header as well for
 			// ease of extraction in clients.
