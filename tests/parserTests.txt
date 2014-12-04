@@ -16,7 +16,7 @@
 # cat           add category links
 # ill           add inter-language links
 # subpage       enable subpages (disabled by default)
-# noxml         don't check for XML well formdness
+# noxml         don't check for XML well-formedness
 # title=[[XXX]] run test using article title XXX
 # language=XXX  set content language to XXX for this test
 # variant=XXX   set the variant of language for this test (eg zh-tw)
@@ -2254,7 +2254,8 @@ parsoid=wt2html
 <table><pre></pre></table>
 
 !! html/parsoid
-<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;pre &lt;pre>x&lt;/pre>"}},"i":0}}]}'>&lt;pre </p><pre>x</pre>
+<pre about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"a":{"&lt;pre":null},"sa":{"&lt;pre":""},"stx":"html","pi":[[{"k":"1","spc":["","","",""]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;pre &lt;pre>x&lt;/pre>"}},"i":0}}]}'>x</pre>
+
 
 <p>&lt;pre </p>
 
@@ -7423,6 +7424,8 @@ Failing to transform badly formed HTML into correct XHTML
 </p>
 !!end
 
+## FIXME: Is Parsoid's acceptance of self-closing html-tags
+## a feature or a bug? See https://phabricator.wikimedia.org/T76962
 !! test
 Handling html with a div self-closing tag
 !! wikitext
@@ -7432,7 +7435,7 @@ Handling html with a div self-closing tag
 <div title=bar />
 <div title=bar/>
 <div title=bar/ >
-!! html
+!! html/php
 <p>&lt;div title /&gt;
 &lt;div title/&gt;
 </p>
@@ -7443,6 +7446,13 @@ Handling html with a div self-closing tag
 <div title="bar/"></div>
 </div>
 
+!! html/parsoid
+<div title="" data-parsoid='{"stx":"html","selfClose":true}'></div>
+<div title="" data-parsoid='{"stx":"html","selfClose":true}'></div>
+<div title="" data-parsoid='{"stx":"html","selfClose":true,"brokenHTMLTag":true}'></div>
+<div title="bar" data-parsoid='{"stx":"html","selfClose":true}'></div>
+<div title="bar" data-parsoid='{"stx":"html","selfClose":true}'></div>
+<div title="bar/" data-parsoid='{"stx":"html","autoInsertedEnd":true}'></div>
 !! end
 
 !! test
@@ -7465,7 +7475,7 @@ Handling html with a br self-closing tag
 !! html/parsoid
 <p><br title="" />
 <br title="" />
-<br />
+<br title="" />
 <br title="bar" />
 <br title="bar" />
 <br title="bar/" />

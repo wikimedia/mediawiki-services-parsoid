@@ -1396,18 +1396,22 @@ generic_attribute
 //  }
 
 // Also eat these chars in a wikitext table or tr attribute name. They are
-// normally not matched by the attribute_preprocessor_text_line.
-broken_table_attribute_name_char = c:[ \t>\[] { return new KV(c, ''); }
+// normally not matched by the generic_attribute_name.
+broken_table_attribute_name_char = c:[ \t\0/=>"'\[] { return new KV(c, ''); }
 
+// The arrangement of chars is to emphasize the split between what's disallowed
+// by html5 and what's necessary to give directive a chance.
 generic_attribute_name
-  = & { return stops.push( 'equal', true ); }
-    name:attribute_preprocessor_text_line
-    {
-        stops.pop( 'equal' );
-        //console.warn( 'generic attribute name: ' + pp( name ) );
-        return name;
-    }
-  / & { return stops.pop( 'equal' ); }
+  = r:( ts:[^ \t\0\n\r/=>"'!<&\[\]|{}]+ { return ts.join(''); }
+        / ! inline_breaks
+          ! '/>'
+          // /=>"' is the html5 attribute name set we do not want.
+          // \[ is to avoid eating links. (see: BUG 553: link with two variables in a piped link)
+          t:( directive / !( space_or_newline / [\[/=>"'] ) c:. { return c; }
+        ) { return t; }
+      )+ {
+    return tu.flatten_string( r );
+  }
 
 // A generic attribute, possibly spanning multiple lines.
 generic_attribute_newline_value
@@ -2189,7 +2193,7 @@ attribute_preprocessor_text_double_broken
 
 // Variants with the entire attribute on a single line
 attribute_preprocessor_text_line
-  = r:( ts:[^=<>{\n\r&'"\t \[\]|{}/!]+ { return ts.join(''); }
+  = r:( ts:[^=<>\n\r&'"\t \[\]|{}/!]+ { return ts.join(''); }
         /  !inline_breaks
             ! '/>'
             t:(
