@@ -22369,6 +22369,36 @@ parsoid=html2wt
 <p><i>A</i><b><i>B</i></b></p>
 !! end
 
+!! test
+5a. Merge adjacent quote nodes if they've been edited
+!! options
+parsoid={
+  "modes": ["wt2wt"],
+  "changes": [
+    ["p", "contents", "remove", ":contains('b')"]
+  ]
+}
+!! wikitext
+''a''b''c''
+!! wikitext/edited
+''ac''
+!! end
+
+!! test
+5b. Merge adjacent quote nodes if they've been edited
+!! options
+parsoid={
+  "modes": ["wt2wt"],
+  "changes": [
+    ["#x", "remove"]
+  ]
+}
+!! wikitext
+''a''<span id="x">b</span>''c''
+!! wikitext/edited
+''ac''
+!! end
+
 #------------------------------------
 # End of I/B quote minimization tests
 #------------------------------------
