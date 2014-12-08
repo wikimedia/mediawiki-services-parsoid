@@ -18,18 +18,18 @@ describe( 'ParserPipelineFactory', function() {
 
 		var parse = function(src, options) {
 			options = options || {};
-			return new Promise(function(resolve, reject) {
-				MWParserEnvironment.getParserEnv( parsoidConfig, null, options.prefix || 'enwiki', options.page_name || 'Main_Page', null, function ( err, env ) {
-					if (err) { return reject(err); }
-					if (options.tweakEnv) {
-						env = options.tweakEnv(env) || env;
-					}
-					env.setPageSrcInfo(src);
-					var pipeline = env.pipelineFactory;
-					Promise.promisify( pipeline.parse, false, pipeline )(
-						env, env.page.src, options.expansions
-					).then( resolve, reject );
-				});
+			return MWParserEnvironment.getParserEnv(parsoidConfig, null, {
+				prefix: options.prefix || 'enwiki',
+				pageName: options.page_name || 'Main_Page'
+			}).then(function(env) {
+				if (options.tweakEnv) {
+					env = options.tweakEnv(env) || env;
+				}
+				env.setPageSrcInfo(src);
+				var pipeline = env.pipelineFactory;
+				return Promise.promisify( pipeline.parse, false, pipeline )(
+					env, env.page.src, options.expansions
+				);
 			});
 		};
 

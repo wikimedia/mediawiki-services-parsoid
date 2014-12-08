@@ -398,13 +398,11 @@ routes.parserEnvMw = function( req, res, next ) {
 		}
 		return Promise.resolve().nodify(callback);
 	}
-	Promise.promisify( MWParserEnv.getParserEnv, false, MWParserEnv )(
-		parsoidConfig,
-		null,
-		res.local('iwp'),
-		res.local('pageName'),
-		req.headers.cookie
-	).then(function( env ) {
+	MWParserEnv.getParserEnv(parsoidConfig, null, {
+		prefix: res.local('iwp'),
+		pageName: res.local('pageName'),
+		cookie: req.headers.cookie
+	}).then(function( env ) {
 		env.logger.registerBackend(/fatal(\/.*)?/, errBack.bind(this, env));
 		res.local('env', env);
 		next();

@@ -617,7 +617,7 @@ var fetch = function ( page, options, cb ) {
 		Util.setDebuggingFlags( parsoidConfig, options );
 	}
 
-	MWParserEnvironment.getParserEnv( parsoidConfig, null, prefix, page, null, envCb );
+	MWParserEnvironment.getParserEnv( parsoidConfig, null, { prefix: prefix, pageName: page }, envCb );
 	return cb.promise;
 };
 

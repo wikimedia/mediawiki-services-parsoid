@@ -9,15 +9,14 @@ var MWParserEnvironment = require('../../lib/mediawiki.parser.environment.js' ).
 	Util = require('../../lib/mediawiki.Util.js').Util,
 	ParsoidConfig = require('../../lib/mediawiki.ParsoidConfig' ).ParsoidConfig;
 
-var getParserEnv = Promise.promisify(MWParserEnvironment.getParserEnv, false, MWParserEnvironment);
-
 describe( 'Linter Tests', function() {
-	var parsoidConfig = new ParsoidConfig( null,  { defaultWiki: 'enwiki' } );
-	parsoidConfig.linting = true;
-
+	var parsoidConfig = new ParsoidConfig( null, { defaultWiki: 'enwiki', linting: true } );
 
 	var parseWT = function( wt ) {
-		return getParserEnv( parsoidConfig, null, 'enwiki', 'Main_Page', null).then(function(env) {
+		return MWParserEnvironment.getParserEnv(parsoidConfig, null, {
+			prefix: 'enwiki',
+			pageName: 'Main_Page'
+		}).then(function(env) {
 			env.setPageSrcInfo( wt );
 
 			var pipeline = env.pipelineFactory;

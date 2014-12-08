@@ -17,8 +17,6 @@ var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnviro
 	fs = require('fs'),
 	path = require('path');
 
-var getParserEnv = Promise.promisify( ParserEnv.getParserEnv, false, ParserEnv );
-
 process.on('SIGUSR2', function() {
 	var heapdump = require('heapdump');
 	console.error('SIGUSR2 received! Writing snapshot.');
@@ -173,7 +171,10 @@ startsAtWikitext = function( argv, env, input ) {
 };
 
 var parse = exports.parse = function( input, argv, parsoidConfig, prefix ) {
-	return getParserEnv( parsoidConfig, null, prefix, argv.page || null, null ).then(function( env ) {
+	return ParserEnv.getParserEnv(parsoidConfig, null, {
+		prefix: prefix,
+		pageName: argv.page
+	}).then(function( env ) {
 
 		// fetch templates from enwiki by default.
 		if ( argv.wgScriptPath ) {
