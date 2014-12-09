@@ -3201,10 +3201,12 @@ Definition list with wikilink containing colon
 Definition list with news link containing colon
 !! wikitext
 ;  news:alt.wikipedia.rox: This isn't even a real newsgroup!
-!! html
+!! html/php
 <dl><dt>  <a rel="nofollow" class="external free" href="news:alt.wikipedia.rox">news:alt.wikipedia.rox</a></dt>
 <dd> This isn't even a real newsgroup!</dd></dl>
 
+!! html/parsoid
+<dl><dt>  <a rel="mw:ExtLink" href="news:alt.wikipedia.rox" data-parsoid='{"stx":"url"}'>news:alt.wikipedia.rox</a></dt><dd data-parsoid='{"stx":"row"}'> This isn't even a real newsgroup!</dd></dl>
 !! end
 
 !! test
@@ -4188,7 +4190,7 @@ http://example.com/url_with_entity&#160;
 http://example.com/url_with_entity&lt;
 http://example.com/url_with_entity&#x3C;
 http://example.com/url_with_entity&#60;
-!! html
+!! html/php
 <p><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>,
 <a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>;
 <a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>\
@@ -4206,6 +4208,23 @@ http://example.com/url_with_entity&#60;
 <a rel="nofollow" class="external free" href="http://example.com/url_with_entity%3C">http://example.com/url_with_entity%3C</a>
 <a rel="nofollow" class="external free" href="http://example.com/url_with_entity%3C">http://example.com/url_with_entity%3C</a>
 </p>
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="http://example.com">http://example.com</a>,
+<a rel="mw:ExtLink" href="http://example.com">http://example.com</a>;
+<a rel="mw:ExtLink" href="http://example.com">http://example.com</a>\
+<a rel="mw:ExtLink" href="http://example.com">http://example.com</a>.
+<a rel="mw:ExtLink" href="http://example.com">http://example.com</a>:
+<a rel="mw:ExtLink" href="http://example.com">http://example.com</a>!
+<a rel="mw:ExtLink" href="http://example.com">http://example.com</a>?
+<a rel="mw:ExtLink" href="http://example.com">http://example.com</a>)
+<a rel="mw:ExtLink" href="http://example.com/url_with_(brackets)">http://example.com/url_with_(brackets)</a>
+(<a rel="mw:ExtLink" href="http://example.com/url_without_brackets">http://example.com/url_without_brackets</a>)
+<a rel="mw:ExtLink" href="http://example.com/url_with_entity ">http://example.com/url_with_entity </a>
+<a rel="mw:ExtLink" href="http://example.com/url_with_entity ">http://example.com/url_with_entity </a>
+<a rel="mw:ExtLink" href="http://example.com/url_with_entity ">http://example.com/url_with_entity </a>
+<a rel="mw:ExtLink" href="http://example.com/url_with_entity">http://example.com/url_with_entity</a><span typeof="mw:Entity">&lt;</span>
+<a rel="mw:ExtLink" href="http://example.com/url_with_entity&lt;">http://example.com/url_with_entity&lt;</a>
+<a rel="mw:ExtLink" href="http://example.com/url_with_entity&lt;">http://example.com/url_with_entity&lt;</a></p>
 !! end
 
 !! test
@@ -4310,10 +4329,12 @@ URL in text: [http://example.com http://example.com]
 External links: Clickable images
 !! wikitext
 ja-style clickable images: [http://example.com http://meta.wikimedia.org/upload/f/f1/Ncwikicol.png]
-!! html
+!! html/php
 <p>ja-style clickable images: <a rel="nofollow" class="external text" href="http://example.com"><img src="http://meta.wikimedia.org/upload/f/f1/Ncwikicol.png" alt="Ncwikicol.png" /></a>
 </p>
-!!end
+!! html/parsoid
+<p>ja-style clickable images: <a rel="mw:ExtLink" href="http://example.com"><img src="http://meta.wikimedia.org/upload/f/f1/Ncwikicol.png" alt="Ncwikicol.png" data-parsoid='{"type":"extlink"}'/></a></p>
+!! end
 
 !! test
 External links: raw ampersand
@@ -4503,10 +4524,12 @@ http://www.example.com/<hello>
 BUG 289: literal ">"-token in URL-tail
 !! wikitext
 http://www.example.com/<b>html</b>
-!! html
+!! html/php
 <p><a rel="nofollow" class="external free" href="http://www.example.com/">http://www.example.com/</a><b>html</b>
 </p>
-!!end
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="http://www.example.com/" data-parsoid='{"stx":"url"}'>http://www.example.com/</a><b data-parsoid='{"stx":"html"}'>html</b></p>
+!! end
 
 !! test
 BUG 289: ">"-token in bracketed URL
@@ -6231,9 +6254,11 @@ Bug 43661: Piped links with identical prefixes
 Link with HTML entity in suffix / tail
 !! wikitext
 [[Main Page]]&quot;, [[Main Page]]&#97;
-!! html
+!! html/php
 <p><a href="/wiki/Main_Page" title="Main Page">Main Page</a>&quot;, <a href="/wiki/Main_Page" title="Main Page">Main Page</a>&#97;
 </p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;quot;","srcContent":"\""}'>"</span>, <a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#97;","srcContent":"a"}'>a</span></p>
 !! end
 
 !! test
@@ -6268,10 +6293,13 @@ Piped link with extlink-like text
 !! wikitext
 [[Main Page|[bar]]]
 [[Main Page|This is a [bar]]]
-!! html
+!! html/php
 <p><a href="/wiki/Main_Page" title="Main Page">[bar]</a>
 <a href="/wiki/Main_Page" title="Main Page">This is a [bar]</a>
 </p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Main_Page" title="Main Page" data-parsoid='{"stx":"piped"}'>[bar]</a>
+<a rel="mw:WikiLink" href="./Main_Page" title="Main Page" data-parsoid='{"stx":"piped"}'>This is a [bar]</a></p>
 !! end
 
 !! test
@@ -8946,9 +8974,11 @@ ISBN 0-306-40615-2
 Magic links: ISBN (bug 65278)
 !! wikitext
 This is ISBN 978-0-316-09811-3 but thisISBN 978-0-316-09811-3 is not ISBN 978-0-316-09811-3linked.
-!! html
+!! html/php
 <p>This is <a href="/wiki/Special:BookSources/9780316098113" class="internal mw-magiclink-isbn">ISBN 978-0-316-09811-3</a> but thisISBN 978-0-316-09811-3 is not ISBN 978-0-316-09811-3linked.
 </p>
+!! html/parsoid
+<p>This is <a href="./Special:BookSources/9780316098113" rel="mw:ExtLink">ISBN 978-0-316-09811-3</a> but thisISBN 978-0-316-09811-3 is not ISBN 978-0-316-09811-3linked.</p>
 !! end
 
 !! test
@@ -11346,6 +11376,17 @@ Link with empty target
 !! end
 
 !! test
+Image with link trail
+!! wikitext
+Linktrails should not work for images: [[File:Foobar.jpg]]s
+!! html/php
+<p>Linktrails should not work for images: <a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>s
+</p>
+!! html/parsoid
+<p>Linktrails should not work for images: <span class="mw-default-size" typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></span>s</p>
+!! end
+
+!! test
 Image with empty attribute
 !! options
 parsoid=wt2html,wt2wt,html2html
@@ -13307,10 +13348,12 @@ __TOC__
 !! test
 BUG 1219 URL next to image (good)
 !! wikitext
-http://example.com [[Image:foobar.jpg]]
-!! html
+http://example.com [[File:Foobar.jpg]]
+!! html/php
 <p><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a> <a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
 </p>
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="http://example.com">http://example.com</a> <span class="mw-default-size" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></span></p>
 !!end
 
 !! test
@@ -13533,10 +13576,12 @@ c3-->
 !! test
 BUG 1219 URL next to image (broken)
 !! wikitext
-http://example.com[[Image:foobar.jpg]]
-!! html
+http://example.com[[File:Foobar.jpg]]
+!! html/php
 <p><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
 </p>
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="http://example.com">http://example.com</a><span class="mw-default-size" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></span></p>
 !!end
 
 !! test
@@ -15264,32 +15309,38 @@ Fuzz testing: Parser25 (bug 6055)
 Fuzz testing: URL adjacent extension (with space, clean)
 !! wikitext
 http://example.com <nowiki>junk</nowiki>
-!! html
+!! html/php
 <p><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a> junk
 </p>
-!!end
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a> <span typeof="mw:Nowiki">junk</span></p>
+!! end
 
 !!test
 Fuzz testing: URL adjacent extension (no space, dirty; nowiki)
 !! wikitext
 http://example.com<nowiki>junk</nowiki>
-!! html
+!! html/php
 <p><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>junk
 </p>
-!!end
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a><span typeof="mw:Nowiki">junk</span></p>
+!! end
 
 !!test
 Fuzz testing: URL adjacent extension (no space, dirty; pre)
 !! wikitext
 http://example.com<pre>junk</pre>
-!! html
+!! html/php
 <a rel="nofollow" class="external free" href="http://example.com">http://example.com</a><pre>junk</pre>
 
-!! html+tidy
+!! html/php+tidy
 <p><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a></p>
 <pre>
 junk
 </pre>
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a></p><pre data-parsoid='{"stx":"html"}'>junk</pre>
 !!end
 
 !!test
@@ -16748,6 +16799,8 @@ ISBN  978-0-1234-56&#x20;789
 </p>
 !! html+tidy
 <p><a href="/wiki/Special:BookSources/9780123456" class="internal mw-magiclink-isbn">ISBN 978-0-1234-56</a> 789</p>
+!! html/parsoid
+<p><a href="./Special:BookSources/9780123456" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 978-0-1234-56</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#x20;","srcContent":" "}'> </span>789</p>
 !! end
 
 !! test
@@ -16763,24 +16816,37 @@ ISBN
 Double ISBN
 !! wikitext
 ISBN ISBN 1234567890
-!! html
+!! html/php
 <p>ISBN <a href="/wiki/Special:BookSources/1234567890" class="internal mw-magiclink-isbn">ISBN 1234567890</a>
 </p>
+!! html/parsoid
+<p>ISBN <a href="./Special:BookSources/1234567890" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a></p>
 !! end
 
 !! test
 ISBN with an X
 !! wikitext
 ISBN 3-462-04561-X
-!! html
+ISBN 080442957X
+ISBN 978080442957X
+!! html/php
 <p><a href="/wiki/Special:BookSources/346204561X" class="internal mw-magiclink-isbn">ISBN 3-462-04561-X</a>
+<a href="/wiki/Special:BookSources/080442957X" class="internal mw-magiclink-isbn">ISBN 080442957X</a>
+<a href="/wiki/Special:BookSources/978080442957X" class="internal mw-magiclink-isbn">ISBN 978080442957X</a>
 </p>
+!! html/parsoid
+<p><a href="./Special:BookSources/346204561X" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 3-462-04561-X</a>
+<a href="./Special:BookSources/080442957X" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 080442957X</a>
+<a href="./Special:BookSources/978080442957X" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 978080442957X</a></p>
 !! end
 
 !! test
 ISBN with empty prefix (parsoid test)
 !! wikitext
 ISBN 1234567890
+!! html/php
+<p><a href="/wiki/Special:BookSources/1234567890" class="internal mw-magiclink-isbn">ISBN 1234567890</a>
+</p>
 !! html/parsoid
 <p><a href="Special:BookSources/1234567890" rel="mw:ExtLink">ISBN 1234567890</a></p>
 !! end
@@ -16789,9 +16855,11 @@ ISBN 1234567890
 Bug 22905: <abbr> followed by ISBN followed by </a>
 !! wikitext
 <abbr>(fr)</abbr> ISBN 2753300917 [http://www.example.com example.com]
-!! html
+!! html/php
 <p><abbr>(fr)</abbr> <a href="/wiki/Special:BookSources/2753300917" class="internal mw-magiclink-isbn">ISBN 2753300917</a> <a rel="nofollow" class="external text" href="http://www.example.com">example.com</a>
 </p>
+!! html/parsoid
+<p><abbr data-parsoid='{"stx":"html"}'>(fr)</abbr> <a href="./Special:BookSources/2753300917" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 2753300917</a> <a rel="mw:ExtLink" href="http://www.example.com">example.com</a></p>
 !! end
 
 !! test
@@ -20756,36 +20824,28 @@ parsoid=wt2html
 #### 5. Extlinks: No escapes needed
 #### --------------------------------------
 !! test
-Links 1. Quote marks in link text
-!! options
-parsoid
+Links 1. WikiLinks: No escapes needed
 !! wikitext
-[[Foo|Foo<nowiki>''boo''</nowiki>]]
-!! html
-<a rel="mw:WikiLink" href="Foo">Foo''boo''</a>
+[[Foo|Foo''boo'']]
+[[Foo|[Foobar]]]
+[[Foo|x [Foobar] x]]
+!! html/php
+<p><a href="/wiki/Foo" title="Foo">Foo<i>boo</i></a>
+<a href="/wiki/Foo" title="Foo">[Foobar]</a>
+<a href="/wiki/Foo" title="Foo">x [Foobar] x</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="Foo" title="Foo">Foo<i>boo</i></a>
+<a rel="mw:WikiLink" href="Foo" title="Foo">[Foobar]</a>
+<a rel="mw:WikiLink" href="Foo" title="Foo">x [Foobar] x</a></p>
 !! end
 
 !! test
 Links 2. WikiLinks: Escapes needed
 !! options
-parsoid
-!! wikitext
-[[Foo|[Foobar]]]
-[[Foo|<nowiki>Foobar]</nowiki>]]
-[[Foo|x [Foobar] x]]
-[[Foo|x <nowiki>[http://google.com g]</nowiki> x]]
-[[Foo|<nowiki>[[Bar]]</nowiki>]]
-[[Foo|<nowiki>x [[Bar]] x</nowiki>]]
-[[Foo|<nowiki>|Bar</nowiki>]]
-[[Foo|<nowiki>]]bar</nowiki>]]
-[[Foo|<nowiki>[[bar</nowiki>]]
-[[Foo|<nowiki>x [[ y</nowiki>]]
-[[Foo|<nowiki>x ]] y</nowiki>]]
-[[Foo|<nowiki>x ]] y [[ z</nowiki>]]
-!! html
-<a href="Foo" rel="mw:WikiLink">[Foobar]</a>
+parsoid=html2wt
+!! html/parsoid
 <a href="Foo" rel="mw:WikiLink">Foobar]</a>
-<a href="Foo" rel="mw:WikiLink">x [Foobar] x</a>
 <a href="Foo" rel="mw:WikiLink">x [http://google.com g] x</a>
 <a href="Foo" rel="mw:WikiLink">[[Bar]]</a>
 <a href="Foo" rel="mw:WikiLink">x [[Bar]] x</a>
@@ -20795,24 +20855,54 @@ parsoid
 <a href="Foo" rel="mw:WikiLink">x [[ y</a>
 <a href="Foo" rel="mw:WikiLink">x ]] y</a>
 <a href="Foo" rel="mw:WikiLink">x ]] y [[ z</a>
+!! wikitext
+[[Foo|<nowiki>Foobar]</nowiki>]]
+[[Foo|x <nowiki>[http://google.com g]</nowiki> x]]
+[[Foo|<nowiki>[[Bar]]</nowiki>]]
+[[Foo|<nowiki>x [[Bar]] x</nowiki>]]
+[[Foo|<nowiki>|Bar</nowiki>]]
+[[Foo|<nowiki>]]bar</nowiki>]]
+[[Foo|<nowiki>[[bar</nowiki>]]
+[[Foo|<nowiki>x [[ y</nowiki>]]
+[[Foo|<nowiki>x ]] y</nowiki>]]
+[[Foo|<nowiki>x ]] y [[ z</nowiki>]]
+!! html/php
+<p><a href="/wiki/Foo" title="Foo">Foobar]</a>
+<a href="/wiki/Foo" title="Foo">x [http://google.com g] x</a>
+<a href="/wiki/Foo" title="Foo">[[Bar]]</a>
+<a href="/wiki/Foo" title="Foo">x [[Bar]] x</a>
+<a href="/wiki/Foo" title="Foo">|Bar</a>
+<a href="/wiki/Foo" title="Foo">]]bar</a>
+<a href="/wiki/Foo" title="Foo">[[bar</a>
+<a href="/wiki/Foo" title="Foo">x [[ y</a>
+<a href="/wiki/Foo" title="Foo">x ]] y</a>
+<a href="/wiki/Foo" title="Foo">x ]] y [[ z</a>
+</p>
 !! end
 
 !! test
 Links 3. WikiLinks: No escapes needed
-!! options
-parsoid
 !! wikitext
 [[Foo|[Foobar]]
 [[Foo|foo|bar]]
-!! html
-<a href="Foo" rel="mw:WikiLink">[Foobar</a>
-<a href="Foo" rel="mw:WikiLink">foo|bar</a>
+!! html/php
+<p><a href="/wiki/Foo" title="Foo">[Foobar</a>
+<a href="/wiki/Foo" title="Foo">foo|bar</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="Foo">[Foobar</a>
+<a rel="mw:WikiLink" href="Foo" title="Foo">foo|bar</a></p>
 !! end
 
 !! test
 Links 4. ExtLinks: Escapes needed
 !! options
-parsoid
+parsoid=html2wt
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="http://google.com">[google]</a>
+<a rel="mw:ExtLink" href="http://google.com">google]</a></p>
+<p>[http://google.com]</p>
+<p>[http://google.com google]</p>
 !! wikitext
 [http://google.com <nowiki>[google]</nowiki>]
 [http://google.com <nowiki>google]</nowiki>]
@@ -20821,21 +20911,23 @@ parsoid
 
 <nowiki>[http://google.com google]</nowiki>
 
-!! html
-<p><a href="http://google.com" rel="mw:ExtLink">[google]</a>
-<a href="http://google.com" rel="mw:ExtLink">google]</a></p>
-<p>[http://google.com]</p>
-<p>[http://google.com google]</p>
+!! html/php
+<p><a rel="nofollow" class="external text" href="http://google.com">[google]</a>
+<a rel="nofollow" class="external text" href="http://google.com">google]</a>
+</p><p>[http://google.com]
+</p><p>[http://google.com google]
+</p>
 !! end
 
 !! test
 Links 5. ExtLinks: No escapes needed
-!! options
-parsoid
 !! wikitext
 [http://google.com [google]
-!! html
-<a href="http://google.com" rel="mw:ExtLink">[google</a>
+!! html/php
+<p><a rel="nofollow" class="external text" href="http://google.com">[google</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="http://google.com">[google</a></p>
 !! end
 
 !! test
@@ -20892,61 +20984,90 @@ y
 (http://example.com) foo
 http://example.com,
 http://example.com, foo
+!! html/php
+<p>x
+<a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>
+y
+"<a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>"
+(<a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>)
+(<a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>) foo
+<a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>,
+<a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>, foo
+</p>
 !! end
 
-## Parsoid currently fails wt2html on this one!
 !! test
 Links 7b. Don't add spurious <nowiki/>s between text-nodes and url-links (bug 64300)
 !! html/parsoid
-<p><a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>.,;:!?</p>
+<p><a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a>.,;:!?\
+-<a rel="mw:ExtLink" href="http://example.com">http://example.com</a>:</p>
 !! wikitext
-http://example.com.,;:!?
+http://example.com.,;:!?\
+-http://example.com:
+!! html/php
+<p><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>.,;:!?\
+-<a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>:
+</p>
 !! end
 
 !! test
 Links 8. Add <nowiki/>s between text-nodes and RFC-links when required (bug 64300)
 !! html/parsoid
-<p><a href="//tools.ietf.org/html/rfc123" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>RFC 123</a>4</p>
+<p><a href="//tools.ietf.org/html/rfc123" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>RFC 123</a>4
+<a href="//tools.ietf.org/html/rfc123" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>RFC 123</a>y
+X<a href="//tools.ietf.org/html/rfc123" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>RFC 123</a>y</p>
 !! wikitext
 RFC 123<nowiki/>4
+RFC 123<nowiki/>y
+X<nowiki/>RFC 123<nowiki/>y
 !! end
 
 !! test
 Links 9. Don't add spurious <nowiki/>s between text-nodes and RFC-links (bug 64300)
 !! html/parsoid
-<p>x<a href="//tools.ietf.org/html/rfc123" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>RFC 123</a>y
-X<a href="//tools.ietf.org/html/rfc123" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>RFC 123</a>y
-<a href="//tools.ietf.org/html/rfc123" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>RFC 123</a>?foo
+<p><a href="//tools.ietf.org/html/rfc123" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>RFC 123</a>?foo
 <a href="//tools.ietf.org/html/rfc123" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>RFC 123</a>&amp;foo
+-<a href="//tools.ietf.org/html/rfc123" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>RFC 123</a>-
 </p>
 !! wikitext
-xRFC 123y
-XRFC 123y
 RFC 123?foo
 RFC 123&foo
+-RFC 123-
+!! html/php
+<p><a class="external mw-magiclink-rfc" rel="nofollow" href="//tools.ietf.org/html/rfc123">RFC 123</a>?foo
+<a class="external mw-magiclink-rfc" rel="nofollow" href="//tools.ietf.org/html/rfc123">RFC 123</a>&amp;foo
+-<a class="external mw-magiclink-rfc" rel="nofollow" href="//tools.ietf.org/html/rfc123">RFC 123</a>-
+</p>
 !! end
 
 !! test
 Links 10. Add <nowiki/>s between text-nodes and PMID-links when required (bug 64300)
 !! html/parsoid
 <p><a href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>PMID 123</a>4
+<a href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>PMID 123</a>y
+X<a href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>PMID 123</a>y
 !! wikitext
 PMID 123<nowiki/>4
+PMID 123<nowiki/>y
+X<nowiki/>PMID 123<nowiki/>y
 !! end
 
 !! test
 Links 11. Don't add spurious <nowiki/>s between text-nodes and PMID-links (bug 64300)
 !! html/parsoid
-<p>x<a href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>PMID 123</a>y
-X<a href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>PMID 123</a>y
-<a href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>PMID 123</a>?foo
+<p><a href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>PMID 123</a>?foo
 <a href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>PMID 123</a>&foo
+-<a href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>PMID 123</a>-
 </p>
 !! wikitext
-xPMID 123y
-XPMID 123y
 PMID 123?foo
 PMID 123&foo
+-PMID 123-
+!! html/php
+<p><a class="external mw-magiclink-pmid" rel="nofollow" href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract">PMID 123</a>?foo
+<a class="external mw-magiclink-pmid" rel="nofollow" href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract">PMID 123</a>&amp;foo
+-<a class="external mw-magiclink-pmid" rel="nofollow" href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract">PMID 123</a>-
+</p>
 !! end
 
 !! test
@@ -20954,24 +21075,27 @@ Links 12. Add <nowiki/>s between text-nodes and ISBN-links when required (bug 64
 !! html/parsoid
 <p><a href="./Special:BookSources/1234567890" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a>1
 <a href="./Special:BookSources/1234567890" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a>x
-<a href="./Special:BookSources/1234567890" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a>b
+a<a href="./Special:BookSources/1234567890" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a>b
 </p>
 !! wikitext
 ISBN 1234567890<nowiki/>1
 ISBN 1234567890<nowiki/>x
-ISBN 1234567890<nowiki/>b
+a<nowiki/>ISBN 1234567890<nowiki/>b
 !! end
 
 !! test
-Links 12. Don't add spurious <nowiki/>s between text-nodes and ISBN-links (bug 64300)
+Links 13. Don't add spurious <nowiki/>s between text-nodes and ISBN-links (bug 64300)
 !! html/parsoid
-<p><a href="./Special:BookSources/1234567890" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a>'s
+<p>-<a href="./Special:BookSources/1234567890" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a>'s
 !! wikitext
-ISBN 1234567890's
+-ISBN 1234567890's
+!! html/php
+<p>-<a href="/wiki/Special:BookSources/1234567890" class="internal mw-magiclink-isbn">ISBN 1234567890</a>'s
+</p>
 !! end
 
 !! test
-Links 13: Protect link-like plain text. (Parsoid bug T78425)
+Links 14. Protect link-like plain text. (Parsoid bug T78425)
 !! options
 parsoid=html2wt
 !! html/*
@@ -22755,6 +22879,56 @@ parsoid=html2wt
 <a href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract" rel="mw:ExtLink">New PMID</a>
 !! wikitext
 [//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract New PMID]
+!! end
+
+!! test
+WTS of autolinks with trailing/surrounding context
+!! options
+parsoid=html2wt
+!! html/parsoid
+<p><a href="http://cscott.net">http://cscott.net</a><b>foo</b></p>
+<p><a href="http://cscott.net">http://cscott.net</a><b data-parsoid='{"stx":"html"}'>foo</b></p>
+<p><b><a href="http://cscott.net">http://cscott.net</a></b></p>
+<p><b><a href="http://cscott.net">http://cscott.net</a> </b></p>
+<p><b><a href="http://cscott.net">http://cscott.net</a>x</b></p>
+<p><a href="http://cscott.net">http://cscott.net</a>x</p>
+!! wikitext
+http://cscott.net<nowiki/>'''foo'''
+
+http://cscott.net<b>foo</b>
+
+'''http://cscott.net<nowiki/>'''
+
+'''http://cscott.net '''
+
+'''http://cscott.net<nowiki/>x'''
+
+http://cscott.net<nowiki/>x
+!! end
+
+!! test
+WTS of autolinks with nowikis (round-trip)
+!! wikitext
+x<nowiki/>http://cscott.net<nowiki/>x
+!! html/parsoid
+<p>x<a rel="mw:ExtLink" href="http://cscott.net">http://cscott.net</a>x</p>
+!! end
+
+# this is the "easy" test because it leaves in place all the
+# data-parsoid information indicating this is an autolink
+!! test
+WTS of autolinks with escapes (editing)
+!! options
+parsoid={
+  "modes": ["wt2wt"],
+  "changes": [
+    [ "meta", "remove" ]
+  ]
+}
+!! wikitext
+x<nowiki/>http://cscott.net<nowiki/>x
+!! wikitext/edited
+x<nowiki/>http://cscott.net<nowiki/>x
 !! end
 
 !! test
