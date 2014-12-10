@@ -3966,6 +3966,30 @@ Definition Lists: Weird Ones: Test 1
 </ul>
 !! end
 
+!! test
+Definition Lists: colons occurring in tags
+!! wikitext
+;a:b
+;'''a:b'''
+;<i>a:b</i>
+;<span>a:b</span>
+;<div>a:b</div>
+;{{echo|a:b}}
+;{{echo|''a:b''}}
+!! html
+<dl><dt>a</dt>
+<dd>b</dd>
+<dt><b>a:b</b></dt>
+<dt><i>a:b</i></dt>
+<dt><span>a:b</span></dt>
+<dt><div>a:b</div></dt>
+<dt>a</dt>
+<dd>b</dd>
+<dt><i>a:b</i></dt></dl>
+
+!! end
+
+
 ###
 ### External links
 ###
