@@ -20767,9 +20767,11 @@ parsoid=html2wt,wt2wt
 !! wikitext
 '<span>''bar''</span>'
 '<span>'''bar'''</span>'
+'a:b'foo
 !! html
 <p>'<span><i>bar</i></span>'
 '<span><b>bar</b></span>'
+'a:b'foo
 </p>
 !! end
 
