@@ -3989,6 +3989,52 @@ Definition Lists: colons occurring in tags
 
 !! end
 
+!! test
+Definition Lists: colons and tables 1
+!! wikitext
+:{|
+| x
+|}
+:{|
+| y
+|}
+!! html
+<dl><dd><table>
+<tr>
+<td> x
+</td></tr></table></dd></dl>
+<dl><dd><table>
+<tr>
+<td> y
+</td></tr></table></dd></dl>
+
+!! end
+
+# Parsoid's output (as documented below) differs from php's in this case.
+# This is probably a bug. If we fixup parsoid to match php's output, the
+# above test should pass and the below test case can be removed. It is
+# unclear which output is more desirable.
+
+!! test
+Definition Lists: colons and tables 2
+!! wikitext
+:{|
+| x
+|}
+:{|
+| y
+|}
+!! html/parsoid
+<dl><dd><table>
+<tr>
+<td> x
+</td></tr></table></dd>
+<dd><table>
+<tr>
+<td> y
+</td></tr></table></dd></dl>
+!! end
+
 
 ###
 ### External links
