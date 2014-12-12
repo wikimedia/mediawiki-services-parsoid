@@ -791,6 +791,7 @@ ParserTests.prototype.applyManualChanges = function( document, changes, cb ) {
 	//  [x,y,z...] becomes $(x)[y](z....)
 	// that is, ['fig', 'attr', 'width', '120'] is interpreted as
 	//   $('fig').attr('width', '120')
+	// See http://api.jquery.com/ for documentation of these methods.
 	var jquery = {
 		attr: function(name, val) {
 			this.setAttribute(name, val);
@@ -806,6 +807,20 @@ ParserTests.prototype.applyManualChanges = function( document, changes, cb ) {
 		},
 		text: function(t) {
 			this.textContent = t;
+		},
+		remove: function(optSelector) {
+			// jquery lets us specify an optional selector to further
+			// restrict the removed elements.
+			var what = optSelector ?
+				this.querySelectorAll(optSelector) : [ this ];
+			Array.prototype.forEach.call(what, function(node) {
+				if (node.parentNode) { node.parentNode.removeChild(node); }
+			});
+		},
+		empty: function() {
+			while (this.firstChild) {
+				this.removeChild(this.firstChild);
+			}
 		}
 	};
 
