@@ -792,6 +792,9 @@ ParserTests.prototype.applyManualChanges = function( document, changes, cb ) {
 	// that is, ['fig', 'attr', 'width', '120'] is interpreted as
 	//   $('fig').attr('width', '120')
 	// See http://api.jquery.com/ for documentation of these methods.
+	// "contents" as second argument calls the jquery .contents() method
+	// on the results of the selector in the first argument, which is
+	// a good way to get at the text and comment nodes
 	var jquery = {
 		attr: function(name, val) {
 			this.setAttribute(name, val);
@@ -811,8 +814,12 @@ ParserTests.prototype.applyManualChanges = function( document, changes, cb ) {
 		remove: function(optSelector) {
 			// jquery lets us specify an optional selector to further
 			// restrict the removed elements.
-			var what = optSelector ?
-				this.querySelectorAll(optSelector) : [ this ];
+			// text nodes don't have the "querySelectorAll" method, so
+			// just include them by default (jquery excludes them, which
+			// is less useful)
+			var what = !optSelector ? [ this ] :
+				!DU.isElt(this) ? [ this ] /* text node hack! */ :
+				this.querySelectorAll(optSelector);
 			Array.prototype.forEach.call(what, function(node) {
 				if (node.parentNode) { node.parentNode.removeChild(node); }
 			});
@@ -836,6 +843,13 @@ ParserTests.prototype.applyManualChanges = function( document, changes, cb ) {
 			err = new Error(change[0]+' did not match any elements: ' +
 							document.outerHTML);
 			return;
+		}
+		if (change[1] === 'contents') {
+			change.shift();
+			els = Array.prototype.reduce.call(els, function(acc, el) {
+				acc.push.apply(acc, el.childNodes);
+				return acc;
+			}, []);
 		}
 		var fun = jquery[change[1]];
 		if (!fun) {
