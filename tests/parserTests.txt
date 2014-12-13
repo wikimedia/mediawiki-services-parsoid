@@ -20271,6 +20271,16 @@ a
 </p>
 !!end
 
+!! test
+Lists: 8. Escape colons only if not present in tags
+!! options
+parsoid=html2wt
+!! wikitext
+; <nowiki>a:b</nowiki>''c:d''
+!! html
+<dl><dt>a:b<i>c:d</i></dt></dl>
+!! end
+
 #### --------------- HRs ---------------
 #### 1. Single line
 #### -----------------------------------
