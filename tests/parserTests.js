@@ -676,7 +676,7 @@ ParserTests.prototype.generateChanges = function( options, item, content, cb ) {
 	 * Currently true for template and extension content, and for entities.
 	 */
 	function domSubtreeIsEditable(env, node) {
-		return !DU.isTplOrExtToplevelNode(env, node) &&
+		return !DU.isTplOrExtToplevelNode(node) &&
 			!(DU.isElt(node) && node.getAttribute("typeof") === "mw:Entity");
 	}
 
