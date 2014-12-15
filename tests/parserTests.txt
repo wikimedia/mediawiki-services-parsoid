@@ -20795,6 +20795,7 @@ parsoid=html2wt,wt2wt
 '<nowiki/>'''foo'''<nowiki/>'
 ''fools'<span> errand</span>''
 ''<span>fool</span>'s errand''
+a|!*#-:;+-~[]{}b'<nowiki/>''x''
 !! html/*
 <p><i>'foo'</i>
 <i>''foo''</i>
@@ -20813,6 +20814,7 @@ parsoid=html2wt,wt2wt
 '<b>foo</b>'
 <i>fools'<span> errand</span></i>
 <i><span>fool</span>'s errand</i>
+a|!*#-:;+-~[]{}b'<i>x</i>
 </p>
 !! end
 
