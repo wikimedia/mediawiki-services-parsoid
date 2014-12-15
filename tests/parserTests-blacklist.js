@@ -1755,6 +1755,7 @@ add("html2wt", "Lists: 2. Inside definition lists", "; <nowiki>;foo</nowiki>\n\n
 add("html2wt", "Lists: 3. Only bullets at start of text should be escaped", "* <nowiki>*foo*bar</nowiki>\n\n* <nowiki>*foo</nowiki>''it''*bar\n");
 add("html2wt", "Lists: 4. No escapes needed", "* foo*bar\n\n* ''foo''*bar\n\n* [[Foo]]: bar\n\n* [[Foo]]*bar\n");
 add("html2wt", "Lists: 5. No unnecessary escapes", "* bar <span><nowiki>[[foo]]</nowiki></span>\n\n* =bar <span><nowiki>[[foo]]</nowiki></span>\n\n* [[bar <span><nowiki>[[foo]]</nowiki></span>\n\n* ]]bar <span><nowiki>[[foo]]</nowiki></span>\n\n* =bar <span>foo]]</span>=\n\n* <s></s>: a\n");
+add("html2wt", "Links 13: Protect link-like plain text. (Parsoid bug T78425)", "this is not a link: http://example.com\n");
 add("html2wt", "1. Leading whitespace in SOL context should be escaped", "<nowiki> </nowiki>a\n\n<nowiki> </nowiki> a\n\n\ta(tab)\n\n \ta\n\n<!--cmt--><nowiki> </nowiki> a\n\na\n<nowiki> </nowiki>b\n\na\n\tb\n\na\n\t b\n");
 add("html2wt", "3. Leading whitespace in indent-pre suppressing contexts should not be escaped", "<blockquote>\n\n a\n <span>b</span>\n c\n</blockquote>");
 add("html2wt", "HTML tag with 'unnecessary' entity encoding in attributes", "<span title=\"&\">foo</span>\n");

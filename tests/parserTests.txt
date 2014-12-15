@@ -20767,6 +20767,18 @@ Links 12. Don't add spurious <nowiki/>s between text-nodes and ISBN-links (bug 6
 ISBN 1234567890's
 !! end
 
+!! test
+Links 13: Protect link-like plain text. (Parsoid bug T78425)
+!! options
+parsoid=html2wt
+!! html/*
+<p>this is not a link: http://example.com
+</p>
+!! wikitext
+this is not a link: <nowiki>http://example.com</nowiki>
+!! end
+
+
 #### --------------- Quotes ---------------
 #### 1. Quotes inside <b> and <i>
 #### 2. Link fragments separated by <i> and <b> tags
