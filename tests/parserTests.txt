@@ -615,21 +615,9 @@ Italics and bold: 2-quote opening sequence: (2,5+3) w/ nowiki
 
 !! test
 Italics and bold: 3-quote opening sequence: (3,2)
-!! options
-parsoid=wt2html
 !! wikitext
 '''foo''
 !! html/*
-<p>'<i>foo</i>
-</p>
-!!end
-
-# same html as previous, but wikitext adjusted to match parsoid html2wt
-!! test
-Italics and bold: 3-quote opening sequence: (3,2) w/ nowiki
-!! wikitext
-'<nowiki/>''foo''
-!! html
 <p>'<i>foo</i>
 </p>
 !!end
@@ -720,21 +708,9 @@ Italics and bold: 4-quote opening sequence: (4,2) w/ nowiki
 
 !! test
 Italics and bold: 4-quote opening sequence: (4,3)
-!! options
-parsoid=wt2html
 !! wikitext
 ''''foo'''
 !! html/*
-<p>'<b>foo</b>
-</p>
-!!end
-
-# same html as previous, but wikitext adjusted to match parsoid html2wt
-!! test
-Italics and bold: 4-quote opening sequence: (4,3) w/ nowiki
-!! wikitext
-'<nowiki/>'''foo'''
-!! html
 <p>'<b>foo</b>
 </p>
 !!end
@@ -1047,22 +1023,9 @@ Italics and bold: other quote tests: (3,2,3+2+2,2)
 
 !! test
 Italics and bold: other quote tests: (3,2,3,3)
-!! options
-parsoid=wt2html
 !! wikitext
 '''this is about ''foo'''s family'''
 !! html/*
-<p>'<i>this is about </i>foo<b>s family</b>
-</p>
-!!end
-
-
-# same html as previous, but wikitext adjusted to match parsoid html2wt
-!! test
-Italics and bold: other quote tests: (3,2,3,3) w/ nowiki
-!! wikitext
-'<nowiki/>''this is about ''foo'''s family'''
-!! html
 <p>'<i>this is about </i>foo<b>s family</b>
 </p>
 !!end
@@ -20799,15 +20762,15 @@ parsoid=html2wt,wt2wt
 '''<nowiki>'''foo'''</nowiki>'''
 '''foo'<nowiki/>''bar'<nowiki/>''baz'''
 '''foo'''<nowiki/>'s
-'<nowiki/>''foo''
+'''foo''
 ''foo''<nowiki/>'
 '<nowiki/>''foo''<nowiki/>'
-'<nowiki/>'''foo'''
+''''foo'''
 '''foo'''<nowiki/>'
 '<nowiki/>'''foo'''<nowiki/>'
 ''fools'<span> errand</span>''
 ''<span>fool</span>'s errand''
-a|!*#-:;+-~[]{}b'<nowiki/>''x''
+a|!*#-:;+-~[]{}b'''x''
 !! html/*
 <p><i>'foo'</i>
 <i>''foo''</i>
