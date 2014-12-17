@@ -20194,22 +20194,25 @@ Lists: 5. No unnecessary escapes
 !! wikitext
 * bar <span><nowiki>[[foo]]</nowiki></span>
 
-*=bar <span><nowiki>[[foo]]</nowiki></span>
+* =bar <span><nowiki>[[foo]]</nowiki></span>
 
-*[[bar <span><nowiki>[[foo]]</nowiki></span>
+* [[bar <span><nowiki>[[foo]]</nowiki></span>
 
-*]]bar <span><nowiki>[[foo]]</nowiki></span>
+* ]]bar <span><nowiki>[[foo]]</nowiki></span>
 
-*=bar <span>foo]]</span>=
+* =bar <span>foo]]</span>=
 
 * <s></s>: a
+
+* ''* foo''
 !! html
 <ul><li> bar <span>[[foo]]</span></li></ul>
-<ul><li>=bar <span>[[foo]]</span></li></ul>
-<ul><li>[[bar <span>[[foo]]</span></li></ul>
-<ul><li>]]bar <span>[[foo]]</span></li></ul>
-<ul><li>=bar <span>foo]]</span>=</li></ul>
+<ul><li> =bar <span>[[foo]]</span></li></ul>
+<ul><li> [[bar <span>[[foo]]</span></li></ul>
+<ul><li> ]]bar <span>[[foo]]</span></li></ul>
+<ul><li> =bar <span>foo]]</span>=</li></ul>
 <ul><li> <s></s>: a</li></ul>
+<ul><li> <i>* foo</i></li></ul>
 
 !!end
 
