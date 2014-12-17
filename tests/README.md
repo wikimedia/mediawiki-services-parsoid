@@ -70,3 +70,16 @@ taste. In separate windows, as many as you want:
 	$ node client
 
 Then take a look at [the statistics](http://localhost:8001/).
+
+== Running the dumpgrepper ==
+
+The dumpgrepper utility is useful to search XML dumps for specific regexp
+patterns. With a simple regexp, an enwiki dump can be grepped in ~20 minutes.
+
+The grepper operates on actual wikitext (with XML encoding removed), so there is
+no need to complicate regexps with entities. It supports JavaScript RegExps.
+
+	$ npm install -g dumpgrepper
+
+More information on [github][https://github.com/wikimedia/dumpgrepper] and the
+[mediawiki wiki][https://www.mediawiki.org/wiki/Parsoid/DumpGrepper].
