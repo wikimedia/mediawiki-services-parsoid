@@ -78,8 +78,8 @@ function ParsoidService( parsoidConfig, processLogger ) {
 	var iwRe = parsoidConfig.interwikiRegexp;
 
 	app.get( '/', routes.home );
-	app.get( "/_version", routes.version );
-	app.get( /^\/robots.txt$/, routes.robots );
+	app.get( '/_version', routes.version );
+	app.get( '/robots.txt', routes.robots );
 
 	app.get(  re( '^/((?:_rt|_rtve)/)?(' + iwRe + '):(.*)$' ), routes.redirectOldStyle );
 	app.get(  re('/_html/(?:(' + iwRe + ')/(.*))?'), i, p, routes.html2wtForm );
