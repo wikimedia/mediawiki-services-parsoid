@@ -523,6 +523,7 @@ add("wt2wt", "Ref: 9. unclosed comments should not leak out of ref-body", "A <re
 add("wt2wt", "Ref: 10. Unclosed HTML tags should not leak out of ref-body", "A <ref><b> foo </ref> B C\n\n<references />");
 add("wt2wt", "References: 5. ref tags in references should be processed while ignoring all other content", "A <ref name=\"a\" />\nB <ref name=\"b\">bar</ref>\n\n<references>\n<ref name=\"a\">foo</ref>\n</references>");
 add("wt2wt", "Entities in ref name", "<ref name=\"test & me\">hi</ref>\n");
+add("wt2wt", "Headings: 4a'. No escaping needed (Parsoid bug T84903)", "= ''<nowiki>=</nowiki>''foo= =\n");
 add("wt2wt", "HTML tag with broken attribute value quoting", "<span title=\"Hello world\">Foo</span>\n");
 add("wt2wt", "Parsoid-only: HTML tag with broken attribute value quoting", "<span title=\"Hello world\">Foo</span>\n");
 add("wt2wt", "Table with broken attribute value quoting", "{|\n| title=\"Hello world\" |Foo\n|}");
@@ -1750,6 +1751,7 @@ add("html2wt", "Lists: 1. Nested inside html", "* <nowiki>*foo</nowiki>\n\n* <no
 add("html2wt", "Lists: 2. Inside definition lists", "; <nowiki>;foo</nowiki>\n\n; <nowiki>:foo</nowiki>\n\n; <nowiki>:foo</nowiki>\n: bar\n\n: <nowiki>:foo</nowiki>\n");
 add("html2wt", "Lists: 3. Only bullets at start of text should be escaped", "* <nowiki>*foo*bar</nowiki>\n\n* <nowiki>*foo</nowiki>''it''*bar\n");
 add("html2wt", "Lists: 4. No escapes needed", "* foo*bar\n\n* ''foo''*bar\n\n* [[Foo]]: bar\n\n* [[Foo]]*bar\n");
+add("html2wt", "HRs: 1. Single line", "----\n<nowiki>----</nowiki>\n----\n<nowiki>=foo=</nowiki>\n----\n<nowiki>*</nowiki>foo\n");
 add("html2wt", "Links 13: Protect link-like plain text. (Parsoid bug T78425)", "this is not a link: http://example.com\n");
 add("html2wt", "1. Leading whitespace in SOL context should be escaped", "<nowiki> </nowiki>a\n\n<nowiki> </nowiki> a\n\n\ta(tab)\n\n \ta\n\n<!--cmt--><nowiki> </nowiki> a\n\na\n<nowiki> </nowiki>b\n\na\n\tb\n\na\n\t b\n");
 add("html2wt", "3. Leading whitespace in indent-pre suppressing contexts should not be escaped", "<blockquote>\n\n a\n <span>b</span>\n c\n</blockquote>");
@@ -2799,6 +2801,8 @@ add("selser", "References: 5. ref tags in references should be processed while i
 add("selser", "References: 5. ref tags in references should be processed while ignoring all other content [0,2,0]", "A <ref name=\"a\" />\nB <ref name=\"b\">bar</ref>\n\nky16pugtafywrk9\n\n<references>\n<ref name=\"a\">foo</ref>\nThis should just get lost.\n</references>");
 add("selser", "Entities in ref name [2]", "72oie2a08o69wwmi\n\n<ref name=\"test &amp; me\">hi</ref>");
 add("selser", "Entities in ref name [1]", "<ref name=\"test &amp; me\">hi</ref>");
+add("selser", "Headings: 4a'. No escaping needed (Parsoid bug T84903) [2]", "qj77lglp8h5jnhfr\n= ''=''foo= =");
+add("selser", "Headings: 4a'. No escaping needed (Parsoid bug T84903) [1]", "= ''=''foo= =");
 add("selser", "Headings: 5. Empty headings [[2],3,2,0,4,4,0,2,1,3,0]", "=hnjo2713bjvjwcdi<nowiki/>=\nx2d05yq3dapaxlxr\n==<nowiki/>==\n\nkaovt9si227ta9k9\n\nb2688fvzpaocrf6r\n====<nowiki/>====\nljshl952j0emte29\n\n=====<nowiki/>=====\n\n======<nowiki/>======");
 add("selser", "Headings: 6a. Heading chars in SOL context (with trailing spaces) [4,0,1,0,4,4,[2],3]", "o4fu7yz6zedvlsor\n\n<nowiki>=a=</nowiki> \n\nfzi337zwgfmbzkt9\n\nrziif3qr3rspp66r\n\nzm9kz709iqpsnhfr<nowiki>=a=</nowiki> \t");
 add("selser", "1. Quotes inside <b> and <i> [[3,2,1,3,0,3,4,0,2,3,0,1,4,1,3,[2,0,0,0],0,0,0,0,[3],0,0,4,0,0,2,3,3,[2],3,4,3,0,0,3,4,3,3,0,2,0,[4]]]", "3ggp4kwixzloko6r\n''<nowiki>''foo''</nowiki><nowiki>'''foo'''</nowiki>''wednybdch5ixusor<nowiki/>jiu7uxfou9n6d2t9's\n\n'''<nowiki>''foo''</nowiki>'''5yp9smtnl1bgldi'''<nowiki>'''foo'''</nowiki>0adusjelvz3t0529foo'<nowiki/>''bar'<nowiki/>''baz'''\n'''foo'''<nowiki/>'s\n'''<nowiki/>''\n''foo''myh73q54kveljtt9'\n'<nowiki/>c10qrc4l4kkjra4i''foo'''''c9meu8765gjpp66rfoo'''1wwik15k156x0f6r'\n'<nowiki/>8qu5jiqalmvg3nmi\n191wmp849f7gmn29''<span>fool</span>'s errand''\na|!*#-:;+-~[]{}b'''6zhdeznwfwxko6r''");

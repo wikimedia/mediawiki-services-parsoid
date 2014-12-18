@@ -19910,17 +19910,15 @@ parsoid=html2wt
 !! test
 Headings: 3. Nested inside html with wikitext split by html tags
 !! options
-parsoid=html2wt
+parsoid=html2wt,wt2wt
 !! wikitext
 = ='''bold'''<nowiki>foo=</nowiki> =
-!! html
-<h1>=<b>bold</b><span typeof="mw:Nowiki">foo=</span></h1>
+!! html/parsoid
+<h1>=<b>bold</b>foo=</h1>
 !!end
 
 !! test
 Headings: 4a. No escaping needed (testing just h1 and h2)
-!! options
-parsoid=html2wt
 !! wikitext
 = =foo =
 
@@ -19934,19 +19932,27 @@ parsoid=html2wt
 
 == foo= ==
 
-= ''=''foo= =
-
-= <nowiki>=</nowiki> =
-!! html
+= = =
+!! html/parsoid
 <h1>=foo</h1>
 <h1>foo=</h1>
 <h1> =foo= </h1>
 <h1>=foo= bar</h1>
 <h2>=foo</h2>
 <h2>foo=</h2>
-<h1><i>=</i>foo=</h1>
-<h1><span typeof="mw:Nowiki">=</span></h1>
+<h1>=</h1>
 !!end
+
+!! test
+Headings: 4a'. No escaping needed (Parsoid bug T84903)
+!! wikitext
+= ''=''foo= =
+!! html/php
+<h1><span class="mw-headline" id=".3Dfoo.3D"><i>=</i>foo=</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: =foo=">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+
+!! html/parsoid
+<h1><i>=</i>foo=</h1>
+!! end
 
 !! test
 Headings: 4b. No escaping needed (inside p-tags)
@@ -20219,11 +20225,11 @@ Lists: 5. No unnecessary escapes
 !! test
 Lists: 6. Escape bullets in SOL position
 !! options
-parsoid
+parsoid=html2wt
 !! wikitext
-<!--cmt--><nowiki>*foo</nowiki>
+<!--cmt--><nowiki>*</nowiki>foo
 !! html
-<p><!--cmt--><span typeof="mw:Nowiki">*foo</span></p>
+<p><!--cmt-->*foo</p>
 !!end
 
 !! test
@@ -20253,16 +20259,17 @@ parsoid=html2wt
 
 !! test
 HRs: 1. Single line
-!! options
-parsoid
 !! wikitext
 ----<nowiki>----</nowiki>
 ----=foo=
 ----*foo
-!! html
-<hr><p><span typeof="mw:Nowiki">----</span></p>
-<hr><p>=foo=</p>
-<hr><p>*foo</p>
+!! html+tidy
+<hr />
+<p>----</p>
+<hr />
+<p>=foo=</p>
+<hr />
+<p>*foo</p>
 !! end
 
 #### --------------- Tables ---------------
@@ -20352,21 +20359,28 @@ parsoid=html2wt
 
 !! test
 Tables: 2b. Nested in td
+!! options
+parsoid=html2wt
+!! html/parsoid
+<table><tbody><tr>
+<td>foo||bar</td>
+<td>a<i>b||c</i></td>
+<td>a<i><div>b||c</div></i></td>
+</tr></tbody></table>
 !! wikitext
 {|
 |<nowiki>foo||bar</nowiki>
-|''it''<nowiki>foo||bar</nowiki>
+|a''<nowiki>b||c</nowiki>''
+|a''<div><nowiki>b||c</nowiki></div>''
 |}
-!! html/parsoid
-<table><tbody><tr>
-<td><span typeof="mw:Nowiki">foo||bar</span></td>
-<td><i>it</i><span typeof="mw:Nowiki">foo||bar</span></td></tr></tbody></table>
 !! html/php
 <table>
 <tr>
 <td>foo||bar
 </td>
-<td><i>it</i>foo||bar
+<td>a<i>b||c</i>
+</td>
+<td>a<i><div>b||c</div></i>
 </td></tr></table>
 
 !! end
@@ -20461,19 +20475,19 @@ parsoid=html2wt
 
 !! test
 Tables: 4a. Escape -
+!! options
+parsoid=html2wt
 !! wikitext
 {|
+
 !-bar
+
 |-
 |<nowiki>-bar</nowiki>
 |}
-!! html/parsoid
-<table><tbody>
-<tr><th>-bar</th></tr>
-<tr>
-<td><span typeof="mw:Nowiki">-bar</span></td></tr></tbody></table>
-!! html/php
+!! html/*
 <table>
+
 <tr>
 <th>-bar
 </th></tr>
@@ -20485,14 +20499,19 @@ Tables: 4a. Escape -
 
 !! test
 Tables: 4b. Escape +
+!! options
+parsoid=html2wt
 !! wikitext
 {|
+
 !+bar
+
 |-
 |<nowiki>+bar</nowiki>
 |}
-!! html/php
+!! html/*
 <table>
+
 <tr>
 <th>+bar
 </th></tr>
@@ -20500,11 +20519,6 @@ Tables: 4b. Escape +
 <td>+bar
 </td></tr></table>
 
-!! html/parsoid
-<table><tbody>
-<tr><th>+bar</th></tr>
-<tr>
-<td><span typeof="mw:Nowiki">+bar</span></td></tr></tbody></table>
 !! end
 
 !! test
