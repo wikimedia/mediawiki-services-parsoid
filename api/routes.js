@@ -211,6 +211,7 @@ var parse = function( env, req, res ) {
 var html2wt = function( req, res, html ) {
 	var env = res.local('env');
 	env.page.id = req.body.oldid || null;
+	env.log('info', 'started serializing');
 
 	if ( env.conf.parsoid.allowCORS ) {
 		// allow cross-domain requests (CORS) so that parsoid service
@@ -246,6 +247,7 @@ var html2wt = function( req, res, html ) {
 		apiUtils.setHeader(res, env, 'Content-Type', 'text/x-mediawiki; charset=UTF-8');
 		apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
 		apiUtils.endResponse(res, env, out.join(''));
+		env.log("info", "completed serializing in", env.performance.duration, "ms");
 	});
 	return cpuTimeout( p, res )
 		.catch( timeoutResp.bind(null, env) );
