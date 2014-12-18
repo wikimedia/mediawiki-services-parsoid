@@ -438,8 +438,13 @@ var parsoidPost = function (env, parsoidURL, prefix, title, text, oldid,
 		data.wt = text;
 	}
 
+	// make sure parsoidURL ends on /
+	if ( !/\/$/.test(parsoidURL) ) {
+		parsoidURL += '/';
+	}
+
 	var options = {
-		uri: parsoidURL + '/' + prefix + '/' + encodeURI(title),
+		uri: parsoidURL + prefix + '/' + encodeURI(title),
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
@@ -688,10 +693,6 @@ if ( !module.parent ) {
 			} ).done();
 			apiServer.exitOnProcessTerm();
 		} else {
-			// make sure parsoidURL ends on /
-			if (!/\/$/.test(argv.parsoidURL)) {
-				argv.parsoidURL += '/';
-			}
 			fetch( title, argv, callback );
 		}
 	} else {

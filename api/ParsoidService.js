@@ -81,16 +81,16 @@ function ParsoidService( parsoidConfig, processLogger ) {
 	app.get( '/_version', routes.version );
 	app.get( '/robots.txt', routes.robots );
 
-	app.get(  re( '^/((?:_rt|_rtve)/)?(' + iwRe + '):(.*)$' ), routes.redirectOldStyle );
-	app.get(  re('/_html/(?:(' + iwRe + ')/(.*))?'), i, p, routes.html2wtForm );
-	app.get(  re('/_wikitext/(?:(' + iwRe + ')/(.*))?'), i, p, routes.wt2htmlForm );
-	app.get(  re('/_rt/(?:(' + iwRe + ')/(.*))?'), i, p, routes.roundtripTesting );
-	app.get(  re('/_rtve/(' + iwRe + ')/(.*)'), i, p, routes.roundtripTestingNL );
-	app.get(  re('/_rtselser/(' + iwRe + ')/(.*)'), i, p, routes.roundtripSelser );
-	app.get(  re('/_rtform/(?:(' + iwRe + ')/(.*))?'), i, p, routes.get_rtForm );
-	app.post( re('/_rtform/(?:(' + iwRe + ')/(.*))?'), i, p, routes.post_rtForm );
-	app.get(  re('/(' + iwRe + ')/(.*)'), i, p, routes.get_article );
-	app.post( re('/(' + iwRe + ')/(.*)'), i, p, routes.post_article );
+	app.get(  re('^/((?:_rt|_rtve)/)?(' + iwRe + '):(.*)$'), routes.redirectOldStyle );
+	app.get(  re('^/_html/(?:(' + iwRe + ')/(.*))?'), i, p, routes.html2wtForm );
+	app.get(  re('^/_wikitext/(?:(' + iwRe + ')/(.*))?'), i, p, routes.wt2htmlForm );
+	app.get(  re('^/_rt/(?:(' + iwRe + ')/(.*))?'), i, p, routes.roundtripTesting );
+	app.get(  re('^/_rtve/(' + iwRe + ')/(.*)'), i, p, routes.roundtripTestingNL );
+	app.get(  re('^/_rtselser/(' + iwRe + ')/(.*)'), i, p, routes.roundtripSelser );
+	app.get(  re('^/_rtform/(?:(' + iwRe + ')/(.*))?'), i, p, routes.get_rtForm );
+	app.post( re('^/_rtform/(?:(' + iwRe + ')/(.*))?'), i, p, routes.post_rtForm );
+	app.get(  re('^/(' + iwRe + ')/(.*)'), i, p, routes.get_article );
+	app.post( re('^/(' + iwRe + ')/(.*)'), i, p, routes.post_article );
 
 	// Attempt to define a new version of the API
 	// /v2/{domain}/{title}/{format}/{revision}

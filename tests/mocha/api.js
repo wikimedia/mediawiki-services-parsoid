@@ -21,7 +21,7 @@ describe('Parsoid API', function() {
 
 	it("converts simple wikitext to HTML", function (done) {
 		request(api)
-		.post('/localhost/Main_Page')
+		.post('localhost/Main_Page')
 		.send({wt: "foo"})
 		.expect(200)
 		.expect(function (res) {
@@ -50,7 +50,7 @@ describe('Parsoid API', function() {
 
 	it("converts simple HTML to wikitext", function (done) {
 		request(api)
-		.post('/localhost/Main_Page')
+		.post('localhost/Main_Page')
 		.send({html: "<i>foo</i>"})
 		.expect(200)
 		.expect("''foo''", done);
@@ -58,7 +58,7 @@ describe('Parsoid API', function() {
 
 	it("respects body parameter", function (done) {
 		request(api)
-		.post('/localhost/Main_Page')
+		.post('localhost/Main_Page')
 		.send({wt: "''foo''", body: 1})
 		.expect(200)
 		.expect(/^<body/, done);
