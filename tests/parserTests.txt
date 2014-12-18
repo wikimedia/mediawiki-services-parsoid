@@ -20326,117 +20326,181 @@ Tables: 1d. No escaping needed
 Tables: 2a. Nested in td
 !! options
 parsoid=html2wt
+!! html/parsoid
+<table><tbody><tr>
+<td>foo|bar</td></tr>
+<tr><td>x<div>a|b</div></td>
+</tbody></table>
 !! wikitext
 {|
 |<nowiki>foo|bar</nowiki>
 |-
 |x<div><nowiki>a|b</nowiki></div>
 |}
-!! html
-<table><tbody><tr>
-<td>foo|bar</td></tr>
-<tr><td>x<div>a|b</div></td>
-</tbody></table>
+!! html/php+tidy
+<table>
+<tr>
+<td>foo|bar</td>
+</tr>
+<tr>
+<td>x
+<div>a|b</div>
+</td>
+</tr>
+</table>
 !! end
 
 !! test
 Tables: 2b. Nested in td
-!! options
-parsoid
 !! wikitext
 {|
 |<nowiki>foo||bar</nowiki>
 |''it''<nowiki>foo||bar</nowiki>
 |}
-!! html
+!! html/parsoid
 <table><tbody><tr>
 <td><span typeof="mw:Nowiki">foo||bar</span></td>
 <td><i>it</i><span typeof="mw:Nowiki">foo||bar</span></td></tr></tbody></table>
+!! html/php
+<table>
+<tr>
+<td>foo||bar
+</td>
+<td><i>it</i>foo||bar
+</td></tr></table>
+
 !! end
 
 !! test
 Tables: 2c. Nested in td -- no escaping needed
-!! options
-parsoid
 !! wikitext
 {|
+
 |foo!!bar
 |}
-!! html
-<table><tbody><tr><td>foo!!bar
-</td></tr></tbody></table>
+!! html/*
+<table>
+
+<tr>
+<td>foo!!bar
+</td></tr></table>
 
 !! end
 
 !! test
 Tables: 3a. Nested in th
-!! options
-parsoid
 !! wikitext
 {|
+
 !foo!bar
 |}
-!! html
-<table><tbody><tr><th>foo!bar
-</th></tr></tbody></table>
+!! html/*
+<table>
+
+<tr>
+<th>foo!bar
+</th></tr></table>
 
 !! end
 
 !! test
 Tables: 3b. Nested in th
 !! options
-parsoid
+parsoid=html2wt
+!! html/parsoid
+<table><tbody>
+<tr><th>foo!!bar</th>
+<th><i>foo|bar</i></th>
+<th><i>foo!!bar</i></th>
+<th><i><span>foo!!bar</span></i></th>
+</tr></tbody></table>
 !! wikitext
 {|
 !<nowiki>foo!!bar</nowiki>
+!''<nowiki>foo|bar</nowiki>''
+!''<nowiki>foo!!bar</nowiki>''
+!''<span><nowiki>foo!!bar</nowiki></span>''
 |}
-!! html
+!! html/php
 <table>
-<tbody><tr><th><span typeof="mw:Nowiki">foo!!bar</span></th></tr>
-</tbody></table>
+<tr>
+<th>foo!!bar
+</th>
+<th><i>foo|bar</i>
+</th>
+<th><i>foo!!bar</i>
+</th>
+<th><i><span>foo!!bar</span></i>
+</th></tr></table>
+
 !! end
 
 !! test
-Tables: 3c. Nested in th -- no escaping needed
+Tables: 3c. Nested in th
 !! options
-parsoid
+parsoid=html2wt
+!! html/parsoid
+<table><tbody>
+<tr><th>foo||bar</th>
+<th><span typeof="mw:Nowiki">foo||bar</span></th>
+</tr></tbody></table>
 !! wikitext
 {|
 !<nowiki>foo||bar</nowiki>
+!<nowiki>foo||bar</nowiki>
 |}
-!! html
-<table><tbody><tr>
-<th><span typeof="mw:Nowiki">foo||bar</span></th></tr></tbody></table>
+!! html/php
+<table>
+<tr>
+<th>foo||bar
+</th>
+<th>foo||bar
+</th></tr></table>
+
 !! end
 
 !! test
 Tables: 4a. Escape -
-!! options
-parsoid
 !! wikitext
 {|
 !-bar
 |-
 |<nowiki>-bar</nowiki>
 |}
-!! html
+!! html/parsoid
 <table><tbody>
 <tr><th>-bar</th></tr>
 <tr>
 <td><span typeof="mw:Nowiki">-bar</span></td></tr></tbody></table>
+!! html/php
+<table>
+<tr>
+<th>-bar
+</th></tr>
+<tr>
+<td>-bar
+</td></tr></table>
+
 !! end
 
 !! test
 Tables: 4b. Escape +
-!! options
-parsoid
 !! wikitext
 {|
 !+bar
 |-
 |<nowiki>+bar</nowiki>
 |}
-!! html
+!! html/php
+<table>
+<tr>
+<th>+bar
+</th></tr>
+<tr>
+<td>+bar
+</td></tr></table>
+
+!! html/parsoid
 <table><tbody>
 <tr><th>+bar</th></tr>
 <tr>
@@ -20445,8 +20509,6 @@ parsoid
 
 !! test
 Tables: 4c. No escaping needed
-!! options
-parsoid
 !! wikitext
 {|
 |foo-bar
@@ -20463,7 +20525,31 @@ bar|baz
 |x
 <div>a|b</div>
 |}
-!! html
+!! html/php
+<table>
+<tr>
+<td>foo-bar
+</td>
+<td>foo+bar
+</td></tr>
+<tr>
+<td><i>foo</i>-bar
+</td>
+<td><i>foo</i>+bar
+</td></tr>
+<tr>
+<td>foo
+<p>bar|baz
++bar
+-bar
+</p>
+</td></tr>
+<tr>
+<td>x
+<div>a|b</div>
+</td></tr></table>
+
+!! html/parsoid
 <table><tbody>
 <tr><td>foo-bar</td><td>foo+bar</td></tr>
 <tr><td><i>foo</i>-bar</td><td><i>foo</i>+bar</td></tr>
@@ -20478,15 +20564,23 @@ bar|baz
 
 !! test
 Tables: 4d. No escaping needed
-!! options
-parsoid
 !! wikitext
 {|
 |[[Foo]]-bar
 ||+1
 ||-2
 |}
-!! html
+!! html/php
+<table>
+<tr>
+<td><a href="/wiki/Foo" title="Foo">Foo</a>-bar
+</td>
+<td>+1
+</td>
+<td>-2
+</td></tr></table>
+
+!! html/parsoid
 <table>
 <tbody><tr><td><a rel="mw:WikiLink" href="./Foo" title="Foo">Foo</a>-bar</td>
 <td data-parsoid='{"startTagSrc":"|","attrSepSrc":"|"}'>+1</td>
