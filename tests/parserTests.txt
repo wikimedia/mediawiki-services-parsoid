@@ -540,24 +540,12 @@ Italics and bold: 2-quote opening sequence: (2,2)
 
 !! test
 Italics and bold: 2-quote opening sequence: (2,3)
-!! options
-parsoid=wt2html
 !! wikitext
 ''foo'''
 !! html/*
 <p><i>foo'</i>
 </p>
 !!end
-
-# same html as previous, but wikitext adjusted to match parsoid html2wt
-!! test
-Italics and bold: 2-quote opening sequence: (2,3) w/ nowiki
-!! wikitext
-''foo'<nowiki/>''
-!! html
-<p><i>foo'</i>
-</p>
-!! end
 
 !! test
 Italics and bold: 2-quote opening sequence: (2,4)
@@ -633,24 +621,12 @@ Italics and bold: 3-quote opening sequence: (3,3)
 
 !! test
 Italics and bold: 3-quote opening sequence: (3,4)
-!! options
-parsoid=wt2html
 !! wikitext
 '''foo''''
 !! html/*
 <p><b>foo'</b>
 </p>
 !!end
-
-# same html as previous, but wikitext adjusted to match parsoid html2wt
-!! test
-Italics and bold: 3-quote opening sequence: (3,4) w/ nowiki
-!! wikitext
-'''foo'<nowiki/>'''
-!! html
-<p><b>foo'</b>
-</p>
-!! end
 
 # The PHP parser strips the empty tags out for giggles; parsoid doesn't.
 !! test
@@ -825,16 +801,6 @@ parsoid=wt2html
 </p>
 !!end
 
-# same html as previous, but wikitext adjusted to match parsoid html2wt
-!! test
-Italics and bold: 5-quote opening sequence: (5,4+2) w/ nowiki
-!! wikitext
-'''''foo'<nowiki/>'''''
-!! html
-<p><i><b>foo'</b></i>
-</p>
-!! end
-
 !! test
 Italics and bold: 5-quote opening sequence: (5,5)
 !! wikitext
@@ -843,6 +809,15 @@ Italics and bold: 5-quote opening sequence: (5,5)
 <p><i><b>foo</b></i>
 </p>
 !!end
+
+!! test
+Italics and bold: 5-quote opening sequence: (5,6)
+!! wikitext
+'''''foo''''''
+!! html/*
+<p><i><b>foo'</b></i>
+</p>
+!! end
 
 ###
 ### multiple quote sequences in a line
@@ -1045,9 +1020,11 @@ Italics and bold: other quote tests: (3,(2,2),3)
 Italicized possessive
 !! wikitext
 The ''[[Main Page]]'''s talk page.
-!! html
+!! html/php
 <p>The <i><a href="/wiki/Main_Page" title="Main Page">Main Page</a>'</i>s talk page.
 </p>
+!! html/parsoid
+<p>The <i><a rel="mw:WikiLink"  href="Main_Page" title="Main Page">Main Page</a>'</i>s talk page.</p>
 !! end
 
 !! test
@@ -20860,7 +20837,7 @@ this is not a link: <nowiki>http://example.com</nowiki>
 #### 4. No escaping needed
 #### --------------------------------------
 !! test
-1. Quotes inside <b> and <i>
+1a. Quotes inside <b> and <i>
 !! options
 parsoid=html2wt,wt2wt
 !! wikitext
@@ -20875,6 +20852,7 @@ parsoid=html2wt,wt2wt
 '''foo'''<nowiki/>'s
 '''foo''
 ''foo''<nowiki/>'
+''foo'<nowiki/>''<nowiki/>'
 '<nowiki/>''foo''<nowiki/>'
 ''''foo'''
 '''foo'''<nowiki/>'
@@ -20894,6 +20872,7 @@ a|!*#-:;+-~[]{}b'''x''
 <b>foo</b>'s
 '<i>foo</i>
 <i>foo</i>'
+<i>foo'</i>'
 '<i>foo</i>'
 '<b>foo</b>
 <b>foo</b>'
@@ -20902,6 +20881,20 @@ a|!*#-:;+-~[]{}b'''x''
 <i><span>fool</span>'s errand</i>
 a|!*#-:;+-~[]{}b'<i>x</i>
 </p>
+!! end
+
+!! test
+1b. Quotes inside <b> and <i> with other chars
+!! options
+parsoid=html2wt,wt2wt
+!! wikitext
+'''a'' foo ''[[bar]]''
+''a''' foo ''[[bar]]''
+''a''' foo '''{{echo|[[bar]]}}'''
+!! html
+'<i>a</i> foo <i><a rel="mw:WikiLink" href="Bar" title="Bar">bar</a></i>
+<i>a'</i> foo <i><a rel="mw:WikiLink" href="Bar" title="Bar">bar</a></i>
+<i>a'</i> foo <b><a rel="mw:WikiLink" href="Bar" title="Bar" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[bar]]"}},"i":0}}]}'>bar</a></b>
 !! end
 
 !! test
