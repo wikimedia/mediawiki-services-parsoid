@@ -19685,6 +19685,22 @@ parsoid
 !!end
 
 !!test
+Ref: 18. T58916: Extension attributes should be parsed as plain text
+!!options
+parsoid
+!!wikitext
+<ref name="{{echo|a}}">foo</ref>
+
+<references />
+!!html
+<p><span class="reference" id="cite_ref-.7B.7Becho.7Ca.7D.7D-1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"html":"foo"},"attrs":{"name":"{{echo|a}}"}}'><a href="#cite_note-.7B.7Becho.7Ca.7D.7D-1">[1]</a></span>
+</p>
+
+<ol class="references" typeof="mw:Extension/references" data-mw='{"name":"references","attrs":{}}'>
+<li id="cite_note-.7B.7Becho.7Ca.7D.7D-1"><span rel="mw:referencedBy"><a href="#cite_ref-.7B.7Becho.7Ca.7D.7D-1-0">↑</a></span> foo</li>
+!!end
+
+!!test
 References: 1. references tag without any refs should be handled properly
 !!options
 parsoid
@@ -19821,7 +19837,7 @@ parsoid
 !! wikitext
 <ref name="test &amp; me">hi</ref>
 !! html
-<p><span about="#mwt2" class="reference" id="cite_ref-test_&amp;_me-1-0" rel="dc:references" typeof="mw:Extension/ref" data-parsoid='{"src":"&lt;ref name=\"test &amp;amp; me\">hi&lt;/ref>"}' data-mw='{"name":"ref","body":{"html":"hi"},"attrs":{"name":"test &amp; me"}}'><a href="#cite_note-test_&amp;_me-1">[1]</a></span></p>
+<p><span about="#mwt2" class="reference" id="cite_ref-test_.26amp.3B_me-1-0" rel="dc:references" typeof="mw:Extension/ref" data-parsoid='{"src":"&lt;ref name=\"test &amp;amp; me\">hi&lt;/ref>"}' data-mw='{"name":"ref","body":{"html":"hi"},"attrs":{"name":"test &amp;amp; me"}}'><a href="#cite_note-test_.26amp.3B_me-1">[1]</a></span></p>
 !! end
 
 # This test is wt2html only because we're permitting the serializer to produce
