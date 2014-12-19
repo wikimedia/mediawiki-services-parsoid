@@ -20877,10 +20877,12 @@ parsoid=html2wt,wt2wt
 '''a'' foo ''[[bar]]''
 ''a''' foo ''[[bar]]''
 ''a''' foo '''{{echo|[[bar]]}}'''
+[[foo]] x'''[[bar]]''
 !! html
 '<i>a</i> foo <i><a rel="mw:WikiLink" href="Bar" title="Bar">bar</a></i>
 <i>a'</i> foo <i><a rel="mw:WikiLink" href="Bar" title="Bar">bar</a></i>
 <i>a'</i> foo <b><a rel="mw:WikiLink" href="Bar" title="Bar" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[bar]]"}},"i":0}}]}'>bar</a></b>
+<a rel="mw:WikiLink" href="Foo" title="Foo">foo</a> x'<i><a href="Bar" rel="mw:WikiLink" title="Bar">bar</a></i>
 !! end
 
 !! test
