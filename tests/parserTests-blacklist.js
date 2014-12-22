@@ -525,7 +525,6 @@ add("wt2wt", "Ref: 9. unclosed comments should not leak out of ref-body", "A <re
 add("wt2wt", "Ref: 10. Unclosed HTML tags should not leak out of ref-body", "A <ref><b> foo </ref> B C\n\n<references />");
 add("wt2wt", "References: 5. ref tags in references should be processed while ignoring all other content", "A <ref name=\"a\" />\nB <ref name=\"b\">bar</ref>\n\n<references>\n<ref name=\"a\">foo</ref>\n</references>");
 add("wt2wt", "Entities in ref name", "<ref name=\"test &amp;amp; me\">hi</ref>\n");
-add("wt2wt", "Headings: 4a'. No escaping needed (Parsoid bug T84903)", "= ''<nowiki>=</nowiki>''foo= =\n");
 add("wt2wt", "HTML tag with broken attribute value quoting", "<span title=\"Hello world\">Foo</span>\n");
 add("wt2wt", "Parsoid-only: HTML tag with broken attribute value quoting", "<span title=\"Hello world\">Foo</span>\n");
 add("wt2wt", "Table with broken attribute value quoting", "{|\n| title=\"Hello world\" |Foo\n|}");
@@ -2785,8 +2784,6 @@ add("selser", "References: 5. ref tags in references should be processed while i
 add("selser", "References: 5. ref tags in references should be processed while ignoring all other content [0,2,0]", "A <ref name=\"a\" />\nB <ref name=\"b\">bar</ref>\n\nky16pugtafywrk9\n\n<references>\n<ref name=\"a\">foo</ref>\nThis should just get lost.\n</references>");
 add("selser", "Entities in ref name [2]", "72oie2a08o69wwmi\n\n<ref name=\"test &amp; me\">hi</ref>");
 add("selser", "Entities in ref name [1]", "<ref name=\"test &amp; me\">hi</ref>");
-add("selser", "Headings: 4a'. No escaping needed (Parsoid bug T84903) [2]", "qj77lglp8h5jnhfr\n= ''=''foo= =");
-add("selser", "Headings: 4a'. No escaping needed (Parsoid bug T84903) [1]", "= ''=''foo= =");
 add("selser", "Headings: 5. Empty headings [[2],3,2,0,4,4,0,2,1,3,0]", "=hnjo2713bjvjwcdi<nowiki/>=\nx2d05yq3dapaxlxr\n==<nowiki/>==\n\nkaovt9si227ta9k9\n\nb2688fvzpaocrf6r\n====<nowiki/>====\nljshl952j0emte29\n\n=====<nowiki/>=====\n\n======<nowiki/>======");
 add("selser", "Headings: 6a. Heading chars in SOL context (with trailing spaces) [4,0,1,0,4,4,[2],3]", "o4fu7yz6zedvlsor\n\n<nowiki>=a=</nowiki> \n\nfzi337zwgfmbzkt9\n\nrziif3qr3rspp66r\n\nzm9kz709iqpsnhfr<nowiki>=a=</nowiki> \t");
 add("selser", "1a. Quotes inside <b> and <i> [[[0,2,0],3,0,0,2,0,1,2,0,[4,2,2],0,1,3,0,2,[4,4,[2,0],0],3,[3],0,0,1,3,2,4,0,[2,0],1,0,3,4,2,0,3,0,0,0,0,2,0,0,0,2,4,0,0,4]]", "''<nowiki/>bt5073jrxz2gldi'foo'<nowiki/><nowiki>''foo''</nowiki>''\n6563iftvc71wz5mi''<nowiki>'''foo'''</nowiki>''\n''foo''yv6gd1r11qbyb9<nowiki/>'s\n'''ge4wqkqzeoqg2e29ycci4uro5wx6flxr'foo'onh4xihxdek4kj4i<nowiki/>'''\n'''<nowiki>''foo''</nowiki><nowiki>'''foo'''</nowiki>'''f1gwwblkysii19k9\n'''em5maqbfah71ra4izwselowkgxu07ldi''fmyr1ptercf2yb9bar'<nowiki/>''baz'''<nowiki/>'s\n'''foo''s1x6z3q0pwfgk3xr''foo''eo98hc80ue7mn29'\n''luf993p203a6ecdifoo'<nowiki/>''<nowiki/>'\n'9ixyk03e6k73nmib3uz6pdpbziod2t9<nowiki/>'\n'\n'''foo'''<nowiki/>'\n'n8h003eevc1pp66r<nowiki/>'''foo'''<nowiki/>'\nqzypu69mxf450zfr''fools'<span> errand</span>''f9fa9v2yqf7s0pb9''<span>fool</span>'s errand''\na|!*#-:;+-~[]{}b'eeuga531ydivbo6r\n");

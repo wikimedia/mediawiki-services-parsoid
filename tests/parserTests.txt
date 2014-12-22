@@ -20053,6 +20053,8 @@ Headings: 4a. No escaping needed (testing just h1 and h2)
 == foo= ==
 
 = = =
+
+= ''=''foo= =
 !! html/parsoid
 <h1>=foo</h1>
 <h1>foo=</h1>
@@ -20061,18 +20063,8 @@ Headings: 4a. No escaping needed (testing just h1 and h2)
 <h2>=foo</h2>
 <h2>foo=</h2>
 <h1>=</h1>
-!!end
-
-!! test
-Headings: 4a'. No escaping needed (Parsoid bug T84903)
-!! wikitext
-= ''=''foo= =
-!! html/php
-<h1><span class="mw-headline" id=".3Dfoo.3D"><i>=</i>foo=</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: =foo=">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
-
-!! html/parsoid
 <h1><i>=</i>foo=</h1>
-!! end
+!!end
 
 !! test
 Headings: 4b. No escaping needed (inside p-tags)
