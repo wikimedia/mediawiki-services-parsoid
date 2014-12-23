@@ -20188,6 +20188,24 @@ parsoid=html2wt
 =a=<div>b</div>
 !!end
 
+!! test
+Headings: 7. T72791: Insert a newline between new content and headings
+!! options
+parsoid=html2wt
+!! wikitext
+== NEW ==
+new
+
+==A==
+a
+
+!! html
+<h2>NEW</h2>
+<p>new</p>
+<h2 data-parsoid='{"dsr":[0,5,2,2]}'>A</h2>
+<p data-parsoid='{"dsr":[6,7,0,0]}'>a</p>
+!! end
+
 #### --------------- Lists ---------------
 #### 0. Outside nests (*foo, etc.)
 #### 1. Nested inside html <ul><li>*foo</li></ul>
