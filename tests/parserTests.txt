@@ -706,7 +706,7 @@ parsoid=wt2html
 !! test
 Italics and bold: 4-quote opening sequence: (4,4) w/ nowiki
 !! wikitext
-'<nowiki/>'''foo'<nowiki/>'''
+'<nowiki/>'''foo''''
 !! html
 <p>'<b>foo'</b>
 </p>
@@ -20976,24 +20976,25 @@ this is not a link: <nowiki>http://example.com</nowiki>
 !! options
 parsoid=html2wt,wt2wt
 !! wikitext
-''<nowiki/>'foo'<nowiki/>''
+''<nowiki/>'foo'''
 ''<nowiki>''foo''</nowiki>''
 ''<nowiki>'''foo'''</nowiki>''
 ''foo''<nowiki/>'s
-'''<nowiki/>'foo'<nowiki/>'''
+'''<nowiki/>'foo''''
 '''<nowiki>''foo''</nowiki>'''
 '''<nowiki>'''foo'''</nowiki>'''
 '''foo'<nowiki/>''bar'<nowiki/>''baz'''
 '''foo'''<nowiki/>'s
 '''foo''
 ''foo''<nowiki/>'
-''foo'<nowiki/>''<nowiki/>'
-'<nowiki/>''foo''<nowiki/>'
+''foo'''<nowiki/>'
+'''foo''<nowiki/>'
 ''''foo'''
 '''foo'''<nowiki/>'
-'<nowiki/>'''foo'''<nowiki/>'
+''''foo'''<nowiki/>'
 ''fools'<span> errand</span>''
 ''<span>fool</span>'s errand''
+'<nowiki/>''foo'' bar '''baz''
 a|!*#-:;+-~[]{}b'''x''
 !! html/*
 <p><i>'foo'</i>
@@ -21014,12 +21015,13 @@ a|!*#-:;+-~[]{}b'''x''
 '<b>foo</b>'
 <i>fools'<span> errand</span></i>
 <i><span>fool</span>'s errand</i>
+'<i>foo</i> bar '<i>baz</i>
 a|!*#-:;+-~[]{}b'<i>x</i>
 </p>
 !! end
 
 !! test
-1b. Quotes inside <b> and <i> with other chars
+1b. Quotes inside <b> and <i> with other tags on same line
 !! options
 parsoid=html2wt,wt2wt
 !! wikitext
@@ -21027,11 +21029,15 @@ parsoid=html2wt,wt2wt
 ''a''' foo ''[[bar]]''
 ''a''' foo '''{{echo|[[bar]]}}'''
 [[foo]] x'''[[bar]]''
+'''foo'' <ref>test</ref>
+'''foo'' <div title="name">test</div>
 !! html
 '<i>a</i> foo <i><a rel="mw:WikiLink" href="Bar" title="Bar">bar</a></i>
 <i>a'</i> foo <i><a rel="mw:WikiLink" href="Bar" title="Bar">bar</a></i>
 <i>a'</i> foo <b><a rel="mw:WikiLink" href="Bar" title="Bar" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[bar]]"}},"i":0}}]}'>bar</a></b>
 <a rel="mw:WikiLink" href="Foo" title="Foo">foo</a> x'<i><a href="Bar" rel="mw:WikiLink" title="Bar">bar</a></i>
+'<i>foo</i> <span class="reference" id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"html":"test"},"attrs":{}}'><a href="#cite_note-1">[1]</a></span>
+'<i>foo</i> <div title="name">test</div>
 !! end
 
 !! test
