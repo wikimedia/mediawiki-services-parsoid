@@ -26,7 +26,10 @@
 		"chai": "~1.9.1",
 		"colors": "~0.6.2",
 		"mocha": "~1.21.4",
-		"supertest": "0.14.0"
+		"supertest": "0.14.0",
+		"istanbul": "0.3.5",
+		"mocha-lcov-reporter": "0.0.1",
+		"coveralls": "2.11.2"
 	},
 	"main": "lib/index.js",
 	"bin": {
@@ -36,7 +39,8 @@
 		"start": "node api/server.js",
 		"mocha": "mocha --opts tests/mocha/mocha.opts tests/mocha",
 		"parserTests": "node tests/parserTests.js --wt2html --wt2wt --html2wt --html2html --selser --no-color --quiet --blacklist",
-		"test": "npm run parserTests && npm run mocha"
+		"test": "npm run parserTests && npm run mocha",
+		"coverage": "istanbul cover tests/parserTests.js -- --wt2html --wt2wt --html2wt --html2html --selser --no-color --quiet --blacklist && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage"
 	},
 	"repository": {
 		"type": "git",
