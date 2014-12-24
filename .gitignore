@@ -17,6 +17,7 @@ tests/server/server.settings.js
 doc
 tests/server/pages.db
 tests/client/config.js
+coverage/
 
 contrib/
 node_modules

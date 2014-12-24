@@ -5,3 +5,4 @@ doc
 tests/server/node_modules
 tests/parserTests-blacklist.js
 lib/_http_agent.js
+coverage
