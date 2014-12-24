@@ -21031,6 +21031,7 @@ parsoid=html2wt,wt2wt
 [[foo]] x'''[[bar]]''
 '''foo'' <ref>test</ref>
 '''foo'' <div title="name">test</div>
+'''foo'' and <br> bar
 !! html
 '<i>a</i> foo <i><a rel="mw:WikiLink" href="Bar" title="Bar">bar</a></i>
 <i>a'</i> foo <i><a rel="mw:WikiLink" href="Bar" title="Bar">bar</a></i>
@@ -21038,6 +21039,7 @@ parsoid=html2wt,wt2wt
 <a rel="mw:WikiLink" href="Foo" title="Foo">foo</a> x'<i><a href="Bar" rel="mw:WikiLink" title="Bar">bar</a></i>
 '<i>foo</i> <span class="reference" id="cite_ref-1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"html":"test"},"attrs":{}}'><a href="#cite_note-1">[1]</a></span>
 '<i>foo</i> <div title="name">test</div>
+'<i>foo</i> and <br data-parsoid='{"stx":"html","noClose":true}'/> bar
 !! end
 
 !! test
