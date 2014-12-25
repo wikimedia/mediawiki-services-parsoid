@@ -96,6 +96,7 @@ redirect
     return redirect;
 }
 
+// This production is exposed as a start rule.
 generic_attributes = generic_attribute*
 
 /* The 'redirect' magic word.
@@ -292,7 +293,7 @@ br = s:optionalSpaceToken &newline {
 inline_breaks
   = & { return inline_breaks( input, peg$currPos, stops ); }
 
-pre_start = "<" pre_tag_name (' '+ [^>]*)? ">"
+pre_start = "<" pre_tag_name [^>]* ">"
 
 inline
   = c:(urltext / (!inline_breaks !pre_start r:(inline_element / . ) { return r; }))+ {
@@ -967,19 +968,8 @@ pre_indent
   }
 
 pre_tag_name =
-  tag:[prePRE]+ {
-      tag = tag.join('');
-      if (tag.toLowerCase() === "pre") {
-          return tag;
-      } else {
-          peg$currPos = peg$reportedPos;
-          return peg$FAILED;
-      }
-  }
-
-space_generic_attributes
-  = r:(space g:generic_attributes { return g; })? {
-    return r === null ? [] : r;
+  tag:"pre"i !tag_name_chars {
+    return tag;
   }
 
 // An indented pre block that is surrounded with pre tags. The pre tags are
@@ -991,7 +981,7 @@ pre_indent_in_tags
   = & { return stops.inc('pre'); }
     s:spaces // XXX: capture space for round-tripping
     "<" pre_tag_name
-    attribs:space_generic_attributes
+    attribs:generic_attributes
     ">"
     l:nested_block_line
     ls:(sol pre_indent_line)*
@@ -1021,7 +1011,7 @@ pre_indent_line = " " l:nested_block_line {
 pre
   = & { return stops.inc('pre'); }
     "<" pre_tag_name
-    attribs:space_generic_attributes
+    attribs:generic_attributes
     space*
     endpos:(">" { return peg$currPos; })
     // MediaWiki <pre> is special in that it converts all pre content to plain
@@ -1049,7 +1039,7 @@ pre
   / "</" pre_tag_name ">" { stops.dec('pre'); return "</pre>"; }
   // if this is still preish, emit as a string
   // necessary to work with the pre_start lookaheads
-  / p:('<' pre_tag_name space*) {
+  / p:('<' pre_tag_name) {
 	  stops.dec('pre');
 	  return tu.flatten_stringlist(p);
     }
@@ -1200,14 +1190,8 @@ xmlish_tag =
  */
 
 nowiki_tag_name =
-  tag:[nowikNOWIK]+ {
-      tag = tag.join('');
-      if (tag.toLowerCase() === "nowiki") {
-          return tag;
-      } else {
-          peg$currPos = peg$reportedPos;
-          return peg$FAILED;
-      }
+  tag:"nowiki"i !tag_name_chars {
+    return tag;
   }
 
 nowiki
@@ -1293,17 +1277,21 @@ nowiki_content
  * parsed as regular inline, but the source positions of the tag are added
  * to allow reconstructing the unparsed text from the input. */
 
-// See http://dev.w3.org/html5/spec/Overview.html#syntax-tag-name and
-// following paragraphs
+// See http://dev.w3.org/html5/spec-preview/tokenization.html#tag-name-state and
+// following paragraphs.
+tag_name_chars = [^\t\n\v />\0]
+tag_name = f:[A-Za-z] s:tag_name_chars* {
+    return f + s.join("");
+  }
+
 generic_tag
   = "<"
-    end:"/"? name:[0-9a-zA-Z]+
+    end:"/"? name:tag_name
     attribs:generic_newline_attribute*
     space_or_newline* // No need to preserve this -- canonicalize on RT via dirty diff
     selfclose:"/"?
     bad_ws:space* // No need to preserve this -- canonicalize on RT via dirty diff
     ">" {
-        name = name.join('');
         var lcName = name.toLowerCase(),
             isVoidElt = Util.isVoidElement( lcName ) ? true : null;
         // Support </br>
@@ -1343,7 +1331,7 @@ could_be_attribute =
 
 // A generic attribute that can span multiple lines.
 generic_newline_attribute
-  = s:space_or_newline+
+  = s:space_or_newline*
     namePos0:({return peg$currPos;})
     name:generic_attribute_name
     namePos:({return peg$currPos;})
@@ -1486,12 +1474,12 @@ att_value
 /*
  * A variant of generic_tag, but also checks if the tag name is a block-level
  * tag as defined in
- * http://dev.w3.org/html5/spec/Overview.html#syntax-tag-name and following
- * paragraphs.
+ * http://dev.w3.org/html5/spec-preview/tokenization.html#tag-name-state and
+ * following paragraphs.
  */
 block_tag
   = "<" end:"/"?
-    name:(cs:[a-zA-Z]+ { return cs.join(''); })
+    name:tag_name
     attribs:generic_newline_attribute*
     space_or_newline*
     selfclose:"/"?
@@ -1833,7 +1821,7 @@ table_end_tag
  */
 single_cell_table_args
   = & { return stops.push('pipe', true); }
-    as:generic_attribute* s:space* p:pipe {
+    as:generic_attributes s:space* p:pipe {
         stops.pop('pipe');
         //console.warn( 'tcargs' + JSON.stringify( as ) + " stops: " + pp(stops) );
         return [as, s, p];
@@ -1847,7 +1835,7 @@ single_cell_table_args
 row_syntax_table_args
   = & { return stops.inc('tableCellArg'); }
     & could_be_attribute
-    as:generic_attribute* s:space* p:pipe !pipe {
+    as:generic_attributes s:space* p:pipe !pipe {
         stops.dec('tableCellArg');
         //console.warn( 'tcargs' + JSON.stringify( as ) + " stops: " + pp(stops) );
         return [as, s, p];
