@@ -160,57 +160,81 @@ var roundTripDiff = function( env, req, res, selser, doc ) {
 
 var parse = function( env, req, res ) {
 	env.log('info', 'started parsing');
+
 	var meta = env.page.meta;
-	return new Promise(function( resolve, reject ) {
-		// See if we can reuse transclusion or extension expansions.
-		// And don't parse twice for recursive parsoid requests
-		if ( env.conf.parsoid.parsoidCacheURI && !req.headers['x-parsoid-request'] ) {
-			// Try to retrieve a cached copy of the content so that we can
-			// recycle template and / or extension expansions.
-			var parsoidHeader = JSON.parse(req.headers['x-parsoid'] || '{}');
+	var v2 = res.local('v2');
+	var p = Promise.resolve();
 
-			// If we get a prevID passed in in X-Parsoid (from our PHP
-			// extension), use that explicitly. Otherwise default to the
-			// parentID.
-			var cacheID = parsoidHeader.cacheID || meta.revision.parentid;
-
-			var cacheRequest = new ParsoidCacheRequest( env, meta.title, cacheID );
-			cacheRequest.once('src', function( err, src ) {
-				// No luck with the cache request, just proceed as normal.
-				resolve( err ? null : src );
-			});
-		} else {
-			resolve( null );
-		}
-	}).then(function( cacheSrc ) {
-		var expansions, pipeline = env.pipelineFactory;
-
-		if ( cacheSrc ) {
-			// Extract transclusion and extension content from the DOM
-			expansions = DU.extractExpansions( DU.parseHTML(cacheSrc) );
-
-			// Figure out what we can reuse
+	// See if we can reuse transclusion or extension expansions.
+	if ( v2 && ( v2.previous || v2.original ) ) {
+		p = p.then(function() {
+			var revision = v2.previous || v2.original;
+			var doc = DU.parseHTML( revision.html.body );
+			DU.applyDataParsoid( doc, revision["data-parsoid"].body );
+			var ret = {
+				expansions: DU.extractExpansions( doc )
+			};
+			if ( v2.update ) {
+				["templates", "files"].some(function(m) {
+					if ( v2.update[m] ) {
+						ret.mode = m;
+						return true;
+					}
+				});
+			}
+			return ret;
+		});
+	// And don't parse twice for recursive parsoid requests.
+	} else if ( env.conf.parsoid.parsoidCacheURI && !req.headers['x-parsoid-request'] ) {
+		p = p.then(function() {
+			// Try to retrieve a cached copy of the content.
 			var parsoidHeader = JSON.parse( req.headers['x-parsoid'] || '{}' );
-			if ( parsoidHeader.cacheID ) {
-				if ( parsoidHeader.mode === 'templates' ) {
-					// Transclusions need to be updated, so don't reuse them.
-					expansions.transclusions = {};
-				} else if (parsoidHeader.mode === 'files') {
-					// Files need to be updated, so don't reuse them.
-					expansions.files = {};
-				}
+			return new Promise(function( resolve, reject ) {
+				// If a cacheID is passed in X-Parsoid (from our PHP extension),
+				// use that explicitly. Otherwise default to the parentID.
+				var cacheID = parsoidHeader.cacheID || meta.revision.parentid;
+				var cacheRequest = new ParsoidCacheRequest( env, meta.title, cacheID );
+				cacheRequest.once('src', function( err, src ) {
+					if ( err ) {
+						// No luck with the cache request.
+						return resolve( null );
+					}
+					// Extract transclusion and extension content from the DOM
+					var ret = {
+						expansions: DU.extractExpansions( DU.parseHTML(src) )
+					};
+					if ( parsoidHeader.cacheID ) {
+						ret.mode = parsoidHeader.mode;
+					}
+					resolve( ret );
+				});
+			});
+		});
+	}
+
+	return p.then(function( ret ) {
+		if ( ret ) {
+			// Figure out what we can reuse
+			switch( ret.mode ) {
+			case "templates":
+				// Transclusions need to be updated, so don't reuse them.
+				ret.expansions.transclusions = {};
+				break;
+			case "files":
+				// Files need to be updated, so don't reuse them.
+				ret.expansions.files = {};
+				break;
 			}
 		}
-
-		return Promise.promisify( pipeline.parse, false, pipeline )(
-			env, env.page.src, expansions
-		);
+		return env.pipelineFactory.parse( env, env.page.src, ret && ret.expansions );
 	});
 };
 
 var html2wt = function( req, res, html ) {
 	var env = res.local('env');
-	env.page.id = req.body.oldid || null;
+	var v2 = res.local('v2');
+
+	env.page.id = res.local('oldid');
 	env.log('info', 'started serializing');
 
 	if ( env.conf.parsoid.allowCORS ) {
@@ -222,7 +246,10 @@ var html2wt = function( req, res, html ) {
 
 	var out = [];
 	var p = new Promise(function( resolve, reject ) {
-		if ( !env.conf.parsoid.fetchWT ) {
+		if ( v2 && v2.original && v2.original.wikitext ) {
+			env.setPageSrcInfo( v2.original.wikitext.body );
+			return resolve();
+		} else if ( !env.conf.parsoid.fetchWT ) {
 			return resolve();
 		}
 		var target = env.resolveTitle( env.normalizeTitle(env.page.name), '' );
@@ -240,23 +267,43 @@ var html2wt = function( req, res, html ) {
 		var doc = DU.parseHTML( html.replace(/\r/g, '') ),
 			Serializer = parsoidConfig.useSelser ? SelectiveSerializer : WikitextSerializer,
 			serializer = new Serializer({ env: env, oldid: env.page.id });
+		if ( v2 && v2["data-parsoid"] ) {
+			DU.applyDataParsoid( doc, v2["data-parsoid"].body );
+		}
+		if ( v2 && v2.original && v2.original.html ) {
+			env.page.dom = DU.parseHTML( v2.original.html.body );
+			DU.applyDataParsoid( env.page.dom, v2.original["data-parsoid"].body );
+		}
 		return Promise.promisify( serializer.serializeDOM, false, serializer )(
 			doc.body, function( chunk ) { out.push( chunk ); }, false
 		);
 	}).timeout( REQ_TIMEOUT ).then(function() {
-		apiUtils.setHeader(res, env, 'Content-Type', 'text/x-mediawiki; charset=UTF-8');
 		apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
-		apiUtils.endResponse(res, env, out.join(''));
+		if ( v2 ) {
+			apiUtils.jsonResponse(res, env, {
+				wikitext: {
+					headers: {
+						// FIXME: get this from somewhere else
+						'content-type': 'text/plain;profile=mediawiki.org/specs/wikitext/1.0.0'
+					},
+					body: out.join('')
+				}
+			});
+		} else {
+			apiUtils.setHeader(res, env, 'Content-Type', 'text/x-mediawiki; charset=UTF-8');
+			apiUtils.endResponse(res, env, out.join(''));
+		}
 		env.log("info", "completed serializing in", env.performance.duration, "ms");
 	});
 	return cpuTimeout( p, res )
 		.catch( timeoutResp.bind(null, env) );
 };
 
-var wt2html = function( req, res, wt, v2 ) {
+var wt2html = function( req, res, wt ) {
 	var env = res.local('env'),
 		prefix = res.local('iwp'),
 		oldid = res.local('oldid'),
+		v2 = res.local('v2'),
 		target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
 	if ( wt ) {
@@ -276,8 +323,20 @@ var wt2html = function( req, res, wt, v2 ) {
 			var dp = doc.getElementById('mw-data-parsoid');
 			dp.parentNode.removeChild(dp);
 			apiUtils.jsonResponse(res, env, {
-				html: DU.serializeNode( res.local('body') ? doc.body : doc ),
-				"data-parsoid": JSON.parse(dp.text)
+				// revid: 12345 (maybe?),
+				html: {
+					headers: {
+						// FIXME: get this from somewhere else
+						'content-type': 'text/html;profile=mediawiki.org/specs/html/1.0.0'
+					},
+					body: DU.serializeNode( res.local('body') ? doc.body : doc )
+				},
+				"data-parsoid": {
+					headers: {
+						'content-type': 'application/json;profile=mediawiki.org/specs/data-parsoid/0.0.1'
+					},
+					body: JSON.parse(dp.text)
+				}
 			});
 		} else {
 			apiUtils.setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8');
@@ -334,8 +393,8 @@ var wt2html = function( req, res, wt, v2 ) {
 			path += [
 				"v2",
 				url.parse( env.conf.parsoid.interwikiMap.get( prefix ) ).host,
-				encodeURIComponent( target ),
 				v2.format,
+				encodeURIComponent( target ),
 				oldid
 			].join("/");
 		} else {
@@ -380,7 +439,7 @@ var wt2html = function( req, res, wt, v2 ) {
 routes.interParams = function( req, res, next ) {
 	res.local('iwp', req.params[0] || parsoidConfig.defaultWiki || '');
 	res.local('pageName', req.params[1] || '');
-	res.local('oldid', req.query.oldid || null);
+	res.local('oldid', req.body.oldid || req.query.oldid || null);
 	// "body" flag to return just the body (instead of the entire HTML doc)
 	res.local('body', req.query.body || req.body.body);
 	next();
@@ -406,6 +465,9 @@ routes.parserEnvMw = function( req, res, next ) {
 		cookie: req.headers.cookie
 	}).then(function( env ) {
 		env.logger.registerBackend(/fatal(\/.*)?/, errBack.bind(this, env));
+		if ( res.local('v2') && res.local('v2').format === "pagebundle" ) {
+			env.storeDataParsoid = true;
+		}
 		res.local('env', env);
 		next();
 	}).catch(function( err ) {
@@ -415,32 +477,9 @@ routes.parserEnvMw = function( req, res, next ) {
 	});
 };
 
-var supportedFormats = new Set([ "pagebundle", "html" ]);
-routes.v2Middle = function( req, res, next ) {
-	function errOut(err) {
-		// FIXME: provide more consistent error handling.
-		apiUtils.sendResponse( res, {}, err, 404 );
-	}
-
-	var iwp = parsoidConfig.reverseIWMap.get( req.params.domain );
-	if ( !iwp ) {
-		return errOut("Invalid domain.");
-	}
-	res.local('iwp', iwp);
-
-	res.local('format', req.params.format || "html");
-	if ( !supportedFormats.has( res.local('format') ) ) {
-		return errOut("Invalid format.");
-	}
-
-	res.local('pageName', req.params.title);
-	res.local('oldid', req.params.revision || null);
-	next();
-};
-
 // Routes
 
-routes.home = function( req, res ){
+routes.home = function( req, res ) {
 	res.render('home');
 };
 
@@ -628,16 +667,88 @@ routes.post_article = function( req, res ) {
 };
 
 
+// v2 Middleware
+
+var wt2htmlFormats = new Set([ "pagebundle", "html" ]);
+var supportedFormats = new Set([ "pagebundle", "html", "wt" ]);
+
+routes.v2Middle = function( req, res, next ) {
+	function errOut( err, code ) {
+		// FIXME: provide more consistent error handling.
+		apiUtils.sendResponse( res, {}, err, code || 404 );
+	}
+
+	var iwp = parsoidConfig.reverseIWMap.get( req.params.domain );
+	if ( !iwp ) {
+		return errOut("Invalid domain.");
+	}
+
+	res.local('iwp', iwp);
+	res.local('pageName', req.params.title || '');
+	res.local('oldid', req.params.revision || null);
+
+	var v2 = Object.assign({ format: req.params.format }, req.body);
+
+	if ( !supportedFormats.has( v2.format ) ||
+		 ( req.method === "GET" && !wt2htmlFormats.has( v2.format ) ) ) {
+		return errOut("Invalid format.");
+	}
+
+	if ( req.method === "POST" ) {
+		var original = v2.original || {};
+		if ( original.revid ) {
+			res.local('oldid', original.revid);
+		}
+		if ( original.title ) {
+			res.local('pageName', original.title);
+		}
+	}
+
+	res.local('v2', v2);
+	next();
+};
+
+
 // v2 Routes
 
+// Spec'd in https://phabricator.wikimedia.org/T75955 and the API tests.
 
-// Regular article parsing
-routes.v2_wt2html = function( req, res ) {
-	var v2 = { format: res.local("format") };
-	if ( v2.format === "pagebundle" ) {
-		res.local('env').storeDataParsoid = true;
+// GET requests
+routes.v2_get = function( req, res ) {
+	wt2html( req, res );
+};
+
+// POST requests
+routes.v2_post = function( req, res ) {
+	var v2 = res.local('v2');
+
+	function errOut( err, code ) {
+		apiUtils.sendResponse( res, res.local('env'), err, code || 404 );
 	}
-	wt2html( req, res, null, v2 );
+
+	if ( wt2htmlFormats.has( v2.format ) ) {
+		// Accept wikitext as a string or object{body,headers}
+		var wikitext = (v2.wikitext && typeof v2.wikitext !== "string") ?
+			v2.wikitext.body : v2.wikitext;
+		if ( !wikitext ) {
+			if ( !res.local('pageName') ) {
+				return errOut( "No title or wikitext was provided.", 400 );
+			}
+			// We've been given source for this page
+			if ( v2.original && v2.original.wikitext ) {
+				wikitext = v2.original.wikitext.body;
+			}
+		}
+		wt2html( req, res, wikitext );
+	} else {
+		// html is required for serialization
+		if ( v2.html === undefined ) {
+			return errOut( "No html was supplied.", 400 );
+		}
+		// Accept html as a string or object{body,headers}
+		var html = (typeof v2.html === "string") ? v2.html : v2.html.body;
+		html2wt( req, res, html );
+	}
 };
 
 

@@ -92,10 +92,9 @@ function ParsoidService( parsoidConfig, processLogger ) {
 	app.get(  re('^/(' + iwRe + ')/(.*)'), i, p, routes.get_article );
 	app.post( re('^/(' + iwRe + ')/(.*)'), i, p, routes.post_article );
 
-	// Attempt to define a new version of the API
-	// /v2/{domain}/{title}/{format}/{revision}
-
-	app.get('/v2/:domain/:title/:format?/:revision?', v, p, routes.v2_wt2html );
+	// v2 API routes
+	app.get(  '/v2/:domain/:format/:title/:revision?', v, p, routes.v2_get );
+	app.post( '/v2/:domain/:format/:title?/:revision?', v, p, routes.v2_post );
 
 
 	// Get host and port from the environment, if available
