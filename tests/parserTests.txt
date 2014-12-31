@@ -21608,6 +21608,29 @@ Indented table with an empty td
 
 !!end
 
+## We have some newline diffs RT-ing this edge case
+## and it is not important enough -- we seem to be emitting
+## at most 2 newlines after a </tr> and this is unrelated to
+## the issue from T85627 that this is testing.
+!!test
+Indented table with blank lines in between (T85627)
+!! options
+parsoid=wt2html
+!! wikitext
+ {|
+ |foo
+ 
+ 
+ |}
+!! html
+<table>
+
+<tr>
+<td>foo
+</td></tr></table>
+
+!!end
+
 !!test
 Indented block & table
 !! wikitext

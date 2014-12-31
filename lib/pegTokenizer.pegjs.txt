@@ -239,7 +239,7 @@ block_lines
 block_line
   = h
   / lists
-  / st:optionalSpaceToken
+  / st:space_or_newline*
     r:( & [ <{}|!] tl:table_lines { return tl; }
       // tag-only lines should not trigger pre either
       / bts:(bt:block_tag stl:optionalSpaceToken { return bt.concat(stl); })+
@@ -1642,7 +1642,7 @@ table_lines
         nls:optionalNewlines
         {
             stops.pop('table');
-            //console.warn('table_lines: ' + pp(tl.concat(tls)));
+            // console.warn('table_lines: ' + JSON.stringify(tl.concat(nls)));
             return tl.concat(nls);
         }
       / & { return stops.pop('table'); }
