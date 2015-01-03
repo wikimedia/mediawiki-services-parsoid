@@ -364,6 +364,12 @@ var wt2html = function( req, res, wt ) {
 	}
 
 	function parsePageWithOldid() {
+		if (prefix === 'urwiki' && res.local('pageName') === 'نام_مقامات_اے') {
+			env.log("error", "Returning http 500 for urwiki:نام_مقامات_اے'");
+			return new Promise(function(resolve, reject) {
+				reject();
+			});
+		}
 		return parse( env, req, res ).then(function( doc ) {
 			if ( req.headers.cookie || v2 ) {
 				// Don't cache requests with a session.
