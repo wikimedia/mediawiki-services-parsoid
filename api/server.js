@@ -123,7 +123,7 @@ if ( cluster.isMaster && argv.n > 0 ) {
 				timeouts.delete( msg.reqId );
 				if ( worker.id in cluster.workers ) {
 					logger.log( "warning", util.format( "Cpu timeout; killing worker %s.", pid ) );
-					worker.kill();
+					worker.kill("SIGKILL");
 					spawn();
 				}
 			}, msg.timeout));
