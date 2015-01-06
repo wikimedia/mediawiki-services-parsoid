@@ -238,7 +238,7 @@ block_lines
  */
 block_line
   = h
-  / lists
+  / list_item
   / st:space_or_newline*
     r:( & [ <{}|!] tl:table_lines { return tl; }
       // tag-only lines should not trigger pre either
@@ -1500,7 +1500,7 @@ block_tag
 /*********************************************************
  *   Lists
  *********************************************************/
-lists = (dtdd / hacky_dl_uses / li) (sol (dtdd / hacky_dl_uses / li))*
+list_item = dtdd / hacky_dl_uses / li
 
 li = bullets:list_char+
      c:nested_block_line
