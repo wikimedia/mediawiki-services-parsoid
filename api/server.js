@@ -122,7 +122,10 @@ if ( cluster.isMaster && argv.n > 0 ) {
 			timeouts.set(msg.reqId, setTimeout(function() {
 				timeouts.delete( msg.reqId );
 				if ( worker.id in cluster.workers ) {
-					logger.log( "warning", util.format( "Cpu timeout; killing worker %s.", pid ) );
+					logger.log( "warning", util.format(
+						"Cpu timeout fetching: %s; killing worker %s.",
+						msg.location, pid
+					) );
 					worker.kill("SIGKILL");
 					spawn();
 				}

@@ -74,11 +74,22 @@ var sufficientNodeVersion = !/^v0\.[0-8]\./.test( process.version );
 
 var cpuTimeout = function( p, res ) {
 	var reqId = res.local("reqId");
+	var location = util.format(
+		"[%s/%s%s]", res.local("iwp"), res.local("pageName"),
+		(res.local("oldid") ? "?oldid=" + res.local("oldid") : "")
+	);
 	return new Promise(function( resolve, reject ) {
 		if ( cluster.isMaster || !sufficientNodeVersion ) {
 			return p.then( resolve, reject );
 		}
-		process.send({ type: "timeout", timeout: CPU_TIMEOUT, reqId: reqId });
+		// Notify the cluster master that a request has started
+		// to wait for a corresponding done msg or timeout.
+		process.send({
+			type: "timeout",
+			timeout: CPU_TIMEOUT,
+			reqId: reqId,
+			location: location
+		});
 		var done = makeDone( reqId );
 		p.then( done, done );
 		p.then( resolve, reject );
