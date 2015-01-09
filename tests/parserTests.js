@@ -1648,9 +1648,10 @@ ParserTests.prototype.main = function ( options, popts ) {
 
 	options.expandExtensions = true;
 
-	var i, key,
-		parsoidConfig = new ParsoidConfig( null, options ),
-		iwmap = parsoidConfig.interwikiMap.keys();
+	var parsoidConfig = new ParsoidConfig( null, options );
+	parsoidConfig.interwikiMap.forEach(function( val, key ) {
+		parsoidConfig.interwikiMap.set(key, mockAPIServerURL);
+	});
 
 	// Set tracing and debugging before the env. object is
 	// constructed since tracing backends are registered there.
@@ -1658,11 +1659,6 @@ ParserTests.prototype.main = function ( options, popts ) {
 	// overridden here).
 	Util.setDebuggingFlags(parsoidConfig, options);
 	Util.setTemplatingAndProcessingFlags( parsoidConfig, options );
-
-	for ( i = 0; i < iwmap.length; i++ ) {
-		key = iwmap[i];
-		parsoidConfig.interwikiMap.set(key, mockAPIServerURL);
-	}
 
 	// Create a new parser environment
 	MWParserEnvironment.getParserEnv( parsoidConfig, null, { prefix: 'enwiki' }, function( err, env ) {

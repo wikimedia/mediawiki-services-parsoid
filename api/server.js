@@ -5,12 +5,13 @@
  *
  * Local configuration:
  *
- * To configure locally, add localsettings.js to this directory and export a setup function.
+ * To configure locally, add localsettings.js to this directory and export a
+ * setup function.
  *
  * example:
- *	exports.setup = function( config, env ) {
- *		env.setInterwiki( 'localhost', 'http://localhost/wiki' );
- *	};
+ *   exports.setup = function( parsoidConfig ) {
+ *     parsoidConfig.setInterwiki( 'localhost', 'http://localhost/wiki' );
+ *   };
  *
  * Alternatively, specify a --config file explicitly. See --help for other
  * options.
