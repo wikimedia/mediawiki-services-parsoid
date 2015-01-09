@@ -22525,6 +22525,16 @@ data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},
 !! end
 
 !! test
+Parsoid: Serialize positional parameters with = in extlink as named parameter
+!! options
+parsoid=html2wt
+!! html
+<p><a rel="mw:ExtLink" href="http://stuff?is=ok" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"http://stuff?is=ok"}},"i":0}}]}'>http://stuff?is=ok</a></p>
+!! wikitext
+{{echo|1 = http://stuff?is=ok}}
+!! end
+
+!! test
 Parsoid: Correctly serialize block-node children when they are a combination of text and p-nodes
 !! options
 parsoid=html2wt
