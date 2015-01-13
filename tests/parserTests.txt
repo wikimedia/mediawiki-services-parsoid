@@ -2519,6 +2519,18 @@ parsoid
 <p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a : b"}},"i":0}}]}'>a<span typeof="mw:Placeholder" data-parsoid='{"isDisplayHack":true}'> </span>: b</p>
 !! end
 
+## Bug T73412
+!! test
+Templates: Preserve blank parameter names
+!! wikitext
+{{echo|=foo}}
+!! html/php
+<p>{{{1}}}
+</p>
+!! html/parsoid
+<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"":{"wt":"foo"}},"i":0}}]}'>{{{1}}}</p>
+!! end
+
 ###
 ### Parsoid-centric tests for testing RT edge cases for pre
 ###
