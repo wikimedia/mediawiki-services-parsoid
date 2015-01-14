@@ -150,7 +150,7 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 				heading: 'Pages with rt selser errors',
 				header: ['Title', 'Commit', 'Syntactic diffs', 'Semantic diffs', 'Errors']
 			};
-		var makeSelserErrorRow = function(row) {
+		var makeSelserErrorRow = function(urlPrefix, row) {
 			var prefix = encodeURIComponent(row.prefix),
 				title = encodeURIComponent(row.title);
 
@@ -169,7 +169,7 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 
 			return [
 				rowData,
-				RH.commitLinkData(row.hash, row.title, row.prefix),
+				RH.commitLinkData(urlPrefix, row.hash, row.title, row.prefix),
 				row.skips,
 				row.fails,
 				row.errors === null ? 0 : row.errors
