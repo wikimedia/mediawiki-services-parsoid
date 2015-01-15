@@ -96,6 +96,8 @@ redirect
     return redirect;
 }
 
+generic_attributes = generic_attribute*
+
 /* The 'redirect' magic word.
  * The leading whitespace allowed is due to the PHP trim() function.
  */
@@ -965,7 +967,7 @@ pre_tag_name =
   }
 
 space_generic_attributes
-  = r:(space g:generic_attribute* { return g; })? {
+  = r:(space g:generic_attributes { return g; })? {
     return r === null ? [] : r;
   }
 

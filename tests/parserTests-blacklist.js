@@ -466,6 +466,7 @@ add("wt2wt", "2. includeonly in html attr value", "<span id=\"<noinclude>v1</noi
 add("wt2wt", "1. Table tag in SOL posn. should get reparsed correctly with valid TSR", "{{echo|}}\n{| width=\"100%\"\n|foo\n|}");
 add("wt2wt", "Templates: HTML Tag: 2. Generation of HTML attr. value", "<div style=\"{{echo|'color:red;'}}\">foo</div>");
 add("wt2wt", "Templates: HTML Tag: 3. Generation of HTML attr key and value", "<div {{echo|style}}=\"{{echo|'color:red;'}}\">foo</div>");
+add("wt2wt", "Templates: HTML Tag: 9. Multiple template-generated attributes", "<div {{echo|1=id=\"v1\" title=\"foo\"}} title=\"foo\">bar</div>");
 add("wt2wt", "Templates: HTML Tables: 5. Proper fostering of categories from inside", "[[Category:foo1]]<table><tr><td>foo</td></tr></table>\n<!--Two categories (Bug 50330)-->\n[[Category:bar1]][[Category:bar2]]<table><tr><td>foo</td></tr></table>");
 add("wt2wt", "pre-save transform: mixed tag case", "<nowiki>'''not wiki'''</nowiki>\n");
 add("wt2wt", "pre-save transform: Signature expansion", "*<nowiki> ~~~</nowiki>\n* <noinclude><nowiki>~~~</nowiki></noinclude>\n* <includeonly>~~~</includeonly>\n* <onlyinclude><nowiki>~~~</nowiki></onlyinclude>");
@@ -1254,7 +1255,6 @@ add("html2wt", "Template with complex arguments", "[[wiki/Template:Complextempla
 add("html2wt", "BUG 553: link with two variables in a piped link", "{|\n\n|<nowiki>[[{{{1}}}|{{{2}}}]]</nowiki>\n|}\n");
 add("html2wt", "Magic variable as template parameter", "This is a test template with parameter MediaWiki\n");
 add("html2wt", "Template parameter as link source", "[[wiki/Main Page|link]]\n");
-add("html2wt", "Template-generated attribute string (k='v')", "<span id=\"v1\">bar</span>\n");
 add("html2wt", "Template passing argument to another template", "including another template, This is a test template with parameter 'hmm'\n");
 add("html2wt", "Template as link source", "[[wiki/Main Page|Main Page]]\n\n[[wiki/Main Page|Main Page]]\n\n[[wiki/Main Page|Main Page]]Page\n");
 add("html2wt", "Template infinite loop", "<span class=\"error\">Template loop detected: [[wiki/Template:Loop1|Template:Loop1]]</span>\n");
@@ -1310,6 +1310,8 @@ add("html2wt", "Templates: HTML Tag: 4. Generation of starting piece of HTML att
 add("html2wt", "Templates: HTML Tag: 5. Generation of middle piece of HTML attr value", "<div title=\"This is a long title with just one piece templated\">foo</div>\n");
 add("html2wt", "Templates: HTML Tag: 6. Generation of end piece of HTML attr value", "<div title=\"This is a long title with just one piece templated\">foo</div>\n");
 add("html2wt", "Templates: HTML Tag: 7. Generation of partial attribute key string", "<div style=\"color:red;\">foo</div>\n");
+add("html2wt", "Templates: HTML Tag: 8. Template-generated attribute (k=v)", "<div id=\"v1\">bar</div>\n");
+add("html2wt", "Templates: HTML Tag: 9. Multiple template-generated attributes", "<div id=\"v1\" title=\"foo\">bar</div>\n");
 add("html2wt", "Templates: HTML Tables: 1. Generating start of a HTML table", "{|\n|foo\n|}\n");
 add("html2wt", "Templates: HTML Tables: 2a. Generating middle of a HTML table", "{|\n|foo\n|}\n");
 add("html2wt", "Templates: HTML Tables: 2b. Generating middle of a HTML table", "{|\n|foo\n|}\n");
