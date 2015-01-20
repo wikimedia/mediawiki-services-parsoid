@@ -413,26 +413,11 @@ behavior_text = text:( !'__' tc:[^'"<~[{\n\r:;\]}|!=] { return tc; } )+ {
 
 autolink
   = ! { return stops.onStack('extlink'); }
+    // this must be a word boundary, so previous character must be non-word
+    ! { return /\w/.test(input[peg$currPos-1]||''); }
   r:(
       // urllink, inlined
       target:autourl {
-        // Special case handling for trailing parentheses: remove from link if
-        // there is no opening parenthesis in the link
-        if ( Array.isArray(target) ) {
-            var end = target[target.length - 1];
-            if ( !/[(]/.test( target[0] ) &&
-                 end.constructor === String &&
-                 /[)]$/.test( end )
-            ) {
-                target.pop();
-                peg$currPos--;
-            }
-        } else {
-            if (!/[(]/.test(target) && /[)]$/.test(target)) {
-                target = target.substr(0, target.length - 1);
-                peg$currPos--;
-            }
-        }
         var res = [ new SelfclosingTagTk( 'urllink', [new KV('href', target)], { tsr: [peg$reportedPos, peg$currPos] } ) ];
           return res;
       }
@@ -479,7 +464,7 @@ extlink
     ) { return r; }
 
 autoref
-  = ref:('RFC' / 'PMID') space_or_newline+ identifier:[0-9]+
+  = ref:('RFC' / 'PMID') space_or_newline+ identifier:[0-9]+ end_of_word
 {
     identifier = identifier.join('');
 
@@ -503,7 +488,7 @@ isbn
   = 'ISBN' space_or_newline+
     head:[0-9]
     digits:(d:( c:[- ] &[0-9] { return c; } / [0-9] ) { return d; } )+
-    tail:('-X')?
+    tail:([- ]? [xX] { return text(); } )?
     end_of_word
 {
     // TODO: round-trip non-decimals too!
@@ -591,26 +576,52 @@ url
 }
 
 // this is the somewhat-restricted production used in autolinks
+// See Parser::doMagicLinks and Parser.php::makeFreeExternalLink.
+// The `path` portion matches EXT_LINK_URL_CLASS, as in the general
+// url production.  As in PHP, we do some fancy fixup to yank out
+// trailing punctuation, perhaps including parentheses.
+// The 's' and 'r' pieces match the characters in EXT_LINK_URL_CLASS
+// which aren't included in no_punctuation_char
 autourl
-  = proto:url_protocol
+  = &{ return stops.push( 'autourl', { sawLParen: false } ); }
+    proto:url_protocol
     addr:( ipv6_address / ipv4_address )?
     path:(  ( !{ return inline_breaks( input, peg$currPos, stops ); } // inline_breaks
+              ! "("
               c:no_punctuation_char
               { return c; }
             )
-            / s:[.:,] !(space / eolf) { return s; }
+            / "(" { stops.onStack( 'autourl' ).sawLParen = true; return "("; }
+            / s:[.:,']  { return s; }
             / comment
             / tplarg_or_template
             / ! ( "&" ( [lL][tT] / [gG][tT] ) ";" )
                 r:(
-                    htmlentity
+                    & "&" he:htmlentity { return he; }
                   / [&%{]
                 ) { return r; }
          )+
 {
+    // as in Parser.php::makeFreeExternalLink, we're going to
+    // yank trailing punctuation out of this match.
     proto += addr || '';
-    return tu.flatten_string( [proto].concat( path ) );
+    var url = tu.flatten_stringlist( [proto].concat( path ) );
+    // only need to look at last element; HTML entities are strip-proof.
+    var last = url[url.length-1], trim = 0;
+    if (last && last.constructor === String) {
+      var strip = ',;\\.:!?';
+      if (!stops.onStack( 'autourl' ).sawLParen) {
+        strip += ')';
+      }
+      strip = new RegExp( '[' + Util.escapeRegExp(strip) + ']*$' )
+      var trim = strip.exec( last )[0].length;
+      url[url.length-1] = last.slice(0, last.length - trim);
+      peg$currPos -= trim;
+    }
+    stops.pop( 'autourl' );
+    return tu.flatten_string( url );
 }
+    / &{ return stops.pop( 'autourl' ); }
 
 ipv4_address
   = a:([0-9]* '.' [0-9]* '.' [0-9]* '.' [0-9]*)
