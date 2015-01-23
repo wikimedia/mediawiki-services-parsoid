@@ -21173,6 +21173,18 @@ parsoid=html2wt
 this is not a link: <nowiki>http://example.com</nowiki>
 !! end
 
+!! test
+Links 15. Link trails can't become link prefixes.
+!! options
+language=is
+!! wikitext
+[[Söfnuður]]-[[00]]
+!! html/php
+<p><a href="/wiki/S%C3%B6fnu%C3%B0ur" title="Söfnuður">Söfnuður-</a><a href="/wiki/00" title="00">00</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="Söfnuður" title="Söfnuður" data-parsoid='{"stx":"simple","tail":"-"}'>Söfnuður-</a><a rel="mw:WikiLink" href="00" title="00">00</a></p>
+!! end
 
 #### --------------- Quotes ---------------
 #### 1. Quotes inside <b> and <i>
