@@ -12,9 +12,9 @@ require( '../lib/core-upgrade.js' );
 //     and update these hashes automatically.
 //
 // You can use 'sha1sum -b tests/parser/parserTests.txt' to compute this value:
-var expectedSHA1 = "3f16e1b7902a4f5ba1403f074d22b660b9e00617";
+var expectedSHA1 = "d10557f40c29996cf44d2fb67d8b8e1209773e3b";
 // git log --pretty=oneline -1 tests/parser/parserTests.txt
-var latestCommit = "4bff1ccc98b96a88e7bbb744eafecc91ec23c146";
+var latestCommit = "7b56518d5153c458388bc015193754174448b327";
 
 var fs = require('fs'),
 	path = require('path'),
