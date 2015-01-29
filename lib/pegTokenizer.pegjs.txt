@@ -1414,7 +1414,7 @@ broken_table_attribute_name_char = c:[ \t\0/=>"'\[] { return new KV(c, ''); }
 // The arrangement of chars is to emphasize the split between what's disallowed
 // by html5 and what's necessary to give directive a chance.
 generic_attribute_name
-  = r:( ts:[^ \t\0\n\r/=>"'!<&\[\]|{}]+ { return ts.join(''); }
+  = r:( ts:[^ \t\0\n\r/=>"'!<&\[\]|{}\-]+ { return ts.join(''); }
         / ! inline_breaks
           ! '/>'
           // /=>"' is the html5 attribute name set we do not want.
@@ -2125,9 +2125,9 @@ directive
   / include_limits
 
 wikilink_preprocessor_text
-  = r:( t:[^<[{\n\r\t|!\]}{ &]+ { return t.join(''); }
+  = r:( t:[^<[{\n\r\t|!\]}{ &\-]+ { return t.join(''); }
         // XXX gwicke: any more chars we need to allow here?
-        / !inline_breaks wr:( directive / !"]]" c:( text_char / [!<] ) { return c; } )
+        / !inline_breaks wr:( directive / !"]]" c:( text_char / [!<\-] ) { return c; } )
         { return wr; }
     )+ {
       return tu.flatten_stringlist( r );
@@ -2148,12 +2148,12 @@ extlink_preprocessor_text
 
 // Attribute values with preprocessor support
 attribute_preprocessor_text
-  = r:( ts:(!inline_breaks t:[^=<>{}\n\r&'"\t/ ] {return t;})+ { return ts.join(''); }
+  = r:( ts:(!inline_breaks t:[^=<>{}\n\r&'"\t/ \-] {return t;})+ { return ts.join(''); }
   / !inline_breaks
     ! '/>'
     r:(
           directive
-        / [&%/{}]
+        / [&%/{}\-]
     ) { return r; }
   )+
   {
@@ -2162,30 +2162,30 @@ attribute_preprocessor_text
   }
 
 attribute_preprocessor_text_single
-  = r:( t:[^{}&'<]+ { return t.join(''); }
+  = r:( t:[^{}&'<\-]+ { return t.join(''); }
   / !inline_breaks r:(
       directive
-    / [{}&<] ) { return r; }
+    / [{}&<\-] ) { return r; }
   )*
   {
       return tu.flatten_string( r );
   }
 
 attribute_preprocessor_text_single_broken
-  = r:( t:[^{}&'<>|]+ { return t.join(''); }
+  = r:( t:[^{}&'<>|\-]+ { return t.join(''); }
   / !inline_breaks r:(
       directive
-    / [{}&<] ) { return r; }
+    / [{}&<\-] ) { return r; }
   )*
   {
       return tu.flatten_string( r );
   }
 
 attribute_preprocessor_text_double
-  = r:( t:[^{}&"<]+ { return t.join(''); }
+  = r:( t:[^{}&"<\-]+ { return t.join(''); }
   / !inline_breaks r:(
       directive
-    / [{}&<] ) { return r; }
+    / [{}&<\-] ) { return r; }
   )*
   {
       //console.warn( 'double:' + pp(r) );
@@ -2193,10 +2193,10 @@ attribute_preprocessor_text_double
   }
 
 attribute_preprocessor_text_double_broken
-  = r:( t:[^{}&"<>|]+ { return t.join(''); }
+  = r:( t:[^{}&"<>|\-]+ { return t.join(''); }
   / !inline_breaks r:(
       directive
-    / [{}&<] ) { return r; }
+    / [{}&<\-] ) { return r; }
   )*
   {
       //console.warn( 'double:' + pp(r) );
@@ -2205,7 +2205,7 @@ attribute_preprocessor_text_double_broken
 
 // Variants with the entire attribute on a single line
 attribute_preprocessor_text_line
-  = r:( ts:[^=<>\n\r&'"\t \[\]|{}/!]+ { return ts.join(''); }
+  = r:( ts:[^=<>\n\r&'"\t \[\]|{}/!\-]+ { return ts.join(''); }
         /  !inline_breaks
             ! '/>'
             t:(
@@ -2225,37 +2225,37 @@ attribute_preprocessor_text_line
   }
 
 attribute_preprocessor_text_single_line
-  = r:( t:[^{}&'<\n]+ { return t.join(''); }
+  = r:( t:[^{}&'<\n\-]+ { return t.join(''); }
   / !inline_breaks r:(
       directive
-    / ![\r\n] q:[{}&<] { return q; } ) { return r; }
+    / ![\r\n] q:[{}&<\-] { return q; } ) { return r; }
   )* {
       return tu.flatten_string( r );
   }
 
 attribute_preprocessor_text_single_line_broken
-  = r:( t:[^{}&'<>|!\n]+ { return t.join(''); }
+  = r:( t:[^{}&'<>|!\n\-]+ { return t.join(''); }
   / !inline_breaks r:(
       directive
-    / ![\r\n] q:[{}&<] { return q; } ) { return r; }
+    / ![\r\n] q:[{}&<\-] { return q; } ) { return r; }
   )* {
       return tu.flatten_string( r );
   }
 
 attribute_preprocessor_text_double_line
-  = r:( t:[^{}&"<\n]+ { return t.join(''); }
+  = r:( t:[^{}&"<\n\-]+ { return t.join(''); }
   / !inline_breaks r:(
       directive
-    / ![\r\n] q:[{}&<] { return q; } ) { return r; }
+    / ![\r\n] q:[{}&<\-] { return q; } ) { return r; }
   )* {
       return tu.flatten_string( r );
   }
 
 attribute_preprocessor_text_double_line_broken
-  = r:( t:[^{}&"<>|!\n]+ { return t.join(''); }
+  = r:( t:[^{}&"<>|!\n\-]+ { return t.join(''); }
   / !inline_breaks r:(
       directive
-    / ![\r\n] q:[{}&<] { return q; } ) { return r; }
+    / ![\r\n] q:[{}&<\-] { return q; } ) { return r; }
   )* {
       return tu.flatten_string( r );
   }
