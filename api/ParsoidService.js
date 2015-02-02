@@ -7,6 +7,7 @@ require('../lib/core-upgrade.js');
 
 // global includes
 var express = require('express'),
+	compression = require('compression'),
 	hbs = require('handlebars'),
 	cluster = require('cluster'),
 	path = require('path'),
@@ -42,7 +43,7 @@ function ParsoidService( parsoidConfig, processLogger ) {
 	app.use(express.bodyParser({ maxFieldsSize: 15 * 1024 * 1024 }));
 
 	// Support gzip / deflate transfer-encoding
-	app.use(express.compress());
+	app.use(compression());
 
 	// limit upload file size
 	app.use(express.limit('15mb'));
