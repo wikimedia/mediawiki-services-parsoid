@@ -462,7 +462,7 @@ routes.parserEnvMw = function( req, res, next ) {
 			return new Promise(function( resolve, reject ) {
 				apiUtils.setHeader( res, env, 'Content-Type', 'text/plain; charset=UTF-8' );
 				apiUtils.sendResponse( res, env, logData.fullMsg(), logData.flatLogObject().code || 500 );
-				res.on( 'finish', resolve );
+				res.once( 'finish', resolve );
 			}).catch(function(e) {
 				console.error( e.stack || e );
 				res.end( e.stack || e );
