@@ -1015,7 +1015,7 @@ add("html2wt", "Definition Lists: Mixed Lists: Test 5", "*: d1\n*:: d2\n");
 add("html2wt", "Definition Lists: Mixed Lists: Test 6", "#*: d1\n#*::: d3\n");
 add("html2wt", "Definition Lists: Mixed Lists: Test 9", "*; foo \n*: bar\n");
 add("html2wt", "Definition Lists: Mixed Lists: Test 10", "*#; foo \n*#: bar\n");
-add("html2wt", "Definition Lists: Mixed Lists: Test 11", "\n*#*#;*;; foo<span> </span>:bar\n*#*#; boo<span> </span>:baz\n");
+add("html2wt", "Definition Lists: Mixed Lists: Test 11", "\n*#*#;*;; foo :bar\n*#*#; boo :baz\n");
 add("html2wt", "Definition Lists: Weird Ones: Test 1", "\n*#;*::;; foo<span> </span>: bar (who uses this?)\n");
 add("html2wt", "Definition Lists: colons occurring in tags", "; a\n: b\n; '''a:b'''\n; ''a:b''\n; <span>a:b</span>\n; <div>a:b</div>\n; a\n: b\n; ''a:b''\n");
 add("html2wt", "Definition Lists: colons and tables 1", ": {|\n\n| x\n|}\n\n: {|\n\n| y\n|}\n");

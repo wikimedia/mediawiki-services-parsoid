@@ -3838,12 +3838,12 @@ Definition Lists: Mixed Lists: Test 11
 <dl>
 <dt>
 <dl>
-<dt>foo<span typeof="mw:Placeholder">&nbsp;</span></dt>
+<dt>foo<span typeof="mw:Placeholder" data-parsoid='{"src":" "}'>&nbsp;</span></dt>
 <dd data-parsoid='{"stx":"row"}'>bar</dd>
 </dl></dt>
 </dl></li>
 </ul></dt>
-<dt>boo<span typeof="mw:Placeholder">&nbsp;</span></dt>
+<dt>boo<span typeof="mw:Placeholder" data-parsoid='{"src":" "}'>&nbsp;</span></dt>
 <dd data-parsoid='{"stx":"row"}'>baz</dd>
 </dl></li>
 </ol></li>
