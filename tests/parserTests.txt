@@ -8787,6 +8787,17 @@ Aoeu
 </p>
 !! end
 
+# From plwiki:PLOS_ONE
+!! test
+Parsoid: Page property magic word with magic word contents
+!! options
+parsoid
+!! wikitext
+{{DISPLAYTITLE:''{{PAGENAME}}''}}
+!! html
+<meta property="mw:PageProp/displaytitle" content="Main Page" about="#mwt2" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"content"},{"html":"&lt;i data-parsoid=\"{&amp;quot;dsr&amp;quot;:[15,31,2,2]}\">&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[]],&amp;quot;dsr&amp;quot;:[17,29,null,null]}\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;PAGENAME&amp;quot;,&amp;quot;function&amp;quot;:&amp;quot;pagename&amp;quot;},&amp;quot;params&amp;quot;:{},&amp;quot;i&amp;quot;:0}}]}\">Main Page&lt;/span>&lt;/i>"}]]}'/>
+!! end
+
 !! test
 Namespace 1 {{ns:1}}
 !! wikitext
