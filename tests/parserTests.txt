@@ -5548,7 +5548,6 @@ Invalid attributes in table cell (bug 1830)
 
 !! end
 
-
 # The "|}" to close the table is missing from the input, so parsoid's
 # *2wt modes will fail.
 !! test
@@ -5573,6 +5572,25 @@ parsoid=wt2html,html2html
 <td><a rel="mw:ExtLink" href="ftp://|x||"></a>" onmouseover="alert(document.cookie)">test</td></tr></tbody></table>
 !! end
 
+# FIXME: The php output is broken.
+!! test
+! and || in td attributes should not be parsed as <th>/<td>
+!! wikitext
+{|
+| style="color: red !important;" data-contrived="put this here ||" | foo
+|}
+!! html/php
+<table>
+<tr>
+<td> style="color: red !important;" data-contrived="put this here </td>
+<td> foo
+</td></tr></table>
+
+!! html/parsoid
+<table>
+<tbody><tr><td style="color: red !important;" data-contrived="put this here ||" data-parsoid='{"autoInsertedEnd":true}'> foo</td></tr>
+</tbody></table>
+!! end
 
 !! test
 Indented table markup mixed with indented pre content (proposed in bug 6200)
@@ -14983,7 +15001,6 @@ Punctuation: CSS ! important (bug 11874; with space after)
 <div style="width:50% ! important">important</div>
 
 !!end
-
 
 !! test
 HTML bullet list, closed tags (bug 5497)
