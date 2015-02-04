@@ -22749,6 +22749,21 @@ parsoid=html2wt
 !! end
 
 !! test
+Headings: Force metas to serialize before/after
+!! options
+parsoid=html2wt
+!! html
+<h2>hello there<link href="Category:A1" rel="mw:PageProp/Category" /></h2>
+<h2><link href="Category:A2" rel="mw:PageProp/Category" />hi pal</h2>
+!! wikitext
+== hello there ==
+[[Category:A1]]
+
+[[Category:A2]]
+== hi pal ==
+!! end
+
+!! test
 Parsoid: Serialize positional parameters with = in them as named parameter
 !! options
 parsoid=html2wt
