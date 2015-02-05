@@ -20053,6 +20053,18 @@ B <span about="#mwt4" class="reference" id="cite_ref-b_2-0" rel="dc:references" 
 !! end
 
 !! test
+References: 8. T88019: Remove <meta>s from templates inside <ref> that's itself inside a template
+!! options
+parsoid
+!! wikitext
+X{{echo|<ref>foo {{echo|<b>bar</b>}} and {{echo|baz}} boo</ref>}}
+<references />
+!! html
+<p>X<span about="#mwt2" class="reference" id="cite_ref-1" rel="dc:references" typeof="mw:Transclusion  mw:Extension/ref" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;ref>foo {{echo|&lt;b>bar&lt;/b>}} and {{echo|baz}} boo&lt;/ref>"}},"i":0}}]}'><a href="#cite_note-1">[1]</a></span></p>
+<ol class="references" typeof="mw:Extension/references" about="#mwt4" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1">↑</a></span> foo <b data-parsoid='{"stx":"html"}'>bar</b> and baz boo</li></ol>
+!!end
+
+!! test
 Entities in ref name
 !! options
 parsoid
