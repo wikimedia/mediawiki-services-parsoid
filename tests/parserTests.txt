@@ -22404,6 +22404,16 @@ parsoid=html2wt
 !! end
 
 !! test
+New category doesn't need indent-pre nowiki protection
+!! options
+parsoid=html2wt
+!! html
+<!-- this is great -->    <link rel="mw:PageProp/Category" href="./Category:Good" />
+!! wikitext
+<!-- this is great -->    [[Category:Good]]
+!! end
+
+!! test
 New interlanguage links (href variations)
 !! options
 parsoid=html2wt
