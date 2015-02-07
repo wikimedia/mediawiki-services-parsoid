@@ -460,6 +460,10 @@ routes.parserEnvMw = function( req, res, next ) {
 	function errBack( env, logData, callback ) {
 		if ( !env.responseSent ) {
 			return new Promise(function( resolve, reject ) {
+				var socket = res.socket;
+				if ( res.finished || (socket && !socket.writable) ) {
+					return resolve();
+				}
 				res.once( 'finish', resolve );
 				apiUtils.setHeader( res, env, 'Content-Type', 'text/plain; charset=UTF-8' );
 				apiUtils.sendResponse( res, env, logData.fullMsg(), logData.flatLogObject().code || 500 );
