@@ -191,5 +191,30 @@ describe( 'ParserPipelineFactory', function() {
 				});
 			});
 		});
+		// T51075: This test actually fetches the template contents from
+		// enwiki, fully exercising the `expandtemplates` API, unlike
+		// the parserTests test for this functionality, which ends up using
+		// our own (incomplete) parser functions implementation.
+		it('should handle template-generated page properties', function() {
+			return parse('{{Lowercase title}}{{{{echo|DEFAULTSORT}}:x}}', {
+				prefix: 'enwiki',
+				page_name: 'EBay'
+			}).then(function(doc) {
+				var els = doc.querySelectorAll('HEAD > TITLE');
+				els.length.should.equal(1);
+				els[0].textContent.should.equal('eBay');
+				doc.title.should.equal('eBay');
+				// now check the <meta> elements
+				els = doc.querySelectorAll('META[property]');
+				var o = {}, prop;
+				for (var i=0; i<els.length; i++) {
+					prop = els[i].getAttribute('property');
+					o.should.not.have.property(prop);
+					o[prop] = els[i].getAttribute('content');
+				}
+				o['mw:PageProp/displaytitle'].should.equal('eBay');
+				o['mw:PageProp/categorydefaultsort'].should.equal('x');
+			});
+		});
 	});
 });
