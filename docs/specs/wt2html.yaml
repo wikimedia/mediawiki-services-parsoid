@@ -1,0 +1,150 @@
+swagger: '2.0'
+info:
+  title: Parsoid conversion API
+  version: '2.0.0'
+basePath: /v2
+paths:
+  /{domain}/html/:
+    parameters:
+      - name: domain
+        in: path
+        type: string
+        required: true
+        default: en.wikipedia.org
+    post:
+      produces:
+        - text/html; profile=mediawiki.org/specs/html/1.0.0
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/Orphan'
+      responses:
+        200:
+          description: HTML
+        400:
+          description: Invalid input
+  /{domain}/html/{title}:
+    parameters:
+      - name: domain
+        in: path
+        type: string
+        required: true
+        default: en.wikipedia.org
+      - name: title
+        in: path
+        type: string
+        required: true
+        default: Main_Page
+    get:
+      responses:
+        302:
+          description: Redirect
+  /{domain}/html/{title}/{revision}:
+    parameters:
+      - name: domain
+        in: path
+        type: string
+        required: true
+        default: en.wikipedia.org
+      - name: title
+        in: path
+        type: string
+        required: true
+        default: Main_Page
+      - name: revision
+        in: path
+        type: string
+        required: true
+        default: 1
+    get:
+      produces:
+        - text/html; profile=mediawiki.org/specs/html/1.0.0
+      responses:
+        200:
+          description: HTML
+    post:
+      summary: Convert a revision to html 
+      produces:
+        - text/html; profile=mediawiki.org/specs/html/1.0.0
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/Page'
+      responses:
+        200:
+          description: HTML
+definitions:
+  Orphan:
+    title: Raw source
+  WikitextRaw:
+    extends: Orphan
+    properties:
+      wikitext:
+        type: string
+  WikitextRequest:
+    extends: Orphan
+    properties:
+      wikitext:
+        schema:
+          $ref: '#/definitions/PlainRequest'
+  PlainRequest:
+    properties:
+      headers:
+        type: object
+      body:
+        type: string
+  DataParsoidRequest:
+    properties:
+      headers:
+        type: object
+      body:
+        schema:
+          $ref: '#/definitions/DataParsoid'
+  DataParsoid:
+    properties:
+      counter:
+        type: integer
+      ids:
+        type: object
+  Page:
+    title: Page
+  Previous:
+    extends: Page
+    properties:
+      revid:
+        type: integer
+      html:
+        schema:
+          $ref: '#/definitions/PlainRequest'
+      data-parsoid:
+        schema:
+          $ref: '#/definitions/DataParsoidRequest'
+  Original:
+    extends: Page
+    properties:
+      update:
+        schema:
+          $ref: '#/definitions/Update'
+      original:
+        schema:
+          $ref: '#/definitions/Original'
+  Update:
+    properties:
+      templates:
+        type: boolean
+  Original:
+    properties:
+      revid:
+        type: integer
+      html:
+        schema:
+          $ref: '#/definitions/PlainRequest'
+      data-parsoid:
+        schema:
+          $ref: '#/definitions/DataParsoidRequest'
+      wikitext:
+        schema:
+          $ref: '#/definitions/WikitextRequest'

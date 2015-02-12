@@ -1,0 +1,87 @@
+swagger: '2.0'
+info:
+  title: Parsoid conversion API
+  version: '2.0.0'
+basePath: /v2
+paths:
+  /{domain}/wt/:
+    parameters:
+      - name: domain
+        in: path
+        type: string
+        required: true
+        default: en.wikipedia.org
+    post:
+      produces:
+        - application/json; profile=mediawiki.org/specs/data-parsoid/0.0.1
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/Source'
+      responses:
+        200:
+          description: Wikitext
+          schema:
+            $ref: '#/definitions/Wikitext'
+        400:
+          description: Invalid source
+definitions:
+  Source:
+    title: Source
+  Html:
+    extends: Source
+    properties:
+      html:
+        type: string
+  HtmlBundle:
+    extends: Source
+    properties:
+      html:
+        schema:
+          $ref: '#/definitions/PlainRequest'
+      data-parsoid:
+        schema:
+          $ref: '#/definitions/DataParsoidRequest'
+      original:
+        schema:
+          $ref: '#/definitions/Original'
+  DataParsoidRequest:
+    properties:
+      headers:
+        type: object
+      body:
+        schema:
+          $ref: '#/definitions/DataParsoid'
+  DataParsoid:
+    properties:
+      counter:
+        type: integer
+      ids:
+        type: object
+  PlainRequest:
+    properties:
+      headers:
+        type: object
+      body:
+        type: string
+  Original:
+    properties:
+      revid:
+        type: integer
+      title:
+        type: string
+      wikitext:
+        schema:
+          $ref: '#/definitions/PlainRequest'
+      html:
+        schema:
+          $ref: '#/definitions/PlainRequest'
+      data-parsoid:
+        schema:
+          $ref: '#/definitions/DataParsoidRequest'
+  Wikitext:
+    properties:
+      wikitext:
+        type: string
