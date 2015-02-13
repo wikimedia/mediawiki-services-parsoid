@@ -278,12 +278,14 @@ var html2wt = function( req, res, html ) {
 		var doc = DU.parseHTML( html.replace(/\r/g, '') ),
 			Serializer = parsoidConfig.useSelser ? SelectiveSerializer : WikitextSerializer,
 			serializer = new Serializer({ env: env, oldid: env.page.id });
-		if ( v2 && v2["data-parsoid"] ) {
-			DU.applyDataParsoid( doc, v2["data-parsoid"].body );
+		if ( v2 && v2.original && v2.original["data-parsoid"] ) {
+			DU.applyDataParsoid( doc, v2.original["data-parsoid"].body );
 		}
 		if ( v2 && v2.original && v2.original.html ) {
-			env.page.dom = DU.parseHTML( v2.original.html.body );
-			DU.applyDataParsoid( env.page.dom, v2.original["data-parsoid"].body );
+			env.page.dom = DU.parseHTML( v2.original.html.body ).body;
+			if ( v2.original["data-parsoid"] ) {
+				DU.applyDataParsoid( env.page.dom.ownerDocument, v2.original["data-parsoid"].body );
+			}
 		}
 		return Promise.promisify( serializer.serializeDOM, false, serializer )(
 			doc.body, function( chunk ) { out.push( chunk ); }, false

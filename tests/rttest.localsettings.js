@@ -11,7 +11,10 @@ exports.setup = function( parsoidConfig ) {
 	// The URL of your MediaWiki API endpoint. Optionally, you can also pass
 	// in a proxy specific to this prefix (overrides defaultAPIProxyURI), or
 	// null to disable proxying for this end point.
-	parsoidConfig.setInterwiki( 'localhost', 'http://localhost/w/api.php' );
+	//parsoidConfig.setInterwiki( 'localhost', 'http://localhost/w/api.php' );
+	if ( process.env.PARSOID_MOCKAPI_URL ) {
+		parsoidConfig.setInterwiki( 'localhost', process.env.PARSOID_MOCKAPI_URL );
+	}
 
 	// We pre-define wikipedias as 'enwiki', 'dewiki' etc. Similarly
 	// for other projects: 'enwiktionary', 'enwikiquote', 'enwikibooks',
@@ -29,7 +32,7 @@ exports.setup = function( parsoidConfig ) {
 	//parsoidConfig.usePHPPreProcessor = false;
 
 	// Use selective serialization (default false)
-	parsoidConfig.useSelser = true;
+	//parsoidConfig.useSelser = true;
 
 	// Allow cross-domain requests to the API (default '*')
 	// Sets Access-Control-Allow-Origin header
@@ -54,4 +57,10 @@ exports.setup = function( parsoidConfig ) {
 	// Leaving it undefined (the default) will use the same URI as the MW API,
 	// changing api.php for load.php.
 	//parsoidConfig.modulesLoadURI = true;
+
+	// Set rtTestMode to true for round-trip testing
+	parsoidConfig.rtTestMode = false;
+
+	// Fetch the wikitext for a page before doing html2wt
+	parsoidConfig.fetchWT = true;
 };

@@ -125,7 +125,7 @@ var parsoidServerOpts = {
 	filePath: "/../api/server.js",
 	serverArgv: [
 		'--num-workers', '1',
-		'--config', path.resolve( __dirname, './test.localsettings.js' )
+		'--config', path.resolve( __dirname, './rttest.localsettings.js' )
 	],
 	serverEnv: {}
 };
