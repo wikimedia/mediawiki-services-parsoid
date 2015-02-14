@@ -59,7 +59,7 @@ exports.setup = function( parsoidConfig ) {
 	//parsoidConfig.modulesLoadURI = true;
 
 	// Set rtTestMode to true for round-trip testing
-	parsoidConfig.rtTestMode = false;
+	parsoidConfig.rtTestMode = true;
 
 	// Fetch the wikitext for a page before doing html2wt
 	parsoidConfig.fetchWT = true;
