@@ -38,6 +38,12 @@ exports.setup = function( parsoidConfig ) {
 	// restrict:
 	//parsoidConfig.allowCORS = 'some.domain.org';
 
+	// Set to true for Performance timing
+	//parsoidConfig.usePerformanceTimer = true;
+	// Peformance timing options
+	//parsoidConfig.txstatsdHost = 'statsd.eqiad.wmnet';
+	//parsoidConfig.txstatsdPort = 8125;
+
 	// Allow override of port/interface:
 	//parsoidConfig.serverPort = 8000;
 	//parsoidConfig.serverInterface = '127.0.0.1';
