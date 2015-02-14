@@ -260,7 +260,8 @@ var html2wt = function( req, res, html ) {
 		if ( v2 && v2.original && v2.original.wikitext ) {
 			env.setPageSrcInfo( v2.original.wikitext.body );
 			return resolve();
-		} else if ( !env.conf.parsoid.fetchWT ) {
+		} else if ( !(v2 && v2.original && v2.original.html)
+				&& !env.conf.parsoid.fetchWT ) {
 			return resolve();
 		}
 		var target = env.resolveTitle( env.normalizeTitle(env.page.name), '' );
