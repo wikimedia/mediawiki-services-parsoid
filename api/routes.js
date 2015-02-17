@@ -255,6 +255,14 @@ var html2wt = function( req, res, html ) {
 						   env.conf.parsoid.allowCORS );
 	}
 
+	// Performance Timing options
+	var timer = env.conf.parsoid.performanceTimer;
+	var startTimers = new Map();
+
+	if ( timer ) {
+		startTimers.set( 'html2wt.total', Date.now() );
+	}
+
 	var out = [];
 	var p = new Promise(function( resolve, reject ) {
 		if ( v2 && v2.original && v2.original.wikitext ) {
@@ -307,6 +315,11 @@ var html2wt = function( req, res, html ) {
 			apiUtils.setHeader(res, env, 'Content-Type', 'text/x-mediawiki; charset=UTF-8');
 			apiUtils.endResponse(res, env, out.join(''));
 		}
+
+		if ( timer ) {
+			timer.timing( 'html2wt.total', '', startTimers.get( 'html2wt.total' ) );
+		}
+
 		env.log("info", "completed serializing in", env.performance.duration, "ms");
 	});
 	return cpuTimeout( p, res )
@@ -329,6 +342,13 @@ var wt2html = function( req, res, wt ) {
 		// can be used by third-party sites
 		apiUtils.setHeader( res, env, 'Access-Control-Allow-Origin',
 							env.conf.parsoid.allowCORS );
+	}
+
+	var timer = env.conf.parsoid.performanceTimer;
+	var startTimers = new Map();
+
+	if ( timer ){
+		startTimers.set( 'wt2html.total', Date.now() );
 	}
 
 	function sendRes(doc) {
@@ -356,11 +376,28 @@ var wt2html = function( req, res, wt ) {
 			apiUtils.setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8');
 			apiUtils.endResponse(res, env,  DU.serializeNode( res.local('body') ? doc.body : doc ));
 		}
+
+		if ( timer ){
+			if ( startTimers.has( 'wt2html.parse.wt' ) ){
+				timer.timing( 'wt2html.parse.wt', '', startTimers.get( 'wt2html.parse.wt' ) );
+				timer.count( 'wt2html.parse.wt.count', '' );
+			} else if ( startTimers.has( 'wt2html.parse.pageWithOldid' ) ){
+				timer.timing( 'wt2html.parse.pageWithOldid', '', startTimers.get( 'wt2html.parse.pageWithOldid' ) );
+				timer.count( 'wt2html.parse.pageWithOldid.count', '' );
+			}
+			timer.timing( 'wt2html.total', '', startTimers.get( 'wt2html.total' ) );
+		}
+
 		env.log("info", "completed parsing in", env.performance.duration, "ms");
 	}
 
 	function parseWt() {
 		env.log('info', 'started parsing');
+
+		if ( timer ){
+			startTimers.set( 'wt2html.parse.wt', Date.now() );
+		}
+
 		if ( !res.local('pageName') ) {
 			// clear default page name
 			env.page.name = '';
@@ -378,6 +415,10 @@ var wt2html = function( req, res, wt ) {
 	}
 
 	function parsePageWithOldid() {
+		if ( timer ){
+			startTimers.set( 'wt2html.parse.pageWithOldid', Date.now() );
+		}
+
 		return parse( env, req, res ).then(function( doc ) {
 			if ( req.headers.cookie || v2 ) {
 				// Don't cache requests with a session.
@@ -398,6 +439,10 @@ var wt2html = function( req, res, wt ) {
 	function redirectToOldid() {
 		// Don't cache requests with no oldid
 		apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0');
+
+		if ( timer ){
+			startTimers.set( 'wt2html.parse.redirectToOldid', Date.now() );
+		}
 
 		oldid = env.page.meta.revision.revid;
 		env.log("info", "redirecting to revision", oldid);
@@ -420,6 +465,11 @@ var wt2html = function( req, res, wt ) {
 
 		// Redirect to oldid
 		apiUtils.relativeRedirect({ "path": path, "res": res, "env": env });
+
+		if ( timer ){
+			timer.timing( 'wt2html.parse.redirectToOldid', '', startTimers.get( 'wt2html.parse.redirectToOldid' ) );
+			timer.count( 'wt2html.parse.redirectToOldid.count', '' );
+		}
 	}
 
 	var p;
