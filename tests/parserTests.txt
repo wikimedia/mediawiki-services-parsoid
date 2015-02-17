@@ -15837,20 +15837,24 @@ Sanitizer: Closing of open but not closed tags
 
 !! test
 Sanitizer: Closing of closed but not open tags
+!! options
+parsoid=wt2html
 !! wikitext
 </s>
-!! html
-<p>&lt;/s&gt;
-</p>
+!! html/php+tidy
+!! html/parsoid
 !! end
 
 !! test
 Sanitizer: Closing of closed but not open table tags
+!! options
+parsoid=wt2html
 !! wikitext
 Table not started</td></tr></table>
-!! html
-<p>Table not started&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
-</p>
+!! html/php+tidy
+<p>Table not started</p>
+!! html/parsoid
+<p>Table not started</p>
 !! end
 
 !! test

@@ -221,7 +221,6 @@ add("wt2html", "Parser hook: empty input using terminated empty elements (bug 23
 add("wt2html", "Parser hook: basic arguments using terminated empty elements (bug 2374)", "<p data-parsoid='{\"dsr\":[0,70,0,0]}'>&lt;tag width=200 height = \"100\" depth = '50' square/>\nother stuff\n&lt;/tag></p>");
 add("wt2html", "Parser hook: static parser hook not inside a comment", "<p data-parsoid='{\"dsr\":[0,61,0,0]}'>&lt;statictag>hello, world&lt;/statictag>\n&lt;statictag action=flush/></p>");
 add("wt2html", "Parser hook: static parser hook inside a comment", "<!-- <statictag&#x3E;hello, world</statictag&#x3E; -->\n<p data-parsoid='{\"dsr\":[45,70,0,0]}'>&lt;statictag action=flush/></p>");
-add("wt2html", "Sanitizer: Closing of closed but not open tags", "");
 add("wt2html", "Sanitizer: Closing of closed but not open table tags", "Table not started");
 add("wt2html", "Sanitizer: Escaping of spaces, multibyte characters, colons & other stuff in id=\"\"", "<p data-parsoid='{\"dsr\":[0,45,0,0]}'><span id=\"æ: v\" data-parsoid='{\"stx\":\"html\",\"dsr\":[0,27,16,7]}'>byte</span><a rel=\"mw:WikiLink\" href=\"./Main%20Page#æ:_v\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Main%20Page#æ:_v\"},\"sa\":{\"href\":\"#æ: v\"},\"dsr\":[27,45,8,2]}'>backlink</a></p>");
 add("wt2html", "Sanitizer: Validating that <meta> and <link> work, but only for Microdata", "<div itemscope=\"\" data-parsoid='{\"stx\":\"html\",\"dsr\":[0,308,15,6]}'>\n\t<p data-parsoid='{\"dsr\":[17,301,0,0]}'>&lt;meta itemprop=\"hello\" content=\"world\">\n\t&lt;meta http-equiv=\"refresh\" content=\"5\">\n\t&lt;meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\">\n\t&lt;link itemprop=\"hello\" href=\"{{SERVER}}\">\n\t&lt;link rel=\"stylesheet\" href=\"{{SERVER}}\">\n\t&lt;link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\"></p>\n</div>");
@@ -497,8 +496,6 @@ add("wt2wt", "Bug 2095: link with pipe and three closing brackets, version 2", "
 add("wt2wt", "Opera -o-link CSS", "<div title=\"&#100;&#97;&#116;&#97;&#58;&#116;&#101;&#120;&#116;&#47;&#104;&#116;&#109;&#108;&#44;&#60;&#105;&#109;&#103;&#32;&#115;&#114;&#99;&#61;&#49;&#32;&#111;&#110;&#101;&#114;&#114;&#111;&#114;&#61;&#97;&#108;&#101;&#114;&#116;&#40;&#49;&#41;&#62;\" style=\"-o-link:attr(title);-o-link-source:current\">X</div>");
 add("wt2wt", "Table attribute legitimate extension", "{|\n! style=\"<nowiki>color:blue</nowiki>\" + | status\n|}");
 add("wt2wt", "Table attribute safety", "{|\n! style=\"<nowiki>border-width:expression(0+alert(document.cookie))</nowiki>\" + | status\n|}");
-add("wt2wt", "Sanitizer: Closing of closed but not open tags", "");
-add("wt2wt", "Sanitizer: Closing of closed but not open table tags", "Table not started");
 add("wt2wt", "Sanitizer: Validating that <meta> and <link> work, but only for Microdata", "<div itemscope=\"\">\n\t<nowiki><meta itemprop=\"hello\" content=\"world\">\n\t<meta http-equiv=\"refresh\" content=\"5\">\n\t<meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\">\n\t<link itemprop=\"hello\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\"></nowiki>\n</div>");
 add("wt2wt", "Fuzz testing: Parser13", "{|  \n| http://a|\n|}");
 add("wt2wt", "Fuzz testing: Parser14-table", "==a==\n{| style=\"__TOC__\"\n|}");
@@ -1449,8 +1446,6 @@ add("html2wt", "Parser hook: static parser hook inside a comment", "\n");
 add("html2wt", "Nested template calls", "(My parameter is: param)\n");
 add("html2wt", "Sanitizer: Closing of open tags", "<s></s>\n{|\n|}\n");
 add("html2wt", "Sanitizer: Closing of open but not closed tags", "<s>foo</s>\n");
-add("html2wt", "Sanitizer: Closing of closed but not open tags", "<nowiki></s></nowiki>\n");
-add("html2wt", "Sanitizer: Closing of closed but not open table tags", "Table not started<nowiki></td></tr></table></nowiki>\n");
 add("html2wt", "Sanitizer: Escaping of spaces, multibyte characters, colons & other stuff in id=\"\"", "<span id=\".C3.A6:_v\">byte</span>[[#.C3.A6:_v|backlink]]\n");
 add("html2wt", "Sanitizer: Validating that <meta> and <link> work, but only for Microdata", "<div itemscope=\"itemscope\">\n\t<meta itemprop=\"hello\" content=\"world\" />\n\t<meta http-equiv=\"refresh\" content=\"5\">\n\t<meta itemprop=\"hello\" content=\"5\" />\n\n\t[http://example.org]\n\t<link rel=\"stylesheet\" href=\"http://example.org\">\n\t[http://example.org]\n</div>\n");
 add("html2wt", "Language converter: output gets cut off unexpectedly (bug 5757)", "this bit is safe: }-\n\nbut if we add a conversion instance: xxx\n\nthen we get cut off here: }-\n\nall additional text is vanished\n");
@@ -2357,8 +2352,6 @@ add("selser", "Table attribute safety [[0,[[[2]],0]]]", "{|\n!+ style=\"<nowiki>
 add("selser", "Table attribute safety [[0,[2,0]]]", "hopuq8owdrv8to6r\n{|\n!+ style=\"<nowiki>border-width:expression(0+alert(document.cookie))</nowiki>\"| status\n|}");
 add("selser", "Table attribute safety [[0,[0,3]]]", "{|\n!+ style=\"<nowiki>border-width:expression(0+alert(document.cookie))</nowiki>\"| status\n|}");
 add("selser", "Table attribute safety [[0,[1,2]]]", "{|\n!+ style=\"<nowiki>border-width:expression(0+alert(document.cookie))</nowiki>\"| status<!--skyjeiq2kwr0be29-->\n|}");
-add("selser", "Sanitizer: Closing of closed but not open tags 5", "");
-add("selser", "Sanitizer: Closing of closed but not open table tags 5", "Table not started");
 add("selser", "Sanitizer: Validating that <meta> and <link> work, but only for Microdata [[0,1,4]]", "<div itemscope>\n\t<nowiki><meta itemprop=\"hello\" content=\"world\">\n\t<meta http-equiv=\"refresh\" content=\"5\">\n\t<meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\">\n\t<link itemprop=\"hello\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\"></nowiki>\n9lxnoixxq085b3xr</div>");
 add("selser", "Sanitizer: Validating that <meta> and <link> work, but only for Microdata [[2,0,2]]", "<div itemscope>1tq4nuxaexcu9pb9\n\t<meta itemprop=\"hello\" content=\"world\">\n\t<meta http-equiv=\"refresh\" content=\"5\">\n\t<meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\">\n\t<link itemprop=\"hello\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\">\nkcbq6pis8m2t9\n</div>");
 add("selser", "Sanitizer: Validating that <meta> and <link> work, but only for Microdata [2]", "rcydl379jopkqpvi<div itemscope>\n\t<meta itemprop=\"hello\" content=\"world\">\n\t<meta http-equiv=\"refresh\" content=\"5\">\n\t<meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\">\n\t<link itemprop=\"hello\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\">\n</div>");
