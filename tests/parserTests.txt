@@ -22539,13 +22539,18 @@ parsoid=html2wt
 !! end
 
 !! test
-New category doesn't need indent-pre nowiki protection
+New sol transparent links don't need indent-pre nowiki protection
 !! options
 parsoid=html2wt
+language=de
 !! html
-<!-- this is great -->    <link rel="mw:PageProp/Category" href="./Category:Good" />
+         <link rel="mw:PageProp/redirect" href="./Main_Page">
+<!-- this is good  -->    <link rel="mw:PageProp/Category" href="./Category:Good" />
+<!-- this is great -->    <link rel="mw:PageProp/Category" href="./Kategorie:Great" />
 !! wikitext
-<!-- this is great -->    [[Category:Good]]
+         #WEITERLEITUNG [[Main Page]]
+<!-- this is good  -->    [[Category:Good]]
+<!-- this is great -->    [[Kategorie:Great]]
 !! end
 
 !! test
