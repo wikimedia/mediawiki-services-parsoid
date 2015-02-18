@@ -119,6 +119,14 @@ Template:table_attribs
 !! endarticle
 
 !! article
+Template:table_attribs_2
+!! text
+<noinclude>
+|</noinclude>style="color: red"| Foo
+|Bar||Baz
+!! endarticle
+
+!! article
 Template:table_cells
 !! text
 {{table_attribs}} || Bar || Baz
@@ -5615,7 +5623,7 @@ Indented table markup mixed with indented pre content (proposed in bug 6200)
 !! end
 
 !! test
-Template-generated table cell attributes and cell content
+1. Template-generated table cell attributes and cell content
 !! wikitext
 {|
 |{{table_attribs}}
@@ -5641,7 +5649,29 @@ Template-generated table cell attributes and cell content
 !! end
 
 !! test
-Template-generated table cell attributes and cell content (2)
+2. Template-generated table cell attributes and cell content
+!! wikitext
+{|
+|{{table_attribs_2}}
+|}
+!! html/php
+<table>
+<tr>
+<td style="color: red"> Foo
+</td>
+<td>Bar</td>
+<td>Baz
+</td></tr></table>
+
+!! html/parsoid
+<table>
+<tbody><tr><td about="#mwt1" typeof="mw:Transclusion" style="color: red" data-mw='{"parts":["|",{"template":{"target":{"wt":"table_attribs_2","href":"./Template:Table_attribs_2"},"params":{},"i":0}}]}'> Foo</td>
+<td about="#mwt1">Bar</td><td about="#mwt1">Baz</td></tr>
+</tbody></table>
+!! end
+
+!! test
+3. Template-generated table cell attributes and cell content
 !! wikitext
 {|
 |align=center {{table_cells}}
