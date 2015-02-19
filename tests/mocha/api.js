@@ -408,15 +408,15 @@ describe('Parsoid API', function() {
 				.end(done);
 			});
 
-			// The following two tests should both serialize as:
+			// The following three tests should all serialize as:
 			//   "<div>Selser test"
 			// However, we're deliberately setting the original wikitext in
-			// the first to garbage so that when selser doesn't detect any
+			// the first two to garbage so that when selser doesn't detect any
 			// difference between the new and old html, it'll just reuse that
 			// string and we have a reliable way of determining that selser
 			// was used.
 
-			it('should use selser', function(done) {
+			it('should use selser with supplied wikitext', function(done) {
 				// New and old html are identical, which should produce no diffs
 				// and reuse the original wikitext.
 				request(api)
@@ -424,9 +424,9 @@ describe('Parsoid API', function() {
 				.send({
 					html: "<html><body id=\"mwAA\"><div id=\"mwBB\">Selser test</div></body></html>",
 					original: {
-						title: "Doesnotexist",
+						title: "Junk Page",
 						wikitext: {
-							body: "This is just some junk. See the comment above."
+							body: "1. This is just some junk. See the comment above."
 						},
 						html: {
 							body: "<html><body id=\"mwAA\"><div id=\"mwBB\">Selser test</div></body></html>",
@@ -444,7 +444,37 @@ describe('Parsoid API', function() {
 				.expect(200)
 				.expect(function(res) {
 					res.body.should.have.property("wikitext");
-					res.body.wikitext.body.should.equal("This is just some junk. See the comment above.");
+					res.body.wikitext.body.should.equal("1. This is just some junk. See the comment above.");
+				})
+				.end(done);
+			});
+
+			it('should use selser with wikitext fetched from the mw api', function(done) {
+				// New and old html are identical, which should produce no diffs
+				// and reuse the original wikitext.
+				request(api)
+				.post('v2/' + mockHost + '/wt/')
+				.send({
+					html: "<html><body id=\"mwAA\"><div id=\"mwBB\">Selser test</div></body></html>",
+					original: {
+						title: "Junk Page",
+						html: {
+							body: "<html><body id=\"mwAA\"><div id=\"mwBB\">Selser test</div></body></html>",
+						},
+						"data-parsoid": {
+							body: {
+								"ids": {
+									mwAA: {},
+									mwBB: { "autoInsertedEnd": true, "stx": "html" }
+								}
+							}
+						}
+					}
+				})
+				.expect(200)
+				.expect(function(res) {
+					res.body.should.have.property("wikitext");
+					res.body.wikitext.body.should.equal("2. This is just some junk. See the comment above.");
 				})
 				.end(done);
 			});

@@ -60,6 +60,25 @@ var main_page = {
 	}
 };
 
+var junk_page = {
+	"query": {
+		"pages": {
+			"2": {
+				"pageid": 2,
+				"ns": 0,
+				"title": "Junk Page",
+				"revisions":[{
+					"revid": 2,
+					"parentid": 0,
+					"contentmodel": "wikitext",
+					"contentformat":"text/x-wiki",
+					"*": "2. This is just some junk. See the comment above."
+				}]
+			}
+		}
+	}
+};
+
 var fnames = {
 		'Image:Foobar.jpg': 'Foobar.jpg',
 		'File:Foobar.jpg': 'Foobar.jpg',
@@ -126,9 +145,12 @@ var fnames = {
 				return this.querySiteinfo( body, cb );
 			}
 
-			if ( body.prop === "revisions" &&
-				 (body.revids === "1" || body.titles === "Main_Page") ) {
-				return cb( null , main_page );
+			if ( body.prop === "revisions" ) {
+				if ( body.revids === "1" || body.titles === "Main_Page" ) {
+					return cb( null , main_page );
+				} else if ( body.revids === "2" || body.titles === "Junk_Page" ) {
+					return cb( null , junk_page );
+				}
 			}
 
 			var filename = body.titles,
