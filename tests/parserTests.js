@@ -1349,9 +1349,10 @@ function printResult( reportFailure, reportSuccess, title, time, comments, iopts
 	var asExpected;
 
 	if ( fail &&
-	     booleanOption( options.whitelist ) &&
-	     title in testWhiteList &&
-	     DU.normalizeOut( DU.parseHTML( testWhiteList[title] ).body, parsoidOnly ) ===  actual.normal ) {
+		booleanOption( options.whitelist ) &&
+		title in testWhiteList &&
+		DU.normalizeOut( DU.parseHTML( testWhiteList[title] ).body, parsoidOnly ) ===  actual.normal
+	) {
 		whitelist = true;
 		fail = false;
 	}
