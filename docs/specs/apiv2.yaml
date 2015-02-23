@@ -1,0 +1,288 @@
+swagger: '2.0'
+info:
+  title: Parsoid conversion API
+  version: '2.0.0'
+basePath: /v2
+paths:
+
+  /{domain}/html/{title}:
+    parameters:
+      - name: domain
+        in: path
+        type: string
+        required: true
+        default: en.wikipedia.org
+      - name: title
+        in: path
+        type: string
+        required: true
+        default: Main_Page
+    get:
+      responses:
+        302:
+          description: Redirect
+
+  /{domain}/html/{title}/{revision}:
+    parameters:
+      - name: domain
+        in: path
+        type: string
+        required: true
+        default: en.wikipedia.org
+      - name: title
+        in: path
+        type: string
+        required: true
+        default: Main_Page
+      - name: revision
+        in: path
+        type: string
+        required: true
+        default: 1
+    get:
+      produces:
+        - text/html; profile=mediawiki.org/specs/html/1.0.0
+      responses:
+        200:
+          description: HTML
+          schema:
+            $ref: '#/definitions/HTML'
+    post:
+      produces:
+        - text/html; profile=mediawiki.org/specs/html/1.0.0
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/Wt2HtmlSource'
+      responses:
+        200:
+          description: HTML
+          schema:
+            $ref: '#/definitions/HTML'
+
+  /{domain}/html/:
+    parameters:
+      - name: domain
+        in: path
+        type: string
+        required: true
+        default: en.wikipedia.org
+    post:
+      produces:
+        - text/html; profile=mediawiki.org/specs/html/1.0.0
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/Wt2HtmlSource'
+      responses:
+        200:
+          description: HTML
+          schema:
+            $ref: '#/definitions/HTML'
+
+  /{domain}/pagebundle/{title}:
+    parameters:
+      - name: domain
+        in: path
+        type: string
+        required: true
+        default: en.wikipedia.org
+      - name: title
+        in: path
+        type: string
+        required: true
+        default: Main_Page
+    get:
+      responses:
+        302:
+          description: Redirect
+
+  /{domain}/pagebundle/{title}/{revision}:
+    parameters:
+      - name: domain
+        in: path
+        type: string
+        required: true
+        default: en.wikipedia.org
+      - name: title
+        in: path
+        type: string
+        required: true
+        default: Main_Page
+      - name: revision
+        in: path
+        type: string
+        required: true
+        default: 1
+    get:
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Page bundle
+          schema:
+            $ref: '#/definitions/PageBundle'
+    post:
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/Wt2HtmlSource'
+      responses:
+        200:
+          description: Page bundle
+          schema:
+            $ref: '#/definitions/PageBundle'
+
+  /{domain}/pagebundle/:
+    parameters:
+      - name: domain
+        in: path
+        type: string
+        required: true
+        default: en.wikipedia.org
+    post:
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/Wt2HtmlSource'
+      responses:
+        200:
+          description: Page bundle
+          schema:
+            $ref: '#/definitions/PageBundle'
+
+  /{domain}/wt/:
+    parameters:
+      - name: domain
+        in: path
+        type: string
+        required: true
+        default: en.wikipedia.org
+    post:
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/Html2WtSource'
+      responses:
+        200:
+          description: Wikitext
+          schema:
+            $ref: '#/definitions/Wikitext'
+
+definitions:
+
+  Wikitext:
+    properties:
+      headers:
+        type: object
+      body:
+        type: string
+        produces:
+          - text/plain; profile=mediawiki.org/specs/wikitext/1.0.0
+
+  HTML:
+    type: string
+    produces:
+      - text/html; profile=mediawiki.org/specs/html/1.0.0
+
+  DataParsoid:
+    type: object
+    properties:
+      counter:
+        type: integer
+      ids:
+        type: object
+    produces:
+      - application/json; profile=mediawiki.org/specs/data-parsoid/0.0.1
+
+  PageBundle:
+    type: object
+    properties:
+      html:
+        schema:
+          $ref: '#/definitions/HTML'
+      data-parsoid:
+        schema:
+          $ref: '#/definitions/DataParsoid'
+    produces:
+      - application/json
+
+  PlainRequest:
+    properties:
+      headers:
+        type: object
+      body:
+        type: string
+
+  DataParsoidRequest:
+    properties:
+      headers:
+        type: object
+      body:
+        schema:
+          $ref: '#/definitions/DataParsoid'
+
+  Page:
+    properties:
+      revid:
+        type: integer
+      wikitext:
+        schema:
+          $ref: '#/definitions/PlainRequest'
+      html:
+        schema:
+          $ref: '#/definitions/PlainRequest'
+      data-parsoid:
+        schema:
+          $ref: '#/definitions/DataParsoidRequest'
+
+  Original:
+    extends: Page
+    properties:
+      title:
+        type: string
+
+  Update:
+    properties:
+      templates:
+        type: boolean
+
+  Source:
+    properties:
+      previous:
+        schema:
+          $ref: '#/definitions/Page'
+      original:
+        schema:
+          $ref: '#/definitions/Original'
+
+  Wt2HtmlSource:
+    extends: Source
+    properties:
+      update:
+        schema:
+          $ref: '#/definitions/Update'
+      wikitext:
+        schema:
+          $ref: '#/definitions/PlainRequest'
+
+  Html2WtSource:
+    extends: Source
+    properties:
+      html:
+        schema:
+          $ref: '#/definitions/PlainRequest'
