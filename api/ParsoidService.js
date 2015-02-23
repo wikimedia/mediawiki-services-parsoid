@@ -99,9 +99,7 @@ function ParsoidService( parsoidConfig, processLogger ) {
 
 
 	// Get host and port from the environment, if available
-	// VCAP_APP_PORT is for appfog.com support
-	var port = parsoidConfig.serverPort ||
-		process.env.VCAP_APP_PORT || process.env.PORT || 8000;
+	var port = parsoidConfig.serverPort || process.env.PORT || 8000;
 	// default bind all
 	var host = parsoidConfig.serverInterface || process.env.INTERFACE;
 
