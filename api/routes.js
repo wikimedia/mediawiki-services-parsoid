@@ -380,10 +380,8 @@ var wt2html = function( req, res, wt ) {
 		if ( timer ){
 			if ( startTimers.has( 'wt2html.parse.wt' ) ){
 				timer.timing( 'wt2html.parse.wt', '', startTimers.get( 'wt2html.parse.wt' ) );
-				timer.count( 'wt2html.parse.wt.count', '' );
 			} else if ( startTimers.has( 'wt2html.parse.pageWithOldid' ) ){
 				timer.timing( 'wt2html.parse.pageWithOldid', '', startTimers.get( 'wt2html.parse.pageWithOldid' ) );
-				timer.count( 'wt2html.parse.pageWithOldid.count', '' );
 			}
 			timer.timing( 'wt2html.total', '', startTimers.get( 'wt2html.total' ) );
 		}
@@ -439,11 +437,6 @@ var wt2html = function( req, res, wt ) {
 	function redirectToOldid() {
 		// Don't cache requests with no oldid
 		apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0');
-
-		if ( timer ){
-			startTimers.set( 'wt2html.parse.redirectToOldid', Date.now() );
-		}
-
 		oldid = env.page.meta.revision.revid;
 		env.log("info", "redirecting to revision", oldid);
 
@@ -465,11 +458,6 @@ var wt2html = function( req, res, wt ) {
 
 		// Redirect to oldid
 		apiUtils.relativeRedirect({ "path": path, "res": res, "env": env });
-
-		if ( timer ){
-			timer.timing( 'wt2html.parse.redirectToOldid', '', startTimers.get( 'wt2html.parse.redirectToOldid' ) );
-			timer.count( 'wt2html.parse.redirectToOldid.count', '' );
-		}
 	}
 
 	var p;
