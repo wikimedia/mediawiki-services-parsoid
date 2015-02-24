@@ -3966,19 +3966,31 @@ Definition Lists: colons occurring in tags
 ;<i>a:b</i>
 ;<span>a:b</span>
 ;<div>a:b</div>
+;<div>a
+:b</div>
 ;{{echo|a:b}}
 ;{{echo|''a:b''}}
-!! html
-<dl><dt>a</dt>
+!! html+tidy
+<dl>
+<dt>a</dt>
 <dd>b</dd>
 <dt><b>a:b</b></dt>
 <dt><i>a:b</i></dt>
 <dt><span>a:b</span></dt>
-<dt><div>a:b</div></dt>
+<dd>
+<div>a:b</div>
+</dd>
+<dd>
+<div>a
+<dl>
+<dd>b</dd>
+</dl>
+</div>
+</dd>
 <dt>a</dt>
 <dd>b</dd>
-<dt><i>a:b</i></dt></dl>
-
+<dt><i>a:b</i></dt>
+</dl>
 !! end
 
 !! test
