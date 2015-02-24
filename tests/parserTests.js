@@ -959,10 +959,19 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 		endsAtWikitext = mode === 'wt2wt' || mode === 'selser' || mode === 'html2wt',
 		endsAtHtml = mode === 'wt2html' || mode === 'html2html';
 
+	var parsoidOnly = ('html/parsoid' in item) || (item.options.parsoid !== undefined);
+
 	// Source preparation
 	if ( startsAtHtml ) {
 		testTasks.push( function ( cb ) {
-			var result = DU.parseHTML(item.html).body;
+			var html = item.html;
+			if ( !parsoidOnly ) {
+				// Strip some php output that has no wikitext representation
+				// (like .mw-editsection) and won't html2html roundtrip and
+				// therefore causes false failures.
+				html = DU.normalizePhpOutput( html );
+			}
+			var result = DU.parseHTML( html ).body;
 			cb( null, result );
 		} );
 	}
