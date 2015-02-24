@@ -21754,12 +21754,14 @@ parsoid
 !! test
 2. other tags
 !! wikitext
-<nowiki><div>foo</div>
-<div style="color:red">foo</div></nowiki>
+* <nowiki><div>foo</div></nowiki>
+* <nowiki><div style="color:red">foo</div></nowiki>
+* <nowiki><td></nowiki>
 !! html
-<p>&lt;div&gt;foo&lt;/div&gt;
-&lt;div style=&quot;color:red&quot;&gt;foo&lt;/div&gt;
-</p>
+<ul><li> &lt;div&gt;foo&lt;/div&gt;</li>
+<li> &lt;div style=&quot;color:red&quot;&gt;foo&lt;/div&gt;</li>
+<li> &lt;td&gt;</li></ul>
+
 !! end
 
 !! test
