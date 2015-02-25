@@ -20176,7 +20176,7 @@ This should just get lost.
 B <span about="#mwt4" class="reference" id="cite_ref-b_2-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"html":"bar"},"attrs":{"name":"b"}}'><a href="#cite_note-b-2">[2]</a></span></p>
 
 
-<ol class="references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","body":{"extsrc":"&lt;ref name=\"a\">foo&lt;/ref>\nThis should just get lost.","html":"\n&lt;span about=\"#mwt8\" class=\"reference\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid=&#39;{\"src\":\"&amp;lt;ref name=\\\"a\\\">foo&amp;lt;/ref>\",\"dsr\":[59,82,14,6]}&#39; data-mw=&#39;{\"name\":\"ref\",\"body\":{\"html\":\"foo\"},\"attrs\":{\"name\":\"a\"}}&#39;>&lt;a href=\"#cite_note-a-1\">[1]&lt;/a>&lt;/span>\n"},"attrs":{}}'><li about="#cite_note-a-1" id="cite_note-a-1"><span rel="mw:referencedBy"><a href="#cite_ref-a_1-0">↑</a></span> foo</li><li about="#cite_note-b-2" id="cite_note-b-2"><span rel="mw:referencedBy"><a href="#cite_ref-b_2-0">↑</a></span> bar</li>
+<ol class="references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","body":{"extsrc":"&lt;ref name=\"a\">foo&lt;/ref>\nThis should just get lost.","html":"\n&lt;span about=\"#mwt8\" class=\"reference\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid=&#39;{\"dsr\":[59,82,14,6]}&#39; data-mw=&#39;{\"name\":\"ref\",\"body\":{\"html\":\"foo\"},\"attrs\":{\"name\":\"a\"}}&#39;>&lt;a href=\"#cite_note-a-1\">[1]&lt;/a>&lt;/span>\n"},"attrs":{}}'><li about="#cite_note-a-1" id="cite_note-a-1"><span rel="mw:referencedBy"><a href="#cite_ref-a_1-0">↑</a></span> foo</li><li about="#cite_note-b-2" id="cite_note-b-2"><span rel="mw:referencedBy"><a href="#cite_ref-b_2-0">↑</a></span> bar</li>
 </ol>
 !!end
 
@@ -20209,7 +20209,7 @@ B <span about="#mwt4" class="reference" id="cite_ref-b_2-0" rel="dc:references" 
 
 <ol class="references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1">↑</a></span> foo bar for a</li></ol>
 
-<ol class="references" typeof="mw:Extension/references" about="#mwt8" data-mw='{"name":"references","body":{"extsrc":"&lt;ref name=\"b\">foo&lt;/ref>","html":"\n&lt;span about=\"#mwt10\" class=\"reference\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid=&#39;{\"src\":\"&amp;lt;ref name=\\\"b\\\">foo&amp;lt;/ref>\",\"dsr\":[96,119,14,6]}&#39; data-mw=&#39;{\"name\":\"ref\",\"body\":{\"html\":\"foo\"},\"attrs\":{\"name\":\"b\"}}&#39;>&lt;a href=\"#cite_note-b-2\">[X 1]&lt;/a>&lt;/span>\n"},"attrs":{"group":"X"}}'><li about="#cite_note-b-2" id="cite_note-b-2"><span rel="mw:referencedBy"><a href="#cite_ref-b_2-0">↑</a></span> foo</li></ol>
+<ol class="references" typeof="mw:Extension/references" about="#mwt8" data-mw='{"name":"references","body":{"extsrc":"&lt;ref name=\"b\">foo&lt;/ref>","html":"\n&lt;span about=\"#mwt10\" class=\"reference\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid=&#39;{\"dsr\":[96,119,14,6]}&#39; data-mw=&#39;{\"name\":\"ref\",\"body\":{\"html\":\"foo\"},\"attrs\":{\"name\":\"b\"}}&#39;>&lt;a href=\"#cite_note-b-2\">[X 1]&lt;/a>&lt;/span>\n"},"attrs":{"group":"X"}}'><li about="#cite_note-b-2" id="cite_note-b-2"><span rel="mw:referencedBy"><a href="#cite_ref-b_2-0">↑</a></span> foo</li></ol>
 !! end
 
 !! test
