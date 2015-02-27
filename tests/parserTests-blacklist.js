@@ -2067,7 +2067,6 @@ add("selser", "Table attributes with empty value [[3,2]]", "{|<!--ynuvr3yn3awqm2
 add("selser", "Table attributes with empty value [[2,0]]", "{|<!--sk8j61brrtua0pb9-->\n| style=| hello\n|}");
 add("selser", "Table attributes with empty value [[0,[1,2]]]", "{|\n| style=| hello<!--tehxphl52a2fyldi-->\n|}");
 add("selser", "Build table with {{!}} [2]", "vlzvgbqpbh6qd7vi\n{{{!}} class=\"wikitable\"\n! header\n! second header\n{{!}}- style=\"color:red;\"\n{{!}} data {{!}}{{!}} style=\"color:red;\" {{!}} second data\n{{!}}}");
-add("selser", "Build table with {{!}} [[0,[[[3],3,0],0,[0,3,0],2]]]", "{{{!}} class=\"wikitable\"\n!\n! second header\n{{!}}- style=\"color:red;\"\n{{!}}{{!}} style=\"color:red;\" {{!}} second data\n{{!<!--dcvky1fy9jf3l3di-->\n{{!}}}");
 add("selser", "Build table with {{!}} [1]", "{{{!}} class=\"wikitable\" data-foobar=\"n7vob9kcmjp833di\"\n! header\n! second header\n{{!}}- style=\"color:red;\"\n{{!}} data {{!}}{{!}} style=\"color:red;\" {{!}} second data\n{{!}{{!}}}");
 add("selser", "Build table with {{!}} [[0,2]]", "{{{!}} class=\"wikitable\"\n<!--gzqyxjo46o91kyb9-->! header\n! second header\n{{!}}- style=\"color:red;\"\n{{!}} data {{!}}{{!}} style=\"color:red;\" {{!}} second data\n{{!}{{!}}}");
 add("selser", "Build table with {{!}} [[4,2]]", "{{{!}} class=\"wikitable\"<!--wa7mbefsy7nfjemi--><!--8sf0msj7spmbo6r-->\n! header\n! second header\n{{!}}- style=\"color:red;\"\n{{!}} data {{!}}{{!}} style=\"color:red;\" {{!}} second data\n{{!}{{!}}}");

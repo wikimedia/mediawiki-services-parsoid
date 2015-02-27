@@ -6238,6 +6238,27 @@ parsoid=html2wt
 |}
 !! end
 
+!!test
+Testing serialization after deletion of table cells
+!!options
+parsoid={
+  "modes": ["wt2wt"],
+  "changes": [
+    ["#x", "remove"]
+  ]
+}
+!!wikitext
+{|
+!h1 !!h2 !!h3
+| id="x" |c1 {{!}}{{!}}{{!}}c2 |||c3
+|}
+!! wikitext/edited
+{|
+!h1 !!h2 !!h3
+|c2 |||c3
+|}
+!!end
+
 ###
 ### Internal links
 ###
