@@ -317,7 +317,7 @@ var html2wt = function( req, res, html ) {
 		}
 
 		if ( timer ) {
-			timer.timing( 'html2wt.total', '', startTimers.get( 'html2wt.total' ) );
+			timer.timing( 'html2wt.total', '', ( startTimers.get( 'html2wt.total' ) - Date.now()) );
 		}
 
 		env.log("info", "completed serializing in", env.performance.duration, "ms");
@@ -379,11 +379,11 @@ var wt2html = function( req, res, wt ) {
 
 		if ( timer ){
 			if ( startTimers.has( 'wt2html.parse.wt' ) ){
-				timer.timing( 'wt2html.parse.wt', '', startTimers.get( 'wt2html.parse.wt' ) );
+				timer.timing( 'wt2html.parse.wt', '', ( startTimers.get( 'wt2html.parse.wt' ) - Date.now()) );
 			} else if ( startTimers.has( 'wt2html.parse.pageWithOldid' ) ){
-				timer.timing( 'wt2html.parse.pageWithOldid', '', startTimers.get( 'wt2html.parse.pageWithOldid' ) );
+				timer.timing( 'wt2html.parse.pageWithOldid', '', ( startTimers.get( 'wt2html.parse.pageWithOldid' ) - Date.now()) );
 			}
-			timer.timing( 'wt2html.total', '', startTimers.get( 'wt2html.total' ) );
+			timer.timing( 'wt2html.total', '', ( startTimers.get( 'wt2html.total' ) - Date.now()) );
 		}
 
 		env.log("info", "completed parsing in", env.performance.duration, "ms");
