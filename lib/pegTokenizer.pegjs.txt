@@ -1898,7 +1898,7 @@ urltext = ( t:[^-'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:;\]} &=]+ { return t.join('')
               return [
                   new TagTk( 'span', [ new KV( 'typeof', 'mw:Placeholder' ) ], { src: ' ', tsr: [peg$reportedPos, peg$reportedPos], isDisplayHack: true } ),
                   "\u00a0",
-                  new EndTagTk( 'span', [], { tsr: [peg$currPos, peg$currPos] } )
+                  new EndTagTk( 'span', [], { tsr: [peg$currPos, peg$currPos], isDisplayHack: true } )
               ];
           }
           / & ('__') bs:behavior_switch { return bs; }

@@ -1373,6 +1373,32 @@ parsoid=html2wt
 <nowiki>* &lt;/nowiki&gt;</nowiki> tag
 !! end
 
+!! test
+T71950: 1. Put nowiki as close to cause as possible, even with non-quote escapable chars
+!! options
+parsoid=html2wt
+!! html
+<p>This text: L'<a rel="mw:WikiLink" href="./Foo">Foo</a>
+This text: L''<a rel="mw:WikiLink" href="./Foo">Foo</a>
+This text: L'''<a rel="mw:WikiLink" href="./Foo">Foo</a>''</p>
+!! wikitext
+This text: L'[[Foo]]
+This text: L<nowiki>''</nowiki>[[Foo]]
+This text: L<nowiki>'''</nowiki>[[Foo]]<nowiki>''</nowiki>
+!! end
+
+# This test fails because wikitext whitespace is not normalized before comparing.
+!! test
+T71950: 2. Put nowiki as close to cause as possible, after ' :'
+!! options
+parsoid=html2wt
+!! html
+<p>This text : L''<a rel="mw:WikiLink" href="./Foo">Foo</a>
+</p>
+!! wikitext
+This text : L<nowiki>''</nowiki>[[Foo]]
+!! end
+
 ###
 ### Comments
 ###
