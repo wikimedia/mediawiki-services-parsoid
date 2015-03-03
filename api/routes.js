@@ -317,7 +317,7 @@ var html2wt = function( req, res, html ) {
 		}
 
 		if ( timer ) {
-			timer.timing( 'html2wt.total', '', ( startTimers.get( 'html2wt.total' ) - Date.now()) );
+			timer.timing( 'html2wt.total', '', ( Date.now() - startTimers.get( 'html2wt.total' )) );
 		}
 
 		env.log("info", "completed serializing in", env.performance.duration, "ms");
@@ -333,6 +333,9 @@ var wt2html = function( req, res, wt ) {
 		v2 = res.local('v2'),
 		target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
+	var timer = env.conf.parsoid.performanceTimer;
+	var startTimers = new Map();
+
 	if ( wt ) {
 		wt = wt.replace(/\r/g, '');
 	}
@@ -343,9 +346,6 @@ var wt2html = function( req, res, wt ) {
 		apiUtils.setHeader( res, env, 'Access-Control-Allow-Origin',
 							env.conf.parsoid.allowCORS );
 	}
-
-	var timer = env.conf.parsoid.performanceTimer;
-	var startTimers = new Map();
 
 	if ( timer ){
 		startTimers.set( 'wt2html.total', Date.now() );
@@ -379,11 +379,11 @@ var wt2html = function( req, res, wt ) {
 
 		if ( timer ){
 			if ( startTimers.has( 'wt2html.parse.wt' ) ){
-				timer.timing( 'wt2html.parse.wt', '', ( startTimers.get( 'wt2html.parse.wt' ) - Date.now()) );
+				timer.timing( 'wt2html.parse.wt', '', ( Date.now() - startTimers.get( 'wt2html.parse.wt' )) );
 			} else if ( startTimers.has( 'wt2html.parse.pageWithOldid' ) ){
-				timer.timing( 'wt2html.parse.pageWithOldid', '', ( startTimers.get( 'wt2html.parse.pageWithOldid' ) - Date.now()) );
+				timer.timing( 'wt2html.parse.pageWithOldid', '', ( Date.now() - startTimers.get( 'wt2html.parse.pageWithOldid' )) );
 			}
-			timer.timing( 'wt2html.total', '', ( startTimers.get( 'wt2html.total' ) - Date.now()) );
+			timer.timing( 'wt2html.total', '', ( Date.now() - startTimers.get( 'wt2html.total' )) );
 		}
 
 		env.log("info", "completed parsing in", env.performance.duration, "ms");
