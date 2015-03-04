@@ -28,7 +28,7 @@ one you need to use as you read this guide.
 To get the code, you'll need to clone our git repository. Run this command:
 
 ```
-$ git checkout https://gerrit.wikimedia.org/r/p/mediawiki/services/parsoid
+$ git clone https://gerrit.wikimedia.org/r/p/mediawiki/services/parsoid
 ```
 
 ## Installing node.js dependencies
