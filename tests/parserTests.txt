@@ -155,6 +155,13 @@ style="color:red;" title="T48811"
 !! endarticle
 
 !! article
+Template:definition_list
+!! text
+one
+::two
+!! endarticle
+
+!! article
 A?b
 !! text
 Weirdo titles!
@@ -4037,6 +4044,28 @@ Definition Lists: colons and tables 2
 <tr>
 <td> y
 </td></tr></table></dd></dl>
+!! end
+
+!! test
+Definition Lists: template interaction
+!! wikitext
+::{{definition_list}}
+
+:one
+::{{definition_list}}
+:::two
+:::three
+::four
+!! html/parsoid
+<dl><dd><dl data-parsoid='{}'><dd about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[]]}' data-mw='{"parts":[":",{"template":{"target":{"wt":"definition_list","href":"./Template:Definition_list"},"params":{},"i":0}}]}'>one</dd><span about="#mwt1">
+</span><dd about="#mwt1">two</dd></dl></dd></dl>
+
+<dl><dd data-parsoid='{}'>one
+<dl><dd about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[]]}' data-mw='{"parts":["::",{"template":{"target":{"wt":"definition_list","href":"./Template:Definition_list"},"params":{},"i":0}},"\n:::two\n:::three"]}'>one</dd><span about="#mwt2">
+</span><dd about="#mwt2">two
+<dl><dd>two</dd>
+<dd>three</dd></dl></dd>
+<dd data-parsoid='{}'>four</dd></dl></dd></dl>
 !! end
 
 
