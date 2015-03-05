@@ -23421,6 +23421,40 @@ parsoid=html2wt
 <foo />
 !! end
 
+# Note that the <p> wrapping isn't present in PHP parser output
+# The important thing for this test is that P-wrapping doesn't
+# interfere with the <nowiki> protection for leading - in <td>
+# (which isn't necessary for <th>).
+!! test
+T88318: p-wrapped dash in table.
+!! options
+parsoid=html2wt,wt2wt
+!! html/parsoid
+<table><tbody>
+<tr><th><p>-</p></th><th><p>- </p></th></tr>
+<tr><td><p>-</p></td><td><p>- </p></td></tr>
+</tbody></table>
+!! wikitext
+{|
+!-
+!- 
+|-
+|<nowiki>-</nowiki>
+|<nowiki>- </nowiki>
+|}
+!! html/php+tidy
+<table>
+<tr>
+<th>-</th>
+<th>-</th>
+</tr>
+<tr>
+<td>-</td>
+<td>-</td>
+</tr>
+</table>
+!! end
+
 # -----------------------------------------------------------------
 # End of section for Parsoid-only html2wt tests for serialization
 # of new content
