@@ -243,8 +243,18 @@ var parse = function( env, req, res ) {
 
 var html2wt = function( req, res, html ) {
 	var env = res.local('env');
-	var v2 = res.local('v2');
 
+	// Performance Timing options
+	var timer = env.conf.parsoid.performanceTimer,
+	startTimers;
+
+	if ( timer ){
+		startTimers = new Map();
+		startTimers.set( 'html2wt.init', Date.now() );
+		startTimers.set( 'html2wt.total', Date.now() );
+	}
+
+	var v2 = res.local('v2');
 	env.page.id = res.local('oldid');
 	env.log('info', 'started serializing');
 
@@ -253,14 +263,6 @@ var html2wt = function( req, res, html ) {
 		// can be used by third-party sites
 		apiUtils.setHeader(res, env, 'Access-Control-Allow-Origin',
 						   env.conf.parsoid.allowCORS );
-	}
-
-	// Performance Timing options
-	var timer = env.conf.parsoid.performanceTimer;
-	var startTimers = new Map();
-
-	if ( timer ) {
-		startTimers.set( 'html2wt.total', Date.now() );
 	}
 
 	var out = [];
@@ -284,9 +286,28 @@ var html2wt = function( req, res, html ) {
 			resolve();
 		});
 	}).then(function() {
-		var doc = DU.parseHTML( html.replace(/\r/g, '') ),
-			Serializer = parsoidConfig.useSelser ? SelectiveSerializer : WikitextSerializer,
-			serializer = new Serializer({ env: env, oldid: env.page.id });
+		html = html.replace(/\r/g, '');
+
+		if ( timer ){
+			startTimers.set( 'html2wt.init.domparse', Date.now() );
+		}
+
+		var doc = DU.parseHTML( html );
+
+		// send domparse time, input size and init time to statsd/Graphite
+		// init time is the time elapsed before serialization
+		// init.domParse, a component of init time, is the time elapsed from html string to DOM tree
+		if ( timer ){
+			timer.timing( 'html2wt.init.domparse', '', ( Date.now() -
+				startTimers.get( 'html2wt.init.domparse' )) );
+			timer.timing( 'html2wt.size.input', '', html.length );
+			timer.timing( 'html2wt.init', '', ( Date.now() -
+				startTimers.get( 'html2wt.init' )) );
+		}
+
+		var Serializer = parsoidConfig.useSelser ? SelectiveSerializer : WikitextSerializer,
+		serializer = new Serializer({ env: env, oldid: env.page.id });
+
 		if ( v2 && v2.original && v2.original["data-parsoid"] ) {
 			DU.applyDataParsoid( doc, v2.original["data-parsoid"].body );
 		}
@@ -301,6 +322,7 @@ var html2wt = function( req, res, html ) {
 		);
 	}).timeout( REQ_TIMEOUT ).then(function() {
 		apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
+		var output = out.join('');
 		if ( v2 ) {
 			apiUtils.jsonResponse(res, env, {
 				wikitext: {
@@ -308,16 +330,17 @@ var html2wt = function( req, res, html ) {
 						// FIXME: get this from somewhere else
 						'content-type': 'text/plain;profile=mediawiki.org/specs/wikitext/1.0.0'
 					},
-					body: out.join('')
+					body: output
 				}
 			});
 		} else {
 			apiUtils.setHeader(res, env, 'Content-Type', 'text/x-mediawiki; charset=UTF-8');
-			apiUtils.endResponse(res, env, out.join(''));
+			apiUtils.endResponse(res, env, output);
 		}
 
 		if ( timer ) {
 			timer.timing( 'html2wt.total', '', ( Date.now() - startTimers.get( 'html2wt.total' )) );
+			timer.timing( 'html2wt.size.output', '', output.length );
 		}
 
 		env.log("info", "completed serializing in", env.performance.duration, "ms");
@@ -327,14 +350,23 @@ var html2wt = function( req, res, html ) {
 };
 
 var wt2html = function( req, res, wt ) {
-	var env = res.local('env'),
-		prefix = res.local('iwp'),
+	var env = res.local('env');
+
+	// Performance Timing options
+	var timer = env.conf.parsoid.performanceTimer,
+	startTimers;
+
+	if ( timer ){
+		startTimers = new Map();
+		// init refers to time elapsed before parsing begins
+		startTimers.set( 'wt2html.init', Date.mow() );
+		startTimers.set( 'wt2html.total', Date.now() );
+	}
+
+	var prefix = res.local('iwp'),
 		oldid = res.local('oldid'),
 		v2 = res.local('v2'),
 		target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
-
-	var timer = env.conf.parsoid.performanceTimer;
-	var startTimers = new Map();
 
 	if ( wt ) {
 		wt = wt.replace(/\r/g, '');
@@ -347,15 +379,13 @@ var wt2html = function( req, res, wt ) {
 							env.conf.parsoid.allowCORS );
 	}
 
-	if ( timer ){
-		startTimers.set( 'wt2html.total', Date.now() );
-	}
-
 	function sendRes(doc) {
 		apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
+		var output;
 		if ( v2 && v2.format === "pagebundle" ) {
 			var dp = doc.getElementById('mw-data-parsoid');
 			dp.parentNode.removeChild(dp);
+			output = DU.serializeNode( res.local('body') ? doc.body : doc );
 			apiUtils.jsonResponse(res, env, {
 				// revid: 12345 (maybe?),
 				html: {
@@ -363,7 +393,7 @@ var wt2html = function( req, res, wt ) {
 						// FIXME: get this from somewhere else
 						'content-type': 'text/html;profile=mediawiki.org/specs/html/1.0.0'
 					},
-					body: DU.serializeNode( res.local('body') ? doc.body : doc )
+					body: output
 				},
 				"data-parsoid": {
 					headers: {
@@ -373,15 +403,18 @@ var wt2html = function( req, res, wt ) {
 				}
 			});
 		} else {
+			output = DU.serializeNode( res.local('body') ? doc.body : doc );
 			apiUtils.setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8');
-			apiUtils.endResponse(res, env,  DU.serializeNode( res.local('body') ? doc.body : doc ));
+			apiUtils.endResponse(res, env, output);
 		}
 
 		if ( timer ){
-			if ( startTimers.has( 'wt2html.parse.wt' ) ){
-				timer.timing( 'wt2html.parse.wt', '', ( Date.now() - startTimers.get( 'wt2html.parse.wt' )) );
-			} else if ( startTimers.has( 'wt2html.parse.pageWithOldid' ) ){
-				timer.timing( 'wt2html.parse.pageWithOldid', '', ( Date.now() - startTimers.get( 'wt2html.parse.pageWithOldid' )) );
+			if ( startTimers.has( 'wt2html.wt.parse' ) ){
+				timer.timing( 'wt2html.wt.parse', '', ( Date.now() - startTimers.get( 'wt2html.wt.parse' )) );
+				timer.timing( 'wt2html.wt.size.output', '', output.length );
+			} else if ( startTimers.has( 'wt2html.pageWithOldid.parse' ) ){
+				timer.timing( 'wt2html.pageWithOldid.parse', '', ( Date.now() - startTimers.get( 'wt2html.pageWithOldid.parse' )) );
+				timer.timing( 'wt2html.pageWithOldid.size.output', '', output.length );
 			}
 			timer.timing( 'wt2html.total', '', ( Date.now() - startTimers.get( 'wt2html.total' )) );
 		}
@@ -393,7 +426,9 @@ var wt2html = function( req, res, wt ) {
 		env.log('info', 'started parsing');
 
 		if ( timer ){
-			startTimers.set( 'wt2html.parse.wt', Date.now() );
+			timer.timing( 'wt2html.wt.init', '', ( Date.now() - startTimers.get( 'wt2html.init' )) );
+			startTimers.set( 'wt2html.wt.parse', Date.now() );
+			timer.timing( 'wt2html.wt.size.input', '', wt.length );
 		}
 
 		if ( !res.local('pageName') ) {
@@ -414,7 +449,9 @@ var wt2html = function( req, res, wt ) {
 
 	function parsePageWithOldid() {
 		if ( timer ){
-			startTimers.set( 'wt2html.parse.pageWithOldid', Date.now() );
+			timer.timing( 'wt2html.pageWithOldid.init', '', ( Date.now() - startTimers.get( 'wt2html.init' )) );
+			startTimers.set( 'wt2html.pageWithOldid.parse', Date.now() );
+			timer.timing('wt2html.pageWithOldid.size.input', '', env.page.src.length );
 		}
 
 		return parse( env, req, res ).then(function( doc ) {
@@ -439,6 +476,10 @@ var wt2html = function( req, res, wt ) {
 		apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0');
 		oldid = env.page.meta.revision.revid;
 		env.log("info", "redirecting to revision", oldid);
+
+		if ( timer ){
+			timer.count('wt2html.redirectToOldid', '');
+		}
 
 		var path = "/";
 		if ( v2 ) {
