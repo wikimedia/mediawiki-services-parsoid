@@ -8311,11 +8311,9 @@ parsoid=wt2html,wt2wt,html2html
 <li><s> b </s></li></ol>
 !! end
 
-# Parsoid fails this test, but it might be tricky to support properly.
 # See bug 68395.
 !!test
-List embedded in a non-block tag
-(Ugly Parsoid output -- worth fixing; PHP parser relies on Tidy)
+1. List embedded in a formatting tag
 !! wikitext
 <small>
 * foo
@@ -8331,6 +8329,49 @@ List embedded in a non-block tag
 </ul>
 </small>
 !!end
+
+## Ugly Parsoid output here
+## Not sure what the right output is.
+!!test
+2. List embedded in a formatting tag
+!! wikitext
+<small>
+*a
+*b</small>
+!! html/php+tidy
+<ul>
+<li><small>a</small></li>
+<li><small>b</small></li>
+</ul>
+!! html/parsoid
+<small></small>
+<ul><small>
+<li>a</li>
+</small>
+<li><small>b</small></li>
+</ul>
+!!end
+
+# Ugly Parsoid and PHP parser output here
+# Not sure if we want to make this a test!
+#
+## !!test
+## 3. Unclosed formatting tags in list elements
+## !! wikitext
+## *<small>a
+## *<small>b
+## !! html/php+tidy
+## <ul>
+## <li><small>a</small></li>
+## <li><small><small>b</small></small></li>
+## </ul>
+## !! html/parsoid
+## <ul>
+## <li><small>a</small></li>
+## <small>
+## <li><small>b</small></li>
+## </small></ul>
+## !!end
 
 # This is a bug in the PHP parser + tidy combination.
 # (The </tr> tag gets parsed as text and html-escaped by PHP,
