@@ -8040,6 +8040,16 @@ Nested lists 8 (multiple nesting transitions)
 !! end
 
 !! test
+Nested lists 9 (extension interaction)
+!! options
+parsoid
+!! wikitext
+*<references />
+!! html/parsoid
+<ul><li data-parsoid='{}'><ol class="references" typeof="mw:Extension/references" about="#mwt2" data-parsoid='{}' data-mw='{"name":"references","attrs":{}}'></ol></li></ul>
+!! end
+
+!! test
 1. Lists with start-of-line-transparent tokens before bullets: Comments
 !! wikitext
 *foo
