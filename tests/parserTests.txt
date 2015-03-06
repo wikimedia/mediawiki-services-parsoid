@@ -20566,6 +20566,22 @@ B <ref group="inexistent">bar</ref>
 !! end
 
 !! test
+References: 10. New <references/> shouldn't be added for unrelated edits.
+!! options
+parsoid={
+  "modes": ["selser"],
+  "changes": [["#x", "remove"]],
+  "selser": "noauto"
+}
+!! wikitext
+Unrelated text<span id="x"> that's going to disappear</span>.
+A <ref>foo</ref>
+!! wikitext/edited
+Unrelated text.
+A <ref>foo</ref>
+!!end
+
+!! test
 Entities in ref name
 !! options
 parsoid
@@ -23507,7 +23523,7 @@ parsoid=html2wt
 5a. Merge adjacent quote nodes if they've been edited
 !! options
 parsoid={
-  "modes": ["wt2wt"],
+  "modes": ["wt2wt", "selser"],
   "changes": [
     ["p", "contents", "remove", ":contains('b')"]
   ]
@@ -23522,7 +23538,7 @@ parsoid={
 5b. Merge adjacent quote nodes if they've been edited
 !! options
 parsoid={
-  "modes": ["wt2wt"],
+  "modes": ["wt2wt", "selser"],
   "changes": [
     ["#x", "remove"]
   ]

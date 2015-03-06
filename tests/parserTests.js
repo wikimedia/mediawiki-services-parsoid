@@ -165,7 +165,8 @@ ParserTests.prototype.getOpts = function () {
 			'boolean': true
 		},
 		'selser': {
-			description: 'Roundtrip testing: Wikitext -> DOM(HTML) -> Wikitext (with selective serialization)',
+			description: 'Roundtrip testing: Wikitext -> DOM(HTML) -> Wikitext (with selective serialization). ' +
+				'Set to "noauto" to just run the tests with manual selser changes.',
 			'default': false,
 			'boolean': true
 		},
@@ -990,19 +991,25 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 
 	// Generate and make changes for the selser test mode
 	if ( mode === 'selser' ) {
-		if ( options.changetree ) {
-			testTasks.push( function( body, cb ) {
-				cb( null, body, JSON.parse( options.changetree ) );
-			} );
-		} else if (item.changetree) {
-			testTasks.push( function( body, cb ) {
-				cb( null, body, item.changetree );
-			} );
+		if ((options.selser === 'noauto' || item.changetree === 'manual') &&
+			item.options.parsoid && item.options.parsoid.changes) {
+			testTasks.push(function (body, cb) {
+				// Ensure that we have this set here in case it hasn't been
+				// set in buildTasks because the 'selser=noauto' option was passed.
+				item.changetree = 'manual';
+				this.applyManualChanges(body, item.options.parsoid.changes, cb);
+			}.bind(this));
 		} else {
-			testTasks.push( this.generateChanges.bind( this, options, item ) );
+			var changetree = options.changetree ? JSON.parse(options.changetree) : item.changetree;
+			if (changetree) {
+				testTasks.push(function(content, cb) {
+					cb(null, content, changetree);
+				});
+			} else {
+				testTasks.push( this.generateChanges.bind( this, options, item ) );
+			}
+			testTasks.push( this.applyChanges.bind( this, item ) );
 		}
-		testTasks.push( this.applyChanges.bind( this, item ) );
-
 		// Save the modified DOM so we can re-test it later
 		// Always serialize to string and reparse before passing to selser/wt2wt
 		testTasks.push( function( body, cb ) {
@@ -1068,7 +1075,7 @@ ParserTests.prototype.processSerializedWT = function ( item, options, mode, wiki
 	var self = this, checkPassed, err;
 	item.time.end = Date.now();
 
-	if ( mode === 'selser' ) {
+	if (mode === 'selser' && options.selser !== 'noauto') {
 		if (item.changetree === 5) {
 			item.resultWT = item.wikitext;
 		} else {
@@ -1325,7 +1332,7 @@ function printResult( reportFailure, reportSuccess, title, time, comments, iopts
 		('html/parsoid' in item) || (iopts.parsoid !== undefined);
 
 	if ( mode === 'selser' ) {
-		title += ' ' + JSON.stringify( item.changes );
+		title += ' ' + (item.changes ? JSON.stringify(item.changes) : 'manual');
 	}
 
 	var whitelist = false;
@@ -1411,11 +1418,11 @@ ParserTests.prototype.checkHTML = function ( item, out, options, mode ) {
 ParserTests.prototype.checkWikitext = function ( item, out, options, mode ) {
 	var item_wikitext = item.wikitext;
 	out = out.replace(new RegExp('<!--' + staticRandomString + '-->', 'g'), '');
-	if ( mode === 'selser' && item.resultWT !== null && item.changes !== 5 ) {
+	if (mode === 'selser' && item.resultWT !== null &&
+			item.changes !== 5 && item.changetree !== 'manual') {
 		item_wikitext = item.resultWT;
-	}
-	if ( mode === 'wt2wt' &&
-		 item.options.parsoid && item.options.parsoid.changes ) {
+	} else if ((mode === 'wt2wt' || (mode === 'selser' && item.changetree === 'manual')) &&
+				item.options.parsoid && item.options.parsoid.changes) {
 		item_wikitext = item['wikitext/edited'];
 	}
 
@@ -1726,9 +1733,40 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 	var tasks = [],
 		self = this;
 	for ( var i = 0; i < modes.length; i++ ) {
-		if ( modes[i] === 'selser' && options.numchanges && !options.changetree ) {
-			item.selserChangeTrees = new Array( options.numchanges );
+		if ( modes[i] === 'selser' && options.numchanges && options.selser !== 'noauto' ) {
 			var newitem;
+
+			// Prepend manual changes, if present, but not if 'selser' isn't
+			// in the explicit modes option.
+			if (item.options.parsoid && item.options.parsoid.changes) {
+				tasks.push( function ( cb ) {
+					newitem = Util.clone(item);
+					// Mutating the item here is necessary to output 'manual' in
+					// the test's title and to differentiate it for blacklist.
+					// It can only get here in two cases:
+					// * When there's no changetree specified in the command line,
+					//   buildTasks creates the items by cloning the original one,
+					//   so there should be no problem setting it.
+					//   In fact, it will override the existing 'manual' value
+					//   (lines 1765 and 1767).
+					// * When a changetree is specified in the command line and
+					//   it's 'manual', there shouldn't be a problem setting the
+					//   value here as no other items will be processed.
+					// Still, protect against changing a different copy of the item.
+					console.assert(newitem.changetree === 'manual' ||
+						newitem.changetree === undefined);
+					newitem.changetree = 'manual';
+					self.processTest( newitem, options, 'selser', function() {
+						setImmediate(cb);
+					});
+				});
+			}
+			// And if that's all we want, next one.
+			if (item.options.parsoid && item.options.parsoid.selser === 'noauto') {
+				continue;
+			}
+
+			item.selserChangeTrees = new Array( options.numchanges );
 
 			// Prepend a selser test that appends a comment to the root node
 			tasks.push( function ( cb ) {
@@ -1749,6 +1787,8 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 						setImmediate( cb );
 					} else {
 						newitem = Util.clone( item );
+						// Make sure we aren't reusing the one from manual changes
+						console.assert(newitem.changetree === undefined);
 						newitem.seed = changesIndex + '';
 						this.processTest( newitem, options, modes[modeIndex], function () {
 							if ( this.isDuplicateChangeTree( item.selserChangeTrees, newitem.changes ) ) {
@@ -1769,6 +1809,12 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 				}.bind( this, i, j ) );
 			}
 		} else {
+			// When manual changes were requested, exclude tests that don't have
+			// any.
+			if (modes[i] === 'selser' && options.selser === 'noauto' &&
+			    !(item.options.parsoid && item.options.parsoid.changes)) {
+				continue;
+			}
 			tasks.push( this.processTest.bind( this, item, options, modes[i] ) );
 		}
 	}
