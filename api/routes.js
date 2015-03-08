@@ -322,19 +322,17 @@ var html2wt = function( req, res, html ) {
 		);
 	}).timeout( REQ_TIMEOUT ).then(function() {
 		apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
-		var output = out.join('');
+		var output = out.join(''),
+			contentType = 'text/plain;profile=mediawiki.org/specs/wikitext/1.0.0;charset=utf-8';
 		if ( v2 ) {
 			apiUtils.jsonResponse(res, env, {
 				wikitext: {
-					headers: {
-						// FIXME: get this from somewhere else
-						'content-type': 'text/plain;profile=mediawiki.org/specs/wikitext/1.0.0'
-					},
+					headers: { 'content-type': contentType },
 					body: output
 				}
 			});
 		} else {
-			apiUtils.setHeader(res, env, 'Content-Type', 'text/x-mediawiki; charset=UTF-8');
+			apiUtils.setHeader(res, env, 'content-type', contentType);
 			apiUtils.endResponse(res, env, output);
 		}
 
@@ -381,30 +379,25 @@ var wt2html = function( req, res, wt ) {
 
 	function sendRes(doc) {
 		apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
-		var output;
+		var output, contentType = 'text/html;profile=mediawiki.org/specs/html/1.0.0;charset=utf-8';
 		if ( v2 && v2.format === "pagebundle" ) {
-			var dp = doc.getElementById('mw-data-parsoid');
-			dp.parentNode.removeChild(dp);
+			var dpScriptElt = doc.getElementById('mw-data-parsoid');
+			dpScriptElt.parentNode.removeChild(dpScriptElt);
 			output = DU.serializeNode( res.local('body') ? doc.body : doc );
 			apiUtils.jsonResponse(res, env, {
 				// revid: 12345 (maybe?),
 				html: {
-					headers: {
-						// FIXME: get this from somewhere else
-						'content-type': 'text/html;profile=mediawiki.org/specs/html/1.0.0'
-					},
+					headers: { 'content-type': contentType },
 					body: output
 				},
 				"data-parsoid": {
-					headers: {
-						'content-type': 'application/json;profile=mediawiki.org/specs/data-parsoid/0.0.1'
-					},
-					body: JSON.parse(dp.text)
+					headers: { 'content-type': dpScriptElt.getAttribute('type') },
+					body: JSON.parse( dpScriptElt.text )
 				}
 			});
 		} else {
 			output = DU.serializeNode( res.local('body') ? doc.body : doc );
-			apiUtils.setHeader(res, env, 'Content-Type', 'text/html; charset=UTF-8');
+			apiUtils.setHeader(res, env, 'content-type', contentType);
 			apiUtils.endResponse(res, env, output);
 		}
 
@@ -547,7 +540,7 @@ routes.parserEnvMw = function( req, res, next ) {
 					return resolve();
 				}
 				res.once( 'finish', resolve );
-				apiUtils.setHeader( res, env, 'Content-Type', 'text/plain; charset=UTF-8' );
+				apiUtils.setHeader( res, env, 'content-type', 'text/plain;charset=utf-8' );
 				apiUtils.sendResponse( res, env, logData.fullMsg(), logData.flatLogObject().code || 500 );
 			}).catch(function(e) {
 				console.error( e.stack || e );
