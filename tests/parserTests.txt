@@ -23567,6 +23567,7 @@ parsoid=html2wt,wt2wt
 <table><tbody>
 <tr><th><p>-</p></th><th><p>- </p></th></tr>
 <tr><td><p>-</p></td><td><p>- </p></td></tr>
+<tr><td><small>-</small></td><td><br/><p>-</p></td><td><br/>-</td></tr>
 </tbody></table>
 !! wikitext
 {|
@@ -23575,6 +23576,12 @@ parsoid=html2wt,wt2wt
 |-
 |<nowiki>-</nowiki>
 |<nowiki>- </nowiki>
+|-
+|<small>-</small>
+|<br>
+-
+|<br>
+-
 |}
 !! html/php+tidy
 <table>
@@ -23585,6 +23592,15 @@ parsoid=html2wt,wt2wt
 <tr>
 <td>-</td>
 <td>-</td>
+</tr>
+<tr>
+<td><small>-</small></td>
+<td><br />
+<p>-</p>
+</td>
+<td><br />
+<p>-</p>
+</td>
 </tr>
 </table>
 !! end
