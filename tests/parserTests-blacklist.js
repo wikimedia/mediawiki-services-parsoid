@@ -1044,7 +1044,7 @@ add("html2wt", "Table rowspan", "{| border=\"1\"\n\n| Cell 1, row 1\n\n| rowspan
 add("html2wt", "Nested table", "{| border=\"1\"\n\n| α\n\n|\n{| bgcolor=\"#ABCDEF\" border=\"2\"\n\n|nested\n\n|-\n|table\n|}\n\n|the original table again\n|}\n");
 add("html2wt", "Invalid attributes in table cell (bug 1830)", "{|\n\n|broken\n|}\n");
 add("html2wt", "Indented table markup mixed with indented pre content (proposed in bug 6200)", " {|\n \n |\n Text that should be rendered preformatted \n \n |}\n");
-add("html2wt", "1. Template-generated table cell attributes and cell content", "{|\n\n| style=\"color:red;\" |Foo\n\n| style=\"color:red;\" |Foo\n\n| style=\"color:red;\" |Foo\n\n| align=\"center\" style=\"color:red;\" |Foo\n\n| align=\"center\" style=\"color:red;\" |Foo\n|}\n");
+add("html2wt", "1. Template-generated table cell attributes and cell content", "{|\n\n| style=\"color:red;\" |Foo\n\n| style=\"color:red;\" |Foo\n\n| style=\"color:red;\"\n|Bar\n\n| style=\"color:red;\" |Foo\n\n| align=\"center\" style=\"color:red;\" |Foo\n\n| align=\"center\" style=\"color:red;\" |Foo\n|}\n");
 add("html2wt", "Table with row followed by newlines and table heading", "{|\n\n! foo\n|}\n");
 add("html2wt", "Table with empty line following the start tag", "{|\n\n| foo\n|}\n");
 add("html2wt", "Table attributes with empty value", "{|\n\n| style=\"\" | hello\n|}\n");
