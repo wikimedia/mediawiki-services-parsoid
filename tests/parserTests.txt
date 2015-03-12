@@ -69,6 +69,12 @@ Template:pipe
 |
 !! endarticle
 
+!! article
+Template:=
+!! text
+<nowiki>=</nowiki>
+!! endarticle
+
 !!article
 MediaWiki:bad image list
 !!text
@@ -124,6 +130,13 @@ Template:table_attribs_2
 <noinclude>
 |</noinclude>style="color:red;"|Foo
 |Bar||Baz
+!! endarticle
+
+!! article
+Template:table_attribs_3
+!! text
+<noinclude>
+|</noinclude>style{{=}}"background:&#35;f9f9f9;"|Foo
 !! endarticle
 
 !! article
@@ -10505,6 +10518,35 @@ Templates: Support for templates generating attributes and content
 <td>bar</td></tr>
 </tbody></table>
 !!end
+
+!! test
+1. Entities and nowikis inside templated attributes should be handled correctly
+!! wikitext
+<div {{echo|style{{=}}"background:&#35;f9f9f9;"}}>foo</div>
+!! html/php
+<div style="background:#f9f9f9;">foo</div>
+
+!! html/parsoid
+<div style="background:#f9f9f9;" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html"}' data-mw='{"attribs":[[{"txt":"style","html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]],&amp;quot;dsr&amp;quot;:[5,49,null,null]}\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;style{{=}}\\&amp;quot;background:&amp;amp;#35;f9f9f9;\\&amp;quot;&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\">style&lt;/span>&lt;span typeof=\"mw:Nowiki\" about=\"#mwt1\" data-parsoid=\"{}\">=&lt;/span>&lt;span about=\"#mwt1\" data-parsoid=\"{}\">\"background:&lt;/span>&lt;span typeof=\"mw:Entity\" about=\"#mwt1\" data-parsoid=\"{&amp;quot;src&amp;quot;:&amp;quot;&amp;amp;#35;&amp;quot;,&amp;quot;srcContent&amp;quot;:&amp;quot;#&amp;quot;}\">#&lt;/span>&lt;span about=\"#mwt1\" data-parsoid=\"{}\">f9f9f9;\"&lt;/span>"},{"html":""}]]}'>foo</div>
+!! end
+
+!! test
+2. Entities and nowikis inside templated attributes should be handled correctly
+!! wikitext
+{|
+|{{table_attribs_3}}
+|}
+!! html/php
+<table>
+<tr>
+<td style="background:#f9f9f9;">Foo
+</td></tr></table>
+
+!! html/parsoid
+<table>
+<tbody><tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td style="background:#f9f9f9;" typeof="mw:Transclusion" about="#mwt1" data-parsoid='{"autoInsertedEnd":true,"pi":[[]]}' data-mw='{"parts":["|",{"template":{"target":{"wt":"table_attribs_3","href":"./Template:Table_attribs_3"},"params":{},"i":0}}]}'>Foo</td></tr>
+</tbody></table>
+!! end
 
 !!test
 Templates: HTML Tables: 1. Generating start of a HTML table
