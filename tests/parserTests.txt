@@ -1418,16 +1418,36 @@ parsoid=html2wt
 This text : L<nowiki>''</nowiki>[[Foo]]
 !! end
 
+# This test and the next one are html2wt only as they test that incorrect wikitext
+# passed in template arguments gets escaped or wrapped in nowikis where required.
 !! test
 T71482: Use {{!}} instead of nowiki for single pipe in template argument
 !! options
 parsoid=html2wt
 !! html/parsoid
 <p><span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo|bar&quot;}},&quot;i&quot;:0}}]}" about="#mwt1"></span>
-<span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo|bar |[[&quot;}},&quot;i&quot;:0}}]}" about="#mwt1"></p>
+<span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo|bar |[[&quot;}},&quot;i&quot;:0}}]}" about="#mwt2"></p>
 !! wikitext
 {{echo|foo{{!}}bar}}
 {{echo|<nowiki>foo|bar |[[</nowiki>}}
+!! end
+
+!! test
+T53961: Output correct nowikis in template arguments
+!! options
+parsoid=html2wt
+!! html/parsoid
+<p><span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;a [ b&quot;}},&quot;i&quot;:0}}]}" about="#mwt1"></span>
+<span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;a }} b&quot;}},&quot;i&quot;:0}}]}" about="#mwt2"></span>
+<span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;a [[ b&quot;}},&quot;i&quot;:0}}]}" about="#mwt3"></span>
+<span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;a | {{ ]]&quot;}},&quot;i&quot;:0}}]}" about="#mwt4"></span>
+<span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;a }&quot;}},&quot;i&quot;:0}}]}" about="#mwt5"></span></p>
+!! wikitext
+{{echo|a [ b}}
+{{echo|a <nowiki>}}</nowiki> b}}
+{{echo|<nowiki>a [[ b</nowiki>}}
+{{echo|a {{!}} <nowiki>{{ ]]</nowiki>}}
+{{echo|a <nowiki>}</nowiki>}}
 !! end
 
 ###
