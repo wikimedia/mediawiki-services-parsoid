@@ -2151,7 +2151,7 @@ add("selser", "Horizontal ruler (should it add that extra space?) [1,2,4,2,1,0,0
 add("selser", "Horizontal ruler (should it add that extra space?) [0,0,0,4,0,3,0]", "<hr>\n<hr >3nksf5u6o17nwmi\n\nfoo \n\n<nowiki> </nowiki>bar\n");
 add("selser", "Horizontal ruler (should it add that extra space?) [0,0,0,3,4,1,0]", "<hr>\n<hr >d13gtt9304e1m7vi<hr data-foobar=\"fbu9qf9y7h7aatt9\"> bar");
 add("selser", "Mixed list [3,0,0]", "#** Level 3, but ordered");
-add("selser", "Mixed list [[[2,2,0,0,0,[[4]]],3,4,4,3],0,[1]]", "*0rgjqgna0dqs38frMixed list\nsywz38l1bbsdobt9\n*# with numbers\n** and bullets\n*#hp6659esrmrevcxr\n* ophghpovfih5xw29\n* vd100tazmwpnwmi\n** Level 3, but ordered");
+add("selser", "Mixed list [[[2,2,0,0,0,[[4]]],3,4,4,3],0,[1]]", "*0rgjqgna0dqs38frMixed list sywz38l1bbsdobt9\n*# with numbers\n** and bullets\n*#hp6659esrmrevcxr\n* ophghpovfih5xw29\n* vd100tazmwpnwmi\n** Level 3, but ordered");
 add("selser", "Mixed list [1,0,[1]]", "*Mixed list\n*# with numbers\n** and bullets\n*# and numbers\n*bullets again\n**bullet level 2\n***bullet level 3\n***#Number on level 4\n**bullet level 2\n**#Number on level 3\n**#Number on level 3\n*#number level 2\n*Level 1\n*** Level 3\n** Level 3, but ordered");
 add("selser", "Nested lists 2 [[[2],2,0]]", "*7xz2f7b8pzld6lxr\n*foo\n* jbywv3eu6ctk2o6r\n*bar");
 add("selser", "Nested lists 2 [[[[2]],0,[3]]]", "** 27spaaa6upu8fr\n*foo\n*");
