@@ -1718,24 +1718,27 @@ table_row_tag
         return res;
     }
 
+tds
+  = ( pp:( pipe_pipe / p:pipe & row_syntax_table_args { return p; } )
+      tdt:table_data_tag {
+        var da = tdt[0].dataAttribs;
+        da.stx_v = "row";
+        da.tsr[0] = da.tsr[0] - pp.length; // include "||"
+        if (pp !== "||" || (da.startTagSrc && da.startTagSrc !== pp)) {
+          // Variation from default
+          da.startTagSrc = pp + (da.startTagSrc ? da.startTagSrc.substring(1) : '');
+        }
+        return tdt;
+      }
+    )*
+
 table_data_tags
     // avoid recursion via nested_block_in_table
   = ! { return stops.onStack('tableDataBlock'); }
     p:pipe
     ![+-] td:table_data_tag
     tagEndPos:({return peg$currPos;})
-    tds:( pp:(pipe_pipe / p:pipe & row_syntax_table_args { return p; })
-            tdt:table_data_tag {
-            var da = tdt[0].dataAttribs;
-            da.stx_v = "row";
-            da.tsr[0] = da.tsr[0] - pp.length; // include "||"
-            if (pp !== "||" || (da.startTagSrc && da.startTagSrc !== pp)) {
-                // Variation from default
-                da.startTagSrc = pp + (da.startTagSrc ? da.startTagSrc.substring(1) : '');
-            }
-            return tdt;
-        }
-    )* {
+    tds:tds {
         var da = td[0].dataAttribs;
         da.tsr[0] = da.tsr[0] - p.length; // include "|"
         if (p !== "|") {
@@ -1751,13 +1754,13 @@ implicit_table_data_tag
     ! "}"
     tagEndPos:({return peg$currPos;})
     b:nested_block+
-    {
+    tds:tds {
         b = tu.flattenIfArray(b);
         var nlTok = b.shift();
         var td = tu.buildTableTokens("td", "|", '', [nlTok.dataAttribs.tsr[1], tagEndPos], peg$currPos, b);
         td[0].dataAttribs.autoInsertedStart = true;
         td[0].dataAttribs.autoInsertedEnd = true;
-        return [nlTok, td];
+        return [ nlTok ].concat( td, tds );
     }
 
 table_data_tag
