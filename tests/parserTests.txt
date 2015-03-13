@@ -23342,6 +23342,22 @@ parsoid=html2wt
 [[Foo''bar''baz]]
 !! end
 
+!! test
+Enforce single-line context in the serializer
+!! options
+parsoid=html2wt
+!! html
+<h2>testing
+123</h2>
+
+<ul><li>asd
+sdf</li></ul>
+!! wikitext
+== testing 123 ==
+
+* asd sdf
+!! end
+
 #-----------------------------
 # I/B quote minimization tests
 #-----------------------------
