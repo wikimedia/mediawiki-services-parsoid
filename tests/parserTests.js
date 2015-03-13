@@ -404,29 +404,26 @@ ParserTests.prototype.processArticle = function( item, cb ) {
  * @param {Object} options
  * @param {string} mode
  * @param {Object} item
- * @param {Node} doc
+ * @param {Node} body
  * @param {Function} processWikitextCB
  * @param {Error/null} processWikitextCB.err
  * @param {string/null} processWikitextCB.res
  */
-ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, processWikitextCB ) {
+ParserTests.prototype.convertHtml2Wt = function( options, mode, item, body, processWikitextCB ) {
 	// SSS FIXME: SelSer clobbers this flag -- need a better fix for this.
 	// Maybe pass this as an option, or clone the entire environment.
 	this.env.conf.parsoid.rtTestMode = options.rtTestMode;
 
-	// In some cases (which?) the full document is passed in, but we are
-	// interested in the body. So check if we got a document.
+	var wt = '', self = this,
+		startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser',
+		serializer = (mode === 'selser')
+			? new SelectiveSerializer({ env: this.env })
+			: new WikitextSerializer({ env: this.env });
 
-	var content = doc.nodeType === doc.DOCUMENT_NODE ? doc.body : doc,
-		serializer = (mode === 'selser') ? new SelectiveSerializer({env: this.env})
-										: new WikitextSerializer({env: this.env}),
-		wt = '',
-		self = this,
-		startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser';
 	try {
-		this.env.page.dom = item.cachedDOM ? item.cachedDOM.body : null;
+		this.env.page.dom = item.cachedBODY;
 		if ( mode === 'selser' ) {
-			// console.warn("--> selsering: " + content.outerHTML);
+			// console.warn("--> selsering: " + body.outerHTML);
 			this.env.setPageSrcInfo( item.wikitext );
 		} else if (booleanOption(options.use_source) && startsAtWikitext ) {
 			this.env.setPageSrcInfo( item.wikitext );
@@ -434,7 +431,7 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, doc, proce
 			this.env.setPageSrcInfo( null );
 		}
 
-		serializer.serializeDOM( content, function ( res ) {
+		serializer.serializeDOM( body, function ( res ) {
 			wt += res;
 		}, false, function(err) {
 			if (err) {
@@ -485,14 +482,13 @@ var staticRandomString = "ahseeyooxooZ8Oon0boh";
  * Make changes to a DOM in order to run a selser test on it.
  *
  * @param {Object} item
- * @param {Node} content
+ * @param {Node} body
  * @param {Array} changelist
  * @param {Function} cb
  * @param {Error} cb.err
- * @param {Node} cb.document
+ * @param {Node} cb.body
  */
-ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) {
-
+ParserTests.prototype.applyChanges = function( item, body, changelist, cb ) {
 	var self = this;
 
 	// Helper function for getting a random string
@@ -615,15 +611,11 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 	// to check for duplicates after the waterfall
 	item.changes = changelist;
 
-	if ( content.nodeType === content.DOCUMENT_NODE ) {
-		content = content.body;
-	}
-
 	if (this.env.conf.parsoid.dumpFlags &&
 		this.env.conf.parsoid.dumpFlags.indexOf("dom:post-changes") !== -1)
 	{
 		console.warn("-------------------------");
-		console.warn("Original DOM: " + content.outerHTML);
+		console.warn("Original DOM: " + body.outerHTML);
 		console.warn("-------------------------");
 	}
 
@@ -632,9 +624,9 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 		// children: Append a comment with known content. This is later
 		// stripped from the output, and the result is compared to the
 		// original wikitext rather than the non-selser wt2wt result.
-		content.appendChild(content.ownerDocument.createComment(staticRandomString));
+		body.appendChild( body.ownerDocument.createComment( staticRandomString ) );
 	} else if (item.changes !== 0) {
-		applyChangesInternal(content, item.changes);
+		applyChangesInternal( body, item.changes );
 	}
 
 	if (this.env.conf.parsoid.dumpFlags &&
@@ -642,12 +634,12 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
 	{
 		console.warn("Change tree : " + JSON.stringify(item.changes));
 		console.warn("-------------------------");
-		console.warn("Edited DOM  : " + content.outerHTML);
+		console.warn("Edited DOM  : " + body.outerHTML);
 		console.warn("-------------------------");
 	}
 
 	if (cb) {
-		cb( null, content );
+		cb( null, body );
 	}
 };
 
@@ -658,13 +650,13 @@ ParserTests.prototype.applyChanges = function ( item, content, changelist, cb ) 
  *
  * @param {Object} options
  * @param {Object} item
- * @param {Node} content
+ * @param {Node} body
  * @param {Function} cb
  * @param {Error/null} cb.err
- * @param {Node} cb.content
+ * @param {Node} cb.body
  * @param {Array} cb.changelist
  */
-ParserTests.prototype.generateChanges = function( options, item, content, cb ) {
+ParserTests.prototype.generateChanges = function( options, item, body, cb ) {
 
 	var self = this,
 		random = new Alea( (item.seed || '') + (item.title || '') );
@@ -764,14 +756,10 @@ ParserTests.prototype.generateChanges = function( options, item, content, cb ) {
 		return hasChangeMarkers(changelist) ? changelist : 0;
 	}
 
-	if ( content.nodeType === content.DOCUMENT_NODE ) {
-		content = content.body;
-	}
-
 	var changeTree, numAttempts = 0;
 	do {
 		numAttempts++;
-		changeTree = genChangesInternal(item, content);
+		changeTree = genChangesInternal( item, body );
 	} while (
 		numAttempts < 1000 &&
 		(changeTree.length === 0 || self.isDuplicateChangeTree( item.selserChangeTrees, changeTree ))
@@ -782,10 +770,10 @@ ParserTests.prototype.generateChanges = function( options, item, content, cb ) {
 		item.duplicateChange = true;
 	}
 
-	cb( null, content, changeTree );
+	cb( null, body, changeTree );
 };
 
-ParserTests.prototype.applyManualChanges = function( document, changes, cb ) {
+ParserTests.prototype.applyManualChanges = function( body, changes, cb ) {
 	var err = null;
 	// changes are specified using jquery methods.
 	//  [x,y,z...] becomes $(x)[y](z....)
@@ -838,10 +826,9 @@ ParserTests.prototype.applyManualChanges = function( document, changes, cb ) {
 			return;
 		}
 		// use document.querySelectorAll as a poor man's $(...)
-		var els = document.querySelectorAll(change[0]);
+		var els = body.querySelectorAll( change[0] );
 		if (!els.length) {
-			err = new Error(change[0]+' did not match any elements: ' +
-							document.outerHTML);
+			err = new Error( change[0] + ' did not match any elements: ' + body.outerHTML );
 			return;
 		}
 		if (change[1] === 'contents') {
@@ -861,7 +848,7 @@ ParserTests.prototype.applyManualChanges = function( document, changes, cb ) {
 		});
 	});
 	if (err) { console.log(err.toString().red); }
-	cb(err, document);
+	cb( err, body );
 };
 
 /**
@@ -947,7 +934,6 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 		for ( i = 0; i < extensions.length; i++ ) {
 			this.env.conf.wiki.removeExtensionTag( extensions[i] );
 		}
-
 		setImmediate(endCb, err);
 	}.bind( this );
 
@@ -971,21 +957,18 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 				// therefore causes false failures.
 				html = DU.normalizePhpOutput( html );
 			}
-			var result = DU.parseHTML( html ).body;
-			cb( null, result );
+			cb( null, DU.parseHTML( html ).body );
 		} );
-	}
-
-	// First conversion stage
-	if ( startsAtWikitext ) {
-	    // Always serialize DOM to string and reparse before passing to wt2wt
-		if ( item.cachedDOM === null ) {
+		testTasks.push(	this.convertHtml2Wt.bind( this, options, mode, item	) );
+	} else {  // startsAtWikitext
+		// Always serialize DOM to string and reparse before passing to wt2wt
+		if ( item.cachedBODY === null ) {
 			testTasks.push( this.convertWt2Html.bind( this, mode, item.wikitext ) );
 			// Caching stage 1 - save the result of the first two stages
 			// so we can maybe skip them later
-			testTasks.push( function ( result, cb ) {
+			testTasks.push( function( body, cb ) {
 				// Cache parsed HTML
-				item.cachedDOM = DU.parseHTML(DU.serializeNode(result));
+				item.cachedBODY = DU.parseHTML( DU.serializeNode( body ) ).body;
 
 				// - In wt2html mode, pass through original DOM
 				//   so that it is serialized just once.
@@ -993,29 +976,27 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 				//   reparsed DOM so that fostering/normalization effects
 				//   are reproduced.
 				if (mode === "wt2html") {
-					cb(null, result);
+					cb(null, body);
 				} else {
-					cb(null, item.cachedDOM.body.cloneNode(true));
+					cb(null, item.cachedBODY.cloneNode(true));
 				}
 			} );
 		} else {
-			testTasks.push( function ( cb ) {
-				cb(null, item.cachedDOM.body.cloneNode(true));
+			testTasks.push( function( cb ) {
+				cb(null, item.cachedBODY.cloneNode(true));
 			} );
 		}
-	} else if ( startsAtHtml ) {
-		testTasks.push(	this.convertHtml2Wt.bind( this, options, mode, item	) );
 	}
 
 	// Generate and make changes for the selser test mode
 	if ( mode === 'selser' ) {
 		if ( options.changetree ) {
-			testTasks.push( function(content, cb) {
-				cb( null, content, JSON.parse(options.changetree) );
+			testTasks.push( function( body, cb ) {
+				cb( null, body, JSON.parse( options.changetree ) );
 			} );
 		} else if (item.changetree) {
-			testTasks.push( function(content, cb) {
-				cb( null, content, item.changetree );
+			testTasks.push( function( body, cb ) {
+				cb( null, body, item.changetree );
 			} );
 		} else {
 			testTasks.push( this.generateChanges.bind( this, options, item ) );
@@ -1024,18 +1005,15 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 
 		// Save the modified DOM so we can re-test it later
 		// Always serialize to string and reparse before passing to selser/wt2wt
-		testTasks.push( function ( doc, cb ) {
-			item.changedHTMLStr = DU.serializeNode(doc);
-			doc = DU.parseHTML(item.changedHTMLStr).body;
-			cb( null, doc );
+		testTasks.push( function( body, cb ) {
+			item.changedHTMLStr = DU.serializeNode( body );
+			cb( null, DU.parseHTML( item.changedHTMLStr ).body );
 		} );
-	}
-
-	if (mode === 'wt2wt') {
+	} else if ( mode === 'wt2wt' ) {
 		// handle a 'changes' option if present.
 		if (item.options.parsoid && item.options.parsoid.changes) {
-			testTasks.push( function( doc, cb ) {
-				this.applyManualChanges(doc, item.options.parsoid.changes, cb);
+			testTasks.push( function( body, cb ) {
+				this.applyManualChanges( body, item.options.parsoid.changes, cb );
 			}.bind(this));
 		}
 	}
@@ -1066,10 +1044,10 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
  * @param {Node} doc
  * @param {Function} cb
  */
-ParserTests.prototype.processParsedHTML = function( item, options, mode, doc, cb ) {
+ParserTests.prototype.processParsedHTML = function( item, options, mode, body, cb ) {
 	item.time.end = Date.now();
 	// Check the result vs. the expected result.
-	var checkPassed = this.checkHTML( item, doc, options, mode );
+	var checkPassed = this.checkHTML( item, body, options, mode );
 
 	// Now schedule the next test, if any
 	// Only pass an error if --exit-unexpected was set and there was an error
@@ -1087,15 +1065,15 @@ ParserTests.prototype.processParsedHTML = function( item, options, mode, doc, cb
  * @param {Function} cb
  */
 ParserTests.prototype.processSerializedWT = function ( item, options, mode, wikitext, cb ) {
-	var self = this,
-		checkPassed, err;
+	var self = this, checkPassed, err;
 	item.time.end = Date.now();
 
 	if ( mode === 'selser' ) {
 		if (item.changetree === 5) {
 			item.resultWT = item.wikitext;
 		} else {
-			this.convertHtml2Wt( options, 'wt2wt', item, DU.parseHTML(item.changedHTMLStr), function ( err, wt ) {
+			var body = DU.parseHTML( item.changedHTMLStr ).body;
+			this.convertHtml2Wt( options, 'wt2wt', item, body, function( err, wt ) {
 				if ( err === null ) {
 					item.resultWT = wt;
 				} else {
@@ -1782,7 +1760,7 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 							}
 
 							// Push the caches forward!
-							item.cachedDOM = newitem.cachedDOM;
+							item.cachedBODY = newitem.cachedBODY;
 							item.cachedNormalizedHTML = newitem.cachedNormalizedHTML;
 
 							setImmediate( cb );
@@ -1831,7 +1809,7 @@ ParserTests.prototype.processCase = function ( i, options, err ) {
 
 		// Reset the cached results for the new case.
 		// All test modes happen in a single run of processCase.
-		item.cachedDOM = null;
+		item.cachedBODY = null;
 		item.cachedNormalizedHTML = null;
 
 		//console.log( 'processCase ' + i + JSON.stringify( item )  );
