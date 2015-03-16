@@ -12229,6 +12229,17 @@ parsoid=wt2html,wt2wt,html2html
 <p><span class="mw-default-size" typeof="mw:Image"><a href="File:Foobar.jpg"><img alt="testing bold in alt" resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" height="220" width="1941"/></a></span></p>
 !! end
 
+!! test
+Alt image option should handle most kinds of wikitext without barfing
+!! wikitext
+[[Image:Foobar.jpg|thumb|This is the image caption|alt=This is a [[link]] and a {{echo|''bold template''}}.]]
+!! html/php
+<div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="This is a link and a bold template." src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>This is the image caption</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb mw:ExpandedAttrs" about="#mwt2" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"This is the image caption"},{"ck":"alt","ak":"alt=This is a [[link]] and a {{echo|&#39;&#39;bold template&#39;&#39;}}."}]}' data-mw='{"attribs":[["thumbnail",{"html":"thumb"}],["alt",{"html":"alt=This is a &lt;a rel=\"mw:WikiLink\" href=\"./Link\" title=\"Link\" data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;simple&amp;quot;,&amp;quot;a&amp;quot;:{&amp;quot;href&amp;quot;:&amp;quot;./Link&amp;quot;},&amp;quot;sa&amp;quot;:{&amp;quot;href&amp;quot;:&amp;quot;link&amp;quot;},&amp;quot;dsr&amp;quot;:[65,73,2,2]}\">link&lt;/a> and a &lt;i about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=\"{&amp;quot;dsr&amp;quot;:[80,106,null,null],&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]]}\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;&#39;&#39;bold template&#39;&#39;&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\">bold template&lt;/i>."}]]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"},"sa":{}}'><img alt="This is a link and a bold template." resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" height="25" width="220" data-parsoid='{"a":{"alt":"This is a link and a bold template.","resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"alt":"alt=This is a [[link]] and a {{echo|&#39;&#39;bold template&#39;&#39;}}.","resource":"Image:Foobar.jpg"}}'/></a><figcaption>This is the image caption</figcaption></figure>
+!! end
+
 ###################
 # Conflicting image format options.
 # First option specified should 'win'.
