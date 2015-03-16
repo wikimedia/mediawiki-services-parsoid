@@ -7731,7 +7731,7 @@ parsoid=wt2html
 !! test
 Redirect to category
 !! options
-parsoid=wt2html
+parsoid=wt2wt,wt2html
 !! wikitext
 #REDIRECT [[Category:Foo]]
 !! html
@@ -7751,11 +7751,11 @@ parsoid=wt2html
 !! test
 Redirect to category page
 !! options
-parsoid=wt2html,html2html
+parsoid
 !! wikitext
 #REDIRECT [[:Category:Foo]]
 !! html
-<p><a rel="mw:WikiLink" href="Category:Foo" title="Category:Foo">Category:Foo</a></p>
+<link rel="mw:PageProp/redirect" href="Category:Foo" title="Category:Foo"/>
 !! end
 
 !! test
