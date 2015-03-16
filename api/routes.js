@@ -359,7 +359,7 @@ var wt2html = function( req, res, wt ) {
 	if ( timer ){
 		startTimers = new Map();
 		// init refers to time elapsed before parsing begins
-		startTimers.set( 'wt2html.init', Date.mow() );
+		startTimers.set( 'wt2html.init', Date.now() );
 		startTimers.set( 'wt2html.total', Date.now() );
 	}
 
