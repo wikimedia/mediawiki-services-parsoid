@@ -785,8 +785,18 @@ ParserTests.prototype.applyManualChanges = function( body, changes, cb ) {
 	// on the results of the selector in the first argument, which is
 	// a good way to get at the text and comment nodes
 	var jquery = {
+		after: function(html) {
+			var div = this.ownerDocument.createElement('div');
+			div.innerHTML = html;
+			DU.migrateChildren(div, this.parentNode, this.nextSibling);
+		},
 		attr: function(name, val) {
 			this.setAttribute(name, val);
+		},
+		before: function(html) {
+			var div = this.ownerDocument.createElement('div');
+			div.innerHTML = html;
+			DU.migrateChildren(div, this.parentNode, this);
 		},
 		removeAttr: function(name) {
 			this.removeAttribute(name);
@@ -799,6 +809,9 @@ ParserTests.prototype.applyManualChanges = function( body, changes, cb ) {
 		},
 		text: function(t) {
 			this.textContent = t;
+		},
+		html: function(h) {
+			this.innerHTML = h;
 		},
 		remove: function(optSelector) {
 			// jquery lets us specify an optional selector to further

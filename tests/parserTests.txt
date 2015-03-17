@@ -23775,6 +23775,23 @@ parsoid=html2wt,wt2wt
 </table>
 !! end
 
+!! test
+WTS change modes
+!! options
+parsoid={
+  "modes": ["wt2wt"],
+  "changes": [
+    [ "#xyz", "before", "<b>before</b> stuff " ],
+    [ "#xyz", "after", " stuff <i>after</i>" ],
+    [ "#xyz", "html", "x <b>y</b> z" ]
+  ]
+}
+!! wikitext
+<span id="xyz">hello</span>
+!! wikitext/edited
+'''before''' stuff <span id="xyz">x '''y''' z</span> stuff ''after''
+!! end
+
 # -----------------------------------------------------------------
 # End of section for Parsoid-only html2wt tests for serialization
 # of new content
