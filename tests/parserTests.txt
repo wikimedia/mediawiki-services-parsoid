@@ -6395,7 +6395,7 @@ parsoid=html2wt
 Testing serialization after deletion of table cells
 !!options
 parsoid={
-  "modes": ["wt2wt"],
+  "modes": ["wt2wt", "selser"],
   "changes": [
     ["#x", "remove"]
   ]
@@ -23812,6 +23812,53 @@ parsoid={
 # End of section for Parsoid-only html2wt tests for serialization
 # of new content
 # -----------------------------------------------------------------
+
+# -----------------------------------------------------------------
+# The following section of tests are primarily to spec behavior of
+# the selective serializer. All these tests have manual selser
+# changes. The automated selser changes for all tests handle the
+# wide variation of changes, but these tests here capture specs
+# deterministically.
+# ----------------------------------------------------------------
+
+## T90517
+!! test
+1. Selser: New comments should not be lost
+!! options
+parsoid={
+  "modes": ["selser"],
+  "changes": [
+    [ "#a", "after", "<!--c1-->" ],
+    [ "#b", "before", "<!--c2-->" ]
+  ]
+}
+!! wikitext
+<span id="a">a</span>
+
+<span id="b">b</span>
+!! wikitext/edited
+<span id="a">a</span><!--c1-->
+
+<!--c2--><span id="b">b</span>
+!! end
+
+## T89383
+!! test
+2. Selser: Check for validity of DSR before using it
+!! options
+parsoid={
+  "modes": ["selser"],
+  "changes": [
+    [ "#a", "before", "<meta property='mw:PageProp/displaytitle' content='foo'>" ]
+  ]
+}
+!! wikitext
+<span id="a">a</span>
+!! wikitext/edited
+{{DISPLAYTITLE:foo}}
+<span id="a">a</span>
+!! end
+
 
 TODO:
 more images
