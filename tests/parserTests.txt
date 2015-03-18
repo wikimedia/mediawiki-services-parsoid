@@ -23776,6 +23776,22 @@ parsoid=html2wt,wt2wt
 !! end
 
 !! test
+HTML id attribute with Parsoid-like element ids should not be serialized to wikitext
+!! options
+parsoid=html2wt
+!! html
+<table id='mwAb'>
+<td id='mwAc'>foo</td>
+<td id='serialize-this'>bar</td>
+</table>
+!! wikitext
+{|
+|foo
+| id="serialize-this" |bar
+|}
+!! end
+
+!! test
 WTS change modes
 !! options
 parsoid={
