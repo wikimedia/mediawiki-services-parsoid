@@ -844,7 +844,7 @@ ParserTests.prototype.applyManualChanges = function( body, changes, cb ) {
 			return;
 		}
 		if (change[1] === 'contents') {
-			change.shift();
+			change = change.slice(1);
 			els = Array.prototype.reduce.call(els, function(acc, el) {
 				acc.push.apply(acc, el.childNodes);
 				return acc;
@@ -1820,13 +1820,21 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 				}.bind( this, i, j ) );
 			}
 		} else {
-			// When manual changes were requested, exclude tests that don't have
-			// any.
-			if (modes[i] === 'selser' && options.selser === 'noauto' &&
-			    !(item.options.parsoid && item.options.parsoid.changes)) {
-				continue;
+			if (modes[i] === 'selser' && options.selser === 'noauto') {
+				// Manual changes were requested on the command line,
+				// check that the item does have them.
+				if (item.options.parsoid && item.options.parsoid.changes) {
+					// If it does, we need to clone the item so that previous
+					// results don't clobber this one.
+					tasks.push(this.processTest.bind(this, Util.clone(item), options, modes[i]));
+				} else {
+					// If it doesn't have manual changes, just skip it.
+					continue;
+				}
+			} else {
+				// A non-selser task, we can reuse the item.
+				tasks.push( this.processTest.bind( this, item, options, modes[i] ) );
 			}
-			tasks.push( this.processTest.bind( this, item, options, modes[i] ) );
 		}
 	}
 	return tasks;
