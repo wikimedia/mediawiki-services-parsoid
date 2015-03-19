@@ -102,6 +102,11 @@ var standardOpts = Util.addStandardOptions({
 		'boolean': false,
 		'default': ''
 	},
+	'dpinfile': {
+		description: 'Input data-parsoid JSON file',
+		'boolean': false,
+		'default': ''
+	},
 	'dpin': {
 		description: 'Input data-parsoid JSON',
 		'boolean': false,
@@ -258,7 +263,12 @@ var parse = exports.parse = function( input, argv, parsoidConfig, prefix ) {
 		}
 
 		if ( argv.html2wt || argv.html2html ) {
-			var dp = argv.dpin.length > 0 ? JSON.parse( argv.dpin ) : null;
+			var dp;
+			if (argv.dpin.length > 0) {
+				dp = JSON.parse( argv.dpin );
+			} else if ( argv.dpinfile ) {
+				dp = JSON.parse(fs.readFileSync(argv.dpinfile, 'utf8'));
+			}
 			return startsAtHTML( argv, env, input, dp );
 		} else {
 			return startsAtWikitext( argv, env, input );
