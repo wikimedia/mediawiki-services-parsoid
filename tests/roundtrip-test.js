@@ -428,29 +428,36 @@ var doubleRoundtripDiff = function ( env, offsets, src, body, out, cb ) {
 	}
 };
 
-var parsoidPost = function (env, parsoidURL, prefix, title, text, oldid,
+var parsoidPost = function (env, uri, domain, title, text, dp, oldid,
 					recordSizes, profilePrefix, cb) {
 	var data = {};
-	if ( oldid ) {
-		data.oldid = oldid;
-		data.html = text;
-	} else {
-		data.wt = text;
+	// make sure the Parsoid URI ends on /
+	if ( !/\/$/.test(uri) ) {
+		uri += '/';
 	}
+	uri += 'v2/' + domain + '/';
+	title = encodeURIComponent(title);
 
-	// make sure parsoidURL ends on /
-	if ( !/\/$/.test(parsoidURL) ) {
-		parsoidURL += '/';
+	if ( oldid ) {
+		// We want html2wt
+		uri += 'wt/' + title + '/' + oldid;
+		data.html = {
+			body: text
+		};
+		data.original = {
+			'data-parsoid': dp
+		};
+	} else {
+		// We want wt2html
+		uri += 'pagebundle/' + title;
+		data.wikitext = text;
 	}
 
 	var options = {
-		uri: parsoidURL + prefix + '/' + encodeURI(title),
+		uri: uri,
 		method: 'POST',
-		headers: {
-			'Content-Type': 'application/x-www-form-urlencoded',
-		},
-		encoding: 'utf8',
-		form: data
+		json: true,
+		body: data
 	};
 
 	Util.retryingHTTPRequest( 10, options, function( err, res, body ) {
@@ -459,6 +466,14 @@ var parsoidPost = function (env, parsoidURL, prefix, title, text, oldid,
 		} else if (res.statusCode !== 200) {
 			cb(res.body, null);
 		} else {
+			var resBody, resDP;
+			if (oldid) {
+				// Extract the wikitext from the response
+				resBody = body.wikitext.body;
+			} else {
+				resBody = body.html.body;
+				resDP = body['data-parsoid'];
+			}
 			if ( env.profile ) {
 				if (!profilePrefix) {
 					profilePrefix = '';
@@ -469,20 +484,20 @@ var parsoidPost = function (env, parsoidURL, prefix, title, text, oldid,
 					// Record the sizes
 					var sizePrefix = profilePrefix + (oldid ? 'wt' : 'html');
 					env.profile.size[ sizePrefix + 'raw' ] =
-						body.length;
+						resBody.length;
 					// Compress to record the gzipped size
-					zlib.gzip( res.body, function( err, gzippedbuf ) {
+					zlib.gzip( resBody, function( err, gzippedbuf ) {
 						if ( !err ) {
 							env.profile.size[ sizePrefix + 'gzip' ] =
 								gzippedbuf.length;
 						}
-						cb( null, body );
+						cb( null, resBody, resDP );
 					} );
 				} else {
-					cb(null, body);
+					cb(null, resBody, resDP);
 				}
 			} else {
-				cb( null, body );
+				cb( null, resBody, resDP );
 			}
 		}
 	} );
@@ -531,10 +546,31 @@ var selserRoundTripDiff = function (env, html, out, diffs, cb) {
 // Returns a Promise for an { env, rtDiffs } object.  `cb` is optional.
 var fetch = function ( page, options, cb ) {
 	cb = JSUtils.mkPromised( cb, [ 'env', 'rtDiffs' ] );
-	var prefix = options.prefix || 'enwiki';
+	var domain, prefix, apiURL,
+		// options are ParsoidConfig options if module.parent, otherwise they
+		// are CLI options (so use the Util.set* helpers to process them)
+		parsoidConfig = new ParsoidConfig( module.parent ? options : null );
+	if (!module.parent) {
+		// only process CLI flags if we're running as a CLI program.
+		Util.setTemplatingAndProcessingFlags( parsoidConfig, options );
+		Util.setDebuggingFlags( parsoidConfig, options );
+	}
 
 	if ( options.apiURL ) {
-		prefix = 'customwiki';
+		parsoidConfig.setInterwiki(options.prefix || 'localhost', options.apiURL);
+	}
+	if (options.prefix) {
+		// If prefix is present, use that.
+		prefix = options.prefix;
+		// Get the domain from the interwiki map.
+		apiURL = parsoidConfig.interwikiMap.get(prefix);
+		if (!apiURL) {
+			cb("Couldn't find the domain for prefix " + prefix, null, []);
+		}
+		domain = url.parse(apiURL).hostname;
+	} else if (options.domain) {
+		domain = options.domain;
+		prefix = parsoidConfig.reverseIWMap.get(domain);
 	}
 
 	var envCb = function ( err, env ) {
@@ -555,15 +591,15 @@ var fetch = function ( page, options, cb ) {
 				cb( err, env, [] );
 			} else {
 				// Shortcut for calling parsoidPost with common options
-				var parsoidPostShort = function (postBody, postOldId,
+				var parsoidPostShort = function (postBody, postDp, postOldId,
 						postRecordSizes, postProfilePrefix, postCb) {
-					parsoidPost(env, options.parsoidURL, prefix, page,
-						postBody, postOldId, postRecordSizes, postProfilePrefix,
-						function (err, postResult) {
+					parsoidPost(env, options.parsoidURL, domain, page,
+						postBody, postDp, postOldId, postRecordSizes, postProfilePrefix,
+						function (err, postResult, postResultDp) {
 							if (err) {
 								cb(err, env, []);
 							} else {
-								postCb(postResult);
+								postCb(postResult, postResultDp);
 							}
 						});
 					};
@@ -572,14 +608,14 @@ var fetch = function ( page, options, cb ) {
 				// to test rt selser we need to modify the HTML and request
 				// the wt again to compare with selser, and then concat the
 				// resulting diffs to the ones we got from basic rt
-				var rtSelserTest = function (origHTMLBody, err, env, rtDiffs) {
+				var rtSelserTest = function (origHTMLBody, origDp, err, env, rtDiffs) {
 					if (err) {
 						cb(err, env, rtDiffs);
 					} else {
 						var newDocument = DU.parseHTML(origHTMLBody),
 							newNode = newDocument.createComment('rtSelserEditTestComment');
 						newDocument.body.appendChild(newNode);
-						parsoidPostShort(newDocument.outerHTML,
+						parsoidPostShort(newDocument.outerHTML, origDp,
 							src_and_metadata.revision.revid, false, 'selser',
 							function (wtSelserBody) {
 								// Finish the total time now
@@ -594,27 +630,19 @@ var fetch = function ( page, options, cb ) {
 
 				env.setPageSrcInfo(src_and_metadata);
 				// First, fetch the HTML for the requested page's wikitext
-				parsoidPostShort(env.page.src, null, true, null, function (htmlBody) {
+				parsoidPostShort(env.page.src, null, null, true, null, function (htmlBody, htmlDp) {
 					// Now, request the wikitext for the obtained HTML
-					parsoidPostShort(htmlBody,
+					// (without sending data-parsoid, as we don't want selser yet).
+					parsoidPostShort(htmlBody, htmlDp,
 						src_and_metadata.revision.revid, true, null,
 						function (wtBody) {
 							roundTripDiff(env, env.page.src, htmlBody, wtBody,
-								rtSelserTest.bind(null, htmlBody));
+								rtSelserTest.bind(null, htmlBody, htmlDp));
 						});
 				});
 			}
 		} );
 	};
-
-	// options are ParsoidConfig options if module.parent, otherwise they
-	// are CLI options (so use the Util.set* helpers to process them)
-	var parsoidConfig = new ParsoidConfig( module.parent ? options : null, { defaultWiki: prefix } );
-	if (!module.parent) {
-		// only process CLI flags if we're running as a CLI program.
-		Util.setTemplatingAndProcessingFlags( parsoidConfig, options );
-		Util.setDebuggingFlags( parsoidConfig, options );
-	}
 
 	MWParserEnvironment.getParserEnv( parsoidConfig, null, { prefix: prefix, pageName: page }, envCb );
 	return cb.promise;
@@ -655,6 +683,10 @@ if ( !module.parent ) {
 			description: 'Which wiki prefix to use; e.g. "enwiki" for English wikipedia, "eswiki" for Spanish, "mediawikiwiki" for mediawiki.org',
 			'default': ''
 		},
+		'domain': {
+			description: 'Which wiki to use; e.g. "en.wikipedia.org" for English wikipedia',
+			'default': 'en.wikipedia.org'
+		},
 		'parsoidURL': {
 			description: 'The URL for the Parsoid API',
 		}
@@ -680,8 +712,12 @@ if ( !module.parent ) {
 			// Start our own Parsoid server
 			// TODO: This will not be necessary once we have a top-level testing
 			// script that takes care of setting everything up.
-			var apiServer = require( './apiServer.js' );
-			apiServer.startParsoidServer({ quiet: true }).then(function( ret ) {
+			var apiServer = require( './apiServer.js' ),
+				parsoidOptions = {quiet: true};
+			if (opts.apiURL) {
+				parsoidOptions.mockUrl = opts.apiURL;
+			}
+			apiServer.startParsoidServer(parsoidOptions).then(function( ret ) {
 				argv.parsoidURL = ret.url;
 				fetch( title, argv, callback );
 			} ).done();
