@@ -7655,6 +7655,7 @@ Blah blah blah
 ###
 ### Redirects, Parsoid-only
 ###
+
 !! test
 1. Simple redirect to page
 !! options
@@ -7665,16 +7666,20 @@ parsoid
 <link rel="mw:PageProp/redirect" href="./Main_Page">
 !! end
 
-# Only wt2html and html2html since "Main_Page" will serialize to "Main Page"
 !! test
 2. Other redirect variants
-!! options
-parsoid=wt2html,wt2wt
 !! wikitext
 #REDIRECT [[Main_Page]]
+!! html/parsoid
+<link rel="mw:PageProp/redirect" href="./Main_Page" data-parsoid='{"src":"#REDIRECT ","a":{"href":"./Main_Page"},"sa":{"href":"Main_Page"}}'/>
+!! end
+
+!! test
+3. Other redirect variants
+!! wikitext
 #REDIRECT [[<nowiki>[[Bar]]</nowiki>]]
 !! html/parsoid
-<link rel="mw:PageProp/redirect" href="./Main_Page"><link rel="mw:PageProp/redirect" href="./%5B%5BBar%5D%5D">
+<link rel="mw:PageProp/redirect" href="./%5B%5BBar%5D%5D" data-parsoid='{"src":"#REDIRECT ","a":{"href":"./%5B%5BBar%5D%5D"},"sa":{"href":"&lt;nowiki>[[Bar]]&lt;/nowiki>"}}'/>
 !! end
 
 !! test
@@ -7809,6 +7814,18 @@ language=is
 <link rel="mw:PageProp/redirect" href="./Main_Page">
 !! end
 
+!! test
+Redirect syntax under text isn't considered a redirect
+!! wikitext
+some text
+#redirect [[Main Page]]
+!! html/parsoid
+<p>some text</p>
+<ol data-parsoid='{}'><li data-parsoid='{}'>redirect <a rel="mw:WikiLink" href="./Main_Page" title="Main Page" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page"},"sa":{"href":"Main Page"}}'>Main Page</a></li></ol>
+!! end
+
+# FIXME: Should hoist the redirect to the top of the page and ensure there
+# is only one.
 !! test
 New redirect
 !! options

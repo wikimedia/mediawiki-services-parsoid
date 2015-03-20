@@ -2093,7 +2093,7 @@ include_limits =
   }
 
 // Start of file
-sof = & { return peg$currPos === (options.startOffset || 0); }
+sof = & { return peg$currPos === 0 && !options.startOffset && !options.pipelineOffset; }
 
 // End of file
 eof = & { return peg$currPos === input.length; }
