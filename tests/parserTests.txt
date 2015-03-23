@@ -4079,6 +4079,7 @@ Definition Lists: colons occurring in tags
 :b</div>
 ;{{echo|a:b}}
 ;{{echo|''a:b''}}
+;;;''a:b''
 !! html+tidy
 <dl>
 <dt>a</dt>
@@ -4099,6 +4100,17 @@ Definition Lists: colons occurring in tags
 <dt>a</dt>
 <dd>b</dd>
 <dt><i>a:b</i></dt>
+</dl>
+<dl>
+<dd>
+<dl>
+<dd>
+<dl>
+<dt><i>a:b</i></dt>
+</dl>
+</dd>
+</dl>
+</dd>
 </dl>
 !! end
 
