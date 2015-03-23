@@ -510,6 +510,34 @@ describe('Parsoid API', function() {
 				.end(done);
 			});
 
+			it('should apply data-parsoid to duplicated ids', function(done) {
+				request(api)
+				.post('v2/' + mockHost + '/wt/')
+				.send({
+					html: "<html><body id=\"mwAA\"><div id=\"mwBB\">data-parsoid test</div><div id=\"mwBB\">data-parsoid test</div></body></html>",
+					original: {
+						title: "Doesnotexist",
+						html: {
+							body: "<html><body id=\"mwAA\"><div id=\"mwBB\">data-parsoid test</div></body></html>",
+						},
+						"data-parsoid": {
+							body: {
+								"ids": {
+									mwAA: {},
+									mwBB: { "autoInsertedEnd": true, "stx": "html" }
+								}
+							}
+						}
+					}
+				})
+				.expect(200)
+				.expect(function(res) {
+					res.body.should.have.property("wikitext");
+					res.body.wikitext.body.should.equal("<div>data-parsoid test<div>data-parsoid test");
+				})
+				.end(done);
+			});
+
 		}); // end html2wt
 
 	});
