@@ -113,7 +113,6 @@ var promiseTemplateReq = function( env, target, oldid ) {
 };
 
 var rtResponse = function( env, req, res, data ) {
-	apiUtils.setHeader( res, env, 'X-Parsoid-Performance', env.getPerformanceHeader() );
 	apiUtils.renderResponse( res, env, "roundtrip", data );
 	env.log( "info", "completed parsing in", env.performance.duration, "ms" );
 };
@@ -298,11 +297,11 @@ var html2wt = function( req, res, html ) {
 		// init time is the time elapsed before serialization
 		// init.domParse, a component of init time, is the time elapsed from html string to DOM tree
 		if ( timer ){
-			timer.timing( 'html2wt.init.domparse', '', ( Date.now() -
-				startTimers.get( 'html2wt.init.domparse' )) );
+			timer.timing( 'html2wt.init.domparse', '',
+				Date.now() - startTimers.get( 'html2wt.init.domparse' ));
 			timer.timing( 'html2wt.size.input', '', html.length );
-			timer.timing( 'html2wt.init', '', ( Date.now() -
-				startTimers.get( 'html2wt.init' )) );
+			timer.timing( 'html2wt.init', '',
+				Date.now() - startTimers.get( 'html2wt.init' ));
 		}
 
 		var Serializer = parsoidConfig.useSelser ? SelectiveSerializer : WikitextSerializer,
@@ -321,7 +320,6 @@ var html2wt = function( req, res, html ) {
 			doc.body, function( chunk ) { out.push( chunk ); }, false
 		);
 	}).timeout( REQ_TIMEOUT ).then(function() {
-		apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
 		var output = out.join(''),
 			contentType = 'text/plain;profile=mediawiki.org/specs/wikitext/1.0.0;charset=utf-8';
 		if ( v2 ) {
@@ -337,7 +335,8 @@ var html2wt = function( req, res, html ) {
 		}
 
 		if ( timer ) {
-			timer.timing( 'html2wt.total', '', ( Date.now() - startTimers.get( 'html2wt.total' )) );
+			timer.timing( 'html2wt.total', '',
+				Date.now() - startTimers.get( 'html2wt.total' ));
 			timer.timing( 'html2wt.size.output', '', output.length );
 		}
 
@@ -378,7 +377,6 @@ var wt2html = function( req, res, wt ) {
 	}
 
 	function sendRes(doc) {
-		apiUtils.setHeader(res, env, 'X-Parsoid-Performance', env.getPerformanceHeader());
 		var output, contentType = 'text/html;profile=mediawiki.org/specs/html/1.0.0;charset=utf-8';
 		if ( v2 && v2.format === "pagebundle" ) {
 			var dpScriptElt = doc.getElementById('mw-data-parsoid');
@@ -403,13 +401,16 @@ var wt2html = function( req, res, wt ) {
 
 		if ( timer ){
 			if ( startTimers.has( 'wt2html.wt.parse' ) ){
-				timer.timing( 'wt2html.wt.parse', '', ( Date.now() - startTimers.get( 'wt2html.wt.parse' )) );
+				timer.timing( 'wt2html.wt.parse', '',
+					Date.now() - startTimers.get( 'wt2html.wt.parse' ));
 				timer.timing( 'wt2html.wt.size.output', '', output.length );
 			} else if ( startTimers.has( 'wt2html.pageWithOldid.parse' ) ){
-				timer.timing( 'wt2html.pageWithOldid.parse', '', ( Date.now() - startTimers.get( 'wt2html.pageWithOldid.parse' )) );
+				timer.timing( 'wt2html.pageWithOldid.parse', '',
+					Date.now() - startTimers.get( 'wt2html.pageWithOldid.parse' ));
 				timer.timing( 'wt2html.pageWithOldid.size.output', '', output.length );
 			}
-			timer.timing( 'wt2html.total', '', ( Date.now() - startTimers.get( 'wt2html.total' )) );
+			timer.timing( 'wt2html.total', '',
+				Date.now() - startTimers.get( 'wt2html.total' ));
 		}
 
 		env.log("info", "completed parsing in", env.performance.duration, "ms");
@@ -419,7 +420,8 @@ var wt2html = function( req, res, wt ) {
 		env.log('info', 'started parsing');
 
 		if ( timer ){
-			timer.timing( 'wt2html.wt.init', '', ( Date.now() - startTimers.get( 'wt2html.init' )) );
+			timer.timing( 'wt2html.wt.init', '',
+				Date.now() - startTimers.get( 'wt2html.init' ));
 			startTimers.set( 'wt2html.wt.parse', Date.now() );
 			timer.timing( 'wt2html.wt.size.input', '', wt.length );
 		}
@@ -442,7 +444,8 @@ var wt2html = function( req, res, wt ) {
 
 	function parsePageWithOldid() {
 		if ( timer ){
-			timer.timing( 'wt2html.pageWithOldid.init', '', ( Date.now() - startTimers.get( 'wt2html.init' )) );
+			timer.timing( 'wt2html.pageWithOldid.init', '',
+				Date.now() - startTimers.get( 'wt2html.init' ));
 			startTimers.set( 'wt2html.pageWithOldid.parse', Date.now() );
 			timer.timing('wt2html.pageWithOldid.size.input', '', env.page.src.length );
 		}
