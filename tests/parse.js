@@ -120,18 +120,34 @@ var standardOpts = Util.addStandardOptions({
 });
 exports.defaultOptions = yargs.options(standardOpts).parse([]);
 
+function dpFromHead( doc ) {
+	var dp, dpScriptElt = doc.getElementById('mw-data-parsoid');
+	if ( dpScriptElt ) {
+		dpScriptElt.parentNode.removeChild(dpScriptElt);
+		dp = JSON.parse(dpScriptElt.text);
+	}
+	return dp;
+}
+
 var startsAtWikitext;
 var startsAtHTML = function( argv, env, input, dp ) {
-	var serializer;
+	var serializer, doc = DU.parseHTML( input );
+	dp = dp || dpFromHead( doc );
+
 	if ( argv.selser ) {
+		dp = dp || dpFromHead( env.page.dom.ownerDocument );
+		if ( dp ) {
+			DU.applyDataParsoid( env.page.dom.ownerDocument, dp );
+		}
 		serializer = new SelectiveSerializer({ env: env, oldid: null });
 	} else {
 		serializer = new WikitextSerializer({ env: env });
 	}
-	var doc = DU.parseHTML( input );
+
 	if ( dp ) {
 		DU.applyDataParsoid( doc, dp );
 	}
+
 	var out = [];
 	return Promise.promisify( serializer.serializeDOM, false, serializer )(
 		doc.body, function( chunk ) { out.push(chunk); }, false
@@ -153,11 +169,11 @@ startsAtWikitext = function( argv, env, input ) {
 		env.setPageSrcInfo( input );
 		parser.processToplevelDoc( env.page.src );
 	}).then(function( doc ) {
-		var out, dp;
 		if ( argv.lint ) {
 			env.log("end/parse");
 		}
 		if ( argv.wt2html || argv.html2html ) {
+			var out;
 			if ( argv.normalize ) {
 				out = DU.normalizeOut( doc.body, (argv.normalize === 'parsoid') );
 			} else if ( argv.document ) {
@@ -168,9 +184,7 @@ startsAtWikitext = function( argv, env, input ) {
 			}
 			return { trailingNL: true, out: out };
 		} else {
-			out = DU.serializeNode( doc.body, true );
-			dp = argv.dp ? DU.getDataParsoid( doc ) : null;
-			return startsAtHTML( argv, env, out, dp );
+			return startsAtHTML( argv, env, DU.serializeNode( doc ) );
 		}
 	});
 };
