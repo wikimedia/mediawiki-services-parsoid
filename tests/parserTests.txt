@@ -5940,7 +5940,7 @@ Wikitext table with a lot of comments
 <!-- c0 -->
 | foo
 <!-- c1 -->
-|- <!-- c2 -->
+|-<!-- c2 -->
 <!-- c3 -->
 |<!-- c4 -->
 <!-- c5 -->
@@ -5954,6 +5954,26 @@ Wikitext table with a lot of comments
 <td>
 </td></tr></table>
 
+!! end
+
+!! test
+Wikitext table comments represented in parsoid dom
+!! wikitext
+{|<!--c1--><!--c2-->
+|-<!--c3-->
+| x
+|}
+!! html/php+tidy
+<table>
+<tr>
+<td>x</td>
+</tr>
+</table>
+!! html/parsoid
+<table><!--c1--><!--c2-->
+<tbody><tr data-parsoid='{"startTagSrc":"|-","autoInsertedEnd":true}'><!--c3-->
+<td data-parsoid='{"autoInsertedEnd":true}'> x</td></tr>
+</tbody></table>
 !! end
 
 !! test

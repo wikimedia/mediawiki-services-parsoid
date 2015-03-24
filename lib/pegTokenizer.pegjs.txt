@@ -1668,18 +1668,22 @@ table_start_tag
     ta:(generic_attribute / broken_table_attribute_name_char)*
     tsEndPos:({stops.pop('table'); return peg$currPos;})
     {
-        var tblStart = new TagTk( 'table', [], { tsr: [startPos, tsEndPos] } );
-        if (p !== "|") {
-            // Variation form default
-            // "<brace-char>"+p is triggering some bug in pegJS
-            // I cannot even use that expression in the comment!
-            tblStart.dataAttribs.startTagSrc = b+p;
-        }
-        if ( ta ) {
-            tblStart.attribs = ta;
+        var coms = tu.popComments( ta );
+        if ( coms ) {
+          tsEndPos = coms.commentStartPos;
         }
 
-        return sc.concat([tblStart]);
+        var da = { tsr: [startPos, tsEndPos] };
+        if ( p !== "|" ) {
+            // Variation from default
+            da.startTagSrc = b + p;
+        }
+
+        sc.push( new TagTk( 'table', ta, da ) );
+        if ( coms ) {
+          sc = sc.concat( coms.buf );
+        }
+        return sc;
     }
 
 table_caption_tag
@@ -1704,16 +1708,27 @@ table_row_tag
     // handle tables with missing table cells after a row
     td:implicit_table_data_tag?
     {
+        var coms = tu.popComments( a );
+        if ( coms ) {
+          tagEndPos = coms.commentStartPos;
+        }
+
+        var da = {
+          tsr: [ peg$reportedPos, tagEndPos ],
+          startTagSrc: p + dashes.join('')
+        };
+
         // We rely on our tree builder to close the row as needed. This is
         // needed to support building tables from fragment templates with
         // individual cells or rows.
-        var trToken = new TagTk( 'tr', a, { tsr: [peg$reportedPos, tagEndPos], startTagSrc: p + dashes.join('') } );
-        var res;
-        if ( !td ) {
-            res = [trToken];
-        } else {
-            //console.warn( 'tr result: ' + pp(trToken.concat(td)) + ' stops: ' + pp(stops));
-            res = [trToken].concat(td);
+        var trToken = new TagTk( 'tr', a, da );
+
+        var res = [ trToken ];
+        if ( coms ) {
+          res = res.concat( coms.buf );
+        }
+        if ( td ) {
+          res = res.concat( td );
         }
         return res;
     }
