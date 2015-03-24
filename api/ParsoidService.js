@@ -56,6 +56,12 @@ function ParsoidService( parsoidConfig, processLogger ) {
 		next();
 	});
 
+	// just a timer
+	app.use(function(req, res, next) {
+		res.local('start', Date.now());
+		next();
+	});
+
 	// Catch errors
 	app.on('error', function( err ) {
 		if ( err.errno === "EADDRINUSE" ) {

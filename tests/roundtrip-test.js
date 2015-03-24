@@ -463,14 +463,8 @@ var parsoidPost = function (env, parsoidURL, prefix, title, text, oldid,
 				if (!profilePrefix) {
 					profilePrefix = '';
 				}
-				// Record the time it's taken to parse
-				var timePrefix = profilePrefix + (oldid ? 'html2wt' : 'wt2html');
-				if ( res.headers[ 'x-parsoid-performance' ] ) {
-					env.profile.time[ timePrefix ] =
-						parseInt( res.headers[ 'x-parsoid-performance' ].
-							match( /duration=((\d)+);/ )[1], 10 );
-				}
-
+				// FIXME: Parse time was removed from profiling when we stopped
+				// sending the x-parsoid-performance header.
 				if (recordSizes) {
 					// Record the sizes
 					var sizePrefix = profilePrefix + (oldid ? 'wt' : 'html');

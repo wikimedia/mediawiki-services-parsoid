@@ -112,9 +112,15 @@ var promiseTemplateReq = function( env, target, oldid ) {
 	});
 };
 
+var logTime = function( env, res, str ) {
+	env.log( "info", util.format(
+		"completed %s in %s ms", str, Date.now() - res.local("start")
+	) );
+};
+
 var rtResponse = function( env, req, res, data ) {
 	apiUtils.renderResponse( res, env, "roundtrip", data );
-	env.log( "info", "completed parsing in", env.performance.duration, "ms" );
+	logTime( env, res, "parsing" );
 };
 
 var roundTripDiff = function( env, req, res, selser, doc ) {
@@ -340,7 +346,7 @@ var html2wt = function( req, res, html ) {
 			timer.timing( 'html2wt.size.output', '', output.length );
 		}
 
-		env.log("info", "completed serializing in", env.performance.duration, "ms");
+		logTime( env, res, "serializing" );
 	});
 	return cpuTimeout( p, res )
 		.catch( timeoutResp.bind(null, env) );
@@ -413,7 +419,7 @@ var wt2html = function( req, res, wt ) {
 				Date.now() - startTimers.get( 'wt2html.total' ));
 		}
 
-		env.log("info", "completed parsing in", env.performance.duration, "ms");
+		logTime( env, res, "parsing" );
 	}
 
 	function parseWt() {
