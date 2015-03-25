@@ -39,7 +39,7 @@ exports.setup = function( parsoidConfig ) {
 	//parsoidConfig.allowCORS = 'some.domain.org';
 
 	// Set to true for Performance timing
-	//parsoidConfig.usePerformanceTimer = true;
+	//parsoidConfig.useDefaultPerformanceTimer = true;
 	// Peformance timing options
 	//parsoidConfig.txstatsdHost = 'statsd.eqiad.wmnet';
 	//parsoidConfig.txstatsdPort = 8125;
