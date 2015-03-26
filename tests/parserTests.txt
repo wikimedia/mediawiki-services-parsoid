@@ -23865,6 +23865,16 @@ parsoid=html2wt
 !! end
 
 !! test
+Parsoid-like element ids should not be serialized to wikitext unless shadowed
+!! options
+parsoid=html2wt
+!! html
+<div id="mwAQ" data-parsoid='{"stx":"html","a":{"id":"mwAQ"},"sa":{"id":"hello"}}'>ok</div>
+!! wikitext
+<div id="hello">ok</div>
+!! end
+
+!! test
 WTS change modes
 !! options
 parsoid={

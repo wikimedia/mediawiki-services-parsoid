@@ -8,7 +8,9 @@ var should = require("chai").should();
 var url = require('url');
 
 var MWParserEnvironment = require('../../lib/mediawiki.parser.environment.js' ).MWParserEnvironment,
+	WikitextSerializer = require('../../lib/mediawiki.WikitextSerializer.js').WikitextSerializer,
 	Util = require('../../lib/mediawiki.Util.js').Util,
+	DU = require('../../lib/mediawiki.DOMUtils.js').DOMUtils,
 	ParsoidConfig = require('../../lib/mediawiki.ParsoidConfig' ).ParsoidConfig;
 
 describe( 'ParserPipelineFactory', function() {
@@ -29,6 +31,32 @@ describe( 'ParserPipelineFactory', function() {
 				var pipeline = env.pipelineFactory;
 				return Promise.promisify( pipeline.parse, false, pipeline )(
 					env, env.page.src, options.expansions
+				);
+			});
+		};
+
+		var serialize = function( doc, dp, options ) {
+			options = options || {};
+			return MWParserEnvironment.getParserEnv(parsoidConfig, null, {
+				prefix: options.prefix || 'enwiki',
+				pageName: options.page_name || 'Main_Page'
+			}).then(function(env) {
+				if (options.tweakEnv) {
+					env = options.tweakEnv(env) || env;
+				}
+				if ( !dp ) {
+					var dpScriptElt = doc.getElementById('mw-data-parsoid');
+					if ( dpScriptElt ) {
+						dpScriptElt.parentNode.removeChild(dpScriptElt);
+						dp = JSON.parse( dpScriptElt.text );
+					}
+				}
+				if ( dp ) {
+					DU.applyDataParsoid( doc, dp );
+				}
+				var serializer = new WikitextSerializer({ env: env });
+				return Promise.promisify( serializer.serializeDOM, false, serializer )(
+					doc.body, null, false
 				);
 			});
 		};
@@ -191,6 +219,7 @@ describe( 'ParserPipelineFactory', function() {
 				});
 			});
 		});
+
 		// T51075: This test actually fetches the template contents from
 		// enwiki, fully exercising the `expandtemplates` API, unlike
 		// the parserTests test for this functionality, which ends up using
@@ -216,5 +245,31 @@ describe( 'ParserPipelineFactory', function() {
 				o['mw:PageProp/categorydefaultsort'].should.equal('x');
 			});
 		});
+
+		it('should replace duplicated ids', function() {
+			var origWt = '<div id="hello">hi</div><div id="hello">ok</div><div>no</div>';
+			return parse( origWt, {
+				tweakEnv: function( env ) { env.storeDataParsoid = true; }
+			} ).then(function( doc ) {
+				var child = doc.body.firstChild;
+				child.getAttribute("id").should.equal( "hello" );
+				child = child.nextSibling;
+				// verify id was replaced
+				child.getAttribute("id").should.match( /^mw[\w-]{2,}$/ );
+				child = child.nextSibling;
+				var divNoId = child.getAttribute("id");
+				divNoId.should.match( /^mw[\w-]{2,}$/ );
+				var dpScriptElt = doc.getElementById('mw-data-parsoid');
+				var dp = JSON.parse( dpScriptElt.text );
+				// verify dp wasn't bloated and
+				// id wasn't shadowed for div without id
+				dp.ids[divNoId].should.not.have.property("a");
+				dp.ids[divNoId].should.not.have.property("sa");
+				return serialize( doc, dp );
+			}).then(function( wt ) {
+				wt.should.equal( origWt );
+			});
+		});
+
 	});
 });
