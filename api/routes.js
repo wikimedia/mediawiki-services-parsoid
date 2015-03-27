@@ -124,8 +124,6 @@ var rtResponse = function( env, req, res, data ) {
 };
 
 var roundTripDiff = function( env, req, res, selser, doc ) {
-	var out = [];
-
 	// Re-parse the HTML to uncover foster-parenting issues
 	doc = domino.createDocument( doc.outerHTML );
 
@@ -133,17 +131,14 @@ var roundTripDiff = function( env, req, res, selser, doc ) {
 		serializer = new Serializer({ env: env });
 
 	return Promise.promisify( serializer.serializeDOM, false, serializer )(
-		doc.body, function( chunk ) { out.push(chunk); }, false
-	).then(function() {
-		var i;
-		out = out.join('');
-
+		doc.body, false
+	).then(function( out ) {
 		// Strip selser trigger comment
 		out = out.replace(/<!--rtSelserEditTestComment-->\n*$/, '');
 
 		// Emit base href so all relative urls resolve properly
 		var hNodes = doc.body.firstChild.childNodes;
-		var headNodes = "";
+		var i, headNodes = "";
 		for (i = 0; i < hNodes.length; i++) {
 			if (hNodes[i].nodeName.toLowerCase() === 'base') {
 				headNodes += DU.serializeNode(hNodes[i]);
@@ -270,7 +265,6 @@ var html2wt = function( req, res, html ) {
 						   env.conf.parsoid.allowCORS );
 	}
 
-	var out = [];
 	var p = new Promise(function( resolve, reject ) {
 		if ( v2 && v2.original && v2.original.wikitext ) {
 			env.setPageSrcInfo( v2.original.wikitext.body );
@@ -323,11 +317,10 @@ var html2wt = function( req, res, html ) {
 			}
 		}
 		return Promise.promisify( serializer.serializeDOM, false, serializer )(
-			doc.body, function( chunk ) { out.push( chunk ); }, false
+			doc.body, false
 		);
-	}).timeout( REQ_TIMEOUT ).then(function() {
-		var output = out.join(''),
-			contentType = 'text/plain;profile=mediawiki.org/specs/wikitext/1.0.0;charset=utf-8';
+	}).timeout( REQ_TIMEOUT ).then(function( output ) {
+		var contentType = 'text/plain;profile=mediawiki.org/specs/wikitext/1.0.0;charset=utf-8';
 		if ( v2 ) {
 			apiUtils.jsonResponse(res, env, {
 				wikitext: {

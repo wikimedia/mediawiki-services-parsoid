@@ -415,8 +415,7 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, body, proc
 	// Maybe pass this as an option, or clone the entire environment.
 	this.env.conf.parsoid.rtTestMode = options.rtTestMode;
 
-	var wt = '', self = this,
-		startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser',
+	var startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser',
 		serializer = (mode === 'selser')
 			? new SelectiveSerializer({ env: this.env })
 			: new WikitextSerializer({ env: this.env });
@@ -432,13 +431,12 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, body, proc
 			this.env.setPageSrcInfo( null );
 		}
 
-		serializer.serializeDOM( body, function ( res ) {
-			wt += res;
-		}, false, function(err) {
-			if (err) {
-				self.env.log("fatal", err);
+		var self = this;
+		serializer.serializeDOM( body, false, function( err, wt ) {
+			if ( err ) {
+				self.env.log("error", err);
 			}
-			processWikitextCB( null, wt );
+			processWikitextCB( err, wt );
 			self.env.setPageSrcInfo( null );
 			self.env.page.dom = null;
 		} );
