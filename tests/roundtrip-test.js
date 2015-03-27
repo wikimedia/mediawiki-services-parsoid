@@ -294,8 +294,17 @@ var findMatchingNodes = function (root, targetRange, sourceLen) {
 	return walkDOM(root);
 };
 
-var checkIfSignificant = function ( env, offsets, src, body, out, cb, document ) {
+var checkIfSignificant = function ( env, offsets, src, body, oldDp, out, cb, err, html, dp ) {
+	if (err) {
+		cb(err, null, []);
+		return;
+	}
 
+	var document = domino.createDocument(html);
+	// Merge data-parsoid so that HTML nodes can be compared and diff'ed.
+	DU.applyDataParsoid(body.ownerDocument, oldDp.body);
+	DU.applyDataParsoid(document, dp.body);
+	// console.warn("\ndocument:", document)
 
 	var normalizeWikitext = function ( str ) {
 
@@ -411,23 +420,6 @@ var checkIfSignificant = function ( env, offsets, src, body, out, cb, document )
 	cb( null, env, results );
 };
 
-var doubleRoundtripDiff = function ( env, offsets, src, body, out, cb ) {
-	if ( offsets.length > 0 ) {
-		env.setPageSrcInfo( out );
-		env.errCB = function ( error ) {
-			cb( error, env, [] );
-			process.exit( 1 );
-		};
-
-		var parserPipeline = env.pipelineFactory.getPipeline('text/x-mediawiki/full');
-		parserPipeline.once( 'document', checkIfSignificant.bind( null, env, offsets, src, body, out, cb ) );
-		parserPipeline.processToplevelDoc( out );
-
-	} else {
-		cb( null, env, [] );
-	}
-};
-
 var parsoidPost = function (env, uri, domain, title, text, dp, oldid,
 					recordSizes, profilePrefix, cb) {
 	var data = {};
@@ -503,7 +495,23 @@ var parsoidPost = function (env, uri, domain, title, text, dp, oldid,
 	} );
 };
 
-var roundTripDiff = function ( env, src, html, out, cb ) {
+var doubleRoundtripDiff = function (env, uri, domain, title, offsets, src, body, dp, out, cb) {
+	if ( offsets.length > 0 ) {
+		env.setPageSrcInfo( out );
+		env.errCB = function ( error ) {
+			cb( error, env, [] );
+			process.exit( 1 );
+		};
+
+		parsoidPost(env, uri, domain, title, out, null, null, false, null,
+			checkIfSignificant.bind(null, env, offsets, src, body, dp, out, cb));
+
+	} else {
+		cb( null, env, [] );
+	}
+};
+
+var roundTripDiff = function ( env, uri, domain, title, src, html, dp, out, cb ) {
 	var diff, offsetPairs;
 
 	try {
@@ -512,7 +520,7 @@ var roundTripDiff = function ( env, src, html, out, cb ) {
 
 		if ( diff.length > 0 ) {
 			var body = domino.createDocument( html ).body;
-			doubleRoundtripDiff( env, offsetPairs, src, body, out, cb );
+			doubleRoundtripDiff( env, uri, domain, title, offsetPairs, src, body, dp, out, cb );
 		} else {
 			cb( null, env, [] );
 		}
@@ -521,14 +529,14 @@ var roundTripDiff = function ( env, src, html, out, cb ) {
 	}
 };
 
-var selserRoundTripDiff = function (env, html, out, diffs, cb) {
+var selserRoundTripDiff = function (env, uri, domain, title, html, dp, out, diffs, cb) {
 	var selserDiff, offsetPairs,
 		src = env.page.src.replace(/\n(?=\n)/g, '\n ');
 	// Remove the selser trigger comment
 	out = out.replace(/<!--rtSelserEditTestComment-->\n*$/, '');
 	out = out.replace(/\n(?=\n)/g, '\n ');
 
-	roundTripDiff(env, src, html, out, function (err, env, selserDiffs) {
+	roundTripDiff(env, uri, domain, title, src, html, dp, out, function (err, env, selserDiffs) {
 		if (err) {
 			cb(err, env, diffs);
 		} else {
@@ -623,7 +631,9 @@ var fetch = function ( page, options, cb ) {
 									env.profile.time.total += new Date() - env.profile.time.total_timer;
 								}
 
-								selserRoundTripDiff(env, origHTMLBody, wtSelserBody, rtDiffs, cb);
+								selserRoundTripDiff(env, options.parsoidURL,
+									domain, page, origHTMLBody, origDp, wtSelserBody,
+									rtDiffs, cb);
 							});
 					}
 				};
@@ -636,7 +646,8 @@ var fetch = function ( page, options, cb ) {
 					parsoidPostShort(htmlBody, htmlDp,
 						src_and_metadata.revision.revid, true, null,
 						function (wtBody) {
-							roundTripDiff(env, env.page.src, htmlBody, wtBody,
+							roundTripDiff(env, options.parsoidURL, domain, page,
+								env.page.src, htmlBody, htmlDp, wtBody,
 								rtSelserTest.bind(null, htmlBody, htmlDp));
 						});
 				});
