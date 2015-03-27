@@ -8,7 +8,7 @@ node_js:
 
 before_install:
     - NODE_VERSION=$(node -e 'console.log(process.version.replace(/[.][0-9]+$/, ""))')
-    - if [ "v0.8" = "$NODE_VERSION" ]; then npm install -g npm ; fi
+    - if [ "v0.8" = "$NODE_VERSION" ]; then npm install -g npm@2.7.3 ; fi
 
 script: npm run-script coverage
 
