@@ -148,11 +148,9 @@ var startsAtHTML = function( argv, env, input, dp ) {
 		DU.applyDataParsoid( doc, dp );
 	}
 
-	var out = [];
 	return Promise.promisify( serializer.serializeDOM, false, serializer )(
-		doc.body, function( chunk ) { out.push(chunk); }, false
-	).then(function() {
-		out = out.join('');
+		doc.body, false
+	).then(function(out) {
 		if ( argv.html2wt || argv.wt2wt ) {
 			return { trailingNL: true, out: out };
 		} else {
