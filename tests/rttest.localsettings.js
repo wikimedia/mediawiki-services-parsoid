@@ -63,4 +63,12 @@ exports.setup = function( parsoidConfig ) {
 
 	// Fetch the wikitext for a page before doing html2wt
 	parsoidConfig.fetchWT = true;
+
+	// Set to true to enable Performance timing
+	parsoidConfig.useDefaultPerformanceTimer = false;
+	// Peformance timing options for testing
+	parsoidConfig.performanceTimer = {
+		count: function() {},
+		timing: function() {}
+	};
 };

@@ -57,4 +57,12 @@ exports.setup = function( parsoidConfig ) {
 	// Leaving it undefined (the default) will use the same URI as the MW API,
 	// changing api.php for load.php.
 	//parsoidConfig.modulesLoadURI = true;
+
+	// Set to true to enable Performance timing
+	parsoidConfig.useDefaultPerformanceTimer = false;
+	// Peformance timing options for testing
+	parsoidConfig.performanceTimer = {
+		count: function() {},
+		timing: function() {}
+	};
 };
