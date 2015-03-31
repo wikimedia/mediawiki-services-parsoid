@@ -23978,6 +23978,20 @@ parsoid=html2wt
 [[Foo]]
 !! end
 
+## SSS FIXME: This is broken output nevertheless.
+## What might be a reasonable non-broken output for this?
+## This is an edge case unlikely to be seen in production
+## that I am not wasting more time on this right now.
+!! test
+Never serialize a-tag as html, no matter what attributes it has
+!! options
+parsoid=html2wt
+!! html
+<a bad='true' href='http://boo.org'><img src='http://boohoo.org' /></a>
+!! wikitext
+[http://boo.org http://boohoo.org]
+!! end
+
 # -----------------------------------------------------------------
 # End of section for Parsoid-only html2wt tests for serialization
 # of new content
