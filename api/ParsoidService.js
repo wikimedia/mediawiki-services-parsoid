@@ -51,8 +51,12 @@ function ParsoidService( parsoidConfig, processLogger ) {
 	// request ids
 	var buf = new Buffer(16);
 	app.use(function(req, res, next) {
-		uuid(null, buf);
-		res.local('reqId', buf.toString('hex'));
+		if(req.headers && req.headers['x-request-id']) {
+			res.local('reqId', req.headers['x-request-id']);
+		} else {
+			uuid(null, buf);
+			res.local('reqId', buf.toString('hex'));
+		}
 		next();
 	});
 
