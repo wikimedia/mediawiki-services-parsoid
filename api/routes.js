@@ -61,11 +61,11 @@ function timeoutResp( env, err ) {
 }
 
 var CPU_TIMEOUT = 5 * 60 * 1000;  // 5 minutes
-var makeDone = function( reqId ) {
+var makeDone = function( timeoutId ) {
 	// Create this function in an outer scope so that we don't inadvertently
 	// keep a reference to the promise here.
 	return function() {
-		process.send({ type: "timeout", done: true, reqId: reqId });
+		process.send({ type: "timeout", done: true, timeoutId: timeoutId });
 	};
 };
 
@@ -73,7 +73,7 @@ var makeDone = function( reqId ) {
 var sufficientNodeVersion = !/^v0\.[0-8]\./.test( process.version );
 
 var cpuTimeout = function( p, res ) {
-	var reqId = res.local("reqId");
+	var timeoutId = res.local("timeoutId");
 	var location = util.format(
 		"[%s/%s%s]", res.local("iwp"), res.local("pageName"),
 		(res.local("oldid") ? "?oldid=" + res.local("oldid") : "")
@@ -87,10 +87,10 @@ var cpuTimeout = function( p, res ) {
 		process.send({
 			type: "timeout",
 			timeout: CPU_TIMEOUT,
-			reqId: reqId,
+			timeoutId: timeoutId,
 			location: location
 		});
-		var done = makeDone( reqId );
+		var done = makeDone( timeoutId );
 		p.then( done, done );
 		p.then( resolve, reject );
 	});
@@ -551,11 +551,13 @@ routes.parserEnvMw = function( req, res, next ) {
 		}
 		return Promise.resolve().nodify(callback);
 	}
-	MWParserEnv.getParserEnv(parsoidConfig, null, {
+	var options = {
 		prefix: res.local('iwp'),
 		pageName: res.local('pageName'),
-		cookie: req.headers.cookie
-	}).then(function( env ) {
+		cookie: req.headers.cookie,
+		reqId: req.headers['x-request-id']
+	};
+	MWParserEnv.getParserEnv(parsoidConfig, null, options).then(function( env ) {
 		env.logger.registerBackend(/fatal(\/.*)?/, errBack.bind(this, env));
 		if ( res.local('v2') && res.local('v2').format === "pagebundle" ) {
 			env.storeDataParsoid = true;
