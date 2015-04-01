@@ -116,12 +116,12 @@ if ( cluster.isMaster && argv.n > 0 ) {
 		}
 		if ( msg.type !== "timeout" ) { return; }
 		if ( msg.done ) {
-			clearTimeout( timeouts.get( msg.reqId ) );
-			timeouts.delete( msg.reqId );
+			clearTimeout( timeouts.get( msg.timeoutId ) );
+			timeouts.delete( msg.timeoutId );
 		} else if ( msg.timeout ) {
 			var pid = worker.process.pid;
-			timeouts.set(msg.reqId, setTimeout(function() {
-				timeouts.delete( msg.reqId );
+			timeouts.set(msg.timeoutId, setTimeout(function() {
+				timeouts.delete( msg.timeoutId );
 				if ( worker.id in cluster.workers ) {
 					logger.log( "warning", util.format(
 						"Cpu timeout fetching: %s; killing worker %s.",

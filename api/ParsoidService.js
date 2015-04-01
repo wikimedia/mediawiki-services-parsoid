@@ -48,15 +48,11 @@ function ParsoidService( parsoidConfig, processLogger ) {
 	// limit upload file size
 	app.use(express.limit('15mb'));
 
-	// request ids
+	// timeout ids, used internally to track runaway processes
 	var buf = new Buffer(16);
 	app.use(function(req, res, next) {
-		if(req.headers && req.headers['x-request-id']) {
-			res.local('reqId', req.headers['x-request-id']);
-		} else {
-			uuid(null, buf);
-			res.local('reqId', buf.toString('hex'));
-		}
+		uuid(null, buf);
+		res.local('timeoutId', buf.toString('hex'));
 		next();
 	});
 
