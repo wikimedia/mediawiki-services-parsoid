@@ -3,6 +3,7 @@ require( '../lib/core-upgrade.js' );
 
 var path = require('path'),
 	fs = require('fs'),
+	qs = require('querystring'),
 	url = require('url'),
 	util = require('util'),
 	child_process = require('child_process'),
@@ -488,8 +489,13 @@ var wt2html = function( req, res, wt ) {
 		} else {
 			path += [
 				prefix,
-				encodeURIComponent( target ) + "?oldid=" + oldid
+				encodeURIComponent( target )
 			].join("/");
+			req.query.oldid = oldid;
+		}
+
+		if ( Object.keys( req.query ).length > 0 ) {
+			path += "?" + qs.stringify( req.query );
 		}
 
 		// Redirect to oldid
@@ -780,6 +786,9 @@ routes.v2Middle = function( req, res, next ) {
 	res.local('iwp', iwp);
 	res.local('pageName', req.params.title || '');
 	res.local('oldid', req.params.revision || null);
+
+	// "body" flag to return just the body (instead of the entire HTML doc)
+	res.local('body', req.query.body || req.body.body);
 
 	var v2 = Object.assign({ format: req.params.format }, req.body);
 

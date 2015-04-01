@@ -87,6 +87,16 @@ describe('Parsoid API', function() {
 				.end(done);
 			});
 
+			it("should preserve querystring params while redirecting", function(done) {
+				request(api)
+				.get('v2/' + mockHost + '/html/Main_Page?test=123')
+				.expect(302)
+				.expect(function(res) {
+					res.headers.location.should.match( /\/html\/Main_Page\/1\?test=123$/ );
+				})
+				.end(done);
+			});
+
 			it("should get html from a title and revision", function(done) {
 				request(api)
 				.get('v2/' + mockHost + '/html/Main_Page/1')
@@ -251,6 +261,18 @@ describe('Parsoid API', function() {
 					var doc = domino.createDocument(res.text);
 					doc.body.firstChild.nodeName.should.equal('H2');
 				})
+				.end(done);
+			});
+
+			it("should respect body parameter", function (done) {
+				request(api)
+				.post('v2/' + mockHost + '/html/')
+				.send({
+					wikitext: "''foo''",
+					body: 1
+				})
+				.expect(200)
+				.expect(/^<body/)
 				.end(done);
 			});
 
