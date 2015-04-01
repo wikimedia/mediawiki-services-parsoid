@@ -1744,7 +1744,8 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 	var tasks = [],
 		self = this;
 	for ( var i = 0; i < modes.length; i++ ) {
-		if ( modes[i] === 'selser' && options.numchanges && options.selser !== 'noauto' ) {
+		if (modes[i] === 'selser' && options.numchanges &&
+			options.selser !== 'noauto' && !options.changetree) {
 			var newitem;
 
 			// Prepend manual changes, if present, but not if 'selser' isn't
