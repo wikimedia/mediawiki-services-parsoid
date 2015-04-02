@@ -23442,22 +23442,6 @@ foo
 !! end
 
 !! test
-Lists: Add space after bullets
-!! options
-parsoid=html2wt
-!! html
-<ul>
-<li>foo</li>
-<li> bar</li>
-<li><span> baz</span></li>
-</ul>
-!! wikitext
-* foo
-* bar
-* <span> baz</span>
-!! end
-
-!! test
 Lists: Dont insert newlines in a serialized list item.
 !! options
 parsoid=html2wt
@@ -23466,25 +23450,6 @@ parsoid=html2wt
 !! wikitext
 * a<br>b
 * c
-!! end
-
-!! test
-Headings: Add space before/after == (Bug 51744)
-!! options
-parsoid=html2wt
-!! html
-<h2>foo</h2>
-<h2> bar</h2>
-<h2>baz </h2>
-<h2><span> baz</span></h2>
-!! wikitext
-== foo ==
-
-== bar ==
-
-== baz ==
-
-== <span> baz</span> ==
 !! end
 
 !! test
@@ -23991,6 +23956,56 @@ parsoid=html2wt
 !! wikitext
 [http://boo.org http://boohoo.org]
 !! end
+
+# --------------------------------------------
+# Tests spec'ing wikitext serialization norms |
+# --------------------------------------------
+
+!! test
+Lists: Add space after bullets
+!! options
+parsoid=html2wt
+!! html
+<ul>
+<li>foo</li>
+<li> bar</li>
+<li><span> baz</span></li>
+</ul>
+!! wikitext
+* foo
+* bar
+* <span> baz</span>
+!! end
+
+!! test
+Headings: Add space before/after == (T53744)
+!! options
+parsoid=html2wt
+!! html
+<h2>foo</h2>
+<h2> bar</h2>
+<h2>baz </h2>
+<h2><span> baz</span></h2>
+
+<!-- Even after hoisted content -->
+<h2> <link href="Category:A2" rel="mw:PageProp/Category" />ok</h2>
+!! wikitext
+== foo ==
+
+== bar ==
+
+== baz ==
+
+== <span> baz</span> ==
+
+<!-- Even after hoisted content -->
+ [[Category:A2]]
+== ok ==
+!! end
+
+# ---------------------------------------------------
+# End of tests spec'ing wikitext serialization norms |
+# ---------------------------------------------------
 
 # -----------------------------------------------------------------
 # End of section for Parsoid-only html2wt tests for serialization
