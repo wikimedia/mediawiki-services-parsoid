@@ -1683,9 +1683,10 @@ parsoid=wt2html,wt2wt
 <!--c1-->*a
 <!--c2--><!--c3--><!--c4-->*b
 !! html
-<ul>
+<!--c1--><ul>
 <li>a
 </li>
+<!--c2--><!--c3--><!--c4-->
 <li>b
 </li>
 </ul>
@@ -5280,7 +5281,9 @@ Plain ''italic'''s plain
 </p><p><b>Bold tag left open</b>
 </p><p><i>Italic tag left open</i>
 </p><p>Normal text.
-</p><p><b>This year'</b>s election <i>should</i> beat <b>last year'</b>s.
+</p>
+<!-- Unmatching number of opening, closing tags: -->
+<p><b>This year'</b>s election <i>should</i> beat <b>last year'</b>s.
 </p><p><i>Tom<b>s car is bigger than </b></i><b>Susan</b>s.
 </p><p>Plain <i>italic'</i>s plain
 </p>
@@ -20373,7 +20376,7 @@ b<!--the newline at the end of this line stays inside the p-tag--> <ref />
 c
 <references />
 !! html
-<p><!--the newline at the end of this line moves out of the p-tag-->a</p>
+<!--the newline at the end of this line moves out of the p-tag--><p>a</p>
 
 
 <p>b<!--the newline at the end of this line stays inside the p-tag--> <span about="#mwt2" class="reference" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{}}'><a href="#cite_note-1">[1]</a></span>
