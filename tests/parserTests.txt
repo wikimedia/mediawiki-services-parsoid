@@ -1585,40 +1585,60 @@ Comment whitespace
 
 !! test
 Comment semantics and delimiters
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 <!-- --><!----><!-----><!------>
-!! html
+!! html/php
 
+!! html/parsoid
+<!-- --><!----><!-- --><!--  -->
 !! end
 
 !! test
 Comment semantics and delimiters, redux
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 <!-- In SGML every "foo" here would actually show up in the text -- foo -- bar
 -- foo -- funky huh? ... -->
-!! html
+!! html/php
 
+!! html/parsoid
+<!-- In SGML every "foo" here would actually show up in the text    foo    bar
+   foo    funky huh? ... -->
 !! end
 
 !! test
 Comment semantics and delimiters: directors cut
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 <!-- ... However we like to keep things simple and somewhat XML-ish so we eat
 everything starting with < followed by !-- until the first -- and > we see,
 that wouldn't be valid XML however, since in XML -- has to terminate a comment
 -->-->
-!! html
+!! html/php
 <p>--&gt;
 </p>
+!! html/parsoid
+<!-- ... However we like to keep things simple and somewhat XML-ish so we eat
+everything starting with < followed by !   until the first    and > we see,
+that wouldn't be valid XML however, since in XML    has to terminate a comment
+--><p>--></p>
 !! end
 
 !! test
 Comment semantics: nesting
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 <!--<!-- no, we're not going to do anything fancy here -->-->
-!! html
+!! html/php
 <p>--&gt;
 </p>
+!! html/parsoid
+<!--<!   no, we're not going to do anything fancy here --><p>--></p>
 !! end
 
 !! test
@@ -1629,17 +1649,26 @@ Comment semantics: unclosed comment at end
 
 !! end
 
-# Bug 58184: document parsoid's behaviour
 !! test
-Suppress comment closing tag in lenient browsers
+Normalize comments to play nice with XML and browsers
 !! options
 parsoid=wt2html,html2html
 !! wikitext
-<!-- Browsers--!> think this is closed -->
+<!-- Browsers --!> think this is closed -->
+<!--> This would normally be text -->
+<!---> As would this -->
+<!-- XML doesn't like trailing dashes -------->
+<!-- Nor doubled hyphens -- anywhere in the data -->
 !! html/php
-
+<p><br />
+</p>
 !! html/parsoid
-<!-- Browsers--¡> think this is closed -->
+<!-- Browsers   !> think this is closed -->
+<!--  This would normally be text -->
+<!--   As would this -->
+<!-- XML doesn't like trailing dashes       -->
+<!-- Nor doubled hyphens    anywhere in the data -->
+
 !! end
 
 !! test
