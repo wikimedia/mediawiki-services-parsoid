@@ -26,7 +26,6 @@
 	"requireSpaceAfterBinaryOperators": null,
 	"requireSpaceBeforeBinaryOperators": null,
 	"requireSpaceBeforeBlockStatements": null,
-	"requireSpacesInFunction": null,
 	"requireTrailingComma": null,
 	"validateIndentation": null,
 	"validateQuoteMarks": null,
@@ -34,6 +33,7 @@
 	"excludeFiles": [
 		"node_modules/**",
 		"tests/server/static/js/jquery-min.js",
+		"api/static/js/jquery.js",
 		"lib/_http_agent.js"
 	]
 }

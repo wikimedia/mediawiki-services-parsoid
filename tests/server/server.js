@@ -722,7 +722,7 @@ var receiveResults = function ( req, res ) {
 // (whatever is between {{#jsFiles}} and {{/jsFiles}} in a template).
 // This string becomes the value of a 'javascripts' key added to the context, to be
 // rendered as html where {{{javascripts}}} appears in layout.html.
-hbs.registerHelper('jsFiles', function(options){
+hbs.registerHelper('jsFiles', function(options) {
 	if (!this.javascripts) {
 		this.javascripts = {};
 	}
@@ -1126,10 +1126,10 @@ var GET_commits = function( req, res ) {
 				row: tableRows
 			};
 
-			hbs.registerHelper('formatHash', function(hash){
+			hbs.registerHelper('formatHash', function(hash) {
 				return hash.slice(0,10);
 			});
-			hbs.registerHelper('formatDate', function(timestamp){
+			hbs.registerHelper('formatDate', function(timestamp) {
 				return timestamp.toString().slice(4,21);
 			});
 
@@ -1182,7 +1182,7 @@ var resultFlagOldWebInterface = function(req, res) {
 var app = express.createServer();
 
 // Configure for Handlebars
-app.configure(function(){
+app.configure(function() {
 	app.set('view engine', 'handlebars');
 	app.register('.html', require('handlebars'));
 });

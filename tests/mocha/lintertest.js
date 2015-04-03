@@ -100,7 +100,7 @@ describe( 'Linter Tests', function() {
 				result[0].should.have.a.property( "src", "foo" );
 			});
 		});
-		it('should lint ignored table attributes Correctly', function(){
+		it('should lint ignored table attributes Correctly', function() {
 			return parseWT( '{|\n|- foo\n|bar\n|}' ).then( function ( result ) {
 				result.should.have.length( 1 );
 				result[0].should.have.a.property("type", "ignored-table-attr");

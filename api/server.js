@@ -184,7 +184,7 @@ if ( cluster.isMaster && argv.n > 0 ) {
 
 	// Send heap usage statistics to Graphite every five (5) minutes
 	if (parsoidConfig.performanceTimer){
-		setInterval(function(){
+		setInterval(function() {
 			var heapUsage = process.memoryUsage();
 			parsoidConfig.performanceTimer.timing('heap.rss', '', heapUsage.rss);
 			parsoidConfig.performanceTimer.timing('heap.total','', heapUsage.heapTotal);

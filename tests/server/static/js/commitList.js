@@ -1,5 +1,5 @@
 /*global $:false */
-(function(exports){
+(function(exports) {
 	"use strict";
 
 	var numRows, newHash, oldHash;
@@ -9,16 +9,16 @@
 		$('.compare-fix').attr('href', '/topfixes/between/' + oldHash + '/' + newHash);
 	};
 
-	var button = function(name, index){
+	var button = function(name, index) {
 		return $('.revisions tr:eq(' + index + ') .buttons input[name="'+ name + '"]');
 	};
 
-	var buttonDisplay = function(name, index, visibility){
+	var buttonDisplay = function(name, index, visibility) {
 		$(button(name, index)).css('visibility', visibility);
 	};
 
 	// set initial regressions/fixes links, button visibility/checkedness
-	exports.initialCommitList = function(){
+	exports.initialCommitList = function() {
 		numRows = $('.revisions tr').length;
 		newHash = $('.revisions tr:eq(0) .hash').attr('title');
 		oldHash = $('.revisions tr:eq(1) .hash').attr('title');
@@ -32,7 +32,7 @@
 	};
 
 	// button click callback: update regressions/fixes links and button visibility
-	exports.updateCommitList = function(name){
+	exports.updateCommitList = function(name) {
 		if (name === 'old') {
 			oldHash = this.value;
 		} else {

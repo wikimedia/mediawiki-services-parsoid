@@ -82,7 +82,7 @@ RenderHelpers.pageStatus = function(row) {
 	return null;
 };
 
-RenderHelpers.displayPageList = function(hbs, res, data, makeRow, err, rows){
+RenderHelpers.displayPageList = function(hbs, res, data, makeRow, err, rows) {
 	console.log( "GET " + data.urlPrefix + "/" + data.page + data.urlSuffix );
 	if ( err ) {
 		res.send( err.toString(), 500 );

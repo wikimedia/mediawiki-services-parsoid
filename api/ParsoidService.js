@@ -29,7 +29,7 @@ function ParsoidService( parsoidConfig, processLogger ) {
 	app.register('html', hbs);
 
 	// block helper to reference js files in page head.
-	hbs.registerHelper('jsFiles', function(options){
+	hbs.registerHelper('jsFiles', function(options) {
 		this.javascripts = options.fn(this);
 	});
 
