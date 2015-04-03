@@ -373,20 +373,21 @@ h = & "=" // guard, to make sure '='+ will match.
     ) { return r; }
 
 
+/* Comments */
+
+// The php parser does a straight str.replace(/<!--((?!-->).)*-->/g, "")
+// but, as always, things around here are a little more complicated.
+//
+// We accept the same comments, but because we emit them as HTML comments
+// instead of deleting them, we have to sanitize the contents of the
+// comments. We currently do this in a way which loses information. See
+// the normalizeComment helper for further details.
+
 comment
-    ='<!--' c:comment_chars* ('-->' / eof)
-    {
-        var data = c.join('');
-        // Bug 58184: Browsers leniently accept --!> as a closing comment tag,
-        // which differs from the php+tidy combo. Suppress that behaviour at
-        // the cost of introducing a dirty diff. Selser should take care of it.
-        data = data.replace(/--!>/g, "--¡>");
+    = '<!--' c:( !"-->" c:. { return c; } )* ('-->' / eof) {
+        var data = tu.normalizeComment( c.join('') );
         return [new CommentTk( data, { tsr: [peg$reportedPos, peg$currPos] } )];
     }
-
-comment_chars
-  = c:[^-] { return c; }
-  / c:'-' !'->' { return c; }
 
 
 // Behavior switches. See:
