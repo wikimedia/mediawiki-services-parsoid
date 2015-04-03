@@ -26,7 +26,6 @@
 	"requireSpaceAfterBinaryOperators": null,
 	"requireSpaceBeforeBinaryOperators": null,
 	"requireSpaceBeforeBlockStatements": null,
-	"requireSpaceBeforeObjectValues": null,
 	"requireSpacesInFunction": null,
 	"requireTrailingComma": null,
 	"validateIndentation": null,

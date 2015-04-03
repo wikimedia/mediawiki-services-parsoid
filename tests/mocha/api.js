@@ -136,9 +136,9 @@ describe('Parsoid API', function() {
 								'content-type': 'application/json;profile=mediawiki.org/specs/data-parsoid/0.0.1'
 							},
 							body: {
-								"counter":14,
+								"counter": 14,
 								"ids": {
-									"mwAA":{"dsr":[0,592,0,0]},"mwAQ":{"dsr":[0,59,0,0]},"mwAg":{"stx":"html","dsr":[0,59,8,9]},"mwAw":{"dsr":[61,171,0,0]},"mwBA":{"targetOff":114,"contentOffsets":[114,126],"dsr":[73,127,41,1]},"mwBQ":{"dsr":[173,194,2,2]},"mwBg":{"dsr":[195,592,0,0]},"mwBw":{"dsr":[195,300,1,0]},"mwCA":{"targetOff":272,"contentOffsets":[272,299],"dsr":[197,300,75,1]},"mwCQ":{"dsr":[301,373,1,0]},"mwCg":{"targetOff":359,"contentOffsets":[359,372],"dsr":[303,373,56,1]},"mwCw":{"dsr":[374,472,1,0]},"mwDA":{"targetOff":441,"contentOffsets":[441,471],"dsr":[376,472,65,1]},"mwDQ":{"dsr":[473,592,1,0]},"mwDg":{"targetOff":555,"contentOffsets":[555,591],"dsr":[475,592,80,1] }
+									"mwAA": {"dsr": [0,592,0,0]},"mwAQ": {"dsr": [0,59,0,0]},"mwAg": {"stx": "html","dsr": [0,59,8,9]},"mwAw": {"dsr": [61,171,0,0]},"mwBA": {"targetOff": 114,"contentOffsets": [114,126],"dsr": [73,127,41,1]},"mwBQ": {"dsr": [173,194,2,2]},"mwBg": {"dsr": [195,592,0,0]},"mwBw": {"dsr": [195,300,1,0]},"mwCA": {"targetOff": 272,"contentOffsets": [272,299],"dsr": [197,300,75,1]},"mwCQ": {"dsr": [301,373,1,0]},"mwCg": {"targetOff": 359,"contentOffsets": [359,372],"dsr": [303,373,56,1]},"mwCw": {"dsr": [374,472,1,0]},"mwDA": {"targetOff": 441,"contentOffsets": [441,471],"dsr": [376,472,65,1]},"mwDQ": {"dsr": [473,592,1,0]},"mwDg": {"targetOff": 555,"contentOffsets": [555,591],"dsr": [475,592,80,1] }
 								}
 							}
 						}
@@ -172,9 +172,9 @@ describe('Parsoid API', function() {
 								'content-type': 'application/json;profile=mediawiki.org/specs/data-parsoid/0.0.1'
 							},
 							body: {
-								"counter":14,
+								"counter": 14,
 								"ids": {
-									"mwAA":{"dsr":[0,592,0,0]},"mwAQ":{"dsr":[0,59,0,0]},"mwAg":{"stx":"html","dsr":[0,59,8,9]},"mwAw":{"dsr":[61,171,0,0]},"mwBA":{"targetOff":114,"contentOffsets":[114,126],"dsr":[73,127,41,1]},"mwBQ":{"dsr":[173,194,2,2]},"mwBg":{"dsr":[195,592,0,0]},"mwBw":{"dsr":[195,300,1,0]},"mwCA":{"targetOff":272,"contentOffsets":[272,299],"dsr":[197,300,75,1]},"mwCQ":{"dsr":[301,373,1,0]},"mwCg":{"targetOff":359,"contentOffsets":[359,372],"dsr":[303,373,56,1]},"mwCw":{"dsr":[374,472,1,0]},"mwDA":{"targetOff":441,"contentOffsets":[441,471],"dsr":[376,472,65,1]},"mwDQ":{"dsr":[473,592,1,0]},"mwDg":{"targetOff":555,"contentOffsets":[555,591],"dsr":[475,592,80,1] }
+									"mwAA": {"dsr": [0,592,0,0]},"mwAQ": {"dsr": [0,59,0,0]},"mwAg": {"stx": "html","dsr": [0,59,8,9]},"mwAw": {"dsr": [61,171,0,0]},"mwBA": {"targetOff": 114,"contentOffsets": [114,126],"dsr": [73,127,41,1]},"mwBQ": {"dsr": [173,194,2,2]},"mwBg": {"dsr": [195,592,0,0]},"mwBw": {"dsr": [195,300,1,0]},"mwCA": {"targetOff": 272,"contentOffsets": [272,299],"dsr": [197,300,75,1]},"mwCQ": {"dsr": [301,373,1,0]},"mwCg": {"targetOff": 359,"contentOffsets": [359,372],"dsr": [303,373,56,1]},"mwCw": {"dsr": [374,472,1,0]},"mwDA": {"targetOff": 441,"contentOffsets": [441,471],"dsr": [376,472,65,1]},"mwDQ": {"dsr": [473,592,1,0]},"mwDg": {"targetOff": 555,"contentOffsets": [555,591],"dsr": [475,592,80,1] }
 								}
 							}
 						}
@@ -415,9 +415,9 @@ describe('Parsoid API', function() {
 								'content-type': 'application/json;profile=mediawiki.org/specs/data-parsoid/0.0.1'
 							},
 							body: {
-								"counter":14,
+								"counter": 14,
 								"ids": {
-									"mwAA":{"dsr":[0,592,0,0]},"mwAQ":{"dsr":[0,59,0,0]},"mwAg":{"stx":"html","dsr":[0,59,8,9]},"mwAw":{"dsr":[61,171,0,0]},"mwBA":{"targetOff":114,"contentOffsets":[114,126],"dsr":[73,127,41,1]},"mwBQ":{"dsr":[173,194,2,2]},"mwBg":{"dsr":[195,592,0,0]},"mwBw":{"dsr":[195,300,1,0]},"mwCA":{"targetOff":272,"contentOffsets":[272,299],"dsr":[197,300,75,1]},"mwCQ":{"dsr":[301,373,1,0]},"mwCg":{"targetOff":359,"contentOffsets":[359,372],"dsr":[303,373,56,1]},"mwCw":{"dsr":[374,472,1,0]},"mwDA":{"targetOff":441,"contentOffsets":[441,471],"dsr":[376,472,65,1]},"mwDQ":{"dsr":[473,592,1,0]},"mwDg":{"targetOff":555,"contentOffsets":[555,591],"dsr":[475,592,80,1] }
+									"mwAA": {"dsr": [0,592,0,0]},"mwAQ": {"dsr": [0,59,0,0]},"mwAg": {"stx": "html","dsr": [0,59,8,9]},"mwAw": {"dsr": [61,171,0,0]},"mwBA": {"targetOff": 114,"contentOffsets": [114,126],"dsr": [73,127,41,1]},"mwBQ": {"dsr": [173,194,2,2]},"mwBg": {"dsr": [195,592,0,0]},"mwBw": {"dsr": [195,300,1,0]},"mwCA": {"targetOff": 272,"contentOffsets": [272,299],"dsr": [197,300,75,1]},"mwCQ": {"dsr": [301,373,1,0]},"mwCg": {"targetOff": 359,"contentOffsets": [359,372],"dsr": [303,373,56,1]},"mwCw": {"dsr": [374,472,1,0]},"mwDA": {"targetOff": 441,"contentOffsets": [441,471],"dsr": [376,472,65,1]},"mwDQ": {"dsr": [473,592,1,0]},"mwDg": {"targetOff": 555,"contentOffsets": [555,591],"dsr": [475,592,80,1] }
 								}
 							}
 						}

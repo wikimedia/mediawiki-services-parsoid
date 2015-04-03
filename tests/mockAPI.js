@@ -48,11 +48,11 @@ var main_page = {
 				"pageid": 1,
 				"ns": 0,
 				"title": "Main Page",
-				"revisions":[{
+				"revisions": [{
 					"revid": 1,
 					"parentid": 0,
 					"contentmodel": "wikitext",
-					"contentformat":"text/x-wiki",
+					"contentformat": "text/x-wiki",
 					"*": "<strong>MediaWiki has been successfully installed.</strong>\n\nConsult the [//meta.wikimedia.org/wiki/Help:Contents User's Guide] for information on using the wiki software.\n\n== Getting started ==\n* [//www.mediawiki.org/wiki/Special:MyLanguage/Manual:Configuration_settings Configuration settings list]\n* [//www.mediawiki.org/wiki/Special:MyLanguage/Manual:FAQ MediaWiki FAQ]\n* [https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce MediaWiki release mailing list]\n* [//www.mediawiki.org/wiki/Special:MyLanguage/Localisation#Translation_resources Localise MediaWiki for your language]"
 				}]
 			}
@@ -67,11 +67,11 @@ var junk_page = {
 				"pageid": 2,
 				"ns": 0,
 				"title": "Junk Page",
-				"revisions":[{
+				"revisions": [{
 					"revid": 2,
 					"parentid": 0,
 					"contentmodel": "wikitext",
-					"contentformat":"text/x-wiki",
+					"contentformat": "text/x-wiki",
 					"*": "2. This is just some junk. See the comment above."
 				}]
 			}

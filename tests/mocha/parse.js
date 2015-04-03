@@ -164,7 +164,7 @@ describe( 'ParserPipelineFactory', function() {
 				linktests.forEach(function(test) {
 					it(test.wikitext, function() {
 						return parse(test.wikitext, {
-							page_name:'A/B?/C',
+							page_name: 'A/B?/C',
 							tweakEnv: function(env) {
 								Object.keys(env.conf.wiki.namespaceNames).forEach(function(id) {
 									env.conf.wiki.namespacesWithSubpages[id] = !!subpages;
