@@ -611,8 +611,7 @@ ParserTests.prototype.applyChanges = function( item, body, changelist, cb ) {
 	item.changes = changelist;
 
 	if (this.env.conf.parsoid.dumpFlags &&
-		this.env.conf.parsoid.dumpFlags.indexOf("dom:post-changes") !== -1)
-	{
+		this.env.conf.parsoid.dumpFlags.indexOf("dom:post-changes") !== -1) {
 		console.warn("-------------------------");
 		console.warn("Original DOM: " + body.outerHTML);
 		console.warn("-------------------------");
@@ -629,8 +628,7 @@ ParserTests.prototype.applyChanges = function( item, body, changelist, cb ) {
 	}
 
 	if (this.env.conf.parsoid.dumpFlags &&
-		this.env.conf.parsoid.dumpFlags.indexOf("dom:post-changes") !== -1)
-	{
+		this.env.conf.parsoid.dumpFlags.indexOf("dom:post-changes") !== -1) {
 		console.warn("Change tree : " + JSON.stringify(item.changes));
 		console.warn("-------------------------");
 		console.warn("Edited DOM  : " + body.outerHTML);

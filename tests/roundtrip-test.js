@@ -350,8 +350,7 @@ var checkIfSignificant = function ( env, offsets, src, body, oldDp, out, cb, err
 
 		if ( offset[0].start === offset[0].end &&
 				out.substr(offset[1].start, offset[1].end - offset[1].start)
-					.match(/^\n?<\/[^>]+>\n?$/) )
-		{
+					.match(/^\n?<\/[^>]+>\n?$/) ) {
 			// An element was implicitly closed. Fudge the orig offset
 			// slightly so it finds the corresponding elements which have the
 			// original (unclosed) DSR.

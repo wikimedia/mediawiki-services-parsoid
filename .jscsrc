@@ -3,7 +3,6 @@
 
 	"disallowMixedSpacesAndTabs": null,
 	"disallowMultipleVarDecl": null,
-	"disallowNewlineBeforeBlockStatements": null,
 	"disallowQuotedKeysInObjects": null,
 	"disallowSpaceAfterObjectKeys": null,
 	"disallowSpaceAfterPrefixUnaryOperators": null,
