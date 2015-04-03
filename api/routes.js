@@ -249,7 +249,7 @@ var html2wt = function( req, res, html ) {
 	var timer = env.conf.parsoid.performanceTimer,
 	startTimers;
 
-	if ( timer ){
+	if ( timer ) {
 		startTimers = new Map();
 		startTimers.set( 'html2wt.init', Date.now() );
 		startTimers.set( 'html2wt.total', Date.now() );
@@ -288,7 +288,7 @@ var html2wt = function( req, res, html ) {
 	}).then(function() {
 		html = html.replace(/\r/g, '');
 
-		if ( timer ){
+		if ( timer ) {
 			startTimers.set( 'html2wt.init.domparse', Date.now() );
 		}
 
@@ -297,7 +297,7 @@ var html2wt = function( req, res, html ) {
 		// send domparse time, input size and init time to statsd/Graphite
 		// init time is the time elapsed before serialization
 		// init.domParse, a component of init time, is the time elapsed from html string to DOM tree
-		if ( timer ){
+		if ( timer ) {
 			timer.timing( 'html2wt.init.domparse', '',
 				Date.now() - startTimers.get( 'html2wt.init.domparse' ));
 			timer.timing( 'html2wt.size.input', '', html.length );
@@ -353,7 +353,7 @@ var wt2html = function( req, res, wt ) {
 	var timer = env.conf.parsoid.performanceTimer,
 	startTimers;
 
-	if ( timer ){
+	if ( timer ) {
 		startTimers = new Map();
 		// init refers to time elapsed before parsing begins
 		startTimers.set( 'wt2html.init', Date.now() );
@@ -399,12 +399,12 @@ var wt2html = function( req, res, wt ) {
 			apiUtils.endResponse(res, env, output);
 		}
 
-		if ( timer ){
-			if ( startTimers.has( 'wt2html.wt.parse' ) ){
+		if ( timer ) {
+			if ( startTimers.has( 'wt2html.wt.parse' ) ) {
 				timer.timing( 'wt2html.wt.parse', '',
 					Date.now() - startTimers.get( 'wt2html.wt.parse' ));
 				timer.timing( 'wt2html.wt.size.output', '', output.length );
-			} else if ( startTimers.has( 'wt2html.pageWithOldid.parse' ) ){
+			} else if ( startTimers.has( 'wt2html.pageWithOldid.parse' ) ) {
 				timer.timing( 'wt2html.pageWithOldid.parse', '',
 					Date.now() - startTimers.get( 'wt2html.pageWithOldid.parse' ));
 				timer.timing( 'wt2html.pageWithOldid.size.output', '', output.length );
@@ -419,7 +419,7 @@ var wt2html = function( req, res, wt ) {
 	function parseWt() {
 		env.log('info', 'started parsing');
 
-		if ( timer ){
+		if ( timer ) {
 			timer.timing( 'wt2html.wt.init', '',
 				Date.now() - startTimers.get( 'wt2html.init' ));
 			startTimers.set( 'wt2html.wt.parse', Date.now() );
@@ -443,7 +443,7 @@ var wt2html = function( req, res, wt ) {
 	}
 
 	function parsePageWithOldid() {
-		if ( timer ){
+		if ( timer ) {
 			timer.timing( 'wt2html.pageWithOldid.init', '',
 				Date.now() - startTimers.get( 'wt2html.init' ));
 			startTimers.set( 'wt2html.pageWithOldid.parse', Date.now() );
@@ -473,7 +473,7 @@ var wt2html = function( req, res, wt ) {
 		oldid = env.page.meta.revision.revid;
 		env.log("info", "redirecting to revision", oldid);
 
-		if ( timer ){
+		if ( timer ) {
 			timer.count('wt2html.redirectToOldid', '');
 		}
 

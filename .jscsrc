@@ -25,7 +25,6 @@
 	"requireSpaceAfterLineComment": null,
 	"requireSpaceAfterBinaryOperators": null,
 	"requireSpaceBeforeBinaryOperators": null,
-	"requireSpaceBeforeBlockStatements": null,
 	"requireTrailingComma": null,
 	"validateIndentation": null,
 	"validateQuoteMarks": null,
