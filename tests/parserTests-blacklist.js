@@ -24,7 +24,7 @@
  */
 var testBlackList = {};
 var add = function(testtype, title, raw) {
-	if (typeof(testBlackList[title]) !== 'object') {
+	if (typeof (testBlackList[title]) !== 'object') {
 		testBlackList[title] = {
 			modes: [],
 			raw: raw

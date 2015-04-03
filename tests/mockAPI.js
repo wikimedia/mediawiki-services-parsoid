@@ -156,7 +156,7 @@ var fnames = {
 			var filename = body.titles,
 				normPagename = pnames[filename] || filename,
 				normFilename = fnames[filename] || filename;
-			if(!(normFilename in FILE_PROPS )) {
+			if (!(normFilename in FILE_PROPS )) {
 				cb( null, {
 					'query': {
 						'pages': {

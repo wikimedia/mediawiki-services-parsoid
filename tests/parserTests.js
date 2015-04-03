@@ -56,7 +56,7 @@ var parserTestsUpToDate = true;
  * @param {string} color
  */
 var colorizeCount = function ( count, color ) {
-	if( count === 0 ) {
+	if ( count === 0 ) {
 		return count;
 	}
 
@@ -283,10 +283,10 @@ ParserTests.prototype.getOpts = function () {
 		standardOpts
 	).check(function(argv, aliases) {
 		Util.checkUnknownArgs(standardOpts, argv, aliases);
-		if( argv.filter === true ) {
+		if ( argv.filter === true ) {
 			throw "--filter needs an argument";
 		}
-		if( argv.regex === true ) {
+		if ( argv.regex === true ) {
 			throw "--regex needs an argument";
 		}
 	});
@@ -319,7 +319,7 @@ ParserTests.prototype.getTests = function ( argv ) {
 	// parser grammar is also a dependency
 	fileDependencies.push( this.testParserFileName );
 
-	if( !booleanOption(argv.cache) ) {
+	if ( !booleanOption(argv.cache) ) {
 		// Cache not wanted, parse file and return object
 		return this.parseTestCase( testFile );
 	}
@@ -340,11 +340,11 @@ ParserTests.prototype.getTests = function ( argv ) {
 		cache_content = fs.readFileSync( cache_file_name, 'utf8' );
 		// Fetch previous digest
 		cache_file_digest = cache_content.match( /^CACHE: (\w+)\n/ )[1];
-	} catch( e4 ) {
+	} catch ( e4 ) {
 		// cache file does not exist
 	}
 
-	if( cache_file_digest === sha1 ) {
+	if ( cache_file_digest === sha1 ) {
 		// cache file match our digest.
 		// Return contained object after removing first line (CACHE: <sha1>)
 		return JSON.parse( cache_content.replace( /^.*\n/, '' ) );
@@ -1226,7 +1226,7 @@ ParserTests.prototype.printSuccess = function ( title, options, mode, expectSucc
 	var extTitle = ( title + ( mode ? ( ' (' + mode + ')' ) : '' ) ).
 		replace('\n', ' ');
 
-	if( booleanOption( options.blacklist ) && !expectSuccess ) {
+	if ( booleanOption( options.blacklist ) && !expectSuccess ) {
 		this.stats.passedTestsUnexpected++;
 		this.stats.modes[mode].passedTestsUnexpected++;
 		console.log( 'UNEXPECTED PASS'.green.inverse +
@@ -1234,7 +1234,7 @@ ParserTests.prototype.printSuccess = function ( title, options, mode, expectSucc
 					 ':' + extTitle.yellow);
 		return false;
 	}
-	if( !quiet ) {
+	if ( !quiet ) {
 		var outStr = 'EXPECTED PASS';
 
 		if ( isWhitelist ) {
@@ -1474,7 +1474,7 @@ ParserTests.prototype.reportSummary = function ( stats ) {
 		console.timeEnd('Execution time');
 	}
 
-	if( failTotalTests !== 0 ) {
+	if ( failTotalTests !== 0 ) {
 		for ( i = 0; i < modes.length; i++ ) {
 			curStr = modes[i] + ': ';
 			thisMode = stats.modes[modes[i]];
@@ -1509,7 +1509,7 @@ ParserTests.prototype.reportSummary = function ( stats ) {
 			console.log( '--> ' + 'NO UNEXPECTED RESULTS'.green + ' <--');
 		}
 	} else {
-		if( this.test_filter !== null ) {
+		if ( this.test_filter !== null ) {
 			console.log( "Passed " + ( stats.passedTests + stats.passedTestsWhitelisted ) +
 					" of " + stats.passedTests + " tests matching " + this.test_filter +
 					"... " + "ALL TESTS PASSED!".green );
@@ -1878,13 +1878,13 @@ ParserTests.prototype.processCase = function ( i, options, err ) {
 
 		//console.log( 'processCase ' + i + JSON.stringify( item )  );
 		if ( typeof item === 'object' ) {
-			switch(item.type) {
+			switch (item.type) {
 				case 'article':
 					this.comments = [];
 					this.processArticle( item, nextCallback );
 					break;
 				case 'test':
-					if( !('wikitext' in item && 'html' in item) ||
+					if ( !('wikitext' in item && 'html' in item) ||
 						('disabled' in item.options && !this.runDisabled) ||
 						('php' in item.options &&
 							!('html/parsoid' in item || this.runPHP)) ||

@@ -21,7 +21,6 @@
 		"try",
 		"catch"
 	],
-	"requireSpaceAfterKeywords": null,
 	"requireSpaceAfterLineComment": null,
 	"requireSpaceAfterBinaryOperators": null,
 	"requireSpaceBeforeBinaryOperators": null,

@@ -70,7 +70,7 @@ var ParsoidService = require("./ParsoidService.js").ParsoidService,
 var lsp = path.resolve( process.cwd(), argv.c ), localSettings;
 try {
 	localSettings = require( lsp );
-} catch( e ) {
+} catch ( e ) {
 	console.error(
 		"Cannot load local settings from %s. Please see: %s",
 		lsp, path.join( __dirname, "localsettings.js.example" )

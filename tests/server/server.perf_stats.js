@@ -132,7 +132,7 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 				// Create the query to retrieve the stats per page
 				var perfStatsHeader = ['Title'];
 				var dbStmt = dbLastPerfStatsStart;
-				for( var t = 0; t < types.length; t++ ) {
+				for ( var t = 0; t < types.length; t++ ) {
 					if ( t !== 0 ) {
 						dbStmt += ", ";
 					}

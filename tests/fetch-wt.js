@@ -100,7 +100,7 @@ if (argv.title && argv.revid) {
 	title = '' + argv.title; // convert, in case it's numeric.
 } else if (argv.revid) {
 	revid = +argv.revid;
-} else if (typeof(argv._[0]) === 'number') {
+} else if (typeof (argv._[0]) === 'number') {
 	revid = argv._[0];
 } else if (argv._[0]) {
 	title = argv._[0];

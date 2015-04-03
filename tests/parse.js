@@ -224,7 +224,7 @@ var parse = exports.parse = function( input, argv, parsoidConfig, prefix ) {
 			env.setPageSrcInfo( argv.oldtext || null );
 		}
 
-		if ( typeof( input ) === 'string' ) {
+		if ( typeof ( input ) === 'string' ) {
 			return { env: env, input: input };
 		}
 
@@ -324,7 +324,7 @@ if ( require.main === module ) {
 
 		var local = null;
 		if ( Util.booleanOption( argv.config ) ) {
-			var p = ( typeof( argv.config ) === 'string' ) ?
+			var p = ( typeof ( argv.config ) === 'string' ) ?
 				path.resolve( '.', argv.config) :
 				path.resolve( __dirname, '../api/localsettings.js' );
 			local = require( p );

@@ -227,7 +227,7 @@ var parse = function( env, req, res ) {
 	return p.then(function( ret ) {
 		if ( ret ) {
 			// Figure out what we can reuse
-			switch( ret.mode ) {
+			switch ( ret.mode ) {
 			case "templates":
 				// Transclusions need to be updated, so don't reuse them.
 				ret.expansions.transclusions = {};
