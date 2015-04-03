@@ -4,6 +4,7 @@
 .*.swp
 .DS_Store
 .deploy
+npm-debug.log
 
 
 api/localsettings.js

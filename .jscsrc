@@ -1,0 +1,41 @@
+{
+	"preset": "node-style-guide",
+
+	"disallowMixedSpacesAndTabs": null,
+	"disallowMultipleVarDecl": null,
+	"disallowNewlineBeforeBlockStatements": null,
+	"disallowQuotedKeysInObjects": null,
+	"disallowSpaceAfterObjectKeys": null,
+	"disallowSpaceAfterPrefixUnaryOperators": null,
+	"disallowSpacesInFunction": null,
+	"disallowSpacesInsideParentheses": null,
+	"maximumLineLength": null,
+	"requireCamelCaseOrUpperCaseIdentifiers": null,
+	"requireCapitalizedComments": null,
+	"requireCapitalizedConstructors": null,
+	"requireCurlyBraces": [
+		"if",
+		"else",
+		"for",
+		"while",
+		"do",
+		"try",
+		"catch"
+	],
+	"requireSpaceAfterKeywords": null,
+	"requireSpaceAfterLineComment": null,
+	"requireSpaceAfterBinaryOperators": null,
+	"requireSpaceBeforeBinaryOperators": null,
+	"requireSpaceBeforeBlockStatements": null,
+	"requireSpaceBeforeObjectValues": null,
+	"requireSpacesInFunction": null,
+	"requireTrailingComma": null,
+	"validateIndentation": null,
+	"validateQuoteMarks": null,
+
+	"excludeFiles": [
+		"node_modules/**",
+		"tests/server/static/js/jquery-min.js",
+		"lib/_http_agent.js"
+	]
+}
