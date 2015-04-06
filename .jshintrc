@@ -17,7 +17,7 @@
 	"eqeqeq": true,
 	"immed": true,
 	"latedef": true,
-	"newcap": true,
+	"newcap": false,
 	"noarg": true,
 	"noempty": true,
 	"nonew": true,
