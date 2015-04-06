@@ -95,7 +95,7 @@ var dbInsert = 'INSERT IGNORE INTO pages ( title, prefix ) VALUES ( ?, ? )';
 
 var insertRecord = function( record, prefix ) {
 	waitingCount++;
-	db.query( dbInsert, [ record, prefix ], function ( err ) {
+	db.query( dbInsert, [ record, prefix ], function( err ) {
 		if ( err ) {
 			console.error( err );
 		} else {
@@ -125,7 +125,7 @@ var loadJSON = function( json, options ) {
 	}
 };
 
-db.connect( function ( err ) {
+db.connect( function( err ) {
 	var filepath;
 	if ( err ) {
 		console.error( err );

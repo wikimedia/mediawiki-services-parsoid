@@ -103,10 +103,10 @@ RenderHelpers.displayPageList = function(hbs, res, data, makeRow, err, rows) {
 			tableData.prev = data.page > 0;
 			tableData.next = rows.length === 40;
 		}
-		hbs.registerHelper('prevUrl', function (urlPrefix, urlSuffix, page) {
+		hbs.registerHelper('prevUrl', function(urlPrefix, urlSuffix, page) {
 			return (urlPrefix ? urlPrefix + "/" : "") + ( page - 1 ) + urlSuffix;
 		});
-		hbs.registerHelper('nextUrl', function (urlPrefix, urlSuffix, page) {
+		hbs.registerHelper('nextUrl', function(urlPrefix, urlSuffix, page) {
 			return (urlPrefix ? urlPrefix + "/" : "") + ( page + 1 ) + urlSuffix;
 		});
 		res.render('table.html', tableData);

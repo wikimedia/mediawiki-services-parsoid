@@ -163,7 +163,7 @@ if ( cluster.isMaster && argv.n > 0 ) {
 } else {
 	// Worker
 
-	var shutdown_worker = function () {
+	var shutdown_worker = function() {
 		logger.log( "warning", "shutting down" );
 		process.exit(0);
 	};

@@ -47,7 +47,7 @@ sample cpuprofile (from Chrome):
   "children":[{"functionName":"(program)","scriptId":"0","url":"","lineNumber":0,"columnNumber":0,"hitCount":3,"callUID":912934196,"children":[],"deoptReason":"","id":2},{"functionName":"(idle)","scriptId":"0","url":"","lineNumber":0,"columnNumber":0,"hitCount":27741,"callUID":176593847,"children":[],"deoptReason":"","id":3}],"deoptReason":"","id":1}
 */
 
-function convertProfNode (node) {
+function convertProfNode(node) {
 	var res = {
 		functionName: node.functionName,
 		lineNumber: node.lineNumber,
@@ -62,7 +62,7 @@ function convertProfNode (node) {
 	return res;
 }
 
-function prof2cpuprofile (prof) {
+function prof2cpuprofile(prof) {
 	return {
 		head: convertProfNode(prof.topRoot),
 		startTime: 0,

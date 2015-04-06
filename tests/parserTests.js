@@ -55,7 +55,7 @@ var parserTestsUpToDate = true;
  * @param {number} count
  * @param {string} color
  */
-var colorizeCount = function ( count, color ) {
+var colorizeCount = function( count, color ) {
 	if ( count === 0 ) {
 		return count;
 	}
@@ -85,7 +85,7 @@ var modes = ['wt2html', 'wt2wt', 'html2html', 'html2wt', 'selser'];
  *
  * Main class for the test environment.
  */
-function ParserTests () {
+function ParserTests() {
 	var i;
 
 	this.cache_file = "parserTests.cache"; // Name of file used to cache the parser tests cases
@@ -141,7 +141,7 @@ var prettyPrintIOptions = function(iopts) {
  *
  * @returns {Object}
  */
-ParserTests.prototype.getOpts = function () {
+ParserTests.prototype.getOpts = function() {
 
 	var standardOpts = Util.addStandardOptions({
 		'wt2html': {
@@ -300,7 +300,7 @@ ParserTests.prototype.getOpts = function () {
  * @param {Object} argv
  * @returns {Object}
  */
-ParserTests.prototype.getTests = function ( argv ) {
+ParserTests.prototype.getTests = function( argv ) {
 	// double check that test file is up-to-date with upstream
 	var fetcher = require(__dirname +"/fetch-parserTests.txt.js");
 	if (!fetcher.isUpToDate()) {
@@ -326,7 +326,7 @@ ParserTests.prototype.getTests = function ( argv ) {
 
 	// Find out modification time of all files dependencies and then hash those
 	// to make a unique value using sha1.
-	var mtimes = fileDependencies.sort().map( function (file) {
+	var mtimes = fileDependencies.sort().map( function(file) {
 		return fs.statSync( file ).mtime;
 	}).join('|');
 
@@ -371,7 +371,7 @@ ParserTests.prototype.getTests = function ( argv ) {
  * @param {string} content
  * @returns {Array}
  */
-ParserTests.prototype.parseTestCase = function ( content ) {
+ParserTests.prototype.parseTestCase = function( content ) {
 	try {
 		return this.testParser.parse(content);
 	} catch (e) {
@@ -458,7 +458,7 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, body, proc
  * @param {Array} change Candidate change
  * @returns {boolean}
  */
-ParserTests.prototype.isDuplicateChangeTree = function ( allChanges, change ) {
+ParserTests.prototype.isDuplicateChangeTree = function( allChanges, change ) {
 	if ( !Array.isArray(allChanges) ) {
 		return false;
 	}
@@ -871,7 +871,7 @@ ParserTests.prototype.applyManualChanges = function( body, changes, cb ) {
  */
 ParserTests.prototype.convertWt2Html = function( mode, wikitext, processHtmlCB ) {
 	try {
-		this.parserPipeline.once( 'document', function ( doc ) {
+		this.parserPipeline.once( 'document', function( doc ) {
 			// processHtmlCB can be asynchronous, so deep-clone
 			// document before invoking it. (the parser pipeline
 			// will attempt to reuse the document after this
@@ -891,7 +891,7 @@ ParserTests.prototype.convertWt2Html = function( mode, wikitext, processHtmlCB )
  * @param {Object} options
  * @param {Function} endCb
  */
-ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
+ParserTests.prototype.processTest = function( item, options, mode, endCb ) {
 	if ( !( 'title' in item ) ) {
 		this.env.log("error", item);
 		throw new Error( 'Missing title from test case.' );
@@ -940,7 +940,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 	}
 
 	// Build a list of tasks for this test that will be passed to async.waterfall
-	var finishHandler = function ( err, res ) {
+	var finishHandler = function( err, res ) {
 		for ( i = 0; i < extensions.length; i++ ) {
 			this.env.conf.wiki.removeExtensionTag( extensions[i] );
 		}
@@ -959,7 +959,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 
 	// Source preparation
 	if ( startsAtHtml ) {
-		testTasks.push( function ( cb ) {
+		testTasks.push( function( cb ) {
 			var html = item.html;
 			if ( !parsoidOnly ) {
 				// Strip some php output that has no wikitext representation
@@ -1002,7 +1002,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 	if ( mode === 'selser' ) {
 		if ((options.selser === 'noauto' || item.changetree === 'manual') &&
 			item.options.parsoid && item.options.parsoid.changes) {
-			testTasks.push(function (body, cb) {
+			testTasks.push(function(body, cb) {
 				// Ensure that we have this set here in case it hasn't been
 				// set in buildTasks because the 'selser=noauto' option was passed.
 				item.changetree = 'manual';
@@ -1080,7 +1080,7 @@ ParserTests.prototype.processParsedHTML = function( item, options, mode, body, c
  * @param {Node} doc
  * @param {Function} cb
  */
-ParserTests.prototype.processSerializedWT = function ( item, options, mode, wikitext, cb ) {
+ParserTests.prototype.processSerializedWT = function( item, options, mode, wikitext, cb ) {
 	var self = this, checkPassed, err;
 	item.time.end = Date.now();
 
@@ -1131,7 +1131,7 @@ ParserTests.prototype.processSerializedWT = function ( item, options, mode, wiki
  * @param {boolean} failure_only Whether we should print only a failure message, or go on to print the diff
  * @param {string} mode
  */
-ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
+ParserTests.prototype.printFailure = function( title, comments, iopts, options,
 		actual, expected, expectFail, failure_only, mode, error, item ) {
 	this.stats.failedTests++;
 	this.stats.modes[mode].failedTests++;
@@ -1214,7 +1214,7 @@ ParserTests.prototype.printFailure = function ( title, comments, iopts, options,
  * @param {boolean} isWhitelist Whether this success was due to a whitelisting
  * @param {boolean} shouldReport Whether we should actually output this result, or just count it
  */
-ParserTests.prototype.printSuccess = function ( title, options, mode, expectSuccess, isWhitelist, item ) {
+ParserTests.prototype.printSuccess = function( title, options, mode, expectSuccess, isWhitelist, item ) {
 	var quiet = booleanOption( options.quiet );
 	if ( isWhitelist ) {
 		this.stats.passedTestsWhitelisted++;
@@ -1271,7 +1271,7 @@ ParserTests.prototype.printSuccess = function ( title, options, mode, expectSucc
  * @param {Object} getDiff.expected
  * @returns {string}
  */
-ParserTests.prototype.getActualExpected = function ( actual, expected, getDiff ) {
+ParserTests.prototype.getActualExpected = function( actual, expected, getDiff ) {
 	var returnStr = '';
 	expected.formattedRaw = expected.isWT ? expected.raw : DU.formatHTML( expected.raw );
 	returnStr += 'RAW EXPECTED'.cyan + ':';
@@ -1301,7 +1301,7 @@ ParserTests.prototype.getActualExpected = function ( actual, expected, getDiff )
  * @param {Object} expected
  * @param {string} expected.formattedNormal
  */
-ParserTests.prototype.getDiff = function ( actual, expected ) {
+ParserTests.prototype.getDiff = function( actual, expected ) {
 	// safe to always request color diff, because we set color mode='none'
 	// if colors are turned off.
 	return Diff.htmlDiff( expected.formattedNormal, actual.formattedNormal, true );
@@ -1311,7 +1311,7 @@ ParserTests.prototype.getDiff = function ( actual, expected ) {
  * @param {string} title
  * @param {string} raw The raw output from the parser.
  */
-ParserTests.prototype.printWhitelistEntry = function ( title, raw ) {
+ParserTests.prototype.printWhitelistEntry = function( title, raw ) {
 	console.log( 'WHITELIST ENTRY:'.cyan + '');
 	console.log( 'testWhiteList[' +
 		JSON.stringify( title ) + '] = ' +
@@ -1392,7 +1392,7 @@ function printResult( reportFailure, reportSuccess, title, time, comments, iopts
  * @param {string} out
  * @param {Object} options
  */
-ParserTests.prototype.checkHTML = function ( item, out, options, mode ) {
+ParserTests.prototype.checkHTML = function( item, out, options, mode ) {
 	var normalizedOut, normalizedExpected;
 	var parsoidOnly =
 		('html/parsoid' in item) || (item.options.parsoid !== undefined);
@@ -1424,7 +1424,7 @@ ParserTests.prototype.checkHTML = function ( item, out, options, mode ) {
  * @param {string} out
  * @param {Object} options
  */
-ParserTests.prototype.checkWikitext = function ( item, out, options, mode ) {
+ParserTests.prototype.checkWikitext = function( item, out, options, mode ) {
 	var item_wikitext = item.wikitext;
 	out = out.replace(new RegExp('<!--' + staticRandomString + '-->', 'g'), '');
 	if (mode === 'selser' && item.resultWT !== null &&
@@ -1453,7 +1453,7 @@ ParserTests.prototype.checkWikitext = function ( item, out, options, mode ) {
 /**
  * Print out a WikiDom conversion of the HTML DOM
  */
-ParserTests.prototype.printWikiDom = function ( body ) {
+ParserTests.prototype.printWikiDom = function( body ) {
 	console.log('WikiDom'.cyan + ':');
 	console.log( body );
 };
@@ -1465,7 +1465,7 @@ ParserTests.prototype.printWikiDom = function ( body ) {
  * @param {number} stats.passedTestsWhitelisted Number of tests passed by whitelisting
  * @param {Object} stats.modes All of the stats (failedTests, passedTests, and passedTestsWhitelisted) per-mode.
  */
-ParserTests.prototype.reportSummary = function ( stats ) {
+ParserTests.prototype.reportSummary = function( stats ) {
 	var curStr, thisMode, i, failTotalTests = stats.failedTests;
 
 	console.log( "==========================================================");
@@ -1536,7 +1536,7 @@ ParserTests.prototype.reportSummary = function ( stats ) {
  * @method
  * @param {Object} options
  */
-ParserTests.prototype.main = function ( options, popts ) {
+ParserTests.prototype.main = function( options, popts ) {
 
 	if ( options.help ) {
 		popts.showHelp();
@@ -1720,7 +1720,7 @@ ParserTests.prototype.main = function ( options, popts ) {
  *
  * This method can be reimplemented in the options of the ParserTests object.
  */
-ParserTests.prototype.reportStartOfTests = function () {
+ParserTests.prototype.reportStartOfTests = function() {
 	console.log( 'ParserTests running with node', process.version);
 	console.log( 'Initialization complete. Now launching tests.' );
 };
@@ -1738,7 +1738,7 @@ ParserTests.prototype.reportStartOfTests = function () {
  *
  * @method
  */
-ParserTests.prototype.buildTasks = function ( item, modes, options ) {
+ParserTests.prototype.buildTasks = function( item, modes, options ) {
 	var tasks = [],
 		self = this;
 	for ( var i = 0; i < modes.length; i++ ) {
@@ -1749,7 +1749,7 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 			// Prepend manual changes, if present, but not if 'selser' isn't
 			// in the explicit modes option.
 			if (item.options.parsoid && item.options.parsoid.changes) {
-				tasks.push( function ( cb ) {
+				tasks.push( function( cb ) {
 					newitem = Util.clone(item);
 					// Mutating the item here is necessary to output 'manual' in
 					// the test's title and to differentiate it for blacklist.
@@ -1779,7 +1779,7 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 			item.selserChangeTrees = new Array( options.numchanges );
 
 			// Prepend a selser test that appends a comment to the root node
-			tasks.push( function ( cb ) {
+			tasks.push( function( cb ) {
 				newitem = Util.clone(item);
 				newitem.changetree = 5;
 				self.processTest( newitem, options, 'selser', function() {
@@ -1792,7 +1792,7 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 				// we create the function in the loop but are careful to
 				// bind loop variables i and j at function creation time
 				/* jshint loopfunc: true */
-				tasks.push( function ( modeIndex, changesIndex, cb ) {
+				tasks.push( function( modeIndex, changesIndex, cb ) {
 					if (done) {
 						setImmediate( cb );
 					} else {
@@ -1800,7 +1800,7 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 						// Make sure we aren't reusing the one from manual changes
 						console.assert(newitem.changetree === undefined);
 						newitem.seed = changesIndex + '';
-						this.processTest( newitem, options, modes[modeIndex], function () {
+						this.processTest( newitem, options, modes[modeIndex], function() {
 							if ( this.isDuplicateChangeTree( item.selserChangeTrees, newitem.changes ) ) {
 								// Once we get a duplicate change tree, we can no longer
 								// generate and run new tests.  So, be done now!
@@ -1842,7 +1842,7 @@ ParserTests.prototype.buildTasks = function ( item, modes, options ) {
 /**
  * @method
  */
-ParserTests.prototype.processCase = function ( i, options, err ) {
+ParserTests.prototype.processCase = function( i, options, err ) {
 	var ix, item, cases = this.cases, targetModes = options.modes;
 
 	var nextCallback = this.processCase.bind( this, i + 1, options );
@@ -2076,7 +2076,7 @@ ParserTests.prototype.processCase = function ( i, options, err ) {
 		    booleanOption(options['update-unexpected'])) {
 			var parserTestsFilename = __dirname + '/parserTests.txt';
 			var parserTests = fs.readFileSync(parserTestsFilename, 'utf8');
-			this.stats.modes.wt2html.failList.forEach(function (fail) {
+			this.stats.modes.wt2html.failList.forEach(function(fail) {
 				if (booleanOption(options['update-tests'] || fail.unexpected)) {
 					var exp = new RegExp("(" + /!!\s*test\s*/.source +
 						Util.escapeRegExp(fail.title) + /(?:(?!!!\s*end)[\s\S])*/.source +
@@ -2111,7 +2111,7 @@ ParserTests.prototype.processCase = function ( i, options, err ) {
  * @singleton
  * @private
  */
-var xmlFuncs = (function () {
+var xmlFuncs = (function() {
 	var fail, pass, passWhitelist,
 
 	results = {
@@ -2133,7 +2133,7 @@ var xmlFuncs = (function () {
 	 *
 	 * @returns {string} The XML representation of the actual and expected outputs
 	 */
-	getActualExpectedXML = function ( actual, expected, getDiff ) {
+	getActualExpectedXML = function( actual, expected, getDiff ) {
 		var returnStr = '';
 
 		expected.formattedRaw = DU.formatHTML( expected.raw );
@@ -2164,7 +2164,7 @@ var xmlFuncs = (function () {
 	 *
 	 * Report the start of the tests output.
 	 */
-	reportStartXML = function () {
+	reportStartXML = function() {
 		console.log( '<testsuites>' );
 	},
 
@@ -2173,7 +2173,7 @@ var xmlFuncs = (function () {
 	 *
 	 * Report the end of the tests output.
 	 */
-	reportSummaryXML = function () {
+	reportSummaryXML = function() {
 		var i, mode;
 		for ( i = 0; i < modes.length; i++ ) {
 			mode = modes[i];
@@ -2192,7 +2192,7 @@ var xmlFuncs = (function () {
 	 *
 	 * @inheritdoc ParserTests#printFailure
 	 */
-	reportFailureXML = function ( title, comments, iopts, options, actual, expected, expectFail, failure_only, mode, error ) {
+	reportFailureXML = function( title, comments, iopts, options, actual, expected, expectFail, failure_only, mode, error ) {
 		fail++;
 		var failEle;
 
@@ -2216,7 +2216,7 @@ var xmlFuncs = (function () {
 	 *
 	 * @inheritdoc ParserTests#printSuccess
 	 */
-	reportSuccessXML = function ( title, options, mode, expectSuccess, isWhitelist, item ) {
+	reportSuccessXML = function( title, options, mode, expectSuccess, isWhitelist, item ) {
 		if ( isWhitelist ) {
 			passWhitelist++;
 		} else {
@@ -2231,7 +2231,7 @@ var xmlFuncs = (function () {
 	 *
 	 * @inheritdoc printResult
 	 */
-	reportResultXML = function () {
+	reportResultXML = function() {
 
 		function pre( mode, title, time ) {
 			var testcaseEle;

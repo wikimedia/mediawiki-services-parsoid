@@ -30,7 +30,7 @@
      * Emit a chunk of tokens to our consumers.  Once this has been done, the
      * current expression can return an empty list (true).
      */
-    var emitChunk = function (tokens) {
+    var emitChunk = function(tokens) {
         // Shift tsr of all tokens by the pipeline offset
         Util.shiftTokenTSR( tokens, options.pipelineOffset );
         options.env.log("trace/peg", options.pegTokenizer.pipelineId, "---->  ", tokens);

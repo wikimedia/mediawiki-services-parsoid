@@ -584,7 +584,7 @@ routes.home = function( req, res ) {
 };
 
 // robots.txt: no indexing.
-routes.robots = function ( req, res ) {
+routes.robots = function( req, res ) {
 	res.end("User-agent: *\nDisallow: /\n");
 };
 

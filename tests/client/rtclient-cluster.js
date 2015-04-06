@@ -25,7 +25,7 @@ if ( !module.parent ) {
 		cluster.fork();
 	}
 
-	cluster.on( 'exit', function ( worker, code, signal ) {
+	cluster.on( 'exit', function( worker, code, signal ) {
 		if ( !worker.suicide ) {
 			var exitCode = worker.process.exitCode;
 			console.log( 'rtclient', worker.process.pid,
@@ -34,10 +34,10 @@ if ( !module.parent ) {
 		}
 	} );
 
-	var shutdown_cluster = function () {
+	var shutdown_cluster = function() {
 		console.log( 'rtclient cluster shutting down, killing all rtclients' );
 		var workers = cluster.workers;
-		Object.keys( workers ).forEach( function ( id ) {
+		Object.keys( workers ).forEach( function( id ) {
 			console.log( 'Killing rtclient', id );
 			workers[ id ].destroy();
 		} );

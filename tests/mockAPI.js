@@ -96,16 +96,16 @@ var fnames = {
 	},
 
 	formatters = {
-		json: function ( data ) {
+		json: function( data ) {
 			return JSON.stringify( data );
 		},
-		jsonfm: function ( data ) {
+		jsonfm: function( data ) {
 			return JSON.stringify( data, null, 2 );
 		}
 	},
 
 	availableActions = {
-		parse: function ( body, cb ) {
+		parse: function( body, cb ) {
 			var resultText,
 				text = body.text,
 				re = /<testextension(?: ([^>]*))?>((?:[^<]|<(?!\/testextension>))*)<\/testextension>/,
@@ -140,7 +140,7 @@ var fnames = {
 			cb( null, require('../lib/baseconfig/enwiki.json') );
 		},
 
-		query: function ( body, cb ) {
+		query: function( body, cb ) {
 			if (body.meta === 'siteinfo') {
 				return this.querySiteinfo( body, cb );
 			}
@@ -312,7 +312,7 @@ function buildForm( action ) {
 }
 
 // GET request to root....should probably just tell the client how to use the service
-app.get( '/', function ( req, res ) {
+app.get( '/', function( req, res ) {
 	res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
 	res.write(
 		'<html><body>' +
@@ -324,7 +324,7 @@ app.get( '/', function ( req, res ) {
 } );
 
 // GET requests for any possible actions....tell the client how to use the action
-app.get( new RegExp( '^/(' + actionRegex + ')' ), function ( req, res ) {
+app.get( new RegExp( '^/(' + actionRegex + ')' ), function( req, res ) {
 	var formats = buildOptions( Object.keys( formatters ) ),
 		action = req.params[0],
 		returnHtml =
@@ -382,12 +382,12 @@ function handleApiRequest( body, res ) {
 }
 
 // GET request to api.php....actually perform an API request
-app.get( '/api.php', function ( req, res ) {
+app.get( '/api.php', function( req, res ) {
 	handleApiRequest( req.query, res );
 } );
 
 // POST request to api.php....actually perform an API request
-app.post( '/api.php', function ( req, res ) {
+app.post( '/api.php', function( req, res ) {
 	handleApiRequest( req.body, res );
 } );
 

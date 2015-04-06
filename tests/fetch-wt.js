@@ -15,11 +15,11 @@ var fs = require( 'fs' ),
 	MWParserEnvironment = require( '../lib/mediawiki.parser.environment.js' ).MWParserEnvironment;
 
 
-var fetch = function ( page, revid, cb, options ) {
-	cb = typeof cb === 'function' ? cb : function () {};
+var fetch = function( page, revid, cb, options ) {
+	cb = typeof cb === 'function' ? cb : function() {};
 
-	var envCb = function ( err, env ) {
-		env.errCB = function ( error ) {
+	var envCb = function( err, env ) {
+		env.errCB = function( error ) {
 			cb( error, env, [] );
 		};
 		if ( err !== null ) {
@@ -30,7 +30,7 @@ var fetch = function ( page, revid, cb, options ) {
 		var target = page ? env.resolveTitle( env.normalizeTitle( env.page.name ), '' ) : null;
 		var tpr = new TemplateRequest( env, target, revid );
 
-		tpr.once( 'src', function ( err, src_and_metadata ) {
+		tpr.once( 'src', function( err, src_and_metadata ) {
 			if ( err ) {
 				cb( err, env, [] );
 			} else {

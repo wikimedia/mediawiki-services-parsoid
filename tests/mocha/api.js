@@ -28,12 +28,12 @@ describe('Parsoid API', function() {
 		return p;
 	});
 
-	it("converts simple wikitext to HTML", function (done) {
+	it("converts simple wikitext to HTML", function(done) {
 		request(api)
 		.post('localhost/Main_Page')
 		.send({wt: "foo"})
 		.expect(200)
-		.expect(function (res) {
+		.expect(function(res) {
 			var doc = domino.createDocument(res.text);
 			doc.should.have.property('nodeName', '#document');
 			doc.outerHTML.startsWith('<!DOCTYPE html>').should.equal(true);
@@ -57,7 +57,7 @@ describe('Parsoid API', function() {
 		.end(done);
 	});
 
-	it("converts simple HTML to wikitext", function (done) {
+	it("converts simple HTML to wikitext", function(done) {
 		request(api)
 		.post('localhost/Main_Page')
 		.send({html: "<i>foo</i>"})
@@ -65,7 +65,7 @@ describe('Parsoid API', function() {
 		.expect("''foo''", done);
 	});
 
-	it("respects body parameter", function (done) {
+	it("respects body parameter", function(done) {
 		request(api)
 		.post('localhost/Main_Page')
 		.send({wt: "''foo''", body: 1})
@@ -264,7 +264,7 @@ describe('Parsoid API', function() {
 				.end(done);
 			});
 
-			it("should respect body parameter", function (done) {
+			it("should respect body parameter", function(done) {
 				request(api)
 				.post('v2/' + mockHost + '/html/')
 				.send({

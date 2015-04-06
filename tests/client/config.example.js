@@ -5,7 +5,7 @@
  */
 "use strict";
 
-( function () {
+( function() {
 
 if ( typeof module === 'object' ) {
 	module.exports = {

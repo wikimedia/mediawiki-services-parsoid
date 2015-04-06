@@ -32,9 +32,9 @@ var getTitle = function( cb ) {
 	},
 	retries = 10;
 
-	var callback = function ( error, response, body ) {
+	var callback = function( error, response, body ) {
 		if (error || !response) {
-			setTimeout( function () { cb( 'start' ); }, 15000 );
+			setTimeout( function() { cb( 'start' ); }, 15000 );
 			return;
 		}
 
@@ -46,7 +46,7 @@ var getTitle = function( cb ) {
 				break;
 			case 404:
 				console.log( 'The server doesn\'t have any work for us right now, waiting half a minute....' );
-				setTimeout( function () { cb( 'start' ); }, 30000 );
+				setTimeout( function() { cb( 'start' ); }, 30000 );
 				break;
 			case 426:
 				console.log( "Update required, exiting." );
@@ -62,7 +62,7 @@ var getTitle = function( cb ) {
 				break;
 			default:
 				console.log( 'There was some error (' + response.statusCode + '), but that is fine. Waiting 15 seconds to resume....' );
-				setTimeout( function () { cb( 'start' ); }, 15000 );
+				setTimeout( function() { cb( 'start' ); }, 15000 );
 		}
 	};
 
@@ -70,7 +70,7 @@ var getTitle = function( cb ) {
 };
 
 var runTest = function( cb, test) {
-	var results, callback = rtTest.cbCombinator.bind( null, rtTest.xmlFormat, function ( err, results ) {
+	var results, callback = rtTest.cbCombinator.bind( null, rtTest.xmlFormat, function( err, results ) {
 		if ( err ) {
 			console.log( 'ERROR in ' + test.prefix + ':' + test.title + ':\n' + err + '\n' + err.stack);
 			/*
@@ -83,7 +83,7 @@ var runTest = function( cb, test) {
 			 * In sum, easier to die than to worry about having to reset any
 			 * broken application state.
 			 */
-			cb( 'postResult', err, results, test, function () { process.exit( 1 ); } );
+			cb( 'postResult', err, results, test, function() { process.exit( 1 ); } );
 		} else {
 			cb( 'postResult', err, results, test, null );
 		}
@@ -119,7 +119,7 @@ var getGitCommit = function( cb ) {
 
 	if ( !lastCommitCheck || ( now - lastCommitCheck ) > ( 5 * 60 * 1000 ) ) {
 		lastCommitCheck = now;
-		exec( 'git log --max-count=1 --pretty=format:"%H %ci"', { cwd: repoPath }, function ( err, data ) {
+		exec( 'git log --max-count=1 --pretty=format:"%H %ci"', { cwd: repoPath }, function( err, data ) {
 			if ( err ) { return cb(err); }
 			var cobj = data.match( /^([^ ]+) (.*)$/ );
 			if (!cobj) {
@@ -139,7 +139,7 @@ var getGitCommit = function( cb ) {
 };
 
 var postResult = function( err, result, test, finalCB, cb ) {
-	getGitCommit( function ( err2, newCommit, newTime ) {
+	getGitCommit( function( err2, newCommit, newTime ) {
 		if (err2 || !newCommit) {
 			console.log("Exiting, couldn't find the current commit");
 			process.exit(1);
@@ -164,8 +164,8 @@ var postResult = function( err, result, test, finalCB, cb ) {
 			method: 'POST'
 		};
 
-		var req = http.request( requestOptions, function ( res ) {
-			res.on( 'end', function () {
+		var req = http.request( requestOptions, function( res ) {
+			res.on( 'end', function() {
 				if ( finalCB ) {
 					finalCB();
 				} else {
@@ -199,7 +199,7 @@ var callbackOmnibus = function(which) {
 			break;
 
 		case 'start':
-			getGitCommit( function ( err, latestCommit ) {
+			getGitCommit( function( err, latestCommit ) {
 				if ( err ) {
 					console.log( "Couldn't find latest commit.", err );
 					process.exit( 1 );
@@ -225,7 +225,7 @@ if ( typeof module === 'object' ) {
 }
 
 if ( module && !module.parent ) {
-	var getGitCommitCb = function ( commitHash, commitTime ) {
+	var getGitCommitCb = function( commitHash, commitTime ) {
 		commit = commitHash;
 		ctime = commitTime;
 		callbackOmnibus('start');

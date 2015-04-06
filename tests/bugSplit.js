@@ -8,7 +8,7 @@
 var fs = require('fs'),
 	Util = require( '../lib/mediawiki.Util.js' ).Util;
 
-function writeFiles ( bugfileName, data ) {
+function writeFiles( bugfileName, data ) {
 	var keys = Object.keys(data),
 		val, title, dirName;
 
@@ -45,7 +45,7 @@ function writeFiles ( bugfileName, data ) {
 	//fs.renameSync( bugfileName, dirName + "/" + bugfileName.replace(/^.*\//, ''));
 }
 
-function main () {
+function main() {
 	if ( process.argv.length === 2 ) {
 		console.warn( 'Split up a bug report into several files in the current directory');
 		console.warn( 'Usage: ' + process.argv[0] + ' <bugreport.json>');

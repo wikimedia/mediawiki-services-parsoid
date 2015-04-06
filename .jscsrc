@@ -5,7 +5,6 @@
 	"disallowMultipleVarDecl": null,
 	"disallowQuotedKeysInObjects": null,
 	"disallowSpaceAfterObjectKeys": null,
-	"disallowSpacesInFunction": null,
 	"disallowSpacesInsideParentheses": null,
 	"maximumLineLength": null,
 	"requireCamelCaseOrUpperCaseIdentifiers": null,

@@ -15,7 +15,7 @@ var	request = require( 'request' ),
 	MWParserEnvironment = require( '../lib/mediawiki.parser.environment.js' ).MWParserEnvironment,
 	Diff = require('../lib/mediawiki.Diff.js').Diff;
 
-var plainCallback = function ( env, err, results ) {
+var plainCallback = function( env, err, results ) {
 	var i, result, output = '',
 		semanticDiffs = 0, syntacticDiffs = 0,
 		testDivider = ( new Array( 70 ) ).join( '=' ) + '\n',
@@ -63,19 +63,19 @@ var encodeXmlEntities = function( str ) {
 			  .replace( />/g, '&gt;' );
 };
 
-function encodeAttribute (str) {
+function encodeAttribute(str) {
 	return encodeXmlEntities(str)
 		.replace(/"/g, '&quot;');
 }
 
 
-var xmlCallback = function ( env, err, results ) {
+var xmlCallback = function( env, err, results ) {
 	var i, result;
 	var prefix = ( env && env.conf && env.conf.wiki && env.conf.wiki.iwp ) || '';
 	var title = ( env && env.page && env.page.name ) || '';
 
 	var output = '<testsuites>\n';
-	var outputTestSuite = function (selser) {
+	var outputTestSuite = function(selser) {
 			output += '<testsuite name="Roundtrip article ' + encodeAttribute( prefix + ':' + title );
 			if (selser) {
 				output += ' (selser)';
@@ -155,7 +155,7 @@ var xmlCallback = function ( env, err, results ) {
 	return output;
 };
 
-var findMatchingNodes = function (root, targetRange, sourceLen) {
+var findMatchingNodes = function(root, targetRange, sourceLen) {
 	var currentOffset = null, wasWaiting = false, waitingForEndMatch = false;
 
 	function walkDOM(element) {
@@ -296,13 +296,13 @@ var findMatchingNodes = function (root, targetRange, sourceLen) {
 	return walkDOM(root);
 };
 
-var checkIfSignificant = function (env, offsets, oldWt, oldBody, oldDp, newWt, cb, err, html, dp) {
+var checkIfSignificant = function(env, offsets, oldWt, oldBody, oldDp, newWt, cb, err, html, dp) {
 	if (err) {
 		cb(err, null, []);
 		return;
 	}
 
-	var normalizeWikitext = function (str) {
+	var normalizeWikitext = function(str) {
 		// Ignore leading tabs vs. leading spaces
 		str = str.replace(/^\t/, ' ');
 		str = str.replace(/\n\t/g, '\n ');
@@ -333,7 +333,7 @@ var checkIfSignificant = function (env, offsets, oldWt, oldBody, oldDp, newWt, c
 	};
 
 	// Get diff substrings from offsets
-	var formatDiff = function (offset, context) {
+	var formatDiff = function(offset, context) {
 		return [
 			'----',
 			oldWt.substring(offset[0].start - context, offset[0].end + context),
@@ -446,7 +446,7 @@ var checkIfSignificant = function (env, offsets, oldWt, oldBody, oldDp, newWt, c
 	cb(null, env, results);
 };
 
-var parsoidPost = function (env, uri, domain, title, text, dp, oldid,
+var parsoidPost = function(env, uri, domain, title, text, dp, oldid,
 					recordSizes, profilePrefix, cb) {
 	var data = {};
 	// make sure the Parsoid URI ends on /
@@ -521,10 +521,10 @@ var parsoidPost = function (env, uri, domain, title, text, dp, oldid,
 	} );
 };
 
-var doubleRoundtripDiff = function (env, uri, domain, title, offsets, src, body, dp, out, cb) {
+var doubleRoundtripDiff = function(env, uri, domain, title, offsets, src, body, dp, out, cb) {
 	if ( offsets.length > 0 ) {
 		env.setPageSrcInfo( out );
-		env.errCB = function ( error ) {
+		env.errCB = function( error ) {
 			cb( error, env, [] );
 			process.exit( 1 );
 		};
@@ -537,7 +537,7 @@ var doubleRoundtripDiff = function (env, uri, domain, title, offsets, src, body,
 	}
 };
 
-var roundTripDiff = function ( env, uri, domain, title, src, html, dp, out, cb ) {
+var roundTripDiff = function( env, uri, domain, title, src, html, dp, out, cb ) {
 	var diff, offsetPairs;
 
 	try {
@@ -555,14 +555,14 @@ var roundTripDiff = function ( env, uri, domain, title, src, html, dp, out, cb )
 	}
 };
 
-var selserRoundTripDiff = function (env, uri, domain, title, html, dp, out, diffs, cb) {
+var selserRoundTripDiff = function(env, uri, domain, title, html, dp, out, diffs, cb) {
 	var selserDiff, offsetPairs,
 		src = env.page.src.replace(/\n(?=\n)/g, '\n ');
 	// Remove the selser trigger comment
 	out = out.replace(/<!--rtSelserEditTestComment-->\n*$/, '');
 	out = out.replace(/\n(?=\n)/g, '\n ');
 
-	roundTripDiff(env, uri, domain, title, src, html, dp, out, function (err, env, selserDiffs) {
+	roundTripDiff(env, uri, domain, title, src, html, dp, out, function(err, env, selserDiffs) {
 		if (err) {
 			cb(err, env, diffs);
 		} else {
@@ -578,7 +578,7 @@ var selserRoundTripDiff = function (env, uri, domain, title, html, dp, out, diff
 };
 
 // Returns a Promise for an { env, rtDiffs } object.  `cb` is optional.
-var fetch = function ( page, options, cb ) {
+var fetch = function( page, options, cb ) {
 	cb = JSUtils.mkPromised( cb, [ 'env', 'rtDiffs' ] );
 	var domain, prefix, apiURL,
 		// options are ParsoidConfig options if module.parent, otherwise they
@@ -607,8 +607,8 @@ var fetch = function ( page, options, cb ) {
 		prefix = parsoidConfig.reverseIWMap.get(domain);
 	}
 
-	var envCb = function ( err, env ) {
-		env.errCB = function ( error ) {
+	var envCb = function( err, env ) {
+		env.errCB = function( error ) {
 			cb( error, env, [] );
 		};
 		if ( err !== null ) {
@@ -620,16 +620,16 @@ var fetch = function ( page, options, cb ) {
 		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 		var tpr = new TemplateRequest( env, target, null );
 
-		tpr.once( 'src', function ( err, src_and_metadata ) {
+		tpr.once( 'src', function( err, src_and_metadata ) {
 			if ( err ) {
 				cb( err, env, [] );
 			} else {
 				// Shortcut for calling parsoidPost with common options
-				var parsoidPostShort = function (postBody, postDp, postOldId,
+				var parsoidPostShort = function(postBody, postDp, postOldId,
 						postRecordSizes, postProfilePrefix, postCb) {
 					parsoidPost(env, options.parsoidURL, domain, page,
 						postBody, postDp, postOldId, postRecordSizes, postProfilePrefix,
-						function (err, postResult, postResultDp) {
+						function(err, postResult, postResultDp) {
 							if (err) {
 								cb(err, env, []);
 							} else {
@@ -642,7 +642,7 @@ var fetch = function ( page, options, cb ) {
 				// to test rt selser we need to modify the HTML and request
 				// the wt again to compare with selser, and then concat the
 				// resulting diffs to the ones we got from basic rt
-				var rtSelserTest = function (origHTMLBody, origDp, err, env, rtDiffs) {
+				var rtSelserTest = function(origHTMLBody, origDp, err, env, rtDiffs) {
 					if (err) {
 						cb(err, env, rtDiffs);
 					} else {
@@ -651,7 +651,7 @@ var fetch = function ( page, options, cb ) {
 						newDocument.body.appendChild(newNode);
 						parsoidPostShort(newDocument.outerHTML, origDp,
 							src_and_metadata.revision.revid, false, 'selser',
-							function (wtSelserBody) {
+							function(wtSelserBody) {
 								// Finish the total time now
 								if ( env.profile && env.profile.time ) {
 									env.profile.time.total += new Date() - env.profile.time.total_timer;
@@ -666,12 +666,12 @@ var fetch = function ( page, options, cb ) {
 
 				env.setPageSrcInfo(src_and_metadata);
 				// First, fetch the HTML for the requested page's wikitext
-				parsoidPostShort(env.page.src, null, null, true, null, function (htmlBody, htmlDp) {
+				parsoidPostShort(env.page.src, null, null, true, null, function(htmlBody, htmlDp) {
 					// Now, request the wikitext for the obtained HTML
 					// (without sending data-parsoid, as we don't want selser yet).
 					parsoidPostShort(htmlBody, htmlDp,
 						src_and_metadata.revision.revid, true, null,
-						function (wtBody) {
+						function(wtBody) {
 							roundTripDiff(env, options.parsoidURL, domain, page,
 								env.page.src, htmlBody, htmlDp, wtBody,
 								rtSelserTest.bind(null, htmlBody, htmlDp));
@@ -685,11 +685,11 @@ var fetch = function ( page, options, cb ) {
 	return cb.promise;
 };
 
-var cbCombinator = function ( formatter, cb, err, env, text ) {
+var cbCombinator = function( formatter, cb, err, env, text ) {
 	cb( err, formatter( env, err, text ) );
 };
 
-var consoleOut = function ( err, output ) {
+var consoleOut = function( err, output ) {
 	if ( err ) {
 		console.log( 'ERROR: ' + err);
 		if (err.stack) {

@@ -15,7 +15,7 @@ var child_process = require( 'child_process' ),
 var forkedServers = new Map(),
 	exiting = false;
 
-var stopServer = function (url) {
+var stopServer = function(url) {
 	var forkedServer = forkedServers.get(url);
 	if (forkedServer) {
 		// Prevent restart if we explicitly stop it
@@ -25,8 +25,8 @@ var stopServer = function (url) {
 	}
 };
 
-var stopAllServers = function () {
-	forkedServers.forEach(function (forkedServer, url) {
+var stopAllServers = function() {
+	forkedServers.forEach(function(forkedServer, url) {
 		stopServer(url);
 	});
 };
@@ -39,13 +39,13 @@ process.on('exit', function() {
 		stopAllServers();
 });
 
-var exitOnProcessTerm = function (res) {
-	var stopAndExit = function () {
+var exitOnProcessTerm = function(res) {
+	var stopAndExit = function() {
 		process.exit(res || 0);
 	};
 	process.on('SIGINT', stopAndExit);
 	process.on('SIGTERM', stopAndExit);
-	process.on('uncaughtException', function (e) {
+	process.on('uncaughtException', function(e) {
 		console.log(e.stack);
 		stopAndExit();
 	});
@@ -131,7 +131,7 @@ var parsoidServerOpts = {
 };
 
 // Returns a Promise; the `cb` parameter is optional (for legacy use)
-var startParsoidServer = function (opts, cb) {
+var startParsoidServer = function(opts, cb) {
 	opts = !opts ? parsoidServerOpts : Util.extendProps(opts, parsoidServerOpts);
 	return startServer(opts, false, cb);
 };
@@ -147,7 +147,7 @@ var mockAPIServerOpts = {
 };
 
 // Returns a Promise; the `cb` parameter is optional (for legacy use)
-var startMockAPIServer = function (opts, cb) {
+var startMockAPIServer = function(opts, cb) {
 	opts = !opts ? mockAPIServerOpts : Util.extendProps(opts, mockAPIServerOpts);
 	return startServer(opts, false, cb);
 };
