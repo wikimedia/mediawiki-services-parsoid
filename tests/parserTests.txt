@@ -1585,34 +1585,28 @@ Comment whitespace
 
 !! test
 Comment semantics and delimiters
-!! options
-parsoid=wt2html,html2html
 !! wikitext
 <!-- --><!----><!-----><!------>
 !! html/php
 
 !! html/parsoid
-<!-- --><!----><!-- --><!--  -->
+<!-- --><!----><!--&#x2D;--><!--&#x2D;&#x2D;-->
 !! end
 
 !! test
 Comment semantics and delimiters, redux
-!! options
-parsoid=wt2html,html2html
 !! wikitext
 <!-- In SGML every "foo" here would actually show up in the text -- foo -- bar
 -- foo -- funky huh? ... -->
 !! html/php
 
 !! html/parsoid
-<!-- In SGML every "foo" here would actually show up in the text    foo    bar
-   foo    funky huh? ... -->
+<!-- In SGML every "foo" here would actually show up in the text &#x2D;&#x2D; foo &#x2D;&#x2D; bar
+&#x2D;&#x2D; foo &#x2D;&#x2D; funky huh? ... -->
 !! end
 
 !! test
 Comment semantics and delimiters: directors cut
-!! options
-parsoid=wt2html,html2html
 !! wikitext
 <!-- ... However we like to keep things simple and somewhat XML-ish so we eat
 everything starting with < followed by !-- until the first -- and > we see,
@@ -1622,53 +1616,64 @@ that wouldn't be valid XML however, since in XML -- has to terminate a comment
 <p>--&gt;
 </p>
 !! html/parsoid
-<!-- ... However we like to keep things simple and somewhat XML-ish so we eat
-everything starting with < followed by !   until the first    and > we see,
-that wouldn't be valid XML however, since in XML    has to terminate a comment
+<!-- ... However we like to keep things simple and somewhat XML&#x2D;ish so we eat
+everything starting with < followed by !&#x2D;&#x2D; until the first &#x2D;&#x2D; and &#x3E; we see,
+that wouldn't be valid XML however, since in XML &#x2D;&#x2D; has to terminate a comment
 --><p>--></p>
 !! end
 
 !! test
 Comment semantics: nesting
-!! options
-parsoid=wt2html,html2html
 !! wikitext
 <!--<!-- no, we're not going to do anything fancy here -->-->
 !! html/php
 <p>--&gt;
 </p>
 !! html/parsoid
-<!--<!   no, we're not going to do anything fancy here --><p>--></p>
+<!--<!&#x2D;&#x2D; no, we're not going to do anything fancy here --><p>--></p>
 !! end
 
+# Parsoid closes the unclosed comment, even if it means a slight
+# round-trip diff.
 !! test
 Comment semantics: unclosed comment at end
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 <!--This comment will run out to the end of the document
-!! html
+!! html/php
 
+!! html/parsoid
+<!--This comment will run out to the end of the document-->
 !! end
 
 !! test
-Normalize comments to play nice with XML and browsers
-!! options
-parsoid=wt2html,html2html
+Comment semantics: normalize comments to play nice with XML and browsers
 !! wikitext
 <!-- Browsers --!> think this is closed -->
 <!--> This would normally be text -->
 <!---> As would this -->
 <!-- XML doesn't like trailing dashes -------->
 <!-- Nor doubled hyphens -- anywhere in the data -->
+But this is not a comment.
 !! html/php
-<p><br />
+<p>But this is not a comment.
 </p>
 !! html/parsoid
-<!-- Browsers   !> think this is closed -->
-<!--  This would normally be text -->
-<!--   As would this -->
-<!-- XML doesn't like trailing dashes       -->
-<!-- Nor doubled hyphens    anywhere in the data -->
+<!-- Browsers &#x2D;&#x2D;!&#x3E; think this is closed -->
+<!--&#x3E; This would normally be text -->
+<!--&#x2D;&#x3E; As would this -->
+<!-- XML doesn't like trailing dashes &#x2D;&#x2D;&#x2D;&#x2D;&#x2D;&#x2D;-->
+<!-- Nor doubled hyphens &#x2D;&#x2D; anywhere in the data -->
+<p>But this is not a comment.</p>
+!! end
 
+!! test
+Comment semantics: round-trip even text which contains encoded -->
+!! wikitext
+<!-- hello & goodbye - > --&gt; --&amp;gt; --&xx -->
+!! html/parsoid
+<!-- hello &#x26; goodbye &#x2D; &#x3E; &#x2D;&#x2D;&#x3E; &#x2D;&#x2D;&#x26;gt; &#x2D;&#x2D;&#x26;xx -->
 !! end
 
 !! test
@@ -3166,9 +3171,9 @@ parsoid=wt2html,wt2wt
 !! wikitext
  [[Category:foo]] <!-- No pre-wrapping -->
 {{echo| [[Category:foo]]}} <!-- No pre-wrapping -->
-!! html
- <link rel="mw:PageProp/Category" href="./Category:Foo"> <!-- No pre-wrapping -->
-<span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":" [[Category:foo]]"}},"i":0}}]}'> </span><link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1"> <!-- No pre-wrapping -->
+!! html/parsoid
+ <link rel="mw:PageProp/Category" href="./Category:Foo"> <!-- No pre&#x2D;wrapping -->
+<span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":" [[Category:foo]]"}},"i":0}}]}'> </span><link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1"> <!-- No pre&#x2D;wrapping -->
 !! end
 
 !! test
@@ -20400,21 +20405,19 @@ C <span about="#mwt4" class="reference" id="cite_ref-2" rel="dc:references" type
 
 !!test
 Ref: 12. ref-tags act as trailing newline migration barrier
-!!options
-parsoid
 !! wikitext
-<!--the newline at the end of this line moves out of the p-tag-->a
+<!--the newline at the end of this line moves out of the p tag-->a
 
-b<!--the newline at the end of this line stays inside the p-tag--> <ref />
+b<!--the newline at the end of this line stays inside the p tag--> <ref />
 <ref />
 
 c
 <references />
-!! html
-<!--the newline at the end of this line moves out of the p-tag--><p>a</p>
+!! html/parsoid
+<!--the newline at the end of this line moves out of the p tag--><p>a</p>
 
 
-<p>b<!--the newline at the end of this line stays inside the p-tag--> <span about="#mwt2" class="reference" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{}}'><a href="#cite_note-1">[1]</a></span>
+<p>b<!--the newline at the end of this line stays inside the p tag--> <span about="#mwt2" class="reference" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{}}'><a href="#cite_note-1">[1]</a></span>
 <span about="#mwt4" class="reference" id="cite_ref-2" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{}}'><a href="#cite_note-2">[2]</a></span></p>
 
 <p>c</p>

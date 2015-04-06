@@ -219,7 +219,7 @@ add("wt2html", "Parser hook: argument containing a forward slash (bug 5344)", "<
 add("wt2html", "Parser hook: empty input using terminated empty elements (bug 2374)", "<p data-parsoid='{\"dsr\":[0,18,0,0]}'>&lt;tag foo=bar/>text</p>");
 add("wt2html", "Parser hook: basic arguments using terminated empty elements (bug 2374)", "<p data-parsoid='{\"dsr\":[0,70,0,0]}'>&lt;tag width=200 height = \"100\" depth = '50' square/>\nother stuff\n&lt;/tag></p>");
 add("wt2html", "Parser hook: static parser hook not inside a comment", "<p data-parsoid='{\"dsr\":[0,61,0,0]}'>&lt;statictag>hello, world&lt;/statictag>\n&lt;statictag action=flush/></p>");
-add("wt2html", "Parser hook: static parser hook inside a comment", "<!-- <statictag>hello, world</statictag> -->\n<p data-parsoid='{\"dsr\":[45,70,0,0]}'>&lt;statictag action=flush/></p>");
+add("wt2html", "Parser hook: static parser hook inside a comment", "<!-- <statictag&#x3E;hello, world</statictag&#x3E; -->\n<p data-parsoid='{\"dsr\":[45,70,0,0]}'>&lt;statictag action=flush/></p>");
 add("wt2html", "Sanitizer: Closing of closed but not open tags", "");
 add("wt2html", "Sanitizer: Closing of closed but not open table tags", "Table not started");
 add("wt2html", "Sanitizer: Escaping of spaces, multibyte characters, colons & other stuff in id=\"\"", "<p data-parsoid='{\"dsr\":[0,45,0,0]}'><span id=\"æ: v\" data-parsoid='{\"stx\":\"html\",\"dsr\":[0,27,16,7]}'>byte</span><a rel=\"mw:WikiLink\" href=\"./Main%20Page#æ:_v\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Main%20Page#æ:_v\"},\"sa\":{\"href\":\"#æ: v\"},\"dsr\":[27,45,8,2]}'>backlink</a></p>");
@@ -420,7 +420,6 @@ add("wt2wt", "Parsoid only: Quote balancing context should be restricted to td/t
 add("wt2wt", "Non-word characters don't terminate tag names (bug 17663, 40670, 52022)", "<blockquote|>a\n\n<b→> doesn't terminate </b→>\n\n<bä> doesn't terminate </bä>\n\n<boo> doesn't terminate </boo>\n\n<s.foo> doesn't terminate </s.foo>\n\n<sub-ID#1>\n");
 add("wt2wt", "Non-word characters don't terminate tag names + tidy", "<blockquote|>a\n\n<b→> doesn't terminate </b→>\n\n<bä> doesn't terminate </bä>\n\n<boo> doesn't terminate </boo>\n\n<s.foo> doesn't terminate </s.foo>\n\n<sub-ID#1>\n");
 add("wt2wt", "Isolated close tags should be treated as literal text (bug 52760)", "\n<s.foo>s\n");
-add("wt2wt", "Comment semantics: unclosed comment at end", "<!--This comment will run out to the end of the document-->");
 add("wt2wt", "<nowiki> inside <pre> (bug 13238)", "<pre>\n<nowiki>\n</pre>\n<pre>\n<nowiki></nowiki>\n</pre>\n<pre><nowiki>&lt;nowiki&gt;</nowiki>Foo<nowiki></nowiki></nowiki></pre>");
 add("wt2wt", "<nowiki> and <pre> preference (first one wins)", "<pre>\n<nowiki>\n</pre>\n</nowiki>\n</pre>\n\n<nowiki>\n<pre>\n&lt;nowiki&gt;\n</pre>\n</nowiki>\n</pre>\n");
 add("wt2wt", "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content", "{{echo| }}a\n\n{{echo|\n }}a\n\n{{echo|\n b}}\n\n{{echo|a\n }}b\n\n{{echo|a\n}}\n b\n");
@@ -921,7 +920,6 @@ add("html2wt", "Comment test 3", "asdf\njkl\n");
 add("html2wt", "Comment test 4", "asdfjkl\n");
 add("html2wt", "Comment spacing", "a\n\n  b \n\nc\n");
 add("html2wt", "Comment whitespace", "");
-add("html2wt", "Comment semantics: unclosed comment at end", "");
 add("html2wt", "Comment in template title", "FOO\n");
 add("html2wt", "Comment on its own line post-expand", "a\n\nb\n");
 add("html2wt", "Comment on its own line post-expand with non-significant whitespace", "a\n\nb\n");
@@ -1773,7 +1771,6 @@ add("selser", "Isolated close tags should be treated as literal text (bug 52760)
 add("selser", "Isolated close tags should be treated as literal text (bug 52760) [3,2]", "i8usmsqui9kke29\n\n<s.foo>s</s>");
 add("selser", "Isolated close tags should be treated as literal text (bug 52760) [2,0]", "zskmdh55uiuxflxr\n\n<s.foo>s</s>");
 add("selser", "Isolated close tags should be treated as literal text (bug 52760) [3,0]", "<s.foo>s</s>");
-add("selser", "Comment semantics: unclosed comment at end 5", "<!--This comment will run out to the end of the document-->");
 add("selser", "Empty lines between lines with block tags [0,0,0,0,4,[4],0,4,2,4,2,0,0,3,3,0,0,[4]]", "<div></div>\n\n\n0jr2knw69qode7b9\n\nak4f0xoun9bv5cdi\n\n4us29365j9f9lik9\n\n3sh6psvknz3hm2t9\n\n8z2ywhrg9wl8fr\n\nz7s9at3qyq2xogvi\n\nb\n\n<div>b</div>\n<div>h2r4miiukcoez5mi</div>");
 add("selser", "Empty lines between lines with block tags [0,4,2,2,0,4,0,[2],0,[4],3,0,0,0,0,2,3,0]", "<div></div>g72sdt9b9996bt9\n\nau765cdgwcsg7gb9\n\n\n\nqhrfek8hsgkz9f6r\n<div></div>rw83ofcbk55vzpvi\n\nvky2au8c7nmnp14ib\n<div>eu25mfmjxi0sh5mi</div>\n\n<div>b</div>d\n\nvxxu49npeng66r\n\n<div>e</div>");
 add("selser", "<nowiki> inside <pre> (bug 13238) [4,2,2,0,0]", "ptjux9vq9zarlik9\n\ny7rebotz1jo1dcxr\nnb7mtl9jj0jm7vi<pre>\n<nowiki></nowiki>\n</pre>\n<pre><nowiki><nowiki></nowiki>Foo<nowiki></nowiki></nowiki></pre>");
@@ -2598,7 +2595,7 @@ add("selser", "Ref: 10. Unclosed HTML tags should not leak out of ref-body [0,3,
 add("selser", "Ref: 10. Unclosed HTML tags should not leak out of ref-body [[2,0,0],2,0]", "3i2udpyjqgehr529A <ref> <b> foo </ref> B C\n\n04ufs7jtgivsra4i\n\n<references />");
 add("selser", "Ref: 10. Unclosed HTML tags should not leak out of ref-body [0,4,0]", "A <ref> <b> foo </ref> B C\n\nexksatqzwpgsc3di<references />");
 add("selser", "Ref: 10. Unclosed HTML tags should not leak out of ref-body [[0,0,4],3,0]", "A <ref> <b> foo </ref>3ds74snl9wly2e29<references />");
-add("selser", "Ref: 12. ref-tags act as trailing newline migration barrier [4,[2],3,2,4,[4],3,0]", "m5deo7xhmiaoflxr\n\nqhnq99nstl8oajora\n\nf16ctvb87p919k9\n\nb<!--the newline at the end of this line stays inside the p-tag--> <ref />\n<ref />\n\ni5sgdy5g0bb7qfr\n\nlppjadx2v8q41jor\n<references />");
+add("selser", "Ref: 12. ref-tags act as trailing newline migration barrier [4,[2],3,2,4,[4],3,0]", "m5deo7xhmiaoflxr\n\nqhnq99nstl8oajora\n\nf16ctvb87p919k9\n\nb<!--the newline at the end of this line stays inside the p tag--> <ref />\n<ref />\n\ni5sgdy5g0bb7qfr\n\nlppjadx2v8q41jor\n<references />");
 add("selser", "Ref: 19. ref-tags with identical name encodings should get identical indexes [[2,0,4,0],0,0]", "0dpatm9gsbqk6gvi1 <ref name=\"a & b\">foo</ref>k0yidhh5u2b21emi<ref name=\"a &amp; b\" />\n\n<references />");
 add("selser", "Ref: 19. ref-tags with identical name encodings should get identical indexes [2,0,0]", "zmmmjlha7xim5cdi\n\n1 <ref name=\"a & b\">foo</ref> 2 <ref name=\"a &amp; b\" />\n\n<references />");
 add("selser", "Ref: 19. ref-tags with identical name encodings should get identical indexes [1,0,0]", "1 <ref name=\"a & b\">foo</ref> 2 <ref name=\"a &amp; b\" />\n\n<references />");

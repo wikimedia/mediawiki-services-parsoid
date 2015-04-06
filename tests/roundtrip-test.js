@@ -208,7 +208,9 @@ var findMatchingNodes = function (root, targetRange, sourceLen) {
 						var diff = currentOffset - targetRange.start;
 						while ( precedingNodes.length > 0 && diff > 0 ) {
 							var n = precedingNodes.pop();
-							var len = n.nodeValue.length + (n.nodeType === c.COMMENT_NODE ? 7 : 0);
+							var len = DU.isComment(n) ?
+								DU.decodedCommentLength(n) :
+								n.nodeValue.length;
 							if ( len > diff ) {
 								break;
 							}
@@ -248,10 +250,10 @@ var findMatchingNodes = function (root, targetRange, sourceLen) {
 				precedingNodes = [];
 			} else if ( c.nodeType === c.TEXT_NODE || c.nodeType === c.COMMENT_NODE ) {
 				if ( currentOffset && ( currentOffset < targetRange.end ) ) {
-					currentOffset += c.nodeValue.length;
-					if ( c.nodeType === c.COMMENT_NODE ) {
-						// Add the length of the '<!--' and '--> bits
-						currentOffset += 7;
+					if (DU.isComment(c)) {
+						currentOffset += DU.decodedCommentLength(c);
+					} else {
+						currentOffset += c.nodeValue.length;
 					}
 					if ( currentOffset >= targetRange.end ) {
 						waitingForEndMatch = false;
