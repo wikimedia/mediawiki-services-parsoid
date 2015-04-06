@@ -351,11 +351,11 @@ h = & "=" // guard, to make sure '='+ will match.
                 c.unshift( extras1 );
             }
         }
-        if(e.length > level) {
+        if (e.length > level) {
             e = e.join('');
             var extras2 = e.substr(0, e.length - level),
                 lastElem = c[c.length - 1];
-            if(lastElem.constructor === String) {
+            if (lastElem.constructor === String) {
                 c[c.length-1] += extras2;
             } else {
                 c.push( extras2 );
@@ -437,7 +437,7 @@ extlink
         targetOff:({ return peg$currPos; })
         content:(
                 t1:(
-                    & { return  stops.push('pipe', false); }
+                    & { return stops.push('pipe', false); }
                     t:inlineline { stops.pop('pipe'); return t; }
                     / ! { return stops.pop('pipe'); }
                 ) { return t1; }
@@ -746,7 +746,7 @@ template_param
         vStartPos:({return peg$currPos;})
         optionalSpaceToken
         tpv:template_param_value? {
-            return { kEndPos:kEndPos, vStartPos: vStartPos, value: (tpv && tpv.tokens) || [] };
+            return { kEndPos: kEndPos, vStartPos: vStartPos, value: (tpv && tpv.tokens) || [] };
         }
     )? {
       //console.warn( 'named template_param matched' + pp([name, value ]) );
@@ -847,7 +847,7 @@ wikilink
       }
       //console.warn('lcontent: ' + JSON.stringify( lcontent, null, 2 ) );
 
-      if ( target === null ){
+      if ( target === null ) {
         var src = text();
         return [src];
       }
@@ -892,7 +892,7 @@ link_text
     {
         //console.warn('link_text' + pp(h) + pp(hs));
         stops.dec('linkdesc');
-        if( hs !== null ) {
+        if ( hs !== null ) {
             return h.concat(hs);
         } else {
             return h;
@@ -910,7 +910,7 @@ link_option
         //console.warn('link_option' + pp(h) + pp(hs));
         stops.pop('pipe');
         stops.dec('linkdesc');
-        if( hs !== null ) {
+        if ( hs !== null ) {
             return h.concat(hs);
         } else {
             return h;
