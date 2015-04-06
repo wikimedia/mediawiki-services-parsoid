@@ -39,7 +39,7 @@
 	},
 	"scripts": {
 		"start": "node api/server.js",
-		"jscs": "jscs .",
+		"jscs": "jscs api lib tests",
 		"mocha": "mocha --opts tests/mocha/mocha.opts tests/mocha",
 		"parserTests": "node tests/parserTests.js --wt2html --wt2wt --html2wt --html2html --selser --no-color --quiet --blacklist",
 		"test": "npm run jscs && npm run parserTests && npm run mocha",

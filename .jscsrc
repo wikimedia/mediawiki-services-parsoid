@@ -29,6 +29,7 @@
 
 	"excludeFiles": [
 		"node_modules/**",
+		"tests/server/node_modules/**",
 		"tests/server/static/js/jquery-min.js",
 		"api/static/js/jquery.js",
 		"lib/_http_agent.js"
