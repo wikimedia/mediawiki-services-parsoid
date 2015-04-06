@@ -54,7 +54,7 @@ if (argv.help || argv._.length !== 2) {
 	opts.showHelp();
 	var morehelp = fs.readFileSync(__filename, 'utf8');
 	morehelp = strip(morehelp.split(/== USAGE ==/, 2)[1]);
-	console.log(morehelp.replace(/^   /mg,''));
+	console.log(morehelp.replace(/^   /mg, ''));
 	return;
 }
 
@@ -84,7 +84,7 @@ var mwPARSERTESTS = path.join(mwpath, 'tests', 'parser', PARSERTESTS);
 // Fetch current Parsoid git hash.
 var phash;
 q.push(function(callback) {
-	child_process.execFile('git',['log','--max-count=1','--pretty=format:%H'],{
+	child_process.execFile('git', ['log', '--max-count=1', '--pretty=format:%H'], {
 		cwd: __dirname, env: process.env
 	}, function(error, stdout, stderr) {
 		if (error) { return callback(error.code || 1); }
@@ -101,11 +101,11 @@ q.push(function(callback) {
 
 // Create a new mediawiki/core branch, based on the previous sync point.
 q.push(mwexec('git fetch origin'.split(' ')));
-q.push(mwexec(['git','checkout','-b', branch, oldhash]));
+q.push(mwexec(['git', 'checkout', '-b', branch, oldhash]));
 var cleanup = function(callback) {
 	var qq = [
 		mwexec('git checkout master'.split(' ')),
-		mwexec(['git','branch','-d',branch])
+		mwexec(['git', 'branch', '-d', branch])
 	];
 	async.series(qq, callback);
 };
@@ -126,8 +126,8 @@ q.push(function(callback) {
 // Make a new mediawiki/core commit with an appropriate message.
 q.push(function(callback) {
 	var commitmsg = 'Sync up with Parsoid parserTests.';
-	commitmsg += '\n\nThis now aligns with Parsoid commit ' +phash;
-	mwexec(['git','commit','-m', commitmsg, mwPARSERTESTS])(callback);
+	commitmsg += '\n\nThis now aligns with Parsoid commit ' + phash;
+	mwexec(['git', 'commit', '-m', commitmsg, mwPARSERTESTS])(callback);
 });
 
 // Ok, run these commands in series, stopping if any fail.

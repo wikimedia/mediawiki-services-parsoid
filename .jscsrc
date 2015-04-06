@@ -20,7 +20,6 @@
 		"catch"
 	],
 	"requireSpaceAfterLineComment": null,
-	"requireSpaceAfterBinaryOperators": null,
 	"requireTrailingComma": null,
 	"validateIndentation": null,
 	"validateQuoteMarks": null,

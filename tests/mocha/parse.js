@@ -85,38 +85,38 @@ describe( 'ParserPipelineFactory', function() {
 		});
 
 		['no subpages', 'subpages'].forEach(function(desc, subpages) {
-			describe('should handle page titles with embedded ? (' +desc +')', function() {
+			describe('should handle page titles with embedded ? (' + desc + ')', function() {
 				var linktests = [{
 					wikitext: '[[Foo?/Bar]]',
 					href: '//en.wikipedia.org/wiki/Foo%3F/Bar',
 					linktext: 'Foo?/Bar'
-				},{
+				}, {
 					wikitext: '[[File:Foo.jpg]]',
 					href: '//en.wikipedia.org/wiki/File:Foo.jpg',
 					resource: '//en.wikipedia.org/wiki/File:Foo.jpg'
-				},{
+				}, {
 					wikitext: '[[../]]',
 					linktext: 'A/B?',
 					href: '//en.wikipedia.org/wiki/A/B%3F',
 					subpageOnly: true
-				},{
+				}, {
 					wikitext: '[[../../]]',
 					linktext: 'A',
 					href: '//en.wikipedia.org/wiki/A',
 					subpageOnly: true
-				},{
+				}, {
 					// See https://gerrit.wikimedia.org/r/173431
 					wikitext: '[[../..//]]',
 					linktext: 'A',
 					href: '//en.wikipedia.org/wiki/A',
 					subpageOnly: true
-				},{
+				}, {
 					wikitext: '[[/Child]]',
 					linktext: '/Child',
 					href: subpages ?
 						'//en.wikipedia.org/wiki/A/B%3F/C/Child' :
 						'//en.wikipedia.org/wiki//Child'
-				},{
+				}, {
 					wikitext: '[[/Child/]]',
 					linktext: subpages ? 'Child' : '/Child/',
 					href: subpages ?
@@ -124,7 +124,7 @@ describe( 'ParserPipelineFactory', function() {
 						'//en.wikipedia.org/wiki/A/B%3F/C/Child' :
 						// trailing slash here, when there's no subpage support
 						'//en.wikipedia.org/wiki//Child/'
-				},{
+				}, {
 					// See https://gerrit.wikimedia.org/r/173431
 					wikitext: '[[/Child//]]',
 					linktext: subpages ? 'Child' : '/Child//',
@@ -133,30 +133,30 @@ describe( 'ParserPipelineFactory', function() {
 						'//en.wikipedia.org/wiki/A/B%3F/C/Child' :
 						// trailing slash here, when there's no subpage support
 						'//en.wikipedia.org/wiki//Child//'
-				},{
+				}, {
 					wikitext: '[[../Sibling]]',
 					linktext: 'A/B?/Sibling',
 					href: '//en.wikipedia.org/wiki/A/B%3F/Sibling',
 					subpageOnly: true
-				},{
+				}, {
 					wikitext: '[[../Sibling/]]',
 					linktext: 'Sibling',
 					// note: no trailing slash
 					href: '//en.wikipedia.org/wiki/A/B%3F/Sibling',
 					subpageOnly: true
-				},{
+				}, {
 					// See https://gerrit.wikimedia.org/r/173431
 					wikitext: '[[../Sibling//]]',
 					linktext: 'Sibling',
 					// note: no trailing slash
 					href: '//en.wikipedia.org/wiki/A/B%3F/Sibling',
 					subpageOnly: true
-				},{
+				}, {
 					wikitext: '[[../../New/Cousin]]',
 					linktext: 'A/New/Cousin',
 					href: '//en.wikipedia.org/wiki/A/New/Cousin',
 					subpageOnly: true
-				},{
+				}, {
 					// up too far
 					wikitext: '[[../../../]]',
 					notALink: true
@@ -236,7 +236,7 @@ describe( 'ParserPipelineFactory', function() {
 				// now check the <meta> elements
 				els = doc.querySelectorAll('META[property]');
 				var o = {}, prop;
-				for (var i =0; i <els.length; i++) {
+				for (var i = 0; i < els.length; i++) {
 					prop = els[i].getAttribute('property');
 					o.should.not.have.property(prop);
 					o[prop] = els[i].getAttribute('content');

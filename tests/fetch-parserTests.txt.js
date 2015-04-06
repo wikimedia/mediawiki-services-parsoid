@@ -29,7 +29,7 @@ var historyUrl = {
 	host: downloadUrl.host,
 	path: '/history/mediawiki%2Fcore.git/HEAD/tests%2Fparser%2FparserTests.txt'
 };
-var target_name = __dirname +"/parserTests.txt";
+var target_name = __dirname + "/parserTests.txt";
 
 var computeSHA1 = function(target_name) {
 	var existsSync = fs.existsSync || path.existsSync; // node 0.6 compat
@@ -119,9 +119,9 @@ var forceUpdate = function() {
 		var contents = fs.
 			readFileSync(__filename, 'utf8').
 			replace(/^var expectedSHA1 = "[0-9a-f]*";/m,
-					"var expectedSHA1 = \"" +fileHash +"\";").
+					"var expectedSHA1 = \"" + fileHash + "\";").
 			replace(/^var latestCommit = "[0-9a-f]*";/m,
-					"var latestCommit = \"" +gitCommit +"\";");
+					"var latestCommit = \"" + gitCommit + "\";");
 		fs.writeFileSync(__filename, contents, 'utf8');
 		console.log('Updated fetch-parserTests.txt.js');
 	};

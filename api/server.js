@@ -187,9 +187,9 @@ if ( cluster.isMaster && argv.n > 0 ) {
 		setInterval(function() {
 			var heapUsage = process.memoryUsage();
 			parsoidConfig.performanceTimer.timing('heap.rss', '', heapUsage.rss);
-			parsoidConfig.performanceTimer.timing('heap.total','', heapUsage.heapTotal);
+			parsoidConfig.performanceTimer.timing('heap.total', '', heapUsage.heapTotal);
 			parsoidConfig.performanceTimer.timing('heap.used', '', heapUsage.heapUsed);
-		},  1000 *60 * 5);
+		},  1000 * 60 * 5);
 	}
 
 	var app = new ParsoidService( parsoidConfig, logger );

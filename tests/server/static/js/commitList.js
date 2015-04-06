@@ -26,7 +26,7 @@
 		button('new', 0).attr('checked', 'checked');
 		button('old', 1).attr('checked', 'checked');
 		buttonDisplay('old', 0, 'hidden');
-		for (var i =1; i < numRows; i++) {
+		for (var i = 1; i < numRows; i++) {
 			buttonDisplay('new', i, 'hidden');
 		}
 	};
@@ -40,7 +40,7 @@
 		}
 		setCompareLinks(oldHash, newHash);
 		var index = $(this).closest('tr').index();
-		for (var i =0; i < numRows; i++) {
+		for (var i = 0; i < numRows; i++) {
 			if (name === 'old' && i < index) {
 				buttonDisplay('new', i, 'visible');
 			} else if (name === 'old') {

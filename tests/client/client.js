@@ -214,7 +214,7 @@ var callbackOmnibus = function(which) {
 			break;
 
 		default:
-			console.assert(false, 'Bad callback argument: ' +which);
+			console.assert(false, 'Bad callback argument: ' + which);
 	}
 };
 

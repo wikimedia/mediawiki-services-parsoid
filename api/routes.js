@@ -598,7 +598,7 @@ routes.version = function( req, res ) {
 		}).then(function( v ) {
 			return Promise.promisify(
 				child_process.execFile, ['stdout', 'stderr'], child_process
-			)( 'git', ['rev-parse','HEAD'], {
+			)( 'git', ['rev-parse', 'HEAD'], {
 				cwd: path.join(__dirname, '..')
 			}).then(function( out ) {
 				v.sha = out.stdout.slice(0, -1);

@@ -599,7 +599,7 @@ var getTitle = function( req, res ) {
 var statsScore = function(skipCount, failCount, errorCount) {
 	// treat <errors,fails,skips> as digits in a base 1000 system
 	// and use the number as a score which can help sort in topfails.
-	return errorCount *1000000 +failCount *1000 +skipCount;
+	return errorCount * 1000000 + failCount * 1000 + skipCount;
 };
 
 var transUpdateCB = function( title, prefix, hash, type, res, trans, success_cb, err, result ) {
@@ -631,7 +631,7 @@ var receiveResults = function( req, res ) {
 		// console.warn("application/json");
 		errorCount = result.err ? 1 : 0;
 		failCount = parseInt(result.fails || "0");
-		skipCount =parseInt(result.skips || "0");
+		skipCount = parseInt(result.skips || "0");
 		resultString = JSON.stringify(result);
 	} else {
 		// console.warn("old xml junit style");
@@ -691,7 +691,7 @@ var receiveResults = function( req, res ) {
 									transUpdateCB.bind( null, title, prefix, commitHash, "latest result", res, trans, function() {
 										trans.commit( function() {
 											console.log( '<- ', prefix + ':' + title, ':', skipCount, failCount,
-												errorCount, commitHash.substr(0,7) );
+												errorCount, commitHash.substr(0, 7) );
 
 											if (perfConfig) {
 												// Insert the performance stats, ignoring errors for now
@@ -1114,23 +1114,23 @@ var GET_commits = function( req, res ) {
 				var row = rows[i];
 				var tableRow = {hash: row.hash, timestamp: row.timestamp};
 				if ( i + 1 < n ) {
-					tableRow.regUrl = 'regressions/between/' + rows[i +1].hash + '/' + row.hash;
-					tableRow.fixUrl = 'topfixes/between/' + rows[i +1].hash + '/' + row.hash;
+					tableRow.regUrl = 'regressions/between/' + rows[i + 1].hash + '/' + row.hash;
+					tableRow.fixUrl = 'topfixes/between/' + rows[i + 1].hash + '/' + row.hash;
 				}
 				tableRows.push(tableRow);
 			}
 			var data = {
 				numCommits: n,
-				latest: rows[n -1].timestamp.toString().slice(4,15),
+				latest: rows[n - 1].timestamp.toString().slice(4, 15),
 				header: ['Commit hash', 'Timestamp', 'Tests', '-', '+'],
 				row: tableRows
 			};
 
 			hbs.registerHelper('formatHash', function(hash) {
-				return hash.slice(0,10);
+				return hash.slice(0, 10);
 			});
 			hbs.registerHelper('formatDate', function(timestamp) {
-				return timestamp.toString().slice(4,21);
+				return timestamp.toString().slice(4, 21);
 			});
 
 			res.render('commits.html', data);
@@ -1143,8 +1143,8 @@ var diffResultWebCallback = function(req, res, flag, err, row) {
 		console.error( err );
 		res.send( err.toString(), 500 );
 	} else if (row.length === 2) {
-		var oldCommit = req.params[0].slice(0,10);
-		var newCommit = req.params[1].slice(0,10);
+		var oldCommit = req.params[0].slice(0, 10);
+		var newCommit = req.params[1].slice(0, 10);
 		var oldResult = row[0].result;
 		var newResult = row[1].result;
 		var flagResult = Diff.resultFlagged(oldResult, newResult, oldCommit, newCommit, flag);

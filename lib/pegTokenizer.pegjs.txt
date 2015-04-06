@@ -88,7 +88,7 @@ redirect
     if (c) { rw += c[0] + c[1].join(''); }
     // Build a redirect token
     var redirect = new SelfclosingTagTk('mw:redirect',
-            [Util.lookupKV(link.attribs,'href')],
+            [Util.lookupKV(link.attribs, 'href')],
             {
                 src: rw,
                 tsr: [peg$reportedPos, peg$currPos],
@@ -693,7 +693,7 @@ template
     target:template_param_value
     params:(nl_comment_space* "|"
                 r:( p0:({return peg$currPos;}) v:nl_comment_space* p:({return peg$currPos;}) &"|"
-                    { return new KV( '', tu.flattenIfArray(v), [p0,p0,p0,p]); } // empty argument
+                    { return new KV( '', tu.flattenIfArray(v), [p0, p0, p0, p]); } // empty argument
                     / template_param
                   ) { return r; }
             )*
@@ -1958,7 +1958,7 @@ htmlentity = "&" c:[#0-9a-zA-Z]+ ";" {
     return [
         new TagTk('span', [new KV('typeof', 'mw:Entity')], { src: m, srcContent: cc, tsr: [peg$reportedPos, peg$reportedPos] } ),
         cc,
-        new EndTagTk('span', [], { tsr: [peg$currPos,peg$currPos] })
+        new EndTagTk('span', [], { tsr: [peg$currPos, peg$currPos] })
     ];
 }
 

@@ -42,14 +42,14 @@ RenderHelpers.commitLinkData = function(urlPrefix, commit, title, wiki) {
 RenderHelpers.newCommitLinkData = function(urlPrefix, oldCommit, newCommit, title, prefix) {
 	return {
 		url: urlPrefix + 'resultFlagNew/' + oldCommit + '/' + newCommit + '/' + prefix + '/' + title,
-		name: newCommit.substr(0,7)
+		name: newCommit.substr(0, 7)
 	};
 };
 
 RenderHelpers.oldCommitLinkData = function(urlPrefix, oldCommit, newCommit, title, prefix) {
 	return {
 		url: urlPrefix + 'resultFlagOld/' + oldCommit + '/' + newCommit + '/' + prefix + '/' + title,
-		name: oldCommit.substr(0,7)
+		name: oldCommit.substr(0, 7)
 	};
 };
 

@@ -98,8 +98,8 @@ apiUtils.jsonResponse = function(res, env) {
 };
 
 apiUtils.htmlSpecialChars = function( s ) {
-	return s.replace(/&/g,'&amp;')
-		.replace(/</g,'&lt;')
-		.replace(/"/g,'&quot;')
-		.replace(/'/g,'&#039;');
+	return s.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#039;');
 };

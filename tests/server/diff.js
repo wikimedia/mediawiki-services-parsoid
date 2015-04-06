@@ -62,7 +62,7 @@ var testcaseStatus = function(diff, flag) {
 // oldString but not in newString.
 Diff.resultFlagged = function(oldString, newString, oldCommit, newCommit, flag) {
 	// If one of the two results is an error, don't flag differences.
-	if (oldString.slice(0,6) === '<error' || newString.slice(0,6) === '<error') {
+	if (oldString.slice(0, 6) === '<error' || newString.slice(0, 6) === '<error') {
 		var output = flag === '+' ? newString : oldString;
 		return output;
 	}
@@ -86,7 +86,7 @@ Diff.resultFlagged = function(oldString, newString, oldCommit, newCommit, flag) 
 
 		var results = [];
 		for (var i = 0, l = testcases.length - 1; i < l; i++) {
-			if (i %2 === 0 && statusArray[i /2]) {
+			if (i % 2 === 0 && statusArray[i / 2]) {
 				testcases[i] = testcases[i].replace('<testcase', '<testcase status="' + status + '"');
 			}
 			results.push(testcases[i]);
