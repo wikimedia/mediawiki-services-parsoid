@@ -929,7 +929,7 @@ ParserTests.prototype.processTest = function ( item, options, mode, endCb ) {
 
 		this.env.conf.wiki.allowExternalImages = [ '' ]; // all allowed
 		if ( item.options.wgallowexternalimages !== undefined &&
-			 ! /^(1|true|)$/.test(item.options.wgallowexternalimages) ) {
+			 !/^(1|true|)$/.test(item.options.wgallowexternalimages) ) {
 			this.env.conf.wiki.allowExternalImages = undefined;
 		}
 	}
