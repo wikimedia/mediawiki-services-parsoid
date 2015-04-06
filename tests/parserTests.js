@@ -128,8 +128,8 @@ var prettyPrintIOptions = function(iopts) {
 		return JSON.stringify(v);
 	};
 	return Object.keys(iopts).map(function(k) {
-		if (iopts[k]==='') { return k; }
-		return k+'='+ppValue(iopts[k]);
+		if (iopts[k] ==='') { return k; }
+		return k +'=' +ppValue(iopts[k]);
 	}).join(' ');
 };
 
@@ -302,7 +302,7 @@ ParserTests.prototype.getOpts = function () {
  */
 ParserTests.prototype.getTests = function ( argv ) {
 	// double check that test file is up-to-date with upstream
-	var fetcher = require(__dirname+"/fetch-parserTests.txt.js");
+	var fetcher = require(__dirname +"/fetch-parserTests.txt.js");
 	if (!fetcher.isUpToDate()) {
 		parserTestsUpToDate = false;
 		console.warn("warning", "ParserTests.txt not up-to-date with upstream.");
@@ -332,7 +332,7 @@ ParserTests.prototype.getTests = function ( argv ) {
 
 	var sha1 = require('crypto').createHash('sha1')
 		.update( mtimes ).digest( 'hex' ),
-		cache_file_name= __dirname + '/' + this.cache_file,
+		cache_file_name = __dirname + '/' + this.cache_file,
 		// Look for a cache_file
 		cache_content,
 		cache_file_digest;
@@ -734,7 +734,7 @@ ParserTests.prototype.generateChanges = function( options, item, body, cb ) {
 				if ( nodeIsUneditable(child) || random() < 0.5 ) {
 					changeType = genChangesInternal(
 						// ensure the subtree has a seed
-						{ seed: ''+random.uint32() },
+						{ seed: '' +random.uint32() },
 						child );
 				} else {
 					if ( !child.setAttribute ) {
@@ -832,7 +832,7 @@ ParserTests.prototype.applyManualChanges = function( body, changes, cb ) {
 	changes.forEach(function(change) {
 		if (err) { return; }
 		if (change.length < 2) {
-			err = new Error('bad change: '+change);
+			err = new Error('bad change: ' +change);
 			return;
 		}
 		// use document.querySelectorAll as a poor man's $(...)
@@ -850,7 +850,7 @@ ParserTests.prototype.applyManualChanges = function( body, changes, cb ) {
 		}
 		var fun = jquery[change[1]];
 		if (!fun) {
-			err = new Error('bad mutator function: '+change[1]);
+			err = new Error('bad mutator function: ' +change[1]);
 			return;
 		}
 		Array.prototype.forEach.call(els, function(el) {
@@ -1500,7 +1500,7 @@ ParserTests.prototype.reportSummary = function ( stats ) {
 		console.log( colorizeCount( stats.passedTests + stats.passedTestsWhitelisted, 'green' ) +
 		             ' total passed tests (expected ' +
 		             (stats.passedTests + stats.passedTestsWhitelisted - stats.passedTestsUnexpected + stats.failedTestsUnexpected) +
-		             '), '+
+		             '), ' +
 		             colorizeCount( failTotalTests , 'red'   ) + ' total failures (expected ' +
 		             (stats.failedTests - stats.failedTestsUnexpected + stats.passedTestsUnexpected) +
 		             ')' );
@@ -2049,18 +2049,18 @@ ParserTests.prototype.processCase = function ( i, options, err ) {
 
 		// update the blacklist, if requested
 		if (booleanOption( options['rewrite-blacklist'] )) {
-			var filename = __dirname+'/parserTests-blacklist.js';
+			var filename = __dirname +'/parserTests-blacklist.js';
 			var shell = fs.readFileSync(filename, 'utf8').
 				split(/^.*DO NOT REMOVE THIS LINE.*$/m);
 			var contents = shell[0];
 			contents += '// ### DO NOT REMOVE THIS LINE ### ';
 			contents += '(start of automatically-generated section)\n';
 			modes.forEach(function(mode) {
-				contents += '\n// Blacklist for '+mode+'\n';
+				contents += '\n// Blacklist for ' +mode +'\n';
 				this.stats.modes[mode].failList.forEach(function(fail) {
-					contents += 'add('+JSON.stringify(mode)+', '+
+					contents += 'add(' +JSON.stringify(mode) +', ' +
 						JSON.stringify(fail.title);
-					contents += ', '+JSON.stringify(fail.raw);
+					contents += ', ' +JSON.stringify(fail.raw);
 					contents += ');\n';
 				});
 				contents += '\n';

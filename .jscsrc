@@ -22,7 +22,6 @@
 	],
 	"requireSpaceAfterLineComment": null,
 	"requireSpaceAfterBinaryOperators": null,
-	"requireSpaceBeforeBinaryOperators": null,
 	"requireTrailingComma": null,
 	"validateIndentation": null,
 	"validateQuoteMarks": null,

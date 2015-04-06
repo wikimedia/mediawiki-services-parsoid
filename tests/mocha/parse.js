@@ -85,7 +85,7 @@ describe( 'ParserPipelineFactory', function() {
 		});
 
 		['no subpages', 'subpages'].forEach(function(desc, subpages) {
-			describe('should handle page titles with embedded ? ('+desc+')', function() {
+			describe('should handle page titles with embedded ? (' +desc +')', function() {
 				var linktests = [{
 					wikitext: '[[Foo?/Bar]]',
 					href: '//en.wikipedia.org/wiki/Foo%3F/Bar',
@@ -236,7 +236,7 @@ describe( 'ParserPipelineFactory', function() {
 				// now check the <meta> elements
 				els = doc.querySelectorAll('META[property]');
 				var o = {}, prop;
-				for (var i=0; i<els.length; i++) {
+				for (var i =0; i <els.length; i++) {
 					prop = els[i].getAttribute('property');
 					o.should.not.have.property(prop);
 					o[prop] = els[i].getAttribute('content');

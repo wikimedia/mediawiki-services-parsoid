@@ -86,7 +86,7 @@ Diff.resultFlagged = function(oldString, newString, oldCommit, newCommit, flag) 
 
 		var results = [];
 		for (var i = 0, l = testcases.length - 1; i < l; i++) {
-			if (i%2 === 0 && statusArray[i/2]) {
+			if (i %2 === 0 && statusArray[i /2]) {
 				testcases[i] = testcases[i].replace('<testcase', '<testcase status="' + status + '"');
 			}
 			results.push(testcases[i]);

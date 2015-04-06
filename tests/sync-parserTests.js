@@ -126,7 +126,7 @@ q.push(function(callback) {
 // Make a new mediawiki/core commit with an appropriate message.
 q.push(function(callback) {
 	var commitmsg = 'Sync up with Parsoid parserTests.';
-	commitmsg += '\n\nThis now aligns with Parsoid commit '+phash;
+	commitmsg += '\n\nThis now aligns with Parsoid commit ' +phash;
 	mwexec(['git','commit','-m', commitmsg, mwPARSERTESTS])(callback);
 });
 

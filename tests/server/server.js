@@ -236,9 +236,9 @@ var dbStatsQuery =
 		'pages.latest_stat = stats.id) as avgscore, ' +
 	'count(*) AS total, ' +
 	'count(CASE WHEN stats.errors=0 THEN 1 ELSE NULL END) AS no_errors, ' +
-	'count(CASE WHEN stats.errors=0 AND stats.fails=0 '+
+	'count(CASE WHEN stats.errors=0 AND stats.fails=0 ' +
 		'then 1 else null end) AS no_fails, ' +
-	'count(CASE WHEN stats.errors=0 AND stats.fails=0 AND stats.skips=0 '+
+	'count(CASE WHEN stats.errors=0 AND stats.fails=0 AND stats.skips=0 ' +
 		'then 1 else null end) AS no_skips, ' +
 	// get regression count between last two commits
 	'(SELECT count(*) ' +
@@ -291,9 +291,9 @@ var dbPerWikiStatsQuery =
 		'pages.latest_stat = stats.id where pages.prefix = ?) as avgscore, ' +
 	'count(*) AS total, ' +
 	'count(CASE WHEN stats.errors=0 THEN 1 ELSE NULL END) AS no_errors, ' +
-	'count(CASE WHEN stats.errors=0 AND stats.fails=0 '+
+	'count(CASE WHEN stats.errors=0 AND stats.fails=0 ' +
 		'then 1 else null end) AS no_fails, ' +
-	'count(CASE WHEN stats.errors=0 AND stats.fails=0 AND stats.skips=0 '+
+	'count(CASE WHEN stats.errors=0 AND stats.fails=0 AND stats.skips=0 ' +
 		'then 1 else null end) AS no_skips, ' +
 	// get regression count between last two commits
 	'(SELECT count(*) ' +
@@ -599,7 +599,7 @@ var getTitle = function ( req, res ) {
 var statsScore = function(skipCount, failCount, errorCount) {
 	// treat <errors,fails,skips> as digits in a base 1000 system
 	// and use the number as a score which can help sort in topfails.
-	return errorCount*1000000+failCount*1000+skipCount;
+	return errorCount *1000000 +failCount *1000 +skipCount;
 };
 
 var transUpdateCB = function( title, prefix, hash, type, res, trans, success_cb, err, result ) {
@@ -793,7 +793,7 @@ var statsWebInterface = function ( req, res ) {
 		numRegressions = row[0].numregressions,
 		numFixes = row[0].numfixes,
 		noErrors = Math.round( 100 * 100 * errorLess / ( tests || 1 ) ) / 100,
-		perfects = Math.round( 100* 100 * skipLess / ( tests || 1 ) ) / 100,
+		perfects = Math.round( 100 * 100 * skipLess / ( tests || 1 ) ) / 100,
 		syntacticDiffs = Math.round( 100 * 100 *
 			( row[0].no_fails / ( tests || 1 ) ) ) / 100;
 
@@ -1114,14 +1114,14 @@ var GET_commits = function( req, res ) {
 				var row = rows[i];
 				var tableRow = {hash: row.hash, timestamp: row.timestamp};
 				if ( i + 1 < n ) {
-					tableRow.regUrl = 'regressions/between/' + rows[i+1].hash + '/' + row.hash;
-					tableRow.fixUrl = 'topfixes/between/' + rows[i+1].hash + '/' + row.hash;
+					tableRow.regUrl = 'regressions/between/' + rows[i +1].hash + '/' + row.hash;
+					tableRow.fixUrl = 'topfixes/between/' + rows[i +1].hash + '/' + row.hash;
 				}
 				tableRows.push(tableRow);
 			}
 			var data = {
 				numCommits: n,
-				latest: rows[n-1].timestamp.toString().slice(4,15),
+				latest: rows[n -1].timestamp.toString().slice(4,15),
 				header: ['Commit hash', 'Timestamp', 'Tests', '-', '+'],
 				row: tableRows
 			};

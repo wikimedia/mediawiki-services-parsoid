@@ -42,7 +42,7 @@
 
             while (i < l) {
                 //console.warn('emitting partial chunk', i);
-                options.cb(tokens.slice(i, i+chunkLimit));
+                options.cb(tokens.slice(i, i + chunkLimit));
                 i += chunkLimit;
             }
         } else {
@@ -357,13 +357,13 @@ h = & "=" // guard, to make sure '='+ will match.
             var extras2 = e.substr(0, e.length - level),
                 lastElem = c[c.length - 1];
             if (lastElem.constructor === String) {
-                c[c.length-1] += extras2;
+                c[c.length - 1] += extras2;
             } else {
                 c.push( extras2 );
             }
         }
 
-        return [new TagTk( 'h' + level, [], { tsr: [peg$reportedPos, peg$reportedPos+level] } )]
+        return [new TagTk( 'h' + level, [], { tsr: [peg$reportedPos, peg$reportedPos + level] } )]
                 .concat(c, [
                         new EndTagTk( 'h' + level, [],
                             { tsr: [endTPos - level, endTPos]} ),
@@ -417,7 +417,7 @@ behavior_text = text:( !'__' tc:[^'"<~[{\n\r:;\]}|!=] { return tc; } )+ {
 autolink
   = ! { return stops.onStack('extlink'); }
     // this must be a word boundary, so previous character must be non-word
-    ! { return /\w/.test(input[peg$currPos-1]||''); }
+    ! { return /\w/.test(input[peg$currPos - 1] || ''); }
   r:(
       // urllink, inlined
       target:autourl {
@@ -459,7 +459,7 @@ extlink
                 ], {
                     targetOff: targetOff,
                     tsr: [peg$reportedPos, peg$currPos],
-                    contentOffsets: [targetOff, peg$currPos-1]
+                    contentOffsets: [targetOff, peg$currPos - 1]
                 })
             ];
         }
@@ -610,7 +610,7 @@ autourl
     proto += addr || '';
     var url = tu.flatten_stringlist( [proto].concat( path ) );
     // only need to look at last element; HTML entities are strip-proof.
-    var last = url[url.length-1], trim = 0;
+    var last = url[url.length - 1], trim = 0;
     if (last && last.constructor === String) {
       var strip = ',;\\.:!?';
       if (!stops.onStack( 'autourl' ).sawLParen) {
@@ -618,7 +618,7 @@ autourl
       }
       strip = new RegExp( '[' + Util.escapeRegExp(strip) + ']*$' );
       trim = strip.exec( last )[0].length;
-      url[url.length-1] = last.slice(0, last.length - trim);
+      url[url.length - 1] = last.slice(0, last.length - trim);
       peg$currPos -= trim;
     }
     stops.pop( 'autourl' );
@@ -857,7 +857,7 @@ wikilink
       var obj = new SelfclosingTagTk( 'wikilink' ),
           textTokens = [],
           hrefKV = new KV('href', target);
-      hrefKV.vsrc = input.substring(peg$reportedPos+2, tpos);
+      hrefKV.vsrc = input.substring(peg$reportedPos + 2, tpos);
       // XXX: Point to object with path, revision and input information
       //obj.source = input;
       obj.attribs.push(hrefKV);
@@ -1120,7 +1120,7 @@ xmlish_tag =
                     //
                     // Expand extSrc as long as there is a <ref> tag found in the
                     // extension source body.
-                    var s = extSrc.substring(peg$currPos-tsr0);
+                    var s = extSrc.substring(peg$currPos - tsr0);
                     while (s && s.match(new RegExp("<" + tagName + "[^<>]*>"))) {
                         tagContent = restOfInput.substring(extSrc.length).match(endTagRE);
                         if (tagContent) {
@@ -1135,7 +1135,7 @@ xmlish_tag =
 
                 // Extension content source
                 dp.src = extSrc;
-                dp.tagWidths = [peg$currPos-tsr0, endTagWidth];
+                dp.tagWidths = [peg$currPos - tsr0, endTagWidth];
 
                 if ( !isIncludeTag && !isInstalledExt ) {
                     return t;
@@ -1554,7 +1554,7 @@ dtdd
         li1.bullets = bullets.slice();
         li1.bullets.push(";");
         // TSR: -1 for the intermediate ":"
-        var li2 = new TagTk( 'listItem', [], { tsr: [cpos-1, cpos], stx: 'row' } );
+        var li2 = new TagTk( 'listItem', [], { tsr: [cpos - 1, cpos], stx: 'row' } );
         li2.bullets = bullets.slice();
         li2.bullets.push(":");
 
@@ -1830,7 +1830,7 @@ table_end_tag
       if (p !== "|") {
           // p+"<brace-char>" is triggering some bug in pegJS
           // I cannot even use that expression in the comment!
-          tblEnd.dataAttribs.endTagSrc = p+b;
+          tblEnd.dataAttribs.endTagSrc = p + b;
       }
       return sc.concat([tblEnd]);
   }
