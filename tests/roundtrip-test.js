@@ -351,22 +351,26 @@ var checkIfSignificant = function (env, offsets, oldWt, oldBody, oldDp, newWt, c
 	var thisResult;
 	var results = [];
 
-	// Quick test for no semantic diffs
-	// If parsoid-normalized HTML for old and new wikitext is identical,
-	// the wt-diffs are purely syntactic.
-	var normalizedOld = DU.normalizeOut(oldBody, true);
-	var normalizedNew = DU.normalizeOut(newDOC.body, true);
-	if (normalizedOld === normalizedNew) {
-		for (i = 0; i < offsets.length; i++) {
-			offset = offsets[i];
-			results.push({
-				type: 'skip',
-				offset: offset,
-				wtDiff: formatDiff(offset, 0),
-			});
+	// Use the full tests for fostered content.
+	// Fostered content => semantic diffs.
+	if (!/("|&quot;)fostered("|&quot;)\s*:\s*true\b/.test(oldBody.outerHTML)) {
+		// Quick test for no semantic diffs
+		// If parsoid-normalized HTML for old and new wikitext is identical,
+		// the wt-diffs are purely syntactic.
+		var normalizedOld = DU.normalizeOut(oldBody, true);
+		var normalizedNew = DU.normalizeOut(newDOC.body, true);
+		if (normalizedOld === normalizedNew) {
+			for (i = 0; i < offsets.length; i++) {
+				offset = offsets[i];
+				results.push({
+					type: 'skip',
+					offset: offset,
+					wtDiff: formatDiff(offset, 0),
+				});
+			}
+			cb( null, env, results );
+			return;
 		}
-		cb( null, env, results );
-		return;
 	}
 
 	var origOut, newOut, origHTML, newHTML, origOrigHTML, origNewHTML;
