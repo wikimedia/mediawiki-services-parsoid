@@ -294,20 +294,13 @@ var findMatchingNodes = function (root, targetRange, sourceLen) {
 	return walkDOM(root);
 };
 
-var checkIfSignificant = function ( env, offsets, src, body, oldDp, out, cb, err, html, dp ) {
+var checkIfSignificant = function (env, offsets, oldWt, oldBody, oldDp, newWt, cb, err, html, dp) {
 	if (err) {
 		cb(err, null, []);
 		return;
 	}
 
-	var document = domino.createDocument(html);
-	// Merge data-parsoid so that HTML nodes can be compared and diff'ed.
-	DU.applyDataParsoid(body.ownerDocument, oldDp.body);
-	DU.applyDataParsoid(document, dp.body);
-	// console.warn("\ndocument:", document)
-
-	var normalizeWikitext = function ( str ) {
-
+	var normalizeWikitext = function (str) {
 		// Ignore leading tabs vs. leading spaces
 		str = str.replace(/^\t/, ' ');
 		str = str.replace(/\n\t/g, '\n ');
@@ -337,8 +330,48 @@ var checkIfSignificant = function ( env, offsets, src, body, oldDp, out, cb, err
 		return str;
 	};
 
-	var i, k, diff, offset, origOut, newOut, origHTML, newHTML, origOrigHTML, origNewHTML, thisResult, results = [];
-	for ( i = 0; i < offsets.length; i++ ) {
+	// Get diff substrings from offsets
+	var formatDiff = function (offset, context) {
+		return [
+			'----',
+			oldWt.substring(offset[0].start - context, offset[0].end + context),
+			'++++',
+			newWt.substring(offset[1].start - context, offset[1].end + context)
+		].join('\n');
+	};
+
+	var newDOC = domino.createDocument(html);
+
+	// Merge data-parsoid so that HTML nodes can be compared and diff'ed.
+	DU.applyDataParsoid(oldBody.ownerDocument, oldDp.body);
+	DU.applyDataParsoid(newDOC, dp.body);
+	// console.warn("\nnewDOC:", newDOC)
+
+	var i, k, diff, offset;
+	var thisResult;
+	var results = [];
+
+	// Quick test for no semantic diffs
+	// If parsoid-normalized HTML for old and new wikitext is identical,
+	// the wt-diffs are purely syntactic.
+	var normalizedOld = DU.normalizeOut(oldBody, true);
+	var normalizedNew = DU.normalizeOut(newDOC.body, true);
+	if (normalizedOld === normalizedNew) {
+		for (i = 0; i < offsets.length; i++) {
+			offset = offsets[i];
+			results.push({
+				type: 'skip',
+				offset: offset,
+				wtDiff: formatDiff(offset, 0),
+			});
+		}
+		cb( null, env, results );
+		return;
+	}
+
+	var origOut, newOut, origHTML, newHTML, origOrigHTML, origNewHTML;
+	// Now, proceed with full blown diffs
+	for (i = 0; i < offsets.length; i++) {
 		thisResult = {};
 		origOrigHTML = '';
 		origNewHTML = '';
@@ -348,57 +381,45 @@ var checkIfSignificant = function ( env, offsets, src, body, oldDp, out, cb, err
 		thisResult.offset = offset;
 		// console.warn("--processing: " + JSON.stringify(offset));
 
-		if ( offset[0].start === offset[0].end &&
-				out.substr(offset[1].start, offset[1].end - offset[1].start)
-					.match(/^\n?<\/[^>]+>\n?$/) ) {
+		if (offset[0].start === offset[0].end &&
+				newWt.substr(offset[1].start, offset[1].end - offset[1].start)
+					.match(/^\n?<\/[^>]+>\n?$/)) {
 			// An element was implicitly closed. Fudge the orig offset
 			// slightly so it finds the corresponding elements which have the
 			// original (unclosed) DSR.
 			offset[0].start--;
 		}
 		// console.warn("--orig--");
-		var res = findMatchingNodes( body, offset[0] || {}, src.length);
+		var res = findMatchingNodes(oldBody, offset[0] || {}, oldWt.length);
 		origOut = res ? res.nodes : [];
-		for ( k = 0; k < origOut.length; k++ ) {
+		for (k = 0; k < origOut.length; k++) {
 			// node need not be an element always!
 			origOrigHTML += DU.serializeNode(origOut[k], {smartQuote: false});
 		}
-		origHTML = DU.formatHTML( DU.normalizeOut( origOrigHTML ) );
+		origHTML = DU.formatHTML(DU.normalizeOut(origOrigHTML));
 		// console.warn("# nodes: " + origOut.length);
 		// console.warn("html: " + origHTML);
 
 		// console.warn("--new--");
-		res = findMatchingNodes( document.body, offset[1] || {}, out.length);
+		res = findMatchingNodes(newDOC.body, offset[1] || {}, newWt.length);
 		newOut = res ? res.nodes : [];
-		for ( k = 0; k < newOut.length; k++ ) {
+		for (k = 0; k < newOut.length; k++) {
 			// node need not be an element always!
 			origNewHTML += DU.serializeNode(newOut[k], {smartQuote: false});
 		}
-		newHTML = DU.formatHTML( DU.normalizeOut( origNewHTML ) );
+		newHTML = DU.formatHTML(DU.normalizeOut(origNewHTML));
 		// console.warn("# nodes: " + newOut.length);
 		// console.warn("html: " + newHTML);
 
 		// compute wt diffs
-		var wt1 = src.substring( offset[0].start, offset[0].end );
-		var wt2 = out.substring( offset[1].start, offset[1].end );
+		var wt1 = oldWt.substring(offset[0].start, offset[0].end);
+		var wt2 = newWt.substring(offset[1].start, offset[1].end);
 		//thisResult.wtDiff = Util.contextDiff(wt1, wt2, false, true, true);
 
-		// Get diff substrings from offsets
-		/* jshint loopfunc: true */ // this function doesn't use loop variables
-		var formatDiff = function ( offset, context ) {
-			return [
-			'----',
-			src.substring(offset[0].start - context, offset[0].end + context),
-			'++++',
-			out.substring(offset[1].start - context, offset[1].end + context)
-			].join('\n');
-		}.bind( this, offset );
-
-		diff = Diff.htmlDiff( origHTML, newHTML, false, true, true );
-
+		diff = Diff.htmlDiff(origHTML, newHTML, false, true, true);
 
 		// No context by default
-		thisResult.wtDiff = formatDiff(0);
+		thisResult.wtDiff = formatDiff(offset, 0);
 
 		// Normalize wts to check if we really have a semantic diff
 		thisResult.type = 'skip';
@@ -406,17 +427,17 @@ var checkIfSignificant = function ( env, offsets, src, body, oldDp, out, cb, err
 			var normWT1 = normalizeWikitext(wt1),
 				normWT2 = normalizeWikitext(wt2);
 
-			if ( normWT1 !== normWT2 ) {
+			if (normWT1 !== normWT2) {
 				//console.log( 'normDiff: =======\n' + normWT1 + '\n--------\n' + normWT2);
 				thisResult.htmlDiff = diff;
 				thisResult.type = 'fail';
 				// Provide context for semantic diffs
-				thisResult.wtDiff = formatDiff(25);
+				thisResult.wtDiff = formatDiff(offset, 25);
 			}
 		}
-		results.push( thisResult );
+		results.push(thisResult);
 	}
-	cb( null, env, results );
+	cb(null, env, results);
 };
 
 var parsoidPost = function (env, uri, domain, title, text, dp, oldid,
