@@ -19,7 +19,6 @@
 		"try",
 		"catch"
 	],
-	"requireSpaceAfterLineComment": null,
 	"requireTrailingComma": null,
 	"validateIndentation": null,
 	"validateQuoteMarks": null,

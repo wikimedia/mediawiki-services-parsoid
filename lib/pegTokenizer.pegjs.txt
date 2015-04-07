@@ -41,12 +41,10 @@
                 l = tokens.length;
 
             while (i < l) {
-                //console.warn('emitting partial chunk', i);
                 options.cb(tokens.slice(i, i + chunkLimit));
                 i += chunkLimit;
             }
         } else {
-            //console.warn('emitting single chunk', tokens.length);
             options.cb(tokens);
         }
     };
@@ -133,7 +131,6 @@ toplevelblock =
   / newline* eof {
         // Clear saved sol state!
         options.pegTokenizer.savedSOL = null;
-        // console.warn("-- EOF!");
         emitChunk( [ new EOFTk( ) ] );
 
         return { eof: true };
@@ -232,7 +229,6 @@ block_lines
     // eat an empty line before the block
     s2:(os:optionalSpaceToken so:sol { return os.concat(so); })?
     bl:block_line {
-        //console.warn( 'bl', JSON.stringify(bl, null, 2) );
         var s2_ = (s2 !== null) ? s2 : [];
         return s.concat(s2_, bl);
     }
@@ -298,7 +294,6 @@ pre_start = "<" pre_tag_name [^>]* ">"
 
 inline
   = c:(urltext / (!inline_breaks !pre_start r:(inline_element / . ) { return r; }))+ {
-      //console.warn('inline out:' + pp(c));
       return tu.flatten_stringlist( c );
   }
 
@@ -445,12 +440,11 @@ extlink
               )?
         "]" {
             stops.pop('extlink');
-            //if ( text === '' ) {
-            //    // XXX: Link numbering should be implemented in post-processor.
-            //    text = [ "[" + linkCount + "]" ];
-            //    linkCount++;
-            //}
-            //console.warn( 'extlink text: ' + pp( text ) );
+            // if ( text === '' ) {
+            //     // XXX: Link numbering should be implemented in post-processor.
+            //     text = [ "[" + linkCount + "]" ];
+            //     linkCount++;
+            // }
             return [
                 new SelfclosingTagTk( 'extlink', [
                     new KV('href', target),
@@ -704,8 +698,6 @@ template
       // again.
       params.unshift( new KV(tu.flattenIfArray( target.tokens ), '', target.srcOffsets) );
       var obj = new SelfclosingTagTk( 'template', params, {tsr: [peg$reportedPos, peg$currPos], src: text()} );
-      //console.warn( 'tokenizer template ' + peg$currPos + );
-      //console.warn('template @' + peg$currPos + '::' + input.substr(peg$currPos, 40) );
       return obj;
     }
 
@@ -731,8 +723,6 @@ tplarg
         params.unshift( new KV( '', '') );
       }
       var obj = new SelfclosingTagTk( 'templatearg', params, {tsr: [peg$reportedPos, peg$currPos], src: text()} );
-      //console.warn( 'tokenizer tplarg ' + JSON.stringify( obj, null, 2 ));
-      //console.warn('template arg @' + peg$currPos + '::' + input.substr(peg$currPos, 40) );
       return obj;
   }
 
@@ -750,7 +740,6 @@ template_param
             return { kEndPos: kEndPos, vStartPos: vStartPos, value: (tpv && tpv.tokens) || [] };
         }
     )? {
-      //console.warn( 'named template_param matched' + pp([name, value ]) );
       if ( val !== null ) {
           if ( val.value !== null ) {
             return new KV( name, tu.flattenIfArray( val.value ), [peg$reportedPos, val.kEndPos, val.vStartPos, peg$currPos] );
@@ -771,7 +760,6 @@ template_param_name
     tpt:(template_param_text / &'=' { return ''; })
     {
         stops.pop( 'equal' );
-        //console.warn( 'template param name matched: ' + pp( tpt ) );
         return tpt;
     }
 
@@ -784,7 +772,6 @@ template_param_value
     {
         stops.dec( 'nopre' );
         stops.pop( 'equal' );
-        //console.warn( 'template param value matched: ' + pp( tpt ) );
         return { tokens: tpt, srcOffsets: [peg$reportedPos, peg$currPos] };
     }
   / & { stops.dec( 'nopre' ); return stops.pop( 'equal' ); }
@@ -805,11 +792,9 @@ template_param_text
         stops.pop('extlink');
         stops.pop('pipe');
         stops.dec('template');
-        //console.warn( 'tpt match: ' + pp (il) + " stops: " + pp(stops));
         // il is guaranteed to be an array -- so, tu.flattenIfArray will
         // always return an array
         var r = tu.flattenIfArray( il );
-        //console.warn('tpl param name' + peg$currPos + r[0] + '::' + input.substr(peg$currPos, 40) );
         if ( r.length === 1 && r[0].constructor === String ) {
             r = r[0];
         }
@@ -846,7 +831,6 @@ wikilink
       if ( lcontent === null ) {
           lcontent = { content: [] };
       }
-      //console.warn('lcontent: ' + JSON.stringify( lcontent, null, 2 ) );
 
       if ( target === null ) {
         var src = text();
@@ -859,7 +843,7 @@ wikilink
           hrefKV = new KV('href', target);
       hrefKV.vsrc = input.substring(peg$reportedPos + 2, tpos);
       // XXX: Point to object with path, revision and input information
-      //obj.source = input;
+      // obj.source = input;
       obj.attribs.push(hrefKV);
       obj.attribs = obj.attribs.concat( lcontent.content );
       obj.dataAttribs = {
@@ -880,7 +864,6 @@ link_text_fragment
           r:( inline_element / '[' text_char+ ']' / . ) { return r; }
          )
     )+ {
-      // console.warn('inline out:' + JSON.stringify(tu.flatten_stringlist(c)));
       return tu.flatten_stringlist( c );
   }
 
@@ -891,7 +874,6 @@ link_text
     // '=' here.
     hs:( '=' link_text_fragment )?
     {
-        //console.warn('link_text' + pp(h) + pp(hs));
         stops.dec('linkdesc');
         if ( hs !== null ) {
             return h.concat(hs);
@@ -908,7 +890,6 @@ link_option
     // '=' here.
     hs:( '=' inline)?
     {
-        //console.warn('link_option' + pp(h) + pp(hs));
         stops.pop('pipe');
         stops.dec('linkdesc');
         if ( hs !== null ) {
@@ -998,7 +979,6 @@ pre_indent_in_tags
 
 // Don't recognize tabs
 pre_indent_line = " " l:nested_block_line {
-    //console.warn( JSON.stringify( [s, l] ) );
     return [' '].concat(l);
 }
 
@@ -1202,7 +1182,6 @@ nowiki
     nc:nowiki_content
     endTagStartPos:({return peg$currPos;})
     "</" nowiki_tag_name space* ">" {
-        // console.warn( 'full nowiki return: ' + pp(nc));
         return [
             new TagTk( 'span',
                     [
@@ -1220,7 +1199,6 @@ nowiki
   // nowiki fallback: source-based round-tripping of <nowiki />.
   / nw0:({return peg$currPos;})
     "<" nowiki_tag_name space* "/" space* ">" {
-      // console.warn('<nowiki/>');
       return [
           new SelfclosingTagTk('meta',
                   [new KV('typeof', 'mw:Placeholder')],
@@ -1235,7 +1213,6 @@ nowiki
   / ! { return stops.counters.pre > 0; }
     nw0:({return peg$currPos;})
     "<" "/"? nowiki_tag_name space* "/"? space* ">" {
-      // console.warn('nowiki text');
       var nowiki = input.substring(nw0, peg$currPos);
       return [
             new TagTk( 'span', [ new KV( 'typeof', 'mw:Placeholder' ) ], {
@@ -1252,23 +1229,19 @@ nowiki
 // Should allow the </pre> in nowiki:
 //   <nowiki></pre></nowiki>
 pre_break = & "</pre>" {
-    //console.log( stops.counters );
     return stops.counters.pre > 0 ? undefined : peg$FAILED;
 }
 
 nowiki_content
   = ts:(   (htmlentity / [^&<]+)+
            / "<pre" p0:optionalSpaceToken p1:[^>]* ">" p2:nowiki_content "</pre>" {
-                 //console.warn('nested pre in nowiki');
                  return ["<pre"].concat(p0, p1, [">"], p2, ["</pre>"]).join('');
                }
            / (!pre_break !("</" nowiki_tag_name space* ">") c:(htmlentity / .) {
-               //console.warn('nowiki: single char' + c);
                return c;
            })
        )* {
             // return nowiki tags as well?
-            //console.warn('nowiki_content: return' + pp(ts));
             return tu.flatten_stringlist(ts);
           }
 
@@ -1340,7 +1313,6 @@ generic_newline_attribute
     valueData:( space_or_newline*
         v:generic_attribute_newline_value { return v; })?
 {
-    //console.warn('generic_newline_attribute: ' + pp( name ))
     var res;
 
     // Encapsulate protected attributes.
@@ -1372,7 +1344,6 @@ generic_attribute
     valueData:(optionalSpaceToken
         v:generic_attribute_value { return v; })?
 {
-    //console.warn( 'generic attribute: ' + pp([name, value]));
     // FIXME: name might just be a template, which can expand to a key-value
     // pair later. We'll need to handle that in the AttributeTransformManager.
     var res;
@@ -1620,8 +1591,7 @@ list_char = [*#:;]
  ******************************************************************************/
 
 full_table_in_link_caption
-  = // & { console.warn('enter full_table_in_link_caption: ' + input.substr(peg$currPos, 20)); return true; }
-    (! inline_breaks / & '{{!}}' )
+  = (! inline_breaks / & '{{!}}' )
     r:(
         & { return stops.push('table', true); }
         tbl:(
@@ -1636,15 +1606,13 @@ full_table_in_link_caption
     ) { return r; }
 
 table_lines
-  = // & { console.warn('enter table_lines: ' + input.substr(peg$currPos, 20)); return true; }
-    (! inline_breaks / & '{{!}}' )
+  = (! inline_breaks / & '{{!}}' )
     r:(
         & { return stops.push('table', true); }
         tl:table_line
         nls:optionalNewlines
         {
             stops.pop('table');
-            // console.warn('table_lines: ' + JSON.stringify(tl.concat(nls)));
             return tl.concat(nls);
         }
       / & { return stops.pop('table'); }
@@ -1700,8 +1668,7 @@ table_caption_tag
     }
 
 table_row_tag
-  = // & { console.warn("table row enter @" + input.substr(peg$currPos, 30)); return true; }
-    // avoid recursion via nested_block_in_table
+  = // avoid recursion via nested_block_in_table
     ! { return stops.onStack('tableDataBlock'); }
     p:pipe dashes:"-"+
     & { return stops.push('table', false); }
@@ -1781,10 +1748,8 @@ implicit_table_data_tag
     }
 
 table_data_tag
-  = // & { console.warn("table_data_tag enter @" + input.substr(peg$currPos, 30)); return true; }
-    ! "}"
+  = ! "}"
     arg:row_syntax_table_args?
-    //& { console.warn("past attrib, pos=" + peg$currPos + input.substr(peg$currPos,10)); return true; }
     // use inline_breaks to break on tr etc
     tagEndPos:({return peg$currPos;})
     td:nested_block_in_table*
@@ -1793,8 +1758,7 @@ table_data_tag
     }
 
 table_heading_tags
-  = //& { console.warn( 'th enter @' + input.substr(peg$currPos, 10)); return true; }
-    "!"
+  = "!"
     th:table_heading_tag
     ths:( pp:("!!" / pipe_pipe) tht:table_heading_tag {
             var da = tht[0].dataAttribs;
@@ -1808,7 +1772,6 @@ table_heading_tags
             return tht;
           }
     )* {
-        //console.warn( 'thts: ' + pp([th, ths]));
         th[0].dataAttribs.tsr[0]--; // include "!"
         return th.concat(ths);
     }
@@ -1819,7 +1782,6 @@ table_heading_tag
     tagEndPos:({return peg$currPos;})
     c:nested_block_in_table* {
         stops.pop('th');
-        //console.warn( 'table_heading_tag: ' + pp( [a, c] ) );
         return tu.buildTableTokens("th", "!", arg, [peg$reportedPos, tagEndPos], peg$currPos, c);
     }
     / & { return stops.pop('th'); }
@@ -1843,7 +1805,6 @@ single_cell_table_args
   = & { return stops.push('pipe', true); }
     as:generic_attributes s:space* p:pipe {
         stops.pop('pipe');
-        //console.warn( 'tcargs' + JSON.stringify( as ) + " stops: " + pp(stops) );
         return [as, s, p];
     }
     / & { return stops.pop('pipe'); }
@@ -1857,7 +1818,6 @@ row_syntax_table_args
     & could_be_attribute
     as:generic_attributes s:space* p:pipe !pipe {
         stops.dec('tableCellArg');
-        //console.warn( 'tcargs' + JSON.stringify( as ) + " stops: " + pp(stops) );
         return [as, s, p];
     }
     / & { return stops.dec('tableCellArg'); }
@@ -1948,7 +1908,6 @@ urltext = ( t:[^-'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:;\]} &=]+ { return t.join('')
 //text = t:[A-Za-z0-9,._ "?!\t-]+ { return t.join('') }
 
 htmlentity = "&" c:[#0-9a-zA-Z]+ ";" {
-    //return "&" + c.join('') + ";";
     var m = "&" + c.join('') + ";",
         cc = Util.decodeEntities(m);
     // if this is an invalid entity, don't tag it with 'mw:Entity'
@@ -2165,7 +2124,6 @@ attribute_preprocessor_text
     ) { return r; }
   )+
   {
-      //console.warn('prep');
       return tu.flatten_string( r );
   }
 
@@ -2196,7 +2154,6 @@ attribute_preprocessor_text_double
     / [{}&<\-] ) { return r; }
   )*
   {
-      //console.warn( 'double:' + pp(r) );
       return tu.flatten_string( r );
   }
 
@@ -2207,7 +2164,6 @@ attribute_preprocessor_text_double_broken
     / [{}&<\-] ) { return r; }
   )*
   {
-      //console.warn( 'double:' + pp(r) );
       return tu.flatten_string( r );
   }
 
@@ -2222,13 +2178,11 @@ attribute_preprocessor_text_line
               // <hiddentext>generated with.. </hiddentext>
               / &generic_tag nb:nested_block_line { return nb; }
               / !(space_or_newline / [\[=>]) c:. {
-                    //console.warn( 'aptl: ' + pp(c) );
                     return c;
                 }
             ) { return t; }
       )+
   {
-      //console.warn('prep');
       return tu.flatten_string( r );
   }
 

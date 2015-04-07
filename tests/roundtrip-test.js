@@ -310,7 +310,7 @@ var checkIfSignificant = function(env, offsets, oldWt, oldBody, oldDp, newWt, cb
 		str = str.replace(/ +/g, " ");
 		// Eliminate spaces around wikitext chars
 		// gwicke: disabled for now- too aggressive IMO
-		//str = str.replace(/([<"'!#\*:;+-=|{}\[\]\/]) /g, "$1");
+		// str = str.replace(/([<"'!#\*:;+-=|{}\[\]\/]) /g, "$1");
 		// Ignore capitalization of tags and void tag indications
 		str = str.replace(/<(\/?)([^ >\/]+)((?:[^>\/]|\/(?!>))*)\/?>/g, function(match, close, name, remaining) {
 			return '<' + close + name.toLowerCase() + remaining.replace(/ $/, '') + '>';
@@ -420,7 +420,7 @@ var checkIfSignificant = function(env, offsets, oldWt, oldBody, oldDp, newWt, cb
 		// compute wt diffs
 		var wt1 = oldWt.substring(offset[0].start, offset[0].end);
 		var wt2 = newWt.substring(offset[1].start, offset[1].end);
-		//thisResult.wtDiff = Util.contextDiff(wt1, wt2, false, true, true);
+		// thisResult.wtDiff = Util.contextDiff(wt1, wt2, false, true, true);
 
 		diff = Diff.htmlDiff(origHTML, newHTML, false, true, true);
 
@@ -434,7 +434,7 @@ var checkIfSignificant = function(env, offsets, oldWt, oldBody, oldDp, newWt, cb
 				normWT2 = normalizeWikitext(wt2);
 
 			if (normWT1 !== normWT2) {
-				//console.log( 'normDiff: =======\n' + normWT1 + '\n--------\n' + normWT2);
+				// console.log( 'normDiff: =======\n' + normWT1 + '\n--------\n' + normWT2);
 				thisResult.htmlDiff = diff;
 				thisResult.type = 'fail';
 				// Provide context for semantic diffs
@@ -743,8 +743,9 @@ if ( !module.parent ) {
 
 	if ( title ) {
 		callback = cbCombinator.bind( null,
-		                              Util.booleanOption( argv.xml ) ?
-		                              xmlCallback : plainCallback, consoleOut );
+			Util.booleanOption( argv.xml ) ?
+				xmlCallback : plainCallback, consoleOut
+		);
 		if ( !argv.parsoidURL ) {
 			// Start our own Parsoid server
 			// TODO: This will not be necessary once we have a top-level testing

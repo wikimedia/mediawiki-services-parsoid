@@ -10,8 +10,8 @@ var crypto = require('crypto');
 // configuration to match PHP parserTests
 var IMAGE_BASE_URL = 'http://example.com/images';
 var IMAGE_DESC_URL = IMAGE_BASE_URL;
-//IMAGE_BASE_URL='http://upload.wikimedia.org/wikipedia/commons';
-//IMAGE_DESC_URL='http://commons.wikimedia.org/wiki';
+// IMAGE_BASE_URL='http://upload.wikimedia.org/wikipedia/commons';
+// IMAGE_DESC_URL='http://commons.wikimedia.org/wiki';
 var FILE_PROPS = {
 	'Foobar.jpg': {
 		size: 7881, width: 1941, height: 220, bits: 8, mime: 'image/jpeg'

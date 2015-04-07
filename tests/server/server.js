@@ -379,23 +379,25 @@ var dbSkipsDistribution =
 // Limit to 100 recent commits
 var dbCommits =
 	'SELECT hash, timestamp ' +
-	//// get the number of fixes column
-	//	'(SELECT count(*) ' +
-	//	'FROM pages ' +
-	//		'JOIN stats AS s1 ON s1.page_id = pages.id ' +
-	//		'JOIN stats AS s2 ON s2.page_id = pages.id ' +
-	//	'WHERE s1.commit_hash = (SELECT hash FROM commits c2 where c2.timestamp < c1.timestamp ORDER BY timestamp DESC LIMIT 1 ) ' +
-	//		'AND s2.commit_hash = c1.hash AND s1.score < s2.score) as numfixes, ' +
-	//// get the number of regressions column
-	//	'(SELECT count(*) ' +
-	//	'FROM pages ' +
-	//		'JOIN stats AS s1 ON s1.page_id = pages.id ' +
-	//		'JOIN stats AS s2 ON s2.page_id = pages.id ' +
-	//	'WHERE s1.commit_hash = (SELECT hash FROM commits c2 where c2.timestamp < c1.timestamp ORDER BY timestamp DESC LIMIT 1 ) ' +
-	//		'AND s2.commit_hash = c1.hash AND s1.score > s2.score) as numregressions, ' +
-	//
-	//// get the number of tests for this commit column
-	//	'(select count(*) from stats where stats.commit_hash = c1.hash) as numtests ' +
+	/*
+	// get the number of fixes column
+		'(SELECT count(*) ' +
+		'FROM pages ' +
+			'JOIN stats AS s1 ON s1.page_id = pages.id ' +
+			'JOIN stats AS s2 ON s2.page_id = pages.id ' +
+		'WHERE s1.commit_hash = (SELECT hash FROM commits c2 where c2.timestamp < c1.timestamp ORDER BY timestamp DESC LIMIT 1 ) ' +
+			'AND s2.commit_hash = c1.hash AND s1.score < s2.score) as numfixes, ' +
+	// get the number of regressions column
+		'(SELECT count(*) ' +
+		'FROM pages ' +
+			'JOIN stats AS s1 ON s1.page_id = pages.id ' +
+			'JOIN stats AS s2 ON s2.page_id = pages.id ' +
+		'WHERE s1.commit_hash = (SELECT hash FROM commits c2 where c2.timestamp < c1.timestamp ORDER BY timestamp DESC LIMIT 1 ) ' +
+			'AND s2.commit_hash = c1.hash AND s1.score > s2.score) as numregressions, ' +
+
+	// get the number of tests for this commit column
+		'(select count(*) from stats where stats.commit_hash = c1.hash) as numtests ' +
+	*/
 	'FROM commits c1 ' +
 	'ORDER BY timestamp DESC LIMIT 100';
 
@@ -656,8 +658,8 @@ var receiveResults = function( req, res ) {
 	var trans = db.startTransaction();
 	// console.warn("got: " + JSON.stringify([title, commitHash, result, skipCount, failCount, errorCount]));
 	if ( errorCount > 0 && dneError ) {
-		// Page fetch error, increment the fetch error count so, when it goes over
-		/// maxFetchRetries, it won't be considered for tests again.
+		// Page fetch error, increment the fetch error count so, when it goes
+		// over maxFetchRetries, it won't be considered for tests again.
 		console.log( 'XX', prefix + ':' + title );
 		trans.query( dbIncrementFetchErrorCount, [commitHash, title, prefix],
 			transUpdateCB.bind( null, title, prefix, commitHash, "page fetch error count", res, trans, null ) )

@@ -144,8 +144,8 @@ async.series(q, function(err, allresults) {
 	console.log(' git review');
 
 	// XXX to rebase semi-automatically, we might do something like:
-	//mwexec('git rebase origin/master'.split(' '))(function(err, code) {
-	//});
+	//  mwexec('git rebase origin/master'.split(' '))(function(err, code) {
+	//  });
 	// XXX but it seems rather confusing to do it this way, since the
 	// current working directory when we finish is still parsoid.
 

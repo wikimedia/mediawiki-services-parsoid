@@ -392,7 +392,7 @@ ParserTests.prototype.parseTestCase = function( content ) {
  */
 ParserTests.prototype.processArticle = function( item, cb ) {
 	var norm = this.env.normalizeTitle(item.title);
-	//console.log( 'processArticle ' + norm );
+	// console.log( 'processArticle ' + norm );
 	this.articles[norm] = item.text;
 	setImmediate( cb );
 };
@@ -1876,7 +1876,7 @@ ParserTests.prototype.processCase = function( i, options, err ) {
 		item.cachedBODY = null;
 		item.cachedNormalizedHTML = null;
 
-		//console.log( 'processCase ' + i + JSON.stringify( item )  );
+		// console.log( 'processCase ' + i + JSON.stringify( item )  );
 		if ( typeof item === 'object' ) {
 			switch (item.type) {
 				case 'article':
