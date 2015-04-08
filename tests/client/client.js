@@ -69,10 +69,18 @@ var getTitle = function( cb ) {
 	Util.retryingHTTPRequest(10, requestOptions, callback );
 };
 
-var runTest = function( cb, test) {
-	var results, callback = rtTest.cbCombinator.bind( null, rtTest.xmlFormat, function( err, results ) {
-		if ( err ) {
-			console.log( 'ERROR in ' + test.prefix + ':' + test.title + ':\n' + err + '\n' + err.stack);
+var runTest = function(cb, test) {
+	rtTest.fetch(test.title, {
+		setup: config.setup,
+		prefix: test.prefix,
+		rtTestMode: true,
+		parsoidURL: parsoidURL
+	}, rtTest.xmlFormat).nodify(function(err, results) {
+		var callback = null;
+		if (err) {
+			// Log it to console (for gabriel to watch scroll by)
+			console.error('Error in %s:%s: %s\n%s', test.prefix, test.title,
+				err, err.stack || '');
 			/*
 			 * If you're looking at the line below and thinking "Why in the
 			 * hell would they have done that, it causes unnecessary problems
@@ -83,29 +91,10 @@ var runTest = function( cb, test) {
 			 * In sum, easier to die than to worry about having to reset any
 			 * broken application state.
 			 */
-			cb( 'postResult', err, results, test, function() { process.exit( 1 ); } );
-		} else {
-			cb( 'postResult', err, results, test, null );
+			callback = function() { process.exit(1); };
 		}
-	} );
-
-	try {
-		rtTest.fetch( test.title, {
-			setup: config.setup,
-			prefix: test.prefix,
-			rtTestMode: true,
-			parsoidURL: parsoidURL
-		}, callback );
-	} catch ( err ) {
-		// Log it to console (for gabriel to watch scroll by)
-		console.error( "ERROR in " + test.prefix + ':' + test.title + ': ' + err + '\n' + err.stack);
-
-		results = rtTest.xmlFormat( {
-			page: { name: test.title },
-			wiki: { iwp: test.prefix }
-		}, err );
-		cb( 'postResult', err, results, test, function() { process.exit( 1 ); } );
-	}
+		cb('postResult', err, results, test, callback);
+	});
 };
 
 /**

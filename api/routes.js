@@ -99,20 +99,6 @@ var cpuTimeout = function( p, res ) {
 
 // Helpers
 
-var promiseTemplateReq = function( env, target, oldid ) {
-	return new Promise(function( resolve, reject ) {
-		var tpr = new TemplateRequest( env, target, oldid );
-		tpr.once('src', function( err, src_and_metadata ) {
-			if ( err ) {
-				reject( err );
-			} else {
-				env.setPageSrcInfo( src_and_metadata );
-				resolve();
-			}
-		});
-	});
-};
-
 var logTime = function( env, res, str ) {
 	env.log( "info", util.format(
 		"completed %s in %s ms", str, Date.now() - res.local("start")
@@ -508,7 +494,7 @@ var wt2html = function( req, res, wt ) {
 		env.setPageSrcInfo( wt );
 		p = Promise.resolve();
 	} else {
-		p = promiseTemplateReq( env, target, oldid );
+		p = TemplateRequest.setPageSrcInfo(env, target, oldid);
 	}
 
 	if ( typeof wt === 'string' ) {
@@ -662,7 +648,7 @@ routes.roundtripTesting = function( req, res ) {
 		oldid = req.query.oldid;
 	}
 
-	var p = promiseTemplateReq( env, target, oldid ).then(
+	var p = TemplateRequest.setPageSrcInfo(env, target, oldid).then(
 		parse.bind( null, env, req, res )
 	).then(
 		roundTripDiff.bind( null, env, req, res, false )
@@ -685,7 +671,7 @@ routes.roundtripTestingNL = function( req, res ) {
 		oldid = req.query.oldid;
 	}
 
-	var p = promiseTemplateReq( env, target, oldid ).then(
+	var p = TemplateRequest.setPageSrcInfo(env, target, oldid).then(
 		parse.bind( null, env, req, res )
 	).then(function( doc ) {
 		// strip newlines from the html
@@ -709,7 +695,7 @@ routes.roundtripSelser = function( req, res ) {
 		oldid = req.query.oldid;
 	}
 
-	var p = promiseTemplateReq( env, target, oldid ).then(
+	var p = TemplateRequest.setPageSrcInfo(env, target, oldid).then(
 		parse.bind( null, env, req, res )
 	).then(function( doc ) {
 		doc = DU.parseHTML( DU.serializeNode(doc) );
