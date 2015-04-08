@@ -482,7 +482,8 @@ var parsoidPost = function(env, uri, domain, title, text, dp, oldid,
 		if (err) {
 			cb( err, null );
 		} else if (res.statusCode !== 200) {
-			cb(res.body, null);
+			err = new Error('Got status code: ' + res.statusCode);
+			cb(err, null);
 		} else {
 			var resBody, resDP;
 			if (oldid) {
