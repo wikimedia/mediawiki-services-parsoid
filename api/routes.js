@@ -503,7 +503,7 @@ var wt2html = function( req, res, wt ) {
 	}
 
 	var p;
-	if ( wt && (!res.local('pageName') || !oldid) ) {
+	if ( typeof wt === 'string' && (!res.local('pageName') || !oldid) ) {
 		// don't fetch the page source
 		env.setPageSrcInfo( wt );
 		p = Promise.resolve();
@@ -511,7 +511,7 @@ var wt2html = function( req, res, wt ) {
 		p = promiseTemplateReq( env, target, oldid );
 	}
 
-	if ( wt ) {
+	if ( typeof wt === 'string' ) {
 		p = p.then( parseWt )
 			.timeout( REQ_TIMEOUT )
 			.then(sendRes);
@@ -833,7 +833,7 @@ routes.v2_post = function( req, res ) {
 		// Accept wikitext as a string or object{body,headers}
 		var wikitext = (v2.wikitext && typeof v2.wikitext !== "string") ?
 			v2.wikitext.body : v2.wikitext;
-		if ( !wikitext ) {
+		if ( typeof wikitext !== "string" ) {
 			if ( !res.local('pageName') ) {
 				return errOut( "No title or wikitext was provided.", 400 );
 			}
@@ -849,7 +849,8 @@ routes.v2_post = function( req, res ) {
 			return errOut( "No html was supplied.", 400 );
 		}
 		// Accept html as a string or object{body,headers}
-		var html = (typeof v2.html === "string") ? v2.html : v2.html.body;
+		var html = (typeof v2.html === "string") ?
+			v2.html : (v2.html.body || "");
 		html2wt( req, res, html );
 	}
 };
