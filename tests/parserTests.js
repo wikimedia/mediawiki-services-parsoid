@@ -421,7 +421,12 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, body, proc
 			: new WikitextSerializer({ env: this.env });
 
 	try {
-		this.env.page.dom = item.cachedBODY;
+		if (startsAtWikitext) {
+			// FIXME: All tests share an env.
+			// => we need to initialize this each time over here.
+			this.env.page.dom = item.cachedBODY;
+			this.env.page.editedDoc = item.cachedBODY.ownerDoc;
+		}
 		if ( mode === 'selser' ) {
 			// console.warn("--> selsering: " + body.outerHTML);
 			this.env.setPageSrcInfo( item.wikitext );
