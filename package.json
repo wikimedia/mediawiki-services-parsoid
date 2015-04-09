@@ -15,7 +15,6 @@
 		"gelf-stream": "~0.2.4",
 		"handlebars": "~1.3.0",
 		"html5": "~1.0.5",
-		"html5-entities": "~1.0.0",
 		"node-txstatsd": "~0.1.5",
 		"node-uuid": "~1.4.1",
 		"pegjs": "git+https://github.com/arlolra/pegjs#startOffset",
