@@ -20,7 +20,6 @@
 	"maximumLineLength": null,
 	"requireCamelCaseOrUpperCaseIdentifiers": null,
 	"requireCapitalizedComments": null,
-	"requireCapitalizedConstructors": null,
 	"requireTrailingComma": null,
 	"validateIndentation": null,
 	"validateQuoteMarks": null,
