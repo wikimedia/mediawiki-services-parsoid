@@ -10,16 +10,16 @@ var express = require( 'express' ),
 
 // Default options
 var defaults = {
-	'host': 'localhost',
-	'port': 3306,
-	'database': 'parsoid',
-	'user': 'parsoid',
-	'password': 'parsoidpw',
-	'debug': false,
-	'fetches': 6,
-	'tries': 6,
-	'cutofftime': 600,
-	'batch': 50,
+	'host':           'localhost',
+	'port':           3306,
+	'database':       'parsoid',
+	'user':           'parsoid',
+	'password':       'parsoidpw',
+	'debug':          false,
+	'fetches':        6,
+	'tries':          6,
+	'cutofftime':     600,
+	'batch':          50,
 	generateTitleUrl: function(server, prefix, title) {
 		return server.replace(/\/$/, '') + "/_rt/" + prefix + "/" + title;
 	},
@@ -138,15 +138,15 @@ var // The maximum number of tries per article
 
 var mysql = require( 'mysql' );
 var db = mysql.createConnection({
-	host     : getOption( 'host' ),
-	port     : getOption( 'port' ),
-	database : getOption( 'database' ),
-	user     : getOption( 'user' ),
-	password : getOption( 'password'),
-	multipleStatements : true,
-	charset  : 'UTF8_BIN',
-	debug    : debug
-} );
+	host:               getOption('host'),
+	port:               getOption('port'),
+	database:           getOption('database'),
+	user:               getOption('user'),
+	password:           getOption('password'),
+	multipleStatements: true,
+	charset:            'UTF8_BIN',
+	debug:              debug
+});
 
 var queues = require( 'mysql-queues' );
 queues( db, debug );

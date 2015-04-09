@@ -466,8 +466,8 @@ autoref
     identifier = identifier.join('');
 
     var base_urls = {
-            'RFC'  : '//tools.ietf.org/html/rfc%s',
-            'PMID' : '//www.ncbi.nlm.nih.gov/pubmed/%s?dopt=Abstract'
+            'RFC': '//tools.ietf.org/html/rfc%s',
+            'PMID': '//www.ncbi.nlm.nih.gov/pubmed/%s?dopt=Abstract'
         },
         url = tu.sprintf(base_urls[ref], identifier);
 

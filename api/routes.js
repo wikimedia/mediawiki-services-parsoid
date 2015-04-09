@@ -604,14 +604,14 @@ routes.version = function( req, res ) {
 routes.redirectOldStyle = function( req, res ) {
 	if ( req.params[0] ) {
 		apiUtils.relativeRedirect({
-			"path" : '/' + req.params[0] + req.params[1] + '/' + req.params[2],
-			"res" : res,
-			"code" : 301
+			"path": '/' + req.params[0] + req.params[1] + '/' + req.params[2],
+			"res": res,
+			"code": 301
 		});
 	} else {
 		apiUtils.relativeRedirect({
-			"path" : '/' + req.params[1] + '/' + req.params[2],
-			"res" : res,
+			"path": '/' + req.params[1] + '/' + req.params[2],
+			"res": res,
 			"code": 301
 		});
 	}

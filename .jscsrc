@@ -1,15 +1,7 @@
 {
 	"preset": "node-style-guide",
 
-	"disallowMixedSpacesAndTabs": null,
-	"disallowMultipleVarDecl": null,
-	"disallowQuotedKeysInObjects": null,
-	"disallowSpaceAfterObjectKeys": null,
-	"disallowSpacesInsideParentheses": null,
-	"maximumLineLength": null,
-	"requireCamelCaseOrUpperCaseIdentifiers": null,
-	"requireCapitalizedComments": null,
-	"requireCapitalizedConstructors": null,
+	// Preserve these exceptions, they codify what we're already doing.
 	"requireCurlyBraces": [
 		"if",
 		"else",
@@ -19,6 +11,16 @@
 		"try",
 		"catch"
 	],
+
+	// We'd like to eliminate these at some point, to conform with the preset.
+	"disallowMixedSpacesAndTabs": null,
+	"disallowMultipleVarDecl": null,
+	"disallowQuotedKeysInObjects": null,
+	"disallowSpacesInsideParentheses": null,
+	"maximumLineLength": null,
+	"requireCamelCaseOrUpperCaseIdentifiers": null,
+	"requireCapitalizedComments": null,
+	"requireCapitalizedConstructors": null,
 	"requireTrailingComma": null,
 	"validateIndentation": null,
 	"validateQuoteMarks": null,

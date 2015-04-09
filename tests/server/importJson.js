@@ -10,10 +10,10 @@ var yargs = require( 'yargs' );
 
 // Default options
 var defaults = {
-	'host': 'localhost',
-	'port': 3306,
+	'host':     'localhost',
+	'port':     3306,
 	'database': 'parsoid',
-	'user': 'parsoid',
+	'user':     'parsoid',
 	'password': 'parsoidpw'
 };
 
@@ -80,13 +80,13 @@ var getOption = function( opt ) {
 
 var mysql = require( 'mysql' );
 var db = mysql.createConnection({
-	host     : getOption( 'host' ),
-	port     : getOption( 'port' ),
-	database : getOption( 'database' ),
-	user     : getOption( 'user' ),
-	password : getOption( 'password' ),
-	charset  : 'UTF8_BIN',
-	multipleStatements : true
+	host:               getOption('host'),
+	port:               getOption('port'),
+	database:           getOption('database'),
+	user:               getOption('user'),
+	password:           getOption('password'),
+	charset:            'UTF8_BIN',
+	multipleStatements: true
 });
 
 var waitingCount = 0.5;
