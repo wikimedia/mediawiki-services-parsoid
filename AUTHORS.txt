@@ -1,5 +1,5 @@
 Full list of authors, by number of lines in revision
-0f8c6223801408375e8b9de3d9f0fb565a78e9f4 Sep 25 2013:
+284957fab45bf62208f1d4283439bfa6ad9edbf1 Apr 14 2015:
 
 [ Authors from older revisions may not show up in
   newer revisions -- so continue to add names to
@@ -8,26 +8,38 @@ Full list of authors, by number of lines in revision
 Gabriel Wicke <gwicke@wikimedia.org>
 Subramanya Sastry <ssastry@wikimedia.org>
 Mark Holmquist <mtraceur@member.fsf.org>
-C. Scott Ananian <cscott@cscott.net>
-Robert Smith <rsmith@wikimedia.org>
-Adam Wight <awight@wikimedia.org>
-Marc Ordinas i Llopis <marcoil@wikimedia.org>
 Arlo Breault <abreault@wikimedia.org>
-Catrope <roan@wikimedia.org>
-Brion Vibber <brion@wikimedia.org>
-plancalculus <jan@monoid-it.de>
-Jeff Evans <wayne.mokane+github@gmail.com>
-Siebrand Mazeland <s.mazeland@xs4all.nl>
-Aaron Schulz <aschulz@wikimedia.org>
-Antoine Musso <hashar@free.fr>
+C. Scott Ananian <cscott@cscott.net>
+Marc Ordinas i Llopis <marcoil@wikimedia.org>
+Be <bebirchall@gmail.com>
+Maria Pacana <maria.pacana@gmail.com>
+Robert Smith <rsmith@wikimedia.org>
 Luke Welling <lwelling@wikimedia.org>
-Neil Kandalgaonkar <neilk@wikimedia.org>
+ecotg <ecokpo@gmail.com>
+Hardik Juneja <hardikjuneja.hj@gmail.com>
+Adam Wight <awight@wikimedia.org>
+Ricordisamoa <ricordisamoa@openmailbox.org>
+Brion Vibber <brion@wikimedia.org>
 Antoine Musso <hashar@wikimedia.org>
-Trevor Parscal <trevor@wikimedia.org>
-Timo Tijhof <ttijhof@wikimedia.org>
+Siebrand Mazeland <s.mazeland@xs4all.nl>
 Inez Korczyński <inez@wikia-inc.com>
-Molly White <molly.white5@gmail.com>
+Neil Kandalgaonkar <neilk@wikimedia.org>
+Jeff Evans <wayne.mokane+github@gmail.com>
+Brandon Istenes <brandonesbox@gmail.com>
+plancalculus <jan@monoid-it.de>
+vichak <vichak@hakoun.fr>
+Sebastian Wong <wngsebastian@gmail.com>
 Audrey Tang (au) <audreyt@audreyt.org>
+Faidon Liambotis <faidon@wikimedia.org>
+Molly White <molly.white5@gmail.com>
+Kunal Mehta <legoktm@gmail.com>
+Trevor Parscal <trevor@wikimedia.org>
+Catrope <roan@wikimedia.org>
+Timo Tijhof <ttijhof@wikimedia.org>
+S Page <spage@wikimedia.org>
+MarkTraceur <mtraceur@member.fsf.org>
+Erik Bernhardson <ebernhardson@wikimedia.org>
+Aaron Schulz <aschulz@wikimedia.org>
 Reedy <reedy@wikimedia.org>
 MZMcBride <w@mzmcbride.com>
 Ori Livneh <ori.livneh@gmail.com>
