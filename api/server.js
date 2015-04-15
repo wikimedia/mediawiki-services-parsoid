@@ -99,6 +99,10 @@ ParsoidLogger.prototype.registerLoggingBackends.call(
 	logger, [ "fatal", "error", "warning", "info" ], parsoidConfig
 );
 
+process.on('uncaughtException', function(err) {
+	logger.log('fatal', 'uncaught exception', err);
+});
+
 if ( cluster.isMaster && argv.n > 0 ) {
 	// Master
 
