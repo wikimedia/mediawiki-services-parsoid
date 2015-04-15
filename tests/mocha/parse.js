@@ -55,9 +55,7 @@ describe( 'ParserPipelineFactory', function() {
 					DU.applyDataParsoid( doc, dp );
 				}
 				var serializer = new WikitextSerializer({ env: env });
-				return Promise.promisify(
-					serializer.serializeDOM, false, serializer
-				)( doc.body, false );
+				return serializer.serializeDOM(doc.body, false);
 			});
 		};
 

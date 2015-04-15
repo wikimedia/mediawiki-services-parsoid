@@ -131,9 +131,10 @@ function dpFromHead( doc ) {
 
 var startsAtWikitext;
 var startsAtHTML = function( argv, env, input, dp ) {
-	var serializer, doc = DU.parseHTML( input );
+	var doc = DU.parseHTML(input);
 	dp = dp || dpFromHead( doc );
 
+	var serializer;
 	if ( argv.selser ) {
 		dp = dp || dpFromHead( env.page.dom.ownerDocument );
 		if ( dp ) {
@@ -148,9 +149,7 @@ var startsAtHTML = function( argv, env, input, dp ) {
 		DU.applyDataParsoid( doc, dp );
 	}
 
-	return Promise.promisify( serializer.serializeDOM, false, serializer )(
-		doc.body, false
-	).then(function(out) {
+	return serializer.serializeDOM(doc.body, false).then(function(out) {
 		if ( argv.html2wt || argv.wt2wt ) {
 			return { trailingNL: true, out: out };
 		} else {

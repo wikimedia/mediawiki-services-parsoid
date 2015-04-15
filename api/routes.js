@@ -114,12 +114,9 @@ var roundTripDiff = function( env, req, res, selser, doc ) {
 	// Re-parse the HTML to uncover foster-parenting issues
 	doc = domino.createDocument( doc.outerHTML );
 
-	var Serializer = selser ? SelectiveSerializer : WikitextSerializer,
-		serializer = new Serializer({ env: env });
-
-	return Promise.promisify( serializer.serializeDOM, false, serializer )(
-		doc.body, false
-	).then(function( out ) {
+	var Serializer = selser ? SelectiveSerializer : WikitextSerializer;
+	var serializer = new Serializer({ env: env });
+	return serializer.serializeDOM(doc.body, false).then(function(out) {
 		// Strip selser trigger comment
 		out = out.replace(/<!--rtSelserEditTestComment-->\n*$/, '');
 
@@ -278,8 +275,6 @@ var html2wt = function( req, res, html ) {
 			startTimers.set( 'html2wt.init.domparse', Date.now() );
 		}
 
-		var doc = DU.parseHTML( html );
-
 		// send domparse time, input size and init time to statsd/Graphite
 		// init time is the time elapsed before serialization
 		// init.domParse, a component of init time, is the time elapsed from html string to DOM tree
@@ -291,21 +286,22 @@ var html2wt = function( req, res, html ) {
 				Date.now() - startTimers.get( 'html2wt.init' ));
 		}
 
-		var Serializer = parsoidConfig.useSelser ? SelectiveSerializer : WikitextSerializer,
-		serializer = new Serializer({ env: env, oldid: env.page.id });
+		var doc = DU.parseHTML(html);
 
 		if ( v2 && v2.original && v2.original["data-parsoid"] ) {
 			DU.applyDataParsoid( doc, v2.original["data-parsoid"].body );
 		}
+
 		if ( v2 && v2.original && v2.original.html ) {
 			env.page.dom = DU.parseHTML( v2.original.html.body ).body;
 			if ( v2.original["data-parsoid"] ) {
 				DU.applyDataParsoid( env.page.dom.ownerDocument, v2.original["data-parsoid"].body );
 			}
 		}
-		return Promise.promisify( serializer.serializeDOM, false, serializer )(
-			doc.body, false
-		);
+
+		var Serializer = parsoidConfig.useSelser ? SelectiveSerializer : WikitextSerializer;
+		var serializer = new Serializer({ env: env, oldid: env.page.id });
+		return serializer.serializeDOM(doc.body, false);
 	}).timeout( REQ_TIMEOUT ).then(function( output ) {
 		var contentType = 'text/plain;profile=mediawiki.org/specs/wikitext/1.0.0;charset=utf-8';
 		if ( v2 ) {
