@@ -166,6 +166,13 @@ Template:table_cells
 !! endarticle
 
 !! article
+Template:PartialTable
+!! text
+{|
+|-
+!! endarticle
+
+!! article
 Template:image_attribs
 !! text
 <noinclude>
@@ -10937,6 +10944,26 @@ Templates: Wiki Tables: 6. Templated tags, templated td-tags
 <td>foo
 </td></tr></table>
 
+!!end
+
+## This test case is very specific to Parsoid's internals
+## and is hence only tested for Parsoid's code. Parsoid uses
+## a <meta> marker tag for <ref> tags and they are expanded
+## much later. We are verifying that this <meta> tag usage
+## doesn't prevent foster parenting.
+!!test
+Templates: Wiki Tables: 7. Fosterable <ref>s should get fostered
+!!wikitext
+{{PartialTable}}<ref>foo</ref>
+|}
+
+<references />
+!!html/parsoid
+<span about="#mwt2" class="reference" id="cite_ref-1" rel="dc:references" typeof="mw:Transclusion  mw:Extension/ref" data-mw='{"parts":[{"template":{"target":{"wt":"PartialTable","href":"./Template:PartialTable"},"params":{},"i":0}},"&lt;ref>foo&lt;/ref>\n|}"]}'><a href="#cite_note-1">[1]</a></span><table about="#mwt2">
+<tbody>
+</tbody></table>
+
+<ol class="references" typeof="mw:Extension/references" about="#mwt4" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1">↑</a></span> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">foo</span></li></ol>
 !!end
 
 !!test
