@@ -560,6 +560,37 @@ describe('Parsoid API', function() {
 				.end(done);
 			});
 
+			it('should apply extra normalizations', function(done) {
+				request(api)
+				.post('v2/' + mockHost + '/wt/')
+				.send({
+					html: '<h2></h2>',
+					scrubWikitext: true,
+					original: { title: 'Doesnotexist' },
+				})
+				.expect(200)
+				.expect(function(res) {
+					res.body.should.have.property('wikitext');
+					res.body.wikitext.body.should.equal('');
+				})
+				.end(done);
+			});
+
+			it('should suppress extra normalizations', function(done) {
+				request(api)
+				.post('v2/' + mockHost + '/wt/')
+				.send({
+					html: '<h2></h2>',
+					original: { title: 'Doesnotexist' },
+				})
+				.expect(200)
+				.expect(function(res) {
+					res.body.should.have.property('wikitext');
+					res.body.wikitext.body.should.equal('==<nowiki/>==\n');
+				})
+				.end(done);
+			});
+
 		}); // end html2wt
 
 	});

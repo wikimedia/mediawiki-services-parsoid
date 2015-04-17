@@ -21058,8 +21058,6 @@ parsoid=html2wt
 
 !! test
 Headings: 5. Empty headings
-!! options
-parsoid
 !! wikitext
 =<nowiki/>=
 
@@ -21072,13 +21070,18 @@ parsoid
 =====<nowiki/>=====
 
 ======<nowiki/>======
-!! html
-<h1></h1>
-<h2></h2>
-<h3></h3>
-<h4></h4>
-<h5></h5>
-<h6></h6>
+!! html/parsoid
+<h1 data-parsoid='{}'><meta typeof="mw:Placeholder" data-parsoid='{"src":"&lt;nowiki/>"}'/></h1>
+
+<h2 data-parsoid='{}'><meta typeof="mw:Placeholder" data-parsoid='{"src":"&lt;nowiki/>"}'/></h2>
+
+<h3 data-parsoid='{}'><meta typeof="mw:Placeholder" data-parsoid='{"src":"&lt;nowiki/>"}'/></h3>
+
+<h4 data-parsoid='{}'><meta typeof="mw:Placeholder" data-parsoid='{"src":"&lt;nowiki/>"}'/></h4>
+
+<h5 data-parsoid='{}'><meta typeof="mw:Placeholder" data-parsoid='{"src":"&lt;nowiki/>"}'/></h5>
+
+<h6 data-parsoid='{}'><meta typeof="mw:Placeholder" data-parsoid='{"src":"&lt;nowiki/>"}'/></h6>
 !!end
 
 !! test
@@ -24069,6 +24072,28 @@ parsoid=html2wt
 <!-- Even after hoisted content -->
  [[Category:A2]]
 == ok ==
+!! end
+
+!! test
+1. Headings: suppress empty headings
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html
+<h2></h2>
+!! wikitext
+!! end
+
+!! test
+2. Headings: don't suppress empty headings
+!! options
+parsoid=html2wt
+!! html
+<h2></h2>
+!! wikitext
+==<nowiki/>==
 !! end
 
 # ---------------------------------------------------
