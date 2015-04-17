@@ -5,12 +5,12 @@ var RH = RenderHelpers;
 
 RenderHelpers.pageTitleData = function(urlPrefix, row) {
 	var settings = RH.settings;
-	var wiki = encodeURIComponent( row.prefix ),
-		title = encodeURIComponent( row.title );
+	var wiki = encodeURIComponent(row.prefix);
+	var title = encodeURIComponent(row.title);
 
 	var data = {
 		title: row.prefix + ':' + row.title,
-		latest: urlPrefix + 'latestresult/' + wiki + '/' + title
+		latest: urlPrefix + 'latestresult/' + wiki + '/' + title,
 	};
 
 	if (settings.resultServer) {

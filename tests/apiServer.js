@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 require('../lib/core-upgrade.js');
 
 /**
@@ -6,14 +6,14 @@ require('../lib/core-upgrade.js');
  * Uses port randomization to make sure we can use multiple servers concurrently.
  */
 
-var child_process = require( 'child_process' ),
-	Util = require('../lib/mediawiki.Util.js').Util,
-	JSUtils = require('../lib/jsutils.js').JSUtils,
-	path = require( 'path' );
+var child_process = require('child_process');
+var Util = require('../lib/mediawiki.Util.js').Util;
+var JSUtils = require('../lib/jsutils.js').JSUtils;
+var path = require('path');
 
 // Keep all started servers in a map indexed by the url
-var forkedServers = new Map(),
-	exiting = false;
+var forkedServers = new Map();
+var exiting = false;
 
 var stopServer = function(url) {
 	var forkedServer = forkedServers.get(url);
@@ -55,23 +55,23 @@ var exitOnProcessTerm = function(res) {
  * Starts a server on passed port or a random port if none passed.
  * The callback will get the URL of the started server.
  */
-var startServer = function( opts, retrying, cb ) {
+var startServer = function(opts, retrying, cb) {
 	// Don't create callback chains when invoked recursively
-	if ( !cb || !cb.promise ) { cb = JSUtils.mkPromised( cb ); }
+	if (!cb || !cb.promise) { cb = JSUtils.mkPromised(cb); }
 
-	var url, forkedServer = {}, port;
 	if (!opts) {
 		throw "Please provide server options.";
 	}
-	forkedServer.opts = opts;
-	port = opts.port;
+
+	var forkedServer = { opts: opts };
+	var port = opts.port;
 
 	// For now, we always assume that retries are due to port conflicts
 	if (!port) {
 		port = opts.portBase + Math.floor( Math.random() * 100 );
 	}
 
-	url = 'http://' + opts.iface + ':' + port.toString() + opts.urlPath;
+	var url = 'http://' + opts.iface + ':' + port.toString() + opts.urlPath;
 	if (opts.port && forkedServers.has(url)) {
 		// We already have a server there!
 		return cb( "There's already a server running at that port." );

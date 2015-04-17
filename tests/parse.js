@@ -3,19 +3,19 @@
  * Command line parse utility.
  * Read from STDIN, write to STDOUT.
  */
-"use strict";
-require( '../lib/core-upgrade.js' );
+'use strict';
+require('../lib/core-upgrade.js');
 
-var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnvironment,
-	ParsoidConfig = require( '../lib/mediawiki.ParsoidConfig.js' ).ParsoidConfig,
-	WikitextSerializer = require('../lib/mediawiki.WikitextSerializer.js').WikitextSerializer,
-	SelectiveSerializer = require( '../lib/mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
-	TemplateRequest = require('../lib/mediawiki.ApiRequest.js').TemplateRequest,
-	Util = require('../lib/mediawiki.Util.js').Util,
-	DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils,
-	yargs = require('yargs'),
-	fs = require('fs'),
-	path = require('path');
+var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnvironment;
+var ParsoidConfig = require( '../lib/mediawiki.ParsoidConfig.js' ).ParsoidConfig;
+var WikitextSerializer = require('../lib/mediawiki.WikitextSerializer.js').WikitextSerializer;
+var SelectiveSerializer = require('../lib/mediawiki.SelectiveSerializer.js').SelectiveSerializer;
+var TemplateRequest = require('../lib/mediawiki.ApiRequest.js').TemplateRequest;
+var Util = require('../lib/mediawiki.Util.js').Util;
+var DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils;
+var yargs = require('yargs');
+var fs = require('fs');
+var path = require('path');
 
 process.on('SIGUSR2', function() {
 	var heapdump = require('heapdump');
@@ -121,8 +121,9 @@ var standardOpts = Util.addStandardOptions({
 exports.defaultOptions = yargs.options(standardOpts).parse([]);
 
 function dpFromHead( doc ) {
-	var dp, dpScriptElt = doc.getElementById('mw-data-parsoid');
-	if ( dpScriptElt ) {
+	var dp;
+	var dpScriptElt = doc.getElementById('mw-data-parsoid');
+	if (dpScriptElt) {
 		dpScriptElt.parentNode.removeChild(dpScriptElt);
 		dp = JSON.parse(dpScriptElt.text);
 	}
@@ -233,19 +234,19 @@ var parse = exports.parse = function( input, argv, parsoidConfig, prefix ) {
 			return { env: env, input: fileContents };
 		}
 
-		return new Promise(function( resolve ) {
+		return new Promise(function(resolve) {
 			// collect input
-			var inputChunks = [],
-				stdin = process.stdin;
+			var inputChunks = [];
+			var stdin = process.stdin;
 			stdin.resume();
 			stdin.setEncoding('utf8');
-			stdin.on('data', function( chunk ) {
-				inputChunks.push( chunk );
+			stdin.on('data', function(chunk) {
+				inputChunks.push(chunk);
 			});
 			stdin.on('end', function() {
-				resolve( inputChunks );
+				resolve(inputChunks);
 			});
-		}).then(function( inputChunks ) {
+		}).then(function(inputChunks) {
 			// parse page if no input
 			if ( inputChunks.length > 0 ) {
 				return { env: env, input: inputChunks.join("") };
@@ -268,7 +269,8 @@ var parse = exports.parse = function( input, argv, parsoidConfig, prefix ) {
 		});
 
 	}).then(function( res ) {
-		var env = res.env, input = res.input;
+		var env = res.env;
+		var input = res.input;
 		if ( typeof input === "string" ) {
 			input = input.replace(/\r/g, '');
 		}

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-"use strict";
+'use strict';
 require('../../lib/core-upgrade.js');
 
 /**
  * A utility for reading in a JSON-y list of articles to the database.
  */
 
-var yargs = require( 'yargs' );
+var yargs = require('yargs');
 
 // Default options
 var defaults = {
@@ -14,7 +14,7 @@ var defaults = {
 	'port':     3306,
 	'database': 'parsoid',
 	'user':     'parsoid',
-	'password': 'parsoidpw'
+	'password': 'parsoidpw',
 };
 
 // Settings file
@@ -108,20 +108,20 @@ var insertRecord = function( record, prefix ) {
 	} );
 };
 
-var loadJSON = function( json, options ) {
-	var i, titles = require( json );
+var loadJSON = function(json, options) {
+	var titles = require(json);
 
-	db.query( 'START TRANSACTION;' );
+	db.query('START TRANSACTION;');
 
-	for ( i = 0; i < titles.length; i++ ) {
-		insertRecord( titles[i], options.prefix || 'en' );
+	for (var i = 0; i < titles.length; i++) {
+		insertRecord(titles[i], options.prefix || 'en');
 	}
 
-	db.query( 'COMMIT;' );
+	db.query('COMMIT;');
 
 	waitingCount -= 0.5;
-	if ( waitingCount <= 0 ) {
-		console.log( 'Done!' );
+	if (waitingCount <= 0) {
+		console.log('Done!');
 	}
 };
 

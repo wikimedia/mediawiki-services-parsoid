@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-"use strict";
-require( '../lib/core-upgrade.js' );
+'use strict';
+require('../lib/core-upgrade.js');
 
 /** Fetch the wikitext for a page, given title or revision id.
  *
@@ -8,14 +8,14 @@ require( '../lib/core-upgrade.js' );
  *  to tests/parse.js
  */
 
-var fs = require( 'fs' ),
-	yargs = require( 'yargs' ),
-	TemplateRequest = require( '../lib/mediawiki.ApiRequest.js' ).TemplateRequest,
-	ParsoidConfig = require( '../lib/mediawiki.ParsoidConfig' ).ParsoidConfig,
-	MWParserEnvironment = require( '../lib/mediawiki.parser.environment.js' ).MWParserEnvironment;
+var fs = require('fs');
+var yargs = require('yargs');
+var TemplateRequest = require('../lib/mediawiki.ApiRequest.js').TemplateRequest;
+var ParsoidConfig = require('../lib/mediawiki.ParsoidConfig').ParsoidConfig;
+var MWParserEnvironment = require('../lib/mediawiki.parser.environment.js').MWParserEnvironment;
 
 
-var fetch = function( page, revid, cb, options ) {
+var fetch = function(page, revid, cb, options) {
 	cb = typeof cb === 'function' ? cb : function() {};
 
 	var envCb = function( err, env ) {
@@ -92,7 +92,8 @@ var opts = yargs.usage( usage, {
 });
 
 var argv = opts.argv;
-var title = null, revid = null;
+var title = null;
+var revid = null;
 var error;
 if (argv.title && argv.revid) {
 	error = "Can't specify title and revid at the same time.";

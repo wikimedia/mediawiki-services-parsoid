@@ -1,36 +1,38 @@
 #!/usr/bin/env node
-"use strict";
-require( '../../lib/core-upgrade.js' );
+'use strict';
+require('../../lib/core-upgrade.js');
 
 /**
  * A client for testing round-tripping of articles.
  */
 
-var http = require( 'http' ),
-	request = require('request'),
-	cluster = require('cluster'),
-	qs = require( 'querystring' ),
-	exec = require( 'child_process' ).exec,
-	apiServer = require( '../apiServer.js' ),
-	Util = require('../../lib/mediawiki.Util.js').Util,
-	JSUtils = require('../../lib/jsutils.js').JSUtils,
+var http = require('http');
+var request = require('request');
+var cluster = require('cluster');
+var qs = require('querystring');
+var exec = require('child_process').exec;
+var apiServer = require('../apiServer.js');
+var Util = require('../../lib/mediawiki.Util.js').Util;
+var JSUtils = require('../../lib/jsutils.js').JSUtils;
 
-	commit, ctime,
-	lastCommit, lastCommitTime, lastCommitCheck,
-	repoPath = __dirname,
+var commit;
+var ctime;
+var lastCommit;
+var lastCommitTime;
+var lastCommitCheck;
+var repoPath = __dirname;
 
-	config = require( process.argv[2] || './config.js' ),
-	parsoidURL = config.parsoidURL,
-	rtTest = require( '../roundtrip-test.js' );
+var config = require(process.argv[2] || './config.js');
+var parsoidURL = config.parsoidURL;
+var rtTest = require('../roundtrip-test.js');
 
-
-var getTitle = function( cb ) {
+var getTitle = function(cb) {
 	var requestOptions = {
 		uri: 'http://' + config.server.host + ':' +
 			config.server.port + '/title?commit=' + commit + '&ctime=' + encodeURIComponent( ctime ),
-		method: 'GET'
-	},
-	retries = 10;
+		method: 'GET',
+	};
+	var retries = 10;
 
 	var callback = function( error, response, body ) {
 		if (error || !response) {

@@ -1,16 +1,16 @@
 #!/usr/bin/env node
-"use strict";
-require( '../../lib/core-upgrade.js' );
+'use strict';
+require('../../lib/core-upgrade.js');
 
-var cluster = require( 'cluster' ),
-	path = require( 'path' );
+var cluster = require('cluster');
+var path = require('path');
 
-var opts = require( 'yargs' )
-	.default( {
+var opts = require('yargs')
+	.default({
 		// By default, start one rtclient + api server per core.
-		c: require( 'os' ).cpus().length
-	} )
-	.alias( 'c', 'children' ).argv;
+		c: require('os').cpus().length,
+	})
+	.alias('c', 'children').argv;
 
 if ( !module.parent ) {
 	var numClients = opts.c;

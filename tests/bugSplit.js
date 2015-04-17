@@ -3,28 +3,29 @@
 /**
  * Split up a bug report JSON file into a bunch of files
  */
-"use strict";
+'use strict';
 
-var fs = require('fs'),
-	Util = require( '../lib/mediawiki.Util.js' ).Util;
+var fs = require('fs');
+var Util = require('../lib/mediawiki.Util.js').Util;
 
-function writeFiles( bugfileName, data ) {
-	var keys = Object.keys(data),
-		val, title, dirName;
+function writeFiles(bugfileName, data) {
+	var keys = Object.keys(data);
+	var val;
+	var title;
 
 	// SSS: the 'wiki' field adds the 'wiki' string at the end
 	// which is unnecessary.  The wiki prefix makes it clear where the
 	// page comes from and whether the dev. needs to use a translation tool
 	// for that bug report.
-	dirName = "./" + (data.wiki || 'none').replace(/wiki$/, '') + "." + bugfileName;
+	var dirName = "./" + (data.wiki || 'none').replace(/wiki$/, '') + "." + bugfileName;
 
 	// Create dir
 	fs.mkdirSync(dirName, "0755");
 
 	// Output files
 	for ( var i = 0; i < keys.length; i++ ) {
-		var key = keys[i],
-			fileName = encodeURIComponent(key);
+		var key = keys[i];
+		var fileName = encodeURIComponent(key);
 		console.log( 'Creating file ' + fileName );
 
 		val = data[key];
@@ -46,23 +47,23 @@ function writeFiles( bugfileName, data ) {
 }
 
 function main() {
-	if ( process.argv.length === 2 ) {
+	if (process.argv.length === 2) {
 		console.warn( 'Split up a bug report into several files in the current directory');
 		console.warn( 'Usage: ' + process.argv[0] + ' <bugreport.json>');
 		process.exit(1);
 	}
 
-	var filename = process.argv[2],
-		data;
-	console.log( 'Reading ' + filename );
+	var filename = process.argv[2];
+	console.log('Reading ' + filename);
+	var data;
 	try {
 		data = JSON.parse(fs.readFileSync(filename));
-	} catch ( e ) {
+	} catch (e) {
 		console.error( 'Something went wrong while trying to read or parse ' + filename );
 		console.error(e);
 		process.exit(1);
 	}
-	writeFiles( filename, data );
+	writeFiles(filename, data);
 }
 
 

@@ -4,8 +4,8 @@
  *
  * This pulls all the parserTests.txt items and runs them through Parsoid.
  */
-"use strict";
-require( '../lib/core-upgrade.js' );
+'use strict';
+require('../lib/core-upgrade.js');
 
 /**
  * @class ParserTestModule
@@ -13,28 +13,26 @@ require( '../lib/core-upgrade.js' );
  * @singleton
  */
 
-var apiServer = require( './apiServer.js' ),
-	async = require( 'async' ),
-	colors = require('colors'),
-	childProc = require('child_process'),
-	fork = childProc.fork,
-	fs = require('fs'),
-	path = require('path'),
-	yargs = require('yargs'),
-	Alea = require('alea'),
-	DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils,
-	ParsoidLogger = require('../lib/ParsoidLogger.js').ParsoidLogger,
-	PEG = require('pegjs'),
-	Util = require( '../lib/mediawiki.Util.js' ).Util,
-	Diff = require('../lib/mediawiki.Diff.js').Diff;
+var apiServer = require('./apiServer.js');
+var async = require('async');
+var colors = require('colors');
+var childProc = require('child_process');
+var fork = childProc.fork;
+var fs = require('fs');
+var path = require('path');
+var yargs = require('yargs');
+var Alea = require('alea');
+var DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils;
+var ParsoidLogger = require('../lib/ParsoidLogger.js').ParsoidLogger;
+var PEG = require('pegjs');
+var Util = require('../lib/mediawiki.Util.js').Util;
+var Diff = require('../lib/mediawiki.Diff.js').Diff;
 
 // Fetch up some of our wacky parser bits...
-
-var mp = '../lib/',
-	MWParserEnvironment = require(mp + 'mediawiki.parser.environment.js').MWParserEnvironment,
-	WikitextSerializer = require(mp + 'mediawiki.WikitextSerializer.js').WikitextSerializer,
-	SelectiveSerializer = require( mp + 'mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
-	ParsoidConfig = require( mp + 'mediawiki.ParsoidConfig' ).ParsoidConfig;
+var MWParserEnvironment = require('../lib/mediawiki.parser.environment.js').MWParserEnvironment;
+var WikitextSerializer = require('../lib/mediawiki.WikitextSerializer.js').WikitextSerializer;
+var SelectiveSerializer = require('../lib/mediawiki.SelectiveSerializer.js').SelectiveSerializer;
+var ParsoidConfig = require('../lib/mediawiki.ParsoidConfig').ParsoidConfig;
 
 var booleanOption = Util.booleanOption; // shortcut
 
@@ -121,8 +119,7 @@ var prettyPrintIOptions = function(iopts) {
 		if (typeof v !== 'string') {
 			return JSON.stringify(v);
 		}
-		if (/^\[\[[^\]]*\]\]$/.test(v) ||
-		    /^[-\w]+$/.test(v)) {
+		if (/^\[\[[^\]]*\]\]$/.test(v) || /^[-\w]+$/.test(v)) {
 			return v;
 		}
 		return JSON.stringify(v);
@@ -330,17 +327,20 @@ ParserTests.prototype.getTests = function( argv ) {
 		return fs.statSync( file ).mtime;
 	}).join('|');
 
-	var sha1 = require('crypto').createHash('sha1')
-		.update( mtimes ).digest( 'hex' ),
-		cache_file_name = __dirname + '/' + this.cache_file,
-		// Look for a cache_file
-		cache_content,
-		cache_file_digest;
+	var sha1 = require('crypto')
+		.createHash('sha1')
+		.update(mtimes)
+		.digest('hex');
+
+	var cache_file_name = __dirname + '/' + this.cache_file;
+	// Look for a cache_file
+	var cache_content;
+	var cache_file_digest;
 	try {
-		cache_content = fs.readFileSync( cache_file_name, 'utf8' );
+		cache_content = fs.readFileSync(cache_file_name, 'utf8');
 		// Fetch previous digest
-		cache_file_digest = cache_content.match( /^CACHE: (\w+)\n/ )[1];
-	} catch ( e4 ) {
+		cache_file_digest = cache_content.match(/^CACHE: (\w+)\n/)[1];
+	} catch (e4) {
 		// cache file does not exist
 	}
 
@@ -415,8 +415,8 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, body, proc
 	// Maybe pass this as an option, or clone the entire environment.
 	this.env.conf.parsoid.rtTestMode = options.rtTestMode;
 
-	var startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser',
-		serializer = (mode === 'selser')
+	var startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser';
+	var serializer = (mode === 'selser')
 			? new SelectiveSerializer({ env: this.env })
 			: new WikitextSerializer({ env: this.env });
 
@@ -504,10 +504,10 @@ ParserTests.prototype.applyChanges = function( item, body, changelist, cb ) {
 		// Insert a text node, if not in a fosterable position.
 		// If in foster position, enter a comment.
 		// In either case, dom-diff should register a new node
-		var str = randomString(),
-			ownerDoc = n.ownerDocument,
-			wrapperName,
-			newNode;
+		var str = randomString();
+		var ownerDoc = n.ownerDocument;
+		var wrapperName;
+		var newNode;
 
 		// For these container nodes, it would be buggy
 		// to insert text nodes as children
@@ -565,9 +565,9 @@ ParserTests.prototype.applyChanges = function( item, body, changelist, cb ) {
 		// Clone the array since it could be modified below
 		var nodes = Util.clone(node.childNodes);
 
-		for ( var i = 0; i < changes.length; i++ ) {
-			var child = nodes[i],
-				change = changes[i];
+		for (var i = 0; i < changes.length; i++) {
+			var child = nodes[i];
+			var change = changes[i];
 
 			if ( Array.isArray(change) ) {
 				applyChangesInternal( child, change );
@@ -658,10 +658,9 @@ ParserTests.prototype.applyChanges = function( item, body, changelist, cb ) {
  * @param {Node} cb.body
  * @param {Array} cb.changelist
  */
-ParserTests.prototype.generateChanges = function( options, item, body, cb ) {
-
-	var self = this,
-		random = new Alea( (item.seed || '') + (item.title || '') );
+ParserTests.prototype.generateChanges = function(options, item, body, cb) {
+	var self = this;
+	var random = new Alea((item.seed || '') + (item.title || ''));
 
 	/**
 	 * If no node in the DOM subtree rooted at 'node' is editable in the VE,
@@ -727,13 +726,13 @@ ParserTests.prototype.generateChanges = function( options, item, body, cb ) {
 
 	function genChangesInternal(item, node) {
 		// Seed the random-number generator based on the item title
-		var changelist = [],
-			children = node.childNodes,
-			n = children.length;
+		var changelist = [];
+		var children = node.childNodes;
+		var n = children.length;
 
 		for (var i = 0; i < n; i++) {
-			var child = children[i],
-				changeType = 0;
+			var child = children[i];
+			var changeType = 0;
 
 			if ( domSubtreeIsEditable( self.env, child ) ) {
 				if ( nodeIsUneditable(child) || random() < 0.5 ) {
@@ -758,7 +757,8 @@ ParserTests.prototype.generateChanges = function( options, item, body, cb ) {
 		return hasChangeMarkers(changelist) ? changelist : 0;
 	}
 
-	var changeTree, numAttempts = 0;
+	var changeTree;
+	var numAttempts = 0;
 	do {
 		numAttempts++;
 		changeTree = genChangesInternal( item, body );
@@ -896,37 +896,38 @@ ParserTests.prototype.convertWt2Html = function( mode, wikitext, processHtmlCB )
  * @param {Object} options
  * @param {Function} endCb
  */
-ParserTests.prototype.processTest = function( item, options, mode, endCb ) {
-	if ( !( 'title' in item ) ) {
+ParserTests.prototype.processTest = function(item, options, mode, endCb) {
+	if (!( 'title' in item )) {
 		this.env.log("error", item);
-		throw new Error( 'Missing title from test case.' );
+		throw new Error('Missing title from test case.');
 	}
 
 	item.time = {};
 
-	var i, extensions = [];
+	var i;
+	var extensions = [];
 
-	if ( item.options ) {
+	if (item.options) {
 
-		if ( item.options.extensions !== undefined ) {
-			extensions = item.options.extensions.split( ' ' );
+		if (item.options.extensions !== undefined) {
+			extensions = item.options.extensions.split(' ');
 		}
 
-		if ( item.options.title !== undefined &&
-		     !Array.isArray(item.options.title) ) {
+		if (item.options.title !== undefined &&
+			!Array.isArray(item.options.title)) {
 			// Strip the [[]] markers.
-			var title = item.options.title.replace( /^\[\[|\]\]$/g, '' );
+			var title = item.options.title.replace(/^\[\[|\]\]$/g, '');
 			title = this.env.normalizeTitle( title, true );
 			// This sets the page name as well as the relative link prefix
 			// for the rest of the parse.
-			this.env.initializeForPageName( title );
+			this.env.initializeForPageName(title);
 		} else {
 			// Since we are reusing the 'env' object, set it to the default
 			// so that relative link prefix is back to "./"
-			this.env.initializeForPageName( this.env.defaultPageName );
+			this.env.initializeForPageName(this.env.defaultPageName);
 		}
 
-		if ( item.options.subpage !== undefined ) {
+		if (item.options.subpage !== undefined) {
 			this.env.conf.wiki.namespacesWithSubpages[0] = true;
 		} else {
 			this.env.conf.wiki.namespacesWithSubpages[0] = false;
@@ -960,10 +961,10 @@ ParserTests.prototype.processTest = function( item, options, mode, endCb ) {
 	var testTasks = [];
 
 	// Some useful booleans
-	var startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser',
-		startsAtHtml = mode === 'html2html' || mode === 'html2wt',
-		endsAtWikitext = mode === 'wt2wt' || mode === 'selser' || mode === 'html2wt',
-		endsAtHtml = mode === 'wt2html' || mode === 'html2html';
+	var startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser';
+	var startsAtHtml = mode === 'html2html' || mode === 'html2wt';
+	var endsAtWikitext = mode === 'wt2wt' || mode === 'selser' || mode === 'html2wt';
+	var endsAtHtml = mode === 'wt2html' || mode === 'html2html';
 
 	var parsoidOnly = ('html/parsoid' in item) || (item.options.parsoid !== undefined);
 
@@ -1090,8 +1091,10 @@ ParserTests.prototype.processParsedHTML = function( item, options, mode, body, c
  * @param {Node} doc
  * @param {Function} cb
  */
-ParserTests.prototype.processSerializedWT = function( item, options, mode, wikitext, cb ) {
-	var self = this, checkPassed, err;
+ParserTests.prototype.processSerializedWT = function(item, options, mode, wikitext, cb) {
+	var self = this;
+	var checkPassed;
+	var err;
 	item.time.end = Date.now();
 
 	if (mode === 'selser' && options.selser !== 'noauto') {
@@ -1434,7 +1437,7 @@ ParserTests.prototype.checkHTML = function( item, out, options, mode ) {
  * @param {string} out
  * @param {Object} options
  */
-ParserTests.prototype.checkWikitext = function( item, out, options, mode ) {
+ParserTests.prototype.checkWikitext = function(item, out, options, mode) {
 	var item_wikitext = item.wikitext;
 	out = out.replace(new RegExp('<!--' + staticRandomString + '-->', 'g'), '');
 	if (mode === 'selser' && item.resultWT !== null &&
@@ -1445,10 +1448,9 @@ ParserTests.prototype.checkWikitext = function( item, out, options, mode ) {
 		item_wikitext = item['wikitext/edited'];
 	}
 
-	var normalizedExpected,
-		toWikiText = mode === 'html2wt' || mode === 'wt2wt' || mode === 'selser';
+	var toWikiText = mode === 'html2wt' || mode === 'wt2wt' || mode === 'selser';
 	// FIXME: normalization not in place yet
-	normalizedExpected = toWikiText ? item_wikitext.replace(/\n+$/, '') : item_wikitext;
+	var normalizedExpected = toWikiText ? item_wikitext.replace(/\n+$/, '') : item_wikitext;
 
 	// FIXME: normalization not in place yet
 	var normalizedOut = toWikiText ? out.replace(/\n+$/, '') : out;
@@ -1463,9 +1465,9 @@ ParserTests.prototype.checkWikitext = function( item, out, options, mode ) {
 /**
  * Print out a WikiDom conversion of the HTML DOM
  */
-ParserTests.prototype.printWikiDom = function( body ) {
+ParserTests.prototype.printWikiDom = function(body) {
 	console.log('WikiDom'.cyan + ':');
-	console.log( body );
+	console.log(body);
 };
 
 /**
@@ -1475,8 +1477,10 @@ ParserTests.prototype.printWikiDom = function( body ) {
  * @param {number} stats.passedTestsWhitelisted Number of tests passed by whitelisting
  * @param {Object} stats.modes All of the stats (failedTests, passedTests, and passedTestsWhitelisted) per-mode.
  */
-ParserTests.prototype.reportSummary = function( stats ) {
-	var curStr, thisMode, i, failTotalTests = stats.failedTests;
+ParserTests.prototype.reportSummary = function(stats) {
+	var curStr;
+	var thisMode;
+	var failTotalTests = stats.failedTests;
 
 	console.log( "==========================================================");
 	console.log( "SUMMARY: ");
@@ -1484,8 +1488,8 @@ ParserTests.prototype.reportSummary = function( stats ) {
 		console.timeEnd('Execution time');
 	}
 
-	if ( failTotalTests !== 0 ) {
-		for ( i = 0; i < modes.length; i++ ) {
+	if (failTotalTests !== 0) {
+		for (var i = 0; i < modes.length; i++) {
 			curStr = modes[i] + ': ';
 			thisMode = stats.modes[modes[i]];
 			if ( thisMode.passedTests + thisMode.passedTestsWhitelisted + thisMode.failedTests > 0 ) {
@@ -1748,10 +1752,10 @@ ParserTests.prototype.reportStartOfTests = function() {
  *
  * @method
  */
-ParserTests.prototype.buildTasks = function( item, modes, options ) {
-	var tasks = [],
-		self = this;
-	for ( var i = 0; i < modes.length; i++ ) {
+ParserTests.prototype.buildTasks = function(item, modes, options) {
+	var tasks = [];
+	var self = this;
+	for (var i = 0; i < modes.length; i++) {
 		if (modes[i] === 'selser' && options.numchanges &&
 			options.selser !== 'noauto' && !options.changetree) {
 			var newitem;
@@ -1852,14 +1856,15 @@ ParserTests.prototype.buildTasks = function( item, modes, options ) {
 /**
  * @method
  */
-ParserTests.prototype.processCase = function( i, options, err ) {
-	var ix, item, cases = this.cases, targetModes = options.modes;
-
-	var nextCallback = this.processCase.bind( this, i + 1, options );
+ParserTests.prototype.processCase = function(i, options, err) {
+	var ix;
+	var item;
+	var cases = this.cases;
+	var targetModes = options.modes;
+	var nextCallback = this.processCase.bind(this, i + 1, options);
 
 	var earlyExit = options['exit-unexpected'] && (typeof err !== 'undefined') && err;
-	if (i < this.cases.length &&
-	     !earlyExit) {
+	if (i < this.cases.length && !earlyExit) {
 		item = this.cases[i];
 		if (typeof item === 'string') {
 			// this is a comment line in the file, ignore it.
@@ -1869,8 +1874,8 @@ ParserTests.prototype.processCase = function( i, options, err ) {
 		if (!item.options) { item.options = {}; }
 
 		// backwards-compatibility aliases for section names.
-		if ( 'input' in item ) { item.wikitext = item.input; delete item.input; }
-		if ( 'result' in item ) { item.html = item.result; delete item.result; }
+		if ('input' in item) { item.wikitext = item.input; delete item.input; }
+		if ('result' in item) { item.html = item.result; delete item.result; }
 
 		// html/* and html/parsoid should be treated as html.
 		[ 'html/*', 'html/*+tidy', 'html+tidy', 'html/parsoid' ].forEach(function(alt) {
@@ -2021,7 +2026,7 @@ ParserTests.prototype.processCase = function( i, options, err ) {
 							// Add 'MemoryAlpha' namespace (bug 51680)
 							this.env.conf.wiki.namespaceNames['100'] = 'MemoryAlpha';
 							this.env.conf.wiki.namespaceIds.memoryalpha =
-								this.env.conf.wiki.canonicalNamespaces.memoryalpha = 100;
+							this.env.conf.wiki.canonicalNamespaces.memoryalpha = 100;
 
 							async.series( this.buildTasks( item, targetModes, options ),
 								nextCallback );
@@ -2037,10 +2042,11 @@ ParserTests.prototype.processCase = function( i, options, err ) {
 					setImmediate( nextCallback );
 					break;
 				case 'hooks':
-					var hooks = item.text.split(/\n/), self = this;
+					var hooks = item.text.split(/\n/);
+					var self = this;
 					hooks.forEach(function(hook) {
 						self.env.log("warning", "parserTests: Adding extension hook", JSON.stringify(hook));
-						self.env.conf.wiki.addExtensionTag( hook );
+						self.env.conf.wiki.addExtensionTag(hook);
 					});
 					setImmediate( nextCallback );
 					break;
@@ -2122,14 +2128,16 @@ ParserTests.prototype.processCase = function( i, options, err ) {
  * @private
  */
 var xmlFuncs = (function() {
-	var fail, pass, passWhitelist,
+	var fail;
+	var pass;
+	var passWhitelist;
 
-	results = {
+	var results = {
 		html2html: '',
 		wt2wt: '',
 		wt2html: '',
-		html2wt: ''
-	},
+		html2wt: '',
+	};
 
 	/**
 	 * @method getActualExpectedXML
@@ -2143,7 +2151,7 @@ var xmlFuncs = (function() {
 	 *
 	 * @returns {string} The XML representation of the actual and expected outputs
 	 */
-	getActualExpectedXML = function( actual, expected, getDiff ) {
+	var getActualExpectedXML = function(actual, expected, getDiff) {
 		var returnStr = '';
 
 		expected.formattedRaw = DU.formatHTML( expected.raw );
@@ -2167,33 +2175,31 @@ var xmlFuncs = (function() {
 		returnStr += DU.encodeXml ( getDiff( actual, expected, false ) );
 
 		return returnStr;
-	},
+	};
 
 	/**
 	 * @method reportStartXML
 	 *
 	 * Report the start of the tests output.
 	 */
-	reportStartXML = function() {
-		console.log( '<testsuites>' );
-	},
+	var reportStartXML = function() {
+		console.log('<testsuites>');
+	};
 
 	/**
 	 * @method reportSummaryXML
 	 *
 	 * Report the end of the tests output.
 	 */
-	reportSummaryXML = function() {
-		var i, mode;
-		for ( i = 0; i < modes.length; i++ ) {
-			mode = modes[i];
-			console.log( '<testsuite name="parserTests-' + mode + '" file="parserTests.txt">' );
-			console.log( results[mode] );
-			console.log( '</testsuite>' );
+	var reportSummaryXML = function() {
+		for (var i = 0; i < modes.length; i++) {
+			var mode = modes[i];
+			console.log('<testsuite name="parserTests-' + mode + '" file="parserTests.txt">');
+			console.log(results[mode]);
+			console.log('</testsuite>');
 		}
-
-		console.log( '</testsuites>' );
-	},
+		console.log('</testsuites>');
+	};
 
 	/**
 	 * @method reportFailureXML
@@ -2202,22 +2208,21 @@ var xmlFuncs = (function() {
 	 *
 	 * @inheritdoc ParserTests#printFailure
 	 */
-	reportFailureXML = function( title, comments, iopts, options, actual, expected, expectFail, failure_only, mode, error ) {
+	var reportFailureXML = function(title, comments, iopts, options, actual, expected, expectFail, failure_only, mode, error) {
 		fail++;
-		var failEle;
 
-		if ( error ) {
+		var failEle;
+		if (error) {
 			failEle = '<error type="somethingCrashedFail">\n';
 			failEle += error.toString();
 			failEle += '\n</error>\n';
 		} else {
 			failEle = '<failure type="parserTestsDifferenceInOutputFailure">\n';
-			failEle += getActualExpectedXML( actual, expected, options.getDiff );
+			failEle += getActualExpectedXML(actual, expected, options.getDiff);
 			failEle += '\n</failure>\n';
 		}
-
 		results[mode] += failEle;
-	},
+	};
 
 	/**
 	 * @method reportSuccessXML
@@ -2226,13 +2231,13 @@ var xmlFuncs = (function() {
 	 *
 	 * @inheritdoc ParserTests#printSuccess
 	 */
-	reportSuccessXML = function( title, options, mode, expectSuccess, isWhitelist, item ) {
-		if ( isWhitelist ) {
+	var reportSuccessXML = function(title, options, mode, expectSuccess, isWhitelist, item) {
+		if (isWhitelist) {
 			passWhitelist++;
 		} else {
 			pass++;
 		}
-	},
+	};
 
 	/**
 	 * @method reportResultXML
@@ -2241,7 +2246,7 @@ var xmlFuncs = (function() {
 	 *
 	 * @inheritdoc printResult
 	 */
-	reportResultXML = function() {
+	var reportResultXML = function() {
 
 		function pre( mode, title, time ) {
 			var testcaseEle;
