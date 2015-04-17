@@ -937,6 +937,11 @@ ParserTests.prototype.processTest = function( item, options, mode, endCb ) {
 			 !/^(1|true|)$/.test(item.options.wgallowexternalimages) ) {
 			this.env.conf.wiki.allowExternalImages = undefined;
 		}
+
+		this.env.scrubWikitext = item.options.parsoid &&
+			item.options.parsoid.hasOwnProperty('scrubWikitext') ?
+				item.options.parsoid.scrubWikitext :
+				MWParserEnvironment.prototype.scrubWikitext;
 	}
 
 	item.extensions = extensions;
@@ -2034,7 +2039,7 @@ ParserTests.prototype.processCase = function( i, options, err ) {
 				case 'hooks':
 					var hooks = item.text.split(/\n/), self = this;
 					hooks.forEach(function(hook) {
-						this.env.log("warning", "parserTests: Adding extension hook", JSON.stringify(hook));
+						self.env.log("warning", "parserTests: Adding extension hook", JSON.stringify(hook));
 						self.env.conf.wiki.addExtensionTag( hook );
 					});
 					setImmediate( nextCallback );

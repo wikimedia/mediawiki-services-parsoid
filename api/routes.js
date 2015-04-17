@@ -545,17 +545,20 @@ routes.parserEnvMw = function( req, res, next ) {
 		cookie: req.headers.cookie,
 		reqId: req.headers['x-request-id']
 	};
-	MWParserEnv.getParserEnv(parsoidConfig, null, options).then(function( env ) {
+	MWParserEnv.getParserEnv(parsoidConfig, null, options).then(function(env) {
 		env.logger.registerBackend(/fatal(\/.*)?/, errBack.bind(this, env));
-		if ( res.local('v2') && res.local('v2').format === "pagebundle" ) {
+		if (res.local('v2') && res.local('v2').format === 'pagebundle') {
 			env.storeDataParsoid = true;
+		}
+		if (req.body.hasOwnProperty('scrubWikitext')) {
+			env.scrubWikitext = true;
 		}
 		res.local('env', env);
 		next();
-	}).catch(function( err ) {
+	}).catch(function(err) {
 		// Workaround how logdata flatten works so that the error object is
 		// recursively flattened and a stack trace generated for this.
-		errBack( {}, new LogData("error", [ "error:", err, "path:", req.path ]) );
+		errBack({}, new LogData('error', ['error:', err, 'path:', req.path]));
 	});
 };
 
