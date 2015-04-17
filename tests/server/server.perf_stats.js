@@ -103,10 +103,10 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 	// SSS FIXME: this is awkward
 	RH.settings = settings;
 	var GET_perfStats = function( req, res ) {
-		var page = ( req.params[0] || 0 ) - 0,
-			offset = page * 40,
-			orderBy = 'prefix ASC, title ASC',
-			urlSuffix = '';
+		var page = (req.params[0] || 0) - 0;
+		var offset = page * 40;
+		var orderBy = 'prefix ASC, title ASC';
+		var urlSuffix = '';
 
 		if ( req.query.orderby ) {
 			orderBy = mysql.escapeId( req.query.orderby ) + ' DESC';
@@ -168,8 +168,8 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 			res.send( "No title given.", 404 );
 		}
 
-		var prefix = req.params[0],
-			title = req.params[1];
+		var prefix = req.params[0];
+		var title = req.params[1];
 
 		perfStatsTypes(db, function( err, types ) {
 			if ( err ) {

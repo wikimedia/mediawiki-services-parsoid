@@ -1,16 +1,16 @@
 /** Test cases for the linter */
-"use strict";
-require( '../../lib/core-upgrade.js' );
+'use strict';
+require('../../lib/core-upgrade.js');
 /*global describe, it, Promise*/
 
 var should = require("chai").should();
 
-var MWParserEnvironment = require('../../lib/mediawiki.parser.environment.js' ).MWParserEnvironment,
-	Util = require('../../lib/mediawiki.Util.js').Util,
-	ParsoidConfig = require('../../lib/mediawiki.ParsoidConfig' ).ParsoidConfig;
+var MWParserEnvironment = require('../../lib/mediawiki.parser.environment.js').MWParserEnvironment;
+var Util = require('../../lib/mediawiki.Util.js').Util;
+var ParsoidConfig = require('../../lib/mediawiki.ParsoidConfig').ParsoidConfig;
 
-describe( 'Linter Tests', function() {
-	var parsoidConfig = new ParsoidConfig( null, { defaultWiki: 'enwiki', linting: true } );
+describe('Linter Tests', function() {
+	var parsoidConfig = new ParsoidConfig(null, { defaultWiki: 'enwiki', linting: true });
 
 	var parseWT = function( wt ) {
 		return MWParserEnvironment.getParserEnv(parsoidConfig, null, {

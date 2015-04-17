@@ -2,8 +2,8 @@
 /**
  * Fetch new parserTests.txt from upstream mediawiki/core.
  */
-"use strict";
-require( '../lib/core-upgrade.js' );
+'use strict';
+require('../lib/core-upgrade.js');
 
 // UPDATE THESE when upstream mediawiki/core includes new parsoid-relevant tests
 // This ensures that our whitelist/blacklist is in sync.
@@ -16,18 +16,18 @@ var expectedSHA1 = "1dd1c769fc68d6ea7a8ae12aad04e657470223d3";
 // git log --pretty=oneline -1 tests/parser/parserTests.txt
 var latestCommit = "278c83af8b2426d95f578e01e3bc679abf7b9d4b";
 
-var fs = require('fs'),
-	path = require('path'),
-	https = require('https'),
-	crypto = require('crypto');
+var fs = require('fs');
+var path = require('path');
+var https = require('https');
+var crypto = require('crypto');
 
 var downloadUrl = {
 	host: 'git.wikimedia.org',
-	path: '/raw/mediawiki%2Fcore.git/COMMIT-SHA/tests%2Fparser%2FparserTests.txt'
+	path: '/raw/mediawiki%2Fcore.git/COMMIT-SHA/tests%2Fparser%2FparserTests.txt',
 };
 var historyUrl = {
 	host: downloadUrl.host,
-	path: '/history/mediawiki%2Fcore.git/HEAD/tests%2Fparser%2FparserTests.txt'
+	path: '/history/mediawiki%2Fcore.git/HEAD/tests%2Fparser%2FparserTests.txt',
 };
 var target_name = __dirname + "/parserTests.txt";
 

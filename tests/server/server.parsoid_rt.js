@@ -1,7 +1,7 @@
 "use strict";
 
-var RH = require("./render.helpers.js").RenderHelpers,
-	fs = require('fs');
+var RH = require('./render.helpers.js').RenderHelpers;
+var fs = require('fs');
 
 var dbPagesWithRTSelserErrors =
 	'SELECT pages.title, pages.prefix, commits.hash, ' +
@@ -103,11 +103,11 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 	// SSS FIXME: this is awkward
 	RH.settings = settings;
 	var displayOneDiffRegressions = function(numFails, numSkips, subheading, headingLinkData, req, res) {
-		var r1 = req.params[0],
-			r2 = req.params[1],
-			page = (req.params[2] || 0) - 0,
-			offset = page * 40,
-			relativeUrlPrefix = '../../../';
+		var r1 = req.params[0];
+		var r2 = req.params[1];
+		var page = (req.params[2] || 0) - 0;
+		var offset = page * 40;
+		var relativeUrlPrefix = '../../../';
 		db.query (dbNumOneDiffRegressionsBetweenRevs, [r2, r1, numFails, numSkips], function(err, row) {
 			if (err) {
 				res.send(err.toString(), 500);
@@ -138,21 +138,21 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 	};
 
 	var GET_rtselsererrors = function(req, res) {
-		var commit = req.params[0],
-			page = (req.params[1] || 0) - 0,
-			offset = page * 40,
-			relativeUrlPrefix = (req.params[1] ? '../../' : '../'),
-			data = {
+		var commit = req.params[0];
+		var page = (req.params[1] || 0) - 0;
+		var offset = page * 40;
+		var relativeUrlPrefix = (req.params[1] ? '../../' : '../');
+		var data = {
 				page: page,
 				relativeUrlPrefix: relativeUrlPrefix,
 				urlPrefix: relativeUrlPrefix + 'rtselsererrors/' + commit,
 				urlSuffix: '',
 				heading: 'Pages with rt selser errors',
-				header: ['Title', 'Commit', 'Syntactic diffs', 'Semantic diffs', 'Errors']
+				header: ['Title', 'Commit', 'Syntactic diffs', 'Semantic diffs', 'Errors'],
 			};
 		var makeSelserErrorRow = function(urlPrefix, row) {
-			var prefix = encodeURIComponent(row.prefix),
-				title = encodeURIComponent(row.title);
+			var prefix = encodeURIComponent(row.prefix);
+			var title = encodeURIComponent(row.title);
 
 			var rowData = {
 				title: row.prefix + ':' + row.title,
@@ -190,11 +190,11 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 	);
 
 	var GET_newFailsRegressions = function(req, res) {
-		var r1 = req.params[0],
-			r2 = req.params[1],
-			page = (req.params[2] || 0) - 0,
-			offset = page * 40,
-			relativeUrlPrefix = '../../../';
+		var r1 = req.params[0];
+		var r2 = req.params[1];
+		var page = (req.params[2] || 0) - 0;
+		var offset = page * 40;
+		var relativeUrlPrefix = '../../../';
 		db.query(dbNumNewFailsRegressionsBetweenRevs, [r2, r1], function(err, row) {
 			if (err) {
 				res.send(err.toString(), 500);

@@ -1,19 +1,18 @@
 /** Test cases for lib/mediawiki.Util.js */
-"use strict";
-require( '../../lib/core-upgrade.js' );
+'use strict';
+require('../../lib/core-upgrade.js');
 /*global describe, it, Promise*/
 
 var should = require("chai").should();
-
 var url = require('url');
 
-var MWParserEnvironment = require('../../lib/mediawiki.parser.environment.js' ).MWParserEnvironment,
-	WikitextSerializer = require('../../lib/mediawiki.WikitextSerializer.js').WikitextSerializer,
-	Util = require('../../lib/mediawiki.Util.js').Util,
-	DU = require('../../lib/mediawiki.DOMUtils.js').DOMUtils,
-	ParsoidConfig = require('../../lib/mediawiki.ParsoidConfig' ).ParsoidConfig;
+var MWParserEnvironment = require('../../lib/mediawiki.parser.environment.js').MWParserEnvironment;
+var WikitextSerializer = require('../../lib/mediawiki.WikitextSerializer.js').WikitextSerializer;
+var Util = require('../../lib/mediawiki.Util.js').Util;
+var DU = require('../../lib/mediawiki.DOMUtils.js').DOMUtils;
+var ParsoidConfig = require('../../lib/mediawiki.ParsoidConfig').ParsoidConfig;
 
-describe( 'ParserPipelineFactory', function() {
+describe('ParserPipelineFactory', function() {
 	var parsoidConfig = new ParsoidConfig( null, { defaultWiki: 'enwiki' } );
 
 	describe( 'parse()', function() {
@@ -233,7 +232,8 @@ describe( 'ParserPipelineFactory', function() {
 				doc.title.should.equal('eBay');
 				// now check the <meta> elements
 				els = doc.querySelectorAll('META[property]');
-				var o = {}, prop;
+				var o = {};
+				var prop;
 				for (var i = 0; i < els.length; i++) {
 					prop = els[i].getAttribute('property');
 					o.should.not.have.property(prop);

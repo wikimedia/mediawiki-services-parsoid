@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 "use strict";
-require( '../../lib/core-upgrade.js' );
+require('../../lib/core-upgrade.js');
 
-var express = require( 'express' ),
-	yargs = require( 'yargs' ),
-	hbs = require( 'handlebars' ),
-	Diff = require('./diff.js').Diff,
-	RH = require('./render.helpers.js').RenderHelpers;
+var express = require('express');
+var yargs = require('yargs');
+var hbs = require('handlebars');
+var Diff = require('./diff.js').Diff;
+var RH = require('./render.helpers.js').RenderHelpers;
 
 // Default options
 var defaults = {
@@ -98,10 +98,10 @@ try {
 // Helpers need settings
 RH.settings = settings;
 
-var perfConfig = settings.perfConfig,
-	parsoidRTConfig = settings.parsoidRTConfig;
+var perfConfig = settings.perfConfig;
+var parsoidRTConfig = settings.parsoidRTConfig;
 
-var getOption = function( opt ) {
+var getOption = function(opt) {
 	var value;
 
 	// Check possible options in this order: command line, settings file, defaults.
@@ -126,17 +126,17 @@ var getOption = function( opt ) {
 	return value;
 };
 
-var // The maximum number of tries per article
-	maxTries = getOption( 'tries' ),
-	// The maximum number of fetch retries per article
-	maxFetchRetries = getOption( 'fetches' ),
-	// The time to wait before considering a test has failed
-	cutOffTime = getOption( 'cutofftime' ),
-	// The number of pages to fetch at once
-	batchSize = getOption( 'batch' ),
-	debug = getOption( 'debug' );
+// The maximum number of tries per article
+var maxTries = getOption('tries');
+// The maximum number of fetch retries per article
+var maxFetchRetries = getOption('fetches');
+// The time to wait before considering a test has failed
+var cutOffTime = getOption('cutofftime');
+// The number of pages to fetch at once
+var batchSize = getOption('batch');
+var debug = getOption('debug');
 
-var mysql = require( 'mysql' );
+var mysql = require('mysql');
 var db = mysql.createConnection({
 	host:               getOption('host'),
 	port:               getOption('port'),
@@ -618,17 +618,19 @@ var transUpdateCB = function( title, prefix, hash, type, res, trans, success_cb,
 	}
 };
 
-var receiveResults = function( req, res ) {
+var receiveResults = function(req, res) {
 	req.connection.setTimeout(300 * 1000);
-	var title = req.params[0],
-		prefix = req.params[1],
-		commitHash = req.body.commit;
-	var result = req.body.results,
-		skipCount, failCount,
-		errorCount, dneError;
+	var title = req.params[0];
+	var prefix = req.params[1];
+	var commitHash = req.body.commit;
+	var result = req.body.results;
+	var skipCount;
+	var failCount;
+	var errorCount;
+	var dneError;
 
-	var contentType = req.headers["content-type"],
-		resultString;
+	var contentType = req.headers["content-type"];
+	var resultString;
 	if (contentType.match(/application\/json/i)) {
 		// console.warn("application/json");
 		errorCount = result.err ? 1 : 0;
@@ -676,9 +678,9 @@ var receiveResults = function( req, res ) {
 				// Found the correct page, fill the details up
 				var page = pages[0];
 
-				var score = statsScore( skipCount, failCount, errorCount );
-				var latest_resultId = 0,
-					latest_statId = 0;
+				var score = statsScore(skipCount, failCount, errorCount);
+				var latest_resultId = 0;
+				var latest_statId = 0;
 				// Insert the result
 				trans.query( dbInsertResult, [ page.id, commitHash, resultString ],
 					transUpdateCB.bind( null, title, prefix, commitHash, "result", res, trans, function( insertedResult ) {
@@ -789,15 +791,15 @@ var statsWebInterface = function( req, res ) {
 
 		res.status( 200 );
 
-		var tests = row[0].total,
-		errorLess = row[0].no_errors,
-		skipLess = row[0].no_skips,
-		numRegressions = row[0].numregressions,
-		numFixes = row[0].numfixes,
-		noErrors = Math.round( 100 * 100 * errorLess / ( tests || 1 ) ) / 100,
-		perfects = Math.round( 100 * 100 * skipLess / ( tests || 1 ) ) / 100,
-		syntacticDiffs = Math.round( 100 * 100 *
-			( row[0].no_fails / ( tests || 1 ) ) ) / 100;
+		var tests = row[0].total;
+		var errorLess = row[0].no_errors;
+		var skipLess = row[0].no_skips;
+		var numRegressions = row[0].numregressions;
+		var numFixes = row[0].numfixes;
+		var noErrors = Math.round(100 * 100 * errorLess / (tests || 1)) / 100;
+		var perfects = Math.round(100 * 100 * skipLess / (tests || 1)) / 100;
+		var syntacticDiffs = Math.round(100 * 100 *
+			(row[0].no_fails / (tests || 1))) / 100;
 
 		var width = 800;
 
@@ -864,10 +866,10 @@ var makeFailsRow = function(urlPrefix, row) {
 	];
 };
 
-var failsWebInterface = function( req, res ) {
-	var page = ( req.params[0] || 0 ) - 0,
-		offset = page * 40,
-		relativeUrlPrefix = (req.params[0] ? '../' : '');
+var failsWebInterface = function(req, res) {
+	var page = (req.params[0] || 0) - 0;
+	var offset = page * 40;
+	var relativeUrlPrefix = (req.params[0] ? '../' : '');
 
 	var data = {
 		page: page,
@@ -881,9 +883,9 @@ var failsWebInterface = function( req, res ) {
 		RH.displayPageList.bind( null, hbs, res, data, makeFailsRow ) );
 };
 
-var resultsWebInterface = function( req, res ) {
-	var query, queryParams,
-		prefix = req.params[1] || null;
+var resultsWebInterface = function(req, res) {
+	var query, queryParams;
+	var prefix = req.params[1] || null;
 
 	if ( prefix !== null ) {
 		query = dbResultsPerWikiQuery;
@@ -939,8 +941,8 @@ var resultWebInterface = function( req, res ) {
 	}
 };
 
-var GET_failedFetches = function( req, res ) {
-	db.query( dbFailedFetches, [maxFetchRetries], function( err, rows ) {
+var GET_failedFetches = function(req, res) {
+	db.query( dbFailedFetches, [maxFetchRetries], function(err, rows) {
 		if ( err ) {
 			console.error( err );
 			res.send( err.toString(), 500 );
@@ -949,7 +951,8 @@ var GET_failedFetches = function( req, res ) {
 			var n = rows.length;
 			var pageData = [];
 			for (var i = 0; i < n; i++) {
-				var prefix = rows[i].prefix, title = rows[i].title;
+				var prefix = rows[i].prefix;
+				var title = rows[i].title;
 				var name = prefix + ':' + title;
 				pageData.push({
 					url: prefix.replace( /wiki$/, '' ) + '.wikipedia.org/wiki/' + title,
@@ -982,8 +985,8 @@ var GET_crashers = function( req, res ) {
 			var n = rows.length;
 			var pageData = [];
 			for (var i = 0; i < n; i++) {
-				var prefix = rows[i].prefix,
-					title = rows[i].title;
+				var prefix = rows[i].prefix;
+				var title = rows[i].title;
 				pageData.push({
 					description: rows[i].claim_hash,
 					url: prefix.replace( /wiki$/, '' ) + '.wikipedia.org/wiki/' + title,
@@ -996,7 +999,7 @@ var GET_crashers = function( req, res ) {
 			var data = {
 				alt: n === 0,
 				heading: heading,
-				items: pageData
+				items: pageData,
 			};
 			hbs.registerHelper('formatUrl', function(url) {
 				return 'http://' + encodeURI(url).replace('&', '&amp;');
@@ -1050,12 +1053,12 @@ var GET_skipsDistr = function( req, res ) {
 	} );
 };
 
-var GET_regressions = function( req, res ) {
-	var r1 = req.params[0],
-		r2 = req.params[1],
-		page = (req.params[2] || 0) - 0,
-		offset = page * 40,
-		relativeUrlPrefix = '../../../';
+var GET_regressions = function(req, res) {
+	var r1 = req.params[0];
+	var r2 = req.params[1];
+	var page = (req.params[2] || 0) - 0;
+	var offset = page * 40;
+	var relativeUrlPrefix = '../../../';
 	relativeUrlPrefix = relativeUrlPrefix + (req.params[0] ? '../' : '');
 	db.query( dbNumRegressionsBetweenRevs, [ r2, r1 ], function(err, row) {
 		if (err) {
@@ -1077,12 +1080,12 @@ var GET_regressions = function( req, res ) {
 	});
 };
 
-var GET_topfixes = function( req, res ) {
-	var r1 = req.params[0],
-		r2 = req.params[1],
-		page = (req.params[2] || 0) - 0,
-		offset = page * 40,
-		relativeUrlPrefix = '../../../';
+var GET_topfixes = function(req, res) {
+	var r1 = req.params[0];
+	var r2 = req.params[1];
+	var page = (req.params[2] || 0) - 0;
+	var offset = page * 40;
+	var relativeUrlPrefix = '../../../';
 	relativeUrlPrefix = relativeUrlPrefix + (req.params[0] ? '../' : '');
 	db.query( dbNumFixesBetweenRevs, [ r2, r1 ], function(err, row) {
 		if (err) {

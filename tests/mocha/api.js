@@ -2,15 +2,16 @@
 'use strict';
 /*global describe, it, before*/
 
-var apiServer = require('../apiServer.js'),
-	request = require('supertest'),
-	domino = require('domino'),
-	url = require('url'),
-	path = require('path'),
-	should = require('chai').should();
+var apiServer = require('../apiServer.js');
+var request = require('supertest');
+var domino = require('domino');
+var url = require('url');
+var path = require('path');
+var should = require('chai').should();
 
 describe('Parsoid API', function() {
-	var api, mockHost;
+	var api;
+	var mockHost;
 	before(function() {
 		var p = apiServer.startMockAPIServer({}).then(function( ret ) {
 			mockHost = url.parse( ret.url ).host;

@@ -30,281 +30,270 @@ var FILE_PROPS = {
 /* -------------------- web app access points below --------------------- */
 
 var app = express.createServer();
+app.use(express.bodyParser());
 
-app.use( express.bodyParser() );
-
-function sanitizeHTMLAttribute( text ) {
+function sanitizeHTMLAttribute(text) {
 	return text
-		.replace( /&/g, '&amp;' )
-		.replace( /"/g, '&quot;' )
-		.replace( /</g, '&lt;' )
-		.replace( />/g, '&gt;' );
+		.replace(/&/g, '&amp;')
+		.replace(/"/g, '&quot;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;');
 }
 
 var main_page = {
-	"query": {
-		"pages": {
-			"1": {
-				"pageid": 1,
-				"ns": 0,
-				"title": "Main Page",
-				"revisions": [{
-					"revid": 1,
-					"parentid": 0,
-					"contentmodel": "wikitext",
-					"contentformat": "text/x-wiki",
-					"*": "<strong>MediaWiki has been successfully installed.</strong>\n\nConsult the [//meta.wikimedia.org/wiki/Help:Contents User's Guide] for information on using the wiki software.\n\n== Getting started ==\n* [//www.mediawiki.org/wiki/Special:MyLanguage/Manual:Configuration_settings Configuration settings list]\n* [//www.mediawiki.org/wiki/Special:MyLanguage/Manual:FAQ MediaWiki FAQ]\n* [https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce MediaWiki release mailing list]\n* [//www.mediawiki.org/wiki/Special:MyLanguage/Localisation#Translation_resources Localise MediaWiki for your language]"
-				}]
-			}
-		}
-	}
+	query: {
+		pages: {
+			'1': {
+				pageid: 1,
+				ns: 0,
+				title: 'Main Page',
+				revisions: [{
+					revid: 1,
+					parentid: 0,
+					contentmodel: 'wikitext',
+					contentformat: 'text/x-wiki',
+					'*': '<strong>MediaWiki has been successfully installed.</strong>\n\nConsult the [//meta.wikimedia.org/wiki/Help:Contents User\'s Guide] for information on using the wiki software.\n\n== Getting started ==\n* [//www.mediawiki.org/wiki/Special:MyLanguage/Manual:Configuration_settings Configuration settings list]\n* [//www.mediawiki.org/wiki/Special:MyLanguage/Manual:FAQ MediaWiki FAQ]\n* [https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce MediaWiki release mailing list]\n* [//www.mediawiki.org/wiki/Special:MyLanguage/Localisation#Translation_resources Localise MediaWiki for your language]',
+				}],
+			},
+		},
+	},
 };
 
 var junk_page = {
-	"query": {
-		"pages": {
-			"2": {
-				"pageid": 2,
-				"ns": 0,
-				"title": "Junk Page",
-				"revisions": [{
-					"revid": 2,
-					"parentid": 0,
-					"contentmodel": "wikitext",
-					"contentformat": "text/x-wiki",
-					"*": "2. This is just some junk. See the comment above."
-				}]
-			}
-		}
-	}
+	query: {
+		pages: {
+			'2': {
+				pageid: 2,
+				ns: 0,
+				title: "Junk Page",
+				revisions: [{
+					revid: 2,
+					parentid: 0,
+					contentmodel: 'wikitext',
+					contentformat: 'text/x-wiki',
+					'*': '2. This is just some junk. See the comment above.',
+				}],
+			},
+		},
+	},
 };
 
 var fnames = {
-		'Image:Foobar.jpg': 'Foobar.jpg',
-		'File:Foobar.jpg': 'Foobar.jpg',
-		'Image:Foobar.svg': 'Foobar.svg',
-		'File:Foobar.svg': 'Foobar.svg',
-		'Image:Thumb.png': 'Thumb.png',
-		'File:Thumb.png': 'Thumb.png',
-		'File:LoremIpsum.djvu': 'LoremIpsum.djvu'
-	},
+	'Image:Foobar.jpg': 'Foobar.jpg',
+	'File:Foobar.jpg': 'Foobar.jpg',
+	'Image:Foobar.svg': 'Foobar.svg',
+	'File:Foobar.svg': 'Foobar.svg',
+	'Image:Thumb.png': 'Thumb.png',
+	'File:Thumb.png': 'Thumb.png',
+	'File:LoremIpsum.djvu': 'LoremIpsum.djvu',
+};
 
-	pnames = {
-		'Image:Foobar.jpg': 'File:Foobar.jpg',
-		'Image:Foobar.svg': 'File:Foobar.svg',
-		'Image:Thumb.png': 'File:Thumb.png'
-	},
+var pnames = {
+	'Image:Foobar.jpg': 'File:Foobar.jpg',
+	'Image:Foobar.svg': 'File:Foobar.svg',
+	'Image:Thumb.png': 'File:Thumb.png',
+};
 
-	formatters = {
-		json: function( data ) {
-			return JSON.stringify( data );
-		},
-		jsonfm: function( data ) {
-			return JSON.stringify( data, null, 2 );
+var formatters = {
+	json: function(data) {
+		return JSON.stringify(data);
+	},
+	jsonfm: function(data) {
+		return JSON.stringify(data, null, 2);
+	},
+};
+
+var availableActions = {
+	parse: function(body, cb) {
+		var resultText;
+		var text = body.text;
+		var re = /<testextension(?: ([^>]*))?>((?:[^<]|<(?!\/testextension>))*)<\/testextension>/;
+		var replaceString = '<p data-options="$1">$2</p>';
+		var result = text.match(re);
+
+		// I guess this doesn't need to be a function anymore, but still.
+		function handleTestExtension(opts, content) {
+			var optHash = {};
+			opts = opts.split(/ +/);
+			for (var i = 0; i < opts.length; i++) {
+				var opt = opts[i].split('=');
+				optHash[opt[0]] = opt[1].trim().replace(/(^"|"*$)/g, '');
+			}
+			return replaceString
+				.replace('$1', sanitizeHTMLAttribute(JSON.stringify(optHash)))
+				.replace('$2', sanitizeHTMLAttribute(content));
 		}
+
+		if ( result ) {
+			resultText = handleTestExtension( result[1], result[2] );
+		} else {
+			resultText = body.text;
+		}
+
+		cb( null, { parse: { text: { '*': resultText } } } );
 	},
 
-	availableActions = {
-		parse: function( body, cb ) {
-			var resultText,
-				text = body.text,
-				re = /<testextension(?: ([^>]*))?>((?:[^<]|<(?!\/testextension>))*)<\/testextension>/,
-				replaceString = '<p data-options="$1">$2</p>',
-				result = text.match( re );
+	querySiteinfo: function( body, cb ) {
+		// TODO: Read which language should we use from somewhere.
+		cb( null, require('../lib/baseconfig/enwiki.json') );
+	},
 
-			// I guess this doesn't need to be a function anymore, but still.
-			function handleTestExtension( opts, content ) {
-				var i, opt, optHash = {};
+	query: function( body, cb ) {
+		if (body.meta === 'siteinfo') {
+			return this.querySiteinfo( body, cb );
+		}
 
-				opts = opts.split( / +/ );
-				for ( i = 0; i < opts.length; i++ ) {
-					opt = opts[i].split( '=' );
-					optHash[opt[0]] = opt[1].trim().replace( /(^"|"*$)/g, '' );
-				}
-
-				return replaceString.replace( '$1', sanitizeHTMLAttribute( JSON.stringify( optHash ) ) )
-					.replace( '$2', sanitizeHTMLAttribute( content ) );
+		if ( body.prop === "revisions" ) {
+			if ( body.revids === "1" || body.titles === "Main_Page" ) {
+				return cb( null , main_page );
+			} else if ( body.revids === "2" || body.titles === "Junk_Page" ) {
+				return cb( null , junk_page );
 			}
+		}
 
-			if ( result ) {
-				resultText = handleTestExtension( result[1], result[2] );
-			} else {
-				resultText = body.text;
-			}
-
-			cb( null, { parse: { text: { '*': resultText } } } );
-		},
-
-		querySiteinfo: function( body, cb ) {
-			// TODO: Read which language should we use from somewhere.
-			cb( null, require('../lib/baseconfig/enwiki.json') );
-		},
-
-		query: function( body, cb ) {
-			if (body.meta === 'siteinfo') {
-				return this.querySiteinfo( body, cb );
-			}
-
-			if ( body.prop === "revisions" ) {
-				if ( body.revids === "1" || body.titles === "Main_Page" ) {
-					return cb( null , main_page );
-				} else if ( body.revids === "2" || body.titles === "Junk_Page" ) {
-					return cb( null , junk_page );
-				}
-			}
-
-			var filename = body.titles,
-				normPagename = pnames[filename] || filename,
-				normFilename = fnames[filename] || filename;
-			if (!(normFilename in FILE_PROPS )) {
-				cb( null, {
-					'query': {
-						'pages': {
-							'-1': {
-								'ns': 6,
-								'title': filename,
-								'missing': '',
-								'imagerepository': ''
-							}
+		var filename = body.titles;
+		var normPagename = pnames[filename] || filename;
+		var normFilename = fnames[filename] || filename;
+		if (!(normFilename in FILE_PROPS )) {
+			cb( null, {
+				'query': {
+					'pages': {
+						'-1': {
+							'ns': 6,
+							'title': filename,
+							'missing': '',
+							'imagerepository': ''
 						}
 					}
-				} );
-				return;
-			}
-			var props = FILE_PROPS[normFilename] || Object.create(null);
-			var md5 = crypto.createHash('md5').update(normFilename).
-				digest('hex');
-			var md5prefix = md5[0] + '/' + md5[0] + md5[1] + '/';
-			var baseurl = IMAGE_BASE_URL + '/' + md5prefix + normFilename,
-				height = props.height || 220,
-				width = props.width || 1941,
-				twidth = body.iiurlwidth,
-				theight = body.iiurlheight,
-				turl = IMAGE_BASE_URL + '/thumb/' + md5prefix + normFilename,
-				durl = IMAGE_DESC_URL + '/' + normFilename,
-				mediatype = (props.mime === 'image/svg+xml') ? 'DRAWING' : 'BITMAP',
-				imageinfo = {
-					pageid: 1,
-					ns: 6,
-					title: normPagename,
-					imageinfo: [ {
-						size: props.size || 12345,
-						height: height,
-						width: width,
-						url: baseurl,
-						descriptionurl: durl,
-						mediatype: mediatype
-					} ]
-				},
-				response = {
-					query: {
-						normalized: [ {
-							from: filename,
-							to: normPagename
-						} ],
-						pages: {}
-					}
-				};
+				}
+			} );
+			return;
+		}
+		var props = FILE_PROPS[normFilename] || Object.create(null);
+		var md5 = crypto.createHash('md5').update(normFilename).digest('hex');
+		var md5prefix = md5[0] + '/' + md5[0] + md5[1] + '/';
+		var baseurl = IMAGE_BASE_URL + '/' + md5prefix + normFilename;
+		var height = props.height || 220;
+		var width = props.width || 1941;
+		var twidth = body.iiurlwidth;
+		var theight = body.iiurlheight;
+		var turl = IMAGE_BASE_URL + '/thumb/' + md5prefix + normFilename;
+		var durl = IMAGE_DESC_URL + '/' + normFilename;
+		var mediatype = (props.mime === 'image/svg+xml') ? 'DRAWING' : 'BITMAP';
+		var imageinfo = {
+			pageid: 1,
+			ns: 6,
+			title: normPagename,
+			imageinfo: [{
+				size: props.size || 12345,
+				height: height,
+				width: width,
+				url: baseurl,
+				descriptionurl: durl,
+				mediatype: mediatype,
+			}],
+		};
+		var response = {
+			query: {
+				normalized: [{
+					from: filename,
+					to: normPagename,
+				}],
+				pages: {},
+			},
+		};
 
-			if ( twidth || theight ) {
-				if ( twidth && (theight === undefined || theight === null) ) {
-					// File::scaleHeight in PHP
-					theight = Math.round( height * twidth / width );
-				} else if ( theight && (twidth === undefined || twidth === null) ) {
-					// MediaHandler::fitBoxWidth in PHP
-					// This is crazy!
-					var idealWidth = width * theight / height;
-					var roundedUp = Math.ceil(idealWidth);
-					if (Math.round(roundedUp * height / width) > theight) {
-						twidth = Math.floor(idealWidth);
-					} else {
-						twidth = roundedUp;
-					}
+		if ( twidth || theight ) {
+			if ( twidth && (theight === undefined || theight === null) ) {
+				// File::scaleHeight in PHP
+				theight = Math.round( height * twidth / width );
+			} else if ( theight && (twidth === undefined || twidth === null) ) {
+				// MediaHandler::fitBoxWidth in PHP
+				// This is crazy!
+				var idealWidth = width * theight / height;
+				var roundedUp = Math.ceil(idealWidth);
+				if (Math.round(roundedUp * height / width) > theight) {
+					twidth = Math.floor(idealWidth);
 				} else {
-					if ( Math.round( height * twidth / width ) > theight ) {
-						twidth = Math.ceil( width * theight / height );
-					} else {
-						theight = Math.round( height * twidth / width );
-					}
+					twidth = roundedUp;
 				}
-				if (twidth >= width || theight >= height) {
-					// the PHP api won't enlarge an image
-					twidth = width;
-					theight = height;
+			} else {
+				if ( Math.round( height * twidth / width ) > theight ) {
+					twidth = Math.ceil( width * theight / height );
+				} else {
+					theight = Math.round( height * twidth / width );
 				}
-
-				turl += '/' + twidth + 'px-' + normFilename;
-				imageinfo.imageinfo[0].thumbwidth = twidth;
-				imageinfo.imageinfo[0].thumbheight = theight;
-				imageinfo.imageinfo[0].thumburl = turl;
+			}
+			if (twidth >= width || theight >= height) {
+				// the PHP api won't enlarge an image
+				twidth = width;
+				theight = height;
 			}
 
-			response.query.pages['1'] = imageinfo;
-			cb( null, response );
+			turl += '/' + twidth + 'px-' + normFilename;
+			imageinfo.imageinfo[0].thumbwidth = twidth;
+			imageinfo.imageinfo[0].thumbheight = theight;
+			imageinfo.imageinfo[0].thumburl = turl;
 		}
-	},
 
-	actionDefinitions = {
-		parse: {
-			parameters: {
-				text: 'text',
-				title: 'text'
-			}
+		response.query.pages['1'] = imageinfo;
+		cb( null, response );
+	},
+};
+
+var actionDefinitions = {
+	parse: {
+		parameters: {
+			text: 'text',
+			title: 'text',
 		},
-
-		query: {
-			parameters: {
-				titles: 'text',
-				prop: 'text',
-				iiprop: 'text',
-				iiurlwidth: 'text',
-				iiurlheight: 'text'
-			}
-		}
 	},
+	query: {
+		parameters: {
+			titles: 'text',
+			prop: 'text',
+			iiprop: 'text',
+			iiurlwidth: 'text',
+			iiurlheight: 'text',
+		},
+	},
+};
 
-	actionRegex = Object.keys( availableActions ).join( '|' );
+var actionRegex = Object.keys(availableActions).join('|');
 
-function buildOptions( options ) {
-	var i, optStr = '';
-
-	for ( i = 0; i < options.length; i++ ) {
+function buildOptions(options) {
+	var optStr = '';
+	for (var i = 0; i < options.length; i++) {
 		optStr += '<option value="' + options[i] + '">' + options[i] + '</option>';
 	}
-
 	return optStr;
 }
 
 function buildActionList() {
-	var i, action, title,
-		actions = Object.keys( availableActions ),
-		setStr = '';
-
-	for ( i = 0; i < actions.length; i++ ) {
-		action = actions[i];
-		title = 'action=' + action;
+	var actions = Object.keys(availableActions);
+	var setStr = '';
+	for (var i = 0; i < actions.length; i++) {
+		var action = actions[i];
+		var title = 'action=' + action;
 		setStr += '<li id="' + title + '">';
 		setStr += '<a href="/' + action + '">' + title + '</a></li>';
 	}
-
 	return setStr;
 }
 
-function buildForm( action ) {
-	var i, actionDef, param, params, paramList,
-		formStr = '';
+function buildForm(action) {
+	var formStr = '';
+	var actionDef = actionDefinitions[action];
+	var params = actionDef.parameters;
+	var paramList = Object.keys(params);
 
-	actionDef = actionDefinitions[action];
-	params = actionDef.parameters;
-	paramList = Object.keys( params );
-
-	for ( i = 0; i < paramList.length; i++ ) {
-		param = paramList[i];
-		if ( typeof params[param] === 'string' ) {
+	for (var i = 0; i < paramList.length; i++) {
+		var param = paramList[i];
+		if (typeof params[param] === 'string') {
 			formStr += '<input type="' + params[param] + '" name="' + param + '" />';
-		} else if ( params[param].length ) {
+		} else if (params[param].length) {
 			formStr += '<select name="' + param + '">';
-			formStr += buildOptions( params[param] );
+			formStr += buildOptions(params[param]);
 			formStr += '</select>';
 		}
 	}
@@ -324,17 +313,17 @@ app.get( '/', function( req, res ) {
 } );
 
 // GET requests for any possible actions....tell the client how to use the action
-app.get( new RegExp( '^/(' + actionRegex + ')' ), function( req, res ) {
-	var formats = buildOptions( Object.keys( formatters ) ),
-		action = req.params[0],
-		returnHtml =
+app.get(new RegExp('^/(' + actionRegex + ')'), function(req, res) {
+	var formats = buildOptions(Object.keys(formatters));
+	var action = req.params[0];
+	var returnHtml =
 			'<form id="service-form" method="GET" action="api.php">' +
 				'<h2>GET form</h2>' +
 				'<input name="action" type="hidden" value="' + action + '" />' +
 				'<select name="format">' +
 					formats +
 				'</select>' +
-				buildForm( action ) +
+				buildForm(action) +
 				'<input type="submit" />' +
 			'</form>' +
 			'<form id="service-form" method="POST" action="api.php">' +
@@ -343,19 +332,19 @@ app.get( new RegExp( '^/(' + actionRegex + ')' ), function( req, res ) {
 				'<select name="format">' +
 					formats +
 				'</select>' +
-				buildForm( action ) +
+				buildForm(action) +
 				'<input type="submit" />' +
 			'</form>';
 
-	res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
-	res.write( returnHtml );
+	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+	res.write(returnHtml);
 	res.end();
-} );
+});
 
-function handleApiRequest( body, res ) {
-	var format = body.format,
-		action = body.action,
-		formatter = formatters[format || "json"];
+function handleApiRequest(body, res) {
+	var format = body.format;
+	var action = body.action;
+	var formatter = formatters[format || "json"];
 
 	if ( !availableActions.hasOwnProperty( action ) ) {
 		return res.status(400).end("Unknown action.");
