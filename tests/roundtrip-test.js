@@ -440,25 +440,25 @@ var checkIfSignificant = function(offsets, data) {
 function parsoidPost(env, options, cb) {
 	var title = encodeURIComponent(options.title);
 
+	var httpOptions = {
+		method: 'POST',
+		json: true,
+		body: options.data,
+	};
+
 	var uri = options.uri;
 	// make sure the Parsoid URI ends on /
 	if (!/\/$/.test(uri)) {
 		uri += '/';
 	}
 	uri += 'v2/' + options.domain + '/';
-
 	if (options.html2wt) {
 		uri += 'wt/' + title + '/' + options.oldid;
+		httpOptions.body.scrubWikitext = true;
 	} else {  // wt2html
 		uri += 'pagebundle/' + title;
 	}
-
-	var httpOptions = {
-		uri: uri,
-		method: 'POST',
-		json: true,
-		body: options.data,
-	};
+	httpOptions.uri = uri;
 
 	return new Promise(function(resolve, reject) {
 		// TODO: convert Util.retryingHTTPRequest to a promise returning func

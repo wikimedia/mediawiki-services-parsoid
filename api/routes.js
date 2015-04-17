@@ -517,7 +517,7 @@ routes.interParams = function( req, res, next ) {
 	res.local('pageName', req.params[1] || '');
 	res.local('oldid', req.body.oldid || req.query.oldid || null);
 	// "body" flag to return just the body (instead of the entire HTML doc)
-	res.local('body', req.query.body || req.body.body);
+	res.local('body', !!(req.query.body || req.body.body));
 	next();
 };
 
@@ -551,7 +551,11 @@ routes.parserEnvMw = function( req, res, next ) {
 			env.storeDataParsoid = true;
 		}
 		if (req.body.hasOwnProperty('scrubWikitext')) {
-			env.scrubWikitext = true;
+			env.scrubWikitext = !(!req.body.scrubWikitext ||
+				req.body.scrubWikitext === "false");
+		} else if (req.query.hasOwnProperty('scrubWikitext')) {
+			env.scrubWikitext = !(!req.query.scrubWikitext ||
+				req.query.scrubWikitext === "false");
 		}
 		res.local('env', env);
 		next();
@@ -617,12 +621,16 @@ routes.redirectOldStyle = function( req, res ) {
 	res.end();
 };
 
-// Form-based HTML DOM -> wikitext interface for manual testing
+// Form-based HTML DOM -> wikitext interface for manual testing.
 routes.html2wtForm = function( req, res ) {
 	var env = res.local('env');
+	var action = "/" + res.local('iwp') + "/" + res.local('pageName');
+	if (req.query.hasOwnProperty('scrubWikitext')) {
+		action += "?scrubWikitext=" + req.query.scrubWikitext;
+	}
 	apiUtils.renderResponse(res, env, "form", {
 		title: "Your HTML DOM:",
-		action: "/" + res.local('iwp') + "/" + res.local('pageName'),
+		action: action,
 		name: "html"
 	});
 };
@@ -637,9 +645,16 @@ routes.wt2htmlForm = function( req, res ) {
 	});
 };
 
-// Round-trip article testing
+// Round-trip article testing.  Default to scrubbing wikitext here.  Can be
+// overridden with qs param.
 routes.roundtripTesting = function( req, res ) {
 	var env = res.local('env');
+
+	if (!req.query.hasOwnProperty('scrubWikitext') &&
+		!req.body.hasOwnProperty('scrubWikitext')) {
+		env.scrubWikitext = true;
+	}
+
 	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
 	var oldid = null;
@@ -660,9 +675,16 @@ routes.roundtripTesting = function( req, res ) {
 };
 
 // Round-trip article testing with newline stripping for editor-created HTML
-// simulation
+// simulation.  Default to scrubbing wikitext here.  Can be overridden with qs
+// param.
 routes.roundtripTestingNL = function( req, res ) {
 	var env = res.local('env');
+
+	if (!req.query.hasOwnProperty('scrubWikitext') &&
+		!req.body.hasOwnProperty('scrubWikitext')) {
+		env.scrubWikitext = true;
+	}
+
 	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
 	var oldid = null;
@@ -684,9 +706,16 @@ routes.roundtripTestingNL = function( req, res ) {
 		.catch( timeoutResp.bind(null, env) );
 };
 
-// Round-trip article testing with selser over re-parsed HTML.
+// Round-trip article testing with selser over re-parsed HTML.  Default to
+// scrubbing wikitext here.  Can be overridden with qs param.
 routes.roundtripSelser = function( req, res ) {
 	var env = res.local('env');
+
+	if (!req.query.hasOwnProperty('scrubWikitext') &&
+		!req.body.hasOwnProperty('scrubWikitext')) {
+		env.scrubWikitext = true;
+	}
+
 	var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
 	var oldid = null;
@@ -714,14 +743,20 @@ routes.get_rtForm = function( req, res ) {
 	var env = res.local('env');
 	apiUtils.renderResponse(res, env, "form", {
 		title: "Your wikitext:",
-		action: "/_rtform/" + res.local('pageName'),
 		name: "content"
 	});
 };
 
-// Form-based round-tripping for manual testing
+// Form-based round-tripping for manual testing.  Default to scrubbing wikitext
+// here.  Can be overridden with qs param.
 routes.post_rtForm = function( req, res ) {
 	var env = res.local('env');
+
+	if (!req.query.hasOwnProperty('scrubWikitext') &&
+		!req.body.hasOwnProperty('scrubWikitext')) {
+		env.scrubWikitext = true;
+	}
+
 	// we don't care about \r, and normalize everything to \n
 	env.setPageSrcInfo({
 		revision: { '*': req.body.content.replace(/\r/g, '') }
@@ -773,7 +808,7 @@ routes.v2Middle = function( req, res, next ) {
 	res.local('oldid', req.params.revision || null);
 
 	// "body" flag to return just the body (instead of the entire HTML doc)
-	res.local('body', req.query.body || req.body.body);
+	res.local('body', !!(req.query.body || req.body.body));
 
 	var v2 = Object.assign({ format: req.params.format }, req.body);
 
