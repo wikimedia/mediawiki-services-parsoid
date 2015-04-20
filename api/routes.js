@@ -121,7 +121,7 @@ var roundTripDiff = function( env, req, res, selser, doc ) {
 		out = out.replace(/<!--rtSelserEditTestComment-->\n*$/, '');
 
 		// Emit base href so all relative urls resolve properly
-		var hNodes = doc.body.firstChild.childNodes;
+		var hNodes = doc.head.childNodes;
 		var i, headNodes = "";
 		for (i = 0; i < hNodes.length; i++) {
 			if (hNodes[i].nodeName.toLowerCase() === 'base') {

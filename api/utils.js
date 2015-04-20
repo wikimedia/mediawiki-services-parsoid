@@ -79,12 +79,13 @@ apiUtils.sendResponse = function(res, env) {
 /**
  * Render response, but only if response hasn't been sent.
  */
-apiUtils.renderResponse = function(res, env) {
+apiUtils.renderResponse = function(res, env, template, data) {
 	if (env.responseSent) {
 		return;
 	} else {
 		env.responseSent = true;
-		res.render.apply(res, Array.prototype.slice.call(arguments, 2));
+		data.host = res.req.headers.host;
+		res.render(template, data);
 	}
 };
 
