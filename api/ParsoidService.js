@@ -1,18 +1,18 @@
 /**
  * Simple Parsoid web service.
  */
-"use strict";
+'use strict';
 
 require('../lib/core-upgrade.js');
 
 // global includes
-var express = require('express'),
-	compression = require('compression'),
-	hbs = require('handlebars'),
-	cluster = require('cluster'),
-	path = require('path'),
-	util = require('util'),
-	uuid = require('node-uuid').v4;
+var express = require('express');
+var compression = require('compression');
+var hbs = require('handlebars');
+var cluster = require('cluster');
+var path = require('path');
+var util = require('util');
+var uuid = require('node-uuid').v4;
 
 
 function ParsoidService( parsoidConfig, processLogger ) {
@@ -75,9 +75,9 @@ function ParsoidService( parsoidConfig, processLogger ) {
 
 	// Routes
 
-	var i = routes.interParams,
-		p = routes.parserEnvMw,
-		v = routes.v2Middle;
+	var i = routes.interParams;
+	var p = routes.parserEnvMw;
+	var v = routes.v2Middle;
 
 	function re(str) { return new RegExp(str); }
 

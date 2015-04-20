@@ -1,33 +1,29 @@
-"use strict";
-require( '../lib/core-upgrade.js' );
+'use strict';
+require('../lib/core-upgrade.js');
 
-var path = require('path'),
-	fs = require('fs'),
-	qs = require('querystring'),
-	url = require('url'),
-	util = require('util'),
-	child_process = require('child_process'),
-	cluster = require('cluster'),
-	domino = require('domino'),
-	pkg = require('../package.json'),
-	apiUtils = require('./utils');
+var path = require('path');
+var fs = require('fs');
+var qs = require('querystring');
+var url = require('url');
+var util = require('util');
+var child_process = require('child_process');
+var cluster = require('cluster');
+var domino = require('domino');
+var pkg = require('../package.json');
+var apiUtils = require('./utils');
 
+var MWParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnvironment;
+var WikitextSerializer = require('../lib/mediawiki.WikitextSerializer.js').WikitextSerializer;
+var SelectiveSerializer = require('../lib/mediawiki.SelectiveSerializer.js').SelectiveSerializer;
+var LogData = require('../lib/LogData.js').LogData;
+var DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils;
+var ApiRequest = require('../lib/mediawiki.ApiRequest.js');
+var Diff = require('../lib/mediawiki.Diff.js').Diff;
 
-// relative includes
-var mp = '../lib/';
+var ParsoidCacheRequest = ApiRequest.ParsoidCacheRequest;
+var TemplateRequest = ApiRequest.TemplateRequest;
 
-var MWParserEnv = require( mp + 'mediawiki.parser.environment.js' ).MWParserEnvironment,
-	WikitextSerializer = require( mp + 'mediawiki.WikitextSerializer.js' ).WikitextSerializer,
-	SelectiveSerializer = require( mp + 'mediawiki.SelectiveSerializer.js' ).SelectiveSerializer,
-	LogData = require( mp + 'LogData.js' ).LogData,
-	DU = require( mp + 'mediawiki.DOMUtils.js' ).DOMUtils,
-	ApiRequest = require( mp + 'mediawiki.ApiRequest.js' ),
-	Diff = require( mp + 'mediawiki.Diff.js' ).Diff;
-
-var ParsoidCacheRequest = ApiRequest.ParsoidCacheRequest,
-	TemplateRequest = ApiRequest.TemplateRequest;
-
-module.exports = function( parsoidConfig ) {
+module.exports = function(parsoidConfig) {
 
 var routes = {};
 
@@ -122,8 +118,8 @@ var roundTripDiff = function( env, req, res, selser, doc ) {
 
 		// Emit base href so all relative urls resolve properly
 		var hNodes = doc.head.childNodes;
-		var i, headNodes = "";
-		for (i = 0; i < hNodes.length; i++) {
+		var headNodes = "";
+		for (var i = 0; i < hNodes.length; i++) {
 			if (hNodes[i].nodeName.toLowerCase() === 'base') {
 				headNodes += DU.serializeNode(hNodes[i]);
 				break;
@@ -229,13 +225,13 @@ var html2wt = function( req, res, html ) {
 	var env = res.local('env');
 
 	// Performance Timing options
-	var timer = env.conf.parsoid.performanceTimer,
-	startTimers;
+	var timer = env.conf.parsoid.performanceTimer;
+	var startTimers;
 
-	if ( timer ) {
+	if (timer) {
 		startTimers = new Map();
-		startTimers.set( 'html2wt.init', Date.now() );
-		startTimers.set( 'html2wt.total', Date.now() );
+		startTimers.set('html2wt.init', Date.now());
+		startTimers.set('html2wt.total', Date.now());
 	}
 
 	var v2 = res.local('v2');
@@ -328,26 +324,26 @@ var html2wt = function( req, res, html ) {
 		.catch( timeoutResp.bind(null, env) );
 };
 
-var wt2html = function( req, res, wt ) {
+var wt2html = function(req, res, wt) {
 	var env = res.local('env');
 
 	// Performance Timing options
-	var timer = env.conf.parsoid.performanceTimer,
-	startTimers;
+	var timer = env.conf.parsoid.performanceTimer;
+	var startTimers;
 
-	if ( timer ) {
+	if (timer) {
 		startTimers = new Map();
 		// init refers to time elapsed before parsing begins
-		startTimers.set( 'wt2html.init', Date.now() );
-		startTimers.set( 'wt2html.total', Date.now() );
+		startTimers.set('wt2html.init', Date.now());
+		startTimers.set('wt2html.total', Date.now());
 	}
 
-	var prefix = res.local('iwp'),
-		oldid = res.local('oldid'),
-		v2 = res.local('v2'),
-		target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
+	var prefix = res.local('iwp');
+	var oldid = res.local('oldid');
+	var v2 = res.local('v2');
+	var target = env.resolveTitle(env.normalizeTitle( env.page.name ), '');
 
-	if ( wt ) {
+	if (wt) {
 		wt = wt.replace(/\r/g, '');
 	}
 
@@ -359,7 +355,8 @@ var wt2html = function( req, res, wt ) {
 	}
 
 	function sendRes(doc) {
-		var output, contentType = 'text/html;profile=mediawiki.org/specs/html/1.0.0;charset=utf-8';
+		var contentType = 'text/html;profile=mediawiki.org/specs/html/1.0.0;charset=utf-8';
+		var output;
 		if ( v2 && v2.format === "pagebundle" ) {
 			var dpScriptElt = doc.getElementById('mw-data-parsoid');
 			dpScriptElt.parentNode.removeChild(dpScriptElt);

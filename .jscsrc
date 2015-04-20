@@ -29,6 +29,7 @@
 		"tests/server/node_modules/**",
 		"tests/server/static/js/jquery-min.js",
 		"api/static/js/jquery.js",
+		"api/static/js/scrolling.js",
 		"lib/_http_agent.js"
 	]
 }

@@ -18,13 +18,13 @@
  *
  * See https://www.mediawiki.org/wiki/Parsoid/Setup for more instructions.
  */
-"use strict";
+'use strict';
 require('../lib/core-upgrade.js');
 
-var cluster = require('cluster'),
-	path = require('path'),
-	util = require('util'),
-	fs = require('fs');
+var cluster = require('cluster');
+var path = require('path');
+var util = require('util');
+var fs = require('fs');
 
 // process arguments
 var opts = require( "yargs" )
@@ -47,35 +47,36 @@ var opts = require( "yargs" )
 
 // Help
 var argv = opts.argv;
-if ( argv.h ) {
+if (argv.h) {
 	opts.showHelp();
-	process.exit( 0 );
+	process.exit(0);
 }
 
 // Version
-var meta = require( path.join( __dirname, "../package.json" ) );
-if ( argv.v ) {
-	console.log( meta.name + " " + meta.version );
-	process.exit( 0 );
+var meta = require(path.join(__dirname, "../package.json"));
+if (argv.v) {
+	console.log(meta.name + " " + meta.version);
+	process.exit(0);
 }
 
-var ParsoidService = require("./ParsoidService.js").ParsoidService,
-	ParsoidConfig = require("../lib/mediawiki.ParsoidConfig").ParsoidConfig,
-	Logger = require("../lib/Logger.js").Logger,
-	PLogger = require("../lib/ParsoidLogger.js"),
-	ParsoidLogger = PLogger.ParsoidLogger,
-	ParsoidLogData = PLogger.ParsoidLogData;
+var ParsoidService = require("./ParsoidService.js").ParsoidService;
+var ParsoidConfig = require("../lib/mediawiki.ParsoidConfig").ParsoidConfig;
+var Logger = require("../lib/Logger.js").Logger;
+var PLogger = require("../lib/ParsoidLogger.js");
+var ParsoidLogger = PLogger.ParsoidLogger;
+var ParsoidLogData = PLogger.ParsoidLogData;
 
 // The global parsoid configuration object
-var lsp = path.resolve( process.cwd(), argv.c ), localSettings;
+var lsp = path.resolve(process.cwd(), argv.c);
+var localSettings;
 try {
-	localSettings = require( lsp );
-} catch ( e ) {
+	localSettings = require(lsp);
+} catch (e) {
 	console.error(
 		"Cannot load local settings from %s. Please see: %s",
-		lsp, path.join( __dirname, "localsettings.js.example" )
+		lsp, path.join(__dirname, "localsettings.js.example")
 	);
-	process.exit( 1 );
+	process.exit(1);
 }
 
 var parsoidConfig = new ParsoidConfig( localSettings, null );
@@ -106,7 +107,8 @@ process.on('uncaughtException', function(err) {
 if ( cluster.isMaster && argv.n > 0 ) {
 	// Master
 
-	var timeoutHandler, timeouts = new Map();
+	var timeoutHandler;
+	var timeouts = new Map();
 	var spawn = function() {
 		var worker = cluster.fork();
 		worker.on('message', timeoutHandler.bind(null, worker));
