@@ -22269,6 +22269,20 @@ parsoid=html2wt
  ==foo==
 !! end
 
+!!test
+T95794: nowiki escaping should account for leading space at start-of-line in an indent-pre block
+!! options
+parsoid
+!! wikitext
+ * foo
+ * bar
+!! html
+<pre>
+* foo
+* bar
+</pre>
+!! end
+
 #### --------------- Behavior Switches --------------------
 !! test
 1. Valid behavior switches should be escaped
