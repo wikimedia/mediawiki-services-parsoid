@@ -6,22 +6,22 @@
  */
 {
 
-    var pegIncludes = options.pegIncludes,
-        DU = pegIncludes.DOMUtils,
-        Util = pegIncludes.Util,
-        PegTokenizer = pegIncludes.PegTokenizer,
-        defines = pegIncludes.defines,
-        constants = pegIncludes.constants,
-        tu = pegIncludes.tu;
+    var pegIncludes = options.pegIncludes;
+    var DU = pegIncludes.DOMUtils;
+    var Util = pegIncludes.Util;
+    var PegTokenizer = pegIncludes.PegTokenizer;
+    var defines = pegIncludes.defines;
+    var constants = pegIncludes.constants;
+    var tu = pegIncludes.tu;
 
     // define some constructor shortcuts
-    var KV = defines.KV,
-        TagTk = defines.TagTk,
-        SelfclosingTagTk = defines.SelfclosingTagTk,
-        EndTagTk = defines.EndTagTk,
-        NlTk = defines.NlTk,
-        CommentTk = defines.CommentTk,
-        EOFTk = defines.EOFTk;
+    var KV = defines.KV;
+    var TagTk = defines.TagTk;
+    var SelfclosingTagTk = defines.SelfclosingTagTk;
+    var EndTagTk = defines.EndTagTk;
+    var NlTk = defines.NlTk;
+    var CommentTk = defines.CommentTk;
+    var EOFTk = defines.EOFTk;
 
     var inline_breaks = tu.inline_breaks;
     var stops = new tu.SyntaxStops();
@@ -37,9 +37,8 @@
         // limit the size of individual chunks
         var chunkLimit = 100000;
         if (tokens.length > chunkLimit) {
-            var i = 0,
-                l = tokens.length;
-
+            var i = 0;
+            var l = tokens.length;
             while (i < l) {
                 options.cb(tokens.slice(i, i + chunkLimit));
                 i += chunkLimit;
@@ -349,8 +348,8 @@ h = & "=" // guard, to make sure '='+ will match.
         }
         if (e.length > level) {
             e = e.join('');
-            var extras2 = e.substr(0, e.length - level),
-                lastElem = c[c.length - 1];
+            var extras2 = e.substr(0, e.length - level);
+            var lastElem = c[c.length - 1];
             if (lastElem.constructor === String) {
                 c[c.length - 1] += extras2;
             } else {
@@ -466,18 +465,18 @@ autoref
     identifier = identifier.join('');
 
     var base_urls = {
-            'RFC': '//tools.ietf.org/html/rfc%s',
-            'PMID': '//www.ncbi.nlm.nih.gov/pubmed/%s?dopt=Abstract'
-        },
-        url = tu.sprintf(base_urls[ref], identifier);
+      'RFC': '//tools.ietf.org/html/rfc%s',
+      'PMID': '//www.ncbi.nlm.nih.gov/pubmed/%s?dopt=Abstract',
+    };
+    var url = tu.sprintf(base_urls[ref], identifier);
 
     return [
-        new SelfclosingTagTk( 'extlink', [
+        new SelfclosingTagTk('extlink', [
            new KV('href', tu.sprintf(base_urls[ref], identifier)),
            new KV('mw:content', [ref, identifier].join(' ')),
-           new KV( 'typeof', 'mw:ExtLink/' + ref )
+           new KV('typeof', 'mw:ExtLink/' + ref)
         ],
-        {stx: "magiclink", tsr: [peg$reportedPos, peg$currPos]})
+        { stx: "magiclink", tsr: [peg$reportedPos, peg$currPos] })
     ];
 }
 
@@ -489,8 +488,8 @@ isbn
     end_of_word
 {
     // TODO: round-trip non-decimals too!
-    var isbn = [head, digits.join(''), tail].join(''),
-        isbncode = isbn.replace(/[^\dX]/g, '');
+    var isbn = [head, digits.join(''), tail].join('');
+    var isbncode = isbn.replace(/[^\dX]/g, '');
 
     // ISBNs can only be 10 or 13 chars long
     if ([10, 13].indexOf(isbncode.length) === -1) {
@@ -604,7 +603,8 @@ autourl
     proto += addr || '';
     var url = tu.flatten_stringlist( [proto].concat( path ) );
     // only need to look at last element; HTML entities are strip-proof.
-    var last = url[url.length - 1], trim = 0;
+    var last = url[url.length - 1];
+    var trim = 0;
     if (last && last.constructor === String) {
       var strip = ',;\\.:!?';
       if (!stops.onStack( 'autourl' ).sawLParen) {
@@ -837,10 +837,9 @@ wikilink
         return [src];
       }
 
-
-      var obj = new SelfclosingTagTk( 'wikilink' ),
-          textTokens = [],
-          hrefKV = new KV('href', target);
+      var obj = new SelfclosingTagTk('wikilink');
+      var textTokens = [];
+      var hrefKV = new KV('href', target);
       hrefKV.vsrc = input.substring(peg$reportedPos + 2, tpos);
       // XXX: Point to object with path, revision and input information
       // obj.source = input;
@@ -912,7 +911,9 @@ link_end = "]]"
 quote = "''" x:"'"* {
     // sequences of four or more than five quotes are assumed to start
     // with some number of plain-text apostrophes.
-    var quotes = "''" + x.join(''), plainticks = 0, result = [];
+    var quotes = "''" + x.join('');
+    var plainticks = 0;
+    var result = [];
     if (quotes.length === 4) {
         plainticks = 1;
     } else if (quotes.length > 5) {
@@ -1044,11 +1045,11 @@ pre
 
 xmlish_tag =
     t:generic_tag {
-        var tagName = t.name.toLowerCase(),
-            dp = t.dataAttribs,
-            isHtmlTag = Util.isHTMLElementName(tagName),
-            isInstalledExt = options.env.conf.wiki.isExtensionTag(tagName),
-            isIncludeTag = tagName === 'includeonly'
+        var tagName = t.name.toLowerCase();
+        var dp = t.dataAttribs;
+        var isHtmlTag = Util.isHTMLElementName(tagName);
+        var isInstalledExt = options.env.conf.wiki.isExtensionTag(tagName);
+        var isIncludeTag = tagName === 'includeonly'
                             || tagName === 'noinclude'
                             || tagName === 'onlyinclude';
 
@@ -1074,10 +1075,10 @@ xmlish_tag =
         // TagTk
         } else {
 
-            var tsr0 = dp.tsr[0],
-                endTagRE = new RegExp("^(?:.|\n)*?(</\\s*" + tagName + "\\s*>)", "mi"),
-                restOfInput = input.substring(tsr0),
-                tagContent = restOfInput.match(endTagRE);
+            var tsr0 = dp.tsr[0];
+            var endTagRE = new RegExp("^(?:.|\n)*?(</\\s*" + tagName + "\\s*>)", "mi");
+            var restOfInput = input.substring(tsr0);
+            var tagContent = restOfInput.match(endTagRE);
 
             if ( !tagContent ) {
                 dp.src = input.substring(dp.tsr[0], dp.tsr[1]);
@@ -1267,8 +1268,8 @@ generic_tag
     selfclose:"/"?
     bad_ws:space* // No need to preserve this -- canonicalize on RT via dirty diff
     ">" {
-        var lcName = name.toLowerCase(),
-            isVoidElt = Util.isVoidElement( lcName ) ? true : null;
+        var lcName = name.toLowerCase();
+        var isVoidElt = Util.isVoidElement( lcName ) ? true : null;
         // Support </br>
         var broken = false;
         if (lcName === 'br' && end) {
@@ -1908,8 +1909,8 @@ urltext = ( t:[^-'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:;\]} &=]+ { return t.join('')
 //text = t:[A-Za-z0-9,._ "?!\t-]+ { return t.join('') }
 
 htmlentity = "&" c:[#0-9a-zA-Z]+ ";" {
-    var m = "&" + c.join('') + ";",
-        cc = Util.decodeEntities(m);
+    var m = "&" + c.join('') + ";";
+    var cc = Util.decodeEntities(m);
     // if this is an invalid entity, don't tag it with 'mw:Entity'
     if (cc.length > 2 /* decoded entity would be 1 or 2 UTF-16 characters */) {
         return cc;
@@ -2031,8 +2032,8 @@ include_limits =
       return new EndTagTk(name, [], dp);
     }
 
-    var restOfInput = input.substring(peg$currPos),
-        tagContent = restOfInput.match(new RegExp("^([^]*?)(?:</\\s*" + incl + "\\s*>)", "m"));
+    var restOfInput = input.substring(peg$currPos);
+    var tagContent = restOfInput.match(new RegExp("^([^]*?)(?:</\\s*" + incl + "\\s*>)", "m"));
 
     // Start tag only
     if ( !tagContent || !tagContent[1] ) {

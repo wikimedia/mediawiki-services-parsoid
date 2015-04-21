@@ -14,7 +14,6 @@
 
 	// We'd like to eliminate these at some point, to conform with the preset.
 	"disallowMixedSpacesAndTabs": null,
-	"disallowMultipleVarDecl": null,
 	"disallowQuotedKeysInObjects": null,
 	"disallowSpacesInsideParentheses": null,
 	"maximumLineLength": null,
