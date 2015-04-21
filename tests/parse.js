@@ -8,8 +8,6 @@ require('../lib/core-upgrade.js');
 
 var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnvironment;
 var ParsoidConfig = require( '../lib/mediawiki.ParsoidConfig.js' ).ParsoidConfig;
-var WikitextSerializer = require('../lib/mediawiki.WikitextSerializer.js').WikitextSerializer;
-var SelectiveSerializer = require('../lib/mediawiki.SelectiveSerializer.js').SelectiveSerializer;
 var TemplateRequest = require('../lib/mediawiki.ApiRequest.js').TemplateRequest;
 var Util = require('../lib/mediawiki.Util.js').Util;
 var DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils;
@@ -131,58 +129,47 @@ function dpFromHead( doc ) {
 }
 
 var startsAtWikitext;
-var startsAtHTML = function( argv, env, input, dp ) {
+var startsAtHTML = function(argv, env, input, dp) {
 	var doc = DU.parseHTML(input);
-	dp = dp || dpFromHead( doc );
-
-	var serializer;
-	if ( argv.selser ) {
-		dp = dp || dpFromHead( env.page.dom.ownerDocument );
-		if ( dp ) {
-			DU.applyDataParsoid( env.page.dom.ownerDocument, dp );
+	dp = dp || dpFromHead(doc);
+	if (argv.selser) {
+		dp = dp || dpFromHead(env.page.dom.ownerDocument);
+		if (dp) {
+			DU.applyDataParsoid(env.page.dom.ownerDocument, dp);
 		}
-		serializer = new SelectiveSerializer({ env: env, oldid: null });
-	} else {
-		serializer = new WikitextSerializer({ env: env });
 	}
-
-	if ( dp ) {
-		DU.applyDataParsoid( doc, dp );
+	if (dp) {
+		DU.applyDataParsoid(doc, dp);
 	}
-
-	return serializer.serializeDOM(doc.body, false).then(function(out) {
+	return DU.serializeDOM(env, doc.body, argv.selser).then(function(out) {
 		if ( argv.html2wt || argv.wt2wt ) {
 			return { trailingNL: true, out: out };
 		} else {
-			return startsAtWikitext( argv, env, out );
+			return startsAtWikitext(argv, env, out);
 		}
 	});
 };
 
-startsAtWikitext = function( argv, env, input ) {
-	return new Promise(function( resolve ) {
-		var parser = env.pipelineFactory.getPipeline('text/x-mediawiki/full');
-		parser.once( 'document', resolve );
-		// Kick off the pipeline by feeding the input into the parser pipeline
-		env.setPageSrcInfo( input );
-		parser.processToplevelDoc( env.page.src );
-	}).then(function( doc ) {
-		if ( argv.lint ) {
+startsAtWikitext = function(argv, env, input) {
+	env.setPageSrcInfo(input);
+	// Kick off the pipeline by feeding the input into the parser pipeline
+	return env.pipelineFactory.parse(env, env.page.src).then(function(doc) {
+		if (argv.lint) {
 			env.log("end/parse");
 		}
-		if ( argv.wt2html || argv.html2html ) {
+		if (argv.wt2html || argv.html2html) {
 			var out;
-			if ( argv.normalize ) {
-				out = DU.normalizeOut( doc.body, (argv.normalize === 'parsoid') );
-			} else if ( argv.document ) {
+			if (argv.normalize) {
+				out = DU.normalizeOut(doc.body, (argv.normalize === 'parsoid'));
+			} else if (argv.document) {
 				// used in Parsoid JS API, return document
 				out = doc;
 			} else {
-				out = DU.serializeNode( doc );
+				out = DU.serializeNode(doc);
 			}
 			return { trailingNL: true, out: out };
 		} else {
-			return startsAtHTML( argv, env, DU.serializeNode( doc ) );
+			return startsAtHTML(argv, env, DU.serializeNode(doc));
 		}
 	});
 };
@@ -250,22 +237,15 @@ var parse = exports.parse = function( input, argv, parsoidConfig, prefix ) {
 			// parse page if no input
 			if ( inputChunks.length > 0 ) {
 				return { env: env, input: inputChunks.join("") };
-			} else if ( argv.html2wt || argv.html2html ) {
+			} else if (argv.html2wt || argv.html2html) {
 				env.log("fatal", "Pages start at wikitext.");
 			}
-			var target = env.resolveTitle(
-				env.normalizeTitle( env.page.name ), ''
-			);
-			return new Promise(function( resolve, reject ) {
-				var tpr = new TemplateRequest( env, target, argv.oldid );
-				tpr.once('src', function( err, src_and_metadata ) {
-					if ( err ) {
-						reject( err );
-					} else {
-						resolve({ env: env, input: src_and_metadata });
-					}
+			var target = env.resolveTitle(env.normalizeTitle(env.page.name), '');
+			return TemplateRequest
+				.setPageSrcInfo(env, target, argv.oldid)
+				.then(function() {
+					return { env: env, input: env.page.src };
 				});
-			});
 		});
 
 	}).then(function( res ) {

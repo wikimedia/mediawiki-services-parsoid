@@ -13,8 +13,6 @@ var pkg = require('../package.json');
 var apiUtils = require('./utils');
 
 var MWParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnvironment;
-var WikitextSerializer = require('../lib/mediawiki.WikitextSerializer.js').WikitextSerializer;
-var SelectiveSerializer = require('../lib/mediawiki.SelectiveSerializer.js').SelectiveSerializer;
 var LogData = require('../lib/LogData.js').LogData;
 var DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils;
 var ApiRequest = require('../lib/mediawiki.ApiRequest.js');
@@ -106,13 +104,11 @@ var rtResponse = function( env, req, res, data ) {
 	logTime( env, res, "parsing" );
 };
 
-var roundTripDiff = function( env, req, res, selser, doc ) {
+var roundTripDiff = function(env, req, res, useSelser, doc) {
 	// Re-parse the HTML to uncover foster-parenting issues
-	doc = domino.createDocument( doc.outerHTML );
+	doc = domino.createDocument(doc.outerHTML);
 
-	var Serializer = selser ? SelectiveSerializer : WikitextSerializer;
-	var serializer = new Serializer({ env: env });
-	return serializer.serializeDOM(doc.body, false).then(function(out) {
+	return DU.serializeDOM(env, doc.body, useSelser).then(function(out) {
 		// Strip selser trigger comment
 		out = out.replace(/<!--rtSelserEditTestComment-->\n*$/, '');
 
@@ -179,27 +175,25 @@ var parse = function( env, req, res ) {
 	} else if ( env.conf.parsoid.parsoidCacheURI && !req.headers['x-parsoid-request'] ) {
 		p = p.then(function() {
 			// Try to retrieve a cached copy of the content.
-			var parsoidHeader = JSON.parse( req.headers['x-parsoid'] || '{}' );
-			return new Promise(function( resolve, reject ) {
-				// If a cacheID is passed in X-Parsoid (from our PHP extension),
-				// use that explicitly. Otherwise default to the parentID.
-				var cacheID = parsoidHeader.cacheID || meta.revision.parentid;
-				var cacheRequest = new ParsoidCacheRequest( env, meta.title, cacheID );
-				cacheRequest.once('src', function( err, src ) {
-					if ( err ) {
-						// No luck with the cache request.
-						return resolve( null );
-					}
+			var parsoidHeader = JSON.parse(req.headers['x-parsoid'] || '{}');
+			// If a cacheID is passed in X-Parsoid (from our PHP extension),
+			// use that explicitly. Otherwise default to the parentID.
+			var cacheID = parsoidHeader.cacheID || meta.revision.parentid;
+			return ParsoidCacheRequest
+				.promise(env, meta.title, cacheID)
+				.then(function(src) {
 					// Extract transclusion and extension content from the DOM
 					var ret = {
-						expansions: DU.extractExpansions( DU.parseHTML(src) )
+						expansions: DU.extractExpansions(DU.parseHTML(src))
 					};
-					if ( parsoidHeader.cacheID ) {
+					if (parsoidHeader.cacheID) {
 						ret.mode = parsoidHeader.mode;
 					}
-					resolve( ret );
+					return ret;
+				}, function(err) {
+					// No luck with the cache request.
+					return null;
 				});
-			});
 		});
 	}
 
@@ -217,12 +211,20 @@ var parse = function( env, req, res ) {
 				break;
 			}
 		}
-		return env.pipelineFactory.parse( env, env.page.src, ret && ret.expansions );
+		return env.pipelineFactory.parse(env, env.page.src, ret && ret.expansions);
 	});
 };
 
-var html2wt = function( req, res, html ) {
+var html2wt = function(req, res, html) {
 	var env = res.local('env');
+	var v2 = res.local('v2');
+
+	env.page.id = res.local('oldid');
+	env.log('info', 'started serializing');
+
+	if (v2 && v2.original && v2.original.wikitext) {
+		env.setPageSrcInfo(v2.original.wikitext.body);
+	}
 
 	// Performance Timing options
 	var timer = env.conf.parsoid.performanceTimer;
@@ -234,77 +236,53 @@ var html2wt = function( req, res, html ) {
 		startTimers.set('html2wt.total', Date.now());
 	}
 
-	var v2 = res.local('v2');
-	env.page.id = res.local('oldid');
-	env.log('info', 'started serializing');
-
-	if ( env.conf.parsoid.allowCORS ) {
-		// allow cross-domain requests (CORS) so that parsoid service
-		// can be used by third-party sites
+	if (env.conf.parsoid.allowCORS) {
+		// Allow cross-domain requests (CORS) so that parsoid service
+		// can be used by third-party sites.
 		apiUtils.setHeader(res, env, 'Access-Control-Allow-Origin',
-						   env.conf.parsoid.allowCORS );
+			env.conf.parsoid.allowCORS );
 	}
 
-	var p = new Promise(function( resolve, reject ) {
-		if ( v2 && v2.original && v2.original.wikitext ) {
-			env.setPageSrcInfo( v2.original.wikitext.body );
-			return resolve();
-		} else if ( !(v2 && v2.original && v2.original.html)
-				&& !env.conf.parsoid.fetchWT ) {
-			return resolve();
+	html = html.replace(/\r/g, '');
+
+	if (timer) {
+		startTimers.set('html2wt.init.domparse', Date.now());
+	}
+
+	var doc = DU.parseHTML(html);
+
+	// send domparse time, input size and init time to statsd/Graphite
+	// init time is the time elapsed before serialization
+	// init.domParse, a component of init time, is the time elapsed from html string to DOM tree
+	if (timer) {
+		timer.timing('html2wt.init.domparse', '',
+			Date.now() - startTimers.get('html2wt.init.domparse'));
+		timer.timing('html2wt.size.input', '', html.length);
+		timer.timing('html2wt.init', '',
+			Date.now() - startTimers.get( 'html2wt.init' ));
+	}
+
+	if (v2 && v2.original && v2.original["data-parsoid"]) {
+		DU.applyDataParsoid(doc, v2.original["data-parsoid"].body);
+	}
+
+	if (v2 && v2.original && v2.original.html) {
+		env.page.dom = DU.parseHTML(v2.original.html.body).body;
+		if (v2.original["data-parsoid"]) {
+			DU.applyDataParsoid(env.page.dom.ownerDocument,
+				v2.original["data-parsoid"].body);
 		}
-		var target = env.resolveTitle( env.normalizeTitle(env.page.name), '' );
-		var tpr = new TemplateRequest( env, target, env.page.id );
-		tpr.once('src', function( err, src_and_metadata ) {
-			if ( err ) {
-				env.log("error", "There was an error fetching " +
-						"the original wikitext for ", target, err);
-			} else {
-				env.setPageSrcInfo( src_and_metadata );
-			}
-			resolve();
-		});
-	}).then(function() {
-		html = html.replace(/\r/g, '');
+	}
 
-		if ( timer ) {
-			startTimers.set( 'html2wt.init.domparse', Date.now() );
-		}
-
-		// send domparse time, input size and init time to statsd/Graphite
-		// init time is the time elapsed before serialization
-		// init.domParse, a component of init time, is the time elapsed from html string to DOM tree
-		if ( timer ) {
-			timer.timing( 'html2wt.init.domparse', '',
-				Date.now() - startTimers.get( 'html2wt.init.domparse' ));
-			timer.timing( 'html2wt.size.input', '', html.length );
-			timer.timing( 'html2wt.init', '',
-				Date.now() - startTimers.get( 'html2wt.init' ));
-		}
-
-		var doc = DU.parseHTML(html);
-
-		if ( v2 && v2.original && v2.original["data-parsoid"] ) {
-			DU.applyDataParsoid( doc, v2.original["data-parsoid"].body );
-		}
-
-		if ( v2 && v2.original && v2.original.html ) {
-			env.page.dom = DU.parseHTML( v2.original.html.body ).body;
-			if ( v2.original["data-parsoid"] ) {
-				DU.applyDataParsoid( env.page.dom.ownerDocument, v2.original["data-parsoid"].body );
-			}
-		}
-
-		var Serializer = parsoidConfig.useSelser ? SelectiveSerializer : WikitextSerializer;
-		var serializer = new Serializer({ env: env, oldid: env.page.id });
-		return serializer.serializeDOM(doc.body, false);
-	}).timeout( REQ_TIMEOUT ).then(function( output ) {
+	var p = DU.serializeDOM(env, doc.body, parsoidConfig.useSelser)
+		.timeout(REQ_TIMEOUT)
+		.then(function(output) {
 		var contentType = 'text/plain;profile=mediawiki.org/specs/wikitext/1.0.0;charset=utf-8';
-		if ( v2 ) {
+		if (v2) {
 			apiUtils.jsonResponse(res, env, {
 				wikitext: {
 					headers: { 'content-type': contentType },
-					body: output
+					body: output,
 				}
 			});
 		} else {
@@ -312,16 +290,16 @@ var html2wt = function( req, res, html ) {
 			apiUtils.endResponse(res, env, output);
 		}
 
-		if ( timer ) {
-			timer.timing( 'html2wt.total', '',
-				Date.now() - startTimers.get( 'html2wt.total' ));
-			timer.timing( 'html2wt.size.output', '', output.length );
+		if (timer) {
+			timer.timing('html2wt.total', '',
+				Date.now() - startTimers.get('html2wt.total'));
+			timer.timing('html2wt.size.output', '', output.length);
 		}
 
-		logTime( env, res, "serializing" );
+		logTime(env, res, "serializing");
 	});
-	return cpuTimeout( p, res )
-		.catch( timeoutResp.bind(null, env) );
+	return cpuTimeout(p, res)
+		.catch(timeoutResp.bind(null, env));
 };
 
 var wt2html = function(req, res, wt) {
@@ -398,27 +376,23 @@ var wt2html = function(req, res, wt) {
 	function parseWt() {
 		env.log('info', 'started parsing');
 
-		if ( timer ) {
-			timer.timing( 'wt2html.wt.init', '',
-				Date.now() - startTimers.get( 'wt2html.init' ));
-			startTimers.set( 'wt2html.wt.parse', Date.now() );
-			timer.timing( 'wt2html.wt.size.input', '', wt.length );
+		// Don't cache requests when wt is set in case somebody uses
+		// GET for wikitext parsing
+		apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0');
+
+		if (timer) {
+			timer.timing('wt2html.wt.init', '',
+				Date.now() - startTimers.get( 'wt2html.init'));
+			startTimers.set('wt2html.wt.parse', Date.now());
+			timer.timing('wt2html.wt.size.input', '', wt.length);
 		}
 
-		if ( !res.local('pageName') ) {
+		if (!res.local('pageName')) {
 			// clear default page name
 			env.page.name = '';
 		}
-		return new Promise(function( resolve, reject ) {
-			var parser = env.pipelineFactory.getPipeline('text/x-mediawiki/full');
-			parser.once('document', function( doc ) {
-				// Don't cache requests when wt is set in case somebody uses
-				// GET for wikitext parsing
-				apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0');
-				resolve( doc );
-			});
-			parser.processToplevelDoc( wt );
-		});
+
+		return env.pipelineFactory.parse(env, wt);
 	}
 
 	function parsePageWithOldid() {

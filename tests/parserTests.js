@@ -30,8 +30,6 @@ var Diff = require('../lib/mediawiki.Diff.js').Diff;
 
 // Fetch up some of our wacky parser bits...
 var MWParserEnvironment = require('../lib/mediawiki.parser.environment.js').MWParserEnvironment;
-var WikitextSerializer = require('../lib/mediawiki.WikitextSerializer.js').WikitextSerializer;
-var SelectiveSerializer = require('../lib/mediawiki.SelectiveSerializer.js').SelectiveSerializer;
 var ParsoidConfig = require('../lib/mediawiki.ParsoidConfig').ParsoidConfig;
 
 var booleanOption = Util.booleanOption; // shortcut
@@ -416,10 +414,6 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, body, proc
 	this.env.conf.parsoid.rtTestMode = options.rtTestMode;
 
 	var startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser';
-	var serializer = (mode === 'selser')
-			? new SelectiveSerializer({ env: this.env })
-			: new WikitextSerializer({ env: this.env });
-
 	try {
 		if (startsAtWikitext) {
 			// FIXME: All tests share an env.
@@ -427,28 +421,28 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, body, proc
 			this.env.page.dom = item.cachedBODY;
 			this.env.page.editedDoc = item.cachedBODY.ownerDoc;
 		}
-		if ( mode === 'selser' ) {
+		if (mode === 'selser') {
 			// console.warn("--> selsering: " + body.outerHTML);
-			this.env.setPageSrcInfo( item.wikitext );
-		} else if (booleanOption(options.use_source) && startsAtWikitext ) {
-			this.env.setPageSrcInfo( item.wikitext );
+			this.env.setPageSrcInfo(item.wikitext);
+		} else if (booleanOption(options.use_source) && startsAtWikitext) {
+			this.env.setPageSrcInfo(item.wikitext);
 		} else {
-			this.env.setPageSrcInfo( null );
+			this.env.setPageSrcInfo(null);
 		}
 
 		var self = this;
-		serializer.serializeDOM( body, false, function( err, wt ) {
-			if ( err ) {
+		DU.serializeDOM(this.env, body, (mode === 'selser'), function(err, wt) {
+			if (err) {
 				self.env.log("error", err);
 			}
-			processWikitextCB( err, wt );
-			self.env.setPageSrcInfo( null );
+			processWikitextCB(err, wt);
+			self.env.setPageSrcInfo(null);
 			self.env.page.dom = null;
-		} );
-	} catch ( e ) {
+		});
+	} catch (e) {
 		this.env.log("error", e);
-		processWikitextCB( e, null );
-		this.env.setPageSrcInfo( null );
+		processWikitextCB(e, null);
+		this.env.setPageSrcInfo(null);
 		this.env.page.dom = null;
 	}
 };
