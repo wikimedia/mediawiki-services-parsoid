@@ -460,6 +460,10 @@ function parsoidPost(env, options, cb) {
 	}
 	httpOptions.uri = uri;
 
+	if (options.useSelser) {
+		httpOptions.body._rtSelser = true;
+	}
+
 	return new Promise(function(resolve, reject) {
 		// TODO: convert Util.retryingHTTPRequest to a promise returning func
 		Util.retryingHTTPRequest(10, httpOptions, function(err, res, body) {
@@ -580,7 +584,10 @@ function fetch(title, options, formatter, cb) {
 			oldid: env.page.meta.revision.revid,
 			data: {
 				html: data.oldHTML,
-				original: { 'data-parsoid': data.oldDp },
+				original: {
+					'data-parsoid': data.oldDp,
+					wikitext: { body: data.oldWt },
+				},
 			},
 		}, parsoidOptions);
 		return parsoidPost(env, options);
@@ -598,10 +605,15 @@ function fetch(title, options, formatter, cb) {
 		newDocument.body.appendChild(newNode);
 		var options = Object.assign({
 			html2wt: true,
+			useSelser: true,
 			oldid: env.page.meta.revision.revid,
 			data: {
 				html: newDocument.outerHTML,
-				original: { 'data-parsoid': data.oldDp },
+				original: {
+					'data-parsoid': data.oldDp,
+					wikitext: { body: data.oldWt },
+					html: data.oldHTML,
+				},
 			},
 			profilePrefix: 'selser',
 		}, parsoidOptions);
@@ -615,19 +627,9 @@ function fetch(title, options, formatter, cb) {
 			env.profile.time.total = Date.now() - env.profile.time.start;
 		}
 
-		// FIXME: I guess so? This needs a comment. First we're diff'ing
-		// the old and new wt's. Now we're diff'ing the new and supposedly
-		// selser'd wt's. Meanwhile, the serializer never seems to be invoked
-		// in selserMode.
-		data.oldWt = data.newWt;
-
 		// Remove the selser trigger comment
-		out = out.replace(/<!--rtSelserEditTestComment-->\n*$/, '');
-		data.newWt = out;
+		data.newWt = out.replace(/<!--rtSelserEditTestComment-->\n*$/, '');
 
-		// FIXME: not sure about this stuff?
-		data.oldWt = data.oldWt.replace(/\n(?=\n)/g, '\n ');
-		data.newWt = data.newWt.replace(/\n(?=\n)/g, '\n ');
 		return roundTripDiff(env, parsoidOptions, data);
 	}).then(function(selserDiffs) {
 		selserDiffs.forEach(function(diff) {

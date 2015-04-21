@@ -61,9 +61,6 @@ exports.setup = function( parsoidConfig ) {
 	// Set rtTestMode to true for round-trip testing
 	parsoidConfig.rtTestMode = true;
 
-	// Fetch the wikitext for a page before doing html2wt
-	parsoidConfig.fetchWT = true;
-
 	// Set to true to enable Performance timing
 	parsoidConfig.useDefaultPerformanceTimer = false;
 	// Peformance timing options for testing

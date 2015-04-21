@@ -129,11 +129,7 @@ var roundTripDiff = function(env, req, res, useSelser, doc) {
 		}
 
 		var htmlSpeChars = apiUtils.htmlSpecialChars(out);
-
-		var src = env.page.src.replace(/\n(?=\n)/g, '\n ');
-		out = out.replace(/\n(?=\n)/g, '\n ');
-
-		var patch = Diff.convertChangesToXML( Diff.diffLines(src, out) );
+		var patch = Diff.convertChangesToXML(Diff.diffLines(env.page.src, out));
 
 		return {
 			headers: headNodes,
@@ -274,7 +270,14 @@ var html2wt = function(req, res, html) {
 		}
 	}
 
-	var p = DU.serializeDOM(env, doc.body, parsoidConfig.useSelser)
+	// This isn't part of the public API.  Just a convenience to enable
+	// selser for roundtrip testing.
+	var useSelser = parsoidConfig.useSelser;
+	if (req.body.hasOwnProperty('_rtSelser')) {
+		useSelser = !(!req.body._rtSelser || req.body._rtSelser === "false");
+	}
+
+	var p = DU.serializeDOM(env, doc.body, useSelser)
 		.timeout(REQ_TIMEOUT)
 		.then(function(output) {
 		var contentType = 'text/plain;profile=mediawiki.org/specs/wikitext/1.0.0;charset=utf-8';
