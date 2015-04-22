@@ -7,7 +7,6 @@ var should = require("chai").should();
 var url = require('url');
 
 var MWParserEnvironment = require('../../lib/mediawiki.parser.environment.js').MWParserEnvironment;
-var WikitextSerializer = require('../../lib/mediawiki.WikitextSerializer.js').WikitextSerializer;
 var Util = require('../../lib/mediawiki.Util.js').Util;
 var DU = require('../../lib/mediawiki.DOMUtils.js').DOMUtils;
 var ParsoidConfig = require('../../lib/mediawiki.ParsoidConfig').ParsoidConfig;
@@ -27,14 +26,13 @@ describe('ParserPipelineFactory', function() {
 					env = options.tweakEnv(env) || env;
 				}
 				env.setPageSrcInfo(src);
-				var pipeline = env.pipelineFactory;
-				return Promise.promisify( pipeline.parse, false, pipeline )(
+				return env.pipelineFactory.parse(
 					env, env.page.src, options.expansions
 				);
 			});
 		};
 
-		var serialize = function( doc, dp, options ) {
+		var serialize = function(doc, dp, options) {
 			options = options || {};
 			return MWParserEnvironment.getParserEnv(parsoidConfig, null, {
 				prefix: options.prefix || 'enwiki',
@@ -43,18 +41,17 @@ describe('ParserPipelineFactory', function() {
 				if (options.tweakEnv) {
 					env = options.tweakEnv(env) || env;
 				}
-				if ( !dp ) {
+				if (!dp) {
 					var dpScriptElt = doc.getElementById('mw-data-parsoid');
-					if ( dpScriptElt ) {
+					if (dpScriptElt) {
 						dpScriptElt.parentNode.removeChild(dpScriptElt);
-						dp = JSON.parse( dpScriptElt.text );
+						dp = JSON.parse(dpScriptElt.text);
 					}
 				}
-				if ( dp ) {
-					DU.applyDataParsoid( doc, dp );
+				if (dp) {
+					DU.applyDataParsoid(doc, dp);
 				}
-				var serializer = new WikitextSerializer({ env: env });
-				return serializer.serializeDOM(doc.body, false);
+				return DU.serializeDOM(env, doc.body, false);
 			});
 		};
 
