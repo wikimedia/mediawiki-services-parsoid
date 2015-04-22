@@ -181,21 +181,34 @@ var xmlFormat = function(err, prefix, title, results, profile) {
 };
 
 var findMatchingNodes = function(root, targetRange, sourceLen) {
+	var isZeroLength = (targetRange.start === targetRange.end);
 	var currentOffset = null;
 	var wasWaiting = false;
 	var waitingForEndMatch = false;
 
 	function walkDOM(element) {
-		var elements = [];
-		var precedingNodes = [];
-		var attribs = DU.getJSONAttribute(element, 'data-parsoid');
+		var dp = DU.getDataParsoid(element);
 
-		if (attribs.dsr && attribs.dsr.length) {
-			var start = attribs.dsr[0] || 0;
-			var end = attribs.dsr[1] || sourceLen - 1;
+		// NOTE: We are not using Util.isValidDSR(dp.dsr)
+		// since we want to use partially valid info as well.
+		//
+		// SSS FIXME: Is partially valid info an issue anymore now?
+		if (dp.dsr && dp.dsr.length) {
+			var start = dp.dsr[0] || 0;
+			var end = dp.dsr[1] || sourceLen - 1;
 
-			if ((targetRange.end - 1) < start  || targetRange.start > (end - 1)) {
-				return null;
+			// For zero-length ranges, find the smallest node
+			// that includes the start/end value. So, use a more
+			// restrictive check to decide if this subtree can be
+			// skipped or not.
+			if (isZeroLength) {
+				if (targetRange.start > end || targetRange.end < start) {
+					return null;
+				}
+			} else {
+				if (targetRange.start >= end || targetRange.end <= start) {
+					return null;
+				}
 			}
 
 			if (waitingForEndMatch) {
@@ -205,32 +218,50 @@ var findMatchingNodes = function(root, targetRange, sourceLen) {
 				return { done: true, nodes: [element] };
 			}
 
-			if (attribs.dsr[0] !== null && targetRange.start === start &&
-					end === targetRange.end) {
+			if (dp.dsr[0] !== null &&
+				targetRange.start === start &&
+				end === targetRange.end) {
 				return { done: true, nodes: [element] };
 			} else if (targetRange.start === start) {
 				waitingForEndMatch = true;
 				if (end < targetRange.end) {
-					// No need to walk children
+					// No need to examine children since
+					// the subtree range is smaller than
+					// what we want.
 					return { done: false, nodes: [element] };
 				}
-			} else if (start > targetRange.start && end < targetRange.end) {
-				// No need to walk children
+			} else if (start >= targetRange.start && end <= targetRange.end) {
+				// No need to examine children since
+				// the subtree range is smaller than
+				// what we want.
 				return { done: false, nodes: [element] };
 			}
 		}
 
-		var c = element.firstChild;
-		while (c) {
+		// We cannot walk the subtree of this element
+		// if it encapsulates generaed content (templates, extensions)
+		if (DU.isFirstEncapsulationWrapperNode(element)) {
+			if (dp.dsr && dp.dsr.length) {
+				return { done: false, nodes: [element] };
+			} else {
+				return null;
+			}
+		}
 
+		// We have to find the smallest range in element's subtree
+		var elements = [];
+		var precedingNodes = [];
+		var c = element.firstChild;
+		var childDP;
+		while (c) {
 			wasWaiting = waitingForEndMatch;
 			if (DU.isElt(c)) {
 				var res = walkDOM(c);
 				var matchedChildren = res ? res.nodes : null;
 				if (matchedChildren) {
-					if (!currentOffset && attribs.dsr && (attribs.dsr[0] !== null)) {
+					if (!currentOffset && dp.dsr && dp.dsr[0] !== null) {
 						var elesOnOffset = [];
-						currentOffset = attribs.dsr[0];
+						currentOffset = dp.dsr[0];
 						// Walk the preceding nodes without dsr values and
 						// prefix matchedChildren till we get the desired
 						// matching start value.
@@ -253,14 +284,13 @@ var findMatchingNodes = function(root, targetRange, sourceLen) {
 					// Check if there's only one child,
 					// and make sure it's a node with getAttribute.
 					if (matchedChildren.length === 1 && DU.isElt(matchedChildren[0])) {
-						var childAttribs = matchedChildren[0].getAttribute('data-parsoid');
-						if (childAttribs) {
-							childAttribs = JSON.parse(childAttribs);
-							if (childAttribs.dsr && childAttribs.dsr[1]) {
-								if (childAttribs.dsr[1] >= targetRange.end) {
+						childDP = DU.getDataParsoid(matchedChildren[0]);
+						if (childDP) {
+							if (childDP.dsr && typeof (childDP.dsr[1]) === 'number') {
+								if (childDP.dsr[1] >= targetRange.end) {
 									res.done = true;
 								} else {
-									currentOffset = childAttribs.dsr[1];
+									currentOffset = childDP.dsr[1];
 								}
 							}
 						}
@@ -379,7 +409,6 @@ var checkIfSignificant = function(offsets, data) {
 
 	var i, k, diff, offset;
 	var results = [];
-
 	// Use the full tests for fostered content.
 	// Fostered content => semantic diffs.
 	if (!/("|&quot;)fostered("|&quot;)\s*:\s*true\b/.test(oldBody.outerHTML)) {
