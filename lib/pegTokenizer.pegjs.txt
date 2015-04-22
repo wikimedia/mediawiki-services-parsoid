@@ -1877,7 +1877,7 @@ urltext = ( t:[^-'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:;\]} &=]+ { return t.join('')
           // This is a hack to force a whitespace display before the colon
           / ' ' & ':' {
               return [
-                  new TagTk( 'span', [ new KV( 'typeof', 'mw:Placeholder' ) ], { src: ' ', tsr: [peg$reportedPos, peg$reportedPos], isDisplayHack: true } ),
+                  new TagTk( 'span', [ new KV( 'typeof', 'mw:DisplaySpace mw:Placeholder' ) ], { src: ' ', tsr: [peg$reportedPos, peg$reportedPos], isDisplayHack: true } ),
                   "\u00a0",
                   new EndTagTk( 'span', [], { tsr: [peg$currPos, peg$currPos], isDisplayHack: true } )
               ];

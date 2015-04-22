@@ -2723,7 +2723,7 @@ parsoid
 !! wikitext
 {{echo|a : b}}
 !! html
-<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a : b"}},"i":0}}]}'>a<span typeof="mw:Placeholder" data-parsoid='{"isDisplayHack":true}'> </span>: b</p>
+<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a : b"}},"i":0}}]}'>a<span typeof="mw:DisplaySpace mw:Placeholder" data-parsoid='{"isDisplayHack":true}'> </span>: b</p>
 !! end
 
 ## Bug T73412
