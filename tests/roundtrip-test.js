@@ -16,12 +16,16 @@ var MWParserEnvironment = require('../lib/mediawiki.parser.environment.js').MWPa
 var Diff = require('../lib/mediawiki.Diff.js').Diff;
 
 
+function displayDiff(type, count) {
+	var pad = (10 - type.length);  // Be positive!
+	type = type[0].toUpperCase() + type.substr(1);
+	return type + ' differences' + ' '.repeat(pad) + ': ' + count + '\n';
+}
+
 var plainFormat = function(err, prefix, title, results, profile) {
-	var output = '';
-	var semanticDiffs = 0;
-	var syntacticDiffs = 0;
 	var testDivider = '='.repeat(70) + '\n';
 	var diffDivider = '-'.repeat(70) + '\n';
+	var output = '';
 
 	if (err) {
 		output += 'Parser failure!\n\n';
@@ -31,6 +35,18 @@ var plainFormat = function(err, prefix, title, results, profile) {
 			output += '\nStack trace: ' + err.stack;
 		}
 	} else {
+		var diffs = {
+			html2wt: {
+				semantic: 0,
+				syntactic: 0,
+			},
+			selser: {
+				semantic: 0,
+				syntactic: 0,
+			},
+		};
+		var semanticDiffs = 0;
+		var syntacticDiffs = 0;
 		for (var i = 0; i < results.length; i++) {
 			var result = results[i];
 			output += testDivider;
@@ -40,25 +56,34 @@ var plainFormat = function(err, prefix, title, results, profile) {
 				output += result.wtDiff + '\n';
 				output += diffDivider + 'HTML diff:\n\n' +
 					result.htmlDiff + '\n';
-				semanticDiffs++;
+				diffs[result.selser ? 'selser' : 'html2wt'].semantic++;
 			} else {
 				output += 'Syntactic difference' +
 					(result.selser ? ' (selser)' : '') + ':\n\n';
 				output += result.wtDiff + '\n';
-				syntacticDiffs++;
+				diffs[result.selser ? 'selser' : 'html2wt'].syntactic++;
 			}
 		}
 		output += testDivider;
 		output += testDivider;
 		output += 'SUMMARY:\n';
-		output += 'Semantic differences : ' + semanticDiffs + '\n';
-		output += 'Syntactic differences: ' + syntacticDiffs + '\n';
 		output += diffDivider;
-		output += 'ALL differences      : ' +
-			(semanticDiffs + syntacticDiffs) + '\n';
+		var total = 0;
+		Object.keys(diffs).forEach(function(diff) {
+			output += diff + '\n';
+			output += diffDivider;
+			Object.keys(diffs[diff]).forEach(function(type) {
+				var count = diffs[diff][type];
+				total += count;
+				output += displayDiff(type, count);
+			});
+			output += diffDivider;
+		});
+		output += displayDiff('all', total);
 		output += testDivider;
 		output += testDivider;
 	}
+
 	return output;
 };
 
