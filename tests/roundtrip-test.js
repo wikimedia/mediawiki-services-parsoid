@@ -386,6 +386,10 @@ var normalizeWikitext = function(str) {
 	return str;
 };
 
+var normalizeWS = function(html) {
+	return html.replace(/<p>\s*<br\s*\/?>\s*/g, '<p>').replace(/<p><\/p>/g, '').replace(/^\s+$/g, '');
+};
+
 // Get diff substrings from offsets
 var formatDiff = function(oldWt, newWt, offset, context) {
 	return [
@@ -454,7 +458,8 @@ var checkIfSignificant = function(offsets, data) {
 			// node need not be an element always!
 			origOrigHTML += DU.serializeNode(origOut[k], { smartQuote: false });
 		}
-		origHTML = DU.formatHTML(DU.normalizeOut(origOrigHTML));
+		// Normalize away <br/>'s added by Parsoid because of newlines in wikitext
+		origHTML = normalizeWS(DU.formatHTML(DU.normalizeOut(origOrigHTML)));
 
 		res = findMatchingNodes(newBody, offset[1] || {}, newWt.length);
 		newOut = res ? res.nodes : [];
@@ -462,7 +467,8 @@ var checkIfSignificant = function(offsets, data) {
 			// node need not be an element always!
 			origNewHTML += DU.serializeNode(newOut[k], { smartQuote: false });
 		}
-		newHTML = DU.formatHTML(DU.normalizeOut(origNewHTML));
+		// Normalize away <br/>'s added by Parsoid because of newlines in wikitext
+		newHTML = normalizeWS(DU.formatHTML(DU.normalizeOut(origNewHTML)));
 
 		// compute wt diffs
 		var wt1 = oldWt.substring(offset[0].start, offset[0].end);
