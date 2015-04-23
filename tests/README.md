@@ -85,5 +85,5 @@ no need to complicate regexps with entities. It supports JavaScript RegExps.
 
 	$ npm install -g dumpgrepper
 
-More information on [github][https://github.com/wikimedia/dumpgrepper] and the
-[mediawiki wiki][https://www.mediawiki.org/wiki/Parsoid/DumpGrepper].
+More information on [github](https://github.com/wikimedia/dumpgrepper) and the
+[mediawiki wiki](https://www.mediawiki.org/wiki/Parsoid/DumpGrepper).
