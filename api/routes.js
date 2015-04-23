@@ -322,10 +322,6 @@ var wt2html = function(req, res, wt) {
 	var v2 = res.local('v2');
 	var target = env.resolveTitle(env.normalizeTitle( env.page.name ), '');
 
-	if (wt) {
-		wt = wt.replace(/\r/g, '');
-	}
-
 	if ( env.conf.parsoid.allowCORS ) {
 		// allow cross-domain requests (CORS) so that parsoid service
 		// can be used by third-party sites
@@ -729,10 +725,8 @@ routes.post_rtForm = function( req, res ) {
 		env.scrubWikitext = true;
 	}
 
-	// we don't care about \r, and normalize everything to \n
-	env.setPageSrcInfo({
-		revision: { '*': req.body.content.replace(/\r/g, '') }
-	});
+	env.setPageSrcInfo(req.body.content);
+
 	parse( env, req, res ).then(
 		roundTripDiff.bind( null, env, req, res, false )
 	).then(
