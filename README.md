@@ -37,7 +37,9 @@ Run the webservice:
 
 More details are available at https://www.mediawiki.org/wiki/Parsoid/Setup
 
-== License ==
+License
+-------
+
 Copyright (c) 2011-2015 Wikimedia Foundation and others; see
 `AUTHORS.txt`.
 
