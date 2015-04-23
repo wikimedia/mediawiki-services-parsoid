@@ -271,7 +271,7 @@ var html2wt = function(req, res, html) {
 	// This isn't part of the public API.  Just a convenience to enable
 	// selser for roundtrip testing.
 	var useSelser = parsoidConfig.useSelser;
-	if (req.body.hasOwnProperty('_rtSelser')) {
+	if (parsoidConfig.rtTestMode && req.body.hasOwnProperty('_rtSelser')) {
 		useSelser = !(!req.body._rtSelser || req.body._rtSelser === "false");
 	}
 
