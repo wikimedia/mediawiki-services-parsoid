@@ -239,8 +239,6 @@ var html2wt = function(req, res, html) {
 			env.conf.parsoid.allowCORS );
 	}
 
-	html = html.replace(/\r/g, '');
-
 	if (timer) {
 		startTimers.set('html2wt.init.domparse', Date.now());
 	}
