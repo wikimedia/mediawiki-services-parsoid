@@ -4557,7 +4557,7 @@
 					"url": "http://or.wiktionary.org",
 					"dbname": "orwiktionary",
 					"code": "wiktionary",
-					"sitename": "Wikipedia"
+					"sitename": "ଉଇକିଅଭିଧାନ"
 				},
 				{
 					"url": "http://or.wikisource.org",
@@ -6928,7 +6928,7 @@
 			],
 			"localname": "Zulu"
 		},
-		"count": 889,
+		"count": 888,
 		"specials": [
 			{
 				"url": "http://advisory.wikimedia.org",
@@ -7324,12 +7324,6 @@
 				"dbname": "usabilitywiki",
 				"code": "usability",
 				"closed": ""
-			},
-			{
-				"url": "http://ve.wikimedia.org",
-				"dbname": "vewikimedia",
-				"code": "vewikimedia",
-				"fishbowl": ""
 			},
 			{
 				"url": "https://vote.wikimedia.org",

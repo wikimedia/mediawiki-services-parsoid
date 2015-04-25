@@ -1662,8 +1662,12 @@ ParserTests.prototype.main = function( options, popts ) {
 
 	var parsoidConfig = new ParsoidConfig( null, options );
 	parsoidConfig.interwikiMap.forEach(function( val, key ) {
-		parsoidConfig.interwikiMap.set(key, mockAPIServerURL);
+		parsoidConfig.setInterwiki(key, mockAPIServerURL);
 	});
+
+	// This isn't part of the sitematrix but the
+	// "Check noCommafy in formatNum" test depends on it.
+	parsoidConfig.setInterwiki('be-taraskwiki', mockAPIServerURL);
 
 	// Set tracing and debugging before the env. object is
 	// constructed since tracing backends are registered there.
