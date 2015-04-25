@@ -72,7 +72,7 @@ var getTitle = function(cb) {
 };
 
 var runTest = function(cb, test) {
-	rtTest.fetch(test.title, {
+	rtTest.runTests(test.title, {
 		setup: config.setup,
 		prefix: test.prefix,
 		rtTestMode: true,

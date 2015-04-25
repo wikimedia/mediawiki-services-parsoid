@@ -572,7 +572,7 @@ function roundTripDiff(env, parsoidOptions, data) {
 }
 
 // Returns a Promise for a formatted string.  `cb` is optional.
-function fetch(title, options, formatter, cb) {
+function runTests(title, options, formatter, cb) {
 	// options are ParsoidConfig options if module.parent, otherwise they
 	// are CLI options (so use the Util.set* helpers to process them)
 	var parsoidConfig = new ParsoidConfig(module.parent ? options : null);
@@ -739,6 +739,7 @@ if (require.main === module) {
 
 	Promise.resolve().then(function() {
 		if (argv.parsoidURL) { return; }
+
 		// Start our own Parsoid server
 		// TODO: This will not be necessary once we have a top-level testing
 		// script that takes care of setting everything up.
@@ -753,12 +754,12 @@ if (require.main === module) {
 		});
 	}).then(function() {
 		var formatter = Util.booleanOption(argv.xml) ? xmlFormat : plainFormat;
-		return fetch(title, argv, formatter);
+		return runTests(title, argv, formatter);
 	}).then(function(output) {
 		console.log(output);
 		process.exit(0);
 	}).done();
 } else if (typeof module === 'object') {
-	module.exports.fetch = fetch;
+	module.exports.runTests = runTests;
 	module.exports.xmlFormat = xmlFormat;
 }
