@@ -476,6 +476,9 @@ var checkIfSignificant = function(offsets, data) {
 		// thisResult.wtDiff = Util.contextDiff(wt1, wt2, false, true, true);
 
 		diff = Diff.htmlDiff(origHTML, newHTML, false, true, true);
+		if (diff.length > 2000) {
+			diff = diff.substring(0, 2000) + "-- TRUNCATED TO 2000 chars --";
+		}
 
 		// No context by default
 		thisResult.wtDiff = formatDiff(oldWt, newWt, offset, 0);
