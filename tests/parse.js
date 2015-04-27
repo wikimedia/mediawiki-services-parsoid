@@ -311,7 +311,10 @@ if ( require.main === module ) {
 			local = require( p );
 		}
 
-		var parsoidConfig = new ParsoidConfig( local, { defaultWiki: prefix } );
+		var parsoidConfig = new ParsoidConfig(local, {
+			defaultWiki: prefix,
+			unfrozen: true  // FIXME: refactor the mutations below
+		});
 		Util.setTemplatingAndProcessingFlags( parsoidConfig, argv );
 		Util.setDebuggingFlags( parsoidConfig, argv );
 		return parse( null, argv, parsoidConfig, prefix ).then(function( res ) {

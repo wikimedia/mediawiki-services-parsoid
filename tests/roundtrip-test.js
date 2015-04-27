@@ -584,7 +584,9 @@ function roundTripDiff(env, parsoidOptions, data) {
 function runTests(title, options, formatter, cb) {
 	// options are ParsoidConfig options if module.parent, otherwise they
 	// are CLI options (so use the Util.set* helpers to process them)
-	var parsoidConfig = new ParsoidConfig(module.parent ? options : null);
+	var parsoidConfig = new ParsoidConfig(module.parent ? options : null, {
+		unfrozen: true  // FIXME: refactor the mutations below
+	});
 	if (!module.parent) {
 		// only process CLI flags if we're running as a CLI program.
 		Util.setTemplatingAndProcessingFlags(parsoidConfig, options);

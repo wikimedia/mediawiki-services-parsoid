@@ -52,11 +52,13 @@ var fetch = function(page, revid, cb, options) {
 		prefix = 'customwiki';
 	}
 
-	var parsoidConfig = new ParsoidConfig( options, { defaultWiki: prefix } );
+	options.setup = function(parsoidConfig) {
+		if (options.apiURL) {
+			parsoidConfig.setInterwiki('customwiki', options.apiURL);
+		}
+	};
 
-	if ( options.apiURL ) {
-		parsoidConfig.setInterwiki( 'customwiki', options.apiURL );
-	}
+	var parsoidConfig = new ParsoidConfig(options, { defaultWiki: prefix });
 
 	MWParserEnvironment.getParserEnv( parsoidConfig, null, {
 		prefix: prefix,

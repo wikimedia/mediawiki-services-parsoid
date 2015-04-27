@@ -26,6 +26,7 @@ var DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils;
 var ParsoidLogger = require('../lib/ParsoidLogger.js').ParsoidLogger;
 var PEG = require('pegjs');
 var Util = require('../lib/mediawiki.Util.js').Util;
+var JSUtils = require('../lib/jsutils.js').JSUtils;
 var Diff = require('../lib/mediawiki.Diff.js').Diff;
 
 // Fetch up some of our wacky parser bits...
@@ -409,10 +410,6 @@ ParserTests.prototype.processArticle = function( item, cb ) {
  * @param {string/null} processWikitextCB.res
  */
 ParserTests.prototype.convertHtml2Wt = function( options, mode, item, body, processWikitextCB ) {
-	// SSS FIXME: SelSer clobbers this flag -- need a better fix for this.
-	// Maybe pass this as an option, or clone the entire environment.
-	this.env.conf.parsoid.rtTestMode = options.rtTestMode;
-
 	var startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser';
 	try {
 		if (startsAtWikitext) {
@@ -1660,6 +1657,9 @@ ParserTests.prototype.main = function( options, popts ) {
 
 	options.expandExtensions = true;
 
+	// TODO: Refactor to eliminate the mutations below.
+	options.unfrozen = true;
+
 	var parsoidConfig = new ParsoidConfig( null, options );
 	parsoidConfig.interwikiMap.forEach(function( val, key ) {
 		parsoidConfig.interwikiMap.set(key, mockAPIServerURL);
@@ -1672,6 +1672,11 @@ ParserTests.prototype.main = function( options, popts ) {
 	Util.setDebuggingFlags(parsoidConfig, options);
 	Util.setTemplatingAndProcessingFlags( parsoidConfig, options );
 
+	parsoidConfig.rtTestMode = options.rtTestMode;
+
+	// See the todo above.
+	JSUtils.deepFreeze(parsoidConfig);
+
 	// Create a new parser environment
 	MWParserEnvironment.getParserEnv( parsoidConfig, null, { prefix: 'enwiki' }, function( err, env ) {
 		// For posterity: err will never be non-null here, because we expect the WikiConfig
@@ -1683,8 +1688,6 @@ ParserTests.prototype.main = function( options, popts ) {
 			logger.registerLoggingBackends(["fatal", "error"], parsoidConfig);
 			env.setLogger(logger);
 		}
-
-		this.env.conf.parsoid.rtTestMode = options.rtTestMode;
 
 		// Enable <ref> and <references> tags since we want to
 		// test Parsoid's native implementation of these tags.
