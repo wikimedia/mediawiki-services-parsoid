@@ -14,4 +14,4 @@ script: npm run-script coverage && (npm run-script coveralls || exit 0)
 
 notifications:
   email:
-    - parsoid-team@wikimedia.org
+    - parsing-team@wikimedia.org
