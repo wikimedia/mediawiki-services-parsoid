@@ -13,57 +13,41 @@ var yargs = require('yargs');
 var TemplateRequest = require('../lib/mediawiki.ApiRequest.js').TemplateRequest;
 var ParsoidConfig = require('../lib/mediawiki.ParsoidConfig').ParsoidConfig;
 var MWParserEnvironment = require('../lib/mediawiki.parser.environment.js').MWParserEnvironment;
+var Util = require('../lib/mediawiki.Util.js').Util;
 
 
-var fetch = function(page, revid, cb, options) {
-	cb = typeof cb === 'function' ? cb : function() {};
-
-	var envCb = function( err, env ) {
-		env.errCB = function( error ) {
-			cb( error, env, [] );
-		};
-		if ( err !== null ) {
-			env.errCB( err );
-			return;
-		}
-
-		var target = page ? env.resolveTitle( env.normalizeTitle( env.page.name ), '' ) : null;
-		var tpr = new TemplateRequest( env, target, revid );
-
-		tpr.once( 'src', function( err, src_and_metadata ) {
-			if ( err ) {
-				cb( err, env, [] );
-			} else {
-				env.setPageSrcInfo( src_and_metadata );
-
-				// ok, got it
-				if ( options.output ) {
-					fs.writeFileSync( options.output, env.page.src, 'utf8');
-				} else {
-					console.log( env.page.src );
-				}
-			}
-		} );
-	};
-
+var fetch = function(page, revid, options) {
 	var prefix = options.prefix || null;
 
-	if ( options.apiURL ) {
+	if (options.apiURL) {
 		prefix = 'customwiki';
 	}
 
-	options.setup = function(parsoidConfig) {
-		if (options.apiURL) {
-			parsoidConfig.setInterwiki('customwiki', options.apiURL);
-		}
+	var setup = function(parsoidConfig) {
+		Util.setTemplatingAndProcessingFlags(parsoidConfig, options);
 	};
 
-	var parsoidConfig = new ParsoidConfig(options, { defaultWiki: prefix });
+	var parsoidConfig = new ParsoidConfig(
+		{ setup: setup },
+		{ defaultWiki: prefix }
+	);
 
-	MWParserEnvironment.getParserEnv( parsoidConfig, null, {
+	var env;
+	MWParserEnvironment.getParserEnv(parsoidConfig, null, {
 		prefix: prefix,
 		pageName: page
-	}, envCb );
+	}).then(function(_env) {
+		env = _env;
+		var target = page ?
+			env.resolveTitle(env.normalizeTitle(env.page.name), '') : null;
+		return TemplateRequest.setPageSrcInfo(env, target, revid);
+	}).then(function() {
+		if (options.output) {
+			fs.writeFileSync(options.output, env.page.src, 'utf8');
+		} else {
+			console.log(env.page.src);
+		}
+	}).done();
 };
 
 var usage = 'Usage: $0 [options] <page-title or rev-id>\n' +
@@ -127,4 +111,4 @@ if (argv.help || error) {
 	return;
 }
 
-fetch(title, revid, null, argv);
+fetch(title, revid, argv);

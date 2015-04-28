@@ -26,7 +26,6 @@ var DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils;
 var ParsoidLogger = require('../lib/ParsoidLogger.js').ParsoidLogger;
 var PEG = require('pegjs');
 var Util = require('../lib/mediawiki.Util.js').Util;
-var JSUtils = require('../lib/jsutils.js').JSUtils;
 var Diff = require('../lib/mediawiki.Diff.js').Diff;
 
 // Fetch up some of our wacky parser bits...
@@ -1657,34 +1656,36 @@ ParserTests.prototype.main = function( options, popts ) {
 
 	options.expandExtensions = true;
 
-	// TODO: Refactor to eliminate the mutations below.
-	options.unfrozen = true;
+	var setup = function(parsoidConfig) {
+		// Set tracing and debugging before the env. object is
+		// constructed since tracing backends are registered there.
+		// (except for the --quiet option where the backends are
+		// overridden here).
+		Util.setDebuggingFlags(parsoidConfig, options);
+		Util.setTemplatingAndProcessingFlags(parsoidConfig, options);
 
-	var parsoidConfig = new ParsoidConfig( null, options );
-	parsoidConfig.interwikiMap.forEach(function( val, key ) {
-		parsoidConfig.setInterwiki(key, mockAPIServerURL);
-	});
+		// Init early so we can overwrite it here.
+		parsoidConfig.loadWMF = false;
+		parsoidConfig.initInterwikiMap();
 
-	// This isn't part of the sitematrix but the
-	// "Check noCommafy in formatNum" test depends on it.
-	parsoidConfig.setInterwiki('be-taraskwiki', mockAPIServerURL);
+		// Send all requests to the mock API server.
+		parsoidConfig.interwikiMap.forEach(function(val, key) {
+			parsoidConfig.setInterwiki(key, mockAPIServerURL);
+		});
 
-	// Set tracing and debugging before the env. object is
-	// constructed since tracing backends are registered there.
-	// (except for the --quiet option where the backends are
-	// overridden here).
-	Util.setDebuggingFlags(parsoidConfig, options);
-	Util.setTemplatingAndProcessingFlags( parsoidConfig, options );
+		// This isn't part of the sitematrix but the
+		// "Check noCommafy in formatNum" test depends on it.
+		parsoidConfig.setInterwiki('be-taraskwiki', mockAPIServerURL);
+	};
 
-	parsoidConfig.rtTestMode = options.rtTestMode;
-
-	// See the todo above.
-	JSUtils.deepFreeze(parsoidConfig);
+	var parsoidConfig = new ParsoidConfig({ setup: setup }, options);
 
 	// Create a new parser environment
-	MWParserEnvironment.getParserEnv( parsoidConfig, null, { prefix: 'enwiki' }, function( err, env ) {
-		// For posterity: err will never be non-null here, because we expect the WikiConfig
-		// to be basically empty, since the parserTests environment is very bare.
+	MWParserEnvironment.getParserEnv(parsoidConfig, null, { prefix: 'enwiki' },
+			function(err, env) {
+		// For posterity: err will never be non-null here, because we expect
+		// the WikiConfig to be basically empty, since the parserTests
+		// environment is very bare.
 		this.env = env;
 
 		if (booleanOption( options.quiet )) {

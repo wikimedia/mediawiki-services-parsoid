@@ -281,47 +281,54 @@ if ( require.main === module ) {
 
 		var argv = opts.argv;
 
-		if ( Util.booleanOption( argv.help ) ) {
+		if (Util.booleanOption(argv.help)) {
 			opts.showHelp();
 			return;
 		}
 
 		// Because selser builds on html2wt serialization,
 		// the html2wt flag should be automatically set when selser is set.
-		if ( argv.selser ) {
+		if (argv.selser) {
 			argv.html2wt = true;
 		}
 
 		// Default conversion mode
-		if ( !argv.html2wt && !argv.wt2wt && !argv.html2html ) {
+		if (!argv.html2wt && !argv.wt2wt && !argv.html2html) {
 			argv.wt2html = true;
 		}
 
 		var prefix = argv.prefix || null;
 
-		if ( argv.apiURL ) {
+		if (argv.apiURL) {
 			prefix = 'customwiki';
 		}
 
 		var local = null;
-		if ( Util.booleanOption( argv.config ) ) {
-			var p = ( typeof ( argv.config ) === 'string' ) ?
-				path.resolve( '.', argv.config) :
-				path.resolve( __dirname, '../api/localsettings.js' );
-			local = require( p );
+		if (Util.booleanOption(argv.config)) {
+			var p = (typeof (argv.config) === 'string') ?
+				path.resolve('.', argv.config) :
+				path.resolve(__dirname, '../api/localsettings.js');
+			local = require(p);
 		}
 
-		var parsoidConfig = new ParsoidConfig(local, {
-			defaultWiki: prefix,
-			unfrozen: true  // FIXME: refactor the mutations below
-		});
-		Util.setTemplatingAndProcessingFlags( parsoidConfig, argv );
-		Util.setDebuggingFlags( parsoidConfig, argv );
-		return parse( null, argv, parsoidConfig, prefix ).then(function( res ) {
+		var setup = function(parsoidConfig) {
+			if (local && local.setup) {
+				local.setup(parsoidConfig);
+			}
+			Util.setTemplatingAndProcessingFlags(parsoidConfig, argv);
+			Util.setDebuggingFlags(parsoidConfig, argv);
+		};
+
+		var parsoidConfig = new ParsoidConfig(
+			{ setup: setup },
+			{ defaultWiki: prefix }
+		);
+
+		return parse(null, argv, parsoidConfig, prefix).then(function(res) {
 			var stdout = process.stdout;
-			stdout.write( res.out );
-			if ( res.trailingNL && stdout.isTTY ) {
-				stdout.write( "\n" );
+			stdout.write(res.out);
+			if (res.trailingNL && stdout.isTTY) {
+				stdout.write('\n');
 			}
 		}).done();
 	}());

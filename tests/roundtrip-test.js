@@ -582,19 +582,19 @@ function roundTripDiff(env, parsoidOptions, data) {
 
 // Returns a Promise for a formatted string.  `cb` is optional.
 function runTests(title, options, formatter, cb) {
-	// options are ParsoidConfig options if module.parent, otherwise they
-	// are CLI options (so use the Util.set* helpers to process them)
-	var parsoidConfig = new ParsoidConfig(module.parent ? options : null, {
-		unfrozen: true  // FIXME: refactor the mutations below
-	});
-	if (!module.parent) {
-		// only process CLI flags if we're running as a CLI program.
-		Util.setTemplatingAndProcessingFlags(parsoidConfig, options);
-		Util.setDebuggingFlags(parsoidConfig, options);
-	}
-	if (options.apiURL) {
-		parsoidConfig.setInterwiki(options.prefix || 'localhost', options.apiURL);
-	}
+	var setup = function(parsoidConfig) {
+		// options are ParsoidConfig options if module.parent, otherwise they
+		// are CLI options (so use the Util.set* helpers to process them)
+		if (module.parent) {
+			if (options && options.setup) {
+				options.setup(parsoidConfig);
+			}
+		} else {
+			Util.setTemplatingAndProcessingFlags(parsoidConfig, options);
+			Util.setDebuggingFlags(parsoidConfig, options);
+		}
+	};
+	var parsoidConfig = new ParsoidConfig({ setup: setup });
 	var err, domain, prefix;
 	if (options.prefix) {
 		// If prefix is present, use that.
