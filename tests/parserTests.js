@@ -1686,6 +1686,7 @@ ParserTests.prototype.main = function( options, popts ) {
 		// For posterity: err will never be non-null here, because we expect
 		// the WikiConfig to be basically empty, since the parserTests
 		// environment is very bare.
+		console.assert(!err, err);
 		this.env = env;
 
 		if (booleanOption( options.quiet )) {
