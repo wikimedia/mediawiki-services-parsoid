@@ -1,56 +1,56 @@
 {
-	"name": "parsoid",
-	"description": "Mediawiki parser for the VisualEditor.",
-	"version": "0.2.0-git",
-	"license": "GPL-2.0+",
-	"dependencies": {
-		"alea": "~0.0.9",
-		"async": "~0.9.0",
-		"bunyan": "~1.0.0",
-		"compression": "~1.4.0",
-		"core-js": "^0.8.1",
-		"diff": "~1.0.7",
-		"domino": "~1.0.18",
-		"entities": "~1.1.1",
-		"express": "~2.5.11",
-		"gelf-stream": "~0.2.4",
-		"handlebars": "~1.3.0",
-		"html5": "~1.0.5",
-		"node-txstatsd": "~0.1.5",
-		"node-uuid": "~1.4.1",
-		"pegjs": "git+https://github.com/arlolra/pegjs#startOffset",
-		"prfun": "~2.0.0",
-		"request": "~2.40.0",
-		"simplediff": "~0.1.1",
-		"yargs": "~1.3.1"
-	},
-	"devDependencies": {
-		"chai": "~2.1.1",
-		"colors": "~0.6.2",
-		"coveralls": "2.11.2",
-		"istanbul": "0.3.5",
-		"jscs": "1.12.0",
-		"mocha": "~1.21.4",
-		"supertest": "0.14.0"
-	},
-	"main": "lib/index.js",
-	"bin": {
-		"parse.js": "tests/parse.js"
-	},
-	"scripts": {
-		"start": "node api/server.js",
-		"jscs": "jscs api lib tests",
-		"dump-tokenizer": "node lib/mediawiki.tokenizer.peg.js",
-		"mocha": "mocha --opts tests/mocha/mocha.opts tests/mocha",
-		"parserTests": "node tests/parserTests.js --wt2html --wt2wt --html2wt --html2html --selser --no-color --quiet --blacklist",
-		"test": "npm run dump-tokenizer && npm run jscs && npm run parserTests && npm run mocha",
-		"cover-mocha": "istanbul cover _mocha --dir ./coverage/mocha --  --opts tests/mocha/mocha.opts tests/mocha",
-		"cover-parserTests": "istanbul cover tests/parserTests.js --dir ./coverage/parserTests -- --wt2html --wt2wt --html2wt --html2html --selser --no-color --quiet --blacklist",
-		"coverage": "npm run cover-mocha && npm run cover-parserTests && istanbul report",
-		"coveralls": "cat ./coverage/lcov.info | coveralls && rm -rf ./coverage"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://gerrit.wikimedia.org/r/p/mediawiki/services/parsoid"
-	}
+  "name": "parsoid",
+  "description": "Mediawiki parser for the VisualEditor.",
+  "version": "0.2.0-git",
+  "license": "GPL-2.0+",
+  "dependencies": {
+    "alea": "~0.0.9",
+    "async": "~0.9.0",
+    "bunyan": "~1.0.0",
+    "compression": "~1.4.0",
+    "core-js": "^0.8.1",
+    "diff": "~1.0.7",
+    "domino": "~1.0.18",
+    "entities": "~1.1.1",
+    "express": "~2.5.11",
+    "gelf-stream": "~0.2.4",
+    "handlebars": "~1.3.0",
+    "html5": "~1.0.5",
+    "node-txstatsd": "~0.1.5",
+    "node-uuid": "~1.4.1",
+    "pegjs": "git+https://github.com/arlolra/pegjs#startOffset",
+    "prfun": "~2.0.0",
+    "request": "~2.40.0",
+    "simplediff": "~0.1.1",
+    "yargs": "~1.3.1"
+  },
+  "devDependencies": {
+    "chai": "~2.1.1",
+    "colors": "~0.6.2",
+    "coveralls": "2.11.2",
+    "istanbul": "0.3.5",
+    "jscs": "1.12.0",
+    "mocha": "~1.21.4",
+    "supertest": "0.14.0"
+  },
+  "main": "lib/index.js",
+  "bin": {
+    "parse.js": "tests/parse.js"
+  },
+  "scripts": {
+    "start": "node api/server.js",
+    "jscs": "jscs api lib tests",
+    "dump-tokenizer": "node lib/mediawiki.tokenizer.peg.js",
+    "mocha": "mocha --opts tests/mocha/mocha.opts tests/mocha",
+    "parserTests": "node tests/parserTests.js --wt2html --wt2wt --html2wt --html2html --selser --no-color --quiet --blacklist",
+    "test": "npm run dump-tokenizer && npm run jscs && npm run parserTests && npm run mocha",
+    "cover-mocha": "istanbul cover _mocha --dir ./coverage/mocha --  --opts tests/mocha/mocha.opts tests/mocha",
+    "cover-parserTests": "istanbul cover tests/parserTests.js --dir ./coverage/parserTests -- --wt2html --wt2wt --html2wt --html2html --selser --no-color --quiet --blacklist",
+    "coverage": "npm run cover-mocha && npm run cover-parserTests && istanbul report",
+    "coveralls": "cat ./coverage/lcov.info | coveralls && rm -rf ./coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gerrit.wikimedia.org/r/p/mediawiki/services/parsoid"
+  }
 }
