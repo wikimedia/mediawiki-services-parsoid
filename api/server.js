@@ -26,6 +26,8 @@ var path = require('path');
 var util = require('util');
 var fs = require('fs');
 
+var HEAP_USAGE_SAMPLE_INTERVAL = 5 * 60 * 1000;
+
 // process arguments
 var opts = require( "yargs" )
 	.usage( "Usage: $0 [-h|-v] [--param[=val]]" )
@@ -195,7 +197,7 @@ if ( cluster.isMaster && argv.n > 0 ) {
 			parsoidConfig.performanceTimer.timing('heap.rss', '', heapUsage.rss);
 			parsoidConfig.performanceTimer.timing('heap.total', '', heapUsage.heapTotal);
 			parsoidConfig.performanceTimer.timing('heap.used', '', heapUsage.heapUsed);
-		},  1000 * 60 * 5);
+		},  HEAP_USAGE_SAMPLE_INTERVAL);
 	}
 
 	var app = new ParsoidService( parsoidConfig, logger );

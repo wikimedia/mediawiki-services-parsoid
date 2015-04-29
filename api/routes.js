@@ -24,7 +24,6 @@ var TemplateRequest = ApiRequest.TemplateRequest;
 module.exports = function(parsoidConfig) {
 	var routes = {};
 
-
 	/**
 	 * Timeouts
 	 *
@@ -46,6 +45,8 @@ module.exports = function(parsoidConfig) {
 
 	// Should be less than the CPU_TIMEOUT
 	var REQ_TIMEOUT = 4 * 60 * 1000;  // 4 minutes
+	var CPU_TIMEOUT = 5 * 60 * 1000;  // 5 minutes
+
 	function timeoutResp( env, err ) {
 		if ( err instanceof Promise.TimeoutError ) {
 			err = new Error("Request timed out.");
@@ -54,7 +55,6 @@ module.exports = function(parsoidConfig) {
 		env.log("fatal/request", err);
 	}
 
-	var CPU_TIMEOUT = 5 * 60 * 1000;  // 5 minutes
 	var makeDone = function( timeoutId ) {
 		// Create this function in an outer scope so that we don't inadvertently
 		// keep a reference to the promise here.
