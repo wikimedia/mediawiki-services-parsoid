@@ -55,12 +55,14 @@ apiUtils.relativeRedirect = function(args) {
  * @method
  * @param {Response} res The response object from our routing function.
  * @param {MWParserEnvironment} env
+ * @param {String} name
+ * @param {String|String[]} value
  */
-apiUtils.setHeader = function(res, env) {
+apiUtils.setHeader = function(res, env, name, value) {
 	if (env.responseSent) {
 		return;
 	} else {
-		res.setHeader.apply(res, Array.prototype.slice.call(arguments, 2));
+		res.setHeader(name, value);
 	}
 };
 
@@ -70,13 +72,14 @@ apiUtils.setHeader = function(res, env) {
  * @method
  * @param {Response} res The response object from our routing function.
  * @param {MWParserEnvironment} env
+ * @param {String|Buffer} [out]
  */
-apiUtils.endResponse = function(res, env) {
+apiUtils.endResponse = function(res, env, out) {
 	if (env.responseSent) {
 		return;
 	} else {
 		env.responseSent = true;
-		res.end.apply(res, Array.prototype.slice.call(arguments, 2));
+		res.end(out);
 		env.log("end/response");
 	}
 };
@@ -87,13 +90,21 @@ apiUtils.endResponse = function(res, env) {
  * @method
  * @param {Response} res The response object from our routing function.
  * @param {MWParserEnvironment} env
+ * @param {Buffer|String|Array|Object} body
+ *   Buffers are sent with Content-Type application/octet-stream.
+ *   Strings are sent with Content-Type text/html.
+ *   Arrays and Objects are JSON-encoded.
+ * @param {Number} [status] HTTP status code
  */
-apiUtils.sendResponse = function(res, env) {
+apiUtils.sendResponse = function(res, env, body, status) {
 	if (env.responseSent) {
 		return;
 	} else {
 		env.responseSent = true;
-		res.send.apply(res, Array.prototype.slice.call(arguments, 2));
+		if (status) {
+			res.status(status);
+		}
+		res.send(body);
 	}
 };
 
@@ -101,15 +112,15 @@ apiUtils.sendResponse = function(res, env) {
  * Render response, but only if response hasn't been sent.
  * @param {Response} res The response object from our routing function.
  * @param {MWParserEnvironment} env
- * @param template
- * @param data
+ * @param {String} view
+ * @param {Object} locals
  */
-apiUtils.renderResponse = function(res, env, template, data) {
+apiUtils.renderResponse = function(res, env, view, locals) {
 	if (env.responseSent) {
 		return;
 	} else {
 		env.responseSent = true;
-		res.render(template, data);
+		res.render(view, locals);
 	}
 };
 
@@ -119,13 +130,14 @@ apiUtils.renderResponse = function(res, env, template, data) {
  * @method
  * @param {Response} res The response object from our routing function.
  * @param {MWParserEnvironment} env
+ * @param {Object} json
  */
-apiUtils.jsonResponse = function(res, env) {
+apiUtils.jsonResponse = function(res, env, json) {
 	if (env.responseSent) {
 		return;
 	} else {
 		env.responseSent = true;
-		res.json.apply(res, Array.prototype.slice.call(arguments, 2));
+		res.json(json);
 	}
 };
 
@@ -174,11 +186,11 @@ var sufficientNodeVersion = !/^v0\.[0-8]\./.test(process.version);
  * @param {Response} res The response object from our routing function.
  */
 apiUtils.cpuTimeout = function(p, res) {
-	var CPU_TIMEOUT = res.local('env').conf.parsoid.timeouts.cpu;
-	var timeoutId = res.local('timeoutId');
+	var CPU_TIMEOUT = res.locals.env.conf.parsoid.timeouts.cpu;
+	var timeoutId = res.locals.timeoutId;
 	var location = util.format(
-		'[%s/%s%s]', res.local('iwp'), res.local('pageName'),
-		(res.local('oldid') ? '?oldid=' + res.local('oldid') : '')
+		'[%s/%s%s]', res.locals.iwp, res.locals.pageName,
+		(res.locals.oldid ? '?oldid=' + res.locals.oldid : '')
 	);
 	return new Promise(function(resolve, reject) {
 		if (cluster.isMaster || !sufficientNodeVersion) {
@@ -200,7 +212,7 @@ apiUtils.cpuTimeout = function(p, res) {
 
 apiUtils.logTime = function(env, res, str) {
 	env.log('info', util.format(
-		'completed %s in %s ms', str, Date.now() - res.local('start')
+		'completed %s in %s ms', str, Date.now() - res.locals.start
 	));
 };
 
@@ -254,9 +266,9 @@ apiUtils.roundTripDiff = function(env, req, res, useSelser, doc) {
 };
 
 apiUtils.startHtml2wt = Promise.method(function(req, res, html) {
-	var env = res.local('env');
+	var env = res.locals.env;
 
-	env.page.id = res.local('oldid');
+	env.page.id = res.locals.oldid;
 	env.log('info', 'started serializing');
 
 	// Performance Timing options
@@ -345,7 +357,7 @@ var substTopLevelTemplates = function(env, target, wt) {
 };
 
 apiUtils.startWt2html = function(req, res, wt) {
-	var env = res.local('env');
+	var env = res.locals.env;
 
 	// Performance Timing options
 	var timer = env.conf.parsoid.performanceTimer;
@@ -358,8 +370,8 @@ apiUtils.startWt2html = function(req, res, wt) {
 		startTimers.set('wt2html.total', Date.now());
 	}
 
-	var prefix = res.local('iwp');
-	var oldid = res.local('oldid');
+	var prefix = res.locals.iwp;
+	var oldid = res.locals.oldid;
 	var target = env.resolveTitle(env.normalizeTitle(env.page.name), '');
 
 	var p = Promise.resolve(wt);
@@ -373,7 +385,7 @@ apiUtils.startWt2html = function(req, res, wt) {
 		});
 	}
 
-	if (typeof wt === 'string' && res.local('subst')) {
+	if (typeof wt === 'string' && res.locals.subst) {
 		p = p.then(function(wt) {
 			return substTopLevelTemplates(env, target, wt);
 		});
@@ -463,7 +475,7 @@ apiUtils.parseWt = function(ret) {
 		timer.timing('wt2html.wt.size.input', '', ret.wikitext.length);
 	}
 
-	if (!res.local('pageName')) {
+	if (!res.locals.pageName) {
 		// clear default page name
 		env.page.name = '';
 	}
@@ -478,7 +490,7 @@ apiUtils.endWt2html = function(ret, doc, output) {
 	var startTimers = ret.startTimers;
 
 	if (doc) {
-		output = DU.serializeNode(res.local('body') ? doc.body : doc).str;
+		output = DU.serializeNode(res.locals.body ? doc.body : doc).str;
 		apiUtils.setHeader(res, env, 'content-type', apiUtils.HTML_CONTENT_TYPE);
 		apiUtils.endResponse(res, env, output);
 	}
@@ -503,9 +515,9 @@ apiUtils.endWt2html = function(ret, doc, output) {
 apiUtils.v2endWt2html = function(ret, doc) {
 	var env = ret.env;
 	var res = ret.res;
-	var v2 = res.local('v2');
+	var v2 = res.locals.v2;
 	if (v2.format === 'pagebundle') {
-		var out = DU.extractDpAndSerialize(doc, res.local('body'));
+		var out = DU.extractDpAndSerialize(doc, res.locals.body);
 		apiUtils.jsonResponse(res, env, {
 			html: {
 				headers: { 'content-type': apiUtils.HTML_CONTENT_TYPE },

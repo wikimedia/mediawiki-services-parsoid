@@ -23,17 +23,16 @@ module.exports = function(parsoidConfig) {
 
 	var REQ_TIMEOUT = parsoidConfig.timeouts.request;
 
-
 	// Middlewares
 
 	routes.interParams = function(req, res, next) {
-		res.local('iwp', req.params[0] || parsoidConfig.defaultWiki || '');
-		res.local('pageName', req.params[1] || '');
-		res.local('oldid', req.body.oldid || req.query.oldid || null);
+		res.locals.iwp = req.params[0] || parsoidConfig.defaultWiki || '';
+		res.locals.pageName = req.params[1] || '';
+		res.locals.oldid = req.body.oldid || req.query.oldid || null;
 		// "body" flag to return just the body (instead of the entire HTML doc)
-		res.local('body', !!(req.query.body || req.body.body));
+		res.locals.body = !!(req.query.body || req.body.body);
 		// "subst" flag to perform {{subst:}} template expansion
-		res.local('subst', !!(req.query.subst || req.body.subst));
+		res.locals.subst = !!(req.query.subst || req.body.subst);
 		next();
 	};
 
@@ -50,12 +49,12 @@ module.exports = function(parsoidConfig) {
 			return errOut('Invalid domain: ' + req.params.domain);
 		}
 
-		res.local('iwp', iwp);
-		res.local('pageName', req.params.title || '');
-		res.local('oldid', req.params.revision || null);
+		res.locals.iwp = iwp;
+		res.locals.pageName = req.params.title || '';
+		res.locals.oldid = req.params.revision || null;
 
 		// "body" flag to return just the body (instead of the entire HTML doc)
-		res.local('body', !!(req.query.body || req.body.body));
+		res.locals.body = !!(req.query.body || req.body.body);
 
 		var v2 = Object.assign({ format: req.params.format }, req.body);
 
@@ -65,23 +64,23 @@ module.exports = function(parsoidConfig) {
 		}
 
 		// "subst" flag to perform {{subst:}} template expansion
-		res.local('subst', !!(req.query.subst || req.body.subst));
+		res.locals.subst = !!(req.query.subst || req.body.subst);
 		// This is only supported for the html format
-		if (res.local('subst') && v2.format !== 'html') {
+		if (res.locals.subst && v2.format !== 'html') {
 			return errOut('Substitution is only supported for the HTML format.', 501);
 		}
 
 		if (req.method === 'POST') {
 			var original = v2.original || {};
 			if (original.revid) {
-				res.local('oldid', original.revid);
+				res.locals.oldid = original.revid;
 			}
 			if (original.title) {
-				res.local('pageName', original.title);
+				res.locals.pageName = original.title;
 			}
 		}
 
-		res.local('v2', v2);
+		res.locals.v2 = v2;
 		next();
 	};
 
@@ -104,8 +103,8 @@ module.exports = function(parsoidConfig) {
 			return Promise.resolve().nodify(callback);
 		}
 		var options = {
-			prefix: res.local('iwp'),
-			pageName: res.local('pageName'),
+			prefix: res.locals.iwp,
+			pageName: res.locals.pageName,
 			cookie: req.headers.cookie,
 			reqId: req.headers['x-request-id'],
 		};
@@ -117,7 +116,7 @@ module.exports = function(parsoidConfig) {
 				apiUtils.setHeader(res, env, 'Access-Control-Allow-Origin',
 					env.conf.parsoid.allowCORS);
 			}
-			if (res.local('v2') && res.local('v2').format === 'pagebundle') {
+			if (res.locals.v2 && res.locals.v2.format === 'pagebundle') {
 				env.storeDataParsoid = true;
 			}
 			if (req.body.hasOwnProperty('scrubWikitext')) {
@@ -127,7 +126,7 @@ module.exports = function(parsoidConfig) {
 				env.scrubWikitext = !(!req.query.scrubWikitext ||
 					req.query.scrubWikitext === 'false');
 			}
-			res.local('env', env);
+			res.locals.env = env;
 			next();
 		}).catch(function(err) {
 			// Workaround how logdata flatten works so that the error object is
@@ -176,8 +175,8 @@ module.exports = function(parsoidConfig) {
 
 	// Form-based HTML DOM -> wikitext interface for manual testing.
 	routes.html2wtForm = function(req, res) {
-		var env = res.local('env');
-		var action = "/" + res.local('iwp') + "/" + res.local('pageName');
+		var env = res.locals.env;
+		var action = '/' + res.locals.iwp + '/' + res.locals.pageName;
 		if (req.query.hasOwnProperty('scrubWikitext')) {
 			action += "?scrubWikitext=" + req.query.scrubWikitext;
 		}
@@ -190,18 +189,18 @@ module.exports = function(parsoidConfig) {
 
 	// Form-based wikitext -> HTML DOM interface for manual testing
 	routes.wt2htmlForm = function(req, res) {
-		var env = res.local('env');
-		apiUtils.renderResponse(res, env, "form", {
-			title: "Your wikitext:",
-			action: "/" + res.local('iwp') + "/" + res.local('pageName'),
-			name: "wt",
+		var env = res.locals.env;
+		apiUtils.renderResponse(res, env, 'form', {
+			title: 'Your wikitext:',
+			action: '/' + res.locals.iwp + '/' + res.locals.pageName,
+			name: 'wt',
 		});
 	};
 
 	// Round-trip article testing.  Default to scrubbing wikitext here.  Can be
 	// overridden with qs param.
 	routes.roundtripTesting = function(req, res) {
-		var env = res.local('env');
+		var env = res.locals.env;
 
 		if (!req.query.hasOwnProperty('scrubWikitext') &&
 			!req.body.hasOwnProperty('scrubWikitext')) {
@@ -232,7 +231,7 @@ module.exports = function(parsoidConfig) {
 	// simulation.  Default to scrubbing wikitext here.  Can be overridden with qs
 	// param.
 	routes.roundtripTestingNL = function(req, res) {
-		var env = res.local('env');
+		var env = res.locals.env;
 
 		if (!req.query.hasOwnProperty('scrubWikitext') &&
 			!req.body.hasOwnProperty('scrubWikitext')) {
@@ -264,7 +263,7 @@ module.exports = function(parsoidConfig) {
 	// Round-trip article testing with selser over re-parsed HTML.  Default to
 	// scrubbing wikitext here.  Can be overridden with qs param.
 	routes.roundtripSelser = function(req, res) {
-		var env = res.local('env');
+		var env = res.locals.env;
 
 		if (!req.query.hasOwnProperty('scrubWikitext') &&
 			!req.body.hasOwnProperty('scrubWikitext')) {
@@ -296,7 +295,7 @@ module.exports = function(parsoidConfig) {
 
 	// Form-based round-tripping for manual testing
 	routes.getRtForm = function(req, res) {
-		var env = res.local('env');
+		var env = res.locals.env;
 		apiUtils.renderResponse(res, env, "form", {
 			title: "Your wikitext:",
 			name: "content",
@@ -306,7 +305,7 @@ module.exports = function(parsoidConfig) {
 	// Form-based round-tripping for manual testing.  Default to scrubbing wikitext
 	// here.  Can be overridden with qs param.
 	routes.postRtForm = function(req, res) {
-		var env = res.local('env');
+		var env = res.locals.env;
 
 		if (!req.query.hasOwnProperty('scrubWikitext') &&
 			!req.body.hasOwnProperty('scrubWikitext')) {
@@ -329,7 +328,7 @@ module.exports = function(parsoidConfig) {
 	// v1 Routes
 
 	var v1Wt2html = function(req, res, wt) {
-		var env = res.local('env');
+		var env = res.locals.env;
 		var p = apiUtils.startWt2html(req, res, wt).then(function(ret) {
 			if (typeof ret.wikitext === 'string') {
 				return apiUtils.parseWt(ret)
@@ -395,7 +394,7 @@ module.exports = function(parsoidConfig) {
 	};
 
 	routes.v1Post = function(req, res) {
-		var env = res.local('env');
+		var env = res.locals.env;
 		var body = req.body;
 		if (req.body.wt) {
 			// Form-based article parsing
@@ -419,8 +418,8 @@ module.exports = function(parsoidConfig) {
 	// Spec'd in https://phabricator.wikimedia.org/T75955 and the API tests.
 
 	var v2Wt2html = function(req, res, wt) {
-		var env = res.local('env');
-		var v2 = res.local('v2');
+		var env = res.locals.env;
+		var v2 = res.locals.v2;
 		var p = apiUtils.startWt2html(req, res, wt).then(function(ret) {
 			if (typeof ret.wikitext === 'string') {
 				return apiUtils.parseWt(ret)
@@ -485,8 +484,8 @@ module.exports = function(parsoidConfig) {
 
 	// POST requests
 	routes.v2Post = function(req, res) {
-		var v2 = res.local('v2');
-		var env = res.local('env');
+		var v2 = res.locals.v2;
+		var env = res.locals.env;
 
 		function errOut(err, code) {
 			apiUtils.sendResponse(res, env, err, code || 404);
@@ -497,7 +496,7 @@ module.exports = function(parsoidConfig) {
 			var wikitext = (v2.wikitext && typeof v2.wikitext !== 'string') ?
 				v2.wikitext.body : v2.wikitext;
 			if (typeof wikitext !== 'string') {
-				if (!res.local('pageName')) {
+				if (!res.locals.pageName) {
 					return errOut('No title or wikitext was provided.', 400);
 				}
 				// We've been given source for this page

@@ -96,6 +96,52 @@ describe('Parsoid API', function() {
 
 	describe("v2 Routes", function() {
 
+		describe('formats', function() {
+
+			it('should accept application/x-www-form-urlencoded', function(done) {
+				request(api)
+				.post('v2/' + mockDomain + '/html/')
+				.type('form')
+				.send({
+					wikitext: '== h2 ==',
+				})
+				.expect(200)
+				.expect(function(res) {
+					var doc = domino.createDocument(res.text);
+					doc.body.firstChild.nodeName.should.equal('H2');
+				})
+				.end(done);
+			});
+
+			it('should accept application/json', function(done) {
+				request(api)
+				.post('v2/' + mockDomain + '/html/')
+				.type('json')
+				.send({
+					wikitext: '== h2 ==',
+				})
+				.expect(200)
+				.expect(function(res) {
+					var doc = domino.createDocument(res.text);
+					doc.body.firstChild.nodeName.should.equal('H2');
+				})
+				.end(done);
+			});
+
+			it('should accept multipart/form-data', function(done) {
+				request(api)
+				.post('v2/' + mockDomain + '/html/')
+				.field('wikitext', '== h2 ==')
+				.expect(200)
+				.expect(function(res) {
+					var doc = domino.createDocument(res.text);
+					doc.body.firstChild.nodeName.should.equal('H2');
+				})
+				.end(done);
+			});
+
+		});  // formats
+
 		describe("wt2html", function() {
 
 			it("should redirect title to latest revision", function(done) {

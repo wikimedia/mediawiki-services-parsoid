@@ -5,7 +5,9 @@
 require('../lib/core-upgrade.js');
 
 var express = require('express');
+var bodyParser = require('body-parser');
 var crypto = require('crypto');
+
 
 // configuration to match PHP parserTests
 var IMAGE_BASE_URL = 'http://example.com/images';
@@ -45,8 +47,8 @@ var FILE_PROPS = {
 
 /* -------------------- web app access points below --------------------- */
 
-var app = express.createServer();
-app.use(express.bodyParser());
+var app = express();
+app.use(bodyParser.urlencoded({ extended: false }));
 
 function sanitizeHTMLAttribute(text) {
 	return text

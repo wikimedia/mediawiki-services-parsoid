@@ -2,13 +2,15 @@
  * Simple Parsoid web service.
  */
 'use strict';
-
 require('../lib/core-upgrade.js');
 
 // global includes
 var express = require('express');
 var compression = require('compression');
-var hbs = require('handlebars');
+var hbs = require('express-handlebars');
+var favicon = require('serve-favicon');
+var busboy = require('connect-busboy');
+var bodyParser = require('body-parser');
 var cluster = require('cluster');
 var path = require('path');
 var util = require('util');
@@ -27,59 +29,87 @@ var uuid = require('node-uuid').v4;
  * @param {Logger} processLogger
  */
 function ParsoidService(parsoidConfig, processLogger) {
-	processLogger.log("info", "loading ...");
+	processLogger.log('info', 'loading ...');
 
 	// Load routes
 	var routes = require('./routes')(parsoidConfig);
 
-	var app = express.createServer();
+	var app = express();
 
 	// view engine
+	var ve = hbs.create({
+		defaultLayout: 'layout',
+		layoutsDir: path.join(__dirname, '/views'),
+		extname: '.html',
+		helpers: {
+			// block helper to reference js files in page head.
+			jsFiles: function(options) {
+				this.javascripts = options.fn(this);
+			},
+		},
+	});
 	app.set('views', path.join(__dirname, '/views'));
 	app.set('view engine', 'html');
-	app.register('html', hbs);
-
-	// block helper to reference js files in page head.
-	hbs.registerHelper('jsFiles', function(options) {
-		this.javascripts = options.fn(this);
-	});
+	app.engine('html', ve.engine);
 
 	// serve static files
-	app.use("/static", express.static(path.join(__dirname, "/static")));
+	app.use('/static', express.static(path.join(__dirname, '/static')));
 
 	// favicon
-	app.use(express.favicon(path.join(__dirname, "favicon.ico")));
+	app.use(favicon(path.join(__dirname, 'favicon.ico')));
 
-	// Set the acceptable form size
-	app.use(express.bodyParser({ maxFieldsSize: parsoidConfig.maxFormSize }));
-
-	// Support gzip / deflate transfer-encoding
+	// support gzip / deflate transfer-encoding
 	app.use(compression());
 
-	// limit upload file size
-	app.use(express.limit('15mb'));
+	// application/json
+	app.use(bodyParser.json({
+		limit: parsoidConfig.maxFormSize,
+	}));
+
+	// application/x-www-form-urlencoded
+	// multipart/form-data
+	app.use(busboy({
+		limits: {
+			fields: 10,
+			fieldSize: parsoidConfig.maxFormSize,
+		},
+	}));
+	app.use(function(req, res, next) {
+		req.body = req.body || {};
+		if (!req.busboy) {
+			return next();
+		}
+		req.busboy.on('field', function(field, val) {
+			req.body[field] = val;
+		});
+		req.busboy.on('finish', function() {
+			next();
+		});
+		req.pipe(req.busboy);
+	});
 
 	// timeout ids, used internally to track runaway processes
 	var buf = new Buffer(16);
 	app.use(function(req, res, next) {
 		uuid(null, buf);
-		res.local('timeoutId', buf.toString('hex'));
+		res.locals.timeoutId = buf.toString('hex');
 		next();
 	});
 
 	// just a timer
 	app.use(function(req, res, next) {
-		res.local('start', Date.now());
+		res.locals.start = Date.now();
 		next();
 	});
 
 	// Catch errors
 	app.on('error', function(err) {
-		if (err.errno === "EADDRINUSE") {
-			processLogger.log("error", util.format("Port %d is already in use. Exiting.", port));
+		if (err.errno === 'EADDRINUSE') {
+			processLogger.log('error',
+				util.format('Port %d is already in use. Exiting.', port));
 			cluster.worker.disconnect();
 		} else {
-			processLogger.log("error", err);
+			processLogger.log('error', err);
 		}
 	});
 
