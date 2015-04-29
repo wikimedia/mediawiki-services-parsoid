@@ -102,11 +102,11 @@ var xmlFormat = function(err, prefix, title, results, profile) {
 	var article = encodeAttribute(prefix + ':' + title);
 	var output = '<testsuites>\n';
 	var outputTestSuite = function(selser) {
-			output += '<testsuite name="Roundtrip article ' + article;
-			if (selser) {
-				output += ' (selser)';
-			}
-			output += '">\n';
+		output += '<testsuite name="Roundtrip article ' + article;
+		if (selser) {
+			output += ' (selser)';
+		}
+		output += '">\n';
 	};
 
 	if (err) {

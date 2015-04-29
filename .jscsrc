@@ -11,6 +11,7 @@
 		"try",
 		"catch"
 	],
+	"validateIndentation": "\t",
 
 	// We'd like to eliminate these at some point, to conform with the preset.
 	"disallowMixedSpacesAndTabs": null,
@@ -20,7 +21,6 @@
 	"requireCamelCaseOrUpperCaseIdentifiers": null,
 	"requireCapitalizedComments": null,
 	"requireTrailingComma": null,
-	"validateIndentation": null,
 	"validateQuoteMarks": null,
 
 	"excludeFiles": [

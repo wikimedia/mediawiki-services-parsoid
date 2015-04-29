@@ -35,8 +35,8 @@ var stopAllServers = function() {
  * Make sure the servers are killed if the process exits.
  */
 process.on('exit', function() {
-		exiting = true;
-		stopAllServers();
+	exiting = true;
+	stopAllServers();
 });
 
 var exitOnProcessTerm = function(res) {

@@ -20,49 +20,49 @@ var defaults = {
 // Settings file
 var settings;
 try {
-	settings = require( './server.settings.js' );
-} catch ( e ) {
+	settings = require('./server.settings.js');
+} catch (e) {
 	settings = {};
 }
 
 // Command line options
-var opts = yargs.usage( 'Usage: ./importJson.js titles.example.json' )
-	.options( 'help', {
-			description: 'Show this message',
-			'boolean': true,
-			'default': false
-	} )
-	.options( 'prefix', {
-			description: 'Which wiki prefix to use; e.g. "en" for English wikipedia, "es" for Spanish, "mw" for mediawiki.org',
-			'boolean': false,
-			'default': 'enwiki'
-	} )
-	.options( 'h', {
+var opts = yargs.usage('Usage: ./importJson.js titles.example.json')
+	.options('help', {
+		description: 'Show this message',
+		'boolean': true,
+		'default': false,
+	})
+	.options('prefix', {
+		description: 'Which wiki prefix to use; e.g. "en" for English wikipedia, "es" for Spanish, "mw" for mediawiki.org',
+		'boolean': false,
+		'default': 'enwiki',
+	})
+	.options('h', {
 		alias: 'host',
-		describe: 'Hostname of the database server.'
-	} )
-	.options( 'P', {
+		describe: 'Hostname of the database server.',
+	})
+	.options('P', {
 		alias: 'port',
-		describe: 'Port number to use for connection.'
-	} )
-	.options( 'D', {
+		describe: 'Port number to use for connection.',
+	})
+	.options('D', {
 		alias: 'database',
-		describe: 'Database to use.'
-	} )
-	.options( 'u', {
+		describe: 'Database to use.',
+	})
+	.options('u', {
 		alias: 'user',
-		describe: 'User for login.'
-	} )
-	.options( 'p', {
+		describe: 'User for login.',
+	})
+	.options('p', {
 		alias: 'password',
-		describe: 'Password.'
-	} )
-	.demand( 1 );
+		describe: 'Password.',
+	})
+	.demand(1);
 var argv = opts.argv;
 
-if ( argv.help ) {
+if (argv.help) {
 	opts.showHelp();
-	process.exit( 0 );
+	process.exit(0);
 }
 
 var getOption = function( opt ) {
