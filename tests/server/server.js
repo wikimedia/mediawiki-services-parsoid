@@ -468,31 +468,25 @@ var transFetchCB = function( msg, trans, failCb, successCb, err, result ) {
 	}
 };
 
-var fetchPages = function( commitHash, cutOffTimestamp, cb ) {
+var fetchPages = function(commitHash, cutOffTimestamp, cb) {
 	var trans = db.startTransaction();
-
-	trans.query( dbGetTitle,
-			[ maxFetchRetries, commitHash, maxTries, cutOffTimestamp, batchSize ],
-			transFetchCB.bind( null, "Error getting next titles", trans, cb, function( rows ) {
-
-		if ( !rows || rows.length === 0 ) {
-			trans.commit( cb.bind( null, null, rows ) );
+	trans.query(dbGetTitle, [maxFetchRetries, commitHash, maxTries, cutOffTimestamp, batchSize], transFetchCB.bind(null, 'Error getting next titles', trans, cb, function(rows) {
+		if (!rows || rows.length === 0) {
+			trans.commit(cb.bind( null, null, rows));
 		} else {
 			// Process the rows: Weed out the crashers.
 			var pages = [];
 			var pageIds = [];
-			for ( var i = 0; i < rows.length; i++ ) {
+			for (var i = 0; i < rows.length; i++) {
 				var row = rows[i];
-				pageIds.push( row.id );
-				pages.push( { id: row.id, prefix: row.prefix, title: row.title } );
+				pageIds.push(row.id);
+				pages.push({ id: row.id, prefix: row.prefix, title: row.title });
 			}
-
-			trans.query( dbUpdatePageClaims, [ commitHash, new Date(), pageIds ],
-				transFetchCB.bind( null, "Error updating claims", trans, cb, function() {
-					trans.commit( cb.bind( null, null, pages ));
-				} ) );
+			trans.query(dbUpdatePageClaims, [commitHash, new Date(), pageIds], transFetchCB.bind(null, 'Error updating claims', trans, cb, function() {
+				trans.commit(cb.bind( null, null, pages));
+			}));
 		}
-	} ) ).execute();
+	})).execute();
 };
 
 var fetchedPages = [];
@@ -512,19 +506,19 @@ var getTitle = function( req, res ) {
 	// versions. If we don't know about the commit, then record it
 	// Use a transaction to make sure we don't start fetching pages until
 	// we've done this
-	if ( !knownCommit ) {
+	if (!knownCommit) {
 		var trans = db.startTransaction();
-		if ( !knownCommits ) {
+		if (!knownCommits) {
 			knownCommits = {};
-			trans.query( dbCommitHashes, null, function( err, resCommitHashes ) {
-				if ( err ) {
-					console.log( "Error fetching known commits", err );
+			trans.query(dbCommitHashes, null, function(err, resCommitHashes) {
+				if (err) {
+					console.log('Error fetching known commits', err);
 				} else {
-					resCommitHashes.forEach( function( v ) {
-						knownCommits[ v.hash ] = commitDate;
-					} );
+					resCommitHashes.forEach(function(v) {
+						knownCommits[v.hash] = commitDate;
+					});
 				}
-				} );
+			});
 		}
 
 		// New commit, record it
@@ -895,22 +889,21 @@ var resultsWebInterface = function(req, res) {
 		queryParams = [];
 	}
 
-	db.query( query, queryParams, function( err, rows ) {
-		var i;
-		if ( err ) {
-			console.error( err );
-			res.send( err.toString(), 500 );
+	db.query(query, queryParams, function(err, rows) {
+		if (err) {
+			console.error(err);
+			res.send(err.toString(), 500);
 		} else {
-				res.setHeader( 'Content-Type', 'text/xml; charset=UTF-8' );
-				res.status( 200 );
-				res.write( '<?xml-stylesheet href="/static/result.css"?>\n' );
-				res.write( '<testsuite>' );
-				for ( i = 0; i < rows.length; i++ ) {
-					res.write( rows[i].result );
-				res.end( '</testsuite>' );
+			res.setHeader('Content-Type', 'text/xml; charset=UTF-8');
+			res.status(200);
+			res.write('<?xml-stylesheet href="/static/result.css"?>\n');
+			res.write('<testsuite>');
+			for (var i = 0; i < rows.length; i++) {
+				res.write(rows[i].result);
+				res.end('</testsuite>');
 			}
 		}
-	} );
+	});
 };
 
 var resultWebCallback = function( req, res, err, row ) {
