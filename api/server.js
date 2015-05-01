@@ -27,8 +27,6 @@ var path = require('path');
 var util = require('util');
 var fs = require('fs');
 
-var HEAP_USAGE_SAMPLE_INTERVAL = 5 * 60 * 1000;
-
 // process arguments
 var opts = require( "yargs" )
 	.usage( "Usage: $0 [-h|-v] [--param[=val]]" )
@@ -191,14 +189,14 @@ if ( cluster.isMaster && argv.n > 0 ) {
 		heapdump.writeSnapshot();
 	});
 
-	// Send heap usage statistics to Graphite every five (5) minutes
+	// Send heap usage statistics to Graphite at the requested sample rate
 	if (parsoidConfig.performanceTimer) {
 		setInterval(function() {
 			var heapUsage = process.memoryUsage();
 			parsoidConfig.performanceTimer.timing('heap.rss', '', heapUsage.rss);
 			parsoidConfig.performanceTimer.timing('heap.total', '', heapUsage.heapTotal);
 			parsoidConfig.performanceTimer.timing('heap.used', '', heapUsage.heapUsed);
-		},  HEAP_USAGE_SAMPLE_INTERVAL);
+		},  parsoidConfig.headpUsageSampleInterval);
 	}
 
 	var app = new ParsoidService( parsoidConfig, logger );

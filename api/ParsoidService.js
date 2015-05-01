@@ -14,9 +14,6 @@ var path = require('path');
 var util = require('util');
 var uuid = require('node-uuid').v4;
 
-// 15M -- default for express seems to be 2M
-var MAX_FORM_SIZE = 15 * 1024 * 1024;
-
 function ParsoidService( parsoidConfig, processLogger ) {
 	processLogger.log( "info", "loading ..." );
 
@@ -41,8 +38,8 @@ function ParsoidService( parsoidConfig, processLogger ) {
 	// favicon
 	app.use(express.favicon(path.join(__dirname, "favicon.ico")));
 
-	// Increase the form field size limit from the 2M default.
-	app.use(express.bodyParser({ maxFieldsSize: MAX_FORM_SIZE }));
+	// Set the acceptable form size
+	app.use(express.bodyParser({ maxFieldsSize: parsoidConfig.maxFormSize }));
 
 	// Support gzip / deflate transfer-encoding
 	app.use(compression());

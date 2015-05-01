@@ -3,11 +3,20 @@
  *
  * Copy this file to localsettings.js and edit that file to fit your needs.
  *
- * Also see the file server.js for more information.
+ * Also see:
+ * - api/server.js for more information about passing config files via
+ *   the commandline.
+ * - lib/mediawiki.ParsoidConfig.js all the properties
+ *   that you can configure here. Not all properties are
+ *   documented here.
  */
 'use strict';
 
 exports.setup = function(parsoidConfig) {
+	// Set your own user-agent string
+	// Otherwise, defaults to "Parsoid/<current-version-defined-in-package.json>"
+	//parsoidConfig.userAgent = "My-User-Agent-String";
+
 	// The URL of your MediaWiki API endpoint.
 	parsoidConfig.setMwApi('localhost', { uri: 'http://localhost/w/api.php' });
 	// To specify a proxy (or proxy headers) specific to this prefix (which
@@ -28,8 +37,9 @@ exports.setup = function(parsoidConfig) {
 	// 'enwikivoyage' etc. (default true)
 	//parsoidConfig.loadWMF = false;
 
-	// A default proxy to connect to the API endpoints. Default: undefined
-	// (no proxying). Overridden by per-wiki proxy config in setMwApi.
+	// A default proxy to connect to the API endpoints.
+	// Default: undefined (no proxying).
+	// Overridden by per-wiki proxy config in setMwApi.
 	//parsoidConfig.defaultAPIProxyURI = 'http://proxy.example.org:8080';
 
 	// Enable debug mode (prints extra debugging messages)
@@ -48,11 +58,27 @@ exports.setup = function(parsoidConfig) {
 	// restrict:
 	//parsoidConfig.allowCORS = 'some.domain.org';
 
-	// Set to true for Performance timing
-	//parsoidConfig.useDefaultPerformanceTimer = true;
-	// Peformance timing options
-	//parsoidConfig.txstatsdHost = 'statsd.eqiad.wmnet';
-	//parsoidConfig.txstatsdPort = 8125;
+	// Set to true for using the default performance metrics reporting to statsd
+	// If true, provide the statsd host/port values
+	/*
+	parsoidConfig.useDefaultPerformanceTimer = true;
+	parsoidConfig.txstatsdHost = 'statsd.domain.org';
+	parsoidConfig.txstatsdPort = 8125;
+	*/
+
+	// Alternatively, define performanceTimer as follows:
+	/*
+	parsoidConfig.performanceTimer = {
+		timing: function(metricName, time) { }, // do-something-with-it
+		count: function(metricName, value) { }, // do-something-with-it
+	};
+	*/
+
+	// How often should we emit a heap sample? Time in ms.
+	// This setting is only relevant if you have enabled
+	// performance monitoring either via the default metrics
+	// OR by defining your own performanceTimer properties
+	//parsoidConfig.heapUsageSampleInterval = 5 * 60 * 1000;
 
 	// Allow override of port/interface:
 	//parsoidConfig.serverPort = 8000;

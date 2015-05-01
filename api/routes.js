@@ -39,13 +39,10 @@ module.exports = function(parsoidConfig) {
 	 *
 	 * The above is susceptible false positives. Node spins one event loop, so
 	 * multiple asynchronous requests will interfere with each others' timing.
-	 *
-	 * The CPU timeout is set to match the Varnish request timeout at 5 minutes.
 	 */
 
-	// Should be less than the CPU_TIMEOUT
-	var REQ_TIMEOUT = 4 * 60 * 1000;  // 4 minutes
-	var CPU_TIMEOUT = 5 * 60 * 1000;  // 5 minutes
+	var REQ_TIMEOUT = parsoidConfig.timeouts.request;
+	var CPU_TIMEOUT = parsoidConfig.timeouts.cpu;
 
 	function timeoutResp( env, err ) {
 		if ( err instanceof Promise.TimeoutError ) {
