@@ -107,6 +107,7 @@ var availableActions = {
 	parse: function(body, cb) {
 		var resultText;
 		var text = body.text;
+		var onlypst = body.onlypst;
 		var re = /<testextension(?: ([^>]*))?>((?:[^<]|<(?!\/testextension>))*)<\/testextension>/;
 		var replaceString = '<p data-options="$1">$2</p>';
 		var result = text.match(re);
@@ -126,6 +127,8 @@ var availableActions = {
 
 		if ( result ) {
 			resultText = handleTestExtension( result[1], result[2] );
+		} else if (onlypst) {
+			resultText = body.text.replace(/\{\{subst:echo\|([^}]+)\}\}/, "$1");
 		} else {
 			resultText = body.text;
 		}
@@ -246,6 +249,7 @@ var actionDefinitions = {
 		parameters: {
 			text: 'text',
 			title: 'text',
+			onlypst: 'boolean',
 		},
 	},
 	query: {

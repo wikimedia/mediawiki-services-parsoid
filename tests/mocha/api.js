@@ -74,6 +74,26 @@ describe('Parsoid API', function() {
 		.expect(/^<body/, done);
 	});
 
+	it("implements subst", function(done) {
+		request(api)
+		.post('localhost/Main_Page')
+		.send({wt: "{{echo|foo}}", subst: 'true'})
+		.expect(200)
+		.expect(function(res) {
+			var body = domino.createDocument(res.text).body;
+			// <body> should have one child, <p>
+			body.childElementCount.should.equal(1);
+			body.firstElementChild.nodeName.should.equal('P');
+			var p = body.firstElementChild;
+			p.innerHTML.should.equal('foo');
+			// The <p> shouldn't be a template expansion, just a plain ol' one
+			should.not.exist(p.getAttribute('typeof'));
+			// and it shouldn't have any data-parsoid in it
+			should.not.exist(p.getAttribute('data-parsoid'));
+		})
+		.end(done);
+	});
+
 	describe("v2 Routes", function() {
 
 		describe("wt2html", function() {
@@ -286,6 +306,59 @@ describe('Parsoid API', function() {
 					res.body.should.have.property('data-parsoid');
 					res.body['data-parsoid'].body.should.have.property('sectionOffsets');
 				})
+				.end(done);
+			});
+
+			it("should implement subst - simple", function(done) {
+				request(api)
+				.post('v2/' + mockHost + '/html/')
+				.send({wikitext: "{{echo|foo}}", subst: 'true'})
+				.expect(200)
+				.expect(function(res) {
+					var body = domino.createDocument(res.text).body;
+					// <body> should have one child, <p>
+					body.childElementCount.should.equal(1);
+					body.firstElementChild.nodeName.should.equal('P');
+					var p = body.firstElementChild;
+					p.innerHTML.should.equal('foo');
+					// The <p> shouldn't be a template expansion, just a plain ol' one
+					should.not.exist(p.getAttribute('typeof'));
+					// and it shouldn't have any data-parsoid in it
+					should.not.exist(p.getAttribute('data-parsoid'));
+				})
+				.end(done);
+			});
+
+			it("should implement subst - internal tranclusion", function(done) {
+				request(api)
+				.post('v2/' + mockHost + '/html/')
+				.send({wikitext: "{{echo|foo {{echo|bar}} baz}}", subst: 'true'})
+				.expect(200)
+				.expect(function(res) {
+					var body = domino.createDocument(res.text).body;
+					// <body> should have one child, <p>
+					body.childElementCount.should.equal(1);
+					body.firstElementChild.nodeName.should.equal('P');
+					var p = body.firstElementChild;
+					// The <p> shouldn't be a template expansion, just a plain ol' one
+					should.not.exist(p.getAttribute('typeof'));
+					// and it shouldn't have any data-parsoid in it
+					should.not.exist(p.getAttribute('data-parsoid'));
+					// The internal tranclusion should be presented as such
+					var tplp = p.childNodes[1];
+					tplp.nodeName.should.equal('SPAN');
+					tplp.getAttribute('typeof').should.equal('mw:Transclusion');
+					// And not have data-parsoid, so it's used as new content
+					should.not.exist(tplp.getAttribute('data-parsoid'));
+				})
+				.end(done);
+			});
+
+			it('should not allow subst with pagebundle', function(done) {
+				request(api)
+				.post('v2/' + mockHost + '/pagebundle/')
+				.send({wikitext: "{{echo|foo}}", subst: 'true'})
+				.expect(501)
 				.end(done);
 			});
 
