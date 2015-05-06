@@ -9933,6 +9933,24 @@ Template with targets containing wikilinks
 !! end
 
 !! article
+Template:''
+!! text
+bar
+!! endarticle
+
+!! test
+Templates: Double quotes as template target
+!! wikitext
+foo {{''}} baz
+!! html/php
+<p>foo bar baz
+</p>
+!! html/parsoid
+<p>foo <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"&#39;&#39;"},"params":{},"i":0}}]}'>bar</span> baz
+</p>
+!! end
+
+!! article
 Template:MSGNW test
 !! text
 ''None'' of '''this''' should be 
