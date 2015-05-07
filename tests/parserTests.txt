@@ -24089,7 +24089,7 @@ parsoid=html2wt
 !! end
 
 !! test
-1. Headings: suppress empty headings
+1. Headings: suppress newly created empty headings
 !! options
 parsoid={
   "modes": ["html2wt"],
@@ -24101,11 +24101,24 @@ parsoid={
 !! end
 
 !! test
-2. Headings: don't suppress empty headings
+2. Headings: don't suppress empty headings if scrubWikitext is false
 !! options
 parsoid=html2wt
 !! html
 <h2></h2>
+!! wikitext
+==<nowiki/>==
+!! end
+
+!! test
+3. Headings: don't suppress empty headings for existing headings even if scrubWikitext is true
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html
+<h2 data-parsoid='{}'></h2>
 !! wikitext
 ==<nowiki/>==
 !! end
