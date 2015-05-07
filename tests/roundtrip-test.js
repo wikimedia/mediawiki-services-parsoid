@@ -600,7 +600,7 @@ function runTests(title, options, formatter, cb) {
 		// If prefix is present, use that.
 		prefix = options.prefix;
 		// Get the domain from the mw api map.
-		var apiURL = parsoidConfig.mwApiMap.get(prefix);
+		var apiURL = parsoidConfig.mwApiMap.get(prefix).uri;
 		if (!apiURL) {
 			err = new Error('Couldn\'t find the domain for prefix ' + prefix);
 		}
