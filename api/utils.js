@@ -84,7 +84,6 @@ apiUtils.renderResponse = function(res, env, template, data) {
 		return;
 	} else {
 		env.responseSent = true;
-		data.host = res.req.headers.host;
 		res.render(template, data);
 	}
 };

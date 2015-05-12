@@ -1,6 +1,8 @@
 {{#jsFiles}}
-	<script src='//{{host}}/static/js/jquery.js'></script>
-	<script src='//{{host}}/static/js/scrolling.js'></script>
+	els = els.concat([
+		{ src: '/static/js/jquery.js' },
+		{ src: '/static/js/scrolling.js' }
+	]);
 {{/jsFiles}}
 
 <h2>Wikitext parsed to HTML DOM</h2>
