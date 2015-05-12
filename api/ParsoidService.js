@@ -84,22 +84,22 @@ function ParsoidService( parsoidConfig, processLogger ) {
 	function re(str) { return new RegExp(str); }
 
 	// Regexp that matches to all interwikis accepted by the API.
-	var iwRe = parsoidConfig.interwikiRegexp;
+	var mwApiRe = parsoidConfig.mwApiRegexp;
 
 	app.get( '/', routes.home );
 	app.get( '/_version', routes.version );
 	app.get( '/robots.txt', routes.robots );
 
-	app.get(  re('^/((?:_rt|_rtve)/)?(' + iwRe + '):(.*)$'), routes.redirectOldStyle );
-	app.get(  re('^/_html/(?:(' + iwRe + ')/(.*))?'), i, p, routes.html2wtForm );
-	app.get(  re('^/_wikitext/(?:(' + iwRe + ')/(.*))?'), i, p, routes.wt2htmlForm );
-	app.get(  re('^/_rt/(?:(' + iwRe + ')/(.*))?'), i, p, routes.roundtripTesting );
-	app.get(  re('^/_rtve/(' + iwRe + ')/(.*)'), i, p, routes.roundtripTestingNL );
-	app.get(  re('^/_rtselser/(' + iwRe + ')/(.*)'), i, p, routes.roundtripSelser );
-	app.get(  re('^/_rtform/(?:(' + iwRe + ')/(.*))?'), i, p, routes.get_rtForm );
-	app.post( re('^/_rtform/(?:(' + iwRe + ')/(.*))?'), i, p, routes.post_rtForm );
-	app.get(  re('^/(' + iwRe + ')/(.*)'), i, p, routes.get_article );
-	app.post( re('^/(' + iwRe + ')/(.*)'), i, p, routes.post_article );
+	app.get(  re('^/((?:_rt|_rtve)/)?(' + mwApiRe + '):(.*)$'), routes.redirectOldStyle );
+	app.get(  re('^/_html/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.html2wtForm );
+	app.get(  re('^/_wikitext/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.wt2htmlForm );
+	app.get(  re('^/_rt/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.roundtripTesting );
+	app.get(  re('^/_rtve/(' + mwApiRe + ')/(.*)'), i, p, routes.roundtripTestingNL );
+	app.get(  re('^/_rtselser/(' + mwApiRe + ')/(.*)'), i, p, routes.roundtripSelser );
+	app.get(  re('^/_rtform/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.get_rtForm );
+	app.post( re('^/_rtform/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.post_rtForm );
+	app.get(  re('^/(' + mwApiRe + ')/(.*)'), i, p, routes.get_article );
+	app.post( re('^/(' + mwApiRe + ')/(.*)'), i, p, routes.post_article );
 
 	// v2 API routes
 	app.get(  '/v2/:domain/:format/:title/:revision?', v, p, routes.v2_get );

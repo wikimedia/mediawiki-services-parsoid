@@ -430,7 +430,7 @@ module.exports = function(parsoidConfig) {
 			if ( v2 ) {
 				path += [
 					"v2",
-					url.parse( env.conf.parsoid.interwikiMap.get( prefix ) ).host,
+					url.parse(env.conf.parsoid.mwApiMap.get(prefix)).host,
 					v2.format,
 					encodeURIComponent( target ),
 					oldid
@@ -763,7 +763,7 @@ module.exports = function(parsoidConfig) {
 			apiUtils.sendResponse( res, {}, err, code || 404 );
 		}
 
-		var iwp = parsoidConfig.reverseIWMap.get( req.params.domain );
+		var iwp = parsoidConfig.reverseMwApiMap.get(req.params.domain);
 		if ( !iwp ) {
 			return errOut("Invalid domain.");
 		}

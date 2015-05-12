@@ -9,8 +9,8 @@
  * setup function.
  *
  * example:
- *   exports.setup = function( parsoidConfig ) {
- *     parsoidConfig.setInterwiki( 'localhost', 'http://localhost/wiki' );
+ *   exports.setup = function(parsoidConfig) {
+ *     parsoidConfig.setMwApi('localhost', 'http://localhost/wiki');
  *   };
  *
  * Alternatively, specify a --config file explicitly. See --help for other

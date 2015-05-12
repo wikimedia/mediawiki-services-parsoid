@@ -5,15 +5,15 @@
  *
  * Also see the file server.js for more information.
  */
-"use strict";
+'use strict';
 
-exports.setup = function( parsoidConfig ) {
+exports.setup = function(parsoidConfig) {
 	// The URL of your MediaWiki API endpoint. Optionally, you can also pass
 	// in a proxy specific to this prefix (overrides defaultAPIProxyURI), or
 	// null to disable proxying for this end point.
-	//  parsoidConfig.setInterwiki( 'localhost', 'http://localhost/w/api.php' );
-	if ( process.env.PARSOID_MOCKAPI_URL ) {
-		parsoidConfig.setInterwiki( 'localhost', process.env.PARSOID_MOCKAPI_URL );
+	//  parsoidConfig.setMwApi('localhost', 'http://localhost/w/api.php');
+	if (process.env.PARSOID_MOCKAPI_URL) {
+		parsoidConfig.setMwApi('localhost', process.env.PARSOID_MOCKAPI_URL);
 	}
 
 	// We pre-define wikipedias as 'enwiki', 'dewiki' etc. Similarly
@@ -22,7 +22,7 @@ exports.setup = function( parsoidConfig ) {
 	//  parsoidConfig.loadWMF = false;
 
 	// A default proxy to connect to the API endpoints. Default: undefined
-	// (no proxying). Overridden by per-wiki proxy config in setInterwiki.
+	// (no proxying). Overridden by per-wiki proxy config in setMwApi.
 	//  parsoidConfig.defaultAPIProxyURI = 'http://proxy.example.org:8080';
 
 	// Enable debug mode (prints extra debugging messages)

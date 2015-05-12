@@ -599,15 +599,15 @@ function runTests(title, options, formatter, cb) {
 	if (options.prefix) {
 		// If prefix is present, use that.
 		prefix = options.prefix;
-		// Get the domain from the interwiki map.
-		var apiURL = parsoidConfig.interwikiMap.get(prefix);
+		// Get the domain from the mw api map.
+		var apiURL = parsoidConfig.mwApiMap.get(prefix);
 		if (!apiURL) {
 			err = new Error('Couldn\'t find the domain for prefix ' + prefix);
 		}
 		domain = url.parse(apiURL).hostname;
 	} else if (options.domain) {
 		domain = options.domain;
-		prefix = parsoidConfig.reverseIWMap.get(domain);
+		prefix = parsoidConfig.reverseMwApiMap.get(domain);
 	} else {
 		err = new Error('No domain or prefix provided.');
 	}

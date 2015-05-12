@@ -1666,16 +1666,16 @@ ParserTests.prototype.main = function( options, popts ) {
 
 		// Init early so we can overwrite it here.
 		parsoidConfig.loadWMF = false;
-		parsoidConfig.initInterwikiMap();
+		parsoidConfig.initMwApiMap();
 
 		// Send all requests to the mock API server.
-		parsoidConfig.interwikiMap.forEach(function(val, key) {
-			parsoidConfig.setInterwiki(key, mockAPIServerURL);
+		parsoidConfig.mwApiMap.forEach(function(val, key) {
+			parsoidConfig.setMwApi(key, mockAPIServerURL);
 		});
 
 		// This isn't part of the sitematrix but the
 		// "Check noCommafy in formatNum" test depends on it.
-		parsoidConfig.setInterwiki('be-taraskwiki', mockAPIServerURL);
+		parsoidConfig.setMwApi('be-taraskwiki', mockAPIServerURL);
 	};
 
 	var parsoidConfig = new ParsoidConfig({ setup: setup }, options);
