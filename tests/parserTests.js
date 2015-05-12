@@ -979,7 +979,7 @@ ParserTests.prototype.processTest = function(item, options, mode, endCb) {
 			// so we can maybe skip them later
 			testTasks.push( function( body, cb ) {
 				// Cache parsed HTML
-				item.cachedBODY = DU.parseHTML( DU.serializeNode( body ) ).body;
+				item.cachedBODY = DU.parseHTML(DU.serializeNode(body).str).body;
 
 				// - In wt2html mode, pass through original DOM
 				//   so that it is serialized just once.
@@ -1023,7 +1023,7 @@ ParserTests.prototype.processTest = function(item, options, mode, endCb) {
 		// Save the modified DOM so we can re-test it later
 		// Always serialize to string and reparse before passing to selser/wt2wt
 		testTasks.push( function( body, cb ) {
-			item.changedHTMLStr = DU.serializeNode( body );
+			item.changedHTMLStr = DU.serializeNode(body).str;
 			cb( null, DU.parseHTML( item.changedHTMLStr ).body );
 		} );
 	} else if ( mode === 'wt2wt' ) {
