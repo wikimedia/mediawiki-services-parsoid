@@ -1433,6 +1433,16 @@ parsoid=html2wt
 !! end
 
 !! test
+T93824: Put escaped HTML tags inside nowiki
+!! options
+parsoid=html2wt
+!! html
+<p>&lt;h2&gt;foo&lt;/h2&gt;</p>
+!! wikitext
+<nowiki><h2>foo</h2></nowiki>
+!! end
+
+!! test
 T71950: 1. Put nowiki as close to cause as possible, even with non-quote escapable chars
 !! options
 parsoid=html2wt
