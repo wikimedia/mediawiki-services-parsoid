@@ -480,6 +480,7 @@ describe('Parsoid API', function() {
 				.send({
 					html: "<html><body id=\"mwAA\"><div id=\"mwBB\">Selser test</div></body></html>",
 					original: {
+						revid: 2,
 						title: "Junk Page",
 						html: {
 							body: "<html><body id=\"mwAA\"><div id=\"mwBB\">Selser test</div></body></html>",
@@ -504,14 +505,14 @@ describe('Parsoid API', function() {
 
 			it('should fallback to non-selective serialization', function(done) {
 				// Without the original wikitext and an unavailable
-				// TemplateFetch for the source (Doestnotexist will 404),
+				// TemplateFetch for the source (no revision id provided),
 				// it should fallback to non-selective serialization.
 				request(api)
 				.post('v2/' + mockHost + '/wt/')
 				.send({
 					html: "<html><body id=\"mwAA\"><div id=\"mwBB\">Selser test</div></body></html>",
 					original: {
-						title: "Doesnotexist",
+						title: "Junk Page",
 						html: {
 							body: "<html><body id=\"mwAA\"><div id=\"mwBB\">Selser test</div></body></html>",
 						},

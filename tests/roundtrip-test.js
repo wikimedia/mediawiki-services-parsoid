@@ -516,16 +516,15 @@ function parsoidPost(env, options, cb) {
 	}
 	uri += 'v2/' + options.domain + '/';
 	if (options.html2wt) {
-		uri += 'wt/' + title + '/' + options.oldid;
+		uri += 'wt/' + title;
+		if (options.oldid) {
+			uri += '/' + options.oldid;
+		}
 		httpOptions.body.scrubWikitext = true;
 	} else {  // wt2html
 		uri += 'pagebundle/' + title;
 	}
 	httpOptions.uri = uri;
-
-	if (options.useSelser) {
-		httpOptions.body._rtSelser = true;
-	}
 
 	return new Promise(function(resolve, reject) {
 		// TODO: convert Util.retryingHTTPRequest to a promise returning func
@@ -646,12 +645,10 @@ function runTests(title, options, formatter, cb) {
 		var options = Object.assign({
 			html2wt: true,
 			recordSizes: true,
-			oldid: env.page.meta.revision.revid,
 			data: {
 				html: data.oldHTML,
 				original: {
 					'data-parsoid': data.oldDp,
-					wikitext: { body: data.oldWt },
 				},
 			},
 		}, parsoidOptions);

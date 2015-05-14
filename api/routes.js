@@ -267,14 +267,7 @@ module.exports = function(parsoidConfig) {
 			}
 		}
 
-		// This isn't part of the public API.  Just a convenience to enable
-		// selser for roundtrip testing.
-		var useSelser = parsoidConfig.useSelser;
-		if (parsoidConfig.rtTestMode && req.body.hasOwnProperty('_rtSelser')) {
-			useSelser = !(!req.body._rtSelser || req.body._rtSelser === "false");
-		}
-
-		var p = DU.serializeDOM(env, doc.body, useSelser)
+		var p = DU.serializeDOM(env, doc.body, parsoidConfig.useSelser)
 			.timeout(REQ_TIMEOUT)
 			.then(function(output) {
 			var contentType = 'text/plain;profile=mediawiki.org/specs/wikitext/1.0.0;charset=utf-8';
