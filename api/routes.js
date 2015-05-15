@@ -267,7 +267,13 @@ module.exports = function(parsoidConfig) {
 			}
 		}
 
-		var p = DU.serializeDOM(env, doc.body, parsoidConfig.useSelser)
+		// As per https://www.mediawiki.org/wiki/Parsoid/API#v1_API_entry_points
+		//   "Both it and the oldid parameter are needed for
+		//    clean round-tripping of HTML retrieved earlier with"
+		// So, no oldid => no selser
+		var hasOldId = (env.page.id && env.page.id !== '0');
+		var useSelser = hasOldId && parsoidConfig.useSelser;
+		var p = DU.serializeDOM(env, doc.body, useSelser)
 			.timeout(REQ_TIMEOUT)
 			.then(function(output) {
 			var contentType = 'text/plain;profile=mediawiki.org/specs/wikitext/1.0.0;charset=utf-8';

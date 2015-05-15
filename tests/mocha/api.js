@@ -443,7 +443,12 @@ describe('Parsoid API', function() {
 				// New and old html are identical, which should produce no diffs
 				// and reuse the original wikitext.
 				request(api)
-				.post('v2/' + mockHost + '/wt/')
+				// Need to provide an oldid so that selser mode is enabled
+				// Without an oldid, serialization falls back to non-selser wts.
+				// The oldid is used to fetch wikitext, but if wikitext is provided
+				// (as in this test), it is not used. So, for testing purposes,
+				// we can use any old random id, as long as something is present.
+				.post('v2/' + mockHost + '/wt/Junk_Page/1234')
 				.send({
 					html: "<html><body id=\"mwAA\"><div id=\"mwBB\">Selser test</div></body></html>",
 					original: {
