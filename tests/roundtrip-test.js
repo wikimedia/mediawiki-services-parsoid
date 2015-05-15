@@ -649,6 +649,7 @@ function runTests(title, options, formatter, cb) {
 				html: data.oldHTML,
 				original: {
 					'data-parsoid': data.oldDp,
+					wikitext: { body: data.oldWt, },
 				},
 			},
 		}, parsoidOptions);
