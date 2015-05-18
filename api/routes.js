@@ -116,7 +116,7 @@ module.exports = function(parsoidConfig) {
 			var headNodes = "";
 			for (var i = 0; i < hNodes.length; i++) {
 				if (hNodes[i].nodeName.toLowerCase() === 'base') {
-					headNodes += DU.serializeNode(hNodes[i]);
+					headNodes += DU.serializeNode(hNodes[i]).str;
 					break;
 				}
 			}
@@ -124,7 +124,7 @@ module.exports = function(parsoidConfig) {
 			var bNodes = doc.body.childNodes;
 			var bodyNodes = "";
 			for (i = 0; i < bNodes.length; i++) {
-				bodyNodes += DU.serializeNode(bNodes[i]);
+				bodyNodes += DU.serializeNode(bNodes[i]).str;
 			}
 
 			var htmlSpeChars = apiUtils.htmlSpecialChars(out);
@@ -330,10 +330,9 @@ module.exports = function(parsoidConfig) {
 		function sendRes(doc) {
 			var contentType = 'text/html;profile=mediawiki.org/specs/html/1.0.0;charset=utf-8';
 			var output;
-			if ( v2 && v2.format === "pagebundle" ) {
-				var dpScriptElt = doc.getElementById('mw-data-parsoid');
-				dpScriptElt.parentNode.removeChild(dpScriptElt);
-				output = DU.serializeNode( res.local('body') ? doc.body : doc );
+			if (v2 && v2.format === 'pagebundle') {
+				var out = DU.extractDpAndSerialize(doc, res.local('body'));
+				output = out.str;
 				apiUtils.jsonResponse(res, env, {
 					// revid: 12345 (maybe?),
 					html: {
@@ -341,12 +340,12 @@ module.exports = function(parsoidConfig) {
 						body: output
 					},
 					"data-parsoid": {
-						headers: { 'content-type': dpScriptElt.getAttribute('type') },
-						body: JSON.parse( dpScriptElt.text )
+						headers: { 'content-type': out.type },
+						body: out.dp
 					}
 				});
 			} else {
-				output = DU.serializeNode( res.local('body') ? doc.body : doc );
+				output = DU.serializeNode(res.local('body') ? doc.body : doc).str;
 				apiUtils.setHeader(res, env, 'content-type', contentType);
 				apiUtils.endResponse(res, env, output);
 			}
@@ -692,7 +691,7 @@ module.exports = function(parsoidConfig) {
 		var p = TemplateRequest.setPageSrcInfo(env, target, oldid).then(
 			parse.bind( null, env, req, res )
 		).then(function( doc ) {
-			doc = DU.parseHTML( DU.serializeNode(doc) );
+			doc = DU.parseHTML(DU.serializeNode(doc).str);
 			var comment = doc.createComment('rtSelserEditTestComment');
 			doc.body.appendChild(comment);
 			return roundTripDiff( env, req, res, true, doc );

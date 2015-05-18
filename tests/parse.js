@@ -165,11 +165,11 @@ startsAtWikitext = function(argv, env, input) {
 				// used in Parsoid JS API, return document
 				out = doc;
 			} else {
-				out = DU.serializeNode(doc);
+				out = DU.serializeNode(doc).str;
 			}
 			return { trailingNL: true, out: out };
 		} else {
-			return startsAtHTML(argv, env, DU.serializeNode(doc));
+			return startsAtHTML(argv, env, DU.serializeNode(doc).str);
 		}
 	});
 };

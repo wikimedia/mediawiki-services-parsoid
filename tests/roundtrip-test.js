@@ -456,7 +456,7 @@ var checkIfSignificant = function(offsets, data) {
 		origOut = res ? res.nodes : [];
 		for (k = 0; k < origOut.length; k++) {
 			// node need not be an element always!
-			origOrigHTML += DU.serializeNode(origOut[k], { smartQuote: false });
+			origOrigHTML += DU.serializeNode(origOut[k], { smartQuote: false }).str;
 		}
 		// Normalize away <br/>'s added by Parsoid because of newlines in wikitext
 		origHTML = normalizeWS(DU.formatHTML(DU.normalizeOut(origOrigHTML)));
@@ -465,7 +465,7 @@ var checkIfSignificant = function(offsets, data) {
 		newOut = res ? res.nodes : [];
 		for (k = 0; k < newOut.length; k++) {
 			// node need not be an element always!
-			origNewHTML += DU.serializeNode(newOut[k], { smartQuote: false });
+			origNewHTML += DU.serializeNode(newOut[k], { smartQuote: false }).str;
 		}
 		// Normalize away <br/>'s added by Parsoid because of newlines in wikitext
 		newHTML = normalizeWS(DU.formatHTML(DU.normalizeOut(origNewHTML)));

@@ -277,6 +277,18 @@ describe('Parsoid API', function() {
 				.end(done);
 			});
 
+			it('should include captured offsets', function(done) {
+				request(api)
+				.get('v2/' + mockHost + '/pagebundle/Main_Page/1')
+				.expect(200)
+				.expect(function(res) {
+					res.body.should.have.property('html');
+					res.body.should.have.property('data-parsoid');
+					res.body['data-parsoid'].body.should.have.property('sectionOffsets');
+				})
+				.end(done);
+			});
+
 		}); // end wt2html
 
 		describe("html2wt", function() {
