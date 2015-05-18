@@ -28,7 +28,7 @@ describe('XML Serializer', function() {
 	it('should handle templates properly while capturing offsets', function() {
 		var html = '<html><head><title>hi</title><body>' +
 			'<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">a</p>' +
-			'<p about="#mwt1">b</p>' +
+			'<p about="#mwt1" id="justhappenstobehere">b</p>' +
 			'<p id="mwAg">c</p>' +
 			'</body></html>';
 		var doc = domino.createDocument(html);
@@ -41,7 +41,8 @@ describe('XML Serializer', function() {
 		ret.should.have.property('offsets');
 		ret.offsets.should.have.property('mwAQ');
 		ret.offsets.should.have.property('mwAg');
-		ret.offsets.mwAQ.html.should.eql([0, 79]);
-		ret.offsets.mwAg.html.should.eql([79, 97]);
+		ret.offsets.should.not.have.property('justhappenstobehere');
+		ret.offsets.mwAQ.html.should.eql([0, 104]);
+		ret.offsets.mwAg.html.should.eql([104, 122]);
 	});
 });
