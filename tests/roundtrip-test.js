@@ -202,8 +202,8 @@ var findMatchingNodes = function(env, node, range) {
 		return [node];
 	}
 
-	// Cannot inspect <figure> subtree at a finer grained level
-	if (/\bmw:Image(\/|$)/.test(typeOf) && node.nodeName === 'FIGURE') {
+	// Cannot inspect image subtree at a finer grained level
+	if (/\bmw:Image(\/|$)/.test(typeOf) && /^(FIGURE|SPAN)$/.test(node.nodeName)) {
 		return [node];
 	}
 
