@@ -182,7 +182,7 @@ var xmlFormat = function(err, prefix, title, results, profile) {
 
 // Find the subset of leaf/non-leaf nodes whose DSR ranges
 // span the wikitext range provided as input.
-var findMatchingNodes = function(node, range) {
+var findMatchingNodes = function(env, node, range) {
 	console.assert(DU.isElt(node));
 
 	// Skip subtrees that are outside our target range
@@ -221,7 +221,7 @@ var findMatchingNodes = function(node, range) {
 			if (Util.isValidDSR(dsr)) {
 				if (dsr[1] >= range.start) {
 					// We have an overlap!
-					elts = elts.concat(findMatchingNodes(c, range));
+					elts = elts.concat(findMatchingNodes(env, c, range));
 				}
 				offset = dp.dsr[1];
 			} else {
@@ -234,7 +234,7 @@ var findMatchingNodes = function(node, range) {
 				// If we see no errors in rt-testing runs,
 				// I am going to rip this out.
 
-				console.error("ERROR: Bad dsr for " + c.nodeName + ": "
+				env.log("error/diff", "Bad dsr for " + c.nodeName + ": "
 					+ c.outerHTML.substr(0, 50));
 
 				if (dp.dsr && typeof (dsr[1]) === 'number') {
@@ -244,7 +244,7 @@ var findMatchingNodes = function(node, range) {
 						dp.dsr[0] = offset;
 
 						// We have an overlap!
-						elts = elts.concat(findMatchingNodes(c, range));
+						elts = elts.concat(findMatchingNodes(env, c, range));
 					}
 					offset = dp.dsr[1];
 				} else if (offset >= range.start) {
@@ -281,9 +281,9 @@ var findMatchingNodes = function(node, range) {
 	return elts;
 };
 
-var getMatchingHTML = function(body, offsetRange) {
+var getMatchingHTML = function(env, body, offsetRange) {
 	var html = '';
-	var out = findMatchingNodes(body, offsetRange);
+	var out = findMatchingNodes(env, body, offsetRange);
 	for (var i = 0; i < out.length; i++) {
 		// node need not be an element always!
 		html += DU.serializeNode(out[i], { smartQuote: false }).str;
@@ -333,7 +333,7 @@ var formatDiff = function(oldWt, newWt, offset, context) {
 	].join('\n');
 };
 
-var checkIfSignificant = function(offsets, data) {
+var checkIfSignificant = function(env, offsets, data) {
 	var oldWt = data.oldWt;
 	var newWt = data.newWt;
 
@@ -377,8 +377,8 @@ var checkIfSignificant = function(offsets, data) {
 		thisResult.wtDiff = formatDiff(oldWt, newWt, offset, 0);
 
 		// Check if this is really a semantic diff
-		var oldHTML = getMatchingHTML(oldBody, offset[0]);
-		var newHTML = getMatchingHTML(newBody, offset[1]);
+		var oldHTML = getMatchingHTML(env, oldBody, offset[0]);
+		var newHTML = getMatchingHTML(env, newBody, offset[1]);
 		var diff = Diff.htmlDiff(oldHTML, newHTML, false, true, true);
 		if (diff.length > 0) {
 			// Normalize wts to check if we really have a semantic diff
@@ -477,7 +477,7 @@ function roundTripDiff(env, parsoidOptions, data) {
 	return parsoidPost(env, options).then(function(body) {
 		data.newHTML = body.html;
 		data.newDp = body['data-parsoid'];
-		return checkIfSignificant(offsets, data);
+		return checkIfSignificant(env, offsets, data);
 	});
 }
 
