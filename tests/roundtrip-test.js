@@ -180,180 +180,105 @@ var xmlFormat = function(err, prefix, title, results, profile) {
 	return output;
 };
 
-var findMatchingNodes = function(root, targetRange, sourceLen) {
-	var isZeroLength = (targetRange.start === targetRange.end);
-	var currentOffset = null;
-	var wasWaiting = false;
-	var waitingForEndMatch = false;
+// Find the subset of leaf/non-leaf nodes whose DSR ranges
+// span the wikitext range provided as input.
+var findMatchingNodes = function(node, range) {
+	console.assert(DU.isElt(node));
 
-	function walkDOM(element) {
-		var dp = DU.getDataParsoid(element);
+	// Skip subtrees that are outside our target range
+	var dp = DU.getDataParsoid(node);
+	if (!Util.isValidDSR(dp.dsr) || dp.dsr[0] > range.end || dp.dsr[1] < range.start) {
+		return [];
+	}
 
-		// NOTE: We are not using Util.isValidDSR(dp.dsr)
-		// since we want to use partially valid info as well.
-		//
-		// SSS FIXME: Is partially valid info an issue anymore now?
-		if (dp.dsr && dp.dsr.length) {
-			var start = dp.dsr[0] || 0;
-			var end = dp.dsr[1] || sourceLen - 1;
+	// If target range subsumes the node, we are done.
+	if (dp.dsr[0] >= range.start && dp.dsr[1] <= range.end) {
+		return [node];
+	}
 
-			// For zero-length ranges, find the smallest node
-			// that includes the start/end value. So, use a more
-			// restrictive check to decide if this subtree can be
-			// skipped or not.
-			if (isZeroLength) {
-				if (targetRange.start > end || targetRange.end < start) {
-					return null;
+	// Cannot inspect template content subtree at a finer grained level
+	var typeOf = node.getAttribute('typeof') || '';
+	if (/\bmw:(?:Transclusion\b|Param\b|Extension\/[^\s]+)/.test(typeOf)) {
+		return [node];
+	}
+
+	// Cannot inspect <figure> subtree at a finer grained level
+	if (/\bmw:Image(\/|$)/.test(typeOf) && node.nodeName === 'FIGURE') {
+		return [node];
+	}
+
+	// We are in the target range -- examine children.
+	// 1. Walk past nodes that are before our desired range.
+	// 2. Collect nodes within our desired range.
+	// 3. Stop walking once you move beyond the desired range.
+	var elts = [];
+	var offset = dp.dsr[0];
+	var c = node.firstChild;
+	while (c) {
+		if (DU.isElt(c)) {
+			dp = DU.getDataParsoid(c);
+			var dsr = dp.dsr;
+			if (Util.isValidDSR(dsr)) {
+				if (dsr[1] >= range.start) {
+					// We have an overlap!
+					elts = elts.concat(findMatchingNodes(c, range));
 				}
+				offset = dp.dsr[1];
 			} else {
-				if (targetRange.start >= end || targetRange.end <= start) {
-					return null;
-				}
-			}
+				// SSS FIXME: This is defensive coding here.
+				//
+				// This should not happen really anymore.
+				// DSR computation is fairly solid now and
+				// shouldn't be leaving holes.
+				//
+				// If we see no errors in rt-testing runs,
+				// I am going to rip this out.
 
-			if (waitingForEndMatch) {
-				if (end >= targetRange.end) {
-					waitingForEndMatch = false;
-				}
-				return { done: true, nodes: [element] };
-			}
+				console.error("ERROR: Bad dsr for " + c.nodeName + ": "
+					+ c.outerHTML.substr(0, 50));
 
-			if (dp.dsr[0] !== null &&
-				targetRange.start === start &&
-				end === targetRange.end) {
-				return { done: true, nodes: [element] };
-			} else if (targetRange.start === start) {
-				waitingForEndMatch = true;
-				if (end < targetRange.end) {
-					// No need to examine children since
-					// the subtree range is smaller than
-					// what we want.
-					return { done: false, nodes: [element] };
+				if (dp.dsr && typeof (dsr[1]) === 'number') {
+					// We can cope in this case
+					if (dsr[1] >= range.start) {
+						// Update dsr[0]
+						dp.dsr[0] = offset;
+
+						// We have an overlap!
+						elts = elts.concat(findMatchingNodes(c, range));
+					}
+					offset = dp.dsr[1];
+				} else if (offset >= range.start) {
+					// Swallow it wholesale rather than try
+					// to find finer-grained matches in the subtree
+					elts.push(c);
+
+					// offset will now be out-of-sync till we hit
+					// another element with a valid DSR[1] value.
 				}
-			} else if (start >= targetRange.start && end <= targetRange.end) {
-				// No need to examine children since
-				// the subtree range is smaller than
-				// what we want.
-				return { done: false, nodes: [element] };
 			}
+		} else {
+			var len = DU.isText(c) ? c.nodeValue.length : DU.decodedCommentLength(c);
+			if (offset + len >= range.start) {
+				// We have an overlap!
+				elts.push(c);
+			}
+			offset += len;
 		}
 
-		// We cannot walk the subtree of this element
-		// if it encapsulates generaed content (templates, extensions)
-		if (DU.isFirstEncapsulationWrapperNode(element)) {
-			if (dp.dsr && dp.dsr.length) {
-				return { done: false, nodes: [element] };
-			} else {
-				return null;
-			}
+		// All done!
+		if (offset > range.end) {
+			break;
 		}
 
-		// We have to find the smallest range in element's subtree
-		var elements = [];
-		var precedingNodes = [];
-		var c = element.firstChild;
-		var childDP;
-		while (c) {
-			wasWaiting = waitingForEndMatch;
-			if (DU.isElt(c)) {
-				var res = walkDOM(c);
-				var matchedChildren = res ? res.nodes : null;
-				if (matchedChildren) {
-					if (!currentOffset && dp.dsr && dp.dsr[0] !== null) {
-						var elesOnOffset = [];
-						currentOffset = dp.dsr[0];
-						// Walk the preceding nodes without dsr values and
-						// prefix matchedChildren till we get the desired
-						// matching start value.
-						var diff = currentOffset - targetRange.start;
-						while (precedingNodes.length > 0 && diff > 0) {
-							var n = precedingNodes.pop();
-							var len = DU.isComment(n) ?
-								DU.decodedCommentLength(n) :
-								n.nodeValue.length;
-							if (len > diff) {
-								break;
-							}
-							diff -= len;
-							elesOnOffset.push(n);
-						}
-						elesOnOffset.reverse();
-						matchedChildren = elesOnOffset.concat(matchedChildren);
-					}
-
-					// Check if there's only one child,
-					// and make sure it's a node with getAttribute.
-					if (matchedChildren.length === 1 && DU.isElt(matchedChildren[0])) {
-						childDP = DU.getDataParsoid(matchedChildren[0]);
-						if (childDP) {
-							if (childDP.dsr && typeof (childDP.dsr[1]) === 'number') {
-								if (childDP.dsr[1] >= targetRange.end) {
-									res.done = true;
-								} else {
-									currentOffset = childDP.dsr[1];
-								}
-							}
-						}
-					}
-
-					if (res.done) {
-						res.nodes = matchedChildren;
-						return res;
-					} else {
-						elements = matchedChildren;
-					}
-				} else if (wasWaiting || waitingForEndMatch) {
-					elements.push(c);
-				}
-
-				// Clear out when an element node is encountered.
-				precedingNodes = [];
-			} else if (c.nodeType === c.TEXT_NODE || c.nodeType === c.COMMENT_NODE) {
-				if (currentOffset && (currentOffset < targetRange.end)) {
-					if (DU.isComment(c)) {
-						currentOffset += DU.decodedCommentLength(c);
-					} else {
-						currentOffset += c.nodeValue.length;
-					}
-					if (currentOffset >= targetRange.end) {
-						waitingForEndMatch = false;
-					}
-				}
-
-				if (wasWaiting || waitingForEndMatch) {
-					// Part of target range
-					elements.push(c);
-				} else if (!currentOffset) {
-					// Accumulate nodes without dsr
-					precedingNodes.push(c);
-				}
-			}
-
-			if (wasWaiting && !waitingForEndMatch) {
-				break;
-			}
-
-			// Skip over encapsulated content
-			var typeOf = DU.isElt(c) ? c.getAttribute('typeof') || '' : '';
-			if (/\bmw:(?:Transclusion\b|Param\b|Extension\/[^\s]+)/.test(typeOf)) {
-				c = DU.skipOverEncapsulatedContent(c);
-			} else {
-				c = c.nextSibling;
-			}
-		}
-
-		var numElements = elements.length;
-		var numChildren = element.childNodes.length;
-		if (numElements === 0) {
-			return null;
-		} else if (numElements < numChildren) {
-			return { done: !waitingForEndMatch, nodes: elements } ;
-		} else { /* numElements === numChildren */
-			return { done: !waitingForEndMatch, nodes: [element] } ;
+		// Skip over encapsulated content
+		if (DU.isFirstEncapsulationWrapperNode(c)) {
+			c = DU.skipOverEncapsulatedContent(c);
+		} else {
+			c = c.nextSibling;
 		}
 	}
 
-	return walkDOM(root);
+	return elts;
 };
 
 var normalizeWikitext = function(str) {
@@ -387,7 +312,7 @@ var normalizeWikitext = function(str) {
 };
 
 var normalizeWS = function(html) {
-	return html.replace(/<p>\s*<br\s*\/?>\s*/g, '<p>').replace(/<p><\/p>/g, '').replace(/^\s+$/g, '');
+	return html.replace(/<p>\s*<br\s*\/?>\s*/g, '<p>').replace(/<p><\/p>/g, '').replace(/(^\s+|\s+$)/g, '');
 };
 
 // Get diff substrings from offsets
@@ -434,7 +359,7 @@ var checkIfSignificant = function(offsets, data) {
 		}
 	}
 
-	var origOut, newOut, origHTML, newHTML;
+	var origHTML, newHTML;
 	// Now, proceed with full blown diffs
 	for (i = 0; i < offsets.length; i++) {
 		offset = offsets[i];
@@ -452,8 +377,7 @@ var checkIfSignificant = function(offsets, data) {
 			offset[0].start--;
 		}
 
-		var res = findMatchingNodes(oldBody, offset[0] || {}, oldWt.length);
-		origOut = res ? res.nodes : [];
+		var origOut = findMatchingNodes(oldBody, offset[0] || {});
 		for (k = 0; k < origOut.length; k++) {
 			// node need not be an element always!
 			origOrigHTML += DU.serializeNode(origOut[k], { smartQuote: false }).str;
@@ -461,8 +385,7 @@ var checkIfSignificant = function(offsets, data) {
 		// Normalize away <br/>'s added by Parsoid because of newlines in wikitext
 		origHTML = normalizeWS(DU.formatHTML(DU.normalizeOut(origOrigHTML)));
 
-		res = findMatchingNodes(newBody, offset[1] || {}, newWt.length);
-		newOut = res ? res.nodes : [];
+		var newOut = findMatchingNodes(newBody, offset[1] || {});
 		for (k = 0; k < newOut.length; k++) {
 			// node need not be an element always!
 			origNewHTML += DU.serializeNode(newOut[k], { smartQuote: false }).str;
