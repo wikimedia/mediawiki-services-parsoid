@@ -281,6 +281,18 @@ var findMatchingNodes = function(node, range) {
 	return elts;
 };
 
+var getMatchingHTML = function(body, offsetRange) {
+	var html = '';
+	var out = findMatchingNodes(body, offsetRange);
+	for (var i = 0; i < out.length; i++) {
+		// node need not be an element always!
+		html += DU.serializeNode(out[i], { smartQuote: false }).str;
+	}
+	html = DU.formatHTML(DU.normalizeOut(html));
+	// Normalize away <br/>'s added by Parsoid because of newlines in wikitext
+	return html.replace(/<p>\s*<br\s*\/?>\s*/g, '<p>').replace(/<p><\/p>/g, '').replace(/(^\s+|\s+$)/g, '');
+};
+
 var normalizeWikitext = function(str) {
 	// Ignore leading tabs vs. leading spaces
 	str = str.replace(/^\t/, ' ');
@@ -311,10 +323,6 @@ var normalizeWikitext = function(str) {
 	return str;
 };
 
-var normalizeWS = function(html) {
-	return html.replace(/<p>\s*<br\s*\/?>\s*/g, '<p>').replace(/<p><\/p>/g, '').replace(/(^\s+|\s+$)/g, '');
-};
-
 // Get diff substrings from offsets
 var formatDiff = function(oldWt, newWt, offset, context) {
 	return [
@@ -336,7 +344,7 @@ var checkIfSignificant = function(offsets, data) {
 	DU.applyDataParsoid(oldBody.ownerDocument, data.oldDp.body);
 	DU.applyDataParsoid(newBody.ownerDocument, data.newDp.body);
 
-	var i, k, diff, offset;
+	var i, offset;
 	var results = [];
 	// Use the full tests for fostered content.
 	// Fostered content => semantic diffs.
@@ -359,67 +367,38 @@ var checkIfSignificant = function(offsets, data) {
 		}
 	}
 
-	var origHTML, newHTML;
 	// Now, proceed with full blown diffs
 	for (i = 0; i < offsets.length; i++) {
 		offset = offsets[i];
-		var origOrigHTML = '';
-		var origNewHTML = '';
 		var thisResult = { offset: offset };
 
-		var implicitlyClosed = (offset[0].start === offset[0].end &&
-				newWt.substr(offset[1].start, offset[1].end - offset[1].start)
-					.match(/^\n?<\/[^>]+>\n?$/));
-		if (implicitlyClosed) {
-			// An element was implicitly closed. Fudge the orig offset
-			// slightly so it finds the corresponding elements which have the
-			// original (unclosed) DSR.
-			offset[0].start--;
-		}
-
-		var origOut = findMatchingNodes(oldBody, offset[0] || {});
-		for (k = 0; k < origOut.length; k++) {
-			// node need not be an element always!
-			origOrigHTML += DU.serializeNode(origOut[k], { smartQuote: false }).str;
-		}
-		// Normalize away <br/>'s added by Parsoid because of newlines in wikitext
-		origHTML = normalizeWS(DU.formatHTML(DU.normalizeOut(origOrigHTML)));
-
-		var newOut = findMatchingNodes(newBody, offset[1] || {});
-		for (k = 0; k < newOut.length; k++) {
-			// node need not be an element always!
-			origNewHTML += DU.serializeNode(newOut[k], { smartQuote: false }).str;
-		}
-		// Normalize away <br/>'s added by Parsoid because of newlines in wikitext
-		newHTML = normalizeWS(DU.formatHTML(DU.normalizeOut(origNewHTML)));
-
-		// compute wt diffs
-		var wt1 = oldWt.substring(offset[0].start, offset[0].end);
-		var wt2 = newWt.substring(offset[1].start, offset[1].end);
-		// thisResult.wtDiff = Util.contextDiff(wt1, wt2, false, true, true);
-
-		diff = Diff.htmlDiff(origHTML, newHTML, false, true, true);
-		if (diff.length > 2000) {
-			diff = diff.substring(0, 2000) + "-- TRUNCATED TO 2000 chars --";
-		}
-
-		// No context by default
+		// Default: syntactic diff + no diff context
+		thisResult.type = 'skip';
 		thisResult.wtDiff = formatDiff(oldWt, newWt, offset, 0);
 
-		// Normalize wts to check if we really have a semantic diff
-		thisResult.type = 'skip';
+		// Check if this is really a semantic diff
+		var oldHTML = getMatchingHTML(oldBody, offset[0]);
+		var newHTML = getMatchingHTML(newBody, offset[1]);
+		var diff = Diff.htmlDiff(oldHTML, newHTML, false, true, true);
 		if (diff.length > 0) {
-			var normWT1 = normalizeWikitext(wt1);
-			var normWT2 = normalizeWikitext(wt2);
-			if (normWT1 !== normWT2) {
-				thisResult.htmlDiff = diff;
+			// Normalize wts to check if we really have a semantic diff
+			var wt1 = normalizeWikitext(oldWt.substring(offset[0].start, offset[0].end));
+			var wt2 = normalizeWikitext(newWt.substring(offset[1].start, offset[1].end));
+			if (wt1 !== wt2) {
+				// Syntatic diff + provide context for semantic diffs
 				thisResult.type = 'fail';
-				// Provide context for semantic diffs
 				thisResult.wtDiff = formatDiff(oldWt, newWt, offset, 25);
+
+				// Don't clog the rt-test server db with humongous diffs
+				if (diff.length > 2000) {
+					diff = diff.substring(0, 2000) + "-- TRUNCATED TO 2000 chars --";
+				}
+				thisResult.htmlDiff = diff;
 			}
 		}
 		results.push(thisResult);
 	}
+
 	return results;
 };
 
