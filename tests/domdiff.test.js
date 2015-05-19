@@ -46,14 +46,15 @@ if (!oldhtml && argv._[0]) {
 	newhtml = fs.readFileSync(argv._[1], 'utf8');
 }
 
-if (Util.booleanOption( argv.help ) || !oldhtml || !newhtml) {
+if (Util.booleanOption(argv.help) || !oldhtml || !newhtml) {
 	opts.showHelp();
 	return;
 }
 
+var oldDOM = DU.parseHTML(oldhtml);
 var dummyEnv = {
 	conf: { parsoid: { debug: Util.booleanOption( argv.debug ) }, wiki: {} },
-	page: { id: null }
+	page: { id: null, dom: oldDOM.body }
 };
 
 if (argv.debug) {
@@ -65,12 +66,11 @@ if (argv.debug) {
 }
 
 var dd = new DOMDiff(dummyEnv);
-var oldDOM = DU.parseHTML(oldhtml);
 var newDOM = DU.parseHTML(newhtml);
+var diff = dd.diff(newDOM.body);
 
-dd.doDOMDiff(oldDOM.body, newDOM.body);
-if ( !Util.booleanOption( argv.quiet ) ) {
+if (!Util.booleanOption(argv.quiet)) {
 	console.warn("----- DIFF-marked DOM -----");
 }
-console.log(newDOM.outerHTML );
+console.log(diff.dom.outerHTML);
 process.exit(0);

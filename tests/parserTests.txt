@@ -24170,7 +24170,7 @@ parsoid={
 
 ## T90517
 !! test
-1. Selser: New comments should not be lost
+Selser: New comments should not be lost
 !! options
 parsoid={
   "modes": ["selser"],
@@ -24191,7 +24191,7 @@ parsoid={
 
 ## T89383
 !! test
-2. Selser: Check for validity of DSR before using it
+Selser: Check for validity of DSR before using it
 !! options
 parsoid={
   "modes": ["selser"],
@@ -24206,6 +24206,58 @@ parsoid={
 <span id="a">a</span>
 !! end
 
+!! test
+1. DOMDiff: Changes to <ref> content should be looked up using id
+!! options
+parsoid={
+  "modes": ["selser"],
+  "changes": [
+    ["#X", "after", "bar"],
+    ["#Y", "after", "baz"]
+  ]
+}
+!! wikitext
+X <ref><span id="X">foo</span></ref>
+Y <ref name="a" />
+<references>
+<ref name="a"><span id="Y">foo</span></ref>
+</references>
+!! wikitext/edited
+X <ref><span id="X">foo</span>bar</ref>
+Y <ref name="a" />
+<references>
+<ref name="a"><span id="Y">foo</span>baz</ref>
+</references>
+!! end
+
+!! test
+2. DOMDiff: Changes to <ref> content should be looked up using id
+!! options
+parsoid={
+  "modes": ["selser"],
+  "changes": [
+    ["#Z", "after", "bar"]
+  ]
+}
+!! wikitext
+A <ref>foo bar for a</ref>
+B <ref group="X" name="b" />
+
+<references />
+
+<references group="X">
+<ref name="b"><span id="Z">foo</span></ref>
+</references>
+!! wikitext/edited
+A <ref>foo bar for a</ref>
+B <ref group="X" name="b" />
+
+<references />
+
+<references group="X">
+<ref name="b"><span id="Z">foo</span>bar</ref>
+</references>
+!! end
 
 TODO:
 more images
