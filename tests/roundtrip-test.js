@@ -197,12 +197,12 @@ var findMatchingNodes = function(env, node, range) {
 	}
 
 	// Cannot inspect template content subtree at a finer grained level
-	var typeOf = node.getAttribute('typeof') || '';
-	if (/\bmw:(?:Transclusion\b|Param\b|Extension\/[^\s]+)/.test(typeOf)) {
+	if (DU.isFirstEncapsulationWrapperNode(node)) {
 		return [node];
 	}
 
 	// Cannot inspect image subtree at a finer grained level
+	var typeOf = node.getAttribute('typeof') || '';
 	if (/\bmw:Image(\/|$)/.test(typeOf) && /^(FIGURE|SPAN)$/.test(node.nodeName)) {
 		return [node];
 	}
