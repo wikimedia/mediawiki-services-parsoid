@@ -1,53 +1,33 @@
-Full list of authors, by number of lines in revision
-284957fab45bf62208f1d4283439bfa6ad9edbf1 Apr 14 2015:
+The principal contributors to the Parsoid codebase
+(listed alphabetically by first name) are:
 
-[ Authors from older revisions may not show up in
-  newer revisions -- so continue to add names to
-  this list, please do not remove. ]
+  Arlo Breault,
+  C.Scott Ananian,
+  Gabriel Wicke,
+  Marc Ordinas i Llopis, Mark Holmquist,
+  Subramanya Sastry,
+  Tim Starling
 
-Gabriel Wicke <gwicke@wikimedia.org>
-Subramanya Sastry <ssastry@wikimedia.org>
-Mark Holmquist <mtraceur@member.fsf.org>
-Arlo Breault <abreault@wikimedia.org>
-C. Scott Ananian <cscott@cscott.net>
-Marc Ordinas i Llopis <marcoil@wikimedia.org>
-Be <bebirchall@gmail.com>
-Maria Pacana <maria.pacana@gmail.com>
-Robert Smith <rsmith@wikimedia.org>
-Luke Welling <lwelling@wikimedia.org>
-ecotg <ecokpo@gmail.com>
-Hardik Juneja <hardikjuneja.hj@gmail.com>
-Adam Wight <awight@wikimedia.org>
-Ricordisamoa <ricordisamoa@openmailbox.org>
-Brion Vibber <brion@wikimedia.org>
-Antoine Musso <hashar@wikimedia.org>
-Siebrand Mazeland <s.mazeland@xs4all.nl>
-Inez Korczyński <inez@wikia-inc.com>
-Neil Kandalgaonkar <neilk@wikimedia.org>
-Jeff Evans <wayne.mokane+github@gmail.com>
-Brandon Istenes <brandonesbox@gmail.com>
-plancalculus <jan@monoid-it.de>
-vichak <vichak@hakoun.fr>
-Sebastian Wong <wngsebastian@gmail.com>
-Audrey Tang (au) <audreyt@audreyt.org>
-Faidon Liambotis <faidon@wikimedia.org>
-Molly White <molly.white5@gmail.com>
-Kunal Mehta <legoktm@gmail.com>
-Trevor Parscal <trevor@wikimedia.org>
-Catrope <roan@wikimedia.org>
-Timo Tijhof <ttijhof@wikimedia.org>
-S Page <spage@wikimedia.org>
-MarkTraceur <mtraceur@member.fsf.org>
-Erik Bernhardson <ebernhardson@wikimedia.org>
-Aaron Schulz <aschulz@wikimedia.org>
-Reedy <reedy@wikimedia.org>
-MZMcBride <w@mzmcbride.com>
-Ori Livneh <ori.livneh@gmail.com>
-Adam Baso <abaso@wikimedia.org>
-YuviPanda <yuvipanda@gmail.com>
+Other contributors (listed alphabetically by first name):
 
-A version of this list can be regenerated with the following one-liner:
-
-git ls-tree -r HEAD | cut -f 2 | grep -E '\.(js|cc|h|cpp|hpp|c|txt|sh|php)$' | grep -v -E 'scripts|html5' | xargs -n1 git blame --line-porcelain | sed -ne '/^author /{ s/^author //; h }' -e '/^author-mail /{ s/^author-mail //; H; g; y/\n/ /; p }' | sort | uniq -c | sort -nr | sed -e 's/^[ ]*[1-9][0-9]* //'
-
-Please see git blame for per-file information.
+  Aaron Schulz, Adam Baso, Adam Wight, Alex Monk, Amir Aharoni,
+  Antoine Musso, Audrey Tang (au),
+  Be Birchall, Brandon Black, Brandon Istenes, Brion Vibber,
+  Carl Fürstenberg,
+  E.C.Okpo, Erik Bernhardson,
+  Faidon Liambotis,
+  Hardik Juneja,
+  Inez Korczyński,
+  James Douglas, James Forrester, Jeff Evans,
+  Kunal Mehta,
+  Luke Welling, Luis Miguel Morillas,
+  Maria Pacana, Marco Obrovac, Matt Flaschen, Matt Walker,
+  Matthias Mullie, Molly White, MZMcBride,
+  Neil Kandalgaonkar,
+  Ori Livneh,
+  plancalculus,
+  Ricordisamoa, Roan Kattouw, Robert Smith,
+  S Page, Sam Reed, Sebastian Wong, Siebrand Mazeland,
+  Timo Tijhof, Trevor Parscal,
+  vichak,
+  Yuvaraj Pandian
