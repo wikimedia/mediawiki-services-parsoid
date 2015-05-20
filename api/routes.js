@@ -428,7 +428,7 @@ module.exports = function(parsoidConfig) {
 			if ( v2 ) {
 				path += [
 					"v2",
-					url.parse(env.conf.parsoid.mwApiMap.get(prefix)).host,
+					url.parse(env.conf.parsoid.mwApiMap.get(prefix).uri).host,
 					v2.format,
 					encodeURIComponent( target ),
 					oldid
