@@ -8,12 +8,9 @@
 'use strict';
 
 exports.setup = function(parsoidConfig) {
-	// The URL of your MediaWiki API endpoint. Optionally, you can also pass
-	// in a proxy specific to this prefix (overrides defaultAPIProxyURI), or
-	// null to disable proxying for this end point.
-	//  parsoidConfig.setMwApi('localhost', 'http://localhost/w/api.php');
+	// The URL of your MediaWiki API endpoint.
 	if (process.env.PARSOID_MOCKAPI_URL) {
-		parsoidConfig.setMwApi('localhost', process.env.PARSOID_MOCKAPI_URL);
+		parsoidConfig.setMwApi('localhost', { uri: process.env.PARSOID_MOCKAPI_URL });
 	}
 
 	// We pre-define wikipedias as 'enwiki', 'dewiki' etc. Similarly

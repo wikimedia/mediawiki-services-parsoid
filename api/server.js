@@ -10,9 +10,10 @@
  *
  * example:
  *   exports.setup = function(parsoidConfig) {
- *     parsoidConfig.setMwApi('localhost', 'http://localhost/wiki');
+ *     parsoidConfig.setMwApi('localhost', { uri: 'http://localhost/wiki' });
  *   };
  *
+ * (See localsettings.js.example for more options to setMwApi.)
  * Alternatively, specify a --config file explicitly. See --help for other
  * options.
  *
