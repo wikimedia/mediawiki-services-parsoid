@@ -119,6 +119,13 @@ Template:echo_with_div
 !! endarticle
 
 !! article
+Template:blank_param
+!! text
+{{{1}}}
+{{{}}}
+!! endarticle
+
+!! article
 Template:table_attribs
 !! text
 <noinclude>
@@ -2736,6 +2743,19 @@ Templates: Preserve blank parameter names
 </p>
 !! html/parsoid
 <p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"":{"wt":"foo"}},"i":0}}]}'>{{{1}}}</p>
+!! end
+
+!! test
+Templates: Preserve blank parameter names in other positions
+!! wikitext
+{{blank_param|bar|=foo}}
+!! html/php
+<p>bar
+foo
+</p>
+!! html/parsoid
+<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]},{"k":"","named":true,"spc":["","","",""]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"blank_param","href":"./Template:Blank_param"},"params":{"1":{"wt":"bar"},"":{"wt":"foo"}},"i":0}}]}'>bar
+foo</p>
 !! end
 
 ###

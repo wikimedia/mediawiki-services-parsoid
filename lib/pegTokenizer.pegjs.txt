@@ -728,8 +728,6 @@ tplarg
 
 template_param
   = name:template_param_name
-    // MW accepts |foo | = bar | as a single param..
-    (p:'|' sp:space_or_newline* &'=' { return [p, sp]; })?
     val:(
         kEndPos:({return peg$currPos;})
         optionalSpaceToken
