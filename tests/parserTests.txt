@@ -8338,11 +8338,15 @@ List items are not parsed correctly following a <pre> block (bug 785)
 * <pre>foo</pre>
 * <pre>bar</pre>
 * zar
-!! html
+!! html/php
 <ul><li> <pre>foo</pre></li>
 <li> <pre>bar</pre></li>
 <li> zar</li></ul>
 
+!! html/parsoid
+<ul><li> <pre data-parsoid='{"stx":"html"}'>foo</pre></li>
+<li> <pre data-parsoid='{"stx":"html"}'>bar</pre></li>
+<li> zar</li></ul>
 !! end
 
 !! test
@@ -23684,10 +23688,19 @@ parsoid=html2wt
 
 <ul><li>asd
 sdf</li></ul>
+
+<ul><li>foo
+bar
+baz</li>
+<li>foo <b>bar</b>
+baz</li></ul>
 !! wikitext
 == testing 123 ==
 
 * asd sdf
+
+* foo bar baz
+* foo '''bar''' baz
 !! end
 
 #-----------------------------
