@@ -20,6 +20,8 @@ var Diff = require('../lib/mediawiki.Diff.js').Diff;
 
 var ParsoidCacheRequest = ApiRequest.ParsoidCacheRequest;
 var TemplateRequest = ApiRequest.TemplateRequest;
+var PHPParseRequest = ApiRequest.PHPParseRequest;
+var PegTokenizer = require('../lib/mediawiki.tokenizer.peg.js').PegTokenizer;
 
 module.exports = function(parsoidConfig) {
 	var routes = {};
@@ -446,11 +448,46 @@ module.exports = function(parsoidConfig) {
 			apiUtils.relativeRedirect({ "path": path, "res": res, "env": env });
 		}
 
+		// To support the 'subst' API parameter, we need to prefix each
+		// top-level template with 'subst'. To make sure we do this for the
+		// correct templates, tokenize the starting wikitext and use that to
+		// detect top-level templates. Then, substitute each starting '{{' with
+		// '{{subst' using the template token's tsr.
+		function substTopLevelTemplates() {
+			var tokenizer = new PegTokenizer(env);
+			var tokens = tokenizer.tokenize(wt, null, null, true);
+			var tsrIncr = 0;
+			for (var i = 0; i < tokens.length; i++) {
+				if (tokens[i].name === 'template') {
+					var tsr = tokens[i].dataAttribs.tsr;
+					wt = wt.substring(0, tsr[0] + tsrIncr) +
+						'{{subst:' +
+						wt.substring(tsr[0] + tsrIncr + 2);
+					tsrIncr += 6;
+				}
+			}
+			// Now pass it to the MediaWiki API with onlypst set so that it
+			// subst's the templates.
+			return PHPParseRequest.promise(env, res.local("pageName"), wt, true)
+					.then( function(text) {
+				wt = text;
+				// Set data-parsoid to be discarded, so that the subst'ed content
+				// is considered new when it comes back.
+				env.discardDataParsoid = true;
+				// Use the returned wikitext as the page source.
+				env.setPageSrcInfo(wt);
+			} );
+		}
+
 		var p;
 		if ( typeof wt === 'string' && (!res.local('pageName') || !oldid) ) {
-			// don't fetch the page source
-			env.setPageSrcInfo( wt );
-			p = Promise.resolve();
+			if (res.local('subst')) {
+				p = substTopLevelTemplates();
+			} else {
+				// don't fetch the page source
+				env.setPageSrcInfo(wt);
+				p = Promise.resolve();
+			}
 		} else {
 			p = TemplateRequest.setPageSrcInfo(env, target, oldid);
 		}
@@ -471,7 +508,6 @@ module.exports = function(parsoidConfig) {
 			.catch( timeoutResp.bind(null, env) );
 	};
 
-
 	// Middlewares
 
 	routes.interParams = function( req, res, next ) {
@@ -480,6 +516,8 @@ module.exports = function(parsoidConfig) {
 		res.local('oldid', req.body.oldid || req.query.oldid || null);
 		// "body" flag to return just the body (instead of the entire HTML doc)
 		res.local('body', !!(req.query.body || req.body.body));
+		// "subst" flag to perform {{subst:}} template expansion
+		res.local('subst', !!(req.query.subst || req.body.subst));
 		next();
 	};
 
@@ -775,6 +813,13 @@ module.exports = function(parsoidConfig) {
 		if ( !supportedFormats.has( v2.format ) ||
 			 ( req.method === "GET" && !wt2htmlFormats.has( v2.format ) ) ) {
 			return errOut("Invalid format.");
+		}
+
+		// "subst" flag to perform {{subst:}} template expansion
+		res.local('subst', !!(req.query.subst || req.body.subst));
+		// This is only supported for the html format
+		if (res.local('subst') && v2.format !== "html") {
+			return errOut("Substitution is only supported for the HTML format.", 501);
 		}
 
 		if ( req.method === "POST" ) {
