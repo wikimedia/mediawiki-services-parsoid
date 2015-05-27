@@ -23739,9 +23739,9 @@ there</ref> ==
 * foo '''bar''' baz
 !! end
 
-#-----------------------------
-# I/B quote minimization tests
-#-----------------------------
+#-----------------------
+# Tag minimization tests
+#-----------------------
 
 !! test
 1. I/B quote minimization: wikitext-only tags should be combined
@@ -23846,9 +23846,52 @@ parsoid={
 ''ac''
 !! end
 
-#------------------------------------
-# End of I/B quote minimization tests
-#------------------------------------
+!! test
+1. Merge adjacent link nodes as long as at least one element is new
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html
+<a rel="mw:WikiLink" href="./Football">Foot</a><a rel="mw:WikiLink" href="./Football">ball</a>
+<a data-parsoid="{}" rel="mw:WikiLink" href="./Football">Foot</a><a rel="mw:WikiLink" href="./Football">ball</a>
+<a data-parsoid="{}" rel="mw:WikiLink" href="./Football">Foot</a><a data-parsoid="{}" rel="mw:WikiLink" href="./Football">ball</a>
+!! wikitext
+[[Football]]
+[[Football]]
+[[Football|Foot]][[Football|ball]]
+!! end
+
+!! test
+2. Merge adjacent link nodes and enable additional normalizations
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html
+<a rel="mw:WikiLink" href="./Football"><i>Foot</i></a><a rel="mw:WikiLink" href="./Football"><i>ball</i></a>
+!! wikitext
+[[Football|''Football'']]
+!! end
+
+!! test
+3. Don't merge adjacent link nodes if scrubWikitext is false
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": false
+}
+!! html
+<a rel="mw:WikiLink" href="./Football">Foot</a><a rel="mw:WikiLink" href="./Football">ball</a>
+!! wikitext
+[[Football|Foot]][[Football|ball]]
+!! end
+
+#------------------------------
+# End of tag minimization tests
+#------------------------------
 
 !!test
 Bug 54262: New entities
