@@ -304,13 +304,10 @@ var getMatchingHTML = function(env, body, offsetRange, nlDiffs) {
 	}
 	html = DU.formatHTML(DU.normalizeOut(html));
 
-	if (nlDiffs) {
-		// This is a newline-only diff.
-		// Normalize away <br/>'s added by Parsoid because of newlines in wikitext.
-		return html.replace(/<p>\s*<br\s*\/?>\s*/g, '<p>').replace(/<p><\/p>/g, '').replace(/(^\s+|\s+$)/g, '');
-	} else {
-		return html;
-	}
+	// Normalize away <br/>'s added by Parsoid because of newlines in wikitext.
+	// Do this always, not just when nlDiffs is true, because newline diffs
+	// can show up at extremities of other wt diffs.
+	return html.replace(/<p>\s*<br\s*\/?>\s*/g, '<p>').replace(/<p><\/p>/g, '').replace(/(^\s+|\s+$)/g, '');
 };
 
 var normalizeWikitext = function(str) {
