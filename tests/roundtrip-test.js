@@ -281,7 +281,21 @@ var findMatchingNodes = function(env, node, range) {
 	return elts;
 };
 
-var getMatchingHTML = function(env, body, offsetRange) {
+var getMatchingHTML = function(env, body, offsetRange, nlDiffs) {
+	// If the diff context straddles a template boundary (*) and if
+	// the HTML context includes the template content in only one
+	// the new/old DOMs, we can falsely flag this as a semantic
+	// diff. To improve the possibility of including the template
+	// content in both DOMs, expand range at both ends by 1 char.
+	//
+	// (*) This happens because our P-wrapping code occasionally
+	//     swallows newlines into template context.
+	// See https://phabricator.wikimedia.org/T89628
+	if (nlDiffs) {
+		offsetRange.start = offsetRange.start - 1;
+		offsetRange.end = offsetRange.end + 1;
+	}
+
 	var html = '';
 	var out = findMatchingNodes(env, body, offsetRange);
 	for (var i = 0; i < out.length; i++) {
@@ -289,8 +303,14 @@ var getMatchingHTML = function(env, body, offsetRange) {
 		html += DU.serializeNode(out[i], { smartQuote: false }).str;
 	}
 	html = DU.formatHTML(DU.normalizeOut(html));
-	// Normalize away <br/>'s added by Parsoid because of newlines in wikitext
-	return html.replace(/<p>\s*<br\s*\/?>\s*/g, '<p>').replace(/<p><\/p>/g, '').replace(/(^\s+|\s+$)/g, '');
+
+	if (nlDiffs) {
+		// This is a newline-only diff.
+		// Normalize away <br/>'s added by Parsoid because of newlines in wikitext.
+		return html.replace(/<p>\s*<br\s*\/?>\s*/g, '<p>').replace(/<p><\/p>/g, '').replace(/(^\s+|\s+$)/g, '');
+	} else {
+		return html;
+	}
 };
 
 var normalizeWikitext = function(str) {
@@ -376,9 +396,15 @@ var checkIfSignificant = function(env, offsets, data) {
 		thisResult.type = 'skip';
 		thisResult.wtDiff = formatDiff(oldWt, newWt, offset, 0);
 
+		// Is this a newline separator diff?
+		var oldStr = oldWt.substring(offset[0].start, offset[0].end);
+		var newStr = newWt.substring(offset[1].start, offset[1].end);
+		var nlDiffs = /^\s*$/.test(oldStr) && /^\s*$/.test(newStr)
+			&& (/\n/.test(oldStr) || /\n/.test(newStr));
+
 		// Check if this is really a semantic diff
-		var oldHTML = getMatchingHTML(env, oldBody, offset[0]);
-		var newHTML = getMatchingHTML(env, newBody, offset[1]);
+		var oldHTML = getMatchingHTML(env, oldBody, offset[0], nlDiffs);
+		var newHTML = getMatchingHTML(env, newBody, offset[1], nlDiffs);
 		var diff = Diff.htmlDiff(oldHTML, newHTML, false, true, true);
 		if (diff.length > 0) {
 			// Normalize wts to check if we really have a semantic diff
