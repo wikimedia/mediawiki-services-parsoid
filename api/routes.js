@@ -317,7 +317,7 @@ module.exports = function(parsoidConfig) {
 		var prefix = res.local('iwp');
 		var oldid = res.local('oldid');
 		var v2 = res.local('v2');
-		var target = env.resolveTitle(env.normalizeTitle( env.page.name ), '');
+		var target = env.resolveTitle(env.normalizeTitle(env.page.name), '');
 
 		if ( env.conf.parsoid.allowCORS ) {
 			// allow cross-domain requests (CORS) so that parsoid service
@@ -368,6 +368,7 @@ module.exports = function(parsoidConfig) {
 
 		function parseWt() {
 			env.log('info', 'started parsing');
+			env.setPageSrcInfo(wt);
 
 			// Don't cache requests when wt is set in case somebody uses
 			// GET for wikitext parsing
@@ -453,7 +454,7 @@ module.exports = function(parsoidConfig) {
 		// correct templates, tokenize the starting wikitext and use that to
 		// detect top-level templates. Then, substitute each starting '{{' with
 		// '{{subst' using the template token's tsr.
-		function substTopLevelTemplates() {
+		function substTopLevelTemplates(p) {
 			var tokenizer = new PegTokenizer(env);
 			var tokens = tokenizer.tokenize(wt, null, null, true);
 			var tsrIncr = 0;
@@ -468,44 +469,44 @@ module.exports = function(parsoidConfig) {
 			}
 			// Now pass it to the MediaWiki API with onlypst set so that it
 			// subst's the templates.
-			return PHPParseRequest.promise(env, res.local("pageName"), wt, true)
-					.then( function(text) {
-				wt = text;
-				// Set data-parsoid to be discarded, so that the subst'ed content
-				// is considered new when it comes back.
-				env.discardDataParsoid = true;
+			return p.then(function() {
+				return PHPParseRequest.promise(env, target, wt, true);
+			}).then(function(text) {
 				// Use the returned wikitext as the page source.
-				env.setPageSrcInfo(wt);
-			} );
+				wt = text;
+				// Set data-parsoid to be discarded, so that the subst'ed
+				// content is considered new when it comes back.
+				env.discardDataParsoid = true;
+			});
 		}
 
 		var p;
-		if ( typeof wt === 'string' && (!res.local('pageName') || !oldid) ) {
-			if (res.local('subst')) {
-				p = substTopLevelTemplates();
-			} else {
-				// don't fetch the page source
-				env.setPageSrcInfo(wt);
-				p = Promise.resolve();
-			}
-		} else {
+		if (oldid || typeof wt !== 'string') {
+			// Always fetch the page info if we have an oldid.
+			// Otherwise, if no wt was passed, we need to figure out
+			// the latest revid to which we'll redirect.
 			p = TemplateRequest.setPageSrcInfo(env, target, oldid);
+		} else {
+			p = Promise.resolve();
 		}
 
-		if ( typeof wt === 'string' ) {
-			p = p.then( parseWt )
-				.timeout( REQ_TIMEOUT )
+		if (typeof wt === 'string') {
+			if (res.local('subst')) {
+				p = substTopLevelTemplates(p);
+			}
+			p = p.then(parseWt)
+				.timeout(REQ_TIMEOUT)
 				.then(sendRes);
-		} else if ( oldid ) {
-			p = p.then( parsePageWithOldid )
-				.timeout( REQ_TIMEOUT )
+		} else if (oldid) {
+			p = p.then(parsePageWithOldid)
+				.timeout(REQ_TIMEOUT)
 				.then(sendRes);
 		} else {
-			p = p.then( redirectToOldid );
+			p = p.then(redirectToOldid);
 		}
 
-		return cpuTimeout( p, res )
-			.catch( timeoutResp.bind(null, env) );
+		return cpuTimeout(p, res)
+			.catch(timeoutResp.bind(null, env));
 	};
 
 	// Middlewares
