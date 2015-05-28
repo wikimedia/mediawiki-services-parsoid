@@ -96,4 +96,7 @@ exports.setup = function(parsoidConfig) {
 	// Leaving it undefined (the default) will use the same URI as the MW API,
 	// changing api.php for load.php.
 	//parsoidConfig.modulesLoadURI = true;
+
+	// Log warnings from the Mediawiki Api (default false)
+	//parsoidConfig.logMwApiWarnings = true;
 };
