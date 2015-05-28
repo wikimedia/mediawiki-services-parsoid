@@ -190,13 +190,13 @@ if ( cluster.isMaster && argv.n > 0 ) {
 	});
 
 	// Send heap usage statistics to Graphite at the requested sample rate
-	if (parsoidConfig.performanceTimer) {
+	if (parsoidConfig.performanceTimer && parsoidConfig.heapUsageSampleInterval) {
 		setInterval(function() {
 			var heapUsage = process.memoryUsage();
 			parsoidConfig.performanceTimer.timing('heap.rss', '', heapUsage.rss);
 			parsoidConfig.performanceTimer.timing('heap.total', '', heapUsage.heapTotal);
 			parsoidConfig.performanceTimer.timing('heap.used', '', heapUsage.heapUsed);
-		},  parsoidConfig.headpUsageSampleInterval);
+		},  parsoidConfig.heapUsageSampleInterval);
 	}
 
 	var app = new ParsoidService( parsoidConfig, logger );
