@@ -22336,6 +22336,7 @@ parsoid
 !! end
 
 #### --------------- Behavior Switches --------------------
+
 !! test
 1. Valid behavior switches should be escaped
 !! options
@@ -22358,6 +22359,21 @@ __|__
 !! wikitext
 __TOO__
 __|__
+!! end
+
+# We use indent-pre as an indirect way to test for sol-transparent behavior.
+!! test
+Behavior switches should be SOL-transparent
+!! wikitext
+ __TOC__
+
+ <!-- this one's bogus -->
+ __TOO__
+!! html/parsoid
+ <meta property="mw:PageProp/toc" />
+
+ <!-- this one's bogus -->
+<pre>__TOO__</pre>
 !! end
 
 #### --------------- HTML tags ---------------
