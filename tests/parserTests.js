@@ -1172,14 +1172,15 @@ ParserTests.prototype.printFailure = function( title, comments, iopts, options,
 
 	console.log( 'UNEXPECTED FAIL'.red.inverse + ': ' + extTitle.yellow );
 
-	if ( mode === 'selser' ) {
-		if ( blacklisted ) {
-			console.log( 'Blacklisted, but the output changed!'.red + '');
+	if (mode === 'selser') {
+		if (blacklisted) {
+			console.log('Blacklisted, but the output changed!'.red);
 		}
-		if ( item.wt2wtPassed ) {
-			console.log( 'Even worse, the non-selser wt2wt test passed!'.red + '');
-		} else if ( actual && item.wt2wtResult !== actual.raw ) {
-			console.log( 'Even worse, the non-selser wt2wt test had a different result!'.red + '');
+		if (item.hasOwnProperty('wt2wtPassed') && item.wt2wtPassed) {
+			console.log('Even worse, the non-selser wt2wt test passed!'.red);
+		} else if (actual && item.hasOwnProperty('wt2wtResult') &&
+				item.wt2wtResult !== actual.raw) {
+			console.log('Even worse, the non-selser wt2wt test had a different result!'.red);
 		}
 	}
 
@@ -1248,8 +1249,9 @@ ParserTests.prototype.printSuccess = function( title, options, mode, expectSucce
 
 		console.log( outStr );
 
-		if ( mode === 'selser' && !item.wt2wtPassed ) {
-			console.log( 'Even better, the non-selser wt2wt test failed!'.red + '');
+		if (mode === 'selser' && item.hasOwnProperty('wt2wtPassed') &&
+				!item.wt2wtPassed) {
+			console.log('Even better, the non-selser wt2wt test failed!'.red);
 		}
 	}
 	return true;
