@@ -20791,6 +20791,30 @@ parsoid=wt2html,wt2wt
 <small><figure class="mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="34" width="300"/></a></figure></small>
 !! end
 
+!! test
+3. Bad treebuilder fixup of formatting elt is cleaned up
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+<small>'''foo[[File:Foobar.jpg|thumb|caption]]bar'''</small>
+!! html/parsoid
+<p><small><b>foo</b></small></p>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><small><b>caption</b></small></figcaption></figure>
+<p><small><b>bar</b></small></p>
+!! end
+
+!! test
+4. Bad treebuilder fixup of formatting elt is cleaned up: formatting tags around captionless images are ignored
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+'''<small>[[Image:Foobar.jpg|right|300px]]</small>'''
+!! html/parsoid
+<p><b><small></small></b></p>
+<figure class="mw-halign-right" typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="34" width="300"/></a></figure>
+<p></p>
+!! end
+
 #### ----------------------------------------------------------------
 #### Parsoid-only testing of Parsoid's impl of <ref> and <references>
 #### tags. Parsoid's output for these tags differs from that of the
