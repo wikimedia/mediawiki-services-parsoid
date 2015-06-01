@@ -97,6 +97,8 @@ exports.setup = function(parsoidConfig) {
 	// changing api.php for load.php.
 	//parsoidConfig.modulesLoadURI = true;
 
-	// Log warnings from the Mediawiki Api (default false)
-	//parsoidConfig.logMwApiWarnings = true;
+	// Suppress some warnings from the Mediawiki API
+	// (defaults to suppressing warnings which the Parsoid team knows to
+	// be harmless)
+	//parsoidConfig.suppressMwApiWarnings = /annoying warning|other warning/;
 };
