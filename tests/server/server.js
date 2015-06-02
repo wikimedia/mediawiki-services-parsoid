@@ -597,7 +597,7 @@ var statsScore = function(skipCount, failCount, errorCount) {
 	return errorCount * 1000000 + failCount * 1000 + skipCount;
 };
 
-var transUpdateCB = function( title, prefix, hash, type, res, trans, success_cb, err, result ) {
+var transUpdateCB = function(title, prefix, hash, type, res, trans, successCb, err, result) {
 	if ( err ) {
 		trans.rollback();
 		var msg = "Error inserting/updating " + type + " for page: " +  prefix + ':' + title + " and hash: " + hash;
@@ -606,8 +606,8 @@ var transUpdateCB = function( title, prefix, hash, type, res, trans, success_cb,
 		if ( res ) {
 			res.send( msg, 500 );
 		}
-	} else if ( success_cb ) {
-		success_cb( result );
+	} else if (successCb) {
+		successCb(result);
 	}
 };
 
@@ -672,19 +672,19 @@ var receiveResults = function(req, res) {
 				var page = pages[0];
 
 				var score = statsScore(skipCount, failCount, errorCount);
-				var latest_resultId = 0;
-				var latest_statId = 0;
+				var latestResultId = 0;
+				var latestStatId = 0;
 				// Insert the result
 				trans.query( dbInsertResult, [ page.id, commitHash, resultString ],
 					transUpdateCB.bind( null, title, prefix, commitHash, "result", res, trans, function( insertedResult ) {
-						latest_resultId = insertedResult.insertId;
+						latestResultId = insertedResult.insertId;
 						// Insert the stats
 						trans.query( dbInsertStats, [ skipCount, failCount, errorCount, selserErrorCount, score, page.id, commitHash ],
 							transUpdateCB.bind( null, title, prefix, commitHash, "stats", res, trans, function( insertedStat ) {
-								latest_statId = insertedStat.insertId;
+								latestStatId = insertedStat.insertId;
 
 								// And now update the page with the latest info
-								trans.query( dbUpdatePageLatestResults, [ latest_statId, score, latest_resultId, commitHash, page.id ],
+								trans.query( dbUpdatePageLatestResults, [ latestStatId, score, latestResultId, commitHash, page.id ],
 									transUpdateCB.bind( null, title, prefix, commitHash, "latest result", res, trans, function() {
 										trans.commit( function() {
 											console.log( '<- ', prefix + ':' + title, ':', skipCount, failCount,
@@ -933,7 +933,7 @@ var resultWebInterface = function( req, res ) {
 	}
 };
 
-var GET_failedFetches = function(req, res) {
+var getFailedFetches = function(req, res) {
 	db.query( dbFailedFetches, [maxFetchRetries], function(err, rows) {
 		if ( err ) {
 			console.error( err );
@@ -966,7 +966,7 @@ var GET_failedFetches = function(req, res) {
 	} );
 };
 
-var GET_crashers = function( req, res ) {
+var getCrashers = function( req, res ) {
 	var cutoffDate = new Date( Date.now() - ( cutOffTime * 1000 ) );
 	db.query( dbCrashers, [ maxTries, cutoffDate ], function( err, rows ) {
 		if ( err ) {
@@ -1001,7 +1001,7 @@ var GET_crashers = function( req, res ) {
 	} );
 };
 
-var GET_failsDistr = function( req, res ) {
+var getFailsDistr = function( req, res ) {
 	db.query( dbFailsDistribution, null, function( err, rows ) {
 		if ( err ) {
 			console.error( err );
@@ -1023,7 +1023,7 @@ var GET_failsDistr = function( req, res ) {
 	} );
 };
 
-var GET_skipsDistr = function( req, res ) {
+var getSkipsDistr = function( req, res ) {
 	db.query( dbSkipsDistribution, null, function( err, rows ) {
 		if ( err ) {
 			console.error( err );
@@ -1045,7 +1045,7 @@ var GET_skipsDistr = function( req, res ) {
 	} );
 };
 
-var GET_regressions = function(req, res) {
+var getRegressions = function(req, res) {
 	var r1 = req.params[0];
 	var r2 = req.params[1];
 	var page = (req.params[2] || 0) - 0;
@@ -1072,7 +1072,7 @@ var GET_regressions = function(req, res) {
 	});
 };
 
-var GET_topfixes = function(req, res) {
+var getTopfixes = function(req, res) {
 	var r1 = req.params[0];
 	var r2 = req.params[1];
 	var page = (req.params[2] || 0) - 0;
@@ -1098,7 +1098,7 @@ var GET_topfixes = function(req, res) {
 	});
 };
 
-var GET_commits = function( req, res ) {
+var getCommits = function( req, res ) {
 	db.query( dbCommits, null, function( err, rows ) {
 		if ( err ) {
 			console.error( err );
@@ -1195,51 +1195,51 @@ app.use( express.bodyParser() );
 coordApp.use( express.bodyParser() );
 
 // robots.txt: no indexing.
-app.get(/^\/robots.txt$/, function( req, res ) {
+app.get(/^\/robots.txt$/, function(req, res) {
 	res.end( "User-agent: *\nDisallow: /\n" );
 });
 
 // Main interface
-app.get( /^\/results(\/([^\/]+))?$/, resultsWebInterface );
+app.get(/^\/results(\/([^\/]+))?$/, resultsWebInterface);
 
 // Results for a title (on latest commit)
-app.get( /^\/latestresult\/([^\/]+)\/(.*)$/, resultWebInterface );
+app.get(/^\/latestresult\/([^\/]+)\/(.*)$/, resultWebInterface);
 
 // Results for a title on any commit
-app.get( /^\/result\/([a-f0-9]*)\/([^\/]+)\/(.*)$/, resultWebInterface );
+app.get(/^\/result\/([a-f0-9]*)\/([^\/]+)\/(.*)$/, resultWebInterface);
 
 // List of failures sorted by severity
-app.get( /^\/topfails\/(\d+)$/, failsWebInterface );
+app.get(/^\/topfails\/(\d+)$/, failsWebInterface);
 // 0th page
-app.get( /^\/topfails$/, failsWebInterface );
+app.get(/^\/topfails$/, failsWebInterface);
 
 // Overview of stats
-app.get( /^\/$/, statsWebInterface );
-app.get( /^\/stats(\/([^\/]+))?$/, statsWebInterface );
+app.get(/^\/$/, statsWebInterface);
+app.get(/^\/stats(\/([^\/]+))?$/, statsWebInterface);
 
 // Failed fetches
-app.get( /^\/failedFetches$/, GET_failedFetches );
+app.get(/^\/failedFetches$/, getFailedFetches);
 
 // Crashers
-app.get( /^\/crashers$/, GET_crashers );
+app.get(/^\/crashers$/, getCrashers);
 
 // Regressions between two revisions.
-app.get( /^\/regressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_regressions );
+app.get(/^\/regressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, getRegressions);
 
 // Topfixes between two revisions.
-app.get( /^\/topfixes\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_topfixes );
+app.get(/^\/topfixes\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, getTopfixes);
 
 // Results for a title on a commit, flag skips/fails new since older commit
-app.get( /^\/resultFlagNew\/([a-f0-9]*)\/([a-f0-9]*)\/([^\/]+)\/(.*)$/, resultFlagNewWebInterface );
+app.get(/^\/resultFlagNew\/([a-f0-9]*)\/([a-f0-9]*)\/([^\/]+)\/(.*)$/, resultFlagNewWebInterface);
 
 // Results for a title on a commit, flag skips/fails no longer in newer commit
-app.get( /^\/resultFlagOld\/([a-f0-9]*)\/([a-f0-9]*)\/([^\/]+)\/(.*)$/, resultFlagOldWebInterface );
+app.get(/^\/resultFlagOld\/([a-f0-9]*)\/([a-f0-9]*)\/([^\/]+)\/(.*)$/, resultFlagOldWebInterface);
 
 // Distribution of fails
-app.get( /^\/failsDistr$/, GET_failsDistr );
+app.get(/^\/failsDistr$/, getFailsDistr);
 
 // Distribution of fails
-app.get( /^\/skipsDistr$/, GET_skipsDistr );
+app.get(/^\/skipsDistr$/, getSkipsDistr);
 
 if (parsoidRTConfig) {
 	parsoidRTConfig.setupEndpoints(settings, app, mysql, db, hbs);
@@ -1250,14 +1250,14 @@ if (perfConfig) {
 }
 
 // List of all commits
-app.get( '/commits', GET_commits );
+app.get('/commits', getCommits);
 
 // Clients will GET this path if they want to run a test
-coordApp.get( /^\/title$/, getTitle );
+coordApp.get(/^\/title$/, getTitle);
 
 // Receive results from clients
-coordApp.post( /^\/result\/([^\/]+)\/([^\/]+)/, receiveResults );
+coordApp.post(/^\/result\/([^\/]+)\/([^\/]+)/, receiveResults);
 
 // Start the app
-app.listen( settings.webappPort || 8001 );
-coordApp.listen( settings.coordPort || 8002 );
+app.listen(settings.webappPort || 8001);
+coordApp.listen(settings.coordPort || 8002);

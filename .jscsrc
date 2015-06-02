@@ -12,12 +12,12 @@
 		"catch"
 	],
 	"validateIndentation": "\t",
+	"requireCamelCaseOrUpperCaseIdentifiers": "ignoreProperties",
 
 	// We'd like to eliminate these at some point, to conform with the preset.
 	"disallowQuotedKeysInObjects": null,
 	"disallowSpacesInsideParentheses": null,
 	"maximumLineLength": null,
-	"requireCamelCaseOrUpperCaseIdentifiers": null,
 	"requireCapitalizedComments": null,
 	"requireTrailingComma": null,
 	"validateQuoteMarks": null,

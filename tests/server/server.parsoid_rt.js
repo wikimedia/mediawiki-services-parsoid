@@ -137,7 +137,7 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 		});
 	};
 
-	var GET_rtselsererrors = function(req, res) {
+	var getRtselsererrors = function(req, res) {
 		var commit = req.params[0];
 		var page = (req.params[1] || 0) - 0;
 		var offset = page * 40;
@@ -179,17 +179,17 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 			RH.displayPageList.bind(null, hbs, res, data, makeSelserErrorRow));
 	};
 
-	var GET_oneFailRegressions = displayOneDiffRegressions.bind(
+	var getOneFailRegressions = displayOneDiffRegressions.bind(
 		null, 1, 0, 'Old Commit: perfect | New Commit: one semantic diff',
 		['onefail', 'one new syntactic diff, previously perfect', 'one skip regressions', 'oneskip']
 	);
 
-	var GET_oneSkipRegressions = displayOneDiffRegressions.bind(
+	var getOneSkipRegressions = displayOneDiffRegressions.bind(
 		null, 0, 1, 'Old Commit: perfect | New Commit: one syntactic diff',
 		['oneskip', 'one new semantic diff, previously perfect', 'one fail regressions', 'onefail']
 	);
 
-	var GET_newFailsRegressions = function(req, res) {
+	var getNewFailsRegressions = function(req, res) {
 		var r1 = req.params[0];
 		var r2 = req.params[1];
 		var page = (req.params[2] || 0) - 0;
@@ -224,16 +224,16 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 	};
 
 	// Regressions between two revisions that introduce one semantic error to a perfect page.
-	app.get(/^\/onefailregressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_oneFailRegressions );
+	app.get(/^\/onefailregressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, getOneFailRegressions);
 
 	// Regressions between two revisions that introduce one syntactic error to a perfect page.
-	app.get(/^\/oneskipregressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_oneSkipRegressions );
+	app.get(/^\/oneskipregressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, getOneSkipRegressions);
 
 	// Regressions between two revisions that introduce senantic errors (previously only syntactic diffs).
-	app.get(/^\/newfailsregressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, GET_newFailsRegressions );
+	app.get(/^\/newfailsregressions\/between\/([^\/]+)\/([^\/]+)(?:\/(\d+))?$/, getNewFailsRegressions);
 
 	// Pages with rt selser errors
-	app.get(/^\/rtselsererrors\/([^\/]+)(?:\/(\d+))?$/, GET_rtselsererrors);
+	app.get(/^\/rtselsererrors\/([^\/]+)(?:\/(\d+))?$/, getRtselsererrors);
 
 	hbs.registerPartial('summary', fs.readFileSync(__dirname + '/views/index-summary-rt.html', 'utf8'));
 }

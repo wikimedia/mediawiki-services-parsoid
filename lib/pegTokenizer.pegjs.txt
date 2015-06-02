@@ -23,7 +23,7 @@
     var CommentTk = defines.CommentTk;
     var EOFTk = defines.EOFTk;
 
-    var inline_breaks = tu.inline_breaks;
+    var inlineBreaks = tu.inlineBreaks;
     var stops = new tu.SyntaxStops();
 
     /*
@@ -287,21 +287,21 @@ br = s:optionalSpaceToken &newline {
 }
 
 inline_breaks
-  = & { return inline_breaks( input, peg$currPos, stops ); }
+  = & { return inlineBreaks( input, peg$currPos, stops ); }
 
 pre_start = "<" pre_tag_name [^>]* ">"
 
 inline
   = c:(urltext / (!inline_breaks !pre_start r:(inline_element / . ) { return r; }))+ {
-      return tu.flatten_stringlist( c );
+      return tu.flattenStringlist( c );
   }
 
 inlineline
   = c:(urltext
-          / !{ return inline_breaks( input, peg$currPos, stops ); } // inline_breaks
+          / !{ return inlineBreaks( input, peg$currPos, stops ); } // inline_breaks
             !pre_start
             r:(inline_element / [^\r\n]) { return r; })+ {
-      return tu.flatten_stringlist( c );
+      return tu.flattenStringlist( c );
   }
 
 inline_element
@@ -553,7 +553,7 @@ no_punctuation_char = [^ :\]\[\r\n"'<>\x00-\x20\x7f,.&%\u00A0\u1680\u180E\u2000-
 url
   = proto:url_protocol
     addr:( ipv6_address / ipv4_address )?
-    path:(  ( !{ return inline_breaks( input, peg$currPos, stops ); } // inline_breaks
+    path:(  ( !{ return inlineBreaks( input, peg$currPos, stops ); } // inline_breaks
               c:no_punctuation_char
               { return c; }
             )
@@ -568,7 +568,7 @@ url
          )+
 {
     proto += addr || '';
-    return tu.flatten_string( [proto].concat( path ) );
+    return tu.flattenString( [proto].concat( path ) );
 }
 
 // this is the somewhat-restricted production used in autolinks
@@ -582,7 +582,7 @@ autourl
   = &{ return stops.push( 'autourl', { sawLParen: false } ); }
     proto:url_protocol
     addr:( ipv6_address / ipv4_address )?
-    path:(  ( !{ return inline_breaks( input, peg$currPos, stops ); } // inline_breaks
+    path:(  ( !{ return inlineBreaks( input, peg$currPos, stops ); } // inline_breaks
               ! "("
               c:no_punctuation_char
               { return c; }
@@ -601,7 +601,7 @@ autourl
     // as in Parser.php::makeFreeExternalLink, we're going to
     // yank trailing punctuation out of this match.
     proto += addr || '';
-    var url = tu.flatten_stringlist( [proto].concat( path ) );
+    var url = tu.flattenStringlist( [proto].concat( path ) );
     // only need to look at last element; HTML entities are strip-proof.
     var last = url[url.length - 1];
     var trim = 0;
@@ -616,7 +616,7 @@ autourl
       peg$currPos -= trim;
     }
     stops.pop( 'autourl' );
-    return tu.flatten_string( url );
+    return tu.flattenString( url );
 }
     / &{ return stops.pop( 'autourl' ); }
 
@@ -861,7 +861,7 @@ link_text_fragment
           r:( inline_element / '[' text_char+ ']' / . ) { return r; }
          )
     )+ {
-      return tu.flatten_stringlist( c );
+      return tu.flattenStringlist( c );
   }
 
 link_text
@@ -1008,7 +1008,7 @@ pre
         // Emit as SelfclosingTag in order to avoid the nested pre problem in
         // the PreHandler.
         attribs.push(new KV('property', 'mw:html'));
-        attribs.push(new KV('content', tu.flatten_stringlist(ts)));
+        attribs.push(new KV('content', tu.flattenStringlist(ts)));
         return [
             new SelfclosingTagTk('pre', attribs, {
                 tsr: [peg$reportedPos, peg$currPos],
@@ -1022,7 +1022,7 @@ pre
   // necessary to work with the pre_start lookaheads
   / p:('<' pre_tag_name) {
       stops.dec('pre');
-      return tu.flatten_stringlist(p);
+      return tu.flattenStringlist(p);
     }
   / & { return stops.dec('pre'); }
 
@@ -1241,7 +1241,7 @@ nowiki_content
            })
        )* {
             // return nowiki tags as well?
-            return tu.flatten_stringlist(ts);
+            return tu.flattenStringlist(ts);
           }
 
 /* Generic XML-like tags
@@ -1382,7 +1382,7 @@ generic_attribute_name
           t:( directive / !( space_or_newline / [\[/=>"'] ) c:. { return c; }
         ) { return t; }
       )+ {
-    return tu.flatten_string( r );
+    return tu.flattenString( r );
   }
 
 // A generic attribute, possibly spanning multiple lines.
@@ -1400,16 +1400,16 @@ generic_attribute_value
 // Attribute value, quoted variants can span multiple lines.
 xml_att_value
   = space_or_newline* "'" r:(valPos1:({return peg$currPos;}) t1:attribute_preprocessor_text_single? valPos2:({return peg$currPos;}) "'"
-            { return tu.get_attribute_value_and_source(input, t1, valPos1, valPos2); }
+            { return tu.getAttributeValueAndSource(input, t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
         / valPos1:({return peg$currPos;}) t2:attribute_preprocessor_text_single_broken? valPos2:({return peg$currPos;}) &[|>]
-            { return tu.get_attribute_value_and_source(input, t2, valPos1, valPos2); } )
+            { return tu.getAttributeValueAndSource(input, t2, valPos1, valPos2); } )
                 { return r; }
   / space_or_newline* '"' r:(valPos1:({return peg$currPos;}) t1:attribute_preprocessor_text_double? valPos2:({return peg$currPos;}) '"'
-            { return tu.get_attribute_value_and_source(input, t1, valPos1, valPos2); }
+            { return tu.getAttributeValueAndSource(input, t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
         / valPos1:({return peg$currPos;}) t2:attribute_preprocessor_text_double_broken? valPos2:({return peg$currPos;}) &[|>]
-            { return tu.get_attribute_value_and_source(input, t2, valPos1, valPos2); } )
+            { return tu.getAttributeValueAndSource(input, t2, valPos1, valPos2); } )
                 { return r; }
   / space_or_newline* valPos1:({return peg$currPos;}) t:attribute_preprocessor_text? !"=" valPos2:({return peg$currPos;})
         {   if ( t === null ) {
@@ -1418,21 +1418,21 @@ xml_att_value
                 // captured spaces, which are needed to separate attributes.
                 peg$currPos = peg$reportedPos;
             }
-            return tu.get_attribute_value_and_source(input, t, valPos1, valPos2); }
+            return tu.getAttributeValueAndSource(input, t, valPos1, valPos2); }
 
 // Attribute value, restricted to a single line.
 att_value
   = space* "'" r:(valPos1:({return peg$currPos;}) t1:attribute_preprocessor_text_single_line? valPos2:({return peg$currPos;}) "'"
-            { return tu.get_attribute_value_and_source(input, t1, valPos1, valPos2); }
+            { return tu.getAttributeValueAndSource(input, t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
         / valPos1:({return peg$currPos;}) t2:attribute_preprocessor_text_single_line_broken? valPos2:({return peg$currPos;}) &[|>\n]
-            { return tu.get_attribute_value_and_source(input, t2, valPos1, valPos2); } )
+            { return tu.getAttributeValueAndSource(input, t2, valPos1, valPos2); } )
                 { return r; }
   / space* '"' r:(valPos1:({return peg$currPos;}) t1:attribute_preprocessor_text_double_line? valPos2:({return peg$currPos;}) '"'
-            { return tu.get_attribute_value_and_source(input, t1, valPos1, valPos2); }
+            { return tu.getAttributeValueAndSource(input, t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
         / valPos1:({return peg$currPos;}) t2:attribute_preprocessor_text_double_line_broken? valPos2:({return peg$currPos;}) &[|>\n]
-            { return tu.get_attribute_value_and_source(input, t2, valPos1, valPos2); } )
+            { return tu.getAttributeValueAndSource(input, t2, valPos1, valPos2); } )
                 { return r; }
   / space* valPos1:({return peg$currPos;}) t:attribute_preprocessor_text_line? !"=" valPos2:({return peg$currPos;})
         {   if ( t === null ) {
@@ -1441,7 +1441,7 @@ att_value
                 // captured spaces, which are needed to separate attributes.
                 peg$currPos = peg$reportedPos;
             }
-            return tu.get_attribute_value_and_source(input, t ? t : "", valPos1, valPos2); }
+            return tu.getAttributeValueAndSource(input, t ? t : "", valPos1, valPos2); }
 
 /*
  * A variant of generic_tag, but also checks if the tag name is a block-level
@@ -2096,7 +2096,7 @@ wikilink_preprocessor_text
         / !inline_breaks wr:( directive / !"]]" c:( text_char / [!<\-] ) { return c; } )
         { return wr; }
     )+ {
-      return tu.flatten_stringlist( r );
+      return tu.flattenStringlist( r );
   }
 
 extlink_preprocessor_text
@@ -2109,7 +2109,7 @@ extlink_preprocessor_text
   / s:[.:,] !(space / eolf) { return s; }
   / q:['] !([']) { return q; } // single quotes are ok, double quotes are bad
   / [&%|{] )+ {
-      return tu.flatten_string( r );
+      return tu.flattenString( r );
   }
 
 // Attribute values with preprocessor support
@@ -2123,7 +2123,7 @@ attribute_preprocessor_text
     ) { return r; }
   )+
   {
-      return tu.flatten_string( r );
+      return tu.flattenString( r );
   }
 
 attribute_preprocessor_text_single
@@ -2133,7 +2133,7 @@ attribute_preprocessor_text_single
     / [{}&<\-] ) { return r; }
   )*
   {
-      return tu.flatten_string( r );
+      return tu.flattenString( r );
   }
 
 attribute_preprocessor_text_single_broken
@@ -2143,7 +2143,7 @@ attribute_preprocessor_text_single_broken
     / [{}&<\-] ) { return r; }
   )*
   {
-      return tu.flatten_string( r );
+      return tu.flattenString( r );
   }
 
 attribute_preprocessor_text_double
@@ -2153,7 +2153,7 @@ attribute_preprocessor_text_double
     / [{}&<\-] ) { return r; }
   )*
   {
-      return tu.flatten_string( r );
+      return tu.flattenString( r );
   }
 
 attribute_preprocessor_text_double_broken
@@ -2163,7 +2163,7 @@ attribute_preprocessor_text_double_broken
     / [{}&<\-] ) { return r; }
   )*
   {
-      return tu.flatten_string( r );
+      return tu.flattenString( r );
   }
 
 // Variants with the entire attribute on a single line
@@ -2182,7 +2182,7 @@ attribute_preprocessor_text_line
             ) { return t; }
       )+
   {
-      return tu.flatten_string( r );
+      return tu.flattenString( r );
   }
 
 attribute_preprocessor_text_single_line
@@ -2191,7 +2191,7 @@ attribute_preprocessor_text_single_line
       directive
     / ![\r\n] q:[{}&<\-] { return q; } ) { return r; }
   )* {
-      return tu.flatten_string( r );
+      return tu.flattenString( r );
   }
 
 attribute_preprocessor_text_single_line_broken
@@ -2200,7 +2200,7 @@ attribute_preprocessor_text_single_line_broken
       directive
     / ![\r\n] q:[{}&<\-] { return q; } ) { return r; }
   )* {
-      return tu.flatten_string( r );
+      return tu.flattenString( r );
   }
 
 attribute_preprocessor_text_double_line
@@ -2209,7 +2209,7 @@ attribute_preprocessor_text_double_line
       directive
     / ![\r\n] q:[{}&<\-] { return q; } ) { return r; }
   )* {
-      return tu.flatten_string( r );
+      return tu.flattenString( r );
   }
 
 attribute_preprocessor_text_double_line_broken
@@ -2218,7 +2218,7 @@ attribute_preprocessor_text_double_line_broken
       directive
     / ![\r\n] q:[{}&<\-] { return q; } ) { return r; }
   )* {
-      return tu.flatten_string( r );
+      return tu.flattenString( r );
   }
 
 // Special-case support for those pipe templates

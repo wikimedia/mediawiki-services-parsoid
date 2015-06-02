@@ -272,10 +272,10 @@ var parse = exports.parse = function( input, argv, parsoidConfig, prefix ) {
 
 if ( require.main === module ) {
 	(function() {
-		var default_mode_str = "Default conversion mode : --wt2html";
+		var defaultModeStr = "Default conversion mode : --wt2html";
 
 		var opts = yargs.usage(
-			'Usage: echo wikitext | $0 [options]\n\n' + default_mode_str,
+			'Usage: echo wikitext | $0 [options]\n\n' + defaultModeStr,
 			standardOpts
 		).check(Util.checkUnknownArgs.bind(null, standardOpts));
 

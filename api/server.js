@@ -156,7 +156,7 @@ if ( cluster.isMaster && argv.n > 0 ) {
 		}
 	});
 
-	var shutdown_master = function() {
+	var shutdownMaster = function() {
 		logger.log( "info", "shutting down, killing workers" );
 		cluster.disconnect(function() {
 			logger.log( "info", "exiting" );
@@ -164,19 +164,19 @@ if ( cluster.isMaster && argv.n > 0 ) {
 		});
 	};
 
-	process.on('SIGINT', shutdown_master);
-	process.on('SIGTERM', shutdown_master);
+	process.on('SIGINT', shutdownMaster);
+	process.on('SIGTERM', shutdownMaster);
 
 } else {
 	// Worker
 
-	var shutdown_worker = function() {
+	var shutdownWorker = function() {
 		logger.log( "warning", "shutting down" );
 		process.exit(0);
 	};
 
-	process.on('SIGTERM', shutdown_worker);
-	process.on('disconnect', shutdown_worker);
+	process.on('SIGTERM', shutdownWorker);
+	process.on('disconnect', shutdownWorker);
 
 	// Enable heap dumps in /tmp on kill -USR2.
 	// See https://github.com/bnoordhuis/node-heapdump/

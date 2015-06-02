@@ -20,7 +20,7 @@ describe('ParserPipelineFactory', function() {
 			options = options || {};
 			return MWParserEnvironment.getParserEnv(parsoidConfig, null, {
 				prefix: options.prefix || 'enwiki',
-				pageName: options.page_name || 'Main_Page'
+				pageName: options.pageName || 'Main_Page'
 			}).then(function(env) {
 				if (options.tweakEnv) {
 					env = options.tweakEnv(env) || env;
@@ -36,7 +36,7 @@ describe('ParserPipelineFactory', function() {
 			options = options || {};
 			return MWParserEnvironment.getParserEnv(parsoidConfig, null, {
 				prefix: options.prefix || 'enwiki',
-				pageName: options.page_name || 'Main_Page'
+				pageName: options.pageName || 'Main_Page'
 			}).then(function(env) {
 				if (options.tweakEnv) {
 					env = options.tweakEnv(env) || env;
@@ -158,7 +158,7 @@ describe('ParserPipelineFactory', function() {
 				linktests.forEach(function(test) {
 					it(test.wikitext, function() {
 						return parse(test.wikitext, {
-							page_name: 'A/B?/C',
+							pageName: 'A/B?/C',
 							tweakEnv: function(env) {
 								Object.keys(env.conf.wiki.namespaceNames).forEach(function(id) {
 									env.conf.wiki.namespacesWithSubpages[id] = !!subpages;
@@ -221,7 +221,7 @@ describe('ParserPipelineFactory', function() {
 		it('should handle template-generated page properties', function() {
 			return parse('{{Lowercase title}}{{{{echo|DEFAULTSORT}}:x}}', {
 				prefix: 'enwiki',
-				page_name: 'EBay'
+				pageName: 'EBay'
 			}).then(function(doc) {
 				var els = doc.querySelectorAll('HEAD > TITLE');
 				els.length.should.equal(1);

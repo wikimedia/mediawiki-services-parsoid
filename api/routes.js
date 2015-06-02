@@ -6,7 +6,7 @@ var fs = require('fs');
 var qs = require('querystring');
 var url = require('url');
 var util = require('util');
-var child_process = require('child_process');
+var childProcess = require('child_process');
 var cluster = require('cluster');
 var domino = require('domino');
 var pkg = require('../package.json');
@@ -587,7 +587,7 @@ module.exports = function(parsoidConfig) {
 				version: pkg.version
 			}).then(function( v ) {
 				return Promise.promisify(
-					child_process.execFile, ['stdout', 'stderr'], child_process
+					childProcess.execFile, ['stdout', 'stderr'], childProcess
 				)( 'git', ['rev-parse', 'HEAD'], {
 					cwd: path.join(__dirname, '..')
 				}).then(function( out ) {
@@ -740,7 +740,7 @@ module.exports = function(parsoidConfig) {
 	};
 
 	// Form-based round-tripping for manual testing
-	routes.get_rtForm = function( req, res ) {
+	routes.getRtForm = function( req, res ) {
 		var env = res.local('env');
 		apiUtils.renderResponse(res, env, "form", {
 			title: "Your wikitext:",
@@ -750,7 +750,7 @@ module.exports = function(parsoidConfig) {
 
 	// Form-based round-tripping for manual testing.  Default to scrubbing wikitext
 	// here.  Can be overridden with qs param.
-	routes.post_rtForm = function( req, res ) {
+	routes.postRtForm = function( req, res ) {
 		var env = res.local('env');
 
 		if (!req.query.hasOwnProperty('scrubWikitext') &&
@@ -769,12 +769,12 @@ module.exports = function(parsoidConfig) {
 		});
 	};
 
-	routes.get_article = function( req, res ) {
+	routes.getArticle = function( req, res ) {
 		// Regular article parsing
 		wt2html( req, res );
 	};
 
-	routes.post_article = function( req, res ) {
+	routes.postArticle = function( req, res ) {
 		var body = req.body;
 		if ( req.body.wt ) {
 			// Form-based article parsing
@@ -843,12 +843,12 @@ module.exports = function(parsoidConfig) {
 	// Spec'd in https://phabricator.wikimedia.org/T75955 and the API tests.
 
 	// GET requests
-	routes.v2_get = function( req, res ) {
+	routes.v2Get = function( req, res ) {
 		wt2html( req, res );
 	};
 
 	// POST requests
-	routes.v2_post = function( req, res ) {
+	routes.v2Post = function( req, res ) {
 		var v2 = res.local('v2');
 
 		function errOut( err, code ) {

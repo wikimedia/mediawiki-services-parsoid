@@ -102,7 +102,7 @@ function updateTitleData(data, prefix, title) {
 function setupEndpoints(settings, app, mysql, db, hbs) {
 	// SSS FIXME: this is awkward
 	RH.settings = settings;
-	var GET_perfStats = function( req, res ) {
+	var getPerfStats = function( req, res ) {
 		var page = (req.params[0] || 0) - 0;
 		var offset = page * 40;
 		var orderBy = 'prefix ASC, title ASC';
@@ -163,7 +163,7 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 		} );
 	};
 
-	var GET_pagePerfStats = function( req, res ) {
+	var getPagePerfStats = function( req, res ) {
 		if ( req.params.length < 2 ) {
 			res.send( "No title given.", 404 );
 		}
@@ -229,9 +229,9 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 	};
 
 	// Performance stats
-	app.get( /^\/perfstats\/(\d+)$/, GET_perfStats );
-	app.get( /^\/perfstats$/, GET_perfStats );
-	app.get( /^\/pageperfstats\/([^\/]+)\/(.*)$/, GET_pagePerfStats );
+	app.get( /^\/perfstats\/(\d+)$/, getPerfStats );
+	app.get( /^\/perfstats$/, getPerfStats );
+	app.get( /^\/pageperfstats\/([^\/]+)\/(.*)$/, getPagePerfStats );
 }
 
 if (typeof module === "object") {

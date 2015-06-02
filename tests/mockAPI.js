@@ -40,7 +40,7 @@ function sanitizeHTMLAttribute(text) {
 		.replace(/>/g, '&gt;');
 }
 
-var main_page = {
+var mainPage = {
 	query: {
 		pages: {
 			'1': {
@@ -59,7 +59,7 @@ var main_page = {
 	},
 };
 
-var junk_page = {
+var junkPage = {
 	query: {
 		pages: {
 			'2': {
@@ -148,9 +148,9 @@ var availableActions = {
 
 		if ( body.prop === "revisions" ) {
 			if ( body.revids === "1" || body.titles === "Main_Page" ) {
-				return cb( null , main_page );
+				return cb( null , mainPage );
 			} else if ( body.revids === "2" || body.titles === "Junk_Page" ) {
-				return cb( null , junk_page );
+				return cb( null , junkPage );
 			}
 		}
 
