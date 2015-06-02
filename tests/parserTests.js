@@ -924,8 +924,8 @@ ParserTests.prototype.processTest = function(item, options, mode, endCb) {
 		}
 
 		this.env.conf.wiki.allowExternalImages = [ '' ]; // all allowed
-		if ( item.options.wgallowexternalimages !== undefined &&
-			 !/^(1|true|)$/.test(item.options.wgallowexternalimages) ) {
+		if (item.options.wgallowexternalimages !== undefined &&
+				!/^(1|true|)$/.test(item.options.wgallowexternalimages)) {
 			this.env.conf.wiki.allowExternalImages = undefined;
 		}
 
@@ -1233,9 +1233,9 @@ ParserTests.prototype.printSuccess = function( title, options, mode, expectSucce
 	if ( booleanOption( options.blacklist ) && !expectSuccess ) {
 		this.stats.passedTestsUnexpected++;
 		this.stats.modes[mode].passedTestsUnexpected++;
-		console.log( 'UNEXPECTED PASS'.green.inverse +
-					 (isWhitelist ? ' (whitelist)' : '') +
-					 ':' + extTitle.yellow);
+		console.log('UNEXPECTED PASS'.green.inverse +
+			(isWhitelist ? ' (whitelist)' : '') +
+			':' + extTitle.yellow);
 		return false;
 	}
 	if ( !quiet ) {
@@ -1502,16 +1502,16 @@ ParserTests.prototype.reportSummary = function(stats) {
 		curStr += colorizeCount( stats.failedTestsUnexpected, 'red') + ' unexpected)';
 		console.log( curStr );
 
-		console.log( '\n' );
-		console.log( colorizeCount( stats.passedTests + stats.passedTestsWhitelisted, 'green' ) +
-		             ' total passed tests (expected ' +
-		             (stats.passedTests + stats.passedTestsWhitelisted - stats.passedTestsUnexpected + stats.failedTestsUnexpected) +
-		             '), ' +
-		             colorizeCount( failTotalTests , 'red'   ) + ' total failures (expected ' +
-		             (stats.failedTests - stats.failedTestsUnexpected + stats.passedTestsUnexpected) +
-		             ')' );
-		if ( stats.passedTestsUnexpected === 0 &&
-		     stats.failedTestsUnexpected === 0 ) {
+		console.log('\n');
+		console.log(colorizeCount(stats.passedTests + stats.passedTestsWhitelisted, 'green') +
+			' total passed tests (expected ' +
+			(stats.passedTests + stats.passedTestsWhitelisted - stats.passedTestsUnexpected + stats.failedTestsUnexpected) +
+			'), ' +
+			colorizeCount(failTotalTests , 'red') + ' total failures (expected ' +
+			(stats.failedTests - stats.failedTestsUnexpected + stats.passedTestsUnexpected) +
+			')');
+		if (stats.passedTestsUnexpected === 0 &&
+				stats.failedTestsUnexpected === 0) {
 			console.log( '--> ' + 'NO UNEXPECTED RESULTS'.green + ' <--');
 		}
 	} else {
@@ -1530,7 +1530,7 @@ ParserTests.prototype.reportSummary = function(stats) {
 	if (!parserTestsUpToDate) {
 		console.log("==========================================================");
 		console.warn("WARNING:".red +
-		              " parserTests.txt not up-to-date with upstream.");
+			" parserTests.txt not up-to-date with upstream.");
 		console.warn("         Run fetch-parserTests.txt.js to update.");
 	}
 	console.log( "==========================================================");
@@ -2094,7 +2094,7 @@ ParserTests.prototype.processCase = function(i, options, err) {
 
 		// Write updated tests from failed ones
 		if (booleanOption(options['update-tests']) ||
-		    booleanOption(options['update-unexpected'])) {
+				booleanOption(options['update-unexpected'])) {
 			var parserTestsFilename = __dirname + '/parserTests.txt';
 			var parserTests = fs.readFileSync(parserTestsFilename, 'utf8');
 			this.stats.modes.wt2html.failList.forEach(function(fail) {

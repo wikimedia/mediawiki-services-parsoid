@@ -512,16 +512,16 @@ isbn
  * these can be configured dynamically. */
 
 url_protocol =
-    & { return Util.isProtocolValid( input.substr( peg$currPos ), options.env ); }
+    & { return Util.isProtocolValid(input.substr(peg$currPos), options.env); }
     h:[a-zA-Z\/]+ c:':'? s:'//'?
 {
-	h = h.join( '' );
-	if ( c ) {
-		h += c;
-	}
-	if ( s ) {
-		h += s;
-	}
+    h = h.join('');
+    if (c) {
+        h += c;
+    }
+    if (s) {
+        h += s;
+    }
     return h;
 }
 
@@ -1021,8 +1021,8 @@ pre
   // if this is still preish, emit as a string
   // necessary to work with the pre_start lookaheads
   / p:('<' pre_tag_name) {
-	  stops.dec('pre');
-	  return tu.flatten_stringlist(p);
+      stops.dec('pre');
+      return tu.flatten_stringlist(p);
     }
   / & { return stops.dec('pre'); }
 

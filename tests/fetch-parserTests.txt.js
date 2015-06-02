@@ -63,7 +63,7 @@ var fetch = function(url, target_name, gitCommit, cb) {
 				return cb();
 			} else if (expectedSHA1 !== computeSHA1(target_name)) {
 				console.warn('Parsoid expected sha1sum', expectedSHA1,
-							 'but got', computeSHA1(target_name));
+					'but got', computeSHA1(target_name));
 			}
 		});
 	}).on('error', function(err) {

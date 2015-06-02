@@ -811,8 +811,8 @@ module.exports = function(parsoidConfig) {
 
 		var v2 = Object.assign({ format: req.params.format }, req.body);
 
-		if ( !supportedFormats.has( v2.format ) ||
-			 ( req.method === "GET" && !wt2htmlFormats.has( v2.format ) ) ) {
+		if (!supportedFormats.has(v2.format) ||
+				(req.method === "GET" && !wt2htmlFormats.has(v2.format))) {
 			return errOut("Invalid format.");
 		}
 

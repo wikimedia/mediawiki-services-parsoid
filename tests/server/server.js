@@ -117,9 +117,8 @@ var getOption = function(opt) {
 
 	// Check the boolean options, 'false' and 'no' should be treated as false.
 	// Copied from mediawiki.Util.js.
-	if ( opt === 'debug' ) {
-		if ( ( typeof value ) === 'string' &&
-		     /^(no|false)$/i.test( value ) ) {
+	if (opt === 'debug') {
+		if ((typeof value) === 'string' && /^(no|false)$/i.test(value)) {
 			return false;
 		}
 	}
@@ -246,16 +245,16 @@ var dbStatsQuery =
 	'JOIN stats AS s1 ON s1.page_id = p.id ' +
 	'JOIN stats AS s2 ON s2.page_id = p.id ' +
 	'WHERE s1.commit_hash = (SELECT hash ' +
-	                        'FROM commits ORDER BY timestamp DESC LIMIT 1 ) ' +
-        'AND s2.commit_hash = (SELECT hash ' +
-                              'FROM commits ORDER BY timestamp DESC LIMIT 1 OFFSET 1) ' +
+		'FROM commits ORDER BY timestamp DESC LIMIT 1 ) ' +
+	'AND s2.commit_hash = (SELECT hash ' +
+		'FROM commits ORDER BY timestamp DESC LIMIT 1 OFFSET 1) ' +
 	'AND s1.score > s2.score ) as numregressions, ' +
 	// get fix count between last two commits
 	'(SELECT count(*) ' +
-        'FROM pages ' +
-        'JOIN stats AS s1 ON s1.page_id = pages.id ' +
-        'JOIN stats AS s2 ON s2.page_id = pages.id ' +
-        'WHERE s1.commit_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1 ) ' +
+		'FROM pages ' +
+		'JOIN stats AS s1 ON s1.page_id = pages.id ' +
+		'JOIN stats AS s2 ON s2.page_id = pages.id ' +
+		'WHERE s1.commit_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1 ) ' +
 	'AND s2.commit_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1 OFFSET 1 ) ' +
 	'AND s1.score < s2.score ) as numfixes, '  +
 	// Get latest commit crashers
@@ -301,20 +300,20 @@ var dbPerWikiStatsQuery =
 	'JOIN stats AS s1 ON s1.page_id = p.id ' +
 	'JOIN stats AS s2 ON s2.page_id = p.id ' +
 	'WHERE s1.commit_hash = (SELECT hash ' +
-	                        'FROM commits ORDER BY timestamp DESC LIMIT 1 ) ' +
-        'AND s2.commit_hash = (SELECT hash ' +
-                              'FROM commits ORDER BY timestamp DESC LIMIT 1 OFFSET 1) ' +
+		'FROM commits ORDER BY timestamp DESC LIMIT 1 ) ' +
+		'AND s2.commit_hash = (SELECT hash ' +
+		'FROM commits ORDER BY timestamp DESC LIMIT 1 OFFSET 1) ' +
 		'AND p.prefix = ? ' +
-	'AND s1.score > s2.score ) as numregressions, ' +
+		'AND s1.score > s2.score ) as numregressions, ' +
 	// get fix count between last two commits
 	'(SELECT count(*) ' +
-        'FROM pages ' +
-        'JOIN stats AS s1 ON s1.page_id = pages.id ' +
-        'JOIN stats AS s2 ON s2.page_id = pages.id ' +
-        'WHERE s1.commit_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1 ) ' +
-	'AND s2.commit_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1 OFFSET 1 ) ' +
-	'AND pages.prefix = ? ' +
-	'AND s1.score < s2.score ) as numfixes, ' +
+		'FROM pages ' +
+		'JOIN stats AS s1 ON s1.page_id = pages.id ' +
+		'JOIN stats AS s2 ON s2.page_id = pages.id ' +
+		'WHERE s1.commit_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1 ) ' +
+		'AND s2.commit_hash = (SELECT hash FROM commits ORDER BY timestamp DESC LIMIT 1 OFFSET 1 ) ' +
+		'AND pages.prefix = ? ' +
+		'AND s1.score < s2.score ) as numfixes, ' +
 	// Get latest commit crashers
 	'(SELECT count(*) ' +
 		'FROM pages WHERE prefix = ? ' +
@@ -574,9 +573,9 @@ var getTitle = function( req, res ) {
 
 	// Look if there's a title available in the already fetched ones.
 	// Ensure that we load a batch when the commit has changed.
-	if ( fetchedPages.length === 0 ||
-	     commitHash !== lastFetchedCommit ||
-	     ( lastFetchedDate.getTime() + ( cutOffTime * 1000 ) ) < Date.now() ) {
+	if (fetchedPages.length === 0 ||
+			commitHash !== lastFetchedCommit ||
+			(lastFetchedDate.getTime() + (cutOffTime * 1000)) < Date.now()) {
 		// Select pages that were not claimed in the 10 minutes.
 		// If we didn't get a result from a client 10 minutes after
 		// it got a rt claim on a page, something is wrong with the client
