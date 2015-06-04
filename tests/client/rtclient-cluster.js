@@ -34,7 +34,7 @@ if ( !module.parent ) {
 		}
 	} );
 
-	var shutdown_cluster = function() {
+	var shutdownCluster = function() {
 		console.log( 'rtclient cluster shutting down, killing all rtclients' );
 		var workers = cluster.workers;
 		Object.keys( workers ).forEach( function( id ) {
@@ -45,6 +45,6 @@ if ( !module.parent ) {
 		process.exit( 0 );
 	};
 
-	process.on( 'SIGINT', shutdown_cluster );
-	process.on( 'SIGTERM', shutdown_cluster );
+	process.on('SIGINT', shutdownCluster);
+	process.on('SIGTERM', shutdownCluster);
 }

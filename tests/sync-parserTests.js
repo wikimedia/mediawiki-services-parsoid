@@ -35,7 +35,7 @@ require('../lib/core-upgrade.js');
 
 var fetcher = require('./fetch-parserTests.txt.js');
 var yargs = require('yargs');
-var child_process = require('child_process');
+var childProcess = require('child_process');
 var async = require('async');
 var path = require('path');
 var fs = require('fs');
@@ -66,7 +66,7 @@ var oldhash = fetcher.latestCommit;
 var mwexec = function(cmd) {
 	return function(callback) {
 		console.log('>>>', cmd.join(' '));
-		child_process.spawn(cmd[0], cmd.slice(1), {
+		childProcess.spawn(cmd[0], cmd.slice(1), {
 			cwd: mwpath,
 			env: process.env,
 			stdio: 'inherit'
@@ -84,7 +84,7 @@ var mwPARSERTESTS = path.join(mwpath, 'tests', 'parser', PARSERTESTS);
 // Fetch current Parsoid git hash.
 var phash;
 q.push(function(callback) {
-	child_process.execFile('git', ['log', '--max-count=1', '--pretty=format:%H'], {
+	childProcess.execFile('git', ['log', '--max-count=1', '--pretty=format:%H'], {
 		cwd: __dirname, env: process.env
 	}, function(error, stdout, stderr) {
 		if (error) { return callback(error.code || 1); }

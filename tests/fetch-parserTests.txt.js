@@ -29,19 +29,19 @@ var historyUrl = {
 	host: downloadUrl.host,
 	path: '/history/mediawiki%2Fcore.git/HEAD/tests%2Fparser%2FparserTests.txt',
 };
-var target_name = __dirname + "/parserTests.txt";
+var targetName = __dirname + "/parserTests.txt";
 
-var computeSHA1 = function(target_name) {
+var computeSHA1 = function(targetName) {
 	var existsSync = fs.existsSync || path.existsSync; // node 0.6 compat
-	if (!existsSync(target_name)) {
+	if (!existsSync(targetName)) {
 		return "<file not present>";
 	}
-	var contents = fs.readFileSync(target_name);
+	var contents = fs.readFileSync(targetName);
 	return crypto.createHash('sha1').update(contents).digest('hex').
 		toLowerCase();
 };
 
-var fetch = function(url, target_name, gitCommit, cb) {
+var fetch = function(url, targetName, gitCommit, cb) {
 	console.log('Fetching parserTests.txt from mediawiki/core');
 	if (gitCommit) {
 		url = {
@@ -50,7 +50,7 @@ var fetch = function(url, target_name, gitCommit, cb) {
 		};
 	}
 	https.get(url, function(result) {
-		var out = fs.createWriteStream(target_name);
+		var out = fs.createWriteStream(targetName);
 		result.on('data', function(data) {
 			out.write(data);
 		});
@@ -61,9 +61,9 @@ var fetch = function(url, target_name, gitCommit, cb) {
 		out.on('close', function() {
 			if (cb) {
 				return cb();
-			} else if (expectedSHA1 !== computeSHA1(target_name)) {
+			} else if (expectedSHA1 !== computeSHA1(targetName)) {
 				console.warn('Parsoid expected sha1sum', expectedSHA1,
-					'but got', computeSHA1(target_name));
+					'but got', computeSHA1(targetName));
 			}
 		});
 	}).on('error', function(err) {
@@ -72,12 +72,12 @@ var fetch = function(url, target_name, gitCommit, cb) {
 };
 
 var isUpToDate = function() {
-	return (expectedSHA1 === computeSHA1(target_name));
+	return (expectedSHA1 === computeSHA1(targetName));
 };
 
 var checkAndUpdate = function() {
 	if (!isUpToDate()) {
-		fetch(downloadUrl, target_name, latestCommit);
+		fetch(downloadUrl, targetName, latestCommit);
 	}
 };
 
@@ -109,8 +109,8 @@ var forceUpdate = function() {
 
 	// download latest file
 	downloadCommit = function(gitCommit) {
-		fetch(downloadUrl, target_name, gitCommit, function() {
-			updateHashes(gitCommit, computeSHA1(target_name));
+		fetch(downloadUrl, targetName, gitCommit, function() {
+			updateHashes(gitCommit, computeSHA1(targetName));
 		});
 	};
 

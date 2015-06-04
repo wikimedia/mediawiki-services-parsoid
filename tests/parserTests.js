@@ -84,9 +84,9 @@ var modes = ['wt2html', 'wt2wt', 'html2html', 'html2wt', 'selser'];
 function ParserTests() {
 	var i;
 
-	this.cache_file = "parserTests.cache"; // Name of file used to cache the parser tests cases
-	this.parser_tests_file = "parserTests.txt";
-	this.tests_changes_file = 'changes.txt';
+	this.cacheFile = "parserTests.cache"; // Name of file used to cache the parser tests cases
+	this.parserTestsFile = "parserTests.txt";
+	this.testsChangesFile = 'changes.txt';
 
 	this.articles = {};
 
@@ -181,7 +181,7 @@ ParserTests.prototype.getOpts = function() {
 			'boolean': false
 		},
 		'cache': {
-			description: 'Get tests cases from cache file ' + this.cache_file,
+			description: 'Get tests cases from cache file ' + this.cacheFile,
 			'boolean': true,
 			'default': false
 		},
@@ -268,13 +268,13 @@ ParserTests.prototype.getOpts = function() {
 		fetchConfig: false
 	});
 
-	var default_args = [
-		"Default tests-file: " + this.parser_tests_file,
+	var defaultArgs = [
+		"Default tests-file: " + this.parserTestsFile,
 		"Default options   : --wt2html --wt2wt --html2html --html2wt --whitelist --blacklist --color=auto"
 	];
 
 	return yargs.usage(
-		'Usage: $0 [options] [tests-file]\n\n' + default_args.join("\n"),
+		'Usage: $0 [options] [tests-file]\n\n' + defaultArgs.join("\n"),
 		standardOpts
 	).check(function(argv, aliases) {
 		Util.checkUnknownArgs(standardOpts, argv, aliases);
@@ -330,28 +330,28 @@ ParserTests.prototype.getTests = function( argv ) {
 		.update(mtimes)
 		.digest('hex');
 
-	var cache_file_name = __dirname + '/' + this.cache_file;
-	// Look for a cache_file
-	var cache_content;
-	var cache_file_digest;
+	var cacheFileName = __dirname + '/' + this.cacheFile;
+	// Look for a cacheFile
+	var cacheContent;
+	var cacheFileDigest;
 	try {
-		cache_content = fs.readFileSync(cache_file_name, 'utf8');
+		cacheContent = fs.readFileSync(cacheFileName, 'utf8');
 		// Fetch previous digest
-		cache_file_digest = cache_content.match(/^CACHE: (\w+)\n/)[1];
+		cacheFileDigest = cacheContent.match(/^CACHE: (\w+)\n/)[1];
 	} catch (e4) {
 		// cache file does not exist
 	}
 
-	if ( cache_file_digest === sha1 ) {
+	if ( cacheFileDigest === sha1 ) {
 		// cache file match our digest.
 		// Return contained object after removing first line (CACHE: <sha1>)
-		return JSON.parse( cache_content.replace( /^.*\n/, '' ) );
+		return JSON.parse( cacheContent.replace( /^.*\n/, '' ) );
 	} else {
 		// Write new file cache, content preprended with current digest
 		console.error( "Cache file either not present or outdated" );
 		var parse = this.parseTestCase( testFile );
 		if ( parse !== undefined ) {
-			fs.writeFileSync( cache_file_name,
+			fs.writeFileSync( cacheFileName,
 				"CACHE: " + sha1 + "\n" + JSON.stringify( parse ),
 				'utf8'
 			);
@@ -1131,11 +1131,11 @@ ParserTests.prototype.processSerializedWT = function(item, options, mode, wikite
  * @param {Object} actual
  * @param {Object} expected
  * @param {boolean} expectFail Whether this test was expected to fail (on blacklist)
- * @param {boolean} failure_only Whether we should print only a failure message, or go on to print the diff
+ * @param {boolean} failureOnly Whether we should print only a failure message, or go on to print the diff
  * @param {string} mode
  */
 ParserTests.prototype.printFailure = function( title, comments, iopts, options,
-		actual, expected, expectFail, failure_only, mode, error, item ) {
+		actual, expected, expectFail, failureOnly, mode, error, item ) {
 	this.stats.failedTests++;
 	this.stats.modes[mode].failedTests++;
 	var fail = {
@@ -1166,7 +1166,7 @@ ParserTests.prototype.printFailure = function( title, comments, iopts, options,
 	this.stats.modes[mode].failedTestsUnexpected++;
 	fail.unexpected = true;
 
-	if ( !failure_only ) {
+	if ( !failureOnly ) {
 		console.log( '=====================================================' );
 	}
 
@@ -1184,7 +1184,7 @@ ParserTests.prototype.printFailure = function( title, comments, iopts, options,
 		}
 	}
 
-	if ( !failure_only && !error ) {
+	if ( !failureOnly && !error ) {
 		console.log( comments.join('\n') );
 
 		if ( options ) {
@@ -1200,7 +1200,7 @@ ParserTests.prototype.printFailure = function( title, comments, iopts, options,
 		if ( booleanOption( options.printwhitelist )  ) {
 			this.printWhitelistEntry( title, actual.raw );
 		}
-	} else if ( !failure_only && error ) {
+	} else if ( !failureOnly && error ) {
 		// The error object exists, which means
 		// there was an error! gwicke said it wouldn't happen, but handle
 		// it anyway, just in case.
@@ -1430,25 +1430,25 @@ ParserTests.prototype.checkHTML = function( item, out, options, mode ) {
  * @param {Object} options
  */
 ParserTests.prototype.checkWikitext = function(item, out, options, mode) {
-	var item_wikitext = item.wikitext;
+	var itemWikitext = item.wikitext;
 	out = out.replace(new RegExp('<!--' + staticRandomString + '-->', 'g'), '');
 	if (mode === 'selser' && item.resultWT !== null &&
 			item.changes !== 5 && item.changetree !== 'manual') {
-		item_wikitext = item.resultWT;
+		itemWikitext = item.resultWT;
 	} else if ((mode === 'wt2wt' || (mode === 'selser' && item.changetree === 'manual')) &&
 				item.options.parsoid && item.options.parsoid.changes) {
-		item_wikitext = item['wikitext/edited'];
+		itemWikitext = item['wikitext/edited'];
 	}
 
 	var toWikiText = mode === 'html2wt' || mode === 'wt2wt' || mode === 'selser';
 	// FIXME: normalization not in place yet
-	var normalizedExpected = toWikiText ? item_wikitext.replace(/\n+$/, '') : item_wikitext;
+	var normalizedExpected = toWikiText ? itemWikitext.replace(/\n+$/, '') : itemWikitext;
 
 	// FIXME: normalization not in place yet
 	var normalizedOut = toWikiText ? out.replace(/\n+$/, '') : out;
 
-	var input = mode === 'html2wt' ? item.html : item_wikitext;
-	var expected = { isWT: true, normal: normalizedExpected, raw: item_wikitext };
+	var input = mode === 'html2wt' ? item.html : itemWikitext;
+	var expected = { isWT: true, normal: normalizedExpected, raw: itemWikitext };
 	var actual = { isWT: true, normal: normalizedOut, raw: out, input: input };
 
 	return options.reportResult( item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item );
@@ -1515,9 +1515,9 @@ ParserTests.prototype.reportSummary = function(stats) {
 			console.log( '--> ' + 'NO UNEXPECTED RESULTS'.green + ' <--');
 		}
 	} else {
-		if ( this.test_filter !== null ) {
+		if ( this.testFilter !== null ) {
 			console.log( "Passed " + ( stats.passedTests + stats.passedTestsWhitelisted ) +
-					" of " + stats.passedTests + " tests matching " + this.test_filter +
+					" of " + stats.passedTests + " tests matching " + this.testFilter +
 					"... " + "ALL TESTS PASSED!".green );
 		} else {
 			// Should not happen if it does: Champagne!
@@ -1617,14 +1617,14 @@ ParserTests.prototype.main = function( options, popts ) {
 	// test case filtering
 	this.runDisabled = booleanOption(options['run-disabled']);
 	this.runPHP = booleanOption(options['run-php']);
-	this.test_filter = null; // null is the 'default' by definition
+	this.testFilter = null; // null is the 'default' by definition
 	if ( options.filter || options.regex ) {
 		// NOTE: filter.toString() is required because a number-only arg
 		// shows up as a numeric type rather than a string.
 		// Ex: parserTests.js --filter 53221
 		var pattern = options.regex || Util.escapeRegExp( options.filter.toString() );
 		try {
-			this.test_filter = new RegExp( pattern );
+			this.testFilter = new RegExp( pattern );
 		} catch ( e ) {
 			console.error( '\nERROR> --filter was given an invalid regular expression.' );
 			console.error( '\nERROR> See below for JS engine error:\n' + e + '\n' );
@@ -1636,7 +1636,7 @@ ParserTests.prototype.main = function( options, popts ) {
 	if ( options._[0] ) {
 		this.testFileName = options._[0] ;
 	} else {
-		this.testFileName = __dirname + '/' + this.parser_tests_file;
+		this.testFileName = __dirname + '/' + this.parserTestsFile;
 	}
 
 	try {
@@ -1908,8 +1908,8 @@ ParserTests.prototype.processCase = function(i, options, err) {
 						('disabled' in item.options && !this.runDisabled) ||
 						('php' in item.options &&
 							!('html/parsoid' in item || this.runPHP)) ||
-						(this.test_filter &&
-							-1 === item.title.search( this.test_filter ) ) ) {
+						(this.testFilter &&
+							-1 === item.title.search( this.testFilter ) ) ) {
 						// Skip test whose title does not match --filter
 						// or which is disabled or php-only
 						this.comments = [];
@@ -2213,7 +2213,7 @@ var xmlFuncs = (function() {
 	 *
 	 * @inheritdoc ParserTests#printFailure
 	 */
-	var reportFailureXML = function(title, comments, iopts, options, actual, expected, expectFail, failure_only, mode, error) {
+	var reportFailureXML = function(title, comments, iopts, options, actual, expected, expectFail, failureOnly, mode, error) {
 		fail++;
 
 		var failEle;

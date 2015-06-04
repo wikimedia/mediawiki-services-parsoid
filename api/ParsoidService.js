@@ -93,14 +93,14 @@ function ParsoidService( parsoidConfig, processLogger ) {
 	app.get(  re('^/_rt/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.roundtripTesting );
 	app.get(  re('^/_rtve/(' + mwApiRe + ')/(.*)'), i, p, routes.roundtripTestingNL );
 	app.get(  re('^/_rtselser/(' + mwApiRe + ')/(.*)'), i, p, routes.roundtripSelser );
-	app.get(  re('^/_rtform/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.get_rtForm );
-	app.post( re('^/_rtform/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.post_rtForm );
-	app.get(  re('^/(' + mwApiRe + ')/(.*)'), i, p, routes.get_article );
-	app.post( re('^/(' + mwApiRe + ')/(.*)'), i, p, routes.post_article );
+	app.get(  re('^/_rtform/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.getRtForm );
+	app.post( re('^/_rtform/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.postRtForm );
+	app.get(  re('^/(' + mwApiRe + ')/(.*)'), i, p, routes.getArticle );
+	app.post( re('^/(' + mwApiRe + ')/(.*)'), i, p, routes.postArticle );
 
 	// v2 API routes
-	app.get(  '/v2/:domain/:format/:title/:revision?', v, p, routes.v2_get );
-	app.post( '/v2/:domain/:format/:title?/:revision?', v, p, routes.v2_post );
+	app.get(  '/v2/:domain/:format/:title/:revision?', v, p, routes.v2Get );
+	app.post( '/v2/:domain/:format/:title?/:revision?', v, p, routes.v2Post );
 
 
 	// Get host and port from the environment, if available

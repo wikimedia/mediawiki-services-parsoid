@@ -6,7 +6,7 @@ require('../lib/core-upgrade.js');
  * Uses port randomization to make sure we can use multiple servers concurrently.
  */
 
-var child_process = require('child_process');
+var childProcess = require('child_process');
 var Util = require('../lib/mediawiki.Util.js').Util;
 var JSUtils = require('../lib/jsutils.js').JSUtils;
 var path = require('path');
@@ -81,7 +81,7 @@ var startServer = function(opts, retrying, cb) {
 		console.log( "Starting %s server at %s", opts.serverName, url );
 	}
 
-	forkedServer.child = child_process.fork(__dirname + opts.filePath,
+	forkedServer.child = childProcess.fork(__dirname + opts.filePath,
 		opts.serverArgv,
 		{
 			env: {
