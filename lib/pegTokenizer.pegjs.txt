@@ -51,7 +51,7 @@
 }
 
 /*********************************************************
- * The top-level production
+ * The top-level rule
  *********************************************************/
 
 start
@@ -94,7 +94,7 @@ redirect
     return redirect;
 }
 
-// This production is exposed as a start rule.
+// This rule is exposed as a start rule.
 generic_attributes = generic_attribute*
 
 /* The 'redirect' magic word.
@@ -111,7 +111,7 @@ redirect_word = sp:[ \t\n\r\0\x0b]* rw:(!space_or_newline ![:\[] c:.{return c;})
 }
 
 /*
- * This production exists to support tokenizing the document in chunks.
+ * This rule exists to support tokenizing the document in chunks.
  * It stops tokenization after each block and yields to the node.js
  * event-loop to schedule other pending event handlers.
  *
@@ -139,7 +139,7 @@ save_sol_state =
   & (s:sol? { options.pegTokenizer.savedSOL = !!s; return true; })
 
 /*
- * A document (start production) is a sequence of toplevelblocks. Tokens are
+ * A document (start rule) is a sequence of toplevelblocks. Tokens are
  * emitted in chunks per toplevelblock to avoid buffering the full document.
  */
 tlb
@@ -165,7 +165,7 @@ tlb
         emitChunk( tokens );
     }
 
-    // We don't return any tokens to the start production to save memory. We
+    // We don't return any tokens to the start rule to save memory. We
     // just emitted them already to our consumers.
     return true;
   }
@@ -533,7 +533,7 @@ urlencoded_char = "%" c0:[0-9a-fA-F] c1:[0-9a-fA-F] {
     try {
         return decodeURI("%" + c0 + c1);
     } catch ( e ) {
-        // Reject the match, and allow other fall-back productions to have a
+        // Reject the match, and allow other fall-back rules to have a
         // go at it.
         peg$currPos = peg$reportedPos;
         return peg$FAILED;
@@ -545,7 +545,7 @@ urlencoded_char = "%" c0:[0-9a-fA-F] c1:[0-9a-fA-F] {
 // no punctuation, and '{<' to trigger directives
 no_punctuation_char = [^ :\]\[\r\n"'<>\x00-\x20\x7f,.&%\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000{]
 
-// this is the general url production
+// this is the general url rule
 // on the PHP side, the path part matches EXT_LINK_URL_CLASS
 // which is '[^][<>"\\x00-\\x20\\x7F\p{Zs}]'
 // the 's' and 'r' pieces below match the characters in
@@ -571,10 +571,10 @@ url
     return tu.flatten_string( [proto].concat( path ) );
 }
 
-// this is the somewhat-restricted production used in autolinks
+// this is the somewhat-restricted rule used in autolinks
 // See Parser::doMagicLinks and Parser.php::makeFreeExternalLink.
 // The `path` portion matches EXT_LINK_URL_CLASS, as in the general
-// url production.  As in PHP, we do some fancy fixup to yank out
+// url rule.  As in PHP, we do some fancy fixup to yank out
 // trailing punctuation, perhaps including parentheses.
 // The 's' and 'r' pieces match the characters in EXT_LINK_URL_CLASS
 // which aren't included in no_punctuation_char
@@ -851,7 +851,7 @@ wikilink
       return [obj];
   }
 
-// This production is identical to the 'inline' fragment except
+// This rule is identical to the 'inline' fragment except
 // that tables are allowed inside image captions.
 link_text_fragment
   = c:((sol full_table_in_link_caption)
@@ -899,7 +899,7 @@ link_option
 
 link_end = "]]"
 
-/* Generic quote production for italic and bold, further processed in a token
+/* Generic quote rule for italic and bold, further processed in a token
  * stream transformation in doQuotes. Relies on NlTk tokens being emitted
  * for each line of text to balance quotes per line.
  *
@@ -957,7 +957,7 @@ pre_tag_name =
 // An indented pre block that is surrounded with pre tags. The pre tags are
 // used directly.
 // XXX gwicke: check if the first line is not indented, and round-trip spaces;
-// possibly merge with the regular 'pre' production.
+// possibly merge with the regular 'pre' rule.
 // FIXME: fix tag end position
 pre_indent_in_tags
   = & { return stops.inc('pre'); }
@@ -1291,7 +1291,7 @@ generic_tag
 
 could_be_attribute =
     // quick sanity check before expensive attribute_preprocessor_text_line
-    // production. Also try to parse on [|!+;] for now which seem to be common
+    // rule. Also try to parse on [|!+;] for now which seem to be common
     // syntax errors in production that hidden by the PHP parser (by stripping
     // the 'attributes').
     space* ([a-zA-Z|!+;] /
@@ -1488,7 +1488,7 @@ li = bullets:list_char+
 }
 
 /*
- * This production is required to support wikitext of this form
+ * This rule is required to support wikitext of this form
  *   ::{|border="1"|foo|bar|baz|}
  * where the leading colons are used to indent the entire table.
  * This hack was added back in 2006 in commit
@@ -1541,21 +1541,21 @@ list_char = [*#:;]
 /******************************************************************************
  * Tables
  * ------
- * Table productions are geared to support independent parsing of fragments in
+ * Table rules are geared to support independent parsing of fragments in
  * templates (the common table start / row / table end use case). The tokens
  * produced by these fragments then match up to a table while building the
  * DOM tree. For similar reasons, table rows do not emit explicit end tag
  * tokens.
  *
- * The separate table_lines production is faster than moving those productions
+ * The separate table_lines rule is faster than moving those rules
  * directly to block_lines.
  *
- * Notes about the full_table_in_link_caption production
+ * Notes about the full_table_in_link_caption rule
  * -----------------------------------------------------
  * However, for link-tables, we have introduced a stricter parse wherein
  * we require table-start and table-end tags to not come from a template.
- * In addition, this new production doesn't accept fosterable-content in
- * the table unlike the more lax (sol table_lines)+ production.
+ * In addition, this new rule doesn't accept fosterable-content in
+ * the table unlike the more lax (sol table_lines)+ rule.
  *
  * This is the best we can do at this time since we cannot distinguish
  * between table rows and image options entirely in the tokenizer.
@@ -1617,7 +1617,7 @@ table_lines
       / & { return stops.pop('table'); }
     ) { return r; }
 
-// This production assumes start-of-line position!
+// This rule assumes start-of-line position!
 table_line
   = table_start_tag
   / table_content_line
@@ -1823,16 +1823,16 @@ row_syntax_table_args
 
 
 /*******************************************************************
- * Text variants and other general productions
+ * Text variants and other general rules
  *******************************************************************/
 
 /* All chars that cannot start syntactic structures in the middle of a line
  * XXX: ] and other end delimiters should probably only be activated inside
- * structures to avoid unnecessarily leaving the text production on plain
+ * structures to avoid unnecessarily leaving the text rule on plain
  * content.
  *
  * TODO: Much of this is should really be context-dependent (syntactic
- * flags). The wikilink_preprocessor_text production is an example where
+ * flags). The wikilink_preprocessor_text rule is an example where
  * text_char is not quite right and had to be augmented. Try to minimize /
  * clarify this carefully!
  */
@@ -1882,7 +1882,7 @@ urltext = ( t:[^-'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:;\]} &=]+ { return t.join('')
           }
           / & ('__') bs:behavior_switch { return bs; }
           // About 96% of text_char calls originate here.
-          // pegjs 0.8 inlines this simple production automatically.
+          // pegjs 0.8 inlines this simple rule automatically.
           / text_char )+
 
 /*
@@ -1934,7 +1934,7 @@ optionalSpaceToken
       }
   }
 
-/* This production corresponds to \s in the PHP preg_* functions,
+/* This rule corresponds to \s in the PHP preg_* functions,
  * which is used frequently in the PHP parser.  The inclusion of
  * form feed (but not other whitespace, like vertical tab) is a quirk
  * of Perl, which PHP inherited via the PCRE (Perl-Compatible Regular
@@ -1943,7 +1943,7 @@ optionalSpaceToken
 space_or_newline
   = [ \t\n\r\x0c]
 
-/* This production corresponds to \b in the PHP preg_* functions,
+/* This rule corresponds to \b in the PHP preg_* functions,
  * after a word character.  That is, it's a zero-width lookahead that
  * the next character is not a word character.
  */
@@ -1974,7 +1974,7 @@ sol_prefix
   = newlineToken
   / & {
       // Use saved sol-state only at start of input
-      // If we have saved state of not being in sol posn, fail the production
+      // If we have saved state of not being in sol posn, fail the rule
       // NOTE: Explicitly check for 'false' and not a falsy value
       return peg$currPos === 0 && options.pegTokenizer.savedSOL !== false;
   } { return []; }
@@ -1994,8 +1994,8 @@ comment_space = comment / space
 nl_comment_space = newline / comment_space
 
 /**
- * noinclude / includeonly / onlyinclude productions. These are normally
- * handled by the generic_tag production, except where generic tags are not
+ * noinclude / includeonly / onlyinclude rules. These are normally
+ * handled by the generic_tag rule, except where generic tags are not
  * allowed- for example in directives, which are allowed in various attribute
  * names and -values.
  *
@@ -2232,5 +2232,5 @@ pipe_pipe = "||" / "{{!}}{{!}}"
 // Similar, for tables..
 exclam = "!" / "{{;}}"
 
-/* Tabs do not mix well with the hybrid production syntax */
+/* Tabs do not mix well with the hybrid rule syntax */
 /* vim: set filetype=javascript expandtab ts=4 sw=4 cindent : */
