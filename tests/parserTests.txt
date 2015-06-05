@@ -5681,6 +5681,24 @@ Accept "||" in indented table headings
 !! end
 
 !! test
+Accept "!!" in templates
+!! wikitext
+{|
+!a {{echo|b!!c}}
+|}
+!! html/php
+<table>
+<tr>
+<th>a b</th>
+<th>c
+</th></tr></table>
+
+!! html/parsoid
+<table>
+<tbody><tr><th typeof="mw:Transclusion" about="#mwt1" data-parsoid='{"autoInsertedEnd":true,"pi":[[{"k":"1","spc":["","","",""]}]]}' data-mw='{"parts":["!a ",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"b!!c"}},"i":0}}]}'>a b</th><th about="#mwt1">c</th></tr>
+!! end
+
+!! test
 Accept empty attributes in td/th cells (td/th cells starting with leading ||)
 !! wikitext
 {|

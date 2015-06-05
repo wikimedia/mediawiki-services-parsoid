@@ -627,27 +627,32 @@ ipv6_address
  * 7: {{{{{{{·}}}}}}} → {·{{{·{{{·}}}·}}}·}
  */
 tplarg_or_template
-    = & '{{{{{{{' ob:'{' tpl:tplarg_or_template eb:'}' { return [ob, tpl, eb]; }
-    / & ( '{{{' &'{{{' tplarg ) r:tplarg { return r; }
-    // tplarg in template
-    / & ( '{{' &'{{{' tplarg )  r:template { return r; }
-    / tplarg
-    / template
+    = & {
+      // Refuse to recurse beyond 40 levels. Default in the PHP parser
+      // is $wgMaxTemplateDepth = 40; This is to prevent crashing from
+      // buggy wikitext with lots of unclosed template calls, as in
+      // eswiki/Usuario:C%C3%A1rdenas/PRUEBAS?oldid=651094
+      if (stops.onCount('templatedepth') === undefined ||
+          stops.onCount('templatedepth') < 40) {
+        return stops.inc('templatedepth');
+      } else {
+        return false;
+      }
+    }
+    r:( & '{{{{{{{' ob:'{' tpl:tplarg_or_template eb:'}' { return [ob, tpl, eb]; }
+      / & ( '{{{' &'{{{' tplarg ) r:tplarg { return r; }
+      // tplarg in template
+      / & ( '{{' &'{{{' tplarg )  r:template { return r; }
+      / tplarg
+      / template
+    ) {
+      stops.dec('templatedepth');
+      return r;
+    }
+    / & { return stops.dec('templatedepth'); }
 
 tplarg_or_template_or_broken
-    = ( & {
-      // Refuse to recurse beyond 40 levels. Default in the PHP parser
-      // is $wgMaxTemplateDepth = 40;
-      if ( stops.onCount('templatedepth') === undefined ||
-           stops.onCount('templatedepth') < 40
-      ) {
-          return stops.inc('templatedepth');
-      } else {
-          return false;
-      }
-    } r:( t:tplarg_or_template { stops.dec('templatedepth'); return t; }
-    / & { return stops.dec('templatedepth'); }
-    ) { return r; } ) / broken_template
+    = tplarg_or_template / broken_template
 
 tplarg_or_template_or_bust
     = (tplarg_or_template / .)+
