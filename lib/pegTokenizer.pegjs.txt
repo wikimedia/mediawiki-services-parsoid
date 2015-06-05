@@ -69,8 +69,9 @@ redirect
   = rw:redirect_word
     sp:$space_or_newline*
     c:$( ":" space_or_newline* )?
-    link:(wl:wikilink { return wl[0]; })
+    wl:wikilink
 {
+    var link = wl[0];
     if (!link || link.constructor === String) {
         peg$currPos = peg$reportedPos;
         return peg$FAILED;
@@ -385,8 +386,7 @@ comment
 // Behavior switches. See:
 // https://www.mediawiki.org/wiki/Help:Magic_words#Behavior_switches
 behavior_switch
-  = '__' behavior_text '__' {
-    var bs = text();
+  = bs:$('__' behavior_text '__') {
     return [ new SelfclosingTagTk( 'behavior-switch', [ new KV('word', bs) ], {
       tsr: [ peg$reportedPos, peg$currPos ],
       src: bs
@@ -1989,7 +1989,7 @@ nl_comment_space = newline / comment_space
  */
 
 include_limits =
-  "<" c:"/"? name:$[0-9a-zA-Z]+ space_or_newline* ">" {
+  "<" c:"/"? name:$[oyinclude]i+ space_or_newline* ">" {
     var incl = name.toLowerCase();
 
     if ( incl !== "noinclude" && incl !== "onlyinclude" && incl !== "includeonly" ) {
@@ -2072,7 +2072,7 @@ directive
 wikilink_preprocessor_text
   = r:( t:$[^<[{\n\r\t|!\]}{ &\-]+
         // XXX gwicke: any more chars we need to allow here?
-        / !inline_breaks wr:( directive / !"]]" c:( text_char / [!<\-] ) { return c; } )
+        / !inline_breaks wr:( directive / $( !"]]" ( text_char / [!<\-] ) ) )
         { return wr; }
     )+ {
       return tu.flattenStringlist( r );
@@ -2082,7 +2082,7 @@ extlink_preprocessor_text
   // added special separator character class inline: separates url from
   // description / text
   = r:( $[^'<~[{\n\r|!\]}\t&="' \u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]+
-  / !inline_breaks r:( directive / no_punctuation_char ) { return r; }
+  / !inline_breaks s:( directive / no_punctuation_char ) { return s; }
   /// urlencoded_char
   // !inline_breaks no_punctuation_char
   / $([.:,] !(space / eolf))
@@ -2096,10 +2096,10 @@ attribute_preprocessor_text
   = r:( $(!inline_breaks [^=<>{}\n\r&'"\t/ \-])+
   / !inline_breaks
     ! '/>'
-    r:(
+    s:(
           directive
         / [&%/{}\-]
-    ) { return r; }
+    ) { return s; }
   )+
   {
       return tu.flattenString( r );
@@ -2107,9 +2107,9 @@ attribute_preprocessor_text
 
 attribute_preprocessor_text_single
   = r:( $[^{}&'<\-]+
-  / !inline_breaks r:(
+  / !inline_breaks s:(
       directive
-    / [{}&<\-] ) { return r; }
+    / [{}&<\-] ) { return s; }
   )*
   {
       return tu.flattenString( r );
@@ -2117,9 +2117,9 @@ attribute_preprocessor_text_single
 
 attribute_preprocessor_text_single_broken
   = r:( $[^{}&'<>|\-]+
-  / !inline_breaks r:(
+  / !inline_breaks s:(
       directive
-    / [{}&<\-] ) { return r; }
+    / [{}&<\-] ) { return s; }
   )*
   {
       return tu.flattenString( r );
@@ -2127,9 +2127,9 @@ attribute_preprocessor_text_single_broken
 
 attribute_preprocessor_text_double
   = r:( $[^{}&"<\-]+
-  / !inline_breaks r:(
+  / !inline_breaks s:(
       directive
-    / [{}&<\-] ) { return r; }
+    / [{}&<\-] ) { return s; }
   )*
   {
       return tu.flattenString( r );
@@ -2137,9 +2137,9 @@ attribute_preprocessor_text_double
 
 attribute_preprocessor_text_double_broken
   = r:( $[^{}&"<>|\-]+
-  / !inline_breaks r:(
+  / !inline_breaks s:(
       directive
-    / [{}&<\-] ) { return r; }
+    / [{}&<\-] ) { return s; }
   )*
   {
       return tu.flattenString( r );
@@ -2166,36 +2166,36 @@ attribute_preprocessor_text_line
 
 attribute_preprocessor_text_single_line
   = r:( $[^{}&'<\n\-]+
-  / !inline_breaks r:(
+  / !inline_breaks s:(
       directive
-    / $( ![\r\n] [{}&<\-] ) ) { return r; }
+    / $( ![\r\n] [{}&<\-] ) ) { return s; }
   )* {
       return tu.flattenString( r );
   }
 
 attribute_preprocessor_text_single_line_broken
   = r:( $[^{}&'<>|!\n\-]+
-  / !inline_breaks r:(
+  / !inline_breaks s:(
       directive
-    / $( ![\r\n] q:[{}&<\-] ) ) { return r; }
+    / $( ![\r\n] q:[{}&<\-] ) ) { return s; }
   )* {
       return tu.flattenString( r );
   }
 
 attribute_preprocessor_text_double_line
   = r:( $[^{}&"<\n\-]+
-  / !inline_breaks r:(
+  / !inline_breaks s:(
       directive
-    / $( ![\r\n] [{}&<\-] ) ) { return r; }
+    / $( ![\r\n] [{}&<\-] ) ) { return s; }
   )* {
       return tu.flattenString( r );
   }
 
 attribute_preprocessor_text_double_line_broken
   = r:( $[^{}&"<>|!\n\-]+
-  / !inline_breaks r:(
+  / !inline_breaks s:(
       directive
-    / $( ![\r\n] q:[{}&<\-] ) ) { return r; }
+    / $( ![\r\n] q:[{}&<\-] ) ) { return s; }
   )* {
       return tu.flattenString( r );
   }
