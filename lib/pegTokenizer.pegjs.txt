@@ -67,8 +67,8 @@ start
  */
 redirect
   = rw:redirect_word
-    sp:space_or_newline*
-    c:( ":" space_or_newline* )?
+    sp:$space_or_newline*
+    c:$( ":" space_or_newline* )?
     link:(wl:wikilink { return wl[0]; })
 {
     if (!link || link.constructor === String) {
@@ -81,8 +81,8 @@ redirect
     // as there is no source for it.
     link.dataAttribs.tsr[0] = link.dataAttribs.tsr[1];
 
-    if (sp) { rw += sp.join(''); }
-    if (c) { rw += c[0] + c[1].join(''); }
+    if (sp) { rw += sp; }
+    if (c) { rw += c; }
     // Build a redirect token
     var redirect = new SelfclosingTagTk('mw:redirect',
             [Util.lookupKV(link.attribs, 'href')],
@@ -100,11 +100,10 @@ generic_attributes = generic_attribute*
 /* The 'redirect' magic word.
  * The leading whitespace allowed is due to the PHP trim() function.
  */
-redirect_word = sp:[ \t\n\r\0\x0b]* rw:(!space_or_newline ![:\[] c:.{return c;})+
+redirect_word = sp:$[ \t\n\r\0\x0b]* rw:$(!space_or_newline ![:\[] .)+
 {
-    rw = rw.join('');
     if ( options.env.conf.wiki.getMagicWordMatcher( 'redirect' ).test( rw ) ) {
-        return sp.join('') + rw;
+        return sp + rw;
     }
     peg$currPos = peg$reportedPos;
     return peg$FAILED;
@@ -325,10 +324,10 @@ inline_element
 h = & "=" // guard, to make sure '='+ will match.
           // XXX: Also check to end to avoid inline parsing?
     r:(
-     s:'='+ // moved in here to make s accessible to inner action
+     s:$'='+ // moved in here to make s accessible to inner action
      & { return stops.inc('h'); }
      c:nested_block_line
-     e:'='+
+     e:$'='+
      endTPos:({ return peg$currPos; })
      spc:(spaces / comment)*
      &eolf
@@ -338,7 +337,6 @@ h = & "=" // guard, to make sure '='+ will match.
         level = Math.min( 6, level );
         // convert surplus equals into text
         if (s.length > level) {
-            s = s.join('');
             var extras1 = s.substr(0, s.length - level);
             if (c[0].constructor === String) {
                 c[0] = extras1 + c[0];
@@ -347,7 +345,6 @@ h = & "=" // guard, to make sure '='+ will match.
             }
         }
         if (e.length > level) {
-            e = e.join('');
             var extras2 = e.substr(0, e.length - level);
             var lastElem = c[c.length - 1];
             if (lastElem.constructor === String) {
@@ -379,8 +376,8 @@ h = & "=" // guard, to make sure '='+ will match.
 // for further details.
 
 comment
-    = '<!--' c:( !"-->" c:. { return c; } )* ('-->' / eof) {
-        var data = DU.encodeComment( c.join('') );
+    = '<!--' c:$( !"-->" . )* ('-->' / eof) {
+        var data = DU.encodeComment( c );
         return [new CommentTk( data, { tsr: [peg$reportedPos, peg$currPos] } )];
     }
 
@@ -400,9 +397,7 @@ behavior_switch
 // all the language specific aliases of the behavior switches and then does a
 // match and replace. Just be as permissive as possible and let the
 // BehaviorSwitchPreprocessor back out of any overreach.
-behavior_text = text:( !'__' tc:[^'"<~[{\n\r:;\]}|!=] { return tc; } )+ {
-  return text.join("");
-}
+behavior_text = $( !'__' [^'"<~[{\n\r:;\]}|!=] )+
 
 /**************************************************************
  * External (bracketed and autolinked) links
@@ -428,7 +423,7 @@ extlink
         & { return stops.push('extlink', true); }
         target:extlink_preprocessor_text
         & { return Util.isProtocolValid( target, options.env ); }
-        sp:( space / [\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000] )*
+        sp:$( space / [\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000] )*
         targetOff:({ return peg$currPos; })
         content:(
                 t1:(
@@ -448,7 +443,7 @@ extlink
                 new SelfclosingTagTk( 'extlink', [
                     new KV('href', target),
                     new KV('mw:content', content),
-                    new KV('spaces', sp.join(''))
+                    new KV('spaces', sp)
                 ], {
                     targetOff: targetOff,
                     tsr: [peg$reportedPos, peg$currPos],
@@ -460,10 +455,8 @@ extlink
     ) { return r; }
 
 autoref
-  = ref:('RFC' / 'PMID') space_or_newline+ identifier:[0-9]+ end_of_word
+  = ref:('RFC' / 'PMID') space_or_newline+ identifier:$[0-9]+ end_of_word
 {
-    identifier = identifier.join('');
-
     var base_urls = {
       'RFC': '//tools.ietf.org/html/rfc%s',
       'PMID': '//www.ncbi.nlm.nih.gov/pubmed/%s?dopt=Abstract',
@@ -483,12 +476,12 @@ autoref
 isbn
   = 'ISBN' space_or_newline+
     head:[0-9]
-    digits:(d:( c:[- ] &[0-9] { return c; } / [0-9] ) { return d; } )+
-    tail:([- ]? [xX] { return text(); } )?
+    digits:$( [- ] &[0-9] / [0-9] )+
+    tail:$([- ]? [xX])?
     end_of_word
 {
     // TODO: round-trip non-decimals too!
-    var isbn = [head, digits.join(''), tail].join('');
+    var isbn = [head, digits, tail].join('');
     var isbncode = isbn.replace(/[^\dX]/g, '');
 
     // ISBNs can only be 10 or 13 chars long
@@ -513,9 +506,8 @@ isbn
 
 url_protocol =
     & { return Util.isProtocolValid(input.substr(peg$currPos), options.env); }
-    h:[a-zA-Z\/]+ c:':'? s:'//'?
+    h:$[a-zA-Z\/]+ c:':'? s:'//'?
 {
-    h = h.join('');
     if (c) {
         h += c;
     }
@@ -621,18 +613,10 @@ autourl
     / &{ return stops.pop( 'autourl' ); }
 
 ipv4_address
-  = a:([0-9]* '.' [0-9]* '.' [0-9]* '.' [0-9]*)
-{
-    // a will always be an array
-    return tu.flattenIfArray( a ).join('');
-}
+  = $([0-9]* '.' [0-9]* '.' [0-9]* '.' [0-9]*)
 
 ipv6_address
-  = a:('[' [0-9]* ':' [0-9]* ':' [0-9]* ':' [0-9]* ':' [0-9]* ':' [0-9]* ':' [0-9]* ']')
-{
-    // a will always be an array
-    return tu.flattenIfArray( a ).join('');
-}
+  = $('[' [0-9]* ':' [0-9]* ':' [0-9]* ':' [0-9]* ':' [0-9]* ':' [0-9]* ':' [0-9]* ']')
 
 
 /**************************************************************
@@ -703,7 +687,7 @@ template
 
 // XXX: support template and args in target!
 //template_target
-//  = h:( !"}}" x:([^|\n]) { return x } )* { return h.join('') }
+//  = $( !"}}" ([^|\n]) )*
 
 tplarg
   = "{{{"
@@ -906,10 +890,9 @@ link_end = "]]"
  * We are not using a simple pair rule here as we need to support mis-nested
  * bolds/italics and MediaWiki's special heuristics for apostrophes, which are
  * all not context free. */
-quote = "''" x:"'"* {
+quote = quotes:$("''" "'"*) {
     // sequences of four or more than five quotes are assumed to start
     // with some number of plain-text apostrophes.
-    var quotes = "''" + x.join('');
     var plainticks = 0;
     var result = [];
     if (quotes.length === 4) {
@@ -1254,9 +1237,7 @@ nowiki_content
 // See http://www.w3.org/TR/html5/syntax.html#tag-open-state and
 // following paragraphs.
 tag_name_chars = [^\t\n\v />\0]
-tag_name = f:[A-Za-z] s:tag_name_chars* {
-    return f + s.join("");
-  }
+tag_name = $([A-Za-z] tag_name_chars*)
 
 generic_tag
   = "<"
@@ -1669,7 +1650,7 @@ table_caption_tag
 table_row_tag
   = // avoid recursion via nested_block_in_table
     ! { return stops.onStack('tableDataBlock'); }
-    p:pipe dashes:"-"+
+    p:pipe dashes:$"-"+
     & { return stops.push('table', false); }
     a:(generic_attribute / broken_table_attribute_name_char)*
     tagEndPos:({stops.pop('table'); return peg$currPos;})
@@ -1683,7 +1664,7 @@ table_row_tag
 
         var da = {
           tsr: [ peg$reportedPos, tagEndPos ],
-          startTagSrc: p + dashes.join('')
+          startTagSrc: p + dashes
         };
 
         // We rely on our tree builder to close the row as needed. This is
@@ -1867,7 +1848,7 @@ text_char = [^-'<~[{\n\r:;\]}|!=]
  * ;    separator in lang_variant
  */
 
-urltext = ( t:[^-'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:;\]} &=]+ { return t.join(''); }
+urltext = ( $[^-'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:;\]} &=]+
           / & [/fFgGhHiImMnNsStTwWIPR] al:autolink { return al; }
           / & "&" he:htmlentity { return he; }
           // Convert trailing space into &nbsp;
@@ -1906,8 +1887,7 @@ urltext = ( t:[^-'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:;\]} &=]+ { return t.join('')
 // Old version
 //text = t:[A-Za-z0-9,._ "?!\t-]+ { return t.join('') }
 
-htmlentity = "&" c:[#0-9a-zA-Z]+ ";" {
-    var m = "&" + c.join('') + ";";
+htmlentity = m:$("&" [#0-9a-zA-Z]+ ";") {
     var cc = Util.decodeEntities(m);
     // if this is an invalid entity, don't tag it with 'mw:Entity'
     if (cc.length > 2 /* decoded entity would be 1 or 2 UTF-16 characters */) {
@@ -1921,14 +1901,14 @@ htmlentity = "&" c:[#0-9a-zA-Z]+ ";" {
 }
 
 spaces
-  = s:[ \t]+ { return s.join(''); }
+  = $[ \t]+
 
 space = [ \t]
 
 optionalSpaceToken
-  = s:space* {
+  = s:$space* {
       if ( s.length ) {
-          return [s.join('')];
+          return [s];
       } else {
           return [];
       }
@@ -1954,9 +1934,9 @@ end_of_word
 // compress surplus newlines into a meta tag, so that they don't trigger
 // paragraphs.
 optionalNewlines
-  = spc:(n:[\n\r\t ] &([\n\r]) { return n; })* {
+  = spc:$([\n\r\t ] &([\n\r]))* {
         if ( spc.length ) {
-            return [spc.join('')];
+            return [spc];
         } else {
             return [];
         }
@@ -2009,8 +1989,7 @@ nl_comment_space = newline / comment_space
  */
 
 include_limits =
-  "<" c:"/"? name:[0-9a-zA-Z]+ space_or_newline* ">" {
-    name = name.join('');
+  "<" c:"/"? name:$[0-9a-zA-Z]+ space_or_newline* ">" {
     var incl = name.toLowerCase();
 
     if ( incl !== "noinclude" && incl !== "onlyinclude" && incl !== "includeonly" ) {
@@ -2091,7 +2070,7 @@ directive
   / include_limits
 
 wikilink_preprocessor_text
-  = r:( t:[^<[{\n\r\t|!\]}{ &\-]+ { return t.join(''); }
+  = r:( t:$[^<[{\n\r\t|!\]}{ &\-]+
         // XXX gwicke: any more chars we need to allow here?
         / !inline_breaks wr:( directive / !"]]" c:( text_char / [!<\-] ) { return c; } )
         { return wr; }
@@ -2102,19 +2081,19 @@ wikilink_preprocessor_text
 extlink_preprocessor_text
   // added special separator character class inline: separates url from
   // description / text
-  = r:( t:[^'<~[{\n\r|!\]}\t&="' \u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]+ { return t.join(''); }
+  = r:( $[^'<~[{\n\r|!\]}\t&="' \u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]+
   / !inline_breaks r:( directive / no_punctuation_char ) { return r; }
   /// urlencoded_char
   // !inline_breaks no_punctuation_char
-  / s:[.:,] !(space / eolf) { return s; }
-  / q:['] !([']) { return q; } // single quotes are ok, double quotes are bad
+  / $([.:,] !(space / eolf))
+  / $(['] !(['])) // single quotes are ok, double quotes are bad
   / [&%|{] )+ {
       return tu.flattenString( r );
   }
 
 // Attribute values with preprocessor support
 attribute_preprocessor_text
-  = r:( ts:(!inline_breaks t:[^=<>{}\n\r&'"\t/ \-] {return t;})+ { return ts.join(''); }
+  = r:( $(!inline_breaks [^=<>{}\n\r&'"\t/ \-])+
   / !inline_breaks
     ! '/>'
     r:(
@@ -2127,7 +2106,7 @@ attribute_preprocessor_text
   }
 
 attribute_preprocessor_text_single
-  = r:( t:[^{}&'<\-]+ { return t.join(''); }
+  = r:( $[^{}&'<\-]+
   / !inline_breaks r:(
       directive
     / [{}&<\-] ) { return r; }
@@ -2137,7 +2116,7 @@ attribute_preprocessor_text_single
   }
 
 attribute_preprocessor_text_single_broken
-  = r:( t:[^{}&'<>|\-]+ { return t.join(''); }
+  = r:( $[^{}&'<>|\-]+
   / !inline_breaks r:(
       directive
     / [{}&<\-] ) { return r; }
@@ -2147,7 +2126,7 @@ attribute_preprocessor_text_single_broken
   }
 
 attribute_preprocessor_text_double
-  = r:( t:[^{}&"<\-]+ { return t.join(''); }
+  = r:( $[^{}&"<\-]+
   / !inline_breaks r:(
       directive
     / [{}&<\-] ) { return r; }
@@ -2157,7 +2136,7 @@ attribute_preprocessor_text_double
   }
 
 attribute_preprocessor_text_double_broken
-  = r:( t:[^{}&"<>|\-]+ { return t.join(''); }
+  = r:( $[^{}&"<>|\-]+
   / !inline_breaks r:(
       directive
     / [{}&<\-] ) { return r; }
@@ -2168,7 +2147,7 @@ attribute_preprocessor_text_double_broken
 
 // Variants with the entire attribute on a single line
 attribute_preprocessor_text_line
-  = r:( ts:[^=<>\n\r&'"\t \[\]|{}/!\-]+ { return ts.join(''); }
+  = r:( $[^=<>\n\r&'"\t \[\]|{}/!\-]+
         /  !inline_breaks
             ! '/>'
             t:(
@@ -2186,37 +2165,37 @@ attribute_preprocessor_text_line
   }
 
 attribute_preprocessor_text_single_line
-  = r:( t:[^{}&'<\n\-]+ { return t.join(''); }
+  = r:( $[^{}&'<\n\-]+
   / !inline_breaks r:(
       directive
-    / ![\r\n] q:[{}&<\-] { return q; } ) { return r; }
+    / $( ![\r\n] [{}&<\-] ) ) { return r; }
   )* {
       return tu.flattenString( r );
   }
 
 attribute_preprocessor_text_single_line_broken
-  = r:( t:[^{}&'<>|!\n\-]+ { return t.join(''); }
+  = r:( $[^{}&'<>|!\n\-]+
   / !inline_breaks r:(
       directive
-    / ![\r\n] q:[{}&<\-] { return q; } ) { return r; }
+    / $( ![\r\n] q:[{}&<\-] ) ) { return r; }
   )* {
       return tu.flattenString( r );
   }
 
 attribute_preprocessor_text_double_line
-  = r:( t:[^{}&"<\n\-]+ { return t.join(''); }
+  = r:( $[^{}&"<\n\-]+
   / !inline_breaks r:(
       directive
-    / ![\r\n] q:[{}&<\-] { return q; } ) { return r; }
+    / $( ![\r\n] [{}&<\-] ) ) { return r; }
   )* {
       return tu.flattenString( r );
   }
 
 attribute_preprocessor_text_double_line_broken
-  = r:( t:[^{}&"<>|!\n\-]+ { return t.join(''); }
+  = r:( $[^{}&"<>|!\n\-]+
   / !inline_breaks r:(
       directive
-    / ![\r\n] q:[{}&<\-] { return q; } ) { return r; }
+    / $( ![\r\n] q:[{}&<\-] ) ) { return r; }
   )* {
       return tu.flattenString( r );
   }
@@ -2224,7 +2203,7 @@ attribute_preprocessor_text_double_line_broken
 // Special-case support for those pipe templates
 pipe = "|" / "{{!}}"
 
-end_pipe = p:"|" ! "|" { return p; } / p:"{{!}}" ! "{{!}}" { return p; }
+end_pipe = $( "|" ! "|" / "{{!}}" ! "{{!}}" )
 
 // SSS FIXME: what about |{{!}} and {{!}}|
 pipe_pipe = "||" / "{{!}}{{!}}"
