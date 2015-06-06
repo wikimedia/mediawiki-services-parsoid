@@ -23631,6 +23631,16 @@ parsoid=html2wt
 !! end
 
 !! test
+Headings: Don't hoist metas that come from templates
+!! options
+parsoid=html2wt
+!! html
+<h2><span about="#mwt1" typeof="mw:Transclusion" data-parsoid="{}" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo [[Category:Foo]]"}},"i":0}}]}'>foo </span><link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1" data-parsoid="{}" /></h2>
+!! wikitext
+== {{echo|foo [[Category:Foo]]}} ==
+!! end
+
+!! test
 Headings: Category in ref isn't hoisted
 !! options
 parsoid=html2wt
