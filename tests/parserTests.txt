@@ -21797,6 +21797,18 @@ parsoid=wt2html
 </tbody></table>
 !! end
 
+!! test
+T97430: Don't emit empty nowiki pairs around marker meta tags
+!! options
+parsoid=html2wt
+!! html
+<p>*This is a long sentence here that will make the nowiki algo split up the nowikis into multiple pairs
+|** Make this another long long long sentence forcing the nowiki algo to split up the nowikis.</p>
+!! wikitext
+<nowiki>*</nowiki>This is a long sentence here that will make the nowiki algo split up the nowikis into multiple pairs
+<nowiki>|</nowiki>** Make this another long long long sentence forcing the nowiki algo to split up the nowikis.
+!! end
+
 #### --------------- Links ----------------
 #### 1. Quote marks in link text
 #### 2. Wikilinks: Escapes needed
