@@ -1930,7 +1930,7 @@ end_of_word
 // compress surplus newlines into a meta tag, so that they don't trigger
 // paragraphs.
 optionalNewlines
-  = spc:$([\n\r\t ] &([\n\r]))* {
+  = spc:$([\n\r\t ] &[\n\r])* {
         if ( spc.length ) {
             return [spc];
         } else {
@@ -2080,7 +2080,7 @@ extlink_preprocessor_text
   /// urlencoded_char
   // !inline_breaks no_punctuation_char
   / $([.:,] !(space / eolf))
-  / $(['] !(['])) // single quotes are ok, double quotes are bad
+  / $(['] ![']) // single quotes are ok, double quotes are bad
   / [&%|{] )+ {
       return tu.flattenString( r );
   }
@@ -2160,36 +2160,28 @@ attribute_preprocessor_text_line
 
 attribute_preprocessor_text_single_line
   = r:( $[^{}&'<\n\-]+
-  / !inline_breaks s:(
-      directive
-    / $( ![\r\n] [{}&<\-] ) ) { return s; }
+  / !inline_breaks s:( directive / $[{}&<\-] ) { return s; }
   )* {
       return tu.flattenString( r );
   }
 
 attribute_preprocessor_text_single_line_broken
   = r:( $[^{}&'<>|!\n\-]+
-  / !inline_breaks s:(
-      directive
-    / $( ![\r\n] q:[{}&<\-] ) ) { return s; }
+  / !inline_breaks s:( directive / $[{}&<\-] ) { return s; }
   )* {
       return tu.flattenString( r );
   }
 
 attribute_preprocessor_text_double_line
   = r:( $[^{}&"<\n\-]+
-  / !inline_breaks s:(
-      directive
-    / $( ![\r\n] [{}&<\-] ) ) { return s; }
+  / !inline_breaks s:( directive / $[{}&<\-] ) { return s; }
   )* {
       return tu.flattenString( r );
   }
 
 attribute_preprocessor_text_double_line_broken
   = r:( $[^{}&"<>|!\n\-]+
-  / !inline_breaks s:(
-      directive
-    / $( ![\r\n] q:[{}&<\-] ) ) { return s; }
+  / !inline_breaks s:( directive / $[{}&<\-] ) { return s; }
   )* {
       return tu.flattenString( r );
   }
