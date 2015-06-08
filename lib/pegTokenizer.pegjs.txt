@@ -69,13 +69,12 @@ redirect
   = rw:redirect_word
     sp:$space_or_newline*
     c:$( ":" space_or_newline* )?
-    wl:wikilink
-{
+    wl:wikilink & {
+      var link = wl[0];
+      return link && link.constructor !== String;
+  } {
     var link = wl[0];
-    if (!link || link.constructor === String) {
-        peg$currPos = peg$reportedPos;
-        return peg$FAILED;
-    }
+
     // Set the wikilink's tsr to be zero length. That token is synthetic and
     // the full tsr range is used by the redirect token. Anything with a zero
     // width will never be serialized using selser, which is what we want here
@@ -101,14 +100,10 @@ generic_attributes = generic_attribute*
 /* The 'redirect' magic word.
  * The leading whitespace allowed is due to the PHP trim() function.
  */
-redirect_word = sp:$[ \t\n\r\0\x0b]* rw:$(!space_or_newline ![:\[] .)+
-{
-    if ( options.env.conf.wiki.getMagicWordMatcher( 'redirect' ).test( rw ) ) {
-        return sp + rw;
-    }
-    peg$currPos = peg$reportedPos;
-    return peg$FAILED;
-}
+redirect_word
+  = $([ \t\n\r\0\x0b]*
+    rw:$(!space_or_newline ![:\[] .)+
+    & { return options.env.conf.wiki.getMagicWordMatcher('redirect').test(rw); })
 
 /*
  * This rule exists to support tokenizing the document in chunks.
@@ -1210,9 +1205,7 @@ nowiki
 //   <pre><nowiki></pre></nowiki>
 // Should allow the </pre> in nowiki:
 //   <nowiki></pre></nowiki>
-pre_break = & "</pre>" {
-    return stops.counters.pre > 0 ? undefined : peg$FAILED;
-}
+pre_break = & ( "</pre>" & { return stops.counters.pre > 0; } )
 
 nowiki_content
   = ts:(   (htmlentity / [^&<]+)+
@@ -1432,21 +1425,19 @@ att_value
  */
 block_tag
   = "<" end:"/"?
-    name:tag_name
+    name:$(tn:tag_name & {
+      var lcTn = tn.toLowerCase();
+      return lcTn !== "pre" && lcTn !== "hr" &&
+        constants.HTML.BlockTags.has(tn.toUpperCase());
+    })
     attribs:generic_newline_attribute*
     space_or_newline*
     selfclose:"/"?
     ">" {
-        var lcName = name.toLowerCase();
-        if (lcName !== "pre" && lcName !== "hr" &&
-            constants.HTML.BlockTags.has(name.toUpperCase())
-        ) {
-            return [tu.buildXMLTag(name, lcName, attribs, end, selfclose, [peg$reportedPos, peg$currPos])];
-        } else {
-            // abort match if tag is not block-level
-            peg$currPos = peg$reportedPos;
-            return peg$FAILED;
-        }
+      return [
+        tu.buildXMLTag(name, name.toLowerCase(), attribs, end, selfclose,
+          [peg$reportedPos, peg$currPos])
+      ];
     }
 
 
@@ -1989,14 +1980,12 @@ nl_comment_space = newline / comment_space
  */
 
 include_limits =
-  "<" c:"/"? name:$[oyinclude]i+ space_or_newline* ">" {
+  "<" c:"/"? name:$(n:$[oyinclude]i+ & {
+    var incl = n.toLowerCase();
+    return incl === "noinclude" || incl === "onlyinclude" ||
+      incl === "includeonly";
+  }) space_or_newline* ">" {
     var incl = name.toLowerCase();
-
-    if ( incl !== "noinclude" && incl !== "onlyinclude" && incl !== "includeonly" ) {
-      peg$currPos = peg$reportedPos;
-      return peg$FAILED;
-    }
-
     var dp = { tsr: [peg$reportedPos, peg$currPos] };
 
     // Record variant since tag is not in normalized lower case
