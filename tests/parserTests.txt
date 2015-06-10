@@ -22557,11 +22557,19 @@ Behavior switches should be SOL-transparent
 
  <!-- this one's bogus -->
  __TOO__
+
+ __TOC__ foo
+
+__TOC__ bar
 !! html/parsoid
  <meta property="mw:PageProp/toc" />
 
  <!-- this one's bogus -->
 <pre>__TOO__</pre>
+
+<pre data-parsoid='{}'><meta property="mw:PageProp/toc" data-parsoid='{"src":"__TOC__","magicSrc":"__TOC__"}'/> foo</pre>
+
+<meta property="mw:PageProp/toc" data-parsoid='{"src":"__TOC__","magicSrc":"__TOC__"}'/><pre data-parsoid='{}'>bar</pre>
 !! end
 
 #### --------------- HTML tags ---------------
@@ -23794,7 +23802,7 @@ parsoid=html2wt
 !! end
 
 !! test
-Headings: Force metas to serialize before/after new headings
+Headings: Force sol-transparent links and behavior switches to serialize before/after
 !! options
 parsoid=html2wt
 !! html
@@ -23805,6 +23813,8 @@ parsoid=html2wt
 <h2>it goes well   <link href="Category:A4" rel="mw:PageProp/Category" />  <!--bar--></h2>
 
 <h2 data-parsoid='{}'>howdy<link href="Category:A5" rel="mw:PageProp/Category" /></h2>
+
+<h2><meta property="mw:PageProp/toc" /> ok</h2>
 !! wikitext
 == hello there ==
 [[Category:A1]]
@@ -23820,6 +23830,10 @@ parsoid=html2wt
 [[Category:A4]]  <!--bar-->
 
 ==howdy [[Category:A5]] ==
+
+__TOC__
+
+== ok ==
 !! end
 
 !! test
