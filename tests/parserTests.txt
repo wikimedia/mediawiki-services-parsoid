@@ -11036,6 +11036,26 @@ Templates: Wiki Tables: 7. Fosterable <ref>s should get fostered
 <ol class="references" typeof="mw:Extension/references" about="#mwt4" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1">↑</a></span> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">foo</span></li></ol>
 !!end
 
+!! test
+Templates: Wiki Tables: 8. Fosterable meta-tags should get fostered
+!! wikitext
+{{echo|
+{{{!}}
+{{!}}-}}
+<onlyinclude>
+|foo
+</onlyinclude>
+{{!}}}
+!! html/parsoid
+<span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"\n{{{!}}\n{{!}}-"}},"i":0}},"\n&lt;onlyinclude>\n|foo\n&lt;/onlyinclude>\n{{!}}}"]}'>
+</span><meta typeof="mw:Includes/OnlyInclude" about="#mwt1"/><table about="#mwt1">
+<tbody><tr>
+
+<td>foo
+<meta typeof="mw:Includes/OnlyInclude/End"/></td></tr>
+</tbody></table>
+!! end
+
 !!test
 Templates: Lists: Multi-line list-items via templates
 !! wikitext
