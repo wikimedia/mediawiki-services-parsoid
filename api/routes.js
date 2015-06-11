@@ -833,6 +833,11 @@ module.exports = function(parsoidConfig) {
 			}
 		}
 
+		if (v2 && v2.original && v2.original['data-parsoid'] &&
+				!Object.keys(v2.original['data-parsoid'].body).length) {
+			return errOut('data-parsoid was provided without an ids property.', 400);
+		}
+
 		res.local('v2', v2);
 		next();
 	};
