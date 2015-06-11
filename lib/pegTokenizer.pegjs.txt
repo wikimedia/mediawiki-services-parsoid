@@ -175,7 +175,7 @@ block
             / c:comment &eolf { return c; }
             / nowiki
             // avoid a paragraph if we know that the line starts with a block tag
-            / bt:block_tag { return [bt]; }
+            / bt:block_tag
             ) { return rs; }
     / paragraph
     // Inlineline includes generic tags; wrapped into paragraphs in token
@@ -223,8 +223,7 @@ block_lines
     // eat an empty line before the block
     s2:(os:optionalSpaceToken so:sol { return os.concat(so); })?
     bl:block_line {
-        var s2_ = (s2 !== null) ? s2 : [];
-        return s.concat(s2_, bl);
+        return s.concat(s2 || [], bl);
     }
 
 /*
@@ -247,20 +246,14 @@ block_line
     "----" d:"-"*
     // Check if a newline or content follows
     lineContent:( &sol { return undefined; } / { return true; } ) {
+      var dataAttribs = {
+        tsr: [peg$reportedPos, peg$currPos],
+        lineContent: lineContent,
+      };
       if (d.length > 0) {
-          return new SelfclosingTagTk( "hr", [],
-                    {
-                        tsr: [peg$reportedPos, peg$currPos],
-                        extra_dashes: d.length,
-                        lineContent: lineContent
-                    } );
-      } else {
-          return new SelfclosingTagTk( "hr", [],
-                    {
-                        tsr: [peg$reportedPos, peg$currPos],
-                        lineContent: lineContent
-                    } );
+        dataAttribs.extra_dashes = d.length;
       }
+      return new SelfclosingTagTk('hr', [], dataAttribs);
   }
 
 /*
@@ -270,45 +263,35 @@ block_line
  */
 paragraph
   = s1:sol s2:sol c:inlineline {
-      return s1.concat(s2, /* [new TagTk('p')],*/ c);
+      return s1.concat(s2, c);
   }
 
 br = s:optionalSpaceToken &newline {
-    return s.concat(
-            [
-                new SelfclosingTagTk( 'br', [], {tsr: [peg$reportedPos, peg$currPos]} )
-            ]
-        );
+    return s.concat([
+      new SelfclosingTagTk('br', [], { tsr: [peg$reportedPos, peg$currPos] })
+    ]);
 }
 
 inline_breaks
-  = & { return inlineBreaks( input, peg$currPos, stops ); }
+  = & { return inlineBreaks(input, peg$currPos, stops); }
 
 pre_start = "<" pre_tag_name [^>]* ">"
-
-inline
-  = c:(urltext / (!inline_breaks !pre_start r:(inline_element / . ) { return r; }))+ {
-      return tu.flattenStringlist( c );
-  }
 
 inlineline
   = c:(urltext
           / !{ return inlineBreaks( input, peg$currPos, stops ); } // inline_breaks
             !pre_start
             r:(inline_element / [^\r\n]) { return r; })+ {
-      return tu.flattenStringlist( c );
+      return tu.flattenStringlist(c);
   }
 
 inline_element
-  = //& { dp('inline_element enter' + input.substr(peg$currPos, 10)); return true; }
-    & '<' r:( nowiki
+  = & '<' r:( nowiki
           / xmlish_tag
           / comment
           ) { return r; }
-    /// & '{' ( & '{{{{{' template / tplarg / template )
     / & '{' r:tplarg_or_template_or_broken { return r; }
     / & '}' r:broken_template { return r; }
-    /// & '{' ( tplarg / template )
      // Eat three opening brackets as text, but handle '[[[[' differently
      // so, that '[[[[Foo]]]]' parses as '[[<a..>Foo</a>]]'
     / (!'[' / sol) '[[[' !'[' { return '[[['; }
@@ -471,7 +454,7 @@ autoref
 isbn
   = 'ISBN' space_or_newline+
     head:[0-9]
-    digits:$( [- ] &[0-9] / [0-9] )+
+    digits:$([- ] &[0-9] / [0-9])+
     tail:$([- ]? [xX])?
     end_of_word
 {
@@ -526,8 +509,6 @@ urlencoded_char = "%" c0:[0-9a-fA-F] c1:[0-9a-fA-F] {
         return peg$FAILED;
     }
 }
-
-//[^][<>"\\x00-\\x20\\x7F\p{Zs}]
 
 // no punctuation, and '{<' to trigger directives
 no_punctuation_char = [^ :\]\[\r\n"'<>\x00-\x20\x7f,.&%\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000{]
@@ -695,7 +676,7 @@ tplarg
     params:( nl_comment_space*
               '|' nl_comment_space*
                r:(
-                    &'}}}' { return new KV( '', ''); }
+                    &'}}}' { return new KV('', ''); }
                     / template_param
                ) { return r; }
            )*
@@ -759,11 +740,7 @@ template_param_value
   / & { stops.dec( 'nopre' ); return stops.pop( 'equal' ); }
 
 template_param_text
-  = & { /*console.warn( 'tpt: ' +
-          input.substr( peg$currPos - 10, 9) +
-          input[peg$currPos].green +
-          input.substr( peg$currPos +1, 9) ); */
-        // re-enable tables within template parameters
+  = & { // re-enable tables within template parameters
         stops.push('table', false );
         stops.push('extlink', false);
         stops.push('pipe', true);
@@ -780,7 +757,6 @@ template_param_text
         if ( r.length === 1 && r[0].constructor === String ) {
             r = r[0];
         }
-
         return r;
     }
   / & { stops.pop('table'); stops.pop('extlink'); stops.pop('pipe'); return stops.dec('template'); }
@@ -835,8 +811,7 @@ wikilink
       return [obj];
   }
 
-// This rule is identical to the 'inline' fragment except
-// that tables are allowed inside image captions.
+// Tables are allowed inside image captions.
 link_text_fragment
   = c:((sol full_table_in_link_caption)
        / urltext
@@ -863,23 +838,6 @@ link_text
         }
     }
   / & { return stops.dec('linkdesc'); }
-
-link_option
-  = & { stops.push('pipe', true); return stops.inc('linkdesc'); }
-    h:inline
-    // 'equal' syntaxFlag is set for links in template parameters. Consume the
-    // '=' here.
-    hs:( '=' inline)?
-    {
-        stops.pop('pipe');
-        stops.dec('linkdesc');
-        if ( hs !== null ) {
-            return h.concat(hs);
-        } else {
-            return h;
-        }
-    }
-  / & { stops.pop('pipe'); return stops.dec('linkdesc'); }
 
 link_end = "]]"
 
@@ -1165,30 +1123,20 @@ nowiki
     endTagStartPos:({return peg$currPos;})
     "</" nowiki_tag_name space* ">" {
         return [
-            new TagTk( 'span',
-                    [
-                        {k: 'typeof', v: 'mw:Nowiki'}
-                    ],
-                    { tsr: [peg$reportedPos, startTagEndPos] } )
-        ].concat( nc, [
-                    new EndTagTk( 'span',
-                    [
-                        {k: 'typeof', v: 'mw:Nowiki'}
-                    ],
-                    { tsr: [endTagStartPos, peg$currPos] })
-                ] );
+            new TagTk('span', [{ k: 'typeof', v: 'mw:Nowiki' }],
+              { tsr: [peg$reportedPos, startTagEndPos] })
+        ].concat(nc, [
+            new EndTagTk('span', [{ k: 'typeof', v: 'mw:Nowiki' }],
+              { tsr: [endTagStartPos, peg$currPos] })
+        ]);
     }
   // nowiki fallback: source-based round-tripping of <nowiki />.
   / nw0:({return peg$currPos;})
     "<" nowiki_tag_name space* "/" space* ">" {
       return [
-          new SelfclosingTagTk('meta',
-                  [new KV('typeof', 'mw:Placeholder')],
-                  {
-                      src: input.substring(nw0, peg$currPos),
-                      tsr: [nw0, peg$currPos]
-                  })
-        ];
+          new SelfclosingTagTk('meta', [new KV('typeof', 'mw:Placeholder')],
+            { src: input.substring(nw0, peg$currPos), tsr: [nw0, peg$currPos] })
+      ];
     }
   // nowiki fallback: source-based round-tripping
   // of unbalanced nowiki tags that are treated as text.
@@ -1342,9 +1290,7 @@ generic_attribute
 //// http://www.w3.org/TR/html5/syntax.html#attributes-0, and we also
 //// disallow newlines, | and {.
 //generic_attribute_plain_name
-//  = n:[^ \t\0/"'>=\n|{]+ {
-//        return n.join('');
-//  }
+//  = $[^ \t\0/"'>=\n|{]+
 
 // Also eat these chars in a wikitext table or tr attribute name. They are
 // normally not matched by the generic_attribute_name.
@@ -1353,7 +1299,7 @@ broken_table_attribute_name_char = c:[ \t\0/=>"'\[] { return new KV(c, ''); }
 // The arrangement of chars is to emphasize the split between what's disallowed
 // by html5 and what's necessary to give directive a chance.
 generic_attribute_name
-  = r:( ts:[^ \t\0\n\r/=>"'!<&\[\]|{}\-]+ { return ts.join(''); }
+  = r:( $[^ \t\0\n\r/=>"'!<&\[\]|{}\-]+
         / ! inline_breaks
           ! '/>'
           // /=>"' is the html5 attribute name set we do not want.
@@ -1880,9 +1826,6 @@ urltext = ( $[^-'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:;\]} &=]+
     'worldwind://',
 */
 
-// Old version
-//text = t:[A-Za-z0-9,._ "?!\t-]+ { return t.join('') }
-
 htmlentity = m:$("&" [#0-9a-zA-Z]+ ";") {
     var cc = Util.decodeEntities(m);
     // if this is an invalid entity, don't tag it with 'mw:Entity'
@@ -1924,7 +1867,7 @@ space_or_newline
  * the next character is not a word character.
  */
 end_of_word
-  = eof / ! [A-Za-z0-9_] { return ''; }
+  = eof / ![A-Za-z0-9_]
 
 // Extra newlines followed by at least another newline. Usually used to
 // compress surplus newlines into a meta tag, so that they don't trigger
