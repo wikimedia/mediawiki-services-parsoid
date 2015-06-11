@@ -1507,6 +1507,30 @@ parsoid=html2wt
 {{echo|a <nowiki>}</nowiki>}}
 !! end
 
+!! test
+Cases where "!!" needs nowiki protection
+!! options
+parsoid=html2wt
+!! html
+<table>
+<tr><th>this needs protection !! here</th></tr>
+</table>
+
+<table>
+<tr><th>this does not need
+protection !! here</th></tr>
+</table>
+!! wikitext
+{|
+!<nowiki>this needs protection !! here</nowiki>
+|}
+
+{|
+!this does not need
+protection !! here
+|}
+!! end
+
 ###
 ### Comments
 ###
@@ -5696,6 +5720,51 @@ Accept "!!" in templates
 !! html/parsoid
 <table>
 <tbody><tr><th typeof="mw:Transclusion" about="#mwt1" data-parsoid='{"autoInsertedEnd":true,"pi":[[{"k":"1","spc":["","","",""]}]]}' data-mw='{"parts":["!a ",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"b!!c"}},"i":0}}]}'>a b</th><th about="#mwt1">c</th></tr>
+!! end
+
+!! test
+Accept "!!" in table headings after newline
+!! wikitext
+{|
+!a
+b!!c
+|}
+!! html/php
+<table>
+<tr>
+<th>a
+<p>b!!c
+</p>
+</th></tr></table>
+
+!! html/parsoid
+<table>
+<tbody><tr><th>a
+<p>b!!c</p></th></tr>
+</tbody></table>
+!! end
+
+!! test
+Accept "!!" in table data of mixed wikitext / html syntax
+!! wikitext
+{|
+!a
+<tr><td>b!!c</td></tr>
+|}
+!! html+tidy
+<table>
+<tr>
+<th>a</th>
+</tr>
+<tr>
+<td>b!!c</td>
+</tr>
+</table>
+!! html/parsoid
+<table>
+<tbody><tr><th>a</th></tr>
+<tr data-parsoid='{"stx":"html"}'><td data-parsoid='{"stx":"html"}'>b!!c</td></tr>
+</tbody></table>
 !! end
 
 !! test

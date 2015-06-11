@@ -1714,6 +1714,7 @@ table_data_tag
 
 table_heading_tags
   = "!"
+    & { return stops.push('th', endOffset()); }
     th:table_heading_tag
     ths:( pp:("!!" / pipe_pipe) tht:table_heading_tag {
             var da = tht[0].dataAttribs;
@@ -1727,19 +1728,32 @@ table_heading_tags
             return tht;
           }
     )* {
+        stops.pop('th');
         th[0].dataAttribs.tsr[0]--; // include "!"
         return th.concat(ths);
     }
+    / & { return stops.onStack('th') !== false ? stops.pop('th') : false; }
 
 table_heading_tag
-  = & { return stops.push('th', true); }
-    arg:row_syntax_table_args?
-    tagEndPos:({return endOffset();})
-    c:nested_block_in_table* {
-        stops.pop('th');
+  = arg:row_syntax_table_args?
+    tagEndPos:({ return endOffset(); })
+    c:( & {
+      // This SyntaxStop is only true until we hit the end of the line.
+      if (stops.onStack('th') !== false) {
+        if (/\n/.test(input.substring(stops.onStack('th'), endOffset()))) {
+          // There's been a newline. Remove the break and continue
+          // tokenizing nested_block_in_tables.
+          stops.pop('th');
+        } else if (input.substr(endOffset() + 1, 2) === '!!') {
+          // Ok, no newlines and we broke for a double exclamation.
+          // Stop here and let the next table_heading_tag proceed.
+          return false;
+        }
+      }
+      return true;
+    } d:nested_block_in_table { return d; } )* {
         return tu.buildTableTokens("th", "!", arg, [startOffset(), tagEndPos], endOffset(), c);
     }
-    / & { return stops.pop('th'); }
 
 table_end_tag
   = sc:(space / comment)* startPos:({ return endOffset(); }) p:pipe b:"}" {
