@@ -311,7 +311,7 @@
 					"sitename": "ويكيبيديا"
 				}
 			],
-			"localname": "Egyptian Spoken Arabic"
+			"localname": "Egyptian Arabic"
 		},
 		"12": {
 			"code": "as",
@@ -354,13 +354,13 @@
 					"url": "http://ast.wikipedia.org",
 					"dbname": "astwiki",
 					"code": "wiki",
-					"sitename": "Uiquipedia"
+					"sitename": "Wikipedia"
 				},
 				{
 					"url": "http://ast.wiktionary.org",
 					"dbname": "astwiktionary",
 					"code": "wiktionary",
-					"sitename": "Uiccionariu"
+					"sitename": "Wikcionariu"
 				},
 				{
 					"url": "http://ast.wikibooks.org",
@@ -777,7 +777,7 @@
 					"sitename": "উইকিপিডিয়া"
 				}
 			],
-			"localname": "Bishnupuriya Manipuri"
+			"localname": "Bishnupriya"
 		},
 		"31": {
 			"code": "br",
@@ -1049,7 +1049,7 @@
 		},
 		"44": {
 			"code": "ckb",
-			"name": "کوردی",
+			"name": "کوردیی ناوەندی",
 			"site": [
 				{
 					"url": "http://ckb.wikipedia.org",
@@ -1058,7 +1058,7 @@
 					"sitename": "ویکیپیدیا"
 				}
 			],
-			"localname": "Sorani Kurdish"
+			"localname": "Central Kurdish"
 		},
 		"45": {
 			"code": "co",
@@ -1976,7 +1976,7 @@
 					"sitename": "Vouiquipèdia"
 				}
 			],
-			"localname": "Franco-Provençal"
+			"localname": "Arpitan"
 		},
 		"76": {
 			"code": "frr",
@@ -2086,7 +2086,7 @@
 					"sitename": "維基百科"
 				}
 			],
-			"localname": "Gan"
+			"localname": "Gan Chinese"
 		},
 		"82": {
 			"code": "gd",
@@ -2290,7 +2290,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
-			"localname": "Hakka"
+			"localname": "Hakka Chinese"
 		},
 		"91": {
 			"code": "haw",
@@ -4021,7 +4021,7 @@
 					"sitename": "Википеди"
 				}
 			],
-			"localname": "Hill Mari"
+			"localname": "Western Mari"
 		},
 		"165": {
 			"code": "ms",
@@ -4432,7 +4432,7 @@
 					"sitename": "Wikikilden"
 				}
 			],
-			"localname": "Norwegian (bokmål)"
+			"localname": "Norwegian"
 		},
 		"183": {
 			"code": "nov",
@@ -5880,7 +5880,7 @@
 					"url": "http://te.wikiquote.org",
 					"dbname": "tewikiquote",
 					"code": "wikiquote",
-					"sitename": "Wikipedia"
+					"sitename": "వికీవ్యాఖ్య"
 				},
 				{
 					"url": "http://te.wikisource.org",
@@ -6634,7 +6634,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
-			"localname": "Wu"
+			"localname": "Wu Chinese"
 		},
 		"276": {
 			"code": "xal",
@@ -6786,7 +6786,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
-			"localname": "Zeeuws"
+			"localname": "Zeelandic"
 		},
 		"283": {
 			"code": "zh",
@@ -6928,7 +6928,7 @@
 			],
 			"localname": "Zulu"
 		},
-		"count": 888,
+		"count": 889,
 		"specials": [
 			{
 				"url": "http://advisory.wikimedia.org",
@@ -7025,6 +7025,12 @@
 				"dbname": "checkuserwiki",
 				"code": "checkuser",
 				"private": ""
+			},
+			{
+				"url": "https://cn.wikimedia.org",
+				"dbname": "cnwikimedia",
+				"code": "cnwikimedia",
+				"fishbowl": ""
 			},
 			{
 				"url": "http://co.wikimedia.org",
