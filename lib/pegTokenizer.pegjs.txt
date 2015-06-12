@@ -1010,19 +1010,20 @@ pre
  * ----------------------------------------------------------------------- */
 
 xmlish_tag =
-    t:generic_tag {
+    t:generic_tag & {
         var tagName = t.name.toLowerCase();
-        var dp = t.dataAttribs;
         var isHtmlTag = Util.isHTMLElementName(tagName);
         var isInstalledExt = options.env.conf.wiki.isExtensionTag(tagName);
-        var isIncludeTag = tagName === 'includeonly'
-                            || tagName === 'noinclude'
-                            || tagName === 'onlyinclude';
-
-        if ( !isHtmlTag && !isInstalledExt && !isIncludeTag ) {
-            return Util.newlinesToNlTks(input.substring(dp.tsr[0], dp.tsr[1]), dp.tsr[0]);
-        }
-
+        var isIncludeTag = tagName === 'includeonly' ||
+                tagName === 'noinclude' || tagName === 'onlyinclude';
+        return isHtmlTag || isInstalledExt || isIncludeTag;
+    } {
+        var tagName = t.name.toLowerCase();
+        var isHtmlTag = Util.isHTMLElementName(tagName);
+        var isInstalledExt = options.env.conf.wiki.isExtensionTag(tagName);
+        var isIncludeTag = tagName === 'includeonly' ||
+                tagName === 'noinclude' || tagName === 'onlyinclude';
+        var dp = t.dataAttribs;
         var skipLen = 0;
 
         // EndTagTk
