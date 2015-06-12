@@ -23759,7 +23759,7 @@ parsoid=html2wt
 !! end
 
 !! test
-Headings: Force metas to serialize before/after
+Headings: Force metas to serialize before/after new headings
 !! options
 parsoid=html2wt
 !! html
@@ -23768,6 +23768,8 @@ parsoid=html2wt
 
 <h2><!--foo-->  <link href="Category:A3" rel="mw:PageProp/Category" />   how goes it</h2>
 <h2>it goes well   <link href="Category:A4" rel="mw:PageProp/Category" />  <!--bar--></h2>
+
+<h2 data-parsoid='{}'>howdy<link href="Category:A5" rel="mw:PageProp/Category" /></h2>
 !! wikitext
 == hello there ==
 [[Category:A1]]
@@ -23781,6 +23783,8 @@ parsoid=html2wt
 
 == it goes well ==
 [[Category:A4]]  <!--bar-->
+
+==howdy [[Category:A5]] ==
 !! end
 
 !! test
