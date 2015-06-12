@@ -3250,6 +3250,18 @@ parsoid=wt2html,wt2wt
 <link rel="mw:PageProp/Category" href="./Category:Foo"> <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"b"}},"i":0}}]}'>b</span></pre>
 !! end
 
+!! test
+Indent-Pre: Newlines in comments shouldn't affect sol state
+!! wikitext
+a <!--
+foo
+--> b
+!! html/parsoid
+<p>a <!--
+foo
+--> b</p>
+!! end
+
 ###
 ### HTML-pre (some to spec PHP parser behavior and some Parsoid-RT-centric)
 ###
