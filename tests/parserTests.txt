@@ -21829,6 +21829,28 @@ parsoid=html2wt
 <nowiki>|</nowiki>** Make this another long long long sentence forcing the nowiki algo to split up the nowikis.
 !! end
 
+!! test
+Unclosed xmlish element in table line shouldn't eat end delimiters
+!! wikitext
+{|
+| <foo
+| bar>
+|}
+!! html/php
+<table>
+<tr>
+<td> &lt;foo
+</td>
+<td> bar&gt;
+</td></tr></table>
+
+!! html/parsoid
+<table>
+<tbody><tr><td> &lt;foo</td>
+<td> bar></td></tr>
+</tbody></table>
+!! end
+
 #### --------------- Links ----------------
 #### 1. Quote marks in link text
 #### 2. Wikilinks: Escapes needed
