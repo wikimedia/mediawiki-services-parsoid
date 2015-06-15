@@ -5595,6 +5595,7 @@ Simple table but with multiple dashes for row wikitext
 </td></tr></table>
 
 !! end
+
 !! test
 Multiplication table
 !! wikitext

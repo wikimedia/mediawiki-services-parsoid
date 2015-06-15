@@ -1740,16 +1740,11 @@ table_heading_tag
     tagEndPos:({ return endOffset(); })
     c:( & {
       // This SyntaxStop is only true until we hit the end of the line.
-      if (stops.onStack('th') !== false) {
-        if (/\n/.test(input.substring(stops.onStack('th'), endOffset()))) {
+      if (stops.onStack('th') !== false &&
+              /\n/.test(input.substring(stops.onStack('th'), endOffset()))) {
           // There's been a newline. Remove the break and continue
           // tokenizing nested_block_in_tables.
           stops.pop('th');
-        } else if (input.substr(endOffset() + 1, 2) === '!!') {
-          // Ok, no newlines and we broke for a double exclamation.
-          // Stop here and let the next table_heading_tag proceed.
-          return false;
-        }
       }
       return true;
     } d:nested_block_in_table { return d; } )* {
