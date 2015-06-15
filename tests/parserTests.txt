@@ -5331,6 +5331,40 @@ text
 <nowiki>*a [[foo]]</nowiki>
 !! end
 
+!! test
+mw:ExtLink -vs- mw:WikiLink (T94723)
+!! options
+parsoid=html2wt
+!! html/parsoid
+<a rel="mw:WikiLink" href="./Foo" title="Foo" data-parsoid='{"stx":"piped","a":{"href":"./Foo"},"sa":{"href":"Foo"},"dsr":[0,11,6,2]}'>Bar</a>
+<a rel="mw:WikiLink" href="./Foo" title="Foo">Bar</a>
+<a rel="mw:WikiLink" href="http://en.wikipedia.org/wiki/Foo" title="Foo">Bar</a>
+<a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" title="Foo">Bar</a>
+<p>
+<a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/European_Robin">European Robin</a>
+<a rel="mw:WikiLink" href="http://en.wikipedia.org/wiki/European_Robin">European Robin</a>
+</p>
+!! wikitext
+[[Foo|Bar]]
+[[Foo|Bar]]
+[[wikipedia:Foo|Bar]]
+[[wikipedia:Foo|Bar]]
+
+[[wikipedia:European_Robin|European Robin]]
+[[wikipedia:European_Robin|European Robin]]
+!! end
+
+!! test
+mw:ExtLink linking to a interwiki URL can be round-tripped losslessly (T94723)
+!! options
+parsoid=wt2wt
+!! wikitext
+[http://en.wikipedia.org/wiki/European_Robin European Robin]
+!! html/parsoid
+THIS SECTION IS NOT USED (but Parsoid won't run the test without it)
+!! end
+
+
 ###
 ### Quotes
 ###
