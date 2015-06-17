@@ -3245,9 +3245,8 @@ parsoid=wt2html,wt2wt
  [[Category:foo]] a
  [[Category:foo]] {{echo|b}}
 !! html
-<pre>
-<link rel="mw:PageProp/Category" href="./Category:Foo"> a
-<link rel="mw:PageProp/Category" href="./Category:Foo"> <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"b"}},"i":0}}]}'>b</span></pre>
+<pre><link rel="mw:PageProp/Category" href="./Category:Foo"> a
+ <link rel="mw:PageProp/Category" href="./Category:Foo"> <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"b"}},"i":0}}]}'>b</span></pre>
 !! end
 
 !! test
@@ -13709,6 +13708,57 @@ Bar
 </p><p>Foo
 Bar
 </p>
+!! end
+
+## The whitespace on the empty line is part of the test. Please do not delete
+!! test
+1. Categories and newlines: All preceding newlines should be suppressed (courtesy bug 87)
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+This
+   
+[[Category:Foo]] and this should be part of same paragraph (not an indent-pre)
+   
+{{echo|[[Category:Foo]] and so should this!}}
+!! html
+<p>This and this should be part of same paragraph (not an indent-pre) and so should this!
+</p>
+!! html/parsoid
+<p>This
+   
+<link rel="mw:PageProp/Category" href="./Category:Foo"/> and this should be part of same paragraph (not an indent-pre)
+   
+<link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[Category:Foo]] and so should this!"}},"i":0}}]}'/><span about="#mwt1"> and so should this!</span></p>
+!! end
+
+## Parsoid will not try to wt2wt this while preserving newlines because
+## it suppresses excess newlines within list items -- and we don't want to
+## introduce a special case just for categories, which is, in reality somewhat
+## odd behavior -- categories are unlikely to be used in list items like this
+## in top-level pages and are only likely to show up in template-generated
+## list items where this RT-ing is a non-issue.
+##
+## The whitespace on the empty line is part of the test. Please do not delete
+!! test
+2. Categories and newlines: All preceding newlines should be suppressed (courtesy bug 87)
+!! options
+parsoid=wt2html
+!! wikitext
+* This
+   
+[[Category:Foo]] and this should be part of the same list item
+* So should this
+
+{{echo|[[Category:Foo]] and this should be part of the same list item}}
+!! html
+<ul><li>This and this should be part of the same list item</li>
+<li>So should this and this should be part of the same list item</li></ul>
+!! html/parsoid
+<ul>
+<li>This <link rel="mw:PageProp/Category" href="./Category:Foo"/> and this should be part of the same list item</li>
+<li>So should this <link rel="mw:PageProp/Category" href="Category:Foo" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[Category:Foo]] and this should be part of the same list item"}},"i":0}}]}'/><span> and this should be part of the same list item</span></li>
+</ul>
 !! end
 
 !! test
