@@ -68,6 +68,8 @@ var startServer = function(opts, retrying, cb) {
 
 	// For now, we always assume that retries are due to port conflicts
 	if (!port) {
+		// XXX we should use a more reliable way to find an open port
+		// (for this, and also for debugPort, below)
 		port = opts.portBase + Math.floor( Math.random() * 100 );
 	}
 
@@ -76,6 +78,22 @@ var startServer = function(opts, retrying, cb) {
 		// We already have a server there!
 		return cb( "There's already a server running at that port." );
 	}
+
+	// Handle debug port (borrowed from 'createWorkerProcess' in node's
+	// own lib/cluster.js)
+	var debugPort = process.debugPort + 1;
+	var execArgv = opts.execArgv || process.execArgv;
+	execArgv.forEach(function(arg, i) {
+		var match = arg.match(/^(--debug|--debug-(brk|port))(=\d+)?$/);
+		if (match) {
+			// defaults to stopping for debugging only in the parent process;
+			// set debugBrkInChild in the options if you want to stop for
+			// debugging at the first line of the child process as well.
+			var which = (match[1] !== '--debug-brk' || opts.debugBrkInChild) ?
+				match[1] : '--debug';
+			execArgv[i] = which + '=' + debugPort;
+		}
+	});
 
 	if (!opts.quiet) {
 		console.log( "Starting %s server at %s", opts.serverName, url );
@@ -89,7 +107,8 @@ var startServer = function(opts, retrying, cb) {
 				INTERFACE: opts.iface,
 				NODE_PATH: process.env.NODE_PATH,
 				PARSOID_MOCKAPI_URL: opts.mockUrl
-			}
+			},
+			execArgv: execArgv,
 		}
 	);
 
