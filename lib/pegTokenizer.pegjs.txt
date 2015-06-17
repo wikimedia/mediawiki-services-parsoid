@@ -26,13 +26,7 @@
     var inlineBreaks = tu.inlineBreaks;
     var stops = new tu.SyntaxStops();
 
-    // Shim until we upgrade to a newer version of PEG.js
-    var location = function() {
-      return {
-        start: { offset: peg$reportedPos },
-        end: { offset: peg$currPos },
-      };
-    };
+    var prevOffset = 0;
 
     // Some shorthands for legibility
     var startOffset = function() {
@@ -119,45 +113,34 @@ redirect_word
 
 /*
  * This rule exists to support tokenizing the document in chunks.
- * It stops tokenization after each block and yields to the node.js
- * event-loop to schedule other pending event handlers.
- *
- * It needs to keep track of sol-state so when tokenization resumes,
- * it knows whether it is in sol-state or not.
+ * The parser's streaming interface will stop tokenization after each iteration
+ * of the starred subexpression, and yield to the node.js event-loop to
+ * schedule other pending event handlers.
  */
-toplevelblock "toplevelblock" =
-  tlb save_sol_state {
-        var newOffset = peg$currPos;
-
-        // Trick the tokenizer into ending parsing
-        peg$currPos = input.length;
-
-        return { eof: false, newOffset: newOffset };
-  }
-  / newline* eof {
-        // Clear saved sol state!
-        options.pegTokenizer.savedSOL = null;
-        emitChunk( [ new EOFTk( ) ] );
-
-        return { eof: true };
-  }
-
-save_sol_state =
-  & (s:sol? { options.pegTokenizer.savedSOL = !!s; return true; })
+start_async
+  = (tlb
+    / newline* &{
+      if (endOffset() === input.length) {
+          emitChunk( [ new EOFTk( ) ] );
+      }
+      // terminate the loop
+      return false;
+    }
+    )*
 
 /*
  * A document (start rule) is a sequence of toplevelblocks. Tokens are
  * emitted in chunks per toplevelblock to avoid buffering the full document.
  */
-tlb
+tlb "tlb"
   = !eof b:block {
     // Clear the tokenizer's backtracking cache after matching each
     // toplevelblock. There won't be any backtracking as a document is just a
     // sequence of toplevelblocks, so the cache for previous toplevelblocks
     // will never be needed.
-    var end = options.startOffset || 0;
-    for (var i = options.prevOffset || 0; i < end; i++) {
-        peg$cache[i] = undefined;
+    var end = startOffset();
+    for (; prevOffset < end; prevOffset++) {
+        peg$cache[prevOffset] = undefined;
     }
 
     var tokens;
@@ -257,7 +240,7 @@ block_line
   / // Horizontal rules
     "----" d:"-"*
     // Check if a newline or content follows
-    lineContent:( &sol { return undefined; } / { return true; } ) {
+    lineContent:( &sol "" { return undefined; } / "" { return true; } ) {
       var dataAttribs = {
         tsr: tsrOffsets(),
         lineContent: lineContent,
@@ -319,7 +302,7 @@ h = & "=" // guard, to make sure '='+ will match.
      & { return stops.inc('h'); }
      c:nested_block_line
      e:$'='+
-     endTPos:({ return endOffset(); })
+     endTPos:("" { return endOffset(); })
      spc:(spaces / comment)*
      &eolf
      {
@@ -417,7 +400,7 @@ extlink
         target:extlink_preprocessor_text
         & { return Util.isProtocolValid( target, options.env ); }
         sp:$( space / [\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000] )*
-        targetOff:({ return endOffset(); })
+        targetOff:( "" { return endOffset(); })
         content:(
                 t1:(
                     & { return stops.push('pipe', false); }
@@ -651,9 +634,9 @@ template
   = "{{" nl_comment_space*
     target:template_param_value
     params:(nl_comment_space* "|"
-                r:( p0:({ return endOffset(); })
+                r:( p0:("" { return endOffset(); })
                     v:nl_comment_space*
-                    p:({ return endOffset(); })
+                    p:("" { return endOffset(); })
                     & "|"
                     { return new KV( '', tu.flattenIfArray(v), [p0, p0, p0, p]); } // empty argument
                     / template_param
@@ -697,10 +680,10 @@ tplarg
 template_param
   = name:template_param_name
     val:(
-        kEndPos:({ return endOffset(); })
+        kEndPos:("" { return endOffset(); })
         optionalSpaceToken
         "="
-        vStartPos:({ return endOffset(); })
+        vStartPos:("" { return endOffset(); })
         optionalSpaceToken
         tpv:template_param_value? {
             return { kEndPos: kEndPos, vStartPos: vStartPos, value: (tpv && tpv.tokens) || [] };
@@ -768,7 +751,7 @@ template_param_text
 
 
 wikilink_content
-  = lcs:( pipe startPos:({ return endOffset(); }) lt:link_text? {
+  = lcs:( pipe startPos:("" { return endOffset(); }) lt:link_text? {
         var maybeContent = new KV('mw:maybeContent', lt, [startPos, endOffset()]);
         maybeContent.vsrc = input.substring(startPos, endOffset());
         return maybeContent;
@@ -787,7 +770,7 @@ wikilink
     //target:link_target
     // XXX: disallow pipe!
     target:wikilink_preprocessor_text?
-    tpos:({ return endOffset(); })
+    tpos:("" { return endOffset(); })
     lcontent:wikilink_content?
     "]]"
   {
@@ -1124,9 +1107,9 @@ nowiki_tag_name =
 
 nowiki
   = "<" nowiki_tag_name space* ">"
-    startTagEndPos:({ return endOffset(); })
+    startTagEndPos:("" { return endOffset(); })
     nc:nowiki_content
-    endTagStartPos:({ return endOffset(); })
+    endTagStartPos:("" { return endOffset(); })
     "</" nowiki_tag_name space* ">" {
         return [
             new TagTk('span', [{ k: 'typeof', v: 'mw:Nowiki' }],
@@ -1137,7 +1120,7 @@ nowiki
         ]);
     }
   // nowiki fallback: source-based round-tripping of <nowiki />.
-  / nw0:({ return endOffset(); })
+  / nw0:("" { return endOffset(); })
     "<" nowiki_tag_name space* "/" space* ">" {
       return [
           new SelfclosingTagTk('meta', [new KV('typeof', 'mw:Placeholder')],
@@ -1147,7 +1130,7 @@ nowiki
   // nowiki fallback: source-based round-tripping
   // of unbalanced nowiki tags that are treated as text.
   / ! { return stops.counters.pre > 0; }
-    nw0:({ return endOffset(); })
+    nw0:("" { return endOffset(); })
     "<" "/"? nowiki_tag_name space* "/"? space* ">" {
       var nowiki = input.substring(nw0, endOffset());
       return [
@@ -1239,9 +1222,9 @@ could_be_attribute =
 // A generic attribute that can span multiple lines.
 generic_newline_attribute
   = s:space_or_newline*
-    namePos0:({ return endOffset(); })
+    namePos0:("" { return endOffset(); })
     name:generic_attribute_name
-    namePos:({ return endOffset(); })
+    namePos:("" { return endOffset(); })
     valueData:( space_or_newline*
         v:generic_attribute_newline_value { return v; })?
 {
@@ -1270,9 +1253,9 @@ generic_newline_attribute
 // A single-line attribute.
 generic_attribute
   = s:optionalSpaceToken
-    namePos0:({ return endOffset(); })
+    namePos0:("" { return endOffset(); })
     name:generic_attribute_name
-    namePos:({ return endOffset(); })
+    namePos:("" { return endOffset(); })
     valueData:(optionalSpaceToken
         v:generic_attribute_value { return v; })?
 {
@@ -1330,47 +1313,47 @@ generic_attribute_value
 
 // Attribute value, quoted variants can span multiple lines.
 xml_att_value
-  = space_or_newline* "'" r:(valPos1:({ return endOffset(); }) t1:attribute_preprocessor_text_single? valPos2:({ return endOffset(); }) "'"
+  = space_or_newline* "'" r:(valPos1:("" { return endOffset(); }) t1:attribute_preprocessor_text_single? valPos2:("" { return endOffset(); }) "'"
             { return tu.getAttributeValueAndSource(input, t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
-        / valPos1:({ return endOffset(); }) t2:attribute_preprocessor_text_single_broken? valPos2:({ return endOffset(); }) &[|>]
+        / valPos1:("" { return endOffset(); }) t2:attribute_preprocessor_text_single_broken? valPos2:("" { return endOffset(); }) &[|>]
             { return tu.getAttributeValueAndSource(input, t2, valPos1, valPos2); } )
                 { return r; }
-  / space_or_newline* '"' r:(valPos1:({ return endOffset(); }) t1:attribute_preprocessor_text_double? valPos2:({ return endOffset(); }) '"'
+  / space_or_newline* '"' r:(valPos1:("" { return endOffset(); }) t1:attribute_preprocessor_text_double? valPos2:("" { return endOffset(); }) '"'
             { return tu.getAttributeValueAndSource(input, t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
-        / valPos1:({ return endOffset(); }) t2:attribute_preprocessor_text_double_broken? valPos2:({ return endOffset(); }) &[|>]
+        / valPos1:("" { return endOffset(); }) t2:attribute_preprocessor_text_double_broken? valPos2:("" { return endOffset(); }) &[|>]
             { return tu.getAttributeValueAndSource(input, t2, valPos1, valPos2); } )
                 { return r; }
-  / space_or_newline* valPos1:({ return endOffset(); }) t:attribute_preprocessor_text? !"=" valPos2:({ return endOffset(); })
+  / space_or_newline* valPos1:("" { return endOffset(); }) t:attribute_preprocessor_text? !"=" valPos2:("" { return endOffset(); })
         {   if ( t === null ) {
                 t = "";
                 // Reset the current parse position in order to reparse any
                 // captured spaces, which are needed to separate attributes.
-                peg$currPos = peg$reportedPos;
+                peg$currPos = endOffset();
             }
             return tu.getAttributeValueAndSource(input, t, valPos1, valPos2); }
 
 // Attribute value, restricted to a single line.
 att_value
-  = space* "'" r:(valPos1:({ return endOffset(); }) t1:attribute_preprocessor_text_single_line? valPos2:({ return endOffset(); }) "'"
+  = space* "'" r:(valPos1:("" { return endOffset(); }) t1:attribute_preprocessor_text_single_line? valPos2:("" { return endOffset(); }) "'"
             { return tu.getAttributeValueAndSource(input, t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
-        / valPos1:({ return endOffset(); }) t2:attribute_preprocessor_text_single_line_broken? valPos2:({ return endOffset(); }) &[|>\n]
+        / valPos1:("" { return endOffset(); }) t2:attribute_preprocessor_text_single_line_broken? valPos2:("" { return endOffset(); }) &[|>\n]
             { return tu.getAttributeValueAndSource(input, t2, valPos1, valPos2); } )
                 { return r; }
-  / space* '"' r:(valPos1:({ return endOffset(); }) t1:attribute_preprocessor_text_double_line? valPos2:({ return endOffset(); }) '"'
+  / space* '"' r:(valPos1:("" { return endOffset(); }) t1:attribute_preprocessor_text_double_line? valPos2:("" { return endOffset(); }) '"'
             { return tu.getAttributeValueAndSource(input, t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
-        / valPos1:({ return endOffset(); }) t2:attribute_preprocessor_text_double_line_broken? valPos2:({ return endOffset(); }) &[|>\n]
+        / valPos1:("" { return endOffset(); }) t2:attribute_preprocessor_text_double_line_broken? valPos2:("" { return endOffset(); }) &[|>\n]
             { return tu.getAttributeValueAndSource(input, t2, valPos1, valPos2); } )
                 { return r; }
-  / space* valPos1:({ return endOffset(); }) t:attribute_preprocessor_text_line? !"=" valPos2:({ return endOffset(); })
+  / space* valPos1:("" { return endOffset(); }) t:attribute_preprocessor_text_line? !"=" valPos2:("" { return endOffset(); })
         {   if ( t === null ) {
                 t = "";
                 // Reset the current parse position in order to reparse any
                 // captured spaces, which are needed to separate attributes.
-                peg$currPos = peg$reportedPos;
+                peg$currPos = endOffset();
             }
             return tu.getAttributeValueAndSource(input, t ? t : "", valPos1, valPos2); }
 
@@ -1566,11 +1549,11 @@ table_content_line = (space / comment)* (
   )
 
 table_start_tag "table_start_tag"
-  = sc:(space / comment)* startPos:({ return endOffset(); }) b:"{" p:pipe
+  = sc:(space / comment)* startPos:("" { return endOffset(); }) b:"{" p:pipe
     // ok to normalize away stray |} on rt (see bug 57360)
     & { return stops.push('table', false); }
     ta:(generic_attribute / broken_table_attribute_name_char)*
-    tsEndPos:({ stops.pop('table'); return endOffset(); })
+    tsEndPos:("" { stops.pop('table'); return endOffset(); })
     {
         var coms = tu.popComments( ta );
         if ( coms ) {
@@ -1595,7 +1578,7 @@ table_caption_tag
   = ! { return stops.onStack('tableDataBlock'); }
     p:pipe "+"
     args:single_cell_table_args?
-    tagEndPos:({ return endOffset(); })
+    tagEndPos:("" { return endOffset(); })
     c:nested_block_in_table* {
         return tu.buildTableTokens("caption", "|+", args, [startOffset(), tagEndPos], endOffset(), c)
             .concat([new EndTagTk('caption')]);
@@ -1607,7 +1590,7 @@ table_row_tag
     p:pipe dashes:$"-"+
     & { return stops.push('table', false); }
     a:(generic_attribute / broken_table_attribute_name_char)*
-    tagEndPos:({ stops.pop('table'); return endOffset(); })
+    tagEndPos:("" { stops.pop('table'); return endOffset(); })
     // handle tables with missing table cells after a row
     td:implicit_table_data_tag?
     {
@@ -1655,7 +1638,7 @@ table_data_tags
   = ! { return stops.onStack('tableDataBlock'); }
     p:pipe
     ![+-] td:table_data_tag
-    tagEndPos:({ return endOffset(); })
+    tagEndPos:("" { return endOffset(); })
     tds:tds {
         var da = td[0].dataAttribs;
         da.tsr[0] = da.tsr[0] - p.length; // include "|"
@@ -1668,9 +1651,9 @@ table_data_tags
 
 implicit_table_data_tag
   = & sol // Implicit table data tag added only when content starts on a newline
-    !( sol+ (pipe / [!+-]) )
+    !( nl_comment_space* (pipe / [!+-]) )
     ! "}"
-    tagEndPos:({ return endOffset(); })
+    tagEndPos:("" { return endOffset(); })
     b:nested_block+
     tds:tds {
         b = tu.flattenIfArray(b);
@@ -1685,7 +1668,7 @@ table_data_tag
   = ! "}"
     arg:row_syntax_table_args?
     // use inline_breaks to break on tr etc
-    tagEndPos:({ return endOffset(); })
+    tagEndPos:("" { return endOffset(); })
     td:nested_block_in_table*
     {
         return tu.buildTableTokens("td", "|", arg, [startOffset(), tagEndPos], endOffset(), td);
@@ -1715,7 +1698,7 @@ table_heading_tags
 
 table_heading_tag
   = arg:row_syntax_table_args?
-    tagEndPos:({ return endOffset(); })
+    tagEndPos:("" { return endOffset(); })
     c:( & {
       // This SyntaxStop is only true until we hit the end of the line.
       if (stops.onStack('th') !== false &&
@@ -1730,7 +1713,7 @@ table_heading_tag
     }
 
 table_end_tag
-  = sc:(space / comment)* startPos:({ return endOffset(); }) p:pipe b:"}" {
+  = sc:(space / comment)* startPos:("" { return endOffset(); }) p:pipe b:"}" {
       var tblEnd = new EndTagTk( 'table', [], { tsr: [startPos, endOffset()] } );
       if (p !== "|") {
           // p+"<brace-char>" is triggering some bug in pegJS
@@ -1913,14 +1896,13 @@ sol = (empty_line_with_comments / sol_prefix) (comment / (
 sol_prefix
   = newlineToken
   / & {
-      // Use saved sol-state only at start of input
-      // If we have saved state of not being in sol posn, fail the rule
+      // Use the sol flag only at the start of the input
       // NOTE: Explicitly check for 'false' and not a falsy value
-      return endOffset() === 0 && options.pegTokenizer.savedSOL !== false;
+      return endOffset() === 0 && options.sol !== false;
   } { return []; }
 
 empty_line_with_comments
-  = sp:sol_prefix p:({ return endOffset(); }) c:(space* comment (space / comment)* newline)+ {
+  = sp:sol_prefix p:("" { return endOffset(); }) c:(space* comment (space / comment)* newline)+ {
         return [
             sp,
             new SelfclosingTagTk("meta", [new KV('typeof', 'mw:EmptyLine')], {
@@ -2005,7 +1987,7 @@ include_limits =
   }) & { return !!il; } { return il; }
 
 // Start of file
-sof = & { return endOffset() === 0 && !options.startOffset && !options.pipelineOffset; }
+sof = & { return endOffset() === 0 && !options.pipelineOffset; }
 
 // End of file
 eof = & { return endOffset() === input.length; }
