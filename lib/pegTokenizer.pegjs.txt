@@ -398,6 +398,7 @@ behavior_switch
 // BehaviorSwitchPreprocessor back out of any overreach.
 behavior_text = $( !'__' [^'"<~[{\n\r:;\]}|!=] )+
 
+
 /**************************************************************
  * External (bracketed and autolinked) links
  **************************************************************/
@@ -514,21 +515,6 @@ url_protocol =
         h += s;
     }
     return h;
-}
-
-// javascript does not support unicode features..
-unicode_separator_space = [ \u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]
-
-
-urlencoded_char = "%" c0:[0-9a-fA-F] c1:[0-9a-fA-F] {
-    try {
-        return decodeURI("%" + c0 + c1);
-    } catch ( e ) {
-        // Reject the match, and allow other fall-back rules to have a
-        // go at it.
-        peg$currPos = peg$reportedPos;
-        return peg$FAILED;
-    }
 }
 
 // no punctuation, and '{<' to trigger directives
@@ -865,7 +851,6 @@ link_text
     }
   / & { return stops.dec('linkdesc'); }
 
-link_end = "]]"
 
 /* Generic quote rule for italic and bold, further processed in a token
  * stream transformation in doQuotes. Relies on NlTk tokens being emitted
@@ -1953,6 +1938,7 @@ empty_line_with_comments
     }
 
 comment_space = comment / space
+
 nl_comment_space = newline / comment_space
 
 /**
@@ -2175,13 +2161,8 @@ attribute_preprocessor_text_double_line_broken
 // Special-case support for those pipe templates
 pipe = "|" / "{{!}}"
 
-end_pipe = $( "|" ! "|" / "{{!}}" ! "{{!}}" )
-
 // SSS FIXME: what about |{{!}} and {{!}}|
 pipe_pipe = "||" / "{{!}}{{!}}"
-
-// Similar, for tables..
-exclam = "!" / "{{;}}"
 
 /* Tabs do not mix well with the hybrid rule syntax */
 /* vim: set filetype=javascript expandtab ts=4 sw=4 cindent : */
