@@ -15,17 +15,11 @@
 
 var testWhiteList = {};
 
-// This test fails for two reasons:
-//  * The test is wrong, there are two colons where there should be :;
-//  * The PHP parser is wrong to close the <dl> after the <dt> containing the <ul>.
-testWhiteList["Definition Lists: Mixed Lists: Test 1"] = "<dl><dd><dl><dt><ul><li> foo\n</li></ul></dt><dd data-parsoid=\"{&quot;tsr&quot;:[8,11]}\"><ul><li> bar\n</li></ul></dd><dt data-parsoid=\"{&quot;tsr&quot;:[16,18]}\"> baz</dt></dl></dd></dl>";
-
 // These tests fail because the PHP parser has seemingly-random rules regarding dd/dt.
 // We are egotistical and assume we got it right, because we are more consistent.
 // Also, the nesting is repeated in funny ways, and we recognize the shared nesting and
 // keep the still-open tags around until the nesting is complete. PHP doesn't.
 testWhiteList["Definition Lists: Mixed Lists: Test 11"] = "<ul><li><ol><li><ul><li><ol><li><dl><dt><ul><li><dl><dt><dl><dt>foo<span typeof=\"mw:Placeholder\" data-parsoid=\"{&quot;src&quot;:&quot; &quot;}\">&nbsp;</span></dt><dd data-parsoid=\"{&quot;tsr&quot;:[13,14],&quot;stx&quot;:&quot;row&quot;}\">bar\n</dd></dl></dt></dl></li></ul></dt><dt data-parsoid=\"{&quot;tsr&quot;:[17,21]}\">boo<span typeof=\"mw:Placeholder\" data-parsoid=\"{&quot;src&quot;:&quot; &quot;}\">&nbsp;</span></dt><dd data-parsoid=\"{&quot;tsr&quot;:[27,28],&quot;stx&quot;:&quot;row&quot;}\">baz</dd></dl></li></ol></li></ul></li></ol></li></ul>";
-testWhiteList["Definition Lists: Weird Ones: Test 1"] = "<ul><li><ol><li><dl><dt><ul><li><dl><dd><dl><dd><dl><dt><dl><dt> foo<span typeof=\"mw:Placeholder\" data-parsoid=\"{&quot;src&quot;:&quot; &quot;}\">&nbsp;</span></dt><dd data-parsoid=\"{&quot;tsr&quot;:[14,15],&quot;stx&quot;:&quot;row&quot;}\"> bar (who uses this?)</dd></dl></dt></dl></dd></dl></dd></dl></li></ul></dt></dl></li></ol></li></ul>";
 
 // Italic/link nesting is changed in this test, but the rendered result is the
 // same. Currently the result is actually an improvement over the MediaWiki

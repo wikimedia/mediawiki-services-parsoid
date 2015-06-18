@@ -4114,6 +4114,9 @@ Definition Lists: Mixed Lists: Test 11
 
 
 # Another case where tidy converts a <dt> to a <dd> (but Parsoid doesn't).
+# From whitelist:
+# * The test is wrong, there are two colons where there should be :;
+# * The PHP parser is wrong to close the <dl> after the <dt> containing the <ul>.
 !! test
 Definition Lists: Weird Ones: Test 1
 !! wikitext
@@ -4171,7 +4174,7 @@ Definition Lists: Weird Ones: Test 1
 <dl>
 <dt>
 <dl>
-<dt> foo<span typeof="mw:Placeholder">&nbsp;</span></dt>
+<dt> foo<span typeof="mw:DisplaySpace mw:Placeholder" data-parsoid='{"src":" ","isDisplayHack":true}'> </span></dt>
 <dd data-parsoid='{"stx":"row"}'> bar (who uses this?)</dd>
 </dl></dt>
 </dl></dd>
@@ -7339,7 +7342,7 @@ title=[[User:test/123]]
 <p><a href="#a">b</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="../User:Test/123#a" data-parsoid='{"stx":"piped","a":{"href":"../User:Test/123#a"},"sa":{"href":"#a"}}'>b</a></p>
+<p><a rel="mw:WikiLink" href="./User:Test/123#a" data-parsoid='{"stx":"piped","a":{"href":"./User:Test/123#a"},"sa":{"href":"#a"}}'>b</a></p>
 !! end
 
 !! test
@@ -12197,7 +12200,7 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tright"><div class="thumbinner" style="width:139px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/137px-Foobar.jpg" width="137" height="16" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/206px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/274px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>This is a caption</div></div></div>
 
 !! html/parsoid
-<figure typeof="mw:Image/Thumb mw:ExpandedAttrs" about="#mwt2" data-mw='{"attribs":[["thumbnail",{"html":"thumb"}],["width",{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]],&amp;quot;dsr&amp;quot;:[24,38,null,null]}\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;137px&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\">137px&lt;/span>"}]]}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="16" width="137"/></a><figcaption>This is a caption</figcaption></figure>
+<figure typeof="mw:Image/Thumb mw:ExpandedAttrs" about="#mwt2" data-mw='{"attribs":[["thumbnail",{"html":"thumb"}],["width",{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]],&amp;quot;dsr&amp;quot;:[24,38,null,null]}\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;137px&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\">137px&lt;/span>"}]]}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/137px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="16" width="137"/></a><figcaption>This is a caption</figcaption></figure>
 !! end
 
 !! test
@@ -12208,7 +12211,7 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tright"><div class="thumbinner" style="width:139px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/137px-Foobar.jpg" width="137" height="16" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/206px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/274px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>This is a caption</div></div></div>
 
 !! html/parsoid
-<figure typeof="mw:Image/Thumb mw:ExpandedAttrs" about="#mwt3" data-mw='{"attribs":[["thumbnail",{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]],&amp;quot;dsr&amp;quot;:[18,32,null,null]}\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;thumb&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\">thumb&lt;/span>"}],["width",{"html":"&lt;span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]],&amp;quot;dsr&amp;quot;:[33,47,null,null]}\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;137px&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\">137px&lt;/span>"}]]}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="16" width="137"/></a><figcaption>This is a caption</figcaption></figure>
+<figure typeof="mw:Image/Thumb mw:ExpandedAttrs" about="#mwt3" data-mw='{"attribs":[["thumbnail",{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]],&amp;quot;dsr&amp;quot;:[18,32,null,null]}\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;thumb&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\">thumb&lt;/span>"}],["width",{"html":"&lt;span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]],&amp;quot;dsr&amp;quot;:[33,47,null,null]}\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;137px&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\">137px&lt;/span>"}]]}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/137px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="16" width="137"/></a><figcaption>This is a caption</figcaption></figure>
 !! end
 
 !! test
@@ -12265,7 +12268,7 @@ thumbsize=220
 !! html/parsoid
 <p>123<span class="mw-default-size" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span>456</p>
 <p>123</p><figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></figure><p>456</p>
-<p>123</p><figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a></figure><p>456</p>
+<p>123</p><figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a></figure><p>456</p>
 !! end
 
 !! test
@@ -12287,7 +12290,7 @@ Image with multiple widths -- use last
 <p><a href="/wiki/File:Foobar.jpg" class="image" title="caption"><img alt="caption" src="http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg" width="300" height="34" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/450px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/600px-Foobar.jpg 2x" /></a>
 </p>
 !! html/parsoid
-<p><span typeof="mw:Image" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="34" width="300"/></a></span></p>
+<p><span typeof="mw:Image" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="34" width="300"/></a></span></p>
 !! end
 
 !! test
@@ -12303,7 +12306,7 @@ thumbsize=220
 <p><a href="/wiki/File:Foobar.jpg" class="image" title="caption"><img alt="caption" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" style="vertical-align: middle" /></a>
 </p>
 !! html/parsoid
-<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
 <p><span class="mw-default-size mw-valign-middle" typeof="mw:Image" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
 !! end
 
@@ -12319,9 +12322,9 @@ Image with width attribute at different positions
 <div class="floatright"><a href="/wiki/File:Foobar.jpg" class="image" title="Caption"><img alt="Caption" src="http://example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" width="200" height="23" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/400px-Foobar.jpg 2x" /></a></div>
 
 !! html/parsoid
-<figure class="mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="23" width="200"/></a><figcaption>Caption</figcaption></figure>
-<figure class="mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="23" width="200"/></a><figcaption>Caption</figcaption></figure>
-<figure class="mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="23" width="200"/></a><figcaption>Caption</figcaption></figure>
+<figure class="mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="23" width="200"/></a><figcaption>Caption</figcaption></figure>
+<figure class="mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="23" width="200"/></a><figcaption>Caption</figcaption></figure>
+<figure class="mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="23" width="200"/></a><figcaption>Caption</figcaption></figure>
 !! end
 
 # a sad bit of backward-compatibility
@@ -12337,7 +12340,7 @@ parsoid=wt2html,wt2wt,html2html
 <a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/177px-Foobar.jpg" width="177" height="20" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/265px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/353px-Foobar.jpg 2x" /></a>
 </p>
 !! html/parsoid
-<p><span typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="2" width="20"/></a></span> <span typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="177"/></a></span></p>
+<p><span typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/20px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="2" width="20"/></a></span> <span typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/177px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="177"/></a></span></p>
 !! end
 
 !! test
@@ -12463,7 +12466,7 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tright"><div class="thumbinner" style="width:222px;"><a href="http://example.com/"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>Title</div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="http://example.com/"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>Title</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="http://example.com/"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>Title</figcaption></figure>
 !! end
 
 !! test
@@ -12610,9 +12613,9 @@ parsoid=wt2html,wt2wt,html2html
 </p><p><a href="/wiki/File:Foobar.jpg" class="image" title="caption"><img alt="caption" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:Image/Frameless" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a></span></p>
-<p><span class="mw-default-size" typeof="mw:Image/Frameless" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a></span></p>
-<p><span class="mw-default-size" typeof="mw:Image/Frameless" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a></span></p>
+<p><span class="mw-default-size" typeof="mw:Image/Frameless" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a></span></p>
+<p><span class="mw-default-size" typeof="mw:Image/Frameless" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a></span></p>
+<p><span class="mw-default-size" typeof="mw:Image/Frameless" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a></span></p>
 !! end
 
 !! test
@@ -12648,9 +12651,9 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>caption</div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
 !! end
 
 ###################
@@ -12677,8 +12680,8 @@ parsoid=wt2html,wt2wt,html2html
 </p><p><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="2000" height="227" class="thumbborder" /></a>
 </p>
 !! html/parsoid
-<p><span typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="227" width="2000"/></a></span></p>
-<p><span class="mw-image-border" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="227" width="2000"/></a></span></p>
+<p><span typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/1941px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="227" width="2000"/></a></span></p>
+<p><span class="mw-image-border" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/1941px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="227" width="2000"/></a></span></p>
 !! end
 
 !! test
@@ -12694,8 +12697,8 @@ parsoid=wt2html,wt2wt,html2html
 </p><p><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/1000px-Foobar.jpg" width="1000" height="113" class="thumbborder" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/1500px-Foobar.jpg 1.5x, http://example.com/images/3/3a/Foobar.jpg 2x" /></a>
 </p>
 !! html/parsoid
-<p><span typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="113" width="1000"/></a></span></p>
-<p><span class="mw-image-border" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="113" width="1000"/></a></span></p>
+<p><span typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/1000px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="113" width="1000"/></a></span></p>
+<p><span class="mw-image-border" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/1000px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="113" width="1000"/></a></span></p>
 !! end
 
 !! test
@@ -12708,7 +12711,7 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tright"><div class="thumbinner" style="width:52px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" width="50" height="6" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/75px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/100px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div></div></div></div>
 
 !! html/parsoid
-<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="6" width="50"/></a></figure>
+<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="6" width="50"/></a></figure>
 !! end
 
 !! test
@@ -12724,8 +12727,8 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tright"><div class="thumbinner" style="width:2002px;"><a href="/wiki/File:Foobar.svg" class="image"><img alt="Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/2000px-Foobar.svg.png" width="2000" height="1500" class="thumbimage" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/3000px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/4000px-Foobar.svg.png 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.svg" class="internal" title="Enlarge"></a></div></div></div></div>
 
 !! html/parsoid
-<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></figure>
-<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/f/ff/Foobar.svg" data-file-width="240" data-file-height="180" data-file-type="drawing" height="1500" width="2000"/></a></figure>
+<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/1941px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></figure>
+<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/thumb/f/ff/Foobar.svg/240px-Foobar.svg" data-file-width="240" data-file-height="180" data-file-type="drawing" height="1500" width="2000"/></a></figure>
 !! end
 
 !! test
@@ -12738,7 +12741,7 @@ parsoid=wt2html,wt2wt,html2html
 <p><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" width="50" height="6" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/75px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/100px-Foobar.jpg 2x" /></a>
 </p>
 !! html/parsoid
-<p><span typeof="mw:Image/Frameless"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="6" width="50"/></a></span></p>
+<p><span typeof="mw:Image/Frameless"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="6" width="50"/></a></span></p>
 !! end
 
 !! test
@@ -12754,8 +12757,8 @@ parsoid=wt2html,wt2wt,html2html
 </p><p><a href="/wiki/File:Foobar.svg" class="image"><img alt="Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/2000px-Foobar.svg.png" width="2000" height="1500" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/3000px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/4000px-Foobar.svg.png 2x" /></a>
 </p>
 !! html/parsoid
-<p><span typeof="mw:Image/Frameless"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
-<p><span typeof="mw:Image/Frameless"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/f/ff/Foobar.svg" data-file-width="240" data-file-height="180" data-file-type="drawing" height="1500" width="2000"/></a></span></p>
+<p><span typeof="mw:Image/Frameless"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/1941px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
+<p><span typeof="mw:Image/Frameless"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/thumb/f/ff/Foobar.svg/240px-Foobar.svg" data-file-width="240" data-file-height="180" data-file-type="drawing" height="1500" width="2000"/></a></span></p>
 !! end
 
 !! test
@@ -12826,7 +12829,7 @@ thumbsize=220
 <div class="thumb tright"><div class="thumbinner" style="width:222px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a></div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a rel="mw:ExtLink" href="http://example.com">http://example.com</a></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a rel="mw:ExtLink" href="http://example.com">http://example.com</a></figcaption></figure>
 !! end
 
 !! test
@@ -12840,7 +12843,7 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tright"><div class="thumbinner" style="width:222px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Alteration" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a></div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img alt="Alteration" resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a rel="mw:ExtLink" href="http://example.com">http://example.com</a></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img alt="Alteration" resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a rel="mw:ExtLink" href="http://example.com">http://example.com</a></figcaption></figure>
 !! end
 
 !! test
@@ -12852,7 +12855,7 @@ SVG thumbnails with no language set
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.svg" class="image"><img alt="" src="http://example.com/images/thumb/f/ff/Foobar.svg/180px-Foobar.svg.png" width="180" height="135" class="thumbimage" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/270px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/360px-Foobar.svg.png 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.svg" class="internal" title="Enlarge"></a></div>caption</div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/f/ff/Foobar.svg" data-file-width="240" data-file-height="180" data-file-type="drawing" height="165" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/thumb/f/ff/Foobar.svg/220px-Foobar.svg" data-file-width="240" data-file-height="180" data-file-type="drawing" height="165" width="220"/></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
@@ -12865,7 +12868,7 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/index.php?title=File:Foobar.svg&amp;lang=de" class="image"><img alt="" src="http://example.com/images/thumb/f/ff/Foobar.svg/langde-180px-Foobar.svg.png" width="180" height="135" class="thumbimage" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/langde-270px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/langde-360px-Foobar.svg.png 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.svg" class="internal" title="Enlarge"></a></div>caption</div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/f/ff/Foobar.svg" lang="de" data-file-width="240" data-file-height="180" data-file-type="drawing" height="165" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/thumb/f/ff/Foobar.svg/220px-Foobar.svg" lang="de" data-file-width="240" data-file-height="180" data-file-type="drawing" height="165" width="220"/></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
@@ -12889,7 +12892,7 @@ BUG 1887: A ISBN with a thumbnail
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div><a href="/wiki/Special:BookSources/1235467890" class="internal mw-magiclink-isbn">ISBN 1235467890</a></div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a href="Special:BookSources/1235467890" rel="mw:ExtLink">ISBN 1235467890</a></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a href="Special:BookSources/1235467890" rel="mw:ExtLink">ISBN 1235467890</a></figcaption></figure>
 !! end
 
 !! test
@@ -12900,7 +12903,7 @@ BUG 1887: A RFC with a thumbnail
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>This is <a class="external mw-magiclink-rfc" rel="nofollow" href="//tools.ietf.org/html/rfc12354">RFC 12354</a></div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>This is <a href="//tools.ietf.org/html/rfc12354" rel="mw:ExtLink">RFC 12354</a></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>This is <a href="//tools.ietf.org/html/rfc12354" rel="mw:ExtLink">RFC 12354</a></figcaption></figure>
 !! end
 
 !! test
@@ -12911,7 +12914,7 @@ BUG 1887: A mailto link with a thumbnail
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>Please <a rel="nofollow" class="external free" href="mailto:nobody@example.com">mailto:nobody@example.com</a></div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>Please <a rel="mw:ExtLink" href="mailto:nobody@example.com">mailto:nobody@example.com</a></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>Please <a rel="mw:ExtLink" href="mailto:nobody@example.com">mailto:nobody@example.com</a></figcaption></figure>
 !! end
 
 # Pending resolution to bug 368
@@ -13002,7 +13005,7 @@ Image caption containing another image
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>This is a caption with another <a href="/wiki/File:Thumb.png" class="image" title="image"><img alt="image" src="http://example.com/images/e/ea/Thumb.png" width="135" height="135" /></a> inside it!</div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>This is a caption with another <span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"image"}'><a href="./File:Thumb.png"><img resource="./File:Thumb.png" src="//example.com/images/e/ea/Thumb.png" data-file-width="135" data-file-height="135" data-file-type="bitmap" height="135" width="135"/></a></span> inside it!</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>This is a caption with another <span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"image"}'><a href="./File:Thumb.png"><img resource="./File:Thumb.png" src="//example.com/images/e/ea/Thumb.png" data-file-width="135" data-file-height="135" data-file-type="bitmap" height="135" width="135"/></a></span> inside it!</figcaption></figure>
 !! end
 
 !! test
@@ -13026,7 +13029,7 @@ Image: caption containing leading space
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>bar</div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption> bar</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption> bar</figcaption></figure>
 !!end
 
 !! test
@@ -13045,7 +13048,7 @@ and some more text.]]
 <div class="thumb tright"><div class="thumbinner" style="width:202px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" width="200" height="23" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/400px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>This is an example image thumbnail caption with a table <table> <tr> <th> Foo </th> <th> Bar </th></tr> <tr> <td> Foo1 </td> <td> Bar1 </td></tr></table> and some more text.</div></div></div>
 
 !! html/parsoid
-<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="23" width="200"/></a><figcaption>This is an example image thumbnail caption with a table
+<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="23" width="200"/></a><figcaption>This is an example image thumbnail caption with a table
 <table>
 <tbody>
 <tr><th>Foo </th><th>Bar</th></tr>
@@ -13062,7 +13065,7 @@ Bug 3090: External links other than http: in image captions
 <div class="thumb tright"><div class="thumbinner" style="width:202px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" width="200" height="23" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/400px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>This caption has <a rel="nofollow" class="external text" href="irc://example.net">irc</a> and <a rel="nofollow" class="external text" href="https://example.com">Secure</a> ext links in it.</div></div></div>
 
 !! html/parsoid
-<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="23" width="200"/></a><figcaption>This caption has <a rel="mw:ExtLink" href="irc://example.net">irc</a> and <a rel="mw:ExtLink" href="https://example.com">Secure</a> ext links in it.</figcaption></figure>
+<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="23" width="200"/></a><figcaption>This caption has <a rel="mw:ExtLink" href="irc://example.net">irc</a> and <a rel="mw:ExtLink" href="https://example.com">Secure</a> ext links in it.</figcaption></figure>
 !! end
 
 !! test
@@ -13104,7 +13107,7 @@ language=es
 <div class="thumb tleft"><div class="thumbinner" style="width:222px;"><a href="/wiki/Foo" title="Foo"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/Archivo:Foobar.jpg" class="internal" title="Aumentar"></a></div>caption</div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb"><a href="./Foo"><img resource="./Archivo:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb"><a href="Foo"><img resource="./Archivo:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
@@ -13118,7 +13121,7 @@ parsoid=wt2html,wt2wt,html2html
 <p><a href="/wiki/File:Foobar.jpg" class="image" title="caption"><img alt="caption" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="extra thumbborder" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" /></a>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size mw-image-border extra" typeof="mw:Image/Frameless" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a></span></p>
+<p><span class="mw-default-size mw-image-border extra" typeof="mw:Image/Frameless" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a></span></p>
 !! end
 
 # Note that 'right' is the default alignment, despite the misspelled 'righ' below
@@ -13139,9 +13142,9 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tleft"><div class="thumbinner" style="width:222px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>caption</div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
-<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! article
@@ -13186,7 +13189,7 @@ Parsoid-specific image handling - simple image with size and middle alignment
 !! wikitext
 [[File:Foobar.jpg|middle|50px]]
 !! html/parsoid
-<p><span class="mw-valign-middle" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="6" width="50"/></a></span></p>
+<p><span class="mw-valign-middle" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="6" width="50"/></a></span></p>
 !! end
 
 !! test
@@ -13197,7 +13200,7 @@ parsoid=wt2wt,wt2html,html2html
 !! wikitext
 [[Image:Foobar.jpg|middle|50px]]
 !! html/parsoid
-<p><span class="mw-valign-middle" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="6" width="50"/></a></span></p>
+<p><span class="mw-valign-middle" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="6" width="50"/></a></span></p>
 !! end
 
 !! test
@@ -13206,7 +13209,7 @@ Parsoid-specific image handling - simple image with size and middle alignment
 !! wikitext
 [[File:Foobar.jpg|50px|middle]]
 !! html/parsoid
-<p><span class="mw-valign-middle" typeof="mw:Image" data-parsoid='{"optList":[{"ck":"width","ak":"50px"},{"ck":"middle","ak":"middle"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="6" width="50" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"6","width":"50"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></span></p>
+<p><span class="mw-valign-middle" typeof="mw:Image" data-parsoid='{"optList":[{"ck":"width","ak":"50px"},{"ck":"middle","ak":"middle"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="6" width="50" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"6","width":"50"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></span></p>
 !! end
 
 !! test
@@ -13217,7 +13220,7 @@ parsoid=wt2html,wt2wt,html2html
 !! wikitext
 [[Image:Foobar.jpg|50px|middle]]
 !! html/parsoid
-<p><span class="mw-valign-middle" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="6" width="50"/></a></span></p>
+<p><span class="mw-valign-middle" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="6" width="50"/></a></span></p>
 !! end
 
 !! test
@@ -13241,7 +13244,7 @@ Parsoid-specific image handling - thumbnail with halign, valign, and caption
 !! wikitext
 [[File:Foobar.jpg|left|baseline|thumb|caption content]]
 !! html/parsoid
-<figure class="mw-default-size mw-halign-left mw-valign-baseline" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption content</figcaption></figure>
+<figure class="mw-default-size mw-halign-left mw-valign-baseline" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption content</figcaption></figure>
 !! end
 
 !! test
@@ -13250,7 +13253,7 @@ Parsoid-specific image handling - thumbnail with halign, valign, and caption
 !! wikitext
 [[File:Foobar.jpg|thumb|left|baseline|caption content]]
 !! html/parsoid
-<figure class="mw-default-size mw-halign-left mw-valign-baseline" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"left","ak":"left"},{"ck":"baseline","ak":"baseline"},{"ck":"caption","ak":"caption content"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption>caption content</figcaption></figure>
+<figure class="mw-default-size mw-halign-left mw-valign-baseline" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"left","ak":"left"},{"ck":"baseline","ak":"baseline"},{"ck":"caption","ak":"caption content"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption>caption content</figcaption></figure>
 !! end
 
 !! test
@@ -13258,7 +13261,7 @@ Parsoid-specific image handling - thumbnail with specific size, halign, valign, 
 !! wikitext
 [[Image:Foobar.jpg|right|middle|thumb|50x50px|caption]]
 !! html/parsoid
-<figure class="mw-halign-right mw-valign-middle" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="6" width="50"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-halign-right mw-valign-middle" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="6" width="50"/></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
@@ -13326,7 +13329,7 @@ foo
 bar
 !! html/parsoid
 <p>foo</p>
-<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="23" width="200"/></a><figcaption>This caption has a <center>unbalanced tag in it.</center></figcaption></figure>
+<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="23" width="200"/></a><figcaption>This caption has a <center>unbalanced tag in it.</center></figcaption></figure>
 <p>bar</p>
 !! end
 
@@ -13337,7 +13340,7 @@ parsoid=wt2html,wt2wt
 !! wikitext
 [[File:Foobar.jpg|thumb|]]
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption></figcaption></figure>
 !! end
 
 # empty captions don't get serialized unless we're in the "round trip" case
@@ -13364,7 +13367,7 @@ Parsoid-specific image handling - whitespace caption
 !! wikitext
 [[File:Foobar.jpg|thumb| ]]
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption> </figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption> </figcaption></figure>
 !! end
 
 !! test
@@ -17824,7 +17827,7 @@ Images with the "|" character in the comment
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>An <a rel="nofollow" class="external text" href="http://test/?param1=%7Cleft%7C&amp;param2=%7Cx">external</a> URL</div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>An <a rel="mw:ExtLink" href="http://test/?param1=|left|&amp;param2=|x">external</a> URL</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>An <a rel="mw:ExtLink" href="http://test/?param1=|left|&amp;param2=|x">external</a> URL</figcaption></figure>
 !! end
 
 !! test
@@ -19314,7 +19317,7 @@ percent-encoding and + signs in comments (Bug 26410)
 comment
 !! wikitext
 [[ABC%33D% ++]] [[ABC%33D% ++|+%20]]
-!! html
+!! html/php
 <a href="/index.php?title=ABC3D%25_%2B%2B&amp;action=edit&amp;redlink=1" class="new" title="ABC3D% ++ (page does not exist)">ABC3D% ++</a> <a href="/index.php?title=ABC3D%25_%2B%2B&amp;action=edit&amp;redlink=1" class="new" title="ABC3D% ++ (page does not exist)">+%20</a>
 !! end
 
@@ -19644,7 +19647,10 @@ percent-encoding and + signs in internal links (Bug 26410)
 <a href="/index.php?title=3E&amp;action=edit&amp;redlink=1" class="new" title="3E (page does not exist)">3E</a> <a href="/index.php?title=3E%2B&amp;action=edit&amp;redlink=1" class="new" title="3E+ (page does not exist)">3E+</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="User:+%" title="User:+%">User:+%</a> <a rel="mw:WikiLink" href="Page+title%" title="Page+title%">Page+title%</a> <a rel="mw:WikiLink" href="%+" title="%+">%+</a> <a rel="mw:WikiLink" href="%+" title="%+">%20</a> <a rel="mw:WikiLink" href="%+" title="%+">%+ </a> <a rel="mw:WikiLink" href="%+r" title="%+r">%+r</a> <a rel="mw:WikiLink" href="%" title="%">%</a> <a rel="mw:WikiLink" href="+" title="+">+</a> <span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"missing-image","message":"This image does not exist."}],"caption":"[[bar]]"}'><a href="./File:%+abc9"><img resource="./File:%25+abc9" src="./Special:FilePath/%+abc9" height="220" width="220"/></a></span> <a rel="mw:WikiLink" href="3E" title="3E">3E</a> <a rel="mw:WikiLink" href="3E+" title="3E+">3E+</a></p>
+<p><a rel="mw:WikiLink" href="./User:+%25" title="User:+%">User:+%</a> <a rel="mw:WikiLink" href="Page+title%25" title="Page+title%">Page+title%</a>
+<a rel="mw:WikiLink" href="%25+" title="%+">%+</a> <a rel="mw:WikiLink" href="%25+" title="%+">%20</a> <a rel="mw:WikiLink" href="%25+" title="%+">%+ </a> <a rel="mw:WikiLink" href="%25+r" title="%+r">%+r</a>
+<a rel="mw:WikiLink" href="%25" title="%">%</a> <a rel="mw:WikiLink" href="+" title="+">+</a> <span class="mw-default-size" typeof="mw:Error mw:Image" data-parsoid='{"optList":[{"ck":"bogus","ak":"foo"},{"ck":"caption","ak":"[[bar]]"}]}' data-mw='{"errors":[{"key":"missing-image","message":"This image does not exist."}],"caption":"[[bar]]"}'><a href="./File:%25+abc9" data-parsoid='{"a":{"href":"./File:%25+abc9"},"sa":{}}'><img resource="./File:%25+abc9" src="./Special:FilePath/%25+abc9" height="220" width="220" data-parsoid='{"a":{"resource":"./File:%25+abc9","height":"220","width":"220"},"sa":{"resource":"File:%+abc%39"}}'/></a></span>
+<a rel="mw:WikiLink" href="./3E" title="3E" data-parsoid='{"stx":"simple","a":{"href":"./3E"},"sa":{"href":"%33%45"}}'>3E</a> <a rel="mw:WikiLink" href="./3E+" title="3E+" data-parsoid='{"stx":"simple","a":{"href":"./3E+"},"sa":{"href":"%33%45+"}}'>3E+</a></p>
 !! end
 
 !! test
@@ -20413,10 +20419,11 @@ parsoid=wt2html,wt2wt
 
 <small>[[Image:Foobar.jpg|right|300px]]</small>
 !! html/parsoid
+
 <p><b>foo</b></p>
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><b>caption</b></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><b>caption</b></figcaption></figure>
 <p><b>bar</b></p>
-<small><figure class="mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="34" width="300"/></a></figure></small>
+<small><figure class="mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="34" width="300"/></a></figure></small>
 !! end
 
 #### ----------------------------------------------------------------
@@ -22496,7 +22503,7 @@ parsoid
 !! wikitext
  [[File:Foobar.jpg|thumb|caption]]
 !! html/parsoid
- <figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+ <figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
@@ -22893,6 +22900,8 @@ bar
 </tbody></table>
 !!end
 
+# Note that the "style" attribute is really a template parameter here.
+# The = would have to be {{=}} if you wanted the literal.
 !!test
 Empty TD followed by TD with tpl-generated attribute
 !! wikitext
@@ -23053,7 +23062,7 @@ Multi-line image caption generated by templates with/without trailing newlines
 New element inserted (without intervening newlines) after an old sol-transparent node should serialize correctly
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"src":"&lt;includeonly>foo&lt;/includeonly>"}'/><meta typeof="mw:Includes/IncludeOnly/End" data-parsoid='{"src":""}'/><p>new para</p>
 
 <link rel="mw:PageProp/Category" href="./Category:Foo" data-parsoid='{}'/><h1>new heading</h1>
@@ -23070,12 +23079,10 @@ new para
 ## a Parsoid serializer test, marking this Parsoid only
 !!test
 Improperly nested inline or quotes tags with whitespace in between
-!!options
-parsoid
 !! wikitext
 <span> <s>x</span> </s>
 ''' ''x''' ''
-!! html
+!! html/parsoid
 <p><span> <s>x</s></span><s> </s>
 <b> <i>x</i></b><i> </i>
 </p>
@@ -23083,11 +23090,9 @@ parsoid
 
 !!test
 Encapsulate protected attributes from wt
-!!options
-parsoid
 !! wikitext
 <div typeof="mw:placeholder stuff" data-parsoid="weird" data-parsoid-other="no" about="time" rel="mw:true">foo</div>
-!! html
+!! html/parsoid
 <body><div data-x-typeof="mw:placeholder stuff" data-x-data-parsoid="weird" data-x-data-parsoid-other="no" data-x-about="time" data-x-rel="mw:true">foo</div>
 </body>
 !!end
@@ -23101,7 +23106,7 @@ Ensure ParagraphWrapper can deal with stray closing pre tags
 parsoid=wt2html
 !! wikitext
 plain text</pre>
-!! html
+!! html/parsoid
 plain text
 !!end
 
@@ -23111,7 +23116,7 @@ plain text
 parsoid=wt2html
 !! wikitext
 <table>hi</table><table>ho</table>
-!! html
+!! html/parsoid
 <p>hi</p>
 <table></table>
 <p>ho</p>
@@ -23127,7 +23132,7 @@ parsoid=wt2html,wt2wt
 <tr> || ||
 <td> a
 </table>
-!! html
+!! html/parsoid
 <p> || ||
 </p><table>
 <tbody><tr><td> a</td></tr>
@@ -23140,7 +23145,7 @@ Encapsulation properly handles null DSR information from foster box
 parsoid=wt2html,wt2wt
 !! wikitext
 {{echo|<table>foo<tr><td>bar</td></tr></table>}}
-!! html
+!! html/parsoid
 <span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;<table>foo<tr><td>bar</td></tr></table>&quot;}},&quot;i&quot;:0}}]}">foo</span><table><tbody><tr><td>bar</td></tr></tbody></table>
 !!end
 
@@ -23150,7 +23155,7 @@ parsoid=wt2html,wt2wt
 parsoid=wt2wt,wt2html
 !! wikitext
 <table>{{echo|foo<tr><td>bar</td></tr>}}</table>
-!! html
+!! html/parsoid
 <p typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;<table>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo<tr><td>bar</td></tr>&quot;}},&quot;i&quot;:0}},&quot;</table>&quot;]}">foo</p><table>
 <tbody>
 <tr>
@@ -23166,7 +23171,7 @@ parsoid=wt2wt,wt2html
 parsoid=wt2wt,wt2html
 !! wikitext
 <table><div>{{echo|foo}}</div><tr><td>bar</td></tr></table>
-!! html
+!! html/parsoid
 <div typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;<table><div>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo&quot;}},&quot;i&quot;:0}},&quot;</div><tr><td>bar</td></tr></table>&quot;]}">foo</div>
 <table>
 <tbody>
@@ -23183,7 +23188,7 @@ parsoid=wt2wt,wt2html
 parsoid=wt2wt,wt2html
 !! wikitext
 <table><div><p>{{echo|foo</p></div><tr><td>}}bar</td></tr></table>
-!! html
+!! html/parsoid
 <div typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;<table><div><p>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo</p></div><tr><td>&quot;}},&quot;i&quot;:0}},&quot;bar</td></tr></table>&quot;]}">
 <p>foo</p>
 </div>
@@ -23202,7 +23207,7 @@ parsoid=wt2wt,wt2html
 parsoid=wt2wt,wt2html
 !! wikitext
 <table><div><p>{{echo|foo</p></div><tr><td>}}bar</td></tr></table>
-!! html
+!! html/parsoid
 <div typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;<table><div><p>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo</p></div><tr><td>&quot;}},&quot;i&quot;:0}},&quot;bar</td></tr></table>&quot;]}">
 <p>foo</p>
 </div>
@@ -23221,7 +23226,7 @@ parsoid=wt2wt,wt2html
 parsoid=wt2wt,wt2html
 !! wikitext
 <table><tr><td><div><p>{{echo|foo</p></div></td>foo}}</tr></table>
-!! html
+!! html/parsoid
 <p typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;<table><tr><td><div><p>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo</p></div></td>foo&quot;}},&quot;i&quot;:0}},&quot;</tr></table>&quot;]}">foo</p>
 <table>
 <tbody>
@@ -23242,7 +23247,7 @@ parsoid=wt2wt,wt2html
 parsoid=wt2wt,wt2html
 !! wikitext
 <table><tr><td><div><p>{{echo|foo</p></div></td>foo</tr></table>}}<p>ok</p>
-!! html
+!! html/parsoid
 <p typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;<table><tr><td><div><p>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo</p></div></td>foo</tr></table>&quot;}},&quot;i&quot;:0}}]}">foo</p>
 <table>
 <tbody>
@@ -23264,7 +23269,7 @@ parsoid=wt2wt,wt2html
 parsoid=wt2wt,wt2html
 !! wikitext
 <table>{{echo|<p>foo</p>}}<td>bar</td></table>
-!! html
+!! html/parsoid
 <p typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;<table>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;<p>foo</p>&quot;}},&quot;i&quot;:0}},&quot;<td>bar</td></table>&quot;]}">foo</p>
 <table>
 <tbody>
@@ -23275,6 +23280,8 @@ parsoid=wt2wt,wt2html
 </table>
 !!end
 
+# Note that the wt is broken on purpose: the = should be {{=}} if you
+# don't want it to be a template parameter key.
 !!test
 8. Encapsulate foster-parented transclusion content
 !!options
@@ -23285,8 +23292,11 @@ parsoid=wt2wt,wt2html
 |-
 |b
 |}
-!! html
-<p typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;a\n&quot;}},&quot;i&quot;:0}}]}">a</p><p typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;{|&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;style&quot;:{&quot;wt&quot;:&quot;'color:red'&quot;}},&quot;i&quot;:0}},&quot;\n|-\n|b\n|}&quot;]}">{{{1}}}</p><table>
+!! html/parsoid
+<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a\n"}},"i":0}}]}'>a</p>
+<span> </span>
+<p typeof="mw:Transclusion" data-mw='{"parts":["{|",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"style":{"wt":"&#39;color:red&#39;"}},"i":0}},"\n|-\n|b\n|}"]}'>{{{1}}}</p>
+<table>
 <tbody>
 <tr>
 <td>b</td>
@@ -23301,7 +23311,7 @@ parsoid=wt2wt,wt2html
 parsoid=wt2wt,wt2html
 !! wikitext
 <table>{{echo|hi</table>hello}}
-!! html
+!! html/parsoid
 <p about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["&lt;table>",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"hi&lt;/table>hello"}},"i":0}}]}' data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true,"pi":[[{"k":"1","spc":["","","",""]}]]}'>hi</p><table about="#mwt2" data-parsoid='{"stx":"html"}'></table><p about="#mwt2">hello</p>
 !!end
 
@@ -23316,7 +23326,7 @@ parsoid=wt2html,wt2wt
 |}
 </div>
 |}
-!! html
+!! html/parsoid
 <div about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"OpenTable","href":"./Template:OpenTable"},"params":{},"i":0}},"\n&lt;div>"]}' data-parsoid='{"stx":"html","autoInsertedEnd":true,"pi":[[]]}'></div><span about="#mwt1">
 </span>
 <table about="#mwt1" data-parsoid='{"autoInsertedEnd":true}'></table>
@@ -23344,7 +23354,7 @@ Properly encapsulate empty-content transclusions in fosterable positions
 Support <object> element with .data attribute
 !!options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <object data="test.swf"></object>
 !! wikitext
 <object data="test.swf"></object>
@@ -23621,7 +23631,7 @@ Image: Block level image should have \n before and after
 456
 !! html/parsoid
 <p>123</p>
-<figure class="mw-halign-right" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="17" width="150"/></a></figure>
+<figure class="mw-halign-right" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/150px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="17" width="150"/></a></figure>
 <p>456</p>
 !!end
 
@@ -23639,26 +23649,22 @@ Image: New block level image should have \n before and after (existing content)
 
 !! test
 Image: upright option (parsoid)
-!! options
-parsoid
 !! wikitext
 [[File:Foobar.jpg|thumb|upright|caption]]
 [[File:Foobar.jpg|thumb|upright=0.5|caption]]
 [[File:Foobar.jpg|thumb|500x500px|upright=0.5|caption]]
-!! html
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="19" width="170"/></a><figcaption>caption</figcaption></figure>
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="12" width="110"/></a><figcaption>caption</figcaption></figure>
-<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="57" width="500"/></a><figcaption>caption</figcaption></figure>
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/170px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="19" width="170"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/110px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="12" width="110"/></a><figcaption>caption</figcaption></figure>
+<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/500px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="57" width="500"/></a><figcaption>caption</figcaption></figure>
 !!end
 
 !! test
 Image: upright option is ignored on inline and frame images (parsoid)
-!! options
-parsoid
 !! wikitext
 [[File:Foobar.jpg|500x500px|upright=0.5|caption]]
-!! html
-<p><span typeof="mw:Image" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="57" width="500"/></a></span></p>
+!! html/parsoid
+<p><span typeof="mw:Image" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/500px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="57" width="500"/></a></span></p>
 !!end
 
 !! test
