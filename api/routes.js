@@ -27,7 +27,7 @@ module.exports = function(parsoidConfig) {
 
 	var cpuTimeout = apiUtils.cpuTimeout.bind(null, CPU_TIMEOUT);
 
-	var parse = function( env, req, res ) {
+	var parseWithReuse = function(env, req, res) {
 		env.log('info', 'started parsing');
 
 		var meta = env.page.meta;
@@ -79,10 +79,10 @@ module.exports = function(parsoidConfig) {
 			});
 		}
 
-		return p.then(function( ret ) {
-			if ( ret ) {
+		return p.then(function(ret) {
+			if (ret) {
 				// Figure out what we can reuse
-				switch ( ret.mode ) {
+				switch (ret.mode) {
 				case "templates":
 					// Transclusions need to be updated, so don't reuse them.
 					ret.expansions.transclusions = {};
@@ -278,15 +278,15 @@ module.exports = function(parsoidConfig) {
 		}
 
 		function parsePageWithOldid() {
-			if ( timer ) {
-				timer.timing( 'wt2html.pageWithOldid.init', '',
-					Date.now() - startTimers.get( 'wt2html.init' ));
-				startTimers.set( 'wt2html.pageWithOldid.parse', Date.now() );
-				timer.timing('wt2html.pageWithOldid.size.input', '', env.page.src.length );
+			if (timer) {
+				timer.timing('wt2html.pageWithOldid.init', '',
+					Date.now() - startTimers.get('wt2html.init'));
+				startTimers.set('wt2html.pageWithOldid.parse', Date.now());
+				timer.timing('wt2html.pageWithOldid.size.input', '', env.page.src.length);
 			}
 
-			return parse( env, req, res ).then(function( doc ) {
-				if ( req.headers.cookie || v2 ) {
+			return parseWithReuse(env, req, res).then(function(doc) {
+				if (req.headers.cookie || v2) {
 					// Don't cache requests with a session.
 					// Also don't cache requests to the v2 entry point, as those
 					// are stored by RESTBase & will just dilute the Varnish cache
@@ -536,7 +536,7 @@ module.exports = function(parsoidConfig) {
 
 	// Round-trip article testing.  Default to scrubbing wikitext here.  Can be
 	// overridden with qs param.
-	routes.roundtripTesting = function( req, res ) {
+	routes.roundtripTesting = function(req, res) {
 		var env = res.local('env');
 
 		if (!req.query.hasOwnProperty('scrubWikitext') &&
@@ -547,13 +547,14 @@ module.exports = function(parsoidConfig) {
 		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
 		var oldid = null;
-		if ( req.query.oldid ) {
+		if (req.query.oldid) {
 			oldid = req.query.oldid;
 		}
 
-		var p = TemplateRequest.setPageSrcInfo(env, target, oldid).then(
-			parse.bind(null, env, req, res)
-		).then(
+		var p = TemplateRequest.setPageSrcInfo(env, target, oldid).then(function() {
+			env.log('info', 'started parsing');
+			return env.pipelineFactory.parse(env, env.page.src);
+		}).then(
 			apiUtils.roundTripDiff.bind(null, env, req, res, false)
 		).timeout(REQ_TIMEOUT).then(
 			apiUtils.rtResponse.bind(null, env, req, res)
@@ -566,7 +567,7 @@ module.exports = function(parsoidConfig) {
 	// Round-trip article testing with newline stripping for editor-created HTML
 	// simulation.  Default to scrubbing wikitext here.  Can be overridden with qs
 	// param.
-	routes.roundtripTestingNL = function( req, res ) {
+	routes.roundtripTestingNL = function(req, res) {
 		var env = res.local('env');
 
 		if (!req.query.hasOwnProperty('scrubWikitext') &&
@@ -574,16 +575,17 @@ module.exports = function(parsoidConfig) {
 			env.scrubWikitext = true;
 		}
 
-		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
+		var target = env.resolveTitle(env.normalizeTitle(env.page.name ), '');
 
 		var oldid = null;
-		if ( req.query.oldid ) {
+		if (req.query.oldid) {
 			oldid = req.query.oldid;
 		}
 
-		var p = TemplateRequest.setPageSrcInfo(env, target, oldid).then(
-			parse.bind(null, env, req, res)
-		).then(function(doc) {
+		var p = TemplateRequest.setPageSrcInfo(env, target, oldid).then(function() {
+			env.log('info', 'started parsing');
+			return env.pipelineFactory.parse(env, env.page.src);
+		}).then(function(doc) {
 			// strip newlines from the html
 			var html = doc.innerHTML.replace(/[\r\n]/g, '');
 			return apiUtils.roundTripDiff(env, req, res, false, DU.parseHTML(html));
@@ -597,7 +599,7 @@ module.exports = function(parsoidConfig) {
 
 	// Round-trip article testing with selser over re-parsed HTML.  Default to
 	// scrubbing wikitext here.  Can be overridden with qs param.
-	routes.roundtripSelser = function( req, res ) {
+	routes.roundtripSelser = function(req, res) {
 		var env = res.local('env');
 
 		if (!req.query.hasOwnProperty('scrubWikitext') &&
@@ -608,13 +610,14 @@ module.exports = function(parsoidConfig) {
 		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
 
 		var oldid = null;
-		if ( req.query.oldid ) {
+		if (req.query.oldid) {
 			oldid = req.query.oldid;
 		}
 
-		var p = TemplateRequest.setPageSrcInfo(env, target, oldid).then(
-			parse.bind(null, env, req, res)
-		).then(function(doc) {
+		var p = TemplateRequest.setPageSrcInfo(env, target, oldid).then(function() {
+			env.log('info', 'started parsing');
+			return env.pipelineFactory.parse(env, env.page.src);
+		}).then(function(doc) {
 			doc = DU.parseHTML(DU.serializeNode(doc).str);
 			var comment = doc.createComment('rtSelserEditTestComment');
 			doc.body.appendChild(comment);
@@ -638,7 +641,7 @@ module.exports = function(parsoidConfig) {
 
 	// Form-based round-tripping for manual testing.  Default to scrubbing wikitext
 	// here.  Can be overridden with qs param.
-	routes.postRtForm = function( req, res ) {
+	routes.postRtForm = function(req, res) {
 		var env = res.local('env');
 
 		if (!req.query.hasOwnProperty('scrubWikitext') &&
@@ -648,7 +651,8 @@ module.exports = function(parsoidConfig) {
 
 		env.setPageSrcInfo(req.body.content);
 
-		parse(env, req, res).then(
+		env.log('info', 'started parsing');
+		return env.pipelineFactory.parse(env, env.page.src).then(
 			apiUtils.roundTripDiff.bind(null, env, req, res, false)
 		).then(
 			apiUtils.rtResponse.bind(null, env, req, res)
