@@ -2102,7 +2102,7 @@ ParserTests.prototype.processCase = function(i, options, err) {
 					var exp = new RegExp("(" + /!!\s*test\s*/.source +
 						Util.escapeRegExp(fail.title) + /(?:(?!!!\s*end)[\s\S])*/.source +
 						")(" + Util.escapeRegExp(fail.expected) + ")", "m");
-					parserTests = parserTests.replace(exp, "$1" + DU.formatHTML(fail.actualNormalized));
+					parserTests = parserTests.replace(exp, "$1" + DU.formatHTML(fail.actualNormalized.replace(/\$/g, '$$$$')));
 				}
 			});
 			fs.writeFileSync(parserTestsFilename, parserTests, 'utf8');
