@@ -5,10 +5,7 @@ var path = require('path');
 var fs = require('fs');
 var qs = require('querystring');
 var url = require('url');
-var util = require('util');
 var childProcess = require('child_process');
-var cluster = require('cluster');
-var domino = require('domino');
 var pkg = require('../package.json');
 var apiUtils = require('./utils');
 
@@ -16,7 +13,6 @@ var MWParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnvi
 var LogData = require('../lib/LogData.js').LogData;
 var DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils;
 var ApiRequest = require('../lib/mediawiki.ApiRequest.js');
-var Diff = require('../lib/mediawiki.Diff.js').Diff;
 
 var ParsoidCacheRequest = ApiRequest.ParsoidCacheRequest;
 var TemplateRequest = ApiRequest.TemplateRequest;
@@ -26,118 +22,10 @@ var PegTokenizer = require('../lib/mediawiki.tokenizer.peg.js').PegTokenizer;
 module.exports = function(parsoidConfig) {
 	var routes = {};
 
-	/**
-	 * Timeouts
-	 *
-	 * The request timeout is a simple node timer that should fire first and catch
-	 * most cases where we have long running requests to optimize.
-	 *
-	 * The CPU timeout handles the case where a child process is starved in a CPU
-	 * bound task for too long and doesn't give node a chance to fire the above
-	 * timer. At the beginning of each request, the child sends a message to the
-	 * cluster master containing a request id. If the master doesn't get a second
-	 * message from the child with the corresponding id by CPU_TIMEOUT, it will
-	 * send the SIGKILL signal to the child process.
-	 *
-	 * The above is susceptible false positives. Node spins one event loop, so
-	 * multiple asynchronous requests will interfere with each others' timing.
-	 */
-
 	var REQ_TIMEOUT = parsoidConfig.timeouts.request;
 	var CPU_TIMEOUT = parsoidConfig.timeouts.cpu;
 
-	function timeoutResp( env, err ) {
-		if ( err instanceof Promise.TimeoutError ) {
-			err = new Error("Request timed out.");
-			err.stack = null;
-		}
-		env.log("fatal/request", err);
-	}
-
-	var makeDone = function( timeoutId ) {
-		// Create this function in an outer scope so that we don't inadvertently
-		// keep a reference to the promise here.
-		return function() {
-			process.send({ type: "timeout", done: true, timeoutId: timeoutId });
-		};
-	};
-
-	// Cluster support was very experimental and missing methods in v0.8.x
-	var sufficientNodeVersion = !/^v0\.[0-8]\./.test( process.version );
-
-	var cpuTimeout = function( p, res ) {
-		var timeoutId = res.local("timeoutId");
-		var location = util.format(
-			"[%s/%s%s]", res.local("iwp"), res.local("pageName"),
-			(res.local("oldid") ? "?oldid=" + res.local("oldid") : "")
-		);
-		return new Promise(function( resolve, reject ) {
-			if ( cluster.isMaster || !sufficientNodeVersion ) {
-				return p.then( resolve, reject );
-			}
-			// Notify the cluster master that a request has started
-			// to wait for a corresponding done msg or timeout.
-			process.send({
-				type: "timeout",
-				timeout: CPU_TIMEOUT,
-				timeoutId: timeoutId,
-				location: location
-			});
-			var done = makeDone( timeoutId );
-			p.then( done, done );
-			p.then( resolve, reject );
-		});
-	};
-
-	// Helpers
-
-	var logTime = function( env, res, str ) {
-		env.log( "info", util.format(
-			"completed %s in %s ms", str, Date.now() - res.local("start")
-		) );
-	};
-
-	var rtResponse = function( env, req, res, data ) {
-		apiUtils.renderResponse( res, env, "roundtrip", data );
-		logTime( env, res, "parsing" );
-	};
-
-	var roundTripDiff = function(env, req, res, useSelser, doc) {
-		// Re-parse the HTML to uncover foster-parenting issues
-		doc = domino.createDocument(doc.outerHTML);
-
-		return DU.serializeDOM(env, doc.body, useSelser).then(function(out) {
-			// Strip selser trigger comment
-			out = out.replace(/<!--rtSelserEditTestComment-->\n*$/, '');
-
-			// Emit base href so all relative urls resolve properly
-			var hNodes = doc.head.childNodes;
-			var headNodes = "";
-			for (var i = 0; i < hNodes.length; i++) {
-				if (hNodes[i].nodeName.toLowerCase() === 'base') {
-					headNodes += DU.serializeNode(hNodes[i]).str;
-					break;
-				}
-			}
-
-			var bNodes = doc.body.childNodes;
-			var bodyNodes = "";
-			for (i = 0; i < bNodes.length; i++) {
-				bodyNodes += DU.serializeNode(bNodes[i]).str;
-			}
-
-			var htmlSpeChars = apiUtils.htmlSpecialChars(out);
-			var patch = Diff.convertChangesToXML(Diff.diffLines(env.page.src, out));
-
-			return {
-				headers: headNodes,
-				bodyNodes: bodyNodes,
-				htmlSpeChars: htmlSpeChars,
-				patch: patch,
-				reqUrl: req.url
-			};
-		});
-	};
+	var cpuTimeout = apiUtils.cpuTimeout.bind(null, CPU_TIMEOUT);
 
 	var parse = function( env, req, res ) {
 		env.log('info', 'started parsing');
@@ -294,10 +182,10 @@ module.exports = function(parsoidConfig) {
 				timer.timing('html2wt.size.output', '', output.length);
 			}
 
-			logTime(env, res, "serializing");
+			apiUtils.logTime(env, res, 'serializing');
 		});
 		return cpuTimeout(p, res)
-			.catch(timeoutResp.bind(null, env));
+			.catch(apiUtils.timeoutResp.bind(null, env));
 	};
 
 	var wt2html = function(req, res, wt) {
@@ -363,7 +251,7 @@ module.exports = function(parsoidConfig) {
 					Date.now() - startTimers.get( 'wt2html.total' ));
 			}
 
-			logTime( env, res, "parsing" );
+			apiUtils.logTime(env, res, 'parsing');
 		}
 
 		function parseWt() {
@@ -506,7 +394,7 @@ module.exports = function(parsoidConfig) {
 		}
 
 		return cpuTimeout(p, res)
-			.catch(timeoutResp.bind(null, env));
+			.catch(apiUtils.timeoutResp.bind(null, env));
 	};
 
 	// Middlewares
@@ -664,15 +552,15 @@ module.exports = function(parsoidConfig) {
 		}
 
 		var p = TemplateRequest.setPageSrcInfo(env, target, oldid).then(
-			parse.bind( null, env, req, res )
+			parse.bind(null, env, req, res)
 		).then(
-			roundTripDiff.bind( null, env, req, res, false )
-		).timeout( REQ_TIMEOUT ).then(
-			rtResponse.bind( null, env, req, res )
+			apiUtils.roundTripDiff.bind(null, env, req, res, false)
+		).timeout(REQ_TIMEOUT).then(
+			apiUtils.rtResponse.bind(null, env, req, res)
 		);
 
-		cpuTimeout( p, res )
-			.catch( timeoutResp.bind(null, env) );
+		return cpuTimeout(p, res)
+			.catch(apiUtils.timeoutResp.bind(null, env));
 	};
 
 	// Round-trip article testing with newline stripping for editor-created HTML
@@ -694,17 +582,17 @@ module.exports = function(parsoidConfig) {
 		}
 
 		var p = TemplateRequest.setPageSrcInfo(env, target, oldid).then(
-			parse.bind( null, env, req, res )
-		).then(function( doc ) {
+			parse.bind(null, env, req, res)
+		).then(function(doc) {
 			// strip newlines from the html
 			var html = doc.innerHTML.replace(/[\r\n]/g, '');
-			return roundTripDiff( env, req, res, false, DU.parseHTML(html) );
-		}).timeout( REQ_TIMEOUT ).then(
-			rtResponse.bind( null, env, req, res )
+			return apiUtils.roundTripDiff(env, req, res, false, DU.parseHTML(html));
+		}).timeout(REQ_TIMEOUT).then(
+			apiUtils.rtResponse.bind(null, env, req, res)
 		);
 
-		cpuTimeout( p, res )
-			.catch( timeoutResp.bind(null, env) );
+		return cpuTimeout(p, res)
+			.catch(apiUtils.timeoutResp.bind(null, env));
 	};
 
 	// Round-trip article testing with selser over re-parsed HTML.  Default to
@@ -725,18 +613,18 @@ module.exports = function(parsoidConfig) {
 		}
 
 		var p = TemplateRequest.setPageSrcInfo(env, target, oldid).then(
-			parse.bind( null, env, req, res )
-		).then(function( doc ) {
+			parse.bind(null, env, req, res)
+		).then(function(doc) {
 			doc = DU.parseHTML(DU.serializeNode(doc).str);
 			var comment = doc.createComment('rtSelserEditTestComment');
 			doc.body.appendChild(comment);
-			return roundTripDiff( env, req, res, true, doc );
-		}).timeout( REQ_TIMEOUT ).then(
-			rtResponse.bind( null, env, req, res )
+			return apiUtils.roundTripDiff(env, req, res, true, doc);
+		}).timeout(REQ_TIMEOUT).then(
+			apiUtils.rtResponse.bind(null, env, req, res)
 		);
 
-		cpuTimeout( p, res )
-			.catch( timeoutResp.bind(null, env) );
+		return cpuTimeout(p, res)
+			.catch(apiUtils.timeoutResp.bind(null, env));
 	};
 
 	// Form-based round-tripping for manual testing
@@ -760,21 +648,24 @@ module.exports = function(parsoidConfig) {
 
 		env.setPageSrcInfo(req.body.content);
 
-		parse( env, req, res ).then(
-			roundTripDiff.bind( null, env, req, res, false )
+		parse(env, req, res).then(
+			apiUtils.roundTripDiff.bind(null, env, req, res, false)
 		).then(
-			rtResponse.bind( null, env, req, res )
+			apiUtils.rtResponse.bind(null, env, req, res)
 		).catch(function(err) {
-			env.log("fatal/request", err);
+			env.log('fatal/request', err);
 		});
 	};
 
-	routes.getArticle = function( req, res ) {
+
+	// v1 Routes
+
+	routes.v1Get = function( req, res ) {
 		// Regular article parsing
 		wt2html( req, res );
 	};
 
-	routes.postArticle = function( req, res ) {
+	routes.v1Post = function( req, res ) {
 		var body = req.body;
 		if ( req.body.wt ) {
 			// Form-based article parsing

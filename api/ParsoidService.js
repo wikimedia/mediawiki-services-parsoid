@@ -87,6 +87,7 @@ function ParsoidService( parsoidConfig, processLogger ) {
 	app.get( '/_version', routes.version );
 	app.get( '/robots.txt', routes.robots );
 
+	// private routes
 	app.get(  re('^/((?:_rt|_rtve)/)?(' + mwApiRe + '):(.*)$'), routes.redirectOldStyle );
 	app.get(  re('^/_html/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.html2wtForm );
 	app.get(  re('^/_wikitext/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.wt2htmlForm );
@@ -95,8 +96,10 @@ function ParsoidService( parsoidConfig, processLogger ) {
 	app.get(  re('^/_rtselser/(' + mwApiRe + ')/(.*)'), i, p, routes.roundtripSelser );
 	app.get(  re('^/_rtform/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.getRtForm );
 	app.post( re('^/_rtform/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.postRtForm );
-	app.get(  re('^/(' + mwApiRe + ')/(.*)'), i, p, routes.getArticle );
-	app.post( re('^/(' + mwApiRe + ')/(.*)'), i, p, routes.postArticle );
+
+	// v1 API routes
+	app.get(  re('^/(' + mwApiRe + ')/(.*)'), i, p, routes.v1Get );
+	app.post( re('^/(' + mwApiRe + ')/(.*)'), i, p, routes.v1Post );
 
 	// v2 API routes
 	app.get(  '/v2/:domain/:format/:title/:revision?', v, p, routes.v2Get );
