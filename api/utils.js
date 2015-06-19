@@ -1,4 +1,5 @@
 'use strict';
+require('../lib/core-upgrade.js');
 
 var cluster = require('cluster');
 var domino = require('domino');
@@ -140,7 +141,8 @@ var makeDone = function(timeoutId) {
 // Cluster support was very experimental and missing methods in v0.8.x
 var sufficientNodeVersion = !/^v0\.[0-8]\./.test(process.version);
 
-apiUtils.cpuTimeout = function(CPU_TIMEOUT, p, res) {
+apiUtils.cpuTimeout = function(p, res) {
+	var CPU_TIMEOUT = res.local('env').conf.parsoid.timeouts.cpu;
 	var timeoutId = res.local('timeoutId');
 	var location = util.format(
 		'[%s/%s%s]', res.local('iwp'), res.local('pageName'),
@@ -216,5 +218,67 @@ apiUtils.roundTripDiff = function(env, req, res, useSelser, doc) {
 			patch: patch,
 			reqUrl: req.url
 		};
+	});
+};
+
+apiUtils.startHtml2wt = Promise.method(function(req, res, html) {
+	var env = res.local('env');
+
+	env.page.id = res.local('oldid');
+	env.log('info', 'started serializing');
+
+	// Performance Timing options
+	var timer = env.conf.parsoid.performanceTimer;
+	var startTimers;
+
+	if (timer) {
+		startTimers = new Map();
+		startTimers.set('html2wt.init', Date.now());
+		startTimers.set('html2wt.total', Date.now());
+		startTimers.set('html2wt.init.domparse', Date.now());
+	}
+
+	var doc = DU.parseHTML(html);
+
+	// send domparse time, input size and init time to statsd/Graphite
+	// init time is the time elapsed before serialization
+	// init.domParse, a component of init time, is the time elapsed from html string to DOM tree
+	if (timer) {
+		timer.timing('html2wt.init.domparse', '',
+			Date.now() - startTimers.get('html2wt.init.domparse'));
+		timer.timing('html2wt.size.input', '', html.length);
+		timer.timing('html2wt.init', '',
+			Date.now() - startTimers.get( 'html2wt.init' ));
+	}
+
+	return {
+		env: env,
+		res: res,
+		doc: doc,
+		startTimers: startTimers,
+	};
+});
+
+apiUtils.endHtml2wt = function(ret) {
+	var env = ret.env;
+	var timer = env.conf.parsoid.performanceTimer;
+	var REQ_TIMEOUT = env.conf.parsoid.timeouts.request;
+
+	// As per https://www.mediawiki.org/wiki/Parsoid/API#v1_API_entry_points
+	//   "Both it and the oldid parameter are needed for
+	//    clean round-tripping of HTML retrieved earlier with"
+	// So, no oldid => no selser
+	var hasOldId = (env.page.id && env.page.id !== '0');
+	var useSelser = hasOldId && env.conf.parsoid.useSelser;
+	return DU.serializeDOM(env, ret.doc.body, useSelser)
+			.timeout(REQ_TIMEOUT)
+			.then(function(output) {
+		if (timer) {
+			timer.timing('html2wt.total', '',
+				Date.now() - ret.startTimers.get('html2wt.total'));
+			timer.timing('html2wt.size.output', '', output.length);
+		}
+		apiUtils.logTime(env, ret.res, 'serializing');
+		return output;
 	});
 };

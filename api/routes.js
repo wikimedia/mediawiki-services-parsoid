@@ -19,13 +19,12 @@ var TemplateRequest = ApiRequest.TemplateRequest;
 var PHPParseRequest = ApiRequest.PHPParseRequest;
 var PegTokenizer = require('../lib/mediawiki.tokenizer.peg.js').PegTokenizer;
 
+var WIKITEXT_CONTENT_TYPE = 'text/plain;profile=mediawiki.org/specs/wikitext/1.0.0;charset=utf-8';
+
 module.exports = function(parsoidConfig) {
 	var routes = {};
 
 	var REQ_TIMEOUT = parsoidConfig.timeouts.request;
-	var CPU_TIMEOUT = parsoidConfig.timeouts.cpu;
-
-	var cpuTimeout = apiUtils.cpuTimeout.bind(null, CPU_TIMEOUT);
 
 	var parseWithReuse = function(env, req, res) {
 		env.log('info', 'started parsing');
@@ -97,97 +96,6 @@ module.exports = function(parsoidConfig) {
 		});
 	};
 
-	var html2wt = function(req, res, html) {
-		var env = res.local('env');
-		var v2 = res.local('v2');
-
-		env.page.id = res.local('oldid');
-		env.log('info', 'started serializing');
-
-		if (v2 && v2.original && v2.original.wikitext) {
-			env.setPageSrcInfo(v2.original.wikitext.body);
-		}
-
-		// Performance Timing options
-		var timer = env.conf.parsoid.performanceTimer;
-		var startTimers;
-
-		if (timer) {
-			startTimers = new Map();
-			startTimers.set('html2wt.init', Date.now());
-			startTimers.set('html2wt.total', Date.now());
-		}
-
-		if (env.conf.parsoid.allowCORS) {
-			// Allow cross-domain requests (CORS) so that parsoid service
-			// can be used by third-party sites.
-			apiUtils.setHeader(res, env, 'Access-Control-Allow-Origin',
-				env.conf.parsoid.allowCORS );
-		}
-
-		if (timer) {
-			startTimers.set('html2wt.init.domparse', Date.now());
-		}
-
-		var doc = DU.parseHTML(html);
-
-		// send domparse time, input size and init time to statsd/Graphite
-		// init time is the time elapsed before serialization
-		// init.domParse, a component of init time, is the time elapsed from html string to DOM tree
-		if (timer) {
-			timer.timing('html2wt.init.domparse', '',
-				Date.now() - startTimers.get('html2wt.init.domparse'));
-			timer.timing('html2wt.size.input', '', html.length);
-			timer.timing('html2wt.init', '',
-				Date.now() - startTimers.get( 'html2wt.init' ));
-		}
-
-		if (v2 && v2.original && v2.original["data-parsoid"]) {
-			DU.applyDataParsoid(doc, v2.original["data-parsoid"].body);
-		}
-
-		if (v2 && v2.original && v2.original.html) {
-			env.page.dom = DU.parseHTML(v2.original.html.body).body;
-			if (v2.original["data-parsoid"]) {
-				DU.applyDataParsoid(env.page.dom.ownerDocument,
-					v2.original["data-parsoid"].body);
-			}
-		}
-
-		// As per https://www.mediawiki.org/wiki/Parsoid/API#v1_API_entry_points
-		//   "Both it and the oldid parameter are needed for
-		//    clean round-tripping of HTML retrieved earlier with"
-		// So, no oldid => no selser
-		var hasOldId = (env.page.id && env.page.id !== '0');
-		var useSelser = hasOldId && parsoidConfig.useSelser;
-		var p = DU.serializeDOM(env, doc.body, useSelser)
-			.timeout(REQ_TIMEOUT)
-			.then(function(output) {
-			var contentType = 'text/plain;profile=mediawiki.org/specs/wikitext/1.0.0;charset=utf-8';
-			if (v2) {
-				apiUtils.jsonResponse(res, env, {
-					wikitext: {
-						headers: { 'content-type': contentType },
-						body: output,
-					}
-				});
-			} else {
-				apiUtils.setHeader(res, env, 'content-type', contentType);
-				apiUtils.endResponse(res, env, output);
-			}
-
-			if (timer) {
-				timer.timing('html2wt.total', '',
-					Date.now() - startTimers.get('html2wt.total'));
-				timer.timing('html2wt.size.output', '', output.length);
-			}
-
-			apiUtils.logTime(env, res, 'serializing');
-		});
-		return cpuTimeout(p, res)
-			.catch(apiUtils.timeoutResp.bind(null, env));
-	};
-
 	var wt2html = function(req, res, wt) {
 		var env = res.local('env');
 
@@ -206,13 +114,6 @@ module.exports = function(parsoidConfig) {
 		var oldid = res.local('oldid');
 		var v2 = res.local('v2');
 		var target = env.resolveTitle(env.normalizeTitle(env.page.name), '');
-
-		if ( env.conf.parsoid.allowCORS ) {
-			// allow cross-domain requests (CORS) so that parsoid service
-			// can be used by third-party sites
-			apiUtils.setHeader( res, env, 'Access-Control-Allow-Origin',
-								env.conf.parsoid.allowCORS );
-		}
 
 		function sendRes(doc) {
 			var contentType = 'text/html;profile=mediawiki.org/specs/html/1.1.0;charset=utf-8';
@@ -393,7 +294,7 @@ module.exports = function(parsoidConfig) {
 			p = p.then(redirectToOldid);
 		}
 
-		return cpuTimeout(p, res)
+		return apiUtils.cpuTimeout(p, res)
 			.catch(apiUtils.timeoutResp.bind(null, env));
 	};
 
@@ -436,6 +337,12 @@ module.exports = function(parsoidConfig) {
 		};
 		MWParserEnv.getParserEnv(parsoidConfig, null, options).then(function(env) {
 			env.logger.registerBackend(/fatal(\/.*)?/, errBack.bind(this, env));
+			if (env.conf.parsoid.allowCORS) {
+				// Allow cross-domain requests (CORS) so that parsoid service
+				// can be used by third-party sites.
+				apiUtils.setHeader(res, env, 'Access-Control-Allow-Origin',
+					env.conf.parsoid.allowCORS);
+			}
 			if (res.local('v2') && res.local('v2').format === 'pagebundle') {
 				env.storeDataParsoid = true;
 			}
@@ -560,7 +467,7 @@ module.exports = function(parsoidConfig) {
 			apiUtils.rtResponse.bind(null, env, req, res)
 		);
 
-		return cpuTimeout(p, res)
+		return apiUtils.cpuTimeout(p, res)
 			.catch(apiUtils.timeoutResp.bind(null, env));
 	};
 
@@ -593,7 +500,7 @@ module.exports = function(parsoidConfig) {
 			apiUtils.rtResponse.bind(null, env, req, res)
 		);
 
-		return cpuTimeout(p, res)
+		return apiUtils.cpuTimeout(p, res)
 			.catch(apiUtils.timeoutResp.bind(null, env));
 	};
 
@@ -626,7 +533,7 @@ module.exports = function(parsoidConfig) {
 			apiUtils.rtResponse.bind(null, env, req, res)
 		);
 
-		return cpuTimeout(p, res)
+		return apiUtils.cpuTimeout(p, res)
 			.catch(apiUtils.timeoutResp.bind(null, env));
 	};
 
@@ -664,19 +571,27 @@ module.exports = function(parsoidConfig) {
 
 	// v1 Routes
 
-	routes.v1Get = function( req, res ) {
+	routes.v1Get = function(req, res) {
 		// Regular article parsing
-		wt2html( req, res );
+		wt2html(req, res);
 	};
 
-	routes.v1Post = function( req, res ) {
+	routes.v1Post = function(req, res) {
+		var env = res.local('env');
 		var body = req.body;
-		if ( req.body.wt ) {
+		if (req.body.wt) {
 			// Form-based article parsing
-			wt2html( req, res, body.wt );
+			wt2html(req, res, body.wt);
 		} else {
 			// Regular and form-based article serialization
-			html2wt( req, res, body.html || body.content || '' );
+			var p = apiUtils.startHtml2wt(req, res, body.html || body.content || '')
+					.then(apiUtils.endHtml2wt)
+					.then(function(output) {
+				apiUtils.setHeader(res, env, 'content-type', WIKITEXT_CONTENT_TYPE);
+				apiUtils.endResponse(res, env, output);
+			});
+			return apiUtils.cpuTimeout(p, res)
+				.catch(apiUtils.timeoutResp.bind(null, env));
 		}
 	};
 
@@ -743,41 +658,70 @@ module.exports = function(parsoidConfig) {
 	// Spec'd in https://phabricator.wikimedia.org/T75955 and the API tests.
 
 	// GET requests
-	routes.v2Get = function( req, res ) {
-		wt2html( req, res );
+	routes.v2Get = function(req, res) {
+		wt2html(req, res);
 	};
 
 	// POST requests
-	routes.v2Post = function( req, res ) {
+	routes.v2Post = function(req, res) {
 		var v2 = res.local('v2');
+		var env = res.local('env');
 
-		function errOut( err, code ) {
-			apiUtils.sendResponse( res, res.local('env'), err, code || 404 );
+		function errOut(err, code) {
+			apiUtils.sendResponse(res, env, err, code || 404);
 		}
 
-		if ( wt2htmlFormats.has( v2.format ) ) {
+		if (wt2htmlFormats.has(v2.format)) {
 			// Accept wikitext as a string or object{body,headers}
-			var wikitext = (v2.wikitext && typeof v2.wikitext !== "string") ?
+			var wikitext = (v2.wikitext && typeof v2.wikitext !== 'string') ?
 				v2.wikitext.body : v2.wikitext;
-			if ( typeof wikitext !== "string" ) {
-				if ( !res.local('pageName') ) {
-					return errOut( "No title or wikitext was provided.", 400 );
+			if (typeof wikitext !== 'string') {
+				if (!res.local('pageName')) {
+					return errOut('No title or wikitext was provided.', 400);
 				}
 				// We've been given source for this page
-				if ( v2.original && v2.original.wikitext ) {
+				if (v2.original && v2.original.wikitext) {
 					wikitext = v2.original.wikitext.body;
 				}
 			}
-			wt2html( req, res, wikitext );
+			wt2html(req, res, wikitext);
 		} else {
 			// html is required for serialization
-			if ( v2.html === undefined ) {
-				return errOut( "No html was supplied.", 400 );
+			if (v2.html === undefined) {
+				return errOut('No html was supplied.', 400);
 			}
 			// Accept html as a string or object{body,headers}
-			var html = (typeof v2.html === "string") ?
-				v2.html : (v2.html.body || "");
-			html2wt( req, res, html );
+			var html = (typeof v2.html === 'string') ?
+				v2.html : (v2.html.body || '');
+
+			if (v2.original && v2.original.wikitext) {
+				env.setPageSrcInfo(v2.original.wikitext.body);
+			}
+
+			var p = apiUtils.startHtml2wt(req, res, html).then(function(ret) {
+				if (v2.original) {
+					var dp = v2.original['data-parsoid'];
+					if (dp) {
+						DU.applyDataParsoid(ret.doc, dp.body);
+					}
+					if (v2.original.html) {
+						env.page.dom = DU.parseHTML(v2.original.html.body).body;
+						if (dp) {
+							DU.applyDataParsoid(env.page.dom.ownerDocument, dp.body);
+						}
+					}
+				}
+				return ret;
+			}).then(apiUtils.endHtml2wt).then(function(output) {
+				apiUtils.jsonResponse(res, env, {
+					wikitext: {
+						headers: { 'content-type': WIKITEXT_CONTENT_TYPE },
+						body: output,
+					}
+				});
+			});
+			return apiUtils.cpuTimeout(p, res)
+				.catch(apiUtils.timeoutResp.bind(null, env));
 		}
 	};
 
