@@ -1957,7 +1957,7 @@ nl_comment_space = newline / comment_space
  */
 
 include_limits =
-  "<" c:"/"? name:$(n:$[oyinclude]i+ & {
+  il:("<" c:"/"? name:$(n:$[oyinclude]i+ & {
     var incl = n.toLowerCase();
     return incl === "noinclude" || incl === "onlyinclude" ||
       incl === "includeonly";
@@ -1994,8 +1994,7 @@ include_limits =
     if ( incl !== "includeonly" && stops.onStack("sol_il") ) {
       var last = inclContent.split("\n");
       if ( !/^(<!--([^-]|-(?!->))*-->)*$/.test(last[last.length - 1]) ) {
-        peg$currPos = peg$reportedPos;
-        return peg$FAILED;
+        return false;
       }
     }
 
@@ -2010,7 +2009,7 @@ include_limits =
     peg$currPos += inclContent.length;
 
     return [new TagTk(name, [], dp)].concat(inclContentToks);
-  }
+  }) & { return !!il; } { return il; }
 
 // Start of file
 sof = & { return endOffset() === 0 && !options.startOffset && !options.pipelineOffset; }
