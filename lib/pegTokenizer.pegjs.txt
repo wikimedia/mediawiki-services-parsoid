@@ -73,7 +73,7 @@
  * The top-level rule
  *********************************************************/
 
-start
+start "start"
   = tlb* newline* {
       // end is passed inline as a token, as well as a separate event for now.
       emitChunk( [ new EOFTk( ) ] );
@@ -114,7 +114,7 @@ redirect
 }
 
 // This rule is exposed as a start rule.
-generic_attributes = generic_attribute*
+generic_attributes "generic_attributes" = generic_attribute*
 
 /* The 'redirect' magic word.
  * The leading whitespace allowed is due to the PHP trim() function.
@@ -132,7 +132,7 @@ redirect_word
  * It needs to keep track of sol-state so when tokenization resumes,
  * it knows whether it is in sol-state or not.
  */
-toplevelblock =
+toplevelblock "toplevelblock" =
   tlb save_sol_state {
         var newOffset = peg$currPos;
 
@@ -539,7 +539,7 @@ no_punctuation_char = [^ :\]\[\r\n"'<>\x00-\x20\x7f,.&%\u00A0\u1680\u180E\u2000-
 // which is '[^][<>"\\x00-\\x20\\x7F\p{Zs}]'
 // the 's' and 'r' pieces below match the characters in
 // EXT_LINK_URL_CLASS which aren't included in no_punctuation_char
-url
+url "url"
   = proto:url_protocol
     addr:( ipv6_address / ipv4_address )?
     path:(  ( !{ return inlineBreaks(input, endOffset(), stops); } // inline_breaks
@@ -656,7 +656,7 @@ tplarg_or_template
 tplarg_or_template_or_broken
     = tplarg_or_template / broken_template
 
-tplarg_or_template_or_bust
+tplarg_or_template_or_bust "tplarg_or_template_or_bust"
     = (tplarg_or_template / .)+
 
 broken_template
@@ -1587,7 +1587,7 @@ table_content_line = (space / comment)* (
     / table_caption_tag
   )
 
-table_start_tag
+table_start_tag "table_start_tag"
   = sc:(space / comment)* startPos:({ return endOffset(); }) b:"{" p:pipe
     // ok to normalize away stray |} on rt (see bug 57360)
     & { return stops.push('table', false); }
@@ -1766,7 +1766,7 @@ table_end_tag
  * Table parameters separated from the content by a single pipe. Matches even
  * if there are more pipes following.
  */
-single_cell_table_args
+single_cell_table_args "single_cell_table_args"
   = & { return stops.push('pipe', true); }
     as:generic_attributes s:space* p:pipe {
         stops.pop('pipe');
