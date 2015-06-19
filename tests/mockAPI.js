@@ -242,6 +242,20 @@ var availableActions = {
 		response.query.pages['1'] = imageinfo;
 		cb( null, response );
 	},
+
+	expandtemplates: function(body, cb) {
+		var match = body.text.match(/{{echo\|(.*?)}}/);
+		if (match) {
+			cb(null, {
+				expandtemplates: {
+					wikitext: match[1],
+				},
+			});
+		} else {
+			cb(new Error('Sorry!'));
+		}
+	},
+
 };
 
 var actionDefinitions = {

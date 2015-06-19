@@ -209,7 +209,7 @@ describe('Parsoid API', function() {
 				.end(done);
 			});
 
-			it('should accept wikitext as a string', function(done) {
+			it('should accept wikitext as a string for html', function(done) {
 				request(api)
 				.post('v2/' + mockHost + '/html/')
 				.send({
@@ -218,6 +218,22 @@ describe('Parsoid API', function() {
 				.expect(200)
 				.expect(function(res) {
 					var doc = domino.createDocument(res.text);
+					doc.body.firstChild.nodeName.should.equal('H2');
+				})
+				.end(done);
+			});
+
+			it('should accept wikitext as a string for pagebundle', function(done) {
+				request(api)
+				.post('v2/' + mockHost + '/pagebundle/')
+				.send({
+					wikitext: "== h2 =="
+				})
+				.expect(200)
+				.expect(function(res) {
+					res.body.should.have.property('html');
+					res.body.should.have.property('data-parsoid');
+					var doc = domino.createDocument(res.body.html.body);
 					doc.body.firstChild.nodeName.should.equal('H2');
 				})
 				.end(done);

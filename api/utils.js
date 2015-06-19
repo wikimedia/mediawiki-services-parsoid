@@ -7,9 +7,17 @@ var util = require('util');
 
 var Diff = require('../lib/mediawiki.Diff.js').Diff;
 var DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils;
+var PegTokenizer = require('../lib/mediawiki.tokenizer.peg.js').PegTokenizer;
+var ApiRequest = require('../lib/mediawiki.ApiRequest.js');
+
+var TemplateRequest = ApiRequest.TemplateRequest;
+var PHPParseRequest = ApiRequest.PHPParseRequest;
 
 
-var apiUtils = module.exports = {};
+var apiUtils = module.exports = {
+	WIKITEXT_CONTENT_TYPE: 'text/plain;profile=mediawiki.org/specs/wikitext/1.0.0;charset=utf-8',
+	HTML_CONTENT_TYPE:     'text/html;profile=mediawiki.org/specs/html/1.1.0;charset=utf-8',
+};
 
 /**
  * Send a redirect response with optional code and a relative URL
@@ -281,4 +289,211 @@ apiUtils.endHtml2wt = function(ret) {
 		apiUtils.logTime(env, ret.res, 'serializing');
 		return output;
 	});
+};
+
+// To support the 'subst' API parameter, we need to prefix each
+// top-level template with 'subst'. To make sure we do this for the
+// correct templates, tokenize the starting wikitext and use that to
+// detect top-level templates. Then, substitute each starting '{{' with
+// '{{subst' using the template token's tsr.
+var substTopLevelTemplates = function(env, target, wt) {
+	var tokenizer = new PegTokenizer(env);
+	var tokens = tokenizer.tokenize(wt, null, null, true);
+	var tsrIncr = 0;
+	for (var i = 0; i < tokens.length; i++) {
+		if (tokens[i].name === 'template') {
+			var tsr = tokens[i].dataAttribs.tsr;
+			wt = wt.substring(0, tsr[0] + tsrIncr) +
+				'{{subst:' +
+				wt.substring(tsr[0] + tsrIncr + 2);
+			tsrIncr += 6;
+		}
+	}
+	// Now pass it to the MediaWiki API with onlypst set so that it
+	// subst's the templates.
+	return PHPParseRequest.promise(env, target, wt, true).then(function(wikitext) {
+		// Set data-parsoid to be discarded, so that the subst'ed
+		// content is considered new when it comes back.
+		env.discardDataParsoid = true;
+		// Use the returned wikitext as the page source.
+		return wikitext;
+	});
+};
+
+apiUtils.startWt2html = function(req, res, wt) {
+	var env = res.local('env');
+
+	// Performance Timing options
+	var timer = env.conf.parsoid.performanceTimer;
+	var startTimers;
+
+	if (timer) {
+		startTimers = new Map();
+		// init refers to time elapsed before parsing begins
+		startTimers.set('wt2html.init', Date.now());
+		startTimers.set('wt2html.total', Date.now());
+	}
+
+	var prefix = res.local('iwp');
+	var oldid = res.local('oldid');
+	var target = env.resolveTitle(env.normalizeTitle(env.page.name), '');
+
+	var p = Promise.resolve(wt);
+
+	if (oldid || typeof wt !== 'string') {
+		// Always fetch the page info if we have an oldid.
+		// Otherwise, if no wt was passed, we need to figure out
+		// the latest revid to which we'll redirect.
+		p = p.tap(function() {
+			return TemplateRequest.setPageSrcInfo(env, target, oldid);
+		});
+	}
+
+	if (typeof wt === 'string' && res.local('subst')) {
+		p = p.then(function(wt) {
+			return substTopLevelTemplates(env, target, wt);
+		});
+	}
+
+	return p.then(function(wikitext) {
+		return {
+			req: req,
+			res: res,
+			env: env,
+			startTimers: startTimers,
+			oldid: oldid,
+			target: target,
+			prefix: prefix,
+			// Calling this wikitext so that it's easily distinguishable.
+			// It may have been modified by substTopLevelTemplates.
+			wikitext: wikitext,
+		};
+	});
+};
+
+apiUtils.redirectToRevision = function(env, res, path, revid) {
+	var timer = env.conf.parsoid.performanceTimer;
+	env.log('info', 'redirecting to revision', revid);
+
+	if (timer) {
+		timer.count('wt2html.redirectToOldid', '');
+	}
+
+	// Don't cache requests with no oldid
+	apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0');
+	apiUtils.relativeRedirect({ 'path': path, 'res': res, 'env': env });
+};
+
+apiUtils.parsePageWithOldid = function(ret) {
+	var env = ret.env;
+	var timer = env.conf.parsoid.performanceTimer;
+	var startTimers = ret.startTimers;
+	env.log('info', 'started parsing');
+
+	// Indicate the MediaWiki revision in a header as well for
+	// ease of extraction in clients.
+	apiUtils.setHeader(ret.res, env, 'content-revision-id', ret.oldid);
+
+	if (timer) {
+		timer.timing('wt2html.pageWithOldid.init', '',
+			Date.now() - startTimers.get('wt2html.init'));
+		startTimers.set('wt2html.pageWithOldid.parse', Date.now());
+		timer.timing('wt2html.pageWithOldid.size.input', '', env.page.src.length);
+	}
+
+	var expansions = ret.reuse && ret.reuse.expansions;
+	if (expansions) {
+		// Figure out what we can reuse
+		switch (ret.reuse.mode) {
+		case "templates":
+			// Transclusions need to be updated, so don't reuse them.
+			expansions.transclusions = {};
+			break;
+		case "files":
+			// Files need to be updated, so don't reuse them.
+			expansions.files = {};
+			break;
+		}
+	}
+
+	return env.pipelineFactory.parse(env, env.page.src, expansions);
+};
+
+apiUtils.parseWt = function(ret) {
+	var env = ret.env;
+	var res = ret.res;
+	var timer = env.conf.parsoid.performanceTimer;
+	var startTimers = ret.startTimers;
+
+	env.log('info', 'started parsing');
+	env.setPageSrcInfo(ret.wikitext);
+
+	// Don't cache requests when wt is set in case somebody uses
+	// GET for wikitext parsing
+	apiUtils.setHeader(res, env, 'Cache-Control', 'private,no-cache,s-maxage=0');
+
+	if (timer) {
+		timer.timing('wt2html.wt.init', '',
+			Date.now() - startTimers.get( 'wt2html.init'));
+		startTimers.set('wt2html.wt.parse', Date.now());
+		timer.timing('wt2html.wt.size.input', '', ret.wikitext.length);
+	}
+
+	if (!res.local('pageName')) {
+		// clear default page name
+		env.page.name = '';
+	}
+
+	return env.pipelineFactory.parse(env, ret.wikitext);
+};
+
+apiUtils.endWt2html = function(ret, doc, output) {
+	var env = ret.env;
+	var res = ret.res;
+	var timer = env.conf.parsoid.performanceTimer;
+	var startTimers = ret.startTimers;
+
+	if (doc) {
+		output = DU.serializeNode(res.local('body') ? doc.body : doc).str;
+		apiUtils.setHeader(res, env, 'content-type', apiUtils.HTML_CONTENT_TYPE);
+		apiUtils.endResponse(res, env, output);
+	}
+
+	if (timer) {
+		if (startTimers.has('wt2html.wt.parse')) {
+			timer.timing('wt2html.wt.parse', '',
+				Date.now() - startTimers.get('wt2html.wt.parse'));
+			timer.timing('wt2html.wt.size.output', '', output.length);
+		} else if (startTimers.has( 'wt2html.pageWithOldid.parse')) {
+			timer.timing('wt2html.pageWithOldid.parse', '',
+				Date.now() - startTimers.get('wt2html.pageWithOldid.parse'));
+			timer.timing('wt2html.pageWithOldid.size.output', '', output.length);
+		}
+		timer.timing('wt2html.total', '',
+			Date.now() - startTimers.get('wt2html.total'));
+	}
+
+	apiUtils.logTime(env, res, 'parsing');
+};
+
+apiUtils.v2endWt2html = function(ret, doc) {
+	var env = ret.env;
+	var res = ret.res;
+	var v2 = res.local('v2');
+	if (v2.format === 'pagebundle') {
+		var out = DU.extractDpAndSerialize(doc, res.local('body'));
+		apiUtils.jsonResponse(res, env, {
+			html: {
+				headers: { 'content-type': apiUtils.HTML_CONTENT_TYPE },
+				body: out.str,
+			},
+			'data-parsoid': {
+				headers: { 'content-type': out.type },
+				body: out.dp,
+			}
+		});
+		apiUtils.endWt2html(ret, null, out.str);
+	} else {
+		apiUtils.endWt2html(ret, doc);
+	}
 };
