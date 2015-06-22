@@ -24598,6 +24598,31 @@ x<nowiki/>http://cscott.net<nowiki/>x
 !! end
 
 !! test
+WTS of edited autolink-like text (T103364)
+!! options
+parsoid={
+  "modes": ["wt2wt"],
+  "changes": [
+    [ "span[typeof]", "removeAttr", "typeof" ]
+  ]
+}
+!! wikitext
+Not a link: <nowiki>http://example.com</nowiki>.
+!! wikitext/edited
+Not a link: <span><nowiki>http://example.com</nowiki></span>.
+!! end
+
+!! test
+WTS of newly-authored autolink-like text (T103364)
+!! options
+parsoid=html2wt
+!! html/parsoid
+<p>http://example.com is not a link.</p>
+!! wikitext
+<nowiki>http://example.com is not a link.</nowiki>
+!! end
+
+!! test
 Edited Redirect link should emit a non-piped wikitext link
 !! options
 parsoid=html2wt
