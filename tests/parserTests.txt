@@ -13761,6 +13761,85 @@ parsoid=wt2html
 </ul>
 !! end
 
+## Newlines and categories that follow the last item of a list
+## are treated differently because this (list followed by categories)
+## is an extremely common pattern on wikis.
+!! test
+3. Categories and newlines: newline suppression for last list item should RT properly
+!! wikitext
+* a
+* b 
+   
+[[Category:Foo]]
+   
+[[Category:Bar]]
+[[Category:Baz]]
+!! html/parsoid
+<ul><li> a</li>
+<li> b</li></ul> 
+   
+<link rel="mw:PageProp/Category" href="./Category:Foo" data-parsoid='{"stx":"simple","a":{"href":"./Category:Foo"},"sa":{"href":"Category:Foo"}}'/>
+   
+<link rel="mw:PageProp/Category" href="./Category:Bar" data-parsoid='{"stx":"simple","a":{"href":"./Category:Bar"},"sa":{"href":"Category:Bar"}}'/>
+<link rel="mw:PageProp/Category" href="./Category:Baz" data-parsoid='{"stx":"simple","a":{"href":"./Category:Baz"},"sa":{"href":"Category:Baz"}}'/>
+!! end
+
+!! test
+4. Categories and newlines: newline suppression for last list item should RT properly
+!! wikitext
+* a
+**** b
+
+[[Category:Foo]]
+!! html/parsoid
+<ul><li> a
+<ul><li><ul><li><ul><li> b</li></ul></li></ul></li></ul></li></ul>
+
+<link rel="mw:PageProp/Category" href="./Category:Foo" data-parsoid='{"stx":"simple","a":{"href":"./Category:Foo"},"sa":{"href":"Category:Foo"}}'/>
+!! end
+
+## only wt2html for this to make sure the algo only applies to the rightmost path
+!! test
+5. Categories and newlines: newline suppression for last list item should RT properly
+!! options
+parsoid=wt2html
+!! wikitext
+* a
+** b
+[[Category:Foo]]
+* c
+** d
+[[Category:Foo]]
+!! html/parsoid
+<ul><li> a
+<ul><li> b
+<link rel="mw:PageProp/Category" href="./Category:Foo" data-parsoid='{"stx":"simple","a":{"href":"./Category:Foo"},"sa":{"href":"Category:Foo"}}'/></li></ul></li>
+<li> c
+<ul><li> d</li></ul></li></ul>
+<link rel="mw:PageProp/Category" href="./Category:Foo" data-parsoid='{"stx":"simple","a":{"href":"./Category:Foo"},"sa":{"href":"Category:Foo"}}'/>
+!! end
+
+!! test
+6. Categories and newlines: newline suppression for last list item should not move categories if it had been added there
+!! wikitext
+* a [[Category:Foo]]
+!! html/parsoid
+<ul><li>a <link rel="mw:PageProp/Category" href="./Category:Foo" data-parsoid='{"stx":"simple","a":{"href":"./Category:Foo"},"sa":{"href":"Category:Foo"}}'/></li></ul>
+!! end
+
+# This test also demonstrates because of newline+category tunneling
+# through the list hander, template wrapping doesn't expand to the
+# containing list when the list item swallows the category.
+!! test
+7. Categories and newlines: newline suppression should leave template content alone
+!! wikitext
+* {{echo|a
+[[Category:Foo]]}}
+!! html/parsoid
+<ul><li> <span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a\n[[Category:Foo]]"}},"i":0}}]}'>a</span><span about="#mwt1">
+</span><link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1" data-parsoid='{"stx":"simple","a":{"href":"./Category:Foo"},"sa":{"href":"Category:Foo"}}'/></li></ul>
+!! end
+
 !! test
 Parsoid: Serialize link to category page with colon escape
 !! options
