@@ -20933,18 +20933,14 @@ C <span about="#mwt6" class="reference" id="cite_ref-foo_1-2" rel="dc:references
 
 !!test
 References: 1. references tag without any refs should be handled properly
-!!options
-parsoid
 !! wikitext
 <references />
-!! html
+!! html/parsoid
 <ol class="references" typeof="mw:Extension/references" about="#mwt2" data-mw='{"name":"references","attrs":{}}'></ol>
 !!end
 
 !!test
 References: 2. references tag with group only outputs references from that group
-!!options
-parsoid
 !! wikitext
 A <ref group="a">foo</ref>
 B <ref group="b">bar</ref>
@@ -20953,7 +20949,7 @@ C <ref>baz</ref>
 <references group="a" />
 <references />
 <references group="b" />
-!! html
+!! html/parsoid
 <p>A <span about="#mwt2" class="reference" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-1"},"attrs":{"group":"a"}}'><a href="#cite_note-1">[a 1]</a></span>
 B <span about="#mwt4" class="reference" id="cite_ref-2" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-2"},"attrs":{"group":"b"}}'><a href="#cite_note-2">[b 1]</a></span>
 C <span class="reference" id="cite_ref-3" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-3"},"attrs":{}}'><a href="#cite_note-3">[1]</a></span></p>
@@ -20971,8 +20967,6 @@ C <span class="reference" id="cite_ref-3" rel="dc:references" typeof="mw:Extensi
 
 !!test
 References: 3. ref list should be cleared after processing references
-!!options
-parsoid
 !! wikitext
 A <ref>foo</ref>
 
@@ -20981,7 +20975,7 @@ A <ref>foo</ref>
 B <ref>bar</ref>
 
 <references />
-!! html
+!! html/parsoid
 <p>A <span about="#mwt2" class="reference" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-1"},"attrs":{}}'><a href="#cite_note-1">[1]</a></span></p>
 
 <ol class="references" typeof="mw:Extension/references" about="#mwt4" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1">↑</a></span> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">foo</span></li>
@@ -20996,8 +20990,6 @@ B <ref>bar</ref>
 
 !!test
 References: 4. only referenced group should be cleared after processing references
-!!options
-parsoid
 !! wikitext
 A <ref group="a">afoo</ref>
 B <ref>bfoo</ref>
@@ -21007,7 +20999,7 @@ B <ref>bfoo</ref>
 C <ref>cfoo</ref>
 
 <references />
-!! html
+!! html/parsoid
 <p>A <span about="#mwt2" class="reference" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-1"},"attrs":{"group":"a"}}'><a href="#cite_note-1">[a 1]</a></span>
 B <span about="#mwt4" class="reference" id="cite_ref-2" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-2"},"attrs":{}}'><a href="#cite_note-2">[1]</a></span></p>
 
@@ -21022,8 +21014,6 @@ B <span about="#mwt4" class="reference" id="cite_ref-2" rel="dc:references" type
 
 !!test
 References: 5. ref tags in references should be processed while ignoring all other content
-!!options
-parsoid
 !! wikitext
 A <ref name="a" />
 B <ref name="b">bar</ref>
@@ -21032,7 +21022,7 @@ B <ref name="b">bar</ref>
 <ref name="a">foo</ref>
 This should just get lost.
 </references>
-!! html
+!! html/parsoid
 <p>A <span about="#mwt2" class="reference" id="cite_ref-a_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"a"}}'><a href="#cite_note-a-1">[1]</a></span>
 B <span about="#mwt4" class="reference" id="cite_ref-b_2-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-b-2"},"attrs":{"name":"b"}}'><a href="#cite_note-b-2">[2]</a></span></p>
 
@@ -21043,19 +21033,15 @@ B <span about="#mwt4" class="reference" id="cite_ref-b_2-0" rel="dc:references" 
 
 !!test
 References: 6. <references /> from a transclusion
-!!options
-parsoid
 !! wikitext
 <ref>Foo</ref> {{echo|<references />}}
-!! html
+!! html/parsoid
 <p><span about="#mwt3" class="reference" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-1"},"attrs":{}}'><a href="#cite_note-1">[1]</a></span></p> <ol class="references" typeof="mw:Extension/references mw:Transclusion" about="#mwt4" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;references />"}},"i":0}}]}'><li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1">↑</a></span> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">Foo</span></li>
 </ol>
 !!end
 
 !! test
 References: 7. Multiple references tags (one without and one with nested refs) should be correctly handled
-!! options
-parsoid
 !! wikitext
 A <ref>foo bar for a</ref>
 B <ref group="X" name="b" />
@@ -21065,7 +21051,7 @@ B <ref group="X" name="b" />
 <references group="X">
 <ref name="b">foo</ref>
 </references>
-!! html
+!! html/parsoid
 <p>A <span about="#mwt2" class="reference" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-1"},"attrs":{}}'><a href="#cite_note-1">[1]</a></span>
 B <span about="#mwt4" class="reference" id="cite_ref-b_2-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"group":"X","name":"b"}}'><a href="#cite_note-b-2">[X 1]</a></span>
 </p>
@@ -21081,12 +21067,10 @@ B <span about="#mwt4" class="reference" id="cite_ref-b_2-0" rel="dc:references" 
 
 !! test
 References: 8. T88019: Remove <meta>s from templates inside <ref> that's itself inside a template
-!! options
-parsoid
 !! wikitext
 X{{echo|<ref>foo {{echo|<b>bar</b>}} and {{echo|baz}} boo</ref>}}
 <references />
-!! html
+!! html/parsoid
 <p>X<span about="#mwt2" class="reference" id="cite_ref-1" rel="dc:references" typeof="mw:Transclusion  mw:Extension/ref" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;ref>foo {{echo|&lt;b>bar&lt;/b>}} and {{echo|baz}} boo&lt;/ref>"}},"i":0}}]}'><a href="#cite_note-1">[1]</a></span></p>
 <ol class="references" typeof="mw:Extension/references" about="#mwt7" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1">↑</a></span> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">foo <b data-parsoid='{"stx":"html"}'>bar</b> and baz boo</span></li>
 </ol>
@@ -21098,12 +21082,10 @@ X{{echo|<ref>foo {{echo|<b>bar</b>}} and {{echo|baz}} boo</ref>}}
 # wt2wt.
 !! test
 References: 9. Generate missing references list at the end
-!! options
-parsoid
 !! wikitext
 A <ref>foo</ref>
 B <ref group="inexistent">bar</ref>
-!! html
+!! html/parsoid
 <p>A <span class="reference" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-1"},"attrs":{}}'><a href="#cite_note-1">[1]</a></span> B <span class="reference" id="cite_ref-2" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-2"},"attrs":{"group":"inexistent"}}'><a href="#cite_note-2">[inexistent 1]</a></span></p>
 <ol class="references" typeof="mw:Extension/references" about="#mwt5" data-mw='{"name":"references","attrs":{}}'>
 <li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1">↑</a></span> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">foo</span></li>
@@ -21131,12 +21113,10 @@ A <ref>foo</ref>
 
 !! test
 Entities in ref name
-!! options
-parsoid
 !! wikitext
 <ref name="test &amp; me">hi</ref>
 <references />
-!! html
+!! html/parsoid
 <p><span about="#mwt2" class="reference" id="cite_ref-test_.26_me_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-test_.26_me-1"},"attrs":{"name":"test &amp;amp; me"}}'><a href="#cite_note-test_.26_me-1">[1]</a></span></p>
 <ol class="references" typeof="mw:Extension/references" about="#mwt4" data-mw='{"name":"references","attrs":{}}'>
 <li about="#cite_note-test_.26_me-1" id="cite_note-test_.26_me-1"><span rel="mw:referencedBy"><a href="#cite_ref-test_.26_me_1-0">↑</a></span> <span id="mw-reference-text-cite_note-test_.26_me-1" class="mw-reference-text">hi</span></li>
@@ -21153,7 +21133,7 @@ parsoid=wt2html
 a<ref>foo</ref>
 
 <references>
-!! html
+!! html/parsoid
 <p>a<span about="#mwt2" class="reference" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-1"},"attrs":{}}'><a href="#cite_note-1">[1]</a></span></p>
 <ol class="references" typeof="mw:Extension/references" about="#mwt4" data-mw='{"name":"references","attrs":{}}'>
 <li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1">↑</a></span> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">foo</span></li></ol>
@@ -21166,7 +21146,7 @@ parsoid=wt2wt,html2wt
 !! wikitext
 foo
 <references />
-!! html
+!! html/parsoid
 foo<ol class="references" typeof="mw:Extension/references" about="#mwt2" data-mw='{"name":"references","attrs":{}}'></ol>
 !! end
 
