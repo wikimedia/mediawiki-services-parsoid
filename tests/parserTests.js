@@ -434,12 +434,14 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, body, proc
 			processWikitextCB(err, wt);
 			self.env.setPageSrcInfo(null);
 			self.env.page.dom = null;
+			self.env.page.editedDoc = null;
 		});
 	} catch (e) {
 		this.env.log("error", e);
 		processWikitextCB(e, null);
 		this.env.setPageSrcInfo(null);
 		this.env.page.dom = null;
+		this.env.page.editedDoc = null;
 	}
 };
 
