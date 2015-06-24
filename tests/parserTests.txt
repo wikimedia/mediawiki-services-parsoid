@@ -13803,7 +13803,7 @@ parsoid=wt2html
 
 ## only wt2html for this to make sure the algo only applies to the rightmost path
 !! test
-5. Categories and newlines: newline suppression for last list item should RT properly
+5. Categories and newlines: migrateTrailingCategories dom pass should only run on the rightmost path of nested lists
 !! options
 parsoid=wt2html
 !! wikitext
@@ -13823,7 +13823,7 @@ parsoid=wt2html
 !! end
 
 !! test
-6. Categories and newlines: newline suppression for last list item should not move categories if it had been added there
+6. Categories and newlines: migrateTrailingCategories dom pass should not migrate categories not preceded by newlines
 !! wikitext
 * a [[Category:Foo]]
 !! html/parsoid
@@ -13834,13 +13834,29 @@ parsoid=wt2html
 # through the list hander, template wrapping doesn't expand to the
 # containing list when the list item swallows the category.
 !! test
-7. Categories and newlines: newline suppression should leave template content alone
+7. Categories and newlines: migrateTrailingCategories dom pass should leave template content alone
 !! wikitext
 * {{echo|a
 [[Category:Foo]]}}
 !! html/parsoid
 <ul><li> <span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a\n[[Category:Foo]]"}},"i":0}}]}'>a</span><span about="#mwt1">
 </span><link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1" data-parsoid='{"stx":"simple","a":{"href":"./Category:Foo"},"sa":{"href":"Category:Foo"}}'/></li></ul>
+!! end
+
+!! test
+8. Categories and newlines: migrateTrailingCategories dom pass should not get tripped by intervening templates
+!! wikitext
+* a
+
+{{echo|[[Category:Foo]]
+[[Category:Bar]]}}
+[[Category:Baz]]
+!! html/parsoid
+<ul><li> a</li></ul>
+
+<link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"simple","a":{"href":"./Category:Foo"},"sa":{"href":"Category:Foo"},"pi":[[{"k":"1","spc":["","","",""]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[Category:Foo]]\n[[Category:Bar]]"}},"i":0}}]}'/><span about="#mwt1">
+</span><link rel="mw:PageProp/Category" href="./Category:Bar" about="#mwt1" data-parsoid='{"stx":"simple","a":{"href":"./Category:Bar"},"sa":{"href":"Category:Bar"}}'/>
+<link rel="mw:PageProp/Category" href="./Category:Baz" data-parsoid='{"stx":"simple","a":{"href":"./Category:Baz"},"sa":{"href":"Category:Baz"}}'/>
 !! end
 
 !! test
