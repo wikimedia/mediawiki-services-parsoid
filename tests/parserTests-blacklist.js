@@ -1040,6 +1040,7 @@ add("html2wt", "Allow +/- in 2nd and later cells in a row, in 1st cell when td-a
 add("html2wt", "Table rowspan", "{| border=\"1\"\n\n| Cell 1, row 1\n\n| rowspan=\"2\" | Cell 2, row 1 (and 2)\n\n| Cell 3, row 1\n\n|-\n| Cell 1, row 2\n\n| Cell 3, row 2\n|}\n");
 add("html2wt", "Nested table", "{| border=\"1\"\n\n| α\n\n|\n{| bgcolor=\"#ABCDEF\" border=\"2\"\n\n|nested\n\n|-\n|table\n|}\n\n|the original table again\n|}\n");
 add("html2wt", "Invalid attributes in table cell (bug 1830)", "{|\n\n|broken\n|}\n");
+add("html2wt", "Table cell attributes: Pipes protected by nowikis should be treated as a plain character", "{|\n\n| title=\"foo\" |bar\n\n| title=\"foo|\" |bar\n\n|<nowiki> title=\"foo|\" bar</nowiki>\n|}\n");
 add("html2wt", "Indented table markup mixed with indented pre content (proposed in bug 6200)", " {|\n \n |\n Text that should be rendered preformatted \n \n |}\n");
 add("html2wt", "1. Template-generated table cell attributes and cell content", "{|\n\n| style=\"color:red;\" |Foo\n\n| style=\"color:red;\" |Foo\n\n| style=\"color:red;\"\n|Bar\n\n| style=\"color:red;\" |Foo\n\n| align=\"center\" style=\"color:red;\" |Foo\n\n| align=\"center\" style=\"color:red;\" |Foo\n|}\n");
 add("html2wt", "Table with row followed by newlines and table heading", "{|\n\n! foo\n|}\n");
