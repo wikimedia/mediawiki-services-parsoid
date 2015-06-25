@@ -24102,6 +24102,25 @@ there</ref> ==
 * foo '''bar''' baz
 !! end
 
+!! test
+Serialize new placeholder space without spans
+!! options
+parsoid=html2wt
+!! html
+<p>foo<span typeof="mw:Placeholder"> </span>: bar</p>
+
+<p>foo<span typeof="mw:DisplaySpace mw:Placeholder" data-parsoid='{"src":" ","isDisplayHack":true}'> </span>: bar</p>
+
+<span typeof="mw:Extension/ref" data-mw="{&quot;name&quot;:&quot;ref&quot;,&quot;body&quot;:{&quot;html&quot;:&quot;foo<span typeof=\&quot;mw:Placeholder\&quot;>&amp;nbsp;</span>: bar&quot;}}"><sup>[1]</sup></span>ok</p>
+!! wikitext
+foo : bar
+
+foo : bar
+
+<ref>foo : bar</ref>ok
+!! end
+
+
 #-----------------------
 # Tag minimization tests
 #-----------------------
