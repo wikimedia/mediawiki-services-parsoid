@@ -215,7 +215,7 @@ module.exports = function(parsoidConfig) {
 		}
 
 		function sendRes(doc) {
-			var contentType = 'text/html;profile=mediawiki.org/specs/html/1.0.0;charset=utf-8';
+			var contentType = 'text/html;profile=mediawiki.org/specs/html/1.1.0;charset=utf-8';
 			var output;
 			if (v2 && v2.format === 'pagebundle') {
 				var out = DU.extractDpAndSerialize(doc, res.local('body'));
