@@ -1551,7 +1551,7 @@ add("html2wt", "Parents of subpages, two levels up, with lots of extra trailing 
 add("html2wt", "Transclusion of a sibling page (one level up)", "Sibling article\n");
 add("html2wt", "Transclusion of a child page", "Sibling article\n");
 add("html2wt", "Non-transclusion because of too many up levels", "<nowiki>{{../../../../More than parent}}</nowiki>\n");
-add("html2wt", "Definition list code coverage", "; title   \n: def\n; title \n: def\n; title\n: def");
+add("html2wt", "Definition list code coverage", "; title   \n: def\n; title \n: def\n; title\n: def");
 add("html2wt", "Don't fall for the self-closing div", "<div>hello world</div>\n");
 add("html2wt", "MSGNW magic word", "<nowiki>[[:Template:Msg]]</nowiki>\n");
 add("html2wt", "RAW magic word", "[/index.php?title=Template:QUERTY&action=edit&redlink=1 Template:QUERTY]\n");
