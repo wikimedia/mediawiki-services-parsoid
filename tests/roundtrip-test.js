@@ -350,6 +350,21 @@ var formatDiff = function(oldWt, newWt, offset, context) {
 	].join('\n');
 };
 
+function stripElementIds(node) {
+	while (node) {
+		if (DU.isElt(node)) {
+			var id = node.getAttribute('id');
+			if (/^mw[\w-]{2,}$/.test(id)) {
+				node.removeAttribute('id');
+			}
+			if (node.firstChild) {
+				stripElementIds(node.firstChild);
+			}
+		}
+		node = node.nextSibling;
+	}
+}
+
 var checkIfSignificant = function(env, offsets, data) {
 	var oldWt = data.oldWt;
 	var newWt = data.newWt;
@@ -360,6 +375,13 @@ var checkIfSignificant = function(env, offsets, data) {
 	// Merge data-parsoid so that HTML nodes can be compared and diff'ed.
 	DU.applyDataParsoid(oldBody.ownerDocument, data.oldDp.body);
 	DU.applyDataParsoid(newBody.ownerDocument, data.newDp.body);
+
+	// Strip 'mw..' ids from the DOMs. This matters for 2 scenarios:
+	// * reduces noise in visual diffs
+	// * all other things being equal after normalization, we don't
+	//   assume DOMs are different simply because ids are different
+	stripElementIds(oldBody.ownerDocument.body);
+	stripElementIds(newBody.ownerDocument.body);
 
 	var i, offset;
 	var results = [];
