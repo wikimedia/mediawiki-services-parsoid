@@ -24646,6 +24646,28 @@ parsoid={
 ==<nowiki/>==
 !! end
 
+!! test
+1. WT Quote Tags: suppress newly created empty style tags
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html
+<i></i><b></b>
+!! wikitext
+!! end
+
+!! test
+2. WT Quote Tags: don't suppress empty style tags if scrubWikitext is false
+!! options
+parsoid=html2wt
+!! html
+<i></i><b></b>
+!! wikitext
+''<nowiki/>'''''<nowiki/>'''
+!! end
+
 # ---------------------------------------------------
 # End of tests spec'ing wikitext serialization norms |
 # ---------------------------------------------------
