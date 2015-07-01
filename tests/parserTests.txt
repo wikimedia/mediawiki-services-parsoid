@@ -24753,10 +24753,3 @@ B <ref group="X" name="b" />
 <ref name="b"><span id="Z">foo</span>bar</ref>
 </references>
 !! end
-
-TODO:
-more images
-more tables
-character entities
-and much more
-Try for 100% code coverage
