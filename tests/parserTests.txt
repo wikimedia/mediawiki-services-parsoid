@@ -1977,7 +1977,7 @@ a [[Category:A1]] [[Category:A2]]
 [[Category:A4]]
 !! html/parsoid
 <p>a</p>
-<link href="Category:A1"/> <link href="Category:A2"/> <link href="Category:A3"/> <link href="Category:A4"/>
+<link rel="mw:PageProp/Category" href="Category:A1"/> <link rel="mw:PageProp/Category" href="Category:A2"/> <link rel="mw:PageProp/Category" href="Category:A3"/> <link rel="mw:PageProp/Category" href="Category:A4"/>
 !! end
 
 !! test
@@ -1987,7 +1987,7 @@ parsoid=wt2html
 !! wikitext
 [[Category:A1]]a
 !! html/parsoid
-<link href="Category:A1"/><p>a</p>
+<link rel="mw:PageProp/Category" href="Category:A1"/><p>a</p>
 !! end
 
 ###
@@ -7731,7 +7731,6 @@ Blah blah blah
 [[   es :Spanish]]
 [[ ZH :Chinese]]
 [[es:Foo_bar]]
-[[es:Foo bar]]
 !! html/php
 <p>Blah blah blah
 </p>
@@ -7740,7 +7739,21 @@ Blah blah blah
 <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Spanish" />
 <link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/Chinese" />
 <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Foo_bar" />
-<link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Foo_bar" />
+!! end
+
+!! test
+Space and question mark encoding in interlanguage links (T95473)
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+Blah blah blah
+[[es:Foo bar?]]
+!! html/php
+<p>Blah blah blah
+</p>
+!! html/parsoid
+<p>Blah blah blah</p>
+<link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Foo_bar%3F" />
 !! end
 
 !! test
@@ -7994,33 +8007,31 @@ parsoid=wt2html
 !! end
 
 !! test
-Redirect to category
+Redirect to category (T104502)
 !! options
-parsoid=wt2wt,wt2html
+parsoid=wt2html,wt2wt
 !! wikitext
 #REDIRECT [[Category:Foo]]
-!! html
-<link rel="mw:PageProp/redirect" href="./Category:Foo"><link rel="mw:PageProp/Category" href="./Category:Foo">
+!! html/parsoid
+<link rel="mw:PageProp/redirect" href="Category:Foo"/>
 !! end
 
 !! test
-Redirect to category with URL encoding
+Redirect to category with URL encoding (T104502)
 !! options
 parsoid=wt2html
 !! wikitext
 #REDIRECT [[Category%3AFoo]]
-!! html
-<link rel="mw:PageProp/redirect" href="./Category:Foo"><link rel="mw:PageProp/Category" href="./Category:Foo">
+!! html/parsoid
+<link rel="mw:PageProp/redirect" href="Category:Foo"/>
 !! end
 
 !! test
 Redirect to category page
-!! options
-parsoid
 !! wikitext
 #REDIRECT [[:Category:Foo]]
-!! html
-<link rel="mw:PageProp/redirect" href="Category:Foo" title="Category:Foo"/>
+!! html/parsoid
+<link rel="mw:PageProp/redirect" href="Category:Foo"/>
 !! end
 
 !! test
@@ -13874,15 +13885,21 @@ parsoid
 </p>
 !! end
 
+# html2wt localizes the "Category" namespace.
+# XXX the <link> element needs an empty data-parsoid attribute, or
+# else the html2html test fails because spaces are inserted.
 !! test
-Parsoid: Link prefix/suffixes aren't applied to category links
+Link prefix/suffixes aren't applied to category links
 !! options
 parsoid=wt2html,wt2wt,html2html
 language=is
 !! wikitext
 x[[Category:Foo]]y
-!! html
-<p>x<link rel="mw:PageProp/Category" href="Category:Foo">y</p>
+!! html/php
+<p>xy
+</p>
+!! html/parsoid
+<p>x<link rel="mw:PageProp/Category" href="./Flokkur:Foo" data-parsoid=""/>y</p>
 !! end
 
 !! test
