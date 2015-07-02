@@ -7931,11 +7931,9 @@ Blah blah blah
 
 !! test
 1. Simple redirect to page
-!! options
-parsoid
 !! wikitext
 #REDIRECT [[Main Page]]
-!! html
+!! html/parsoid
 <link rel="mw:PageProp/redirect" href="./Main_Page">
 !! end
 
@@ -7961,7 +7959,7 @@ Empty redirect
 parsoid=wt2html,wt2wt
 !! wikitext
 #REDIRECT [[]]
-!! html
+!! html/parsoid
 <ol>
 <li>REDIRECT [[]]</li></ol>
 !! end
@@ -7974,7 +7972,7 @@ Optional colon in #REDIRECT
 parsoid=wt2html,html2html
 !! wikitext
 #REDIRECT:[[Main Page]]
-!! html
+!! html/parsoid
 <link rel="mw:PageProp/redirect" href="./Main_Page">
 !! end
 
@@ -7990,7 +7988,7 @@ parsoid=wt2html,html2html
  #REDIRECT 
 : 
 [[Main Page]]
-!! html
+!! html/parsoid
 <link rel="mw:PageProp/redirect" href="./Main_Page">
 !! end
 
@@ -8002,7 +8000,7 @@ Piped link in #REDIRECT
 parsoid=wt2html
 !! wikitext
 #REDIRECT [[Main Page|bar]]
-!! html
+!! html/parsoid
 <link rel="mw:PageProp/redirect" href="./Main_Page">
 !! end
 
@@ -8036,52 +8034,43 @@ Redirect to category page
 
 !! test
 Redirect to image page (1)
-!! options
-parsoid
 !! wikitext
 #REDIRECT [[File:Wiki.png]]
-!! html
+!! html/parsoid
 <link rel="mw:PageProp/redirect" href="./File:Wiki.png">
 !! end
 
 !! test
 Redirect to image page (2)
-!! options
-parsoid
 !! wikitext
 #REDIRECT [[Image:Wiki.png]]
-!! html
+!! html/parsoid
 <link rel="mw:PageProp/redirect" href="./File:Wiki.png">
 !! end
 
 !! test
 Redirect to language
-!! options
-parsoid
 !! wikitext
 #REDIRECT [[en:File:Wiki.png]]
-!! html
+!! html/parsoid
 <link rel="mw:PageProp/redirect" href="./File:Wiki.png">
 !! end
 
 !! test
 Redirect to interwiki
-!! options
-parsoid
 !! wikitext
 #REDIRECT [[meatball:File:Wiki.png]]
-!! html
+!! html/parsoid
 <link rel="mw:PageProp/redirect" href="./File:Wiki.png">
 !! end
 
 !! test
 Non-English #REDIRECT
 !! options
-parsoid
 language=is
 !! wikitext
 #TILVÍSUN [[Main Page]]
-!! html
+!! html/parsoid
 <link rel="mw:PageProp/redirect" href="./Main_Page">
 !! end
 
@@ -8101,7 +8090,7 @@ some text
 New redirect
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <p>Foo<link rel="mw:PageProp/redirect" href="./Foo"></p>
 !! wikitext
 Foo
