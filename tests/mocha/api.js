@@ -556,6 +556,30 @@ describe('Parsoid API', function() {
 				.end(done);
 			});
 
+			it('should return http 400 if supplied data-parsoid is a string', function(done) {
+				request(api)
+				.post('v2/' + mockHost + '/wt/')
+				.send({
+					html: '<html><head></head><body><p>hi</p></body></html>',
+					original: {
+						html: {
+							headers: {
+								'content-type': 'text/html;profile=mediawiki.org/specs/html/1.0.0'
+							},
+							body: '<html><head></head><body><p>ho</p></body></html>',
+						},
+						'data-parsoid': {
+							headers: {
+								'content-type': 'application/json;profile=mediawiki.org/specs/data-parsoid/0.0.1',
+							},
+							body: 'Garbled text from RESTBase.',
+						},
+					},
+				})
+				.expect(400)
+				.end(done);
+			});
+
 			// The following three tests should all serialize as:
 			//   "<div>Selser test"
 			// However, we're deliberately setting the original wikitext in

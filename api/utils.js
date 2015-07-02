@@ -497,3 +497,12 @@ apiUtils.v2endWt2html = function(ret, doc) {
 		apiUtils.endWt2html(ret, doc);
 	}
 };
+
+apiUtils.validateDp = function(obj) {
+	var dp = obj['data-parsoid'];
+	if (!dp || !dp.body || dp.body.constructor !== Object || !dp.body.ids) {
+		var err = new Error('Invalid data-parsoid was provided.');
+		err.code = 400;
+		throw err;
+	}
+};

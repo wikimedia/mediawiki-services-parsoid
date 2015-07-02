@@ -81,11 +81,6 @@ module.exports = function(parsoidConfig) {
 			}
 		}
 
-		if (v2 && v2.original && v2.original['data-parsoid'] &&
-				!Object.keys(v2.original['data-parsoid'].body).length) {
-			return errOut('data-parsoid was provided without an ids property.', 400);
-		}
-
 		res.local('v2', v2);
 		next();
 	};
@@ -456,6 +451,9 @@ module.exports = function(parsoidConfig) {
 				if (revision) {
 					p2 = p2.then(function(ret) {
 						var doc = DU.parseHTML(revision.html.body);
+						// Similar to the html2wt case, stored html is expected
+						// to also pass in dp.
+						apiUtils.validateDp(revision);
 						DU.applyDataParsoid(doc, revision['data-parsoid'].body);
 						ret.reuse = {
 							expansions: DU.extractExpansions(doc),
@@ -542,14 +540,19 @@ module.exports = function(parsoidConfig) {
 			var p = apiUtils.startHtml2wt(req, res, html).then(function(ret) {
 				if (v2.original) {
 					var dp = v2.original['data-parsoid'];
+					// This is optional to support serializing html with inlined
+					// data-parsoid.
 					if (dp) {
+						apiUtils.validateDp(v2.original);
 						DU.applyDataParsoid(ret.doc, dp.body);
 					}
 					if (v2.original.html) {
 						env.page.dom = DU.parseHTML(v2.original.html.body).body;
-						if (dp) {
-							DU.applyDataParsoid(env.page.dom.ownerDocument, dp.body);
-						}
+						// However, if we're given stored html, data-parsoid
+						// should be provided as well. We have no use case for
+						// stored inlined dp anymore.
+						apiUtils.validateDp(v2.original);
+						DU.applyDataParsoid(env.page.dom.ownerDocument, dp.body);
 					}
 				}
 				return ret;
