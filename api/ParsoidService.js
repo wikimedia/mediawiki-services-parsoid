@@ -88,7 +88,6 @@ function ParsoidService( parsoidConfig, processLogger ) {
 	app.get( '/robots.txt', routes.robots );
 
 	// private routes
-	app.get(  re('^/((?:_rt|_rtve)/)?(' + mwApiRe + '):(.*)$'), routes.redirectOldStyle );
 	app.get(  re('^/_html/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.html2wtForm );
 	app.get(  re('^/_wikitext/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.wt2htmlForm );
 	app.get(  re('^/_rt/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.roundtripTesting );

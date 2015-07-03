@@ -174,24 +174,6 @@ module.exports = function(parsoidConfig) {
 		});
 	};
 
-	// Redirects for old-style URL compatibility
-	routes.redirectOldStyle = function( req, res ) {
-		if ( req.params[0] ) {
-			apiUtils.relativeRedirect({
-				"path": '/' + req.params[0] + req.params[1] + '/' + req.params[2],
-				"res": res,
-				"code": 301
-			});
-		} else {
-			apiUtils.relativeRedirect({
-				"path": '/' + req.params[1] + '/' + req.params[2],
-				"res": res,
-				"code": 301
-			});
-		}
-		res.end();
-	};
-
 	// Form-based HTML DOM -> wikitext interface for manual testing.
 	routes.html2wtForm = function( req, res ) {
 		var env = res.local('env');
