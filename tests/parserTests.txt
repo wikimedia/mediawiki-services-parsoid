@@ -5962,6 +5962,26 @@ Invalid attributes in table cell (bug 1830)
 
 !! end
 
+!! test
+Table cell attributes: Pipes protected by nowikis should be treated as a plain character
+!! wikitext
+{|
+| title="foo" |bar
+| title="foo<nowiki>|</nowiki>" |bar
+| title="foo<nowiki>|</nowiki>" bar
+|}
+!! html
+<table>
+<tr>
+<td title="foo">bar
+</td>
+<td title="foo&#124;">bar
+</td>
+<td> title="foo|" bar
+</td></tr></table>
+
+!! end
+
 # The "|}" to close the table is missing from the input, so parsoid's
 # *2wt modes will fail.
 !! test
@@ -6105,6 +6125,35 @@ Indented table markup mixed with indented pre content (proposed in bug 6200)
 <table>
 <tbody><tr><th align="center" style="color:red;" typeof="mw:Transclusion" about="#mwt1" data-mw='{"parts":["!align=center ",{"template":{"target":{"wt":"table_header_cells","href":"./Template:Table_header_cells"},"params":{},"i":0}}]}'>Foo</th><th about="#mwt1" style="color:red;"><i about="#mwt1">Bar</i></th><th about="#mwt1" style="color:brown;"><i about="#mwt1">Foo</i> and Baz</th></tr><tr>
 <td align="center" style="color:red;" typeof="mw:Transclusion" about="#mwt1" data-mw='{"parts":["|align=center ",{"template":{"target":{"wt":"table_cells","href":"./Template:Table_cells"},"params":{},"i":0}}]}'>Foo</td><td about="#mwt1" style="color:red;"><i about="#mwt1">Bar</i></td><td about="#mwt1" style="color:brown;"><i about="#mwt1">Foo</i> and Baz</td></tr>
+</tbody></table>
+!! end
+
+!! test
+4. Template-generated table cell attributes and cell content inside a templated table
+!! wikitext
+{{tbl-start}}
+!align=center {{table_header_cells}}
+|-
+|align=center {{table_cells}}
+{{tbl-end}}
+!! html/php
+<table>
+<tr>
+<th align="center" style="color:red;">Foo</th>
+<th style="color:red;"><i>Bar</i></th>
+<th style="color:brown;"><i>Foo</i> and Baz
+</th></tr>
+<tr>
+<td align="center" style="color:red;">Foo</td>
+<td style="color:red;"><i>Bar</i></td>
+<td style="color:brown;"><i>Foo</i> and Baz
+</td></tr></table>
+
+!! html/parsoid
+<table about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[],[],[],[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"tbl-start","href":"./Template:Tbl-start"},"params":{},"i":0}},"\n!align=center ",{"template":{"target":{"wt":"table_header_cells","href":"./Template:Table_header_cells"},"params":{},"i":1}},"\n|-\n|align=center ",{"template":{"target":{"wt":"table_cells","href":"./Template:Table_cells"},"params":{},"i":2}},"\n",{"template":{"target":{"wt":"tbl-end","href":"./Template:Tbl-end"},"params":{},"i":3}}]}'>
+<tbody><tr><th align="center" style="color:red;">Foo</th><th style="color:red;"><i>Bar</i></th><th style="color:brown;"><i>Foo</i> and Baz</th></tr>
+<tr>
+<td align="center" style="color:red;">Foo</td><td style="color:red;"><i>Bar</i></td><td style="color:brown;"><i>Foo</i> and Baz</td></tr>
 </tbody></table>
 !! end
 
@@ -10904,6 +10953,24 @@ Templates: Support for templates generating attributes and content
 !! html/parsoid
 <table>
 <tbody><tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td style="background:#f9f9f9;" typeof="mw:Transclusion" about="#mwt1" data-parsoid='{"autoInsertedEnd":true,"pi":[[]]}' data-mw='{"parts":["|",{"template":{"target":{"wt":"table_attribs_3","href":"./Template:Table_attribs_3"},"params":{},"i":0}}]}'>Foo</td></tr>
+</tbody></table>
+!! end
+
+!! test
+3. Entities and nowikis inside templated attributes should be handled correctly inside templated tables
+!! wikitext
+{{tbl-start}}
+|{{table_attribs_3}}
+{{tbl-end}}
+!! html/php
+<table>
+<tr>
+<td style="background:#f9f9f9;">Foo
+</td></tr></table>
+
+!! html/parsoid
+<table about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[],[],[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"tbl-start","href":"./Template:Tbl-start"},"params":{},"i":0}},"\n|",{"template":{"target":{"wt":"table_attribs_3","href":"./Template:Table_attribs_3"},"params":{},"i":1}},"\n",{"template":{"target":{"wt":"tbl-end","href":"./Template:Tbl-end"},"params":{},"i":2}}]}'>
+<tbody><tr><td style="background:#f9f9f9;">Foo</td></tr>
 </tbody></table>
 !! end
 
