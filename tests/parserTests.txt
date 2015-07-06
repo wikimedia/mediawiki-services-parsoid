@@ -7983,7 +7983,7 @@ Blah blah blah
 !! wikitext
 #REDIRECT [[Main Page]]
 !! html/parsoid
-<link rel="mw:PageProp/redirect" href="./Main_Page">
+<link rel="mw:PageProp/redirect" href="./Main_Page"/>
 !! end
 
 !! test
@@ -7994,12 +7994,22 @@ Blah blah blah
 <link rel="mw:PageProp/redirect" href="./Main_Page" data-parsoid='{"src":"#REDIRECT ","a":{"href":"./Main_Page"},"sa":{"href":"Main_Page"}}'/>
 !! end
 
+# Not a valid redirect in PHP (although perhaps it was, once upon a time)
+# This tests the Parsoid bail-out code.
 !! test
 3. Other redirect variants
 !! wikitext
 #REDIRECT [[<nowiki>[[Bar]]</nowiki>]]
 !! html/parsoid
-<link rel="mw:PageProp/redirect" href="./%5B%5BBar%5D%5D" data-parsoid='{"src":"#REDIRECT ","a":{"href":"./%5B%5BBar%5D%5D"},"sa":{"href":"&lt;nowiki>[[Bar]]&lt;/nowiki>"}}'/>
+<ol><li data-parsoid>REDIRECT [[[[Bar]]]]</li></ol>
+!! end
+
+!! test
+4. Redirect to a templated destination
+!! wikitext
+#REDIRECT [[{{echo|Foo}}bar]]
+!! html/parsoid
+<link typeof="mw:ExpandedAttrs" rel="mw:PageProp/redirect" href="./Foobar" data-mw='{"attribs":[[{"txt":"href"},{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;,&amp;quot;spc&amp;quot;:[&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;]}]],&amp;quot;dsr&amp;quot;:[12,24,null,null]}\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;Foo&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\">Foo&lt;/span>bar"}]]}'/>
 !! end
 
 !! test
@@ -8022,7 +8032,7 @@ parsoid=wt2html,html2html
 !! wikitext
 #REDIRECT:[[Main Page]]
 !! html/parsoid
-<link rel="mw:PageProp/redirect" href="./Main_Page">
+<link rel="mw:PageProp/redirect" href="./Main_Page"/>
 !! end
 
 !! test
@@ -8038,7 +8048,7 @@ parsoid=wt2html,html2html
 : 
 [[Main Page]]
 !! html/parsoid
-<link rel="mw:PageProp/redirect" href="./Main_Page">
+<link rel="mw:PageProp/redirect" href="./Main_Page"/>
 !! end
 
 !! test
@@ -8050,7 +8060,7 @@ parsoid=wt2html
 !! wikitext
 #REDIRECT [[Main Page|bar]]
 !! html/parsoid
-<link rel="mw:PageProp/redirect" href="./Main_Page">
+<link rel="mw:PageProp/redirect" href="./Main_Page"/>
 !! end
 
 !! test
@@ -8060,7 +8070,7 @@ parsoid=wt2html,wt2wt
 !! wikitext
 #REDIRECT [[Category:Foo]]
 !! html/parsoid
-<link rel="mw:PageProp/redirect" href="Category:Foo"/>
+<link rel="mw:PageProp/redirect" href="./Category:Foo"/>
 !! end
 
 !! test
@@ -8070,7 +8080,7 @@ parsoid=wt2html
 !! wikitext
 #REDIRECT [[Category%3AFoo]]
 !! html/parsoid
-<link rel="mw:PageProp/redirect" href="Category:Foo"/>
+<link rel="mw:PageProp/redirect" href="./Category:Foo"/>
 !! end
 
 !! test
@@ -8078,7 +8088,7 @@ Redirect to category page
 !! wikitext
 #REDIRECT [[:Category:Foo]]
 !! html/parsoid
-<link rel="mw:PageProp/redirect" href="Category:Foo"/>
+<link rel="mw:PageProp/redirect" href="./Category:Foo"/>
 !! end
 
 !! test
@@ -8086,7 +8096,7 @@ Redirect to image page (1)
 !! wikitext
 #REDIRECT [[File:Wiki.png]]
 !! html/parsoid
-<link rel="mw:PageProp/redirect" href="./File:Wiki.png">
+<link rel="mw:PageProp/redirect" href="./File:Wiki.png"/>
 !! end
 
 !! test
@@ -8094,23 +8104,35 @@ Redirect to image page (2)
 !! wikitext
 #REDIRECT [[Image:Wiki.png]]
 !! html/parsoid
-<link rel="mw:PageProp/redirect" href="./File:Wiki.png">
+<link rel="mw:PageProp/redirect" href="./File:Wiki.png"  data-parsoid='{"src":"#REDIRECT ","a":{"href":"./File:Wiki.png"},"sa":{"href":"Image:Wiki.png"}}'/>
 !! end
 
+# html2wt disabled because wts serializes as "#REDIRECT [[:en:File:Wiki.png]]"
+# Next test confirms this.
 !! test
-Redirect to language
+Redirect to language (1) (T104918)
+!! options
+parsoid=wt2html,wt2wt,html2html
 !! wikitext
 #REDIRECT [[en:File:Wiki.png]]
 !! html/parsoid
-<link rel="mw:PageProp/redirect" href="./File:Wiki.png">
+<link rel="mw:PageProp/redirect" href="//en.wikipedia.org/wiki/File:Wiki.png"/>
 !! end
 
 !! test
-Redirect to interwiki
+Redirect to language (2) (T104918)
+!! wikitext
+#REDIRECT [[:en:File:Wiki.png]]
+!! html/parsoid
+<link rel="mw:PageProp/redirect" href="//en.wikipedia.org/wiki/File:Wiki.png"/>
+!! end
+
+!! test
+Redirect to interwiki (T104918)
 !! wikitext
 #REDIRECT [[meatball:File:Wiki.png]]
 !! html/parsoid
-<link rel="mw:PageProp/redirect" href="./File:Wiki.png">
+<link rel="mw:PageProp/redirect" href="http://www.usemod.com/cgi-bin/mb.pl?File:Wiki.png"/>
 !! end
 
 !! test
@@ -8120,7 +8142,7 @@ language=is
 !! wikitext
 #TILVÍSUN [[Main Page]]
 !! html/parsoid
-<link rel="mw:PageProp/redirect" href="./Main_Page">
+<link rel="mw:PageProp/redirect" href="./Main_Page" data-parsoid='{"src":"#TILVÍSUN ","a":{"href":"./Main_Page"},"sa":{"href":"Main Page"}}'/>
 !! end
 
 !! test
@@ -8140,7 +8162,7 @@ New redirect
 !! options
 parsoid=html2wt
 !! html/parsoid
-<p>Foo<link rel="mw:PageProp/redirect" href="./Foo"></p>
+<p>Foo<link rel="mw:PageProp/redirect" href="./Foo"/></p>
 !! wikitext
 Foo
 #REDIRECT [[Foo]]
@@ -9911,9 +9933,11 @@ Template with default value (value set)
 Template redirect
 !! wikitext
 {{templateredirect}}
-!! html
+!! html/php
 <p>(test)
 </p>
+!! html/parsoid
+<link rel="mw:PageProp/redirect" href="./Template:Templatesimple" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"templateredirect","href":"./Template:Templateredirect"},"params":{},"i":0}}]}'/>
 !! end
 
 !! test
