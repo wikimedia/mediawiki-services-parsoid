@@ -114,6 +114,11 @@ var standardOpts = Util.addStandardOptions({
 		description: 'Parse with linter enabled',
 		'boolean': true,
 		'default': false
+	},
+	'scrubWikitext': {
+		description: 'Apply wikitext scrubbing while serializing.',
+		'boolean': true,
+		'default': false,
 	}
 });
 exports.defaultOptions = yargs.options(standardOpts).parse([]);
@@ -184,6 +189,9 @@ var parse = exports.parse = function( input, argv, parsoidConfig, prefix ) {
 		if ( argv.wgScriptPath ) {
 			env.conf.wiki.wgScriptPath = argv.wgScriptPath;
 		}
+
+		// Enable wikitext scrubbing
+		env.scrubWikitext = argv.scrubWikitext;
 
 		var i, validExtensions;
 		if ( validExtensions !== '' ) {
