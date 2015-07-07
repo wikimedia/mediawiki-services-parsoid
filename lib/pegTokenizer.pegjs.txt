@@ -89,21 +89,14 @@ redirect
     sp:$space_or_newline*
     c:$( ":" space_or_newline* )?
     wl:wikilink & {
-      var link = wl[0];
-      return link && link.constructor !== String;
+      return wl.length === 1 && wl[0] && wl[0].constructor !== String;
   } {
     var link = wl[0];
-
-    // Set the wikilink's tsr to be zero length. That token is synthetic and
-    // the full tsr range is used by the redirect token. Anything with a zero
-    // width will never be serialized using selser, which is what we want here
-    // as there is no source for it.
-    link.dataAttribs.tsr[0] = link.dataAttribs.tsr[1];
-
     if (sp) { rw += sp; }
     if (c) { rw += c; }
     // Build a redirect token
     var redirect = new SelfclosingTagTk('mw:redirect',
+            // Put 'href' into attributes so it gets template-expanded
             [Util.lookupKV(link.attribs, 'href')],
             {
                 src: rw,
