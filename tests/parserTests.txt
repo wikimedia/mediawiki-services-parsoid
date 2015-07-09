@@ -1325,11 +1325,15 @@ array (
 
 !! test
 Isolated close tags should be treated as literal text (bug 52760)
+!! options
+parsoid=wt2html
 !! wikitext
 </b>
 
 <s.foo>s</s>
-!! html+tidy
+!! html/php+tidy
+<p>&lt;s.foo&gt;s</p>
+!! html/parsoid
 <p>&lt;s.foo&gt;s</p>
 !! end
 
