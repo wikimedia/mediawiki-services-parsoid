@@ -9597,7 +9597,7 @@ hi+world%3F%21
 Magic Word: prioritize type info over data-parsoid
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <meta property="mw:PageProp/forcetoc" data-parsoid='{"magicSrc":"__NOTOC__"}'/>
 !! wikitext
 __FORCETOC__
@@ -14151,7 +14151,7 @@ __FORCETOC__
 == Headline ==
 == Headline 2 ==
 == Headline ==
-!! html
+!! html/php
 <div id="toc" class="toc"><div id="toctitle"><h2>Contents</h2></div>
 <ul>
 <li class="toclevel-1 tocsection-1"><a href="#Headline_2"><span class="tocnumber">1</span> <span class="toctext">Headline 2</span></a></li>
@@ -14262,6 +14262,22 @@ TOC regression (T11764)
 <h3><span class="mw-headline" id="title_1.2">title 1.2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: title 1.2">edit</a><span class="mw-editsection-bracket">]</span></span></h3>
 <h2><span class="mw-headline" id="title_2">title 2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=5" title="Edit section: title 2">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 <h3><span class="mw-headline" id="title_2.1">title 2.1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=6" title="Edit section: title 2.1">edit</a><span class="mw-editsection-bracket">]</span></span></h3>
+
+!! end
+
+!! test
+TOC for heading containing <span id="..."></span> (T96153)
+!! wikitext
+__FORCETOC__
+==<span id="old-anchor"></span>New title==
+!! html/php
+<div id="toc" class="toc"><div id="toctitle"><h2>Contents</h2></div>
+<ul>
+<li class="toclevel-1 tocsection-1"><a href="#New_title"><span class="tocnumber">1</span> <span class="toctext">New title</span></a></li>
+</ul>
+</div>
+
+<h2><span class="mw-headline" id="New_title"><span id="old-anchor"></span>New title</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: New title">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 
 !! end
 
@@ -17864,7 +17880,7 @@ __FORCETOC__ override
 !! wikitext
 __NEWSECTIONLINK__
 __FORCETOC__
-!! html
+!! html/php
 <p><br />
 </p>
 !! end
@@ -18811,6 +18827,61 @@ language=zh variant=zh-tw
 Raw: -{R|zh:China;zh-tw:Taiwan}-
 !! html
 <p>Raw: zh:China;zh-tw:Taiwan
+</p>
+!! end
+
+!! test
+Strings evaluating false shouldn't be ignored by Language converter (T51072)
+!! options
+language=zh variant=zh-cn
+!! input
+-{zh-cn:0;zh-sg:1;zh-tw:2;zh-hk:3}-
+!! result
+<p>0
+</p>
+!! end
+
+!! test
+Conversion rules from [numeric-only string] to [something else] (T48634)
+!! options
+language=zh variant=zh-cn
+!! input
+-{H|0=>zh-cn:B}--{H|0=>zh-cn:C;0=>zh-cn:D}--{H|0=>zh-hans:A}-012345-{A|zh-tw:0;zh-cn:E;}-012345
+!! result
+<p>D12345EE12345
+</p>
+!! end
+
+!! test
+Bidirectional converter rule entries with an empty value should be ignored (T53551)
+!! options
+language=zh variant=zh-cn
+!! input
+-{H|zh-cn:foo;zh-tw:;}-foobar
+!! result
+<p>foobar
+</p>
+!! end
+
+!! test
+Unidirectional converter rule entries with an empty "from" string should be ignored (T53551)
+!! options
+language=zh variant=zh-cn
+!! input
+-{H|=>zh-cn:foo;}-foobar
+!! result
+<p>foobar
+</p>
+!! end
+
+!! test
+Empty converter rule entries shouldn't be inserted into the conversion table (T53551)
+!! options
+language=zh variant=zh-cn
+!! input
+-{H|}-foobar
+!! result
+<p>foobar
 </p>
 !! end
 
@@ -24389,7 +24460,7 @@ parsoid=html2wt
 Magic words
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <meta property='mw:PageProp/toc' />
 <meta property='mw:PageProp/notoc' />
 <meta property='mw:PageProp/forcetoc' />
