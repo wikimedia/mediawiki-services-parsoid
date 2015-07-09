@@ -1680,7 +1680,7 @@ add("html2wt", "span tags with directionality in TOC", "<div id=\"toc\" class=\"
 add("html2wt", "Bug 72884: bdi element in ToC", "<div id=\"toc\" class=\"toc\"><div id=\"toctitle\">\n== Contents ==\n</div>\n\n* [[#test|<span class=\"tocnumber\">1</span> <span class=\"toctext\"><bdi>test</bdi></span>]]\n\n</div>\n\n== <bdi>test</bdi> ==\n");
 add("html2wt", "Empty <p> tag in TOC, removed by Sanitizer (T92892)", "\n<div id=\"toc\" class=\"toc\">\n<div id=\"toctitle\">\n== Contents ==\n</div>\n\n* [[#x|<span class=\"tocnumber\">1</span> <span class=\"toctext\">x</span>]]\n\n</div>\n\n== x ==\n");
 add("html2wt", "Bug 32057: Title needed when expanding <h> nodes.", "== Headline text ==\n");
-add("html2wt", "Strip marker in urlencode", "xy\nxy\nxy\n");
+add("html2wt", "Strip marker in urlencode", "xy\nxy\nxy\nxy\n");
 add("html2wt", "Strip marker in lc", "xy\n");
 add("html2wt", "Strip marker in uc", "XY\n");
 add("html2wt", "Strip marker in formatNum", "12\n12\n");
