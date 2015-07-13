@@ -66,7 +66,7 @@ This time, go to the `tests/` directory in the Parsoid repository and do
 something like:
 
 ```
-$ echo "some harmless [[wikitext]]" | node parse
+$ echo "some harmless [[wikitext]]" | node parse --fetchConfig=false
 ```
 
 This will run the echoed text through the wikitext parser and show you the
