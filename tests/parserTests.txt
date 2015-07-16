@@ -9604,6 +9604,15 @@ __NOEDITSECTION__
 <meta property="mw:PageProp/noeditsection" data-parsoid='{"magicSrc":"__NOEDITSECTION__"}'/>
 !! end
 
+!!test
+__proto__ is treated as normal wikitext
+!!wikitext
+__proto__
+!!html
+<p>__proto__
+</p>
+!!end
+
 ###
 ### Magic links
 ###
