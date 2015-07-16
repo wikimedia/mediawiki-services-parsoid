@@ -24880,8 +24880,11 @@ parsoid={
 }
 !! html
 <p> hi</p>
+<p>    hello</p>
 !! wikitext
 hi
+
+hello
 !! end
 
 !! test
@@ -24890,8 +24893,11 @@ hi
 parsoid=html2wt
 !! html
 <p> hi</p>
+<p>    hello</p>
 !! wikitext
 <nowiki> </nowiki>hi
+
+<nowiki> </nowiki>   hello
 !! end
 
 # ---------------------------------------------------
