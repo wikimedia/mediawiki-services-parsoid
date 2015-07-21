@@ -30,6 +30,7 @@
 		"api/localsettings.js",
 		"api/static/js/jquery.js",
 		"api/static/js/scrolling.js",
-		"lib/_http_agent.js"
+		"lib/_http_agent.js",
+		"lib/mediawiki.tokenizer.js"
 	]
 }
