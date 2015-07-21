@@ -1449,7 +1449,8 @@ ParserTests.prototype.checkWikitext = function(item, out, options, mode) {
 	// FIXME: normalization not in place yet
 	var normalizedOut = toWikiText ? out.replace(/\n+$/, '') : out;
 
-	var input = mode === 'html2wt' ? item.html : itemWikitext;
+	var input = mode === 'selser' ? item.changedHTMLStr :
+			mode === 'html2wt' ? item.html : itemWikitext;
 	var expected = { isWT: true, normal: normalizedExpected, raw: itemWikitext };
 	var actual = { isWT: true, normal: normalizedOut, raw: out, input: input };
 
