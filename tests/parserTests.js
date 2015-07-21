@@ -522,7 +522,7 @@ ParserTests.prototype.applyChanges = function(item, body, changelist, cb) {
 					}
 				}
 				break;
-			case 'BODY' : wrapperName = 'P'; break;
+			case 'BODY': wrapperName = 'P'; break;
 			default:
 				if (DU.isBlockNodeWithVisibleWT(n)) {
 					wrapperName = 'P';
@@ -530,11 +530,11 @@ ParserTests.prototype.applyChanges = function(item, body, changelist, cb) {
 				break;
 		}
 
-		if (wrapperName) {
+		if (DU.isFosterablePosition(n) && n.parentNode.nodeName !== 'TR') {
+			newNode = ownerDoc.createComment(str);
+		} else if (wrapperName) {
 			newNode = ownerDoc.createElement(wrapperName);
 			newNode.appendChild(ownerDoc.createTextNode(str));
-		} else if (DU.isFosterablePosition(n)) {
-			newNode = ownerDoc.createComment(str);
 		} else {
 			newNode = ownerDoc.createTextNode(str);
 		}
