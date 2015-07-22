@@ -9631,7 +9631,7 @@ __NOEDITSECTION__
 !! end
 
 !!test
-__proto__ is treated as normal wikitext
+__proto__ is treated as normal wikitext (T105997)
 !!wikitext
 __proto__
 !!html
