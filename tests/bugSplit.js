@@ -23,10 +23,10 @@ function writeFiles(bugfileName, data) {
 	fs.mkdirSync(dirName, "0755");
 
 	// Output files
-	for ( var i = 0; i < keys.length; i++ ) {
+	for (var i = 0; i < keys.length; i++) {
 		var key = keys[i];
 		var fileName = encodeURIComponent(key);
-		console.log( 'Creating file ' + fileName );
+		console.log('Creating file ' + fileName);
 
 		val = data[key];
 
@@ -48,8 +48,8 @@ function writeFiles(bugfileName, data) {
 
 function main() {
 	if (process.argv.length === 2) {
-		console.warn( 'Split up a bug report into several files in the current directory');
-		console.warn( 'Usage: ' + process.argv[0] + ' <bugreport.json>');
+		console.warn('Split up a bug report into several files in the current directory');
+		console.warn('Usage: ' + process.argv[0] + ' <bugreport.json>');
 		process.exit(1);
 	}
 
@@ -59,7 +59,7 @@ function main() {
 	try {
 		data = JSON.parse(fs.readFileSync(filename));
 	} catch (e) {
-		console.error( 'Something went wrong while trying to read or parse ' + filename );
+		console.error('Something went wrong while trying to read or parse ' + filename);
 		console.error(e);
 		process.exit(1);
 	}

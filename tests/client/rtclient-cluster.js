@@ -12,37 +12,37 @@ var opts = require('yargs')
 	})
 	.alias('c', 'children').argv;
 
-if ( !module.parent ) {
+if (!module.parent) {
 	var numClients = opts.c;
 
-	cluster.setupMaster( {
-		exec: path.join( __dirname, 'client.js' ),
+	cluster.setupMaster({
+		exec: path.join(__dirname, 'client.js'),
 		args: opts._
-	} );
+	});
 
-	console.log( "rtclient-cluster initializing", numClients, "rtclients");
-	for ( var i = 0; i < numClients; i++ ) {
+	console.log("rtclient-cluster initializing", numClients, "rtclients");
+	for (var i = 0; i < numClients; i++) {
 		cluster.fork();
 	}
 
-	cluster.on( 'exit', function( worker, code, signal ) {
-		if ( !worker.suicide ) {
+	cluster.on('exit', function(worker, code, signal) {
+		if (!worker.suicide) {
 			var exitCode = worker.process.exitCode;
-			console.log( 'rtclient', worker.process.pid,
-				'died (' + exitCode + '), restarting.' );
+			console.log('rtclient', worker.process.pid,
+				'died (' + exitCode + '), restarting.');
 			cluster.fork();
 		}
-	} );
+	});
 
 	var shutdownCluster = function() {
-		console.log( 'rtclient cluster shutting down, killing all rtclients' );
+		console.log('rtclient cluster shutting down, killing all rtclients');
 		var workers = cluster.workers;
-		Object.keys( workers ).forEach( function( id ) {
-			console.log( 'Killing rtclient', id );
+		Object.keys(workers).forEach(function(id) {
+			console.log('Killing rtclient', id);
 			workers[ id ].destroy();
-		} );
-		console.log( 'Done killing rtclients, exiting rtclient-cluster.' );
-		process.exit( 0 );
+		});
+		console.log('Done killing rtclients, exiting rtclient-cluster.');
+		process.exit(0);
 	};
 
 	process.on('SIGINT', shutdownCluster);

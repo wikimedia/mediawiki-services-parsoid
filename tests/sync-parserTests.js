@@ -46,7 +46,7 @@ var strip = function(s) {
 
 // Option parsing and helpful messages.
 var usage = 'Usage: $0 <mediawiki checkout path> <branch name>';
-var opts = yargs.usage( usage, {
+var opts = yargs.usage(usage, {
 	'help': { description: 'Show this message' }
 });
 var argv = opts.argv;

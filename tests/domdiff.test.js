@@ -53,7 +53,7 @@ if (Util.booleanOption(argv.help) || !oldhtml || !newhtml) {
 
 var oldDOM = DU.parseHTML(oldhtml);
 var dummyEnv = {
-	conf: { parsoid: { debug: Util.booleanOption( argv.debug ) }, wiki: {} },
+	conf: { parsoid: { debug: Util.booleanOption(argv.debug) }, wiki: {} },
 	page: { id: null, dom: oldDOM.body }
 };
 

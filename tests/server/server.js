@@ -26,70 +26,70 @@ var defaults = {
 };
 
 // Command line options
-var opts = yargs.usage( 'Usage: $0 [connection parameters]' )
-	.options( 'help', {
+var opts = yargs.usage('Usage: $0 [connection parameters]')
+	.options('help', {
 		'boolean': true,
 		'default': false,
 		describe: "Show usage information."
-	} )
-	.options( 'config', {
+	})
+	.options('config', {
 		describe: 'Configuration file for the server',
 		'default': './server.settings.js'
 	})
-	.options( 'h', {
+	.options('h', {
 		alias: 'host',
 		describe: 'Hostname of the database server.'
-	} )
-	.options( 'P', {
+	})
+	.options('P', {
 		alias: 'port',
 		describe: 'Port number to use for connection.'
-	} )
-	.options( 'D', {
+	})
+	.options('D', {
 		alias: 'database',
 		describe: 'Database to use.'
-	} )
-	.options( 'u', {
+	})
+	.options('u', {
 		alias: 'user',
 		describe: 'User for MySQL login.'
-	} )
-	.options( 'p', {
+	})
+	.options('p', {
 		alias: 'password',
 		describe: 'Password.'
-	} )
-	.options( 'd', {
+	})
+	.options('d', {
 		alias: 'debug',
 		'boolean': true,
 		describe: "Output MySQL debug data."
-	} )
-	.options( 'f', {
+	})
+	.options('f', {
 		alias: 'fetches',
 		describe: "Number of times to try fetching a page."
-	} )
-	.options( 't', {
+	})
+	.options('t', {
 		alias: 'tries',
 		describe: "Number of times an article will be sent for testing " +
 			"before it's considered an error."
-	} )
-	.options( 'c', {
+	})
+	.options('c', {
 		alias: 'cutofftime',
 		describe: "Time in seconds to wait for a test result."
-	} )
-	.options( 'b', {
+	})
+	.options('b', {
 		alias: 'batch',
 		describe: "Number of titles to fetch from database in one batch."
-	} );
+	});
 var argv = opts.argv;
 
-if ( argv.help ) {
+if (argv.help) {
 	opts.showHelp();
-	process.exit( 0 );
+	process.exit(0);
 }
 
 // Settings file
 var settings;
 try {
-	settings = require( argv.config );
-} catch ( e ) {
+	settings = require(argv.config);
+} catch (e) {
 	console.error("Aborting! Exception reading " + argv.config + ": " + e);
 	return;
 }
@@ -105,11 +105,11 @@ var getOption = function(opt) {
 	var value;
 
 	// Check possible options in this order: command line, settings file, defaults.
-	if ( argv.hasOwnProperty( opt ) ) {
+	if (argv.hasOwnProperty(opt)) {
 		value = argv[ opt ];
-	} else if ( settings.hasOwnProperty( opt ) ) {
+	} else if (settings.hasOwnProperty(opt)) {
 		value = settings[ opt ];
-	} else if ( defaults.hasOwnProperty( opt ) ) {
+	} else if (defaults.hasOwnProperty(opt)) {
 		value = defaults[ opt ];
 	} else {
 		return undefined;
@@ -147,19 +147,19 @@ var db = mysql.createConnection({
 	debug:              debug
 });
 
-var queues = require( 'mysql-queues' );
-queues( db, debug );
+var queues = require('mysql-queues');
+queues(db, debug);
 
 // Try connecting to the database.
-process.on( 'exit', function() {
+process.on('exit', function() {
 	db.end();
-} );
-db.connect( function( err ) {
-	if ( err ) {
-		console.error( "Unable to connect to database, error: " + err.toString() );
-		process.exit( 1 );
+});
+db.connect(function(err) {
+	if (err) {
+		console.error("Unable to connect to database, error: " + err.toString());
+		process.exit(1);
 	}
-} );
+});
 
 // ----------------- The queries --------------
 var dbGetTitle =
@@ -455,15 +455,15 @@ var dbGetTwoResults =
 	'AND (commits.hash = ? OR commits.hash = ?) ' +
 	'ORDER BY commits.timestamp';
 
-var transFetchCB = function( msg, trans, failCb, successCb, err, result ) {
-	if ( err ) {
-		trans.rollback( function() {
-			if ( failCb ) {
-				failCb ( msg? msg + err.toString() : err, result );
+var transFetchCB = function(msg, trans, failCb, successCb, err, result) {
+	if (err) {
+		trans.rollback(function() {
+			if (failCb) {
+				failCb (msg? msg + err.toString() : err, result);
 			}
-		} );
-	} else if ( successCb ) {
-		successCb( result );
+		});
+	} else if (successCb) {
+		successCb(result);
 	}
 };
 
@@ -471,7 +471,7 @@ var fetchPages = function(commitHash, cutOffTimestamp, cb) {
 	var trans = db.startTransaction();
 	trans.query(dbGetTitle, [maxFetchRetries, commitHash, maxTries, cutOffTimestamp, batchSize], transFetchCB.bind(null, 'Error getting next titles', trans, cb, function(rows) {
 		if (!rows || rows.length === 0) {
-			trans.commit(cb.bind( null, null, rows));
+			trans.commit(cb.bind(null, null, rows));
 		} else {
 			// Process the rows: Weed out the crashers.
 			var pages = [];
@@ -482,7 +482,7 @@ var fetchPages = function(commitHash, cutOffTimestamp, cb) {
 				pages.push({ id: row.id, prefix: row.prefix, title: row.title });
 			}
 			trans.query(dbUpdatePageClaims, [commitHash, new Date(), pageIds], transFetchCB.bind(null, 'Error updating claims', trans, cb, function() {
-				trans.commit(cb.bind( null, null, pages));
+				trans.commit(cb.bind(null, null, pages));
 			}));
 		}
 	})).execute();
@@ -493,13 +493,13 @@ var lastFetchedCommit = null;
 var lastFetchedDate = new Date(0);
 var knownCommits;
 
-var getTitle = function( req, res ) {
+var getTitle = function(req, res) {
 	var commitHash = req.query.commit;
-	var commitDate = new Date( req.query.ctime );
+	var commitDate = new Date(req.query.ctime);
 	var knownCommit = knownCommits && knownCommits[ commitHash ];
 
 	req.connection.setTimeout(300 * 1000);
-	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
+	res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
 
 	// Keep track of known commits so we can discard clients still on older
 	// versions. If we don't know about the commit, then record it
@@ -522,52 +522,52 @@ var getTitle = function( req, res ) {
 
 		// New commit, record it
 		knownCommits[ commitHash ] = commitDate;
-		trans.query( dbInsertCommit, [ commitHash, new Date() ], function( err, commitInsertResult ) {
-			if ( err ) {
-				console.error( "Error inserting commit " + commitHash );
-			} else if ( commitInsertResult.affectedRows > 0 ) {
+		trans.query(dbInsertCommit, [ commitHash, new Date() ], function(err, commitInsertResult) {
+			if (err) {
+				console.error("Error inserting commit " + commitHash);
+			} else if (commitInsertResult.affectedRows > 0) {
 				// If this is a new commit, we need to clear the number of times a
 				// crasher page has been sent out so that each title gets retested
-				trans.query( dbUpdateCrashersClearTries, [ commitHash, maxTries ] );
+				trans.query(dbUpdateCrashersClearTries, [ commitHash, maxTries ]);
 			}
-		} );
+		});
 
 		trans.commit();
 	}
-	if ( knownCommit && commitHash !== lastFetchedCommit ) {
+	if (knownCommit && commitHash !== lastFetchedCommit) {
 		// It's an old commit, tell the client so it can restart.
 		// HTTP status code 426 Update Required
-		res.send( "Old commit", 426 );
+		res.send("Old commit", 426);
 		return;
 	}
 
-	var fetchCb = function( err, pages ) {
-		if ( err ) {
-			res.send( "Error: " + err.toString(), 500 );
+	var fetchCb = function(err, pages) {
+		if (err) {
+			res.send("Error: " + err.toString(), 500);
 			return;
 		}
 
-		if ( pages ) {
+		if (pages) {
 			// Get the pages that aren't already fetched, to guard against the
 			// case of clients not finishing the whole batch in the cutoff time
-			var newPages = pages.filter( function( p ) {
-				return fetchedPages.every( function( f ) {
+			var newPages = pages.filter(function(p) {
+				return fetchedPages.every(function(f) {
 					return f.id !== p.id;
-				} );
-			} );
+				});
+			});
 			// Append the new pages to the already fetched ones, in case there's
 			// a parallel request.
-			fetchedPages = fetchedPages.concat( newPages );
+			fetchedPages = fetchedPages.concat(newPages);
 		}
-		if ( fetchedPages.length === 0 ) {
+		if (fetchedPages.length === 0) {
 			// Send 404 to indicate no pages available now, clients depend on
 			// this.
-			res.send( 'No available titles that fit the constraints.', 404 );
+			res.send('No available titles that fit the constraints.', 404);
 		} else {
 			var page = fetchedPages.pop();
 
-			console.log( ' ->', page.prefix + ':' + page.title );
-			res.send( page, 200 );
+			console.log(' ->', page.prefix + ':' + page.title);
+			res.send(page, 200);
 		}
 	};
 
@@ -585,7 +585,7 @@ var getTitle = function( req, res ) {
 
 		lastFetchedCommit = commitHash;
 		lastFetchedDate = new Date();
-		fetchPages( commitHash, new Date( Date.now() - ( cutOffTime * 1000 ) ), fetchCb );
+		fetchPages(commitHash, new Date(Date.now() - (cutOffTime * 1000)), fetchCb);
 	} else {
 		fetchCb();
 	}
@@ -598,13 +598,13 @@ var statsScore = function(skipCount, failCount, errorCount) {
 };
 
 var transUpdateCB = function(title, prefix, hash, type, res, trans, successCb, err, result) {
-	if ( err ) {
+	if (err) {
 		trans.rollback();
 		var msg = "Error inserting/updating " + type + " for page: " +  prefix + ':' + title + " and hash: " + hash;
-		console.error( msg );
-		console.error( err );
-		if ( res ) {
-			res.send( msg, 500 );
+		console.error(msg);
+		console.error(err);
+		if (res) {
+			res.send(msg, 500);
 		}
 	} else if (successCb) {
 		successCb(result);
@@ -632,11 +632,11 @@ var receiveResults = function(req, res) {
 		resultString = JSON.stringify(result);
 	} else {
 		// console.warn("old xml junit style");
-		errorCount = result.match( /<error/g );
+		errorCount = result.match(/<error/g);
 		errorCount = errorCount ? errorCount.length : 0;
-		skipCount = result.match( /<skipped/g );
+		skipCount = result.match(/<skipped/g);
 		skipCount = skipCount ? skipCount.length : 0;
-		failCount = result.match( /<failure/g );
+		failCount = result.match(/<failure/g);
 		failCount = failCount ? failCount.length : 0;
 		dneError = result.match('DoesNotExist');
 		resultString = result;
@@ -648,26 +648,26 @@ var receiveResults = function(req, res) {
 	// Get perf stats
 	var perfstats = perfConfig ? perfConfig.parsePerfStats(result) : null;
 
-	res.setHeader( 'Content-Type', 'text/plain; charset=UTF-8' );
+	res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
 
 	var trans = db.startTransaction();
 	// console.warn("got: " + JSON.stringify([title, commitHash, result, skipCount, failCount, errorCount]));
-	if ( errorCount > 0 && dneError ) {
+	if (errorCount > 0 && dneError) {
 		// Page fetch error, increment the fetch error count so, when it goes
 		// over maxFetchRetries, it won't be considered for tests again.
-		console.log( 'XX', prefix + ':' + title );
-		trans.query( dbIncrementFetchErrorCount, [commitHash, title, prefix],
-			transUpdateCB.bind( null, title, prefix, commitHash, "page fetch error count", res, trans, null ) )
-			.commit( function( err ) {
-				if ( err ) {
-					console.error( "Error incrementing fetch count: " + err.toString() );
+		console.log('XX', prefix + ':' + title);
+		trans.query(dbIncrementFetchErrorCount, [commitHash, title, prefix],
+			transUpdateCB.bind(null, title, prefix, commitHash, "page fetch error count", res, trans, null))
+			.commit(function(err) {
+				if (err) {
+					console.error("Error incrementing fetch count: " + err.toString());
 				}
-				res.send( '', 200 );
-			} );
+				res.send('', 200);
+			});
 
 	} else {
-		trans.query( dbFindPage, [ title, prefix ], function( err, pages ) {
-			if ( !err && pages.length === 1 ) {
+		trans.query(dbFindPage, [ title, prefix ], function(err, pages) {
+			if (!err && pages.length === 1) {
 				// Found the correct page, fill the details up
 				var page = pages[0];
 
@@ -675,42 +675,42 @@ var receiveResults = function(req, res) {
 				var latestResultId = 0;
 				var latestStatId = 0;
 				// Insert the result
-				trans.query( dbInsertResult, [ page.id, commitHash, resultString ],
-					transUpdateCB.bind( null, title, prefix, commitHash, "result", res, trans, function( insertedResult ) {
+				trans.query(dbInsertResult, [ page.id, commitHash, resultString ],
+					transUpdateCB.bind(null, title, prefix, commitHash, "result", res, trans, function(insertedResult) {
 						latestResultId = insertedResult.insertId;
 						// Insert the stats
-						trans.query( dbInsertStats, [ skipCount, failCount, errorCount, selserErrorCount, score, page.id, commitHash ],
-							transUpdateCB.bind( null, title, prefix, commitHash, "stats", res, trans, function( insertedStat ) {
+						trans.query(dbInsertStats, [ skipCount, failCount, errorCount, selserErrorCount, score, page.id, commitHash ],
+							transUpdateCB.bind(null, title, prefix, commitHash, "stats", res, trans, function(insertedStat) {
 								latestStatId = insertedStat.insertId;
 
 								// And now update the page with the latest info
-								trans.query( dbUpdatePageLatestResults, [ latestStatId, score, latestResultId, commitHash, page.id ],
-									transUpdateCB.bind( null, title, prefix, commitHash, "latest result", res, trans, function() {
-										trans.commit( function() {
-											console.log( '<- ', prefix + ':' + title, ':', skipCount, failCount,
-												errorCount, commitHash.substr(0, 7) );
+								trans.query(dbUpdatePageLatestResults, [ latestStatId, score, latestResultId, commitHash, page.id ],
+									transUpdateCB.bind(null, title, prefix, commitHash, "latest result", res, trans, function() {
+										trans.commit(function() {
+											console.log('<- ', prefix + ':' + title, ':', skipCount, failCount,
+												errorCount, commitHash.substr(0, 7));
 
 											if (perfConfig) {
 												// Insert the performance stats, ignoring errors for now
-												perfConfig.insertPerfStats( db, page.id, commitHash, perfstats, null );
+												perfConfig.insertPerfStats(db, page.id, commitHash, perfstats, null);
 											}
 
 											// Maybe the perfstats aren't committed yet, but it shouldn't be a problem
 											res.send('', 200);
-										} );
-									} ) );
-							} ) );
-					} ) );
+										});
+									}));
+							}));
+					}));
 			} else {
-				trans.rollback( function() {
+				trans.rollback(function() {
 					if (err) {
 						res.send(err.toString(), 500);
 					} else {
-						res.send( "Did not find claim for title: " + prefix + ':' + title, 200);
+						res.send("Did not find claim for title: " + prefix + ':' + title, 200);
 					}
-				} );
+				});
 			}
-		} ).execute();
+		}).execute();
 	}
 };
 
@@ -744,13 +744,13 @@ if (parsoidRTConfig) {
 }
 
 hbs.registerHelper('formatPerfStat', function(type, value) {
-	if ( type.match( /^time/ ) ) {
+	if (type.match(/^time/)) {
 		// Show time in seconds
-		value = Math.round( (value / 1000) * 100 ) / 100;
+		value = Math.round((value / 1000) * 100) / 100;
 		return value.toString() + "s";
-	} else if ( type.match( /^size/ ) ) {
+	} else if (type.match(/^size/)) {
 		// Show sizes in KiB
-		value = Math.round( value / 1024 );
+		value = Math.round(value / 1024);
 		return value.toString() + "KiB";
 	} else {
 		// Other values go as they are
@@ -758,13 +758,13 @@ hbs.registerHelper('formatPerfStat', function(type, value) {
 	}
 });
 
-var statsWebInterface = function( req, res ) {
+var statsWebInterface = function(req, res) {
 	var query, queryParams;
-	var cutoffDate = new Date( Date.now() - ( cutOffTime * 1000 ) );
+	var cutoffDate = new Date(Date.now() - (cutOffTime * 1000));
 	var prefix = req.params[1] || null;
 
 	// Switch the query object based on the prefix
-	if ( prefix !== null ) {
+	if (prefix !== null) {
 		query = dbPerWikiStatsQuery;
 		queryParams = [ prefix, prefix, prefix, prefix,
 						prefix, prefix, prefix, prefix,
@@ -776,13 +776,13 @@ var statsWebInterface = function( req, res ) {
 	}
 
 	// Fetch stats for commit
-	db.query( query, queryParams, function( err, row ) {
-		if ( err ) {
-			res.send( err.toString(), 500 );
+	db.query(query, queryParams, function(err, row) {
+		if (err) {
+			res.send(err.toString(), 500);
 			return;
 		}
 
-		res.status( 200 );
+		res.status(200);
 
 		var tests = row[0].total;
 		var errorLess = row[0].no_errors;
@@ -806,8 +806,8 @@ var statsWebInterface = function( req, res ) {
 			},
 			graphWidths: {
 				perfect: width * perfects / 100 || 0,
-				syntacticDiff: width * ( syntacticDiffs - perfects ) / 100 || 0,
-				semanticDiff: width * ( 100 - syntacticDiffs ) / 100 || 0
+				syntacticDiff: width * (syntacticDiffs - perfects) / 100 || 0,
+				semanticDiff: width * (100 - syntacticDiffs) / 100 || 0
 			},
 			latestRevision: [
 				{ description: 'Git SHA1', value: row[0].maxhash },
@@ -838,10 +838,10 @@ var statsWebInterface = function( req, res ) {
 
 		// round numeric data, but ignore others
 		hbs.registerHelper('round', function(val) {
-				if ( isNaN(val) ) {
+				if (isNaN(val)) {
 					return val;
 				} else {
-					return Math.round( val * 100 ) / 100;
+					return Math.round(val * 100) / 100;
 				}
 			});
 
@@ -872,15 +872,15 @@ var failsWebInterface = function(req, res) {
 		heading: 'Results by title',
 		header: ['Title', 'Commit', 'Syntactic diffs', 'Semantic diffs', 'Errors']
 	};
-	db.query( dbFailsQuery, [ offset ],
-		RH.displayPageList.bind( null, hbs, res, data, makeFailsRow ) );
+	db.query(dbFailsQuery, [ offset ],
+		RH.displayPageList.bind(null, hbs, res, data, makeFailsRow));
 };
 
 var resultsWebInterface = function(req, res) {
 	var query, queryParams;
 	var prefix = req.params[1] || null;
 
-	if ( prefix !== null ) {
+	if (prefix !== null) {
 		query = dbResultsPerWikiQuery;
 		queryParams = [ prefix ];
 	} else {
@@ -905,41 +905,41 @@ var resultsWebInterface = function(req, res) {
 	});
 };
 
-var resultWebCallback = function( req, res, err, row ) {
-	if ( err ) {
-		console.error( err );
-		res.send( err.toString(), 500 );
-	} else if ( row && row.length > 0 ) {
+var resultWebCallback = function(req, res, err, row) {
+	if (err) {
+		console.error(err);
+		res.send(err.toString(), 500);
+	} else if (row && row.length > 0) {
 		if (row[0].result.match(/<testsuite/)) {
-			res.setHeader( 'Content-Type', 'text/xml; charset=UTF-8' );
-			res.status( 200 );
-			res.write( '<?xml-stylesheet href="/static/result.css"?>\n' );
+			res.setHeader('Content-Type', 'text/xml; charset=UTF-8');
+			res.status(200);
+			res.write('<?xml-stylesheet href="/static/result.css"?>\n');
 		}
-		res.end( row[0].result );
+		res.end(row[0].result);
 	} else {
-		res.send( 'no results for that page at the requested revision', 200 );
+		res.send('no results for that page at the requested revision', 200);
 	}
 };
 
-var resultWebInterface = function( req, res ) {
+var resultWebInterface = function(req, res) {
 	var commit = req.params[2] ? req.params[0] : null;
 	var title = commit === null ? req.params[1] : req.params[2];
 	var prefix = commit === null ? req.params[0] : req.params[1];
 
-	if ( commit !== null ) {
-		db.query( dbGetResultWithCommit, [ commit, title, prefix ], resultWebCallback.bind( null, req, res ) );
+	if (commit !== null) {
+		db.query(dbGetResultWithCommit, [ commit, title, prefix ], resultWebCallback.bind(null, req, res));
 	} else {
-		db.query( dbGetOneResult, [ title, prefix ], resultWebCallback.bind( null, req, res ) );
+		db.query(dbGetOneResult, [ title, prefix ], resultWebCallback.bind(null, req, res));
 	}
 };
 
 var getFailedFetches = function(req, res) {
-	db.query( dbFailedFetches, [maxFetchRetries], function(err, rows) {
-		if ( err ) {
-			console.error( err );
-			res.send( err.toString(), 500 );
+	db.query(dbFailedFetches, [maxFetchRetries], function(err, rows) {
+		if (err) {
+			console.error(err);
+			res.send(err.toString(), 500);
 		} else {
-			res.status( 200 );
+			res.status(200);
 			var n = rows.length;
 			var pageData = [];
 			for (var i = 0; i < n; i++) {
@@ -947,7 +947,7 @@ var getFailedFetches = function(req, res) {
 				var title = rows[i].title;
 				var name = prefix + ':' + title;
 				pageData.push({
-					url: prefix.replace( /wiki$/, '' ) + '.wikipedia.org/wiki/' + title,
+					url: prefix.replace(/wiki$/, '') + '.wikipedia.org/wiki/' + title,
 					linkName: name.replace('&', '&amp;')
 				});
 			}
@@ -963,17 +963,17 @@ var getFailedFetches = function(req, res) {
 			});
 			res.render('list.html', data);
 		}
-	} );
+	});
 };
 
-var getCrashers = function( req, res ) {
-	var cutoffDate = new Date( Date.now() - ( cutOffTime * 1000 ) );
-	db.query( dbCrashers, [ maxTries, cutoffDate ], function( err, rows ) {
-		if ( err ) {
-			console.error( err );
-			res.send( err.toString(), 500 );
+var getCrashers = function(req, res) {
+	var cutoffDate = new Date(Date.now() - (cutOffTime * 1000));
+	db.query(dbCrashers, [ maxTries, cutoffDate ], function(err, rows) {
+		if (err) {
+			console.error(err);
+			res.send(err.toString(), 500);
 		} else {
-			res.status( 200 );
+			res.status(200);
 			var n = rows.length;
 			var pageData = [];
 			for (var i = 0; i < n; i++) {
@@ -981,7 +981,7 @@ var getCrashers = function( req, res ) {
 				var title = rows[i].title;
 				pageData.push({
 					description: rows[i].claim_hash,
-					url: prefix.replace( /wiki$/, '' ) + '.wikipedia.org/wiki/' + title,
+					url: prefix.replace(/wiki$/, '') + '.wikipedia.org/wiki/' + title,
 					linkName: prefix + ':' + title
 				});
 			}
@@ -998,16 +998,16 @@ var getCrashers = function( req, res ) {
 			});
 			res.render('list.html', data);
 		}
-	} );
+	});
 };
 
-var getFailsDistr = function( req, res ) {
-	db.query( dbFailsDistribution, null, function( err, rows ) {
-		if ( err ) {
-			console.error( err );
-			res.send( err.toString(), 500 );
+var getFailsDistr = function(req, res) {
+	db.query(dbFailsDistribution, null, function(err, rows) {
+		if (err) {
+			console.error(err);
+			res.send(err.toString(), 500);
 		} else {
-			res.status( 200 );
+			res.status(200);
 			var n = rows.length;
 			var intervalData = [];
 			for (var i = 0; i < n; i++) {
@@ -1020,16 +1020,16 @@ var getFailsDistr = function( req, res ) {
 			};
 			res.render('histogram.html', data);
 		}
-	} );
+	});
 };
 
-var getSkipsDistr = function( req, res ) {
-	db.query( dbSkipsDistribution, null, function( err, rows ) {
-		if ( err ) {
-			console.error( err );
-			res.send( err.toString(), 500 );
+var getSkipsDistr = function(req, res) {
+	db.query(dbSkipsDistribution, null, function(err, rows) {
+		if (err) {
+			console.error(err);
+			res.send(err.toString(), 500);
 		} else {
-			res.status( 200 );
+			res.status(200);
 			var n = rows.length;
 			var intervalData = [];
 			for (var i = 0; i < n; i++) {
@@ -1042,7 +1042,7 @@ var getSkipsDistr = function( req, res ) {
 			};
 			res.render('histogram.html', data);
 		}
-	} );
+	});
 };
 
 var getRegressions = function(req, res) {
@@ -1052,9 +1052,9 @@ var getRegressions = function(req, res) {
 	var offset = page * 40;
 	var relativeUrlPrefix = '../../../';
 	relativeUrlPrefix = relativeUrlPrefix + (req.params[0] ? '../' : '');
-	db.query( dbNumRegressionsBetweenRevs, [ r2, r1 ], function(err, row) {
+	db.query(dbNumRegressionsBetweenRevs, [ r2, r1 ], function(err, row) {
 		if (err) {
-			res.send( err.toString(), 500 );
+			res.send(err.toString(), 500);
 		} else {
 			var data = {
 				page: page,
@@ -1066,8 +1066,8 @@ var getRegressions = function(req, res) {
 				headingLink: [{url: relativeUrlPrefix + 'topfixes/between/' + r1 + '/' + r2, name: 'topfixes'}],
 				header: RH.regressionsHeaderData
 			};
-			db.query( dbRegressionsBetweenRevs, [ r2, r1, offset ],
-				RH.displayPageList.bind( null, hbs, res, data, RH.makeRegressionRow ));
+			db.query(dbRegressionsBetweenRevs, [ r2, r1, offset ],
+				RH.displayPageList.bind(null, hbs, res, data, RH.makeRegressionRow));
 		}
 	});
 };
@@ -1079,9 +1079,9 @@ var getTopfixes = function(req, res) {
 	var offset = page * 40;
 	var relativeUrlPrefix = '../../../';
 	relativeUrlPrefix = relativeUrlPrefix + (req.params[0] ? '../' : '');
-	db.query( dbNumFixesBetweenRevs, [ r2, r1 ], function(err, row) {
+	db.query(dbNumFixesBetweenRevs, [ r2, r1 ], function(err, row) {
 		if (err) {
-			res.send( err.toString(), 500 );
+			res.send(err.toString(), 500);
 		} else {
 			var data = {
 				page: page,
@@ -1092,25 +1092,25 @@ var getTopfixes = function(req, res) {
 				headingLink: [{url: relativeUrlPrefix + "regressions/between/" + r1 + "/" + r2, name: 'regressions'}],
 				header: RH.regressionsHeaderData
 			};
-			db.query( dbFixesBetweenRevs, [ r2, r1, offset ],
-				RH.displayPageList.bind( null, hbs, res, data, RH.makeRegressionRow ));
+			db.query(dbFixesBetweenRevs, [ r2, r1, offset ],
+				RH.displayPageList.bind(null, hbs, res, data, RH.makeRegressionRow));
 		}
 	});
 };
 
-var getCommits = function( req, res ) {
-	db.query( dbCommits, null, function( err, rows ) {
-		if ( err ) {
-			console.error( err );
-			res.send( err.toString(), 500 );
+var getCommits = function(req, res) {
+	db.query(dbCommits, null, function(err, rows) {
+		if (err) {
+			console.error(err);
+			res.send(err.toString(), 500);
 		} else {
-			res.status( 200 );
+			res.status(200);
 			var n = rows.length;
 			var tableRows = [];
 			for (var i = 0; i < n; i++) {
 				var row = rows[i];
 				var tableRow = {hash: row.hash, timestamp: row.timestamp};
-				if ( i + 1 < n ) {
+				if (i + 1 < n) {
 					tableRow.regUrl = 'regressions/between/' + rows[i + 1].hash + '/' + row.hash;
 					tableRow.fixUrl = 'topfixes/between/' + rows[i + 1].hash + '/' + row.hash;
 				}
@@ -1132,22 +1132,22 @@ var getCommits = function( req, res ) {
 
 			res.render('commits.html', data);
 		}
-	} );
+	});
 };
 
 var diffResultWebCallback = function(req, res, flag, err, row) {
-	if ( err ) {
-		console.error( err );
-		res.send( err.toString(), 500 );
+	if (err) {
+		console.error(err);
+		res.send(err.toString(), 500);
 	} else if (row.length === 2) {
 		var oldCommit = req.params[0].slice(0, 10);
 		var newCommit = req.params[1].slice(0, 10);
 		var oldResult = row[0].result;
 		var newResult = row[1].result;
 		var flagResult = Diff.resultFlagged(oldResult, newResult, oldCommit, newCommit, flag);
-		res.setHeader( 'Content-Type', 'text/xml; charset=UTF-8' );
+		res.setHeader('Content-Type', 'text/xml; charset=UTF-8');
 		res.status(200);
-		res.write( '<?xml-stylesheet href="/static/result.css"?>\n' );
+		res.write('<?xml-stylesheet href="/static/result.css"?>\n');
 		res.end(flagResult);
 	} else {
 		var commit = flag === '+' ? req.params[1] : req.params[0];
@@ -1191,12 +1191,12 @@ app.use("/static", express.static(__dirname + "/static"));
 var coordApp = express.createServer();
 
 // Add in the bodyParser middleware (because it's pretty standard)
-app.use( express.bodyParser() );
-coordApp.use( express.bodyParser() );
+app.use(express.bodyParser());
+coordApp.use(express.bodyParser());
 
 // robots.txt: no indexing.
 app.get(/^\/robots.txt$/, function(req, res) {
-	res.end( "User-agent: *\nDisallow: /\n" );
+	res.end("User-agent: *\nDisallow: /\n");
 });
 
 // Main interface

@@ -35,7 +35,7 @@ RenderHelpers.pageTitleData = function(urlPrefix, row) {
 RenderHelpers.commitLinkData = function(urlPrefix, commit, title, wiki) {
 	return {
 		url: urlPrefix + 'result/' + commit + '/' + wiki + '/' + title,
-		name: commit.substr( 0, 7 )
+		name: commit.substr(0, 7)
 	};
 };
 
@@ -66,14 +66,14 @@ RenderHelpers.makeRegressionRow = function(urlPrefix, row) {
 };
 
 RenderHelpers.pageStatus = function(row) {
-	var hasStatus = row.hasOwnProperty( 'skips' ) &&
-		row.hasOwnProperty( 'fails' ) &&
-		row.hasOwnProperty( 'errors' );
+	var hasStatus = row.hasOwnProperty('skips') &&
+		row.hasOwnProperty('fails') &&
+		row.hasOwnProperty('errors');
 
 	if (hasStatus) {
-		if ( row.skips === 0 && row.fails === 0 && row.errors === 0 ) {
+		if (row.skips === 0 && row.fails === 0 && row.errors === 0) {
 			return 'perfect';
-		} else if ( row.errors > 0 || row.fails > 0 ) {
+		} else if (row.errors > 0 || row.fails > 0) {
 			return 'fail';
 		} else {
 			return 'skip';
@@ -83,11 +83,11 @@ RenderHelpers.pageStatus = function(row) {
 };
 
 RenderHelpers.displayPageList = function(hbs, res, data, makeRow, err, rows) {
-	console.log( "GET " + data.urlPrefix + "/" + data.page + data.urlSuffix );
-	if ( err ) {
-		res.send( err.toString(), 500 );
+	console.log("GET " + data.urlPrefix + "/" + data.page + data.urlSuffix);
+	if (err) {
+		res.send(err.toString(), 500);
 	} else {
-		res.status( 200 );
+		res.status(200);
 		var tableData = data;
 		if (rows.length === 0) {
 			tableData.header = undefined;
@@ -104,10 +104,10 @@ RenderHelpers.displayPageList = function(hbs, res, data, makeRow, err, rows) {
 			tableData.next = rows.length === 40;
 		}
 		hbs.registerHelper('prevUrl', function(urlPrefix, urlSuffix, page) {
-			return (urlPrefix ? urlPrefix + "/" : "") + ( page - 1 ) + urlSuffix;
+			return (urlPrefix ? urlPrefix + "/" : "") + (page - 1) + urlSuffix;
 		});
 		hbs.registerHelper('nextUrl', function(urlPrefix, urlSuffix, page) {
-			return (urlPrefix ? urlPrefix + "/" : "") + ( page + 1 ) + urlSuffix;
+			return (urlPrefix ? urlPrefix + "/" : "") + (page + 1) + urlSuffix;
 		});
 		res.render('table.html', tableData);
 	}

@@ -13,16 +13,16 @@ describe('Parsoid API', function() {
 	var api;
 	var mockHost;
 	before(function() {
-		var p = apiServer.startMockAPIServer({}).then(function( ret ) {
-			mockHost = url.parse( ret.url ).host;
+		var p = apiServer.startMockAPIServer({}).then(function(ret) {
+			mockHost = url.parse(ret.url).host;
 			return apiServer.startParsoidServer({
 				mockUrl: ret.url,
 				serverArgv: [
 					'--num-workers', '1',
-					'--config', path.resolve( __dirname, './apitest.localsettings.js' )
+					'--config', path.resolve(__dirname, './apitest.localsettings.js')
 				]
 			});
-		}).then(function( ret ) {
+		}).then(function(ret) {
 			api = ret.url;
 		});
 		apiServer.exitOnProcessTerm();
@@ -113,7 +113,7 @@ describe('Parsoid API', function() {
 				.get('v2/' + mockHost + '/html/Main_Page?test=123')
 				.expect(302)
 				.expect(function(res) {
-					res.headers.location.should.match( /\/html\/Main_Page\/1\?test=123$/ );
+					res.headers.location.should.match(/\/html\/Main_Page\/1\?test=123$/);
 				})
 				.end(done);
 			});

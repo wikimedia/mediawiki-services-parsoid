@@ -16,7 +16,6 @@
 
 	// We'd like to eliminate these at some point, to conform with the preset.
 	"disallowQuotedKeysInObjects": null,
-	"disallowSpacesInsideParentheses": null,
 	"maximumLineLength": null,
 	"requireCapitalizedComments": null,
 	"requireTrailingComma": null,

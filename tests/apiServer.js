@@ -70,13 +70,13 @@ var startServer = function(opts, retrying, cb) {
 	if (!port) {
 		// XXX we should use a more reliable way to find an open port
 		// (for this, and also for debugPort, below)
-		port = opts.portBase + Math.floor( Math.random() * 100 );
+		port = opts.portBase + Math.floor(Math.random() * 100);
 	}
 
 	var url = 'http://' + opts.iface + ':' + port.toString() + opts.urlPath;
 	if (opts.port && forkedServers.has(url)) {
 		// We already have a server there!
-		return cb( "There's already a server running at that port." );
+		return cb("There's already a server running at that port.");
 	}
 
 	// Handle debug port (borrowed from 'createWorkerProcess' in node's
@@ -96,7 +96,7 @@ var startServer = function(opts, retrying, cb) {
 	});
 
 	if (!opts.quiet) {
-		console.log( "Starting %s server at %s", opts.serverName, url );
+		console.log("Starting %s server at %s", opts.serverName, url);
 	}
 
 	forkedServer.child = childProcess.fork(__dirname + opts.filePath,
@@ -128,7 +128,7 @@ var startServer = function(opts, retrying, cb) {
 
 	forkedServer.child.on('message', function(m) {
 		if (m && m.type && m.type === 'startup' && cb) {
-			cb( null, { url: url, child: forkedServer.child } );
+			cb(null, { url: url, child: forkedServer.child });
 			cb = null; // prevent invoking cb again on restart
 		}
 	});
@@ -144,7 +144,7 @@ var parsoidServerOpts = {
 	filePath: "/../api/server.js",
 	serverArgv: [
 		'--num-workers', '1',
-		'--config', path.resolve( __dirname, './rttest.localsettings.js' )
+		'--config', path.resolve(__dirname, './rttest.localsettings.js')
 	],
 	serverEnv: {}
 };

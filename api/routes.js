@@ -139,43 +139,43 @@ module.exports = function(parsoidConfig) {
 
 	// Routes
 
-	routes.home = function( req, res ) {
+	routes.home = function(req, res) {
 		res.render('home');
 	};
 
 	// robots.txt: no indexing.
-	routes.robots = function( req, res ) {
+	routes.robots = function(req, res) {
 		res.end("User-agent: *\nDisallow: /\n");
 	};
 
 	// Return Parsoid version based on package.json + git sha1 if available
 	var versionCache;
-	routes.version = function( req, res ) {
-		if ( !versionCache ) {
+	routes.version = function(req, res) {
+		if (!versionCache) {
 			versionCache = Promise.resolve({
 				name: pkg.name,
 				version: pkg.version
-			}).then(function( v ) {
+			}).then(function(v) {
 				return Promise.promisify(
 					childProcess.execFile, ['stdout', 'stderr'], childProcess
-				)( 'git', ['rev-parse', 'HEAD'], {
+				)('git', ['rev-parse', 'HEAD'], {
 					cwd: path.join(__dirname, '..')
-				}).then(function( out ) {
+				}).then(function(out) {
 					v.sha = out.stdout.slice(0, -1);
 					return v;
-				}, function( err ) {
+				}, function(err) {
 					/* ignore the error, maybe this isn't a git checkout */
 					return v;
 				});
 			});
 		}
-		return versionCache.then(function( v ) {
-			res.json( v );
+		return versionCache.then(function(v) {
+			res.json(v);
 		});
 	};
 
 	// Form-based HTML DOM -> wikitext interface for manual testing.
-	routes.html2wtForm = function( req, res ) {
+	routes.html2wtForm = function(req, res) {
 		var env = res.local('env');
 		var action = "/" + res.local('iwp') + "/" + res.local('pageName');
 		if (req.query.hasOwnProperty('scrubWikitext')) {
@@ -189,7 +189,7 @@ module.exports = function(parsoidConfig) {
 	};
 
 	// Form-based wikitext -> HTML DOM interface for manual testing
-	routes.wt2htmlForm = function( req, res ) {
+	routes.wt2htmlForm = function(req, res) {
 		var env = res.local('env');
 		apiUtils.renderResponse(res, env, "form", {
 			title: "Your wikitext:",
@@ -208,7 +208,7 @@ module.exports = function(parsoidConfig) {
 			env.scrubWikitext = true;
 		}
 
-		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
+		var target = env.resolveTitle(env.normalizeTitle(env.page.name), '');
 
 		var oldid = null;
 		if (req.query.oldid) {
@@ -239,7 +239,7 @@ module.exports = function(parsoidConfig) {
 			env.scrubWikitext = true;
 		}
 
-		var target = env.resolveTitle(env.normalizeTitle(env.page.name ), '');
+		var target = env.resolveTitle(env.normalizeTitle(env.page.name), '');
 
 		var oldid = null;
 		if (req.query.oldid) {
@@ -271,7 +271,7 @@ module.exports = function(parsoidConfig) {
 			env.scrubWikitext = true;
 		}
 
-		var target = env.resolveTitle( env.normalizeTitle( env.page.name ), '' );
+		var target = env.resolveTitle(env.normalizeTitle(env.page.name), '');
 
 		var oldid = null;
 		if (req.query.oldid) {
@@ -295,7 +295,7 @@ module.exports = function(parsoidConfig) {
 	};
 
 	// Form-based round-tripping for manual testing
-	routes.getRtForm = function( req, res ) {
+	routes.getRtForm = function(req, res) {
 		var env = res.local('env');
 		apiUtils.renderResponse(res, env, "form", {
 			title: "Your wikitext:",

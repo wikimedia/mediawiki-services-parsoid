@@ -31,7 +31,7 @@ apiUtils.relativeRedirect = function(args) {
 		args.code = 302; // moved temporarily
 	}
 
-	if (args.res && args.env && args.env.responseSent ) {
+	if (args.res && args.env && args.env.responseSent) {
 		return;
 	} else {
 		args.res.writeHead(args.code, {
@@ -256,7 +256,7 @@ apiUtils.startHtml2wt = Promise.method(function(req, res, html) {
 			Date.now() - startTimers.get('html2wt.init.domparse'));
 		timer.timing('html2wt.size.input', '', html.length);
 		timer.timing('html2wt.init', '',
-			Date.now() - startTimers.get( 'html2wt.init' ));
+			Date.now() - startTimers.get('html2wt.init'));
 	}
 
 	return {
@@ -434,7 +434,7 @@ apiUtils.parseWt = function(ret) {
 
 	if (timer) {
 		timer.timing('wt2html.wt.init', '',
-			Date.now() - startTimers.get( 'wt2html.init'));
+			Date.now() - startTimers.get('wt2html.init'));
 		startTimers.set('wt2html.wt.parse', Date.now());
 		timer.timing('wt2html.wt.size.input', '', ret.wikitext.length);
 	}
@@ -464,7 +464,7 @@ apiUtils.endWt2html = function(ret, doc, output) {
 			timer.timing('wt2html.wt.parse', '',
 				Date.now() - startTimers.get('wt2html.wt.parse'));
 			timer.timing('wt2html.wt.size.output', '', output.length);
-		} else if (startTimers.has( 'wt2html.pageWithOldid.parse')) {
+		} else if (startTimers.has('wt2html.pageWithOldid.parse')) {
 			timer.timing('wt2html.pageWithOldid.parse', '',
 				Date.now() - startTimers.get('wt2html.pageWithOldid.parse'));
 			timer.timing('wt2html.pageWithOldid.size.output', '', output.length);

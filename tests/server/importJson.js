@@ -65,20 +65,20 @@ if (argv.help) {
 	process.exit(0);
 }
 
-var getOption = function( opt ) {
+var getOption = function(opt) {
 	// Check possible options in this order: command line, settings file, defaults.
-	if ( argv.hasOwnProperty( opt ) ) {
+	if (argv.hasOwnProperty(opt)) {
 		return argv[ opt ];
-	} else if ( settings.hasOwnProperty( opt ) ) {
+	} else if (settings.hasOwnProperty(opt)) {
 		return settings[ opt ];
-	} else if ( defaults.hasOwnProperty( opt ) ) {
+	} else if (defaults.hasOwnProperty(opt)) {
 		return defaults[ opt ];
 	} else {
 		return undefined;
 	}
 };
 
-var mysql = require( 'mysql' );
+var mysql = require('mysql');
 var db = mysql.createConnection({
 	host:               getOption('host'),
 	port:               getOption('port'),
@@ -93,19 +93,19 @@ var waitingCount = 0.5;
 
 var dbInsert = 'INSERT IGNORE INTO pages ( title, prefix ) VALUES ( ?, ? )';
 
-var insertRecord = function( record, prefix ) {
+var insertRecord = function(record, prefix) {
 	waitingCount++;
-	db.query( dbInsert, [ record, prefix ], function( err ) {
-		if ( err ) {
-			console.error( err );
+	db.query(dbInsert, [ record, prefix ], function(err) {
+		if (err) {
+			console.error(err);
 		} else {
 			waitingCount--;
 
-			if ( waitingCount <= 0 ) {
-				console.log( 'Done!' );
+			if (waitingCount <= 0) {
+				console.log('Done!');
 			}
 		}
-	} );
+	});
 };
 
 var loadJSON = function(json, options) {
@@ -125,16 +125,16 @@ var loadJSON = function(json, options) {
 	}
 };
 
-db.connect( function( err ) {
+db.connect(function(err) {
 	var filepath;
-	if ( err ) {
-		console.error( err );
+	if (err) {
+		console.error(err);
 	} else {
 		filepath = argv._[0];
-		if ( !filepath.match( /^\// ) ) {
+		if (!filepath.match(/^\//)) {
 			filepath = './' + filepath;
 		}
-		loadJSON( filepath, argv );
+		loadJSON(filepath, argv);
 		db.end();
 	}
-} );
+});

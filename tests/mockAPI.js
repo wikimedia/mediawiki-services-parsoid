@@ -2,7 +2,7 @@
 // This file is used to run a stub API that mimics the MediaWiki interface
 // for the purposes of testing extension expansion.
 "use strict";
-require( '../lib/core-upgrade.js' );
+require('../lib/core-upgrade.js');
 
 var express = require('express');
 var crypto = require('crypto');
@@ -125,40 +125,40 @@ var availableActions = {
 				.replace('$2', sanitizeHTMLAttribute(content));
 		}
 
-		if ( result ) {
-			resultText = handleTestExtension( result[1], result[2] );
+		if (result) {
+			resultText = handleTestExtension(result[1], result[2]);
 		} else if (onlypst) {
 			resultText = body.text.replace(/\{\{subst:echo\|([^}]+)\}\}/, "$1");
 		} else {
 			resultText = body.text;
 		}
 
-		cb( null, { parse: { text: { '*': resultText } } } );
+		cb(null, { parse: { text: { '*': resultText } } });
 	},
 
-	querySiteinfo: function( body, cb ) {
+	querySiteinfo: function(body, cb) {
 		// TODO: Read which language should we use from somewhere.
-		cb( null, require('../lib/baseconfig/enwiki.json') );
+		cb(null, require('../lib/baseconfig/enwiki.json'));
 	},
 
-	query: function( body, cb ) {
+	query: function(body, cb) {
 		if (body.meta === 'siteinfo') {
-			return this.querySiteinfo( body, cb );
+			return this.querySiteinfo(body, cb);
 		}
 
-		if ( body.prop === "revisions" ) {
-			if ( body.revids === "1" || body.titles === "Main_Page" ) {
-				return cb( null , mainPage );
-			} else if ( body.revids === "2" || body.titles === "Junk_Page" ) {
-				return cb( null , junkPage );
+		if (body.prop === "revisions") {
+			if (body.revids === "1" || body.titles === "Main_Page") {
+				return cb(null , mainPage);
+			} else if (body.revids === "2" || body.titles === "Junk_Page") {
+				return cb(null , junkPage);
 			}
 		}
 
 		var filename = body.titles;
 		var normPagename = pnames[filename] || filename;
 		var normFilename = fnames[filename] || filename;
-		if (!(normFilename in FILE_PROPS )) {
-			cb( null, {
+		if (!(normFilename in FILE_PROPS)) {
+			cb(null, {
 				'query': {
 					'pages': {
 						'-1': {
@@ -169,7 +169,7 @@ var availableActions = {
 						}
 					}
 				}
-			} );
+			});
 			return;
 		}
 		var props = FILE_PROPS[normFilename] || Object.create(null);
@@ -206,11 +206,11 @@ var availableActions = {
 			},
 		};
 
-		if ( twidth || theight ) {
-			if ( twidth && (theight === undefined || theight === null) ) {
+		if (twidth || theight) {
+			if (twidth && (theight === undefined || theight === null)) {
 				// File::scaleHeight in PHP
-				theight = Math.round( height * twidth / width );
-			} else if ( theight && (twidth === undefined || twidth === null) ) {
+				theight = Math.round(height * twidth / width);
+			} else if (theight && (twidth === undefined || twidth === null)) {
 				// MediaHandler::fitBoxWidth in PHP
 				// This is crazy!
 				var idealWidth = width * theight / height;
@@ -221,10 +221,10 @@ var availableActions = {
 					twidth = roundedUp;
 				}
 			} else {
-				if ( Math.round( height * twidth / width ) > theight ) {
-					twidth = Math.ceil( width * theight / height );
+				if (Math.round(height * twidth / width) > theight) {
+					twidth = Math.ceil(width * theight / height);
 				} else {
-					theight = Math.round( height * twidth / width );
+					theight = Math.round(height * twidth / width);
 				}
 			}
 			if (twidth >= width || theight >= height) {
@@ -240,7 +240,7 @@ var availableActions = {
 		}
 
 		response.query.pages['1'] = imageinfo;
-		cb( null, response );
+		cb(null, response);
 	},
 
 	expandtemplates: function(body, cb) {
@@ -319,16 +319,16 @@ function buildForm(action) {
 }
 
 // GET request to root....should probably just tell the client how to use the service
-app.get( '/', function( req, res ) {
-	res.setHeader( 'Content-Type', 'text/html; charset=UTF-8' );
+app.get('/', function(req, res) {
+	res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 	res.write(
 		'<html><body>' +
 			'<ul id="list-of-actions">' +
 				buildActionList() +
 			'</ul>' +
-		'</body></html>' );
+		'</body></html>');
 	res.end();
-} );
+});
 
 // GET requests for any possible actions....tell the client how to use the action
 app.get(new RegExp('^/(' + actionRegex + ')'), function(req, res) {
@@ -364,50 +364,50 @@ function handleApiRequest(body, res) {
 	var action = body.action;
 	var formatter = formatters[format || "json"];
 
-	if ( !availableActions.hasOwnProperty( action ) ) {
+	if (!availableActions.hasOwnProperty(action)) {
 		return res.status(400).end("Unknown action.");
 	}
 
-	availableActions[action]( body, function( err, data ) {
-		if ( err === null ) {
-			res.setHeader( 'Content-Type', 'application/json' );
-			res.write( formatter(data) );
+	availableActions[action](body, function(err, data) {
+		if (err === null) {
+			res.setHeader('Content-Type', 'application/json');
+			res.write(formatter(data));
 			res.end();
 		} else {
-			res.setHeader( 'Content-Type', 'text/plain' );
+			res.setHeader('Content-Type', 'text/plain');
 
-			if ( err.code ) {
-				res.status( err.code );
+			if (err.code) {
+				res.status(err.code);
 			} else {
-				res.status( 500 );
+				res.status(500);
 			}
 
-			res.write( err.stack || err.toString() );
+			res.write(err.stack || err.toString());
 			res.end();
 		}
-	} );
+	});
 }
 
 // GET request to api.php....actually perform an API request
-app.get( '/api.php', function( req, res ) {
-	handleApiRequest( req.query, res );
-} );
+app.get('/api.php', function(req, res) {
+	handleApiRequest(req.query, res);
+});
 
 // POST request to api.php....actually perform an API request
-app.post( '/api.php', function( req, res ) {
-	handleApiRequest( req.body, res );
-} );
+app.post('/api.php', function(req, res) {
+	handleApiRequest(req.body, res);
+});
 
 module.exports = app;
 
 var port = process.env.PORT || 7001;
-console.log( 'Mock MediaWiki API starting.... listening to ' + port);
+console.log('Mock MediaWiki API starting.... listening to ' + port);
 app.listen(port, function() {
-	console.log( 'Started.' );
+	console.log('Started.');
 	// let parent process know we've started up and are ready to go.
 	if (process.send) { process.send({ type: 'startup', port: port }); }
 });
 app.on('error', function(e) {
 	if (process.send) { process.send({ type: 'error', code: e.code }); }
-	console.log( 'Could not start up:', e );
+	console.log('Could not start up:', e);
 });

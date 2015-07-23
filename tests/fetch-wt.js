@@ -53,7 +53,7 @@ var fetch = function(page, revid, options) {
 var usage = 'Usage: $0 [options] <page-title or rev-id>\n' +
 	'If first argument is numeric, it is used as a rev id; otherwise it is\n' +
 	'used as a title.  Use the --title option for a numeric title.';
-var opts = yargs.usage( usage, {
+var opts = yargs.usage(usage, {
 	'output': {
 		description: "Write page to given file"
 	},

@@ -51,8 +51,8 @@ var parserTestsUpToDate = true;
  * @param {number} count
  * @param {string} color
  */
-var colorizeCount = function( count, color ) {
-	if ( count === 0 ) {
+var colorizeCount = function(count, color) {
+	if (count === 0) {
 		return count;
 	}
 
@@ -60,7 +60,7 @@ var colorizeCount = function( count, color ) {
 	count = count.toString();
 
 	// FIXME there must be a wait to call a method by its name
-	if ( count[color] ) {
+	if (count[color]) {
 		return count[color] + '';
 	} else {
 		return count;
@@ -100,8 +100,8 @@ function ParserTests() {
 
 	var newModes = {};
 
-	for ( i = 0; i < modes.length; i++ ) {
-		newModes[modes[i]] = Util.clone( this.stats );
+	for (i = 0; i < modes.length; i++) {
+		newModes[modes[i]] = Util.clone(this.stats);
 		newModes[modes[i]].failList = [];
 	}
 
@@ -278,10 +278,10 @@ ParserTests.prototype.getOpts = function() {
 		standardOpts
 	).check(function(argv, aliases) {
 		Util.checkUnknownArgs(standardOpts, argv, aliases);
-		if ( argv.filter === true ) {
+		if (argv.filter === true) {
 			throw "--filter needs an argument";
 		}
-		if ( argv.regex === true ) {
+		if (argv.regex === true) {
 			throw "--regex needs an argument";
 		}
 	});
@@ -295,7 +295,7 @@ ParserTests.prototype.getOpts = function() {
  * @param {Object} argv
  * @returns {Object}
  */
-ParserTests.prototype.getTests = function( argv ) {
+ParserTests.prototype.getTests = function(argv) {
 	// double check that test file is up-to-date with upstream
 	var fetcher = require(__dirname + "/fetch-parserTests.txt.js");
 	if (!fetcher.isUpToDate()) {
@@ -307,22 +307,22 @@ ParserTests.prototype.getTests = function( argv ) {
 	var testFile;
 	try {
 		testFile = fs.readFileSync(this.testFileName, 'utf8');
-		fileDependencies.push( this.testFileName );
+		fileDependencies.push(this.testFileName);
 	} catch (e) {
-		console.error( e );
+		console.error(e);
 	}
 	// parser grammar is also a dependency
-	fileDependencies.push( this.testParserFileName );
+	fileDependencies.push(this.testParserFileName);
 
-	if ( !booleanOption(argv.cache) ) {
+	if (!booleanOption(argv.cache)) {
 		// Cache not wanted, parse file and return object
-		return this.parseTestCase( testFile );
+		return this.parseTestCase(testFile);
 	}
 
 	// Find out modification time of all files dependencies and then hash those
 	// to make a unique value using sha1.
-	var mtimes = fileDependencies.sort().map( function(file) {
-		return fs.statSync( file ).mtime;
+	var mtimes = fileDependencies.sort().map(function(file) {
+		return fs.statSync(file).mtime;
 	}).join('|');
 
 	var sha1 = require('crypto')
@@ -342,17 +342,17 @@ ParserTests.prototype.getTests = function( argv ) {
 		// cache file does not exist
 	}
 
-	if ( cacheFileDigest === sha1 ) {
+	if (cacheFileDigest === sha1) {
 		// cache file match our digest.
 		// Return contained object after removing first line (CACHE: <sha1>)
-		return JSON.parse( cacheContent.replace( /^.*\n/, '' ) );
+		return JSON.parse(cacheContent.replace(/^.*\n/, ''));
 	} else {
 		// Write new file cache, content preprended with current digest
-		console.error( "Cache file either not present or outdated" );
-		var parse = this.parseTestCase( testFile );
-		if ( parse !== undefined ) {
-			fs.writeFileSync( cacheFileName,
-				"CACHE: " + sha1 + "\n" + JSON.stringify( parse ),
+		console.error("Cache file either not present or outdated");
+		var parse = this.parseTestCase(testFile);
+		if (parse !== undefined) {
+			fs.writeFileSync(cacheFileName,
+				"CACHE: " + sha1 + "\n" + JSON.stringify(parse),
 				'utf8'
 			);
 		}
@@ -369,11 +369,11 @@ ParserTests.prototype.getTests = function( argv ) {
  * @param {string} content
  * @returns {Array}
  */
-ParserTests.prototype.parseTestCase = function( content ) {
+ParserTests.prototype.parseTestCase = function(content) {
 	try {
 		return this.testParser.parse(content);
 	} catch (e) {
-		console.error( e );
+		console.error(e);
 	}
 	return undefined;
 };
@@ -388,11 +388,11 @@ ParserTests.prototype.parseTestCase = function( content ) {
  * @param {string} item.text
  * @param {Function} cb
  */
-ParserTests.prototype.processArticle = function( item, cb ) {
+ParserTests.prototype.processArticle = function(item, cb) {
 	var norm = this.env.normalizeTitle(item.title);
 	// console.log( 'processArticle ' + norm );
 	this.articles[norm] = item.text;
-	setImmediate( cb );
+	setImmediate(cb);
 };
 
 /**
@@ -408,7 +408,7 @@ ParserTests.prototype.processArticle = function( item, cb ) {
  * @param {Error/null} processWikitextCB.err
  * @param {string/null} processWikitextCB.res
  */
-ParserTests.prototype.convertHtml2Wt = function( options, mode, item, body, processWikitextCB ) {
+ParserTests.prototype.convertHtml2Wt = function(options, mode, item, body, processWikitextCB) {
 	var startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser';
 	try {
 		if (startsAtWikitext) {
@@ -455,14 +455,14 @@ ParserTests.prototype.convertHtml2Wt = function( options, mode, item, body, proc
  * @param {Array} change Candidate change
  * @returns {boolean}
  */
-ParserTests.prototype.isDuplicateChangeTree = function( allChanges, change ) {
-	if ( !Array.isArray(allChanges) ) {
+ParserTests.prototype.isDuplicateChangeTree = function(allChanges, change) {
+	if (!Array.isArray(allChanges)) {
 		return false;
 	}
 
 	var i;
-	for ( i = 0; i < allChanges.length; i++ ) {
-		if ( Util.deepEquals( allChanges[i], change ) ) {
+	for (i = 0; i < allChanges.length; i++) {
+		if (Util.deepEquals(allChanges[i], change)) {
 			return true;
 		}
 	}
@@ -484,7 +484,7 @@ var staticRandomString = "ahseeyooxooZ8Oon0boh";
  * @param {Error} cb.err
  * @param {Node} cb.body
  */
-ParserTests.prototype.applyChanges = function( item, body, changelist, cb ) {
+ParserTests.prototype.applyChanges = function(item, body, changelist, cb) {
 	var self = this;
 
 	// Helper function for getting a random string
@@ -561,10 +561,10 @@ ParserTests.prototype.applyChanges = function( item, body, changelist, cb ) {
 			var child = nodes[i];
 			var change = changes[i];
 
-			if ( Array.isArray(change) ) {
-				applyChangesInternal( child, change );
+			if (Array.isArray(change)) {
+				applyChangesInternal(child, change);
 			} else {
-				switch ( change ) {
+				switch (change) {
 					// No change
 					case 0:
 						break;
@@ -573,7 +573,7 @@ ParserTests.prototype.applyChanges = function( item, body, changelist, cb ) {
 					// (sufficient to insert a random attr)
 					case 1:
 						if (DU.isElt(child)) {
-							child.setAttribute( 'data-foobar', randomString() );
+							child.setAttribute('data-foobar', randomString());
 						} else {
 							self.env.log("error", "Buggy changetree. changetype 1 (modify attribute) cannot be applied on text/comment nodes.");
 						}
@@ -601,7 +601,7 @@ ParserTests.prototype.applyChanges = function( item, body, changelist, cb ) {
 	}
 
 	// Seed the random-number generator based on the item title
-	var random = new Alea( (item.seed || '') + (item.title || '') );
+	var random = new Alea((item.seed || '') + (item.title || ''));
 
 	// Keep the changes in the item object
 	// to check for duplicates after the waterfall
@@ -619,9 +619,9 @@ ParserTests.prototype.applyChanges = function( item, body, changelist, cb ) {
 		// children: Append a comment with known content. This is later
 		// stripped from the output, and the result is compared to the
 		// original wikitext rather than the non-selser wt2wt result.
-		body.appendChild( body.ownerDocument.createComment( staticRandomString ) );
+		body.appendChild(body.ownerDocument.createComment(staticRandomString));
 	} else if (item.changes !== 0) {
-		applyChangesInternal( body, item.changes );
+		applyChangesInternal(body, item.changes);
 	}
 
 	if (this.env.conf.parsoid.dumpFlags &&
@@ -633,7 +633,7 @@ ParserTests.prototype.applyChanges = function( item, body, changelist, cb ) {
 	}
 
 	if (cb) {
-		cb( null, body );
+		cb(null, body);
 	}
 };
 
@@ -726,24 +726,24 @@ ParserTests.prototype.generateChanges = function(options, item, body, cb) {
 			var child = children[i];
 			var changeType = 0;
 
-			if ( domSubtreeIsEditable( self.env, child ) ) {
-				if ( nodeIsUneditable(child) || random() < 0.5 ) {
+			if (domSubtreeIsEditable(self.env, child)) {
+				if (nodeIsUneditable(child) || random() < 0.5) {
 					changeType = genChangesInternal(
 						// ensure the subtree has a seed
 						{ seed: '' + random.uint32() },
-						child );
+						child);
 				} else {
-					if ( !child.setAttribute ) {
+					if (!child.setAttribute) {
 						// Text or comment node -- valid changes: 2, 3, 4
 						// since we cannot set attributes on these
-						changeType = Math.floor( random() * 3 ) + 2;
+						changeType = Math.floor(random() * 3) + 2;
 					} else {
-						changeType = Math.floor( random() * 4 ) + 1;
+						changeType = Math.floor(random() * 4) + 1;
 					}
 				}
 			}
 
-			changelist.push( changeType );
+			changelist.push(changeType);
 		}
 
 		return hasChangeMarkers(changelist) ? changelist : 0;
@@ -753,21 +753,21 @@ ParserTests.prototype.generateChanges = function(options, item, body, cb) {
 	var numAttempts = 0;
 	do {
 		numAttempts++;
-		changeTree = genChangesInternal( item, body );
+		changeTree = genChangesInternal(item, body);
 	} while (
 		numAttempts < 1000 &&
-		(changeTree.length === 0 || self.isDuplicateChangeTree( item.selserChangeTrees, changeTree ))
+		(changeTree.length === 0 || self.isDuplicateChangeTree(item.selserChangeTrees, changeTree))
 	);
 
-	if ( numAttempts === 1000 ) {
+	if (numAttempts === 1000) {
 		// couldn't generate a change ... marking as such
 		item.duplicateChange = true;
 	}
 
-	cb( null, body, changeTree );
+	cb(null, body, changeTree);
 };
 
-ParserTests.prototype.applyManualChanges = function( body, changes, cb ) {
+ParserTests.prototype.applyManualChanges = function(body, changes, cb) {
 	var err = null;
 	// changes are specified using jquery methods.
 	//  [x,y,z...] becomes $(x)[y](z....)
@@ -833,9 +833,9 @@ ParserTests.prototype.applyManualChanges = function( body, changes, cb ) {
 			return;
 		}
 		// use document.querySelectorAll as a poor man's $(...)
-		var els = body.querySelectorAll( change[0] );
+		var els = body.querySelectorAll(change[0]);
 		if (!els.length) {
-			err = new Error( change[0] + ' did not match any elements: ' + body.outerHTML );
+			err = new Error(change[0] + ' did not match any elements: ' + body.outerHTML);
 			return;
 		}
 		if (change[1] === 'contents') {
@@ -855,7 +855,7 @@ ParserTests.prototype.applyManualChanges = function( body, changes, cb ) {
 		});
 	});
 	if (err) { console.log(err.toString().red); }
-	cb( err, body );
+	cb(err, body);
 };
 
 /**
@@ -866,20 +866,20 @@ ParserTests.prototype.applyManualChanges = function( body, changes, cb ) {
  * @param {Error/null} processHtmlCB.err
  * @param {Node/null} processHtmlCB.doc
  */
-ParserTests.prototype.convertWt2Html = function( mode, wikitext, processHtmlCB ) {
+ParserTests.prototype.convertWt2Html = function(mode, wikitext, processHtmlCB) {
 	try {
-		this.parserPipeline.once( 'document', function( doc ) {
+		this.parserPipeline.once('document', function(doc) {
 			// processHtmlCB can be asynchronous, so deep-clone
 			// document before invoking it. (the parser pipeline
 			// will attempt to reuse the document after this
 			// event is emitted)
-			processHtmlCB( null, doc.body.cloneNode(true) );
-		} );
-	} catch ( e ) {
-		processHtmlCB( e );
+			processHtmlCB(null, doc.body.cloneNode(true));
+		});
+	} catch (e) {
+		processHtmlCB(e);
 	}
-	this.env.setPageSrcInfo( wikitext );
-	this.parserPipeline.processToplevelDoc( wikitext );
+	this.env.setPageSrcInfo(wikitext);
+	this.parserPipeline.processToplevelDoc(wikitext);
 };
 
 /**
@@ -889,7 +889,7 @@ ParserTests.prototype.convertWt2Html = function( mode, wikitext, processHtmlCB )
  * @param {Function} endCb
  */
 ParserTests.prototype.processTest = function(item, options, mode, endCb) {
-	if (!( 'title' in item )) {
+	if (!('title' in item)) {
 		this.env.log("error", item);
 		throw new Error('Missing title from test case.');
 	}
@@ -909,7 +909,7 @@ ParserTests.prototype.processTest = function(item, options, mode, endCb) {
 			!Array.isArray(item.options.title)) {
 			// Strip the [[]] markers.
 			var title = item.options.title.replace(/^\[\[|\]\]$/g, '');
-			title = this.env.normalizeTitle( title, true );
+			title = this.env.normalizeTitle(title, true);
 			// This sets the page name as well as the relative link prefix
 			// for the rest of the parse.
 			this.env.initializeForPageName(title);
@@ -938,17 +938,17 @@ ParserTests.prototype.processTest = function(item, options, mode, endCb) {
 	}
 
 	item.extensions = extensions;
-	for ( i = 0; i < extensions.length; i++ ) {
-		this.env.conf.wiki.addExtensionTag( extensions[i] );
+	for (i = 0; i < extensions.length; i++) {
+		this.env.conf.wiki.addExtensionTag(extensions[i]);
 	}
 
 	// Build a list of tasks for this test that will be passed to async.waterfall
-	var finishHandler = function( err, res ) {
-		for ( i = 0; i < extensions.length; i++ ) {
-			this.env.conf.wiki.removeExtensionTag( extensions[i] );
+	var finishHandler = function(err, res) {
+		for (i = 0; i < extensions.length; i++) {
+			this.env.conf.wiki.removeExtensionTag(extensions[i]);
 		}
 		setImmediate(endCb, err);
-	}.bind( this );
+	}.bind(this);
 
 	var testTasks = [];
 
@@ -961,25 +961,25 @@ ParserTests.prototype.processTest = function(item, options, mode, endCb) {
 	var parsoidOnly = ('html/parsoid' in item) || (item.options.parsoid !== undefined);
 
 	// Source preparation
-	if ( startsAtHtml ) {
-		testTasks.push( function( cb ) {
+	if (startsAtHtml) {
+		testTasks.push(function(cb) {
 			var html = item.html;
-			if ( !parsoidOnly ) {
+			if (!parsoidOnly) {
 				// Strip some php output that has no wikitext representation
 				// (like .mw-editsection) and won't html2html roundtrip and
 				// therefore causes false failures.
-				html = DU.normalizePhpOutput( html );
+				html = DU.normalizePhpOutput(html);
 			}
-			cb( null, DU.parseHTML( html ).body );
-		} );
-		testTasks.push(	this.convertHtml2Wt.bind( this, options, mode, item	) );
+			cb(null, DU.parseHTML(html).body);
+		});
+		testTasks.push(this.convertHtml2Wt.bind(this, options, mode, item));
 	} else {  // startsAtWikitext
 		// Always serialize DOM to string and reparse before passing to wt2wt
-		if ( item.cachedBODY === null ) {
-			testTasks.push( this.convertWt2Html.bind( this, mode, item.wikitext ) );
+		if (item.cachedBODY === null) {
+			testTasks.push(this.convertWt2Html.bind(this, mode, item.wikitext));
 			// Caching stage 1 - save the result of the first two stages
 			// so we can maybe skip them later
-			testTasks.push( function( body, cb ) {
+			testTasks.push(function(body, cb) {
 				// Cache parsed HTML
 				item.cachedBODY = DU.parseHTML(DU.serializeNode(body).str).body;
 
@@ -993,16 +993,16 @@ ParserTests.prototype.processTest = function(item, options, mode, endCb) {
 				} else {
 					cb(null, item.cachedBODY.cloneNode(true));
 				}
-			} );
+			});
 		} else {
-			testTasks.push( function( cb ) {
+			testTasks.push(function(cb) {
 				cb(null, item.cachedBODY.cloneNode(true));
-			} );
+			});
 		}
 	}
 
 	// Generate and make changes for the selser test mode
-	if ( mode === 'selser' ) {
+	if (mode === 'selser') {
 		if ((options.selser === 'noauto' || item.changetree === 'manual') &&
 			item.options.parsoid && item.options.parsoid.changes) {
 			testTasks.push(function(body, cb) {
@@ -1018,41 +1018,41 @@ ParserTests.prototype.processTest = function(item, options, mode, endCb) {
 					cb(null, content, changetree);
 				});
 			} else {
-				testTasks.push( this.generateChanges.bind( this, options, item ) );
+				testTasks.push(this.generateChanges.bind(this, options, item));
 			}
-			testTasks.push( this.applyChanges.bind( this, item ) );
+			testTasks.push(this.applyChanges.bind(this, item));
 		}
 		// Save the modified DOM so we can re-test it later
 		// Always serialize to string and reparse before passing to selser/wt2wt
-		testTasks.push( function( body, cb ) {
+		testTasks.push(function(body, cb) {
 			item.changedHTMLStr = DU.serializeNode(body).str;
-			cb( null, DU.parseHTML( item.changedHTMLStr ).body );
-		} );
-	} else if ( mode === 'wt2wt' ) {
+			cb(null, DU.parseHTML(item.changedHTMLStr).body);
+		});
+	} else if (mode === 'wt2wt') {
 		// handle a 'changes' option if present.
 		if (item.options.parsoid && item.options.parsoid.changes) {
-			testTasks.push( function( body, cb ) {
-				this.applyManualChanges( body, item.options.parsoid.changes, cb );
+			testTasks.push(function(body, cb) {
+				this.applyManualChanges(body, item.options.parsoid.changes, cb);
 			}.bind(this));
 		}
 	}
 
 	// Roundtrip stage
-	if ( mode === 'wt2wt' || mode === 'selser' ) {
-		testTasks.push( this.convertHtml2Wt.bind( this, options, mode, item ) );
-	} else if ( mode === 'html2html' ) {
-		testTasks.push( this.convertWt2Html.bind( this, mode ) );
+	if (mode === 'wt2wt' || mode === 'selser') {
+		testTasks.push(this.convertHtml2Wt.bind(this, options, mode, item));
+	} else if (mode === 'html2html') {
+		testTasks.push(this.convertWt2Html.bind(this, mode));
 	}
 
 	// Processing stage
-	if ( endsAtWikitext ) {
-		testTasks.push( this.processSerializedWT.bind( this, item, options, mode ) );
-	} else if ( endsAtHtml ) {
-		testTasks.push( this.processParsedHTML.bind( this, item, options, mode ) );
+	if (endsAtWikitext) {
+		testTasks.push(this.processSerializedWT.bind(this, item, options, mode));
+	} else if (endsAtHtml) {
+		testTasks.push(this.processParsedHTML.bind(this, item, options, mode));
 	}
 
 	item.time.start = Date.now();
-	async.waterfall( testTasks, finishHandler );
+	async.waterfall(testTasks, finishHandler);
 };
 
 /**
@@ -1063,16 +1063,16 @@ ParserTests.prototype.processTest = function(item, options, mode, endCb) {
  * @param {Node} doc
  * @param {Function} cb
  */
-ParserTests.prototype.processParsedHTML = function( item, options, mode, body, cb ) {
+ParserTests.prototype.processParsedHTML = function(item, options, mode, body, cb) {
 	item.time.end = Date.now();
 	// Check the result vs. the expected result.
-	var checkPassed = this.checkHTML( item, body, options, mode );
+	var checkPassed = this.checkHTML(item, body, options, mode);
 
 	// Now schedule the next test, if any
 	// Only pass an error if --exit-unexpected was set and there was an error
 	// Otherwise, pass undefined so that async.waterfall continues
 	var err = (options['exit-unexpected'] && !checkPassed) ? true : undefined;
-	setImmediate( cb, err );
+	setImmediate(cb, err);
 };
 
 /**
@@ -1093,35 +1093,35 @@ ParserTests.prototype.processSerializedWT = function(item, options, mode, wikite
 		if (item.changetree === 5) {
 			item.resultWT = item.wikitext;
 		} else {
-			var body = DU.parseHTML( item.changedHTMLStr ).body;
-			this.convertHtml2Wt( options, 'wt2wt', item, body, function( err, wt ) {
-				if ( err === null ) {
+			var body = DU.parseHTML(item.changedHTMLStr).body;
+			this.convertHtml2Wt(options, 'wt2wt', item, body, function(err, wt) {
+				if (err === null) {
 					item.resultWT = wt;
 				} else {
 					item.resultWT = item.wikitext;
 				}
 				// Check the result vs. the expected result.
-				checkPassed = self.checkWikitext( item, wikitext, options, mode );
+				checkPassed = self.checkWikitext(item, wikitext, options, mode);
 
 				// Now schedule the next test, if any
 				// Only pass an error if --exit-unexpected was set and there was an error
 				// Otherwise, pass undefined so that async.waterfall continues
 				err = (options['exit-unexpected'] && !checkPassed) ? true : undefined;
-				setImmediate( cb, err );
-			} );
+				setImmediate(cb, err);
+			});
 			// Async processing
 			return;
 		}
 	}
 	// Sync processing
 	// Check the result vs. the expected result.
-	checkPassed = self.checkWikitext( item, wikitext, options, mode );
+	checkPassed = self.checkWikitext(item, wikitext, options, mode);
 
 	// Now schedule the next test, if any
 	// Only pass an error if --exit-unexpected was set and there was an error
 	// Otherwise, pass undefined so that async.waterfall continues
 	err = (options['exit-unexpected'] && !checkPassed) ? true : undefined;
-	setImmediate( cb, err );
+	setImmediate(cb, err);
 };
 
 /**
@@ -1136,8 +1136,8 @@ ParserTests.prototype.processSerializedWT = function(item, options, mode, wikite
  * @param {boolean} failureOnly Whether we should print only a failure message, or go on to print the diff
  * @param {string} mode
  */
-ParserTests.prototype.printFailure = function( title, comments, iopts, options,
-		actual, expected, expectFail, failureOnly, mode, error, item ) {
+ParserTests.prototype.printFailure = function(title, comments, iopts, options,
+		actual, expected, expectFail, failureOnly, mode, error, item) {
 	this.stats.failedTests++;
 	this.stats.modes[mode].failedTests++;
 	var fail = {
@@ -1148,17 +1148,17 @@ ParserTests.prototype.printFailure = function( title, comments, iopts, options,
 		};
 	this.stats.modes[mode].failList.push(fail);
 
-	var extTitle = ( title + ( mode ? ( ' (' + mode + ')' ) : '' ) ).
+	var extTitle = (title + (mode ? (' (' + mode + ')') : '')).
 		replace('\n', ' ');
 
 	var blacklisted = false;
-	if ( booleanOption( options.blacklist ) && expectFail ) {
+	if (booleanOption(options.blacklist) && expectFail) {
 		// compare with remembered output
-		if ( mode === 'selser' && !options.changetree && testBlackList[title].raw !== actual.raw ) {
+		if (mode === 'selser' && !options.changetree && testBlackList[title].raw !== actual.raw) {
 			blacklisted = true;
 		} else {
-			if ( !booleanOption( options.quiet ) ) {
-				console.log( 'EXPECTED FAIL'.red + ': ' + extTitle.yellow );
+			if (!booleanOption(options.quiet)) {
+				console.log('EXPECTED FAIL'.red + ': ' + extTitle.yellow);
 			}
 			return true;
 		}
@@ -1168,11 +1168,11 @@ ParserTests.prototype.printFailure = function( title, comments, iopts, options,
 	this.stats.modes[mode].failedTestsUnexpected++;
 	fail.unexpected = true;
 
-	if ( !failureOnly ) {
-		console.log( '=====================================================' );
+	if (!failureOnly) {
+		console.log('=====================================================');
 	}
 
-	console.log( 'UNEXPECTED FAIL'.red.inverse + ': ' + extTitle.yellow );
+	console.log('UNEXPECTED FAIL'.red.inverse + ': ' + extTitle.yellow);
 
 	if (mode === 'selser') {
 		if (blacklisted) {
@@ -1186,23 +1186,23 @@ ParserTests.prototype.printFailure = function( title, comments, iopts, options,
 		}
 	}
 
-	if ( !failureOnly && !error ) {
-		console.log( comments.join('\n') );
+	if (!failureOnly && !error) {
+		console.log(comments.join('\n'));
 
-		if ( options ) {
-			console.log( 'OPTIONS'.cyan + ':' );
-			console.log( prettyPrintIOptions(iopts) + '\n' );
+		if (options) {
+			console.log('OPTIONS'.cyan + ':');
+			console.log(prettyPrintIOptions(iopts) + '\n');
 		}
 
-		console.log( 'INPUT'.cyan + ':' );
-		console.log( actual.input + '\n' );
+		console.log('INPUT'.cyan + ':');
+		console.log(actual.input + '\n');
 
-		console.log( options.getActualExpected( actual, expected, options.getDiff ) );
+		console.log(options.getActualExpected(actual, expected, options.getDiff));
 
-		if ( booleanOption( options.printwhitelist )  ) {
-			this.printWhitelistEntry( title, actual.raw );
+		if (booleanOption(options.printwhitelist)) {
+			this.printWhitelistEntry(title, actual.raw);
 		}
-	} else if ( !failureOnly && error ) {
+	} else if (!failureOnly && error) {
 		// The error object exists, which means
 		// there was an error! gwicke said it wouldn't happen, but handle
 		// it anyway, just in case.
@@ -1220,19 +1220,19 @@ ParserTests.prototype.printFailure = function( title, comments, iopts, options,
  * @param {boolean} isWhitelist Whether this success was due to a whitelisting
  * @param {boolean} shouldReport Whether we should actually output this result, or just count it
  */
-ParserTests.prototype.printSuccess = function( title, options, mode, expectSuccess, isWhitelist, item ) {
-	var quiet = booleanOption( options.quiet );
-	if ( isWhitelist ) {
+ParserTests.prototype.printSuccess = function(title, options, mode, expectSuccess, isWhitelist, item) {
+	var quiet = booleanOption(options.quiet);
+	if (isWhitelist) {
 		this.stats.passedTestsWhitelisted++;
 		this.stats.modes[mode].passedTestsWhitelisted++;
 	} else {
 		this.stats.passedTests++;
 		this.stats.modes[mode].passedTests++;
 	}
-	var extTitle = ( title + ( mode ? ( ' (' + mode + ')' ) : '' ) ).
+	var extTitle = (title + (mode ? (' (' + mode + ')') : '')).
 		replace('\n', ' ');
 
-	if ( booleanOption( options.blacklist ) && !expectSuccess ) {
+	if (booleanOption(options.blacklist) && !expectSuccess) {
 		this.stats.passedTestsUnexpected++;
 		this.stats.modes[mode].passedTestsUnexpected++;
 		console.log('UNEXPECTED PASS'.green.inverse +
@@ -1240,16 +1240,16 @@ ParserTests.prototype.printSuccess = function( title, options, mode, expectSucce
 			':' + extTitle.yellow);
 		return false;
 	}
-	if ( !quiet ) {
+	if (!quiet) {
 		var outStr = 'EXPECTED PASS';
 
-		if ( isWhitelist ) {
+		if (isWhitelist) {
 			outStr += ' (whitelist)';
 		}
 
 		outStr = outStr.green + ': ' + extTitle.yellow;
 
-		console.log( outStr );
+		console.log(outStr);
 
 		if (mode === 'selser' && item.hasOwnProperty('wt2wtPassed') &&
 				!item.wt2wtPassed) {
@@ -1278,26 +1278,26 @@ ParserTests.prototype.printSuccess = function( title, options, mode, expectSucce
  * @param {Object} getDiff.expected
  * @returns {string}
  */
-ParserTests.prototype.getActualExpected = function( actual, expected, getDiff ) {
+ParserTests.prototype.getActualExpected = function(actual, expected, getDiff) {
 	var returnStr = '';
-	expected.formattedRaw = expected.isWT ? expected.raw : DU.formatHTML( expected.raw );
+	expected.formattedRaw = expected.isWT ? expected.raw : DU.formatHTML(expected.raw);
 	returnStr += 'RAW EXPECTED'.cyan + ':';
 	returnStr += expected.formattedRaw + '\n';
 
-	actual.formattedRaw = actual.isWT ? actual.raw : DU.formatHTML( actual.raw );
+	actual.formattedRaw = actual.isWT ? actual.raw : DU.formatHTML(actual.raw);
 	returnStr += 'RAW RENDERED'.cyan + ':';
 	returnStr += actual.formattedRaw + '\n';
 
-	expected.formattedNormal = expected.isWT ? expected.normal : DU.formatHTML( expected.normal );
+	expected.formattedNormal = expected.isWT ? expected.normal : DU.formatHTML(expected.normal);
 	returnStr += 'NORMALIZED EXPECTED'.magenta + ':';
 	returnStr += expected.formattedNormal + '\n';
 
-	actual.formattedNormal = actual.isWT ? actual.normal : DU.formatHTML( actual.normal );
+	actual.formattedNormal = actual.isWT ? actual.normal : DU.formatHTML(actual.normal);
 	returnStr += 'NORMALIZED RENDERED'.magenta + ':';
 	returnStr += actual.formattedNormal + '\n';
 
 	returnStr += 'DIFF'.cyan + ': \n';
-	returnStr += getDiff( actual, expected );
+	returnStr += getDiff(actual, expected);
 
 	return returnStr;
 };
@@ -1308,21 +1308,21 @@ ParserTests.prototype.getActualExpected = function( actual, expected, getDiff ) 
  * @param {Object} expected
  * @param {string} expected.formattedNormal
  */
-ParserTests.prototype.getDiff = function( actual, expected ) {
+ParserTests.prototype.getDiff = function(actual, expected) {
 	// safe to always request color diff, because we set color mode='none'
 	// if colors are turned off.
-	return Diff.htmlDiff( expected.formattedNormal, actual.formattedNormal, true );
+	return Diff.htmlDiff(expected.formattedNormal, actual.formattedNormal, true);
 };
 
 /**
  * @param {string} title
  * @param {string} raw The raw output from the parser.
  */
-ParserTests.prototype.printWhitelistEntry = function( title, raw ) {
-	console.log( 'WHITELIST ENTRY:'.cyan + '');
-	console.log( 'testWhiteList[' +
-		JSON.stringify( title ) + '] = ' +
-		JSON.stringify( raw ) + ';\n' );
+ParserTests.prototype.printWhitelistEntry = function(title, raw) {
+	console.log('WHITELIST ENTRY:'.cyan + '');
+	console.log('testWhiteList[' +
+		JSON.stringify(title) + '] = ' +
+		JSON.stringify(raw) + ';\n');
 };
 
 /**
@@ -1342,53 +1342,53 @@ ParserTests.prototype.printWhitelistEntry = function( title, raw ) {
  * @param {Function} pre
  * @param {Function} post
  */
-function printResult( reportFailure, reportSuccess, title, time, comments, iopts, expected, actual, options, mode, item, pre, post ) {
-	var quick = booleanOption( options.quick );
+function printResult(reportFailure, reportSuccess, title, time, comments, iopts, expected, actual, options, mode, item, pre, post) {
+	var quick = booleanOption(options.quick);
 	var parsoidOnly =
 		('html/parsoid' in item) || (iopts.parsoid !== undefined);
 
-	if ( mode === 'selser' ) {
+	if (mode === 'selser') {
 		title += ' ' + (item.changes ? JSON.stringify(item.changes) : 'manual');
 	}
 
 	var whitelist = false;
 	var tb = testBlackList[title];
-	var expectFail = ( tb ? tb.modes : [] ).indexOf( mode ) >= 0;
-	var fail = ( expected.normal !== actual.normal );
+	var expectFail = (tb ? tb.modes : []).indexOf(mode) >= 0;
+	var fail = (expected.normal !== actual.normal);
 	// Return whether the test was as expected, independent of pass/fail
 	var asExpected;
 
-	if ( fail &&
-		booleanOption( options.whitelist ) &&
+	if (fail &&
+		booleanOption(options.whitelist) &&
 		title in testWhiteList &&
-		DU.normalizeOut( DU.parseHTML( testWhiteList[title] ).body, parsoidOnly ) ===  actual.normal
+		DU.normalizeOut(DU.parseHTML(testWhiteList[title]).body, parsoidOnly) ===  actual.normal
 	) {
 		whitelist = true;
 		fail = false;
 	}
 
-	if ( mode === 'wt2wt' ) {
+	if (mode === 'wt2wt') {
 		item.wt2wtPassed = !fail;
 		item.wt2wtResult = actual.raw;
 	}
 
 	// don't report selser fails when nothing was changed or it's a dup
-	if ( mode === 'selser' && ( item.changes === 0 || item.duplicateChange ) ) {
+	if (mode === 'selser' && (item.changes === 0 || item.duplicateChange)) {
 		return true;
 	}
 
-	if ( typeof pre === 'function' ) {
-		pre( mode, title, time );
+	if (typeof pre === 'function') {
+		pre(mode, title, time);
 	}
 
-	if ( fail ) {
-		asExpected = reportFailure( title, comments, iopts, options, actual, expected, expectFail, quick, mode, null, item );
+	if (fail) {
+		asExpected = reportFailure(title, comments, iopts, options, actual, expected, expectFail, quick, mode, null, item);
 	} else {
-		asExpected = reportSuccess( title, options, mode, !expectFail, whitelist, item );
+		asExpected = reportSuccess(title, options, mode, !expectFail, whitelist, item);
 	}
 
-	if ( typeof post === 'function' ) {
-		post( mode );
+	if (typeof post === 'function') {
+		post(mode);
 	}
 
 	return asExpected;
@@ -1399,20 +1399,20 @@ function printResult( reportFailure, reportSuccess, title, time, comments, iopts
  * @param {string} out
  * @param {Object} options
  */
-ParserTests.prototype.checkHTML = function( item, out, options, mode ) {
+ParserTests.prototype.checkHTML = function(item, out, options, mode) {
 	var normalizedOut, normalizedExpected;
 	var parsoidOnly =
 		('html/parsoid' in item) || (item.options.parsoid !== undefined);
 
-	normalizedOut = DU.normalizeOut( out, parsoidOnly );
+	normalizedOut = DU.normalizeOut(out, parsoidOnly);
 	out = DU.serializeChildren(out);
 
-	if ( item.cachedNormalizedHTML === null ) {
-		if ( parsoidOnly ) {
-			var normalDOM = DU.parseHTML( item.html ).body;
-			normalizedExpected = DU.normalizeOut( normalDOM, parsoidOnly );
+	if (item.cachedNormalizedHTML === null) {
+		if (parsoidOnly) {
+			var normalDOM = DU.parseHTML(item.html).body;
+			normalizedExpected = DU.normalizeOut(normalDOM, parsoidOnly);
 		} else {
-			normalizedExpected = DU.normalizeHTML( item.html );
+			normalizedExpected = DU.normalizeHTML(item.html);
 		}
 		item.cachedNormalizedHTML = normalizedExpected;
 	} else {
@@ -1423,7 +1423,7 @@ ParserTests.prototype.checkHTML = function( item, out, options, mode ) {
 	var expected = { normal: normalizedExpected, raw: item.html };
 	var actual = { normal: normalizedOut, raw: out, input: input };
 
-	return options.reportResult( item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item );
+	return options.reportResult(item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item);
 };
 
 /**
@@ -1453,7 +1453,7 @@ ParserTests.prototype.checkWikitext = function(item, out, options, mode) {
 	var expected = { isWT: true, normal: normalizedExpected, raw: itemWikitext };
 	var actual = { isWT: true, normal: normalizedOut, raw: out, input: input };
 
-	return options.reportResult( item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item );
+	return options.reportResult(item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item);
 };
 
 /**
@@ -1476,8 +1476,8 @@ ParserTests.prototype.reportSummary = function(stats) {
 	var thisMode;
 	var failTotalTests = stats.failedTests;
 
-	console.log( "==========================================================");
-	console.log( "SUMMARY: ");
+	console.log("==========================================================");
+	console.log("SUMMARY: ");
 	if (console.time && console.timeEnd) {
 		console.timeEnd('Execution time');
 	}
@@ -1486,23 +1486,23 @@ ParserTests.prototype.reportSummary = function(stats) {
 		for (var i = 0; i < modes.length; i++) {
 			curStr = modes[i] + ': ';
 			thisMode = stats.modes[modes[i]];
-			if ( thisMode.passedTests + thisMode.passedTestsWhitelisted + thisMode.failedTests > 0 ) {
-				curStr += colorizeCount( thisMode.passedTests + thisMode.passedTestsWhitelisted, 'green' ) + ' passed (';
-				curStr += colorizeCount( thisMode.passedTestsUnexpected, 'red' ) + ' unexpected, ';
-				curStr += colorizeCount( thisMode.passedTestsWhitelisted, 'yellow' ) + ' whitelisted) / ';
-				curStr += colorizeCount( thisMode.failedTests, 'red' ) + ' failed (';
-				curStr += colorizeCount( thisMode.failedTestsUnexpected, 'red') + ' unexpected)';
-				console.log( curStr );
+			if (thisMode.passedTests + thisMode.passedTestsWhitelisted + thisMode.failedTests > 0) {
+				curStr += colorizeCount(thisMode.passedTests + thisMode.passedTestsWhitelisted, 'green') + ' passed (';
+				curStr += colorizeCount(thisMode.passedTestsUnexpected, 'red') + ' unexpected, ';
+				curStr += colorizeCount(thisMode.passedTestsWhitelisted, 'yellow') + ' whitelisted) / ';
+				curStr += colorizeCount(thisMode.failedTests, 'red') + ' failed (';
+				curStr += colorizeCount(thisMode.failedTestsUnexpected, 'red') + ' unexpected)';
+				console.log(curStr);
 			}
 		}
 
 		curStr = 'TOTAL' + ': ';
-		curStr += colorizeCount( stats.passedTests + stats.passedTestsWhitelisted, 'green' ) + ' passed (';
-		curStr += colorizeCount( stats.passedTestsUnexpected, 'red' ) + ' unexpected, ';
-		curStr += colorizeCount( stats.passedTestsWhitelisted, 'yellow' ) + ' whitelisted) / ';
-		curStr += colorizeCount( stats.failedTests, 'red' ) + ' failed (';
-		curStr += colorizeCount( stats.failedTestsUnexpected, 'red') + ' unexpected)';
-		console.log( curStr );
+		curStr += colorizeCount(stats.passedTests + stats.passedTestsWhitelisted, 'green') + ' passed (';
+		curStr += colorizeCount(stats.passedTestsUnexpected, 'red') + ' unexpected, ';
+		curStr += colorizeCount(stats.passedTestsWhitelisted, 'yellow') + ' whitelisted) / ';
+		curStr += colorizeCount(stats.failedTests, 'red') + ' failed (';
+		curStr += colorizeCount(stats.failedTestsUnexpected, 'red') + ' unexpected)';
+		console.log(curStr);
 
 		console.log('\n');
 		console.log(colorizeCount(stats.passedTests + stats.passedTestsWhitelisted, 'green') +
@@ -1514,17 +1514,17 @@ ParserTests.prototype.reportSummary = function(stats) {
 			')');
 		if (stats.passedTestsUnexpected === 0 &&
 				stats.failedTestsUnexpected === 0) {
-			console.log( '--> ' + 'NO UNEXPECTED RESULTS'.green + ' <--');
+			console.log('--> ' + 'NO UNEXPECTED RESULTS'.green + ' <--');
 		}
 	} else {
-		if ( this.testFilter !== null ) {
-			console.log( "Passed " + ( stats.passedTests + stats.passedTestsWhitelisted ) +
+		if (this.testFilter !== null) {
+			console.log("Passed " + (stats.passedTests + stats.passedTestsWhitelisted) +
 					" of " + stats.passedTests + " tests matching " + this.testFilter +
-					"... " + "ALL TESTS PASSED!".green );
+					"... " + "ALL TESTS PASSED!".green);
 		} else {
 			// Should not happen if it does: Champagne!
-			console.log( "Passed " + stats.passedTests + " of " + stats.passedTests +
-					" tests... " + "ALL TESTS PASSED!".green );
+			console.log("Passed " + stats.passedTests + " of " + stats.passedTests +
+					" tests... " + "ALL TESTS PASSED!".green);
 		}
 	}
 	// repeat warning about out-of-date parser tests (we might have missed
@@ -1535,7 +1535,7 @@ ParserTests.prototype.reportSummary = function(stats) {
 			" parserTests.txt not up-to-date with upstream.");
 		console.warn("         Run fetch-parserTests.txt.js to update.");
 	}
-	console.log( "==========================================================");
+	console.log("==========================================================");
 
 	return (stats.passedTestsUnexpected + stats.failedTestsUnexpected);
 };
@@ -1544,98 +1544,98 @@ ParserTests.prototype.reportSummary = function(stats) {
  * @method
  * @param {Object} options
  */
-ParserTests.prototype.main = function( options, popts ) {
+ParserTests.prototype.main = function(options, popts) {
 
-	if ( options.help ) {
+	if (options.help) {
 		popts.showHelp();
 		console.log("Additional dump options specific to parserTests script:");
 		console.log("* dom:post-changes  : Dumps DOM after applying selser changetree\n");
 		console.log("Examples");
 		console.log("$ node parserTests --selser --filter '...' --dump dom:post-changes");
 		console.log("$ node parserTests --selser --filter '...' --changetree '...' --dump dom:post-changes\n");
-		process.exit( 0 );
+		process.exit(0);
 	}
-	Util.setColorFlags( options );
+	Util.setColorFlags(options);
 
-	if ( !( options.wt2wt || options.wt2html || options.html2wt || options.html2html || options.selser ) ) {
+	if (!(options.wt2wt || options.wt2html || options.html2wt || options.html2html || options.selser)) {
 		options.wt2wt = true;
 		options.wt2html = true;
 		options.html2html = true;
 		options.html2wt = true;
-		if ( booleanOption( options['rewrite-blacklist'] ) ) {
+		if (booleanOption(options['rewrite-blacklist'])) {
 			// turn on all modes by default for --rewrite-blacklist
 			options.selser = true;
 			// sanity checking (bug 51448 asks to be able to use --filter here)
 			if (options.filter || options.regex || options.maxtests || options['exit-unexpected']) {
 				console.log("\nERROR> can't combine --rewrite-blacklist with --filter, --maxtests or --exit-unexpected");
-				process.exit( 1 );
+				process.exit(1);
 			}
 		}
 	}
 
-	if ( typeof options.reportFailure !== 'function' ) {
+	if (typeof options.reportFailure !== 'function') {
 		// default failure reporting is standard out,
 		// see ParserTests::printFailure for documentation of the default.
-		options.reportFailure = this.printFailure.bind( this );
+		options.reportFailure = this.printFailure.bind(this);
 	}
 
-	if ( typeof options.reportSuccess !== 'function' ) {
+	if (typeof options.reportSuccess !== 'function') {
 		// default success reporting is standard out,
 		// see ParserTests::printSuccess for documentation of the default.
-		options.reportSuccess = this.printSuccess.bind( this );
+		options.reportSuccess = this.printSuccess.bind(this);
 	}
 
-	if ( typeof options.reportStart !== 'function' ) {
+	if (typeof options.reportStart !== 'function') {
 		// default summary reporting is standard out,
 		// see ParserTests::reportStart for documentation of the default.
-		options.reportStart = this.reportStartOfTests.bind( this );
+		options.reportStart = this.reportStartOfTests.bind(this);
 	}
 
-	if ( typeof options.reportSummary !== 'function' ) {
+	if (typeof options.reportSummary !== 'function') {
 		// default summary reporting is standard out,
 		// see ParserTests::reportSummary for documentation of the default.
-		options.reportSummary = this.reportSummary.bind( this );
+		options.reportSummary = this.reportSummary.bind(this);
 	}
 
-	if ( typeof options.reportResult !== 'function' ) {
+	if (typeof options.reportResult !== 'function') {
 		// default result reporting is standard out,
 		// see printResult for documentation of the default.
-		options.reportResult = printResult.bind( this, options.reportFailure, options.reportSuccess );
+		options.reportResult = printResult.bind(this, options.reportFailure, options.reportSuccess);
 	}
 
-	if ( typeof options.getDiff !== 'function' ) {
+	if (typeof options.getDiff !== 'function') {
 		// this is the default for diff-getting, but it can be overridden
 		// see ParserTests::getDiff for documentation of the default.
-		options.getDiff = this.getDiff.bind( this );
+		options.getDiff = this.getDiff.bind(this);
 	}
 
-	if ( typeof options.getActualExpected !== 'function' ) {
+	if (typeof options.getActualExpected !== 'function') {
 		// this is the default for getting the actual and expected
 		// outputs, but it can be overridden
 		// see ParserTests::getActualExpected for documentation of the default.
-		options.getActualExpected = this.getActualExpected.bind( this );
+		options.getActualExpected = this.getActualExpected.bind(this);
 	}
 
 	// test case filtering
 	this.runDisabled = booleanOption(options['run-disabled']);
 	this.runPHP = booleanOption(options['run-php']);
 	this.testFilter = null; // null is the 'default' by definition
-	if ( options.filter || options.regex ) {
+	if (options.filter || options.regex) {
 		// NOTE: filter.toString() is required because a number-only arg
 		// shows up as a numeric type rather than a string.
 		// Ex: parserTests.js --filter 53221
-		var pattern = options.regex || Util.escapeRegExp( options.filter.toString() );
+		var pattern = options.regex || Util.escapeRegExp(options.filter.toString());
 		try {
-			this.testFilter = new RegExp( pattern );
-		} catch ( e ) {
-			console.error( '\nERROR> --filter was given an invalid regular expression.' );
-			console.error( '\nERROR> See below for JS engine error:\n' + e + '\n' );
-			process.exit( 1 );
+			this.testFilter = new RegExp(pattern);
+		} catch (e) {
+			console.error('\nERROR> --filter was given an invalid regular expression.');
+			console.error('\nERROR> See below for JS engine error:\n' + e + '\n');
+			process.exit(1);
 		}
 	}
 
 	// Identify tests file
-	if ( options._[0] ) {
+	if (options._[0]) {
 		this.testFileName = options._[0] ;
 	} else {
 		this.testFileName = __dirname + '/' + this.parserTestsFile;
@@ -1643,17 +1643,17 @@ ParserTests.prototype.main = function( options, popts ) {
 
 	try {
 		this.testParserFileName = __dirname + '/parserTests.pegjs';
-		this.testParser = PEG.buildParser( fs.readFileSync( this.testParserFileName, 'utf8' ) );
-	} catch ( e2 ) {
-		console.log( e2 );
+		this.testParser = PEG.buildParser(fs.readFileSync(this.testParserFileName, 'utf8'));
+	} catch (e2) {
+		console.log(e2);
 	}
 
-	this.cases = this.getTests( options ) || [];
+	this.cases = this.getTests(options) || [];
 
-	if ( options.maxtests ) {
-		var n = Number( options.maxtests );
-		console.warn( 'maxtests:' + n );
-		if ( n > 0 ) {
+	if (options.maxtests) {
+		var n = Number(options.maxtests);
+		console.warn('maxtests:' + n);
+		if (n > 0) {
 			this.cases.length = n;
 		}
 	}
@@ -1693,7 +1693,7 @@ ParserTests.prototype.main = function( options, popts ) {
 		console.assert(!err, err);
 		this.env = env;
 
-		if (booleanOption( options.quiet )) {
+		if (booleanOption(options.quiet)) {
 			var logger = new ParsoidLogger(env);
 			logger.registerLoggingBackends(["fatal", "error"], parsoidConfig);
 			env.setLogger(logger);
@@ -1705,24 +1705,24 @@ ParserTests.prototype.main = function( options, popts ) {
 		this.env.conf.wiki.addExtensionTag("references");
 
 		options.modes = [];
-		if ( options.wt2html ) {
-			options.modes.push( 'wt2html' );
+		if (options.wt2html) {
+			options.modes.push('wt2html');
 		}
-		if ( options.wt2wt ) {
-			options.modes.push( 'wt2wt' );
+		if (options.wt2wt) {
+			options.modes.push('wt2wt');
 		}
-		if ( options.html2wt ) {
-			options.modes.push( 'html2wt' );
+		if (options.html2wt) {
+			options.modes.push('html2wt');
 		}
-		if ( options.html2html ) {
-			options.modes.push( 'html2html' );
+		if (options.html2html) {
+			options.modes.push('html2html');
 		}
-		if ( options.selser ) {
-			options.modes.push( 'selser' );
+		if (options.selser) {
+			options.modes.push('selser');
 		}
 
 		// Create parsers, serializers, ..
-		if ( options.html2html || options.wt2wt || options.wt2html || options.selser ) {
+		if (options.html2html || options.wt2wt || options.wt2html || options.selser) {
 			this.parserPipeline = this.env.pipelineFactory.getPipeline('text/x-mediawiki/full');
 		}
 
@@ -1732,8 +1732,8 @@ ParserTests.prototype.main = function( options, popts ) {
 		options.reportStart();
 		this.env.pageCache = this.articles;
 		this.comments = [];
-		this.processCase( 0, options );
-	}.bind( this ) );
+		this.processCase(0, options);
+	}.bind(this));
 };
 
 /**
@@ -1742,8 +1742,8 @@ ParserTests.prototype.main = function( options, popts ) {
  * This method can be reimplemented in the options of the ParserTests object.
  */
 ParserTests.prototype.reportStartOfTests = function() {
-	console.log( 'ParserTests running with node', process.version);
-	console.log( 'Initialization complete. Now launching tests.' );
+	console.log('ParserTests running with node', process.version);
+	console.log('Initialization complete. Now launching tests.');
 };
 
 /**
@@ -1770,7 +1770,7 @@ ParserTests.prototype.buildTasks = function(item, modes, options) {
 			// Prepend manual changes, if present, but not if 'selser' isn't
 			// in the explicit modes option.
 			if (item.options.parsoid && item.options.parsoid.changes) {
-				tasks.push( function( cb ) {
+				tasks.push(function(cb) {
 					newitem = Util.clone(item);
 					// Mutating the item here is necessary to output 'manual' in
 					// the test's title and to differentiate it for blacklist.
@@ -1787,7 +1787,7 @@ ParserTests.prototype.buildTasks = function(item, modes, options) {
 					console.assert(newitem.changetree === 'manual' ||
 						newitem.changetree === undefined);
 					newitem.changetree = 'manual';
-					self.processTest( newitem, options, 'selser', function() {
+					self.processTest(newitem, options, 'selser', function() {
 						setImmediate(cb);
 					});
 				});
@@ -1797,32 +1797,32 @@ ParserTests.prototype.buildTasks = function(item, modes, options) {
 				continue;
 			}
 
-			item.selserChangeTrees = new Array( options.numchanges );
+			item.selserChangeTrees = new Array(options.numchanges);
 
 			// Prepend a selser test that appends a comment to the root node
-			tasks.push( function( cb ) {
+			tasks.push(function(cb) {
 				newitem = Util.clone(item);
 				newitem.changetree = 5;
-				self.processTest( newitem, options, 'selser', function() {
+				self.processTest(newitem, options, 'selser', function() {
 					setImmediate(cb);
 				});
 			});
 
 			var done = false;
-			for ( var j = 0; j < item.selserChangeTrees.length; j++ ) {
+			for (var j = 0; j < item.selserChangeTrees.length; j++) {
 				// we create the function in the loop but are careful to
 				// bind loop variables i and j at function creation time
 				/* jshint loopfunc: true */
-				tasks.push( function( modeIndex, changesIndex, cb ) {
+				tasks.push(function(modeIndex, changesIndex, cb) {
 					if (done) {
-						setImmediate( cb );
+						setImmediate(cb);
 					} else {
-						newitem = Util.clone( item );
+						newitem = Util.clone(item);
 						// Make sure we aren't reusing the one from manual changes
 						console.assert(newitem.changetree === undefined);
 						newitem.seed = changesIndex + '';
-						this.processTest( newitem, options, modes[modeIndex], function() {
-							if ( this.isDuplicateChangeTree( item.selserChangeTrees, newitem.changes ) ) {
+						this.processTest(newitem, options, modes[modeIndex], function() {
+							if (this.isDuplicateChangeTree(item.selserChangeTrees, newitem.changes)) {
 								// Once we get a duplicate change tree, we can no longer
 								// generate and run new tests.  So, be done now!
 								done = true;
@@ -1834,10 +1834,10 @@ ParserTests.prototype.buildTasks = function(item, modes, options) {
 							item.cachedBODY = newitem.cachedBODY;
 							item.cachedNormalizedHTML = newitem.cachedNormalizedHTML;
 
-							setImmediate( cb );
-						}.bind( this ) );
+							setImmediate(cb);
+						}.bind(this));
 					}
-				}.bind( this, i, j ) );
+				}.bind(this, i, j));
 			}
 		} else {
 			if (modes[i] === 'selser' && options.selser === 'noauto') {
@@ -1853,7 +1853,7 @@ ParserTests.prototype.buildTasks = function(item, modes, options) {
 				}
 			} else {
 				// A non-selser task, we can reuse the item.
-				tasks.push( this.processTest.bind( this, item, options, modes[i] ) );
+				tasks.push(this.processTest.bind(this, item, options, modes[i]));
 			}
 		}
 	}
@@ -1891,7 +1891,7 @@ ParserTests.prototype.processCase = function(i, options, err) {
 			}
 		});
 		// ensure that test is not skipped if it has a wikitext/edited section
-		if ( 'wikitext/edited' in item) { item.html = true; }
+		if ('wikitext/edited' in item) { item.html = true; }
 
 		// Reset the cached results for the new case.
 		// All test modes happen in a single run of processCase.
@@ -1899,44 +1899,44 @@ ParserTests.prototype.processCase = function(i, options, err) {
 		item.cachedNormalizedHTML = null;
 
 		// console.log( 'processCase ' + i + JSON.stringify( item )  );
-		if ( typeof item === 'object' ) {
+		if (typeof item === 'object') {
 			switch (item.type) {
 				case 'article':
 					this.comments = [];
-					this.processArticle( item, nextCallback );
+					this.processArticle(item, nextCallback);
 					break;
 				case 'test':
-					if ( !('wikitext' in item && 'html' in item) ||
+					if (!('wikitext' in item && 'html' in item) ||
 						('disabled' in item.options && !this.runDisabled) ||
 						('php' in item.options &&
 							!('html/parsoid' in item || this.runPHP)) ||
 						(this.testFilter &&
-							-1 === item.title.search( this.testFilter ) ) ) {
+							-1 === item.title.search(this.testFilter))) {
 						// Skip test whose title does not match --filter
 						// or which is disabled or php-only
 						this.comments = [];
-						setImmediate( nextCallback );
+						setImmediate(nextCallback);
 						break;
 					}
 					// Add comments to following test.
 					item.comments = item.comments || this.comments;
 					this.comments = [];
 
-					if ( item.options.parsoid && item.options.parsoid.modes ) {
+					if (item.options.parsoid && item.options.parsoid.modes) {
 						// Avoid filtering out the selser test
-						if ( options.selser &&
-							item.options.parsoid.modes.indexOf( "selser" ) < 0 &&
-							item.options.parsoid.modes.indexOf( "wt2wt" ) >= 0
+						if (options.selser &&
+							item.options.parsoid.modes.indexOf("selser") < 0 &&
+							item.options.parsoid.modes.indexOf("wt2wt") >= 0
 						) {
-							item.options.parsoid.modes.push( "selser" );
+							item.options.parsoid.modes.push("selser");
 						}
 
 						targetModes = targetModes.filter(function(mode) {
-							return item.options.parsoid.modes.indexOf( mode ) >= 0;
+							return item.options.parsoid.modes.indexOf(mode) >= 0;
 						});
 					}
 
-					if ( targetModes.length ) {
+					if (targetModes.length) {
 
 						// Honor language option in parserTests.txt
 						var prefix = item.options.language || 'enwiki';
@@ -1944,8 +1944,8 @@ ParserTests.prototype.processCase = function(i, options, err) {
 							// Convert to our enwiki.. format
 							prefix = prefix + 'wiki';
 						}
-						this.env.switchToConfig( prefix, function( err ) {
-							if ( err ) {
+						this.env.switchToConfig(prefix, function(err) {
+							if (err) {
 								return this.env.log("fatal", err);
 							}
 
@@ -2035,18 +2035,18 @@ ParserTests.prototype.processCase = function(i, options, err) {
 							this.env.conf.wiki.namespaceIds.memoryalpha =
 							this.env.conf.wiki.canonicalNamespaces.memoryalpha = 100;
 
-							async.series( this.buildTasks( item, targetModes, options ),
-								nextCallback );
-						}.bind( this ) );
+							async.series(this.buildTasks(item, targetModes, options),
+								nextCallback);
+						}.bind(this));
 
 					} else {
-						setImmediate( nextCallback );
+						setImmediate(nextCallback);
 					}
 
 					break;
 				case 'comment':
-					this.comments.push( item.comment );
-					setImmediate( nextCallback );
+					this.comments.push(item.comment);
+					setImmediate(nextCallback);
 					break;
 				case 'hooks':
 					var hooks = item.text.split(/\n/);
@@ -2055,23 +2055,23 @@ ParserTests.prototype.processCase = function(i, options, err) {
 						self.env.log("warning", "parserTests: Adding extension hook", JSON.stringify(hook));
 						self.env.conf.wiki.addExtensionTag(hook);
 					});
-					setImmediate( nextCallback );
+					setImmediate(nextCallback);
 					break;
 				case 'functionhooks':
 					this.env.log("warning", "parserTests: Unhandled functionhook", JSON.stringify(item));
 					break;
 				default:
 					this.comments = [];
-					setImmediate( nextCallback );
+					setImmediate(nextCallback);
 					break;
 			}
 		} else {
-			setImmediate( nextCallback );
+			setImmediate(nextCallback);
 		}
 	} else {
 
 		// update the blacklist, if requested
-		if (booleanOption( options['rewrite-blacklist'] )) {
+		if (booleanOption(options['rewrite-blacklist'])) {
 			var filename = __dirname + '/parserTests-blacklist.js';
 			var shell = fs.readFileSync(filename, 'utf8').
 				split(/^.*DO NOT REMOVE THIS LINE.*$/m);
@@ -2114,10 +2114,10 @@ ParserTests.prototype.processCase = function(i, options, err) {
 		// note: these stats won't necessarily be useful if someone
 		// reimplements the reporting methods, since that's where we
 		// increment the stats.
-		var failures = options.reportSummary( this.stats );
+		var failures = options.reportSummary(this.stats);
 
 		// we're done!
-		if ( booleanOption( options['exit-zero'] ) ) {
+		if (booleanOption(options['exit-zero'])) {
 			failures = false;
 		}
 		process.exit(failures ? 2 : 0); // exit status 1 == uncaught exception
@@ -2161,25 +2161,25 @@ var xmlFuncs = (function() {
 	var getActualExpectedXML = function(actual, expected, getDiff) {
 		var returnStr = '';
 
-		expected.formattedRaw = DU.formatHTML( expected.raw );
-		actual.formattedRaw = DU.formatHTML( actual.raw );
-		expected.formattedNormal = DU.formatHTML( expected.normal );
-		actual.formattedNormal = DU.formatHTML( actual.normal );
+		expected.formattedRaw = DU.formatHTML(expected.raw);
+		actual.formattedRaw = DU.formatHTML(actual.raw);
+		expected.formattedNormal = DU.formatHTML(expected.normal);
+		actual.formattedNormal = DU.formatHTML(actual.normal);
 
 		returnStr += 'RAW EXPECTED:\n';
-		returnStr += DU.encodeXml( expected.formattedRaw ) + '\n\n';
+		returnStr += DU.encodeXml(expected.formattedRaw) + '\n\n';
 
 		returnStr += 'RAW RENDERED:\n';
-		returnStr += DU.encodeXml( actual.formattedRaw ) + '\n\n';
+		returnStr += DU.encodeXml(actual.formattedRaw) + '\n\n';
 
 		returnStr += 'NORMALIZED EXPECTED:\n';
-		returnStr += DU.encodeXml( expected.formattedNormal ) + '\n\n';
+		returnStr += DU.encodeXml(expected.formattedNormal) + '\n\n';
 
 		returnStr += 'NORMALIZED RENDERED:\n';
-		returnStr += DU.encodeXml( actual.formattedNormal ) + '\n\n';
+		returnStr += DU.encodeXml(actual.formattedNormal) + '\n\n';
 
 		returnStr += 'DIFF:\n';
-		returnStr += DU.encodeXml ( getDiff( actual, expected, false ) );
+		returnStr += DU.encodeXml (getDiff(actual, expected, false));
 
 		return returnStr;
 	};
@@ -2255,16 +2255,16 @@ var xmlFuncs = (function() {
 	 */
 	var reportResultXML = function() {
 
-		function pre( mode, title, time ) {
+		function pre(mode, title, time) {
 			var testcaseEle;
-			testcaseEle = '<testcase name="' + DU.encodeXml( title ) + '" ';
+			testcaseEle = '<testcase name="' + DU.encodeXml(title) + '" ';
 			testcaseEle += 'assertions="1" ';
 
 			var timeTotal;
-			if ( time && time.end && time.start ) {
+			if (time && time.end && time.start) {
 				timeTotal = time.end - time.start;
-				if ( !isNaN( timeTotal ) ) {
-					testcaseEle += 'time="' + ( ( time.end - time.start ) / 1000.0 ) + '"';
+				if (!isNaN(timeTotal)) {
+					testcaseEle += 'time="' + ((time.end - time.start) / 1000.0) + '"';
 				}
 			}
 
@@ -2272,13 +2272,13 @@ var xmlFuncs = (function() {
 			results[mode] += testcaseEle;
 		}
 
-		function post( mode ) {
+		function post(mode) {
 			results[mode] += '</testcase>\n';
 		}
 
-		var args = Array.prototype.slice.call( arguments );
-		args = [ reportFailureXML, reportSuccessXML ].concat( args, pre, post );
-		printResult.apply( this, args );
+		var args = Array.prototype.slice.call(arguments);
+		args = [ reportFailureXML, reportSuccessXML ].concat(args, pre, post);
+		printResult.apply(this, args);
 
 		// In xml, test all cases always
 		return true;
@@ -2297,7 +2297,7 @@ var xmlFuncs = (function() {
 var ptests = new ParserTests();
 var popts  = ptests.getOpts();
 
-if ( popts.argv.xml ) {
+if (popts.argv.xml) {
 	popts.reportResult = xmlFuncs.reportResult;
 	popts.reportStart = xmlFuncs.reportStart;
 	popts.reportSummary = xmlFuncs.reportSummary;
@@ -2305,12 +2305,12 @@ if ( popts.argv.xml ) {
 	colors.mode = 'none';
 }
 
-if ( popts.argv.help ) {
+if (popts.argv.help) {
 	ptests.main(popts.argv, popts);
 }
 
 // Start the mock api server and kick off parser tests
-apiServer.startMockAPIServer({ quiet: popts.quiet }).then(function( ret ) {
+apiServer.startMockAPIServer({ quiet: popts.quiet }).then(function(ret) {
 	mockAPIServerURL = ret.url;
 	mockAPIServer = ret.child;
 	return ptests.main(popts.argv, popts);

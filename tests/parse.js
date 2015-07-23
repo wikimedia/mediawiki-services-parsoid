@@ -7,7 +7,7 @@
 require('../lib/core-upgrade.js');
 
 var ParserEnv = require('../lib/mediawiki.parser.environment.js').MWParserEnvironment;
-var ParsoidConfig = require( '../lib/mediawiki.ParsoidConfig.js' ).ParsoidConfig;
+var ParsoidConfig = require('../lib/mediawiki.ParsoidConfig.js').ParsoidConfig;
 var TemplateRequest = require('../lib/mediawiki.ApiRequest.js').TemplateRequest;
 var Util = require('../lib/mediawiki.Util.js').Util;
 var DU = require('../lib/mediawiki.DOMUtils.js').DOMUtils;
@@ -123,7 +123,7 @@ var standardOpts = Util.addStandardOptions({
 });
 exports.defaultOptions = yargs.options(standardOpts).parse([]);
 
-function dpFromHead( doc ) {
+function dpFromHead(doc) {
 	var dp;
 	var dpScriptElt = doc.getElementById('mw-data-parsoid');
 	if (dpScriptElt) {
@@ -147,7 +147,7 @@ var startsAtHTML = function(argv, env, input, dp) {
 		DU.applyDataParsoid(doc, dp);
 	}
 	return DU.serializeDOM(env, doc.body, argv.selser).then(function(out) {
-		if ( argv.html2wt || argv.wt2wt ) {
+		if (argv.html2wt || argv.wt2wt) {
 			return { trailingNL: true, out: out };
 		} else {
 			return startsAtWikitext(argv, env, out);
@@ -179,14 +179,14 @@ startsAtWikitext = function(argv, env, input) {
 	});
 };
 
-var parse = exports.parse = function( input, argv, parsoidConfig, prefix ) {
+var parse = exports.parse = function(input, argv, parsoidConfig, prefix) {
 	return ParserEnv.getParserEnv(parsoidConfig, null, {
 		prefix: prefix,
 		pageName: argv.page
-	}).then(function( env ) {
+	}).then(function(env) {
 
 		// fetch templates from enwiki by default.
-		if ( argv.wgScriptPath ) {
+		if (argv.wgScriptPath) {
 			env.conf.wiki.wgScriptPath = argv.wgScriptPath;
 		}
 
@@ -194,38 +194,38 @@ var parse = exports.parse = function( input, argv, parsoidConfig, prefix ) {
 		env.scrubWikitext = argv.scrubWikitext;
 
 		var i, validExtensions;
-		if ( validExtensions !== '' ) {
-			validExtensions = argv.extensions.split( ',' );
-			for ( i = 0; i < validExtensions.length; i++ ) {
-				env.conf.wiki.addExtensionTag( validExtensions[i] );
+		if (validExtensions !== '') {
+			validExtensions = argv.extensions.split(',');
+			for (i = 0; i < validExtensions.length; i++) {
+				env.conf.wiki.addExtensionTag(validExtensions[i]);
 			}
 		}
 
-		if ( !argv.wt2html ) {
-			if ( argv.oldtextfile ) {
+		if (!argv.wt2html) {
+			if (argv.oldtextfile) {
 				argv.oldtext = fs.readFileSync(argv.oldtextfile, 'utf8');
 			}
-			if ( argv.oldhtmlfile ) {
+			if (argv.oldhtmlfile) {
 				env.page.dom = DU.parseHTML(
 					fs.readFileSync(argv.oldhtmlfile, 'utf8')
 				).body;
 			}
-			if ( argv.domdiff ) {
+			if (argv.domdiff) {
 				env.page.domdiff = {
 					isEmpty: false,
 					dom: DU.parseHTML(fs.readFileSync(argv.domdiff, 'utf8')).body
 				};
 			}
-			env.setPageSrcInfo( argv.oldtext || null );
+			env.setPageSrcInfo(argv.oldtext || null);
 		}
 
-		if ( typeof ( input ) === 'string' ) {
+		if (typeof (input) === 'string') {
 			return { env: env, input: input };
 		}
 
-		if ( argv.inputfile ) {
+		if (argv.inputfile) {
 			// read input from the file, then process
-			var fileContents = fs.readFileSync( argv.inputfile, 'utf8' );
+			var fileContents = fs.readFileSync(argv.inputfile, 'utf8');
 			return { env: env, input: fileContents };
 		}
 
@@ -243,7 +243,7 @@ var parse = exports.parse = function( input, argv, parsoidConfig, prefix ) {
 			});
 		}).then(function(inputChunks) {
 			// parse page if no input
-			if ( inputChunks.length > 0 ) {
+			if (inputChunks.length > 0) {
 				return { env: env, input: inputChunks.join("") };
 			} else if (argv.html2wt || argv.html2html) {
 				env.log("fatal", "Pages start at wikitext.");
@@ -256,29 +256,29 @@ var parse = exports.parse = function( input, argv, parsoidConfig, prefix ) {
 				});
 		});
 
-	}).then(function( res ) {
+	}).then(function(res) {
 		var env = res.env;
 		var input = res.input;
-		if ( typeof input === "string" ) {
+		if (typeof input === "string") {
 			input = input.replace(/\r/g, '');
 		}
 
-		if ( argv.html2wt || argv.html2html ) {
+		if (argv.html2wt || argv.html2html) {
 			var dp;
 			if (argv.dpin.length > 0) {
-				dp = JSON.parse( argv.dpin );
-			} else if ( argv.dpinfile ) {
+				dp = JSON.parse(argv.dpin);
+			} else if (argv.dpinfile) {
 				dp = JSON.parse(fs.readFileSync(argv.dpinfile, 'utf8'));
 			}
-			return startsAtHTML( argv, env, input, dp );
+			return startsAtHTML(argv, env, input, dp);
 		} else {
-			return startsAtWikitext( argv, env, input );
+			return startsAtWikitext(argv, env, input);
 		}
 
 	});
 };
 
-if ( require.main === module ) {
+if (require.main === module) {
 	(function() {
 		var defaultModeStr = "Default conversion mode : --wt2html";
 

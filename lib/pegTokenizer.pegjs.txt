@@ -45,7 +45,7 @@
      */
     var emitChunk = function(tokens) {
         // Shift tsr of all tokens by the pipeline offset
-        Util.shiftTokenTSR( tokens, options.pipelineOffset );
+        Util.shiftTokenTSR(tokens, options.pipelineOffset);
         options.env.log("trace/peg", options.pegTokenizer.pipelineId, "---->  ", tokens);
         // limit the size of individual chunks
         var chunkLimit = 100000;
@@ -70,7 +70,7 @@
 start "start"
   = tlb* newline* {
       // end is passed inline as a token, as well as a separate event for now.
-      emitChunk( [ new EOFTk( ) ] );
+      emitChunk([ new EOFTk() ]);
       return true;
   }
 
@@ -81,7 +81,7 @@ start "start"
 redirect
   = rw:redirect_word
     sp:$space_or_newline*
-    c:$( ":" space_or_newline* )?
+    c:$(":" space_or_newline*)?
     wl:wikilink & {
       return wl.length === 1 && wl[0] && wl[0].constructor !== String;
   } {
@@ -121,7 +121,7 @@ start_async
   = (tlb
     / newline* &{
       if (endOffset() === input.length) {
-          emitChunk( [ new EOFTk( ) ] );
+          emitChunk([ new EOFTk() ]);
       }
       // terminate the loop
       return false;
@@ -144,15 +144,15 @@ tlb "tlb"
     }
 
     var tokens;
-    if ( Array.isArray(b) && b.length ) {
+    if (Array.isArray(b) && b.length) {
         tokens = tu.flattenIfArray(b);
     } else if (b && b.constructor === String) {
         tokens = [b];
     }
 
     // Emit tokens for this toplevelblock. This feeds a chunk to the parser pipeline.
-    if ( tokens ) {
-        emitChunk( tokens );
+    if (tokens) {
+        emitChunk(tokens);
     }
 
     // We don't return any tokens to the start rule to save memory. We
@@ -199,7 +199,7 @@ nested_block_in_table
     // avoid recursion via nested_block_in_table, as that can lead to stack
     // overflow in large tables
     // See https://bugzilla.wikimedia.org/show_bug.cgi?id=57670
-    & { return stops.push('tableDataBlock', true ); }
+    & { return stops.push('tableDataBlock', true); }
     // XXX: don't rely on a lame look-ahead like this; use syntax stops
     // instead, so that multi-line th content followed by a line prefixed with
     // a comment is also handled. Alternatively, implement a sol look-behind
@@ -307,15 +307,15 @@ h = & "=" // guard, to make sure '='+ will match.
      &eolf
      {
         stops.dec('h');
-        var level = Math.min( s.length, e.length );
-        level = Math.min( 6, level );
+        var level = Math.min(s.length, e.length);
+        level = Math.min(6, level);
         // convert surplus equals into text
         if (s.length > level) {
             var extras1 = s.substr(0, s.length - level);
             if (c[0].constructor === String) {
                 c[0] = extras1 + c[0];
             } else {
-                c.unshift( extras1 );
+                c.unshift(extras1);
             }
         }
         if (e.length > level) {
@@ -324,7 +324,7 @@ h = & "=" // guard, to make sure '='+ will match.
             if (lastElem.constructor === String) {
                 c[c.length - 1] += extras2;
             } else {
-                c.push( extras2 );
+                c.push(extras2);
             }
         }
 
@@ -352,8 +352,8 @@ h = & "=" // guard, to make sure '='+ will match.
 // for further details.
 
 comment
-    = '<!--' c:$( !"-->" . )* ('-->' / eof) {
-        var data = DU.encodeComment( c );
+    = '<!--' c:$(!"-->" .)* ('-->' / eof) {
+        var data = DU.encodeComment(c);
         return [new CommentTk(data, { tsr: tsrOffsets() })];
     }
 
@@ -362,7 +362,7 @@ comment
 // https://www.mediawiki.org/wiki/Help:Magic_words#Behavior_switches
 behavior_switch
   = bs:$('__' behavior_text '__') {
-    return [ new SelfclosingTagTk( 'behavior-switch', [ new KV('word', bs) ], {
+    return [ new SelfclosingTagTk('behavior-switch', [ new KV('word', bs) ], {
       tsr: tsrOffsets(),
       src: bs
     }) ];
@@ -398,7 +398,7 @@ extlink
         "["
         & { return stops.push('extlink', true); }
         target:extlink_preprocessor_text
-        & { return Util.isProtocolValid( target, options.env ); }
+        & { return Util.isProtocolValid(target, options.env); }
         sp:$( space / [\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000] )*
         targetOff:( "" { return endOffset(); })
         content:(
@@ -410,13 +410,13 @@ extlink
               )?
         "]" {
             stops.pop('extlink');
-            // if ( text === '' ) {
+            // if (text === '') {
             //     // XXX: Link numbering should be implemented in post-processor.
             //     text = [ "[" + linkCount + "]" ];
             //     linkCount++;
             // }
             return [
-                new SelfclosingTagTk( 'extlink', [
+                new SelfclosingTagTk('extlink', [
                     new KV('href', target),
                     new KV('mw:content', content),
                     new KV('spaces', sp)
@@ -467,7 +467,7 @@ isbn
     }
 
     return [
-        new SelfclosingTagTk( 'extlink', [
+        new SelfclosingTagTk('extlink', [
            new KV('href', 'Special:BookSources/' + isbncode),
            new KV('mw:content', 'ISBN ' + isbn),
            new KV('typeof', 'mw:ExtLink/ISBN')
@@ -519,7 +519,7 @@ url "url"
          )+
 {
     proto += addr || '';
-    return tu.flattenString( [proto].concat( path ) );
+    return tu.flattenString([proto].concat(path));
 }
 
 // this is the somewhat-restricted rule used in autolinks
@@ -530,7 +530,7 @@ url "url"
 // The 's' and 'r' pieces match the characters in EXT_LINK_URL_CLASS
 // which aren't included in no_punctuation_char
 autourl
-  = &{ return stops.push( 'autourl', { sawLParen: false } ); }
+  = &{ return stops.push('autourl', { sawLParen: false }); }
     proto:url_protocol
     addr:( ipv6_address / ipv4_address )?
     path:(  ( !{ return inlineBreaks(input, endOffset(), stops); } // inline_breaks
@@ -538,7 +538,7 @@ autourl
               c:no_punctuation_char
               { return c; }
             )
-            / "(" { stops.onStack( 'autourl' ).sawLParen = true; return "("; }
+            / "(" { stops.onStack('autourl').sawLParen = true; return "("; }
             / s:[.:,']  { return s; }
             / comment
             / tplarg_or_template
@@ -552,24 +552,24 @@ autourl
     // as in Parser.php::makeFreeExternalLink, we're going to
     // yank trailing punctuation out of this match.
     proto += addr || '';
-    var url = tu.flattenStringlist( [proto].concat( path ) );
+    var url = tu.flattenStringlist([proto].concat(path));
     // only need to look at last element; HTML entities are strip-proof.
     var last = url[url.length - 1];
     var trim = 0;
     if (last && last.constructor === String) {
       var strip = ',;\\.:!?';
-      if (!stops.onStack( 'autourl' ).sawLParen) {
+      if (!stops.onStack('autourl').sawLParen) {
         strip += ')';
       }
-      strip = new RegExp( '[' + Util.escapeRegExp(strip) + ']*$' );
-      trim = strip.exec( last )[0].length;
+      strip = new RegExp('[' + Util.escapeRegExp(strip) + ']*$');
+      trim = strip.exec(last)[0].length;
       url[url.length - 1] = last.slice(0, last.length - trim);
       peg$currPos -= trim;
     }
-    stops.pop( 'autourl' );
-    return tu.flattenString( url );
+    stops.pop('autourl');
+    return tu.flattenString(url);
 }
-    / &{ return stops.pop( 'autourl' ); }
+    / &{ return stops.pop('autourl'); }
 
 ipv4_address
   = $([0-9]* '.' [0-9]* '.' [0-9]* '.' [0-9]*)
@@ -625,8 +625,8 @@ broken_template
   = v:( '{{' space_or_newline+ '}}' / ( '{{{' / '}}}' / '{{' / '}}' )+ )
 {
     return [
-        new TagTk('span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: tsrOffsets('start'), src: text() } )]
-            .concat(v, [new EndTagTk( 'span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: tsrOffsets('end') }) ]);
+        new TagTk('span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: tsrOffsets('start'), src: text() })]
+            .concat(v, [new EndTagTk('span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: tsrOffsets('end') }) ]);
 }
 
 
@@ -638,7 +638,7 @@ template
                     v:nl_comment_space*
                     p:("" { return endOffset(); })
                     & "|"
-                    { return new KV( '', tu.flattenIfArray(v), [p0, p0, p0, p]); } // empty argument
+                    { return new KV('', tu.flattenIfArray(v), [p0, p0, p0, p]); } // empty argument
                     / template_param
                   ) { return r; }
             )*
@@ -647,8 +647,8 @@ template
       // Insert target as first positional attribute, so that it can be
       // generically expanded. The TemplateHandler then needs to shift it out
       // again.
-      params.unshift( new KV(tu.flattenIfArray( target.tokens ), '', target.srcOffsets) );
-      var obj = new SelfclosingTagTk( 'template', params, {tsr: tsrOffsets(), src: text()} );
+      params.unshift(new KV(tu.flattenIfArray(target.tokens), '', target.srcOffsets));
+      var obj = new SelfclosingTagTk('template', params, { tsr: tsrOffsets(), src: text() });
       return obj;
     }
 
@@ -669,9 +669,9 @@ tplarg
     nl_comment_space*
     "}}}" {
       if (name) {
-        params.unshift( new KV( tu.flattenIfArray(name.tokens), '', name.srcOffsets ) );
+        params.unshift(new KV(tu.flattenIfArray(name.tokens), '', name.srcOffsets));
       } else {
-        params.unshift( new KV( '', '') );
+        params.unshift(new KV('', ''));
       }
       var obj = new SelfclosingTagTk('templatearg', params, { tsr: tsrOffsets(), src: text() });
       return obj;
@@ -689,14 +689,14 @@ template_param
             return { kEndPos: kEndPos, vStartPos: vStartPos, value: (tpv && tpv.tokens) || [] };
         }
     )? {
-      if ( val !== null ) {
-          if ( val.value !== null ) {
-            return new KV( name, tu.flattenIfArray( val.value ), [startOffset(), val.kEndPos, val.vStartPos, endOffset()] );
+      if (val !== null) {
+          if (val.value !== null) {
+            return new KV(name, tu.flattenIfArray(val.value), [startOffset(), val.kEndPos, val.vStartPos, endOffset()]);
           } else {
-            return new KV(tu.flattenIfArray( name ), '', [startOffset(), val.kEndPos, val.vStartPos, endOffset()] );
+            return new KV(tu.flattenIfArray(name), '', [startOffset(), val.kEndPos, val.vStartPos, endOffset()]);
           }
       } else {
-        return new KV('', tu.flattenIfArray(name), [startOffset(), startOffset(), startOffset(), endOffset()] );
+        return new KV('', tu.flattenIfArray(name), [startOffset(), startOffset(), startOffset(), endOffset()]);
       }
     }
   // empty parameter
@@ -707,29 +707,29 @@ template_param
 
 // FIXME: handle template args and templates in key! (or even parser functions?)
 template_param_name
-  = & { return stops.push( 'equal', true ); }
+  = & { return stops.push('equal', true); }
     tpt:(template_param_text / &'=' { return ''; })
     {
-        stops.pop( 'equal' );
+        stops.pop('equal');
         return tpt;
     }
 
-  / & { return stops.pop( 'equal' ); }
+  / & { return stops.pop('equal'); }
   //= h:( !"}}" x:([^=|\n]) { return x } )* { return h.join(''); }
 
 template_param_value
-  = & { stops.inc( 'nopre' ); return stops.push( 'equal', false ); }
+  = & { stops.inc('nopre'); return stops.push('equal', false); }
     tpt:template_param_text
     {
-        stops.dec( 'nopre' );
-        stops.pop( 'equal' );
+        stops.dec('nopre');
+        stops.pop('equal');
         return { tokens: tpt, srcOffsets: tsrOffsets() };
     }
-  / & { stops.dec( 'nopre' ); return stops.pop( 'equal' ); }
+  / & { stops.dec('nopre'); return stops.pop('equal'); }
 
 template_param_text
   = & { // re-enable tables within template parameters
-        stops.push('table', false );
+        stops.push('table', false);
         stops.push('extlink', false);
         stops.push('pipe', true);
         return stops.inc('template');
@@ -741,8 +741,8 @@ template_param_text
         stops.dec('template');
         // il is guaranteed to be an array -- so, tu.flattenIfArray will
         // always return an array
-        var r = tu.flattenIfArray( il );
-        if ( r.length === 1 && r[0].constructor === String ) {
+        var r = tu.flattenIfArray(il);
+        if (r.length === 1 && r[0].constructor === String) {
             r = r[0];
         }
         return r;
@@ -756,7 +756,7 @@ wikilink_content
         maybeContent.vsrc = input.substring(startPos, endOffset());
         return maybeContent;
     } ) + {
-        if ( lcs.length === 1 && lcs[0].v === null ) {
+        if (lcs.length === 1 && lcs[0].v === null) {
             return { content: [], pipetrick: true };
         } else {
             return { content: lcs };
@@ -774,11 +774,11 @@ wikilink
     lcontent:wikilink_content?
     "]]"
   {
-      if ( lcontent === null ) {
+      if (lcontent === null) {
           lcontent = { content: [] };
       }
 
-      if ( target === null ) {
+      if (target === null) {
         var src = text();
         return [src];
       }
@@ -790,7 +790,7 @@ wikilink
       // XXX: Point to object with path, revision and input information
       // obj.source = input;
       obj.attribs.push(hrefKV);
-      obj.attribs = obj.attribs.concat( lcontent.content );
+      obj.attribs = obj.attribs.concat(lcontent.content);
       obj.dataAttribs = {
           tsr: tsrOffsets(),
           src: text(),
@@ -808,7 +808,7 @@ link_text_fragment
           r:( inline_element / '[' text_char+ ']' / . ) { return r; }
          )
     )+ {
-      return tu.flattenStringlist( c );
+      return tu.flattenStringlist(c);
   }
 
 link_text
@@ -819,7 +819,7 @@ link_text
     hs:( '=' link_text_fragment )?
     {
         stops.dec('linkdesc');
-        if ( hs !== null ) {
+        if (hs !== null) {
             return h.concat(hs);
         } else {
             return h;
@@ -899,9 +899,9 @@ pre_indent_in_tags
     "</" pre_tag_name ">"
   {
     stops.dec('pre');
-    var ret = [ new TagTk( 'pre', attribs, { tsr: tsrOffsets('start') } ) ];
+    var ret = [ new TagTk('pre', attribs, { tsr: tsrOffsets('start') }) ];
     // ls will always be an array
-    return ret.concat( l, tu.flattenIfArray( ls ), [ new EndTagTk( 'pre' ) ] );
+    return ret.concat(l, tu.flattenIfArray(ls), [ new EndTagTk('pre') ]);
   }
   / & { return stops.dec('pre'); }
 
@@ -988,15 +988,15 @@ xmlish_tag =
         var skipLen = 0;
 
         // EndTagTk
-        if ( t.constructor === EndTagTk || isHtmlTag ) {
+        if (t.constructor === EndTagTk || isHtmlTag) {
             return t;
 
         // SelfclosingTagTk
-        } else if ( t.constructor === SelfclosingTagTk ) {
+        } else if (t.constructor === SelfclosingTagTk) {
 
             dp.src = input.substring(dp.tsr[0], dp.tsr[1]);
             dp.tagWidths = [dp.tsr[1] - dp.tsr[0], 0];
-            if ( !isInstalledExt ) {
+            if (!isInstalledExt) {
                 return t;
             }
 
@@ -1008,14 +1008,14 @@ xmlish_tag =
             var restOfInput = input.substring(tsr0);
             var tagContent = restOfInput.match(endTagRE);
 
-            if ( !tagContent ) {
+            if (!tagContent) {
                 dp.src = input.substring(dp.tsr[0], dp.tsr[1]);
                 dp.tagWidths = [dp.tsr[1] - dp.tsr[0], 0];
 
                 // We accept unclosed references tags,
                 // as does the PHP parser. They will normalize
                 // to self-closed in a round trip.
-                if ( tagName !== 'references' || !isInstalledExt ) {
+                if (tagName !== 'references' || !isInstalledExt) {
                     return t;
                 }
 
@@ -1023,7 +1023,7 @@ xmlish_tag =
                 var extSrc = tagContent[0];
                 var endTagWidth = tagContent[1].length;
 
-                if ( tagName === 'ref' ) {
+                if (tagName === 'ref') {
                     // Support 1-level nesting of <ref> tags during tokenizing.
                     // <ref> tags are the exception to the rule (no nesting of ext tags)
                     //
@@ -1046,7 +1046,7 @@ xmlish_tag =
                 dp.src = extSrc;
                 dp.tagWidths = [endOffset() - tsr0, endTagWidth];
 
-                if ( !isIncludeTag && !isInstalledExt ) {
+                if (!isIncludeTag && !isInstalledExt) {
                     return t;
                 }
 
@@ -1054,7 +1054,7 @@ xmlish_tag =
 
                 // If the xml-tag is a known installed (not native) extension,
                 // skip the end-tag as well.
-                if ( !isIncludeTag ) {
+                if (!isIncludeTag) {
                     skipLen += endTagWidth;
                 }
 
@@ -1065,7 +1065,7 @@ xmlish_tag =
         peg$currPos += skipLen;
 
         var ret;
-        if ( !isIncludeTag ) {
+        if (!isIncludeTag) {
             // update tsr[1] to span the start and end tags.
             dp.tsr[1] = endOffset();  // was just modified above
             ret = new SelfclosingTagTk('extension', [
@@ -1183,7 +1183,7 @@ generic_tag
     bad_ws:space* // No need to preserve this -- canonicalize on RT via dirty diff
     ">" {
         var lcName = name.toLowerCase();
-        var isVoidElt = Util.isVoidElement( lcName ) ? true : null;
+        var isVoidElt = Util.isVoidElement(lcName) ? true : null;
         // Support </br>
         var broken = false;
         if (lcName === 'br' && end) {
@@ -1231,21 +1231,21 @@ generic_newline_attribute
     var res;
 
     // Encapsulate protected attributes.
-    if ( typeof name === "string" ) {
+    if (typeof name === "string") {
         name = name.replace(
             /^(about|data-mw.*|data-parsoid.*|data-x.*|property|rel|typeof)$/i,
-            "data-x-$1" );
+            "data-x-$1");
     }
 
-    if ( valueData !== null ) {
+    if (valueData !== null) {
         var value = valueData.value;
-        res = new KV( name, value );
+        res = new KV(name, value);
         res.vsrc = valueData.valueSrc;
     } else {
-        res = new KV( name, '' );
+        res = new KV(name, '');
     }
-    if ( Array.isArray(name) ) {
-        res.ksrc = input.substring( namePos0, namePos );
+    if (Array.isArray(name)) {
+        res.ksrc = input.substring(namePos0, namePos);
     }
     return res;
 }
@@ -1262,15 +1262,15 @@ generic_attribute
     // FIXME: name might just be a template, which can expand to a key-value
     // pair later. We'll need to handle that in the AttributeTransformManager.
     var res;
-    if ( valueData !== null ) {
+    if (valueData !== null) {
         var value = valueData.value;
-        res = new KV( name, value );
+        res = new KV(name, value);
         res.vsrc = valueData.valueSrc;
     } else {
-        res = new KV( name, '' );
+        res = new KV(name, '');
     }
-    if ( Array.isArray(name) ) {
-        res.ksrc = input.substring( namePos0, namePos );
+    if (Array.isArray(name)) {
+        res.ksrc = input.substring(namePos0, namePos);
     }
     return res;
 }
@@ -1296,7 +1296,7 @@ generic_attribute_name
           t:( directive / !( space_or_newline / [\[/=>"'] ) c:. { return c; }
         ) { return t; }
       )+ {
-    return tu.flattenString( r );
+    return tu.flattenString(r);
   }
 
 // A generic attribute, possibly spanning multiple lines.
@@ -1326,7 +1326,7 @@ xml_att_value
             { return tu.getAttributeValueAndSource(input, t2, valPos1, valPos2); } )
                 { return r; }
   / space_or_newline* valPos1:("" { return endOffset(); }) t:attribute_preprocessor_text? !"=" valPos2:("" { return endOffset(); })
-        {   if ( t === null ) {
+        {   if (t === null) {
                 t = "";
                 // Reset the current parse position in order to reparse any
                 // captured spaces, which are needed to separate attributes.
@@ -1349,7 +1349,7 @@ att_value
             { return tu.getAttributeValueAndSource(input, t2, valPos1, valPos2); } )
                 { return r; }
   / space* valPos1:("" { return endOffset(); }) t:attribute_preprocessor_text_line? !"=" valPos2:("" { return endOffset(); })
-        {   if ( t === null ) {
+        {   if (t === null) {
                 t = "";
                 // Reset the current parse position in order to reparse any
                 // captured spaces, which are needed to separate attributes.
@@ -1390,7 +1390,7 @@ li = bullets:list_char+
      c:nested_block_line
      &eolf
 {
-    if ( c === null ) {
+    if (c === null) {
         c = [];
     }
     // Leave bullets as an array -- list handler expects this
@@ -1442,11 +1442,11 @@ dtdd
         li1.bullets = bullets.slice();
         li1.bullets.push(";");
         // TSR: -1 for the intermediate ":"
-        var li2 = new TagTk( 'listItem', [], { tsr: [cpos - 1, cpos], stx: 'row' } );
+        var li2 = new TagTk('listItem', [], { tsr: [cpos - 1, cpos], stx: 'row' });
         li2.bullets = bullets.slice();
         li2.bullets.push(":");
 
-        return [ li1 ].concat( c, [ li2 ], d || [] );
+        return [ li1 ].concat(c, [ li2 ], d || []);
     }
   // Fall-back case to clear the colon flag
   / & { stops.counters.colon = 0; return false; }
@@ -1555,20 +1555,20 @@ table_start_tag "table_start_tag"
     ta:(generic_attribute / broken_table_attribute_name_char)*
     tsEndPos:("" { stops.pop('table'); return endOffset(); })
     {
-        var coms = tu.popComments( ta );
-        if ( coms ) {
+        var coms = tu.popComments(ta);
+        if (coms) {
           tsEndPos = coms.commentStartPos;
         }
 
         var da = { tsr: [startPos, tsEndPos] };
-        if ( p !== "|" ) {
+        if (p !== "|") {
             // Variation from default
             da.startTagSrc = b + p;
         }
 
-        sc.push( new TagTk( 'table', ta, da ) );
-        if ( coms ) {
-          sc = sc.concat( coms.buf );
+        sc.push(new TagTk('table', ta, da));
+        if (coms) {
+          sc = sc.concat(coms.buf);
         }
         return sc;
     }
@@ -1594,8 +1594,8 @@ table_row_tag
     // handle tables with missing table cells after a row
     td:implicit_table_data_tag?
     {
-        var coms = tu.popComments( a );
-        if ( coms ) {
+        var coms = tu.popComments(a);
+        if (coms) {
           tagEndPos = coms.commentStartPos;
         }
 
@@ -1607,14 +1607,14 @@ table_row_tag
         // We rely on our tree builder to close the row as needed. This is
         // needed to support building tables from fragment templates with
         // individual cells or rows.
-        var trToken = new TagTk( 'tr', a, da );
+        var trToken = new TagTk('tr', a, da);
 
         var res = [ trToken ];
-        if ( coms ) {
-          res = res.concat( coms.buf );
+        if (coms) {
+          res = res.concat(coms.buf);
         }
-        if ( td ) {
-          res = res.concat( td );
+        if (td) {
+          res = res.concat(td);
         }
         return res;
     }
@@ -1661,7 +1661,7 @@ implicit_table_data_tag
         var td = tu.buildTableTokens("td", "|", '', [nlTok.dataAttribs.tsr[1], tagEndPos], endOffset(), b);
         td[0].dataAttribs.autoInsertedStart = true;
         td[0].dataAttribs.autoInsertedEnd = true;
-        return [ nlTok ].concat( td, tds );
+        return [ nlTok ].concat(td, tds);
     }
 
 table_data_tag
@@ -1714,7 +1714,7 @@ table_heading_tag
 
 table_end_tag
   = sc:(space / comment)* startPos:("" { return endOffset(); }) p:pipe b:"}" {
-      var tblEnd = new EndTagTk( 'table', [], { tsr: [startPos, endOffset()] } );
+      var tblEnd = new EndTagTk('table', [], { tsr: [startPos, endOffset()] });
       if (p !== "|") {
           // p+"<brace-char>" is triggering some bug in pegJS
           // I cannot even use that expression in the comment!
@@ -1837,7 +1837,7 @@ htmlentity = m:$("&" [#0-9a-zA-Z]+ ";") {
         return cc;
     }
     return [
-        new TagTk('span', [new KV('typeof', 'mw:Entity')], { src: m, srcContent: cc, tsr: tsrOffsets('start') } ),
+        new TagTk('span', [new KV('typeof', 'mw:Entity')], { src: m, srcContent: cc, tsr: tsrOffsets('start') }),
         cc,
         new EndTagTk('span', [], { tsr: tsrOffsets('end') })
     ];
@@ -1850,7 +1850,7 @@ space = [ \t]
 
 optionalSpaceToken
   = s:$space* {
-      if ( s.length ) {
+      if (s.length) {
           return [s];
       } else {
           return [];
@@ -1878,7 +1878,7 @@ end_of_word
 // paragraphs.
 optionalNewlines
   = spc:$([\n\r\t ] &[\n\r])* {
-        if ( spc.length ) {
+        if (spc.length) {
             return [spc];
         } else {
             return [];
@@ -1941,12 +1941,12 @@ include_limits =
     var dp = { tsr: tsrOffsets() };
 
     // Record variant since tag is not in normalized lower case
-    if ( name !== incl ) {
+    if (name !== incl) {
       dp.srcTagName = name;
     }
 
     // End tag only
-    if ( c ) {
+    if (c) {
       return new EndTagTk(name, [], dp);
     }
 
@@ -1954,7 +1954,7 @@ include_limits =
     var tagContent = restOfInput.match(new RegExp("^([^]*?)(?:</\\s*" + incl + "\\s*>)", "m"));
 
     // Start tag only
-    if ( !tagContent || !tagContent[1] ) {
+    if (!tagContent || !tagContent[1]) {
       return new TagTk(name, [], dp);
     }
 
@@ -1966,9 +1966,9 @@ include_limits =
     // the toplevel content and we rely on the php preprocessor to expand
     // templates, so we shouldn't ever be tokenizing inInclude.
     // Last line should be empty (except for comments)
-    if ( incl !== "includeonly" && stops.onStack("sol_il") ) {
+    if (incl !== "includeonly" && stops.onStack("sol_il")) {
       var last = inclContent.split("\n");
-      if ( !/^(<!--([^-]|-(?!->))*-->)*$/.test(last[last.length - 1]) ) {
+      if (!/^(<!--([^-]|-(?!->))*-->)*$/.test(last[last.length - 1])) {
         return false;
       }
     }
@@ -2015,7 +2015,7 @@ wikilink_preprocessor_text
         / !inline_breaks wr:( directive / $( !"]]" ( text_char / [!<\-] ) ) )
         { return wr; }
     )+ {
-      return tu.flattenStringlist( r );
+      return tu.flattenStringlist(r);
   }
 
 extlink_preprocessor_text
@@ -2028,7 +2028,7 @@ extlink_preprocessor_text
   / $([.:,] !(space / eolf))
   / $(['] ![']) // single quotes are ok, double quotes are bad
   / [&%|{] )+ {
-      return tu.flattenString( r );
+      return tu.flattenString(r);
   }
 
 // Attribute values with preprocessor support
@@ -2042,7 +2042,7 @@ attribute_preprocessor_text
     ) { return s; }
   )+
   {
-      return tu.flattenString( r );
+      return tu.flattenString(r);
   }
 
 attribute_preprocessor_text_single
@@ -2052,7 +2052,7 @@ attribute_preprocessor_text_single
     / [{}&<\-] ) { return s; }
   )*
   {
-      return tu.flattenString( r );
+      return tu.flattenString(r);
   }
 
 attribute_preprocessor_text_single_broken
@@ -2062,7 +2062,7 @@ attribute_preprocessor_text_single_broken
     / [{}&<\-] ) { return s; }
   )*
   {
-      return tu.flattenString( r );
+      return tu.flattenString(r);
   }
 
 attribute_preprocessor_text_double
@@ -2072,7 +2072,7 @@ attribute_preprocessor_text_double
     / [{}&<\-] ) { return s; }
   )*
   {
-      return tu.flattenString( r );
+      return tu.flattenString(r);
   }
 
 attribute_preprocessor_text_double_broken
@@ -2082,7 +2082,7 @@ attribute_preprocessor_text_double_broken
     / [{}&<\-] ) { return s; }
   )*
   {
-      return tu.flattenString( r );
+      return tu.flattenString(r);
   }
 
 // Variants with the entire attribute on a single line
@@ -2101,35 +2101,35 @@ attribute_preprocessor_text_line
             ) { return t; }
       )+
   {
-      return tu.flattenString( r );
+      return tu.flattenString(r);
   }
 
 attribute_preprocessor_text_single_line
   = r:( $[^{}&'<\n\-]+
   / !inline_breaks s:( directive / $[{}&<\-] ) { return s; }
   )* {
-      return tu.flattenString( r );
+      return tu.flattenString(r);
   }
 
 attribute_preprocessor_text_single_line_broken
   = r:( $[^{}&'<>|!\n\-]+
   / !inline_breaks s:( directive / $[{}&<\-] ) { return s; }
   )* {
-      return tu.flattenString( r );
+      return tu.flattenString(r);
   }
 
 attribute_preprocessor_text_double_line
   = r:( $[^{}&"<\n\-]+
   / !inline_breaks s:( directive / $[{}&<\-] ) { return s; }
   )* {
-      return tu.flattenString( r );
+      return tu.flattenString(r);
   }
 
 attribute_preprocessor_text_double_line_broken
   = r:( $[^{}&"<>|!\n\-]+
   / !inline_breaks s:( directive / $[{}&<\-] ) { return s; }
   )* {
-      return tu.flattenString( r );
+      return tu.flattenString(r);
   }
 
 // Special-case support for those pipe templates

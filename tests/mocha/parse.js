@@ -12,9 +12,9 @@ var DU = require('../../lib/mediawiki.DOMUtils.js').DOMUtils;
 var ParsoidConfig = require('../../lib/mediawiki.ParsoidConfig').ParsoidConfig;
 
 describe('ParserPipelineFactory', function() {
-	var parsoidConfig = new ParsoidConfig( null, { defaultWiki: 'enwiki' } );
+	var parsoidConfig = new ParsoidConfig(null, { defaultWiki: 'enwiki' });
 
-	describe( 'parse()', function() {
+	describe('parse()', function() {
 
 		var parse = function(src, options) {
 			options = options || {};
@@ -243,26 +243,26 @@ describe('ParserPipelineFactory', function() {
 
 		it('should replace duplicated ids', function() {
 			var origWt = '<div id="hello">hi</div><div id="hello">ok</div><div>no</div>';
-			return parse( origWt, {
-				tweakEnv: function( env ) { env.storeDataParsoid = true; }
-			} ).then(function( doc ) {
+			return parse(origWt, {
+				tweakEnv: function(env) { env.storeDataParsoid = true; }
+			}).then(function(doc) {
 				var child = doc.body.firstChild;
-				child.getAttribute("id").should.equal( "hello" );
+				child.getAttribute("id").should.equal("hello");
 				child = child.nextSibling;
 				// verify id was replaced
-				child.getAttribute("id").should.match( /^mw[\w-]{2,}$/ );
+				child.getAttribute("id").should.match(/^mw[\w-]{2,}$/);
 				child = child.nextSibling;
 				var divNoId = child.getAttribute("id");
-				divNoId.should.match( /^mw[\w-]{2,}$/ );
+				divNoId.should.match(/^mw[\w-]{2,}$/);
 				var dpScriptElt = doc.getElementById('mw-data-parsoid');
-				var dp = JSON.parse( dpScriptElt.text );
+				var dp = JSON.parse(dpScriptElt.text);
 				// verify dp wasn't bloated and
 				// id wasn't shadowed for div without id
 				dp.ids[divNoId].should.not.have.property("a");
 				dp.ids[divNoId].should.not.have.property("sa");
-				return serialize( doc, dp );
-			}).then(function( wt ) {
-				wt.should.equal( origWt );
+				return serialize(doc, dp);
+			}).then(function(wt) {
+				wt.should.equal(origWt);
 			});
 		});
 

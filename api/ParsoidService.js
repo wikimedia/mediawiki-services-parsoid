@@ -14,11 +14,11 @@ var path = require('path');
 var util = require('util');
 var uuid = require('node-uuid').v4;
 
-function ParsoidService( parsoidConfig, processLogger ) {
-	processLogger.log( "info", "loading ..." );
+function ParsoidService(parsoidConfig, processLogger) {
+	processLogger.log("info", "loading ...");
 
 	// Load routes
-	var routes = require('./routes')( parsoidConfig );
+	var routes = require('./routes')(parsoidConfig);
 
 	var app = express.createServer();
 
@@ -62,12 +62,12 @@ function ParsoidService( parsoidConfig, processLogger ) {
 	});
 
 	// Catch errors
-	app.on('error', function( err ) {
-		if ( err.errno === "EADDRINUSE" ) {
-			processLogger.log( "error", util.format( "Port %d is already in use. Exiting.", port ) );
+	app.on('error', function(err) {
+		if (err.errno === "EADDRINUSE") {
+			processLogger.log("error", util.format("Port %d is already in use. Exiting.", port));
 			cluster.worker.disconnect();
 		} else {
-			processLogger.log( "error", err );
+			processLogger.log("error", err);
 		}
 	});
 
@@ -83,26 +83,26 @@ function ParsoidService( parsoidConfig, processLogger ) {
 	// Regexp that matches to all interwikis accepted by the API.
 	var mwApiRe = parsoidConfig.mwApiRegexp;
 
-	app.get( '/', routes.home );
-	app.get( '/_version', routes.version );
-	app.get( '/robots.txt', routes.robots );
+	app.get('/', routes.home);
+	app.get('/_version', routes.version);
+	app.get('/robots.txt', routes.robots);
 
 	// private routes
-	app.get(  re('^/_html/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.html2wtForm );
-	app.get(  re('^/_wikitext/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.wt2htmlForm );
-	app.get(  re('^/_rt/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.roundtripTesting );
-	app.get(  re('^/_rtve/(' + mwApiRe + ')/(.*)'), i, p, routes.roundtripTestingNL );
-	app.get(  re('^/_rtselser/(' + mwApiRe + ')/(.*)'), i, p, routes.roundtripSelser );
-	app.get(  re('^/_rtform/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.getRtForm );
-	app.post( re('^/_rtform/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.postRtForm );
+	app.get(re('^/_html/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.html2wtForm);
+	app.get(re('^/_wikitext/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.wt2htmlForm);
+	app.get(re('^/_rt/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.roundtripTesting);
+	app.get(re('^/_rtve/(' + mwApiRe + ')/(.*)'), i, p, routes.roundtripTestingNL);
+	app.get(re('^/_rtselser/(' + mwApiRe + ')/(.*)'), i, p, routes.roundtripSelser);
+	app.get(re('^/_rtform/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.getRtForm);
+	app.post(re('^/_rtform/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.postRtForm);
 
 	// v1 API routes
-	app.get(  re('^/(' + mwApiRe + ')/(.*)'), i, p, routes.v1Get );
-	app.post( re('^/(' + mwApiRe + ')/(.*)'), i, p, routes.v1Post );
+	app.get(re('^/(' + mwApiRe + ')/(.*)'), i, p, routes.v1Get);
+	app.post(re('^/(' + mwApiRe + ')/(.*)'), i, p, routes.v1Post);
 
 	// v2 API routes
-	app.get(  '/v2/:domain/:format/:title/:revision?', v, p, routes.v2Get );
-	app.post( '/v2/:domain/:format/:title?/:revision?', v, p, routes.v2Post );
+	app.get('/v2/:domain/:format/:title/:revision?', v, p, routes.v2Get);
+	app.post('/v2/:domain/:format/:title?/:revision?', v, p, routes.v2Post);
 
 
 	// Get host and port from the environment, if available
@@ -110,13 +110,13 @@ function ParsoidService( parsoidConfig, processLogger ) {
 	// default bind all
 	var host = parsoidConfig.serverInterface || process.env.INTERFACE;
 
-	app.listen( port, host, function() {
-		processLogger.log( "info", util.format( "ready on %s:%s", host || "", port ) );
+	app.listen(port, host, function() {
+		processLogger.log("info", util.format("ready on %s:%s", host || "", port));
 		if (process.send) {
 			// let cluster master know we've started & are ready to go.
 			process.send({ type: 'startup', host: host, port: port });
 		}
-	} );
+	});
 }
 
 module.exports = {
