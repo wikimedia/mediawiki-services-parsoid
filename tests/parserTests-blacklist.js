@@ -1734,6 +1734,7 @@ add("html2wt", "Empty TR followed by mixed-ws-comment line should RT correctly",
 add("html2wt", "Improperly nested inline or quotes tags with whitespace in between", "<span> <s>x</s></span><s> </s>\n''' ''x'''''<nowiki/>'' ''\n");
 add("html2wt", "Image: upright option (parsoid)", "[[File:Foobar.jpg|thumb|caption]]\n[[File:Foobar.jpg|thumb|caption]]\n[[File:Foobar.jpg|thumb|500x500px|caption]]\n");
 add("html2wt", "Image: upright option is ignored on inline and frame images (parsoid)", "[[File:Foobar.jpg|500x500px|caption]]\n");
+add("html2wt", "3. Indent Pre Nowiki: suppress whitespace after newlines in new paragraph or table cell", "Foo\n<nowiki> bar\nbaz</nowiki>\n\n{|\n|Foo\n<nowiki> bar\n </nowiki>baz bang\n|}\n");
 
 
 // Blacklist for selser

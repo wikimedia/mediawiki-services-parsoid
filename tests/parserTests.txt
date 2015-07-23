@@ -24909,6 +24909,34 @@ parsoid=html2wt
 <nowiki> </nowiki>   hello
 !! end
 
+!! test
+3. Indent Pre Nowiki: suppress whitespace after newlines in new paragraph or table cell
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html
+<p>Foo
+ bar
+baz</p>
+
+<table><tr><td>Foo
+ bar
+ baz bang</td></tr></table>
+!! wikitext
+Foo
+bar
+baz
+
+{|
+|-
+| Foo
+bar
+baz bang
+|}
+!! end
+
 # ---------------------------------------------------
 # End of tests spec'ing wikitext serialization norms |
 # ---------------------------------------------------
