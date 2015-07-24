@@ -148,7 +148,7 @@ var startsAtHTML = function(argv, env, input, dp) {
 	}
 	return DU.serializeDOM(env, doc.body, argv.selser).then(function(out) {
 		if (argv.html2wt || argv.wt2wt) {
-			return { trailingNL: true, out: out };
+			return { trailingNL: true, out: out, env: env };
 		} else {
 			return startsAtWikitext(argv, env, out);
 		}
@@ -172,7 +172,7 @@ startsAtWikitext = function(argv, env, input) {
 			} else {
 				out = DU.serializeNode(doc).str;
 			}
-			return { trailingNL: true, out: out };
+			return { trailingNL: true, out: out, env: env };
 		} else {
 			return startsAtHTML(argv, env, DU.serializeNode(doc).str);
 		}
