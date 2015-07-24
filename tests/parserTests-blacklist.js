@@ -535,7 +535,7 @@ add("wt2wt", "RT-ed inter-element separators should be valid separators", "{|\n|
 add("wt2wt", "Trailing newlines in a deep dom-subtree that ends a wikitext line should be migrated out", "{|\n|<small>foo\n\nbar\n|}\n\n{|\n|<small>foo<small>\n|}");
 add("wt2wt", "Empty TD followed by TD with tpl-generated attribute", "{|\n|-\n|\n| {{echo|style='color:red'}} |foo\n|}");
 add("wt2wt", "Improperly nested inline or quotes tags with whitespace in between", "<span> <s>x</span> </s>\n''' ''x'''''<nowiki/>'' ''\n");
-add("wt2wt", "2. Ensure fostered text content is wrapped in element nodes (traps regressions around fostered marker on the element getting lost)", "<nowiki> || ||</nowiki>\n<table>\n<tr><td> a\n</table>");
+add("wt2wt", "2. Ensure fostered text content is wrapped in element nodes (traps regressions around fostered marker on the element getting lost)", "<nowiki> </nowiki><nowiki>|| ||</nowiki>\n<table>\n<tr><td> a\n</table>");
 add("wt2wt", "Table in fosterable position", "{{OpenTable}}\n<div>\n{|\n|}\n");
 add("wt2wt", "Image: upright option is ignored on inline and frame images (parsoid)", "[[File:Foobar.jpg|500x500px|caption]]\n");
 
@@ -775,7 +775,7 @@ add("html2html", "Section replacement test (section 7)", "<p data-parsoid='{\"ds
 add("html2html", "Section replacement test (section 8)", "<p data-parsoid='{\"dsr\":[0,105,0,0]}'>start\n<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[6,105,8,9]}'>==a==\n===aa===\n====aaa====\n==b==\n===ba===\n===bb===\n====bba====\nxxx\n\n==c==\n===ca===</span></p>");
 add("html2html", "Section replacement test (section 9)", "<p data-parsoid='{\"dsr\":[0,98,0,0]}'>start\n<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[6,98,8,9]}'>==a==\n===aa===\n====aaa====\n==b==\n===ba===\n===bb===\n====bba====\n===bc===\nxxx</span></p>");
 add("html2html", "Section replacement test (section 10)", "<p data-parsoid='{\"dsr\":[0,104,0,0]}'>start\n<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[6,104,8,9]}'>==a==\n===aa===\n====aaa====\n==b==\n===ba===\n===bb===\n====bba====\n===bc===\n==c==\nxxx</span></p>");
-add("html2html", "Section replacement test with initial whitespace (bug 13728)", "<p data-parsoid='{\"dsr\":[0,53,0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[0,53,8,9]}'> Preformatted initial line\n==a==\nxxx</span></p>");
+add("html2html", "Section replacement test with initial whitespace (bug 13728)", "<p data-parsoid='{\"dsr\":[0,70,0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[0,18,8,9]}'> </span>Preformatted initial line\n<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[44,70,8,9]}'>==a==\nxxx</span></p>");
 add("html2html", "Section extraction, heading followed by pre with 20 spaces (bug 6398)", "<p data-parsoid='{\"dsr\":[0,44,0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[0,24,8,9]}'>==a==\n </span>                   a</p>");
 add("html2html", "Section extraction, heading followed by pre with 19 spaces (bug 6398 sanity check)", "<p data-parsoid='{\"dsr\":[0,43,0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[0,24,8,9]}'>==a==\n </span>                  a</p>");
 add("html2html", "Section extraction, <pre> around bogus header (bug 10309)", "<p data-parsoid='{\"dsr\":[0,40,0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[0,40,8,9]}'>== Section Two ==\nstuff</span></p>");
@@ -904,7 +904,7 @@ add("html2wt", "Non-word characters don't terminate tag names + tidy", "<blockqu
 add("html2wt", "Non-word characters are valid in extension tags (T19663)", " 'tåg'\n array (\n )\n");
 add("html2wt", "Bare pipe character from a template (bug 52363)", "|\n");
 add("html2wt", "<nowiki> unordered list", "<nowiki>*</nowiki> This is not an unordered list item.\n");
-add("html2wt", "<nowiki> spacing", "Lorem ipsum dolor\nsed abit.\n<nowiki>  sed nullum.\n:</nowiki>and a colon\n");
+add("html2wt", "<nowiki> spacing", "Lorem ipsum dolor\nsed abit.\n<nowiki> </nowiki> sed nullum.\n<nowiki>:</nowiki>and a colon\n");
 add("html2wt", "nowiki 3", ": There is not nowiki.\n: There is nowiki.\n# There is not nowiki.\n# There is nowiki.\n* There is not nowiki.\n* There is nowiki.\n");
 add("html2wt", "Entities inside <nowiki>", "<\n");
 add("html2wt", "T71950: 2. Put nowiki as close to cause as possible, after ' :'", "This text : L<nowiki>''</nowiki>[[Foo]]\n");
@@ -1509,7 +1509,7 @@ add("html2wt", "Section replacement test (section 7)", "start\n<nowiki>==a==\n==
 add("html2wt", "Section replacement test (section 8)", "start\n<nowiki>==a==\n===aa===\n====aaa====\n==b==\n===ba===\n===bb===\n====bba====\nxxx\n\n==c==\n===ca===</nowiki>");
 add("html2wt", "Section replacement test (section 9)", "start\n<nowiki>==a==\n===aa===\n====aaa====\n==b==\n===ba===\n===bb===\n====bba====\n===bc===\nxxx</nowiki>");
 add("html2wt", "Section replacement test (section 10)", "start\n<nowiki>==a==\n===aa===\n====aaa====\n==b==\n===ba===\n===bb===\n====bba====\n===bc===\n==c==\nxxx</nowiki>");
-add("html2wt", "Section replacement test with initial whitespace (bug 13728)", "<nowiki> Preformatted initial line\n==a==\nxxx</nowiki>");
+add("html2wt", "Section replacement test with initial whitespace (bug 13728)", "<nowiki> </nowiki>Preformatted initial line\n<nowiki>==a==\nxxx</nowiki>");
 add("html2wt", "Section extraction, heading followed by pre with 20 spaces (bug 6398)", "<nowiki>==a==\n </nowiki>                   a");
 add("html2wt", "Section extraction, heading followed by pre with 19 spaces (bug 6398 sanity check)", "<nowiki>==a==\n </nowiki>                  a");
 add("html2wt", "Section extraction, <pre> around bogus header (bug 10309)", "<nowiki>== Section Two ==\nstuff</nowiki>");
@@ -1734,7 +1734,6 @@ add("html2wt", "Empty TR followed by mixed-ws-comment line should RT correctly",
 add("html2wt", "Improperly nested inline or quotes tags with whitespace in between", "<span> <s>x</s></span><s> </s>\n''' ''x'''''<nowiki/>'' ''\n");
 add("html2wt", "Image: upright option (parsoid)", "[[File:Foobar.jpg|thumb|caption]]\n[[File:Foobar.jpg|thumb|caption]]\n[[File:Foobar.jpg|thumb|500x500px|caption]]\n");
 add("html2wt", "Image: upright option is ignored on inline and frame images (parsoid)", "[[File:Foobar.jpg|500x500px|caption]]\n");
-add("html2wt", "3. Indent Pre Nowiki: suppress whitespace after newlines in new paragraph or table cell", "Foo\n<nowiki> bar\nbaz</nowiki>\n\n{|\n|Foo\n<nowiki> bar\n </nowiki>baz bang\n|}\n");
 
 
 // Blacklist for selser
@@ -2795,7 +2794,7 @@ add("selser", "Improperly nested inline or quotes tags with whitespace in betwee
 add("selser", "Improperly nested inline or quotes tags with whitespace in between [[[0,3],[3],0,3,0]]", "<span> </span></s>\n ''");
 add("selser", "Improperly nested inline or quotes tags with whitespace in between [[[2,1],[3],3,[0,3],0]]", "<span>i9p8te7ufdmquxr <s data-foobar=\"xoximjgruc95dn29\">x</span></s>''' ''' ''");
 add("selser", "2. Ensure fostered text content is wrapped in element nodes (traps regressions around fostered marker on the element getting lost) [0,4,[2,[[4],2]]]", "\n\neyvglbq1wiykfbt9<table><!--yjj7q4l8vy22o6r-->\n<tr><td>c2kzihajh6oxyldi</td><!--u6dd8p15d8guv7vi-->\n</table>");
-add("selser", "2. Ensure fostered text content is wrapped in element nodes (traps regressions around fostered marker on the element getting lost) [1,3,[2,[[4],3]]]", "<nowiki> || ||</nowiki><table><!--07pdt8u7nxvcmcxr-->\n<tr><td>w6cuullrqw0wl8fr</td>\n</table>");
+add("selser", "2. Ensure fostered text content is wrapped in element nodes (traps regressions around fostered marker on the element getting lost) [1,3,[2,[[4],3]]]", "<nowiki> </nowiki><nowiki>|| ||</nowiki><table><!--07pdt8u7nxvcmcxr-->\n<tr><td>w6cuullrqw0wl8fr</td>\n</table>");
 add("selser", "2. Ensure fostered text content is wrapped in element nodes (traps regressions around fostered marker on the element getting lost) [3,2,2]", "r7yvmnw0lwstt9\njvym2daxe28adcxr<table>\n<tr> || ||\n<td> a\n</table>");
 add("selser", "2. Ensure fostered text content is wrapped in element nodes (traps regressions around fostered marker on the element getting lost) [3,2,1]", "mk36x4nnqo7p66r\n<table data-foobar=\"j76ebe3ig8u59udi\">\n<tr> || ||\n<td> a\n</table>");
 add("selser", "2. Ensure fostered text content is wrapped in element nodes (traps regressions around fostered marker on the element getting lost) [0,3,[2,2]]", "<table><!--20ybuhlylvnjc3di-->\n<!--ia2m4awxfye97ldi--><tr><td> a\n</table>");
@@ -2807,7 +2806,7 @@ add("selser", "2. Ensure fostered text content is wrapped in element nodes (trap
 add("selser", "2. Ensure fostered text content is wrapped in element nodes (traps regressions around fostered marker on the element getting lost) [0,3,4]", "\n\n9k078dwzmb6e0zfr\n");
 add("selser", "2. Ensure fostered text content is wrapped in element nodes (traps regressions around fostered marker on the element getting lost) [[3],0,2]", "\n79u7w8mk0qyc766r<table>\n<tr> || ||\n<td> a\n</table>");
 add("selser", "2. Ensure fostered text content is wrapped in element nodes (traps regressions around fostered marker on the element getting lost) [0,0,2]", "\n17g7ad7yjq1zia4i<table>\n<tr> || ||\n<td> a\n</table>");
-add("selser", "2. Ensure fostered text content is wrapped in element nodes (traps regressions around fostered marker on the element getting lost) [1,0,1]", "<nowiki> || ||</nowiki>\n<table data-foobar=\"734xmyt3rp5jyvi\">\n<tr> || ||\n<td> a\n</table>");
+add("selser", "2. Ensure fostered text content is wrapped in element nodes (traps regressions around fostered marker on the element getting lost) [1,0,1]", "<nowiki> </nowiki><nowiki>|| ||</nowiki>\n<table data-foobar=\"734xmyt3rp5jyvi\">\n<tr> || ||\n<td> a\n</table>");
 add("selser", "2. Ensure fostered text content is wrapped in element nodes (traps regressions around fostered marker on the element getting lost) [2,0,[0,3]]", "z8xg0t8oxy8k6gvi\n\n\n<table></table>");
 add("selser", "2. Ensure fostered text content is wrapped in element nodes (traps regressions around fostered marker on the element getting lost) [2,2,[2,[3,2]]]", "4p9b5ylwp6gpsyvi\n\n\n\n52u735k3ah96n7b9\n<table><!--u4n4phdgngffxbt9-->\n<!--ox538fcmtef2bj4i-->\n</table>");
 add("selser", "Table in fosterable position 5", "{{OpenTable}}\n<div>\n{|\n|}\n");

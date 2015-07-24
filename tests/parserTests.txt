@@ -24963,7 +24963,7 @@ parsoid={
   "modes": ["html2wt"],
   "scrubWikitext": true
 }
-!! html
+!! html/parsoid
 <p>Foo
  bar
 baz</p>
@@ -24971,17 +24971,28 @@ baz</p>
 <table><tr><td>Foo
  bar
  baz bang</td></tr></table>
+
+<p><!--boo--> foo
+ bar</p>
+
+<p> foo
+ bar<span>boo</span></p>
 !! wikitext
 Foo
 bar
 baz
 
 {|
-|-
-| Foo
+|Foo
 bar
 baz bang
 |}
+
+<!--boo-->foo
+bar
+
+foo
+bar<span>boo</span>
 !! end
 
 # ---------------------------------------------------
