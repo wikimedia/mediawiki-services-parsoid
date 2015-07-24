@@ -41,6 +41,8 @@ var mockAPIServer, mockAPIServerURL;
 var fileDependencies = [];
 var parserTestsUpToDate = true;
 
+var exitUnexpected = new Error('unexpected failure');  // unique marker value
+
 // Our code...
 
 /**
@@ -410,6 +412,13 @@ ParserTests.prototype.processArticle = function(item, cb) {
  */
 ParserTests.prototype.convertHtml2Wt = function(options, mode, item, body, processWikitextCB) {
 	var startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser';
+	var self = this;
+	var cb = function(err, wt) {
+		processWikitextCB(err, wt);
+		self.env.setPageSrcInfo(null);
+		self.env.page.dom = null;
+		self.env.page.editedDoc = null;
+	};
 	try {
 		if (startsAtWikitext) {
 			// FIXME: All tests share an env.
@@ -425,23 +434,9 @@ ParserTests.prototype.convertHtml2Wt = function(options, mode, item, body, proce
 		} else {
 			this.env.setPageSrcInfo(null);
 		}
-
-		var self = this;
-		DU.serializeDOM(this.env, body, (mode === 'selser'), function(err, wt) {
-			if (err) {
-				self.env.log("error", err);
-			}
-			processWikitextCB(err, wt);
-			self.env.setPageSrcInfo(null);
-			self.env.page.dom = null;
-			self.env.page.editedDoc = null;
-		});
-	} catch (e) {
-		this.env.log("error", e);
-		processWikitextCB(e, null);
-		this.env.setPageSrcInfo(null);
-		this.env.page.dom = null;
-		this.env.page.editedDoc = null;
+		DU.serializeDOM(this.env, body, (mode === 'selser'), cb);
+	} catch (err) {
+		cb(err, null);
 	}
 };
 
@@ -867,17 +862,13 @@ ParserTests.prototype.applyManualChanges = function(body, changes, cb) {
  * @param {Node/null} processHtmlCB.doc
  */
 ParserTests.prototype.convertWt2Html = function(mode, wikitext, processHtmlCB) {
-	try {
-		this.parserPipeline.once('document', function(doc) {
-			// processHtmlCB can be asynchronous, so deep-clone
-			// document before invoking it. (the parser pipeline
-			// will attempt to reuse the document after this
-			// event is emitted)
-			processHtmlCB(null, doc.body.cloneNode(true));
-		});
-	} catch (e) {
-		processHtmlCB(e);
-	}
+	this.parserPipeline.once('document', function(doc) {
+		// processHtmlCB can be asynchronous, so deep-clone
+		// document before invoking it. (the parser pipeline
+		// will attempt to reuse the document after this
+		// event is emitted)
+		processHtmlCB(null, doc.body.cloneNode(true));
+	});
 	this.env.setPageSrcInfo(wikitext);
 	this.parserPipeline.processToplevelDoc(wikitext);
 };
@@ -890,8 +881,7 @@ ParserTests.prototype.convertWt2Html = function(mode, wikitext, processHtmlCB) {
  */
 ParserTests.prototype.processTest = function(item, options, mode, endCb) {
 	if (!('title' in item)) {
-		this.env.log("error", item);
-		throw new Error('Missing title from test case.');
+		return endCb(new Error('Missing title from test case.'));
 	}
 
 	item.time = {};
@@ -943,7 +933,7 @@ ParserTests.prototype.processTest = function(item, options, mode, endCb) {
 	}
 
 	// Build a list of tasks for this test that will be passed to async.waterfall
-	var finishHandler = function(err, res) {
+	var finishHandler = function(err) {
 		for (i = 0; i < extensions.length; i++) {
 			this.env.conf.wiki.removeExtensionTag(extensions[i]);
 		}
@@ -1071,7 +1061,8 @@ ParserTests.prototype.processParsedHTML = function(item, options, mode, body, cb
 	// Now schedule the next test, if any
 	// Only pass an error if --exit-unexpected was set and there was an error
 	// Otherwise, pass undefined so that async.waterfall continues
-	var err = (options['exit-unexpected'] && !checkPassed) ? true : undefined;
+	var err = (options['exit-unexpected'] && !checkPassed) ?
+			exitUnexpected : null;
 	setImmediate(cb, err);
 };
 
@@ -1084,10 +1075,20 @@ ParserTests.prototype.processParsedHTML = function(item, options, mode, body, cb
  * @param {Function} cb
  */
 ParserTests.prototype.processSerializedWT = function(item, options, mode, wikitext, cb) {
-	var self = this;
-	var checkPassed;
-	var err;
 	item.time.end = Date.now();
+
+	var self = this;
+	var checkAndReturn = function() {
+		// Check the result vs. the expected result.
+		var checkPassed = self.checkWikitext(item, wikitext, options, mode);
+
+		// Now schedule the next test, if any.
+		// Only pass an error if --exit-unexpected was set and there was an
+		// error. Otherwise, pass undefined so that async.waterfall continues
+		var err = (options['exit-unexpected'] && !checkPassed) ?
+				exitUnexpected : null;
+		setImmediate(cb, err);
+	};
 
 	if (mode === 'selser' && options.selser !== 'noauto') {
 		if (item.changetree === 5) {
@@ -1095,33 +1096,22 @@ ParserTests.prototype.processSerializedWT = function(item, options, mode, wikite
 		} else {
 			var body = DU.parseHTML(item.changedHTMLStr).body;
 			this.convertHtml2Wt(options, 'wt2wt', item, body, function(err, wt) {
+				// FIXME: what's going on here? Error handling here is suspect.
+				self.env.log('warning', 'Convert html2wt erred!');
 				if (err === null) {
 					item.resultWT = wt;
 				} else {
 					item.resultWT = item.wikitext;
 				}
-				// Check the result vs. the expected result.
-				checkPassed = self.checkWikitext(item, wikitext, options, mode);
-
-				// Now schedule the next test, if any
-				// Only pass an error if --exit-unexpected was set and there was an error
-				// Otherwise, pass undefined so that async.waterfall continues
-				err = (options['exit-unexpected'] && !checkPassed) ? true : undefined;
-				setImmediate(cb, err);
+				return checkAndReturn();
 			});
 			// Async processing
 			return;
 		}
 	}
-	// Sync processing
-	// Check the result vs. the expected result.
-	checkPassed = self.checkWikitext(item, wikitext, options, mode);
 
-	// Now schedule the next test, if any
-	// Only pass an error if --exit-unexpected was set and there was an error
-	// Otherwise, pass undefined so that async.waterfall continues
-	err = (options['exit-unexpected'] && !checkPassed) ? true : undefined;
-	setImmediate(cb, err);
+	// Sync processing
+	return checkAndReturn();
 };
 
 /**
@@ -1788,8 +1778,8 @@ ParserTests.prototype.buildTasks = function(item, modes, options) {
 					console.assert(newitem.changetree === 'manual' ||
 						newitem.changetree === undefined);
 					newitem.changetree = 'manual';
-					self.processTest(newitem, options, 'selser', function() {
-						setImmediate(cb);
+					self.processTest(newitem, options, 'selser', function(err) {
+						setImmediate(cb, err);
 					});
 				});
 			}
@@ -1804,8 +1794,8 @@ ParserTests.prototype.buildTasks = function(item, modes, options) {
 			tasks.push(function(cb) {
 				newitem = Util.clone(item);
 				newitem.changetree = 5;
-				self.processTest(newitem, options, 'selser', function() {
-					setImmediate(cb);
+				self.processTest(newitem, options, 'selser', function(err) {
+					setImmediate(cb, err);
 				});
 			});
 
@@ -1822,7 +1812,7 @@ ParserTests.prototype.buildTasks = function(item, modes, options) {
 						// Make sure we aren't reusing the one from manual changes
 						console.assert(newitem.changetree === undefined);
 						newitem.seed = changesIndex + '';
-						this.processTest(newitem, options, modes[modeIndex], function() {
+						this.processTest(newitem, options, modes[modeIndex], function(err) {
 							if (this.isDuplicateChangeTree(item.selserChangeTrees, newitem.changes)) {
 								// Once we get a duplicate change tree, we can no longer
 								// generate and run new tests.  So, be done now!
@@ -1835,7 +1825,7 @@ ParserTests.prototype.buildTasks = function(item, modes, options) {
 							item.cachedBODY = newitem.cachedBODY;
 							item.cachedNormalizedHTML = newitem.cachedNormalizedHTML;
 
-							setImmediate(cb);
+							setImmediate(cb, err);
 						}.bind(this));
 					}
 				}.bind(this, i, j));
@@ -1871,7 +1861,16 @@ ParserTests.prototype.processCase = function(i, options, err) {
 	var targetModes = options.modes;
 	var nextCallback = this.processCase.bind(this, i + 1, options);
 
-	var earlyExit = options['exit-unexpected'] && (typeof err !== 'undefined') && err;
+	// There are two types of errors that reach here.  The first is just
+	// a notification that a test failed.  We use the error propagation
+	// mechanism to get back to this point to print the summary.  The
+	// second type is an actual exception that we should hard fail on.
+	// exitUnexpected is a sentinel for the first type.
+	if (err && err !== exitUnexpected) {
+		this.env.log('fatal', err);
+	}
+	var earlyExit = options['exit-unexpected'] && (err === exitUnexpected);
+
 	if (i < this.cases.length && !earlyExit) {
 		item = this.cases[i];
 		if (typeof item === 'string') {
@@ -1947,7 +1946,7 @@ ParserTests.prototype.processCase = function(i, options, err) {
 						}
 						this.env.switchToConfig(prefix, function(err) {
 							if (err) {
-								return this.env.log("fatal", err);
+								return nextCallback(err);
 							}
 
 							// TODO: set language variant
