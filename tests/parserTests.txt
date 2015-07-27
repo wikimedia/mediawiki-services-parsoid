@@ -24120,9 +24120,43 @@ parsoid=html2wt
 !! end
 
 !! test
-Headings: Force sol-transparent links and behavior switches to serialize before/after
+1. Headings: Force sol-transparent links and behavior switches to serialize before/after
 !! options
-parsoid=html2wt
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": false
+}
+!! html
+<h2>hello there<link href="Category:A1" rel="mw:PageProp/Category" /></h2>
+<h2><link href="Category:A2" rel="mw:PageProp/Category" />hi pal</h2>
+
+<h2><!--foo-->  <link href="Category:A3" rel="mw:PageProp/Category" />   how goes it</h2>
+<h2>it goes well   <link href="Category:A4" rel="mw:PageProp/Category" />  <!--bar--></h2>
+
+<h2 data-parsoid='{}'>howdy<link href="Category:A5" rel="mw:PageProp/Category" /></h2>
+
+<h2><meta property="mw:PageProp/toc" /> ok</h2>
+!! wikitext
+== hello there [[Category:A1]]  ==
+
+==  [[Category:A2]] hi pal ==
+
+== <!--foo-->   [[Category:A3]]    how goes it ==
+
+== it goes well    [[Category:A4]]  <!--bar-->  ==
+
+==howdy [[Category:A5]] ==
+
+==  __TOC__  ok ==
+!! end
+
+!! test
+2. Headings: Force sol-transparent links and behavior switches to serialize before/after
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
 !! html
 <h2>hello there<link href="Category:A1" rel="mw:PageProp/Category" /></h2>
 <h2><link href="Category:A2" rel="mw:PageProp/Category" />hi pal</h2>
@@ -24157,7 +24191,10 @@ __TOC__
 !! test
 Headings: Don't hoist metas that come from templates
 !! options
-parsoid=html2wt
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
 !! html
 <h2><span about="#mwt1" typeof="mw:Transclusion" data-parsoid="{}" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo [[Category:Foo]]"}},"i":0}}]}'>foo </span><link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1" data-parsoid="{}" /></h2>
 !! wikitext
@@ -24167,7 +24204,10 @@ parsoid=html2wt
 !! test
 Headings: Category in ref isn't hoisted
 !! options
-parsoid=html2wt
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
 !! html
 <h2> foo <span about="#mwt2" class="reference" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-1"},"attrs":{}}'><a href="#cite_note-1">[1]</a></span> </h2>
 
@@ -24797,7 +24837,7 @@ parsoid=html2wt
 !! end
 
 !! test
-Headings: Add space before/after == (T53744)
+1. Headings: Add space before/after == (T53744)
 !! options
 parsoid=html2wt
 !! html
@@ -24805,9 +24845,6 @@ parsoid=html2wt
 <h2> bar</h2>
 <h2>baz </h2>
 <h2><span> baz</span></h2>
-
-<!-- Even after hoisted content -->
-<h2> <link href="Category:A2" rel="mw:PageProp/Category" />ok</h2>
 !! wikitext
 == foo ==
 
@@ -24816,8 +24853,18 @@ parsoid=html2wt
 == baz ==
 
 == <span> baz</span> ==
+!! end
 
-<!-- Even after hoisted content -->
+!! test
+2. Headings: Add space before/after == even after hoisted content
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html
+<h2> <link href="Category:A2" rel="mw:PageProp/Category" />ok</h2>
+!! wikitext
  [[Category:A2]]
 
 == ok ==
