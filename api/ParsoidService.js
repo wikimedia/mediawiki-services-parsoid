@@ -1,4 +1,4 @@
-/**
+/*
  * Simple Parsoid web service.
  */
 'use strict';
@@ -14,6 +14,12 @@ var path = require('path');
 var util = require('util');
 var uuid = require('node-uuid').v4;
 
+/**
+ * @class
+ * @constructor
+ * @param {ParsoidConfig} parsoidConfig
+ * @param {Logger} processLogger
+ */
 function ParsoidService(parsoidConfig, processLogger) {
 	processLogger.log("info", "loading ...");
 

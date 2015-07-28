@@ -4,12 +4,15 @@ If you're a developer looking to deal with MediaWiki's wikitext output, but
 you would much prefer it to be an HTML DOM, then Parsoid can best help you
 through its HTTP API that serves HTML (or JSON) responses.
 
-## /{wiki prefix}/{article name}
+This guide may become out of date; the latest information should be
+available [on the wiki](https://www.mediawiki.org/wiki/Parsoid/API).
+
+## /v2/{wiki domain}/{html|pagebundle}/{article name}[/{revision}]
 
 ### GET
 
 If you make a GET request to the API, to a URI that represents a valid
-interwiki prefix and an article name, you will get back an HTML document with
+wikimedia domain and an article name, you will get back an HTML document with
 a bunch of extra information used for round-tripping. You can use this to do
 basic parsing of existing wiki pages.
 
@@ -47,9 +50,9 @@ wiki pages.
 
 ### GET
 
-Yield JSON object of the daemon name and version from package.json. If running
-from a git repository, it would add the sha of the HEAD commit (git rev-parse
-HEAD). Example:
+Yields a JSON object of the daemon name and version from `package.json`.
+If running from a git repository, it would add the sha of the HEAD commit
+(`git rev-parse HEAD`). Example:
 
     $ curl http://localhost:8000/_version
     {"name":"mediawiki-parsoid","version":"0.0.1","sha":"63a778a1ffc1e9bd0dbb3a7571fe40bfb0a6d699"}

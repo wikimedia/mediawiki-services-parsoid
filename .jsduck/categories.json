@@ -1,0 +1,99 @@
+[
+	{
+		"name": "Parsoid",
+		"groups": [
+			{
+				"name": "Package Interface",
+				"classes": [
+					"Parsoid",
+					"PDoc",
+					"PNodeList",
+					"PNode",
+					"PExtLink",
+					"PHeading",
+					"PHtmlEntity",
+					"PTemplate",
+					"PWikiLink"
+				]
+			},
+			{
+				"name": "Server Interface",
+				"classes": [
+					"ParsoidService"
+				]
+			},
+			{
+				"name": "Core",
+				"classes": [
+					"DOMUtils",
+					"MWParserEnvironment",
+					"Namespace",
+					"ParsoidConfig",
+					"Title",
+					"Util",
+					"WikiConfig"
+				]
+			},
+			{
+				"name": "Tokens",
+				"classes": [
+					"CommentTk",
+					"EndTagTk",
+					"KV",
+					"NlTk",
+					"Params",
+					"SelfclosingTagTk",
+					"TagTk",
+					"Token"
+				]
+			},
+			{
+				"name": "Logging",
+				"classes": [
+					"LogData",
+					"Logger",
+					"ParsoidLogger"
+				]
+			}
+		]
+	},
+	{
+		"name": "Upstream",
+		"groups": [
+			{
+				"name": "DOM",
+				"classes": [
+					"CharacterData",
+					"CommentNode",
+					"Document",
+					"Element",
+					"Node",
+					"TextNode"
+				]
+			},
+			{
+				"name": "Node",
+				"classes": [
+					"EventEmitter",
+					"Response",
+					"Request"
+				]
+			},
+			{
+				"name": "JavaScript",
+				"classes": [
+					"Array",
+					"Boolean",
+					"Date",
+					"Function",
+					"Map",
+					"Number",
+					"Object",
+					"RegExp",
+					"Set",
+					"String"
+				]
+			}
+		]
+	}
+]

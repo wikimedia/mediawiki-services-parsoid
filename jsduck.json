@@ -1,0 +1,28 @@
+{
+	"--title": "Parsoid - Documentation",
+	"--output": "docs",
+	"--categories": ".jsduck/categories.json",
+	"--tags": ".jsduck/CustomTags.rb",
+	"--processes": "0",
+	"--warnings-exit-nonzero": true,
+	"--ignore-global": true,
+	"--builtin-classes": true,
+	"--warnings": [ "-nodoc(class,public)" ],
+	"--guides": ".jsduck/guides.json",
+	"--": [
+		".jsduck/external.js",
+		"lib/index.js",
+		"lib/jsapi.js",
+		"lib/LogData.js",
+		"lib/Logger.js",
+		"lib/ParsoidLogger.js",
+		"lib/mediawiki.DOMUtils.js",
+		"lib/mediawiki.ParsoidConfig.js",
+		"lib/mediawiki.Title.js",
+		"lib/mediawiki.Util.js",
+		"lib/mediawiki.WikiConfig.js",
+		"lib/mediawiki.parser.defines.js",
+		"lib/mediawiki.parser.environment.js",
+		"api/ParsoidService.js"
+	]
+}
