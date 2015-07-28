@@ -1367,9 +1367,11 @@ Bare pipe character from a template (bug 52363)
 <nowiki> unordered list
 !! wikitext
 <nowiki>* This is not an unordered list item.</nowiki>
-!! html
+!! html/php
 <p>* This is not an unordered list item.
 </p>
+!! html/parsoid
+<p><span typeof="mw:Nowiki">* This is not an unordered list item.</span></p>
 !! end
 
 !! test
@@ -1382,7 +1384,7 @@ sed abit.
 
 :and a colon
 </nowiki>
-!! html
+!! html/php
 <p>Lorem ipsum dolor
 
 sed abit.
@@ -1391,6 +1393,14 @@ sed abit.
 :and a colon
 
 </p>
+!! html/parsoid
+<p><span typeof="mw:Nowiki">Lorem ipsum dolor
+
+sed abit.
+  sed nullum.
+
+:and a colon
+</span></p>
 !! end
 
 !! test
@@ -1404,7 +1414,7 @@ nowiki 3
 
 *There is not nowiki.
 *There is <nowiki>nowiki</nowiki>.
-!! html
+!! html/php
 <dl><dd>There is not nowiki.</dd>
 <dd>There is nowiki.</dd></dl>
 <ol><li>There is not nowiki.</li>
@@ -1412,6 +1422,15 @@ nowiki 3
 <ul><li>There is not nowiki.</li>
 <li>There is nowiki.</li></ul>
 
+!! html/parsoid
+<dl><dd data-parsoid='{}'>There is not nowiki.</dd>
+<dd data-parsoid='{}'>There is <span typeof="mw:Nowiki">nowiki</span>.</dd></dl>
+
+<ol><li data-parsoid='{}'>There is not nowiki.</li>
+<li data-parsoid='{}'>There is <span typeof="mw:Nowiki">nowiki</span>.</li></ol>
+
+<ul><li data-parsoid='{}'>There is not nowiki.</li>
+<li data-parsoid='{}'>There is <span typeof="mw:Nowiki">nowiki</span>.</li></ul>
 !! end
 
 !! test
@@ -2227,7 +2246,7 @@ Entities inside <pre>
 </nowiki>
 </pre>
 
-!! html
+!! html/php
 <pre>
 &lt;nowiki&gt;
 </pre>
@@ -2240,6 +2259,18 @@ Entities inside <pre>
 
 &lt;/pre&gt;
 </p>
+!! html/parsoid
+<pre data-parsoid='{"stx":"html","strippedNL":true}'>&lt;nowiki>
+</pre>
+<p><span typeof="mw:Placeholder" data-parsoid='{"src":"&lt;/nowiki>"}'>&lt;/nowiki></span>
+&lt;/pre></p>
+
+<p><span typeof="mw:Nowiki">
+&lt;pre>
+&lt;nowiki>
+&lt;/pre>
+</span>
+&lt;/pre></p>
 !! end
 
 !! test
@@ -3401,7 +3432,7 @@ HTML-pre: 3: other wikitext
 '' no-italic ''
 [[ NoLink ]]
 </pre>
-!! html
+!! html/php
 <pre>
 * foo
 # bar
@@ -3410,6 +3441,13 @@ HTML-pre: 3: other wikitext
 [[ NoLink ]]
 </pre>
 
+!! html/parsoid
+<pre data-parsoid='{"stx":"html","strippedNL":true}'>* foo
+# bar
+= no-h =
+'' no-italic ''
+[[ NoLink ]]
+</pre>
 !!end
 
 ###
@@ -21611,8 +21649,6 @@ Headings: 5. Empty headings
 
 !! test
 Headings: 6a. Heading chars in SOL context (with trailing spaces)
-!! options
-parsoid
 !! wikitext
 <nowiki>=a=</nowiki>
 
@@ -21621,17 +21657,24 @@ parsoid
 <nowiki>=a=</nowiki>	
 
 <nowiki>=a=</nowiki> 	
-!! html
-<p>=a=</p>
-<p>=a= </p>
-<p>=a=	</p>
-<p>=a= 	</p>
+!! html/php
+<p>=a=
+</p><p>=a= 
+</p><p>=a=	
+</p><p>=a= 	
+</p>
+!! html/parsoid
+<p><span typeof="mw:Nowiki">=a=</span></p>
+
+<p><span typeof="mw:Nowiki">=a=</span></p> 
+
+<p><span typeof="mw:Nowiki">=a=</span></p>	
+
+<p><span typeof="mw:Nowiki">=a=</span></p> 	
 !!end
 
 !! test
 Headings: 6b. Heading chars in SOL context (with trailing newlines)
-!! options
-parsoid
 !! wikitext
 <nowiki>=a=
 b</nowiki>
@@ -21644,48 +21687,65 @@ b</nowiki>
 
 <nowiki>=a=	 
 b</nowiki>
-!! html
+!! html/php
 <p>=a=
-b</p>
-<p>=a= 
-b</p>
-<p>=a=	
-b</p>
-<p>=a=	 
-b</p>
+b
+</p><p>=a= 
+b
+</p><p>=a=	
+b
+</p><p>=a=	 
+b
 </p>
+!! html/parsoid
+<p><span typeof="mw:Nowiki">=a=
+b</span></p>
+
+<p><span typeof="mw:Nowiki">=a= 
+b</span></p>
+
+<p><span typeof="mw:Nowiki">=a=	
+b</span></p>
+
+<p><span typeof="mw:Nowiki">=a=	 
+b</span></p>
 !!end
 
 !! test
 Headings: 6c. Heading chars in SOL context (leading newline break)
-!! options
-parsoid
 !! wikitext
 a
 <nowiki>=b=</nowiki>
-!! html
+!! html/php
 <p>a
-=b=</p>
+=b=
+</p>
+!! html/parsoid
+<p>a
+<span typeof="mw:Nowiki">=b=</span>
 !!end
 
 !! test
 Headings: 6d. Heading chars in SOL context (with interspersed comments)
-!! options
-parsoid
 !! wikitext
 <!--c0--><nowiki>=a=</nowiki>
 
 <!--c1--><nowiki>=a=</nowiki> <!--c2-->	 <!--c3-->
-!! html
-<p><!--c0-->=a=</p>
-<p><!--c1-->=a= <!--c2-->	 <!--c3--></p>
+!! html/php
+<p>=a=
+</p><p>=a= 	 
+</p>
+!! html/parsoid
+<!--c0--><p><span typeof="mw:Nowiki">=a=</span></p>
+
+<!--c1--><p><span typeof="mw:Nowiki">=a=</span></p> <!--c2-->	 <!--c3-->
 !!end
 
 !! test
 Headings: 6d. Heading chars in SOL context (No escaping needed)
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 =a=<div>b</div>
 !! wikitext
 =a=<div>b</div>
@@ -21695,11 +21755,11 @@ parsoid=html2wt
 Headings: 7. Insert a newline between new content and headings
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <h2>NEW</h2>
 <p>new</p>
-<h2 data-parsoid='{"dsr":[0,5,2,2]}'>A</h2>
-<p data-parsoid='{"dsr":[6,7,0,0]}'>a</p>
+<h2 data-parsoid='{}'>A</h2>
+<p data-parsoid='{}'>a</p>
 !! wikitext
 == NEW ==
 new
@@ -21728,11 +21788,17 @@ Lists: 0. Outside nests
 <nowiki>#</nowiki>foo
 
 <nowiki>;Foo:</nowiki>bar
-!! html
+!! html/php
 <p>*foo
 </p><p>#foo
 </p><p>;Foo:bar
 </p>
+!! html/parsoid
+<p><span typeof="mw:Nowiki">*</span>foo</p>
+
+<p><span typeof="mw:Nowiki">#</span>foo</p>
+
+<p><span typeof="mw:Nowiki">;Foo:</span>bar</p>
 !!end
 
 !! test
