@@ -47,7 +47,7 @@ var strip = function(s) {
 // Option parsing and helpful messages.
 var usage = 'Usage: $0 <mediawiki checkout path> <branch name>';
 var opts = yargs.usage(usage, {
-	'help': { description: 'Show this message' }
+	'help': { description: 'Show this message' },
 });
 var argv = opts.argv;
 if (argv.help || argv._.length !== 2) {
@@ -69,7 +69,7 @@ var mwexec = function(cmd) {
 		childProcess.spawn(cmd[0], cmd.slice(1), {
 			cwd: mwpath,
 			env: process.env,
-			stdio: 'inherit'
+			stdio: 'inherit',
 		}).on('close', function(code) {
 			callback(code === 0 ? null : code, code);
 		});
@@ -85,7 +85,8 @@ var mwPARSERTESTS = path.join(mwpath, 'tests', 'parser', PARSERTESTS);
 var phash;
 q.push(function(callback) {
 	childProcess.execFile('git', ['log', '--max-count=1', '--pretty=format:%H'], {
-		cwd: __dirname, env: process.env
+		cwd: __dirname,
+		env: process.env,
 	}, function(error, stdout, stderr) {
 		if (error) { return callback(error.code || 1); }
 		phash = strip(stdout);
@@ -105,7 +106,7 @@ q.push(mwexec(['git', 'checkout', '-b', branch, oldhash]));
 var cleanup = function(callback) {
 	var qq = [
 		mwexec('git checkout master'.split(' ')),
-		mwexec(['git', 'branch', '-d', branch])
+		mwexec(['git', 'branch', '-d', branch]),
 	];
 	async.series(qq, callback);
 };

@@ -76,7 +76,7 @@ var runTest = function(cb, test) {
 		setup: config.setup,
 		prefix: test.prefix,
 		rtTestMode: true,
-		parsoidURL: parsoidURL
+		parsoidURL: parsoidURL,
 	}, rtTest.xmlFormat).nodify(function(err, results) {
 		var callback = null;
 		if (err) {
@@ -149,10 +149,10 @@ var postResult = function(err, result, test, finalCB, cb) {
 			host: config.server.host,
 			port: config.server.port,
 			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
+				'Content-Type': 'application/x-www-form-urlencoded',
 			},
 			path: '/result/' + encodeURIComponent(test.title) + '/' + test.prefix,
-			method: 'POST'
+			method: 'POST',
 		};
 
 		var req = http.request(requestOptions, function(res) {

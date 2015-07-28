@@ -26,100 +26,100 @@ var standardOpts = Util.addStandardOptions({
 	'wt2html': {
 		description: 'Wikitext -> HTML',
 		'boolean': true,
-		'default': false
+		'default': false,
 	},
 	'html2wt': {
 		description: 'HTML -> Wikitext',
 		'boolean': true,
-		'default': false
+		'default': false,
 	},
 	'wt2wt': {
 		description: 'Wikitext -> HTML -> Wikitext',
 		'boolean': true,
-		'default': false
+		'default': false,
 	},
 	'html2html': {
 		description: 'HTML -> Wikitext -> HTML',
 		'boolean': true,
-		'default': false
+		'default': false,
 	},
 	'selser': {
 		description: 'Use the selective serializer to go from HTML to Wikitext.',
 		'boolean': true,
-		'default': false
+		'default': false,
 	},
 	'normalize': {
 		description: 'Normalize the output as parserTests would do. Use --normalize for PHP tests, and --normalize=parsoid for parsoid-only tests',
-		'default': false
+		'default': false,
 	},
 	'config': {
 		description: "Path to a localsettings.js file.  Use --config w/ no argument to default to the server's localsettings.js",
-		'default': false
+		'default': false,
 	},
 	'prefix': {
 		description: 'Which wiki prefix to use; e.g. "enwiki" for English wikipedia, "eswiki" for Spanish, "mediawikiwiki" for mediawiki.org',
-		'default': 'enwiki'
+		'default': 'enwiki',
 	},
 	'page': {
 		description: 'The page name, returned for {{PAGENAME}}. If no input is given (ie. empty/stdin closed), it downloads and parses the page.',
 		'boolean': false,
-		'default': ParserEnv.prototype.defaultPageName
+		'default': ParserEnv.prototype.defaultPageName,
 	},
 	'oldid': {
 		description: 'Oldid of the given page.',
 		'boolean': false,
-		'default': null
+		'default': null,
 	},
 	'oldtext': {
 		description: 'The old page text for a selective-serialization (see --selser)',
 		'boolean': false,
-		'default': false
+		'default': false,
 	},
 	'oldtextfile': {
 		description: 'File containing the old page text for a selective-serialization (see --selser)',
 		'boolean': false,
-		'default': null
+		'default': null,
 	},
 	'oldhtmlfile': {
 		description: 'File containing the old HTML for a selective-serialization (see --selser)',
 		'boolean': false,
-		'default': null
+		'default': null,
 	},
 	'domdiff': {
 		description: 'File containing the diff-marked HTML for used with selective-serialization (see --selser)',
 		'boolean': false,
-		'default': null
+		'default': null,
 	},
 	'inputfile': {
 		description: 'File containing input as an alternative to stdin',
 		'boolean': false,
-		'default': false
+		'default': false,
 	},
 	'extensions': {
 		description: 'List of valid extensions - of form foo,bar,baz',
 		'boolean': false,
-		'default': ''
+		'default': '',
 	},
 	'dpinfile': {
 		description: 'Input data-parsoid JSON file',
 		'boolean': false,
-		'default': ''
+		'default': '',
 	},
 	'dpin': {
 		description: 'Input data-parsoid JSON',
 		'boolean': false,
-		'default': ''
+		'default': '',
 	},
 	'lint': {
 		description: 'Parse with linter enabled',
 		'boolean': true,
-		'default': false
+		'default': false,
 	},
 	'scrubWikitext': {
 		description: 'Apply wikitext scrubbing while serializing.',
 		'boolean': true,
 		'default': false,
-	}
+	},
 });
 exports.defaultOptions = yargs.options(standardOpts).parse([]);
 
@@ -182,7 +182,7 @@ startsAtWikitext = function(argv, env, input) {
 var parse = exports.parse = function(input, argv, parsoidConfig, prefix) {
 	return ParserEnv.getParserEnv(parsoidConfig, null, {
 		prefix: prefix,
-		pageName: argv.page
+		pageName: argv.page,
 	}).then(function(env) {
 
 		// fetch templates from enwiki by default.
@@ -213,7 +213,7 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix) {
 			if (argv.domdiff) {
 				env.page.domdiff = {
 					isEmpty: false,
-					dom: DU.parseHTML(fs.readFileSync(argv.domdiff, 'utf8')).body
+					dom: DU.parseHTML(fs.readFileSync(argv.domdiff, 'utf8')).body,
 				};
 			}
 			env.setPageSrcInfo(argv.oldtext || null);

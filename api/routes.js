@@ -154,12 +154,12 @@ module.exports = function(parsoidConfig) {
 		if (!versionCache) {
 			versionCache = Promise.resolve({
 				name: pkg.name,
-				version: pkg.version
+				version: pkg.version,
 			}).then(function(v) {
 				return Promise.promisify(
 					childProcess.execFile, ['stdout', 'stderr'], childProcess
 				)('git', ['rev-parse', 'HEAD'], {
-					cwd: path.join(__dirname, '..')
+					cwd: path.join(__dirname, '..'),
 				}).then(function(out) {
 					v.sha = out.stdout.slice(0, -1);
 					return v;
@@ -184,7 +184,7 @@ module.exports = function(parsoidConfig) {
 		apiUtils.renderResponse(res, env, "form", {
 			title: "Your HTML DOM:",
 			action: action,
-			name: "html"
+			name: "html",
 		});
 	};
 
@@ -194,7 +194,7 @@ module.exports = function(parsoidConfig) {
 		apiUtils.renderResponse(res, env, "form", {
 			title: "Your wikitext:",
 			action: "/" + res.local('iwp') + "/" + res.local('pageName'),
-			name: "wt"
+			name: "wt",
 		});
 	};
 
@@ -299,7 +299,7 @@ module.exports = function(parsoidConfig) {
 		var env = res.local('env');
 		apiUtils.renderResponse(res, env, "form", {
 			title: "Your wikitext:",
-			name: "content"
+			name: "content",
 		});
 	};
 
@@ -377,7 +377,7 @@ module.exports = function(parsoidConfig) {
 				var path = [
 					'',
 					ret.prefix,
-					encodeURIComponent(ret.target)
+					encodeURIComponent(ret.target),
 				].join('/');
 				req.query.oldid = revid;
 				path += '?' + qs.stringify(req.query);
@@ -466,7 +466,7 @@ module.exports = function(parsoidConfig) {
 					url.parse(env.conf.parsoid.mwApiMap.get(ret.prefix).uri).host,
 					v2.format,
 					encodeURIComponent(ret.target),
-					revid
+					revid,
 				].join('/');
 				if (Object.keys(req.query).length > 0) {
 					path += '?' + qs.stringify(req.query);
@@ -543,7 +543,7 @@ module.exports = function(parsoidConfig) {
 					wikitext: {
 						headers: { 'content-type': apiUtils.WIKITEXT_CONTENT_TYPE },
 						body: output,
-					}
+					},
 				});
 			});
 			return apiUtils.cpuTimeout(p, res)

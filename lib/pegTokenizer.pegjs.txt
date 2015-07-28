@@ -95,7 +95,7 @@ redirect
             {
                 src: rw,
                 tsr: tsrOffsets(),
-                linkTk: link
+                linkTk: link,
             });
     return redirect;
 }
@@ -263,7 +263,7 @@ paragraph
 
 br = s:optionalSpaceToken &newline {
     return s.concat([
-      new SelfclosingTagTk('br', [], { tsr: tsrOffsets() })
+      new SelfclosingTagTk('br', [], { tsr: tsrOffsets() }),
     ]);
 }
 
@@ -331,10 +331,10 @@ h = & "=" // guard, to make sure '='+ will match.
         var tsr = tsrOffsets('start');
         tsr[1] += level;
         return [
-          new TagTk('h' + level, [], { tsr: tsr })
+          new TagTk('h' + level, [], { tsr: tsr }),
         ].concat(c, [
           new EndTagTk('h' + level, [], { tsr: [endTPos - level, endTPos] }),
-          spc
+          spc,
         ]);
       }
     / & { stops.dec('h'); return false; }
@@ -362,10 +362,10 @@ comment
 // https://www.mediawiki.org/wiki/Help:Magic_words#Behavior_switches
 behavior_switch
   = bs:$('__' behavior_text '__') {
-    return [ new SelfclosingTagTk('behavior-switch', [ new KV('word', bs) ], {
-      tsr: tsrOffsets(),
-      src: bs
-    }) ];
+    return [
+      new SelfclosingTagTk('behavior-switch', [ new KV('word', bs) ],
+        { tsr: tsrOffsets(), src: bs }),
+    ];
   }
 
 // Instead of defining a charset, php's doDoubleUnderscore concats a regexp of
@@ -419,12 +419,12 @@ extlink
                 new SelfclosingTagTk('extlink', [
                     new KV('href', target),
                     new KV('mw:content', content),
-                    new KV('spaces', sp)
+                    new KV('spaces', sp),
                 ], {
                     targetOff: targetOff,
                     tsr: tsrOffsets(),
-                    contentOffsets: [targetOff, endOffset() - 1]
-                })
+                    contentOffsets: [targetOff, endOffset() - 1],
+                }),
             ];
         }
       / br:"[" & { return stops.pop('extlink'); } { return br; }
@@ -443,9 +443,9 @@ autoref
         new SelfclosingTagTk('extlink', [
            new KV('href', tu.sprintf(base_urls[ref], identifier)),
            new KV('mw:content', [ref, identifier].join(' ')),
-           new KV('typeof', 'mw:ExtLink/' + ref)
+           new KV('typeof', 'mw:ExtLink/' + ref),
         ],
-        { stx: "magiclink", tsr: tsrOffsets() })
+        { stx: "magiclink", tsr: tsrOffsets() }),
     ];
 }
 
@@ -470,9 +470,9 @@ isbn
         new SelfclosingTagTk('extlink', [
            new KV('href', 'Special:BookSources/' + isbncode),
            new KV('mw:content', 'ISBN ' + isbn),
-           new KV('typeof', 'mw:ExtLink/ISBN')
+           new KV('typeof', 'mw:ExtLink/ISBN'),
         ],
-        { stx: "magiclink", tsr: tsrOffsets() })
+        { stx: "magiclink", tsr: tsrOffsets() }),
     ];
 }
 
@@ -625,8 +625,8 @@ broken_template
   = v:( '{{' space_or_newline+ '}}' / ( '{{{' / '}}}' / '{{' / '}}' )+ )
 {
     return [
-        new TagTk('span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: tsrOffsets('start'), src: text() })]
-            .concat(v, [new EndTagTk('span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: tsrOffsets('end') }) ]);
+        new TagTk('span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: tsrOffsets('start'), src: text() }),
+    ].concat(v, [new EndTagTk('span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: tsrOffsets('end') }) ]);
 }
 
 
@@ -794,7 +794,7 @@ wikilink
       obj.dataAttribs = {
           tsr: tsrOffsets(),
           src: text(),
-          pipetrick: lcontent.pipetrick
+          pipetrick: lcontent.pipetrick,
       };
       return [obj];
   }
@@ -941,8 +941,8 @@ pre
         return [
             new SelfclosingTagTk('pre', attribs, {
                 tsr: tsrOffsets(),
-                endpos: endpos
-            })
+                endpos: endpos,
+            }),
         ];
 
     }
@@ -1073,7 +1073,7 @@ xmlish_tag =
                 new KV('name', tagName),
                 new KV('about', options.env.newAboutId()),
                 new KV('source', dp.src),
-                new KV('options', t.attribs)
+                new KV('options', t.attribs),
             ], dp);
         } else {
             // If not a known installed extension, parse content as wikitext.
@@ -1113,10 +1113,10 @@ nowiki
     "</" nowiki_tag_name space* ">" {
         return [
             new TagTk('span', [{ k: 'typeof', v: 'mw:Nowiki' }],
-              { tsr: [startOffset(), startTagEndPos] })
+              { tsr: [startOffset(), startTagEndPos] }),
         ].concat(nc, [
             new EndTagTk('span', [{ k: 'typeof', v: 'mw:Nowiki' }],
-              { tsr: [endTagStartPos, endOffset()] })
+              { tsr: [endTagStartPos, endOffset()] }),
         ]);
     }
   // nowiki fallback: source-based round-tripping of <nowiki />.
@@ -1124,7 +1124,7 @@ nowiki
     "<" nowiki_tag_name space* "/" space* ">" {
       return [
           new SelfclosingTagTk('meta', [new KV('typeof', 'mw:Placeholder')],
-            { src: input.substring(nw0, endOffset()), tsr: [nw0, endOffset()] })
+            { src: input.substring(nw0, endOffset()), tsr: [nw0, endOffset()] }),
       ];
     }
   // nowiki fallback: source-based round-tripping
@@ -1136,10 +1136,10 @@ nowiki
       return [
             new TagTk('span', [new KV('typeof', 'mw:Placeholder')], {
                 src: nowiki,
-                tsr: [nw0, nw0]
+                tsr: [nw0, nw0],
             }),
             nowiki,
-            new EndTagTk('span', [], { tsr: tsrOffsets('end') })
+            new EndTagTk('span', [], { tsr: tsrOffsets('end') }),
       ];
     }
 
@@ -1376,7 +1376,7 @@ block_tag
     ">" {
       return [
         tu.buildXMLTag(name, name.toLowerCase(), attribs, end, selfclose,
-          tsrOffsets())
+          tsrOffsets()),
       ];
     }
 
@@ -1601,7 +1601,7 @@ table_row_tag
 
         var da = {
           tsr: [ startOffset(), tagEndPos ],
-          startTagSrc: p + dashes
+          startTagSrc: p + dashes,
         };
 
         // We rely on our tree builder to close the row as needed. This is
@@ -1804,7 +1804,7 @@ urltext = ( $[^-'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:;\]} &=]+
               return [
                   new TagTk('span', [new KV('typeof', 'mw:DisplaySpace mw:Placeholder')], { src: ' ', tsr: tsrOffsets('start'), isDisplayHack: true }),
                   "\u00a0",
-                  new EndTagTk('span', [], { tsr: tsrOffsets('end'), isDisplayHack: true })
+                  new EndTagTk('span', [], { tsr: tsrOffsets('end'), isDisplayHack: true }),
               ];
           }
           / & ('__') bs:behavior_switch { return bs; }
@@ -1839,7 +1839,7 @@ htmlentity = m:$("&" [#0-9a-zA-Z]+ ";") {
     return [
         new TagTk('span', [new KV('typeof', 'mw:Entity')], { src: m, srcContent: cc, tsr: tsrOffsets('start') }),
         cc,
-        new EndTagTk('span', [], { tsr: tsrOffsets('end') })
+        new EndTagTk('span', [], { tsr: tsrOffsets('end') }),
     ];
 }
 
@@ -1907,8 +1907,8 @@ empty_line_with_comments
             sp,
             new SelfclosingTagTk("meta", [new KV('typeof', 'mw:EmptyLine')], {
                 tokens: tu.flattenIfArray(c),
-                tsr: [p, endOffset()]
-            })
+                tsr: [p, endOffset()],
+            }),
         ];
     }
 

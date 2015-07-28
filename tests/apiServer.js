@@ -99,14 +99,15 @@ var startServer = function(opts, retrying, cb) {
 		console.log("Starting %s server at %s", opts.serverName, url);
 	}
 
-	forkedServer.child = childProcess.fork(__dirname + opts.filePath,
+	forkedServer.child = childProcess.fork(
+		__dirname + opts.filePath,
 		opts.serverArgv,
 		{
 			env: {
 				PORT: port,
 				INTERFACE: opts.iface,
 				NODE_PATH: process.env.NODE_PATH,
-				PARSOID_MOCKAPI_URL: opts.mockUrl
+				PARSOID_MOCKAPI_URL: opts.mockUrl,
 			},
 			execArgv: execArgv,
 		}
@@ -144,9 +145,9 @@ var parsoidServerOpts = {
 	filePath: "/../api/server.js",
 	serverArgv: [
 		'--num-workers', '1',
-		'--config', path.resolve(__dirname, './rttest.localsettings.js')
+		'--config', path.resolve(__dirname, './rttest.localsettings.js'),
 	],
-	serverEnv: {}
+	serverEnv: {},
 };
 
 // Returns a Promise; the `cb` parameter is optional (for legacy use)
@@ -162,7 +163,7 @@ var mockAPIServerOpts = {
 	urlPath: "/api.php",
 	filePath: "/../tests/mockAPI.js",
 	serverArgv: [],
-	serverEnv: { silent: true }
+	serverEnv: { silent: true },
 };
 
 // Returns a Promise; the `cb` parameter is optional (for legacy use)
@@ -177,5 +178,5 @@ module.exports = {
 	stopAllServers: stopAllServers,
 	startParsoidServer: startParsoidServer,
 	startMockAPIServer: startMockAPIServer,
-	exitOnProcessTerm: exitOnProcessTerm
+	exitOnProcessTerm: exitOnProcessTerm,
 };

@@ -120,5 +120,5 @@ function ParsoidService(parsoidConfig, processLogger) {
 }
 
 module.exports = {
-	ParsoidService: ParsoidService
+	ParsoidService: ParsoidService,
 };

@@ -20,7 +20,7 @@ describe('ParserPipelineFactory', function() {
 			options = options || {};
 			return MWParserEnvironment.getParserEnv(parsoidConfig, null, {
 				prefix: options.prefix || 'enwiki',
-				pageName: options.pageName || 'Main_Page'
+				pageName: options.pageName || 'Main_Page',
 			}).then(function(env) {
 				if (options.tweakEnv) {
 					env = options.tweakEnv(env) || env;
@@ -36,7 +36,7 @@ describe('ParserPipelineFactory', function() {
 			options = options || {};
 			return MWParserEnvironment.getParserEnv(parsoidConfig, null, {
 				prefix: options.prefix || 'enwiki',
-				pageName: options.pageName || 'Main_Page'
+				pageName: options.pageName || 'Main_Page',
 			}).then(function(env) {
 				if (options.tweakEnv) {
 					env = options.tweakEnv(env) || env;
@@ -80,81 +80,83 @@ describe('ParserPipelineFactory', function() {
 
 		['no subpages', 'subpages'].forEach(function(desc, subpages) {
 			describe('should handle page titles with embedded ? (' + desc + ')', function() {
-				var linktests = [{
-					wikitext: '[[Foo?/Bar]]',
-					href: '//en.wikipedia.org/wiki/Foo%3F/Bar',
-					linktext: 'Foo?/Bar'
-				}, {
-					wikitext: '[[File:Foo.jpg]]',
-					href: '//en.wikipedia.org/wiki/File:Foo.jpg',
-					resource: '//en.wikipedia.org/wiki/File:Foo.jpg'
-				}, {
-					wikitext: '[[../]]',
-					linktext: 'A/B?',
-					href: '//en.wikipedia.org/wiki/A/B%3F',
-					subpageOnly: true
-				}, {
-					wikitext: '[[../../]]',
-					linktext: 'A',
-					href: '//en.wikipedia.org/wiki/A',
-					subpageOnly: true
-				}, {
-					// See https://gerrit.wikimedia.org/r/173431
-					wikitext: '[[../..//]]',
-					linktext: 'A',
-					href: '//en.wikipedia.org/wiki/A',
-					subpageOnly: true
-				}, {
-					wikitext: '[[/Child]]',
-					linktext: '/Child',
-					href: subpages ?
-						'//en.wikipedia.org/wiki/A/B%3F/C/Child' :
-						'//en.wikipedia.org/wiki//Child'
-				}, {
-					wikitext: '[[/Child/]]',
-					linktext: subpages ? 'Child' : '/Child/',
-					href: subpages ?
+				var linktests = [
+					{
+						wikitext: '[[Foo?/Bar]]',
+						href: '//en.wikipedia.org/wiki/Foo%3F/Bar',
+						linktext: 'Foo?/Bar',
+					}, {
+						wikitext: '[[File:Foo.jpg]]',
+						href: '//en.wikipedia.org/wiki/File:Foo.jpg',
+						resource: '//en.wikipedia.org/wiki/File:Foo.jpg',
+					}, {
+						wikitext: '[[../]]',
+						linktext: 'A/B?',
+						href: '//en.wikipedia.org/wiki/A/B%3F',
+						subpageOnly: true,
+					}, {
+						wikitext: '[[../../]]',
+						linktext: 'A',
+						href: '//en.wikipedia.org/wiki/A',
+						subpageOnly: true,
+					}, {
+						// See https://gerrit.wikimedia.org/r/173431
+						wikitext: '[[../..//]]',
+						linktext: 'A',
+						href: '//en.wikipedia.org/wiki/A',
+						subpageOnly: true,
+					}, {
+						wikitext: '[[/Child]]',
+						linktext: '/Child',
+						href: subpages ?
+							'//en.wikipedia.org/wiki/A/B%3F/C/Child' :
+							'//en.wikipedia.org/wiki//Child',
+					}, {
+						wikitext: '[[/Child/]]',
+						linktext: subpages ? 'Child' : '/Child/',
+						href: subpages ?
+							// note: no trailing slash
+							'//en.wikipedia.org/wiki/A/B%3F/C/Child' :
+							// trailing slash here, when there's no subpage support
+							'//en.wikipedia.org/wiki//Child/',
+					}, {
+						// See https://gerrit.wikimedia.org/r/173431
+						wikitext: '[[/Child//]]',
+						linktext: subpages ? 'Child' : '/Child//',
+						href: subpages ?
+							// note: no trailing slash
+							'//en.wikipedia.org/wiki/A/B%3F/C/Child' :
+							// trailing slash here, when there's no subpage support
+							'//en.wikipedia.org/wiki//Child//',
+					}, {
+						wikitext: '[[../Sibling]]',
+						linktext: 'A/B?/Sibling',
+						href: '//en.wikipedia.org/wiki/A/B%3F/Sibling',
+						subpageOnly: true,
+					}, {
+						wikitext: '[[../Sibling/]]',
+						linktext: 'Sibling',
 						// note: no trailing slash
-						'//en.wikipedia.org/wiki/A/B%3F/C/Child' :
-						// trailing slash here, when there's no subpage support
-						'//en.wikipedia.org/wiki//Child/'
-				}, {
-					// See https://gerrit.wikimedia.org/r/173431
-					wikitext: '[[/Child//]]',
-					linktext: subpages ? 'Child' : '/Child//',
-					href: subpages ?
+						href: '//en.wikipedia.org/wiki/A/B%3F/Sibling',
+						subpageOnly: true,
+					}, {
+						// See https://gerrit.wikimedia.org/r/173431
+						wikitext: '[[../Sibling//]]',
+						linktext: 'Sibling',
 						// note: no trailing slash
-						'//en.wikipedia.org/wiki/A/B%3F/C/Child' :
-						// trailing slash here, when there's no subpage support
-						'//en.wikipedia.org/wiki//Child//'
-				}, {
-					wikitext: '[[../Sibling]]',
-					linktext: 'A/B?/Sibling',
-					href: '//en.wikipedia.org/wiki/A/B%3F/Sibling',
-					subpageOnly: true
-				}, {
-					wikitext: '[[../Sibling/]]',
-					linktext: 'Sibling',
-					// note: no trailing slash
-					href: '//en.wikipedia.org/wiki/A/B%3F/Sibling',
-					subpageOnly: true
-				}, {
-					// See https://gerrit.wikimedia.org/r/173431
-					wikitext: '[[../Sibling//]]',
-					linktext: 'Sibling',
-					// note: no trailing slash
-					href: '//en.wikipedia.org/wiki/A/B%3F/Sibling',
-					subpageOnly: true
-				}, {
-					wikitext: '[[../../New/Cousin]]',
-					linktext: 'A/New/Cousin',
-					href: '//en.wikipedia.org/wiki/A/New/Cousin',
-					subpageOnly: true
-				}, {
-					// up too far
-					wikitext: '[[../../../]]',
-					notALink: true
-				}];
+						href: '//en.wikipedia.org/wiki/A/B%3F/Sibling',
+						subpageOnly: true,
+					}, {
+						wikitext: '[[../../New/Cousin]]',
+						linktext: 'A/New/Cousin',
+						href: '//en.wikipedia.org/wiki/A/New/Cousin',
+						subpageOnly: true,
+					}, {
+						// up too far
+						wikitext: '[[../../../]]',
+						notALink: true,
+					},
+				];
 				linktests.forEach(function(test) {
 					it(test.wikitext, function() {
 						return parse(test.wikitext, {
@@ -163,7 +165,7 @@ describe('ParserPipelineFactory', function() {
 								Object.keys(env.conf.wiki.namespaceNames).forEach(function(id) {
 									env.conf.wiki.namespacesWithSubpages[id] = !!subpages;
 								});
-							}
+							},
 						}).then(function(doc) {
 							var els;
 							els = doc.querySelectorAll('HEAD > BASE[href]');
@@ -221,7 +223,7 @@ describe('ParserPipelineFactory', function() {
 		it('should handle template-generated page properties', function() {
 			return parse('{{Lowercase title}}{{{{echo|DEFAULTSORT}}:x}}', {
 				prefix: 'enwiki',
-				pageName: 'EBay'
+				pageName: 'EBay',
 			}).then(function(doc) {
 				var els = doc.querySelectorAll('HEAD > TITLE');
 				els.length.should.equal(1);
@@ -244,7 +246,7 @@ describe('ParserPipelineFactory', function() {
 		it('should replace duplicated ids', function() {
 			var origWt = '<div id="hello">hi</div><div id="hello">ok</div><div>no</div>';
 			return parse(origWt, {
-				tweakEnv: function(env) { env.storeDataParsoid = true; }
+				tweakEnv: function(env) { env.storeDataParsoid = true; },
 			}).then(function(doc) {
 				var child = doc.body.firstChild;
 				child.getAttribute("id").should.equal("hello");

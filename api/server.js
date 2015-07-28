@@ -38,7 +38,7 @@ var opts = require("yargs")
 		n: require("os").cpus().length + 3,
 		c: __dirname + '/localsettings.js',
 		v: false,
-		h: false
+		h: false,
 	})
 	.boolean([ "h", "v" ])
 	.alias("h", "help")
@@ -84,11 +84,11 @@ var parsoidConfig = new ParsoidConfig(localSettings, null);
 var locationData = {
 	process: {
 		name: cluster.isMaster ? "master" : "worker",
-		pid: process.pid
+		pid: process.pid,
 	},
 	toString: function() {
 		return util.format("[%s][%s]", this.process.name, this.process.pid);
-	}
+	},
 };
 
 // Setup process logger

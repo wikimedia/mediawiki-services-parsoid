@@ -35,7 +35,7 @@ var fetch = function(page, revid, options) {
 	var env;
 	MWParserEnvironment.getParserEnv(parsoidConfig, null, {
 		prefix: prefix,
-		pageName: page
+		pageName: page,
 	}).then(function(_env) {
 		env = _env;
 		var target = page ?
@@ -55,26 +55,26 @@ var usage = 'Usage: $0 [options] <page-title or rev-id>\n' +
 	'used as a title.  Use the --title option for a numeric title.';
 var opts = yargs.usage(usage, {
 	'output': {
-		description: "Write page to given file"
+		description: "Write page to given file",
 	},
 	'prefix': {
 		description: 'Which wiki prefix to use; e.g. "enwiki" for English wikipedia, "eswiki" for Spanish, "mediawikiwiki" for mediawiki.org',
 		'boolean': false,
-		'default': 'enwiki'
+		'default': 'enwiki',
 	},
 	'revid': {
 		description: 'Page revision to fetch',
-		'boolean': false
+		'boolean': false,
 	},
 	'title': {
 		description: 'Page title to fetch (only if revid is not present)',
-		'boolean': false
+		'boolean': false,
 	},
 	'help': {
 		description: 'Show this message',
 		'boolean': true,
-		'default': false
-	}
+		'default': false,
+	},
 });
 
 var argv = opts.argv;

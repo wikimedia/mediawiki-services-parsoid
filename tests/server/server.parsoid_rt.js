@@ -64,7 +64,7 @@ var makeOneDiffRegressionRow = function(urlPrefix, row) {
 	return [
 		RH.pageTitleData(urlPrefix, row),
 		RH.oldCommitLinkData(urlPrefix, row.old_commit, row.new_commit, row.title, row.prefix),
-		RH.newCommitLinkData(urlPrefix, row.old_commit, row.new_commit, row.title, row.prefix)
+		RH.newCommitLinkData(urlPrefix, row.old_commit, row.new_commit, row.title, row.prefix),
 	];
 };
 
@@ -83,19 +83,25 @@ function updateIndexData(data, row) {
 	data.latestRevision.push({
 		description: 'RT selser errors',
 		value: row[0].rtselsererrors,
-		url: '/rtselsererrors/' + row[0].maxhash
+		url: '/rtselsererrors/' + row[0].maxhash,
 	});
 
 	data.flaggedReg = [
-		{ description: 'one fail',
+		{
+			description: 'one fail',
 			info: 'one new semantic diff, previously perfect',
-			url: 'onefailregressions/between/' + row[0].secondhash + '/' + row[0].maxhash },
-		{ description: 'one skip',
+			url: 'onefailregressions/between/' + row[0].secondhash + '/' + row[0].maxhash,
+		},
+		{
+			description: 'one skip',
 			info: 'one new syntactic diff, previously perfect',
-			url: 'oneskipregressions/between/' + row[0].secondhash + '/' + row[0].maxhash },
-		{ description: 'other new fails',
+			url: 'oneskipregressions/between/' + row[0].secondhash + '/' + row[0].maxhash,
+		},
+		{
+			description: 'other new fails',
 			info: 'other cases with semantic diffs, previously only syntactic diffs',
-			url: 'newfailsregressions/between/' + row[0].secondhash + '/' + row[0].maxhash }
+			url: 'newfailsregressions/between/' + row[0].secondhash + '/' + row[0].maxhash,
+		},
 	];
 }
 
@@ -113,12 +119,16 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 				res.send(err.toString(), 500);
 			} else {
 				var headingLink = [
-					{name: headingLinkData[2],
+					{
+						name: headingLinkData[2],
 						info: headingLinkData[1],
-						url: relativeUrlPrefix + headingLinkData[3] + 'regressions/between/' + r1 + '/' + r2},
-					{name: 'other new fails',
+						url: relativeUrlPrefix + headingLinkData[3] + 'regressions/between/' + r1 + '/' + r2,
+					},
+					{
+						name: 'other new fails',
 						info: 'other cases with semantic diffs, previously only syntactic diffs',
-						url: relativeUrlPrefix + 'newfailsregressions/between/' + r1 + '/' + r2}
+						url: relativeUrlPrefix + 'newfailsregressions/between/' + r1 + '/' + r2,
+					},
 				];
 				var data = {
 					page: page,
@@ -129,7 +139,7 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 						row[0].numFlaggedRegressions,
 					subheading: subheading,
 					headingLink: headingLink,
-					header: ['Title', 'Old Commit', 'New Commit']
+					header: ['Title', 'Old Commit', 'New Commit'],
 				};
 				db.query(dbOneDiffRegressionsBetweenRevs, [r2, r1, numFails, numSkips, offset],
 					RH.displayPageList.bind(null, hbs, res, data, makeOneDiffRegressionRow));
@@ -157,7 +167,7 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 			var rowData = {
 				title: row.prefix + ':' + row.title,
 				latest: 'latestresult/' + prefix + '/' + title,
-				perf: 'pageperfstats/' + prefix + '/' + title
+				perf: 'pageperfstats/' + prefix + '/' + title,
 			};
 
 			if (RH.settings.resultServer) {
@@ -172,7 +182,7 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 				RH.commitLinkData(urlPrefix, row.hash, row.title, row.prefix),
 				row.skips,
 				row.fails,
-				row.errors === null ? 0 : row.errors
+				row.errors === null ? 0 : row.errors,
 			];
 		};
 		db.query(dbPagesWithRTSelserErrors, [commit, offset],
@@ -208,14 +218,18 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 						row[0].numFlaggedRegressions,
 					subheading: 'Old Commit: only syntactic diffs | New Commit: semantic diffs',
 					headingLink: [
-						{name: 'one fail regressions',
+						{
+							name: 'one fail regressions',
 							info: 'one new semantic diff, previously perfect',
-							url: relativeUrlPrefix + 'onefailregressions/between/' + r1 + '/' + r2},
-						{name: 'one skip regressions',
+							url: relativeUrlPrefix + 'onefailregressions/between/' + r1 + '/' + r2,
+						},
+						{
+							name: 'one skip regressions',
 							info: 'one new syntactic diff, previously perfect',
-							url: relativeUrlPrefix + 'oneskipregressions/between/' + r1 + '/' + r2}
+							url: relativeUrlPrefix + 'oneskipregressions/between/' + r1 + '/' + r2,
+						},
 					],
-					header: RH.regressionsHeaderData
+					header: RH.regressionsHeaderData,
 				};
 				db.query(dbNewFailsRegressionsBetweenRevs, [r2, r1, offset],
 					RH.displayPageList.bind(null, hbs, res, data, RH.makeRegressionRow));

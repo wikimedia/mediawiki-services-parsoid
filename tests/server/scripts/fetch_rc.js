@@ -79,7 +79,7 @@ fetchAll = function(fetchArgs, out) {
 		method: 'GET',
 		followRedirect: true,
 		uri: fetchArgs.uri,
-		qs: opts
+		qs: opts,
 	};
 	fetchArgs.count -= opts.rclimit;
 
@@ -108,7 +108,7 @@ wikis.forEach(function(obj) {
 		prefix: prefix,
 		count: count,
 		uri: 'http://' + domain + '/w/api.php',
-		opts: opts
+		opts: opts,
 	};
 	fetchAll(fetchArgs, []);
 });

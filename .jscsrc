@@ -18,7 +18,6 @@
 	"disallowQuotedKeysInObjects": null,
 	"maximumLineLength": null,
 	"requireCapitalizedComments": null,
-	"requireTrailingComma": null,
 	"validateQuoteMarks": null,
 
 	"excludeFiles": [

@@ -63,6 +63,6 @@ exports.setup = function(parsoidConfig) {
 	// Peformance timing options for testing
 	parsoidConfig.performanceTimer = {
 		count: function() {},
-		timing: function() {}
+		timing: function() {},
 	};
 };

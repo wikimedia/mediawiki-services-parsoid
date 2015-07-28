@@ -35,21 +35,21 @@ RenderHelpers.pageTitleData = function(urlPrefix, row) {
 RenderHelpers.commitLinkData = function(urlPrefix, commit, title, wiki) {
 	return {
 		url: urlPrefix + 'result/' + commit + '/' + wiki + '/' + title,
-		name: commit.substr(0, 7)
+		name: commit.substr(0, 7),
 	};
 };
 
 RenderHelpers.newCommitLinkData = function(urlPrefix, oldCommit, newCommit, title, prefix) {
 	return {
 		url: urlPrefix + 'resultFlagNew/' + oldCommit + '/' + newCommit + '/' + prefix + '/' + title,
-		name: newCommit.substr(0, 7)
+		name: newCommit.substr(0, 7),
 	};
 };
 
 RenderHelpers.oldCommitLinkData = function(urlPrefix, oldCommit, newCommit, title, prefix) {
 	return {
 		url: urlPrefix + 'resultFlagOld/' + oldCommit + '/' + newCommit + '/' + prefix + '/' + title,
-		name: oldCommit.substr(0, 7)
+		name: oldCommit.substr(0, 7),
 	};
 };
 
@@ -61,7 +61,7 @@ RenderHelpers.makeRegressionRow = function(urlPrefix, row) {
 		RH.oldCommitLinkData(urlPrefix, row.old_commit, row.new_commit, row.title, row.prefix),
 		row.old_errors + "|" + row.old_fails + "|" + row.old_skips,
 		RH.newCommitLinkData(urlPrefix, row.old_commit, row.new_commit, row.title, row.prefix),
-		row.errors + "|" + row.fails + "|" + row.skips
+		row.errors + "|" + row.fails + "|" + row.skips,
 	];
 };
 

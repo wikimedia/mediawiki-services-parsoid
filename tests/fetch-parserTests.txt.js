@@ -46,7 +46,7 @@ var fetch = function(url, targetName, gitCommit, cb) {
 	if (gitCommit) {
 		url = {
 			host: url.host,
-			path: url.path.replace(/COMMIT-SHA/, gitCommit)
+			path: url.path.replace(/COMMIT-SHA/, gitCommit),
 		};
 	}
 	https.get(url, function(result) {
@@ -131,7 +131,7 @@ if (typeof module === 'object' && require.main !== module) {
 	module.exports = {
 		checkAndUpdate: checkAndUpdate,
 		isUpToDate: isUpToDate,
-		latestCommit: latestCommit
+		latestCommit: latestCommit,
 	};
 } else {
 	var argv = require('yargs').argv;

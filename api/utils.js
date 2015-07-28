@@ -35,7 +35,7 @@ apiUtils.relativeRedirect = function(args) {
 		return;
 	} else {
 		args.res.writeHead(args.code, {
-			'Location': args.path
+			'Location': args.path,
 		});
 		args.res.end();
 	}
@@ -166,7 +166,7 @@ apiUtils.cpuTimeout = function(p, res) {
 			type: 'timeout',
 			timeout: CPU_TIMEOUT,
 			timeoutId: timeoutId,
-			location: location
+			location: location,
 		});
 		var done = makeDone(timeoutId);
 		p.then(done, done);
@@ -224,7 +224,7 @@ apiUtils.roundTripDiff = function(env, req, res, useSelser, doc) {
 			bodyNodes: bodyNodes,
 			htmlSpeChars: htmlSpeChars,
 			patch: patch,
-			reqUrl: req.url
+			reqUrl: req.url,
 		};
 	});
 };
@@ -490,7 +490,7 @@ apiUtils.v2endWt2html = function(ret, doc) {
 			'data-parsoid': {
 				headers: { 'content-type': out.type },
 				body: out.dp,
-			}
+			},
 		});
 		apiUtils.endWt2html(ret, null, out.str);
 	} else {

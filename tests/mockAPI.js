@@ -14,17 +14,33 @@ var IMAGE_DESC_URL = IMAGE_BASE_URL;
 // IMAGE_DESC_URL='http://commons.wikimedia.org/wiki';
 var FILE_PROPS = {
 	'Foobar.jpg': {
-		size: 7881, width: 1941, height: 220, bits: 8, mime: 'image/jpeg'
+		size: 7881,
+		width: 1941,
+		height: 220,
+		bits: 8,
+		mime: 'image/jpeg',
 	},
 	'Thumb.png': {
-		size: 22589, width: 135, height: 135, bits: 8, mime: 'image/png'
+		size: 22589,
+		width: 135,
+		height: 135,
+		bits: 8,
+		mime: 'image/png',
 	},
 	'Foobar.svg': {
-		size: 12345, width: 240, height: 180, bits: 24, mime: 'image/svg+xml'
+		size: 12345,
+		width: 240,
+		height: 180,
+		bits: 24,
+		mime: 'image/svg+xml',
 	},
 	'LoremIpsum.djvu': {
-		size: 3249, width: 2480, height: 3508, bits: 8, mime: 'image/vnd.djvu'
-	}
+		size: 3249,
+		width: 2480,
+		height: 3508,
+		bits: 8,
+		mime: 'image/vnd.djvu',
+	},
 };
 
 /* -------------------- web app access points below --------------------- */
@@ -47,13 +63,15 @@ var mainPage = {
 				pageid: 1,
 				ns: 0,
 				title: 'Main Page',
-				revisions: [{
-					revid: 1,
-					parentid: 0,
-					contentmodel: 'wikitext',
-					contentformat: 'text/x-wiki',
-					'*': '<strong>MediaWiki has been successfully installed.</strong>\n\nConsult the [//meta.wikimedia.org/wiki/Help:Contents User\'s Guide] for information on using the wiki software.\n\n== Getting started ==\n* [//www.mediawiki.org/wiki/Special:MyLanguage/Manual:Configuration_settings Configuration settings list]\n* [//www.mediawiki.org/wiki/Special:MyLanguage/Manual:FAQ MediaWiki FAQ]\n* [https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce MediaWiki release mailing list]\n* [//www.mediawiki.org/wiki/Special:MyLanguage/Localisation#Translation_resources Localise MediaWiki for your language]',
-				}],
+				revisions: [
+					{
+						revid: 1,
+						parentid: 0,
+						contentmodel: 'wikitext',
+						contentformat: 'text/x-wiki',
+						'*': '<strong>MediaWiki has been successfully installed.</strong>\n\nConsult the [//meta.wikimedia.org/wiki/Help:Contents User\'s Guide] for information on using the wiki software.\n\n== Getting started ==\n* [//www.mediawiki.org/wiki/Special:MyLanguage/Manual:Configuration_settings Configuration settings list]\n* [//www.mediawiki.org/wiki/Special:MyLanguage/Manual:FAQ MediaWiki FAQ]\n* [https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce MediaWiki release mailing list]\n* [//www.mediawiki.org/wiki/Special:MyLanguage/Localisation#Translation_resources Localise MediaWiki for your language]',
+					},
+				],
 			},
 		},
 	},
@@ -66,13 +84,15 @@ var junkPage = {
 				pageid: 2,
 				ns: 0,
 				title: "Junk Page",
-				revisions: [{
-					revid: 2,
-					parentid: 0,
-					contentmodel: 'wikitext',
-					contentformat: 'text/x-wiki',
-					'*': '2. This is just some junk. See the comment above.',
-				}],
+				revisions: [
+					{
+						revid: 2,
+						parentid: 0,
+						contentmodel: 'wikitext',
+						contentformat: 'text/x-wiki',
+						'*': '2. This is just some junk. See the comment above.',
+					},
+				],
 			},
 		},
 	},
@@ -165,10 +185,10 @@ var availableActions = {
 							'ns': 6,
 							'title': filename,
 							'missing': '',
-							'imagerepository': ''
-						}
-					}
-				}
+							'imagerepository': '',
+						},
+					},
+				},
 			});
 			return;
 		}
@@ -187,21 +207,20 @@ var availableActions = {
 			pageid: 1,
 			ns: 6,
 			title: normPagename,
-			imageinfo: [{
-				size: props.size || 12345,
-				height: height,
-				width: width,
-				url: baseurl,
-				descriptionurl: durl,
-				mediatype: mediatype,
-			}],
+			imageinfo: [
+				{
+					size: props.size || 12345,
+					height: height,
+					width: width,
+					url: baseurl,
+					descriptionurl: durl,
+					mediatype: mediatype,
+				},
+			],
 		};
 		var response = {
 			query: {
-				normalized: [{
-					from: filename,
-					to: normPagename,
-				}],
+				normalized: [{ from: filename, to: normPagename }],
 				pages: {},
 			},
 		};

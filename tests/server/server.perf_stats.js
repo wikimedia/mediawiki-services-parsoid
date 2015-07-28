@@ -140,7 +140,7 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 						"', value, NULL ) ) AS '" + types[ t ] + "'";
 					perfStatsHeader.push({
 						url: '/perfstats?orderby=' + types[t],
-						name: types[t]
+						name: types[t],
 					});
 				}
 				dbStmt += dbLastPerfStatsEnd;
@@ -154,7 +154,7 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 					urlPrefix: relativeUrlPrefix + 'perfstats',
 					urlSuffix: urlSuffix,
 					heading: 'Performance stats',
-					header: perfStatsHeader
+					header: perfStatsHeader,
 				};
 
 				db.query(dbStmt, null,
@@ -203,11 +203,13 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 						var tableRows = [];
 						for (var r = rows.length - 1; r >= 0; r--) {
 							var row = rows[r];
-							var tableRow = [{
-								url: '/result/' + row.hash + '/' + prefix + '/' + title,
-								name: row.hash,
-								info: row.timestamp.toString()
-							}];
+							var tableRow = [
+								{
+									url: '/result/' + row.hash + '/' + prefix + '/' + title,
+									name: row.hash,
+									info: row.timestamp.toString(),
+								},
+							];
 							for (t = 0; t < types.length; t++) {
 								var rowData = row[types[t]] === null ? '' :
 									{type: types[t], value: row[types[t]], info: row[types[t]]};
@@ -219,7 +221,7 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 						var data = {
 							heading: 'Performance results for ' + prefix + ':' + title,
 							header: tableHeaders,
-							row: tableRows
+							row: tableRows,
 						};
 						res.render('table.html', data);
 					}
@@ -241,6 +243,6 @@ if (typeof module === "object") {
 		setupEndpoints: setupEndpoints,
 		updateIndexPageUrls: updateIndexPageUrls,
 		updateIndexData: function() {}, // Nothing to do
-		updateTitleData: updateTitleData
+		updateTitleData: updateTitleData,
 	};
 }

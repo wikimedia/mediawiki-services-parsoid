@@ -30,53 +30,53 @@ var opts = yargs.usage('Usage: $0 [connection parameters]')
 	.options('help', {
 		'boolean': true,
 		'default': false,
-		describe: "Show usage information."
+		describe: "Show usage information.",
 	})
 	.options('config', {
 		describe: 'Configuration file for the server',
-		'default': './server.settings.js'
+		'default': './server.settings.js',
 	})
 	.options('h', {
 		alias: 'host',
-		describe: 'Hostname of the database server.'
+		describe: 'Hostname of the database server.',
 	})
 	.options('P', {
 		alias: 'port',
-		describe: 'Port number to use for connection.'
+		describe: 'Port number to use for connection.',
 	})
 	.options('D', {
 		alias: 'database',
-		describe: 'Database to use.'
+		describe: 'Database to use.',
 	})
 	.options('u', {
 		alias: 'user',
-		describe: 'User for MySQL login.'
+		describe: 'User for MySQL login.',
 	})
 	.options('p', {
 		alias: 'password',
-		describe: 'Password.'
+		describe: 'Password.',
 	})
 	.options('d', {
 		alias: 'debug',
 		'boolean': true,
-		describe: "Output MySQL debug data."
+		describe: "Output MySQL debug data.",
 	})
 	.options('f', {
 		alias: 'fetches',
-		describe: "Number of times to try fetching a page."
+		describe: "Number of times to try fetching a page.",
 	})
 	.options('t', {
 		alias: 'tries',
 		describe: "Number of times an article will be sent for testing " +
-			"before it's considered an error."
+			"before it's considered an error.",
 	})
 	.options('c', {
 		alias: 'cutofftime',
-		describe: "Time in seconds to wait for a test result."
+		describe: "Time in seconds to wait for a test result.",
 	})
 	.options('b', {
 		alias: 'batch',
-		describe: "Number of titles to fetch from database in one batch."
+		describe: "Number of titles to fetch from database in one batch.",
 	});
 var argv = opts.argv;
 
@@ -144,7 +144,7 @@ var db = mysql.createConnection({
 	password:           getOption('password'),
 	multipleStatements: true,
 	charset:            'UTF8_BIN',
-	debug:              debug
+	debug:              debug,
 });
 
 var queues = require('mysql-queues');
@@ -732,7 +732,7 @@ var pageListData = [
 	{ url: 'failedFetches', title: 'Non-existing test pages' },
 	{ url: 'failsDistr', title: 'Histogram of failures' },
 	{ url: 'skipsDistr', title: 'Histogram of skips' },
-	{ url: 'commits', title: 'List of all tested commits' }
+	{ url: 'commits', title: 'List of all tested commits' },
 ];
 
 if (perfConfig) {
@@ -766,10 +766,11 @@ var statsWebInterface = function(req, res) {
 	// Switch the query object based on the prefix
 	if (prefix !== null) {
 		query = dbPerWikiStatsQuery;
-		queryParams = [ prefix, prefix, prefix, prefix,
-						prefix, prefix, prefix, prefix,
-						maxTries, cutoffDate,
-						prefix, prefix ];
+		queryParams = [
+			prefix, prefix, prefix, prefix,
+			prefix, prefix, prefix, prefix,
+			maxTries, cutoffDate, prefix, prefix,
+		];
 	} else {
 		query = dbStatsQuery;
 		queryParams = [ maxTries, cutoffDate ];
@@ -802,30 +803,45 @@ var statsWebInterface = function(req, res) {
 				tests: tests,
 				noErrors: noErrors,
 				syntacticDiffs: syntacticDiffs,
-				perfects: perfects
+				perfects: perfects,
 			},
 			graphWidths: {
 				perfect: width * perfects / 100 || 0,
 				syntacticDiff: width * (syntacticDiffs - perfects) / 100 || 0,
-				semanticDiff: width * (100 - syntacticDiffs) / 100 || 0
+				semanticDiff: width * (100 - syntacticDiffs) / 100 || 0,
 			},
 			latestRevision: [
-				{ description: 'Git SHA1', value: row[0].maxhash },
-				{ description: 'Test Results', value: row[0].maxresults },
-				{ description: 'Crashers', value: row[0].crashers,
-					url: 'crashers' },
-				{ description: 'Fixes', value: numFixes,
-					url: 'topfixes/between/' + row[0].secondhash + '/' + row[0].maxhash },
-				{ description: 'Regressions', value: numRegressions,
-					url: 'regressions/between/' + row[0].secondhash + '/' + row[0].maxhash },
+				{
+					description: 'Git SHA1',
+					value: row[0].maxhash,
+				},
+				{
+					description: 'Test Results',
+					value: row[0].maxresults,
+				},
+				{
+					description: 'Crashers',
+					value: row[0].crashers,
+					url: 'crashers',
+				},
+				{
+					description: 'Fixes',
+					value: numFixes,
+					url: 'topfixes/between/' + row[0].secondhash + '/' + row[0].maxhash,
+				},
+				{
+					description: 'Regressions',
+					value: numRegressions,
+					url: 'regressions/between/' + row[0].secondhash + '/' + row[0].maxhash,
+				},
 			],
 			averages: [
 				{ description: 'Errors', value: row[0].avgerrors },
 				{ description: 'Fails', value: row[0].avgfails },
 				{ description: 'Skips', value: row[0].avgskips },
-				{ description: 'Score', value: row[0].avgscore }
+				{ description: 'Score', value: row[0].avgscore },
 			],
-			pages: pageListData
+			pages: pageListData,
 		};
 
 		if (perfConfig) {
@@ -855,7 +871,7 @@ var makeFailsRow = function(urlPrefix, row) {
 		RH.commitLinkData(urlPrefix, row.hash, row.title, row.prefix),
 		row.skips,
 		row.fails,
-		row.errors === null ? 0 : row.errors
+		row.errors === null ? 0 : row.errors,
 	];
 };
 
@@ -870,7 +886,7 @@ var failsWebInterface = function(req, res) {
 		urlPrefix: relativeUrlPrefix + 'topfails',
 		urlSuffix: '',
 		heading: 'Results by title',
-		header: ['Title', 'Commit', 'Syntactic diffs', 'Semantic diffs', 'Errors']
+		header: ['Title', 'Commit', 'Syntactic diffs', 'Semantic diffs', 'Errors'],
 	};
 	db.query(dbFailsQuery, [ offset ],
 		RH.displayPageList.bind(null, hbs, res, data, makeFailsRow));
@@ -948,7 +964,7 @@ var getFailedFetches = function(req, res) {
 				var name = prefix + ':' + title;
 				pageData.push({
 					url: prefix.replace(/wiki$/, '') + '.wikipedia.org/wiki/' + title,
-					linkName: name.replace('&', '&amp;')
+					linkName: name.replace('&', '&amp;'),
 				});
 			}
 			var heading = n === 0 ? 'No titles returning 404!  All\'s well with the world!' :
@@ -956,7 +972,7 @@ var getFailedFetches = function(req, res) {
 			var data = {
 				alt: n === 0,
 				heading: heading,
-				items: pageData
+				items: pageData,
 			};
 			hbs.registerHelper('formatUrl', function(url) {
 				return 'http://' + encodeURI(url).replace('&', '&amp;');
@@ -982,7 +998,7 @@ var getCrashers = function(req, res) {
 				pageData.push({
 					description: rows[i].claim_hash,
 					url: prefix.replace(/wiki$/, '') + '.wikipedia.org/wiki/' + title,
-					linkName: prefix + ':' + title
+					linkName: prefix + ':' + title,
 				});
 			}
 			var heading = n === 0 ? 'No titles crash the testers! All\'s well with the world!' :
@@ -1012,11 +1028,11 @@ var getFailsDistr = function(req, res) {
 			var intervalData = [];
 			for (var i = 0; i < n; i++) {
 				var r = rows[i];
-				intervalData.push({errors: r.fails, pages: r.num_pages});
+				intervalData.push({ errors: r.fails, pages: r.num_pages });
 			}
 			var data = {
 				heading: 'Distribution of semantic errors',
-				interval: intervalData
+				interval: intervalData,
 			};
 			res.render('histogram.html', data);
 		}
@@ -1038,7 +1054,7 @@ var getSkipsDistr = function(req, res) {
 			}
 			var data = {
 				heading: 'Distribution of syntactic errors',
-				interval: intervalData
+				interval: intervalData,
 			};
 			res.render('histogram.html', data);
 		}
@@ -1064,7 +1080,7 @@ var getRegressions = function(req, res) {
 				heading: "Total regressions between selected revisions: " +
 					row[0].numRegressions,
 				headingLink: [{url: relativeUrlPrefix + 'topfixes/between/' + r1 + '/' + r2, name: 'topfixes'}],
-				header: RH.regressionsHeaderData
+				header: RH.regressionsHeaderData,
 			};
 			db.query(dbRegressionsBetweenRevs, [ r2, r1, offset ],
 				RH.displayPageList.bind(null, hbs, res, data, RH.makeRegressionRow));
@@ -1090,7 +1106,7 @@ var getTopfixes = function(req, res) {
 				urlSuffix: '',
 				heading: 'Total fixes between selected revisions: ' + row[0].numFixes,
 				headingLink: [{url: relativeUrlPrefix + "regressions/between/" + r1 + "/" + r2, name: 'regressions'}],
-				header: RH.regressionsHeaderData
+				header: RH.regressionsHeaderData,
 			};
 			db.query(dbFixesBetweenRevs, [ r2, r1, offset ],
 				RH.displayPageList.bind(null, hbs, res, data, RH.makeRegressionRow));
@@ -1120,7 +1136,7 @@ var getCommits = function(req, res) {
 				numCommits: n,
 				latest: rows[n - 1].timestamp.toString().slice(4, 15),
 				header: ['Commit hash', 'Timestamp', 'Tests', '-', '+'],
-				row: tableRows
+				row: tableRows,
 			};
 
 			hbs.registerHelper('formatHash', function(hash) {

@@ -86,7 +86,7 @@ var db = mysql.createConnection({
 	user:               getOption('user'),
 	password:           getOption('password'),
 	charset:            'UTF8_BIN',
-	multipleStatements: true
+	multipleStatements: true,
 });
 
 var waitingCount = 0.5;

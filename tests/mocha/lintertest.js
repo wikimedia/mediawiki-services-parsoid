@@ -15,7 +15,7 @@ describe('Linter Tests', function() {
 	var parseWT = function(wt) {
 		return MWParserEnvironment.getParserEnv(parsoidConfig, null, {
 			prefix: 'enwiki',
-			pageName: 'Main_Page'
+			pageName: 'Main_Page',
 		}).then(function(env) {
 			env.setPageSrcInfo(wt);
 

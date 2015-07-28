@@ -17,7 +17,7 @@ if (!module.parent) {
 
 	cluster.setupMaster({
 		exec: path.join(__dirname, 'client.js'),
-		args: opts._
+		args: opts._,
 	});
 
 	console.log("rtclient-cluster initializing", numClients, "rtclients");

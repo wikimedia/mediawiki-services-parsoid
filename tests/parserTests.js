@@ -142,135 +142,135 @@ ParserTests.prototype.getOpts = function() {
 		'wt2html': {
 			description: 'Wikitext -> HTML(DOM)',
 			'default': false,
-			'boolean': true
+			'boolean': true,
 		},
 		'html2wt': {
 			description: 'HTML(DOM) -> Wikitext',
 			'default': false,
-			'boolean': true
+			'boolean': true,
 		},
 		'wt2wt': {
 			description: 'Roundtrip testing: Wikitext -> DOM(HTML) -> Wikitext',
 			'default': false,
-			'boolean': true
+			'boolean': true,
 		},
 		'html2html': {
 			description: 'Roundtrip testing: HTML(DOM) -> Wikitext -> HTML(DOM)',
 			'default': false,
-			'boolean': true
+			'boolean': true,
 		},
 		'selser': {
 			description: 'Roundtrip testing: Wikitext -> DOM(HTML) -> Wikitext (with selective serialization). ' +
 				'Set to "noauto" to just run the tests with manual selser changes.',
 			'default': false,
-			'boolean': true
+			'boolean': true,
 		},
 		'changetree': {
 			description: 'Changes to apply to parsed HTML to generate new HTML to be serialized (useful with selser)',
 			'default': null,
-			'boolean': false
+			'boolean': false,
 		},
 		'use_source': {
 			description: 'Use original source in wt2wt tests',
 			'boolean': true,
-			'default': true
+			'default': true,
 		},
 		'numchanges': {
 			description: 'Make multiple different changes to the DOM, run a selser test for each one.',
 			'default': 20,
-			'boolean': false
+			'boolean': false,
 		},
 		'cache': {
 			description: 'Get tests cases from cache file ' + this.cacheFile,
 			'boolean': true,
-			'default': false
+			'default': false,
 		},
 		'filter': {
-			description: 'Only run tests whose descriptions match given string'
+			description: 'Only run tests whose descriptions match given string',
 		},
 		'regex': {
 			description: 'Only run tests whose descriptions match given regex',
-			alias: ['regexp', 're']
+			alias: ['regexp', 're'],
 		},
 		'run-disabled': {
 			description: 'Run disabled tests',
 			'default': false,
-			'boolean': true
+			'boolean': true,
 		},
 		'run-php': {
 			description: 'Run php-only tests',
 			'default': false,
-			'boolean': true
+			'boolean': true,
 		},
 		'maxtests': {
 			description: 'Maximum number of tests to run',
-			'boolean': false
+			'boolean': false,
 		},
 		'quick': {
 			description: 'Suppress diff output of failed tests',
 			'boolean': true,
-			'default': false
+			'default': false,
 		},
 		'quiet': {
 			description: 'Suppress notification of passed tests (shows only failed tests)',
 			'boolean': true,
-			'default': false
+			'default': false,
 		},
 		'whitelist': {
 			description: 'Compare against manually verified parser output from whitelist',
 			'default': true,
-			'boolean': true
+			'boolean': true,
 		},
 		'printwhitelist': {
 			description: 'Print out a whitelist entry for failing tests. Default false.',
 			'default': false,
-			'boolean': true
+			'boolean': true,
 		},
 		'blacklist': {
 			description: 'Compare against expected failures from blacklist',
 			'default': true,
-			'boolean': true
+			'boolean': true,
 		},
 		'rewrite-blacklist': {
 			description: 'Update parserTests-blacklist.js with failing tests.',
 			'default': false,
-			'boolean': true
+			'boolean': true,
 		},
 		'exit-zero': {
 			description: "Don't exit with nonzero status if failures are found.",
 			'default': false,
-			'boolean': true
+			'boolean': true,
 		},
 		xml: {
 			description: 'Print output in JUnit XML format.',
 			'default': false,
-			'boolean': true
+			'boolean': true,
 		},
 		'exit-unexpected': {
 			description: 'Exit after the first unexpected result.',
 			'default': false,
-			'boolean': true
+			'boolean': true,
 		},
 		'update-tests': {
 			description: 'Update parserTests.txt with results from wt2html fails.',
 			'default': false,
-			'boolean': true
+			'boolean': true,
 		},
 		'update-unexpected': {
 			description: 'Update parserTests.txt with results from wt2html unexpected fails.',
 			'default': false,
-			'boolean': true
-		}
+			'boolean': true,
+		},
 	}, {
 		// override defaults for standard options
 		fetchTemplates: false,
 		usephppreprocessor: false,
-		fetchConfig: false
+		fetchConfig: false,
 	});
 
 	var defaultArgs = [
 		"Default tests-file: " + this.parserTestsFile,
-		"Default options   : --wt2html --wt2wt --html2html --html2wt --whitelist --blacklist --color=auto"
+		"Default options   : --wt2html --wt2wt --html2html --html2wt --whitelist --blacklist --color=auto",
 	];
 
 	return yargs.usage(
@@ -823,7 +823,7 @@ ParserTests.prototype.applyManualChanges = function(body, changes, cb) {
 			while (this.firstChild) {
 				this.removeChild(this.firstChild);
 			}
-		}
+		},
 	};
 
 	changes.forEach(function(change) {
@@ -1144,7 +1144,7 @@ ParserTests.prototype.printFailure = function(title, comments, iopts, options,
 			title: title,
 			raw: actual ? actual.raw : null,
 			expected: expected ? expected.raw : null,
-			actualNormalized: actual ? actual.normal : null
+			actualNormalized: actual ? actual.normal : null,
 		};
 	this.stats.modes[mode].failList.push(fail);
 
@@ -1966,38 +1966,38 @@ ParserTests.prototype.processCase = function(i, options, err) {
 							var iwl = {
 								local: {
 									url: 'http://doesnt.matter.org/$1',
-									localinterwiki: ''
+									localinterwiki: '',
 								},
 								wikipedia: {
-									url: 'http://en.wikipedia.org/wiki/$1'
+									url: 'http://en.wikipedia.org/wiki/$1',
 								},
 								meatball: {
 									// this has been updated in the live wikis, but the parser tests
 									// expect the old value (as set in parserTest.inc:setupInterwikis())
-									url: 'http://www.usemod.com/cgi-bin/mb.pl?$1'
+									url: 'http://www.usemod.com/cgi-bin/mb.pl?$1',
 								},
 								memoryalpha: {
-									url: 'http://www.memory-alpha.org/en/index.php/$1'
+									url: 'http://www.memory-alpha.org/en/index.php/$1',
 								},
 								zh: {
 									url: 'http://zh.wikipedia.org/wiki/$1',
 									language: '\u4e2d\u6587',
-									local: ''
+									local: '',
 								},
 								es: {
 									url: 'http://es.wikipedia.org/wiki/$1',
 									language: 'espa\u00f1ol',
-									local: ''
+									local: '',
 								},
 								fr: {
 									url: 'http://fr.wikipedia.org/wiki/$1',
 									language: 'fran\u00e7ais',
-									local: ''
+									local: '',
 								},
 								ru: {
 									url: 'http://ru.wikipedia.org/wiki/$1',
 									language: '\u0440\u0443\u0441\u0441\u043a\u0438\u0439',
-									local: ''
+									local: '',
 								},
 								mi: {
 									url: 'http://mi.wikipedia.org/wiki/$1',
@@ -2006,22 +2006,22 @@ ParserTests.prototype.processCase = function(i, options, err) {
 									// language
 									language: 'Test',
 									local: '',
-									localinterwiki: ''
+									localinterwiki: '',
 								},
 								mul: {
 									url: 'http://wikisource.org/wiki/$1',
 									extralanglink: '',
 									linktext: 'Multilingual',
 									sitename: 'WikiSource',
-									local: ''
+									local: '',
 								},
 								// not in PHP setupInterwikis(), but needed
 								en: {
 									url: 'http://en.wikipedia.org/wiki/$1',
 									language: 'English',
 									local: '',
-									protorel: ''
-								}
+									protorel: '',
+								},
 							};
 							wikiConf.interwikiMap.clear();
 							Object.keys(iwl).forEach(function(key) {
@@ -2290,7 +2290,7 @@ var xmlFuncs = (function() {
 		reportStart: reportStartXML,
 		reportSummary: reportSummaryXML,
 		reportSuccess: reportSuccessXML,
-		reportFailure: reportFailureXML
+		reportFailure: reportFailureXML,
 	};
 })();
 

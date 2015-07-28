@@ -54,7 +54,7 @@ function convertProfNode(node) {
 		callUID: node.callUid,
 		hitCount: node.selfSamplesCount,
 		url: node.scriptName,
-		children: []
+		children: [],
 	};
 	for (var i = 0; i < node.childrenCount; i++) {
 		res.children.push(convertProfNode(node.getChild(i)));
@@ -78,5 +78,5 @@ module.exports = {
 	// End profiling
 	stop: function(name) {
 		return prof2cpuprofile(profiler.stopProfiling(name));
-	}
+	},
 };
