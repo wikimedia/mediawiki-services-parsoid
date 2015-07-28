@@ -1459,7 +1459,7 @@ parsoid=html2wt
 !! html
 <p>* &lt;/nowiki&gt; tag</p>
 !! wikitext
-<nowiki>* &lt;/nowiki&gt;</nowiki> tag
+<nowiki>*</nowiki> <nowiki>&lt;/nowiki&gt;</nowiki> tag
 !! end
 
 !! test
