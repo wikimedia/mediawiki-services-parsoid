@@ -10,7 +10,7 @@
     "compression": "~1.4.0",
     "core-js": "^0.8.1",
     "diff": "~1.0.7",
-    "domino": "~1.0.18",
+    "domino": "~1.0.19",
     "entities": "~1.1.1",
     "express": "~2.5.11",
     "gelf-stream": "~0.2.4",

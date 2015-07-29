@@ -172,4 +172,42 @@ describe('Further examples of PDoc API', function() {
 			String(pdoc).should.equal('&#x3C;{{echo|&#x3E;}}\n');
 		});
 	});
+	it('filters and mutates comments', function() {
+		var text = '<!-- foo --> {{echo|<!--bar-->}}';
+		return Parsoid.parse(text, { pdoc: true }).then(function(pdoc) {
+			var comments = pdoc.filterComments();
+			comments.length.should.equal(2);
+			comments[0].contents.should.equal(' foo ');
+			comments[1].contents.should.equal('bar');
+			comments[0].contents = '<!-- ha! -->';
+			comments[1].contents = '--';
+			String(pdoc).should.equal('<!--<!-- ha! --&gt;--> {{echo|<!------>}}');
+		});
+	});
+	it('filters and mutates text', function() {
+		var text = 'foo {{echo|bar}}';
+		return Parsoid.parse(text, { pdoc: true }).then(function(pdoc) {
+			var texts = pdoc.filterText({ recursive: false });
+			texts.length.should.equal(1);
+			texts = pdoc.filterText({ recursive: true });
+			texts.length.should.equal(2);
+			texts[0].value.should.equal('foo ');
+			texts[1].value.should.equal('bar');
+			texts[0].value = 'FOO ';
+			String(pdoc).should.equal('FOO {{echo|bar}}\n');
+			texts[1].value = 'BAR';
+			String(pdoc).should.equal('FOO {{echo|BAR}}\n');
+		});
+	});
+	it.skip('filters and mutates text (2)', function() {
+		var text = '{{{echo|{{!}}}}\n| foo\n|}';
+		return Parsoid.parse(text, { pdoc: true }).then(function(pdoc) {
+			var texts = pdoc.filterText();
+			texts.length.should.equal(1);
+			// XXX this doesn't work yet, see note at end of
+			// https://www.mediawiki.org/wiki/Parsoid/MediaWiki_DOM_spec#Transclusion_content
+			// for details.
+			texts[0].value.should.equal(' foo');
+		});
+	});
 });
