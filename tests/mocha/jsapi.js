@@ -65,10 +65,10 @@ describe('Examples from guides/jsapi', function() {
 		var text = "{{cleanup}} '''Foo''' is a [[bar]]. {{uncategorized}}";
 		return Parsoid.parse(text, { pdoc: true }).then(function(pdoc) {
 			pdoc.filterTemplates().forEach(function(template) {
-				if (template.matches('Cleanup') && !template.has('date')) {
+				if (template.nameMatches('Cleanup') && !template.has('date')) {
 					template.add('date', 'July 2012');
 				}
-				if (template.matches('uncategorized')) {
+				if (template.nameMatches('uncategorized')) {
 					template.name = 'bar-stub';
 				}
 			});
@@ -83,7 +83,7 @@ describe('Further examples of PDoc API', function() {
 		var text = "{{echo|{{cleanup}} '''Foo''' is a [[bar]].}} {{uncategorized}}";
 		return Parsoid.parse(text, { pdoc: true }).then(function(pdoc) {
 			pdoc.filterTemplates().forEach(function(template) {
-				if (template.matches('Cleanup') && !template.has('date')) {
+				if (template.nameMatches('Cleanup') && !template.has('date')) {
 					template.add('date', 'July 2012');
 					// Works even when there are special characters
 					template.add('test1', '{{foo}}&bar|bat<p>');
@@ -184,6 +184,22 @@ describe('Further examples of PDoc API', function() {
 			String(pdoc).should.equal('<!--<!-- ha! --&gt;--> {{echo|<!------>}}');
 		});
 	});
+	it('filters and mutates images', function() {
+		var text = '[[File:SomeFile1.jpg]] [[File:SomeFile2.jpg|thumb|caption]]';
+		return Parsoid.parse(text, { pdoc: true }).then(function(pdoc) {
+			var media = pdoc.filterMedia();
+			media.length.should.equal(2);
+			media[0].should.have.property('caption', null);
+			String(media[1].caption).should.equal('caption');
+			media[0].caption = '|';
+			media[1].caption = null;
+			// XXX Bug T107435
+			// String(pdoc).should.equal('[[File:SomeFile1.jpg|<nowiki>|</nowiki>]] [[File:SomeFile2.jpg|thumb]]');
+			media[0].caption = null;
+			media[1].caption = '|';
+			String(pdoc).should.equal('[[File:SomeFile1.jpg]] [[File:SomeFile2.jpg|thumb|<nowiki>|</nowiki>]]');
+		});
+	});
 	it('filters and mutates text', function() {
 		var text = 'foo {{echo|bar}}';
 		return Parsoid.parse(text, { pdoc: true }).then(function(pdoc) {
@@ -221,6 +237,36 @@ describe('Further examples of PDoc API', function() {
 				headings[0].title = pnl;
 				String(pdoc).should.equal("== '''bold''' ==\n");
 			});
+		});
+	});
+	it('allows iteration using length and get()', function() {
+		var text = '== 1 ==\n[http://example.com 2]<!-- 3 -->&nbsp;{{echo|4}} 5 [[Foo|6]]';
+		return Parsoid.parse(text, { pdoc: true }).then(function(pdoc) {
+			pdoc.length.should.equal(3);
+			pdoc.get(0).should.be.instanceof(Parsoid.PHeading);
+			pdoc.get(1).should.be.instanceof(Parsoid.PText);
+			pdoc.get(2).should.be.instanceof(Parsoid.PTag);
+			pdoc.get(2).tagName.should.be.equal('p');
+			var paragraph = pdoc.get(2).contents;
+			paragraph.length.should.equal(6);
+			paragraph.get(0).should.be.instanceof(Parsoid.PExtLink);
+			paragraph.get(1).should.be.instanceof(Parsoid.PComment);
+			paragraph.get(2).should.be.instanceof(Parsoid.PHtmlEntity);
+			paragraph.get(3).should.be.instanceof(Parsoid.PTemplate);
+			paragraph.get(4).should.be.instanceof(Parsoid.PText);
+			paragraph.get(5).should.be.instanceof(Parsoid.PWikiLink);
+			// Test indexOf with PNodes and Nodes
+			for (var i = 0; i < paragraph.length; i++) {
+				paragraph.indexOf(paragraph.get(i)).should.equal(i);
+				paragraph.indexOf(paragraph.get(i).node).should.equal(i);
+				pdoc.indexOf(paragraph.get(i), { recursive: true }).should.equal(2);
+				pdoc.indexOf(paragraph.get(i).node, { recursive: true }).should.equal(2);
+			}
+			// Test indexOf with strings
+			pdoc.indexOf(' 5 ').should.equal(-1);
+			pdoc.indexOf(' 5 ', { recursive: true }).should.equal(2);
+			paragraph.indexOf(' 5 ').should.equal(4);
+			paragraph.indexOf('\u00A0').should.equal(2);
 		});
 	});
 });
