@@ -91,6 +91,7 @@
 					"Map",
 					"Number",
 					"Object",
+					"Promise",
 					"RegExp",
 					"Set",
 					"String"
