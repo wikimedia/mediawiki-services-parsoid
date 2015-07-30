@@ -16,7 +16,7 @@ tests/parserTests.cache
 tests/client/config.js
 tests/server/node_modules
 tests/server/server.settings.js
-doc
+/docs
 tests/server/pages.db
 tests/client/config.js
 coverage/

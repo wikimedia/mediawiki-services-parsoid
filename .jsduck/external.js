@@ -12,13 +12,6 @@
  */
 
 /**
- * @class TextNode
- * @extends CharacterData
- *
- * A text node. [See the DOM specification for more](http://www.w3.org/TR/dom/#text).
- */
-
-/**
  * @class CommentNode
  * @extends CharacterData
  *
@@ -26,10 +19,24 @@
  */
 
 /**
+ * @class Document
+ * @extends Node
+ *
+ * A DOM Document. [See the DOM specification for more](http://www.w3.org/TR/dom/#document).
+ */
+
+/**
  * @class Element
  * @extends Node
  *
  * An HTML element. [See the DOM specification for more](http://www.w3.org/TR/dom/#element).
+ */
+
+/**
+ * @class TextNode
+ * @extends CharacterData
+ *
+ * A text node. [See the DOM specification for more](http://www.w3.org/TR/dom/#text).
  */
 
 /**
@@ -48,4 +55,20 @@
  * @class Request
  *
  * A Request object for the express application. [See the express documentation for more](http://expressjs.com/api.html#req.params).
+ */
+
+/**
+ * @class Map
+ *
+ * The Map object is a simple key/value map. Any value (both objects
+ * and primitive values) may be used as either a key or a value.
+ * [See MDN for more information](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map).
+ */
+
+/**
+ * @class Set
+ *
+ * The Set object lets you store unique values of any type, whether
+ * primitive values or object references.
+ * [See MDN for more information](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set).
  */

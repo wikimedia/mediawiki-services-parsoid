@@ -50,7 +50,8 @@
     "cover-mocha": "istanbul cover _mocha --dir ./coverage/mocha --  --opts tests/mocha/mocha.opts tests/mocha",
     "cover-parserTests": "istanbul cover tests/parserTests.js --dir ./coverage/parserTests -- --wt2html --wt2wt --html2wt --html2html --selser --no-color --quiet --blacklist",
     "coverage": "npm run cover-mocha && npm run cover-parserTests && istanbul report",
-    "coveralls": "cat ./coverage/lcov.info | coveralls && rm -rf ./coverage"
+    "coveralls": "cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
+    "doc": "jsduck --config jsduck.json"
   },
   "repository": {
     "type": "git",

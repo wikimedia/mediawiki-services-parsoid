@@ -4,10 +4,6 @@ Welcome to Parsoid! Parsoid is meant to be a simple, featureful parser for
 wikitext that produces HTML DOMs which can then be turned back into wikitext,
 even after modifications.
 
-If you just want to turn wikitext into HTML, and don't need to round-trip back
-into wikitext, you may be better off with another project, but Parsoid will
-probably do what you want.
-
 ## Prerequisites
 
 You'll need:
@@ -42,15 +38,15 @@ $ npm install
 ## Running the API
 
 The API is the main reason you might want to run Parsoid, because VisualEditor
-uses it to do a lot of backend work. To run the API in a terminal, go to the
-`api/` directory in the Parsoid repository and run the following:
+uses it to do a lot of backend work. To run the API in a terminal,
+from the base directory in the Parsoid repository run the following:
 
 ```
-$ node server
+$ node api/server
 ```
 
-There is also, in the `api/` directory, a nice runserver.sh script that will
-perhaps be useful to someone running the API as a more permanent service. The
+There is also, in the `api/` directory, a nice `runserver.sh` script that
+might be useful to someone running the API as a more permanent service. The
 script was originally written for Wikimedia's internal purposes, but it could
 be useful anywhere if it was tweaked a little bit.
 
@@ -61,19 +57,24 @@ and use it to define any of your desired options.
 ## Running the basic parse tool
 
 If you aren't looking to run an API service, or VisualEditor, or if you just
-want to test Parsoid's capabilities, you can use our simple parse.js script.
-This time, go to the `tests/` directory in the Parsoid repository and do
+want to test Parsoid's capabilities, you can use our simple `parse.js` script.
+Again, from the base directory in the Parsoid repository, run
 something like:
 
 ```
-$ echo "some harmless [[wikitext]]" | node parse
+$ echo "some harmless [[wikitext]]" | node tests/parse
 ```
 
 This will run the echoed text through the wikitext parser and show you the
 resulting HTML. You can also specify different options for different output -
 `--wt2wt` will convert wikitext to HTML and then back to wikitext, `--html2wt`
 will convert HTML to wikitext, and `--html2html` will convert HTML to wikitext
-and then back to HTML. You can test the parser this way - please use this tool
+and then back to HTML.  By default the HTML output will contain a lot
+of internal Parsoid data (`data-parsoid` attributes, for example).
+You may wish to use the command-line option `--normalize=parsoid` to
+clean things up a bit and make it easier to tell what's going on.
+
+You can test the parser this way --- please use this tool
 when trying to report bugs.
 
 ## More setup and usage examples
