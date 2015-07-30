@@ -6,6 +6,7 @@
 				"name": "Package Interface",
 				"classes": [
 					"Parsoid",
+					"PComment",
 					"PDoc",
 					"PNodeList",
 					"PNode",
@@ -13,6 +14,7 @@
 					"PHeading",
 					"PHtmlEntity",
 					"PTemplate",
+					"PText",
 					"PWikiLink"
 				]
 			},
