@@ -210,4 +210,17 @@ describe('Further examples of PDoc API', function() {
 			texts[0].value.should.equal(' foo');
 		});
 	});
+	it('allows mutation using wikitext', function() {
+		var text = '== heading ==';
+		return Parsoid.parse(text, { pdoc: true }).then(function(pdoc) {
+			var headings = pdoc.filterHeadings();
+			headings.length.should.equal(1);
+			// Note that even if the wikitext is unbalanced, the result
+			// will be balanced.  The bold face doesn't escape the heading!
+			return Parsoid.PNodeList.fromWikitext(pdoc, "'''bold").then(function(pnl) {
+				headings[0].title = pnl;
+				String(pdoc).should.equal("== '''bold''' ==\n");
+			});
+		});
+	});
 });
