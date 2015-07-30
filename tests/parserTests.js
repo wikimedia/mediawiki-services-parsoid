@@ -1281,22 +1281,22 @@ ParserTests.prototype.printSuccess = function(title, options, mode, expectSucces
 ParserTests.prototype.getActualExpected = function(actual, expected, getDiff) {
 	var returnStr = '';
 	expected.formattedRaw = expected.isWT ? expected.raw : DU.formatHTML(expected.raw);
-	returnStr += 'RAW EXPECTED'.cyan + ':';
+	returnStr += 'RAW EXPECTED'.cyan + ':\n';
 	returnStr += expected.formattedRaw + '\n';
 
 	actual.formattedRaw = actual.isWT ? actual.raw : DU.formatHTML(actual.raw);
-	returnStr += 'RAW RENDERED'.cyan + ':';
+	returnStr += 'RAW RENDERED'.cyan + ':\n';
 	returnStr += actual.formattedRaw + '\n';
 
 	expected.formattedNormal = expected.isWT ? expected.normal : DU.formatHTML(expected.normal);
-	returnStr += 'NORMALIZED EXPECTED'.magenta + ':';
+	returnStr += 'NORMALIZED EXPECTED'.magenta + ':\n';
 	returnStr += expected.formattedNormal + '\n';
 
 	actual.formattedNormal = actual.isWT ? actual.normal : DU.formatHTML(actual.normal);
-	returnStr += 'NORMALIZED RENDERED'.magenta + ':';
+	returnStr += 'NORMALIZED RENDERED'.magenta + ':\n';
 	returnStr += actual.formattedNormal + '\n';
 
-	returnStr += 'DIFF'.cyan + ': \n';
+	returnStr += 'DIFF'.cyan + ':\n';
 	returnStr += getDiff(actual, expected);
 
 	return returnStr;
