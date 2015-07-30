@@ -4272,6 +4272,17 @@ Definition Lists: colons occurring in tags
 </dl>
 </dd>
 </dl>
+!! html/parsoid
+<dl><dt>a</dt><dd data-parsoid='{"stx":"row"}'>b</dd>
+<dt><b>a:b</b></dt>
+<dt><i data-parsoid='{"stx":"html"}'>a:b</i></dt>
+<dt><span data-parsoid='{"stx":"html"}'>a:b</span></dt>
+<dt><div data-parsoid='{"stx":"html"}'>a:b</div></dt>
+<dt><div data-parsoid='{"stx":"html","autoInsertedEnd":true}'>a</div></dt>
+<dd>b</dd>
+<dt><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a:b"}},"i":0}}]}'>a:b</span></dt>
+<dt><i about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&#39;&#39;a:b&#39;&#39;"}},"i":0}}]}'>a:b</i>
+<dl><dt><dl><dt><i>a:b</i></dt></dl></dt></dl></dt></dl>
 !! end
 
 !! test
@@ -24397,6 +24408,16 @@ bar
 baz</li>
 <li>foo <b>bar</b>
 baz</li></ul>
+
+<dl><dt>hi
+ho </dt><dd data-parsoid='{"stx":"row"}'> hi
+ho</dd></dl>
+
+<dl><dd> <table>
+<tbody><tr><td> ha
+ha
+ha</td></tr>
+</tbody></table></dd></dl>
 !! wikitext
 == testing 123 ==
 
@@ -24412,6 +24433,14 @@ there</ref> ==
 
 * foo bar baz
 * foo '''bar''' baz
+
+; hi ho : hi ho
+
+: {|
+| ha
+ha
+ha
+|}
 !! end
 
 !! test
