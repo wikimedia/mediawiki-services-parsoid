@@ -4696,7 +4696,7 @@
       {
         "prefix": "wg",
         "local": "",
-        "url": "http://wg.en.wikipedia.org/wiki/$1"
+        "url": "http://wg-en.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "wiki",
