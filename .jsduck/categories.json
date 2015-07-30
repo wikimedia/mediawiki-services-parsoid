@@ -16,6 +16,7 @@
 					"PMedia",
 					"PTag",
 					"PTemplate",
+					"PTemplate.Parameter",
 					"PText",
 					"PWikiLink"
 				]
