@@ -161,6 +161,15 @@ Template:table_attribs_5
 !! endarticle
 
 !! article
+Template:table_attribs_6
+!! text
+style="background: <nowiki>
+
+
+red;</nowiki>" |
+!! endarticle
+
+!! article
 Template:table_header_cells
 !! text
 {{table_attribs}}!!style='color:red;'|''Bar''||style='color:brown;'|''Foo'' and Baz
@@ -11057,6 +11066,25 @@ Templates: Support for templates generating attributes and content
 !! html/parsoid
 <table about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[],[],[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"tbl-start","href":"./Template:Tbl-start"},"params":{},"i":0}},"\n|",{"template":{"target":{"wt":"table_attribs_3","href":"./Template:Table_attribs_3"},"params":{},"i":1}},"\n",{"template":{"target":{"wt":"tbl-end","href":"./Template:Tbl-end"},"params":{},"i":2}}]}'>
 <tbody><tr><td style="background:#f9f9f9;">Foo</td></tr>
+</tbody></table>
+!! end
+
+# T107622
+!! test
+4. Entities and nowikis inside templated attributes should be handled correctly inside templated tables
+!! wikitext
+{|
+| {{table_attribs_6}} hi
+|}
+!! html/php
+<table>
+<tr>
+<td style="background: red;"> hi
+</td></tr></table>
+
+!! html/parsoid
+<table>
+<tbody><tr><td style="background:  red;" typeof="mw:Transclusion" about="#mwt1" data-parsoid='{"autoInsertedEnd":true,"pi":[[]]}' data-mw='{"parts":["| ",{"template":{"target":{"wt":"table_attribs_6","href":"./Template:Table_attribs_6"},"params":{},"i":0}}," hi"]}'> hi</td></tr>
 </tbody></table>
 !! end
 
