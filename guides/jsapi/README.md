@@ -102,18 +102,18 @@ template
 ```
 
 Templates can be easily modified to add, remove, or alter params.
-Templates also have a [`matches()`](#!/api/PTemplate-method-matches) method
-for comparing template names, which takes care of capitalization and
+Templates also have a [`nameMatches()`](#!/api/PTemplate-method-nameMatches)
+method for comparing template names, which takes care of capitalization and
 white space:
 
 ```
 > var text = "{{cleanup}} '''Foo''' is a [[bar]]. {{uncategorized}}";
 > var pdoc = yield Parsoid.parse(text, { pdoc: true });
 > pdoc.filterTemplates().forEach(function(template) {
-...    if (template.matches('Cleanup') && !template.has('date')) {
+...    if (template.nameMatches('Cleanup') && !template.has('date')) {
 ...        template.add('date', 'July 2012');
 ...    }
-...    if (template.matches('uncategorized')) {
+...    if (template.nameMatches('uncategorized')) {
 ...        template.name = 'bar-stub';
 ...    }
 ... });

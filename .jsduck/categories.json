@@ -13,6 +13,8 @@
 					"PExtLink",
 					"PHeading",
 					"PHtmlEntity",
+					"PMedia",
+					"PTag",
 					"PTemplate",
 					"PText",
 					"PWikiLink"
