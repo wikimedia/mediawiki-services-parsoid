@@ -60,7 +60,7 @@ foo
 > template.name = 'notfoo';
 > console.log(String(template));
 {{notfoo|bar|baz|eggs=spam}}
-> console.log(template.params);
+> console.log(template.params.map(function(p) { return p.name; }));
 [ '1', '2', 'eggs' ]
 > console.log(template.get(1).value);
 bar

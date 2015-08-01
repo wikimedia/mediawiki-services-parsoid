@@ -33,9 +33,9 @@ describe('Examples from guides/jsapi', function() {
 			template.name = 'notfoo';
 			String(template).should.equal('{{notfoo|bar|baz|eggs=spam}}');
 			template.params.length.should.equal(3);
-			template.params[0].should.equal('1');
-			template.params[1].should.equal('2');
-			template.params[2].should.equal('eggs');
+			template.params[0].name.should.equal('1');
+			template.params[1].name.should.equal('2');
+			template.params[2].name.should.equal('eggs');
 			String(template.get(1).value).should.equal('bar');
 			String(template.get('eggs').value).should.equal('spam');
 		});
@@ -99,6 +99,17 @@ describe('Further examples of PDoc API', function() {
 			var t = pdoc.filterTemplates()[0];
 			t.remove(1);
 			String(pdoc).should.equal('{{echo||bar}}');
+		});
+	});
+	it('is safe to mutate template arguments (2)', function() {
+		var text = "{{echo|foo|bar}}";
+		return Parsoid.parse(text, { pdoc: true }).then(function(pdoc) {
+			var t = pdoc.filterTemplates()[0];
+			var param1 = t.get(1);
+			var param2 = t.get(2);
+			param2.value = param1.value;
+			param1.value = '|';
+			String(pdoc).should.equal('{{echo|{{!}}|foo}}');
 		});
 	});
 	it('filters and mutates headings', function() {
