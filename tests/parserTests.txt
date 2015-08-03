@@ -25159,6 +25159,55 @@ foo
 bar<span>boo</span>
 !! end
 
+!! test
+1. New links that end in spaces
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": false
+}
+!! html
+<p><a rel="mw:WikiLink" href="./Berlin" title="Berlin">Berlin </a>is the capital of Germany.</p>
+<p><a rel="mw:WikiLink" href="./Foo" title="Foo">Foo </a><b>bar</b></p>
+!! wikitext
+[[Berlin ]]<nowiki/>is the capital of Germany.
+
+[[Foo ]]'''bar'''
+!! end
+
+!! test
+2. New links that end in spaces
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html
+<p><a rel="mw:WikiLink" href="./Berlin" title="Berlin">Berlin </a>is the capital of Germany.</p>
+<p><a rel="mw:WikiLink" href="./Foo" title="Foo">Foo </a><b>bar</b></p>
+!! wikitext
+[[Berlin]] is the capital of Germany.
+
+[[Foo]] '''bar'''
+!! end
+
+!! test
+3. Existing links that end in spaces
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html
+<p><a rel="mw:WikiLink" href="./Berlin" title="Berlin" data-parsoid='{"stx":"simple","a":{"href":"./Berlin"},"sa":{"href":"Berlin "}}'>Berlin </a>is the capital of Germany.</p>
+
+<p><a rel="mw:WikiLink" href="./Foo" title="Foo" data-parsoid='{"stx":"simple","a":{"href":"./Foo"},"sa":{"href":"Foo "}}'>Foo </a><b>bar</b></p>
+!! wikitext
+[[Berlin ]]<nowiki/>is the capital of Germany.
+
+[[Foo ]]'''bar'''
+!! end
+
 # ---------------------------------------------------
 # End of tests spec'ing wikitext serialization norms |
 # ---------------------------------------------------
