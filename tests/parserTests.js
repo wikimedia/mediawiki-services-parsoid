@@ -414,10 +414,10 @@ ParserTests.prototype.convertHtml2Wt = function(options, mode, item, body, proce
 	var startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser';
 	var self = this;
 	var cb = function(err, wt) {
-		processWikitextCB(err, wt);
 		self.env.setPageSrcInfo(null);
 		self.env.page.dom = null;
 		self.env.page.editedDoc = null;
+		processWikitextCB(err, wt);
 	};
 	try {
 		if (startsAtWikitext) {
@@ -862,15 +862,14 @@ ParserTests.prototype.applyManualChanges = function(body, changes, cb) {
  * @param {Node/null} processHtmlCB.doc
  */
 ParserTests.prototype.convertWt2Html = function(mode, wikitext, processHtmlCB) {
+	this.env.setPageSrcInfo(wikitext);
 	this.parserPipeline.once('document', function(doc) {
 		// processHtmlCB can be asynchronous, so deep-clone
 		// document before invoking it. (the parser pipeline
 		// will attempt to reuse the document after this
 		// event is emitted)
 		processHtmlCB(null, doc.body.cloneNode(true));
-	});
-	this.env.setPageSrcInfo(wikitext);
-	this.parserPipeline.processToplevelDoc(wikitext);
+	}).processToplevelDoc(wikitext);
 };
 
 /**
@@ -1096,11 +1095,11 @@ ParserTests.prototype.processSerializedWT = function(item, options, mode, wikite
 		} else {
 			var body = DU.parseHTML(item.changedHTMLStr).body;
 			this.convertHtml2Wt(options, 'wt2wt', item, body, function(err, wt) {
-				// FIXME: what's going on here? Error handling here is suspect.
-				self.env.log('warning', 'Convert html2wt erred!');
 				if (err === null) {
 					item.resultWT = wt;
 				} else {
+					// FIXME: what's going on here? Error handling here is suspect.
+					self.env.log('warning', 'Convert html2wt erred!');
 					item.resultWT = item.wikitext;
 				}
 				return checkAndReturn();
@@ -1868,6 +1867,7 @@ ParserTests.prototype.processCase = function(i, options, err) {
 	// exitUnexpected is a sentinel for the first type.
 	if (err && err !== exitUnexpected) {
 		this.env.log('fatal', err);
+		process.exit(1); // Should not reach here.
 	}
 	var earlyExit = options['exit-unexpected'] && (err === exitUnexpected);
 
