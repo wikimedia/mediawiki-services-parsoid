@@ -2017,7 +2017,7 @@ a [[Category:A1]] [[Category:A2]]
 [[Category:A4]]
 !! html/parsoid
 <p>a</p>
-<link rel="mw:PageProp/Category" href="Category:A1"/> <link rel="mw:PageProp/Category" href="Category:A2"/> <link rel="mw:PageProp/Category" href="Category:A3"/> <link rel="mw:PageProp/Category" href="Category:A4"/>
+<link rel="mw:PageProp/Category" href="./Category:A1"/> <link rel="mw:PageProp/Category" href="./Category:A2"/> <link rel="mw:PageProp/Category" href="./Category:A3"/> <link rel="mw:PageProp/Category" href="./Category:A4"/>
 !! end
 
 !! test
@@ -2027,7 +2027,7 @@ parsoid=wt2html
 !! wikitext
 [[Category:A1]]a
 !! html/parsoid
-<link rel="mw:PageProp/Category" href="Category:A1"/><p>a</p>
+<link rel="mw:PageProp/Category" href="./Category:A1"/><p>a</p>
 !! end
 
 ###
@@ -8097,7 +8097,7 @@ Blah blah blah
 </p>
 !! html/parsoid
 <p>Blah blah blah
-<a rel="mw:WikiLink" href="Template:Foo" title="Template:Foo">mi:Template:Foo</a></p>
+<a rel="mw:WikiLink" href="./Template:Foo" title="Template:Foo">mi:Template:Foo</a></p>
 !! end
 
 ###
@@ -13147,7 +13147,7 @@ BUG 1887: A ISBN with a thumbnail
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div><a href="/wiki/Special:BookSources/1235467890" class="internal mw-magiclink-isbn">ISBN 1235467890</a></div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a href="Special:BookSources/1235467890" rel="mw:ExtLink">ISBN 1235467890</a></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a href="./Special:BookSources/1235467890" rel="mw:ExtLink">ISBN 1235467890</a></figcaption></figure>
 !! end
 
 !! test
@@ -14024,7 +14024,7 @@ parsoid=wt2html
 !! html/parsoid
 <ul>
 <li>This <link rel="mw:PageProp/Category" href="./Category:Foo"/> and this should be part of the same list item</li>
-<li>So should this <link rel="mw:PageProp/Category" href="Category:Foo" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[Category:Foo]] and this should be part of the same list item"}},"i":0}}]}'/><span> and this should be part of the same list item</span></li>
+<li>So should this <link rel="mw:PageProp/Category" href="./Category:Foo" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[Category:Foo]] and this should be part of the same list item"}},"i":0}}]}'/><span> and this should be part of the same list item</span></li>
 </ul>
 !! end
 
@@ -14133,8 +14133,8 @@ parsoid
 [[:Category:Foo|Bar]]
 !! html
 <p>
-<a rel="mw:WikiLink" href="Category:Foo" title="Category:Foo">Category:Foo</a>
-<a rel="mw:WikiLink" href="Category:Foo" title="Category:Foo">Bar</a>
+<a rel="mw:WikiLink" href="./Category:Foo" title="Category:Foo">Category:Foo</a>
+<a rel="mw:WikiLink" href="./Category:Foo" title="Category:Foo">Bar</a>
 </p>
 !! end
 
@@ -14178,8 +14178,8 @@ parsoid
 [[Category:Foo]]
 [[Category:Foo|Bar]]
 !! html
-<link rel="mw:PageProp/Category" href="Category:Foo">
-<link rel="mw:PageProp/Category" href="Category:Foo#Bar">
+<link rel="mw:PageProp/Category" href="./Category:Foo">
+<link rel="mw:PageProp/Category" href="./Category:Foo#Bar">
 !! end
 
 !! test
@@ -18121,7 +18121,7 @@ ISBN 1234567890
 <p><a href="/wiki/Special:BookSources/1234567890" class="internal mw-magiclink-isbn">ISBN 1234567890</a>
 </p>
 !! html/parsoid
-<p><a href="Special:BookSources/1234567890" rel="mw:ExtLink">ISBN 1234567890</a></p>
+<p><a href="./Special:BookSources/1234567890" rel="mw:ExtLink">ISBN 1234567890</a></p>
 !! end
 
 !! test
@@ -20927,7 +20927,7 @@ parsoid=wt2html,wt2wt
 <small>'''foo[[File:Foobar.jpg|thumb|caption]]bar'''</small>
 !! html/parsoid
 <p><small><b>foo</b></small></p>
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><small><b>caption</b></small></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><small><b>caption</b></small></figcaption></figure>
 <p><small><b>bar</b></small></p>
 !! end
 
@@ -20939,7 +20939,7 @@ parsoid=wt2html,wt2wt
 '''<small>[[Image:Foobar.jpg|right|300px]]</small>'''
 !! html/parsoid
 <p><b><small></small></b></p>
-<figure class="mw-halign-right" typeof="mw:Image"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="34" width="300"/></a></figure>
+<figure class="mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="34" width="300"/></a></figure>
 <p></p>
 !! end
 
@@ -24144,7 +24144,7 @@ parsoid=html2wt
 language=ar
 disabled
 !! html/parsoid
-<figure class="mw-default-size mw-halign-right" typeof="mw:Image/Thumb"><a href="Imagen:Foobar.jpg"><img resource="./Imagen:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180"/></a></figure>
+<figure class="mw-default-size mw-halign-right" typeof="mw:Image/Thumb"><a href="./Imagen:Foobar.jpg"><img resource="./Imagen:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180"/></a></figure>
 !! wikitext
 [[Imagen:Foobar.jpg|derecha|miniaturadeimagen]]
 !! end
@@ -24341,13 +24341,13 @@ parsoid={
   "scrubWikitext": false
 }
 !! html/parsoid
-<h2>hello there<link href="Category:A1" rel="mw:PageProp/Category" /></h2>
-<h2><link href="Category:A2" rel="mw:PageProp/Category" />hi pal</h2>
+<h2>hello there<link href="./Category:A1" rel="mw:PageProp/Category" /></h2>
+<h2><link href="./Category:A2" rel="mw:PageProp/Category" />hi pal</h2>
 
-<h2><!--foo-->  <link href="Category:A3" rel="mw:PageProp/Category" />   how goes it</h2>
-<h2>it goes well   <link href="Category:A4" rel="mw:PageProp/Category" />  <!--bar--></h2>
+<h2><!--foo-->  <link href="./Category:A3" rel="mw:PageProp/Category" />   how goes it</h2>
+<h2>it goes well   <link href="./Category:A4" rel="mw:PageProp/Category" />  <!--bar--></h2>
 
-<h2 data-parsoid='{}'>howdy<link href="Category:A5" rel="mw:PageProp/Category" /></h2>
+<h2 data-parsoid='{}'>howdy<link href="./Category:A5" rel="mw:PageProp/Category" /></h2>
 
 <h2><meta property="mw:PageProp/toc" /> ok</h2>
 !! wikitext
@@ -24372,13 +24372,13 @@ parsoid={
   "scrubWikitext": true
 }
 !! html/parsoid
-<h2>hello there<link href="Category:A1" rel="mw:PageProp/Category" /></h2>
-<h2><link href="Category:A2" rel="mw:PageProp/Category" />hi pal</h2>
+<h2>hello there<link href="./Category:A1" rel="mw:PageProp/Category" /></h2>
+<h2><link href="./Category:A2" rel="mw:PageProp/Category" />hi pal</h2>
 
-<h2><!--foo-->  <link href="Category:A3" rel="mw:PageProp/Category" />   how goes it</h2>
-<h2>it goes well   <link href="Category:A4" rel="mw:PageProp/Category" />  <!--bar--></h2>
+<h2><!--foo-->  <link href="./Category:A3" rel="mw:PageProp/Category" />   how goes it</h2>
+<h2>it goes well   <link href="./Category:A4" rel="mw:PageProp/Category" />  <!--bar--></h2>
 
-<h2 data-parsoid='{}'>howdy<link href="Category:A5" rel="mw:PageProp/Category" /></h2>
+<h2 data-parsoid='{}'>howdy<link href="./Category:A5" rel="mw:PageProp/Category" /></h2>
 
 <h2><meta property="mw:PageProp/toc" /> ok</h2>
 !! wikitext
@@ -25095,7 +25095,7 @@ parsoid={
   "scrubWikitext": true
 }
 !! html/parsoid
-<h2> <link href="Category:A2" rel="mw:PageProp/Category" />ok</h2>
+<h2> <link href="./Category:A2" rel="mw:PageProp/Category" />ok</h2>
 !! wikitext
  [[Category:A2]]
 
