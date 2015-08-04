@@ -25220,6 +25220,76 @@ parsoid={
 [[Foo ]]'''bar'''
 !! end
 
+!! test
+1. Table cells with escapable prefixes
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": false
+}
+!! html
+<table>
+<tr><td>a</td></tr>
+<tr><td>-</td></tr>
+<tr><td>+</td></tr>
+</table>
+!! wikitext
+{|
+|a
+|-
+|<nowiki>-</nowiki>
+|-
+|<nowiki>+</nowiki>
+|}
+!! end
+
+!! test
+2. Table cells with escapable prefixes
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html
+<table>
+<tr><td>a</td></tr>
+<tr><td>-</td></tr>
+<tr><td>+</td></tr>
+</table>
+!! wikitext
+{|
+|a
+|-
+| -
+|-
+| +
+|}
+!! end
+
+!! test
+3. Table cells with escapable prefixes
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html
+<table data-parsoid='{}'>
+<tr data-parsoid='{}'><td data-parsoid='{}'>a</td></tr>
+<tr data-parsoid='{}'><td data-parsoid='{}'>-</td></tr>
+<tr data-parsoid='{}'><td data-parsoid='{}'>+</td></tr>
+</table>
+!! wikitext
+{|
+|a
+|-
+|<nowiki>-</nowiki>
+|-
+|<nowiki>+</nowiki>
+|}
+!! end
+
+
 # ---------------------------------------------------
 # End of tests spec'ing wikitext serialization norms |
 # ---------------------------------------------------
