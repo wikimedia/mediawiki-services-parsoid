@@ -1472,7 +1472,7 @@ parsoid
 Properly escape nowiki when combined with other wiki markup
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <p>* &lt;/nowiki&gt; tag</p>
 !! wikitext
 <nowiki>*</nowiki> <nowiki>&lt;/nowiki&gt;</nowiki> tag
@@ -1482,7 +1482,7 @@ parsoid=html2wt
 T93824: Put escaped HTML tags inside nowiki
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <p>&lt;h2&gt;foo&lt;/h2&gt;</p>
 !! wikitext
 <nowiki><h2>foo</h2></nowiki>
@@ -1492,7 +1492,7 @@ parsoid=html2wt
 T71950: 1. Put nowiki as close to cause as possible, even with non-quote escapable chars
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <p>This text: L'<a rel="mw:WikiLink" href="./Foo">Foo</a>
 This text: L''<a rel="mw:WikiLink" href="./Foo">Foo</a>
 This text: L'''<a rel="mw:WikiLink" href="./Foo">Foo</a>''</p>
@@ -1507,7 +1507,7 @@ This text: L<nowiki>'''</nowiki>[[Foo]]<nowiki>''</nowiki>
 T71950: 2. Put nowiki as close to cause as possible, after ' :'
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <p>This text : L''<a rel="mw:WikiLink" href="./Foo">Foo</a>
 </p>
 !! wikitext
@@ -1550,7 +1550,7 @@ parsoid=html2wt
 Cases where "!!" needs nowiki protection
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <table>
 <tr><th>this needs protection !! here</th></tr>
 </table>
@@ -5396,7 +5396,7 @@ Parenthesis in external links, w/ transclusion or comment
 Serialize <a> tags with invalid link targets as plain text
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <a rel="mw:WikiLink" href="[[foo]]">text</a>
 <a rel="mw:WikiLink" href="[[foo]]">*text</a>
 <a rel="mw:WikiLink" href="[[foo]]">[[foo]]</a>
@@ -6660,7 +6660,7 @@ parsoid=wt2html,wt2wt
 Parsoid: Default to a newline after tables in new content (bug 51219)
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <table><tbody>
 <tr><td>foo</td></tr></tbody></table> bar
 <table><tbody>
@@ -6680,7 +6680,7 @@ parsoid=html2wt
 Parsoid: newline inducing block nodes don't suppress <nowiki>
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
  a<h1>foo</h1>
 !! wikitext
 <nowiki> </nowiki>a
@@ -6746,7 +6746,7 @@ foo
 Strip unsupported table tags
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <table>
 <thead>
 <tr>
@@ -7051,7 +7051,7 @@ Namespace takes precedence over interwiki link (bug 51680)
 Link to namespace preferred over interwiki with correct rel attribute
 !! options
 parsoid=html2wt,html2html
-!! html
+!! html/parsoid
 <p><a rel="mw:WikiLink" href="./MemoryAlpha:AlphaTest" title="MemoryAlpha:AlphaTest">MemoryAlpha:AlphaTest</a></p>
 !! wikitext
 [[MemoryAlpha:AlphaTest]]
@@ -7559,7 +7559,7 @@ mótmælenda[[söfnuður|söfnuðir]]xxx
 Parsoid link trail escaping
 !! options
 parsoid=html2wt,html2html
-!! html
+!! html/parsoid
 <p><a rel="mw:WikiLink" href="Apple" title="Apple">apple</a>s</p>
 !! wikitext
 [[apple]]<nowiki/>s
@@ -7570,7 +7570,7 @@ Parsoid link prefix escaping
 !! options
 language=is
 parsoid=html2wt,html2html
-!! html
+!! html/parsoid
 <p>Aðrir mótmælenda<a rel="mw:WikiLink" href="Söfnuður" title="Söfnuður">söfnuður</a></p>
 !! wikitext
 Aðrir mótmælenda<nowiki/>[[söfnuður]]
@@ -7955,7 +7955,7 @@ language=ln
 Parsoid bug 53221: Wikilinks should be properly entity-escaped
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <p>He&amp;nbsp;llo <a href="Foo" rel="mw:WikiLink">He&amp;nbsp;llo</a></p>
 <p>He&amp;nbsp;llo <a href="He&amp;nbsp;llo" rel="mw:WikiLink">He&amp;nbsp;llo</a></p>
 !! wikitext
@@ -9701,7 +9701,7 @@ parsoid=wt2wt,html2wt
 foo
 __NOTOC__
 bar
-!! html
+!! html/parsoid
 foo<meta property="mw:PageProp/notoc"/>bar
 !! end
 
@@ -9712,7 +9712,7 @@ parsoid=wt2wt
 language=de
 !! wikitext
 __NOEDITSECTION__
-!! html
+!! html/parsoid
 <meta property="mw:PageProp/noeditsection" data-parsoid='{"magicSrc":"__NOEDITSECTION__"}'/>
 !! end
 
@@ -12127,7 +12127,7 @@ parsoid=wt2html
 Parsoid: Escape nowiki with trailing space in tags
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <p>&lt;nowiki &gt; foo &lt/nowiki ></p>
 <p>a&lt;nowiki /&gt;b</p>
 <p>c&lt;nowiki/ &gt;d</p>
@@ -12143,7 +12143,7 @@ c&lt;nowiki/ &gt;d
 Parsoid: Escape weird noWikI capitalizations
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <p>&lt;noWikI &gt; foo &lt/NoWikI ></p>
 !! wikitext
 &lt;noWikI &gt; foo &lt;/NoWikI &gt;
@@ -14129,7 +14129,7 @@ parsoid
 Normalize hrefs properly before testing for invalid link targets (bug 70894)
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <link rel="mw:PageProp/Category" href="./Category:Toxine_bactérienne"/>
 !! wikitext
 [[Category:Toxine bactérienne]]
@@ -21611,7 +21611,7 @@ parsoid
 Headings: 1. Nested inside html
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <h1>=foo=</h1>
 <h2>=foo=</h2>
 <h3>=foo=</h3>
@@ -21642,7 +21642,7 @@ parsoid=html2wt
 Headings: 2. Outside heading nest on a single line <h1>foo</h1>*bar
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <h1>foo</h1>*bar
 <h1>foo</h1>=bar
 <h1>foo</h1>=bar=
@@ -21700,7 +21700,7 @@ Headings: 4a. No escaping needed (testing just h1 and h2)
 Headings: 4b. No escaping needed (inside p-tags)
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <p>===
 =foo= x
 =foo= <s></s>
@@ -22017,7 +22017,7 @@ Lists: 5. No unnecessary escapes
 Lists: 6. Escape bullets in SOL position
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <p><!--cmt-->*foo</p>
 !! wikitext
 <!--cmt--><nowiki>*</nowiki>foo
@@ -22038,7 +22038,7 @@ a
 Lists: 8. Escape colons only if not present in tags
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <dl><dt>a:b<i>c:d</i></dt></dl>
 !! wikitext
 ; <nowiki>a:b</nowiki>''c:d''
@@ -22414,7 +22414,7 @@ parsoid=wt2html
 T97430: Don't emit empty nowiki pairs around marker meta tags
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <p>*This is a long sentence here that will make the nowiki algo split up the nowikis into multiple pairs
 |** Make this another long long long sentence forcing the nowiki algo to split up the nowikis.</p>
 !! wikitext
@@ -22980,7 +22980,7 @@ parsoid
 5. Nowiki escaping should account for indent-pres
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <pre>==foo==</pre>
 !! wikitext
  ==foo==
@@ -23006,7 +23006,7 @@ parsoid
 1. Valid behavior switches should be escaped
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 __TOC__
 <i>__TOC__</i>
 !! wikitext
@@ -23018,7 +23018,7 @@ __TOC__
 2. Invalid behavior switches should not be escaped
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 __TOO__
 __|__
 !! wikitext
@@ -23853,7 +23853,7 @@ Don't block XML namespace declaration
 Serialize interwiki links pointing to the current wiki as plain wiki links (bug 65869)
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <p><a rel="mw:ExtLink" href="http://mi.wikipedia.org/wiki/Foo">Foo</a></p>
 !! wikitext
 [[Foo]]
@@ -23864,7 +23864,7 @@ parsoid=html2wt
 New wikilinks should be serialized properly
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <a rel="mw:WikiLink" href="./Foo" title="Foo" data-parsoid='{}'>Foo</a>
 <a rel="mw:WikiLink" href="./Foo" title="Foo">Foo</a>
 !! wikitext
@@ -23876,7 +23876,7 @@ parsoid=html2wt
 New wiki links (href variations)
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <a rel="mw:WikiLink" href="./Foo_bar">Foo_bar</a>
 <a rel="mw:WikiLink" href="Foo_bar">Foo_bar</a>
 <a rel="mw:WikiLink" href="Foo bar">Foo_bar</a>
@@ -23892,7 +23892,7 @@ parsoid=html2wt
 New wiki links (content string variations)
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <a rel="mw:WikiLink" href="./Foo_bar">Foo_bar</a>
 <a rel="mw:WikiLink" href="./Foo_bar">Foo bar</a>
 <a rel="mw:WikiLink" href="./Foo_bar">./Foo_bar</a>
@@ -23906,7 +23906,7 @@ parsoid=html2wt
 New category links (href variations)
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <link rel="mw:PageProp/Category" href="./Category:Toxine_bactérienne" />
 <link rel="mw:PageProp/Category" href="./Category:Toxine_bact%C3%A9rienne" />
 <link rel="mw:PageProp/Category" href="Category:Toxine_bact%C3%A9rienne" />
@@ -23921,7 +23921,7 @@ New sol transparent links don't need indent-pre nowiki protection
 !! options
 parsoid=html2wt
 language=de
-!! html
+!! html/parsoid
          <link rel="mw:PageProp/redirect" href="./Main_Page">
 <!-- this is good  -->    <link rel="mw:PageProp/Category" href="./Category:Good" />
 <!-- this is great -->    <link rel="mw:PageProp/Category" href="./Kategorie:Great" />
@@ -23935,7 +23935,7 @@ language=de
 New interlanguage links (href variations)
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Toxine bactérienne" />
 <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Toxine_bactérienne" />
 <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Toxine_bact%C3%A9rienne" />
@@ -24082,16 +24082,17 @@ parsoid
 <figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"alt","ak":"alt="},{"ck":"caption","ak":"bar"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img alt="" resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" data-parsoid='{"a":{"alt":"","resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"alt":"alt=","resource":"File:Foobar.jpg"}}'/></a><figcaption>bar</figcaption></figure>
 !! end
 
-#!! test
-#Image: new attributes should be serialized in wiki's language for RTL languages (bug 51852)
-#!! options
-#parsoid=html2wt
-#language=ar
-#!! html
-#<figure class="mw-default-size mw-halign-right" typeof="mw:Image/Thumb"><a href="Imagen:Foobar.jpg"><img resource="./Imagen:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180"/></a></figure>
-#!! wikitext
-#[[Imagen:Foobar.jpg|derecha|miniaturadeimagen]]
-#!! end
+!! test
+Image: new attributes should be serialized in wiki's language for RTL languages (bug 51852)
+!! options
+parsoid=html2wt
+language=ar
+disabled
+!! html/parsoid
+<figure class="mw-default-size mw-halign-right" typeof="mw:Image/Thumb"><a href="Imagen:Foobar.jpg"><img resource="./Imagen:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180"/></a></figure>
+!! wikitext
+[[Imagen:Foobar.jpg|derecha|miniaturadeimagen]]
+!! end
 
 !! test
 Image: Block level image should have \n before and after
@@ -24183,7 +24184,7 @@ parsoid=html2wt
 Lists: Serialize correctly even when list content is wrapped in p-tags (like VE does)
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <ul>
 <li><p>foo</p></li>
 </ul>
@@ -24195,7 +24196,7 @@ parsoid=html2wt
 Lists: Serialize correctly even when list tags has unneeded whitespace between tags
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <ul> <li>foo</li></ul>
 !! wikitext
 * foo
@@ -24205,7 +24206,7 @@ parsoid=html2wt
 Don't strip leading whitespace when handling indent-pre suppressing tags
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <table>
   <tr><td> indented row</td></tr>
 </table>
@@ -24238,6 +24239,19 @@ foo
 Nowiki-wrap leading whitespace when handling indent-pre inducing tags
 !! options
 parsoid=html2wt
+!! html/parsoid
+<p>foo</p>
+ <span>bar</span>
+
+<span>foo2
+ </span>bar2
+
+<div>foo</div>
+ <span>bar</span>
+
+<div>
+ <span>foo</span>
+</div>
 !! wikitext
 foo
 <nowiki> </nowiki><span>bar</span>
@@ -24251,26 +24265,13 @@ foo
 <div>
 <nowiki> </nowiki><span>foo</span>
 </div>
-!! html
-<p>foo</p>
- <span>bar</span>
-
-<span>foo2
- </span>bar2
-
-<div>foo</div>
- <span>bar</span>
-
-<div>
- <span>foo</span>
-</div>
 !! end
 
 !! test
 Lists: Dont insert newlines in a serialized list item.
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <ul><li>a<br>b</li><li>c</li></ul>
 !! wikitext
 * a<br>b
@@ -24284,7 +24285,7 @@ parsoid={
   "modes": ["html2wt"],
   "scrubWikitext": false
 }
-!! html
+!! html/parsoid
 <h2>hello there<link href="Category:A1" rel="mw:PageProp/Category" /></h2>
 <h2><link href="Category:A2" rel="mw:PageProp/Category" />hi pal</h2>
 
@@ -24315,7 +24316,7 @@ parsoid={
   "modes": ["html2wt"],
   "scrubWikitext": true
 }
-!! html
+!! html/parsoid
 <h2>hello there<link href="Category:A1" rel="mw:PageProp/Category" /></h2>
 <h2><link href="Category:A2" rel="mw:PageProp/Category" />hi pal</h2>
 
@@ -24353,7 +24354,7 @@ parsoid={
   "modes": ["html2wt"],
   "scrubWikitext": true
 }
-!! html
+!! html/parsoid
 <h2><span about="#mwt1" typeof="mw:Transclusion" data-parsoid="{}" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo [[Category:Foo]]"}},"i":0}}]}'>foo </span><link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1" data-parsoid="{}" /></h2>
 !! wikitext
 == {{echo|foo [[Category:Foo]]}} ==
@@ -24366,7 +24367,7 @@ parsoid={
   "modes": ["html2wt"],
   "scrubWikitext": true
 }
-!! html
+!! html/parsoid
 <h2> foo <span about="#mwt2" class="reference" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-1"},"attrs":{}}'><a href="#cite_note-1">[1]</a></span> </h2>
 
 <ol class="references" typeof="mw:Extension/references" about="#mwt3" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1">↑</a></span> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">bar <link rel="mw:PageProp/Category" href="./Category:Baz" /> </span></li></ol>
@@ -24381,7 +24382,7 @@ parsoid={
 Parsoid: Serialize positional parameters with = in them as named parameter
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <p about="#mwt1" typeof="mw:Transclusion"
 data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"f=oo"}},"i":0}}]}'>foo</p>
 
@@ -24405,7 +24406,7 @@ data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},
 Parsoid: Serialize positional parameters with = in extlink as named parameter
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <p><a rel="mw:ExtLink" href="http://stuff?is=ok" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"http://stuff?is=ok"}},"i":0}}]}'>http://stuff?is=ok</a></p>
 !! wikitext
 {{echo|1 = http://stuff?is=ok}}
@@ -24415,7 +24416,7 @@ parsoid=html2wt
 Parsoid: Correctly serialize block-node children when they are a combination of text and p-nodes
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <div>a<p>b</p></div>
 <div>a
 <p>b</p></div>
@@ -24440,7 +24441,7 @@ b
 Substrings resembling wikitext in hrefs should not get nowiki escapes
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <a rel="mw:WikiLink" href="./Foo''bar''baz">Foo''bar''baz</a>
 !! wikitext
 [[Foo''bar''baz]]
@@ -24450,7 +24451,7 @@ parsoid=html2wt
 Enforce single-line context in the serializer
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <h2>testing
 123</h2>
 
@@ -24509,7 +24510,7 @@ ha
 Serialize new placeholder space without spans
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <p>foo<span typeof="mw:Placeholder"> </span>: bar</p>
 
 <p>foo<span typeof="mw:DisplaySpace mw:Placeholder" data-parsoid='{"src":" ","isDisplayHack":true}'> </span>: bar</p>
@@ -24532,7 +24533,7 @@ foo : bar
 1. I/B quote minimization: wikitext-only tags should be combined
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <p><i>A</i><i>B</i></p>
 <p><b>A</b><b>B</b></p>
 <p><i>A</i><b><i>B</i></b></p>
@@ -24563,7 +24564,7 @@ parsoid=html2wt
 2. I/B quote minimization: wikitext and html tags should not be combined
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <p><i>A</i><i data-parsoid='{"stx":"html"}'>B</i></p>
 <p><i>A</i><b><i data-parsoid='{"stx":"html"}'>B</i></b></p>
 !! wikitext
@@ -24576,7 +24577,7 @@ parsoid=html2wt
 3. I/B quote minimization: templated content stops minimization
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <p><i>A</i><i about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&#39;&#39;B&#39;&#39;"}},"i":0}}]}'>B</i>
 <p><i>A</i><b about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&#39;&#39;&#39;&#39;&#39;B&#39;&#39;&#39;&#39;&#39;"}},"i":0}}]}'><i>B</i></b>
 !! wikitext
@@ -24589,7 +24590,7 @@ parsoid=html2wt
 4. I/B quote minimization: new content should be mimimized with adjacent old content
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <p><i>A</i><i>B</i></p>
 <p><b>A</b><b>B</b></p>
 <p><i>A</i><b><i>B</i></b></p>
@@ -24638,7 +24639,7 @@ parsoid={
   "modes": ["html2wt"],
   "scrubWikitext": true
 }
-!! html
+!! html/parsoid
 <a rel="mw:WikiLink" href="./Football">Foot</a><a rel="mw:WikiLink" href="./Football">ball</a>
 <a data-parsoid="{}" rel="mw:WikiLink" href="./Football">Foot</a><a rel="mw:WikiLink" href="./Football">ball</a>
 <a data-parsoid="{}" rel="mw:WikiLink" href="./Football">Foot</a><a data-parsoid="{}" rel="mw:WikiLink" href="./Football">ball</a>
@@ -24655,7 +24656,7 @@ parsoid={
   "modes": ["html2wt"],
   "scrubWikitext": true
 }
-!! html
+!! html/parsoid
 <a rel="mw:WikiLink" href="./Football"><i>Foot</i></a><a rel="mw:WikiLink" href="./Football"><i>ball</i></a>
 !! wikitext
 [[Football|''Football'']]
@@ -24668,7 +24669,7 @@ parsoid={
   "modes": ["html2wt"],
   "scrubWikitext": false
 }
-!! html
+!! html/parsoid
 <a rel="mw:WikiLink" href="./Football">Foot</a><a rel="mw:WikiLink" href="./Football">ball</a>
 !! wikitext
 [[Football|Foot]][[Football|ball]]
@@ -24682,10 +24683,10 @@ parsoid={
 Bug 54262: New entities
 !! options
 parsoid=html2wt
+!! html/parsoid
+<span typeof="mw:Entity">&nbsp;</span>
 !! wikitext
 &nbsp;
-!! html
-<span typeof="mw:Entity">&nbsp;</span>
 !! end
 
 ## Note that there is no wikitext output for 'unknownproperty' ##
@@ -24722,7 +24723,7 @@ __NOCONTENTCONVERT__
 Consecutive <pre>s should not get merged
 !! options
 parsoid=html2wt,html2html
-!! html
+!! html/parsoid
 <pre>a</pre><pre>b</pre>
 
 <pre>c
@@ -24754,7 +24755,7 @@ f</pre>
 Edited ISBN links not serializable as ISBN links should serialize as wikilinks
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <a rel="mw:ExtLink" href="./Special:BookSources/1234567890">ISBN 1234567895</a>
 !! wikitext
 [[Special:BookSources/1234567890|ISBN 1234567895]]
@@ -24764,7 +24765,7 @@ parsoid=html2wt
 Edited RFC links not serializable as RFC links should serialize as extlinks
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <a href="//tools.ietf.org/html/rfc123" rel="mw:ExtLink">New RFC</a>
 !! wikitext
 [//tools.ietf.org/html/rfc123 New RFC]
@@ -24774,7 +24775,7 @@ parsoid=html2wt
 Edited PMID links not serializable as PMID links should serialize as extlinks
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <a href="//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract" rel="mw:ExtLink">New PMID</a>
 !! wikitext
 [//www.ncbi.nlm.nih.gov/pubmed/123?dopt=Abstract New PMID]
@@ -24859,7 +24860,7 @@ parsoid=html2wt
 Edited Redirect link should emit a non-piped wikitext link
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <link rel="mw:PageProp/redirect" href="Bar" data-parsoid='{"a":{"href":"./Foo"},"sa":{"href":"Foo"}}'>
 !! wikitext
 #REDIRECT [[Bar]]
@@ -24869,7 +24870,7 @@ parsoid=html2wt
 T75121: Infer extension name from typeOf if data-mw is not present
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <div typeOf="mw:Extension/foo"></div>
 !! wikitext
 <foo />
@@ -24929,7 +24930,7 @@ parsoid=html2wt,wt2wt
 HTML id attribute with Parsoid-like element ids should not be serialized to wikitext
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <table id='mwAb'>
 <td id='mwAc'>foo</td>
 <td id='serialize-this'>bar</td>
@@ -24945,7 +24946,7 @@ parsoid=html2wt
 Parsoid-like element ids should not be serialized to wikitext unless shadowed
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <div id="mwAQ" data-parsoid='{"stx":"html","a":{"id":"mwAQ"},"sa":{"id":"hello"}}'>ok</div>
 !! wikitext
 <div id="hello">ok</div>
@@ -24972,7 +24973,7 @@ parsoid={
 Never serialize a-tag as html, regardless of what data-parsoid has to say
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <a rel="mw:WikiLink" href="./Foo" title="Foo" data-parsoid='{"stx":"html"}'>Foo</a>
 !! wikitext
 [[Foo]]
@@ -24986,7 +24987,7 @@ parsoid=html2wt
 Never serialize a-tag as html, no matter what attributes it has
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <a bad='true' href='http://boo.org'><img src='http://boohoo.org' /></a>
 !! wikitext
 [http://boo.org http://boohoo.org]
@@ -25000,7 +25001,7 @@ parsoid=html2wt
 Lists: Add space after bullets
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <ul>
 <li>foo</li>
 <li> bar</li>
@@ -25016,7 +25017,7 @@ parsoid=html2wt
 1. Headings: Add space before/after == (T53744)
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <h2>foo</h2>
 <h2> bar</h2>
 <h2>baz </h2>
@@ -25038,7 +25039,7 @@ parsoid={
   "modes": ["html2wt"],
   "scrubWikitext": true
 }
-!! html
+!! html/parsoid
 <h2> <link href="Category:A2" rel="mw:PageProp/Category" />ok</h2>
 !! wikitext
  [[Category:A2]]
@@ -25053,7 +25054,7 @@ parsoid={
   "modes": ["html2wt"],
   "scrubWikitext": true
 }
-!! html
+!! html/parsoid
 <h2></h2>
 !! wikitext
 !! end
@@ -25062,7 +25063,7 @@ parsoid={
 2. Headings: don't suppress empty headings if scrubWikitext is false
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <h2></h2>
 !! wikitext
 ==<nowiki/>==
@@ -25075,7 +25076,7 @@ parsoid={
   "modes": ["html2wt"],
   "scrubWikitext": true
 }
-!! html
+!! html/parsoid
 <h2 data-parsoid='{}'></h2>
 !! wikitext
 ==<nowiki/>==
@@ -25088,7 +25089,7 @@ parsoid={
   "modes": ["html2wt"],
   "scrubWikitext": true
 }
-!! html
+!! html/parsoid
 <i></i><b></b>
 !! wikitext
 !! end
@@ -25097,7 +25098,7 @@ parsoid={
 2. WT Quote Tags: don't suppress empty style tags if scrubWikitext is false
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <i></i><b></b>
 !! wikitext
 ''<nowiki/>'''''<nowiki/>'''
@@ -25110,7 +25111,7 @@ parsoid={
   "modes": ["html2wt"],
   "scrubWikitext": true
 }
-!! html
+!! html/parsoid
 <p> hi</p>
 <p>    hello</p>
 !! wikitext
@@ -25123,7 +25124,7 @@ hello
 2. Indent Pre Nowiki: don't suppress whitespace at the start of new paragraph if scrubWikitext is false
 !! options
 parsoid=html2wt
-!! html
+!! html/parsoid
 <p> hi</p>
 <p>    hello</p>
 !! wikitext
@@ -25178,7 +25179,7 @@ parsoid={
   "modes": ["html2wt"],
   "scrubWikitext": false
 }
-!! html
+!! html/parsoid
 <p><a rel="mw:WikiLink" href="./Berlin" title="Berlin">Berlin </a>is the capital of Germany.</p>
 <p><a rel="mw:WikiLink" href="./Foo" title="Foo">Foo </a><b>bar</b></p>
 !! wikitext
@@ -25194,7 +25195,7 @@ parsoid={
   "modes": ["html2wt"],
   "scrubWikitext": true
 }
-!! html
+!! html/parsoid
 <p><a rel="mw:WikiLink" href="./Berlin" title="Berlin">Berlin </a>is the capital of Germany.</p>
 <p><a rel="mw:WikiLink" href="./Foo" title="Foo">Foo </a><b>bar</b></p>
 !! wikitext
@@ -25210,7 +25211,7 @@ parsoid={
   "modes": ["html2wt"],
   "scrubWikitext": true
 }
-!! html
+!! html/parsoid
 <p><a rel="mw:WikiLink" href="./Berlin" title="Berlin" data-parsoid='{"stx":"simple","a":{"href":"./Berlin"},"sa":{"href":"Berlin "}}'>Berlin </a>is the capital of Germany.</p>
 
 <p><a rel="mw:WikiLink" href="./Foo" title="Foo" data-parsoid='{"stx":"simple","a":{"href":"./Foo"},"sa":{"href":"Foo "}}'>Foo </a><b>bar</b></p>
