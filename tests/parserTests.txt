@@ -1460,11 +1460,11 @@ Entities inside <nowiki>
 
 !! test
 Entities inside template parameters
-!! options
-parsoid
 !! wikitext
 {{echo|&ndash;}}
-!! html
+!! html/php+tidy
+<p>–</p>
+!! html/parsoid
 <p><span typeof="mw:Transclusion mw:Entity" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&amp;ndash;"}},"i":0}}]}'>&ndash;</span></p>
 !! end
 
@@ -1803,7 +1803,11 @@ parsoid=wt2html,wt2wt
 !! wikitext
 <!--c1-->*a
 <!--c2--><!--c3--><!--c4-->*b
-!! html
+!! html/php
+<ul><li>a</li>
+<li>b</li></ul>
+
+!! html/parsoid
 <!--c1--><ul>
 <li>a
 </li>
@@ -2343,13 +2347,17 @@ HTML pre followed by indent-pre
 </pre>
 !! end
 
+# Note that tidy removes the empty <p> tags from the start and end.
+# Parsoid does not, by design.
 !!test
 Block tag pre
-!!options
-parsoid
 !! wikitext
 <p><pre>foo</pre></p>
-!! html
+!! html/php+tidy
+<pre>
+foo
+</pre>
+!! html/parsoid
 <p data-parsoid='{"stx":"html","autoInsertedEnd":true}'></p><pre data-parsoid='{"stx":"html"}'>foo</pre><p data-parsoid='{"autoInsertedStart":true,"stx":"html"}'></p>
 !!end
 
@@ -2511,7 +2519,10 @@ Parsoid: handle pre with space after attribute
 parsoid=wt2html
 !! wikitext
 <pre style="width:50%;" >{{echo|foo}}</pre>
-!! html
+!! html/php
+<pre style="width:50%;">{{echo|foo}}</pre>
+
+!! html/parsoid
 <pre style="width:50%;">{{echo|foo}}</pre>
 !! end
 
@@ -2717,32 +2728,32 @@ Templates: Other wikitext in parameter names (bug 67657)
 #--------------------------------------------------------------------
 !! test
 Templates: Parsoid parameter escaping test 1
-!! options
-parsoid
 !! wikitext
 {{echo|[foo]|{{echo|[bar]}}}}
-!! html
+!! html/php+tidy
+<p>[foo]</p>
+!! html/parsoid
 <p about="#mwt1" typeof="mw:Transclusion"
 data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[foo]"},"2":{"wt":"{{echo|[bar]}}"}},"i":0}}]}'>[foo]</p>
 !! end
 
 !! test
 Parsoid: Pipes in external links in template parameter
-!! options
-parsoid
 !! wikitext
 {{echo|[{{echo|http://example.com}} link]}}
-!! html
+!! html/php+tidy
+<p><a rel="nofollow" class="external text" href="http://example.com">link</a></p>
+!! html/parsoid
 <p><a rel="mw:ExtLink" href="http://example.com" about="#mwt31" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[{{echo|http://example.com}} link]"}},"i":0}}]}'>link</a></p>
 !! end
 
 !! test
 Parsoid: pipe in transclusion parameter
-!! options
-parsoid
 !! wikitext
 {{echo|http://foo.com/a&#124;b}}
-!! html
+!! html/php+tidy
+<p><a rel="nofollow" class="external free" href="http://foo.com/a%7Cb">http://foo.com/a%7Cb</a></p>
+!! html/parsoid
 <p><a rel="mw:ExtLink" href="http://foo.com/a|b" about="#mwt1"
 typeof="mw:Transclusion"
 data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"http://foo.com/a&amp;#124;b"}},"i":0}}]}'>http://foo.com/a|b</a></p>
@@ -2754,7 +2765,9 @@ Parsoid: Pipe in external link target and content in template parameter
 parsoid=html2wt,wt2wt
 !! wikitext
 {{echo|[http://foo.com/a&#124;b a&#124;b]}}
-!! html
+!! html/php+tidy
+<p><a rel="nofollow" class="external text" href="http://foo.com/a%7Cb">a|b</a></p>
+!! html/parsoid
 <p><a rel="mw:ExtLink" href="http://foo.com/a|b" about="#mwt1"
 typeof="mw:Transclusion"
 data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},
@@ -2779,7 +2792,9 @@ parsoid=html2wt,wt2wt
 {{echo|foo<nowiki>|</nowiki>bar}}
 {{echo|<nowiki>&lt;div&gt;</nowiki>}}
 {{echo|<nowiki></nowiki>}}
-!! html
+!! html/php+tidy
+<p>foo|bar &lt;div&gt;</p>
+!! html/parsoid
 <p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo<nowiki>|</nowiki>bar"}},"i":0}}]}'}'>foo</span><span typeof="mw:Nowiki" about="#mwt1">|</span><span about="#mwt1">bar</span>
 <span typeof="mw:Transclusion mw:Nowiki" about="#mwt2" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"<nowiki>&amp;lt;div&amp;gt;</nowiki>"}},"i":0}}]}'><span typeof="mw:Entity">&lt;</span>div<span typeof="mw:Entity">&gt;</span></span>
 <span typeof="mw:Transclusion mw:Nowiki" about="#mwt3" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"<nowiki></nowiki>"}},"i":0}}]}'></span>
@@ -2793,18 +2808,20 @@ Templates: '=' char in nested transclusions should not trigger nowiki escapes or
 parsoid=html2wt,wt2wt
 !! wikitext
 {{echo|{{echo|1=bar}}}}
-!! html
+!! html/php+tidy
+<p>bar</p>
+!! html/parsoid
 <p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"{{echo|1=bar}}"}},"i":0}}]}'>bar</p>
 !! end
 
 ## Bug 56733
 !! test
 Templates parameters with special tokenizing behavior dont get modified because of arg escaping
-!! options
-parsoid
 !! wikitext
 {{echo|a : b}}
-!! html
+!! html/php+tidy
+<p>a&#160;: b</p>
+!! html/parsoid
 <p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a : b"}},"i":0}}]}'>a<span typeof="mw:DisplaySpace mw:Placeholder" data-parsoid='{"isDisplayHack":true}'> </span>: b</p>
 !! end
 
@@ -2813,9 +2830,8 @@ parsoid
 Templates: Preserve blank parameter names
 !! wikitext
 {{echo|=foo}}
-!! html/php
-<p>{{{1}}}
-</p>
+!! html/php+tidy
+<p>{{{1}}}</p>
 !! html/parsoid
 <p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"":{"wt":"foo"}},"i":0}}]}'>{{{1}}}</p>
 !! end
@@ -2824,10 +2840,8 @@ Templates: Preserve blank parameter names
 Templates: Preserve blank parameter names in other positions
 !! wikitext
 {{blank_param|bar|=foo}}
-!! html/php
-<p>bar
-foo
-</p>
+!! html/php+tidy
+<p>bar foo</p>
 !! html/parsoid
 <p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]},{"k":"","named":true,"spc":["","","",""]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"blank_param","href":"./Template:Blank_param"},"params":{"1":{"wt":"bar"},"":{"wt":"foo"}},"i":0}}]}'>bar
 foo</p>
@@ -3283,6 +3297,7 @@ parsoid=wt2html,wt2wt
 !! wikitext
  [[Category:foo]] <!-- No pre-wrapping -->
 {{echo| [[Category:foo]]}} <!-- No pre-wrapping -->
+!! html/php+tidy
 !! html/parsoid
  <link rel="mw:PageProp/Category" href="./Category:Foo"> <!-- No pre&#x2D;wrapping -->
 <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":" [[Category:foo]]"}},"i":0}}]}'> </span><link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1"> <!-- No pre&#x2D;wrapping -->
@@ -3306,6 +3321,8 @@ Indent-Pre: Newlines in comments shouldn't affect sol state
 a <!--
 foo
 --> b
+!! html/php+tidy
+<p>a b</p>
 !! html/parsoid
 <p>a <!--
 foo
@@ -3335,8 +3352,10 @@ foo
 
 foo
 </pre>
-!! html
-<pre>foo</pre>
+!! html/php+tidy
+<pre>
+foo
+</pre>
 <pre>
 foo
 </pre>
@@ -3349,7 +3368,6 @@ foo
 
 foo
 </pre>
-
 !! html/parsoid
 <pre data-parsoid='{"stx":"html"}'>foo</pre>
 
@@ -3388,7 +3406,7 @@ haha
 
 
 </pre>
-!! html
+!! html/php+tidy
 <pre>
 
 
@@ -3405,7 +3423,6 @@ haha
 
 
 </pre>
-
 !! html/parsoid
 <pre data-parsoid='{"stx":"html"}'>
 
@@ -3877,12 +3894,19 @@ parsoid
 
 !! test
 Definition Lists: Nesting: Test 2 (Parsoid only)
-!! options
-parsoid
 !! wikitext
 ;t1
 ::d2
-!! html
+!! html/php+tidy
+<dl>
+<dt>t1</dt>
+<dd>
+<dl>
+<dd>d2</dd>
+</dl>
+</dd>
+</dl>
+!! html/parsoid
 <dl>
   <dt>t1</dt>
   <dd>
@@ -3897,12 +3921,27 @@ parsoid
 
 !! test
 Definition Lists: Nesting: Test 3 (Parsoid only)
-!! options
-parsoid
 !! wikitext
 :;t1
 ::::d2
-!! html
+!! html/php+tidy
+<dl>
+<dd>
+<dl>
+<dt>t1</dt>
+<dd>
+<dl>
+<dd>
+<dl>
+<dd>d2</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+!! html/parsoid
 <dl>
   <dd>
     <dl>
@@ -15029,11 +15068,8 @@ I always thought &xacute; was a cute letter.
 </p>
 !! end
 
-# TODO: generalize to PHP parser?
 !! test
 HTML5 tags
-!! options
-parsoid
 !! wikitext
 <data value="5">five</data>
 <time datetime="2000-01-01T00:00Z">The new millenium started</time>
@@ -15041,7 +15077,8 @@ parsoid
 !! html
 <p><data value="5">five</data>
 <time datetime="2000-01-01T00:00Z">The new millenium started</time>
-<mark>This highlighted text</mark></p>
+<mark>This highlighted text</mark>
+</p>
 !! end
 
 !! test
