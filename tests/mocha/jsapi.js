@@ -204,8 +204,7 @@ describe('Further examples of PDoc API', function() {
 			String(media[1].caption).should.equal('caption');
 			media[0].caption = '|';
 			media[1].caption = null;
-			// XXX Bug T107435
-			// String(pdoc).should.equal('[[File:SomeFile1.jpg|<nowiki>|</nowiki>]] [[File:SomeFile2.jpg|thumb]]');
+			String(pdoc).should.equal('[[File:SomeFile1.jpg|<nowiki>|</nowiki>]] [[File:SomeFile2.jpg|thumb]]');
 			media[0].caption = null;
 			media[1].caption = '|';
 			String(pdoc).should.equal('[[File:SomeFile1.jpg]] [[File:SomeFile2.jpg|thumb|<nowiki>|</nowiki>]]');
