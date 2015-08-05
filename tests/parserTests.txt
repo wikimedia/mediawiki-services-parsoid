@@ -838,15 +838,12 @@ parsoid=wt2html
 !!end
 
 # same html as previous, but wikitext adjusted to match parsoid html2wt
-# skipping wt2html and html2html because it wants to put <i> before <b>
 !! test
 Italics and bold: 5-quote opening sequence: (5,2+3)
-!! options
-parsoid=wt2wt,html2wt
 !! wikitext
 '''''foo'''''
-!! html
-<p><b><i>foo</i></b>
+!! html/*
+<p><i><b>foo</b></i>
 </p>
 !! end
 
