@@ -1,7 +1,5 @@
 {
 	"preset": "node-style-guide",
-
-	// Preserve these exceptions, they codify what we're already doing.
 	"requireCurlyBraces": [
 		"if",
 		"else",
@@ -13,13 +11,10 @@
 	],
 	"validateIndentation": "\t",
 	"requireCamelCaseOrUpperCaseIdentifiers": "ignoreProperties",
-
-	// We'd like to eliminate these at some point, to conform with the preset.
-	"disallowQuotedKeysInObjects": null,
 	"maximumLineLength": null,
-	"requireCapitalizedComments": null,
 	"validateQuoteMarks": null,
-
+	"disallowQuotedKeysInObjects": null,
+	"requireCapitalizedComments": null,
 	"excludeFiles": [
 		"node_modules/**",
 		"tests/client/config.js",
