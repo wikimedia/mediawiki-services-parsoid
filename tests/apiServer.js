@@ -47,7 +47,7 @@ var exitOnProcessTerm = function(res) {
 	process.on('SIGTERM', stopAndExit);
 	process.on('uncaughtException', function(e) {
 		console.log(e.stack);
-		stopAndExit();
+		process.exit(1);
 	});
 };
 
