@@ -1443,7 +1443,6 @@ add("html2wt", "Image: upright option is ignored on inline and frame images (par
 // Blacklist for selser
 add("selser", "Extra newlines followed by heading [1,2,1,3,0,4,0,4,1,3,4]", "a\n\n40z1qdji2lfskyb9\n\n\n\n=b=\n9h4x5nzjh28rggb9\n\n[[a]]\n\nkup4bo01iztzkt9\n\n\n\nzlbbwe36wkrcnmi\n");
 add("selser", "Parsing an URL [[[2]],2,0]", "[[:fr:🍺|blv27e9oigmpwrk9http://fr.wikipedia.org/wiki/🍺]]\n\n7vcz2sjoo733ow29\n<!-- EasterEgg we love beer, better be able be able to link to it -->");
-add("selser", "Italics and possessives (2) [[2,3,0,0]]", "0zb8t8umky2pgb9'''''Flaming Pie'''Flaming Pie'''s liner notes");
 add("selser", "Italics and bold: 5-quote opening sequence: (5,6) [[[2]]]", "''7mymhlqo5nhlg14i'''foo''''''");
 add("selser", "Parsoid only: Quote balancing context should be restricted to td/th cells on the same wikitext line\n(Requires tidy for PHP parser output to be fixed up) [1]", "{| data-foobar=\"pl7el6nksli8uxr\"\n!''a!!''b\n|''a||''b\n|}");
 add("selser", "Parsoid only: Quote balancing context should be restricted to td/th cells on the same wikitext line\n(Requires tidy for PHP parser output to be fixed up) [[4,[[4,0,2,[1],0],4]]]", "{|<!--44rbogtlx8hncdi-->\n!5oylcgfssnfav2t9!!''b\n!qcinqswgq2r9t3xr\n|''a''||''b<!--b7ncx26rmqiu23xr-->\n|}");
@@ -1575,7 +1574,7 @@ add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [[1,3,2,2,
 add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [[3,0,3,3,4,[3,[4,0]],0,[0,1,3],0,[[3,[0,2]]]]]", "\nsjft3sgyl0i9t3xr''[http://example.com spz6gumbba84zpvi'']''\n''Something [http://example.com mixed''''', even bold]''\n'''''[http://example.com bothi78rcmgoegtoi529''''']'''''");
 add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [[[3],0,[2],0,4,1,0,4,3,3]]", "''<nowiki/>''\n[http://example.com rgkc3a28h38cwhfr'''text]'''fuoqrsdna64dkj4i''Something [http://example.com in italic'']''\nmsb55932ah7rdx6r\n");
 add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [[3,0,3,1,0,2,4,3,3,[[0,[0,1]]]]]", "\n'''<nowiki/>'''\nz032w7z1kdo0f6r''Something [http://example.com in italic'']o88q9qaoc6ljif6r'''''Now [http://example.com both'''''''']'''''");
-add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [[2,2,[2],1,0,[3,0],3,[3,[0,[[4]]],0],0,3]]", "o9nab4h230tnvcxr''[http://example.com text'']u5sfhyznivd3g14i\n[http://example.com isdro1map7qa1yvi'''text]'''<nowiki/>'''\n''[http://example.com in italic''][http://example.com mixed'''''o08ug21d18h3erk9''''']'<nowiki/>''\n");
+add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [[2,2,[2],1,0,[3,0],3,[3,[0,[[4]]],0],0,3]]", "o9nab4h230tnvcxr''[http://example.com text'']u5sfhyznivd3g14i\n[http://example.com isdro1map7qa1yvi'''text]'''<nowiki/>'''\n''[http://example.com in italic''][http://example.com mixed'''''o08ug21d18h3erk9''''']'''\n");
 add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [[[2],4,[[4]],0,4,[0,4],2,2,3,[4]]]", "''kndlu276kxz5b3xr[http://example.com text'']''66fz4jk56gtd42t9[http://example.com '''hbtqecdqt5oecdi''']'''sr9o6vidsk5u3di''Something 81gi1py5yann4s4i''i1h0s35lu287iudi\nr1c3unvdylanhfr''Something [http://example.com mixed''''', even bold]''''''cwiw4wazt6kfn7b9'''");
 add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [[2,0,3,0,3,2,0,[3,2,0],2,[3]]]", "rxaa2sxf4o8yqfr''[http://example.com text'']\n'''mtebxw1xl4x11yvi''Something [http://example.com in italic'']\n''vt2hxx23uta3v7vi[http://example.com mixed''''', even bold]'''fr3tlqbb4piizfr\n'''<nowiki/>'''");
 add("selser", "Bug 2702: Mismatched <i>, <b> and <a> tags are invalid [[4,2,0,0,4,[2,[4,1]],0,1,2,1]]", "uypp3nxnupst6gvi5lixlomwktb4vx6r\n[http://example.com '''text]'''1euo2nqbj6mvx6r''s5ucqw1bludz33diSomething [http://example.com iqi27jd7nxoxyldi''<nowiki/>'']''\n''Something [http://example.com mixed''''', even bold]'''3rrma1jx3c70hpvi\n'''''Now [http://example.com both''''']'''");
@@ -2543,6 +2542,14 @@ add("selser", "2. Ensure fostered text content is wrapped in element nodes (trap
 add("selser", "Table in fosterable position 5", "{{OpenTable}}\n<div>\n{|\n|}\n");
 add("selser", "Image: upright option is ignored on inline and frame images (parsoid) [1]", "[[File:Foobar.jpg|500x500px|upright=0.5|caption]]");
 add("selser", "Image: upright option is ignored on inline and frame images (parsoid) [2]", "kywu2qkfz9eh4cxr\n\n[[File:Foobar.jpg|500x500px|upright=0.5|caption]]");
+add("selser", "Normalizations should be restricted to edited content [0,4,0,3,0]", "a\n\n2hqj9fdsvwpnwmi\n\n= =\nb");
+add("selser", "Normalizations should be restricted to edited content [0,4,0,0,[4]]", "a\n\nc50ybn4dfwjc3di\n\n= =\n3d91t9d9mzs0dx6r");
+add("selser", "Normalizations should be restricted to edited content [[4],0,2,2,4]", "1scvc1jtfl8tzkt9\n\n1ng8kb6hoqdxi529\n\n= =\nnazszs59x4t8d7vi\nt4vhgvt7gdqp8pvi\n");
+add("selser", "Normalizations should be restricted to edited content [0,0,2,0,[3]]", "a\n\nhf1ptsqscz8e61or\n\n= =\n");
+add("selser", "Normalizations should be restricted to edited content [0,0,0,0,[2]]", "a\n= =\ngavtydem1ujl9pb9b");
+add("selser", "Normalizations should be restricted to edited content [1,2,0,0,0]", "a\n\n8uc2mhvuqc7kfbt9\n\n= =\nb");
+add("selser", "Normalizations should be restricted to edited content [1,2,2,3,0]", "a\n\n8bevm5ajbpo561or\n\nqjal98t96jgrdx6r\n\n= =\nb");
+add("selser", "3b. Table cells without escapable prefixes after edits manual", "{|\n| id=\"x\" | -\n|}");
 
 // ### DO NOT REMOVE THIS LINE ### (end of automatically-generated section)
 

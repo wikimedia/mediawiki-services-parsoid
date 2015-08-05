@@ -24391,8 +24391,6 @@ parsoid={
 <h2><!--foo-->  <link href="./Category:A3" rel="mw:PageProp/Category" />   how goes it</h2>
 <h2>it goes well   <link href="./Category:A4" rel="mw:PageProp/Category" />  <!--bar--></h2>
 
-<h2 data-parsoid='{}'>howdy<link href="./Category:A5" rel="mw:PageProp/Category" /></h2>
-
 <h2><meta property="mw:PageProp/toc" /> ok</h2>
 !! wikitext
 == hello there ==
@@ -24407,8 +24405,6 @@ parsoid={
 
 == it goes well ==
 [[Category:A4]]  <!--bar-->
-
-==howdy [[Category:A5]] ==
 
 __TOC__
 
@@ -25138,16 +25134,18 @@ parsoid=html2wt
 !! end
 
 !! test
-3. Headings: don't suppress empty headings for existing headings even if scrubWikitext is true
+3. Headings: suppress empty headings on edits
 !! options
 parsoid={
-  "modes": ["html2wt"],
-  "scrubWikitext": true
+  "modes": ["selser"],
+  "scrubWikitext": true,
+  "changes": [
+    [ "#x", "remove"]
+  ]
 }
-!! html/parsoid
-<h2 data-parsoid='{}'></h2>
 !! wikitext
-==<nowiki/>==
+==<span id="x">foo</span>==
+!! wikitext/edited
 !! end
 
 !! test
@@ -25172,23 +25170,20 @@ parsoid=html2wt
 ''<nowiki/>'''''<nowiki/>'''
 !! end
 
-# This can be re-enabled once https://gerrit.wikimedia.org/r/#/c/229563
-# is merged.
-#
-# !! test
-# 3. WT Quote Tags: suppress empty style tags on edits
-# !! options
-# parsoid={
-#   "modes": ["selser"],
-#   "scrubWikitext": true,
-#   "changes": [
-#     [ "#x", "remove"]
-#   ]
-# }
-# !! wikitext
-# '''<span id="x">foo</span>'''
-# !! wikitext/edited
-# !! end
+!! test
+3. WT Quote Tags: suppress empty style tags on edits
+!! options
+parsoid={
+  "modes": ["selser"],
+  "scrubWikitext": true,
+  "changes": [
+    [ "#x", "remove"]
+  ]
+}
+!! wikitext
+'''<span id="x">foo</span>'''
+!! wikitext/edited
+!! end
 
 !! test
 1. Anchors: suppress newly created empty anchors
@@ -25215,23 +25210,76 @@ parsoid={
 [[Test|<nowiki/>]]
 !! end
 
-# This can be re-enabled once https://gerrit.wikimedia.org/r/#/c/229563
-# is merged.
-#
-# !! test
-# 3. Anchors: suppress empty anchors on edits
-# !! options
-# parsoid={
-#   "modes": ["selser"],
-#   "scrubWikitext": true,
-#   "changes": [
-#     [ "#x", "remove"]
-#   ]
-# }
-# !! wikitext
-# [[Test|<span id="x">foo</span>]]
-# !! wikitext/edited
-# !! end
+!! test
+3. Anchors: suppress empty anchors on edits
+!! options
+parsoid={
+  "modes": ["selser"],
+  "scrubWikitext": true,
+  "changes": [
+    [ "#x", "remove"]
+  ]
+}
+!! wikitext
+[[Test|<span id="x">foo</span>]]
+!! wikitext/edited
+!! end
+
+!!test
+Normalizations should be restricted to edited content
+!!options
+parsoid={
+  "modes": ["selser"],
+  "scrubWikitext": true,
+  "changes": [
+    [ "h1", "before", "<i></i>"]
+  ]
+}
+!!wikitext
+a
+= =
+b
+!!wikitext/edited
+a
+= =
+b
+!!end
+
+!! test
+1. Multiple normalizations (html2wt)
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html
+<h2><i></i></h2>
+<p><a href='Foo' rel='mw:WikiLink'>foo<i></i>
+ </a><b><i></i></b>x</p>
+!! wikitext
+
+[[foo]]
+x
+
+!! end
+
+!! test
+2. Multiple normalizations (selser)
+!! options
+parsoid={
+  "modes": ["selser"],
+  "scrubWikitext": true,
+  "changes": [
+    [ "#x", "after", "<h1><i></i></h1>\n<p> x<b></b></p>"]
+  ]
+}
+!! wikitext
+<span id="x">foo</span>
+!! wikitext/edited
+<span id="x">foo</span>
+
+x
+!! end
 
 !! test
 1. Indent Pre Nowiki: suppress whitespace at the start of new paragraph
@@ -25302,6 +25350,23 @@ bar<span>boo</span>
 !! end
 
 !! test
+4. Indent Pre Nowiki: suppress leading whitespace in edited paragraphs
+!! options
+parsoid={
+  "modes": ["selser"],
+  "scrubWikitext": true,
+  "changes": [
+    [ "p", "html", " a\n b" ]
+  ]
+}
+!! wikitext
+xyz
+!! wikitext/edited
+a
+b
+!! end
+
+!! test
 1. New links that end in spaces
 !! options
 parsoid={
@@ -25331,23 +25396,6 @@ parsoid={
 [[Berlin]] is the capital of Germany.
 
 [[Foo]] '''bar'''
-!! end
-
-!! test
-3. Existing links that end in spaces
-!! options
-parsoid={
-  "modes": ["html2wt"],
-  "scrubWikitext": true
-}
-!! html/parsoid
-<p><a rel="mw:WikiLink" href="./Berlin" title="Berlin" data-parsoid='{"stx":"simple","a":{"href":"./Berlin"},"sa":{"href":"Berlin "}}'>Berlin </a>is the capital of Germany.</p>
-
-<p><a rel="mw:WikiLink" href="./Foo" title="Foo" data-parsoid='{"stx":"simple","a":{"href":"./Foo"},"sa":{"href":"Foo "}}'>Foo </a><b>bar</b></p>
-!! wikitext
-[[Berlin ]]<nowiki/>is the capital of Germany.
-
-[[Foo ]]'''bar'''
 !! end
 
 !! test
@@ -25397,28 +25445,50 @@ parsoid={
 !! end
 
 !! test
-3. Table cells with escapable prefixes
+3a. Table cells with escapable prefixes after edits
 !! options
 parsoid={
-  "modes": ["html2wt"],
-  "scrubWikitext": true
+  "modes": ["selser"],
+  "scrubWikitext": true,
+  "changes": [
+    [ "table tbody tr:first-child td:first-child", "html", "-" ],
+    [ "#x", "remove" ]
+  ]
 }
-!! html
-<table data-parsoid='{}'>
-<tr data-parsoid='{}'><td data-parsoid='{}'>a</td></tr>
-<tr data-parsoid='{}'><td data-parsoid='{}'>-</td></tr>
-<tr data-parsoid='{}'><td data-parsoid='{}'>+</td></tr>
-</table>
 !! wikitext
 {|
-|a
-|-
-|<nowiki>-</nowiki>
-|-
-|<nowiki>+</nowiki>
+|pqr
+|<span id="x">foo</span>+
+|}
+!! wikitext/edited
+{|
+| -
+| +
 |}
 !! end
 
+# FIXME: This test will fail because
+# normalization doesn't realize that the id attribute
+# will eliminate the escapable scenario
+!! test
+3b. Table cells without escapable prefixes after edits
+!! options
+parsoid={
+  "modes": ["selser"],
+  "scrubWikitext": true,
+  "changes": [
+    [ "#x", "html", "-" ]
+  ]
+}
+!! wikitext
+{|
+| id="x" |abcd
+|}
+!! wikitext/edited
+{|
+| id="x" |-
+|}
+!! end
 
 # ---------------------------------------------------
 # End of tests spec'ing wikitext serialization norms |
