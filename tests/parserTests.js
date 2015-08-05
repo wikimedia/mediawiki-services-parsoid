@@ -869,7 +869,8 @@ ParserTests.prototype.convertWt2Html = function(mode, wikitext, processHtmlCB) {
 		// will attempt to reuse the document after this
 		// event is emitted)
 		processHtmlCB(null, doc.body.cloneNode(true));
-	}).processToplevelDoc(wikitext);
+	});
+	this.parserPipeline.processToplevelDoc(wikitext);
 };
 
 /**
