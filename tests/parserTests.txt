@@ -25172,6 +25172,67 @@ parsoid=html2wt
 ''<nowiki/>'''''<nowiki/>'''
 !! end
 
+# This can be re-enabled once https://gerrit.wikimedia.org/r/#/c/229563
+# is merged.
+#
+# !! test
+# 3. WT Quote Tags: suppress empty style tags on edits
+# !! options
+# parsoid={
+#   "modes": ["selser"],
+#   "scrubWikitext": true,
+#   "changes": [
+#     [ "#x", "remove"]
+#   ]
+# }
+# !! wikitext
+# '''<span id="x">foo</span>'''
+# !! wikitext/edited
+# !! end
+
+!! test
+1. Anchors: suppress newly created empty anchors
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html/parsoid
+<a rel="mw:WikiLink" href="./Test" title="Test"></a>
+!! wikitext
+!! end
+
+!! test
+2. Anchors: don't suppress empty anchors if scrubWikitext is false
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": false
+}
+!! html/parsoid
+<a rel="mw:WikiLink" href="./Test" title="Test"></a>
+!! wikitext
+[[Test|<nowiki/>]]
+!! end
+
+# This can be re-enabled once https://gerrit.wikimedia.org/r/#/c/229563
+# is merged.
+#
+# !! test
+# 3. Anchors: suppress empty anchors on edits
+# !! options
+# parsoid={
+#   "modes": ["selser"],
+#   "scrubWikitext": true,
+#   "changes": [
+#     [ "#x", "remove"]
+#   ]
+# }
+# !! wikitext
+# [[Test|<span id="x">foo</span>]]
+# !! wikitext/edited
+# !! end
+
 !! test
 1. Indent Pre Nowiki: suppress whitespace at the start of new paragraph
 !! options
