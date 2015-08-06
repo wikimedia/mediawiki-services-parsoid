@@ -865,8 +865,11 @@ quote = quotes:$("''" "'"*) {
 // Indented pre blocks differ from their non-indented (purely tag-based)
 // cousins by having their contents parsed.
 pre_indent
-  = pre_indent_in_tags
-  / l:pre_indent_line
+  = 
+  // FIXME: Disabled for now. This is T108216.
+  // pre_indent_in_tags
+  // /
+    l:pre_indent_line
     // keep consuming indented lines unless they start a table
     ls:(s:sol
         !(space* "{|")
