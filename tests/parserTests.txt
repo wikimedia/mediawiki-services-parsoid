@@ -2478,6 +2478,19 @@ Templates: Indent-Pre: 1f: Wrapping should be based on expanded content
 !!end
 
 !! test
+Pres with newline attributes
+!! wikitext
+<pre class="one
+two">hi</pre>
+!! html/php
+<pre class="one two">hi</pre>
+
+!! html/parsoid
+<pre class="one
+two" data-parsoid='{"stx":"html"}'>hi</pre>
+!! end
+
+!! test
 Things that look like <pre> tags aren't treated as such
 !! wikitext
 Barack Obama <President> of the United States

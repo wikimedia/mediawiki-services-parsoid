@@ -892,7 +892,7 @@ pre_indent_in_tags
   = & { return stops.inc('pre'); }
     s:spaces // XXX: capture space for round-tripping
     "<" pre_tag_name
-    attribs:generic_attributes
+    attribs:generic_newline_attribute*
     ">"
     l:nested_block_line
     ls:(sol pre_indent_line)*
@@ -921,7 +921,7 @@ pre_indent_line = " " l:nested_block_line {
 pre
   = & { return stops.inc('pre'); }
     "<" pre_tag_name
-    attribs:generic_attributes
+    attribs:generic_newline_attribute*
     space*
     endpos:(">" { return endOffset(); })
     // MediaWiki <pre> is special in that it converts all pre content to plain
