@@ -107,7 +107,7 @@ var startServer = function(opts, retrying, cb) {
 				PORT: port,
 				INTERFACE: opts.iface,
 				NODE_PATH: process.env.NODE_PATH,
-				PARSOID_MOCKAPI_URL: opts.mockUrl,
+				PARSOID_MOCKAPI_URL: opts.mockUrl || '',
 			},
 			execArgv: execArgv,
 		}

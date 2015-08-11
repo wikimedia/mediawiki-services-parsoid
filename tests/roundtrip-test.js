@@ -701,8 +701,9 @@ if (require.main === module) {
 		// script that takes care of setting everything up.
 		var apiServer = require('./apiServer.js');
 		var parsoidOptions = { quiet: true };
-		if (opts.apiURL) {
-			parsoidOptions.mockUrl = opts.apiURL;
+		if (argv.apiURL) {
+			parsoidOptions.mockUrl = argv.apiURL;
+			argv.prefix = 'customwiki';
 		}
 		apiServer.exitOnProcessTerm();
 		return apiServer.startParsoidServer(parsoidOptions).then(function(ret) {
