@@ -25225,6 +25225,35 @@ parsoid={
 !! wikitext/edited
 !! end
 
+!! test
+3a. Anchors: do not suppress numbered extlinks
+!! options
+parsoid={
+  "modes": ["wt2wt"],
+  "scrubWikitext": true
+}
+!! wikitext
+[http://foo.com]
+!! html/parsoid
+<a rel="mw:ExtLink" href="http://foo.com"></a>
+!! end
+
+!! test
+3b. Anchors: do not suppress numbered extlinks
+!! options
+parsoid={
+  "modes": ["wt2wt"],
+  "scrubWikitext": true,
+  "changes": [
+    [ "#x", "remove"]
+  ]
+}
+!! wikitext
+[http://foo.com <span id="x">foo</span>]
+!! wikitext/edited
+[http://foo.com]
+!! end
+
 !!test
 Normalizations should be restricted to edited content
 !!options
