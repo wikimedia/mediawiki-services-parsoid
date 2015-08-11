@@ -25405,10 +25405,13 @@ parsoid={
 !! html/parsoid
 <p><a rel="mw:WikiLink" href="./Berlin" title="Berlin">Berlin </a>is the capital of Germany.</p>
 <p><a rel="mw:WikiLink" href="./Foo" title="Foo">Foo </a><b>bar</b></p>
+<p><a rel="mw:WikiLink" href="./Boston" title="Boston">Boston </a> is a city.</p>
 !! wikitext
 [[Berlin ]]<nowiki/>is the capital of Germany.
 
 [[Foo ]]'''bar'''
+
+[[Boston ]] is a city.
 !! end
 
 !! test
@@ -25421,10 +25424,13 @@ parsoid={
 !! html/parsoid
 <p><a rel="mw:WikiLink" href="./Berlin" title="Berlin">Berlin </a>is the capital of Germany.</p>
 <p><a rel="mw:WikiLink" href="./Foo" title="Foo">Foo </a><b>bar</b></p>
+<p><a rel="mw:WikiLink" href="./Boston" title="Boston">Boston </a> is a city.</p>
 !! wikitext
 [[Berlin]] is the capital of Germany.
 
 [[Foo]] '''bar'''
+
+[[Boston]] is a city.
 !! end
 
 !! test
