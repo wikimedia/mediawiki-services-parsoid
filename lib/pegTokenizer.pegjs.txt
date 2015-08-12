@@ -458,7 +458,7 @@ isbn
 {
     // TODO: round-trip non-decimals too!
     var isbn = [head, digits, tail].join('');
-    var isbncode = isbn.replace(/[^\dX]/g, '');
+    var isbncode = isbn.replace(/[^\dX]/ig, '');
 
     // ISBNs can only be 10 or 13 chars long
     if ([10, 13].indexOf(isbncode.length) === -1) {
@@ -468,7 +468,7 @@ isbn
 
     return [
         new SelfclosingTagTk('extlink', [
-           new KV('href', 'Special:BookSources/' + isbncode),
+           new KV('href', 'Special:BookSources/' + isbncode.toUpperCase()),
            new KV('mw:content', 'ISBN ' + isbn),
            new KV('typeof', 'mw:ExtLink/ISBN'),
         ],
