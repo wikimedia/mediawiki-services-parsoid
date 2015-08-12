@@ -25493,7 +25493,7 @@ parsoid={
 !! end
 
 !! test
-3. Table cells with escapable prefixes after edits
+3a. Table cells with escapable prefixes after edits
 !! options
 parsoid={
   "modes": ["selser"],
@@ -25513,7 +25513,7 @@ parsoid={
 !! end
 
 !! test
-3a. Table cells with escapable prefixes after edits
+3b. Table cells with escapable prefixes after edits
 !! options
 parsoid={
   "modes": ["selser"],
@@ -25539,7 +25539,7 @@ parsoid={
 # normalization doesn't realize that the id attribute
 # will eliminate the escapable scenario
 !! test
-3b. Table cells without escapable prefixes after edits
+4a. Table cells without escapable prefixes after edits
 !! options
 parsoid={
   "modes": ["selser"],
@@ -25556,6 +25556,73 @@ parsoid={
 {|
 | id="x" |-
 |}
+!! end
+
+## This tests normalizer's ability to discriminate between
+## cells having identical content.
+!! test
+4b. Table cells without escapable prefixes after edits
+!! options
+parsoid={
+  "modes": ["selser"],
+  "scrubWikitext": true,
+  "changes": [
+    [ "td", "html", "-" ]
+  ]
+}
+!! wikitext
+{|
+|a||b
+|}
+!! wikitext/edited
+{|
+| -||-
+|}
+!! end
+
+## This tests normalizer's ability to not be tripped by
+## comments (and whitespace)
+!! test
+4c. Table cells without escapable prefixes after edits
+!! options
+parsoid={
+  "modes": ["selser"],
+  "scrubWikitext": true,
+  "changes": [
+    [ "table tbody tr td:first-child", "remove" ]
+  ]
+}
+!! wikitext
+{|
+|-
+<!--foo--> |a||-
+|}
+!! wikitext/edited
+{|
+|-
+<!--foo--> | -
+|}
+!! end
+
+## This tests normalizer's ability to handle HTML cells
+!! test
+4d. Table cells without escapable prefixes after edits
+!! options
+parsoid={
+  "modes": ["selser"],
+  "scrubWikitext": true,
+  "changes": [
+    [ "td", "html", "-" ]
+  ]
+}
+!! wikitext
+<table>
+<tr><td>a</td></tr>
+</table>
+!! wikitext/edited
+<table>
+<tr><td>-</td></tr>
+</table>
 !! end
 
 # ---------------------------------------------------
