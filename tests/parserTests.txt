@@ -25480,6 +25480,26 @@ parsoid={
 !! end
 
 !! test
+3. Table cells with escapable prefixes after edits
+!! options
+parsoid={
+  "modes": ["selser"],
+  "scrubWikitext": true,
+  "changes": [
+    [ "table tbody tr:first-child td:first-child", "remove"]
+  ]
+}
+!! wikitext
+{|
+|a||-
+|}
+!! wikitext/edited
+{|
+| -
+|}
+!! end
+
+!! test
 3a. Table cells with escapable prefixes after edits
 !! options
 parsoid={

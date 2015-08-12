@@ -2549,6 +2549,16 @@ add("selser", "Normalizations should be restricted to edited content [0,0,2,0,[3
 add("selser", "Normalizations should be restricted to edited content [0,0,0,0,[2]]", "a\n= =\ngavtydem1ujl9pb9b");
 add("selser", "Normalizations should be restricted to edited content [1,2,0,0,0]", "a\n\n8uc2mhvuqc7kfbt9\n\n= =\nb");
 add("selser", "Normalizations should be restricted to edited content [1,2,2,3,0]", "a\n\n8bevm5ajbpo561or\n\nqjal98t96jgrdx6r\n\n= =\nb");
+add("selser", "3. Table cells with escapable prefixes after edits [1]", "{| data-foobar=\"k1uhbblupl5o2yb9\"\n|a||-\n|}");
+add("selser", "3. Table cells with escapable prefixes after edits [2]", "r1fafyruyogk3xr\n{|\n|a||-\n|}");
+add("selser", "3. Table cells with escapable prefixes after edits [[0,2]]", "{|\n<!--0dyo6t6c6ic6jemi-->|a||-\n|}");
+add("selser", "3. Table cells with escapable prefixes after edits [[0,[[[2],0],0]]]", "{|\n|n6mhp6fok98jjora||-\n|}");
+add("selser", "3. Table cells with escapable prefixes after edits [[4,1]]", "{|<!--zce235qk94zehfr-->\n|a||-\n|}");
+add("selser", "3. Table cells with escapable prefixes after edits [[4,[[2,0],0]]]", "{|<!--7nnptl6yf8g833di-->\n|56rc04ftl7s98uxr\n|a||-\n|}");
+add("selser", "3. Table cells with escapable prefixes after edits [[0,[1,0]]]", "{|\n|a||-\n|}");
+add("selser", "3. Table cells with escapable prefixes after edits [[2,2]]", "{|<!--xri7xa8msub1q0k9-->\n<!--ior8ojhvj5gvte29-->|a||-\n|}");
+add("selser", "3. Table cells with escapable prefixes after edits [[0,[[4,0],0]]]", "{|\n|wtbr3fxby1zto6r||-\n|}");
+add("selser", "3. Table cells with escapable prefixes after edits [[4,2]]", "{|<!--foy4y1aouncj714i--><!--h3b9y1s65stt9-->\n|a||-\n|}");
 add("selser", "3b. Table cells without escapable prefixes after edits manual", "{|\n| id=\"x\" | -\n|}");
 
 // ### DO NOT REMOVE THIS LINE ### (end of automatically-generated section)
