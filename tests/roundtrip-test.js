@@ -687,11 +687,10 @@ if (require.main === module) {
 	).check(Util.checkUnknownArgs.bind(null, options));
 
 	var argv = opts.argv;
-	var title = argv._[0];
-
-	if (!title) {
+	if (!argv._.length) {
 		return opts.showHelp();
 	}
+	var title = String(argv._[0]);
 
 	Promise.resolve().then(function() {
 		if (argv.parsoidURL) { return; }
