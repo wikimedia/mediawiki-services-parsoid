@@ -23,17 +23,13 @@ one you need to use as you read this guide.
 
 To get the code, you'll need to clone our git repository. Run this command:
 
-```
-$ git clone https://gerrit.wikimedia.org/r/p/mediawiki/services/parsoid
-```
+	$ git clone https://gerrit.wikimedia.org/r/p/mediawiki/services/parsoid
 
 ## Installing node.js dependencies
 
 Now that you have the code, you can run npm to get all of the necessary dependencies. From the main directory of the Parsoid repository, run:
 
-```
-$ npm install
-```
+	$ npm install
 
 ## Running the API
 
@@ -41,9 +37,7 @@ The API is the main reason you might want to run Parsoid, because VisualEditor
 uses it to do a lot of backend work. To run the API in a terminal,
 from the base directory in the Parsoid repository run the following:
 
-```
-$ node api/server
-```
+	$ node api/server
 
 There is also, in the `api/` directory, a nice `runserver.sh` script that
 might be useful to someone running the API as a more permanent service. The
@@ -61,9 +55,7 @@ want to test Parsoid's capabilities, you can use our simple `parse.js` script.
 Again, from the base directory in the Parsoid repository, run
 something like:
 
-```
-$ echo "some harmless [[wikitext]]" | node tests/parse
-```
+	$ echo "some harmless [[wikitext]]" | node tests/parse
 
 This will run the echoed text through the wikitext parser and show you the
 resulting HTML. You can also specify different options for different output -
