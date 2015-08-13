@@ -1254,9 +1254,6 @@ ParserTests.prototype.printSuccess = function(title, options, mode, expectSucces
  *
  * Print the actual and expected outputs.
  *
- * Side effect: Both objects will, after this, have 'formattedRaw' and 'formattedNormal' properties,
- * which are the result of calling DU.formatHTML() on the 'raw' and 'normal' properties.
- *
  * @param {Object} actual
  * @param {string} actual.raw
  * @param {string} actual.normal
@@ -1270,21 +1267,17 @@ ParserTests.prototype.printSuccess = function(title, options, mode, expectSucces
  */
 ParserTests.prototype.getActualExpected = function(actual, expected, getDiff) {
 	var returnStr = '';
-	expected.formattedRaw = expected.isWT ? expected.raw : DU.formatHTML(expected.raw);
 	returnStr += 'RAW EXPECTED'.cyan + ':\n';
-	returnStr += expected.formattedRaw + '\n';
+	returnStr += expected.raw + '\n';
 
-	actual.formattedRaw = actual.isWT ? actual.raw : DU.formatHTML(actual.raw);
 	returnStr += 'RAW RENDERED'.cyan + ':\n';
-	returnStr += actual.formattedRaw + '\n';
+	returnStr += actual.raw + '\n';
 
-	expected.formattedNormal = expected.isWT ? expected.normal : DU.formatHTML(expected.normal);
 	returnStr += 'NORMALIZED EXPECTED'.magenta + ':\n';
-	returnStr += expected.formattedNormal + '\n';
+	returnStr += expected.normal + '\n';
 
-	actual.formattedNormal = actual.isWT ? actual.normal : DU.formatHTML(actual.normal);
 	returnStr += 'NORMALIZED RENDERED'.magenta + ':\n';
-	returnStr += actual.formattedNormal + '\n';
+	returnStr += actual.normal + '\n';
 
 	returnStr += 'DIFF'.cyan + ':\n';
 	returnStr += getDiff(actual, expected);
@@ -1294,14 +1287,14 @@ ParserTests.prototype.getActualExpected = function(actual, expected, getDiff) {
 
 /**
  * @param {Object} actual
- * @param {string} actual.formattedNormal
+ * @param {string} actual.normal
  * @param {Object} expected
- * @param {string} expected.formattedNormal
+ * @param {string} expected.normal
  */
 ParserTests.prototype.getDiff = function(actual, expected) {
 	// safe to always request color diff, because we set color mode='none'
 	// if colors are turned off.
-	return Diff.htmlDiff(expected.formattedNormal, actual.formattedNormal, true);
+	return Diff.htmlDiff(expected.normal, actual.normal, true);
 };
 
 /**
@@ -1441,8 +1434,8 @@ ParserTests.prototype.checkWikitext = function(item, out, options, mode) {
 
 	var input = mode === 'selser' ? item.changedHTMLStr :
 			mode === 'html2wt' ? item.html : itemWikitext;
-	var expected = { isWT: true, normal: normalizedExpected, raw: itemWikitext };
-	var actual = { isWT: true, normal: normalizedOut, raw: out, input: input };
+	var expected = { normal: normalizedExpected, raw: itemWikitext };
+	var actual = { normal: normalizedOut, raw: out, input: input };
 
 	return options.reportResult(item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item);
 };
@@ -2105,7 +2098,7 @@ ParserTests.prototype.processCase = function(i, options, err) {
 					var exp = new RegExp("(" + /!!\s*test\s*/.source +
 						Util.escapeRegExp(fail.title) + /(?:(?!!!\s*end)[\s\S])*/.source +
 						")(" + Util.escapeRegExp(fail.expected) + ")", "m");
-					parserTests = parserTests.replace(exp, "$1" + DU.formatHTML(fail.actualNormalized.replace(/\$/g, '$$$$')));
+					parserTests = parserTests.replace(exp, "$1" + fail.actualNormalized.replace(/\$/g, '$$$$'));
 				}
 			});
 			fs.writeFileSync(parserTestsFilename, parserTests, 'utf8');
@@ -2152,9 +2145,6 @@ var xmlFuncs = (function() {
 	 *
 	 * Get the actual and expected outputs encoded for XML output.
 	 *
-	 * Side effect: Both objects will, after this, have 'formattedRaw' and 'formattedNormal' properties,
-	 * which are the result of calling DU.formatHTML() on the 'raw' and 'normal' properties.
-	 *
 	 * @inheritdoc ParserTests#getActualExpected.
 	 *
 	 * @returns {string} The XML representation of the actual and expected outputs
@@ -2162,22 +2152,17 @@ var xmlFuncs = (function() {
 	var getActualExpectedXML = function(actual, expected, getDiff) {
 		var returnStr = '';
 
-		expected.formattedRaw = DU.formatHTML(expected.raw);
-		actual.formattedRaw = DU.formatHTML(actual.raw);
-		expected.formattedNormal = DU.formatHTML(expected.normal);
-		actual.formattedNormal = DU.formatHTML(actual.normal);
-
 		returnStr += 'RAW EXPECTED:\n';
-		returnStr += DU.encodeXml(expected.formattedRaw) + '\n\n';
+		returnStr += DU.encodeXml(expected.raw) + '\n\n';
 
 		returnStr += 'RAW RENDERED:\n';
-		returnStr += DU.encodeXml(actual.formattedRaw) + '\n\n';
+		returnStr += DU.encodeXml(actual.raw) + '\n\n';
 
 		returnStr += 'NORMALIZED EXPECTED:\n';
-		returnStr += DU.encodeXml(expected.formattedNormal) + '\n\n';
+		returnStr += DU.encodeXml(expected.normal) + '\n\n';
 
 		returnStr += 'NORMALIZED RENDERED:\n';
-		returnStr += DU.encodeXml(actual.formattedNormal) + '\n\n';
+		returnStr += DU.encodeXml(actual.normal) + '\n\n';
 
 		returnStr += 'DIFF:\n';
 		returnStr += DU.encodeXml (getDiff(actual, expected, false));

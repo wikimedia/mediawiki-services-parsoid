@@ -302,7 +302,7 @@ var getMatchingHTML = function(env, body, offsetRange, nlDiffs) {
 		// node need not be an element always!
 		html += DU.serializeNode(out[i], { smartQuote: false }).str;
 	}
-	html = DU.formatHTML(DU.normalizeOut(html));
+	html = DU.normalizeOut(html);
 
 	// Normalize away <br/>'s added by Parsoid because of newlines in wikitext.
 	// Do this always, not just when nlDiffs is true, because newline diffs
