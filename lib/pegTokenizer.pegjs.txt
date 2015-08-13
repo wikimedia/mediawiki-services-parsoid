@@ -100,8 +100,9 @@ redirect
     return redirect;
 }
 
-// This rule is exposed as a start rule.
-generic_attributes "generic_attributes" = generic_attribute*
+// These rules are exposed as start rules.
+generic_newline_attributes "generic_newline_attributes" = generic_newline_attribute*
+table_attributes "table_attributes" = table_attribute*
 
 /* The 'redirect' magic word.
  * The leading whitespace allowed is due to the PHP trim() function.
@@ -895,7 +896,7 @@ pre_indent_in_tags
   = & { return stops.inc('pre'); }
     s:spaces // XXX: capture space for round-tripping
     "<" pre_tag_name
-    attribs:generic_newline_attribute*
+    attribs:generic_newline_attributes
     ">"
     l:nested_block_line
     ls:(sol pre_indent_line)*
@@ -924,7 +925,7 @@ pre_indent_line = " " l:nested_block_line {
 pre
   = & { return stops.inc('pre'); }
     "<" pre_tag_name
-    attribs:generic_newline_attribute*
+    attribs:generic_newline_attributes
     space*
     endpos:(">" { return endOffset(); })
     // MediaWiki <pre> is special in that it converts all pre content to plain
@@ -1180,7 +1181,7 @@ tag_name = $([A-Za-z] tag_name_chars*)
 generic_tag
   = "<"
     end:"/"? name:tag_name
-    attribs:generic_newline_attribute*
+    attribs:generic_newline_attributes
     space_or_newline* // No need to preserve this -- canonicalize on RT via dirty diff
     selfclose:"/"?
     bad_ws:space* // No need to preserve this -- canonicalize on RT via dirty diff
@@ -1254,13 +1255,13 @@ generic_newline_attribute
 }
 
 // A single-line attribute.
-generic_attribute
+table_attribute
   = s:optionalSpaceToken
     namePos0:("" { return endOffset(); })
     name:generic_attribute_name
     namePos:("" { return endOffset(); })
     valueData:(optionalSpaceToken
-        v:generic_attribute_value { return v; })?
+        v:table_attribute_value { return v; })?
 {
     // FIXME: name might just be a template, which can expand to a key-value
     // pair later. We'll need to handle that in the AttributeTransformManager.
@@ -1304,18 +1305,18 @@ generic_attribute_name
 
 // A generic attribute, possibly spanning multiple lines.
 generic_attribute_newline_value
-  = "=" v:xml_att_value? {
+  = "=" v:generic_att_value? {
       return v === null ? [] : v;
   }
 
 // A generic but single-line attribute.
-generic_attribute_value
-  = "=" v:att_value? {
+table_attribute_value
+  = "=" v:table_att_value? {
       return v === null ? [] : v;
   }
 
 // Attribute value, quoted variants can span multiple lines.
-xml_att_value
+generic_att_value
   = space_or_newline* "'" r:(valPos1:("" { return endOffset(); }) t1:attribute_preprocessor_text_single? valPos2:("" { return endOffset(); }) "'"
             { return tu.getAttributeValueAndSource(input, t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
@@ -1338,7 +1339,7 @@ xml_att_value
             return tu.getAttributeValueAndSource(input, t, valPos1, valPos2); }
 
 // Attribute value, restricted to a single line.
-att_value
+table_att_value
   = space* "'" r:(valPos1:("" { return endOffset(); }) t1:attribute_preprocessor_text_single_line? valPos2:("" { return endOffset(); }) "'"
             { return tu.getAttributeValueAndSource(input, t1, valPos1, valPos2); }
         // Missing end quote: accept | and > look-ahead as heuristic
@@ -1373,7 +1374,7 @@ block_tag
       return lcTn !== "pre" && lcTn !== "hr" &&
         constants.HTML.BlockTags.has(tn.toUpperCase());
     })
-    attribs:generic_newline_attribute*
+    attribs:generic_newline_attributes
     space_or_newline*
     selfclose:"/"?
     ">" {
@@ -1555,7 +1556,7 @@ table_start_tag "table_start_tag"
   = sc:(space / comment)* startPos:("" { return endOffset(); }) b:"{" p:pipe
     // ok to normalize away stray |} on rt (see bug 57360)
     & { return stops.push('table', false); }
-    ta:(generic_attribute / broken_table_attribute_name_char)*
+    ta:(table_attribute / broken_table_attribute_name_char)*
     tsEndPos:("" { stops.pop('table'); return endOffset(); })
     {
         var coms = tu.popComments(ta);
@@ -1592,7 +1593,7 @@ table_row_tag
     ! { return stops.onStack('tableDataBlock'); }
     p:pipe dashes:$"-"+
     & { return stops.push('table', false); }
-    a:(generic_attribute / broken_table_attribute_name_char)*
+    a:(table_attribute / broken_table_attribute_name_char)*
     tagEndPos:("" { stops.pop('table'); return endOffset(); })
     // handle tables with missing table cells after a row
     td:implicit_table_data_tag?
@@ -1732,7 +1733,7 @@ table_end_tag
  */
 single_cell_table_args "single_cell_table_args"
   = & { return stops.push('pipe', true); }
-    as:generic_attributes s:space* p:pipe {
+    as:table_attributes s:space* p:pipe {
         stops.pop('pipe');
         return [as, s, p];
     }
@@ -1745,7 +1746,7 @@ single_cell_table_args "single_cell_table_args"
 row_syntax_table_args
   = & { return stops.inc('tableCellArg'); }
     & could_be_attribute
-    as:generic_attributes s:space* p:pipe !pipe {
+    as:table_attributes s:space* p:pipe !pipe {
         stops.dec('tableCellArg');
         return [as, s, p];
     }
