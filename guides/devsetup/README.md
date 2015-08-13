@@ -18,9 +18,7 @@ and set it up on your local git repository.
 
 Once you have an account, setting up a gerrit remote is pretty simple:
 
-```
-$ git remote add gerrit ssh://<YOUR-USERNAME>@gerrit.wikimedia.org:29418/mediawiki/services/parsoid
-```
+	$ git remote add gerrit ssh://<YOUR-USERNAME>@gerrit.wikimedia.org:29418/mediawiki/services/parsoid
 
 Be sure to replace the `<YOUR-USERNAME>` bit with your username on Gerrit -
 you can use your
@@ -51,9 +49,7 @@ There are four major things you should test before you submit a change:
 Luckily, you can test all of these with one command!
 From the Parsoid base directory, run:
 
-```
-$ npm test
-```
+	$ npm test
 
 This will run all of the above tests, and some code style checkers as well.
 
@@ -63,18 +59,14 @@ For more details on the different tests which are run, keep reading...
 
 To run the parser tests, run:
 
-```
-$ node tests/parserTests
-```
+	$ node tests/parserTests
 
 This is quite noisy!  You may wish to use the `--quiet` option, which
 cuts down on the output from tests which are not failing.  There are
 quite a number of options to the parser test suite, but they are
 pretty well documented if you run:
 
-```
-$ node tests/parserTests --help
-```
+	$ node tests/parserTests --help
 
 To get you oriented: there are five possible modes which a given test
 can be run in, corresponding to the command-line options `--wt2html`,
@@ -94,9 +86,7 @@ currently-failing tests in `tests/parserTests-blacklist.js`.
 If you need to add or remove tests from the blacklist, then this
 command will help:
 
-```
-$ node tests/parserTests --rewrite-blacklist
-```
+	$ node tests/parserTests --rewrite-blacklist
 
 We also gladly accept patches that mark tests as PHP-only (usually
 with the `!! html/php` tag) when they've been audited to be irrelevant
@@ -106,11 +96,9 @@ for Parsoid.
 
 This tool is described briefly in the [setup instructions](#!/guide/setup) as
 a useful tool for testing functionality, or parsing bits of wikitext. We also
-need to make sure it runs properly after your changes. Run something like
+need to make sure it runs properly after your changes. Run something like:
 
-```
-$ echo "''Non'''-trivial'' wikitext''' [[with links]] {{echo|and templates}} | node tests/parse --wt2wt
-```
+	$ echo "''Non'''-trivial'' wikitext''' [[with links]] {{echo|and templates}} | node tests/parse --wt2wt
 
 That command should exercise a reasonable number of parser and
 serializer features --- although not as many as the full `parserTests`
@@ -122,11 +110,9 @@ This script is something we use to test against actual wiki articles. You can
 specify which wiki you want to use with the --wiki option, but it defaults to
 English Wikipedia which should be sufficient. Running
 
-```
-$ node tests/roundtrip-test.js "Barack Obama"
-```
+	$ node tests/roundtrip-test.js "Barack Obama"
 
-is a simple and stereotypical test case. If the script runs without issue,
+is a simple and typical test case. If the script runs without issue,
 then it should be fine.
 
 ### server.js
@@ -146,11 +132,9 @@ If you've followed the above instructions, you have git-review installed,
 you've configured a gerrit remote, and your patch passed all of the tests,
 then you can submit your change with
 
-```
-$ git add <files> # any files you changed
-$ git commit # enter a commit summary
-$ git review # send it for review
-```
+	$ git add <files> # any files you changed
+	$ git commit # enter a commit summary
+	$ git review # send it for review
 
 After you submit the patch, the Parsoid team will likely get around to
 reviewing it within a day or two, depending on their schedules.
