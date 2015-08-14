@@ -314,6 +314,7 @@ if (require.main === module) {
 		if (argv.offline) {
 			argv.fetchConfig = false;
 			argv.fetchTemplates = false;
+			argv.fetchImageInfo = false;
 			argv.usephppreprocessor = false;
 		}
 
