@@ -407,8 +407,8 @@ ParserTests.prototype.processArticle = function(item, cb) {
  * @param {Object} item
  * @param {Node} body
  * @param {Function} processWikitextCB
- * @param {Error/null} processWikitextCB.err
- * @param {string/null} processWikitextCB.res
+ * @param {Error|null} processWikitextCB.err
+ * @param {string|null} processWikitextCB.res
  */
 ParserTests.prototype.convertHtml2Wt = function(options, mode, item, body, processWikitextCB) {
 	var startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser';
@@ -641,7 +641,7 @@ ParserTests.prototype.applyChanges = function(item, body, changelist, cb) {
  * @param {Object} item
  * @param {Node} body
  * @param {Function} cb
- * @param {Error/null} cb.err
+ * @param {Error|null} cb.err
  * @param {Node} cb.body
  * @param {Array} cb.changelist
  */
@@ -858,8 +858,8 @@ ParserTests.prototype.applyManualChanges = function(body, changes, cb) {
  * @param {string} mode
  * @param {string} wikitext
  * @param {Function} processHtmlCB
- * @param {Error/null} processHtmlCB.err
- * @param {Node/null} processHtmlCB.doc
+ * @param {Error|null} processHtmlCB.err
+ * @param {Node|null} processHtmlCB.doc
  */
 ParserTests.prototype.convertWt2Html = function(mode, wikitext, processHtmlCB) {
 	this.env.setPageSrcInfo(wikitext);
@@ -1118,7 +1118,7 @@ ParserTests.prototype.processSerializedWT = function(item, options, mode, wikite
  * @method
  * @param {string} title
  * @param {Array} comments
- * @param {Object/null} iopts Options from the test file
+ * @param {Object|null} iopts Options from the test file
  * @param {Object} options
  * @param {Object} actual
  * @param {Object} expected
