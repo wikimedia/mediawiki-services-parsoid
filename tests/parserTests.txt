@@ -18109,21 +18109,31 @@ ISBN ISBN 1234567890
 <p>ISBN <a href="./Special:BookSources/1234567890" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a></p>
 !! end
 
+# Uppercase X and lowercase x as well
 !! test
 ISBN with an X
 !! wikitext
 ISBN 3-462-04561-X
+ISBN 3-462-04561-x
 ISBN 080442957X
+ISBN 080442957x
 ISBN 978080442957X
+ISBN 978080442957x
 !! html/php
 <p><a href="/wiki/Special:BookSources/346204561X" class="internal mw-magiclink-isbn">ISBN 3-462-04561-X</a>
+<a href="/wiki/Special:BookSources/346204561X" class="internal mw-magiclink-isbn">ISBN 3-462-04561-x</a>
 <a href="/wiki/Special:BookSources/080442957X" class="internal mw-magiclink-isbn">ISBN 080442957X</a>
+<a href="/wiki/Special:BookSources/080442957X" class="internal mw-magiclink-isbn">ISBN 080442957x</a>
 <a href="/wiki/Special:BookSources/978080442957X" class="internal mw-magiclink-isbn">ISBN 978080442957X</a>
+<a href="/wiki/Special:BookSources/978080442957X" class="internal mw-magiclink-isbn">ISBN 978080442957x</a>
 </p>
 !! html/parsoid
 <p><a href="./Special:BookSources/346204561X" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 3-462-04561-X</a>
+<a href="./Special:BookSources/346204561X" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 3-462-04561-x</a>
 <a href="./Special:BookSources/080442957X" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 080442957X</a>
-<a href="./Special:BookSources/978080442957X" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 978080442957X</a></p>
+<a href="./Special:BookSources/080442957X" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 080442957x</a>
+<a href="./Special:BookSources/978080442957X" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 978080442957X</a>
+<a href="./Special:BookSources/978080442957X" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 978080442957x</a></p>
 !! end
 
 !! test
