@@ -13235,7 +13235,7 @@ T107474: Frameless image caption with <nowiki>
 !! wikitext
 [[File:Foobar.jpg|<nowiki>text with a [[MeatBall:Link|link]] in it</nowiki>]]
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:Image mw:Placeholder" data-mw='{"caption":"&lt;span typeof=\"mw:Nowiki\">text with a [[MeatBall:Link|link]] in it&lt;/span>"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
+<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"&lt;span typeof=\"mw:Nowiki\" data-parsoid=\"{&amp;quot;dsr&amp;quot;:[18,75,8,9]}\">text with a [[MeatBall:Link|link]] in it&lt;/span>"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
 !! end
 
 !! test
