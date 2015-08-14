@@ -1,9 +1,15 @@
 [
 	{
-		"name": "Parsoid",
+		"name": "Parsoid External APIs",
 		"groups": [
 			{
-				"name": "Package Interface",
+				"name": "Server Interface",
+				"classes": [
+					"ParsoidService"
+				]
+			},
+			{
+				"name": "JavaScript Interface (experimental)",
 				"classes": [
 					"Parsoid",
 					"PComment",
@@ -20,13 +26,12 @@
 					"PText",
 					"PWikiLink"
 				]
-			},
-			{
-				"name": "Server Interface",
-				"classes": [
-					"ParsoidService"
-				]
-			},
+			}
+		]
+	},
+	{
+		"name": "Parsoid Internal APIs (unstable)",
+		"groups": [
 			{
 				"name": "Core",
 				"classes": [
