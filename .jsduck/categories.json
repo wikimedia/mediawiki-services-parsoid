@@ -45,6 +45,19 @@
 				]
 			},
 			{
+				"name": "HTML to Wikitext",
+				"classes": [
+					"WikitextSerializer",
+					"SerializerState",
+					"ConstrainedText",
+					"RegExpConstrainedText",
+					"AutoURLLinkText",
+					"ExtLinkText",
+					"MagicLinkText",
+					"WikiLinkText"
+				]
+			},
+			{
 				"name": "Tokens",
 				"classes": [
 					"CommentTk",

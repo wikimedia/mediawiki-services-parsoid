@@ -21,8 +21,11 @@
 		"lib/mediawiki.Title.js",
 		"lib/mediawiki.Util.js",
 		"lib/mediawiki.WikiConfig.js",
+		"lib/mediawiki.WikitextSerializer.js",
 		"lib/mediawiki.parser.defines.js",
 		"lib/mediawiki.parser.environment.js",
+		"lib/wts.ConstrainedText.js",
+		"lib/wts.SerializerState.js",
 		"api/ParsoidService.js"
 	]
 }
