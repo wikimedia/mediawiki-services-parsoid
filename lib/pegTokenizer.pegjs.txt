@@ -483,16 +483,7 @@ isbn
 
 url_protocol =
     & { return Util.isProtocolValid(input.substr(endOffset()), options.env); }
-    h:$[a-zA-Z\/]+ c:':'? s:'//'?
-{
-    if (c) {
-        h += c;
-    }
-    if (s) {
-        h += s;
-    }
-    return h;
-}
+    p:$( '//' / [A-Za-z] [-A-Za-z0-9+.]* ':' '//'? ) { return p; }
 
 // no punctuation, and '{<' to trigger directives
 no_punctuation_char = [^ :\]\[\r\n"'<>\x00-\x20\x7f,.&%\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000{]
@@ -532,6 +523,7 @@ url "url"
 // which aren't included in no_punctuation_char
 autourl
   = &{ return stops.push('autourl', { sawLParen: false }); }
+    ! '//' // protocol-relative autolinks not allowed (T32269)
     proto:url_protocol
     addr:( ipv6_address / ipv4_address )?
     path:(  ( !{ return inlineBreaks(input, endOffset(), stops); } // inline_breaks
@@ -1778,12 +1770,7 @@ text_char = [^-'<~[{\n\r:;\]}|!=]
  * {    start of parser functions, transclusion and template args
  * \n   all sort of block-level markup at start of line
  * \r   ditto
- * h    http(s) urls
- * n    nntp(s) urls
- * m    mailto urls
- * I    start of ISBN 10/13 auto links
- * P    start of PMID auto links
- * R    start of RFC auto links
+ * A-Za-z autolinks (http(s), nttp(s), mailto, ISBN, PMID, RFC)
  *
  * _    behavior switches (e.g., '__NOTOC__') (XXX: not URL related)
  * ! and | table cell delimiters, might be better to specialize those
@@ -1798,7 +1785,7 @@ text_char = [^-'<~[{\n\r:;\]}|!=]
  * ;    separator in lang_variant
  */
 
-urltext = ( $[^-'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:;\]} &=]+
+urltext = ( $[^-'<~[{\n/A-Za-z_|!:;\]} &=]+
           / & [/A-Za-z] al:autolink { return al; }
           / & "&" he:htmlentity { return he; }
           // Convert trailing space into &nbsp;
@@ -1815,24 +1802,6 @@ urltext = ( $[^-'<~[{\n\pPrRfFgGhHiImMnNsStTwW_|!:;\]} &=]+
           // About 96% of text_char calls originate here.
           // pegjs 0.8 inlines this simple rule automatically.
           / text_char )+
-
-/*
-    '//', // for protocol-relative URLs, but not in text!
-    'ftp://',
-    'git://',
-    'gopher://',
-    'http://',
-    'https://',
-    'irc://',
-    'ircs://',  // @bug 28503
-    'mailto:',
-    'mms://',
-    'news:',
-    'nntp://', // @bug 3808 RFC 1738
-    'svn://',
-    'telnet://', // Well if we're going to support the above.. -ævar
-    'worldwind://',
-*/
 
 htmlentity = m:$("&" [#0-9a-zA-Z]+ ";") {
     var cc = Util.decodeEntities(m);
