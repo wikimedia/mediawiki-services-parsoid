@@ -120,6 +120,11 @@ var standardOpts = Util.addStandardOptions({
 		'boolean': true,
 		'default': false,
 	},
+	'offline': {
+		description: 'Shortcut to turn off various network fetches during parse.',
+		'boolean': true,
+		'default': false,
+	},
 });
 exports.defaultOptions = yargs.options(standardOpts).parse([]);
 
@@ -303,6 +308,13 @@ if (require.main === module) {
 		// Default conversion mode
 		if (!argv.html2wt && !argv.wt2wt && !argv.html2html) {
 			argv.wt2html = true;
+		}
+
+		// Offline shortcut
+		if (argv.offline) {
+			argv.fetchConfig = false;
+			argv.fetchTemplates = false;
+			argv.usephppreprocessor = false;
 		}
 
 		var prefix = argv.prefix || null;
