@@ -14,8 +14,14 @@ var TemplateRequest = ApiRequest.TemplateRequest;
 var PHPParseRequest = ApiRequest.PHPParseRequest;
 
 
+/**
+ * @class apiUtils
+ * @singleton
+ */
 var apiUtils = module.exports = {
+	/** @property {string} */
 	WIKITEXT_CONTENT_TYPE: 'text/plain;profile=mediawiki.org/specs/wikitext/1.0.0;charset=utf-8',
+	/** @property {string} */
 	HTML_CONTENT_TYPE:     'text/html;profile=mediawiki.org/specs/html/1.1.0;charset=utf-8',
 };
 
@@ -25,6 +31,8 @@ var apiUtils = module.exports = {
  * (Returns if a response has already been sent.)
  * This is not strictly HTTP spec conformant, but works in most clients. More
  * importantly, it works both behind proxies and on the internal network.
+ * @method
+ * @param {Object} args
  */
 apiUtils.relativeRedirect = function(args) {
 	if (!args.code) {
@@ -45,9 +53,8 @@ apiUtils.relativeRedirect = function(args) {
  * Set header, but only if response hasn't been sent.
  *
  * @method
- * @param {MWParserEnvironment} env
  * @param {Response} res The response object from our routing function.
- * @property {Function} Serializer
+ * @param {MWParserEnvironment} env
  */
 apiUtils.setHeader = function(res, env) {
 	if (env.responseSent) {
@@ -61,9 +68,8 @@ apiUtils.setHeader = function(res, env) {
  * End response, but only if response hasn't been sent.
  *
  * @method
- * @param {MWParserEnvironment} env
  * @param {Response} res The response object from our routing function.
- * @property {Function} Serializer
+ * @param {MWParserEnvironment} env
  */
 apiUtils.endResponse = function(res, env) {
 	if (env.responseSent) {
@@ -79,9 +85,8 @@ apiUtils.endResponse = function(res, env) {
  * Send response, but only if response hasn't been sent.
  *
  * @method
- * @param {MWParserEnvironment} env
  * @param {Response} res The response object from our routing function.
- * @property {Function} Serializer
+ * @param {MWParserEnvironment} env
  */
 apiUtils.sendResponse = function(res, env) {
 	if (env.responseSent) {
@@ -94,6 +99,10 @@ apiUtils.sendResponse = function(res, env) {
 
 /**
  * Render response, but only if response hasn't been sent.
+ * @param {Response} res The response object from our routing function.
+ * @param {MWParserEnvironment} env
+ * @param template
+ * @param data
  */
 apiUtils.renderResponse = function(res, env, template, data) {
 	if (env.responseSent) {
@@ -104,6 +113,13 @@ apiUtils.renderResponse = function(res, env, template, data) {
 	}
 };
 
+/**
+ * Send JSON response, but only if response hasn't been sent.
+ *
+ * @method
+ * @param {Response} res The response object from our routing function.
+ * @param {MWParserEnvironment} env
+ */
 apiUtils.jsonResponse = function(res, env) {
 	if (env.responseSent) {
 		return;
@@ -128,6 +144,9 @@ apiUtils.jsonResponse = function(res, env) {
  *
  * The above is susceptible false positives. Node spins one event loop, so
  * multiple asynchronous requests will interfere with each others' timing.
+ * @method
+ * @param {MWParserEnvironment} env
+ * @param {Error} err
  */
 
 apiUtils.timeoutResp = function(env, err) {
@@ -149,6 +168,11 @@ var makeDone = function(timeoutId) {
 // Cluster support was very experimental and missing methods in v0.8.x
 var sufficientNodeVersion = !/^v0\.[0-8]\./.test(process.version);
 
+/**
+ * @method
+ * @param {Promise} p
+ * @param {Response} res The response object from our routing function.
+ */
 apiUtils.cpuTimeout = function(p, res) {
 	var CPU_TIMEOUT = res.local('env').conf.parsoid.timeouts.cpu;
 	var timeoutId = res.local('timeoutId');

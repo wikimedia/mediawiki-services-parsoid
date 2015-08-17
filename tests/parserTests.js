@@ -878,6 +878,7 @@ ParserTests.prototype.convertWt2Html = function(mode, wikitext, processHtmlCB) {
  * @method
  * @param {Object} item
  * @param {Object} options
+ * @param {string} mode
  * @param {Function} endCb
  */
 ParserTests.prototype.processTest = function(item, options, mode, endCb) {
@@ -1051,7 +1052,7 @@ ParserTests.prototype.processTest = function(item, options, mode, endCb) {
  * @param {Object} item
  * @param {Object} options
  * @param {string} mode
- * @param {Node} doc
+ * @param {Node} body
  * @param {Function} cb
  */
 ParserTests.prototype.processParsedHTML = function(item, options, mode, body, cb) {
@@ -1072,7 +1073,7 @@ ParserTests.prototype.processParsedHTML = function(item, options, mode, body, cb
  * @param {Object} item
  * @param {Object} options
  * @param {string} mode
- * @param {Node} doc
+ * @param {string} wikitext
  * @param {Function} cb
  */
 ParserTests.prototype.processSerializedWT = function(item, options, mode, wikitext, cb) {
@@ -1206,10 +1207,11 @@ ParserTests.prototype.printFailure = function(title, comments, iopts, options,
 /**
  * @method
  * @param {string} title
+ * @param {Object} options
  * @param {string} mode
  * @param {boolean} expectSuccess Whether this success was expected (or was this test blacklisted?)
  * @param {boolean} isWhitelist Whether this success was due to a whitelisting
- * @param {boolean} shouldReport Whether we should actually output this result, or just count it
+ * @param {Object} item
  */
 ParserTests.prototype.printSuccess = function(title, options, mode, expectSuccess, isWhitelist, item) {
 	var quiet = booleanOption(options.quiet);

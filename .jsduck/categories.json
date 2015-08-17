@@ -73,8 +73,10 @@
 			{
 				"name": "Logging",
 				"classes": [
+					"LocationData",
 					"LogData",
 					"Logger",
+					"ParsoidLogData",
 					"ParsoidLogger"
 				]
 			}
