@@ -78,10 +78,11 @@ var modes = ['wt2html', 'wt2wt', 'html2html', 'html2wt', 'selser'];
 
 /**
  * @class
- * @private
- * @singleton
  *
  * Main class for the test environment.
+ *
+ * @singleton
+ * @private
  */
 function ParserTests() {
 	var i;
@@ -136,7 +137,7 @@ var prettyPrintIOptions = function(iopts) {
  *
  * Get the options from the command line.
  *
- * @returns {Object}
+ * @return {Object}
  */
 ParserTests.prototype.getOpts = function() {
 
@@ -295,7 +296,7 @@ ParserTests.prototype.getOpts = function() {
  * Get an object holding our tests cases. Eventually from a cache file
  *
  * @param {Object} argv
- * @returns {Object}
+ * @return {Object}
  */
 ParserTests.prototype.getTests = function(argv) {
 	// double check that test file is up-to-date with upstream
@@ -369,7 +370,7 @@ ParserTests.prototype.getTests = function(argv) {
  * Parse content of tests case file given as plaintext
  *
  * @param {string} content
- * @returns {Array}
+ * @return {Array}
  */
 ParserTests.prototype.parseTestCase = function(content) {
 	try {
@@ -448,7 +449,7 @@ ParserTests.prototype.convertHtml2Wt = function(options, mode, item, body, proce
  *
  * @param {Array} allChanges Already-tried changes
  * @param {Array} change Candidate change
- * @returns {boolean}
+ * @return {boolean}
  */
 ParserTests.prototype.isDuplicateChangeTree = function(allChanges, change) {
 	if (!Array.isArray(allChanges)) {
@@ -1263,7 +1264,7 @@ ParserTests.prototype.printSuccess = function(title, options, mode, expectSucces
  * @param {Function} getDiff Returns a string showing the diff(s) for the test.
  * @param {Object} getDiff.actual
  * @param {Object} getDiff.expected
- * @returns {string}
+ * @return {string}
  */
 ParserTests.prototype.getActualExpected = function(actual, expected, getDiff) {
 	var returnStr = '';
@@ -2147,7 +2148,7 @@ var xmlFuncs = (function() {
 	 *
 	 * @inheritdoc ParserTests#getActualExpected.
 	 *
-	 * @returns {string} The XML representation of the actual and expected outputs
+	 * @return {string} The XML representation of the actual and expected outputs
 	 */
 	var getActualExpectedXML = function(actual, expected, getDiff) {
 		var returnStr = '';
