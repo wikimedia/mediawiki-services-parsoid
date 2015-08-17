@@ -524,6 +524,7 @@ url "url"
 autourl
   = &{ return stops.push('autourl', { sawLParen: false }); }
     ! '//' // protocol-relative autolinks not allowed (T32269)
+    r:(
     proto:url_protocol
     addr:( ipv6_address / ipv4_address )?
     path:(  ( !{ return inlineBreaks(input, endOffset(), stops); } // inline_breaks
@@ -557,11 +558,15 @@ autourl
       strip = new RegExp('[' + Util.escapeRegExp(strip) + ']*$');
       trim = strip.exec(last)[0].length;
       url[url.length - 1] = last.slice(0, last.length - trim);
-      peg$currPos -= trim;
     }
+    url = tu.flattenStringlist(url);
+    if (url.length === 1 && url[0].constructor === String && url[0].length <= proto.length) {
+      return null; // ensure we haven't stripped everything: T106945
+    }
+    peg$currPos -= trim;
     stops.pop('autourl');
-    return tu.flattenString(url);
-}
+    return url;
+} ) &{ return r !== null; } {return r; }
     / &{ return stops.pop('autourl'); }
 
 ipv4_address
