@@ -199,7 +199,7 @@ nested_block_in_table
   =
     // avoid recursion via nested_block_in_table, as that can lead to stack
     // overflow in large tables
-    // See https://bugzilla.wikimedia.org/show_bug.cgi?id=57670
+    // See https://phabricator.wikimedia.org/T59670
     & { return stops.push('tableDataBlock', true); }
     // XXX: don't rely on a lame look-ahead like this; use syntax stops
     // instead, so that multi-line th content followed by a line prefixed with
@@ -1288,7 +1288,7 @@ generic_attribute_name
         / ! inline_breaks
           ! '/>'
           // /=>"' is the html5 attribute name set we do not want.
-          // \[ is to avoid eating links. (see: BUG 553: link with two variables in a piped link)
+          // \[ is to avoid eating links. (see: T2553: link with two variables in a piped link)
           t:( directive / !( space_or_newline / [\[/=>"'] ) c:. { return c; }
         ) { return t; }
       )+ {
@@ -1546,7 +1546,7 @@ table_content_line = (space / comment)* (
 
 table_start_tag "table_start_tag"
   = sc:(space / comment)* startPos:("" { return endOffset(); }) b:"{" p:pipe
-    // ok to normalize away stray |} on rt (see bug 57360)
+    // ok to normalize away stray |} on rt (see T59360)
     & { return stops.push('table', false); }
     ta:(table_attribute / broken_table_attribute_name_char)*
     tsEndPos:("" { stops.pop('table'); return endOffset(); })
