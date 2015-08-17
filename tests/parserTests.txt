@@ -3814,7 +3814,7 @@ Definition Lists: Hacky use to indent tables (WS-insensitive)
 ##
 ## All Parsoid only definition list tests have this difference.
 ##
-## See also: https://bugzilla.wikimedia.org/show_bug.cgi?id=6569
+## See also: https://phabricator.wikimedia.org/T8569
 ## and http://lists.wikimedia.org/pipermail/wikitext-l/2011-November/000483.html
 
 !! test
@@ -10619,7 +10619,7 @@ b}}
 !! end
 
 !! test
-Parsoid: Merge double tds (bug 50603)
+Parsoid: Merge double tds (T52603)
 !! options
 parsoid
 !! wikitext
@@ -10633,7 +10633,7 @@ parsoid
 !! end
 
 !! test
-Parsoid: Merge double tds in nested transclusion content (bug 50603)
+Parsoid: Merge double tds in nested transclusion content (T52603)
 !! options
 parsoid
 !! wikitext
@@ -12927,7 +12927,7 @@ parsoid=wt2html,wt2wt,html2html
 ###################
 # Image sizing.
 # See https://www.mediawiki.org/wiki/Help:Images#Size_and_frame
-# and https://bugzilla.wikimedia.org/show_bug.cgi?id=62258
+# and https://phabricator.wikimedia.org/T64258
 # Foobar has actual size of 1941x220
 # 1. Thumbs & frameless always reduce, can't be enlarged unless it's
 #    a scalable format.
