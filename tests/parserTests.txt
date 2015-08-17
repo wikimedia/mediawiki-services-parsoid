@@ -22808,7 +22808,7 @@ parsoid=html2wt
 <p>this is not a link: http://example.com
 </p>
 !! wikitext
-this is not a link: <nowiki>http://example.com</nowiki>
+<nowiki>this is not a link: http://example.com</nowiki>
 !! end
 
 !! test
