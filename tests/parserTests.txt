@@ -24463,7 +24463,7 @@ parsoid={
   "scrubWikitext": true
 }
 !! html/parsoid
-<h2> foo <span about="#mwt2" class="reference" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-1"},"attrs":{}}'><a href="#cite_note-1">[1]</a></span> </h2>
+<h2> foo <span about="#mwt2" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-1"},"attrs":{}}'><a href="#cite_note-1"><span class="mw-reflink-text">[1]</span></a></span> </h2>
 
 <ol class="references" typeof="mw:Extension/references" about="#mwt3" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1">↑</a></span> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">bar <link rel="mw:PageProp/Category" href="./Category:Baz" /> </span></li></ol>
 !! wikitext
@@ -24553,7 +24553,7 @@ parsoid=html2wt
 <h2> hi <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"bogus","href":"./Template:Bogus"},"params":{"1":{"wt":"there\nyou"}},"i":0}}]}'>there</span><span about="#mwt1">
 </span><span about="#mwt1">you</span> </h2>
 
-<h2> foo <span about="#mwt2" class="reference" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-1"},"attrs":{}}'><a href="#cite_note-1">[1]</a></span> </h2>
+<h2> foo <span about="#mwt2" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-1"},"attrs":{}}'><a href="#cite_note-1"><span class="mw-reflink-text">[1]</span></a></span> </h2>
 
 <ol class="references" typeof="mw:Extension/references" about="#mwt3" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"><a href="#cite_ref-1">↑</a></span> <span id="mw-reference-text-cite_note-1" class="mw-reference-text" data-parsoid="{}">hello
 there</span></li></ol>
