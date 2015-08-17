@@ -4675,6 +4675,25 @@ http://example.com/url_with_entity&#60;
 !! end
 
 !! test
+External links: Lone protocols are never linked (T105697)
+!! wikitext
+http://
+http://;
+(http://)
+bitcoin:
+bitcoin:;
+(bitcoin:)
+!! html
+<p>http://
+http://;
+(http://)
+bitcoin:
+bitcoin:;
+(bitcoin:)
+</p>
+!! end
+
+!! test
 External links: No preceding word characters allowed (bug 65278)
 !! wikitext
 NOPEhttp://example.com
@@ -10351,6 +10370,7 @@ Template:MSGNW test
 <gallery>
 File:Foobar.jpg
 </gallery>
+<!-- comment -->
 !! endarticle
 
 # hmm, fix this or just deprecate msgnw and document its behavior?
@@ -10366,6 +10386,7 @@ msgnw keyword
 &#60;gallery&#62;
 File:Foobar.jpg
 &#60;/gallery&#62;
+&#60;!-- comment --&#62;
 </p>
 !! end
 
