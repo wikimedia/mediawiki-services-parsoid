@@ -1,5 +1,10 @@
 {
 	"preset": "node-style-guide",
+	"jsDoc": {
+		"checkAnnotations": {
+			"preset": "jsduck5"
+		}
+	},
 	"requireCurlyBraces": [
 		"if",
 		"else",
