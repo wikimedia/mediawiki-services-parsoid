@@ -3,7 +3,9 @@
 	"jsDoc": {
 		"checkAnnotations": {
 			"preset": "jsduck5"
-		}
+		},
+		"checkParamNames": true,
+		"checkRedundantParams": true
 	},
 	"requireCurlyBraces": [
 		"if",
