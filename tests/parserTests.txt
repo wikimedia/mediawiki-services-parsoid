@@ -25787,6 +25787,16 @@ parsoid={
 </table>
 !! end
 
+!! test
+Escape nowiki DOM elements
+!! options
+parsoid=html2wt
+!! html/parsoid
+<nowiki><i>foo</i></nowiki>
+!! wikitext
+&lt;nowiki&gt;''foo''&lt;/nowiki&gt;
+!! end
+
 # ---------------------------------------------------
 # End of tests spec'ing wikitext serialization norms |
 # ---------------------------------------------------
