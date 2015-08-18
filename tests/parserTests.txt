@@ -25098,6 +25098,92 @@ http://example.com<nowiki> http://example.com is not a link.</nowiki>
 !! end
 
 !! test
+Magic links inside links (not autolinked)
+!! wikitext
+[[Foo|http://example.com]]
+[[Foo|RFC 1234]]
+[[Foo|PMID 1234]]
+[[Foo|ISBN 123456789x]]
+
+[http://foo.com http://example.com]
+[http://foo.com RFC 1234]
+[http://foo.com PMID 1234]
+[http://foo.com ISBN 123456789x]
+!! html+tidy
+<p><a href="/wiki/Foo" title="Foo">http://example.com</a> <a href="/wiki/Foo" title="Foo">RFC 1234</a> <a href="/wiki/Foo" title="Foo">PMID 1234</a> <a href="/wiki/Foo" title="Foo">ISBN 123456789x</a></p>
+<p><a rel="nofollow" class="external text" href="http://foo.com">http://example.com</a> <a rel="nofollow" class="external text" href="http://foo.com">RFC 1234</a> <a rel="nofollow" class="external text" href="http://foo.com">PMID 1234</a> <a rel="nofollow" class="external text" href="http://foo.com">ISBN 123456789x</a></p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Foo" title="Foo">http://example.com</a>
+<a rel="mw:WikiLink" href="./Foo" title="Foo">RFC 1234</a>
+<a rel="mw:WikiLink" href="./Foo" title="Foo">PMID 1234</a>
+<a rel="mw:WikiLink" href="./Foo" title="Foo">ISBN 123456789x</a></p>
+
+<p><a rel="mw:ExtLink" href="http://foo.com">http://example.com</a>
+<a rel="mw:ExtLink" href="http://foo.com">RFC 1234</a>
+<a rel="mw:ExtLink" href="http://foo.com">PMID 1234</a>
+<a rel="mw:ExtLink" href="http://foo.com">ISBN 123456789x</a></p>
+!! end
+
+!! test
+Magic links inside image captions (autolinked)
+!! wikitext
+[[File:Foobar.jpg|thumb|http://example.com]]
+[[File:Foobar.jpg|thumb|RFC 1234]]
+[[File:Foobar.jpg|thumb|PMID 1234]]
+[[File:Foobar.jpg|thumb|ISBN 123456789x]]
+!! html+tidy
+<div class="thumb tright">
+<div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>
+<div class="thumbcaption">
+<div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>
+<a rel="nofollow" class="external free" href="http://example.com">http://example.com</a></div>
+</div>
+</div>
+<div class="thumb tright">
+<div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>
+<div class="thumbcaption">
+<div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>
+<a class="external mw-magiclink-rfc" rel="nofollow" href="//tools.ietf.org/html/rfc1234">RFC 1234</a></div>
+</div>
+</div>
+<div class="thumb tright">
+<div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>
+<div class="thumbcaption">
+<div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>
+<a class="external mw-magiclink-pmid" rel="nofollow" href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract">PMID 1234</a></div>
+</div>
+</div>
+<div class="thumb tright">
+<div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>
+<div class="thumbcaption">
+<div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>
+<a href="/wiki/Special:BookSources/123456789X" class="internal mw-magiclink-isbn">ISBN 123456789x</a></div>
+</div>
+</div>
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a rel="mw:ExtLink" href="http://example.com">http://example.com</a></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a href="//tools.ietf.org/html/rfc1234" rel="mw:ExtLink">RFC 1234</a></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract" rel="mw:ExtLink">PMID 1234</a></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a href="./Special:BookSources/123456789X" rel="mw:ExtLink">ISBN 123456789x</a></figcaption></figure>
+!! end
+
+!! test
+WTS of magic word text (T109371)
+!! options
+parsoid=html2wt
+!! html/parsoid
+<p>RFC 1234</p>
+<p><a href="http://foo.com" rel="mw:ExtLink">RFC 1234</a></p>
+<p><a href="./Foo" rel="mw:WikiLink">RFC 1234</a></p>
+!! wikitext
+<nowiki>RFC 1234</nowiki>
+
+[http://foo.com RFC 1234]
+
+[[Foo|RFC 1234]]
+!! end
+
+!! test
 Edited Redirect link should emit a non-piped wikitext link
 !! options
 parsoid=html2wt
