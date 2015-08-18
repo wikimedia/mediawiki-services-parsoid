@@ -9945,7 +9945,7 @@ This is ISBN 978-0-316-09811-3 but thisISBN 978-0-316-09811-3 is not ISBN 978-0-
 <p>This is <a href="/wiki/Special:BookSources/9780316098113" class="internal mw-magiclink-isbn">ISBN 978-0-316-09811-3</a> but thisISBN 978-0-316-09811-3 is not ISBN 978-0-316-09811-3linked.
 </p>
 !! html/parsoid
-<p>This is <a href="./Special:BookSources/9780316098113" rel="mw:ExtLink">ISBN 978-0-316-09811-3</a> but thisISBN 978-0-316-09811-3 is not ISBN 978-0-316-09811-3linked.</p>
+<p>This is <a href="./Special:BookSources/9780316098113" rel="mw:WikiLink">ISBN 978-0-316-09811-3</a> but thisISBN 978-0-316-09811-3 is not ISBN 978-0-316-09811-3linked.</p>
 !! end
 
 !! test
@@ -13273,7 +13273,7 @@ BUG 1887: A ISBN with a thumbnail
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div><a href="/wiki/Special:BookSources/1235467890" class="internal mw-magiclink-isbn">ISBN 1235467890</a></div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a href="./Special:BookSources/1235467890" rel="mw:ExtLink">ISBN 1235467890</a></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a href="./Special:BookSources/1235467890" rel="mw:WikiLink">ISBN 1235467890</a></figcaption></figure>
 !! end
 
 !! test
@@ -18243,7 +18243,7 @@ ISBN  978-0-1234-56&#x20;789
 !! html+tidy
 <p><a href="/wiki/Special:BookSources/9780123456" class="internal mw-magiclink-isbn">ISBN 978-0-1234-56</a> 789</p>
 !! html/parsoid
-<p><a href="./Special:BookSources/9780123456" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 978-0-1234-56</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#x20;","srcContent":" "}'> </span>789</p>
+<p><a href="./Special:BookSources/9780123456" rel="mw:WikiLink" data-parsoid='{"stx":"magiclink"}'>ISBN 978-0-1234-56</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#x20;","srcContent":" "}'> </span>789</p>
 !! end
 
 !! test
@@ -18263,7 +18263,7 @@ ISBN ISBN 1234567890
 <p>ISBN <a href="/wiki/Special:BookSources/1234567890" class="internal mw-magiclink-isbn">ISBN 1234567890</a>
 </p>
 !! html/parsoid
-<p>ISBN <a href="./Special:BookSources/1234567890" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a></p>
+<p>ISBN <a href="./Special:BookSources/1234567890" rel="mw:WikiLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a></p>
 !! end
 
 # Uppercase X and lowercase x as well
@@ -18285,12 +18285,12 @@ ISBN 978080442957x
 <a href="/wiki/Special:BookSources/978080442957X" class="internal mw-magiclink-isbn">ISBN 978080442957x</a>
 </p>
 !! html/parsoid
-<p><a href="./Special:BookSources/346204561X" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 3-462-04561-X</a>
-<a href="./Special:BookSources/346204561X" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 3-462-04561-x</a>
-<a href="./Special:BookSources/080442957X" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 080442957X</a>
-<a href="./Special:BookSources/080442957X" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 080442957x</a>
-<a href="./Special:BookSources/978080442957X" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 978080442957X</a>
-<a href="./Special:BookSources/978080442957X" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 978080442957x</a></p>
+<p><a href="./Special:BookSources/346204561X" rel="mw:WikiLink" data-parsoid='{"stx":"magiclink"}'>ISBN 3-462-04561-X</a>
+<a href="./Special:BookSources/346204561X" rel="mw:WikiLink" data-parsoid='{"stx":"magiclink"}'>ISBN 3-462-04561-x</a>
+<a href="./Special:BookSources/080442957X" rel="mw:WikiLink" data-parsoid='{"stx":"magiclink"}'>ISBN 080442957X</a>
+<a href="./Special:BookSources/080442957X" rel="mw:WikiLink" data-parsoid='{"stx":"magiclink"}'>ISBN 080442957x</a>
+<a href="./Special:BookSources/978080442957X" rel="mw:WikiLink" data-parsoid='{"stx":"magiclink"}'>ISBN 978080442957X</a>
+<a href="./Special:BookSources/978080442957X" rel="mw:WikiLink" data-parsoid='{"stx":"magiclink"}'>ISBN 978080442957x</a></p>
 !! end
 
 !! test
@@ -18301,7 +18301,7 @@ ISBN 1234567890
 <p><a href="/wiki/Special:BookSources/1234567890" class="internal mw-magiclink-isbn">ISBN 1234567890</a>
 </p>
 !! html/parsoid
-<p><a href="./Special:BookSources/1234567890" rel="mw:ExtLink">ISBN 1234567890</a></p>
+<p><a href="./Special:BookSources/1234567890" rel="mw:WikiLink">ISBN 1234567890</a></p>
 !! end
 
 !! test
@@ -18312,7 +18312,7 @@ Bug 22905: <abbr> followed by ISBN followed by </a>
 <p><abbr>(fr)</abbr> <a href="/wiki/Special:BookSources/2753300917" class="internal mw-magiclink-isbn">ISBN 2753300917</a> <a rel="nofollow" class="external text" href="http://www.example.com">example.com</a>
 </p>
 !! html/parsoid
-<p><abbr data-parsoid='{"stx":"html"}'>(fr)</abbr> <a href="./Special:BookSources/2753300917" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 2753300917</a> <a rel="mw:ExtLink" href="http://www.example.com">example.com</a></p>
+<p><abbr data-parsoid='{"stx":"html"}'>(fr)</abbr> <a href="./Special:BookSources/2753300917" rel="mw:WikiLink" data-parsoid='{"stx":"magiclink"}'>ISBN 2753300917</a> <a rel="mw:ExtLink" href="http://www.example.com">example.com</a></p>
 !! end
 
 !! test
@@ -22936,9 +22936,9 @@ PMID 123&foo
 !! test
 Links 12. Add <nowiki/>s between text-nodes and ISBN-links when required (bug 64300)
 !! html/parsoid
-<p><a href="./Special:BookSources/1234567890" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a>1
-<a href="./Special:BookSources/1234567890" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a>x
-a<a href="./Special:BookSources/1234567890" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a>b
+<p><a href="./Special:BookSources/1234567890" rel="mw:WikiLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a>1
+<a href="./Special:BookSources/1234567890" rel="mw:WikiLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a>x
+a<a href="./Special:BookSources/1234567890" rel="mw:WikiLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a>b
 </p>
 !! wikitext
 ISBN 1234567890<nowiki/>1
@@ -22949,7 +22949,7 @@ a<nowiki/>ISBN 1234567890<nowiki/>b
 !! test
 Links 13. Don't add spurious <nowiki/>s between text-nodes and ISBN-links (bug 64300)
 !! html/parsoid
-<p>-<a href="./Special:BookSources/1234567890" rel="mw:ExtLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a>'s
+<p>-<a href="./Special:BookSources/1234567890" rel="mw:WikiLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a>'s
 !! wikitext
 -ISBN 1234567890's
 !! html/php
@@ -24987,7 +24987,7 @@ Edited ISBN links not serializable as ISBN links should serialize as wikilinks
 !! options
 parsoid=html2wt
 !! html/parsoid
-<a rel="mw:ExtLink" href="./Special:BookSources/1234567890">ISBN 1234567895</a>
+<a href="./Special:BookSources/1234567890" rel="mw:ExtLink">ISBN 1234567895</a>
 !! wikitext
 [[Special:BookSources/1234567890|ISBN 1234567895]]
 !! end
@@ -25164,7 +25164,7 @@ Magic links inside image captions (autolinked)
 <figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a rel="mw:ExtLink" href="http://example.com">http://example.com</a></figcaption></figure>
 <figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a href="//tools.ietf.org/html/rfc1234" rel="mw:ExtLink">RFC 1234</a></figcaption></figure>
 <figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract" rel="mw:ExtLink">PMID 1234</a></figcaption></figure>
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a href="./Special:BookSources/123456789X" rel="mw:ExtLink">ISBN 123456789x</a></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a href="./Special:BookSources/123456789X" rel="mw:WikiLink">ISBN 123456789x</a></figcaption></figure>
 !! end
 
 !! test
