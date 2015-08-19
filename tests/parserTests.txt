@@ -5301,9 +5301,22 @@ External link containing double-single-quotes with no space separating the url f
 External link with comments in link text
 !! wikitext
 [http://www.google.com Google <!-- comment -->]
-!! html
+!! html/php
 <p><a rel="nofollow" class="external text" href="http://www.google.com">Google </a>
 </p>
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="http://www.google.com">Google <!-- comment --></a></p>
+!! end
+
+!! test
+External link to bare IPv4 address
+!! wikitext
+[http://192.168.0.1 Link]
+!! html/php
+<p><a rel="nofollow" class="external text" href="http://192.168.0.1">Link</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="http://192.168.0.1">Link</a></p>
 !! end
 
 !! test
@@ -5443,6 +5456,7 @@ Non-extlinks in brackets
 [{{echo|foo}}l's errand]
 [url={{echo|foo}}]
 [url=http://example.com]
+[http:// bare protocols don't count]
 !! html
 <p>[foo]
 [foo bar]
@@ -5456,6 +5470,7 @@ Non-extlinks in brackets
 [fool's errand]
 [url=foo]
 [url=<a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>]
+[http:// bare protocols don't count]
 </p>
 !! end
 
