@@ -5341,14 +5341,91 @@ http://example.com/index.php?foozoid&#x5B;&#x5D;=bar
 !! end
 
 !! test
-IPv6 urls (bug 21261)
-!! options
-disabled
+IPv6 urls, autolink format (T23261)
 !! wikitext
 http://[2404:130:0:1000::187:2]/index.php
+
+Examples from RFC2373, section 2.2:
+* http://[1080::8:800:200C:417A]/unicast
+* http://[FF01::101]/multicast
+* http://[::1]/loopback
+* http://[::]/unspecified
+* http://[::13.1.68.3]/ipv4compat
+* http://[::FFFF:129.144.52.38]/ipv4compat
+
+Examples from RFC 2732, section 2:
+* http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html
+* http://[1080:0:0:0:8:800:200C:417A]/index.html
+* http://[3ffe:2a00:100:7031::1]
+* http://[1080::8:800:200C:417A]/foo
+* http://[::192.9.5.5]/ipng
+* http://[::FFFF:129.144.52.38]:80/index.html
+* http://[2010:836B:4179::836B:4179]
+
 !! html
 <p><a rel="nofollow" class="external free" href="http://[2404:130:0:1000::187:2]/index.php">http://[2404:130:0:1000::187:2]/index.php</a>
+</p><p>Examples from RFC2373, section 2.2:
 </p>
+<ul><li> <a rel="nofollow" class="external free" href="http://[1080::8:800:200C:417A]/unicast">http://[1080::8:800:200C:417A]/unicast</a></li>
+<li> <a rel="nofollow" class="external free" href="http://[FF01::101]/multicast">http://[FF01::101]/multicast</a></li>
+<li> <a rel="nofollow" class="external free" href="http://[::1]/loopback">http://[::1]/loopback</a></li>
+<li> <a rel="nofollow" class="external free" href="http://[::]/unspecified">http://[::]/unspecified</a></li>
+<li> <a rel="nofollow" class="external free" href="http://[::13.1.68.3]/ipv4compat">http://[::13.1.68.3]/ipv4compat</a></li>
+<li> <a rel="nofollow" class="external free" href="http://[::FFFF:129.144.52.38]/ipv4compat">http://[::FFFF:129.144.52.38]/ipv4compat</a></li></ul>
+<p>Examples from <a class="external mw-magiclink-rfc" rel="nofollow" href="//tools.ietf.org/html/rfc2732">RFC 2732</a>, section 2:
+</p>
+<ul><li> <a rel="nofollow" class="external free" href="http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html">http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html</a></li>
+<li> <a rel="nofollow" class="external free" href="http://[1080:0:0:0:8:800:200C:417A]/index.html">http://[1080:0:0:0:8:800:200C:417A]/index.html</a></li>
+<li> <a rel="nofollow" class="external free" href="http://[3ffe:2a00:100:7031::1]">http://[3ffe:2a00:100:7031::1]</a></li>
+<li> <a rel="nofollow" class="external free" href="http://[1080::8:800:200C:417A]/foo">http://[1080::8:800:200C:417A]/foo</a></li>
+<li> <a rel="nofollow" class="external free" href="http://[::192.9.5.5]/ipng">http://[::192.9.5.5]/ipng</a></li>
+<li> <a rel="nofollow" class="external free" href="http://[::FFFF:129.144.52.38]:80/index.html">http://[::FFFF:129.144.52.38]:80/index.html</a></li>
+<li> <a rel="nofollow" class="external free" href="http://[2010:836B:4179::836B:4179]">http://[2010:836B:4179::836B:4179]</a></li></ul>
+
+!! end
+
+!! test
+IPv6 urls, bracketed format (T23261)
+!! wikitext
+[http://[2404:130:0:1000::187:2]/index.php test]
+
+Examples from RFC2373, section 2.2:
+* [http://[1080::8:800:200C:417A] unicast]
+* [http://[FF01::101] multicast]
+* [http://[::1]/ loopback]
+* [http://[::] unspecified]
+* [http://[::13.1.68.3] ipv4compat]
+* [http://[::FFFF:129.144.52.38] ipv4compat]
+
+Examples from RFC 2732, section 2:
+* [http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html 1]
+* [http://[1080:0:0:0:8:800:200C:417A]/index.html 2]
+* [http://[3ffe:2a00:100:7031::1] 3]
+* [http://[1080::8:800:200C:417A]/foo 4]
+* [http://[::192.9.5.5]/ipng 5]
+* [http://[::FFFF:129.144.52.38]:80/index.html 6]
+* [http://[2010:836B:4179::836B:4179] 7]
+
+!! html
+<p><a rel="nofollow" class="external text" href="http://[2404:130:0:1000::187:2]/index.php">test</a>
+</p><p>Examples from RFC2373, section 2.2:
+</p>
+<ul><li> <a rel="nofollow" class="external text" href="http://[1080::8:800:200C:417A]">unicast</a></li>
+<li> <a rel="nofollow" class="external text" href="http://[FF01::101]">multicast</a></li>
+<li> <a rel="nofollow" class="external text" href="http://[::1]/">loopback</a></li>
+<li> <a rel="nofollow" class="external text" href="http://[::]">unspecified</a></li>
+<li> <a rel="nofollow" class="external text" href="http://[::13.1.68.3]">ipv4compat</a></li>
+<li> <a rel="nofollow" class="external text" href="http://[::FFFF:129.144.52.38]">ipv4compat</a></li></ul>
+<p>Examples from <a class="external mw-magiclink-rfc" rel="nofollow" href="//tools.ietf.org/html/rfc2732">RFC 2732</a>, section 2:
+</p>
+<ul><li> <a rel="nofollow" class="external text" href="http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html">1</a></li>
+<li> <a rel="nofollow" class="external text" href="http://[1080:0:0:0:8:800:200C:417A]/index.html">2</a></li>
+<li> <a rel="nofollow" class="external text" href="http://[3ffe:2a00:100:7031::1]">3</a></li>
+<li> <a rel="nofollow" class="external text" href="http://[1080::8:800:200C:417A]/foo">4</a></li>
+<li> <a rel="nofollow" class="external text" href="http://[::192.9.5.5]/ipng">5</a></li>
+<li> <a rel="nofollow" class="external text" href="http://[::FFFF:129.144.52.38]:80/index.html">6</a></li>
+<li> <a rel="nofollow" class="external text" href="http://[2010:836B:4179::836B:4179]">7</a></li></ul>
+
 !! end
 
 !! test
@@ -15766,7 +15843,7 @@ CSS line continuation 2
 !! wikitext
 <div style="background-image: u\&#13;rl(test.jpg); "></div>
 !! html
-<div style="/* insecure input */"></div>
+<div style="/* invalid control char */"></div>
 
 !! end
 
@@ -18097,6 +18174,38 @@ parsoid=wt2html,wt2wt,html2html
 <p>îî</p>
 !! html/parsoid
 <p><span typeof="mw:Entity">î</span><span typeof="mw:Entity">î</span></p>
+!! end
+
+# See: http://www.w3.org/TR/html5/syntax.html#character-references
+# Note that U+000C (form feed) is not a valid XML character, so
+# it is banned even though allowed in HTML5.
+!! test
+Illegal character references (T106578)
+!! wikitext
+; Null: &#00;
+; FF: &#xC;
+; CR: &#xD;
+; Control (low): &#8;
+; Control (high): &#x7F; &#x9F;
+; Surrogate: &#xD83D;&#xDCA9;
+; This is an okay astral character: &#x1F4A9;
+!! html+tidy
+<dl>
+<dt>Null</dt>
+<dd>&amp;#00;</dd>
+<dt>FF</dt>
+<dd>&amp;#xC;</dd>
+<dt>CR</dt>
+<dd>&amp;#xD;</dd>
+<dt>Control (low)</dt>
+<dd>&amp;#8;</dd>
+<dt>Control (high)</dt>
+<dd>&amp;#x7F; &amp;#x9F;</dd>
+<dt>Surrogate</dt>
+<dd>&amp;#xD83D;&amp;#xDCA9;</dd>
+<dt>This is an okay astral character</dt>
+<dd>💩</dd>
+</dl>
 !! end
 
 !! test
