@@ -5,8 +5,8 @@ Parsoid
 [![Coverage Status](https://img.shields.io/coveralls/wikimedia/parsoid.svg)](https://coveralls.io/r/wikimedia/parsoid?branch=master)
 
 A combined Mediawiki and html parser in JavaScript running on node.js. Please
-see (https://www.mediawiki.org/wiki/Future/Parser_development) for an overview
-of the current implementation, and instructions on running the tests.
+see (https://www.mediawiki.org/wiki/Parsoid) for an overview
+of the project.
 
 You might need to set the NODE_PATH environment variable:
 
@@ -30,7 +30,13 @@ Run the webservice:
 
 	npm start
 
-More details are available at https://www.mediawiki.org/wiki/Parsoid/Setup
+More installation details are available at
+https://www.mediawiki.org/wiki/Parsoid/Setup
+
+Developer API documentation can be found at
+https://doc.wikimedia.org/Parsoid/master/
+and some helpful getting-started guides are at
+https://doc.wikimedia.org/Parsoid/master/
 
 License
 -------

@@ -15,6 +15,12 @@ var util = require('util');
 var uuid = require('node-uuid').v4;
 
 /**
+ * ParsoidService instantiates an [express](http://expressjs.com/) server
+ * to handle HTTP requests.
+ *
+ * For more details on the HTTP api, see the
+ * [guide](#!/guide/apiuse).
+ *
  * @class
  * @constructor
  * @param {ParsoidConfig} parsoidConfig
