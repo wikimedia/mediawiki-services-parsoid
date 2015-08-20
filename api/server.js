@@ -8,12 +8,13 @@
  * To configure locally, add localsettings.js to this directory and export a
  * setup function.
  *
- * example:
- *   exports.setup = function(parsoidConfig) {
- *     parsoidConfig.setMwApi('localhost', { uri: 'http://localhost/wiki' });
- *   };
+ * Example:
  *
- * (See localsettings.js.example for more options to setMwApi.)
+ *     exports.setup = function(parsoidConfig) {
+ *       parsoidConfig.setMwApi({ prefix: 'localhost', uri: 'http://localhost/wiki' });
+ *     };
+ *
+ * (See `localsettings.js.example` for more options to setMwApi.)
  * Alternatively, specify a --config file explicitly. See --help for other
  * options.
  *
