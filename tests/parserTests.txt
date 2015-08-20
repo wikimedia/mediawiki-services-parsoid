@@ -5495,7 +5495,7 @@ Non-extlinks in brackets
 [url={{echo|foo}}]
 [url=http://example.com]
 [http:// bare protocols don't count]
-!! html
+!! html/php
 <p>[foo]
 [foo bar]
 [foo <i>bar</i>]
@@ -5510,6 +5510,20 @@ Non-extlinks in brackets
 [url=<a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>]
 [http:// bare protocols don't count]
 </p>
+!! html/parsoid
+<p>[foo]
+[foo bar]
+[foo <i>bar</i>]
+[fool's] errand
+[fool's errand]
+[<span typeof="mw:Placeholder" data-parsoid='{"src":"{{echo|foo}}"}'>foo</span>]
+[<span typeof="mw:Placeholder" data-parsoid='{"src":"{{echo|foo}}"}'>foo</span> bar]
+[<span typeof="mw:Placeholder" data-parsoid='{"src":"{{echo|foo}}"}'>foo</span> <i>bar</i>]
+[<span typeof="mw:Placeholder" data-parsoid='{"src":"{{echo|foo}}l&#39;s"}'>fool's</span>] errand
+[<span typeof="mw:Placeholder" data-parsoid='{"src":"{{echo|foo}}l&#39;s"}'>fool's</span> errand]
+[<span typeof="mw:Placeholder" data-parsoid='{"src":"url={{echo|foo}}"}'>url=foo</span>]
+[url=<a rel="mw:ExtLink" href="http://example.com">http://example.com</a>]
+[http:// bare protocols don't count]</p>
 !! end
 
 !! test
