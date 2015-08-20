@@ -47,7 +47,7 @@ module.exports = function(parsoidConfig) {
 
 		var iwp = parsoidConfig.reverseMwApiMap.get(req.params.domain);
 		if (!iwp) {
-			return errOut('Invalid domain.');
+			return errOut('Invalid domain: ' + req.params.domain);
 		}
 
 		res.local('iwp', iwp);
@@ -463,7 +463,7 @@ module.exports = function(parsoidConfig) {
 				var revid = env.page.meta.revision.revid;
 				var path = [
 					'/v2',
-					url.parse(env.conf.parsoid.mwApiMap.get(ret.prefix).uri).host,
+					env.conf.parsoid.mwApiMap.get(ret.prefix).domain,
 					v2.format,
 					encodeURIComponent(ret.target),
 					revid,
