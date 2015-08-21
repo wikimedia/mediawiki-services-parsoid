@@ -1660,13 +1660,21 @@ ParserTests.prototype.main = function(options, popts) {
 		parsoidConfig.initMwApiMap();
 
 		// Send all requests to the mock API server.
-		parsoidConfig.mwApiMap.forEach(function(apiConf, prefix) {
-			parsoidConfig.setMwApi(prefix, { uri: mockAPIServerURL });
+		parsoidConfig.mwApiMap.forEach(function(apiConf) {
+			parsoidConfig.setMwApi({
+				prefix: apiConf.prefix,
+				domain: apiConf.domain,
+				uri: mockAPIServerURL,
+			});
 		});
 
 		// This isn't part of the sitematrix but the
 		// "Check noCommafy in formatNum" test depends on it.
-		parsoidConfig.setMwApi('be-taraskwiki', { uri: mockAPIServerURL });
+		parsoidConfig.setMwApi({
+			prefix: 'be-taraskwiki',
+			domain: 'be-tarask.wikipedia.org',
+			uri: mockAPIServerURL,
+		});
 	};
 
 	var parsoidConfig = new ParsoidConfig({ setup: setup }, options);

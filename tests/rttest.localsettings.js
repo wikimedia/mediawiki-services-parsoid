@@ -10,7 +10,11 @@
 exports.setup = function(parsoidConfig) {
 	// The URL of your MediaWiki API endpoint.
 	if (process.env.PARSOID_MOCKAPI_URL) {
-		parsoidConfig.setMwApi('customwiki', { uri: process.env.PARSOID_MOCKAPI_URL });
+		parsoidConfig.setMwApi({
+			prefix: 'customwiki',
+			domain: 'customwiki',
+			uri: process.env.PARSOID_MOCKAPI_URL,
+		});
 	}
 
 	// We pre-define wikipedias as 'enwiki', 'dewiki' etc. Similarly
