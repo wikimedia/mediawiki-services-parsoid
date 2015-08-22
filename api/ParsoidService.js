@@ -116,9 +116,10 @@ function ParsoidService(parsoidConfig, processLogger) {
 
 	// Routes
 
-	var i = routes.interParams;
 	var p = routes.parserEnvMw;
-	var v = routes.v2Middle;
+	var v1 = routes.v1Middle;
+	var v2 = routes.v2Middle;
+	var v3 = routes.v3Middle;
 
 	function re(str) { return new RegExp(str); }
 
@@ -130,22 +131,31 @@ function ParsoidService(parsoidConfig, processLogger) {
 	app.get('/robots.txt', routes.robots);
 
 	// private routes
-	app.get(re('^/_html/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.html2wtForm);
-	app.get(re('^/_wikitext/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.wt2htmlForm);
-	app.get(re('^/_rt/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.roundtripTesting);
-	app.get(re('^/_rtve/(' + mwApiRe + ')/(.*)'), i, p, routes.roundtripTestingNL);
-	app.get(re('^/_rtselser/(' + mwApiRe + ')/(.*)'), i, p, routes.roundtripSelser);
-	app.get(re('^/_rtform/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.getRtForm);
-	app.post(re('^/_rtform/(?:(' + mwApiRe + ')/(.*))?'), i, p, routes.postRtForm);
+	app.get(re('^/_html/(?:(' + mwApiRe + ')/(.*))?'), v1, p, routes.html2wtForm);
+	app.get(re('^/_wikitext/(?:(' + mwApiRe + ')/(.*))?'), v1, p, routes.wt2htmlForm);
+	app.get(re('^/_rt/(?:(' + mwApiRe + ')/(.*))?'), v1, p, routes.roundtripTesting);
+	app.get(re('^/_rtve/(' + mwApiRe + ')/(.*)'), v1, p, routes.roundtripTestingNL);
+	app.get(re('^/_rtselser/(' + mwApiRe + ')/(.*)'), v1, p, routes.roundtripSelser);
+	app.get(re('^/_rtform/(?:(' + mwApiRe + ')/(.*))?'), v1, p, routes.getRtForm);
+	app.post(re('^/_rtform/(?:(' + mwApiRe + ')/(.*))?'), v1, p, routes.postRtForm);
+
+	// Put v3 routes before v1 routes so they have a chance to match even
+	// if the user configured prefix === domain.  The 'v3' in the path will
+	// disambiguate.  (Article titles should be capitalized, which will
+	// prevent an article named 'v3' from being an additional source of
+	// ambiguity.)
+
+	// v3 API routes
+	app.get('/:domain/v3/page/:format/:title/:revision?', v3, p, routes.v3Get);
+	app.post('/:domain/v3/transform/:from/to/:format/:title?/:revision?', v3, p, routes.v3Post);
 
 	// v1 API routes
-	app.get(re('^/(' + mwApiRe + ')/(.*)'), i, p, routes.v1Get);
-	app.post(re('^/(' + mwApiRe + ')/(.*)'), i, p, routes.v1Post);
+	app.get(re('^/(' + mwApiRe + ')/(.*)'), v1, p, routes.v1Get);
+	app.post(re('^/(' + mwApiRe + ')/(.*)'), v1, p, routes.v1Post);
 
 	// v2 API routes
-	app.get('/v2/:domain/:format/:title/:revision?', v, p, routes.v2Get);
-	app.post('/v2/:domain/:format/:title?/:revision?', v, p, routes.v2Post);
-
+	app.get('/v2/:domain/:format/:title/:revision?', v2, p, routes.v2Get);
+	app.post('/v2/:domain/:format/:title?/:revision?', v2, p, routes.v2Post);
 
 	// Get host and port from the environment, if available
 	var port = parsoidConfig.serverPort || process.env.PORT || 8000;
