@@ -24535,7 +24535,7 @@ parsoid={
 
 ==  [[Category:A2]] hi pal ==
 
-== <!--foo-->   [[Category:A3]]    how goes it ==
+==  <!--foo-->  [[Category:A3]]    how goes it ==
 
 == it goes well    [[Category:A4]]  <!--bar-->  ==
 
