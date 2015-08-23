@@ -20,9 +20,9 @@ var PHPParseRequest = ApiRequest.PHPParseRequest;
  */
 var apiUtils = module.exports = {
 	/** @property {string} */
-	WIKITEXT_CONTENT_TYPE: 'text/plain;profile=mediawiki.org/specs/wikitext/1.0.0;charset=utf-8',
+	WIKITEXT_CONTENT_TYPE: 'text/plain;profile="mediawiki.org/specs/wikitext/1.0.0";charset=utf-8',
 	/** @property {string} */
-	HTML_CONTENT_TYPE:     'text/html;profile=mediawiki.org/specs/html/1.1.0;charset=utf-8',
+	HTML_CONTENT_TYPE:     'text/html;profile="mediawiki.org/specs/html/1.1.0";charset=utf-8',
 };
 
 /**
