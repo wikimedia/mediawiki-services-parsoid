@@ -518,8 +518,8 @@ apiUtils.endWt2html = function(ret, doc, output) {
 apiUtils.v2endWt2html = function(ret, doc) {
 	var env = ret.env;
 	var res = ret.res;
-	var v2 = res.locals.v23;
-	if (v2.format === 'pagebundle') {
+	var opts = res.locals.opts;
+	if (opts.format === 'pagebundle') {
 		var out = DU.extractDpAndSerialize(doc, {
 			bodyOnly: res.locals.bodyOnly,
 			// in v3 api, just the children of the body

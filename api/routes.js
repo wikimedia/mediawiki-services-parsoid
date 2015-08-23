@@ -64,29 +64,29 @@ module.exports = function(parsoidConfig) {
 			res.locals.bodyOnly = !!(req.query.body || req.body.body);
 		}
 
-		var v23 = Object.assign({ format: req.params.format }, req.body);
+		var opts = Object.assign({ format: req.params.format }, req.body);
 		var supportedFormats = (version > 2) ?
 			v3SupportedFormats : v2SupportedFormats;
 
-		if (!supportedFormats.has(v23.format) ||
-				(req.method === 'GET' && !wt2htmlFormats.has(v23.format))) {
-			return errOut('Invalid format: ' + v23.format);
+		if (!supportedFormats.has(opts.format) ||
+				(req.method === 'GET' && !wt2htmlFormats.has(opts.format))) {
+			return errOut('Invalid format: ' + opts.format);
 		}
 
 		// In v2 the "wikitext" format was named "wt"
-		if (v23.format === 'wt') {
-			v23.format = 'wikitext';
+		if (opts.format === 'wt') {
+			opts.format = 'wikitext';
 		}
 
 		// "subst" flag to perform {{subst:}} template expansion
 		res.locals.subst = !!(req.query.subst || req.body.subst);
 		// This is only supported for the html format
-		if (res.locals.subst && v23.format !== 'html') {
+		if (res.locals.subst && opts.format !== 'html') {
 			return errOut('Substitution is only supported for the HTML format.', 501);
 		}
 
 		if (req.method === 'POST') {
-			var original = v23.original || {};
+			var original = opts.original || {};
 			if (original.revid) {
 				res.locals.oldid = original.revid;
 			}
@@ -95,7 +95,7 @@ module.exports = function(parsoidConfig) {
 			}
 		}
 
-		res.locals.v23 = v23;
+		res.locals.opts = opts;
 		next();
 	};
 	routes.v2Middle = routes.v23Middle.bind(routes, 2);
@@ -133,7 +133,7 @@ module.exports = function(parsoidConfig) {
 				apiUtils.setHeader(res, env, 'Access-Control-Allow-Origin',
 					env.conf.parsoid.allowCORS);
 			}
-			if (res.locals.v23 && res.locals.v23.format === 'pagebundle') {
+			if (res.locals.opts && res.locals.opts.format === 'pagebundle') {
 				env.storeDataParsoid = true;
 			}
 			if (req.body.hasOwnProperty('scrubWikitext')) {
@@ -436,7 +436,7 @@ module.exports = function(parsoidConfig) {
 
 	var v2Wt2html = function(req, res, wt) {
 		var env = res.locals.env;
-		var v2 = res.locals.v23;
+		var opts = res.locals.opts;
 		var p = apiUtils.startWt2html(req, res, wt).then(function(ret) {
 			if (typeof ret.wikitext === 'string') {
 				return apiUtils.parseWt(ret)
@@ -445,7 +445,7 @@ module.exports = function(parsoidConfig) {
 			} else if (ret.oldid) {
 				var p2 = Promise.resolve(ret);
 				// See if we can reuse transclusion or extension expansions.
-				var revision = v2.previous || v2.original;
+				var revision = opts.previous || opts.original;
 				if (revision) {
 					p2 = p2.then(function(ret) {
 						var doc = DU.parseHTML(revision.html.body);
@@ -456,9 +456,9 @@ module.exports = function(parsoidConfig) {
 						ret.reuse = {
 							expansions: DU.extractExpansions(doc),
 						};
-						if (v2.update) {
+						if (opts.update) {
 							['templates', 'files'].some(function(m) {
-								if (v2.update[m]) {
+								if (opts.update[m]) {
 									ret.reuse.mode = m;
 									return true;
 								}
@@ -482,13 +482,13 @@ module.exports = function(parsoidConfig) {
 					env.conf.parsoid.mwApiMap.get(ret.prefix).domain,
 					'v3',
 					'page',
-					v2.format,
+					opts.format,
 					encodeURIComponent(ret.target),
 					revid,
 				] : [
 					'/v2',
 					env.conf.parsoid.mwApiMap.get(ret.prefix).domain,
-					v2.format === 'wikitext' ? 'wt' : v2.format,
+					opts.format === 'wikitext' ? 'wt' : opts.format,
 					encodeURIComponent(ret.target),
 					revid,
 				]).join('/');
@@ -509,55 +509,55 @@ module.exports = function(parsoidConfig) {
 
 	// POST requests
 	routes.v2Post = routes.v3Post = function(req, res) {
-		var v2 = res.locals.v23;
+		var opts = res.locals.opts;
 		var env = res.locals.env;
 
 		function errOut(err, code) {
 			apiUtils.sendResponse(res, env, err, code || 404);
 		}
 
-		if (wt2htmlFormats.has(v2.format)) {
+		if (wt2htmlFormats.has(opts.format)) {
 			// Accept wikitext as a string or object{body,headers}
-			var wikitext = (v2.wikitext && typeof v2.wikitext !== 'string') ?
-				v2.wikitext.body : v2.wikitext;
+			var wikitext = (opts.wikitext && typeof opts.wikitext !== 'string') ?
+				opts.wikitext.body : opts.wikitext;
 			if (typeof wikitext !== 'string') {
 				if (!res.locals.pageName) {
 					return errOut('No title or wikitext was provided.', 400);
 				}
 				// We've been given source for this page
-				if (v2.original && v2.original.wikitext) {
-					wikitext = v2.original.wikitext.body;
+				if (opts.original && opts.original.wikitext) {
+					wikitext = opts.original.wikitext.body;
 				}
 			}
 			return v2Wt2html(req, res, wikitext);
 		} else {
 			// html is required for serialization
-			if (v2.html === undefined) {
+			if (opts.html === undefined) {
 				return errOut('No html was supplied.', 400);
 			}
 			// Accept html as a string or object{body,headers}
-			var html = (typeof v2.html === 'string') ?
-				v2.html : (v2.html.body || '');
+			var html = (typeof opts.html === 'string') ?
+				opts.html : (opts.html.body || '');
 
-			if (v2.original && v2.original.wikitext) {
-				env.setPageSrcInfo(v2.original.wikitext.body);
+			if (opts.original && opts.original.wikitext) {
+				env.setPageSrcInfo(opts.original.wikitext.body);
 			}
 
 			var p = apiUtils.startHtml2wt(req, res, html).then(function(ret) {
-				if (v2.original) {
-					var dp = v2.original['data-parsoid'];
+				if (opts.original) {
+					var dp = opts.original['data-parsoid'];
 					// This is optional to support serializing html with inlined
 					// data-parsoid.
 					if (dp) {
-						apiUtils.validateDp(v2.original);
+						apiUtils.validateDp(opts.original);
 						DU.applyDataParsoid(ret.doc, dp.body);
 					}
-					if (v2.original.html) {
-						env.page.dom = DU.parseHTML(v2.original.html.body).body;
+					if (opts.original.html) {
+						env.page.dom = DU.parseHTML(opts.original.html.body).body;
 						// However, if we're given stored html, data-parsoid
 						// should be provided as well. We have no use case for
 						// stored inlined dp anymore.
-						apiUtils.validateDp(v2.original);
+						apiUtils.validateDp(opts.original);
 						DU.applyDataParsoid(env.page.dom.ownerDocument, dp.body);
 					}
 				}
