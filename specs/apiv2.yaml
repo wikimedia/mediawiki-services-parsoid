@@ -41,7 +41,7 @@ paths:
         default: 1
     get:
       produces:
-        - text/html; profile=mediawiki.org/specs/html/1.0.0
+        - text/html;profile="mediawiki.org/specs/html/1.0.0"
       responses:
         200:
           description: HTML
@@ -49,7 +49,7 @@ paths:
             $ref: '#/definitions/HTML'
     post:
       produces:
-        - text/html; profile=mediawiki.org/specs/html/1.0.0
+        - text/html;profile="mediawiki.org/specs/html/1.0.0"
       parameters:
         - in: body
           name: body
@@ -71,7 +71,7 @@ paths:
         default: en.wikipedia.org
     post:
       produces:
-        - text/html; profile=mediawiki.org/specs/html/1.0.0
+        - text/html;profile="mediawiki.org/specs/html/1.0.0"
       parameters:
         - in: body
           name: body
@@ -192,12 +192,12 @@ definitions:
       body:
         type: string
         produces:
-          - text/plain; profile=mediawiki.org/specs/wikitext/1.0.0
+          - text/plain;profile="mediawiki.org/specs/wikitext/1.0.0"
 
   HTML:
     type: string
     produces:
-      - text/html; profile=mediawiki.org/specs/html/1.0.0
+      - text/html;profile="mediawiki.org/specs/html/1.0.0"
 
   DataParsoid:
     type: object
@@ -207,7 +207,7 @@ definitions:
       ids:
         type: object
     produces:
-      - application/json; profile=mediawiki.org/specs/data-parsoid/0.0.1
+      - application/json;profile="mediawiki.org/specs/data-parsoid/0.0.1"
 
   PageBundle:
     type: object
