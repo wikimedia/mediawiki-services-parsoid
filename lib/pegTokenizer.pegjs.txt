@@ -1262,7 +1262,7 @@ generic_newline_attribute
 table_attribute
   = s:optionalSpaceToken
     namePos0:("" { return endOffset(); })
-    name:generic_attribute_name
+    name:table_attribute_name
     namePos:("" { return endOffset(); })
     valueData:(optionalSpaceToken
         v:table_attribute_value { return v; })?
@@ -1302,6 +1302,25 @@ generic_attribute_name
           // /=>"' is the html5 attribute name set we do not want.
           // \[ is to avoid eating links. (see: T2553: link with two variables in a piped link)
           t:( directive / !( space_or_newline / [\[/=>"'] ) c:. { return c; }
+        ) { return t; }
+      )+ {
+    return tu.flattenString(r);
+  }
+
+// Same as generic_attribute_name, except for accepting tags found here.
+// That doesn't make sense (ie. match php) in the generic case.
+table_attribute_name
+  = r:( $[^ \t\0\n\r/=>"'!<&\[\]|{}\-]+
+        / ! inline_breaks
+          ! '/>'
+          // /=>"' is the html5 attribute name set we do not want.
+          // \[ is to avoid eating links. (see: BUG 553: link with two variables in a piped link)
+          t:( directive
+              // Accept insane tags-inside-attributes as attribute names.
+              // The sanitizer with strip and shadow them for roundtripping.
+              // Example: <hiddentext>generated with.. </hiddentext>
+              / &generic_tag nb:nested_block_line { return nb; }
+              / !( space_or_newline / [\[/=>"'] ) c:. { return c; }
         ) { return t; }
       )+ {
     return tu.flattenString(r);
@@ -2073,21 +2092,12 @@ attribute_preprocessor_text_double_broken
 // Variants with the entire attribute on a single line
 attribute_preprocessor_text_line
   = r:( $[^=<>\n\r&'"\t \[\]|{}/!\-]+
-        /  !inline_breaks
-            ! '/>'
-            t:(
-                directive
-              // Eat insane tags-inside-attributes. Example:
-              // <hiddentext>generated with.. </hiddentext>
-              / &generic_tag nb:nested_block_line { return nb; }
-              / !(space_or_newline / [\[=>]) c:. {
-                    return c;
-                }
-            ) { return t; }
-      )+
-  {
-      return tu.flattenString(r);
-  }
+        / !inline_breaks
+          !'/>'
+          t:( directive
+              / !(space_or_newline / [\[=>]) c:. { return c; }
+          ) { return t; }
+    )+ { return tu.flattenString(r); }
 
 attribute_preprocessor_text_single_line
   = r:( $[^{}&'<\n\-]+
