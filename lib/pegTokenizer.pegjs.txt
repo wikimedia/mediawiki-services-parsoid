@@ -1214,7 +1214,7 @@ generic_tag
     }
 
 could_be_attribute =
-    // quick sanity check before expensive attribute_preprocessor_text_line
+    // quick sanity check before expensive table_attribute_preprocessor_text
     // rule. Also try to parse on [|!+;] for now which seem to be common
     // syntax errors in production that hidden by the PHP parser (by stripping
     // the 'attributes').
@@ -1296,7 +1296,7 @@ broken_table_attribute_name_char = c:[ \t\0/=>"'\[] { return new KV(c, ''); }
 // The arrangement of chars is to emphasize the split between what's disallowed
 // by html5 and what's necessary to give directive a chance.
 generic_attribute_name
-  = r:( $[^ \t\0\n\r/=>"'!<&\[\]|{}\-]+
+  = r:( $[^ \t\0\n\r/=>"'<&\[\]{}\-]+
         / ! inline_breaks
           ! '/>'
           // /=>"' is the html5 attribute name set we do not want.
@@ -1310,7 +1310,7 @@ generic_attribute_name
 // Same as generic_attribute_name, except for accepting tags found here.
 // That doesn't make sense (ie. match php) in the generic case.
 table_attribute_name
-  = r:( $[^ \t\0\n\r/=>"'!<&\[\]|{}\-]+
+  = r:( $[^ \t\0\n\r/=>"'<&\[\]{}\-!|]+
         / ! inline_breaks
           ! '/>'
           // /=>"' is the html5 attribute name set we do not want.
@@ -1344,8 +1344,8 @@ generic_att_value
       t1:attribute_preprocessor_text_single? "'" {
         return tu.getAttributeValueAndSource(input, t1, startOffset(), endOffset() - 1);
       }
-      // Missing end quote: accept | and > look-ahead as heuristic
-      / t2:attribute_preprocessor_text_single_broken? &[|>] {
+      // Missing end quote: accept > look-ahead as heuristic
+      / t2:attribute_preprocessor_text_single_broken? &'>' {
         return tu.getAttributeValueAndSource(input, t2, startOffset(), endOffset());
       }
     ) { return r; }
@@ -1353,36 +1353,36 @@ generic_att_value
       t1:attribute_preprocessor_text_double? '"' {
         return tu.getAttributeValueAndSource(input, t1, startOffset(), endOffset() - 1);
       }
-      // Missing end quote: accept | and > look-ahead as heuristic
-      / t2:attribute_preprocessor_text_double_broken? &[|>] {
+      // Missing end quote: accept > look-ahead as heuristic
+      / t2:attribute_preprocessor_text_double_broken? &'>' {
         return tu.getAttributeValueAndSource(input, t2, startOffset(), endOffset());
       }
     ) { return r; }
-  / s:$space_or_newline* t:attribute_preprocessor_text !"=" {
+  / s:$space_or_newline* t:attribute_preprocessor_text !'=' {
       return tu.getAttributeValueAndSource(input, t, startOffset() + s.length, endOffset());
     }
 
 // Attribute value, restricted to a single line.
 table_att_value
   = space* "'" r:(
-      t1:attribute_preprocessor_text_single_line?  "'" {
+      t1:table_attribute_preprocessor_text_single?  "'" {
         return tu.getAttributeValueAndSource(input, t1, startOffset(), endOffset() - 1);
       }
-      // Missing end quote: accept | and > look-ahead as heuristic
-      / t2:attribute_preprocessor_text_single_line_broken? &[|>\n] {
+      // Missing end quote: accept |, !, and \n look-ahead as heuristic
+      / t2:table_attribute_preprocessor_text_single_broken? &[|!\n] {
         return tu.getAttributeValueAndSource(input, t2, startOffset(), endOffset());
       }
     ) { return r; }
   / space* '"' r:(
-      t1:attribute_preprocessor_text_double_line? '"' {
+      t1:table_attribute_preprocessor_text_double? '"' {
         return tu.getAttributeValueAndSource(input, t1, startOffset(), endOffset() - 1);
       }
-      // Missing end quote: accept | and > look-ahead as heuristic
-      / t2:attribute_preprocessor_text_double_line_broken? &[|>\n] {
+      // Missing end quote: accept |, !, and \n look-ahead as heuristic
+      / t2:table_attribute_preprocessor_text_double_broken? &[|!\n] {
         return tu.getAttributeValueAndSource(input, t2, startOffset(), endOffset());
       }
     ) { return r; }
-  / s:$space* t:attribute_preprocessor_text_line !"=" {
+  / s:$space* t:table_attribute_preprocessor_text !'=' {
       return tu.getAttributeValueAndSource(input, t, startOffset() + s.length, endOffset());
     }
 
@@ -2052,7 +2052,7 @@ attribute_preprocessor_text
   }
 
 attribute_preprocessor_text_single
-  = r:( $[^{}&'<\-]+
+  = r:( $[^{}&<\-']+
   / !inline_breaks s:(
       directive
     / [{}&<\-] ) { return s; }
@@ -2062,7 +2062,7 @@ attribute_preprocessor_text_single
   }
 
 attribute_preprocessor_text_single_broken
-  = r:( $[^{}&'<>|\-]+
+  = r:( $[^{}&<\-'>]+
   / !inline_breaks s:(
       directive
     / [{}&<\-] ) { return s; }
@@ -2072,7 +2072,7 @@ attribute_preprocessor_text_single_broken
   }
 
 attribute_preprocessor_text_double
-  = r:( $[^{}&"<\-]+
+  = r:( $[^{}&<\-"]+
   / !inline_breaks s:(
       directive
     / [{}&<\-] ) { return s; }
@@ -2082,7 +2082,7 @@ attribute_preprocessor_text_double
   }
 
 attribute_preprocessor_text_double_broken
-  = r:( $[^{}&"<>|\-]+
+  = r:( $[^{}&<\-">]+
   / !inline_breaks s:(
       directive
     / [{}&<\-] ) { return s; }
@@ -2092,8 +2092,8 @@ attribute_preprocessor_text_double_broken
   }
 
 // Variants with the entire attribute on a single line
-attribute_preprocessor_text_line
-  = r:( $[^=<>\n\r&'"\t \[\]|{}/!\-]+
+table_attribute_preprocessor_text
+  = r:( $[^=<>\n\r&'"\t \[\]{}/\-|!]+
         / !inline_breaks
           !'/>'
           t:( directive
@@ -2101,29 +2101,29 @@ attribute_preprocessor_text_line
           ) { return t; }
     )+ { return tu.flattenString(r); }
 
-attribute_preprocessor_text_single_line
-  = r:( $[^{}&'<\n\-]+
+table_attribute_preprocessor_text_single
+  = r:( $[^{}&<\-'\n]+
   / !inline_breaks s:( directive / $[{}&<\-] ) { return s; }
   )* {
       return tu.flattenString(r);
   }
 
-attribute_preprocessor_text_single_line_broken
-  = r:( $[^{}&'<>|!\n\-]+
+table_attribute_preprocessor_text_single_broken
+  = r:( $[^{}&<\-'\n|!]+
   / !inline_breaks s:( directive / $[{}&<\-] ) { return s; }
   )* {
       return tu.flattenString(r);
   }
 
-attribute_preprocessor_text_double_line
-  = r:( $[^{}&"<\n\-]+
+table_attribute_preprocessor_text_double
+  = r:( $[^{}&<\-"\n]+
   / !inline_breaks s:( directive / $[{}&<\-] ) { return s; }
   )* {
       return tu.flattenString(r);
   }
 
-attribute_preprocessor_text_double_line_broken
-  = r:( $[^{}&"<>|!\n\-]+
+table_attribute_preprocessor_text_double_broken
+  = r:( $[^{}&<\-"\n|!]+
   / !inline_breaks s:( directive / $[{}&<\-] ) { return s; }
   )* {
       return tu.flattenString(r);
