@@ -1012,7 +1012,7 @@ xmlish_tag =
         } else {
 
             var tsr0 = dp.tsr[0];
-            var endTagRE = new RegExp("^(?:.|\n)*?(</\\s*" + tagName + "\\s*>)", "mi");
+            var endTagRE = new RegExp("^[\\s\\S]*?(</\\s*" + tagName + "\\s*>)", "mi");
             var restOfInput = input.substring(tsr0);
             var tagContent = restOfInput.match(endTagRE);
 
@@ -1936,7 +1936,7 @@ include_limits =
     }
 
     var restOfInput = input.substring(endOffset());
-    var tagContent = restOfInput.match(new RegExp("^([^]*?)(?:</\\s*" + incl + "\\s*>)", "m"));
+    var tagContent = restOfInput.match(new RegExp("^([\\s\\S]*?)(?:</\\s*" + incl + "\\s*>)", "m"));
 
     // Start tag only
     if (!tagContent || !tagContent[1]) {
