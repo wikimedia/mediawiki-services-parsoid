@@ -490,7 +490,10 @@ apiUtils.endWt2html = function(ret, doc, output) {
 	var startTimers = ret.startTimers;
 
 	if (doc) {
-		output = DU.serializeNode(res.locals.body ? doc.body : doc).str;
+		output = DU.serializeNode(res.locals.bodyOnly ? doc.body : doc, {
+			// in v3 api, just the children of the body
+			innerXML: res.locals.bodyOnly && res.locals.apiVersion > 2,
+		}).str;
 		apiUtils.setHeader(res, env, 'content-type', apiUtils.HTML_CONTENT_TYPE);
 		apiUtils.endResponse(res, env, output);
 	}
@@ -515,9 +518,13 @@ apiUtils.endWt2html = function(ret, doc, output) {
 apiUtils.v2endWt2html = function(ret, doc) {
 	var env = ret.env;
 	var res = ret.res;
-	var v2 = res.locals.v2;
+	var v2 = res.locals.v23;
 	if (v2.format === 'pagebundle') {
-		var out = DU.extractDpAndSerialize(doc, res.locals.body);
+		var out = DU.extractDpAndSerialize(doc, {
+			bodyOnly: res.locals.bodyOnly,
+			// in v3 api, just the children of the body
+			innerXML: res.locals.bodyOnly && res.locals.apiVersion > 2,
+		});
 		apiUtils.jsonResponse(res, env, {
 			html: {
 				headers: { 'content-type': apiUtils.HTML_CONTENT_TYPE },

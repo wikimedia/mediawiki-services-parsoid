@@ -25,21 +25,23 @@ module.exports = function(parsoidConfig) {
 
 	// Middlewares
 
-	routes.interParams = function(req, res, next) {
+	routes.v1Middle = function(req, res, next) {
+		res.locals.apiVersion = 1;
 		res.locals.iwp = req.params[0] || parsoidConfig.defaultWiki || '';
 		res.locals.pageName = req.params[1] || '';
 		res.locals.oldid = req.body.oldid || req.query.oldid || null;
 		// "body" flag to return just the body (instead of the entire HTML doc)
-		res.locals.body = !!(req.query.body || req.body.body);
+		res.locals.bodyOnly = !!(req.query.body || req.body.body);
 		// "subst" flag to perform {{subst:}} template expansion
 		res.locals.subst = !!(req.query.subst || req.body.subst);
 		next();
 	};
 
 	var wt2htmlFormats = new Set(['pagebundle', 'html']);
-	var supportedFormats = new Set(['pagebundle', 'html', 'wt']);
+	var v2SupportedFormats = new Set(['pagebundle', 'html', 'wt']);
+	var v3SupportedFormats = new Set(['pagebundle', 'html', 'wikitext']);
 
-	routes.v2Middle = function(req, res, next) {
+	routes.v23Middle = function(version, req, res, next) {
 		function errOut(err, code) {
 			apiUtils.sendResponse(res, {}, err, code || 404);
 		}
@@ -49,29 +51,42 @@ module.exports = function(parsoidConfig) {
 			return errOut('Invalid domain: ' + req.params.domain);
 		}
 
+		res.locals.apiVersion = version;
 		res.locals.iwp = iwp;
 		res.locals.pageName = req.params.title || '';
 		res.locals.oldid = req.params.revision || null;
 
-		// "body" flag to return just the body (instead of the entire HTML doc)
-		res.locals.body = !!(req.query.body || req.body.body);
+		// "bodyOnly" flag to return just the body (instead of the entire HTML doc)
+		if (version > 2) {
+			res.locals.bodyOnly = !!(req.query.bodyOnly || req.body.bodyOnly);
+		} else {
+			// in v2 this flag was named "body"
+			res.locals.bodyOnly = !!(req.query.body || req.body.body);
+		}
 
-		var v2 = Object.assign({ format: req.params.format }, req.body);
+		var v23 = Object.assign({ format: req.params.format }, req.body);
+		var supportedFormats = (version > 2) ?
+			v3SupportedFormats : v2SupportedFormats;
 
-		if (!supportedFormats.has(v2.format) ||
-				(req.method === 'GET' && !wt2htmlFormats.has(v2.format))) {
-			return errOut('Invalid format.');
+		if (!supportedFormats.has(v23.format) ||
+				(req.method === 'GET' && !wt2htmlFormats.has(v23.format))) {
+			return errOut('Invalid format: ' + v23.format);
+		}
+
+		// In v2 the "wikitext" format was named "wt"
+		if (v23.format === 'wt') {
+			v23.format = 'wikitext';
 		}
 
 		// "subst" flag to perform {{subst:}} template expansion
 		res.locals.subst = !!(req.query.subst || req.body.subst);
 		// This is only supported for the html format
-		if (res.locals.subst && v2.format !== 'html') {
+		if (res.locals.subst && v23.format !== 'html') {
 			return errOut('Substitution is only supported for the HTML format.', 501);
 		}
 
 		if (req.method === 'POST') {
-			var original = v2.original || {};
+			var original = v23.original || {};
 			if (original.revid) {
 				res.locals.oldid = original.revid;
 			}
@@ -80,9 +95,11 @@ module.exports = function(parsoidConfig) {
 			}
 		}
 
-		res.locals.v2 = v2;
+		res.locals.v23 = v23;
 		next();
 	};
+	routes.v2Middle = routes.v23Middle.bind(routes, 2);
+	routes.v3Middle = routes.v23Middle.bind(routes, 3);
 
 	routes.parserEnvMw = function(req, res, next) {
 		function errBack(env, logData, callback) {
@@ -116,7 +133,7 @@ module.exports = function(parsoidConfig) {
 				apiUtils.setHeader(res, env, 'Access-Control-Allow-Origin',
 					env.conf.parsoid.allowCORS);
 			}
-			if (res.locals.v2 && res.locals.v2.format === 'pagebundle') {
+			if (res.locals.v23 && res.locals.v23.format === 'pagebundle') {
 				env.storeDataParsoid = true;
 			}
 			if (req.body.hasOwnProperty('scrubWikitext')) {
@@ -419,7 +436,7 @@ module.exports = function(parsoidConfig) {
 
 	var v2Wt2html = function(req, res, wt) {
 		var env = res.locals.env;
-		var v2 = res.locals.v2;
+		var v2 = res.locals.v23;
 		var p = apiUtils.startWt2html(req, res, wt).then(function(ret) {
 			if (typeof ret.wikitext === 'string') {
 				return apiUtils.parseWt(ret)
@@ -460,13 +477,21 @@ module.exports = function(parsoidConfig) {
 				.then(apiUtils.v2endWt2html.bind(null, ret));
 			} else {
 				var revid = env.page.meta.revision.revid;
-				var path = [
-					'/v2',
+				var path = (res.locals.apiVersion > 2 ? [
+					'',
 					env.conf.parsoid.mwApiMap.get(ret.prefix).domain,
+					'v3',
+					'page',
 					v2.format,
 					encodeURIComponent(ret.target),
 					revid,
-				].join('/');
+				] : [
+					'/v2',
+					env.conf.parsoid.mwApiMap.get(ret.prefix).domain,
+					v2.format === 'wikitext' ? 'wt' : v2.format,
+					encodeURIComponent(ret.target),
+					revid,
+				]).join('/');
 				if (Object.keys(req.query).length > 0) {
 					path += '?' + qs.stringify(req.query);
 				}
@@ -478,13 +503,13 @@ module.exports = function(parsoidConfig) {
 	};
 
 	// GET requests
-	routes.v2Get = function(req, res) {
+	routes.v2Get = routes.v3Get = function(req, res) {
 		return v2Wt2html(req, res);
 	};
 
 	// POST requests
-	routes.v2Post = function(req, res) {
-		var v2 = res.locals.v2;
+	routes.v2Post = routes.v3Post = function(req, res) {
+		var v2 = res.locals.v23;
 		var env = res.locals.env;
 
 		function errOut(err, code) {
@@ -538,12 +563,18 @@ module.exports = function(parsoidConfig) {
 				}
 				return ret;
 			}).then(apiUtils.endHtml2wt).then(function(output) {
-				apiUtils.jsonResponse(res, env, {
-					wikitext: {
-						headers: { 'content-type': apiUtils.WIKITEXT_CONTENT_TYPE },
-						body: output,
-					},
-				});
+				if (res.locals.apiVersion > 2) {
+					apiUtils.setHeader(res, env, 'content-type', apiUtils.WIKITEXT_CONTENT_TYPE);
+					apiUtils.sendResponse(res, env, output);
+				} else {
+					// In API v2 we used to send a JSON object here
+					apiUtils.jsonResponse(res, env, {
+						wikitext: {
+							headers: { 'content-type': apiUtils.WIKITEXT_CONTENT_TYPE },
+							body: output,
+						},
+					});
+				}
 			});
 			return apiUtils.cpuTimeout(p, res)
 				.catch(apiUtils.timeoutResp.bind(null, env));
