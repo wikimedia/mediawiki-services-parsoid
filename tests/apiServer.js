@@ -144,7 +144,7 @@ var parsoidServerOpts = {
 	urlPath: "/",
 	filePath: "/../api/server.js",
 	serverArgv: [
-		'--num-workers', '1',
+		'--num-workers', '0',
 		'--config', path.resolve(__dirname, './rttest.localsettings.js'),
 	],
 	serverEnv: {},

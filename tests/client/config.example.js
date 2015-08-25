@@ -22,7 +22,7 @@
 			interwiki: 'en',
 
 			// By default, use the same configuration as the testing Parsoid server.
-			setup: require('../test.localsettings.js').setup,
+			setup: require('../rttest.localsettings.js').setup,
 
 			// The parsoid API to use. If null, create our own server
 			parsoidURL: null,

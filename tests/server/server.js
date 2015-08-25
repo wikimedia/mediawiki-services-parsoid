@@ -850,6 +850,7 @@ var statsWebInterface = function(req, res) {
 
 		if (parsoidRTConfig) {
 			parsoidRTConfig.updateIndexData(data, row);
+			data.parsoidRT = true;
 		}
 
 		// round numeric data, but ignore others
@@ -1134,7 +1135,7 @@ var getCommits = function(req, res) {
 			}
 			var data = {
 				numCommits: n,
-				latest: rows[n - 1].timestamp.toString().slice(4, 15),
+				latest: n ? rows[n - 1].timestamp.toString().slice(4, 15) : '',
 				header: ['Commit hash', 'Timestamp', 'Tests', '-', '+'],
 				row: tableRows,
 			};
@@ -1211,7 +1212,7 @@ app.use(express.bodyParser());
 coordApp.use(express.bodyParser());
 
 // robots.txt: no indexing.
-app.get(/^\/robots.txt$/, function(req, res) {
+app.get(/^\/robots\.txt$/, function(req, res) {
 	res.end("User-agent: *\nDisallow: /\n");
 });
 
@@ -1275,5 +1276,8 @@ coordApp.get(/^\/title$/, getTitle);
 coordApp.post(/^\/result\/([^\/]+)\/([^\/]+)/, receiveResults);
 
 // Start the app
-app.listen(settings.webappPort || 8001);
+var webappPort = settings.webappPort || 8001;
+app.listen(webappPort, function() {
+	console.log('Web app listening on: %s', webappPort);
+});
 coordApp.listen(settings.coordPort || 8002);

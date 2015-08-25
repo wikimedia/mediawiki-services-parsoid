@@ -45,7 +45,7 @@ you specified in `server.settings.js`:
 	mysql> CREATE USER '$USER'@'localhost' IDENTIFIED BY '$PASSWORD';
 	mysql> CREATE DATABASE $DBNAME;
 	mysql> GRANT ALL PRIVILEGES ON $DBNAME.* TO '$USER'@'localhost';
-	mysql> /quit
+	mysql> \q
 
 Now you'll want to create the initial database:
 

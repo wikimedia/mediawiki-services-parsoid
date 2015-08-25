@@ -39,7 +39,7 @@ if (!module.parent) {
 		var workers = cluster.workers;
 		Object.keys(workers).forEach(function(id) {
 			console.log('Killing rtclient', id);
-			workers[ id ].destroy();
+			workers[id].kill('SIGKILL');
 		});
 		console.log('Done killing rtclients, exiting rtclient-cluster.');
 		process.exit(0);

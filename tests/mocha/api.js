@@ -18,7 +18,7 @@ describe('Parsoid API', function() {
 			return apiServer.startParsoidServer({
 				mockUrl: ret.url,
 				serverArgv: [
-					'--num-workers', '1',
+					'--num-workers', '0',
 					'--config', path.resolve(__dirname, './apitest.localsettings.js'),
 				],
 			});
