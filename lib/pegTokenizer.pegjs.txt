@@ -1340,37 +1340,51 @@ table_attribute_value
 
 // Attribute value, quoted variants can span multiple lines.
 generic_att_value
-  = space_or_newline* "'" r:(valPos1:("" { return endOffset(); }) t1:attribute_preprocessor_text_single? valPos2:("" { return endOffset(); }) "'"
-            { return tu.getAttributeValueAndSource(input, t1, valPos1, valPos2); }
-        // Missing end quote: accept | and > look-ahead as heuristic
-        / valPos1:("" { return endOffset(); }) t2:attribute_preprocessor_text_single_broken? valPos2:("" { return endOffset(); }) &[|>]
-            { return tu.getAttributeValueAndSource(input, t2, valPos1, valPos2); } )
-                { return r; }
-  / space_or_newline* '"' r:(valPos1:("" { return endOffset(); }) t1:attribute_preprocessor_text_double? valPos2:("" { return endOffset(); }) '"'
-            { return tu.getAttributeValueAndSource(input, t1, valPos1, valPos2); }
-        // Missing end quote: accept | and > look-ahead as heuristic
-        / valPos1:("" { return endOffset(); }) t2:attribute_preprocessor_text_double_broken? valPos2:("" { return endOffset(); }) &[|>]
-            { return tu.getAttributeValueAndSource(input, t2, valPos1, valPos2); } )
-                { return r; }
-  / space_or_newline* valPos1:("" { return endOffset(); }) t:attribute_preprocessor_text !"=" valPos2:("" { return endOffset(); })
-        { return tu.getAttributeValueAndSource(input, t, valPos1, valPos2); }
+  = space_or_newline* "'" r:(
+      t1:attribute_preprocessor_text_single? "'" {
+        return tu.getAttributeValueAndSource(input, t1, startOffset(), endOffset() - 1);
+      }
+      // Missing end quote: accept | and > look-ahead as heuristic
+      / t2:attribute_preprocessor_text_single_broken? &[|>] {
+        return tu.getAttributeValueAndSource(input, t2, startOffset(), endOffset());
+      }
+    ) { return r; }
+  / space_or_newline* '"' r:(
+      t1:attribute_preprocessor_text_double? '"' {
+        return tu.getAttributeValueAndSource(input, t1, startOffset(), endOffset() - 1);
+      }
+      // Missing end quote: accept | and > look-ahead as heuristic
+      / t2:attribute_preprocessor_text_double_broken? &[|>] {
+        return tu.getAttributeValueAndSource(input, t2, startOffset(), endOffset());
+      }
+    ) { return r; }
+  / s:$space_or_newline* t:attribute_preprocessor_text !"=" {
+      return tu.getAttributeValueAndSource(input, t, startOffset() + s.length, endOffset());
+    }
 
 // Attribute value, restricted to a single line.
 table_att_value
-  = space* "'" r:(valPos1:("" { return endOffset(); }) t1:attribute_preprocessor_text_single_line? valPos2:("" { return endOffset(); }) "'"
-            { return tu.getAttributeValueAndSource(input, t1, valPos1, valPos2); }
-        // Missing end quote: accept | and > look-ahead as heuristic
-        / valPos1:("" { return endOffset(); }) t2:attribute_preprocessor_text_single_line_broken? valPos2:("" { return endOffset(); }) &[|>\n]
-            { return tu.getAttributeValueAndSource(input, t2, valPos1, valPos2); } )
-                { return r; }
-  / space* '"' r:(valPos1:("" { return endOffset(); }) t1:attribute_preprocessor_text_double_line? valPos2:("" { return endOffset(); }) '"'
-            { return tu.getAttributeValueAndSource(input, t1, valPos1, valPos2); }
-        // Missing end quote: accept | and > look-ahead as heuristic
-        / valPos1:("" { return endOffset(); }) t2:attribute_preprocessor_text_double_line_broken? valPos2:("" { return endOffset(); }) &[|>\n]
-            { return tu.getAttributeValueAndSource(input, t2, valPos1, valPos2); } )
-                { return r; }
-  / space* valPos1:("" { return endOffset(); }) t:attribute_preprocessor_text_line !"=" valPos2:("" { return endOffset(); })
-        { return tu.getAttributeValueAndSource(input, t ? t : "", valPos1, valPos2); }
+  = space* "'" r:(
+      t1:attribute_preprocessor_text_single_line?  "'" {
+        return tu.getAttributeValueAndSource(input, t1, startOffset(), endOffset() - 1);
+      }
+      // Missing end quote: accept | and > look-ahead as heuristic
+      / t2:attribute_preprocessor_text_single_line_broken? &[|>\n] {
+        return tu.getAttributeValueAndSource(input, t2, startOffset(), endOffset());
+      }
+    ) { return r; }
+  / space* '"' r:(
+      t1:attribute_preprocessor_text_double_line? '"' {
+        return tu.getAttributeValueAndSource(input, t1, startOffset(), endOffset() - 1);
+      }
+      // Missing end quote: accept | and > look-ahead as heuristic
+      / t2:attribute_preprocessor_text_double_line_broken? &[|>\n] {
+        return tu.getAttributeValueAndSource(input, t2, startOffset(), endOffset());
+      }
+    ) { return r; }
+  / s:$space* t:attribute_preprocessor_text_line !"=" {
+      return tu.getAttributeValueAndSource(input, t, startOffset() + s.length, endOffset());
+    }
 
 /*
  * A variant of generic_tag, but also checks if the tag name is a block-level
