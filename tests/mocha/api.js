@@ -94,13 +94,15 @@ describe('Parsoid API', function() {
 		.end(done);
 	});
 
-	describe("v2 Routes", function() {
+	var testRoutes = function(version) {
 
 		describe('formats', function() {
 
 			it('should accept application/x-www-form-urlencoded', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/html/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/wikitext/to/html/' :
+					'v2/' + mockDomain + '/html/')
 				.type('form')
 				.send({
 					wikitext: '== h2 ==',
@@ -115,7 +117,9 @@ describe('Parsoid API', function() {
 
 			it('should accept application/json', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/html/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/wikitext/to/html/' :
+					'v2/' + mockDomain + '/html/')
 				.type('json')
 				.send({
 					wikitext: '== h2 ==',
@@ -130,7 +134,9 @@ describe('Parsoid API', function() {
 
 			it('should accept multipart/form-data', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/html/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/wikitext/to/html/' :
+					'v2/' + mockDomain + '/html/')
 				.field('wikitext', '== h2 ==')
 				.expect(200)
 				.expect(function(res) {
@@ -143,52 +149,104 @@ describe('Parsoid API', function() {
 		});  // formats
 
 		describe("wt2html", function() {
+			var validHtmlResponse = function(expectFunc) {
+				return function(res) {
+					res.statusCode.should.equal(200);
+					res.headers.should.have.property('content-type');
+					res.headers['content-type'].should.equal(
+						'text/html;profile="mediawiki.org/specs/html/1.1.0";charset=utf-8'
+					);
+					var doc = domino.createDocument(res.text);
+					if (expectFunc) {
+						return expectFunc(doc);
+					} else {
+						res.text.should.not.equal('');
+					}
+				};
+			};
+			var validPageBundleResponse = function(expectFunc) {
+				return function(res) {
+					res.statusCode.should.equal(200);
+					res.body.should.have.property('html');
+					res.body.html.should.have.property('headers');
+					res.body.html.headers.should.have.property('content-type');
+					res.body.html.headers['content-type'].should.equal(
+						'text/html;profile="mediawiki.org/specs/html/1.1.0";charset=utf-8'
+					);
+					res.body.html.should.have.property('body');
+					res.body.should.have.property('data-parsoid');
+					res.body['data-parsoid'].should.have.property('headers');
+					res.body['data-parsoid'].headers.should.have.property('content-type');
+					res.body['data-parsoid'].headers['content-type'].should.equal(
+						'application/json;profile="mediawiki.org/specs/data-parsoid/0.0.1"'
+					);
+					res.body['data-parsoid'].should.have.property('body');
+					var doc = domino.createDocument(res.body.html.body);
+					if (expectFunc) {
+						return expectFunc(doc, res.body['data-parsoid'].body);
+					}
+				};
+			};
 
 			it("should redirect title to latest revision", function(done) {
 				request(api)
-				.get('v2/' + mockDomain + '/html/Main_Page')
+				.get(version === 3 ?
+					mockDomain + '/v3/page/html/Main_Page' :
+					'v2/' + mockDomain + '/html/Main_Page')
 				.expect(302)
 				.expect(function(res) {
-					res.header.location.should.equal('/v2/' + mockDomain + '/html/Main_Page/1');
+					res.headers.should.have.property('location');
+					if (version === 3) {
+						res.headers.location.should.equal('/' + mockDomain + '/v3/page/html/Main_Page/1');
+					} else {
+						res.headers.location.should.equal('/v2/' + mockDomain + '/html/Main_Page/1');
+					}
 				})
 				.end(done);
 			});
 
 			it("should preserve querystring params while redirecting", function(done) {
 				request(api)
-				.get('v2/' + mockDomain + '/html/Main_Page?test=123')
+				.get(version === 3 ?
+					mockDomain + '/v3/page/html/Main_Page?test=123' :
+					'v2/' + mockDomain + '/html/Main_Page?test=123')
 				.expect(302)
 				.expect(function(res) {
-					res.headers.location.should.match(/\/html\/Main_Page\/1\?test=123$/);
+					res.headers.should.have.property('location');
+					if (version === 3) {
+						res.headers.location.should.equal('/' + mockDomain + '/v3/page/html/Main_Page/1?test=123');
+					} else {
+						res.headers.location.should.equal('/v2/' + mockDomain + '/html/Main_Page/1?test=123');
+					}
 				})
 				.end(done);
 			});
 
 			it("should get html from a title and revision", function(done) {
 				request(api)
-				.get('v2/' + mockDomain + '/html/Main_Page/1')
-				.expect(200)
-				.expect(function(res) {
-					var doc = domino.createDocument(res.text);
+				.get(version === 3 ?
+					mockDomain + '/v3/page/html/Main_Page/1' :
+					'v2/' + mockDomain + '/html/Main_Page/1')
+				.expect(validHtmlResponse(function(doc) {
 					doc.body.firstChild.textContent.should.equal("MediaWiki has been successfully installed.");
-				})
+				}))
 				.end(done);
 			});
 
 			it('should return a pagebundle', function(done) {
 				request(api)
-				.get('v2/' + mockDomain + '/pagebundle/Main_Page/1')
-				.expect(200)
-				.expect(function(res) {
-					res.body.should.have.property('html');
-					res.body.should.have.property('data-parsoid');
-				})
+				.get(version === 3 ?
+					mockDomain + '/v3/page/pagebundle/Main_Page/1' :
+					'v2/' + mockDomain + '/pagebundle/Main_Page/1')
+				.expect(validPageBundleResponse())
 				.end(done);
 			});
 
 			it('should accept the previous revision to reuse expansions', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/html/Main_Page/1')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/wikitext/to/html/Main_Page/1' :
+					'v2/' + mockDomain + '/html/Main_Page/1')
 				.send({
 					previous: {
 						revid: 0,
@@ -211,17 +269,17 @@ describe('Parsoid API', function() {
 						},
 					},
 				})
-				.expect(200)
-				.expect(function(res) {
-					var doc = domino.createDocument(res.text);
+				.expect(validHtmlResponse(function(doc) {
 					doc.body.firstChild.textContent.should.equal("MediaWiki has been successfully installed.");
-				})
+				}))
 				.end(done);
 			});
 
 			it('should accept the original and reuse certain expansions', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/html/Main_Page/1')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/wikitext/to/html/Main_Page/1' :
+					'v2/' + mockDomain + '/html/Main_Page/1')
 				.send({
 					update: {
 						templates: true,
@@ -247,47 +305,45 @@ describe('Parsoid API', function() {
 						},
 					},
 				})
-				.expect(200)
-				.expect(function(res) {
-					var doc = domino.createDocument(res.text);
+				.expect(validHtmlResponse(function(doc) {
 					doc.body.firstChild.textContent.should.equal("MediaWiki has been successfully installed.");
-				})
+				}))
 				.end(done);
 			});
 
 			it('should accept wikitext as a string for html', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/html/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/wikitext/to/html/' :
+					'v2/' + mockDomain + '/html/')
 				.send({
 					wikitext: "== h2 ==",
 				})
-				.expect(200)
-				.expect(function(res) {
-					var doc = domino.createDocument(res.text);
+				.expect(validHtmlResponse(function(doc) {
 					doc.body.firstChild.nodeName.should.equal('H2');
-				})
+				}))
 				.end(done);
 			});
 
 			it('should accept wikitext as a string for pagebundle', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/pagebundle/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/wikitext/to/pagebundle/' :
+					'v2/' + mockDomain + '/pagebundle/')
 				.send({
 					wikitext: "== h2 ==",
 				})
-				.expect(200)
-				.expect(function(res) {
-					res.body.should.have.property('html');
-					res.body.should.have.property('data-parsoid');
-					var doc = domino.createDocument(res.body.html.body);
+				.expect(validPageBundleResponse(function(doc) {
 					doc.body.firstChild.nodeName.should.equal('H2');
-				})
+				}))
 				.end(done);
 			});
 
 			it('should accept wikitext with headers', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/html/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/wikitext/to/html/' :
+					'v2/' + mockDomain + '/html/')
 				.send({
 					wikitext: {
 						headers: {
@@ -296,17 +352,17 @@ describe('Parsoid API', function() {
 						body: "== h2 ==",
 					},
 				})
-				.expect(200)
-				.expect(function(res) {
-					var doc = domino.createDocument(res.text);
+				.expect(validHtmlResponse(function(doc) {
 					doc.body.firstChild.nodeName.should.equal('H2');
-				})
+				}))
 				.end(done);
 			});
 
 			it('should require a title when no wikitext is provided', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/html/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/wikitext/to/html/' :
+					'v2/' + mockDomain + '/html/')
 				.send()
 				.expect(400)
 				.end(done);
@@ -314,21 +370,23 @@ describe('Parsoid API', function() {
 
 			it('should not require a title when wikitext is provided', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/html/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/wikitext/to/html/' :
+					'v2/' + mockDomain + '/html/')
 				.send({
 					wikitext: "== h2 ==",
 				})
-				.expect(200)
-				.expect(function(res) {
-					var doc = domino.createDocument(res.text);
+				.expect(validHtmlResponse(function(doc) {
 					doc.body.firstChild.nodeName.should.equal('H2');
-				})
+				}))
 				.end(done);
 			});
 
 			it('should accept the wikitext source as original data', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/html/Main_Page/1')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/wikitext/to/html/Main_Page/1' :
+					'v2/' + mockDomain + '/html/Main_Page/1')
 				.send({
 					original: {
 						wikitext: {
@@ -339,45 +397,57 @@ describe('Parsoid API', function() {
 						},
 					},
 				})
-				.expect(200)
-				.expect(function(res) {
-					var doc = domino.createDocument(res.text);
+				.expect(validHtmlResponse(function(doc) {
 					doc.body.firstChild.nodeName.should.equal('H2');
-				})
+				}))
 				.end(done);
 			});
 
 			it("should respect body parameter", function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/html/')
-				.send({
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/wikitext/to/html/' :
+					'v2/' + mockDomain + '/html/')
+				.send(version === 3 ? {
+					wikitext: "''foo''",
+					bodyOnly: 1,
+				} : {
 					wikitext: "''foo''",
 					body: 1,
 				})
-				.expect(200)
-				.expect(/^<body/)
+				.expect(validHtmlResponse())
+				.expect(function(res) {
+					if (version === 3) {
+						// v3 only returns children of <body>
+						res.text.should.not.match(/<body/);
+						res.text.should.match(/<p/);
+					} else {
+						// v2 returns body and children
+						res.text.should.match(/^<body/);
+					}
+				})
 				.end(done);
 			});
 
 			it('should include captured offsets', function(done) {
 				request(api)
-				.get('v2/' + mockDomain + '/pagebundle/Main_Page/1')
-				.expect(200)
-				.expect(function(res) {
-					res.body.should.have.property('html');
-					res.body.should.have.property('data-parsoid');
-					res.body['data-parsoid'].body.should.have.property('sectionOffsets');
-				})
+				.get(version === 3 ?
+					mockDomain + '/v3/page/pagebundle/Main_Page/1' :
+					'v2/' + mockDomain + '/pagebundle/Main_Page/1')
+				.expect(validPageBundleResponse(function(doc, dp) {
+					dp.should.have.property('sectionOffsets');
+				}))
 				.end(done);
 			});
 
 			it("should implement subst - simple", function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/html/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/wikitext/to/html/' :
+					'v2/' + mockDomain + '/html/')
 				.send({wikitext: "{{echo|foo}}", subst: 'true'})
-				.expect(200)
-				.expect(function(res) {
-					var body = domino.createDocument(res.text).body;
+				.expect(validHtmlResponse(function(doc) {
+					var body = doc.body;
 					// <body> should have one child, <p>
 					body.childElementCount.should.equal(1);
 					body.firstElementChild.nodeName.should.equal('P');
@@ -387,17 +457,18 @@ describe('Parsoid API', function() {
 					should.not.exist(p.getAttribute('typeof'));
 					// and it shouldn't have any data-parsoid in it
 					should.not.exist(p.getAttribute('data-parsoid'));
-				})
+				}))
 				.end(done);
 			});
 
 			it("should implement subst - internal tranclusion", function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/html/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/wikitext/to/html/' :
+					'v2/' + mockDomain + '/html/')
 				.send({wikitext: "{{echo|foo {{echo|bar}} baz}}", subst: 'true'})
-				.expect(200)
-				.expect(function(res) {
-					var body = domino.createDocument(res.text).body;
+				.expect(validHtmlResponse(function(doc) {
+					var body = doc.body;
 					// <body> should have one child, <p>
 					body.childElementCount.should.equal(1);
 					body.firstElementChild.nodeName.should.equal('P');
@@ -412,13 +483,15 @@ describe('Parsoid API', function() {
 					tplp.getAttribute('typeof').should.equal('mw:Transclusion');
 					// And not have data-parsoid, so it's used as new content
 					should.not.exist(tplp.getAttribute('data-parsoid'));
-				})
+				}))
 				.end(done);
 			});
 
 			it('should not allow subst with pagebundle', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/pagebundle/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/wikitext/to/pagebundle/' :
+					'v2/' + mockDomain + '/pagebundle/')
 				.send({wikitext: "{{echo|foo}}", subst: 'true'})
 				.expect(501)
 				.end(done);
@@ -428,9 +501,36 @@ describe('Parsoid API', function() {
 
 		describe("html2wt", function() {
 
+			var validWikitextResponse = function(expected) {
+				return function(res) {
+					res.statusCode.should.equal(200);
+					res.headers.should.have.property('content-type');
+					if (version === 3) {
+						res.headers['content-type'].should.equal(
+							// note that express does some reordering
+							'text/plain; charset=utf-8; profile="mediawiki.org/specs/wikitext/1.0.0"'
+						);
+						if (expected !== undefined) {
+							res.text.should.equal(expected);
+						} else {
+							res.text.should.not.equal('');
+						}
+					} else {
+						res.headers['content-type'].should.equal('application/json; charset=utf-8');
+						res.body.should.have.property('wikitext');
+						res.body.wikitext.should.have.property('body');
+						if (expected !== undefined) {
+							res.body.wikitext.body.should.equal(expected);
+						}
+					}
+				};
+			};
+
 			it('should require html when serializing', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/wt/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/html/to/wikitext/' :
+					'v2/' + mockDomain + '/wt/')
 				.send()
 				.expect(400)
 				.end(done);
@@ -438,20 +538,21 @@ describe('Parsoid API', function() {
 
 			it('should accept html as a string', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/wt/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/html/to/wikitext/' :
+					'v2/' + mockDomain + '/wt/')
 				.send({
 					html: '<!DOCTYPE html>\n<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/" about="http://localhost/index.php/Special:Redirect/revision/1"><head prefix="mwr: http://localhost/index.php/Special:Redirect/"><meta property="mw:articleNamespace" content="0"/><link rel="dc:replaces" resource="mwr:revision/0"/><meta property="dc:modified" content="2014-09-12T22:46:59.000Z"/><meta about="mwr:user/0" property="dc:title" content="MediaWiki default"/><link rel="dc:contributor" resource="mwr:user/0"/><meta property="mw:revisionSHA1" content="8e0aa2f2a7829587801db67d0424d9b447e09867"/><meta property="dc:description" content=""/><meta property="mw:parsoidVersion" content="0"/><link rel="dc:isVersionOf" href="http://localhost/index.php/Main_Page"/><title>Main_Page</title><base href="http://localhost/index.php/"/><link rel="stylesheet" href="//localhost/load.php?modules=mediawiki.legacy.commonPrint,shared|mediawiki.skinning.elements|mediawiki.skinning.content|mediawiki.skinning.interface|skins.vector.styles|site|mediawiki.skinning.content.parsoid&amp;only=styles&amp;debug=true&amp;skin=vector"/></head><body data-parsoid=\'{"dsr":[0,592,0,0]}\' lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body mw-body-content mediawiki" dir="ltr"><p data-parsoid=\'{"dsr":[0,59,0,0]}\'><strong data-parsoid=\'{"stx":"html","dsr":[0,59,8,9]}\'>MediaWiki has been successfully installed.</strong></p>\n\n<p data-parsoid=\'{"dsr":[61,171,0,0]}\'>Consult the <a rel="mw:ExtLink" href="//meta.wikimedia.org/wiki/Help:Contents" data-parsoid=\'{"targetOff":114,"contentOffsets":[114,126],"dsr":[73,127,41,1]}\'>User\'s Guide</a> for information on using the wiki software.</p>\n\n<h2 data-parsoid=\'{"dsr":[173,194,2,2]}\'> Getting started </h2>\n<ul data-parsoid=\'{"dsr":[195,592,0,0]}\'><li data-parsoid=\'{"dsr":[195,300,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:Configuration_settings" data-parsoid=\'{"targetOff":272,"contentOffsets":[272,299],"dsr":[197,300,75,1]}\'>Configuration settings list</a></li>\n<li data-parsoid=\'{"dsr":[301,373,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:FAQ" data-parsoid=\'{"targetOff":359,"contentOffsets":[359,372],"dsr":[303,373,56,1]}\'>MediaWiki FAQ</a></li>\n<li data-parsoid=\'{"dsr":[374,472,1,0]}\'> <a rel="mw:ExtLink" href="https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce" data-parsoid=\'{"targetOff":441,"contentOffsets":[441,471],"dsr":[376,472,65,1]}\'>MediaWiki release mailing list</a></li>\n<li data-parsoid=\'{"dsr":[473,592,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Localisation#Translation_resources" data-parsoid=\'{"targetOff":555,"contentOffsets":[555,591],"dsr":[475,592,80,1]}\'>Localise MediaWiki for your language</a></li></ul></body></html>',
 				})
-				.expect(200)
-				.expect(function(res) {
-					res.body.should.have.property("wikitext");
-				})
+				.expect(validWikitextResponse())
 				.end(done);
 			});
 
 			it('should accept html with headers', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/wt/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/html/to/wikitext/' :
+					'v2/' + mockDomain + '/wt/')
 				.send({
 					html: {
 						headers: {
@@ -460,74 +561,69 @@ describe('Parsoid API', function() {
 						body: '<!DOCTYPE html>\n<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/" about="http://localhost/index.php/Special:Redirect/revision/1"><head prefix="mwr: http://localhost/index.php/Special:Redirect/"><meta property="mw:articleNamespace" content="0"/><link rel="dc:replaces" resource="mwr:revision/0"/><meta property="dc:modified" content="2014-09-12T22:46:59.000Z"/><meta about="mwr:user/0" property="dc:title" content="MediaWiki default"/><link rel="dc:contributor" resource="mwr:user/0"/><meta property="mw:revisionSHA1" content="8e0aa2f2a7829587801db67d0424d9b447e09867"/><meta property="dc:description" content=""/><meta property="mw:parsoidVersion" content="0"/><link rel="dc:isVersionOf" href="http://localhost/index.php/Main_Page"/><title>Main_Page</title><base href="http://localhost/index.php/"/><link rel="stylesheet" href="//localhost/load.php?modules=mediawiki.legacy.commonPrint,shared|mediawiki.skinning.elements|mediawiki.skinning.content|mediawiki.skinning.interface|skins.vector.styles|site|mediawiki.skinning.content.parsoid&amp;only=styles&amp;debug=true&amp;skin=vector"/></head><body data-parsoid=\'{"dsr":[0,592,0,0]}\' lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body mw-body-content mediawiki" dir="ltr"><p data-parsoid=\'{"dsr":[0,59,0,0]}\'><strong data-parsoid=\'{"stx":"html","dsr":[0,59,8,9]}\'>MediaWiki has been successfully installed.</strong></p>\n\n<p data-parsoid=\'{"dsr":[61,171,0,0]}\'>Consult the <a rel="mw:ExtLink" href="//meta.wikimedia.org/wiki/Help:Contents" data-parsoid=\'{"targetOff":114,"contentOffsets":[114,126],"dsr":[73,127,41,1]}\'>User\'s Guide</a> for information on using the wiki software.</p>\n\n<h2 data-parsoid=\'{"dsr":[173,194,2,2]}\'> Getting started </h2>\n<ul data-parsoid=\'{"dsr":[195,592,0,0]}\'><li data-parsoid=\'{"dsr":[195,300,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:Configuration_settings" data-parsoid=\'{"targetOff":272,"contentOffsets":[272,299],"dsr":[197,300,75,1]}\'>Configuration settings list</a></li>\n<li data-parsoid=\'{"dsr":[301,373,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:FAQ" data-parsoid=\'{"targetOff":359,"contentOffsets":[359,372],"dsr":[303,373,56,1]}\'>MediaWiki FAQ</a></li>\n<li data-parsoid=\'{"dsr":[374,472,1,0]}\'> <a rel="mw:ExtLink" href="https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce" data-parsoid=\'{"targetOff":441,"contentOffsets":[441,471],"dsr":[376,472,65,1]}\'>MediaWiki release mailing list</a></li>\n<li data-parsoid=\'{"dsr":[473,592,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Localisation#Translation_resources" data-parsoid=\'{"targetOff":555,"contentOffsets":[555,591],"dsr":[475,592,80,1]}\'>Localise MediaWiki for your language</a></li></ul></body></html>',
 					},
 				})
-				.expect(200)
-				.expect(function(res) {
-					res.body.should.have.property("wikitext");
-				})
+				.expect(validWikitextResponse())
 				.end(done);
 			});
 
 			it('should allow a title in the url', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/wt/Main_Page')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/html/to/wikitext/Main_Page' :
+					'v2/' + mockDomain + '/wt/Main_Page')
 				.send({
 					html: '<!DOCTYPE html>\n<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/" about="http://localhost/index.php/Special:Redirect/revision/1"><head prefix="mwr: http://localhost/index.php/Special:Redirect/"><meta property="mw:articleNamespace" content="0"/><link rel="dc:replaces" resource="mwr:revision/0"/><meta property="dc:modified" content="2014-09-12T22:46:59.000Z"/><meta about="mwr:user/0" property="dc:title" content="MediaWiki default"/><link rel="dc:contributor" resource="mwr:user/0"/><meta property="mw:revisionSHA1" content="8e0aa2f2a7829587801db67d0424d9b447e09867"/><meta property="dc:description" content=""/><meta property="mw:parsoidVersion" content="0"/><link rel="dc:isVersionOf" href="http://localhost/index.php/Main_Page"/><title>Main_Page</title><base href="http://localhost/index.php/"/><link rel="stylesheet" href="//localhost/load.php?modules=mediawiki.legacy.commonPrint,shared|mediawiki.skinning.elements|mediawiki.skinning.content|mediawiki.skinning.interface|skins.vector.styles|site|mediawiki.skinning.content.parsoid&amp;only=styles&amp;debug=true&amp;skin=vector"/></head><body data-parsoid=\'{"dsr":[0,592,0,0]}\' lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body mw-body-content mediawiki" dir="ltr"><p data-parsoid=\'{"dsr":[0,59,0,0]}\'><strong data-parsoid=\'{"stx":"html","dsr":[0,59,8,9]}\'>MediaWiki has been successfully installed.</strong></p>\n\n<p data-parsoid=\'{"dsr":[61,171,0,0]}\'>Consult the <a rel="mw:ExtLink" href="//meta.wikimedia.org/wiki/Help:Contents" data-parsoid=\'{"targetOff":114,"contentOffsets":[114,126],"dsr":[73,127,41,1]}\'>User\'s Guide</a> for information on using the wiki software.</p>\n\n<h2 data-parsoid=\'{"dsr":[173,194,2,2]}\'> Getting started </h2>\n<ul data-parsoid=\'{"dsr":[195,592,0,0]}\'><li data-parsoid=\'{"dsr":[195,300,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:Configuration_settings" data-parsoid=\'{"targetOff":272,"contentOffsets":[272,299],"dsr":[197,300,75,1]}\'>Configuration settings list</a></li>\n<li data-parsoid=\'{"dsr":[301,373,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:FAQ" data-parsoid=\'{"targetOff":359,"contentOffsets":[359,372],"dsr":[303,373,56,1]}\'>MediaWiki FAQ</a></li>\n<li data-parsoid=\'{"dsr":[374,472,1,0]}\'> <a rel="mw:ExtLink" href="https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce" data-parsoid=\'{"targetOff":441,"contentOffsets":[441,471],"dsr":[376,472,65,1]}\'>MediaWiki release mailing list</a></li>\n<li data-parsoid=\'{"dsr":[473,592,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Localisation#Translation_resources" data-parsoid=\'{"targetOff":555,"contentOffsets":[555,591],"dsr":[475,592,80,1]}\'>Localise MediaWiki for your language</a></li></ul></body></html>',
 				})
-				.expect(200)
-				.expect(function(res) {
-					res.body.should.have.property("wikitext");
-				})
+				.expect(validWikitextResponse())
 				.end(done);
 			});
 
 			it('should allow a title in the original data', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/wt/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/html/to/wikitext/' :
+					'v2/' + mockDomain + '/wt/')
 				.send({
 					html: '<!DOCTYPE html>\n<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/" about="http://localhost/index.php/Special:Redirect/revision/1"><head prefix="mwr: http://localhost/index.php/Special:Redirect/"><meta property="mw:articleNamespace" content="0"/><link rel="dc:replaces" resource="mwr:revision/0"/><meta property="dc:modified" content="2014-09-12T22:46:59.000Z"/><meta about="mwr:user/0" property="dc:title" content="MediaWiki default"/><link rel="dc:contributor" resource="mwr:user/0"/><meta property="mw:revisionSHA1" content="8e0aa2f2a7829587801db67d0424d9b447e09867"/><meta property="dc:description" content=""/><meta property="mw:parsoidVersion" content="0"/><link rel="dc:isVersionOf" href="http://localhost/index.php/Main_Page"/><title>Main_Page</title><base href="http://localhost/index.php/"/><link rel="stylesheet" href="//localhost/load.php?modules=mediawiki.legacy.commonPrint,shared|mediawiki.skinning.elements|mediawiki.skinning.content|mediawiki.skinning.interface|skins.vector.styles|site|mediawiki.skinning.content.parsoid&amp;only=styles&amp;debug=true&amp;skin=vector"/></head><body data-parsoid=\'{"dsr":[0,592,0,0]}\' lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body mw-body-content mediawiki" dir="ltr"><p data-parsoid=\'{"dsr":[0,59,0,0]}\'><strong data-parsoid=\'{"stx":"html","dsr":[0,59,8,9]}\'>MediaWiki has been successfully installed.</strong></p>\n\n<p data-parsoid=\'{"dsr":[61,171,0,0]}\'>Consult the <a rel="mw:ExtLink" href="//meta.wikimedia.org/wiki/Help:Contents" data-parsoid=\'{"targetOff":114,"contentOffsets":[114,126],"dsr":[73,127,41,1]}\'>User\'s Guide</a> for information on using the wiki software.</p>\n\n<h2 data-parsoid=\'{"dsr":[173,194,2,2]}\'> Getting started </h2>\n<ul data-parsoid=\'{"dsr":[195,592,0,0]}\'><li data-parsoid=\'{"dsr":[195,300,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:Configuration_settings" data-parsoid=\'{"targetOff":272,"contentOffsets":[272,299],"dsr":[197,300,75,1]}\'>Configuration settings list</a></li>\n<li data-parsoid=\'{"dsr":[301,373,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:FAQ" data-parsoid=\'{"targetOff":359,"contentOffsets":[359,372],"dsr":[303,373,56,1]}\'>MediaWiki FAQ</a></li>\n<li data-parsoid=\'{"dsr":[374,472,1,0]}\'> <a rel="mw:ExtLink" href="https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce" data-parsoid=\'{"targetOff":441,"contentOffsets":[441,471],"dsr":[376,472,65,1]}\'>MediaWiki release mailing list</a></li>\n<li data-parsoid=\'{"dsr":[473,592,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Localisation#Translation_resources" data-parsoid=\'{"targetOff":555,"contentOffsets":[555,591],"dsr":[475,592,80,1]}\'>Localise MediaWiki for your language</a></li></ul></body></html>',
 					original: {
 						title: "Main_Page",
 					},
 				})
-				.expect(200)
-				.expect(function(res) {
-					res.body.should.have.property("wikitext");
-				})
+				.expect(validWikitextResponse())
 				.end(done);
 			});
 
 			it('should allow a revision id in the url', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/wt/Main_Page/1')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/html/to/wikitext/Main_Page/1' :
+					'v2/' + mockDomain + '/wt/Main_Page/1')
 				.send({
 					html: '<!DOCTYPE html>\n<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/" about="http://localhost/index.php/Special:Redirect/revision/1"><head prefix="mwr: http://localhost/index.php/Special:Redirect/"><meta property="mw:articleNamespace" content="0"/><link rel="dc:replaces" resource="mwr:revision/0"/><meta property="dc:modified" content="2014-09-12T22:46:59.000Z"/><meta about="mwr:user/0" property="dc:title" content="MediaWiki default"/><link rel="dc:contributor" resource="mwr:user/0"/><meta property="mw:revisionSHA1" content="8e0aa2f2a7829587801db67d0424d9b447e09867"/><meta property="dc:description" content=""/><meta property="mw:parsoidVersion" content="0"/><link rel="dc:isVersionOf" href="http://localhost/index.php/Main_Page"/><title>Main_Page</title><base href="http://localhost/index.php/"/><link rel="stylesheet" href="//localhost/load.php?modules=mediawiki.legacy.commonPrint,shared|mediawiki.skinning.elements|mediawiki.skinning.content|mediawiki.skinning.interface|skins.vector.styles|site|mediawiki.skinning.content.parsoid&amp;only=styles&amp;debug=true&amp;skin=vector"/></head><body data-parsoid=\'{"dsr":[0,592,0,0]}\' lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body mw-body-content mediawiki" dir="ltr"><p data-parsoid=\'{"dsr":[0,59,0,0]}\'><strong data-parsoid=\'{"stx":"html","dsr":[0,59,8,9]}\'>MediaWiki has been successfully installed.</strong></p>\n\n<p data-parsoid=\'{"dsr":[61,171,0,0]}\'>Consult the <a rel="mw:ExtLink" href="//meta.wikimedia.org/wiki/Help:Contents" data-parsoid=\'{"targetOff":114,"contentOffsets":[114,126],"dsr":[73,127,41,1]}\'>User\'s Guide</a> for information on using the wiki software.</p>\n\n<h2 data-parsoid=\'{"dsr":[173,194,2,2]}\'> Getting started </h2>\n<ul data-parsoid=\'{"dsr":[195,592,0,0]}\'><li data-parsoid=\'{"dsr":[195,300,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:Configuration_settings" data-parsoid=\'{"targetOff":272,"contentOffsets":[272,299],"dsr":[197,300,75,1]}\'>Configuration settings list</a></li>\n<li data-parsoid=\'{"dsr":[301,373,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:FAQ" data-parsoid=\'{"targetOff":359,"contentOffsets":[359,372],"dsr":[303,373,56,1]}\'>MediaWiki FAQ</a></li>\n<li data-parsoid=\'{"dsr":[374,472,1,0]}\'> <a rel="mw:ExtLink" href="https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce" data-parsoid=\'{"targetOff":441,"contentOffsets":[441,471],"dsr":[376,472,65,1]}\'>MediaWiki release mailing list</a></li>\n<li data-parsoid=\'{"dsr":[473,592,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Localisation#Translation_resources" data-parsoid=\'{"targetOff":555,"contentOffsets":[555,591],"dsr":[475,592,80,1]}\'>Localise MediaWiki for your language</a></li></ul></body></html>',
 				})
-				.expect(200)
-				.expect(function(res) {
-					res.body.should.have.property("wikitext");
-				})
+				.expect(validWikitextResponse())
 				.end(done);
 			});
 
 			it('should allow a revision id in the original data', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/wt/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/html/to/wikitext/' :
+					'v2/' + mockDomain + '/wt/')
 				.send({
 					html: '<!DOCTYPE html>\n<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/" about="http://localhost/index.php/Special:Redirect/revision/1"><head prefix="mwr: http://localhost/index.php/Special:Redirect/"><meta property="mw:articleNamespace" content="0"/><link rel="dc:replaces" resource="mwr:revision/0"/><meta property="dc:modified" content="2014-09-12T22:46:59.000Z"/><meta about="mwr:user/0" property="dc:title" content="MediaWiki default"/><link rel="dc:contributor" resource="mwr:user/0"/><meta property="mw:revisionSHA1" content="8e0aa2f2a7829587801db67d0424d9b447e09867"/><meta property="dc:description" content=""/><meta property="mw:parsoidVersion" content="0"/><link rel="dc:isVersionOf" href="http://localhost/index.php/Main_Page"/><title>Main_Page</title><base href="http://localhost/index.php/"/><link rel="stylesheet" href="//localhost/load.php?modules=mediawiki.legacy.commonPrint,shared|mediawiki.skinning.elements|mediawiki.skinning.content|mediawiki.skinning.interface|skins.vector.styles|site|mediawiki.skinning.content.parsoid&amp;only=styles&amp;debug=true&amp;skin=vector"/></head><body data-parsoid=\'{"dsr":[0,592,0,0]}\' lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body mw-body-content mediawiki" dir="ltr"><p data-parsoid=\'{"dsr":[0,59,0,0]}\'><strong data-parsoid=\'{"stx":"html","dsr":[0,59,8,9]}\'>MediaWiki has been successfully installed.</strong></p>\n\n<p data-parsoid=\'{"dsr":[61,171,0,0]}\'>Consult the <a rel="mw:ExtLink" href="//meta.wikimedia.org/wiki/Help:Contents" data-parsoid=\'{"targetOff":114,"contentOffsets":[114,126],"dsr":[73,127,41,1]}\'>User\'s Guide</a> for information on using the wiki software.</p>\n\n<h2 data-parsoid=\'{"dsr":[173,194,2,2]}\'> Getting started </h2>\n<ul data-parsoid=\'{"dsr":[195,592,0,0]}\'><li data-parsoid=\'{"dsr":[195,300,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:Configuration_settings" data-parsoid=\'{"targetOff":272,"contentOffsets":[272,299],"dsr":[197,300,75,1]}\'>Configuration settings list</a></li>\n<li data-parsoid=\'{"dsr":[301,373,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:FAQ" data-parsoid=\'{"targetOff":359,"contentOffsets":[359,372],"dsr":[303,373,56,1]}\'>MediaWiki FAQ</a></li>\n<li data-parsoid=\'{"dsr":[374,472,1,0]}\'> <a rel="mw:ExtLink" href="https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce" data-parsoid=\'{"targetOff":441,"contentOffsets":[441,471],"dsr":[376,472,65,1]}\'>MediaWiki release mailing list</a></li>\n<li data-parsoid=\'{"dsr":[473,592,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Localisation#Translation_resources" data-parsoid=\'{"targetOff":555,"contentOffsets":[555,591],"dsr":[475,592,80,1]}\'>Localise MediaWiki for your language</a></li></ul></body></html>',
 					original: {
 						revid: 1,
 					},
 				})
-				.expect(200)
-				.expect(function(res) {
-					res.body.should.have.property("wikitext");
-				})
+				.expect(validWikitextResponse())
 				.end(done);
 			});
 
 			it('should accept original wikitext as src', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/wt/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/html/to/wikitext/' :
+					'v2/' + mockDomain + '/wt/')
 				.send({
 					html: '<!DOCTYPE html>\n<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/" about="http://localhost/index.php/Special:Redirect/revision/1"><head prefix="mwr: http://localhost/index.php/Special:Redirect/"><meta property="mw:articleNamespace" content="0"/><link rel="dc:replaces" resource="mwr:revision/0"/><meta property="dc:modified" content="2014-09-12T22:46:59.000Z"/><meta about="mwr:user/0" property="dc:title" content="MediaWiki default"/><link rel="dc:contributor" resource="mwr:user/0"/><meta property="mw:revisionSHA1" content="8e0aa2f2a7829587801db67d0424d9b447e09867"/><meta property="dc:description" content=""/><meta property="mw:parsoidVersion" content="0"/><link rel="dc:isVersionOf" href="http://localhost/index.php/Main_Page"/><title>Main_Page</title><base href="http://localhost/index.php/"/><link rel="stylesheet" href="//localhost/load.php?modules=mediawiki.legacy.commonPrint,shared|mediawiki.skinning.elements|mediawiki.skinning.content|mediawiki.skinning.interface|skins.vector.styles|site|mediawiki.skinning.content.parsoid&amp;only=styles&amp;debug=true&amp;skin=vector"/></head><body data-parsoid=\'{"dsr":[0,592,0,0]}\' lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body mw-body-content mediawiki" dir="ltr"><p data-parsoid=\'{"dsr":[0,59,0,0]}\'><strong data-parsoid=\'{"stx":"html","dsr":[0,59,8,9]}\'>MediaWiki has been successfully installed.</strong></p>\n\n<p data-parsoid=\'{"dsr":[61,171,0,0]}\'>Consult the <a rel="mw:ExtLink" href="//meta.wikimedia.org/wiki/Help:Contents" data-parsoid=\'{"targetOff":114,"contentOffsets":[114,126],"dsr":[73,127,41,1]}\'>User\'s Guide</a> for information on using the wiki software.</p>\n\n<h2 data-parsoid=\'{"dsr":[173,194,2,2]}\'> Getting started </h2>\n<ul data-parsoid=\'{"dsr":[195,592,0,0]}\'><li data-parsoid=\'{"dsr":[195,300,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:Configuration_settings" data-parsoid=\'{"targetOff":272,"contentOffsets":[272,299],"dsr":[197,300,75,1]}\'>Configuration settings list</a></li>\n<li data-parsoid=\'{"dsr":[301,373,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:FAQ" data-parsoid=\'{"targetOff":359,"contentOffsets":[359,372],"dsr":[303,373,56,1]}\'>MediaWiki FAQ</a></li>\n<li data-parsoid=\'{"dsr":[374,472,1,0]}\'> <a rel="mw:ExtLink" href="https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce" data-parsoid=\'{"targetOff":441,"contentOffsets":[441,471],"dsr":[376,472,65,1]}\'>MediaWiki release mailing list</a></li>\n<li data-parsoid=\'{"dsr":[473,592,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Localisation#Translation_resources" data-parsoid=\'{"targetOff":555,"contentOffsets":[555,591],"dsr":[475,592,80,1]}\'>Localise MediaWiki for your language</a></li></ul></body></html>',
 					original: {
@@ -539,16 +635,15 @@ describe('Parsoid API', function() {
 						},
 					},
 				})
-				.expect(200)
-				.expect(function(res) {
-					res.body.should.have.property("wikitext");
-				})
+				.expect(validWikitextResponse())
 				.end(done);
 			});
 
 			it('should accept original html for selser', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/wt/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/html/to/wikitext/' :
+					'v2/' + mockDomain + '/wt/')
 				.send({
 					html: '<!DOCTYPE html>\n<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/" about="http://localhost/index.php/Special:Redirect/revision/1"><head prefix="mwr: http://localhost/index.php/Special:Redirect/"><meta property="mw:articleNamespace" content="0"/><link rel="dc:replaces" resource="mwr:revision/0"/><meta property="dc:modified" content="2014-09-12T22:46:59.000Z"/><meta about="mwr:user/0" property="dc:title" content="MediaWiki default"/><link rel="dc:contributor" resource="mwr:user/0"/><meta property="mw:revisionSHA1" content="8e0aa2f2a7829587801db67d0424d9b447e09867"/><meta property="dc:description" content=""/><meta property="mw:parsoidVersion" content="0"/><link rel="dc:isVersionOf" href="http://localhost/index.php/Main_Page"/><title>Main_Page</title><base href="http://localhost/index.php/"/><link rel="stylesheet" href="//localhost/load.php?modules=mediawiki.legacy.commonPrint,shared|mediawiki.skinning.elements|mediawiki.skinning.content|mediawiki.skinning.interface|skins.vector.styles|site|mediawiki.skinning.content.parsoid&amp;only=styles&amp;debug=true&amp;skin=vector"/></head><body data-parsoid=\'{"dsr":[0,592,0,0]}\' lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body mw-body-content mediawiki" dir="ltr"><p data-parsoid=\'{"dsr":[0,59,0,0]}\'><strong data-parsoid=\'{"stx":"html","dsr":[0,59,8,9]}\'>MediaWiki has been successfully installed.</strong></p>\n\n<p data-parsoid=\'{"dsr":[61,171,0,0]}\'>Consult the <a rel="mw:ExtLink" href="//meta.wikimedia.org/wiki/Help:Contents" data-parsoid=\'{"targetOff":114,"contentOffsets":[114,126],"dsr":[73,127,41,1]}\'>User\'s Guide</a> for information on using the wiki software.</p>\n\n<h2 data-parsoid=\'{"dsr":[173,194,2,2]}\'> Getting started </h2>\n<ul data-parsoid=\'{"dsr":[195,592,0,0]}\'><li data-parsoid=\'{"dsr":[195,300,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:Configuration_settings" data-parsoid=\'{"targetOff":272,"contentOffsets":[272,299],"dsr":[197,300,75,1]}\'>Configuration settings list</a></li>\n<li data-parsoid=\'{"dsr":[301,373,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:FAQ" data-parsoid=\'{"targetOff":359,"contentOffsets":[359,372],"dsr":[303,373,56,1]}\'>MediaWiki FAQ</a></li>\n<li data-parsoid=\'{"dsr":[374,472,1,0]}\'> <a rel="mw:ExtLink" href="https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce" data-parsoid=\'{"targetOff":441,"contentOffsets":[441,471],"dsr":[376,472,65,1]}\'>MediaWiki release mailing list</a></li>\n<li data-parsoid=\'{"dsr":[473,592,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Localisation#Translation_resources" data-parsoid=\'{"targetOff":555,"contentOffsets":[555,591],"dsr":[475,592,80,1]}\'>Localise MediaWiki for your language</a></li></ul></body></html>',
 					original: {
@@ -571,16 +666,15 @@ describe('Parsoid API', function() {
 						},
 					},
 				})
-				.expect(200)
-				.expect(function(res) {
-					res.body.should.have.property("wikitext");
-				})
+				.expect(validWikitextResponse())
 				.end(done);
 			});
 
 			it('should return http 400 if supplied data-parsoid is empty', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/wt/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/html/to/wikitext/' :
+					'v2/' + mockDomain + '/wt/')
 				.send({
 					html: '<html><head></head><body><p>hi</p></body></html>',
 					original: {
@@ -604,7 +698,9 @@ describe('Parsoid API', function() {
 
 			it('should return http 400 if supplied data-parsoid is a string', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/wt/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/html/to/wikitext/' :
+					'v2/' + mockDomain + '/wt/')
 				.send({
 					html: '<html><head></head><body><p>hi</p></body></html>',
 					original: {
@@ -643,7 +739,9 @@ describe('Parsoid API', function() {
 				// The oldid is used to fetch wikitext, but if wikitext is provided
 				// (as in this test), it is not used. So, for testing purposes,
 				// we can use any old random id, as long as something is present.
-				.post('v2/' + mockDomain + '/wt/Junk_Page/1234')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/html/to/wikitext/Junk_Page/1234' :
+					'v2/' + mockDomain + '/wt/Junk_Page/1234')
 				.send({
 					html: "<html><body id=\"mwAA\"><div id=\"mwBB\">Selser test</div></body></html>",
 					original: {
@@ -664,11 +762,9 @@ describe('Parsoid API', function() {
 						},
 					},
 				})
-				.expect(200)
-				.expect(function(res) {
-					res.body.should.have.property("wikitext");
-					res.body.wikitext.body.should.equal("1. This is just some junk. See the comment above.");
-				})
+				.expect(validWikitextResponse(
+					"1. This is just some junk. See the comment above."
+				))
 				.end(done);
 			});
 
@@ -676,7 +772,9 @@ describe('Parsoid API', function() {
 				// New and old html are identical, which should produce no diffs
 				// and reuse the original wikitext.
 				request(api)
-				.post('v2/' + mockDomain + '/wt/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/html/to/wikitext/' :
+					'v2/' + mockDomain + '/wt/')
 				.send({
 					html: "<html><body id=\"mwAA\"><div id=\"mwBB\">Selser test</div></body></html>",
 					original: {
@@ -695,11 +793,9 @@ describe('Parsoid API', function() {
 						},
 					},
 				})
-				.expect(200)
-				.expect(function(res) {
-					res.body.should.have.property("wikitext");
-					res.body.wikitext.body.should.equal("2. This is just some junk. See the comment above.");
-				})
+				.expect(validWikitextResponse(
+					"2. This is just some junk. See the comment above."
+				))
 				.end(done);
 			});
 
@@ -708,7 +804,9 @@ describe('Parsoid API', function() {
 				// TemplateFetch for the source (no revision id provided),
 				// it should fallback to non-selective serialization.
 				request(api)
-				.post('v2/' + mockDomain + '/wt/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/html/to/wikitext/' :
+					'v2/' + mockDomain + '/wt/')
 				.send({
 					html: "<html><body id=\"mwAA\"><div id=\"mwBB\">Selser test</div></body></html>",
 					original: {
@@ -726,17 +824,17 @@ describe('Parsoid API', function() {
 						},
 					},
 				})
-				.expect(200)
-				.expect(function(res) {
-					res.body.should.have.property("wikitext");
-					res.body.wikitext.body.should.equal("<div>Selser test");
-				})
+				.expect(validWikitextResponse(
+					"<div>Selser test"
+				))
 				.end(done);
 			});
 
 			it('should apply data-parsoid to duplicated ids', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/wt/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/html/to/wikitext/' :
+					'v2/' + mockDomain + '/wt/')
 				.send({
 					html: "<html><body id=\"mwAA\"><div id=\"mwBB\">data-parsoid test</div><div id=\"mwBB\">data-parsoid test</div></body></html>",
 					original: {
@@ -754,47 +852,48 @@ describe('Parsoid API', function() {
 						},
 					},
 				})
-				.expect(200)
-				.expect(function(res) {
-					res.body.should.have.property("wikitext");
-					res.body.wikitext.body.should.equal("<div>data-parsoid test<div>data-parsoid test");
-				})
+				.expect(validWikitextResponse(
+					"<div>data-parsoid test<div>data-parsoid test"
+				))
 				.end(done);
 			});
 
 			it('should apply extra normalizations', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/wt/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/html/to/wikitext/' :
+					'v2/' + mockDomain + '/wt/')
 				.send({
 					html: '<h2></h2>',
 					scrubWikitext: true,
 					original: { title: 'Doesnotexist' },
 				})
-				.expect(200)
-				.expect(function(res) {
-					res.body.should.have.property('wikitext');
-					res.body.wikitext.body.should.equal('');
-				})
+				.expect(validWikitextResponse(
+					''
+				))
 				.end(done);
 			});
 
 			it('should suppress extra normalizations', function(done) {
 				request(api)
-				.post('v2/' + mockDomain + '/wt/')
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/html/to/wikitext/' :
+					'v2/' + mockDomain + '/wt/')
 				.send({
 					html: '<h2></h2>',
 					original: { title: 'Doesnotexist' },
 				})
-				.expect(200)
-				.expect(function(res) {
-					res.body.should.have.property('wikitext');
-					res.body.wikitext.body.should.equal('==<nowiki/>==\n');
-				})
+				.expect(validWikitextResponse(
+					'==<nowiki/>==\n'
+				))
 				.end(done);
 			});
 
 		}); // end html2wt
 
-	});
+	};
+
+	describe("v2 Routes", function() { testRoutes(2); });
+	describe("v3 Routes", function() { testRoutes(3); });
 
 });
