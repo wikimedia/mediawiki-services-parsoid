@@ -1352,14 +1352,8 @@ generic_att_value
         / valPos1:("" { return endOffset(); }) t2:attribute_preprocessor_text_double_broken? valPos2:("" { return endOffset(); }) &[|>]
             { return tu.getAttributeValueAndSource(input, t2, valPos1, valPos2); } )
                 { return r; }
-  / space_or_newline* valPos1:("" { return endOffset(); }) t:attribute_preprocessor_text? !"=" valPos2:("" { return endOffset(); })
-        {   if (t === null) {
-                t = "";
-                // Reset the current parse position in order to reparse any
-                // captured spaces, which are needed to separate attributes.
-                peg$currPos = endOffset();
-            }
-            return tu.getAttributeValueAndSource(input, t, valPos1, valPos2); }
+  / space_or_newline* valPos1:("" { return endOffset(); }) t:attribute_preprocessor_text !"=" valPos2:("" { return endOffset(); })
+        { return tu.getAttributeValueAndSource(input, t, valPos1, valPos2); }
 
 // Attribute value, restricted to a single line.
 table_att_value
@@ -1375,14 +1369,8 @@ table_att_value
         / valPos1:("" { return endOffset(); }) t2:attribute_preprocessor_text_double_line_broken? valPos2:("" { return endOffset(); }) &[|>\n]
             { return tu.getAttributeValueAndSource(input, t2, valPos1, valPos2); } )
                 { return r; }
-  / space* valPos1:("" { return endOffset(); }) t:attribute_preprocessor_text_line? !"=" valPos2:("" { return endOffset(); })
-        {   if (t === null) {
-                t = "";
-                // Reset the current parse position in order to reparse any
-                // captured spaces, which are needed to separate attributes.
-                peg$currPos = endOffset();
-            }
-            return tu.getAttributeValueAndSource(input, t ? t : "", valPos1, valPos2); }
+  / space* valPos1:("" { return endOffset(); }) t:attribute_preprocessor_text_line !"=" valPos2:("" { return endOffset(); })
+        { return tu.getAttributeValueAndSource(input, t ? t : "", valPos1, valPos2); }
 
 /*
  * A variant of generic_tag, but also checks if the tag name is a block-level
