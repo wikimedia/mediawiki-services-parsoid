@@ -17,13 +17,26 @@ exports.setup = function(parsoidConfig) {
 	// Otherwise, defaults to "Parsoid/<current-version-defined-in-package.json>"
 	//parsoidConfig.userAgent = "My-User-Agent-String";
 
-	// The URL of your MediaWiki API endpoint.
-	parsoidConfig.setMwApi({ prefix: 'localhost', uri: 'http://localhost/w/api.php' });
+	// Configure Parsoid to point to your MediaWiki instance.
+	parsoidConfig.setMwApi({
+		// The "prefix" is the name given to this wiki configuration in the
+		// (deprecated) Parsoid v1 API.
+		prefix: 'localhost', // optional
+		// The "domain" is used for communication with Visual Editor
+		// and RESTBase.  It defaults to the hostname portion of
+		// the `uri` property below, but you can manually set it
+		// to an arbitrary string.
+		domain: 'localhost', // optional
+		// This is the only required parameter:
+		// the URL of you MediaWiki API endpoint.
+		uri: 'http://localhost/w/api.php'
+	});
 	// To specify a proxy (or proxy headers) specific to this prefix (which
 	// overrides defaultAPIProxyURI) use:
 	/*
 	parsoidConfig.setMwApi({
-		prefix: 'localhost',
+		prefix: 'localhost', // optional
+		domain: 'localhost', // optional
 		uri: 'http://localhost/w/api.php',
 		// set `proxy` to `null` to override and force no proxying.
 		proxy: {
