@@ -144,7 +144,8 @@ var parsoidServerOpts = {
 	urlPath: "/",
 	filePath: "/../api/server.js",
 	serverArgv: [
-		'--num-workers', '0',
+		// we want the cluster master so that timeouts on stuck titles lead to a restart.
+		'--num-workers', '1',
 		'--config', path.resolve(__dirname, './rttest.localsettings.js'),
 	],
 	serverEnv: {},
