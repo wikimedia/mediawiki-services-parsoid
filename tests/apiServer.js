@@ -55,7 +55,7 @@ var exitOnProcessTerm = function(res) {
  * Starts a server on passed port or a random port if none passed.
  * The callback will get the URL of the started server.
  */
-var startServer = function(opts, retrying, cb) {
+var startServer = function(opts, cb) {
 	// Don't create callback chains when invoked recursively
 	if (!cb || !cb.promise) { cb = JSUtils.mkPromised(cb); }
 
@@ -66,17 +66,10 @@ var startServer = function(opts, retrying, cb) {
 	var forkedServer = { opts: opts };
 	var port = opts.port;
 
-	// For now, we always assume that retries are due to port conflicts
-	if (!port) {
-		// XXX we should use a more reliable way to find an open port
-		// (for this, and also for debugPort, below)
-		port = opts.portBase + Math.floor(Math.random() * 100);
-	}
-
-	var url = 'http://' + opts.iface + ':' + port.toString() + opts.urlPath;
-	if (opts.port && forkedServers.has(url)) {
-		// We already have a server there!
-		return cb("There's already a server running at that port.");
+	if (port === undefined) {
+		// Let the OS choose a random open port.  We'll forward it up the chain
+		// with the startup message.
+		port = 0;
 	}
 
 	// Handle debug port (borrowed from 'createWorkerProcess' in node's
@@ -96,7 +89,7 @@ var startServer = function(opts, retrying, cb) {
 	});
 
 	if (!opts.quiet) {
-		console.log("Starting %s server at %s", opts.serverName, url);
+		console.log("Starting %s server.", opts.serverName);
 	}
 
 	forkedServer.child = childProcess.fork(
@@ -113,24 +106,29 @@ var startServer = function(opts, retrying, cb) {
 		}
 	);
 
-	forkedServers.set(url, forkedServer);
+	var url;
 
-	// If it dies on its own, restart it. The most common cause will be that the
-	// port was already in use, so if no port was specified then a new random
-	// one will be selected.
+	// If it dies on its own, restart it.
 	forkedServer.child.on('exit', function() {
 		if (exiting) {
 			return;
 		}
-		console.warn('Restarting server at', url);
-		forkedServers.delete(url);
-		startServer(opts, true, cb);
+		if (url) {
+			console.warn('Restarting server at: ', url);
+			forkedServers.delete(url);
+		}
+		startServer(opts, cb);
 	});
 
 	forkedServer.child.on('message', function(m) {
-		if (m && m.type && m.type === 'startup' && cb) {
-			cb(null, { url: url, child: forkedServer.child });
-			cb = null; // prevent invoking cb again on restart
+		if (m && m.type === 'startup') {
+			url = 'http://' + opts.iface + ':' + m.port.toString() + opts.urlPath;
+			opts.port = m.port;
+			forkedServers.set(url, forkedServer);
+			if (typeof cb === 'function') {
+				cb(null, { url: url, child: forkedServer.child });
+				cb = null; // prevent invoking cb again on restart
+			}
 		}
 	});
 
@@ -140,7 +138,7 @@ var startServer = function(opts, retrying, cb) {
 var parsoidServerOpts = {
 	serverName: "Parsoid",
 	iface: "localhost",
-	portBase: 9000,
+	port: 0,  // Select a port at random.
 	urlPath: "/",
 	filePath: "/../api/server.js",
 	serverArgv: [
@@ -160,7 +158,7 @@ var startParsoidServer = function(opts, cb) {
 var mockAPIServerOpts = {
 	serverName: "Mock API",
 	iface: "localhost",
-	portBase: 7000,
+	port: 0,  // Select a port at random.
 	urlPath: "/api.php",
 	filePath: "/../tests/mockAPI.js",
 	serverArgv: [],

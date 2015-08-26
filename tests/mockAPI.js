@@ -422,9 +422,9 @@ app.post('/api.php', function(req, res) {
 module.exports = app;
 
 var port = process.env.PORT || 7001;
-console.log('Mock MediaWiki API starting.... listening to ' + port);
-app.listen(port, function() {
-	console.log('Started.');
+var server = app.listen(port, function() {
+	port = server.address().port;
+	console.log('Mock MediaWiki API started on: %s', port);
 	// let parent process know we've started up and are ready to go.
 	if (process.send) { process.send({ type: 'startup', port: port }); }
 });
