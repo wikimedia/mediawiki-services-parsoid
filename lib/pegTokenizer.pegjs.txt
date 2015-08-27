@@ -398,12 +398,18 @@ extlink
   r:(
         "["
         & { return stops.push('extlink', true); }
-        target:extlink_preprocessor_text
+        addr:(url_protocol urladdr / "")
+        target:(extlink_preprocessor_text / "")
         & {
           // Protocol must be valid and there ought to be at least one
           // post-protocol character.  So strip last char off target
           // before testing protocol.
-          return Util.isProtocolValid(target.slice(0, -1), options.env);
+          var flat = tu.flattenString([addr, target]);
+          if (Array.isArray(flat)) {
+             // There are templates present, alas.
+             return flat.length > 0;
+          }
+          return Util.isProtocolValid(flat.slice(0, -1), options.env);
         }
         sp:$( space / unispace )*
         targetOff:( "" { return endOffset(); })
@@ -416,14 +422,9 @@ extlink
               )?
         "]" {
             stops.pop('extlink');
-            // if (text === '') {
-            //     // XXX: Link numbering should be implemented in post-processor.
-            //     text = [ "[" + linkCount + "]" ];
-            //     linkCount++;
-            // }
             return [
                 new SelfclosingTagTk('extlink', [
-                    new KV('href', target),
+                    new KV('href', tu.flattenString([addr, target])),
                     new KV('mw:content', content),
                     new KV('spaces', sp),
                 ], {
@@ -501,7 +502,7 @@ no_punctuation_char = [^ :\]\[\r\n"'<>\x00-\x20\x7f,.&%\u00A0\u1680\u180E\u2000-
 // EXT_LINK_URL_CLASS which aren't included in no_punctuation_char
 url "url"
   = proto:url_protocol
-    addr:( ipv6_address / ipv4_address )?
+    addr:(urladdr / "")
     path:(  ( !{ return inlineBreaks(input, endOffset(), stops); } // inline_breaks
               c:no_punctuation_char
               { return c; }
@@ -516,10 +517,9 @@ url "url"
                 ) { return r; }
          )*
          // Must be at least one character after the protocol
-         & { return addr !== null || path.length > 0; }
+         & { return addr.length > 0 || path.length > 0; }
 {
-    proto += addr || '';
-    return tu.flattenString([proto].concat(path));
+    return tu.flattenString([proto, addr].concat(path));
 }
 
 // this is the somewhat-restricted rule used in autolinks
@@ -534,7 +534,7 @@ autourl
     ! '//' // protocol-relative autolinks not allowed (T32269)
     r:(
     proto:url_protocol
-    addr:( ipv6_address / ipv4_address )?
+    addr:(urladdr / "")
     path:(  ( !{ return inlineBreaks(input, endOffset(), stops); } // inline_breaks
               ! "("
               c:no_punctuation_char
@@ -549,12 +549,11 @@ autourl
                     & "&" he:htmlentity { return he; }
                   / [&%{]
                 ) { return r; }
-         )+
+         )*
 {
     // as in Parser.php::makeFreeExternalLink, we're going to
     // yank trailing punctuation out of this match.
-    proto += addr || '';
-    var url = tu.flattenStringlist([proto].concat(path));
+    var url = tu.flattenStringlist([proto, addr].concat(path));
     // only need to look at last element; HTML entities are strip-proof.
     var last = url[url.length - 1];
     var trim = 0;
@@ -577,12 +576,12 @@ autourl
 } ) &{ return r !== null; } {return r; }
     / &{ return stops.pop('autourl'); }
 
-ipv4_address
-  = $([0-9]* '.' [0-9]* '.' [0-9]* '.' [0-9]*)
-
-ipv6_address
-  = $('[' [0-9]* ':' [0-9]* ':' [0-9]* ':' [0-9]* ':' [0-9]* ':' [0-9]* ':' [0-9]* ']')
-
+// This is extracted from EXT_LINK_ADDR in Parser.php: a simplified
+// expression to match an IPv6 address.  The IPv4 address and "at least
+// one character of a host name" portions are punted to the `path`
+// component of the `autourl` and `url` productions
+urladdr
+  = $( "[" [0-9A-Fa-f:.]+ "]" )
 
 /**************************************************************
  * Templates, -arguments and wikilinks
