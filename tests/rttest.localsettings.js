@@ -17,6 +17,9 @@ exports.setup = function(parsoidConfig) {
 		});
 	}
 
+	// Turn on the batching API
+	parsoidConfig.useBatchAPI = true;
+
 	// We pre-define wikipedias as 'enwiki', 'dewiki' etc. Similarly
 	// for other projects: 'enwiktionary', 'enwikiquote', 'enwikibooks',
 	// 'enwikivoyage' etc. (default true)
