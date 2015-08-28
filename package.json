@@ -60,6 +60,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://gerrit.wikimedia.org/r/p/mediawiki/services/parsoid"
+    "url": "https://github.com/wikimedia/parsoid.git"
   }
 }
