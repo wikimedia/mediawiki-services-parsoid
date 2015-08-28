@@ -125,6 +125,11 @@ var standardOpts = Util.addStandardOptions({
 		'boolean': true,
 		'default': false,
 	},
+	'useBatchAPI': {
+		description: 'Turn on/off the API batching system',
+		'boolean': true,
+		'default': null,
+	},
 });
 exports.defaultOptions = yargs.options(standardOpts).parse([]);
 
