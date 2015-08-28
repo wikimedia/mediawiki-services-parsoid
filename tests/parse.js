@@ -127,7 +127,9 @@ var standardOpts = Util.addStandardOptions({
 	},
 	'useBatchAPI': {
 		description: 'Turn on/off the API batching system',
-		'boolean': true,
+		// Since I picked a null default (to let the default config setting be the default),
+		// I cannot make this a boolean option.
+		'boolean': false,
 		'default': null,
 	},
 });
