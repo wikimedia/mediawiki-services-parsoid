@@ -2057,13 +2057,28 @@ Tabs don't trigger preformatted text
 	 preformatted text.
  This is preformatted text.
  	So is this.
-!! html
+!! html/php
 <p>	This is not
 	 preformatted text.
 </p>
 <pre>This is preformatted text.
 	So is this.
 </pre>
+!! html/parsoid
+<p>	This is not
+	 preformatted text.</p>
+<pre>This is preformatted text.
+	So is this.</pre>
+!! end
+
+!! test
+Space before tab needs nowiki pre protection
+!! options
+parsoid=html2wt
+!! html/parsoid
+<p> 	a</p>
+!! wikitext
+<nowiki> </nowiki>	a
 !! end
 
 !! test
@@ -23210,38 +23225,58 @@ bar <span><nowiki>[[foo]]</nowiki></span>
 !! test
 1. Leading whitespace in SOL context should be escaped
 !! options
-parsoid
+parsoid=html2wt,wt2wt
+!! html/php
+<p> a
+</p><p>  a
+</p><p>	a(tab)
+</p><p> 	a
+  a
+</p><p>a
+ b
+</p><p>a
+	b
+</p><p>a
+	 b
+</p>
+!! html/parsoid
+<p> a</p>
+
+<p>  a</p>
+
+<p>	a(tab)</p>
+
+<p> 	a
+<!--cmt-->
+  a</p>
+
+<p>a
+ b</p>
+
+<p>a
+	b</p>
+
+<p>a
+	 b</p>
 !! wikitext
 <nowiki> </nowiki>a
 
 <nowiki> </nowiki> a
 
-<nowiki>	</nowiki>a(tab)
+	a(tab)
 
 <nowiki> </nowiki>	a
 <!--cmt-->
-<nowiki> </nowiki> a
+<nowiki>  </nowiki>a
 
 a
 <nowiki> </nowiki>b
 
 a
-<nowiki>	</nowiki>b
+	b
 
 a
-<nowiki>	</nowiki> b
-!! html
-<p> a</p>
-<p>  a</p>
-<p>	a(tab)</p>
-<p> 	a</p>
-<p><!--cmt-->  a</p>
-<p>a
- b</p>
-<p>a
-	b</p>
-<p>a
-	 b</p>
+	 b
 !! end
 
 !! test
