@@ -5249,38 +5249,6 @@ External link containing a single quote. (bug 63947)
 <p><a rel="mw:ExtLink" href="//foo.org/bar'baz">bang</a></p>
 !! end
 
-
-!! test
-External link containing a period in the anchor. (bug 63947)
-!! wikitext
-[//foo.org/bar#baz. bang]
-
-[//foo.org/bar. bang]
-!! html/php
-<p><a rel="nofollow" class="external text" href="//foo.org/bar#baz.">bang</a>
-</p><p><a rel="nofollow" class="external text" href="//foo.org/bar.">bang</a>
-</p>
-!! html/parsoid
-<p><a rel="mw:ExtLink" href="//foo.org/bar#baz.">bang</a></p>
-<p><a rel="mw:ExtLink" href="//foo.org/bar.">bang</a></p>
-!! end
-
-!! test
-External link containing a single quote. (bug 63947)
-!! wikitext
-[//foo.org/bar'baz]
-
-[//foo.org/bar'baz bang]
-!! html/php
-<p><a rel="nofollow" class="external autonumber" href="//foo.org/bar'baz">[1]</a>
-</p><p><a rel="nofollow" class="external text" href="//foo.org/bar'baz">bang</a>
-</p>
-!! html/parsoid
-<p><a rel="mw:ExtLink" href="//foo.org/bar'baz"></a></p>
-<p><a rel="mw:ExtLink" href="//foo.org/bar'baz">bang</a></p>
-!! end
-
-
 !! test
 External link containing double-single-quotes in text '' (bug 4598 sanity check)
 !! wikitext
@@ -23589,7 +23557,7 @@ Table with broken attribute value quoting on consecutive lines
 !! end
 
 !! test
-Parsoid-only: Don't wrap broken template tags in <nowiki> on wt2wt (Bug 42353)
+1. Parsoid-only: Don't wrap broken template tags in <nowiki> on wt2wt (Bug 42353)
 !! options
 parsoid
 !! wikitext
@@ -23599,7 +23567,7 @@ parsoid
 !! end
 
 !! test
-Parsoid-only: Don't wrap broken template tags in <nowiki> on wt2wt (Bug 42353)
+2. Parsoid-only: Don't wrap broken template tags in <nowiki> on wt2wt (Bug 42353)
 !! options
 parsoid
 !! wikitext

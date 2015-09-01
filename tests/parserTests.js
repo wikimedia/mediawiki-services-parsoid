@@ -92,6 +92,7 @@ function ParserTests() {
 	this.testsChangesFile = 'changes.txt';
 
 	this.articles = {};
+	this.tests = new Set();
 
 	// Test statistics
 	this.stats = {};
@@ -393,9 +394,13 @@ ParserTests.prototype.parseTestCase = function(content) {
  */
 ParserTests.prototype.processArticle = function(item, cb) {
 	var norm = this.env.normalizeTitle(item.title);
-	// console.log( 'processArticle ' + norm );
-	this.articles[norm] = item.text;
-	setImmediate(cb);
+	var err = null;
+	if (this.articles.hasOwnProperty(norm)) {
+		err = new Error('Duplicate article: ' + item.title);
+	} else {
+		this.articles[norm] = item.text;
+	}
+	setImmediate(cb, err);
 };
 
 /**
@@ -1911,6 +1916,13 @@ ParserTests.prototype.processCase = function(i, options, err) {
 					this.processArticle(item, nextCallback);
 					break;
 				case 'test':
+					if (this.tests.has(item.title)) {
+						return setImmediate(nextCallback,
+							new Error('Duplicate titles: ' + item.title));
+					} else {
+						this.tests.add(item.title);
+					}
+
 					if (!('wikitext' in item && 'html' in item) ||
 						('disabled' in item.options && !this.runDisabled) ||
 						('php' in item.options &&
