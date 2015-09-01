@@ -73,7 +73,7 @@ var standardOpts = Util.addStandardOptions({
 	'oldtext': {
 		description: 'The old page text for a selective-serialization (see --selser)',
 		'boolean': false,
-		'default': false,
+		'default': null,
 	},
 	'oldtextfile': {
 		description: 'File containing the old page text for a selective-serialization (see --selser)',
@@ -229,6 +229,11 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix) {
 				};
 			}
 			env.setPageSrcInfo(argv.oldtext || null);
+		}
+
+		if (argv.selser && argv.oldtext === null) {
+			throw new Error('Please provide original wikitext ' +
+				'(--oldtext or --oldtextfile). Selser requires that.');
 		}
 
 		if (typeof (input) === 'string') {
