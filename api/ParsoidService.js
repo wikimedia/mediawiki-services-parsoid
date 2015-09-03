@@ -31,6 +31,12 @@ var uuid = require('node-uuid').v4;
 function ParsoidService(parsoidConfig, processLogger) {
 	processLogger.log('info', 'loading ...');
 
+	// Get host and port from the environment, if available
+	var port = parsoidConfig.serverPort || process.env.PORT || 8000;
+
+	// default bind all
+	var host = parsoidConfig.serverInterface || process.env.INTERFACE;
+
 	// Load routes
 	var routes = require('./routes')(parsoidConfig);
 
@@ -156,11 +162,6 @@ function ParsoidService(parsoidConfig, processLogger) {
 	// v2 API routes
 	app.get('/v2/:domain/:format/:title/:revision?', v2, p, routes.v2Get);
 	app.post('/v2/:domain/:format/:title?/:revision?', v2, p, routes.v2Post);
-
-	// Get host and port from the environment, if available
-	var port = parsoidConfig.serverPort || process.env.PORT || 8000;
-	// default bind all
-	var host = parsoidConfig.serverInterface || process.env.INTERFACE;
 
 	var server = app.listen(port, host, function() {
 		port = server.address().port;

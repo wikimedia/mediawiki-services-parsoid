@@ -22,6 +22,8 @@
  * For easier maintenance, we group each test type together, and use a
  * helper function to create the array if needed then append the test type.
  */
+'use strict';
+
 var testBlackList = {};
 var add = function(testtype, title, raw) {
 	if (typeof (testBlackList[title]) !== 'object') {

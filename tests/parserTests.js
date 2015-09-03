@@ -488,6 +488,13 @@ var staticRandomString = "ahseeyooxooZ8Oon0boh";
 ParserTests.prototype.applyChanges = function(item, body, changelist, cb) {
 	var self = this;
 
+	// Seed the random-number generator based on the item title
+	var random = new Alea((item.seed || '') + (item.title || ''));
+
+	// Keep the changes in the item object
+	// to check for duplicates after the waterfall
+	item.changes = changelist;
+
 	// Helper function for getting a random string
 	function randomString() {
 		return random().toString(36).slice(2);
@@ -600,13 +607,6 @@ ParserTests.prototype.applyChanges = function(item, body, changelist, cb) {
 			}
 		}
 	}
-
-	// Seed the random-number generator based on the item title
-	var random = new Alea((item.seed || '') + (item.title || ''));
-
-	// Keep the changes in the item object
-	// to check for duplicates after the waterfall
-	item.changes = changelist;
 
 	if (this.env.conf.parsoid.dumpFlags &&
 		this.env.conf.parsoid.dumpFlags.indexOf("dom:post-changes") !== -1) {

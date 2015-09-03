@@ -1,6 +1,7 @@
 /* A map of test titles and their manually verified output. If the parser
  * output matches the expected output listed here, the test can be marked as
  * passing in parserTests.js. */
+'use strict';
 
 // CSA note: This whitelist dates back to when parsoid was an experiment,
 // and there wasn't "php"/"parsoid" support in upstream's parserTests.  Now
