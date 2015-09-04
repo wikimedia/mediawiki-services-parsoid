@@ -102,7 +102,8 @@ redirect
 
 // These rules are exposed as start rules.
 generic_newline_attributes "generic_newline_attributes" = generic_newline_attribute*
-table_attributes "table_attributes" = table_attribute*
+table_attributes "table_attributes"
+  = (table_attribute / optionalSpaceToken b:broken_table_attribute_name_char { return b; })*
 
 /* The 'redirect' magic word.
  * The leading whitespace allowed is due to the PHP trim() function.
@@ -1213,20 +1214,6 @@ generic_tag
         return res;
     }
 
-could_be_attribute =
-    // quick sanity check before expensive table_attribute_preprocessor_text
-    // rule. Also try to parse on [|!+;] for now which seem to be common
-    // syntax errors in production that hidden by the PHP parser (by stripping
-    // the 'attributes').
-    space* ([a-zA-Z|!+;] /
-            // Crude heuristic that just excludes attribute-less row-syntax
-            // table cells like this with simple (pipe-less) values: |a||b||c
-            [^\'\"\n|]+ '|' [^|\n] /
-            // Possibly a templated attribute
-            '{{' [^}]+ '}'  /
-            // comment or noincludes
-            '<' ('!--' / 'noinclude' / 'onlyinclude' / 'includeonly'))
-
 // A generic attribute that can span multiple lines.
 generic_newline_attribute
   = s:space_or_newline*
@@ -1283,44 +1270,38 @@ table_attribute
     return res;
 }
 
-// ( Replaced by generic_attribute_name for template / parameter support. )
-//// http://www.w3.org/TR/html5/syntax.html#attributes-0, and we also
-//// disallow newlines, | and {.
-//generic_attribute_plain_name
-//  = $[^ \t\0/"'>=\n|{]+
-
-// Also eat these chars in a wikitext table or tr attribute name. They are
-// normally not matched by the generic_attribute_name.
-broken_table_attribute_name_char = c:[ \t\0/=>"'\[] { return new KV(c, ''); }
-
 // The arrangement of chars is to emphasize the split between what's disallowed
 // by html5 and what's necessary to give directive a chance.
+// See: http://www.w3.org/TR/html5/syntax.html#attributes-0
 generic_attribute_name
-  = r:( $[^ \t\0\n\r/=>"'<&\[\]{}\-]+
-        / ! inline_breaks
-          ! '/>'
-          // /=>"' is the html5 attribute name set we do not want.
-          // \[ is to avoid eating links. (see: T2553: link with two variables in a piped link)
-          t:( directive / !( space_or_newline / [\[/=>"'] ) c:. { return c; }
+  = r:( $[^ \t\r\n\0/=>"'<&{}\-]+
+        / !inline_breaks
+          // \0/=>"' is the html5 attribute name set we do not want.
+          t:( directive / !( space_or_newline / [\0/=>"'] ) c:. { return c; }
         ) { return t; }
       )+ {
     return tu.flattenString(r);
   }
 
+// Also accept these chars in a wikitext table or tr attribute name position.
+// They are normally not matched by the table_attribute_name.
+broken_table_attribute_name_char = c:[\0/=>"'] { return new KV(c, ''); }
+
 // Same as generic_attribute_name, except for accepting tags found here.
-// That doesn't make sense (ie. match php) in the generic case.
+// (That doesn't make sense (ie. match php) in the generic case.)
+// We also give a chance to break on !|, and \[ is to avoid eating links.
+// (See, BUG 553: link with two variables in a piped link)
 table_attribute_name
-  = r:( $[^ \t\0\n\r/=>"'<&\[\]{}\-!|]+
-        / ! inline_breaks
-          ! '/>'
-          // /=>"' is the html5 attribute name set we do not want.
-          // \[ is to avoid eating links. (see: BUG 553: link with two variables in a piped link)
+  = r:( $[^ \t\r\n\0/=>"'<&{}\-!|\[]+
+        / !inline_breaks
+          !wikilink
+          // \0/=>"' is the html5 attribute name set we do not want.
           t:( directive
               // Accept insane tags-inside-attributes as attribute names.
-              // The sanitizer with strip and shadow them for roundtripping.
+              // The sanitizer will strip and shadow them for roundtripping.
               // Example: <hiddentext>generated with.. </hiddentext>
               / &generic_tag nb:nested_block_line { return nb; }
-              / !( space_or_newline / [\[/=>"'] ) c:. { return c; }
+              / !( space_or_newline / [\0/=>"'] ) c:. { return c; }
         ) { return t; }
       )+ {
     return tu.flattenString(r);
@@ -1581,7 +1562,7 @@ table_start_tag "table_start_tag"
   = sc:(space / comment)* startPos:("" { return endOffset(); }) b:"{" p:pipe
     // ok to normalize away stray |} on rt (see T59360)
     & { return stops.push('table', false); }
-    ta:(table_attribute / broken_table_attribute_name_char)*
+    ta:table_attributes
     tsEndPos:("" { stops.pop('table'); return endOffset(); })
     {
         var coms = tu.popComments(ta);
@@ -1618,7 +1599,7 @@ table_row_tag
     ! { return stops.onStack('tableDataBlock'); }
     p:pipe dashes:$"-"+
     & { return stops.push('table', false); }
-    a:(table_attribute / broken_table_attribute_name_char)*
+    a:table_attributes
     tagEndPos:("" { stops.pop('table'); return endOffset(); })
     // handle tables with missing table cells after a row
     td:implicit_table_data_tag?
@@ -1770,7 +1751,6 @@ single_cell_table_args "single_cell_table_args"
  */
 row_syntax_table_args
   = & { return stops.inc('tableCellArg'); }
-    & could_be_attribute
     as:table_attributes s:space* p:pipe !pipe {
         stops.dec('tableCellArg');
         return [as, s, p];

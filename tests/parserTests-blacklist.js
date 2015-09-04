@@ -180,7 +180,6 @@ add("wt2html", "Sanitizer: Escaping of spaces, multibyte characters, colons & ot
 add("wt2html", "Sanitizer: Validating that <meta> and <link> work, but only for Microdata", "<div itemscope=\"\" data-parsoid='{\"stx\":\"html\",\"dsr\":[0,308,15,6]}'>\n\t<p data-parsoid='{\"dsr\":[17,301,0,0]}'>&lt;meta itemprop=\"hello\" content=\"world\">\n\t&lt;meta http-equiv=\"refresh\" content=\"5\">\n\t&lt;meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\">\n\t&lt;link itemprop=\"hello\" href=\"{{SERVER}}\">\n\t&lt;link rel=\"stylesheet\" href=\"{{SERVER}}\">\n\t&lt;link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\"></p>\n</div>");
 add("wt2html", "Language converter: output gets cut off unexpectedly (bug 5757)", "<p data-parsoid='{\"dsr\":[0,20,0,0]}'>this bit is safe: }-</p>\n\n<p data-parsoid='{\"dsr\":[22,82,0,0]}'>but if we add a conversion instance: -{zh-cn:xxx;zh-tw:yyy}-</p>\n\n<p data-parsoid='{\"dsr\":[84,112,0,0]}'>then we get cut off here: }-</p>\n\n<p data-parsoid='{\"dsr\":[114,145,0,0]}'>all additional text is vanished</p>");
 add("wt2html", "Self closed html pairs (bug 5487)", "<center data-parsoid='{\"stx\":\"html\",\"dsr\":[0,47,8,9]}'><font id=\"bug\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[8,25,17,0]}'></font>Centered text</center>\n<div data-parsoid='{\"stx\":\"html\",\"dsr\":[48,88,5,6]}'><font id=\"bug2\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[53,71,18,0]}'></font>In div text</div>");
-add("wt2html", "Fuzz testing: Parser13", "<table data-parsoid='{\"a\":{\" \":null},\"sa\":{\" \":\"\"},\"autoInsertedEnd\":true,\"dsr\":[0,15,3,0]}'>\n<tbody data-parsoid='{\"dsr\":[4,15,0,0]}'><tr data-parsoid='{\"autoInsertedEnd\":true,\"autoInsertedStart\":true,\"dsr\":[4,15,0,0]}'><td data-parsoid='{\"autoInsertedEnd\":true,\"dsr\":[4,15,1,0]}'> <a rel=\"mw:ExtLink\" href=\"http://a|\" data-parsoid='{\"stx\":\"url\",\"dsr\":[6,15,0,0]}'>http://a|</a></td></tr></tbody></table>");
 add("wt2html", "Fuzz testing: Parser14", "<h2 data-parsoid='{\"dsr\":[0,18,2,2]}'> onmouseover= </h2>\n<p data-parsoid='{\"dsr\":[19,33,0,0]}'><a rel=\"mw:ExtLink\" href=\"http://__TOC__\" data-parsoid='{\"stx\":\"url\",\"dsr\":[19,33,0,0]}'>http://__TOC__</a></p>");
 add("wt2html", "Fuzz testing: Parser14-table", "<h2 data-parsoid='{\"dsr\":[0,5,2,2]}'>a</h2>\n<table style=\"__TOC__\" data-parsoid='{\"autoInsertedEnd\":true,\"dsr\":[6,22,16,0]}'></table>");
 add("wt2html", "Fuzz testing: Parser24", "<p data-parsoid='{\"fostered\":true,\"autoInsertedEnd\":true,\"dsr\":[0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"src\":\"{{{\",\"dsr\":[3,6,0,0]}'>{{{</span>|\n<u class=\"|\" about=\"#mwt2\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->&lt;noinclude>}}}}\":null},\"sa\":{\"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->&lt;noinclude>}}}}\":\"\"},\"autoInsertedEnd\":true,\"dsr\":[8,0,74,0]}' data-mw='{\"attribs\":[[{\"txt\":\"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->}}}}\",\"html\":\"&lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Param\\\" data-parsoid=\\\"{&amp;quot;dsr&amp;quot;:[20,79,null,null],&amp;quot;src&amp;quot;:&amp;quot;{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->&lt;noinclude>}}}&amp;quot;}\\\">{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx--&amp;gt;}}}&lt;/span>}\"},{\"html\":\"\"}]]}'>\n<br style=\"onmouseover='alert(document.cookie);' \" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[83,0,53,0]}'/></u></p><p data-parsoid='{\"fostered\":true,\"autoInsertedEnd\":true,\"dsr\":[0,0]}'><u class=\"|\" about=\"#mwt2\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->&lt;noinclude>}}}}\":null},\"sa\":{\"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->&lt;noinclude>}}}}\":\"\"},\"autoInsertedEnd\":true,\"autoInsertedStart\":true,\"dsr\":[-37,0,0,0]}' data-mw='{\"attribs\":[[{\"txt\":\"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->}}}}\",\"html\":\"&lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Param\\\" data-parsoid=\\\"{&amp;quot;dsr&amp;quot;:[20,79,null,null],&amp;quot;src&amp;quot;:&amp;quot;{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->&lt;noinclude>}}}&amp;quot;}\\\">{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx--&amp;gt;}}}&lt;/span>}\"},{\"html\":\"\"}]]}'>MOVE YOUR MOUSE CURSOR OVER THIS TEXT</u></p><table data-parsoid='{\"autoInsertedEnd\":true,\"dsr\":[0,177,2,0]}'>\n\n\n\n<tbody data-parsoid='{\"dsr\":[176,177,0,0]}'><tr data-parsoid='{\"autoInsertedEnd\":true,\"autoInsertedStart\":true,\"dsr\":[176,177,0,0]}'><td data-parsoid='{\"autoInsertedEnd\":true,\"dsr\":[176,177,1,0]}'></td></tr></tbody></table>");
@@ -312,7 +311,7 @@ add("wt2html", "1. a tags", "<p data-parsoid='{\"dsr\":[0,38,0,0]}'>&lt;a href=\
 add("wt2html", "2. Parsoid-only: Don't wrap broken template tags in <nowiki> on wt2wt (Bug 42353)", "<p data-parsoid='{\"dsr\":[0,4,0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"src\":\"{{}}\",\"dsr\":[0,4,0,0]}'>{{}}</span></p>");
 add("wt2html", "1. Parsoid-only: Don't wrap broken template tags in <nowiki> on wt2wt (Bug 42353)", "<p data-parsoid='{\"dsr\":[0,4,0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"src\":\"}}{{\",\"dsr\":[0,4,0,0]}'>}}{{</span></p>");
 add("wt2html", "Empty table rows go away", "<table data-parsoid='{\"dsr\":[0,39,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,37,0,0]}'><tr data-parsoid='{\"autoInsertedEnd\":true,\"autoInsertedStart\":true,\"dsr\":[3,18,0,0]}'><td data-parsoid='{\"autoInsertedEnd\":true,\"dsr\":[3,10,1,0]}'> Hello</td>\n<td data-parsoid='{\"autoInsertedEnd\":true,\"dsr\":[11,18,1,0]}'> there</td></tr>\n<tr class=\"foo\" data-parsoid='{\"startTagSrc\":\"|-\",\"autoInsertedEnd\":true,\"dsr\":[19,33,14,0]}'></tr>\n<tr data-parsoid='{\"startTagSrc\":\"|-\",\"autoInsertedEnd\":true,\"dsr\":[34,36,2,0]}'></tr>\n</tbody></table>");
-add("wt2html", "RT-ed inter-element separators should be valid separators", "<table data-parsoid='{\"dsr\":[0,16,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,14,0,0]}'><tr data-parsoid='{\"startTagSrc\":\"|-\",\"a\":{\" \":null,\"[\":null,\"foo]]\":null},\"sa\":{\" \":\"\",\"[\":\"\",\"foo]]\":\"\"},\"autoInsertedEnd\":true,\"dsr\":[3,13,10,0]}'></tr>\n</tbody></table>");
+add("wt2html", "RT-ed inter-element separators should be valid separators", "<p data-parsoid='{\"fostered\":true,\"autoInsertedEnd\":true,\"autoInsertedStart\":true,\"dsr\":[0,0]}'><a rel=\"mw:WikiLink\" href=\"./Foo\" title=\"Foo\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Foo\"},\"sa\":{\"href\":\"foo\"},\"autoInsertedEnd\":true,\"dsr\":[6,13,2,0]}'>foo</a></p><table data-parsoid='{\"dsr\":[0,16,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,14,0,0]}'><tr data-parsoid='{\"startTagSrc\":\"|-\",\"autoInsertedEnd\":true,\"dsr\":[3,12,2,0]}'></tr> \n</tbody></table>");
 
 
 // Blacklist for wt2wt
@@ -387,7 +386,7 @@ add("wt2wt", "Opera -o-link CSS", "<div title=\"&#100;&#97;&#116;&#97;&#58;&#116
 add("wt2wt", "Table attribute legitimate extension", "{|\n! style=\"<nowiki>color:blue</nowiki>\" + | status\n|}");
 add("wt2wt", "Table attribute safety", "{|\n! style=\"<nowiki>border-width:expression(0+alert(document.cookie))</nowiki>\" + | status\n|}");
 add("wt2wt", "Sanitizer: Validating that <meta> and <link> work, but only for Microdata", "<div itemscope=\"\">\n\t<nowiki><meta itemprop=\"hello\" content=\"world\"></nowiki>\n\t<nowiki><meta http-equiv=\"refresh\" content=\"5\"></nowiki>\n\t<nowiki><meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\"></nowiki>\n\t<nowiki><link itemprop=\"hello\" href=\"{{SERVER}}\"></nowiki>\n\t<nowiki><link rel=\"stylesheet\" href=\"{{SERVER}}\"></nowiki>\n\t<nowiki><link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\"></nowiki>\n</div>");
-add("wt2wt", "Fuzz testing: Parser13", "{|  \n| http://a|\n|}");
+add("wt2wt", "Fuzz testing: Parser13", "{| \n| http: / a |\n|}");
 add("wt2wt", "Fuzz testing: Parser14-table", "==a==\n{| style=\"__TOC__\"\n|}");
 add("wt2wt", "Fuzz testing: Parser16", "{|\n!https://||||||\n|}");
 add("wt2wt", "Fuzz testing: Parser21", "{|\n! irc://{{ftp://a\" onmouseover=\"alert('hello world');\"\n|\n|}");
@@ -420,7 +419,7 @@ add("wt2wt", "Entities in ref name", "<ref name=\"test &amp;amp; me\">hi</ref>\n
 add("wt2wt", "HTML tag with broken attribute value quoting", "<span title=\"Hello world\">Foo</span>\n");
 add("wt2wt", "Table with broken attribute value quoting", "{|\n| title=\"Hello world\" |Foo\n|}");
 add("wt2wt", "Table with broken attribute value quoting on consecutive lines", "{|\n| title=\"Hello world\" |Foo\n| style=\"color:red\" |Bar\n|}");
-add("wt2wt", "RT-ed inter-element separators should be valid separators", "{|\n|-   [ foo]]\n|}");
+add("wt2wt", "RT-ed inter-element separators should be valid separators", "[[foo]]\n{|\n|- \n|}");
 add("wt2wt", "Trailing newlines in a deep dom-subtree that ends a wikitext line should be migrated out", "{|\n|<small>foo\n\nbar\n|}\n\n{|\n|<small>foo<small>\n|}");
 add("wt2wt", "Empty TD followed by TD with tpl-generated attribute", "{|\n|-\n|\n| {{echo|style='color:red'}} |foo\n|}");
 add("wt2wt", "Improperly nested inline or quotes tags with whitespace in between", "<span> <s>x</span> </s>\n''' ''x'''''<nowiki/>'' ''\n");
@@ -2026,16 +2025,17 @@ add("selser", "HTML nested bullet list, closed tags (bug 5497) [[3,3,4,[0,1,4],3
 add("selser", "HTML nested bullet list, open tags (bug 5497) [[4,[3],2,[0,4],3]]", "<ul><li>x7e4pzqkzu2fbt9</li><li><li>zz9wcy7ovlipy14i</li>\n<li>Two:\nz6aoj185m56ogvi\n\n</ul>");
 add("selser", "HTML nested ordered list, closed tags (bug 5497) [[2,1,4,[0,4,3],3]]", "<ol><li>xkvf7lec17wg66r</li>\n<li data-foobar=\"lsd14sl7dm927qfr\">One</li><li>czwfizqug7vz33di</li><li>Two:\nu30q3qpwbmswz5mi\n</li>\n</ol>");
 add("selser", "Fuzz testing: Parser13 [2]", "whfwe630sy8pvi\n{| \n| http://a|");
-add("selser", "Fuzz testing: Parser13 [[0,[[1]]]]", "{|  \n| data-foobar=\"bz304nhr12359udi\" | http://a|<nowiki/>|}");
-add("selser", "Fuzz testing: Parser13 [1]", "{| data-foobar=\"k83lm0w7lheyiudi\"  \n| http://a||}");
-add("selser", "Fuzz testing: Parser13 [[2,2]]", "{|  <!--ot0k5hk2dibe29-->\n<!--ddndi7e9wtlkrzfr-->| http://a||}");
-add("selser", "Fuzz testing: Parser13 [[4,2]]", "{|  <!--5r0vu1d4d02akyb9--><!--kgfqc1jnmjyh9f6r-->\n| http://a||}");
-add("selser", "Fuzz testing: Parser13 [[0,1]]", "{|  \n| http://a||}");
-add("selser", "Fuzz testing: Parser13 [[0,2]]", "{|  \n<!--aox6m05qx79icnmi-->| http://a||}");
-add("selser", "Fuzz testing: Parser13 [[0,[1]]]", "{|  \n| http://a|<nowiki/>|}");
-add("selser", "Fuzz testing: Parser13 [[2,[[1]]]]", "{|  <!--k7dytmk4x4fpf1or-->\n| data-foobar=\"6eljtbwlg39dx6r\" | http://a|<nowiki/>|}");
-add("selser", "Fuzz testing: Parser13 [[4,[1]]]", "{|  <!--bc5lt7d97qcwhfr-->\n| http://a|<nowiki/>|}");
-add("selser", "Fuzz testing: Parser13 [[2,[[[4,2]]]]]", "{|  <!--fk6xcjz25vc84cxr-->\n|vg3mb5k49pvw8kt90uv1ti9ejcg6tj4i<nowiki/>http://a|<nowiki/>|}");
+add("selser", "Fuzz testing: Parser13 [[0,[[1]]]]", "{| \n| data-foobar=\"bz304nhr12359udi\" http: / a ||}");
+add("selser", "Fuzz testing: Parser13 [1]", "{| data-foobar=\"k83lm0w7lheyiudi\" \n| http://a||}");
+add("selser", "Fuzz testing: Parser13 [[2,2]]", "{|<!--ot0k5hk2dibe29--> \n<!--ddndi7e9wtlkrzfr-->| http://a||}");
+add("selser", "Fuzz testing: Parser13 [[4,2]]", "{|<!--5r0vu1d4d02akyb9--><!--kgfqc1jnmjyh9f6r-->\n| http://a||}");
+add("selser", "Fuzz testing: Parser13 [[0,1]]", "{| \n| http://a||}");
+add("selser", "Fuzz testing: Parser13 [[0,2]]", "{| \n<!--aox6m05qx79icnmi-->| http://a||}");
+add("selser", "Fuzz testing: Parser13 [[0,[1]]]", "{| \n| http://a||}");
+add("selser", "Fuzz testing: Parser13 [[2,[[1]]]]", "{|<!--k7dytmk4x4fpf1or--> \n| data-foobar=\"6eljtbwlg39dx6r\" http: / a ||}");
+add("selser", "Fuzz testing: Parser13 [[4,[1]]]", "{|<!--bc5lt7d97qcwhfr-->\n| http://a||}");
+add("selser", "Fuzz testing: Parser13 [[4,0]]", "{|<!--bdcj5y141zcl3di-->\n| http://a||}");
+add("selser", "Fuzz testing: Parser13 [[2,0]]", "{|<!--fk6xcjz25vc84cxr--> \n| http://a||}");
 add("selser", "Fuzz testing: Parser14-table [1,0,0]", "==a==\n{| STYLE=__TOC__");
 add("selser", "Fuzz testing: Parser14-table [4,4,0]", "u98ofogyawwb3xr\n\ntty3c40hu0gujtt9\n{| STYLE=__TOC__");
 add("selser", "Fuzz testing: Parser14-table [0,2,0]", "==a==\nu14a8f95rx8q6w29\n{| STYLE=__TOC__");
@@ -2412,17 +2412,19 @@ add("selser", "Table with broken attribute value quoting on consecutive lines [[
 add("selser", "Table with broken attribute value quoting on consecutive lines [[4,[[1,0,0],0]]]", "{|<!--nejaqckt9hmbcsor-->\n| title=\"Hello world\" data-foobar=\"bumvfdcvrbhme7b9\" |Foo\n| style=\"color:red|Bar\n|}");
 add("selser", "Table with broken attribute value quoting on consecutive lines [[4,2]]", "{|<!--7wm4bxgh5f0w9udi--><!--xv1dekuqzsiw9udi-->\n| title=\"Hello world|Foo\n| style=\"color:red|Bar\n|}");
 add("selser", "Table with broken attribute value quoting on consecutive lines [[0,[[2,0,3],3]]]", "{|\n|fk1rjyjbpej6ecdi\n| title=\"Hello world|Foo\n|}");
-add("selser", "RT-ed inter-element separators should be valid separators [1]", "{| data-foobar=\"pjc22ppvxsn3766r\"\n|- [[foo]]\n|}");
-add("selser", "RT-ed inter-element separators should be valid separators [[0,2]]", "{|\n<!--jqwe4sxcvdqxs9k9-->|- [[foo]]\n|}");
-add("selser", "RT-ed inter-element separators should be valid separators [[0,[0,3]]]", "{|\n|- [[foo]]\n|}");
-add("selser", "RT-ed inter-element separators should be valid separators [[0,[0,4]]]", "{|\n|- [[foo]]<!--t2u9971ezmj6pqfr-->\n|}");
-add("selser", "RT-ed inter-element separators should be valid separators [[0,1]]", "{|\n|- [[foo]]\n|}");
-add("selser", "RT-ed inter-element separators should be valid separators [2]", "zpuyqbdlibj1nhfr\n{|\n|- [[foo]]\n|}");
-add("selser", "RT-ed inter-element separators should be valid separators [[4,[0,2]]]", "{|<!--72wprvcrqcsxajor-->\n|- [[foo]]<!--fo1qvsdgv3xtuik9-->\n|}");
-add("selser", "RT-ed inter-element separators should be valid separators [[4,2]]", "{|<!--j8hwklray6ekx1or--><!--p7v1guykesl9pb9-->\n|- [[foo]]\n|}");
-add("selser", "RT-ed inter-element separators should be valid separators [[0,[2,4]]]", "{|\n<!--illxemer9nrpy14i-->|- [[foo]]<!--sxxrpf8t8m48ia4i-->\n|}");
-add("selser", "RT-ed inter-element separators should be valid separators [[0,[0,2]]]", "{|\n|- [[foo]]<!--qyiayk5wxhn9izfr-->\n|}");
-add("selser", "RT-ed inter-element separators should be valid separators [[4,0]]", "{|<!--a467voa6hewdygb9-->\n|- [[foo]]\n|}");
+add("selser", "RT-ed inter-element separators should be valid separators [3,1]", "{| data-foobar=\"x539yhci41xxbt9\"\n|- [[foo]]\n|}");
+add("selser", "RT-ed inter-element separators should be valid separators [1,1]", "[[foo]]\n{| data-foobar=\"0p92gdvzuuwhfr\"\n|- [[foo]]\n|}");
+add("selser", "RT-ed inter-element separators should be valid separators [0,[3,[2,4]]]", "{|<!--94t5edxysje2ke29-->\n|- [[foo]<!--ckb9ez0ylze3766r-->\n|}");
+add("selser", "RT-ed inter-element separators should be valid separators [4,[0,[0,3]]]", "jua9o47wi1gojemi\n{|\n|- [[foo]\n|}");
+add("selser", "RT-ed inter-element separators should be valid separators [1,[0,[0,4]]]", "[[foo]]\n{|\n|- [[foo]<!--7u4ntcstjzto6r-->\n|}");
+add("selser", "RT-ed inter-element separators should be valid separators [[[2]],2]", "[[foo|662vco2tyo8q6w29foo]]\n\nyasgjcy1y1ll3di\n{|\n|- [[foo]]\n|}");
+add("selser", "RT-ed inter-element separators should be valid separators [1,2]", "[[foo]]\n\n80gcqjar6qrggb9\n{|\n|- [[foo]]\n|}");
+add("selser", "RT-ed inter-element separators should be valid separators [3,0]", "{|\n|- [[foo]]\n|}");
+add("selser", "RT-ed inter-element separators should be valid separators [0,[0,4]]", "{|\n<!--j8hwklray6ekx1or-->|}");
+add("selser", "RT-ed inter-element separators should be valid separators [0,1]", "{| data-foobar=\"io6h5rgsuyjh5mi\"\n|- [[foo]]\n|}");
+add("selser", "RT-ed inter-element separators should be valid separators [2,[0,[0,2]]]", "qyiayk5wxhn9izfr\n\n{|\n|- [[foo]<!--l16uj38p26eqm2t9--> \n|}");
+add("selser", "RT-ed inter-element separators should be valid separators [2,[0,3]]", "a467voa6hewdygb9\n\n{|\n|}");
+add("selser", "RT-ed inter-element separators should be valid separators [4,1]", "m9sr4renr110pb9\n{| data-foobar=\"vqglzmqq4crcc8fr\"\n|- [[foo]]\n|}");
 add("selser", "Trailing newlines in a deep dom-subtree that ends a wikitext line should be migrated out [2,4,2]", "oxcq39cyuk07wrk9\n{|\n|<small>foo\nbar\n|}\nbtnbac04guj46lxr\n\ni10ii39io6hqto6r\n{|\n|<small>foo<small>\n|}");
 add("selser", "Trailing newlines in a deep dom-subtree that ends a wikitext line should be migrated out [[0,[[1],4]],3,[0,[[[[4,0]]],0]]]", "{|\n| data-foobar=\"6esm1j2nehup7gb9\" |<small>foo\nbar<!--t9z6766d6n06yldi-->\n|}\n{|\n|<small>4j0561nruz19vn29<small>\n|}");
 add("selser", "Trailing newlines in a deep dom-subtree that ends a wikitext line should be migrated out [2,0,3]", "zx1dph1o9tpam7vi\n{|\n|<small>foo\nbar\n|}\n");
