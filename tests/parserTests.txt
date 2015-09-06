@@ -22421,8 +22421,8 @@ parsoid=html2wt
 |}
 </p>
 !! wikitext
-<nowiki>{|
-|}</nowiki>
+<nowiki>{|</nowiki>
+|}
 !! end
 
 !! test
@@ -22748,7 +22748,7 @@ parsoid=html2wt
 |** Make this another long long long sentence forcing the nowiki algo to split up the nowikis.</p>
 !! wikitext
 <nowiki>*</nowiki>This is a long sentence here that will make the nowiki algo split up the nowikis into multiple pairs
-<nowiki>|</nowiki>** Make this another long long long sentence forcing the nowiki algo to split up the nowikis.
+|** Make this another long long long sentence forcing the nowiki algo to split up the nowikis.
 !! end
 
 !! test
