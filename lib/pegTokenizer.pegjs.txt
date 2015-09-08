@@ -288,9 +288,13 @@ inline_element
           ) { return r; }
     / & '{' r:tplarg_or_template_or_broken { return r; }
     / & '}' r:broken_template { return r; }
-     // Eat three opening brackets as text, but handle '[[[[' differently
-     // so, that '[[[[Foo]]]]' parses as '[[<a..>Foo</a>]]'
-    / (!'[' / sol) '[[[' !'[' { return '[[['; }
+    // FIXME: The php parser's replaceInternalLinks2 splits on [[, resulting
+    // in sequences with odd number of brackets parsing as text, and sequences
+    // with even number of brackets having its innermost pair parse as a
+    // wikilink.  For now, we faithfully reproduce what's found there but
+    // wikitext, the language, shouldn't be defined by odd tokenizing behaviour
+    // in the php parser.  Flagging this for a future cleanup.
+    / $('[[' &'[')+
     / & '[' r:( wikilink / extlink ) { return r; }
     / & "'" r:quote { return r; }
 

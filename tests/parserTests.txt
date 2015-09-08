@@ -7161,8 +7161,10 @@ Link with HTML entity in suffix / tail
 Link with 3 brackets
 !! wikitext
 [[[Main Page]]]
+Foo [[[Main Page]]]
 !! html
 <p>[[[Main Page]]]
+Foo [[[Main Page]]]
 </p>
 !! end
 
