@@ -1291,16 +1291,15 @@ generic_attribute_name
 // They are normally not matched by the table_attribute_name.
 broken_table_attribute_name_char = c:[\0/=>"'] { return new KV(c, ''); }
 
-// Same as generic_attribute_name, except for accepting tags found here.
+// Same as generic_attribute_name, except for accepting tags and wikilinks.
 // (That doesn't make sense (ie. match php) in the generic case.)
-// We also give a chance to break on !|, and \[ is to avoid eating links.
-// (See, BUG 553: link with two variables in a piped link)
+// We also give a chance to break on !, |, and \[ (see T2553).
 table_attribute_name
   = r:( $[^ \t\r\n\0/=>"'<&{}\-!|\[]+
         / !inline_breaks
-          !wikilink
           // \0/=>"' is the html5 attribute name set we do not want.
-          t:( directive
+          t:(   $wikilink
+              / directive
               // Accept insane tags-inside-attributes as attribute names.
               // The sanitizer will strip and shadow them for roundtripping.
               // Example: <hiddentext>generated with.. </hiddentext>
@@ -1567,6 +1566,7 @@ table_start_tag "table_start_tag"
         return sc;
     }
 
+// FIXME: Not sure if we want to support it, but this should allow columns.
 table_caption_tag
     // avoid recursion via nested_block_in_table
   = ! { return stops.onStack('tableDataBlock'); }
@@ -1722,12 +1722,12 @@ table_end_tag
  * match if followed by double pipe (row-based syntax).
  */
 row_syntax_table_args
-  = & { return stops.inc('tableCellArg'); }
+  = & { return stops.push('tableCellArg', true); }
     as:table_attributes s:space* p:pipe !pipe {
-        stops.dec('tableCellArg');
+        stops.pop('tableCellArg');
         return [as, s, p];
     }
-    / & { return stops.dec('tableCellArg'); }
+    / & { return stops.pop('tableCellArg'); }
 
 
 /*******************************************************************

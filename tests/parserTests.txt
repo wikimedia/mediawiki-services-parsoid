@@ -10348,12 +10348,40 @@ BUG 553: link with two variables in a piped link
 {|
 |[[{{{1}}}|{{{2}}}]]
 |}
-!! html
+!! html/php
 <table>
 <tr>
 <td>[[{{{1}}}|{{{2}}}]]
 </td></tr></table>
 
+!! html/parsoid
+<table>
+<tbody><tr><td>[[<span about="#mwt5" typeof="mw:Param" data-parsoid='{"src":"{{{1}}}"}'>{{{1}}}</span>|<span about="#mwt2" typeof="mw:Param" data-parsoid='{"src":"{{{2}}}"}'>{{{2}}}</span>]]</td></tr>
+!! end
+
+# See: T2553
+!! test
+Abort table cell attribute parsing on wikilink
+!! wikitext
+{|
+| testing [[one|two]] | three || four
+| testing one two | three || four
+|}
+!! html/php
+<table>
+<tr>
+<td> testing <a href="/index.php?title=One&amp;action=edit&amp;redlink=1" class="new" title="One (page does not exist)">two</a> | three </td>
+<td> four
+</td>
+<td> three </td>
+<td> four
+</td></tr></table>
+
+!! html/parsoid
+<table>
+<tbody><tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td data-parsoid='{"autoInsertedEnd":true}'> testing <a rel="mw:WikiLink" href="./One" title="One" data-parsoid='{"stx":"piped","a":{"href":"./One"},"sa":{"href":"one"}}'>two</a> | three </td><td data-parsoid='{"stx_v":"row","autoInsertedEnd":true}'> four</td>
+<td data-parsoid='{"a":{"testing":null,"one":null,"two":null},"sa":{"testing":"","one":"","two":""},"autoInsertedEnd":true}'> three </td><td data-parsoid='{"stx_v":"row","autoInsertedEnd":true}'> four</td></tr>
+</tbody></table>
 !! end
 
 !! test
@@ -23739,11 +23767,15 @@ RT-ed inter-element separators should be valid separators
 {|
 |- [[foo]]
 |}
-!! html
+!! html/php
 <table>
 
 </table>
 
+!! html/parsoid
+<table>
+<tbody><tr data-parsoid='{"startTagSrc":"|-","a":{"[[foo]]":null},"sa":{"[[foo]]":""},"autoInsertedEnd":true}'></tr>
+</tbody></table>
 !!end
 
 # Parsoid-only since PHP parser relies on Tidy for correct output
