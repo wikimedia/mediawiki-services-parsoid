@@ -152,7 +152,7 @@ if (cluster.isMaster && argv.n > 0) {
 	cluster.on('exit', function(worker, code, signal) {
 		if (!worker.suicide) {
 			var pid = worker.process.pid;
-			logger.log("warning", util.format("worker %s died (%s), restarting.", pid, code));
+			logger.log("warning", util.format("worker %s died (%s), restarting.", pid, signal || code));
 			spawn();
 		}
 	});
