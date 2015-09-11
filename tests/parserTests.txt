@@ -18008,11 +18008,15 @@ Special:Search page linking.
 {{!}} is a magic word
 !! wikitext
 {{!}} is a magic word there and {{!}} is still a magic word here
+| is not a magic word here but {{!}} is still a magic word here
 !! html/php
 <p>| is a magic word there and | is still a magic word here
+| is not a magic word here but | is still a magic word here
 </p>
 !! html/parsoid
-<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"!","href":"./Template:!"},"params":{},"i":0}}]}' data-parsoid='{"pi":[[]]}'>|</span> is a magic word there and <span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"!","href":"./Template:!"},"params":{},"i":0}}]}' data-parsoid='{"pi":[[]]}'>|</span> is still a magic word here</p>
+<p><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"!","href":"./Template:!"},"params":{},"i":0}}]}'>|</span> is a magic word there and <span about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"!","href":"./Template:!"},"params":{},"i":0}}]}'>|</span> is still a magic word here
+| is not a magic word here but <span about="#mwt3" typeof="mw:Transclusion" data-parsoid='{"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"!","href":"./Template:!"},"params":{},"i":0}}]}'>|</span> is still a magic word here</p>
+
 !! end
 
 !! test
