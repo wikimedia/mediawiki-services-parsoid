@@ -742,12 +742,14 @@ template_param_text
         stops.push('table', false);
         stops.push('extlink', false);
         stops.push('pipe', true);
+        stops.push('tableCellArg', false);
         return stops.inc('template');
     }
     il:(nested_block / newlineToken)+ {
         stops.pop('table');
         stops.pop('extlink');
         stops.pop('pipe');
+        stops.pop('tableCellArg');
         stops.dec('template');
         // il is guaranteed to be an array -- so, tu.flattenIfArray will
         // always return an array
@@ -757,7 +759,12 @@ template_param_text
         }
         return r;
     }
-  / & { stops.pop('table'); stops.pop('extlink'); stops.pop('pipe'); return stops.dec('template'); }
+  / & { stops.pop('table');
+        stops.pop('extlink');
+        stops.pop('pipe');
+        stops.pop('tableCellArg');
+        return stops.dec('template');
+    }
 
 
 wikilink_content
@@ -1722,12 +1729,13 @@ table_end_tag
  * match if followed by double pipe (row-based syntax).
  */
 row_syntax_table_args
-  = & { return stops.push('tableCellArg', true); }
+  = & { stops.push('pipe', true); stops.push('tableCellArg', true); return true; }
     as:table_attributes s:space* p:pipe !pipe {
         stops.pop('tableCellArg');
+        stops.pop('pipe');
         return [as, s, p];
     }
-    / & { return stops.pop('tableCellArg'); }
+    / & { stops.pop('tableCellArg'); stops.pop('pipe'); return false; }
 
 
 /*******************************************************************
