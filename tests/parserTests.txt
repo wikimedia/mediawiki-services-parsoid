@@ -10385,6 +10385,18 @@ Abort table cell attribute parsing on wikilink
 !! end
 
 !! test
+Don't abort table cell attribute parsing if wikilink is found in template arg
+!! wikitext
+{|
+| Test {{#tag:ref|One two "[[three]]" four}}
+|}
+!! html/parsoid
+<table>
+<tbody><tr><td> Test <ref about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"#tag:ref","function":"#tag"},"params":{"1":{"wt":"One two \"[[three]]\" four"}},"i":0}}]}'>One two "<a rel="mw:WikiLink" href="./Three" title="Three">three</a>" four</ref></td></tr>
+</tbody></table>
+!! end
+
+!! test
 Magic variable as template parameter
 !! wikitext
 {{paramtest|param={{SITENAME}}}}
