@@ -5649,7 +5649,7 @@
 					"url": "https://sr.wikiquote.org",
 					"dbname": "srwikiquote",
 					"code": "wikiquote",
-					"sitename": "Wikiquote"
+					"sitename": "Викицитат"
 				},
 				{
 					"url": "https://sr.wikisource.org",
@@ -6973,498 +6973,587 @@
 				"url": "https://advisory.wikimedia.org",
 				"dbname": "advisorywiki",
 				"code": "advisory",
+				"sitename": "Advisory Board",
 				"closed": ""
 			},
 			{
 				"url": "https://ar.wikimedia.org",
 				"dbname": "arwikimedia",
-				"code": "arwikimedia"
+				"code": "arwikimedia",
+				"sitename": "Wikimedia Argentina"
 			},
 			{
 				"url": "https://arbcom-de.wikipedia.org",
 				"dbname": "arbcom_dewiki",
 				"code": "arbcom-de",
+				"sitename": "Arbitration Committee",
 				"private": ""
 			},
 			{
 				"url": "https://arbcom-en.wikipedia.org",
 				"dbname": "arbcom_enwiki",
 				"code": "arbcom-en",
+				"sitename": "Arbitration Committee",
 				"private": ""
 			},
 			{
 				"url": "https://arbcom-fi.wikipedia.org",
 				"dbname": "arbcom_fiwiki",
 				"code": "arbcom-fi",
+				"sitename": "Arbitration Committee",
 				"private": ""
 			},
 			{
 				"url": "https://arbcom-nl.wikipedia.org",
 				"dbname": "arbcom_nlwiki",
 				"code": "arbcom-nl",
+				"sitename": "Arbitration Committee",
 				"private": ""
 			},
 			{
 				"url": "https://auditcom.wikimedia.org",
 				"dbname": "auditcomwiki",
 				"code": "auditcom",
+				"sitename": "Audit Committee",
 				"private": ""
 			},
 			{
 				"url": "https://bd.wikimedia.org",
 				"dbname": "bdwikimedia",
-				"code": "bdwikimedia"
+				"code": "bdwikimedia",
+				"sitename": "উইকিমিডিয়া বাংলাদেশ"
 			},
 			{
 				"url": "https://be.wikimedia.org",
 				"dbname": "bewikimedia",
-				"code": "bewikimedia"
+				"code": "bewikimedia",
+				"sitename": "Wikimedia Belgium"
 			},
 			{
 				"url": "https://beta.wikiversity.org",
 				"dbname": "betawikiversity",
-				"code": "betawikiversity"
+				"code": "betawikiversity",
+				"sitename": "Wikiversity"
 			},
 			{
 				"url": "https://board.wikimedia.org",
 				"dbname": "boardwiki",
 				"code": "board",
+				"sitename": "Board",
 				"private": ""
 			},
 			{
 				"url": "https://boardgovcom.wikimedia.org",
 				"dbname": "boardgovcomwiki",
 				"code": "boardgovcom",
+				"sitename": "Board Governance Committee",
 				"private": ""
 			},
 			{
 				"url": "https://br.wikimedia.org",
 				"dbname": "brwikimedia",
-				"code": "brwikimedia"
+				"code": "brwikimedia",
+				"sitename": "Wikimedia Brasil"
 			},
 			{
 				"url": "https://ca.wikimedia.org",
 				"dbname": "cawikimedia",
-				"code": "cawikimedia"
+				"code": "cawikimedia",
+				"sitename": "Wikimedia Canada"
 			},
 			{
 				"url": "https://chair.wikimedia.org",
 				"dbname": "chairwiki",
 				"code": "chair",
+				"sitename": "Wikimedia Board Chair",
 				"private": ""
 			},
 			{
 				"url": "https://affcom.wikimedia.org",
 				"dbname": "chapcomwiki",
 				"code": "chapcom",
+				"sitename": "Affcom",
 				"private": ""
 			},
 			{
 				"url": "https://checkuser.wikimedia.org",
 				"dbname": "checkuserwiki",
 				"code": "checkuser",
+				"sitename": "CheckUser Wiki",
 				"private": ""
 			},
 			{
 				"url": "https://cn.wikimedia.org",
 				"dbname": "cnwikimedia",
 				"code": "cnwikimedia",
+				"sitename": "中国维基媒体用户组",
 				"fishbowl": ""
 			},
 			{
 				"url": "https://co.wikimedia.org",
 				"dbname": "cowikimedia",
-				"code": "cowikimedia"
+				"code": "cowikimedia",
+				"sitename": "Wikimedia Colombia"
 			},
 			{
 				"url": "https://collab.wikimedia.org",
 				"dbname": "collabwiki",
 				"code": "collab",
+				"sitename": "Collab",
 				"private": ""
 			},
 			{
 				"url": "https://commons.wikimedia.org",
 				"dbname": "commonswiki",
-				"code": "commons"
+				"code": "commons",
+				"sitename": "Wikimedia Commons"
 			},
 			{
 				"url": "https://dk.wikimedia.org",
 				"dbname": "dkwikimedia",
-				"code": "dkwikimedia"
+				"code": "dkwikimedia",
+				"sitename": "Wikimedia Danmark"
 			},
 			{
 				"url": "https://donate.wikimedia.org",
 				"dbname": "donatewiki",
 				"code": "donate",
+				"sitename": "Donate",
 				"fishbowl": ""
 			},
 			{
-				"url": "https://et.wikimedia.org",
+				"url": "https://ee.wikimedia.org",
 				"dbname": "etwikimedia",
-				"code": "etwikimedia"
+				"code": "etwikimedia",
+				"sitename": "Wikimedia Eesti"
 			},
 			{
 				"url": "https://exec.wikimedia.org",
 				"dbname": "execwiki",
 				"code": "exec",
+				"sitename": "Wikimedia Executive",
 				"private": ""
 			},
 			{
 				"url": "https://fdc.wikimedia.org",
 				"dbname": "fdcwiki",
 				"code": "fdc",
+				"sitename": "Wikimedia FDC",
 				"private": ""
 			},
 			{
 				"url": "https://fi.wikimedia.org",
 				"dbname": "fiwikimedia",
-				"code": "fiwikimedia"
+				"code": "fiwikimedia",
+				"sitename": "Wikimedia Suomi"
 			},
 			{
 				"url": "https://wikimediafoundation.org",
 				"dbname": "foundationwiki",
 				"code": "foundation",
+				"sitename": "Wikimedia Foundation",
 				"fishbowl": ""
 			},
 			{
 				"url": "https://grants.wikimedia.org",
 				"dbname": "grantswiki",
 				"code": "grants",
+				"sitename": "Wikimedia Foundation Grants Discussion",
 				"private": ""
 			},
 			{
 				"url": "https://iegcom.wikimedia.org",
 				"dbname": "iegcomwiki",
 				"code": "iegcom",
+				"sitename": "Individual Engagement Grants Committee Wiki",
 				"private": ""
 			},
 			{
 				"url": "https://il.wikimedia.org",
 				"dbname": "ilwikimedia",
 				"code": "ilwikimedia",
+				"sitename": "ויקימדיה",
 				"private": ""
 			},
 			{
 				"url": "https://incubator.wikimedia.org",
 				"dbname": "incubatorwiki",
-				"code": "incubator"
+				"code": "incubator",
+				"sitename": "Wikimedia Incubator"
 			},
 			{
 				"url": "https://internal.wikimedia.org",
 				"dbname": "internalwiki",
 				"code": "internal",
+				"sitename": "Internal",
 				"private": ""
 			},
 			{
 				"url": "https://wikitech.wikimedia.org",
 				"dbname": "labswiki",
-				"code": "labs"
+				"code": "labs",
+				"sitename": "Wikitech"
 			},
 			{
 				"url": "https://legalteam.wikimedia.org",
 				"dbname": "legalteamwiki",
 				"code": "legalteam",
+				"sitename": "Legal Team Wiki",
 				"private": ""
 			},
 			{
 				"url": "https://login.wikimedia.org",
 				"dbname": "loginwiki",
-				"code": "login"
+				"code": "login",
+				"sitename": "Wikimedia Login Wiki"
 			},
 			{
 				"url": "https://www.mediawiki.org",
 				"dbname": "mediawikiwiki",
-				"code": "mediawiki"
+				"code": "mediawiki",
+				"sitename": "MediaWiki"
 			},
 			{
 				"url": "https://meta.wikimedia.org",
 				"dbname": "metawiki",
-				"code": "meta"
+				"code": "meta",
+				"sitename": "Meta"
 			},
 			{
 				"url": "https://mk.wikimedia.org",
 				"dbname": "mkwikimedia",
-				"code": "mkwikimedia"
+				"code": "mkwikimedia",
+				"sitename": "Викимедија Македонија"
 			},
 			{
 				"url": "https://movementroles.wikimedia.org",
 				"dbname": "movementroleswiki",
 				"code": "movementroles",
+				"sitename": "Movement Roles",
 				"private": ""
 			},
 			{
 				"url": "https://mx.wikimedia.org",
 				"dbname": "mxwikimedia",
-				"code": "mxwikimedia"
+				"code": "mxwikimedia",
+				"sitename": "Wikimedia México"
 			},
 			{
 				"url": "https://nl.wikimedia.org",
 				"dbname": "nlwikimedia",
-				"code": "nlwikimedia"
+				"code": "nlwikimedia",
+				"sitename": "Wikimedia"
 			},
 			{
 				"url": "https://no.wikimedia.org",
 				"dbname": "nowikimedia",
-				"code": "nowikimedia"
+				"code": "nowikimedia",
+				"sitename": "Wikimedia Norge"
 			},
 			{
 				"url": "https://noboard-chapters.wikimedia.org",
 				"dbname": "noboard_chapterswikimedia",
 				"code": "noboard-chapterswikimedia",
+				"sitename": "Wikimedia Norway Internal Board",
 				"private": ""
 			},
 			{
 				"url": "https://nostalgia.wikipedia.org",
 				"dbname": "nostalgiawiki",
 				"code": "nostalgia",
+				"sitename": "Wikipedia",
 				"fishbowl": ""
 			},
 			{
 				"url": "https://nyc.wikimedia.org",
 				"dbname": "nycwikimedia",
-				"code": "nycwikimedia"
+				"code": "nycwikimedia",
+				"sitename": "Wikimedia New York City"
 			},
 			{
 				"url": "https://nz.wikimedia.org",
 				"dbname": "nzwikimedia",
 				"code": "nzwikimedia",
+				"sitename": "Wikimedia",
 				"closed": ""
 			},
 			{
 				"url": "https://office.wikimedia.org",
 				"dbname": "officewiki",
 				"code": "office",
+				"sitename": "Wikimedia Office",
 				"private": ""
 			},
 			{
 				"url": "https://ombudsmen.wikimedia.org",
 				"dbname": "ombudsmenwiki",
 				"code": "ombudsmen",
+				"sitename": "Ombudsmen Wiki",
 				"private": ""
 			},
 			{
 				"url": "https://otrs-wiki.wikimedia.org",
 				"dbname": "otrs_wikiwiki",
 				"code": "otrs-wiki",
+				"sitename": "OTRS Wiki",
 				"private": ""
 			},
 			{
 				"url": "https://outreach.wikimedia.org",
 				"dbname": "outreachwiki",
-				"code": "outreach"
+				"code": "outreach",
+				"sitename": "Outreach Wiki"
 			},
 			{
 				"url": "https://pa-us.wikimedia.org",
 				"dbname": "pa_uswikimedia",
 				"code": "pa-uswikimedia",
+				"sitename": "Wikimedia Pennsylvania",
 				"closed": ""
 			},
 			{
 				"url": "https://pl.wikimedia.org",
 				"dbname": "plwikimedia",
-				"code": "plwikimedia"
+				"code": "plwikimedia",
+				"sitename": "Wikimedia"
 			},
 			{
 				"url": "https://quality.wikimedia.org",
 				"dbname": "qualitywiki",
 				"code": "quality",
+				"sitename": "Wikimedia Quality",
 				"closed": ""
 			},
 			{
 				"url": "https://rs.wikimedia.org",
 				"dbname": "rswikimedia",
 				"code": "rswikimedia",
+				"sitename": "Викимедија",
 				"fishbowl": ""
 			},
 			{
 				"url": "https://ru.wikimedia.org",
 				"dbname": "ruwikimedia",
-				"code": "ruwikimedia"
+				"code": "ruwikimedia",
+				"sitename": "Викимедиа"
 			},
 			{
 				"url": "https://se.wikimedia.org",
 				"dbname": "sewikimedia",
-				"code": "sewikimedia"
+				"code": "sewikimedia",
+				"sitename": "Wikimedia"
 			},
 			{
 				"url": "https://searchcom.wikimedia.org",
 				"dbname": "searchcomwiki",
 				"code": "searchcom",
+				"sitename": "Search Committee",
 				"private": ""
 			},
 			{
 				"url": "https://wikisource.org",
 				"dbname": "sourceswiki",
-				"code": "sources"
+				"code": "sources",
+				"sitename": "Wikisource"
 			},
 			{
 				"url": "https://spcom.wikimedia.org",
 				"dbname": "spcomwiki",
 				"code": "spcom",
+				"sitename": "Spcom",
 				"private": ""
 			},
 			{
 				"url": "https://species.wikimedia.org",
 				"dbname": "specieswiki",
-				"code": "species"
+				"code": "species",
+				"sitename": "Wikispecies"
 			},
 			{
 				"url": "https://steward.wikimedia.org",
 				"dbname": "stewardwiki",
 				"code": "steward",
+				"sitename": "Steward Wiki",
 				"private": ""
 			},
 			{
 				"url": "https://strategy.wikimedia.org",
 				"dbname": "strategywiki",
 				"code": "strategy",
+				"sitename": "Strategic Planning",
 				"closed": ""
 			},
 			{
 				"url": "https://ten.wikipedia.org",
 				"dbname": "tenwiki",
 				"code": "ten",
+				"sitename": "Wikipedia 10",
 				"closed": ""
 			},
 			{
 				"url": "https://test.wikipedia.org",
 				"dbname": "testwiki",
-				"code": "test"
+				"code": "test",
+				"sitename": "Wikipedia"
 			},
 			{
 				"url": "https://test2.wikipedia.org",
 				"dbname": "test2wiki",
-				"code": "test2"
+				"code": "test2",
+				"sitename": "Wikipedia"
 			},
 			{
 				"url": "https://test.wikidata.org",
 				"dbname": "testwikidatawiki",
-				"code": "testwikidata"
+				"code": "testwikidata",
+				"sitename": "Wikipedia"
 			},
 			{
 				"url": "https://tr.wikimedia.org",
 				"dbname": "trwikimedia",
-				"code": "trwikimedia"
+				"code": "trwikimedia",
+				"sitename": "Wikimedia Türkiye"
 			},
 			{
 				"url": "https://transitionteam.wikimedia.org",
 				"dbname": "transitionteamwiki",
 				"code": "transitionteam",
+				"sitename": "Transition Team Wiki",
 				"private": ""
 			},
 			{
 				"url": "https://ua.wikimedia.org",
 				"dbname": "uawikimedia",
-				"code": "uawikimedia"
+				"code": "uawikimedia",
+				"sitename": "Вікімедіа_Україна"
 			},
 			{
 				"url": "https://uk.wikimedia.org",
 				"dbname": "ukwikimedia",
 				"code": "ukwikimedia",
+				"sitename": "Wikimedia UK",
 				"closed": ""
 			},
 			{
 				"url": "https://usability.wikimedia.org",
 				"dbname": "usabilitywiki",
 				"code": "usability",
+				"sitename": "Wikimedia Usability Initiative",
 				"closed": ""
 			},
 			{
 				"url": "https://vote.wikimedia.org",
 				"dbname": "votewiki",
 				"code": "vote",
+				"sitename": "Wikimedia Vote Wiki",
 				"fishbowl": ""
 			},
 			{
 				"url": "https://wg-en.wikipedia.org",
 				"dbname": "wg_enwiki",
 				"code": "wg-en",
+				"sitename": "Wikipedia Working Group",
 				"private": ""
 			},
 			{
 				"url": "https://www.wikidata.org",
 				"dbname": "wikidatawiki",
-				"code": "wikidata"
+				"code": "wikidata",
+				"sitename": "Wikipedia"
 			},
 			{
 				"url": "https://wikimania2005.wikimedia.org",
 				"dbname": "wikimania2005wiki",
 				"code": "wikimania2005",
+				"sitename": "Wikipedia",
 				"closed": ""
 			},
 			{
 				"url": "https://wikimania2006.wikimedia.org",
 				"dbname": "wikimania2006wiki",
 				"code": "wikimania2006",
+				"sitename": "Wikipedia",
 				"closed": ""
 			},
 			{
 				"url": "https://wikimania2007.wikimedia.org",
 				"dbname": "wikimania2007wiki",
 				"code": "wikimania2007",
+				"sitename": "Wikipedia",
 				"closed": ""
 			},
 			{
 				"url": "https://wikimania2008.wikimedia.org",
 				"dbname": "wikimania2008wiki",
 				"code": "wikimania2008",
+				"sitename": "Wikipedia",
 				"closed": ""
 			},
 			{
 				"url": "https://wikimania2009.wikimedia.org",
 				"dbname": "wikimania2009wiki",
 				"code": "wikimania2009",
+				"sitename": "Wikipedia",
 				"closed": ""
 			},
 			{
 				"url": "https://wikimania2010.wikimedia.org",
 				"dbname": "wikimania2010wiki",
 				"code": "wikimania2010",
+				"sitename": "Wikipedia",
 				"closed": ""
 			},
 			{
 				"url": "https://wikimania2011.wikimedia.org",
 				"dbname": "wikimania2011wiki",
 				"code": "wikimania2011",
+				"sitename": "Wikipedia",
 				"closed": ""
 			},
 			{
 				"url": "https://wikimania2012.wikimedia.org",
 				"dbname": "wikimania2012wiki",
 				"code": "wikimania2012",
+				"sitename": "Wikipedia",
 				"closed": ""
 			},
 			{
 				"url": "https://wikimania2013.wikimedia.org",
 				"dbname": "wikimania2013wiki",
 				"code": "wikimania2013",
+				"sitename": "Wikipedia",
 				"closed": ""
 			},
 			{
 				"url": "https://wikimania2014.wikimedia.org",
 				"dbname": "wikimania2014wiki",
-				"code": "wikimania2014"
+				"code": "wikimania2014",
+				"sitename": "Wikipedia"
 			},
 			{
 				"url": "https://wikimania2015.wikimedia.org",
 				"dbname": "wikimania2015wiki",
-				"code": "wikimania2015"
+				"code": "wikimania2015",
+				"sitename": "Wikipedia"
 			},
 			{
 				"url": "https://wikimania2016.wikimedia.org",
 				"dbname": "wikimania2016wiki",
-				"code": "wikimania2016"
+				"code": "wikimania2016",
+				"sitename": "Wikipedia"
 			},
 			{
 				"url": "https://wikimaniateam.wikimedia.org",
 				"dbname": "wikimaniateamwiki",
 				"code": "wikimaniateam",
+				"sitename": "WikimaniaTeam",
 				"private": ""
 			},
 			{
 				"url": "https://zero.wikimedia.org",
 				"dbname": "zerowiki",
 				"code": "zero",
+				"sitename": "Wikipedia",
 				"private": ""
 			}
 		]
