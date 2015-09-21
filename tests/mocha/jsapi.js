@@ -72,7 +72,7 @@ describe('Examples from guides/jsapi', function() {
 					template.name = 'bar-stub';
 				}
 			});
-			String(pdoc).should.equal("{{cleanup|date = July 2012}} '''Foo''' is a [[bar]]. {{bar-stub}}");
+			String(pdoc).should.equal("{{cleanup|date = July 2012}} '''Foo''' is a [[bar]]. {{bar-stub}}\n");
 		});
 	});
 });
@@ -90,7 +90,7 @@ describe('Further examples of PDoc API', function() {
 					template.add('test2', Parsoid.PNodeList.fromHTML(pdoc, "I'm so <b>bold</b>!"));
 				}
 			});
-			String(pdoc).should.equal("{{echo|{{cleanup|date = July 2012|test1 = <nowiki>{{foo}}</nowiki>&bar{{!}}bat<nowiki><p></nowiki>|test2 = I'm so '''bold'''!}} '''Foo''' is a [[bar]].}} {{uncategorized}}");
+			String(pdoc).should.equal("{{echo|{{cleanup|date = July 2012|test1 = <nowiki>{{foo}}</nowiki>&bar{{!}}bat<nowiki><p></nowiki>|test2 = I'm so '''bold'''!}} '''Foo''' is a [[bar]].}} {{uncategorized}}\n");
 		});
 	});
 	it('is safe to mutate template arguments', function() {
