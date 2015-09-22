@@ -11853,6 +11853,17 @@ Templates: Ugly templates: 6. Template encapsulation test: Cyclical nesting of t
 </table></td></tr></tbody></table>
 !! end
 
+!! test
+Templates: Parameters substituted at the top-level
+!! wikitext
+{{{foo|''who'' {{echo|me}}? '''never!'''}}}
+!! html/php
+<p><i>who</i> me? <b>never!</b>
+</p>
+!! html/parsoid
+<p about="#mwt2" typeof="mw:Param" data-parsoid="{&quot;src&quot;:&quot;{{{foo|''who'' {{echo|me}}? '''never!'''}}}&quot;}"><i>who</i> me? <b>never!</b></p>
+!! end
+
 !!test
 Parser Functions: 1. Simple example
 !! wikitext
