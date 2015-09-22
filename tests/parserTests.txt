@@ -26113,6 +26113,37 @@ parsoid={
 </table>
 !! end
 
+## T111151 Remove font elements without attributes
+!! test
+5a. font tags without attributes should be dropped in scrubWikitext mode
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html
+<font>foo</font>
+<font><font>bar</font></font>
+<font class="x">boo</font>
+!! wikitext
+foo
+bar
+<font class="x">boo</font>
+!! end
+
+!! test
+5b. font tags should not be dropped without scrubWikitext being enabled
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": false
+}
+!! html
+<font>foo</font>
+!! wikitext
+<font>foo</font>
+!! end
+
 !! test
 Escape nowiki DOM elements
 !! options
