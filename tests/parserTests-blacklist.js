@@ -923,9 +923,9 @@ add("html2wt", "Magic Word: {{SUBJECTPAGENAMEE}}", "User:%C3%86var_Arnfj%C3%B6r%
 add("html2wt", "Magic Word: {{NUMBEROFFILES}}", "5\n");
 add("html2wt", "Magic Word: {{PAGENAME}}", "Ævar Arnfjörð Bjarmason\n");
 add("html2wt", "Magic Word: {{PAGENAME}} with metacharacters", "''<nowiki/>'foo & bar = baz'''\n");
-add("html2wt", "Magic Word: {{PAGENAME}} with metacharacters (bug 26781)", "<nowiki>*RFC 1234 http://example.com/</nowiki>\n");
+add("html2wt", "Magic Word: {{PAGENAME}} with metacharacters (bug 26781)", "<nowiki>*</nowiki><nowiki>RFC 1234</nowiki> <nowiki>http://example.com/</nowiki>\n");
 add("html2wt", "Magic Word: {{PAGENAMEE}}", "%C3%86var_Arnfj%C3%B6r%C3%B0_Bjarmason\n");
-add("html2wt", "Magic Word: {{PAGENAMEE}} with metacharacters (bug 26781)", "<nowiki>*RFC_1234_http://example.com/</nowiki>\n");
+add("html2wt", "Magic Word: {{PAGENAMEE}} with metacharacters (bug 26781)", "<nowiki>*</nowiki>RFC_1234_http://example.com/\n");
 add("html2wt", "Magic Word: {{REVISIONID}}", "1337\n");
 add("html2wt", "Magic Word: {{SCRIPTPATH}}", "/\n");
 add("html2wt", "Magic Word: {{STYLEPATH}}", "/skins\n");
