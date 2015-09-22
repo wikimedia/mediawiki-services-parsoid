@@ -629,13 +629,11 @@ tplarg_or_template_or_bust "tplarg_or_template_or_bust"
     = r:(tplarg_or_template / .)+ { return tu.flattenIfArray(r); }
 
 broken_template
-  = v:( '{{' space_or_newline+ '}}' / ( '{{{' / '}}}' / '{{' / '}}' )+ )
-{
+  = v:( '{{' space_or_newline+ '}}' / ( '{{{' / '}}}' / '{{' / '}}' )+ ) {
     return [
         new TagTk('span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: tsrOffsets('start'), src: text() }),
     ].concat(v, [new EndTagTk('span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: tsrOffsets('end') }) ]);
-}
-
+  }
 
 template
   = "{{" nl_comment_space*
@@ -658,10 +656,6 @@ template
       var obj = new SelfclosingTagTk('template', params, { tsr: tsrOffsets(), src: text() });
       return obj;
     }
-
-// XXX: support template and args in target!
-//template_target
-//  = $( !"}}" ([^|\n]) )*
 
 tplarg
   = "{{{"
@@ -711,8 +705,6 @@ template_param
     return new KV('', '', [startOffset(), startOffset(), startOffset(), endOffset()]);
   }
 
-
-// FIXME: handle template args and templates in key! (or even parser functions?)
 template_param_name
   = & { return stops.push('equal', true); }
     tpt:(template_param_text / &'=' { return ''; })
@@ -722,7 +714,6 @@ template_param_name
     }
 
   / & { return stops.pop('equal'); }
-  //= h:( !"}}" x:([^=|\n]) { return x } )* { return h.join(''); }
 
 template_param_value
   = & { stops.inc('nopre'); return stops.push('equal', false); }
@@ -762,7 +753,6 @@ template_param_text
         stops.pop('tableCellArg');
         return stops.dec('template');
     }
-
 
 wikilink_content
   = lcs:( pipe startPos:("" { return endOffset(); }) lt:link_text? {
