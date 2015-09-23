@@ -119,6 +119,29 @@ function ParsoidService(parsoidConfig, processLogger) {
 		}
 	});
 
+	// Count http error codes
+	var timer = parsoidConfig.performanceTimer;
+	if (timer) {
+		app.use(function(req, res, next) {
+			var send;
+			var clear = function() {
+				res.removeListener('finish', send);
+				res.removeListener('close', clear);
+				res.removeListener('error', clear);
+			};
+			send = function() {
+				var code = String(res.statusCode || 'unknown');
+				if (code !== '200') {
+					timer.count('http.status.' + code, '');
+				}
+				clear();
+			};
+			res.once('finish', send);
+			res.once('close', clear);
+			res.once('error', clear);
+			next();
+		});
+	}
 
 	// Routes
 
