@@ -541,11 +541,33 @@ apiUtils.v2endWt2html = function(ret, doc) {
 	}
 };
 
+/**
+ * Validates that data-parsoid was provided in the expected format.
+ *
+ * @method
+ * @param {Object} obj
+ */
 apiUtils.validateDp = function(obj) {
 	var dp = obj['data-parsoid'];
 	if (!dp || !dp.body || dp.body.constructor !== Object || !dp.body.ids) {
 		var err = new Error('Invalid data-parsoid was provided.');
 		err.code = 400;
+		err.stack = null;
 		throw err;
 	}
+};
+
+/**
+ * Log a fatal/request.
+ *
+ * @method
+ * @param {MWParserEnvironment} env
+ * @param {String} text
+ * @param {Number} [code]
+ */
+apiUtils.fatalRequest = function(env, text, code) {
+	var err = new Error(text);
+	err.code = code || 404;
+	err.stack = null;
+	env.log('fatal/request', err);
 };

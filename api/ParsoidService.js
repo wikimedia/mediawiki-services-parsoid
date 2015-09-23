@@ -38,7 +38,7 @@ function ParsoidService(parsoidConfig, processLogger) {
 	var host = parsoidConfig.serverInterface || process.env.INTERFACE;
 
 	// Load routes
-	var routes = require('./routes')(parsoidConfig);
+	var routes = require('./routes')(parsoidConfig, processLogger);
 
 	var app = express();
 

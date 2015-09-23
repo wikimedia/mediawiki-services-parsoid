@@ -93,17 +93,17 @@ var locationData = {
 };
 
 // Setup process logger
-var logger = new Logger();
-logger._createLogData = function(logType, logObject) {
+var processLogger = new Logger();
+processLogger._createLogData = function(logType, logObject) {
 	return new ParsoidLogData(logType, logObject, locationData);
 };
-logger._defaultBackend = ParsoidLogger.prototype._defaultBackend;
+processLogger._defaultBackend = ParsoidLogger.prototype._defaultBackend;
 ParsoidLogger.prototype.registerLoggingBackends.call(
-	logger, [ "fatal", "error", "warning", "info" ], parsoidConfig
+	processLogger, [ "fatal", "error", "warning", "info" ], parsoidConfig
 );
 
 process.on('uncaughtException', function(err) {
-	logger.log('fatal', 'uncaught exception', err);
+	processLogger.log('fatal', 'uncaught exception', err);
 });
 
 if (cluster.isMaster && argv.n > 0) {
@@ -131,7 +131,7 @@ if (cluster.isMaster && argv.n > 0) {
 			timeouts.set(msg.timeoutId, setTimeout(function() {
 				timeouts.delete(msg.timeoutId);
 				if (worker.id in cluster.workers) {
-					logger.log("warning", util.format(
+					processLogger.log("warning", util.format(
 						"Cpu timeout fetching: %s; killing worker %s.",
 						msg.location, pid
 					));
@@ -144,7 +144,7 @@ if (cluster.isMaster && argv.n > 0) {
 
 	// Fork workers
 	var worker;
-	logger.log("info", util.format("initializing %s workers", argv.n));
+	processLogger.log("info", util.format("initializing %s workers", argv.n));
 	for (var i = 0; i < argv.n; i++) {
 		spawn();
 	}
@@ -152,15 +152,15 @@ if (cluster.isMaster && argv.n > 0) {
 	cluster.on('exit', function(worker, code, signal) {
 		if (!worker.suicide) {
 			var pid = worker.process.pid;
-			logger.log("warning", util.format("worker %s died (%s), restarting.", pid, signal || code));
+			processLogger.log("warning", util.format("worker %s died (%s), restarting.", pid, signal || code));
 			spawn();
 		}
 	});
 
 	var shutdownMaster = function() {
-		logger.log("info", "shutting down, killing workers");
+		processLogger.log("info", "shutting down, killing workers");
 		cluster.disconnect(function() {
-			logger.log("info", "exiting");
+			processLogger.log("info", "exiting");
 			process.exit(0);
 		});
 	};
@@ -172,7 +172,7 @@ if (cluster.isMaster && argv.n > 0) {
 	// Worker
 
 	var shutdownWorker = function() {
-		logger.log("warning", "shutting down");
+		processLogger.log("warning", "shutting down");
 		process.exit(0);
 	};
 
@@ -185,7 +185,7 @@ if (cluster.isMaster && argv.n > 0) {
 	// For 0.10: npm install heapdump
 	process.on('SIGUSR2', function() {
 		var heapdump = require('heapdump');
-		logger.log("warning", "SIGUSR2 received! Writing snapshot.");
+		processLogger.log("warning", "SIGUSR2 received! Writing snapshot.");
 		process.chdir('/tmp');
 		heapdump.writeSnapshot();
 	});
@@ -200,6 +200,6 @@ if (cluster.isMaster && argv.n > 0) {
 		},  parsoidConfig.heapUsageSampleInterval);
 	}
 
-	var app = new ParsoidService(parsoidConfig, logger);
+	var app = new ParsoidService(parsoidConfig, processLogger);
 
 }

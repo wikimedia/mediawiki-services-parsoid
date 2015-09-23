@@ -18,10 +18,21 @@ var ParsoidCacheRequest = ApiRequest.ParsoidCacheRequest;
 var TemplateRequest = ApiRequest.TemplateRequest;
 
 
-module.exports = function(parsoidConfig) {
+module.exports = function(parsoidConfig, processLogger) {
 	var routes = {};
 
 	var REQ_TIMEOUT = parsoidConfig.timeouts.request;
+
+	// This helper is only to be used in middleware, before an environment
+	// is setup.  The logger doesn't emit the expected location info.
+	// You probably want `apiUtils.fatalRequest` instead.
+	var errOut = function(res, text, code) {
+		var err = new Error(text);
+		err.code = code || 404;
+		err.stack = null;
+		processLogger.log('fatal/request', err);
+		apiUtils.sendResponse(res, {}, text, err.code);
+	};
 
 	// Middlewares
 
@@ -42,13 +53,9 @@ module.exports = function(parsoidConfig) {
 	var v3SupportedFormats = new Set(['pagebundle', 'html', 'wikitext']);
 
 	routes.v23Middle = function(version, req, res, next) {
-		function errOut(err, code) {
-			apiUtils.sendResponse(res, {}, err, code || 404);
-		}
-
 		var iwp = parsoidConfig.reverseMwApiMap.get(req.params.domain);
 		if (!iwp) {
-			return errOut('Invalid domain: ' + req.params.domain);
+			return errOut(res, 'Invalid domain: ' + req.params.domain);
 		}
 
 		res.locals.apiVersion = version;
@@ -70,7 +77,7 @@ module.exports = function(parsoidConfig) {
 
 		if (!supportedFormats.has(opts.format) ||
 				(req.method === 'GET' && !wt2htmlFormats.has(opts.format))) {
-			return errOut('Invalid format: ' + opts.format);
+			return errOut(res, 'Invalid format: ' + opts.format);
 		}
 
 		// In v2 the "wikitext" format was named "wt"
@@ -82,7 +89,7 @@ module.exports = function(parsoidConfig) {
 		res.locals.subst = !!(req.query.subst || req.body.subst);
 		// This is only supported for the html format
 		if (res.locals.subst && opts.format !== 'html') {
-			return errOut('Substitution is only supported for the HTML format.', 501);
+			return errOut(res, 'Substitution is only supported for the HTML format.', 501);
 		}
 
 		if (req.method === 'POST') {
@@ -512,17 +519,13 @@ module.exports = function(parsoidConfig) {
 		var opts = res.locals.opts;
 		var env = res.locals.env;
 
-		function errOut(err, code) {
-			apiUtils.sendResponse(res, env, err, code || 404);
-		}
-
 		if (wt2htmlFormats.has(opts.format)) {
 			// Accept wikitext as a string or object{body,headers}
 			var wikitext = (opts.wikitext && typeof opts.wikitext !== 'string') ?
 				opts.wikitext.body : opts.wikitext;
 			if (typeof wikitext !== 'string') {
 				if (!res.locals.pageName) {
-					return errOut('No title or wikitext was provided.', 400);
+					return apiUtils.fatalRequest(env, 'No title or wikitext was provided.', 400);
 				}
 				// We've been given source for this page
 				if (opts.original && opts.original.wikitext) {
@@ -533,7 +536,7 @@ module.exports = function(parsoidConfig) {
 		} else {
 			// html is required for serialization
 			if (opts.html === undefined) {
-				return errOut('No html was supplied.', 400);
+				return apiUtils.fatalRequest(env, 'No html was supplied.', 400);
 			}
 			// Accept html as a string or object{body,headers}
 			var html = (typeof opts.html === 'string') ?
