@@ -21,7 +21,7 @@
     "node-uuid": "~1.4.1",
     "pegjs": "git+https://github.com/tstarling/pegjs#fork",
     "prfun": "~2.0.0",
-    "request": "~2.40.0",
+    "request": "~2.63.0",
     "serve-favicon": "~2.3.0",
     "simplediff": "~0.1.1",
     "yargs": "~1.3.1"
