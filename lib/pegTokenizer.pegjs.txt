@@ -546,7 +546,8 @@ autourl
               { return c; }
             )
             / "(" { stops.onStack('autourl').sawLParen = true; return "("; }
-            / s:[.:,']  { return s; }
+            / [.:,]
+            / $(['] ![']) // single quotes are ok, double quotes are bad
             / comment
             / tplarg_or_template
             / ! ( rhe:raw_htmlentity &{ return /^[<>\u00A0]$/.test(rhe); } )
