@@ -4646,13 +4646,16 @@ http://example.com?
 http://example.com)
 http://example.com/url_with_(brackets)
 (http://example.com/url_without_brackets)
+http://example.com/url_with_entity&amp;
+http://example.com/url_with_entity&#x26;
+http://example.com/url_with_entity&#038;
 http://example.com/url_with_entity&nbsp;
 http://example.com/url_with_entity&#xA0;
 http://example.com/url_with_entity&#160;
 http://example.com/url_with_entity&lt;
 http://example.com/url_with_entity&#x3C;
 http://example.com/url_with_entity&#60;
-!! html/php
+!! html
 <p><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>,
 <a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>;
 <a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>\
@@ -4663,30 +4666,16 @@ http://example.com/url_with_entity&#60;
 <a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>)
 <a rel="nofollow" class="external free" href="http://example.com/url_with_(brackets)">http://example.com/url_with_(brackets)</a>
 (<a rel="nofollow" class="external free" href="http://example.com/url_without_brackets">http://example.com/url_without_brackets</a>)
-<a rel="nofollow" class="external free" href="http://example.com/url_with_entity ">http://example.com/url_with_entity </a>
-<a rel="nofollow" class="external free" href="http://example.com/url_with_entity ">http://example.com/url_with_entity </a>
-<a rel="nofollow" class="external free" href="http://example.com/url_with_entity ">http://example.com/url_with_entity </a>
+<a rel="nofollow" class="external free" href="http://example.com/url_with_entity&amp;">http://example.com/url_with_entity&amp;</a>
+<a rel="nofollow" class="external free" href="http://example.com/url_with_entity&amp;">http://example.com/url_with_entity&amp;</a>
+<a rel="nofollow" class="external free" href="http://example.com/url_with_entity&amp;">http://example.com/url_with_entity&amp;</a>
+<a rel="nofollow" class="external free" href="http://example.com/url_with_entity">http://example.com/url_with_entity</a>&#160;
+<a rel="nofollow" class="external free" href="http://example.com/url_with_entity">http://example.com/url_with_entity</a>&#xa0;
+<a rel="nofollow" class="external free" href="http://example.com/url_with_entity">http://example.com/url_with_entity</a>&#160;
 <a rel="nofollow" class="external free" href="http://example.com/url_with_entity">http://example.com/url_with_entity</a>&lt;
-<a rel="nofollow" class="external free" href="http://example.com/url_with_entity%3C">http://example.com/url_with_entity%3C</a>
-<a rel="nofollow" class="external free" href="http://example.com/url_with_entity%3C">http://example.com/url_with_entity%3C</a>
+<a rel="nofollow" class="external free" href="http://example.com/url_with_entity">http://example.com/url_with_entity</a>&#x3c;
+<a rel="nofollow" class="external free" href="http://example.com/url_with_entity">http://example.com/url_with_entity</a>&#60;
 </p>
-!! html/parsoid
-<p><a rel="mw:ExtLink" href="http://example.com">http://example.com</a>,
-<a rel="mw:ExtLink" href="http://example.com">http://example.com</a>;
-<a rel="mw:ExtLink" href="http://example.com">http://example.com</a>\
-<a rel="mw:ExtLink" href="http://example.com">http://example.com</a>.
-<a rel="mw:ExtLink" href="http://example.com">http://example.com</a>:
-<a rel="mw:ExtLink" href="http://example.com">http://example.com</a>!
-<a rel="mw:ExtLink" href="http://example.com">http://example.com</a>?
-<a rel="mw:ExtLink" href="http://example.com">http://example.com</a>)
-<a rel="mw:ExtLink" href="http://example.com/url_with_(brackets)">http://example.com/url_with_(brackets)</a>
-(<a rel="mw:ExtLink" href="http://example.com/url_without_brackets">http://example.com/url_without_brackets</a>)
-<a rel="mw:ExtLink" href="http://example.com/url_with_entity ">http://example.com/url_with_entity </a>
-<a rel="mw:ExtLink" href="http://example.com/url_with_entity ">http://example.com/url_with_entity </a>
-<a rel="mw:ExtLink" href="http://example.com/url_with_entity ">http://example.com/url_with_entity </a>
-<a rel="mw:ExtLink" href="http://example.com/url_with_entity">http://example.com/url_with_entity</a><span typeof="mw:Entity">&lt;</span>
-<a rel="mw:ExtLink" href="http://example.com/url_with_entity&lt;">http://example.com/url_with_entity&lt;</a>
-<a rel="mw:ExtLink" href="http://example.com/url_with_entity&lt;">http://example.com/url_with_entity&lt;</a></p>
 !! end
 
 !! test
