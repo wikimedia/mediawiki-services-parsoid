@@ -2682,7 +2682,14 @@
     "prfun": {
       "version": "2.1.1",
       "from": "https://registry.npmjs.org/prfun/-/prfun-2.1.1.tgz",
-      "resolved": "https://registry.npmjs.org/prfun/-/prfun-2.1.1.tgz"
+      "resolved": "https://registry.npmjs.org/prfun/-/prfun-2.1.1.tgz",
+      "dependencies": {
+        "core-js": {
+          "version": "0.9.18",
+          "from": "https://registry.npmjs.org/core-js/-/core-js-0.9.18.tgz",
+          "resolved": "https://registry.npmjs.org/core-js/-/core-js-0.9.18.tgz"
+        }
+      }
     },
     "request": {
       "version": "2.63.0",
