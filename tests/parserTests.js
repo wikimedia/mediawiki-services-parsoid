@@ -1519,17 +1519,17 @@ ParserTests.prototype.reportSummary = function(stats) {
 					" tests... " + "ALL TESTS PASSED!".green);
 		}
 	}
-	// repeat warning about out-of-date parser tests (we might have missed
-	// in at the top) and describe what to do about it.
-	if (!parserTestsUpToDate) {
-		console.log("==========================================================");
-		console.warn("WARNING:".red +
-			" parserTests.txt not up-to-date with upstream.");
-		console.warn("         Run fetch-parserTests.txt.js to update.");
+
+	// If we logged error messages, complain about it.
+	var logMsg = 'No errors logged.'.green;
+	if (this.loggedErrorCount > 0) {
+		logMsg = (this.loggedErrorCount + " errors logged.").red;
 	}
+	console.log('--> ' + logMsg + ' <--');
+
 	console.log("==========================================================");
 
-	return (stats.passedTestsUnexpected + stats.failedTestsUnexpected);
+	return (stats.passedTestsUnexpected + stats.failedTestsUnexpected + this.loggedErrorCount);
 };
 
 /**
@@ -1698,6 +1698,30 @@ ParserTests.prototype.main = function(options, popts) {
 			logger.registerLoggingBackends(["fatal", "error"], parsoidConfig);
 			env.setLogger(logger);
 		}
+
+		// Save default logger so we can be reset it after temporarily
+		// switching to the suppressLogger to suppress expected error
+		// messages.
+		this.defaultLogger = env.logger;
+		this.suppressLogger = new ParsoidLogger(env);
+		this.suppressLogger.registerLoggingBackends(["fatal"], parsoidConfig);
+
+		// Override env's `setLogger` to record if we see `fatal` or `error`
+		// while running parser tests.  (Keep it clean, folks!  Use
+		// "suppressError" option on the test if error is expected.)
+		this.loggedErrorCount = 0;
+		env.setLogger = (function(parserTests, superSetLogger) {
+			return function(logger) {
+				superSetLogger.call(this, logger);
+				this.log = function(level) {
+					if (logger !== parserTests.suppressLogger &&
+						/^(fatal|error)\b/.test(level)) {
+						parserTests.loggedErrorCount++;
+					}
+					return logger.log.apply(logger, arguments);
+				};
+			};
+		})(this, env.setLogger);
 
 		// Enable <ref> and <references> tags since we want to
 		// test Parsoid's native implementation of these tags.
@@ -1907,6 +1931,9 @@ ParserTests.prototype.processCase = function(i, options, err) {
 		// All test modes happen in a single run of processCase.
 		item.cachedBODY = null;
 		item.cachedNormalizedHTML = null;
+		// Also reset the logger, since we might have changed it to support
+		// the `suppressErrors` option.
+		this.env.setLogger(this.defaultLogger);
 
 		// console.log( 'processCase ' + i + JSON.stringify( item )  );
 		if (typeof item === 'object') {
@@ -1939,6 +1966,16 @@ ParserTests.prototype.processCase = function(i, options, err) {
 					item.comments = item.comments || this.comments;
 					this.comments = [];
 
+					var suppressErrors = item.options.parsoid && item.options.parsoid.suppressErrors;
+					// HACK: suppress errors for all tests where wikitext has
+					// <gallery> tag: these emit lots of noise on stderr and
+					// we know that we don't support <gallery> yet.
+					if (/<gallery(\s|>)/.test(item.wikitext || '')) {
+						suppressErrors = true;
+					}
+					if (suppressErrors) {
+						this.env.setLogger(this.suppressLogger);
+					}
 					if (item.options.parsoid && item.options.parsoid.modes) {
 						// Avoid filtering out the selser test
 						if (options.selser &&
