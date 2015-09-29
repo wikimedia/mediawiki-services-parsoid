@@ -10121,6 +10121,23 @@ PMID
 1234</p>
 !! end
 
+# <nowiki> nodes shouldn't be inserted during html2wt by Parsoid,
+# since these are ExtLinkText, not MagicLinkText
+!! test
+Magic links: use appropriate serialization for "almost" magic links.
+!! wikitext
+X[[Special:BookSources/0978739256|foo]]
+
+X[//tools.ietf.org/html/rfc1234 foo]
+!! html/php
+<p>X<a href="/wiki/Special:BookSources/0978739256" title="Special:BookSources/0978739256">foo</a>
+</p><p>X<a rel="nofollow" class="external text" href="//tools.ietf.org/html/rfc1234">foo</a>
+</p>
+!! html/parsoid
+<p>X<a rel="mw:WikiLink" href="./Special:BookSources/0978739256" title="Special:BookSources/0978739256">foo</a></p>
+<p>X<a rel="mw:ExtLink" href="//tools.ietf.org/html/rfc1234">foo</a></p>
+!! end
+
 ###
 ### Templates
 ####
