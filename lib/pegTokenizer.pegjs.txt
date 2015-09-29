@@ -549,7 +549,7 @@ autourl
             / s:[.:,']  { return s; }
             / comment
             / tplarg_or_template
-            / ! ( "&" ( [lL][tT] / [gG][tT] ) ";" )
+            / ! ( rhe:raw_htmlentity &{ return /^[<>\u00A0]$/.test(rhe); } )
                 r:(
                     & "&" he:htmlentity { return he; }
                   / [&%{]
@@ -1783,14 +1783,17 @@ urltext = ( $[^-'<~[{\n/A-Za-z_|!:;\]} &=]+
           // pegjs 0.8 inlines this simple rule automatically.
           / text_char )+
 
-htmlentity = m:$("&" [#0-9a-zA-Z]+ ";") {
-    var cc = Util.decodeEntities(m);
+raw_htmlentity = m:$("&" [#0-9a-zA-Z]+ ";") {
+    return Util.decodeEntities(m);
+}
+
+htmlentity = cc:raw_htmlentity {
     // if this is an invalid entity, don't tag it with 'mw:Entity'
     if (cc.length > 2 /* decoded entity would be 1 or 2 UTF-16 characters */) {
         return cc;
     }
     return [
-        new TagTk('span', [new KV('typeof', 'mw:Entity')], { src: m, srcContent: cc, tsr: tsrOffsets('start') }),
+        new TagTk('span', [new KV('typeof', 'mw:Entity')], { src: text(), srcContent: cc, tsr: tsrOffsets('start') }),
         cc,
         new EndTagTk('span', [], { tsr: tsrOffsets('end') }),
     ];
