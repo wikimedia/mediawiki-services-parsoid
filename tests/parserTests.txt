@@ -4712,6 +4712,21 @@ http://example.com/url_with_entity&amp;amp;
 !! end
 
 !! test
+External links: Free with trailing quotes (T113666)
+!! wikitext
+'''News:''' Stuff here
+
+news:'a'b''c''d e
+!! html/php
+<p><b>News:</b> Stuff here
+</p><p><a rel="nofollow" class="external free" href="news:'a'b">news:'a'b</a><i>c</i>d e
+</p>
+!! html/parsoid
+<p><b>News:</b> Stuff here</p>
+<p><a rel="mw:ExtLink" href="news:'a'b">news:'a'b</a><i>c</i>d e</p>
+!! end
+
+!! test
 External links: Lone protocols are never linked (T105697)
 !! wikitext
 http://
@@ -25273,11 +25288,11 @@ parsoid=html2wt
 <p><b><a href="http://cscott.net">http://cscott.net</a>x</b></p>
 <p><a href="http://cscott.net">http://cscott.net</a>x</p>
 !! wikitext
-http://cscott.net<nowiki/>'''foo'''
+http://cscott.net'''foo'''
 
 http://cscott.net<b>foo</b>
 
-'''http://cscott.net<nowiki/>'''
+'''http://cscott.net'''
 
 '''http://cscott.net '''
 
