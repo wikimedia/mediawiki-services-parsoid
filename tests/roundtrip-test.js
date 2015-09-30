@@ -461,15 +461,15 @@ function parsoidPost(env, options, cb) {
 	if (!/\/$/.test(uri)) {
 		uri += '/';
 	}
-	uri += 'v2/' + options.domain + '/';
+	uri += options.domain + '/v3/transform/';
 	if (options.html2wt) {
-		uri += 'wt/' + title;
+		uri += 'html/to/wikitext/' + title;
 		if (options.oldid) {
 			uri += '/' + options.oldid;
 		}
 		httpOptions.body.scrubWikitext = true;
 	} else {  // wt2html
-		uri += 'pagebundle/' + title;
+		uri += 'wikitext/to/pagebundle/' + title;
 	}
 	httpOptions.uri = uri;
 
@@ -491,7 +491,7 @@ function parsoidPost(env, options, cb) {
 				var str;
 				if (options.html2wt) {
 					prefix += 'html:';
-					str = body.wikitext.body;
+					str = body;
 				} else {
 					prefix += 'wt:';
 					str = body.html.body;
@@ -602,7 +602,7 @@ function runTests(title, options, formatter, cb) {
 		}, parsoidOptions);
 		return parsoidPost(env, options);
 	}).then(function(body) {
-		data.newWt = body.wikitext.body;
+		data.newWt = body;
 		return roundTripDiff(env, parsoidOptions, data);
 	}).then(function(results) {
 		data.diffs = results;
@@ -629,7 +629,7 @@ function runTests(title, options, formatter, cb) {
 		}, parsoidOptions);
 		return parsoidPost(env, options);
 	}).then(function(body) {
-		var out = body.wikitext.body;
+		var out = body;
 
 		// Finish the total time now
 		// FIXME: Is the right place to end it?

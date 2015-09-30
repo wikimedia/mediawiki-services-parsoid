@@ -51,6 +51,7 @@
     "dump-tokenizer": "node lib/mediawiki.tokenizer.peg.js",
     "mocha": "mocha --opts tests/mocha/mocha.opts tests/mocha",
     "parserTests": "node tests/parserTests.js --wt2html --wt2wt --html2wt --html2html --selser --no-color --quiet --blacklist",
+    "roundtrip": "node tests/roundtrip-test.js 'Barack Obama' && node tests/roundtrip-test.js 'Parkour'",
     "test": "npm run lint-no-0.8 && npm run parserTests && npm run mocha",
     "cover-mocha": "istanbul cover _mocha --dir ./coverage/mocha --  --opts tests/mocha/mocha.opts tests/mocha",
     "cover-parserTests": "istanbul cover tests/parserTests.js --dir ./coverage/parserTests -- --wt2html --wt2wt --html2wt --html2html --selser --no-color --quiet --blacklist",
