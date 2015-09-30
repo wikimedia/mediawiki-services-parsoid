@@ -33,7 +33,7 @@ var opts = yargs.usage('Usage: ./importJson.js titles.example.json')
 		'default': false,
 	})
 	.options('prefix', {
-		description: 'Which wiki prefix to use; e.g. "en" for English wikipedia, "es" for Spanish, "mw" for mediawiki.org',
+		description: 'Which wiki prefix to use; e.g. "enwiki" for English wikipedia, "eswiki" for Spanish, "mediawikiwiki" for mediawiki.org',
 		'boolean': false,
 		'default': 'enwiki',
 	})
@@ -114,7 +114,7 @@ var loadJSON = function(json, options) {
 	db.query('START TRANSACTION;');
 
 	for (var i = 0; i < titles.length; i++) {
-		insertRecord(titles[i], options.prefix || 'en');
+		insertRecord(titles[i], options.prefix || 'enwiki');
 	}
 
 	db.query('COMMIT;');
