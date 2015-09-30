@@ -58,7 +58,13 @@ var standardOpts = Util.addStandardOptions({
 	},
 	'prefix': {
 		description: 'Which wiki prefix to use; e.g. "enwiki" for English wikipedia, "eswiki" for Spanish, "mediawikiwiki" for mediawiki.org',
-		'default': 'enwiki',
+		'boolean': false,
+		'default': null,
+	},
+	'domain': {
+		description: 'Which wiki to use; e.g. "en.wikipedia.org" for English wikipedia, "es.wikipedia.org" for Spanish, "mediawiki.org" for mediawiki.org',
+		'boolean': false,
+		'default': null,
 	},
 	'page': {
 		description: 'The page name, returned for {{PAGENAME}}. If no input is given (ie. empty/stdin closed), it downloads and parses the page.',
@@ -191,9 +197,10 @@ startsAtWikitext = function(argv, env, input) {
 	});
 };
 
-var parse = exports.parse = function(input, argv, parsoidConfig, prefix) {
+var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain) {
 	return ParserEnv.getParserEnv(parsoidConfig, null, {
 		prefix: prefix,
+		domain: domain,
 		pageName: argv.page,
 	}).then(function(env) {
 
@@ -331,9 +338,13 @@ if (require.main === module) {
 		}
 
 		var prefix = argv.prefix || null;
+		var domain = argv.domain || null;
 
 		if (argv.apiURL) {
 			prefix = 'customwiki';
+			domain = null;
+		} else if (!(prefix || domain)) {
+			domain = 'en.wikipedia.org';
 		}
 
 		var local = null;
@@ -353,11 +364,12 @@ if (require.main === module) {
 		};
 
 		var parsoidConfig = new ParsoidConfig(
-			{ setup: setup },
-			{ defaultWiki: prefix }
+			{ setup: setup }
 		);
+		parsoidConfig.defaultWiki = prefix ? prefix :
+			parsoidConfig.reverseMwApiMap.get(domain);
 
-		return parse(null, argv, parsoidConfig, prefix).then(function(res) {
+		return parse(null, argv, parsoidConfig, prefix, domain).then(function(res) {
 			var stdout = process.stdout;
 			stdout.write(res.out);
 			if (res.trailingNL && stdout.isTTY) {

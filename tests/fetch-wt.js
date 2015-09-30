@@ -9,32 +9,52 @@ require('../lib/core-upgrade.js');
  */
 
 var fs = require('fs');
+var path = require('path');
 var yargs = require('yargs');
+
 var TemplateRequest = require('../lib/mediawiki.ApiRequest.js').TemplateRequest;
 var ParsoidConfig = require('../lib/mediawiki.ParsoidConfig').ParsoidConfig;
 var MWParserEnvironment = require('../lib/mediawiki.parser.environment.js').MWParserEnvironment;
 var Util = require('../lib/mediawiki.Util.js').Util;
 
 
-var fetch = function(page, revid, options) {
-	var prefix = options.prefix || null;
+var fetch = function(page, revid, opts) {
+	var prefix = opts.prefix || null;
+	var domain = opts.domain || null;
 
-	if (options.apiURL) {
+	if (opts.apiURL) {
 		prefix = 'customwiki';
+		domain = null;
+	} else if (!(prefix || domain)) {
+		domain = 'en.wikipedia.org';
+	}
+
+	var local = null;
+	if (Util.booleanOption(opts.config)) {
+		var p = (typeof (opts.config) === 'string') ?
+			path.resolve('.', opts.config) :
+			path.resolve(__dirname, '../api/localsettings.js');
+		local = require(p);
 	}
 
 	var setup = function(parsoidConfig) {
-		Util.setTemplatingAndProcessingFlags(parsoidConfig, options);
+		if (local && local.setup) {
+			local.setup(parsoidConfig);
+		}
+		Util.setTemplatingAndProcessingFlags(parsoidConfig, opts);
+		Util.setDebuggingFlags(parsoidConfig, opts);
 	};
 
 	var parsoidConfig = new ParsoidConfig(
-		{ setup: setup },
-		{ defaultWiki: prefix }
+		{ setup: setup }
 	);
+	parsoidConfig.defaultWiki = prefix ? prefix :
+		parsoidConfig.reverseMwApiMap.get(domain);
 
 	var env;
 	MWParserEnvironment.getParserEnv(parsoidConfig, null, {
 		prefix: prefix,
+		domain: domain,
 		pageName: page,
 	}).then(function(_env) {
 		env = _env;
@@ -42,8 +62,8 @@ var fetch = function(page, revid, options) {
 			env.resolveTitle(env.normalizeTitle(env.page.name), '') : null;
 		return TemplateRequest.setPageSrcInfo(env, target, revid);
 	}).then(function() {
-		if (options.output) {
-			fs.writeFileSync(options.output, env.page.src, 'utf8');
+		if (opts.output) {
+			fs.writeFileSync(opts.output, env.page.src, 'utf8');
 		} else {
 			console.log(env.page.src);
 		}
@@ -53,14 +73,23 @@ var fetch = function(page, revid, options) {
 var usage = 'Usage: $0 [options] <page-title or rev-id>\n' +
 	'If first argument is numeric, it is used as a rev id; otherwise it is\n' +
 	'used as a title.  Use the --title option for a numeric title.';
-var opts = yargs.usage(usage, {
+var opts = yargs.usage(usage, Util.addStandardOptions({
 	'output': {
 		description: "Write page to given file",
+	},
+	'config': {
+		description: "Path to a localsettings.js file.  Use --config w/ no argument to default to the server's localsettings.js",
+		'default': false,
 	},
 	'prefix': {
 		description: 'Which wiki prefix to use; e.g. "enwiki" for English wikipedia, "eswiki" for Spanish, "mediawikiwiki" for mediawiki.org',
 		'boolean': false,
-		'default': 'enwiki',
+		'default': null,
+	},
+	'domain': {
+		description: 'Which wiki to use; e.g. "en.wikipedia.org" for English wikipedia, "es.wikipedia.org" for Spanish, "www.mediawiki.org" for mediawiki.org',
+		'boolean': false,
+		'default': null,
 	},
 	'revid': {
 		description: 'Page revision to fetch',
@@ -70,12 +99,7 @@ var opts = yargs.usage(usage, {
 		description: 'Page title to fetch (only if revid is not present)',
 		'boolean': false,
 	},
-	'help': {
-		description: 'Show this message',
-		'boolean': true,
-		'default': false,
-	},
-});
+}));
 
 var argv = opts.argv;
 var title = null;
