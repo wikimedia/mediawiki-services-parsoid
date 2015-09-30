@@ -52,13 +52,14 @@ var fetch = function(page, revid, opts) {
 		parsoidConfig.reverseMwApiMap.get(domain);
 
 	var env;
+	var target;
 	MWParserEnvironment.getParserEnv(parsoidConfig, null, {
 		prefix: prefix,
 		domain: domain,
 		pageName: page,
 	}).then(function(_env) {
 		env = _env;
-		var target = page ?
+		target = page ?
 			env.resolveTitle(env.normalizeTitle(env.page.name), '') : null;
 		return TemplateRequest.setPageSrcInfo(env, target, revid);
 	}).then(function() {
@@ -67,6 +68,9 @@ var fetch = function(page, revid, opts) {
 		} else {
 			console.log(env.page.src);
 		}
+	}, function(e) {
+		console.error('Failed to fetch', target, revid);
+		console.error(e);
 	}).done();
 };
 
