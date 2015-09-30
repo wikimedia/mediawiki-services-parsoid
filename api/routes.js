@@ -63,9 +63,14 @@ module.exports = function(parsoidConfig, processLogger) {
 		res.locals.pageName = req.params.title || '';
 		res.locals.oldid = req.params.revision || null;
 
-		// "bodyOnly" flag to return just the body (instead of the entire HTML doc)
+		// "body_only" flag to return just the body (instead of the entire HTML doc)
 		if (version > 2) {
-			res.locals.bodyOnly = !!(req.query.bodyOnly || req.body.bodyOnly);
+			// RESTBase renamed this from 'bodyOnly' to 'body_only' in
+			// 1d9f5c45ec6, 2015-09-09.  Support the old name for compatibility.
+			res.locals.bodyOnly = !!(
+				req.query.body_only || req.body.body_only ||
+				req.query.bodyOnly || req.body.bodyOnly
+			);
 		} else {
 			// in v2 this flag was named "body"
 			res.locals.bodyOnly = !!(req.query.body || req.body.body);
