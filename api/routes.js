@@ -39,7 +39,7 @@ module.exports = function(parsoidConfig, processLogger) {
 	routes.v1Middle = function(req, res, next) {
 		res.locals.apiVersion = 1;
 		res.locals.iwp = req.params[0] || parsoidConfig.defaultWiki || '';
-		res.locals.pageName = req.params[1] || '';
+		res.locals.pageName = req.params[1] || 'Main_Page';
 		res.locals.oldid = req.body.oldid || req.query.oldid || null;
 		// "body" flag to return just the body (instead of the entire HTML doc)
 		res.locals.bodyOnly = !!(req.query.body || req.body.body);
@@ -60,7 +60,8 @@ module.exports = function(parsoidConfig, processLogger) {
 
 		res.locals.apiVersion = version;
 		res.locals.iwp = iwp;
-		res.locals.pageName = req.params.title || '';
+		res.locals.titleMissing = !req.params.title;
+		res.locals.pageName = req.params.title || 'Main_Page';
 		res.locals.oldid = req.params.revision || null;
 
 		// "body_only" flag to return just the body (instead of the entire HTML doc)
@@ -529,9 +530,10 @@ module.exports = function(parsoidConfig, processLogger) {
 			var wikitext = (opts.wikitext && typeof opts.wikitext !== 'string') ?
 				opts.wikitext.body : opts.wikitext;
 			if (typeof wikitext !== 'string') {
-				if (!res.locals.pageName) {
+				if (res.locals.titleMissing) {
 					return apiUtils.fatalRequest(env, 'No title or wikitext was provided.', 400);
 				}
+
 				// We've been given source for this page
 				if (opts.original && opts.original.wikitext) {
 					wikitext = opts.original.wikitext.body;
