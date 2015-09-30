@@ -7,7 +7,7 @@ through its HTTP API that serves HTML (or JSON) responses.
 This guide may become out of date; the latest information should be
 available [on the wiki](https://www.mediawiki.org/wiki/Parsoid/API).
 
-## /v2/{wiki domain}/{html|pagebundle}/{article name}[/{revision}]
+## /{wiki domain}/v3/page/{html|pagebundle}/{article name}[/{revision}]
 
 ### GET
 
@@ -38,13 +38,11 @@ exist - and that you should use the URL in the text of the response instead.
 The least helpful of error codes. We do try to include more information in the
 body of the response, but it may not always be as helpful as we intend.
 
+## /{wiki domain}/v3/transform/{wikitext|html|pagebundle}/to/{wikitext|html|pagebundle}[/{article name}[/{revision}]]
+
 ### POST
 
-If you POST to the API with the same URI scheme, in a form-encoded format
-with a data member named "content", the API will round-trip the HTML in the
-content member to wikitext, and return that. You can use this to do basic
-round-tripping of existing, potentially modified versions of existing
-wiki pages.
+Converts wikitext to html, or vice-versa.
 
 ## /_version/
 
