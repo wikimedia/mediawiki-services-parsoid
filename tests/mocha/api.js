@@ -368,6 +368,20 @@ describe('Parsoid API', function() {
 				.end(done);
 			});
 
+			it('should not require a title when empty wikitext is provided', function(done) {
+				request(api)
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/wikitext/to/html/' :
+					'v2/' + mockDomain + '/html/')
+				.send({
+					wikitext: '',
+				})
+				.expect(validHtmlResponse(function(doc) {
+					doc.body.children.length.should.equal(0);
+				}))
+				.end(done);
+			});
+
 			it('should not require a title when wikitext is provided', function(done) {
 				request(api)
 				.post(version === 3 ?
