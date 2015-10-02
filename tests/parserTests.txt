@@ -24932,7 +24932,7 @@ parsoid={
 !! html/parsoid
 <h2><span about="#mwt1" typeof="mw:Transclusion" data-parsoid="{}" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo [[Category:Foo]]"}},"i":0}}]}'>foo </span><link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1" data-parsoid="{}" /></h2>
 !! wikitext
-== {{echo|foo [[Category:Foo]]}}  ==
+== {{echo|foo [[Category:Foo]]}} ==
 !! end
 
 !! test
@@ -25680,6 +25680,26 @@ parsoid=html2wt
 # --------------------------------------------
 # Tests spec'ing wikitext serialization norms |
 # --------------------------------------------
+
+!! test
+1. Categories should always be serialized on their own line
+!! options
+parsoid=html2wt
+!! html/parsoid
+foo<link rel="mw:PageProp/Category" href="./Category:Foo">bar
+!! wikitext
+foo
+[[Category:Foo]]
+bar
+!! end
+
+!! test
+2. Categories that are part of templates should not introduce a line break
+!! wikitext
+foo {{echo|<span>bar</span> [[Category:baz]]}} bar
+!! html/parsoid
+<p>foo <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;span>bar&lt;/span> [[Category:baz]]"}},"i":0}}]}'>bar</span><span about="#mwt1"> </span><link rel="mw:PageProp/Category" href="./Category:Baz" about="#mwt1" data-parsoid='{"stx":"simple","a":{"href":"./Category:Baz"},"sa":{"href":"Category:baz"}}'/> bar</p>
+!! end
 
 !! test
 Lists: Add space after bullets
