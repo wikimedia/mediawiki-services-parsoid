@@ -5635,7 +5635,7 @@ Parenthesis in external links, w/ transclusion or comment
 !! test
 Serialize <a> tags with invalid link targets as plain text
 !! options
-parsoid=html2wt
+parsoid={ "modes": ["html2wt"], "suppressErrors": true }
 !! html/parsoid
 <a rel="mw:WikiLink" href="[[foo]]">text</a>
 <a rel="mw:WikiLink" href="[[foo]]">*text</a>
@@ -12979,13 +12979,14 @@ parsoid={
 [[Image:Foobar.jpg|<nowiki>|</nowiki>]]
 !! end
 
+# wgExternalLinkTarget not supported by Parsoid
 !! test
 Image with link parameter, wgExternalLinkTarget
 !! wikitext
 [[Image:foobar.jpg|link=http://example.com/]]
 !! config
 wgExternalLinkTarget='foobar'
-!! html
+!! html/php
 <p><a href="http://example.com/" target="foobar" rel="nofollow"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
 </p>
 !! end
@@ -13012,13 +13013,14 @@ wgNoFollowDomainExceptions='example.com'
 </p>
 !! end
 
+# wgExternalLinkTarget not supported by Parsoid
 !! test
 Image with link parameter, wgExternalLinkTarget, unnamed parameter
 !! wikitext
 [[Image:foobar.jpg|link=http://example.com/|Title]]
 !! config
 wgExternalLinkTarget='foobar'
-!! html
+!! html/php
 <p><a href="http://example.com/" title="Title" target="foobar" rel="nofollow"><img alt="Title" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
 </p>
 !! end
@@ -25540,7 +25542,7 @@ parsoid=html2wt
 !! test
 T75121: Infer extension name from typeOf if data-mw is not present
 !! options
-parsoid=html2wt
+parsoid={ "modes": ["html2wt"], "suppressErrors": true }
 !! html/parsoid
 <div typeOf="mw:Extension/foo"></div>
 !! wikitext
@@ -25643,7 +25645,7 @@ parsoid={
 !! test
 Never serialize a-tag as html, regardless of what data-parsoid has to say
 !! options
-parsoid=html2wt
+parsoid={ "modes": ["html2wt"], "suppressErrors": true }
 !! html/parsoid
 <a rel="mw:WikiLink" href="./Foo" title="Foo" data-parsoid='{"stx":"html"}'>Foo</a>
 !! wikitext
@@ -25657,7 +25659,7 @@ parsoid=html2wt
 !! test
 Never serialize a-tag as html, no matter what attributes it has
 !! options
-parsoid=html2wt
+parsoid={ "modes": ["html2wt"], "suppressErrors": true }
 !! html/parsoid
 <a bad='true' href='http://boo.org'><img src='http://boohoo.org' /></a>
 !! wikitext
