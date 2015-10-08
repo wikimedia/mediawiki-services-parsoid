@@ -1376,7 +1376,8 @@ list_item = dtdd / hacky_dl_uses / li
 
 li = bullets:list_char+
      c:nested_block_line
-     &eolf
+     // The inline_break is to check if we've hit a template end delimiter.
+     &(eolf / inline_breaks)
 {
     if (c === null) {
         c = [];
