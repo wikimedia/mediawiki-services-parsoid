@@ -1298,7 +1298,11 @@ table_attribute_name
               // Accept insane tags-inside-attributes as attribute names.
               // The sanitizer will strip and shadow them for roundtripping.
               // Example: <hiddentext>generated with.. </hiddentext>
-              / &generic_tag nb:nested_block_line { return nb; }
+              / &generic_tag nb:nested_block_line
+                // `nested_block_line` can return zero or more blocks.
+                // Assure that we've got at least one, otherwise that plus
+                // below is trouble.
+                &{ return nb.length > 0; } { return nb; }
               / !( space_or_newline / [\0/=>"'] ) c:. { return c; }
         ) { return t; }
       )+ {
