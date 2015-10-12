@@ -20078,7 +20078,7 @@ Edit comment with link
 comment
 !! wikitext
 I like the [[Main Page]] a lot
-!! html
+!! html/php
 I like the <a href="/wiki/Main_Page" title="Main Page">Main Page</a> a lot
 !!end
 
@@ -20088,7 +20088,7 @@ Edit comment with link and link text
 comment
 !! wikitext
 I like the [[Main Page|best pages]] a lot
-!! html
+!! html/php
 I like the <a href="/wiki/Main_Page" title="Main Page">best pages</a> a lot
 !!end
 
@@ -20098,7 +20098,7 @@ Edit comment with link and link text with suffix
 comment
 !! wikitext
 I like the [[Main Page|best page]]s a lot
-!! html
+!! html/php
 I like the <a href="/wiki/Main_Page" title="Main Page">best pages</a> a lot
 !!end
 
@@ -20108,7 +20108,7 @@ Edit comment with section link (non-local, eg in history list)
 comment title=[[Main Page]]
 !! wikitext
 /* External links */ removed bogus entries
-!! html
+!! html/php
 <a href="/wiki/Main_Page#External_links" title="Main Page">→</a>‎<span dir="auto"><span class="autocomment">External links: </span> removed bogus entries</span>
 !!end
 
@@ -20118,7 +20118,7 @@ Edit comment with section link and text before it (non-local, eg in history list
 comment title=[[Main Page]]
 !! wikitext
 pre-comment text /* External links */ removed bogus entries
-!! html
+!! html/php
 pre-comment text <a href="/wiki/Main_Page#External_links" title="Main Page">→</a>‎<span dir="auto"><span class="autocomment">External links: </span> removed bogus entries</span>
 !!end
 
@@ -20128,7 +20128,7 @@ Edit comment with section link (local, eg in diff view)
 comment local title=[[Main Page]]
 !! wikitext
 /* External links */ removed bogus entries
-!! html
+!! html/php
 <a href="#External_links">→</a>‎<span dir="auto"><span class="autocomment">External links: </span> removed bogus entries</span>
 !!end
 
@@ -20140,7 +20140,7 @@ subpage
 title=[[Subpage test]]
 !! wikitext
 Poked at a [[/subpage]] here...
-!! html
+!! html/php
 Poked at a <a href="/wiki/Subpage_test/subpage" title="Subpage test/subpage">/subpage</a> here...
 !!end
 
@@ -20152,7 +20152,7 @@ subpage
 title=[[Subpage test]]
 !! wikitext
 Poked at a [[/subpage|neat little page]] here...
-!! html
+!! html/php
 Poked at a <a href="/wiki/Subpage_test/subpage" title="Subpage test/subpage">neat little page</a> here...
 !!end
 
@@ -20163,7 +20163,7 @@ comment
 title=[[Subpage test]]
 !! wikitext
 Poked at a [[/subpage]] here...
-!! html
+!! html/php
 Poked at a <a href="/index.php?title=/subpage&amp;action=edit&amp;redlink=1" class="new" title="/subpage (page does not exist)">/subpage</a> here...
 !!end
 
@@ -20175,7 +20175,7 @@ local
 title=[[Main Page]]
 !! wikitext
 [[#section]]
-!! html
+!! html/php
 <a href="#section">#section</a>
 !! end
 
@@ -20186,7 +20186,7 @@ comment
 title=[[Main Page]]
 !! wikitext
 [[#section]]
-!! html
+!! html/php
 <a href="/wiki/Main_Page#section" title="Main Page">#section</a>
 !! end
 
@@ -20215,7 +20215,7 @@ comment
 title=[[Main Page]]
 !! wikitext
 /* __hello__world__ */
-!! html
+!! html/php
 <a href="/wiki/Main_Page#hello_world" title="Main Page">→</a>‎<span dir="auto"><span class="autocomment">__hello__world__</span></span>
 !! end
 
