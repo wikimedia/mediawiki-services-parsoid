@@ -516,12 +516,12 @@ ParserTests.prototype.applyChanges = function(item, body, changelist, cb) {
 			case 'UL': wrapperName = 'LI'; break;
 			case 'DL': wrapperName = 'DD'; break;
 			case 'TR':
-				var prev = DU.getPrevElementSibling(n);
+				var prev = n.previousElementSibling;
 				if (prev) {
 					// TH or TD
 					wrapperName = prev.nodeName;
 				} else {
-					var next = DU.getNextElementSibling(n);
+					var next = n.nextElementSibling;
 					if (next) {
 						// TH or TD
 						wrapperName = next.nodeName;
