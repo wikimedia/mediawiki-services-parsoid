@@ -106,6 +106,8 @@ process.on('uncaughtException', function(err) {
 	processLogger.log('fatal', 'uncaught exception', err);
 });
 
+var timer = parsoidConfig.performanceTimer;
+
 if (cluster.isMaster && argv.n > 0) {
 	// Master
 
@@ -135,6 +137,7 @@ if (cluster.isMaster && argv.n > 0) {
 						"Cpu timeout fetching: %s; killing worker %s.",
 						msg.location, pid
 					));
+					timer.count('worker.exit.SIGKILL', '');
 					worker.kill("SIGKILL");
 					spawn();
 				}
@@ -153,6 +156,7 @@ if (cluster.isMaster && argv.n > 0) {
 		if (!worker.suicide) {
 			var pid = worker.process.pid;
 			processLogger.log("warning", util.format("worker %s died (%s), restarting.", pid, signal || code));
+			timer.count('worker.exit.' + (signal || code), '');
 			spawn();
 		}
 	});
@@ -191,12 +195,12 @@ if (cluster.isMaster && argv.n > 0) {
 	});
 
 	// Send heap usage statistics to Graphite at the requested sample rate
-	if (parsoidConfig.performanceTimer && parsoidConfig.heapUsageSampleInterval) {
+	if (timer && parsoidConfig.heapUsageSampleInterval) {
 		setInterval(function() {
 			var heapUsage = process.memoryUsage();
-			parsoidConfig.performanceTimer.timing('heap.rss', '', heapUsage.rss);
-			parsoidConfig.performanceTimer.timing('heap.total', '', heapUsage.heapTotal);
-			parsoidConfig.performanceTimer.timing('heap.used', '', heapUsage.heapUsed);
+			timer.timing('heap.rss', '', heapUsage.rss);
+			timer.timing('heap.total', '', heapUsage.heapTotal);
+			timer.timing('heap.used', '', heapUsage.heapUsed);
 		},  parsoidConfig.heapUsageSampleInterval);
 	}
 
