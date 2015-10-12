@@ -253,6 +253,13 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain)
 			return { env: env, input: fileContents };
 		}
 
+		// Send a message to stderr if there is no input for a while, since the
+		// convention that --page must be used with </dev/null is confusing.
+		var stdinTimer = setTimeout(
+			function() {
+				console.error("Waiting for stdin...");
+			}, 1000);
+
 		return new Promise(function(resolve) {
 			// collect input
 			var inputChunks = [];
@@ -266,6 +273,7 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain)
 				resolve(inputChunks);
 			});
 		}).then(function(inputChunks) {
+			clearTimeout(stdinTimer);
 			// parse page if no input
 			if (inputChunks.length > 0) {
 				return { env: env, input: inputChunks.join("") };
