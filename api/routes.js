@@ -29,7 +29,7 @@ module.exports = function(parsoidConfig, processLogger) {
 	var errOut = function(res, text, code) {
 		var err = new Error(text);
 		err.code = code || 404;
-		err.stack = null;
+		err.suppressLoggingStack = true;
 		processLogger.log('fatal/request', err);
 		apiUtils.sendResponse(res, {}, text, err.code);
 	};
