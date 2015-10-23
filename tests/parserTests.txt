@@ -23281,7 +23281,7 @@ parsoid=html2wt
 <p>this is not a link: http://example.com
 </p>
 !! wikitext
-<nowiki>this is not a link: http://example.com</nowiki>
+this is not a link: <nowiki>http://example.com</nowiki>
 !! end
 
 !! test
@@ -25433,7 +25433,7 @@ parsoid=html2wt
 !! html/parsoid
 <p>http://example.com is not a link.</p>
 !! wikitext
-<nowiki>http://example.com is not a link.</nowiki>
+<nowiki>http://example.com</nowiki> is not a link.
 !! end
 
 !! test
@@ -25443,7 +25443,7 @@ parsoid=html2wt
 !! html/parsoid
 <p><a rel="mw:ExtLink" href="http://example.com">http://example.com</a> http://example.com is not a link.</p>
 !! wikitext
-http://example.com<nowiki> http://example.com is not a link.</nowiki>
+http://example.com <nowiki>http://example.com</nowiki> is not a link.
 !! end
 
 !! test
