@@ -4,30 +4,14 @@ require('../../lib/core-upgrade.js');
 /*global describe, it, Promise*/
 
 var should = require("chai").should();
-
-var MWParserEnvironment = require('../../lib/mediawiki.parser.environment.js').MWParserEnvironment;
-var Util = require('../../lib/mediawiki.Util.js').Util;
 var ParsoidConfig = require('../../lib/mediawiki.ParsoidConfig').ParsoidConfig;
+var helpers = require('./test.helpers.js');
 
 describe('Linter Tests', function() {
 	var parsoidConfig = new ParsoidConfig(null, { defaultWiki: 'enwiki', linting: true });
-
 	var parseWT = function(wt) {
-		return MWParserEnvironment.getParserEnv(parsoidConfig, null, {
-			prefix: 'enwiki',
-			pageName: 'Main_Page',
-		}).then(function(env) {
-			env.setPageSrcInfo(wt);
-
-			var pipeline = env.pipelineFactory;
-			return Promise.promisify(pipeline.parse, false, pipeline)(
-				env, wt, null
-			).then(function(doc) {
-				return env.linter.buffer;
-			}, function(err) {
-				env.log("error", err);
-				throw err;
-			});
+		return helpers.parse(parsoidConfig, wt).then(function(ret) {
+			return ret.env.linter.buffer;
 		});
 	};
 

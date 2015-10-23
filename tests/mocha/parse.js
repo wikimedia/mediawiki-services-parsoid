@@ -5,56 +5,19 @@ require('../../lib/core-upgrade.js');
 
 var should = require("chai").should();
 var url = require('url');
-
-var MWParserEnvironment = require('../../lib/mediawiki.parser.environment.js').MWParserEnvironment;
-var Util = require('../../lib/mediawiki.Util.js').Util;
-var DU = require('../../lib/mediawiki.DOMUtils.js').DOMUtils;
 var ParsoidConfig = require('../../lib/mediawiki.ParsoidConfig').ParsoidConfig;
+var helpers = require('./test.helpers.js');
 
 describe('ParserPipelineFactory', function() {
 	var parsoidConfig = new ParsoidConfig(null, { defaultWiki: 'enwiki' });
+	var parse = function(src, options) {
+		return helpers.parse(parsoidConfig, src, options).then(function(ret) {
+			return ret.doc;
+		});
+	};
+	var serialize = helpers.serialize.bind(null, parsoidConfig);
 
 	describe('parse()', function() {
-
-		var parse = function(src, options) {
-			options = options || {};
-			return MWParserEnvironment.getParserEnv(parsoidConfig, null, {
-				prefix: options.prefix || 'enwiki',
-				pageName: options.pageName || 'Main_Page',
-			}).then(function(env) {
-				if (options.tweakEnv) {
-					env = options.tweakEnv(env) || env;
-				}
-				env.setPageSrcInfo(src);
-				return env.pipelineFactory.parse(
-					env, env.page.src, options.expansions
-				);
-			});
-		};
-
-		var serialize = function(doc, dp, options) {
-			options = options || {};
-			return MWParserEnvironment.getParserEnv(parsoidConfig, null, {
-				prefix: options.prefix || 'enwiki',
-				pageName: options.pageName || 'Main_Page',
-			}).then(function(env) {
-				if (options.tweakEnv) {
-					env = options.tweakEnv(env) || env;
-				}
-				if (!dp) {
-					var dpScriptElt = doc.getElementById('mw-data-parsoid');
-					if (dpScriptElt) {
-						dpScriptElt.parentNode.removeChild(dpScriptElt);
-						dp = JSON.parse(dpScriptElt.text);
-					}
-				}
-				if (dp) {
-					DU.applyDataParsoid(doc, dp);
-				}
-				return DU.serializeDOM(env, doc.body, false);
-			});
-		};
-
 		it('should create a sane document from a short string', function() {
 			return parse('foo').then(function(doc) {
 				doc.should.have.property('nodeName', '#document');
