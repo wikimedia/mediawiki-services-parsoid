@@ -4,6 +4,7 @@
  * Copy this file to config.js and change the values as needed.
  */
 'use strict';
+var path = require('path');
 
 (function() {
 	if (typeof module === 'object') {
@@ -22,7 +23,7 @@
 			interwiki: 'en',
 
 			// By default, use the same configuration as the testing Parsoid server.
-			setup: require('../rttest.localsettings.js').setup,
+			parsoidConfig: path.resolve(__dirname, '../rttest.localsettings.js'),
 
 			// The parsoid API to use. If null, create our own server
 			parsoidURL: null,

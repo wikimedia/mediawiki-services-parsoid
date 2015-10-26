@@ -73,7 +73,7 @@ var getTitle = function(cb) {
 
 var runTest = function(cb, test) {
 	rtTest.runTests(test.title, {
-		setup: config.setup,
+		setup: require(config.parsoidConfig).setup,
 		prefix: test.prefix,
 		rtTestMode: true,
 		parsoidURL: parsoidURL,
@@ -235,7 +235,15 @@ if (module && !module.parent) {
 
 	if (!config.parsoidURL) {
 		// If no Parsoid server was passed, start our own
-		apiServer.startParsoidServer({ quiet: true }).then(function(ret) {
+		apiServer.startParsoidServer({
+			serverArgv: [
+				// We want the cluster master so that timeouts on stuck titles
+				// lead to a restart.
+				'--num-workers', '1',
+				'--config', config.parsoidConfig,
+			],
+			quiet: true,
+		}).then(function(ret) {
 			parsoidURL = ret.url;
 			return getGitCommit().spread(getGitCommitCb);
 		}).done();
