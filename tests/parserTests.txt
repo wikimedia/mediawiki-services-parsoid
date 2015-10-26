@@ -25669,31 +25669,17 @@ parsoid={ "modes": ["html2wt"], "suppressErrors": true }
 [http://boo.org http://boohoo.org]
 !! end
 
-# Misnested marks are an indication that selser can reuse the source
-# but these have snuck through on occasion. See T101768.
+# Misnested is an indication that selser can reuse the source but these have
+# shown to sneak through on occasion. See T101768.
 # The original wikitext here is: [http://test.com [[one]] two three]
 !! test
-Strip span tags added to mark misnested links
+Strip span tags added to mark as misnested
 !! options
 parsoid=html2wt
 !! html/parsoid
 <p data-parsoid='{}'><a rel="mw:ExtLink" href="http://test.com" data-parsoid='{"targetOff":17,"contentOffsets":[17,34]}'></a><a rel="mw:WikiLink" href="./One" title="One" data-parsoid='{"stx":"simple","a":{"href":"./One"},"sa":{"href":"one"},"misnested":true}'>one</a><span data-parsoid='{"misnested":true}'> two three</span></p>
 !! wikitext
 [http://test.com][[one]] two three
-!! end
-
-# Careful while editing this test. There are \u200f characters on all lines
-# in both wikitext and HTML - they shouldn't be stripped.
-!! test
-RTL (\u200f) and LTR (\u200e) unicode chars should not trip up separator handling
-!! options
-parsoid=html2wt
-!! html
-<p>‏<link rel="mw:PageProp/Category" href="./קטגוריה:טקסים" />‏
-‏<link rel="mw:PageProp/Category" href="./קטגוריה:_שיטות_משפט" />‏</p>
-!! wikitext
-‏[[קטגוריה:טקסים]]‏
-‏[[קטגוריה: שיטות משפט]]‏
 !! end
 
 # --------------------------------------------
