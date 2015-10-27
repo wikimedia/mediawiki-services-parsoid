@@ -1680,6 +1680,11 @@ ParserTests.prototype.main = function(options, popts) {
 			domain: 'be-tarask.wikipedia.org',
 			uri: mockAPIServerURL,
 		});
+
+		// Enable sampling to assert it's working while testing.
+		parsoidConfig.loggerSampling = [
+			[/^warning(\/|$)/, 100],
+		];
 	};
 
 	var parsoidConfig = new ParsoidConfig({ setup: setup }, options);

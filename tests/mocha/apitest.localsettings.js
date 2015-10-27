@@ -66,4 +66,9 @@ exports.setup = function(parsoidConfig) {
 		count: function() {},
 		timing: function() {},
 	};
+
+	// Enable sampling to assert it's working while testing.
+	parsoidConfig.loggerSampling = [
+		[/^info(\/|$)/, 100],
+	];
 };
