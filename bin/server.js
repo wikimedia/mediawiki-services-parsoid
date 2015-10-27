@@ -137,7 +137,7 @@ if (cluster.isMaster && argv.n > 0) {
 						"Cpu timeout fetching: %s; killing worker %s.",
 						msg.location, pid
 					));
-					timer.count('worker.exit.SIGKILL', '');
+					if (timer) { timer.count('worker.exit.SIGKILL', ''); }
 					worker.kill("SIGKILL");
 					spawn();
 				}
@@ -156,7 +156,7 @@ if (cluster.isMaster && argv.n > 0) {
 		if (!worker.suicide) {
 			var pid = worker.process.pid;
 			processLogger.log("warning", util.format("worker %s died (%s), restarting.", pid, signal || code));
-			timer.count('worker.exit.' + (signal || code), '');
+			if (timer) { timer.count('worker.exit.' + (signal || code), ''); }
 			spawn();
 		}
 	});
