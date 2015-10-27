@@ -1,11 +1,11 @@
 /** Test cases for the linter */
 'use strict';
-require('../../lib/core-upgrade.js');
+require('../../core-upgrade.js');
 /*global describe, it, Promise*/
 
 var should = require("chai").should();
 
-var ParsoidConfig = require('../../lib/mediawiki.ParsoidConfig').ParsoidConfig;
+var ParsoidConfig = require('../../lib/config/ParsoidConfig.js').ParsoidConfig;
 
 describe('Parsoid Config setup ', function() {
 	it('should sanitize unnacceptable config values to defaults', function() {

@@ -2,7 +2,7 @@
 // This file is used to run a stub API that mimics the MediaWiki interface
 // for the purposes of testing extension expansion.
 "use strict";
-require('../lib/core-upgrade.js');
+require('../core-upgrade.js');
 
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -160,7 +160,7 @@ var availableActions = {
 
 	querySiteinfo: function(body, cb) {
 		// TODO: Read which language should we use from somewhere.
-		cb(null, require('../lib/baseconfig/enwiki.json'));
+		cb(null, require('../lib/config/baseconfig/enwiki.json'));
 	},
 
 	query: function(body, cb) {

@@ -1,5 +1,5 @@
 'use strict';
-require('../lib/core-upgrade.js');
+require('../core-upgrade.js');
 
 /**
  * Manages different servers for testing.
@@ -7,9 +7,9 @@ require('../lib/core-upgrade.js');
  */
 
 var childProcess = require('child_process');
-var Util = require('../lib/mediawiki.Util.js').Util;
-var JSUtils = require('../lib/jsutils.js').JSUtils;
 var path = require('path');
+var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
+var Util = require('../lib/utils/Util.js').Util;
 
 // Keep all started servers in a map indexed by the url
 var forkedServers = new Map();
@@ -140,7 +140,7 @@ var parsoidServerOpts = {
 	iface: "localhost",
 	port: 0,  // Select a port at random.
 	urlPath: "/",
-	filePath: "/../api/server.js",
+	filePath: '/../bin/server.js',
 	serverArgv: [
 		// we want the cluster master so that timeouts on stuck titles lead to a restart.
 		'--num-workers', '1',

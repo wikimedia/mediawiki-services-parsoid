@@ -1,6 +1,6 @@
 'use strict';
-var DU = require('../../lib/mediawiki.DOMUtils.js').DOMUtils;
-var MWParserEnvironment = require('../../lib/mediawiki.parser.environment.js').MWParserEnvironment;
+var DU = require('../../lib/utils/DOMUtils.js').DOMUtils;
+var MWParserEnvironment = require('../../lib/config/MWParserEnvironment.js').MWParserEnvironment;
 
 var parse = function(parsoidConfig, src, options) {
 	options = options || {};

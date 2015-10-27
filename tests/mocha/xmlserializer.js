@@ -2,7 +2,7 @@
 'use strict';
 
 var domino = require('domino');
-var XMLSerializer = require('../../lib/XMLSerializer.js');
+var XMLSerializer = require('../../lib/wt2html/XMLSerializer.js');
 
 var xmlserializer = new XMLSerializer();
 

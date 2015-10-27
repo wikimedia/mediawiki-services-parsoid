@@ -7,19 +7,18 @@
 npm-debug.log
 
 
-api/localsettings.js
+/docs
+localsettings.js
 api/nohup.out
 api/npm-debug.log
-lib/mediawiki.tokenizer.js
-lib/mediawiki.tokenizer.rules.js
+lib/wt2html/mediawiki.tokenizer.js
+lib/wt2html/mediawiki.tokenizer.rules.js
 tests/parserTests.cache
 tests/client/config.js
 tests/server/node_modules
 tests/server/server.settings.js
-/docs
 tests/server/pages.db
 tests/client/config.js
 coverage/
-
 contrib/
 node_modules

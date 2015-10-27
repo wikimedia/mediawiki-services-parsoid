@@ -39,22 +39,22 @@
   },
   "main": "lib/index.js",
   "bin": {
-    "parse.js": "tests/parse.js"
+    "parse.js": "bin/parse.js"
   },
   "scripts": {
     "lint": "npm run dump-tokenizer && npm run jscs && npm run jshint",
     "lint-no-0.8": "node -e 'process.exit(/v0[.][0-8][.]/.test(process.version) ? 0 : 1)' || npm run lint",
-    "start": "node api/server.js",
-    "jshint": "jshint api lib tests",
-    "jscs": "jscs api lib tests",
-    "jscs-fix": "jscs --fix api lib tests",
-    "dump-tokenizer": "node lib/mediawiki.tokenizer.peg.js",
+    "start": "node bin/server.js",
+    "jshint": "jshint bin lib tests",
+    "jscs": "jscs bin lib tests",
+    "jscs-fix": "jscs --fix bin lib tests",
+    "dump-tokenizer": "node lib/wt2html/tokenizer.js",
     "mocha": "mocha --opts tests/mocha/mocha.opts tests/mocha",
-    "parserTests": "node tests/parserTests.js --wt2html --wt2wt --html2wt --html2html --selser --no-color --quiet --blacklist",
-    "roundtrip": "node tests/roundtrip-test.js 'Barack Obama' && node tests/roundtrip-test.js 'Parkour'",
+    "parserTests": "node bin/parserTests.js --wt2html --wt2wt --html2wt --html2html --selser --no-color --quiet --blacklist",
+    "roundtrip": "node bin/roundtrip-test.js 'Barack Obama' && node bin/roundtrip-test.js 'Parkour'",
     "test": "npm run lint-no-0.8 && npm run parserTests && npm run mocha",
     "cover-mocha": "istanbul cover _mocha --dir ./coverage/mocha --  --opts tests/mocha/mocha.opts tests/mocha",
-    "cover-parserTests": "istanbul cover tests/parserTests.js --dir ./coverage/parserTests -- --wt2html --wt2wt --html2wt --html2html --selser --no-color --quiet --blacklist",
+    "cover-parserTests": "istanbul cover bin/parserTests.js --dir ./coverage/parserTests -- --wt2html --wt2wt --html2wt --html2html --selser --no-color --quiet --blacklist",
     "coverage": "npm run cover-mocha && npm run cover-parserTests && istanbul report",
     "coveralls": "cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
     "doc": "jsduck --config jsduck.json"

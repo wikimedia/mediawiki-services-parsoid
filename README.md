@@ -22,7 +22,6 @@ Run tests:
 
 Configure your Parsoid web service:
 
-	cd api
 	cp localsettings.js.example localsettings.js
 	# Tweak localsettings.js
 
