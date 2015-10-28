@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-require('../../lib/core-upgrade.js');
+require('../../core-upgrade.js');
 
 /**
  * A client for testing round-tripping of articles.
@@ -12,8 +12,8 @@ var cluster = require('cluster');
 var qs = require('querystring');
 var exec = require('child_process').exec;
 var apiServer = require('../apiServer.js');
-var Util = require('../../lib/mediawiki.Util.js').Util;
-var JSUtils = require('../../lib/jsutils.js').JSUtils;
+var Util = require('../../lib/utils/Util.js').Util;
+var JSUtils = require('../../lib/utils/jsutils.js').JSUtils;
 
 var commit;
 var ctime;
@@ -24,7 +24,7 @@ var repoPath = __dirname;
 
 var config = require(process.argv[2] || './config.js');
 var parsoidURL = config.parsoidURL;
-var rtTest = require('../roundtrip-test.js');
+var rtTest = require('../../bin/roundtrip-test.js');
 
 var getTitle = function(cb) {
 	var requestOptions = {
