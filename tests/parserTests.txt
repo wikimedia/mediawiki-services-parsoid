@@ -14470,7 +14470,7 @@ parsoid=wt2html
 * {{echo|a
 [[Category:Foo]]}}
 !! html/parsoid
-<ul><li> <span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a\n[[Category:Foo]]"}},"i":0}}]}'>a</span><span about="#mwt1">
+<ul><li> <span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a\n[[Category:Foo]]"}},"i":0}}]}'>a
 </span><link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1" data-parsoid='{"stx":"simple","a":{"href":"./Category:Foo"},"sa":{"href":"Category:Foo"}}'/></li></ul>
 !! end
 
