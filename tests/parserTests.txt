@@ -24342,6 +24342,19 @@ Properly encapsulate empty-content transclusions in fosterable positions
 </table>
 !! end
 
+!! test
+Always encapsulate foster box when template range is expanded to table
+!! options
+parsoid=wt2wt
+!! wikitext
+{|
+hello
+{{OpenTable}}
+|}
+!! html/parsoid
+
+!! end
+
 !!test
 Support <object> element with .data attribute
 !!options
