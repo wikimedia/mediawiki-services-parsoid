@@ -12,7 +12,7 @@ require('../core-upgrade.js');
      $BRANCH is a branch name for the patch to mediawiki/core (ie, 'pt-sync')
 
    $ cd $PARSOID
-   $ tests/sync-parserTests.js $MEDIAWIKI $BRANCH
+   $ tools/sync-parserTests.js $MEDIAWIKI $BRANCH
    $ cd $MEDIAWIKI
    $ git rebase master
      ... resolve conflicts, sigh ...
@@ -23,8 +23,8 @@ require('../core-upgrade.js');
      ... time passes, eventually your patch is merged to core ...
 
    $ cd $PARSOID
-   $ tests/fetch-parserTests.txt.js --force
-   $ tests/parserTests.js --rewrite-blacklist
+   $ tools/fetch-parserTests.txt.js --force
+   $ bin/parserTests.js --rewrite-blacklist
    $ git add -u
    $ git commit -m "Sync parserTests with core"
    $ git review
