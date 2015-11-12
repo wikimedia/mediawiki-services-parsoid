@@ -155,7 +155,7 @@ describe('Parsoid API', function() {
 					res.statusCode.should.equal(200);
 					res.headers.should.have.property('content-type');
 					res.headers['content-type'].should.equal(
-						'text/html;profile="mediawiki.org/specs/html/1.1.0";charset=utf-8'
+						'text/html; charset=utf-8; profile="mediawiki.org/specs/html/1.1.0"'
 					);
 					var doc = domino.createDocument(res.text);
 					if (expectFunc) {
@@ -172,14 +172,14 @@ describe('Parsoid API', function() {
 					res.body.html.should.have.property('headers');
 					res.body.html.headers.should.have.property('content-type');
 					res.body.html.headers['content-type'].should.equal(
-						'text/html;profile="mediawiki.org/specs/html/1.1.0";charset=utf-8'
+						'text/html; charset=utf-8; profile="mediawiki.org/specs/html/1.1.0"'
 					);
 					res.body.html.should.have.property('body');
 					res.body.should.have.property('data-parsoid');
 					res.body['data-parsoid'].should.have.property('headers');
 					res.body['data-parsoid'].headers.should.have.property('content-type');
 					res.body['data-parsoid'].headers['content-type'].should.equal(
-						'application/json;profile="mediawiki.org/specs/data-parsoid/0.0.1"'
+						'application/json; charset=utf-8; profile="mediawiki.org/specs/data-parsoid/0.0.1"'
 					);
 					res.body['data-parsoid'].should.have.property('body');
 					var doc = domino.createDocument(res.body.html.body);
