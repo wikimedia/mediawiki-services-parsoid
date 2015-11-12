@@ -911,7 +911,23 @@ describe('Parsoid API', function() {
 				.end(done);
 			});
 
-			it('should apply extra normalizations', function(done) {
+			it('should apply extra normalizations (scrub_wikitext)', function(done) {
+				request(api)
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/html/to/wikitext/' :
+					'v2/' + mockDomain + '/wt/')
+				.send({
+					html: '<h2></h2>',
+					scrub_wikitext: true,
+					original: { title: 'Doesnotexist' },
+				})
+				.expect(validWikitextResponse(
+					''
+				))
+				.end(done);
+			});
+
+			it('should apply extra normalizations (scrubWikitext)', function(done) {
 				request(api)
 				.post(version === 3 ?
 					mockDomain + '/v3/transform/html/to/wikitext/' :

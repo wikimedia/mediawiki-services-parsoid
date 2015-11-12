@@ -467,7 +467,7 @@ function parsoidPost(env, options, cb) {
 		if (options.oldid) {
 			uri += '/' + options.oldid;
 		}
-		httpOptions.body.scrubWikitext = true;
+		httpOptions.body.scrub_wikitext = true;
 	} else {  // wt2html
 		uri += 'wikitext/to/pagebundle/' + title;
 	}
