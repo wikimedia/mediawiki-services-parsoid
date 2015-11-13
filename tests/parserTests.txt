@@ -25725,6 +25725,35 @@ parsoid={
 !! end
 
 !! test
+Headings: Replace <br/> with a single whitespace char (when scrubWikitext = true)
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html/parsoid
+<h2>foo<br/>bar</h2>
+<h2>foo <span><br/>bar</span> baz</h2>
+!! wikitext
+== foo bar ==
+
+== foo <span> bar</span> baz ==
+!! end
+
+!! test
+Headings: Replace <br/> with a single whitespace char (when scrubWikitext = false)
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": false
+}
+!! html/parsoid
+<h2>foo<br/>bar</h2>
+!! wikitext
+== foo<br> bar ==
+!! end
+
+!! test
 1. WT Quote Tags: suppress newly created empty style tags
 !! options
 parsoid={
