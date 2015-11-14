@@ -26258,6 +26258,20 @@ parsoid=html2wt
 &lt;nowiki&gt;''foo''&lt;/nowiki&gt;
 !! end
 
+# This is meant to be an interim fix while we go about figuring out
+# how to not introduce these trailing <nowiki/>s in the first place.
+!! test
+T115717: Strip trailing <nowiki/>s
+!! options
+parsoid=html2wt
+!! html/parsoid
+<p>x<meta typeof="mw:Placeholder" data-parsoid='{"src":"&lt;nowiki/>"}'/><meta typeof="mw:Placeholder" data-parsoid='{"src":"&lt;nowiki/>"}'/>
+y</p>
+!! wikitext
+x
+y
+!! end
+
 # ---------------------------------------------------
 # End of tests spec'ing wikitext serialization norms |
 # ---------------------------------------------------
