@@ -1322,13 +1322,13 @@ table_attribute_value
   }
 
 // Attribute value, quoted variants can span multiple lines.
-// Missing end quote: accept > look-ahead as heuristic.
+// Missing end quote: accept /> look-ahead as heuristic.
 // These need to be kept in sync with the attribute_preprocessor_text_*
 generic_att_value
-  = s:$(space_or_newline* "'") t:attribute_preprocessor_text_single? q:$("'" / &'>') {
+  = s:$(space_or_newline* "'") t:attribute_preprocessor_text_single? q:$("'" / &('/'? '>')) {
       return tu.getAttributeValueAndSource(input, t, startOffset() + s.length, endOffset() - q.length);
     }
-  / s:$(space_or_newline* '"') t:attribute_preprocessor_text_double? q:$('"' / &'>') {
+  / s:$(space_or_newline* '"') t:attribute_preprocessor_text_double? q:$('"' / &('/'? '>')) {
       return tu.getAttributeValueAndSource(input, t, startOffset() + s.length, endOffset() - q.length);
     }
   / s:$space_or_newline* t:attribute_preprocessor_text !'=' {
@@ -2014,43 +2014,42 @@ extlink_preprocessor_text
 attribute_preprocessor_text
   = r:( $(!inline_breaks [^=<>{}\n\r&'"\t/ \-])+
   / !inline_breaks
-    ! '/>'
-    s:(
-          directive
-        / [&%/{}\-]
+    !'/>'
+    s:( directive
+      / [&%/{}\-]
     ) { return s; }
-  )+
-  {
-      return tu.flattenString(r);
+  )+ {
+    return tu.flattenString(r);
   }
 
-// The stop set is '> which matches generic_att_value.
+// The stop set is '/> which matches generic_att_value.
 attribute_preprocessor_text_single
-  = r:( $[^{}&<\-'>]+
-  / !inline_breaks s:(
-      directive
-    / [{}&<\-] ) { return s; }
-  )*
-  {
-      return tu.flattenString(r);
+  = r:( $[^{}&<\-'/>]+
+  / !inline_breaks
+    !'/>'
+    s:( directive
+      / [{}&<\-/]
+    ) { return s; }
+  )* {
+    return tu.flattenString(r);
   }
 
-// The stop set is "> which matches generic_att_value.
+// The stop set is "/> which matches generic_att_value.
 attribute_preprocessor_text_double
-  = r:( $[^{}&<\-">]+
-  / !inline_breaks s:(
-      directive
-    / [{}&<\-] ) { return s; }
-  )*
-  {
-      return tu.flattenString(r);
+  = r:( $[^{}&<\-"/>]+
+  / !inline_breaks
+    !'/>'
+    s:( directive
+      / [{}&<\-/]
+    ) { return s; }
+  )* {
+    return tu.flattenString(r);
   }
 
 // Variants with the entire attribute on a single line
 table_attribute_preprocessor_text
   = r:( $[^=<>\n\r&'"\t \[\]{}/\-|!]+
         / !inline_breaks
-          !'/>'
           t:( directive
               / !(space_or_newline / [\[=>|!]) c:. { return c; }
           ) { return t; }

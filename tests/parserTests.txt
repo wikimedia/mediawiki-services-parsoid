@@ -23715,6 +23715,19 @@ HTML tag with broken attribute value quoting
 !! end
 
 !! test
+Self-closed tag with broken attribute value quoting
+!! options
+parsoid=wt2html,html2html
+!! wikitext
+<div title="Hello world />Foo
+!! html/php+tidy
+<div title="Hello world"></div>
+<p>Foo</p>
+!! html/parsoid
+<div title="Hello world " data-parsoid='{"stx":"html","selfClose":true}'></div><p>Foo</p>
+!! end
+
+!! test
 Table with broken attribute value quoting
 !! wikitext
 {|
