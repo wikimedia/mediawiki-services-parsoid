@@ -1,10 +1,14 @@
 language: node_js
 
 node_js:
+    # Your days are numbered.
     - "0.8"
-    - "0.10"
-    - "0.12"
-    - "iojs"
+    # Current production value.
+    - "0.10.25"
+    # Aspiring contender. See T119228.
+    - "4.2"
+    # From the nvm docs, "this installs the latest version of node".
+    - "node"
 
 before_install:
     - NODE_VERSION=$(node -e 'console.log(process.version.replace(/[.][0-9]+$/, ""))')
