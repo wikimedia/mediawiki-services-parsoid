@@ -11,7 +11,7 @@ var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
 var Util = require('../lib/utils/Util.js').Util;
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
 var TemplateRequest = require('../lib/mw/ApiRequest.js').TemplateRequest;
-var ParsoidConfig = require('../lib/config/ParsoidConfig').ParsoidConfig;
+var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
 var MWParserEnvironment = require('../lib/config/MWParserEnvironment.js').MWParserEnvironment;
 var Diff = require('../lib/utils/Diff.js').Diff;
 

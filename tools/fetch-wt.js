@@ -13,7 +13,7 @@ var path = require('path');
 var yargs = require('yargs');
 
 var TemplateRequest = require('../lib/mw/ApiRequest.js').TemplateRequest;
-var ParsoidConfig = require('../lib/config/ParsoidConfig').ParsoidConfig;
+var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
 var MWParserEnvironment = require('../lib/config/MWParserEnvironment.js').MWParserEnvironment;
 var Util = require('../lib/utils/Util.js').Util;
 

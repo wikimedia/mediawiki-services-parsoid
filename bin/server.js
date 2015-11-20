@@ -62,7 +62,7 @@ if (argv.v) {
 }
 
 var ParsoidService = require("../lib/api/ParsoidService.js").ParsoidService;
-var ParsoidConfig = require("../lib/config/ParsoidConfig").ParsoidConfig;
+var ParsoidConfig = require("../lib/config/ParsoidConfig.js").ParsoidConfig;
 var Logger = require("../lib/logger/Logger.js").Logger;
 var PLogger = require("../lib/logger/ParsoidLogger.js");
 var ParsoidLogger = PLogger.ParsoidLogger;

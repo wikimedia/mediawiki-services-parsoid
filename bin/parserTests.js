@@ -30,7 +30,7 @@ var Diff = require('../lib/utils/Diff.js').Diff;
 
 // Fetch up some of our wacky parser bits...
 var MWParserEnvironment = require('../lib/config/MWParserEnvironment.js').MWParserEnvironment;
-var ParsoidConfig = require('../lib/config/ParsoidConfig').ParsoidConfig;
+var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
 
 var booleanOption = Util.booleanOption; // shortcut
 
