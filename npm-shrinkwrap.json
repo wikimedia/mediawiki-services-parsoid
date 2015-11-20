@@ -315,9 +315,9 @@
       }
     },
     "core-js": {
-      "version": "0.8.4",
-      "from": "https://registry.npmjs.org/core-js/-/core-js-0.8.4.tgz",
-      "resolved": "https://registry.npmjs.org/core-js/-/core-js-0.8.4.tgz"
+      "version": "1.2.6",
+      "from": "https://registry.npmjs.org/core-js/-/core-js-1.2.6.tgz",
+      "resolved": "https://registry.npmjs.org/core-js/-/core-js-1.2.6.tgz"
     },
     "coveralls": {
       "version": "2.11.2",

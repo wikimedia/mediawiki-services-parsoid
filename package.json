@@ -9,7 +9,7 @@
     "bunyan": "~1.0.0",
     "compression": "~1.5.2",
     "connect-busboy": "~0.0.2",
-    "core-js": "~0.8.4",
+    "core-js": "~1.2.6",
     "diff": "~1.0.7",
     "domino": "~1.0.20",
     "entities": "~1.1.1",
