@@ -9,42 +9,6 @@ var DU = require('../../lib/utils/DOMUtils.js').DOMUtils;
 var ParsoidConfig = require('../../lib/config/ParsoidConfig.js').ParsoidConfig;
 var helpers = require('./test.helpers.js');
 
-/*
- * For every test with a 'wt' property, provide the 'spec' property that is
- * an array of DSR specs that need to be verified on the parsed output of 'wt'.
- * Every spec should have:
- *   selector: a CSS selector for picking a DOM node in the parsed output.
- *   dsrContent: a 3-element array. The first element is the wikitext corresponding
- *               to the wikiext substring between dsr[0]..dsr[1]. The second and
- *               third elements are the opening/closing wikitext tag for that node.
- */
-var simpleParaTests = [
-	{
-		wt: 'a',
-		specs: [ { selector: 'body > p', dsrContent: ['a', '', ''] } ],
-	},
-	{
-		wt: 'a\n\nb',
-		specs: [
-			{ selector: 'body > p:nth-child(1)', dsrContent: ['a', '', ''] },
-			{ selector: 'body > p:nth-child(2)', dsrContent: ['b', '', ''] },
-		],
-	},
-];
-
-var listTests = [
-	{
-		wt: '*a\n*b',
-		specs: [
-			{ selector: 'ul', dsrContent: ['*a\n*b', '', ''] },
-			{ selector: 'ul > li:nth-child(1)', dsrContent: ['*a', '*', ''] },
-			{ selector: 'ul > li:nth-child(2)', dsrContent: ['*b', '*', ''] },
-		],
-	},
-];
-
-var allTests = simpleParaTests.concat(listTests);
-
 var parsoidConfig = new ParsoidConfig(null, { defaultWiki: 'enwiki' });
 var parse = function(src, options) {
 	return helpers.parse(parsoidConfig, src, options).then(function(ret) {
@@ -70,13 +34,98 @@ function validateSpec(wt, doc, spec) {
 	wt.substring(dsr[1] - dsr[3], dsr[1]).should.equal(spec.dsrContent[2]);
 }
 
-describe('DSR assignment', function() {
-	allTests.forEach(function(test) {
-		var wt = test.wt;
-		it('should be valid for ' + JSON.stringify(wt), function() {
-			return parse(wt).then(function(doc) {
-				test.specs.forEach(validateSpec.bind(null, wt, doc));
+function runTests(name, tests) {
+	describe('DSR assignment: ' + name, function() {
+		tests.forEach(function(test) {
+			var wt = test.wt;
+			it('should be valid for ' + JSON.stringify(wt), function() {
+				return parse(wt).then(function(doc) {
+					test.specs.forEach(validateSpec.bind(null, wt, doc));
+				});
 			});
 		});
 	});
-});
+}
+
+/*
+ * For every test with a 'wt' property, provide the 'spec' property that is
+ * an array of DSR specs that need to be verified on the parsed output of 'wt'.
+ * Every spec should have:
+ *   selector: a CSS selector for picking a DOM node in the parsed output.
+ *   dsrContent: a 3-element array. The first element is the wikitext corresponding
+ *               to the wikiext substring between dsr[0]..dsr[1]. The second and
+ *               third elements are the opening/closing wikitext tag for that node.
+ */
+var paraTests = [
+	{
+		wt: 'a',
+		specs: [ { selector: 'body > p', dsrContent: ['a', '', ''] } ],
+	},
+	{
+		wt: 'a\n\nb',
+		specs: [
+			{ selector: 'body > p:nth-child(1)', dsrContent: ['a', '', ''] },
+			{ selector: 'body > p:nth-child(2)', dsrContent: ['b', '', ''] },
+		],
+	},
+];
+runTests('Paragraphs', paraTests);
+
+var listTests = [
+	{
+		wt: '*a\n*b',
+		specs: [
+			{ selector: 'ul', dsrContent: ['*a\n*b', '', ''] },
+			{ selector: 'ul > li:nth-child(1)', dsrContent: ['*a', '*', ''] },
+			{ selector: 'ul > li:nth-child(2)', dsrContent: ['*b', '*', ''] },
+		],
+	},
+	{
+		wt: '*a\n**b\n***c\n*d',
+		specs: [
+			{ selector: 'body > ul', dsrContent: ['*a\n**b\n***c\n*d', '', ''] },
+			{ selector: 'body > ul > li:first-child', dsrContent: ['*a\n**b\n***c', '*', ''] },
+			{ selector: 'body > ul > li:first-child > ul', dsrContent: ['**b\n***c', '', ''] },
+			{ selector: 'body > ul > li:first-child > ul > li:first-child', dsrContent: ['**b\n***c', '**', ''] },
+			{ selector: 'body > ul > li:first-child > ul > li:first-child > ul > li', dsrContent: ['***c', '***', ''] },
+			{ selector: 'body > ul > li:nth-child(2)', dsrContent: ['*d', '*', ''] },
+		],
+	},
+];
+runTests('Lists', listTests);
+
+var headingTests = [
+];
+runTests('Headings', headingTests);
+
+var quoteTests = [
+];
+runTests('Quotes', quoteTests);
+
+var tableTests = [
+];
+runTests('Tables', tableTests);
+
+var preTests = [
+];
+runTests('Indent-Pre', preTests);
+
+var htmlEltTests = [
+];
+runTests('HTML elements', htmlEltTests);
+
+var magicWordTests = [
+];
+runTests('Magic Words', magicWordTests);
+
+var simpleTransclusionTests = [
+];
+runTests('Simple Transclusions', simpleTransclusionTests);
+
+var citeTests = [
+];
+runTests('Cite', citeTests);
+
+var extensionTests = [
+];
+runTests('Extensions', extensionTests);
