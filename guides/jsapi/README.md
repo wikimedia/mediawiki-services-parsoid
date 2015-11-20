@@ -12,7 +12,20 @@ order to fluently express asynchronous operations.  The library also
 exports vanilla [`Promise`]s if you wish to maintain compatibility
 with old versions of `node` at the cost of a little bit of readability.
 
-Use as a wikitext parser is straightforward (where `text` is
+Since many methods in the API return [`Promise`]s, we've also provided
+a [`Promise`]-aware REPL, that will wait for a promise to be resolved
+before printing its value.  This can be started from the
+shell using:
+
+	node -e 'require("parsoid").repl()'
+
+Use `"./"` instead of `"parsoid"` if you are running this from a
+checked-out repository.  Code examples below which contain lines
+starting with `>` show sessions using this REPL.  (You may also
+wish to look in `tests/mocha/jsapi.js` for examples using a more
+traditional promise-chaining style.)
+
+Use of Parsoid as a wikitext parser is straightforward (where `text` is
 wikitext input):
 
 	#/usr/bin/node --harmony-generators
@@ -29,8 +42,8 @@ wikitext input):
 	main().done();
 
 As you can see, there is a little bit of boilerplate needed to get the
-asynchronous machinery started.  Future code examples will be assumed
-to replace the body of the `main()` method above.
+asynchronous machinery started.  The body of the `main()` method can
+be replaced with your code.
 
 The `pdoc` variable above holds a [`PDoc`] object, which has
 helpful methods to filter and manipulate the document.  If you want
@@ -46,29 +59,29 @@ For example:
 
 	> var text = "I has a template! {{foo|bar|baz|eggs=spam}} See it?\n";
 	> var pdoc = yield Parsoid.parse(text, { pdoc: true });
-	> console.log(String(pdoc));
+	> console.log(yield pdoc.toWikitext());
 	I has a template! {{foo|bar|baz|eggs=spam}} See it?
 	> var templates = pdoc.filterTemplates();
-	> console.log(templates.map(String));
+	> console.log(yield Promise.map(templates, Parsoid.toWikitext));
 	[ '{{foo|bar|baz|eggs=spam}}' ]
 	> var template = templates[0];
 	> console.log(template.name);
 	foo
 	> template.name = 'notfoo';
-	> console.log(String(template));
+	> console.log(yield template.toWikitext());
 	{{notfoo|bar|baz|eggs=spam}}
 	> console.log(template.params.map(function(p) { return p.name; }));
 	[ '1', '2', 'eggs' ]
-	> console.log(template.get(1).value);
+	> console.log(yield template.get(1).value.toWikitext());
 	bar
-	> console.log(template.get("eggs").value);
+	> console.log(yield template.get("eggs").value.toWikitext());
 	spam
 
 Getting nested templates is trivial:
 
 	> var text = "{{foo|bar={{baz|{{spam}}}}}}";
 	> var pdoc = yield Parsoid.parse(text, { pdoc: true });
-	> console.log(pdoc.filterTemplates().map(String));
+	> console.log(yield Promise.map(pdoc.filterTemplates(), Parsoid.toWikitext));
 	[ '{{foo|bar={{baz|{{spam}}}}}}',
 	  '{{baz|{{spam}}}}',
 	  '{{spam}}' ]
@@ -82,15 +95,15 @@ templates manually. This is possible because the
 	> var text = "{{foo|this {{includes a|template}}}}";
 	> var pdoc = yield Parsoid.parse(text, { pdoc: true });
 	> var templates = pdoc.filterTemplates({ recursive: false });
-	> console.log(templates.map(String));
+	> console.log(yield Promise.map(templates, Parsoid.toWikitext));
 	[ '{{foo|this {{includes a|template}}}}' ]
 	> var foo = templates[0];
-	> console.log(String(foo.get(1).value));
+	> console.log(yield foo.get(1).value.toWikitext());
 	this {{includes a|template}}
 	> var more = foo.get(1).value.filterTemplates();
-	> console.log(more.map(String));
+	> console.log(yield Promise.map(more, Parsoid.toWikitext));
 	[ '{{includes a|template}}' ]
-	> console.log(String(more[0].get(1).value));
+	> console.log(yield more[0].get(1).value.toWikitext());
 	template
 
 Templates can be easily modified to add, remove, or alter params.
@@ -108,13 +121,14 @@ white space:
 	...        template.name = 'bar-stub';
 	...    }
 	... });
-	> console.log(String(pdoc));
+	> console.log(yield pdoc.toWikitext());
 	{{cleanup|date = July 2012}} '''Foo''' is a [[bar]]. {{bar-stub}}
 
 At any time you can convert the `pdoc` into HTML conforming to the
 [MediaWiki DOM spec] (by referencing the
 [`document`](#!/api/PDoc-property-document) property) or into wikitext (by
-invoking [`toString()`](#!/api/PNodeList-method-toString)).  This allows you
+invoking [`toWikitext()`](#!/api/PNodeList-method-toWikitext), which
+returns a [`Promise`] for the wikitext string).  This allows you
 to save the page using either standard API methods or the RESTBase API
 (once [T101501](https://phabricator.wikimedia.org/T101501) is resolved).
 
