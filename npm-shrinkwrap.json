@@ -2728,16 +2728,9 @@
       "resolved": "git+https://github.com/tstarling/pegjs.git#9162b1e114e41992dd0fdafa24d2574a0b8a836a"
     },
     "prfun": {
-      "version": "2.0.0",
-      "from": "https://registry.npmjs.org/prfun/-/prfun-2.0.0.tgz",
-      "resolved": "https://registry.npmjs.org/prfun/-/prfun-2.0.0.tgz",
-      "dependencies": {
-        "es6-shim": {
-          "version": "0.33.3",
-          "from": "https://registry.npmjs.org/es6-shim/-/es6-shim-0.33.3.tgz",
-          "resolved": "https://registry.npmjs.org/es6-shim/-/es6-shim-0.33.3.tgz"
-        }
-      }
+      "version": "2.1.2",
+      "from": "https://registry.npmjs.org/prfun/-/prfun-2.1.2.tgz",
+      "resolved": "https://registry.npmjs.org/prfun/-/prfun-2.1.2.tgz"
     },
     "request": {
       "version": "2.63.0",
