@@ -22,7 +22,7 @@ describe('Parsoid JS API', function() {
 	});
 });
 
-describe('Examples from guides/jsapi', function() {
+describe.skip('Examples from guides/jsapi', function() {
 	it('converts empty wikitext to HTML', function() {
 		return Parsoid.parse('', { pdoc: true}).then(function(pdoc) {
 			pdoc.should.have.property('document');
@@ -92,7 +92,7 @@ describe('Examples from guides/jsapi', function() {
 	});
 });
 
-describe('Further examples of PDoc API', function() {
+describe.skip('Further examples of PDoc API', function() {
 	it('is easy to mutate templates (2)', function() {
 		// Works even on nested templates!
 		var text = "{{echo|{{cleanup}} '''Foo''' is a [[bar]].}} {{uncategorized}}";
