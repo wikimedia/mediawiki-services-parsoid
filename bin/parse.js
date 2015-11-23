@@ -11,9 +11,10 @@ var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
 var TemplateRequest = require('../lib/mw/ApiRequest.js').TemplateRequest;
 var Util = require('../lib/utils/Util.js').Util;
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
-var yargs = require('yargs');
+var Promise = require('prfun');
 var fs = require('fs');
 var path = require('path');
+var yargs = require('yargs');
 
 process.on('SIGUSR2', function() {
 	var heapdump = require('heapdump');

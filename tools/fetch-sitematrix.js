@@ -7,7 +7,9 @@
 'use strict';
 require('../core-upgrade.js');
 
+var Promise = require('prfun');
 var fs = require('fs');
+
 var writeFile = Promise.promisify(fs.writeFile, false, fs);
 var request = Promise.promisify(require('request'), true);
 var downloadUrl = 'https://en.wikipedia.org/w/api.php?action=sitematrix&format=json';
