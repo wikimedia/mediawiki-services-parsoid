@@ -1,9 +1,8 @@
 /** Test cases for lib/mediawiki.Util.js */
 'use strict';
 require('../../core-upgrade.js');
-/*global describe, it, Promise*/
+/*global describe, it*/
 
-var should = require("chai").should();
 var url = require('url');
 var ParsoidConfig = require('../../lib/config/ParsoidConfig.js').ParsoidConfig;
 var helpers = require('./test.helpers.js');

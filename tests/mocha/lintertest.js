@@ -1,9 +1,8 @@
 /** Test cases for the linter */
 'use strict';
 require('../../core-upgrade.js');
-/*global describe, it, Promise*/
+/*global describe, it*/
 
-var should = require("chai").should();
 var ParsoidConfig = require('../../lib/config/ParsoidConfig.js').ParsoidConfig;
 var helpers = require('./test.helpers.js');
 

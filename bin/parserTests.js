@@ -16,10 +16,7 @@ require('../core-upgrade.js');
 var apiServer = require('../tests/apiServer.js');
 var async = require('async');
 var colors = require('colors');
-var childProc = require('child_process');
-var fork = childProc.fork;
 var fs = require('fs');
-var path = require('path');
 var yargs = require('yargs');
 var Alea = require('alea');
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
@@ -950,7 +947,6 @@ ParserTests.prototype.processTest = function(item, options, mode, endCb) {
 	var testTasks = [];
 
 	// Some useful booleans
-	var startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser';
 	var startsAtHtml = mode === 'html2html' || mode === 'html2wt';
 	var endsAtWikitext = mode === 'wt2wt' || mode === 'selser' || mode === 'html2wt';
 	var endsAtHtml = mode === 'wt2html' || mode === 'html2html';
@@ -1893,9 +1889,7 @@ ParserTests.prototype.buildTasks = function(item, modes, options) {
  * @method
  */
 ParserTests.prototype.processCase = function(i, options, err) {
-	var ix;
 	var item;
-	var cases = this.cases;
 	var targetModes = options.modes;
 	var nextCallback = this.processCase.bind(this, i + 1, options);
 

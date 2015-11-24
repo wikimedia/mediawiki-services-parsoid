@@ -7,7 +7,6 @@ require('../../core-upgrade.js');
  */
 
 var http = require('http');
-var request = require('request');
 var cluster = require('cluster');
 var qs = require('querystring');
 var exec = require('child_process').exec;
@@ -32,7 +31,6 @@ var getTitle = function(cb) {
 			config.server.port + '/title?commit=' + commit + '&ctime=' + encodeURIComponent(ctime),
 		method: 'GET',
 	};
-	var retries = 10;
 
 	var callback = function(error, response, body) {
 		if (error || !response) {
