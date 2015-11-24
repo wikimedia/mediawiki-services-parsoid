@@ -1,37 +1,18 @@
 {
 	"predef": [
-		"ve",
-
-		"setImmediate",
-
-		"QUnit",
-
 		"Map",
-		"Set",
-		"Promise"
+		"Promise",
+		"Set"
 	],
-
 	"bitwise": true,
-	"laxbreak": true,
 	"curly": true,
 	"eqeqeq": true,
-	"immed": true,
 	"latedef": true,
-	"newcap": false,
+	"laxbreak": true,
+	"loopfunc": true,
 	"noarg": true,
-	"noempty": true,
-	"nonew": true,
-	"regexp": false,
-	"undef": true,
-	"strict": true,
-	"trailing": true,
-
-	"smarttabs": true,
-	"multistr": true,
-
 	"node": true,
-
-	"nomen": false,
-	"loopfunc": true
-	//"onevar": true
+	"nonew": true,
+	"strict": true,
+	"undef": true
 }
