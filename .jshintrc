@@ -7,6 +7,7 @@
 	"bitwise": true,
 	"curly": true,
 	"eqeqeq": true,
+	"freeze": true,
 	"latedef": true,
 	"laxbreak": true,
 	"loopfunc": true,
