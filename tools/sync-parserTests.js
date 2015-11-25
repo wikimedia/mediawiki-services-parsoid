@@ -117,8 +117,8 @@ q.push(function(callback) {
 	fs.readFile(pPARSERTESTS, function(err, data) {
 		if (err) { return cleanup(function() { callback(err); }); }
 		console.log('>>>', 'cp', pPARSERTESTS, mwPARSERTESTS);
-		fs.writeFile(mwPARSERTESTS, data, function(err) {
-			if (err) { return cleanup(function() { callback(err); }); }
+		fs.writeFile(mwPARSERTESTS, data, function(err2) {
+			if (err2) { return cleanup(function() { callback(err2); }); }
 			callback();
 		});
 	});

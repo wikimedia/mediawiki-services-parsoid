@@ -187,9 +187,9 @@ function setupEndpoints(settings, app, mysql, db, hbs) {
 				dbStmt += dbPagePerfStatsEnd;
 
 				// Get maximum the last 10 commits.
-				db.query(dbStmt, [ prefix, title, 10 ], function(err, rows) {
-					if (err) {
-						res.send(err.toString(), 500);
+				db.query(dbStmt, [ prefix, title, 10 ], function(err2, rows) {
+					if (err2) {
+						res.send(err2.toString(), 500);
 					} else if (!rows || rows.length === 0) {
 						res.send("No performance results found for page.", 200);
 					} else {

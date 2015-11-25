@@ -29,7 +29,7 @@ var historyUrl = {
 	host: downloadUrl.host,
 	path: '/history/mediawiki%2Fcore.git/HEAD/tests%2Fparser%2FparserTests.txt',
 };
-var targetName = __dirname + "/../tests/parserTests.txt";
+var DEFAULT_TARGET = __dirname + "/../tests/parserTests.txt";
 
 var computeSHA1 = function(targetName) {
 	var existsSync = fs.existsSync || path.existsSync; // node 0.6 compat
@@ -71,12 +71,12 @@ var fetch = function(url, targetName, gitCommit, cb) {
 	});
 };
 
-var isUpToDate = function() {
+var isUpToDate = function(targetName) {
 	return (expectedSHA1 === computeSHA1(targetName));
 };
 
-var checkAndUpdate = function() {
-	if (!isUpToDate()) {
+var checkAndUpdate = function(targetName) {
+	if (!isUpToDate(targetName)) {
 		fetch(downloadUrl, targetName, latestCommit);
 	}
 };
@@ -84,6 +84,7 @@ var checkAndUpdate = function() {
 var forceUpdate = function() {
 	console.log('Fetching parserTests.txt history from mediawiki/core');
 	var findMostRecentCommit, downloadCommit, updateHashes;
+	var targetName = DEFAULT_TARGET;
 
 	// fetch the history page
 	https.get(historyUrl, function(result) {
@@ -129,8 +130,7 @@ var forceUpdate = function() {
 
 if (typeof module === 'object' && require.main !== module) {
 	module.exports = {
-		checkAndUpdate: checkAndUpdate,
-		isUpToDate: isUpToDate,
+		isUpToDate: isUpToDate.bind(null, DEFAULT_TARGET),
 		latestCommit: latestCommit,
 	};
 } else {
@@ -140,6 +140,6 @@ if (typeof module === 'object' && require.main !== module) {
 				"parserTests.txt is normally no longer needed.");
 		forceUpdate();
 	} else {
-		checkAndUpdate();
+		checkAndUpdate(DEFAULT_TARGET);
 	}
 }

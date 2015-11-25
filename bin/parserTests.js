@@ -714,7 +714,7 @@ ParserTests.prototype.generateChanges = function(options, item, body, cb) {
 		});
 	}
 
-	function genChangesInternal(item, node) {
+	function genChangesInternal(node) {
 		// Seed the random-number generator based on the item title
 		var changelist = [];
 		var children = node.childNodes;
@@ -726,10 +726,11 @@ ParserTests.prototype.generateChanges = function(options, item, body, cb) {
 
 			if (domSubtreeIsEditable(self.env, child)) {
 				if (nodeIsUneditable(child) || random() < 0.5) {
-					changeType = genChangesInternal(
-						// ensure the subtree has a seed
-						{ seed: '' + random.uint32() },
-						child);
+					// This call to random is a hack to preserve the current
+					// determined state of our blacklist entries after a
+					// refactor.
+					random.uint32();
+					changeType = genChangesInternal(child);
 				} else {
 					if (!child.setAttribute) {
 						// Text or comment node -- valid changes: 2, 3, 4
@@ -751,7 +752,7 @@ ParserTests.prototype.generateChanges = function(options, item, body, cb) {
 	var numAttempts = 0;
 	do {
 		numAttempts++;
-		changeTree = genChangesInternal(item, body);
+		changeTree = genChangesInternal(body);
 	} while (
 		numAttempts < 1000 &&
 		(changeTree.length === 0 || self.isDuplicateChangeTree(item.selserChangeTrees, changeTree))
@@ -1784,11 +1785,11 @@ ParserTests.prototype.reportStartOfTests = function() {
  *
  * @method
  */
-ParserTests.prototype.buildTasks = function(item, modes, options) {
+ParserTests.prototype.buildTasks = function(item, targetModes, options) {
 	var tasks = [];
 	var self = this;
-	for (var i = 0; i < modes.length; i++) {
-		if (modes[i] === 'selser' && options.numchanges &&
+	for (var i = 0; i < targetModes.length; i++) {
+		if (targetModes[i] === 'selser' && options.numchanges &&
 			options.selser !== 'noauto' && !options.changetree) {
 			var newitem;
 
@@ -1846,7 +1847,7 @@ ParserTests.prototype.buildTasks = function(item, modes, options) {
 						// Make sure we aren't reusing the one from manual changes
 						console.assert(newitem.changetree === undefined);
 						newitem.seed = changesIndex + '';
-						this.processTest(newitem, options, modes[modeIndex], function(err) {
+						this.processTest(newitem, options, targetModes[modeIndex], function(err) {
 							if (this.isDuplicateChangeTree(item.selserChangeTrees, newitem.changes)) {
 								// Once we get a duplicate change tree, we can no longer
 								// generate and run new tests.  So, be done now!
@@ -1865,20 +1866,20 @@ ParserTests.prototype.buildTasks = function(item, modes, options) {
 				}.bind(this, i, j));
 			}
 		} else {
-			if (modes[i] === 'selser' && options.selser === 'noauto') {
+			if (targetModes[i] === 'selser' && options.selser === 'noauto') {
 				// Manual changes were requested on the command line,
 				// check that the item does have them.
 				if (item.options.parsoid && item.options.parsoid.changes) {
 					// If it does, we need to clone the item so that previous
 					// results don't clobber this one.
-					tasks.push(this.processTest.bind(this, Util.clone(item), options, modes[i]));
+					tasks.push(this.processTest.bind(this, Util.clone(item), options, targetModes[i]));
 				} else {
 					// If it doesn't have manual changes, just skip it.
 					continue;
 				}
 			} else {
 				// A non-selser task, we can reuse the item.
-				tasks.push(this.processTest.bind(this, item, options, modes[i]));
+				tasks.push(this.processTest.bind(this, item, options, targetModes[i]));
 			}
 		}
 	}
@@ -1997,9 +1998,9 @@ ParserTests.prototype.processCase = function(i, options, err) {
 							// Convert to our enwiki.. format
 							prefix = prefix + 'wiki';
 						}
-						this.env.switchToConfig(prefix, function(err) {
-							if (err) {
-								return nextCallback(err);
+						this.env.switchToConfig(prefix, function(err2) {
+							if (err2) {
+								return nextCallback(err2);
 							}
 
 							// TODO: set language variant

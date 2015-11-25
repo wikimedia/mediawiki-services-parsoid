@@ -495,8 +495,8 @@ function parsoidPost(env, options, cb) {
 				}
 				env.profile.size[prefix + 'raw'] = str.length;
 				// Compress to record the gzipped size
-				zlib.gzip(str, function(err, gzippedbuf) {
-					if (err) { return reject(err); }
+				zlib.gzip(str, function(e, gzippedbuf) {
+					if (e) { return reject(e); }
 					env.profile.size[prefix + 'gzip'] = gzippedbuf.length;
 					resolve(body);
 				});
@@ -555,8 +555,8 @@ function runTests(title, options, formatter, cb) {
 		err = new Error('No domain or prefix provided.');
 	}
 	var env;
-	var closeFormatter = function(err, results) {
-		return formatter(err, prefix, title, results, env && env.profile);
+	var closeFormatter = function(e, results) {
+		return formatter(e, prefix, title, results, env && env.profile);
 	};
 	var parsoidOptions = {
 		uri: options.parsoidURL,
@@ -576,17 +576,17 @@ function runTests(title, options, formatter, cb) {
 	}).then(function() {
 		data.oldWt = env.page.src;
 		// First, fetch the HTML for the requested page's wikitext
-		var options = Object.assign({
+		var opts = Object.assign({
 			wt2html: true,
 			recordSizes: true,
 			data: { wikitext: data.oldWt },
 		}, parsoidOptions);
-		return parsoidPost(env, options);
+		return parsoidPost(env, opts);
 	}).then(function(body) {
 		data.oldHTML = body.html;
 		data.oldDp = body['data-parsoid'];
 		// Now, request the wikitext for the obtained HTML
-		var options = Object.assign({
+		var opts = Object.assign({
 			html2wt: true,
 			recordSizes: true,
 			data: {
@@ -597,7 +597,7 @@ function runTests(title, options, formatter, cb) {
 				},
 			},
 		}, parsoidOptions);
-		return parsoidPost(env, options);
+		return parsoidPost(env, opts);
 	}).then(function(body) {
 		data.newWt = body;
 		return roundTripDiff(env, parsoidOptions, data);
@@ -610,7 +610,7 @@ function runTests(title, options, formatter, cb) {
 		var newDocument = DU.parseHTML(data.oldHTML.body);
 		var newNode = newDocument.createComment('rtSelserEditTestComment');
 		newDocument.body.appendChild(newNode);
-		var options = Object.assign({
+		var opts = Object.assign({
 			html2wt: true,
 			useSelser: true,
 			oldid: env.page.meta.revision.revid,
@@ -624,7 +624,7 @@ function runTests(title, options, formatter, cb) {
 			},
 			profilePrefix: 'selser',
 		}, parsoidOptions);
-		return parsoidPost(env, options);
+		return parsoidPost(env, opts);
 	}).then(function(body) {
 		var out = body;
 

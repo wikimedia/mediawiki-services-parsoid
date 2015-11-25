@@ -14,6 +14,7 @@
 	"noarg": true,
 	"node": true,
 	"nonew": true,
+	"shadow": "outer",
 	"strict": true,
 	"undef": true,
 	"unused": "vars"

@@ -199,11 +199,13 @@ startsAtWikitext = function(argv, env, input) {
 };
 
 var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain) {
+	var env;
 	return ParserEnv.getParserEnv(parsoidConfig, {
 		prefix: prefix,
 		domain: domain,
 		pageName: argv.page,
-	}).then(function(env) {
+	}).then(function(_env) {
+		env = _env;
 
 		// fetch templates from enwiki by default.
 		if (argv.wgScriptPath) {
@@ -244,22 +246,21 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain)
 				'(--oldtext or --oldtextfile). Selser requires that.');
 		}
 
-		if (typeof (input) === 'string') {
-			return { env: env, input: input };
+		if (typeof input === 'string') {
+			return input;
 		}
 
 		if (argv.inputfile) {
 			// read input from the file, then process
 			var fileContents = fs.readFileSync(argv.inputfile, 'utf8');
-			return { env: env, input: fileContents };
+			return fileContents;
 		}
 
 		// Send a message to stderr if there is no input for a while, since the
 		// convention that --page must be used with </dev/null is confusing.
-		var stdinTimer = setTimeout(
-			function() {
-				console.error("Waiting for stdin...");
-			}, 1000);
+		var stdinTimer = setTimeout(function() {
+			console.error('Waiting for stdin...');
+		}, 1000);
 
 		return new Promise(function(resolve) {
 			// collect input
@@ -277,25 +278,17 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain)
 			clearTimeout(stdinTimer);
 			// parse page if no input
 			if (inputChunks.length > 0) {
-				return { env: env, input: inputChunks.join("") };
+				return inputChunks.join('');
 			} else if (argv.html2wt || argv.html2html) {
 				env.log("fatal", "Pages start at wikitext.");
 			}
 			var target = env.resolveTitle(env.normalizeTitle(env.page.name), '');
 			return TemplateRequest
 				.setPageSrcInfo(env, target, argv.oldid)
-				.then(function() {
-					return { env: env, input: env.page.src };
-				});
+				.then(function() { return env.page.src; });
 		});
-
-	}).then(function(res) {
-		var env = res.env;
-		var input = res.input;
-		if (typeof input === "string") {
-			input = input.replace(/\r/g, '');
-		}
-
+	}).then(function(str) {
+		str = str.replace(/\r/g, '');
 		if (argv.html2wt || argv.html2html) {
 			var dp;
 			if (argv.dpin.length > 0) {
@@ -303,11 +296,10 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain)
 			} else if (argv.dpinfile) {
 				dp = JSON.parse(fs.readFileSync(argv.dpinfile, 'utf8'));
 			}
-			return startsAtHTML(argv, env, input, dp);
+			return startsAtHTML(argv, env, str, dp);
 		} else {
-			return startsAtWikitext(argv, env, input);
+			return startsAtWikitext(argv, env, str);
 		}
-
 	});
 };
 

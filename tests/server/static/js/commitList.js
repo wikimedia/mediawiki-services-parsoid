@@ -4,7 +4,7 @@
 
 	var numRows, newHash, oldHash;
 
-	var setCompareLinks = function(oldHash, newHash) {
+	var setCompareLinks = function() {
 		$('.compare-reg').attr('href', '/regressions/between/' + oldHash + '/' + newHash);
 		$('.compare-fix').attr('href', '/topfixes/between/' + oldHash + '/' + newHash);
 	};
@@ -22,7 +22,7 @@
 		numRows = $('.revisions tr').length;
 		newHash = $('.revisions tr:eq(0) .hash').attr('title');
 		oldHash = $('.revisions tr:eq(1) .hash').attr('title');
-		setCompareLinks(oldHash, newHash);
+		setCompareLinks();
 		button('new', 0).attr('checked', 'checked');
 		button('old', 1).attr('checked', 'checked');
 		buttonDisplay('old', 0, 'hidden');
@@ -38,7 +38,7 @@
 		} else {
 			newHash = this.value;
 		}
-		setCompareLinks(oldHash, newHash);
+		setCompareLinks();
 		var index = $(this).closest('tr').index();
 		for (var i = 0; i < numRows; i++) {
 			if (name === 'old' && i < index) {
