@@ -61,7 +61,7 @@ if (argv.v) {
 	process.exit(0);
 }
 
-var ParsoidService = require("../lib/api/ParsoidService.js").ParsoidService;
+var ParsoidService = require("../lib/api/ParsoidService.js");
 var ParsoidConfig = require("../lib/config/ParsoidConfig.js").ParsoidConfig;
 var Logger = require("../lib/logger/Logger.js").Logger;
 var PLogger = require("../lib/logger/ParsoidLogger.js");
@@ -204,6 +204,7 @@ if (cluster.isMaster && argv.n > 0) {
 		},  parsoidConfig.heapUsageSampleInterval);
 	}
 
-	var app = new ParsoidService(parsoidConfig, processLogger);
-
+	ParsoidService.init(parsoidConfig, processLogger).catch(function(e) {
+		processLogger.log('fatal', e);
+	});
 }
