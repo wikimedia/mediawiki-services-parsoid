@@ -6,7 +6,6 @@ var Util = require('../../lib/utils/Util.js').Util;
 var apiServer = require('../apiServer.js');
 var request = require('supertest');
 var domino = require('domino');
-var url = require('url');
 var path = require('path');
 var should = require('chai').should();
 

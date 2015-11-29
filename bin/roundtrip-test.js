@@ -2,12 +2,9 @@
 'use strict';
 require('../core-upgrade.js');
 
-var request = require('request');
 var yargs = require('yargs');
 var domino = require('domino');
-var url = require('url');
 var zlib = require('zlib');
-var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
 var Util = require('../lib/utils/Util.js').Util;
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
 var TemplateRequest = require('../lib/mw/ApiRequest.js').TemplateRequest;
@@ -45,8 +42,6 @@ var plainFormat = function(err, prefix, title, results, profile) {
 				syntactic: 0,
 			},
 		};
-		var semanticDiffs = 0;
-		var syntacticDiffs = 0;
 		for (var i = 0; i < results.length; i++) {
 			var result = results[i];
 			output += testDivider;

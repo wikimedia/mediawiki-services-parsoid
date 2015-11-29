@@ -26,7 +26,6 @@ require('../core-upgrade.js');
 var cluster = require('cluster');
 var path = require('path');
 var util = require('util');
-var fs = require('fs');
 
 // process arguments
 var opts = require("yargs")
@@ -146,7 +145,6 @@ if (cluster.isMaster && argv.n > 0) {
 	};
 
 	// Fork workers
-	var worker;
 	processLogger.log("info", util.format("initializing %s workers", argv.n));
 	for (var i = 0; i < argv.n; i++) {
 		spawn();

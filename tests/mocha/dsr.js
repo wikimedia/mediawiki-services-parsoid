@@ -1,10 +1,9 @@
 'use strict';
-/*global describe, it, before*/
+/*global describe, it*/
 
 require('../../core-upgrade.js');
 
 var should = require("chai").should();
-var url = require('url');
 var DU = require('../../lib/utils/DOMUtils.js').DOMUtils;
 var ParsoidConfig = require('../../lib/config/ParsoidConfig.js').ParsoidConfig;
 var helpers = require('./test.helpers.js');

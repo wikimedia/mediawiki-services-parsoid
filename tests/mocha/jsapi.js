@@ -1,5 +1,5 @@
 /** Testing the JavaScript API. */
-/*global describe, it, before*/
+/*global describe, it*/
 "use strict";
 
 var Parsoid = require('../../');
