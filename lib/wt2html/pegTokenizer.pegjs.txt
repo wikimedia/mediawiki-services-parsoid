@@ -794,9 +794,8 @@ wikilink
           lcontent = { content: [] };
       }
 
-      if (target === null) {
-        var src = text();
-        return [src];
+      if (target === null || lcontent.pipetrick) {
+        return [text()];
       }
 
       var obj = new SelfclosingTagTk('wikilink');
@@ -810,7 +809,6 @@ wikilink
       obj.dataAttribs = {
           tsr: tsrOffsets(),
           src: text(),
-          pipetrick: lcontent.pipetrick,
       };
       return [obj];
   }

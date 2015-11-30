@@ -7125,6 +7125,17 @@ Piped link with multiple pipe characters in link text
 !! end
 
 !! test
+Piped link with no link text
+!! wikitext
+[[Thomas Bek (bishop of St David's)|]]
+!! html/php
+<p>[[Thomas Bek (bishop of St David's)|]]
+</p>
+!! html/parsoid
+<p>[[Thomas Bek (bishop of St David's)|]]</p>
+!! end
+
+!! test
 Broken link
 !! wikitext
 [[Zigzagzogzagzig]]
