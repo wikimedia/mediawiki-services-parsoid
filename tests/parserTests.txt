@@ -14245,7 +14245,7 @@ cat
 pst
 !! wikitext
 [[Category:MediaWiki User's Guide|]]
-!! html
+!! html/php
 [[Category:MediaWiki User's Guide|MediaWiki User's Guide]]
 !! end
 
@@ -14256,7 +14256,7 @@ cat
 pst
 !! wikitext
 [[Category:Foo (bar)|]]
-!! html
+!! html/php
 [[Category:Foo (bar)|Foo]]
 !! end
 
@@ -14267,7 +14267,7 @@ cat
 pst
 !! wikitext
 123[[Category:Foo]]456
-!! html
+!! html/php
 123[[Category:Foo]]456
 !! end
 
@@ -14278,7 +14278,7 @@ cat
 pst
 !! wikitext
 [[Category:{{echo|Foo}}]]
-!! html
+!! html/php
 [[Category:{{echo|Foo}}]]
 !! end
 
@@ -14289,7 +14289,7 @@ cat
 pst
 !! wikitext
 [[Category:Foo|{{echo|Bar}}]]
-!! html
+!! html/php
 [[Category:Foo|{{echo|Bar}}]]
 !! end
 
@@ -14300,7 +14300,7 @@ cat
 pst
 !! wikitext
 [[Category:{{echo|Foo}}|{{echo|Bar}}]]
-!! html
+!! html/php
 [[Category:{{echo|Foo}}|{{echo|Bar}}]]
 !! end
 
@@ -19756,7 +19756,7 @@ Tildes in comments
 pst
 !! wikitext
 <!-- ~~~~ -->
-!! html
+!! html/php
 <!-- ~~~~ -->
 !! end
 
