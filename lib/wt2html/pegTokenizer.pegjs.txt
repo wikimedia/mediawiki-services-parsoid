@@ -9,6 +9,7 @@
     var pegIncludes = options.pegIncludes;
     var DU = pegIncludes.DOMUtils;
     var Util = pegIncludes.Util;
+    var JSUtils = pegIncludes.JSUtils;
     var PegTokenizer = pegIncludes.PegTokenizer;
     var defines = pegIncludes.defines;
     var constants = pegIncludes.constants;
@@ -22,6 +23,7 @@
     var NlTk = defines.NlTk;
     var CommentTk = defines.CommentTk;
     var EOFTk = defines.EOFTk;
+    var lastItem = JSUtils.lastItem;
 
     var inlineBreaks = tu.inlineBreaks;
     var stops = new tu.SyntaxStops();
@@ -326,7 +328,7 @@ h = & "=" // guard, to make sure '='+ will match.
         }
         if (e.length > level) {
             var extras2 = e.substr(0, e.length - level);
-            var lastElem = c[c.length - 1];
+            var lastElem = lastItem(c);
             if (lastElem.constructor === String) {
                 c[c.length - 1] += extras2;
             } else {
@@ -561,7 +563,7 @@ autourl
     // yank trailing punctuation out of this match.
     var url = tu.flattenStringlist([proto, addr].concat(path));
     // only need to look at last element; HTML entities are strip-proof.
-    var last = url[url.length - 1];
+    var last = lastItem(url);
     var trim = 0;
     if (last && last.constructor === String) {
       var strip = ',;\\.:!?';
@@ -1946,8 +1948,8 @@ include_limits =
     // templates, so we shouldn't ever be tokenizing inInclude.
     // Last line should be empty (except for comments)
     if (incl !== "includeonly" && stops.onStack("sol_il")) {
-      var last = inclContent.split("\n");
-      if (!/^(<!--([^-]|-(?!->))*-->)*$/.test(last[last.length - 1])) {
+      var last = lastItem(inclContent.split('\n'));
+      if (!/^(<!--([^-]|-(?!->))*-->)*$/.test(last)) {
         return false;
       }
     }
