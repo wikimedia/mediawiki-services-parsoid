@@ -41,7 +41,14 @@
 					"ParsoidConfig",
 					"Title",
 					"Util",
-					"WikiConfig"
+					"WikiConfig",
+					"TokenHandler",
+					"TokenAccumulator",
+					"TokenTransformManager",
+					"SyncTokenTransformManager",
+					"AsyncTokenTransformManager",
+					"AttributeTransformManager",
+					"Frame"
 				]
 			},
 			{
