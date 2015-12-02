@@ -20192,11 +20192,15 @@ title=[[Main Page]]
 
 !! test
 Anchor starting with underscore
+!! options
+title=[[Foo]]
 !! wikitext
 [[#_ref|One]]
-!! html
+!! html/php
 <p><a href="#_ref">One</a>
 </p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Foo#_ref" data-parsoid='{"stx":"piped","a":{"href":"./Foo#_ref"},"sa":{"href":"#_ref"}}'>One</a></p>
 !! end
 
 !! test
