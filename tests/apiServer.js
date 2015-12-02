@@ -8,7 +8,8 @@ require('../core-upgrade.js');
 
 var childProcess = require('child_process');
 var path = require('path');
-var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
+var Promise = require('prfun');
+
 var Util = require('../lib/utils/Util.js').Util;
 
 // Keep all started servers in a map indexed by the url
@@ -53,86 +54,85 @@ var exitOnProcessTerm = function(res) {
 
 /**
  * Starts a server on passed port or a random port if none passed.
- * The callback will get the URL of the started server.
+ * @return {Promise}
+ *   A promise which resolves to an object with two properties: `url`
+ *   (the url of the started server) and `child` (the ChildProcess object
+ *   for the started server).  The promise only resolves after the server
+ *   is up and running (a 'startup' message has been received).
  */
-var startServer = function(opts, cb) {
-	// Don't create callback chains when invoked recursively
-	if (!cb || !cb.promise) { cb = JSUtils.mkPromised(cb); }
+var startServer = function(opts) {
+	return new Promise(function(resolve, reject) {
 
-	if (!opts) {
-		throw "Please provide server options.";
-	}
-
-	var forkedServer = { opts: opts };
-	var port = opts.port;
-
-	if (port === undefined) {
-		// Let the OS choose a random open port.  We'll forward it up the chain
-		// with the startup message.
-		port = 0;
-	}
-
-	// Handle debug port (borrowed from 'createWorkerProcess' in node's
-	// own lib/cluster.js)
-	var debugPort = process.debugPort + 1;
-	var execArgv = opts.execArgv || process.execArgv;
-	execArgv.forEach(function(arg, i) {
-		var match = arg.match(/^(--debug|--debug-(brk|port))(=\d+)?$/);
-		if (match) {
-			// defaults to stopping for debugging only in the parent process;
-			// set debugBrkInChild in the options if you want to stop for
-			// debugging at the first line of the child process as well.
-			var which = (match[1] !== '--debug-brk' || opts.debugBrkInChild) ?
-				match[1] : '--debug';
-			execArgv[i] = which + '=' + debugPort;
+		if (!opts) {
+			throw "Please provide server options.";
 		}
-	});
 
-	if (!opts.quiet) {
-		console.log("Starting %s server.", opts.serverName);
-	}
+		var forkedServer = { opts: opts };
+		var port = opts.port;
 
-	forkedServer.child = childProcess.fork(
-		__dirname + opts.filePath,
-		opts.serverArgv,
-		{
-			env: {
-				PORT: port,
-				INTERFACE: opts.iface,
-				NODE_PATH: process.env.NODE_PATH,
-				PARSOID_MOCKAPI_URL: opts.mockUrl || '',
-			},
-			execArgv: execArgv,
+		if (port === undefined) {
+			// Let the OS choose a random open port.  We'll forward it up the chain
+			// with the startup message.
+			port = 0;
 		}
-	);
 
-	var url;
-
-	// If it dies on its own, restart it.
-	forkedServer.child.on('exit', function() {
-		if (exiting) {
-			return;
-		}
-		if (url) {
-			console.warn('Restarting server at: ', url);
-			forkedServers.delete(url);
-		}
-		startServer(opts, cb);
-	});
-
-	forkedServer.child.on('message', function(m) {
-		if (m && m.type === 'startup') {
-			url = 'http://' + opts.iface + ':' + m.port.toString() + opts.urlPath;
-			opts.port = m.port;
-			forkedServers.set(url, forkedServer);
-			if (typeof cb === 'function') {
-				cb(null, { url: url, child: forkedServer.child });
-				cb = null; // prevent invoking cb again on restart
+		// Handle debug port (borrowed from 'createWorkerProcess' in node's
+		// own lib/cluster.js)
+		var debugPort = process.debugPort + 1;
+		var execArgv = opts.execArgv || process.execArgv;
+		execArgv.forEach(function(arg, i) {
+			var match = arg.match(/^(--debug|--debug-(brk|port))(=\d+)?$/);
+			if (match) {
+				// defaults to stopping for debugging only in the parent process;
+				// set debugBrkInChild in the options if you want to stop for
+				// debugging at the first line of the child process as well.
+				var which = (match[1] !== '--debug-brk' || opts.debugBrkInChild) ?
+					match[1] : '--debug';
+				execArgv[i] = which + '=' + debugPort;
 			}
-		}
-	});
+		});
 
-	return cb.promise;
+		if (!opts.quiet) {
+			console.log("Starting %s server.", opts.serverName);
+		}
+
+		forkedServer.child = childProcess.fork(
+			__dirname + opts.filePath,
+			opts.serverArgv,
+			{
+				env: {
+					PORT: port,
+					INTERFACE: opts.iface,
+					NODE_PATH: process.env.NODE_PATH,
+					PARSOID_MOCKAPI_URL: opts.mockUrl || '',
+				},
+				execArgv: execArgv,
+			}
+		);
+
+		var url;
+
+		// If it dies on its own, restart it.
+		forkedServer.child.on('exit', function() {
+			if (exiting) {
+				return;
+			}
+			if (url) {
+				console.warn('Restarting server at: ', url);
+				forkedServers.delete(url);
+			}
+			resolve(startServer(opts));
+		});
+
+		forkedServer.child.on('message', function(m) {
+			if (m && m.type === 'startup') {
+				url = 'http://' + opts.iface + ':' + m.port.toString() + opts.urlPath;
+				opts.port = m.port;
+				forkedServers.set(url, forkedServer);
+				resolve({ url: url, child: forkedServer.child });
+			}
+		});
+	});
 };
 
 var parsoidServerOpts = {
@@ -149,10 +149,10 @@ var parsoidServerOpts = {
 	serverEnv: {},
 };
 
-// Returns a Promise; the `cb` parameter is optional (for legacy use)
-var startParsoidServer = function(opts, cb) {
+// Returns a Promise. (see startServer)
+var startParsoidServer = function(opts) {
 	opts = !opts ? parsoidServerOpts : Util.extendProps(opts, parsoidServerOpts);
-	return startServer(opts, cb);
+	return startServer(opts);
 };
 
 var mockAPIServerOpts = {
@@ -165,16 +165,20 @@ var mockAPIServerOpts = {
 	serverEnv: { silent: true },
 };
 
-// Returns a Promise; the `cb` parameter is optional (for legacy use)
-var startMockAPIServer = function(opts, cb) {
+// Returns a Promise (see startServer)
+var startMockAPIServer = function(opts) {
 	opts = !opts ? mockAPIServerOpts : Util.extendProps(opts, mockAPIServerOpts);
-	return startServer(opts, cb);
+	return startServer(opts);
 };
 
 module.exports = {
+	// These functions aren't currently used outside this module, so
+	// don't export them for now.
+	/*
 	startServer: startServer,
 	stopServer: stopServer,
 	stopAllServers: stopAllServers,
+	*/
 	startParsoidServer: startParsoidServer,
 	startMockAPIServer: startMockAPIServer,
 	exitOnProcessTerm: exitOnProcessTerm,
