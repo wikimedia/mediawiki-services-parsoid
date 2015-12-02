@@ -20207,7 +20207,7 @@ title=[[Foo]]
 Id starting with underscore
 !! wikitext
 <div id="_ref"></div>
-!! html
+!! html/*
 <div id="_ref"></div>
 
 !! end
