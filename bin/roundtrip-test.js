@@ -566,7 +566,7 @@ function runTests(title, options, formatter, cb) {
 	var data = {};
 	return Promise[err ? 'reject' : 'resolve'](err).then(function() {
 		return MWParserEnvironment.getParserEnv(
-			parsoidConfig, null, { prefix: prefix, pageName: title }
+			parsoidConfig, { prefix: prefix, pageName: title }
 		);
 	}).then(function(_env) {
 		env = _env;

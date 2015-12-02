@@ -4,7 +4,7 @@ var MWParserEnvironment = require('../../lib/config/MWParserEnvironment.js').MWP
 
 var parse = function(parsoidConfig, src, options) {
 	options = options || {};
-	return MWParserEnvironment.getParserEnv(parsoidConfig, null, {
+	return MWParserEnvironment.getParserEnv(parsoidConfig, {
 		prefix: options.prefix || 'enwiki',
 		pageName: options.pageName || 'Main_Page',
 	}).then(function(env) {
@@ -23,7 +23,7 @@ var parse = function(parsoidConfig, src, options) {
 
 var serialize = function(parsoidConfig, doc, dp, options) {
 	options = options || {};
-	return MWParserEnvironment.getParserEnv(parsoidConfig, null, {
+	return MWParserEnvironment.getParserEnv(parsoidConfig, {
 		prefix: options.prefix || 'enwiki',
 		pageName: options.pageName || 'Main_Page',
 	}).then(function(env) {

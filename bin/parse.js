@@ -199,7 +199,7 @@ startsAtWikitext = function(argv, env, input) {
 };
 
 var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain) {
-	return ParserEnv.getParserEnv(parsoidConfig, null, {
+	return ParserEnv.getParserEnv(parsoidConfig, {
 		prefix: prefix,
 		domain: domain,
 		pageName: argv.page,
