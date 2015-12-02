@@ -53,7 +53,7 @@ var fetch = function(page, revid, opts) {
 
 	var env;
 	var target;
-	MWParserEnvironment.getParserEnv(parsoidConfig, null, {
+	MWParserEnvironment.getParserEnv(parsoidConfig, {
 		prefix: prefix,
 		domain: domain,
 		pageName: page,
