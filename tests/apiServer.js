@@ -152,7 +152,7 @@ var parsoidServerOpts = {
 // Returns a Promise; the `cb` parameter is optional (for legacy use)
 var startParsoidServer = function(opts, cb) {
 	opts = !opts ? parsoidServerOpts : Util.extendProps(opts, parsoidServerOpts);
-	return startServer(opts, false, cb);
+	return startServer(opts, cb);
 };
 
 var mockAPIServerOpts = {
@@ -168,7 +168,7 @@ var mockAPIServerOpts = {
 // Returns a Promise; the `cb` parameter is optional (for legacy use)
 var startMockAPIServer = function(opts, cb) {
 	opts = !opts ? mockAPIServerOpts : Util.extendProps(opts, mockAPIServerOpts);
-	return startServer(opts, false, cb);
+	return startServer(opts, cb);
 };
 
 module.exports = {
