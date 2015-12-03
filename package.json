@@ -36,6 +36,7 @@
     "jscs": "~2.1.0",
     "jshint": "~2.8.0",
     "mocha": "~2.3.4",
+    "npm-shrinkwrap": "~200.4.0",
     "nsp": "~2.0.2",
     "supertest": "~1.0.1"
   },
@@ -60,7 +61,8 @@
     "coverage": "npm run cover-mocha && npm run cover-parserTests && istanbul report",
     "coveralls": "cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
     "doc": "jsduck --config jsduck.json",
-    "nsp": "nsp check"
+    "nsp": "nsp check",
+    "shrinkwrap": "npm-shrinkwrap --dev"
   },
   "repository": {
     "type": "git",
