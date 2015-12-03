@@ -33,7 +33,7 @@
     "colors": "^1.1.2",
     "coveralls": "^2.11.2",
     "istanbul": "^0.3.17",
-    "jscs": "^2.1.0",
+    "jscs": "^2.6.0",
     "jshint": "^2.8.0",
     "mocha": "^2.3.4",
     "npm-shrinkwrap": "^200.4.0",
