@@ -24806,7 +24806,8 @@ parsoid=html2wt
 </div>
 !! wikitext
 foo
-<nowiki> </nowiki><span>bar</span>
+ 
+<span>bar</span>
 
 <span>foo2
 <nowiki> </nowiki></span>bar2
@@ -26301,6 +26302,34 @@ y
 # ---------------------------------------------------
 # End of tests spec'ing wikitext serialization norms |
 # ---------------------------------------------------
+
+# T104032
+!! test
+Bare inline nodes not wrapped inside p-tags should be treated as p-wrapped
+!! options
+parsoid=html2wt
+!! html/parsoid
+a<p>b</p>
+<b>c</b><p>d</p>
+<table><tr>
+<td>a<p>b</p></td>
+<td><b>c</b><p>d</p></td>
+</tr></table>
+!! wikitext
+a
+
+b
+
+'''c'''
+
+d
+{|
+|a
+b
+|'''c'''
+d
+|}
+!! end
 
 # -----------------------------------------------------------------
 # End of section for Parsoid-only html2wt tests for serialization
