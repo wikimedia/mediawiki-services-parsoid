@@ -25651,6 +25651,53 @@ parsoid=html2wt
 [http://test.com][[one]] two three
 !! end
 
+!! test
+Use data-parsoid.firstWikitextNode to compute newline constraints for template content
+!! options
+parsoid=html2wt
+!! html/parsoid
+<span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a"}},"i":0}}]}'>a</span><table about="#mwt2" typeof="mw:Transclusion mw:ExpandedAttrs" data-parsoid='{"a":{"{{echo|c\n{{!}}d\n}}":null},"sa":{"{{echo|c\n{{!}}d\n}}":""},"firstWikitextNode":"table","pi":[[{"k":"1","spc":["","","",""]}]]}' data-mw='{"parts":["{|",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"c\n{{!}}d\n"}},"i":0}},"\n|}"]}'>
+<tbody><tr><td>d
+</td></tr>
+</tbody></table>
+!! wikitext
+{{echo|a}}
+{|{{echo|c
+{{!}}d
+}}
+|}
+!! end
+
+## This test verifies the presence and computation of this attribute indirectly
+## by making an edit and ensuring that the serialization is correct (which it would be
+## only if firstWikitextNode is properly set).
+!! test
+data-parsoid.firstWikitextNode should be computed properly in the presence of fostered content
+!! options
+parsoid= {
+  "modes": ["wt2wt"],
+  "changes": [
+    [ "div#x", "remove" ],
+    [ "div", "before", "<div>new</div>" ]
+  ]
+}
+!! wikitext
+<div id="x">foo</div>
+{|
+{{echo|<div>boo</div>
+{{!}}b}}
+|c
+|}
+!! wikitext/edited
+
+<div>new</div>
+{|
+{{echo|<div>boo</div>
+{{!}}b}}
+|c
+|}
+!! end
+
 # --------------------------------------------
 # Tests spec'ing wikitext serialization norms |
 # --------------------------------------------
