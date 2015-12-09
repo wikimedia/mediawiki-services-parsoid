@@ -1931,9 +1931,12 @@ ParserTests.prototype.processCase = function(i, options, err) {
 		// All test modes happen in a single run of processCase.
 		item.cachedBODY = null;
 		item.cachedNormalizedHTML = null;
+
 		// Also reset the logger, since we might have changed it to support
 		// the `suppressErrors` option.
 		this.env.setLogger(this.defaultLogger);
+		// Similarly for parsing resource limits.
+		this.env.setResourceLimits();
 
 		// console.log( 'processCase ' + i + JSON.stringify( item )  );
 		if (typeof item === 'object') {

@@ -657,6 +657,7 @@ template
       // again.
       params.unshift(new KV(tu.flattenIfArray(target.tokens), '', target.srcOffsets));
       var obj = new SelfclosingTagTk('template', params, { tsr: tsrOffsets(), src: text() });
+      options.env.bumpParserResourceUse('transclusion');
       return obj;
     }
 
@@ -1392,6 +1393,7 @@ li = bullets:list_char+
     var tsr = tsrOffsets('start');
     tsr[1] += bullets.length;
     var li = new TagTk('listItem', [], { tsr: tsr });
+    options.env.bumpParserResourceUse('listItem');
     li.bullets = bullets;
     return [ li, c ];
 }
@@ -1413,6 +1415,7 @@ hacky_dl_uses = bullets:":"+
     var tsr = tsrOffsets('start');
     tsr[1] += bullets.length;
     var li = new TagTk('listItem', [], { tsr: tsr });
+    options.env.bumpParserResourceUse('listItem');
     li.bullets = bullets;
     return tu.flattenIfArray([li, tbl || [], s || []]);
 }
@@ -1438,6 +1441,7 @@ dtdd
         li1.bullets.push(";");
         // TSR: -1 for the intermediate ":"
         var li2 = new TagTk('listItem', [], { tsr: [cpos - 1, cpos], stx: 'row' });
+        options.env.bumpParserResourceUse('listItem', 2);
         li2.bullets = bullets.slice();
         li2.bullets.push(":");
 
@@ -1667,6 +1671,7 @@ table_data_tag
     tagEndPos:("" { return endOffset(); })
     td:nested_block_in_table*
     {
+        options.env.bumpParserResourceUse('tableCell');
         return tu.buildTableTokens("td", "|", arg, [startOffset(), tagEndPos], endOffset(), td);
     }
 
@@ -1705,6 +1710,7 @@ table_heading_tag
       }
       return true;
     } d:nested_block_in_table { return d; } )* {
+        options.env.bumpParserResourceUse('tableCell');
         return tu.buildTableTokens("th", "!", arg, [startOffset(), tagEndPos], endOffset(), c);
     }
 
