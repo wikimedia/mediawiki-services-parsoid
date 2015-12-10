@@ -9,6 +9,13 @@ var domino = require('domino');
 var path = require('path');
 var should = require('chai').should();
 
+var configPath = path.resolve(__dirname, './apitest.localsettings.js');
+var fakeConfig = {
+	setMwApi: function() {},
+	limits: { wt2html: {}, html2wt: {} },
+};
+require(configPath).setup(fakeConfig);  // Set limits.
+
 describe('Parsoid API', function() {
 	var api;
 	var mockPrefix = 'mock.prefix';
@@ -19,7 +26,7 @@ describe('Parsoid API', function() {
 				mockUrl: ret.url,
 				serverArgv: [
 					'--num-workers', '1',
-					'--config', path.resolve(__dirname, './apitest.localsettings.js'),
+					'--config', configPath,
 				],
 			});
 		}).then(function(ret) {
@@ -549,6 +556,18 @@ describe('Parsoid API', function() {
 				.end(done);
 			});
 
+			it('should return a request too large error', function(done) {
+				request(api)
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/wikitext/to/pagebundle/' :
+					'v2/' + mockDomain + '/pagebundle/')
+				.send({
+					wikitext: "a".repeat(fakeConfig.limits.wt2html.maxWikitextSize + 1),
+				})
+				.expect(413)
+				.end(done);
+			});
+
 		}); // end wt2html
 
 		describe("html2wt", function() {
@@ -954,6 +973,18 @@ describe('Parsoid API', function() {
 				.expect(validWikitextResponse(
 					'==<nowiki/>==\n'
 				))
+				.end(done);
+			});
+
+			it('should return a request too large error', function(done) {
+				request(api)
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/html/to/wikitext/' :
+					'v2/' + mockDomain + '/wt/')
+				.send({
+					html: "a".repeat(fakeConfig.limits.html2wt.maxHTMLSize + 1),
+				})
+				.expect(413)
 				.end(done);
 			});
 

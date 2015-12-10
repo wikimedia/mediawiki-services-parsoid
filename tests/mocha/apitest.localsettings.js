@@ -71,4 +71,8 @@ exports.setup = function(parsoidConfig) {
 	parsoidConfig.loggerSampling = [
 		[/^info(\/|$)/, 100],
 	];
+
+	parsoidConfig.limits.wt2html.maxWikitextSize = 20000;
+	parsoidConfig.limits.html2wt.maxHTMLSize = 10000;
+
 };
