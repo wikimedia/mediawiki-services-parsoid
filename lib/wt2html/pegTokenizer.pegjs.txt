@@ -24,6 +24,7 @@
     var CommentTk = defines.CommentTk;
     var EOFTk = defines.EOFTk;
     var lastItem = JSUtils.lastItem;
+    var env = options.env;
 
     var inlineBreaks = tu.inlineBreaks;
     var stops = new tu.SyntaxStops();
@@ -48,7 +49,7 @@
     var emitChunk = function(tokens) {
         // Shift tsr of all tokens by the pipeline offset
         Util.shiftTokenTSR(tokens, options.pipelineOffset);
-        options.env.log("trace/peg", options.pegTokenizer.pipelineId, "---->  ", tokens);
+        env.log("trace/peg", options.pegTokenizer.pipelineId, "---->  ", tokens);
         // limit the size of individual chunks
         var chunkLimit = 100000;
         if (tokens.length > chunkLimit) {
@@ -113,7 +114,7 @@ table_attributes "table_attributes"
 redirect_word
   = $([ \t\n\r\0\x0b]*
     rw:$(!space_or_newline ![:\[] .)+
-    & { return options.env.conf.wiki.getMagicWordMatcher('redirect').test(rw); })
+    & { return env.conf.wiki.getMagicWordMatcher('redirect').test(rw); })
 
 /*
  * This rule exists to support tokenizing the document in chunks.
@@ -416,7 +417,7 @@ extlink
              // There are templates present, alas.
              return flat.length > 0;
           }
-          return Util.isProtocolValid(flat.slice(0, -1), options.env);
+          return Util.isProtocolValid(flat.slice(0, -1), env);
         }
         sp:$( space / unispace )*
         targetOff:( "" { return endOffset(); })
@@ -496,7 +497,7 @@ isbn
  * these can be configured dynamically. */
 
 url_protocol =
-    & { return Util.isProtocolValid(input.substr(endOffset()), options.env); }
+    & { return Util.isProtocolValid(input.substr(endOffset()), env); }
     p:$( '//' / [A-Za-z] [-A-Za-z0-9+.]* ':' '//'? ) { return p; }
 
 // no punctuation, and '{<' to trigger directives
@@ -657,7 +658,7 @@ template
       // again.
       params.unshift(new KV(tu.flattenIfArray(target.tokens), '', target.srcOffsets));
       var obj = new SelfclosingTagTk('template', params, { tsr: tsrOffsets(), src: text() });
-      options.env.bumpParserResourceUse('transclusion');
+      env.bumpParserResourceUse('transclusion');
       return obj;
     }
 
@@ -985,14 +986,14 @@ xmlish_tag =
     t:generic_tag & {
         var tagName = t.name.toLowerCase();
         var isHtmlTag = Util.isHTMLElementName(tagName);
-        var isInstalledExt = options.env.conf.wiki.isExtensionTag(tagName);
+        var isInstalledExt = env.conf.wiki.isExtensionTag(tagName);
         var isIncludeTag = tagName === 'includeonly' ||
                 tagName === 'noinclude' || tagName === 'onlyinclude';
         return isHtmlTag || isInstalledExt || isIncludeTag;
     } {
         var tagName = t.name.toLowerCase();
         var isHtmlTag = Util.isHTMLElementName(tagName);
-        var isInstalledExt = options.env.conf.wiki.isExtensionTag(tagName);
+        var isInstalledExt = env.conf.wiki.isExtensionTag(tagName);
         var isIncludeTag = tagName === 'includeonly' ||
                 tagName === 'noinclude' || tagName === 'onlyinclude';
         var dp = t.dataAttribs;
@@ -1082,7 +1083,7 @@ xmlish_tag =
             ret = new SelfclosingTagTk('extension', [
                 new KV('typeof', 'mw:Extension'),
                 new KV('name', tagName),
-                new KV('about', options.env.newAboutId()),
+                new KV('about', env.newAboutId()),
                 new KV('source', dp.src),
                 new KV('options', t.attribs),
             ], dp);
@@ -1092,7 +1093,7 @@ xmlish_tag =
             // - a non-html5 tag like <big>
             // Parse ext-content, strip eof, and shift tsr
             var extContent = dp.src.substring(dp.tagWidths[0], dp.src.length - dp.tagWidths[1]);
-            var extContentToks = (new PegTokenizer(options.env)).tokenize(extContent);
+            var extContentToks = (new PegTokenizer(env)).tokenize(extContent);
             if (dp.tagWidths[1] > 0) {
                 extContentToks = Util.stripEOFTkfromTokens(extContentToks);
             }
@@ -1393,7 +1394,7 @@ li = bullets:list_char+
     var tsr = tsrOffsets('start');
     tsr[1] += bullets.length;
     var li = new TagTk('listItem', [], { tsr: tsr });
-    options.env.bumpParserResourceUse('listItem');
+    env.bumpParserResourceUse('listItem');
     li.bullets = bullets;
     return [ li, c ];
 }
@@ -1415,7 +1416,7 @@ hacky_dl_uses = bullets:":"+
     var tsr = tsrOffsets('start');
     tsr[1] += bullets.length;
     var li = new TagTk('listItem', [], { tsr: tsr });
-    options.env.bumpParserResourceUse('listItem');
+    env.bumpParserResourceUse('listItem');
     li.bullets = bullets;
     return tu.flattenIfArray([li, tbl || [], s || []]);
 }
@@ -1441,7 +1442,7 @@ dtdd
         li1.bullets.push(";");
         // TSR: -1 for the intermediate ":"
         var li2 = new TagTk('listItem', [], { tsr: [cpos - 1, cpos], stx: 'row' });
-        options.env.bumpParserResourceUse('listItem', 2);
+        env.bumpParserResourceUse('listItem', 2);
         li2.bullets = bullets.slice();
         li2.bullets.push(":");
 
@@ -1671,7 +1672,7 @@ table_data_tag
     tagEndPos:("" { return endOffset(); })
     td:nested_block_in_table*
     {
-        options.env.bumpParserResourceUse('tableCell');
+        env.bumpParserResourceUse('tableCell');
         return tu.buildTableTokens("td", "|", arg, [startOffset(), tagEndPos], endOffset(), td);
     }
 
@@ -1710,7 +1711,7 @@ table_heading_tag
       }
       return true;
     } d:nested_block_in_table { return d; } )* {
-        options.env.bumpParserResourceUse('tableCell');
+        env.bumpParserResourceUse('tableCell');
         return tu.buildTableTokens("th", "!", arg, [startOffset(), tagEndPos], endOffset(), c);
     }
 
@@ -1961,7 +1962,7 @@ include_limits =
     }
 
     // Tokenize include content in a new tokenizer
-    var inclContentToks = (new PegTokenizer(options.env)).tokenize(inclContent);
+    var inclContentToks = (new PegTokenizer(env)).tokenize(inclContent);
     inclContentToks = Util.stripEOFTkfromTokens(inclContentToks);
 
     // Shift tsr
