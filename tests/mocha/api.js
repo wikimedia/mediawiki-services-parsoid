@@ -556,14 +556,26 @@ describe('Parsoid API', function() {
 				.end(done);
 			});
 
-			it('should return a request too large error', function(done) {
+			it('should return a request too large error (post wt)', function(done) {
 				request(api)
 				.post(version === 3 ?
 					mockDomain + '/v3/transform/wikitext/to/pagebundle/' :
 					'v2/' + mockDomain + '/pagebundle/')
 				.send({
+					original: {
+						title: 'Large_Page',
+					},
 					wikitext: "a".repeat(fakeConfig.limits.wt2html.maxWikitextSize + 1),
 				})
+				.expect(413)
+				.end(done);
+			});
+
+			it('should return a request too large error (get page)', function(done) {
+				request(api)
+				.get(version === 3 ?
+					mockDomain + '/v3/page/html/Large_Page/3' :
+					'v2/' + mockDomain + '/html/Large_Page/3')
 				.expect(413)
 				.end(done);
 			});
@@ -982,6 +994,9 @@ describe('Parsoid API', function() {
 					mockDomain + '/v3/transform/html/to/wikitext/' :
 					'v2/' + mockDomain + '/wt/')
 				.send({
+					original: {
+						title: 'Large_Page',
+					},
 					html: "a".repeat(fakeConfig.limits.html2wt.maxHTMLSize + 1),
 				})
 				.expect(413)

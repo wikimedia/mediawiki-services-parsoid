@@ -8,6 +8,12 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var crypto = require('crypto');
 
+// Get Parsoid limits.
+var fakeConfig = {
+	setMwApi: function() {},
+	limits: { wt2html: {}, html2wt: {} },
+};
+require('./mocha/apitest.localsettings.js').setup(fakeConfig);
 
 // configuration to match PHP parserTests
 var IMAGE_BASE_URL = 'http://example.com/images';
@@ -100,6 +106,27 @@ var junkPage = {
 	},
 };
 
+var largePage = {
+	query: {
+		pages: {
+			'3': {
+				pageid: 3,
+				ns: 0,
+				title: 'Large_Page',
+				revisions: [
+					{
+						revid: 3,
+						parentid: 0,
+						contentmodel: 'wikitext',
+						contentformat: 'text/x-wiki',
+						'*': 'a'.repeat(fakeConfig.limits.wt2html.maxWikitextSize + 1),
+					},
+				],
+			},
+		},
+	},
+};
+
 var fnames = {
 	'Image:Foobar.jpg': 'Foobar.jpg',
 	'File:Foobar.jpg': 'Foobar.jpg',
@@ -173,6 +200,8 @@ var availableActions = {
 				return cb(null , mainPage);
 			} else if (body.revids === "2" || body.titles === "Junk_Page") {
 				return cb(null , junkPage);
+			} else if (body.revids === '3' || body.titles === 'Large_Page') {
+				return cb(null , largePage);
 			}
 		}
 
