@@ -3,7 +3,7 @@
 "use strict";
 
 var Parsoid = require('../../');
-var Promise = require('prfun');
+var Promise = require('../../lib/utils/promise.js');
 
 describe('Parsoid JS API', function() {
 	it('converts empty wikitext to HTML', function() {

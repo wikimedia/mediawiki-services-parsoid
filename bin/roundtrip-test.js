@@ -2,11 +2,11 @@
 'use strict';
 require('../core-upgrade.js');
 
-var Promise = require('prfun');
 var domino = require('domino');
 var yargs = require('yargs');
 var zlib = require('zlib');
 
+var Promise = require('../lib/utils/promise.js');
 var Util = require('../lib/utils/Util.js').Util;
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
 var TemplateRequest = require('../lib/mw/ApiRequest.js').TemplateRequest;

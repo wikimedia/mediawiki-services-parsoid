@@ -8,8 +8,8 @@ require('../core-upgrade.js');
 
 var childProcess = require('child_process');
 var path = require('path');
-var Promise = require('prfun');
 
+var Promise = require('../lib/utils/promise.js');
 var Util = require('../lib/utils/Util.js').Util;
 
 // Keep all started servers in a map indexed by the url

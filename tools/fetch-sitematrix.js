@@ -7,7 +7,7 @@
 'use strict';
 require('../core-upgrade.js');
 
-var Promise = require('prfun');
+var Promise = require('../lib/utils/promise.js');
 var fs = require('fs');
 
 var writeFile = Promise.promisify(fs.writeFile, false, fs);
