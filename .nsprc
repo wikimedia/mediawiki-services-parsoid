@@ -1,6 +1,7 @@
 {
 	"exceptions": [
-		"https://nodesecurity.io/advisories/39",
-		"https://nodesecurity.io/advisories/48"
+		// Affects our _ prefixed dev routes, but they've been verified to
+		// always use the mitigation, ie. quoting attributes.
+		"https://nodesecurity.io/advisories/61"
 	]
 }
