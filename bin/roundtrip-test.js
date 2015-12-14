@@ -21,6 +21,23 @@ function displayDiff(type, count) {
 	return type + ' differences' + ' '.repeat(pad) + ': ' + count + '\n';
 }
 
+var jsonFormat = function(error, prefix, title, results, profile) {
+	var diffs = {
+		html2wt: { semantic: 0, syntactic: 0 },
+		selser: { semantic: 0, syntactic: 0 },
+	};
+	if (!error) {
+		results.forEach(function(result) {
+			var mode = diffs[result.selser ? 'selser' : 'html2wt'];
+			mode[result.type === 'fail' ? 'semantic' : 'syntactic']++;
+		});
+	}
+	return {
+		error: error,
+		results: diffs,
+	};
+};
+
 var plainFormat = function(err, prefix, title, results, profile) {
 	var testDivider = '='.repeat(70) + '\n';
 	var diffDivider = '-'.repeat(70) + '\n';
@@ -35,14 +52,8 @@ var plainFormat = function(err, prefix, title, results, profile) {
 		}
 	} else {
 		var diffs = {
-			html2wt: {
-				semantic: 0,
-				syntactic: 0,
-			},
-			selser: {
-				semantic: 0,
-				syntactic: 0,
-			},
+			html2wt: { semantic: 0, syntactic: 0 },
+			selser: { semantic: 0, syntactic: 0 },
 		};
 		for (var i = 0; i < results.length; i++) {
 			var result = results[i];
@@ -715,4 +726,5 @@ if (require.main === module) {
 } else if (typeof module === 'object') {
 	module.exports.runTests = runTests;
 	module.exports.xmlFormat = xmlFormat;
+	module.exports.jsonFormat = jsonFormat;
 }

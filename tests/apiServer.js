@@ -177,8 +177,8 @@ module.exports = {
 	/*
 	startServer: startServer,
 	stopServer: stopServer,
-	stopAllServers: stopAllServers,
 	*/
+	stopAllServers: stopAllServers,
 	startParsoidServer: startParsoidServer,
 	startMockAPIServer: startMockAPIServer,
 	exitOnProcessTerm: exitOnProcessTerm,
