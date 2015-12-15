@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 "use strict";
-require('../../lib/core-upgrade.js');
+require('../../core-upgrade.js');
 
 var express = require('express');
 var yargs = require('yargs');
