@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-require('../../lib/core-upgrade.js');
+require('../../core-upgrade.js');
 
 /**
  * A utility for reading in a JSON-y list of articles to the database.

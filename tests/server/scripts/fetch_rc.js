@@ -1,5 +1,5 @@
 'use strict';
-require('../../lib/core-upgrade.js');
+require('../../../core-upgrade.js');
 var fs = require('fs');
 var request = require('request');
 
