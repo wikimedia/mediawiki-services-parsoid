@@ -25784,6 +25784,41 @@ foo {{echo|<span>bar</span> [[Category:baz]]}} bar
 <p>foo <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;span>bar&lt;/span> [[Category:baz]]"}},"i":0}}]}'>bar</span><span about="#mwt1"> </span><link rel="mw:PageProp/Category" href="./Category:Baz" about="#mwt1" data-parsoid='{"stx":"simple","a":{"href":"./Category:Baz"},"sa":{"href":"Category:baz"}}'/> bar</p>
 !! end
 
+# Careful while editing these next 2 tests. There are \u200f characters
+# before and after the <link> tags in the HTML and following some
+# of the categories in wikitext
+# Do not remove these characters in edits.
+#
+# As part of the serialization, these bidi characters will get stripped.
+!! test
+RTL (\u200f) and LTR (\u200e) markers around category tags should be stripped
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html/parsoid
+<p>‏<link rel="mw:PageProp/Category" href="./קטגוריה:טקסים" />‏
+‏<link rel="mw:PageProp/Category" href="./קטגוריה:_שיטות_משפט" />‏</p>
+!! wikitext
+[[קטגוריה:טקסים]]
+[[קטגוריה: שיטות משפט]]
+!! end
+
+!! test
+RTL (\u200f) and LTR (\u200e) markers should not be stripped if followed by a text node
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html/parsoid
+<p>‏<link rel="mw:PageProp/Category" href="./קטגוריה:טקסים" />‏y</p>
+!! wikitext
+[[קטגוריה:טקסים]]
+‏y
+!! end
+
 !! test
 Lists: Add space after bullets
 !! options
