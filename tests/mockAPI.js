@@ -425,13 +425,7 @@ function handleApiRequest(body, res) {
 			res.end();
 		} else {
 			res.setHeader('Content-Type', 'text/plain');
-
-			if (err.code) {
-				res.status(err.code);
-			} else {
-				res.status(500);
-			}
-
+			res.status(err.httpStatus || 500);
 			res.write(err.stack || err.toString());
 			res.end();
 		}
