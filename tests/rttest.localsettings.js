@@ -65,6 +65,9 @@ exports.setup = function(parsoidConfig) {
 	// Set rtTestMode to true for round-trip testing
 	parsoidConfig.rtTestMode = true;
 
+	// Enable bidi char stripping during serialization
+	parsoidConfig.scrubBidiChars = true;
+
 	// Set to true to enable Performance timing
 	parsoidConfig.useDefaultPerformanceTimer = false;
 	// Peformance timing options for testing

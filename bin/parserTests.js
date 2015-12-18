@@ -1661,6 +1661,9 @@ ParserTests.prototype.main = function(options, popts) {
 		parsoidConfig.loadWMF = false;
 		parsoidConfig.initMwApiMap();
 
+		// Needed for bidi-char-scrubbing html2wt tests.
+		parsoidConfig.scrubBidiChars = true;
+
 		// Send all requests to the mock API server.
 		parsoidConfig.mwApiMap.forEach(function(apiConf) {
 			parsoidConfig.setMwApi({
