@@ -381,7 +381,7 @@ add("wt2wt", "Ref: 3. spaces in ref-names should be ignored", "A <ref name=\"x\"
 add("wt2wt", "Ref: 5. body should accept generic wikitext", "A <ref>This is a '''[[bolded link]]''' and this is a {{echo|transclusion}}\n</ref>\n\n<references />");
 add("wt2wt", "Ref: 6. indent-pres should not be output in ref-body", "A <ref>foo\n bar\n baz\n</ref>\n\n<references />");
 add("wt2wt", "Ref: 7. No p-wrapping in ref-body", "A <ref>foo\nbar\nbaz\nbooz\n</ref>\n\n<references />");
-add("wt2wt", "Ref: 8. transclusion wikitext has lower precedence", "A <ref>foo {{echo|</ref> B C}}\n\n<references />");
+add("wt2wt", "Ref: 8. transclusion wikitext has lower precedence", "A <ref>foo <nowiki>{{</nowiki>echo|</ref> B C}}\n\n<references />");
 add("wt2wt", "Ref: 9. unclosed comments should not leak out of ref-body", "A <ref>foo <!----></ref> B C\n<references />");
 add("wt2wt", "Ref: 10. Unclosed HTML tags should not leak out of ref-body", "A <ref><b> foo </ref> B C\n\n<references />");
 add("wt2wt", "Ref: 19. ref-tags with identical name encodings should get identical indexes", "1 <ref name=\"a & b\">foo</ref> 2 <ref name=\"a &amp;amp; b\" />\n\n<references />");
@@ -1306,7 +1306,7 @@ add("html2wt", "Ref: 3. spaces in ref-names should be ignored", "A <ref name=\"x
 add("html2wt", "Ref: 5. body should accept generic wikitext", "A <ref>This is a '''[[bolded link]]''' and this is a {{echo|transclusion}}\n</ref>\n\n<references />");
 add("html2wt", "Ref: 6. indent-pres should not be output in ref-body", "A <ref>foo\n bar\n baz\n</ref>\n\n<references />");
 add("html2wt", "Ref: 7. No p-wrapping in ref-body", "A <ref>foo\nbar\nbaz\nbooz\n</ref>\n\n<references />");
-add("html2wt", "Ref: 8. transclusion wikitext has lower precedence", "A <ref>foo {{echo|</ref> B C<nowiki>}}</nowiki>\n<references />");
+add("html2wt", "Ref: 8. transclusion wikitext has lower precedence", "A <ref>foo <nowiki>{{</nowiki>echo|</ref> B C<nowiki>}}</nowiki>\n<references />");
 add("html2wt", "Ref: 9. unclosed comments should not leak out of ref-body", "A <ref>foo <!----></ref> B C\n<references />");
 add("html2wt", "Ref: 10. Unclosed HTML tags should not leak out of ref-body", "A <ref><b> foo </ref> B C\n\n<references />");
 add("html2wt", "Ref: 19. ref-tags with identical name encodings should get identical indexes", "1 <ref name=\"a & b\">foo</ref> 2 <ref name=\"a &amp;amp; b\" />\n\n<references />");
