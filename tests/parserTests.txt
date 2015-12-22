@@ -20610,11 +20610,14 @@ HTML5 data attributes
 !! wikitext
 <span data-foo="bar">Baz</span>
 <p data-abc-def_hij="">Quuz</p>
-!! html
+!! html/php
 <p><span data-foo="bar">Baz</span>
 </p>
 <p data-abc-def_hij="">Quuz</p>
 
+!! html/parsoid
+<p><span data-foo="bar" data-parsoid='{"stx":"html"}'>Baz</span></p>
+<p data-abc-def_hij="" data-parsoid='{"stx":"html"}'>Quuz</p>
 !! end
 
 !! test
