@@ -20688,6 +20688,8 @@ Strip reserved data attributes
 !! html/php
 <div data-ok="fred">d</div>
 
+!! html/parsoid
+<div data-x-data-mw="foo" data-x-data-parsoid="bar" data-x-data-mw-someext="baz" data-ok="fred" data-parsoid='{"stx":"html","a":{"data-ooui":null,"data-bad:ns":null},"sa":{"data-ooui":"xyzzy","data-bad:ns":"ns"}}'>d</div>
 !! end
 
 !! test
