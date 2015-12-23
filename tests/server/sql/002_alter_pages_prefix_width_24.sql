@@ -1,1 +1,0 @@
-ALTER TABLE pages CHANGE prefix prefix CHAR( 24 ) NOT NULL DEFAULT 'enwiki';
