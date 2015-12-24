@@ -102,11 +102,6 @@ var standardOpts = Util.addStandardOptions({
 		'boolean': false,
 		'default': false,
 	},
-	'extensions': {
-		description: 'List of valid extensions - of form foo,bar,baz',
-		'boolean': false,
-		'default': '',
-	},
 	'dpinfile': {
 		description: 'Input data-parsoid JSON file',
 		'boolean': false,
@@ -214,14 +209,6 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain)
 
 		// Enable wikitext scrubbing
 		env.scrubWikitext = argv.scrubWikitext;
-
-		var i, validExtensions;
-		if (validExtensions !== '') {
-			validExtensions = argv.extensions.split(',');
-			for (i = 0; i < validExtensions.length; i++) {
-				env.conf.wiki.addExtensionTag(validExtensions[i]);
-			}
-		}
 
 		if (!argv.wt2html) {
 			if (argv.oldtextfile) {

@@ -891,14 +891,9 @@ ParserTests.prototype.processTest = function(item, options, mode, endCb) {
 
 	item.time = {};
 
-	var i;
-	var extensions = [];
-
 	if (item.options) {
 
-		if (item.options.extensions !== undefined) {
-			extensions = item.options.extensions.split(' ');
-		}
+		console.assert(item.options.extensions === undefined);
 
 		if (item.options.title !== undefined &&
 			!Array.isArray(item.options.title)) {
@@ -932,16 +927,8 @@ ParserTests.prototype.processTest = function(item, options, mode, endCb) {
 				MWParserEnvironment.prototype.scrubWikitext;
 	}
 
-	item.extensions = extensions;
-	for (i = 0; i < extensions.length; i++) {
-		this.env.conf.wiki.addExtensionTag(extensions[i]);
-	}
-
 	// Build a list of tasks for this test that will be passed to async.waterfall
 	var finishHandler = function(err) {
-		for (i = 0; i < extensions.length; i++) {
-			this.env.conf.wiki.removeExtensionTag(extensions[i]);
-		}
 		setImmediate(endCb, err);
 	}.bind(this);
 
@@ -1728,11 +1715,6 @@ ParserTests.prototype.main = function(options, popts) {
 			};
 		})(this, env.setLogger);
 
-		// Enable <ref> and <references> tags since we want to
-		// test Parsoid's native implementation of these tags.
-		this.env.conf.wiki.addExtensionTag("ref");
-		this.env.conf.wiki.addExtensionTag("references");
-
 		options.modes = [];
 		if (options.wt2html) {
 			options.modes.push('wt2html');
@@ -2109,13 +2091,7 @@ ParserTests.prototype.processCase = function(i, options, err) {
 					setImmediate(nextCallback);
 					break;
 				case 'hooks':
-					var hooks = item.text.split(/\n/);
-					var self = this;
-					hooks.forEach(function(hook) {
-						self.env.log("warning", "parserTests: Adding extension hook", JSON.stringify(hook));
-						self.env.conf.wiki.addExtensionTag(hook);
-					});
-					setImmediate(nextCallback);
+					this.env.log('warning', 'parserTests: Unhandled extension hook', JSON.stringify(item));
 					break;
 				case 'functionhooks':
 					this.env.log("warning", "parserTests: Unhandled functionhook", JSON.stringify(item));

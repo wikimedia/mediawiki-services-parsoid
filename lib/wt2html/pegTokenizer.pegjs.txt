@@ -991,14 +991,14 @@ xmlish_tag =
     t:generic_tag & {
         var tagName = t.name.toLowerCase();
         var isHtmlTag = Util.isHTMLElementName(tagName);
-        var isInstalledExt = env.conf.wiki.isExtensionTag(tagName);
+        var isInstalledExt = env.conf.wiki.extensionTags.has(tagName);
         var isIncludeTag = tagName === 'includeonly' ||
                 tagName === 'noinclude' || tagName === 'onlyinclude';
         return isHtmlTag || isInstalledExt || isIncludeTag;
     } {
         var tagName = t.name.toLowerCase();
         var isHtmlTag = Util.isHTMLElementName(tagName);
-        var isInstalledExt = env.conf.wiki.isExtensionTag(tagName);
+        var isInstalledExt = env.conf.wiki.extensionTags.has(tagName);
         var isIncludeTag = tagName === 'includeonly' ||
                 tagName === 'noinclude' || tagName === 'onlyinclude';
         var dp = t.dataAttribs;

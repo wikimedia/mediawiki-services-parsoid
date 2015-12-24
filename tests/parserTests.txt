@@ -22010,8 +22010,10 @@ foo<ol class="mw-references" typeof="mw:Extension/references" about="#mwt2" data
 #### https://www.mediawiki.org/wiki/Parsoid/HTML_based_LST
 #### ----------------------------------------------------------------
 
-!!test
+!! test
 LST Sections: 1. Simple section start and end
+!! options
+parsoid={ "suppressErrors": true }
 !! wikitext
 <section begin="2011-05-16" />
 <section end="2014-04-10 (MW 1.23wmf22)" />

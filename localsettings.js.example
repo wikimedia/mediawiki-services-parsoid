@@ -29,22 +29,18 @@ exports.setup = function(parsoidConfig) {
 		domain: 'localhost', // optional
 		// This is the only required parameter:
 		// the URL of you MediaWiki API endpoint.
-		uri: 'http://localhost/w/api.php'
-	});
-	// To specify a proxy (or proxy headers) specific to this prefix (which
-	// overrides defaultAPIProxyURI) use:
-	/*
-	parsoidConfig.setMwApi({
-		prefix: 'localhost', // optional
-		domain: 'localhost', // optional
 		uri: 'http://localhost/w/api.php',
-		// set `proxy` to `null` to override and force no proxying.
+		// To specify a proxy (or proxy headers) specific to this prefix
+		// (which overrides defaultAPIProxyURI). Alternatively, set `proxy`
+		// to `null` to override and force no proxying when a default proxy
+		// has been set.
+		/*
 		proxy: {
 			uri: 'http://my.proxy:1234/',
 			headers: { 'X-Forwarded-Proto': 'https' } // headers are optional
 		}
+		*/
 	});
-	*/
 
 	// We pre-define wikipedias as 'enwiki', 'dewiki' etc. Similarly
 	// for other projects: 'enwiktionary', 'enwikiquote', 'enwikibooks',
