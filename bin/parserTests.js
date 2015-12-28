@@ -24,6 +24,7 @@ var ParsoidLogger = require('../lib/logger/ParsoidLogger.js').ParsoidLogger;
 var PEG = require('pegjs');
 var Util = require('../lib/utils/Util.js').Util;
 var Diff = require('../lib/utils/Diff.js').Diff;
+var ParserHook = require('../tests/parserTestsParserHook.js');
 
 // Fetch up some of our wacky parser bits...
 var MWParserEnvironment = require('../lib/config/MWParserEnvironment.js').MWParserEnvironment;
@@ -1651,12 +1652,15 @@ ParserTests.prototype.main = function(options, popts) {
 		// Needed for bidi-char-scrubbing html2wt tests.
 		parsoidConfig.scrubBidiChars = true;
 
+		var extensions = parsoidConfig.defaultNativeExtensions.concat(ParserHook);
+
 		// Send all requests to the mock API server.
 		parsoidConfig.mwApiMap.forEach(function(apiConf) {
 			parsoidConfig.setMwApi({
 				prefix: apiConf.prefix,
 				domain: apiConf.domain,
 				uri: mockAPIServerURL,
+				extensions: extensions,
 			});
 		});
 
@@ -1666,6 +1670,7 @@ ParserTests.prototype.main = function(options, popts) {
 			prefix: 'be-taraskwiki',
 			domain: 'be-tarask.wikipedia.org',
 			uri: mockAPIServerURL,
+			extensions: extensions,
 		});
 
 		// Enable sampling to assert it's working while testing.

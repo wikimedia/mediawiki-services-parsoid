@@ -1336,6 +1336,8 @@ array (
 )
 </pre>
 
+!! html/parsoid
+<pre typeof="mw:Extension/tåg" data-mw='{"name":"tåg","attrs":{},"body":{"extsrc":"tåg"}}' data-parsoid='{}' about="#mwt2"></pre>
 !! end
 
 !! test
@@ -16216,10 +16218,15 @@ array (
 )
 </pre>
 
+!! html/parsoid
+<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{},"body":{"extsrc":""}}' data-parsoid='{}' about="#mwt2"></pre>
 !! end
 
+## Don't expect parsoid to rt this form.
 !! test
 Parser hook: empty input using terminated empty elements
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 <tag/>
 !! html/php
@@ -16229,6 +16236,8 @@ array (
 )
 </pre>
 
+!! html/parsoid
+<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{},"body":null}' data-parsoid='{}' about="#mwt2"></pre>
 !! end
 
 !! test
@@ -16242,6 +16251,8 @@ array (
 )
 </pre>
 
+!! html/parsoid
+<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{},"body":null}' data-parsoid='{}' about="#mwt2"></pre>
 !! end
 
 !! test
@@ -16255,11 +16266,15 @@ array (
 )
 </pre>
 
+!! html/parsoid
+<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{},"body":{"extsrc":"input"}}' data-parsoid='{}' about="#mwt2"></pre>
 !! end
 
-
+## Don't expect parsoid to rt this form.
 !! test
 Parser hook: case insensitive
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 <TAG>input</TAG>
 !! html/php
@@ -16269,11 +16284,15 @@ array (
 )
 </pre>
 
+!! html/parsoid
+<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{},"body":{"extsrc":"input"}}' data-parsoid='{}' about="#mwt2"></pre>
 !! end
 
-
+## Don't expect parsoid to rt this form.
 !! test
 Parser hook: case insensitive, redux
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 <TaG>input</TAg>
 !! html/php
@@ -16283,6 +16302,8 @@ array (
 )
 </pre>
 
+!! html/parsoid
+<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{},"body":{"extsrc":"input"}}' data-parsoid='{}' about="#mwt2"></pre>
 !! end
 
 !! test
@@ -16298,10 +16319,34 @@ array (
 )
 </pre>&lt;/tag&gt;
 
+!! html/parsoid
+<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{},"body":{"extsrc":"&lt;tag>"}}' data-parsoid='{}' about="#mwt2"></pre>&lt;/tag>
 !! end
 
 !! test
 Parser hook: basic arguments
+!! wikitext
+<tag width="200" height="100" depth="50" square=""></tag>
+!! html/php
+<pre>
+''
+array (
+  'width' => '200',
+  'height' => '100',
+  'depth' => '50',
+  'square' => '',
+)
+</pre>
+
+!! html/parsoid
+<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{"width":"200","height":"100","depth":"50","square":""},"body":{"extsrc":""}}' data-parsoid='{}' about="#mwt2"></pre>
+!! end
+
+## Don't expect parsoid to rt this form.
+!! test
+Parser hook: basic arguments, variations
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 <tag width=200 height = "100" depth = '50' square></tag>
 !! html/php
@@ -16315,12 +16360,14 @@ array (
 )
 </pre>
 
+!! html/parsoid
+<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{"width":"200","height":"100","depth":"50","square":""},"body":{"extsrc":""}}' data-parsoid='{}' about="#mwt2"></pre>
 !! end
 
 !! test
 Parser hook: argument containing a forward slash (bug 5344)
 !! wikitext
-<tag filename='/tmp/bla'></tag>
+<tag filename="/tmp/bla"></tag>
 !! html/php
 <pre>
 ''
@@ -16329,10 +16376,15 @@ array (
 )
 </pre>
 
+!! html/parsoid
+<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{"filename":"/tmp/bla"},"body":{"extsrc":""}}' data-parsoid='{}' about="#mwt2"></pre>
 !! end
 
+## Don't expect parsoid to rt this form.
 !! test
 Parser hook: empty input using terminated empty elements (bug 2374)
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 <tag foo=bar/>text
 !! html/php
@@ -16343,6 +16395,8 @@ array (
 )
 </pre>text
 
+!! html/parsoid
+<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{"foo":"bar"},"body":null}' data-parsoid='{}' about="#mwt2"></pre>text
 !! end
 
 # </tag> should be output literally since there is no matching tag that begins it
@@ -16375,21 +16429,28 @@ array (
 Parser hook: static parser hook not inside a comment
 !! wikitext
 <statictag>hello, world</statictag>
-<statictag action=flush/>
-!! html/php
-<p>hello, world
-</p>
-!! end
 
+<statictag action="flush" />
+!! html/php
+<p><br />
+hello, world
+</p>
+!! html/parsoid
+<p><span typeof="mw:Extension/statictag" data-mw='{"name":"statictag","attrs":{},"body":{"extsrc":"hello, world"}}' data-parsoid='{}' about="#mwt2"></span></p>
+<p typeof="mw:Extension/statictag" data-mw='{"name":"statictag","attrs":{"action":"flush"},"body":null}' data-parsoid='{}' about="#mwt4">hello, world</p>
+!! end
 
 !! test
 Parser hook: static parser hook inside a comment
 !! wikitext
 <!-- <statictag>hello, world</statictag> -->
-<statictag action=flush/>
+<statictag action="flush" />
 !! html/php
 <p><br />
 </p>
+!! html/parsoid
+<!-- <statictag&#x3E;hello, world</statictag&#x3E; -->
+<p typeof="mw:Extension/statictag" data-mw='{"name":"statictag","attrs":{"action":"flush"},"body":null}' data-parsoid='{}' about="#mwt2"></p>
 !! end
 
 # Nested template calls; this case was broken by Parser.php rev 1.506,
