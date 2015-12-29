@@ -22,12 +22,13 @@ var https = require('https');
 var crypto = require('crypto');
 
 var downloadUrl = {
-	host: 'git.wikimedia.org',
-	path: '/raw/mediawiki%2Fcore.git/COMMIT-SHA/tests%2Fparser%2FparserTests.txt',
+	host: 'raw.githubusercontent.com',
+	path: '/wikimedia/mediawiki/COMMIT-SHA/tests/parser/parserTests.txt',
 };
 var historyUrl = {
-	host: downloadUrl.host,
-	path: '/history/mediawiki%2Fcore.git/HEAD/tests%2Fparser%2FparserTests.txt',
+	host: 'api.github.com',
+	headers: {'user-agent': 'wikimedia-parsoid'},
+	path: '/repos/wikimedia/mediawiki/commits?path=tests/parser/parserTests.txt',
 };
 var DEFAULT_TARGET = __dirname + "/../tests/parserTests.txt";
 
@@ -46,6 +47,7 @@ var fetch = function(url, targetName, gitCommit, cb) {
 	if (gitCommit) {
 		url = {
 			host: url.host,
+			headers: {'user-agent': 'wikimedia-parsoid'},
 			path: url.path.replace(/COMMIT-SHA/, gitCommit),
 		};
 	}
@@ -83,30 +85,20 @@ var checkAndUpdate = function(targetName) {
 
 var forceUpdate = function() {
 	console.log('Fetching parserTests.txt history from mediawiki/core');
-	var findMostRecentCommit, downloadCommit, updateHashes;
+	var downloadCommit, updateHashes;
 	var targetName = DEFAULT_TARGET;
 
 	// fetch the history page
 	https.get(historyUrl, function(result) {
-		var html = '';
+		var res = '';
 		result.setEncoding('utf8');
-		result.on('data', function(data) { html += data; });
+		result.on('data', function(data) { res += data; });
 		result.on('end', function() {
-			findMostRecentCommit(html);
+			downloadCommit(JSON.parse(res)[0].sha);
 		});
 	}).on('error', function(err) {
 		console.error(err);
 	});
-
-	// now look for the most recent commit
-	findMostRecentCommit = function(html) {
-		// remove everything before <table class="pretty">
-		html = html.replace(/^[^]*<table\s*class=\\"pretty\\">/, '');
-		// now find the first link to this file with a specific hash
-		var m = /core.git\/([0-9a-f]+)\/tests%2Fparser%2FparserTests.txt/.exec(html);
-		var gitCommit = m ? m[1] : "HEAD";
-		downloadCommit(gitCommit);
-	};
 
 	// download latest file
 	downloadCommit = function(gitCommit) {
