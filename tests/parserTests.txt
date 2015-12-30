@@ -20682,6 +20682,15 @@ HTML5 data attributes
 !! end
 
 !! test
+Strip reserved data attributes
+!! wikitext
+<div data-mw="foo" data-parsoid="bar" data-mw-someext="baz" data-ok="fred" data-ooui="xyzzy" data-bad:ns="ns">d</div>
+!! html/php
+<div data-ok="fred">d</div>
+
+!! end
+
+!! test
 percent-encoding and + signs in internal links (Bug 26410)
 !! wikitext
 [[User:+%]] [[Page+title%]]
