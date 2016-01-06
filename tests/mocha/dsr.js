@@ -94,6 +94,22 @@ var listTests = [
 runTests('Lists', listTests);
 
 var headingTests = [
+	{
+		wt: '=A=\n==B==\n===C===\n====D====',
+		specs: [
+			{ selector: 'body > h1', dsrContent: ['=A=', '=', '='] },
+			{ selector: 'body > h2', dsrContent: ['==B==', '==', '=='] },
+			{ selector: 'body > h3', dsrContent: ['===C===', '===', '==='] },
+			{ selector: 'body > h4', dsrContent: ['====D====', '====', '===='] },
+		],
+	},
+	{
+		wt: '=A New Use for the = Sign=\n==The == Operator==',
+		specs: [
+			{ selector: 'body > h1', dsrContent: ['=A New Use for the = Sign=', '=', '='] },
+			{ selector: 'body > h2', dsrContent: ['==The == Operator==', '==', '=='] },
+		],
+	},
 ];
 runTests('Headings', headingTests);
 
