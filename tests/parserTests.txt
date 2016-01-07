@@ -8784,6 +8784,40 @@ Mixed list
 !! end
 
 !! test
+1. Nested mixed wikitext and html list
+!! wikitext
+* hi
+* <ul><li>ho</li></ul>
+* hi
+** ho
+!! html/php
+<ul><li> hi</li>
+<li> <ul><li>ho</li></ul></li>
+<li> hi
+<ul><li> ho</li></ul></li></ul>
+
+!! html/parsoid
+<ul><li> hi</li>
+<li> <ul data-parsoid='{"stx":"html"}'><li data-parsoid='{"stx":"html"}'>ho</li></ul></li>
+<li> hi
+<ul><li> ho</li></ul></li></ul>
+!! end
+
+!! test
+2. Nested mixed wikitext and html list (incompatible)
+!! wikitext
+; hi
+: {{echo|<li>ho</li>}}
+!! html/php
+<dl><dt> hi</dt>
+<dd> <li>ho</li></dd></dl>
+
+!! html/parsoid
+<dl><dt> hi</dt>
+<dd> <li about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1","spc":["","","",""]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;li>ho&lt;/li>"}},"i":0}}]}'>ho</li></dd></dl>
+!! end
+
+!! test
 Nested lists 1
 !! wikitext
 *foo
