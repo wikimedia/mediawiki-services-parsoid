@@ -10687,6 +10687,43 @@ foo {{''}} baz
 </p>
 !! end
 
+## This test is about making sure Parsoid's data-mw is well formed in the
+## face of multiple templates with intersecting and overlapping ranges.  The
+## wikitext itself is wretched.
+!! test
+Templates with intersecting and overlapping ranges
+!! wikitext
+{|{{echo|
+<p>ha</p>}}
+{|{{echo|
+<p>ho</p>}}
+{{echo|{{!}}hi}}
+|}
+!! html/php+tidy
+<p>ha</p>
+<p>ho</p>
+<table>
+<tr>
+<td></td>
+</tr>
+<tr>
+<td>hi</td>
+</tr>
+</table>
+<table>
+<tr>
+<td></td>
+</tr>
+</table>
+!! html/parsoid
+<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","autoInsertedEnd":true,"pi":[[{"k":"1","spc":["","","",""]}],[{"k":"1","spc":["","","",""]}],[{"k":"1","spc":["","","",""]}]],"firstWikitextNode":"table"}' data-mw='{"parts":["{|",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"\n&lt;p>ha&lt;/p>"}},"i":0}},"\n","{|",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"\n&lt;p>ho&lt;/p>"}},"i":1}},"\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"{{!}}hi"}},"i":2}},"\n|}"]}'>ha</p><table about="#mwt1" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"","html":""},{"html":""}]]}'>
+
+</table><p about="#mwt1">ho</p><table about="#mwt1" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"","html":""},{"html":""}]]}'>
+
+<tbody><tr><td>hi</td></tr>
+</tbody></table>
+!! end
+
 !! article
 Template:MSGNW test
 !! text
