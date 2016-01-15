@@ -1139,10 +1139,10 @@ nowiki
   // nowiki fallback: source-based round-tripping of <nowiki />.
   / nw0:("" { return endOffset(); })
     "<" nowiki_tag_name space* "/" space* ">" {
-      return [
-          new SelfclosingTagTk('meta', [new KV('typeof', 'mw:Placeholder')],
-            { src: input.substring(nw0, endOffset()), tsr: [nw0, endOffset()] }),
-      ];
+      return Util.placeholder(null, {
+        src: input.substring(nw0, endOffset()),
+        tsr: [nw0, endOffset()],
+      });
     }
   // nowiki fallback: source-based round-tripping
   // of unbalanced nowiki tags that are treated as text.
@@ -1150,14 +1150,10 @@ nowiki
     nw0:("" { return endOffset(); })
     "<" "/"? nowiki_tag_name space* "/"? space* ">" {
       var nowiki = input.substring(nw0, endOffset());
-      return [
-            new TagTk('span', [new KV('typeof', 'mw:Placeholder')], {
-                src: nowiki,
-                tsr: [nw0, nw0],
-            }),
-            nowiki,
-            new EndTagTk('span', [], { tsr: tsrOffsets('end') }),
-      ];
+      return Util.placeholder(nowiki, {
+        src: nowiki,
+        tsr: [nw0, nw0],
+      }, { tsr: tsrOffsets('end') });
     }
 
 // Should abort the nowiki match:
@@ -1787,11 +1783,14 @@ urltext = ( $[^-'<~[{\n/A-Za-z_|!:;\]} &=]+
           // XXX: This should be moved to a serializer
           // This is a hack to force a whitespace display before the colon
           / ' ' & ':' {
-              return [
-                  new TagTk('span', [new KV('typeof', 'mw:DisplaySpace mw:Placeholder')], { src: ' ', tsr: tsrOffsets('start'), isDisplayHack: true }),
-                  "\u00a0",
-                  new EndTagTk('span', [], { tsr: tsrOffsets('end'), isDisplayHack: true }),
-              ];
+              var toks = Util.placeholder('\u00a0', {
+                src: ' ',
+                tsr: tsrOffsets('start'),
+                isDisplayHack: true,
+              }, { tsr: tsrOffsets('end'), isDisplayHack: true });
+              var typeOf = toks[0].getAttribute('typeof');
+              toks[0].setAttribute('typeof', 'mw:DisplaySpace ' + typeOf);
+              return toks;
           }
           / & ('__') bs:behavior_switch { return bs; }
           // About 96% of text_char calls originate here.
