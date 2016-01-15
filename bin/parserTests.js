@@ -942,6 +942,12 @@ ParserTests.prototype.processTest = function(item, options, mode, endCb) {
 			item.options.parsoid.hasOwnProperty('scrubWikitext') ?
 				item.options.parsoid.scrubWikitext :
 				MWParserEnvironment.prototype.scrubWikitext;
+
+		this.env.nativeGallery = item.options.parsoid &&
+			item.options.parsoid.hasOwnProperty('nativeGallery') ?
+				item.options.parsoid.nativeGallery :
+				MWParserEnvironment.prototype.nativeGallery;
+
 	}
 
 	// Build a list of tasks for this test that will be passed to async.waterfall

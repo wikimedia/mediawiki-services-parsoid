@@ -2,6 +2,7 @@
 n.n.n / XXXX-XX-XX
 ==================
 
+  * T110910: Implement <gallery> extension natively inside Parsoid
 
 0.6.1 / 2016-11-14
 ==================
@@ -69,7 +70,6 @@ n.n.n / XXXX-XX-XX
   * Prevent JSON.stringify circular refs in template wrapping
     trace/error logs
   * Fix processing listeners in node v7.x
-
 
 0.5.3 / 2016-11-01
 ==================

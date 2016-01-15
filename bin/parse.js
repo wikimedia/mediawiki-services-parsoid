@@ -143,6 +143,11 @@ var standardOpts = Util.addStandardOptions({
 		'boolean': true,
 		'default': false,
 	},
+	'nativeGallery': {
+		description: 'Omit extsrc from gallery.',
+		'boolean': true,
+		'default': false,
+	},
 	'loadWMF': {
 		description: 'Use WMF mediawiki API config',
 		'boolean': true,
@@ -242,6 +247,9 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain)
 
 		// Enable wikitext scrubbing
 		env.scrubWikitext = argv.scrubWikitext;
+
+		// Enable html editing galleries
+		env.nativeGallery = argv.nativeGallery;
 
 		// Sets ids on nodes and stores data-* attributes in a JSON blob
 		env.pageBundle = argv.pagebundle || argv.pboutfile;
