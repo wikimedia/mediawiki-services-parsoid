@@ -2,6 +2,8 @@
 	"exceptions": [
 		// Affects our _ prefixed dev routes, but they've been verified to
 		// always use the mitigation, ie. quoting attributes.
-		"https://nodesecurity.io/advisories/61"
+		"https://nodesecurity.io/advisories/61",
+		// Affects request.js' dependency, but not used on user defined input.
+		"https://nodesecurity.io/advisories/76"
 	]
 }
