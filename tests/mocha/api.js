@@ -462,7 +462,33 @@ describe('Parsoid API', function() {
 				.end(done);
 			});
 
-			it("should respect body parameter", function(done) {
+			it("should respect body parameter (body_only)", function(done) {
+				request(api)
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/wikitext/to/html/' :
+					'v2/' + mockDomain + '/html/')
+				.send(version === 3 ? {
+					wikitext: "''foo''",
+					body_only: 1,
+				} : {
+					wikitext: "''foo''",
+					body: 1,
+				})
+				.expect(validHtmlResponse())
+				.expect(function(res) {
+					if (version === 3) {
+						// v3 only returns children of <body>
+						res.text.should.not.match(/<body/);
+						res.text.should.match(/<p/);
+					} else {
+						// v2 returns body and children
+						res.text.should.match(/^<body/);
+					}
+				})
+				.end(done);
+			});
+
+			it("should respect body parameter (bodyOnly)", function(done) {
 				request(api)
 				.post(version === 3 ?
 					mockDomain + '/v3/transform/wikitext/to/html/' :
