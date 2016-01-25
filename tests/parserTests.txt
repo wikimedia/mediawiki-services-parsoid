@@ -2520,7 +2520,6 @@ Barack Obama <President> of the United States
 </p>
 !! end
 
-## PHP parser discards the "<pre " string
 !! test
 Handle broken pre-like tags (bug 64025)
 !! options
@@ -2531,8 +2530,13 @@ parsoid=wt2html
 <table><pre </table>
 !! html/php
 <pre>x</pre>
-<table><pre></pre></table>
+<table>&lt;pre </table>
 
+!! html/php+tidy
+<pre>
+x
+</pre>
+<p>&lt;pre</p>
 !! html/parsoid
 <pre about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"a":{"&lt;pre":null},"sa":{"&lt;pre":""},"stx":"html","pi":[[{"k":"1","spc":["","","",""]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;pre &lt;pre>x&lt;/pre>"}},"i":0}}]}'>x</pre>
 
@@ -9703,7 +9707,7 @@ Magic Word: {{NUMBEROFFILES}}
 !! wikitext
 {{NUMBEROFFILES}}
 !! html
-<p>5
+<p>6
 </p>
 !! end
 
@@ -10946,7 +10950,11 @@ section=1
 Un-closed <includeonly>
 !! wikitext
 <includeonly>
-!! html
+!! html/php
+<p>&lt;includeonly&gt;
+</p>
+!! html/parsoid
+<meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"src":"&lt;includeonly>"}'/>
 !! end
 
 ## We used to, but no longer wt2wt this test since the default serializer
@@ -18365,8 +18373,6 @@ image4    |300px| centre
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
 			<div class="thumb" style="height: 150px;">Image2.gif</div>
 			<div class="gallerytext">
-<p>||||
-</p>
 			</div>
 		</div></li>
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
@@ -18377,8 +18383,8 @@ image4    |300px| centre
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
 			<div class="thumb" style="height: 150px;">Image4</div>
 			<div class="gallerytext">
-<p>300px| centre
-</p>
+<pre>centre
+</pre>
 			</div>
 		</div></li>
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
@@ -18437,7 +18443,7 @@ image:foobar.jpg|Blabla|alt=This is a foo-bar.|blabla.
 		<li class="gallerybox" style="width: 105px"><div style="width: 105px">
 			<div class="thumb" style="width: 100px;"><div style="margin:31px auto;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="This is a foo-bar." src="http://example.com/images/thumb/3/3a/Foobar.jpg/70px-Foobar.jpg" width="70" height="8" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/105px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/140px-Foobar.jpg 2x" /></a></div></div>
 			<div class="gallerytext">
-<p>Blabla|blabla.
+<p>blabla.
 </p>
 			</div>
 		</div></li>
