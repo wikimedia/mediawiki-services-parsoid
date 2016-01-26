@@ -1655,7 +1655,8 @@ ParserTests.prototype.main = function(options, popts) {
 		var extensions = parsoidConfig.defaultNativeExtensions.concat(ParserHook);
 
 		// Send all requests to the mock API server.
-		parsoidConfig.mwApiMap.forEach(function(apiConf) {
+		Array.from(parsoidConfig.mwApiMap.values()).forEach(function(apiConf) {
+			parsoidConfig.removeMwApi(apiConf);
 			parsoidConfig.setMwApi({
 				prefix: apiConf.prefix,
 				domain: apiConf.domain,
@@ -1666,6 +1667,7 @@ ParserTests.prototype.main = function(options, popts) {
 
 		// This isn't part of the sitematrix but the
 		// "Check noCommafy in formatNum" test depends on it.
+		parsoidConfig.removeMwApi({ domain: 'be-tarask.wikipedia.org' });
 		parsoidConfig.setMwApi({
 			prefix: 'be-taraskwiki',
 			domain: 'be-tarask.wikipedia.org',
