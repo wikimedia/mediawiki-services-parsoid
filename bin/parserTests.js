@@ -87,7 +87,6 @@ function ParserTests() {
 
 	this.cacheFile = "parserTests.cache"; // Name of file used to cache the parser tests cases
 	this.parserTestsFile = "parserTests.txt";
-	this.testsChangesFile = 'changes.txt';
 
 	this.articles = {};
 	this.tests = new Set();
