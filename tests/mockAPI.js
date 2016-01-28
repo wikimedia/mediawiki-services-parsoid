@@ -143,6 +143,29 @@ var pnames = {
 	'Image:Thumb.png': 'File:Thumb.png',
 };
 
+// This templatedata description only provides a subset of fields
+// that mediawiki API returns. Parsoid only uses the format and
+// paramOrder fields at this point, so keeping these lean.
+var templateData = {
+	'Template:NoFormatWithParamOrder': {
+		'paramOrder': ['unused1', 'f1', 'unused2', 'f2', 'unused3'],
+	},
+	'Template:InlineTplNoParamOrder': {
+		'format': 'inline',
+	},
+	'Template:BlockTplNoParamOrder': {
+		'format': 'block',
+	},
+	'Template:InlineTplWithParamOrder': {
+		'format': 'inline',
+		'paramOrder': ['f1','f2'],
+	},
+	'Template:BlockTplWithParamOrder': {
+		'format': 'block',
+		'paramOrder': ['f1','f2'],
+	},
+};
+
 var formatters = {
 	json: function(data) {
 		return JSON.stringify(data);
@@ -306,6 +329,16 @@ var availableActions = {
 		}
 	},
 
+	// Return a dummy response
+	templatedata: function(body, cb) {
+		cb(null, {
+			// FIXME: Assumes that body.titles is a single title
+			// (which is how Parsoid uses this endpoint right now).
+			'pages': {
+				'1': templateData[body.titles] || {},
+			},
+		});
+	},
 };
 
 var actionDefinitions = {
