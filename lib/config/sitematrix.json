@@ -4141,7 +4141,7 @@
 					"url": "https://my.wikipedia.org",
 					"dbname": "mywiki",
 					"code": "wiki",
-					"sitename": "Wikipedia"
+					"sitename": "ဝီကီပီးဒီးယား"
 				},
 				{
 					"url": "https://my.wiktionary.org",
@@ -5631,7 +5631,7 @@
 					"url": "https://sr.wiktionary.org",
 					"dbname": "srwiktionary",
 					"code": "wiktionary",
-					"sitename": "Wiktionary"
+					"sitename": "Викиречник"
 				},
 				{
 					"url": "https://sr.wikibooks.org",
@@ -6967,7 +6967,7 @@
 			],
 			"localname": "Zulu"
 		},
-		"count": 893,
+		"count": 894,
 		"specials": [
 			{
 				"url": "https://advisory.wikimedia.org",
@@ -7192,7 +7192,13 @@
 				"url": "https://wikitech.wikimedia.org",
 				"dbname": "labswiki",
 				"code": "labs",
-				"sitename": "Wikitech"
+				"sitename": "Wikipedia"
+			},
+			{
+				"url": "https://labtestwikitech.wikimedia.org",
+				"dbname": "labtestwiki",
+				"code": "labtest",
+				"sitename": "Wikipedia"
 			},
 			{
 				"url": "https://legalteam.wikimedia.org",
