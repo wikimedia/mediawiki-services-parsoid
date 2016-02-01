@@ -8,7 +8,13 @@ var ParsoidConfig = require('../../lib/config/ParsoidConfig.js').ParsoidConfig;
 var helpers = require('./test.helpers.js');
 
 describe('ParserPipelineFactory', function() {
-	var parsoidConfig = new ParsoidConfig(null, { defaultWiki: 'enwiki' });
+	// FIXME: MWParserEnvironment.getParserEnv and switchToConfig both require
+	// mwApiMap to be setup. This forces us to load WMF config. Fixing this
+	// will require some changes to ParsoidConfig and MWParserEnvironment.
+	// There are also specific dependencies on enwiki contents
+	// (subpage support and the {Lowercase title}} template)
+	// which ought to be factored out and mocked, longer-term.
+	var parsoidConfig = new ParsoidConfig(null, { loadWMF: true, defaultWiki: 'enwiki' });
 	var parse = function(src, options) {
 		return helpers.parse(parsoidConfig, src, options).then(function(ret) {
 			return ret.doc;

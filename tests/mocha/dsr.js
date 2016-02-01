@@ -8,7 +8,10 @@ var DU = require('../../lib/utils/DOMUtils.js').DOMUtils;
 var ParsoidConfig = require('../../lib/config/ParsoidConfig.js').ParsoidConfig;
 var helpers = require('./test.helpers.js');
 
-var parsoidConfig = new ParsoidConfig(null, { defaultWiki: 'enwiki' });
+// FIXME: MWParserEnvironment.getParserEnv and switchToConfig both require
+// mwApiMap to be setup. This forces us to load WMF config. Fixing this
+// will require some changes to ParsoidConfig and MWParserEnvironment.
+var parsoidConfig = new ParsoidConfig(null, { loadWMF: true, defaultWiki: 'enwiki' });
 var parse = function(src, options) {
 	return helpers.parse(parsoidConfig, src, options).then(function(ret) {
 		return ret.doc;

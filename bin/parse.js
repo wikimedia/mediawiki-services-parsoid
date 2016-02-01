@@ -122,6 +122,11 @@ var standardOpts = Util.addStandardOptions({
 		'boolean': true,
 		'default': false,
 	},
+	'loadWMF': {
+		description: 'Use WMF mediawiki API config',
+		'boolean': true,
+		'default': true,
+	},
 	'offline': {
 		description: 'Shortcut to turn off various network fetches during parse.',
 		'boolean': true,
@@ -344,6 +349,7 @@ if (require.main === module) {
 		}
 
 		var setup = function(parsoidConfig) {
+			parsoidConfig.loadWMF = argv.loadWMF;
 			if (local && local.setup) {
 				local.setup(parsoidConfig);
 			}
@@ -354,6 +360,7 @@ if (require.main === module) {
 		var parsoidConfig = new ParsoidConfig(
 			{ setup: setup }
 		);
+
 		parsoidConfig.defaultWiki = prefix ? prefix :
 			parsoidConfig.reverseMwApiMap.get(domain);
 

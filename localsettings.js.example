@@ -45,7 +45,9 @@ exports.setup = function(parsoidConfig) {
 	// We pre-define wikipedias as 'enwiki', 'dewiki' etc. Similarly
 	// for other projects: 'enwiktionary', 'enwikiquote', 'enwikibooks',
 	// 'enwikivoyage' etc. (default true)
-	//parsoidConfig.loadWMF = false;
+	// The default for this is false. Uncomment the line below if you want
+	// to load WMF's config for wikipedias, etc.
+	//parsoidConfig.loadWMF = true;
 
 	// A default proxy to connect to the API endpoints.
 	// Default: undefined (no proxying).

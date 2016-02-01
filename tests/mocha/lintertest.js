@@ -7,7 +7,12 @@ var ParsoidConfig = require('../../lib/config/ParsoidConfig.js').ParsoidConfig;
 var helpers = require('./test.helpers.js');
 
 describe('Linter Tests', function() {
-	var parsoidConfig = new ParsoidConfig(null, { defaultWiki: 'enwiki', linting: true });
+	// FIXME: MWParserEnvironment.getParserEnv and switchToConfig both require
+	// mwApiMap to be setup. This forces us to load WMF config. Fixing this
+	// will require some changes to ParsoidConfig and MWParserEnvironment.
+	// Parsing the `[[file:...]]` tags below may also require running the
+	// mock API to answer imageinfo queries.
+	var parsoidConfig = new ParsoidConfig(null, { defaultWiki: 'enwiki', loadWMF: true, linting: true });
 	var parseWT = function(wt) {
 		return helpers.parse(parsoidConfig, wt).then(function(ret) {
 			return ret.env.linter.buffer;
