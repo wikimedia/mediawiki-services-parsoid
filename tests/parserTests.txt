@@ -23224,6 +23224,8 @@ parsoid=html2wt
 <a rel="mw:ExtLink" href="http://google.com">google]</a></p>
 <p>[http://google.com]</p>
 <p>[http://google.com google]</p>
+<p>[<a rel="mw:ExtLink" href="http://google.com">http://google.com</a>]</p>
+<p>[<a rel="mw:ExtLink" href="http://google.com" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"http://google.com"}},"i":0}}]}'>http://google.com</a>]</p>
 !! wikitext
 [http://google.com <nowiki>[google]</nowiki>]
 [http://google.com <nowiki>google]</nowiki>]
@@ -23232,11 +23234,16 @@ parsoid=html2wt
 
 <nowiki>[http://google.com google]</nowiki>
 
+[http://google.com<nowiki>]</nowiki>
+
+[{{echo|http://google.com}}<nowiki>]</nowiki>
 !! html/php
 <p><a rel="nofollow" class="external text" href="http://google.com">[google]</a>
 <a rel="nofollow" class="external text" href="http://google.com">google]</a>
 </p><p>[http://google.com]
 </p><p>[http://google.com google]
+</p><p>[<a rel="nofollow" class="external text" href="http://google.com">http://google.com</a>]
+</p><p>[<a rel="nofollow" class="external text" href="http://google.com">http://google.com</a>]
 </p>
 !! end
 
@@ -23246,10 +23253,14 @@ Links 5. ExtLinks: No escapes needed
 parsoid=html2wt
 !! html/parsoid
 <p><a rel="mw:ExtLink" href="http://google.com">[google</a></p>
+<p>[<a ref="mw:ExtLink" href="http://google.com"></a>]</p>
 !! wikitext
 [http://google.com [google]
+
+[[http://google.com]]
 !! html/php
 <p><a rel="nofollow" class="external text" href="http://google.com">[google</a>
+<p>[<a rel="nofollow" class="external autonumber" href="http://google.com">[1]</a>]
 </p>
 !! end
 
