@@ -6357,6 +6357,19 @@ parsoid=wt2html
 !! end
 
 !! test
+Break on | in element attribute in template
+!! options
+parsoid=wt2html,html2html
+!! wikitext
+{{echo|1=<div class="hi|ho">ha</div>}}
+!! html/php
+<p>ho"&gt;ha&lt;/div&gt;
+</p>
+!! html/parsoid
+<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"ho\">ha&lt;/div>"}},"i":0}}]}'>ho">ha</span>
+!! end
+
+!! test
 Indented table markup mixed with indented pre content (proposed in bug 6200)
 !! wikitext
  <table>
