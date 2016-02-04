@@ -2059,27 +2059,29 @@ attribute_preprocessor_text_double
 // n.b. ! is a permissible char in the three rules below.
 // We only break on !! in th, enforced by the inline break.
 // Hence, it isn't included in the stop set.
+// [ is also permissible but we give a chance to break
+// for the [[ special case in php's doTableStuff (See T2553).
 
 // The stop set is space_or_newline and | which matches table_att_value.
 table_attribute_preprocessor_text
-  = r:( $[^{}&<\-! \t\n\r\x0c|]+
-  / !inline_breaks s:( directive / [{}&<\-!] ) { return s; }
+  = r:( $[^{}&<\-!\[ \t\n\r\x0c|]+
+  / !inline_breaks s:( directive / [{}&<\-!\[] ) { return s; }
   )+ {
     return tu.flattenString(r);
   }
 
 // The stop set is '\r\n| which matches table_att_value.
 table_attribute_preprocessor_text_single
-  = r:( $[^{}&<\-!'\r\n|]+
-  / !inline_breaks s:( directive / [{}&<\-!] ) { return s; }
+  = r:( $[^{}&<\-!\['\r\n|]+
+  / !inline_breaks s:( directive / [{}&<\-!\[] ) { return s; }
   )* {
     return tu.flattenString(r);
   }
 
 // The stop set is "\r\n| which matches table_att_value.
 table_attribute_preprocessor_text_double
-  = r:( $[^{}&<\-!"\r\n|]+
-  / !inline_breaks s:( directive / [{}&<\-!] ) { return s; }
+  = r:( $[^{}&<\-!\["\r\n|]+
+  / !inline_breaks s:( directive / [{}&<\-!\[] ) { return s; }
   )* {
     return tu.flattenString(r);
   }

@@ -10508,6 +10508,7 @@ Abort table cell attribute parsing on wikilink
 {|
 | testing [[one|two]] | three || four
 | testing one two | three || four
+| testing="[[one|two]]" | three || four
 |}
 !! html/php
 <table>
@@ -10517,12 +10518,16 @@ Abort table cell attribute parsing on wikilink
 </td>
 <td> three </td>
 <td> four
+</td>
+<td> testing="<a href="/index.php?title=One&amp;action=edit&amp;redlink=1" class="new" title="One (page does not exist)">two</a>" | three </td>
+<td> four
 </td></tr></table>
 
 !! html/parsoid
 <table>
 <tbody><tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td data-parsoid='{"autoInsertedEnd":true}'> testing <a rel="mw:WikiLink" href="./One" title="One" data-parsoid='{"stx":"piped","a":{"href":"./One"},"sa":{"href":"one"}}'>two</a> | three </td><td data-parsoid='{"stx_v":"row","autoInsertedEnd":true}'> four</td>
-<td data-parsoid='{"a":{"testing":null,"one":null,"two":null},"sa":{"testing":"","one":"","two":""},"autoInsertedEnd":true}'> three </td><td data-parsoid='{"stx_v":"row","autoInsertedEnd":true}'> four</td></tr>
+<td data-parsoid='{"a":{"testing":null,"one":null,"two":null},"sa":{"testing":"","one":"","two":""},"autoInsertedEnd":true}'> three </td><td data-parsoid='{"stx_v":"row","autoInsertedEnd":true}'> four</td>
+<td> testing="<a rel="mw:WikiLink" href="./One" title="One" data-parsoid='{"stx":"piped","a":{"href":"./One"},"sa":{"href":"one"}}'>two</a>" | three </td><td data-parsoid='{"stx_v":"row","autoInsertedEnd":true}'> four</td></tr>
 </tbody></table>
 !! end
 
