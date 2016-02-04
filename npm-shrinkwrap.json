@@ -4405,6 +4405,10 @@
         }
       }
     },
+    "semver": {
+      "version": "5.1.0",
+      "resolved": "https://registry.npmjs.org/semver/-/semver-5.1.0.tgz"
+    },
     "serve-favicon": {
       "version": "2.3.0",
       "resolved": "https://registry.npmjs.org/serve-favicon/-/serve-favicon-2.3.0.tgz",

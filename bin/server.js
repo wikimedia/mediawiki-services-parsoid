@@ -26,6 +26,8 @@ require('../core-upgrade.js');
 var cluster = require('cluster');
 var path = require('path');
 var util = require('util');
+var semver = require('semver');
+var Promise = require('../lib/utils/promise.js');
 
 // process arguments
 var opts = require("yargs")
@@ -107,6 +109,40 @@ process.on('uncaughtException', function(err) {
 
 var timer = parsoidConfig.performanceTimer;
 
+// Workaround for https://github.com/nodejs/node/pull/3510
+var fixClusterHandleLeak = function(worker) {
+	if (semver.gte(process.version, '4.2.2')) { return; }
+	var exitHandler = worker.process.listeners('exit')[0].listener;
+	var disconnectHandler = worker.process.listeners('disconnect')[0].listener;
+	worker.process.removeListener('exit', exitHandler);
+	worker.process.once('exit', function() {
+		if (worker.state !== 'disconnected') {
+			disconnectHandler();
+		}
+		exitHandler.apply(this, arguments);
+	});
+};
+
+var stopWorker = function(workerId) {
+	var worker = cluster.workers[workerId];
+	var p = new Promise(function(resolve) {
+		var timeout = setTimeout(function() {
+			// https://nodejs.org/api/cluster.html#cluster_worker_kill_signal_sigterm
+			// `worker.kill()` wants `worker.state === 'disconnected'`.
+			// If that doesn't happen shortly, escalate!
+			process.kill(worker.process.pid, 'SIGKILL');
+			resolve();
+		}, 10 * 1000);
+		worker.on('disconnect', function() {
+			worker.kill('SIGKILL');
+			clearTimeout(timeout);
+			resolve();
+		});
+	});
+	worker.disconnect();
+	return p;
+};
+
 if (cluster.isMaster && argv.n > 0) {
 	// Master
 
@@ -114,6 +150,7 @@ if (cluster.isMaster && argv.n > 0) {
 	var timeouts = new Map();
 	var spawn = function() {
 		var worker = cluster.fork();
+		fixClusterHandleLeak(worker);
 		worker.on('message', timeoutHandler.bind(null, worker));
 	};
 
@@ -137,7 +174,7 @@ if (cluster.isMaster && argv.n > 0) {
 						msg.location, pid
 					));
 					if (timer) { timer.count('worker.exit.SIGKILL', ''); }
-					worker.kill("SIGKILL");
+					stopWorker(worker.id);
 					spawn();
 				}
 			}, msg.timeout));
@@ -160,9 +197,9 @@ if (cluster.isMaster && argv.n > 0) {
 	});
 
 	var shutdownMaster = function() {
-		processLogger.log("info", "shutting down, killing workers");
-		cluster.disconnect(function() {
-			processLogger.log("info", "exiting");
+		processLogger.log('info', 'shutting down, killing workers');
+		Promise.map(Object.keys(cluster.workers), stopWorker).then(function() {
+			processLogger.log('info', 'exiting');
 			process.exit(0);
 		});
 	};
