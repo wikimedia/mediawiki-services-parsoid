@@ -123,25 +123,29 @@ var fixClusterHandleLeak = function(worker) {
 	});
 };
 
-var stopWorker = function(workerId) {
+var stopWorker = Promise.method(function(workerId) {
 	var worker = cluster.workers[workerId];
+	// ctrl-c sends SIGINT to all the workers, so make sure we haven't lost
+	// the race.  In the disconnected state, `worker.disconnect()` throws
+	// an error, "channel closed".
+	if (worker.state === 'disconnected') { return; }
 	var p = new Promise(function(resolve) {
 		var timeout = setTimeout(function() {
 			// https://nodejs.org/api/cluster.html#cluster_worker_kill_signal_sigterm
 			// `worker.kill()` wants `worker.state === 'disconnected'`.
 			// If that doesn't happen shortly, escalate!
-			process.kill(worker.process.pid, 'SIGKILL');
+			worker.process.kill('SIGKILL');
 			resolve();
 		}, 10 * 1000);
-		worker.on('disconnect', function() {
-			worker.kill('SIGKILL');
+		worker.once('disconnect', function() {
 			clearTimeout(timeout);
+			worker.process.kill('SIGKILL');
 			resolve();
 		});
 	});
 	worker.disconnect();
 	return p;
-};
+});
 
 if (cluster.isMaster && argv.n > 0) {
 	// Master
@@ -187,8 +191,10 @@ if (cluster.isMaster && argv.n > 0) {
 		spawn();
 	}
 
+	var shuttingDown = false;
+
 	cluster.on('exit', function(worker, code, signal) {
-		if (!worker.suicide) {
+		if (!worker.suicide && !shuttingDown) {
 			var pid = worker.process.pid;
 			processLogger.log("warning", util.format("worker %s died (%s), restarting.", pid, signal || code));
 			if (timer) { timer.count('worker.exit.' + (signal || code), ''); }
@@ -197,11 +203,12 @@ if (cluster.isMaster && argv.n > 0) {
 	});
 
 	var shutdownMaster = function() {
+		shuttingDown = true;
 		processLogger.log('info', 'shutting down, killing workers');
 		Promise.map(Object.keys(cluster.workers), stopWorker).then(function() {
 			processLogger.log('info', 'exiting');
 			process.exit(0);
-		});
+		}).done();
 	};
 
 	process.on('SIGINT', shutdownMaster);
@@ -215,6 +222,7 @@ if (cluster.isMaster && argv.n > 0) {
 		process.exit(0);
 	};
 
+	process.on('SIGINT', shutdownWorker);
 	process.on('SIGTERM', shutdownWorker);
 	process.on('disconnect', shutdownWorker);
 
