@@ -2732,9 +2732,9 @@ Templates: Handle comments in parameter names (bug 67657)
 <!-- should be ignored -->
 1 = foo}}
 
-{{echo|1<!-- should be ignored --> = foo}}
+{{echo|1<!-- should be ignored -->=foo}}
 
-{{echo|<!-- should be ignored -->1 = foo}}
+{{echo|<!-- should be ignored -->1=foo}}
 !!html/parsoid
 <p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo","key":{"wt":"1\n&lt;!-- should be ignored -->"}}},"i":0}}]}'>foo</p>
 
@@ -10435,7 +10435,7 @@ Template with complex template as argument
 !! test
 Template with thumb image (with link in description)
 !! wikitext
-{{paramtest|param =[[Image:noimage.png|thumb|[[no link|link]] [[no link|caption]]]]}}
+{{paramtest|param=[[Image:noimage.png|thumb|[[no link|link]] [[no link|caption]]]]}}
 !! html/php
 This is a test template with parameter <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/index.php?title=Special:Upload&amp;wpDestFile=Noimage.png" class="new" title="File:Noimage.png">File:Noimage.png</a>  <div class="thumbcaption"><a href="/index.php?title=No_link&amp;action=edit&amp;redlink=1" class="new" title="No link (page does not exist)">link</a> <a href="/index.php?title=No_link&amp;action=edit&amp;redlink=1" class="new" title="No link (page does not exist)">caption</a></div></div></div>
 
@@ -25197,9 +25197,9 @@ data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},
 <!--FIXME: But maybe the heuristic needs fixing to apply to new params as well-->
 <p data-parsoid='{"pi":[[{"k":"1","spc":["","","",""]},{"k":"2","spc":["","","",""]}]]}' about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"f=oo"},"2":{"wt":"bar"}},"i":0}}]}'>foo</p>
 !! wikitext
-{{echo|1 = f=oo}}
+{{echo|1=f=oo}}
 
-{{echo|1 = f=oo|2 = bar}}
+{{echo|1=f=oo|2=bar}}
 
 <!--Orig params with data-parsoid has heuristics for handling = chars-->
 <!--FIXME: But maybe the heuristic needs fixing to apply to new params as well-->
@@ -25213,7 +25213,7 @@ parsoid=html2wt
 !! html/parsoid
 <p><a rel="mw:ExtLink" href="http://stuff?is=ok" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"http://stuff?is=ok"}},"i":0}}]}'>http://stuff?is=ok</a></p>
 !! wikitext
-{{echo|1 = http://stuff?is=ok}}
+{{echo|1=http://stuff?is=ok}}
 !! end
 
 !! test

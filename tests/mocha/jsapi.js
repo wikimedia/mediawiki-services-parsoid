@@ -107,7 +107,7 @@ describe('Examples from guides/jsapi', function() {
 			});
 			return pdoc.toWikitext();
 		}).then(function(wt) {
-			wt.should.equal("{{cleanup|date = July 2012}} '''Foo''' is a [[bar]]. {{bar-stub}}");
+			wt.should.equal("{{cleanup|date=July 2012}} '''Foo''' is a [[bar]]. {{bar-stub}}");
 		});
 	});
 });
@@ -127,7 +127,7 @@ describe('Further examples of PDoc API', function() {
 			});
 			return pdoc.toWikitext();
 		}).then(function(wt) {
-			wt.should.equal("{{echo|{{cleanup|date = July 2012|test1 = <nowiki>{{foo}}</nowiki>&bar{{!}}bat<nowiki><p></nowiki>|test2 = I'm so '''bold'''!}} '''Foo''' is a [[bar]].}} {{uncategorized}}");
+			wt.should.equal("{{echo|{{cleanup|date=July 2012|test1=<nowiki>{{foo}}</nowiki>&bar{{!}}bat<nowiki><p></nowiki>|test2=I'm so '''bold'''!}} '''Foo''' is a [[bar]].}} {{uncategorized}}");
 		});
 	});
 	it('is safe to mutate template arguments', function() {
