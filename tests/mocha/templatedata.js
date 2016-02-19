@@ -16,7 +16,12 @@ require(configPath).setup(fakeConfig);  // Set limits
 
 var api;
 
-function verifyTransformation(newHTML, origHTML, origWT, expectedWT, done) {
+function verifyTransformation(newHTML, origHTML, origWT, expectedWT, done, dpVersion) {
+	// Default version is the latest
+	if (!dpVersion) {
+		dpVersion = '0.0.2';
+	}
+
 	var payload = { html: newHTML };
 	if (origHTML) {
 		payload.original = {
@@ -38,7 +43,7 @@ function verifyTransformation(newHTML, origHTML, origWT, expectedWT, done) {
 			// Without the dummy data-parsoid, we scream murder.
 			"data-parsoid": {
 				headers: {
-					'content-type': 'application/json;profile="mediawiki.org/specs/data-parsoid/0.0.1"',
+					'content-type': 'application/json;profile="mediawiki.org/specs/data-parsoid/' + dpVersion + '"',
 				},
 				body: {
 					'counter': 0,
@@ -71,7 +76,7 @@ var tests = [
 
 	// 2. normal
 	{
-		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1","spc":["","","",""]},{"k":"f2","spc":["","","",""]}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"NoFormatWithParamOrder","href":"./Template:NoFormatWithParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>',
+		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1"},{"k":"f2"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"NoFormatWithParamOrder","href":"./Template:NoFormatWithParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>',
 		'wt': {
 			'no_selser':   '{{NoFormatWithParamOrder|f1=foo|f2=foo}}',
 			'new_content': '{{NoFormatWithParamOrder|f1=foo|f2=foo}}',
@@ -82,7 +87,7 @@ var tests = [
 	// 3. flipped f1 & f2 in data-parsoid
 	{
 		'name': 'Enforce param order',
-		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f2","spc":["","","",""]},{"k":"f1","spc":["","","",""]}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"NoFormatWithParamOrder","href":"./Template:NoFormatWithParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>',
+		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f2"},{"k":"f1"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"NoFormatWithParamOrder","href":"./Template:NoFormatWithParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>',
 		'wt': {
 			'no_selser':   '{{NoFormatWithParamOrder|f2=foo|f1=foo}}',
 			'new_content': '{{NoFormatWithParamOrder|f1=foo|f2=foo}}',
@@ -104,11 +109,11 @@ var tests = [
 	// 5. block-tpl (but written in inline format originally); no param order
 	{
 		'name': 'Enforce block format',
-		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1","spc":["","","",""]},{"k":"f2","spc":["","","",""]}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"BlockTplNoParamOrder","href":"./Template:BlockTplNoParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>',
+		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1"},{"k":"f2"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"BlockTplNoParamOrder","href":"./Template:BlockTplNoParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>',
 		'wt': {
 			'no_selser':   '{{BlockTplNoParamOrder|f1=foo|f2=foo}}',
 			'new_content': '{{BlockTplNoParamOrder\n| f1 = foo\n| f2 = foo\n}}',
-			'edited':      '{{BlockTplNoParamOrder\n| f1=BAR\n| f2=foo\n}}',
+			'edited':      '{{BlockTplNoParamOrder\n| f1 = BAR\n| f2 = foo\n}}',
 		},
 	},
 
@@ -126,18 +131,18 @@ var tests = [
 	// 7. block-tpl (but written in inline format originally); with param order
 	{
 		'name': 'Enforce block format + param order',
-		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f2","spc":["","","",""]},{"k":"f1","spc":["","","",""]}]]}' + "'" + ' data-mw=' + "'" + '{"parts":[{"template":{"target":{"wt":"BlockTplWithParamOrder","href":"./Template:BlockTplWithParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>',
+		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f2"},{"k":"f1"}]]}' + "'" + ' data-mw=' + "'" + '{"parts":[{"template":{"target":{"wt":"BlockTplWithParamOrder","href":"./Template:BlockTplWithParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>',
 		'wt': {
 			'no_selser':   '{{BlockTplWithParamOrder|f2=foo|f1=foo}}',
 			'new_content': '{{BlockTplWithParamOrder\n| f1 = foo\n| f2 = foo\n}}',
-			'edited':      '{{BlockTplWithParamOrder\n| f1=BAR\n| f2=foo\n}}',
+			'edited':      '{{BlockTplWithParamOrder\n| f1 = BAR\n| f2 = foo\n}}',
 		},
 	},
 
 	// 8. Multiple transclusions
 	{
 		'name': 'Multiple transclusions',
-		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f2","spc":[""," "," ","\\n"]},{"k":"f1","spc":[""," "," ","\\n"]}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"TplWithoutTemplateData\\n","href":"./Template:TplWithoutTemplateData"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>' + ' <span about="#mwt2" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f2","spc":["","","",""]},{"k":"f1","spc":["","","",""]}]]}' + "'" + ' data-mw=' + "'" + '{"parts":[{"template":{"target":{"wt":"BlockTplWithParamOrder","href":"./Template:BlockTplWithParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>',
+		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f2","spc":[""," "," ","\\n"]},{"k":"f1","spc":[""," "," ","\\n"]}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"TplWithoutTemplateData\\n","href":"./Template:TplWithoutTemplateData"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>' + ' <span about="#mwt2" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f2"},{"k":"f1"}]]}' + "'" + ' data-mw=' + "'" + '{"parts":[{"template":{"target":{"wt":"BlockTplWithParamOrder","href":"./Template:BlockTplWithParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>',
 		'wt': {
 			'no_selser':   '{{TplWithoutTemplateData\n|f2 = foo\n|f1 = foo\n}} {{BlockTplWithParamOrder|f2=foo|f1=foo}}',
 			'new_content': '{{TplWithoutTemplateData|f1=foo|f2=foo}} {{BlockTplWithParamOrder\n| f1 = foo\n| f2 = foo\n}}',
@@ -148,11 +153,30 @@ var tests = [
 	// 9. data-mw with multiple transclusions
 	{
 		'name': 'Multiple transclusions',
-		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f2","spc":["","","",""]},{"k":"f1","spc":["","","",""]}], [{"k":"f2","spc":[""," "," ","\\n"]},{"k":"f1","spc":[""," "," ","\\n"]}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"BlockTplWithParamOrder","href":"./Template:BlockTplWithParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}},"SOME TEXT",{"template":{"target":{"wt":"InlineTplNoParamOrder\\n","href":"./Template:InlineTplNoParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":1}}]}' + "'" + '>foo</span>',
+		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f2"},{"k":"f1"}], [{"k":"f2","spc":[""," "," ","\\n"]},{"k":"f1","spc":[""," "," ","\\n"]}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"BlockTplWithParamOrder","href":"./Template:BlockTplWithParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}},"SOME TEXT",{"template":{"target":{"wt":"InlineTplNoParamOrder\\n","href":"./Template:InlineTplNoParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":1}}]}' + "'" + '>foo</span>',
 		'wt': {
 			'no_selser':   '{{BlockTplWithParamOrder|f2=foo|f1=foo}}SOME TEXT{{InlineTplNoParamOrder\n|f2 = foo\n|f1 = foo\n}}',
 			'new_content': '{{BlockTplWithParamOrder\n| f1 = foo\n| f2 = foo\n}}SOME TEXT{{InlineTplNoParamOrder|f1=foo|f2=foo}}',
-			'edited':      '{{BlockTplWithParamOrder\n| f1=BAR\n| f2=foo\n}}SOME TEXT{{InlineTplNoParamOrder|f2 = foo|f1 = foo}}',
+			'edited':      '{{BlockTplWithParamOrder\n| f1 = BAR\n| f2 = foo\n}}SOME TEXT{{InlineTplNoParamOrder|f2 = foo|f1 = foo}}',
+		},
+	},
+];
+
+var dataParsoidVersionTests = [
+	{
+		'dpVersion': '0.0.1',
+		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1"},{"k":"f1"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"TplWithoutTemplateData","href":"./Template:TplWithoutTemplateData"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>',
+		'wt': {
+			'orig':   '{{TplWithoutTemplateData|f1 = foo|f2 = foo}}',
+			'edited': '{{TplWithoutTemplateData|f1 = BAR|f2 = foo}}',
+		},
+	},
+	{
+		'dpVersion': '0.0.2',
+		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1"},{"k":"f1"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"TplWithoutTemplateData","href":"./Template:TplWithoutTemplateData"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>',
+		'wt': {
+			'orig':   '{{TplWithoutTemplateData|f1=foo|f2=foo}}',
+			'edited': '{{TplWithoutTemplateData|f1=BAR|f2=foo}}',
 		},
 	},
 ];
@@ -200,6 +224,15 @@ describe('[TemplateData]', function() {
 			// to simulate an edit of a transclusion.
 			var newHTML = html.replace(/foo/, 'BAR');
 			verifyTransformation(newHTML, html, test.wt.no_selser, test.wt.edited, done);
+		});
+	});
+
+	dataParsoidVersionTests.forEach(function(test) {
+		it('Serialization should use correct arg space defaults for data-parsoid version ' + test.dpVersion, function(done) {
+			// Replace only the first instance of 'foo' with 'BAR'
+			// to simulate an edit of a transclusion.
+			var newHTML = test.html.replace(/foo/, 'BAR');
+			verifyTransformation(newHTML, test.html, test.wt.orig, test.wt.edited, done, test.dpVersion);
 		});
 	});
 });

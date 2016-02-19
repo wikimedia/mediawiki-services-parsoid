@@ -185,7 +185,7 @@ describe('Parsoid API', function() {
 					res.body['data-parsoid'].should.have.property('headers');
 					res.body['data-parsoid'].headers.should.have.property('content-type');
 					res.body['data-parsoid'].headers['content-type'].should.equal(
-						'application/json; charset=utf-8; profile="mediawiki.org/specs/data-parsoid/0.0.1"'
+						'application/json; charset=utf-8; profile="mediawiki.org/specs/data-parsoid/0.0.2"'
 					);
 					res.body['data-parsoid'].should.have.property('body');
 					var doc = domino.createDocument(res.body.html.body);
@@ -259,7 +259,7 @@ describe('Parsoid API', function() {
 				},
 				"data-parsoid": {
 					headers: {
-						'content-type': 'application/json;profile="mediawiki.org/specs/data-parsoid/0.0.1"',
+						'content-type': 'application/json;profile="mediawiki.org/specs/data-parsoid/0.0.2"',
 					},
 					body: {
 						"counter": 14,
@@ -764,7 +764,7 @@ describe('Parsoid API', function() {
 						},
 						"data-parsoid": {
 							headers: {
-								'content-type': 'application/json;profile="mediawiki.org/specs/data-parsoid/0.0.1"',
+								'content-type': 'application/json;profile="mediawiki.org/specs/data-parsoid/0.0.2"',
 							},
 							body: {
 								"counter": 14,
@@ -795,7 +795,7 @@ describe('Parsoid API', function() {
 						},
 						'data-parsoid': {
 							headers: {
-								'content-type': 'application/json;profile="mediawiki.org/specs/data-parsoid/0.0.1"',
+								'content-type': 'application/json;profile="mediawiki.org/specs/data-parsoid/0.0.2"',
 							},
 							body: {},
 						},
@@ -821,7 +821,7 @@ describe('Parsoid API', function() {
 						},
 						'data-parsoid': {
 							headers: {
-								'content-type': 'application/json;profile="mediawiki.org/specs/data-parsoid/0.0.1"',
+								'content-type': 'application/json;profile="mediawiki.org/specs/data-parsoid/0.0.2"',
 							},
 							body: 'Garbled text from RESTBase.',
 						},
