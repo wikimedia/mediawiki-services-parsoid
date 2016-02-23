@@ -2520,6 +2520,7 @@ Barack Obama <President> of the United States
 </p>
 !! end
 
+## PHP parser discards the "<pre " string
 !! test
 Handle broken pre-like tags (bug 64025)
 !! options
@@ -2530,13 +2531,8 @@ parsoid=wt2html
 <table><pre </table>
 !! html/php
 <pre>x</pre>
-<table>&lt;pre </table>
+<table><pre></pre></table>
 
-!! html/php+tidy
-<pre>
-x
-</pre>
-<p>&lt;pre</p>
 !! html/parsoid
 <pre about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"a":{"&lt;pre":null},"sa":{"&lt;pre":""},"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;pre &lt;pre>x&lt;/pre>"}},"i":0}}]}'>x</pre>
 
@@ -6334,6 +6330,24 @@ parsoid=wt2html,html2html
 <td data-parsoid='{"startTagSrc":"| ","attrSepSrc":"|","autoInsertedEnd":true}'><a rel="mw:ExtLink" href="ftp://|x||"></a>" onmouseover="alert(document.cookie)">test</td></tr></tbody></table>
 !! end
 
+!! test
+! and || in element attributes should not be parsed as <th>/<td>
+!! wikitext
+{|
+| <div style="color: red !important;" data-contrived="put this here ||">hi</div>
+|}
+!! html/php
+<table>
+<tr>
+<td> <div style="color: red !important;" data-contrived="put this here &#124;&#124;">hi</div>
+</td></tr></table>
+
+!! html/parsoid
+<table>
+<tbody><tr><td> <div style="color: red !important;" data-contrived="put this here ||" data-parsoid='{"stx":"html"}'>hi</div></td></tr>
+</tbody></table>
+!! end
+
 # FIXME: The output seems broken. Filed as T110268.
 !! test
 ! and || in td attributes should not be parsed as <th>/<td>
@@ -6551,14 +6565,18 @@ Table with empty line following the start tag
 
 !! end
 
-# FIXME: Preserve the attribute properly (with an empty string as value) in
-# the PHP parser. Parsoid implements the behavior below.
 !! test
 Table attributes with empty value
 !! wikitext
 {|
 | style=| hello
 |}
+!! html/php
+<table>
+<tr>
+<td style=""> hello
+</td></tr></table>
+
 !! html/parsoid
 <table>
 <tbody>
@@ -9799,8 +9817,7 @@ Magic Word: {{SCRIPTPATH}}
 !! wikitext
 {{SCRIPTPATH}}
 !! html
-<p>/
-</p>
+
 !! end
 
 !! test
@@ -10964,8 +10981,6 @@ Un-closed <includeonly>
 !! wikitext
 <includeonly>
 !! html/php
-<p>&lt;includeonly&gt;
-</p>
 !! html/parsoid
 <meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"src":"&lt;includeonly>"}'/>
 !! end
@@ -15454,12 +15469,8 @@ div with illegal double attributes
 
 !!end
 
-# FIXME: produce empty string instead of "class" in the PHP parser, following
-# the HTML5 spec.
 !! test
 div with empty attribute value, space before equals
-!! options
-parsoid
 !! wikitext
 <div class =>HTML rocks</div>
 !! html
@@ -15467,26 +15478,36 @@ parsoid
 
 !! end
 
+# FIXME: Parsoid doesn't match the html5 spec
 !! test
 div with multiple empty attribute values
 !! options
-parsoid
+parsoid=wt2html,html2html
 !! wikitext
 <div id= title=>HTML rocks</div>
-!! html
-<div id="" title="">HTML rocks</div>
+!! html/php
+<div id="title.3D">HTML rocks</div>
 
+!! html/parsoid
+<div id="" title="">HTML rocks</div>
 !! end
 
+# FIXME: Parsoid doesn't match the html5 spec
 !! test
 table with multiple empty attribute values
 !! options
-parsoid
+parsoid=wt2html,html2html
 !! wikitext
 {| title= id=
 | hi
 |}
-!! html
+!! html/php
+<table title="id=">
+<tr>
+<td> hi
+</td></tr></table>
+
+!! html/parsoid
 <table title="" id="">
 <tbody><tr><td> hi</td></tr>
 </tbody></table>
@@ -15503,13 +15524,6 @@ div with braces in attribute value
 <div title="{}">Foo</div>
 !! end
 
-# This it very inconsistent in the PHP parser: it returns 
-# class="class" if there is a space between the name and the equal sign (see
-# 'div with empty attribute value, space before equals'), but strips the
-# attribute completely if the space is missing. We hope that not much content
-# depends on this, so are implementing the behavior below in Parsoid for
-# consistencies' sake.
-# FIXME: fix this behavior in the PHP parser?
 !! test
 div with empty attribute value, no space before equals
 !! options
@@ -15517,7 +15531,7 @@ parsoid=wt2html,html2html
 !! wikitext
 <div class=>HTML rocks</div>
 !! html/php
-<div>HTML rocks</div>
+<div class="">HTML rocks</div>
 
 !! html/parsoid
 <div class="">HTML rocks</div>
@@ -15838,8 +15852,8 @@ Empty attribute crash test single-quotes (bug 2067)
 Attribute test: equals, then nothing
 !! wikitext
 <font color=>foo</font>
-!! html
-<p><font>foo</font>
+!! html/php
+<p><font color="">foo</font>
 </p>
 !! end
 
@@ -23245,8 +23259,8 @@ parsoid=html2wt
 <a rel="nofollow" class="external text" href="http://google.com">google]</a>
 </p><p>[http://google.com]
 </p><p>[http://google.com google]
-</p><p>[<a rel="nofollow" class="external text" href="http://google.com">http://google.com</a>]
-</p><p>[<a rel="nofollow" class="external text" href="http://google.com">http://google.com</a>]
+</p><p>[<a rel="nofollow" class="external free" href="http://google.com">http://google.com</a>]
+</p><p>[<a rel="nofollow" class="external free" href="http://google.com">http://google.com</a>]
 </p>
 !! end
 
@@ -23263,7 +23277,7 @@ parsoid=html2wt
 [[http://google.com]]
 !! html/php
 <p><a rel="nofollow" class="external text" href="http://google.com">[google</a>
-<p>[<a rel="nofollow" class="external autonumber" href="http://google.com">[1]</a>]
+</p><p>[<a rel="nofollow" class="external autonumber" href="http://google.com">[1]</a>]
 </p>
 !! end
 
@@ -23942,14 +23956,15 @@ HTML tag with 'unnecessary' entity encoding in attributes
 
 !! test
 HTML tag with broken attribute value quoting
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 <span title="Hello world>Foo</span>
 !! html/php
 <p><span title="Hello world">Foo</span>
 </p>
 !! html/parsoid
-<p><span title="Hello world">Foo</span>
-</p>
+<p><span title="Hello world">Foo</span></p>
 !! end
 
 !! test
@@ -23967,6 +23982,8 @@ parsoid=wt2html,html2html
 
 !! test
 Table with broken attribute value quoting
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 {|
 | title="Hello world|Foo
@@ -23987,6 +24004,8 @@ Table with broken attribute value quoting
 
 !! test
 Table with broken attribute value quoting on consecutive lines
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 {|
 | title="Hello world|Foo
