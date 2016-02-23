@@ -22031,8 +22031,11 @@ B <span about="#mwt4" class="mw-ref" id="cite_ref-2" rel="dc:references" typeof=
 </ol>
 !!end
 
-!!test
+## Don't expect this to rt since we're dropping content
+!! test
 References: 5. ref tags in references should be processed while ignoring all other content
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 A <ref name="a" />
 B <ref name="b">bar</ref>
@@ -22046,18 +22049,18 @@ This should just get lost.
 B <span about="#mwt4" class="mw-ref" id="cite_ref-b_2-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-b-2"},"attrs":{"name":"b"}}'><a href="#cite_note-b-2"><span class="mw-reflink-text">[2]</span></a></span></p>
 
 
-<ol class="mw-references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","body":{"extsrc":"&lt;ref name=\"a\">foo&lt;/ref>\nThis should just get lost.","html":"\n&lt;span about=\"#mwt8\" class=\"mw-ref\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid=&#39;{\"dsr\":[59,82,14,6]}&#39; data-mw=&#39;{\"name\":\"ref\",\"body\":{\"id\":\"mw-reference-text-cite_note-a-1\"},\"attrs\":{\"name\":\"a\"}}&#39;>&lt;a href=\"#cite_note-a-1\" style=\"counter-reset: mw-Ref 1;\">&lt;span class=\"mw-reflink-text\">[1]&lt;/span>&lt;/a>&lt;/span>\n"},"attrs":{}}'><li about="#cite_note-a-1" id="cite_note-a-1"><a href="#cite_ref-a_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-a-1" class="mw-reference-text">foo</span></li><li about="#cite_note-b-2" id="cite_note-b-2"><a href="#cite_ref-b_2-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-b-2" class="mw-reference-text">bar</span></li>
+<ol class="mw-references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","attrs":{},"body":{"html":"\n&lt;span about=\"#mwt8\" class=\"mw-ref\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid=&#39;{\"dsr\":[59,82,14,6]}&#39; data-mw=&#39;{\"name\":\"ref\",\"body\":{\"id\":\"mw-reference-text-cite_note-a-1\"},\"attrs\":{\"name\":\"a\"}}&#39;>&lt;a href=\"#cite_note-a-1\" style=\"counter-reset: mw-Ref 1;\">&lt;span class=\"mw-reflink-text\">[1]&lt;/span>&lt;/a>&lt;/span>\n"}}'><li about="#cite_note-a-1" id="cite_note-a-1"><a href="#cite_ref-a_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-a-1" class="mw-reference-text">foo</span></li><li about="#cite_note-b-2" id="cite_note-b-2"><a href="#cite_ref-b_2-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-b-2" class="mw-reference-text">bar</span></li>
 </ol>
-!!end
+!! end
 
-!!test
+!! test
 References: 6. <references /> from a transclusion
 !! wikitext
 <ref>Foo</ref> {{echo|<references />}}
 !! html/parsoid
 <p><span about="#mwt3" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-1"},"attrs":{}}'><a href="#cite_note-1"><span class="mw-reflink-text">[1]</span></a></span></p> <ol class="mw-references" typeof="mw:Extension/references mw:Transclusion" about="#mwt4" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;references />"}},"i":0}}]}'><li about="#cite_note-1" id="cite_note-1"><a href="#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">Foo</span></li>
 </ol>
-!!end
+!! end
 
 !! test
 References: 7. Multiple references tags (one without and one with nested refs) should be correctly handled
@@ -22079,7 +22082,7 @@ B <span about="#mwt4" class="mw-ref" id="cite_ref-b_2-0" rel="dc:references" typ
 <li about="#cite_note-1" id="cite_note-1"><a href="#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">foo bar for a</span></li>
 </ol>
 
-<ol class="mw-references" typeof="mw:Extension/references" about="#mwt8" data-mw-group="X" data-mw='{"name":"references","body":{"extsrc":"&lt;ref name=\"b\">foo&lt;/ref>","html":"\n&lt;span about=\"#mwt10\" class=\"mw-ref\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid=&#39;{\"dsr\":[96,119,14,6]}&#39; data-mw=&#39;{\"name\":\"ref\",\"body\":{\"id\":\"mw-reference-text-cite_note-b-2\"},\"attrs\":{\"name\":\"b\"}}&#39;>&lt;a href=\"#cite_note-b-2\" style=\"counter-reset: mw-Ref 1;\" data-mw-group=\"X\">&lt;span class=\"mw-reflink-text\">[X 1]&lt;/span>&lt;/a>&lt;/span>\n"},"attrs":{"group":"X"}}'>
+<ol class="mw-references" typeof="mw:Extension/references" about="#mwt8" data-mw-group="X" data-mw='{"name":"references","attrs":{"group":"X"},"body":{"html":"\n&lt;span about=\"#mwt10\" class=\"mw-ref\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid=&#39;{\"dsr\":[96,119,14,6]}&#39; data-mw=&#39;{\"name\":\"ref\",\"body\":{\"id\":\"mw-reference-text-cite_note-b-2\"},\"attrs\":{\"name\":\"b\"}}&#39;>&lt;a href=\"#cite_note-b-2\" style=\"counter-reset: mw-Ref 1;\" data-mw-group=\"X\">&lt;span class=\"mw-reflink-text\">[X 1]&lt;/span>&lt;/a>&lt;/span>\n"}}'>
 <li about="#cite_note-b-2" id="cite_note-b-2"><a href="#cite_ref-b_2-0" data-mw-group="X" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-b-2" class="mw-reference-text">foo</span></li>
 </ol>
 !! end
