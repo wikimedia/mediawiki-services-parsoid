@@ -1336,7 +1336,7 @@ generic_att_value
   / s:$(space_or_newline* '"') t:attribute_preprocessor_text_double? q:$('"' / &('/'? '>')) {
       return tu.getAttributeValueAndSource(input, t, startOffset() + s.length, endOffset() - q.length);
     }
-  / s:$space_or_newline* t:attribute_preprocessor_text !'=' {
+  / s:$space_or_newline* t:attribute_preprocessor_text &(space_or_newline / eof / '/'? '>') {
       return tu.getAttributeValueAndSource(input, t, startOffset() + s.length, endOffset());
     }
 
@@ -1350,7 +1350,7 @@ table_att_value
   / s:$(space* '"') t:table_attribute_preprocessor_text_double? q:$('"' / &('!!' / [|\r\n])) {
       return tu.getAttributeValueAndSource(input, t, startOffset() + s.length, endOffset() - q.length);
     }
-  / s:$space* t:table_attribute_preprocessor_text !'=' {
+  / s:$space* t:table_attribute_preprocessor_text &(space_or_newline/ eof / '!!' / '|') {
       return tu.getAttributeValueAndSource(input, t, startOffset() + s.length, endOffset());
     }
 
@@ -2019,8 +2019,14 @@ extlink_preprocessor_text
   }
 
 // Attribute values with preprocessor support
+
+// n.b. / is a permissible char in the three rules below.
+// We only break on />, enforced by the negated expression.
+// Hence, it isn't included in the stop set.
+
+// The stop set is space_or_newline and > which matches generic_att_value.
 attribute_preprocessor_text
-  = r:( $[^{}&<\-|'"\r\n=>\t /]+
+  = r:( $[^{}&<\-|/ \t\n\r\x0c>]+
   / !inline_breaks
     !'/>'
     s:( directive / [{}&<\-|/] ) { return s; }
@@ -2028,9 +2034,9 @@ attribute_preprocessor_text
     return tu.flattenString(r);
   }
 
-// The stop set is '/> which matches generic_att_value.
+// The stop set is '> which matches generic_att_value.
 attribute_preprocessor_text_single
-  = r:( $[^{}&<\-|'/>]+
+  = r:( $[^{}&<\-|/'>]+
   / !inline_breaks
     !'/>'
     s:( directive / [{}&<\-|/] ) { return s; }
@@ -2038,9 +2044,9 @@ attribute_preprocessor_text_single
     return tu.flattenString(r);
   }
 
-// The stop set is "/> which matches generic_att_value.
+// The stop set is "> which matches generic_att_value.
 attribute_preprocessor_text_double
-  = r:( $[^{}&<\-|"/>]+
+  = r:( $[^{}&<\-|/">]+
   / !inline_breaks
     !'/>'
     s:( directive / [{}&<\-|/] ) { return s; }
@@ -2049,29 +2055,31 @@ attribute_preprocessor_text_double
   }
 
 // Variants with the entire attribute on a single line
+
+// n.b. ! is a permissible char in the three rules below.
+// We only break on !! in th, enforced by the inline break.
+// Hence, it isn't included in the stop set.
+
+// The stop set is space_or_newline and | which matches table_att_value.
 table_attribute_preprocessor_text
-  = r:( $[^{}&<\-!'"\r\n|=>\t /\[\]]+
-  / !inline_breaks s:( directive / [{}&<\-'"/\]] ) { return s; }
+  = r:( $[^{}&<\-! \t\n\r\x0c|]+
+  / !inline_breaks s:( directive / [{}&<\-!] ) { return s; }
   )+ {
     return tu.flattenString(r);
   }
 
 // The stop set is '\r\n| which matches table_att_value.
-// n.b. ! is a permissible char.  We only break on !! in th, enforced by the
-// inline break.  Hence, it isn't included in the stop set.
 table_attribute_preprocessor_text_single
   = r:( $[^{}&<\-!'\r\n|]+
-  / !inline_breaks s:( directive / $[{}&<\-!] ) { return s; }
+  / !inline_breaks s:( directive / [{}&<\-!] ) { return s; }
   )* {
     return tu.flattenString(r);
   }
 
 // The stop set is "\r\n| which matches table_att_value.
-// n.b. ! is a permissible char.  We only break on !! in th, enforced by the
-// inline break.  Hence, it isn't included in the stop set.
 table_attribute_preprocessor_text_double
   = r:( $[^{}&<\-!"\r\n|]+
-  / !inline_breaks s:( directive / $[{}&<\-!] ) { return s; }
+  / !inline_breaks s:( directive / [{}&<\-!] ) { return s; }
   )* {
     return tu.flattenString(r);
   }

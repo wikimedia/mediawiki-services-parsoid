@@ -172,7 +172,6 @@ add("wt2html", "Sanitizer: Validating that <meta> and <link> work, but only for 
 add("wt2html", "Language converter: output gets cut off unexpectedly (bug 5757)", "<p data-parsoid='{\"dsr\":[0,20,0,0]}'>this bit is safe: }-</p>\n\n<p data-parsoid='{\"dsr\":[22,82,0,0]}'>but if we add a conversion instance: -{zh-cn:xxx;zh-tw:yyy}-</p>\n\n<p data-parsoid='{\"dsr\":[84,112,0,0]}'>then we get cut off here: }-</p>\n\n<p data-parsoid='{\"dsr\":[114,145,0,0]}'>all additional text is vanished</p>");
 add("wt2html", "Self closed html pairs (bug 5487)", "<center data-parsoid='{\"stx\":\"html\",\"dsr\":[0,47,8,9]}'><font id=\"bug\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[8,25,17,0]}'></font>Centered text</center>\n<div data-parsoid='{\"stx\":\"html\",\"dsr\":[48,88,5,6]}'><font id=\"bug2\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[53,71,18,0]}'></font>In div text</div>");
 add("wt2html", "Fuzz testing: Parser14", "<h2 data-parsoid='{\"dsr\":[0,18,2,2]}'> onmouseover= </h2>\n<p data-parsoid='{\"dsr\":[19,33,0,0]}'><a rel=\"mw:ExtLink\" href=\"http://__TOC__\" data-parsoid='{\"stx\":\"url\",\"dsr\":[19,33,0,0]}'>http://__TOC__</a></p>");
-add("wt2html", "Fuzz testing: Parser14-table", "<h2 data-parsoid='{\"dsr\":[0,5,2,2]}'>a</h2>\n<table style=\"__TOC__\" data-parsoid='{\"autoInsertedEnd\":true,\"dsr\":[6,22,16,0]}'></table>");
 add("wt2html", "Fuzz testing: Parser24", "<p data-parsoid='{\"fostered\":true,\"autoInsertedEnd\":true,\"dsr\":[0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"src\":\"{{{\",\"dsr\":[3,6,0,0]}'>{{{</span>|\n<u class=\"|\" about=\"#mwt2\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->&lt;noinclude>}}}}\":null},\"sa\":{\"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->&lt;noinclude>}}}}\":\"\"},\"autoInsertedEnd\":true,\"dsr\":[8,0,74,0]}' data-mw='{\"attribs\":[[{\"txt\":\"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->}}}}\",\"html\":\"{&lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Param\\\" data-parsoid=\\\"{&amp;quot;dsr&amp;quot;:[21,79,null,null],&amp;quot;src&amp;quot;:&amp;quot;{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->&lt;noinclude>}}}&amp;quot;}\\\">{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx--&amp;gt;}}}&lt;/span>}\"},{\"html\":\"\"}]]}'>\n<br style=\"onmouseover='alert(document.cookie);' \" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[83,0,53,0]}'/></u></p><p data-parsoid='{\"fostered\":true,\"autoInsertedEnd\":true,\"dsr\":[0,0]}'><u class=\"|\" about=\"#mwt2\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->&lt;noinclude>}}}}\":null},\"sa\":{\"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->&lt;noinclude>}}}}\":\"\"},\"autoInsertedEnd\":true,\"autoInsertedStart\":true,\"dsr\":[-37,0,0,0]}' data-mw='{\"attribs\":[[{\"txt\":\"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->}}}}\",\"html\":\"{&lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Param\\\" data-parsoid=\\\"{&amp;quot;dsr&amp;quot;:[21,79,null,null],&amp;quot;src&amp;quot;:&amp;quot;{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->&lt;noinclude>}}}&amp;quot;}\\\">{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx--&amp;gt;}}}&lt;/span>}\"},{\"html\":\"\"}]]}'>MOVE YOUR MOUSE CURSOR OVER THIS TEXT</u></p><table data-parsoid='{\"autoInsertedEnd\":true,\"dsr\":[0,177,2,0]}'>\n\n\n\n<tbody data-parsoid='{\"dsr\":[176,177,0,0]}'><tr data-parsoid='{\"autoInsertedEnd\":true,\"autoInsertedStart\":true,\"dsr\":[176,177,0,0]}'><td data-parsoid='{\"autoInsertedEnd\":true,\"dsr\":[176,177,1,0]}'></td></tr></tbody></table>");
 add("wt2html", "Fuzz testing: Parser25 (bug 6055)", "<li class=\"\" about=\"#mwt1\" typeof=\"mw:Param\" data-parsoid='{\"stx\":\"html\",\"srcTagName\":\"LI\",\"a\":{\"||\":null},\"sa\":{\"||\":\"\"},\"autoInsertedEnd\":true,\"dsr\":[0,110,15,0],\"src\":\"{{{\\n| \\n&lt;LI CLASS=||\\n >\\n}}}blah\\\" onmouseover=\\\"alert(&#39;hello world&#39;);\\\" align=\\\"left\\\"&#39;&#39;&#39;MOVE MOUSE CURSOR OVER HERE\"}'>\n<p data-parsoid='{\"dsr\":[26,110,0,0]}'>blah\" onmouseover=\"alert('hello world');\" align=\"left\"<b data-parsoid='{\"autoInsertedEnd\":true,\"dsr\":[80,110,3,0]}'>MOVE MOUSE CURSOR OVER HERE</b></p></li>");
 add("wt2html", "Inline HTML vs wiki block nesting", "<p data-parsoid='{\"dsr\":[0,17,0,0]}'><b data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[0,17,3,0]}'>Bold paragraph</b></p><b data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"autoInsertedStart\":true,\"dsr\":[17,37,0,0]}'>\n\n<p data-parsoid='{\"dsr\":[19,37,0,0]}'>New wiki paragraph</p></b>");
@@ -313,7 +312,6 @@ add("wt2wt", "Table rowspan", "{| border=\"1\"\n| Cell 1, row 1\n| rowspan=\"2\"
 add("wt2wt", "Nested table", "{| border=\"1\"\n| &alpha;\n|\n{| bgcolor=\"#ABCDEF\" border=\"2\"\n|nested\n|-\n|table\n|}\n|the original table again\n|}");
 add("wt2wt", "Invalid attributes in table cell (bug 1830)", "{|\n| Cell: |broken\n|}");
 add("wt2wt", "! and || in element attributes should not be parsed as <th>/<td>", "{|\n| <div style=\"color: red !important;\" data-contrived=\"put this here ||\">hi\n|}");
-add("wt2wt", "Table attributes with empty value", "{|\n| style=\"\" | hello\n|}");
 add("wt2wt", "Build table with {{!}}", "{{{!}} class=\"wikitable\"\n! header\n! second header\n{{!}}- style=\"color:red;\"\n{{!}} data {{!}}{{!}} style=\"color:red;\"{{!}} second data\n{{!}}}");
 add("wt2wt", "Build table with pipe as data", "{| class=\"wikitable\"\n! header\n! second header\n|- style=\"color:red;\"\n| data || style=\"color:red;\" | second data\n|-\n| style=\"color:red;\" |<nowiki> data with | </nowiki>|| style=\"color:red;\" | second data with |\n|-\n||<nowiki> data with | </nowiki>||| second data with |\n|}");
 add("wt2wt", "Piped link with multiple pipe characters in link text", "[[Main Page|<nowiki>|The|Main|Page|</nowiki>]]\n");
@@ -344,13 +342,11 @@ add("wt2wt", "Handling of sections up to level 6 and beyond", "= Level 1 Heading
 add("wt2wt", "div with single-quoted attribute", "<div id=\"rock\">HTML rocks</div>");
 add("wt2wt", "div with unquoted attribute", "<div id=\"rock\">HTML rocks</div>");
 add("wt2wt", "div with illegal double attributes", "<div id=\"b\">HTML rocks</div>");
-add("wt2wt", "div with empty attribute value, space before equals", "<div class=\"\">HTML rocks</div>");
 add("wt2wt", "HTML multiple attributes correction", "<p class=\"awesome\">Awesome!</p>");
 add("wt2wt", "Table multiple attributes correction", "{|\n! class=\"awesome\" + | status\n|}");
 add("wt2wt", "DIV IN UPPERCASE", "<DIV id=\"x\">HTML ROCKS</DIV>");
 add("wt2wt", "Media link with nasty text", "[[Media:Foobar.jpg|Safe Link]]<div style=\"display:none\">[[Media:Foobar.jpg|\" onmouseover=\"alert(document.cookie)\" onfoo=\"]]</div>\n");
 add("wt2wt", "Empty attribute crash test single-quotes (bug 2067)", "<font color=\"\">foo</font>\n");
-add("wt2wt", "Attribute test: unquoted value", "<font color=\"x\">foo</font>\n");
 add("wt2wt", "Attribute test: unquoted but illegal value (hash)", "<font color=\"#x\">foo</font>\n");
 add("wt2wt", "Bug 2095: link with pipe and three closing brackets, version 2", "[[Main Page|<nowiki>[http://example.com/]</nowiki>]]\n");
 add("wt2wt", "Opera -o-link CSS", "<div title=\"&#100;&#97;&#116;&#97;&#58;&#116;&#101;&#120;&#116;&#47;&#104;&#116;&#109;&#108;&#44;&#60;&#105;&#109;&#103;&#32;&#115;&#114;&#99;&#61;&#49;&#32;&#111;&#110;&#101;&#114;&#114;&#111;&#114;&#61;&#97;&#108;&#101;&#114;&#116;&#40;&#49;&#41;&#62;\" style=\"-o-link:attr(title);-o-link-source:current\">X</div>");
@@ -359,7 +355,6 @@ add("wt2wt", "Table attribute safety", "{|\n! style=\"<nowiki>border-width:expre
 add("wt2wt", "Parser hook: nested tags", "<tag><tag></tag><nowiki></tag></nowiki>");
 add("wt2wt", "Sanitizer: Validating that <meta> and <link> work, but only for Microdata", "<div itemscope=\"\">\n\t<nowiki><meta itemprop=\"hello\" content=\"world\"></nowiki>\n\t<nowiki><meta http-equiv=\"refresh\" content=\"5\"></nowiki>\n\t<nowiki><meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\"></nowiki>\n\t<nowiki><link itemprop=\"hello\" href=\"{{SERVER}}\"></nowiki>\n\t<nowiki><link rel=\"stylesheet\" href=\"{{SERVER}}\"></nowiki>\n\t<nowiki><link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\"></nowiki>\n</div>");
 add("wt2wt", "Fuzz testing: Parser13", "{| \n| http: / a |\n|}");
-add("wt2wt", "Fuzz testing: Parser14-table", "==a==\n{| style=\"__TOC__\"\n|}");
 add("wt2wt", "Fuzz testing: Parser16", "{|\n!https://||||||\n|}");
 add("wt2wt", "Fuzz testing: Parser21", "{|\n! irc://{{ftp://a\" onmouseover=\"alert('hello world');\"\n|\n|}");
 add("wt2wt", "Fuzz testing: Parser22", "http://===r:::https://b\n\n{|\n|}");
@@ -770,7 +765,6 @@ add("html2wt", "Indented table markup mixed with indented pre content (proposed 
 add("html2wt", "1. Template-generated table cell attributes and cell content", "{|\n\n| style=\"color:red;\" |Foo\n\n| style=\"color:red;\" |Foo\n\n| style=\"color:red;\"\n|Bar\n\n| style=\"color:red;\" |Foo\n\n| align=\"center\" style=\"color:red;\" |Foo\n\n| align=\"center\" style=\"color:red;\" |Foo\n|}\n");
 add("html2wt", "Table with row followed by newlines and table heading", "{|\n\n! foo\n|}\n");
 add("html2wt", "Table with empty line following the start tag", "{|\n\n| foo\n|}\n");
-add("html2wt", "Table attributes with empty value", "{|\n\n| style=\"\" | hello\n|}\n");
 add("html2wt", "Wikitext table with a lot of comments", "{|\n\n| foo\n\n|-\n|\n|}\n");
 add("html2wt", "Wikitext table with double-line table cell", "{|\n\n|a\nb\n\n|}\n");
 add("html2wt", "Table cell with a single comment", "{|\n\n|\n\n| a\n|}\n");
@@ -1067,7 +1061,6 @@ add("html2wt", "Namespaced link must have a title (bad fragment version)", "<now
 add("html2wt", "div with single-quoted attribute", "<div id=\"rock\">HTML rocks</div>\n");
 add("html2wt", "div with unquoted attribute", "<div id=\"rock\">HTML rocks</div>\n");
 add("html2wt", "div with illegal double attributes", "<div id=\"b\">HTML rocks</div>\n");
-add("html2wt", "div with empty attribute value, space before equals", "<div class=\"\">HTML rocks</div>\n");
 add("html2wt", "HTML multiple attributes correction", "Awesome!\n");
 add("html2wt", "Table multiple attributes correction", "{|\n\n! class=\"awesome\" | status\n|}\n");
 add("html2wt", "DIV IN UPPERCASE", "<div id=\"x\">HTML ROCKS</div>\n");
@@ -1080,7 +1073,6 @@ add("html2wt", ":Image link to nonexistent file (bug 1850 - bad)", "[[:File:No s
 add("html2wt", "Character reference normalization in link text (bug 1938)", "[[wiki/Main Page|this&that]]\n");
 add("html2wt", "(bug 19451) Links should refer to the normalized form.", "[[wiki/אַ|אַ]]\n[[wiki/אַ|אַ]]\n[[wiki/אַ|אַ]]\n[[wiki/אַ|אַ]]\n[[wiki/אַ|אַ]]\n");
 add("html2wt", "Empty attribute crash test single-quotes (bug 2067)", "<font color=\"\">foo</font>\n");
-add("html2wt", "Attribute test: unquoted value", "<font color=\"x\">foo</font>\n");
 add("html2wt", "Attribute test: unquoted but illegal value (hash)", "<font color=\"#x\">foo</font>\n");
 add("html2wt", "Bug 2095: link with pipe and three closing brackets, version 2", "[[Main Page|<nowiki>[http://example.com/]</nowiki>]]\n");
 add("html2wt", "Bug 2304: HTML attribute safety (safe template; regression bug 2309)", "<div title=\"This is a test template\"></div>\n");
@@ -1123,7 +1115,6 @@ add("html2wt", "HTML nested ordered list, open tags (bug 5497)", "# One\n# Two:\
 add("html2wt", "HTML ordered list item with parameters oddity", "# One\n");
 add("html2wt", "Fuzz testing: Parser13", "{|\n\n|\n\n|}\n");
 add("html2wt", "Fuzz testing: Parser14", "== onmouseover= ==\nhttp://\n<div id=\"toc\" class=\"toc\">\n<div id=\"toctitle\">\n== Contents ==\n</div>\n\n* [[#onmouseover.3D|<span class=\"tocnumber\">1</span> <span class=\"toctext\">onmouseover=</span>]]\n\n</div>\n");
-add("html2wt", "Fuzz testing: Parser14-table", "== a ==\n{| style=\"__TOC__\"\n\n|\n\n|}\n");
 add("html2wt", "Fuzz testing: Parser16", "{|\n\n!https://\n!\n!\n!\n\n|}\n");
 add("html2wt", "Fuzz testing: Parser21", "{|\n\n! irc://{{ftp://a\" onmouseover=\"alert('hello world');\"\n\n|\n\n|}\n");
 add("html2wt", "Fuzz testing: Parser22", "http://===r:::https://b\n\n{|\n|\n|}\n");
@@ -1561,12 +1552,6 @@ add("selser", "! and || in element attributes should not be parsed as <th>/<td> 
 add("selser", "! and || in element attributes should not be parsed as <th>/<td> [[0,2]]", "{|\n<!--4geia2gf0fwdn29-->| <div style=\"color: red !important;\" data-contrived=\"put this here ||\">hi</div>\n|}");
 add("selser", "! and || in element attributes should not be parsed as <th>/<td> [[0,[[[3],0],0]]]", "{|\n|||\">hi</div>\n|}");
 add("selser", "! and || in element attributes should not be parsed as <th>/<td> [2]", "rvse1pnm4h1tt9\n{|\n| <div style=\"color: red !important;\" data-contrived=\"put this here ||\">hi</div>\n|}");
-add("selser", "Table attributes with empty value [2]", "ypqzbga8qxeqm2t9\n{|\n| style=| hello\n|}");
-add("selser", "Table attributes with empty value [1]", "{| data-foobar=\"s45owse4wvw5qaor\"\n| style=| hello\n|}");
-add("selser", "Table attributes with empty value [[0,[1,3]]]", "{|\n| style=| hello\n|}");
-add("selser", "Table attributes with empty value [[3,2]]", "{|<!--ynuvr3yn3awqm2t9-->\n| style=| hello\n|}");
-add("selser", "Table attributes with empty value [[2,0]]", "{|<!--sk8j61brrtua0pb9-->\n| style=| hello\n|}");
-add("selser", "Table attributes with empty value [[0,[1,2]]]", "{|\n| style=| hello<!--tehxphl52a2fyldi-->\n|}");
 add("selser", "Build table with {{!}} [2]", "vlzvgbqpbh6qd7vi\n{{{!}} class=\"wikitable\"\n! header\n! second header\n{{!}}- style=\"color:red;\"\n{{!}} data {{!}}{{!}} style=\"color:red;\" {{!}} second data\n{{!}}}");
 add("selser", "Build table with {{!}} [1]", "{{{!}} class=\"wikitable\" data-foobar=\"n7vob9kcmjp833di\"\n! header\n! second header\n{{!}}- style=\"color:red;\"\n{{!}} data {{!}}{{!}} style=\"color:red;\" {{!}} second data\n{{!}}}");
 add("selser", "Build table with {{!}} [[0,2]]", "{{{!}} class=\"wikitable\"\n<!--gzqyxjo46o91kyb9-->! header\n! second header\n{{!}}- style=\"color:red;\"\n{{!}} data {{!}}{{!}} style=\"color:red;\" {{!}} second data\n{{!}}}");
@@ -1816,9 +1801,6 @@ add("selser", "div with unquoted attribute [[2]]", "<div id=rock>dchtatkig10885m
 add("selser", "div with illegal double attributes [2]", "ux9aplu6dksdobt9<div id=\"a\" id=\"b\">HTML rocks</div>");
 add("selser", "div with illegal double attributes [[4]]", "<div id=\"a\" id=\"b\">fz25c3miv6v6xbt9</div>");
 add("selser", "div with illegal double attributes [[2]]", "<div id=\"a\" id=\"b\">unt59inh2b95p14iHTML rocks</div>");
-add("selser", "div with empty attribute value, space before equals [[2]]", "<div class =>3fqgfx491jpgmn29HTML rocks</div>");
-add("selser", "div with empty attribute value, space before equals [2]", "atspk6wrqu2fbt9<div class =>HTML rocks</div>");
-add("selser", "div with empty attribute value, space before equals [[4]]", "<div class =>2xod4lmv4362bj4i</div>");
 add("selser", "HTML multiple attributes correction [2]", "w1pqe1dx8ko9lik9<p class=\"error\" class=\"awesome\">Awesome!</p>");
 add("selser", "HTML multiple attributes correction [[4]]", "<p class=\"error\" class=\"awesome\">mx2dt2hekoojq0k9</p>");
 add("selser", "HTML multiple attributes correction [[2]]", "<p class=\"error\" class=\"awesome\">ngsrrvn0y5app66rAwesome!</p>");
@@ -1856,11 +1838,6 @@ add("selser", "Empty attribute crash test single-quotes (bug 2067) [[[2]]]", "<f
 add("selser", "Empty attribute crash test single-quotes (bug 2067) [2]", "5kxneyilny2gwrk9\n\n<font color=''>foo</font>");
 add("selser", "Empty attribute crash test single-quotes (bug 2067) [[[4]]]", "<font color=''>or63pvpg3ooxyldi</font>");
 add("selser", "Empty attribute crash test single-quotes (bug 2067) [[2]]", "3338p71nnksrwwmi<font color=''>foo</font>");
-add("selser", "Attribute test: unquoted value [2]", "vl44x5rpkeyzxgvi\n\n<font color=x>foo</font>");
-add("selser", "Attribute test: unquoted value [[[2]]]", "<font color=x>vk3nzgtza6f20529foo</font>");
-add("selser", "Attribute test: unquoted value [1]", "<font color=x>foo</font>");
-add("selser", "Attribute test: unquoted value [[2]]", "v4v69fplnyfa8aor<font color=x>foo</font>");
-add("selser", "Attribute test: unquoted value [[[4]]]", "<font color=x>eshok81rpkbro1or</font>");
 add("selser", "Attribute test: unquoted but illegal value (hash) [[2]]", "auncq77bb1olayvi<font color=#x>foo</font>");
 add("selser", "Attribute test: unquoted but illegal value (hash) [1]", "<font color=#x>foo</font>");
 add("selser", "Attribute test: unquoted but illegal value (hash) [[[2]]]", "<font color=#x>8b035xwg9khjjorfoo</font>");
@@ -1919,19 +1896,6 @@ add("selser", "Fuzz testing: Parser13 [[2,[[1]]]]", "{|<!--k7dytmk4x4fpf1or--> \
 add("selser", "Fuzz testing: Parser13 [[4,[1]]]", "{|<!--bc5lt7d97qcwhfr-->\n| http://a||}");
 add("selser", "Fuzz testing: Parser13 [[4,0]]", "{|<!--bdcj5y141zcl3di-->\n| http://a||}");
 add("selser", "Fuzz testing: Parser13 [[2,0]]", "{|<!--fk6xcjz25vc84cxr--> \n| http://a||}");
-add("selser", "Fuzz testing: Parser14-table [1,0,0]", "==a==\n{| STYLE=__TOC__");
-add("selser", "Fuzz testing: Parser14-table [4,4,0]", "u98ofogyawwb3xr\n\ntty3c40hu0gujtt9\n{| STYLE=__TOC__");
-add("selser", "Fuzz testing: Parser14-table [0,2,0]", "==a==\nu14a8f95rx8q6w29\n{| STYLE=__TOC__");
-add("selser", "Fuzz testing: Parser14-table [4,0,0]", "afphpney2yj2x1or\n{| STYLE=__TOC__");
-add("selser", "Fuzz testing: Parser14-table [1,0,2]", "==a==\n7kxiqxzt62tbuik9\n{| STYLE=__TOC__");
-add("selser", "Fuzz testing: Parser14-table [[3],0,0]", "==<nowiki/>==\n{| STYLE=__TOC__");
-add("selser", "Fuzz testing: Parser14-table [3,0,0]", "\n{| STYLE=__TOC__");
-add("selser", "Fuzz testing: Parser14-table [1,2,2]", "==a==\n52mwmg7whwnopqfr\njcno0pgai63zbyb9\n{| STYLE=__TOC__");
-add("selser", "Fuzz testing: Parser14-table [2,4,2]", "rcgqzcdc9d7k3xr\n\n==a==\nj4upxmk17deljtt9\n\nbb7usbd2xkdibe29\n{| STYLE=__TOC__");
-add("selser", "Fuzz testing: Parser14-table [4,0,2]", "ev7gujtc4pdjkyb9\n0alush5m76re8kt9\n{| STYLE=__TOC__");
-add("selser", "Fuzz testing: Parser14-table [[2],3,0]", "==dez3bpht0ds7cik9a==\n{| STYLE=__TOC__");
-add("selser", "Fuzz testing: Parser14-table [2,4,0]", "vgfhscuh77t4kj4i\n\n==a==\n9gtez3md9rhk6gvi\n{| STYLE=__TOC__");
-add("selser", "Fuzz testing: Parser14-table [0,4,0]", "==a==\n9gdll0uf79orbe29\n{| STYLE=__TOC__");
 add("selser", "Fuzz testing: Parser16 [2]", "s2rd5a1yeoim5cdi\n{|\n!https://||||||");
 add("selser", "Fuzz testing: Parser16 [[0,[[0,2,0,0]]]]", "{|\n!https://\n!3vnog20h7550o1or|||||||}");
 add("selser", "Fuzz testing: Parser16 [[0,[[3,4,0,0]]]]", "{|\n!mn06fxy5uvbfn7b9|||||}");
