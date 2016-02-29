@@ -117,7 +117,18 @@ var tests = [
 		},
 	},
 
-	// 6. inline-tpl (but written in block format originally); with param order
+	// 6. block-tpl (with non-standard spaces before pipe); no param order
+	{
+		'name': 'Enforce block format (while preserving non-standard space before pipes)',
+		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1","spc":[" ", " ", " ", "\\n <!--ha--> "]},{"k":"f2","spc":[" ", " ", " ", ""]}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"BlockTplNoParamOrder\\n ","href":"./Template:BlockTplNoParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>',
+		'wt': {
+			'no_selser':   '{{BlockTplNoParamOrder\n | f1 = foo\n <!--ha--> | f2 = foo}}',
+			'new_content': '{{BlockTplNoParamOrder\n | f1 = foo\n| f2 = foo\n}}',
+			'edited':      '{{BlockTplNoParamOrder\n | f1 = BAR\n <!--ha--> | f2 = foo\n}}',
+		},
+	},
+
+	// 7. inline-tpl (but written in block format originally); with param order
 	{
 		'name': 'Enforce inline format + param order',
 		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f2","spc":[""," "," ","\\n"]},{"k":"f1","spc":[""," "," ","\\n"]}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"InlineTplWithParamOrder\\n","href":"./Template:InlineTplWithParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>',
@@ -128,7 +139,7 @@ var tests = [
 		},
 	},
 
-	// 7. block-tpl (but written in inline format originally); with param order
+	// 8. block-tpl (but written in inline format originally); with param order
 	{
 		'name': 'Enforce block format + param order',
 		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f2"},{"k":"f1"}]]}' + "'" + ' data-mw=' + "'" + '{"parts":[{"template":{"target":{"wt":"BlockTplWithParamOrder","href":"./Template:BlockTplWithParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>',
@@ -139,7 +150,7 @@ var tests = [
 		},
 	},
 
-	// 8. Multiple transclusions
+	// 9. Multiple transclusions
 	{
 		'name': 'Multiple transclusions',
 		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f2","spc":[""," "," ","\\n"]},{"k":"f1","spc":[""," "," ","\\n"]}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"TplWithoutTemplateData\\n","href":"./Template:TplWithoutTemplateData"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>' + ' <span about="#mwt2" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f2"},{"k":"f1"}]]}' + "'" + ' data-mw=' + "'" + '{"parts":[{"template":{"target":{"wt":"BlockTplWithParamOrder","href":"./Template:BlockTplWithParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>',
@@ -150,7 +161,7 @@ var tests = [
 		},
 	},
 
-	// 9. data-mw with multiple transclusions
+	// 10. data-mw with multiple transclusions
 	{
 		'name': 'Multiple transclusions',
 		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f2"},{"k":"f1"}], [{"k":"f2","spc":[""," "," ","\\n"]},{"k":"f1","spc":[""," "," ","\\n"]}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"BlockTplWithParamOrder","href":"./Template:BlockTplWithParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}},"SOME TEXT",{"template":{"target":{"wt":"InlineTplNoParamOrder\\n","href":"./Template:InlineTplNoParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":1}}]}' + "'" + '>foo</span>',
