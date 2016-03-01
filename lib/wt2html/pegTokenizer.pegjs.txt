@@ -287,7 +287,7 @@ pre_start = "<" pre_tag_name [^>]* ">"
 
 inlineline
   = c:(urltext
-          / !{ return inlineBreaks(input, endOffset(), stops); } // inline_breaks
+          / !inline_breaks
             !pre_start
             r:(inline_element / [^\r\n]) { return r; })+ {
       return tu.flattenStringlist(c);
@@ -513,7 +513,7 @@ no_punctuation_char = [^ :\]\[\r\n"'<>\x00-\x20\x7f,.&%\u00A0\u1680\u180E\u2000-
 url "url"
   = proto:url_protocol
     addr:(urladdr / "")
-    path:(  ( !{ return inlineBreaks(input, endOffset(), stops); } // inline_breaks
+    path:(  ( !inline_breaks
               c:no_punctuation_char
               { return c; }
             )
@@ -545,7 +545,7 @@ autourl
     r:(
     proto:url_protocol
     addr:(urladdr / "")
-    path:(  ( !{ return inlineBreaks(input, endOffset(), stops); } // inline_breaks
+    path:(  ( !inline_breaks
               ! "("
               c:no_punctuation_char
               { return c; }
