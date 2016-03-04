@@ -24,6 +24,7 @@ var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
 var ParsoidLogger = require('../lib/logger/ParsoidLogger.js').ParsoidLogger;
 var PEG = require('pegjs');
 var Util = require('../lib/utils/Util.js').Util;
+var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
 var Diff = require('../lib/utils/Diff.js').Diff;
 
 // Fetch up some of our wacky parser bits...
@@ -421,15 +422,13 @@ ParserTests.prototype.convertHtml2Wt = function(options, mode, item, body, proce
 	var cb = function(err, wt) {
 		self.env.setPageSrcInfo(null);
 		self.env.page.dom = null;
-		self.env.page.editedDoc = null;
 		processWikitextCB(err, wt);
 	};
 	try {
 		if (startsAtWikitext) {
 			// FIXME: All tests share an env.
 			// => we need to initialize this each time over here.
-			this.env.page.dom = item.cachedBODY;
-			this.env.page.editedDoc = body.ownerDocument;
+			this.env.page.dom = DU.parseHTML(item.cachedBODYstr).body;
 		}
 		if (mode === 'selser') {
 			// console.warn("--> selsering: " + body.outerHTML);
@@ -462,7 +461,7 @@ ParserTests.prototype.isDuplicateChangeTree = function(allChanges, change) {
 
 	var i;
 	for (i = 0; i < allChanges.length; i++) {
-		if (Util.deepEquals(allChanges[i], change)) {
+		if (JSUtils.deepEquals(allChanges[i], change)) {
 			return true;
 		}
 	}
@@ -954,14 +953,13 @@ ParserTests.prototype.processTest = function(item, options, mode, endCb) {
 		testTasks.push(this.convertHtml2Wt.bind(this, options, mode, item));
 	} else {  // startsAtWikitext
 		// Always serialize DOM to string and reparse before passing to wt2wt
-		if (item.cachedBODY === null) {
+		if (item.cachedBODYstr === null) {
 			testTasks.push(this.convertWt2Html.bind(this, mode, item.wikitext));
 			// Caching stage 1 - save the result of the first two stages
 			// so we can maybe skip them later
 			testTasks.push(function(body, cb) {
 				// Cache parsed HTML
-				item.cachedBODYstr = DU.serializeNode(body).str;
-				item.cachedBODY = DU.parseHTML(item.cachedBODYstr).body;
+				item.cachedBODYstr = DU.toXML(body);
 
 				// - In wt2html mode, pass through original DOM
 				//   so that it is serialized just once.
@@ -1005,7 +1003,7 @@ ParserTests.prototype.processTest = function(item, options, mode, endCb) {
 		// Save the modified DOM so we can re-test it later
 		// Always serialize to string and reparse before passing to selser/wt2wt
 		testTasks.push(function(body, cb) {
-			item.changedHTMLStr = DU.serializeNode(body).str;
+			item.changedHTMLStr = DU.toXML(body);
 			cb(null, DU.parseHTML(item.changedHTMLStr).body);
 		});
 	} else if (mode === 'wt2wt') {
@@ -1379,7 +1377,7 @@ ParserTests.prototype.checkHTML = function(item, out, options, mode) {
 		('html/parsoid' in item) || (item.options.parsoid !== undefined);
 
 	normalizedOut = DU.normalizeOut(out, parsoidOnly);
-	out = DU.serializeNode(out, { innerXML: true }).str;
+	out = DU.toXML(out, { innerXML: true });
 
 	if (item.cachedNormalizedHTML === null) {
 		if (parsoidOnly) {
@@ -1915,7 +1913,6 @@ ParserTests.prototype.processCase = function(i, options, err) {
 		// Reset the cached results for the new case.
 		// All test modes happen in a single run of processCase.
 		item.cachedBODYstr = null;
-		item.cachedBODY = null;
 		item.cachedNormalizedHTML = null;
 
 		// Also reset the logger, since we might have changed it to support

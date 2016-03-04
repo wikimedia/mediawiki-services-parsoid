@@ -4,8 +4,6 @@
 var domino = require('domino');
 var XMLSerializer = require('../../lib/wt2html/XMLSerializer.js');
 
-var xmlserializer = new XMLSerializer();
-
 describe('XML Serializer', function() {
 
 	it('should capture html offsets while serializing', function() {
@@ -18,7 +16,7 @@ describe('XML Serializer', function() {
 			innerXML: false,
 			captureOffsets: true,
 		};
-		var ret = xmlserializer.serializeToString(doc, options);
+		var ret = XMLSerializer.serialize(doc, options);
 		ret.should.have.property('offsets');
 		ret.offsets.should.have.property('123');
 		ret.offsets['123'].html.should.eql([0, 62]);
@@ -39,7 +37,7 @@ describe('XML Serializer', function() {
 			innerXML: false,
 			captureOffsets: true,
 		};
-		var ret = xmlserializer.serializeToString(doc, options);
+		var ret = XMLSerializer.serialize(doc, options);
 		ret.should.have.property('offsets');
 		ret.offsets.should.have.property('mwAQ');
 		ret.offsets.should.have.property('mwAg');
@@ -59,7 +57,7 @@ describe('XML Serializer', function() {
 			innerXML: false,
 			captureOffsets: true,
 		};
-		var ret = xmlserializer.serializeToString(doc, options);
+		var ret = XMLSerializer.serialize(doc, options);
 		ret.should.have.property('offsets');
 		ret.offsets.should.have.property('mwAQ');
 		ret.offsets.mwAQ.html.should.eql([0, 676]);
@@ -79,7 +77,7 @@ describe('XML Serializer', function() {
 			innerXML: false,
 			captureOffsets: true,
 		};
-		var ret = xmlserializer.serializeToString(doc, options);
+		var ret = XMLSerializer.serialize(doc, options);
 		ret.should.have.property('offsets');
 		ret.offsets.should.have.property('mwAQ');
 		ret.offsets.should.not.have.property('timeline');

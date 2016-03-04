@@ -308,7 +308,7 @@ var getMatchingHTML = function(env, body, offsetRange, nlDiffs) {
 	var out = findMatchingNodes(env, body, offsetRange);
 	for (var i = 0; i < out.length; i++) {
 		// node need not be an element always!
-		html += DU.serializeNode(out[i], { smartQuote: false }).str;
+		html += DU.toXML(out[i], { smartQuote: false });
 	}
 	html = DU.normalizeOut(html);
 

@@ -194,11 +194,11 @@ startsAtWikitext = function(argv, env, input) {
 				// used in Parsoid JS API, return document
 				out = doc;
 			} else {
-				out = DU.serializeNode(doc).str;
+				out = DU.toXML(doc);
 			}
 			return { trailingNL: true, out: out, env: env };
 		} else {
-			return startsAtHTML(argv, env, DU.serializeNode(doc).str);
+			return startsAtHTML(argv, env, DU.toXML(doc));
 		}
 	});
 };
@@ -234,10 +234,12 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain)
 				).body;
 			}
 			if (argv.domdiff) {
+				// FIXME: need to load diff markers from attributes
 				env.page.domdiff = {
 					isEmpty: false,
-					dom: DU.parseHTML(fs.readFileSync(argv.domdiff, 'utf8')).body,
+					dom: DU.ppToDOM(fs.readFileSync(argv.domdiff, 'utf8')),
 				};
+				throw new Error('this is broken');
 			}
 			env.setPageSrcInfo(argv.oldtext || null);
 		}

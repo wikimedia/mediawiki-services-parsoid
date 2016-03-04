@@ -9,7 +9,7 @@ var ParsoidLogger = require('../lib/logger/ParsoidLogger.js').ParsoidLogger;
 var yargs = require('yargs');
 var fs = require('fs');
 
-var opts = yargs.usage("Usage: node $0 [options] [old-html-file new-html-file]\n\nProvide either inline html OR 2 files", {
+var opts = yargs.usage("Usage: $0 [options] [old-html-file new-html-file]\n\nProvide either inline html OR 2 files", {
 	help: {
 		description: 'Show this message',
 		'boolean': true,
@@ -51,10 +51,12 @@ if (Util.booleanOption(argv.help) || !oldhtml || !newhtml) {
 	return;
 }
 
-var oldDOM = DU.parseHTML(oldhtml);
+var oldDOM = DU.parseHTML(oldhtml).body;
+var newDOM = DU.parseHTML(newhtml).body;
+
 var dummyEnv = {
 	conf: { parsoid: { debug: Util.booleanOption(argv.debug) }, wiki: {} },
-	page: { id: null, dom: oldDOM.body },
+	page: { id: null },
 };
 
 if (argv.debug) {
@@ -65,12 +67,11 @@ if (argv.debug) {
 	dummyEnv.log = function() {};
 }
 
-var dd = new DOMDiff(dummyEnv);
-var newDOM = DU.parseHTML(newhtml);
-var diff = dd.diff(newDOM.body);
+(new DOMDiff(dummyEnv)).diff(oldDOM, newDOM);
 
 if (!Util.booleanOption(argv.quiet)) {
 	console.warn("----- DIFF-marked DOM -----");
 }
-console.log(diff.dom.outerHTML);
+DU.visitDOM(newDOM, DU.storeDiffMark, dummyEnv);
+console.log(newDOM.outerHTML);
 process.exit(0);

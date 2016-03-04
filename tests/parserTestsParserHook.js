@@ -17,8 +17,8 @@ var myLittleHelper = function(env, extToken, argDict, html, cb) {
 
 	var addWrapperAttrs = function(firstNode) {
 		firstNode.setAttribute('typeof', 'mw:Extension/' + argDict.name);
-		DU.storeDataMw(firstNode, argDict);
-		DU.storeDataParsoid(firstNode, {
+		DU.setDataMw(firstNode, argDict);
+		DU.setDataParsoid(firstNode, {
 			tsr: Util.clone(tsr),
 			src: extToken.dataAttribs.src,
 		});
