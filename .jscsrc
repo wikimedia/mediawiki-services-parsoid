@@ -19,7 +19,9 @@
 		"catch"
 	],
 	"validateIndentation": "\t",
-	"requireCamelCaseOrUpperCaseIdentifiers": "ignoreProperties",
+	"requireCamelCaseOrUpperCaseIdentifiers": {
+		"ignoreProperties": true
+	},
 	"maximumLineLength": null,
 	"validateQuoteMarks": null,
 	"disallowQuotedKeysInObjects": null,
