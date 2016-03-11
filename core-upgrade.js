@@ -1,2 +1,4 @@
 'use strict';
-require('core-js/shim');
+if (process.version < 'v4.') {
+	require('core-js/shim');
+}
