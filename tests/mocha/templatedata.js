@@ -29,13 +29,13 @@ function verifyTransformation(newHTML, origHTML, origWT, expectedWT, done, dpVer
 			title: 'Foo',
 			wikitext: {
 				headers: {
-					'content-type': 'text/plain;profile="mediawiki.org/specs/wikitext/1.0.0"',
+					'content-type': 'text/plain;profile="https://www.mediawiki.org/wiki/Specs/wikitext/1.0.0"',
 				},
 				body: origWT,
 			},
 			html: {
 				headers: {
-					'content-type': 'text/html;profile="mediawiki.org/specs/html/1.0.0"',
+					'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/1.2.1"',
 				},
 				body: origHTML,
 			},
@@ -43,7 +43,7 @@ function verifyTransformation(newHTML, origHTML, origWT, expectedWT, done, dpVer
 			// Without the dummy data-parsoid, we scream murder.
 			"data-parsoid": {
 				headers: {
-					'content-type': 'application/json;profile="mediawiki.org/specs/data-parsoid/' + dpVersion + '"',
+					'content-type': 'application/json;profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/' + dpVersion + '"',
 				},
 				body: {
 					'counter': 0,
