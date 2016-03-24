@@ -20,7 +20,7 @@
     "gelf-stream": "^0.2.4",
     "html5": "^1.0.5",
     "node-txstatsd": "^0.1.5",
-    "node-uuid": "^1.4.1",
+    "node-uuid": "^1.4.7",
     "pegjs": "git+https://github.com/tstarling/pegjs#fork",
     "prfun": "^2.1.3",
     "request": "^2.63.0",

@@ -2367,8 +2367,8 @@
       "resolved": "https://registry.npmjs.org/node-txstatsd/-/node-txstatsd-0.1.5.tgz"
     },
     "node-uuid": {
-      "version": "1.4.1",
-      "resolved": "https://registry.npmjs.org/node-uuid/-/node-uuid-1.4.1.tgz"
+      "version": "1.4.7",
+      "resolved": "https://registry.npmjs.org/node-uuid/-/node-uuid-1.4.7.tgz"
     },
     "npm-shrinkwrap": {
       "version": "200.4.0",
