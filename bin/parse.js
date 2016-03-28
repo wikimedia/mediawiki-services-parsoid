@@ -274,7 +274,7 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain)
 			} else if (argv.html2wt || argv.html2html) {
 				env.log("fatal", "Pages start at wikitext.");
 			}
-			var target = env.resolveTitle(env.normalizeTitle(env.page.name), '');
+			var target = env.normalizeAndResolvePageTitle();
 			return TemplateRequest
 				.setPageSrcInfo(env, target, argv.oldid)
 				.then(function() { return env.page.src; });

@@ -60,7 +60,7 @@ var fetch = function(page, revid, opts) {
 	}).then(function(_env) {
 		env = _env;
 		target = page ?
-			env.resolveTitle(env.normalizeTitle(env.page.name), '') : null;
+			env.normalizeAndResolvePageTitle() : null;
 		return TemplateRequest.setPageSrcInfo(env, target, revid);
 	}).then(function() {
 		if (opts.output) {

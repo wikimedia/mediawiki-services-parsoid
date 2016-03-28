@@ -582,7 +582,7 @@ function runTests(title, options, formatter, cb) {
 	}).then(function(_env) {
 		env = _env;
 		env.profile = { time: { total: 0, start: Date.now() }, size: {} };
-		var target = env.resolveTitle(env.normalizeTitle(env.page.name), '');
+		var target = env.normalizeAndResolvePageTitle();
 		return TemplateRequest.setPageSrcInfo(env, target, null);
 	}).then(function() {
 		data.oldWt = env.page.src;
