@@ -336,6 +336,7 @@ add("wt2wt", "Templates: HTML Tag: 3. Generation of HTML attr key and value", "<
 add("wt2wt", "Templates: HTML Tag: 9. Multiple template-generated attributes", "<div {{echo|1=id=\"v1\" title=\"foo\"}} title=\"foo\">bar</div>");
 add("wt2wt", "Templates: HTML Tables: 5. Proper fostering of categories from inside", "[[Category:foo1]]\n<table><tr><td>foo</td></tr></table>\n<!--Two categories (Bug 50330)-->\n[[Category:bar1]]\n[[Category:bar2]]\n<table><tr><td>foo</td></tr></table>");
 add("wt2wt", "Allow empty links in image captions (Bug 60753)", "[[File:Foobar.jpg|thumb|Caption [[Link1]]\n<nowiki>[[]]</nowiki>\n[[Link2]]\n]]");
+add("wt2wt", "Image with multiple attributes from the same template", "[[File:Foobar.jpg|right|Caption text]]");
 add("wt2wt", "Image with multiple widths -- use last", "[[File:Foobar.jpg|300px|caption]]\n");
 add("wt2wt", "Render invalid page names as plain text (bug 51090)", "[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n<nowiki>[[foo~~~bar]]</nowiki>\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n\n[[{{echo|./../foo}}<nowiki>|bar]]</nowiki>\n[[{{echo|foo/.}}<nowiki>|bar]]</nowiki>\n[[{{echo|foo/..}}<nowiki>|bar]]</nowiki>\n[[{{echo|foo~~~~bar}}<nowiki>]]</nowiki>\n[[{{echo|foo>bar}}<nowiki>]]</nowiki>\n[[{{echo|foo././bar}}<nowiki>]]</nowiki>\n[[{{echo|foo{bar}}<nowiki>]]</nowiki>\n[[{{echo|foo}bar}}<nowiki>]]</nowiki>\n[[{{echo|foo[bar}}<nowiki>]]</nowiki>\n[[{{echo|foo]bar}}<nowiki>]]</nowiki>\n[[{{echo|foo<bar}}<nowiki>]]</nowiki>\n");
 add("wt2wt", "Handling of sections up to level 6 and beyond", "= Level 1 Heading=\n== Level 2 Heading==\n=== Level 3 Heading===\n==== Level 4 Heading====\n===== Level 5 Heading=====\n====== Level 6 Heading======\n======<nowiki>= Level 7 Heading=</nowiki>======\n======<nowiki>== Level 8 Heading==</nowiki>======\n======<nowiki>=== Level 9 Heading===</nowiki>======\n======<nowiki>==== Level 10 Heading====</nowiki>======\n");
@@ -361,7 +362,7 @@ add("wt2wt", "Fuzz testing: Parser22", "http://===r:::https://b\n\n{|\n|}");
 add("wt2wt", "Fuzz testing: Parser24", "{{{|\n<u class=\"|\" {{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx--><noinclude>}}}}>\n<br style=\"onmouseover='alert(document.cookie);' \" />\n\nMOVE YOUR MOUSE CURSOR OVER THIS TEXT\n{|\n\n|\n|}");
 add("wt2wt", "Inline wiki vs wiki block nesting", "'''Bold paragraph'''\n\nNew wiki paragraph\n");
 add("wt2wt", "Mixing markup for italics and bold", "'<nowiki/>''bold'<nowiki/>'''''bold''bolditalics'''''\n");
-add("wt2wt", "Illegal character references (T106578)", "; Null: &#00;\n; FF: &#xC;\n; CR: \n; Control (low): &#8;\n; Control (high): &#x7F; &#x9F;\n; Surrogate: &#xD83D;&#xDCA9;\n; This is an okay astral character: &#x1F4A9;");
+add("wt2wt", "Illegal character references (T106578)", "; Null: &#00;\n; FF: &#xC;\n; CR: &#x0A;\n; Control (low): &#8;\n; Control (high): &#x7F; &#x9F;\n; Surrogate: &#xD83D;&#xDCA9;\n; This is an okay astral character: &#x1F4A9;");
 add("wt2wt", "Image with page parameter", "[[File:LoremIpsum.djvu]]\n");
 add("wt2wt", "Don't fall for the self-closing div", "<div>hello world</div>");
 add("wt2wt", "Parsing of overlapping (improperly nested) inline html tags", "<span><s>x</span>\n");
