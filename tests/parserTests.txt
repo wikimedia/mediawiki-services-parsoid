@@ -1541,9 +1541,9 @@ parsoid=html2wt
 <span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;a }&quot;}},&quot;i&quot;:0}}]}" about="#mwt5"></span></p>
 !! wikitext
 {{echo|a [ b}}
-{{echo|a <nowiki>}}</nowiki> b}}
+{{echo|<nowiki>a }} b</nowiki>}}
 {{echo|<nowiki>a [[ b</nowiki>}}
-{{echo|a {{!}} <nowiki>{{ ]]</nowiki>}}
+{{echo|<nowiki>a | {{ ]]</nowiki>}}
 {{echo|a <nowiki>}</nowiki>}}
 !! end
 
@@ -10271,7 +10271,7 @@ Template with just whitespace in it, bug #68421
 !! wikitext
 {{echo|{{ }}}}
 !! html/parsoid
-<p><span typeof="mw:Transclusion mw:Nowiki" about="#mwt1" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"{{ }}"}},"i":0}}]}'>{{ }}</span></p>
+<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"{{ }}"}},"i":0}}]}'>{{ }}</p>
 !! end
 
 !! article
@@ -21790,7 +21790,7 @@ A <ref> foo {{echo|</ref> B C}}
 
 <references />
 !! html/parsoid
-<p>A <span about="#mwt2" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-1"},"attrs":{}}'><a href="#cite_note-1"><span class="mw-reflink-text">[1]</span></a></span> B C<span typeof="mw:Nowiki">}}</span></p>
+<p>A <span about="#mwt2" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-1"},"attrs":{}}'><a href="#cite_note-1"><span class="mw-reflink-text">[1]</span></a></span> B C}}</p>
 <ol class="mw-references" typeof="mw:Extension/references" about="#mwt4" data-mw='{"name":"references","attrs":{}}'>
 <li about="#cite_note-1" id="cite_note-1"><a href="#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">foo {{echo|</span></li>
 </ol>
@@ -24045,26 +24045,6 @@ parsoid=wt2html,html2html
 </td><td style="color: red">Bar
 </td></tr></tbody></table>
 
-!! end
-
-!! test
-2. Parsoid-only: Don't wrap broken template tags in <nowiki> on wt2wt (Bug 42353)
-!! options
-parsoid
-!! wikitext
-{{}}
-!! html
-{{}}
-!! end
-
-!! test
-1. Parsoid-only: Don't wrap broken template tags in <nowiki> on wt2wt (Bug 42353)
-!! options
-parsoid
-!! wikitext
-}}{{
-!! html
-}}{{
 !! end
 
 !!test
