@@ -1693,7 +1693,7 @@
       "mainpage": "Forsíða",
       "base": "http://is.wikipedia.org/wiki/Fors%C3%AD%C3%B0a",
       "sitename": "Wikipedia",
-      "generator": "MediaWiki 1.22wmf2",
+      "generator": "MediaWiki 1.21.0-alpha",
       "phpversion": "5.3.10-1ubuntu3.5+wmf1",
       "phpsapi": "apache2handler",
       "dbtype": "mysql",

@@ -680,10 +680,10 @@
         "name": "img_thumbnail",
         "aliases": [
           "بندانگشتی",
-          "انگشتدان",
           "انگشتی",
-          "thumbnail",
-          "thumb"
+          "انگشتدان",
+          "thumb",
+          "thumbnail"
         ],
         "case-sensitive": ""
       },
@@ -743,9 +743,9 @@
         "name": "img_framed",
         "aliases": [
           "قاب",
+          "frame",
           "framed",
-          "enframed",
-          "frame"
+          "enframed"
         ],
         "case-sensitive": ""
       },
@@ -1589,7 +1589,7 @@
       "mainpage": "صفحهٔ اصلی",
       "base": "http://localhost/wiki/index.php/%D8%B5%D9%81%D8%AD%D9%87%D9%94_%D8%A7%D8%B5%D9%84%DB%8C",
       "sitename": "Base MW",
-      "generator": "MediaWiki 1.21alpha",
+      "generator": "MediaWiki 1.27.0-alpha",
       "phpversion": "5.3.10-1ubuntu3.4",
       "phpsapi": "apache2handler",
       "dbtype": "sqlite",

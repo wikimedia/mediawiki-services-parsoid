@@ -1499,7 +1499,7 @@
       "mainpage": "Hoofdpagina",
       "base": "http://localhost/wiki/index.php/Hoofdpagina",
       "sitename": "Base MW",
-      "generator": "MediaWiki 1.21alpha",
+      "generator": "MediaWiki 1.21.0-alpha",
       "phpversion": "5.3.10-1ubuntu3.4",
       "phpsapi": "apache2handler",
       "dbtype": "sqlite",
