@@ -1120,22 +1120,20 @@ nowiki
         ]);
     }
   // nowiki fallback: source-based round-tripping of <nowiki />.
-  / nw0:("" { return endOffset(); })
-    "<" nowiki_tag_name space* "/" space* ">" {
+  / "<" nowiki_tag_name space* "/" space* ">" {
       return Util.placeholder(null, {
-        src: input.substring(nw0, endOffset()),
-        tsr: [nw0, endOffset()],
+        src: text(),
+        tsr: tsrOffsets(),
       });
     }
   // nowiki fallback: source-based round-tripping
   // of unbalanced nowiki tags that are treated as text.
   / ! { return stops.counters.pre > 0; }
-    nw0:("" { return endOffset(); })
     "<" "/"? nowiki_tag_name space* "/"? space* ">" {
-      var nowiki = input.substring(nw0, endOffset());
+      var nowiki = text();
       return Util.placeholder(nowiki, {
         src: nowiki,
-        tsr: [nw0, nw0],
+        tsr: tsrOffsets('start'),
       }, { tsr: tsrOffsets('end') });
     }
 
