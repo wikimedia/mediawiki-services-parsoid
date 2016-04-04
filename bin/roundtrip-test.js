@@ -536,20 +536,13 @@ function roundTripDiff(env, parsoidOptions, data) {
 
 // Returns a Promise for a formatted string.  `cb` is optional.
 function runTests(title, options, formatter, cb) {
-	var setup = function(parsoidConfig) {
-		// options are ParsoidConfig options if module.parent, otherwise they
-		// are CLI options (so use the Util.set* helpers to process them)
-		if (module.parent) {
-			if (options && options.setup) {
-				options.setup(parsoidConfig);
-			}
-		} else {
-			Util.setTemplatingAndProcessingFlags(parsoidConfig, options);
-			Util.setDebuggingFlags(parsoidConfig, options);
-			parsoidConfig.loadWMF = true;
-		}
-	};
-	var parsoidConfig = new ParsoidConfig({ setup: setup });
+	var localSettings = module.parent ?
+			options : require('../tests/rttest.localsettings.js');
+	// Note that this config is kind of confusing in that it is only used for
+	// fetching the page src and setting up an environment.  It should be
+	// configured the same as the Parsoid found at `options.parsoidURL`.
+	// FIXME: We should probably remove it altogether.
+	var parsoidConfig = new ParsoidConfig(localSettings);
 	var err, domain, prefix;
 	if (options.prefix) {
 		// If prefix is present, use that.
@@ -686,9 +679,6 @@ if (require.main === module) {
 		parsoidURL: {
 			description: 'The URL for the Parsoid API',
 		},
-	}, {
-		// defaults for standard options
-		rtTestMode: true,  // suppress noise by default
 	});
 
 	var opts = yargs.usage(
@@ -702,7 +692,14 @@ if (require.main === module) {
 	var title = String(argv._[0]);
 
 	Promise.resolve().then(function() {
-		if (argv.parsoidURL) { return; }
+		if (argv.parsoidURL) {
+			// FIXME: parsoidURL should require a configPath or something,
+			// see the fixme above about the parsoidConfig.
+			console.log('WARNING: There may be a mismatch between the ' +
+				'settings of the Parsoid passed at `parsoidURL` and what we ' +
+				'are currently assuming in this file.');
+			return;
+		}
 
 		// Start our own Parsoid server
 		// TODO: This will not be necessary once we have a top-level testing

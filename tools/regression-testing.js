@@ -80,11 +80,8 @@ var startAndRun = Promise.method(function(handleResult) {
 		return Promise.reduce(titles, function(_, t) {
 			return rtTest.runTests(t.title, {
 				prefix: t.prefix,
-				rtTestMode: true,
 				parsoidURL: ret.url,
-				setup: function(parsoidConfig) {
-					parsoidConfig.loadWMF = true;
-				},
+				setup: require('../tests/rttest.localsettings.js'),
 			}, rtTest.jsonFormat).then(
 				handleResult.bind(null, t)
 			);
