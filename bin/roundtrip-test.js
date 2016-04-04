@@ -546,6 +546,7 @@ function runTests(title, options, formatter, cb) {
 		} else {
 			Util.setTemplatingAndProcessingFlags(parsoidConfig, options);
 			Util.setDebuggingFlags(parsoidConfig, options);
+			parsoidConfig.loadWMF = true;
 		}
 	};
 	var parsoidConfig = new ParsoidConfig({ setup: setup });

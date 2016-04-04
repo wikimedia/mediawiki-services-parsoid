@@ -82,6 +82,9 @@ var startAndRun = Promise.method(function(handleResult) {
 				prefix: t.prefix,
 				rtTestMode: true,
 				parsoidURL: ret.url,
+				setup: function(parsoidConfig) {
+					parsoidConfig.loadWMF = true;
+				},
 			}, rtTest.jsonFormat).then(
 				handleResult.bind(null, t)
 			);
