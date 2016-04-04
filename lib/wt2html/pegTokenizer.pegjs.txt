@@ -298,8 +298,7 @@ inline_element
           / xmlish_tag
           / comment
           ) { return r; }
-    / & '{' r:tplarg_or_template_or_broken { return r; }
-    / & '}' r:broken_template { return r; }
+    / & '{' r:tplarg_or_template { return r; }
     // FIXME: The php parser's replaceInternalLinks2 splits on [[, resulting
     // in sequences with odd number of brackets parsing as text, and sequences
     // with even number of brackets having its innermost pair parse as a
@@ -628,18 +627,8 @@ tplarg_or_template
     }
     / & { return stops.dec('templatedepth'); }
 
-tplarg_or_template_or_broken
-    = tplarg_or_template / broken_template
-
 tplarg_or_template_or_bust "tplarg_or_template_or_bust"
     = r:(tplarg_or_template / .)+ { return tu.flattenIfArray(r); }
-
-broken_template
-  = v:( '{{' space_or_newline+ '}}' / ( '{{{' / '}}}' / '{{' / '}}' )+ ) {
-    return [
-        new TagTk('span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: tsrOffsets('start'), src: text() }),
-    ].concat(v, [new EndTagTk('span', [ new KV('typeof', 'mw:Nowiki') ], { tsr: tsrOffsets('end') }) ]);
-  }
 
 template
   = "{{" nl_comment_space*
@@ -661,7 +650,7 @@ template
       params.unshift(new KV(tu.flattenIfArray(target.tokens), '', target.srcOffsets));
       var obj = new SelfclosingTagTk('template', params, { tsr: tsrOffsets(), src: text() });
       return obj;
-    }
+    } / $('{{' space_or_newline+ '}}')
 
 tplarg
   = "{{{"
