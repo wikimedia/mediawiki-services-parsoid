@@ -8,8 +8,6 @@
 'use strict';
 
 exports.setup = function(parsoidConfig) {
-	parsoidConfig.loadWMF = true;
-
 	// The URL of your MediaWiki API endpoint.
 	if (process.env.PARSOID_MOCKAPI_URL) {
 		parsoidConfig.setMwApi({
@@ -24,8 +22,8 @@ exports.setup = function(parsoidConfig) {
 
 	// We pre-define wikipedias as 'enwiki', 'dewiki' etc. Similarly
 	// for other projects: 'enwiktionary', 'enwikiquote', 'enwikibooks',
-	// 'enwikivoyage' etc. (default true)
-	//  parsoidConfig.loadWMF = false;
+	// 'enwikivoyage' etc. (default false)
+	parsoidConfig.loadWMF = true;
 
 	// A default proxy to connect to the API endpoints. Default: undefined
 	// (no proxying). Overridden by per-wiki proxy config in setMwApi.
@@ -70,10 +68,9 @@ exports.setup = function(parsoidConfig) {
 	// Enable bidi char stripping during serialization
 	parsoidConfig.scrubBidiChars = true;
 
-	// Set to true to enable Performance timing
-	parsoidConfig.useDefaultPerformanceTimer = false;
-	// Peformance timing options for testing
-	parsoidConfig.performanceTimer = {
+	// Add a metrics shim so these functions are called during testing.
+	parsoidConfig.useDefaultStatsAggregator = false;
+	parsoidConfig.stats = {
 		count: function() {},
 		timing: function() {},
 	};

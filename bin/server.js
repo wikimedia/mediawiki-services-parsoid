@@ -107,7 +107,7 @@ process.on('uncaughtException', function(err) {
 	processLogger.log('fatal', 'uncaught exception', err);
 });
 
-var timer = parsoidConfig.performanceTimer;
+var stats = parsoidConfig.stats;
 
 // Workaround for https://github.com/nodejs/node/pull/3510
 var fixClusterHandleLeak = function(worker) {
@@ -177,7 +177,7 @@ if (cluster.isMaster && argv.n > 0) {
 						"Cpu timeout fetching: %s; killing worker %s.",
 						msg.location, pid
 					));
-					if (timer) { timer.count('worker.exit.SIGKILL', ''); }
+					if (stats) { stats.count('worker.exit.SIGKILL', ''); }
 					stopWorker(worker.id);
 					spawn();
 				}
@@ -197,7 +197,7 @@ if (cluster.isMaster && argv.n > 0) {
 		if (!worker.suicide && !shuttingDown) {
 			var pid = worker.process.pid;
 			processLogger.log("warning", util.format("worker %s died (%s), restarting.", pid, signal || code));
-			if (timer) { timer.count('worker.exit.' + (signal || code), ''); }
+			if (stats) { stats.count('worker.exit.' + (signal || code), ''); }
 			spawn();
 		}
 	});
@@ -238,12 +238,12 @@ if (cluster.isMaster && argv.n > 0) {
 	});
 
 	// Send heap usage statistics to Graphite at the requested sample rate
-	if (timer && parsoidConfig.heapUsageSampleInterval) {
+	if (stats && parsoidConfig.heapUsageSampleInterval) {
 		setInterval(function() {
 			var heapUsage = process.memoryUsage();
-			timer.timing('heap.rss', '', heapUsage.rss);
-			timer.timing('heap.total', '', heapUsage.heapTotal);
-			timer.timing('heap.used', '', heapUsage.heapUsed);
+			stats.timing('heap.rss', '', heapUsage.rss);
+			stats.timing('heap.total', '', heapUsage.heapTotal);
+			stats.timing('heap.used', '', heapUsage.heapUsed);
 		},  parsoidConfig.heapUsageSampleInterval);
 	}
 

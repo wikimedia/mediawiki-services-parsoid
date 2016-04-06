@@ -70,17 +70,17 @@ exports.setup = function(parsoidConfig) {
 	// restrict:
 	//parsoidConfig.allowCORS = 'some.domain.org';
 
-	// Set to true for using the default performance metrics reporting to statsd
+	// Set to true for using the default metrics reporting to statsd
 	// If true, provide the statsd host/port values
 	/*
-	parsoidConfig.useDefaultPerformanceTimer = true;
+	parsoidConfig.useDefaultStatsAggregator = true;
 	parsoidConfig.txstatsdHost = 'statsd.domain.org';
 	parsoidConfig.txstatsdPort = 8125;
 	*/
 
-	// Alternatively, define performanceTimer as follows:
+	// Alternatively, define `stats` as follows:
 	/*
-	parsoidConfig.performanceTimer = {
+	parsoidConfig.stats = {
 		timing: function(metricName, time) { }, // do-something-with-it
 		count: function(metricName, value) { }, // do-something-with-it
 	};
@@ -89,7 +89,7 @@ exports.setup = function(parsoidConfig) {
 	// How often should we emit a heap sample? Time in ms.
 	// This setting is only relevant if you have enabled
 	// performance monitoring either via the default metrics
-	// OR by defining your own performanceTimer properties
+	// OR by defining your own `stats` property.
 	//parsoidConfig.heapUsageSampleInterval = 5 * 60 * 1000;
 
 	// Allow override of port/interface:
