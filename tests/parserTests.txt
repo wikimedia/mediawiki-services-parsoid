@@ -7092,6 +7092,25 @@ parsoid=html2wt
 |}
 !! end
 
+!! test
+Testing serialization after deletion in references
+!! options
+parsoid={
+  "modes": ["wt2wt"],
+  "changes": [
+    ["#x", "remove"]
+  ]
+}
+!! wikitext
+hi <ref><div id="x">ho</div></ref>
+
+<references />
+!! wikitext/edited
+hi <ref></ref>
+
+<references />
+!! end
+
 !!test
 Testing serialization after deletion of table cells
 !!options

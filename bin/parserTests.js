@@ -425,7 +425,7 @@ ParserTests.prototype.convertHtml2Wt = function(options, mode, item, body, proce
 			// FIXME: All tests share an env.
 			// => we need to initialize this each time over here.
 			this.env.page.dom = item.cachedBODY;
-			this.env.page.editedDoc = item.cachedBODY.ownerDoc;
+			this.env.page.editedDoc = body.ownerDocument;
 		}
 		if (mode === 'selser') {
 			// console.warn("--> selsering: " + body.outerHTML);
@@ -861,16 +861,12 @@ ParserTests.prototype.applyManualChanges = function(body, changes, cb) {
  * @param {string} wikitext
  * @param {Function} processHtmlCB
  * @param {Error|null} processHtmlCB.err
- * @param {Node|null} processHtmlCB.doc
+ * @param {Node|null} processHtmlCB.body
  */
 ParserTests.prototype.convertWt2Html = function(mode, wikitext, processHtmlCB) {
 	this.env.setPageSrcInfo(wikitext);
 	this.parserPipeline.once('document', function(doc) {
-		// processHtmlCB can be asynchronous, so deep-clone
-		// document before invoking it. (the parser pipeline
-		// will attempt to reuse the document after this
-		// event is emitted)
-		processHtmlCB(null, doc.body.cloneNode(true));
+		processHtmlCB(null, doc.body);
 	});
 	this.parserPipeline.processToplevelDoc(wikitext);
 };
@@ -960,7 +956,8 @@ ParserTests.prototype.processTest = function(item, options, mode, endCb) {
 			// so we can maybe skip them later
 			testTasks.push(function(body, cb) {
 				// Cache parsed HTML
-				item.cachedBODY = DU.parseHTML(DU.serializeNode(body).str).body;
+				item.cachedBODYstr = DU.serializeNode(body).str;
+				item.cachedBODY = DU.parseHTML(item.cachedBODYstr).body;
 
 				// - In wt2html mode, pass through original DOM
 				//   so that it is serialized just once.
@@ -970,12 +967,12 @@ ParserTests.prototype.processTest = function(item, options, mode, endCb) {
 				if (mode === "wt2html") {
 					cb(null, body);
 				} else {
-					cb(null, item.cachedBODY.cloneNode(true));
+					cb(null, DU.parseHTML(item.cachedBODYstr).body);
 				}
 			});
 		} else {
 			testTasks.push(function(cb) {
-				cb(null, item.cachedBODY.cloneNode(true));
+				cb(null, DU.parseHTML(item.cachedBODYstr).body);
 			});
 		}
 	}
@@ -1844,11 +1841,6 @@ ParserTests.prototype.buildTasks = function(item, targetModes, options) {
 							} else {
 								item.selserChangeTrees[changesIndex] = newitem.changes;
 							}
-
-							// Push the caches forward!
-							item.cachedBODY = newitem.cachedBODY;
-							item.cachedNormalizedHTML = newitem.cachedNormalizedHTML;
-
 							setImmediate(cb, err);
 						}.bind(this));
 					}
@@ -1918,6 +1910,7 @@ ParserTests.prototype.processCase = function(i, options, err) {
 
 		// Reset the cached results for the new case.
 		// All test modes happen in a single run of processCase.
+		item.cachedBODYstr = null;
 		item.cachedBODY = null;
 		item.cachedNormalizedHTML = null;
 
