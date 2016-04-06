@@ -1704,14 +1704,14 @@ ParserTests.prototype.main = function(options, popts) {
 		// "suppressError" option on the test if error is expected.)
 		this.loggedErrorCount = 0;
 		env.setLogger = (function(parserTests, superSetLogger) {
-			return function(logger) {
-				superSetLogger.call(this, logger);
+			return function(_logger) {
+				superSetLogger.call(this, _logger);
 				this.log = function(level) {
-					if (logger !== parserTests.suppressLogger &&
+					if (_logger !== parserTests.suppressLogger &&
 						/^(fatal|error)\b/.test(level)) {
 						parserTests.loggedErrorCount++;
 					}
-					return logger.log.apply(logger, arguments);
+					return _logger.log.apply(_logger, arguments);
 				};
 			};
 		})(this, env.setLogger);
