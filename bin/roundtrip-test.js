@@ -485,7 +485,8 @@ function parsoidPost(env, options, cb) {
 		// TODO: convert Util.retryingHTTPRequest to a promise returning func
 		Util.retryingHTTPRequest(10, httpOptions, function(err, res, body) {
 			if (!err && res.statusCode !== 200) {
-				err = new Error('Got status code: ' + res.statusCode);
+				err = new Error('Got status code: ' + res.statusCode +
+					'; body: ' + body);
 			}
 			if (err) { return reject(err); }
 
