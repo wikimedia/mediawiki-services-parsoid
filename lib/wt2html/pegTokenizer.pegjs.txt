@@ -987,22 +987,22 @@ xmlish_tag =
         var dp = t.dataAttribs;
         var skipLen = 0;
 
-        // EndTagTk
-        if (t.constructor === EndTagTk || isHtmlTag) {
+        // Extensions have higher precedence when they shadow html tags.
+        if (!(isInstalledExt || isIncludeTag)) {
             return t;
+        }
 
-        // SelfclosingTagTk
-        } else if (t.constructor === SelfclosingTagTk) {
-
+        switch (t.constructor) {
+        case EndTagTk:
+            return t;
+        case SelfclosingTagTk:
             dp.src = input.substring(dp.tsr[0], dp.tsr[1]);
             dp.tagWidths = [dp.tsr[1] - dp.tsr[0], 0];
-            if (!isInstalledExt) {
+            if (isIncludeTag) {
                 return t;
             }
-
-        // TagTk
-        } else {
-
+            break;
+        case TagTk:
             var tsr0 = dp.tsr[0];
             var endTagRE = new RegExp("^[\\s\\S]*?(</\\s*" + tagName + "\\s*>)", "mi");
             var restOfInput = input.substring(tsr0);
@@ -1011,74 +1011,74 @@ xmlish_tag =
             if (!tagContent) {
                 dp.src = input.substring(dp.tsr[0], dp.tsr[1]);
                 dp.tagWidths = [dp.tsr[1] - dp.tsr[0], 0];
-
-                // We accept unclosed references tags,
-                // as does the PHP parser. They will normalize
-                // to self-closed in a round trip.
-                if (tagName !== 'references' || !isInstalledExt) {
+                if (isIncludeTag) {
                     return t;
+                } else {
+                    // This is undefined behaviour.  The php parser currently
+                    // returns a tag here as well, which results in unclosed
+                    // extension tags that shadow html tags falling back to
+                    // their html equivalent.  The sanitizer will take care
+                    // of converting to text where necessary.  We do this to
+                    // simplify `hasWikitextTokens` when escaping wikitext,
+                    // which wants these as tokens because it's otherwise
+                    // lacking in context.
+                    return t;  // not text()
                 }
-
-            } else {
-                var extSrc = tagContent[0];
-                var endTagWidth = tagContent[1].length;
-
-                if (tagName === 'ref') {
-                    // Support 1-level nesting of <ref> tags during tokenizing.
-                    // <ref> tags are the exception to the rule (no nesting of ext tags)
-                    //
-                    // Expand extSrc as long as there is a <ref> tag found in the
-                    // extension source body.
-                    var s = extSrc.substring(endOffset() - tsr0);
-                    while (s && s.match(new RegExp("<" + tagName + "[^<>]*>"))) {
-                        tagContent = restOfInput.substring(extSrc.length).match(endTagRE);
-                        if (tagContent) {
-                            s = tagContent[0];
-                            endTagWidth = tagContent[1].length;
-                            extSrc += s;
-                        } else {
-                            s = null;
-                        }
-                    }
-                }
-
-                // Extension content source
-                dp.src = extSrc;
-                dp.tagWidths = [endOffset() - tsr0, endTagWidth];
-
-                if (!isIncludeTag && !isInstalledExt) {
-                    return t;
-                }
-
-                skipLen = extSrc.length - dp.tagWidths[0] - dp.tagWidths[1];
-
-                // If the xml-tag is a known installed (not native) extension,
-                // skip the end-tag as well.
-                if (!isIncludeTag) {
-                    skipLen += endTagWidth;
-                }
-
             }
 
+            var extSrc = tagContent[0];
+            var endTagWidth = tagContent[1].length;
+
+            // FIXME: This should be removed in favour of a native parser function
+            // for `tag`, which invokes the extension handler directly.
+            if (tagName === 'ref') {
+                // Support 1-level nesting of <ref> tags during tokenizing.
+                // <ref> tags are the exception to the rule (no nesting of ext tags)
+                //
+                // Expand extSrc as long as there is a <ref> tag found in the
+                // extension source body.
+                var s = extSrc.substring(endOffset() - tsr0);
+                while (s && s.match(new RegExp("<" + tagName + "[^<>]*>"))) {
+                    tagContent = restOfInput.substring(extSrc.length).match(endTagRE);
+                    if (tagContent) {
+                        s = tagContent[0];
+                        endTagWidth = tagContent[1].length;
+                        extSrc += s;
+                    } else {
+                        s = null;
+                    }
+                }
+            }
+
+            // Extension content source
+            dp.src = extSrc;
+            dp.tagWidths = [endOffset() - tsr0, endTagWidth];
+
+            skipLen = extSrc.length - dp.tagWidths[0] - dp.tagWidths[1];
+
+            // If the xml-tag is a known installed (not native) extension,
+            // skip the end-tag as well.
+            if (isInstalledExt) {
+                skipLen += endTagWidth;
+            }
+            break;
+        default:
+            console.assert(false, 'Should not be reachable.');
         }
 
         peg$currPos += skipLen;
 
-        var ret;
-        if (!isIncludeTag) {
+        if (isInstalledExt) {
             // update tsr[1] to span the start and end tags.
             dp.tsr[1] = endOffset();  // was just modified above
-            ret = new SelfclosingTagTk('extension', [
+            return new SelfclosingTagTk('extension', [
                 new KV('typeof', 'mw:Extension'),
                 new KV('name', tagName),
                 new KV('about', env.newAboutId()),
                 new KV('source', dp.src),
                 new KV('options', t.attribs),
             ], dp);
-        } else {
-            // If not a known installed extension, parse content as wikitext.
-            // - include-directives: <noinclude>, <includeonly>, ...
-            // - a non-html5 tag like <big>
+        } else if (isIncludeTag) {
             // Parse ext-content, strip eof, and shift tsr
             var extContent = dp.src.substring(dp.tagWidths[0], dp.src.length - dp.tagWidths[1]);
             var extContentToks = (new PegTokenizer(env)).tokenize(extContent);
@@ -1086,10 +1086,10 @@ xmlish_tag =
                 extContentToks = Util.stripEOFTkfromTokens(extContentToks);
             }
             Util.shiftTokenTSR(extContentToks, dp.tsr[0] + dp.tagWidths[0]);
-            ret = [t].concat(extContentToks);
+            return [t].concat(extContentToks);
+        } else {
+            console.assert(false, 'Should not be reachable.');
         }
-        return ret;
-
     }
 
 /*
