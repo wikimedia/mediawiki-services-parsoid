@@ -1375,7 +1375,7 @@ ParserTests.prototype.checkHTML = function(item, out, options, mode) {
 		('html/parsoid' in item) || (item.options.parsoid !== undefined);
 
 	normalizedOut = DU.normalizeOut(out, parsoidOnly);
-	out = DU.serializeChildren(out);
+	out = DU.serializeNode(out, { innerXML: true }).str;
 
 	if (item.cachedNormalizedHTML === null) {
 		if (parsoidOnly) {
