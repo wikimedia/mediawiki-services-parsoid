@@ -102,6 +102,11 @@ var standardOpts = Util.addStandardOptions({
 		'boolean': false,
 		'default': false,
 	},
+	'dp': {
+		description: 'Output data-parsoid JSON',
+		'boolean': true,
+		'default': false,
+	},
 	'dpinfile': {
 		description: 'Input data-parsoid JSON file',
 		'boolean': false,
@@ -214,6 +219,10 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain)
 
 		// Enable wikitext scrubbing
 		env.scrubWikitext = argv.scrubWikitext;
+
+		// Sets ids on nodes and stores data-parsoid attributes
+		// in a JSON blob in the head.
+		env.storeDataParsoid = argv.dp;
 
 		if (!argv.wt2html) {
 			if (argv.oldtextfile) {
