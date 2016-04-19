@@ -296,6 +296,38 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		it('should accept an original title (html)', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/html/')
+			.send({
+				original: {
+					title: 'Main_Page',
+				},
+			})
+			.expect(302)  // no revid provided
+			.expect(function(res) {
+				res.headers.should.have.property('location');
+				res.headers.location.should.equal('/' + mockDomain + '/v3/page/html/Main_Page/1');
+			})
+			.end(done);
+		});
+
+		it('should accept an original title (pagebundle)', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
+			.send({
+				original: {
+					title: 'Main_Page',
+				},
+			})
+			.expect(302)  // no revid provided
+			.expect(function(res) {
+				res.headers.should.have.property('location');
+				res.headers.location.should.equal('/' + mockDomain + '/v3/page/pagebundle/Main_Page/1');
+			})
+			.end(done);
+		});
+
 		it('should not require a title when empty wikitext is provided (html)', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
