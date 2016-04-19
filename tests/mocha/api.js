@@ -304,7 +304,7 @@ describe('Parsoid API', function() {
 					title: 'Main_Page',
 				},
 			})
-			.expect(302)  // no revid provided
+			.expect(302)  // no revid or wikitext source provided
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.equal('/' + mockDomain + '/v3/page/html/Main_Page/1');
@@ -320,7 +320,7 @@ describe('Parsoid API', function() {
 					title: 'Main_Page',
 				},
 			})
-			.expect(302)  // no revid provided
+			.expect(302)  // no revid or wikitext source provided
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.equal('/' + mockDomain + '/v3/page/pagebundle/Main_Page/1');
@@ -362,9 +362,40 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		it('should not require a rev id when wikitext and a title is provided', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/html/Main_Page')
+			.send({
+				wikitext: "== h2 ==",
+			})
+			.expect(validHtmlResponse(function(doc) {
+				doc.body.firstChild.nodeName.should.equal('H2');
+			}))
+			.end(done);
+		});
+
 		it('should accept the wikitext source as original data', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/html/Main_Page/1')
+			.send({
+				original: {
+					wikitext: {
+						headers: {
+							'content-type': 'text/plain;profile="https://www.mediawiki.org/wiki/Specs/wikitext/1.0.0"',
+						},
+						body: "== h2 ==",
+					},
+				},
+			})
+			.expect(validHtmlResponse(function(doc) {
+				doc.body.firstChild.nodeName.should.equal('H2');
+			}))
+			.end(done);
+		});
+
+		it('should accept the wikitext source as original without a title or revision', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.send({
 				original: {
 					wikitext: {
