@@ -2358,6 +2358,11 @@
         }
       }
     },
+    "negotiator": {
+      "version": "0.6.0",
+      "from": "negotiator@git+https://github.com/ethanresnick/negotiator.git#e2fe4abc56271b9851132f3e508e7323415c8aea",
+      "resolved": "git+https://github.com/ethanresnick/negotiator.git#e2fe4abc56271b9851132f3e508e7323415c8aea"
+    },
     "node-txstatsd": {
       "version": "0.1.5",
       "resolved": "https://registry.npmjs.org/node-txstatsd/-/node-txstatsd-0.1.5.tgz"
