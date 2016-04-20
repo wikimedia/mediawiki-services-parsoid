@@ -2116,10 +2116,6 @@
                 }
               }
             },
-            "node-uuid": {
-              "version": "1.4.7",
-              "resolved": "https://registry.npmjs.org/node-uuid/-/node-uuid-1.4.7.tgz"
-            },
             "vow-queue": {
               "version": "0.4.2",
               "resolved": "https://registry.npmjs.org/vow-queue/-/vow-queue-0.4.2.tgz"
