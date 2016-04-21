@@ -1,8 +1,8 @@
 'use strict';
-require('../core-upgrade.js');
 
-var Util = require('../lib/utils/Util.js').Util;
-var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
+var ParsoidExtApi = module.parent.require('./extapi.js').versionCheck('^0.4.1');
+var Util = ParsoidExtApi.Util;
+var DU = ParsoidExtApi.DOMUtils;
 
 /**
  * See tests/parser/parserTestsParserHook.php in core.
