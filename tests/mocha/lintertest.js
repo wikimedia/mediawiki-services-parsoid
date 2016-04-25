@@ -35,12 +35,12 @@ describe('Linter Tests', function() {
 			});
 		});
 		it('should lint missing end tags found in transclusions correctly', function() {
-			return parseWT('{{echo|<div>foo<p>bar</div>}}').then(function(result) {
+			return parseWT('{{1x|<div>foo<p>bar</div>}}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "missing-end-tag");
 				result[0].should.have.a.property("wiki", "enwiki");
-				result[0].dsr.should.include.members([ 0, 29, null, null ]);
-				result[0].should.have.a.property("src", "{{echo|<div>foo<p>bar</div>}}");
+				result[0].dsr.should.include.members([ 0, 27, null, null ]);
+				result[0].should.have.a.property("src", "{{1x|<div>foo<p>bar</div>}}");
 			});
 		});
 		it('should lint stripped tags correctly', function() {
@@ -53,12 +53,12 @@ describe('Linter Tests', function() {
 			});
 		});
 		it('should lint stripped tags found in transclusions correctly', function() {
-			return parseWT('{{echo|<div>foo</div></div>}}').then(function(result) {
+			return parseWT('{{1x|<div>foo</div></div>}}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "stripped-tag");
 				result[0].should.have.a.property("wiki", "enwiki");
-				result[0].dsr.should.include.members([ 0, 29, null, null ]);
-				result[0].should.have.a.property("src", "{{echo|<div>foo</div></div>}}");
+				result[0].dsr.should.include.members([ 0, 27, null, null ]);
+				result[0].should.have.a.property("src", "{{1x|<div>foo</div></div>}}");
 			});
 		});
 		it('should lint obsolete tags correctly', function() {
@@ -71,12 +71,12 @@ describe('Linter Tests', function() {
 			});
 		});
 		it('should lint obsolete tags found in transclusions correctly', function() {
-			return parseWT('{{echo|<div><big>foo</big></div>}}foo').then(function(result) {
+			return parseWT('{{1x|<div><big>foo</big></div>}}foo').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "obsolete-tag");
 				result[0].should.have.a.property("wiki", "enwiki");
-				result[0].dsr.should.include.members([ 0, 34, null, null ]);
-				result[0].should.have.a.property("src", "{{echo|<div><big>foo</big></div>}}");
+				result[0].dsr.should.include.members([ 0, 32, null, null ]);
+				result[0].should.have.a.property("src", "{{1x|<div><big>foo</big></div>}}");
 			});
 		});
 		it('should lint fostered content correctly', function() {
@@ -98,12 +98,12 @@ describe('Linter Tests', function() {
 			});
 		});
 		it('should lint ignored table attributes found in transclusions correctly', function() {
-			return parseWT('{{echo|\n{{{!}}\n{{!}}- foo\n{{!}} bar\n{{!}}}\n}}').then(function(result) {
+			return parseWT('{{1x|\n{{{!}}\n{{!}}- foo\n{{!}} bar\n{{!}}}\n}}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "ignored-table-attr");
 				result[0].should.have.a.property("wiki", "enwiki");
-				result[0].dsr.should.include.members([ 0, 45, null, null]);
-				result[0].should.have.a.property("src", "{{echo|\n{{{!}}\n{{!}}- foo\n{{!}} bar\n{{!}}}\n}}");
+				result[0].dsr.should.include.members([ 0, 43, null, null]);
+				result[0].should.have.a.property("src", "{{1x|\n{{{!}}\n{{!}}- foo\n{{!}} bar\n{{!}}}\n}}");
 			});
 		});
 		it('should not lint whitespaces as ignored table attributes', function() {
@@ -130,12 +130,12 @@ describe('Linter Tests', function() {
 			});
 		});
 		it('should lint Bogus image options found in transclusions correctly', function() {
-			return parseWT('{{echo|[[file:a.jpg|foo|bar]]}}').then(function(result) {
+			return parseWT('{{1x|[[file:a.jpg|foo|bar]]}}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "bogus-image-options");
 				result[0].should.have.a.property("wiki", "enwiki");
-				result[0].dsr.should.include.members([ 0, 31, null, null ]);
-				result[0].should.have.a.property("src", "{{echo|[[file:a.jpg|foo|bar]]}}");
+				result[0].dsr.should.include.members([ 0, 29, null, null ]);
+				result[0].should.have.a.property("src", "{{1x|[[file:a.jpg|foo|bar]]}}");
 			});
 		});
 	});

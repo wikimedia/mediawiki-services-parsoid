@@ -189,7 +189,7 @@ describe('ParserPipelineFactory', function() {
 		// the parserTests test for this functionality, which ends up using
 		// our own (incomplete) parser functions implementation.
 		it('should handle template-generated page properties', function() {
-			return parse('{{Lowercase title}}{{{{echo|DEFAULTSORT}}:x}}', {
+			return parse('{{Lowercase title}}{{{{1x|DEFAULTSORT}}:x}}', {
 				prefix: 'enwiki',
 				pageName: 'EBay',
 			}).then(function(doc) {
