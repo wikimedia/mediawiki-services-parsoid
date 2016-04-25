@@ -69,9 +69,10 @@ if (argv.debug) {
 
 (new DOMDiff(dummyEnv)).diff(oldDOM, newDOM);
 
-if (!Util.booleanOption(argv.quiet)) {
-	console.warn("----- DIFF-marked DOM -----");
-}
-DU.visitDOM(newDOM, DU.storeDiffMark, dummyEnv);
-console.log(newDOM.outerHTML);
+DU.dumpDOM(newDOM, 'DIFF-marked DOM', {
+	quiet: !!Util.booleanOption(argv.quiet),
+	storeDiffMark: true,
+	env: dummyEnv,
+});
+
 process.exit(0);

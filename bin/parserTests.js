@@ -431,7 +431,6 @@ ParserTests.prototype.convertHtml2Wt = function(options, mode, item, body, proce
 			this.env.page.dom = DU.parseHTML(item.cachedBODYstr).body;
 		}
 		if (mode === 'selser') {
-			// console.warn("--> selsering: " + body.outerHTML);
 			this.env.setPageSrcInfo(item.wikitext);
 		} else if (booleanOption(options.use_source) && startsAtWikitext) {
 			this.env.setPageSrcInfo(item.wikitext);
@@ -608,9 +607,7 @@ ParserTests.prototype.applyChanges = function(item, body, changelist, cb) {
 
 	if (this.env.conf.parsoid.dumpFlags &&
 		this.env.conf.parsoid.dumpFlags.indexOf("dom:post-changes") !== -1) {
-		console.warn("-------------------------");
-		console.warn("Original DOM: " + body.outerHTML);
-		console.warn("-------------------------");
+		DU.dumpDOM(body, 'Original DOM');
 	}
 
 	if (item.changes === 5) {
@@ -626,9 +623,7 @@ ParserTests.prototype.applyChanges = function(item, body, changelist, cb) {
 	if (this.env.conf.parsoid.dumpFlags &&
 		this.env.conf.parsoid.dumpFlags.indexOf("dom:post-changes") !== -1) {
 		console.warn("Change tree : " + JSON.stringify(item.changes));
-		console.warn("-------------------------");
-		console.warn("Edited DOM  : " + body.outerHTML);
-		console.warn("-------------------------");
+		DU.dumpDOM(body, 'Edited DOM');
 	}
 
 	if (cb) {
