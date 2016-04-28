@@ -21,7 +21,7 @@ var parse = function(parsoidConfig, src, options) {
 
 };
 
-var serialize = function(parsoidConfig, doc, dp, options) {
+var serialize = function(parsoidConfig, doc, pb, options) {
 	options = options || {};
 	return MWParserEnvironment.getParserEnv(parsoidConfig, {
 		prefix: options.prefix || 'enwiki',
@@ -30,15 +30,9 @@ var serialize = function(parsoidConfig, doc, dp, options) {
 		if (options.tweakEnv) {
 			env = options.tweakEnv(env) || env;
 		}
-		if (!dp) {
-			var dpScriptElt = doc.getElementById('mw-data-parsoid');
-			if (dpScriptElt) {
-				dpScriptElt.parentNode.removeChild(dpScriptElt);
-				dp = JSON.parse(dpScriptElt.text);
-			}
-		}
-		if (dp) {
-			DU.applyDataParsoid(doc, dp);
+		pb = pb || DU.extractPageBundle(doc);
+		if (pb) {
+			DU.applyPageBundle(doc, pb);
 		}
 		return DU.serializeDOM(env, doc.body, false);
 	});

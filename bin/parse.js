@@ -102,18 +102,23 @@ var standardOpts = Util.addStandardOptions({
 		'boolean': false,
 		'default': false,
 	},
-	'dp': {
-		description: 'Output data-parsoid JSON',
+	'contentversion': {
+		description: 'The acceptable content version.',
+		'boolean': false,
+		'default': ParserEnv.prototype.contentVersion,
+	},
+	'pagebundle': {
+		description: 'Output pagebundle JSON',
 		'boolean': true,
 		'default': false,
 	},
-	'dpinfile': {
-		description: 'Input data-parsoid JSON file',
+	'pbin': {
+		description: 'Input pagebundle JSON',
 		'boolean': false,
 		'default': '',
 	},
-	'dpin': {
-		description: 'Input data-parsoid JSON',
+	'pbinfile': {
+		description: 'Input pagebundle JSON file',
 		'boolean': false,
 		'default': '',
 	},
@@ -147,28 +152,18 @@ var standardOpts = Util.addStandardOptions({
 });
 exports.defaultOptions = yargs.options(standardOpts).parse([]);
 
-function dpFromHead(doc) {
-	var dp;
-	var dpScriptElt = doc.getElementById('mw-data-parsoid');
-	if (dpScriptElt) {
-		dpScriptElt.parentNode.removeChild(dpScriptElt);
-		dp = JSON.parse(dpScriptElt.text);
-	}
-	return dp;
-}
-
 var startsAtWikitext;
-var startsAtHTML = function(argv, env, input, dp) {
+var startsAtHTML = function(argv, env, input, pb) {
 	var doc = DU.parseHTML(input);
-	dp = dp || dpFromHead(doc);
+	pb = pb || DU.extractPageBundle(doc);
 	if (argv.selser) {
-		dp = dp || dpFromHead(env.page.dom.ownerDocument);
-		if (dp) {
-			DU.applyDataParsoid(env.page.dom.ownerDocument, dp);
+		pb = pb || DU.extractPageBundle(env.page.dom.ownerDocument);
+		if (pb) {
+			DU.applyPageBundle(env.page.dom.ownerDocument, pb);
 		}
 	}
-	if (dp) {
-		DU.applyDataParsoid(doc, dp);
+	if (pb) {
+		DU.applyPageBundle(doc, pb);
 	}
 	return DU.serializeDOM(env, doc.body, argv.selser).then(function(out) {
 		if (argv.html2wt || argv.wt2wt) {
@@ -220,9 +215,13 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain)
 		// Enable wikitext scrubbing
 		env.scrubWikitext = argv.scrubWikitext;
 
-		// Sets ids on nodes and stores data-parsoid attributes
-		// in a JSON blob in the head.
-		env.storeDataParsoid = argv.dp;
+		// Sets ids on nodes and stores data-* attributes in a JSON blob
+		env.pageBundle = argv.pagebundle;
+
+		// The content version to output
+		if (argv.contentversion) {
+			env.setContentVersion(argv.contentversion);
+		}
 
 		if (!argv.wt2html) {
 			if (argv.oldtextfile) {
@@ -293,13 +292,13 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain)
 	}).then(function(str) {
 		str = str.replace(/\r/g, '');
 		if (argv.html2wt || argv.html2html) {
-			var dp;
-			if (argv.dpin.length > 0) {
-				dp = JSON.parse(argv.dpin);
-			} else if (argv.dpinfile) {
-				dp = JSON.parse(fs.readFileSync(argv.dpinfile, 'utf8'));
+			var pb;
+			if (argv.pbin.length > 0) {
+				pb = JSON.parse(argv.pbin);
+			} else if (argv.pbinfile) {
+				pb = JSON.parse(fs.readFileSync(argv.pbinfile, 'utf8'));
 			}
-			return startsAtHTML(argv, env, str, dp);
+			return startsAtHTML(argv, env, str, pb);
 		} else {
 			return startsAtWikitext(argv, env, str);
 		}

@@ -83,40 +83,62 @@ describe('Parsoid API', function() {
 	});  // formats
 
 	describe('accepts', function() {
+		var defaultContentVersion = '1.2.1';
 
-		var acceptableHtmlResponse = function(profile) {
+		var acceptableHtmlResponse = function(contentVersion, expectFunc) {
 			return function(res) {
 				res.statusCode.should.equal(200);
 				res.headers.should.have.property('content-type');
 				res.headers['content-type'].should.equal(
-					'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + profile + '"'
+					'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + contentVersion + '"'
 				);
 				res.text.should.not.equal('');
+				if (expectFunc) {
+					return expectFunc(res.text);
+				}
 			};
 		};
 
-		var acceptablePageBundleResponse = function(profile) {
+		var acceptablePageBundleResponse = function(contentVersion, expectFunc) {
 			return function(res) {
 				res.statusCode.should.equal(200);
+				res.headers.should.have.property('content-type');
+				res.headers['content-type'].should.equal(
+					'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"'
+				);
 				res.body.should.have.property('html');
 				res.body.html.should.have.property('headers');
 				res.body.html.headers.should.have.property('content-type');
 				res.body.html.headers['content-type'].should.equal(
-					'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + profile + '"'
+					'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + contentVersion + '"'
 				);
 				res.body.html.should.have.property('body');
 				res.body.should.have.property('data-parsoid');
 				res.body['data-parsoid'].should.have.property('headers');
 				res.body['data-parsoid'].headers.should.have.property('content-type');
-				// FIXME: There's only one content version now, and they should all have it.
-				// res.body['data-parsoid'].headers['content-type'].should.equal(
-				// 	'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/' + profile + '"'
-				// );
+				// Some backwards compatibility for when the content version
+				// wasn't applied uniformly.  See `apiUtils.dataParsoidContentType`
+				var dpVersion = (contentVersion === '1.2.1') ? '0.0.2' : contentVersion;
+				res.body['data-parsoid'].headers['content-type'].should.equal(
+					'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/' + dpVersion + '"'
+				);
 				res.body['data-parsoid'].should.have.property('body');
+				if (contentVersion !== '1.2.1') {
+					res.body.should.have.property('data-mw');
+					res.body['data-mw'].should.have.property('headers');
+					res.body['data-mw'].headers.should.have.property('content-type');
+					res.body['data-mw'].headers['content-type'].should.equal(
+						'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/data-mw/' + contentVersion + '"'
+					);
+					res.body['data-mw'].should.have.property('body');
+				}
+				if (expectFunc) {
+					return expectFunc(res.body.html.body);
+				}
 			};
 		};
 
-		it('should not accept requests for older html versions', function(done) {
+		it('should not accept requests for older content versions (html)', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.set('Accept', 'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/0.0.0"')
@@ -125,7 +147,7 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should not accept requests for older pagebundle versions', function(done) {
+		it('should not accept requests for older content versions (pagebundle)', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/HTML/0.0.0"')
@@ -134,7 +156,7 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should not accept requests for other profiles', function(done) {
+		it('should not accept requests for other profiles (html)', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.set('Accept', 'text/html; profile="something different"')
@@ -143,71 +165,126 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should accept requests with no accept header', function(done) {
-			var profile = '1.2.1';
+		it('should not accept requests for other profiles (pagebundle)', function(done) {
 			request(api)
-			.post(mockDomain + '/v3/transform/wikitext/to/html/')
+			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
+			.set('Accept', 'application/json; profile="something different"')
 			.send({ wikitext: '== h2 ==' })
-			.expect(200)
-			.expect(acceptableHtmlResponse(profile))
+			.expect(406)
 			.end(done);
 		});
 
-		it('should accept wildcards', function(done) {
-			var profile = '1.2.1';
+		it('should accept wildcards (html)', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.set('Accept', '*/*')
 			.send({ wikitext: '== h2 ==' })
 			.expect(200)
-			.expect(acceptableHtmlResponse(profile))
+			.expect(acceptableHtmlResponse(defaultContentVersion))
 			.end(done);
 		});
 
-		it('should prefer higher quality', function(done) {
-			// FIXME: This test would be better if there were more available
-			// versions.  Fix it in the followup.
-			var profile = '1.2.1';
-			request(api)
-			.post(mockDomain + '/v3/transform/wikitext/to/html/')
-			.set('Accept', 'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/0.0.0"; q=0.5,' +
-				'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + profile + '"; q=0.8')
-			.send({ wikitext: '== h2 ==' })
-			.expect(200)
-			.expect(acceptableHtmlResponse(profile))
-			.end(done);
-		});
-
-		it('should accept requests for the latest html versions', function(done) {
-			var profile = '1.2.1';
-			request(api)
-			.post(mockDomain + '/v3/transform/wikitext/to/html/')
-			.set('Accept', 'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + profile + '"')
-			.send({ wikitext: '== h2 ==' })
-			.expect(200)
-			.expect(acceptableHtmlResponse(profile))
-			.end(done);
-		});
-
-		it('should accept requests for the latest pagebundle versions', function(done) {
-			var profile = '1.2.1';
+		it('should accept wildcards (pagebundle)', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
-			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + profile + '"')
+			.set('Accept', '*/*')
 			.send({ wikitext: '== h2 ==' })
 			.expect(200)
-			.expect(acceptablePageBundleResponse(profile))
+			.expect(acceptablePageBundleResponse(defaultContentVersion))
 			.end(done);
 		});
 
-		it('should accept requests for the latest pagebundle versions', function(done) {
-			var profile = '1.2.1';
+		it('should prefer higher quality (html)', function(done) {
+			var contentVersion = '2.0.0';
 			request(api)
-			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
-			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + profile + '"')
+			.post(mockDomain + '/v3/transform/wikitext/to/html/')
+			.set('Accept',
+				'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/1.2.1"; q=0.5,' +
+				'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"; q=0.8')
 			.send({ wikitext: '== h2 ==' })
 			.expect(200)
-			.expect(acceptablePageBundleResponse(profile))
+			.expect(acceptableHtmlResponse(contentVersion))
+			.end(done);
+		});
+
+		it('should prefer higher quality (pagebundle)', function(done) {
+			var contentVersion = '2.0.0';
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
+			.set('Accept',
+				'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/1.2.1"; q=0.5,' +
+				'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/2.0.0"; q=0.8')
+			.send({ wikitext: '== h2 ==' })
+			.expect(200)
+			.expect(acceptablePageBundleResponse(contentVersion))
+			.end(done);
+		});
+
+		it('should accept requests for the latest content version (html)', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/html/')
+			.send({ wikitext: '== h2 ==' })
+			.expect(200)
+			.expect(acceptableHtmlResponse(defaultContentVersion))
+			.end(done);
+		});
+
+		it('should accept requests for the latest content version (pagebundle)', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
+			.send({ wikitext: '== h2 ==' })
+			.expect(200)
+			.expect(acceptablePageBundleResponse(defaultContentVersion))
+			.end(done);
+		});
+
+		it('should accept requests for content version 1.2.1 (html)', function(done) {
+			var contentVersion = '1.2.1';
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/html/')
+			.set('Accept', 'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + contentVersion + '"')
+			.send({ wikitext: '{{echo|hi}}' })
+			.expect(200)
+			.expect(acceptableHtmlResponse(contentVersion))
+			.end(done);
+		});
+
+		it('should accept requests for content version 1.2.1 (pagebundle)', function(done) {
+			var contentVersion = '1.2.1';
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
+			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"')
+			.send({ wikitext: '{{echo|hi}}' })
+			.expect(200)
+			.expect(acceptablePageBundleResponse(contentVersion, function(html) {
+				// In 1.2.1, data-mw is still inline.
+				html.should.match(/data-mw/);
+			}))
+			.end(done);
+		});
+
+		it('should accept requests for content version 2.0.0 (html)', function(done) {
+			var contentVersion = '2.0.0';
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/html/')
+			.set('Accept', 'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + contentVersion + '"')
+			.send({ wikitext: '{{echo|hi}}' })
+			.expect(200)
+			.expect(acceptableHtmlResponse(contentVersion))
+			.end(done);
+		});
+
+		it('should accept requests for content version 2.0.0 (pagebundle)', function(done) {
+			var contentVersion = '2.0.0';
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
+			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"')
+			.send({ wikitext: '{{echo|hi}}' })
+			.expect(200)
+			.expect(acceptablePageBundleResponse(contentVersion, function(html) {
+				// In 2.0.0, data-mw is in the pagebundle.
+				html.should.not.match(/data-mw/);
+			}))
 			.end(done);
 		});
 

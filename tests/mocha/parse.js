@@ -4,6 +4,7 @@ require('../../core-upgrade.js');
 /*global describe, it*/
 
 var url = require('url');
+var DU = require('../../lib/utils/DOMUtils.js').DOMUtils;
 var ParsoidConfig = require('../../lib/config/ParsoidConfig.js').ParsoidConfig;
 var helpers = require('./test.helpers.js');
 
@@ -214,7 +215,7 @@ describe('ParserPipelineFactory', function() {
 		it('should replace duplicated ids', function() {
 			var origWt = '<div id="hello">hi</div><div id="hello">ok</div><div>no</div>';
 			return parse(origWt, {
-				tweakEnv: function(env) { env.storeDataParsoid = true; },
+				tweakEnv: function(env) { env.pageBundle = true; },
 			}).then(function(doc) {
 				var child = doc.body.firstChild;
 				child.getAttribute("id").should.equal("hello");
@@ -224,13 +225,12 @@ describe('ParserPipelineFactory', function() {
 				child = child.nextSibling;
 				var divNoId = child.getAttribute("id");
 				divNoId.should.match(/^mw[\w-]{2,}$/);
-				var dpScriptElt = doc.getElementById('mw-data-parsoid');
-				var dp = JSON.parse(dpScriptElt.text);
+				var pb = DU.extractPageBundle(doc);
 				// verify dp wasn't bloated and
 				// id wasn't shadowed for div without id
-				dp.ids[divNoId].should.not.have.property("a");
-				dp.ids[divNoId].should.not.have.property("sa");
-				return serialize(doc, dp);
+				pb.parsoid.ids[divNoId].should.not.have.property("a");
+				pb.parsoid.ids[divNoId].should.not.have.property("sa");
+				return serialize(doc, pb);
 			}).then(function(wt) {
 				wt.should.equal(origWt);
 			});

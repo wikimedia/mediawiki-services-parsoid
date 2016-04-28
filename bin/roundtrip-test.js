@@ -382,9 +382,9 @@ var checkIfSignificant = function(env, offsets, data) {
 	var oldBody = domino.createDocument(data.oldHTML.body).body;
 	var newBody = domino.createDocument(data.newHTML.body).body;
 
-	// Merge data-parsoid so that HTML nodes can be compared and diff'ed.
-	DU.applyDataParsoid(oldBody.ownerDocument, data.oldDp.body);
-	DU.applyDataParsoid(newBody.ownerDocument, data.newDp.body);
+	// Merge pagebundles so that HTML nodes can be compared and diff'ed.
+	DU.applyPageBundle(oldBody.ownerDocument, { parsoid: data.oldDp.body });
+	DU.applyPageBundle(newBody.ownerDocument, { parsoid: data.newDp.body });
 
 	// Strip 'mw..' ids from the DOMs. This matters for 2 scenarios:
 	// * reduces noise in visual diffs
