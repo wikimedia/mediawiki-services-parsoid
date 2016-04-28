@@ -17,6 +17,7 @@ var apiServer = require('../tests/apiServer.js');
 var async = require('async');
 var colors = require('colors');
 var fs = require('fs');
+var path = require('path');
 var yargs = require('yargs');
 var Alea = require('alea');
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
@@ -24,11 +25,14 @@ var ParsoidLogger = require('../lib/logger/ParsoidLogger.js').ParsoidLogger;
 var PEG = require('pegjs');
 var Util = require('../lib/utils/Util.js').Util;
 var Diff = require('../lib/utils/Diff.js').Diff;
-var ParserHook = require('../tests/parserTestsParserHook.js');
 
 // Fetch up some of our wacky parser bits...
 var MWParserEnvironment = require('../lib/config/MWParserEnvironment.js').MWParserEnvironment;
 var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
+// be careful to load our extension code with the correct parent module.
+var ParserHook = ParsoidConfig.loadExtension(
+	path.resolve(__dirname, '../tests/parserTestsParserHook.js')
+);
 
 var booleanOption = Util.booleanOption; // shortcut
 
@@ -1683,7 +1687,7 @@ ParserTests.prototype.main = function(options, popts) {
 		// For posterity: err will never be non-null here, because we expect
 		// the WikiConfig to be basically empty, since the parserTests
 		// environment is very bare.
-		console.assert(!err, err);
+		console.assert(!err, (err && err.stack) || err);
 		this.env = env;
 
 		if (booleanOption(options.quiet)) {

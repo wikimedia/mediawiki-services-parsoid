@@ -28,6 +28,7 @@
 	"requireCapitalizedComments": null,
 	"excludeFiles": [
 		"node_modules/**",
+		"extensions/**",
 		"localsettings.js",
 		"tests/client/config.js",
 		"tests/server/node_modules/**",

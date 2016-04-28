@@ -22,3 +22,5 @@ tests/client/config.js
 coverage/
 contrib/
 node_modules
+
+extensions/
