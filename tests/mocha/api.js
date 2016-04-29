@@ -462,7 +462,7 @@ describe('Parsoid API', function() {
 				.end(done);
 			});
 
-			it("should respect body parameter (body_only)", function(done) {
+			it("should respect body parameter in wikitext->html (body_only)", function(done) {
 				request(api)
 				.post(version === 3 ?
 					mockDomain + '/v3/transform/wikitext/to/html/' :
@@ -488,7 +488,33 @@ describe('Parsoid API', function() {
 				.end(done);
 			});
 
-			it("should respect body parameter (bodyOnly)", function(done) {
+			it("should respect body parameter in wikitext->pagebundle requests (body_only)", function(done) {
+				request(api)
+				.post(version === 3 ?
+					mockDomain + '/v3/transform/wikitext/to/pagebundle/' :
+					'v2/' + mockDomain + '/pagebundle/')
+				.send(version === 3 ? {
+					wikitext: "''foo''",
+					body_only: 1,
+				} : {
+					wikitext: "''foo''",
+					body: 1,
+				})
+				.expect(validPageBundleResponse())
+				.expect(function(res) {
+					if (version === 3) {
+						// v3 only returns children of <body>
+						res.body.html.body.should.not.match(/<body/);
+						res.body.html.body.should.match(/<p/);
+					} else {
+						// v2 returns body and children
+						res.body.html.body.should.match(/^<body/);
+					}
+				})
+				.end(done);
+			});
+
+			it("should respect body parameter - b/c test for bodyOnly", function(done) {
 				request(api)
 				.post(version === 3 ?
 					mockDomain + '/v3/transform/wikitext/to/html/' :
