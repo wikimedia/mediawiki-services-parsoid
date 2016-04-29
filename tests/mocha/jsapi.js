@@ -37,7 +37,7 @@ describe('Examples from guides/jsapi', function() {
 			pdoc.document.should.have.property('outerHTML');
 		});
 	});
-	it.skip('filters out templates', function() {
+	it('filters out templates', function() {
 		var text = "I has a template! {{foo|bar|baz|eggs=spam}} See it?\n";
 		var pdoc, templates, template;
 		return Parsoid.parse(text, { pdoc: true }).then(function(_pdoc) {
@@ -68,7 +68,7 @@ describe('Examples from guides/jsapi', function() {
 			wt.should.equal('spam');
 		});
 	});
-	it.skip('filters templates, recursively', function() {
+	it('filters templates, recursively', function() {
 		var text = "{{foo|{{bar}}={{baz|{{spam}}}}}}";
 		return Parsoid.parse(text, { pdoc: true }).then(function(pdoc) {
 			var templates = pdoc.filterTemplates();
@@ -77,7 +77,7 @@ describe('Examples from guides/jsapi', function() {
 			templates.length.should.equal(3);
 		});
 	});
-	it.skip('filters templates, non-recursively', function() {
+	it('filters templates, non-recursively', function() {
 		var text = "{{foo|this {{includes a|template}}}}";
 		var foo;
 		return Parsoid.parse(text, { pdoc: true }).then(function(pdoc) {
@@ -94,7 +94,7 @@ describe('Examples from guides/jsapi', function() {
 			wt.should.equal('template');
 		});
 	});
-	it.skip('is easy to mutate templates', function() {
+	it('is easy to mutate templates', function() {
 		var text = "{{cleanup}} '''Foo''' is a [[bar]]. {{uncategorized}}";
 		return Parsoid.parse(text, { pdoc: true }).then(function(pdoc) {
 			pdoc.filterTemplates().forEach(function(template) {
@@ -113,7 +113,7 @@ describe('Examples from guides/jsapi', function() {
 });
 
 describe('Further examples of PDoc API', function() {
-	it.skip('is easy to mutate templates (2)', function() {
+	it('is easy to mutate templates (2)', function() {
 		// Works even on nested templates!
 		var text = "{{1x|{{cleanup}} '''Foo''' is a [[bar]].}} {{uncategorized}}";
 		return Parsoid.parse(text, { pdoc: true }).then(function(pdoc) {
@@ -130,7 +130,7 @@ describe('Further examples of PDoc API', function() {
 			wt.should.equal("{{1x|{{cleanup|date=July 2012|test1=<nowiki>{{foo}}</nowiki>&bar{{!}}bat<nowiki><p></nowiki>|test2=I'm so '''bold'''!}} '''Foo''' is a [[bar]].}} {{uncategorized}}");
 		});
 	});
-	it.skip('is safe to mutate template arguments', function() {
+	it('is safe to mutate template arguments', function() {
 		var text = "{{1x|foo|bar}}";
 		return Parsoid.parse(text, { pdoc: true }).then(function(pdoc) {
 			var t = pdoc.filterTemplates()[0];
@@ -140,7 +140,7 @@ describe('Further examples of PDoc API', function() {
 			wt.should.equal('{{1x||bar}}');
 		});
 	});
-	it.skip('is safe to mutate template arguments (2)', function() {
+	it('is safe to mutate template arguments (2)', function() {
 		var text = "{{1x|foo|bar}}";
 		return Parsoid.parse(text, { pdoc: true }).then(function(pdoc) {
 			var t = pdoc.filterTemplates()[0];
@@ -153,7 +153,7 @@ describe('Further examples of PDoc API', function() {
 			wt.should.equal('{{1x|{{!}}|foo}}');
 		});
 	});
-	it.skip('filters and mutates headings', function() {
+	it('filters and mutates headings', function() {
 		var text = "= one =\n== two ==\n=== three ===\n==== four ====\nbody";
 		return Parsoid.parse(text, { pdoc: true }).then(function(pdoc) {
 			var headings = pdoc.filterHeadings();
@@ -174,7 +174,7 @@ describe('Further examples of PDoc API', function() {
 			wt.should.equal('=<nowiki>=0=</nowiki>=\n== three ==\n=== three ===\n\n=== four ===\nbody\n');
 		});
 	});
-	it.skip('filters and mutates headings inside templates', function() {
+	it('filters and mutates headings inside templates', function() {
 		var text = "{{1x|1=\n= one =\n}}";
 		var pdoc, headings;
 		return Parsoid.parse(text, { pdoc: true }).then(function(_pdoc) {
@@ -197,7 +197,7 @@ describe('Further examples of PDoc API', function() {
 			wt.should.equal('{{1x|1=\n== two ==\n}}');
 		});
 	});
-	it.skip('filters and mutates external links', function() {
+	it('filters and mutates external links', function() {
 		var text = "[http://example.com {{1x|link content}}]";
 		var pdoc, extlinks;
 		return Parsoid.parse(text, { pdoc: true }).then(function(_pdoc) {
@@ -214,7 +214,7 @@ describe('Further examples of PDoc API', function() {
 			wt.should.equal('[http://example.com <nowiki>]</nowiki>]\n');
 		});
 	});
-	it.skip('filters and mutates wiki links', function() {
+	it('filters and mutates wiki links', function() {
 		var text = "[[foo|1]] {{1x|[[bar|2]]}} [[{{1x|bat}}|3]]";
 		var pdoc, extlinks;
 		return Parsoid.parse(text, { pdoc: true }).then(function(_pdoc) {
@@ -242,7 +242,7 @@ describe('Further examples of PDoc API', function() {
 			wt.should.equal('[[foobar]] {{1x|[[bar|A]]}} [[{{1x|bat}}|B]]\n');
 		});
 	});
-	it.skip('filters and mutates html entities', function() {
+	it('filters and mutates html entities', function() {
 		var text = '&amp;{{1x|&quot;}}';
 		return Parsoid.parse(text, { pdoc: true }).then(function(pdoc) {
 			var entities = pdoc.filterHtmlEntities();
@@ -256,7 +256,7 @@ describe('Further examples of PDoc API', function() {
 			wt.should.equal('&#x3C;{{1x|&#x3E;}}\n');
 		});
 	});
-	it.skip('filters and mutates comments', function() {
+	it('filters and mutates comments', function() {
 		var text = '<!-- foo --> {{1x|<!--bar-->}}';
 		return Parsoid.parse(text, { pdoc: true }).then(function(pdoc) {
 			var comments = pdoc.filterComments();
@@ -270,7 +270,7 @@ describe('Further examples of PDoc API', function() {
 			wt.should.equal('<!--<!-- ha! --&gt;--> {{1x|<!------>}}');
 		});
 	});
-	it.skip('filters and mutates images', function() {
+	it('filters and mutates images', function() {
 		var text = '[[File:SomeFile1.jpg]] [[File:SomeFile2.jpg|thumb|caption]]';
 		var pdoc, media;
 		return Parsoid.parse(text, { pdoc: true }).then(function(_pdoc) {
@@ -293,7 +293,7 @@ describe('Further examples of PDoc API', function() {
 			wt.should.equal('[[File:SomeFile1.jpg]] [[File:SomeFile2.jpg|thumb|<nowiki>|</nowiki>]]');
 		});
 	});
-	it.skip('filters and mutates text', function() {
+	it('filters and mutates text', function() {
 		var text = 'foo {{1x|bar}}';
 		var pdoc, texts;
 		return Parsoid.parse(text, { pdoc: true }).then(function(_pdoc) {
@@ -320,12 +320,12 @@ describe('Further examples of PDoc API', function() {
 			var texts = pdoc.filterText();
 			texts.length.should.equal(1);
 			// XXX this doesn't work yet, see note at end of
-			// https://www.mediawiki.org/wiki/Parsoid/MediaWiki_DOM_spec#Transclusion_content
-			// for details.
+			// https://www.mediawiki.org/wiki/Specs/HTML/1.2.1#Transclusion_content
+			// for details. ("Editing support for the interspersed wikitext...")
 			texts[0].value.should.equal(' foo');
 		});
 	});
-	it.skip('allows mutation using wikitext', function() {
+	it('allows mutation using wikitext', function() {
 		var text = '== heading ==';
 		var pdoc, headings;
 		return Parsoid.parse(text, { pdoc: true }).then(function(_pdoc) {
