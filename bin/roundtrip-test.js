@@ -310,6 +310,8 @@ var getMatchingHTML = function(env, body, offsetRange, nlDiffs) {
 		// node need not be an element always!
 		html += DU.toXML(out[i], { smartQuote: false });
 	}
+	// No need to use ppToXML above since we're stripping
+	// data-* attributes anyways.
 	html = DU.normalizeOut(html);
 
 	// Normalize away <br/>'s added by Parsoid because of newlines in wikitext.
@@ -413,6 +415,11 @@ var checkIfSignificant = function(env, offsets, data) {
 			return results;
 		}
 	}
+
+	// Do this after the quick test above because in `parsoidOnly`
+	// normalization, data-mw is not stripped.
+	DU.visitDOM(oldBody, DU.loadDataAttribs);
+	DU.visitDOM(newBody, DU.loadDataAttribs);
 
 	// Now, proceed with full blown diffs
 	for (i = 0; i < offsets.length; i++) {
