@@ -5650,7 +5650,7 @@ parsoid={ "modes": ["html2wt"], "suppressErrors": true }
 text
 <nowiki>*</nowiki>text
 <nowiki>[[foo]]</nowiki>
-<nowiki>*a [[foo]]</nowiki>
+<nowiki>*</nowiki>a <nowiki>[[foo]]</nowiki>
 !! end
 
 !! test
