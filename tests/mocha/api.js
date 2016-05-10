@@ -435,83 +435,6 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		var previousRevHTML = {
-			revid: 0,
-			html: {
-				headers: {
-					'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/1.2.1"',
-				},
-				body: "<!DOCTYPE html>\n<html prefix=\"dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/\" about=\"http://localhost/index.php/Special:Redirect/revision/1\"><head prefix=\"mwr: http://localhost/index.php/Special:Redirect/\"><meta property=\"mw:articleNamespace\" content=\"0\"/><link rel=\"dc:replaces\" resource=\"mwr:revision/0\"/><meta property=\"dc:modified\" content=\"2014-09-12T22:46:59.000Z\"/><meta about=\"mwr:user/0\" property=\"dc:title\" content=\"MediaWiki default\"/><link rel=\"dc:contributor\" resource=\"mwr:user/0\"/><meta property=\"mw:revisionSHA1\" content=\"8e0aa2f2a7829587801db67d0424d9b447e09867\"/><meta property=\"dc:description\" content=\"\"/><meta property=\"mw:parsoidVersion\" content=\"0\"/><link rel=\"dc:isVersionOf\" href=\"http://localhost/index.php/Main_Page\"/><title>Main_Page</title><base href=\"http://localhost/index.php/\"/><link rel=\"stylesheet\" href=\"//localhost/load.php?modules=mediawiki.legacy.commonPrint,shared|mediawiki.skinning.elements|mediawiki.skinning.content|mediawiki.skinning.interface|skins.vector.styles|site|mediawiki.skinning.content.parsoid&amp;only=styles&amp;debug=true&amp;skin=vector\"/></head><body id=\"mwAA\" lang=\"en\" class=\"mw-content-ltr sitedir-ltr ltr mw-body mw-body-content mediawiki\" dir=\"ltr\"><p id=\"mwAQ\"><strong id=\"mwAg\">MediaWiki has been successfully installed.</strong></p>\n\n<p id=\"mwAw\">Consult the <a rel=\"mw:ExtLink\" href=\"//meta.wikimedia.org/wiki/Help:Contents\" id=\"mwBA\">User's Guide</a> for information on using the wiki software.</p>\n\n<h2 id=\"mwBQ\"> Getting started </h2>\n<ul id=\"mwBg\"><li id=\"mwBw\"> <a rel=\"mw:ExtLink\" href=\"//www.mediawiki.org/wiki/Special:MyLanguage/Manual:Configuration_settings\" id=\"mwCA\">Configuration settings list</a></li>\n<li id=\"mwCQ\"> <a rel=\"mw:ExtLink\" href=\"//www.mediawiki.org/wiki/Special:MyLanguage/Manual:FAQ\" id=\"mwCg\">MediaWiki FAQ</a></li>\n<li id=\"mwCw\"> <a rel=\"mw:ExtLink\" href=\"https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce\" id=\"mwDA\">MediaWiki release mailing list</a></li>\n<li id=\"mwDQ\"> <a rel=\"mw:ExtLink\" href=\"//www.mediawiki.org/wiki/Special:MyLanguage/Localisation#Translation_resources\" id=\"mwDg\">Localise MediaWiki for your language</a></li></ul></body></html>",
-			},
-			"data-parsoid": {
-				headers: {
-					'content-type': 'application/json;profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/0.0.2"',
-				},
-				body: {
-					"counter": 14,
-					"ids": {
-						"mwAA": {"dsr": [0, 592, 0, 0]}, "mwAQ": {"dsr": [0, 59, 0, 0]}, "mwAg": {"stx": "html", "dsr": [0, 59, 8, 9]}, "mwAw": {"dsr": [61, 171, 0, 0]}, "mwBA": {"targetOff": 114, "contentOffsets": [114, 126], "dsr": [73, 127, 41, 1]}, "mwBQ": {"dsr": [173, 194, 2, 2]}, "mwBg": {"dsr": [195, 592, 0, 0]}, "mwBw": {"dsr": [195, 300, 1, 0]}, "mwCA": {"targetOff": 272, "contentOffsets": [272, 299], "dsr": [197, 300, 75, 1]}, "mwCQ": {"dsr": [301, 373, 1, 0]}, "mwCg": {"targetOff": 359, "contentOffsets": [359, 372], "dsr": [303, 373, 56, 1]}, "mwCw": {"dsr": [374, 472, 1, 0]}, "mwDA": {"targetOff": 441, "contentOffsets": [441, 471], "dsr": [376, 472, 65, 1]}, "mwDQ": {"dsr": [473, 592, 1, 0]}, "mwDg": {"targetOff": 555, "contentOffsets": [555, 591], "dsr": [475, 592, 80, 1] },
-					},
-				},
-			},
-		};
-
-		it('should accept the previous revision to reuse expansions (html)', function(done) {
-			request(api)
-			.post(mockDomain + '/v3/transform/wikitext/to/html/Main_Page/1')
-			.send({
-				previous: previousRevHTML,
-			})
-			.expect(validHtmlResponse(function(doc) {
-				doc.body.firstChild.textContent.should.equal("MediaWiki has been successfully installed.");
-			}))
-			.end(done);
-		});
-
-		it('should accept the previous revision to reuse expansions (pagebundle)', function(done) {
-			request(api)
-			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/Main_Page/1')
-			.send({
-				previous: previousRevHTML,
-			})
-			.expect(validPageBundleResponse(function(doc) {
-				doc.body.firstChild.textContent.should.equal("MediaWiki has been successfully installed.");
-			}))
-			.end(done);
-		});
-
-		var origHTML = Util.clone(previousRevHTML);
-		origHTML.revid = 1;
-		it('should accept the original and reuse certain expansions (html)', function(done) {
-			request(api)
-			.post(mockDomain + '/v3/transform/wikitext/to/html/Main_Page/1')
-			.send({
-				update: {
-					templates: true,
-				},
-				original: origHTML,
-			})
-			.expect(validHtmlResponse(function(doc) {
-				doc.body.firstChild.textContent.should.equal("MediaWiki has been successfully installed.");
-			}))
-			.end(done);
-		});
-
-		it('should accept the original and reuse certain expansions (pagebundle)', function(done) {
-			request(api)
-			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/Main_Page/1')
-			.send({
-				update: {
-					templates: true,
-				},
-				original: origHTML,
-			})
-			.expect(validPageBundleResponse(function(doc) {
-				doc.body.firstChild.textContent.should.equal("MediaWiki has been successfully installed.");
-			}))
-			.end(done);
-		});
-
 		it('should accept wikitext as a string for html', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
@@ -1174,5 +1097,87 @@ describe('Parsoid API', function() {
 		});
 
 	}); // end html2wt
+
+	describe('html2html', function() {
+
+		var previousRevHTML = {
+			revid: 99,
+			html: {
+				headers: {
+					'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/1.2.1"',
+				},
+				body: '<p about="#mwt1" typeof="mw:Transclusion" data-mw=\'{"parts":[{"template":{"target":{"wt":"colours of the rainbow","href":"./Template:Colours_of_the_rainbow"},"params":{},"i":0}}]}\' id="mwAg">pink</p>',
+			},
+			"data-parsoid": {
+				headers: {
+					'content-type': 'application/json;profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/0.0.2"',
+				},
+				body: {
+					'counter': 2,
+					'ids': {
+						'mwAg': { 'pi': [[]], 'src': '{{colours of the rainbow}}' },  // artificially added src
+					},
+				},
+			},
+		};
+
+		it('should accept the previous revision to reuse expansions (html)', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/html/to/html/Reuse_Page/100')
+			.send({
+				previous: previousRevHTML,
+			})
+			.expect(validHtmlResponse(function(doc) {
+				doc.body.firstChild.textContent.should.match(/pink/);
+			}))
+			.end(done);
+		});
+
+		it('should accept the previous revision to reuse expansions (pagebundle)', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/html/to/pagebundle/Reuse_Page/100')
+			.send({
+				previous: previousRevHTML,
+			})
+			.expect(validPageBundleResponse(function(doc) {
+				doc.body.firstChild.textContent.should.match(/pink/);
+			}))
+			.end(done);
+		});
+
+		var origHTML = Util.clone(previousRevHTML);
+		origHTML.revid = 100;
+
+		it('should accept the original and reuse certain expansions (html)', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/html/to/html/Reuse_Page/100')
+			.send({
+				updates: {
+					transclusions: true,
+				},
+				original: origHTML,
+			})
+			.expect(validHtmlResponse(function(doc) {
+				doc.body.firstChild.textContent.should.match(/purple/);
+			}))
+			.end(done);
+		});
+
+		it('should accept the original and reuse certain expansions (pagebundle)', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/html/to/pagebundle/Reuse_Page/100')
+			.send({
+				updates: {
+					transclusions: true,
+				},
+				original: origHTML,
+			})
+			.expect(validPageBundleResponse(function(doc) {
+				doc.body.firstChild.textContent.should.match(/purple/);
+			}))
+			.end(done);
+		});
+
+	});  // end html2html
 
 });

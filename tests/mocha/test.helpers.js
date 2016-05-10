@@ -12,11 +12,11 @@ var parse = function(parsoidConfig, src, options) {
 			env = options.tweakEnv(env) || env;
 		}
 		env.setPageSrcInfo(src);
-		return env.pipelineFactory.parse(env, env.page.src, options.expansions).
-			then(function(doc) {
-				// linter tests need the env object
-				return { env: env, doc: doc };
-			});
+		return env.pipelineFactory.parse(env, env.page.src)
+		.then(function(doc) {
+			// linter tests need the env object
+			return { env: env, doc: doc };
+		});
 	});
 
 };

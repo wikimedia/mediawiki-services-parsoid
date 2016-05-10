@@ -127,6 +127,27 @@ var largePage = {
 	},
 };
 
+var reusePage = {
+	query: {
+		pages: {
+			'100': {
+				pageid: 100,
+				ns: 0,
+				title: 'Reuse_Page',
+				revisions: [
+					{
+						revid: 100,
+						parentid: 0,
+						contentmodel: 'wikitext',
+						contentformat: 'text/x-wiki',
+						'*': '{{colours of the rainbow}}',
+					},
+				],
+			},
+		},
+	},
+};
+
 var fnames = {
 	'Image:Foobar.jpg': 'Foobar.jpg',
 	'File:Foobar.jpg': 'Foobar.jpg',
@@ -225,6 +246,8 @@ var availableActions = {
 				return cb(null , junkPage);
 			} else if (body.revids === '3' || body.titles === 'Large_Page') {
 				return cb(null , largePage);
+			} else if (body.revids === '100' || body.titles === 'Reuse_Page') {
+				return cb(null , reusePage);
 			}
 		}
 
@@ -319,11 +342,9 @@ var availableActions = {
 	expandtemplates: function(body, cb) {
 		var match = body.text.match(/{{echo\|(.*?)}}/);
 		if (match) {
-			cb(null, {
-				expandtemplates: {
-					wikitext: match[1],
-				},
-			});
+			cb(null, { expandtemplates: { wikitext: match[1] } });
+		} else if (body.text === '{{colours of the rainbow}}') {
+			cb(null, { expandtemplates: { wikitext: 'purple' } });
 		} else {
 			cb(new Error('Sorry!'));
 		}
