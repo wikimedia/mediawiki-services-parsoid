@@ -1546,6 +1546,7 @@ add("selser", "Invalid attributes in table cell (bug 1830) [[0,1]]", "{|\n|Cell:
 add("selser", "Invalid attributes in table cell (bug 1830) [[0,[2,0]]]", "{|\n<!--j29v67hfrufmvx6r-->|Cell:|broken\n|}");
 add("selser", "Invalid attributes in table cell (bug 1830) [[3,[[2],0]]]", "{|\n|otq3btd8klf2yb9\n|Cell:|broken\n|}");
 add("selser", "Invalid attributes in table cell (bug 1830) [[0,[1,3]]]", "{|\n|Cell:|broken\n|}");
+add("selser", "Element attributes with double ! should not be broken up by <th> [[3,[[[0,4,0]],0]]]", "{|\n! hi \ndx51fgzl5z478pvi\n ho\n|}");
 add("selser", "! and || in element attributes should not be parsed as <th>/<td> [[0,[0,2]]]", "{|\n| <div style=\"color: red !important;\" data-contrived=\"put this here ||\">hi</div><!--768pk9dhuiz77gb9-->\n|}");
 add("selser", "! and || in element attributes should not be parsed as <th>/<td> [[2,2]]", "{|<!--6x6nmghv3o1g7gb9-->\n<!--02ex0q4ti0t6s9k9-->| <div style=\"color: red !important;\" data-contrived=\"put this here ||\">hi</div>\n|}");
 add("selser", "! and || in element attributes should not be parsed as <th>/<td> [[0,[2,3]]]", "{|\n<!--2gjjc0tjnzlac3di-->| <div style=\"color: red !important;\" data-contrived=\"put this here ||\">hi</div>\n|}");
