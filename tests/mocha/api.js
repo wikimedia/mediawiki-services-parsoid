@@ -238,6 +238,26 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		it('should accept requests for content version 1.2.0 (html)', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/html/')
+			.set('Accept', 'text/html; profile="mediawiki.org/specs/html/1.2.0"')
+			.send({ wikitext: '{{echo|hi}}' })
+			.expect(200)
+			.expect(acceptableHtmlResponse('1.2.1'))
+			.end(done);
+		});
+
+		it('should accept requests for content version 1.2.0 (pagebundle)', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
+			.set('Accept', 'text/html; profile="mediawiki.org/specs/html/1.2.0"')
+			.send({ wikitext: '{{echo|hi}}' })
+			.expect(200)
+			.expect(acceptablePageBundleResponse('1.2.1'))
+			.end(done);
+		});
+
 		it('should accept requests for content version 1.2.1 (html)', function(done) {
 			var contentVersion = '1.2.1';
 			request(api)
