@@ -74,4 +74,6 @@ exports.setup = function(parsoidConfig) {
 	parsoidConfig.limits.wt2html.maxWikitextSize = 20000;
 	parsoidConfig.limits.html2wt.maxHTMLSize = 10000;
 
+	parsoidConfig.strictAcceptCheck = true;
+
 };
