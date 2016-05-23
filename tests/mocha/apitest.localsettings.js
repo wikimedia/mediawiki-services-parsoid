@@ -1,10 +1,3 @@
-/*
- * This is a sample configuration file.
- *
- * Copy this file to localsettings.js and edit that file to fit your needs.
- *
- * Also see the file server.js for more information.
- */
 'use strict';
 
 exports.setup = function(parsoidConfig) {

@@ -1,8 +1,8 @@
 /** Cases for spec'ing use of templatedata while converting HTML to wikitext */
 'use strict';
-/*global describe, it, before*/
+/*global describe, it, before, after*/
 
-var apiServer = require('../apiServer.js');
+var serviceWrapper = require('../serviceWrapper.js');
 var request = require('supertest');
 var path = require('path');
 require('chai').should();
@@ -15,7 +15,7 @@ var fakeConfig = {
 };
 require(configPath).setup(fakeConfig);  // Set limits
 
-var api;
+var api, runner;
 
 function verifyTransformation(newHTML, origHTML, origWT, expectedWT, done, dpVersion) {
 	// Default version is the latest
@@ -195,19 +195,12 @@ var dataParsoidVersionTests = [
 
 describe('[TemplateData]', function() {
 	before(function() {
-		var p = apiServer.startMockAPIServer({}).then(function(ret) {
-			return apiServer.startParsoidServer({
-				mockUrl: ret.url,
-				serverArgv: [
-					'--num-workers', '1',
-					'--config', configPath,
-				],
-			});
+		return serviceWrapper.runServices({
+			localsettings: configPath,
 		}).then(function(ret) {
-			api = ret.url;
+			api = ret.parsoidURL;
+			runner = ret.runner;
 		});
-		apiServer.exitOnProcessTerm();
-		return p;
 	});
 
 	tests.forEach(function(test, i) {
@@ -246,5 +239,9 @@ describe('[TemplateData]', function() {
 			var newHTML = test.html.replace(/foo/, 'BAR');
 			verifyTransformation(newHTML, test.html, test.wt.orig, test.wt.edited, done, test.dpVersion);
 		});
+	});
+
+	after(function() {
+		return runner.stop();
 	});
 });

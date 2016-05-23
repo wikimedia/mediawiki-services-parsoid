@@ -39,19 +39,21 @@ you think you're lost, you can try joining our IRC channel,
 
 ## Testing your changes
 
-There are four major things you should test before you submit a change:
-
-* tests/parserTests.js
-* tests/parse.js
-* tests/roundtrip-test.js
-* api/server.js
-
-Luckily, you can test all of these with one command!
 From the Parsoid base directory, run:
 
 	$ npm test
 
-This will run all of the above tests, and some code style checkers as well.
+This will run parserTests.js, unit tests with mocha, and some code style
+checkers as well.
+
+	$ npm run roundtrip
+
+This will run roundtrip-test.js on two representative pages.
+
+	$ npm start
+
+This will launch Parsoid's HTTP API, which should be used to verify
+appropriate responses in the browser.
 
 For more details on the different tests which are run, keep reading...
 
@@ -59,14 +61,14 @@ For more details on the different tests which are run, keep reading...
 
 To run the parser tests, run:
 
-	$ node tests/parserTests
+	$ node bin/parserTests
 
 This is quite noisy!  You may wish to use the `--quiet` option, which
 cuts down on the output from tests which are not failing.  There are
 quite a number of options to the parser test suite, but they are
 pretty well documented if you run:
 
-	$ node tests/parserTests --help
+	$ node bin/parserTests --help
 
 To get you oriented: there are five possible modes which a given test
 can be run in, corresponding to the command-line options `--wt2html`,
@@ -86,7 +88,7 @@ currently-failing tests in `tests/parserTests-blacklist.js`.
 If you need to add or remove tests from the blacklist, then this
 command will help:
 
-	$ node tests/parserTests --rewrite-blacklist
+	$ node bin/parserTests --rewrite-blacklist
 
 We also gladly accept patches that mark tests as PHP-only (usually
 with the `!! html/php` tag) when they've been audited to be irrelevant
@@ -98,7 +100,7 @@ This tool is described briefly in the [setup instructions](#!/guide/setup) as
 a useful tool for testing functionality, or parsing bits of wikitext. We also
 need to make sure it runs properly after your changes. Run something like:
 
-	$ echo "''Non'''-trivial'' wikitext''' [[with links]] {{echo|and templates}} | node tests/parse --wt2wt
+	$ echo "''Non'''-trivial'' wikitext''' [[with links]] {{echo|and templates}} | node bin/parse --wt2wt
 
 That command should exercise a reasonable number of parser and
 serializer features --- although not as many as the full `parserTests`
@@ -110,12 +112,12 @@ This script is something we use to test against actual wiki articles. You can
 specify which wiki you want to use with the --wiki option, but it defaults to
 English Wikipedia which should be sufficient. Running
 
-	$ node tests/roundtrip-test.js "Barack Obama"
+	$ node bin/roundtrip-test.js "Barack Obama"
 
 is a simple and typical test case. If the script runs without issue,
 then it should be fine.
 
-### server.js
+### npm start
 
 This is a more complicated one to test. You'll need to actually run the API
 server - see the [setup instructions](#!/guide/setup) for how to do so - and

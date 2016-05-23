@@ -13,6 +13,7 @@ n.n.n / XXXX-XX-XX
   * T139388: Ensure that edits to content nested in elements
              with templated attributes is not lost by the
              selective serializer.
+  * T90668: Replace custom server.js with service-runner
 
 0.5.1 / 2015-05-02
 ==================

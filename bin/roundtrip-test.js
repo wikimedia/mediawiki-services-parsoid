@@ -727,15 +727,14 @@ if (require.main === module) {
 		Promise.resolve().then(function() {
 			if (argv.parsoidURL) { return; }
 			// Start our own Parsoid server
-			var apiServer = require('../tests/apiServer.js');
-			var parsoidOptions = { quiet: true };
+			var serviceWrapper = require('../tests/serviceWrapper.js');
+			var serverOpts = {};
 			if (argv.apiURL) {
-				parsoidOptions.mockUrl = argv.apiURL;
+				serverOpts.mockURL = argv.apiURL;
 				argv.domain = 'customwiki';
 			}
-			apiServer.exitOnProcessTerm();
-			return apiServer.startParsoidServer(parsoidOptions).then(function(ret) {
-				argv.parsoidURL = ret.url;
+			return serviceWrapper.runServices(serverOpts).then(function(ret) {
+				argv.parsoidURL = ret.parsoidURL;
 			});
 		}).then(function() {
 			var formatter = Util.booleanOption(argv.xml) ? xmlFormat : plainFormat;

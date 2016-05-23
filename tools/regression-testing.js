@@ -8,7 +8,7 @@ var yargs = require('yargs');
 var childProcess = require('child_process');
 
 var Promise = require('../lib/utils/promise.js');
-var apiServer = require('../tests/apiServer.js');
+var serviceWrapper = require('../tests/serviceWrapper.js');
 var rtTest = require('../bin/roundtrip-test.js');
 
 var readFile = Promise.promisify(fs.readFile, false, fs);
@@ -63,29 +63,20 @@ var opts = yargs.usage(usage, {
 		});
 	});
 
-	var stopServer = Promise.method(function() {
-		apiServer.stopAllServers();
-		// Give a generous few secs to shutdown.
-		return Promise.delay(2 * 1000);
-	});
-
 	var titles;
-	apiServer.exitOnProcessTerm();  // Once
-	var startAndRun = Promise.method(function(handleResult) {
-		return apiServer.startParsoidServer({
-			serverArgv: [
-				'--num-workers', '1',
-			],
-		}).then(function(ret) {
+	var run = Promise.method(function(handleResult) {
+		return serviceWrapper.runServices({ skipMock: true }).then(function(ret) {
 			// Do this serially for now.
 			return Promise.reduce(titles, function(_, t) {
 				return rtTest.runTests(t.title, {
 					prefix: t.prefix,
-					parsoidURL: ret.url,
+					parsoidURL: ret.parsoidURL,
 				}, rtTest.jsonFormat).then(
 					handleResult.bind(null, t)
 				);
-			}, null);
+			}, null).then(function() {
+				return ret.runner.stop();
+			});
 		});
 	});
 
@@ -113,14 +104,14 @@ var opts = yargs.usage(usage, {
 		});
 		return checkout(argv.o);
 	}).then(function() {
-		return startAndRun(function(t, ret) {
+		return run(function(t, ret) {
 			if (ret.error) { throw ret.error; }
 			t.oresults = ret.results;
 		});
-	}).then(stopServer).then(function() {
+	}).then(function() {
 		return checkout(argv.c);
 	}).then(function() {
-		return startAndRun(function(t, ret) {
+		return run(function(t, ret) {
 			if (ret.error) { throw ret.error; }
 			compareResult(t, ret.results);
 		});
@@ -128,5 +119,6 @@ var opts = yargs.usage(usage, {
 		console.log('----------------------------');
 		console.log('Pages needing investigation:');
 		console.log(summary);
-	}).then(stopServer).done();
+		process.exit(0);
+	}).done();
 }());

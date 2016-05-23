@@ -1,12 +1,14 @@
-#!/usr/bin/env node
 // This file is used to run a stub API that mimics the MediaWiki interface
 // for the purposes of testing extension expansion.
-"use strict";
+
+'use strict';
 require('../core-upgrade.js');
 
 var express = require('express');
 var bodyParser = require('body-parser');
 var crypto = require('crypto');
+
+var Promise = require('../lib/utils/promise.js');
 
 // Get Parsoid limits.
 var fakeConfig = {
@@ -497,16 +499,23 @@ app.post('/api.php', function(req, res) {
 	handleApiRequest(req.body, res);
 });
 
-module.exports = app;
-
-var port = process.env.PORT || 7001;
-var server = app.listen(port, function() {
-	port = server.address().port;
-	console.log('Mock MediaWiki API started on: %s', port);
-	// let parent process know we've started up and are ready to go.
-	if (process.send) { process.send({ type: 'startup', port: port }); }
-});
-app.on('error', function(e) {
-	if (process.send) { process.send({ type: 'error', code: e.code }); }
-	console.log('Could not start up:', e);
-});
+module.exports = function(options) {
+	var logger = options.logger;
+	var server;
+	return new Promise(function(resolve, reject) {
+		app.on('error', function(err) {
+			logger.log('error', err);
+			reject(err);
+		});
+		server = app.listen(options.config.port, options.config.iface, resolve);
+	}).then(function() {
+		var port = server.address().port;
+		logger.log('info', 'Mock MediaWiki API: Started on ' + port);
+		return {
+			close: function() {
+				return Promise.promisify(server.close, false, server)();
+			},
+			port: port,
+		};
+	});
+};

@@ -1,9 +1,9 @@
 /** Cases for testing the Parsoid API through HTTP */
 'use strict';
-/*global describe, it, before*/
+/*global describe, it, before, after*/
 
 var Util = require('../../lib/utils/Util.js').Util;
-var apiServer = require('../apiServer.js');
+var serviceWrapper = require('../serviceWrapper.js');
 var request = require('supertest');
 var domino = require('domino');
 var path = require('path');
@@ -18,23 +18,16 @@ var fakeConfig = {
 require(configPath).setup(fakeConfig);  // Set limits.
 
 describe('Parsoid API', function() {
-	var api;
+	var api, runner;
 	var mockDomain = 'mock.domain';
 
 	before(function() {
-		var p = apiServer.startMockAPIServer({}).then(function(ret) {
-			return apiServer.startParsoidServer({
-				mockUrl: ret.url,
-				serverArgv: [
-					'--num-workers', '1',
-					'--config', configPath,
-				],
-			});
+		return serviceWrapper.runServices({
+			localsettings: configPath,
 		}).then(function(ret) {
-			api = ret.url;
+			api = ret.parsoidURL;
+			runner = ret.runner;
 		});
-		apiServer.exitOnProcessTerm();
-		return p;
 	});
 
 	describe('formats', function() {
@@ -1299,5 +1292,9 @@ describe('Parsoid API', function() {
 		});
 
 	});  // end html2html
+
+	after(function() {
+		return runner.stop();
+	});
 
 });

@@ -15,19 +15,17 @@ describe('Parsoid Config setup ', function() {
 		};
 
 		var pc = new ParsoidConfig(ls);
-		pc.timeouts.cpu.should.equal(5 * 60 * 1000);
+		pc.timeouts.request.should.equal(4 * 60 * 1000);
 		pc.timeouts.mwApi.configInfo.should.equal(40 * 1000);
 	});
 	it('should only sanitize unnacceptable config values', function() {
 		var ls = {
 			setup: function(pc) {
-				pc.timeouts.cpu = "boo!";
-				pc.timeouts.request = 5;
+				pc.timeouts.request = "boo!";
 			},
 		};
 
 		var pc = new ParsoidConfig(ls);
-		pc.timeouts.cpu.should.equal(5 * 60 * 1000);
-		pc.timeouts.request.should.equal(5);
+		pc.timeouts.request.should.equal(4 * 60 * 1000);
 	});
 });

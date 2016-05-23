@@ -5,22 +5,15 @@
 .DS_Store
 .deploy
 npm-debug.log
+node_modules
 
-
-/docs
 localsettings.js
-api/nohup.out
-api/npm-debug.log
+config.yaml
 lib/wt2html/mediawiki.tokenizer.js
 lib/wt2html/mediawiki.tokenizer.rules.js
 tests/parserTests.cache
-tests/client/config.js
-tests/server/node_modules
-tests/server/server.settings.js
-tests/server/pages.db
-tests/client/config.js
+
+docs/
 coverage/
 contrib/
-node_modules
-
 extensions/

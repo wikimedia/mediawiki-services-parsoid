@@ -28,6 +28,7 @@
     "request": "^2.72.0",
     "semver": "^5.1.0",
     "serve-favicon": "^2.3.0",
+    "service-runner": "^2.0.3",
     "simplediff": "^0.1.1",
     "yargs": "^4.7.1"
   },
@@ -50,7 +51,7 @@
   },
   "scripts": {
     "lint": "npm run dump-tokenizer && npm run jscs && npm run jshint",
-    "start": "node bin/server.js",
+    "start": "service-runner",
     "jshint": "jshint bin lib tests tools core-upgrade.js",
     "jscs": "jscs bin lib tests tools core-upgrade.js",
     "jscs-fix": "jscs --fix bin lib tests tools core-upgrade.js",
@@ -70,5 +71,12 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/wikimedia/parsoid.git"
+  },
+  "deploy": {
+    "target": "ubuntu",
+    "node": "0.10.25",
+    "dependencies": {
+      "_all": []
+    }
   }
 }

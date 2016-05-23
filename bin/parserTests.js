@@ -13,7 +13,7 @@ require('../core-upgrade.js');
  * @singleton
  */
 
-var apiServer = require('../tests/apiServer.js');
+var serviceWrapper = require('../tests/serviceWrapper.js');
 var async = require('async');
 var colors = require('colors');
 var fs = require('fs');
@@ -38,7 +38,7 @@ var ParserHook = ParsoidConfig.loadExtension(
 var booleanOption = Util.booleanOption; // shortcut
 
 // Run a mock API in the background so we can request things from it
-var mockAPIServer, mockAPIServerURL;
+var mockAPIServerURL;
 
 // track files imported / required
 var fileDependencies = [];
@@ -2367,9 +2367,7 @@ if (popts.argv.help) {
 }
 
 // Start the mock api server and kick off parser tests
-apiServer.startMockAPIServer({ quiet: popts.quiet }).then(function(ret) {
-	mockAPIServerURL = ret.url;
-	mockAPIServer = ret.child;
+serviceWrapper.runServices({ skipParsoid: true }).then(function(ret) {
+	mockAPIServerURL = ret.mockURL;
 	return ptests.main(popts.argv, popts);
 }).done();
-apiServer.exitOnProcessTerm();
