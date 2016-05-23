@@ -281,14 +281,14 @@ ParserTests.prototype.getOpts = function() {
 		'Usage: $0 [options] [tests-file]\n\n' + defaultArgs.join("\n"),
 		standardOpts
 	).check(function(argv, aliases) {
-		Util.checkUnknownArgs(standardOpts, argv, aliases);
 		if (argv.filter === true) {
 			throw "--filter needs an argument";
 		}
 		if (argv.regex === true) {
 			throw "--regex needs an argument";
 		}
-	});
+		return true;
+	}).strict();
 };
 
 /**

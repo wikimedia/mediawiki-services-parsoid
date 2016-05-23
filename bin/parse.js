@@ -312,7 +312,7 @@ if (require.main === module) {
 		var opts = yargs.usage(
 			'Usage: echo wikitext | $0 [options]\n\n' + defaultModeStr,
 			standardOpts
-		).check(Util.checkUnknownArgs.bind(null, standardOpts));
+		).strict();
 
 		var argv = opts.argv;
 

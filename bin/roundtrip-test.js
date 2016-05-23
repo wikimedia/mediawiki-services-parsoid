@@ -691,7 +691,7 @@ if (require.main === module) {
 
 	var opts = yargs.usage(
 		'Usage: $0 [options] <page-title> \n\n', options
-	).check(Util.checkUnknownArgs.bind(null, options));
+	).strict();
 
 	var argv = opts.argv;
 	if (!argv._.length) {
