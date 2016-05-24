@@ -4,7 +4,6 @@ require('../core-upgrade.js');
 
 var domino = require('domino');
 var yargs = require('yargs');
-var zlib = require('zlib');
 
 var Promise = require('../lib/utils/promise.js');
 var Util = require('../lib/utils/Util.js').Util;
@@ -13,6 +12,8 @@ var TemplateRequest = require('../lib/mw/ApiRequest.js').TemplateRequest;
 var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
 var MWParserEnvironment = require('../lib/config/MWParserEnvironment.js').MWParserEnvironment;
 var Diff = require('../lib/utils/Diff.js').Diff;
+
+var gzip = Promise.promisify(require('zlib').gzip, false);
 
 
 function displayDiff(type, count) {
@@ -462,7 +463,7 @@ var checkIfSignificant = function(env, offsets, data) {
 	return results;
 };
 
-function parsoidPost(env, options, cb) {
+function parsoidPost(env, options) {
 	var title = encodeURIComponent(options.title);
 
 	var httpOptions = {
@@ -488,42 +489,32 @@ function parsoidPost(env, options, cb) {
 	}
 	httpOptions.uri = uri;
 
-	return new Promise(function(resolve, reject) {
-		// TODO: convert Util.retryingHTTPRequest to a promise returning func
-		Util.retryingHTTPRequest(10, httpOptions, function(err, res, body) {
-			if (!err && res.statusCode !== 200) {
-				err = new Error('Got status code: ' + res.statusCode +
-					'; body: ' + body);
+	return Util.retryingHTTPRequest(10, httpOptions)
+	.spread(function(_, body) {
+		var p = Promise.resolve();
+		// FIXME: Parse time was removed from profiling when we stopped
+		// sending the x-parsoid-performance header.
+		if (options.recordSizes) {
+			var pre = '';
+			if (options.profilePrefix) {
+				pre += options.profilePrefix + ':';
 			}
-			if (err) { return reject(err); }
-
-			// FIXME: Parse time was removed from profiling when we stopped
-			// sending the x-parsoid-performance header.
-			if (options.recordSizes) {
-				var prefix = '';
-				if (options.profilePrefix) {
-					prefix += options.profilePrefix + ':';
-				}
-				var str;
-				if (options.html2wt) {
-					prefix += 'html:';
-					str = body;
-				} else {
-					prefix += 'wt:';
-					str = body.html.body;
-				}
-				env.profile.size[prefix + 'raw'] = str.length;
-				// Compress to record the gzipped size
-				zlib.gzip(str, function(e, gzippedbuf) {
-					if (e) { return reject(e); }
-					env.profile.size[prefix + 'gzip'] = gzippedbuf.length;
-					resolve(body);
-				});
+			var str;
+			if (options.html2wt) {
+				pre += 'html:';
+				str = body;
 			} else {
-				resolve(body);
+				pre += 'wt:';
+				str = body.html.body;
 			}
-		});
-	}).nodify(cb);
+			env.profile.size[pre + 'raw'] = str.length;
+			// Compress to record the gzipped size
+			p = gzip(str).then(function(gzippedbuf) {
+				env.profile.size[pre + 'gzip'] = gzippedbuf.length;
+			});
+		}
+		return p.then(function() { return body; });
+	});
 }
 
 function roundTripDiff(env, parsoidOptions, data) {
