@@ -19,6 +19,7 @@ var path = require('path');
 			// A unique name for this client (optional) (URL-safe characters only)
 			clientName: 'Parsoid RT testing client',
 
+			// Only one of these should be necessary.
 			opts: {
 				// By default, use the same configuration as the testing Parsoid server.
 				parsoidConfig: path.resolve(__dirname, '../rttest.localsettings.js'),

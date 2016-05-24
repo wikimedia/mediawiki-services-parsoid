@@ -8,9 +8,7 @@ var yargs = require('yargs');
 var Promise = require('../lib/utils/promise.js');
 var Util = require('../lib/utils/Util.js').Util;
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
-var TemplateRequest = require('../lib/mw/ApiRequest.js').TemplateRequest;
 var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
-var MWParserEnvironment = require('../lib/config/MWParserEnvironment.js').MWParserEnvironment;
 var Diff = require('../lib/utils/Diff.js').Diff;
 
 var gzip = Promise.promisify(require('zlib').gzip, false);
@@ -191,7 +189,7 @@ var xmlFormat = function(err, prefix, title, results, profile) {
 
 // Find the subset of leaf/non-leaf nodes whose DSR ranges
 // span the wikitext range provided as input.
-var findMatchingNodes = function(env, node, range) {
+var findMatchingNodes = function(node, range) {
 	console.assert(DU.isElt(node));
 
 	// Skip subtrees that are outside our target range
@@ -230,7 +228,7 @@ var findMatchingNodes = function(env, node, range) {
 			if (Util.isValidDSR(dsr)) {
 				if (dsr[1] >= range.start) {
 					// We have an overlap!
-					elts = elts.concat(findMatchingNodes(env, c, range));
+					elts = elts.concat(findMatchingNodes(c, range));
 				}
 				offset = dp.dsr[1];
 			} else {
@@ -243,7 +241,7 @@ var findMatchingNodes = function(env, node, range) {
 				// If we see no errors in rt-testing runs,
 				// I am going to rip this out.
 
-				env.log("error/diff", "Bad dsr for " + c.nodeName + ": "
+				console.log("error/diff", "Bad dsr for " + c.nodeName + ": "
 					+ c.outerHTML.substr(0, 50));
 
 				if (dp.dsr && typeof (dsr[1]) === 'number') {
@@ -253,7 +251,7 @@ var findMatchingNodes = function(env, node, range) {
 						dp.dsr[0] = offset;
 
 						// We have an overlap!
-						elts = elts.concat(findMatchingNodes(env, c, range));
+						elts = elts.concat(findMatchingNodes(c, range));
 					}
 					offset = dp.dsr[1];
 				} else if (offset >= range.start) {
@@ -290,7 +288,7 @@ var findMatchingNodes = function(env, node, range) {
 	return elts;
 };
 
-var getMatchingHTML = function(env, body, offsetRange, nlDiffs) {
+var getMatchingHTML = function(body, offsetRange, nlDiffs) {
 	// If the diff context straddles a template boundary (*) and if
 	// the HTML context includes the template content in only one
 	// the new/old DOMs, we can falsely flag this as a semantic
@@ -306,7 +304,7 @@ var getMatchingHTML = function(env, body, offsetRange, nlDiffs) {
 	}
 
 	var html = '';
-	var out = findMatchingNodes(env, body, offsetRange);
+	var out = findMatchingNodes(body, offsetRange);
 	for (var i = 0; i < out.length; i++) {
 		// node need not be an element always!
 		html += DU.toXML(out[i], { smartQuote: false });
@@ -376,7 +374,7 @@ function stripElementIds(node) {
 	}
 }
 
-var checkIfSignificant = function(env, offsets, data) {
+var checkIfSignificant = function(offsets, data) {
 	var oldWt = data.oldWt;
 	var newWt = data.newWt;
 
@@ -438,8 +436,8 @@ var checkIfSignificant = function(env, offsets, data) {
 			&& (/\n/.test(oldStr) || /\n/.test(newStr));
 
 		// Check if this is really a semantic diff
-		var oldHTML = getMatchingHTML(env, oldBody, offset[0], nlDiffs);
-		var newHTML = getMatchingHTML(env, newBody, offset[1], nlDiffs);
+		var oldHTML = getMatchingHTML(oldBody, offset[0], nlDiffs);
+		var newHTML = getMatchingHTML(newBody, offset[1], nlDiffs);
 		var diff = Diff.htmlDiff(oldHTML, newHTML, false, true, true);
 		if (diff.length > 0) {
 			// Normalize wts to check if we really have a semantic diff
@@ -463,7 +461,7 @@ var checkIfSignificant = function(env, offsets, data) {
 	return results;
 };
 
-function parsoidPost(env, options) {
+function parsoidPost(profile, options) {
 	var title = encodeURIComponent(options.title);
 
 	var httpOptions = {
@@ -472,12 +470,7 @@ function parsoidPost(env, options) {
 		body: options.data,
 	};
 
-	var uri = options.uri;
-	// make sure the Parsoid URI ends on /
-	if (!/\/$/.test(uri)) {
-		uri += '/';
-	}
-	uri += options.domain + '/v3/transform/';
+	var uri = options.uri + 'transform/';
 	if (options.html2wt) {
 		uri += 'html/to/wikitext/' + title;
 		if (options.oldid) {
@@ -507,17 +500,17 @@ function parsoidPost(env, options) {
 				pre += 'wt:';
 				str = body.html.body;
 			}
-			env.profile.size[pre + 'raw'] = str.length;
+			profile.size[pre + 'raw'] = str.length;
 			// Compress to record the gzipped size
 			p = gzip(str).then(function(gzippedbuf) {
-				env.profile.size[pre + 'gzip'] = gzippedbuf.length;
+				profile.size[pre + 'gzip'] = gzippedbuf.length;
 			});
 		}
 		return p.then(function() { return body; });
 	});
 }
 
-function roundTripDiff(env, parsoidOptions, data) {
+function roundTripDiff(profile, parsoidOptions, data) {
 	var diff = Diff.diffLines(data.newWt, data.oldWt);
 	var offsets = Diff.convertDiffToOffsetPairs(diff);
 	if (!diff.length || !offsets.length) { return []; }
@@ -526,66 +519,83 @@ function roundTripDiff(env, parsoidOptions, data) {
 		wt2html: true,
 		data: { wikitext: data.newWt },
 	}, parsoidOptions);
-	return parsoidPost(env, options).then(function(body) {
+	return parsoidPost(profile, options).then(function(body) {
 		data.newHTML = body.html;
 		data.newDp = body['data-parsoid'];
-		return checkIfSignificant(env, offsets, data);
+		return checkIfSignificant(offsets, data);
 	});
 }
 
 // Returns a Promise for a formatted string.  `cb` is optional.
 function runTests(title, options, formatter, cb) {
-	var localSettings = module.parent ?
-			options : require('../tests/rttest.localsettings.js');
-	// Note that this config is kind of confusing in that it is only used for
-	// fetching the page src and setting up an environment.  It should be
-	// configured the same as the Parsoid found at `options.parsoidURL`.
-	// FIXME: We should probably remove it altogether.
-	var parsoidConfig = new ParsoidConfig(localSettings);
-	var err, domain, prefix;
-	if (options.prefix) {
-		// If prefix is present, use that.
-		prefix = options.prefix;
+	// Only support lookups for WMF domains.  At some point we should rid
+	// ourselves of prefixes in this file entirely, but that'll take some
+	// coordination in rt.
+	var parsoidConfig = new ParsoidConfig(null, { loadWMF: true });
+
+	var domain = options.domain;
+	var prefix = options.prefix;
+
+	// Preserve the default, but only if neither was provided.
+	if (!prefix && !domain) { domain = 'en.wikipedia.org'; }
+
+	var err;
+	if (domain && prefix) {
+		// All good.
+	} else if (!domain && prefix) {
 		// Get the domain from the mw api map.
 		if (parsoidConfig.mwApiMap.has(prefix)) {
 			domain = parsoidConfig.mwApiMap.get(prefix).domain;
 		} else {
 			err = new Error('Couldn\'t find the domain for prefix: ' + prefix);
 		}
-	} else if (options.domain) {
-		domain = options.domain;
-		prefix = parsoidConfig.reverseMwApiMap.get(domain);
+	} else if (!prefix && domain) {
+		// Get the prefix from the reverse mw api map.
+		if (parsoidConfig.reverseMwApiMap.has(domain)) {
+			prefix = parsoidConfig.reverseMwApiMap.get(domain);
+		} else {
+			// `prefix` is only used for reporting.
+			options.prefix = options.domain;
+		}
 	} else {
+		// Should be unreachable.
 		err = new Error('No domain or prefix provided.');
 	}
-	var env;
+
+	var profile = { time: { total: 0, start: 0 }, size: {} };
 	var closeFormatter = function(e, results) {
-		return formatter(e, prefix, title, results, env && env.profile);
+		return formatter(e, prefix, title, results, profile);
 	};
+
+	var uri = options.parsoidURL;
+	// make sure the Parsoid URI ends on /
+	if (!/\/$/.test(uri)) {
+		uri += '/';
+	}
 	var parsoidOptions = {
-		uri: options.parsoidURL,
-		domain: domain,
+		uri: uri + domain + '/v3/',
 		title: title,
 	};
+
 	var data = {};
 	return Promise[err ? 'reject' : 'resolve'](err).then(function() {
-		return MWParserEnvironment.getParserEnv(
-			parsoidConfig, { prefix: prefix, pageName: title }
-		);
-	}).then(function(_env) {
-		env = _env;
-		env.profile = { time: { total: 0, start: Date.now() }, size: {} };
-		var target = env.normalizeAndResolvePageTitle();
-		return TemplateRequest.setPageSrcInfo(env, target, null);
-	}).then(function() {
-		data.oldWt = env.page.src;
+		return Util.retryingHTTPRequest(10, {
+			method: 'GET',
+			uri: parsoidOptions.uri + 'page/wikitext/' + title,
+		});
+	}).spread(function(res, body) {
+		profile.start = Date.now();
+		// We were redirected to the latest revision.  Record the oldid for
+		// later use in selser.
+		data.oldid = res.request.path.replace(/^(.*)\//, '');
+		data.oldWt = body;
 		// First, fetch the HTML for the requested page's wikitext
 		var opts = Object.assign({
 			wt2html: true,
 			recordSizes: true,
 			data: { wikitext: data.oldWt },
 		}, parsoidOptions);
-		return parsoidPost(env, opts);
+		return parsoidPost(profile, opts);
 	}).then(function(body) {
 		data.oldHTML = body.html;
 		data.oldDp = body['data-parsoid'];
@@ -601,10 +611,10 @@ function runTests(title, options, formatter, cb) {
 				},
 			},
 		}, parsoidOptions);
-		return parsoidPost(env, opts);
+		return parsoidPost(profile, opts);
 	}).then(function(body) {
 		data.newWt = body;
-		return roundTripDiff(env, parsoidOptions, data);
+		return roundTripDiff(profile, parsoidOptions, data);
 	}).then(function(results) {
 		data.diffs = results;
 		// Once we have the diffs between the round-tripped wt,
@@ -617,7 +627,7 @@ function runTests(title, options, formatter, cb) {
 		var opts = Object.assign({
 			html2wt: true,
 			useSelser: true,
-			oldid: env.page.meta.revision.revid,
+			oldid: data.oldid,
 			data: {
 				html: newDocument.outerHTML,
 				original: {
@@ -628,20 +638,15 @@ function runTests(title, options, formatter, cb) {
 			},
 			profilePrefix: 'selser',
 		}, parsoidOptions);
-		return parsoidPost(env, opts);
+		return parsoidPost(profile, opts);
 	}).then(function(body) {
 		var out = body;
-
 		// Finish the total time now
 		// FIXME: Is the right place to end it?
-		if (env.profile && env.profile.time) {
-			env.profile.time.total = Date.now() - env.profile.time.start;
-		}
-
+		profile.time.total = Date.now() - profile.time.start;
 		// Remove the selser trigger comment
 		data.newWt = out.replace(/<!--rtSelserEditTestComment-->\n*$/, '');
-
-		return roundTripDiff(env, parsoidOptions, data);
+		return roundTripDiff(profile, parsoidOptions, data);
 	}).then(function(selserDiffs) {
 		selserDiffs.forEach(function(diff) {
 			diff.selser = true;
@@ -658,27 +663,35 @@ function runTests(title, options, formatter, cb) {
 
 
 if (require.main === module) {
-	var options = Util.addStandardOptions({
+	var options = {
 		xml: {
 			description: 'Use xml callback',
 			boolean: true,
 			default: false,
 		},
 		prefix: {
-			description: 'Which wiki prefix to use; e.g. "enwiki" for ' +
-				'English wikipedia, "eswiki" for Spanish, "mediawikiwiki" ' +
-				'for mediawiki.org',
+			description: 'Deprecated.  Please provide a domain.',
+			boolean: false,
 			default: '',
 		},
 		domain: {
 			description: 'Which wiki to use; e.g. "en.wikipedia.org" for' +
 				' English wikipedia',
-			default: 'en.wikipedia.org',
+			boolean: false,
+			default: '',  // Add a default when `prefix` is removed.
 		},
 		parsoidURL: {
 			description: 'The URL for the Parsoid API',
+			boolean: false,
+			default: '',
 		},
-	});
+		apiURL: {
+			description: 'http path to remote API,' +
+				' e.g. http://en.wikipedia.org/w/api.php',
+			boolean: false,
+			default: null,
+		},
+	};
 
 	var opts = yargs.usage(
 		'Usage: $0 [options] <page-title> \n\n', options
@@ -691,23 +704,13 @@ if (require.main === module) {
 	var title = String(argv._[0]);
 
 	Promise.resolve().then(function() {
-		if (argv.parsoidURL) {
-			// FIXME: parsoidURL should require a configPath or something,
-			// see the fixme above about the parsoidConfig.
-			console.log('WARNING: There may be a mismatch between the ' +
-				'settings of the Parsoid passed at `parsoidURL` and what we ' +
-				'are currently assuming in this file.');
-			return;
-		}
-
+		if (argv.parsoidURL) { return; }
 		// Start our own Parsoid server
-		// TODO: This will not be necessary once we have a top-level testing
-		// script that takes care of setting everything up.
 		var apiServer = require('../tests/apiServer.js');
 		var parsoidOptions = { quiet: true };
 		if (argv.apiURL) {
 			parsoidOptions.mockUrl = argv.apiURL;
-			argv.prefix = 'customwiki';
+			argv.domain = 'customwiki';
 		}
 		apiServer.exitOnProcessTerm();
 		return apiServer.startParsoidServer(parsoidOptions).then(function(ret) {

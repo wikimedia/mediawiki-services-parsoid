@@ -81,7 +81,6 @@ var startAndRun = Promise.method(function(handleResult) {
 			return rtTest.runTests(t.title, {
 				prefix: t.prefix,
 				parsoidURL: ret.url,
-				setup: require('../tests/rttest.localsettings.js').setup,
 			}, rtTest.jsonFormat).then(
 				handleResult.bind(null, t)
 			);

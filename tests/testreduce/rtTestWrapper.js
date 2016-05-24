@@ -4,12 +4,12 @@
 var apiServer = require('../apiServer.js');
 var rtTest = require('../../bin/roundtrip-test.js');
 
-var parsoidConfig = null;
+// If we've started a Parsoid server, cache the URL so that subsequent calls
+// don't need to start their own.
 var parsoidURL = null;
 
 var _run = function(test) {
 	return rtTest.runTests(test.title, {
-		setup: require(parsoidConfig).setup,
 		prefix: test.prefix,
 		rtTestMode: true,
 		parsoidURL: parsoidURL,
@@ -17,9 +17,7 @@ var _run = function(test) {
 };
 
 var runRoundTripTest = function(config, test) {
-	parsoidURL = config.parsoidURL;
-	parsoidConfig = config.parsoidConfig;
-
+	parsoidURL = parsoidURL || config.parsoidURL;
 	if (parsoidURL) {
 		return _run(test);
 	} else {
@@ -29,11 +27,11 @@ var runRoundTripTest = function(config, test) {
 				// We want the cluster master so that timeouts on stuck titles
 				// lead to a restart.
 				'--num-workers', '1',
-				'--config', parsoidConfig,
+				'--config', config.parsoidConfig,
 			],
 			quiet: true,
 		}).then(function(ret) {
-			config.parsoidURL = parsoidURL = ret.url;
+			parsoidURL = ret.url;
 			return _run(test);
 		});
 		apiServer.exitOnProcessTerm();
