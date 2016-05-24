@@ -310,55 +310,93 @@ describe('Parsoid API', function() {
 
 	});  // accepts
 
+	var validWikitextResponse = function(expected) {
+		return function(res) {
+			res.statusCode.should.equal(200);
+			res.headers.should.have.property('content-type');
+			res.headers['content-type'].should.equal(
+				// note that express does some reordering
+				'text/plain; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/wikitext/1.0.0"'
+			);
+			if (expected !== undefined) {
+				res.text.should.equal(expected);
+			} else {
+				res.text.should.not.equal('');
+			}
+		};
+	};
+
+	var validHtmlResponse = function(expectFunc) {
+		return function(res) {
+			res.statusCode.should.equal(200);
+			res.headers.should.have.property('content-type');
+			res.headers['content-type'].should.equal(
+				'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/1.2.1"'
+			);
+			var doc = domino.createDocument(res.text);
+			if (expectFunc) {
+				return expectFunc(doc);
+			} else {
+				res.text.should.not.equal('');
+			}
+		};
+	};
+
+	var validPageBundleResponse = function(expectFunc) {
+		return function(res) {
+			res.statusCode.should.equal(200);
+			res.body.should.have.property('html');
+			res.body.html.should.have.property('headers');
+			res.body.html.headers.should.have.property('content-type');
+			res.body.html.headers['content-type'].should.equal(
+				'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/1.2.1"'
+			);
+			res.body.html.should.have.property('body');
+			res.body.should.have.property('data-parsoid');
+			res.body['data-parsoid'].should.have.property('headers');
+			res.body['data-parsoid'].headers.should.have.property('content-type');
+			res.body['data-parsoid'].headers['content-type'].should.equal(
+				'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/0.0.2"'
+			);
+			res.body['data-parsoid'].should.have.property('body');
+			var doc = domino.createDocument(res.body.html.body);
+			if (expectFunc) {
+				return expectFunc(doc, res.body['data-parsoid'].body);
+			}
+		};
+	};
+
 	describe("wt2html", function() {
 
-		var validHtmlResponse = function(expectFunc) {
-			return function(res) {
-				res.statusCode.should.equal(200);
-				res.headers.should.have.property('content-type');
-				res.headers['content-type'].should.equal(
-					'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/1.2.1"'
-				);
-				var doc = domino.createDocument(res.text);
-				if (expectFunc) {
-					return expectFunc(doc);
-				} else {
-					res.text.should.not.equal('');
-				}
-			};
-		};
-
-		var validPageBundleResponse = function(expectFunc) {
-			return function(res) {
-				res.statusCode.should.equal(200);
-				res.body.should.have.property('html');
-				res.body.html.should.have.property('headers');
-				res.body.html.headers.should.have.property('content-type');
-				res.body.html.headers['content-type'].should.equal(
-					'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/1.2.1"'
-				);
-				res.body.html.should.have.property('body');
-				res.body.should.have.property('data-parsoid');
-				res.body['data-parsoid'].should.have.property('headers');
-				res.body['data-parsoid'].headers.should.have.property('content-type');
-				res.body['data-parsoid'].headers['content-type'].should.equal(
-					'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/0.0.2"'
-				);
-				res.body['data-parsoid'].should.have.property('body');
-				var doc = domino.createDocument(res.body.html.body);
-				if (expectFunc) {
-					return expectFunc(doc, res.body['data-parsoid'].body);
-				}
-			};
-		};
-
-		it("should redirect title to latest revision", function(done) {
+		it('should redirect title to latest revision (html)', function(done) {
 			request(api)
 			.get(mockDomain + '/v3/page/html/Main_Page')
 			.expect(302)
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.equal('/' + mockDomain + '/v3/page/html/Main_Page/1');
+			})
+			.end(done);
+		});
+
+		it('should redirect title to latest revision (pagebundle)', function(done) {
+			request(api)
+			.get(mockDomain + '/v3/page/pagebundle/Main_Page')
+			.expect(302)
+			.expect(function(res) {
+				res.headers.should.have.property('location');
+				res.headers.location.should.equal('/' + mockDomain + '/v3/page/pagebundle/Main_Page/1');
+			})
+			.end(done);
+		});
+
+		it('should redirect title to latest revision (wikitext)', function(done) {
+			request(api)
+			.get(mockDomain + '/v3/page/wikitext/Main_Page')
+			.expect(302)
+			.expect(function(res) {
+				res.headers.should.have.property('location');
+				res.headers.location.should.equal('/' + mockDomain + '/v3/page/wikitext/Main_Page/1');
 			})
 			.end(done);
 		});
@@ -374,19 +412,26 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it("should get html from a title and revision", function(done) {
+		it('should get from a title and revision (html)', function(done) {
 			request(api)
 			.get(mockDomain + '/v3/page/html/Main_Page/1')
 			.expect(validHtmlResponse(function(doc) {
-				doc.body.firstChild.textContent.should.equal("MediaWiki has been successfully installed.");
+				doc.body.firstChild.textContent.should.equal('MediaWiki has been successfully installed.');
 			}))
 			.end(done);
 		});
 
-		it('should return a pagebundle', function(done) {
+		it('should get from a title and revision (pagebundle)', function(done) {
 			request(api)
 			.get(mockDomain + '/v3/page/pagebundle/Main_Page/1')
 			.expect(validPageBundleResponse())
+			.end(done);
+		});
+
+		it('should get from a title and revision (wikitext)', function(done) {
+			request(api)
+			.get(mockDomain + '/v3/page/wikitext/Main_Page/1')
+			.expect(validWikitextResponse())
 			.end(done);
 		});
 
@@ -771,22 +816,6 @@ describe('Parsoid API', function() {
 	}); // end wt2html
 
 	describe("html2wt", function() {
-
-		var validWikitextResponse = function(expected) {
-			return function(res) {
-				res.statusCode.should.equal(200);
-				res.headers.should.have.property('content-type');
-				res.headers['content-type'].should.equal(
-					// note that express does some reordering
-					'text/plain; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/wikitext/1.0.0"'
-				);
-				if (expected !== undefined) {
-					res.text.should.equal(expected);
-				} else {
-					res.text.should.not.equal('');
-				}
-			};
-		};
 
 		it('should require html when serializing', function(done) {
 			request(api)
