@@ -393,12 +393,12 @@ ParserTests.prototype.parseTestCase = function(content) {
  * @param {Function} cb
  */
 ParserTests.prototype.processArticle = function(item, cb) {
-	var norm = this.env.normalizeTitle(item.title);
 	var err = null;
-	if (this.articles.hasOwnProperty(norm)) {
+	var key = this.env.normalizedTitleKey(item.title, false, true);
+	if (this.articles.hasOwnProperty(key)) {
 		err = new Error('Duplicate article: ' + item.title);
 	} else {
-		this.articles[norm] = item.text;
+		this.articles[key] = item.text;
 	}
 	setImmediate(cb, err);
 };
@@ -917,7 +917,6 @@ ParserTests.prototype.processTest = function(item, options, mode, endCb) {
 			!Array.isArray(item.options.title)) {
 			// Strip the [[]] markers.
 			var title = item.options.title.replace(/^\[\[|\]\]$/g, '');
-			title = this.env.normalizeTitle(title, true);
 			// This sets the page name as well as the relative link prefix
 			// for the rest of the parse.
 			this.env.initializeForPageName(title);
@@ -2093,9 +2092,17 @@ ParserTests.prototype.processCase = function(i, options, err) {
 								});
 							});
 							// Add 'MemoryAlpha' namespace (bug 51680)
-							this.env.conf.wiki.namespaceNames['100'] = 'MemoryAlpha';
-							this.env.conf.wiki.namespaceIds.memoryalpha =
-							this.env.conf.wiki.canonicalNamespaces.memoryalpha = 100;
+							wikiConf.namespaceNames['100'] = 'MemoryAlpha';
+							wikiConf.namespaceIds.memoryalpha =
+							wikiConf.canonicalNamespaces.memoryalpha = 100;
+							// Cannot add namespace 100 otherwise since
+							// baseConfig is deep frozen.
+							wikiConf.siteInfo.namespaces = Util.clone(wikiConf.siteInfo.namespaces, true);
+							wikiConf.siteInfo.namespaces['100'] = {
+								"case": "first-letter",
+								"*": "MemoryAlpha",
+								"canonical": "MemoryAlpha",
+							};
 
 							// Update $wgInterwikiMagic flag
 							// default (undefined) setting is true

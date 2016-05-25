@@ -2244,6 +2244,10 @@
         }
       }
     },
+    "mediawiki-title": {
+      "version": "0.5.4",
+      "resolved": "https://registry.npmjs.org/mediawiki-title/-/mediawiki-title-0.5.4.tgz"
+    },
     "mocha": {
       "version": "2.5.3",
       "resolved": "https://registry.npmjs.org/mocha/-/mocha-2.5.3.tgz",

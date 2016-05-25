@@ -37,9 +37,7 @@
 				"classes": [
 					"DOMUtils",
 					"MWParserEnvironment",
-					"Namespace",
 					"ParsoidConfig",
-					"Title",
 					"Util",
 					"WikiConfig",
 					"TokenHandler",

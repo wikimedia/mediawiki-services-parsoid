@@ -19,7 +19,6 @@
 		"lib/config/ParsoidConfig.js",
 		"lib/config/MWParserEnvironment.js",
 		"lib/config/WikiConfig.js",
-		"lib/mw/Title.js",
 		"lib/utils/Util.js",
 		"lib/utils/DOMUtils.js",
 		"lib/wt2html/parser.defines.js",

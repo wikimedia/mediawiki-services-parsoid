@@ -68,7 +68,7 @@ var standardOpts = Util.addStandardOptions({
 		'default': null,
 	},
 	'page': {
-		description: 'The page name, returned for {{PAGENAME}}. If no input is given (ie. empty/stdin closed), it downloads and parses the page.',
+		description: 'The page name, returned for {{PAGENAME}}. If no input is given (ie. empty/stdin closed), it downloads and parses the page. This should be the actual title of the article (that is, not including any URL-encoding that might be necessary in wikitext).',
 		'boolean': false,
 		'default': ParserEnv.prototype.defaultPageName,
 	},

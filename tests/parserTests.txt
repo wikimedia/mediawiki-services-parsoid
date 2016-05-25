@@ -2824,7 +2824,7 @@ parsoid
 !! wikitext
 {{echo|[{{fullurl:{{FULLPAGENAME}}|action=edit}} bar]}}
 !! html
-<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[{{fullurl:{{FULLPAGENAME}}|action=edit}} bar]"}},"i":0}}]}'>[Main_Page bar]</p>
+<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[{{fullurl:{{FULLPAGENAME}}|action=edit}} bar]"}},"i":0}}]}'>[Main Page bar]</p>
 !! end
 
 !! test
@@ -7619,11 +7619,14 @@ Just a test of an article title containing a percent.
 Link containing % (not as a hex sequence)
 !! wikitext
 [[7% Solution]]
+[[7% Solution|7%25 Solution]]
 !! html/php
 <p><a href="/wiki/7%25_Solution" title="7% Solution">7% Solution</a>
+<a href="/wiki/7%25_Solution" title="7% Solution">7%25 Solution</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./7%25_Solution" title="7% Solution">7% Solution</a></p>
+<p><a rel="mw:WikiLink" href="./7%25_Solution" title="7% Solution">7% Solution</a>
+<a rel="mw:WikiLink" href="./7%25_Solution" title="7% Solution">7%25 Solution</a></p>
 !! end
 
 # note that the parsoid HTML is identical to the previous test output,
@@ -7635,11 +7638,14 @@ Link containing % as a single hex sequence interpreted to char
 parsoid=wt2wt,wt2html,html2html
 !! wikitext
 [[7%25 Solution]]
+[[7%25 Solution|7%25 Solution]]
 !! html/php
 <p><a href="/wiki/7%25_Solution" title="7% Solution">7% Solution</a>
+<a href="/wiki/7%25_Solution" title="7% Solution">7%25 Solution</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./7%25_Solution" title="7% Solution">7% Solution</a></p>
+<p><a rel="mw:WikiLink" href="./7%25_Solution" title="7% Solution">7% Solution</a>
+<a rel="mw:WikiLink" href="./7%25_Solution" title="7% Solution">7%25 Solution</a></p>
 !!end
 
 !! test
@@ -8515,18 +8521,25 @@ language=ln
 !! test
 Parsoid bug 53221: Wikilinks should be properly entity-escaped
 !! options
-parsoid=html2wt
+parsoid={ "modes": ["html2wt"], "suppressErrors": true }
 !! html/parsoid
 <p>He&amp;nbsp;llo <a href="Foo" rel="mw:WikiLink">He&amp;nbsp;llo</a></p>
 <p>He&amp;nbsp;llo <a href="He&amp;nbsp;llo" rel="mw:WikiLink">He&amp;nbsp;llo</a></p>
 !! wikitext
 He&amp;nbsp;llo [[Foo|He&amp;nbsp;llo]]
 
-He&amp;nbsp;llo [[He&amp;nbsp;llo]]
+He&amp;nbsp;llo He&amp;nbsp;llo
+!! html/php
+<p>He&amp;nbsp;llo <a href="/wiki/Foo" title="Foo">He&amp;nbsp;llo</a>
+</p><p>He&amp;nbsp;llo He&amp;nbsp;llo
+</p>
 !! end
 
+# html2wt will fail because of title normalization without data-parsoid
 !! test
 Parsoid: handle constructor well
+!! options
+parsoid=wt2html,wt2wt
 !! wikitext
 [[constructor]]
 
@@ -8536,9 +8549,9 @@ Parsoid: handle constructor well
 </p><p><a href="/index.php?title=Constructor:foo&amp;action=edit&amp;redlink=1" class="new" title="Constructor:foo (page does not exist)">constructor:foo</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Constructor" title="Constructor" data-parsoid="{&quot;stx&quot;:&quot;simple&quot;,&quot;a&quot;:{&quot;href&quot;:&quot;./Constructor&quot;},&quot;sa&quot;:{&quot;href&quot;:&quot;constructor&quot;}}">constructor</a></p>
+<p><a rel="mw:WikiLink" href="./Constructor" title="Constructor" data-parsoid='{"stx":"simple","a":{"href":"./Constructor"},"sa":{"href":"constructor"}}'>constructor</a></p>
 
-<p><a rel="mw:WikiLink" href="./Foo" title="Foo" data-parsoid="{&quot;stx&quot;:&quot;simple&quot;,&quot;a&quot;:{&quot;href&quot;:&quot;./Foo&quot;},&quot;sa&quot;:{&quot;href&quot;:&quot;constructor:foo&quot;}}">constructor:foo</a></p>
+<p><a rel="mw:WikiLink" href="./Constructor:foo" title="Constructor:foo" data-parsoid='{"stx":"simple","a":{"href":"./Constructor:foo"},"sa":{"href":"constructor:foo"}}'>constructor:foo</a></p>
 !! end
 
 !! article
@@ -10140,7 +10153,7 @@ Parsoid: Page property magic word with magic word contents
 !! wikitext
 {{DISPLAYTITLE:''{{PAGENAME}}''}}
 !! html/parsoid
-<meta property="mw:PageProp/displaytitle" content="Main_Page" about="#mwt2" typeof="mw:ExpandedAttrs" data-parsoid='{"src":"{{DISPLAYTITLE:&#39;&#39;{{PAGENAME}}&#39;&#39;}}"}' data-mw='{"attribs":[[{"txt":"content"},{"html":"&lt;i data-parsoid=&#39;{\"dsr\":[15,31,2,2]}&#39;>&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=&#39;{\"pi\":[[]],\"dsr\":[17,29,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"PAGENAME\",\"function\":\"pagename\"},\"params\":{},\"i\":0}}]}&#39;>Main_Page&lt;/span>&lt;/i>"}]]}'/>
+<meta property="mw:PageProp/displaytitle" content="Main Page" about="#mwt2" typeof="mw:ExpandedAttrs" data-parsoid='{"src":"{{DISPLAYTITLE:&#39;&#39;{{PAGENAME}}&#39;&#39;}}"}' data-mw='{"attribs":[[{"txt":"content"},{"html":"&lt;i data-parsoid=&#39;{\"dsr\":[15,31,2,2]}&#39;>&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=&#39;{\"pi\":[[]],\"dsr\":[17,29,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"PAGENAME\",\"function\":\"pagename\"},\"params\":{},\"i\":0}}]}&#39;>Main Page&lt;/span>&lt;/i>"}]]}'/>
 !! end
 
 !! test
@@ -10970,7 +10983,7 @@ foo {{''}} baz
 <p>foo bar baz
 </p>
 !! html/parsoid
-<p>foo <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"&#39;&#39;"},"params":{},"i":0}}]}'>bar</span> baz
+<p>foo <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"&#39;&#39;","href":"./Template:&#39;&#39;"},"params":{},"i":0}}]}'>bar</span> baz
 </p>
 !! end
 
@@ -13953,6 +13966,17 @@ Escape HTML special chars in image alt text
 </p>
 !! html/parsoid
 <p><span class="mw-default-size" typeof="mw:Image" data-parsoid='{"optList":[{"ck":"caption","ak":"&amp; &lt; > \""}]}' data-mw='{"caption":"&amp;amp; &amp;lt; > \""}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"},"sa":{}}'><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></span></p>
+!! end
+
+!! test
+Entities in file name and attributes
+!! wikitext
+[[File:7%25 solution.gif|manualthumb=7%25 solution.gif|link=7%25 solution|[[7%25 solution]]]]
+!! html/php
+<p><a href="/index.php?title=Special:Upload&amp;wpDestFile=7%25_solution.gif" class="new" title="File:7% solution.gif">7% solution</a>
+</p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Error mw:Image" data-parsoid='{"optList":[{"ck":"bogus","ak":"manualthumb=7%25 solution.gif"},{"ck":"link","ak":"link=7%25 solution"},{"ck":"caption","ak":"[[7%25 solution]]"}]}' data-mw='{"errors":[{"key":"missing-image","message":"This image does not exist."}],"caption":"&lt;a rel=\"mw:WikiLink\" href=\"./7%25_solution\" title=\"7% solution\" data-parsoid=&#39;{\"stx\":\"simple\",\"a\":{\"href\":\"./7%25_solution\"},\"sa\":{\"href\":\"7%25 solution\"},\"dsr\":[74,91,2,2]}&#39;>7% solution&lt;/a>"}'><a href="./7%25_solution" data-parsoid='{"a":{"href":"./7%25_solution"},"sa":{"href":"link=7%25 solution"}}'><img resource="./File:7%25_solution.gif" src="./Special:FilePath/7%25_solution.gif" height="220" width="220" data-parsoid='{"a":{"resource":"./File:7%25_solution.gif","height":"220","width":"220"},"sa":{"resource":"File:7%25 solution.gif"}}'/></a></span></p>
 !! end
 
 !! test
@@ -19329,10 +19353,14 @@ subpage title=[[Subpage test/L1/L2]]
 </p>
 !! end
 
+# This is wt2html only in Parsoid because we add <nowiki>
+# because of {{..}} and we don't expect to fix that to
+# eliminate the nowikis selective for {{..}} markup.
 !! test
 Non-transclusion because of too many up levels
 !! options
 subpage title=[[Subpage test/L1/L2/L3]]
+parsoid=wt2html
 !! wikitext
 {{../../../../More than parent}}
 !! html
