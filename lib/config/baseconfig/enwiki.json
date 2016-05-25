@@ -1310,6 +1310,7 @@
       "langconversion": "",
       "titleconversion": "",
       "linktrail": "/^([a-z]+)(.*)$/sD",
+      "legaltitlechars": " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+",
       "git-hash": "cc3c45654bdb4e20497e487dcf7c15837538a736",
       "case": "first-letter",
       "rights": "",

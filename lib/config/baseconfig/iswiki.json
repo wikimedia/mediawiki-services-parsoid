@@ -1702,6 +1702,7 @@
       "titleconversion": "",
       "linkprefix": "/^(.*?)([áÁðÐéÉíÍóÓúÚýÝþÞæÆöÖA-Za-z-–]+)$/sDu",
       "linktrail": "/^([áðéíóúýþæöa-z-–]+)(.*)$/sDu",
+      "legaltitlechars": " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+",
       "git-hash": "814f75e5b9ebfd28992cf3623481299d24520d54",
       "case": "first-letter",
       "rights": "Creative Commons Attribution-Share Alike 3.0 Unported",

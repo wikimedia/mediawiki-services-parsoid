@@ -1801,6 +1801,7 @@
       "titleconversion": "",
       "linkprefix": "/^(.*?)([a-zıA-Zİ\\x80-\\xff]+)$/sDu",
       "linktrail": "/^((?:[a-zıʼ’“»]|'(?!'))+)(.*)$/sDu",
+      "legaltitlechars": " %!\"$&amp;'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+",
       "git-hash": "cc3c45654bdb4e20497e487dcf7c15837538a736",
       "case": "first-letter",
       "rights": "",
