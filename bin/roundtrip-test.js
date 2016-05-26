@@ -462,8 +462,6 @@ var checkIfSignificant = function(offsets, data) {
 };
 
 function parsoidPost(profile, options) {
-	var title = encodeURIComponent(options.title);
-
 	var httpOptions = {
 		method: 'POST',
 		json: true,
@@ -472,13 +470,13 @@ function parsoidPost(profile, options) {
 
 	var uri = options.uri + 'transform/';
 	if (options.html2wt) {
-		uri += 'html/to/wikitext/' + title;
+		uri += 'html/to/wikitext/' + options.title;
 		if (options.oldid) {
 			uri += '/' + options.oldid;
 		}
 		httpOptions.body.scrub_wikitext = true;
 	} else {  // wt2html
-		uri += 'wikitext/to/pagebundle/' + title;
+		uri += 'wikitext/to/pagebundle/' + options.title;
 	}
 	httpOptions.uri = uri;
 
@@ -574,14 +572,14 @@ function runTests(title, options, formatter, cb) {
 	}
 	var parsoidOptions = {
 		uri: uri + domain + '/v3/',
-		title: title,
+		title: encodeURIComponent(title),
 	};
 
 	var data = {};
 	return Promise[err ? 'reject' : 'resolve'](err).then(function() {
 		return Util.retryingHTTPRequest(10, {
 			method: 'GET',
-			uri: parsoidOptions.uri + 'page/wikitext/' + title,
+			uri: parsoidOptions.uri + 'page/wikitext/' + parsoidOptions.title,
 		});
 	}).spread(function(res, body) {
 		profile.start = Date.now();
