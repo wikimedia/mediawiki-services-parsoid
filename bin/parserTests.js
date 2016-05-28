@@ -774,17 +774,43 @@ ParserTests.prototype.applyManualChanges = function(body, changes, cb) {
 	// a good way to get at the text and comment nodes
 	var jquery = {
 		after: function(html) {
-			var div = this.ownerDocument.createElement('div');
-			div.innerHTML = html;
-			DU.migrateChildren(div, this.parentNode, this.nextSibling);
+			var div, tbl;
+			if (this.parentNode.nodeName === 'TBODY') {
+				tbl = this.ownerDocument.createElement('table');
+				tbl.innerHTML = html;
+				// <tbody> is implicitly added when inner html is set to <tr>..</tr>
+				DU.migrateChildren(tbl.firstChild, this.parentNode, this.nextSibling);
+			} else if (this.parentNode.nodeName === 'TR') {
+				tbl = this.ownerDocument.createElement('table');
+				tbl.innerHTML = '<tbody><tr></tr></tbody>';
+				tbl.firstChild.firstChild.innerHTML = html;
+				DU.migrateChildren(tbl.firstChild.firstChild, this.parentNode, this.nextSibling);
+			} else {
+				div = this.ownerDocument.createElement('div');
+				div.innerHTML = html;
+				DU.migrateChildren(div, this.parentNode, this.nextSibling);
+			}
 		},
 		attr: function(name, val) {
 			this.setAttribute(name, val);
 		},
 		before: function(html) {
-			var div = this.ownerDocument.createElement('div');
-			div.innerHTML = html;
-			DU.migrateChildren(div, this.parentNode, this);
+			var div, tbl;
+			if (this.parentNode.nodeName === 'TBODY') {
+				tbl = this.ownerDocument.createElement('table');
+				tbl.innerHTML = html;
+				// <tbody> is implicitly added when inner html is set to <tr>..</tr>
+				DU.migrateChildren(tbl.firstChild, this.parentNode, this);
+			} else if (this.parentNode.nodeName === 'TR') {
+				tbl = this.ownerDocument.createElement('table');
+				tbl.innerHTML = '<tbody><tr></tr></tbody>';
+				tbl.firstChild.firstChild.innerHTML = html;
+				DU.migrateChildren(tbl.firstChild.firstChild, this.parentNode, this);
+			} else {
+				div = this.ownerDocument.createElement('div');
+				div.innerHTML = html;
+				DU.migrateChildren(div, this.parentNode, this);
+			}
 		},
 		removeAttr: function(name) {
 			this.removeAttribute(name);
