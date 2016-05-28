@@ -7161,6 +7161,27 @@ parsoid={
 |}
 !!end
 
+!! test
+Testing selser after addition of new row before first row (T125419)
+!! options
+parsoid={
+  "modes": ["wt2wt", "selser"],
+  "changes": [
+    [ "tr", "before", "<tr><td>X</td></tr>" ]
+  ]
+}
+!! wikitext
+{|
+|a
+|}
+!! wikitext/edited
+{|
+|X
+|-
+|a
+|}
+!! end
+
 ###
 ### Internal links
 ###
