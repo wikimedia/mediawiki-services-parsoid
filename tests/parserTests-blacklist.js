@@ -1906,7 +1906,6 @@ add("selser", "Fuzz testing: Parser16 [[3,2]]", "{|<!--4qmpsasspil4bo6r-->\n!htt
 add("selser", "Fuzz testing: Parser16 [[0,1]]", "{|\n!https://|||||||}");
 add("selser", "Fuzz testing: Parser16 [[3,[2]]]", "{|<!--fqa9lrr74yflmcxr-->\n!https://|||||||}");
 add("selser", "Fuzz testing: Parser16 [[0,[[1,1,1,0]]]]", "{|\n! data-foobar=\"zu74dq5r4l5wmi\" |https://|| data-foobar=\"at9q2rxpkvivbo6r\" ||| data-foobar=\"knfvnx3swhppsyvi\" ||||}");
-add("selser", "Fuzz testing: Parser16 [[0,[[0,2,4,2]]]]", "{|\n!https://\n!yojby2s147usdcxr||\n!v7e4oycgqkqehfr\n!k6xurl8iqpz257b9|||}");
 add("selser", "Fuzz testing: Parser16 [1]", "{| data-foobar=\"rwdbutcm2hbprpb9\"\n!https://|||||||}");
 add("selser", "Fuzz testing: Parser16 [[2,[1]]]", "{|<!--qd4b7r8tzb79cnmi-->\n!https://|||||||}");
 add("selser", "Fuzz testing: Parser21 [[2,2]]", "{|<!--fqbthlkw80cf2yb9-->\n<!--5e3ophtbp1jg7gb9-->! irc://{{ftp://a\" onmouseover=\"alert('hello world');\"\n||}");
@@ -1991,7 +1990,6 @@ add("selser", "Don't break table handling if language converter markup is in the
 add("selser", "Don't break table handling if language converter markup is in the cell. [[3,1]]", "{|\n|-\n| -{R|B}-\n|}");
 add("selser", "Don't break table handling if language converter markup is in the cell. [[3,[1,3]]]", "{|\n|- data-foobar=\"62vnpmgm6rzlg14i\"\n| -{R|B}-\n|}");
 add("selser", "Don't break table handling if language converter markup is in the cell. [[0,1]]", "{|\n|-\n| -{R|B}-\n|}");
-add("selser", "Bug 529: Uncovered bullet leaving empty list, normally removed by tidy [[[[[3]]],0]]", "**{{bullet}}");
 add("selser", "Bug 529: Uncovered bullet leaving empty list, normally removed by tidy [[1,0]]", "******* Foo {{bullet}}");
 add("selser", "Bug 529: Uncovered bullet leaving empty list, normally removed by tidy [[2,0]]", "* wzen8urjy55qaor\n******* Foo {{bullet}}");
 add("selser", "Bug 529: Uncovered bullet leaving empty list, normally removed by tidy [1]", "******* Foo {{bullet}}");
@@ -2002,7 +2000,6 @@ add("selser", "Bug 529: Uncovered bullet leaving empty list, normally removed by
 add("selser", "Bug 529: Uncovered bullet leaving empty list, normally removed by tidy [[[2],0]]", "*vkl4nqq6z9kvs4i\n******* Foo {{bullet}}");
 add("selser", "Bug 529: Uncovered bullet leaving empty list, normally removed by tidy [[[1],0]]", "******* Foo {{bullet}}");
 add("selser", "Bug 529: Uncovered bullet leaving empty list, normally removed by tidy [[[[1]],0]]", "******* Foo {{bullet}}");
-add("selser", "Bug 529: Uncovered bullet leaving empty list, normally removed by tidy [[[[[[3]]]],0]]", "**{{bullet}}");
 add("selser", "Bug 529: Uncovered bullet leaving empty list, normally removed by tidy [[[[2]],0]]", "** y0slrsmmchjxxbt9\n******* Foo {{bullet}}");
 add("selser", "Bug 529: Uncovered bullet leaving empty list, normally removed by tidy [[[[[[[4]]]]],0]]", "***u5i7s9pdlw8w7b9{{bullet}}");
 add("selser", "HHP2.1: Heuristics for headings in preprocessor parenthetical structures [0,2,4]", "{{foo|\n\n2l1t9h2tgp41v2t9\n\npiz397o23x7s0pb9\n");
