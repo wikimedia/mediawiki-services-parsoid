@@ -6,7 +6,7 @@ node_js:
     # Current production value.
     - "0.10.25"
     # Aspiring contender. See T119228.
-    - "4.2"
+    - "4.3.0"
     # From the nvm docs, "this installs the latest version of node".
     - "node"
 
