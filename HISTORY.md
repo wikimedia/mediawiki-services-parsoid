@@ -16,6 +16,10 @@ n.n.n / XXXX-XX-XX
   * T90668 : Replace custom server.js with service-runner
   * T113322: Use the mediawiki-title library instead of
              Parsoid-homegrown title normalization code.
+  * T71207 : Always make wiki and interwiki links when possible.
+             Warning: this means that [https://en.wikipedia.org/wiki/Foo Foo]
+             will round-trip to [[Foo]] unless selective serialization
+             is enabled. See T102556 for a discussion.
 
 0.5.1 / 2015-05-02
 ==================

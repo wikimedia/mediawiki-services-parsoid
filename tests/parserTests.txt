@@ -517,9 +517,12 @@ Parsing an URL
 !! wikitext
 http://fr.wikipedia.org/wiki/🍺
 <!-- EasterEgg we love beer, better be able be able to link to it -->
-!! html
+!! html/php
 <p><a rel="nofollow" class="external free" href="http://fr.wikipedia.org/wiki/🍺">http://fr.wikipedia.org/wiki/🍺</a>
 </p>
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="http://fr.wikipedia.org/wiki/🍺" data-parsoid='{"stx":"url"}'>http://fr.wikipedia.org/wiki/🍺</a></p>
+<!-- EasterEgg we love beer, better be able be able to link to it -->
 !! end
 
 # Note that the html+tidy output removes the spaces after the <li>,
@@ -5656,17 +5659,6 @@ parsoid=html2wt
 [[wikipedia:European_Robin|European Robin]]
 [[wikipedia:European_Robin|European Robin]]
 !! end
-
-!! test
-mw:ExtLink linking to a interwiki URL can be round-tripped losslessly (T94723)
-!! options
-parsoid=wt2wt
-!! wikitext
-[http://en.wikipedia.org/wiki/European_Robin European Robin]
-!! html/parsoid
-THIS SECTION IS NOT USED (but Parsoid won't run the test without it)
-!! end
-
 
 ###
 ### Quotes
