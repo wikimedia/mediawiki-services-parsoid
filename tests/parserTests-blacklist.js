@@ -776,6 +776,7 @@ add("html2wt", "Build table with {{!}}", "{| class=\"wikitable\"\n\n! header\n\n
 add("html2wt", "Build table with pipe as data", "{| class=\"wikitable\"\n\n! header\n\n! second header\n\n|- style=\"color:red;\"\n| data \n| style=\"color:red;\" | second data\n\n|-\n| style=\"color:red;\" |<nowiki> data with | </nowiki>\n| style=\"color:red;\" |<nowiki> second data with |</nowiki>\n\n|-\n|<nowiki> data with | </nowiki>\n|<nowiki> second data with |</nowiki>\n|}\n");
 add("html2wt", "Build table with wikilink", "{| class=\"wikitable\"\n\n! header \n! second header\n\n|- style=\"color:red;\"\n| data [[wiki/Main Page|linktext]] \n| second data [[wiki/Main Page|linktext]]\n\n|-\n| data \n| second data [[wiki/Main Page|link|text with pipe]]\n|}\n");
 add("html2wt", "Wikitext table with html-syntax row", "{|\n\n|foo\n|}\n");
+add("html2wt", "Wikitext lists can be nested inside HTML lists", "<ul>\n<li>a\n* b\n</li>\n</ul>\n\n<ul>\n<li>x\n** y\n</li>\n</ul>");
 add("html2wt", "Plain link, capitalized", "[[wiki/Main Page|Main Page]]\n");
 add("html2wt", "Plain link, uncapitalized", "[[wiki/Main Page|main Page]]\n");
 add("html2wt", "Piped link", "[[wiki/Main Page|The Main Page]]\n");
