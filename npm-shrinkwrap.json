@@ -272,6 +272,11 @@
         }
       }
     },
+    "content-type": {
+      "version": "1.0.1",
+      "from": "content-type@git+https://github.com/wikimedia/content-type.git#47b2632d0a2ee79a7d67268e2f6621becd95d05b",
+      "resolved": "git+https://github.com/wikimedia/content-type.git#47b2632d0a2ee79a7d67268e2f6621becd95d05b"
+    },
     "core-js": {
       "version": "2.4.0",
       "resolved": "https://registry.npmjs.org/core-js/-/core-js-2.4.0.tgz"
