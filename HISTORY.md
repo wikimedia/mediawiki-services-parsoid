@@ -10,7 +10,7 @@ n.n.n / XXXX-XX-XX
   * T114413: Provide HTML2HTML endpoint in Parsoid
   * T137406: Emit |- between thead/tbody/tfoot
 
-0.4.1 / 2015-09-17
+0.5.1 / 2015-05-02
 ==================
 
   * Thar be dragons
