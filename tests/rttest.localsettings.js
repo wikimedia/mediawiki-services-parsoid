@@ -74,4 +74,6 @@ exports.setup = function(parsoidConfig) {
 		count: function() {},
 		timing: function() {},
 	};
+
+	parsoidConfig.strictAcceptCheck = true;
 };

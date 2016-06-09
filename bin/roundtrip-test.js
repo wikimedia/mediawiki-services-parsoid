@@ -8,10 +8,13 @@ var yargs = require('yargs');
 var Promise = require('../lib/utils/promise.js');
 var Util = require('../lib/utils/Util.js').Util;
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
+var apiUtils = require('../lib/api/apiUtils');
 var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
 var Diff = require('../lib/utils/Diff.js').Diff;
 
 var gzip = Promise.promisify(require('zlib').gzip, false);
+
+var defaultContentVersion = '1.2.1';
 
 
 function displayDiff(type, count) {
@@ -382,8 +385,14 @@ var checkIfSignificant = function(offsets, data) {
 	var newBody = domino.createDocument(data.newHTML.body).body;
 
 	// Merge pagebundles so that HTML nodes can be compared and diff'ed.
-	DU.applyPageBundle(oldBody.ownerDocument, { parsoid: data.oldDp.body });
-	DU.applyPageBundle(newBody.ownerDocument, { parsoid: data.newDp.body });
+	DU.applyPageBundle(oldBody.ownerDocument, {
+		parsoid: data.oldDp.body,
+		mw: data.oldMw && data.oldMw.body,
+	});
+	DU.applyPageBundle(newBody.ownerDocument, {
+		parsoid: data.newDp.body,
+		mw: data.newMw && data.newMw.body,
+	});
 
 	// Strip 'mw..' ids from the DOMs. This matters for 2 scenarios:
 	// * reduces noise in visual diffs
@@ -477,6 +486,9 @@ function parsoidPost(profile, options) {
 		httpOptions.body.scrub_wikitext = true;
 	} else {  // wt2html
 		uri += 'wikitext/to/pagebundle/' + options.title;
+		httpOptions.headers = {
+			Accept: apiUtils.pagebundleContentType(null, options.contentVersion),
+		};
 	}
 	httpOptions.uri = uri;
 
@@ -520,6 +532,7 @@ function roundTripDiff(profile, parsoidOptions, data) {
 	return parsoidPost(profile, options).then(function(body) {
 		data.newHTML = body.html;
 		data.newDp = body['data-parsoid'];
+		data.newMw = body['data-mw'];
 		return checkIfSignificant(offsets, data);
 	});
 }
@@ -573,6 +586,7 @@ function runTests(title, options, formatter, cb) {
 	var parsoidOptions = {
 		uri: uri + domain + '/v3/',
 		title: encodeURIComponent(title),
+		contentVersion: options.contentVersion || defaultContentVersion,
 	};
 
 	var data = {};
@@ -597,6 +611,7 @@ function runTests(title, options, formatter, cb) {
 	}).then(function(body) {
 		data.oldHTML = body.html;
 		data.oldDp = body['data-parsoid'];
+		data.oldMw = body['data-mw'];
 		// Now, request the wikitext for the obtained HTML
 		var opts = Object.assign({
 			html2wt: true,
@@ -605,6 +620,7 @@ function runTests(title, options, formatter, cb) {
 				html: data.oldHTML,
 				original: {
 					'data-parsoid': data.oldDp,
+					'data-mw': data.oldMw,
 					wikitext: { body: data.oldWt, },
 				},
 			},
@@ -630,6 +646,7 @@ function runTests(title, options, formatter, cb) {
 				html: newDocument.outerHTML,
 				original: {
 					'data-parsoid': data.oldDp,
+					'data-mw': data.oldMw,
 					wikitext: { body: data.oldWt },
 					html: data.oldHTML,
 				},
@@ -687,7 +704,12 @@ if (require.main === module) {
 			description: 'http path to remote API,' +
 				' e.g. http://en.wikipedia.org/w/api.php',
 			boolean: false,
-			default: null,
+			default: '',
+		},
+		contentVersion: {
+			description: 'The acceptable content version.',
+			boolean: false,
+			default: defaultContentVersion,
 		},
 	};
 

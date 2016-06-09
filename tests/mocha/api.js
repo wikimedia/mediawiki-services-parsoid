@@ -1042,6 +1042,57 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		it('should return a 400 for missing data-mw', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/html/to/wikitext/')
+			.send({
+				html: {
+					headers: {
+						'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
+					},
+					body: '<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">hi</p>',
+				},
+				original: {
+					title: 'Doesnotexist',
+					'data-parsoid': {
+						body: {
+							ids: { "mwAQ": { "pi": [[{ "k": "1" }]] } },
+						},
+					},
+				},
+			})
+			.expect(400)
+			.end(done);
+		});
+
+		it('should apply supplied data-mw', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/html/to/wikitext/')
+			.send({
+				html: {
+					headers: {
+						'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
+					},
+					body: '<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">hi</p>',
+				},
+				original: {
+					title: 'Doesnotexist',
+					'data-parsoid': {
+						body: {
+							ids: { "mwAQ": { "pi": [[{ "k": "1" }]] } },
+						},
+					},
+					'data-mw': {
+						body: {
+							ids: { "mwAQ": { "parts": [{ "template": { "target": { "wt": "1x", "href": "./Template:1x" }, "params": { "1": { "wt": "hi" } }, "i": 0 } }] } },
+						},
+					},
+				},
+			})
+			.expect(validWikitextResponse('{{1x|hi}}'))
+			.end(done);
+		});
+
 		it('should apply extra normalizations (scrub_wikitext)', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/html/to/wikitext/')

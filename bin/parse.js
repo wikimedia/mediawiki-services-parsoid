@@ -102,7 +102,7 @@ var standardOpts = Util.addStandardOptions({
 		'boolean': false,
 		'default': false,
 	},
-	'contentversion': {
+	'contentVersion': {
 		description: 'The acceptable content version.',
 		'boolean': false,
 		'default': ParserEnv.prototype.contentVersion,
@@ -219,8 +219,8 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain)
 		env.pageBundle = argv.pagebundle;
 
 		// The content version to output
-		if (argv.contentversion) {
-			env.setContentVersion(argv.contentversion);
+		if (argv.contentVersion) {
+			env.setContentVersion(argv.contentVersion);
 		}
 
 		if (!argv.wt2html) {
