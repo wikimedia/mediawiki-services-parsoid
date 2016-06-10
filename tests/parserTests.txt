@@ -25000,10 +25000,24 @@ Don't block XML namespace declaration
 
 # -----------------------------------------------------------------
 # The following section of tests are primarily to spec requirements
-# around serialization of new/edited content.
+# around Parsoid's serialization (old, new, edited content)
 #
 # All these tests are marked Parsoid html2wt and html2html only
 # ----------------------------------------------------------------
+
+!! test
+Ignore rel attribute in a-tags during serialization to url-links
+!! options
+parsoid=html2wt
+!! html/parsoid
+<a href='http://en.wikipedia.org/wiki/Foobar'>http://en.wikipedia.org/wiki/Foobar</a>
+<a href='http://en.wikipedia.org/wiki/Foobar' rel='mw:ExtLink'>http://en.wikipedia.org/wiki/Foobar</a>
+<a href='http://en.wikipedia.org/wiki/Foobar' rel='mw:WikiLink'>http://en.wikipedia.org/wiki/Foobar</a>
+!! wikitext
+http://en.wikipedia.org/wiki/Foobar
+http://en.wikipedia.org/wiki/Foobar
+http://en.wikipedia.org/wiki/Foobar
+!! end
 
 # 'mi' is a localinterwiki prefix as well as a language
 !! test
@@ -25031,7 +25045,7 @@ parsoid=html2wt
 [[Foo]]
 [[Foo]]
 [[:en:Foo|//en.wikipedia.org/wiki/Foo]]
-[[wikipedia:Foo|http://en.wikipedia.org/wiki/Foo]]
+http://en.wikipedia.org/wiki/Foo
 [[:en:Foo_bar|//en.wikipedia.org/wiki/Foo bar]]
 !! end
 
