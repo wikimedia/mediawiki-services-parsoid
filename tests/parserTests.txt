@@ -4829,13 +4829,20 @@ And again with mixed protocols: [ftp://example.com?url=http://example.com link]
 </p>
 !!end
 
+# Since Parsoid is starting to emit canonical wikitext for links,
+# [http://example.com http://example.com] will not RT back to that
+# form anymore.
 !! test
 External links: URL in text
+!! options
+parsoid=wt2html
 !! wikitext
 URL in text: [http://example.com http://example.com]
-!! html
+!! html/php
 <p>URL in text: <a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>
 </p>
+!! html/parsoid
+<p>URL in text: <a rel="mw:ExtLink" href="http://example.com">http://example.com</a></p>
 !! end
 
 !! test
@@ -20074,10 +20081,14 @@ Nested: -{zh-hans:Hi -{zh-cn:China;zh-sg:Singapore;}-;zh-hant:Hello -{zh-tw:Taiw
 </p>
 !! end
 
+# Since Parsoid is starting to emit canonical wikitext for links,
+# [http://example.com http://example.com] will not RT back to that
+# form anymore.
 !! test
 Proper conversion of text in external links
 !! options
 language=sr variant=sr-ec
+parsoid=wt2html
 !! wikitext
 http://www.google.com
 gopher://www.google.com
@@ -20086,7 +20097,7 @@ gopher://www.google.com
 [https://www.google.com irc://www.google.com]
 [ftp://www.google.com www.google.com/ftp://dir]
 [//www.google.com www.google.com]
-!! html
+!! html/php
 <p><a rel="nofollow" class="external free" href="http://www.google.com">http://www.google.com</a>
 <a rel="nofollow" class="external free" href="gopher://www.google.com">gopher://www.google.com</a>
 <a rel="nofollow" class="external free" href="http://www.google.com">http://www.google.com</a>
@@ -20095,6 +20106,14 @@ gopher://www.google.com
 <a rel="nofollow" class="external text" href="ftp://www.google.com">www.гоогле.цом/фтп://дир</a>
 <a rel="nofollow" class="external text" href="//www.google.com">www.гоогле.цом</a>
 </p>
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="http://www.google.com">http://www.google.com</a>
+<a rel="mw:ExtLink" href="gopher://www.google.com">gopher://www.google.com</a>
+<a rel="mw:ExtLink" href="http://www.google.com">http://www.google.com</a>
+<a rel="mw:ExtLink" href="gopher://www.google.com">gopher://www.google.com</a>
+<a rel="mw:ExtLink" href="https://www.google.com">irc://www.google.com</a>
+<a rel="mw:ExtLink" href="ftp://www.google.com">www.гоогле.цом/фтп://дир</a>
+<a rel="mw:ExtLink" href="//www.google.com">www.гоогле.цом</a></p>
 !! end
 
 !! test

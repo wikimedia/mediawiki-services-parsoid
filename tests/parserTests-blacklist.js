@@ -731,7 +731,6 @@ add("html2wt", "Definition Lists: colons occurring in tags", "; a:b\n; '''a:b'''
 add("html2wt", "Definition Lists: colons and tables 1", ": {|\n| x\n|}\n\n: {|\n| y\n|}\n");
 add("html2wt", "Definition Lists: colons and tables 2", ": {|\n| x\n|}\n: {|\n| y\n|}\n");
 add("html2wt", "External links: Free with trailing punctuation", "http://example.com,\nhttp://example.com;\nhttp://example.com\\\nhttp://example.com.\nhttp://example.com:\nhttp://example.com!\nhttp://example.com?\nhttp://example.com)\nhttp://example.com/url_with_(brackets)\n(http://example.com/url_without_brackets)\nhttp://example.com/url_with_entity&\nhttp://example.com/url_with_entity&\nhttp://example.com/url_with_entity&\nhttp://example.com/url_with_entity&nbsp;\nhttp://example.com/url_with_entity&#xA0;\nhttp://example.com/url_with_entity&#160;\nhttp://example.com/url_with_entity&lt;\nhttp://example.com/url_with_entity&#x3C;\nhttp://example.com/url_with_entity&#60;\n");
-add("html2wt", "External links: URL in text", "URL in text: http://example.com\n");
 add("html2wt", "External links: raw ampersand", "Old & use: http://x&y\n");
 add("html2wt", "External links: encoded ampersand", "Old &#x26; use: http://x&y\n");
 add("html2wt", "External links: encoded equals (bug 6102)", "http://example.com/?foo=bar\n");
@@ -1201,7 +1200,6 @@ add("html2wt", "Bidirectional converter rule entries with an empty value should 
 add("html2wt", "Unidirectional converter rule entries with an empty \"from\" string should be ignored (T53551)", "foobar\n");
 add("html2wt", "Empty converter rule entries shouldn't be inserted into the conversion table (T53551)", "foobar\n");
 add("html2wt", "Nested using of manual convert syntax", "Nested: Hello Hong Kong!\n");
-add("html2wt", "Proper conversion of text in external links", "http://www.google.com\ngopher://www.google.com\nhttp://www.google.com\ngopher://www.google.com\n[https://www.google.com irc://www.google.com]\n[ftp://www.google.com www.гоогле.цом/фтп://дир]\n[//www.google.com www.гоогле.цом]\n");
 add("html2wt", "Do not convert roman numbers to language variants", "Фридрих IV је цар.\n");
 add("html2wt", "Don't convert raw rule \"-{R|=&gt;}-\" to \"=>\"", "=>\n");
 add("html2wt", "Don't break link parsing if language converter markup is in the caption.", "[[wiki/Main Page|main page]]\n");
