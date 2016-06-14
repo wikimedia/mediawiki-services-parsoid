@@ -881,7 +881,7 @@ add("html2wt", "Magic Word: {{TALKPAGENAME}}", "User talk:Ævar Arnfjörð Bjarm
 add("html2wt", "Magic Word: {{TALKPAGENAMEE}}", "User_talk:%C3%86var_Arnfj%C3%B6r%C3%B0_Bjarmason\n");
 add("html2wt", "Magic Word: {{SUBJECTPAGENAME}}", "User:Ævar Arnfjörð Bjarmason\n");
 add("html2wt", "Magic Word: {{SUBJECTPAGENAMEE}}", "User:%C3%86var_Arnfj%C3%B6r%C3%B0_Bjarmason\n");
-add("html2wt", "Magic Word: {{NUMBEROFFILES}}", "6\n");
+add("html2wt", "Magic Word: {{NUMBEROFFILES}}", "7\n");
 add("html2wt", "Magic Word: {{PAGENAME}}", "Ævar Arnfjörð Bjarmason\n");
 add("html2wt", "Magic Word: {{PAGENAME}} with metacharacters", "''<nowiki/>'foo & bar = baz'''\n");
 add("html2wt", "Magic Word: {{PAGENAME}} with metacharacters (bug 26781)", "<nowiki>*</nowiki><nowiki>RFC 1234</nowiki> <nowiki>http://example.com/</nowiki>\n");
