@@ -7082,8 +7082,9 @@ parsoid=wt2html
 </tbody></table>
 !! end
 
+# T137406: Whitespace in the HTML
 !! test
-Strip unsupported table tags, but introduce row wikitext as required
+1. Generate correct wikitext for tables with thead/tbody/tfoot
 !! options
 parsoid=html2wt
 !! html/parsoid
@@ -7152,6 +7153,21 @@ parsoid=html2wt
 <td>$180</td>
 </tr>
 </table>
+!! end
+
+# T137406: No whitespace in the HTML
+!! test
+2. Generate correct wikitext for tables with thead/tbody/tfoot
+!! options
+parsoid=html2wt
+!! html/parsoid
+<table><thead><tr><th>heading</th></tr></thead><tbody><tr><td>foo</td></tr></tbody></table>
+!! wikitext
+{|
+!heading
+|-
+|foo
+|}
 !! end
 
 !! test
