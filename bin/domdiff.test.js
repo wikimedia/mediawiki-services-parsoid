@@ -37,42 +37,44 @@ var opts = yargs.usage("Usage: $0 [options] [old-html-file new-html-file]\n\nPro
 	},
 });
 
-var argv = opts.argv;
-var oldhtml = argv.oldhtml;
-var newhtml = argv.newhtml;
+(function() {
+	var argv = opts.argv;
+	var oldhtml = argv.oldhtml;
+	var newhtml = argv.newhtml;
 
-if (!oldhtml && argv._[0]) {
-	oldhtml = fs.readFileSync(argv._[0], 'utf8');
-	newhtml = fs.readFileSync(argv._[1], 'utf8');
-}
+	if (!oldhtml && argv._[0]) {
+		oldhtml = fs.readFileSync(argv._[0], 'utf8');
+		newhtml = fs.readFileSync(argv._[1], 'utf8');
+	}
 
-if (Util.booleanOption(argv.help) || !oldhtml || !newhtml) {
-	opts.showHelp();
-	return;
-}
+	if (Util.booleanOption(argv.help) || !oldhtml || !newhtml) {
+		opts.showHelp();
+		return;
+	}
 
-var oldDOM = DU.parseHTML(oldhtml).body;
-var newDOM = DU.parseHTML(newhtml).body;
+	var oldDOM = DU.parseHTML(oldhtml).body;
+	var newDOM = DU.parseHTML(newhtml).body;
 
-var dummyEnv = {
-	conf: { parsoid: { debug: Util.booleanOption(argv.debug) }, wiki: {} },
-	page: { id: null },
-};
+	var dummyEnv = {
+		conf: { parsoid: { debug: Util.booleanOption(argv.debug) }, wiki: {} },
+		page: { id: null },
+	};
 
-if (argv.debug) {
-	var logger = new ParsoidLogger(dummyEnv);
-	logger.registerBackend(/^(trace|debug)(\/|$)/, logger.getDefaultTracerBackend());
-	dummyEnv.log = logger.log.bind(logger);
-} else {
-	dummyEnv.log = function() {};
-}
+	if (argv.debug) {
+		var logger = new ParsoidLogger(dummyEnv);
+		logger.registerBackend(/^(trace|debug)(\/|$)/, logger.getDefaultTracerBackend());
+		dummyEnv.log = logger.log.bind(logger);
+	} else {
+		dummyEnv.log = function() {};
+	}
 
-(new DOMDiff(dummyEnv)).diff(oldDOM, newDOM);
+	(new DOMDiff(dummyEnv)).diff(oldDOM, newDOM);
 
-DU.dumpDOM(newDOM, 'DIFF-marked DOM', {
-	quiet: !!Util.booleanOption(argv.quiet),
-	storeDiffMark: true,
-	env: dummyEnv,
-});
+	DU.dumpDOM(newDOM, 'DIFF-marked DOM', {
+		quiet: !!Util.booleanOption(argv.quiet),
+		storeDiffMark: true,
+		env: dummyEnv,
+	});
 
-process.exit(0);
+	process.exit(0);
+}());

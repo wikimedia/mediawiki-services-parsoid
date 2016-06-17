@@ -105,38 +105,40 @@ var opts = yargs.usage(usage, Util.addStandardOptions({
 	},
 }));
 
-var argv = opts.argv;
-var title = null;
-var revid = null;
-var error;
-if (argv.title && argv.revid) {
-	error = "Can't specify title and revid at the same time.";
-} else if (argv.title) {
-	title = '' + argv.title; // convert, in case it's numeric.
-} else if (argv.revid) {
-	revid = +argv.revid;
-} else if (typeof (argv._[0]) === 'number') {
-	revid = argv._[0];
-} else if (argv._[0]) {
-	title = argv._[0];
-} else {
-	error = "Must specify a title or revision id.";
-}
-
-if (argv.help || error) {
-	if (error) {
-		// Make the error standout in the output
-		var buf = ["-------"];
-		for (var i = 0; i < error.length; i++) {
-			buf.push("-");
-		}
-		buf = buf.join('');
-		console.error(buf);
-		console.error('ERROR:', error);
-		console.error(buf);
+(function() {
+	var argv = opts.argv;
+	var title = null;
+	var revid = null;
+	var error;
+	if (argv.title && argv.revid) {
+		error = "Can't specify title and revid at the same time.";
+	} else if (argv.title) {
+		title = '' + argv.title; // convert, in case it's numeric.
+	} else if (argv.revid) {
+		revid = +argv.revid;
+	} else if (typeof (argv._[0]) === 'number') {
+		revid = argv._[0];
+	} else if (argv._[0]) {
+		title = argv._[0];
+	} else {
+		error = "Must specify a title or revision id.";
 	}
-	opts.showHelp();
-	return;
-}
 
-fetch(title, revid, argv);
+	if (argv.help || error) {
+		if (error) {
+			// Make the error standout in the output
+			var buf = ["-------"];
+			for (var i = 0; i < error.length; i++) {
+				buf.push("-");
+			}
+			buf = buf.join('');
+			console.error(buf);
+			console.error('ERROR:', error);
+			console.error(buf);
+		}
+		opts.showHelp();
+		return;
+	}
+
+	fetch(title, revid, argv);
+}());

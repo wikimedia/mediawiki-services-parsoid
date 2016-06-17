@@ -713,36 +713,38 @@ if (require.main === module) {
 		},
 	};
 
-	var opts = yargs.usage(
-		'Usage: $0 [options] <page-title> \n\n', options
-	).strict();
+	(function() {
+		var opts = yargs.usage(
+			'Usage: $0 [options] <page-title> \n\n', options
+		).strict();
 
-	var argv = opts.argv;
-	if (!argv._.length) {
-		return opts.showHelp();
-	}
-	var title = String(argv._[0]);
-
-	Promise.resolve().then(function() {
-		if (argv.parsoidURL) { return; }
-		// Start our own Parsoid server
-		var apiServer = require('../tests/apiServer.js');
-		var parsoidOptions = { quiet: true };
-		if (argv.apiURL) {
-			parsoidOptions.mockUrl = argv.apiURL;
-			argv.domain = 'customwiki';
+		var argv = opts.argv;
+		if (!argv._.length) {
+			return opts.showHelp();
 		}
-		apiServer.exitOnProcessTerm();
-		return apiServer.startParsoidServer(parsoidOptions).then(function(ret) {
-			argv.parsoidURL = ret.url;
-		});
-	}).then(function() {
-		var formatter = Util.booleanOption(argv.xml) ? xmlFormat : plainFormat;
-		return runTests(title, argv, formatter);
-	}).then(function(output) {
-		console.log(output);
-		process.exit(0);
-	}).done();
+		var title = String(argv._[0]);
+
+		Promise.resolve().then(function() {
+			if (argv.parsoidURL) { return; }
+			// Start our own Parsoid server
+			var apiServer = require('../tests/apiServer.js');
+			var parsoidOptions = { quiet: true };
+			if (argv.apiURL) {
+				parsoidOptions.mockUrl = argv.apiURL;
+				argv.domain = 'customwiki';
+			}
+			apiServer.exitOnProcessTerm();
+			return apiServer.startParsoidServer(parsoidOptions).then(function(ret) {
+				argv.parsoidURL = ret.url;
+			});
+		}).then(function() {
+			var formatter = Util.booleanOption(argv.xml) ? xmlFormat : plainFormat;
+			return runTests(title, argv, formatter);
+		}).then(function(output) {
+			console.log(output);
+			process.exit(0);
+		}).done();
+	}());
 } else if (typeof module === 'object') {
 	module.exports.runTests = runTests;
 	module.exports.xmlFormat = xmlFormat;
