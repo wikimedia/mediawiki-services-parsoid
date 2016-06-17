@@ -49,7 +49,6 @@
   },
   "scripts": {
     "lint": "npm run dump-tokenizer && npm run jscs && npm run jshint",
-    "no-0.8": "node -e 'process.exit(/v0[.][0-8][.]/.test(process.version) ? 0 : 1)' || (npm run nsp && npm run lint)",
     "start": "node bin/server.js",
     "jshint": "jshint bin lib tests tools core-upgrade.js",
     "jscs": "jscs bin lib tests tools core-upgrade.js",
@@ -58,7 +57,7 @@
     "mocha": "mocha --opts tests/mocha/mocha.opts tests/mocha",
     "parserTests": "node bin/parserTests.js --wt2html --wt2wt --html2wt --html2html --selser --no-color --quiet --blacklist",
     "roundtrip": "node bin/roundtrip-test.js 'Barack Obama' && node bin/roundtrip-test.js 'Parkour'",
-    "test": "npm run no-0.8 && npm run parserTests && npm run mocha",
+    "test": "npm run nsp && npm run lint && npm run parserTests && npm run mocha",
     "cover-mocha": "istanbul cover _mocha --dir ./coverage/mocha --  --opts tests/mocha/mocha.opts tests/mocha",
     "cover-parserTests": "istanbul cover bin/parserTests.js --dir ./coverage/parserTests -- --wt2html --wt2wt --html2wt --html2html --selser --no-color --quiet --blacklist",
     "coverage": "npm run cover-mocha && npm run cover-parserTests && istanbul report",
