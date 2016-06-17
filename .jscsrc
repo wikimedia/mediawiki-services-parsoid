@@ -26,6 +26,7 @@
 	"validateQuoteMarks": null,
 	"disallowQuotedKeysInObjects": null,
 	"requireCapitalizedComments": null,
+	"requireEarlyReturn": false,
 	"excludeFiles": [
 		"node_modules/**",
 		"extensions/**",
