@@ -1696,6 +1696,8 @@ ParserTests.prototype.main = function(options, popts) {
 		parsoidConfig.loggerSampling = [
 			[/^warning(\/|$)/, 100],
 		];
+
+		parsoidConfig.timeouts.mwApi.connect = 10000;
 	};
 
 	var parsoidConfig = new ParsoidConfig({ setup: setup }, options);

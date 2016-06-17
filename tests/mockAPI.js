@@ -12,6 +12,7 @@ var crypto = require('crypto');
 var fakeConfig = {
 	setMwApi: function() {},
 	limits: { wt2html: {}, html2wt: {} },
+	timeouts: { mwApi: {} },
 };
 require('./mocha/apitest.localsettings.js').setup(fakeConfig);
 

@@ -11,6 +11,7 @@ var configPath = path.resolve(__dirname, './apitest.localsettings.js');
 var fakeConfig = {
 	setMwApi: function() {},
 	limits: { wt2html: {}, html2wt: {} },
+	timeouts: { mwApi: {} },
 };
 require(configPath).setup(fakeConfig);  // Set limits
 
