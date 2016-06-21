@@ -2000,7 +2000,6 @@ ParserTests.prototype.processCase = function(i, options, err) {
 					}
 
 					if (targetModes.length) {
-
 						// Honor language option in parserTests.txt
 						var prefix = item.options.language || 'enwiki';
 						if (!/wiki/.test(prefix)) {
@@ -2097,6 +2096,12 @@ ParserTests.prototype.processCase = function(i, options, err) {
 							this.env.conf.wiki.namespaceNames['100'] = 'MemoryAlpha';
 							this.env.conf.wiki.namespaceIds.memoryalpha =
 							this.env.conf.wiki.canonicalNamespaces.memoryalpha = 100;
+
+							// Update $wgInterwikiMagic flag
+							// default (undefined) setting is true
+							this.env.conf.wiki.interwikimagic =
+								item.options.wginterwikimagic === undefined ||
+								/^(1|true|)$/.test(item.options.wginterwikimagic);
 
 							async.series(this.buildTasks(item, targetModes, options),
 								nextCallback);
