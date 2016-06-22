@@ -534,9 +534,10 @@ function roundTripDiff(profile, parsoidOptions, data) {
 	var offsets = Diff.convertDiffToOffsetPairs(diff);
 	if (!diff.length || !offsets.length) { return []; }
 
+	var contentmodel = data.contentmodel || 'wikitext';
 	var options = Object.assign({
 		wt2html: true,
-		data: { wikitext: data.newWt },
+		data: { wikitext: data.newWt, contentmodel: contentmodel },
 	}, parsoidOptions);
 	return parsoidPost(profile, options).then(function(body) {
 		data.newHTML = body.html;
@@ -619,11 +620,12 @@ function runTests(title, options, formatter, cb) {
 		// oldid for later use in selser.
 		data.oldid = res.request.path.replace(/^(.*)\//, '');
 		data.oldWt = body;
+		data.contentmodel = res.headers['x-contentmodel'] || 'wikitext';
 		// First, fetch the HTML for the requested page's wikitext
 		var opts = Object.assign({
 			wt2html: true,
 			recordSizes: true,
-			data: { wikitext: data.oldWt },
+			data: { wikitext: data.oldWt, contentmodel: data.contentmodel },
 		}, parsoidOptions);
 		return parsoidPost(profile, opts);
 	}).then(function(body) {
@@ -636,6 +638,7 @@ function runTests(title, options, formatter, cb) {
 			recordSizes: true,
 			data: {
 				html: data.oldHTML.body,
+				contentmodel: data.contentmodel,
 				original: {
 					'data-parsoid': data.oldDp,
 					'data-mw': data.oldMw,
@@ -662,6 +665,7 @@ function runTests(title, options, formatter, cb) {
 			oldid: data.oldid,
 			data: {
 				html: newDocument.outerHTML,
+				contentmodel: data.contentmodel,
 				original: {
 					'data-parsoid': data.oldDp,
 					'data-mw': data.oldMw,

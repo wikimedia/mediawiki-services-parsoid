@@ -151,6 +151,27 @@ var reusePage = {
 	},
 };
 
+var jsonPage = {
+	query: {
+		pages: {
+			'101': {
+				pageid: 101,
+				ns: 0,
+				title: 'JSON_Page',
+				revisions: [
+					{
+						revid: 101,
+						parentid: 0,
+						contentmodel: 'json',
+						contentformat: 'text/json',
+						'*': '[1]',
+					},
+				],
+			},
+		},
+	},
+};
+
 var fnames = {
 	'Image:Foobar.jpg': 'Foobar.jpg',
 	'File:Foobar.jpg': 'Foobar.jpg',
@@ -251,6 +272,8 @@ var availableActions = {
 				return cb(null , largePage);
 			} else if (body.revids === '100' || body.titles === 'Reuse_Page') {
 				return cb(null , reusePage);
+			} else if (body.revids === '101' || body.titles === 'JSON_Page') {
+				return cb(null , jsonPage);
 			}
 		}
 
