@@ -8350,8 +8350,6 @@ parsoid=wt2html,wt2wt,html2html
 
 !! test
 Interlanguage link
-!! options
-parsoid=wt2html,wt2wt,html2html
 !! wikitext
 Blah blah blah
 [[zh:Chinese]]
@@ -8380,8 +8378,6 @@ Blah blah blah
 
 !! test
 Double interlanguage link
-!! options
-parsoid=wt2html,wt2wt,html2html
 !! wikitext
 Blah blah blah
 [[es:Spanish]]
