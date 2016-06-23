@@ -2152,14 +2152,14 @@ ParserTests.prototype.processCase = function(i, options, err) {
 		}
 
 		// Write updated tests from failed ones
-		if (options.hasOwnProperty('update-tests') ||
+		if (options['update-tests'] ||
 				booleanOption(options['update-unexpected'])) {
 			var updateFormat = (options['update-tests'] === 'raw') ?
 					'raw' : 'actualNormalized';
 			var parserTestsFilename = __dirname + '/../tests/parserTests.txt';
 			var parserTests = fs.readFileSync(parserTestsFilename, 'utf8');
 			this.stats.modes.wt2html.failList.forEach(function(fail) {
-				if (booleanOption(options['update-tests'] || fail.unexpected)) {
+				if (options['update-tests'] || fail.unexpected) {
 					var exp = new RegExp("(" + /!!\s*test\s*/.source +
 						Util.escapeRegExp(fail.title) + /(?:(?!!!\s*end)[\s\S])*/.source +
 						")(" + Util.escapeRegExp(fail.expected) + ")", "m");
