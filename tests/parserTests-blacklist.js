@@ -934,7 +934,7 @@ add("html2wt", "BUG 523: Template shouldn't eat newline (or add an extra one bef
 add("html2wt", "BUG 41: Template parameters shown as broken links", "<nowiki>{{{parameter}}}</nowiki>\n");
 add("html2wt", "Template with targets containing wikilinks", "<nowiki>{{</nowiki>[[wiki/Foo|foo]]<nowiki>}}</nowiki>\n\n<nowiki>{{</nowiki>[[wiki/Foo|foo]]<nowiki>}}</nowiki>\n\n<nowiki>{{[[foo}}</nowiki>]]\n");
 add("html2wt", "int keyword", "You have lots of money (not!).\n");
-add("html2wt", "int keyword - non-existing message", "<nowiki><var></nowiki>\n");
+add("html2wt", "int keyword - non-existing message", "⧼var⧽\n");
 add("html2wt", "<includeonly> and <noinclude> being included", "Foobar\n");
 add("html2wt", "<onlyinclude> being included", "Foo\n");
 add("html2wt", "<onlyinclude> and <includeonly> being included", "Foo\n");
