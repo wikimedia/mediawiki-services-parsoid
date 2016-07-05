@@ -27097,6 +27097,21 @@ B <ref group="X" name="b" />
 !! end
 
 !! test
+DOMDiff: Edits to content nested in elements with templated attributes should not be lost (T139388)
+!! options
+parsoid={
+  "modes": ["selser"],
+  "changes": [
+    [ "div:first-child", "text", "bar" ]
+  ]
+}
+!! wikitext
+<div style="{{1x|color:red;}}%">foo</div>
+!! wikitext/edited
+<div style="{{1x|color:red;}}%">bar</div>
+!! end
+
+!! test
 Empty LI (T49673)
 !! wikitext
 * a

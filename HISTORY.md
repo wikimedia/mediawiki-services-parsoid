@@ -9,7 +9,10 @@ n.n.n / XXXX-XX-XX
   * T125419: Fix selser issues serializing first table row
   * T114413: Provide HTML2HTML endpoint in Parsoid
   * T137406: Emit |- between thead/tbody/tfoot
-  * T96195: Remove node 0.8 support
+  * T96195 : Remove node 0.8 support
+  * T139388: Ensure that edits to content nested in elements
+             with templated attributes is not lost by the
+             selective serializer.
 
 0.5.1 / 2015-05-02
 ==================
