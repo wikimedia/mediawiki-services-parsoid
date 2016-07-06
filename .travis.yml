@@ -3,8 +3,8 @@ language: node_js
 node_js:
     # Current production value.
     - "0.10.25"
-    # Aspiring contender. See T119228.
-    - "4.3.0"
+    # Aspiring contender. See T119228 / T138561.
+    - "4.4.6"
     # From the nvm docs, "this installs the latest version of node".
     - "node"
 
