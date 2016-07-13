@@ -479,7 +479,7 @@ function parsoidPost(profile, options) {
 
 	var uri = options.uri + 'transform/';
 	if (options.html2wt) {
-		uri += 'pagebundle/to/wikitext/' + options.title;
+		uri += 'html/to/wikitext/' + options.title;
 		if (options.oldid) {
 			uri += '/' + options.oldid;
 		}
@@ -617,11 +617,11 @@ function runTests(title, options, formatter, cb) {
 			html2wt: true,
 			recordSizes: true,
 			data: {
-				html: data.oldHTML.body,
+				html: data.oldHTML,
 				original: {
 					'data-parsoid': data.oldDp,
 					'data-mw': data.oldMw,
-					wikitext: { body: data.oldWt },
+					wikitext: { body: data.oldWt, },
 				},
 			},
 		}, parsoidOptions);
