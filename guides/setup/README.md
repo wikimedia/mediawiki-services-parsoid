@@ -37,16 +37,11 @@ The API is the main reason you might want to run Parsoid, because VisualEditor
 uses it to do a lot of backend work. To run the API in a terminal,
 from the base directory in the Parsoid repository run the following:
 
-	$ node api/server
-
-There is also, in the `api/` directory, a nice `runserver.sh` script that
-might be useful to someone running the API as a more permanent service. The
-script was originally written for Wikimedia's internal purposes, but it could
-be useful anywhere if it was tweaked a little bit.
+	$ node bin/server
 
 Note that if you want to enable any options, or change any settings, you will
-need to copy the example `localsettings.js` file from the `api/` directory
-and use it to define any of your desired options.
+need to copy the example `config.example.yaml` file and use it to define any of
+your desired options.
 
 ## Running the basic parse tool
 

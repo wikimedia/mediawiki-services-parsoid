@@ -20,10 +20,10 @@ Run tests:
 
 	npm test
 
-Configure your Parsoid web service:
+Configure your Parsoid web service.
 
-	cp localsettings.js.example localsettings.js
-	# Tweak localsettings.js
+	cp config.example.yaml config.yaml
+	# Tweak config.yaml
 
 Run the webservice:
 
