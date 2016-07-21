@@ -715,7 +715,10 @@ if (require.main === module) {
 
 	(function() {
 		var opts = yargs.usage(
-			'Usage: $0 [options] <page-title> \n\n', options
+			'Usage: $0 [options] <page-title> \n' +
+			'The page title should be the "true title",' +
+			'i.e., without any url encoding which might be necessary if it appeared in wikitext.' +
+			'\n\n', options
 		).strict();
 
 		var argv = opts.argv;
