@@ -473,7 +473,6 @@ var checkIfSignificant = function(offsets, data) {
 function parsoidPost(profile, options) {
 	var httpOptions = {
 		method: 'POST',
-		json: true,
 		body: options.data,
 	};
 
@@ -484,11 +483,18 @@ function parsoidPost(profile, options) {
 			uri += '/' + options.oldid;
 		}
 		httpOptions.body.scrub_wikitext = true;
+		// We want to encode the request but *not* decode the response.
+		httpOptions.body = JSON.stringify(httpOptions.body);
+		httpOptions.headers = {
+			'Content-Type': 'application/json',
+		};
 	} else {  // wt2html
 		uri += 'wikitext/to/pagebundle/' + options.title;
 		httpOptions.headers = {
 			Accept: apiUtils.pagebundleContentType(null, options.contentVersion),
 		};
+		// setting json here encodes the request *and* decodes the response.
+		httpOptions.json = true;
 	}
 	httpOptions.uri = uri;
 
