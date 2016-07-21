@@ -11,6 +11,7 @@ require('../core-upgrade.js');
 var fs = require('fs');
 var path = require('path');
 var yargs = require('yargs');
+var yaml = require('js-yaml');
 
 var TemplateRequest = require('../lib/mw/ApiRequest.js').TemplateRequest;
 var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
@@ -29,25 +30,26 @@ var fetch = function(page, revid, opts) {
 		domain = 'en.wikipedia.org';
 	}
 
-	var local = null;
+	var config = null;
 	if (Util.booleanOption(opts.config)) {
 		var p = (typeof (opts.config) === 'string') ?
 			path.resolve('.', opts.config) :
-			path.resolve(__dirname, '../localsettings.js');
-		local = require(p);
+			path.resolve(__dirname, '../config.yaml');
+		// Assuming Parsoid is the first service in the list
+		config = yaml.load(fs.readFileSync(p, 'utf8')).services[0].conf;
 	}
 
 	var setup = function(parsoidConfig) {
-		if (local && local.setup) {
+		if (config && config.localsettings) {
+			var local = require(path.resolve(__dirname, config.localsettings));
 			local.setup(parsoidConfig);
 		}
 		Util.setTemplatingAndProcessingFlags(parsoidConfig, opts);
 		Util.setDebuggingFlags(parsoidConfig, opts);
 	};
 
-	var parsoidConfig = new ParsoidConfig(
-		{ setup: setup }
-	);
+	var parsoidConfig = new ParsoidConfig({ setup: setup }, config);
+
 	parsoidConfig.defaultWiki = prefix ? prefix :
 		parsoidConfig.reverseMwApiMap.get(domain);
 
@@ -82,7 +84,7 @@ var opts = yargs.usage(usage, Util.addStandardOptions({
 		description: "Write page to given file",
 	},
 	'config': {
-		description: "Path to a localsettings.js file.  Use --config w/ no argument to default to the server's localsettings.js",
+		description: "Path to a config.yaml file.  Use --config w/ no argument to default to the server's config.yaml",
 		'default': false,
 	},
 	'prefix': {

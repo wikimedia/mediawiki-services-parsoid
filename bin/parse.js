@@ -15,6 +15,7 @@ var Promise = require('../lib/utils/promise.js');
 var fs = require('fs');
 var path = require('path');
 var yargs = require('yargs');
+var yaml = require('js-yaml');
 
 process.on('SIGUSR2', function() {
 	var heapdump = require('heapdump');
@@ -54,7 +55,7 @@ var standardOpts = Util.addStandardOptions({
 		'default': false,
 	},
 	'config': {
-		description: "Path to a localsettings.js file.  Use --config w/ no argument to default to the server's localsettings.js",
+		description: "Path to a config.yaml file.  Use --config w/ no argument to default to the server's config.yaml",
 		'default': false,
 	},
 	'prefix': {
@@ -350,26 +351,26 @@ if (require.main === module) {
 			domain = 'en.wikipedia.org';
 		}
 
-		var local = null;
+		var config = null;
 		if (Util.booleanOption(argv.config)) {
 			var p = (typeof (argv.config) === 'string') ?
 				path.resolve('.', argv.config) :
-				path.resolve(__dirname, '../localsettings.js');
-			local = require(p);
+				path.resolve(__dirname, '../config.yaml');
+			// Assuming Parsoid is the first service in the list
+			config = yaml.load(fs.readFileSync(p, 'utf8')).services[0].conf;
 		}
 
 		var setup = function(parsoidConfig) {
 			parsoidConfig.loadWMF = argv.loadWMF;
-			if (local && local.setup) {
+			if (config && config.localsettings) {
+				var local = require(path.resolve(__dirname, config.localsettings));
 				local.setup(parsoidConfig);
 			}
 			Util.setTemplatingAndProcessingFlags(parsoidConfig, argv);
 			Util.setDebuggingFlags(parsoidConfig, argv);
 		};
 
-		var parsoidConfig = new ParsoidConfig(
-			{ setup: setup }
-		);
+		var parsoidConfig = new ParsoidConfig({ setup: setup }, config);
 
 		parsoidConfig.defaultWiki = prefix ? prefix :
 			parsoidConfig.reverseMwApiMap.get(domain);
