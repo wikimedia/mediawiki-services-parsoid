@@ -1,0 +1,6 @@
+{
+	"exceptions": [
+		// Ignore this until a new request.js is released.
+		"https://nodesecurity.io/advisories/130"
+	]
+}
