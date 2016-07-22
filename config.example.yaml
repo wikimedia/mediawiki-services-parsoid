@@ -19,7 +19,7 @@ services:
     conf:
         # For backwards compatibility, and to continue to support non-static
         # configs for the time being, optionally provide a path to a
-        # localsettings.js file.
+        # localsettings.js file.  See localsettings.example.js
         #localsettings: ./localsettings.js
 
         # Set your own user-agent string
