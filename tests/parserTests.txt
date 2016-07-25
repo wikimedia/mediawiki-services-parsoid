@@ -14945,6 +14945,14 @@ parsoid=wt2html
 !! end
 
 !! test
+Category links with multiple namespaces
+!! wikitext
+[[Category:Project:Foo]]
+!! html/parsoid
+<link rel="mw:PageProp/Category" href="./Category:Project:Foo" />
+!! end
+
+!! test
 Parsoid: Serialize link to category page with colon escape
 !! options
 parsoid
