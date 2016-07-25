@@ -19,6 +19,7 @@
     "finalhandler": "^0.5.0",
     "gelf-stream": "^0.2.4",
     "html5": "^1.0.5",
+    "js-yaml": "^3.6.1",
     "mediawiki-title": "^0.5.4",
     "negotiator": "git+https://github.com/arlolra/negotiator#full-parse-access",
     "node-txstatsd": "^0.1.6",

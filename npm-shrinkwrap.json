@@ -1378,22 +1378,6 @@
             }
           }
         },
-        "js-yaml": {
-          "version": "3.6.1",
-          "resolved": "https://registry.npmjs.org/js-yaml/-/js-yaml-3.6.1.tgz",
-          "dependencies": {
-            "argparse": {
-              "version": "1.0.7",
-              "resolved": "https://registry.npmjs.org/argparse/-/argparse-1.0.7.tgz",
-              "dependencies": {
-                "sprintf-js": {
-                  "version": "1.0.3",
-                  "resolved": "https://registry.npmjs.org/sprintf-js/-/sprintf-js-1.0.3.tgz"
-                }
-              }
-            }
-          }
-        },
         "mkdirp": {
           "version": "0.5.1",
           "resolved": "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.1.tgz",
@@ -1445,6 +1429,26 @@
         "wordwrap": {
           "version": "1.0.0",
           "resolved": "https://registry.npmjs.org/wordwrap/-/wordwrap-1.0.0.tgz"
+        }
+      }
+    },
+    "js-yaml": {
+      "version": "3.6.1",
+      "resolved": "https://registry.npmjs.org/js-yaml/-/js-yaml-3.6.1.tgz",
+      "dependencies": {
+        "argparse": {
+          "version": "1.0.7",
+          "resolved": "https://registry.npmjs.org/argparse/-/argparse-1.0.7.tgz",
+          "dependencies": {
+            "sprintf-js": {
+              "version": "1.0.3",
+              "resolved": "https://registry.npmjs.org/sprintf-js/-/sprintf-js-1.0.3.tgz"
+            }
+          }
+        },
+        "esprima": {
+          "version": "2.7.2",
+          "resolved": "https://registry.npmjs.org/esprima/-/esprima-2.7.2.tgz"
         }
       }
     },
@@ -4741,26 +4745,6 @@
         "hot-shots": {
           "version": "2.4.0",
           "resolved": "https://registry.npmjs.org/hot-shots/-/hot-shots-2.4.0.tgz"
-        },
-        "js-yaml": {
-          "version": "3.6.1",
-          "resolved": "https://registry.npmjs.org/js-yaml/-/js-yaml-3.6.1.tgz",
-          "dependencies": {
-            "argparse": {
-              "version": "1.0.7",
-              "resolved": "https://registry.npmjs.org/argparse/-/argparse-1.0.7.tgz",
-              "dependencies": {
-                "sprintf-js": {
-                  "version": "1.0.3",
-                  "resolved": "https://registry.npmjs.org/sprintf-js/-/sprintf-js-1.0.3.tgz"
-                }
-              }
-            },
-            "esprima": {
-              "version": "2.7.2",
-              "resolved": "https://registry.npmjs.org/esprima/-/esprima-2.7.2.tgz"
-            }
-          }
         },
         "limitation": {
           "version": "0.1.8",
