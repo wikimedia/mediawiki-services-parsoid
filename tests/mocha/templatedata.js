@@ -40,8 +40,8 @@ function verifyTransformation(newHTML, origHTML, origWT, expectedWT, done, dpVer
 				},
 				body: origHTML,
 			},
-			// HACK! Passing dummy data-parsoid since origHTML has inline data-parsoid.
-			// Without the dummy data-parsoid, we scream murder.
+			// HACK! data-parsoid is no longer versioned independently.
+			// Passing dummy data-parsoid since origHTML has inline data-parsoid.
 			"data-parsoid": {
 				headers: {
 					'content-type': 'application/json;profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/' + dpVersion + '"',
@@ -55,7 +55,7 @@ function verifyTransformation(newHTML, origHTML, origWT, expectedWT, done, dpVer
 	}
 
 	return request(api)
-		.post('mock.domain/v3/transform/html/to/wikitext')
+		.post('mock.domain/v3/transform/pagebundle/to/wikitext')
 		.send(payload)
 		.expect(function(res) {
 			res.text.should.equal(expectedWT);
