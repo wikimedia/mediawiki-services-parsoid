@@ -60,7 +60,7 @@
     "dump-tokenizer": "node lib/wt2html/tokenizer.js",
     "mocha": "mocha --opts tests/mocha/mocha.opts tests/mocha",
     "parserTests": "node bin/parserTests.js --wt2html --wt2wt --html2wt --html2html --selser --no-color --quiet --blacklist",
-    "roundtrip": "node bin/roundtrip-test.js 'Barack Obama' && node bin/roundtrip-test.js 'Parkour'",
+    "roundtrip": "node bin/roundtrip-test.js 'Barack Obama' && node bin/roundtrip-test.js --prefix frwiki Chope && node bin/roundtrip-test.js --xml Parkour",
     "toolcheck": "bin/toolcheck.sh",
     "test": "npm run nsp && npm run lint && npm run parserTests && npm run mocha",
     "cover-mocha": "istanbul cover _mocha --dir ./coverage/mocha --  --opts tests/mocha/mocha.opts tests/mocha",
