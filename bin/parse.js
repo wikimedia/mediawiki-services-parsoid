@@ -123,6 +123,11 @@ var standardOpts = Util.addStandardOptions({
 		'boolean': false,
 		'default': '',
 	},
+	'pboutfile': {
+		description: 'Output pagebundle JSON to file',
+		'boolean': false,
+		'default': false,
+	},
 	'lint': {
 		description: 'Parse with linter enabled',
 		'boolean': true,
@@ -184,6 +189,10 @@ startsAtWikitext = function(argv, env, input) {
 		}
 		if (argv.wt2html || argv.html2html) {
 			var out;
+			if (argv.pboutfile) {
+				var pb = DU.extractPageBundle(doc);
+				fs.writeFileSync(argv.pboutfile, JSON.stringify(pb), 'utf8');
+			}
 			if (argv.normalize) {
 				out = DU.normalizeOut(doc.body, (argv.normalize === 'parsoid'));
 			} else if (argv.document) {
@@ -217,7 +226,7 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain)
 		env.scrubWikitext = argv.scrubWikitext;
 
 		// Sets ids on nodes and stores data-* attributes in a JSON blob
-		env.pageBundle = argv.pagebundle;
+		env.pageBundle = argv.pagebundle || argv.pboutfile;
 
 		// The content version to output
 		if (argv.contentVersion) {
