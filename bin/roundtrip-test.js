@@ -581,7 +581,12 @@ function runTests(title, options, formatter, cb) {
 
 	var profile = { time: { total: 0, start: 0 }, size: {} };
 	var closeFormatter = function(e, results) {
-		return formatter(e, prefix, title, results, profile);
+		var failure = e || results.some(function(r) {
+			return r.selser;
+		});
+		var output = formatter(e, prefix, title, results, profile);
+		return options.check ? { output: output, exitCode: failure ? 1 : 0 } :
+			output;
 	};
 
 	var uri = options.parsoidURL;
@@ -717,6 +722,12 @@ if (require.main === module) {
 			boolean: false,
 			default: defaultContentVersion,
 		},
+		check: {
+			description: 'Exit with non-zero exit code if differences found using selser',
+			boolean: true,
+			default: false,
+			alias: 'c',
+		},
 	};
 
 	(function() {
@@ -748,9 +759,9 @@ if (require.main === module) {
 		}).then(function() {
 			var formatter = Util.booleanOption(argv.xml) ? xmlFormat : plainFormat;
 			return runTests(title, argv, formatter);
-		}).then(function(output) {
-			console.log(output);
-			process.exit(0);
+		}).then(function(r) {
+			console.log(argv.check ? r.output : r);
+			process.exit(argv.check ? r.exitCode : 0);
 		}).done();
 	}());
 } else if (typeof module === 'object') {
