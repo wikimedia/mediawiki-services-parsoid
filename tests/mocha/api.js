@@ -1511,6 +1511,18 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		it('should refuse an unknown conversion (1.2.1 -> 2.0.0)', function(done) {
+			previousRevHTML.html.headers['content-type'].should.equal('text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/1.2.1"');
+			request(api)
+			.post(mockDomain + '/v3/transform/pagebundle/to/html/Reuse_Page/100')
+			.set('Accept', 'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"')
+			.send({
+				previous: previousRevHTML,
+			})
+			.expect(415)
+			.end(done);
+		});
+
 	});  // end html2html
 
 	after(function() {
