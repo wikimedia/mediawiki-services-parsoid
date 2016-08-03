@@ -50,10 +50,9 @@ exports.setup = function(parsoidConfig) {
 	//  parsoidConfig.strictSSL = false;
 
 	// Use a different server for CSS style modules.
-	// Set to true to use bits.wikimedia.org, or to a string with the URI.
 	// Leaving it undefined (the default) will use the same URI as the MW API,
 	// changing api.php for load.php.
-	//  parsoidConfig.modulesLoadURI = true;
+	//  parsoidConfig.modulesLoadURI = 'http://example.org/load.php';
 
 	// Set rtTestMode to true for round-trip testing
 	parsoidConfig.rtTestMode = true;
