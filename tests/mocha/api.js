@@ -8,6 +8,7 @@ var request = require('supertest');
 var domino = require('domino');
 var path = require('path');
 var should = require('chai').should();
+var semver = require('semver');
 
 var configPath = path.resolve(__dirname, './apitest.localsettings.js');
 var fakeConfig = {
@@ -76,61 +77,61 @@ describe('Parsoid API', function() {
 
 	});  // formats
 
+	var acceptableHtmlResponse = function(contentVersion, expectFunc) {
+		return function(res) {
+			res.statusCode.should.equal(200);
+			res.headers.should.have.property('content-type');
+			res.headers['content-type'].should.equal(
+				'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + contentVersion + '"'
+			);
+			res.text.should.not.equal('');
+			if (expectFunc) {
+				return expectFunc(res.text);
+			}
+		};
+	};
+
+	var acceptablePageBundleResponse = function(contentVersion, expectFunc) {
+		return function(res) {
+			res.statusCode.should.equal(200);
+			res.headers.should.have.property('content-type');
+			res.headers['content-type'].should.equal(
+				'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"'
+			);
+			res.body.should.have.property('html');
+			res.body.html.should.have.property('headers');
+			res.body.html.headers.should.have.property('content-type');
+			res.body.html.headers['content-type'].should.equal(
+				'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + contentVersion + '"'
+			);
+			res.body.html.should.have.property('body');
+			res.body.should.have.property('data-parsoid');
+			res.body['data-parsoid'].should.have.property('headers');
+			res.body['data-parsoid'].headers.should.have.property('content-type');
+			// Some backwards compatibility for when the content version
+			// wasn't applied uniformly.  See `apiUtils.dataParsoidContentType`
+			var dpVersion = (contentVersion === '1.2.1') ? '0.0.2' : contentVersion;
+			res.body['data-parsoid'].headers['content-type'].should.equal(
+				'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/' + dpVersion + '"'
+			);
+			res.body['data-parsoid'].should.have.property('body');
+			if (semver.gte(contentVersion, '2.0.0')) {
+				res.body.should.have.property('data-mw');
+				res.body['data-mw'].should.have.property('headers');
+				res.body['data-mw'].headers.should.have.property('content-type');
+				res.body['data-mw'].headers['content-type'].should.equal(
+					'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/data-mw/' + contentVersion + '"'
+				);
+				res.body['data-mw'].should.have.property('body');
+			}
+			if (expectFunc) {
+				return expectFunc(res.body.html.body);
+			}
+		};
+	};
+
 	describe('accepts', function() {
 		var defaultContentVersion = '1.2.1';
-
-		var acceptableHtmlResponse = function(contentVersion, expectFunc) {
-			return function(res) {
-				res.statusCode.should.equal(200);
-				res.headers.should.have.property('content-type');
-				res.headers['content-type'].should.equal(
-					'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + contentVersion + '"'
-				);
-				res.text.should.not.equal('');
-				if (expectFunc) {
-					return expectFunc(res.text);
-				}
-			};
-		};
-
-		var acceptablePageBundleResponse = function(contentVersion, expectFunc) {
-			return function(res) {
-				res.statusCode.should.equal(200);
-				res.headers.should.have.property('content-type');
-				res.headers['content-type'].should.equal(
-					'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"'
-				);
-				res.body.should.have.property('html');
-				res.body.html.should.have.property('headers');
-				res.body.html.headers.should.have.property('content-type');
-				res.body.html.headers['content-type'].should.equal(
-					'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + contentVersion + '"'
-				);
-				res.body.html.should.have.property('body');
-				res.body.should.have.property('data-parsoid');
-				res.body['data-parsoid'].should.have.property('headers');
-				res.body['data-parsoid'].headers.should.have.property('content-type');
-				// Some backwards compatibility for when the content version
-				// wasn't applied uniformly.  See `apiUtils.dataParsoidContentType`
-				var dpVersion = (contentVersion === '1.2.1') ? '0.0.2' : contentVersion;
-				res.body['data-parsoid'].headers['content-type'].should.equal(
-					'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/' + dpVersion + '"'
-				);
-				res.body['data-parsoid'].should.have.property('body');
-				if (contentVersion !== '1.2.1') {
-					res.body.should.have.property('data-mw');
-					res.body['data-mw'].should.have.property('headers');
-					res.body['data-mw'].headers.should.have.property('content-type');
-					res.body['data-mw'].headers['content-type'].should.equal(
-						'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/data-mw/' + contentVersion + '"'
-					);
-					res.body['data-mw'].should.have.property('body');
-				}
-				if (expectFunc) {
-					return expectFunc(res.body.html.body);
-				}
-			};
-		};
 
 		it('should not accept requests for older content versions (html)', function(done) {
 			request(api)
@@ -272,7 +273,7 @@ describe('Parsoid API', function() {
 			.expect(200)
 			.expect(acceptablePageBundleResponse(contentVersion, function(html) {
 				// In 1.2.1, data-mw is still inline.
-				html.should.match(/data-mw/);
+				html.should.match(/\s+data-mw\s*=\s*['"]/);
 			}))
 			.end(done);
 		});
@@ -297,7 +298,7 @@ describe('Parsoid API', function() {
 			.expect(200)
 			.expect(acceptablePageBundleResponse(contentVersion, function(html) {
 				// In 2.0.0, data-mw is in the pagebundle.
-				html.should.not.match(/data-mw/);
+				html.should.not.match(/\s+data-mw\s*=\s*['"]/);
 			}))
 			.end(done);
 		});
@@ -1520,6 +1521,42 @@ describe('Parsoid API', function() {
 				previous: previousRevHTML,
 			})
 			.expect(415)
+			.end(done);
+		});
+
+		it('should downgrade 2.x content to 1.x', function(done) {
+			var contentVersion = '1.2.1';
+			request(api)
+			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
+			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"')
+			.send({
+				html: '<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">hi</p>',
+				original: {
+					title: 'Doesnotexist',
+					'data-parsoid': {
+						body: {
+							ids: { "mwAQ": { "pi": [[{ "k": "1" }]] } },
+						},
+					},
+					'data-mw': {
+						body: {
+							ids: { "mwAQ": { "parts": [{ "template": { "target": { "wt": "1x", "href": "./Template:1x" }, "params": { "1": { "wt": "hi" } }, "i": 0 } }] } },
+						},
+					},
+					html: {
+						headers: {
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
+						},
+						body: '<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">ho</p>',
+					},
+				},
+			})
+			.expect(200)
+			.expect(acceptablePageBundleResponse(contentVersion, function(html) {
+				// In 1.2.1, data-mw is still inline.
+				html.should.match(/\s+data-mw\s*=\s*['"]/);
+				html.should.not.match(/\s+data-parsoid\s*=\s*['"]/);
+			}))
 			.end(done);
 		});
 
