@@ -16,6 +16,7 @@ n.n.n / XXXX-XX-XX
   * T90668 : Replace custom server.js with service-runner
   * T113322: Use the mediawiki-title library instead of
              Parsoid-homegrown title normalization code.
+  * T143356: Separate data-mw API semantics
 
 0.5.1 / 2015-05-02
 ==================
