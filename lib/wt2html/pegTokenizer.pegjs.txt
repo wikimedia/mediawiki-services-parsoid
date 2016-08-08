@@ -1570,8 +1570,7 @@ table_caption_tag
     args:row_syntax_table_args?
     tagEndPos:("" { return endOffset(); })
     c:nested_block_in_table* {
-        return tu.buildTableTokens("caption", "|+", args, [startOffset(), tagEndPos], endOffset(), c)
-            .concat([new EndTagTk('caption')]);
+        return tu.buildTableTokens("caption", "|+", args, [startOffset(), tagEndPos], endOffset(), c, true);
     }
 
 table_row_tag
