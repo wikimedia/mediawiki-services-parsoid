@@ -3188,31 +3188,6 @@ array (
  a <pre typeof="mw:Extension/tag" about="#mwt2" data-parsoid='{}' data-mw='{"name":"tag","attrs":{},"body":null}'></pre>
 !! end
 
-!! test
-Table wikitext syntax outside wiki-tables
-!! wikitext
-a
-! not a table heading
-|- not a table row
-| not a table cell
-| class="foo bar" | baz
-b
-|}
-|-
-c
-!! html
-<p>a
-! not a table heading
-|- not a table row
-| not a table cell
-| class="foo bar" | baz
-b
-|}
-|-
-c
-</p>
-!! end
-
 !!test
 Render paragraphs when indent-pre is suppressed in blocklevels
 !! wikitext
@@ -11464,6 +11439,33 @@ parsoid=wt2html
 <tbody><tr><td>c</td></tr>
 </tbody></table>
 !!end
+
+!! test
+Table wikitext syntax outside wiki-tables
+!! wikitext
+a
+|+ not a caption
+! not a table heading
+|- not a table row
+| not a table cell
+| class="foo bar" | baz
+b
+|}
+|-
+c
+!! html
+<p>a
+|+ not a caption
+! not a table heading
+|- not a table row
+| not a table cell
+| class="foo bar" | baz
+b
+|}
+|-
+c
+</p>
+!! end
 
 ###
 ### Testing parsing of templates where a template arg

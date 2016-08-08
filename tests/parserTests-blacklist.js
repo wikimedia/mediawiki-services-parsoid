@@ -1376,6 +1376,10 @@ add("selser", "Templates: Handle comments in the target [0,3,0,3,0,0,0]", "{{ech
 add("selser", "Templates: Handle comments in the target [0,0,0,0,0,4,0]", "{{echo\n<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->|foo}}\n\nhlr2vnanjhflayvi\n\n{{<!-- should be ignored -->echo|foo}}");
 add("selser", "4. Indent-Pre and extension tags 5", "<nowiki> </nowiki>a <tag />");
 add("selser", "4. Indent-Pre and extension tags [2,0]", "z2q1uxsvdja9vn29\n\n a <tag />");
+add("selser", "Render paragraphs when indent-pre is suppressed in blocklevels [[1,3,0,0]]", "<blockquote> foo\n\n bar\n</blockquote>");
+add("selser", "Render paragraphs when indent-pre is suppressed in blocklevels [[1,0,0,0]]", "<blockquote> foo\n\n bar\n</blockquote>");
+add("selser", "Render paragraphs when indent-pre is suppressed in blocklevels [[1,0,[4],3]]", "<blockquote> foo\n\ngn7ylzy40ftj4i\n</blockquote>");
+add("selser", "Render paragraphs when indent-pre is suppressed in blocklevels [[2,4,2,0]]", "<blockquote>400w4vubqf0nqaor\n\n foo\ngzulwh9x29xgk3xrmyw8xai0kyg8ehfr\n bar\n</blockquote>");
 add("selser", "5a. White-space in indent-pre [[0,0,4]]", " a<br />\n 7tmueg6dyhqia4i");
 add("selser", "5a. White-space in indent-pre [1]", " a<br />\n \n \n b");
 add("selser", "5a. White-space in indent-pre [[3,0,0]]", " <br />\n \n \n b");
