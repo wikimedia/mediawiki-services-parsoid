@@ -25024,9 +25024,15 @@ parsoid=html2wt
 !! html/parsoid
 <a rel="mw:WikiLink" href="./Foo" title="Foo" data-parsoid='{}'>Foo</a>
 <a rel="mw:WikiLink" href="./Foo" title="Foo">Foo</a>
+<a href="//en.wikipedia.org/wiki/Foo">//en.wikipedia.org/wiki/Foo</a>
+<a href="http://en.wikipedia.org/wiki/Foo">http://en.wikipedia.org/wiki/Foo</a>
+<a href="//en.wikipedia.org/wiki/Foo_bar">//en.wikipedia.org/wiki/Foo bar</a>
 !! wikitext
 [[Foo]]
 [[Foo]]
+[[:en:Foo|//en.wikipedia.org/wiki/Foo]]
+[[wikipedia:Foo|http://en.wikipedia.org/wiki/Foo]]
+[[:en:Foo_bar|//en.wikipedia.org/wiki/Foo bar]]
 !! end
 
 !! test
