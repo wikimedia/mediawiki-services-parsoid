@@ -8,7 +8,9 @@ node_js:
     # From the nvm docs, "this installs the latest version of node".
     - "node"
 
-script: travis_wait npm run-script coverage && (npm run-script coveralls || exit 0)
+script: travis_wait npm run-script coverage
+
+after_success: (npm run-script coveralls || exit 0)
 
 notifications:
   email:
