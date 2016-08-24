@@ -13,6 +13,9 @@ worker_heartbeat_timeout: 300000
 logging:
     level: info
 
+#metrics:
+#    type: log
+
 services:
   - module: lib/index.js
     entrypoint: apiServiceWorker
@@ -73,12 +76,6 @@ services:
         #allowCORS: false
         # restrict:
         #allowCORS: 'some.domain.org'
-
-        # Set to true for using the default metrics reporting to statsd
-        # If true, provide the statsd host/port values
-        #useDefaultStatsAggregator: true
-        #txstatsdHost: 'statsd.domain.org'
-        #txstatsdPort: 8125
 
         # Allow override of port/interface:
         #serverPort: 8000

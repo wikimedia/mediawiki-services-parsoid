@@ -51,13 +51,6 @@ exports.setup = function(parsoidConfig) {
 	// changing api.php for load.php.
 	//  parsoidConfig.modulesLoadURI = 'http://example.org/load.php';
 
-	// Add a metrics shim so these functions are called during testing.
-	parsoidConfig.useDefaultStatsAggregator = false;
-	parsoidConfig.stats = {
-		count: function() {},
-		timing: function() {},
-	};
-
 	// Enable sampling to assert it's working while testing.
 	parsoidConfig.loggerSampling = [
 		[/^info(\/|$)/, 100],

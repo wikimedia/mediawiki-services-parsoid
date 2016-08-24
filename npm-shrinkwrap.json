@@ -2,7 +2,7 @@
   "name": "parsoid",
   "version": "0.5.1",
   "npm-shrinkwrap-version": "200.5.1",
-  "node-version": "v0.10.26",
+  "node-version": "v4.4.6",
   "dependencies": {
     "alea": {
       "version": "0.0.9",
@@ -2289,10 +2289,6 @@
       "version": "0.6.1",
       "from": "negotiator@git+https://github.com/arlolra/negotiator.git#0418ab4e9a665772b7e233564a4525c9d9a8ec3a",
       "resolved": "git+https://github.com/arlolra/negotiator.git#0418ab4e9a665772b7e233564a4525c9d9a8ec3a"
-    },
-    "node-txstatsd": {
-      "version": "0.1.6",
-      "resolved": "https://registry.npmjs.org/node-txstatsd/-/node-txstatsd-0.1.6.tgz"
     },
     "node-uuid": {
       "version": "1.4.7",

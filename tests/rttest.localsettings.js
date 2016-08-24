@@ -60,12 +60,5 @@ exports.setup = function(parsoidConfig) {
 	// Enable bidi char stripping during serialization
 	parsoidConfig.scrubBidiChars = true;
 
-	// Add a metrics shim so these functions are called during testing.
-	parsoidConfig.useDefaultStatsAggregator = false;
-	parsoidConfig.stats = {
-		count: function() {},
-		timing: function() {},
-	};
-
 	parsoidConfig.strictAcceptCheck = true;
 };

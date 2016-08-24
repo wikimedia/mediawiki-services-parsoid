@@ -23,7 +23,6 @@
     "js-yaml": "^3.6.1",
     "mediawiki-title": "^0.5.4",
     "negotiator": "git+https://github.com/arlolra/negotiator#full-parse-access",
-    "node-txstatsd": "^0.1.6",
     "node-uuid": "^1.4.7",
     "pegjs": "git+https://github.com/tstarling/pegjs#fork",
     "prfun": "^2.1.4",
