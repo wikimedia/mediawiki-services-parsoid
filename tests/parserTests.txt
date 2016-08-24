@@ -27222,3 +27222,28 @@ Empty LI (T49673)
 <li>b</li>
 </ul>
 !! end
+
+!! test
+Thumbnail output
+!! wikitext
+[[File:Thumb.png|thumb]]
+!! html/php+tidy
+<div class="thumb tright">
+<div class="thumbinner" style="width:137px;"><a href="/wiki/File:Thumb.png" class="image"><img alt="Thumb.png" src="http://example.com/images/e/ea/Thumb.png" width="135" height="135" class="thumbimage" /></a>
+<div class="thumbcaption">
+<div class="magnify"><a href="/wiki/File:Thumb.png" class="internal" title="Enlarge"></a></div>
+</div>
+</div>
+</div>
+!! end
+
+!! test
+unclosed internal link XSS (T137264)
+!! wikitext
+[[#%3Cscript%3Ealert(1)%3C/script%3E|
+!! html/php
+<p>[[#&lt;script&gt;alert(1)&lt;/script&gt;|
+</p>
+!! html/parsoid
+<p>[[#%3Cscript%3Ealert(1)%3C/script%3E|</p>
+!! end
