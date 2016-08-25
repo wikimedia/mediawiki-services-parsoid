@@ -1,16 +1,16 @@
 language: node_js
 
 node_js:
-    # Current production value.
+    # Keep this around until we deprecate and remove it.
     - "0.10.25"
-    # Aspiring contender. See T119228 / T138561.
+    # Current production value.
     - "4.4.6"
     # From the nvm docs, "this installs the latest version of node".
     - "node"
 
 script: travis_wait npm run-script coverage
 
-after_success: (npm run-script coveralls || exit 0)
+after_success: npm run-script coveralls
 
 notifications:
   email:
