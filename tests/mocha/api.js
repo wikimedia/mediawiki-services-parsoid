@@ -1079,7 +1079,31 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should return a 400 for missing data-mw', function(done) {
+		it('should return a 400 for missing inline data-mw (1.2.1)', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
+			.send({
+				html: '<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">hi</p>',
+				original: {
+					title: 'Doesnotexist',
+					'data-parsoid': {
+						body: {
+							ids: { "mwAQ": { "pi": [[{ "k": "1" }]] } },
+						},
+					},
+					html: {
+						headers: {
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/1.2.1"',
+						},
+						body: '<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">ho</p>',
+					},
+				},
+			})
+			.expect(400)
+			.end(done);
+		});
+
+		it('should return a 400 for not supplying data-mw', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
 			.send({
@@ -1103,31 +1127,7 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should return a 400 for missing data-mw in 2.0.0', function(done) {
-			request(api)
-			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
-			.send({
-				html: '<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">hi</p>',
-				original: {
-					title: 'Doesnotexist',
-					'data-parsoid': {
-						body: {
-							ids: { "mwAQ": { "pi": [[{ "k": "1" }]] } },
-						},
-					},
-					html: {
-						headers: {
-							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
-						},
-						body: '<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">ho</p>',
-					},
-				},
-			})
-			.expect(400)
-			.end(done);
-		});
-
-		it('should apply supplied data-mw', function(done) {
+		it('should apply original data-mw', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
 			.send({
@@ -1156,7 +1156,8 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should sanity check data-mw was applied in the previous test', function(done) {
+		// Sanity check data-mw was applied in the previous test
+		it('should return a 400 for missing modified data-mw', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
 			.send({
@@ -1170,7 +1171,7 @@ describe('Parsoid API', function() {
 					},
 					'data-mw': {
 						body: {
-							ids: { },  // Missing data-mw.parts!
+							ids: { "mwAQ": { } },  // Missing data-mw.parts!
 						},
 					},
 					html: {
@@ -1182,6 +1183,195 @@ describe('Parsoid API', function() {
 				},
 			})
 			.expect(400)
+			.end(done);
+		});
+
+		it('should give precedence to inline data-mw over original', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
+			.send({
+				html: '<p about="#mwt1" typeof="mw:Transclusion" data-mw=\'{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"hi"}},"i":0}}]}\' id="mwAQ">hi</p>',
+				original: {
+					title: 'Doesnotexist',
+					'data-parsoid': {
+						body: {
+							ids: { "mwAQ": { "pi": [[{ "k": "1" }]] } },
+						},
+					},
+					'data-mw': {
+						body: {
+							ids: { "mwAQ": { } },  // Missing data-mw.parts!
+						},
+					},
+					html: {
+						headers: {
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
+						},
+						body: '<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">ho</p>',
+					},
+				},
+			})
+			.expect(validWikitextResponse('{{1x|hi}}'))
+			.end(done);
+		});
+
+		it('should not apply original data-mw if modified is supplied', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
+			.send({
+				html: '<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">hi</p>',
+				'data-mw': {
+					body: {
+						ids: { "mwAQ": { "parts": [{ "template": { "target": { "wt": "1x", "href": "./Template:1x" }, "params": { "1": { "wt": "hi" } }, "i": 0 } }] } },
+					},
+				},
+				original: {
+					title: 'Doesnotexist',
+					'data-parsoid': {
+						body: {
+							ids: { "mwAQ": { "pi": [[{ "k": "1" }]] } },
+						},
+					},
+					'data-mw': {
+						body: {
+							ids: { "mwAQ": { } },  // Missing data-mw.parts!
+						},
+					},
+					html: {
+						headers: {
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
+						},
+						body: '<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">ho</p>',
+					},
+				},
+			})
+			.expect(validWikitextResponse('{{1x|hi}}'))
+			.end(done);
+		});
+
+		// The next three tests, although redundant with the above precedence
+		// tests, are an attempt to show clients the semantics of separate
+		// data-mw in the API.  The main idea is,
+		//
+		//   non-inline-data-mw = modified || original
+		//   inline-data-mw > non-inline-data-mw
+
+		it('should apply original data-mw when modified is absent (captions 1)', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
+			.send({
+				html: '<p><span class="mw-default-size" typeof="mw:Image" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
+				original: {
+					title: 'Doesnotexist',
+					'data-parsoid': {
+						body: {
+							ids: {
+								"mwAg": {"optList": [{"ck": "caption", "ak": "Testing 123"}]},
+								"mwAw": {"a": {"href": "./File:Foobar.jpg"}, "sa": {}},
+								"mwBA": {"a": {"resource": "./File:Foobar.jpg", "height": "28", "width": "240"},"sa": {"resource": "File:Foobar.jpg"}},
+							},
+						},
+					},
+					'data-mw': {
+						body: {
+							ids: {
+								"mwAg": {"caption": "Testing 123"},
+							},
+						},
+					},
+					html: {
+						headers: {
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
+						},
+						body: '<p><span class="mw-default-size" typeof="mw:Image" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
+					},
+				},
+			})
+			.expect(validWikitextResponse('[[File:Foobar.jpg|Testing 123]]\n'))
+			.end(done);
+		});
+
+		it('should give precedence to inline data-mw over modified (captions 2)', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
+			.send({
+				html: '<p><span class="mw-default-size" typeof="mw:Image" data-mw="{}" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
+				'data-mw': {
+					body: {
+						ids: {
+							"mwAg": {"caption": "Testing 123"},
+						},
+					},
+				},
+				original: {
+					title: 'Doesnotexist',
+					'data-parsoid': {
+						body: {
+							ids: {
+								"mwAg": {"optList": [{"ck": "caption", "ak": "Testing 123"}]},
+								"mwAw": {"a": {"href": "./File:Foobar.jpg"}, "sa": {}},
+								"mwBA": {"a": {"resource": "./File:Foobar.jpg", "height": "28", "width": "240"},"sa": {"resource": "File:Foobar.jpg"}},
+							},
+						},
+					},
+					'data-mw': {
+						body: {
+							ids: {
+								"mwAg": {"caption": "Testing 123"},
+							},
+						},
+					},
+					html: {
+						headers: {
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
+						},
+						body: '<p><span class="mw-default-size" typeof="mw:Image" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
+					},
+				},
+			})
+			.expect(validWikitextResponse('[[File:Foobar.jpg]]\n'))
+			.end(done);
+		});
+
+		it('should give precedence to modified data-mw over original (captions 3)', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
+			.send({
+				html: '<p><span class="mw-default-size" typeof="mw:Image" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
+				'data-mw': {
+					body: {
+						ids: {
+							"mwAg": {},
+						},
+					},
+				},
+				original: {
+					title: 'Doesnotexist',
+					'data-parsoid': {
+						body: {
+							ids: {
+								"mwAg": {"optList": [{"ck": "caption", "ak": "Testing 123"}]},
+								"mwAw": {"a": {"href": "./File:Foobar.jpg"}, "sa": {}},
+								"mwBA": {"a": {"resource": "./File:Foobar.jpg", "height": "28", "width": "240"},"sa": {"resource": "File:Foobar.jpg"}},
+							},
+						},
+					},
+					'data-mw': {
+						body: {
+							ids: {
+								"mwAg": {"caption": "Testing 123"},
+							},
+						},
+					},
+					html: {
+						headers: {
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
+						},
+						body: '<p><span class="mw-default-size" typeof="mw:Image" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
+					},
+				},
+			})
+			.expect(validWikitextResponse('[[File:Foobar.jpg]]\n'))
 			.end(done);
 		});
 
