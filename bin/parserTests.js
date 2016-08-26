@@ -888,11 +888,13 @@ ParserTests.prototype.applyManualChanges = function(body, changes, cb) {
  * @param {Node|null} processHtmlCB.body
  */
 ParserTests.prototype.convertWt2Html = function(mode, wikitext, processHtmlCB) {
-	this.env.setPageSrcInfo(wikitext);
-	this.parserPipeline.once('document', function(doc) {
-		processHtmlCB(null, doc.body);
-	});
-	this.parserPipeline.processToplevelDoc(wikitext);
+	var env = this.env;
+	env.setPageSrcInfo(wikitext);
+	env.pipelineFactory.parse(env.page.src)
+	.then(function(doc) {
+		return doc.body;
+	})
+	.nodify(processHtmlCB);
 };
 
 /**
@@ -1538,7 +1540,6 @@ ParserTests.prototype.reportSummary = function(stats) {
  * @param {Object} options
  */
 ParserTests.prototype.main = function(options, popts) {
-
 	if (options.help) {
 		popts.showHelp();
 		console.log("Additional dump options specific to parserTests script:");
@@ -1755,11 +1756,6 @@ ParserTests.prototype.main = function(options, popts) {
 		}
 		if (options.selser) {
 			options.modes.push('selser');
-		}
-
-		// Create parsers, serializers, ..
-		if (options.html2html || options.wt2wt || options.wt2html || options.selser) {
-			this.parserPipeline = this.env.pipelineFactory.getPipeline('text/x-mediawiki/full');
 		}
 
 		if (console.time && console.timeEnd) {

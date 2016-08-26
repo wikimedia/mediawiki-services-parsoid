@@ -183,7 +183,8 @@ var startsAtHTML = function(argv, env, input, pb) {
 startsAtWikitext = function(argv, env, input) {
 	env.setPageSrcInfo(input);
 	// Kick off the pipeline by feeding the input into the parser pipeline
-	return env.pipelineFactory.parse(env, env.page.src).then(function(doc) {
+	return env.pipelineFactory.parse(env.page.src)
+	.then(function(doc) {
 		if (argv.lint) {
 			env.log("end/parse");
 		}
