@@ -7,7 +7,6 @@
     "async": "^0.9.2",
     "babybird": "^0.0.1",
     "body-parser": "^1.15.2",
-    "bunyan": "^1.0.0",
     "compression": "^1.6.2",
     "connect-busboy": "^0.0.2",
     "content-type": "git+https://github.com/wikimedia/content-type#master",

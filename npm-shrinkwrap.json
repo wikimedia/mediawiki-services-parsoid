@@ -120,36 +120,6 @@
         }
       }
     },
-    "bunyan": {
-      "version": "1.0.0",
-      "resolved": "https://registry.npmjs.org/bunyan/-/bunyan-1.0.0.tgz",
-      "dependencies": {
-        "mv": {
-          "version": "2.0.3",
-          "resolved": "https://registry.npmjs.org/mv/-/mv-2.0.3.tgz",
-          "dependencies": {
-            "mkdirp": {
-              "version": "0.5.0",
-              "resolved": "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.0.tgz",
-              "dependencies": {
-                "minimist": {
-                  "version": "0.0.8",
-                  "resolved": "https://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz"
-                }
-              }
-            },
-            "ncp": {
-              "version": "0.6.0",
-              "resolved": "https://registry.npmjs.org/ncp/-/ncp-0.6.0.tgz"
-            },
-            "rimraf": {
-              "version": "2.2.8",
-              "resolved": "https://registry.npmjs.org/rimraf/-/rimraf-2.2.8.tgz"
-            }
-          }
-        }
-      }
-    },
     "chai": {
       "version": "3.5.0",
       "resolved": "https://registry.npmjs.org/chai/-/chai-3.5.0.tgz",
