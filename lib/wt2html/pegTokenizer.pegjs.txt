@@ -1081,7 +1081,7 @@ xmlish_tag =
         } else if (isIncludeTag) {
             // Parse ext-content, strip eof, and shift tsr
             var extContent = dp.src.substring(dp.tagWidths[0], dp.src.length - dp.tagWidths[1]);
-            var extContentToks = (new PegTokenizer(env)).tokenize(extContent);
+            var extContentToks = (new PegTokenizer(env)).tokenizeSync(extContent);
             if (dp.tagWidths[1] > 0) {
                 extContentToks = Util.stripEOFTkfromTokens(extContentToks);
             }
@@ -1950,7 +1950,7 @@ include_limits =
     }
 
     // Tokenize include content in a new tokenizer
-    var inclContentToks = (new PegTokenizer(env)).tokenize(inclContent);
+    var inclContentToks = (new PegTokenizer(env)).tokenizeSync(inclContent);
     inclContentToks = Util.stripEOFTkfromTokens(inclContentToks);
 
     // Shift tsr
