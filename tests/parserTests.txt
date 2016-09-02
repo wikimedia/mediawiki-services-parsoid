@@ -8001,6 +8001,20 @@ title=[[User:test]]
 !! end
 
 !! test
+Ensure that transclusion titles are not url-decoded
+!! options
+subpage title=[[Test]]
+parsoid=wt2html
+!! wikitext
+{{Bar%C3%A9}} {{/Bar%C3%A9}}
+!! html/php
+<p>{{Bar%C3%A9}} {{/Bar%C3%A9}}
+</p>
+!! html/parsoid
+<p>{{Bar%C3%A9}} {{/Bar%C3%A9}}</p>
+!! end
+
+!! test
 Purely hash wikilink
 !! options
 title=[[User:test/123]]
@@ -19388,9 +19402,11 @@ subpage title=[[Subpage test/L1/L2/L3]]
 parsoid=wt2html
 !! wikitext
 {{../../../../More than parent}}
-!! html
+!! html/php
 <p>{{../../../../More than parent}}
 </p>
+!! html/parsoid
+<p>{{../../../../More than parent}}</p>
 !! end
 
 !! test
