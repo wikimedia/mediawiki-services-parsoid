@@ -4046,12 +4046,12 @@
       }
     },
     "service-runner": {
-      "version": "2.0.4",
-      "resolved": "https://registry.npmjs.org/service-runner/-/service-runner-2.0.4.tgz",
+      "version": "2.1.0",
+      "resolved": "https://registry.npmjs.org/service-runner/-/service-runner-2.1.0.tgz",
       "dependencies": {
         "bluebird": {
-          "version": "3.4.1",
-          "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-3.4.1.tgz"
+          "version": "3.4.6",
+          "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-3.4.6.tgz"
         },
         "bunyan": {
           "version": "1.8.1",
@@ -4070,8 +4070,8 @@
           "resolved": "https://registry.npmjs.org/gelf-stream/-/gelf-stream-1.1.1.tgz",
           "dependencies": {
             "gelfling": {
-              "version": "0.3.0",
-              "resolved": "https://registry.npmjs.org/gelfling/-/gelfling-0.3.0.tgz"
+              "version": "0.3.1",
+              "resolved": "https://registry.npmjs.org/gelfling/-/gelfling-0.3.1.tgz"
             }
           }
         },
@@ -4171,8 +4171,8 @@
               }
             },
             "readable-stream": {
-              "version": "2.1.4",
-              "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-2.1.4.tgz",
+              "version": "2.1.5",
+              "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-2.1.5.tgz",
               "dependencies": {
                 "buffer-shims": {
                   "version": "1.0.0",
