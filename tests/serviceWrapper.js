@@ -82,6 +82,7 @@ var runServices = function(options) {
 		ret.runner = runner;
 		return runner.start({
 			num_workers: 1,
+			worker_heartbeat_timeout: 2 * 60 * 1000,
 			logging: {
 				level: 'info',  // Default is 'warn'
 			},
