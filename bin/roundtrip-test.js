@@ -490,6 +490,9 @@ function parsoidPost(profile, options) {
 		};
 	} else {  // wt2html
 		uri += 'wikitext/to/pagebundle/' + options.title;
+		if (options.oldid) {
+			uri += '/' + options.oldid;
+		}
 		httpOptions.headers = {
 			Accept: apiUtils.pagebundleContentType(null, options.contentVersion),
 		};
@@ -602,14 +605,18 @@ function runTests(title, options, formatter, cb) {
 
 	var data = {};
 	return Promise[err ? 'reject' : 'resolve'](err).then(function() {
+		var uri2 = parsoidOptions.uri + 'page/wikitext/' + parsoidOptions.title;
+		if (options.oldid) {
+			uri2 += '/' + options.oldid;
+		}
 		return Util.retryingHTTPRequest(10, {
 			method: 'GET',
-			uri: parsoidOptions.uri + 'page/wikitext/' + parsoidOptions.title,
+			uri: uri2,
 		});
 	}).spread(function(res, body) {
 		profile.start = Date.now();
-		// We were redirected to the latest revision.  Record the oldid for
-		// later use in selser.
+		// We may have been redirected to the latest revision.  Record the
+		// oldid for later use in selser.
 		data.oldid = res.request.path.replace(/^(.*)\//, '');
 		data.oldWt = body;
 		// First, fetch the HTML for the requested page's wikitext
@@ -705,6 +712,12 @@ if (require.main === module) {
 				' English wikipedia',
 			boolean: false,
 			default: '',  // Add a default when `prefix` is removed.
+		},
+		oldid: {
+			description: 'Optional oldid of the given page. If not given,' +
+				' will use the latest revision.',
+			boolean: false,
+			default: null,
 		},
 		parsoidURL: {
 			description: 'The URL for the Parsoid API',
