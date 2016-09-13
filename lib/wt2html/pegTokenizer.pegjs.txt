@@ -1215,17 +1215,17 @@ generic_newline_attribute
     namePos0:("" { return endOffset(); })
     name:generic_attribute_name
     namePos:("" { return endOffset(); })
-    valueData:(space_or_newline* "=" v:generic_att_value? { return v; })?
+    vd:(space_or_newline* "=" v:generic_att_value? { return v; })?
 {
+    // NB: Keep in sync w/ table_attibute
     var res;
     // Encapsulate protected attributes.
     if (typeof name === 'string') {
         name = tu.protectAttrs(name);
     }
-    if (valueData !== null) {
-        var value = valueData.value;
-        res = new KV(name, value);
-        res.vsrc = valueData.valueSrc;
+    if (vd !== null) {
+        res = new KV(name, vd.value, [namePos0, namePos, vd.srcOffsets[0], vd.srcOffsets[1]]);
+        res.vsrc = input.substring(vd.srcOffsets[0], vd.srcOffsets[1]);
     } else {
         res = new KV(name, '');
     }
@@ -1241,17 +1241,17 @@ table_attribute
     namePos0:("" { return endOffset(); })
     name:table_attribute_name
     namePos:("" { return endOffset(); })
-    valueData:(optionalSpaceToken "=" v:table_att_value? { return v; })?
+    vd:(optionalSpaceToken "=" v:table_att_value? { return v; })?
 {
+    // NB: Keep in sync w/ generic_newline_attribute
     var res;
     // Encapsulate protected attributes.
     if (typeof name === 'string') {
         name = tu.protectAttrs(name);
     }
-    if (valueData !== null) {
-        var value = valueData.value;
-        res = new KV(name, value);
-        res.vsrc = valueData.valueSrc;
+    if (vd !== null) {
+        res = new KV(name, vd.value, [namePos0, namePos, vd.srcOffsets[0], vd.srcOffsets[1]]);
+        res.vsrc = input.substring(vd.srcOffsets[0], vd.srcOffsets[1]);
     } else {
         res = new KV(name, '');
     }
@@ -1306,13 +1306,13 @@ table_attribute_name
 // These need to be kept in sync with the attribute_preprocessor_text_*
 generic_att_value
   = s:$(space_or_newline* "'") t:attribute_preprocessor_text_single? q:$("'" / &('/'? '>')) {
-      return tu.getAttributeValueAndSource(input, t, startOffset() + s.length, endOffset() - q.length);
+      return tu.getAttrVal(t, startOffset() + s.length, endOffset() - q.length);
     }
   / s:$(space_or_newline* '"') t:attribute_preprocessor_text_double? q:$('"' / &('/'? '>')) {
-      return tu.getAttributeValueAndSource(input, t, startOffset() + s.length, endOffset() - q.length);
+      return tu.getAttrVal(t, startOffset() + s.length, endOffset() - q.length);
     }
   / s:$space_or_newline* t:attribute_preprocessor_text &(space_or_newline / eof / '/'? '>') {
-      return tu.getAttributeValueAndSource(input, t, startOffset() + s.length, endOffset());
+      return tu.getAttrVal(t, startOffset() + s.length, endOffset());
     }
 
 // Attribute value, restricted to a single line.
@@ -1320,13 +1320,13 @@ generic_att_value
 // These need to be kept in sync with the table_attribute_preprocessor_text_*
 table_att_value
   = s:$(space* "'") t:table_attribute_preprocessor_text_single? q:$("'" / &('!!' / [|\r\n])) {
-      return tu.getAttributeValueAndSource(input, t, startOffset() + s.length, endOffset() - q.length);
+      return tu.getAttrVal(t, startOffset() + s.length, endOffset() - q.length);
     }
   / s:$(space* '"') t:table_attribute_preprocessor_text_double? q:$('"' / &('!!' / [|\r\n])) {
-      return tu.getAttributeValueAndSource(input, t, startOffset() + s.length, endOffset() - q.length);
+      return tu.getAttrVal(t, startOffset() + s.length, endOffset() - q.length);
     }
   / s:$space* t:table_attribute_preprocessor_text &(space_or_newline/ eof / '!!' / '|') {
-      return tu.getAttributeValueAndSource(input, t, startOffset() + s.length, endOffset());
+      return tu.getAttrVal(t, startOffset() + s.length, endOffset());
     }
 
 /*
