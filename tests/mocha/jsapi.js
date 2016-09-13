@@ -49,13 +49,13 @@ describe('Examples from guides/jsapi', function() {
 			templates.length.should.equal(1);
 			return templates[0].toWikitext();
 		}).then(function(wt) {
-			wt.should.equal('{{foo|bar|baz|eggs=spam}}');
+			wt.should.equal('{{foo|bar|baz|eggs=spam}} See it?');
 			template = templates[0];
 			template.name.should.equal('foo');
 			template.name = 'notfoo';
 			return template.toWikitext();
 		}).then(function(wt) {
-			wt.should.equal('{{notfoo|bar|baz|eggs=spam}}');
+			wt.should.equal('{{notfoo|bar|baz|eggs=spam}} See it?');
 			template.params.length.should.equal(3);
 			template.params[0].name.should.equal('1');
 			template.params[1].name.should.equal('2');
