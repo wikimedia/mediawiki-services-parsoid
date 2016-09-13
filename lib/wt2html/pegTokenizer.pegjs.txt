@@ -1219,14 +1219,10 @@ generic_newline_attribute
         v:generic_attribute_newline_value { return v; })?
 {
     var res;
-
     // Encapsulate protected attributes.
-    if (typeof name === "string") {
-        name = name.replace(
-            /^(about|data-mw.*|data-parsoid.*|data-x.*|property|rel|typeof)$/i,
-            "data-x-$1");
+    if (typeof name === 'string') {
+        name = tu.protectAttrs(name);
     }
-
     if (valueData !== null) {
         var value = valueData.value;
         res = new KV(name, value);
@@ -1249,9 +1245,11 @@ table_attribute
     valueData:(optionalSpaceToken
         v:table_attribute_value { return v; })?
 {
-    // FIXME: name might just be a template, which can expand to a key-value
-    // pair later. We'll need to handle that in the AttributeTransformManager.
     var res;
+    // Encapsulate protected attributes.
+    if (typeof name === 'string') {
+        name = tu.protectAttrs(name);
+    }
     if (valueData !== null) {
         var value = valueData.value;
         res = new KV(name, value);
