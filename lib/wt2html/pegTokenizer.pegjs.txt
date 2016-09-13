@@ -1215,8 +1215,7 @@ generic_newline_attribute
     namePos0:("" { return endOffset(); })
     name:generic_attribute_name
     namePos:("" { return endOffset(); })
-    valueData:( space_or_newline*
-        v:generic_attribute_newline_value { return v; })?
+    valueData:(space_or_newline* "=" v:generic_att_value? { return v; })?
 {
     var res;
     // Encapsulate protected attributes.
@@ -1242,8 +1241,7 @@ table_attribute
     namePos0:("" { return endOffset(); })
     name:table_attribute_name
     namePos:("" { return endOffset(); })
-    valueData:(optionalSpaceToken
-        v:table_attribute_value { return v; })?
+    valueData:(optionalSpaceToken "=" v:table_att_value? { return v; })?
 {
     var res;
     // Encapsulate protected attributes.
@@ -1301,18 +1299,6 @@ table_attribute_name
         ) { return t; }
       )+ {
     return tu.flattenString(r);
-  }
-
-// A generic attribute, possibly spanning multiple lines.
-generic_attribute_newline_value
-  = "=" v:generic_att_value? {
-      return v === null ? [] : v;
-  }
-
-// A generic but single-line attribute.
-table_attribute_value
-  = "=" v:table_att_value? {
-      return v === null ? [] : v;
   }
 
 // Attribute value, quoted variants can span multiple lines.
