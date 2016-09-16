@@ -24767,9 +24767,16 @@ Improperly nested inline or quotes tags with whitespace in between
 Encapsulate protected attributes from wt
 !! wikitext
 <div typeof="mw:placeholder stuff" data-mw="whoo" data-parsoid="weird" data-parsoid-other="no" about="time" rel="mw:true">foo</div>
+
+{| typeof="mw:placeholder stuff" data-mw="whoo" data-parsoid="weird" data-parsoid-other="no" about="time" rel="mw:true"
+| ok
+|}
 !! html/parsoid
-<body><div data-x-typeof="mw:placeholder stuff" data-x-data-mw="whoo" data-x-data-parsoid="weird" data-x-data-parsoid-other="no" data-x-about="time" data-x-rel="mw:true">foo</div>
-</body>
+<div data-x-typeof="mw:placeholder stuff" data-x-data-mw="whoo" data-x-data-parsoid="weird" data-x-data-parsoid-other="no" data-x-about="time" data-x-rel="mw:true">foo</div>
+
+<table data-x-typeof="mw:placeholder stuff" data-x-data-mw="whoo" data-x-data-parsoid="weird" data-x-data-parsoid-other="no" data-x-about="time" data-x-rel="mw:true">
+<tbody><tr><td data-parsoid='{"autoInsertedEnd":true}'> ok</td></tr>
+</tbody></table>
 !!end
 
 ## Currently the p-wrapper is fragile in how it adds / removes transformations.
