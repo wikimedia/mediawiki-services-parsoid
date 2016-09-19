@@ -765,6 +765,8 @@ if (require.main === module) {
 			if (argv.apiURL) {
 				serverOpts.mockURL = argv.apiURL;
 				argv.domain = 'customwiki';
+			} else {
+				serverOpts.skipMock = true;
 			}
 			return serviceWrapper.runServices(serverOpts).then(function(ret) {
 				argv.parsoidURL = ret.parsoidURL;
