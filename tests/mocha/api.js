@@ -1434,6 +1434,14 @@ describe('Parsoid API', function() {
 
 	describe('html2html', function() {
 
+		it('should require an original or previous version', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/Reuse_Page/100')
+			.send({})
+			.expect(400)
+			.end(done);
+		});
+
 		var previousRevHTML = {
 			revid: 99,
 			html: {
