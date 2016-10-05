@@ -35,7 +35,8 @@
 #
 # You can also set the following parser properties via test options:
 #  wgEnableUploads, wgAllowExternalImages, wgMaxTocLevel,
-#  wgLinkHolderBatchSize, wgRawHtml, wgInterwikiMagic
+#  wgLinkHolderBatchSize, wgRawHtml, wgInterwikiMagic,
+#  wgEnableMagicLinks
 #
 # For testing purposes, temporary articles can created:
 # !!article / NAMESPACE:TITLE / !!text / ARTICLE TEXT / !!endarticle
@@ -3662,7 +3663,6 @@ Definition and unordered list using wiki syntax nested in unordered list using h
 !! end
 
 !! test
-
 Definition list with empty definition and following paragraph
 !! wikitext
 ; term:
@@ -3677,6 +3677,10 @@ Paragraph text
 !! test
 Nested definition lists using html syntax
 !! wikitext
+<dl><dt>x</dt>
+<dd>a</dd>
+<dd>b</dd></dl>
+!! html
 <dl><dt>x</dt>
 <dd>a</dd>
 <dd>b</dd></dl>
@@ -10541,6 +10545,21 @@ X[//tools.ietf.org/html/rfc1234 foo]
 <p>X<a rel="mw:ExtLink" href="//tools.ietf.org/html/rfc1234">foo</a></p>
 !! end
 
+!! test
+Magic links: All disabled (T47942)
+!! options
+wgEnableMagicLinks={"ISBN":false, "PMID":false, "RFC":false}
+!! wikitext
+ISBN 0-306-40615-2
+PMID 1234
+RFC 4321
+!! html/php
+<p>ISBN 0-306-40615-2
+PMID 1234
+RFC 4321
+</p>
+!! end
+
 ###
 ### Templates
 ####
@@ -16690,11 +16709,11 @@ Expansion of multi-line templates in attribute values (bug 6255 sanity check 2)
 !! end
 
 !! test
-evil <math>-wiki-tags without Extension:Math enabled
+Tags which are hidden from Tidy cannot pass through the Sanitizer
 !! wikitext
-<math><img src="some evil external link"><script>some_evil_javascript();</script></math>
+<mw:toc><script>alert();</script></mw:toc>
 !! html+tidy
-<p>&lt;math&gt;&lt;img src="some evil external link"&gt;&lt;script&gt;some_evil_javascript();&lt;/script&gt;&lt;/math&gt;</p>
+<p>&lt;mw:toc&gt;&lt;script&gt;alert();&lt;/script&gt;&lt;/mw:toc&gt;</p>
 !! end
 
 ###
@@ -20889,6 +20908,26 @@ Id starting with underscore
 !! end
 
 !! test
+Edit comment with link with more than one pipe (T99346)
+!! options
+comment
+!! wikitext
+[[Main Page|Many|pipes]]
+!! html/php
+<a href="/wiki/Main_Page" title="Main Page">Many|pipes</a>
+!! end
+
+!! test
+Complex edit comment with link with more than one pipe (T99346)
+!! options
+comment
+!! wikitext
+Created page with "<noinclude>[[Category:Requests for permissions/Bot|{{subst:#titleparts:{{subst:PAGENAME}}|1|3}}]]</noinclude> === [[User:MineoBot|]] 8=== {{Request for permissions/links|Mineo..."
+!! html/php
+Created page with &quot;&lt;noinclude&gt;<a href="/index.php?title=Category:Requests_for_permissions/Bot&amp;action=edit&amp;redlink=1" class="new" title="Category:Requests for permissions/Bot (page does not exist)">{{subst:#titleparts:{{subst:PAGENAME}}|1|3}}</a>&lt;/noinclude&gt; === <a href="/index.php?title=User:MineoBot&amp;action=edit&amp;redlink=1" class="new" title="User:MineoBot (page does not exist)">User:MineoBot</a> 8=== {{Request for permissions/links|Mineo...&quot;
+!! end
+
+!! test
 Space normalisation on autocomment (bug 22784)
 !! options
 comment
@@ -21611,6 +21650,22 @@ __TOC__
 </div>
 
 <h2><span class="mw-headline" id="test"><bdi>test</bdi></span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: test">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+
+!! end
+
+!! test
+T35715: s/strike element in ToC
+!! wikitext
+__TOC__
+== <s>test</s> test <strike>test</strike> ==
+!! html
+<div id="toc" class="toc"><div id="toctitle"><h2>Contents</h2></div>
+<ul>
+<li class="toclevel-1 tocsection-1"><a href="#test_test_test"><span class="tocnumber">1</span> <span class="toctext"><s>test</s> test <strike>test</strike></span></a></li>
+</ul>
+</div>
+
+<h2><span class="mw-headline" id="test_test_test"><s>test</s> test <strike>test</strike></span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: test test test">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 
 !! end
 
