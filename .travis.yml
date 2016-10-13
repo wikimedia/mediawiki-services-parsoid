@@ -5,6 +5,8 @@ node_js:
     - "0.10.25"
     # Current production value.
     - "4.4.6"
+    # Production, next
+    - "4.6.0"
     # From the nvm docs, "this installs the latest version of node".
     - "node"
 
