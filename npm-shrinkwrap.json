@@ -606,8 +606,8 @@
       "resolved": "https://registry.npmjs.org/diff/-/diff-1.0.7.tgz"
     },
     "domino": {
-      "version": "1.0.25",
-      "resolved": "https://registry.npmjs.org/domino/-/domino-1.0.25.tgz"
+      "version": "1.0.26",
+      "resolved": "https://registry.npmjs.org/domino/-/domino-1.0.26.tgz"
     },
     "entities": {
       "version": "1.1.1",
@@ -1088,20 +1088,6 @@
         "gelfling": {
           "version": "0.2.0",
           "resolved": "https://registry.npmjs.org/gelfling/-/gelfling-0.2.0.tgz"
-        }
-      }
-    },
-    "html5": {
-      "version": "1.0.5",
-      "resolved": "https://registry.npmjs.org/html5/-/html5-1.0.5.tgz",
-      "dependencies": {
-        "html5-entities": {
-          "version": "1.0.0",
-          "resolved": "https://registry.npmjs.org/html5-entities/-/html5-entities-1.0.0.tgz"
-        },
-        "opts": {
-          "version": "1.2.2",
-          "resolved": "https://registry.npmjs.org/opts/-/opts-1.2.2.tgz"
         }
       }
     },
