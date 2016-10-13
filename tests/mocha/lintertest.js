@@ -68,6 +68,8 @@ describe('Linter Tests', function() {
 				result[0].should.have.a.property("wiki", "enwiki");
 				result[0].dsr.should.include.members([ 0, 14, 5, 6 ]);
 				result[0].should.have.a.property("src", "<big>foo</big>");
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "big");
 			});
 		});
 		it('should lint obsolete tags found in transclusions correctly', function() {
@@ -77,6 +79,8 @@ describe('Linter Tests', function() {
 				result[0].should.have.a.property("wiki", "enwiki");
 				result[0].dsr.should.include.members([ 0, 32, null, null ]);
 				result[0].should.have.a.property("src", "{{1x|<div><big>foo</big></div>}}");
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "big");
 			});
 		});
 		it('should lint fostered content correctly', function() {
