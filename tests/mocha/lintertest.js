@@ -132,7 +132,8 @@ describe('Linter Tests', function() {
 				result[0].dsr.should.include.members([ 0, 22, null, null ]);
 				result[0].should.have.a.property("src", "[[file:a.jpg|foo|bar]]");
 				result[0].should.have.a.property("params");
-				result[0].params.should.have.a.property("name", "foo");
+				result[0].params.should.have.a.property("items");
+				result[0].params.items.should.include.members(["foo"]);
 			});
 		});
 		it('should lint Bogus image options found in transclusions correctly', function() {
@@ -143,7 +144,23 @@ describe('Linter Tests', function() {
 				result[0].dsr.should.include.members([ 0, 29, null, null ]);
 				result[0].should.have.a.property("src", "{{1x|[[file:a.jpg|foo|bar]]}}");
 				result[0].should.have.a.property("params");
-				result[0].params.should.have.a.property("name", "foo");
+				result[0].params.items.should.include.members(["foo"]);
+			});
+		});
+		it('should batch lint Bogus image options correctly', function() {
+			return parseWT('[[file:a.jpg|foo|bar|baz]]').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "bogus-image-options");
+				result[0].should.have.a.property("wiki", "enwiki");
+				result[0].dsr.should.include.members([ 0, 26, null, null ]);
+				result[0].should.have.a.property("src", "[[file:a.jpg|foo|bar|baz]]");
+				result[0].should.have.a.property("params");
+				result[0].params.items.should.include.members(["foo", "bar"]);
+			});
+		});
+		it('should not send any Bogus image options if there are none', function() {
+			return parseWT('[[file:a.jpg|foo]]').then(function(result) {
+				result.should.have.length(0);
 			});
 		});
 	});
