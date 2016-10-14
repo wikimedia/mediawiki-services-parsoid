@@ -131,6 +131,8 @@ describe('Linter Tests', function() {
 				result[0].should.have.a.property("wiki", "enwiki");
 				result[0].dsr.should.include.members([ 0, 22, null, null ]);
 				result[0].should.have.a.property("src", "[[file:a.jpg|foo|bar]]");
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "foo");
 			});
 		});
 		it('should lint Bogus image options found in transclusions correctly', function() {
@@ -140,6 +142,8 @@ describe('Linter Tests', function() {
 				result[0].should.have.a.property("wiki", "enwiki");
 				result[0].dsr.should.include.members([ 0, 29, null, null ]);
 				result[0].should.have.a.property("src", "{{1x|[[file:a.jpg|foo|bar]]}}");
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "foo");
 			});
 		});
 	});
