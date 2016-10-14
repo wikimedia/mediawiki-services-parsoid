@@ -242,7 +242,7 @@ var availableActions = {
 			return this.querySiteinfo(body, cb);
 		}
 
-		if (body.prop === "revisions") {
+		if (body.prop === "info|revisions") {
 			if (body.revids === "1" || body.titles === "Main_Page") {
 				return cb(null , mainPage);
 			} else if (body.revids === "2" || body.titles === "Junk_Page") {
