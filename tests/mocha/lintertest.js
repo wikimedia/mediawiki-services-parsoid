@@ -83,6 +83,19 @@ describe('Linter Tests', function() {
 				result[0].params.should.have.a.property("name", "big");
 			});
 		});
+		it('should not lint auto-inserted obsolete tags', function() {
+			return parseWT('<big>foo\n\n\nbar').then(function(result) {
+				// obsolete-tag and missing-end-tag
+				result.should.have.length(2);
+				result[0].should.have.a.property("type", "missing-end-tag");
+				result[1].should.have.a.property("type", "obsolete-tag");
+				result[1].should.have.a.property("wiki", "enwiki");
+				result[1].dsr.should.include.members([ 0, 8, 5, 0 ]);
+				result[1].should.have.a.property("src", "<big>foo");
+				result[1].should.have.a.property("params");
+				result[1].params.should.have.a.property("name", "big");
+			});
+		});
 		it('should lint fostered content correctly', function() {
 			return parseWT('{|\nfoo\n|-\n| bar\n|}').then(function(result) {
 				result.should.have.length(1);
