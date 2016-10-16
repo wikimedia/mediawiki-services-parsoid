@@ -42,8 +42,8 @@ exports.setup = function(parsoidConfig) {
 	//  parsoidConfig.serverPort = 8000;
 	//  parsoidConfig.serverInterface = '127.0.0.1';
 
-	// The URL of your LintBridge API endpoint
-	//  parsoidConfig.linterAPI = 'http://lintbridge.wmflabs.org/add';
+	// Send lint errors to MW API
+	//  parsoidConfig.linterSendAPI = false;
 
 	// Require SSL certificates to be valid (default true)
 	// Set to false when using self-signed SSL certificates
