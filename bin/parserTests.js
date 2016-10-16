@@ -21,6 +21,7 @@ var path = require('path');
 var yargs = require('yargs');
 var Alea = require('alea');
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
+var Promise = require('../lib/utils/promise.js');
 var ParsoidLogger = require('../lib/logger/ParsoidLogger.js').ParsoidLogger;
 var PEG = require('pegjs');
 var Util = require('../lib/utils/Util.js').Util;
@@ -417,30 +418,27 @@ ParserTests.prototype.processArticle = function(item, cb) {
  * @param {string|null} processWikitextCB.res
  */
 ParserTests.prototype.convertHtml2Wt = function(options, mode, item, body, processWikitextCB) {
-	var startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser';
 	var self = this;
-	var cb = function(err, wt) {
-		self.env.setPageSrcInfo(null);
-		self.env.page.dom = null;
-		processWikitextCB(err, wt);
-	};
-	try {
+	return Promise.try(function() {
+		var startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser';
 		if (startsAtWikitext) {
 			// FIXME: All tests share an env.
 			// => we need to initialize this each time over here.
-			this.env.page.dom = DU.parseHTML(item.cachedBODYstr).body;
+			self.env.page.dom = DU.parseHTML(item.cachedBODYstr).body;
 		}
 		if (mode === 'selser') {
-			this.env.setPageSrcInfo(item.wikitext);
+			self.env.setPageSrcInfo(item.wikitext);
 		} else if (booleanOption(options.use_source) && startsAtWikitext) {
-			this.env.setPageSrcInfo(item.wikitext);
+			self.env.setPageSrcInfo(item.wikitext);
 		} else {
-			this.env.setPageSrcInfo(null);
+			self.env.setPageSrcInfo(null);
 		}
-		DU.serializeDOM(this.env, body, (mode === 'selser'), cb);
-	} catch (err) {
-		cb(err, null);
-	}
+		var handler = self.env.getContentHandler();
+		return handler.fromHTML(self.env, body, (mode === 'selser'));
+	}).finally(function() {
+		self.env.setPageSrcInfo(null);
+		self.env.page.dom = null;
+	}).nodify(processWikitextCB);
 };
 
 /**
@@ -890,7 +888,7 @@ ParserTests.prototype.applyManualChanges = function(body, changes, cb) {
 ParserTests.prototype.convertWt2Html = function(mode, wikitext, processHtmlCB) {
 	var env = this.env;
 	env.setPageSrcInfo(wikitext);
-	env.pipelineFactory.parse(env.page.src)
+	env.getContentHandler().toHTML(env)
 	.then(function(doc) {
 		return doc.body;
 	})

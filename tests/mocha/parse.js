@@ -47,6 +47,36 @@ describe('ParserPipelineFactory', function() {
 			});
 		});
 
+		it('should support json contentmodel', function() {
+			var opts = { contentmodel: 'json' };
+			var testval = {a: "a", b: [2, true, ""], c: null};
+			return parse(JSON.stringify(testval), opts).then(function(doc) {
+				doc.should.have.property('nodeName', '#document');
+				doc.outerHTML.startsWith('<!DOCTYPE html><html').should.equal(true);
+				doc.outerHTML.endsWith('</body></html>').should.equal(true);
+				// verify that body has only one <html> tag, one <body> tag, etc.
+				doc.childNodes.length.should.equal(2);// <!DOCTYPE> and <html>
+				doc.firstChild.nodeName.should.equal('html');
+				doc.lastChild.nodeName.should.equal('HTML');
+				// <html> children should be <head> and <body>
+				var html = doc.documentElement;
+				html.childNodes.length.should.equal(2);
+				html.firstChild.nodeName.should.equal('HEAD');
+				html.lastChild.nodeName.should.equal('BODY');
+				// <body> should have one child, <table>
+				var body = doc.body;
+				body.childElementCount.should.equal(1);
+				body.firstElementChild.nodeName.should.equal('TABLE');
+				var table = doc.body.firstElementChild;
+				table.classList.contains('mw-json').should.equal(true);
+				// Now convert back to JSON
+				return serialize(doc, null, opts);
+			}).then(function(result) {
+				var v = JSON.parse(result); // shouldn't throw an error!
+				v.should.eql(testval);
+			});
+		});
+
 		['no subpages', 'subpages'].forEach(function(desc, subpages) {
 			describe('should handle page titles with embedded ? (' + desc + ')', function() {
 				var linktests = [

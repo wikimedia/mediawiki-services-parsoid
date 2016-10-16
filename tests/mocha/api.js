@@ -416,10 +416,28 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		it('should get from a title and revision (html, json content)', function(done) {
+			request(api)
+			.get(mockDomain + '/v3/page/html/JSON_Page/101')
+			.expect(validHtmlResponse(function(doc) {
+				doc.body.firstChild.nodeName.should.equal('TABLE');
+			}))
+			.end(done);
+		});
+
 		it('should get from a title and revision (pagebundle)', function(done) {
 			request(api)
 			.get(mockDomain + '/v3/page/pagebundle/Main_Page/1')
 			.expect(validPageBundleResponse())
+			.end(done);
+		});
+
+		it('should get from a title and revision (pagebundle, json content)', function(done) {
+			request(api)
+			.get(mockDomain + '/v3/page/pagebundle/JSON_Page/101')
+			.expect(validPageBundleResponse(function(doc) {
+				doc.body.firstChild.nodeName.should.equal('TABLE');
+			}))
 			.end(done);
 		});
 
@@ -442,6 +460,19 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		it('should accept json contentmodel as a string for html', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/html/')
+			.send({
+				wikitext: '{"1":2}',
+				contentmodel: 'json',
+			})
+			.expect(validHtmlResponse(function(doc) {
+				doc.body.firstChild.nodeName.should.equal('TABLE');
+			}))
+			.end(done);
+		});
+
 		it('should accept wikitext as a string for pagebundle', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
@@ -450,6 +481,20 @@ describe('Parsoid API', function() {
 			})
 			.expect(validPageBundleResponse(function(doc) {
 				doc.body.firstChild.nodeName.should.equal('H2');
+			}))
+			.end(done);
+		});
+
+		it('should accept json contentmodel as a string for pagebundle', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
+			.send({
+				wikitext: '{"1":2}',
+				contentmodel: 'json',
+			})
+			.expect(validPageBundleResponse(function(doc) {
+				doc.body.firstChild.nodeName.should.equal('TABLE');
+				should.not.exist(doc.querySelector('*[typeof="mw:Error"]'));
 			}))
 			.end(done);
 		});
@@ -750,6 +795,17 @@ describe('Parsoid API', function() {
 				html: '<!DOCTYPE html>\n<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/" about="http://localhost/index.php/Special:Redirect/revision/1"><head prefix="mwr: http://localhost/index.php/Special:Redirect/"><meta property="mw:articleNamespace" content="0"/><link rel="dc:replaces" resource="mwr:revision/0"/><meta property="dc:modified" content="2014-09-12T22:46:59.000Z"/><meta about="mwr:user/0" property="dc:title" content="MediaWiki default"/><link rel="dc:contributor" resource="mwr:user/0"/><meta property="mw:revisionSHA1" content="8e0aa2f2a7829587801db67d0424d9b447e09867"/><meta property="dc:description" content=""/><meta property="mw:html:version" content="1.2.1"/><link rel="dc:isVersionOf" href="http://localhost/index.php/Main_Page"/><title>Main_Page</title><base href="http://localhost/index.php/"/><link rel="stylesheet" href="//localhost/load.php?modules=mediawiki.legacy.commonPrint,shared|mediawiki.skinning.elements|mediawiki.skinning.content|mediawiki.skinning.interface|skins.vector.styles|site|mediawiki.skinning.content.parsoid&amp;only=styles&amp;debug=true&amp;skin=vector"/></head><body data-parsoid=\'{"dsr":[0,592,0,0]}\' lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body mw-body-content mediawiki" dir="ltr"><p data-parsoid=\'{"dsr":[0,59,0,0]}\'><strong data-parsoid=\'{"stx":"html","dsr":[0,59,8,9]}\'>MediaWiki has been successfully installed.</strong></p>\n\n<p data-parsoid=\'{"dsr":[61,171,0,0]}\'>Consult the <a rel="mw:ExtLink" href="//meta.wikimedia.org/wiki/Help:Contents" data-parsoid=\'{"targetOff":114,"contentOffsets":[114,126],"dsr":[73,127,41,1]}\'>User\'s Guide</a> for information on using the wiki software.</p>\n\n<h2 data-parsoid=\'{"dsr":[173,194,2,2]}\'> Getting started </h2>\n<ul data-parsoid=\'{"dsr":[195,592,0,0]}\'><li data-parsoid=\'{"dsr":[195,300,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:Configuration_settings" data-parsoid=\'{"targetOff":272,"contentOffsets":[272,299],"dsr":[197,300,75,1]}\'>Configuration settings list</a></li>\n<li data-parsoid=\'{"dsr":[301,373,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:FAQ" data-parsoid=\'{"targetOff":359,"contentOffsets":[359,372],"dsr":[303,373,56,1]}\'>MediaWiki FAQ</a></li>\n<li data-parsoid=\'{"dsr":[374,472,1,0]}\'> <a rel="mw:ExtLink" href="https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce" data-parsoid=\'{"targetOff":441,"contentOffsets":[441,471],"dsr":[376,472,65,1]}\'>MediaWiki release mailing list</a></li>\n<li data-parsoid=\'{"dsr":[473,592,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Localisation#Translation_resources" data-parsoid=\'{"targetOff":555,"contentOffsets":[555,591],"dsr":[475,592,80,1]}\'>Localise MediaWiki for your language</a></li></ul></body></html>',
 			})
 			.expect(validWikitextResponse())
+			.end(done);
+		});
+
+		it('should accept html for json contentmodel as a string', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/html/to/wikitext/')
+			.send({
+				html: '<!DOCTYPE html>\n<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/"><head prefix="mwr: http://en.wikipedia.org/wiki/Special:Redirect/"><meta charset="utf-8"/><meta property="mw:articleNamespace" content="0"/><meta property="mw:html:version" content="1.2.1"/><meta property="mw:data-parsoid:version" content="0.0.2"/><link rel="dc:isVersionOf" href="//en.wikipedia.org/wiki/Main_Page"/><title></title><base href="//en.wikipedia.org/wiki/"/><link rel="stylesheet" href="//en.wikipedia.org/w/load.php?modules=mediawiki.legacy.commonPrint,shared|mediawiki.skinning.elements|mediawiki.skinning.content|mediawiki.skinning.interface|skins.vector.styles|site|mediawiki.skinning.content.parsoid|ext.cite.style&amp;only=styles&amp;skin=vector"/></head><body lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body mw-body-content mediawiki" dir="ltr"><table class="mw-json mw-json-object"><tbody><tr><th>a</th><td class="value mw-json-number">4</td></tr><tr><th>b</th><td class="value mw-json-number">3</td></tr></tbody></table></body></html>',
+				contentmodel: 'json',
+			})
+			.expect(validWikitextResponse('{\n    "a": 4,\n    "b": 3\n}'))
 			.end(done);
 		});
 

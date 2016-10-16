@@ -73,6 +73,11 @@ var standardOpts = Util.addStandardOptions({
 		'boolean': false,
 		'default': ParserEnv.prototype.defaultPageName,
 	},
+	'contentmodel': {
+		description: 'The content model of the input.  Defaults to "wikitext" but extensions may support others (for example, "json").',
+		'boolean': false,
+		'default': null,
+	},
 	'oldid': {
 		description: 'Oldid of the given page.',
 		'boolean': false,
@@ -171,7 +176,9 @@ var startsAtHTML = function(argv, env, input, pb) {
 	if (pb) {
 		DU.applyPageBundle(doc, pb);
 	}
-	return DU.serializeDOM(env, doc.body, argv.selser).then(function(out) {
+	var handler = env.getContentHandler(argv.contentmodel);
+	return handler.fromHTML(env, doc.body, argv.selser)
+	.then(function(out) {
 		if (argv.html2wt || argv.wt2wt) {
 			return { trailingNL: true, out: out, env: env };
 		} else {
@@ -182,8 +189,8 @@ var startsAtHTML = function(argv, env, input, pb) {
 
 startsAtWikitext = function(argv, env, input) {
 	env.setPageSrcInfo(input);
-	// Kick off the pipeline by feeding the input into the parser pipeline
-	return env.pipelineFactory.parse(env.page.src)
+	var handler = env.getContentHandler(argv.contentmodel);
+	return handler.toHTML(env)
 	.then(function(doc) {
 		if (argv.lint) {
 			env.log("end/parse");
@@ -298,7 +305,12 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain)
 			var target = env.normalizeAndResolvePageTitle();
 			return TemplateRequest
 				.setPageSrcInfo(env, target, argv.oldid)
-				.then(function() { return env.page.src; });
+				.then(function() {
+					// Preserve fetched contentmodel.
+					argv.contentmodel = argv.contentmodel ||
+						env.page.meta.revision.contentmodel;
+					return env.page.src;
+				});
 		});
 	}).then(function(str) {
 		str = str.replace(/\r/g, '');
