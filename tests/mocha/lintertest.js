@@ -41,6 +41,8 @@ describe('Linter Tests', function() {
 				result[0].should.have.a.property("wiki", "enwiki");
 				result[0].dsr.should.include.members([ 0, 27, null, null ]);
 				result[0].should.have.a.property("src", "{{1x|<div>foo<p>bar</div>}}");
+				result[0].should.have.a.property("templateInfo");
+				result[0].templateInfo.should.have.a.property("name", "1x");
 			});
 		});
 		it('should lint stripped tags correctly', function() {
