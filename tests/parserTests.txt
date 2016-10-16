@@ -2716,6 +2716,10 @@ Templates: Handle comments in the target
 <!-- should be ignored -->
 |foo}}
 
+{{echo
+<!-- should be ignored and spaces on next line should not trip us up (T147742) -->
+  |foo}}
+
 {{echo<!-- should be ignored -->
 |foo}}
 
@@ -2724,6 +2728,8 @@ Templates: Handle comments in the target
 {{<!-- should be ignored -->echo|foo}}
 !!html/parsoid
 <p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo\n&lt;!-- should be ignored -->\n","href":"./Template:Echo"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</p>
+
+<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo\n&lt;!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  ","href":"./Template:Echo"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</p>
 
 <p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo&lt;!-- should be ignored -->\n","href":"./Template:Echo"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</p>
 
