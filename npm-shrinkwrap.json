@@ -606,8 +606,8 @@
       "resolved": "https://registry.npmjs.org/diff/-/diff-1.0.7.tgz"
     },
     "domino": {
-      "version": "1.0.26",
-      "resolved": "https://registry.npmjs.org/domino/-/domino-1.0.26.tgz"
+      "version": "1.0.27",
+      "resolved": "https://registry.npmjs.org/domino/-/domino-1.0.27.tgz"
     },
     "entities": {
       "version": "1.1.1",
