@@ -3,10 +3,10 @@ language: node_js
 node_js:
     # Keep this around until we deprecate and remove it.
     - "0.10.25"
-    # Current production value.
-    - "4.4.6"
-    # Production, next
-    - "4.6.0"
+    # Production
+    - "4"
+    # Next LTS
+    - "6"
     # From the nvm docs, "this installs the latest version of node".
     - "node"
 
