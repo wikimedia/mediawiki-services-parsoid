@@ -74,7 +74,7 @@
   },
   "deploy": {
     "target": "ubuntu",
-    "node": "4.4.6",
+    "node": "4.6.0",
     "dependencies": {
       "_all": []
     }

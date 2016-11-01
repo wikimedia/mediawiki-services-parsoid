@@ -1,8 +1,6 @@
 language: node_js
 
 node_js:
-    # Keep this around until we deprecate and remove it.
-    - "0.10.25"
     # Production
     - "4"
     # Next LTS
