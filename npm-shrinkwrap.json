@@ -1,6 +1,6 @@
 {
   "name": "parsoid",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "npm-shrinkwrap-version": "200.5.1",
   "node-version": "v4.6.0",
   "dependencies": {
