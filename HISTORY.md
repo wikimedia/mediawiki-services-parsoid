@@ -18,7 +18,22 @@ n.n.n / XXXX-XX-XX
              Parsoid-homegrown title normalization code.
   * T143356: Separate data-mw API semantics
 
+0.5.3 / 2016-11-01
+==================
+
+  * T149504: SECURITY: Fix reflected XSS
+
+0.5.2 / 2016-07-05
+==================
+
+  * Fix npm package
+
 0.5.1 / 2015-05-02
+==================
+
+  * Fix debian package
+
+0.5.0 / 2015-05-02
 ==================
 
   * Thar be dragons
