@@ -75,6 +75,45 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		it('should return a plaintext error', function(done) {
+			request(api)
+			.get(mockDomain + '/v3/page/wikitext/Doesnotexist')
+			.expect(404)
+			.expect(function(res) {
+				res.headers['content-type'].should.equal(
+					'text/plain; charset=utf-8'
+				);
+				res.text.should.equal('Did not find page revisions for Doesnotexist');
+			})
+			.end(done);
+		});
+
+		it('should return a json error', function(done) {
+			request(api)
+			.get(mockDomain + '/v3/page/pagebundle/Doesnotexist')
+			.expect(404)
+			.expect(function(res) {
+				res.headers['content-type'].should.equal(
+					'application/json; charset=utf-8'
+				);
+				res.body.error.should.equal('Did not find page revisions for Doesnotexist');
+			})
+			.end(done);
+		});
+
+		it('should return an html error', function(done) {
+			request(api)
+			.get(mockDomain + '/v3/page/html/Doesnotexist')
+			.expect(404)
+			.expect(function(res) {
+				res.headers['content-type'].should.equal(
+					'text/html; charset=utf-8'
+				);
+				Util.decodeEntities(res.text).should.equal('Did not find page revisions for Doesnotexist');
+			})
+			.end(done);
+		});
+
 	});  // formats
 
 	var acceptableHtmlResponse = function(contentVersion, expectFunc) {
