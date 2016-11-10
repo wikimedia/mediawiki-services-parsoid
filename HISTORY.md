@@ -5,6 +5,7 @@ n.n.n / XXXX-XX-XX
   * T110910: Implement <gallery> extension natively inside Parsoid
   * T150213: Suppress logs for known unknown contentmodels
   * T149209: Handle newlines in <td> and <th> cells
+  * T102209: Assign ids to <h*> tags that match PHP parser's assignment
 
 0.6.1 / 2016-11-14
 ==================
