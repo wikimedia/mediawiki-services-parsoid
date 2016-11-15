@@ -153,6 +153,16 @@ var standardOpts = Util.addStandardOptions({
 		'boolean': true,
 		'default': false,
 	},
+	'record': {
+		description: 'Record http requests for later replay',
+		'boolean': true,
+		'default': false,
+	},
+	'replay': {
+		description: 'Replay recorded http requests for later replay',
+		'boolean': true,
+		'default': false,
+	},
 	'useBatchAPI': {
 		description: 'Turn on/off the API batching system',
 		// Since I picked a null default (to let the default config setting be the default),
@@ -397,11 +407,50 @@ if (require.main === module) {
 		parsoidConfig.defaultWiki = prefix ? prefix :
 			parsoidConfig.reverseMwApiMap.get(domain);
 
+		var nock, dir, nocksFile;
+		if (argv.record || argv.replay) {
+			prefix = prefix || 'enwiki';
+			dir = path.resolve(__dirname, '../nocks/');
+			if (!fs.existsSync(dir)) {
+				fs.mkdirSync(dir);
+			}
+			dir = dir + '/' + prefix;
+			if (!fs.existsSync(dir)) {
+				fs.mkdirSync(dir);
+			}
+			nocksFile = dir + '/' + argv.page + '.js';
+		}
+
+		if (argv.record) {
+			nock = require('nock');
+			nock.recorder.rec({dont_print: true});
+		} else if (argv.replay) {
+			try {
+				require(nocksFile);
+			} catch (e) {
+				console.error('Exception ' + e + ' requiring ' + nocksFile);
+				console.error('Cannot replay!');
+				return -1;
+			}
+		}
+
 		return parse(null, argv, parsoidConfig, prefix, domain).then(function(res) {
 			var stdout = process.stdout;
 			stdout.write(res.out);
 			if (res.trailingNL && stdout.isTTY) {
 				stdout.write('\n');
+			}
+
+			if (argv.record) {
+				var nockCalls = nock.recorder.play();
+				var stream = fs.createWriteStream(nocksFile);
+				stream.once('open', function() {
+					stream.write("var nock = require('nock');");
+					for (var i = 0; i < nockCalls.length; i++) {
+						stream.write(nockCalls[i]);
+					}
+					stream.end();
+				});
 			}
 		}).done();
 	}());
