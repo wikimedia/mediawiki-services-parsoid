@@ -183,5 +183,20 @@ describe('Linter Tests', function() {
 				result.should.have.length(0);
 			});
 		});
+		it('should lint self-closing tags corrrectly', function() {
+			return parseWT('foo<b />bar<span />baz<hr />boo<br />').then(function(result) {
+				result.should.have.length(2);
+				result[0].should.have.a.property("type", "self-closed-tag");
+				result[0].dsr.should.include.members([ 3, 8, 5, 0 ]);
+				result[0].should.have.a.property("src", "<b />");
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "b");
+				result[1].should.have.a.property("type", "self-closed-tag");
+				result[1].dsr.should.include.members([ 11, 19, 8, 0 ]);
+				result[1].should.have.a.property("src", "<span />");
+				result[1].should.have.a.property("params");
+				result[1].params.should.have.a.property("name", "span");
+			});
+		});
 	});
 });
