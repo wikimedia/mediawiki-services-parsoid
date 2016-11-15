@@ -3,6 +3,7 @@
 require('../../core-upgrade.js');
 /*global describe, it*/
 
+var should = require("chai").should(); /*jshint unused:false*/
 var ParsoidConfig = require('../../lib/config/ParsoidConfig.js').ParsoidConfig;
 var helpers = require('./test.helpers.js');
 
