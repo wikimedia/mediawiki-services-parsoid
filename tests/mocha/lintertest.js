@@ -198,5 +198,17 @@ describe('Linter Tests', function() {
 				result[1].params.should.have.a.property("name", "span");
 			});
 		});
+		it('should lint self-closing tags in a template correctly', function() {
+			return parseWT('{{1x|<b />}}').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "self-closed-tag");
+				result[0].dsr.should.include.members([ 0, 12, null, null ]);
+				result[0].should.have.a.property("src", "{{1x|<b />}}");
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "b");
+				result[0].should.have.a.property("templateInfo");
+				result[0].templateInfo.should.have.a.property("name", "1x");
+			});
+		});
 	});
 });
