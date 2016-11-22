@@ -3,6 +3,7 @@ n.n.n / XXXX-XX-XX
 ==================
 
   * T110910: Implement <gallery> extension natively inside Parsoid
+  * T150213: Suppress logs for known unknown contentmodels
 
 0.6.1 / 2016-11-14
 ==================
