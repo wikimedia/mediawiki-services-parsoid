@@ -26553,6 +26553,93 @@ parsoid=html2wt,wt2wt
 !! end
 
 !! test
+T149209: WTS: Handle newlines in table cells properly
+!! options
+parsoid=html2wt
+!! html/parsoid
+<table>
+<tbody>
+<tr><td>a
+b
+</td><td data-parsoid='{"stx_v":"row"}'>c</td></tr>
+<tr><td><p>x</p>
+</td><td data-parsoid='{"stx_v":"row", "startTagSrc": "{{!}}{{!}}"}'>y</td></tr>
+</tbody></table>
+<table>
+<tbody>
+<tr><th>a
+b
+</th><th data-parsoid='{"stx_v":"row"}'>c</th></tr>
+<tr><th><p>x</h>
+</th><th data-parsoid='{"stx_v":"row"}'>y</th></tr>
+</tbody></table>
+!! wikitext
+{|
+|a
+b
+|c
+|-
+|x
+{{!}}y
+|}
+{|
+!a
+b
+!c
+|-
+!x
+!y
+|}
+!! end
+
+!! test
+T149209: Selser: Handle newlines in table cells properly
+!! options
+parsoid={
+  "modes": ["selser"],
+  "changes": [
+    [ "#h1", "html", "a\nb\n" ],
+    [ "#h2", "html", "a\nb\n" ],
+    [ "#c1", "html", "a\nb\n" ],
+    [ "#c2", "html", "<p>a</p>" ],
+    [ "#c3", "html", "<p>a</p>" ]
+  ]
+}
+!! wikitext
+{|
+! id="h1" |edit-me!!1
+|-
+! id="h2" |edit-me||2
+|-
+| id="c1" |edit-me||3
+|-
+| id="c2" |edit-me||4
+|-
+| id="c3" |edit-me||p||q||r
+|}
+!! wikitext/edited
+{|
+! id="h1" |a
+b
+!1
+|-
+! id="h2" |a
+b
+!2
+|-
+| id="c1" |a
+b
+|3
+|-
+| id="c2" |a
+|4
+|-
+| id="c3" |a
+|p||q||r
+|}
+!! end
+
+!! test
 HTML id attribute with Parsoid-like element ids should not be serialized to wikitext
 !! options
 parsoid=html2wt
