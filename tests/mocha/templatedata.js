@@ -16,13 +16,9 @@ var fakeConfig = {
 require(configPath).setup(fakeConfig);  // Set limits
 
 var api, runner;
+var defaultContentVersion = '1.3.0';
 
 function verifyTransformation(newHTML, origHTML, origWT, expectedWT, done, dpVersion) {
-	// Default version is the latest
-	if (!dpVersion) {
-		dpVersion = '0.0.2';
-	}
-
 	var payload = { html: newHTML };
 	if (origHTML) {
 		payload.original = {
@@ -36,7 +32,7 @@ function verifyTransformation(newHTML, origHTML, origWT, expectedWT, done, dpVer
 			},
 			html: {
 				headers: {
-					'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/1.2.1"',
+					'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/' + defaultContentVersion + '"',
 				},
 				body: origHTML,
 			},
@@ -44,7 +40,7 @@ function verifyTransformation(newHTML, origHTML, origWT, expectedWT, done, dpVer
 			// Passing dummy data-parsoid since origHTML has inline data-parsoid.
 			"data-parsoid": {
 				headers: {
-					'content-type': 'application/json;profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/' + dpVersion + '"',
+					'content-type': 'application/json;profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/' + (dpVersion || defaultContentVersion) + '"',
 				},
 				body: {
 					'counter': 0,
@@ -184,7 +180,7 @@ var dataParsoidVersionTests = [
 		},
 	},
 	{
-		'dpVersion': '0.0.2',
+		'dpVersion': defaultContentVersion,
 		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1"},{"k":"f1"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"TplWithoutTemplateData","href":"./Template:TplWithoutTemplateData"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>',
 		'wt': {
 			'orig':   '{{TplWithoutTemplateData|f1=foo|f2=foo}}',

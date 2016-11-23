@@ -14,7 +14,7 @@ var Diff = require('../lib/utils/Diff.js').Diff;
 
 var gzip = Promise.promisify(require('zlib').gzip, false);
 
-var defaultContentVersion = '1.2.1';
+var defaultContentVersion = '1.3.0';
 
 
 function displayDiff(type, count) {
