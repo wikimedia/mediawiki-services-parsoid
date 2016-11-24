@@ -305,7 +305,7 @@ ParserTests.prototype.getTests = function(argv) {
 	var fetcher = require(__dirname + "/../tools/fetch-parserTests.txt.js");
 	if (!fetcher.isUpToDate()) {
 		parserTestsUpToDate = false;
-		console.warn("warning", "ParserTests.txt not up-to-date with upstream.");
+		console.warn("warn", "ParserTests.txt not up-to-date with upstream.");
 	}
 
 	// Startup by loading .txt test file
@@ -1114,7 +1114,7 @@ ParserTests.prototype.processSerializedWT = function(item, options, mode, wikite
 					item.resultWT = wt;
 				} else {
 					// FIXME: what's going on here? Error handling here is suspect.
-					self.env.log('warning', 'Convert html2wt erred!');
+					self.env.log('warn', 'Convert html2wt erred!');
 					item.resultWT = item.wikitext;
 				}
 				return checkAndReturn();
@@ -1698,7 +1698,7 @@ ParserTests.prototype.main = function(options, popts) {
 
 		// Enable sampling to assert it's working while testing.
 		parsoidConfig.loggerSampling = [
-			[/^warning(\/|$)/, 100],
+			[/^warn(\/|$)/, 100],
 		];
 
 		parsoidConfig.timeouts.mwApi.connect = 10000;
@@ -2124,10 +2124,10 @@ ParserTests.prototype.processCase = function(i, options, err) {
 					setImmediate(nextCallback);
 					break;
 				case 'hooks':
-					this.env.log('warning', 'parserTests: Unhandled extension hook', JSON.stringify(item));
+					this.env.log('warn', 'parserTests: Unhandled extension hook', JSON.stringify(item));
 					break;
 				case 'functionhooks':
-					this.env.log("warning", "parserTests: Unhandled functionhook", JSON.stringify(item));
+					this.env.log("warn", "parserTests: Unhandled functionhook", JSON.stringify(item));
 					break;
 				default:
 					this.comments = [];
