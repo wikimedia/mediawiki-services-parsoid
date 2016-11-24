@@ -1081,16 +1081,6 @@
         }
       }
     },
-    "gelf-stream": {
-      "version": "0.2.4",
-      "resolved": "https://registry.npmjs.org/gelf-stream/-/gelf-stream-0.2.4.tgz",
-      "dependencies": {
-        "gelfling": {
-          "version": "0.2.0",
-          "resolved": "https://registry.npmjs.org/gelfling/-/gelfling-0.2.0.tgz"
-        }
-      }
-    },
     "istanbul": {
       "version": "0.4.4",
       "resolved": "https://registry.npmjs.org/istanbul/-/istanbul-0.4.4.tgz",
