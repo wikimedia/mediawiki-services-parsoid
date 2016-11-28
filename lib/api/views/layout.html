@@ -15,7 +15,7 @@
 				}
 				el.setAttribute(o.css ? 'href' : 'src',
 					window.location.origin + o.src);
-				document.head.appendChild(el);
+				document.write(el.outerHTML);
 			}
 			els.forEach(load);
 		</script>
