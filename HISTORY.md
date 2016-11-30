@@ -6,6 +6,7 @@ n.n.n / XXXX-XX-XX
   * T150213: Suppress logs for known unknown contentmodels
   * T149209: Handle newlines in <td> and <th> cells
   * T102209: Assign ids to <h*> tags that match PHP parser's assignment
+  * T150112: Munge link fragments and element ids as in the php parser
 
 0.6.1 / 2016-11-14
 ==================
