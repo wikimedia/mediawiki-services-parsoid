@@ -78,14 +78,14 @@ var fetch = function(page, revid, opts) {
 		fs.writeFileSync(outputPrefix + ".wt", env.page.src, 'utf8');
 	}).then(function() {
 		// Fetch HTML from RESTBase
-		rbOpts.uri = "https://" + domain + "/api/rest_v1/page/html/" + Util.urlencode(page) + (revid ? "/" + revid : "");
+		rbOpts.uri = "https://" + domain + "/api/rest_v1/page/html/" + Util.phpURLEncode(page) + (revid ? "/" + revid : "");
 		return Util.retryingHTTPRequest(2, rbOpts);
 	}).then(function(resp) {
 		fs.writeFileSync(outputPrefix + ".html", resp[1], 'utf8');
 		return resp[0].headers.etag.replace(/"/g, '');
 	}).then(function(etag) {
 		// Fetch matching data-parsoid form RESTBase
-		rbOpts.uri = "https://" + domain + "/api/rest_v1/page/data-parsoid/" + Util.urlencode(page) + "/" + etag;
+		rbOpts.uri = "https://" + domain + "/api/rest_v1/page/data-parsoid/" + Util.phpURLEncode(page) + "/" + etag;
 		return Util.retryingHTTPRequest(2, rbOpts);
 	}).then(function(resp) {
 		// RESTBase doesn't have the outer wrapper
