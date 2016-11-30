@@ -763,7 +763,7 @@
 					"sitename": "উইকিসংকলন"
 				}
 			],
-			"localname": "Bengali"
+			"localname": "Bangla"
 		},
 		"31": {
 			"code": "bo",
@@ -1875,6 +1875,12 @@
 					"dbname": "fiwikiversity",
 					"code": "wikiversity",
 					"sitename": "Wikiopisto"
+				},
+				{
+					"url": "https://fi.wikivoyage.org",
+					"dbname": "fiwikivoyage",
+					"code": "wikivoyage",
+					"sitename": "Wikimatkat"
 				}
 			],
 			"localname": "Finnish"
@@ -4591,7 +4597,7 @@
 		},
 		"194": {
 			"code": "olo",
-			"name": "Livvinкarjala",
+			"name": "Livvinkarjala",
 			"site": [
 				{
 					"url": "https://olo.wikipedia.org",
@@ -4644,7 +4650,7 @@
 					"sitename": "ଉଇକିପାଠାଗାର"
 				}
 			],
-			"localname": "Oriya"
+			"localname": "Odia"
 		},
 		"197": {
 			"code": "os",
@@ -7019,7 +7025,7 @@
 			],
 			"localname": "Zulu"
 		},
-		"count": 898,
+		"count": 901,
 		"specials": [
 			{
 				"url": "https://advisory.wikimedia.org",
@@ -7172,6 +7178,13 @@
 				"code": "donate",
 				"sitename": "Donate",
 				"fishbowl": ""
+			},
+			{
+				"url": "https://ec.wikimedia.org",
+				"dbname": "ecwikimedia",
+				"code": "ecwikimedia",
+				"sitename": "Wikimedistas de Ecuador",
+				"private": ""
 			},
 			{
 				"url": "https://ee.wikimedia.org",
@@ -7374,6 +7387,13 @@
 				"dbname": "plwikimedia",
 				"code": "plwikimedia",
 				"sitename": "Wikimedia"
+			},
+			{
+				"url": "https://projectcom.wikipedia.org",
+				"dbname": "projectcomwiki",
+				"code": "projectcom",
+				"sitename": "Project Grants Committee",
+				"private": ""
 			},
 			{
 				"url": "https://quality.wikimedia.org",
