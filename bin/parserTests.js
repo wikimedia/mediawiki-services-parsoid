@@ -1975,12 +1975,6 @@ ParserTests.prototype.processCase = function(i, options, err) {
 					this.comments = [];
 
 					var suppressErrors = item.options.parsoid && item.options.parsoid.suppressErrors;
-					// HACK: suppress errors for all tests where wikitext has
-					// <gallery> tag: these emit lots of noise on stderr and
-					// we know that we don't support <gallery> yet.
-					if (/<gallery(\s|>)/.test(item.wikitext || '')) {
-						suppressErrors = true;
-					}
 					if (suppressErrors) {
 						this.env.setLogger(this.suppressLogger);
 					}
