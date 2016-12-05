@@ -16445,18 +16445,22 @@ Nesting of <bdo>
 Media link
 !! wikitext
 [[Media:Foobar.jpg]]
-!! html
+!! html/php
 <p><a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg">Media:Foobar.jpg</a>
 </p>
+!! html/parsoid
+<p><a rel="mw:Media" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg">Media:Foobar.jpg</a></p>
 !! end
 
 !! test
 Media link with text
 !! wikitext
 [[Media:Foobar.jpg|A neat file to look at]]
-!! html
+!! html/php
 <p><a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg">A neat file to look at</a>
 </p>
+!! html/parsoid
+<p><a rel="mw:Media" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg">A neat file to look at</a></p>
 !! end
 
 # FIXME: this is still bad HTML tag nesting
@@ -16465,21 +16469,26 @@ Media link with text
 Media link with nasty text
 !! wikitext
 [[Media:Foobar.jpg|Safe Link<div style=display:none>" onmouseover="alert(document.cookie)" onfoo="</div>]]
-!! html
+!! html/php
 <a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg">Safe Link&lt;div style="display:none"&gt;" onmouseover="alert(document.cookie)" onfoo="&lt;/div&gt;</a>
 
-!! html+tidy
+!! html+php/tidy
 <p><a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg">Safe Link</a></p>
 <div style="display:none">" onmouseover="alert(document.cookie)" onfoo="</div>
+!! html/parsoid
+<p><a rel="mw:Media" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg" data-parsoid='{"autoInsertedEnd":true}'>Safe Link</a></p><div style="display:none" data-parsoid='{"stx":"html"}'><a rel="mw:Media" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg" data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'>" onmouseover="alert(document.cookie)" onfoo="</a></div>
+
 !! end
 
 !! test
 Media link to nonexistent file (T3702)
 !! wikitext
 [[Media:No such.jpg]]
-!! html
+!! html/php
 <p><a href="/index.php?title=Special:Upload&amp;wpDestFile=No_such.jpg" class="new" title="No such.jpg">Media:No such.jpg</a>
 </p>
+!! html/parsoid
+<p><a rel="mw:Media" href="./Special:FilePath/No_such.jpg" title="No such.jpg" typeof="mw:Error" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}' data-parsoid='{"a":{"fileName":"No_such.jpg"},"sa":{"fileName":"No such.jpg"}}'>Media:No such.jpg</a></p>
 !! end
 
 !! test
