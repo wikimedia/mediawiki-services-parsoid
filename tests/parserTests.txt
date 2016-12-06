@@ -2313,8 +2313,12 @@ Entities inside <pre>
 <pre about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"#tag:pre","function":"#tag"},"params":{"1":{"wt":"Foo &lt;nowiki>&amp;rarr;bar&lt;/nowiki>"}},"i":0}}]}'>Foo <span typeof="mw:Entity">→</span>bar</pre>
 !! end
 
+## Don't expect this to rt, Parsoid drops the unmatched closing pre tags that
+## aren't enclosed in nowikis.
 !! test
 <nowiki> and <pre> preference (first one wins)
+!! options
+parsoid=wt2html
 !! wikitext
 <pre>
 <nowiki>
@@ -2343,17 +2347,16 @@ Entities inside <pre>
 &lt;/pre&gt;
 </p>
 !! html/parsoid
-<pre data-parsoid='{"stx":"html","strippedNL":true}'>&lt;nowiki>
+<pre typeof="mw:Extension/pre" about="#mwt2" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"\n&lt;nowiki>\n"}}'>&lt;nowiki>
 </pre>
-<p><span typeof="mw:Placeholder" data-parsoid='{"src":"&lt;/nowiki>"}'>&lt;/nowiki></span>
-&lt;/pre></p>
+<p>&lt;/nowiki></p>
+
 
 <p><span typeof="mw:Nowiki">
 &lt;pre>
 &lt;nowiki>
 &lt;/pre>
-</span>
-&lt;/pre></p>
+</span></p>
 !! end
 
 !! test
@@ -2368,8 +2371,6 @@ Entities inside <pre>
 # Parsoid doesn't strip empty tags, like Tidy does.
 !! test
 Empty pre; pre inside other HTML tags (bug 54946)
-!! options
-parsoid=wt2html,wt2wt
 !! wikitext
 a
 
@@ -2394,9 +2395,9 @@ foo
 !! html/parsoid
 <p>a</p>
 
-<div><pre>foo
+<div data-parsoid='{"stx":"html"}'><pre typeof="mw:Extension/pre" about="#mwt2" data-parsoid='{"stx":"html"}' data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"\nfoo\n"}}'>foo
 </pre></div>
-<pre></pre>
+<pre typeof="mw:Extension/pre" about="#mwt4" data-parsoid='{"stx":"html"}' data-mw='{"name":"pre","attrs":{},"body":{"extsrc":""}}'></pre>
 !! end
 
 !! test
@@ -2412,7 +2413,7 @@ HTML pre followed by indent-pre
 
 # Note that tidy removes the empty <p> tags from the start and end.
 # Parsoid does not, by design.
-!!test
+!! test
 Block tag pre
 !! wikitext
 <p><pre>foo</pre></p>
@@ -2421,8 +2422,8 @@ Block tag pre
 foo
 </pre>
 !! html/parsoid
-<p data-parsoid='{"stx":"html","autoInsertedEnd":true}'></p><pre data-parsoid='{"stx":"html"}'>foo</pre><p data-parsoid='{"autoInsertedStart":true,"stx":"html"}'></p>
-!!end
+<p data-parsoid='{"stx":"html","autoInsertedEnd":true}'></p><pre typeof="mw:Extension/pre" about="#mwt2" data-parsoid='{"stx":"html"}' data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"foo"}}'>foo</pre><p data-parsoid='{"autoInsertedStart":true,"stx":"html"}'></p>
+!! end
 
 !!test
 Templates: Indent-Pre: 1a. Templates that break a line should suppress <pre>
@@ -2543,8 +2544,11 @@ Templates: Indent-Pre: 1f: Wrapping should be based on expanded content
 </pre>
 !!end
 
+## Hmm, should Parsoid rt this?
 !! test
 Pres with newline attributes
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 <pre class="one
 two">hi</pre>
@@ -2552,8 +2556,7 @@ two">hi</pre>
 <pre class="one two">hi</pre>
 
 !! html/parsoid
-<pre class="one
-two" data-parsoid='{"stx":"html"}'>hi</pre>
+<pre typeof="mw:Extension/pre" about="#mwt2" class="one two" data-mw='{"name":"pre","attrs":{"class":"one two"},"body":{"extsrc":"hi"}}'>hi</pre>
 !! end
 
 !! test
@@ -2585,7 +2588,7 @@ x
 </pre>
 <p>&lt;pre</p>
 !! html/parsoid
-<pre about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"a":{"&lt;pre":null},"sa":{"&lt;pre":""},"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;pre &lt;pre>x&lt;/pre>"}},"i":0}}]}'>x</pre>
+<pre about="#mwt1" typeof="mw:Transclusion mw:Extension/pre" data-parsoid='{"a":{"&lt;pre":null},"sa":{"&lt;pre":""},"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;pre &lt;pre>x&lt;/pre>"}},"i":0}}]}'>x</pre>
 
 
 <p>&lt;pre </p>
@@ -2603,7 +2606,7 @@ parsoid=wt2html
 <pre style="width:50%;">{{echo|foo}}</pre>
 
 !! html/parsoid
-<pre style="width:50%;">{{echo|foo}}</pre>
+<pre typeof="mw:Extension/pre" about="#mwt2" style="width:50%;" data-mw='{"name":"pre","attrs":{"style":"width:50%;"},"body":{"extsrc":"{{echo|foo}}"}}'>{{echo|foo}}</pre>
 !! end
 
 # TODO / maybe: fix wt2wt for this
@@ -3268,6 +3271,17 @@ array (
  a <pre typeof="mw:Extension/tag" about="#mwt2" data-parsoid='{}' data-mw='{"name":"tag","attrs":{},"body":null}'></pre>
 !! end
 
+!! test
+5. Indent-Pre and html pre
+!! wikitext
+ <pre class="123">hi</pre>
+!! html/php
+ <pre class="123">hi</pre>
+
+!! html/parsoid
+ <pre typeof="mw:Extension/pre" about="#mwt2" class="123" data-mw='{"name":"pre","attrs":{"class":"123"},"body":{"extsrc":"hi"}}'>hi</pre>
+!! end
+
 !!test
 Render paragraphs when indent-pre is suppressed in blocklevels
 !! wikitext
@@ -3457,18 +3471,17 @@ foo
 foo
 </pre>
 !! html/parsoid
-<pre data-parsoid='{"stx":"html"}'>foo</pre>
+<pre typeof="mw:Extension/pre" about="#mwt2" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"foo"}}'>foo</pre>
 
-<pre data-parsoid='{"stx":"html","strippedNL":"\n"}'>
+<pre typeof="mw:Extension/pre" about="#mwt4" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"\nfoo\n"}}'>foo
+</pre>
+
+<pre typeof="mw:Extension/pre" about="#mwt6" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"\n\nfoo\n"}}'>
+
 foo
 </pre>
 
-<pre data-parsoid='{"stx":"html"}'>
-
-foo
-</pre>
-
-<pre data-parsoid='{"stx":"html"}'>
+<pre typeof="mw:Extension/pre" about="#mwt8" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"\n\n\nfoo\n"}}'>
 
 
 foo
@@ -3512,7 +3525,7 @@ haha
 
 </pre>
 !! html/parsoid
-<pre data-parsoid='{"stx":"html"}'>
+<pre typeof="mw:Extension/pre" about="#mwt2" data-parsoid='{"stx":"html"}' data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"\n\n\n\n\nhaha\n\n\n\n\nhaha\n\n\n\n\n"}}'>
 
 
 
@@ -3563,7 +3576,7 @@ HTML-pre: 3: other wikitext
 </pre>
 
 !! html/parsoid
-<pre data-parsoid='{"stx":"html","strippedNL":true}'>* foo
+<pre typeof="mw:Extension/pre" about="#mwt2" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"\n* foo\n# bar\n= no-h =\n&#39;&#39; no-italic &#39;&#39;\n[[ NoLink ]]\n"}}'>* foo
 # bar
 = no-h =
 '' no-italic ''
@@ -7453,7 +7466,7 @@ Piped link with no link text
 !! test
 Piped link with empty link text
 !! wikitext
-[[Main Page|<nowiki />]] - empty nowiki
+[[Main Page|<nowiki/>]] - empty nowiki
 [[Main Page| ]] - empty space
 [[Main Page|&nbsp;]] - empty non breaking space
 !! html/php
@@ -7462,7 +7475,7 @@ Piped link with empty link text
 <a href="/wiki/Main_Page" title="Main Page">&#160;</a> - empty non breaking space
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Main_Page" title="Main Page"><meta typeof="mw:Placeholder" data-parsoid='{"src":"&lt;nowiki />"}'/></a> - empty nowiki
+<p><a rel="mw:WikiLink" href="./Main_Page" title="Main Page"><span typeof="mw:Nowiki"></span></a> - empty nowiki
 <a rel="mw:WikiLink" href="./Main_Page" title="Main Page"> </a> - empty space
 <a rel="mw:WikiLink" href="./Main_Page" title="Main Page"><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span></a> - empty non breaking space</p>
 !! end
@@ -9412,8 +9425,8 @@ List items are not parsed correctly following a <pre> block (bug 785)
 <li> zar</li></ul>
 
 !! html/parsoid
-<ul><li> <pre data-parsoid='{"stx":"html"}'>foo</pre></li>
-<li> <pre data-parsoid='{"stx":"html"}'>bar</pre></li>
+<ul><li> <pre typeof="mw:Extension/pre" about="#mwt2" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"foo"}}'>foo</pre></li>
+<li> <pre typeof="mw:Extension/pre" about="#mwt4" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"bar"}}'>bar</pre></li>
 <li> zar</li></ul>
 !! end
 
@@ -17843,7 +17856,7 @@ http://example.com<nowiki>junk</nowiki>
 <p><a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a><span typeof="mw:Nowiki">junk</span></p>
 !! end
 
-!!test
+!! test
 Fuzz testing: URL adjacent extension (no space, dirty; pre)
 !! wikitext
 http://example.com<pre>junk</pre>
@@ -17856,10 +17869,10 @@ http://example.com<pre>junk</pre>
 junk
 </pre>
 !! html/parsoid
-<p><a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a></p><pre data-parsoid='{"stx":"html"}'>junk</pre>
-!!end
+<p><a rel="mw:ExtLink" href="http://example.com" data-parsoid='{"stx":"url"}'>http://example.com</a></p><pre typeof="mw:Extension/pre" about="#mwt2" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"junk"}}'>junk</pre>
+!! end
 
-!!test
+!! test
 Fuzz testing: image with bogus manual thumbnail
 !! wikitext
 [[Image:foobar.jpg|thumbnail= ]]
@@ -17868,15 +17881,17 @@ Fuzz testing: image with bogus manual thumbnail
 
 !! html/parsoid
 <figure class="mw-default-size" typeof="mw:Error mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"manualthumb","ak":"thumbnail= "}]}' data-mw='{"errors":[{"key":"missing-thumbnail","message":"This thumbnail does not exist.","params":{"name":""}}],"thumb":""}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"},"sa":{}}'><img resource="./File:Foobar.jpg" src="./Special:FilePath/" height="220" width="220" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"220","width":"220"},"sa":{"resource":"Image:foobar.jpg"}}'/></a></figure>
-!!end
+!! end
 
 !! test
 Fuzz testing: encoded newline in generated HTML replacements (bug 6577)
 !! wikitext
 <pre dir="&#10;"></pre>
-!! html
+!! html/php
 <pre dir="&#10;"></pre>
 
+!! html/parsoid
+<pre typeof="mw:Extension/pre" about="#mwt2" dir="&amp;#10;" data-mw='{"name":"pre","attrs":{"dir":"&amp;#10;"},"body":{"extsrc":""}}'></pre>
 !! end
 
 !! test
@@ -26697,7 +26712,7 @@ WTS of autolinks with escapes (editing)
 parsoid={
   "modes": ["wt2wt"],
   "changes": [
-    [ "meta", "remove" ]
+    [ "span", "remove" ]
   ]
 }
 !! wikitext
