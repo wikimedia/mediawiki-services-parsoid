@@ -7561,8 +7561,6 @@ Link with multiple pipes
 </p>
 !! end
 
-# Note that parsoid does not munge anchor text; all non-space
-# characters are valid in HTML5 ids.
 !! test
 Anchor containing a #. (bug 63430)
 !! wikitext
@@ -7571,7 +7569,7 @@ Anchor containing a #. (bug 63430)
 <p><a href="/wiki/Main_Page#And.23Link" title="Main Page">Main Page#And#Link</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Main_Page#And%23Link" title="Main Page">Main Page#And#Link</a></p>
+<p><a rel="mw:WikiLink" href="./Main_Page#And.23Link" title="Main Page" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page#And.23Link"},"sa":{"href":"Main Page#And#Link"}}'>Main Page#And#Link</a></p>
 !! end
 
 !! test
@@ -7686,18 +7684,16 @@ Link containing % as a double hex sequence interpreted to hex sequence
 </p>
 !!end
 
-# note that parsoid does not munge anchor text; all non-space
-# characters are valid in HTML5 anchors.
+## Example for such a section: == < ==
 !! test
 Link containing "#<" and "#>" % as a hex sequences- these are valid section anchors
-Example for such a section: == < ==
 !! wikitext
 [[%23%3c]][[%23%3e]]
 !! html/php
 <p><a href="#.3C">#&lt;</a><a href="#.3E">#&gt;</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Main_Page#%3C" title="Main Page">#&lt;</a><a rel="mw:WikiLink" href="./Main_Page#%3E" title="Main Page">#></a></p>
+<p><a rel="mw:WikiLink" href="./Main_Page#.3C" title="Main Page" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page#.3C"},"sa":{"href":"%23%3c"}}'>#&lt;</a><a rel="mw:WikiLink" href="./Main_Page#.3E" title="Main Page" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page#.3E"},"sa":{"href":"%23%3e"}}'>#></a></p>
 !! end
 
 !! test
@@ -8217,7 +8213,7 @@ Link with angle bracket after anchor
 <p><a href="/wiki/Foo#.3Cbar.3E" title="Foo">Foo#&lt;bar&gt;</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Foo#%3Cbar%3E" title="Foo" data-parsoid='{"stx":"simple","a":{"href":"./Foo#%3Cbar%3E"},"sa":{"href":"Foo#&lt;bar>"}}'>Foo#&lt;bar></a></p>
+<p><a rel="mw:WikiLink" href="./Foo#.3Cbar.3E" title="Foo" data-parsoid='{"stx":"simple","a":{"href":"./Foo#.3Cbar.3E"},"sa":{"href":"Foo#&lt;bar>"}}'>Foo#&lt;bar></a></p>
 !! end
 
 ###
@@ -8273,6 +8269,23 @@ Interwiki link with fragment (bug 2130)
 !! html
 <p><a href="http://www.usemod.com/cgi-bin/mb.pl?SoftSecurity#foo" class="extiw" title="meatball:SoftSecurity">MeatBall:SoftSecurity#foo</a>
 </p>
+!! end
+
+!! test
+Link scenarios with escaped fragments
+!! wikitext
+[[#Is this great?]]
+[[Foo#Is this great?]]
+[[meatball:Foo#Is this great?]]
+!! html/php
+<p><a href="#Is_this_great.3F">#Is this great?</a>
+<a href="/wiki/Foo#Is_this_great.3F" title="Foo">Foo#Is this great?</a>
+<a href="http://www.usemod.com/cgi-bin/mb.pl?Foo#Is_this_great.3F" class="extiw" title="meatball:Foo">meatball:Foo#Is this great?</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Main_Page#Is_this_great.3F" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page#Is_this_great.3F"},"sa":{"href":"#Is this great?"}}'>#Is this great?</a>
+<a rel="mw:WikiLink" href="./Foo#Is_this_great.3F" title="Foo" data-parsoid='{"stx":"simple","a":{"href":"./Foo#Is_this_great.3F"},"sa":{"href":"Foo#Is this great?"}}'>Foo#Is this great?</a>
+<a rel="mw:ExtLink" href="http://www.usemod.com/cgi-bin/mb.pl?Foo#Is_this_great.3F" title="meatball:Foo" data-parsoid='{"stx":"simple","a":{"href":"http://www.usemod.com/cgi-bin/mb.pl?Foo#Is_this_great.3F"},"sa":{"href":"meatball:Foo#Is this great?"},"isIW":true}'>meatball:Foo#Is this great?</a></p>
 !! end
 
 # Ideally the wikipedia: prefix here should be proto-relative too
@@ -15894,7 +15907,7 @@ parsoid=wt2html,html2html
 <div id="title.3D">HTML rocks</div>
 
 !! html/parsoid
-<div id="title=" data-parsoid='{"stx":"html"}'>HTML rocks</div>
+<div id="title.3D" data-parsoid='{"stx":"html"}'>HTML rocks</div>
 !! end
 
 !! test
@@ -17072,9 +17085,11 @@ Table not started</td></tr></table>
 Sanitizer: Escaping of spaces, multibyte characters, colons & other stuff in id=""
 !! wikitext
 <span id="æ: v">byte</span>[[#æ: v|backlink]]
-!! html
+!! html/php
 <p><span id=".C3.A6:_v">byte</span><a href="#.C3.A6:_v">backlink</a>
 </p>
+!! html/parsoid
+<p><span id=".C3.A6:_v" data-parsoid='{"stx":"html","a":{"id":".C3.A6:_v"},"sa":{"id":"æ: v"}}'>byte</span><a rel="mw:WikiLink" href="./Main_Page#.C3.A6:_v" data-parsoid='{"stx":"piped","a":{"href":"./Main_Page#.C3.A6:_v"},"sa":{"href":"#æ: v"}}'>backlink</a></p>
 !! end
 
 # In HTML5, the restrictions are that id must contain at least one character,
