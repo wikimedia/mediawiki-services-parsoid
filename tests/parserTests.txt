@@ -22912,24 +22912,6 @@ foo
 foo<ol class="mw-references" typeof="mw:Extension/references" about="#mwt2" data-mw='{"name":"references","attrs":{}}'></ol>
 !! end
 
-#### ----------------------------------------------------------------
-#### Parsoid-only testing of Parsoid's impl of LST
-#### Not implemented yet, see
-#### https://www.mediawiki.org/wiki/Parsoid/HTML_based_LST
-#### ----------------------------------------------------------------
-
-!! test
-LST Sections: 1. Simple section start and end
-!! options
-parsoid={ "suppressErrors": true }
-!! wikitext
-<section begin="2011-05-16" />
-<section end="2014-04-10 (MW 1.23wmf22)" />
-!! html/parsoid
-<p><meta typeof="mw:Extension/LabeledSectionTransclusion/begin" content="2011-05-16"/>
-<meta typeof="mw:Extension/LabeledSectionTransclusion/end" content="2014-04-10 (MW 1.23wmf22)"/></p>
-!! end
-
 #--------- Test stripping of empty nodes in template content ----------
 !!test
 Empty LI and TR nodes should be stripped from template content
