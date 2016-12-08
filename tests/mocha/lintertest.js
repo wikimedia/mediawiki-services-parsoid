@@ -30,7 +30,6 @@ describe('Linter Tests', function() {
 			return parseWT('<div>foo').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "missing-end-tag");
-				result[0].should.have.a.property("wiki", "enwiki");
 				result[0].dsr.should.include.members([ 0, 8, 5, 0 ]);
 				result[0].should.have.a.property("src", "<div>foo");
 				result[0].should.have.a.property("params");
@@ -41,7 +40,6 @@ describe('Linter Tests', function() {
 			return parseWT('{{1x|<div>foo<p>bar</div>}}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "missing-end-tag");
-				result[0].should.have.a.property("wiki", "enwiki");
 				result[0].dsr.should.include.members([ 0, 27, null, null ]);
 				result[0].should.have.a.property("src", "{{1x|<div>foo<p>bar</div>}}");
 				result[0].should.have.a.property("templateInfo");
@@ -54,7 +52,6 @@ describe('Linter Tests', function() {
 			return parseWT('foo</div>').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "stripped-tag");
-				result[0].should.have.a.property("wiki", "enwiki");
 				result[0].dsr.should.include.members([ 3, 9, null, null ]);
 				result[0].should.have.a.property("src", "</div>");
 			});
@@ -63,7 +60,6 @@ describe('Linter Tests', function() {
 			return parseWT('{{1x|<div>foo</div></div>}}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "stripped-tag");
-				result[0].should.have.a.property("wiki", "enwiki");
 				result[0].dsr.should.include.members([ 0, 27, null, null ]);
 				result[0].should.have.a.property("src", "{{1x|<div>foo</div></div>}}");
 			});
@@ -72,7 +68,6 @@ describe('Linter Tests', function() {
 			return parseWT('<big>foo</big>bar').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "obsolete-tag");
-				result[0].should.have.a.property("wiki", "enwiki");
 				result[0].dsr.should.include.members([ 0, 14, 5, 6 ]);
 				result[0].should.have.a.property("src", "<big>foo</big>");
 				result[0].should.have.a.property("params");
@@ -83,7 +78,6 @@ describe('Linter Tests', function() {
 			return parseWT('{{1x|<div><big>foo</big></div>}}foo').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "obsolete-tag");
-				result[0].should.have.a.property("wiki", "enwiki");
 				result[0].dsr.should.include.members([ 0, 32, null, null ]);
 				result[0].should.have.a.property("src", "{{1x|<div><big>foo</big></div>}}");
 				result[0].should.have.a.property("params");
@@ -96,7 +90,6 @@ describe('Linter Tests', function() {
 				result.should.have.length(2);
 				result[0].should.have.a.property("type", "missing-end-tag");
 				result[1].should.have.a.property("type", "obsolete-tag");
-				result[1].should.have.a.property("wiki", "enwiki");
 				result[1].dsr.should.include.members([ 0, 8, 5, 0 ]);
 				result[1].should.have.a.property("src", "<big>foo");
 				result[1].should.have.a.property("params");
@@ -107,7 +100,6 @@ describe('Linter Tests', function() {
 			return parseWT('{|\nfoo\n|-\n| bar\n|}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "fostered");
-				result[0].should.have.a.property("wiki", "enwiki");
 				result[0].dsr.should.include.members([ 0, 18, 2, 2 ]);
 				result[0].should.have.a.property("src", "foo");
 			});
@@ -116,7 +108,6 @@ describe('Linter Tests', function() {
 			return parseWT('{|\n|- foo\n|bar\n|}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "ignored-table-attr");
-				result[0].should.have.a.property("wiki", "enwiki");
 				result[0].dsr.should.include.members([ 3, 14, 6, 0 ]);
 				result[0].should.have.a.property("src", "|- foo\n|bar");
 			});
@@ -125,7 +116,6 @@ describe('Linter Tests', function() {
 			return parseWT('{{1x|\n{{{!}}\n{{!}}- foo\n{{!}} bar\n{{!}}}\n}}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "ignored-table-attr");
-				result[0].should.have.a.property("wiki", "enwiki");
 				result[0].dsr.should.include.members([ 0, 43, null, null]);
 				result[0].should.have.a.property("src", "{{1x|\n{{{!}}\n{{!}}- foo\n{{!}} bar\n{{!}}}\n}}");
 			});
@@ -139,7 +129,6 @@ describe('Linter Tests', function() {
 			return parseWT('{|\n|- <!--bad attr-->attr\n|bar\n|}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "ignored-table-attr");
-				result[0].should.have.a.property("wiki", "enwiki");
 				result[0].dsr.should.include.members([ 3, 30, 22, 0 ]);
 				result[0].should.have.a.property("src", "|- <!--bad attr-->attr\n|bar");
 			});
@@ -148,7 +137,6 @@ describe('Linter Tests', function() {
 			return parseWT('[[file:a.jpg|foo|bar]]').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "bogus-image-options");
-				result[0].should.have.a.property("wiki", "enwiki");
 				result[0].dsr.should.include.members([ 0, 22, null, null ]);
 				result[0].should.have.a.property("src", "[[file:a.jpg|foo|bar]]");
 				result[0].should.have.a.property("params");
@@ -160,7 +148,6 @@ describe('Linter Tests', function() {
 			return parseWT('{{1x|[[file:a.jpg|foo|bar]]}}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "bogus-image-options");
-				result[0].should.have.a.property("wiki", "enwiki");
 				result[0].dsr.should.include.members([ 0, 29, null, null ]);
 				result[0].should.have.a.property("src", "{{1x|[[file:a.jpg|foo|bar]]}}");
 				result[0].should.have.a.property("params");
@@ -171,7 +158,6 @@ describe('Linter Tests', function() {
 			return parseWT('[[file:a.jpg|foo|bar|baz]]').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "bogus-image-options");
-				result[0].should.have.a.property("wiki", "enwiki");
 				result[0].dsr.should.include.members([ 0, 26, null, null ]);
 				result[0].should.have.a.property("src", "[[file:a.jpg|foo|bar|baz]]");
 				result[0].should.have.a.property("params");
