@@ -271,6 +271,12 @@ Template:EmptyTRWithHTMLAttrTest
 </table>
 !!endarticle
 
+!! article
+Template:CircularRef
+!! text
+<ref>{{CircularRef}}</ref>
+!! endarticle
+
 ###
 ### Basic tests
 ###
@@ -280,6 +286,15 @@ Blank input
 !! html
 !! end
 
+!! test
+CircularRef
+!! wikitext
+{{CircularRef}}
+<references />
+!! html/parsoid
+<p><span about="#mwt1" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Transclusion  mw:Extension/ref" data-parsoid='{"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"CircularRef","href":"./Template:CircularRef"},"params":{},"i":0}}]}'><a href="#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></span></p>
+<ol class="mw-references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><a href="#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text" data-parsoid="{}">Error: Expansion loop detected at <a data-parsoid='{"a":{"href":null},"sa":{"href":"Template:CircularRef"}}'>Template:CircularRef</a></span></li></ol>
+!! end
 
 !! test
 Simple paragraph
