@@ -10352,7 +10352,6 @@ language=de
 </p>
 !! end
 
-
 !! test
 Urlencode
 !! wikitext
@@ -10360,7 +10359,7 @@ Urlencode
 {{urlencode:hi world?!|WIKI}}
 {{urlencode:hi world?!|PATH}}
 {{urlencode:hi world?!|QUERY}}
-!! html
+!! html/php
 <p>hi+world%3F%21
 hi_world%3F!
 hi%20world%3F%21
@@ -22011,7 +22010,7 @@ Strip marker in urlencode
 {{urlencode:x<nowiki/>y|wiki}}
 {{urlencode:x<nowiki/>y|path}}
 {{urlencode:x<pre id="one">two</pre>y}}
-!! html
+!! html/php
 <p>xy
 xy
 xy
