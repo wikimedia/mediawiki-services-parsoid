@@ -170,7 +170,7 @@ describe('Linter Tests', function() {
 			});
 		});
 		it('should lint self-closing tags corrrectly', function() {
-			return parseWT('foo<b />bar<span />baz<hr />boo<br />').then(function(result) {
+			return parseWT('foo<b />bar<span />baz<hr />boo<br /> <ref name="boo" />').then(function(result) {
 				result.should.have.length(2);
 				result[0].should.have.a.property("type", "self-closed-tag");
 				result[0].dsr.should.include.members([ 3, 8, 5, 0 ]);
@@ -185,11 +185,11 @@ describe('Linter Tests', function() {
 			});
 		});
 		it('should lint self-closing tags in a template correctly', function() {
-			return parseWT('{{1x|<b />}}').then(function(result) {
+			return parseWT('{{1x|<b /> <ref name="boo" />}}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "self-closed-tag");
-				result[0].dsr.should.include.members([ 0, 12, null, null ]);
-				result[0].should.have.a.property("src", "{{1x|<b />}}");
+				result[0].dsr.should.include.members([ 0, 31, null, null ]);
+				result[0].should.have.a.property("src", '{{1x|<b /> <ref name="boo" />}}');
 				result[0].should.have.a.property("params");
 				result[0].params.should.have.a.property("name", "b");
 				result[0].should.have.a.property("templateInfo");
