@@ -1,9 +1,10 @@
 /** Test cases for the linter */
 'use strict';
-require('../../core-upgrade.js');
 /*global describe, it*/
 
-var should = require("chai").should(); /*jshint unused:false*/
+require('../../core-upgrade.js');
+require('chai').should();
+
 var ParsoidConfig = require('../../lib/config/ParsoidConfig.js').ParsoidConfig;
 var helpers = require('./test.helpers.js');
 
@@ -166,6 +167,12 @@ describe('Linter Tests', function() {
 		});
 		it('should not send any Bogus image options if there are none', function() {
 			return parseWT('[[file:a.jpg|foo]]').then(function(result) {
+				result.should.have.length(0);
+			});
+		});
+		it('should not crash on gallery images', function() {
+			return parseWT('<gallery>\nfile:a.jpg\n</gallery>')
+			.then(function(result) {
 				result.should.have.length(0);
 			});
 		});
