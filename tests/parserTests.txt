@@ -26657,7 +26657,8 @@ parsoid={
     [ "#h2", "html", "a\nb\n" ],
     [ "#c1", "html", "a\nb\n" ],
     [ "#c2", "html", "<p>a</p>" ],
-    [ "#c3", "html", "<p>a</p>" ]
+    [ "#c3", "html", "<p>a</p>" ],
+    [ "#c4", "html", "edit-me<p>a</p>" ]
   ]
 }
 !! wikitext
@@ -26671,6 +26672,8 @@ parsoid={
 | id="c2" |edit-me||4
 |-
 | id="c3" |edit-me||p||q||r
+|-
+| id="c4" |edit-me||p||q||r
 |}
 !! wikitext/edited
 {|
@@ -26690,6 +26693,10 @@ b
 |4
 |-
 | id="c3" |a
+|p||q||r
+|-
+| id="c4" |edit-me
+a
 |p||q||r
 |}
 !! end
