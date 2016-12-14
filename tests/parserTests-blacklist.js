@@ -645,7 +645,6 @@ add("html2wt", "Templates: Indent-Pre: 1e. Wrapping should be based on expanded 
 add("html2wt", "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content", " a\n\n\n\n a\n\n\n\n b\n\na\n\n b\n\na\n\n b\n");
 add("html2wt", "Templates: Strip leading and trailing whitespace from named-param values", "a\n\nb\n\nc\n\n* d\n");
 add("html2wt", "Templates: Don't strip whitespace from positional-param values", "a \n\nb \n\n c \n\n\n\n d\n\n\n\n e\n\n\n\n* f\n\n\n g\n");
-add("html2wt", "Templates: Handle empty comment-and-ws-only lines correctly", "foo\nbar\n");
 add("html2wt", "Templates: Handle comments in the target", "{{echo <!-- should be ignored -->|foo}}\n\n{{echo <!-- should be ignored and spaces on next line should not trip us up (T147742) -->|foo}}\n\n{{echo<!-- should be ignored -->|foo}}\n\n{{echo<!-- should be ignored -->|foo}}\n\n{{echo|foo}}");
 add("html2wt", "Templates: Handle comments in parameter names (bug 67657)", "{{echo|1 <!-- should be ignored -->=foo}}\n\n{{echo|<!-- should be ignored --> 1=foo}}\n\n{{echo|1<!-- should be ignored -->=foo}}\n\n{{echo|<!-- should be ignored -->1=foo}}");
 add("html2wt", "1a. Indent-Pre and Comments", " a\n\nc\n");
