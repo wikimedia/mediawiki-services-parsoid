@@ -22912,6 +22912,43 @@ foo
 foo<ol class="mw-references" typeof="mw:Extension/references" about="#mwt2" data-mw='{"name":"references","attrs":{}}'></ol>
 !! end
 
+#### ----------------------------------------------------------------
+#### Parsoid-only testing of Parsoid's impl of LST
+#### Not implemented yet, see
+#### https://www.mediawiki.org/wiki/Parsoid/HTML_based_LST
+#### ----------------------------------------------------------------
+
+## We still need to support serializing the older format while content is stored.
+!! test
+LST Sections: Backwards compatibility
+!! options
+parsoid={
+  "suppressErrors": true,
+  "modes": ["html2wt"]
+}
+!! wikitext
+<section begin="2011-05-16" />
+<section end="2014-04-10 (MW 1.23wmf22)" />
+!! html/parsoid
+<p><meta typeof="mw:Extension/LabeledSectionTransclusion/begin" content="2011-05-16"/>
+<meta typeof="mw:Extension/LabeledSectionTransclusion/end" content="2014-04-10 (MW 1.23wmf22)"/></p>
+!! end
+
+## The unconventional output is the result of `usePHPPreProcessor` being
+## disabled in parserTests.js.  This test is mainly just to show <section> is
+## recognized as an extension tag w/o a native handler.
+!! test
+LST Sections: Newfangled approach
+!! options
+parsoid={ "suppressErrors": true }
+!! wikitext
+<section begin="2011-05-16" />
+<section end="2014-04-10 (MW 1.23wmf22)" />
+!! html/parsoid
+<p><span typeof="mw:Extension/section" about="#mwt1" data-parsoid='{"stx":"html","selfClose":true,"src":"&lt;section begin=\"2011-05-16\" />","tagWidths":[30,0]}'>&lt;section begin="2011-05-16" /></span>
+<span typeof="mw:Extension/section" about="#mwt2" data-parsoid='{"stx":"html","selfClose":true,"src":"&lt;section end=\"2014-04-10 (MW 1.23wmf22)\" />","tagWidths":[43,0]}'>&lt;section end="2014-04-10 (MW 1.23wmf22)" /></span></p>
+!! end
+
 #--------- Test stripping of empty nodes in template content ----------
 !!test
 Empty LI and TR nodes should be stripped from template content

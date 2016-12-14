@@ -1296,7 +1296,8 @@
     "extensiontags": [
       "<pre>",
       "<nowiki>",
-      "<gallery>"
+      "<gallery>",
+      "<section>"
     ],
     "general": {
       "mainpage": "Main Page",
