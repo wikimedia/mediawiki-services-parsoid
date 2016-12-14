@@ -1442,6 +1442,8 @@ Don't parse <nowiki><span class="error"></nowiki> (T149622)
 !! html/php
 <p>&lt;span class="error"&gt;
 </p>
+!! html/parsoid
+<p><span typeof="mw:Nowiki">&lt;span class="error"></span></p>
 !! end
 
 !! test
