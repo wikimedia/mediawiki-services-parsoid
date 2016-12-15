@@ -62,32 +62,37 @@ describe('Linter Tests', function() {
 			});
 		});
 		it('should lint obsolete tags correctly', function() {
-			return parseWT('<big>foo</big>bar').then(function(result) {
+			return parseWT('<tt>foo</tt>bar').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "obsolete-tag");
-				result[0].dsr.should.include.members([ 0, 14, 5, 6 ]);
+				result[0].dsr.should.include.members([ 0, 12, 4, 5 ]);
 				result[0].should.have.a.property("params");
-				result[0].params.should.have.a.property("name", "big");
+				result[0].params.should.have.a.property("name", "tt");
+			});
+		});
+		it('should not lint big as an obsolete tag', function() {
+			return parseWT('<big>foo</big>bar').then(function(result) {
+				result.should.have.length(0);
 			});
 		});
 		it('should lint obsolete tags found in transclusions correctly', function() {
-			return parseWT('{{1x|<div><big>foo</big></div>}}foo').then(function(result) {
+			return parseWT('{{1x|<div><tt>foo</tt></div>}}foo').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "obsolete-tag");
-				result[0].dsr.should.include.members([ 0, 32, null, null ]);
+				result[0].dsr.should.include.members([ 0, 30, null, null ]);
 				result[0].should.have.a.property("params");
-				result[0].params.should.have.a.property("name", "big");
+				result[0].params.should.have.a.property("name", "tt");
 			});
 		});
 		it('should not lint auto-inserted obsolete tags', function() {
-			return parseWT('<big>foo\n\n\nbar').then(function(result) {
+			return parseWT('<tt>foo\n\n\nbar').then(function(result) {
 				// obsolete-tag and missing-end-tag
 				result.should.have.length(2);
 				result[0].should.have.a.property("type", "missing-end-tag");
 				result[1].should.have.a.property("type", "obsolete-tag");
-				result[1].dsr.should.include.members([ 0, 8, 5, 0 ]);
+				result[1].dsr.should.include.members([ 0, 7, 4, 0 ]);
 				result[1].should.have.a.property("params");
-				result[1].params.should.have.a.property("name", "big");
+				result[1].params.should.have.a.property("name", "tt");
 			});
 		});
 		it('should lint fostered content correctly', function() {
