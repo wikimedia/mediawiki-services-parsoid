@@ -7025,7 +7025,7 @@
 			],
 			"localname": "Zulu"
 		},
-		"count": 901,
+		"count": 902,
 		"specials": [
 			{
 				"url": "https://advisory.wikimedia.org",
@@ -7039,6 +7039,13 @@
 				"dbname": "arwikimedia",
 				"code": "arwikimedia",
 				"sitename": "Wikimedia Argentina"
+			},
+			{
+				"url": "https://arbcom-cs.wikipedia.org",
+				"dbname": "arbcom_cswiki",
+				"code": "arbcom-cs",
+				"sitename": "Arbitrážní výbor",
+				"private": ""
 			},
 			{
 				"url": "https://arbcom-de.wikipedia.org",
