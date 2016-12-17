@@ -22672,15 +22672,15 @@ A <ref >foo</ref >
 Ref: 17. Generate valid HTML5 id/about attributes
 !!wikitext
 <ref name="a b">foo</ref>
+<ref name=":0">ve-created name</ref>
 
 <references />
 !!html/parsoid
-<p><span class="mw-ref" id="cite_ref-a_b_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-a_b-1"},"attrs":{"name":"a b"}}'><a href="./Main_Page#cite_note-a_b-1"><span class="mw-reflink-text">[1]</span></a></span>
-</p>
+<p><span about="#mwt2" class="mw-ref" id="cite_ref-a_b_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-a_b-1"},"attrs":{"name":"a b"}}'><a href="./Main_Page#cite_note-a_b-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></span>
+<span about="#mwt4" class="mw-ref" id="cite_ref-:0_2-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-:0-2"},"attrs":{"name":":0"}}'><a href="./Main_Page#cite_note-:0-2" style="counter-reset: mw-Ref 2;"><span class="mw-reflink-text">[2]</span></a></span>
 
-<ol class="mw-references" typeof="mw:Extension/references" about="#mwt4" data-mw='{"name":"references","attrs":{}}'>
-<li about="#cite_note-a_b-1" id="cite_note-a_b-1"><a href="./Main_Page#cite_ref-a_b_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-a_b-1" class="mw-reference-text">foo</span></li>
-</ol>
+<ol class="mw-references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-a_b-1" id="cite_note-a_b-1"><a href="./Main_Page#cite_ref-a_b_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-a_b-1" class="mw-reference-text">foo</span></li><li about="#cite_note-:0-2" id="cite_note-:0-2"><a href="./Main_Page#cite_ref-:0_2-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-:0-2" class="mw-reference-text">ve-created name</span></li></ol>
+
 !!end
 
 !!test
