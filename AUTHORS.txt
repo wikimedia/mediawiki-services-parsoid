@@ -17,6 +17,7 @@ Other contributors (listed alphabetically by first name):
   Carl Fürstenberg,
   E.C.Okpo, Ed Sanders, Erik Bernhardson,
   Faidon Liambotis,
+  Giuseppe Lavagetto,
   Hardik Juneja,
   Inez Korczyński,
   James Douglas, James Forrester, Jeff Evans,
@@ -27,7 +28,7 @@ Other contributors (listed alphabetically by first name):
   Ori Livneh,
   plancalculus,
   Ricordisamoa, Roan Kattouw, Robert Smith,
-  S Page, Sam Reed, Sebastian Wong, Siebrand Mazeland,
+  S Page, Sam Reed, Sébastien Santoro, Sebastian Wong, Siebrand Mazeland,
   Timo Tijhof, Trevor Parscal,
   vichak,
   Yuvaraj Pandian
