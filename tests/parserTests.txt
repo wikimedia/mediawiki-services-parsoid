@@ -6465,6 +6465,18 @@ parsoid=wt2html,html2html
 <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"ho\">ha&lt;/div>"}},"i":0}}]}'>ho">ha</span>
 !! end
 
+!! test
+Don't break on | in extension attribute in template
+!! wikitext
+{{echo|<ref name="hi|ho">ha</ref>}}
+
+<references />
+!! html/parsoid
+<p><span about="#mwt2" class="mw-ref" id="cite_ref-hi.7Cho_1-0" rel="dc:references" typeof="mw:Transclusion  mw:Extension/ref" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;ref name=\"hi|ho\">ha&lt;/ref>"}},"i":0}}]}'><a href="./Main_Page#cite_note-hi.7Cho-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></span></p>
+
+<ol class="mw-references" typeof="mw:Extension/references" about="#mwt5" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-hi.7Cho-1" id="cite_note-hi.7Cho-1"><a href="./Main_Page#cite_ref-hi.7Cho_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-hi.7Cho-1" class="mw-reference-text">ha</span></li></ol>
+!! end
+
 ## We don't support roundtripping of these attributes in Parsoid.
 ## Selective serialization takes care of preventing dirty diffs.
 ## But, on edits, we dirty-diff the invalid attribute text.
