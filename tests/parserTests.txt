@@ -6482,6 +6482,14 @@ parsoid=wt2html,html2html
 !! end
 
 !! test
+Break on | in element attribute name in template
+!! wikitext
+{{echo|<div cla|ss="hiho">ha</div>}}
+!! html/parsoid
+<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"},{"k":"ss","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;div cla"},"ss":{"wt":"\"hiho\">ha&lt;/div>"}},"i":0}}]}'>&lt;div cla</p>
+!! end
+
+!! test
 Don't break on | in extension attribute in template
 !! wikitext
 {{echo|<ref name="hi|ho">ha</ref>}}
