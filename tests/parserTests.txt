@@ -529,6 +529,22 @@ Extra newlines between heading and content are swallowed
 !! end
 
 !! test
+Heading with line break in nowiki
+!! options
+parsoid=wt2html
+!! wikitext
+== A <nowiki>B
+C</nowiki> ==
+!! html
+<h2><span class="mw-headline" id="A_B.0AC">A B
+C</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: A B&#10;C">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+
+!! html/parsoid
+<h2 id="A_B.0AC">A <span typeof="mw:Nowiki">B
+C</span> </h2>
+!! end
+
+!! test
 Parsing an URL
 !! wikitext
 http://fr.wikipedia.org/wiki/🍺
@@ -14158,6 +14174,19 @@ Escape HTML special chars in image alt text
 !! end
 
 !! test
+Escape HTML special chars in image alt text with LanguageConverter
+!! options
+language=zh
+!! wikitext
+[[File:Foobar.jpg|& < > "]]
+!! html/php
+<p><a href="/wiki/File:Foobar.jpg" class="image" title="&amp; &lt; &gt; &quot;"><img alt="&amp; &lt; &gt; &quot;" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
+</p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image" data-parsoid='{"optList":[{"ck":"caption","ak":"&amp; &lt; > \""}]}' data-mw='{"caption":"&amp;amp; &amp;lt; > \""}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"},"sa":{}}'><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></span></p>
+!! end
+
+!! test
 Entities in file name and attributes
 !! wikitext
 [[File:7%25 solution.gif|manualthumb=7%25 solution.gif|link=7%25 solution|[[7%25 solution]]]]
@@ -20609,16 +20638,70 @@ language=sr variant=sr-ec
 </p>
 !! end
 
-# FIXME: This test is currently broken in the PHP parser (bug 52661)
 !! test
-Don't break image parsing if language converter markup is in the caption.
+T146304: Don't break template parsing if language converter markup is in the parameter.
+!! options
+language=sr variant=sr-ec
+!! wikitext
+{{echo|-{R|foo}-}}
+!! html/php
+<p>foo
+</p>
+!! end
+
+!! test
+T146305: Don't break image parsing if language converter markup is in the caption.
 !! options
 language=sr
 !! wikitext
-[[File:Foobar.jpg|-{R|caption}-]]
+[[File:Foobar.jpg|thumb|-{R|caption:}-]]
+!! html/php
+<div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/%D0%94%D0%B0%D1%82%D0%BE%D1%82%D0%B5%D0%BA%D0%B0:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/%D0%94%D0%B0%D1%82%D0%BE%D1%82%D0%B5%D0%BA%D0%B0:Foobar.jpg" class="internal" title="Повећај"></a></div>caption:</div></div></div>
+
 !! html/parsoid
-<p><a href="/wiki/File:Foobar.jpg" class="image" title="caption"><img alt="caption" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./Датотека:Foobar.jpg"><img resource="./Датотека:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><span typeof="mw:LanguageVariant" data-mw='{"disabled":true,"show":true,"text":"caption:"}'></span></figcaption></figure>
+!! end
+
+!! test
+T146305: Don't break image parsing if nested language converter markup is in the caption.
+!! options
+language=zh variant=zh-cn
+!! wikitext
+[[File:Foobar.jpg|thumb|-{zh-cn:blog (hk: -{zh-hans|WEBJOURNAL}-, tw: -{zh-hans|WEBLOG}-)}-]]
+!! html/php
+<div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="放大"></a></div>blog (hk: WEBJOURNAL, tw: WEBLOG)</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><span typeof="mw:LanguageVariant" data-mw='{"bidir":[{"l":"zh-cn","t":"blog (hk: &lt;span typeof=\"mw:LanguageVariant\" data-parsoid=&#39;{\"fl\":[\"zh-hans\"],\"dsr\":[42,64,null,2]}&#39; data-mw=&#39;{\"filter\":[\"zh-hans\"],\"text\":\"WEBJOURNAL\"}&#39;>&lt;/span>, tw: &lt;span typeof=\"mw:LanguageVariant\" data-parsoid=&#39;{\"fl\":[\"zh-hans\"],\"dsr\":[70,88,null,2]}&#39; data-mw=&#39;{\"filter\":[\"zh-hans\"],\"text\":\"WEBLOG\"}&#39;>&lt;/span>)"}],"show":true}'></span></figcaption></figure>
+!! end
+
+!! test
+Don't break gallery if language converter markup is inside.
+!! options
+language=zh
+!! wikitext
+<gallery>
+File:foobar.jpg|[[File:foobar.jpg|20px|desc|alt=-{R|foo}-|-{R|bar}-]]|alt=-{R|bat}-
+File:foobar.jpg|{{Test|unamedParam|alt=-{R|param}-}}|alt=galleryalt
+</gallery>
+!! html
+<ul class="gallery mw-gallery-traditional">
+		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="bat" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="gallerytext">
+<p><a href="/wiki/File:Foobar.jpg" class="image" title="bar"><img alt="foo" src="http://example.com/images/thumb/3/3a/Foobar.jpg/20px-Foobar.jpg" width="20" height="2" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/30px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/40px-Foobar.jpg 2x" /></a>
 </p>
+			</div>
+		</div></li>
+		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="galleryalt" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="gallerytext">
+<p>This is a test template
+</p>
+			</div>
+		</div></li>
+</ul>
+
 !! end
 
 # FIXME: This test is currently broken in the PHP parser (bug 52661)
@@ -20636,9 +20719,8 @@ language=zh variant=zh-cn
 </dt></dl>
 !! end
 
-# FIXME: This test is currently broken in the PHP parser (bug 52661)
 !! test
-Don't break table handling if language converter markup is in the cell.
+T153140: Don't break table handling if language converter markup is in the cell.
 !! options
 language=sr variant=sr-ec
 !! wikitext
@@ -20650,7 +20732,7 @@ language=sr variant=sr-ec
 <table>
 
 <tr>
-<td>Б}-
+<td> B
 </td></tr></table>
 
 !! html/parsoid
@@ -22218,7 +22300,102 @@ Ignore pipe between table row attributes
 
 !! end
 
+!!test
+Gallery override link with WikiLink (bug 34852)
+!! wikitext
+<gallery>
+File:foobar.jpg|caption|alt=galleryalt|link=InterWikiLink
+</gallery>
+!! html
+<ul class="gallery mw-gallery-traditional">
+		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/InterWikiLink"><img alt="galleryalt" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="gallerytext">
+<p>caption
+</p>
+			</div>
+		</div></li>
+</ul>
+
+!! end
+
+!!test
+Gallery override link with absolute external link (bug 34852)
+!! wikitext
+<gallery>
+File:foobar.jpg|caption|alt=galleryalt|link=http://www.example.org
+</gallery>
+!! html
+<ul class="gallery mw-gallery-traditional">
+		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="http://www.example.org"><img alt="galleryalt" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="gallerytext">
+<p>caption
+</p>
+			</div>
+		</div></li>
+</ul>
+
+!! end
+
 !! test
+Gallery override link with absolute external link with LanguageConverter
+!! options
+language=zh
+!! input
+<gallery>
+File:foobar.jpg|caption|alt=galleryalt|link=http://www.example.org
+</gallery>
+!! result
+<ul class="gallery mw-gallery-traditional">
+		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="http://www.example.org"><img alt="galleryalt" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="gallerytext">
+<p>caption
+</p>
+			</div>
+		</div></li>
+</ul>
+
+!! end
+
+!!test
+Gallery override link with malicious javascript (bug 34852)
+!! wikitext
+<gallery>
+File:foobar.jpg|caption|alt=galleryalt|link=" onclick="alert('malicious javascript code!');
+</gallery>
+!! html
+<ul class="gallery mw-gallery-traditional">
+		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/%22_onclick%3D%22alert(%27malicious_javascript_code!%27);"><img alt="galleryalt" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="gallerytext">
+<p>caption
+</p>
+			</div>
+		</div></li>
+</ul>
+
+!! end
+
+!!test
+Gallery with invalid title as link (bug 43964)
+!! wikitext
+<gallery>
+File:foobar.jpg|link=<
+</gallery>
+!! html
+<ul class="gallery mw-gallery-traditional">
+		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="gallerytext">
+			</div>
+		</div></li>
+</ul>
+
+!! end
+
+!!test
 Language parser function
 !! wikitext
 {{#language:ar}}
