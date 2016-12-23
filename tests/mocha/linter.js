@@ -191,5 +191,19 @@ describe('Linter Tests', function() {
 				result[0].templateInfo.should.have.a.property("name", "1x");
 			});
 		});
+		it('should lint mixed-content templates', function() {
+			return parseWT('{{1x|*}}hi').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "mixed-content");
+				result[0].dsr.should.include.members([ 0, 10, null, null ]);
+			});
+		});
+		it('should lint multi-template', function() {
+			return parseWT('{{1x|*}}{{1x|hi}}').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "multi-template");
+				result[0].dsr.should.include.members([ 0, 17, null, null ]);
+			});
+		});
 	});
 });
