@@ -10336,7 +10336,7 @@ Parsoid: Page property magic word with magic word contents
 !! wikitext
 {{DISPLAYTITLE:''{{PAGENAME}}''}}
 !! html/parsoid
-<meta property="mw:PageProp/displaytitle" content="Main Page" about="#mwt2" typeof="mw:ExpandedAttrs" data-parsoid='{"src":"{{DISPLAYTITLE:&#39;&#39;{{PAGENAME}}&#39;&#39;}}"}' data-mw='{"attribs":[[{"txt":"content"},{"html":"&lt;i data-parsoid=&#39;{\"dsr\":[15,31,2,2]}&#39;>&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=&#39;{\"pi\":[[]],\"dsr\":[17,29,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"PAGENAME\",\"function\":\"pagename\"},\"params\":{},\"i\":0}}]}&#39;>Main Page&lt;/span>&lt;/i>"}]]}'/>
+<meta property="mw:PageProp/displaytitle" content="Main Page" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"src":"{{DISPLAYTITLE:&#39;&#39;{{PAGENAME}}&#39;&#39;}}"}' data-mw='{"attribs":[[{"txt":"content"},{"html":"&lt;i data-parsoid=&#39;{\"dsr\":[15,31,2,2]}&#39;>&lt;span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid=&#39;{\"pi\":[[]],\"dsr\":[17,29,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"PAGENAME\",\"function\":\"pagename\"},\"params\":{},\"i\":0}}]}&#39;>Main Page&lt;/span>&lt;/i>"}]]}'/>
 !! end
 
 !! test
