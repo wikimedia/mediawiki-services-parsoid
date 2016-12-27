@@ -10434,15 +10434,18 @@ Parsoid: Page property magic word with magic word contents
 !! wikitext
 {{DISPLAYTITLE:''{{PAGENAME}}''}}
 !! html/parsoid
-<meta property="mw:PageProp/displaytitle" content="Main Page" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"src":"{{DISPLAYTITLE:&#39;&#39;{{PAGENAME}}&#39;&#39;}}"}' data-mw='{"attribs":[[{"txt":"content"},{"html":"&lt;i data-parsoid=&#39;{\"dsr\":[15,31,2,2]}&#39;>&lt;span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid=&#39;{\"pi\":[[]],\"dsr\":[17,29,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"PAGENAME\",\"function\":\"pagename\"},\"params\":{},\"i\":0}}]}&#39;>Main Page&lt;/span>&lt;/i>"}]]}'/>
+<meta property="mw:PageProp/displaytitle" content="Main Page" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"src":"{{DISPLAYTITLE:&#39;&#39;{{PAGENAME}}&#39;&#39;}}"}' data-mw='{"attribs":[[{"txt":"content"},{"html":"DISPLAYTITLE:&lt;i data-parsoid=&#39;{\"dsr\":[15,31,2,2]}&#39;>&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=&#39;{\"pi\":[[]],\"dsr\":[17,29,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"PAGENAME\",\"function\":\"pagename\"},\"params\":{},\"i\":0}}]}&#39;>Main Page&lt;/span>&lt;/i>"}]]}'/>
 !! end
 
+# NOTE: mw:ExpandedAttrs is not the best typeof here. mw:Transclusion is better.
+# But, this is a limitation of our representation and is documented in
+# TemplateHandler.js in processSpecialMagicWord
 !! test
 Parsoid: Template-generated DISPLAYTITLE
 !! wikitext
 {{{{echo|DISPLAYTITLE}}:Foo}}
 !! html/parsoid
-<meta property="mw:PageProp/displaytitle" content="Foo" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"{{echo|DISPLAYTITLE}}:Foo"},"params":{},"i":0}}]}'/>
+<meta property="mw:PageProp/displaytitle" content="Foo" about="#mwt1" typeof="mw:ExpandedAttrs" data-parsoid='{"pi":[[]]}' data-mw='{"attribs":[[{"txt":"content"},{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=&#39;{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[2,23,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"DISPLAYTITLE\"}},\"i\":0}}]}&#39;>DISPLAYTITLE&lt;/span>:Foo"}]]}'/>
 !! end
 
 !! test
@@ -11003,6 +11006,21 @@ Template with complex template as argument
 !! html
 <p>This is a test template with parameter (test)
 </p>
+!! end
+
+!! test
+Templates with templated name
+!! wikitext
+{{{{echo|echo}}|foo}}
+{{{{echo|inner list}} }}
+!! html
+<p>foo
+</p>
+<ul><li> item 1</li></ul>
+
+!! html/parsoid
+<p about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"{{echo|echo}}","href":"./Template:Echo"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</p>
+<ul about="#mwt4" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"{{echo|inner list}} ","href":"./Template:Inner_list"},"params":{},"i":0}}]}'><li> item 1</li></ul>
 !! end
 
 !! test
@@ -15376,12 +15394,15 @@ Parsoid: Defaultsort
 <meta property="mw:PageProp/categorydefaultsort" content="Foo"/>
 !! end
 
+# NOTE: mw:ExpandedAttrs is not the best typeof here. mw:Transclusion is better.
+# But, this is a limitation of our representation and is documented in
+# TemplateHandler.js in processSpecialMagicWord
 !! test
 Parsoid: Defaultsort (template-generated)
 !! wikitext
 {{{{echo|DEFAULTSORT}}:Foo}}
 !! html/parsoid
-<meta property="mw:PageProp/categorydefaultsort" content="Foo" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"{{echo|DEFAULTSORT}}:Foo"},"params":{},"i":0}}]}'/>
+<meta property="mw:PageProp/categorydefaultsort" content="Foo" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"src":"{{{{echo|DEFAULTSORT}}:Foo}}","dsr":[0,26,null,null]}' data-mw='{"attribs":[[{"txt":"content"},{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=&#39;{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[2,22,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"DEFAULTSORT\"}},\"i\":0}}]}&#39;>DEFAULTSORT&lt;/span>:Foo"}]]}'/>
 !! end
 
 ###
