@@ -19490,6 +19490,24 @@ File:Foobar.jpg|link=<
 !! end
 
 !! test
+Serialize gallery without attrs in data-mw
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "nativeGallery": true
+}
+!! html/parsoid
+<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt2" data-mw='{"name":"gallery","body":{}}'>
+<li class="gallerycaption">123</li>
+<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><span style="display: inline-block; height: 100%; vertical-align: middle;"></span><span style="vertical-align: middle; display: inline-block;">File:Test.png</span></div><div class="gallerytext"></div></li>
+</ul>
+!! wikitext
+<gallery caption="123">
+File:Test.png
+</gallery>
+!! end
+
+!! test
 HTML Hex character encoding (spells the word "JavaScript")
 !! options
 parsoid=wt2html,wt2wt,html2html
