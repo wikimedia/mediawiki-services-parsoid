@@ -73,8 +73,8 @@
     "url": "https://github.com/wikimedia/parsoid.git"
   },
   "deploy": {
-    "target": "ubuntu",
-    "node": "4.6.0",
+    "target": "debian",
+    "node": "6.9.1",
     "dependencies": {
       "_all": []
     }
