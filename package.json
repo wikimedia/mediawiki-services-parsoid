@@ -26,9 +26,9 @@
     "request": "^2.74.0",
     "semver": "^5.3.0",
     "serve-favicon": "^2.3.0",
-    "service-runner": "^2.1.0",
+    "service-runner": "^2.1.13",
     "simplediff": "^0.1.1",
-    "yargs": "^4.7.1"
+    "yargs": "^5.0.0"
   },
   "devDependencies": {
     "alea": "^0.0.9",

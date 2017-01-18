@@ -355,7 +355,7 @@ if (require.main === module) {
 			standardOpts
 		).strict();
 
-		var argv = opts.argv;
+		var argv = opts.parse(process.argv);
 
 		if (Util.booleanOption(argv.help)) {
 			opts.showHelp();
