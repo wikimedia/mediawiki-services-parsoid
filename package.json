@@ -6,7 +6,7 @@
   "dependencies": {
     "async": "^0.9.2",
     "babybird": "^0.0.1",
-    "body-parser": "^1.15.2",
+    "body-parser": "^1.16.0",
     "compression": "^1.6.2",
     "connect-busboy": "^0.0.2",
     "content-type": "git+https://github.com/wikimedia/content-type#master",
@@ -23,9 +23,9 @@
     "node-uuid": "^1.4.7",
     "pegjs": "git+https://github.com/tstarling/pegjs#fork",
     "prfun": "^2.1.4",
-    "request": "^2.74.0",
+    "request": "^2.79.0",
     "semver": "^5.3.0",
-    "serve-favicon": "^2.3.0",
+    "serve-favicon": "^2.3.2",
     "service-runner": "^2.1.13",
     "simplediff": "^0.1.1",
     "yargs": "^5.0.0"
