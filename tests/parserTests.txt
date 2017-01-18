@@ -16487,9 +16487,11 @@ Template:Div style
 Bug 2304: HTML attribute safety (safe template; regression bug 2309)
 !! wikitext
 <div title="{{test}}"></div>
-!! html
+!! html/php
 <div title="This is a test template"></div>
 
+!! html/parsoid
+<div title="This is a test template" about="#mwt2" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"title":"This is a test template"},"sa":{"title":"{{test}}"}}' data-mw='{"attribs":[[{"txt":"title"},{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=&#39;{\"pi\":[[]],\"dsr\":[12,20,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"test\",\"href\":\"./Template:Test\"},\"params\":{},\"i\":0}}]}&#39;>This is a test template&lt;/span>"}]]}'></div>
 !! end
 
 # Parsoid has enough context to handle this case
@@ -16508,29 +16510,36 @@ Bug 2304: HTML attribute safety (dangerous template; 2309)
 Bug 2304: HTML attribute safety (dangerous style template; 2309)
 !! wikitext
 <div style="{{dangerous style attribute}}"></div>
-!! html
+!! html/php
 <div style="/* insecure input */"></div>
 
+!! html/parsoid
+<div style="/* insecure input */" about="#mwt2" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"style":"/* insecure input */"},"sa":{"style":"{{dangerous style attribute}}"}}' data-mw='{"attribs":[[{"txt":"style"},{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=&#39;{\"pi\":[[]],\"dsr\":[12,41,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"dangerous style attribute\",\"href\":\"./Template:Dangerous_style_attribute\"},\"params\":{},\"i\":0}}]}&#39;>border-size: expression(alert(document.cookie))&lt;/span>"}]]}'></div>
 !! end
 
 !! test
 Bug 2304: HTML attribute safety (safe parameter; 2309)
 !! wikitext
 {{div style|width: 200px}}
-!! html
+!! html/php
 <div style="float: right; width: 200px">Magic div</div>
 
+!! html/parsoid
+<div style="float: right; width: 200px" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","a":{"style":"float: right; width: 200px"},"sa":{"style":"float: right; {{{1}}}"},"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"div style","href":"./Template:Div_style"},"params":{"1":{"wt":"width: 200px"}},"i":0}}]}'>Magic div</div>
 !! end
 
 !! test
 Bug 2304: HTML attribute safety (unsafe parameter; 2309)
 !! wikitext
 {{div style|width: expression(alert(document.cookie))}}
-!! html
+!! html/php
 <div style="/* insecure input */">Magic div</div>
 
+!! html/parsoid
+<div style="/* insecure input */" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","a":{"style":"/* insecure input */"},"sa":{"style":"float: right; {{{1}}}"},"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"div style","href":"./Template:Div_style"},"params":{"1":{"wt":"width: expression(alert(document.cookie))"}},"i":0}}]}'>Magic div</div>
 !! end
 
+## Parsoid output here differs; needs investigation.
 !! test
 Bug 2304: HTML attribute safety (unsafe breakout parameter; 2309)
 !! wikitext
@@ -16540,6 +16549,7 @@ Bug 2304: HTML attribute safety (unsafe breakout parameter; 2309)
 
 !! end
 
+## Parsoid output here differs; needs investigation.
 !! test
 Bug 2304: HTML attribute safety (unsafe breakout parameter 2; 2309)
 !! wikitext
@@ -16575,7 +16585,6 @@ Bug 2304: HTML attribute safety (bold)
 <div title="&#39;&#39;&#39;foobar&#39;&#39;&#39;"></div>
 
 !! end
-
 
 !! test
 Bug 2304: HTML attribute safety (ISBN)
@@ -16626,18 +16635,22 @@ Bug 2304: HTML attribute safety (named web link)
 Bug 3244: HTML attribute safety (extension; safe)
 !! wikitext
 <div style="<nowiki>background:blue</nowiki>"></div>
-!! html
+!! html/php
 <div style="background:blue"></div>
 
+!! html/parsoid
+<div style="background:blue" data-parsoid='{"stx":"html","a":{"style":"background:blue"},"sa":{"style":"&lt;nowiki>background:blue&lt;/nowiki>"}}'></div>
 !! end
 
 !! test
 Bug 3244: HTML attribute safety (extension; unsafe)
 !! wikitext
 <div style="<nowiki>border-left:expression(alert(document.cookie))</nowiki>"></div>
-!! html
+!! html/php
 <div style="/* insecure input */"></div>
 
+!! html/parsoid
+<div style="/* insecure input */" data-parsoid='{"stx":"html","a":{"style":"/* insecure input */"},"sa":{"style":"&lt;nowiki>border-left:expression(alert(document.cookie))&lt;/nowiki>"}}'></div>
 !! end
 
 # More MSIE fun discovered by Tom Gilder
@@ -16646,36 +16659,44 @@ Bug 3244: HTML attribute safety (extension; unsafe)
 MSIE CSS safety test: spurious slash
 !! wikitext
 <div style="background-image:u\rl(javascript:alert('boo'))">evil</div>
-!! html
+!! html/php
 <div style="/* insecure input */">evil</div>
 
+!! html/parsoid
+<div style="/* insecure input */" data-parsoid='{"stx":"html","a":{"style":"/* insecure input */"},"sa":{"style":"background-image:u\\rl(javascript:alert(&#39;boo&#39;))"}}'>evil</div>
 !! end
 
 !! test
 MSIE CSS safety test: hex code
 !! wikitext
 <div style="background-image:u\72l(javascript:alert('boo'))">evil</div>
-!! html
+!! html/php
 <div style="/* insecure input */">evil</div>
 
+!! html/parsoid
+<div style="/* insecure input */" data-parsoid='{"stx":"html","a":{"style":"/* insecure input */"},"sa":{"style":"background-image:u\\72l(javascript:alert(&#39;boo&#39;))"}}'>evil</div>
 !! end
 
 !! test
 MSIE CSS safety test: comment in url
 !! wikitext
 <div style="background-image:u/**/rl(javascript:alert('boo'))">evil</div>
-!! html
+!! html/php
 <div style="background-image:u rl(javascript:alert(&#39;boo&#39;))">evil</div>
 
+!! html/parsoid
+<div style="background-image:u rl(javascript:alert('boo'))" data-parsoid='{"stx":"html","a":{"style":"background-image:u rl(javascript:alert(&#39;boo&#39;))"},"sa":{"style":"background-image:u/**/rl(javascript:alert(&#39;boo&#39;))"}}'>evil</div>
 !! end
 
 !! test
 MSIE CSS safety test: comment in expression
 !! wikitext
 <div style="background-image:expres/**/sion(alert('boo4'))">evil4</div>
-!! html
+!! html/php
 <div style="background-image:expres sion(alert(&#39;boo4&#39;))">evil4</div>
 
+!! html/parsoid
+<div style="background-image:expres sion(alert('boo4'))" data-parsoid='{"stx":"html","a":{"style":"background-image:expres sion(alert(&#39;boo4&#39;))"},"sa":{"style":"background-image:expres/**/sion(alert(&#39;boo4&#39;))"}}'>evil4</div>
 !! end
 
 !! test
@@ -16839,7 +16860,6 @@ Expansion of multi-line templates in attribute values (bug 6255)
 
 !! end
 
-
 !! test
 Expansion of multi-line templates in attribute values (bug 6255 sanity check)
 !! wikitext
@@ -16873,6 +16893,7 @@ Tags which are hidden from Tidy cannot pass through the Sanitizer
 ###
 ### Parser hooks (see tests/parser/parserTestsParserHook.php for the <tag> extension)
 ###
+
 !! test
 Parser hook: empty input
 !! wikitext
