@@ -1135,7 +1135,7 @@ The ''[[Main Page]]'''s talk page.
 <p>The <i><a href="/wiki/Main_Page" title="Main Page">Main Page</a>'</i>s talk page.
 </p>
 !! html/parsoid
-<p>The <i><a rel="mw:WikiLink"  href="Main_Page" title="Main Page">Main Page</a>'</i>s talk page.</p>
+<p>The <i><a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a>'</i>s talk page.</p>
 !! end
 
 !! test
@@ -7496,7 +7496,7 @@ Piped link with multiple pipe characters in link text
 <p><a href="/wiki/Main_Page" title="Main Page">|The|Main|Page|</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="Main_Page" title="Main Page">|The|Main|Page|</a></p>
+<p><a rel="mw:WikiLink" href="./Main_Page" title="Main Page">|The|Main|Page|</a></p>
 !! end
 
 !! test
@@ -7860,7 +7860,7 @@ Some [[Link|pretty ''italics'' and stuff]]!
 <p>Some <a href="/index.php?title=Link&amp;action=edit&amp;redlink=1" class="new" title="Link (page does not exist)">pretty <i>italics</i> and stuff</a>!
 </p>
 !! html/parsoid
-<p>Some <a rel="mw:WikiLink" href="Link" title="Link">pretty <i>italics</i> and stuff</a>!</p>
+<p>Some <a rel="mw:WikiLink" href="./Link" title="Link">pretty <i>italics</i> and stuff</a>!</p>
 !! end
 
 !! test
@@ -7890,9 +7890,9 @@ Link with double quotes in title part (literal) and alternate part (interpreted)
 </p>
 !! html/parsoid
 <p><span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"missing-image","message":"This image does not exist."}]}'><a href="./File:Denys_Savchenko_''Pentecoste''.jpg"><img resource="./File:Denys_Savchenko_''Pentecoste''.jpg" src="./Special:FilePath/Denys_Savchenko_''Pentecoste''.jpg" height="220" width="220"/></a></span></p>
-<p><a rel="mw:WikiLink" href="''Pentecoste''" title="''Pentecoste''">''Pentecoste''</a></p>
-<p><a rel="mw:WikiLink" href="''Pentecoste''" title="''Pentecoste''">Pentecoste</a></p>
-<p><a rel="mw:WikiLink" href="''Pentecoste''" title="''Pentecoste''"><i>Pentecoste</i></a></p>
+<p><a rel="mw:WikiLink" href="./''Pentecoste''" title="''Pentecoste''">''Pentecoste''</a></p>
+<p><a rel="mw:WikiLink" href="./''Pentecoste''" title="''Pentecoste''">Pentecoste</a></p>
+<p><a rel="mw:WikiLink" href="./''Pentecoste''" title="''Pentecoste''"><i>Pentecoste</i></a></p>
 !! end
 
 !! test
@@ -8191,12 +8191,10 @@ title=[[User:test/123]]
 
 !! test
 1. Interaction of linktrail and template encapsulation
-!! options
-parsoid
 !! wikitext
 {{echo|[[Foo]]}}l
-!! html
-<p><a rel="mw:WikiLink" href="Foo" title="Foo" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[Foo]]"}},"i":0}},"l"]}'>Fool</a></p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Foo" title="Foo" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[Foo]]"}},"i":0}},"l"]}'>Fool</a></p>
 !! end
 
 !! test
@@ -8266,7 +8264,7 @@ Parsoid link trail escaping
 !! options
 parsoid=html2wt,html2html
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="Apple" title="Apple">apple</a>s</p>
+<p><a rel="mw:WikiLink" href="./Apple" title="Apple">apple</a>s</p>
 !! wikitext
 [[apple]]<nowiki/>s
 !! end
@@ -8277,7 +8275,7 @@ Parsoid link prefix escaping
 language=is
 parsoid=html2wt,html2html
 !! html/parsoid
-<p>Aðrir mótmælenda<a rel="mw:WikiLink" href="Söfnuður" title="Söfnuður">söfnuður</a></p>
+<p>Aðrir mótmælenda<a rel="mw:WikiLink" href="./Söfnuður" title="Söfnuður">söfnuður</a></p>
 !! wikitext
 Aðrir mótmælenda<nowiki/>[[söfnuður]]
 !! end
@@ -8302,12 +8300,10 @@ Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved
 
 !! test
 Parsoid: Scoped parsing should handle mixed transclusions and plain text
-!! options
-parsoid
 !! wikitext
 [[Foo|{{echo|a}} b {{echo|c}}]]
-!! html
-<p><a rel="mw:WikiLink" href="Foo" title="Foo"><span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a"}},"i":0}}]}'>a</span> b <span about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"c"}},"i":0}}]}'>c</span></a></p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Foo" title="Foo"><span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a"}},"i":0}}]}'>a</span> b <span about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"c"}},"i":0}}]}'>c</span></a></p>
 !! end
 
 !! test
@@ -8706,8 +8702,8 @@ Parsoid bug 53221: Wikilinks should be properly entity-escaped
 !! options
 parsoid={ "modes": ["html2wt"], "suppressErrors": true }
 !! html/parsoid
-<p>He&amp;nbsp;llo <a href="Foo" rel="mw:WikiLink">He&amp;nbsp;llo</a></p>
-<p>He&amp;nbsp;llo <a href="He&amp;nbsp;llo" rel="mw:WikiLink">He&amp;nbsp;llo</a></p>
+<p>He&amp;nbsp;llo <a href="./Foo" rel="mw:WikiLink">He&amp;nbsp;llo</a></p>
+<p>He&amp;nbsp;llo <a href="./He&amp;nbsp;llo" rel="mw:WikiLink">He&amp;nbsp;llo</a></p>
 !! wikitext
 He&amp;nbsp;llo [[Foo|He&amp;nbsp;llo]]
 
@@ -13552,7 +13548,7 @@ Image with link parameter, wiki target
 <p><a href="/wiki/Main_Page" title="Main Page"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:Image"><a href="Main_Page"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
+<p><span class="mw-default-size" typeof="mw:Image"><a href="./Main_Page"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
 !! end
 
 # parsoid bug 49293 (part 1)
@@ -13659,7 +13655,7 @@ Image with link parameter (wiki target) and unnamed parameter
 <p><a href="/wiki/Main_Page" title="Title"><img alt="Title" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"Title"}'><a href="Main_Page"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
+<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"Title"}'><a href="./Main_Page"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
 !! end
 
 !! test
@@ -13711,7 +13707,7 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tright"><div class="thumbinner" style="width:137px;"><a href="/wiki/Main_Page" title="Main Page"><img alt="" src="http://example.com/images/e/ea/Thumb.png" width="135" height="135" class="thumbimage" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>Title</div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb" data-mw='{"thumb":"Thumb.png"}'><a href="Main_Page"><img resource="./File:Foobar.jpg" src="//example.com/images/e/ea/Thumb.png" data-file-width="135" data-file-height="135" data-file-type="bitmap" height="135" width="135"/></a><figcaption>Title</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-mw='{"thumb":"Thumb.png"}'><a href="./Main_Page"><img resource="./File:Foobar.jpg" src="//example.com/images/e/ea/Thumb.png" data-file-width="135" data-file-height="135" data-file-type="bitmap" height="135" width="135"/></a><figcaption>Title</figcaption></figure>
 !! end
 
 !! test
@@ -13753,7 +13749,7 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tright"><div class="thumbinner" style="width:137px;"><a href="/wiki/Main_Page" title="Main Page"><img alt="alttext" src="http://example.com/images/e/ea/Thumb.png" width="135" height="135" class="thumbimage" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>Title</div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb" data-mw='{"thumb":"Thumb.png"}'><a href="Main_Page"><img alt="alttext" resource="./File:Foobar.jpg" src="//example.com/images/e/ea/Thumb.png" data-file-width="135" data-file-height="135" data-file-type="bitmap" height="135" width="135"/></a><figcaption>Title</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-mw='{"thumb":"Thumb.png"}'><a href="./Main_Page"><img alt="alttext" resource="./File:Foobar.jpg" src="//example.com/images/e/ea/Thumb.png" data-file-width="135" data-file-height="135" data-file-type="bitmap" height="135" width="135"/></a><figcaption>Title</figcaption></figure>
 !! end
 
 !! test
@@ -13766,7 +13762,7 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tleft"><div class="thumbinner" style="width:1943px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="thumbimage" /></a>  <div class="thumbcaption">This is a test image <a href="/wiki/Main_Page" title="Main Page">Main Page</a></div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Frame"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption>This is a test image <a rel="mw:WikiLink" href="Main_Page" title="Main Page">Main Page</a></figcaption></figure>
+<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Frame"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption>This is a test image <a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a></figcaption></figure>
 !! end
 
 !! test
@@ -13779,7 +13775,7 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tleft"><div class="thumbinner" style="width:1943px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Altitude" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="thumbimage" /></a>  <div class="thumbcaption">This is a test image <a href="/wiki/Main_Page" title="Main Page">Main Page</a></div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Frame"><a href="./File:Foobar.jpg"><img alt="Altitude" resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption>This is a test image <a rel="mw:WikiLink" href="Main_Page" title="Main Page">Main Page</a></figcaption></figure>
+<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Frame"><a href="./File:Foobar.jpg"><img alt="Altitude" resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption>This is a test image <a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a></figcaption></figure>
 !! end
 
 !! test
@@ -14243,7 +14239,7 @@ parsoid=wt2html,wt2wt,html2html
 <p>[[Image:Foobar.jpg|thumb|This is a broken caption. But <a href="/wiki/Main_Page" title="Main Page">this</a> is just an ordinary link.
 </p>
 !! html/parsoid
-<p>[[Image:Foobar.jpg|thumb|This is a broken caption. But <a rel="mw:WikiLink" href="Main_Page" title="Main Page">this</a> is just an ordinary link.</p>
+<p>[[Image:Foobar.jpg|thumb|This is a broken caption. But <a rel="mw:WikiLink" href="./Main_Page" title="Main Page">this</a> is just an ordinary link.</p>
 !! end
 
 !! test
@@ -14356,7 +14352,7 @@ language=es
 <div class="thumb tleft"><div class="thumbinner" style="width:222px;"><a href="/wiki/Foo" title="Foo"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/Archivo:Foobar.jpg" class="internal" title="Aumentar"></a></div>caption</div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb"><a href="Foo"><img resource="./Archivo:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb"><a href="./Foo"><img resource="./Archivo:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
@@ -14730,8 +14726,8 @@ subpage title=[[Subpage test/1/2/3/4]]
 </p><p><a href="/wiki/Subpage_test/1/2/subpage" title="Subpage test/1/2/subpage">Subpage test/1/2/subpage</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="Subpage_test/1/2/subpage" title="Subpage test/1/2/subpage">subpage</a></p>
-<p><a rel="mw:WikiLink" href="Subpage_test/1/2/subpage" title="Subpage test/1/2/subpage">Subpage_test/1/2/subpage</a></p>
+<p><a rel="mw:WikiLink" href="./Subpage_test/1/2/subpage" title="Subpage test/1/2/subpage">subpage</a></p>
+<p><a rel="mw:WikiLink" href="./Subpage_test/1/2/subpage" title="Subpage test/1/2/subpage">Subpage_test/1/2/subpage</a></p>
 !! end
 
 !! test
@@ -15021,12 +15017,12 @@ Bar
 Bar
 </p>
 !! html/parsoid
-<p>Foo <link rel="mw:PageProp/Category" href="Category:Baz"/> Bar</p>
-<p>Foo <link rel="mw:PageProp/Category" href="Category:Baz"/> Bar</p>
-<p>Foo <link rel="mw:PageProp/Category" href="Category:Baz"/> Bar</p>
-<p>Foo <link rel="mw:PageProp/Category" href="Category:Baz"/> Bar</p>
-<p>Foo <link rel="mw:PageProp/Category" href="Category:Baz"/> <link rel="mw:PageProp/Category" href="Category:Baz"/> <link rel="mw:PageProp/Category" href="Category:Baz"/> Bar <link rel="mw:PageProp/Category" href="Category:Baz"/> <link rel="mw:PageProp/Category" href="Category:Baz"/> <link rel="mw:PageProp/Category" href="Category:Baz"/> <link rel="mw:PageProp/Category" href="Category:Baz"/> <link rel="mw:PageProp/Category" href="Category:Baz" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[Category:Baz]]"}},"i":0}}]}'/></p>
-<link rel="mw:PageProp/Category" href="Category:Baz"/>
+<p>Foo <link rel="mw:PageProp/Category" href="./Category:Baz"/> Bar</p>
+<p>Foo <link rel="mw:PageProp/Category" href="./Category:Baz"/> Bar</p>
+<p>Foo <link rel="mw:PageProp/Category" href="./Category:Baz"/> Bar</p>
+<p>Foo <link rel="mw:PageProp/Category" href="./Category:Baz"/> Bar</p>
+<p>Foo <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> Bar <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[Category:Baz]]"}},"i":0}}]}'/></p>
+<link rel="mw:PageProp/Category" href="./Category:Baz"/>
 !! end
 
 ## We used to, but no longer wt2wt this test since the default serializer
@@ -20402,8 +20398,8 @@ parsoid=wt2html
 !! html/php
 cat=分类 sort=
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="A" title="A">A</a></p>
-<link rel="mw:PageProp/Category" href="Category:分类"/>
+<p><a rel="mw:WikiLink" href="./A" title="A">A</a></p>
+<link rel="mw:PageProp/Category" href="./Category:分类"/>
 !! end
 
 !! test
@@ -22698,7 +22694,7 @@ A <ref>
 <p>A <span about="#mwt2" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-1"},"attrs":{}}'><a href="./Main_Page#cite_note-1"><span class="mw-reflink-text">[1]</span></a></span></p>
 
 <ol class="mw-references" typeof="mw:Extension/references" about="#mwt5" data-mw='{"name":"references","attrs":{}}'>
-<li about="#cite_note-1" id="cite_note-1"><a href="./Main_Page#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">This is a <b><a rel="mw:WikiLink" href="Bolded_link" title="Bolded link">bolded link</a></b> and this is a <span about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"transclusion"}},"i":0}}]}'>transclusion</span>
+<li about="#cite_note-1" id="cite_note-1"><a href="./Main_Page#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">This is a <b><a rel="mw:WikiLink" href="./Bolded_link" title="Bolded link">bolded link</a></b> and this is a <span about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"transclusion"}},"i":0}}]}'>transclusion</span>
 </span></li>
 </ol>
 !!end
