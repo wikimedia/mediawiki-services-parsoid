@@ -933,6 +933,7 @@ Italics and bold: 5-quote opening sequence: (5,6)
 ###
 ### multiple quote sequences in a line
 ###
+
 !! test
 Italics and bold: multiple quote sequences: (2,4,2)
 !! options
@@ -942,8 +943,7 @@ parsoid=wt2html
 !! html/*
 <p><i>foo'<b>bar</b></i>
 </p>
-!!end
-
+!! end
 
 # same html as previous, but wikitext adjusted to match parsoid html2wt
 !! test
@@ -955,7 +955,6 @@ Italics and bold: multiple quote sequences: (2,4,2+3) w/ nowiki
 </p>
 !! end
 
-
 !! test
 Italics and bold: multiple quote sequences: (2,4,3)
 !! options
@@ -965,8 +964,7 @@ parsoid=wt2html
 !! html/*
 <p><i>foo'<b>bar</b></i>
 </p>
-!!end
-
+!! end
 
 # same html as previous, but wikitext adjusted to match parsoid html2wt
 !! test
@@ -978,7 +976,6 @@ Italics and bold: multiple quote sequences: (2,4,3+2) w/ nowiki
 </p>
 !! end
 
-
 !! test
 Italics and bold: multiple quote sequences: (2,4,4)
 !! options
@@ -988,8 +985,7 @@ parsoid=wt2html
 !! html/*
 <p><i>foo'<b>bar'</b></i>
 </p>
-!!end
-
+!! end
 
 # same html as previous, but wikitext adjusted to match parsoid html2wt
 !! test
@@ -1000,7 +996,6 @@ Italics and bold: multiple quote sequences: (2,4,4+2) w/ nowiki
 <p><i>foo'<b>bar'</b></i>
 </p>
 !! end
-
 
 # The PHP parser strips the empty tags out for giggles; parsoid doesn't.
 !! test
@@ -1015,23 +1010,20 @@ parsoid=wt2html
 !! html/parsoid
 <p><b>foo'</b>bar<i></i>
 </p>
-!!end
+!! end
 
 # same html as previous, but wikitext adjusted to match parsoid html2wt
 !! test
 Italics and bold: multiple quote sequences: (3,4,2+2) w/ nowiki
-!! options
-parsoid
 !! wikitext
-'''<nowiki>foo'</nowiki>'''bar''<nowiki/>''
+'''foo''''bar''<nowiki/>''
 !! html/php
 <p><b>foo'</b>bar
 </p>
 !! html/parsoid
-<p><b><span typeof="mw:Nowiki">foo'</span></b>bar<i></i>
+<p><b>foo'</b>bar<i></i>
 </p>
 !! end
-
 
 # The PHP parser strips the empty tags out for giggles; parsoid doesn't.
 !! test
@@ -1046,18 +1038,18 @@ parsoid=wt2html
 !! html/parsoid
 <p><b>foo'</b>bar<b></b>
 </p>
-!!end
+!! end
 
 # same html as previous, but wikitext adjusted to match parsoid html2wt
 !! test
 Italics and bold: multiple quote sequences: (3,4,3+3) w/ nowiki
 !! wikitext
-'''<nowiki>foo'</nowiki>'''bar'''<nowiki/>'''
+'''foo''''bar'''<nowiki/>'''
 !! html/php
 <p><b>foo'</b>bar
 </p>
 !! html/parsoid
-<p><b><span typeof="mw:Nowiki">foo'</span></b>bar<b></b>
+<p><b>foo'</b>bar<b></b>
 </p>
 !! end
 
