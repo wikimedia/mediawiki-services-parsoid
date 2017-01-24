@@ -7845,6 +7845,17 @@ Link containing double-single-quotes '' (bug 4598)
 !! end
 
 !! test
+Link containing double quotes and spaces
+!! wikitext
+[[Cool "Gator"]]
+!! html/php
+<p><a href="/index.php?title=Cool_%22Gator%22&amp;action=edit&amp;redlink=1" class="new" title="Cool &quot;Gator&quot; (page does not exist)">Cool "Gator"</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Cool_%22Gator%22" title='Cool "Gator"'>Cool "Gator"</a></p>
+!! end
+
+!! test
 Link containing double-single-quotes '' in text (bug 4598 sanity check)
 !! wikitext
 Some [[Link|pretty ''italics'' and stuff]]!
