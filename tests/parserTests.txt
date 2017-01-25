@@ -8600,6 +8600,23 @@ Blah blah blah
 <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Foo_bar" />
 !! end
 
+!! test
+Escaping of interlanguage links (T129218, T156308)
+!! wikitext
+Blah blah blah
+[[:es:Spanish]]
+[[ : zh : Chinese ]]
+!! html/php
+<p>Blah blah blah
+<a href="http://es.wikipedia.org/wiki/Spanish" class="extiw" title="es:Spanish">es:Spanish</a>
+<a href="http://zh.wikipedia.org/wiki/Chinese" class="extiw" title="zh:Chinese"> zh : Chinese </a>
+</p>
+!! html/parsoid
+<p>Blah blah blah
+<a rel="mw:ExtLink" href="http://es.wikipedia.org/wiki/Spanish" title="es:Spanish">es:Spanish</a>
+<a rel="mw:ExtLink" href="http://zh.wikipedia.org/wiki/Chinese" title="zh:Chinese"> zh : Chinese </a></p>
+!! end
+
 ## parsoid html2wt will normalize the space to _
 !! test
 Space and question mark encoding in interlanguage links (T95473)
@@ -10296,6 +10313,26 @@ Magic Word: {{SITENAME}}
 {{SITENAME}}
 !! html
 <p>MediaWiki
+</p>
+!! end
+
+!! test
+Magic Word: {{PAGELANGUAGE}}
+!! options
+language=fr
+!! wikitext
+{{PAGELANGUAGE}}
+!! html
+<p>fr
+</p>
+!! end
+
+!! test
+Magic Word: {{PAGELANGUAGE}} on a page with no explicitly set language
+!! wikitext
+{{PAGELANGUAGE}}
+!! html
+<p>en
 </p>
 !! end
 
@@ -16057,7 +16094,7 @@ div with braces in attribute value
 !! wikitext
 <div title="{}">Foo</div>
 !! html/php
-<div title="&#123;}">Foo</div>
+<div title="&#123;&#125;">Foo</div>
 
 !! html/parsoid
 <div title="{}">Foo</div>
@@ -20671,6 +20708,28 @@ language=zh variant=zh-hk
 Nested: -{zh-hans:Hi -{zh-cn:China;zh-sg:Singapore;}-;zh-hant:Hello -{zh-tw:Taiwan;zh-hk:H-{ong}- K-{}-ong;}-;}-!
 !! html
 <p>Nested: Hello Hong Kong!
+</p>
+!! end
+
+!! test
+HTML markups with conversion syntax in attribs, nested in other conversion blocks
+!! options
+language=zh variant=zh-cn
+!! wikitext
+-{zh;zh-hans;zh-hant|<span title="-{X}-">A</span>}-
+!! html
+<p><span title="X">A</span>
+</p>
+!! end
+
+!! test
+HTML markups with conversion syntax in attribs, nested in other conversion blocks (not working yet)
+!! options
+language=zh variant=zh-cn disabled
+!! wikitext
+-{<span title="-{X}-">A</span>}-
+!! html
+<p><span title="X">A</span>
 </p>
 !! end
 
