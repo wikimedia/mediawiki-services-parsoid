@@ -687,6 +687,10 @@ ParserTests.prototype.prepareTest = function(item, options, mode, endCb) {
 			// absolute subpages.
 			this.env.initializeForPageName(title);
 		}
+		// Page language matches "wiki language" (which is set by
+		// the item 'language' option).
+		this.env.page.pagelanguage = this.env.conf.wiki.lang;
+		this.env.page.pagelanguagedir = this.env.conf.wiki.rtl ? 'rtl' : 'ltr';
 
 		this.env.conf.wiki.allowExternalImages = [ '' ]; // all allowed
 		if (item.options.wgallowexternalimages !== undefined &&
