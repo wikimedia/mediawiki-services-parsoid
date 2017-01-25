@@ -4,136 +4,207 @@
       "0": {
         "id": 0,
         "case": "first-letter",
-        "*": "",
-        "content": ""
+        "content": "",
+        "*": ""
       },
       "1": {
         "id": 1,
         "case": "first-letter",
-        "*": "Talk",
         "subpages": "",
-        "canonical": "Talk"
+        "canonical": "Talk",
+        "*": "Talk"
       },
       "2": {
         "id": 2,
         "case": "first-letter",
-        "*": "User",
         "subpages": "",
-        "canonical": "User"
+        "canonical": "User",
+        "*": "User"
       },
       "3": {
         "id": 3,
         "case": "first-letter",
-        "*": "User talk",
         "subpages": "",
-        "canonical": "User talk"
+        "canonical": "User talk",
+        "*": "User talk"
       },
       "4": {
         "id": 4,
         "case": "first-letter",
-        "*": "Base MW",
         "subpages": "",
-        "canonical": "Project"
+        "canonical": "Project",
+        "*": "Wikipedia"
       },
       "5": {
         "id": 5,
         "case": "first-letter",
-        "*": "Base MW talk",
         "subpages": "",
-        "canonical": "Project talk"
+        "canonical": "Project talk",
+        "*": "Wikipedia talk"
       },
       "6": {
         "id": 6,
         "case": "first-letter",
-        "*": "File",
-        "canonical": "File"
+        "canonical": "File",
+        "*": "File"
       },
       "7": {
         "id": 7,
         "case": "first-letter",
-        "*": "File talk",
         "subpages": "",
-        "canonical": "File talk"
+        "canonical": "File talk",
+        "*": "File talk"
       },
       "8": {
         "id": 8,
         "case": "first-letter",
-        "*": "MediaWiki",
         "subpages": "",
-        "canonical": "MediaWiki"
+        "canonical": "MediaWiki",
+        "*": "MediaWiki"
       },
       "9": {
         "id": 9,
         "case": "first-letter",
-        "*": "MediaWiki talk",
         "subpages": "",
-        "canonical": "MediaWiki talk"
+        "canonical": "MediaWiki talk",
+        "*": "MediaWiki talk"
       },
       "10": {
         "id": 10,
         "case": "first-letter",
-        "*": "Template",
-        "canonical": "Template"
+        "subpages": "",
+        "canonical": "Template",
+        "*": "Template"
       },
       "11": {
         "id": 11,
         "case": "first-letter",
-        "*": "Template talk",
         "subpages": "",
-        "canonical": "Template talk"
+        "canonical": "Template talk",
+        "*": "Template talk"
       },
       "12": {
         "id": 12,
         "case": "first-letter",
-        "*": "Help",
         "subpages": "",
-        "canonical": "Help"
+        "canonical": "Help",
+        "*": "Help"
       },
       "13": {
         "id": 13,
         "case": "first-letter",
-        "*": "Help talk",
         "subpages": "",
-        "canonical": "Help talk"
+        "canonical": "Help talk",
+        "*": "Help talk"
       },
       "14": {
         "id": 14,
         "case": "first-letter",
-        "*": "Category",
-        "canonical": "Category"
+        "canonical": "Category",
+        "*": "Category"
       },
       "15": {
         "id": 15,
         "case": "first-letter",
-        "*": "Category talk",
         "subpages": "",
-        "canonical": "Category talk"
+        "canonical": "Category talk",
+        "*": "Category talk"
+      },
+      "100": {
+        "id": 100,
+        "case": "first-letter",
+        "subpages": "",
+        "canonical": "Portal",
+        "*": "Portal"
+      },
+      "101": {
+        "id": 101,
+        "case": "first-letter",
+        "subpages": "",
+        "canonical": "Portal talk",
+        "*": "Portal talk"
+      },
+      "118": {
+        "id": 118,
+        "case": "first-letter",
+        "subpages": "",
+        "canonical": "Draft",
+        "*": "Draft"
+      },
+      "119": {
+        "id": 119,
+        "case": "first-letter",
+        "subpages": "",
+        "canonical": "Draft talk",
+        "*": "Draft talk"
+      },
+      "828": {
+        "id": 828,
+        "case": "first-letter",
+        "subpages": "",
+        "canonical": "Module",
+        "*": "模块"
+      },
+      "829": {
+        "id": 829,
+        "case": "first-letter",
+        "subpages": "",
+        "canonical": "Module talk",
+        "*": "模块讨论"
+      },
+      "2300": {
+        "id": 2300,
+        "case": "first-letter",
+        "canonical": "Gadget",
+        "*": "Gadget"
+      },
+      "2301": {
+        "id": 2301,
+        "case": "first-letter",
+        "canonical": "Gadget talk",
+        "*": "Gadget talk"
+      },
+      "2302": {
+        "id": 2302,
+        "case": "case-sensitive",
+        "canonical": "Gadget definition",
+        "defaultcontentmodel": "GadgetDefinition",
+        "*": "Gadget definition"
+      },
+      "2303": {
+        "id": 2303,
+        "case": "case-sensitive",
+        "canonical": "Gadget definition talk",
+        "*": "Gadget definition talk"
+      },
+      "2600": {
+        "id": 2600,
+        "case": "first-letter",
+        "canonical": "Topic",
+        "defaultcontentmodel": "flow-board",
+        "*": "Topic"
       },
       "-2": {
         "id": -2,
         "case": "first-letter",
-        "*": "Media",
-        "canonical": "Media"
+        "canonical": "Media",
+        "*": "Media"
       },
       "-1": {
         "id": -1,
         "case": "first-letter",
-        "*": "Special",
-        "canonical": "Special"
+        "canonical": "Special",
+        "*": "Special"
       }
     },
     "namespacealiases": [
       {
-        "id": 6,
-        "*": "Image"
-      },
-      {
-        "id": 7,
-        "*": "Image talk"
+        "id": -2,
+        "*": "媒体"
       },
       {
         "id": -2,
-        "*": "媒体"
+        "*": "媒体文件"
       },
       {
         "id": -2,
@@ -153,23 +224,27 @@
       },
       {
         "id": 1,
-        "*": "讨论"
-      },
-      {
-        "id": 1,
         "*": "討論"
       },
       {
+        "id": 1,
+        "*": "讨论"
+      },
+      {
         "id": 2,
-        "*": "用户"
+        "*": "使用者"
       },
       {
         "id": 2,
         "*": "用戶"
       },
       {
+        "id": 2,
+        "*": "用户"
+      },
+      {
         "id": 3,
-        "*": "用户对话"
+        "*": "使用者討論"
       },
       {
         "id": 3,
@@ -177,11 +252,51 @@
       },
       {
         "id": 3,
-        "*": "用户讨论"
+        "*": "用戶討論"
       },
       {
         "id": 3,
-        "*": "用戶討論"
+        "*": "用户对话"
+      },
+      {
+        "id": 3,
+        "*": "用户讨论"
+      },
+      {
+        "id": 4,
+        "*": "WP"
+      },
+      {
+        "id": 4,
+        "*": "維基百科"
+      },
+      {
+        "id": 4,
+        "*": "维基百科"
+      },
+      {
+        "id": 5,
+        "*": "WT"
+      },
+      {
+        "id": 5,
+        "*": "維基百科對話"
+      },
+      {
+        "id": 5,
+        "*": "維基百科討論"
+      },
+      {
+        "id": 5,
+        "*": "维基百科对话"
+      },
+      {
+        "id": 5,
+        "*": "维基百科讨论"
+      },
+      {
+        "id": 6,
+        "*": "Image"
       },
       {
         "id": 6,
@@ -193,6 +308,10 @@
       },
       {
         "id": 6,
+        "*": "文件"
+      },
+      {
+        "id": 6,
         "*": "档案"
       },
       {
@@ -200,8 +319,8 @@
         "*": "檔案"
       },
       {
-        "id": 6,
-        "*": "文件"
+        "id": 7,
+        "*": "Image talk"
       },
       {
         "id": 7,
@@ -209,31 +328,15 @@
       },
       {
         "id": 7,
-        "*": "圖像對話"
-      },
-      {
-        "id": 7,
         "*": "图像讨论"
       },
       {
         "id": 7,
+        "*": "圖像對話"
+      },
+      {
+        "id": 7,
         "*": "圖像討論"
-      },
-      {
-        "id": 7,
-        "*": "档案对话"
-      },
-      {
-        "id": 7,
-        "*": "檔案對話"
-      },
-      {
-        "id": 7,
-        "*": "档案讨论"
-      },
-      {
-        "id": 7,
-        "*": "檔案討論"
       },
       {
         "id": 7,
@@ -245,15 +348,39 @@
       },
       {
         "id": 7,
+        "*": "文件討論"
+      },
+      {
+        "id": 7,
         "*": "文件讨论"
       },
       {
         "id": 7,
-        "*": "文件討論"
+        "*": "档案对话"
+      },
+      {
+        "id": 7,
+        "*": "档案讨论"
+      },
+      {
+        "id": 7,
+        "*": "檔案對話"
+      },
+      {
+        "id": 7,
+        "*": "檔案討論"
+      },
+      {
+        "id": 9,
+        "*": "MediaWiki討論"
+      },
+      {
+        "id": 9,
+        "*": "MediaWiki讨论"
       },
       {
         "id": 10,
-        "*": "模板"
+        "*": "T"
       },
       {
         "id": 10,
@@ -261,7 +388,19 @@
       },
       {
         "id": 10,
+        "*": "模板"
+      },
+      {
+        "id": 10,
         "*": "樣板"
+      },
+      {
+        "id": 11,
+        "*": "样板对话"
+      },
+      {
+        "id": 11,
+        "*": "样板讨论"
       },
       {
         "id": 11,
@@ -273,15 +412,11 @@
       },
       {
         "id": 11,
-        "*": "模板讨论"
-      },
-      {
-        "id": 11,
         "*": "模板討論"
       },
       {
         "id": 11,
-        "*": "样板对话"
+        "*": "模板讨论"
       },
       {
         "id": 11,
@@ -289,11 +424,15 @@
       },
       {
         "id": 11,
-        "*": "样板讨论"
+        "*": "樣板討論"
       },
       {
-        "id": 11,
-        "*": "樣板討論"
+        "id": 12,
+        "*": "H"
+      },
+      {
+        "id": 12,
+        "*": "使用說明"
       },
       {
         "id": 12,
@@ -305,11 +444,11 @@
       },
       {
         "id": 13,
-        "*": "帮助对话"
+        "*": "使用說明討論"
       },
       {
         "id": 13,
-        "*": "幫助對話"
+        "*": "帮助对话"
       },
       {
         "id": 13,
@@ -317,7 +456,15 @@
       },
       {
         "id": 13,
+        "*": "幫助對話"
+      },
+      {
+        "id": 13,
         "*": "幫助討論"
+      },
+      {
+        "id": 14,
+        "*": "CAT"
       },
       {
         "id": 14,
@@ -333,18 +480,337 @@
       },
       {
         "id": 15,
-        "*": "分類對話"
-      },
-      {
-        "id": 15,
         "*": "分类讨论"
       },
       {
         "id": 15,
+        "*": "分類對話"
+      },
+      {
+        "id": 15,
         "*": "分類討論"
+      },
+      {
+        "id": 100,
+        "*": "P"
+      },
+      {
+        "id": 101,
+        "*": "Portal talk"
+      },
+      {
+        "id": 118,
+        "*": "草稿"
+      },
+      {
+        "id": 119,
+        "*": "草稿討論"
+      },
+      {
+        "id": 119,
+        "*": "草稿讨论"
+      },
+      {
+        "id": 828,
+        "*": "模組"
+      },
+      {
+        "id": 829,
+        "*": "模組討論"
+      },
+      {
+        "id": 2301,
+        "*": "Gadget talk"
+      },
+      {
+        "id": 2302,
+        "*": "Gadget definition"
+      },
+      {
+        "id": 2303,
+        "*": "Gadget definition talk"
       }
     ],
     "magicwords": [
+      {
+        "name": "expr",
+        "aliases": [
+          "计算式",
+          "表达式",
+          "expr"
+        ]
+      },
+      {
+        "name": "if",
+        "aliases": [
+          "非空式",
+          "若",
+          "如果",
+          "if"
+        ]
+      },
+      {
+        "name": "ifeq",
+        "aliases": [
+          "相同式",
+          "匹配式",
+          "若相等",
+          "如果相等",
+          "ifeq"
+        ]
+      },
+      {
+        "name": "iferror",
+        "aliases": [
+          "错误式",
+          "如果错误",
+          "iferror"
+        ]
+      },
+      {
+        "name": "switch",
+        "aliases": [
+          "多选式",
+          "多条件式",
+          "双射式",
+          "开关",
+          "转换",
+          "switch"
+        ]
+      },
+      {
+        "name": "default",
+        "aliases": [
+          "#默认",
+          "#default"
+        ]
+      },
+      {
+        "name": "ifexist",
+        "aliases": [
+          "存在式",
+          "若有",
+          "如有",
+          "ifexist"
+        ]
+      },
+      {
+        "name": "len",
+        "aliases": [
+          "长度",
+          "len"
+        ]
+      },
+      {
+        "name": "pos",
+        "aliases": [
+          "位置",
+          "终端",
+          "pos"
+        ]
+      },
+      {
+        "name": "rpos",
+        "aliases": [
+          "最近位置",
+          "反终端",
+          "rpos"
+        ]
+      },
+      {
+        "name": "sub",
+        "aliases": [
+          "截取",
+          "PF子",
+          "sub"
+        ]
+      },
+      {
+        "name": "count",
+        "aliases": [
+          "计数",
+          "count"
+        ]
+      },
+      {
+        "name": "replace",
+        "aliases": [
+          "替换",
+          "取代",
+          "replace"
+        ]
+      },
+      {
+        "name": "explode",
+        "aliases": [
+          "爆炸",
+          "炸开",
+          "粉碎",
+          "explode"
+        ]
+      },
+      {
+        "name": "ifexpr",
+        "aliases": [
+          "若表达式",
+          "ifexpr"
+        ]
+      },
+      {
+        "name": "time",
+        "aliases": [
+          "时间",
+          "time"
+        ]
+      },
+      {
+        "name": "timel",
+        "aliases": [
+          "时间l",
+          "timel"
+        ]
+      },
+      {
+        "name": "titleparts",
+        "aliases": [
+          "标题组成部分",
+          "titleparts"
+        ]
+      },
+      {
+        "name": "urldecode",
+        "aliases": [
+          "url解码",
+          "urldecode"
+        ]
+      },
+      {
+        "name": "categorytree",
+        "aliases": [
+          "分类树",
+          "categorytree"
+        ]
+      },
+      {
+        "name": "target",
+        "aliases": [
+          "目标",
+          "target"
+        ]
+      },
+      {
+        "name": "babel",
+        "aliases": [
+          "巴别",
+          "babel"
+        ]
+      },
+      {
+        "name": "disambiguation",
+        "aliases": [
+          "__消除歧义__",
+          "__DISAMBIG__"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "useliquidthreads",
+        "aliases": [
+          "使用LiquidThreads",
+          "UseLiquidThreads"
+        ]
+      },
+      {
+        "name": "lqtpagelimit",
+        "aliases": [
+          "lqt页面限制",
+          "lqtpagelimit"
+        ]
+      },
+      {
+        "name": "invoke",
+        "aliases": [
+          "调用",
+          "invoke"
+        ]
+      },
+      {
+        "name": "noexternallanglinks",
+        "aliases": [
+          "无外部语言连接",
+          "noexternallanglinks"
+        ]
+      },
+      {
+        "name": "property",
+        "aliases": [
+          "属性",
+          "property"
+        ]
+      },
+      {
+        "name": "wbreponame",
+        "aliases": [
+          "wb报告名",
+          "wbreponame"
+        ]
+      },
+      {
+        "name": "default_form",
+        "aliases": [
+          "默认表单",
+          "default_form"
+        ]
+      },
+      {
+        "name": "forminput",
+        "aliases": [
+          "表单输入",
+          "forminput"
+        ]
+      },
+      {
+        "name": "formlink",
+        "aliases": [
+          "表单连接",
+          "formlink"
+        ]
+      },
+      {
+        "name": "formredlink",
+        "aliases": [
+          "表单红链",
+          "formredlink"
+        ]
+      },
+      {
+        "name": "queryformlink",
+        "aliases": [
+          "查询连接表单",
+          "queryformlink"
+        ]
+      },
+      {
+        "name": "arraymap",
+        "aliases": [
+          "数组地图",
+          "arraymap"
+        ]
+      },
+      {
+        "name": "arraymaptemplate",
+        "aliases": [
+          "数组地图模板",
+          "arraymaptemplate"
+        ]
+      },
+      {
+        "name": "autoedit",
+        "aliases": [
+          "自动编辑",
+          "autoedit"
+        ]
+      },
       {
         "name": "redirect",
         "aliases": [
@@ -383,6 +849,7 @@
       {
         "name": "noeditsection",
         "aliases": [
+          "__无编辑段落__",
           "__无段落编辑__",
           "__NOEDITSECTION__"
         ]
@@ -391,6 +858,7 @@
         "name": "currentmonth",
         "aliases": [
           "本月",
+          "本月2",
           "CURRENTMONTH",
           "CURRENTMONTH2"
         ],
@@ -407,8 +875,18 @@
       {
         "name": "currentmonthname",
         "aliases": [
+          "本月名",
           "本月名称",
           "CURRENTMONTHNAME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "currentmonthnamegen",
+        "aliases": [
+          "本月名属格",
+          "本月名称属格",
+          "CURRENTMONTHNAMEGEN"
         ],
         "case-sensitive": ""
       },
@@ -437,6 +915,16 @@
         "case-sensitive": ""
       },
       {
+        "name": "currentdayname",
+        "aliases": [
+          "星期",
+          "今天名",
+          "今天名称",
+          "CURRENTDAYNAME"
+        ],
+        "case-sensitive": ""
+      },
+      {
         "name": "currentyear",
         "aliases": [
           "今年",
@@ -447,9 +935,107 @@
       {
         "name": "currenttime",
         "aliases": [
-          "此时",
           "当前时间",
+          "此时",
           "CURRENTTIME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "currenthour",
+        "aliases": [
+          "当前小时",
+          "CURRENTHOUR"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localmonth",
+        "aliases": [
+          "本地月",
+          "本地月2",
+          "LOCALMONTH",
+          "LOCALMONTH2"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localmonth1",
+        "aliases": [
+          "本地月1",
+          "LOCALMONTH1"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localmonthname",
+        "aliases": [
+          "本地月份名",
+          "LOCALMONTHNAME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localmonthnamegen",
+        "aliases": [
+          "本地月历",
+          "LOCALMONTHNAMEGEN"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localmonthabbrev",
+        "aliases": [
+          "本地月缩写",
+          "LOCALMONTHABBREV"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localday",
+        "aliases": [
+          "本地日",
+          "LOCALDAY"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localday2",
+        "aliases": [
+          "本地日2",
+          "LOCALDAY2"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localdayname",
+        "aliases": [
+          "本地日名",
+          "LOCALDAYNAME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localyear",
+        "aliases": [
+          "本地年",
+          "LOCALYEAR"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localtime",
+        "aliases": [
+          "本地时间",
+          "LOCALTIME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localhour",
+        "aliases": [
+          "本地小时",
+          "LOCALHOUR"
         ],
         "case-sensitive": ""
       },
@@ -502,17 +1088,11 @@
         "case-sensitive": ""
       },
       {
-        "name": "numberofviews",
-        "aliases": [
-          "访问数",
-          "NUMBEROFVIEWS"
-        ],
-        "case-sensitive": ""
-      },
-      {
         "name": "pagename",
         "aliases": [
+          "页名",
           "页面名",
+          "页面名称",
           "PAGENAME"
         ],
         "case-sensitive": ""
@@ -520,7 +1100,8 @@
       {
         "name": "pagenamee",
         "aliases": [
-          "页面名E",
+          "页面名等同",
+          "页面名称等同",
           "PAGENAMEE"
         ],
         "case-sensitive": ""
@@ -536,7 +1117,7 @@
       {
         "name": "namespacee",
         "aliases": [
-          "名字空间E",
+          "名字空间等同",
           "NAMESPACEE"
         ],
         "case-sensitive": ""
@@ -552,6 +1133,7 @@
       {
         "name": "talkspace",
         "aliases": [
+          "讨论空间",
           "讨论名字空间",
           "TALKSPACE"
         ],
@@ -560,15 +1142,37 @@
       {
         "name": "talkspacee",
         "aliases": [
-          "讨论名字空间E",
+          "讨论空间等同",
+          "讨论名字空间等同",
           "TALKSPACEE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "subjectspace",
+        "aliases": [
+          "主名字空间",
+          "条目名字空间",
+          "SUBJECTSPACE",
+          "ARTICLESPACE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "subjectspacee",
+        "aliases": [
+          "主名字空间等同",
+          "条目名字空间等同",
+          "SUBJECTSPACEE",
+          "ARTICLESPACEE"
         ],
         "case-sensitive": ""
       },
       {
         "name": "fullpagename",
         "aliases": [
-          "完整页面名",
+          "页面全称",
+          "完整页面名称",
           "FULLPAGENAME"
         ],
         "case-sensitive": ""
@@ -576,7 +1180,7 @@
       {
         "name": "fullpagenamee",
         "aliases": [
-          "完整页面名E",
+          "完整页面名称等同",
           "FULLPAGENAMEE"
         ],
         "case-sensitive": ""
@@ -584,7 +1188,7 @@
       {
         "name": "subpagename",
         "aliases": [
-          "子页面名",
+          "子页面名称",
           "SUBPAGENAME"
         ],
         "case-sensitive": ""
@@ -592,15 +1196,48 @@
       {
         "name": "subpagenamee",
         "aliases": [
-          "子页面名E",
+          "子页面名称等同",
           "SUBPAGENAMEE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "rootpagename",
+        "aliases": [
+          "根页面名称",
+          "ROOTPAGENAME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "rootpagenamee",
+        "aliases": [
+          "根页面名称等同",
+          "ROOTPAGENAMEE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "basepagename",
+        "aliases": [
+          "基础页面名称",
+          "BASEPAGENAME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "basepagenamee",
+        "aliases": [
+          "基础页面名称等同",
+          "BASEPAGENAMEE"
         ],
         "case-sensitive": ""
       },
       {
         "name": "talkpagename",
         "aliases": [
-          "讨论页面名",
+          "讨论页面名称",
+          "对话页面名称",
           "TALKPAGENAME"
         ],
         "case-sensitive": ""
@@ -608,8 +1245,29 @@
       {
         "name": "talkpagenamee",
         "aliases": [
-          "讨论页面名E",
+          "讨论页面名称等同",
+          "对话页面名称等同",
           "TALKPAGENAMEE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "subjectpagename",
+        "aliases": [
+          "主名字空间页面名称",
+          "条目页面名称",
+          "SUBJECTPAGENAME",
+          "ARTICLEPAGENAME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "subjectpagenamee",
+        "aliases": [
+          "主名字空间页面名称等同",
+          "条目页面名称等同",
+          "SUBJECTPAGENAMEE",
+          "ARTICLEPAGENAMEE"
         ],
         "case-sensitive": ""
       },
@@ -705,6 +1363,14 @@
         "case-sensitive": ""
       },
       {
+        "name": "img_lang",
+        "aliases": [
+          "语言=$1",
+          "lang=$1"
+        ],
+        "case-sensitive": ""
+      },
+      {
         "name": "img_page",
         "aliases": [
           "页数=$1",
@@ -715,10 +1381,87 @@
         "case-sensitive": ""
       },
       {
+        "name": "img_upright",
+        "aliases": [
+          "右上",
+          "右上=$1",
+          "右上$1",
+          "upright",
+          "upright=$1",
+          "upright $1"
+        ],
+        "case-sensitive": ""
+      },
+      {
         "name": "img_border",
         "aliases": [
-          "有边",
+          "边框",
           "border"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_baseline",
+        "aliases": [
+          "基线",
+          "baseline"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_sub",
+        "aliases": [
+          "子",
+          "sub"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_super",
+        "aliases": [
+          "超",
+          "super",
+          "sup"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_top",
+        "aliases": [
+          "顶部",
+          "top"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_text_top",
+        "aliases": [
+          "文字顶部",
+          "text-top"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_middle",
+        "aliases": [
+          "中间",
+          "middle"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_bottom",
+        "aliases": [
+          "底部",
+          "bottom"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_text_bottom",
+        "aliases": [
+          "文字底部",
+          "text-bottom"
         ],
         "case-sensitive": ""
       },
@@ -733,6 +1476,7 @@
       {
         "name": "img_alt",
         "aliases": [
+          "替代=$1",
           "替代文本=$1",
           "alt=$1"
         ],
@@ -764,14 +1508,14 @@
       {
         "name": "ns",
         "aliases": [
-          "名字空间:",
+          "名称空间:",
           "NS:"
         ]
       },
       {
         "name": "nse",
         "aliases": [
-          "名字空间E:",
+          "名称空间E:",
           "NSE:"
         ]
       },
@@ -862,6 +1606,145 @@
         ]
       },
       {
+        "name": "currentweek",
+        "aliases": [
+          "本周",
+          "CURRENTWEEK"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "currentdow",
+        "aliases": [
+          "当前DOW",
+          "CURRENTDOW"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localweek",
+        "aliases": [
+          "本地周",
+          "LOCALWEEK"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "localdow",
+        "aliases": [
+          "本地DOW",
+          "LOCALDOW"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "revisionid",
+        "aliases": [
+          "修订ID",
+          "REVISIONID"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "revisionday",
+        "aliases": [
+          "修订日",
+          "REVISIONDAY"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "revisionday2",
+        "aliases": [
+          "修订日2",
+          "REVISIONDAY2"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "revisionmonth",
+        "aliases": [
+          "修订月",
+          "REVISIONMONTH"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "revisionmonth1",
+        "aliases": [
+          "修订月1",
+          "REVISIONMONTH1"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "revisionyear",
+        "aliases": [
+          "修订年",
+          "REVISIONYEAR"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "revisiontimestamp",
+        "aliases": [
+          "修订时间戳",
+          "REVISIONTIMESTAMP"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "revisionuser",
+        "aliases": [
+          "修订用户",
+          "REVISIONUSER"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "revisionsize",
+        "aliases": [
+          "修订大小",
+          "REVISIONSIZE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "plural",
+        "aliases": [
+          "复数:",
+          "PLURAL:"
+        ]
+      },
+      {
+        "name": "fullurl",
+        "aliases": [
+          "完整URL:",
+          "FULLURL:"
+        ]
+      },
+      {
+        "name": "fullurle",
+        "aliases": [
+          "完整URL等同:",
+          "FULLURLE:"
+        ]
+      },
+      {
+        "name": "canonicalurl",
+        "aliases": [
+          "规范URL:",
+          "CANONICALURL:"
+        ]
+      },
+      {
+        "name": "canonicalurle",
+        "aliases": [
+          "规范URL等同:",
+          "CANONICALURLE:"
+        ]
+      },
+      {
         "name": "lcfirst",
         "aliases": [
           "小写首字:",
@@ -887,6 +1770,13 @@
         "aliases": [
           "大写:",
           "UC:"
+        ]
+      },
+      {
+        "name": "raw",
+        "aliases": [
+          "原始:",
+          "RAW:"
         ]
       },
       {
@@ -1024,7 +1914,7 @@
       {
         "name": "speciale",
         "aliases": [
-          "特殊e",
+          "特殊等同",
           "speciale"
         ]
       },
@@ -1090,7 +1980,7 @@
       {
         "name": "noindex",
         "aliases": [
-          "__不索引__",
+          "__无索引__",
           "__NOINDEX__"
         ],
         "case-sensitive": ""
@@ -1121,12 +2011,34 @@
         "case-sensitive": ""
       },
       {
+        "name": "cascadingsources",
+        "aliases": [
+          "级联来源",
+          "CASCADINGSOURCES"
+        ],
+        "case-sensitive": ""
+      },
+      {
         "name": "formatdate",
         "aliases": [
           "格式化日期",
           "日期格式化",
           "formatdate",
           "dateformat"
+        ]
+      },
+      {
+        "name": "url_path",
+        "aliases": [
+          "路径",
+          "PATH"
+        ]
+      },
+      {
+        "name": "url_query",
+        "aliases": [
+          "查询",
+          "QUERY"
         ]
       },
       {
@@ -1144,147 +2056,358 @@
         ]
       },
       {
-        "name": "currentmonthnamegen",
+        "name": "displaytitle_noerror",
         "aliases": [
-          "CURRENTMONTHNAMEGEN"
+          "无错误",
+          "noerror"
+        ]
+      },
+      {
+        "name": "displaytitle_noreplace",
+        "aliases": [
+          "无代替",
+          "noreplace"
+        ]
+      },
+      {
+        "name": "pagesincategory_all",
+        "aliases": [
+          "所有",
+          "all"
+        ]
+      },
+      {
+        "name": "pagesincategory_pages",
+        "aliases": [
+          "页面",
+          "pages"
+        ]
+      },
+      {
+        "name": "pagesincategory_subcats",
+        "aliases": [
+          "子分类",
+          "subcats"
+        ]
+      },
+      {
+        "name": "pagesincategory_files",
+        "aliases": [
+          "文件",
+          "files"
+        ]
+      },
+      {
+        "name": "img_lossy",
+        "aliases": [
+          "lossy=$1"
+        ]
+      },
+      {
+        "name": "numberofwikis",
+        "aliases": [
+          "numberofwikis"
+        ]
+      },
+      {
+        "name": "rel2abs",
+        "aliases": [
+          "rel2abs"
+        ]
+      },
+      {
+        "name": "noglobal",
+        "aliases": [
+          "__NOGLOBAL__"
         ],
         "case-sensitive": ""
       },
       {
-        "name": "currentdayname",
+        "name": "coordinates",
         "aliases": [
-          "CURRENTDAYNAME"
-        ],
-        "case-sensitive": ""
+          "coordinates"
+        ]
       },
       {
-        "name": "currenthour",
+        "name": "primary",
         "aliases": [
-          "CURRENTHOUR"
-        ],
-        "case-sensitive": ""
+          "primary"
+        ]
       },
       {
-        "name": "localmonth",
+        "name": "calendar",
         "aliases": [
-          "LOCALMONTH",
-          "LOCALMONTH2"
-        ],
-        "case-sensitive": ""
+          "calendar"
+        ]
       },
       {
-        "name": "localmonth1",
+        "name": "switchlanguage",
         "aliases": [
-          "LOCALMONTH1"
-        ],
-        "case-sensitive": ""
+          "switchlanguage"
+        ]
       },
       {
-        "name": "localmonthname",
+        "name": "switchcountry",
         "aliases": [
-          "LOCALMONTHNAME"
-        ],
-        "case-sensitive": ""
+          "switchcountry"
+        ]
       },
       {
-        "name": "localmonthnamegen",
+        "name": "isin",
         "aliases": [
-          "LOCALMONTHNAMEGEN"
-        ],
-        "case-sensitive": ""
+          "isin"
+        ]
       },
       {
-        "name": "localmonthabbrev",
+        "name": "insider",
         "aliases": [
-          "LOCALMONTHABBREV"
-        ],
-        "case-sensitive": ""
+          "insider"
+        ]
       },
       {
-        "name": "localday",
+        "name": "Eul/Ruel",
         "aliases": [
-          "LOCALDAY"
-        ],
-        "case-sensitive": ""
+          "EulRuel"
+        ]
       },
       {
-        "name": "localday2",
+        "name": "Eun/Neun",
         "aliases": [
-          "LOCALDAY2"
-        ],
-        "case-sensitive": ""
+          "EunNeun"
+        ]
       },
       {
-        "name": "localdayname",
+        "name": "E/Ga",
         "aliases": [
-          "LOCALDAYNAME"
-        ],
-        "case-sensitive": ""
+          "EGa"
+        ]
       },
       {
-        "name": "localyear",
+        "name": "Gwa/Wa",
         "aliases": [
-          "LOCALYEAR"
-        ],
-        "case-sensitive": ""
+          "GwaWa"
+        ]
       },
       {
-        "name": "localtime",
+        "name": "A/Ya",
         "aliases": [
-          "LOCALTIME"
-        ],
-        "case-sensitive": ""
+          "AYa"
+        ]
       },
       {
-        "name": "localhour",
+        "name": "Euro/Ro",
         "aliases": [
-          "LOCALHOUR"
-        ],
-        "case-sensitive": ""
+          "Euro"
+        ]
       },
       {
-        "name": "subjectspace",
+        "name": "E/",
         "aliases": [
-          "SUBJECTSPACE",
-          "ARTICLESPACE"
-        ],
-        "case-sensitive": ""
+          "E"
+        ]
       },
       {
-        "name": "subjectspacee",
+        "name": "dd2dms",
         "aliases": [
-          "SUBJECTSPACEE",
-          "ARTICLESPACEE"
-        ],
-        "case-sensitive": ""
+          "dd2dms"
+        ]
       },
       {
-        "name": "basepagename",
+        "name": "deg2dd",
         "aliases": [
-          "BASEPAGENAME"
-        ],
-        "case-sensitive": ""
+          "deg2dd"
+        ]
       },
       {
-        "name": "basepagenamee",
+        "name": "geoLink",
         "aliases": [
-          "BASEPAGENAMEE"
-        ],
-        "case-sensitive": ""
+          "geoLink"
+        ]
       },
       {
-        "name": "subjectpagename",
+        "name": "assessment",
         "aliases": [
-          "SUBJECTPAGENAME",
-          "ARTICLEPAGENAME"
-        ],
-        "case-sensitive": ""
+          "assessment"
+        ]
       },
       {
-        "name": "subjectpagenamee",
+        "name": "related",
         "aliases": [
-          "SUBJECTPAGENAMEE",
-          "ARTICLEPAGENAMEE"
+          "related"
+        ]
+      },
+      {
+        "name": "PAGEBANNER",
+        "aliases": [
+          "PAGEBANNER"
+        ]
+      },
+      {
+        "name": "usertestwiki",
+        "aliases": [
+          "USERTESTWIKI"
+        ]
+      },
+      {
+        "name": "infopage",
+        "aliases": [
+          "infopage"
+        ]
+      },
+      {
+        "name": "timedmedia_noplayer",
+        "aliases": [
+          "noplayer"
+        ]
+      },
+      {
+        "name": "timedmedia_noicon",
+        "aliases": [
+          "noicon"
+        ]
+      },
+      {
+        "name": "timedmedia_thumbtime",
+        "aliases": [
+          "thumbtime=$1"
+        ]
+      },
+      {
+        "name": "timedmedia_starttime",
+        "aliases": [
+          "start=$1"
+        ]
+      },
+      {
+        "name": "timedmedia_endtime",
+        "aliases": [
+          "end=$1"
+        ]
+      },
+      {
+        "name": "timedmedia_disablecontrols",
+        "aliases": [
+          "disablecontrols=$1"
+        ]
+      },
+      {
+        "name": "statements",
+        "aliases": [
+          "statements"
+        ]
+      },
+      {
+        "name": "pagesusingpendingchanges",
+        "aliases": [
+          "pagesusingpendingchanges"
+        ]
+      },
+      {
+        "name": "pendingchangelevel",
+        "aliases": [
+          "pendingchangelevel"
+        ]
+      },
+      {
+        "name": "translation",
+        "aliases": [
+          "translation"
+        ]
+      },
+      {
+        "name": "describe",
+        "aliases": [
+          "describe"
+        ]
+      },
+      {
+        "name": "listerrors",
+        "aliases": [
+          "listerrors"
+        ]
+      },
+      {
+        "name": "ask",
+        "aliases": [
+          "ask"
+        ]
+      },
+      {
+        "name": "show",
+        "aliases": [
+          "show"
+        ]
+      },
+      {
+        "name": "info",
+        "aliases": [
+          "info"
+        ]
+      },
+      {
+        "name": "concept",
+        "aliases": [
+          "concept"
+        ]
+      },
+      {
+        "name": "subobject",
+        "aliases": [
+          "subobject"
+        ]
+      },
+      {
+        "name": "smwdoc",
+        "aliases": [
+          "smwdoc"
+        ]
+      },
+      {
+        "name": "set",
+        "aliases": [
+          "set"
+        ]
+      },
+      {
+        "name": "set_recurring_event",
+        "aliases": [
+          "set_recurring_event"
+        ]
+      },
+      {
+        "name": "declare",
+        "aliases": [
+          "declare"
+        ]
+      },
+      {
+        "name": "SMW_NOFACTBOX",
+        "aliases": [
+          "__NOFACTBOX__"
+        ]
+      },
+      {
+        "name": "SMW_SHOWFACTBOX",
+        "aliases": [
+          "__SHOWFACTBOX__"
+        ]
+      },
+      {
+        "name": "calendarstartdate",
+        "aliases": [
+          "calendarstartdate"
+        ]
+      },
+      {
+        "name": "calendarenddate",
+        "aliases": [
+          "calendarenddate"
+        ]
+      },
+      {
+        "name": "!",
+        "aliases": [
+          "!"
         ],
         "case-sensitive": ""
       },
@@ -1301,189 +2424,9 @@
         ]
       },
       {
-        "name": "img_upright",
+        "name": "bidi",
         "aliases": [
-          "upright",
-          "upright=$1",
-          "upright $1"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_baseline",
-        "aliases": [
-          "baseline"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_sub",
-        "aliases": [
-          "sub"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_super",
-        "aliases": [
-          "super",
-          "sup"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_top",
-        "aliases": [
-          "top"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_text_top",
-        "aliases": [
-          "text-top"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_middle",
-        "aliases": [
-          "middle"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_bottom",
-        "aliases": [
-          "bottom"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_text_bottom",
-        "aliases": [
-          "text-bottom"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "currentweek",
-        "aliases": [
-          "CURRENTWEEK"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "currentdow",
-        "aliases": [
-          "CURRENTDOW"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "localweek",
-        "aliases": [
-          "LOCALWEEK"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "localdow",
-        "aliases": [
-          "LOCALDOW"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "revisionid",
-        "aliases": [
-          "REVISIONID"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "revisionday",
-        "aliases": [
-          "REVISIONDAY"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "revisionday2",
-        "aliases": [
-          "REVISIONDAY2"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "revisionmonth",
-        "aliases": [
-          "REVISIONMONTH"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "revisionmonth1",
-        "aliases": [
-          "REVISIONMONTH1"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "revisionyear",
-        "aliases": [
-          "REVISIONYEAR"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "revisiontimestamp",
-        "aliases": [
-          "REVISIONTIMESTAMP"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "revisionuser",
-        "aliases": [
-          "REVISIONUSER"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "plural",
-        "aliases": [
-          "PLURAL:"
-        ]
-      },
-      {
-        "name": "fullurl",
-        "aliases": [
-          "FULLURL:"
-        ]
-      },
-      {
-        "name": "fullurle",
-        "aliases": [
-          "FULLURLE:"
-        ]
-      },
-      {
-        "name": "canonicalurl",
-        "aliases": [
-          "CANONICALURL:"
-        ]
-      },
-      {
-        "name": "canonicalurle",
-        "aliases": [
-          "CANONICALURLE:"
-        ]
-      },
-      {
-        "name": "raw",
-        "aliases": [
-          "RAW:"
+          "BIDI:"
         ]
       },
       {
@@ -1494,57 +2437,33 @@
         "case-sensitive": ""
       },
       {
-        "name": "url_path",
+        "name": "nocommafysuffix",
         "aliases": [
-          "PATH"
+          "NOSEP"
         ]
+      },
+      {
+        "name": "pagelanguage",
+        "aliases": [
+          "PAGELANGUAGE"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "protectionexpiry",
+        "aliases": [
+          "PROTECTIONEXPIRY"
+        ],
+        "case-sensitive": ""
       },
       {
         "name": "url_wiki",
         "aliases": [
           "WIKI"
         ]
-      },
-      {
-        "name": "url_query",
-        "aliases": [
-          "QUERY"
-        ]
-      },
-      {
-        "name": "pagesincategory_all",
-        "aliases": [
-          "all"
-        ]
-      },
-      {
-        "name": "pagesincategory_pages",
-        "aliases": [
-          "pages"
-        ]
-      },
-      {
-        "name": "pagesincategory_subcats",
-        "aliases": [
-          "subcats"
-        ]
-      },
-      {
-        "name": "pagesincategory_files",
-        "aliases": [
-          "files"
-        ]
-      },
-      {
-        "name": "!",
-        "aliases": [
-          "!"
-        ],
-        "case-sensitive": ""
       }
     ],
     "functionhooks": [
-      "int",
       "ns",
       "nse",
       "urlencode",
@@ -1562,6 +2481,7 @@
       "grammar",
       "gender",
       "plural",
+      "bidi",
       "numberofpages",
       "numberofusers",
       "numberofactiveusers",
@@ -1570,19 +2490,16 @@
       "numberofadmins",
       "numberingroup",
       "numberofedits",
-      "numberofviews",
       "language",
       "padleft",
       "padright",
       "anchorencode",
-      "special",
-      "speciale",
       "defaultsort",
       "filepath",
       "pagesincategory",
       "pagesize",
       "protectionlevel",
-      "namespace",
+      "protectionexpiry",
       "namespacee",
       "namespacenumber",
       "talkspace",
@@ -1593,6 +2510,8 @@
       "pagenamee",
       "fullpagename",
       "fullpagenamee",
+      "rootpagename",
+      "rootpagenamee",
       "basepagename",
       "basepagenamee",
       "subpagename",
@@ -1601,31 +2520,97 @@
       "talkpagenamee",
       "subjectpagename",
       "subjectpagenamee",
+      "pageid",
+      "revisionid",
+      "revisionday",
+      "revisionday2",
+      "revisionmonth",
+      "revisionmonth1",
+      "revisionyear",
+      "revisiontimestamp",
+      "revisionuser",
+      "cascadingsources",
+      "namespace",
+      "int",
+      "special",
+      "speciale",
       "tag",
       "formatdate",
-      "displaytitle"
+      "displaytitle",
+      "invoke",
+      "noexternallanglinks",
+      "property",
+      "statements",
+      "if",
+      "ifeq",
+      "switch",
+      "ifexist",
+      "ifexpr",
+      "iferror",
+      "time",
+      "timel",
+      "expr",
+      "rel2abs",
+      "titleparts",
+      "lst",
+      "lstx",
+      "lsth",
+      "target",
+      "babel",
+      "coordinates",
+      "related",
+      "categorytree"
     ],
     "extensiontags": [
       "<pre>",
       "<nowiki>",
-      "<gallery>"
+      "<gallery>",
+      "<indicator>",
+      "<timeline>",
+      "<hiero>",
+      "<charinsert>",
+      "<ref>",
+      "<references>",
+      "<inputbox>",
+      "<imagemap>",
+      "<source>",
+      "<syntaxhighlight>",
+      "<poem>",
+      "<section>",
+      "<quiz>",
+      "<score>",
+      "<templatedata>",
+      "<math>",
+      "<ce>",
+      "<chem>",
+      "<graph>",
+      "<maplink>",
+      "<categorytree>"
     ],
     "general": {
-      "mainpage": "首页",
-      "base": "http://localhost/wiki/index.php/%E9%A6%96%E9%A1%B5",
-      "sitename": "Base MW",
-      "generator": "MediaWiki 1.21.0-alpha",
-      "phpversion": "5.3.10-1ubuntu3.4",
-      "phpsapi": "apache2handler",
-      "dbtype": "sqlite",
-      "dbversion": "3.7.9",
+      "mainpage": "Wikipedia:首页",
+      "base": "https://zh.wikipedia.org/wiki/Wikipedia:%E9%A6%96%E9%A1%B5",
+      "sitename": "Wikipedia",
+      "logo": "//zh.wikipedia.org/static/images/project-logos/zhwiki.png",
+      "generator": "MediaWiki 1.29.0-wmf.8",
+      "phpversion": "5.6.99-hhvm",
+      "phpsapi": "srv",
+      "hhvmversion": "3.12.7",
+      "dbtype": "mysql",
+      "dbversion": "10.0.28-MariaDB",
+      "imagewhitelistenabled": "",
       "langconversion": "",
       "titleconversion": "",
+      "linkprefixcharset": "",
+      "linkprefix": "",
       "linktrail": "/^()(.*)$/sD",
-      "legaltitlechars": " %!\"$&amp;'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+",
-      "git-hash": "cc3c45654bdb4e20497e487dcf7c15837538a736",
+      "legaltitlechars": " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+",
+      "invalidusernamechars": "@:",
+      "fixarabicunicode": "",
+      "fixmalayalamunicode": "",
+      "git-hash": "a828f619777b8db5566c4da5517924250ced3ca0",
+      "git-branch": "wmf/1.29.0-wmf.8",
       "case": "first-letter",
-      "rights": "",
       "lang": "zh",
       "fallback": [
         {
@@ -1637,616 +2622,3890 @@
       ],
       "variants": [
         {
-          "code": "zh"
+          "code": "zh",
+          "name": "不转换"
         },
         {
-          "code": "zh-hans"
+          "code": "zh-hans",
+          "name": "简体"
         },
         {
-          "code": "zh-hant"
+          "code": "zh-hant",
+          "name": "繁體"
         },
         {
-          "code": "zh-cn"
+          "code": "zh-cn",
+          "name": "大陆简体"
         },
         {
-          "code": "zh-hk"
+          "code": "zh-hk",
+          "name": "香港繁體"
         },
         {
-          "code": "zh-mo"
+          "code": "zh-mo",
+          "name": "澳門繁體"
         },
         {
-          "code": "zh-my"
+          "code": "zh-sg",
+          "name": "马新简体"
         },
         {
-          "code": "zh-sg"
-        },
-        {
-          "code": "zh-tw"
+          "code": "zh-tw",
+          "name": "台灣正體"
         }
       ],
       "fallback8bitEncoding": "windows-936",
       "writeapi": "",
-      "timezone": "America/Los_Angeles",
-      "timeoffset": -480,
-      "articlepath": "/wiki/index.php/$1",
-      "scriptpath": "/wiki",
-      "script": "/wiki/index.php",
-      "variantarticlepath": false,
-      "server": "http://localhost",
-      "wikiid": "my_wiki",
-      "time": "2013-03-05T21:49:13Z",
-      "maxuploadsize": 104857600,
-      "linkprefixcharset": ""
+      "maxarticlesize": 2097152,
+      "timezone": "UTC",
+      "timeoffset": 0,
+      "articlepath": "/wiki/$1",
+      "scriptpath": "/w",
+      "script": "/w/index.php",
+      "variantarticlepath": "/$2/$1",
+      "server": "//zh.wikipedia.org",
+      "servername": "zh.wikipedia.org",
+      "wikiid": "zhwiki",
+      "time": "2017-01-25T19:50:49Z",
+      "misermode": "",
+      "uploadsenabled": "",
+      "maxuploadsize": 4294967296,
+      "minuploadchunksize": 1024,
+      "galleryoptions": {
+        "imagesPerRow": 0,
+        "imageWidth": 120,
+        "imageHeight": 120,
+        "captionLength": "",
+        "showBytes": "",
+        "mode": "traditional"
+      },
+      "thumblimits": [
+        120,
+        150,
+        180,
+        200,
+        220,
+        250,
+        300,
+        400
+      ],
+      "imagelimits": [
+        {
+          "width": 320,
+          "height": 240
+        },
+        {
+          "width": 640,
+          "height": 480
+        },
+        {
+          "width": 800,
+          "height": 600
+        },
+        {
+          "width": 1024,
+          "height": 768
+        },
+        {
+          "width": 1280,
+          "height": 1024
+        }
+      ],
+      "favicon": "//zh.wikipedia.org/static/favicon/wikipedia.ico",
+      "centralidlookupprovider": "CentralAuth",
+      "allcentralidlookupproviders": [
+        "CentralAuth",
+        "local"
+      ],
+      "interwikimagic": "",
+      "magiclinks": {
+        "ISBN": "",
+        "PMID": "",
+        "RFC": ""
+      }
     },
     "interwikimap": [
       {
+        "prefix": "aa",
+        "local": "",
+        "language": "Qafár af",
+        "url": "https://aa.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ab",
+        "local": "",
+        "language": "Аҧсшәа",
+        "url": "https://ab.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ace",
+        "local": "",
+        "language": "Acèh",
+        "url": "https://ace.wikipedia.org/wiki/$1"
+      },
+      {
         "prefix": "acronym",
-        "url": "http://www.acronymfinder.com/af-query.asp?String=exact&Acronym=$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.acronymfinder.com/af-query.asp?String=exact&Acronym=$1"
+      },
+      {
+        "prefix": "advisory",
+        "local": "",
+        "url": "https://advisory.wikimedia.org/wiki/$1"
       },
       {
         "prefix": "advogato",
-        "url": "http://www.advogato.org/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.advogato.org/$1"
       },
       {
-        "prefix": "annotationwiki",
-        "url": "http://www.seedwiki.com/page.cfm?wikiid=368&doc=$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "ady",
+        "local": "",
+        "language": "адыгабзэ",
+        "url": "https://ady.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "aew",
+        "url": "http://wiki.arabeyes.org/$1"
+      },
+      {
+        "prefix": "af",
+        "local": "",
+        "language": "Afrikaans",
+        "url": "https://af.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ak",
+        "local": "",
+        "language": "Akan",
+        "url": "https://ak.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "als",
+        "local": "",
+        "language": "Alemannisch",
+        "url": "https://als.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "am",
+        "local": "",
+        "language": "አማርኛ",
+        "url": "https://am.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "an",
+        "local": "",
+        "language": "aragonés",
+        "url": "https://an.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ang",
+        "local": "",
+        "language": "Ænglisc",
+        "url": "https://ang.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "appropedia",
+        "url": "http://www.appropedia.org/$1"
+      },
+      {
+        "prefix": "aquariumwiki",
+        "url": "http://www.theaquariumwiki.com/$1"
+      },
+      {
+        "prefix": "ar",
+        "local": "",
+        "language": "العربية",
+        "url": "https://ar.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "arborwiki",
+        "url": "https://localwiki.org/ann-arbor/$1"
+      },
+      {
+        "prefix": "arc",
+        "local": "",
+        "language": "ܐܪܡܝܐ",
+        "url": "https://arc.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "arxiv",
-        "url": "http://www.arxiv.org/abs/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://arxiv.org/abs/$1"
+      },
+      {
+        "prefix": "arz",
+        "local": "",
+        "language": "مصرى",
+        "url": "https://arz.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "as",
+        "local": "",
+        "language": "অসমীয়া",
+        "url": "https://as.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ast",
+        "local": "",
+        "language": "asturianu",
+        "url": "https://ast.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "atmwiki",
+        "url": "http://www.otterstedt.de/wiki/index.php/$1"
+      },
+      {
+        "prefix": "av",
+        "local": "",
+        "language": "авар",
+        "url": "https://av.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ay",
+        "local": "",
+        "language": "Aymar aru",
+        "url": "https://ay.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "az",
+        "local": "",
+        "language": "azərbaycanca",
+        "url": "https://az.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "azb",
+        "local": "",
+        "language": "تۆرکجه",
+        "url": "https://azb.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "b",
+        "local": "",
+        "url": "https://zh.wikibooks.org/wiki/$1"
+      },
+      {
+        "prefix": "ba",
+        "local": "",
+        "language": "башҡортса",
+        "url": "https://ba.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "baden",
+        "url": "http://www.stadtwiki-baden-baden.de/wiki/$1/"
+      },
+      {
+        "prefix": "bar",
+        "local": "",
+        "language": "Boarisch",
+        "url": "https://bar.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "bat-smg",
+        "local": "",
+        "language": "žemaitėška",
+        "url": "https://bat-smg.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "battlestarwiki",
+        "url": "http://en.battlestarwiki.org/wiki/$1"
+      },
+      {
+        "prefix": "bcl",
+        "local": "",
+        "language": "Bikol Central",
+        "url": "https://bcl.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "bcnbio",
+        "url": "http://historiapolitica.bcn.cl/resenas_parlamentarias/wiki/$1"
+      },
+      {
+        "prefix": "be",
+        "local": "",
+        "language": "беларуская",
+        "url": "https://be.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "be-tarask",
+        "local": "",
+        "language": "беларуская (тарашкевіца)‎",
+        "url": "https://be-x-old.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "be-x-old",
+        "local": "",
+        "language": "беларуская (тарашкевіца)‎",
+        "url": "https://be-x-old.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "beacha",
+        "url": "http://www.beachapedia.org/$1"
+      },
+      {
+        "prefix": "betawiki",
+        "url": "https://translatewiki.net/wiki/$1"
+      },
+      {
+        "prefix": "betawikiversity",
+        "local": "",
+        "url": "https://beta.wikiversity.org/wiki/$1"
+      },
+      {
+        "prefix": "bg",
+        "local": "",
+        "language": "български",
+        "url": "https://bg.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "bh",
+        "local": "",
+        "language": "भोजपुरी",
+        "url": "https://bh.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "bi",
+        "local": "",
+        "language": "Bislama",
+        "url": "https://bi.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "bibcode",
+        "url": "http://adsabs.harvard.edu/abs/$1"
+      },
+      {
+        "prefix": "bjn",
+        "local": "",
+        "language": "Bahasa Banjar",
+        "url": "https://bjn.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "bluwiki",
+        "url": "http://bluwiki.com/go/$1"
+      },
+      {
+        "prefix": "blw",
+        "url": "http://britainloveswikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "bm",
+        "local": "",
+        "language": "bamanankan",
+        "url": "https://bm.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "bn",
+        "local": "",
+        "language": "বাংলা",
+        "url": "https://bn.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "bo",
+        "local": "",
+        "language": "བོད་ཡིག",
+        "url": "https://bo.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "botwiki",
+        "url": "http://botwiki.sno.cc/wiki/$1"
+      },
+      {
+        "prefix": "boxrec",
+        "url": "http://www.boxrec.com/media/index.php?$1"
+      },
+      {
+        "prefix": "bpy",
+        "local": "",
+        "language": "বিষ্ণুপ্রিয়া মণিপুরী",
+        "url": "https://bpy.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "br",
+        "local": "",
+        "language": "brezhoneg",
+        "url": "https://br.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "brickwiki",
+        "url": "http://www.brickwiki.info/wiki/$1"
+      },
+      {
+        "prefix": "bs",
+        "local": "",
+        "language": "bosanski",
+        "url": "https://bs.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "bug",
+        "local": "",
+        "language": "ᨅᨔ ᨕᨘᨁᨗ",
+        "url": "https://bug.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "bugzilla",
+        "local": "",
+        "url": "https://bugzilla.wikimedia.org/show_bug.cgi?id=$1"
+      },
+      {
+        "prefix": "bulba",
+        "url": "http://bulbapedia.bulbagarden.net/wiki/$1"
+      },
+      {
+        "prefix": "bxr",
+        "local": "",
+        "language": "буряад",
+        "url": "https://bxr.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "c",
+        "local": "",
+        "url": "https://commons.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "c2",
+        "url": "http://c2.com/cgi/wiki?$1"
       },
       {
         "prefix": "c2find",
-        "url": "http://c2.com/cgi/wiki?FindPage&value=$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://c2.com/cgi/wiki?FindPage&value=$1"
+      },
+      {
+        "prefix": "ca",
+        "local": "",
+        "language": "català",
+        "url": "https://ca.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "cache",
-        "url": "http://www.google.com/search?q=cache:$1",
-        "wikiid": "",
-        "api": ""
+        "url": "https://www.google.com/search?q=cache:$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "cbk-zam",
+        "local": "",
+        "language": "Chavacano de Zamboanga",
+        "url": "https://cbk-zam.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "cdo",
+        "local": "",
+        "language": "Mìng-dĕ̤ng-ngṳ̄",
+        "url": "https://cdo.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ce",
+        "local": "",
+        "language": "нохчийн",
+        "url": "https://ce.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ceb",
+        "local": "",
+        "language": "Cebuano",
+        "url": "https://ceb.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "cellwiki",
+        "url": "http://cell.wikia.com/wiki/$1"
+      },
+      {
+        "prefix": "centralwikia",
+        "url": "http://community.wikia.com/wiki/$1"
+      },
+      {
+        "prefix": "ch",
+        "local": "",
+        "language": "Chamoru",
+        "url": "https://ch.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "chapter",
+        "local": "",
+        "url": "https://zh.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "chej",
+        "url": "http://esperanto.blahus.cz/cxej/vikio/index.php/$1"
+      },
+      {
+        "prefix": "cho",
+        "local": "",
+        "language": "Choctaw",
+        "url": "https://cho.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "choralwiki",
+        "url": "http://www.cpdl.org/wiki/index.php/$1"
+      },
+      {
+        "prefix": "chr",
+        "local": "",
+        "language": "ᏣᎳᎩ",
+        "url": "https://chr.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "chy",
+        "local": "",
+        "language": "Tsetsêhestâhese",
+        "url": "https://chy.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "citizendium",
+        "url": "http://en.citizendium.org/wiki/$1"
+      },
+      {
+        "prefix": "ckb",
+        "local": "",
+        "language": "کوردیی ناوەندی",
+        "url": "https://ckb.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ckwiss",
+        "url": "http://www.ck-wissen.de/ckwiki/index.php?title=$1"
+      },
+      {
+        "prefix": "cmn",
+        "local": "",
+        "url": "https://zh.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "co",
+        "local": "",
+        "language": "corsu",
+        "url": "https://co.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "comixpedia",
+        "url": "http://www.comixpedia.org/index.php?title=$1"
       },
       {
         "prefix": "commons",
-        "url": "http://commons.wikimedia.org/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "local": "",
+        "url": "https://commons.wikimedia.org/wiki/$1"
       },
       {
-        "prefix": "corpknowpedia",
-        "url": "http://corpknowpedia.org/wiki/index.php/$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "communityscheme",
+        "url": "http://community.schemewiki.org/?c=s&key=$1"
+      },
+      {
+        "prefix": "communitywiki",
+        "url": "http://www.communitywiki.org/$1"
+      },
+      {
+        "prefix": "comune",
+        "url": "http://rete.comuni-italiani.it/wiki/$1"
+      },
+      {
+        "prefix": "cr",
+        "local": "",
+        "language": "Nēhiyawēwin / ᓀᐦᐃᔭᐍᐏᐣ",
+        "url": "https://cr.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "creativecommons",
+        "url": "https://creativecommons.org/licenses/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "creativecommonswiki",
+        "url": "https://wiki.creativecommons.org/$1"
+      },
+      {
+        "prefix": "crh",
+        "local": "",
+        "language": "qırımtatarca",
+        "url": "https://crh.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "cs",
+        "local": "",
+        "language": "čeština",
+        "url": "https://cs.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "csb",
+        "local": "",
+        "language": "kaszëbsczi",
+        "url": "https://csb.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "cu",
+        "local": "",
+        "language": "словѣньскъ / ⰔⰎⰑⰂⰡⰐⰠⰔⰍⰟ",
+        "url": "https://cu.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "cv",
+        "local": "",
+        "language": "Чӑвашла",
+        "url": "https://cv.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "cxej",
+        "url": "http://esperanto.blahus.cz/cxej/vikio/index.php/$1"
+      },
+      {
+        "prefix": "cy",
+        "local": "",
+        "language": "Cymraeg",
+        "url": "https://cy.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "cz",
+        "local": "",
+        "url": "https://cs.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "d",
+        "local": "",
+        "url": "https://www.wikidata.org/wiki/$1"
+      },
+      {
+        "prefix": "da",
+        "local": "",
+        "language": "dansk",
+        "url": "https://da.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "dbdump",
+        "local": "",
+        "url": "https://dumps.wikimedia.org/$1/latest/"
+      },
+      {
+        "prefix": "dcc",
+        "url": "http://www.dccwiki.com/$1"
+      },
+      {
+        "prefix": "dcdatabase",
+        "url": "http://dc.wikia.com/$1"
+      },
+      {
+        "prefix": "dcma",
+        "url": "http://christian-morgenstern.de/dcma/index.php?title=$1"
+      },
+      {
+        "prefix": "de",
+        "local": "",
+        "language": "Deutsch",
+        "url": "https://de.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "delicious",
+        "url": "https://www.delicious.com/tag/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "devmo",
+        "url": "https://developer.mozilla.org/en/docs/$1"
+      },
+      {
+        "prefix": "dict",
+        "url": "http://www.dict.org/bin/Dict?Database=*&Form=Dict1&Strategy=*&Query=$1"
       },
       {
         "prefix": "dictionary",
-        "url": "http://www.dict.org/bin/Dict?Database=*&Form=Dict1&Strategy=*&Query=$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.dict.org/bin/Dict?Database=*&Form=Dict1&Strategy=*&Query=$1"
+      },
+      {
+        "prefix": "diq",
+        "local": "",
+        "language": "Zazaki",
+        "url": "https://diq.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "disinfopedia",
-        "url": "http://www.disinfopedia.org/wiki.phtml?title=$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.sourcewatch.org/index.php/$1"
       },
       {
-        "prefix": "docbook",
-        "url": "http://wiki.docbook.org/topic/$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "distributedproofreaders",
+        "url": "http://www.pgdp.net/wiki/$1"
+      },
+      {
+        "prefix": "distributedproofreadersca",
+        "url": "http://www.pgdpcanada.net/wiki/index.php/$1"
+      },
+      {
+        "prefix": "dk",
+        "local": "",
+        "url": "https://da.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "dmoz",
+        "url": "http://www.dmoz.org/$1"
+      },
+      {
+        "prefix": "dmozs",
+        "url": "http://www.dmoz.org/cgi-bin/search?search=$1"
       },
       {
         "prefix": "doi",
-        "url": "http://dx.doi.org/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "https://dx.doi.org/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "donate",
+        "local": "",
+        "url": "https://donate.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "doom_wiki",
+        "url": "http://doom.wikia.com/wiki/$1"
+      },
+      {
+        "prefix": "download",
+        "local": "",
+        "url": "https://releases.wikimedia.org/$1"
+      },
+      {
+        "prefix": "dpd",
+        "url": "http://lema.rae.es/dpd/?key=$1"
+      },
+      {
+        "prefix": "drae",
+        "url": "http://lema.rae.es/drae/?val=$1"
+      },
+      {
+        "prefix": "dreamhost",
+        "url": "http://wiki.dreamhost.com/index.php/$1"
       },
       {
         "prefix": "drumcorpswiki",
-        "url": "http://www.drumcorpswiki.com/index.php/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.drumcorpswiki.com/index.php/$1"
+      },
+      {
+        "prefix": "dsb",
+        "local": "",
+        "language": "dolnoserbski",
+        "url": "https://dsb.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "dv",
+        "local": "",
+        "language": "ދިވެހިބަސް",
+        "url": "https://dv.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "dwjwiki",
-        "url": "http://www.suberic.net/cgi-bin/dwj/wiki.cgi?$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.suberic.net/cgi-bin/dwj/wiki.cgi?$1"
+      },
+      {
+        "prefix": "dz",
+        "local": "",
+        "language": "ཇོང་ཁ",
+        "url": "https://dz.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ecoreality",
+        "url": "http://www.EcoReality.org/wiki/$1"
+      },
+      {
+        "prefix": "ecxei",
+        "url": "http://www.ikso.net/cgi-bin/wiki.pl?$1"
+      },
+      {
+        "prefix": "ee",
+        "local": "",
+        "language": "eʋegbe",
+        "url": "https://ee.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "egl",
+        "local": "",
+        "language": "Emiliàn",
+        "url": "https://eml.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "el",
+        "local": "",
+        "language": "Ελληνικά",
+        "url": "https://el.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "elibre",
-        "url": "http://enciclopedia.us.es/index.php/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://enciclopedia.us.es/index.php/$1"
       },
       {
         "prefix": "emacswiki",
-        "url": "http://www.emacswiki.org/cgi-bin/wiki.pl?$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.emacswiki.org/cgi-bin/wiki.pl?$1"
+      },
+      {
+        "prefix": "eml",
+        "local": "",
+        "language": "emiliàn e rumagnòl",
+        "url": "https://eml.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "en",
+        "local": "",
+        "language": "English",
+        "url": "https://en.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "encyc",
+        "url": "http://encyc.org/wiki/$1"
+      },
+      {
+        "prefix": "energiewiki",
+        "url": "http://www.netzwerk-energieberater.de/wiki/index.php/$1"
+      },
+      {
+        "prefix": "englyphwiki",
+        "url": "http://en.glyphwiki.org/wiki/$1"
+      },
+      {
+        "prefix": "enkol",
+        "url": "http://enkol.pl/$1"
+      },
+      {
+        "prefix": "eo",
+        "local": "",
+        "language": "Esperanto",
+        "url": "https://eo.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "eokulturcentro",
+        "url": "http://esperanto.toulouse.free.fr/nova/wikini/wakka.php?wiki=$1"
+      },
+      {
+        "prefix": "epo",
+        "local": "",
+        "url": "https://eo.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "es",
+        "local": "",
+        "language": "español",
+        "url": "https://es.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "esolang",
+        "url": "http://esolangs.org/wiki/$1"
+      },
+      {
+        "prefix": "et",
+        "local": "",
+        "language": "eesti",
+        "url": "https://et.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "etherpad",
+        "local": "",
+        "url": "https://etherpad.wikimedia.org/$1"
+      },
+      {
+        "prefix": "ethnologue",
+        "url": "https://www.ethnologue.com/language/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "ethnologuefamily",
+        "url": "https://www.ethnologue.com/show_family.asp?subid=$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "eu",
+        "local": "",
+        "language": "euskara",
+        "url": "https://eu.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "evowiki",
+        "url": "http://wiki.cotch.net/index.php/$1"
+      },
+      {
+        "prefix": "exotica",
+        "url": "http://www.exotica.org.uk/wiki/$1"
+      },
+      {
+        "prefix": "ext",
+        "local": "",
+        "language": "estremeñu",
+        "url": "https://ext.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "eĉei",
+        "url": "http://www.ikso.net/cgi-bin/wiki.pl?$1"
+      },
+      {
+        "prefix": "fa",
+        "local": "",
+        "language": "فارسی",
+        "url": "https://fa.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "fanimutationwiki",
+        "url": "http://wiki.animutationportal.com/index.php/$1"
+      },
+      {
+        "prefix": "fedora",
+        "url": "https://fedoraproject.org/wiki/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "ff",
+        "local": "",
+        "language": "Fulfulde",
+        "url": "https://ff.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "fi",
+        "local": "",
+        "language": "suomi",
+        "url": "https://fi.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "finalfantasy",
+        "url": "http://finalfantasy.wikia.com/wiki/$1"
+      },
+      {
+        "prefix": "finnix",
+        "url": "http://www.finnix.org/$1"
+      },
+      {
+        "prefix": "fiu-vro",
+        "local": "",
+        "language": "Võro",
+        "url": "https://fiu-vro.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "fj",
+        "local": "",
+        "language": "Na Vosa Vakaviti",
+        "url": "https://fj.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "flickrphoto",
+        "url": "https://www.flickr.com/photo.gne?id=$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "flickruser",
+        "url": "https://www.flickr.com/people/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "floralwiki",
+        "url": "http://www.floralwiki.co.uk/wiki/$1"
+      },
+      {
+        "prefix": "fo",
+        "local": "",
+        "language": "føroyskt",
+        "url": "https://fo.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "foldoc",
-        "url": "http://foldoc.org/?$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://foldoc.org/$1"
+      },
+      {
+        "prefix": "forthfreak",
+        "url": "http://wiki.forthfreak.net/index.cgi?$1"
+      },
+      {
+        "prefix": "foundation",
+        "local": "",
+        "url": "https://wikimediafoundation.org/wiki/$1"
       },
       {
         "prefix": "foxwiki",
-        "url": "http://fox.wikis.com/wc.dll?Wiki~$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://fox.wikis.com/wc.dll?Wiki~$1"
+      },
+      {
+        "prefix": "fr",
+        "local": "",
+        "language": "français",
+        "url": "https://fr.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "freebio",
+        "url": "http://freebiology.org/wiki/$1"
       },
       {
         "prefix": "freebsdman",
-        "url": "http://www.FreeBSD.org/cgi/man.cgi?apropos=1&query=$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.FreeBSD.org/cgi/man.cgi?apropos=1&query=$1"
       },
       {
-        "prefix": "gej",
-        "url": "http://www.esperanto.de/cgi-bin/aktivikio/wiki.pl?$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "freeculturewiki",
+        "url": "http://wiki.freeculture.org/index.php/$1"
       },
       {
-        "prefix": "gentoo-wiki",
-        "url": "http://gentoo-wiki.com/$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "freedomdefined",
+        "url": "http://freedomdefined.org/$1"
+      },
+      {
+        "prefix": "freefeel",
+        "url": "http://freefeel.org/wiki/$1"
+      },
+      {
+        "prefix": "freekiwiki",
+        "url": "http://wiki.freegeek.org/index.php/$1"
+      },
+      {
+        "prefix": "freenode",
+        "url": "irc://irc.freenode.net/$1"
+      },
+      {
+        "prefix": "freesoft",
+        "url": "https://directory.fsf.org/wiki/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "frp",
+        "local": "",
+        "language": "arpetan",
+        "url": "https://frp.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "frr",
+        "local": "",
+        "language": "Nordfriisk",
+        "url": "https://frr.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "fur",
+        "local": "",
+        "language": "furlan",
+        "url": "https://fur.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "fy",
+        "local": "",
+        "language": "Frysk",
+        "url": "https://fy.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ga",
+        "local": "",
+        "language": "Gaeilge",
+        "url": "https://ga.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "gag",
+        "local": "",
+        "language": "Gagauz",
+        "url": "https://gag.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "gan",
+        "local": "",
+        "language": "贛語",
+        "url": "https://gan.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ganfyd",
+        "url": "http://ganfyd.org/index.php?title=$1"
+      },
+      {
+        "prefix": "gardenology",
+        "url": "http://www.gardenology.org/wiki/$1"
+      },
+      {
+        "prefix": "gausswiki",
+        "url": "http://gauss.ffii.org/$1"
+      },
+      {
+        "prefix": "gd",
+        "local": "",
+        "language": "Gàidhlig",
+        "url": "https://gd.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "gentoo",
+        "url": "https://wiki.gentoo.org/wiki/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "genwiki",
+        "url": "http://wiki.genealogy.net/index.php/$1"
+      },
+      {
+        "prefix": "gerrit",
+        "local": "",
+        "url": "https://gerrit.wikimedia.org/r/$1"
+      },
+      {
+        "prefix": "git",
+        "local": "",
+        "url": "https://gerrit.wikimedia.org/r/gitweb?p=mediawiki/$1;a=log;h=refs/heads/master"
+      },
+      {
+        "prefix": "gl",
+        "local": "",
+        "language": "galego",
+        "url": "https://gl.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "glk",
+        "local": "",
+        "language": "گیلکی",
+        "url": "https://glk.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "globalvoices",
+        "url": "http://cyber.law.harvard.edu/dyn/globalvoices/wiki/$1"
+      },
+      {
+        "prefix": "glossarwiki",
+        "url": "http://glossar.hs-augsburg.de/$1"
+      },
+      {
+        "prefix": "glossarywiki",
+        "url": "http://glossary.hs-augsburg.de/$1"
+      },
+      {
+        "prefix": "gn",
+        "local": "",
+        "language": "Avañe'ẽ",
+        "url": "https://gn.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "gom",
+        "local": "",
+        "language": "गोंयची कोंकणी / Gõychi Konknni",
+        "url": "https://gom.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "google",
-        "url": "http://www.google.com/search?q=$1",
-        "wikiid": "",
-        "api": ""
+        "url": "https://www.google.com/search?q=$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "googledefine",
+        "url": "https://www.google.com/search?q=define:$1",
+        "protorel": ""
       },
       {
         "prefix": "googlegroups",
-        "url": "http://groups.google.com/groups?q=$1",
-        "wikiid": "",
-        "api": ""
+        "url": "https://groups.google.com/groups?q=$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "got",
+        "local": "",
+        "language": "𐌲𐌿𐍄𐌹𐍃𐌺",
+        "url": "https://got.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "gsw",
+        "local": "",
+        "language": "Alemannisch",
+        "url": "https://als.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "gu",
+        "local": "",
+        "language": "ગુજરાતી",
+        "url": "https://gu.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "guildwarswiki",
+        "url": "http://wiki.guildwars.com/wiki/$1"
+      },
+      {
+        "prefix": "guildwiki",
+        "url": "http://guildwars.wikia.com/wiki/$1"
+      },
+      {
+        "prefix": "gutenberg",
+        "url": "http://www.gutenberg.org/etext/$1"
+      },
+      {
+        "prefix": "gutenbergwiki",
+        "url": "http://www.gutenberg.org/wiki/$1"
+      },
+      {
+        "prefix": "gv",
+        "local": "",
+        "language": "Gaelg",
+        "url": "https://gv.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "h2wiki",
+        "url": "http://halowiki.net/p/$1"
+      },
+      {
+        "prefix": "ha",
+        "local": "",
+        "language": "Hausa",
+        "url": "https://ha.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "hackerspaces",
+        "url": "http://hackerspaces.org/wiki/$1"
+      },
+      {
+        "prefix": "hak",
+        "local": "",
+        "language": "客家語/Hak-kâ-ngî",
+        "url": "https://hak.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "hammondwiki",
-        "url": "http://www.dairiki.org/HammondWiki/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.dairiki.org/HammondWiki/index.php3?$1"
       },
       {
-        "prefix": "hewikisource",
+        "prefix": "haw",
         "local": "",
-        "url": "http://he.wikisource.org/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "language": "Hawaiʻi",
+        "url": "https://haw.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "hdl",
+        "url": "http://hdl.handle.net/$1"
+      },
+      {
+        "prefix": "he",
+        "local": "",
+        "language": "עברית",
+        "url": "https://he.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "heroeswiki",
+        "url": "http://heroeswiki.com/$1"
+      },
+      {
+        "prefix": "hi",
+        "local": "",
+        "language": "हिन्दी",
+        "url": "https://hi.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "hif",
+        "local": "",
+        "language": "Fiji Hindi",
+        "url": "https://hif.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ho",
+        "local": "",
+        "language": "Hiri Motu",
+        "url": "https://ho.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "horizon",
+        "local": "",
+        "url": "https://horizon.wikimedia.org/$1"
+      },
+      {
+        "prefix": "hr",
+        "local": "",
+        "language": "hrvatski",
+        "url": "https://hr.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "hrfwiki",
+        "url": "http://fanstuff.hrwiki.org/index.php/$1"
       },
       {
         "prefix": "hrwiki",
-        "url": "http://www.hrwiki.org/index.php/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.hrwiki.org/index.php/$1"
       },
       {
-        "prefix": "imdb",
-        "url": "http://us.imdb.com/Title?$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "hsb",
+        "local": "",
+        "language": "hornjoserbsce",
+        "url": "https://hsb.wikipedia.org/wiki/$1"
       },
       {
-        "prefix": "jargonfile",
-        "url": "http://sunir.org/apps/meta.pl?wiki=JargonFile&redirect=$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "ht",
+        "local": "",
+        "language": "Kreyòl ayisyen",
+        "url": "https://ht.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "hu",
+        "local": "",
+        "language": "magyar",
+        "url": "https://hu.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "hupwiki",
+        "url": "http://wiki.hup.hu/index.php/$1"
+      },
+      {
+        "prefix": "hy",
+        "local": "",
+        "language": "Հայերեն",
+        "url": "https://hy.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "hz",
+        "local": "",
+        "language": "Otsiherero",
+        "url": "https://hz.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ia",
+        "local": "",
+        "language": "interlingua",
+        "url": "https://ia.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "iarchive",
+        "url": "https://archive.org/details/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "id",
+        "local": "",
+        "language": "Bahasa Indonesia",
+        "url": "https://id.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ie",
+        "local": "",
+        "language": "Interlingue",
+        "url": "https://ie.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ig",
+        "local": "",
+        "language": "Igbo",
+        "url": "https://ig.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ii",
+        "local": "",
+        "language": "ꆇꉙ",
+        "url": "https://ii.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ik",
+        "local": "",
+        "language": "Iñupiak",
+        "url": "https://ik.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ilo",
+        "local": "",
+        "language": "Ilokano",
+        "url": "https://ilo.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "imdbcharacter",
+        "url": "http://www.imdb.com/character/ch$1/"
+      },
+      {
+        "prefix": "imdbcompany",
+        "url": "http://www.imdb.com/company/co$1/"
+      },
+      {
+        "prefix": "imdbname",
+        "url": "http://www.imdb.com/name/nm$1/"
+      },
+      {
+        "prefix": "imdbtitle",
+        "url": "http://www.imdb.com/title/tt$1/"
+      },
+      {
+        "prefix": "incubator",
+        "local": "",
+        "url": "https://incubator.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "infosecpedia",
+        "url": "http://infosecpedia.org/wiki/$1"
+      },
+      {
+        "prefix": "infosphere",
+        "url": "http://theinfosphere.org/$1"
+      },
+      {
+        "prefix": "io",
+        "local": "",
+        "language": "Ido",
+        "url": "https://io.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "irc",
+        "url": "irc://irc.freenode.net/$1"
+      },
+      {
+        "prefix": "ircrc",
+        "local": "",
+        "url": "irc://irc.wikimedia.org/$1"
+      },
+      {
+        "prefix": "is",
+        "local": "",
+        "language": "íslenska",
+        "url": "https://is.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "iso639-3",
+        "url": "http://www-01.sil.org/iso639-3/documentation.asp?id=$1"
+      },
+      {
+        "prefix": "issn",
+        "url": "http://www.worldcat.org/issn/$1"
+      },
+      {
+        "prefix": "it",
+        "local": "",
+        "language": "italiano",
+        "url": "https://it.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "iu",
+        "local": "",
+        "language": "ᐃᓄᒃᑎᑐᑦ/inuktitut",
+        "url": "https://iu.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "iuridictum",
+        "url": "http://iuridictum.pecina.cz/w/$1"
+      },
+      {
+        "prefix": "ja",
+        "local": "",
+        "language": "日本語",
+        "url": "https://ja.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "jaglyphwiki",
+        "url": "http://glyphwiki.org/wiki/$1"
+      },
+      {
+        "prefix": "jam",
+        "local": "",
+        "language": "Patois",
+        "url": "https://jam.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "javanet",
+        "url": "http://wiki.java.net/bin/view/Main/$1"
+      },
+      {
+        "prefix": "javapedia",
+        "url": "http://wiki.java.net/bin/view/Javapedia/$1"
+      },
+      {
+        "prefix": "jbo",
+        "local": "",
+        "language": "la .lojban.",
+        "url": "https://jbo.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "jefo",
+        "url": "http://esperanto-jeunes.org/wiki/$1"
+      },
+      {
+        "prefix": "jerseydatabase",
+        "url": "http://jerseydatabase.com/wiki.php?id=$1"
+      },
+      {
+        "prefix": "jira",
+        "url": "https://jira.toolserver.org/browse/$1"
+      },
+      {
+        "prefix": "jp",
+        "local": "",
+        "url": "https://ja.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "jspwiki",
-        "url": "http://www.jspwiki.org/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.ecyrd.com/JSPWiki/Wiki.jsp?page=$1"
       },
       {
-        "prefix": "keiki",
-        "url": "http://kei.ki/en/$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "jstor",
+        "url": "http://www.jstor.org/journals/$1"
+      },
+      {
+        "prefix": "jv",
+        "local": "",
+        "language": "Basa Jawa",
+        "url": "https://jv.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ka",
+        "local": "",
+        "language": "ქართული",
+        "url": "https://ka.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "kaa",
+        "local": "",
+        "language": "Qaraqalpaqsha",
+        "url": "https://kaa.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "kab",
+        "local": "",
+        "language": "Taqbaylit",
+        "url": "https://kab.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "kamelo",
+        "url": "http://kamelopedia.mormo.org/index.php/$1"
+      },
+      {
+        "prefix": "karlsruhe",
+        "url": "http://ka.stadtwiki.net/$1"
+      },
+      {
+        "prefix": "kbd",
+        "local": "",
+        "language": "Адыгэбзэ",
+        "url": "https://kbd.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "kg",
+        "local": "",
+        "language": "Kongo",
+        "url": "https://kg.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ki",
+        "local": "",
+        "language": "Gĩkũyũ",
+        "url": "https://ki.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "kinowiki",
+        "url": "http://kino.skripov.com/index.php/$1"
+      },
+      {
+        "prefix": "kj",
+        "local": "",
+        "language": "Kwanyama",
+        "url": "https://kj.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "kk",
+        "local": "",
+        "language": "қазақша",
+        "url": "https://kk.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "kl",
+        "local": "",
+        "language": "kalaallisut",
+        "url": "https://kl.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "km",
+        "local": "",
+        "language": "ភាសាខ្មែរ",
+        "url": "https://km.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "kmwiki",
-        "url": "http://kmwiki.wikispaces.com/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "https://kmwiki.wikispaces.com/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "kn",
+        "local": "",
+        "language": "ಕನ್ನಡ",
+        "url": "https://kn.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ko",
+        "local": "",
+        "language": "한국어",
+        "url": "https://ko.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "koi",
+        "local": "",
+        "language": "Перем Коми",
+        "url": "https://koi.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "komicawiki",
+        "url": "http://wiki.komica.org/wiki3/?$1"
+      },
+      {
+        "prefix": "kontuwiki",
+        "url": "http://kontu.wiki/$1"
+      },
+      {
+        "prefix": "koslarwiki",
+        "url": "http://wiki.koslar.de/index.php/$1"
+      },
+      {
+        "prefix": "kr",
+        "local": "",
+        "language": "Kanuri",
+        "url": "https://kr.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "krc",
+        "local": "",
+        "language": "къарачай-малкъар",
+        "url": "https://krc.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ks",
+        "local": "",
+        "language": "कॉशुर / کٲشُر",
+        "url": "https://ks.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ksh",
+        "local": "",
+        "language": "Ripoarisch",
+        "url": "https://ksh.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ku",
+        "local": "",
+        "language": "Kurdî",
+        "url": "https://ku.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "kv",
+        "local": "",
+        "language": "коми",
+        "url": "https://kv.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "kw",
+        "local": "",
+        "language": "kernowek",
+        "url": "https://kw.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ky",
+        "local": "",
+        "language": "Кыргызча",
+        "url": "https://ky.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "la",
+        "local": "",
+        "language": "Latina",
+        "url": "https://la.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "labsconsole",
+        "local": "",
+        "url": "https://wikitech.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "lad",
+        "local": "",
+        "language": "Ladino",
+        "url": "https://lad.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "lb",
+        "local": "",
+        "language": "Lëtzebuergesch",
+        "url": "https://lb.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "lbe",
+        "local": "",
+        "language": "лакку",
+        "url": "https://lbe.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "lez",
+        "local": "",
+        "language": "лезги",
+        "url": "https://lez.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "lg",
+        "local": "",
+        "language": "Luganda",
+        "url": "https://lg.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "li",
+        "local": "",
+        "language": "Limburgs",
+        "url": "https://li.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "libreplanet",
+        "url": "https://libreplanet.org/wiki/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "lij",
+        "local": "",
+        "language": "Ligure",
+        "url": "https://lij.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "linguistlist",
+        "url": "https://linguistlist.org/forms/langs/LLDescription.cfm?code=$1",
+        "protorel": ""
       },
       {
         "prefix": "linuxwiki",
-        "url": "http://linuxwiki.de/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.linuxwiki.de/$1"
+      },
+      {
+        "prefix": "linuxwikide",
+        "url": "http://www.linuxwiki.de/$1"
+      },
+      {
+        "prefix": "liswiki",
+        "url": "http://liswiki.org/wiki/$1"
+      },
+      {
+        "prefix": "literateprograms",
+        "url": "http://en.literateprograms.org/$1"
+      },
+      {
+        "prefix": "livepedia",
+        "url": "http://www.livepedia.gr/index.php?title=$1"
+      },
+      {
+        "prefix": "lmo",
+        "local": "",
+        "language": "lumbaart",
+        "url": "https://lmo.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ln",
+        "local": "",
+        "language": "lingála",
+        "url": "https://ln.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "lo",
+        "local": "",
+        "language": "ລາວ",
+        "url": "https://lo.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "localwiki",
+        "url": "https://localwiki.org/$1"
       },
       {
         "prefix": "lojban",
-        "url": "http://www.lojban.org/tiki/tiki-index.php?page=$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://mw.lojban.org/papri/$1"
+      },
+      {
+        "prefix": "lostpedia",
+        "url": "http://lostpedia.wikia.com/wiki/$1"
       },
       {
         "prefix": "lqwiki",
-        "url": "http://wiki.linuxquestions.org/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://wiki.linuxquestions.org/wiki/$1"
       },
       {
-        "prefix": "lugkr",
-        "url": "http://lug-kr.sourceforge.net/cgi-bin/lugwiki.pl?$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "lrc",
+        "local": "",
+        "language": "لۊری شومالی",
+        "url": "https://lrc.wikipedia.org/wiki/$1"
       },
       {
-        "prefix": "mathsongswiki",
-        "url": "http://SeedWiki.com/page.cfm?wikiid=237&doc=$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "lt",
+        "local": "",
+        "language": "lietuvių",
+        "url": "https://lt.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ltg",
+        "local": "",
+        "language": "latgaļu",
+        "url": "https://ltg.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "luxo",
+        "url": "https://tools.wmflabs.org/guc/?user=$1"
+      },
+      {
+        "prefix": "lv",
+        "local": "",
+        "language": "latviešu",
+        "url": "https://lv.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "lzh",
+        "local": "",
+        "language": "文言",
+        "url": "https://zh-classical.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "m",
+        "local": "",
+        "url": "https://meta.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "mai",
+        "local": "",
+        "language": "मैथिली",
+        "url": "https://mai.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "mail",
+        "local": "",
+        "url": "https://lists.wikimedia.org/mailman/listinfo/$1"
+      },
+      {
+        "prefix": "mailarchive",
+        "local": "",
+        "url": "https://lists.wikimedia.org/pipermail/$1"
+      },
+      {
+        "prefix": "map-bms",
+        "local": "",
+        "language": "Basa Banyumasan",
+        "url": "https://map-bms.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "mariowiki",
+        "url": "http://www.mariowiki.com/$1"
+      },
+      {
+        "prefix": "marveldatabase",
+        "url": "http://www.marveldatabase.com/wiki/index.php/$1"
+      },
+      {
+        "prefix": "mdf",
+        "local": "",
+        "language": "мокшень",
+        "url": "https://mdf.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "meatball",
-        "url": "http://www.usemod.com/cgi-bin/mb.pl?$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://meatballwiki.org/wiki/$1"
       },
       {
         "prefix": "mediawikiwiki",
-        "url": "http://www.mediawiki.org/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "local": "",
+        "url": "https://www.mediawiki.org/wiki/$1"
       },
       {
         "prefix": "mediazilla",
         "local": "",
-        "url": "https://bugzilla.wikimedia.org/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "https://bugzilla.wikimedia.org/$1"
       },
       {
         "prefix": "memoryalpha",
-        "url": "http://www.memory-alpha.org/en/index.php/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://memory-alpha.org/wiki/$1"
+      },
+      {
+        "prefix": "meta",
+        "local": "",
+        "url": "https://meta.wikimedia.org/wiki/$1"
       },
       {
         "prefix": "metawiki",
-        "url": "http://sunir.org/apps/meta.pl?$1",
-        "wikiid": "",
-        "api": ""
+        "local": "",
+        "url": "https://meta.wikimedia.org/wiki/$1"
       },
       {
         "prefix": "metawikimedia",
-        "url": "http://meta.wikimedia.org/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "local": "",
+        "url": "https://meta.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "metawikipedia",
+        "local": "",
+        "url": "https://meta.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "metawikisearch",
+        "url": "http://sunir.org/apps/meta.pl?$1"
+      },
+      {
+        "prefix": "mg",
+        "local": "",
+        "language": "Malagasy",
+        "url": "https://mg.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "mh",
+        "local": "",
+        "language": "Ebon",
+        "url": "https://mh.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "mhr",
+        "local": "",
+        "language": "олык марий",
+        "url": "https://mhr.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "mi",
+        "local": "",
+        "language": "Māori",
+        "url": "https://mi.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "min",
+        "local": "",
+        "language": "Baso Minangkabau",
+        "url": "https://min.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "mineralienatlas",
+        "url": "http://www.mineralienatlas.de/lexikon/index.php/$1"
+      },
+      {
+        "prefix": "minnan",
+        "local": "",
+        "url": "https://zh-min-nan.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "mk",
+        "local": "",
+        "language": "македонски",
+        "url": "https://mk.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ml",
+        "local": "",
+        "language": "മലയാളം",
+        "url": "https://ml.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "mn",
+        "local": "",
+        "language": "монгол",
+        "url": "https://mn.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "mo",
+        "local": "",
+        "language": "молдовеняскэ",
+        "url": "https://mo.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "moinmoin",
-        "url": "http://purl.net/wiki/moin/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://moinmo.in/$1"
+      },
+      {
+        "prefix": "monstropedia",
+        "url": "http://www.monstropedia.org/?title=$1"
+      },
+      {
+        "prefix": "mosapedia",
+        "url": "http://mosapedia.de/wiki/index.php/$1"
+      },
+      {
+        "prefix": "mozcom",
+        "url": "http://mozilla.wikia.com/wiki/$1"
       },
       {
         "prefix": "mozillawiki",
-        "url": "http://wiki.mozilla.org/index.php/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "https://wiki.mozilla.org/$1"
+      },
+      {
+        "prefix": "mozillazinekb",
+        "url": "http://kb.mozillazine.org/$1"
+      },
+      {
+        "prefix": "mr",
+        "local": "",
+        "language": "मराठी",
+        "url": "https://mr.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "mrj",
+        "local": "",
+        "language": "кырык мары",
+        "url": "https://mrj.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ms",
+        "local": "",
+        "language": "Bahasa Melayu",
+        "url": "https://ms.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "mt",
+        "local": "",
+        "language": "Malti",
+        "url": "https://mt.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "mus",
+        "local": "",
+        "language": "Mvskoke",
+        "url": "https://mus.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "musicbrainz",
+        "url": "http://musicbrainz.org/doc/$1"
       },
       {
         "prefix": "mw",
-        "url": "http://www.mediawiki.org/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "local": "",
+        "url": "https://www.mediawiki.org/wiki/$1"
+      },
+      {
+        "prefix": "mwl",
+        "local": "",
+        "language": "Mirandés",
+        "url": "https://mwl.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "mwod",
+        "url": "http://www.merriam-webster.com/cgi-bin/dictionary?book=Dictionary&va=$1"
+      },
+      {
+        "prefix": "mwot",
+        "url": "http://www.merriam-webster.com/cgi-bin/thesaurus?book=Thesaurus&va=$1"
+      },
+      {
+        "prefix": "my",
+        "local": "",
+        "language": "မြန်မာဘာသာ",
+        "url": "https://my.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "myv",
+        "local": "",
+        "language": "эрзянь",
+        "url": "https://myv.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "mzn",
+        "local": "",
+        "language": "مازِرونی",
+        "url": "https://mzn.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "n",
+        "local": "",
+        "url": "https://zh.wikinews.org/wiki/$1"
+      },
+      {
+        "prefix": "na",
+        "local": "",
+        "language": "Dorerin Naoero",
+        "url": "https://na.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "nah",
+        "local": "",
+        "language": "Nāhuatl",
+        "url": "https://nah.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "nan",
+        "local": "",
+        "language": "Bân-lâm-gú",
+        "url": "https://zh-min-nan.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "nap",
+        "local": "",
+        "language": "Napulitano",
+        "url": "https://nap.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "nara",
+        "url": "http://research.archives.gov/description/$1"
+      },
+      {
+        "prefix": "nb",
+        "local": "",
+        "language": "norsk bokmål",
+        "url": "https://no.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "nds",
+        "local": "",
+        "language": "Plattdüütsch",
+        "url": "https://nds.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "nds-nl",
+        "local": "",
+        "language": "Nedersaksies",
+        "url": "https://nds-nl.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ne",
+        "local": "",
+        "language": "नेपाली",
+        "url": "https://ne.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "new",
+        "local": "",
+        "language": "नेपाल भाषा",
+        "url": "https://new.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ng",
+        "local": "",
+        "language": "Oshiwambo",
+        "url": "https://ng.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "nkcells",
+        "url": "http://www.nkcells.info/index.php?title=$1"
+      },
+      {
+        "prefix": "nl",
+        "local": "",
+        "language": "Nederlands",
+        "url": "https://nl.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "nn",
+        "local": "",
+        "language": "norsk nynorsk",
+        "url": "https://nn.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "no",
+        "local": "",
+        "language": "norsk bokmål",
+        "url": "https://no.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "nosmoke",
+        "url": "http://no-smok.net/nsmk/$1"
+      },
+      {
+        "prefix": "nost",
+        "local": "",
+        "url": "https://nostalgia.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "nostalgia",
+        "local": "",
+        "url": "https://nostalgia.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "nov",
+        "local": "",
+        "language": "Novial",
+        "url": "https://nov.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "nrm",
+        "local": "",
+        "language": "Nouormand",
+        "url": "https://nrm.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "nso",
+        "local": "",
+        "language": "Sesotho sa Leboa",
+        "url": "https://nso.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "nv",
+        "local": "",
+        "language": "Diné bizaad",
+        "url": "https://nv.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ny",
+        "local": "",
+        "language": "Chi-Chewa",
+        "url": "https://ny.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "oc",
+        "local": "",
+        "language": "occitan",
+        "url": "https://oc.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "oeis",
-        "url": "http://www.research.att.com/cgi-bin/access.cgi/as/njas/sequences/eisA.cgi?Anum=$1",
-        "wikiid": "",
-        "api": ""
+        "url": "https://oeis.org/$1",
+        "protorel": ""
       },
       {
-        "prefix": "openfacts",
-        "url": "http://openfacts.berlios.de/index.phtml?title=$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "oldwikisource",
+        "local": "",
+        "url": "https://wikisource.org/wiki/$1"
+      },
+      {
+        "prefix": "olo",
+        "local": "",
+        "language": "Livvinkarjala",
+        "url": "https://olo.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "olpc",
+        "url": "http://wiki.laptop.org/go/$1"
+      },
+      {
+        "prefix": "om",
+        "local": "",
+        "language": "Oromoo",
+        "url": "https://om.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "onelook",
+        "url": "http://www.onelook.com/?ls=b&w=$1"
+      },
+      {
+        "prefix": "openlibrary",
+        "url": "http://openlibrary.org/$1"
+      },
+      {
+        "prefix": "openstreetmap",
+        "url": "https://wiki.openstreetmap.org/wiki/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "openwetware",
+        "url": "http://openwetware.org/wiki/$1"
       },
       {
         "prefix": "openwiki",
-        "url": "http://openwiki.com/?$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://openwiki.com/?$1"
+      },
+      {
+        "prefix": "opera7wiki",
+        "url": "http://operawiki.info/$1"
+      },
+      {
+        "prefix": "or",
+        "local": "",
+        "language": "ଓଡ଼ିଆ",
+        "url": "https://or.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "organicdesign",
+        "url": "http://www.organicdesign.co.nz/$1"
+      },
+      {
+        "prefix": "orthodoxwiki",
+        "url": "http://orthodoxwiki.org/$1"
+      },
+      {
+        "prefix": "os",
+        "local": "",
+        "language": "Ирон",
+        "url": "https://os.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "osmwiki",
+        "url": "https://wiki.openstreetmap.org/wiki/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "otrs",
+        "local": "",
+        "url": "https://ticket.wikimedia.org/otrs/index.pl?Action=AgentTicketZoom&TicketID=$1"
+      },
+      {
+        "prefix": "otrswiki",
+        "local": "",
+        "url": "https://otrs-wiki.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ourmedia",
+        "url": "https://www.socialtext.net/ourmedia/index.cgi?$1"
+      },
+      {
+        "prefix": "outreach",
+        "local": "",
+        "url": "https://outreach.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "outreachwiki",
+        "local": "",
+        "url": "https://outreach.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "owasp",
+        "url": "https://www.owasp.org/index.php/$1"
+      },
+      {
+        "prefix": "pa",
+        "local": "",
+        "language": "ਪੰਜਾਬੀ",
+        "url": "https://pa.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "pag",
+        "local": "",
+        "language": "Pangasinan",
+        "url": "https://pag.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "pam",
+        "local": "",
+        "language": "Kapampangan",
+        "url": "https://pam.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "panawiki",
+        "url": "http://wiki.alairelibre.net/index.php?title=$1"
+      },
+      {
+        "prefix": "pap",
+        "local": "",
+        "language": "Papiamentu",
+        "url": "https://pap.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "patwiki",
+        "url": "http://gauss.ffii.org/$1"
+      },
+      {
+        "prefix": "pcd",
+        "local": "",
+        "language": "Picard",
+        "url": "https://pcd.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "pdc",
+        "local": "",
+        "language": "Deitsch",
+        "url": "https://pdc.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "personaltelco",
+        "url": "http://www.personaltelco.net/$1"
+      },
+      {
+        "prefix": "petscan",
+        "url": "https://petscan.wmflabs.org/?psid=$1"
+      },
+      {
+        "prefix": "pfl",
+        "local": "",
+        "language": "Pälzisch",
+        "url": "https://pfl.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "phab",
+        "local": "",
+        "url": "https://phabricator.wikimedia.org/$1"
+      },
+      {
+        "prefix": "phabricator",
+        "local": "",
+        "url": "https://phabricator.wikimedia.org/$1"
+      },
+      {
+        "prefix": "phpwiki",
+        "url": "http://phpwiki.sourceforge.net/phpwiki/index.php?$1"
+      },
+      {
+        "prefix": "phwiki",
+        "url": "http://www.pocketheaven.com/ph/wiki/index.php?title=$1"
+      },
+      {
+        "prefix": "pi",
+        "local": "",
+        "language": "पालि",
+        "url": "https://pi.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "pih",
+        "local": "",
+        "language": "Norfuk / Pitkern",
+        "url": "https://pih.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "pl",
+        "local": "",
+        "language": "polski",
+        "url": "https://pl.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "planetmath",
+        "url": "http://planetmath.org/node/$1"
       },
       {
         "prefix": "pmeg",
-        "url": "http://www.bertilow.com/pmeg/$1.php",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.bertilow.com/pmeg/$1"
       },
       {
-        "prefix": "ppr",
-        "url": "http://c2.com/cgi/wiki?$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "pmid",
+        "url": "https://www.ncbi.nlm.nih.gov/pubmed/$1?dopt=Abstract"
+      },
+      {
+        "prefix": "pms",
+        "local": "",
+        "language": "Piemontèis",
+        "url": "https://pms.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "pnb",
+        "local": "",
+        "language": "پنجابی",
+        "url": "https://pnb.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "pnt",
+        "local": "",
+        "language": "Ποντιακά",
+        "url": "https://pnt.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "pokewiki",
+        "url": "http://pokewiki.de/$1"
+      },
+      {
+        "prefix": "pokéwiki",
+        "url": "http://pokewiki.de/$1"
+      },
+      {
+        "prefix": "policy",
+        "local": "",
+        "url": "https://policy.wikimedia.org/$1"
+      },
+      {
+        "prefix": "proofwiki",
+        "url": "https://www.proofwiki.org/wiki/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "ps",
+        "local": "",
+        "language": "پښتو",
+        "url": "https://ps.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "psycle",
+        "url": "http://psycle.sourceforge.net/wiki/$1"
+      },
+      {
+        "prefix": "pt",
+        "local": "",
+        "language": "português",
+        "url": "https://pt.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "pyrev",
+        "local": "",
+        "url": "https://www.mediawiki.org/wiki/Special:Code/pywikipedia/$1"
       },
       {
         "prefix": "pythoninfo",
-        "url": "http://wiki.python.org/moin/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "https://wiki.python.org/moin/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "pythonwiki",
+        "url": "http://www.pythonwiki.de/$1"
+      },
+      {
+        "prefix": "pywiki",
+        "url": "http://c2.com/cgi/wiki?$1"
+      },
+      {
+        "prefix": "q",
+        "local": "",
+        "url": "https://zh.wikiquote.org/wiki/$1"
+      },
+      {
+        "prefix": "qu",
+        "local": "",
+        "language": "Runa Simi",
+        "url": "https://qu.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "quality",
+        "local": "",
+        "url": "https://quality.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "quarry",
+        "url": "https://quarry.wmflabs.org/$1"
+      },
+      {
+        "prefix": "rcirc",
+        "local": "",
+        "url": "irc://irc.wikimedia.org/$1"
+      },
+      {
+        "prefix": "reuterswiki",
+        "url": "http://glossary.reuters.com/index.php/$1"
+      },
+      {
+        "prefix": "rev",
+        "local": "",
+        "url": "https://www.mediawiki.org/wiki/Special:Code/MediaWiki/$1"
+      },
+      {
+        "prefix": "revo",
+        "url": "http://purl.org/NET/voko/revo/art/$1.html"
       },
       {
         "prefix": "rfc",
-        "url": "http://www.rfc-editor.org/rfc/rfc$1.txt",
-        "wikiid": "",
-        "api": ""
+        "url": "https://tools.ietf.org/html/rfc$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "rheinneckar",
+        "url": "http://rhein-neckar-wiki.de/$1"
+      },
+      {
+        "prefix": "rm",
+        "local": "",
+        "language": "rumantsch",
+        "url": "https://rm.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "rmy",
+        "local": "",
+        "language": "Romani",
+        "url": "https://rmy.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "rn",
+        "local": "",
+        "language": "Kirundi",
+        "url": "https://rn.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ro",
+        "local": "",
+        "language": "română",
+        "url": "https://ro.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "roa-rup",
+        "local": "",
+        "language": "armãneashti",
+        "url": "https://roa-rup.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "roa-tara",
+        "local": "",
+        "language": "tarandíne",
+        "url": "https://roa-tara.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "robowiki",
+        "url": "http://robowiki.net/?$1"
+      },
+      {
+        "prefix": "rodovid",
+        "url": "http://en.rodovid.org/wk/$1"
+      },
+      {
+        "prefix": "rowiki",
+        "url": "http://wiki.rennkuckuck.de/index.php/$1"
+      },
+      {
+        "prefix": "rt",
+        "local": "",
+        "url": "https://rt.wikimedia.org/Ticket/Display.html?id=$1"
+      },
+      {
+        "prefix": "rtfm",
+        "url": "ftp://rtfm.mit.edu/pub/faqs/$1"
+      },
+      {
+        "prefix": "ru",
+        "local": "",
+        "language": "русский",
+        "url": "https://ru.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "rue",
+        "local": "",
+        "language": "русиньскый",
+        "url": "https://rue.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "rup",
+        "local": "",
+        "language": "armãneashti",
+        "url": "https://roa-rup.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "rw",
+        "local": "",
+        "language": "Kinyarwanda",
+        "url": "https://rw.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "s",
+        "local": "",
+        "url": "https://zh.wikisource.org/wiki/$1"
       },
       {
         "prefix": "s23wiki",
-        "url": "http://is-root.de/wiki/index.php/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://s23.org/wiki/$1"
+      },
+      {
+        "prefix": "sa",
+        "local": "",
+        "language": "संस्कृतम्",
+        "url": "https://sa.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "sah",
+        "local": "",
+        "language": "саха тыла",
+        "url": "https://sah.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "sc",
+        "local": "",
+        "language": "sardu",
+        "url": "https://sc.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "scholar",
+        "url": "https://scholar.google.com/scholar?q=$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "schoolswp",
+        "url": "http://schools-wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "scn",
+        "local": "",
+        "language": "sicilianu",
+        "url": "https://scn.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "sco",
+        "local": "",
+        "language": "Scots",
+        "url": "https://sco.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "scores",
+        "url": "http://imslp.org/wiki/$1"
+      },
+      {
+        "prefix": "scoutwiki",
+        "url": "http://en.scoutwiki.org/$1"
+      },
+      {
+        "prefix": "scramble",
+        "url": "http://www.scramble.nl/wiki/index.php?title=$1"
+      },
+      {
+        "prefix": "sd",
+        "local": "",
+        "language": "سنڌي",
+        "url": "https://sd.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "se",
+        "local": "",
+        "language": "sámegiella",
+        "url": "https://se.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "seapig",
+        "url": "http://www.seapig.org/$1"
       },
       {
         "prefix": "seattlewiki",
-        "url": "http://seattle.wikia.com/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://seattle.wikia.com/wiki/$1"
       },
       {
-        "prefix": "seattlewireless",
-        "url": "http://seattlewireless.net/?$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "securewikidc",
+        "url": "https://secure.wikidc.org/$1"
+      },
+      {
+        "prefix": "semantic-mw",
+        "url": "https://www.semantic-mediawiki.org/wiki/$1",
+        "protorel": ""
       },
       {
         "prefix": "senseislibrary",
-        "url": "http://senseis.xmp.net/?$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://senseis.xmp.net/?$1"
+      },
+      {
+        "prefix": "sep11",
+        "local": "",
+        "url": "https://sep11.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "sg",
+        "local": "",
+        "language": "Sängö",
+        "url": "https://sg.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "sgs",
+        "local": "",
+        "language": "žemaitėška",
+        "url": "https://bat-smg.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "sh",
+        "local": "",
+        "language": "srpskohrvatski / српскохрватски",
+        "url": "https://sh.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "sharemap",
+        "url": "http://sharemap.org/$1"
+      },
+      {
+        "prefix": "si",
+        "local": "",
+        "language": "සිංහල",
+        "url": "https://si.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "silcode",
+        "url": "http://www.sil.org/iso639-3/documentation.asp?id=$1"
+      },
+      {
+        "prefix": "simple",
+        "local": "",
+        "language": "Simple English",
+        "url": "https://simple.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "sk",
+        "local": "",
+        "language": "slovenčina",
+        "url": "https://sk.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "sl",
+        "local": "",
+        "language": "slovenščina",
+        "url": "https://sl.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "slashdot",
+        "url": "http://slashdot.org/article.pl?sid=$1"
+      },
+      {
+        "prefix": "slwiki",
+        "url": "http://wiki.secondlife.com/wiki/$1"
+      },
+      {
+        "prefix": "sm",
+        "local": "",
+        "language": "Gagana Samoa",
+        "url": "https://sm.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "sn",
+        "local": "",
+        "language": "chiShona",
+        "url": "https://sn.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "so",
+        "local": "",
+        "language": "Soomaaliga",
+        "url": "https://so.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "sourceforge",
-        "url": "http://sourceforge.net/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "https://sourceforge.net/$1"
+      },
+      {
+        "prefix": "spcom",
+        "local": "",
+        "url": "https://spcom.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "species",
+        "local": "",
+        "url": "https://species.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "sq",
+        "local": "",
+        "language": "shqip",
+        "url": "https://sq.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "squeak",
-        "url": "http://wiki.squeak.org/squeak/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://wiki.squeak.org/squeak/$1"
       },
       {
-        "prefix": "susning",
-        "url": "http://www.susning.nu/$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "sr",
+        "local": "",
+        "language": "српски / srpski",
+        "url": "https://sr.wikipedia.org/wiki/$1"
       },
       {
-        "prefix": "svgwiki",
-        "url": "http://wiki.svg.org/$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "srn",
+        "local": "",
+        "language": "Sranantongo",
+        "url": "https://srn.wikipedia.org/wiki/$1"
       },
       {
-        "prefix": "tavi",
-        "url": "http://tavi.sourceforge.net/$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "ss",
+        "local": "",
+        "language": "SiSwati",
+        "url": "https://ss.wikipedia.org/wiki/$1"
       },
       {
-        "prefix": "tejo",
-        "url": "http://www.tejo.org/vikio/$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "st",
+        "local": "",
+        "language": "Sesotho",
+        "url": "https://st.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "stats",
+        "local": "",
+        "url": "https://stats.wikimedia.org/$1"
+      },
+      {
+        "prefix": "stewardry",
+        "url": "https://tools.wmflabs.org/meta/stewardry/?wiki=$1"
+      },
+      {
+        "prefix": "stq",
+        "local": "",
+        "language": "Seeltersk",
+        "url": "https://stq.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "strategy",
+        "local": "",
+        "url": "https://strategy.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "strategywiki",
+        "url": "http://strategywiki.org/wiki/$1"
+      },
+      {
+        "prefix": "su",
+        "local": "",
+        "language": "Basa Sunda",
+        "url": "https://su.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "sulutil",
+        "local": "",
+        "url": "https://meta.wikimedia.org/wiki/Special:CentralAuth/$1"
+      },
+      {
+        "prefix": "sv",
+        "local": "",
+        "language": "svenska",
+        "url": "https://sv.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "svn",
+        "local": "",
+        "url": "https://svn.wikimedia.org/viewvc/mediawiki/$1?view=log"
+      },
+      {
+        "prefix": "sw",
+        "local": "",
+        "language": "Kiswahili",
+        "url": "https://sw.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "swinbrain",
+        "url": "https://swinbrain.ict.swin.edu.au/wiki/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "swtrain",
+        "url": "http://train.spottingworld.com/$1"
+      },
+      {
+        "prefix": "szl",
+        "local": "",
+        "language": "ślůnski",
+        "url": "https://szl.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ta",
+        "local": "",
+        "language": "தமிழ்",
+        "url": "https://ta.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "tabwiki",
+        "url": "http://www.tabwiki.com/index.php/$1"
+      },
+      {
+        "prefix": "tclerswiki",
+        "url": "http://wiki.tcl.tk/$1"
+      },
+      {
+        "prefix": "tcy",
+        "local": "",
+        "language": "ತುಳು",
+        "url": "https://tcy.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "te",
+        "local": "",
+        "language": "తెలుగు",
+        "url": "https://te.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "technorati",
+        "url": "http://www.technorati.com/search/$1"
+      },
+      {
+        "prefix": "tenwiki",
+        "local": "",
+        "url": "https://ten.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "test2wiki",
+        "local": "",
+        "url": "https://test2.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "testwiki",
+        "local": "",
+        "url": "https://test.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "testwikidata",
+        "local": "",
+        "url": "https://test.wikidata.org/wiki/$1"
+      },
+      {
+        "prefix": "tet",
+        "local": "",
+        "language": "tetun",
+        "url": "https://tet.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "tfwiki",
+        "url": "http://tfwiki.net/wiki/$1"
+      },
+      {
+        "prefix": "tg",
+        "local": "",
+        "language": "тоҷикӣ",
+        "url": "https://tg.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "th",
+        "local": "",
+        "language": "ไทย",
+        "url": "https://th.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "thelemapedia",
+        "url": "http://www.thelemapedia.org/index.php/$1"
       },
       {
         "prefix": "theopedia",
-        "url": "http://www.theopedia.com/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.theopedia.com/$1"
+      },
+      {
+        "prefix": "thinkwiki",
+        "url": "http://www.thinkwiki.org/wiki/$1"
+      },
+      {
+        "prefix": "ti",
+        "local": "",
+        "language": "ትግርኛ",
+        "url": "https://ti.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ticket",
+        "local": "",
+        "url": "https://ticket.wikimedia.org/otrs/index.pl?Action=AgentTicketZoom&TicketNumber=$1"
+      },
+      {
+        "prefix": "tk",
+        "local": "",
+        "language": "Türkmençe",
+        "url": "https://tk.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "tl",
+        "local": "",
+        "language": "Tagalog",
+        "url": "https://tl.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "tmbw",
-        "url": "http://www.tmbw.net/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://tmbw.net/wiki/$1"
       },
       {
         "prefix": "tmnet",
-        "url": "http://www.technomanifestos.net/?$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.technomanifestos.net/?$1"
       },
       {
         "prefix": "tmwiki",
-        "url": "http://www.EasyTopicMaps.com/?page=$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.EasyTopicMaps.com/?page=$1"
+      },
+      {
+        "prefix": "tn",
+        "local": "",
+        "language": "Setswana",
+        "url": "https://tn.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "to",
+        "local": "",
+        "language": "lea faka-Tonga",
+        "url": "https://to.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "toollabs",
+        "url": "https://tools.wmflabs.org/$1"
+      },
+      {
+        "prefix": "tools",
+        "url": "https://toolserver.org/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "tpi",
+        "local": "",
+        "language": "Tok Pisin",
+        "url": "https://tpi.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "tr",
+        "local": "",
+        "language": "Türkçe",
+        "url": "https://tr.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "translatewiki",
+        "url": "https://translatewiki.net/wiki/$1"
+      },
+      {
+        "prefix": "ts",
+        "local": "",
+        "language": "Xitsonga",
+        "url": "https://ts.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "tswiki",
+        "local": "",
+        "url": "https://www.mediawiki.org/wiki/Toolserver:$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "tt",
+        "local": "",
+        "language": "татарча/tatarça",
+        "url": "https://tt.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "tum",
+        "local": "",
+        "language": "chiTumbuka",
+        "url": "https://tum.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "tviv",
+        "url": "http://tviv.org/wiki/$1"
+      },
+      {
+        "prefix": "tvtropes",
+        "url": "http://www.tvtropes.org/pmwiki/pmwiki.php/Main/$1"
+      },
+      {
+        "prefix": "tw",
+        "local": "",
+        "language": "Twi",
+        "url": "https://tw.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "twiki",
-        "url": "http://twiki.org/cgi-bin/view/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://twiki.org/cgi-bin/view/$1"
       },
       {
-        "prefix": "uea",
-        "url": "http://www.tejo.org/uea/$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "ty",
+        "local": "",
+        "language": "reo tahiti",
+        "url": "https://ty.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "tyv",
+        "local": "",
+        "language": "тыва дыл",
+        "url": "https://tyv.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "tyvawiki",
+        "url": "http://www.tyvawiki.org/wiki/$1"
+      },
+      {
+        "prefix": "udm",
+        "local": "",
+        "language": "удмурт",
+        "url": "https://udm.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "ug",
+        "local": "",
+        "language": "ئۇيغۇرچە / Uyghurche",
+        "url": "https://ug.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "uk",
+        "local": "",
+        "language": "українська",
+        "url": "https://uk.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "uncyclopedia",
+        "url": "http://en.uncyclopedia.co/wiki/$1"
+      },
+      {
+        "prefix": "unihan",
+        "url": "http://www.unicode.org/cgi-bin/GetUnihanData.pl?codepoint=$1"
       },
       {
         "prefix": "unreal",
-        "url": "http://wiki.beyondunreal.com/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://wiki.beyondunreal.com/wiki/$1"
+      },
+      {
+        "prefix": "ur",
+        "local": "",
+        "language": "اردو",
+        "url": "https://ur.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "urbandict",
+        "url": "http://www.urbandictionary.com/define.php?term=$1"
+      },
+      {
+        "prefix": "usability",
+        "local": "",
+        "url": "https://usability.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "usej",
+        "url": "http://www.tejo.org/usej/$1"
       },
       {
         "prefix": "usemod",
-        "url": "http://www.usemod.com/cgi-bin/wiki.pl?$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.usemod.com/cgi-bin/wiki.pl?$1"
       },
       {
-        "prefix": "vinismo",
-        "url": "http://vinismo.com/en/$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "uz",
+        "local": "",
+        "language": "oʻzbekcha/ўзбекча",
+        "url": "https://uz.wikipedia.org/wiki/$1"
       },
       {
-        "prefix": "webseitzwiki",
-        "url": "http://webseitz.fluxent.com/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "v",
+        "local": "",
+        "url": "https://zh.wikiversity.org/wiki/$1"
       },
       {
-        "prefix": "why",
-        "url": "http://clublet.com/c/c/why?$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "ve",
+        "local": "",
+        "language": "Tshivenda",
+        "url": "https://ve.wikipedia.org/wiki/$1"
       },
       {
-        "prefix": "wiki",
-        "url": "http://c2.com/cgi/wiki?$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "vec",
+        "local": "",
+        "language": "vèneto",
+        "url": "https://vec.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "vep",
+        "local": "",
+        "language": "vepsän kel’",
+        "url": "https://vep.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "vi",
+        "local": "",
+        "language": "Tiếng Việt",
+        "url": "https://vi.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "viaf",
+        "url": "http://viaf.org/viaf/$1"
+      },
+      {
+        "prefix": "vikidia",
+        "url": "https://fr.vikidia.org/wiki/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "vkol",
+        "url": "http://kol.coldfront.net/thekolwiki/index.php/$1"
+      },
+      {
+        "prefix": "vlos",
+        "url": "http://www.thuvienkhoahoc.com/tusach/$1"
+      },
+      {
+        "prefix": "vls",
+        "local": "",
+        "language": "West-Vlams",
+        "url": "https://vls.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "vo",
+        "local": "",
+        "language": "Volapük",
+        "url": "https://vo.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "voipinfo",
+        "url": "http://www.voip-info.org/wiki/view/$1"
+      },
+      {
+        "prefix": "votewiki",
+        "local": "",
+        "url": "https://vote.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "voy",
+        "local": "",
+        "url": "https://zh.wikivoyage.org/wiki/$1"
+      },
+      {
+        "prefix": "vro",
+        "local": "",
+        "language": "Võro",
+        "url": "https://fiu-vro.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "w",
+        "local": "",
+        "url": "https://en.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wa",
+        "local": "",
+        "language": "walon",
+        "url": "https://wa.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "war",
+        "local": "",
+        "language": "Winaray",
+        "url": "https://war.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "werelate",
+        "url": "http://www.werelate.org/wiki/$1"
+      },
+      {
+        "prefix": "wg",
+        "local": "",
+        "url": "https://wg-en.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "wikia",
-        "url": "http://www.wikia.com/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.wikia.com/wiki/c:$1"
+      },
+      {
+        "prefix": "wikiapiary",
+        "url": "https://wikiapiary.com/wiki/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "wikiasite",
+        "url": "http://www.wikia.com/wiki/c:$1"
       },
       {
         "prefix": "wikibooks",
         "local": "",
-        "url": "http://en.wikibooks.org/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "https://en.wikibooks.org/wiki/$1"
+      },
+      {
+        "prefix": "wikichristian",
+        "url": "http://www.wikichristian.org/index.php?title=$1"
       },
       {
         "prefix": "wikicities",
-        "url": "http://www.wikia.com/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.wikia.com/wiki/$1"
+      },
+      {
+        "prefix": "wikicity",
+        "url": "http://www.wikia.com/wiki/c:$1"
+      },
+      {
+        "prefix": "wikiconference",
+        "url": "https://wikiconference.org/wiki/$1"
+      },
+      {
+        "prefix": "wikidata",
+        "local": "",
+        "url": "https://www.wikidata.org/wiki/$1"
       },
       {
         "prefix": "wikif1",
-        "url": "http://www.wikif1.org/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.wikif1.org/$1"
+      },
+      {
+        "prefix": "wikifur",
+        "url": "https://en.wikifur.com/wiki/$1",
+        "protorel": ""
       },
       {
         "prefix": "wikihow",
-        "url": "http://www.wikihow.com/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.wikihow.com/$1"
+      },
+      {
+        "prefix": "wikiindex",
+        "url": "http://wikiindex.org/$1"
+      },
+      {
+        "prefix": "wikilemon",
+        "url": "http://wiki.illemonati.com/$1"
+      },
+      {
+        "prefix": "wikilivres",
+        "url": "http://wikilivres.ca/wiki/$1"
+      },
+      {
+        "prefix": "wikilivresru",
+        "url": "http://wikilivres.ru/$1"
+      },
+      {
+        "prefix": "wikimac-de",
+        "url": "http://apfelwiki.de/wiki/Main/$1"
       },
       {
         "prefix": "wikimedia",
-        "url": "http://wikimediafoundation.org/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "local": "",
+        "url": "https://wikimediafoundation.org/wiki/$1"
       },
       {
         "prefix": "wikinews",
         "local": "",
-        "url": "http://en.wikinews.org/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "https://en.wikinews.org/wiki/$1"
       },
       {
         "prefix": "wikinfo",
-        "url": "http://www.wikinfo.org/index.php/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://wikinfo.org/w/index.php/$1"
+      },
+      {
+        "prefix": "wikinvest",
+        "url": "http://www.wikinvest.com/$1"
+      },
+      {
+        "prefix": "wikiotics",
+        "url": "https://wikiotics.org/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "wikipapers",
+        "url": "http://wikipapers.referata.com/wiki/$1"
       },
       {
         "prefix": "wikipedia",
         "local": "",
-        "url": "http://en.wikipedia.org/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "https://en.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wikipediawikipedia",
+        "local": "",
+        "url": "https://en.wikipedia.org/wiki/Wikipedia:$1"
       },
       {
         "prefix": "wikiquote",
         "local": "",
-        "url": "http://en.wikiquote.org/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "https://en.wikiquote.org/wiki/$1"
+      },
+      {
+        "prefix": "wikiskripta",
+        "url": "http://www.wikiskripta.eu/index.php/$1"
+      },
+      {
+        "prefix": "wikisophia",
+        "url": "http://wikisophia.org/index.php?title=$1"
       },
       {
         "prefix": "wikisource",
         "local": "",
-        "url": "http://wikisource.org/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "https://en.wikisource.org/wiki/$1"
       },
       {
         "prefix": "wikispecies",
         "local": "",
-        "url": "http://species.wikimedia.org/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "https://species.wikimedia.org/wiki/$1"
       },
       {
-        "prefix": "wikitravel",
-        "url": "http://wikitravel.org/en/$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "wikispot",
+        "url": "http://wikispot.org/?action=gotowikipage&v=$1"
+      },
+      {
+        "prefix": "wikitech",
+        "local": "",
+        "url": "https://wikitech.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wikiti",
+        "url": "http://wikiti.denglend.net/index.php?title=$1"
+      },
+      {
+        "prefix": "wikitree",
+        "url": "http://wikitree.org/index.php?title=$1"
       },
       {
         "prefix": "wikiversity",
         "local": "",
-        "url": "http://en.wikiversity.org/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "https://en.wikiversity.org/wiki/$1"
+      },
+      {
+        "prefix": "wikivoyage",
+        "local": "",
+        "url": "https://en.wikivoyage.org/wiki/$1"
+      },
+      {
+        "prefix": "wikiwikiweb",
+        "url": "http://c2.com/cgi/wiki?$1"
       },
       {
         "prefix": "wikt",
         "local": "",
-        "url": "http://en.wiktionary.org/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "https://zh.wiktionary.org/wiki/$1"
       },
       {
         "prefix": "wiktionary",
         "local": "",
-        "url": "http://en.wiktionary.org/wiki/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "https://en.wiktionary.org/wiki/$1"
+      },
+      {
+        "prefix": "wipipedia",
+        "url": "http://wipipedia.org/index.php/$1"
       },
       {
         "prefix": "wlug",
-        "url": "http://www.wlug.org.nz/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.wlug.org.nz/$1"
+      },
+      {
+        "prefix": "wm2005",
+        "local": "",
+        "url": "https://wikimania2005.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wm2006",
+        "local": "",
+        "url": "https://wikimania2006.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wm2007",
+        "local": "",
+        "url": "https://wikimania2007.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wm2008",
+        "local": "",
+        "url": "https://wikimania2008.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wm2009",
+        "local": "",
+        "url": "https://wikimania2009.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wm2010",
+        "local": "",
+        "url": "https://wikimania2010.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wm2011",
+        "local": "",
+        "url": "https://wikimania2011.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wm2012",
+        "local": "",
+        "url": "https://wikimania2012.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wm2013",
+        "local": "",
+        "url": "https://wikimania2013.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wm2014",
+        "local": "",
+        "url": "https://wikimania2014.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wm2015",
+        "local": "",
+        "url": "https://wikimania2015.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wm2016",
+        "local": "",
+        "url": "https://wikimania2016.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wm2017",
+        "local": "",
+        "url": "https://wikimania2017.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmania",
+        "local": "",
+        "url": "https://wikimania.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmar",
+        "local": "",
+        "url": "http://www.wikimedia.org.ar/wiki/$1"
+      },
+      {
+        "prefix": "wmat",
+        "url": "https://mitglieder.wikimedia.at/$1"
+      },
+      {
+        "prefix": "wmau",
+        "local": "",
+        "url": "http://wikimedia.org.au/wiki/$1"
+      },
+      {
+        "prefix": "wmbd",
+        "local": "",
+        "url": "https://bd.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmbe",
+        "local": "",
+        "url": "https://be.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmbr",
+        "local": "",
+        "url": "https://br.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmca",
+        "local": "",
+        "url": "https://ca.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmch",
+        "url": "http://www.wikimedia.ch/$1"
+      },
+      {
+        "prefix": "wmcl",
+        "url": "http://www.wikimediachile.cl/index.php?title=$1"
+      },
+      {
+        "prefix": "wmcn",
+        "local": "",
+        "url": "https://cn.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmco",
+        "local": "",
+        "url": "https://co.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmcz",
+        "url": "http://www.wikimedia.cz/web/$1"
+      },
+      {
+        "prefix": "wmdc",
+        "url": "https://wikimediadc.org/wiki/$1"
+      },
+      {
+        "prefix": "wmde",
+        "url": "https://wikimedia.de/wiki/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "wmdeblog",
+        "url": "https://blog.wikimedia.de/$1",
+        "protorel": ""
+      },
+      {
+        "prefix": "wmdk",
+        "local": "",
+        "url": "https://dk.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmec",
+        "local": "",
+        "url": "https://ec.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmee",
+        "local": "",
+        "url": "https://ee.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmes",
+        "url": "https://www.wikimedia.es/wiki/$1"
+      },
+      {
+        "prefix": "wmet",
+        "local": "",
+        "url": "https://ee.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmf",
+        "local": "",
+        "url": "https://wikimediafoundation.org/wiki/$1"
+      },
+      {
+        "prefix": "wmfblog",
+        "local": "",
+        "url": "https://blog.wikimedia.org/$1"
+      },
+      {
+        "prefix": "wmfi",
+        "local": "",
+        "url": "https://fi.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmfr",
+        "url": "http://wikimedia.fr/$1"
+      },
+      {
+        "prefix": "wmhk",
+        "url": "http://wikimedia.hk/index.php/$1"
+      },
+      {
+        "prefix": "wmhu",
+        "url": "http://wikimedia.hu/wiki/$1"
+      },
+      {
+        "prefix": "wmid",
+        "url": "http://www.wikimedia.or.id/wiki/$1"
+      },
+      {
+        "prefix": "wmil",
+        "local": "",
+        "url": "http://www.wikimedia.org.il/$1"
+      },
+      {
+        "prefix": "wmin",
+        "url": "http://wiki.wikimedia.in/$1"
+      },
+      {
+        "prefix": "wmit",
+        "url": "http://wiki.wikimedia.it/wiki/$1"
+      },
+      {
+        "prefix": "wmke",
+        "url": "http://wikimedia.or.ke/$1"
+      },
+      {
+        "prefix": "wmmk",
+        "local": "",
+        "url": "https://mk.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmmx",
+        "local": "",
+        "url": "https://mx.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmnl",
+        "local": "",
+        "url": "https://nl.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmno",
+        "local": "",
+        "url": "https://no.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmnyc",
+        "local": "",
+        "url": "https://nyc.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmpa-us",
+        "local": "",
+        "url": "https://pa-us.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmph",
+        "local": "",
+        "url": "http://wikimedia.org.ph/wmph/index.php?title=$1"
+      },
+      {
+        "prefix": "wmpl",
+        "local": "",
+        "url": "https://pl.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmpt",
+        "url": "http://wikimedia.pt/$1"
+      },
+      {
+        "prefix": "wmrs",
+        "local": "",
+        "url": "https://rs.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmru",
+        "local": "",
+        "url": "https://ru.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmse",
+        "local": "",
+        "url": "https://se.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmsk",
+        "url": "http://wikimedia.sk/$1"
+      },
+      {
+        "prefix": "wmteam",
+        "local": "",
+        "url": "https://wikimaniateam.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmtr",
+        "local": "",
+        "url": "https://tr.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmtw",
+        "url": "http://wikimedia.tw/wiki/index.php5/$1"
+      },
+      {
+        "prefix": "wmua",
+        "local": "",
+        "url": "https://ua.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmuk",
+        "local": "",
+        "url": "https://wikimedia.org.uk/wiki/$1"
+      },
+      {
+        "prefix": "wmve",
+        "local": "",
+        "url": "https://wikimedia.org.ve/wiki/$1"
+      },
+      {
+        "prefix": "wmza",
+        "local": "",
+        "url": "http://wikimedia.org.za/wiki/$1"
+      },
+      {
+        "prefix": "wo",
+        "local": "",
+        "language": "Wolof",
+        "url": "https://wo.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wookieepedia",
+        "url": "http://starwars.wikia.com/wiki/$1"
+      },
+      {
+        "prefix": "wowwiki",
+        "url": "http://www.wowwiki.com/$1"
+      },
+      {
+        "prefix": "wqy",
+        "url": "http://wqy.sourceforge.net/cgi-bin/index.cgi?$1"
+      },
+      {
+        "prefix": "wurmpedia",
+        "url": "http://wurmpedia.com/index.php/$1"
+      },
+      {
+        "prefix": "wuu",
+        "local": "",
+        "language": "吴语",
+        "url": "https://wuu.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "xal",
+        "local": "",
+        "language": "хальмг",
+        "url": "https://xal.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "xh",
+        "local": "",
+        "language": "isiXhosa",
+        "url": "https://xh.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "xmf",
+        "local": "",
+        "language": "მარგალური",
+        "url": "https://xmf.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "yi",
+        "local": "",
+        "language": "ייִדיש",
+        "url": "https://yi.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "yo",
+        "local": "",
+        "language": "Yorùbá",
+        "url": "https://yo.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "yue",
+        "local": "",
+        "language": "粵語",
+        "url": "https://zh-yue.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "za",
+        "local": "",
+        "language": "Vahcuengh",
+        "url": "https://za.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "zea",
+        "local": "",
+        "language": "Zeêuws",
+        "url": "https://zea.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "zh",
+        "local": "",
+        "language": "中文",
+        "localinterwiki": "",
+        "url": "https://zh.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "zh-cfr",
+        "local": "",
+        "url": "https://zh-min-nan.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "zh-classical",
+        "local": "",
+        "language": "文言",
+        "url": "https://zh-classical.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "zh-cn",
+        "local": "",
+        "language": "中文（中国大陆）‎",
+        "localinterwiki": "",
+        "url": "https://zh.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "zh-min-nan",
+        "local": "",
+        "language": "Bân-lâm-gú",
+        "url": "https://zh-min-nan.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "zh-tw",
+        "local": "",
+        "language": "中文（台灣）‎",
+        "localinterwiki": "",
+        "url": "https://zh.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "zh-yue",
+        "local": "",
+        "language": "粵語",
+        "url": "https://zh-yue.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "zrhwiki",
+        "url": "http://www.zrhwiki.ch/wiki/$1"
+      },
+      {
+        "prefix": "zu",
+        "local": "",
+        "language": "isiZulu",
+        "url": "https://zu.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "zum",
+        "url": "http://wiki.zum.de/$1"
       },
       {
         "prefix": "zwiki",
-        "url": "http://zwiki.org/$1",
-        "wikiid": "",
-        "api": ""
+        "url": "http://www.zwiki.org/$1"
       },
       {
-        "prefix": "zzz wiki",
-        "url": "http://wiki.zzz.ee/index.php/$1",
-        "wikiid": "",
-        "api": ""
+        "prefix": "ĉej",
+        "url": "http://esperanto.blahus.cz/cxej/vikio/index.php/$1"
       }
     ],
     "languages": [
@@ -2261,6 +6520,26 @@
       {
         "code": "ace",
         "*": "Acèh"
+      },
+      {
+        "code": "ady",
+        "*": "адыгабзэ"
+      },
+      {
+        "code": "ady-cyrl",
+        "*": "адыгабзэ"
+      },
+      {
+        "code": "aeb",
+        "*": "تونسي/Tûnsî"
+      },
+      {
+        "code": "aeb-arab",
+        "*": "تونسي"
+      },
+      {
+        "code": "aeb-latn",
+        "*": "Tûnsî"
       },
       {
         "code": "af",
@@ -2307,6 +6586,10 @@
         "*": "mapudungun"
       },
       {
+        "code": "arq",
+        "*": "جازايرية"
+      },
+      {
         "code": "ary",
         "*": "Maġribi"
       },
@@ -2317,6 +6600,10 @@
       {
         "code": "as",
         "*": "অসমীয়া"
+      },
+      {
+        "code": "ase",
+        "*": "American sign language"
       },
       {
         "code": "ast",
@@ -2331,6 +6618,10 @@
         "*": "Kotava"
       },
       {
+        "code": "awa",
+        "*": "अवधी"
+      },
+      {
         "code": "ay",
         "*": "Aymar aru"
       },
@@ -2340,11 +6631,15 @@
       },
       {
         "code": "azb",
-        "*": "تورکجه"
+        "*": "تۆرکجه"
       },
       {
         "code": "ba",
         "*": "башҡортса"
+      },
+      {
+        "code": "ban",
+        "*": "Basa Bali"
       },
       {
         "code": "bar",
@@ -2355,8 +6650,16 @@
         "*": "žemaitėška"
       },
       {
+        "code": "bbc",
+        "*": "Batak Toba"
+      },
+      {
+        "code": "bbc-latn",
+        "*": "Batak Toba"
+      },
+      {
         "code": "bcc",
-        "*": "بلوچی مکرانی"
+        "*": "جهلسری بلوچی"
       },
       {
         "code": "bcl",
@@ -2377,6 +6680,10 @@
       {
         "code": "bg",
         "*": "български"
+      },
+      {
+        "code": "bgn",
+        "*": "روچ کپتین بلوچی"
       },
       {
         "code": "bh",
@@ -2412,7 +6719,7 @@
       },
       {
         "code": "bqi",
-        "*": "بختياري"
+        "*": "بختیاری"
       },
       {
         "code": "br",
@@ -2425,6 +6732,10 @@
       {
         "code": "bs",
         "*": "bosanski"
+      },
+      {
+        "code": "bto",
+        "*": "Iriga Bicolano"
       },
       {
         "code": "bug",
@@ -2472,7 +6783,7 @@
       },
       {
         "code": "ckb",
-        "*": "کوردی"
+        "*": "کوردیی ناوەندی"
       },
       {
         "code": "co",
@@ -2491,16 +6802,16 @@
         "*": "qırımtatarca"
       },
       {
-        "code": "crh-latn",
-        "*": "qırımtatarca (Latin)‎"
-      },
-      {
         "code": "crh-cyrl",
         "*": "къырымтатарджа (Кирилл)‎"
       },
       {
+        "code": "crh-latn",
+        "*": "qırımtatarca (Latin)‎"
+      },
+      {
         "code": "cs",
-        "*": "česky"
+        "*": "čeština"
       },
       {
         "code": "csb",
@@ -2508,7 +6819,7 @@
       },
       {
         "code": "cu",
-        "*": "словѣ́ньскъ / ⰔⰎⰑⰂⰡⰐⰠⰔⰍⰟ"
+        "*": "словѣньскъ / ⰔⰎⰑⰂⰡⰐⰠⰔⰍⰟ"
       },
       {
         "code": "cv",
@@ -2549,6 +6860,10 @@
       {
         "code": "dtp",
         "*": "Dusun Bundu-liwan"
+      },
+      {
+        "code": "dty",
+        "*": "डोटेली"
       },
       {
         "code": "dv",
@@ -2695,6 +7010,22 @@
         "*": "Avañe'ẽ"
       },
       {
+        "code": "gom",
+        "*": "गोंयची कोंकणी / Gõychi Konknni"
+      },
+      {
+        "code": "gom-deva",
+        "*": "गोंयची कोंकणी"
+      },
+      {
+        "code": "gom-latn",
+        "*": "Gõychi Konknni"
+      },
+      {
+        "code": "gor",
+        "*": "Bahasa Hulontalo"
+      },
+      {
         "code": "got",
         "*": "𐌲𐌿𐍄𐌹𐍃𐌺"
       },
@@ -2720,11 +7051,11 @@
       },
       {
         "code": "hak",
-        "*": "Hak-kâ-fa"
+        "*": "客家語/Hak-kâ-ngî"
       },
       {
         "code": "haw",
-        "*": "Hawai`i"
+        "*": "Hawaiʻi"
       },
       {
         "code": "he",
@@ -2753,6 +7084,10 @@
       {
         "code": "hr",
         "*": "hrvatski"
+      },
+      {
+        "code": "hrx",
+        "*": "Hunsrik"
       },
       {
         "code": "hsb",
@@ -2840,7 +7175,7 @@
       },
       {
         "code": "jbo",
-        "*": "Lojban"
+        "*": "la .lojban."
       },
       {
         "code": "jut",
@@ -2899,20 +7234,20 @@
         "*": "قازاقشا (تٴوتە)‏"
       },
       {
-        "code": "kk-cyrl",
-        "*": "қазақша (кирил)‎"
-      },
-      {
-        "code": "kk-latn",
-        "*": "qazaqşa (latın)‎"
-      },
-      {
         "code": "kk-cn",
         "*": "قازاقشا (جۇنگو)‏"
       },
       {
+        "code": "kk-cyrl",
+        "*": "қазақша (кирил)‎"
+      },
+      {
         "code": "kk-kz",
         "*": "қазақша (Қазақстан)‎"
+      },
+      {
+        "code": "kk-latn",
+        "*": "qazaqşa (latın)‎"
       },
       {
         "code": "kk-tr",
@@ -2959,6 +7294,10 @@
         "*": "Kinaray-a"
       },
       {
+        "code": "krl",
+        "*": "karjal"
+      },
+      {
         "code": "ks",
         "*": "कॉशुर / کٲشُر"
       },
@@ -2979,12 +7318,12 @@
         "*": "Kurdî"
       },
       {
-        "code": "ku-latn",
-        "*": "Kurdî (latînî)‎"
-      },
-      {
         "code": "ku-arab",
         "*": "كوردي (عەرەبی)‏"
+      },
+      {
+        "code": "ku-latn",
+        "*": "Kurdî (latînî)‎"
       },
       {
         "code": "kv",
@@ -3039,6 +7378,10 @@
         "*": "Līvõ kēļ"
       },
       {
+        "code": "lki",
+        "*": "لەکی‎"
+      },
+      {
         "code": "lmo",
         "*": "lumbaart"
       },
@@ -3055,6 +7398,10 @@
         "*": "Silozi"
       },
       {
+        "code": "lrc",
+        "*": "لۊری شومالی"
+      },
+      {
         "code": "lt",
         "*": "lietuvių"
       },
@@ -3065,6 +7412,10 @@
       {
         "code": "lus",
         "*": "Mizo ţawng"
+      },
+      {
+        "code": "luz",
+        "*": "لئری دوٙمینی"
       },
       {
         "code": "lv",
@@ -3176,7 +7527,7 @@
       },
       {
         "code": "nap",
-        "*": "Nnapulitano"
+        "*": "Napulitano"
       },
       {
         "code": "nb",
@@ -3247,6 +7598,10 @@
         "*": "occitan"
       },
       {
+        "code": "olo",
+        "*": "Livvinkarjala"
+      },
+      {
         "code": "om",
         "*": "Oromoo"
       },
@@ -3292,7 +7647,7 @@
       },
       {
         "code": "pi",
-        "*": "पाळि"
+        "*": "पालि"
       },
       {
         "code": "pih",
@@ -3364,7 +7719,7 @@
       },
       {
         "code": "roa-rup",
-        "*": "Armãneashce"
+        "*": "armãneashti"
       },
       {
         "code": "roa-tara",
@@ -3380,7 +7735,7 @@
       },
       {
         "code": "rup",
-        "*": "Armãneashce"
+        "*": "armãneashti"
       },
       {
         "code": "ruq",
@@ -3431,12 +7786,20 @@
         "*": "Sassaresu"
       },
       {
+        "code": "sdh",
+        "*": "کوردی خوارگ"
+      },
+      {
         "code": "se",
         "*": "sámegiella"
       },
       {
         "code": "sei",
         "*": "Cmique Itom"
+      },
+      {
+        "code": "ses",
+        "*": "Koyraboro Senni"
       },
       {
         "code": "sg",
@@ -3455,12 +7818,16 @@
         "*": "Tašlḥiyt/ⵜⴰⵛⵍⵃⵉⵜ"
       },
       {
+        "code": "shi-latn",
+        "*": "Tašlḥiyt"
+      },
+      {
         "code": "shi-tfng",
         "*": "ⵜⴰⵛⵍⵃⵉⵜ"
       },
       {
-        "code": "shi-latn",
-        "*": "Tašlḥiyt"
+        "code": "shn",
+        "*": "ၽႃႇသႃႇတႆး "
       },
       {
         "code": "si",
@@ -3644,11 +8011,15 @@
       },
       {
         "code": "ty",
-        "*": "Reo Mā`ohi"
+        "*": "reo tahiti"
       },
       {
         "code": "tyv",
         "*": "тыва дыл"
+      },
+      {
+        "code": "tzm",
+        "*": "ⵜⴰⵎⴰⵣⵉⵖⵜ"
       },
       {
         "code": "udm",
@@ -3676,6 +8047,14 @@
       },
       {
         "code": "uz",
+        "*": "oʻzbekcha/ўзбекча"
+      },
+      {
+        "code": "uz-cyrl",
+        "*": "ўзбекча"
+      },
+      {
+        "code": "uz-latn",
         "*": "oʻzbekcha"
       },
       {
@@ -3816,26 +8195,1767 @@
       }
     ],
     "protocols": [
+      "bitcoin:",
+      "ftp://",
+      "ftps://",
+      "geo:",
+      "git://",
+      "gopher://",
       "http://",
       "https://",
-      "ftp://",
       "irc://",
       "ircs://",
-      "gopher://",
-      "telnet://",
-      "nntp://",
-      "worldwind://",
+      "magnet:",
       "mailto:",
-      "news:",
-      "svn://",
-      "git://",
       "mms://",
+      "news:",
+      "nntp://",
+      "redis://",
+      "sftp://",
+      "sip:",
+      "sips:",
+      "sms:",
+      "ssh://",
+      "svn://",
+      "tel:",
+      "telnet://",
+      "urn:",
+      "worldwind://",
+      "xmpp:",
       "//"
     ],
-    "allmessages": [
+    "specialpagealiases": [
       {
-        "name": "linktrail",
-        "missing": ""
+        "realname": "BrokenRedirects",
+        "aliases": [
+          "受损重定向",
+          "受损重定向",
+          "BrokenRedirects"
+        ]
+      },
+      {
+        "realname": "Deadendpages",
+        "aliases": [
+          "断链页面",
+          "斷鏈頁面",
+          "斷連頁面",
+          "断链页面",
+          "DeadendPages"
+        ]
+      },
+      {
+        "realname": "DoubleRedirects",
+        "aliases": [
+          "双重重定向",
+          "雙重重新導向",
+          "双重重定向",
+          "两次重定向",
+          "DoubleRedirects"
+        ]
+      },
+      {
+        "realname": "Longpages",
+        "aliases": [
+          "长页面",
+          "長頁面",
+          "长页面",
+          "LongPages"
+        ]
+      },
+      {
+        "realname": "Ancientpages",
+        "aliases": [
+          "最早页面",
+          "最早頁面",
+          "最老页面",
+          "AncientPages"
+        ]
+      },
+      {
+        "realname": "Lonelypages",
+        "aliases": [
+          "孤立页面",
+          "孤立頁面",
+          "孤立页面",
+          "LonelyPages",
+          "OrphanedPages"
+        ]
+      },
+      {
+        "realname": "Fewestrevisions",
+        "aliases": [
+          "最少修订页面",
+          "最少修訂頁面",
+          "版本最少页面",
+          "最少修订页面",
+          "FewestRevisions"
+        ]
+      },
+      {
+        "realname": "Withoutinterwiki",
+        "aliases": [
+          "无跨wiki",
+          "无跨wiki链接页面",
+          "WithoutInterwiki"
+        ]
+      },
+      {
+        "realname": "Protectedpages",
+        "aliases": [
+          "已保护页面",
+          "已保護頁面",
+          "已保护页面",
+          "ProtectedPages"
+        ]
+      },
+      {
+        "realname": "Protectedtitles",
+        "aliases": [
+          "已保护标题",
+          "已保護標題",
+          "已保护标题",
+          "ProtectedTitles"
+        ]
+      },
+      {
+        "realname": "Shortpages",
+        "aliases": [
+          "短页面",
+          "短頁面",
+          "短页面",
+          "ShortPages"
+        ]
+      },
+      {
+        "realname": "Uncategorizedcategories",
+        "aliases": [
+          "未归类分类",
+          "未歸類分類",
+          "未分类分类",
+          "UncategorizedCategories"
+        ]
+      },
+      {
+        "realname": "Uncategorizedimages",
+        "aliases": [
+          "未归类文件",
+          "未歸類文件",
+          "未歸類檔案",
+          "未分类文件",
+          "未分类图像",
+          "UncategorizedFiles",
+          "UncategorizedImages"
+        ]
+      },
+      {
+        "realname": "Uncategorizedpages",
+        "aliases": [
+          "未归类页面",
+          "未歸類頁面",
+          "未分类页面",
+          "UncategorizedPages"
+        ]
+      },
+      {
+        "realname": "Uncategorizedtemplates",
+        "aliases": [
+          "未归类模板",
+          "未歸類模板",
+          "未分类模板",
+          "UncategorizedTemplates"
+        ]
+      },
+      {
+        "realname": "Unusedcategories",
+        "aliases": [
+          "未使用分类",
+          "未使用分類",
+          "未使用分类",
+          "UnusedCategories"
+        ]
+      },
+      {
+        "realname": "Unusedimages",
+        "aliases": [
+          "未使用文件",
+          "未使用檔案",
+          "未使用文件",
+          "未使用图像",
+          "UnusedFiles",
+          "UnusedImages"
+        ]
+      },
+      {
+        "realname": "Unusedtemplates",
+        "aliases": [
+          "未使用模板",
+          "未使用模板",
+          "UnusedTemplates"
+        ]
+      },
+      {
+        "realname": "Unwatchedpages",
+        "aliases": [
+          "未受监视页面",
+          "UnwatchedPages"
+        ]
+      },
+      {
+        "realname": "Wantedcategories",
+        "aliases": [
+          "需要的分类",
+          "需要的分类",
+          "待撰分类",
+          "WantedCategories"
+        ]
+      },
+      {
+        "realname": "Wantedfiles",
+        "aliases": [
+          "需要的文件",
+          "需要的檔案",
+          "需要的文件",
+          "WantedFiles"
+        ]
+      },
+      {
+        "realname": "Wantedpages",
+        "aliases": [
+          "需要的页面",
+          "需要的页面",
+          "待撰页面",
+          "受损链接",
+          "WantedPages",
+          "BrokenLinks"
+        ]
+      },
+      {
+        "realname": "Wantedtemplates",
+        "aliases": [
+          "需要的模板",
+          "需要的模板",
+          "WantedTemplates"
+        ]
+      },
+      {
+        "realname": "Allpages",
+        "aliases": [
+          "所有页面",
+          "所有頁面",
+          "所有页面",
+          "AllPages"
+        ]
+      },
+      {
+        "realname": "Prefixindex",
+        "aliases": [
+          "前缀索引",
+          "前綴索引",
+          "字首索引",
+          "前缀索引",
+          "PrefixIndex"
+        ]
+      },
+      {
+        "realname": "Categories",
+        "aliases": [
+          "页面分类",
+          "頁面分類",
+          "页面分类",
+          "Categories"
+        ]
+      },
+      {
+        "realname": "Listredirects",
+        "aliases": [
+          "重定向页列表",
+          "重定向列表",
+          "重新導向清單",
+          "重定向页列表",
+          "ListRedirects"
+        ]
+      },
+      {
+        "realname": "PagesWithProp",
+        "aliases": [
+          "带属性的页面",
+          "基于属性的页面",
+          "PagesWithProp",
+          "Pageswithprop",
+          "PagesByProp",
+          "Pagesbyprop"
+        ]
+      },
+      {
+        "realname": "TrackingCategories",
+        "aliases": [
+          "追踪分类",
+          "追踪分类",
+          "TrackingCategories"
+        ]
+      },
+      {
+        "realname": "Userlogin",
+        "aliases": [
+          "用户登录",
+          "用戶登入",
+          "使用者登入",
+          "用户登录",
+          "登录",
+          "UserLogin",
+          "Login"
+        ]
+      },
+      {
+        "realname": "Userlogout",
+        "aliases": [
+          "用户退出",
+          "用戶登出",
+          "使用者登出",
+          "用户退出",
+          "退出",
+          "UserLogout",
+          "Logout"
+        ]
+      },
+      {
+        "realname": "CreateAccount",
+        "aliases": [
+          "创建账户",
+          "創建賬戶",
+          "建立帳戶",
+          "建立帳號",
+          "建立帐号",
+          "创建账户",
+          "CreateAccount"
+        ]
+      },
+      {
+        "realname": "LinkAccounts",
+        "aliases": [
+          "LinkAccounts"
+        ]
+      },
+      {
+        "realname": "UnlinkAccounts",
+        "aliases": [
+          "UnlinkAccounts"
+        ]
+      },
+      {
+        "realname": "ChangeCredentials",
+        "aliases": [
+          "ChangeCredentials"
+        ]
+      },
+      {
+        "realname": "RemoveCredentials",
+        "aliases": [
+          "RemoveCredentials"
+        ]
+      },
+      {
+        "realname": "Activeusers",
+        "aliases": [
+          "活跃用户",
+          "ActiveUsers"
+        ]
+      },
+      {
+        "realname": "Block",
+        "aliases": [
+          "封禁",
+          "封禁IP",
+          "封禁用户",
+          "封",
+          "Block",
+          "BlockIP",
+          "BlockUser"
+        ]
+      },
+      {
+        "realname": "Unblock",
+        "aliases": [
+          "解除封禁",
+          "解封",
+          "Unblock"
+        ]
+      },
+      {
+        "realname": "BlockList",
+        "aliases": [
+          "封禁列表",
+          "封禁列表",
+          "IP封禁列表",
+          "BlockList",
+          "ListBlocks",
+          "IPBlockList"
+        ]
+      },
+      {
+        "realname": "ChangePassword",
+        "aliases": [
+          "修改密码",
+          "修改密碼",
+          "修改密码",
+          "重置密码",
+          "找回密码",
+          "ChangePassword",
+          "ResetPass",
+          "ResetPassword"
+        ]
+      },
+      {
+        "realname": "BotPasswords",
+        "aliases": [
+          "BotPasswords"
+        ]
+      },
+      {
+        "realname": "PasswordReset",
+        "aliases": [
+          "重置密码",
+          "重設密碼",
+          "重设密码",
+          "PasswordReset"
+        ]
+      },
+      {
+        "realname": "DeletedContributions",
+        "aliases": [
+          "删除的贡献",
+          "已删除的用户贡献",
+          "DeletedContributions"
+        ]
+      },
+      {
+        "realname": "Preferences",
+        "aliases": [
+          "参数设置",
+          "偏好設定",
+          "參數設置",
+          "参数设置",
+          "设置",
+          "Preferences"
+        ]
+      },
+      {
+        "realname": "ResetTokens",
+        "aliases": [
+          "重置密钥",
+          "重設金鑰",
+          "重置权标",
+          "ResetTokens"
+        ]
+      },
+      {
+        "realname": "Contributions",
+        "aliases": [
+          "用户贡献",
+          "用戶貢獻",
+          "使用者貢獻",
+          "使用者贡献",
+          "用户贡献",
+          "贡献",
+          "Contributions",
+          "Contribs"
+        ]
+      },
+      {
+        "realname": "Listgrouprights",
+        "aliases": [
+          "群组权限",
+          "群組權限",
+          "用户组权限",
+          "ListGroupRights",
+          "UserGroupRights"
+        ]
+      },
+      {
+        "realname": "Listgrants",
+        "aliases": [
+          "ListGrants"
+        ]
+      },
+      {
+        "realname": "Listusers",
+        "aliases": [
+          "用户列表",
+          "用戶列表",
+          "使用者清單",
+          "用户列表",
+          "ListUsers",
+          "UserList"
+        ]
+      },
+      {
+        "realname": "Listadmins",
+        "aliases": [
+          "管理员列表",
+          "管理員列表",
+          "管理员列表",
+          "ListAdmins"
+        ]
+      },
+      {
+        "realname": "Listbots",
+        "aliases": [
+          "机器人列表",
+          "機器人清單",
+          "機械人清單",
+          "机器人列表",
+          "ListBots"
+        ]
+      },
+      {
+        "realname": "Userrights",
+        "aliases": [
+          "用户权限",
+          "用戶權限",
+          "使用者權限",
+          "用户权限",
+          "UserRights",
+          "MakeSysop",
+          "MakeBot"
+        ]
+      },
+      {
+        "realname": "EditWatchlist",
+        "aliases": [
+          "编辑监视列表",
+          "EditWatchlist"
+        ]
+      },
+      {
+        "realname": "Newimages",
+        "aliases": [
+          "新建文件",
+          "新建檔案",
+          "新建文件",
+          "新建图像",
+          "NewFiles",
+          "NewImages"
+        ]
+      },
+      {
+        "realname": "Log",
+        "aliases": [
+          "日志",
+          "日誌",
+          "日志",
+          "Log",
+          "Logs"
+        ]
+      },
+      {
+        "realname": "Watchlist",
+        "aliases": [
+          "监视列表",
+          "監視列表",
+          "監視清单",
+          "监视列表",
+          "Watchlist"
+        ]
+      },
+      {
+        "realname": "Newpages",
+        "aliases": [
+          "最新页面",
+          "最新頁面",
+          "新建页面",
+          "NewPages"
+        ]
+      },
+      {
+        "realname": "Recentchanges",
+        "aliases": [
+          "最近更改",
+          "近期變動",
+          "最近更改",
+          "RecentChanges"
+        ]
+      },
+      {
+        "realname": "Recentchangeslinked",
+        "aliases": [
+          "链出更改",
+          "鏈出更改",
+          "連出更改",
+          "最近链出更改",
+          "相关更改",
+          "RecentChangesLinked",
+          "RelatedChanges"
+        ]
+      },
+      {
+        "realname": "Tags",
+        "aliases": [
+          "标签",
+          "標籤",
+          "标签",
+          "Tags"
+        ]
+      },
+      {
+        "realname": "Listfiles",
+        "aliases": [
+          "文件列表",
+          "檔案列表",
+          "档案列表",
+          "文件列表",
+          "图像列表",
+          "ListFiles",
+          "FileList",
+          "ImageList"
+        ]
+      },
+      {
+        "realname": "Filepath",
+        "aliases": [
+          "文件路径",
+          "文件路徑",
+          "檔案路徑",
+          "档案路径",
+          "文件路径",
+          "FilePath"
+        ]
+      },
+      {
+        "realname": "MediaStatistics",
+        "aliases": [
+          "媒体统计",
+          "MediaStatistics"
+        ]
+      },
+      {
+        "realname": "MIMEsearch",
+        "aliases": [
+          "MIME搜索",
+          "MIME搜尋",
+          "MIME搜寻",
+          "MIME搜索",
+          "MIMESearch"
+        ]
+      },
+      {
+        "realname": "FileDuplicateSearch",
+        "aliases": [
+          "搜索重复文件",
+          "FileDuplicateSearch"
+        ]
+      },
+      {
+        "realname": "Upload",
+        "aliases": [
+          "上传文件",
+          "上傳檔案",
+          "上載檔案",
+          "上载档案",
+          "上传文件",
+          "Upload"
+        ]
+      },
+      {
+        "realname": "UploadStash",
+        "aliases": [
+          "上传藏匿",
+          "UploadStash"
+        ]
+      },
+      {
+        "realname": "ListDuplicatedFiles",
+        "aliases": [
+          "重复文件列表",
+          "ListDuplicatedFiles",
+          "ListFileDuplicates"
+        ]
+      },
+      {
+        "realname": "ApiSandbox",
+        "aliases": [
+          "ApiSandbox"
+        ]
+      },
+      {
+        "realname": "Statistics",
+        "aliases": [
+          "统计",
+          "统计信息",
+          "統計",
+          "統計資訊",
+          "统计信息",
+          "Statistics"
+        ]
+      },
+      {
+        "realname": "Allmessages",
+        "aliases": [
+          "所有消息",
+          "所有訊息",
+          "所有讯息",
+          "所有信息",
+          "AllMessages"
+        ]
+      },
+      {
+        "realname": "Version",
+        "aliases": [
+          "版本",
+          "版本",
+          "版本信息",
+          "Version"
+        ]
+      },
+      {
+        "realname": "Lockdb",
+        "aliases": [
+          "锁定数据库",
+          "LockDB"
+        ]
+      },
+      {
+        "realname": "Unlockdb",
+        "aliases": [
+          "解除数据库锁定",
+          "UnlockDB"
+        ]
+      },
+      {
+        "realname": "LinkSearch",
+        "aliases": [
+          "链接搜索",
+          "鏈接搜索",
+          "連結搜尋",
+          "连结搜寻",
+          "搜索网页链接",
+          "LinkSearch"
+        ]
+      },
+      {
+        "realname": "Randompage",
+        "aliases": [
+          "随机页面",
+          "隨機頁面",
+          "随机",
+          "随机页面",
+          "Random",
+          "RandomPage"
+        ]
+      },
+      {
+        "realname": "RandomInCategory",
+        "aliases": [
+          "分类内随机",
+          "RandomInCategory"
+        ]
+      },
+      {
+        "realname": "Randomredirect",
+        "aliases": [
+          "随机重定向",
+          "随机重定向页",
+          "RandomRedirect"
+        ]
+      },
+      {
+        "realname": "Randomrootpage",
+        "aliases": [
+          "随机根页面",
+          "RandomRootpage"
+        ]
+      },
+      {
+        "realname": "GoToInterwiki",
+        "aliases": [
+          "GoToInterwiki"
+        ]
+      },
+      {
+        "realname": "Mostlinkedcategories",
+        "aliases": [
+          "最多链接分类",
+          "最多連結分類",
+          "最多链接分类",
+          "MostLinkedCategories",
+          "MostUsedCategories"
+        ]
+      },
+      {
+        "realname": "Mostimages",
+        "aliases": [
+          "最多链接文件",
+          "最多鏈接文件",
+          "最多連結檔案",
+          "最多链接文件",
+          "MostLinkedFiles",
+          "MostFiles",
+          "MostImages"
+        ]
+      },
+      {
+        "realname": "Mostinterwikis",
+        "aliases": [
+          "最多跨wiki链接页面",
+          "MostInterwikis"
+        ]
+      },
+      {
+        "realname": "Mostlinked",
+        "aliases": [
+          "最多链接页面",
+          "最多連結頁面",
+          "最多链接页面",
+          "MostLinkedPages",
+          "MostLinked"
+        ]
+      },
+      {
+        "realname": "Mostlinkedtemplates",
+        "aliases": [
+          "最多链接模板",
+          "最多連結模板",
+          "最多嵌入页面",
+          "最多链接模板",
+          "最多使用模板",
+          "MostTranscludedPages",
+          "MostLinkedTemplates",
+          "MostUsedTemplates"
+        ]
+      },
+      {
+        "realname": "Mostcategories",
+        "aliases": [
+          "最多分类页面",
+          "最多分類頁面",
+          "最多分类页面",
+          "MostCategories"
+        ]
+      },
+      {
+        "realname": "Mostrevisions",
+        "aliases": [
+          "最多修订页面",
+          "最多修訂頁面",
+          "最多修订页面",
+          "MostRevisions"
+        ]
+      },
+      {
+        "realname": "ComparePages",
+        "aliases": [
+          "对比页面",
+          "ComparePages"
+        ]
+      },
+      {
+        "realname": "Export",
+        "aliases": [
+          "导出页面",
+          "導出頁面",
+          "匯出頁面",
+          "汇出页面",
+          "导出页面",
+          "导出",
+          "Export"
+        ]
+      },
+      {
+        "realname": "Import",
+        "aliases": [
+          "导入页面",
+          "導入頁面",
+          "匯入頁面",
+          "汇入页面",
+          "导入页面",
+          "导入",
+          "Import"
+        ]
+      },
+      {
+        "realname": "Undelete",
+        "aliases": [
+          "恢复被删页面",
+          "恢復被刪頁面",
+          "恢复被删页面",
+          "Undelete"
+        ]
+      },
+      {
+        "realname": "Whatlinkshere",
+        "aliases": [
+          "链入页面",
+          "鏈入頁面",
+          "連入頁面",
+          "链入页面",
+          "WhatLinksHere"
+        ]
+      },
+      {
+        "realname": "MergeHistory",
+        "aliases": [
+          "合并历史",
+          "合併歷史",
+          "合并历史",
+          "MergeHistory"
+        ]
+      },
+      {
+        "realname": "ExpandTemplates",
+        "aliases": [
+          "展开模板",
+          "ExpandTemplates"
+        ]
+      },
+      {
+        "realname": "Booksources",
+        "aliases": [
+          "网络书源",
+          "網絡書源",
+          "網路書源",
+          "网络书源",
+          "BookSources"
+        ]
+      },
+      {
+        "realname": "ApiHelp",
+        "aliases": [
+          "Api帮助",
+          "ApiHelp"
+        ]
+      },
+      {
+        "realname": "Blankpage",
+        "aliases": [
+          "空白页面",
+          "空白頁面",
+          "空白页面",
+          "BlankPage"
+        ]
+      },
+      {
+        "realname": "Diff",
+        "aliases": [
+          "差异",
+          "差異",
+          "编辑差异",
+          "Diff"
+        ]
+      },
+      {
+        "realname": "EditTags",
+        "aliases": [
+          "EditTags"
+        ]
+      },
+      {
+        "realname": "Emailuser",
+        "aliases": [
+          "电邮联系",
+          "電郵聯絡",
+          "电邮联系",
+          "EmailUser",
+          "Email"
+        ]
+      },
+      {
+        "realname": "Movepage",
+        "aliases": [
+          "移动页面",
+          "移動頁面",
+          "移动页面",
+          "MovePage"
+        ]
+      },
+      {
+        "realname": "Mycontributions",
+        "aliases": [
+          "我的贡献",
+          "我的貢獻",
+          "我的贡献",
+          "MyContributions"
+        ]
+      },
+      {
+        "realname": "MyLanguage",
+        "aliases": [
+          "我的语言",
+          "我的語言",
+          "我的语言",
+          "MyLanguage"
+        ]
+      },
+      {
+        "realname": "Mypage",
+        "aliases": [
+          "我的用户页",
+          "我的用戶頁",
+          "我的使用者頁面",
+          "我的用户页",
+          "MyPage"
+        ]
+      },
+      {
+        "realname": "Mytalk",
+        "aliases": [
+          "我的讨论页",
+          "我的討論頁",
+          "我的讨论页",
+          "我的对话页",
+          "MyTalk"
+        ]
+      },
+      {
+        "realname": "Myuploads",
+        "aliases": [
+          "我上传的文件",
+          "我的文件",
+          "MyUploads",
+          "MyFiles"
+        ]
+      },
+      {
+        "realname": "AllMyUploads",
+        "aliases": [
+          "我上传的所有文件",
+          "我的所有文件",
+          "AllMyUploads",
+          "AllMyFiles"
+        ]
+      },
+      {
+        "realname": "PermanentLink",
+        "aliases": [
+          "固定链接",
+          "永久链接",
+          "PermanentLink",
+          "PermaLink"
+        ]
+      },
+      {
+        "realname": "Redirect",
+        "aliases": [
+          "重定向",
+          "重新導向",
+          "重定向",
+          "Redirect"
+        ]
+      },
+      {
+        "realname": "Revisiondelete",
+        "aliases": [
+          "版本删除",
+          "删除修订",
+          "恢复修订",
+          "RevisionDelete"
+        ]
+      },
+      {
+        "realname": "RunJobs",
+        "aliases": [
+          "运行工作",
+          "RunJobs"
+        ]
+      },
+      {
+        "realname": "Specialpages",
+        "aliases": [
+          "特殊页面",
+          "特殊頁面",
+          "特殊页面",
+          "SpecialPages"
+        ]
+      },
+      {
+        "realname": "Search",
+        "aliases": [
+          "搜索",
+          "搜尋",
+          "搜索",
+          "Search"
+        ]
+      },
+      {
+        "realname": "Confirmemail",
+        "aliases": [
+          "确认电子邮件",
+          "確認電子郵件",
+          "确认电子邮件",
+          "ConfirmEmail"
+        ]
+      },
+      {
+        "realname": "Invalidateemail",
+        "aliases": [
+          "不可识别的电邮地址",
+          "不可識別的電郵位址",
+          "无效电邮地址",
+          "InvalidateEmail"
+        ]
+      },
+      {
+        "realname": "ChangeEmail",
+        "aliases": [
+          "修改邮箱地址",
+          "ChangeEmail"
+        ]
+      },
+      {
+        "realname": "ChangeContentModel",
+        "aliases": [
+          "ChangeContentModel"
+        ]
+      },
+      {
+        "realname": "Hieroglyphs",
+        "aliases": [
+          "象形文字",
+          "Hieroglyphs"
+        ]
+      },
+      {
+        "realname": "SiteMatrix",
+        "aliases": [
+          "网站矩阵",
+          "维基媒体Wiki",
+          "SiteMatrix",
+          "WikimediaWikis"
+        ]
+      },
+      {
+        "realname": "CiteThisPage",
+        "aliases": [
+          "引用此页面",
+          "引用",
+          "CiteThisPage",
+          "Cite"
+        ]
+      },
+      {
+        "realname": "CategoryTree",
+        "aliases": [
+          "分类树",
+          "CategoryTree"
+        ]
+      },
+      {
+        "realname": "Gadgets",
+        "aliases": [
+          "小工具",
+          "小工具",
+          "Gadgets"
+        ]
+      },
+      {
+        "realname": "GadgetUsage",
+        "aliases": [
+          "GadgetUsage"
+        ]
+      },
+      {
+        "realname": "UrlShortener",
+        "aliases": [
+          "URL缩短程序",
+          "UrlShortener"
+        ]
+      },
+      {
+        "realname": "UrlRedirector",
+        "aliases": [
+          "UrlRedirector"
+        ]
+      },
+      {
+        "realname": "GlobalBlock",
+        "aliases": [
+          "全域封禁",
+          "GlobalBlock"
+        ]
+      },
+      {
+        "realname": "GlobalBlockList",
+        "aliases": [
+          "全域封禁列表",
+          "GlobalBlockList"
+        ]
+      },
+      {
+        "realname": "GlobalBlockStatus",
+        "aliases": [
+          "全域封禁白名单",
+          "全域封禁状态",
+          "禁用全域封禁",
+          "GlobalBlockWhitelist",
+          "GlobalBlockStatus",
+          "DisableGlobalBlock"
+        ]
+      },
+      {
+        "realname": "RemoveGlobalBlock",
+        "aliases": [
+          "全域解禁",
+          "移除全域封禁",
+          "GlobalUnblock",
+          "RemoveGlobalBlock"
+        ]
+      },
+      {
+        "realname": "SecurePoll",
+        "aliases": [
+          "安全投票",
+          "SecurePoll"
+        ]
+      },
+      {
+        "realname": "Renameuser",
+        "aliases": [
+          "重命名用户",
+          "重新命名用户",
+          "重新命名用戶",
+          "重新命名使用者",
+          "重命名用户",
+          "RenameUser"
+        ]
+      },
+      {
+        "realname": "Nuke",
+        "aliases": [
+          "大量删除",
+          "大量刪除",
+          "大量删除",
+          "Nuke"
+        ]
+      },
+      {
+        "realname": "Captcha",
+        "aliases": [
+          "验证码",
+          "Captcha"
+        ]
+      },
+      {
+        "realname": "CentralAuth",
+        "aliases": [
+          "中央认证",
+          "CentralAuth"
+        ]
+      },
+      {
+        "realname": "CentralLogin",
+        "aliases": [
+          "CentralLogin"
+        ]
+      },
+      {
+        "realname": "CentralAutoLogin",
+        "aliases": [
+          "CentralAutoLogin"
+        ]
+      },
+      {
+        "realname": "MergeAccount",
+        "aliases": [
+          "合并账户",
+          "整合账户",
+          "MergeAccount"
+        ]
+      },
+      {
+        "realname": "GlobalGroupMembership",
+        "aliases": [
+          "全域用户权限",
+          "全域组成员资格",
+          "GlobalUserRights",
+          "GlobalGroupMembership"
+        ]
+      },
+      {
+        "realname": "GlobalGroupPermissions",
+        "aliases": [
+          "全域组权限",
+          "GlobalGroupPermissions"
+        ]
+      },
+      {
+        "realname": "WikiSets",
+        "aliases": [
+          "Wiki集合",
+          "编辑wiki集合",
+          "WikiSets",
+          "EditWikiSets"
+        ]
+      },
+      {
+        "realname": "GlobalUsers",
+        "aliases": [
+          "全域用户",
+          "GlobalUsers"
+        ]
+      },
+      {
+        "realname": "MultiLock",
+        "aliases": [
+          "批量锁定",
+          "MultiLock"
+        ]
+      },
+      {
+        "realname": "GlobalRenameUser",
+        "aliases": [
+          "全域重命名用户",
+          "GlobalRenameUser"
+        ]
+      },
+      {
+        "realname": "GlobalRenameProgress",
+        "aliases": [
+          "全域重命名状态",
+          "GlobalRenameProgress"
+        ]
+      },
+      {
+        "realname": "GlobalUserMerge",
+        "aliases": [
+          "全域用户合并",
+          "GlobalUserMerge"
+        ]
+      },
+      {
+        "realname": "UsersWhoWillBeRenamed",
+        "aliases": [
+          "将被重命名的用户",
+          "UsersWhoWillBeRenamed"
+        ]
+      },
+      {
+        "realname": "ApiFeatureUsage",
+        "aliases": [
+          "Api功能使用率",
+          "ApiFeatureUsage"
+        ]
+      },
+      {
+        "realname": "BannerLoader",
+        "aliases": [
+          "横幅装载器",
+          "BannerLoader"
+        ]
+      },
+      {
+        "realname": "BannerRandom",
+        "aliases": [
+          "随机横幅",
+          "BannerRandom"
+        ]
+      },
+      {
+        "realname": "RecordImpression",
+        "aliases": [
+          "记录印象",
+          "RecordImpression"
+        ]
+      },
+      {
+        "realname": "HideBanners",
+        "aliases": [
+          "隐藏横幅",
+          "HideBanners"
+        ]
+      },
+      {
+        "realname": "CNReporter",
+        "aliases": [
+          "中心通告记者",
+          "CNReporter"
+        ]
+      },
+      {
+        "realname": "AbuseLog",
+        "aliases": [
+          "滥用日志",
+          "过滤日志",
+          "AbuseLog"
+        ]
+      },
+      {
+        "realname": "AbuseFilter",
+        "aliases": [
+          "滥用过滤器",
+          "防滥用过滤器",
+          "AbuseFilter"
+        ]
+      },
+      {
+        "realname": "MostGloballyLinkedFiles",
+        "aliases": [
+          "全域最多链接文件",
+          "MostGloballyLinkedFiles"
+        ]
+      },
+      {
+        "realname": "GloballyWantedFiles",
+        "aliases": [
+          "全域需要的文件",
+          "GloballyWantedFiles"
+        ]
+      },
+      {
+        "realname": "GlobalUsage",
+        "aliases": [
+          "全域使用情况",
+          "GlobalUsage"
+        ]
+      },
+      {
+        "realname": "MassMessage",
+        "aliases": [
+          "群发消息",
+          "批量消息",
+          "群發訊息",
+          "群发信息",
+          "批量消息",
+          "MassMessage"
+        ]
+      },
+      {
+        "realname": "CreateMassMessageList",
+        "aliases": [
+          "创建群发消息递送列表",
+          "CreateMassMessageList"
+        ]
+      },
+      {
+        "realname": "EditMassMessageList",
+        "aliases": [
+          "编辑群发消息递送列表",
+          "EditMassMessageList"
+        ]
+      },
+      {
+        "realname": "BetaFeatures",
+        "aliases": [
+          "测试功能",
+          "測試功能",
+          "测试功能",
+          "BetaFeatures"
+        ]
+      },
+      {
+        "realname": "History",
+        "aliases": [
+          "历史",
+          "歷史",
+          "历史",
+          "History"
+        ]
+      },
+      {
+        "realname": "MobileCite",
+        "aliases": [
+          "MobileCite"
+        ]
+      },
+      {
+        "realname": "MobileDiff",
+        "aliases": [
+          "移动版差异",
+          "手機版差異",
+          "行動版差異",
+          "移动版差异",
+          "MobileDiff"
+        ]
+      },
+      {
+        "realname": "MobileEditor",
+        "aliases": [
+          "移动版编辑器",
+          "手機版編輯器",
+          "行動版編輯器",
+          "移动版编辑器",
+          "MobileEditor"
+        ]
+      },
+      {
+        "realname": "MobileOptions",
+        "aliases": [
+          "移动版选项",
+          "手機版選項",
+          "行動版選項",
+          "移动版选项",
+          "MobileOptions"
+        ]
+      },
+      {
+        "realname": "MobileMenu",
+        "aliases": [
+          "移动版菜单",
+          "手機版菜單",
+          "手機版選單",
+          "行動版選單",
+          "移动版菜单",
+          "MobileMenu"
+        ]
+      },
+      {
+        "realname": "MobileLanguages",
+        "aliases": [
+          "移动版语言",
+          "手機版語言",
+          "行動版語言",
+          "移动版语言",
+          "MobileLanguages"
+        ]
+      },
+      {
+        "realname": "Uploads",
+        "aliases": [
+          "上传",
+          "上傳",
+          "上載",
+          "上传",
+          "Uploads"
+        ]
+      },
+      {
+        "realname": "ZeroRatedMobileAccess",
+        "aliases": [
+          "ZeroRatedMobileAccess",
+          "ZeroRatedMobileAccess"
+        ]
+      },
+      {
+        "realname": "MathShowImage",
+        "aliases": [
+          "MathShowImage"
+        ]
+      },
+      {
+        "realname": "MathStatus",
+        "aliases": [
+          "数学状态",
+          "MathStatus"
+        ]
+      },
+      {
+        "realname": "FeedItem",
+        "aliases": [
+          "供稿项目",
+          "FeedItem"
+        ]
+      },
+      {
+        "realname": "Interwiki",
+        "aliases": [
+          "跨wiki",
+          "跨维基",
+          "Interwiki"
+        ]
+      },
+      {
+        "realname": "Notifications",
+        "aliases": [
+          "通知",
+          "通知",
+          "Notifications"
+        ]
+      },
+      {
+        "realname": "DisplayNotificationsConfiguration",
+        "aliases": [
+          "DisplayNotificationsConfiguration"
+        ]
+      },
+      {
+        "realname": "NotificationsMarkRead",
+        "aliases": [
+          "NotificationsMarkRead"
+        ]
+      },
+      {
+        "realname": "Thanks",
+        "aliases": [
+          "感谢",
+          "感謝",
+          "感谢",
+          "Thanks"
+        ]
+      },
+      {
+        "realname": "Flow",
+        "aliases": [
+          "Flow"
+        ]
+      },
+      {
+        "realname": "EnableFlow",
+        "aliases": [
+          "启用Flow",
+          "EnableFlow"
+        ]
+      },
+      {
+        "realname": "DisambiguationPages",
+        "aliases": [
+          "消歧义页面",
+          "DisambiguationPages"
+        ]
+      },
+      {
+        "realname": "DisambiguationPageLinks",
+        "aliases": [
+          "链接到消歧义页的页面",
+          "DisambiguationPageLinks"
+        ]
+      },
+      {
+        "realname": "UserMerge",
+        "aliases": [
+          "合并用户",
+          "UserMerge"
+        ]
+      },
+      {
+        "realname": "ContentTranslation",
+        "aliases": [
+          "内容翻译",
+          "ContentTranslation",
+          "CX"
+        ]
+      },
+      {
+        "realname": "ContentTranslationStats",
+        "aliases": [
+          "内容翻译统计",
+          "ContentTranslationStats",
+          "CXStats"
+        ]
+      },
+      {
+        "realname": "TemplateSandbox",
+        "aliases": [
+          "模板沙盒",
+          "TemplateSandbox"
+        ]
+      },
+      {
+        "realname": "GraphSandbox",
+        "aliases": [
+          "GraphSandbox"
+        ]
+      },
+      {
+        "realname": "OAuth",
+        "aliases": [
+          "OAuth",
+          "MWOAuth"
+        ]
+      },
+      {
+        "realname": "OAuthManageMyGrants",
+        "aliases": [
+          "OAuth管理我的许可",
+          "OAuth许可",
+          "OAuthManageMyGrants",
+          "OAuthGrants"
+        ]
+      },
+      {
+        "realname": "OAuthListConsumers",
+        "aliases": [
+          "OAuth消费者列表",
+          "OAuthListConsumers"
+        ]
+      },
+      {
+        "realname": "OATH",
+        "aliases": [
+          "OATH验证",
+          "Two-factor_authentication",
+          "OATH",
+          "OATHAuth"
+        ]
+      },
+      {
+        "realname": "CheckUser",
+        "aliases": [
+          "用户查核",
+          "用戶查核",
+          "使用者查核",
+          "用户查核",
+          "CheckUser"
+        ]
+      },
+      {
+        "realname": "CheckUserLog",
+        "aliases": [
+          "用户查核日志",
+          "CheckUserLog"
+        ]
+      },
+      {
+        "realname": "Map",
+        "aliases": [
+          "Map"
+        ]
+      },
+      {
+        "realname": "OrphanedTimedText",
+        "aliases": [
+          "孤立定时文本",
+          "OrphanedTimedText"
+        ]
+      },
+      {
+        "realname": "TimedMediaHandler",
+        "aliases": [
+          "定时媒体处理器",
+          "TimedMediaHandler"
+        ]
+      },
+      {
+        "realname": "UnconnectedPages",
+        "aliases": [
+          "未链接页面",
+          "丢失链接页面",
+          "UnconnectedPages",
+          "WithoutConnection",
+          "WithoutSitelinks"
+        ]
+      },
+      {
+        "realname": "PagesWithBadges",
+        "aliases": [
+          "PagesWithBadges",
+          "QueryBadges"
+        ]
+      },
+      {
+        "realname": "EntityUsage",
+        "aliases": [
+          "EntityUsage",
+          "EntityUsageData"
+        ]
+      },
+      {
+        "realname": "GlobalRenameRequest",
+        "aliases": [
+          "全域重命名申请",
+          "GlobalRenameRequest"
+        ]
+      },
+      {
+        "realname": "GlobalRenameQueue",
+        "aliases": [
+          "全域重命名队列",
+          "GlobalRenameQueue"
+        ]
+      },
+      {
+        "realname": "Nearby",
+        "aliases": [
+          "附近",
+          "附近",
+          "Nearby"
+        ]
       }
     ]
   }

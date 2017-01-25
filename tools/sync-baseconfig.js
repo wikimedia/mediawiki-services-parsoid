@@ -1,0 +1,107 @@
+#!/usr/bin/env node
+'use strict';
+require('../core-upgrade.js');
+
+/**
+ * Fetch the siteconfig for a set of wikis.
+ * See: lib/config/baseconfig/README
+ */
+
+var fs = require('fs');
+var path = require('path');
+var yargs = require('yargs');
+var yaml = require('js-yaml');
+
+var ConfigRequest = require('../lib/mw/ApiRequest.js').ConfigRequest;
+var MWParserEnvironment = require('../lib/config/MWParserEnvironment.js').MWParserEnvironment;
+var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
+var Util = require('../lib/utils/Util.js').Util;
+
+var update = function(opts) {
+	var prefix = opts.prefix || null;
+	var domain = opts.domain || null;
+
+	if (opts.apiURL) {
+		prefix = 'customwiki';
+		domain = null;
+	} else if (!(prefix || domain)) {
+		domain = 'en.wikipedia.org';
+	}
+
+	var config = null;
+	if (Util.booleanOption(opts.config)) {
+		var p = (typeof (opts.config) === 'string') ?
+			path.resolve('.', opts.config) :
+			path.resolve(__dirname, '../config.yaml');
+		// Assuming Parsoid is the first service in the list
+		config = yaml.load(fs.readFileSync(p, 'utf8')).services[0].conf;
+	}
+
+	var setup = function(parsoidConfig) {
+		parsoidConfig.loadWMF = true;
+		parsoidConfig.fetchConfig = true;
+		if (config && config.localsettings) {
+			var local = require(path.resolve(__dirname, config.localsettings));
+			local.setup(parsoidConfig);
+		}
+		Util.setTemplatingAndProcessingFlags(parsoidConfig, opts);
+		Util.setDebuggingFlags(parsoidConfig, opts);
+	};
+
+	var parsoidConfig = new ParsoidConfig({ setup: setup }, config);
+
+	parsoidConfig.defaultWiki = prefix ? prefix :
+		parsoidConfig.reverseMwApiMap.get(domain);
+
+	var env;
+	return MWParserEnvironment.getParserEnv(parsoidConfig, {
+		prefix: prefix,
+		domain: domain,
+		pageName: MWParserEnvironment.prototype.defaultPageName,
+	}).then(function(_env) {
+		env = _env;
+		var wiki = env.conf.wiki;
+		return ConfigRequest.promise(wiki.apiURI, env, wiki.apiProxy);
+	}).then(function(resultConf) {
+		var configDir = path.resolve(__dirname, '../lib/config');
+		var iwp = env.conf.wiki.iwp;
+		// HACK for be-tarask
+		if (iwp === 'be_x_oldwiki') { iwp = 'be-taraskwiki'; }
+		var localConfigFile = path.resolve(
+			configDir, './baseconfig/' + iwp + '.json'
+		);
+		var resultStr = JSON.stringify({query: resultConf}, null, 2);
+		fs.writeFileSync(localConfigFile, resultStr, 'utf8');
+		console.log('Wrote', localConfigFile);
+	});
+};
+
+var usage = 'Usage: $0 [options]\n' +
+	'Rewrites one cached siteinfo configuration.\n' +
+	'Use --domain or --prefix to select which one to rewrite.';
+var opts = yargs.usage(usage, Util.addStandardOptions({
+	'config': {
+		description: "Path to a config.yaml file.  Use --config w/ no argument to default to the server's config.yaml",
+		'default': false,
+	},
+	'prefix': {
+		description: 'Which wiki prefix to use; e.g. "enwiki" for English wikipedia, "eswiki" for Spanish, "mediawikiwiki" for mediawiki.org',
+		'boolean': false,
+		'default': null,
+	},
+	'domain': {
+		description: 'Which wiki to use; e.g. "en.wikipedia.org" for English wikipedia, "es.wikipedia.org" for Spanish, "www.mediawiki.org" for mediawiki.org',
+		'boolean': false,
+		'default': null,
+	},
+}));
+
+(function() {
+	var argv = opts.argv;
+	if (argv.help) {
+		opts.showHelp();
+		return;
+	}
+
+	update(argv).done();
+}());
