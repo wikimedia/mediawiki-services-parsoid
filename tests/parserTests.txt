@@ -7866,6 +7866,14 @@ File containing double quotes and spaces
 !! end
 
 !! test
+Redirect containing double quotes and spaces
+!! wikitext
+#REDIRECT [[Cool "Gator"]]
+!! html/parsoid
+<link rel="mw:PageProp/redirect" href="./Cool_%22Gator%22" data-parsoid='{"src":"#REDIRECT ","a":{"href":"./Cool_%22Gator%22"},"sa":{"href":"Cool \"Gator\""}}'/>
+!! end
+
+!! test
 Link containing double-single-quotes '' in text (bug 4598 sanity check)
 !! wikitext
 Some [[Link|pretty ''italics'' and stuff]]!
