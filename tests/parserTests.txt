@@ -1488,9 +1488,11 @@ nowiki 3
 Entities inside <nowiki>
 !! wikitext
 <nowiki>&lt;</nowiki>
-!! html
+!! html/php
 <p>&lt;
 </p>
+!! html/parsoid
+<p><span typeof="mw:Nowiki"><span typeof="mw:Entity" data-parsoid='{"src":"&amp;lt;","srcContent":"&lt;"}'>&lt;</span></span></p>
 !! end
 
 !! test

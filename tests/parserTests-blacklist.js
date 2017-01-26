@@ -591,7 +591,6 @@ add("html2wt", "<wbr> is valid wikitext (bug 52468)", "<wbr />\n");
 add("html2wt", "Non-word characters don't terminate tag names (bug 17663, 40670, 52022)", "<blockquote|>a<nowiki></blockquote></nowiki>\n\n<b→> doesn't terminate </b→>\n\n<bä> doesn't terminate </bä>\n\n<boo> doesn't terminate </boo>\n\n<s.foo> doesn't terminate </s.foo>\n\n<sub-ID#1>\n");
 add("html2wt", "Non-word characters don't terminate tag names + tidy", "<blockquote|>a\n\n<b→> doesn't terminate </b→>\n\n<bä> doesn't terminate </bä>\n\n<boo> doesn't terminate </boo>\n\n<s.foo> doesn't terminate </s.foo>\n\n<sub-ID#1>\n");
 add("html2wt", "Bare pipe character from a template (bug 52363)", "|\n");
-add("html2wt", "Entities inside <nowiki>", "<\n");
 add("html2wt", "T71950: 2. Put nowiki as close to cause as possible, after ' :'", "This text : L<nowiki>''</nowiki>[[Foo]]\n");
 add("html2wt", "Comments and Indent-Pre", " asdf\n\n asdf\n\n asdf\n\nxyz\n\n asdf\n xyz\n");
 add("html2wt", "Comment test 2a", "asdf\njkl\n");
