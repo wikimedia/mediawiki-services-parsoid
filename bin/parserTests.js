@@ -43,7 +43,6 @@ var mockAPIServerURL;
 
 // track files imported / required
 var fileDependencies = [];
-var parserTestsUpToDate = true;
 
 var exitUnexpected = new Error('unexpected failure');  // unique marker value
 
@@ -301,13 +300,6 @@ ParserTests.prototype.getOpts = function() {
  * @return {Object}
  */
 ParserTests.prototype.getTests = function(argv) {
-	// double check that test file is up-to-date with upstream
-	var fetcher = require(__dirname + "/../tools/fetch-parserTests.txt.js");
-	if (!fetcher.isUpToDate()) {
-		parserTestsUpToDate = false;
-		console.warn("warn", "ParserTests.txt not up-to-date with upstream.");
-	}
-
 	// Startup by loading .txt test file
 	var testFile;
 	try {
