@@ -2111,9 +2111,11 @@ ParserTests.prototype.processCase = function(i, options, err) {
 					break;
 				case 'hooks':
 					this.env.log('warn', 'parserTests: Unhandled extension hook', JSON.stringify(item));
+					setImmediate(nextCallback);
 					break;
 				case 'functionhooks':
 					this.env.log("warn", "parserTests: Unhandled functionhook", JSON.stringify(item));
+					setImmediate(nextCallback);
 					break;
 				default:
 					this.comments = [];
