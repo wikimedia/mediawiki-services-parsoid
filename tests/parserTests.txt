@@ -6945,12 +6945,6 @@ Wikitext table with html-syntax row
 <td>foo</td></tr></tbody></table>
 !! end
 
-## Note that Parsoid output differs from PHP and PHP+tidy here.
-## The lack of <tr> tags in the PHP output is arguably a bug in the
-## PHP parser, which tidy then compounds by fostering the content
-## entirely out of the table.  Parsoid recognizes the table context
-## and generates <tr> and <td> wrappers as needed.  Hopefully nobody
-## depends on PHP's treatment of broken table markup!
 !! test
 Implicit <td> after a |-
 !! options
@@ -6969,56 +6963,12 @@ a
 !! html/php+tidy
 <p>a</p>
 !! html/parsoid
-<table>
-<tr><td>a</td></tr>
-</table>
+<p data-parsoid='{"fostered":true,"autoInsertedEnd":true}'>a</p><table>
+<tbody><tr data-parsoid='{"startTagSrc":"|-","autoInsertedEnd":true}'>
+
+</tr></tbody></table>
 !! end
 
-# Again, Parsoid adds implicit <td>s here, PHP and Tidy strip the b out.
-!! test
-<pre> tags should be recognized in an explicit <td> context, but not in an implicit <td> context
-!! options
-parsoid=wt2html,html2html
-!! wikitext
-{|
-|-
-|
- a
-|-
- b
-|}
-!! html/php
-<table>
-
-<tr>
-<td>
-<pre>a
-</pre>
-</td></tr>
- b
-</table>
-
-!! html/php+tidy
-<p>b</p>
-<table>
-<tr>
-<td>
-<pre>
-a
-</pre></td>
-</tr>
-</table>
-!! html/parsoid
-<table>
-<tbody>
-<tr><td><pre>a</pre></td></tr>
-<tr><td> b</td></tr>
-</tbody>
-</table>
-!! end
-
-# PHP + Tidy strips the list out of the table; Parsoid wraps it.
-# Parsoid generates the missing <td>, so wt2wt won't succeed.
 !! test
 Lists should be recognized in an implicit <td> context
 !! options
@@ -7039,13 +6989,10 @@ parsoid=wt2html,html2html
 <li>a</li>
 </ul>
 !! html/parsoid
-<table>
-<tr>
-<td><ul>
-<li>a</li>
-</ul></td>
-</tr>
-</table>
+<ul data-parsoid='{"fostered":true,"autoInsertedEnd":true}'><li>a</li></ul><table>
+<tbody><tr data-parsoid='{"startTagSrc":"|-","autoInsertedEnd":true}'>
+
+</tr></tbody></table>
 !! end
 
 !! test
@@ -7066,8 +7013,7 @@ Table cells not properly parsed in an implicit-td context
 !! html/parsoid
 <table>
 <tbody><tr data-parsoid='{"startTagSrc":"|-","autoInsertedEnd":true}'>
-<td style="background-color:#DC241f;" width="10px" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"autoInsertedEnd":true,"pi":[[]]}' data-mw='{"parts":["",{"template":{"target":{"wt":"table_attribs_4","href":"./Template:Table_attribs_4"},"params":{},"i":0}}," "]}'> </td><td data-parsoid='{"stx_v":"row","autoInsertedEnd":true}'> a </td><td data-parsoid='{"stx_v":"row","autoInsertedEnd":true}'> b</td></tr>
-</tbody></table>
+<td style="background-color:#DC241f;" width="10px" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"autoInsertedEnd":true,"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"table_attribs_4","href":"./Template:Table_attribs_4"},"params":{},"i":0}}," || a || b"]}'> </td><td about="#mwt1"> a </td><td about="#mwt1"> b</td></tr>
 !! end
 
 !! test
