@@ -52,6 +52,24 @@ var FILE_PROPS = {
 		bits: 8,
 		mime: 'image/vnd.djvu',
 	},
+	'Video.ogv': {
+		size: 12345,
+		width: 320,
+		height: 240,
+		bits: 0,
+		duration: 160.733333333333,
+		mime: 'application/ogg',
+		mediatype: 'VIDEO',
+	},
+	'Audio.oga': {
+		size: 12345,
+		width: 0,
+		height: 0,
+		bits: 0,
+		duration: 160.733333333333,
+		mime: 'application/ogg',
+		mediatype: 'AUDIO',
+	},
 };
 
 /* -------------------- web app access points below --------------------- */
@@ -180,6 +198,8 @@ var fnames = {
 	'Image:Thumb.png': 'Thumb.png',
 	'File:Thumb.png': 'Thumb.png',
 	'File:LoremIpsum.djvu': 'LoremIpsum.djvu',
+	'File:Video.ogv': 'Video.ogv',
+	'File:Audio.oga': 'Audio.oga',
 };
 
 var pnames = {
@@ -299,27 +319,31 @@ var availableActions = {
 		var md5 = crypto.createHash('md5').update(normFilename).digest('hex');
 		var md5prefix = md5[0] + '/' + md5[0] + md5[1] + '/';
 		var baseurl = IMAGE_BASE_URL + '/' + md5prefix + normFilename;
-		var height = props.height || 220;
-		var width = props.width || 1941;
+		var height = props.hasOwnProperty('height') ? props.height : 220;
+		var width = props.hasOwnProperty('width') ? props.width : 1941;
 		var twidth = body.iiurlwidth;
 		var theight = body.iiurlheight;
 		var turl = IMAGE_BASE_URL + '/thumb/' + md5prefix + normFilename;
 		var durl = IMAGE_DESC_URL + '/' + normFilename;
-		var mediatype = (props.mime === 'image/svg+xml') ? 'DRAWING' : 'BITMAP';
+		var mediatype = props.mediatype ||
+				(props.mime === 'image/svg+xml' ? 'DRAWING' : 'BITMAP');
+		var result = {
+			size: props.size || 12345,
+			height: height,
+			width: width,
+			url: baseurl,
+			descriptionurl: durl,
+			mediatype: mediatype,
+			mime: props.mime,
+		};
+		if (props.hasOwnProperty('duration')) {
+			result.duration = props.duration;
+		}
 		var imageinfo = {
 			pageid: 1,
 			ns: 6,
 			title: normPagename,
-			imageinfo: [
-				{
-					size: props.size || 12345,
-					height: height,
-					width: width,
-					url: baseurl,
-					descriptionurl: durl,
-					mediatype: mediatype,
-				},
-			],
+			imageinfo: [result],
 		};
 		var response = {
 			query: {

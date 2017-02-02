@@ -231,6 +231,16 @@ describe('Linter Tests', function() {
 				result.should.have.length(0);
 			});
 		});
+		it('should flag noplayer, noicon, and disablecontrols as bogus options', function() {
+			return parseWT('[[File:Video.ogv|noplayer|noicon|disablecontrols=ok|These are bogus.]]')
+			.then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "bogus-image-options");
+				result[0].dsr.should.deep.equal([ 0, 70, null, null ]);
+				result[0].should.have.a.property("params");
+				result[0].params.items.should.include.members(["noplayer", "noicon", "disablecontrols=ok"]);
+			});
+		});
 		it('should not crash on gallery images', function() {
 			return parseWT('<gallery>\nfile:a.jpg\n</gallery>')
 			.then(function(result) {

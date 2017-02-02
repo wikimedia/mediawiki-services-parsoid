@@ -22,6 +22,8 @@
  * For easier maintenance, we group each test type together, and use a
  * helper function to create the array if needed then append the test type.
  */
+
+/* exported add */
 'use strict';
 
 var testBlackList = {};
