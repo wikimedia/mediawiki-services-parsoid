@@ -386,6 +386,10 @@ var availableActions = {
 			},
 		});
 	},
+
+	paraminfo: function(body, cb) {
+		cb(null, { /* Just don't 400 for now. */ });
+	},
 };
 
 var actionDefinitions = {
