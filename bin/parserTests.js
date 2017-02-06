@@ -1456,15 +1456,15 @@ ParserTests.prototype.printWikiDom = function(body) {
 };
 
 /**
+ * @param {Array} modesRan
  * @param {Object} stats
  * @param {number} stats.failedTests Number of failed tests due to differences in output
  * @param {number} stats.passedTests Number of tests passed without any special consideration
  * @param {number} stats.passedTestsWhitelisted Number of tests passed by whitelisting
  * @param {Object} stats.modes All of the stats (failedTests, passedTests, and passedTestsWhitelisted) per-mode.
  */
-ParserTests.prototype.reportSummary = function(stats) {
-	var curStr;
-	var thisMode;
+ParserTests.prototype.reportSummary = function(modesRan, stats) {
+	var curStr, mode, thisMode;
 	var failTotalTests = stats.failedTests;
 
 	console.log("==========================================================");
@@ -1474,17 +1474,16 @@ ParserTests.prototype.reportSummary = function(stats) {
 	}
 
 	if (failTotalTests !== 0) {
-		for (var i = 0; i < modes.length; i++) {
-			curStr = modes[i] + ': ';
-			thisMode = stats.modes[modes[i]];
-			if (thisMode.passedTests + thisMode.passedTestsWhitelisted + thisMode.failedTests > 0) {
-				curStr += colorizeCount(thisMode.passedTests + thisMode.passedTestsWhitelisted, 'green') + ' passed (';
-				curStr += colorizeCount(thisMode.passedTestsUnexpected, 'red') + ' unexpected, ';
-				curStr += colorizeCount(thisMode.passedTestsWhitelisted, 'yellow') + ' whitelisted) / ';
-				curStr += colorizeCount(thisMode.failedTests, 'red') + ' failed (';
-				curStr += colorizeCount(thisMode.failedTestsUnexpected, 'red') + ' unexpected)';
-				console.log(curStr);
-			}
+		for (var i = 0; i < modesRan.length; i++) {
+			mode = modesRan[i];
+			curStr = mode + ': ';
+			thisMode = stats.modes[mode];
+			curStr += colorizeCount(thisMode.passedTests + thisMode.passedTestsWhitelisted, 'green') + ' passed (';
+			curStr += colorizeCount(thisMode.passedTestsUnexpected, 'red') + ' unexpected, ';
+			curStr += colorizeCount(thisMode.passedTestsWhitelisted, 'yellow') + ' whitelisted) / ';
+			curStr += colorizeCount(thisMode.failedTests, 'red') + ' failed (';
+			curStr += colorizeCount(thisMode.failedTestsUnexpected, 'red') + ' unexpected)';
+			console.log(curStr);
 		}
 
 		curStr = 'TOTAL' + ': ';
@@ -2174,7 +2173,7 @@ ParserTests.prototype.processCase = function(i, options, err) {
 		// note: these stats won't necessarily be useful if someone
 		// reimplements the reporting methods, since that's where we
 		// increment the stats.
-		var failures = options.reportSummary(this.stats);
+		var failures = options.reportSummary(options.modes, this.stats);
 
 		// we're done!
 		if (booleanOption(options['exit-zero'])) {
@@ -2204,6 +2203,7 @@ var xmlFuncs = (function() {
 		wt2wt: '',
 		wt2html: '',
 		html2wt: '',
+		selser: '',
 	};
 
 	/**
@@ -2250,9 +2250,9 @@ var xmlFuncs = (function() {
 	 *
 	 * Report the end of the tests output.
 	 */
-	var reportSummaryXML = function() {
-		for (var i = 0; i < modes.length; i++) {
-			var mode = modes[i];
+	var reportSummaryXML = function(modesRan) {
+		for (var i = 0; i < modesRan.length; i++) {
+			var mode = modesRan[i];
 			console.log('<testsuite name="parserTests-' + mode + '" file="parserTests.txt">');
 			console.log(results[mode]);
 			console.log('</testsuite>');
@@ -2270,15 +2270,23 @@ var xmlFuncs = (function() {
 	var reportFailureXML = function(title, comments, iopts, options, actual, expected, expectFail, failureOnly, mode, error) {
 		fail++;
 
-		var failEle;
+		var failEle = '';
 		if (error) {
-			failEle = '<error type="somethingCrashedFail">\n';
+			failEle += '<error type="somethingCrashedFail">\n';
 			failEle += error.toString();
-			failEle += '\n</error>\n';
+			failEle += '\n</error>';
 		} else {
-			failEle = '<failure type="parserTestsDifferenceInOutputFailure">\n';
-			failEle += getActualExpectedXML(actual, expected, options.getDiff);
-			failEle += '\n</failure>\n';
+			var blacklisted = false;
+			if (booleanOption(options.blacklist) && expectFail) {
+				// compare with remembered output
+				blacklisted = !(mode === 'selser' && !options.changetree &&
+					testBlackList[title].raw !== actual.raw);
+			}
+			if (!blacklisted) {
+				failEle += '<failure type="parserTestsDifferenceInOutputFailure">\n';
+				failEle += getActualExpectedXML(actual, expected, options.getDiff);
+				failEle += '\n</failure>';
+			}
 		}
 		results[mode] += failEle;
 	};
@@ -2348,21 +2356,22 @@ var xmlFuncs = (function() {
 // Construct the ParserTests object and run the parser tests
 var ptests = new ParserTests();
 var popts  = ptests.getOpts();
+var options = popts.argv;
 
-if (popts.argv.xml) {
-	popts.reportResult = xmlFuncs.reportResult;
-	popts.reportStart = xmlFuncs.reportStart;
-	popts.reportSummary = xmlFuncs.reportSummary;
-	popts.reportFailure = xmlFuncs.reportFailure;
+if (options.xml) {
+	options.reportResult = xmlFuncs.reportResult;
+	options.reportStart = xmlFuncs.reportStart;
+	options.reportSummary = xmlFuncs.reportSummary;
+	options.reportFailure = xmlFuncs.reportFailure;
 	colors.mode = 'none';
 }
 
-if (popts.argv.help) {
-	ptests.main(popts.argv, popts);
+if (options.help) {
+	ptests.main(options, popts);
 }
 
 // Start the mock api server and kick off parser tests
 serviceWrapper.runServices({ skipParsoid: true }).then(function(ret) {
 	mockAPIServerURL = ret.mockURL;
-	return ptests.main(popts.argv, popts);
+	return ptests.main(options, popts);
 }).done();
