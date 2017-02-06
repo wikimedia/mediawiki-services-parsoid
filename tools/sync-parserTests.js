@@ -33,12 +33,13 @@ require('../core-upgrade.js');
 == USAGE ==
 */
 
-var fetcher = require('./fetch-parserTests.txt.js');
 var yargs = require('yargs');
 var childProcess = require('child_process');
 var async = require('async');
 var path = require('path');
 var fs = require('fs');
+
+var fetcher = require(path.join(__dirname, '../tests/parserTests.json'))['parserTests.txt'];
 
 var strip = function(s) {
 	return s.replace(/(^\s+)|(\s+$)/g, '');

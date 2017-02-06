@@ -1,0 +1,14 @@
+{
+	"parserTests.txt": {
+		"downloadUrl": {
+			"host": "raw.githubusercontent.com",
+			"path": "/wikimedia/mediawiki/COMMIT-SHA/tests/parser/parserTests.txt"
+		},
+		"historyUrl": {
+			"host": "api.github.com",
+			"path": "/repos/wikimedia/mediawiki/commits?path=tests/parser/parserTests.txt"
+		},
+		"expectedSHA1": "e356e32b279671d5c662aa4409d64425c14adb6f",
+		"latestCommit": "4a07505402a56a32be23a570f4bd1fe33dd542a9"
+	}
+}

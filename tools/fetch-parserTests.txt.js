@@ -11,48 +11,38 @@ require('../core-upgrade.js');
 // ==> Use "./fetch-parserTests.txt.js --force" to download latest parserTests
 //     and update these hashes automatically.
 //
-// You can use 'sha1sum -b tests/parser/parserTests.txt' to compute this value:
-var expectedSHA1 = "e356e32b279671d5c662aa4409d64425c14adb6f";
-// git log --pretty=oneline -1 tests/parser/parserTests.txt
-var latestCommit = "4a07505402a56a32be23a570f4bd1fe33dd542a9";
 
 var fs = require('fs');
 var path = require('path');
 var https = require('https');
 var crypto = require('crypto');
 
-var downloadUrl = {
-	host: 'raw.githubusercontent.com',
-	path: '/wikimedia/mediawiki/COMMIT-SHA/tests/parser/parserTests.txt',
-};
-var historyUrl = {
-	host: 'api.github.com',
-	headers: {'user-agent': 'wikimedia-parsoid'},
-	path: '/repos/wikimedia/mediawiki/commits?path=tests/parser/parserTests.txt',
-};
-var DEFAULT_TARGET = __dirname + "/../tests/parserTests.txt";
+var testDir = path.join(__dirname, '../tests/');
+var testFilesPath = path.join(testDir, 'parserTests.json');
+var testFiles = require(testFilesPath);
+
+var DEFAULT_TARGET = 'parserTests.txt';
 
 var computeSHA1 = function(targetName) {
-	var existsSync = fs.existsSync || path.existsSync; // node 0.6 compat
-	if (!existsSync(targetName)) {
+	var targetPath = path.join(testDir, targetName);
+	if (!fs.existsSync(targetPath)) {
 		return "<file not present>";
 	}
-	var contents = fs.readFileSync(targetName);
+	var contents = fs.readFileSync(targetPath);
 	return crypto.createHash('sha1').update(contents).digest('hex').
 		toLowerCase();
 };
 
-var fetch = function(url, targetName, gitCommit, cb) {
+var fetch = function(targetName, gitCommit, cb) {
 	console.log('Fetching parserTests.txt from mediawiki/core');
-	if (gitCommit) {
-		url = {
-			host: url.host,
-			headers: {'user-agent': 'wikimedia-parsoid'},
-			path: url.path.replace(/COMMIT-SHA/, gitCommit),
-		};
-	}
+	var file = testFiles[targetName];
+	var url = Object.assign({
+		headers: { 'user-agent': 'wikimedia-parsoid' },
+	}, file.downloadUrl);
+	url.path = url.path.replace(/COMMIT-SHA/, gitCommit || file.latestCommit);
 	https.get(url, function(result) {
-		var out = fs.createWriteStream(targetName);
+		var targetPath = path.join(testDir, targetName);
+		var out = fs.createWriteStream(targetPath);
 		result.on('data', function(data) {
 			out.write(data);
 		});
@@ -63,8 +53,8 @@ var fetch = function(url, targetName, gitCommit, cb) {
 		out.on('close', function() {
 			if (cb) {
 				return cb();
-			} else if (expectedSHA1 !== computeSHA1(targetName)) {
-				console.warn('Parsoid expected sha1sum', expectedSHA1,
+			} else if (file.expectedSHA1 !== computeSHA1(targetName)) {
+				console.warn('Parsoid expected sha1sum', file.expectedSHA1,
 					'but got', computeSHA1(targetName));
 			}
 		});
@@ -74,22 +64,26 @@ var fetch = function(url, targetName, gitCommit, cb) {
 };
 
 var isUpToDate = function(targetName) {
+	var expectedSHA1 = testFiles[targetName].expectedSHA1;
 	return (expectedSHA1 === computeSHA1(targetName));
 };
 
 var checkAndUpdate = function(targetName) {
 	if (!isUpToDate(targetName)) {
-		fetch(downloadUrl, targetName, latestCommit);
+		fetch(targetName);
 	}
 };
 
-var forceUpdate = function() {
+var forceUpdate = function(targetName) {
 	console.log('Fetching parserTests.txt history from mediawiki/core');
 	var downloadCommit, updateHashes;
-	var targetName = DEFAULT_TARGET;
+	var file = testFiles[targetName];
 
 	// fetch the history page
-	https.get(historyUrl, function(result) {
+	var url = Object.assign({
+		headers: { 'user-agent': 'wikimedia-parsoid' },
+	}, file.historyUrl);
+	https.get(url, function(result) {
 		var res = '';
 		result.setEncoding('utf8');
 		result.on('data', function(data) { res += data; });
@@ -102,36 +96,32 @@ var forceUpdate = function() {
 
 	// download latest file
 	downloadCommit = function(gitCommit) {
-		fetch(downloadUrl, targetName, gitCommit, function() {
+		fetch(targetName, gitCommit, function() {
 			updateHashes(gitCommit, computeSHA1(targetName));
 		});
 	};
 
 	// now rewrite this file!
 	updateHashes = function(gitCommit, fileHash) {
-		var contents = fs.
-			readFileSync(__filename, 'utf8').
-			replace(/^var expectedSHA1 = "[0-9a-f]*";/m,
-					"var expectedSHA1 = \"" + fileHash + "\";").
-			replace(/^var latestCommit = "[0-9a-f]*";/m,
-					"var latestCommit = \"" + gitCommit + "\";");
-		fs.writeFileSync(__filename, contents, 'utf8');
+		file.expectedSHA1 = fileHash;
+		file.latestCommit = gitCommit;
+		fs.writeFileSync(testFilesPath, JSON.stringify(testFiles, null, '\t'), 'utf8');
 		console.log('Updated fetch-parserTests.txt.js');
 	};
 };
 
-if (typeof module === 'object' && require.main !== module) {
-	module.exports = {
-		isUpToDate: isUpToDate.bind(null, DEFAULT_TARGET),
-		latestCommit: latestCommit,
-	};
-} else {
+(function() {
 	var argv = require('yargs').argv;
-	if (argv.force) {
-		console.error("Note: We now have our own copy of parserTests.txt, so fetching\n" +
-				"parserTests.txt is normally no longer needed.");
-		forceUpdate();
-	} else {
-		checkAndUpdate(DEFAULT_TARGET);
+	var targetName = argv._.length ? argv._[0] : DEFAULT_TARGET;
+
+	if (!testFiles.hasOwnProperty(targetName)) {
+		console.warn(targetName + ' not defined in parserTests.json');
+		return;
 	}
-}
+
+	if (argv.force) {
+		forceUpdate(targetName);
+	} else {
+		checkAndUpdate(targetName);
+	}
+}());
