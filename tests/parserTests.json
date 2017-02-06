@@ -10,5 +10,17 @@
 		},
 		"expectedSHA1": "e356e32b279671d5c662aa4409d64425c14adb6f",
 		"latestCommit": "4a07505402a56a32be23a570f4bd1fe33dd542a9"
+	},
+	"citeParserTests.txt": {
+		"downloadUrl": {
+			"host": "raw.githubusercontent.com",
+			"path": "/wikimedia/mediawiki-extensions-Cite/COMMIT-SHA/tests/parser/citeParserTests.txt"
+		},
+		"historyUrl": {
+			"host": "api.github.com",
+			"path": "/repos/wikimedia/mediawiki-extensions-Cite/commits?path=tests/parser/citeParserTests.txt"
+		},
+		"expectedSHA1": "1db0e82134bfc66c2b9ba1c899fc00de50f27bcc",
+		"latestCommit": "440b3179086fe4e52bef28f293918381aa45ff1f"
 	}
 }
