@@ -7,18 +7,10 @@
 'use strict';
 require('../core-upgrade.js');
 
-/**
- * @class ParserTestModule
- * @private
- * @singleton
- */
-
 var serviceWrapper = require('../tests/serviceWrapper.js');
 var async = require('async');
-var colors = require('colors');
 var fs = require('fs');
 var path = require('path');
-var yargs = require('yargs');
 var Alea = require('alea');
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
 var Promise = require('../lib/utils/promise.js');
@@ -26,7 +18,7 @@ var ParsoidLogger = require('../lib/logger/ParsoidLogger.js').ParsoidLogger;
 var PEG = require('pegjs');
 var Util = require('../lib/utils/Util.js').Util;
 var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
-var Diff = require('../lib/utils/Diff.js').Diff;
+var PTUtils = require('../tests/parserTests.utils.js');
 
 // Fetch up some of our wacky parser bits...
 var MWParserEnvironment = require('../lib/config/MWParserEnvironment.js').MWParserEnvironment;
@@ -36,8 +28,6 @@ var ParserHook = ParsoidConfig.loadExtension(
 	path.resolve(__dirname, '../tests/parserTestsParserHook.js')
 );
 
-var booleanOption = Util.booleanOption; // shortcut
-
 // Run a mock API in the background so we can request things from it
 var mockAPIServerURL;
 
@@ -45,39 +35,6 @@ var mockAPIServerURL;
 var fileDependencies = [];
 
 var exitUnexpected = new Error('unexpected failure');  // unique marker value
-
-// Our code...
-
-/**
- * @method
- *
- * Colorize given number if <> 0
- *
- * @param {number} count
- * @param {string} color
- */
-var colorizeCount = function(count, color) {
-	if (count === 0) {
-		return count;
-	}
-
-	// We need a string to use colors methods
-	count = count.toString();
-
-	// FIXME there must be a wait to call a method by its name
-	if (count[color]) {
-		return count[color] + '';
-	} else {
-		return count;
-	}
-};
-
-var testWhiteList = require(__dirname + '/../tests/parserTests-whitelist.js').
-		testWhiteList;
-var testBlackList = require(__dirname + '/../tests/parserTests-blacklist.js').
-		testBlackList;
-
-var modes = ['wt2html', 'wt2wt', 'html2html', 'html2wt', 'selser'];
 
 /**
  * @class
@@ -87,9 +44,7 @@ var modes = ['wt2html', 'wt2wt', 'html2html', 'html2wt', 'selser'];
  * @singleton
  * @private
  */
-function ParserTests() {
-	var i;
-
+function ParserTests(modes) {
 	this.cacheFile = "parserTests.cache"; // Name of file used to cache the parser tests cases
 	this.parserTestsFile = "parserTests.txt";
 
@@ -105,191 +60,13 @@ function ParserTests() {
 	this.stats.failedTestsUnexpected = 0;
 
 	var newModes = {};
-
-	for (i = 0; i < modes.length; i++) {
+	for (var i = 0; i < modes.length; i++) {
 		newModes[modes[i]] = Util.clone(this.stats);
 		newModes[modes[i]].failList = [];
+		newModes[modes[i]].result = '';  // XML reporter uses this.
 	}
-
 	this.stats.modes = newModes;
 }
-
-var prettyPrintIOptions = function(iopts) {
-	if (!iopts) { return ''; }
-	var ppValue = function(v) {
-		if (Array.isArray(v)) {
-			return v.map(ppValue).join(',');
-		}
-		if (typeof v !== 'string') {
-			return JSON.stringify(v);
-		}
-		if (/^\[\[[^\]]*\]\]$/.test(v) || /^[-\w]+$/.test(v)) {
-			return v;
-		}
-		return JSON.stringify(v);
-	};
-	return Object.keys(iopts).map(function(k) {
-		if (iopts[k] === '') { return k; }
-		return k + '=' + ppValue(iopts[k]);
-	}).join(' ');
-};
-
-
-/**
- * @method
- *
- * Get the options from the command line.
- *
- * @return {Object}
- */
-ParserTests.prototype.getOpts = function() {
-
-	var standardOpts = Util.addStandardOptions({
-		'wt2html': {
-			description: 'Wikitext -> HTML(DOM)',
-			'default': false,
-			'boolean': true,
-		},
-		'html2wt': {
-			description: 'HTML(DOM) -> Wikitext',
-			'default': false,
-			'boolean': true,
-		},
-		'wt2wt': {
-			description: 'Roundtrip testing: Wikitext -> DOM(HTML) -> Wikitext',
-			'default': false,
-			'boolean': true,
-		},
-		'html2html': {
-			description: 'Roundtrip testing: HTML(DOM) -> Wikitext -> HTML(DOM)',
-			'default': false,
-			'boolean': true,
-		},
-		'selser': {
-			description: 'Roundtrip testing: Wikitext -> DOM(HTML) -> Wikitext (with selective serialization). ' +
-				'Set to "noauto" to just run the tests with manual selser changes.',
-			'default': false,
-			'boolean': true,
-		},
-		'changetree': {
-			description: 'Changes to apply to parsed HTML to generate new HTML to be serialized (useful with selser)',
-			'default': null,
-			'boolean': false,
-		},
-		'use_source': {
-			description: 'Use original source in wt2wt tests',
-			'boolean': true,
-			'default': true,
-		},
-		'numchanges': {
-			description: 'Make multiple different changes to the DOM, run a selser test for each one.',
-			'default': 20,
-			'boolean': false,
-		},
-		'cache': {
-			description: 'Get tests cases from cache file ' + this.cacheFile,
-			'boolean': true,
-			'default': false,
-		},
-		'filter': {
-			description: 'Only run tests whose descriptions match given string',
-		},
-		'regex': {
-			description: 'Only run tests whose descriptions match given regex',
-			alias: ['regexp', 're'],
-		},
-		'run-disabled': {
-			description: 'Run disabled tests',
-			'default': false,
-			'boolean': true,
-		},
-		'run-php': {
-			description: 'Run php-only tests',
-			'default': false,
-			'boolean': true,
-		},
-		'maxtests': {
-			description: 'Maximum number of tests to run',
-			'boolean': false,
-		},
-		'quick': {
-			description: 'Suppress diff output of failed tests',
-			'boolean': true,
-			'default': false,
-		},
-		'quiet': {
-			description: 'Suppress notification of passed tests (shows only failed tests)',
-			'boolean': true,
-			'default': false,
-		},
-		'whitelist': {
-			description: 'Compare against manually verified parser output from whitelist',
-			'default': true,
-			'boolean': true,
-		},
-		'printwhitelist': {
-			description: 'Print out a whitelist entry for failing tests. Default false.',
-			'default': false,
-			'boolean': true,
-		},
-		'blacklist': {
-			description: 'Compare against expected failures from blacklist',
-			'default': true,
-			'boolean': true,
-		},
-		'rewrite-blacklist': {
-			description: 'Update parserTests-blacklist.js with failing tests.',
-			'default': false,
-			'boolean': true,
-		},
-		'exit-zero': {
-			description: "Don't exit with nonzero status if failures are found.",
-			'default': false,
-			'boolean': true,
-		},
-		xml: {
-			description: 'Print output in JUnit XML format.',
-			'default': false,
-			'boolean': true,
-		},
-		'exit-unexpected': {
-			description: 'Exit after the first unexpected result.',
-			'default': false,
-			'boolean': true,
-		},
-		'update-tests': {
-			description: 'Update parserTests.txt with results from wt2html fails.',
-		},
-		'update-unexpected': {
-			description: 'Update parserTests.txt with results from wt2html unexpected fails.',
-			'default': false,
-			'boolean': true,
-		},
-	}, {
-		// override defaults for standard options
-		fetchTemplates: false,
-		usephppreprocessor: false,
-		fetchConfig: false,
-	});
-
-	var defaultArgs = [
-		"Default tests-file: " + this.parserTestsFile,
-		"Default options   : --wt2html --wt2wt --html2html --html2wt --whitelist --blacklist --color=auto",
-	];
-
-	return yargs.usage(
-		'Usage: $0 [options] [tests-file]\n\n' + defaultArgs.join("\n"),
-		standardOpts
-	).check(function(argv, aliases) {
-		if (argv.filter === true) {
-			throw "--filter needs an argument";
-		}
-		if (argv.regex === true) {
-			throw "--regex needs an argument";
-		}
-		return true;
-	}).strict();
-};
 
 /**
  * @method
@@ -311,7 +88,7 @@ ParserTests.prototype.getTests = function(argv) {
 	// parser grammar is also a dependency
 	fileDependencies.push(this.testParserFileName);
 
-	if (!booleanOption(argv.cache)) {
+	if (!Util.booleanOption(argv.cache)) {
 		// Cache not wanted, parse file and return object
 		return this.parseTestCase(testFile);
 	}
@@ -420,7 +197,7 @@ ParserTests.prototype.convertHtml2Wt = function(options, mode, item, body, proce
 		}
 		if (mode === 'selser') {
 			self.env.setPageSrcInfo(item.wikitext);
-		} else if (booleanOption(options.use_source) && startsAtWikitext) {
+		} else if (Util.booleanOption(options.use_source) && startsAtWikitext) {
 			self.env.setPageSrcInfo(item.wikitext);
 		} else {
 			self.env.setPageSrcInfo(null);
@@ -1121,270 +898,6 @@ ParserTests.prototype.processSerializedWT = function(item, options, mode, wikite
 };
 
 /**
- * @method
- * @param {string} title
- * @param {Array} comments
- * @param {Object|null} iopts Options from the test file
- * @param {Object} options
- * @param {Object} actual
- * @param {Object} expected
- * @param {boolean} expectFail Whether this test was expected to fail (on blacklist)
- * @param {boolean} failureOnly Whether we should print only a failure message, or go on to print the diff
- * @param {string} mode
- */
-ParserTests.prototype.printFailure = function(title, comments, iopts, options,
-		actual, expected, expectFail, failureOnly, mode, error, item) {
-	this.stats.failedTests++;
-	this.stats.modes[mode].failedTests++;
-	var fail = {
-			title: title,
-			raw: actual ? actual.raw : null,
-			expected: expected ? expected.raw : null,
-			actualNormalized: actual ? actual.normal : null,
-		};
-	this.stats.modes[mode].failList.push(fail);
-
-	var extTitle = (title + (mode ? (' (' + mode + ')') : '')).
-		replace('\n', ' ');
-
-	var blacklisted = false;
-	if (booleanOption(options.blacklist) && expectFail) {
-		// compare with remembered output
-		if (mode === 'selser' && !options.changetree && testBlackList[title].raw !== actual.raw) {
-			blacklisted = true;
-		} else {
-			if (!booleanOption(options.quiet)) {
-				console.log('EXPECTED FAIL'.red + ': ' + extTitle.yellow);
-			}
-			return true;
-		}
-	}
-
-	this.stats.failedTestsUnexpected++;
-	this.stats.modes[mode].failedTestsUnexpected++;
-	fail.unexpected = true;
-
-	if (!failureOnly) {
-		console.log('=====================================================');
-	}
-
-	console.log('UNEXPECTED FAIL'.red.inverse + ': ' + extTitle.yellow);
-
-	if (mode === 'selser') {
-		if (blacklisted) {
-			console.log('Blacklisted, but the output changed!'.red);
-		}
-		if (item.hasOwnProperty('wt2wtPassed') && item.wt2wtPassed) {
-			console.log('Even worse, the non-selser wt2wt test passed!'.red);
-		} else if (actual && item.hasOwnProperty('wt2wtResult') &&
-				item.wt2wtResult !== actual.raw) {
-			console.log('Even worse, the non-selser wt2wt test had a different result!'.red);
-		}
-	}
-
-	if (!failureOnly && !error) {
-		console.log(comments.join('\n'));
-
-		if (options) {
-			console.log('OPTIONS'.cyan + ':');
-			console.log(prettyPrintIOptions(iopts) + '\n');
-		}
-
-		console.log('INPUT'.cyan + ':');
-		console.log(actual.input + '\n');
-
-		console.log(options.getActualExpected(actual, expected, options.getDiff));
-
-		if (booleanOption(options.printwhitelist)) {
-			this.printWhitelistEntry(title, actual.raw);
-		}
-	} else if (!failureOnly && error) {
-		// The error object exists, which means
-		// there was an error! gwicke said it wouldn't happen, but handle
-		// it anyway, just in case.
-		this.env.log("error", error);
-	}
-
-	return false;
-};
-
-/**
- * @method
- * @param {string} title
- * @param {Object} options
- * @param {string} mode
- * @param {boolean} expectSuccess Whether this success was expected (or was this test blacklisted?)
- * @param {boolean} isWhitelist Whether this success was due to a whitelisting
- * @param {Object} item
- */
-ParserTests.prototype.printSuccess = function(title, options, mode, expectSuccess, isWhitelist, item) {
-	var quiet = booleanOption(options.quiet);
-	if (isWhitelist) {
-		this.stats.passedTestsWhitelisted++;
-		this.stats.modes[mode].passedTestsWhitelisted++;
-	} else {
-		this.stats.passedTests++;
-		this.stats.modes[mode].passedTests++;
-	}
-	var extTitle = (title + (mode ? (' (' + mode + ')') : '')).
-		replace('\n', ' ');
-
-	if (booleanOption(options.blacklist) && !expectSuccess) {
-		this.stats.passedTestsUnexpected++;
-		this.stats.modes[mode].passedTestsUnexpected++;
-		console.log('UNEXPECTED PASS'.green.inverse +
-			(isWhitelist ? ' (whitelist)' : '') +
-			':' + extTitle.yellow);
-		return false;
-	}
-	if (!quiet) {
-		var outStr = 'EXPECTED PASS';
-
-		if (isWhitelist) {
-			outStr += ' (whitelist)';
-		}
-
-		outStr = outStr.green + ': ' + extTitle.yellow;
-
-		console.log(outStr);
-
-		if (mode === 'selser' && item.hasOwnProperty('wt2wtPassed') &&
-				!item.wt2wtPassed) {
-			console.log('Even better, the non-selser wt2wt test failed!'.red);
-		}
-	}
-	return true;
-};
-
-/**
- * @method
- *
- * Print the actual and expected outputs.
- *
- * @param {Object} actual
- * @param {string} actual.raw
- * @param {string} actual.normal
- * @param {Object} expected
- * @param {string} expected.raw
- * @param {string} expected.normal
- * @param {Function} getDiff Returns a string showing the diff(s) for the test.
- * @param {Object} getDiff.actual
- * @param {Object} getDiff.expected
- * @return {string}
- */
-ParserTests.prototype.getActualExpected = function(actual, expected, getDiff) {
-	var returnStr = '';
-	returnStr += 'RAW EXPECTED'.cyan + ':\n';
-	returnStr += expected.raw + '\n';
-
-	returnStr += 'RAW RENDERED'.cyan + ':\n';
-	returnStr += actual.raw + '\n';
-
-	returnStr += 'NORMALIZED EXPECTED'.magenta + ':\n';
-	returnStr += expected.normal + '\n';
-
-	returnStr += 'NORMALIZED RENDERED'.magenta + ':\n';
-	returnStr += actual.normal + '\n';
-
-	returnStr += 'DIFF'.cyan + ':\n';
-	returnStr += getDiff(actual, expected);
-
-	return returnStr;
-};
-
-/**
- * @param {Object} actual
- * @param {string} actual.normal
- * @param {Object} expected
- * @param {string} expected.normal
- */
-ParserTests.prototype.getDiff = function(actual, expected) {
-	// safe to always request color diff, because we set color mode='none'
-	// if colors are turned off.
-	return Diff.htmlDiff(expected.normal, actual.normal, true);
-};
-
-/**
- * @param {string} title
- * @param {string} raw The raw output from the parser.
- */
-ParserTests.prototype.printWhitelistEntry = function(title, raw) {
-	console.log('WHITELIST ENTRY:'.cyan + '');
-	console.log('testWhiteList[' +
-		JSON.stringify(title) + '] = ' +
-		JSON.stringify(raw) + ';\n');
-};
-
-/**
- * @param {Function} reportFailure
- * @param {Function} reportSuccess
- * @param {string} title
- * @param {Object} time
- * @param {number} time.start
- * @param {number} time.end
- * @param {Array} comments
- * @param {Object|null} iopts Any options for the test (not options passed into the process)
- * @param {Object} expected
- * @param {Object} actual
- * @param {Object} options
- * @param {string} mode
- * @param {Object} item
- * @param {Function} pre
- * @param {Function} post
- */
-function printResult(reportFailure, reportSuccess, title, time, comments, iopts, expected, actual, options, mode, item, pre, post) {
-	var quick = booleanOption(options.quick);
-	var parsoidOnly =
-		('html/parsoid' in item) || (iopts.parsoid !== undefined);
-
-	if (mode === 'selser') {
-		title += ' ' + (item.changes ? JSON.stringify(item.changes) : 'manual');
-	}
-
-	var whitelist = false;
-	var tb = testBlackList[title];
-	var expectFail = (tb ? tb.modes : []).indexOf(mode) >= 0;
-	var fail = (expected.normal !== actual.normal);
-	// Return whether the test was as expected, independent of pass/fail
-	var asExpected;
-
-	if (fail &&
-		booleanOption(options.whitelist) &&
-		title in testWhiteList &&
-		DU.normalizeOut(DU.parseHTML(testWhiteList[title]).body, parsoidOnly) ===  actual.normal
-	) {
-		whitelist = true;
-		fail = false;
-	}
-
-	if (mode === 'wt2wt') {
-		item.wt2wtPassed = !fail;
-		item.wt2wtResult = actual.raw;
-	}
-
-	// don't report selser fails when nothing was changed or it's a dup
-	if (mode === 'selser' && (item.changes === 0 || item.duplicateChange)) {
-		return true;
-	}
-
-	if (typeof pre === 'function') {
-		pre(mode, title, time);
-	}
-
-	if (fail) {
-		asExpected = reportFailure(title, comments, iopts, options, actual, expected, expectFail, quick, mode, null, item);
-	} else {
-		asExpected = reportSuccess(title, options, mode, !expectFail, whitelist, item);
-	}
-
-	if (typeof post === 'function') {
-		post(mode);
-	}
-
-	return asExpected;
-}
-
-/**
  * @param {Object} item
  * @param {string} out
  * @param {Object} options
@@ -1413,7 +926,7 @@ ParserTests.prototype.checkHTML = function(item, out, options, mode) {
 	var expected = { normal: normalizedExpected, raw: item.html };
 	var actual = { normal: normalizedOut, raw: out, input: input };
 
-	return options.reportResult(item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item);
+	return options.reportResult(this.stats, item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item);
 };
 
 /**
@@ -1444,170 +957,18 @@ ParserTests.prototype.checkWikitext = function(item, out, options, mode) {
 	var expected = { normal: normalizedExpected, raw: itemWikitext };
 	var actual = { normal: normalizedOut, raw: out, input: input };
 
-	return options.reportResult(item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item);
-};
-
-/**
- * Print out a WikiDom conversion of the HTML DOM
- */
-ParserTests.prototype.printWikiDom = function(body) {
-	console.log('WikiDom'.cyan + ':');
-	console.log(body);
-};
-
-/**
- * @param {Array} modesRan
- * @param {Object} stats
- * @param {number} stats.failedTests Number of failed tests due to differences in output
- * @param {number} stats.passedTests Number of tests passed without any special consideration
- * @param {number} stats.passedTestsWhitelisted Number of tests passed by whitelisting
- * @param {Object} stats.modes All of the stats (failedTests, passedTests, and passedTestsWhitelisted) per-mode.
- */
-ParserTests.prototype.reportSummary = function(modesRan, stats) {
-	var curStr, mode, thisMode;
-	var failTotalTests = stats.failedTests;
-
-	console.log("==========================================================");
-	console.log("SUMMARY: ");
-	if (console.time && console.timeEnd) {
-		console.timeEnd('Execution time');
-	}
-
-	if (failTotalTests !== 0) {
-		for (var i = 0; i < modesRan.length; i++) {
-			mode = modesRan[i];
-			curStr = mode + ': ';
-			thisMode = stats.modes[mode];
-			curStr += colorizeCount(thisMode.passedTests + thisMode.passedTestsWhitelisted, 'green') + ' passed (';
-			curStr += colorizeCount(thisMode.passedTestsUnexpected, 'red') + ' unexpected, ';
-			curStr += colorizeCount(thisMode.passedTestsWhitelisted, 'yellow') + ' whitelisted) / ';
-			curStr += colorizeCount(thisMode.failedTests, 'red') + ' failed (';
-			curStr += colorizeCount(thisMode.failedTestsUnexpected, 'red') + ' unexpected)';
-			console.log(curStr);
-		}
-
-		curStr = 'TOTAL' + ': ';
-		curStr += colorizeCount(stats.passedTests + stats.passedTestsWhitelisted, 'green') + ' passed (';
-		curStr += colorizeCount(stats.passedTestsUnexpected, 'red') + ' unexpected, ';
-		curStr += colorizeCount(stats.passedTestsWhitelisted, 'yellow') + ' whitelisted) / ';
-		curStr += colorizeCount(stats.failedTests, 'red') + ' failed (';
-		curStr += colorizeCount(stats.failedTestsUnexpected, 'red') + ' unexpected)';
-		console.log(curStr);
-
-		console.log('\n');
-		console.log(colorizeCount(stats.passedTests + stats.passedTestsWhitelisted, 'green') +
-			' total passed tests (expected ' +
-			(stats.passedTests + stats.passedTestsWhitelisted - stats.passedTestsUnexpected + stats.failedTestsUnexpected) +
-			'), ' +
-			colorizeCount(failTotalTests , 'red') + ' total failures (expected ' +
-			(stats.failedTests - stats.failedTestsUnexpected + stats.passedTestsUnexpected) +
-			')');
-		if (stats.passedTestsUnexpected === 0 &&
-				stats.failedTestsUnexpected === 0) {
-			console.log('--> ' + 'NO UNEXPECTED RESULTS'.green + ' <--');
-		}
-	} else {
-		if (this.testFilter !== null) {
-			console.log("Passed " + (stats.passedTests + stats.passedTestsWhitelisted) +
-					" of " + stats.passedTests + " tests matching " + this.testFilter +
-					"... " + "ALL TESTS PASSED!".green);
-		} else {
-			// Should not happen if it does: Champagne!
-			console.log("Passed " + stats.passedTests + " of " + stats.passedTests +
-					" tests... " + "ALL TESTS PASSED!".green);
-		}
-	}
-
-	// If we logged error messages, complain about it.
-	var logMsg = 'No errors logged.'.green;
-	if (this.loggedErrorCount > 0) {
-		logMsg = (this.loggedErrorCount + " errors logged.").red;
-	}
-	console.log('--> ' + logMsg + ' <--');
-
-	console.log("==========================================================");
-
-	return (stats.passedTestsUnexpected + stats.failedTestsUnexpected + this.loggedErrorCount);
+	return options.reportResult(this.stats, item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item);
 };
 
 /**
  * @method
  * @param {Object} options
  */
-ParserTests.prototype.main = function(options, popts) {
-	if (options.help) {
-		popts.showHelp();
-		console.log("Additional dump options specific to parserTests script:");
-		console.log("* dom:post-changes  : Dumps DOM after applying selser changetree\n");
-		console.log("Examples");
-		console.log("$ node parserTests --selser --filter '...' --dump dom:post-changes");
-		console.log("$ node parserTests --selser --filter '...' --changetree '...' --dump dom:post-changes\n");
-		process.exit(0);
-	}
-	Util.setColorFlags(options);
-
-	if (!(options.wt2wt || options.wt2html || options.html2wt || options.html2html || options.selser)) {
-		options.wt2wt = true;
-		options.wt2html = true;
-		options.html2html = true;
-		options.html2wt = true;
-		if (booleanOption(options['rewrite-blacklist'])) {
-			// turn on all modes by default for --rewrite-blacklist
-			options.selser = true;
-			// sanity checking (bug 51448 asks to be able to use --filter here)
-			if (options.filter || options.regex || options.maxtests || options['exit-unexpected']) {
-				console.log("\nERROR> can't combine --rewrite-blacklist with --filter, --maxtests or --exit-unexpected");
-				process.exit(1);
-			}
-		}
-	}
-
-	if (typeof options.reportFailure !== 'function') {
-		// default failure reporting is standard out,
-		// see ParserTests::printFailure for documentation of the default.
-		options.reportFailure = this.printFailure.bind(this);
-	}
-
-	if (typeof options.reportSuccess !== 'function') {
-		// default success reporting is standard out,
-		// see ParserTests::printSuccess for documentation of the default.
-		options.reportSuccess = this.printSuccess.bind(this);
-	}
-
-	if (typeof options.reportStart !== 'function') {
-		// default summary reporting is standard out,
-		// see ParserTests::reportStart for documentation of the default.
-		options.reportStart = this.reportStartOfTests.bind(this);
-	}
-
-	if (typeof options.reportSummary !== 'function') {
-		// default summary reporting is standard out,
-		// see ParserTests::reportSummary for documentation of the default.
-		options.reportSummary = this.reportSummary.bind(this);
-	}
-
-	if (typeof options.reportResult !== 'function') {
-		// default result reporting is standard out,
-		// see printResult for documentation of the default.
-		options.reportResult = printResult.bind(this, options.reportFailure, options.reportSuccess);
-	}
-
-	if (typeof options.getDiff !== 'function') {
-		// this is the default for diff-getting, but it can be overridden
-		// see ParserTests::getDiff for documentation of the default.
-		options.getDiff = this.getDiff.bind(this);
-	}
-
-	if (typeof options.getActualExpected !== 'function') {
-		// this is the default for getting the actual and expected
-		// outputs, but it can be overridden
-		// see ParserTests::getActualExpected for documentation of the default.
-		options.getActualExpected = this.getActualExpected.bind(this);
-	}
+ParserTests.prototype.main = function(options) {
+	this.runDisabled = Util.booleanOption(options['run-disabled']);
+	this.runPHP = Util.booleanOption(options['run-php']);
 
 	// test case filtering
-	this.runDisabled = booleanOption(options['run-disabled']);
-	this.runPHP = booleanOption(options['run-php']);
 	this.testFilter = null; // null is the 'default' by definition
 	if (options.filter || options.regex) {
 		// NOTE: filter.toString() is required because a number-only arg
@@ -1706,7 +1067,7 @@ ParserTests.prototype.main = function(options, popts) {
 		console.assert(!err, (err && err.stack) || err);
 		this.env = env;
 
-		if (booleanOption(options.quiet)) {
+		if (Util.booleanOption(options.quiet)) {
 			var logger = new ParsoidLogger(env);
 			logger.registerLoggingBackends(["fatal", "error"], parsoidConfig);
 			env.setLogger(logger);
@@ -1736,23 +1097,6 @@ ParserTests.prototype.main = function(options, popts) {
 			};
 		})(this, env.setLogger);
 
-		options.modes = [];
-		if (options.wt2html) {
-			options.modes.push('wt2html');
-		}
-		if (options.wt2wt) {
-			options.modes.push('wt2wt');
-		}
-		if (options.html2wt) {
-			options.modes.push('html2wt');
-		}
-		if (options.html2html) {
-			options.modes.push('html2html');
-		}
-		if (options.selser) {
-			options.modes.push('selser');
-		}
-
 		if (console.time && console.timeEnd) {
 			console.time('Execution time');
 		}
@@ -1761,16 +1105,6 @@ ParserTests.prototype.main = function(options, popts) {
 		this.comments = [];
 		this.processCase(0, options);
 	}.bind(this));
-};
-
-/**
- * Simple function for reporting the start of the tests.
- *
- * This method can be reimplemented in the options of the ParserTests object.
- */
-ParserTests.prototype.reportStartOfTests = function() {
-	console.log('ParserTests running with node', process.version);
-	console.log('Initialization complete. Now launching tests.');
 };
 
 /**
@@ -2125,16 +1459,15 @@ ParserTests.prototype.processCase = function(i, options, err) {
 			setImmediate(nextCallback);
 		}
 	} else {
-
 		// update the blacklist, if requested
-		if (booleanOption(options['rewrite-blacklist'])) {
+		if (Util.booleanOption(options['rewrite-blacklist'])) {
 			var filename = __dirname + '/../tests/parserTests-blacklist.js';
 			var shell = fs.readFileSync(filename, 'utf8').
 				split(/^.*DO NOT REMOVE THIS LINE.*$/m);
 			var contents = shell[0];
 			contents += '// ### DO NOT REMOVE THIS LINE ### ';
 			contents += '(start of automatically-generated section)\n';
-			modes.forEach(function(mode) {
+			targetModes.forEach(function(mode) {
 				contents += '\n// Blacklist for ' + mode + '\n';
 				this.stats.modes[mode].failList.forEach(function(fail) {
 					contents += 'add(' + JSON.stringify(mode) + ', ' +
@@ -2152,7 +1485,7 @@ ParserTests.prototype.processCase = function(i, options, err) {
 
 		// Write updated tests from failed ones
 		if (options['update-tests'] ||
-				booleanOption(options['update-unexpected'])) {
+				Util.booleanOption(options['update-unexpected'])) {
 			var updateFormat = (options['update-tests'] === 'raw') ?
 					'raw' : 'actualNormalized';
 			var parserTestsFilename = __dirname + '/../tests/parserTests.txt';
@@ -2173,205 +1506,21 @@ ParserTests.prototype.processCase = function(i, options, err) {
 		// note: these stats won't necessarily be useful if someone
 		// reimplements the reporting methods, since that's where we
 		// increment the stats.
-		var failures = options.reportSummary(options.modes, this.stats);
+		var failures = options.reportSummary(options.modes, this.stats, this.loggedErrorCount, this.testFilter);
 
 		// we're done!
-		if (booleanOption(options['exit-zero'])) {
+		if (Util.booleanOption(options['exit-zero'])) {
 			failures = false;
 		}
 		process.exit(failures ? 2 : 0); // exit status 1 == uncaught exception
 	}
 };
 
-// Note: Wrapping the XML output stuff in its own private world
-// so it can have private counters and the like
-/**
- * @class XMLParserTestsRunner
- *
- * Place for XML functions for the parserTests output.
- *
- * @singleton
- * @private
- */
-var xmlFuncs = (function() {
-	var fail;
-	var pass;
-	var passWhitelist;
-
-	var results = {
-		html2html: '',
-		wt2wt: '',
-		wt2html: '',
-		html2wt: '',
-		selser: '',
-	};
-
-	/**
-	 * @method getActualExpectedXML
-	 *
-	 * Get the actual and expected outputs encoded for XML output.
-	 *
-	 * @inheritdoc ParserTests#getActualExpected.
-	 *
-	 * @return {string} The XML representation of the actual and expected outputs
-	 */
-	var getActualExpectedXML = function(actual, expected, getDiff) {
-		var returnStr = '';
-
-		returnStr += 'RAW EXPECTED:\n';
-		returnStr += DU.encodeXml(expected.raw) + '\n\n';
-
-		returnStr += 'RAW RENDERED:\n';
-		returnStr += DU.encodeXml(actual.raw) + '\n\n';
-
-		returnStr += 'NORMALIZED EXPECTED:\n';
-		returnStr += DU.encodeXml(expected.normal) + '\n\n';
-
-		returnStr += 'NORMALIZED RENDERED:\n';
-		returnStr += DU.encodeXml(actual.normal) + '\n\n';
-
-		returnStr += 'DIFF:\n';
-		returnStr += DU.encodeXml (getDiff(actual, expected, false));
-
-		return returnStr;
-	};
-
-	/**
-	 * @method reportStartXML
-	 *
-	 * Report the start of the tests output.
-	 */
-	var reportStartXML = function() {
-		console.log('<testsuites>');
-	};
-
-	/**
-	 * @method reportSummaryXML
-	 *
-	 * Report the end of the tests output.
-	 */
-	var reportSummaryXML = function(modesRan) {
-		for (var i = 0; i < modesRan.length; i++) {
-			var mode = modesRan[i];
-			console.log('<testsuite name="parserTests-' + mode + '" file="parserTests.txt">');
-			console.log(results[mode]);
-			console.log('</testsuite>');
-		}
-		console.log('</testsuites>');
-	};
-
-	/**
-	 * @method reportFailureXML
-	 *
-	 * Print a failure message for a test in XML.
-	 *
-	 * @inheritdoc ParserTests#printFailure
-	 */
-	var reportFailureXML = function(title, comments, iopts, options, actual, expected, expectFail, failureOnly, mode, error) {
-		fail++;
-
-		var failEle = '';
-		if (error) {
-			failEle += '<error type="somethingCrashedFail">\n';
-			failEle += error.toString();
-			failEle += '\n</error>';
-		} else {
-			var blacklisted = false;
-			if (booleanOption(options.blacklist) && expectFail) {
-				// compare with remembered output
-				blacklisted = !(mode === 'selser' && !options.changetree &&
-					testBlackList[title].raw !== actual.raw);
-			}
-			if (!blacklisted) {
-				failEle += '<failure type="parserTestsDifferenceInOutputFailure">\n';
-				failEle += getActualExpectedXML(actual, expected, options.getDiff);
-				failEle += '\n</failure>';
-			}
-		}
-		results[mode] += failEle;
-	};
-
-	/**
-	 * @method reportSuccessXML
-	 *
-	 * Print a success method for a test in XML.
-	 *
-	 * @inheritdoc ParserTests#printSuccess
-	 */
-	var reportSuccessXML = function(title, options, mode, expectSuccess, isWhitelist, item) {
-		if (isWhitelist) {
-			passWhitelist++;
-		} else {
-			pass++;
-		}
-	};
-
-	/**
-	 * @method reportResultXML
-	 *
-	 * Print the result of a test in XML.
-	 *
-	 * @inheritdoc printResult
-	 */
-	var reportResultXML = function() {
-
-		function pre(mode, title, time) {
-			var testcaseEle;
-			testcaseEle = '<testcase name="' + DU.encodeXml(title) + '" ';
-			testcaseEle += 'assertions="1" ';
-
-			var timeTotal;
-			if (time && time.end && time.start) {
-				timeTotal = time.end - time.start;
-				if (!isNaN(timeTotal)) {
-					testcaseEle += 'time="' + ((time.end - time.start) / 1000.0) + '"';
-				}
-			}
-
-			testcaseEle += '>';
-			results[mode] += testcaseEle;
-		}
-
-		function post(mode) {
-			results[mode] += '</testcase>\n';
-		}
-
-		var args = Array.prototype.slice.call(arguments);
-		args = [ reportFailureXML, reportSuccessXML ].concat(args, pre, post);
-		printResult.apply(this, args);
-
-		// In xml, test all cases always
-		return true;
-	};
-
-	return {
-		reportResult: reportResultXML,
-		reportStart: reportStartXML,
-		reportSummary: reportSummaryXML,
-		reportSuccess: reportSuccessXML,
-		reportFailure: reportFailureXML,
-	};
-})();
-
-// Construct the ParserTests object and run the parser tests
-var ptests = new ParserTests();
-var popts  = ptests.getOpts();
-var options = popts.argv;
-
-if (options.xml) {
-	options.reportResult = xmlFuncs.reportResult;
-	options.reportStart = xmlFuncs.reportStart;
-	options.reportSummary = xmlFuncs.reportSummary;
-	options.reportFailure = xmlFuncs.reportFailure;
-	colors.mode = 'none';
-}
-
-if (options.help) {
-	ptests.main(options, popts);
-}
-
 // Start the mock api server and kick off parser tests
-serviceWrapper.runServices({ skipParsoid: true }).then(function(ret) {
+serviceWrapper.runServices({ skipParsoid: true })
+.then(function(ret) {
 	mockAPIServerURL = ret.mockURL;
-	return ptests.main(options, popts);
+	var options = PTUtils.prepareOptions();
+	var ptests = new ParserTests(options.modes);
+	return ptests.main(options);
 }).done();
