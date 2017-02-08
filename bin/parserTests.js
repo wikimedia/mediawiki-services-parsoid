@@ -28,9 +28,6 @@ var ParserHook = ParsoidConfig.loadExtension(
 	path.resolve(__dirname, '../tests/parserTestsParserHook.js')
 );
 
-// Run a mock API in the background so we can request things from it
-var mockAPIServerURL;
-
 var exitUnexpected = new Error('unexpected failure');  // unique marker value
 
 /**
@@ -953,7 +950,7 @@ ParserTests.prototype.checkWikitext = function(item, out, options, mode) {
  * @method
  * @param {Object} options
  */
-ParserTests.prototype.main = Promise.method(function(options) {
+ParserTests.prototype.main = Promise.method(function(options, mockAPIServerURL) {
 	this.runDisabled = Util.booleanOption(options['run-disabled']);
 	this.runPHP = Util.booleanOption(options['run-php']);
 
@@ -1457,17 +1454,27 @@ ParserTests.prototype.processTest = function(item, options, nextCallback) {
 // Start the mock api server and kick off parser tests
 serviceWrapper.runServices({ skipParsoid: true })
 .then(function(ret) {
-	mockAPIServerURL = ret.mockURL;
 	var options = PTUtils.prepareOptions();
-	var testFilePath;
+	var testFilePaths;
 	if (options._[0]) {
-		testFilePath = path.resolve(process.cwd(), options._[0]);
+		testFilePaths = [path.resolve(process.cwd(), options._[0])];
 	} else {
-		testFilePath = path.join(__dirname, '../tests/parserTests.txt');
+		var testDir = path.join(__dirname, '../tests/');
+		var testFilesPath = path.join(testDir, 'parserTests.json');
+		var testFiles = require(testFilesPath);
+		testFilePaths = Object.keys(testFiles).map(function(f) {
+			return path.join(testDir, f);
+		});
 	}
-	var ptests = new ParserTests(testFilePath, options.modes);
-	return ptests.main(options)
-	.then(function(status) {
-		process.exit(status);
-	});
-}).done();
+	return Promise.reduce(testFilePaths, function(status, testFilePath) {
+		var ptests = new ParserTests(testFilePath, options.modes);
+		return ptests.main(options, ret.mockURL)
+		.then(function(s) {
+			return status + s;  // Add up the status codes
+		});
+	}, 0);
+})
+.then(function(status) {
+	process.exit(status);
+})
+.done();

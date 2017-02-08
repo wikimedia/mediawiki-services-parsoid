@@ -452,12 +452,14 @@ Bug 31374 regression check: nested strip items
 
 !! test
 Bug 13073 regression check: wrapped <references>
-!! input
+!! options
+parsoid={"suppressErrors": true}
+!! wikitext
 <ref>
 foo
 </ref>
 <div><references /></div>
-!! result
+!! html/*
 <p><sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
 </p>
 <div><ol class="references">

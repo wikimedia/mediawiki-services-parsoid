@@ -749,17 +749,18 @@ PTUtils.prepareOptions = function() {
 	}
 
 	options.modes = [];
+
 	if (options.wt2html) {
 		options.modes.push('wt2html');
 	}
 	if (options.wt2wt) {
 		options.modes.push('wt2wt');
 	}
-	if (options.html2wt) {
-		options.modes.push('html2wt');
-	}
 	if (options.html2html) {
 		options.modes.push('html2html');
+	}
+	if (options.html2wt) {
+		options.modes.push('html2wt');
 	}
 	if (options.selser) {
 		options.modes.push('selser');
